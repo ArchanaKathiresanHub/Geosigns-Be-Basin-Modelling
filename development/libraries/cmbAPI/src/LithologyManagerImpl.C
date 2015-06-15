@@ -423,6 +423,7 @@ ErrorHandler::ReturnCode LithologyManagerImpl::permeabilityModel( LithologyID   
       else if ( permModelName == "Shales"      ) prmModel = PermMudstone;
       else if ( permModelName == "Multipoint"  ) prmModel = PermMultipoint;
       else if ( permModelName == "Impermeable" ) prmModel = PermImpermeable;
+      else { throw Exception( UndefinedValue ) << "Unknown permeability model:" << permModelName; }
 
       // now extract parameters of the permeability model
       switch( prmModel )

@@ -65,6 +65,13 @@
     </member>
     <member kind="function">
       <type>ErrorHandler::ReturnCode</type>
+      <name>VaryCrustThinning</name>
+      <anchorfile>namespacecasa_1_1BusinessLogicRulesSet.html</anchorfile>
+      <anchor>ab903bbbad162159829b6da93a37d36aa</anchor>
+      <arglist>(ScenarioAnalysis &amp;sa, double minThickIni, double maxThickIni, const std::vector&lt; double &gt; &amp;minT0, const std::vector&lt; double &gt; &amp;maxT0, const std::vector&lt; double &gt; &amp;minDeltaT, const std::vector&lt; double &gt; &amp;maxDeltaT, const std::vector&lt; double &gt; &amp;minThinningFct, const std::vector&lt; double &gt; &amp;maxThinningFct, const std::vector&lt; std::string &gt; &amp;mapsList, VarPrmContinuous::PDF pdfType)</arglist>
+    </member>
+    <member kind="function">
+      <type>ErrorHandler::ReturnCode</type>
       <name>VaryPorosityModelParameters</name>
       <anchorfile>namespacecasa_1_1BusinessLogicRulesSet.html</anchorfile>
       <anchor>a128d13486810730ea07ceb5b45f0cffc</anchor>
@@ -218,6 +225,14 @@
     <namespace>casa</namespace>
   </compound>
   <compound kind="file">
+    <name>PrmCrustThinning.h</name>
+    <path>/scratch/nlskon/cld-dev/Trunk/development/libraries/casaAPI/src/</path>
+    <filename>PrmCrustThinning_8h</filename>
+    <includes id="Parameter_8h" name="Parameter.h" local="yes" imported="no">Parameter.h</includes>
+    <class kind="class">casa::PrmCrustThinning</class>
+    <namespace>casa</namespace>
+  </compound>
+  <compound kind="file">
     <name>PrmLithoSTPThermalCond.h</name>
     <path>/scratch/nlskon/cld-dev/Trunk/development/libraries/casaAPI/src/</path>
     <filename>PrmLithoSTPThermalCond_8h</filename>
@@ -321,6 +336,15 @@
     <filename>PrmSourceRockTOC_8h</filename>
     <includes id="Parameter_8h" name="Parameter.h" local="yes" imported="no">Parameter.h</includes>
     <class kind="class">casa::PrmSourceRockTOC</class>
+    <namespace>casa</namespace>
+  </compound>
+  <compound kind="file">
+    <name>PrmSourceRockType.h</name>
+    <path>/scratch/nlskon/cld-dev/Trunk/development/libraries/casaAPI/src/</path>
+    <filename>PrmSourceRockType_8h</filename>
+    <includes id="Parameter_8h" name="Parameter.h" local="yes" imported="no">Parameter.h</includes>
+    <includes id="VarPrmSourceRockType_8h" name="VarPrmSourceRockType.h" local="yes" imported="no">VarPrmSourceRockType.h</includes>
+    <class kind="class">casa::PrmSourceRockType</class>
     <namespace>casa</namespace>
   </compound>
   <compound kind="file">
@@ -430,6 +454,14 @@
     <namespace>casa</namespace>
   </compound>
   <compound kind="file">
+    <name>VarPrmCrustThinning.h</name>
+    <path>/scratch/nlskon/cld-dev/Trunk/development/libraries/casaAPI/src/</path>
+    <filename>VarPrmCrustThinning_8h</filename>
+    <includes id="VarPrmContinuous_8h" name="VarPrmContinuous.h" local="yes" imported="no">VarPrmContinuous.h</includes>
+    <class kind="class">casa::VarPrmCrustThinning</class>
+    <namespace>casa</namespace>
+  </compound>
+  <compound kind="file">
     <name>VarPrmDiscrete.h</name>
     <path>/scratch/nlskon/cld-dev/Trunk/development/libraries/casaAPI/src/</path>
     <filename>VarPrmDiscrete_8h</filename>
@@ -536,6 +568,11 @@
     <name>CASA_ClassHierachyPage</name>
     <title>CASA interface classes hierarchy description.</title>
     <filename>CASA_ClassHierachyPage</filename>
+  </compound>
+  <compound kind="page">
+    <name>CASA_CrustThinningPage</name>
+    <title>@endlink Crust thinning parameter based on a sequence of arbitrary number of thinning events</title>
+    <filename>CASA_CrustThinningPage</filename>
   </compound>
   <compound kind="page">
     <name>CASA_VarParametersAndObservablesPage</name>
@@ -726,6 +763,7 @@
     <class kind="class">casa::ObsValueDoubleScalar</class>
     <class kind="class">casa::Parameter</class>
     <class kind="struct">casa::ParetoSensitivityInfo</class>
+    <class kind="class">casa::PrmCrustThinning</class>
     <class kind="class">casa::PrmLithoSTPThermalCond</class>
     <class kind="class">casa::PrmOneCrustThinningEvent</class>
     <class kind="class">casa::PrmPermeabilityModel</class>
@@ -749,6 +787,7 @@
     <class kind="class">casa::VarParameter</class>
     <class kind="class">casa::VarPrmCategorical</class>
     <class kind="class">casa::VarPrmContinuous</class>
+    <class kind="class">casa::VarPrmCrustThinning</class>
     <class kind="class">casa::VarPrmDiscrete</class>
     <class kind="class">casa::VarPrmLithoSTPThermalCond</class>
     <class kind="class">casa::VarPrmOneCrustThinningEvent</class>
@@ -1374,6 +1413,13 @@
       <anchor>a8691ee75a27bcf2c332cd0dd5ffe4ad4</anchor>
       <arglist></arglist>
     </member>
+    <member kind="variable" protection="protected">
+      <type>bool</type>
+      <name>m_clearSnapshots</name>
+      <anchorfile>classcasa_1_1CauldronApp.html</anchorfile>
+      <anchor>a3e79604ca412f2bd7f91ae1d22471522</anchor>
+      <arglist></arglist>
+    </member>
   </compound>
   <compound kind="class">
     <name>casa::DataDigger</name>
@@ -1849,6 +1895,13 @@
       <anchor>a0af7863d52c62280dee93ee2d030044a</anchor>
       <arglist>(mbapi::Model &amp;caldModel)=0</arglist>
     </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual std::string</type>
+      <name>checkObservableForProject</name>
+      <anchorfile>classcasa_1_1Observable.html</anchorfile>
+      <anchor>a7a298d867c55ea2a2ecbf58a21b91bc8</anchor>
+      <arglist>(mbapi::Model &amp;caldModel)</arglist>
+    </member>
     <member kind="function" virtualness="pure">
       <type>virtual ObsValue *</type>
       <name>createNewObsValueFromDouble</name>
@@ -1978,6 +2031,13 @@
       <name>getFromModel</name>
       <anchorfile>classcasa_1_1ObsGridPropertyWell.html</anchorfile>
       <anchor>ad850b458c987cb8442af33f2145abe57</anchor>
+      <arglist>(mbapi::Model &amp;caldModel)</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual std::string</type>
+      <name>checkObservableForProject</name>
+      <anchorfile>classcasa_1_1ObsGridPropertyWell.html</anchorfile>
+      <anchor>a969399939cbe0714eef9489902e99915</anchor>
       <arglist>(mbapi::Model &amp;caldModel)</arglist>
     </member>
     <member kind="function" virtualness="virtual">
@@ -2200,6 +2260,13 @@
       <name>getFromModel</name>
       <anchorfile>classcasa_1_1ObsGridPropertyXYZ.html</anchorfile>
       <anchor>ad7a8e31a7b1da4339e8443918c94e9e6</anchor>
+      <arglist>(mbapi::Model &amp;caldModel)</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual std::string</type>
+      <name>checkObservableForProject</name>
+      <anchorfile>classcasa_1_1ObsGridPropertyXYZ.html</anchorfile>
+      <anchor>ac69f9bff704b2204cf051b606735adcc</anchor>
       <arglist>(mbapi::Model &amp;caldModel)</arglist>
     </member>
     <member kind="function" virtualness="virtual">
@@ -2670,6 +2737,13 @@
       <name>getFromModel</name>
       <anchorfile>classcasa_1_1ObsTrapProp.html</anchorfile>
       <anchor>a988445a7eeb028e62e95a9af415b86b9</anchor>
+      <arglist>(mbapi::Model &amp;caldModel)</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual std::string</type>
+      <name>checkObservableForProject</name>
+      <anchorfile>classcasa_1_1ObsTrapProp.html</anchorfile>
+      <anchor>a4e5a7f93512461778a7de9ab938f034b</anchor>
       <arglist>(mbapi::Model &amp;caldModel)</arglist>
     </member>
     <member kind="function" virtualness="virtual">
@@ -3164,6 +3238,123 @@
       <anchorfile>structcasa_1_1ParetoSensitivityInfo.html</anchorfile>
       <anchor>a0b0773959f30c92bdfda7f67faac90d0</anchor>
       <arglist></arglist>
+    </member>
+  </compound>
+  <compound kind="class">
+    <name>casa::PrmCrustThinning</name>
+    <filename>classcasa_1_1PrmCrustThinning.html</filename>
+    <base>casa::Parameter</base>
+    <member kind="function">
+      <type></type>
+      <name>PrmCrustThinning</name>
+      <anchorfile>classcasa_1_1PrmCrustThinning.html</anchorfile>
+      <anchor>a0d5325274bd72f803724560a18377da6</anchor>
+      <arglist>(mbapi::Model &amp;mdl)</arglist>
+    </member>
+    <member kind="function">
+      <type></type>
+      <name>PrmCrustThinning</name>
+      <anchorfile>classcasa_1_1PrmCrustThinning.html</anchorfile>
+      <anchor>aebc020c884f537a53954034431605e6d</anchor>
+      <arglist>(const VarPrmCrustThinning *parent, const std::vector&lt; double &gt; &amp;prmValues, const std::vector&lt; std::string &gt; &amp;mapsList)</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual</type>
+      <name>~PrmCrustThinning</name>
+      <anchorfile>classcasa_1_1PrmCrustThinning.html</anchorfile>
+      <anchor>a8f700bd63bcb6afb529550921d9fa2c8</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual const char *</type>
+      <name>name</name>
+      <anchorfile>classcasa_1_1PrmCrustThinning.html</anchorfile>
+      <anchor>ac74da7485155dc505dfdaef9fd696c1e</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual const VarParameter *</type>
+      <name>parent</name>
+      <anchorfile>classcasa_1_1PrmCrustThinning.html</anchorfile>
+      <anchor>a7262a2f7759776cc18014ce70c0dfd38</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function">
+      <type>std::vector&lt; std::string &gt;</type>
+      <name>getMapsList</name>
+      <anchorfile>classcasa_1_1PrmCrustThinning.html</anchorfile>
+      <anchor>a5c1159ac0563b2c6043bc0e94374514e</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function">
+      <type>size_t</type>
+      <name>numberOfEvents</name>
+      <anchorfile>classcasa_1_1PrmCrustThinning.html</anchorfile>
+      <anchor>a1c395c26ba675f1e3d344e3c6c6d6e54</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual ErrorHandler::ReturnCode</type>
+      <name>setInModel</name>
+      <anchorfile>classcasa_1_1PrmCrustThinning.html</anchorfile>
+      <anchor>ab5983e6c21e31fa1053cd228e62af7db</anchor>
+      <arglist>(mbapi::Model &amp;caldModel)</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual std::string</type>
+      <name>validate</name>
+      <anchorfile>classcasa_1_1PrmCrustThinning.html</anchorfile>
+      <anchor>af47c87daa098d2fee0968b8818e412d7</anchor>
+      <arglist>(mbapi::Model &amp;caldModel)</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual std::vector&lt; double &gt;</type>
+      <name>asDoubleArray</name>
+      <anchorfile>classcasa_1_1PrmCrustThinning.html</anchorfile>
+      <anchor>a185be868b9275c302cc451f2b4e016df</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual int</type>
+      <name>asInteger</name>
+      <anchorfile>classcasa_1_1PrmCrustThinning.html</anchorfile>
+      <anchor>aa647fc5a440884267ee6d78f2286ddfe</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual bool</type>
+      <name>operator==</name>
+      <anchorfile>classcasa_1_1PrmCrustThinning.html</anchorfile>
+      <anchor>aa3c1f8362c372cda0927fb99268660a6</anchor>
+      <arglist>(const Parameter &amp;prm) const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual unsigned int</type>
+      <name>version</name>
+      <anchorfile>classcasa_1_1PrmCrustThinning.html</anchorfile>
+      <anchor>ad2991eb5e4fb0cea7677b682c9b50fc9</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual bool</type>
+      <name>save</name>
+      <anchorfile>classcasa_1_1PrmCrustThinning.html</anchorfile>
+      <anchor>a3c16afed6de4f99de57dbb34dc3f7e9e</anchor>
+      <arglist>(CasaSerializer &amp;sz, unsigned int version) const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual const char *</type>
+      <name>typeName</name>
+      <anchorfile>classcasa_1_1PrmCrustThinning.html</anchorfile>
+      <anchor>aa69340e702a7c15d1bad038ff9f08360</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function">
+      <type></type>
+      <name>PrmCrustThinning</name>
+      <anchorfile>classcasa_1_1PrmCrustThinning.html</anchorfile>
+      <anchor>a8aec809177153af97f946d2264f6663c</anchor>
+      <arglist>(CasaDeserializer &amp;dz, unsigned int objVer)</arglist>
     </member>
   </compound>
   <compound kind="class">
@@ -6087,6 +6278,67 @@
     </member>
   </compound>
   <compound kind="class">
+    <name>casa::VarPrmCrustThinning</name>
+    <filename>classcasa_1_1VarPrmCrustThinning.html</filename>
+    <base>casa::VarPrmContinuous</base>
+    <member kind="function">
+      <type></type>
+      <name>VarPrmCrustThinning</name>
+      <anchorfile>classcasa_1_1VarPrmCrustThinning.html</anchorfile>
+      <anchor>a713433441fff581a82721fee49b2f429</anchor>
+      <arglist>(const std::vector&lt; double &gt; &amp;basePrmValues, const std::vector&lt; double &gt; &amp;minPrmValues, const std::vector&lt; double &gt; &amp;maxPrmValues, const std::vector&lt; std::string &gt; &amp;mapsList, PDF prmPDF)</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual std::vector&lt; std::string &gt;</type>
+      <name>name</name>
+      <anchorfile>classcasa_1_1VarPrmCrustThinning.html</anchorfile>
+      <anchor>ae14868f22ae1ae658f7fd25bb0a11e64</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual size_t</type>
+      <name>dimension</name>
+      <anchorfile>classcasa_1_1VarPrmCrustThinning.html</anchorfile>
+      <anchor>a5f112be337e157708ff8dfaff97c2ea1</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual SharedParameterPtr</type>
+      <name>newParameterFromDoubles</name>
+      <anchorfile>classcasa_1_1VarPrmCrustThinning.html</anchorfile>
+      <anchor>a4b10af9ff1c0e59723a34ceada06e952</anchor>
+      <arglist>(std::vector&lt; double &gt;::const_iterator &amp;vals) const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual unsigned int</type>
+      <name>version</name>
+      <anchorfile>classcasa_1_1VarPrmCrustThinning.html</anchorfile>
+      <anchor>a3a666562134f5fdbe42aca5154b2d81b</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual const char *</type>
+      <name>typeName</name>
+      <anchorfile>classcasa_1_1VarPrmCrustThinning.html</anchorfile>
+      <anchor>a11d960b02a3c158a72b45df62873cf18</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual bool</type>
+      <name>save</name>
+      <anchorfile>classcasa_1_1VarPrmCrustThinning.html</anchorfile>
+      <anchor>a53f8e9e21ebaa74de719fe0437f725a3</anchor>
+      <arglist>(CasaSerializer &amp;sz, unsigned int version) const </arglist>
+    </member>
+    <member kind="function">
+      <type></type>
+      <name>VarPrmCrustThinning</name>
+      <anchorfile>classcasa_1_1VarPrmCrustThinning.html</anchorfile>
+      <anchor>a6270fb2e34a22ecb3e56ece78e3cfe31</anchor>
+      <arglist>(CasaDeserializer &amp;dz, unsigned int objVer)</arglist>
+    </member>
+  </compound>
+  <compound kind="class">
     <name>casa::VarPrmDiscrete</name>
     <filename>classcasa_1_1VarPrmDiscrete.html</filename>
     <base>casa::VarParameter</base>
@@ -7037,6 +7289,13 @@
       <anchorfile>namespacecasa_1_1BusinessLogicRulesSet.html</anchorfile>
       <anchor>a6a97b95673dc1e879056f95b07106c18</anchor>
       <arglist>(ScenarioAnalysis &amp;sa, double minThickIni, double maxThickIni, double minT0, double maxT0, double minDeltaT, double maxDeltaT, double minThinningFct, double maxThinningFct, VarPrmContinuous::PDF pdfType)</arglist>
+    </member>
+    <member kind="function">
+      <type>ErrorHandler::ReturnCode</type>
+      <name>VaryCrustThinning</name>
+      <anchorfile>namespacecasa_1_1BusinessLogicRulesSet.html</anchorfile>
+      <anchor>ab903bbbad162159829b6da93a37d36aa</anchor>
+      <arglist>(ScenarioAnalysis &amp;sa, double minThickIni, double maxThickIni, const std::vector&lt; double &gt; &amp;minT0, const std::vector&lt; double &gt; &amp;maxT0, const std::vector&lt; double &gt; &amp;minDeltaT, const std::vector&lt; double &gt; &amp;maxDeltaT, const std::vector&lt; double &gt; &amp;minThinningFct, const std::vector&lt; double &gt; &amp;maxThinningFct, const std::vector&lt; std::string &gt; &amp;mapsList, VarPrmContinuous::PDF pdfType)</arglist>
     </member>
     <member kind="function">
       <type>ErrorHandler::ReturnCode</type>

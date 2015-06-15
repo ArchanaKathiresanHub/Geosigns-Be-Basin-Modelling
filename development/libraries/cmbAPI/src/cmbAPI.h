@@ -128,6 +128,14 @@ namespace mbapi {
       /// @param propName name of the column
       /// @param propValue value to be set in the table
       /// @return ErrorHandler::NoError on success, error code otherwise
+      ErrorHandler::ReturnCode setTableValue( const std::string & tableName, size_t rowNumber, const std::string & propName, int propValue );
+
+      /// @brief Set value in the table
+      /// @param tableName name of the table in project file
+      /// @param rowNumber row number in the table
+      /// @param propName name of the column
+      /// @param propValue value to be set in the table
+      /// @return ErrorHandler::NoError on success, error code otherwise
       ErrorHandler::ReturnCode setTableValue( const std::string & tableName, size_t rowNumber, const std::string & propName, double propValue );
 
       /// @brief Set value in the table

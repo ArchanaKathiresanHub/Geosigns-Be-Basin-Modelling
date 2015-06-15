@@ -116,15 +116,22 @@
       <type>size_t</type>
       <name>size</name>
       <anchorfile>classibs_1_1Path.html</anchorfile>
-      <anchor>a7e1fe6339927cf747915ea338b2cdec4</anchor>
-      <arglist>()</arglist>
+      <anchor>a8b8cfa2ddfcaa53c9c302e0c9da24854</anchor>
+      <arglist>() const </arglist>
     </member>
     <member kind="function">
       <type>std::string</type>
       <name>operator[]</name>
       <anchorfile>classibs_1_1Path.html</anchorfile>
-      <anchor>aa39fb7179c7b386157d83712b99f6a60</anchor>
-      <arglist>(size_t i)</arglist>
+      <anchor>acc8f96a3a0bd9b1aeee328a60f756013</anchor>
+      <arglist>(size_t i) const </arglist>
+    </member>
+    <member kind="function">
+      <type>Path</type>
+      <name>fullPath</name>
+      <anchorfile>classibs_1_1Path.html</anchorfile>
+      <anchor>a60747e1c2dfd3d78c11ef47ceb085c3d</anchor>
+      <arglist>() const </arglist>
     </member>
     <member kind="function">
       <type>Path &amp;</type>

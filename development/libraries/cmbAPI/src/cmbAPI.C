@@ -62,6 +62,7 @@ public:
    double      tableValueAsDouble(  const std::string & tableName, size_t rowNumber, const std::string & propName );
    std::string tableValueAsString(  const std::string & tableName, size_t rowNumber, const std::string & propName );
    
+   void        setTableIntegerValue( const std::string & tableName, size_t rowNumber, const std::string & propName, int propValue );
    void        setTableDoubleValue( const std::string & tableName, size_t rowNumber, const std::string & propName, double propValue );
    void        setTableStringValue( const std::string & tableName, size_t rowNumber, const std::string & propName, const std::string & propValue );
    
@@ -154,6 +155,18 @@ std::string Model::tableValueAsString( const std::string & tableName, size_t row
    catch ( ... ) { this->ErrorHandler::reportError( UnknownError, "Unknown error" ); }
 
    return UndefinedStringValue;
+}
+
+// Set value in the table
+ErrorHandler::ReturnCode Model::setTableValue( const std::string & tableName, size_t rowNumber, const std::string & propName, int propValue )
+{
+   if ( errorCode() != NoError ) resetError(); // clean any previous error
+
+   try { m_pimpl->setTableIntegerValue( tableName, rowNumber, propName, propValue ); }
+   catch ( const ErrorHandler::Exception & ex ) { return this->ErrorHandler::reportError( ex.errorCode(), ex.what( ) ); }
+   catch ( ... ) { return this->ErrorHandler::reportError( UnknownError, "Unknown error" ); }
+
+   return NoError;
 }
 
 // Set value in the table
@@ -358,6 +371,33 @@ std::string Model::ModelImpl::tableValueAsString( const std::string & tableName,
       throw ErrorHandler::Exception( UndefinedValue ) << tableName << "(" << propName << ") - data type can't be cast to string";
    }
    return UndefinedStringValue;
+}
+
+void Model::ModelImpl::setTableIntegerValue( const std::string & tableName, size_t rowNumber, const std::string & propName, int propValue )
+{
+   // get pointer to the table
+   database::Table * table = m_projHandle->getDataBase()->getTable( tableName );
+
+   // if table does not exist - report error
+   if (                     !table ) throw ErrorHandler::Exception( UndefinedValue ) << tableName << " table could not be found in project";
+   if ( table->size( ) < rowNumber ) throw ErrorHandler::Exception( UndefinedValue ) << tableName << " size is less then requested row number";
+
+   database::Record * record = table->getRecord( static_cast<int>( rowNumber ) );
+   if ( !record ) throw ErrorHandler::Exception( UndefinedValue ) << tableName << " does not have any records";
+
+   const database::TableDefinition & tblDef = record->getTableDefinition();
+   int ind = tblDef.getIndex( propName );
+
+   if ( ind < 0 ) throw ErrorHandler::Exception( UndefinedValue ) << propName << " - unknown column name in the table " << tableName;
+
+   datatype::DataType dt = tblDef.getFieldDefinition( ind )->dataType();
+   switch ( dt )
+   {
+   case datatype::Int:  record->setValue<int>( ind, propValue );                        break;
+   case datatype::Long: record->setValue<long>( ind, static_cast<float>( propValue ) );  break;
+   default:
+      throw ErrorHandler::Exception( UndefinedValue ) << tableName << "(" << propName << ") - data type can't be cast to integer value";
+   }
 }
 
 
