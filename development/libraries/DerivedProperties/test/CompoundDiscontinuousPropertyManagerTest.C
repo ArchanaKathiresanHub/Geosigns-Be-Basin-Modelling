@@ -206,9 +206,9 @@ TEST ( AbstractPropertyManagerTest,  Test3 )
 {
    TestPropertyManager propertyManager;
 
-   const DataModel::AbstractProperty* property1 = propertyManager.getProperty ( "Property1" );
-   const DataModel::AbstractProperty* property2 = propertyManager.getProperty ( "Property2" );
-   const DataModel::AbstractProperty* property3 = propertyManager.getProperty ( "Property3" );
+   const DataModel::AbstractProperty* property1 = propertyManager.getProperty ( "Property1f" );
+   const DataModel::AbstractProperty* property2 = propertyManager.getProperty ( "Property2f" );
+   const DataModel::AbstractProperty* property3 = propertyManager.getProperty ( "Property3f" );
 
    const DataModel::AbstractSnapshot*  snapshot = new MockSnapshot ( 0.0 );
    const DataModel::AbstractSurface*   surface = new MockSurface ( "TopSurface" );
@@ -267,13 +267,13 @@ TEST ( AbstractPropertyManagerTest,  Test4 )
 {
    TestPropertyManager propertyManager;
 
-   const DataModel::AbstractProperty* property1 = propertyManager.getProperty ( "Property1" );
-   const DataModel::AbstractProperty* property2 = propertyManager.getProperty ( "Property2" );
-   const DataModel::AbstractProperty* property3 = propertyManager.getProperty ( "Property3" );
+   const DataModel::AbstractProperty* property1 = propertyManager.getProperty ( "Property1f" );
+   const DataModel::AbstractProperty* property2 = propertyManager.getProperty ( "Property2f" );
+   const DataModel::AbstractProperty* property3 = propertyManager.getProperty ( "Property3f" );
 
    const DataModel::AbstractSnapshot*  snapshot = new MockSnapshot ( 0.0 );
-   const DataModel::AbstractSurface*   surface = new MockSurface ( "TopSurface" );
-   const DataModel::AbstractFormation* formation = new MockFormation ( "Formation1" );
+   const DataModel::AbstractFormation* formation = new MockFormation ( "Formation1", "TopSurface", "BottomSurface" );
+   const DataModel::AbstractSurface*   surface = new MockSurface ( "TopSurface", 0, formation );
 
    FormationSurfacePropertyPtr formationProperty2 = propertyManager.getFormationSurfaceProperty ( property2, snapshot, formation, surface );
    FormationSurfacePropertyPtr formationProperty1 = propertyManager.getFormationSurfaceProperty ( property1, snapshot, formation, surface );
@@ -318,9 +318,14 @@ TEST ( AbstractPropertyManagerTest,  Test4 )
 
 TestPropertyManager::TestPropertyManager () {
    // These will come from the project handle.
-   m_mockProperties.push_back ( new DataModel::MockProperty ( "Property1", DataModel::DISCONTINUOUS_3D_PROPERTY ) );
-   m_mockProperties.push_back ( new DataModel::MockProperty ( "Property2", DataModel::DISCONTINUOUS_3D_PROPERTY ) );
-   m_mockProperties.push_back ( new DataModel::MockProperty ( "Property3", DataModel::DISCONTINUOUS_3D_PROPERTY ) );
+
+   m_mockProperties.push_back ( new DataModel::MockProperty ( "Property1f", DataModel::DISCONTINUOUS_3D_PROPERTY ) );
+   m_mockProperties.push_back ( new DataModel::MockProperty ( "Property2f", DataModel::DISCONTINUOUS_3D_PROPERTY ) );
+   m_mockProperties.push_back ( new DataModel::MockProperty ( "Property3f", DataModel::DISCONTINUOUS_3D_PROPERTY ) );
+
+   m_mockProperties.push_back ( new DataModel::MockProperty ( "Property1fm", DataModel::FORMATION_2D_PROPERTY ));
+   m_mockProperties.push_back ( new DataModel::MockProperty ( "Property2fm", DataModel::FORMATION_2D_PROPERTY ));
+   m_mockProperties.push_back ( new DataModel::MockProperty ( "Property3fm", DataModel::FORMATION_2D_PROPERTY ));
 
    // Add all properties to the property manager.
    for ( size_t i = 0; i < m_mockProperties.size (); ++i ) {
@@ -330,8 +335,8 @@ TestPropertyManager::TestPropertyManager () {
    // This will come frmo the project handle.
    m_mapGrid = new DataModel::MockGrid ( 0, 0, 0, 0, 10, 10, 10, 10 );
 
-   addSurfacePropertyCalculator ( SurfacePropertyCalculatorPtr ( new SurfaceProperty1Calculator ));
-   addSurfacePropertyCalculator ( SurfacePropertyCalculatorPtr ( new SurfaceProperty2Calculator ( ValueToAdd )));
+   // addSurfacePropertyCalculator ( SurfacePropertyCalculatorPtr ( new SurfaceProperty1Calculator ));
+   // addSurfacePropertyCalculator ( SurfacePropertyCalculatorPtr ( new SurfaceProperty2Calculator ( ValueToAdd )));
 
    addFormationMapPropertyCalculator ( FormationMapPropertyCalculatorPtr ( new FormationMapProperty1Calculator ));
    addFormationMapPropertyCalculator ( FormationMapPropertyCalculatorPtr ( new FormationMapProperty2Calculator ( ValueToAdd )));
@@ -339,8 +344,8 @@ TestPropertyManager::TestPropertyManager () {
    addFormationPropertyCalculator ( FormationPropertyCalculatorPtr ( new FormationProperty1Calculator ));
    addFormationPropertyCalculator ( FormationPropertyCalculatorPtr ( new FormationProperty2Calculator ( ValueToAdd )));
 
-   addFormationSurfacePropertyCalculator ( FormationSurfacePropertyCalculatorPtr ( new FormationSurfaceProperty1Calculator ));
-   addFormationSurfacePropertyCalculator ( FormationSurfacePropertyCalculatorPtr ( new FormationSurfaceProperty2Calculator ( ValueToAdd )));
+   // addFormationSurfacePropertyCalculator ( FormationSurfacePropertyCalculatorPtr ( new FormationSurfaceProperty1Calculator ));
+   // addFormationSurfacePropertyCalculator ( FormationSurfacePropertyCalculatorPtr ( new FormationSurfaceProperty2Calculator ( ValueToAdd )));
 
 
 }
@@ -455,7 +460,7 @@ void SurfaceProperty2Calculator::calculate ( DerivedProperties::AbstractProperty
 
 
 FormationMapProperty1Calculator::FormationMapProperty1Calculator () {
-   addPropertyName ( "Property1" );
+   addPropertyName ( "Property1fm" );
 }
 
 void FormationMapProperty1Calculator::calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
@@ -463,7 +468,7 @@ void FormationMapProperty1Calculator::calculate ( DerivedProperties::AbstractPro
                                                   const DataModel::AbstractFormation*         formation,
                                                         FormationMapPropertyList&             derivedProperties ) const {
 
-   const DataModel::AbstractProperty* property = propertyManager.getProperty ( "Property1" );
+   const DataModel::AbstractProperty* property = propertyManager.getProperty ( "Property1fm" );
 
    DerivedFormationMapPropertyPtr derivedProp = DerivedFormationMapPropertyPtr ( new DerivedProperties::DerivedFormationMapProperty ( property, snapshot, formation, propertyManager.getMapGrid ()));
    double value = 0.0;
@@ -483,8 +488,8 @@ void FormationMapProperty1Calculator::calculate ( DerivedProperties::AbstractPro
 }
 
 FormationMapProperty2Calculator::FormationMapProperty2Calculator ( const double value ) : m_value ( value ) {
-   addPropertyName ( "Property2" );
-   addPropertyName ( "Property3" );
+   addPropertyName ( "Property2fm" );
+   addPropertyName ( "Property3fm" );
 }
 
 void FormationMapProperty2Calculator::calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
@@ -492,9 +497,9 @@ void FormationMapProperty2Calculator::calculate ( DerivedProperties::AbstractPro
                                                   const DataModel::AbstractFormation*         formation,
                                                         FormationMapPropertyList&             derivedProperties ) const {
 
-   const DataModel::AbstractProperty* property1 = propertyManager.getProperty ( "Property1" );
-   const DataModel::AbstractProperty* property2 = propertyManager.getProperty ( "Property2" );
-   const DataModel::AbstractProperty* property3 = propertyManager.getProperty ( "Property3" );
+   const DataModel::AbstractProperty* property1 = propertyManager.getProperty ( "Property1fm" );
+   const DataModel::AbstractProperty* property2 = propertyManager.getProperty ( "Property2fm" );
+   const DataModel::AbstractProperty* property3 = propertyManager.getProperty ( "Property3fm" );
 
    const FormationMapPropertyPtr prop1 = propertyManager.getFormationMapProperty ( property1, snapshot, formation );
 
@@ -521,7 +526,7 @@ void FormationMapProperty2Calculator::calculate ( DerivedProperties::AbstractPro
 
 
 FormationProperty1Calculator::FormationProperty1Calculator () {
-   addPropertyName ( "Property1" );
+   addPropertyName ( "Property1f" );
 }
 
 void FormationProperty1Calculator::calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
@@ -529,7 +534,7 @@ void FormationProperty1Calculator::calculate ( DerivedProperties::AbstractProper
                                                   const DataModel::AbstractFormation*      formation,
                                                         FormationPropertyList&             derivedProperties ) const {
 
-   const DataModel::AbstractProperty* property = propertyManager.getProperty ( "Property1" );
+   const DataModel::AbstractProperty* property = propertyManager.getProperty ( "Property1f" );
 
    DerivedFormationPropertyPtr derivedProp = DerivedFormationPropertyPtr ( new DerivedProperties::DerivedFormationProperty ( property, snapshot, formation, propertyManager.getMapGrid (), 10 ));
    double value = 0.0;
@@ -553,8 +558,8 @@ void FormationProperty1Calculator::calculate ( DerivedProperties::AbstractProper
 }
 
 FormationProperty2Calculator::FormationProperty2Calculator ( const double value ) : m_value ( value ) {
-   addPropertyName ( "Property2" );
-   addPropertyName ( "Property3" );
+   addPropertyName ( "Property2f" );
+   addPropertyName ( "Property3f" );
 }
 
 void FormationProperty2Calculator::calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
@@ -562,9 +567,9 @@ void FormationProperty2Calculator::calculate ( DerivedProperties::AbstractProper
                                                   const DataModel::AbstractFormation*      formation,
                                                         FormationPropertyList&             derivedProperties ) const {
 
-   const DataModel::AbstractProperty* property1 = propertyManager.getProperty ( "Property1" );
-   const DataModel::AbstractProperty* property2 = propertyManager.getProperty ( "Property2" );
-   const DataModel::AbstractProperty* property3 = propertyManager.getProperty ( "Property3" );
+   const DataModel::AbstractProperty* property1 = propertyManager.getProperty ( "Property1f" );
+   const DataModel::AbstractProperty* property2 = propertyManager.getProperty ( "Property2f" );
+   const DataModel::AbstractProperty* property3 = propertyManager.getProperty ( "Property3f" );
 
    const FormationPropertyPtr prop1 = propertyManager.getFormationProperty ( property1, snapshot, formation );
 
