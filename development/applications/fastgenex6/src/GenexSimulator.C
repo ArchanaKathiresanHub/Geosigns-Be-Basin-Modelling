@@ -29,6 +29,7 @@ using namespace GenexSimulation;
 #include "Interface/SourceRock.h"
 #include "Interface/Property.h"
 #include "Interface/PropertyValue.h"
+#include "Interface/SimulationDetails.h"
 using namespace DataAccess;
 
 #include "ComponentManager.h"
@@ -87,9 +88,22 @@ bool GenexSimulator::run()
    
    if (!started) return false;
    
-   started =  GeoPhysics::ProjectHandle::initialise ( );
+   const Interface::SimulationDetails* simulationDetails = getDetailsOfLastSimulation ( "fastcauldron" );
+
+   bool coupledCalculation = simulationDetails != 0 and ( simulationDetails->getSimulatorMode () == "CoupledPressureAndTemperature" or
+                                                          simulationDetails->getSimulatorMode () == "CoupledHighResDecompaction" or
+                                                          simulationDetails->getSimulatorMode () == "LooselyCoupledTemperature" or
+                                                          simulationDetails->getSimulatorMode () == "CoupledDarcy" );
+
+   started =  GeoPhysics::ProjectHandle::initialise ( coupledCalculation );
    if (!started) return false;
-   setFormationLithologies ( false, true ); 
+
+   started = setFormationLithologies ( false, true ); 
+   if (!started) return false;
+
+   started = initialiseLayerThicknessHistory ( coupledCalculation );
+   if (!started) return false;
+
    setRequestedOutputProperties();
    
    bool useFormationName = false;

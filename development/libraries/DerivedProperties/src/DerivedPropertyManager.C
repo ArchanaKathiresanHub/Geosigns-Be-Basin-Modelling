@@ -58,23 +58,128 @@ const DataAccess::Interface::Grid* DerivedProperties::DerivedPropertyManager::ge
    return m_projectHandle->getActivityOutputGrid ();
 }
 
+bool DerivedProperties::DerivedPropertyManager::canAddDerivedFormationPropertyCalculator ( const FormationPropertyCalculatorPtr& formationPropertyCalculator) const {
+
+   const std::vector<std::string>& propertyNames = formationPropertyCalculator->getPropertyNames ();
+
+   for ( size_t i = 0; i < propertyNames.size (); ++i ) {
+
+      // If any of the properties computed by the calculator are not currently computable then 
+      // the calculator need to be added to the list of calculators.
+      if ( not formationPropertyIsComputable ( getProperty ( propertyNames [ i ]))) {
+         return true;
+      }
+
+   }
+
+   return false;
+}
+
+bool DerivedProperties::DerivedPropertyManager::canAddDerivedFormationMapPropertyCalculator ( const FormationMapPropertyCalculatorPtr& formationMapPropertyCalculator) const {
+
+   const std::vector<std::string>& propertyNames = formationMapPropertyCalculator->getPropertyNames ();
+
+   for ( size_t i = 0; i < propertyNames.size (); ++i ) {
+
+      // If any of the properties computed by the calculator are not currently computable then 
+      // the calculator need to be added to the list of calculators.
+      if ( not formationMapPropertyIsComputable ( getProperty ( propertyNames [ i ]))) {
+         return true;
+      }
+
+   }
+
+   return false;
+}
+
 void DerivedProperties::DerivedPropertyManager::loadDerivedFormationPropertyCalculator () {
-   addFormationPropertyCalculator ( FormationPropertyCalculatorPtr ( new FracturePressureFormationCalculator ( m_projectHandle )));
-   addFormationPropertyCalculator ( FormationPropertyCalculatorPtr ( new HydrostaticPressureFormationCalculator ( m_projectHandle )));
-   addFormationPropertyCalculator ( FormationPropertyCalculatorPtr ( new LithostaticPressureFormationCalculator ( m_projectHandle )));
-   addFormationPropertyCalculator ( FormationPropertyCalculatorPtr ( new OverpressureFormationCalculator ));
-   addFormationPropertyCalculator ( FormationPropertyCalculatorPtr ( new PermeabilityFormationCalculator ( m_projectHandle )));
-   addFormationPropertyCalculator ( FormationPropertyCalculatorPtr ( new PorosityFormationCalculator ( m_projectHandle )));
-   addFormationPropertyCalculator ( FormationPropertyCalculatorPtr ( new ThermalConductivityFormationCalculator ( m_projectHandle )));
-   addFormationPropertyCalculator ( FormationPropertyCalculatorPtr ( new ThermalDiffusivityFormationCalculator ( m_projectHandle )));
-   addFormationPropertyCalculator ( FormationPropertyCalculatorPtr ( new VelocityFormationCalculator ));
+
+   FormationPropertyCalculatorPtr formationPropertyCalculator;
+
+   formationPropertyCalculator = FormationPropertyCalculatorPtr ( new FracturePressureFormationCalculator ( m_projectHandle ));
+
+   if ( canAddDerivedFormationPropertyCalculator ( formationPropertyCalculator )) {
+      addFormationPropertyCalculator ( formationPropertyCalculator );
+   }
+   
+   formationPropertyCalculator = FormationPropertyCalculatorPtr ( new HydrostaticPressureFormationCalculator ( m_projectHandle ));
+
+   if ( canAddDerivedFormationPropertyCalculator ( formationPropertyCalculator )) {
+      addFormationPropertyCalculator ( formationPropertyCalculator );
+   }
+   
+   formationPropertyCalculator = FormationPropertyCalculatorPtr ( new LithostaticPressureFormationCalculator ( m_projectHandle ));
+
+   if ( canAddDerivedFormationPropertyCalculator ( formationPropertyCalculator )) {
+      addFormationPropertyCalculator ( formationPropertyCalculator );
+   }
+   
+   formationPropertyCalculator = FormationPropertyCalculatorPtr ( new OverpressureFormationCalculator );
+
+   if ( canAddDerivedFormationPropertyCalculator ( formationPropertyCalculator )) {
+      addFormationPropertyCalculator ( formationPropertyCalculator );
+   }
+   
+   formationPropertyCalculator = FormationPropertyCalculatorPtr ( new PermeabilityFormationCalculator ( m_projectHandle ));
+
+   if ( canAddDerivedFormationPropertyCalculator ( formationPropertyCalculator )) {
+      addFormationPropertyCalculator ( formationPropertyCalculator );
+   }
+   
+   formationPropertyCalculator = FormationPropertyCalculatorPtr ( new PorosityFormationCalculator ( m_projectHandle ));
+
+   if ( canAddDerivedFormationPropertyCalculator ( formationPropertyCalculator )) {
+      addFormationPropertyCalculator ( formationPropertyCalculator );
+   }
+   
+   formationPropertyCalculator = FormationPropertyCalculatorPtr ( new ThermalConductivityFormationCalculator ( m_projectHandle ));
+
+   if ( canAddDerivedFormationPropertyCalculator ( formationPropertyCalculator )) {
+      addFormationPropertyCalculator ( formationPropertyCalculator );
+   }
+   
+   formationPropertyCalculator = FormationPropertyCalculatorPtr ( new ThermalDiffusivityFormationCalculator ( m_projectHandle ));
+
+   if ( canAddDerivedFormationPropertyCalculator ( formationPropertyCalculator )) {
+      addFormationPropertyCalculator ( formationPropertyCalculator );
+   }
+   
+   formationPropertyCalculator = FormationPropertyCalculatorPtr ( new VelocityFormationCalculator );
+
+   if ( canAddDerivedFormationPropertyCalculator ( formationPropertyCalculator )) {
+      addFormationPropertyCalculator ( formationPropertyCalculator );
+   }
+
 }
 
 void DerivedProperties::DerivedPropertyManager::loadDerivedFormationMapPropertyCalculator () {
-   addFormationMapPropertyCalculator ( FormationMapPropertyCalculatorPtr ( new AllochthonousLithologyFormationMapCalculator ));
-   addFormationMapPropertyCalculator ( FormationMapPropertyCalculatorPtr ( new ErosionFactorFormationMapCalculator ));
-   addFormationMapPropertyCalculator ( FormationMapPropertyCalculatorPtr ( new FaultElementFormationMapCalculator ));
-   addFormationMapPropertyCalculator ( FormationMapPropertyCalculatorPtr ( new ThicknessFormationMapCalculator ));
+
+   FormationMapPropertyCalculatorPtr formationMapPropertyCalculator;
+
+   formationMapPropertyCalculator = FormationMapPropertyCalculatorPtr ( new AllochthonousLithologyFormationMapCalculator );
+
+   if ( canAddDerivedFormationMapPropertyCalculator ( formationMapPropertyCalculator )) {
+      addFormationMapPropertyCalculator ( formationMapPropertyCalculator );
+   }
+
+   formationMapPropertyCalculator = FormationMapPropertyCalculatorPtr ( new ErosionFactorFormationMapCalculator );
+
+   if ( canAddDerivedFormationMapPropertyCalculator ( formationMapPropertyCalculator )) {
+      addFormationMapPropertyCalculator ( formationMapPropertyCalculator );
+   }
+
+   formationMapPropertyCalculator = FormationMapPropertyCalculatorPtr ( new FaultElementFormationMapCalculator );
+
+   if ( canAddDerivedFormationMapPropertyCalculator ( formationMapPropertyCalculator )) {
+      addFormationMapPropertyCalculator ( formationMapPropertyCalculator );
+   }
+
+   formationMapPropertyCalculator = FormationMapPropertyCalculatorPtr ( new ThicknessFormationMapCalculator );
+
+   if ( canAddDerivedFormationMapPropertyCalculator ( formationMapPropertyCalculator )) {
+      addFormationMapPropertyCalculator ( formationMapPropertyCalculator );
+   }
+
 }
 
 void DerivedProperties::DerivedPropertyManager::loadPrimarySurfacePropertyCalculators () {
