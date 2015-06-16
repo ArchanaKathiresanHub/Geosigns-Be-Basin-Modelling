@@ -2588,17 +2588,19 @@ void Reservoir::absorbTraps (void)
 {
    RequestHandling::StartRequestHandling (this, "absorbTraps");
    TrapVector::iterator trapIter;
-   for (trapIter = m_traps.begin (); trapIter != m_traps.end (); ++trapIter)
+   for (trapIter = m_traps.begin(); trapIter != m_traps.end(); )
    {
       Trap * trap = * trapIter;
-      if (trap->isToBeAbsorbed ())
-      {
-	 trap->beAbsorbed ();
 
-	 delete trap;
-	 trapIter = m_traps.erase (trapIter);
-	 --trapIter;
+      if ( trap->isToBeAbsorbed() )
+      {
+	      trap->beAbsorbed();
+
+	      delete trap;
+	      trapIter = m_traps.erase( trapIter );
+         continue;
       }
+      ++trapIter;
    }
    RequestHandling::FinishRequestHandling ();
 }
