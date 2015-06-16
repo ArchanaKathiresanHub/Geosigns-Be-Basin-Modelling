@@ -48,6 +48,7 @@ using functions::Tuple2;
 using functions::tuple;
 
 // #define DEBUG_TRAP
+// #define DEBUG_BIODEGRADATION
 
 namespace migration {
 
@@ -171,7 +172,7 @@ double Trap::getVolumeBetweenDepths (double upperDepth, double lowerDepth) const
    assert(m_levelToVolume);
    double topDepth = upperDepth - getTopDepth();
    double baseDepth = lowerDepth - getTopDepth();
-   double volume = m_levelToVolume->operator()(baseDepth);
+   double volume = m_levelToVolume->operator()(baseDepth); 
    volume -= m_levelToVolume->operator()(topDepth);
 
 #ifdef DEBUG_TRAP
@@ -200,7 +201,6 @@ double Trap::getVolumeBetweenDepths2 (double upperDepth, double lowerDepth) cons
       const Column * column = * iter;
       volume += column->getVolumeBetweenDepths (upperDepth, lowerDepth);
    }
-
    return volume;
 }
 
@@ -317,7 +317,7 @@ void Trap::computeVolumeToDepthFunction2 (void)
 
 }
 
-/// Compute the function that maps capacity to depth.  This function is always exact.
+/// Compute the function that maps capacity to depth. This function is always exact.
 void Trap::computeVolumeToDepthFunction (void)
 {
    // Create a new MonotonicIncreasingPiecewiseLinearInvertableFunction function:
@@ -897,7 +897,6 @@ double Trap::getTopDepth (void) const
    return getCrestColumn ()->getTopDepth ();
 }
 
-/// Get the bottom depth at the spill point
 double Trap::getBottomDepth () const
 {
    return getSpillColumn ()->getTopDepth ();
@@ -1166,7 +1165,8 @@ double Trap::biodegradeCharges(const double& timeInterval, const Biodegrade& bio
       computePVT ();
 
    int phase = LAST_PHASE;
-   if (m_toBeDistributed[phase].isEmpty()) {
+   if (m_toBeDistributed[phase].isEmpty()) 
+   {
       phase = FIRST_PHASE;
       if (m_toBeDistributed[phase].isEmpty())
          return 0;
@@ -1183,7 +1183,6 @@ double Trap::biodegradeCharges(const double& timeInterval, const Biodegrade& bio
 #endif
 
    return biodegraded;
-
 }
 
 /// If depths contains a vector of formations starting with the formation containing 
@@ -2179,16 +2178,76 @@ void Trap::checkDistributedCharges (PhaseId phase)
    }
 }
 
+double Trap::computeHydrocarbonWaterContactDepth (void) const
+{
+   double volumeOil = m_toBeDistributed[OIL].getVolume();
+   double volumeGas = m_toBeDistributed[GAS].getVolume();
+
+   double maximumCapacityOfTrap = getVolumeBetweenDepths2(getTopDepth(), getBottomDepth());
+   double hydrocarbonWaterContactDepth = -199999;
+
+   if ((volumeGas + volumeOil) < maximumCapacityOfTrap)
+   {
+      hydrocarbonWaterContactDepth = (m_levelToVolume->invert(volumeGas + volumeOil));
+      hydrocarbonWaterContactDepth += getTopDepth();
+   }
+   else
+   {
+      hydrocarbonWaterContactDepth = getBottomDepth();
+   }
+
+   // need to add again this assert as soon as the spilling point depth issue has been solved
+   //assert((hydrocarbonWaterContactDepth >= getTopDepth()) && (hydrocarbonWaterContactDepth <= getBottomDepth()));
+
+   return hydrocarbonWaterContactDepth;
+}
+
+double Trap::computeFractionVolumeBiodegraded (const double& timeInterval)
+{
+   double volumeOil = m_toBeDistributed[OIL].getVolume();
+   double volumeGas = m_toBeDistributed[GAS].getVolume();
+
+   // Arbitrary value which state the thickness of the biodegradation impact above the OWC
+   double inputThicknessAffectedByBiodegradationAboveOWC = 3;   // Original value entered by the user or by default: 3m/10Myr
+   double thicknessAffectedByBiodegradationAboveOWC = inputThicknessAffectedByBiodegradationAboveOWC * timeInterval / 10;  // ~3m/10Myr, but depend on timeInterval
+
+   double maximumCapacityOfTrap = getVolumeBetweenDepths2(getTopDepth(), getBottomDepth());
+   double volumeBiodegraded = min(getVolumeBetweenDepths2(getFillDepth(OIL) - thicknessAffectedByBiodegradationAboveOWC, getFillDepth(OIL)), (volumeGas + volumeOil));
+
+   assert(volumeBiodegraded >= 0.0);
+   assert(volumeBiodegraded <= maximumCapacityOfTrap && volumeBiodegraded <= (volumeGas + volumeOil));
+
+   double fractionVolumeBiodegraded = volumeBiodegraded / (volumeGas + volumeOil);
+   assert(fractionVolumeBiodegraded >= 0.0 && fractionVolumeBiodegraded <= 1.0);
+
+#ifdef DEBUG_BIODEGRADATION
+   std::cerr << endl;
+   std::cerr << "Volume of OIL in the Trap: " << volumeOil << " ; Volume of GAS in the Trap: " << volumeGas << endl;
+   std::cerr << "Volume total of HC in the Trap: " << volumeOil + volumeGas << endl;
+   std::cerr << "Top depth of the trap (crest column): " << getTopDepth() << endl;
+   std::cerr << "Hydrocarbon - water contact depth: " << getFillDepth(OIL) << endl;
+   std::cerr << "Bottom depth of the trap (spilling Point): " << getBottomDepth() << endl;
+   std::cerr << "Maximum capacity of the trap: " << getVolumeBetweenDepths2(getTopDepth(), getBottomDepth()) << endl;
+   std::cerr << "Volume impacted by biodegradation in the trap: " << volumeBiodegraded << endl;
+   std::cerr << "Fraction of the volume impacted by biodegradation: " << fractionVolumeBiodegraded * 100 << "% " << endl;
+#endif
+
+   return fractionVolumeBiodegraded;
+}
+
 double Trap::biodegradeCharges (const double& timeInterval, const Biodegrade& biodegrade, PhaseId phase)
 {
    Composition biodegraded;
 
    assert(!m_toBeDistributed[phase].isEmpty ());
+   
+   double hydrocarbonWaterContactDepth = computeHydrocarbonWaterContactDepth();
+   setFillDepth(OIL, hydrocarbonWaterContactDepth);
+   double fractionVolumeBiodegraded = computeFractionVolumeBiodegraded(timeInterval);
 
    m_toBeDistributed[phase].computeBiodegradation(timeInterval, getTemperature(), biodegrade, 
-      biodegraded);
-
-
+      biodegraded, fractionVolumeBiodegraded);
+   
    m_toBeDistributed[phase].subtract(biodegraded);
 
    m_reservoir->reportBiodegradationLoss (this, biodegraded);

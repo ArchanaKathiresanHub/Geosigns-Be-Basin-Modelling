@@ -6,7 +6,7 @@
 
 namespace migration {
 
-// biodegradation processing. pre and pos mean before and after biodegradation is applied
+// Biodegradation processing: compute the weight lost
 void Biodegrade::calculate(const double& timeInterval, const double& T_C, 
    const double* input, double* lost) const
 {
@@ -22,15 +22,15 @@ void Biodegrade::calculate(const double& timeInterval, const double& T_C,
       double degradeFactor = pow ((1.0 - bigT), (timeInterval * m_timeFactor));
 
       lost[compIdx] = (1.0 - degradeFactor) * input[compIdx];
-      if (degradeFactor < 0)
+      if (degradeFactor < 0.0)
       {
-	 cerr << "Warning: trying to biodegrade more of component " << compIdx << " than is in the trap, degradeFactor is " << degradeFactor << endl;
-	 lost[compIdx] = input[compIdx];
+         cerr << "Warning: trying to biodegrade more of component " << compIdx << " than is in the trap, degradeFactor is " << degradeFactor << endl;
+	      lost[compIdx] = input[compIdx];
       }
-      if (degradeFactor > 1)
+      if (degradeFactor > 1.0)
       {
-	 cerr << "Warning: trying to inverse biodegrade component " << compIdx << ", degradeFactor is " << degradeFactor << endl;
-	 lost[compIdx] = 0;
+         cerr << "Warning: trying to inverse biodegrade component " << compIdx << ", degradeFactor is " << degradeFactor << endl;
+	      lost[compIdx] = 0;
       }
    }
 }

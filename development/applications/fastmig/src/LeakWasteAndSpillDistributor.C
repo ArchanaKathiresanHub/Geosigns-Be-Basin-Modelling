@@ -67,7 +67,8 @@ void LeakWasteAndSpillDistributor::shiftToOrigin()
    // distribution implementations rely on m_levelToVolume->begin(0)[0] == tuple(0.0,0.0).
    // So in case m_levelToVolume->begin(0)[0] isn't 0.0, we replace m_levelToVolume with 
    // our own version where all the depths are shifted:
-   if (m_levelToVolume->begin(0)[0] != 0.0) {
+   if (m_levelToVolume->begin(0)[0] != 0.0)
+   {
       m_shift = m_levelToVolume->begin(0)[0];
 
       MonotonicIncreasingPiecewiseLinearInvertableFunction * shiftedLevelToVolume = new MonotonicIncreasingPiecewiseLinearInvertableFunction(*m_levelToVolume);

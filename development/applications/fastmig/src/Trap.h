@@ -32,7 +32,7 @@ namespace migration
    typedef vector<Column *>::const_iterator ConstColumnIterator;
    typedef vector<Column *>::reverse_iterator ColumnReverseIterator;
    typedef vector<Column *>::const_reverse_iterator ConstColumnReverseIterator;
-
+   
    typedef pair<int, int> IntPair;
    typedef vector<IntPair> IntPairVector;
 
@@ -42,134 +42,149 @@ namespace migration
    class Trap
    {
       public:
-	 /// Constructor
-	 Trap (LocalColumn * column);
+   /// Constructor
+   Trap (LocalColumn * column);
 
-	 /// Destructor
-	 virtual ~Trap (void);
+   /// Destructor
+   virtual ~Trap (void);
 
-	 int getSize (void);
+   int getSize (void);
 
-	 void computeArea (void);
+   void computeArea (void);
 
-	 void becomeObsolete (void);
-	 void beAbsorbed (void);
+   void becomeObsolete (void);
+   void beAbsorbed (void);
 
-	 void extendWith (Column * column, double minimumSpillDepth);
-	 void completeExtension (void);
+   void extendWith (Column * column, double minimumSpillDepth);
+   void completeExtension (void);
 
-	 void migrateTo (Column * column);
+   void migrateTo (Column * column);
 
 #ifdef COMPUTECAPACITY
-	 void computeCapacity (void);
+	void computeCapacity (void);
 #endif
-	 void initialize (void);
-	 virtual bool isSpillPoint (Column * column);
-	 bool isInInterior (Column * column) const;
-	 bool isOnPerimeter (Column * column) const;
-	 void closePerimeter (Column * column);
-	 void addToPerimeter (Column * column);
-	 void removeFromPerimeter (Column * column);
-	 void addToInterior (Column * column);
+   void initialize (void);
+   virtual bool isSpillPoint (Column * column);
+   bool isInInterior (Column * column) const;
+   bool isOnPerimeter (Column * column) const;
+   void closePerimeter (Column * column);
+   void addToPerimeter (Column * column);
+   void removeFromPerimeter (Column * column);
+   void addToInterior (Column * column);
 
-	 void addColumnsToBeAdded (void);
-	 void addToToBeAdded (int i, int j);
+   void addColumnsToBeAdded (void);
+   void addToToBeAdded (int i, int j);
 
-	 bool contains (Column * column) const;
+   bool contains (Column * column) const;
 
-	 void printPerimeter (void);
-	 void printInterior (void);
+   void printPerimeter (void);
+   void printInterior (void);
 
-	 void printInconsistentVolumes (void);
+   void printInconsistentVolumes (void);
 
-	 Reservoir * getReservoir (void);
+   Reservoir * getReservoir (void);
 
-	 LocalColumn * getCrestColumn (void) const;
-	 Column * getSpillColumn (void) const;
-	 Column * getColumnToSpillTo (void);
+   LocalColumn * getCrestColumn (void) const;
+   Column * getSpillColumn (void) const;
+   Column * getColumnToSpillTo (void);
 
-	 double getSpillDepth (void);
+   double getSpillDepth (void);
 
-	 void computeSpillTarget (void);
-	 Column * getSpillTarget (void);
+   void computeSpillTarget (void);
+   Column * getSpillTarget (void);
 
-	 void computeWasteColumns (void);
-	 Column * getWasteColumn (PhaseId phase);
-	 double getWasteDepth (PhaseId phase);
+   void computeWasteColumns (void);
+   Column * getWasteColumn (PhaseId phase);
+   double getWasteDepth (PhaseId phase);
 
-	 Column * getFinalSpillTarget (PhaseId phase);
-         void printSpillTrajectory (PhaseId phase);
+	Column * getFinalSpillTarget (PhaseId phase);
+   void printSpillTrajectory (PhaseId phase);
 
-	 unsigned int getI (void);
-	 unsigned int getJ (void);
+   unsigned int getI (void);
+   unsigned int getJ (void);
 
-	 void setSealPermeability (double permeability);
-	 void setFracturePressure (double pressure);
+   void setSealPermeability (double permeability);
+   void setFracturePressure (double pressure);
 
-	 double getTopDepth (void) const;
-	 double getBottomDepth (void) const;
+   /*!
+   * \brief Get the top depth of the Trap, the top depth of the crest column
+   */
+   double getTopDepth (void) const;
 
-	 double getTemperature (void) const;
-	 double getPreviousTemperature (void) const;
-	 double getPermeability (void) const;
-	 double getSealPermeability (void) const;
-	 double getFracturePressure (void) const;
-	 double getPressure (void) const;
-	 double getPreviousPressure (void) const;
-	 double getHydrostaticPressure (void) const;
-	 double getLithostaticPressure (void) const;
-	 double getNetToGross (void) const;
+   /*!
+   * \brief Get the bottom depth of the Trap, the spilling point depth
+   */
+   double getBottomDepth (void) const;
 
-         const MonotonicIncreasingPiecewiseLinearInvertableFunction* levelToVolume() const;
+   double getTemperature (void) const;
+   double getPreviousTemperature (void) const;
+   double getPermeability (void) const;
+   double getSealPermeability (void) const;
+   double getFracturePressure (void) const;
+   double getPressure (void) const;
+   double getPreviousPressure (void) const;
+   double getHydrostaticPressure (void) const;
+   double getLithostaticPressure (void) const;
+   double getNetToGross (void) const;
 
-	 double getCapacity (void) const;
+   const MonotonicIncreasingPiecewiseLinearInvertableFunction* levelToVolume() const;
 
-         void setSpilling (void);
-         bool isSpilling (void) const;
-         void resetSpilling (void);
+   double getCapacity (void) const;
 
-	 bool isUndersized (void) const;
-	 double getTrapCapacity (void) const;
+   void setSpilling (void);
+   bool isSpilling (void) const;
+   void resetSpilling (void);
 
-	 double getWeight (void) const;
-	 double getWeight (PhaseId phase) const;
-	 double getWeight (ComponentId component) const;
-	 double getWeight (PhaseId phase, ComponentId component) const;
+	bool isUndersized (void) const;
+	double getTrapCapacity (void) const;
 
-	 double getWeightToBeDistributed (void) const;
-	 double getWeightToBeDistributed (PhaseId phase) const;
+   double getWeight (void) const;
+   double getWeight (PhaseId phase) const;
+   double getWeight (ComponentId component) const;
+   double getWeight (PhaseId phase, ComponentId component) const;
 
-	 double getVolume (PhaseId phase) const;
-	 double getVolumeByColumns (PhaseId phase) const;
+   double getWeightToBeDistributed (void) const;
+   double getWeightToBeDistributed (PhaseId phase) const;
 
-	 double getVolumeBetweenDepths (double upperDepth, double lowerDepth) const;
-	 double getVolumeBetweenDepths2 (double upperDepth, double lowerDepth) const;
+   double getVolume (PhaseId phase) const;
+   double getVolumeByColumns (PhaseId phase) const;
 
-         void computeDepthToVolumeFunction (void);
-	 void computeVolumeToDepthFunction (void);
-         void computeVolumeToDepthFunction2 (void);
+   double getVolumeBetweenDepths (double upperDepth, double lowerDepth) const;
+   double getVolumeBetweenDepths2 (double upperDepth, double lowerDepth) const;
 
-	 void deleteDepthToVolumeFunction (void);
+   void computeDepthToVolumeFunction (void);
+   void computeVolumeToDepthFunction (void);
+   void computeVolumeToDepthFunction2 (void);
+
+   void deleteDepthToVolumeFunction (void);
 	 
-	 double getDepthForVolume (double volume);
+   double getDepthForVolume (double volume);
 
-	 void setLocalId (int id);
-	 int getLocalId (void);
+   void setLocalId (int id);
+   int getLocalId (void);
 
-	 void setGlobalId (int id);
-	 int getGlobalId (void);
+   void setGlobalId (int id);
+   int getGlobalId (void);
 
-	 void setDrainageAreaId (int id);
-	 int getDrainageAreaId (void);
+   void setDrainageAreaId (int id);
+   int getDrainageAreaId (void);
 
-	 void collectAndSplitCharges (bool always = false);
+   void collectAndSplitCharges (bool always = false);
 
-	 void decomposeCharges (void);
+   void decomposeCharges (void);
 
-	 void checkDistributedCharges (PhaseId phase);
+   void checkDistributedCharges (PhaseId phase);
 
-	 double biodegradeCharges (const double& timeInterval, const Biodegrade& biodegrade);
-	 double biodegradeCharges (const double& timeInterval, const Biodegrade& biodegrade, PhaseId phase);
+   /*!
+   * \brief Compute the fraction of the volume in the trap which is impacted by biodegradation
+   * This volume impacted by biodegradation is exclusively in a determined thickness above the hydrocarbon - water contact
+   * This thickness is determine thanks to a coefficient (ex: 3m/10Myr) and the \param timeInterval
+   * \return The fraction of volume in the trap impacted by biodegradation (from 0 to 1)
+   */
+   double computeFractionVolumeBiodegraded(const double& timeInterval);
+
+   double biodegradeCharges (const double& timeInterval, const Biodegrade& biodegrade);
+   double biodegradeCharges (const double& timeInterval, const Biodegrade& biodegrade, PhaseId phase);
 
          /// If depths contains a vector of formations starting with the formation containing 
          /// this trap, return iterators pointing to the formations which constitute the 
@@ -250,6 +265,12 @@ namespace migration
 	 void setFillDepth (PhaseId phase, double fillDepth);
 	 double getFillDepth (PhaseId phase);
 
+    /*!
+    * \brief Compute the Hydrocarbon - Water contact depth
+    * \return The absolute depth of the hydrocarbon - water contact (from the surface)
+    */
+    double computeHydrocarbonWaterContactDepth(void) const;
+
 	 void setMinimumSpillDepth (double minimumSpillDepth);
 	 double getMinimumSpillDepth (void);
 
@@ -258,10 +279,10 @@ namespace migration
 
 	 void negotiateDensity (PhaseId phase);
 
-         double getSealPressureLeakages(void) const;
-         double getSealPressureLeakages(PhaseId phase) const;
+   double getSealPressureLeakages(void) const;
+   double getSealPressureLeakages(PhaseId phase) const;
 
-         double getDiffusionLeakages(void) const;         
+   double getDiffusionLeakages(void) const;         
 
 	 void reportLeakage ();
 
