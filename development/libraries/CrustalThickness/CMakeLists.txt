@@ -47,13 +47,9 @@ include_directories(
 target_link_libraries(CrustalThickness
 	DataAccess
 	DerivedProperties	
-	GeoPhysics
-	Interpolation
-	LinearAlgebra
 	EosPack	
 	CBMGenerics
 	utilities
-	Utilities_Petsc
 	TableIO
 	Serial_Hdf5
 	${HDF5_LIBRARIES}
