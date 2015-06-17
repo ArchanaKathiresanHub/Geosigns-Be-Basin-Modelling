@@ -3,11 +3,23 @@
 
 namespace DerivedProperties {
 
+   /// \brief Class to interpolate property values for 2d property-maps.
+   ///
+   /// The location to interpolate is with respect to the node indexes and not real coordinates.
    template<class PropertyValue>
    class Interpolate2DProperty {
 
    public :
 
+      /// \brief 
+      ///
+      /// \param [in] property The property map whose values are to be interpolated.
+      /// \param [in] i        The i position.
+      /// \param [in] j        The j position.
+      /// \return The interpolated value.
+      ///
+      /// If i or j are less than 0 then the undefined value will be returned.
+      /// If any of the nodal values are the undefined value then the undefined value will be returned.
       double interpolate ( const PropertyValue& property,
                            const double         i,
                            const double         j ) const;
