@@ -25,28 +25,41 @@ namespace casa
 {
 
 // Create observable for the given Genex map property for specified areal position
-ObsSourceRockMapProp::ObsSourceRockMapProp( double x, double y, const char * layerName, const char * propName, double simTime )
+ObsSourceRockMapProp::ObsSourceRockMapProp( double              x
+                                          , double              y
+                                          , const char        * layerName
+                                          , const char        * propName
+                                          , double              simTime
+                                          , const std::string & name
+                                          )
+                                          : m_posDataMiningTbl( -1 )
+                                          , m_x( x )
+                                          , m_y( y )
+                                          , m_layerName( layerName )
+                                          , m_propName( propName )
+                                          , m_simTime( simTime )
+                                          , m_devValue( 0.0 )
+                                          , m_saWeight( 1.0 )
+                                          , m_uaWeight( 1.0 )
+
+
+
 {
-   assert( propName  != NULL );
-
-   m_posDataMiningTbl = -1;
-
-   m_x = x;
-   m_y = y;
-
-   m_layerName = layerName;
-   m_propName  = propName;
-   m_simTime   = simTime;
-   m_devValue  = 0.0;
-
-   m_saWeight  = 1.0;
-   m_uaWeight  = 1.0;
-
+   // check input values
+   if ( m_propName.empty() )
+   {
+      throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << 
+         "No property name specified for source rock map property target";
+   }
 
    // construct observable name
-   std::ostringstream oss;
-   oss << m_propName << "(" << m_x << "," << m_y << "," << m_layerName << "," << m_simTime << ")";
-   m_name.push_back( oss.str() );
+   if ( name.empty() )
+   {
+      std::ostringstream oss;
+      oss << m_propName << "(" << m_x << "," << m_y << "," << m_layerName << "," << m_simTime << ")";
+      m_name.push_back( oss.str() );
+   }
+   else { m_name.push_back( name ); }
 }
 
 // Destructor

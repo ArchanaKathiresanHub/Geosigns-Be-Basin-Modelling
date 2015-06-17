@@ -36,19 +36,21 @@ namespace casa
    public:
 
       /// @brief Create new observable object for the given grid property for specified grid position
-      static ObsTrapProp * createNewInstance( double x                ///< X-th grid coordinate [m]
-                                            , double y                ///< Y-th grid coordinate [m]
-                                            , const char * resName    ///< reservoir name
-                                            , const char * propName   ///< name of the trap property
-                                            , double simTime = 0.0    ///< simulation time [Ma]
-                                            ) { return new ObsTrapProp( x, y, resName, propName, simTime ); }
+      static ObsTrapProp * createNewInstance( double              x             ///< X-th grid coordinate [m]
+                                            , double              y             ///< Y-th grid coordinate [m]
+                                            , const char        * resName       ///< reservoir name
+                                            , const char        * propName      ///< name of the trap property
+                                            , double              simTime = 0.0 ///< simulation time [Ma]
+                                            , const std::string & name = ""     ///< user specified name for observable
+                                            ) { return new ObsTrapProp( x, y, resName, propName, simTime, name ); }
 
       /// @brief Create observable for the given grid property for specified grid position
-      ObsTrapProp( double x              ///< X-th grid coordinate [m]
-                 , double y              ///< Y-th grid coordinate [m]
-                 , const char * resName  ///< reservoir name
-                 , const char * propName ///< name of the property
-                 , double simTime        ///< simulation time [Ma]
+      ObsTrapProp( double              x         ///< X-th grid coordinate [m]
+                 , double              y         ///< Y-th grid coordinate [m]
+                 , const char        * resName   ///< reservoir name
+                 , const char        * propName  ///< name of the property
+                 , double              simTime   ///< simulation time [Ma]
+                 , const std::string & name = "" ///< user specified name for observable
                  );
 
       /// @brief Destructor

@@ -29,27 +29,35 @@ namespace casa
 {
 
 // Create observable for the given trap property for specified areal position
-ObsTrapProp::ObsTrapProp( double x, double y, const char * resName, const char * propName, double simTime )
+ObsTrapProp::ObsTrapProp( double x
+                        , double y
+                        , const char * resName
+                        , const char * propName
+                        , double simTime
+                        , const std::string & name
+                        )
+                        : m_x( x )
+                        , m_y( y )
+                        , m_resName( resName )
+                        , m_propName( propName )
+                        , m_simTime( simTime )
+                        , m_devValue( 0.0 )
+                        , m_saWeight( 1.0 )
+                        , m_uaWeight( 1.0 )
+                        , m_posDataMiningTbl( -1 )
+
 {
-   assert( propName  != NULL );
-   
-   m_posDataMiningTbl = -1;
-
-   m_x = x;
-   m_y = y;
-
-   m_resName = resName;
-   m_propName  = propName;
-   m_simTime   = simTime;
-   m_devValue  = 0.0;
-
-   m_saWeight  = 1.0;
-   m_uaWeight  = 1.0;
+   // check input values
+   if ( m_propName.empty() ) throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "No property name specified for trap target";
 
    // construct observable name
-   std::ostringstream oss;
-   oss << "Trap_" << m_propName << "(" << m_x << "," << m_y << "," << m_resName << "," << m_simTime << ")";
-   m_name.push_back( oss.str() );
+   if ( name.empty() )
+   {
+      std::ostringstream oss;
+      oss << "Trap_" << m_propName << "(" << m_x << "," << m_y << "," << m_resName << "," << m_simTime << ")";
+      m_name.push_back( oss.str() );
+   }
+   else { m_name.push_back( name ); }
 }
 
 // Destructor

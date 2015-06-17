@@ -39,6 +39,12 @@ CmdPlotTornado::CmdPlotTornado( CasaCommander & parent, const std::vector< std::
 
    if ( m_prms.size() > 2 )
    {
+      const std::vector<std::string> & givenTargetNames = CfgFileParser::list2array( m_prms[2], ',' );
+      m_targetNames.insert( givenTargetNames.begin(), givenTargetNames.end() );
+   }
+
+   if ( m_prms.size() > 3 )
+   {
       throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Unknown parameter of PlotTornado command: " << m_prms[2];
    }
 }
@@ -85,8 +91,11 @@ void CmdPlotTornado::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
 
    for ( size_t i = 0; i < data.size(); ++i )
    {
-      const std::vector< std::string > & obsNames = data[i].observable()->name();
-      ofs << "TornadoSens.obsName{ " << i+1 << "} = '" << obsNames[data[i].observableSubID()] << "';\n";
+      const std::string & obsName = data[i].observable()->name()[data[i].observableSubID()];
+
+      if ( !m_targetNames.empty() && !m_targetNames.count( obsName ) ) continue;
+
+      ofs << "TornadoSens.obsName{ " << i+1 << "} = '" << obsName << "';\n";
       ofs << "TornadoSens.obsRefVal( " << i+1 << ") = " << data[i].refObsValue() << ";\n";
 
       const std::vector<std::pair<const casa::VarParameter *, int> > & varPrmList = data[i].varPrmList();
@@ -198,13 +207,19 @@ void CmdPlotTornado::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
 
 void CmdPlotTornado::printHelpPage( const char * cmdName )
 {
-   std::cout << "  " << cmdName << " <DoEs list> <scriptName> \n";
+   std::cout << "  " << cmdName << " <DoEsList> <scriptName> [targetsList]\n";
    std::cout << "   - create Matlab/Octave .m script file which could be used to create a plot with Tornado\n";
    std::cout << "     diagram per observable to show the local parameters sensitivity\n";
-   std::cout << "     \n";
+   std::cout << "     Where:\n";
+   std::cout << "       DoEsList - list of DoE which will be used for tornado diagram construction. Based on this list,\n";
+   std::cout << "                  the 1st order RS with Kriging will be created and used for parameters sensitivity calculation\n";
+   std::cout << "       scriptName - name of the output matlab/octave file which will be generated. User should run this script to\n";
+   std::cout << "                    create Tornado plots pictures\n";
+   std::cout << "       targetsList - optional comma separated targets name list for which Tornado diagrams will be generated\n";
+   std::cout << "\n";
    std::cout << "     Example:\"" << cmdName << "\" command:\n";
    std::cout << " #                                DoEs list     Matlab/Octave script name\n";
-   std::cout << "         " << cmdName << "\"FullFactorial,Tornado\"    \"TornadoPlotTornadoFFDoEs.m\"\n";
+   std::cout << "         " << cmdName << "\"FullFactorial,Tornado\"    \"TornadoPlotTornadoFFDoEs.m\"   \"Target1,Target2\" \n";
 }
 
 

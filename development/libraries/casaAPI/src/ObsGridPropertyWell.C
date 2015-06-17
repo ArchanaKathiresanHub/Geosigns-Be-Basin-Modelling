@@ -31,6 +31,7 @@ ObsGridPropertyWell::ObsGridPropertyWell( const std::vector<double> & x
                                         , const std::vector<double> & z
                                         , const char                * propName
                                         , double                      simTime
+                                        , const std::string         & name
                                         )
                                         : m_x( x.begin(), x.end() )
                                         , m_y( y.begin(), y.end() )
@@ -42,14 +43,24 @@ ObsGridPropertyWell::ObsGridPropertyWell( const std::vector<double> & x
                                         , m_saWeight( 1.0 )
                                         , m_uaWeight( 1.0 )
 {
-   assert( !m_propName.empty() );
-   assert( m_x.size() == m_y.size() && m_x.size() == m_z.size() );
+   // check input values
+   if ( m_propName.empty() ) throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "No property name specified for well target";
+   if ( m_x.size() != m_y.size() || m_x.size() != m_z.size() )
+   {
+      throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "No property name specified for well target";
+   }
 
    // construct observable name for each trajectory point
    for ( size_t i = 0; i < m_x.size(); ++i )
    {
       std::ostringstream oss;
-      oss << m_propName << "(" << m_x[i] << "," << m_y[i] << "," << m_z[i] << "," << m_simTime << ")";
+
+      if ( name.empty() || name.size() != m_x.size() )
+      {
+         oss << m_propName << "(" << m_x[i] << "," << m_y[i] << "," << m_z[i] << "," << m_simTime << ")";
+      }
+      else { oss << name << "_" << i+1; } 
+
       m_name.push_back( oss.str() );
    }
 }
