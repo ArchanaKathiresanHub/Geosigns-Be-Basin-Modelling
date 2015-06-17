@@ -177,10 +177,10 @@ bool Reservoir::computePathways (void)
    {
       for (unsigned int i = m_columnArray->firstILocal (); i <= m_columnArray->lastILocal (); ++i)
       {
-	 for (unsigned int j = m_columnArray->firstJLocal (); j <= m_columnArray->lastJLocal (); ++j)
-	 {
-	    computeAdjacentColumn ((PhaseId) phase, i, j);
-	 }
+	      for (unsigned int j = m_columnArray->firstJLocal (); j <= m_columnArray->lastJLocal (); ++j)
+	      {
+	         computeAdjacentColumn ((PhaseId) phase, i, j);
+	      }
       }
    }
 
@@ -203,14 +203,14 @@ bool Reservoir::computeTargetColumns (void)
       // hence, keep on going until all target columns have been computed as it may not go right the first time
       while (!allComputed)
       {
-	 allComputed = true;
-	 for (unsigned int i = m_columnArray->firstILocal (); i <= m_columnArray->lastILocal (); ++i)
-	 {
-	    for (unsigned int j = m_columnArray->firstJLocal (); j <= m_columnArray->lastJLocal (); ++j)
-	    {
-	       allComputed &= computeTargetColumn ((PhaseId) phase, i, j);
-	    }
-	 }
+         allComputed = true;
+	      for (unsigned int i = m_columnArray->firstILocal (); i <= m_columnArray->lastILocal (); ++i)
+	      {
+	         for (unsigned int j = m_columnArray->firstJLocal (); j <= m_columnArray->lastJLocal (); ++j)
+	         {
+	            allComputed &= computeTargetColumn ((PhaseId) phase, i, j);
+	         }
+	      }
       }
    }
 
@@ -230,10 +230,10 @@ bool Reservoir::computeTrapTops (void)
    {
       for (unsigned int i = m_columnArray->firstILocal (); i <= m_columnArray->lastILocal (); ++i)
       {
-	 for (unsigned int j = m_columnArray->firstJLocal (); j <= m_columnArray->lastJLocal (); ++j)
-	 {
-	    computeTrapTop ((PhaseId) phase, i, j);
-	 }
+	      for (unsigned int j = m_columnArray->firstJLocal (); j <= m_columnArray->lastJLocal (); ++j)
+	      {
+	         computeTrapTop ((PhaseId) phase, i, j);
+	      }
       }
    }
    RequestHandling::FinishRequestHandling ();
@@ -392,51 +392,51 @@ Column *  Reservoir::getAdjacentColumn (PhaseId phase, Column * column, Trap * t
 
       if (!IsValid (neighbourColumn))
       {
-	 // column lies on the edge, no adjacentColumn
-	 adjacentColumn = 0;
-	 break;
+         // column lies on the edge, no adjacentColumn
+         adjacentColumn = 0;
+         break;
       }
 
       if (trap && trap->contains (neighbourColumn))
       {
-	 continue;
+	      continue;
       }
 
       if (neighbourColumn->isSealing (phase))
       {
-	 // a sealing column cannot be in a migration pathway.
-	 continue;
+         // a sealing column cannot be in a migration pathway.
+         continue;
       }
 
       double neighbourDepth = neighbourColumn->getTopDepth ();
 
       if (column->isShallowerThan (neighbourColumn))
       {
-	 // neighbour is deeper
-	 continue;
+         // neighbour is deeper
+         continue;
       }
       else if (column->isDeeperThan (neighbourColumn, false))
       {
-	 // neighbour is shallower in absolute terms
-	 double gradient = (neighbourDepth - depth) /
-	    getNeighbourDistance (n);
+         // neighbour is shallower in absolute terms
+         double gradient = (neighbourDepth - depth) /
+	      getNeighbourDistance (n);
 
-	 if (gradient <= minGradient)
-	 {
-	    // neighbourColumn has steepest upward gradient from column, so far.
-	    // set it to be the adjacent column.
-	    minGradient = gradient;
-	    adjacentColumn = neighbourColumn;
-	 }
+         if (gradient <= minGradient)
+         {
+	         // neighbourColumn has steepest upward gradient from column, so far.
+	         // set it to be the adjacent column.
+	         minGradient = gradient;
+	         adjacentColumn = neighbourColumn;
+         }
       }
       else
       {
-	 assert (depth == neighbourDepth);
-	 if (!adjacentColumn || adjacentColumn->isDeeperThan (neighbourColumn))
-	 {
-	    minGradient = 0;
-	    adjacentColumn = neighbourColumn;
-	 }
+         assert (depth == neighbourDepth);
+         if (!adjacentColumn || adjacentColumn->isDeeperThan (neighbourColumn))
+         {
+	         minGradient = 0;
+	         adjacentColumn = neighbourColumn;
+         }
       }
    }
 
@@ -464,19 +464,19 @@ bool Reservoir::computeFlux (PhaseId phase, unsigned int i, unsigned int j)
    while (adjacentColumn != 0 && adjacentColumn != column && IsValid (adjacentColumn))
    {
       if (adjacentColumn->isWasting (phase)) // everything leaks upward from here
-	 break;
+	      break;
 
       if ((column = dynamic_cast<LocalColumn *> (adjacentColumn)) != 0)
       {
-	 adjacentColumn->addFlux (weight);
-	 adjacentColumn = adjacentColumn->getAdjacentColumn (phase);
+	      adjacentColumn->addFlux (weight);
+	      adjacentColumn = adjacentColumn->getAdjacentColumn (phase);
       }
       else
       {
-	 // let the other processor deal with the rest
-	 m_computeFluxesHasFinished = false;
-	 adjacentColumn->addMigrated (phase, weight);
-	 break;
+	      // let the other processor deal with the rest
+	      m_computeFluxesHasFinished = false;
+	      adjacentColumn->addMigrated (phase, weight);
+	      break;
       }
    }
    return true;
@@ -668,8 +668,8 @@ bool Reservoir::computeDepths (void)
    if (!formationGridMap)
    {
       cerr << "ERROR: " << getName () <<
-	 "::computing of reservoir depths failed, could not find the formation depth map at " << getEnd ()->getTime() << endl;
-	 cerr.flush ();
+	   "::computing of reservoir depths failed, could not find the formation depth map at " << getEnd ()->getTime() << endl;
+	   cerr.flush ();
       return false;
    }
 
@@ -724,7 +724,7 @@ bool Reservoir::computeDepths (void)
          cerr << "ERROR: " << getName () <<
                "::computing of reservoir depths failed, could not find the DepthHighRes map for surface "
 	       << getFormation ()->getTopSurface ()->getName () << " or higher at age " << getEnd ()->getTime () << endl;
-	 cerr.flush ();
+	      cerr.flush ();
          return false;
       }
 
@@ -733,7 +733,7 @@ bool Reservoir::computeDepths (void)
          cerr << "ERROR: " << getName () <<
                "::computing of reservoir depths failed, could not find the DepthHighRes map for surface " <<
 	       getFormation ()->getBottomSurface ()->getName () << " or lower at age " << getEnd ()->getTime () << endl;
-	 cerr.flush ();
+	      cerr.flush ();
          return false;
       }
 
@@ -746,41 +746,41 @@ bool Reservoir::computeDepths (void)
          {
             LocalColumn *column = getLocalColumn (i, j);
 
-	    double topSurfaceDepth = topSurfaceGridMap->get (i, j);
-	    double bottomSurfaceDepth = bottomSurfaceGridMap->get (i, j);
+	         double topSurfaceDepth = topSurfaceGridMap->get (i, j);
+	         double bottomSurfaceDepth = bottomSurfaceGridMap->get (i, j);
             double lowResTopSurfaceDepth = formationGridMap->get (i, j, depth - 1);
 
-	    if (lowResTopSurfaceDepth == formationGridMap->getUndefinedValue () ||
-		  topSurfaceDepth == topSurfaceGridMap->getUndefinedValue () ||
-		  bottomSurfaceDepth == bottomSurfaceGridMap->getUndefinedValue ())
-	    {
+	         if (lowResTopSurfaceDepth == formationGridMap->getUndefinedValue () ||
+		      topSurfaceDepth == topSurfaceGridMap->getUndefinedValue () ||
+		      bottomSurfaceDepth == bottomSurfaceGridMap->getUndefinedValue ())
+	         {
                column->setTopDepth (getUndefinedValue ());
                column->setBottomDepth (getUndefinedValue ());
-	    }
-	    else
-	    {
-	       double topValue = column->getTopDepthOffset () * bottomSurfaceDepth +
-		  (1 - column->getTopDepthOffset ()) * topSurfaceDepth;
+	         }
+	         else
+	         {
+	            double topValue = column->getTopDepthOffset () * bottomSurfaceDepth +
+		            (1 - column->getTopDepthOffset ()) * topSurfaceDepth;
 
-	       topValue = Max (topValue, topSurfaceDepth);
-               column->setTopDepth (topValue);
+	            topValue = Max (topValue, topSurfaceDepth);
+                  column->setTopDepth (topValue);
 
-	       double bottomValue = column->getBottomDepthOffset () * topSurfaceDepth +
-		  (1 - column->getBottomDepthOffset ()) * bottomSurfaceDepth;
+	            double bottomValue = column->getBottomDepthOffset () * topSurfaceDepth +
+		            (1 - column->getBottomDepthOffset ()) * bottomSurfaceDepth;
 
-	       bottomValue = Min(bottomValue, bottomSurfaceDepth);
+	            bottomValue = Min(bottomValue, bottomSurfaceDepth);
                column->setBottomDepth (bottomValue);
 
                assert (column->isValid ());
-	    }
-	 }
+	         }
+	      }
       }
 
       topSurfaceGridMap->restoreData ();
       bottomSurfaceGridMap->restoreData ();
    }
 
-      formationGridMap->restoreData ();
+   formationGridMap->restoreData ();
    return true;
 }
 
@@ -791,24 +791,28 @@ bool Reservoir::computeOverburdens (void)
  
    DerivedProperties::SurfacePropertyPtr gridMap = getSeaBottomProperty ( depthPropertyName(), getEnd ());
 
-   if ( gridMap == 0 ) {
+   if ( gridMap == 0 ) 
+   {
       // If there is no surface property, use formation property
       DerivedProperties::FormationPropertyPtr gridFormMap = getSeaBottomFormationProperty ( depthPropertyName(), getEnd ());
       const Interface::Formation* seaFormation = getSeaBottomFormation(  getEnd () );
 
       gridMap = DerivedProperties::SurfacePropertyPtr( new DerivedProperties::FormationPropertyAtSurface ( gridFormMap, seaFormation->getTopSurface () ));
-      if ( gridMap == 0 ) {
+      if ( gridMap == 0 ) 
+      {
          return false;
       }
    }
 
    gridMap->retrieveData( ); 
 
-   for (unsigned int i = m_columnArray->firstILocal (); i <= m_columnArray->lastILocal (); ++i) {
-      for (unsigned int j = m_columnArray->firstJLocal (); j <= m_columnArray->lastJLocal (); ++j) {
-
+   for (unsigned int i = m_columnArray->firstILocal (); i <= m_columnArray->lastILocal (); ++i) 
+   {
+      for (unsigned int j = m_columnArray->firstJLocal (); j <= m_columnArray->lastJLocal (); ++j) 
+      {
          LocalColumn * column = getLocalColumn (i, j);
-         if (IsValid (column)) {
+         if (IsValid (column)) 
+         {
             column->setOverburden (column->getTopDepth () - gridMap->get( i, j ));
          }
       }
@@ -1487,9 +1491,10 @@ const Interface::Formation* Reservoir::getTopFormation ( const Interface::Snapsh
 
    const Interface::Formation* topFormation = 0;
 
-   for ( ; topFormation == 0 && formation != 0; formation = formation->getTopFormation () ) {
-
-      if ( formation->getTopSurface ()->getSnapshot ()->getTime () >= snapshot->getTime ()) {
+   for ( ; topFormation == 0 && formation != 0; formation = formation->getTopFormation () ) 
+   {
+      if ( formation->getTopSurface ()->getSnapshot ()->getTime () >= snapshot->getTime ())
+      {
          topFormation = formation;
       } 
    }
@@ -1532,9 +1537,10 @@ DerivedProperties::SurfacePropertyPtr Reservoir::getBottomSurfaceProperty (const
    Migrator* mig = dynamic_cast<migration::Migrator*>( m_projectHandle );
    const Interface::Formation* bottomFormation = 0;
 
-   for ( ; bottomFormation == 0 && formation != 0; formation = formation->getBottomFormation () ) {
-
-      if ( formation->getBottomSurface ()->getSnapshot ()->getTime () >= snapshot->getTime ()) {
+   for ( ; bottomFormation == 0 && formation != 0; formation = formation->getBottomFormation () ) 
+   {
+      if ( formation->getBottomSurface ()->getSnapshot ()->getTime () >= snapshot->getTime ()) 
+      {
          bottomFormation = formation;
       } 
    }
@@ -1621,15 +1627,15 @@ double Reservoir::getNeighbourDistance (int n)
 
       if (deltaI == 0)
       {
-            distance = deltaJ;
+         distance = deltaJ;
       }
       else if (deltaJ == 0)
       {
-	 distance = deltaI;
+	      distance = deltaI;
       }
       else
       {
-	 distance = sqrt (Square (deltaI) + Square (deltaJ));
+	      distance = sqrt (Square (deltaI) + Square (deltaJ));
       }
    }
 
@@ -1718,8 +1724,8 @@ int Reservoir::computeMaximumTrapCount (bool countUndersized)
       TrapVector::iterator trapIter;
       for (trapIter = m_traps.begin (); trapIter != m_traps.end (); ++trapIter)
       {
-	 if ((*trapIter)->isUndersized ())
-	    --numberOfTraps;
+	      if ((*trapIter)->isUndersized ())
+	         --numberOfTraps;
       }
    }
    return MaximumAll (numberOfTraps);
@@ -1728,17 +1734,17 @@ int Reservoir::computeMaximumTrapCount (bool countUndersized)
 bool Reservoir::computeDepthOffsets (const Snapshot * presentDay)
 {
 
-    DerivedProperties::SurfacePropertyPtr formationTopDepthMap = getTopSurfaceProperty (depthPropertyName(), presentDay);
-    DerivedProperties::SurfacePropertyPtr formationBottomDepthMap = getBottomSurfaceProperty (depthPropertyName(), presentDay);
+   DerivedProperties::SurfacePropertyPtr formationTopDepthMap = getTopSurfaceProperty (depthPropertyName(), presentDay);
+   DerivedProperties::SurfacePropertyPtr formationBottomDepthMap = getBottomSurfaceProperty (depthPropertyName(), presentDay);
 
    if (!formationTopDepthMap)
    {
       if (GetRank () == 0)
       {
-	 cerr << "WARNING: property value '" << depthPropertyName() << "' does not exist for top surface of formation "
-	    << getFormation ()->getName () << " at snapshot " << presentDay->getTime ()  <<
-	    ",\n\tcannot compute depth offsets for reservoir " << getName () << endl;
-	 cerr.flush ();
+	      cerr << "WARNING: property value '" << depthPropertyName() << "' does not exist for top surface of formation "
+	          << getFormation ()->getName () << " at snapshot " << presentDay->getTime ()  <<
+	          ",\n\tcannot compute depth offsets for reservoir " << getName () << endl;
+	      cerr.flush ();
       }
       return false;
    }
@@ -1747,16 +1753,15 @@ bool Reservoir::computeDepthOffsets (const Snapshot * presentDay)
    {
       if (GetRank () == 0)
       {
-	 cerr << "WARNING: property value '" << depthPropertyName() << "' does not exist for bottom surface of formation "
-	    << getFormation ()->getName () << " at snapshot " << presentDay->getTime ()  <<
-	    ",\n\tcannot compute depth offsets for reservoir " << getName () << endl;
-	 cerr.flush ();
+	      cerr << "WARNING: property value '" << depthPropertyName() << "' does not exist for bottom surface of formation "
+	       << getFormation ()->getName () << " at snapshot " << presentDay->getTime ()  <<
+	       ",\n\tcannot compute depth offsets for reservoir " << getName () << endl;
+	      cerr.flush ();
       }
       return false;
    }
 
    const GridMap * depthOffsetMap = getMap (Interface::DepthOffset); // may be 0
-
    const GridMap * thicknessMap = getMap (Interface::ReservoirThickness); // may be 0
 
    formationTopDepthMap->retrieveData ();
@@ -1769,43 +1774,43 @@ bool Reservoir::computeDepthOffsets (const Snapshot * presentDay)
    {
       for (unsigned int j = m_columnArray->firstJLocal (); j <= m_columnArray->lastJLocal (); ++j)
       {
-	 LocalColumn * column = getLocalColumn (i, j);
+	      LocalColumn * column = getLocalColumn (i, j);
 
-	 double formationTopDepth = formationTopDepthMap->get (i, j);
-	 double formationBottomDepth = formationBottomDepthMap->get (i, j);
+         double formationTopDepth = formationTopDepthMap->get (i, j);
+	      double formationBottomDepth = formationBottomDepthMap->get (i, j);
 
-	 if (formationTopDepth == formationTopDepthMap->getUndefinedValue () || 
-	       formationBottomDepth == formationBottomDepthMap->getUndefinedValue ())
-	 {
-	    // use default values 0, 0
-	    continue;
-	 }
+	      if (formationTopDepth == formationTopDepthMap->getUndefinedValue () || 
+	            formationBottomDepth == formationBottomDepthMap->getUndefinedValue ())
+	      {
+            // use default values 0, 0
+	         continue;
+	      }
 
-	 double formationThickness = formationBottomDepth - formationTopDepth;
-	 formationThickness = Max (0.001, formationThickness);
+         double formationThickness = formationBottomDepth - formationTopDepth;
+         formationThickness = Max (0.001, formationThickness);
 
-	 double depthOffset = 0;
-	 if (depthOffsetMap)
-	 {
-	    depthOffset = depthOffsetMap->getValue (i, j);
-	    if (depthOffset == depthOffsetMap->getUndefinedValue ())
-	    {
-	       depthOffset = 0;
-	    }
-	 }
+         double depthOffset = 0;
+         if (depthOffsetMap)
+	      {
+            depthOffset = depthOffsetMap->getValue (i, j);
+            if (depthOffset == depthOffsetMap->getUndefinedValue ())
+            {
+               depthOffset = 0;
+            }
+         }
 
-	 double thickness = formationThickness;
-	 if (thicknessMap)
-	 {
-	    thickness = thicknessMap->getValue (i, j);
-	    if (thickness == thicknessMap->getUndefinedValue ())
-	    {
-	       thickness = formationThickness;
-	    }
-	 }
+	      double thickness = formationThickness;
+	      if (thicknessMap)
+	      {
+	         thickness = thicknessMap->getValue (i, j);
+            if (thickness == thicknessMap->getUndefinedValue ())
+            {
+	            thickness = formationThickness;
+            }
+	      }
 
-	 column->setTopDepthOffset (depthOffset / formationThickness);
-	 column->setBottomDepthOffset ((formationThickness - (depthOffset + thickness)) / formationThickness);
+         column->setTopDepthOffset (depthOffset / formationThickness);
+         column->setBottomDepthOffset ((formationThickness - (depthOffset + thickness)) / formationThickness);
       }
    }
 
@@ -1830,19 +1835,18 @@ bool Reservoir::computeNetToGross (void)
    {
       for (unsigned int j = m_columnArray->firstJLocal (); j <= m_columnArray->lastJLocal (); ++j)
       {
-	 LocalColumn * column = getLocalColumn (i, j);
+	      LocalColumn * column = getLocalColumn (i, j);
 
-	 double netToGross = 100.0;
-	 if (netToGrossMap)
-	 {
-	    netToGross = netToGrossMap->getValue (i, j);
-	    if (netToGross == netToGrossMap->getUndefinedValue ())
-	    {
-	       netToGross = 100.0;
-	    }
-	 }
-
-	 column->setNetToGross (netToGross / 100.0);
+         double netToGross = 100.0;
+         if (netToGrossMap)
+         {
+	         netToGross = netToGrossMap->getValue (i, j);
+	         if (netToGross == netToGrossMap->getUndefinedValue ())
+	         {
+	            netToGross = 100.0;
+	         }
+         }
+	      column->setNetToGross (netToGross / 100.0);
       }
    }
 
@@ -1888,8 +1892,8 @@ bool Reservoir::crackChargesToBeMigrated (OilToGasCracker & otgc)
    {
       for (unsigned int j = m_columnArray->firstJLocal (); j <= m_columnArray->lastJLocal (); ++j)
       {
-	 LocalColumn * column = getLocalColumn (i, j);
-	 column->crackChargesToBeMigrated (otgc, m_start->getTime(), m_end->getTime());
+         LocalColumn * column = getLocalColumn (i, j);
+         column->crackChargesToBeMigrated (otgc, m_start->getTime(), m_end->getTime());
       }
    }
 
@@ -1918,29 +1922,36 @@ bool Reservoir::collectExpelledCharges (const Formation * formation, unsigned in
 
    Formation * srFormation = const_cast< Formation *>( formation );
 
-   if( genexMinorSnapshots ) {
-      if( sourceRockIsActive ) {
-         if( ! formation->isPreprocessed() ) {
+   if( genexMinorSnapshots ) 
+   {
+      if( sourceRockIsActive ) 
+      {
+         if( ! formation->isPreprocessed() ) 
+         {
             bool status = srFormation->preprocessSourceRock( getStart()->getTime(), printDebug  );
-            if( !status && GetRank() == 0 ) {
+            if( !status && GetRank() == 0 ) 
+            {
                cout << "Cannot preprocess " << formation->getName() << ", depoage= " << depoTime << " at " <<  getStart()->getTime() << endl;
             }
             
          }
          bool status = srFormation->calculateGenexTimeInterval( getStart(), getEnd(), printDebug );
          
-         if( status ) {
+         if( status ) 
+         {
             double fraction = (direction == EXPELLEDUPANDDOWNWARD ? 1.0 : 0.5);
 
             addChargesToBeMigrated ( formation->getGenexData(), fraction, barrier);
 
-         } else {
-            if( GetRank() == 0 ) {
+         } 
+         else 
+         {
+            if( GetRank() == 0 ) 
+            {
                cout << "Cannot calculate genex " << getName() << ", depoage= " << depoTime << " at " <<  getStart()->getTime() << endl;
             }
 
-         }
-      
+         }      
          return status;
       } 
       return true; 
@@ -1960,51 +1971,72 @@ bool Reservoir::collectExpelledCharges (const Formation * formation, unsigned in
 
       double startTime, endTime, fractionToMigrate = 1;
 
-      if( gridMapStart ) {
+      if( gridMapStart ) 
+      {
          startTime = getStart ()->getTime();
-      } else  if( genexFraction ) {         
+      } 
+      else  if( genexFraction ) 
+      {         
          const Snapshot * startSnapshot = m_projectHandle->findPreviousSnapshot( getStart ()->getTime() );
          startTime = startSnapshot->getTime();
          gridMapStart = getPropertyGridMap (propertyName, startSnapshot, 0, formation, 0);
       }
-      if( gridMapEnd ) {
+      if( gridMapEnd ) 
+      {
          endTime = getEnd ()->getTime();
-      } else if( genexFraction ) {
+      } 
+      else if( genexFraction ) 
+      {
          const Snapshot * endSnapshot = m_projectHandle->findNextSnapshot( getEnd ()->getTime() );
          endTime = endSnapshot->getTime();
          gridMapEnd = getPropertyGridMap (propertyName, endSnapshot, 0, formation, 0);
       }
       
-      if( startTime - endTime > 0 and genexFraction ) {
-         if( gridMapStart && gridMapEnd ) {
+      if (startTime - endTime > 0 and genexFraction)
+      {
+         if( gridMapStart && gridMapEnd ) 
+         {
             fractionToMigrate = (getStart()->getTime() - getEnd()->getTime()) / (startTime - endTime );
-            if( endTime == getEnd ()->getTime() ) {
+            if( endTime == getEnd ()->getTime() ) 
+            {
                //fractionToMigrate =  the rest
             }
          }
       } 
 
-      if( gridMapStart && gridMapEnd ) {
-	 if (GetRank () == 0 and  printDebug ) {
-            if( propertyName == "asphaltenesExpelledCumulative" ) {
+      if( gridMapStart && gridMapEnd ) 
+      {
+         if (GetRank () == 0 and  printDebug ) 
+         {
+            if( propertyName == "asphaltenesExpelledCumulative" ) 
+            {
                cout << formation->getName() << ": " << propertyName << ": Start = " << startTime << "(" << getStart ()->getTime() <<"), End = " << endTime 
-                    << "(" << getEnd ()->getTime() << "),fraction = " << fractionToMigrate << endl;
+                     << "(" << getEnd ()->getTime() << "),fraction = " << fractionToMigrate << endl;
             }
          }
-      } else {
-        if( gridMapStart && !gridMapEnd ) {
-           if (GetRank () == 0 and  printDebug) {
-             if( propertyName == "asphaltenesExpelledCumulative" ) {
-                cout << formation->getName() << ": " <<  propertyName << ": only start " << startTime << " and no " << getEnd ()->getTime() << " depotime = " << depoTime << endl;
-             }
+      } 
+      else 
+      {
+         if( gridMapStart && !gridMapEnd ) 
+         {
+            if (GetRank () == 0 and  printDebug) 
+            {
+               if( propertyName == "asphaltenesExpelledCumulative" ) 
+               {
+                  cout << formation->getName() << ": " <<  propertyName << ": only start " << startTime << " and no " << getEnd ()->getTime() << " depotime = " << depoTime << endl;
+               }
            }
-        } else if( !gridMapStart && gridMapEnd ) {
-           if (GetRank () == 0 and  printDebug ) {
-              if( propertyName == "asphaltenesExpelledCumulative" ) {
-                 cout << formation->getName() << ": " << propertyName << ": only end " << endTime << " and no " << getStart ()->getTime() << " depotime = " << depoTime <<endl;
-              }
-           }
-        }
+         } 
+         else if( !gridMapStart && gridMapEnd ) 
+         {
+            if (GetRank () == 0 and  printDebug ) 
+            {
+               if( propertyName == "asphaltenesExpelledCumulative" ) 
+               {
+                  cout << formation->getName() << ": " << propertyName << ": only end " << endTime << " and no " << getStart ()->getTime() << " depotime = " << depoTime <<endl;
+               }
+            }
+         }
       }           
 
       if (gridMapEnd)
@@ -2020,7 +2052,6 @@ bool Reservoir::collectExpelledCharges (const Formation * formation, unsigned in
          subtractChargesToBeMigrated ((ComponentId) componentId, gridMapStart, fraction * fractionToMigrate, barrier);
          gridMapStart->restoreData ();
       }
-
    }
 
    return true;
@@ -2055,7 +2086,8 @@ bool Reservoir::saveGenexMaps( const string & speciesName, DataAccess::Interface
    mapWriter->writeMapToHDF ( aMap, time, time, dataSetName, topSurfaceName); 
    mapWriter->close();
    
-   if( GetRank() == 0 ) {
+   if( GetRank() == 0 ) 
+   {
       cout << "Map " << speciesName << " at " << time << " is saved into " << outputFileName <<  endl;
    }
    delete mapWriter;
@@ -2086,16 +2118,16 @@ bool Reservoir::collectLeakedCharges (Reservoir * leakingReservoir, Barrier * ba
    {
       for (unsigned int j = m_columnArray->firstJLocal (); j <= m_columnArray->lastJLocal (); ++j)
       {
-	 LocalColumn * column = getLocalColumn (i, j);
-	 LocalColumn * leakingColumn = leakingReservoir->getLocalColumn (i, j);
-	 if (IsValid (column) && IsValid (leakingColumn) &&
-	       !leakingColumn->isOnBoundary ())
-	 {
-	    if (barrier && barrier->isBlocking (i, j))
-	       addBlocked (leakingColumn->getComposition ());
-	    else
-	       column->addCompositionToBeMigrated (leakingColumn->getComposition ());
-	 }
+         LocalColumn * column = getLocalColumn (i, j);
+         LocalColumn * leakingColumn = leakingReservoir->getLocalColumn (i, j);
+         if (IsValid (column) && IsValid (leakingColumn) &&
+	         !leakingColumn->isOnBoundary ())
+         {
+            if (barrier && barrier->isBlocking (i, j))
+	            addBlocked (leakingColumn->getComposition ());
+            else
+	            column->addCompositionToBeMigrated (leakingColumn->getComposition ());
+         }
       }
    }
    return true;
@@ -2111,11 +2143,11 @@ bool Reservoir::migrateChargesToBeMigrated (const Formation * srcFormation, cons
    {
       for (unsigned int j = m_columnArray->firstJLocal (); j <= m_columnArray->lastJLocal (); ++j)
       {
-	 LocalColumn * column = getLocalColumn (i, j);
-	 if (IsValid (column))
-	 {
-	    column->migrateChargesToBeMigrated ();
-	 }
+         LocalColumn * column = getLocalColumn (i, j);
+         if (IsValid (column))
+         {
+            column->migrateChargesToBeMigrated ();
+         }
       }
    }
 
@@ -2139,11 +2171,11 @@ double Reservoir::getTotalToBeStoredCharges (bool onBoundaryOnly)
    {
       for (unsigned int j = m_columnArray->firstJLocal (); j <= m_columnArray->lastJLocal (); ++j)
       {
-	 LocalColumn * column = getLocalColumn (i, j);
-	 if (IsValid (column) && (!onBoundaryOnly || column->isOnBoundary ()))
-	 {
-	    total += column->getCompositionWeight ();
-	 }
+         LocalColumn * column = getLocalColumn (i, j);
+         if (IsValid (column) && (!onBoundaryOnly || column->isOnBoundary ()))
+         {
+	         total += column->getCompositionWeight ();
+         }
       }
    }
 
@@ -2161,11 +2193,11 @@ double Reservoir::getTotalChargesToBeMigrated (void)
    {
       for (unsigned int j = m_columnArray->firstJLocal (); j <= m_columnArray->lastJLocal (); ++j)
       {
-	 LocalColumn * column = getLocalColumn (i, j);
-	 if (IsValid (column))
-	 {
-	    total += column->getWeightToBeMigrated ();
-	 }
+         LocalColumn * column = getLocalColumn (i, j);
+         if (IsValid (column))
+         {
+	         total += column->getWeightToBeMigrated ();
+         }
       }
    }
 
@@ -2183,8 +2215,8 @@ double Reservoir::getTotalImmobiles (void)
    {
       for (unsigned int j = m_columnArray->firstJLocal (); j <= m_columnArray->lastJLocal (); ++j)
       {
-	 LocalColumn * column = getLocalColumn (i, j);
-	 total += column->getImmobilesWeight ();
+	       LocalColumn * column = getLocalColumn (i, j);
+	       total += column->getImmobilesWeight ();
       }
    }
 
@@ -2388,9 +2420,9 @@ double Reservoir::biodegradeCharges ()
 
    for (TrapVector::iterator trapIter = m_traps.begin (); trapIter != m_traps.end (); ++trapIter)
    {
-     biodegraded += (*trapIter)->biodegradeCharges(timeInterval, biodegrade);
+      biodegraded += (*trapIter)->biodegradeCharges(timeInterval, biodegrade);
    }
-
+   
    RequestHandling::FinishRequestHandling ();
    return biodegraded;
 }
@@ -2584,23 +2616,23 @@ void Reservoir::mergeSpillingTraps (void)
 }
 
 /// Transfer interiors of traps to be absorbed to the absorbing traps.
-void Reservoir::absorbTraps (void)
+void Reservoir::absorbTraps(void)
 {
-   RequestHandling::StartRequestHandling (this, "absorbTraps");
+   RequestHandling::StartRequestHandling(this, "absorbTraps");
    TrapVector::iterator trapIter;
-   for (trapIter = m_traps.begin (); trapIter != m_traps.end (); ++trapIter)
+   for (trapIter = m_traps.begin(); trapIter != m_traps.end(); ++trapIter)
    {
-      Trap * trap = * trapIter;
-      if (trap->isToBeAbsorbed ())
+      Trap * trap = *trapIter;
+      if (trap->isToBeAbsorbed())
       {
-	 trap->beAbsorbed ();
+         trap->beAbsorbed();
 
-	 delete trap;
-	 trapIter = m_traps.erase (trapIter);
-	 --trapIter;
+         delete trap;
+         trapIter = m_traps.erase(trapIter);
+         --trapIter;
       }
    }
-   RequestHandling::FinishRequestHandling ();
+   RequestHandling::FinishRequestHandling();
 }
 
 void Reservoir::completeTrapExtensions (void)
