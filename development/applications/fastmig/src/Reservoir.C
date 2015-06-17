@@ -2584,25 +2584,25 @@ void Reservoir::mergeSpillingTraps (void)
 }
 
 /// Transfer interiors of traps to be absorbed to the absorbing traps.
-void Reservoir::absorbTraps (void)
+void Reservoir::absorbTraps(void)
 {
-   RequestHandling::StartRequestHandling (this, "absorbTraps");
+   RequestHandling::StartRequestHandling(this, "absorbTraps");
    TrapVector::iterator trapIter;
-   for (trapIter = m_traps.begin(); trapIter != m_traps.end(); )
+   for (trapIter = m_traps.begin(); trapIter != m_traps.end();)
    {
-      Trap * trap = * trapIter;
+      Trap * trap = *trapIter;
 
-      if ( trap->isToBeAbsorbed() )
+      if (trap->isToBeAbsorbed())
       {
-	      trap->beAbsorbed();
+         trap->beAbsorbed();
 
-	      delete trap;
-	      trapIter = m_traps.erase( trapIter );
+         delete trap;
+         trapIter = m_traps.erase(trapIter);
          continue;
       }
       ++trapIter;
    }
-   RequestHandling::FinishRequestHandling ();
+   RequestHandling::FinishRequestHandling();
 }
 
 void Reservoir::completeTrapExtensions (void)
