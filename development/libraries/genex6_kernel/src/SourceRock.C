@@ -59,7 +59,7 @@ using Interface::LithoType;
 
 #include "AbstractPropertyManager.h"
 
-// using namespace Genex6;
+#define LOADEROSION 1
 
 namespace Genex6
 {
@@ -1496,13 +1496,16 @@ bool SourceRock::process()
       }
       
       //erosion 
-      //       property = m_propertyManager->getProperty ( "ErosionFactor" );
-      
+
+#ifdef LOADEROSION
       const GridMap *thicknessScalingAtStart = getFormationPropertyGridMap("ErosionFactor", intervalStart);      
       const GridMap *thicknessScalingAtEnd   = getFormationPropertyGridMap("ErosionFactor", intervalEnd);
-      // DerivedProperties::FormationMapPropertyPtr thicknessScalingAtStart = m_propertyManager->getFormationMapProperty ( property, intervalStart, m_formation );
-      //  DerivedProperties::FormationMapPropertyPtr thicknessScalingAtEnd   = m_propertyManager->getFormationMapProperty ( property, intervalEnd, m_formation );
- 
+#else
+      property = m_propertyManager->getProperty ( "ErosionFactor" );
+      
+      DerivedProperties::FormationMapPropertyPtr thicknessScalingAtStart = m_propertyManager->getFormationMapProperty ( property, intervalStart, m_formation );
+      DerivedProperties::FormationMapPropertyPtr thicknessScalingAtEnd   = m_propertyManager->getFormationMapProperty ( property, intervalEnd, m_formation );
+#endif
       if(thicknessScalingAtStart && thicknessScalingAtEnd) {
 
          ThicknessScalingInterpolator->compute(intervalStart, thicknessScalingAtStart, 
@@ -2276,10 +2279,12 @@ bool SourceRock::computeSnapShot ( const double previousTime,
    property = m_propertyManager->getProperty ( "Ves" );
    DerivedProperties::SurfacePropertyPtr calcVes = m_propertyManager->getSurfaceProperty ( property, theSnapshot, m_formation->getTopSurface () );
 
+#ifdef LOADEROSION
    const GridMap *thicknessScaling = getFormationPropertyGridMap("ErosionFactor",theSnapshot );
-
-   // property = m_propertyManager->getProperty ( "ErosionFactor" );
-   // DerivedProperties::FormationMapPropertyPtr calcErosion = m_propertyManager->getFormationMapProperty ( property, theSnapshot, m_formation  );
+#else
+   property = m_propertyManager->getProperty ( "ErosionFactor" );
+   DerivedProperties::FormationMapPropertyPtr calcErosion = m_propertyManager->getFormationMapProperty ( property, theSnapshot, m_formation  );
+#endif
 
    property = m_propertyManager->getProperty ( "Temperature" );
    DerivedProperties::SurfacePropertyPtr calcTemp = m_propertyManager->getSurfaceProperty ( property, theSnapshot, m_formation->getTopSurface () );
@@ -2358,14 +2363,17 @@ bool SourceRock::computeSnapShot ( const double previousTime,
       bool useMaximumVes = isVESMaxEnabled();
       double maximumVes = getVESMax();
       maximumVes *= Genex6::Constants::convertMpa2Pa;
-      
-      
+
+#ifdef LOADEROSION      
       unsigned int depthThicknessScaling = 1;
       if(thicknessScaling) {
          thicknessScaling->retrieveData();
          depthThicknessScaling = thicknessScaling->getDepth();
       }
+#else
 
+      if( calcErosion ) calcErosion->retrieveData();
+#endif
       //need to optimize..
       std::vector<Genex6::SourceRockNode*>::iterator itNode;
       for(itNode = m_theNodes.begin(); itNode != m_theNodes.end(); ++ itNode) { 
@@ -2377,11 +2385,12 @@ bool SourceRock::computeSnapShot ( const double previousTime,
          }
          double in_Temp = calcTemp->get(( *itNode)->GetI(), (*itNode)->GetJ());
 
-        double in_thicknessScaling = thicknessScaling ? 
+#ifdef LOADEROSION
+         double in_thicknessScaling = thicknessScaling ? 
             thicknessScaling->getValue(( *itNode)->GetI(), (*itNode)->GetJ(), depthThicknessScaling - 1 ) : 1.0;
-
-        //         double in_thicknessScaling = calcErosion ? calcErosion->get(( *itNode)->GetI(), (*itNode)->GetJ()) : 1.0;
- 
+#else
+         double in_thicknessScaling = calcErosion ? calcErosion->get(( *itNode)->GetI(), (*itNode)->GetJ()) : 1.0;
+#endif
          double nodeHydrostaticPressure =  ( calcHP ?  1.0e6 * calcHP->get ((*itNode)->GetI(), (*itNode)->GetJ()) : Constants::UNDEFINEDVALUE );
 
          double nodePorePressure = ( calcPressure ?  1.0e6 * calcPressure->get ((*itNode)->GetI(), (*itNode)->GetJ()) : Constants::UNDEFINEDVALUE );
@@ -2458,10 +2467,13 @@ bool SourceRock::computeSnapShot ( const double previousTime,
       calcVre->restoreData();
       if( calcPressure ) calcPressure->restoreData();
 
+#ifdef LOADEROSION
       if(thicknessScaling) {
          thicknessScaling->restoreData();
       }
-
+#else
+      if( calcErosion )  calcErosion->restoreData();
+#endif
    }
 
    return status;

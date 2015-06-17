@@ -190,7 +190,19 @@ void LinearGridInterpolator::compute ( const Snapshot *startTime,
    const double start = startTime->getTime();
    const double end   = endTime->getTime(); 
 
-   //if first time(most likely)
+   bool startRetrieved = startProperty->isRetrieved ();
+   bool endRetrieved = endProperty->isRetrieved ();
+
+    // Indicate whether or not the maps were originally in the retrieved state.
+   if ( not startRetrieved ) {
+      startProperty->retrieveData();
+   }
+
+   if ( not endRetrieved ) {
+      endProperty->retrieveData();
+   }
+
+  //if first time(most likely)
    if(!m_A || !m_B )
    {
       initialize( startProperty ); 
@@ -236,6 +248,14 @@ void LinearGridInterpolator::compute ( const Snapshot *startTime,
          setValueFromGridMap(valueB, i, j, B);
       }
 
+   }
+
+   // Restore maps to original state.
+   if ( not startRetrieved ) {
+      startProperty->restoreData();
+   }
+   if ( not endRetrieved ) {
+      endProperty->restoreData();
    }
 }
 
@@ -290,7 +310,19 @@ void LinearGridInterpolator::compute ( const Snapshot *startTime,
    const double start = startTime->getTime();
    const double end   = endTime->getTime(); 
 
-   //if first time(most likely)
+   bool startRetrieved = startProperty->isRetrieved ();
+   bool endRetrieved = endProperty->isRetrieved ();
+
+    // Indicate whether or not the maps were originally in the retrieved state.
+   if ( not startRetrieved ) {
+      startProperty->retrieveData();
+   }
+
+   if ( not endRetrieved ) {
+      endProperty->retrieveData();
+   }
+
+  //if first time(most likely)
    if(!m_A || !m_B )
    {
       initialize( startProperty ); 
@@ -337,6 +369,14 @@ void LinearGridInterpolator::compute ( const Snapshot *startTime,
       }
 
    }
+   // Restore maps to original state.
+   if ( not startRetrieved ) {
+      startProperty->restoreData();
+   }
+   if ( not endRetrieved ) {
+      endProperty->restoreData();
+   }
+
 }
 
 void LinearGridInterpolator::compute ( const Snapshot *startTime,
@@ -348,6 +388,18 @@ void LinearGridInterpolator::compute ( const Snapshot *startTime,
    const double start = startTime->getTime();
    const double end   = endTime->getTime(); 
 
+   bool startRetrieved = startProperty->isRetrieved ();
+   bool endRetrieved = endProperty->isRetrieved ();
+
+    // Indicate whether or not the maps were originally in the retrieved state.
+   if ( not startRetrieved ) {
+      startProperty->retrieveData();
+   }
+
+   if ( not endRetrieved ) {
+      endProperty->retrieveData();
+   }
+
    //if first time(most likely)
    if(!m_A || !m_B )
    {
@@ -394,6 +446,13 @@ void LinearGridInterpolator::compute ( const Snapshot *startTime,
          setValueFromGridMap(valueB, i, j, B);
       }
 
+   }
+   // Restore maps to original state.
+   if ( not startRetrieved ) {
+      startProperty->restoreData();
+   }
+   if ( not endRetrieved ) {
+      endProperty->restoreData();
    }
 }
 void LinearGridInterpolator::compute ( const Snapshot *startTime,
@@ -405,7 +464,19 @@ void LinearGridInterpolator::compute ( const Snapshot *startTime,
    const double start = startTime->getTime();
    const double end   = endTime->getTime(); 
 
-   //if first time(most likely)
+   bool startRetrieved = startProperty->isRetrieved ();
+   bool endRetrieved = endProperty->isRetrieved ();
+
+    // Indicate whether or not the maps were originally in the retrieved state.
+   if ( not startRetrieved ) {
+      startProperty->retrieveData();
+   }
+
+   if ( not endRetrieved ) {
+      endProperty->retrieveData();
+   }
+
+  //if first time(most likely)
    if(!m_A || !m_B )
    {
       initialize( startProperty ); 
@@ -451,6 +522,13 @@ void LinearGridInterpolator::compute ( const Snapshot *startTime,
          setValueFromGridMap(valueB, i, j, B);
       }
 
+   }
+   // Restore maps to original state.
+   if ( not startRetrieved ) {
+      startProperty->restoreData();
+   }
+   if ( not endRetrieved ) {
+      endProperty->restoreData();
    }
 }
 
