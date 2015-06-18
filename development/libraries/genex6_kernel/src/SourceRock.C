@@ -745,9 +745,8 @@ bool SourceRock::preprocess()
    GridMap * vreMap = 0;
    if( vre == 0 ) {
       const DataModel::AbstractProperty *property = m_propertyManager->getProperty( "Vr" );
-      DerivedProperties::SurfacePropertyPtr surfaceProperty = m_propertyManager->getSurfaceProperty ( property,
-                                                                                                      presentDay, 
-                                                                                                      m_formation->getTopSurface () );
+      DerivedProperties::FormationSurfacePropertyPtr surfaceProperty = m_propertyManager->getFormationSurfaceProperty ( property, presentDay, 
+                                                                                                                        m_formation, m_formation->getTopSurface () );
       if( surfaceProperty != 0 ) {
          vreMap = getProjectHandle()->GetFactoryToUse()->produceGridMap ( 0, 0, 
                                                                           getProjectHandle()->getActivityOutputGrid (), 
@@ -1301,9 +1300,9 @@ bool SourceRock::process()
    
    LinearGridInterpolator *VESInterpolator  = new LinearGridInterpolator;
    LinearGridInterpolator *TempInterpolator = new LinearGridInterpolator;
-   LinearGridInterpolator *ThicknessScalingInterpolator = new LinearGridInterpolator;
    LinearGridInterpolator *vreInterpolator  = new LinearGridInterpolator;
 
+   LinearGridInterpolator *ThicknessScalingInterpolator = 0;
    LinearGridInterpolator *porePressureInterpolator = 0;
    LinearGridInterpolator *lithostaticPressureInterpolator = 0;
    LinearGridInterpolator *hydrostaticPressureInterpolator = 0;
@@ -1508,6 +1507,7 @@ bool SourceRock::process()
 #endif
       if(thicknessScalingAtStart && thicknessScalingAtEnd) {
 
+         ThicknessScalingInterpolator = new LinearGridInterpolator;
          ThicknessScalingInterpolator->compute(intervalStart, thicknessScalingAtStart, 
                                                intervalEnd,   thicknessScalingAtEnd);  
 
