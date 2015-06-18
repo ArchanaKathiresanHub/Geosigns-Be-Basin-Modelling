@@ -414,27 +414,15 @@ void DerivedProperties::AbstractPropertyManager::removeProperties ( const DataMo
 
 }
 
-bool DerivedProperties::AbstractPropertyManager::formationPropertyIsComputable ( const DataModel::AbstractProperty* property ) const {
+bool DerivedProperties::AbstractPropertyManager::formationPropertyIsComputable ( const DataModel::AbstractProperty*  property,
+                                                                                 const DataModel::AbstractSnapshot*  snapshot,
+                                                                                 const DataModel::AbstractFormation* formation ) const {
 
    FormationPropertyCalculatorPtr calculator = getFormationCalculator ( property, 0 );
    bool isComputable;
 
    if ( calculator != 0 ) {
-      const std::vector<std::string>& dependentProperties = calculator->getDependentPropertyNames ();
-
-      // If there are no dependent properties then the property is calculatable because we have a calculator
-      isComputable = true;
-
-      for ( size_t i = 0; i < dependentProperties.size (); ++i ) {
-         const DataModel::AbstractProperty* dependentProperty = getProperty ( dependentProperties [ i ]);
-
-         if ( dependentProperty == property ) {
-            // Error
-         }
-
-         isComputable = isComputable and formationPropertyIsComputable ( dependentProperty );
-      }
-
+      isComputable = calculator->isComputable ( *this, snapshot, formation );
    } else {
       isComputable = false;
    }
@@ -442,27 +430,17 @@ bool DerivedProperties::AbstractPropertyManager::formationPropertyIsComputable (
    return isComputable;
 }
 
-bool DerivedProperties::AbstractPropertyManager::formationSurfacePropertyIsComputable ( const DataModel::AbstractProperty* property ) const {
+bool DerivedProperties::AbstractPropertyManager::formationSurfacePropertyIsComputable ( const DataModel::AbstractProperty*  property,
+                                                                                        const DataModel::AbstractSnapshot*  snapshot,
+                                                                                        const DataModel::AbstractFormation* formation,
+                                                                                        const DataModel::AbstractSurface*   surface ) const {
+
 
    FormationSurfacePropertyCalculatorPtr calculator = getFormationSurfaceCalculator ( property, 0 );
    bool isComputable;
 
    if ( calculator != 0 ) {
-      const std::vector<std::string>& dependentProperties = calculator->getDependentPropertyNames ();
-
-      // If there are no dependent properties then the property is calculatable because we have a calculator
-      isComputable = true;
-
-      for ( size_t i = 0; i < dependentProperties.size (); ++i ) {
-         const DataModel::AbstractProperty* dependentProperty = getProperty ( dependentProperties [ i ]);
-
-         if ( dependentProperty == property ) {
-            // Error
-         }
-
-         isComputable = isComputable and formationSurfacePropertyIsComputable ( dependentProperty );
-      }
-
+      isComputable = calculator->isComputable ( *this, snapshot, formation, surface );
    } else {
       isComputable = false;
    }
@@ -470,27 +448,16 @@ bool DerivedProperties::AbstractPropertyManager::formationSurfacePropertyIsCompu
    return isComputable;
 }
 
-bool DerivedProperties::AbstractPropertyManager::surfacePropertyIsComputable ( const DataModel::AbstractProperty* property ) const {
+bool DerivedProperties::AbstractPropertyManager::surfacePropertyIsComputable ( const DataModel::AbstractProperty* property,
+                                                                               const DataModel::AbstractSnapshot* snapshot,
+                                                                               const DataModel::AbstractSurface*  surface ) const {
 
    SurfacePropertyCalculatorPtr calculator = getSurfaceCalculator ( property, 0 );
    bool isComputable;
 
+
    if ( calculator != 0 ) {
-      const std::vector<std::string>& dependentProperties = calculator->getDependentPropertyNames ();
-
-      // If there are no dependent properties then the property is calculatable because we have a calculator
-      isComputable = true;
-
-      for ( size_t i = 0; i < dependentProperties.size (); ++i ) {
-         const DataModel::AbstractProperty* dependentProperty = getProperty ( dependentProperties [ i ]);
-
-         if ( dependentProperty == property ) {
-            // Error
-         }
-
-         isComputable = isComputable and surfacePropertyIsComputable ( dependentProperty );
-      }
-
+      isComputable = calculator->isComputable ( *this, snapshot, surface );
    } else {
       isComputable = false;
    }
@@ -498,27 +465,15 @@ bool DerivedProperties::AbstractPropertyManager::surfacePropertyIsComputable ( c
    return isComputable;
 }
 
-bool DerivedProperties::AbstractPropertyManager::formationMapPropertyIsComputable ( const DataModel::AbstractProperty* property ) const {
+bool DerivedProperties::AbstractPropertyManager::formationMapPropertyIsComputable ( const DataModel::AbstractProperty*  property,
+                                                                                    const DataModel::AbstractSnapshot*  snapshot,
+                                                                                    const DataModel::AbstractFormation* formation ) const {
 
    FormationMapPropertyCalculatorPtr calculator = getFormationMapCalculator ( property, 0 );
    bool isComputable;
 
    if ( calculator != 0 ) {
-      const std::vector<std::string>& dependentProperties = calculator->getDependentPropertyNames ();
-
-      // If there are no dependent properties then the property is calculatable because we have a calculator
-      isComputable = true;
-
-      for ( size_t i = 0; i < dependentProperties.size (); ++i ) {
-         const DataModel::AbstractProperty* dependentProperty = getProperty ( dependentProperties [ i ]);
-
-         if ( dependentProperty == property ) {
-            // Error
-         }
-
-         isComputable = isComputable and formationMapPropertyIsComputable ( dependentProperty );
-      }
-
+      isComputable = calculator->isComputable ( *this, snapshot, formation );
    } else {
       isComputable = false;
    }

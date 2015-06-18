@@ -86,29 +86,69 @@ namespace DerivedProperties {
                                                                         const DataModel::AbstractFormation* formation,
                                                                         const DataModel::AbstractSurface*   surface );
 
-      /// \brief Determine if a property is computable for the formation.
+      /// \brief Determine if the formation property is computable.
       ///
-      /// \param [in] property The property we would like to know is calculatable.
+      /// If snapshot is null then this will determine if the property is computable at some undefined snapshot time.
+      /// If formation is null then this will determine if the property is computable at some undefined formation in the domain.
+      ///
+      /// \param [in] property  The property we would like to know is calculatable.
+      /// \param [in] snapshot  The snapshot at which we would like to know if the property is calculatable.
+      /// \param [in] formation The formation for which we would like to know if the property is calculatable.
       /// \pre The property points to a valid property object.
-      virtual bool formationPropertyIsComputable ( const DataModel::AbstractProperty* property ) const;
+      /// \pre The snapshot points to a valid snapshot object or is null.
+      /// \pre The formation points to a valid formation object or is null.
+      virtual bool formationPropertyIsComputable ( const DataModel::AbstractProperty*  property,
+                                                   const DataModel::AbstractSnapshot*  snapshot = 0,
+                                                   const DataModel::AbstractFormation* formation = 0 ) const;
 
-      /// \brief Determine if a property is computable for the formation-surface.
+      /// \brief Determine if the formation-surface property is computable.
       ///
-      /// \param [in] property The property we would like to know is calculatable.
+      /// If snapshot is null then this will determine if the property is computable at some undefined snapshot time.
+      /// If formation is null then this will determine if the property is computable at some undefined formation in the domain.
+      /// If surface is null then this will determine if the property is computable at some undefined surface in the domain.
+      ///
+      /// \param [in] property  The property we would like to know is calculatable.
+      /// \param [in] snapshot  The snapshot at which we would like to know if the property is calculatable.
+      /// \param [in] formation The formation for which we would like to know if the property is calculatable.
+      /// \param [in] surface   The surface for which we would like to know if the property is calculatable.
       /// \pre The property points to a valid property object.
-      virtual bool formationSurfacePropertyIsComputable ( const DataModel::AbstractProperty* property ) const;
+      /// \pre The snapshot points to a valid snapshot object or is null.
+      /// \pre The formation points to a valid formation object or is null.
+      /// \pre The surface points to a valid surface object or is null.
+      virtual bool formationSurfacePropertyIsComputable ( const DataModel::AbstractProperty*  property,
+                                                          const DataModel::AbstractSnapshot*  snapshot = 0,
+                                                          const DataModel::AbstractFormation* formation = 0,
+                                                          const DataModel::AbstractSurface*   surface = 0 ) const;
 
-      /// \brief Determine if a property is computable for the surface.
+      /// \brief Determine if the surface property is computable.
+      ///
+      /// If snapshot is null then this will determine if the property is computable at some undefined snapshot time.
+      /// If surface is null then this will determine if the property is computable at some undefined surface in the domain.
       ///
       /// \param [in] property The property we would like to know is calculatable.
+      /// \param [in] snapshot The snapshot at which we would like to know if the property is calculatable.
+      /// \param [in] surface  The surface for which we would like to know if the property is calculatable.
       /// \pre The property points to a valid property object.
-      virtual bool surfacePropertyIsComputable ( const DataModel::AbstractProperty* property ) const;
+      /// \pre The snapshot points to a valid snapshot object or is null.
+      /// \pre The surface points to a valid surface object or is null.
+      virtual bool surfacePropertyIsComputable ( const DataModel::AbstractProperty* property,
+                                                 const DataModel::AbstractSnapshot* snapshot = 0,
+                                                 const DataModel::AbstractSurface*  surface = 0 ) const;
 
-      /// \brief Determine if a property is computable for the formation-map.
+      /// \brief Determine if the formation-map property is computable.
       ///
-      /// \param [in] property The property we would like to know is calculatable.
+      /// If snapshot is null then this will determine if the property is computable at some undefined snapshot time.
+      /// If formation is null then this will determine if the property is computable at some undefined formation in the domain.
+      ///
+      /// \param [in] property  The property we would like to know is calculatable.
+      /// \param [in] snapshot  The snapshot at which we would like to know if the property is calculatable.
+      /// \param [in] formation The formation for which we would like to know if the property is calculatable.
       /// \pre The property points to a valid property object.
-      virtual bool formationMapPropertyIsComputable ( const DataModel::AbstractProperty* property ) const;
+      /// \pre The snapshot points to a valid snapshot object or is null.
+      /// \pre The formation points to a valid formation object or is null.
+      virtual bool formationMapPropertyIsComputable ( const DataModel::AbstractProperty* property,
+                                                      const DataModel::AbstractSnapshot*  snapshot = 0,
+                                                      const DataModel::AbstractFormation* formation = 0 ) const;
 
       /// \brief Remove all properties associated with a particular snapshot.
       void removeProperties ( const DataModel::AbstractSnapshot* snapshot );

@@ -45,3 +45,11 @@ void DerivedProperties::FormationSurfacePropertyOffsetCalculator::calculate ( Ab
    }
 
 }
+
+bool DerivedProperties::FormationSurfacePropertyOffsetCalculator::isComputable ( const AbstractPropertyManager&      propManager,
+                                                                                 const DataModel::AbstractSnapshot*  snapshot,
+                                                                                 const DataModel::AbstractFormation* formation,
+                                                                                 const DataModel::AbstractSurface*   surface ) const {
+   (void) surface;
+   return propManager.formationPropertyIsComputable ( m_property, snapshot, formation );
+}

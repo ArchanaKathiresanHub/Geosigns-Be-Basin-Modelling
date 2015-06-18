@@ -20,7 +20,6 @@ DerivedProperties::SurfacePropertyOffsetCalculator::SurfacePropertyOffsetCalcula
 
 }
 
-
 void DerivedProperties::SurfacePropertyOffsetCalculator::calculate ( AbstractPropertyManager&           propManager,
                                                                      const DataModel::AbstractSnapshot* snapshot,
                                                                      const DataModel::AbstractSurface*  surface,
@@ -33,7 +32,7 @@ void DerivedProperties::SurfacePropertyOffsetCalculator::calculate ( AbstractPro
 
    if ( formationAbove != 0 and ( formationBelow == 0 or formationBelow->getName () == "Crust" )) {
       formationProperty = propManager.getFormationProperty ( m_property, snapshot, formationAbove );
-   } else {
+   } else if ( formationBelow != 0 ) {
       formationProperty = propManager.getFormationProperty ( m_property, snapshot, formationBelow );
    }
 
@@ -42,6 +41,25 @@ void DerivedProperties::SurfacePropertyOffsetCalculator::calculate ( AbstractPro
 
       result = SurfacePropertyPtr ( new FormationPropertyAtSurface ( formationProperty, surface ));
       derivedProperties.push_back ( result );
+   }
+
+}
+
+bool DerivedProperties::SurfacePropertyOffsetCalculator::isComputable ( const AbstractPropertyManager&      propManager,
+                                                                        const DataModel::AbstractSnapshot*  snapshot,
+                                                                        const DataModel::AbstractSurface*   surface ) const {
+
+   const DataModel::AbstractFormation* formationAbove = surface->getTopFormation ();
+   const DataModel::AbstractFormation* formationBelow = surface->getBottomFormation ();
+
+   FormationPropertyPtr formationProperty;
+
+   if ( formationAbove != 0 and ( formationBelow == 0 or formationBelow->getName () == "Crust" )) {
+      return propManager.formationPropertyIsComputable ( m_property, snapshot, formationAbove );
+   } else if ( formationBelow != 0 ) {
+      return propManager.formationPropertyIsComputable ( m_property, snapshot, formationBelow );
+   } else {
+      return false;
    }
 
 }

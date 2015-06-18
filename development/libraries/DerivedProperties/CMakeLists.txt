@@ -76,9 +76,12 @@ set(all_srcs
   src/ErosionFactorFormationMapCalculator.C
   src/FaultElementFormationMapCalculator.C
   src/FormationMapProperty.C
+  src/FormationMapPropertyCalculator.C
   src/FormationProperty.C
   src/FormationPropertyAtSurface.C
+  src/FormationPropertyCalculator.C
   src/FormationSurfaceProperty.C
+  src/FormationSurfacePropertyCalculator.C
   src/FormationSurfacePropertyAtSurface.C
   src/FormationSurfacePropertyOffsetCalculator.C
   src/FracturePressureFormationCalculator.C
@@ -102,6 +105,7 @@ set(all_srcs
   src/PropertyCalculator.C
   src/PropertyRetriever.C
   src/SurfaceProperty.C
+  src/SurfacePropertyCalculator.C
   src/SurfacePropertyOffsetCalculator.C
   src/ThermalConductivityFormationCalculator.C
   src/ThermalDiffusivityFormationCalculator.C
