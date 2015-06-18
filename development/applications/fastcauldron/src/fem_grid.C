@@ -1442,6 +1442,9 @@ void Basin_Modelling::FEM_Grid::Save_Properties ( const double Current_Time ) {
         const Interface::Snapshot* snapshot = FastcauldronSimulator::getInstance ().findOrCreateSnapshot ( Current_Time );
         assert ( snapshot != 0 );
 
+        m_vreAlgorithm->getResults( m_vreOutputGrid );
+        m_vreOutputGrid.exportToModel( basinModel->layers, basinModel->getValidNeedles() );
+
         if ( ! basinModel->projectSnapshots.projectPrescribesMinorSnapshots ()) {
            FastcauldronSimulator::getInstance ().saveVolumeProperties ( looselyCoupledOutputProperties,
                                                                         snapshot,
@@ -1449,8 +1452,6 @@ void Basin_Modelling::FEM_Grid::Save_Properties ( const double Current_Time ) {
            savedMinorSnapshotTimes.insert ( Current_Time );
         }
 
-        m_vreAlgorithm->getResults( m_vreOutputGrid );
-        m_vreOutputGrid.exportToModel( basinModel->layers, basinModel->getValidNeedles() );
         computeErosionFactorMaps ( basinModel, Current_Time );
 
         FastcauldronSimulator::getInstance ().saveSourceRockProperties ( snapshot, genexOutputProperties, shaleGasOutputProperties );
