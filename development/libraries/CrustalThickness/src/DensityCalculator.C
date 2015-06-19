@@ -209,5 +209,5 @@ double DensityCalculator::getWLS( const double backstrippingMantleDensity, const
 PropertyManager::PropertyManager ( GeoPhysics::ProjectHandle* projectHandle ) :
    DerivedProperties::DerivedPropertyManager ( projectHandle ) {
       
-      addFormationPropertyCalculator ( DerivedProperties::FormationPropertyCalculatorPtr ( new DerivedProperties::LithostaticPressureFormationCalculator (projectHandle) ));
+
 }  
