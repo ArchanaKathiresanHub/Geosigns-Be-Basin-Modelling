@@ -323,10 +323,6 @@ private :
    void correctTimeFilterDefaults3D ();
 
 
-   void correctAllPropertyLists1D ();
-
-   void correctAllPropertyLists3D ();
-
    /// \brief Read command line parameters associated with the relative-permeabilities.
    void readRelPermCommandLineParameters ();
 
@@ -356,6 +352,7 @@ private :
    double                     m_hcVapourCurveExponent;
    double                     m_fctCorrectionScalingWeight;
    bool                       m_printCommandLine;
+   std::string                m_commandLine;
    bool                       m_computeCapillaryPressure;
 
 };

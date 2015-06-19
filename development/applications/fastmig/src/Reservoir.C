@@ -1958,7 +1958,9 @@ bool Reservoir::collectExpelledCharges (const Formation * formation, unsigned in
 
       double fraction = (direction == EXPELLEDUPANDDOWNWARD ? 1.0 : 0.5);
 
-      double startTime, endTime, fractionToMigrate = 1;
+      // Initialized to stop the VS runtime error. The valuer is -1 because there is no snapshot at that time
+      // so we make sure that these variables are assigned real paleo times.
+      double startTime = -1.0, endTime = -1.0, fractionToMigrate = 1.0;
 
       if( gridMapStart ) {
          startTime = getStart ()->getTime();
@@ -1975,7 +1977,7 @@ bool Reservoir::collectExpelledCharges (const Formation * formation, unsigned in
          gridMapEnd = getPropertyGridMap (propertyName, endSnapshot, 0, formation, 0);
       }
       
-      if( startTime - endTime > 0 and genexFraction ) {
+      if( genexFraction and startTime - endTime > 0 ) {
          if( gridMapStart && gridMapEnd ) {
             fractionToMigrate = (getStart()->getTime() - getEnd()->getTime()) / (startTime - endTime );
             if( endTime == getEnd ()->getTime() ) {
@@ -2584,23 +2586,23 @@ void Reservoir::mergeSpillingTraps (void)
 }
 
 /// Transfer interiors of traps to be absorbed to the absorbing traps.
-void Reservoir::absorbTraps (void)
+void Reservoir::absorbTraps(void)
 {
-   RequestHandling::StartRequestHandling (this, "absorbTraps");
+   RequestHandling::StartRequestHandling(this, "absorbTraps");
    TrapVector::iterator trapIter;
-   for (trapIter = m_traps.begin (); trapIter != m_traps.end (); ++trapIter)
+   for (trapIter = m_traps.begin(); trapIter != m_traps.end(); ++trapIter)
    {
-      Trap * trap = * trapIter;
-      if (trap->isToBeAbsorbed ())
+      Trap * trap = *trapIter;
+      if (trap->isToBeAbsorbed())
       {
-	 trap->beAbsorbed ();
+         trap->beAbsorbed();
 
-	 delete trap;
-	 trapIter = m_traps.erase (trapIter);
-	 --trapIter;
+         delete trap;
+         trapIter = m_traps.erase(trapIter);
+         --trapIter;
       }
    }
-   RequestHandling::FinishRequestHandling ();
+   RequestHandling::FinishRequestHandling();
 }
 
 void Reservoir::completeTrapExtensions (void)

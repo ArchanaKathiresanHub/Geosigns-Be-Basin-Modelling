@@ -119,15 +119,28 @@ bool Migrator::compute (void)
    bool started = startActivity (activityName, getHighResolutionOutputGrid ());
    if (!started) return false;
 
-
    ios::fmtflags f( std::cout.flags() );
    std::cout << std::setfill (' ');
-   started =  GeoPhysics::ProjectHandle::initialise ( );
-   std::cout.flags ( f );
+
+   bool coupledCalculation = false;
+
+   started = GeoPhysics::ProjectHandle::initialise ( coupledCalculation );
+
+   if ( not started ) {
+      return false;
+   }
+
+   started = GeoPhysics::ProjectHandle::setFormationLithologies ( false, true );
+
+   if ( not started ) {
+      return false;
+   }
+
+   started = GeoPhysics::ProjectHandle::initialiseLayerThicknessHistory ( coupledCalculation );
 
    if (!started) return false;
-  
-   setFormationLithologies ( false, true ); 
+
+   std::cout.flags ( f );
 
    if (GetRank () == 0)
    {
@@ -201,6 +214,9 @@ bool Migrator::compute (void)
    cerr << GetRankString () << ": " << "Finishing activity" << endl;
 #endif
    finishActivity ();
+
+   setSimulationDetails ( "fastmig", "Default", "" );
+
    bool status = true;
    if( !mergeOutputFiles ()) {
       PetscPrintf ( PETSC_COMM_WORLD, "MeSsAgE ERROR Unable to merge output files\n");
@@ -884,6 +900,7 @@ database::Record * Migrator::findMigrationRecord (const string & srcReservoirNam
    return 0;
 }
 
+//  this function is used as less operator for the strict weak ordering
 bool MigrationIoTblSorter (database::Record * recordL,  database::Record * recordR)
 {
    static int calls = 0;
@@ -931,7 +948,7 @@ bool MigrationIoTblSorter (database::Record * recordL,  database::Record * recor
    if (getDestinationTrapID (recordL) != getDestinationTrapID (recordR))
       return (getDestinationTrapID (recordL) < getDestinationTrapID (recordR));
 
-   return true;
+   return false;
 }
    
 void Migrator::sortMigrationRecords (void)

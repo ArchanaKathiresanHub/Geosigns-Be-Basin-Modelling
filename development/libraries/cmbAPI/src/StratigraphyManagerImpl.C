@@ -28,13 +28,20 @@
 namespace mbapi
 {
 
-const char * StratigraphyManagerImpl::m_stratigraphyTableName           = "StratIoTbl";
-const char * StratigraphyManagerImpl::m_layerNameFieldName              = "LayerName";
-const char * StratigraphyManagerImpl::m_isSourceRockFieldName           = "SourceRock";
-const char * StratigraphyManagerImpl::m_sourceRockType1FieldName        = "SourceRockType1";
-const char * StratigraphyManagerImpl::m_sourceRockType2FieldName        = "SourceRockType2";
-const char * StratigraphyManagerImpl::m_sourceRockHIFieldName           = "SourceRockMixingHI";
-const char * StratigraphyManagerImpl::m_sourceRockEnableMixintFieldName = "EnableSourceRockMixing";
+const char * StratigraphyManagerImpl::s_stratigraphyTableName           = "StratIoTbl";
+const char * StratigraphyManagerImpl::s_layerNameFieldName              = "LayerName";
+const char * StratigraphyManagerImpl::s_depoAgeFieldName                = "DepoAge";
+const char * StratigraphyManagerImpl::s_lithoType1FiledName             = "Lithotype1";
+const char * StratigraphyManagerImpl::s_lithoType2FiledName             = "Lithotype2";
+const char * StratigraphyManagerImpl::s_lithoType3FiledName             = "Lithotype3";
+const char * StratigraphyManagerImpl::s_lithoTypePercent1FiledName      = "Percent1";
+const char * StratigraphyManagerImpl::s_lithoTypePercent2FiledName      = "Percent2";
+const char * StratigraphyManagerImpl::s_lithoTypePercent3FiledName      = "Percent3";
+const char * StratigraphyManagerImpl::s_isSourceRockFieldName           = "SourceRock";
+const char * StratigraphyManagerImpl::s_sourceRockType1FieldName        = "SourceRockType1";
+const char * StratigraphyManagerImpl::s_sourceRockType2FieldName        = "SourceRockType2";
+const char * StratigraphyManagerImpl::s_sourceRockHIFieldName           = "SourceRockMixingHI";
+const char * StratigraphyManagerImpl::s_sourceRockEnableMixintFieldName = "EnableSourceRockMixing";
 
 // Constructor
 StratigraphyManagerImpl::StratigraphyManagerImpl()
@@ -54,6 +61,7 @@ StratigraphyManagerImpl & StratigraphyManagerImpl::operator = ( const Stratigrap
 void StratigraphyManagerImpl::setDatabase( database::Database * db )
 {
    m_db = db;
+   m_stratIoTbl = m_db->getTable( s_stratigraphyTableName );
 }
 
 // Get list of layers in the model
@@ -63,14 +71,11 @@ std::vector<StratigraphyManager::LayerID> StratigraphyManagerImpl::layersIDs() c
    std::vector<LayerID> ids;
    if ( !m_db ) return ids;
 
-   // get pointer to the table
-   database::Table * table = m_db->getTable( m_stratigraphyTableName );
-
    // if table does not exist - return empty array
-   if ( !table ) return ids;
+   if ( !m_stratIoTbl ) return ids;
 
    // fill IDs array with increasing indexes
-   ids.resize( table->size() - 1, 0 ); // last one record - just bottom surface
+   ids.resize( m_stratIoTbl->size() - 1, 0 ); // last one record - just bottom surface
 
    for ( size_t i = 0; i < ids.size(); ++i ) ids[i] = static_cast<LayerID>(i);
 
@@ -84,14 +89,11 @@ std::vector<StratigraphyManager::SurfaceID> StratigraphyManagerImpl::surfacesIDs
    std::vector<SurfaceID> ids;
    if ( !m_db ) return ids;
 
-   // get pointer to the table
-   database::Table * table = m_db->getTable( m_stratigraphyTableName );
-
    // if table does not exist - return empty array
-   if ( !table ) return ids;
+   if ( !m_stratIoTbl ) return ids;
 
    // fill IDs array with increasing indexes
-   ids.resize( table->size(), 0 );
+   ids.resize( m_stratIoTbl->size(), 0 );
 
    for ( size_t i = 0; i < ids.size(); ++i ) ids[i] = static_cast<SurfaceID>(i);
 
@@ -121,21 +123,18 @@ std::string StratigraphyManagerImpl::layerName( StratigraphyManager::LayerID id 
 
    try
    {
-      // get pointer to the table
-      database::Table * table = m_db->getTable( m_stratigraphyTableName );
-
       // if table does not exist - report error
-      if ( !table )
+      if ( !m_stratIoTbl )
       {
-         throw Exception( NonexistingID ) << m_stratigraphyTableName << " table could not be found in project";
+         throw Exception( NonexistingID ) << s_stratigraphyTableName << " table could not be found in project";
       }
 
-      database::Record * rec = table->getRecord( static_cast<int>(id) );
+      database::Record * rec = m_stratIoTbl->getRecord( static_cast<int>(id) );
       if ( !rec )
       {
          throw Exception( NonexistingID ) << "No layer with ID: " << id << " in stratigraphy table";
       }
-      layName = rec->getValue<std::string>( m_layerNameFieldName );
+      layName = rec->getValue<std::string>( s_layerNameFieldName );
    }
    catch ( const Exception & e ) { reportError( e.errorCode(), e.what() ); }
    
@@ -162,25 +161,185 @@ std::string StratigraphyManagerImpl::surfaceName( StratigraphyManager::LayerID i
 
    try
    {
-      // get pointer to the table
-      database::Table * table = m_db->getTable( m_stratigraphyTableName );
-
       // if table does not exist - report error
-      if ( !table )
+      if ( !m_stratIoTbl )
       {
-         throw Exception( NonexistingID ) << m_stratigraphyTableName << " table could not be found in project";
+         throw Exception( NonexistingID ) << s_stratigraphyTableName << " table could not be found in project";
       }
 
-      database::Record * rec = table->getRecord( static_cast<int>(id) );
+      database::Record * rec = m_stratIoTbl->getRecord( static_cast<int>(id) );
       if ( !rec )
       {
          throw Exception( NonexistingID ) << "No layer with ID: " << id << " in stratigraphy table";
       }
-      sfName = rec->getValue<std::string>( m_layerNameFieldName );
+      sfName = rec->getValue<std::string>( s_layerNameFieldName );
    }
    catch ( const Exception & e ) { reportError( e.errorCode(), e.what() ); }
 
    return sfName;
+}
+
+double StratigraphyManagerImpl::eldestLayerAge()
+{
+   if ( errorCode() != NoError ) resetError();
+
+   double layerAge = UndefinedDoubleValue;
+   try
+   {
+      // if table does not exist - report error
+      if ( !m_stratIoTbl )
+      {
+         throw Exception( NonexistingID ) << s_stratigraphyTableName << " table could not be found in project";
+      }
+
+      int tblSize = m_stratIoTbl->size();
+
+      for ( int i = 0; i < tblSize; ++i )
+      {
+         database::Record * rec = m_stratIoTbl->getRecord( i );
+         if ( !rec ) { throw Exception( NonexistingID ) << "No layer with ID: " << i << " in stratigraphy table"; }
+
+         double age = rec->getValue<double>( s_depoAgeFieldName );
+         layerAge = i == 0 ? age : ( layerAge < age ? age : layerAge );
+      }
+   }
+   catch ( const Exception & e ) { reportError( e.errorCode(), e.what() ); }
+
+   return layerAge;
+}
+
+// Get all lithologies associated with the given layer and percentage of each lithology in a mix
+ErrorHandler::ReturnCode StratigraphyManagerImpl::layerLithologiesList( LayerID id, std::vector<std::string> & lithoList, std::vector<double> & lithoPercent )
+{
+   if ( errorCode() != NoError ) resetError();
+
+   lithoList.clear();
+   lithoPercent.clear();
+
+   try
+   {
+      // if table does not exist - report error
+      if ( !m_stratIoTbl )
+      {
+         throw Exception( NonexistingID ) << s_stratigraphyTableName << " table could not be found in project";
+      }
+
+      database::Record * rec = m_stratIoTbl->getRecord( static_cast<int>(id) );
+      if ( !rec )
+      {
+         throw Exception( NonexistingID ) << "No layer with ID: " << id << " in stratigraphy table";
+      }
+
+      // get 1st lithology
+      std::string lithoName = rec->getValue<std::string>( s_lithoType1FiledName        );
+      double      perc      = rec->getValue<double>(      s_lithoTypePercent1FiledName );
+      if ( !lithoName.empty() && perc > 0.0 )
+      {
+         lithoList.push_back( lithoName );
+         lithoPercent.push_back( perc );
+      }
+
+      // get 2nd lithology
+      lithoName = rec->getValue<std::string>( s_lithoType2FiledName        );
+      perc      = rec->getValue<double>(      s_lithoTypePercent2FiledName );
+      if ( !lithoName.empty() && perc > 0.0 )
+      {
+         lithoList.push_back( lithoName );
+         lithoPercent.push_back( perc );
+      }
+
+      // get 3d lithology
+      lithoName = rec->getValue<std::string>( s_lithoType3FiledName        );
+      perc      = rec->getValue<double>(      s_lithoTypePercent3FiledName );
+      if ( !lithoName.empty() && perc > 0.0 )
+      {
+         lithoList.push_back( lithoName );
+         lithoPercent.push_back( perc );
+      }
+   }
+   catch ( const Exception & e ) { return reportError( e.errorCode(), e.what() ); }
+
+   return NoError;
+}
+
+// Set all lithologies associated with the given layer and percentage of each lithology in a mix
+ErrorHandler::ReturnCode StratigraphyManagerImpl::setLayerLithologiesList( LayerID id, const std::vector<std::string> & lithoList, const std::vector<double> & lithoPercent )
+{
+   if ( errorCode() != NoError ) resetError();
+
+   try
+   {
+      // if table does not exist - report error
+      if ( !m_stratIoTbl )
+      {
+         throw Exception( NonexistingID ) << s_stratigraphyTableName << " table could not be found in project";
+      }
+
+      database::Record * rec = m_stratIoTbl->getRecord( static_cast<int>(id) );
+      if ( !rec )
+      {
+         throw Exception( NonexistingID ) << "No layer with ID: " << id << " in stratigraphy table";
+      }
+
+      assert( !lithoList.empty() && lithoList.size() == lithoPercent.size() );
+
+      // set 1st lithology
+      rec->setValue<std::string>( s_lithoType1FiledName,        lithoList[0]    );
+      rec->setValue<double>(      s_lithoTypePercent1FiledName, lithoPercent[0] );
+
+      // set 2nd lithology
+      if ( lithoList.size() > 1 )
+      {
+         rec->setValue<std::string>( s_lithoType2FiledName,        lithoList[1] );
+         rec->setValue<double>(      s_lithoTypePercent2FiledName, lithoPercent[1] );
+      }
+      else
+      {
+         rec->setValue<std::string>( s_lithoType2FiledName,        ""  );
+         rec->setValue<double>(      s_lithoTypePercent2FiledName, 0.0 );
+      }
+
+      // set 3d lithology
+      if ( lithoList.size() > 2 )
+      {
+         rec->setValue<std::string>( s_lithoType3FiledName,        lithoList[2]    );
+         rec->setValue<double>(      s_lithoTypePercent3FiledName, lithoPercent[2] );
+      }
+      else
+      {
+         rec->setValue<std::string>( s_lithoType3FiledName,        ""  );
+         rec->setValue<double>(      s_lithoTypePercent3FiledName, 0.0 );
+      }
+   }
+   catch ( const Exception & e ) { return reportError( e.errorCode(), e.what() ); }
+
+   return NoError;
+}
+
+// Collect layers where the given lithology is referenced
+std::vector<StratigraphyManager::LayerID> StratigraphyManagerImpl::findLayersForLithology( const std::string & lithoName )
+{
+   const std::vector<LayerID> & ids = layersIDs();
+   std::vector<LayerID> foundLayers;
+
+   for ( size_t i = 0; i < ids.size(); ++ i )
+   {
+      std::vector<std::string> lithNames;
+      std::vector<double>      lithPerc;
+      
+      if ( layerLithologiesList( ids[i], lithNames, lithPerc ) != NoError ) continue;
+      
+      bool found = false;
+      for ( size_t j = 0; j < lithNames.size() && !found; ++j )
+      {
+         if ( lithNames[j] == lithoName ) // found another layer with the same lithology - needed to copy
+         {
+            found = true;
+            foundLayers.push_back( ids[i] );
+         }
+      }
+   }
+   return foundLayers;
 }
 
 // Bind layer with top and bottom surfaces. Layer set itself as top/bottom layer for surface also
@@ -210,22 +369,19 @@ bool StratigraphyManagerImpl::isSourceRockActive( LayerID id )
 
    try
    {
-      // get pointer to the table
-      database::Table * table = m_db->getTable( m_stratigraphyTableName );
-
       // if table does not exist - report error
-      if ( !table )
+      if ( !m_stratIoTbl )
       {
-         throw Exception( NonexistingID ) << m_stratigraphyTableName << " table could not be found in project";
+         throw Exception( NonexistingID ) << s_stratigraphyTableName << " table could not be found in project";
       }
 
-      database::Record * rec = table->getRecord( static_cast<int>(id) );
+      database::Record * rec = m_stratIoTbl->getRecord( static_cast<int>(id) );
       if ( !rec )
       {
          throw Exception( NonexistingID ) << "No layer with ID: " << id << " in stratigraphy table";
       }
 
-      isLayerSR = rec->getValue<int>( m_isSourceRockFieldName ) == 1 ? true : false;
+      isLayerSR = rec->getValue<int>( s_isSourceRockFieldName ) == 1 ? true : false;
    }
    catch ( const Exception & e ) { reportError( e.errorCode(), e.what() ); }
 
@@ -241,22 +397,19 @@ bool StratigraphyManagerImpl::isSourceRockMixingEnabled( LayerID id )
 
    try
    {
-      // get pointer to the table
-      database::Table * table = m_db->getTable( m_stratigraphyTableName );
-
       // if table does not exist - report error
-      if ( !table )
+      if ( !m_stratIoTbl )
       {
-         throw Exception( NonexistingID ) << m_stratigraphyTableName << " table could not be found in project";
+         throw Exception( NonexistingID ) << s_stratigraphyTableName << " table could not be found in project";
       }
 
-      database::Record * rec = table->getRecord( static_cast<int>(id) );
+      database::Record * rec = m_stratIoTbl->getRecord( static_cast<int>(id) );
       if ( !rec )
       {
          throw Exception( NonexistingID ) << "No layer with ID: " << id << " in stratigraphy table";
       }
 
-      isLayerSRM = rec->getValue<int>( m_sourceRockEnableMixintFieldName ) == 1 ? true : false;
+      isLayerSRM = rec->getValue<int>( s_sourceRockEnableMixintFieldName ) == 1 ? true : false;
    }
    catch ( const Exception & e ) { reportError( e.errorCode(), e.what() ); }
 
@@ -272,34 +425,31 @@ std::vector<std::string> StratigraphyManagerImpl::sourceRockTypeName( LayerID li
 
    try
    {
-      // get pointer to the table
-      database::Table * table = m_db->getTable( m_stratigraphyTableName );
-
       // if table does not exist - report error
-      if ( !table )
+      if ( !m_stratIoTbl )
       {
-         throw Exception( NonexistingID ) << m_stratigraphyTableName << " table could not be found in project";
+         throw Exception( NonexistingID ) << s_stratigraphyTableName << " table could not be found in project";
       }
 
-      database::Record * rec = table->getRecord( static_cast<int>(lid) );
+      database::Record * rec = m_stratIoTbl->getRecord( static_cast<int>(lid) );
       if ( !rec )
       {
          throw Exception( NonexistingID ) << "No layer with ID: " << lid << " in stratigraphy table";
       }
 
-      int isSourceRock = rec->getValue<int>( m_isSourceRockFieldName );
+      int isSourceRock = rec->getValue<int>( s_isSourceRockFieldName );
       
       // check if layer is source rock layer
       if ( 1 == isSourceRock )
       {
          // get first source rock type name
-         srtNames.push_back( rec->getValue<std::string>( m_sourceRockType1FieldName ) );
+         srtNames.push_back( rec->getValue<std::string>( s_sourceRockType1FieldName ) );
 
          // check if mixing is enabled
-         int isMixingEnabled = rec->getValue<int>( m_sourceRockEnableMixintFieldName );
+         int isMixingEnabled = rec->getValue<int>( s_sourceRockEnableMixintFieldName );
          if ( 1 == isMixingEnabled )
          {
-            srtNames.push_back( rec->getValue<std::string>( m_sourceRockType2FieldName ) );
+            srtNames.push_back( rec->getValue<std::string>( s_sourceRockType2FieldName ) );
          }
       }
    }
@@ -317,31 +467,28 @@ double StratigraphyManagerImpl::sourceRockMixHI( LayerID lid )
 
    try
    {
-      // get pointer to the table
-      database::Table * table = m_db->getTable( m_stratigraphyTableName );
-
       // if table does not exist - report error
-      if ( !table )
+      if ( !m_stratIoTbl )
       {
-         throw Exception( NonexistingID ) << m_stratigraphyTableName << " table could not be found in project";
+         throw Exception( NonexistingID ) << s_stratigraphyTableName << " table could not be found in project";
       }
 
-      database::Record * rec = table->getRecord( static_cast<int>(lid) );
+      database::Record * rec = m_stratIoTbl->getRecord( static_cast<int>(lid) );
       if ( !rec )
       {
          throw Exception( NonexistingID ) << "No layer with ID: " << lid << " in stratigraphy table";
       }
 
-      int isSourceRock = rec->getValue<int>( m_isSourceRockFieldName );
+      int isSourceRock = rec->getValue<int>( s_isSourceRockFieldName );
 
       // check if layer is source rock layer
       if ( 1 == isSourceRock )
       {
          // check if mixing is enabled
-         int isMixingEnabled = rec->getValue<int>( m_sourceRockEnableMixintFieldName );
+         int isMixingEnabled = rec->getValue<int>( s_sourceRockEnableMixintFieldName );
          if ( 1 == isMixingEnabled )
          {
-            mixHI = rec->getValue<double>( m_sourceRockHIFieldName );
+            mixHI = rec->getValue<double>( s_sourceRockHIFieldName );
          }
       }
    }
@@ -370,16 +517,13 @@ ErrorHandler::ReturnCode StratigraphyManagerImpl::setSourceRockTypeName( LayerID
    if ( errorCode() != NoError ) resetError();
    try
    {
-      // get pointer to the table
-      database::Table * table = m_db->getTable( m_stratigraphyTableName );
-
       // if table does not exist - report error
-      if ( !table )
+      if ( !m_stratIoTbl )
       {
-         throw Exception( NonexistingID ) << m_stratigraphyTableName << " table could not be found in project";
+         throw Exception( NonexistingID ) << s_stratigraphyTableName << " table could not be found in project";
       }
 
-      database::Record * rec = table->getRecord( static_cast<int>(lid) );
+      database::Record * rec = m_stratIoTbl->getRecord( static_cast<int>(lid) );
       if ( !rec )
       {
          throw Exception( NonexistingID ) << "No layer with ID: " << lid << " in stratigraphy table";
@@ -387,16 +531,16 @@ ErrorHandler::ReturnCode StratigraphyManagerImpl::setSourceRockTypeName( LayerID
 
       if ( srTypeNames.empty() )
       {  // disable source rock for given layer
-         rec->setValue( m_isSourceRockFieldName, 0 );
+         rec->setValue( s_isSourceRockFieldName, 0 );
       }
       else
       {  // enable/disable mixing
-         rec->setValue( m_sourceRockEnableMixintFieldName, (srTypeNames.size() == 1 ? 0 : 1) );
+         rec->setValue( s_sourceRockEnableMixintFieldName, (srTypeNames.size() == 1 ? 0 : 1) );
 
-         rec->setValue( m_sourceRockType1FieldName, srTypeNames[0] );
+         rec->setValue( s_sourceRockType1FieldName, srTypeNames[0] );
          if ( srTypeNames.size() > 1 )
          {
-            rec->setValue( m_sourceRockType2FieldName, srTypeNames[1] );
+            rec->setValue( s_sourceRockType2FieldName, srTypeNames[1] );
          }
       }
    }
@@ -411,22 +555,19 @@ ErrorHandler::ReturnCode StratigraphyManagerImpl::setSourceRockMixHI( LayerID li
    if ( errorCode() != NoError ) resetError();
    try
    {
-      // get pointer to the table
-      database::Table * table = m_db->getTable( m_stratigraphyTableName );
-
       // if table does not exist - report error
-      if ( !table )
+      if ( !m_stratIoTbl )
       {
-         throw Exception( NonexistingID ) << m_stratigraphyTableName << " table could not be found in project";
+         throw Exception( NonexistingID ) << s_stratigraphyTableName << " table could not be found in project";
       }
 
-      database::Record * rec = table->getRecord( static_cast<int>(lid) );
+      database::Record * rec = m_stratIoTbl->getRecord( static_cast<int>(lid) );
       if ( !rec )
       {
          throw Exception( NonexistingID ) << "No layer with ID: " << lid << " in stratigraphy table";
       }
 
-      int isSourceRock = rec->getValue<int>( m_isSourceRockFieldName );
+      int isSourceRock = rec->getValue<int>( s_isSourceRockFieldName );
 
       // check if layer is source rock layer
       if ( 1 != isSourceRock )
@@ -436,14 +577,14 @@ ErrorHandler::ReturnCode StratigraphyManagerImpl::setSourceRockMixHI( LayerID li
       }
 
       // check if mixing is enabled
-      int isMixingEnabled = rec->getValue<int>( m_sourceRockEnableMixintFieldName );
+      int isMixingEnabled = rec->getValue<int>( s_sourceRockEnableMixintFieldName );
       if ( 1 == isMixingEnabled )
       {
          throw Exception( OutOfRangeValue ) << "Layer with id: " << lid <<
             " has source rock mixing disabled. Can't set HI for source rock mixing";
       }
       // all checks are OK, set HI for mixing
-      rec->setValue( m_sourceRockHIFieldName, srmHI );
+      rec->setValue( s_sourceRockHIFieldName, srmHI );
    }
    catch ( const Exception & e ) { return reportError( e.errorCode(), e.what() ); }
 

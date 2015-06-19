@@ -20,22 +20,22 @@
 #include "SourceRockManagerImpl.h"
 #include "SnapshotManagerImpl.h"
 #include "PropertyManagerImpl.h"
-
-// FileSystem library
-#include "FilePath.h"
-#include "FolderPath.h"
+#include "MapsManagerImpl.h"
 
 // DataAccess library
 #include "Interface/ProjectHandle.h"
+#include "Interface/ProjectData.h"
 #include "Interface/ObjectFactory.h"
 
 #include "cauldronschemafuncs.h"
+
+// FileSystem library
+#include "FilePath.h"
 
 // C Library
 #include <cmath>
 
 // STL
-#include <set>
 #include <string>
 
 namespace mbapi {
@@ -45,8 +45,6 @@ namespace mbapi {
 class Model::ModelImpl
 {
 public:
-   static const char * m_mapFilesTableName;
-   static const char * m_mapFilesColName;
 
    // constructor / destructor
    ModelImpl();
@@ -64,6 +62,7 @@ public:
    double      tableValueAsDouble(  const std::string & tableName, size_t rowNumber, const std::string & propName );
    std::string tableValueAsString(  const std::string & tableName, size_t rowNumber, const std::string & propName );
    
+   void        setTableIntegerValue( const std::string & tableName, size_t rowNumber, const std::string & propName, int propValue );
    void        setTableDoubleValue( const std::string & tableName, size_t rowNumber, const std::string & propName, double propValue );
    void        setTableStringValue( const std::string & tableName, size_t rowNumber, const std::string & propName, const std::string & propValue );
    
@@ -83,6 +82,8 @@ public:
    SnapshotManager     & snapshotManager()  { return m_snpMgr;  }
    // Properties manager
    PropertyManager     & propertyManager()  { return m_prpMgr;  }
+   // Maps manager
+   MapsManager         & mapsManager()  { return m_mapMgr;  }
   
    // data members
    LithologyManagerImpl              m_lithMgr;
@@ -91,16 +92,18 @@ public:
    SourceRockManagerImpl             m_srkMgr;
    SnapshotManagerImpl               m_snpMgr;
    PropertyManagerImpl               m_prpMgr;
+   MapsManagerImpl                   m_mapMgr;
 
-   std::set<std::string>             m_mapsFileList; // unique list of files with project maps
-
-   std::auto_ptr<database::Database>                    m_projDatabase;  // project file database (set of tables)
+   std::auto_ptr<DataAccess::Interface::ProjectHandle>  m_projHandle;  // project file database (set of tables)
    std::string                                          m_projFileName;  // project files name with path
+
+   // model origin
+   void origin( double & x, double & y );
+
+   // model dimensions along X/Y
+   void arealSize( double & dimX, double & dimY);
+
 };
-
-
-const char * Model::ModelImpl::m_mapFilesTableName = "GridMapIoTbl";
-const char * Model::ModelImpl::m_mapFilesColName   = "MapFileName";
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -152,6 +155,18 @@ std::string Model::tableValueAsString( const std::string & tableName, size_t row
    catch ( ... ) { this->ErrorHandler::reportError( UnknownError, "Unknown error" ); }
 
    return UndefinedStringValue;
+}
+
+// Set value in the table
+ErrorHandler::ReturnCode Model::setTableValue( const std::string & tableName, size_t rowNumber, const std::string & propName, int propValue )
+{
+   if ( errorCode() != NoError ) resetError(); // clean any previous error
+
+   try { m_pimpl->setTableIntegerValue( tableName, rowNumber, propName, propValue ); }
+   catch ( const ErrorHandler::Exception & ex ) { return this->ErrorHandler::reportError( ex.errorCode(), ex.what( ) ); }
+   catch ( ... ) { return this->ErrorHandler::reportError( UnknownError, "Unknown error" ); }
+
+   return NoError;
 }
 
 // Set value in the table
@@ -231,6 +246,29 @@ FluidManager        & Model::fluidManager(       ) { return m_pimpl->fluidManage
 SourceRockManager   & Model::sourceRockManager(  ) { return m_pimpl->sourceRockManager(  ); }
 SnapshotManager     & Model::snapshotManager(    ) { return m_pimpl->snapshotManager(    ); }
 PropertyManager     & Model::propertyManager(    ) { return m_pimpl->propertyManager(    ); }
+MapsManager         & Model::mapsManager(        ) { return m_pimpl->mapsManager(        ); }
+
+Model::ReturnCode Model::origin( double & x, double & y )
+{
+   if ( errorCode() != NoError ) resetError(); // clean any previous error
+
+   try { m_pimpl->origin( x, y ); }
+   catch ( const ErrorHandler::Exception & ex ) { return this->ErrorHandler::reportError( ex.errorCode(), ex.what() ); }
+   catch ( ... ) { return this->ErrorHandler::reportError( UnknownError, "Unknown error" ); }
+
+   return NoError;
+}
+
+Model::ReturnCode Model::arealSize( double & dimX, double & dimY )
+{
+   if ( errorCode() != NoError ) resetError(); // clean any previous error
+
+   try { m_pimpl->arealSize( dimX, dimY ); }
+   catch ( const ErrorHandler::Exception & ex ) { return this->ErrorHandler::reportError( ex.errorCode(), ex.what() ); }
+   catch ( ... ) { return this->ErrorHandler::reportError( UnknownError, "Unknown error" ); }
+
+   return NoError;
+}
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -247,7 +285,7 @@ Model::ModelImpl::~ModelImpl( )
 int Model::ModelImpl::tableSize( const std::string & tableName )
 {
    // get pointer to the table
-   database::Table * table = m_projDatabase->getTable( tableName.c_str() );
+   database::Table * table = m_projHandle->getDataBase()->getTable( tableName.c_str() );
 
    // if table does not exist - report error
    if ( !table ) throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << tableName << " table could not be found in project";
@@ -259,7 +297,7 @@ int Model::ModelImpl::tableSize( const std::string & tableName )
 void Model::ModelImpl::clearTable( const std::string & tableName )
 {
    // get pointer to the table
-   database::Table * table = m_projDatabase->getTable( tableName.c_str() );
+   database::Table * table = m_projHandle->getDataBase()->getTable( tableName.c_str() );
 
    // if table does not exist - report error
    if ( !table ) throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << tableName << " table could not be found in project";
@@ -271,7 +309,7 @@ void Model::ModelImpl::clearTable( const std::string & tableName )
 void Model::ModelImpl::addRowToTable( const std::string & tableName )
 {
    // get pointer to the table
-   database::Table * table = m_projDatabase->getTable( tableName.c_str() );
+   database::Table * table = m_projHandle->getDataBase()->getTable( tableName.c_str() );
 
    // if table does not exist - report error
    if ( !table ) throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << tableName << " table could not be found in project";
@@ -283,7 +321,7 @@ void Model::ModelImpl::addRowToTable( const std::string & tableName )
 double Model::ModelImpl::tableValueAsDouble( const std::string & tableName, size_t rowNumber, const std::string & propName )
 {
    // get pointer to the table
-   database::Table * table = m_projDatabase->getTable( tableName );
+   database::Table * table = m_projHandle->getDataBase()->getTable( tableName );
 
    // if table does not exist - report error
    if (                     !table ) throw ErrorHandler::Exception( UndefinedValue ) << tableName << " table could not be found in project";
@@ -311,7 +349,7 @@ double Model::ModelImpl::tableValueAsDouble( const std::string & tableName, size
 std::string Model::ModelImpl::tableValueAsString( const std::string & tableName, size_t rowNumber, const std::string & propName )
 {
    // get pointer to the table
-   database::Table * table = m_projDatabase->getTable( tableName );
+   database::Table * table = m_projHandle->getDataBase()->getTable( tableName );
 
    // if table does not exist - report error
    if (                    !table ) throw ErrorHandler::Exception( UndefinedValue ) << tableName << " table could not be found in project";
@@ -335,11 +373,38 @@ std::string Model::ModelImpl::tableValueAsString( const std::string & tableName,
    return UndefinedStringValue;
 }
 
+void Model::ModelImpl::setTableIntegerValue( const std::string & tableName, size_t rowNumber, const std::string & propName, int propValue )
+{
+   // get pointer to the table
+   database::Table * table = m_projHandle->getDataBase()->getTable( tableName );
+
+   // if table does not exist - report error
+   if (                     !table ) throw ErrorHandler::Exception( UndefinedValue ) << tableName << " table could not be found in project";
+   if ( table->size( ) < rowNumber ) throw ErrorHandler::Exception( UndefinedValue ) << tableName << " size is less then requested row number";
+
+   database::Record * record = table->getRecord( static_cast<int>( rowNumber ) );
+   if ( !record ) throw ErrorHandler::Exception( UndefinedValue ) << tableName << " does not have any records";
+
+   const database::TableDefinition & tblDef = record->getTableDefinition();
+   int ind = tblDef.getIndex( propName );
+
+   if ( ind < 0 ) throw ErrorHandler::Exception( UndefinedValue ) << propName << " - unknown column name in the table " << tableName;
+
+   datatype::DataType dt = tblDef.getFieldDefinition( ind )->dataType();
+   switch ( dt )
+   {
+   case datatype::Int:  record->setValue<int>( ind, propValue );                        break;
+   case datatype::Long: record->setValue<long>( ind, static_cast<float>( propValue ) );  break;
+   default:
+      throw ErrorHandler::Exception( UndefinedValue ) << tableName << "(" << propName << ") - data type can't be cast to integer value";
+   }
+}
+
 
 void Model::ModelImpl::setTableDoubleValue( const std::string & tableName, size_t rowNumber, const std::string & propName, double propValue )
 {
    // get pointer to the table
-   database::Table * table = m_projDatabase->getTable( tableName );
+   database::Table * table = m_projHandle->getDataBase()->getTable( tableName );
 
    // if table does not exist - report error
    if (                     !table ) throw ErrorHandler::Exception( UndefinedValue ) << tableName << " table could not be found in project";
@@ -366,7 +431,7 @@ void Model::ModelImpl::setTableDoubleValue( const std::string & tableName, size_
 void Model::ModelImpl::setTableStringValue( const std::string & tableName, size_t rowNumber, const std::string & propName, const std::string & propValue )
 {
    // get pointer to the table
-   database::Table * table = m_projDatabase->getTable( tableName );
+   database::Table * table = m_projHandle->getDataBase()->getTable( tableName );
 
    // if table does not exist - report error
    if (                     !table ) throw ErrorHandler::Exception( UndefinedValue ) << tableName << " table could not be found in project";
@@ -401,85 +466,69 @@ Model::ModelImpl & Model::ModelImpl::operator = ( const Model::ModelImpl & other
 
 void Model::ModelImpl::loadModelFromProjectFile( const char * projectFileName )
 {
-   m_projDatabase.reset(DataAccess::Interface::CreateDatabaseFromCauldronProject(projectFileName));
+   m_projHandle.reset( DataAccess::Interface::OpenCauldronProject( projectFileName, "rw" ) );
 
-   if ( !m_projDatabase.get() )
+   if ( !m_projHandle.get() )
    {
       throw ErrorHandler::Exception( ErrorHandler::IoError ) << "Model::loadModelFromProjectFile() failed to load " << projectFileName;
    }
 
    m_projFileName = projectFileName;
    
-   m_srkMgr.setDatabase(   m_projDatabase.get() ); // set database in source rock manager
-   m_lithMgr.setDatabase(  m_projDatabase.get() ); // set database in lithologies type manager
-   m_snpMgr.setDatabase(   m_projDatabase.get(), m_projFileName ); // set database in snapshot manager
-   m_prpMgr.setDatabase(   m_projDatabase.get(), m_projFileName ); // set database in property manager
-   m_stratMgr.setDatabase( m_projDatabase.get() ); // set database in stratigraphy manager
+   m_srkMgr.setDatabase(   m_projHandle->getDataBase() );                 // set database in source rock manager
+   m_lithMgr.setDatabase(  m_projHandle->getDataBase() );                 // set database in lithologies type manager
+   m_snpMgr.setDatabase(   m_projHandle->getDataBase(), m_projFileName ); // set database in snapshot manager
+   m_prpMgr.setDatabase(   m_projHandle->getDataBase(), m_projFileName ); // set database in property manager
+   m_stratMgr.setDatabase( m_projHandle->getDataBase() );                 // set database in stratigraphy manager
 
-   // collecting map files name
-   // get pointer to the table
-   database::Table * table = m_projDatabase->getTable( m_mapFilesTableName );
-
-   if ( !table ) return; // no table - no maps
-   
-   size_t recNum = table->size();
-   ibs::FilePath projectFile( projectFileName );
-   std::string projectPath = projectFile.filePath();
-   if ( projectPath.empty() ) projectPath = ".";
-
-   for ( int i = 0; i < recNum; ++i )
-   {
-      database::Record * rec = table->getRecord( i );
-      if ( rec )
-      {
-         const std::string & fname = rec->getValue<std::string>( m_mapFilesColName );
-         if ( !fname.empty() )
-         {
-            // construct the full file path to the original map file
-            ibs::FolderPath mapFilePath( projectPath );
-            mapFilePath << fname;
-            // add it to the list
-            if ( !m_mapsFileList.count( mapFilePath.path() ) )
-            {
-               m_mapsFileList.insert( mapFilePath.path() );
-            }
-         }
-      }
-   }
+   m_mapMgr.setProject(    m_projHandle.get(),          m_projFileName ); // set project handle in maps manager
 }
 
 // Save model to the project file
 void Model::ModelImpl::saveModelToProjectFile( const char * projectFileName )
 {
-   if ( m_projDatabase.get() )
-   {
-      if ( !m_projDatabase->saveToFile( projectFileName ) )
-      {
-         throw ErrorHandler::Exception( ErrorHandler::IoError ) << "Model::saveModelToProjectFile() failed to save to " << 
-                                                                   projectFileName << " project file";
-      }
-      
-      // copying maps
-      // get project file path
-      ibs::FilePath projectFilePath( projectFileName );
-      projectFilePath.cutLast();  // cut filename
-
-      for ( std::set<std::string>::const_iterator it = m_mapsFileList.begin(); it != m_mapsFileList.end(); ++it )
-      {
-         ibs::FilePath origMapFile( *it );
-         ibs::FilePath newMapFile = projectFilePath;
-         newMapFile << origMapFile.fileName();
-
-         if ( !newMapFile.exists() && !origMapFile.copyFile( newMapFile ) )
-         {
-            ErrorHandler::Exception( ErrorHandler::IoError ) << "Model::saveModelToProjectFile(): can not copy map file: " << origMapFile.path();
-         }
-      }
-   }
-   else
+   if ( !m_projHandle.get() )
    {
       throw ErrorHandler::Exception( ErrorHandler::IoError ) << "Model::saveModelToProjectFile(): no project to save";
    }
+
+   if ( !m_projHandle->getDataBase()->saveToFile( projectFileName ) )
+   {
+      throw ErrorHandler::Exception( ErrorHandler::IoError ) << "Model::saveModelToProjectFile() failed to save to " << 
+                                                                   projectFileName << " project file";
+   }
+    
+   // copying maps
+   ibs::FilePath projectFilePath( projectFileName );
+   projectFilePath.cutLast();  // cut filename
+
+   m_mapMgr.copyMapFiles( projectFilePath.path() );
+   m_prpMgr.copyResultsFiles( m_projFileName, std::string( projectFileName ) );
+}
+
+// model origin
+void Model::ModelImpl::origin( double & x, double & y )
+{
+   if ( !m_projHandle.get() )
+   {
+      throw ErrorHandler::Exception( ErrorHandler::IoError ) << "Model::origin(): no project was loaded";
+   }
+
+   const DataAccess::Interface::ProjectData * pd = m_projHandle->getProjectData();
+
+   x = pd->getXOrigin() + pd->getDeltaX() * pd->getWindowXMin();
+   y = pd->getYOrigin() + pd->getDeltaY() * pd->getWindowYMin();
+}
+
+// model dimensions along X/Y
+void Model::ModelImpl::arealSize( double & dimX, double & dimY )
+{
+   if ( !m_projHandle.get() ) { throw ErrorHandler::Exception( ErrorHandler::IoError ) << "Model::origin(): no project was loaded"; }
+
+   const DataAccess::Interface::ProjectData * pd = m_projHandle->getProjectData();
+
+   dimX = ( pd->getWindowXMax() - pd->getWindowXMin() ) * pd->getDeltaX();
+   dimY = ( pd->getWindowYMax() - pd->getWindowYMin() ) * pd->getDeltaY();
 }
 
 }

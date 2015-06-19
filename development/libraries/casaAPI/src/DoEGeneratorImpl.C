@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2012-2014 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file DoEGeneratorImpl.C
 /// @brief This file keeps API implementation of Design of Experiments generator
@@ -91,7 +91,7 @@ namespace casa
          sumext::createSUMlibPrior( varPrmsSet, baseCase, dummy_variance, dummy_disWeights, dummy_catWeights );
 
 
-         // create bounds 
+         // create bounds
          const SUMlib::ParameterBounds pBounds( minCase, maxCase, pCatIndices );
 
          // Let the SUMlib experimental design create a SUMlib case set.
@@ -204,7 +204,5 @@ namespace casa
          throw ErrorHandler::Exception( ErrorHandler::DeserializationError )
             << "DoEGeneratorImpl deserialization error";
       }
-
    }
-
 }

@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2012-2014 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file ObsGridPropertyXYZ.h
 /// @brief This file keeps declaration of the class of grid property value as observable
@@ -23,7 +23,7 @@
 /// @page CASA_ObservableGridPropXYZPage Any Cauldron grid property at specified XYZ point 
 /// in basin model coordinate space. This observable could retrieve any grid property value
 /// for the given position in a grid
-/// 
+///
 
 namespace mbapi
 {
@@ -38,19 +38,21 @@ namespace casa
    public:
 
       /// @brief Create new observable object for the given grid property for specified grid position
-      static ObsGridPropertyXYZ * createNewInstance( double x                ///< X-th grid coordinate [m]
-                                                   , double y                ///< Y-th grid coordinate [m]
-                                                   , double z                ///< Z-th grid coordinate [m]
-                                                   , const char * propName   ///< name of the property
-                                                   , double simTime = 0.0    ///< simulation time [Ma]
-                                                   ) { return new ObsGridPropertyXYZ( x, y, z, propName, simTime ); }
+      static ObsGridPropertyXYZ * createNewInstance( double              x             ///< X-th grid coordinate [m]
+                                                   , double              y             ///< Y-th grid coordinate [m]
+                                                   , double              z             ///< Z-th grid coordinate [m]
+                                                   , const char        * propName      ///< name of the property
+                                                   , double              simTime = 0.0 ///< simulation time [Ma]
+                                                   , const std::string & name = ""     ///< user specified name for observable
+                                                   ) { return new ObsGridPropertyXYZ( x, y, z, propName, simTime, name ); }
 
       /// @brief Create observable for the given grid property for specified grid position
-      ObsGridPropertyXYZ( double x              ///< X-th grid coordinate [m]
-                        , double y              ///< Y-th grid coordinate [m]
-                        , double z              ///< Z-th grid coordinate [m]
-                        , const char * propName ///< name of the property
-                        , double simTime        ///< simulation time [Ma]
+      ObsGridPropertyXYZ( double              x         ///< X-th grid coordinate [m]
+                        , double              y         ///< Y-th grid coordinate [m]
+                        , double              z         ///< Z-th grid coordinate [m]
+                        , const char        * propName  ///< name of the property
+                        , double              simTime   ///< simulation time [Ma]
+                        , const std::string & name = "" ///< user specified name for observable
                         );
 
       /// @brief Destructor
@@ -97,7 +99,7 @@ namespace casa
       /// @brief Get weighting coefficient for uncertainty analysis
       /// return weighting coefficient. This coefficient should be used for RMSE calculation in Monte Carlo simulation
       virtual double uaWeight() const { return m_uaWeight; }
-   
+
       /// @brief Update Model to be sure that requested property will be saved at requested time
       /// @param caldModel Cauldron model
       /// @return NoError in case of success, or error code otherwise, error message will be set in caldModel.
@@ -107,6 +109,11 @@ namespace casa
       /// @param caldModel reference to Cauldron model
       /// @return observable value on success or NULL otherwise. Error code could be obtained from the Model object
       virtual ObsValue * getFromModel( mbapi::Model & caldModel );
+
+      /// @brief Do observable validation for the given model
+      /// @param caldModel reference to Cauldron model
+      /// @return empty string if there is no any problems with this observable, or error message if point is outside of the project 
+      virtual std::string checkObservableForProject( mbapi::Model & caldModel );
 
       /// @brief Create new observable value from set of doubles. This method is used for data conversion between SUMlib and CASA
       /// @param[in,out] val iterator for double array
@@ -149,12 +156,11 @@ namespace casa
 
       std::auto_ptr<ObsValue>  m_refValue;         ///< reference value
       double                   m_devValue;         ///< standard deviation for reference value
-                                                    
+
       double                   m_saWeight;         ///< Observable weight for sensitivity analysis
       double                   m_uaWeight;         ///< Observable weight for uncertainty analysis
 
    private:
-
       ObsGridPropertyXYZ( const ObsGridPropertyXYZ & );
       ObsGridPropertyXYZ & operator = ( const ObsGridPropertyXYZ & );
    };

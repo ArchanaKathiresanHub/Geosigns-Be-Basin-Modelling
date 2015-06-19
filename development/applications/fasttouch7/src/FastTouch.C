@@ -37,6 +37,7 @@ using namespace fasttouch;
 
 using namespace DataAccess;
 using namespace Interface;
+double MinimumAll (double myValue);
 
 
 FastTouch::FastTouch (const std::string & inputFileName )
@@ -91,13 +92,21 @@ bool FastTouch::compute (void)
       }
    }
  
-   if (!m_masterTouch.run ()) return false;
+   bool status = m_masterTouch.run ();
+
+   if ( MinimumAll(status ? 1.0 : -1 ) < 0.0 ) 
+   {
+      //Print message error
+      PetscPrintf ( PETSC_COMM_WORLD, "MeSsAgE ERROR MasterTouch::calculate failed more than %d times\n",MAX_RUNS);
+      return false;
+   }
  
    delete touchstoneMaps;
  
    m_projectHandle->finishActivity ();
+   m_projectHandle->setSimulationDetails ( "fasttouch", "Default", "" );
  
-   bool status = true;
+   status = true;
    if( !mergeOutputFiles ()) {
       PetscPrintf ( PETSC_COMM_WORLD, "MeSsAgE ERROR Unable to merge output files\n");
       status = false;

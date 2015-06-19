@@ -29,6 +29,7 @@ using namespace GenexSimulation;
 #include "Interface/SourceRock.h"
 #include "Interface/Property.h"
 #include "Interface/PropertyValue.h"
+#include "Interface/SimulationDetails.h"
 using namespace DataAccess;
 
 #include "ComponentManager.h"
@@ -53,9 +54,10 @@ void displayTime ( const double timeToDisplay, const char * msgToDisplay ) {
 }
 
 GenexSimulator::GenexSimulator (database::Database * database, const std::string & name, const std::string & accessMode)
-   : Interface::ProjectHandle (database, name, accessMode)
+   : GeoPhysics::ProjectHandle (database, name, accessMode)
 {
   registerProperties();
+  m_propertyManager = new GenexSimulation::PropertyManager ( this );
 }
 
 GenexSimulator::~GenexSimulator (void)
@@ -66,6 +68,7 @@ GenexSimulator::~GenexSimulator (void)
    m_expelledToSourceRockProperties.clear ();
    m_expelledToCarrierBedPropertiesS.clear ();
    m_expelledToSourceRockPropertiesS.clear ();
+   delete m_propertyManager;
 
 }
 
@@ -85,6 +88,22 @@ bool GenexSimulator::run()
    
    if (!started) return false;
    
+   const Interface::SimulationDetails* simulationDetails = getDetailsOfLastSimulation ( "fastcauldron" );
+
+   bool coupledCalculation = simulationDetails != 0 and ( simulationDetails->getSimulatorMode () == "CoupledPressureAndTemperature" or
+                                                          simulationDetails->getSimulatorMode () == "CoupledHighResDecompaction" or
+                                                          simulationDetails->getSimulatorMode () == "LooselyCoupledTemperature" or
+                                                          simulationDetails->getSimulatorMode () == "CoupledDarcy" );
+
+   started =  GeoPhysics::ProjectHandle::initialise ( coupledCalculation );
+   if (!started) return false;
+
+   started = setFormationLithologies ( false, true ); 
+   if (!started) return false;
+
+   started = initialiseLayerThicknessHistory ( coupledCalculation );
+   if (!started) return false;
+
    setRequestedOutputProperties();
    
    bool useFormationName = false;
@@ -144,6 +163,7 @@ bool GenexSimulator::run()
    }
 
    finishActivity (); 
+   setSimulationDetails ( "fastgenex", "Default", "" );
 
    if( !mergeOutputFiles ()) {
       PetscPrintf ( PETSC_COMM_WORLD, "MeSsAgE ERROR Unable to merge output files\n");
@@ -165,7 +185,7 @@ bool GenexSimulator::computeSourceRock ( Genex6::SourceRock * aSourceRock, const
 {
    if( aSourceRock != 0 ) {
       aSourceRock->clear();
-      
+      aSourceRock->setPropertyManager ( dynamic_cast <DerivedProperties::AbstractPropertyManager *> ( m_propertyManager ));
       aSourceRock->setFormationData( aFormation ); // set layerName, formation, second SR type, mixing parameters, isSulphur
       
       bool isSulphur = aSourceRock->isSulphur();

@@ -104,10 +104,11 @@ DerivedOutputPropertyMapFactory::DerivedOutputPropertyMapFactory () {
    mapTraits.m_isPrimaryProperty = true;
    m_mapPropertyTraitsMap [ VES ] = mapTraits;
 
-   mapTraits.m_propertyAllocator = allocatePrimaryPropertyCalculator;
-   mapTraits.m_outputAssociation = SURFACE_ASSOCIATION;
+   mapTraits.m_propertyAllocator = allocateMaxVesCalculator;
+   mapTraits.m_outputAssociation = SURFACE_FORMATION_ASSOCIATION;
    mapTraits.m_isPrimaryProperty = true;
    m_mapPropertyTraitsMap [ MAXVES ] = mapTraits;
+
 
    mapTraits.m_propertyAllocator = allocatePrimaryPropertyCalculator;
    mapTraits.m_outputAssociation = SURFACE_ASSOCIATION;
@@ -462,7 +463,7 @@ DerivedOutputPropertyMapFactory::DerivedOutputPropertyMapFactory () {
    volumeTraits.m_isPrimaryProperty = true;
    m_volumePropertyTraitsMap [ VES ] = volumeTraits;
 
-   volumeTraits.m_propertyAllocator = allocatePrimaryPropertyVolumeCalculator;
+   volumeTraits.m_propertyAllocator = allocateMaxVesVolumeCalculator;
    volumeTraits.m_isPrimaryProperty = true;
    m_volumePropertyTraitsMap [ MAXVES ] = volumeTraits;
 
@@ -578,7 +579,7 @@ DerivedOutputPropertyMapFactory::DerivedOutputPropertyMapFactory () {
    m_volumePropertyTraitsMap [ AVERAGE_SATURATION ] = volumeTraits;
 
 
-   //Capillary Pressure
+    //Capillary Pressure
    volumeTraits.m_propertyAllocator = allocateCapillaryPressureVolumeCalculator;
    volumeTraits.m_isPrimaryProperty = false;
    m_volumePropertyTraitsMap [ CAPILLARY_PRESSURE  ] = volumeTraits;

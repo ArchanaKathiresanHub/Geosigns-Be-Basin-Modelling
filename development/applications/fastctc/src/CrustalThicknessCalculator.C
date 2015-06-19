@@ -36,7 +36,7 @@ void displayTime ( const double timeToDisplay, const char * msgToDisplay ) {
 //------------------------------------------------------------//
 
 CrustalThicknessCalculator::CrustalThicknessCalculator (database::Database * database, const std::string & name, const std::string & accessMode) 
-   : Interface::ProjectHandle (database, name, accessMode) {
+   : GeoPhysics::ProjectHandle (database, name, accessMode) {
 
    
    m_outputOptions = 0;
@@ -67,7 +67,7 @@ CrustalThicknessCalculator* CrustalThicknessCalculator::CreateFrom ( const strin
 
 void CrustalThicknessCalculator::finalise ( const bool saveResults ) {
 
-
+   m_crustalThicknessCalculator->setSimulationDetails ( "fastctc", "Default", "" );
    m_crustalThicknessCalculator->finishActivity ();
 
    if( saveResults ) {
@@ -146,14 +146,19 @@ void CrustalThicknessCalculator::deleteCTCPropertyValues()
 //------------------------------------------------------------//
 void CrustalThicknessCalculator::run() {
 
-   bool started = CrustalThicknessCalculator::getInstance().startActivity (  CrustalThicknessCalculatorActivityName, 
-                                                                             CrustalThicknessCalculator::getInstance().getHighResolutionOutputGrid (),
-									     true);
+   bool started = DataAccess::Interface::ProjectHandle::startActivity ( CrustalThicknessCalculatorActivityName, getHighResolutionOutputGrid (), true );
 
    if( !started ) {
       string s = "Can not start CrustalThicknessCalculator";
       throw s;
    }
+   started = GeoPhysics::ProjectHandle::initialise ( );
+
+   if (!started) {
+      string s = "Can not start CrustalThicknessCalculator";
+      throw s;
+   }
+   setFormationLithologies ( false, true ); 
 
    LinearFunction theLF;
    DensityCalculator theDensityCalculator;

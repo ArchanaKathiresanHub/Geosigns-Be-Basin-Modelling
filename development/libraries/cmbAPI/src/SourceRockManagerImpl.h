@@ -71,6 +71,8 @@ namespace mbapi {
       // rock lithologies associated with the given layer
       virtual ReturnCode setTOCIni( SourceRockID id, double newTOC );
 
+      // Set TOC map name for the given source rock lithology
+      virtual ReturnCode setTOCInitMapName( SourceRockID id, const std::string & mapName );
 
       // Source rock HI (hydrogen index initial ratio) API 
       virtual double hiIni( SourceRockID id );
@@ -92,14 +94,14 @@ namespace mbapi {
 
 
    private:
-      static const char * m_sourceRockTableName;     // table name for source rock lithologies in project file
-      static const char * m_layerNameFieldName;      // name of the field which keeps layer name
-      static const char * m_sourceRockTypeFieldName; // name of the field which keeps source rock type name
-      static const char * m_tocIni;                  // initial TOC
-      static const char * m_tocIniMap;               // initial TOC map name
-      static const char * m_hiIni;                   // initial HI
-      static const char * m_hcIni;                   // initial H/C ratio
-      static const char * m_PreAsphaltStartAct;      // pre-asphaltene activation energy
+      static const char * s_sourceRockTableName;     // table name for source rock lithologies in project file
+      static const char * s_layerNameFieldName;      // name of the field which keeps layer name
+      static const char * s_sourceRockTypeFieldName; // name of the field which keeps source rock type name
+      static const char * s_tocIni;                  // initial TOC
+      static const char * s_tocIniMap;               // initial TOC map name
+      static const char * s_hiIni;                   // initial HI
+      static const char * s_hcIni;                   // initial H/C ratio
+      static const char * s_PreAsphaltStartAct;      // pre-asphaltene activation energy
 
       // Copy constructor is disabled, use the copy operator instead
       SourceRockManagerImpl( const SourceRockManager & );

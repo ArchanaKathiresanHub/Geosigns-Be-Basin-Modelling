@@ -159,6 +159,8 @@ const GridMap* Formation::getFormationPrimaryPropertyGridMap ( const Property* p
 
          if( thePrimaryProperty != 0 ) {
             theMap = thePrimaryProperty->getGridMap();
+         } else {
+            theMap = mig->getPropertyManager ().produceDerivedGridMap ( theProperty );
          }
 
       }
@@ -233,7 +235,8 @@ bool Formation::preprocessSourceRock ( const double startTime, const bool printD
       Interface::SnapshotList * snapshots = m_projectHandle->getSnapshots (Interface::MINOR | Interface::MAJOR);
       
       // present day map
-      const GridMap * gridMapEnd = mig->getPropertyGridMap ("Vr", (*snapshots->begin()), 0, this, getTopSurface() );
+      DerivedProperties::FormationPropertyPtr vrProperty = mig->getPropertyManager ().getFormationProperty ( mig->getPropertyManager ().getProperty ( "Vr" ), *(snapshots->begin ()), this ); 
+      const GridMap * gridMapEnd = mig->getPropertyManager ().produceDerivedGridMap ( vrProperty );
       
       if( !gridMapEnd ) {
          
@@ -398,8 +401,9 @@ bool Formation::extractGenexDataInterval ( const Snapshot *intervalStart,
    status = computeInterpolator ( "Temperature", intervalStart, intervalEnd, temperature ) and status;
    status = computeInterpolator ( "HydroStaticPressure", intervalStart, intervalEnd, hydrostaticPressure ) and status;
    status = computeInterpolator ( "LithoStaticPressure", intervalStart, intervalEnd, lithostaticPressure ) and status;
-   status = computeInterpolator ( "Porosity", intervalStart, intervalEnd, porosity ) and status;
    status = computeInterpolator ( "Pressure", intervalStart, intervalEnd, porePressure ) and status;
+
+   status = computeInterpolator ( "Porosity", intervalStart, intervalEnd, porosity ) and status;
    status = computeInterpolator ( "Permeability", intervalStart, intervalEnd, permeability ) and status;
    status = computeInterpolator ( "VrVec2", intervalStart, intervalEnd, vre ) and status;
 
@@ -413,10 +417,11 @@ bool Formation::computeInterpolator( const string & propertyName, const Snapshot
    
    property = mig->getPropertyManager ().getProperty ( propertyName );
 
-   DerivedProperties::SurfacePropertyPtr startSurfaceProperty = mig->getPropertyManager ().getSurfaceProperty ( property, intervalStart, getTopSurface() );
-   DerivedProperties::SurfacePropertyPtr endSurfaceProperty   = mig->getPropertyManager ().getSurfaceProperty ( property, intervalEnd, getTopSurface() );
 
-   if( startSurfaceProperty && endSurfaceProperty ) {
+   if( property->getPropertyAttribute () == DataModel::CONTINUOUS_3D_PROPERTY ) {
+      DerivedProperties::SurfacePropertyPtr startSurfaceProperty = mig->getPropertyManager ().getSurfaceProperty ( property, intervalStart, getTopSurface() );
+      DerivedProperties::SurfacePropertyPtr endSurfaceProperty   = mig->getPropertyManager ().getSurfaceProperty ( property, intervalEnd, getTopSurface() );
+
       startSurfaceProperty->retrieveData();
       endSurfaceProperty->retrieveData();
 
@@ -424,45 +429,38 @@ bool Formation::computeInterpolator( const string & propertyName, const Snapshot
 
       startSurfaceProperty->restoreData();
       endSurfaceProperty->restoreData();
-   } else {
-      DerivedProperties::FormationPropertyPtr startProperty = mig->getPropertyManager ().getFormationProperty ( property, intervalStart, this );
-      DerivedProperties::FormationPropertyPtr endProperty   = mig->getPropertyManager ().getFormationProperty ( property, intervalEnd, this );
-
+   } else if( property->getPropertyAttribute () == DataModel::DISCONTINUOUS_3D_PROPERTY ) {
+      DerivedProperties::FormationSurfacePropertyPtr startProperty = mig->getPropertyManager ().getFormationSurfaceProperty ( property, intervalStart, 
+                                                                                                                              this, getTopSurface() );
+      DerivedProperties::FormationSurfacePropertyPtr endProperty = mig->getPropertyManager ().getFormationSurfaceProperty ( property, intervalEnd, 
+                                                                                                                            this, getTopSurface() );
+      
       if( startProperty && endProperty ) {
          startProperty->retrieveData();
          endProperty->retrieveData();
-
-         interpolator.compute ( intervalStart, startProperty, intervalEnd, endProperty );
-
+            
+         interpolator.compute ( intervalStart, startProperty, intervalEnd, endProperty ); 
+            
          startProperty->restoreData();
          endProperty->restoreData();
-
       } else {
-         DerivedProperties::FormationSurfacePropertyPtr startProperty = mig->getPropertyManager ().getFormationSurfaceProperty ( property, intervalStart, 
-                                                                                                                                 this, getTopSurface() );
-         DerivedProperties::FormationSurfacePropertyPtr endProperty = mig->getPropertyManager ().getFormationSurfaceProperty ( property, intervalEnd, 
-                                                                                                                               this, getTopSurface() );
-      
-         if( startProperty && endProperty ) {
-            startProperty->retrieveData();
-            endProperty->retrieveData();
-            
-            interpolator.compute ( intervalStart, startProperty, intervalEnd, endProperty ); 
-            
-            startProperty->restoreData();
-            endProperty->restoreData();
-         } else {
-           if (GetRank () == 0) {
-              if( !startProperty ) {
-                 cout << "Property map " << propertyName << " " << getTopSurface()->getName() << " at " << intervalStart->getTime() << " not found" << endl;
-              }
-              if( !endProperty ) {
-                 cout << "Property map " << propertyName << " " << getTopSurface()->getName() << " at " << intervalEnd->getTime() << " not found" << endl;
-              }
-           }
-           return false;
+         if (GetRank () == 0) {
+            if( !startProperty ) {
+               cout << "Property map " << propertyName << " " << getTopSurface()->getName() << " at " << intervalStart->getTime() << " not found" << endl;
+            }
+            if( !endProperty ) {
+               cout << "Property map " << propertyName << " " << getTopSurface()->getName() << " at " << intervalEnd->getTime() << " not found" << endl;
+            }
          }
-       }
+         return false;
+      }
+
+   } else {
+
+      if (GetRank () == 0) {
+         cout << "Property map " << propertyName << " " << getTopSurface()->getName() << " at " << intervalStart->getTime() << " not found" << endl;
+      }
+      return false;
    }
 
    return true;

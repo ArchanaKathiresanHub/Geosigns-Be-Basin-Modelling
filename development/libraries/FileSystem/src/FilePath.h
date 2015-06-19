@@ -49,8 +49,14 @@ namespace ibs {
       std::string fileNameExtension() const;
 
       /// @brief Copy file to the given path
-      /// @parma destPath destination path for the file
+      /// @param destPath destination path for the file
+      /// @return true on success, false on any error
       bool copyFile( const Path & destPath ); 
+
+      /// @brief Create symbolic link to the given path
+      /// @param destPath destination path for the link
+      /// @return true on success, false on any error
+      bool linkFile( const Path & destPath );
 
       /// @brief Return full path to the application executable which called this method
       /// @return path to executable

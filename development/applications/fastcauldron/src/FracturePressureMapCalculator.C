@@ -36,6 +36,9 @@ bool FracturePressureMapCalculator::initialise ( OutputPropertyMap::PropertyValu
    m_hydrostaticPressure = PropertyManager::getInstance().findOutputPropertyMap ( "HydroStaticPressure", m_formation, m_surface, m_snapshot );
    m_lithostaticPressure = PropertyManager::getInstance().findOutputPropertyMap ( "LithoStaticPressure", m_formation, m_surface, m_snapshot );
 
+   if ( FastcauldronSimulator::getInstance ().getCauldron()->no2Doutput()) {
+      propertyValues [ 0 ]->allowOutput( false );
+   }
    return m_lithologies != 0 and m_depth != 0 and m_hydrostaticPressure != 0 and m_lithostaticPressure != 0;
 }
 

@@ -62,7 +62,7 @@ swig_add_module( Cauldron csharp src/Swig/DotNetAPI.i
     ${CMAKE_CURRENT_BINARY_DIR}/version.rc
 )
 
-swig_link_libraries( Cauldron casaapi cmbapi Serial_Hdf5 TableIO SerialDataAccess DataAccess EosPack ${Boost_LIBRARIES} )
+swig_link_libraries( Cauldron casaapi cmbapi Serial_Hdf5 TableIO DataModel SerialDataAccess DataAccess EosPack ${Boost_LIBRARIES} )
 
 SET_TARGET_PROPERTIES(Cauldron PROPERTIES LINK_FLAGS "/FORCE:MULTIPLE")
 

@@ -56,6 +56,29 @@ void DerivedProperties::PrimaryFormationSurfacePropertyCalculator::calculate ( A
 
 }
 
+bool DerivedProperties::PrimaryFormationSurfacePropertyCalculator::isComputable ( const AbstractPropertyManager&      propManager,
+                                                                                  const DataModel::AbstractSnapshot*  snapshot,
+                                                                                  const DataModel::AbstractFormation* formation,
+                                                                                  const DataModel::AbstractSurface*   surface ) const {
+
+   (void) propManager;
+
+   for ( size_t i = 0; i < m_formationSurfacePropertyValues.size (); ++i ) {
+      const DataAccess::Interface::PropertyValue* propVal = m_formationSurfacePropertyValues [ i ];
+
+      if ( propVal->getProperty () == m_property and
+           ( formation == 0 or propVal->getFormation () == formation ) and
+           ( surface   == 0 or propVal->getSurface ()   == surface   ) and
+           ( snapshot  == 0 or propVal->getSnapshot ()  == snapshot )) {
+         return true;
+      }
+
+   }
+
+   return false;
+}
+
+
 const DataModel::AbstractSnapshotSet& DerivedProperties::PrimaryFormationSurfacePropertyCalculator::getSnapshots () const {
    return m_snapshots;
 } 

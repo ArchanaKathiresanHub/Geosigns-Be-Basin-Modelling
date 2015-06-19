@@ -6,7 +6,7 @@ LSF_PROJECT=cldrn
 source /glb/apps/hpc/lsfprod/conf/profile.lsf
 
 # Submit command to cluster
-bsub -P $LSF_PROJECT -Is -q default.q "$@"
+bsub -P $LSF_PROJECT -Is "$@"
 
 # Print that we ended the job
 echo "<<Exited from Job>>"

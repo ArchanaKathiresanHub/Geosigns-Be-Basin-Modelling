@@ -1,6 +1,8 @@
 #ifndef _FASTCAULDRON_PROPERTY_H_
 #define _FASTCAULDRON_PROPERTY_H_
 
+#include "PropertyAttribute.h"
+
 #include "Interface/Property.h"
 #include "Interface/OutputProperty.h"
 
@@ -24,7 +26,8 @@ public :
    Property ( Interface::ProjectHandle * projectHandle,
               database::Record * record,
               const string & userName, const string & cauldronName,
-              const string & unit, const Interface::PropertyType type );
+              const string & unit, const Interface::PropertyType type,
+              const DataModel::PropertyAttribute attr );
 
 
    Interface::PropertyOutputOption getOption () const;

@@ -55,8 +55,13 @@ AllochMod::AllochthonousLithologySimulator::~AllochthonousLithologySimulator (vo
 
 bool AllochMod::AllochthonousLithologySimulator::saveToFile ( const std::string& fileName ) {
 
-  getDataBase ()->saveToFile ( fileName );
-  return true;
+   if ( allochthonousModellingRequired ()) {
+      setSimulationDetails ( "geomorph", "Default", "" );
+      finishActivity ();
+   }
+
+   getDataBase ()->saveToFile ( fileName );
+   return true;
 }
 
 //------------------------------------------------------------//

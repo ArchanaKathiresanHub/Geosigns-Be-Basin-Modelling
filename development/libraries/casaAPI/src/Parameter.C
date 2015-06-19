@@ -14,6 +14,7 @@
 #include "ErrorHandler.h"
 
 #include "PrmOneCrustThinningEvent.h"
+#include "PrmCrustThinning.h"
 #include "PrmSourceRockTOC.h"
 #include "PrmSourceRockHC.h"
 #include "PrmSourceRockHI.h"
@@ -21,6 +22,7 @@
 #include "PrmSourceRockPreAsphaltStartAct.h"
 #include "PrmTopCrustHeatProduction.h"
 #include "PrmPorosityModel.h"
+#include "PrmPermeabilityModel.h"
 #include "PrmLithoSTPThermalCond.h"
 
 casa::Parameter * casa::Parameter::load( CasaDeserializer & dz, const char * objName )
@@ -37,6 +39,7 @@ casa::Parameter * casa::Parameter::load( CasaDeserializer & dz, const char * obj
          << ", but stream gave object with name: " << on;
    }
    if (      ot == "PrmOneCrustThinningEvent"        ) { return new PrmOneCrustThinningEvent(        dz, vr ); }
+   else if ( ot == "PrmCrustThinning"                ) { return new PrmCrustThinning(                dz, vr ); }
    else if ( ot == "PrmSourceRockTOC"                ) { return new PrmSourceRockTOC(                dz, vr ); }
    else if ( ot == "PrmSourceRockHC"                 ) { return new PrmSourceRockHC(                 dz, vr ); }
    else if ( ot == "PrmSourceRockHI"                 ) { return new PrmSourceRockHI(                 dz, vr ); }
@@ -44,6 +47,7 @@ casa::Parameter * casa::Parameter::load( CasaDeserializer & dz, const char * obj
    else if ( ot == "PrmSourceRockType"               ) { return new PrmSourceRockType(               dz, vr ); }
    else if ( ot == "PrmTopCrustHeatProduction"       ) { return new PrmTopCrustHeatProduction(       dz, vr ); }
    else if ( ot == "PrmPorosityModel"                ) { return new PrmPorosityModel(                dz, vr ); }
+   else if ( ot == "PrmPermeabilityModel"            ) { return new PrmPermeabilityModel(            dz, vr ); }
    else if ( ot == "PrmLithoSTPThermalCond"          ) { return new PrmLithoSTPThermalCond(          dz, vr ); }
    else
    {
