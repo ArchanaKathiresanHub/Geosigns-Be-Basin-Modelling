@@ -19,8 +19,8 @@ DerivedProperties::PermeabilityFormationCalculator::PermeabilityFormationCalcula
                                      m_projectHandle->getRunParameters()->getChemicalCompaction ();
 
 
-   addPropertyName ( "PermeabilityVec2" );
-   addPropertyName ( "PermeabilityHVec2" );
+   addPropertyName ( "Permeability" );
+   addPropertyName ( "HorizontalPermeability" );
 
    addDependentPropertyName ( "Ves" );
    addDependentPropertyName ( "MaxVes" );
@@ -41,8 +41,8 @@ void DerivedProperties::PermeabilityFormationCalculator::calculate ( DerivedProp
    const DataModel::AbstractProperty* aMaxVesProperty = propertyManager.getProperty ( "MaxVes" );
    const DataModel::AbstractProperty* aChemicalCompactionProperty = propertyManager.getProperty ( "ChemicalCompaction" );
 
-   const DataModel::AbstractProperty* aPermeabilityVProperty = propertyManager.getProperty ( "PermeabilityVec2" );
-   const DataModel::AbstractProperty* aPermeabilityHProperty = propertyManager.getProperty ( "PermeabilityHVec2" );
+   const DataModel::AbstractProperty* aPermeabilityVProperty = propertyManager.getProperty ( "Permeability" );
+   const DataModel::AbstractProperty* aPermeabilityHProperty = propertyManager.getProperty ( "HorizontalPermeability" );
    
    const FormationPropertyPtr ves    = propertyManager.getFormationProperty ( aVesProperty, snapshot, formation );
    const FormationPropertyPtr maxVes = propertyManager.getFormationProperty ( aMaxVesProperty, snapshot, formation );
