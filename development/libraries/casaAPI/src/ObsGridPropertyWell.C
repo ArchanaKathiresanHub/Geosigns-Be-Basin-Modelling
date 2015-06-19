@@ -55,7 +55,7 @@ ObsGridPropertyWell::ObsGridPropertyWell( const std::vector<double> & x
    {
       std::ostringstream oss;
 
-      if ( name.empty() || name.size() != m_x.size() )
+      if ( name.empty() )
       {
          oss << m_propName << "(" << m_x[i] << "," << m_y[i] << "," << m_z[i] << "," << m_simTime << ")";
       }

@@ -91,6 +91,10 @@ namespace casa
       /// @param w weight coefficient value
       virtual void setSAWeight( double w ) { m_saWeight = w;  }
 
+      /// @brief Get Z coordinates list
+      /// @return array with Z coordinate of each observable point along well
+      std::vector<double> depth() const { return m_z; }
+
       /// @brief Set weight coefficient for Uncertainty analysis
       /// @param w weight coefficient value
       virtual void setUAWeight( double w ) { m_uaWeight = w; }

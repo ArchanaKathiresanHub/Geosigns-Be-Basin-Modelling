@@ -78,7 +78,7 @@ public:
       double z   = atof( prms[pos++].c_str() );
       double age = atof( prms[pos++].c_str() ); // age for the observable
 
-      casa::Observable * obsVal = casa::ObsGridPropertyXYZ::createNewInstance( x, y, z, prms[1].c_str(), age );
+      casa::Observable * obsVal = casa::ObsGridPropertyXYZ::createNewInstance( x, y, z, prms[1].c_str(), age, name );
 
       if ( prms.size() == 10 )
       {
@@ -155,7 +155,7 @@ public:
       CfgFileParser::readTrajectoryFile( trajFileName, x, y, z, r );
       
       // create observable
-      casa::Observable * obsVal = casa::ObsGridPropertyWell::createNewInstance( x, y, z, propName.c_str(), age );
+      casa::Observable * obsVal = casa::ObsGridPropertyWell::createNewInstance( x, y, z, propName.c_str(), age, name );
       obsVal->setReferenceValue( new casa::ObsValueDoubleArray( obsVal, r ), stdDev );
 
       obsVal->setSAWeight( wgtSA );
@@ -213,7 +213,7 @@ public:
       const  std::string & srLayerName =       prms[pos++];           // source rock layer name
       double age                       = atof( prms[pos++].c_str() ); // age for the observable
 
-      casa::Observable * obsVal = casa::ObsSourceRockMapProp::createNewInstance( x, y, srLayerName.c_str(), srPropName.c_str(), age );
+      casa::Observable * obsVal = casa::ObsSourceRockMapProp::createNewInstance( x, y, srLayerName.c_str(), srPropName.c_str(), age, name );
 
       // optional parameters
       if ( prms.size() == 10 )

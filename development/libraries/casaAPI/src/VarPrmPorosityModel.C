@@ -107,19 +107,19 @@ std::vector<std::string> VarPrmPorosityModel::name() const
    switch ( m_mdlType )
    {
       case PrmPorosityModel::Exponential:
-         ret.push_back( "SurfacePorosity [%]" );
-         ret.push_back( "Compaction Coefficient [10e-8 Pa-1]" );
+         ret.push_back( m_lithoName + ". SurfacePorosity [%]" );
+         ret.push_back( m_lithoName + ". Compaction Coefficient [10e-8 Pa-1]" );
          break;
 
       case PrmPorosityModel::SoilMechanics:
-         ret.push_back( "Clay fraction [%]" );
+         ret.push_back( m_lithoName + ". Clay fraction [%]" );
          break;
 
       case PrmPorosityModel::DoubleExponential:
-         ret.push_back( "SurfacePorosity [%]" );
-         ret.push_back( "MinimalPorosity [%]" );
-         ret.push_back( "Compaction Coefficient A [10e-8 Pa-1]" );
-         ret.push_back( "Compaction Coefficient B [10e-8 Pa-1]" );
+         ret.push_back( m_lithoName + ". SurfacePorosity [%]" );
+         ret.push_back( m_lithoName + ". MinimalPorosity [%]" );
+         ret.push_back( m_lithoName + ". Compaction Coefficient A [10e-8 Pa-1]" );
+         ret.push_back( m_lithoName + ". Compaction Coefficient B [10e-8 Pa-1]" );
          break;
    }
 	return ret;

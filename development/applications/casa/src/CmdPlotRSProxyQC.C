@@ -17,6 +17,7 @@
 
 // CASA
 #include "casaAPI.h"
+#include "ObsGridPropertyWell.h"
 #include "RunCase.h"
 
 // Stadard C lib
@@ -26,6 +27,17 @@
 // STL
 #include <iostream>
 #include <memory>
+#include <algorithm>
+
+static std::string correctName( std::string name )
+{
+   std::replace( name.begin(), name.end(), '/', '-' );
+   std::replace( name.begin(), name.end(), ':', '-' );
+   std::replace( name.begin(), name.end(), ' ', '-' );
+   std::replace( name.begin(), name.end(), '_', '-' );
+   return name;
+}
+
 
 CmdPlotRSProxyQC::CmdPlotRSProxyQC( CasaCommander & parent, const std::vector< std::string > & cmdPrms ) : CasaCmd( parent, cmdPrms )
 {
@@ -33,6 +45,8 @@ CmdPlotRSProxyQC::CmdPlotRSProxyQC( CasaCommander & parent, const std::vector< s
    std::string proxyCases = m_prms.size() > 1 ? m_prms[1] : "";
    std::string testCases  = m_prms.size() > 2 ? m_prms[2] : "";
    m_mFileName            = m_prms.size() > 3 ? m_prms[3] : "rsProxyQCPlot.m";
+   std::string obsList    = m_prms.size() > 4 ? m_prms[4] : "";
+
 
    if ( m_proxyName.empty()  ) { throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "No rs proxy name was given to PlotRSProxyQC command"; }
    if ( proxyCases.empty()   ) { throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Empty cases list for proxy plot QC command"; }
@@ -40,6 +54,12 @@ CmdPlotRSProxyQC::CmdPlotRSProxyQC( CasaCommander & parent, const std::vector< s
    // convert list of DoEs or data files like: "Tornado,BoxBenken" into array of names
    m_caseList = CfgFileParser::list2array( proxyCases, ',' );
    if ( m_caseList.empty() ) throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "No any DoE or data file name was given for making proxy QC plot";
+
+   if ( !obsList.empty() )
+   {
+      const std::vector<std::string> & givenTargetNames = CfgFileParser::list2array( obsList, ',' );
+      m_targetNames.insert( givenTargetNames.begin(), givenTargetNames.end() );
+   }
 
    if ( !testCases.empty() ) m_testCaseList = CfgFileParser::list2array( testCases, ',' );
 }
@@ -113,107 +133,153 @@ void CmdPlotRSProxyQC::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
    ofs << "   'h'\n";
    ofs << "];\n";
 
-   ofs.exportObservablesInfo( *sa.get() );
-
    // now go over simulations and proxy evaluation and for each observable
    // export data
    // 1st create observables list:
    // TODO implement for well trajectory
    for ( size_t i = 0; i < sa->obsSpace().size(); ++i )
    {
-      ofs << "\nProxyQC(" << i+1 << ").obsName = '" << sa->obsSpace().observable( i )->name()[0] << "';\n";
+      const casa::Observable * obsObj = sa->obsSpace().observable( i );
+      if ( !obsObj ) continue;
 
-      // go over DoE cases which were used to build proxy
-      size_t csPos = 0;
-      for ( size_t e = 0; e < m_caseList.size(); ++e )
-      {         
+      const casa::ObsGridPropertyWell * wellObs = dynamic_cast<const casa::ObsGridPropertyWell *>( obsObj );
 
-         sa->doeCaseSet().filterByExperimentName( m_caseList[e] );
-         assert( sa->doeCaseSet().size() == proxyCaseSetSize[e] );
-         
-         if ( !proxyCaseSetSize[e] ) continue; // skip empty experiments
+      const std::vector<std::string> & obsNamesList = obsObj->name();
 
-         ofs << "\nProxyQC(" << i+1 << ").expNameProxyBld{" << e+1 << "} = '" << m_caseList[e] << "';\n";
-         
-         // collect observable values for e-th experiment
-         std::vector<double> simCases;
-         for ( size_t c = 0; c < sa->doeCaseSet().size(); ++c )
-         {
-            const casa::ObsValue * obv = sa->doeCaseSet().runCase( c )->obsValue( i );
-            
-            if ( obv->isDouble() )
-            {
-               const std::vector<double> & vec = obv->asDoubleArray();
-               simCases.insert( simCases.end(), vec.begin(), vec.end() );
-            }
-         }
-
-         std::vector<double> prxCases;
-         for ( size_t c = 0; c < proxyCaseSetSize[e]; ++c )
-         {
-            const casa::ObsValue * obv = proxyCaseSet[csPos]->obsValue( i );
-            if ( obv->isDouble() )
-            {
-               const std::vector<double> & vec = obv->asDoubleArray();
-               prxCases.insert( prxCases.end(), vec.begin(), vec.end() );
-            }
-            ++csPos;
-         }
-         assert( prxCases.size() == simCases.size() );
-         // save experiment data for e-th experiment
-         ofs << "\nProxyQC(" << i+1 << ").proxyBldData{" << e+1 << "} = [\n  ";
-         for ( size_t c = 0; c < simCases.size(); ++c ) { ofs << " " << simCases[c]; }
-         ofs << "\n  ";
-         for ( size_t c = 0; c < simCases.size(); ++c ) { ofs << " " << prxCases[c]; }
-         ofs << "\n];\n";
+      if ( wellObs && wellObs->dimension() > 1  )
+      {
+         ofs << obsWellData( i, sa, proxyCaseSet, testCaseSet );
       }
+      
+      for ( size_t o = 0; o < obsObj->dimension(); ++o )
+      {
+         const std::string & obsName = obsNamesList[o];
 
-      // go over DoE cases which were given for testing proxy
-      csPos = 0;
-      for ( size_t e = 0; e < m_testCaseList.size(); ++e )
-      {         
-
-         sa->doeCaseSet().filterByExperimentName( m_testCaseList[e] );
-         assert( sa->doeCaseSet().size() == testCaseSetSize[e] );
-         
-         if ( !testCaseSetSize[e] ) continue; // skip empty experiments
-
-         ofs << "\nProxyQC(" << i+1 << ").expNameProxyTst{" << e+1 << "} = '" << m_testCaseList[e] << "';\n";
-         
-         // collect observable values for e-th experiment
-         std::vector<double> simCases;
-         for ( size_t c = 0; c < sa->doeCaseSet().size(); ++c )
+         bool found = false;
+         for ( std::set<std::string>::const_iterator it = m_targetNames.begin(); !found && it != m_targetNames.end(); ++it )
          {
-            const casa::ObsValue * obv = sa->doeCaseSet().runCase( c )->obsValue( i );
+            if ( obsName.find( *it ) != std::string::npos ) found = true; 
+         }
+         if ( !m_targetNames.empty() && !found ) continue;
+
+         ofs << "\nProxyQC( end+1 ).obsName = '" << correctName( obsName ) << "';\n";
+
+         ofs << "\nProxyQC( end ).obsRefAndDevValues = [";
+         const casa::ObsValue * refVal =  obsObj->referenceValue(); 
+         if ( refVal && refVal->isDouble() )
+         {
+            const std::vector<double> & vals = refVal->asDoubleArray();
+            ofs << vals[o] << " " << obsObj->stdDeviationForRefValue();
+         } 
+         ofs << "];\n";
+
+         // go over DoE cases which were used to build proxy
+         size_t csPos = 0;
+         for ( size_t e = 0; e < m_caseList.size(); ++e )
+         {         
+
+            sa->doeCaseSet().filterByExperimentName( m_caseList[e] );
+            assert( sa->doeCaseSet().size() == proxyCaseSetSize[e] );
+         
+            if ( !proxyCaseSetSize[e] ) continue; // skip empty experiments
+
+            ofs << "\nProxyQC( end ).expNameProxyBld{" << e+1 << "} = '" << m_caseList[e] << "';\n";
+         
+            // collect observable values for e-th experiment
+            std::vector<double> simCases;
+            for ( size_t c = 0; c < sa->doeCaseSet().size(); ++c )
+            {
+               const casa::ObsValue * obv = sa->doeCaseSet().runCase( c )->obsValue( i );
+               
+               if ( obv->isDouble() ) { simCases.push_back( obv->asDoubleArray()[o] ); }
+            }
+
+            std::vector<double> prxCases;
+            for ( size_t c = 0; c < proxyCaseSetSize[e]; ++c )
+            {
+               const casa::ObsValue * obv = proxyCaseSet[csPos]->obsValue( i );
+               if ( obv->isDouble() ) { prxCases.push_back( obv->asDoubleArray()[o] ); }
+               ++csPos;
+            }
+   
+            assert( prxCases.size() == simCases.size() );
+            // save experiment data for e-th experiment
+            ofs << "\nProxyQC( end ).proxyBldData{" << e+1 << "} = [\n  ";
+            for ( size_t c = 0; c < simCases.size(); ++c ) { ofs << " " << simCases[c]; }
+            ofs << "\n  ";
+            for ( size_t c = 0; c < simCases.size(); ++c ) { ofs << " " << prxCases[c]; }
+            ofs << "\n];\n";
+         }
+
+         // go over DoE cases which were given for testing proxy
+         csPos = 0;
+         for ( size_t e = 0; e < m_testCaseList.size(); ++e )
+         {         
+
+            sa->doeCaseSet().filterByExperimentName( m_testCaseList[e] );
+            assert( sa->doeCaseSet().size() == testCaseSetSize[e] );
+         
+            if ( !testCaseSetSize[e] ) continue; // skip empty experiments
+
+            ofs << "\nProxyQC( end ).expNameProxyTst{" << e+1 << "} = '" << m_testCaseList[e] << "';\n";
+         
+            // collect observable values for e-th experiment
+            std::vector<double> simCases;
+            for ( size_t c = 0; c < sa->doeCaseSet().size(); ++c )
+            {
+               const casa::ObsValue * obv = sa->doeCaseSet().runCase( c )->obsValue( i );
             
-            if ( obv->isDouble() )
-            {
-               const std::vector<double> & vec = obv->asDoubleArray();
-               simCases.insert( simCases.end(), vec.begin(), vec.end() );
+               if ( obv->isDouble() ) { simCases.push_back( obv->asDoubleArray()[o] ); }
             }
-         }
 
-         std::vector<double> prxCases;
-         for ( size_t c = 0; c < testCaseSetSize[e]; ++c )
-         {
-            const casa::ObsValue * obv = testCaseSet[csPos]->obsValue( i );
-            if ( obv->isDouble() )
+            std::vector<double> prxCases;
+            for ( size_t c = 0; c < testCaseSetSize[e]; ++c )
             {
-               const std::vector<double> & vec = obv->asDoubleArray();
-               prxCases.insert( prxCases.end(), vec.begin(), vec.end() );
+               const casa::ObsValue * obv = testCaseSet[csPos]->obsValue( i );
+               if ( obv->isDouble() ) { prxCases.push_back( obv->asDoubleArray()[o] ); }
+               ++csPos;
             }
-            ++csPos;
+            assert( prxCases.size() == simCases.size() );
+            // save experiment data for e-th experiment
+            ofs << "\nProxyQC( end ).proxyTstData{" << e+1 << "} = [\n  ";
+         
+            for ( size_t c = 0; c < simCases.size(); ++c ) { ofs << " " << simCases[c]; }
+            ofs << "\n  ";
+            for ( size_t c = 0; c < prxCases.size(); ++c ) { ofs << " " << prxCases[c]; }
+            ofs << "\n];\n";
          }
-         assert( prxCases.size() == simCases.size() );
-         // save experiment data for e-th experiment
-         ofs << "\nProxyQC(" << i+1 << ").proxyTstData{" << e+1 << "} = [\n  ";
-         for ( size_t c = 0; c < simCases.size(); ++c ) { ofs << " " << simCases[c]; }
-         ofs << "\n  ";
-         for ( size_t c = 0; c < simCases.size(); ++c ) { ofs << " " << prxCases[c]; }
-         ofs << "\n];\n";
       }
    }
+   // plot QC plot for all wells type targets
+   ofs << "\nhold off\n";
+   ofs << "for w = 1 : length( WellsObs )\n";
+   ofs << "   display( ['  processign QC plot for well: ' WellsObs(w).name] );\n";
+   ofs << "\n";
+   ofs << "  mr = markers( mod(w-1,length(markers))+1,:);\n";
+   ofs << "  cl = colors( mod(w,length(colors))+1,:);\n";
+   ofs << "\n";
+   ofs << "  h(w) = plot(  WellsObs(w).r2, WellsObs(w).depth,[cl mr], 'LineWidth', 4 );\n";
+   ofs << "  hold on\n";
+   ofs << "  legName{w} = WellsObs(w).name;\n";
+   ofs << "\n";
+   ofs << "end\n";
+   ofs << "axis('ij' );\n";
+   ofs << "\n";
+   ofs << "legend( h, legName, 'location', 'northwest' );\n";
+   ofs << "grid on;\n";
+   ofs << "\n";
+   ofs << "set( findobj( gcf(), 'type', 'axes', 'Tag', 'legend'), 'fontweight', 'bold' );\n";
+   ofs << "\n";
+   ofs << "ah=get (gcf, 'currentaxes');\n";
+   ofs << "set( ah, 'fontweight', 'bold' );\n";
+   ofs << "title( 'QC plot: R^2 vs depth for well type targets', 'fontweight', 'bold' );\n";
+   ofs << "\n";
+   ofs << "xlabel( 'R^2 []' );\n";
+   ofs << "ylabel( 'Depth [m]' );\n";
+   ofs << "print SecOrdFF_proxyQC_wells.jpg -S1000,1000;\n\n";
 
+   // plot QC plot per observable
+   ofs << "close\n clear h legName\naxis( 'xy' )\n";
    ofs << "for i = 1:length( ProxyQC )\n";
    ofs << "   hold off\n";
    ofs << "   display( ['  processign plot for observable: ' ProxyQC(i).obsName] );\n";
@@ -234,9 +300,9 @@ void CmdPlotRSProxyQC::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
    ofs << "   close\n";
    ofs << "\n";
    ofs << "   % Get reference value and standard deviation\n";
-   ofs << "   if ( length( ObservablesRefValue{ i } ) > 0 )\n";
-   ofs << "      ObsRefVal    = ObservablesRefValue{ i, 1 };\n";
-   ofs << "      ObsRefStdDev = ObservablesRefValue{ i, 2 };\n";
+   ofs << "   if ( length( ProxyQC(i).obsRefAndDevValues ) == 2 )\n";
+   ofs << "      ObsRefVal    = ProxyQC(i).obsRefAndDevValues( 1 );\n";
+   ofs << "      ObsRefStdDev = ProxyQC(i).obsRefAndDevValues( 2 );\n";
    ofs << "\n";
    ofs << "      minV = min( [minV ObsRefVal-ObsRefStdDev ] );\n";
    ofs << "      maxV = max( [maxV ObsRefVal+ObsRefStdDev ] );\n";
@@ -265,7 +331,7 @@ void CmdPlotRSProxyQC::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
    ofs << "   text( maxV-dx,     (maxV-dx)*0.9-0.1*dx, '90%',  'fontweight', 'bold' );\n";
    ofs << "   text( maxV-1.4*dx, (maxV-dx)*1.1-0.6*dx, '110%', 'fontweight', 'bold' );\n";
    ofs << "\n";
-   ofs << "   if ( length( ObservablesRefValue{ i } ) > 0 )\n";
+   ofs << "   if ( length( ProxyQC(i).obsRefAndDevValues ) > 0 )\n";
    ofs << "      plot( [ ObsRefVal ], [ ObsRefVal ], 'or', 'markerfacecolor', 'w', 'markersize', plotMarkerSize, 'linewidth', 3 );\n";
    ofs << "      hrf = plot( [ ObsRefVal ], [ ObsRefVal], 'or', 'markersize', plotMarkerSize, 'linewidth', 3 );\n";
    ofs << "   end\n";
@@ -304,12 +370,140 @@ void CmdPlotRSProxyQC::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
    ofs << "\n";
    ofs << "   clear h;\n";
    ofs << "   clear legName;\n";
-   ofs << "   eval( sprintf( 'print "<< m_proxyName << "_proxyQC_Obs_%d.jpg -S1000,1000', i ) );\n";
+   ofs << "   eval( sprintf( 'print QC_" << correctName( m_proxyName ) << "_" << "%s.jpg -S1000,1000', ProxyQC(i).obsName ) );\n";
    ofs << "end\n";
 
    if ( m_commander.verboseLevel() > CasaCommander::Quiet )
    {
       std::cout << "Succeded...\n";
    }
+}
+
+
+
+std::string CmdPlotRSProxyQC::obsWellData( size_t                                  obsID
+                                         , std::auto_ptr<casa::ScenarioAnalysis> & sa
+                                         , std::vector<casa::RunCase *>          & proxyCaseSet
+                                         , std::vector<casa::RunCase *>          & testCaseSet
+                                         )
+{
+   std::ostringstream oss;
+
+   const casa::ObsGridPropertyWell * wellObs = dynamic_cast<const casa::ObsGridPropertyWell *>( sa->obsSpace().observable( obsID ) );
+   
+   if ( !wellObs ) { return ""; }
+
+   // construct obs name from the name of the first point
+   const std::vector<std::string> & obsNames = wellObs->name();
+   std::string name = obsNames[0];
+
+   bool found = false;
+   for ( std::set<std::string>::const_iterator it = m_targetNames.begin(); !found && it != m_targetNames.end(); ++it )
+   {
+      if ( name.find( *it ) != std::string::npos ) found = true; 
+   }
+   if ( !found ) return "";
+
+   std::string::size_type pos = name.rfind( "_1" ); // automatically named well point
+   if ( pos != std::string::npos ) { name = name.substr( 0, name.size() - 2 ); }
+
+   std::vector< std::vector<double> > simVals( wellObs->dimension() );
+   std::vector< std::vector<double> > prxVals( wellObs->dimension() );
+   
+   const std::vector<double> & depth = wellObs->depth();
+   std::vector<double> R2( wellObs->dimension(), 0.0 );
+
+   // go over DoEs which were used to construct proxy at first
+   size_t csPos = 0;
+   for ( size_t e = 0; e < m_caseList.size(); ++e )
+   {            
+      // select next experiment
+      sa->doeCaseSet().filterByExperimentName( m_caseList[e] );        
+
+      if ( !sa->doeCaseSet().size() ) continue; // skip empty experiments
+
+      // collect observable values for e-th experiment
+      for ( size_t c = 0; c < sa->doeCaseSet().size(); ++c )
+      {
+         const casa::ObsValue * obv = sa->doeCaseSet().runCase( c )->obsValue( obsID );             
+         const std::vector<double> & vals = obv->asDoubleArray();
+         assert( vals.size() == simVals.size() );
+         for ( size_t i = 0; i < vals.size(); ++i ) { simVals[i].push_back( vals[i] ); }
+
+         obv = proxyCaseSet[csPos]->obsValue( obsID );
+         const std::vector<double> & pvals = obv->asDoubleArray();
+         assert( pvals.size() == prxVals.size() );
+         for ( size_t i = 0; i < pvals.size(); ++i ) { prxVals[i].push_back( pvals[i] ); }
+         ++csPos;
+      }
+   }
+
+   // go over DoE which were given for testing proxy
+   csPos = 0;
+   for ( size_t e = 0; e < m_testCaseList.size(); ++e )
+   {         
+      sa->doeCaseSet().filterByExperimentName( m_testCaseList[e] );
+
+      if ( !sa->doeCaseSet().size() ) continue; // skip empty experiments
+
+      // collect observable values for e-th experiment
+      for ( size_t c = 0; c < sa->doeCaseSet().size(); ++c )
+      {
+         const casa::ObsValue * obv = sa->doeCaseSet().runCase( c )->obsValue( obsID );
+         const std::vector<double> & vals = obv->asDoubleArray();
+         assert( vals.size() == simVals.size() );
+         for ( size_t i = 0; i < vals.size(); ++i ) { simVals[i].push_back( vals[i] ); }
+
+         obv = testCaseSet[csPos]->obsValue( obsID );
+         const std::vector<double> & pvals = obv->asDoubleArray();
+         assert( pvals.size() == prxVals.size() );
+         for ( size_t i = 0; i < pvals.size(); ++i ) { prxVals[i].push_back( pvals[i] ); }
+         ++csPos;
+      }
+   }
+
+   // calculate average for simulated value
+   std::vector<double> avrVals( simVals.size(), 0.0 );
+   for ( size_t i = 0; i < simVals.size(); ++i )
+   {
+      for ( size_t j = 0; j < simVals[i].size(); ++j )
+      {
+         avrVals[i] += simVals[i][j];
+      }
+      if ( simVals[i].size() > 0 ) avrVals[i] = avrVals[i] / simVals[i].size();
+   }
+   
+   // calculate R^2 with depth
+   for ( size_t i = 0; i < wellObs->dimension(); ++i )
+   {
+      double sum1 = 0.0;
+      double sum2 = 0.0;
+      for ( size_t j = 0; j < simVals[i].size(); ++j )
+      {
+         sum1 += ( simVals[i][j] - prxVals[i][j] ) * ( simVals[i][j] - prxVals[i][j] );
+         sum2 += ( avrVals[i]    - prxVals[i][j] ) * ( avrVals[i]    - prxVals[i][j] );
+
+      }
+      R2[i] = 1.0e0 - (sum2 > 0.0 ? sum1 / sum2 : 1.0);
+   }
+
+   // dump as matlab
+   oss << "\nWellsObs( end+1 ).name = '" << correctName( name ) << "';\n";
+   oss << "WellsObs( end ).depth = [ ";
+
+   for ( size_t i = 0; i < depth.size(); ++i )
+   {
+      oss << depth[i] << " ";
+   }
+   oss << "];\n";
+   
+   oss << "WellsObs( end ).r2 = [ ";
+   for ( size_t i = 0; i < R2.size(); ++i )
+   {
+      oss << R2[i] << " ";
+   }
+   oss << "];\n";
+
+   return oss.str();
 }
 

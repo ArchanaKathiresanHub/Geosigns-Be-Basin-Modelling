@@ -185,23 +185,23 @@ std::vector<std::string> VarPrmPermeabilityModel::name() const
 
       case PrmPermeabilityModel::Sandstone:
          ret.resize( PrmPermeabilityModel::ClayPercentage + 1 );
-         ret[PrmPermeabilityModel::AnisotropicCoeff] = "Anisotropic coeff. [kv/kh]";
-         ret[PrmPermeabilityModel::DepositionalPerm] = "Depositional permeability [mD]";
-         ret[PrmPermeabilityModel::ClayPercentage]   = "Sandstone clay percentage [%]";
+         ret[PrmPermeabilityModel::AnisotropicCoeff] = m_lithoName + ". Anisotropic coeff. [kv/kh]";
+         ret[PrmPermeabilityModel::DepositionalPerm] = m_lithoName + ". Depositional permeability [mD]";
+         ret[PrmPermeabilityModel::ClayPercentage]   = m_lithoName + ". Sandstone clay percentage [%]";
          break;
 
       case PrmPermeabilityModel::Mudstone:
          ret.resize( PrmPermeabilityModel::RecoverCoeff + 1 );
-         ret[PrmPermeabilityModel::AnisotropicCoeff] = "Anisotropic coeff. [kv/kh]";
-         ret[PrmPermeabilityModel::DepositionalPerm] = "Depositional permeability [mD]";
-         ret[PrmPermeabilityModel::SensitivityCoeff] = "Sensitivity coeff. []";
-         ret[PrmPermeabilityModel::RecoverCoeff]     = "Recovery coeff. []";
+         ret[PrmPermeabilityModel::AnisotropicCoeff] = m_lithoName + ". Anisotropic coeff. [kv/kh]";
+         ret[PrmPermeabilityModel::DepositionalPerm] = m_lithoName + ". Depositional permeability [mD]";
+         ret[PrmPermeabilityModel::SensitivityCoeff] = m_lithoName + ". Sensitivity coeff. []";
+         ret[PrmPermeabilityModel::RecoverCoeff]     = m_lithoName + ". Recovery coeff. []";
          break;
          
       case PrmPermeabilityModel::Multipoint:
          ret.resize( PrmPermeabilityModel::AnisotropicCoeff + 1 );
-         ret[PrmPermeabilityModel::AnisotropicCoeff] = "Anisotropic coeff. [kv/kh]";
-         ret.push_back( "Profile variation parameter []" );
+         ret[PrmPermeabilityModel::AnisotropicCoeff] = m_lithoName + ". Anisotropic coeff. [kv/kh]";
+         ret.push_back( m_lithoName + ". Profile variation parameter []" );
          break;
    }
 	return ret;

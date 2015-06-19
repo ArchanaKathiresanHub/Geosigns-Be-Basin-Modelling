@@ -19,6 +19,15 @@
 #include <cmath>
 #include <iostream>
 
+static std::string correctName( std::string name )
+{
+   std::replace( name.begin(), name.end(), '/', '-' );
+   std::replace( name.begin(), name.end(), ':', '-' );
+   std::replace( name.begin(), name.end(), ' ', '-' );
+   std::replace( name.begin(), name.end(), '_', '-' );
+   return name;
+}
+
 CmdPlotTornado::CmdPlotTornado( CasaCommander & parent, const std::vector< std::string > & cmdPrms ) : CasaCmd( parent, cmdPrms )
 {
    if ( m_prms.size() < 1 )
@@ -76,27 +85,31 @@ void CmdPlotTornado::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
 
    ofs << "%CASA Tornado diagram plotting script\n";
 
-   // export cases parameters
-   //ofs.exportParametersInfo( *sa.get() );
-
-   // export cases observables
-   //ofs.exportObservablesInfo( *sa.get() );
-
-  
    ofs << "clear all\n";
    ofs << "hold off\n";
    ofs << "close\n";
    
    //ofs << "ProxyName = '" << m_proxyName << "';\n";
 
-   for ( size_t i = 0; i < data.size(); ++i )
+   for ( size_t i = 0, obsNum = 0; i < data.size(); ++i )
    {
-      const std::string & obsName = data[i].observable()->name()[data[i].observableSubID()];
+      // get name of the observable
+      const casa::Observable * obsObj = data[i].observable();
+      if ( !obsObj ) continue;
+      const std::vector<std::string> & obsNamesList = obsObj->name();
+      const std::string & obsName = obsNamesList[data[i].observableSubID()];
 
-      if ( !m_targetNames.empty() && !m_targetNames.count( obsName ) ) continue;
+      bool found = false;
+      for ( std::set<std::string>::const_iterator it = m_targetNames.begin(); !found && it != m_targetNames.end(); ++it )
+      {
+         if ( obsName.find( *it ) != std::string::npos ) found = true; 
+      }
+      if ( !m_targetNames.empty() && !found ) continue;
 
-      ofs << "TornadoSens.obsName{ " << i+1 << "} = '" << obsName << "';\n";
-      ofs << "TornadoSens.obsRefVal( " << i+1 << ") = " << data[i].refObsValue() << ";\n";
+      ++obsNum;
+
+      ofs << "TornadoSens.obsName{ " << obsNum << "} = '" << correctName( obsName ) << "';\n";
+      ofs << "TornadoSens.obsRefVal( " << obsNum << ") = " << data[i].refObsValue() << ";\n";
 
       const std::vector<std::pair<const casa::VarParameter *, int> > & varPrmList = data[i].varPrmList();
       const casa::TornadoSensitivityInfo::SensitivityData            & sens       = data[i].sensitivities();
@@ -107,7 +120,7 @@ void CmdPlotTornado::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
          const std::vector<std::string> & prmNames = varPrmList[j].first->name();
          const std::string & prmName = prmNames[varPrmList[j].second];
 
-         ofs << "TornadoSens.prmNames{ " << i+1 << ", " << j+1 << "} = '" << prmName << "';\n";
+         ofs << "TornadoSens.prmNames{ " << obsNum << ", " << j+1 << "} = '" << prmName << "';\n";
 
          double minVal; 
          double maxVal;
@@ -128,10 +141,10 @@ void CmdPlotTornado::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
             minRelVal = relSens[j][0];
             maxRelVal = relSens[j][1];
          }
-         ofs << "TornadoSens.absSensMin( " << i+1 << ", " << j+1 << ") = " << minVal << ";\n";
-         ofs << "TornadoSens.absSensMax( " << i+1 << ", " << j+1 << ") = " << maxVal << ";\n";
-         ofs << "TornadoSens.relSensMin( " << i+1 << ", " << j+1 << ") = " << minRelVal << ";\n";
-         ofs << "TornadoSens.relSensMax( " << i+1 << ", " << j+1 << ") = " << maxRelVal << ";\n";
+         ofs << "TornadoSens.absSensMin( " << obsNum << ", " << j+1 << ") = " << minVal << ";\n";
+         ofs << "TornadoSens.absSensMax( " << obsNum << ", " << j+1 << ") = " << maxVal << ";\n";
+         ofs << "TornadoSens.relSensMin( " << obsNum << ", " << j+1 << ") = " << minRelVal << ";\n";
+         ofs << "TornadoSens.relSensMax( " << obsNum << ", " << j+1 << ") = " << maxRelVal << ";\n";
       }
    }
 
@@ -202,6 +215,8 @@ void CmdPlotTornado::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
    ofs << "   grid on\n";
    ofs << "   \n";
    ofs << "   print( sprintf( 'tornado_%d.jpg', i ) );\n";
+   ofs << "   eval( sprintf( 'print Tornado_%s.jpg -S1000,1000', TornadoSens.obsName{i} ) );\n";
+
    ofs << "end\n";
 }
 
