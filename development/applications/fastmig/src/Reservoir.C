@@ -1958,7 +1958,7 @@ bool Reservoir::collectExpelledCharges (const Formation * formation, unsigned in
 
       double fraction = (direction == EXPELLEDUPANDDOWNWARD ? 1.0 : 0.5);
 
-      double startTime = 0.0, endTime = 0.0, fractionToMigrate = 1.0;
+      double startTime = -1.0, endTime = -1.0, fractionToMigrate = 1.0;
 
       if( gridMapStart ) {
          startTime = getStart ()->getTime();
@@ -1975,7 +1975,7 @@ bool Reservoir::collectExpelledCharges (const Formation * formation, unsigned in
          gridMapEnd = getPropertyGridMap (propertyName, endSnapshot, 0, formation, 0);
       }
       
-      if( startTime - endTime > 0 and genexFraction ) {
+      if( genexFraction and startTime - endTime > 0 ) {
          if( gridMapStart && gridMapEnd ) {
             fractionToMigrate = (getStart()->getTime() - getEnd()->getTime()) / (startTime - endTime );
             if( endTime == getEnd ()->getTime() ) {
