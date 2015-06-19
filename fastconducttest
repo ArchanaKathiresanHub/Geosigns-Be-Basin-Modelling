@@ -1,0 +1,296 @@
+#!/bin/csh
+# script to periodically build and perform a test of one of the tools of the fastcbm suite
+
+umask 002
+
+echo "$0:t $*"
+
+set testdir=""
+set cluster=""
+set platform=""
+set project=""
+set application=""
+set procs=""
+set option=""
+set subdir=""
+set solvertolerance=""
+set solvertolerancestring=""
+set debug="false"
+
+while ($#argv > 0)
+   switch ($1)
+      case -h*:
+         echo "usage: fastconducttest  -cluster <cluster-name>"
+	 echo "                        -platform <OS-identifier>"
+	 echo "                        -project <project-name>"
+	 echo "                        -application <tool-to-test>"
+	 echo "                        -procs <# procs>"
+	 echo "                        [-solvertol <tol>]"
+	 echo "                        [-help]"
+	 echo "                        [-subdir <subdir>]"
+	 echo ""
+	 echo "       cluster-name:  e.g. EINSTEIN or kseu1206, do not use LOCAL"
+	 echo "       OS-identifier: e.g. Linux64 or IRIX64"
+	 echo "       project-name:  e.g. Acquifer"
+	 echo "       application:   e.g. fastcauldron or fastgenex5 or fastmig"
+	 echo "       test-name:          Test or Valid"
+	 echo "       # procs:       e.g. 1 or 2 or 4"
+	 echo "       subdir:        e.g. HydrostaticTemperature or LooselyCoupled (for fastcauldron only)"
+	 echo "       solvertol      the tolerance of the linear solver."
+	 echo ""
+	 echo "       version of the application to be tested is determined at"
+	 echo "       execution time through" \$CAULDRON_VERSION
+	 exit 0
+      case -testdir:
+	 set testdir=$2
+	 shift
+	 shift
+	 breaksw
+      case -cluster:
+	 set cluster=$2
+	 shift
+	 shift
+	 breaksw
+      case -option:
+	 set option=$2
+	 shift
+	 shift
+	 breaksw
+      case -platform:
+	 set platform=$2
+	 shift
+	 shift
+	 breaksw
+      case -project:
+	 set project=$2
+	 shift
+	 shift
+	 breaksw
+      case -application:
+	 set application=$2
+	 shift
+	 shift
+	 breaksw
+      case -procs:
+	 set procs=$2
+	 shift
+	 shift
+	 breaksw
+      case -solvertol:
+	 set solvertolerance=$2
+	 shift
+	 shift
+	 breaksw
+      case -subdir:
+	 set subdir=$2
+	 shift
+	 shift
+	 breaksw
+      case -debug:
+         set debug="true"
+	 shift
+	 breaksw
+      case *:
+         echo "${1}: illegal option"
+	 exit -1
+   endsw
+end
+
+if ($testdir == "") then
+   echo "Error: testdir to execute your test in is not specified, use -testdir to specify"
+   exit -1
+endif
+
+if ($cluster == "") then
+   echo "Error: cluster to execute your test on is not specified, use -cluster to specify"
+   exit -1
+endif
+
+if ($platform == "") then
+   echo "Error: platform  (e.g. IRIX64 or Linux64) to execute your test on is not specified, use -platform to specify"
+   exit -1
+endif
+
+if ($project == "") then
+   echo "Error: project to test is not specified, use -project to specify"
+   exit -1
+endif
+
+if ($application == "") then
+   echo "Error: application to test is not specified, use -application to specify"
+   exit -1
+endif
+
+if ($solvertolerance != "" ) then
+    set solvertolerancestring="-solvertol $solvertolerance"
+endif
+
+if ($procs == "") then
+   echo "Error: number of processors to execute your test on is not specified, use -procs to specify"
+   exit -1
+endif
+
+if ($option == "") then
+   set optionstring=""
+else
+   set optionstring="-option $option"
+endif
+
+if ($debug == "true") then
+   echo "variables:"
+   echo "   testdir = $testdir"
+   echo "   cluster = $cluster"
+   echo "   option = $option"
+   echo "   platform = $platform"
+   echo "   project = $project"
+   echo "   application = $application"
+   echo "   procs = $procs"
+   echo "   subdir = $subdir"
+endif
+
+
+set subdirstring = ""
+if ($subdir != "") then
+   set subdirstring = "-subdir $subdir"
+   if ($debug == "true") then
+      echo "subdirstring = $subdirstring"
+   endif
+endif
+
+#email addresses
+set bill = william.senior@shell.com
+set natalya = natalya.kuznetsova@shell.com
+set alfred = alfred.vanderhoeven@shell.com
+set sergey = sergey.koshelev@shell.com
+set wijnand = wijnand.suijlen@shell.com
+set luca = luca.carniato@shell.com
+set kostas = k.leventis@shell.com
+set pavlos = pavlos.galiatsatos@shell.com
+
+set admin = `whoami`
+
+#default address
+set address = $pavlos
+
+if ($application == "fastmig") then
+   set address = $kostas
+endif
+
+if ($application == "fastgenex6") then
+   set address = $natalya
+endif
+
+if ($application == "fastgenex5") then
+   set address = $natalya
+endif
+
+if ($application == "fastctc") then
+   set address = $natalya
+endif
+
+if ($application == "fastalc") then
+   set address = $natalya
+endif
+
+if ($application == "fastcauldron") then
+   if ($project =~ "*Perma*" ) then
+      set address = $sergey
+   else
+      set address = $bill
+   endif
+endif
+
+if ($application == "workflow") then
+   set address = $kostas
+endif
+
+if ($application == "fasttouch7") then
+   set address = $luca
+endif
+
+if ($application == "genexTests") then
+   set address = $natalya
+endif
+
+if ($application == "other") then
+   set address = $pavlos
+endif
+
+set logfile = "${application}_${project}_${subdir}_${platform}_${procs}.log"
+set resultfile = "${application}_${project}_${subdir}_${platform}_${procs}.result"
+set failurefile = "${application}_${project}_${subdir}_${platform}_${procs}.failed"
+set sucessfile = "${application}_${project}_${subdir}_${platform}_${procs}.succeeded"
+
+if ($debug == "true") then
+echo "fastbuildtest -cluster $cluster -platform $platform -project $project -application $application $subdirstring $optionstring ${solvertolerancestring} -procs $procs -testdir $testdir"
+endif
+fastbuildtest -cluster $cluster -platform $platform -project $project -application $application $subdirstring $optionstring ${solvertolerancestring} -procs $procs -testdir $testdir >& \
+	$logfile
+
+set exitstatus = $status
+if ($exitstatus != 0) then
+   mail -s "Regression test failure: fastbuildtest of ${application} for ${project} on ${platform} with ${procs} failed" $address $admin < $logfile
+    echo "++++++++++++++++++++++++++++++++++++++++" >> $failurefile
+    echo "fastconducttest failed e-mail sent"  >> $failurefile
+    echo "Send to: " $address $admin  >> $failurefile
+    echo "Subject: fastbuildtest of ${application} for ${project} on ${platform} with ${procs} failed"  >> $failurefile
+    echo "E-mail content:"  >> $failurefile
+    cat $logfile  >> $failurefile
+    echo "++++++++++++++++++++++++++++++++++++++++"  >> $failurefile
+   exit $exitstatus
+endif
+
+if ($debug == "true") then
+echo "fastruntest -project $project -platform $platform $subdirstring -procs $procs -testdir $testdir"
+endif
+fastruntest -application $application -project $project -platform $platform $subdirstring $optionstring -procs $procs -testdir $testdir >>& \
+	$logfile
+
+set exitstatus = $status
+echo "fastruntest exitstatus = $exitstatus" >>& $logfile
+
+if ($exitstatus != 0) then
+    mail -s "Regression test failure: fastruntest of ${application} for ${project} on ${platform} with ${procs} processors failed" $address $admin < $logfile
+    echo "++++++++++++++++++++++++++++++++++++++++"  >> $failurefile
+    echo "fastconducttest failed e-mail sent"  >> $failurefile
+    echo "Send to: " $address $admin   >> $failurefile
+    echo "Subject: fastruntest of ${application} for ${project} on ${platform} with ${procs} processors failed"   >> $failurefile
+    echo "E-mail content:"  >> $failurefile
+    cat $logfile  >> $failurefile
+    echo "++++++++++++++++++++++++++++++++++++++++"  >> $failurefile
+   exit $exitstatus
+endif
+
+if ($debug == "true") then
+   echo "fastchecktest -project $project -platform $platform $subdirstring -procs $procs"
+endif
+fastchecktest -project $project -platform $platform $subdirstring -procs $procs >& \
+        $resultfile
+
+set checkstatus = $status
+
+if ($checkstatus != 0) then
+   if ($testmode == "Test") then
+      set exitstatus = $checkstatus
+      mail -s "Regression test failure: $application test $project failed" $address $admin < $resultfile
+      echo "++++++++++++++++++++++++++++++++++++++++"  >> $failurefile
+      echo "fastconducttest failed e-mail sent"  >> $failurefile
+      echo "Send to: " $address $admin   >> $failurefile
+      echo "Subject: $application test failed"  >> $failurefile
+      echo "E-mail content:"   >> $failurefile
+      cat $resultfile   >> $failurefile
+      echo "++++++++++++++++++++++++++++++++++++++++"  >> $failurefile
+      exit $exitstatus
+    else
+      fastvalidatetest -project $project -platform $platform $subdirstring -procs $procs 
+    endif
+endif
+
+if ($debug == "true") then
+   echo "exit status = $exitstatus"
+endif
+
+echo "${application} for ${project} on ${platform} with ${procs} processors succeeded" >> $sucessfile
+
+exit $exitstatus
+
