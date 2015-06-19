@@ -1958,7 +1958,7 @@ bool Reservoir::collectExpelledCharges (const Formation * formation, unsigned in
 
       double fraction = (direction == EXPELLEDUPANDDOWNWARD ? 1.0 : 0.5);
 
-      double startTime, endTime, fractionToMigrate = 1;
+      double startTime = 0.0, endTime = 0.0, fractionToMigrate = 1.0;
 
       if( gridMapStart ) {
          startTime = getStart ()->getTime();
