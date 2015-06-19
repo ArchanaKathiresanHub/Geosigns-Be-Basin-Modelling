@@ -1958,6 +1958,8 @@ bool Reservoir::collectExpelledCharges (const Formation * formation, unsigned in
 
       double fraction = (direction == EXPELLEDUPANDDOWNWARD ? 1.0 : 0.5);
 
+      // Initialized to stop the VS runtime error. The valuer is -1 because there is no snapshot at that time
+      // so we make sure that these variables are assigned real paleo times.
       double startTime = -1.0, endTime = -1.0, fractionToMigrate = 1.0;
 
       if( gridMapStart ) {
