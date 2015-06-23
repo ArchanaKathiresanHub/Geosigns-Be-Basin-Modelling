@@ -42,6 +42,13 @@ namespace DerivedProperties {
 
    private :
 
+      /// \brief Get the formation connected to the surface.
+      ///
+      /// Always get the formation below unless it does not exist or is the crust.
+      /// \param [in] surface The surface for which the connecting formation is sought.
+      /// \pre surface points to a valid surface object.
+      const DataModel::AbstractFormation* getAdjacentFormation ( const DataModel::AbstractSurface* surface ) const;
+
       /// \brief The property calculated by this calculator.
       const DataModel::AbstractProperty* m_property;
 

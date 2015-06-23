@@ -75,12 +75,19 @@ void DerivedProperties::AbstractPropertyManager::addFormationPropertyCalculator 
             SurfacePropertyCalculatorPtr surfaceCalculator;
             surfaceCalculator = DerivedProperties::SurfacePropertyCalculatorPtr ( new SurfacePropertyOffsetCalculator ( computedProperty,
                                                                                                                         calculator->getDependentPropertyNames ()));
-            addSurfacePropertyCalculator ( surfaceCalculator, snapshot );
+
+            if ( not surfacePropertyIsComputable ( computedProperty )) {
+               addSurfacePropertyCalculator ( surfaceCalculator, snapshot );
+            }
+
          } else if ( computedProperty->getPropertyAttribute () == DataModel::DISCONTINUOUS_3D_PROPERTY ) {
             FormationSurfacePropertyCalculatorPtr surfaceCalculator;
             surfaceCalculator = DerivedProperties::FormationSurfacePropertyCalculatorPtr ( new FormationSurfacePropertyOffsetCalculator ( computedProperty,
                                                                                                                                           calculator->getDependentPropertyNames ()));
-            addFormationSurfacePropertyCalculator ( surfaceCalculator, snapshot );
+
+            if ( not formationSurfacePropertyIsComputable ( computedProperty )) {
+               addFormationSurfacePropertyCalculator ( surfaceCalculator, snapshot );
+            }
          }
 
       } else {

@@ -20,27 +20,43 @@ DerivedProperties::SurfacePropertyOffsetCalculator::SurfacePropertyOffsetCalcula
 
 }
 
-void DerivedProperties::SurfacePropertyOffsetCalculator::calculate ( AbstractPropertyManager&           propManager,
-                                                                     const DataModel::AbstractSnapshot* snapshot,
-                                                                     const DataModel::AbstractSurface*  surface,
-                                                                          SurfacePropertyList&         derivedProperties ) const {
+const DataModel::AbstractFormation* DerivedProperties::SurfacePropertyOffsetCalculator::getAdjacentFormation ( const DataModel::AbstractSurface* surface ) const {
+
+   if ( surface == 0 ) {
+      return 0;
+   }
 
    const DataModel::AbstractFormation* formationAbove = surface->getTopFormation ();
    const DataModel::AbstractFormation* formationBelow = surface->getBottomFormation ();
 
-   FormationPropertyPtr formationProperty;
-
    if ( formationAbove != 0 and ( formationBelow == 0 or formationBelow->getName () == "Crust" )) {
-      formationProperty = propManager.getFormationProperty ( m_property, snapshot, formationAbove );
+      return formationAbove;
    } else if ( formationBelow != 0 ) {
-      formationProperty = propManager.getFormationProperty ( m_property, snapshot, formationBelow );
+      return formationBelow;
+   } else {
+      return 0;
    }
 
-   if ( formationProperty != 0 ) {
+}
+
+void DerivedProperties::SurfacePropertyOffsetCalculator::calculate ( AbstractPropertyManager&           propManager,
+                                                                     const DataModel::AbstractSnapshot* snapshot,
+                                                                     const DataModel::AbstractSurface*  surface,
+                                                                           SurfacePropertyList&         derivedProperties ) const {
+
+   const DataModel::AbstractFormation* formation = getAdjacentFormation ( surface );
+   FormationPropertyPtr formationProperty;
+
+   if ( formation != 0 ) {
       SurfacePropertyPtr result;
 
-      result = SurfacePropertyPtr ( new FormationPropertyAtSurface ( formationProperty, surface ));
-      derivedProperties.push_back ( result );
+      formationProperty = propManager.getFormationProperty ( m_property, snapshot, formation );
+
+      if ( formationProperty != 0 ) {
+         result = SurfacePropertyPtr ( new FormationPropertyAtSurface ( formationProperty, surface ));
+         derivedProperties.push_back ( result );
+      }
+
    }
 
 }
@@ -49,15 +65,10 @@ bool DerivedProperties::SurfacePropertyOffsetCalculator::isComputable ( const Ab
                                                                         const DataModel::AbstractSnapshot*  snapshot,
                                                                         const DataModel::AbstractSurface*   surface ) const {
 
-   const DataModel::AbstractFormation* formationAbove = surface->getTopFormation ();
-   const DataModel::AbstractFormation* formationBelow = surface->getBottomFormation ();
+   const DataModel::AbstractFormation* formation = getAdjacentFormation ( surface );
 
-   FormationPropertyPtr formationProperty;
-
-   if ( formationAbove != 0 and ( formationBelow == 0 or formationBelow->getName () == "Crust" )) {
-      return propManager.formationPropertyIsComputable ( m_property, snapshot, formationAbove );
-   } else if ( formationBelow != 0 ) {
-      return propManager.formationPropertyIsComputable ( m_property, snapshot, formationBelow );
+   if ( formation != 0 ) {
+      return propManager.formationPropertyIsComputable ( m_property, snapshot, formation );
    } else {
       return false;
    }
