@@ -7,6 +7,7 @@
 #include "AbstractProperty.h"
 #include "AbstractSnapshot.h"
 #include "AbstractSurface.h"
+#include "AbstractFormation.h"
 
 #include "AbstractPropertyManager.h"
 #include "SurfaceProperty.h"
