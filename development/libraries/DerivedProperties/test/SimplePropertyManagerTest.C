@@ -165,7 +165,7 @@ TEST ( AbstractPropertyManagerTest,  Test1 )
    SurfacePropertyPtr surfaceProperty1 = propertyManager.getSurfaceProperty ( property, snapshot, surface );
    PropertyRetriever propRet ( surfaceProperty1 );
 
-   double value = 1089.0;
+   double value = 0.0;
 
    EXPECT_EQ ( property->getName (), "Property1" );
    EXPECT_EQ ( property, surfaceProperty1->getProperty ());
