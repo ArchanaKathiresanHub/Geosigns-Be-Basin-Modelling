@@ -9,7 +9,7 @@ namespace database
    class Database;
 }
 #include "Interface/Interface.h"
-#include "GenexPropertyManager.h"
+#include "DerivedPropertyManager.h"
 
 #include "SourceRock.h"
 
