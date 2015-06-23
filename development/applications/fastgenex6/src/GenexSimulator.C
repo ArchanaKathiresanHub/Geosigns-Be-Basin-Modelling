@@ -57,7 +57,8 @@ GenexSimulator::GenexSimulator (database::Database * database, const std::string
    : GeoPhysics::ProjectHandle (database, name, accessMode)
 {
   registerProperties();
-  m_propertyManager = new GenexSimulation::PropertyManager ( this );
+  // m_propertyManager = new GenexSimulation::PropertyManager ( this );
+  m_propertyManager = new DerivedProperties::DerivedPropertyManager ( this );
 }
 
 GenexSimulator::~GenexSimulator (void)
@@ -185,7 +186,8 @@ bool GenexSimulator::computeSourceRock ( Genex6::SourceRock * aSourceRock, const
 {
    if( aSourceRock != 0 ) {
       aSourceRock->clear();
-      aSourceRock->setPropertyManager ( dynamic_cast <DerivedProperties::AbstractPropertyManager *> ( m_propertyManager ));
+      aSourceRock->setPropertyManager ( m_propertyManager );
+      // aSourceRock->setPropertyManager ( dynamic_cast <DerivedProperties::AbstractPropertyManager *> ( m_propertyManager ));
       aSourceRock->setFormationData( aFormation ); // set layerName, formation, second SR type, mixing parameters, isSulphur
       
       bool isSulphur = aSourceRock->isSulphur();
