@@ -754,6 +754,8 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::addRSAlgorithm( const std::string  
 
       if ( rcs.empty() ) throw Exception( RSProxyError ) << "addRSAlgorithm(): empty completed cases list for given DoEs";
 
+      if ( !obsSpace().size() ) throw Exception( RSProxyError ) << "No any observable is defined for proxy calculation";
+
       if ( NoError != proxy->calculateRSProxy( rcs ) ) { throw Exception( proxy->errorCode() ) << proxy->errorMessage(); }
    }
 }

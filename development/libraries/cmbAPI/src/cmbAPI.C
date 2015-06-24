@@ -55,20 +55,27 @@ public:
    // methods
 
    // Set of universal access interfaces. Project file level
-   int         tableSize(           const std::string & tableName );
-   void        clearTable(          const std::string & tableName );
-   void        addRowToTable(       const std::string & tableName );
+   std::vector<std::string> tablesList();
+   std::vector<std::string> tableColumnsList(   const std::string & tableName, std::vector<Model::ProjectTableColumnDataType> & colDataTypes );
 
-   double      tableValueAsDouble(  const std::string & tableName, size_t rowNumber, const std::string & propName );
-   std::string tableValueAsString(  const std::string & tableName, size_t rowNumber, const std::string & propName );
+   int                      tableSize(     const std::string & tableName );
+   void                     clearTable(    const std::string & tableName );
+   void                     addRowToTable( const std::string & tableName );
+
+   long        tableValueAsInteger(  const std::string & tableName, size_t rowNumber, const std::string & propName );
+   double      tableValueAsDouble(   const std::string & tableName, size_t rowNumber, const std::string & propName );
+   std::string tableValueAsString(   const std::string & tableName, size_t rowNumber, const std::string & propName );
    
-   void        setTableIntegerValue( const std::string & tableName, size_t rowNumber, const std::string & propName, int propValue );
-   void        setTableDoubleValue( const std::string & tableName, size_t rowNumber, const std::string & propName, double propValue );
-   void        setTableStringValue( const std::string & tableName, size_t rowNumber, const std::string & propName, const std::string & propValue );
+   void        setTableIntegerValue( const std::string & tableName, size_t rowNumber, const std::string & propName, long propValue );
+   void        setTableDoubleValue(  const std::string & tableName, size_t rowNumber, const std::string & propName, double propValue );
+   void        setTableStringValue(  const std::string & tableName, size_t rowNumber, const std::string & propName, const std::string & propValue );
    
+   void        tableSort( const std::string & tblName, const std::vector<std::string> & colsName );
+
    // IO methods
    void loadModelFromProjectFile( const char * projectFileName );
    void saveModelToProjectFile(   const char * projectFileName );
+   std::string projectFileName() { return m_projFileName; }
 
    // Lithology
    LithologyManager    & lithologyManager() { return m_lithMgr; }
@@ -121,6 +128,30 @@ Model & Model::operator = ( const Model & otherModel )
 ///////////////////////////////////////////////////////////////////////////////
 // Generic Table IO interface
 
+std::vector<std::string> Model::tablesList()
+{
+   if ( errorCode() != NoError ) resetError(); // clean any previous error
+
+   try { return m_pimpl->tablesList(); }
+   catch ( const ErrorHandler::Exception & ex ) { reportError( ex.errorCode(), ex.what() ); }
+   catch ( ... ) { reportError( UnknownError, "Unknown error" ); }
+
+   return std::vector<std::string>();
+}
+
+std::vector<std::string> Model::tableColumnsList( const std::string & tableName, std::vector<Model::ProjectTableColumnDataType> & colTypes )
+{
+   if ( errorCode() != NoError ) resetError(); // clean any previous error
+
+   try { return m_pimpl->tableColumnsList( tableName, colTypes ); }
+   catch ( const ErrorHandler::Exception & ex ) { reportError( ex.errorCode(), ex.what() ); }
+   catch ( ... ) { reportError( UnknownError, "Unknown error" ); }
+
+   colTypes.clear();
+   return std::vector<std::string>();
+}
+
+
 // Get size of the given table
 int Model::tableSize( const std::string & tableName )
 {
@@ -129,6 +160,18 @@ int Model::tableSize( const std::string & tableName )
    try { return m_pimpl->tableSize( tableName ); }
    catch ( const ErrorHandler::Exception & ex ) { return this->ErrorHandler::reportError( ex.errorCode(), ex.what( ) ); }
    catch ( ... ) { return this->ErrorHandler::reportError( UnknownError, "Unknown error" ); }
+
+   return UndefinedIntegerValue;
+}
+
+// Get value from the table
+long Model::tableValueAsInteger( const std::string & tableName, size_t rowNumber, const std::string & propName )
+{
+   if ( errorCode() != NoError ) resetError(); // clean any previous error
+
+   try { return m_pimpl->tableValueAsInteger( tableName, rowNumber, propName ); }
+   catch ( const ErrorHandler::Exception & ex ) { this->ErrorHandler::reportError( ex.errorCode(), ex.what( ) ); }
+   catch ( ... ) { this->ErrorHandler::reportError( UnknownError, "Unknown error" ); }
 
    return UndefinedIntegerValue;
 }
@@ -158,7 +201,7 @@ std::string Model::tableValueAsString( const std::string & tableName, size_t row
 }
 
 // Set value in the table
-ErrorHandler::ReturnCode Model::setTableValue( const std::string & tableName, size_t rowNumber, const std::string & propName, int propValue )
+ErrorHandler::ReturnCode Model::setTableValue( const std::string & tableName, size_t rowNumber, const std::string & propName, long propValue )
 {
    if ( errorCode() != NoError ) resetError(); // clean any previous error
 
@@ -187,6 +230,17 @@ ErrorHandler::ReturnCode Model::setTableValue( const std::string & tableName, si
    if ( errorCode() != NoError ) resetError(); // clean any previous error
 
    try { m_pimpl->setTableStringValue( tableName, rowNumber, propName, propValue ); }
+   catch ( const ErrorHandler::Exception & ex ) { return this->ErrorHandler::reportError( ex.errorCode(), ex.what() ); }
+   catch ( ... ) { return this->ErrorHandler::reportError( UnknownError, "Unknown error" ); }
+
+   return NoError;
+}
+
+ErrorHandler::ReturnCode Model::tableSort( const std::string & tblName, const std::vector<std::string> & colsName )
+{
+   if ( errorCode() != NoError ) resetError(); // clean any previous error
+
+   try { m_pimpl->tableSort( tblName, colsName ); }
    catch ( const ErrorHandler::Exception & ex ) { return this->ErrorHandler::reportError( ex.errorCode(), ex.what() ); }
    catch ( ... ) { return this->ErrorHandler::reportError( UnknownError, "Unknown error" ); }
 
@@ -240,6 +294,8 @@ Model::ReturnCode Model::saveModelToProjectFile( const char * projectFileName )
    return NoError;
 }
 
+
+std::string           Model::projectFileName(    ) { return m_pimpl->projectFileName(    ); }
 LithologyManager    & Model::lithologyManager(   ) { return m_pimpl->lithologyManager(   ); }
 StratigraphyManager & Model::stratigraphyManager() { return m_pimpl->stratigraphyManager(); }
 FluidManager        & Model::fluidManager(       ) { return m_pimpl->fluidManager(       ); }
@@ -282,6 +338,51 @@ Model::ModelImpl::~ModelImpl( )
 {
 }
 
+std::vector<std::string> Model::ModelImpl::tablesList()
+{
+   std::vector<std::string> ret;
+
+   if ( !m_projHandle.get() || !m_projHandle->getDataBase() ) throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Project " << m_projFileName << " not loaded";
+   for ( database::Database::iterator it = m_projHandle->getDataBase()->begin(); it != m_projHandle->getDataBase()->end(); ++it )
+   {
+      ret.push_back( (*it)->name() );
+   }
+   return ret;
+}
+
+std::vector<std::string> Model::ModelImpl::tableColumnsList( const std::string & tableName, std::vector<Model::ProjectTableColumnDataType> & colTypes )
+{
+   std::vector<std::string> ret;
+   colTypes.clear();
+
+   // get pointer to the table
+   database::Table * table = m_projHandle->getDataBase()->getTable( tableName.c_str() );
+
+   // if table does not exist - report error
+   if ( !table ) throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << tableName << " table could not be found in project";
+
+   const database::TableDefinition & tblDef = table->getTableDefinition();
+
+   for ( size_t i = 0; i < tblDef.size(); ++i )
+   {
+      const database::FieldDefinition * fldDef = tblDef.getFieldDefinition( i );
+      if ( !fldDef ) continue;
+      ret.push_back( fldDef->name() );
+      switch ( fldDef->dataType() )
+      {
+         case datatype::Bool:   colTypes.push_back( Model::Bool   ); break;
+         case datatype::Int:    colTypes.push_back( Model::Int    ); break;
+         case datatype::Long:   colTypes.push_back( Model::Long   ); break;
+         case datatype::Float:  colTypes.push_back( Model::Float  ); break;
+         case datatype::Double: colTypes.push_back( Model::Double ); break;
+         case datatype::String: colTypes.push_back( Model::String ); break;
+         default: assert( 0 );
+      }
+   }
+
+   return ret;
+}
+
 int Model::ModelImpl::tableSize( const std::string & tableName )
 {
    // get pointer to the table
@@ -316,6 +417,35 @@ void Model::ModelImpl::addRowToTable( const std::string & tableName )
 
    // add empty record to the end of the table
    table->createRecord();
+}
+
+long Model::ModelImpl::tableValueAsInteger( const std::string & tableName, size_t rowNumber, const std::string & propName )
+{
+   // get pointer to the table
+   database::Table * table = m_projHandle->getDataBase()->getTable( tableName );
+
+   // if table does not exist - report error
+   if (                     !table ) throw ErrorHandler::Exception( UndefinedValue ) << tableName << " table could not be found in project";
+   if ( table->size( ) < rowNumber ) throw ErrorHandler::Exception( UndefinedValue ) << tableName << " size is less then requested row number";
+
+   database::Record * record = table->getRecord( static_cast<int>( rowNumber ) );
+   if ( !record ) throw ErrorHandler::Exception( UndefinedValue ) << tableName << " does not have any records";
+
+   const database::TableDefinition & tblDef  = record->getTableDefinition();
+   int ind = tblDef.getIndex( propName );
+
+   if ( ind < 0 ) throw ErrorHandler::Exception( UndefinedValue ) << propName << " - unknown column name in the table " + tableName;
+
+   datatype::DataType dt = tblDef.getFieldDefinition( ind )->dataType();
+   switch ( dt )
+   {
+   case datatype::Bool: return record->getValue<bool>( ind ) ? 1 : 0;
+   case datatype::Int:  return record->getValue<int>( ind );
+   case datatype::Long: return record->getValue<long>( ind );
+   default:
+      throw ErrorHandler::Exception( UndefinedValue ) << tableName << "(" << propName << ") - data type can't be cast to float point value";
+   }
+   return UndefinedIntegerValue;
 }
 
 double Model::ModelImpl::tableValueAsDouble( const std::string & tableName, size_t rowNumber, const std::string & propName )
@@ -373,7 +503,7 @@ std::string Model::ModelImpl::tableValueAsString( const std::string & tableName,
    return UndefinedStringValue;
 }
 
-void Model::ModelImpl::setTableIntegerValue( const std::string & tableName, size_t rowNumber, const std::string & propName, int propValue )
+void Model::ModelImpl::setTableIntegerValue( const std::string & tableName, size_t rowNumber, const std::string & propName, long propValue )
 {
    // get pointer to the table
    database::Table * table = m_projHandle->getDataBase()->getTable( tableName );
@@ -393,8 +523,9 @@ void Model::ModelImpl::setTableIntegerValue( const std::string & tableName, size
    datatype::DataType dt = tblDef.getFieldDefinition( ind )->dataType();
    switch ( dt )
    {
-   case datatype::Int:  record->setValue<int>( ind, propValue );                        break;
-   case datatype::Long: record->setValue<long>( ind, static_cast<float>( propValue ) );  break;
+   case datatype::Bool: record->setValue<bool>( ind, (propValue ? true : false)  ); break;
+   case datatype::Int:  record->setValue<int>(  ind, static_cast<int>(propValue) ); break;
+   case datatype::Long: record->setValue<long>( ind,                  propValue  ); break;
    default:
       throw ErrorHandler::Exception( UndefinedValue ) << tableName << "(" << propName << ") - data type can't be cast to integer value";
    }
@@ -452,6 +583,18 @@ void Model::ModelImpl::setTableStringValue( const std::string & tableName, size_
    default:
       throw ErrorHandler::Exception( UndefinedValue ) << tableName << "(" << propName << ") - data type can't be cast to string";
    }
+}
+
+// sort table according to given columns list
+void Model::ModelImpl::tableSort( const std::string & tblName, const std::vector<std::string> & colsName )
+{
+   // get pointer to the table
+   database::Table * table = m_projHandle->getDataBase()->getTable( tblName );
+
+   // if table does not exist - report error
+   if ( !table ) throw ErrorHandler::Exception( UndefinedValue ) << tblName << " table could not be found in project";
+
+   table->stable_sort( colsName );
 }
 
 

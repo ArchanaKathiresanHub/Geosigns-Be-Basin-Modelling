@@ -276,7 +276,7 @@ void CmdPlotRSProxyQC::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
    ofs << "\n";
    ofs << "xlabel( 'R^2 []' );\n";
    ofs << "ylabel( 'Depth [m]' );\n";
-   ofs << "print SecOrdFF_proxyQC_wells.jpg -S1000,1000;\n\n";
+   ofs << "print " << correctName( m_proxyName ) << "_" << "_proxyQC_wells.jpg -S1000,1000;\n\n";
 
    // plot QC plot per observable
    ofs << "close\n clear h legName\naxis( 'xy' )\n";

@@ -215,7 +215,7 @@ ErrorHandler::ReturnCode PrmCrustThinning::setInModel( mbapi::Model & caldModel 
          {
             throw ErrorHandler::Exception( caldModel.errorCode() ) << caldModel.errorMessage();
          }
-         if ( ErrorHandler::NoError != caldModel.setTableValue( s_crustIoTblName, i, s_crustIoTblOptimThicknessCol, 0 ) )
+         if ( ErrorHandler::NoError != caldModel.setTableValue( s_crustIoTblName, i, s_crustIoTblOptimThicknessCol, (long)0 ) )
          {
             throw ErrorHandler::Exception( caldModel.errorCode() ) << caldModel.errorMessage();
          }
