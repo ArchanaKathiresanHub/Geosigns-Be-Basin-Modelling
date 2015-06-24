@@ -115,7 +115,7 @@ namespace DataAccess
          virtual const string & getFileName( void ) const;
 
          /// start a new activity
-         bool startActivity( const string & name, const Grid * grid, bool saveAsInputGrid = false );
+         bool startActivity( const string & name, const Grid * grid, bool saveAsInputGrid = false, bool createResultsFile = true );
 
          /// Restart an activity.
          bool restartActivity( void );

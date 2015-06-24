@@ -487,7 +487,7 @@ const string & ProjectHandle::getFileName( void ) const
    return m_fileName;
 }
 
-bool ProjectHandle::startActivity( const string & name, const Interface::Grid * grid, bool saveAsInputGrid )
+bool ProjectHandle::startActivity( const string & name, const Interface::Grid * grid, bool saveAsInputGrid, bool createResultsFile )
 {
    char * svnRevision = "unknown";
 
@@ -508,7 +508,11 @@ bool ProjectHandle::startActivity( const string & name, const Interface::Grid * 
    setActivityName( name );
    m_saveAsInputGrid = saveAsInputGrid;
 
-   bool status = initializeMapPropertyValuesWriter();
+   bool status = true;
+
+   if ( createResultsFile ) {
+      status = initializeMapPropertyValuesWriter();
+   }
 
    return status;
 }
@@ -532,10 +536,10 @@ bool ProjectHandle::finishActivity( bool isComplete )
    }
    else
    {
-      finalizeMapPropertyValuesWriter();
+      // finalizeMapPropertyValuesWriter();
 
-      resetActivityName();
-      resetActivityOutputGrid();
+      // resetActivityName();
+      // resetActivityOutputGrid();
 
       return true;
    }

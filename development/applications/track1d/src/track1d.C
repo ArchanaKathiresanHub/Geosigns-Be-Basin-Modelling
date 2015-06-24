@@ -554,7 +554,7 @@ int main( int argc, char ** argv )
 
    const Interface::Grid * grid = projectHandle->getLowResolutionOutputGrid();
 
-   projectHandle->startActivity ( "track1d", grid );
+   projectHandle->startActivity ( "track1d", grid, false, false );
    bool coupledCalculation = false; // to do.
    bool started;
 
@@ -735,6 +735,11 @@ int main( int argc, char ** argv )
          }
       }
    }
+
+   if ( projectHandle != 0 ) {
+      projectHandle->finishActivity ( false );
+   }
+
    if ( outputFile.is_open() )
    {
       outputFile.close();
