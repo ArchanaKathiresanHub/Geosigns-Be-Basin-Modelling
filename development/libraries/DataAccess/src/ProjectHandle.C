@@ -536,10 +536,10 @@ bool ProjectHandle::finishActivity( bool isComplete )
    }
    else
    {
-      // finalizeMapPropertyValuesWriter();
+      finalizeMapPropertyValuesWriter();
 
-      // resetActivityName();
-      // resetActivityOutputGrid();
+      resetActivityName();
+      resetActivityOutputGrid();
 
       return true;
    }
