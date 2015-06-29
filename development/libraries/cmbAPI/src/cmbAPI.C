@@ -463,8 +463,8 @@ std::string Model::ModelImpl::compareProject( Model::ModelImpl * mdl
 
    for ( size_t i = 0; i < tblLst.size(); ++i )
    {  
-      oss << "Only in " << 
-      ( !m_projHandle->getDataBase()->getTable( tblLst[i] )->size() > 0 ? oss << m_projFileName : oss << mdl->m_projFileName ) << " table " + tblLst[i] << "\n";
+      const std::string & pname = m_projHandle->getDataBase()->getTable( tblLst[i] )->size() > 0 ? m_projFileName : mdl->m_projFileName;
+      oss << "Only in " << pname << " table " << tblLst[i] << "\n";
    }
 
    // get tables list which exist in both projects
@@ -525,8 +525,8 @@ std::string Model::ModelImpl::compareProject( Model::ModelImpl * mdl
          database::Record * r1 = *it1;
          database::Record * r2 = *it2;
 
-         int pos1 = tbl1->findRecordPosition( r1 ) - tbl1->begin();
-         int pos2 = tbl2->findRecordPosition( r2 ) - tbl2->begin();
+         size_t pos1 = tbl1->findRecordPosition( r1 ) - tbl1->begin();
+         size_t pos2 = tbl2->findRecordPosition( r2 ) - tbl2->begin();
 
          for ( int k = 0; k < tblDef.size(); ++k )
          {
