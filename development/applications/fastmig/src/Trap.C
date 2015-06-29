@@ -2197,8 +2197,7 @@ double Trap::computeHydrocarbonWaterContactDepth (void) const
       hydrocarbonWaterContactDepth = getBottomDepth();
    }
       
-   // need to add again this assert as soon as the spilling point depth issue has been solved
-   //assert((hydrocarbonWaterContactDepth >= getTopDepth()) && (hydrocarbonWaterContactDepth <= getBottomDepth()));
+   assert((hydrocarbonWaterContactDepth >= getTopDepth()) && (hydrocarbonWaterContactDepth <= getBottomDepth()));
 
    return hydrocarbonWaterContactDepth;
 }
@@ -2208,7 +2207,7 @@ double Trap::computeFractionVolumeBiodegraded (const double& timeInterval)
    double volumeOil = m_toBeDistributed[OIL].getVolume();
    double volumeGas = m_toBeDistributed[GAS].getVolume();
 
-   // Arbitrary value which state the thickness of the biodegradation impact above the OWC
+   // Arbitrary value which states the thickness of the biodegradation impact above the OWC
    double inputThicknessAffectedByBiodegradationAboveOWC = 3;   // Original value entered by the user or by default: 3m/10Myr
    double thicknessAffectedByBiodegradationAboveOWC = inputThicknessAffectedByBiodegradationAboveOWC * timeInterval / 10;  // ~3m/10Myr, but depend on timeInterval
 
@@ -2222,7 +2221,7 @@ double Trap::computeFractionVolumeBiodegraded (const double& timeInterval)
    assert(fractionVolumeBiodegraded >= 0.0 && fractionVolumeBiodegraded <= 1.0);
 
 #ifdef DEBUG_BIODEGRADATION
-   std::cerr << endl;
+   std::cerr << endl << "==== Compute the fraction of volume which is biodegraded ====" << endl;
    std::cerr << "Volume of OIL in the Trap: " << volumeOil << " ; Volume of GAS in the Trap: " << volumeGas << endl;
    std::cerr << "Volume total of HC in the Trap: " << volumeOil + volumeGas << endl;
    std::cerr << "Top depth of the trap (crest column): " << getTopDepth() << endl;
@@ -2233,6 +2232,7 @@ double Trap::computeFractionVolumeBiodegraded (const double& timeInterval)
    std::cerr << "Fraction of the volume impacted by biodegradation: " << fractionVolumeBiodegraded * 100 << "% " << endl;
 #endif
 
+   assert(getTopDepth() < getBottomDepth());
    return fractionVolumeBiodegraded;
 }
 
