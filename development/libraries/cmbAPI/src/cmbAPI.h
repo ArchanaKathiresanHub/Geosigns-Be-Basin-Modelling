@@ -14,8 +14,6 @@
 #ifndef CMB_API
 #define CMB_API
 
-#include <memory>
-
 #include "ErrorHandler.h"
 #include "LithologyManager.h"
 #include "PropertyManager.h"
@@ -26,6 +24,11 @@
 #include "MapsManager.h"
 
 #include "UndefinedValues.h"
+
+// STL
+#include <memory>
+#include <set>
+
 
 /// @mainpage Cauldron APIs
 /// @tableofcontents
@@ -108,6 +111,14 @@ namespace mbapi {
       /// Interfaces were simplified to allow easy access from C# using Swig.\n
       /// For interfaces which returns double or string values, user can request error code
       /// and error message from the model itself, after the interface call.
+
+      /// @brief Compare projects and return all differences found
+      /// @return full list of differences as a string
+      std::string compareProject( Model & mdl1                                  ///< the model to compare with
+                                , const std::set<std::string> & compareTblsList ///< list of tables to compare, if only some of the table should be compared
+                                , const std::set<std::string> & ignoreTblsList  ///< list of tables to ignore them during comparison
+                                , double relTol                                 ///< relative tolerance value to compare float point values
+                                );
 
       /// @brief Copy model, creates a deep copy of the model
       /// @param[in] otherModel - model to copy

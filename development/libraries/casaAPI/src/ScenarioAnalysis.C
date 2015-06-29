@@ -448,18 +448,23 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::defineBaseCase( const char * projec
 {
    if ( m_baseCase.get() ) { throw ErrorHandler::Exception( ErrorHandler::AlreadyDefined ) << "defineBaseCase(): Base case is already defined"; }
    
-   m_baseCase.reset( new mbapi::Model() );
-   if ( NoError != m_baseCase->loadModelFromProjectFile( projectFileName ) )
-   {
-      throw ErrorHandler::Exception( ErrorHandler::IoError ) << "defineBaseCase() can not load model from " << projectFileName;
-   }
-   
+  
    m_baseCaseProjectFile = projectFileName;
 }
 
 mbapi::Model & ScenarioAnalysis::ScenarioAnalysisImpl::baseCase()
 {
-   if ( !m_baseCase.get() ) m_baseCase.reset( new mbapi::Model() );
+   if ( !m_baseCase.get() ) 
+   {
+      if ( m_baseCaseProjectFile.empty() ) throw Exception( ErrorHandler::UndefinedValue ) << "Base case was not defined for the scenario";
+
+      m_baseCase.reset( new mbapi::Model() );
+      if ( NoError != m_baseCase->loadModelFromProjectFile( m_baseCaseProjectFile.c_str() ) )
+      {
+         throw ErrorHandler::Exception( ErrorHandler::IoError ) << "defineBaseCase() can not load model from " << m_baseCaseProjectFile;
+      }
+   }
+ 
    return *( m_baseCase.get() );
 }
 
@@ -602,7 +607,6 @@ DoEGenerator * ScenarioAnalysis::ScenarioAnalysisImpl::doeGenerator()
 
 void ScenarioAnalysis::ScenarioAnalysisImpl::applyMutations( RunCaseSet & cs )
 {
-   if ( !m_baseCase.get() ) throw Exception( ErrorHandler::UndefinedValue ) << "Base case was not defined for the scenario. Mutations failed";
    RunCaseSetImpl & rcs = dynamic_cast<RunCaseSetImpl&>( cs );
 
    // construct case set path like pathToScenario/Iteration_XX
@@ -640,7 +644,7 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::applyMutations( RunCaseSet & cs )
          casePath.create();
          casePath << projectFileName;
          // do mutation
-         cs->mutateCaseTo( *(m_baseCase.get()), casePath.path().c_str() );
+         cs->mutateCaseTo( baseCase(), casePath.path().c_str() );
 
          ++m_caseNum;
       }
@@ -706,7 +710,7 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::saveCalibratedCase( const char * pr
    bmCasePath << projFileName;
 
    // do mutation
-   bmCaseImpl->mutateCaseTo( *(m_baseCase.get()), bmCasePath.path().c_str() );
+   bmCaseImpl->mutateCaseTo( baseCase(), bmCasePath.path().c_str() );
    // add observables
    m_dataDigger->requestObservables( *m_obsSpace.get(), bmCaseImpl );
    // generate scripts

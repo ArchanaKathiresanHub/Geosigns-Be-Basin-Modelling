@@ -32,11 +32,17 @@
 // FileSystem library
 #include "FilePath.h"
 
+// Utilities lib
+#include <NumericFunctions.h>
+
 // C Library
 #include <cmath>
 
 // STL
 #include <string>
+#include <set>
+#include <algorithm>
+#include <sstream>
 
 namespace mbapi {
 
@@ -53,6 +59,9 @@ public:
    ModelImpl & operator = ( const ModelImpl & otherModel );
 
    // methods
+
+   // compare tables in project file
+   std::string compareProject( Model::ModelImpl * mdl, const std::set<std::string> & procesList, const std::set<std::string> & ignoreList, double relTol );
 
    // Set of universal access interfaces. Project file level
    std::vector<std::string> tablesList();
@@ -127,6 +136,7 @@ Model & Model::operator = ( const Model & otherModel )
 
 ///////////////////////////////////////////////////////////////////////////////
 // Generic Table IO interface
+
 
 std::vector<std::string> Model::tablesList()
 {
@@ -236,6 +246,19 @@ ErrorHandler::ReturnCode Model::setTableValue( const std::string & tableName, si
    return NoError;
 }
 
+std::string Model::compareProject( Model & mdl1, const std::set<std::string> & compareTblsList, const std::set<std::string> & ignoreTblsList, double relTol )
+{
+   if ( errorCode() != NoError ) resetError(); // clean any previous error
+
+   try { return m_pimpl->compareProject( mdl1.m_pimpl.get(), compareTblsList, ignoreTblsList, relTol ); }
+   catch ( const ErrorHandler::Exception & ex ) { return std::string( "Exception during project comparison. Error code: " + 
+                                                         ibs::to_string( ex.errorCode() ) + ", error message " + ex.what() ); }
+   catch ( ... ) { return "Unknown error"; }
+  
+   return "Can not perform comparison for unknown reason";
+}
+
+
 ErrorHandler::ReturnCode Model::tableSort( const std::string & tblName, const std::vector<std::string> & colsName )
 {
    if ( errorCode() != NoError ) resetError(); // clean any previous error
@@ -330,13 +353,238 @@ Model::ReturnCode Model::arealSize( double & dimX, double & dimY )
 ///////////////////////////////////////////////////////////////////////////////
 // Actual implementation of CMB API
 
-Model::ModelImpl::ModelImpl() 
+Model::ModelImpl::ModelImpl() {}
+
+Model::ModelImpl::~ModelImpl( ) {}
+
+struct RecordSorter
 {
+   RecordSorter( database::Table * tbl, double tol ) 
+   {
+      const database::TableDefinition & tblDef = tbl->getTableDefinition();
+      m_eps = tol;
+
+      // cache fields index and data type 
+      for ( int i = 0; i < tblDef.size(); ++i )
+      {
+         if ( tblDef.getFieldDefinition( i )->dataType() == datatype::String )
+         {
+            m_fldIDs.push_back( i );
+            m_fldTypes.push_back( tblDef.getFieldDefinition( i )->dataType() );
+         }         
+      }
+      for ( int i = 0; i < tblDef.size(); ++i )
+      {
+         if ( tblDef.getFieldDefinition( i )->dataType() != datatype::String )
+         {
+            m_fldIDs.push_back( i );
+            m_fldTypes.push_back( tblDef.getFieldDefinition( i )->dataType() );
+         }         
+      }
+   }
+
+   //  this function is used as less operator for the strict weak ordering
+   bool operator() ( const database::Record * r1, const database::Record * r2 ) const
+   {
+      assert( r1 != NULL && r2 != NULL );
+
+      for ( size_t i = 0; i < m_fldIDs.size(); ++ i )
+      {  int id = m_fldIDs[i];
+         switch ( m_fldTypes[i] )
+         {
+            case datatype::Bool:   { bool v = r1->getValue<bool>( id ); bool w = r2->getValue<bool>( id ); if ( v != w ) return v < w; } break;
+            case datatype::Int:    { int  v = r1->getValue<int >( id ); int  w = r2->getValue<int >( id ); if ( v != w ) return v < w; } break;
+            case datatype::Long:   { long v = r1->getValue<long>( id ); int  w = r2->getValue<long>( id ); if ( v != w ) return v < w; } break;
+            case datatype::Float:
+               { double v = r1->getValue<float>( id ); double w = r2->getValue<float>( id ); if ( !NumericFunctions::isEqual( v, w, m_eps ) ) return v < w; }
+               break;
+          case datatype::Double: 
+               { double v = r1->getValue<double>( id ); double w = r2->getValue<double>( id ); if ( !NumericFunctions::isEqual( v, w, m_eps ) ) return v < w; }
+               break;
+            case datatype::String: { string v = r1->getValue<string>( id ); string w = r2->getValue<string>( id ); if ( v != w ) return v < w; } break;
+         }
+      }
+      return false;
+   }
+
+   std::vector<int>                 m_fldIDs;
+   std::vector<datatype::DataType>  m_fldTypes;
+   double                           m_eps;
+};
+
+
+// compare tables in project file
+std::string Model::ModelImpl::compareProject( Model::ModelImpl * mdl
+                                            , const std::set<std::string> & procesList
+                                            , const std::set<std::string> & ignoreList
+                                            , double relTol
+                                            )
+{
+   if ( !m_projHandle.get()      || !m_projHandle->getDataBase() )
+   {
+      throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Project " << m_projFileName      << " not loaded";
+   }
+
+   if ( !mdl->m_projHandle.get() || !m_projHandle->getDataBase() )
+   {
+      throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Project " << mdl->m_projFileName << " not loaded";
+   }
+
+   std::ostringstream oss;
+
+   // compare tables list
+   std::vector<std::string> lst1;
+   std::vector<std::string> lst2;
+
+   for ( database::Database::iterator it = m_projHandle->getDataBase()->begin(); it != m_projHandle->getDataBase()->end(); ++it )
+   {
+      if ( ignoreList.size() > 0 && ignoreList.count( (*it)->name() ) > 0 ||
+           procesList.size() > 0 && procesList.count( (*it)->name() ) == 0 )
+      { continue; }
+
+      if ( (*it)->size() > 0 ) { lst1.push_back( (*it)->name() ); }
+   }
+   std::stable_sort( lst1.begin(), lst1.end()  );
+
+   for ( database::Database::iterator it = mdl->m_projHandle->getDataBase()->begin(); it != mdl->m_projHandle->getDataBase()->end(); ++it )
+   {
+      if ( ignoreList.size() > 0 && ignoreList.count( (*it)->name() ) > 0 ||
+           procesList.size() > 0 && procesList.count( (*it)->name() ) == 0 )
+      { continue; }
+
+      if ( (*it)->size() > 0 ) { lst2.push_back( (*it)->name() ); }
+   }
+   std::stable_sort( lst2.begin(), lst2.end() );
+
+   // do comparison
+   std::vector<std::string> tblLst( lst1.size() + lst2.size() );
+   std::vector<std::string>::iterator tit = std::set_symmetric_difference( lst1.begin(), lst1.end(), lst2.begin(), lst2.end(), tblLst.begin() );
+   tblLst.resize( tit - tblLst.begin() );
+
+   for ( size_t i = 0; i < tblLst.size(); ++i )
+   {  
+      oss << "Only in " << 
+      ( !m_projHandle->getDataBase()->getTable( tblLst[i] )->size() > 0 ? oss << m_projFileName : oss << mdl->m_projFileName ) << " table " + tblLst[i] << "\n";
+   }
+
+   // get tables list which exist in both projects
+   tblLst.resize( lst1.size() + lst2.size() );
+   std::vector<std::string>::iterator intit = std::set_intersection( lst1.begin(), lst1.end(), lst2.begin(), lst2.end(), tblLst.begin() );
+   tblLst.resize( intit - tblLst.begin() );
+
+   // go over all selected tables
+   for ( size_t i = 0; i < tblLst.size(); ++i )
+   {
+      const std::string & tblName = tblLst[i];
+      database::Table * tbl1 = m_projHandle->getDataBase()->getTable( tblName );
+      database::Table * tbl2 = mdl->m_projHandle->getDataBase()->getTable( tblName );
+
+      if ( tbl1->size() != tbl2->size() )
+      {
+         oss << "Table " << tblName << " has " << tbl1->size() << " records in project " << m_projFileName <<
+         " but " << tbl2->size() << " records in project " << mdl->m_projFileName << "\n";
+         continue; // can't compare !!!
+      }
+
+      if ( tbl1->size() > std::set<database::Record*>().max_size() )
+      {
+         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Can't compare too big tables: " << tblName << "(" << tbl1->size() << ")";
+      }
+
+      RecordSorter recCmp( tbl1, relTol );
+
+      std::vector<database::Record*> tbl1Recs( tbl1->begin(), tbl1->end() );
+      std::vector<database::Record*> tbl2Recs( tbl2->begin(), tbl2->end() );
+
+      std::stable_sort( tbl1Recs.begin(), tbl1Recs.end(), recCmp );
+      std::stable_sort( tbl2Recs.begin(), tbl2Recs.end(), recCmp );
+
+      std::vector<database::Record *> diffRecs( tbl1Recs.size() + tbl2Recs.size() );
+      std::vector<database::Record *>::iterator dit = std::set_symmetric_difference( tbl1Recs.begin(), tbl1Recs.end(), tbl2Recs.begin(), tbl2Recs.end(), diffRecs.begin(), recCmp );
+      diffRecs.resize( dit - diffRecs.begin() );
+      
+      tbl1Recs.clear();
+      tbl2Recs.clear();
+      // sort different records back to sets
+      for ( size_t j = 0; j < diffRecs.size(); ++j )
+      {
+         if ( diffRecs[j]->getTable() == tbl1 ) { tbl1Recs.push_back( diffRecs[j] ); }
+         else                                   { tbl2Recs.push_back( diffRecs[j] ); }
+      }    
+
+      assert( tbl1Recs.size() == tbl2Recs.size() );
+
+      const database::TableDefinition & tblDef = tbl1->getTableDefinition();
+
+      // compare field in records
+      for ( std::vector<database::Record*>::iterator it1  = tbl1Recs.begin(), it2  = tbl2Recs.begin();
+                                                     it1 != tbl1Recs.end() && it2 != tbl2Recs.end(); 
+                                                     ++it1, ++it2
+          )
+      {
+         database::Record * r1 = *it1;
+         database::Record * r2 = *it2;
+
+         int pos1 = tbl1->findRecordPosition( r1 ) - tbl1->begin();
+         int pos2 = tbl2->findRecordPosition( r2 ) - tbl2->begin();
+
+         for ( int k = 0; k < tblDef.size(); ++k )
+         {
+            datatype::DataType dt = tblDef.getFieldDefinition( k )->dataType();
+            const std::string & colName = tblDef.getFieldDefinition( k )->name();
+            
+            switch ( dt )
+            {
+               case datatype::Bool:
+                  {
+                     bool v1 = r1->getValue<bool>( k ); 
+                     bool v2 = r2->getValue<bool>( k );
+                     if ( v1 != v2 ) { oss << tblName << "("<< pos1 << "," << pos2 << ")." << colName << ": " << v1 << " != " << v2 << "\n"; }
+                  }
+                  break;
+
+               case datatype::Int:
+                  {
+                     int v1 = r1->getValue<int>( k );
+                     int v2 = r2->getValue<int>( k );
+                     if ( v1 != v2 ) { oss << tblName << "("<< pos1 << "," << pos2 << ")." << colName << ": " << v1 << " != " << v2 << "\n"; }
+                  }
+                  break;
+
+               case datatype::Long:
+                  {
+                     long v1 = r1->getValue<long>( k );
+                     long v2 = r2->getValue<long>( k );
+                     if ( v1 != v2 ) { oss << tblName << "("<< pos1 << "," << pos2 << ")." << colName << ": " << v1 << " != " << v2 << "\n"; }
+                  }
+                  break;
+
+               case datatype::Float:
+               case datatype::Double: 
+                  {
+                     double v1 = r1->getValue<double>( k );
+                     double v2 = r2->getValue<double>( k );
+                     if ( !NumericFunctions::isEqual( v1, v2, relTol ) )
+                     {
+                        oss << tblName << "("<< pos1 << "," << pos2 << ")." << colName << ": " << v1 << " != " << v2 << "\n";
+                     }
+                  }
+                  break;
+
+               case datatype::String:
+                  {
+                     string v1 = r1->getValue<string>( k );
+                     string v2 = r2->getValue<string>( k );
+                     if ( v1 != v2 ) { oss << tblName << "("<< pos1 << "," << pos2 << ")." << colName << ": " << v1 << " != " << v2 << "\n"; }
+                  }
+                  break;
+            }
+         }
+      }
+   }
+   return oss.str();
 }
 
-Model::ModelImpl::~ModelImpl( )
-{
-}
 
 std::vector<std::string> Model::ModelImpl::tablesList()
 {
