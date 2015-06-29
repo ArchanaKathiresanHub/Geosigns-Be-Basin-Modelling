@@ -90,6 +90,13 @@ install(TARGETS fastmig
 	RUNTIME DESTINATION bin
 )
 
+
+### Unit Tests
+
+add_gtest( NAME "Fastmig::Biodegrade"
+		   SOURCES test/BiodegradeTest.C src/Biodegrade.C
+		  )
+
 endif (BM_PARALLEL)
 
 # Local Variables:

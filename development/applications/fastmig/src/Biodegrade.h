@@ -21,8 +21,13 @@ public:
       m_maxBioTemp(biodegradationparameters->maxBioTemp()),
       m_bioConsts(biodegradationparameters->bioConsts()),
       m_timeFactor(biodegradationparameters->timeFactor())
-   {
-   }
+   {}
+ 
+   Biodegrade(const double maxBioTemp, const DataAccess::Interface::BioConsts bioConsts, const double timeFactor) :
+      m_maxBioTemp(maxBioTemp),
+      m_bioConsts(bioConsts),
+      m_timeFactor(timeFactor)
+   {}
 
    void calculate(const double& timeInterval, const double& T_C, 
       const double* input, double* lost) const;
