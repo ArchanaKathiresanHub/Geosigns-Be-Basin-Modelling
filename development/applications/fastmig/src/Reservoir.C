@@ -1964,12 +1964,14 @@ bool Reservoir::collectExpelledCharges (const Formation * formation, unsigned in
       string propertyName = ComponentNames[componentId];
       propertyName += "ExpelledCumulative";
 
-      const GridMap * gridMapEnd = getPropertyGridMap (propertyName, getEnd (), 0, formation, 0);
-      const GridMap * gridMapStart = getPropertyGridMap (propertyName, getStart (), 0, formation, 0);
+      const GridMap * gridMapEnd = getPropertyGridMap(propertyName, getEnd(), 0, formation, 0);
+      const GridMap * gridMapStart = getPropertyGridMap(propertyName, getStart(), 0, formation, 0);
 
       double fraction = (direction == EXPELLEDUPANDDOWNWARD ? 1.0 : 0.5);
 
-      double startTime, endTime, fractionToMigrate = 1;
+      // Initialized to stop the VS runtime error. The valuer is -1 because there is no snapshot at that time
+      // so we make sure that these variables are assigned real paleo times.
+      double startTime = -1.0, endTime = -1.0, fractionToMigrate = 1.0;
 
       if( gridMapStart ) 
       {
@@ -1992,7 +1994,7 @@ bool Reservoir::collectExpelledCharges (const Formation * formation, unsigned in
          gridMapEnd = getPropertyGridMap (propertyName, endSnapshot, 0, formation, 0);
       }
       
-      if (startTime - endTime > 0 and genexFraction)
+      if (genexFraction and startTime - endTime > 0) 
       {
          if( gridMapStart && gridMapEnd ) 
          {
@@ -2620,7 +2622,7 @@ void Reservoir::absorbTraps(void)
 {
    RequestHandling::StartRequestHandling(this, "absorbTraps");
    TrapVector::iterator trapIter;
-   for (trapIter = m_traps.begin(); trapIter != m_traps.end(); ++trapIter)
+   for (trapIter = m_traps.begin(); trapIter != m_traps.end();)
    {
       Trap * trap = *trapIter;
       if (trap->isToBeAbsorbed())
@@ -2629,8 +2631,9 @@ void Reservoir::absorbTraps(void)
 
          delete trap;
          trapIter = m_traps.erase(trapIter);
-         --trapIter;
+         continue;
       }
+      ++trapIter;
    }
    RequestHandling::FinishRequestHandling();
 }
