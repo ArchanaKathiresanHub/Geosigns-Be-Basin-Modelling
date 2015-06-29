@@ -30,7 +30,7 @@ void Biodegrade::calculate(const double& timeInterval, const double& T_C,
       if (degradeFactor > 1.0)
       {
          cerr << "Warning: trying to inverse biodegrade component " << compIdx << ", degradeFactor is " << degradeFactor << endl;
-	      lost[compIdx] = 0;
+	      lost[compIdx] = 0.0;
       }
    }
 }

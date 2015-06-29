@@ -22,12 +22,13 @@
 #include "depthToVolume.h"
 #include "Interface/FluidType.h"
 #include "translateProps.h"
-#include "migration.h"
 #include "LeakWasteAndSpillDistributor.h"
 #include "LeakAllGasAndOilDistributor.h"
 #include "SpillAllGasAndOilDistributor.h"
 #include "utils.h"
 #include "CBMGenerics/src/consts.h"
+
+#include "Migrator.h"
 
 #include <assert.h>
 #include <algorithm>
@@ -2195,7 +2196,7 @@ double Trap::computeHydrocarbonWaterContactDepth (void) const
    {
       hydrocarbonWaterContactDepth = getBottomDepth();
    }
-
+      
    // need to add again this assert as soon as the spilling point depth issue has been solved
    //assert((hydrocarbonWaterContactDepth >= getTopDepth()) && (hydrocarbonWaterContactDepth <= getBottomDepth()));
 
@@ -2235,6 +2236,87 @@ double Trap::computeFractionVolumeBiodegraded (const double& timeInterval)
    return fractionVolumeBiodegraded;
 }
 
+double Trap::computeHydrocarbonWaterContactTemperature()
+{
+   // Obtain the depths at the top and bottom of the crest column
+   double topCrestColumnDepth = getCrestColumn()->getTopDepth();
+   double bottomCrestColumnDepth = getCrestColumn()->getBottomDepth();
+
+   // Obtain a gridMap of temperature thanks to the DerivedProperties
+   const DataAccess::Interface::Property* property = getReservoir()->getProjectHandle()->findProperty("Temperature");
+   Migrator* mig = dynamic_cast<migration::Migrator*>(getReservoir()->getProjectHandle());
+   DerivedProperties::FormationPropertyPtr gridMap = mig->getPropertyManager().getFormationProperty(property, getReservoir()->getEnd(), getReservoir()->getFormation());
+
+   // Initialisation of the hydrocarbon - water contact temperature at the temperature at the top of crest column of the trap
+   double hydrocarbonWaterContactTemperature = getCrestColumn()->getTemperature();
+
+   if (gridMap == 0) // No gridMap, then we use the temperature of the crest column for biodegradation
+   {
+      std::cerr << "The temperature at the hydrocarbon - water contact can't be computed for the trapID " << getGlobalId() 
+                << " of the reservoir " << getReservoir()->getName()
+                << ". The temperature at the crest of the trap has been selected instead." << endl;
+      return hydrocarbonWaterContactTemperature;
+   }
+
+   unsigned int depth = gridMap->lengthK();
+   assert(depth > 1);
+   gridMap->retrieveData();
+   
+   // If the hydrocarbon - water contact is included between the top and the bottom of the crest column
+   // The interpolation of temperature will be done only on the crest column
+   if (getFillDepth(OIL) <= bottomCrestColumnDepth)
+   {
+      // Transform the depth of the hydrocarbon - water contact in a node position of the crest column
+      double percentageHeightHydrocarbonWaterContact = (bottomCrestColumnDepth - getFillDepth(OIL)) / (bottomCrestColumnDepth - topCrestColumnDepth);
+      double nodeHydrocarbonWaterContact = depth * percentageHeightHydrocarbonWaterContact;
+      
+      LocalColumn * column = getReservoir()->getLocalColumn(getCrestColumn()->getI(), getCrestColumn()->getJ());
+      double index = (nodeHydrocarbonWaterContact - 1) - column->getTopDepthOffset() * (nodeHydrocarbonWaterContact - 1);
+      index = Max((double)0, index);
+      index = Min((double)depth - 1, index);
+      hydrocarbonWaterContactTemperature = (gridMap->interpolate(getCrestColumn()->getI(), getCrestColumn()->getJ(), index));
+
+   }
+   // Else we need to find another column which has a top and a bottom depth which surrounded the OWC 
+   else
+   {
+      // Find a column of the trap with a bottom depth deeper than the hydrocarbon - water contact
+      // and a top depth shallower than the hydrocarbon - water contact
+      ConstColumnIterator iter;
+      for (iter = m_interior.begin(); iter != m_interior.end(); ++iter)
+      {
+         const LocalColumn * column = dynamic_cast<LocalColumn *> (*iter);
+
+         if (getFillDepth(OIL) <= column->getBottomDepth() && getFillDepth(OIL) >= column->getTopDepth())
+         {
+            // Compute the temperature at the top of the crest column
+            double topColumnDepth = column->getTopDepth();
+            double bottomColumnDepth = column->getBottomDepth();           
+           
+            // Transform the depth of the hydrocarbon - water contact in a node position of the crest column
+            double percentageHeightHydrocarbonWaterContact = (bottomColumnDepth - getFillDepth(OIL)) / (bottomColumnDepth - topColumnDepth);
+            double nodeHydrocarbonWaterContact = depth * percentageHeightHydrocarbonWaterContact;
+
+            double index = (nodeHydrocarbonWaterContact - 1) - column->getTopDepthOffset() * (nodeHydrocarbonWaterContact - 1);
+            index = Max((double)0, index);
+            index = Min((double)depth - 1, index);
+            hydrocarbonWaterContactTemperature = (gridMap->interpolate(column->getI(), column->getJ(), index));
+            
+            break;
+         }
+      }
+
+   }
+
+#ifdef DEBUG_BIODEGRADATION
+   std::cerr << endl << "==== Compute the temperature at the hydrocarbon - water contact ====" << endl;
+   std::cerr << "Temperature of the crest column: " << getCrestColumn()->getTemperature() << endl;
+   std::cerr << "Temperature at the hydrocarbon - Water contact: " << hydrocarbonWaterContactTemperature << endl;
+#endif
+   
+   return hydrocarbonWaterContactTemperature;
+}
+
 double Trap::biodegradeCharges (const double& timeInterval, const Biodegrade& biodegrade, PhaseId phase)
 {
    Composition biodegraded;
@@ -2245,7 +2327,9 @@ double Trap::biodegradeCharges (const double& timeInterval, const Biodegrade& bi
    setFillDepth(OIL, hydrocarbonWaterContactDepth);
    double fractionVolumeBiodegraded = computeFractionVolumeBiodegraded(timeInterval);
 
-   m_toBeDistributed[phase].computeBiodegradation(timeInterval, getTemperature(), biodegrade, 
+   double hydrocarbonWaterContactTemperature = computeHydrocarbonWaterContactTemperature();
+      
+    m_toBeDistributed[phase].computeBiodegradation(timeInterval, hydrocarbonWaterContactTemperature, biodegrade,
       biodegraded, fractionVolumeBiodegraded);
    
    m_toBeDistributed[phase].subtract(biodegraded);

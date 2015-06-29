@@ -125,7 +125,7 @@ namespace migration
       protected:
 	 Reservoir * m_reservoir;
 
-         int m_iGlobal;
+    int m_iGlobal;
 	 int m_jGlobal;
 
 	 BitField m_bitField;
@@ -291,10 +291,14 @@ namespace migration
 
 	 unsigned int getColumnStatus (void);
 
+    /*!
+    * \brief Get the Temperature at the top of the column
+    * \return The Temperature at the top of the column (in °C)
+    */
 	 virtual double getTemperature (void) const;
 	 virtual double getPreviousTemperature (void) const;
 	 virtual void setTemperature (double newTemperature);
-
+    
 	 virtual double getPressure (void) const;
 	 virtual double getPreviousPressure (void) const;
 	 virtual void setPressure (double newPressure);

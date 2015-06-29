@@ -100,6 +100,10 @@ namespace migration
 	Column * getFinalSpillTarget (PhaseId phase);
    void printSpillTrajectory (PhaseId phase);
 
+   /*!
+   * \brief Give the global "I" position (m_iGlobal) of the crest column of the trap
+   * \return The global "I" position (m_iGlobal) of the crest column of the trap
+   */
    unsigned int getI (void);
    unsigned int getJ (void);
 
@@ -108,14 +112,20 @@ namespace migration
 
    /*!
    * \brief Get the top depth of the Trap, the top depth of the crest column
+   * \return The crest depth of the trap
    */
    double getTopDepth (void) const;
 
    /*!
    * \brief Get the bottom depth of the Trap, the spilling point depth
+   * \return The spilling depth of the trap
    */
    double getBottomDepth (void) const;
 
+   /*!
+   * \brief Get the temperature at the top of the Trap, at the top of the crest column
+   * \return The temperature at the top of the crest column of the trap (in °C)
+   */
    double getTemperature (void) const;
    double getPreviousTemperature (void) const;
    double getPermeability (void) const;
@@ -178,10 +188,18 @@ namespace migration
    /*!
    * \brief Compute the fraction of the volume in the trap which is impacted by biodegradation
    * This volume impacted by biodegradation is exclusively in a determined thickness above the hydrocarbon - water contact
-   * This thickness is determine thanks to a coefficient (ex: 3m/10Myr) and the \param timeInterval
+   * This thickness is determined thanks to a coefficient (ex: 3m/10Myr) and the \param timeInterval
    * \return The fraction of volume in the trap impacted by biodegradation (from 0 to 1)
    */
    double computeFractionVolumeBiodegraded(const double& timeInterval);
+
+   /*!
+   * \brief Compute the temperature at the hydrocarbon - water contact (in °C)
+   * This function makes an interpolation between the top and the bottom temperature of a column
+   * in order to find the temperature around the hydrocarbon - water contact
+   * \return The interpolated temperature at the hydrocarbon - water contact (in °C)
+   */
+   double computeHydrocarbonWaterContactTemperature();
 
    double biodegradeCharges (const double& timeInterval, const Biodegrade& biodegrade);
    double biodegradeCharges (const double& timeInterval, const Biodegrade& biodegrade, PhaseId phase);
