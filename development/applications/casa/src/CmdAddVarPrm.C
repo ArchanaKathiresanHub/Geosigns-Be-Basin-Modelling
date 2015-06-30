@@ -60,9 +60,9 @@ CmdAddVarPrm::CmdAddVarPrm( CasaCommander & parent, const std::vector< std::stri
         m_prms[0] == "SourceRockPreasphActEnergy" &&  m_prms.size() !=  5 ||
         m_prms[0] == "CrustThinningOneEvent"      &&  m_prms.size() != 10 ||
         m_prms[0] == "CrustThinning"              &&  m_prms.size()  < 11 ||
-        m_prms[0] == "PorosityModel"              && (m_prms.size()  <  8 || m_prms.size() > 12) ||
+        m_prms[0] == "PorosityModel"              && (m_prms.size()  <  8 || m_prms.size() > 13) ||
         m_prms[0] == "PermeabilityModel"          &&  m_prms.size()  < 10 ||
-        m_prms[0] == "STPThermalCondCoeff"        &&  m_prms.size() !=  5 
+        m_prms[0] == "STPThermalCondCoeff"        && (m_prms.size()  < 5  || m_prms.size() > 6)
       )
    {
       throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Wrong number of parameters for " << m_prms[0];
@@ -245,12 +245,13 @@ void CmdAddVarPrm::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
    else if ( m_prms[0] == "PorosityModel" )
    {
       size_t pos = 1;
-      std::string litName   = m_prms[pos++];
-      std::string modelName = m_prms[pos++];
-      double minSurfPor     = atof( m_prms[pos++].c_str() );
-      double maxSurfPor     = atof( m_prms[pos++].c_str() );
-      double minCompCoef    = atof( m_prms[pos++].c_str() );
-      double maxCompCoef    = atof( m_prms[pos++].c_str() );
+      const char * layerName   = ( m_prms.size() == 13 || m_prms.size() == 9 ) ? m_prms[pos++].c_str() : NULL;
+      const char * lithoName   = m_prms[pos++].c_str();
+      const char * modelName   = m_prms[pos++].c_str();
+      double       minSurfPor  = atof( m_prms[pos++].c_str() );
+      double       maxSurfPor  = atof( m_prms[pos++].c_str() );
+      double       minCompCoef = atof( m_prms[pos++].c_str() );
+      double       maxCompCoef = atof( m_prms[pos++].c_str() );
 
       double minMinPor = UndefinedDoubleValue;
       double maxMinPor = UndefinedDoubleValue;
@@ -258,22 +259,23 @@ void CmdAddVarPrm::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
       double minCompCoef1 = UndefinedDoubleValue; 
       double maxCompCoef1 = UndefinedDoubleValue; 
 
-      if ( m_prms.size() == 12 )
+      if ( m_prms.size() == 12 || m_prms.size() == 13 )
       {
          minMinPor    = atof( m_prms[pos++].c_str() );
          maxMinPor    = atof( m_prms[pos++].c_str() );
          minCompCoef1 = atof( m_prms[pos++].c_str() ); 
          maxCompCoef1 = atof( m_prms[pos++].c_str() ); 
       }
-      else if ( m_prms.size() != 8 )
+      else if ( m_prms.size() != 8 && m_prms.size() != 9 )
       {
          throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Wrong number of parameters for " << m_prms[0];
       }
       casa::VarPrmContinuous::PDF pdfType = Str2pdf( m_prms.back() );
 
       if ( ErrorHandler::NoError != casa::BusinessLogicRulesSet::VaryPorosityModelParameters( *sa.get()
-                                                                                            , litName.c_str()
-                                                                                            , modelName.c_str()
+                                                                                            , layerName
+                                                                                            , lithoName
+                                                                                            , modelName
                                                                                             , minSurfPor
                                                                                             , maxSurfPor
                                                                                             , minCompCoef
@@ -401,12 +403,15 @@ void CmdAddVarPrm::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
    }
    else if ( m_prms[0] == "STPThermalCondCoeff" )
    {
-      double minVal = atof( m_prms[2].c_str() );
-      double maxVal = atof( m_prms[3].c_str() );
+      size_t pos = 1;
+      const char * layerName = m_prms.size() == 6 ? m_prms[pos++].c_str() : NULL;
+      const char * lithoName = m_prms[pos++].c_str();
+      double       minVal    = atof( m_prms[pos++].c_str() );
+      double       maxVal    = atof( m_prms[pos++].c_str() );
 
-      ppdf = Str2pdf( m_prms[4] );
+      ppdf = Str2pdf( m_prms[pos++] );
 
-      if ( ErrorHandler::NoError != casa::BusinessLogicRulesSet::VaryLithoSTPThermalCondCoeffParameter( *sa.get(), m_prms[1].c_str(), minVal, maxVal, ppdf ) )
+      if ( ErrorHandler::NoError != casa::BusinessLogicRulesSet::VaryLithoSTPThermalCondCoeffParameter( *sa.get(), layerName, lithoName, minVal, maxVal, ppdf ) )
       {
          throw ErrorHandler::Exception( sa->errorCode() ) << sa->errorMessage();
       }

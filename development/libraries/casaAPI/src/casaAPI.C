@@ -50,6 +50,62 @@
 
 namespace casa {
 
+static std::string CopyLithologyForTheLayer( ScenarioAnalysis & sa, const std::string & layerName, const std::string & litName, const std::string & suffix )
+{
+   std::string lithoName = litName;
+
+   mbapi::StratigraphyManager & smgr = sa.baseCase().stratigraphyManager();
+   mbapi::LithologyManager    & lmgr = sa.baseCase().lithologyManager();
+
+   mbapi::StratigraphyManager::LayerID lid = smgr.layerID( layerName );
+
+   if ( UndefinedIDValue == lid )
+   {
+      throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "No layer with name: " << layerName << " in stratigraphy table";
+   }
+   
+   // get list lithologies associated with the layer
+   std::vector<std::string> lithNames;
+   std::vector<double>      lithPerc;
+
+   smgr.layerLithologiesList( lid, lithNames, lithPerc );
+
+   int found = -1;
+   for ( size_t i = 0; i < lithNames.size() && found < 0; ++i )
+   {
+      if ( lithNames[i] == lithoName ) found = static_cast<int>( i );
+   }
+   if ( found < 0 ) throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Layer " << layerName << " has no lithology type: " << lithoName;
+
+   // do checking if we need to copy lithology
+   const std::vector<mbapi::StratigraphyManager::LayerID> & layersWithSameLith = smgr.findLayersForLithology( lithoName );
+   bool copyLithology = layersWithSameLith.size() > 1 ? true : false;
+
+   // create lithology copy if needed
+   if ( copyLithology )
+   {
+      mbapi::LithologyManager::LithologyID lithID = lmgr.findID( lithoName );
+
+      if ( UndefinedIDValue == lithID ) 
+      {
+         throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "No lithology with name: " << lithoName << " in lithologies type table";
+      }
+
+      // construct new lithology name as oldName_layerName_PorMdl_CASA_copy
+      std::ostringstream oss;
+      oss << lithoName << "_" << layerName << "_" << suffix << "_CASA_copy";
+
+      mbapi::LithologyManager::LithologyID newLithID = lmgr.copyLithology( lithID, oss.str() );
+      if ( UndefinedIDValue == newLithID ) throw ErrorHandler::Exception( lmgr.errorCode() ) << lmgr.errorMessage(); 
+
+      lithNames[found] = lmgr.lithologyName( newLithID );
+      smgr.setLayerLithologiesList( lid, lithNames, lithPerc );
+      lithoName = oss.str();
+   }
+
+   return lithoName;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // Set of business logic rules functions to convert one request to set of parameters
 namespace BusinessLogicRulesSet
@@ -583,6 +639,7 @@ ErrorHandler::ReturnCode VaryCrustThinning( casa::ScenarioAnalysis & sa
 
 // Add variation of porosity model parameters 
 ErrorHandler::ReturnCode VaryPorosityModelParameters( ScenarioAnalysis    & sa
+                                                    , const char          * layerName
                                                     , const char          * litName
                                                     , const char          * modelName
                                                     , double                minSurfPor
@@ -685,14 +742,19 @@ ErrorHandler::ReturnCode VaryPorosityModelParameters( ScenarioAnalysis    & sa
             break;
       }
 
-      if ( ErrorHandler::NoError != varPrmsSet.addParameter( new VarPrmPorosityModel( litName,       mdlType, 
+      // check - if layer was specified, create a copy of corresponded lithology for the given 
+      // layer and change Porosity Model parameters only for this lithology
+      std::string newLithoName = ( layerName != NULL && strlen( layerName ) > 0 ) ? 
+                                      CopyLithologyForTheLayer( sa, layerName, litName, "PorMdl" ) : std::string( litName );
+
+      if ( ErrorHandler::NoError != varPrmsSet.addParameter( new VarPrmPorosityModel( newLithoName.c_str(), mdlType, 
                                                                                       baseSurfPor,   minSurfPor,   maxSurfPor, 
                                                                                       baseMinPor,    minMinPor,    maxMinPor,
                                                                                       baseCompCoef,  minCompCoef,  maxCompCoef,
                                                                                       baseCompCoef1, minCompCoef1, maxCompCoef1,
                                                                                       pdfType
                                                                                     ) )
-         ) { return sa.moveError( varPrmsSet ); }
+         ) {  throw ErrorHandler::Exception( varPrmsSet.errorCode() ) << varPrmsSet.errorMessage(); }
    }
    catch( const ErrorHandler::Exception & ex )
    {
@@ -740,38 +802,15 @@ ErrorHandler::ReturnCode VaryPermeabilityModelParameters( ScenarioAnalysis      
       {
          for ( size_t i = 0; i < minModelPrms.size(); ++i ) basModelPrms.push_back( (minModelPrms[i] + maxModelPrms[i]) * 0.5 );
       }
-      
-      // Get base value of parameter from the Model
-      mbapi::Model & mdl = sa.baseCase();
-      
-      mbapi::StratigraphyManager & smgr = mdl.stratigraphyManager();
-      mbapi::LithologyManager    & lmgr = mdl.lithologyManager();
-      
-      mbapi::StratigraphyManager::LayerID lid = smgr.layerID( layerName );
-
-      if ( UndefinedIDValue == lid )
-      {
-         throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "No layer with name: " << layerName << " in stratigraphy table";
-      }
-      // do checking if we need to copy lithology
-      std::vector<std::string> lithNames;
-      std::vector<double>      lithPerc;
-      smgr.layerLithologiesList( lid, lithNames, lithPerc );
-
-      int found = -1;
-      for ( size_t i = 0; i < lithNames.size() && found < 0; ++i )
-      {
-         if ( lithNames[i] == lithoName ) found = static_cast<int>( i );
-      }
-      if ( found < 0 ) throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Layer " << layerName << " has no lithology type: " << lithoName;
-
+     
       // get model parameters from project file
-      std::vector<double> litMdlPrms;
-      std::vector<double> litMdlMPPor;
-      std::vector<double> litMdlMPPerm;
+      std::vector<double>                        litMdlPrms;
+      std::vector<double>                        litMdlMPPor;
+      std::vector<double>                        litMdlMPPerm;
       mbapi::LithologyManager::PermeabilityModel litMdl;
 
       // get base value
+      mbapi::LithologyManager & lmgr = sa.baseCase().lithologyManager();
       mbapi::LithologyManager::LithologyID ltid = lmgr.findID( lithoName );
       if ( UndefinedIDValue == ltid ) 
       {
@@ -815,30 +854,14 @@ ErrorHandler::ReturnCode VaryPermeabilityModelParameters( ScenarioAnalysis      
             }
          }
       }
-      
-      const std::vector<mbapi::StratigraphyManager::LayerID> & layersWithSameLith = smgr.findLayersForLithology( lithoName );
-      bool copyLithology = layersWithSameLith.size() > 1 ? true : false;
-      
-      // create lithology copy if needed
-      if ( copyLithology )
-      {
-         smgr.layerLithologiesList( lid, lithNames, lithPerc );
-         mbapi::LithologyManager::LithologyID lithID = lmgr.findID( lithoName );
-         if ( UndefinedIDValue == lithID ) return sa.moveError( lmgr );
 
-         // construct new lithology name as oldName_layerName_CASA_copy
-         std::ostringstream oss;
-         oss << lithoName << "_" << layerName << "_CASA_copy";
-
-         mbapi::LithologyManager::LithologyID newLithID = lmgr.copyLithology( lithID, oss.str() );
-         if ( UndefinedIDValue == newLithID ) return sa.moveError( lmgr );
-
-         lithNames[found] = lmgr.lithologyName( newLithID );
-         smgr.setLayerLithologiesList( lid, lithNames, lithPerc );
-      }
-
+      // check - if layer was specified, create a copy of corresponded lithology for the given 
+      // layer and change Porosity Model parameters only for this lithology
+      const std::string & newLithoName = ( layerName != NULL && strlen( layerName ) > 0 ) ? 
+                                              CopyLithologyForTheLayer( sa, layerName, lithoName, "PrmMdl" ) : std::string( lithoName );
+ 
       VarSpace & varPrmsSet = sa.varSpace();
-      if ( ErrorHandler::NoError != varPrmsSet.addParameter( new VarPrmPermeabilityModel( lithNames[found].c_str(), mdlType, basModelPrms, minModelPrms, maxModelPrms, pdfType ) ) )
+      if ( ErrorHandler::NoError != varPrmsSet.addParameter( new VarPrmPermeabilityModel( newLithoName.c_str(), mdlType, basModelPrms, minModelPrms, maxModelPrms, pdfType ) ) )
       {
          return sa.moveError( varPrmsSet );
       }
@@ -853,7 +876,13 @@ ErrorHandler::ReturnCode VaryPermeabilityModelParameters( ScenarioAnalysis      
 
 
 // Add STP thermal conductivity parameter variation for lithology
-ErrorHandler::ReturnCode VaryLithoSTPThermalCondCoeffParameter( ScenarioAnalysis & sa, const char * litName, double minVal, double maxVal, VarPrmContinuous::PDF pdfType )
+ErrorHandler::ReturnCode VaryLithoSTPThermalCondCoeffParameter( ScenarioAnalysis    & sa
+                                                              , const char          * layerName
+                                                              , const char          * litName
+                                                              , double                minVal
+                                                              , double                maxVal
+                                                              , VarPrmContinuous::PDF pdfType
+                                                              )
 {
    try
    {
@@ -876,8 +905,12 @@ ErrorHandler::ReturnCode VaryLithoSTPThermalCondCoeffParameter( ScenarioAnalysis
          throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Value of STP thermal conductivity in base case is outside of the given range";
       }
 
+      // check - if layer was specified, create a copy of corresponded lithology for the given 
+      // layer and change Porosity Model parameters only for this lithology
+      const std::string & newLithoName = ( layerName != NULL && strlen( layerName ) > 0 ) ? 
+                                            CopyLithologyForTheLayer( sa, layerName, litName, "STPCoeff" ) : std::string( litName );
 
-      if ( ErrorHandler::NoError != varPrmsSet.addParameter( new VarPrmLithoSTPThermalCond( litName, baseVal, minVal, maxVal, pdfType ) ) )
+      if ( ErrorHandler::NoError != varPrmsSet.addParameter( new VarPrmLithoSTPThermalCond( newLithoName.c_str(), baseVal, minVal, maxVal, pdfType ) ) )
       {
          return sa.moveError( varPrmsSet );
       }

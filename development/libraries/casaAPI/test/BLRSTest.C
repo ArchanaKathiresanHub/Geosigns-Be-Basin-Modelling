@@ -387,7 +387,7 @@ TEST_F( BLRSTest, VaryPorosityExponentialModelParameters )
    ASSERT_EQ( ErrorHandler::NoError, sc.defineBaseCase( m_testProject ) );
 
    // the first one - try to give wrong porosity model name
-   ASSERT_EQ( ErrorHandler::OutOfRangeValue, casa::BusinessLogicRulesSet::VaryPorosityModelParameters( sc, "Std. Sandstone"
+   ASSERT_EQ( ErrorHandler::OutOfRangeValue, casa::BusinessLogicRulesSet::VaryPorosityModelParameters( sc, "Permian", "Std. Sandstone"
                , "Eponential"
                , 30.0, 60.0, 2.0, 4.0, UndefinedDoubleValue, UndefinedDoubleValue, UndefinedDoubleValue, UndefinedDoubleValue, VarPrmContinuous::Block 
                ) );
@@ -395,6 +395,7 @@ TEST_F( BLRSTest, VaryPorosityExponentialModelParameters )
    // set the parameter
    ASSERT_EQ( ErrorHandler::NoError, casa::BusinessLogicRulesSet::VaryPorosityModelParameters( 
               sc
+            , "Permian"
             , "Std. Sandstone"
             , "Exponential"
             , 30.0, 60.0
@@ -432,6 +433,22 @@ TEST_F( BLRSTest, VaryPorosityExponentialModelParameters )
    // does it have base values from project?
    ASSERT_NEAR( baseV[0], 48.0, eps );  
    ASSERT_NEAR( baseV[1], 3.22, eps );  
+
+   // do we have copy of lithology for the given layer?
+   mbapi::Model & mdl = sc.baseCase();
+   mbapi::StratigraphyManager & strMgr = mdl.stratigraphyManager();
+
+   mbapi::StratigraphyManager::LayerID lid = strMgr.layerID( "Permian" );
+   ASSERT_NE( UndefinedIDValue, lid );
+
+   std::vector<std::string> lithoList;
+   std::vector<double>      lithoPercent;
+
+   ASSERT_EQ( ErrorHandler::NoError, strMgr.layerLithologiesList( lid, lithoList, lithoPercent ) );
+   ASSERT_EQ( lithoList[0], std::string( "Std. Sandstone_Permian_PorMdl_CASA_copy" ) );
+
+   mbapi::LithologyManager & lthMgr = mdl.lithologyManager();
+   ASSERT_NE( UndefinedIDValue, lthMgr.findID( "Std. Sandstone_Permian_PorMdl_CASA_copy" ) );
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -442,7 +459,7 @@ TEST_F( BLRSTest, VaryPorositySoilMechanicsModelParameters )
    ASSERT_EQ( ErrorHandler::NoError, sc.defineBaseCase( m_testProject ) );
 
    // the first one - try to define both parameters in inconsistent way
-   ASSERT_EQ( ErrorHandler::OutOfRangeValue, casa::BusinessLogicRulesSet::VaryPorosityModelParameters( sc, "Std. Sandstone"
+   ASSERT_EQ( ErrorHandler::OutOfRangeValue, casa::BusinessLogicRulesSet::VaryPorosityModelParameters( sc, NULL, "Std. Sandstone"
                , "Soil_Mechanics"
                , 30.0, 60.0, 2.0, 4.0, UndefinedDoubleValue, UndefinedDoubleValue, UndefinedDoubleValue, UndefinedDoubleValue, VarPrmContinuous::Block 
                ) );
@@ -450,6 +467,7 @@ TEST_F( BLRSTest, VaryPorositySoilMechanicsModelParameters )
    // set the parameter
    ASSERT_EQ( ErrorHandler::NoError, casa::BusinessLogicRulesSet::VaryPorosityModelParameters( 
               sc
+            , NULL
             , "Std. Sandstone"
             , "Soil_Mechanics"
             , 30.0, 60.0
@@ -497,6 +515,7 @@ TEST_F( BLRSTest, VaryPorosityDoubleExponentialModelParameters )
    // set the parameter
    ASSERT_EQ( ErrorHandler::NoError, casa::BusinessLogicRulesSet::VaryPorosityModelParameters( 
               sc
+            , "Permian"
             , "Std. Sandstone"
             , "Double_Exponential"
             , 30.0, 60.0  // surface porosity
@@ -555,7 +574,7 @@ TEST_F( BLRSTest, VaryLithoSTPThermalCondCoeff )
 
    // set the parameter
    ASSERT_EQ( ErrorHandler::NoError, 
-              casa::BusinessLogicRulesSet::VaryLithoSTPThermalCondCoeffParameter( sc, "Std. Shale", 1, 2, VarPrmContinuous::Block ) );
+              casa::BusinessLogicRulesSet::VaryLithoSTPThermalCondCoeffParameter( sc, NULL, "Std. Shale", 1, 2, VarPrmContinuous::Block ) );
 
    // get varspace 
    casa::VarSpaceImpl & varPrms = dynamic_cast<casa::VarSpaceImpl&>( sc.varSpace( ) );

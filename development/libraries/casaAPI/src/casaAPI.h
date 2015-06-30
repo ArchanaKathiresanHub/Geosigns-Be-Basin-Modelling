@@ -273,6 +273,7 @@ namespace casa
       /// @return ErrorHandler::NoError on success or error code otherwise
       ErrorHandler::ReturnCode VaryPorosityModelParameters( 
             ScenarioAnalysis    & sa            ///< [in,out] casa::ScenarioAnalysis object reference, if any error, this object will keep an error message
+          , const char *          layerName     ///< [in] stratigraphy layer name, if layerName is not NULL, it will copy lithology record before making changes
           , const char *          litName       ///< [in] lithology name
           , const char *          modelName     ///< [in] porosity model name, supported now: Exponential, Soil_Mechanics, Double_Exponential
           , double                minSurfPor    ///< [in] min range value for the surface porosity 
@@ -320,6 +321,7 @@ namespace casa
       /// @return ErrorHandler::NoError on success or error code otherwise
       ErrorHandler::ReturnCode VaryLithoSTPThermalCondCoeffParameter( 
          ScenarioAnalysis    & sa            ///< [in,out] casa::ScenarioAnalysis object reference, if any error, this object will keep an error message
+       , const char *          layerName     ///< [in] stratigraphy layer name, if layerName is not NULL, it will copy lithology record before making changes
        , const char *          litName       ///< [in] lithology name
        , double                minVal        ///< [in] min range value for the STP thermal conductivity coeff. 
        , double                maxVal        ///< [in] max range value for the STP thermal conductivity coeff.
