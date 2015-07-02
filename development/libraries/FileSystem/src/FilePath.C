@@ -145,24 +145,5 @@ bool FilePath::linkFile( const Path & destPath )
    return true;
 }
 
-
-std::string FilePath::pathToExecutable()
-{
-   std::string epath;
-#ifndef _WIN32
-	char buf[FILENAME_MAX];
-   size_t len = readlink( "/proc/self/exe", buf, sizeof(buf) - 1 );
-   buf[len]= '\0';
-   epath = std::string( buf );
-#else
-   TCHAR buf[MAX_PATH];
-
-   DWORD length = GetModuleFileName( NULL, buf, sizeof( buf ) - 1 );
-   epath = std::string( buf );
-#endif
-   FilePath pathTo( epath );
-   return pathTo.filePath();
-}
-
 }
 

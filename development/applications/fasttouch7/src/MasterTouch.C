@@ -17,6 +17,8 @@
 #include "Interface/ProjectHandle.h"
 #include "Interface/Snapshot.h"
 
+#include "Path.h"
+
 double MinimumAll (double myValue);
 
 using namespace std;
@@ -30,26 +32,16 @@ using namespace Interface;
 #include <sys/wait.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <unistd.h>
 
 static const char * tempBurial  = "/tmp/BurialhistXXXXXX";
 static const char * tempResults = "/tmp/ResultsXXXXXX";
 static const char * tempStatus  = "/tmp/StatusXXXXXX";
 
-string getPath( ) {
-
-   char buff[1024];
-
-   ssize_t len = readlink("/proc/self/exe",	buff,	sizeof(buff)-1);
-
-   buff[len]= '\0';
-
-   return string(dirname(buff));
-
-}
-
 bool check_zombie( pid_t pid )
 {
+#ifdef _WIN32
+   return false;
+#else
    char pbuf[32];
       
    snprintf( pbuf, sizeof( pbuf ), "/proc/%d/stat", (int)pid );
@@ -67,6 +59,7 @@ bool check_zombie( pid_t pid )
    fclose(fpstat);
    //cout <<" in check_zombie "<<endl;
    return rstatc == 'Z' ? true : false;
+#endif
 }
 
 bool MasterTouch::executeWrapper( const char * burHistFile, const string & filename, const char * resultFile ) {
@@ -88,18 +81,27 @@ bool MasterTouch::executeWrapper( const char * burHistFile, const string & filen
       const char * wrapperName = "touchstoneWrapper";
 				
       errno = 0;
-      execl( (getPath() + "/" +  wrapperName).c_str(), wrapperName,
-             burHistFile , filename.c_str() , resultFile , status, (rank.str( )).c_str(),  
-             static_cast<const char *>(0) );
+      ibs::Path pathToWrapper = ibs::Path::applicationFullPath();
+      pathToWrapper << wrapperName;
 
-      if (errno != 0)
-      { 
-         std::ostringstream oss;
-         oss << "error: Could not run TouchstoneWrapper '" << getPath() << '/' << wrapperName 
-             << "  Error code " << errno << ":  " << std::strerror(errno);
-         message( oss.str());
+      if ( pathToWrapper.exists() )
+      {
+         execl( pathToWrapper.path().c_str(), wrapperName,
+                burHistFile , filename.c_str() , resultFile , status, (rank.str( )).c_str(),  
+                static_cast<const char *>(0) );
+
+         if (errno != 0)
+         { 
+            std::ostringstream oss;
+            oss << "error: Could not run TouchstoneWrapper '" << pathToWrapper.path() 
+                << "  Error code " << errno << ":  " << std::strerror(errno);
+            message( oss.str());
+         }
       }
-		
+      else
+      {
+         message( (std::string( "error: could not find TouchstoneWrapper at: ") + pathToWrapper.path()).c_str() );
+      }
       exit(0);		
    } 	
    else 	

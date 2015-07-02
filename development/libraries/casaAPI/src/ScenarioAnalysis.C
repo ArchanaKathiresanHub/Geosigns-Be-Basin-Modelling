@@ -482,7 +482,18 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::setScenarioLocation( const char * p
          }
          else if ( !saFolder.empty( ) )
          {
-            throw ErrorHandler::Exception( ErrorHandler::IoError ) << " folder " << pathToCaseSet << " is not empty";
+            bool found = false;
+            for ( size_t i = 1; i < 99 && !found; ++i )
+            {
+               ibs::FolderPath tmpPath( saFolder );
+               tmpPath << "Iteration_" + ibs::to_string( i );
+               if ( !tmpPath.exists() )
+               {
+                  found = true;
+                  m_iterationNum = i;
+               }
+            }
+            if ( !found ) { throw ErrorHandler::Exception( ErrorHandler::IoError ) << " folder " << pathToCaseSet << " is not empty"; }
          }
 
          m_caseSetPath = saFolder.fullPath().path();
@@ -491,7 +502,7 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::setScenarioLocation( const char * p
    catch ( const ibs::PathException & ex )
    {
       throw ErrorHandler::Exception( ErrorHandler::IoError ) << ex.what();
-   }      
+   }
 }
 
 void ScenarioAnalysis::ScenarioAnalysisImpl::restoreScenarioLocation( const char * pathToCaseSet )

@@ -555,8 +555,9 @@ void CmdAddVarPrm::printHelpPage( const char * cmdName )
    std::cout << "                                          \"Block\"                      # PDF\n";
    std::cout << "\n";
 
-   std::cout << "    PorosityModel <litName> <modelName> <mnSurfPr> <mxSurfPr> <mnCmpCf> <mxCmpCf> [<mnMinPr> <mxMinPr> <mnCmpCf1> <mxCmpCf1>] <prmPDF>\n";
+   std::cout << "    PorosityModel [layName] <litName> <modelName> <mnSurfPr> <mxSurfPr> <mnCmpCf> <mxCmpCf> [<mnMinPr> <mxMinPr> <mnCmpCf1> <mxCmpCf1>] <prmPDF>\n";
    std::cout << "    Where:\n";
+   std::cout << "       layName   - layer name (Optional). If it is given, the lithology will be copied and all changes will be done for the copy only\n";
    std::cout << "       litName   - lithology name\n";
    std::cout << "       modelName - porosity model name, allowed values: Exponential, Soil_Mechanics, Double_Exponential\n";
    std::cout << "       mnSurfPr  - surface porosity - minimal range value\n";
@@ -581,9 +582,9 @@ void CmdAddVarPrm::printHelpPage( const char * cmdName )
    std::cout << "    " << cmdName << " \"PorosityModel\" \"SM.Mudstone40%Clay\"  \"Soil_Mechanics\"  15 85        0.1988 0.1988  \"Block\"\n";
 
    std::cout << "\n";
-   std::cout << "    PermeabilityModel <layName> <litName> <modelName> <minAnisCf> <maxAnisCf> [other model min/max parameters value] <prmPDF>\n";
+   std::cout << "    PermeabilityModel [<layName>] <litName> <modelName> <minAnisCf> <maxAnisCf> [other model min/max parameters value] <prmPDF>\n";
    std::cout << "    Where:\n";
-   std::cout << "       layName       - layer name\n";
+   std::cout << "       layName       - layer name (Optional). If it is given, the lithology will be copied and all changes will be done for the copy only\n";
    std::cout << "       litName       - lithology name\n";
    std::cout << "       modelName     - permeability model name, allowed values: Sands, Shales, Multipoint\n";
    std::cout << "       minAnisCf     - anisotropic coefficient - minimal range value                        (All models)\n";
@@ -621,7 +622,8 @@ void CmdAddVarPrm::printHelpPage( const char * cmdName )
    std::cout << "                                                                                   \"Block\" \n";
    std::cout << "\n";
 
-   std::cout << "    STPThermalCondCoeff <lithologyName> <minValue> <maxValue> <prmPDF>\n";
+   std::cout << "    STPThermalCondCoeff [layName] <lithologyName> <minValue> <maxValue> <prmPDF>\n";
+   std::cout << "       layName       - layer name (Optional). If it is given, the lithology will be copied and all changes will be done for the copy only\n";
    std::cout << "       lithologyName - lithology name\n";
    std::cout << "       minVal    - the parameter minimal range value\n";
    std::cout << "       maxVal    - the parameter maximal range value\n";

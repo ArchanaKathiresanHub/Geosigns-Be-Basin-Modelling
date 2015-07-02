@@ -78,7 +78,10 @@ PrmCrustThinning::PrmCrustThinning( mbapi::Model & mdl ) : m_parent( 0 )
          }
          else 
          {
-            if ( !m[i-1].empty() ) throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Crust thinning from map to constant value is not supported";
+            if ( !m[i-1].empty() )
+            {
+               throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Crust thinning from map to constant value is not supported";
+            }
             if ( !NumericFunctions::isEqual( d[i-1], d[i], s_eps )  )
             {
                m_maps.push_back( "" );           // add no map
@@ -160,16 +163,28 @@ ErrorHandler::ReturnCode PrmCrustThinning::setInModel( mbapi::Model & caldModel 
          if ( !NumericFunctions::isEqual( m_coeff[i], 1.0, s_eps ) ) // copy and scale maps
          {
             mbapi::MapsManager::MapID id = mMgr.findID( oldMapName );
-            if ( UndefinedIDValue == id ) throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Crust thinning, unknown map is given: " << oldMapName;
+            if ( UndefinedIDValue == id )
+            {
+               throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Crust thinning, unknown map is given: " << oldMapName;
+            }
 
             newMapName += "_CrustThinningEvent_";
             newMapName += ibs::to_string( i );
 
             id = mMgr.copyMap( id, newMapName );
-            if ( UndefinedIDValue == id ) throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Crust thinning, copying " << oldMapName << " map failed";
+            if ( UndefinedIDValue == id )
+            {
+               throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Crust thinning, copying " << oldMapName << " map failed";
+            }
 
-            if ( ErrorHandler::NoError != mMgr.scaleMap( id, m_coeff[i]              ) ) throw ErrorHandler::Exception( mMgr.errorCode() ) << mMgr.errorMessage();
-            if ( ErrorHandler::NoError != mMgr.saveMapToHDF( id, newMapName + ".HDF" ) ) throw ErrorHandler::Exception( mMgr.errorCode() ) << mMgr.errorMessage();
+            if ( ErrorHandler::NoError != mMgr.scaleMap( id, m_coeff[i]              ) ) 
+            {
+               throw ErrorHandler::Exception( mMgr.errorCode() ) << mMgr.errorMessage();
+            }
+            if ( ErrorHandler::NoError != mMgr.saveMapToHDF( id, newMapName + ".HDF" ) )
+            {
+               throw ErrorHandler::Exception( mMgr.errorCode() ) << mMgr.errorMessage();
+            }
                
          }
          d.push_back( UndefinedDoubleValue );
@@ -183,47 +198,26 @@ ErrorHandler::ReturnCode PrmCrustThinning::setInModel( mbapi::Model & caldModel 
          m.push_back( m.back() );
       }
  
+      bool ok = true;     
       // add rows to the table eventsNumber + 2
-      if ( ErrorHandler::NoError != caldModel.clearTable( s_crustIoTblName ) ) throw ErrorHandler::Exception( caldModel.errorCode() ) << caldModel.errorMessage();
-      for ( size_t i = 0; i < m.size(); ++i )
+      ok = ok ? ErrorHandler::NoError == caldModel.clearTable( s_crustIoTblName ) : ok;
+
+      for ( size_t i = 0; i < m.size() && ok; ++i )
       {
-         if ( ErrorHandler::NoError != caldModel.addRowToTable( s_crustIoTblName ) )
-         {
-            throw ErrorHandler::Exception( caldModel.errorCode() ) << caldModel.errorMessage();
-         }
+         ok = ok ? ErrorHandler::NoError == caldModel.addRowToTable( s_crustIoTblName ) : ok;
       }
 
-     
-      for ( size_t i = 0; i < m.size(); ++i )
+      for ( size_t i = 0; i < m.size() && ok; ++i )
       {
-         if ( ErrorHandler::NoError != caldModel.setTableValue( s_crustIoTblName, i, s_crustIoTblAgeCol, t[t.size() - i - 1] ) )
-         {
-            throw ErrorHandler::Exception( caldModel.errorCode() ) << caldModel.errorMessage();
-         }
-
-         if ( ErrorHandler::NoError != caldModel.setTableValue( s_crustIoTblName, i, s_crustIoTblThicknessCol, d[d.size() - i - 1] ) )
-         {
-            throw ErrorHandler::Exception( caldModel.errorCode() ) << caldModel.errorMessage();
-         }
-
-         if ( ErrorHandler::NoError != caldModel.setTableValue( s_crustIoTblName, i, s_crustIoTblMapNameCol, m[m.size() - i - 1] ) )
-         {
-            throw ErrorHandler::Exception( caldModel.errorCode() ) << caldModel.errorMessage();
-         }
-         // set to 0 unused columns
-         if ( ErrorHandler::NoError != caldModel.setTableValue( s_crustIoTblName, i, s_crustIoTblCalibThicknessCol, 0.0e0 ) )
-         {
-            throw ErrorHandler::Exception( caldModel.errorCode() ) << caldModel.errorMessage();
-         }
-         if ( ErrorHandler::NoError != caldModel.setTableValue( s_crustIoTblName, i, s_crustIoTblOptimThicknessCol, (long)0 ) )
-         {
-            throw ErrorHandler::Exception( caldModel.errorCode() ) << caldModel.errorMessage();
-         }
-         if ( ErrorHandler::NoError != caldModel.setTableValue( s_crustIoTblName, i, s_crustIoTblErrThicknessCol, 0.0e0 ) )
-         {
-            throw ErrorHandler::Exception( caldModel.errorCode() ) << caldModel.errorMessage();
-         }
+         ok = ok ? ErrorHandler::NoError == caldModel.setTableValue( s_crustIoTblName, i, s_crustIoTblAgeCol, t[t.size() - i - 1] ) : ok;
+         ok = ok ? ErrorHandler::NoError == caldModel.setTableValue( s_crustIoTblName, i, s_crustIoTblThicknessCol, d[d.size() - i - 1] ) : ok;
+         ok = ok ? ErrorHandler::NoError == caldModel.setTableValue( s_crustIoTblName, i, s_crustIoTblMapNameCol, m[m.size() - i - 1] ) : ok;
+         // set to 0 unused columns       
+         ok = ok ? ErrorHandler::NoError == caldModel.setTableValue( s_crustIoTblName, i, s_crustIoTblCalibThicknessCol, UndefinedDoubleValue ) : ok;
+         ok = ok ? ErrorHandler::NoError == caldModel.setTableValue( s_crustIoTblName, i, s_crustIoTblOptimThicknessCol, (long)0 ) : ok;
+         ok = ok ? ErrorHandler::NoError == caldModel.setTableValue( s_crustIoTblName, i, s_crustIoTblErrThicknessCol, 0.0e0 ) : ok;
      }
+     if ( !ok ) { throw ErrorHandler::Exception( caldModel.errorCode() ) << caldModel.errorMessage(); }
    }
    catch( const ErrorHandler::Exception & ex ) { return caldModel.reportError( ex.errorCode(), ex.what() ); }
 

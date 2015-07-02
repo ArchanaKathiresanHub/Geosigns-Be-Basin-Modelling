@@ -36,7 +36,15 @@ namespace ibs
    class Path
    {
    public:
+      /// @brief Get full path to the application from which this function is called
+      /// @return full path to the application
+      static Path applicationFullPath();
+
       Path( const std::string & aPath ) : m_path( aPath ) { ; }
+
+      /// @brief Copy constructor
+      Path( const Path & aPath ) : m_path( aPath.m_path ) { ; }
+
       virtual ~Path() { ; }
 
       /// @brief Check if given path is exist
@@ -75,6 +83,9 @@ namespace ibs
          m_path = ( boost::filesystem::path( m_path ) / to_string( pathEl ) ).string();
          return *this;
       }
+
+      /// @brief Copy operator
+      Path & operator = (const Path & aPath ) { m_path = aPath.m_path; return *this; }
 
    protected:
       std::string m_path;

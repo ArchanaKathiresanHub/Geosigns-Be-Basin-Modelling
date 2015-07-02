@@ -23,16 +23,17 @@ add_executable(fasttouch7
 )
 
 bm_include_libraries(
-        DataModel
-	DistributedDataAccess
-	DataAccess
-	Utilities_Petsc
-	Serial_Hdf5
-	OneFilePerProcess
-	Parallel_Hdf5
-	TableIO
-	utilities
-	CBMGenerics
+   DataModel
+   DistributedDataAccess
+   DataAccess
+   Utilities_Petsc
+   Serial_Hdf5
+   OneFilePerProcess
+   Parallel_Hdf5
+   TableIO
+   FileSystem
+   utilities
+   CBMGenerics
 )
 
 include_directories(
@@ -51,6 +52,7 @@ target_link_libraries(fasttouch7
 	Serial_Hdf5
 	Parallel_Hdf5
 	TableIO
+   FileSystem
 	utilities
 	CBMGenerics
 

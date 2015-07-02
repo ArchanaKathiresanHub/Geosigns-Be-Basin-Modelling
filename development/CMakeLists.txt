@@ -74,7 +74,7 @@ set(BM_TFS_PROJECT_NAME "" CACHE STRING "TFS Project Name (i.e. 'Basin Modeling'
 
 #
 # Common CMake configuration flags
-# 
+#
 
 option( BUILD_SHARED_LIBS "Build shared libraries" OFF )
 set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}" CACHE PATH "Installation prefix" )
@@ -89,7 +89,7 @@ include(cmake/EnvSetup.cmake)
 init_environment()
 find_package(Compiler CONFIG)
 
-# 
+#
 # Start the project description & enable the compiler
 #
 Project(BasinModeling)
@@ -112,7 +112,7 @@ configure_external_projects()
 
 #
 # Setting compile flags
-#   
+#
 
 if (NOT BM_USE_FLEXLM)
    add_definitions(-DDISABLE_FLEXLM=1)
@@ -205,19 +205,19 @@ if (BM_CSHARP_API)
    find_package(Swig REQUIRED CONFIG)
 endif()
 
-find_package(OpenMP REQUIRED CONFIG)   
+find_package(OpenMP REQUIRED CONFIG)
 find_package(Hdf5 REQUIRED CONFIG)
 find_package(Eigen REQUIRED CONFIG)
 find_package(SUMlib REQUIRED CONFIG)
 find_package(Boost REQUIRED CONFIG)
 find_package(BLAS REQUIRED CONFIG)
 find_package(PETSC REQUIRED CONFIG)
-find_package(Touchstone REQUIRED CONFIG)  
-   
+find_package(Touchstone REQUIRED CONFIG)
+
 if (UNIX)
    find_package(FlexLM REQUIRED CONFIG)
    find_package(LSF REQUIRED CONFIG)
-   
+
    if (BM_BUILD_QT3_APPS)
       find_package(Qt3 REQUIRED CONFIG)
    endif()
@@ -244,25 +244,25 @@ include(cmake/BuildEnvironment.cmake)
 add_subdirectory(libraries)
 add_subdirectory(applications)
 if(BM_BUILD_REGRESSION_TESTS)
-	add_subdirectory(regression_tests)
+   add_subdirectory(regression_tests)
 endif()
 
 #
 # Install configuration files
-# 
+#
 
 install(DIRECTORY geocase/misc/ # last backslach is MANDATORY
-	DESTINATION misc
+    DESTINATION misc
     FILE_PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ GROUP_WRITE WORLD_READ
-    DIRECTORY_PERMISSIONS 
-        OWNER_READ OWNER_WRITE OWNER_EXECUTE 
+    DIRECTORY_PERMISSIONS
+        OWNER_READ OWNER_WRITE OWNER_EXECUTE
         GROUP_READ GROUP_WRITE GROUP_EXECUTE
         WORLD_READ WORLD_EXECUTE
-	PATTERN "geocase/misc/gempis/*"
-	    PERMISSIONS
-		    OWNER_READ OWNER_WRITE OWNER_EXECUTE 
-		    GROUP_READ GROUP_WRITE GROUP_EXECUTE
-            WORLD_READ WORLD_EXECUTE
+   PATTERN "geocase/misc/gempis/*"
+   PERMISSIONS
+      OWNER_READ OWNER_WRITE OWNER_EXECUTE
+      GROUP_READ GROUP_WRITE GROUP_EXECUTE
+      WORLD_READ WORLD_EXECUTE
     )
 
 #
@@ -280,13 +280,22 @@ configure_file(MoveInstalls${script_suffix}.cmake MoveInstalls${script_suffix} @
 
 #
 # Generate Third Party Component List XML file
-# 
+#
 write_external_package_info_file(${CMAKE_BINARY_DIR}/${BM_THIRD_PARTY_COMPONENT_LIST_FILE})
 
 install( FILES "${CMAKE_BINARY_DIR}/${BM_THIRD_PARTY_COMPONENT_LIST_FILE}"
                "${CMAKE_BINARY_DIR}/ThirdPartyComponentsListStyle.xsl"
-	     DESTINATION share/doc
-)		 
+               DESTINATION share/doc
+)
+
+# Install mpirun/mpiexec wrapper scripts which are used by CASA
+install( FILES "${CMAKE_BINARY_DIR}/mpirun_wrap.sh" "${CMAKE_BINARY_DIR}/mpiexec_wrap.sh" 
+         DESTINATION bin
+         PERMISSIONS
+            OWNER_READ OWNER_EXECUTE
+            GROUP_READ GROUP_EXECUTE
+            WORLD_READ WORLD_EXECUTE
+       )
 
 #
 # Generate .zip file with binaries for Windows platform
@@ -298,8 +307,8 @@ if (WIN32)
    # Set the version of the package
    if (NOT CPACK_PACKAGE_VERSION)
       if ( "${BM_TFS_BUILD_NUMBER}" STREQUAL "" )
-         today(currentDate) 
-         set( CPACK_PACKAGE_VERSION "${currentDate}") 
+         today(currentDate)
+         set( CPACK_PACKAGE_VERSION "${currentDate}")
       else()
          set( CPACK_PACKAGE_VERSION "${BM_TFS_BUILD_NUMBER}")
       endif()

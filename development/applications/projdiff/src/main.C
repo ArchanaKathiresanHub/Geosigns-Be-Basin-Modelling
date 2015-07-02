@@ -168,10 +168,10 @@ int main( int argc, char ** argv )
    Message( "###### All done!", PROGRESSMSG );
    
    std::ostringstream oss;
-   oss << "Found " << g_totalDiffNumber << " differences";
-   Message( oss.str(), 0 );
+   oss << "Found " <<  g_totalDiffNumber << " differences";
+   Message( oss.str(), g_totalDiffNumber > 0 ? 0 : 1 );
 
-   return 0;
+   return g_totalDiffNumber > 0 ? -1 : 0;
 }
 
 

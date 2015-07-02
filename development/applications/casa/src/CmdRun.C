@@ -58,7 +58,11 @@ CmdRun::CmdRun( CasaCommander & parent, const std::vector< std::string > & cmdPr
    m_maxPendingJobs = m_prms.size() > 2 ? atol( m_prms[2].c_str() ) : 0;
 
    if ( m_cluster.empty() ) throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Empty HPC cluster name";
-   if ( m_cldVer.empty() )  throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Cauldron version not given";
+
+   if ( m_cldVer.empty() || m_cldVer == "Default" ) 
+   {
+      m_cldVer = ibs::Path::applicationFullPath().path();
+   }
 }
 
 void CmdRun::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )

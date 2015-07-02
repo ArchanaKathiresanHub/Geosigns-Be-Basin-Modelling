@@ -18,7 +18,50 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
+#ifdef _WIN32
+#include <Windows.h>
+#else
+#include <unistd.h>
+#endif
+
 namespace ibs {
+
+#define MAX_PATH_LEN 4096
+Path Path::applicationFullPath()
+{
+   std::string myPath;
+
+   char * pathBuf = new char[MAX_PATH_LEN];
+   int pathBufSize = MAX_PATH_LEN;
+
+   do
+   {
+#ifdef _WIN32
+      int     bytes = GetModuleFileName( NULL, pathBuf, pathBufSize );
+#else
+      ssize_t bytes = readlink( "/proc/self/exe", pathBuf, pathBufSize  );
+#endif
+      if ( !bytes ) break; // something wrong, can't get path
+
+      if ( bytes < pathBufSize ) // call successful, copy result to string
+      {
+         pathBuf[bytes] = '\0';
+         myPath = std::string( pathBuf );
+         break;
+      }
+      // too small buffer - increase it
+      delete [] pathBuf;
+      pathBufSize *= 2;
+      if ( pathBufSize >= 32768U ) break; // too long buffer
+
+      pathBuf = new char[pathBufSize];
+
+   } while( true );
+   
+   delete [] pathBuf;
+
+   return !myPath.empty() ? Path( myPath ).cutLast() : Path( "." ).fullPath(); 
+}
 
 // Check if given path is exist
 bool Path::exists() const

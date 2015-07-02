@@ -40,21 +40,18 @@ namespace casa
       , m_outputOpt( "-save" )
       , m_clearSnapshots( false )
    {
-      std::string version;
-      std::string rootPath;
+      std::string miscPath;
 
       switch ( m_sh )
       {
       case cmd:
          m_appName += ".exe"; // on windows all applications have .exe suffix
-         version    = "%CAULDRON_VERSION%";
-         rootPath   = "%IBS_ROOT%";
+         miscPath= "%CAULDRON_MISC_PATH%";
          break;
 
       case csh:
       case bash:
-         version  = "${CAULDRON_VERSION}";
-         rootPath = "${IBS_ROOT}";
+         miscPath = "${CAULDRON_MISC_PATH}";
          break;
       }
 
@@ -66,17 +63,10 @@ namespace casa
 
       if ( m_mpirunCmd.empty() )
       {
-         ibs::FilePath mpirunPath( s_MPIRUN_CMD );
-         if ( !mpirunPath.exists() )
-         {
-            ibs::FilePath appPath( ibs::FilePath::pathToExecutable() );
-            appPath << mpirunPath.fileName();
-            m_mpirunCmd = appPath.path();
-         }
-         else
-         {
-            m_mpirunCmd = std::string( s_MPIRUN_CMD );
-         }
+         ibs::FilePath mpiWrapCmd( ibs::Path::applicationFullPath() );
+         mpiWrapCmd << s_MPIRUN_CMD;
+         m_mpirunCmd = mpiWrapCmd.exists() ? mpiWrapCmd.path() : s_MPIRUN_CMD;
+         
 #ifndef _WIN32
          m_mpirunCmd += " -env I_MPI_DEBUG 5";
 #endif
@@ -85,51 +75,51 @@ namespace casa
       // do some tunning depends on application name
       if ( appName == "fastcauldron" )
       {
-         pushDefaultEnv( "EOSPACKDIR", (ibs::FolderPath( rootPath ) << version << "misc" << "eospack").path() );
-         pushDefaultEnv( "GENEXDIR",   (ibs::FolderPath( rootPath ) << version << "misc" << "genex40").path() );
-         pushDefaultEnv( "GENEX5DIR",  (ibs::FolderPath( rootPath ) << version << "misc" << "genex50").path() );
-         pushDefaultEnv( "GENEX6DIR",  (ibs::FolderPath( rootPath ) << version << "misc" << "genex60").path() );
-         pushDefaultEnv( "OTGCDIR",    (ibs::FolderPath( rootPath ) << version << "misc" << "OTGC"   ).path() );
-         pushDefaultEnv( "CTCDIR",     (ibs::FolderPath( rootPath ) << version << "misc"             ).path() );
+         pushDefaultEnv( "EOSPACKDIR", (ibs::FolderPath( miscPath ) << "eospack").path() );
+         pushDefaultEnv( "GENEXDIR",   (ibs::FolderPath( miscPath ) << "genex40").path() );
+         pushDefaultEnv( "GENEX5DIR",  (ibs::FolderPath( miscPath ) << "genex50").path() );
+         pushDefaultEnv( "GENEX6DIR",  (ibs::FolderPath( miscPath ) << "genex60").path() );
+         pushDefaultEnv( "OTGCDIR",    (ibs::FolderPath( miscPath ) << "OTGC"   ).path() );
+         pushDefaultEnv( "CTCDIR",     (ibs::FolderPath( miscPath )             ).path() );
       }
       else if ( appName == "fastgenex6" )
       {
-         pushDefaultEnv( "EOSPACKDIR", (ibs::FolderPath( rootPath ) << version << "misc" << "eospack").path() );
-         pushDefaultEnv( "OTGCDIR",    (ibs::FolderPath( rootPath ) << version << "misc" << "OTGC"   ).path() );
-         pushDefaultEnv( "GENEXDIR",   (ibs::FolderPath( rootPath ) << version << "misc" << "genex40").path() );
-         pushDefaultEnv( "GENEX5DIR",  (ibs::FolderPath( rootPath ) << version << "misc" << "genex50").path() );
-         pushDefaultEnv( "GENEX6DIR",  (ibs::FolderPath( rootPath ) << version << "misc" << "genex60").path() );
+         pushDefaultEnv( "EOSPACKDIR", (ibs::FolderPath( miscPath ) << "eospack").path() );
+         pushDefaultEnv( "OTGCDIR",    (ibs::FolderPath( miscPath ) << "OTGC"   ).path() );
+         pushDefaultEnv( "GENEXDIR",   (ibs::FolderPath( miscPath ) << "genex40").path() );
+         pushDefaultEnv( "GENEX5DIR",  (ibs::FolderPath( miscPath ) << "genex50").path() );
+         pushDefaultEnv( "GENEX6DIR",  (ibs::FolderPath( miscPath ) << "genex60").path() );
       }
       else if ( appName == "fastmig" )
       {
          // set up environment vars
-         pushDefaultEnv( "EOSPACKDIR", (ibs::FolderPath( rootPath ) << version << "misc" << "eospack").path() );
-         pushDefaultEnv( "OTGCDIR",    (ibs::FolderPath( rootPath ) << version << "misc" << "OTGC"   ).path() );
-         pushDefaultEnv( "GENEXDIR",   (ibs::FolderPath( rootPath ) << version << "misc" << "genex40").path() );
-         pushDefaultEnv( "GENEX5DIR",  (ibs::FolderPath( rootPath ) << version << "misc" << "genex50").path() );
-         pushDefaultEnv( "CTCDIR",     (ibs::FolderPath( rootPath ) << version << "misc"             ).path() );
+         pushDefaultEnv( "EOSPACKDIR", (ibs::FolderPath( miscPath ) << "eospack").path() );
+         pushDefaultEnv( "OTGCDIR",    (ibs::FolderPath( miscPath ) << "OTGC"   ).path() );
+         pushDefaultEnv( "GENEXDIR",   (ibs::FolderPath( miscPath ) << "genex40").path() );
+         pushDefaultEnv( "GENEX5DIR",  (ibs::FolderPath( miscPath ) << "genex50").path() );
+         pushDefaultEnv( "CTCDIR",     (ibs::FolderPath( miscPath )             ).path() );
       }
       else if ( appName == "fastctc" )
       {
-         pushDefaultEnv( "CTCDIR",     (ibs::FolderPath( rootPath ) << version << "misc"             ).path() );
+         pushDefaultEnv( "CTCDIR",     (ibs::FolderPath( miscPath )             ).path() );
       }
       else if ( appName == "datadriller" )
       {
-         pushDefaultEnv( "EOSPACKDIR", (ibs::FolderPath( rootPath ) << version << "misc" << "eospack").path() );
-         pushDefaultEnv( "OTGCDIR",    (ibs::FolderPath( rootPath ) << version << "misc" << "OTGC"   ).path() );
-         pushDefaultEnv( "GENEX6DIR",  (ibs::FolderPath( rootPath ) << version << "misc" << "genex60").path() );
-         pushDefaultEnv( "CTCDIR",     (ibs::FolderPath( rootPath ) << version << "misc"             ).path() );
+         pushDefaultEnv( "EOSPACKDIR", (ibs::FolderPath( miscPath ) << "eospack").path() );
+         pushDefaultEnv( "OTGCDIR",    (ibs::FolderPath( miscPath ) << "OTGC"   ).path() );
+         pushDefaultEnv( "GENEX6DIR",  (ibs::FolderPath( miscPath ) << "genex60").path() );
+         pushDefaultEnv( "CTCDIR",     (ibs::FolderPath( miscPath )             ).path() );
          m_inputOpt = "-input";
          m_outputOpt = "-output";
       }
       else if ( appName == "tracktraps" )
       {
-         pushDefaultEnv( "EOSPACKDIR", (ibs::FolderPath( rootPath ) << version << "misc" << "eospack").path() );
+         pushDefaultEnv( "EOSPACKDIR", (ibs::FolderPath( miscPath ) << "eospack").path() );
          m_outputOpt = "-output";
       }
       else if ( appName == "track1d" )
       {
-         pushDefaultEnv( "EOSPACKDIR", (ibs::FolderPath( rootPath ) << version << "misc" << "eospack").path() );
+         pushDefaultEnv( "EOSPACKDIR", (ibs::FolderPath( miscPath ) << "eospack").path() );
          m_outputOpt = "| sed '1,4d' > track1d_results.csv";
       }
    }
@@ -176,7 +166,7 @@ namespace casa
 
       if ( m_clearSnapshots )
       {
-         oss << "\n rm -rf " << ibs::FilePath( inProjectFile ).fileNameNoExtension() << "_CauldronOutputDir/Time*.h5\n";
+         oss << "\nrm -rf " << ibs::FilePath( inProjectFile ).fileNameNoExtension() << "_CauldronOutputDir/Time*.h5\n\n";
       }
 
       // if application is parallel, add mpirun dirrective with options
@@ -253,43 +243,100 @@ namespace casa
    // print the defined set of environment variables to stream
    void CauldronApp::dumpEnv( std::ostream & oss )
    {
+      ibs::Path appPath( m_version );  // version could be set as a full path to the application executable
+      ibs::Path miscPath( appPath );
+
+      appPath << m_appName;
+      
       switch ( m_sh )
       {
       case bash:
          oss << "CAULDRON_VERSION=" << m_version << "\n";
          oss << "IBS_ROOT=" << m_rootPath << "\n\n";
-         // compute path to the application
-         oss << "os1=`/apps/sss/share/getos2` || { echo 'Warning: Could not determine OS version. Are we in Shell Linux?'; os1='.'; }\n"
-            << "os2=`/apps/sss/share/getos2 --os --ver` || { echo 'Warning: Could not determine OS version. Are we in Shell Linux?'; os2='.'; }\n"
-            << "APP=" << m_rootPath << '/' << m_version << "/${os1}/bin/" << m_appName << '\n'
-            << "if [ ! -e $APP ]; then\n"
-            << "   APP=" << m_rootPath << '/' << m_version << "/${os2}/bin/" << m_appName << '\n'
-            << "fi\n"
-            << "if [ ! -e $APP ]; then\n"
+
+         if ( !appPath.exists() )
+         {
+            oss << "CAULDRON_MISC_PATH=" << m_rootPath << '/' << m_version << "/misc\n";
+
+            // compute path to the application
+            oss << "os1=`/apps/sss/share/getos2` || { echo 'Warning: Could not determine OS version. Are we in Shell Linux?'; os1='.'; }\n"
+                << "os2=`/apps/sss/share/getos2 --os --ver` || { echo 'Warning: Could not determine OS version. Are we in Shell Linux?'; os2='.'; }\n"
+                << "APP=" << m_rootPath << '/' << m_version << "/${os1}/bin/" << m_appName << '\n'
+                << "if [ ! -e $APP ]; then\n"
+                << "   APP=" << m_rootPath << '/' << m_version << "/${os2}/bin/" << m_appName << '\n'
+                << "fi\n";
+         }
+         else
+         {
+            miscPath << ".." << "misc";
+            if ( !miscPath.exists() )
+            {
+               miscPath = appPath;
+               miscPath << ".." << ".." << "misc";
+            }
+            oss << "CAULDRON_MISC_PATH=" << miscPath.path() << "\n";
+            oss << "APP=" << appPath.path() << '\n';
+         }
+
+         oss << "if [ ! -e $APP ]; then\n"
             << "   echo Could not find application executable\n"
             << "   exit 1\n"
-            << "fi\n";         break;
+            << "fi\n";
+         break;
 
       case csh:
          oss << "set CAULDRON_VERSION=" << m_version << "\n";
          oss << "set IBS_ROOT=" << m_rootPath << "\n\n";
          // compute path to the application
          oss << "set os1=`/apps/sss/share/getos2` || { echo 'Warning: Could not determine OS version. Are we in Shell Linux?'; os1='.'; }\n"
-            << "set os2=`/apps/sss/share/getos2 --os --ver` || { echo 'Warning: Could not determine OS version. Are we in Shell Linux?'; os2='.'; }\n"
-            << "set APP=" << m_rootPath << '/' << m_version << "/${os1}/bin/" << m_appName << '\n'
-            << "if ( ! -l $APP ) then\n"
-            << "   APP=" << m_rootPath << '/' << m_version << "/${os2}/bin/" << m_appName << '\n'
-            << "endif\n"
-            << "if ( ! -l $APP ) then\n"
-            << "   echo Could not find application executable\n"
-            << "   exit 1\n"
-            << "endif\n";         break;
+             << "set os2=`/apps/sss/share/getos2 --os --ver` || { echo 'Warning: Could not determine OS version. Are we in Shell Linux?'; os2='.'; }\n";
+
+         if ( !appPath.exists() )
+         {
+            oss << "set APP=" << m_rootPath << '/' << m_version << "/${os1}/bin/" << m_appName << '\n'
+                << "if ( ! -l $APP ) then\n"
+                << "   APP=" << m_rootPath << '/' << m_version << "/${os2}/bin/" << m_appName << '\n'
+                << "endif\n";
+         }
+         else
+         {
+            miscPath << ".." << "misc";
+            if ( !miscPath.exists() )
+            {
+               miscPath = appPath;
+               miscPath << ".." << ".." << "misc";
+            }
+            oss << "CAULDRON_MISC_PATH=" << miscPath.path() << "\n";
+            oss << "APP=" << appPath.path() << '\n';
+         }
+
+
+         oss << "if ( ! -l $APP ) then\n"
+             << "   echo Could not find application executable\n"
+             << "   exit 1\n"
+             << "endif\n";
+         break;
 
       case cmd:
          oss << "set CAULDRON_VERSION=" << m_version << "\n";
          oss << "set IBS_ROOT=" << m_rootPath << "\n\n";
-         // compute path to the application
-         oss << "set APP=" << (ibs::FilePath( m_rootPath ) << m_version << "bin" << m_appName).path();
+
+         if ( !appPath.exists() )
+         {
+            // compute path to the application
+            oss << "set APP=" << (ibs::FilePath( m_rootPath ) << m_version << "bin" << m_appName).path();
+         }
+         else
+         {
+            miscPath << ".." << "misc";
+            if ( !miscPath.exists() )
+            {
+               miscPath = appPath;
+               miscPath << ".." << ".." << "misc";
+            }
+            oss << "set CAULDRON_MISC_PATH=" << miscPath.path() << "\n";
+            oss << "set APP=" << appPath.path() << '\n';
+         }
          break;
       }
       oss << "\n";

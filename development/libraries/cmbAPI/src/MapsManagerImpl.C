@@ -343,7 +343,7 @@ void MapsManagerImpl::copyMapFiles( const std::string & newLocation )
 
       if ( !newMapFile.exists() && !origMapFile.copyFile( newMapFile ) )
       {
-         ErrorHandler::Exception( ErrorHandler::IoError ) << "Model::saveModelToProjectFile(): can not copy map file: " << origMapFile.path();
+        throw ErrorHandler::Exception( ErrorHandler::IoError ) << "Model::saveModelToProjectFile(): can not copy map file: " << origMapFile.path();
       }
    }
 }
