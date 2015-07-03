@@ -2,20 +2,20 @@
 <tagfile>
   <compound kind="file">
     <name>FilePath.h</name>
-    <path>/scratch/nlskon/cld-dev/Trunk/development/libraries/FileSystem/src/</path>
+    <path>D:/cauldron/trunk/development/libraries/FileSystem/src/</path>
     <filename>FilePath_8h</filename>
     <includes id="Path_8h" name="Path.h" local="yes" imported="no">Path.h</includes>
   </compound>
   <compound kind="file">
     <name>FolderPath.h</name>
-    <path>/scratch/nlskon/cld-dev/Trunk/development/libraries/FileSystem/src/</path>
+    <path>D:/cauldron/trunk/development/libraries/FileSystem/src/</path>
     <filename>FolderPath_8h</filename>
     <includes id="Path_8h" name="Path.h" local="yes" imported="no">Path.h</includes>
     <class kind="class">ibs::FolderPath</class>
   </compound>
   <compound kind="file">
     <name>Path.h</name>
-    <path>/scratch/nlskon/cld-dev/Trunk/development/libraries/FileSystem/src/</path>
+    <path>D:/cauldron/trunk/development/libraries/FileSystem/src/</path>
     <filename>Path_8h</filename>
     <class kind="struct">ibs::PathException</class>
     <class kind="class">ibs::Path</class>
@@ -85,6 +85,13 @@
       <arglist>(const FolderPath &amp;fld)</arglist>
     </member>
     <member kind="function">
+      <type></type>
+      <name>Path</name>
+      <anchorfile>classibs_1_1Path.html</anchorfile>
+      <anchor>a1bcea007f2e4e2bd9be8174b4696abcf</anchor>
+      <arglist>(const Path &amp;aPath)</arglist>
+    </member>
+    <member kind="function">
       <type>bool</type>
       <name>exists</name>
       <anchorfile>classibs_1_1Path.html</anchorfile>
@@ -139,6 +146,20 @@
       <anchorfile>classibs_1_1Path.html</anchorfile>
       <anchor>a5656a6ec4a00c1e107c3fb01faff8d86</anchor>
       <arglist>(const T &amp;pathEl)</arglist>
+    </member>
+    <member kind="function">
+      <type>Path &amp;</type>
+      <name>operator=</name>
+      <anchorfile>classibs_1_1Path.html</anchorfile>
+      <anchor>ae05c681dfabe4c17addc98b3fe4abbd0</anchor>
+      <arglist>(const Path &amp;aPath)</arglist>
+    </member>
+    <member kind="function" static="yes">
+      <type>static Path</type>
+      <name>applicationFullPath</name>
+      <anchorfile>classibs_1_1Path.html</anchorfile>
+      <anchor>a2e6454837655990fdc5b3267a8a48f9b</anchor>
+      <arglist>()</arglist>
     </member>
   </compound>
   <compound kind="class">

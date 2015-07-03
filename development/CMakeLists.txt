@@ -288,6 +288,7 @@ install( FILES "${CMAKE_BINARY_DIR}/${BM_THIRD_PARTY_COMPONENT_LIST_FILE}"
                DESTINATION share/doc
 )
 
+if (UNIX)
 # Install mpirun/mpiexec wrapper scripts which are used by CASA
 install( FILES "${CMAKE_BINARY_DIR}/mpirun_wrap.sh" "${CMAKE_BINARY_DIR}/mpiexec_wrap.sh" 
          DESTINATION bin
@@ -296,6 +297,7 @@ install( FILES "${CMAKE_BINARY_DIR}/mpirun_wrap.sh" "${CMAKE_BINARY_DIR}/mpiexec
             GROUP_READ GROUP_EXECUTE
             WORLD_READ WORLD_EXECUTE
        )
+endiif (UNIX)
 
 #
 # Generate .zip file with binaries for Windows platform

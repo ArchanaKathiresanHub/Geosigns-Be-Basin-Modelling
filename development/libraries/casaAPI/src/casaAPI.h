@@ -71,7 +71,7 @@
 ///     -# casa::PrmSourceRockPreAsphaltStartAct - @link CASA_SourceRockPreAsphaltStartActPage Source rock pre-asphaltene activation energy parameter @endlink
 ///     -# casa::PrmTopCrustHeatProduction - @link CASA_TopCrustHeatProductionPage Top crust heat production rate parameter @endlink
 ///     -# casa::PrmOneCrustThinningEvent - @link CASA_OneCrustThinningEventPage Crust thinning parameter based on one thinning event @endlink
-///     -# casa::PrmCrustThinning - @link @page CASA_CrustThinningPage @endlink Crust thinning parameter based on a sequence of arbitrary number of thinning events
+///     -# casa::PrmCrustThinning - @link CASA_CrustThinningPage Crust thinning parameter based on a sequence of arbitrary number of thinning events @endlink
 ///     -# casa::PrmPorosityModel - @link CASA_PorosityModelPage lithology porosity model parameters @endlink
 ///     -# casa::PrmLithoSTPThermalCond - @link CASA_LithoSTPThermalCondPage lithology STP (Standart Pressure Temperature) thermal conductivity coefficient parameter @endlink
 ///   - casa::Observable - base class which keeps a describtion of target value from simulation results. It also could include reference 

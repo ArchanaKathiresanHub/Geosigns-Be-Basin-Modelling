@@ -79,7 +79,7 @@ namespace mbapi
 ///  -# @f$ C @f$ clay percentage of the sand [%]
 ///
 /// @section PermeabilityModelPrmMudstoneSec Permeability model for mudstone
-/// The mudstone permeability model in Cauldron is rather an oddity as it relates permeability to stress rather than porosity. 
+/// The @b Mudstone permeability model in Cauldron is rather an oddity as it relates permeability to stress rather than porosity. 
 /// @f[ k_{shale}=k_{0}\cdot\left(\frac{VES+\sigma_{ref}}{\sigma_{ref}}\right)^{-C_{sensitivity}} @f]
 /// The default shale permeability for the Std.Shale is shown in Figure \ref perm_vs_por. As can be seen from the equation above 
 /// the permeability is actually a function of VES. However, it is plotted in Figure perm_vs_por against porosity so that it can 
@@ -91,17 +91,19 @@ namespace mbapi
 /// Here, the permeability change on unloading, set by the permeability recovery coefficient, is much lower than the permeability 
 /// change during loading which is set by the permeability sensitivity coefficient (Table 1).
 ///
-/// in <b>Mudstone</b> permeability model the permeability is calculated according to this formula:
-// The model has 4 parameters
+/// The model has 4 parameters
 ///  -# @f$ k_{0} @f$ - depositional permeability [mD]
 ///  -# permeability anisotropy [kh/kv] which is used to scale lateral permeability
 ///  -# @f$ C_{sensitivity} @f$ permeability sensitivity coefficient []
 ///  -# @f$ C_{recovery} @f$ permeability recovery coefficient []
 ///
-/// @subsection MultiPointPermModelSubSec
+/// @section MultiPointPermModelSubSec Permeability model is described by a Permeability vs Porosity profile
 /// in <b>Multipoint</b> permeability model is a simple table of porosity and @f$ (log10) @f$ permeability values. This allows the user to 
 /// input any porosity-permeability relationship. Cauldron contains default permeability trends for the 40, 50 and 60 [%] clay fraction shales.
 /// These are shown in Figure @ref perm_vs_por
+///
+/// @image html MultipointPerm.png "Figure 2. Example of tabulated representation of permeability/porosity relation"
+///
 /// The model has 3 parameters
 ///  -# permeability anisotropy [kh/kv] which is used to scale lateral permeability
 ///  -# number of Porosity [%] / Permeability [log10(mD)] points in table 
@@ -115,6 +117,7 @@ namespace casa
    class PrmPermeabilityModel : public Parameter
    {
    public:
+      /// @brief Permeability model type for lithology
       typedef enum
       {
          Sandstone   = mbapi::LithologyManager::PermSandstone,   ///< permeability model for sandstones

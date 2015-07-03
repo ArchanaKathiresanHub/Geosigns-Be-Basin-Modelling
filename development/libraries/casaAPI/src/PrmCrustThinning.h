@@ -26,7 +26,7 @@ namespace mbapi
    class Model;
 }
 
-/// @page CASA_CrustThinningPage Crust thinning parameter
+/// @page CASA_CrustThinningPage Multi event crust thinning parameter
 /// 
 /// Crust thickness in Cauldron should be defined by a piecewise linear function @f$ D( t ) @f$ 
 /// User must define a sorted by time a sequence of points @f$ [p_0(t_0, d_0), p_1(t_1, d_1), ... ] @f$ .
@@ -35,23 +35,23 @@ namespace mbapi
 /// Then must be defined a series of crust thinning events.
 /// For each event user should define:
 /// -# start time for the thinning event @f$ t_s @f$ [Ma]. The valid range is [0:1000];
-/// -# duration of the thinning event @f$ \delta t = t_e - t_s @\f$ [Ma]. The value must be in range  @f$ 0 < \delta t < t_s @f$ 
+/// -# duration of the thinning event @f$ \delta t = t_e - t_s @f$ [MY]. The value must be in range  @f$ 0 < \delta t < t_s @f$ 
 /// -# crust thinning factor @f$ \sigma @f$  The valid range is [0:1]
 /// -# optional thickness map name
 /// The crust thickness after each event will be equal @f$ d_{n} = d_{n-1} \cdot \sigma @f$ if no map name was specified or
 /// @f$ d_{n} = map_n \cdot \sigma @f$ if map was given for this event.
 ///
-///            t0       t1 t2      t3 t4    t5 t6                                          
-///          --+--------+--+-------+--+-----+--+--->                                        
-///       S0 + *--------*  .       .  .     .  .     t0: S0 - ThickIni                      |     | T0 |  DeltaT | ThinningFct | MapName |
-///  Ev1 [   |           \ .       .  .     .  .     t1: S0                                 | ----|----|---------|:-----------:|---------|
-///       S1 +.  .  .  .Map1-------*  .     .  .     t2: S1 = Map1 * f2                     | Ev1 | t1 | (t2-t1) |     f1      |"Map1"   |
-///      [   |                      \ .     .  .     t3: S1                                 | Ev2 | t3 | (t4-t1) |     f2      | ""      |
-///  Ev2 [   |                       \.     .  .     t4: S2 = S1 * f3 = (Map1 * f2)  * f3   | Ev3 | t5 | (t6-t5) |     f3      |"Map2"   |
-///       S2 +.  .  .  .  .  .  .  .  *-----*  .     t5  S2                              
-///  Ev3 [   |                               \ .     t6  S4 = Map2 * f4                  
-///       S3 +.  .  .  .  .  .  .  .  .  .  . Map2
-///          V
+///              t0       t1 t2      t3 t4    t5 t6                                          
+///            --+--------+--+-------+--+-----+--+--->                                        
+///           S0 + *--------*  .       .  .     .  .     t0: S0 - ThickIni                      |     | T0 |  DeltaT | ThinningFct | MapName |
+///      Ev1 [   |           \ .       .  .     .  .     t1: S0                                 | ----|----|---------|:-----------:|---------|
+///           S1 +.  .  .  .Map1-------*  .     .  .     t2: S1 = Map1 * f2                     | Ev1 | t1 | (t2-t1) |     f1      |"Map1"   |
+///          [   |                      \ .     .  .     t3: S1                                 | Ev2 | t3 | (t4-t1) |     f2      | ""      |
+///      Ev2 [   |                       \.     .  .     t4: S2 = S1 * f3 = (Map1 * f2)  * f3   | Ev3 | t5 | (t6-t5) |     f3      |"Map2"   |
+///           S2 +.  .  .  .  .  .  .  .  *-----*  .     t5  S2                              
+///      Ev3 [   |                               \ .     t6  S4 = Map2 * f4                  
+///           S3 +.  .  .  .  .  .  .  .  .  .  . Map2
+///              V
 ///
 /// Example of crust thinning events sequence
 namespace casa
@@ -71,7 +71,7 @@ namespace casa
       /// @param prmValues array of values: 
       ///          - initial crust thickness [m]
       ///          - sequence of triplets (t0,dT,fct) for the events series
-      /// @param mapNames list of optional maps 
+      /// @param mapsList list of optional maps 
       PrmCrustThinning( const VarPrmCrustThinning * parent, const std::vector<double> & prmValues, const std::vector<std::string> & mapsList );
 
       ///@brief Destructor

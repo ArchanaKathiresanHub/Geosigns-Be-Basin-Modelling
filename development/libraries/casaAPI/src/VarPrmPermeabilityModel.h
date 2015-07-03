@@ -30,7 +30,7 @@ namespace casa
                                                           );
 
       /// @brief Construct variable parameter for variation of permeability model parameters for the layer with specific lithology
-      /// Permeability models and their parameters are described @link CASA_PermeabilityModelPage here. @endlink
+      /// Permeability models and their parameters are described @link CASA_PermeabilityModelPage here @endlink 
       VarPrmPermeabilityModel( const char                                  * lithoName     ///< name of the lithology
                              , PrmPermeabilityModel::PermeabilityModelType   mdlType       ///< perm. model type: None/Impermeable/Sanstone/Mudstone/Multipoint
                              , const std::vector<double>                   & baseModelPrms ///< base case model parameters

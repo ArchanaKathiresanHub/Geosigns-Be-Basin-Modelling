@@ -2,7 +2,7 @@
 <tagfile>
   <compound kind="file">
     <name>cmbAPI.h</name>
-    <path>/scratch/nlskon/cld-dev/Trunk/development/libraries/cmbAPI/src/</path>
+    <path>D:/cauldron/trunk/development/libraries/cmbAPI/src/</path>
     <filename>cmbAPI_8h</filename>
     <includes id="ErrorHandler_8h" name="ErrorHandler.h" local="yes" imported="no">ErrorHandler.h</includes>
     <includes id="LithologyManager_8h" name="LithologyManager.h" local="yes" imported="no">LithologyManager.h</includes>
@@ -18,13 +18,13 @@
   </compound>
   <compound kind="file">
     <name>ErrorHandler.h</name>
-    <path>/scratch/nlskon/cld-dev/Trunk/development/libraries/cmbAPI/src/</path>
+    <path>D:/cauldron/trunk/development/libraries/cmbAPI/src/</path>
     <filename>ErrorHandler_8h</filename>
     <class kind="class">ErrorHandler</class>
   </compound>
   <compound kind="file">
     <name>FluidManager.h</name>
-    <path>/scratch/nlskon/cld-dev/Trunk/development/libraries/cmbAPI/src/</path>
+    <path>D:/cauldron/trunk/development/libraries/cmbAPI/src/</path>
     <filename>FluidManager_8h</filename>
     <includes id="ErrorHandler_8h" name="ErrorHandler.h" local="yes" imported="no">ErrorHandler.h</includes>
     <class kind="class">mbapi::FluidManager</class>
@@ -32,7 +32,7 @@
   </compound>
   <compound kind="file">
     <name>LithologyManager.h</name>
-    <path>/scratch/nlskon/cld-dev/Trunk/development/libraries/cmbAPI/src/</path>
+    <path>D:/cauldron/trunk/development/libraries/cmbAPI/src/</path>
     <filename>LithologyManager_8h</filename>
     <includes id="ErrorHandler_8h" name="ErrorHandler.h" local="yes" imported="no">ErrorHandler.h</includes>
     <class kind="class">mbapi::LithologyManager</class>
@@ -40,7 +40,7 @@
   </compound>
   <compound kind="file">
     <name>MapsManager.h</name>
-    <path>/scratch/nlskon/cld-dev/Trunk/development/libraries/cmbAPI/src/</path>
+    <path>D:/cauldron/trunk/development/libraries/cmbAPI/src/</path>
     <filename>MapsManager_8h</filename>
     <includes id="ErrorHandler_8h" name="ErrorHandler.h" local="yes" imported="no">ErrorHandler.h</includes>
     <class kind="class">mbapi::MapsManager</class>
@@ -48,7 +48,7 @@
   </compound>
   <compound kind="file">
     <name>PropertyManager.h</name>
-    <path>/scratch/nlskon/cld-dev/Trunk/development/libraries/cmbAPI/src/</path>
+    <path>D:/cauldron/trunk/development/libraries/cmbAPI/src/</path>
     <filename>PropertyManager_8h</filename>
     <includes id="ErrorHandler_8h" name="ErrorHandler.h" local="yes" imported="no">ErrorHandler.h</includes>
     <class kind="class">mbapi::PropertyManager</class>
@@ -56,7 +56,7 @@
   </compound>
   <compound kind="file">
     <name>SnapshotManager.h</name>
-    <path>/scratch/nlskon/cld-dev/Trunk/development/libraries/cmbAPI/src/</path>
+    <path>D:/cauldron/trunk/development/libraries/cmbAPI/src/</path>
     <filename>SnapshotManager_8h</filename>
     <includes id="ErrorHandler_8h" name="ErrorHandler.h" local="yes" imported="no">ErrorHandler.h</includes>
     <class kind="class">mbapi::SnapshotManager</class>
@@ -64,7 +64,7 @@
   </compound>
   <compound kind="file">
     <name>SourceRockManager.h</name>
-    <path>/scratch/nlskon/cld-dev/Trunk/development/libraries/cmbAPI/src/</path>
+    <path>D:/cauldron/trunk/development/libraries/cmbAPI/src/</path>
     <filename>SourceRockManager_8h</filename>
     <includes id="ErrorHandler_8h" name="ErrorHandler.h" local="yes" imported="no">ErrorHandler.h</includes>
     <class kind="class">mbapi::SourceRockManager</class>
@@ -72,7 +72,7 @@
   </compound>
   <compound kind="file">
     <name>StratigraphyManager.h</name>
-    <path>/scratch/nlskon/cld-dev/Trunk/development/libraries/cmbAPI/src/</path>
+    <path>D:/cauldron/trunk/development/libraries/cmbAPI/src/</path>
     <filename>StratigraphyManager_8h</filename>
     <includes id="ErrorHandler_8h" name="ErrorHandler.h" local="yes" imported="no">ErrorHandler.h</includes>
     <class kind="class">mbapi::StratigraphyManager</class>
@@ -80,7 +80,7 @@
   </compound>
   <compound kind="file">
     <name>UndefinedValues.h</name>
-    <path>/scratch/nlskon/cld-dev/Trunk/development/libraries/cmbAPI/src/</path>
+    <path>D:/cauldron/trunk/development/libraries/cmbAPI/src/</path>
     <filename>UndefinedValues_8h</filename>
     <member kind="define">
       <type>#define</type>
@@ -670,6 +670,55 @@
     <name>mbapi::Model</name>
     <filename>classmbapi_1_1Model.html</filename>
     <base>ErrorHandler</base>
+    <member kind="enumeration">
+      <type></type>
+      <name>ProjectTableColumnDataType</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>a7a5b549286d48303fd40115064a087e8</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <type>@</type>
+      <name>Bool</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>a7a5b549286d48303fd40115064a087e8a4def3e0e73ba5a12e557106059b6b37a</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <type>@</type>
+      <name>Int</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>a7a5b549286d48303fd40115064a087e8a816ee46011aaaedef4b3fd853ea52fa4</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <type>@</type>
+      <name>Long</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>a7a5b549286d48303fd40115064a087e8a343a8865c7ea93cb1d420e64ff6b82f6</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <type>@</type>
+      <name>Float</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>a7a5b549286d48303fd40115064a087e8a9c1742f9f18bf3f7111967fd3760c6e3</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <type>@</type>
+      <name>Double</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>a7a5b549286d48303fd40115064a087e8ae818507ab1b01095a232a8e81a8c68da</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <type>@</type>
+      <name>String</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>a7a5b549286d48303fd40115064a087e8a3bca3f8003eb4f92ab22e41570eac382</anchor>
+      <arglist></arglist>
+    </member>
     <member kind="function">
       <type></type>
       <name>Model</name>
@@ -685,6 +734,13 @@
       <arglist>()</arglist>
     </member>
     <member kind="function">
+      <type>std::string</type>
+      <name>compareProject</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>ab195105149d6f9e12a8a50435bccd515</anchor>
+      <arglist>(Model &amp;mdl1, const std::set&lt; std::string &gt; &amp;compareTblsList, const std::set&lt; std::string &gt; &amp;ignoreTblsList, double relTol)</arglist>
+    </member>
+    <member kind="function">
       <type>Model &amp;</type>
       <name>operator=</name>
       <anchorfile>classmbapi_1_1Model.html</anchorfile>
@@ -692,11 +748,39 @@
       <arglist>(const Model &amp;otherModel)</arglist>
     </member>
     <member kind="function">
+      <type>ErrorHandler::ReturnCode</type>
+      <name>tableSort</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>a9888ebb6f5146eb5e61faa87d36a9e54</anchor>
+      <arglist>(const std::string &amp;tblName, const std::vector&lt; std::string &gt; &amp;colsName)</arglist>
+    </member>
+    <member kind="function">
+      <type>std::vector&lt; std::string &gt;</type>
+      <name>tablesList</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>ae542e860b4334c9eb286323fcd90c1a6</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>std::vector&lt; std::string &gt;</type>
+      <name>tableColumnsList</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>aad56d43498f5900dad24ccb5ca673225</anchor>
+      <arglist>(const std::string &amp;tableName, std::vector&lt; ProjectTableColumnDataType &gt; &amp;colDataTypes)</arglist>
+    </member>
+    <member kind="function">
       <type>int</type>
       <name>tableSize</name>
       <anchorfile>classmbapi_1_1Model.html</anchorfile>
       <anchor>abfbcac1ce060100240c7f866623ae1ce</anchor>
       <arglist>(const std::string &amp;tableName)</arglist>
+    </member>
+    <member kind="function">
+      <type>long</type>
+      <name>tableValueAsInteger</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>ae26a07b62306ed91296314afddf2a5ed</anchor>
+      <arglist>(const std::string &amp;tableName, size_t rowNumber, const std::string &amp;propName)</arglist>
     </member>
     <member kind="function">
       <type>double</type>
@@ -716,8 +800,8 @@
       <type>ErrorHandler::ReturnCode</type>
       <name>setTableValue</name>
       <anchorfile>classmbapi_1_1Model.html</anchorfile>
-      <anchor>ab993aa631d3ceb0a2179c5bc78a841b4</anchor>
-      <arglist>(const std::string &amp;tableName, size_t rowNumber, const std::string &amp;propName, int propValue)</arglist>
+      <anchor>abb3282fff42e86f1020e43fc5428bd2f</anchor>
+      <arglist>(const std::string &amp;tableName, size_t rowNumber, const std::string &amp;propName, long propValue)</arglist>
     </member>
     <member kind="function">
       <type>ErrorHandler::ReturnCode</type>
@@ -760,6 +844,13 @@
       <anchorfile>classmbapi_1_1Model.html</anchorfile>
       <anchor>a248aa16548ae2a96bfde997bdf4f5020</anchor>
       <arglist>(const char *projectFileName)</arglist>
+    </member>
+    <member kind="function">
+      <type>std::string</type>
+      <name>projectFileName</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>a912fec559a672a5625a029eea2278a22</anchor>
+      <arglist>()</arglist>
     </member>
     <member kind="function">
       <type>StratigraphyManager &amp;</type>
