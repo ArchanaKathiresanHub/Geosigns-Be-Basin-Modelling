@@ -7,14 +7,14 @@
 namespace migration {
 
 // Biodegradation processing: compute the weight lost
-void Biodegrade::calculate(const double& timeInterval, const double& T_C, 
+void Biodegrade::calculate(const double& timeInterval, const double& temperatureTrap, 
    const double* input, double* lost) const
 {
    assert(timeInterval > 0.0);
 
-   if (T_C > m_maxBioTemp) // condition for biodegradation to happen
+   if (temperatureTrap > m_maxBioTemp) // condition for biodegradation to happen
       return;
-   if (T_C < 0.0) // assess that biodegradation doesn't happen below 0°C (due to the living bugs)
+   if (temperatureTrap < 0.0) // assess that biodegradation doesn't happen below 0°C (due to the living bugs)
       return;
    if (m_timeFactor < 0.0) // narrow the range allowed for this parameter
    {
@@ -31,7 +31,7 @@ void Biodegrade::calculate(const double& timeInterval, const double& T_C,
       }
       
       // Calculate the weight reduction factors by biodegradation:
-      double bigT = pow((m_maxBioTemp - T_C) / m_maxBioTemp, m_bioConsts[compIdx]);
+      double bigT = pow((m_maxBioTemp - temperatureTrap) / m_maxBioTemp, m_bioConsts[compIdx]);
       double degradeFactor = pow ((1.0 - bigT), (timeInterval * m_timeFactor));
 
       if (degradeFactor < 0.0)

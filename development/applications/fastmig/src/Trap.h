@@ -191,7 +191,7 @@ namespace migration
    * This thickness is determined thanks to a coefficient (ex: 3m/10Myr) and the \param timeInterval
    * \return The fraction of volume in the trap impacted by biodegradation (from 0 to 1)
    */
-   double computeFractionVolumeBiodegraded(const double& timeInterval);
+   double computeFractionVolumeBiodegraded(const double timeInterval);
 
    /*!
    * \brief Compute the temperature at the hydrocarbon - water contact (in °C)

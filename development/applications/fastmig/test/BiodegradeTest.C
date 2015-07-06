@@ -66,7 +66,7 @@ TEST(Biodegrade, biodegradation_computation_synthetic_data)
 }
 
 
-// This test checks the biodegradation computation with real data from a trap of the Marmul project
+// This test checks the biodegradation computation with more realistic data
 TEST(Biodegrade, biodegradation_computation_real_data)
 {
    double inputComponents[NumComponents] = { 6.73855E-06, 0.000243952, 0.000112903, 0.002650752, 2.52951E-05, 4.07030506, 3.488207916, 87.12728357, 

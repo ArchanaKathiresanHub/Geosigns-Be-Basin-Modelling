@@ -152,7 +152,7 @@ void Composition::setVolume (const double& volume)
 }
 
 void Composition::computeBiodegradation(const double& timeInterval, const double& temperature,
-   const Biodegrade& biodegrade, Composition& compositionLost, double& fractionVolumeBiodegraded) const
+   const Biodegrade& biodegrade, Composition& compositionLost, const double fractionVolumeBiodegraded) const
 {
    double inputComponents[NumComponents];
    double lostComponents[NumComponents];

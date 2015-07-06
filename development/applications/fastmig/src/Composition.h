@@ -71,7 +71,7 @@ namespace migration
       void subtractFraction (const Composition & composition, double fraction);
 
       void computeBiodegradation(const double& timeInterval, const double& temperature,
-         const Biodegrade& biodegrade, Composition& compositionLost, double& fractionVolumeBiodegraded) const;
+         const Biodegrade& biodegrade, Composition& compositionLost, const double fractionVolumeBiodegraded) const;
 
       void computeDiffusionLeakages(const double& diffusionStartTime, const double & intervalStartTime, const double & intervalEndTime, const vector<double>& solubilities, 
          const double& surfaceArea, vector<DiffusionLeak*>& diffusionLeaks, const double& gorm, 
