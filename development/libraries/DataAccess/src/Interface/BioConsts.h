@@ -1,6 +1,7 @@
 #ifndef _DISTRIBUTEDDATAACCESS_BIOCONSTS_H_
 #define _DISTRIBUTEDDATAACCESS_BIOCONSTS_H_
 
+#include <iostream>
 #include <vector>
 #include <assert.h>
 
@@ -27,6 +28,16 @@ namespace DataAccess {
          double operator[]( int index ) const
          {
             assert( index >= 0 && index < (int)m_bioConsts.size() );
+            if (m_bioConsts[index] < 0.0)
+            {
+               cerr << "Warning: the biodegradation coefficient of the component " << index << " is negative: " << m_bioConsts[index] << ". No biodegradation computed for this component" << endl;
+               return -199999;
+            }
+            if (m_tempFactor < 0.0)
+            {
+               cerr << "Warning: The temperature factor coefficient used for biodegradation is negative: " << m_tempFactor << ". No biodegradation computed" << endl;
+               return 199999;
+            }
             return m_bioConsts[ index ] * m_tempFactor;
          }
       };

@@ -92,6 +92,7 @@ TEST(Biodegrade, biodegradation_computation_real_data)
 }
 
 
+
 // This test checks the trend impact of each variable of the equation
 // (the trap temperature, the temperature Factor (FT), the time Factor (Ft), the time Interval (Myr) and the Biodegradation coefficients (FBi))
 TEST(Biodegrade, biodegradation_computation_variable_trend)
@@ -203,6 +204,85 @@ TEST(Biodegrade, biodegradation_computation_variable_trend)
 }
 
 
+
+// This test evaluates the out-range values for the biodegradation coefficients
+TEST(Biodegrade, biodegradation_computation_biodegradation_coeff_extreme)
+{
+   // Negative values => no biodegradation
+   for (component = 0; component < NumComponents; ++component)
+   {
+      inputComponents[component] = 100.0;
+      lostComponents[component] = 0.0;
+   }
+
+   const double myconstBio2[] = { -0.1, -0.061, -0.05, -0.011, -0.007, -0.009, -0.001, -0.0008, -0.0003, -0.0005, -0.0008, -1, -0.001 };
+   std::vector<double> constBio(myconstBio2, myconstBio2 + sizeof(myconstBio2) / sizeof(double));
+   BioConsts bioConsts2 = BioConsts(70.0, constBio);
+   Biodegrade myBiodegrade2 = Biodegrade(80.0, bioConsts2, 0.5);
+   myBiodegrade2.calculate(1, 55.0, inputComponents, lostComponents);
+
+   for (component = 0; component < NumComponents; ++component)
+   {
+      EXPECT_DOUBLE_EQ(0.0, lostComponents[component]);
+   }
+
+   // Biodegradation coefficient of "0" => perfect biodegradation
+   for (component = 0; component < NumComponents; ++component)
+   {
+      inputComponents[component] = 100.0;
+      lostComponents[component] = 0.0;
+   }
+
+   const double myconstBio3[] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+   std::vector<double> constBio2(myconstBio3, myconstBio3 + sizeof(myconstBio3) / sizeof(double));
+   bioConsts2 = BioConsts(70.0, constBio2);
+   myBiodegrade2 = Biodegrade(80.0, bioConsts2, 0.5);
+   myBiodegrade2.calculate(1, 55.0, inputComponents, lostComponents);
+
+   for (component = 0; component < 13; ++component)
+   {
+      EXPECT_DOUBLE_EQ(100.0, lostComponents[component]);
+   }
+
+   // Biodegradation coefficient of "1" => no biodegradation
+   for (component = 0; component < 13; ++component)
+   {
+      inputComponents[component] = 100.0;
+      lostComponents[component] = 0.0;
+   }
+
+   const double myconstBio4[] = { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 };
+   std::vector<double> constBio3(myconstBio4, myconstBio4 + sizeof(myconstBio4) / sizeof(double));
+   bioConsts2 = BioConsts(70.0, constBio3);
+   myBiodegrade2 = Biodegrade(80.0, bioConsts2, 0.5);
+   myBiodegrade2.calculate(1, 55.0, inputComponents, lostComponents);
+
+   for (component = 0; component < 13; ++component)
+   {
+      EXPECT_DOUBLE_EQ(0.0, lostComponents[component]);
+   }
+
+   // Biodegradation coefficient > "1" => no biodegradation
+   for (component = 0; component < NumComponents; ++component)
+   {
+      inputComponents[component] = 100.0;
+      lostComponents[component] = 0.0;
+   }
+
+   const double myconstBio5[] = { 2.0, 4.0, 6.0, 1000.0, 25.0, 1.00001, 10.0, 8725.0, 254.0, 17.5, 15.0, 75.0, 1572857872742.0 };
+   std::vector<double> constBio4(myconstBio5, myconstBio5 + sizeof(myconstBio5) / sizeof(double));
+   bioConsts2 = BioConsts(70.0, constBio4);
+   myBiodegrade2 = Biodegrade(80.0, bioConsts2, 0.5);
+   myBiodegrade2.calculate(1, 55.0, inputComponents, lostComponents);
+
+   for (component = 0; component < NumComponents; ++component)
+   {
+      EXPECT_DOUBLE_EQ(0.0, lostComponents[component]);
+   }
+}
+
+
+
 // This test evaluates the out-range values: no mass for the input components
 TEST(Biodegrade, biodegradation_computation_no_input_mass)
 {
@@ -218,28 +298,185 @@ TEST(Biodegrade, biodegradation_computation_no_input_mass)
    for (component = 0; component < NumComponents; ++component)
    {
       EXPECT_DOUBLE_EQ(0.0, lostComponents[component]);
-   }
-   
+   }   
 }
 
-// This test evaluates the out-range values: try to biodegrade more mass than what is inside the trap
-TEST(Biodegrade, biodegradation_computation_overbiodegrade_boundary)
+
+
+// This test evaluates the out-range values for the time factor
+TEST(Biodegrade, biodegradation_computation_time_factor_extreme)
 {
+   // Small positive value
    for (component = 0; component < NumComponents; ++component)
    {
       inputComponents[component] = 100.0;
       lostComponents[component] = 0.0;
    }
 
-   Biodegrade myBiodegrade = Biodegrade(80.0, bioConsts, 1);
-   myBiodegrade.calculate(1.0, -10, inputComponents, lostComponents);
+   Biodegrade myBiodegrade = Biodegrade(80.0, bioConsts, 0.0001);
+   myBiodegrade.calculate(0.1, 65.0, inputComponents, lostComponents);
+
+   double expectedResults[NumComponents] = { 0.00000000814724, 0.00000078683973, 0.00000285841311, 0.00032235126544, 0.00058039240833, 0.00042821596684, 0.00220205102276, 
+      0.00241367777771, 0.00336549957570, 0.00286631580669, 0.00241367777771, 100.0, 0.00220205102276, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+
+   for (component = 0; component < NumComponents; ++component)
+   {
+      EXPECT_NEAR(expectedResults[component], lostComponents[component], 1e-11);
+   }
+
+   // Hight positive value
+   for (component = 0; component < NumComponents; ++component)
+   {
+      inputComponents[component] = 100.0;
+      lostComponents[component] = 0.0;
+   }
+
+   myBiodegrade = Biodegrade(80.0, bioConsts, 100000);   
+   myBiodegrade.calculate(0.1, 65.0, inputComponents, lostComponents);
+
+   double expectedResults2[NumComponents] = { 7.82418782834847, 99.96173528596960, 99.99999999996140, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+   
+   for (component = 0; component < NumComponents; ++component)
+   {
+      EXPECT_NEAR(expectedResults2[component], lostComponents[component], 1e-11);
+   }
+
+   // Time factor == 0
+   for (component = 0; component < NumComponents; ++component)
+   {
+      inputComponents[component] = 100.0;
+      lostComponents[component] = 0.0;
+   }
+
+   myBiodegrade = Biodegrade(80.0, bioConsts, 0.0);
+   myBiodegrade.calculate(0.1, 65.0, inputComponents, lostComponents);
+
+   for (component = 0; component < NumComponents; ++component)
+   {
+      EXPECT_DOUBLE_EQ(0.0, lostComponents[component]);
+   }
+
+   // Small negative value
+   for (component = 0; component < NumComponents; ++component)
+   {
+      inputComponents[component] = 100.0;
+      lostComponents[component] = 0.0;
+   }
+
+   myBiodegrade = Biodegrade(80.0, bioConsts, -0.0000001);
+   myBiodegrade.calculate(0.1, 65.0, inputComponents, lostComponents);
+
+   for (component = 0; component < NumComponents; ++component)
+   {
+      EXPECT_DOUBLE_EQ(0.0, lostComponents[component]);
+   }
+
+   // High negative value
+   for (component = 0; component < NumComponents; ++component)
+   {
+      inputComponents[component] = 100.0;
+      lostComponents[component] = 0.0;
+   }
+
+   myBiodegrade = Biodegrade(80.0, bioConsts, -200000);
+   myBiodegrade.calculate(0.1, 65.0, inputComponents, lostComponents);
+
+   for (component = 0; component < NumComponents; ++component)
+   {
+      EXPECT_DOUBLE_EQ(0.0, lostComponents[component]);
+   }
+}
+
+
+
+// This test evaluates the out-range values for the temperature factor
+TEST(Biodegrade, biodegradation_computation_temperature_factor_extreme)
+{
+   // Small positive value
+   for (component = 0; component < NumComponents; ++component)
+   {
+      inputComponents[component] = 100.0;
+      lostComponents[component] = 0.0;
+   }
+
+   BioConsts bioConsts1 = BioConsts(0.000001, constBio);
+   Biodegrade myBiodegrade1 = Biodegrade(80.0, bioConsts1, 0.5);
+   myBiodegrade1.calculate(0.1, 55.0, inputComponents, lostComponents);
+
+   double expectedResults[NumComponents] = { 54.99282023156210, 56.09153120618890, 56.52592993697070, 59.69569511642810, 60.59632728828810, 60.09806777532430, 64.24952625930910, 64.64618369700500, 66.33815919236100,
+      65.46731847278640, 64.64618369700500, 100.0, 64.24952625930910, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+
+   for (component = 0; component < NumComponents; ++component)
+   {
+      EXPECT_NEAR(expectedResults[component], lostComponents[component], 1e-11);
+   }
+
+   // Hight positive value
+   for (component = 0; component < NumComponents; ++component)
+   {
+      inputComponents[component] = 100.0;
+      lostComponents[component] = 0.0;
+   }
+
+   bioConsts1 = BioConsts(100000, constBio);
+   myBiodegrade1 = Biodegrade(80.0, bioConsts1, 0.5);
+   myBiodegrade1.calculate(0.1, 55.0, inputComponents, lostComponents);
+
+   for (component = 0; component < 13; ++component) // only the 13 first components with BioConst are interesting here
+   {
+      if (component!=11)
+         EXPECT_DOUBLE_EQ(0.0, lostComponents[component]);
+   }
+
+   // Temperature factor == 0
+   for (component = 0; component < 13; ++component)
+   {
+      inputComponents[component] = 100.0;
+      lostComponents[component] = 0.0;
+   }
+
+   bioConsts1 = BioConsts(0.0, constBio);
+   myBiodegrade1 = Biodegrade(80.0, bioConsts1, 0.5);
+   myBiodegrade1.calculate(0.1, 55.0, inputComponents, lostComponents);
 
    for (component = 0; component < 13; ++component) // only the 13 first components with BioConst are interesting here
    {
       EXPECT_DOUBLE_EQ(100, lostComponents[component]);
    }
 
+   // Small negative value
+   for (component = 0; component < NumComponents; ++component)
+   {
+      inputComponents[component] = 100.0;
+      lostComponents[component] = 0.0;
+   }
+
+   bioConsts1 = BioConsts(-0.00001, constBio);
+   myBiodegrade1 = Biodegrade(80.0, bioConsts1, 1.0);
+   myBiodegrade1.calculate(1.0, 55.0, inputComponents, lostComponents);
+
+   for (component = 0; component < 13; ++component) // only the 13 first components with BioConst are interesting here
+   {
+      EXPECT_DOUBLE_EQ(0.0, lostComponents[component]);
+   }
+
+   // High negative value
+   for (component = 0; component < NumComponents; ++component)
+   {
+      inputComponents[component] = 100.0;
+      lostComponents[component] = 0.0;
+   }
+
+   bioConsts1 = BioConsts(-100000, constBio);
+   myBiodegrade1 = Biodegrade(80.0, bioConsts1, 1.0);
+   myBiodegrade1.calculate(1.0, 55.0, inputComponents, lostComponents);
+
+   for (component = 0; component < 13; ++component) // only the 13 first components with BioConst are interesting here
+   {
+      EXPECT_DOUBLE_EQ(0.0, lostComponents[component]);
+   }
 }
+
 
 
 // Evaluation of the CO2 comportement: perfect biodegradation (for now)
@@ -254,12 +491,12 @@ TEST(Biodegrade, biodegradation_CO2_comportement)
    Biodegrade myBiodegrade = Biodegrade(80.0, bioConsts, 0.5);
    myBiodegrade.calculate(0.000001, 79.9, inputComponents, lostComponents);
    EXPECT_DOUBLE_EQ(100.0, lostComponents[11]);
-
 }
 
 
+
 // This test evaluates: If the temperature of the trap is greater than the maximum temperature allowed for biodegradation, there should be no biodegradation
-TEST(Biodegrade, biodegradation_Temperature_too_hot)
+TEST(Biodegrade, biodegradation_temperature_too_hot)
 {
    for (component = 0; component < NumComponents; ++component)
    {
@@ -274,6 +511,87 @@ TEST(Biodegrade, biodegradation_Temperature_too_hot)
       EXPECT_DOUBLE_EQ(0.0, lostComponents[component]);
    }
 }
+
+
+
+// This test evaluates the out-range values for the temperature of the trap
+TEST(Biodegrade, biodegradation_trap_temperature_extreme)
+{
+   // Temperature of the trap < 0 & Max Bio Temp > 0
+   for (component = 0; component < NumComponents; ++component)
+   {
+      inputComponents[component] = 100;
+      lostComponents[component] = 0.0;
+   }
+   Biodegrade myBiodegrade = Biodegrade(80.0, bioConsts, 0.5);
+   myBiodegrade.calculate(5.0, -10.0, inputComponents, lostComponents);
+
+   for (component = 0; component < NumComponents; ++component)
+   {
+      EXPECT_DOUBLE_EQ(0.0, lostComponents[component]);
+   }
+
+   // Trap temperature and maximum temperature allowed for biodegradation very high (T_max > T_trap)
+   for (component = 0; component < NumComponents; ++component)
+   {
+      inputComponents[component] = 100;
+      lostComponents[component] = 0.0;
+   }
+   myBiodegrade = Biodegrade(250000.0, bioConsts, 0.5);
+   myBiodegrade.calculate(500.0, 200000.0, inputComponents, lostComponents);
+
+   double expectedResults[NumComponents] = { 0.31949058717070, 22.82982485735640, 59.18134658409860, 100.0, 100.0, 100.0,
+      100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+
+   for (component = 0; component < NumComponents; ++component)
+   {
+      EXPECT_NEAR(expectedResults[component], lostComponents[component], 1e-11);
+   }
+
+   // Trap temperature and maximum temperature allowed for biodegradation very low (no biodegradation: T_max < T_trap)
+   for (component = 0; component < NumComponents; ++component)
+   {
+      inputComponents[component] = 100;
+      lostComponents[component] = 0.0;
+   }
+   myBiodegrade = Biodegrade(-350000.0, bioConsts, 0.5);
+   myBiodegrade.calculate(1.0, -200000.0, inputComponents, lostComponents);
+
+   for (component = 0; component < NumComponents; ++component)
+   {
+      EXPECT_DOUBLE_EQ(0.0, lostComponents[component]);
+   }
+
+   // Trap temperature and maximum temperature allowed for biodegradation very low (with biodegradation: T_max > T_trap)
+   for (component = 0; component < NumComponents; ++component)
+   {
+      inputComponents[component] = 100;
+      lostComponents[component] = 0.0;
+   }
+   myBiodegrade = Biodegrade(-250000.0, bioConsts, 0.5);
+   myBiodegrade.calculate(1.0, -300000.0, inputComponents, lostComponents);
+
+   for (component = 0; component < NumComponents; ++component)
+   {
+      EXPECT_DOUBLE_EQ(0.0, lostComponents[component]);
+   }
+
+   // The maximal biodegradation temperature is negative and the trap temperature positive.
+   // There should be no biodegradation then (T_max < T_trap)
+   for (component = 0; component < NumComponents; ++component)
+   {
+      inputComponents[component] = 100;
+      lostComponents[component] = 0.0;
+   }
+   myBiodegrade = Biodegrade(-200.0, bioConsts, 0.5);
+   myBiodegrade.calculate(1.0, 55.0, inputComponents, lostComponents);
+
+   for (component = 0; component < NumComponents; ++component)
+   {
+      EXPECT_DOUBLE_EQ(0.0, lostComponents[component]);
+   }
+}
+
 
 
 // This test evaluates the comportement of the assert: assert(timeInterval > 0.0)
