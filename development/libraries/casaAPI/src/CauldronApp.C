@@ -89,6 +89,7 @@ namespace casa
          pushDefaultEnv( "GENEXDIR",   (ibs::FolderPath( miscPath ) << "genex40").path() );
          pushDefaultEnv( "GENEX5DIR",  (ibs::FolderPath( miscPath ) << "genex50").path() );
          pushDefaultEnv( "GENEX6DIR",  (ibs::FolderPath( miscPath ) << "genex60").path() );
+         pushDefaultEnv( "CTCDIR",     (ibs::FolderPath( miscPath )             ).path() );
       }
       else if ( appName == "fastmig" )
       {
@@ -119,6 +120,7 @@ namespace casa
       }
       else if ( appName == "track1d" )
       {
+         pushDefaultEnv( "CTCDIR",     (ibs::FolderPath( miscPath )             ).path() );
          pushDefaultEnv( "EOSPACKDIR", (ibs::FolderPath( miscPath ) << "eospack").path() );
          m_outputOpt = "| sed '1,4d' > track1d_results.csv";
       }
@@ -272,9 +274,11 @@ namespace casa
             if ( !miscPath.exists() )
             {
                miscPath = appPath;
+               miscPath.cutLast(); // cut application name
                miscPath << ".." << ".." << "misc";
+
             }
-            oss << "CAULDRON_MISC_PATH=" << miscPath.path() << "\n";
+            oss << "CAULDRON_MISC_PATH=" << miscPath.fullPath().path() << "\n";
             oss << "APP=" << appPath.path() << '\n';
          }
 

@@ -170,8 +170,10 @@ ErrorHandler::ReturnCode PropertyManagerImpl::copyResultsFiles( const std::strin
          if ( newResFile.exists() ) throw Exception( IoError ) << "Copy results files failed: file already exists: " << newResFile.path();
          
          bool copied = true;
-         if (      !(*it).compare( 0, 5,  "Time_", 0, 5 ) )                           { copied = oldResFile.linkFile( newResFile.fullPath() ); } // for Time_*.h5 files make only links
+         // for Time_*.h5/*_Results files make only links
+         if (      !(*it).compare( 0, 5,  "Time_", 0, 5 ) )                           { copied = oldResFile.linkFile( newResFile.fullPath() ); } 
          else if ( !(*it).compare( 0, 25, "HydrostaticTemperature_Results", 0, 25 ) ) { copied = oldResFile.linkFile( newResFile.fullPath() ); } 
+         else if ( !(*it).compare( 0, 25, "PressureAndTemperature_Results", 0, 25 ) ) { copied = oldResFile.linkFile( newResFile.fullPath() ); } 
          else                                                                         { copied = oldResFile.copyFile( newResFile.fullPath() ); }
 
          if ( !copied ) throw Exception( IoError )  << "Can't copy file: " << oldResFile.path() << " to " << newResFile.path();
