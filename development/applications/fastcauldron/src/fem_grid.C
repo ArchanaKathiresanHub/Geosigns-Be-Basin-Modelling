@@ -3395,24 +3395,31 @@ void Basin_Modelling::FEM_Grid::Store_Computed_Deposition_Thickness ( const doub
   int Z_Count;
 
   Layer_Iterator Layers ( basinModel -> layers, Descending, Sediments_Only, Active_Layers_Only );
-  LayerProps_Ptr Current_Layer = Layers.Current_Layer ();
-  // Is this the best number to have here? I think so, but cannot prove it.
-  // The snapshot times, time step, ... are written out (perhaps read in too) 
-  // as a float, but stored and used as doubles.
-  const double Float_Epsilon = pow ( 2.0, -23 ); 
+ 
+   // Most of the time only the first layer has to be treated. However, for igneous intrusion and mobile layers,
+   // the time step of deposition can be zero, which means that two layers are deposited at the same time
+   // hence the for loop and the "if (!condition) break";
+   for (Layers.Initialise_Iterator (); ! Layers.Iteration_Is_Done (); Layers.Next() )
+   {
 
-  if ( fabs ( Current_Time - Current_Layer -> depoage ) < NumericFunctions::Maximum ( Current_Time, 1.0 ) * Float_Epsilon ) {
+      LayerProps_Ptr Current_Layer = Layers.Current_Layer ();
+      // Is this the best number to have here? I think so, but cannot prove it.
+      // The snapshot times, time step, ... are written out (perhaps read in too) 
+      // as a float, but stored and used as doubles.
+      const double Float_Epsilon = pow ( 2.0, -23 ); 
 
-     const Boolean2DArray& Valid_Needle = basinModel->getValidNeedles ();
+      if ( fabs ( Current_Time - Current_Layer -> depoage ) >= NumericFunctions::Maximum ( Current_Time, 1.0 ) * Float_Epsilon ) break;
 
-    DMCreateGlobalVector ( *basinModel->mapDA, &(Current_Layer -> Computed_Deposition_Thickness) );
+      const Boolean2DArray& Valid_Needle = basinModel->getValidNeedles ();
 
-    PETSC_2D_Array Computed_Deposition_Thickness ( *basinModel->mapDA, 
+      DMCreateGlobalVector ( *basinModel->mapDA, &(Current_Layer -> Computed_Deposition_Thickness) );
+
+      PETSC_2D_Array Computed_Deposition_Thickness ( *basinModel->mapDA, 
 						   Current_Layer -> Computed_Deposition_Thickness );
 
-    DMDAGetCorners ( Current_Layer->layerDA, &X_Start, &Y_Start, &Z_Start, &X_Count, &Y_Count, &Z_Count );
-    X_End = X_Start + X_Count;
-    Y_End = Y_Start + Y_Count;
+      DMDAGetCorners ( Current_Layer->layerDA, &X_Start, &Y_Start, &Z_Start, &X_Count, &Y_Count, &Z_Count );
+      X_End = X_Start + X_Count;
+      Y_End = Y_Start + Y_Count;
 
     if ( basinModel->isGeometricLoop ()) {
 
