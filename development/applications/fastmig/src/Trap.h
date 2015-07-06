@@ -195,7 +195,7 @@ namespace migration
 
    /*!
    * \brief Compute the temperature at the hydrocarbon - water contact (in °C)
-   * This function makes an interpolation between the top and the bottom temperature of a column
+   * \details This function makes an interpolation between the top and the bottom temperature of a column
    * in order to find the temperature around the hydrocarbon - water contact
    * \return The interpolated temperature at the hydrocarbon - water contact (in °C)
    */
@@ -211,28 +211,28 @@ namespace migration
             const_iterator& begin, vector<FormationSurfaceGridMaps>::const_iterator& end) const;
 
 	 // Methods used for diffusion leakage calculation:
-	 bool computeDiffusionOverburden(const SurfaceGridMapContainer& fullOverburden,
-	    const Interface::Snapshot* snapshot, const double& maxSealThickness, int maxFormations);
-         bool computeSealFluidDensity(const SurfaceGridMapContainer& fullOverburden, 
-            const Snapshot* snapshot, bool& sealPresent, double& sealFluidDensity) const;
-	 bool computeDiffusionOverburdenImpl(const SurfaceGridMapContainer& fullOverburden,
-	    const Snapshot* snapshot, const double& maxSealThickness, int maxFormations,
-	    vector<DiffusionLeak::OverburdenProp>& diffusionOverburdenProps) const;
+   bool computeDiffusionOverburden(const SurfaceGridMapContainer& fullOverburden,
+      const Interface::Snapshot* snapshot, const double& maxSealThickness, int maxFormations);
+   bool computeSealFluidDensity(const SurfaceGridMapContainer& fullOverburden, 
+      const Snapshot* snapshot, bool& sealPresent, double& sealFluidDensity) const;
+   bool computeDiffusionOverburdenImpl(const SurfaceGridMapContainer& fullOverburden,
+      const Snapshot* snapshot, const double& maxSealThickness, int maxFormations,
+      vector<DiffusionLeak::OverburdenProp>& diffusionOverburdenProps) const;
 
 	 void diffusionLeakCharges(const double& intervalStartTime, const double & intervalEndTime,
 	       const Interface::DiffusionLeakageParameters* 
 	       parameters, const double& maxTimeStep, const double& maxFluxError);
 
 	 /// Methods used for seal failure calculations:
-         bool computeDistributionParameters(const Interface::FracturePressureFunctionParameters* 
-	    parameters, const SurfaceGridMapContainer& fullOverburden, const Interface::Snapshot* snapshot);
-	 bool computeSealPressureLeakParametersImpl(const Interface::FracturePressureFunctionParameters* 
-	    fracturePressureParameters, const SurfaceGridMapContainer& fullOverburden, const Snapshot* snapshot,
-            bool& sealPresent, double& fracPressure, double& sealFluidDensity, vector<translateProps::
-            CreateCapillaryLithoProp::output>& lithProps, vector<double>& lithFracs, CBMGenerics::capillarySealStrength::
-            MixModel& mixModel, double& permeability) const;
-	 bool computeForFunctionOfLithostaticPressure(const SurfaceGridMapContainer& fullOverburden,
-	    const Formation* formation, const vector<double>& lithFracs, double& fracPressure) const;
+   bool computeDistributionParameters(const Interface::FracturePressureFunctionParameters* 
+      parameters, const SurfaceGridMapContainer& fullOverburden, const Interface::Snapshot* snapshot);
+   bool computeSealPressureLeakParametersImpl(const Interface::FracturePressureFunctionParameters* 
+      fracturePressureParameters, const SurfaceGridMapContainer& fullOverburden, const Snapshot* snapshot,
+      bool& sealPresent, double& fracPressure, double& sealFluidDensity, vector<translateProps::
+      CreateCapillaryLithoProp::output>& lithProps, vector<double>& lithFracs, CBMGenerics::capillarySealStrength::
+      MixModel& mixModel, double& permeability) const;
+   bool computeForFunctionOfLithostaticPressure(const SurfaceGridMapContainer& fullOverburden,
+      const Formation* formation, const vector<double>& lithFracs, double& fracPressure) const;
 
 	 bool distributeCharges (void);
 
@@ -283,77 +283,77 @@ namespace migration
 	 void setFillDepth (PhaseId phase, double fillDepth);
 	 double getFillDepth (PhaseId phase);
 
-    /*!
-    * \brief Compute the Hydrocarbon - Water contact depth
-    * \return The absolute depth of the hydrocarbon - water contact (from the surface)
-    */
-    double computeHydrocarbonWaterContactDepth(void) const;
+   /*!
+   * \brief Compute the Hydrocarbon - Water contact depth
+   * \return The absolute depth of the hydrocarbon - water contact (from the surface)
+   */
+   double computeHydrocarbonWaterContactDepth(void) const;
 
-	 void setMinimumSpillDepth (double minimumSpillDepth);
-	 double getMinimumSpillDepth (void);
+   void setMinimumSpillDepth (double minimumSpillDepth);
+   double getMinimumSpillDepth (void);
 
-	 double getDensity (PhaseId phase) const;
-	 double getSurface (PhaseId phase);
+   double getDensity (PhaseId phase) const;
+   double getSurface (PhaseId phase);
 
-	 void negotiateDensity (PhaseId phase);
+   void negotiateDensity (PhaseId phase);
 
    double getSealPressureLeakages(void) const;
    double getSealPressureLeakages(PhaseId phase) const;
 
    double getDiffusionLeakages(void) const;         
 
-	 void reportLeakage ();
+   void reportLeakage ();
 
-	 void collectProperties (TrapPropertiesRequest & tpRequest);
-	 bool saveProperties (void);
+   void collectProperties (TrapPropertiesRequest & tpRequest);
+   bool saveProperties (void);
 
       protected:
-	 Reservoir * m_reservoir;
+   Reservoir * m_reservoir;
 
-	 ColumnVector m_perimeter;
-	 ColumnVector m_interior;
+   ColumnVector m_perimeter;
+   ColumnVector m_interior;
 
-	 IntPairVector m_toBeAdded;
+   IntPairVector m_toBeAdded;
 
-	 Column * m_spillTarget;
+   Column * m_spillTarget;
 
-	 Column * m_wasteColumns[NUM_PHASES];
+   Column * m_wasteColumns[NUM_PHASES];
 
-	 double m_wasteDepths[NUM_PHASES];
+   double m_wasteDepths[NUM_PHASES];
 
-	 Composition m_toBeDistributed[NUM_PHASES];
-	 Composition m_distributed[NUM_PHASES];
-         Composition m_diffusionLeaked[NUM_PHASES];
-         Composition m_sealPressureLeaked[NUM_PHASES];
+   Composition m_toBeDistributed[NUM_PHASES];
+   Composition m_distributed[NUM_PHASES];
+   Composition m_diffusionLeaked[NUM_PHASES];
+   Composition m_sealPressureLeaked[NUM_PHASES];
 
-	 double m_diffusionStartTime;
-	 double m_penetrationDistances[DiffusionComponentSize];
+   double m_diffusionStartTime;
+   double m_penetrationDistances[DiffusionComponentSize];
 
-	 double m_fillDepth[NUM_PHASES];
+   double m_fillDepth[NUM_PHASES];
 #ifdef COMPUTECAPACITY
-	 double m_capacity;
+   double m_capacity;
 #endif
 
 #ifdef THISISNOTRIGHT
-	 double m_minimumSpillDepth;
+   double m_minimumSpillDepth;
 #endif
-	 double m_sealPermeability;
-	 double m_fracturePressure;
+   double m_sealPermeability;
+   double m_fracturePressure;
 
-         migration::Interpolator * m_volumeToDepth2;
-         const MonotonicIncreasingPiecewiseLinearInvertableFunction* m_levelToVolume;
-         Distributor* m_distributor;
+   migration::Interpolator * m_volumeToDepth2;
+   const MonotonicIncreasingPiecewiseLinearInvertableFunction* m_levelToVolume;
+   Distributor* m_distributor;
 
-	 int m_id;
-	 int m_globalId;
-	 int m_drainageAreaId;
+   int m_id;
+   int m_globalId;
+   int m_drainageAreaId;
 
-	 bool m_spilling;
-	 bool m_extended;
-	 bool m_toBeAbsorbed;
-	 bool m_computedPVT;
+   bool m_spilling;
+   bool m_extended;
+   bool m_toBeAbsorbed;
+   bool m_computedPVT;
 
-         DiffusionOverburdenProperties* m_diffusionOverburdenProps;
+   DiffusionOverburdenProperties* m_diffusionOverburdenProps;
 
 #ifdef DETAILED_MASS_BALANCE
          ofstream m_massBalanceFile;
