@@ -2267,7 +2267,7 @@ double Trap::computeHydrocarbonWaterContactTemperature()
       double const nodeHydrocarbonWaterContact = (depth - 1) * percentageHeightHydrocarbonWaterContact;
 
       LocalColumn const * column = getReservoir()->getLocalColumn(getCrestColumn()->getI(), getCrestColumn()->getJ());
-      double index = (nodeHydrocarbonWaterContact) - column->getTopDepthOffset() * (nodeHydrocarbonWaterContact);
+      double index = nodeHydrocarbonWaterContact - column->getTopDepthOffset() * (depth - 1);
       index = Max((double)0, index);
       index = Min((double)depth - 1, index);
       hydrocarbonWaterContactTemperature = (gridMapTemperature->interpolate(getCrestColumn()->getI(), getCrestColumn()->getJ(), index));
@@ -2291,9 +2291,9 @@ double Trap::computeHydrocarbonWaterContactTemperature()
 
             // Transform the depth of the hydrocarbon - water contact in a node position of the crest column
             double const percentageHeightHydrocarbonWaterContact = (bottomColumnDepth - getFillDepth(OIL)) / (bottomColumnDepth - topColumnDepth);
-            double const nodeHydrocarbonWaterContact = depth * percentageHeightHydrocarbonWaterContact;
+            double const nodeHydrocarbonWaterContact = (depth - 1) * percentageHeightHydrocarbonWaterContact;
 
-            double index = (nodeHydrocarbonWaterContact - 1) - column->getTopDepthOffset() * (nodeHydrocarbonWaterContact - 1);
+            double index = nodeHydrocarbonWaterContact - column->getTopDepthOffset() * (depth - 1);
             index = Max((double)0, index);
             index = Min((double)depth - 1, index);
             hydrocarbonWaterContactTemperature = (gridMapTemperature->interpolate(column->getI(), column->getJ(), index));
