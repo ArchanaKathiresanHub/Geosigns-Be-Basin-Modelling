@@ -297,7 +297,7 @@ install( FILES "${CMAKE_BINARY_DIR}/mpirun_wrap.sh" "${CMAKE_BINARY_DIR}/mpiexec
             GROUP_READ GROUP_EXECUTE
             WORLD_READ WORLD_EXECUTE
        )
-endiif (UNIX)
+endif (UNIX)
 
 #
 # Generate .zip file with binaries for Windows platform
