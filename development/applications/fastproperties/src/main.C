@@ -19,7 +19,7 @@ int main( int argc, char ** argv )
    GeoPhysics::ObjectFactory* factory = new GeoPhysics::ObjectFactory;
    DataAccess::Interface::ProjectHandle::UseFactory (factory);
 
-   PropertiesCalculator propCalculator;
+   PropertiesCalculator propCalculator ( rank );
        
    if( !propCalculator.parseCommandLine( argc, argv )) {
 
@@ -27,7 +27,7 @@ int main( int argc, char ** argv )
       return -1;
    }
 
-   if( ! propCalculator.CreateFrom( rank ) ) {
+   if( ! propCalculator.CreateFrom() ) {
 
       propCalculator.showUsage( argv[ 0 ], "Could not open specified project file" );
       PetscFinalize();

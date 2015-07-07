@@ -487,7 +487,7 @@ const string & ProjectHandle::getFileName( void ) const
    return m_fileName;
 }
 
-bool ProjectHandle::startActivity( const string & name, const Interface::Grid * grid, bool saveAsInputGrid, bool createResultsFile )
+bool ProjectHandle::startActivity( const string & name, const Interface::Grid * grid, bool saveAsInputGrid, bool createResultsFile, bool append )
 {
    char * svnRevision = "unknown";
 
@@ -511,7 +511,7 @@ bool ProjectHandle::startActivity( const string & name, const Interface::Grid * 
    bool status = true;
 
    if ( createResultsFile ) {
-      status = initializeMapPropertyValuesWriter();
+      status = initializeMapPropertyValuesWriter( append );
    }
 
    return status;
@@ -2342,7 +2342,7 @@ const std::string ProjectHandle::getFullOutputDir() const
 }
 
 
-bool ProjectHandle::initializeMapPropertyValuesWriter( void )
+bool ProjectHandle::initializeMapPropertyValuesWriter( const bool append )
 {
    if ( Interface::MODE3D != getModellingMode() ) return true;
    if ( m_mapPropertyValuesWriter ) return false;
@@ -2356,7 +2356,7 @@ bool ProjectHandle::initializeMapPropertyValuesWriter( void )
    if ( !makeOutputDir() ) return false;
 
    m_mapPropertyValuesWriter = getFactory()->produceMapWriter();
-   bool status = m_mapPropertyValuesWriter->open( filePathName, false );
+   bool status = m_mapPropertyValuesWriter->open( filePathName, append );
    if ( status ) {
       status = m_mapPropertyValuesWriter->saveDescription( saveAsInputGrid() ? getInputGrid() : getActivityOutputGrid() );
    }

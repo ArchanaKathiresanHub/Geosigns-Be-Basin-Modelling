@@ -65,7 +65,7 @@ class PropertiesCalculator {
 
 
 public :
-   PropertiesCalculator( );
+   PropertiesCalculator( int aRank );
 
    ~PropertiesCalculator();
 
@@ -88,13 +88,22 @@ private:
    DoubleVector m_ages;
    StringVector m_formationNames;
 
+   // The name of the current activity producing output values
+   string m_activityName;
+
+   // The name of the last simulation fastcauldron mode
+   string m_simulationMode;
+
+
 public:
 
    bool showLists();
 
    bool startActivity();
    void finalise ( bool isComplete );
-   bool CreateFrom( int aRank );
+   bool CreateFrom( );
+
+   bool setFastcauldronActivityName();
 
    void outputSnapshotFormationData( const Snapshot * snapshot,
                                      const Formation * formation, PropertyList & properties,

@@ -115,7 +115,7 @@ namespace DataAccess
          virtual const string & getFileName( void ) const;
 
          /// start a new activity
-         bool startActivity( const string & name, const Grid * grid, bool saveAsInputGrid = false, bool createResultsFile = true );
+         bool startActivity( const string & name, const Grid * grid, bool saveAsInputGrid = false, bool createResultsFile = true, bool append = false );
 
          /// Restart an activity.
          bool restartActivity( void );
@@ -708,7 +708,7 @@ namespace DataAccess
 
          Snapshot * createSnapshot( database::Record record );
 
-         bool initializeMapPropertyValuesWriter( void );
+         bool initializeMapPropertyValuesWriter( const bool append = false );
          bool finalizeMapPropertyValuesWriter( void );
 
          bool saveCreatedMapPropertyValues( void );

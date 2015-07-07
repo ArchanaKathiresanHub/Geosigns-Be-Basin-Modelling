@@ -4,6 +4,7 @@
 #include <petsc.h>
 
 #include "PropertiesCalculator.h"
+#include "Interface/SimulationDetails.h"
 
 static bool splitString( char * string, char separator, char * & firstPart, char * & secondPart );
 static bool parseStrings( StringVector & strings, char * stringsString );
@@ -15,7 +16,9 @@ static bool snapshotIsEqual( const Snapshot * snapshot1, const Snapshot * snapsh
 
 //------------------------------------------------------------//
 
-PropertiesCalculator::PropertiesCalculator() {
+PropertiesCalculator::PropertiesCalculator( int aRank ) {
+
+   m_rank = aRank;
 
    m_debug = false;
    m_basement = false; 
@@ -26,6 +29,8 @@ PropertiesCalculator::PropertiesCalculator() {
    m_listStratigraphy = false;
 
    m_projectFileName = "";
+   m_simulationMode = "";
+   m_activityName = "";
 
    m_projectHandle = 0; 
    m_propertyManager = 0;
@@ -48,10 +53,13 @@ PropertiesCalculator::~PropertiesCalculator() {
 
 void  PropertiesCalculator::finalise ( bool isComplete ) {
 
-   m_projectHandle->setSimulationDetails ( "fastprops", "Default", "" );
+   m_projectHandle->setSimulationDetails ( "fastproperties", "Default", "" );
    m_projectHandle->finishActivity ( isComplete );
 
+   if( isComplete && m_rank == 0 ) {
+      m_projectHandle->saveToFile(m_projectFileName);
 
+   }
    delete m_propertyManager;
    m_propertyManager = 0;
 
@@ -63,11 +71,9 @@ void  PropertiesCalculator::finalise ( bool isComplete ) {
 
 //------------------------------------------------------------//
 
-bool PropertiesCalculator::CreateFrom ( int aRank ){
+bool PropertiesCalculator::CreateFrom (){
    
-   m_rank = aRank;
-
-   if ( m_projectHandle == 0 ) {
+    if ( m_projectHandle == 0 ) {
       m_projectHandle = ( GeoPhysics::ProjectHandle* )( OpenCauldronProject( m_projectFileName, "r" ) );
 
       if(  m_projectHandle != 0 ) {
@@ -84,17 +90,26 @@ bool PropertiesCalculator::CreateFrom ( int aRank ){
 
 bool PropertiesCalculator::startActivity() {
    
+   if( !setFastcauldronActivityName() ) {
+      return false;
+   }
+   
    const Interface::Grid * grid = m_projectHandle->getLowResolutionOutputGrid();
 
-   m_projectHandle->startActivity ( "Fastprops", grid );
-   bool coupledCalculation = false; // to do.
-   bool started;
+   bool started = m_projectHandle->startActivity ( m_activityName, grid, false, true, true );
 
-   started = m_projectHandle->initialise ( coupledCalculation );
-   if( started )
+   bool coupledCalculation = false; // to do.
+ 
+   if( started ) {
+      m_projectHandle->initialise ( coupledCalculation );
+   }
+
+   if( started ) {
       started = m_projectHandle->setFormationLithologies ( false, true );
-   if( started)
+   }
+   if( started) {
       started = m_projectHandle->initialiseLayerThicknessHistory ( coupledCalculation );
+   }
 
    return started;
 }
@@ -115,7 +130,7 @@ void PropertiesCalculator::calculateProperties( FormationVector& formationItems,
    SnapshotFormationOutputPropertyValueMap allOutputPropertyValues;
    const Snapshot * zeroSnapshot = m_projectHandle->findSnapshot( 0 );
 
-   snapshots.push_back( zeroSnapshot ); // we require depth properties for snapshot age 0
+   snapshots.push_back( zeroSnapshot ); 
 
    const string outputDirName = m_projectHandle->getFullOutputDir () + "/";
    struct stat fileStatus;
@@ -199,7 +214,7 @@ bool PropertiesCalculator::acquireSnapshots( SnapshotList & snapshots )
             {
                if ( firstAge >= 0 )
                {
-                  const Snapshot * snapshot = m_projectHandle->findSnapshot( firstAge );
+                  const Snapshot * snapshot = m_projectHandle->findSnapshot( firstAge, MAJOR | MINOR );
                   if ( snapshot ) snapshots.push_back( snapshot );
                   if ( m_debug && snapshot ) cerr << "adding single snapshot " << snapshot->getTime() << endl;
                }
@@ -261,10 +276,6 @@ bool PropertiesCalculator::acquireSnapshots( SnapshotList & snapshots )
 
 bool PropertiesCalculator::acquireProperties( PropertyList & properties )
 {
-   const Property * depthProperty = m_projectHandle->findProperty( "Depth" );
-   assert( depthProperty );
-   properties.push_back( depthProperty );
-
    StringVector::iterator stringIter;
 
    for ( stringIter = m_propertyNames.begin(); stringIter != m_propertyNames.end(); ++stringIter )
@@ -341,28 +352,51 @@ const GridMap * PropertiesCalculator::getPropertyGridMap ( const string & proper
                                                            const Interface::Snapshot * snapshot,
                                                            const Formation * formation ) 
 {
-   int selectionFlags = Interface::FORMATION | Interface::FORMATIONSURFACE;
-
+   const GridMap * propertyHasMap = 0;
    const Property* property = m_projectHandle->findProperty (propertyName);
 
-   PropertyValueList * propertyValues = m_projectHandle->getPropertyValues ( selectionFlags,
-                                                                           property,
-                                                                           snapshot, 
-                                                                           0, 
-                                                                           formation, 
-                                                                           0,
-                                                                           Interface::MAP | Interface::VOLUME );     
-   if (propertyValues->size () > 1) {
-      cout << "More than 1 properties value available for  " << propertyName << endl;
-      return 0;
-   } else if (propertyValues->size () == 0 ) {
-      return 0;
+   if ( property != 0 ) {  
+      int selectionFlags = Interface::FORMATION | Interface::FORMATIONSURFACE;
+      bool volumeProperties = true;
+      PropertyValueList * propertyValues = m_projectHandle->getPropertyValues ( selectionFlags,
+                                                                                property,
+                                                                                snapshot, 
+                                                                                0, 
+                                                                                formation, 
+                                                                                0,
+                                                                                Interface::VOLUME ); 
+      
+      if ( propertyValues->size () == 0 ) {
+         delete propertyValues;
+         volumeProperties = false;
+
+         propertyValues = m_projectHandle->getPropertyValues ( selectionFlags,
+                                                               property,
+                                                               snapshot, 
+                                                               0, 
+                                                               formation, 
+                                                               0,
+                                                               Interface::MAP );     
+         if ( propertyValues->size () == 0 ) {
+            delete propertyValues;
+            
+            return 0;
+         }
+      }
+
+      
+      if (propertyValues->size () != 1 && m_rank == 0 ) {
+         cout << propertyValues->size () << ( volumeProperties ? " volume " : " map " ) << "properties values are available for  " << propertyName 
+              << " at " << snapshot->getTime() << " for formation " << formation->getName() << endl;
+      }
+         
+      propertyHasMap = (*propertyValues)[0]->hasGridMap();
+      if( propertyHasMap == 0 ) {
+         propertyHasMap = (*propertyValues)[0]->getGridMap();
+      }
+      
+      delete propertyValues;
    }
-
-   const GridMap * propertyHasMap = (*propertyValues)[0]->hasGridMap();
-
-   delete propertyValues;
-
    return propertyHasMap;
 }
   
@@ -383,13 +417,16 @@ bool PropertiesCalculator::createSnapshotResultPropertyValue ( OutputPropertyVal
       }
    } else {
       if( ! getPropertyGridMap ( propertyValue->getName(), snapshot, formation )) {
-            thePropertyValue = m_projectHandle->createMapPropertyValue ( propertyValue->getName(), snapshot, 0, formation, 0 );
+         thePropertyValue = m_projectHandle->createMapPropertyValue ( propertyValue->getName(), snapshot, 0, formation, 0 );
       } else {
          //  the property is already in output file
       }
    }     
  
    if( thePropertyValue != 0 ) {
+      if ( m_debug && m_rank == 0 ) {
+         cout << "   " << propertyValue->getName() << endl;;
+      }
       
       GridMap * theMap = thePropertyValue->getGridMap();
       if( theMap != 0 ) {
@@ -417,11 +454,15 @@ void PropertiesCalculator::outputSnapshotFormationData( const Snapshot * snapsho
    
    PropertyList::iterator propertyIter;
 
+   if ( m_debug && m_rank == 0 ) {
+      cout << "Calculating formation " << formation->getName() << " at " << snapshot->getTime() << ":" << endl;
+   }
+
    for ( propertyIter = properties.begin(); propertyIter != properties.end(); ++propertyIter )
    {
       const Property * property = *propertyIter;
       OutputPropertyValuePtr propertyValue = allOutputPropertyValues[ snapshot ][ formation ][ property ];
-
+      
       if ( propertyValue != 0 )
       {
          createSnapshotResultPropertyValue ( propertyValue, snapshot, formation );
@@ -430,6 +471,9 @@ void PropertiesCalculator::outputSnapshotFormationData( const Snapshot * snapsho
       {
          //  outputStream << " No property available" << endl;;
       }
+   }
+   if ( m_debug && m_rank == 0 ) {
+      cout << endl;
    }
 }
 
@@ -617,6 +661,26 @@ void PropertiesCalculator::printOutputableProperties () {
    }
 }
 
+//------------------------------------------------------------//
+bool PropertiesCalculator::setFastcauldronActivityName() {
+
+   if( m_projectHandle->getDetailsOfLastSimulation ( "fastcauldron" ) == 0 ||
+       m_projectHandle->getDetailsOfLastSimulation ( "fastcauldron" )->getSimulatorMode () == "NoCalculaction" ) {
+      return false;
+   }
+
+   m_simulationMode = m_projectHandle->getDetailsOfLastSimulation ( "fastcauldron" )->getSimulatorMode ();
+
+   if( m_simulationMode == "HydrostaticDecompaction" ||
+       m_simulationMode == "HydrostaticTemperature" ) {
+      m_activityName = m_simulationMode;
+   } else if( m_simulationMode == "CoupledPressureAndTemperature" ) {
+      m_activityName = "PressureAndTemperature";
+   } else {
+      m_activityName = "Fastproperties";
+   }
+   return true;
+}
 //------------------------------------------------------------//
 
 bool PropertiesCalculator::parseCommandLine( int argc, char ** argv ) {
