@@ -70,7 +70,6 @@ Reservoir::Reservoir (ProjectHandle * projectHandle, database::Record * record)
      m_end(0)
 {
    m_chargeDistributionCount = 0;
-   m_averageDepth = Interface::DefaultUndefinedScalarValue;
    m_columnArray = 0;
    createColumns ();
 
@@ -1543,33 +1542,24 @@ DerivedProperties::SurfacePropertyPtr Reservoir::getBottomSurfaceProperty (const
    return theProperty;
 }
 
-const GridMap * Reservoir::getPropertyGridMap (const string & propertyName,
-                                               const Snapshot * snapshot) const
-{
-   return getVolumePropertyGridMap ( dynamic_cast<const Formation *>( getFormation ()), propertyName, snapshot);
-}
+DerivedProperties::FormationPropertyPtr Reservoir::getVolumeProperty ( const Formation * formation,
+                                                                       const string & propertyName,
+                                                                       const Interface::Snapshot * snapshot ) const {
+   
+   const DataAccess::Interface::Property* property = m_projectHandle->findProperty ( propertyName );
 
-const GridMap * Reservoir::getVolumePropertyGridMap (const Formation * formation, const string & propertyName,
-                                                     const Snapshot * snapshot) const
-{
-   int selectionFlags = Interface::FORMATION;
+   Migrator* mig = dynamic_cast<migration::Migrator*>( m_projectHandle );
 
-   PropertyValueList * propertyValues =
-      m_projectHandle->getPropertyValues (selectionFlags,
-	    m_projectHandle->findProperty (propertyName),
-	    snapshot, 0, formation, 0,
-	    Interface::VOLUME);
+   DerivedProperties::FormationPropertyPtr result;
 
-   if (propertyValues->size () != 1)
-   {
-      return 0;
+
+   if ( property != 0 ) {
+      result = mig->getPropertyManager ().getFormationProperty ( property, snapshot, formation );
    }
 
-   const GridMap *gridMap = (*propertyValues)[0]->getGridMap ();
-
-   delete propertyValues;
-   return gridMap;
+   return result;
 }
+
 
 const GridMap * Reservoir::getPropertyGridMap (const string & propertyName,
       const Snapshot * snapshot,
@@ -1584,9 +1574,9 @@ const GridMap * Reservoir::getPropertyGridMap (const string & propertyName,
 
    PropertyValueList * propertyValues =
       m_projectHandle->getPropertyValues (selectionFlags,
-	    m_projectHandle->findProperty (propertyName),
-	    snapshot, reservoir, formation, surface,
-	    Interface::MAP);
+                                          m_projectHandle->findProperty (propertyName),
+                                          snapshot, reservoir, formation, surface,
+                                          Interface::MAP);
 
    if (propertyValues->size () != 1)
    {
@@ -1599,12 +1589,6 @@ const GridMap * Reservoir::getPropertyGridMap (const string & propertyName,
    delete propertyValues;
    return gridMap;
 }
-
-const GridMap * Reservoir::getReservoirPropertyGridMap (const string & propertyName, const Snapshot * snapshot) const
-{
-   return getPropertyGridMap (propertyName, snapshot, this, 0, 0);
-}
-
 
 const Grid * Reservoir::getGrid (void) const
 {
@@ -1665,43 +1649,6 @@ double Reservoir::getErrorPVT (void)
 double Reservoir::getLossPVT (void)
 {
    return m_lossPVT;
-}
-
-
-const GridMap * Reservoir::getTopSurfacePropertyGridMap (const string & propertyName, const Snapshot * snapshot) const
-{
-   const Formation * formation;
-   const GridMap * formationTopMap = 0;
-
-   for (formation = dynamic_cast<const Formation *>( getFormation ()); formationTopMap == 0 && formation != 0; formation = formation->getTopFormation ())
-   {
-      formationTopMap = getPropertyGridMap (propertyName, snapshot, 0, 0, formation->getTopSurface ());      
-   }
-
-   return formationTopMap;
-}
-
-double Reservoir::getAverageDepth (void)
-{
-   if (m_averageDepth == Interface::DefaultUndefinedScalarValue)
-   {
-      determineAverageDepth ();
-   }
-   return m_averageDepth;
-}
-
-bool Reservoir::determineAverageDepth (void)
-{
-   const GridMap * gridMap = getTopSurfacePropertyGridMap ("Depth", m_projectHandle->findSnapshot (0));
-   if (!gridMap) return false;
-
-   gridMap->retrieveData ();
-   double average = gridMap->getAverageValue ();
-   gridMap->restoreData ();
-
-   setAverageDepth (average);
-
-   return true;
 }
 
 /// See whether distribution has finished on all processors

@@ -1203,12 +1203,12 @@ const Interface::GridMap * Migrator::getPropertyGridMap (const string & property
 bool reservoirSorter (const Interface::Reservoir * reservoir1, const Interface::Reservoir * reservoir2)
 {
 #if 0
-   cerr << GetRankString () << ": " << "Depth (" << reservoir1->getName () << ") = " << ((migration::Reservoir *) reservoir1)->getAverageDepth ();
-   cerr << GetRankString () << ": " << "\tDepth (" << reservoir2->getName () << ") = " << ((migration::Reservoir *) reservoir2)->getAverageDepth ();
+   cerr << GetRankString () << ": " << "Depo sequence (" << reservoir1->getName () << ") = " << ((migration::Reservoir *) reservoir1)->getFormation ()->getDepositionSequence ();
+   cerr << GetRankString () << ": " << "\tDepo sequenceDepo sequence (" << reservoir2->getName () << ") = " << ((migration::Reservoir *) reservoir2)->getFormation ()->getDepositionSequence ();
    cerr << GetRank () << ": " << endl;
 #endif
    
-   return ((migration::Reservoir *) reservoir1)->getAverageDepth () > ((migration::Reservoir *) reservoir2)->getAverageDepth ();
+   return reservoir1->getFormation ()->getDepositionSequence () < reservoir2->getFormation ()->getDepositionSequence ();
 }
 
 
