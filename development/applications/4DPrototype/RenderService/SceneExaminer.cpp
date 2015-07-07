@@ -12,11 +12,11 @@
 #include <Inventor/nodes/SoDirectionalLight.h>
 #include <Inventor/nodes/SoTransformSeparator.h>
 
-#define ZOOM 0.5f
+#define ZOOM 0.9f
 
 void SceneExaminer::viewAll(const SbViewportRegion &viewport){
   m_perspCamera->viewAll(this, viewport);
-  m_interactor->setRotationCenter(m_interactor->getViewportCenter());
+  m_interactor->setRotationCenter(m_interactor->getFocalPoint());
 }
 
 /** Mouse */
@@ -26,9 +26,9 @@ void SceneExaminer::wheelCB(void * userdata, SoEventCallback * node){
   SoMouseWheelEvent *wheelEvent = (SoMouseWheelEvent*) node->getEvent();
 
   if (wheelEvent->getDelta() > 0){
-    examiner->m_interactor->dollyWithZoomCenter(examiner->m_mousePositionNorm, ZOOM, node->getAction()->getViewportRegion());
+    examiner->m_interactor->dollyWithZoomCenter(examiner->m_mousePositionNorm, .9f, node->getAction()->getViewportRegion());
   }else{
-    examiner->m_interactor->dollyWithZoomCenter(examiner->m_mousePositionNorm, -ZOOM, node->getAction()->getViewportRegion());
+    examiner->m_interactor->dollyWithZoomCenter(examiner->m_mousePositionNorm, 1.1f, node->getAction()->getViewportRegion());
   }
 
   examiner->m_interactor->adjustClippingPlanes(examiner, node->getAction()->getViewportRegion());
@@ -57,7 +57,7 @@ void SceneExaminer::mouseMoveCB(void * userdata, SoEventCallback * node){
 
       examiner->m_interactor->adjustClippingPlanes(examiner, node->getAction()->getViewportRegion());
 
-      examiner->m_interactor->setRotationCenter(examiner->m_interactor->getViewportCenter());
+      examiner->m_interactor->setRotationCenter(examiner->m_interactor->getFocalPoint());
 
     }
 
@@ -169,7 +169,7 @@ void SceneExaminer::touchCB(void * userdata, SoEventCallback * node){
       } else if (touchevent->getState() == SoTouchEvent::UP){
         examiner->m_activeViewingMode = NOTHING;
       } else if (touchevent->getState() == SoTouchEvent::MOVE && examiner->m_activeViewingMode == ORBIT){
-        examiner->m_interactor->setRotationCenter(examiner->m_interactor->getViewportCenter());
+        examiner->m_interactor->setRotationCenter(examiner->m_interactor->getFocalPoint());
         examiner->m_interactor->orbit(touchevent->getNormalizedPosition(node->getAction()->getViewportRegion()));
         examiner->m_interactor->adjustClippingPlanes(examiner, node->getAction()->getViewportRegion());
       }

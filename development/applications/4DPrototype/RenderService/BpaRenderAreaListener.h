@@ -24,7 +24,7 @@ class BpaRenderAreaListener : public RenderAreaListener
 
   std::shared_ptr<DataAccess::Interface::ProjectHandle> m_handle;
 
-  void createSceneGraph();
+  void createSceneGraph(const std::string& id);
 
 public:
 
