@@ -18,7 +18,7 @@ DerivedProperties::PorosityFormationCalculator::PorosityFormationCalculator ( co
    // It could be that a particular formation does not have chemical-compaction 
    // enabled butit is not possible to determine this here.
    bool chemicalCompactionRequired = m_projectHandle->getDetailsOfLastSimulation ( "fastcauldron" ) != 0 and
-                                     m_projectHandle->getDetailsOfLastSimulation ( "fastcauldron" )->getSimulatorMode () != "Decompaction" and
+                                     m_projectHandle->getDetailsOfLastSimulation ( "fastcauldron" )->getSimulatorMode () != "HydrostaticDecompaction" and
                                      m_projectHandle->getRunParameters()->getChemicalCompaction ();
 
    addDependentPropertyName ( "Ves" );
@@ -56,7 +56,7 @@ void DerivedProperties::PorosityFormationCalculator::calculate ( DerivedProperti
    if( ves != 0 and maxVes != 0 and geoFormation != 0 ) {
                
       bool chemicalCompactionRequired = m_projectHandle->getDetailsOfLastSimulation ( "fastcauldron" ) != 0 and
-                                        m_projectHandle->getDetailsOfLastSimulation ( "fastcauldron" )->getSimulatorMode () != "Decompaction" and
+                                        m_projectHandle->getDetailsOfLastSimulation ( "fastcauldron" )->getSimulatorMode () != "HydrostaticDecompaction" and
                                         geoFormation->hasChemicalCompaction () and m_projectHandle->getRunParameters()->getChemicalCompaction ();
 
       FormationPropertyPtr chemicalCompaction;
