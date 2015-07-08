@@ -10,25 +10,10 @@
 #                                                                       #
 #########################################################################
 
-#FILE( GLOB all_headers src/*.h )
-#FILE( GLOB all_srcs src/*.C)
-set (all_headers,
-	src/errorhandling.h
-	src/FormationMapOutputPropertyValue.h
-	src/FormationOutputPropertyValue.h
-	src/FormationSurfaceOutputPropertyValue.h
-	src/OutputPropertyValue.h
-	src/SurfaceOutputPropertyValue.h)
-
-set(all_srcs
-	src/FormationMapOutputPropertyValue.C
-	src/FormationOutputPropertyValue.C
-	src/FormationSurfaceOutputPropertyValue.C
-	src/SurfaceOutputPropertyValue.C
-	src/track1d.C)
-
+FILE( GLOB all_headers src/*.h )
 source_group(include FILES ${all_headers})
 
+FILE( GLOB all_srcs src/*.C)
 source_group(source FILES ${all_srcs})
 
 add_executable(track1d 
@@ -41,10 +26,6 @@ bm_include_libraries(
 	DataMining
 	DataAccess
 	SerialDataAccess
-	Interpolation
-	LinearAlgebra
-	GeoPhysics
-	DerivedProperties
 	DataAccess	
 	TableIO
 	CBMGenerics
@@ -61,10 +42,6 @@ target_link_libraries(track1d
 	DataMining
 	DataAccess
 	SerialDataAccess
-	Interpolation
-	LinearAlgebra
-	GeoPhysics
-	DerivedProperties
 	DataAccess	
 	TableIO
 	CBMGenerics

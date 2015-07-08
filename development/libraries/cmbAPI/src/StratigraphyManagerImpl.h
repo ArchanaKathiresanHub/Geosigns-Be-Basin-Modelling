@@ -21,7 +21,6 @@
 namespace database
 {
    class Database;
-   class Table;
 }
 
 namespace mbapi {
@@ -76,23 +75,6 @@ namespace mbapi {
       // return surface name on success, or empty string otherwise
       virtual std::string surfaceName( LayerID id );
 
-      // Get age of the eldest layer in stratigraphy
-      // return age of the eldest (first) layer, UndefinedDoubleValue if no any layer is defined
-      virtual double eldestLayerAge();
-
-      // Layer -> lithology  type relation methods
-
-      // Get all lithologies associated with the given layer and percentage of each lithology in a mix
-      // id layer ID
-      // lithoList on exit it contains the list of lithologies for the given layer
-      // lithoPercent on exit it contains percentage of each lithology in a mix
-      // return ErrorHandler::NoError on success, or error code otherwise
-      virtual ErrorHandler::ReturnCode layerLithologiesList( LayerID id, std::vector<std::string> & lithoList, std::vector<double> & lithoPercent );
-
-      // Set lithologies and their percenatges for the given layer
-      // return ErrorHandler::NoError on success, or error code otherwise
-      virtual ErrorHandler::ReturnCode setLayerLithologiesList( LayerID id, const std::vector<std::string> & lithoList, const std::vector<double> & lithoPercent );
-
       // Bind layer with top and bottom surfaces. Layer set itself as top/bottom layer for surface also
       // [in] lid layer ID
       // [in] usid up surface id
@@ -100,11 +82,6 @@ namespace mbapi {
       // returns NoError on success or NonexistingID on error
       virtual ReturnCode setLayerSurfaces( LayerID lid,  SurfaceID usid, SurfaceID dsid );
       
-      // Collect layers where the given lithology is referenced
-      // lithName name of lithology type
-      // return list of layers ID
-      virtual std::vector<LayerID> findLayersForLithology( const std::string & lithoName );
-
 
       // Layer -> Source rock type relation methods
 
@@ -157,23 +134,16 @@ namespace mbapi {
 
 
    private:
-      static const char * s_stratigraphyTableName;
-      static const char * s_layerNameFieldName;
-      static const char * s_depoAgeFieldName;
-      static const char * s_lithoType1FiledName;
-      static const char * s_lithoType2FiledName;
-      static const char * s_lithoType3FiledName;
-      static const char * s_lithoTypePercent1FiledName;
-      static const char * s_lithoTypePercent2FiledName;
-      static const char * s_lithoTypePercent3FiledName;
-      static const char * s_isSourceRockFieldName;
-      static const char * s_sourceRockType1FieldName;
-      static const char * s_sourceRockType2FieldName;
-      static const char * s_sourceRockHIFieldName;
-      static const char * s_sourceRockEnableMixintFieldName;
 
-      database::Database * m_db;         // cauldron project database
-      database::Table    * m_stratIoTbl; // stratigraphy table
+      static const char * m_stratigraphyTableName;
+      static const char * m_layerNameFieldName;
+      static const char * m_isSourceRockFieldName;
+      static const char * m_sourceRockType1FieldName;
+      static const char * m_sourceRockType2FieldName;
+      static const char * m_sourceRockHIFieldName;
+      static const char * m_sourceRockEnableMixintFieldName;
+
+      database::Database * m_db; // cauldron project database
 
       // Copy constructor is disabled, use the copy operator instead
       StratigraphyManagerImpl( const StratigraphyManager & );

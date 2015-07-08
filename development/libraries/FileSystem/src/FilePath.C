@@ -26,8 +26,6 @@
 #include <windows.h>
 #endif
 
-#include <iostream>
-
 namespace ibs
 {
 
@@ -119,8 +117,8 @@ bool FilePath::copyFile( const Path & destPath )
    if ( destPath.exists() ) return false;
 
    try
-   { 
-      boost::filesystem::copy_file( boost::filesystem::absolute( boost::filesystem::path( m_path ) ), boost::filesystem::path( destPath.path() ) );
+   {
+      boost::filesystem::copy_file( boost::filesystem::path( m_path ), boost::filesystem::path( destPath.path() ) );
    }
    catch ( ... )
    {
@@ -128,23 +126,6 @@ bool FilePath::copyFile( const Path & destPath )
    }
    return true;
 }
-
-bool FilePath::linkFile( const Path & destPath )
-{
-   if ( destPath.exists() ) return false;
-
-   const boost::filesystem::path & curPath = boost::filesystem::absolute( boost::filesystem::path( m_path ) );
-   try
-   { 
-      boost::filesystem::create_symlink( curPath, boost::filesystem::path( destPath.path() ) );
-   }
-   catch ( ... )
-   {
-      return false;
-   }
-   return true;
-}
-
 
 std::string FilePath::pathToExecutable()
 {

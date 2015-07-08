@@ -213,22 +213,15 @@ bool ReflectivityCalculator::initialise ( OutputPropertyMap::PropertyValueList& 
    Interface::GridMap* reflectivityMap;
    reflectivityMap = propertyValues [ 0 ]->getGridMap ();
    
-   bool allowOutput = not FastcauldronSimulator::getInstance ().getCauldron()->no2Doutput();
-
-   if ( ! allowOutput ) {
-      propertyValues [ 0 ]->allowOutput ( false );
-   } 
-
    if ( m_layer == 0 
         or m_layer->depoage <= m_snapshot->getTime () 
         or m_layer->kind() != Interface::SEDIMENT_FORMATION )
    {
       m_computeReflectivity = false;
       m_prescribedValue = reflectivityMap->getUndefinedValue();
-      
-      return allowOutput; 
-   }
 
+      return true;
+   }
 
    const Interface::Formation* formation = m_layer;
         
@@ -236,7 +229,7 @@ bool ReflectivityCalculator::initialise ( OutputPropertyMap::PropertyValueList& 
    {
       m_computeReflectivity = false;
       m_prescribedValue = 0.0;
-      return allowOutput; 
+      return true;
    } 
 
    m_thickness = PropertyManager::getInstance().findOutputPropertyMap ( "Thickness", m_layer, 0, m_snapshot );
@@ -247,8 +240,13 @@ bool ReflectivityCalculator::initialise ( OutputPropertyMap::PropertyValueList& 
 
    m_computeReflectivity = true;
 
+   if ( FastcauldronSimulator::getInstance ().getCauldron()->no2Doutput()) {
+      propertyValues [ 0 ]->allowOutput ( false );
+   }
+
    return m_bulkDensity != 0 and m_velocity != 0 and m_thickness != 0;
 }
+
 
 
 //---ReflectivityVolumeCalculator--------------------------------------------------------------------------------------------------------

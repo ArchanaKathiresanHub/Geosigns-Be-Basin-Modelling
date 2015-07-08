@@ -1,7 +1,5 @@
 #include "ErosionFactorFormationMapCalculator.h"
 
-#include <string>
-
 #include "AbstractPropertyManager.h"
 #include "DerivedFormationProperty.h"
 #include "DerivedFormationMapProperty.h"
@@ -12,7 +10,6 @@
 #include "Interface/Snapshot.h"
 #include "Interface/ProjectHandle.h"
 #include "Interface/RunParameters.h"
-#include "Interface/SimulationDetails.h"
 
 #include "PropertyRetriever.h"
 
@@ -33,56 +30,12 @@ void DerivedProperties::ErosionFactorFormationMapCalculator::calculate ( Abstrac
       double depositionAge = geophysicsFormation->getTopSurface ()->getSnapshot ()->getTime ();
       bool isNonGeometricLoop = geophysicsFormation->getProjectHandle ()->getRunParameters ()->getNonGeometricLoop ();
 
-      DataAccess::Interface::SimulationDetailsListPtr allSimulationDetails = geophysicsFormation->getProjectHandle ()->getSimulationDetails ();
-
-      bool coupledMode = false;
-
-      // Because the list is ordered by simulation sequence, i.e. the latest simulation 
-      // is last on the list then we need only find the last fastcauldron simulation.
-      for ( size_t i = allSimulationDetails->size (); i >= 1 ; --i ) {
-         // Notice the i - 1 here. This is to simplify the loop range for an unsigned integer.
-         const DataAccess::Interface::SimulationDetails* simulationDetails = (*allSimulationDetails)[ i - 1 ];
-
-         if ( simulationDetails->getSimulatorName () == "fastcauldron" ) {
-
-            // Search for the last fastcauldron simulation that was either hydrostatic or coupled
-            if ( simulationDetails->getSimulatorMode ().find ( "Hydrostatic" ) != std::string::npos ) {
-               // Possible values are:
-               //    HydrostaticDecompaction
-               //    HydrostaticHighResDecompaction
-               //    HydrostaticTemperature
-               //    HydrostaticDarcy
-               //
-               // If any of these values are present then this indicates that the last simulation was in hydrostatic mode.
-
-               coupledMode = false;
-               break;
-            } else if ( simulationDetails->getSimulatorMode ().find ( "Coupled" ) != std::string::npos or
-                        simulationDetails->getSimulatorMode () == "Overpressure" ) {
-               // Possible values are:
-               //    LooselyCoupledTemperature
-               //    CoupledHighResDecompaction
-               //    CoupledPressureAndTemperature
-               //    CoupledDarcy
-               //    Overpressure
-               //
-               // If any of these values are present then this indicates that the last simulation was in coupled or overpressure mode.
-
-               coupledMode = true;
-               break;
-            }
-
-         }
-
-      }
-
       derivedProperties.clear ();
 
       DerivedFormationMapPropertyPtr erosionFactor = DerivedFormationMapPropertyPtr ( new DerivedProperties::DerivedFormationMapProperty ( erosionFactorProperty,
                                                                                                                                            snapshot,
                                                                                                                                            formation,
                                                                                                                                            propertyManager.getMapGrid ()));
-
       double undefinedValue = erosionFactor->getUndefinedValue ();
       double value;
       double depositionThickness;
@@ -98,7 +51,7 @@ void DerivedProperties::ErosionFactorFormationMapCalculator::calculate ( Abstrac
                   depositionThickness = 0.0;
                   currentThickness = 0.0;
 
-                  if ( coupledMode and isNonGeometricLoop ) {
+                  if ( isNonGeometricLoop ) {
 
                      for ( unsigned int k = 0; k <= geophysicsFormation->getMaximumNumberOfElements (); ++k ) {
                         depositionThickness += geophysicsFormation->getRealThickness ( i, j, k, depositionAge );

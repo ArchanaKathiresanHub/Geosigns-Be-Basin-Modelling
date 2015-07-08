@@ -7,7 +7,6 @@
 using namespace std;
 
 #include "AbstractProperty.h"
-#include "PropertyAttribute.h"
 
 #include "Interface/DAObject.h"
 #include "Interface/Interface.h"
@@ -27,8 +26,7 @@ namespace DataAccess
 	 public:
 	    Property (ProjectHandle * projectHandle, database::Record * record,
 		  const string & userName, const string & cauldronName,
-                      const string & unit, PropertyType type,
-                      const DataModel::PropertyAttribute attr );
+		  const string & unit, PropertyType type);
 	    virtual ~Property (void);
 
 	    /// returns whether a Property has PropertyValues matching the conditions specified
@@ -45,9 +43,6 @@ namespace DataAccess
 	    /// Return the unit of this Property
 	    virtual const string & getUnit (void) const;
 	    virtual PropertyType getType (void) const;
-
-            /// \brief Get the PropertyAttribute of the property.
-            virtual DataModel::PropertyAttribute getPropertyAttribute () const;
 
 	    /// return a list of PropertyValues for this property based on the given arguments.
 	    /// if an argument (not selectionFlags) equals 0, it is used as a wildcard
@@ -77,7 +72,6 @@ namespace DataAccess
 	    string m_unit;
 
             PropertyType m_type;
-         DataModel::PropertyAttribute m_propertyAttribute;
       };
    }
 }

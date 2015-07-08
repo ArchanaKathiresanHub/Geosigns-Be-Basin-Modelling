@@ -54,24 +54,6 @@ void DerivedProperties::PrimarySurfacePropertyCalculator::calculate ( AbstractPr
 
 }
 
-bool DerivedProperties::PrimarySurfacePropertyCalculator::isComputable ( const AbstractPropertyManager&     propManager,
-                                                                         const DataModel::AbstractSnapshot* snapshot,
-                                                                         const DataModel::AbstractSurface*  surface ) const {
-
-   (void) propManager;
-
-   for ( size_t i = 0; i < m_surfacePropertyValues.size (); ++i ) {
-      const DataAccess::Interface::PropertyValue* propVal = m_surfacePropertyValues [ i ];
-
-      if ( propVal->getProperty () == m_property and ( surface == 0 or propVal->getSurface () == surface ) and ( snapshot == 0 or propVal->getSnapshot () == snapshot )) {
-         return true;
-      }
-
-   }
-
-   return false;
-}
-
 const DataModel::AbstractSnapshotSet& DerivedProperties::PrimarySurfacePropertyCalculator::getSnapshots () const {
    return m_snapshots;
 } 

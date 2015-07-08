@@ -87,4 +87,6 @@ bool DerivedProperties::PropertySnapshotCalculatorMap<CalculatorType>::contains 
    return get ( property, snapshot ) != 0;
 }
 
+
+
 #endif // DERIVED_PROPERTIES__PROPERTY_SNAPSHOT_CALCULATOR_MAP_H

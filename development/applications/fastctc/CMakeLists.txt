@@ -24,12 +24,7 @@ bm_include_libraries(
 	DataModel
 	DataAccess
 	DistributedDataAccess
-	DerivedProperties
-	GeoPhysics
-	Interpolation
-	LinearAlgebra
 	TableIO
-	EosPack	
 	CBMGenerics
 	Serial_Hdf5
 	OneFilePerProcess
@@ -50,12 +45,7 @@ include_directories(
 target_link_libraries(fastctc
 	DataAccess
 	DistributedDataAccess
-	DerivedProperties
-	GeoPhysics
-	Interpolation
-	LinearAlgebra
 	TableIO
-	EosPack	
 	CBMGenerics
 	Serial_Hdf5
 	Parallel_Hdf5

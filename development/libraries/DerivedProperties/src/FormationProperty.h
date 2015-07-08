@@ -79,11 +79,6 @@ namespace DerivedProperties {
                                    unsigned int j,
                                    double       k ) const;
 
-      /// \brief Get the value of the property at the position i,j and interpolated at a position k.
-      virtual double interpolate ( double i,
-                                   double j,
-                                   double k ) const;
-
    private :
 
       /// \brief A pointer to the property.

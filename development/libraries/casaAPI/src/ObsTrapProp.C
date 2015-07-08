@@ -29,35 +29,27 @@ namespace casa
 {
 
 // Create observable for the given trap property for specified areal position
-ObsTrapProp::ObsTrapProp( double x
-                        , double y
-                        , const char * resName
-                        , const char * propName
-                        , double simTime
-                        , const std::string & name
-                        )
-                        : m_x( x )
-                        , m_y( y )
-                        , m_resName( resName )
-                        , m_propName( propName )
-                        , m_simTime( simTime )
-                        , m_devValue( 0.0 )
-                        , m_saWeight( 1.0 )
-                        , m_uaWeight( 1.0 )
-                        , m_posDataMiningTbl( -1 )
-
+ObsTrapProp::ObsTrapProp( double x, double y, const char * resName, const char * propName, double simTime )
 {
-   // check input values
-   if ( m_propName.empty() ) throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "No property name specified for trap target";
+   assert( propName  != NULL );
+   
+   m_posDataMiningTbl = -1;
+
+   m_x = x;
+   m_y = y;
+
+   m_resName = resName;
+   m_propName  = propName;
+   m_simTime   = simTime;
+   m_devValue  = 0.0;
+
+   m_saWeight  = 1.0;
+   m_uaWeight  = 1.0;
 
    // construct observable name
-   if ( name.empty() )
-   {
-      std::ostringstream oss;
-      oss << "Trap_" << m_propName << "(" << m_x << "," << m_y << "," << m_resName << "," << m_simTime << ")";
-      m_name.push_back( oss.str() );
-   }
-   else { m_name.push_back( name ); }
+   std::ostringstream oss;
+   oss << "Trap_" << m_propName << "(" << m_x << "," << m_y << "," << m_resName << "," << m_simTime << ")";
+   m_name.push_back( oss.str() );
 }
 
 // Destructor
@@ -155,28 +147,6 @@ ObsValue * ObsTrapProp::getFromModel( mbapi::Model & caldModel )
 
    return new ObsValueDoubleScalar( this, val );
 }
-
-
-// Check well against project coordinates
-std::string ObsTrapProp::checkObservableForProject( mbapi::Model & caldModel )
-{
-   std::ostringstream oss;
-
-   double x0, y0;
-   caldModel.origin( x0, y0 );
-   
-   double dimX, dimY;
-   caldModel.arealSize( dimX, dimY );
-
-   if ( m_x < x0 || m_x > x0 + dimX ||
-        m_y < y0 || m_y > y0 + dimY )
-   {
-      oss << "Trap is outside of the project boundaries"; 
-   }
-
-   return oss.str();
-}
-
 
 // Create this observable value from double array (converting data from SUMlib for response surface evaluation
 ObsValue * ObsTrapProp::createNewObsValueFromDouble( std::vector<double>::const_iterator & val ) const

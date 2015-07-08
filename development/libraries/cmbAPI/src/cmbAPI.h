@@ -23,7 +23,6 @@
 #include "SourceRockManager.h"
 #include "StratigraphyManager.h"
 #include "FluidManager.h"
-#include "MapsManager.h"
 
 #include "UndefinedValues.h"
 
@@ -59,7 +58,6 @@
 /// -# \subpage LithologyManagerPage
 /// -# \subpage SourceRockManagerPage
 /// -# \subpage FluidManagerPage
-/// -# \subpage MapsManagerPage
 ///
 /// @page ClassHierachyPage Cauldron Model hierarchy description.
 /// The top level class is the mbapi::Model . It includes and provides access to the following set of classes:
@@ -67,7 +65,6 @@
 ///   -# mbapi::FluidManager - for manipulating fluids
 ///   -# mbapi::SourceRockManager - for manipulating source rocks
 ///   -# mbapi::LithologyManager for manipulating lithologies
-///   -# mbapi::MapsManager for manipulating 2D input maps
 
 /// @brief Namespace which keeps API to manipulate Cauldron model
 namespace mbapi {
@@ -128,14 +125,6 @@ namespace mbapi {
       /// @param propName name of the column
       /// @param propValue value to be set in the table
       /// @return ErrorHandler::NoError on success, error code otherwise
-      ErrorHandler::ReturnCode setTableValue( const std::string & tableName, size_t rowNumber, const std::string & propName, int propValue );
-
-      /// @brief Set value in the table
-      /// @param tableName name of the table in project file
-      /// @param rowNumber row number in the table
-      /// @param propName name of the column
-      /// @param propValue value to be set in the table
-      /// @return ErrorHandler::NoError on success, error code otherwise
       ErrorHandler::ReturnCode setTableValue( const std::string & tableName, size_t rowNumber, const std::string & propName, double propValue );
 
       /// @brief Set value in the table
@@ -171,8 +160,6 @@ namespace mbapi {
       /// @return NoError in case of success, error code otherwise.
       ReturnCode saveModelToProjectFile( const char * projectFileName );
 
-      // Access to some project functionality
-
       /// @brief Get model stratigraphy manager. It allows manipulate model startigraphy
       /// @return reference to the model stratigraphy. It created/deleted by the Model itself.
       StratigraphyManager & stratigraphyManager();
@@ -196,26 +183,7 @@ namespace mbapi {
       /// @brief Get property manager. It provides access to the FilterTimeIoTable in project file
       /// @return reference to property manager
       PropertyManager & propertyManager();
-
-      /// @brief Get input maps manager. It provides access to the GridMapIoTbl in project file
-      /// @return reference to maps manager
-      MapsManager & mapsManager();
-
-
-      // Request some project porperties
-
-      /// @brief Get basin model origin areal position
-      /// @param[out] x x coordinate [m] for the project origin
-      /// @param[out] y y coordinate [m] for the project origin
-      /// @return ErrorHandler::NoError on success, or error code otherwise
-      ReturnCode origin( double & x, double & y );
-
-      /// @brief Get basin model areal dimenstions
-      /// @param[out] dimX length [m] of the model along X axis
-      /// @param[out] dimY length [m] of the model along Y axis
-      /// @return ErrorHandler::NoError on success, or error code otherwise
-      ReturnCode arealSize( double & dimX, double & dimY );
-
+    
       ///@}
 
    private:

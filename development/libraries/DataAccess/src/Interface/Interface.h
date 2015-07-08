@@ -5,7 +5,6 @@
 #include <string>
 using namespace std;
 
-#include <boost/shared_ptr.hpp>
 
 // V.R. Ambati (25/07/2011)
 // typedef's are not needed at the moment.
@@ -84,7 +83,6 @@ namespace DataAccess
       class Reservoir;
       class RunParameters;
       class SGDensitySample;
-      class SimulationDetails;
       class Snapshot;
       class SourceRock;
       class Surface;
@@ -157,18 +155,6 @@ namespace DataAccess
       typedef vector<const RelatedProject *> RelatedProjectList;
       /// list type for constrained overpressure intervals.
       typedef vector<const ConstrainedOverpressureInterval*> ConstrainedOverpressureIntervalList;
-
-      /// list type for the SimulationDetails
-      typedef vector<const SimulationDetails*> SimulationDetailsList;
-
-      /// \typedef SimulationDetailsListPtr
-      /// \brief Smart pointer to vector of simulation-details.
-      typedef boost::shared_ptr<SimulationDetailsList> SimulationDetailsListPtr;
-
-      /// \typedef PropertyListPtr
-      /// \brief Smart pointer to vector of properties.
-      typedef boost::shared_ptr<PropertyList> PropertyListPtr;
-
 
       const string ALCBasalt = "ALC Basalt";
 
@@ -255,7 +241,7 @@ namespace DataAccess
       };
 
 
-      /// Specifies whether a Property applies to formations, reservoirs or traps.
+      /// Specifies whether a Property applies to Formations or Reservoirs
       enum PropertyType { FORMATIONPROPERTY, RESERVOIRPROPERTY, TRAPPROPERTY };
 
       /// Indicates the type of formation.
@@ -702,9 +688,6 @@ namespace DataAccess
       /// \brief Mutable list of all sg-density samples.
       typedef vector<SGDensitySample*> MutableSGDensitySampleList;
 
-
-      /// list type for the SimulationDetails
-      typedef vector<SimulationDetails*> MutableSimulationDetailsList;
 
       /// Value for undefined used in maps
       const double DefaultUndefinedMapValue = 99999;

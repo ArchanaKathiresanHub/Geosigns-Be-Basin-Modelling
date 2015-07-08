@@ -168,10 +168,10 @@ TEST ( AbstractPropertyManagerTest,  Test1 )
 
 TestPropertyManager::TestPropertyManager () {
    // These will come from the project handle.
-   m_mockProperties.push_back ( new DataModel::MockProperty ( "Property1", DataModel::CONTINUOUS_3D_PROPERTY ) );
-   m_mockProperties.push_back ( new DataModel::MockProperty ( "Property2", DataModel::CONTINUOUS_3D_PROPERTY ) );
-   m_mockProperties.push_back ( new DataModel::MockProperty ( "Property3", DataModel::CONTINUOUS_3D_PROPERTY ) );
-   m_mockProperties.push_back ( new DataModel::MockProperty ( "Property4", DataModel::CONTINUOUS_3D_PROPERTY ) );
+   m_mockProperties.push_back ( new DataModel::MockProperty ( "Property1" ) );
+   m_mockProperties.push_back ( new DataModel::MockProperty ( "Property2" ) );
+   m_mockProperties.push_back ( new DataModel::MockProperty ( "Property3" ) );
+   m_mockProperties.push_back ( new DataModel::MockProperty ( "Property4" ) );
 
    // Add all properties to the property manager.
    for ( size_t i = 0; i < m_mockProperties.size (); ++i ) {

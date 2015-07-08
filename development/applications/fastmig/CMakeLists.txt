@@ -51,7 +51,6 @@ bm_include_libraries(
 
 
 target_link_libraries(fastmig
-	DataModel
 	DataAccess
 	DerivedProperties
 	DistributedDataAccess

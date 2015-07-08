@@ -188,11 +188,11 @@ TEST ( SurfacePropertyTest, Test1 )
 
 TestPropertyManager::TestPropertyManager () {
    // These will come from the project handle.
-   m_mockProperties.push_back ( new DataModel::MockProperty ( "Depth", DataModel::CONTINUOUS_3D_PROPERTY ) );
-   m_mockProperties.push_back ( new DataModel::MockProperty ( "Thickness", DataModel::FORMATION_2D_PROPERTY ) );
-   m_mockProperties.push_back ( new DataModel::MockProperty ( "Pressure", DataModel::DISCONTINUOUS_3D_PROPERTY ) );
-   m_mockProperties.push_back ( new DataModel::MockProperty ( "OverPressure", DataModel::CONTINUOUS_3D_PROPERTY ) );
-   m_mockProperties.push_back ( new DataModel::MockProperty ( "HydroStaticPressure", DataModel::CONTINUOUS_3D_PROPERTY ) );
+   m_mockProperties.push_back ( new DataModel::MockProperty ( "Depth" ) );
+   m_mockProperties.push_back ( new DataModel::MockProperty ( "Thickness" ) );
+   m_mockProperties.push_back ( new DataModel::MockProperty ( "Pressure" ) );
+   m_mockProperties.push_back ( new DataModel::MockProperty ( "OverPressure" ) );
+   m_mockProperties.push_back ( new DataModel::MockProperty ( "HydroStaticPressure" ) );
 
    // Add all properties to the property manager.
    for ( size_t i = 0; i < m_mockProperties.size (); ++i ) {

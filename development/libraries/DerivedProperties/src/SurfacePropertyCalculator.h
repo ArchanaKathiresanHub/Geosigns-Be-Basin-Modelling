@@ -31,11 +31,6 @@ namespace DerivedProperties {
                                const DataModel::AbstractSurface*  surface,
                                      SurfacePropertyList&         derivedProperties ) const = 0;
 
-      /// \brief Determine if the property is computable for the specific combination of surface and snapshot.
-      virtual bool isComputable ( const AbstractPropertyManager&     propManager,
-                                  const DataModel::AbstractSnapshot* snapshot,
-                                  const DataModel::AbstractSurface*  surface ) const;
-
    };
 
 

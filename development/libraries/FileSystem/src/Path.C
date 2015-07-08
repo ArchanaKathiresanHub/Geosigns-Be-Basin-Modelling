@@ -13,8 +13,6 @@
 
 #include "Path.h"
 
-#include "boost/filesystem.hpp"
-
 #include <sys/types.h>
 #include <sys/stat.h>
 
@@ -43,7 +41,7 @@ Path & Path::cutLast()
 }
 
 // Split path by path separator and return the number of elements in path
-size_t Path::size() const
+size_t Path::size()
 {
    int sz = 0;
    boost::filesystem::path thePath( m_path );
@@ -56,7 +54,7 @@ size_t Path::size() const
 }
 
 // Path element accessor
-std::string Path::operator [] ( size_t i ) const
+std::string Path::operator [] ( size_t i )
 {
    boost::filesystem::path thePath( m_path );
 
@@ -68,11 +66,6 @@ std::string Path::operator [] ( size_t i ) const
       return it->string();
    else
       return "";
-}
-
-Path Path::fullPath() const
-{
-   return Path( boost::filesystem::absolute( boost::filesystem::path( m_path ) ).string() );
 }
 
 }

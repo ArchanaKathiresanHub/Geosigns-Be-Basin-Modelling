@@ -1,12 +1,12 @@
-//
+// 
 // Copyright (C) 2012-2014 Shell International Exploration & Production.
 // All rights reserved.
-//
+// 
 // Developed under license for Shell by PDS BV.
-//
+// 
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-//
+// 
 
 /// @file MonteCarloSolver.h
 /// @brief This file keeps declaration API for performing Monte Carlo simulation
@@ -29,29 +29,29 @@
 /// @f$ \left\{ \vec{P_{j}}\right\} =\left\{ \left(p_{1},p_{2},...,p_{n}\right)_j\right\} @f$
 /// inside the given parameter's range. For each such randomly generated parameters vector it evaluates the
 /// response surface proxy and calculates values for each observable.
-///
-/// Markov Chain Monte Carlo is a more sophisticated algorithm that iteratively converges to the  posterior
-/// probability distribution function. Again, the result is the (narrower) Probability Density Function (PDF) of the observables in terms of
-/// the quantiles. In other words MCMC algorithm generates parameter vectors during sampling only in the areas
+/// 
+/// Markov Chain Monte Carlo is a more sophisticated algorithm that iteratively converges to the  posterior 
+/// probability distribution function. Again, the result is the (narrower) Probability Density Function (PDF) of the observables in terms of 
+/// the quantiles. In other words MCMC algorithm generates parameter vectors during sampling only in the areas 
 /// of the response surface, which match the reference value of the observables.
 ///
 /// @TODO Describe Monte Carlo based local solver
 ///
-/// SUMlib uses a regression technique (Singular Value Decomposition) to determine a polynomial expression for each observable. This implies
+/// SUMlib uses a regression technique (Singular Value Decomposition) to determine a polynomial expression for each observable. This implies 
 /// that, generally, the polynomial does not exactly fit the simulated observable output for the run cases. In other words, the polynomial contains
-/// regression errors. As these regression errors are known for the run cases, SUMlib uses another technique (Kriging) to interpolate between these
+/// regression errors. As these regression errors are known for the run cases, SUMlib uses another technique (Kriging) to interpolate between these 
 /// known regression errors. As a result, you have the option to add a Kriging correction on top of the polynomial (can be 0-order only). So any
 /// proxy evaluation involves a polynomial evaluation and may involve a Kriging evaluation depending on the setting.
 ///
-/// User can set how the Kriging is used for running the algorithm. If Global_Kriging is set, every step of the algorithm will involve a Kriging
+/// User can set how the Kriging is used for running the algorithm. If Global_Kriging is set, every step of the algorithm will involve a Kriging 
 /// evaluation. If Smart_Kriging is set, some steps of the algorithm will involve a Kriging evaluation.
-/// If NoKriging is set (default), all the steps of the algorithm will involve polynomial evaluation only, i.e. no Kriging. Note that this
-/// differs from the Kriging setting of the proxy itself. If Kriging setting of the proxy and proxy usage setting of the algorithm do not match (i.e.
-/// one of them is set to no Kriging, while the other is set to Kriging) both settings will be set to no Kriging.
+/// If NoKriging is set (default), all the steps of the algorithm will involve polynomial evaluation only, i.e. no Kriging. Note that this 
+/// differs from the Kriging setting of the proxy itself. If Kriging setting of the proxy and proxy usage setting of the algorithm do not match (i.e. 
+/// one of them is set to no Kriging, while the other is set to Kriging) both settings will be set to no Kriging. 
 ///
 
 namespace casa
-{
+{  
    class ObsSpace;
    class VarSpace;
    class RSProxy;
@@ -86,22 +86,22 @@ namespace casa
       /// @brief Distrubution type for measurements
       enum MeasurementDistribution
       {
-         NoMeasurements,
+         NoMeasurements, 
          Normal,         /**< Measurements are assumed to be Gaussian distributed (default). This setting is required
                               if used in combination with the GOF (Goodness Of Fit) indicator, and therefore recommended
                               for the final uncertainty analysis. */
          Robust,         /**< Measurements are assumed to be distributed according to a Laplace distribution which results
                               into less sensitivity to outliers */
-         Mixed           /**< Measurements are assumed to be Gaussian distributed for good measurement fits, and according
+         Mixed           /**< Measurements are assumed to be Gaussian distributed for good measurement fits, and according 
                               to a Laplace distribution for outliers. */
       };
 
       /// @brief How to use parameters PDF
       enum PriorDistribution
       {
-         NoPrior,           /**< No prior preference for any value between the bounds of the variable parameter.
+         NoPrior,           /**< No prior preference for any value between the bounds of the variable parameter. 
                                  Equivalent to a uniform distribution for all variable parameters.*/
-         MarginalPrior,     /**< The prior probability distribution for a single variable parameter independent
+         MarginalPrior,     /**< The prior probability distribution for a single variable parameter independent 
                                  of other variable parameters */
          MultivariatePrior  /**< not supported yet */
       };
@@ -125,7 +125,7 @@ namespace casa
       /// @return prior distribution type
       virtual PriorDistribution priorDistribution() const = 0;
 
-      /// @brief For MCMC algorithm - get the goodness of fit (GOF) to be displayed (in %).
+      /// @brief For MCMC algorithm - get the goodness of fit (GOF) to be displayed (in %). 
       ///        Preferably, the GOF should be larger than about 50%.
       /// @return The goodness of fit.
       virtual double GOF() const = 0;
@@ -137,7 +137,7 @@ namespace casa
       /// @brief For MCMC algorithm get proposed standard deviation factor to keep GOF > 50%
       /// @return proposed standard deviation factor value
       virtual double proposedStdDevFactor() const = 0;
-
+ 
       /// @brief Perform Monte Carlo simulation and collect results in one go.
       /// @return ErrorHandler::NoError on success, error code otherwise
       virtual ErrorHandler::ReturnCode runSimulation( RSProxy        & proxy              ///< A response Surface proxy object
@@ -149,7 +149,7 @@ namespace casa
                                                     , double           stdDevFactor = 1.0 ///< used in MCMC to scale std. dev. of observables for better GOF value
                                                     ) = 0;
 
-      /// @brief Perform all neccessary steps for Monte Carlo simulation but do not run calculation itself
+      /// @brief Perform all neccessary steps for Monte Carlo simulation but do not run calculation itself 
       /// @return ErrorHandler::NoError on success, error code otherwise
       virtual ErrorHandler::ReturnCode prepareSimulation( RSProxy        & proxy              ///< A response Surface proxy object
                                                         , const VarSpace & proxyVsp           ///< A set of variable parameters which were used to build proxy
@@ -189,7 +189,7 @@ namespace casa
       /// @return RMSE value for i-th sampling
       virtual double RMSE( size_t i ) const = 0;
 
-      /// @brief  Get RunCase object for i-th sampling point. RunCase keeps
+      /// @brief  Get RunCase object for i-th sampling point. RunCase keeps 
       ///         parameters value generated by MonteCarlo solver and evaluated by RSProxy observables values
       /// @param  i  zero-based index of sampling
       /// @return RunCase object pointer on success or null pointer if there is no sampling with given index

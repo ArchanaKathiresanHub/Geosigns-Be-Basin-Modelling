@@ -6,8 +6,6 @@
 
 // #include "hdf5.h"
 
-#include "PropertyAttribute.h"
-
 using namespace std;
 #include "Interface/Interface.h"
 
@@ -100,8 +98,6 @@ namespace DataAccess
 
             virtual ProjectData * produceProjectData (ProjectHandle * projectHandle, database::Record * record);
 
-            virtual SimulationDetails* produceSimulationDetails ( ProjectHandle * projectHandle, database::Record * record );
-
 	    virtual AllochthonousLithology * produceAllochthonousLithology (ProjectHandle * projectHandle, database::Record * record);
 
 	    virtual AllochthonousLithologyDistribution * produceAllochthonousLithologyDistribution (ProjectHandle * projectHandle, database::Record * record);
@@ -140,9 +136,8 @@ namespace DataAccess
             virtual PermafrostEvent* producePermafrostEvent (ProjectHandle * projectHandle, database::Record * record );
 
 	    virtual Property * produceProperty (ProjectHandle * projectHandle, database::Record * record,
-                                                const string & userName, const string & cauldronName,
-                                                const string & unit, PropertyType type,
-                                                const DataModel::PropertyAttribute attr );
+                     const string & userName, const string & cauldronName,
+                     const string & unit, PropertyType type);
 
 	    virtual PropertyValue * producePropertyValue (ProjectHandle * projectHandle, database::Record * record,
 		  const string & name, const Property * property, const Snapshot * snapshot,

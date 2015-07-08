@@ -1,5 +1,4 @@
 #include "SurfaceProperty.h"
-#include "Interpolate2DProperty.h"
 
 DerivedProperties::SurfaceProperty::SurfaceProperty ( const DataModel::AbstractProperty* property,
                                                       const DataModel::AbstractSnapshot* snapshot,
@@ -11,11 +10,4 @@ DerivedProperties::SurfaceProperty::SurfaceProperty ( const DataModel::AbstractP
    m_grid ( grid )
 {
    // Should check that they aint null.
-}
-
-double DerivedProperties::SurfaceProperty::interpolate ( double i,
-                                                         double j ) const {
-
-   Interpolate2DProperty<SurfaceProperty> interpolator;
-   return interpolator.interpolate ( *this, i, j );
 }

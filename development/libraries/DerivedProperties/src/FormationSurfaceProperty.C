@@ -1,5 +1,4 @@
 #include "FormationSurfaceProperty.h"
-#include "Interpolate2DProperty.h"
 
 DerivedProperties::FormationSurfaceProperty::FormationSurfaceProperty ( const DataModel::AbstractProperty*  property,
                                                                         const DataModel::AbstractSnapshot*  snapshot,
@@ -12,11 +11,4 @@ DerivedProperties::FormationSurfaceProperty::FormationSurfaceProperty ( const Da
    m_formation ( formation ),
    m_grid ( grid )
 {
-}
-
-double DerivedProperties::FormationSurfaceProperty::interpolate ( double i,
-                                                                  double j ) const {
-
-   Interpolate2DProperty<FormationSurfaceProperty> interpolator;
-   return interpolator.interpolate ( *this, i, j );
 }

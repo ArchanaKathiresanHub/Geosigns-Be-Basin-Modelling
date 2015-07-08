@@ -114,11 +114,9 @@ const std::vector<BurialHistoryTimeStep> & BurialHistory::returnAsArray (int i, 
 /// external use is dynamically allocated here.
 bool BurialHistory::loadPaleoData (void)
 {
-
-   const DataAccess::Interface::Formation * formation = m_surface->getBottomFormation();
-   PropertyValueList * propertyValues = m_projectHandle.getPropertyValues (FORMATION | SURFACE, 0, 0, 0, formation, m_surface, VOLUME | MAP);
-
-   PropertyValueList::iterator iter;
+    PropertyValueList * propertyValues = m_projectHandle.getPropertyValues (SURFACE, 0, 0, 0, 0, m_surface, MAP);
+ 
+    PropertyValueList::iterator iter;
  
     for (iter = propertyValues->begin (); iter != propertyValues->end (); ++iter)
     {
@@ -145,8 +143,6 @@ bool BurialHistory::loadPaleoData (void)
         }
   
         const GridMap * gridMap = propertyValue->getGridMap ();
- 
-        unsigned int maxK = gridMap->getDepth() - 1 ;   
   
         string propValueString;
         propertyValue->asString (propValueString);
@@ -159,7 +155,7 @@ bool BurialHistory::loadPaleoData (void)
         {
             for (j = m_firstJ; j <= m_lastJ; ++j)
             {
-               propertyArray [i - m_firstI][j - m_firstJ] = gridMap->getValue ((unsigned int) i, (unsigned int) j, maxK );
+                propertyArray [i - m_firstI][j - m_firstJ] = gridMap->getValue ((unsigned int) i, (unsigned int) j);
             }
         }
         gridMap->restoreData ();

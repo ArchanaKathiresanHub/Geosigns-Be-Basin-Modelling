@@ -27,7 +27,7 @@ namespace casa
 
    /// @brief Base class for CASA serializer. It defines interfaces which must be
    /// implemented by serialaizer to be able to save CASA objects to output stream
-   class CasaSerializer
+   class CasaSerializer 
    {
    public:
       typedef size_t ObjRefID;

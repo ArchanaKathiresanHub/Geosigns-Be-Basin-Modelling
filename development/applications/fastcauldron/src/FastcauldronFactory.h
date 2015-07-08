@@ -1,8 +1,6 @@
 #ifndef __FASTCAULDRONOBJECTFACTORY_HH_
 #define __FASTCAULDRONOBJECTFACTORY_HH_
 
-#include "PropertyAttribute.h"
-
 #include "GeoPhysicsObjectFactory.h"
 // #include "Interface/ObjectFactory.h"
 
@@ -55,12 +53,11 @@ public :
 
    /// Allocate a fastcauldron property.
    Interface::Property * produceProperty ( Interface::ProjectHandle * projectHandle,
-                                           database::Record *                 record,
-                                           const string &                     userName,
-                                           const string &                     cauldronName,
-                                           const string &                     unit, 
-                                           Interface::PropertyType            type,
-                                           const DataModel::PropertyAttribute attr );
+                                                database::Record *              record,
+                                                const string &                  userName,
+                                                const string &                  cauldronName,
+                                                const string &                  unit, 
+                                                Interface::PropertyType         type);
 
    /// Allocate a fastcauldron property-value.
    Interface::PropertyValue * producePropertyValue ( Interface::ProjectHandle *   projectHandle,

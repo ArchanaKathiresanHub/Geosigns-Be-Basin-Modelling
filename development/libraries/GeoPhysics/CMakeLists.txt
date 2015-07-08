@@ -20,16 +20,16 @@ set(cross_platform_headers
       src/PermeabilityMudStone.h
       src/PermeabilityMultiPoint.h
       src/PermeabilitySandStone.h
-	  src/SeismicVelocity.h
-	  src/SeismicVelocityGardner.h
-	  src/SeismicVelocityLorcan.h
-	  src/SeismicVelocityWyllie.h
-	  src/SchneiderCompactionCalculator.h
-	  src/SoilMechanicsPorosity.h
+	   src/SeismicVelocity.h
+	   src/SeismicVelocityGardner.h
+	   src/SeismicVelocityLorcan.h
+	   src/SeismicVelocityWyllie.h
+	   src/SchneiderCompactionCalculator.h
+	   src/SoilMechanicsPorosity.h
       src/VreTtiMethod.h
       src/VreArrheniusMethod.h
       src/VitriniteReflectance.h
-	  src/WalderhaugCompactionCalculator.h
+	   src/WalderhaugCompactionCalculator.h
 )
 
 set(unix_only_headers
@@ -56,7 +56,7 @@ set(unix_only_headers
       src/Local2DArray.h
       src/Local3DArray.h
       src/SimpleLithology.h
-      src/TimeDependentLithology.h
+      src/TimeDependantLithology.h
    )
 
 set(cross_platform_srcs
@@ -68,16 +68,16 @@ set(cross_platform_srcs
       src/PermeabilityMudStone.C
       src/PermeabilityMultiPoint.C
       src/PermeabilitySandStone.C
-	  src/SeismicVelocity.C
-	  src/SeismicVelocityGardner.C
-	  src/SeismicVelocityLorcan.C
-	  src/SeismicVelocityWyllie.C
-	  src/SchneiderCompactionCalculator.C
-	  src/SoilMechanicsPorosity.C
+	   src/SeismicVelocity.C
+	   src/SeismicVelocityGardner.C
+	   src/SeismicVelocityLorcan.C
+	   src/SeismicVelocityWyllie.C
+	   src/SchneiderCompactionCalculator.C
+	   src/SoilMechanicsPorosity.C
       src/VreTtiMethod.C
       src/VreArrheniusMethod.C
       src/VitriniteReflectance.C
-	  src/WalderhaugCompactionCalculator.C
+	   src/WalderhaugCompactionCalculator.C
 )
 
 set(unix_only_srcs
@@ -101,7 +101,7 @@ set(unix_only_srcs
       src/HCDensity.C
       src/LithologyManager.C
       src/SimpleLithology.C
-      src/TimeDependentLithology.C
+      src/TimeDependantLithology.C
    )
 
 set(unix_only_libs

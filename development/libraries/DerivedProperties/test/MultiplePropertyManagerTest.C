@@ -186,11 +186,11 @@ TEST ( AbstractPropertyManagerTest, VesTest )
 
 TestPropertyManager::TestPropertyManager () {
    // These will come from the project handle.
-   m_mockProperties.push_back ( new DataModel::MockProperty ( "LithoStaticPressure", DataModel::CONTINUOUS_3D_PROPERTY ) );
-   m_mockProperties.push_back ( new DataModel::MockProperty ( "Pressure", DataModel::CONTINUOUS_3D_PROPERTY ) );
-   m_mockProperties.push_back ( new DataModel::MockProperty ( "Ves", DataModel::CONTINUOUS_3D_PROPERTY ) );
-   m_mockProperties.push_back ( new DataModel::MockProperty ( "Property2", DataModel::CONTINUOUS_3D_PROPERTY ) );
-   m_mockProperties.push_back ( new DataModel::MockProperty ( "Property3", DataModel::CONTINUOUS_3D_PROPERTY ) );
+   m_mockProperties.push_back ( new DataModel::MockProperty ( "LithoStaticPressure" ) );
+   m_mockProperties.push_back ( new DataModel::MockProperty ( "Pressure" ) );
+   m_mockProperties.push_back ( new DataModel::MockProperty ( "Ves" ) );
+   m_mockProperties.push_back ( new DataModel::MockProperty ( "Property2" ) );
+   m_mockProperties.push_back ( new DataModel::MockProperty ( "Property3" ) );
 
    // Add all properties to the property manager.
    for ( size_t i = 0; i < m_mockProperties.size (); ++i ) {

@@ -361,6 +361,7 @@ bool TwoWayTimeResidualCalculator::operator ()( const OutputPropertyMap::OutputP
 
    TwoWayTimeResidualMap = propertyValues[0]->getGridMap( );
    TwoWayTimeResidualMap->retrieveData( );
+   // access to data if there is a map
    if (m_twoWayTimeInitial != 0) {
       m_twoWayTimeInitial->retrieveData();
    }
@@ -409,12 +410,18 @@ void TwoWayTimeResidualCalculator::allocatePropertyValues( OutputPropertyMap::Pr
 
 bool TwoWayTimeResidualCalculator::initialise( OutputPropertyMap::PropertyValueList& propertyValues ) {
 
-   if (FastcauldronSimulator::getInstance( ).getCauldron( )->no2Doutput( )) {
-      propertyValues[0]->allowOutput( false );
-   }
 
    m_twoWayTimeCauldron = PropertyManager::getInstance( ).findOutputPropertyMap( "TwoWayTime", m_formation, m_surface, m_snapshot );
    m_twoWayTimeInitial = m_surface->getInputTwoWayTimeMap( );
+
+   // If there is no 2D outputs, or no initial Two Way Time map linked to the stratigraphic surface,
+   // or if we are not at the present day snapshot (t=0Ma): we do not ouput/compute the property.
+   // !(*m_snapshot == *presentDaySnapshot) is a temporary hack --> cannot be fixed until derived property library is implemented
+   const Interface::Snapshot* presentDaySnapshot = FastcauldronSimulator::getInstance( ).findOrCreateSnapshot( 0.0 );
+   assert( presentDaySnapshot != 0 );
+   if (FastcauldronSimulator::getInstance( ).getCauldron( )->no2Doutput( ) or !m_twoWayTimeInitial or !(*m_snapshot == *presentDaySnapshot) ) {
+      propertyValues[0]->allowOutput( false );
+   }
 
    return m_twoWayTimeCauldron != 0;
 }

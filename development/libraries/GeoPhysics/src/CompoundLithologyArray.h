@@ -5,11 +5,11 @@
 
 #include "AllochthonousLithologyInterpolator.h"
 #include "CompoundLithology.h"
-#include "TimeDependentLithology.h"
+#include "TimeDependantLithology.h"
 
 namespace GeoPhysics {
 
-   /// A two-dimensional array of TimeDependentLithology's.
+   /// A two-dimensional array of TimeDependantLithology's.
    /// The array includes ghost-nodes.
    class CompoundLithologyArray {
 
@@ -54,11 +54,6 @@ namespace GeoPhysics {
       bool isAllochthonousLithology ( const unsigned int subscriptI,
                                       const unsigned int subscriptJ ) const;
 
-      /// Returns whether the lithology at any age is part of the allochthonous modelling.
-      bool isAllochthonousAtAge ( const unsigned int i,
-                                  const unsigned int j,
-                                  const double       age ) const;
-
       bool hasSwitched ( const unsigned int subscriptI,
                          const unsigned int subscriptJ ) const;
 
@@ -80,7 +75,7 @@ namespace GeoPhysics {
 
    private :
 
-      TimeDependentLithology*** m_lithologies;
+      TimeDependantLithology*** m_lithologies;
 
       unsigned int m_first [ 2 ];
       unsigned int m_last  [ 2 ];

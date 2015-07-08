@@ -13,16 +13,17 @@ class TouchstoneFiles
 {
 private:
    DataPipe  m_filename;
+   static const int numCategories = 6;
 public:
 // read methods
    TouchstoneFiles(const char * filename);
-   void readOrder(std::vector<int> & vec);
+   void readOrder(std::vector<int> & order);
    void readNumTimeSteps(size_t * numTimeSteps);
    void readArray(std::vector<double> & OutputProperties);
 // write methods
-   void writeOrder(std::map <int, int> categoriesMappingOrder) ;
-   void writeNumTimeSteps(size_t numTimeSteps);  
-   void writeArray(std::vector<double> & OutputProperties); 
+	void writeOrder(std::map <int, int> categoriesMappingOrder) ;
+	void writeNumTimeSteps(size_t numTimeSteps);  
+	void writeArray(std::vector<double> & OutputProperties); 
 };
 
 #endif

@@ -49,12 +49,12 @@ VarPrmOneCrustThinningEvent::~VarPrmOneCrustThinningEvent()
 
 std::vector<std::string> VarPrmOneCrustThinningEvent::name() const
 {
-   std::vector<std::string> ret;
-   ret.push_back("InitialCrustThickness [m]");
-   ret.push_back("EventStartTime [Ma]");
-   ret.push_back("EventDuration [Ma]");
-   ret.push_back("CrustThinningFactor [m/m]");
-   return ret;
+	std::vector<std::string> ret;
+	ret.push_back("InitialCrustThickness [m]");
+	ret.push_back("EventStartTime [Ma]");
+	ret.push_back("EventDuration [Ma]");
+	ret.push_back("CrustThinningFactor [m/m]");
+	return ret;
 }
 
 SharedParameterPtr VarPrmOneCrustThinningEvent::newParameterFromDoubles( std::vector<double>::const_iterator & vals ) const

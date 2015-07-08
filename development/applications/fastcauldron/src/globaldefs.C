@@ -31,39 +31,3 @@ RelativePermeabilityType RelativePermeabilityTypeValue ( const std::string& type
 
    return result;
 }
-
-CalculationMode getSimulationMode ( const std::string& modeStr ) {
-
-   for ( int i = 0; i < NO_CALCULATION_MODE; ++i ) {
-      CalculationMode mode = static_cast<CalculationMode>( i );
-
-      if ( getSimulationModeString ( mode ) == modeStr ) {
-         return mode;
-      }
-
-   }
-
-   return NO_CALCULATION_MODE;
-}
-
-
-const std::string& getSimulationModeString ( const CalculationMode mode ) {
-
-   static const std::string s_simulationModeStr [ NumberOfCalculationModes ] = { "HydrostaticDecompaction",
-                                                                                 "HydrostaticHighResDecompaction",
-                                                                                 "HydrostaticTemperature",
-                                                                                 "Overpressure",
-                                                                                 "LooselyCoupledTemperature",
-                                                                                 "CoupledHighResDecompaction",
-                                                                                 "CoupledPressureAndTemperature",
-                                                                                 "HydrostaticDarcy",
-                                                                                 "CoupledDarcy",
-                                                                                 "NoCalculaction" };
-
-   if ( mode >= HYDROSTATIC_DECOMPACTION_MODE and mode < NO_CALCULATION_MODE ) {
-      return s_simulationModeStr [ mode ];
-   } else {
-      return s_simulationModeStr [ NO_CALCULATION_MODE ];
-   }
-
-}

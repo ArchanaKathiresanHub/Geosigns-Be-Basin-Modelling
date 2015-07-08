@@ -7,9 +7,8 @@
 
 Property::Property ( Interface::ProjectHandle * projectHandle, database::Record * record,
                      const string & userName, const string & cauldronName,
-                     const string & unit, const Interface::PropertyType type,
-                     const DataModel::PropertyAttribute attr ) :
-   Interface::Property ( projectHandle, record, userName, cauldronName, unit, type, attr ) {
+                     const string & unit, const Interface::PropertyType type ) :
+   Interface::Property ( projectHandle, record, userName, cauldronName, unit, type ) {
 
    m_outputProperty = 0;
 

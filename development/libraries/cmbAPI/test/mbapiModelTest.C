@@ -6,8 +6,6 @@
 #include <stdio.h>
 #include <fstream>
 
-#include "FilePath.h"
-
 //#include <cmath>
 
 #include <gtest/gtest.h>
@@ -24,15 +22,10 @@ public:
    bool compareModels( mbapi::Model & model1, mbapi::Model & model2 );
 
    static const char * m_sourceRockTestProject;
-   static const char * m_testProject;
-   static const char * m_lithologyTestProject;
-   static const char * m_mapsTestProject;
 };
 
 const char * mbapiModelTest::m_sourceRockTestProject = "SourceRockTesting.project3d";
-const char * mbapiModelTest::m_lithologyTestProject  = "LithologyTesting.project3d";
-const char * mbapiModelTest::m_testProject           = "Project.project3d";
-const char * mbapiModelTest::m_mapsTestProject       = "MapsTesting.project3d";
+
 
 bool mbapiModelTest::compareFiles( const char * projFile1, const char * projFile2 )
 {
@@ -94,7 +87,7 @@ TEST_F( mbapiModelTest, ModelLoadSaveProjectRoundTrip )
    modelBase.reset( new mbapi::Model() );
 
    // load original project file
-   ASSERT_EQ( ErrorHandler::NoError, modelBase->loadModelFromProjectFile( m_testProject ) );
+   ASSERT_EQ( ErrorHandler::NoError, modelBase->loadModelFromProjectFile( "Project.project3d" ) );
 
    // Save a first copy 
    ASSERT_EQ( ErrorHandler::NoError, modelBase->saveModelToProjectFile( "Project_case1.project3d" ) );
@@ -119,7 +112,7 @@ TEST_F( mbapiModelTest, BasementPropertySetting )
 {
    mbapi::Model testModel;
    // load project file
-   ASSERT_EQ( ErrorHandler::NoError, testModel.loadModelFromProjectFile( m_testProject ) );
+   ASSERT_EQ( ErrorHandler::NoError, testModel.loadModelFromProjectFile( "Project.project3d" ) );
 
    // check that BasementIoTable has only 1 record
    ASSERT_EQ( testModel.tableSize( "BasementIoTbl" ), 1 );
@@ -301,7 +294,7 @@ TEST_F (mbapiModelTest, SnapshotManager )
 {
    mbapi::Model testModel;
    // load project file
-   ASSERT_EQ( ErrorHandler::NoError, testModel.loadModelFromProjectFile( m_testProject ) );
+   ASSERT_EQ( ErrorHandler::NoError, testModel.loadModelFromProjectFile( "Project.project3d" ) );
 
    // check that SnapshotIoTable has only 5 records
    ASSERT_EQ( testModel.snapshotManager().snapshotsNumber(), 5 );
@@ -383,336 +376,25 @@ TEST_F( mbapiModelTest, SourceRockPreAsphActEnergySettings )
    remove( "ChangedPreAsphEnergy.project3d" );
 }
 
-TEST_F( mbapiModelTest, CopyLithologyTest )
+TEST_F( mbapiModelTest, ModelCopyOperator )
 {
-   mbapi::Model testModel;
+/*   std::auto_ptr<mbapi::Model> modelBase;
+   modelBase.reset( new mbapi::Model() );
 
-   // load test project
-   ASSERT_EQ( ErrorHandler::NoError, testModel.loadModelFromProjectFile( m_testProject ) );
+   ASSERT_EQ( ErrorHandler::NoError, modelBase->loadModelFromProjectFile( "Project.project3d" ) );
 
-   mbapi::LithologyManager & lthMgr = testModel.lithologyManager();
+   mbapi::Model copyModel;
+   copyModel = *( modelBase.get() );
    
-   mbapi::LithologyManager::LithologyID lid = lthMgr.findID( "Std. Sandstone" );
-   ASSERT_NE( lid, UndefinedIDValue );
+   ASSERT_EQ( ErrorHandler::NoError, modelBase->saveModelToProjectFile( "Project_original.project3d" ) );
+   ASSERT_EQ( ErrorHandler::NoError, copyModel.saveModelToProjectFile( "Project_copied.project3d" ) );
 
-   // first try to copy to existent lithology
-   ASSERT_EQ( UndefinedIDValue, lthMgr.copyLithology( lid, "Crust" ) );
-   ASSERT_EQ( lthMgr.errorCode(), ErrorHandler::AlreadyDefined );
-   lthMgr.resetError();
-
-   size_t lithNum = lthMgr.lithologiesIDs().size();
-   
-   mbapi::LithologyManager::LithologyID newLID = lthMgr.copyLithology( lid, "Std. Sandstone COPY" );
-   
-   ASSERT_NE( newLID, UndefinedIDValue );
-   const std::string & newName = lthMgr.lithologyName( newLID );
-   ASSERT_TRUE( newName == "Std. Sandstone COPY" );
-   ASSERT_EQ( lithNum+1, lthMgr.lithologiesIDs().size() );
-}
-
-TEST_F( mbapiModelTest, GetPermeabilityModelParametersTest )
-{
-   mbapi::Model testModel;
-
-   // load test project
-   ASSERT_EQ( ErrorHandler::NoError, testModel.loadModelFromProjectFile( m_lithologyTestProject ) );
-
-   mbapi::LithologyManager & lthMgr = testModel.lithologyManager();
-   
-   // Check Sands permeability
-   mbapi::LithologyManager::LithologyID lid = lthMgr.findID( "Std. Sandstone" );
-   ASSERT_NE( lid, UndefinedIDValue );
-
-   mbapi::LithologyManager::PermeabilityModel permModel;
-   std::vector<double> modelPrms;
-   std::vector<double> mpPor;
-   std::vector<double> mpPerm;
-   
-   ASSERT_EQ( ErrorHandler::NoError, lthMgr.permeabilityModel( lid, permModel, modelPrms, mpPor, mpPerm ) );
-   ASSERT_EQ( permModel, mbapi::LithologyManager::PermSandstone );
-   ASSERT_EQ( modelPrms.size(), 3 );
-   ASSERT_EQ( mpPor.size(), 0 );
-   ASSERT_EQ( mpPerm.size(), 0 );
-   ASSERT_NEAR( modelPrms[0], 1.0, eps );
-   ASSERT_NEAR( modelPrms[1], 6000.0, eps );
-   ASSERT_NEAR( modelPrms[2], 1.5, eps );
-
-   // Check Shales permeability
-   lid = lthMgr.findID( "Std. Shale" );
-   ASSERT_NE( lid, UndefinedIDValue );
-  
-   ASSERT_EQ( ErrorHandler::NoError, lthMgr.permeabilityModel( lid, permModel, modelPrms, mpPor, mpPerm ) );
-   ASSERT_EQ( permModel, mbapi::LithologyManager::PermMudstone );
-   ASSERT_EQ( modelPrms.size(), 4 );
-   ASSERT_EQ( mpPor.size(), 0 );
-   ASSERT_EQ( mpPerm.size(), 0 );
-   ASSERT_NEAR( modelPrms[0], 1.0, eps );
-   ASSERT_NEAR( modelPrms[1], 0.01, eps );
-   ASSERT_NEAR( modelPrms[2], 1.5, eps );
-   ASSERT_NEAR( modelPrms[3], 0.01, eps );
-
-   // Check Nones permeability
-   lid = lthMgr.findID( "Crust" );
-   ASSERT_NE( lid, UndefinedIDValue );
-  
-   ASSERT_EQ( ErrorHandler::NoError, lthMgr.permeabilityModel( lid, permModel, modelPrms, mpPor, mpPerm ) );
-   ASSERT_EQ( permModel, mbapi::LithologyManager::PermNone );
-   ASSERT_EQ( modelPrms.size(), 0 );
-   ASSERT_EQ( mpPor.size(), 0 );
-   ASSERT_EQ( mpPerm.size(), 0 );
-
-   // Check Impermeable permeability
-   lid = lthMgr.findID( "Standard Ice" );
-   ASSERT_NE( lid, UndefinedIDValue );
-   
-   ASSERT_EQ( ErrorHandler::NoError, lthMgr.permeabilityModel( lid, permModel, modelPrms, mpPor, mpPerm ) );
-   ASSERT_EQ( permModel, mbapi::LithologyManager::PermImpermeable );
-   ASSERT_EQ( modelPrms.size(), 0 );
-   ASSERT_EQ( mpPor.size(), 0 );
-   ASSERT_EQ( mpPerm.size(), 0 );
-
-   // Check Multipoint permeability
-   lid = lthMgr.findID( "SM. Sandstone" );
-   ASSERT_NE( lid, UndefinedIDValue );
-  
-   ASSERT_EQ( ErrorHandler::NoError, lthMgr.permeabilityModel( lid, permModel, modelPrms, mpPor, mpPerm ) );
-   ASSERT_EQ(   permModel, mbapi::LithologyManager::PermMultipoint );
-   ASSERT_EQ(   modelPrms.size(), 1 );
-   ASSERT_NEAR( modelPrms[0],  1.0, eps );
-   ASSERT_EQ(   mpPor.size(),  2 );
-   ASSERT_EQ(   mpPerm.size(), 2 );
-   ASSERT_NEAR( mpPor[0],  5.0, eps );
-   ASSERT_NEAR( mpPor[1],  60.0, eps );
-   ASSERT_NEAR( mpPerm[0], 0.3, eps );
-   ASSERT_NEAR( mpPerm[1], 8.6, eps );
-}
+   compareFiles( "Project_original.project3d", "Project_copied.project3d" );
+   // clean files copy
+   remove( "Project_case1.project3d" );
+   remove( "Project_case2.project3d" );
+  */ 
+ }
 
 
-
-TEST_F( mbapiModelTest, SetPermeabilityModelParametersTest )
-{
-   mbapi::Model testModel;
-
-   // load test project
-   ASSERT_EQ( ErrorHandler::NoError, testModel.loadModelFromProjectFile( m_lithologyTestProject ) );
-
-   mbapi::LithologyManager & lthMgr = testModel.lithologyManager();
-   
-   // Check Sands permeability
-   mbapi::LithologyManager::LithologyID lid = lthMgr.findID( "Crust" );
-   ASSERT_NE( lid, UndefinedIDValue );
-
-   // change model from None to Impermeable
-   mbapi::LithologyManager::PermeabilityModel permModel = mbapi::LithologyManager::PermImpermeable;
-   std::vector<double> modelPrms;
-   std::vector<double> mpPor;
-   std::vector<double> mpPerm;
-   
-   ASSERT_EQ( ErrorHandler::NoError, lthMgr.setPermeabilityModel( lid, permModel, modelPrms, mpPor, mpPerm ) );
-
-   // change from Impermeable to None
-   lid = lthMgr.findID( "Standard Ice" );
-   ASSERT_NE( lid, UndefinedIDValue );
- 
-   permModel = mbapi::LithologyManager::PermNone;
-   ASSERT_EQ( ErrorHandler::NoError, lthMgr.setPermeabilityModel( lid, permModel, modelPrms, mpPor, mpPerm ) );
-
-   // change a bit coeff for Mudstone
-   lid = lthMgr.findID( "Std. Shale" );
-   ASSERT_NE( lid, UndefinedIDValue );
-  
-   permModel = mbapi::LithologyManager::PermMudstone;
-   modelPrms.push_back( 1.0 );  // anisothropic coeff
-   modelPrms.push_back( 0.03 ); // depo por
-   modelPrms.push_back( 1.55 ); // incr coeff
-   modelPrms.push_back( 0.02 ); // decr coeff
-
-   ASSERT_EQ( ErrorHandler::NoError, lthMgr.setPermeabilityModel( lid, permModel, modelPrms, mpPor, mpPerm ) );
-
-   // change Sandstone permeability
-   lid = lthMgr.findID( "Std. Sandstone" );
-   ASSERT_NE( lid, UndefinedIDValue );
-
-   permModel = mbapi::LithologyManager::PermSandstone;
-   modelPrms.resize( 1 );
-   modelPrms.push_back( 7000.0 ); // depo por
-   modelPrms.push_back( 1.45 ); // incr coeff
-
-   ASSERT_EQ( ErrorHandler::NoError, lthMgr.setPermeabilityModel( lid, permModel, modelPrms, mpPor, mpPerm ) );
-
-   // change Multipoint permeability
-   lid = lthMgr.findID( "SM. Sandstone" );
-   ASSERT_NE( lid, UndefinedIDValue );
-   permModel = mbapi::LithologyManager::PermMultipoint;
-
-   modelPrms.resize( 1 );
-   mpPor.push_back( 10.0 ); 
-   mpPor.push_back( 20.0 ); 
-   mpPor.push_back( 30.0 ); 
-
-   mpPerm.push_back( 2.0 ); 
-   mpPerm.push_back( 3.0 ); 
-   mpPerm.push_back( 4.0 ); 
-
-   ASSERT_EQ( ErrorHandler::NoError, lthMgr.setPermeabilityModel( lid, permModel, modelPrms, mpPor, mpPerm ) );
-
-   // do round trip - save/load project file and compare parameters
-   std::string newProjName ( "mod_" ); 
-   newProjName += m_lithologyTestProject;
-
-   ASSERT_EQ( ErrorHandler::NoError, lthMgr.setPermeabilityModel( lid, permModel, modelPrms, mpPor, mpPerm ) );
-   ASSERT_EQ( ErrorHandler::NoError, testModel.saveModelToProjectFile( newProjName.c_str() ) );
-
-   mpPor.clear();
-   mpPerm.clear();
-
-   mbapi::Model checkTestModel;
-   ASSERT_EQ( ErrorHandler::NoError, testModel.loadModelFromProjectFile( newProjName.c_str() ) );
-
-   lid = lthMgr.findID( "Crust" );
-   ASSERT_NE( lid, UndefinedIDValue );
-
-   ASSERT_EQ( ErrorHandler::NoError, lthMgr.permeabilityModel( lid, permModel, modelPrms, mpPor, mpPerm ) );
-   ASSERT_EQ( permModel, mbapi::LithologyManager::PermImpermeable );
-   ASSERT_EQ( modelPrms.size(), 0 );
-   ASSERT_EQ( mpPor.size(), 0 );
-   ASSERT_EQ( mpPerm.size(), 0 );
-
-   lid = lthMgr.findID( "Standard Ice" );
-   ASSERT_NE( lid, UndefinedIDValue );
-   
-   ASSERT_EQ( ErrorHandler::NoError, lthMgr.permeabilityModel( lid, permModel, modelPrms, mpPor, mpPerm ) );
-   ASSERT_EQ( permModel, mbapi::LithologyManager::PermNone );
-   ASSERT_EQ( modelPrms.size(), 0 );
-   ASSERT_EQ( mpPor.size(), 0 );
-   ASSERT_EQ( mpPerm.size(), 0 );
-
-   lid = lthMgr.findID( "Std. Shale" );
-   ASSERT_NE( lid, UndefinedIDValue );
-  
-   ASSERT_EQ( ErrorHandler::NoError, lthMgr.permeabilityModel( lid, permModel, modelPrms, mpPor, mpPerm ) );
-   ASSERT_EQ( permModel, mbapi::LithologyManager::PermMudstone );
-   ASSERT_EQ( modelPrms.size(), 4 );
-   ASSERT_EQ( mpPor.size(), 0 );
-   ASSERT_EQ( mpPerm.size(), 0 );
-   ASSERT_NEAR( modelPrms[0], 1.0, eps );
-   ASSERT_NEAR( modelPrms[1], 0.03, eps );
-   ASSERT_NEAR( modelPrms[2], 1.55, eps );
-   ASSERT_NEAR( modelPrms[3], 0.02, eps );
-
-   lid = lthMgr.findID( "Std. Sandstone" );
-   ASSERT_NE( lid, UndefinedIDValue );
-  
-   ASSERT_EQ( ErrorHandler::NoError, lthMgr.permeabilityModel( lid, permModel, modelPrms, mpPor, mpPerm ) );
-   ASSERT_EQ( permModel, mbapi::LithologyManager::PermSandstone );
-   ASSERT_EQ( modelPrms.size(), 3 );
-   ASSERT_EQ( mpPor.size(), 0 );
-   ASSERT_EQ( mpPerm.size(), 0 );
-   ASSERT_NEAR( modelPrms[0], 1.0, eps );
-   ASSERT_NEAR( modelPrms[1], 7000.0, eps );
-   ASSERT_NEAR( modelPrms[2], 1.45, eps );
-
-   // Check Multipoint permeability
-   lid = lthMgr.findID( "SM. Sandstone" );
-   ASSERT_NE( lid, UndefinedIDValue );
-  
-   ASSERT_EQ( ErrorHandler::NoError, lthMgr.permeabilityModel( lid, permModel, modelPrms, mpPor, mpPerm ) );
-   ASSERT_EQ(   permModel, mbapi::LithologyManager::PermMultipoint );
-   ASSERT_EQ(   modelPrms.size(), 1 );
-   ASSERT_NEAR( modelPrms[0],  1.0, eps );
-   ASSERT_EQ(   mpPor.size(),  3 );
-   ASSERT_EQ(   mpPerm.size(), 3 );
-   ASSERT_NEAR( mpPor[0],  10.0, eps );
-   ASSERT_NEAR( mpPor[1],  20.0, eps );
-   ASSERT_NEAR( mpPor[2],  30.0, eps );
-   ASSERT_NEAR( mpPerm[0], 2.0, eps );
-   ASSERT_NEAR( mpPerm[1], 3.0, eps );
-   ASSERT_NEAR( mpPerm[2], 4.0, eps );
-}
-
-
-TEST_F( mbapiModelTest, MapsManagerCopyMapTest )
-{
-   mbapi::Model testModel;
-
-   // load test project
-   ASSERT_EQ( ErrorHandler::NoError, testModel.loadModelFromProjectFile( m_mapsTestProject ) );
-   std::string mapName = "MAP-1076770443-4";
-   
-   // clean any previous runs result
-   if ( ibs::FilePath( "MAP-1076770443-4_copy.HDF" ).exists() ) { ibs::FilePath( "MAP-1076770443-4_copy.HDF" ).remove(); }
-   if ( ibs::FilePath( "Test.HDF"                  ).exists() ) { ibs::FilePath( "Test.HDF" ).remove(); }
-   if ( ibs::FilePath( "MapsTest1.project3d"       ).exists() ) { ibs::FilePath( "MapsTest1.project3d" ).remove(); }
-   if ( ibs::FilePath( "MapsTest2.project3d"       ).exists() ) { ibs::FilePath( "MapsTest2.project3d" ).remove(); }
-
-   mbapi::MapsManager & mm = testModel.mapsManager();
-
-   const std::vector<mbapi::MapsManager::MapID> & ids = mm.mapsIDs();
-   ASSERT_EQ( ids.size(),  8 ); // number of maps in GridMapIoTbl
-
-   mbapi::MapsManager::MapID id = mm.findID( mapName );
-   ASSERT_EQ( id, 6 ); // given map is 7th in the list
-
-   double minV, maxV;
-   mm.mapValuesRange( id, minV, maxV );
-
-   ASSERT_NEAR( minV, 2288.0, eps );
-   ASSERT_NEAR( maxV, 6434.0, eps );
-
-   mbapi::MapsManager::MapID nid = mm.copyMap( id, mapName+"_copy" );
-
-   ASSERT_EQ( nid, 8 ); // the new map is at the end of the list
-   ASSERT_EQ( mm.mapsIDs().size(), 9 ); // now maps in GridMapIoTbl are 9
-
-   // min/max values in the copy are the same
-   mm.mapValuesRange( nid, minV, maxV );
-
-   ASSERT_NEAR( minV, 2288.0, eps );
-   ASSERT_NEAR( maxV, 6434.0, eps );
-
-   double coeff = 3000 / maxV;
-   ASSERT_EQ( ErrorHandler::NoError, mm.scaleMap( nid, coeff ) );
-
-   // min/max values in the copy are as given for rescale
-   mm.mapValuesRange( nid, minV, maxV );
-
-   ASSERT_NEAR( minV, 2288.0 * coeff, eps );
-   ASSERT_NEAR( maxV, 3000.0, eps );
-
-   
-   ASSERT_EQ( ErrorHandler::OutOfRangeValue, mm.saveMapToHDF( nid, "Inputs.HDF" ) ); // attempt to save in already existed file should fail
-   ASSERT_EQ( ErrorHandler::OutOfRangeValue, mm.saveMapToHDF( nid, "/tmp/Inputs.HDF" ) ); // attempt to save in a place different from the project location should fail
-
-   ASSERT_EQ( ErrorHandler::NoError, mm.saveMapToHDF( nid, "" ) ); // file name will be generated from map name
-   ASSERT_EQ( true, ibs::FilePath( mapName+"_copy.HDF" ).exists() ); // file was written
-
-   ASSERT_EQ( ErrorHandler::NoError, testModel.saveModelToProjectFile( "MapsTest1.project3d" ) );
-   {
-      mbapi::Model tmpModel;
-      tmpModel.loadModelFromProjectFile( "MapsTest1.project3d" );
-
-      const std::vector<mbapi::MapsManager::MapID> & tids = tmpModel.mapsManager().mapsIDs();
-      ASSERT_EQ( tids.size(), 9 );
-      ASSERT_EQ( tmpModel.tableValueAsString( "GridMapIoTbl", 8, "MapName" ), std::string( "MAP-1076770443-4_copy" ) );
-      ASSERT_EQ( tmpModel.tableValueAsString( "GridMapIoTbl", 8, "MapFileName" ), std::string( "MAP-1076770443-4_copy.HDF" ) );
-      ASSERT_EQ( tmpModel.tableValueAsString( "GridMapIoTbl", 8, "MapType" ), std::string( "HDF5" ) );
-   }
-   ibs::FilePath( "MapsTest1.project3d" ).remove();
-
-   ASSERT_EQ( ErrorHandler::NoError, mm.saveMapToHDF( nid, "Test.HDF" ) ); // file name will be generated from map name
-   ASSERT_EQ( true, ibs::FilePath( "Test.HDF" ).exists() ); // file was written
-   
-   ASSERT_EQ( ErrorHandler::NoError, testModel.saveModelToProjectFile( "MapsTest2.project3d" ) );
-   {
-      mbapi::Model tmpModel;
-      tmpModel.loadModelFromProjectFile( "MapsTest2.project3d" );
-
-      const std::vector<mbapi::MapsManager::MapID> & tids = tmpModel.mapsManager().mapsIDs();
-      ASSERT_EQ( tids.size(), 9 );
-      ASSERT_EQ( tmpModel.tableValueAsString( "GridMapIoTbl", 8, "MapName" ), std::string( "MAP-1076770443-4_copy" ) );
-      ASSERT_EQ( tmpModel.tableValueAsString( "GridMapIoTbl", 8, "MapFileName" ), std::string( "Test.HDF" ) );
-      ASSERT_EQ( tmpModel.tableValueAsString( "GridMapIoTbl", 8, "MapType" ), std::string( "HDF5" ) );
-   }
-   ibs::FilePath( "MapsTest2.project3d" ).remove();
-}
 

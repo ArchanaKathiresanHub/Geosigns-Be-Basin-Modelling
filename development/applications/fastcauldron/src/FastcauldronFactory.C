@@ -51,14 +51,13 @@ DataAccess::Interface::RunParameters * FastcauldronFactory::produceRunParameters
 
 
 DataAccess::Interface::Property * FastcauldronFactory::produceProperty ( Interface::ProjectHandle * projectHandle,
-                                                                         database::Record *              record,
-                                                                         const string &                  userName,
-                                                                         const string &                  cauldronName,
-                                                                         const string &                  unit, 
-                                                                         Interface::PropertyType         type,
-                                                                         const DataModel::PropertyAttribute attr ) {
+                                                                              database::Record *              record,
+                                                                              const string &                  userName,
+                                                                              const string &                  cauldronName,
+                                                                              const string &                  unit, 
+                                                                              Interface::PropertyType         type) {
 
-   return new Property (projectHandle, record, userName, cauldronName, unit, type, attr );
+   return new Property (projectHandle, record, userName, cauldronName, unit, type);
 
 }
 

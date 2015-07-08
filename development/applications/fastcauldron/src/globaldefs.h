@@ -435,11 +435,16 @@ enum CalculationMode {
 
 const int NumberOfCalculationModes = int ( NO_CALCULATION_MODE + 1 );
 
-/// \brief Get the string representation of the calculation mode enumeration.
-const std::string& getSimulationModeString ( const CalculationMode mode );
-
-/// \brief Get the calculation mode enumeration from its string representation.
-CalculationMode getSimulationMode ( const std::string& modeStr );
+const std::string CalculationModeImage [ NumberOfCalculationModes ] = { "Hydrostatic_Decompaction",
+                                                                        "Hydrostatic_High_Res_Decompaction",
+                                                                        "Hydrostatic_Temperature",
+                                                                        "Overpressure",
+                                                                        "Overpressured_Temperature",
+                                                                        "Coupled_High_Res_Decompaction",
+                                                                        "Pressure_And_Temperature",
+                                                                        "HydrostaticDarcy",
+                                                                        "CoupledDarcy",
+                                                                        "No_Calculaction" };
 
 #define IBSASSERT(t) assert(t);
 

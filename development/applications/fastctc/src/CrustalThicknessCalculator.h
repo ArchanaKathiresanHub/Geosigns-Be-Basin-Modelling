@@ -6,8 +6,6 @@
 #include "InterfaceInput.h"
 #include "InterfaceOutput.h"
 
-#include "GeoPhysicsProjectHandle.h"
-
 using namespace DataAccess;
 using namespace std;
 
@@ -19,7 +17,7 @@ const int SUR = 0x0004;
 
 void displayTime ( const double timeToDisplay, const char * msgToDisplay );
 
-class CrustalThicknessCalculator : public GeoPhysics::ProjectHandle {
+class CrustalThicknessCalculator : public Interface::ProjectHandle {
 
 public :
    // Constructor / Destructor

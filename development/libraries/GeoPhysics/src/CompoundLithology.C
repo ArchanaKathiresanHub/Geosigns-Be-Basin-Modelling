@@ -994,9 +994,9 @@ void GeoPhysics::CompoundLithology::calcBulkDensity1(const FluidType* fluid,
       // Should this be multiplied by ( 1.0 - porosity )?
       BulkDensity = MatrixDensity;
 
-      }
-
    }
+
+}
 
 
 //------------------------------------------------------------//

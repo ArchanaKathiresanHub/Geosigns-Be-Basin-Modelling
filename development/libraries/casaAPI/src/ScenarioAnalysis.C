@@ -480,7 +480,7 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::setScenarioLocation( const char * p
             throw ErrorHandler::Exception( ErrorHandler::IoError ) << " folder " << pathToCaseSet << " is not empty";
          }
 
-         m_caseSetPath = saFolder.fullPath().path();
+         m_caseSetPath = pathToCaseSet;
       }
    }
    catch ( const ibs::PathException & ex )

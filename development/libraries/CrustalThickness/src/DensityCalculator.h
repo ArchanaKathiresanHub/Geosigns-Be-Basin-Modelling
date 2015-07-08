@@ -1,10 +1,9 @@
 #ifndef _DENSITY_CALCULATOR_H_
 #define _DENSITY_CALCULATOR_H_
 
+#include "Interface/ProjectHandle.h"
 #include "Interface/GridMap.h"
 #include "Interface/Grid.h"
-
-#include "DerivedPropertyManager.h"
 
 using namespace DataAccess;
 
@@ -21,10 +20,8 @@ private:
 
    Interface::GridMap* m_depthBasementMap; 
    Interface::GridMap* m_depthWaterBottomMap; 
-
-   DerivedProperties::SurfacePropertyPtr m_pressureBasement; 
-   DerivedProperties::SurfacePropertyPtr m_pressureWaterBottom;
-
+   Interface::GridMap* m_pressureBasementMap; 
+   Interface::GridMap* m_pressureWaterBottomMap;
   
    double m_sedimentDensity;
    double m_waterBottomDepthValue;
@@ -32,7 +29,7 @@ private:
    double m_topBasementDepthValue;
 public:
    
-   void loadData( GeoPhysics::ProjectHandle* projectHandle, const string & baseSurfaceName );
+   void loadData( Interface::ProjectHandle* projectHandle, const string & baseSurfaceName );
   
    void retrieveData();
 
@@ -45,14 +42,5 @@ public:
    double getWLS(  const double backstrippingMantleDensity, const double densityDiff ) const;
 };
 
-class PropertyManager : public DerivedProperties::DerivedPropertyManager {
-
-public :
-   
-   PropertyManager ( GeoPhysics::ProjectHandle* projectHandle ); 
-   
-   ~PropertyManager() {};
-   
-};
 #endif
 

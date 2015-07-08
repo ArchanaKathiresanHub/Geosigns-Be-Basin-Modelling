@@ -2,7 +2,7 @@
 <tagfile>
   <compound kind="file">
     <name>casaAPI.h</name>
-    <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
+    <path>C:/Apps/Cauldron/TWTT/development/libraries/casaAPI/src/</path>
     <filename>casaAPI_8h</filename>
     <includes id="ScenarioAnalysis_8h" name="ScenarioAnalysis.h" local="yes" imported="no">ScenarioAnalysis.h</includes>
     <namespace>casa</namespace>
@@ -70,17 +70,39 @@
       <anchor>a128d13486810730ea07ceb5b45f0cffc</anchor>
       <arglist>(ScenarioAnalysis &amp;sa, const char *litName, const char *modelName, double minSurfPor, double maxSurfPor, double minCompCoef, double maxCompCoef, double minMinPor, double maxMinPor, double minCompCoef1, double maxCompCoef1, VarPrmContinuous::PDF pdfType)</arglist>
     </member>
+    <member kind="function">
+      <type>ErrorHandler::ReturnCode</type>
+      <name>VaryLithoSTPThermalCondCoeffParameter</name>
+      <anchorfile>namespacecasa_1_1BusinessLogicRulesSet.html</anchorfile>
+      <anchor>aeac4c6124ec4dcd16b4cbb41f8e6f4ca</anchor>
+      <arglist>(ScenarioAnalysis &amp;sa, const char *litName, double minVal, double maxVal, VarPrmContinuous::PDF pdfType)</arglist>
+    </member>
+  </compound>
+  <compound kind="file">
+    <name>CasaDeserializer.h</name>
+    <path>C:/Apps/Cauldron/TWTT/development/libraries/casaAPI/src/</path>
+    <filename>CasaDeserializer_8h</filename>
+    <class kind="class">casa::CasaDeserializer</class>
+    <namespace>casa</namespace>
+  </compound>
+  <compound kind="file">
+    <name>CasaSerializer.h</name>
+    <path>C:/Apps/Cauldron/TWTT/development/libraries/casaAPI/src/</path>
+    <filename>CasaSerializer_8h</filename>
+    <class kind="class">casa::CasaSerializer</class>
+    <class kind="class">casa::CasaSerializable</class>
+    <namespace>casa</namespace>
   </compound>
   <compound kind="file">
     <name>CauldronApp.h</name>
-    <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
+    <path>C:/Apps/Cauldron/TWTT/development/libraries/casaAPI/src/</path>
     <filename>CauldronApp_8h</filename>
     <class kind="class">casa::CauldronApp</class>
     <namespace>casa</namespace>
   </compound>
   <compound kind="file">
     <name>DataDigger.h</name>
-    <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
+    <path>C:/Apps/Cauldron/TWTT/development/libraries/casaAPI/src/</path>
     <filename>DataDigger_8h</filename>
     <includes id="RunCaseSet_8h" name="RunCaseSet.h" local="yes" imported="no">RunCaseSet.h</includes>
     <includes id="Observable_8h" name="Observable.h" local="yes" imported="no">Observable.h</includes>
@@ -90,48 +112,48 @@
   </compound>
   <compound kind="file">
     <name>DoEGenerator.h</name>
-    <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
+    <path>C:/Apps/Cauldron/TWTT/development/libraries/casaAPI/src/</path>
     <filename>DoEGenerator_8h</filename>
     <class kind="class">casa::DoEGenerator</class>
     <namespace>casa</namespace>
   </compound>
   <compound kind="file">
     <name>JobScheduler.h</name>
-    <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
+    <path>C:/Apps/Cauldron/TWTT/development/libraries/casaAPI/src/</path>
     <filename>JobScheduler_8h</filename>
     <namespace>casa</namespace>
   </compound>
   <compound kind="file">
     <name>JobSchedulerLocal.h</name>
-    <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
+    <path>C:/Apps/Cauldron/TWTT/development/libraries/casaAPI/src/</path>
     <filename>JobSchedulerLocal_8h</filename>
     <includes id="JobScheduler_8h" name="JobScheduler.h" local="yes" imported="no">JobScheduler.h</includes>
     <namespace>casa</namespace>
   </compound>
   <compound kind="file">
     <name>JobSchedulerLSF.h</name>
-    <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
+    <path>C:/Apps/Cauldron/TWTT/development/libraries/casaAPI/src/</path>
     <filename>JobSchedulerLSF_8h</filename>
     <includes id="JobScheduler_8h" name="JobScheduler.h" local="yes" imported="no">JobScheduler.h</includes>
     <namespace>casa</namespace>
   </compound>
   <compound kind="file">
     <name>MonteCarloSolver.h</name>
-    <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
+    <path>C:/Apps/Cauldron/TWTT/development/libraries/casaAPI/src/</path>
     <filename>MonteCarloSolver_8h</filename>
     <class kind="class">casa::MonteCarloSolver</class>
     <namespace>casa</namespace>
   </compound>
   <compound kind="file">
     <name>Observable.h</name>
-    <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
+    <path>C:/Apps/Cauldron/TWTT/development/libraries/casaAPI/src/</path>
     <filename>Observable_8h</filename>
     <class kind="class">casa::Observable</class>
     <namespace>casa</namespace>
   </compound>
   <compound kind="file">
     <name>ObsGridPropertyWell.h</name>
-    <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
+    <path>C:/Apps/Cauldron/TWTT/development/libraries/casaAPI/src/</path>
     <filename>ObsGridPropertyWell_8h</filename>
     <includes id="Observable_8h" name="Observable.h" local="yes" imported="no">Observable.h</includes>
     <includes id="ObsValue_8h" name="ObsValue.h" local="yes" imported="no">ObsValue.h</includes>
@@ -140,7 +162,7 @@
   </compound>
   <compound kind="file">
     <name>ObsGridPropertyXYZ.h</name>
-    <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
+    <path>C:/Apps/Cauldron/TWTT/development/libraries/casaAPI/src/</path>
     <filename>ObsGridPropertyXYZ_8h</filename>
     <includes id="Observable_8h" name="Observable.h" local="yes" imported="no">Observable.h</includes>
     <includes id="ObsValue_8h" name="ObsValue.h" local="yes" imported="no">ObsValue.h</includes>
@@ -149,7 +171,7 @@
   </compound>
   <compound kind="file">
     <name>ObsSourceRockMapProp.h</name>
-    <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
+    <path>C:/Apps/Cauldron/TWTT/development/libraries/casaAPI/src/</path>
     <filename>ObsSourceRockMapProp_8h</filename>
     <includes id="Observable_8h" name="Observable.h" local="yes" imported="no">Observable.h</includes>
     <includes id="ObsValue_8h" name="ObsValue.h" local="yes" imported="no">ObsValue.h</includes>
@@ -158,7 +180,7 @@
   </compound>
   <compound kind="file">
     <name>ObsSpace.h</name>
-    <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
+    <path>C:/Apps/Cauldron/TWTT/development/libraries/casaAPI/src/</path>
     <filename>ObsSpace_8h</filename>
     <includes id="Observable_8h" name="Observable.h" local="yes" imported="no">Observable.h</includes>
     <class kind="class">casa::ObsSpace</class>
@@ -166,7 +188,7 @@
   </compound>
   <compound kind="file">
     <name>ObsTrapProp.h</name>
-    <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
+    <path>C:/Apps/Cauldron/TWTT/development/libraries/casaAPI/src/</path>
     <filename>ObsTrapProp_8h</filename>
     <includes id="Observable_8h" name="Observable.h" local="yes" imported="no">Observable.h</includes>
     <includes id="ObsValue_8h" name="ObsValue.h" local="yes" imported="no">ObsValue.h</includes>
@@ -175,14 +197,14 @@
   </compound>
   <compound kind="file">
     <name>ObsValue.h</name>
-    <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
+    <path>C:/Apps/Cauldron/TWTT/development/libraries/casaAPI/src/</path>
     <filename>ObsValue_8h</filename>
     <class kind="class">casa::ObsValue</class>
     <namespace>casa</namespace>
   </compound>
   <compound kind="file">
     <name>ObsValueDoubleArray.h</name>
-    <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
+    <path>C:/Apps/Cauldron/TWTT/development/libraries/casaAPI/src/</path>
     <filename>ObsValueDoubleArray_8h</filename>
     <includes id="ObsValue_8h" name="ObsValue.h" local="yes" imported="no">ObsValue.h</includes>
     <class kind="class">casa::ObsValueDoubleArray</class>
@@ -190,7 +212,7 @@
   </compound>
   <compound kind="file">
     <name>ObsValueDoubleScalar.h</name>
-    <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
+    <path>C:/Apps/Cauldron/TWTT/development/libraries/casaAPI/src/</path>
     <filename>ObsValueDoubleScalar_8h</filename>
     <includes id="ObsValue_8h" name="ObsValue.h" local="yes" imported="no">ObsValue.h</includes>
     <class kind="class">casa::ObsValueDoubleScalar</class>
@@ -198,14 +220,22 @@
   </compound>
   <compound kind="file">
     <name>Parameter.h</name>
-    <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
+    <path>C:/Apps/Cauldron/TWTT/development/libraries/casaAPI/src/</path>
     <filename>Parameter_8h</filename>
     <class kind="class">casa::Parameter</class>
     <namespace>casa</namespace>
   </compound>
   <compound kind="file">
+    <name>PrmLithoSTPThermalCond.h</name>
+    <path>C:/Apps/Cauldron/TWTT/development/libraries/casaAPI/src/</path>
+    <filename>PrmLithoSTPThermalCond_8h</filename>
+    <includes id="Parameter_8h" name="Parameter.h" local="yes" imported="no">Parameter.h</includes>
+    <class kind="class">casa::PrmLithoSTPThermalCond</class>
+    <namespace>casa</namespace>
+  </compound>
+  <compound kind="file">
     <name>PrmOneCrustThinningEvent.h</name>
-    <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
+    <path>C:/Apps/Cauldron/TWTT/development/libraries/casaAPI/src/</path>
     <filename>PrmOneCrustThinningEvent_8h</filename>
     <includes id="Parameter_8h" name="Parameter.h" local="yes" imported="no">Parameter.h</includes>
     <class kind="class">casa::PrmOneCrustThinningEvent</class>
@@ -213,7 +243,7 @@
   </compound>
   <compound kind="file">
     <name>PrmPorosityModel.h</name>
-    <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
+    <path>C:/Apps/Cauldron/TWTT/development/libraries/casaAPI/src/</path>
     <filename>PrmPorosityModel_8h</filename>
     <includes id="Parameter_8h" name="Parameter.h" local="yes" imported="no">Parameter.h</includes>
     <class kind="class">casa::PrmPorosityModel</class>
@@ -263,7 +293,7 @@
   </compound>
   <compound kind="file">
     <name>PrmSourceRockHC.h</name>
-    <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
+    <path>C:/Apps/Cauldron/TWTT/development/libraries/casaAPI/src/</path>
     <filename>PrmSourceRockHC_8h</filename>
     <includes id="Parameter_8h" name="Parameter.h" local="yes" imported="no">Parameter.h</includes>
     <class kind="class">casa::PrmSourceRockHC</class>
@@ -271,7 +301,7 @@
   </compound>
   <compound kind="file">
     <name>PrmSourceRockHI.h</name>
-    <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
+    <path>C:/Apps/Cauldron/TWTT/development/libraries/casaAPI/src/</path>
     <filename>PrmSourceRockHI_8h</filename>
     <includes id="Parameter_8h" name="Parameter.h" local="yes" imported="no">Parameter.h</includes>
     <class kind="class">casa::PrmSourceRockHI</class>
@@ -279,7 +309,7 @@
   </compound>
   <compound kind="file">
     <name>PrmSourceRockPreAsphaltStartAct.h</name>
-    <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
+    <path>C:/Apps/Cauldron/TWTT/development/libraries/casaAPI/src/</path>
     <filename>PrmSourceRockPreAsphaltStartAct_8h</filename>
     <includes id="Parameter_8h" name="Parameter.h" local="yes" imported="no">Parameter.h</includes>
     <class kind="class">casa::PrmSourceRockPreAsphaltStartAct</class>
@@ -287,15 +317,24 @@
   </compound>
   <compound kind="file">
     <name>PrmSourceRockTOC.h</name>
-    <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
+    <path>C:/Apps/Cauldron/TWTT/development/libraries/casaAPI/src/</path>
     <filename>PrmSourceRockTOC_8h</filename>
     <includes id="Parameter_8h" name="Parameter.h" local="yes" imported="no">Parameter.h</includes>
     <class kind="class">casa::PrmSourceRockTOC</class>
     <namespace>casa</namespace>
   </compound>
   <compound kind="file">
+    <name>PrmSourceRockType.h</name>
+    <path>C:/Apps/Cauldron/TWTT/development/libraries/casaAPI/src/</path>
+    <filename>PrmSourceRockType_8h</filename>
+    <includes id="Parameter_8h" name="Parameter.h" local="yes" imported="no">Parameter.h</includes>
+    <includes id="VarPrmSourceRockType_8h" name="VarPrmSourceRockType.h" local="yes" imported="no">VarPrmSourceRockType.h</includes>
+    <class kind="class">casa::PrmSourceRockType</class>
+    <namespace>casa</namespace>
+  </compound>
+  <compound kind="file">
     <name>PrmTopCrustHeatProduction.h</name>
-    <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
+    <path>C:/Apps/Cauldron/TWTT/development/libraries/casaAPI/src/</path>
     <filename>PrmTopCrustHeatProduction_8h</filename>
     <includes id="Parameter_8h" name="Parameter.h" local="yes" imported="no">Parameter.h</includes>
     <class kind="class">casa::PrmTopCrustHeatProduction</class>
@@ -303,21 +342,21 @@
   </compound>
   <compound kind="file">
     <name>RSProxy.h</name>
-    <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
+    <path>C:/Apps/Cauldron/TWTT/development/libraries/casaAPI/src/</path>
     <filename>RSProxy_8h</filename>
     <class kind="class">casa::RSProxy</class>
     <namespace>casa</namespace>
   </compound>
   <compound kind="file">
     <name>RSProxySet.h</name>
-    <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
+    <path>C:/Apps/Cauldron/TWTT/development/libraries/casaAPI/src/</path>
     <filename>RSProxySet_8h</filename>
     <class kind="class">casa::RSProxySet</class>
     <namespace>casa</namespace>
   </compound>
   <compound kind="file">
     <name>RunCase.h</name>
-    <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
+    <path>C:/Apps/Cauldron/TWTT/development/libraries/casaAPI/src/</path>
     <filename>RunCase_8h</filename>
     <includes id="Parameter_8h" name="Parameter.h" local="yes" imported="no">Parameter.h</includes>
     <includes id="ObsValue_8h" name="ObsValue.h" local="yes" imported="no">ObsValue.h</includes>
@@ -326,14 +365,14 @@
   </compound>
   <compound kind="file">
     <name>RunCaseSet.h</name>
-    <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
+    <path>C:/Apps/Cauldron/TWTT/development/libraries/casaAPI/src/</path>
     <filename>RunCaseSet_8h</filename>
     <class kind="class">casa::RunCaseSet</class>
     <namespace>casa</namespace>
   </compound>
   <compound kind="file">
     <name>RunManager.h</name>
-    <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
+    <path>C:/Apps/Cauldron/TWTT/development/libraries/casaAPI/src/</path>
     <filename>RunManager_8h</filename>
     <includes id="CauldronApp_8h" name="CauldronApp.h" local="yes" imported="no">CauldronApp.h</includes>
     <class kind="class">casa::RunManager</class>
@@ -341,7 +380,7 @@
   </compound>
   <compound kind="file">
     <name>ScenarioAnalysis.h</name>
-    <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
+    <path>C:/Apps/Cauldron/TWTT/development/libraries/casaAPI/src/</path>
     <filename>ScenarioAnalysis_8h</filename>
     <includes id="RunCaseSet_8h" name="RunCaseSet.h" local="yes" imported="no">RunCaseSet.h</includes>
     <includes id="VarPrmContinuous_8h" name="VarPrmContinuous.h" local="yes" imported="no">VarPrmContinuous.h</includes>
@@ -360,7 +399,7 @@
   </compound>
   <compound kind="file">
     <name>SensitivityCalculator.h</name>
-    <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
+    <path>C:/Apps/Cauldron/TWTT/development/libraries/casaAPI/src/</path>
     <filename>SensitivityCalculator_8h</filename>
     <class kind="struct">casa::ParetoSensitivityInfo</class>
     <class kind="class">casa::TornadoSensitivityInfo</class>
@@ -369,13 +408,27 @@
   </compound>
   <compound kind="file">
     <name>SUMlibUtils.h</name>
-    <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
+    <path>C:/Apps/Cauldron/TWTT/development/libraries/casaAPI/src/</path>
     <filename>SUMlibUtils_8h</filename>
     <namespace>casa</namespace>
   </compound>
   <compound kind="file">
+    <name>TxtDeserializer.h</name>
+    <path>C:/Apps/Cauldron/TWTT/development/libraries/casaAPI/src/</path>
+    <filename>TxtDeserializer_8h</filename>
+    <class kind="class">casa::TxtDeserializer</class>
+    <namespace>casa</namespace>
+  </compound>
+  <compound kind="file">
+    <name>TxtSerializer.h</name>
+    <path>C:/Apps/Cauldron/TWTT/development/libraries/casaAPI/src/</path>
+    <filename>TxtSerializer_8h</filename>
+    <class kind="class">casa::TxtSerializer</class>
+    <namespace>casa</namespace>
+  </compound>
+  <compound kind="file">
     <name>VarParameter.h</name>
-    <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
+    <path>C:/Apps/Cauldron/TWTT/development/libraries/casaAPI/src/</path>
     <filename>VarParameter_8h</filename>
     <includes id="Parameter_8h" name="Parameter.h" local="yes" imported="no">Parameter.h</includes>
     <class kind="class">casa::VarParameter</class>
@@ -383,7 +436,7 @@
   </compound>
   <compound kind="file">
     <name>VarPrmCategorical.h</name>
-    <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
+    <path>C:/Apps/Cauldron/TWTT/development/libraries/casaAPI/src/</path>
     <filename>VarPrmCategorical_8h</filename>
     <includes id="Parameter_8h" name="Parameter.h" local="yes" imported="no">Parameter.h</includes>
     <includes id="VarParameter_8h" name="VarParameter.h" local="yes" imported="no">VarParameter.h</includes>
@@ -392,7 +445,7 @@
   </compound>
   <compound kind="file">
     <name>VarPrmContinuous.h</name>
-    <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
+    <path>C:/Apps/Cauldron/TWTT/development/libraries/casaAPI/src/</path>
     <filename>VarPrmContinuous_8h</filename>
     <includes id="Parameter_8h" name="Parameter.h" local="yes" imported="no">Parameter.h</includes>
     <includes id="VarParameter_8h" name="VarParameter.h" local="yes" imported="no">VarParameter.h</includes>
@@ -401,7 +454,7 @@
   </compound>
   <compound kind="file">
     <name>VarPrmDiscrete.h</name>
-    <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
+    <path>C:/Apps/Cauldron/TWTT/development/libraries/casaAPI/src/</path>
     <filename>VarPrmDiscrete_8h</filename>
     <includes id="Parameter_8h" name="Parameter.h" local="yes" imported="no">Parameter.h</includes>
     <includes id="VarParameter_8h" name="VarParameter.h" local="yes" imported="no">VarParameter.h</includes>
@@ -409,8 +462,16 @@
     <namespace>casa</namespace>
   </compound>
   <compound kind="file">
+    <name>VarPrmLithoSTPThermalCond.h</name>
+    <path>C:/Apps/Cauldron/TWTT/development/libraries/casaAPI/src/</path>
+    <filename>VarPrmLithoSTPThermalCond_8h</filename>
+    <includes id="VarPrmContinuous_8h" name="VarPrmContinuous.h" local="yes" imported="no">VarPrmContinuous.h</includes>
+    <class kind="class">casa::VarPrmLithoSTPThermalCond</class>
+    <namespace>casa</namespace>
+  </compound>
+  <compound kind="file">
     <name>VarPrmOneCrustThinningEvent.h</name>
-    <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
+    <path>C:/Apps/Cauldron/TWTT/development/libraries/casaAPI/src/</path>
     <filename>VarPrmOneCrustThinningEvent_8h</filename>
     <includes id="VarPrmContinuous_8h" name="VarPrmContinuous.h" local="yes" imported="no">VarPrmContinuous.h</includes>
     <class kind="class">casa::VarPrmOneCrustThinningEvent</class>
@@ -418,7 +479,7 @@
   </compound>
   <compound kind="file">
     <name>VarPrmPorosityModel.h</name>
-    <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
+    <path>C:/Apps/Cauldron/TWTT/development/libraries/casaAPI/src/</path>
     <filename>VarPrmPorosityModel_8h</filename>
     <includes id="VarPrmContinuous_8h" name="VarPrmContinuous.h" local="yes" imported="no">VarPrmContinuous.h</includes>
     <includes id="PrmPorosityModel_8h" name="PrmPorosityModel.h" local="yes" imported="no">PrmPorosityModel.h</includes>
@@ -427,7 +488,7 @@
   </compound>
   <compound kind="file">
     <name>VarPrmSourceRockHC.h</name>
-    <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
+    <path>C:/Apps/Cauldron/TWTT/development/libraries/casaAPI/src/</path>
     <filename>VarPrmSourceRockHC_8h</filename>
     <includes id="VarPrmContinuous_8h" name="VarPrmContinuous.h" local="yes" imported="no">VarPrmContinuous.h</includes>
     <class kind="class">casa::VarPrmSourceRockHC</class>
@@ -435,7 +496,7 @@
   </compound>
   <compound kind="file">
     <name>VarPrmSourceRockHI.h</name>
-    <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
+    <path>C:/Apps/Cauldron/TWTT/development/libraries/casaAPI/src/</path>
     <filename>VarPrmSourceRockHI_8h</filename>
     <includes id="VarPrmContinuous_8h" name="VarPrmContinuous.h" local="yes" imported="no">VarPrmContinuous.h</includes>
     <class kind="class">casa::VarPrmSourceRockHI</class>
@@ -443,7 +504,7 @@
   </compound>
   <compound kind="file">
     <name>VarPrmSourceRockPreAsphaltStartAct.h</name>
-    <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
+    <path>C:/Apps/Cauldron/TWTT/development/libraries/casaAPI/src/</path>
     <filename>VarPrmSourceRockPreAsphaltStartAct_8h</filename>
     <includes id="VarPrmContinuous_8h" name="VarPrmContinuous.h" local="yes" imported="no">VarPrmContinuous.h</includes>
     <class kind="class">casa::VarPrmSourceRockPreAsphaltStartAct</class>
@@ -451,7 +512,7 @@
   </compound>
   <compound kind="file">
     <name>VarPrmSourceRockTOC.h</name>
-    <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
+    <path>C:/Apps/Cauldron/TWTT/development/libraries/casaAPI/src/</path>
     <filename>VarPrmSourceRockTOC_8h</filename>
     <includes id="VarPrmContinuous_8h" name="VarPrmContinuous.h" local="yes" imported="no">VarPrmContinuous.h</includes>
     <class kind="class">casa::VarPrmSourceRockTOC</class>
@@ -459,7 +520,7 @@
   </compound>
   <compound kind="file">
     <name>VarPrmSourceRockType.h</name>
-    <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
+    <path>C:/Apps/Cauldron/TWTT/development/libraries/casaAPI/src/</path>
     <filename>VarPrmSourceRockType_8h</filename>
     <includes id="VarPrmCategorical_8h" name="VarPrmCategorical.h" local="yes" imported="no">VarPrmCategorical.h</includes>
     <class kind="class">casa::VarPrmSourceRockType</class>
@@ -467,7 +528,7 @@
   </compound>
   <compound kind="file">
     <name>VarPrmTopCrustHeatProduction.h</name>
-    <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
+    <path>C:/Apps/Cauldron/TWTT/development/libraries/casaAPI/src/</path>
     <filename>VarPrmTopCrustHeatProduction_8h</filename>
     <includes id="VarPrmContinuous_8h" name="VarPrmContinuous.h" local="yes" imported="no">VarPrmContinuous.h</includes>
     <class kind="class">casa::VarPrmTopCrustHeatProduction</class>
@@ -475,268 +536,10 @@
   </compound>
   <compound kind="file">
     <name>VarSpace.h</name>
-    <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
+    <path>C:/Apps/Cauldron/TWTT/development/libraries/casaAPI/src/</path>
     <filename>VarSpace_8h</filename>
     <class kind="class">casa::VarSpace</class>
     <namespace>casa</namespace>
-  </compound>
-  <compound kind="page">
-    <name>CASA_API_Descr</name>
-    <title>Computer Aided Scenario Analysis API</title>
-    <filename>CASA_API_Descr</filename>
-  </compound>
-  <compound kind="page">
-    <name>CASA_ClassHierachyPage</name>
-    <title>CASA interface classes hierarchy description.</title>
-    <filename>CASA_ClassHierachyPage</filename>
-  </compound>
-  <compound kind="page">
-    <name>CASA_VarParametersAndObservablesPage</name>
-    <title>Variable Parameters and Observables</title>
-    <filename>CASA_VarParametersAndObservablesPage</filename>
-  </compound>
-  <compound kind="page">
-    <name>CASA_ScenarioAnalysisPage</name>
-    <title>Scenario analysis workflows</title>
-    <filename>CASA_ScenarioAnalysisPage</filename>
-  </compound>
-  <compound kind="page">
-    <name>CASA_DataDiggerPage</name>
-    <title>Data Digger</title>
-    <filename>CASA_DataDiggerPage</filename>
-  </compound>
-  <compound kind="page">
-    <name>CASA_DoEGeneratorPage</name>
-    <title>Design of Experiments generator</title>
-    <filename>CASA_DoEGeneratorPage</filename>
-    <docanchor file="CASA_DoEGeneratorPage" title="Variety of DoE algorithms available in API">CASA_DoEGeneratorSection</docanchor>
-    <docanchor file="CASA_DoEGeneratorPage" title="Tornado design">TornadoSection</docanchor>
-    <docanchor file="CASA_DoEGeneratorPage" title="Plackett-Burman design">PlackettBurmanSection</docanchor>
-    <docanchor file="CASA_DoEGeneratorPage" title="Box-Behnken design">BoxBehnkenSection</docanchor>
-    <docanchor file="CASA_DoEGeneratorPage" title="Full Factorial design">FullFactorialSection</docanchor>
-    <docanchor file="CASA_DoEGeneratorPage" title="Space filling design">SpaceFillingSection</docanchor>
-    <docanchor file="CASA_DoEGeneratorPage" title="Basic/Optimized Latin Hypercube.">LatinHypercubeSection</docanchor>
-  </compound>
-  <compound kind="page">
-    <name>CASA_MonteCarloSolverPage</name>
-    <title>Monte Carlo solver</title>
-    <filename>CASA_MonteCarloSolverPage</filename>
-  </compound>
-  <compound kind="page">
-    <name>CASA_ObservablePage</name>
-    <title>Observable description</title>
-    <filename>CASA_ObservablePage</filename>
-  </compound>
-  <compound kind="page">
-    <name>CASA_ObservableGridPropWellPage</name>
-    <title>Cauldron grid property along a well trajectory</title>
-    <filename>CASA_ObservableGridPropWellPage</filename>
-  </compound>
-  <compound kind="page">
-    <name>CASA_ObservableGridPropXYZPage</name>
-    <title>Any Cauldron grid property at specified XYZ point</title>
-    <filename>CASA_ObservableGridPropXYZPage</filename>
-  </compound>
-  <compound kind="page">
-    <name>CASA_ObservableSourceRockMapPropPage</name>
-    <title>Any Genex map property value for source rock layer at</title>
-    <filename>CASA_ObservableSourceRockMapPropPage</filename>
-  </compound>
-  <compound kind="page">
-    <name>CASA_ObsSpacePage</name>
-    <title>Container for observables description</title>
-    <filename>CASA_ObsSpacePage</filename>
-  </compound>
-  <compound kind="page">
-    <name>CASA_ObservableTrapPropPage</name>
-    <title>Any trap property which could be extracted by datadriller after migration calculation.</title>
-    <filename>CASA_ObservableTrapPropPage</filename>
-  </compound>
-  <compound kind="page">
-    <name>CASA_ParameterPage</name>
-    <title>Cauldron project parameter</title>
-    <filename>CASA_ParameterPage</filename>
-  </compound>
-  <compound kind="page">
-    <name>CASA_OneCrustThinningEventPage</name>
-    <title>Crust thinning parameter</title>
-    <filename>CASA_OneCrustThinningEventPage</filename>
-  </compound>
-  <compound kind="page">
-    <name>CASA_PorosityModelPage</name>
-    <title>Lithology porosity model</title>
-    <filename>CASA_PorosityModelPage</filename>
-  </compound>
-  <compound kind="page">
-    <name>CASA_SourceRockHCPage</name>
-    <title>Source rock H/C initial ratio parameter</title>
-    <filename>CASA_SourceRockHCPage</filename>
-  </compound>
-  <compound kind="page">
-    <name>CASA_SourceRockHIPage</name>
-    <title>Source rock Hydrogen Index (HI) initial ratio parameter</title>
-    <filename>CASA_SourceRockHIPage</filename>
-  </compound>
-  <compound kind="page">
-    <name>CASA_SourceRockPreAsphaltStartActPage</name>
-    <title>Source rock pre-asphaltene activation energy parameter</title>
-    <filename>CASA_SourceRockPreAsphaltStartActPage</filename>
-  </compound>
-  <compound kind="page">
-    <name>CASA_SourceRockTOCPage</name>
-    <title>Source rock initial Total Organic Contents (TOC) parameter</title>
-    <filename>CASA_SourceRockTOCPage</filename>
-  </compound>
-  <compound kind="page">
-    <name>CASA_SourceRockTypePage</name>
-    <title>Source rock type parameter</title>
-    <filename>CASA_SourceRockTypePage</filename>
-  </compound>
-  <compound kind="page">
-    <name>CASA_TopCrustHeatProductionPage</name>
-    <title>Top crust heat production rate parameter</title>
-    <filename>CASA_TopCrustHeatProductionPage</filename>
-  </compound>
-  <compound kind="page">
-    <name>CASA_RSProxyPage</name>
-    <title>Response surface proxy</title>
-    <filename>CASA_RSProxyPage</filename>
-  </compound>
-  <compound kind="page">
-    <name>CASA_KrigingPage</name>
-    <title>Kriging interpolation</title>
-    <filename>CASA_KrigingPage</filename>
-  </compound>
-  <compound kind="page">
-    <name>CASA_RunManagerPage</name>
-    <title>Jobs execution manager</title>
-    <filename>CASA_RunManagerPage</filename>
-  </compound>
-  <compound kind="page">
-    <name>CASA_SensitivityCalculatorPage</name>
-    <title>Sensitivity calculator for variable parameters</title>
-    <filename>CASA_SensitivityCalculatorPage</filename>
-  </compound>
-  <compound kind="page">
-    <name>CASA_VarParameterPage</name>
-    <title>Variable parameter</title>
-    <filename>CASA_VarParameterPage</filename>
-  </compound>
-  <compound kind="page">
-    <name>CASA_VarPrmCategoricalPage</name>
-    <title>Variable parameter for categorical values</title>
-    <filename>CASA_VarPrmCategoricalPage</filename>
-  </compound>
-  <compound kind="page">
-    <name>CASA_VarPrmContinuousPage</name>
-    <title>Continuous variable parameter</title>
-    <filename>CASA_VarPrmContinuousPage</filename>
-  </compound>
-  <compound kind="page">
-    <name>CASA_VarPrmDiscretePage</name>
-    <title>Discrete variable parameter</title>
-    <filename>CASA_VarPrmDiscretePage</filename>
-  </compound>
-  <compound kind="page">
-    <name>CASA_VarSpacePage</name>
-    <title>Container for variable parameters</title>
-    <filename>CASA_VarSpacePage</filename>
-  </compound>
-  <compound kind="namespace">
-    <name>casa</name>
-    <filename>namespacecasa.html</filename>
-    <namespace>casa::BusinessLogicRulesSet</namespace>
-    <class kind="class">casa::CasaDeserializer</class>
-    <class kind="class">casa::CasaSerializable</class>
-    <class kind="class">casa::CasaSerializer</class>
-    <class kind="class">casa::CauldronApp</class>
-    <class kind="class">casa::DataDigger</class>
-    <class kind="class">casa::DoEGenerator</class>
-    <class kind="class">casa::MonteCarloSolver</class>
-    <class kind="class">casa::Observable</class>
-    <class kind="class">casa::ObsGridPropertyWell</class>
-    <class kind="class">casa::ObsGridPropertyXYZ</class>
-    <class kind="class">casa::ObsSourceRockMapProp</class>
-    <class kind="class">casa::ObsSpace</class>
-    <class kind="class">casa::ObsTrapProp</class>
-    <class kind="class">casa::ObsValue</class>
-    <class kind="class">casa::ObsValueDoubleArray</class>
-    <class kind="class">casa::ObsValueDoubleScalar</class>
-    <class kind="class">casa::Parameter</class>
-    <class kind="struct">casa::ParetoSensitivityInfo</class>
-    <class kind="class">casa::PrmOneCrustThinningEvent</class>
-    <class kind="class">casa::PrmPorosityModel</class>
-    <class kind="class">casa::PrmSourceRockHC</class>
-    <class kind="class">casa::PrmSourceRockHI</class>
-    <class kind="class">casa::PrmSourceRockPreAsphaltStartAct</class>
-    <class kind="class">casa::PrmSourceRockTOC</class>
-    <class kind="class">casa::PrmSourceRockType</class>
-    <class kind="class">casa::PrmTopCrustHeatProduction</class>
-    <class kind="class">casa::RSProxy</class>
-    <class kind="class">casa::RSProxySet</class>
-    <class kind="class">casa::RunCase</class>
-    <class kind="class">casa::RunCaseSet</class>
-    <class kind="class">casa::RunManager</class>
-    <class kind="class">casa::ScenarioAnalysis</class>
-    <class kind="class">casa::SensitivityCalculator</class>
-    <class kind="class">casa::TornadoSensitivityInfo</class>
-    <class kind="class">casa::TxtDeserializer</class>
-    <class kind="class">casa::TxtSerializer</class>
-    <class kind="class">casa::VarParameter</class>
-    <class kind="class">casa::VarPrmCategorical</class>
-    <class kind="class">casa::VarPrmContinuous</class>
-    <class kind="class">casa::VarPrmDiscrete</class>
-    <class kind="class">casa::VarPrmOneCrustThinningEvent</class>
-    <class kind="class">casa::VarPrmPorosityModel</class>
-    <class kind="class">casa::VarPrmSourceRockHC</class>
-    <class kind="class">casa::VarPrmSourceRockHI</class>
-    <class kind="class">casa::VarPrmSourceRockPreAsphaltStartAct</class>
-    <class kind="class">casa::VarPrmSourceRockTOC</class>
-    <class kind="class">casa::VarPrmSourceRockType</class>
-    <class kind="class">casa::VarPrmTopCrustHeatProduction</class>
-    <class kind="class">casa::VarSpace</class>
-    <member kind="function">
-      <type>double</type>
-      <name>SMcc2sp</name>
-      <anchorfile>namespacecasa.html</anchorfile>
-      <anchor>add106522985596bd8258f1efc29b6d0b</anchor>
-      <arglist>(double cc)</arglist>
-    </member>
-    <member kind="function">
-      <type>double</type>
-      <name>SMsp2cc</name>
-      <anchorfile>namespacecasa.html</anchorfile>
-      <anchor>a9e919c21ae01079a214e4aa57c16a16e</anchor>
-      <arglist>(double surfPor)</arglist>
-    </member>
-    <member kind="function">
-      <type>double</type>
-      <name>SMsp2cf</name>
-      <anchorfile>namespacecasa.html</anchorfile>
-      <anchor>aaedfeeaa49d0170b85984293fc2d3521</anchor>
-      <arglist>(double surfPor)</arglist>
-    </member>
-    <member kind="function">
-      <type>double</type>
-      <name>SMcc2cf</name>
-      <anchorfile>namespacecasa.html</anchorfile>
-      <anchor>a5a9fbbf4cc16210f7eef6d336c4a4f91</anchor>
-      <arglist>(double cc)</arglist>
-    </member>
-    <member kind="function">
-      <type>double</type>
-      <name>SMcf2sp</name>
-      <anchorfile>namespacecasa.html</anchorfile>
-      <anchor>ad693831ac3f141bbe33faa9edcea445f</anchor>
-      <arglist>(double clayFrac)</arglist>
-    </member>
-    <member kind="function">
-      <type>double</type>
-      <name>SMcf2cc</name>
-      <anchorfile>namespacecasa.html</anchorfile>
-      <anchor>a76146b8d4ee38fde100d629f731a2b72</anchor>
-      <arglist>(double clayFrac)</arglist>
-    </member>
   </compound>
   <compound kind="class">
     <name>casa::CasaDeserializer</name>
@@ -752,8 +555,8 @@
       <type>virtual bool</type>
       <name>checkObjectDescription</name>
       <anchorfile>classcasa_1_1CasaDeserializer.html</anchorfile>
-      <anchor>adf81def0de9a60b9c1793a783610817a</anchor>
-      <arglist>(const char *objType, const std::string &amp;objName, unsigned int ver)=0</arglist>
+      <anchor>ad3d421dbfeda9a070fa2eddd72d440a7</anchor>
+      <arglist>(const char *objType, const std::string &amp;objName, unsigned int &amp;ver)=0</arglist>
     </member>
     <member kind="function" virtualness="pure">
       <type>virtual bool</type>
@@ -1307,6 +1110,34 @@
       <anchor>a8691ee75a27bcf2c332cd0dd5ffe4ad4</anchor>
       <arglist></arglist>
     </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual unsigned int</type>
+      <name>version</name>
+      <anchorfile>classcasa_1_1CauldronApp.html</anchorfile>
+      <anchor>aeaa19c2f571751791266cbcede34f52b</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual bool</type>
+      <name>save</name>
+      <anchorfile>classcasa_1_1CauldronApp.html</anchorfile>
+      <anchor>ac5740ed43d9d29f2ce8e951d8361d842</anchor>
+      <arglist>(CasaSerializer &amp;sz, unsigned int version) const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual const char *</type>
+      <name>typeName</name>
+      <anchorfile>classcasa_1_1CauldronApp.html</anchorfile>
+      <anchor>a0b568ff3d2cff0252b4a14fa362162ad</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function">
+      <type></type>
+      <name>CauldronApp</name>
+      <anchorfile>classcasa_1_1CauldronApp.html</anchorfile>
+      <anchor>aa94a4a6036555cd3a029b2e92b20e577</anchor>
+      <arglist>(CasaDeserializer &amp;inStream, const char *objName)</arglist>
+    </member>
   </compound>
   <compound kind="class">
     <name>casa::DataDigger</name>
@@ -1346,63 +1177,54 @@
       <arglist></arglist>
     </member>
     <member kind="enumvalue">
-      <type>@</type>
       <name>TheFirstDoEAlgo</name>
       <anchorfile>classcasa_1_1DoEGenerator.html</anchorfile>
       <anchor>ac39a3df55efca555fdc7a02be88c632ba281fac8d75944e9c5af502ec1314f603</anchor>
       <arglist></arglist>
     </member>
     <member kind="enumvalue">
-      <type>@</type>
       <name>BoxBehnken</name>
       <anchorfile>classcasa_1_1DoEGenerator.html</anchorfile>
       <anchor>ac39a3df55efca555fdc7a02be88c632ba2e873d1b613da318174c70aeec807f2f</anchor>
       <arglist></arglist>
     </member>
     <member kind="enumvalue">
-      <type>@</type>
       <name>Tornado</name>
       <anchorfile>classcasa_1_1DoEGenerator.html</anchorfile>
       <anchor>ac39a3df55efca555fdc7a02be88c632ba165be644ea4ffe84fc3816b54e967abe</anchor>
       <arglist></arglist>
     </member>
     <member kind="enumvalue">
-      <type>@</type>
       <name>PlackettBurman</name>
       <anchorfile>classcasa_1_1DoEGenerator.html</anchorfile>
       <anchor>ac39a3df55efca555fdc7a02be88c632ba514e266c6ed0bb1f512d868a9dcd942b</anchor>
       <arglist></arglist>
     </member>
     <member kind="enumvalue">
-      <type>@</type>
       <name>PlackettBurmanMirror</name>
       <anchorfile>classcasa_1_1DoEGenerator.html</anchorfile>
       <anchor>ac39a3df55efca555fdc7a02be88c632bad144a347ca1dfea7603388fb4abb8239</anchor>
       <arglist></arglist>
     </member>
     <member kind="enumvalue">
-      <type>@</type>
       <name>FullFactorial</name>
       <anchorfile>classcasa_1_1DoEGenerator.html</anchorfile>
       <anchor>ac39a3df55efca555fdc7a02be88c632bad6bf5b499a89883518aa6af8500b230f</anchor>
       <arglist></arglist>
     </member>
     <member kind="enumvalue">
-      <type>@</type>
       <name>LatinHypercube</name>
       <anchorfile>classcasa_1_1DoEGenerator.html</anchorfile>
       <anchor>ac39a3df55efca555fdc7a02be88c632bac6931347b3c59dda1bbb2056ea1e914c</anchor>
       <arglist></arglist>
     </member>
     <member kind="enumvalue">
-      <type>@</type>
       <name>SpaceFilling</name>
       <anchorfile>classcasa_1_1DoEGenerator.html</anchorfile>
       <anchor>ac39a3df55efca555fdc7a02be88c632ba9f0864e7421441af26f458fdc5a5b999</anchor>
       <arglist></arglist>
     </member>
     <member kind="enumvalue">
-      <type>@</type>
       <name>TheLastDoEAlgo</name>
       <anchorfile>classcasa_1_1DoEGenerator.html</anchorfile>
       <anchor>ac39a3df55efca555fdc7a02be88c632bab32458dbd2dadee25039d24ae0f56e75</anchor>
@@ -1448,53 +1270,11 @@
       <anchor>a2b645e350513a4ca7e0c2ff5a53d7dfa</anchor>
       <arglist></arglist>
     </member>
-    <member kind="enumvalue">
-      <type>@</type>
-      <name>MonteCarlo</name>
-      <anchorfile>classcasa_1_1MonteCarloSolver.html</anchorfile>
-      <anchor>a2b645e350513a4ca7e0c2ff5a53d7dfaaa7030c1ad9b5896bf20374435a78eabd</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="enumvalue">
-      <type>@</type>
-      <name>MCMC</name>
-      <anchorfile>classcasa_1_1MonteCarloSolver.html</anchorfile>
-      <anchor>a2b645e350513a4ca7e0c2ff5a53d7dfaa7569a0a9fd9e6a1bd4b7c6b68a8f8f7d</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="enumvalue">
-      <type>@</type>
-      <name>MCLocSolver</name>
-      <anchorfile>classcasa_1_1MonteCarloSolver.html</anchorfile>
-      <anchor>a2b645e350513a4ca7e0c2ff5a53d7dfaa5249004ebeb8afb661acaa97c9dbb6a6</anchor>
-      <arglist></arglist>
-    </member>
     <member kind="enumeration">
       <type></type>
       <name>KrigingType</name>
       <anchorfile>classcasa_1_1MonteCarloSolver.html</anchorfile>
       <anchor>a6c907ffba723ae7154ee0d678fd04a5f</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="enumvalue">
-      <type>@</type>
-      <name>NoKriging</name>
-      <anchorfile>classcasa_1_1MonteCarloSolver.html</anchorfile>
-      <anchor>a6c907ffba723ae7154ee0d678fd04a5fa8554bdc9d5829b560fa985bc8fcdc3c4</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="enumvalue">
-      <type>@</type>
-      <name>SmartKriging</name>
-      <anchorfile>classcasa_1_1MonteCarloSolver.html</anchorfile>
-      <anchor>a6c907ffba723ae7154ee0d678fd04a5fa2b6f249d87d5b730a82b0c0b7ad69c3a</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="enumvalue">
-      <type>@</type>
-      <name>GlobalKriging</name>
-      <anchorfile>classcasa_1_1MonteCarloSolver.html</anchorfile>
-      <anchor>a6c907ffba723ae7154ee0d678fd04a5fa0c7640a0675908bbab0034aaeb16c2ef</anchor>
       <arglist></arglist>
     </member>
     <member kind="enumeration">
@@ -1504,53 +1284,11 @@
       <anchor>a37493f9bd7c022f1bf70006a75df45be</anchor>
       <arglist></arglist>
     </member>
-    <member kind="enumvalue">
-      <type>@</type>
-      <name>Normal</name>
-      <anchorfile>classcasa_1_1MonteCarloSolver.html</anchorfile>
-      <anchor>a37493f9bd7c022f1bf70006a75df45bea11e03200fe6e87003cfacf384ff6233f</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="enumvalue">
-      <type>@</type>
-      <name>Robust</name>
-      <anchorfile>classcasa_1_1MonteCarloSolver.html</anchorfile>
-      <anchor>a37493f9bd7c022f1bf70006a75df45bea9711a6fd5898efb4f493552e961afb3e</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="enumvalue">
-      <type>@</type>
-      <name>Mixed</name>
-      <anchorfile>classcasa_1_1MonteCarloSolver.html</anchorfile>
-      <anchor>a37493f9bd7c022f1bf70006a75df45beaa23e2938cceba60915342b6bdd841c6d</anchor>
-      <arglist></arglist>
-    </member>
     <member kind="enumeration">
       <type></type>
       <name>PriorDistribution</name>
       <anchorfile>classcasa_1_1MonteCarloSolver.html</anchorfile>
       <anchor>a072759f74bd4c0a42c5975f7c2d40ef6</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="enumvalue">
-      <type>@</type>
-      <name>NoPrior</name>
-      <anchorfile>classcasa_1_1MonteCarloSolver.html</anchorfile>
-      <anchor>a072759f74bd4c0a42c5975f7c2d40ef6a9f27f0c5b734c1583af3186e2c0b54e5</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="enumvalue">
-      <type>@</type>
-      <name>MarginalPrior</name>
-      <anchorfile>classcasa_1_1MonteCarloSolver.html</anchorfile>
-      <anchor>a072759f74bd4c0a42c5975f7c2d40ef6a4ded07f284e666b28ea34f1ad02ff430</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="enumvalue">
-      <type>@</type>
-      <name>MultivariatePrior</name>
-      <anchorfile>classcasa_1_1MonteCarloSolver.html</anchorfile>
-      <anchor>a072759f74bd4c0a42c5975f7c2d40ef6a4bba6fa35379b6b9635f90619db7934c</anchor>
       <arglist></arglist>
     </member>
     <member kind="typedef">
@@ -1565,6 +1303,78 @@
       <name>MCResults</name>
       <anchorfile>classcasa_1_1MonteCarloSolver.html</anchorfile>
       <anchor>a1290f2b54bdf681fa4f669fe7b3835b2</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <name>MonteCarlo</name>
+      <anchorfile>classcasa_1_1MonteCarloSolver.html</anchorfile>
+      <anchor>a2b645e350513a4ca7e0c2ff5a53d7dfaaa7030c1ad9b5896bf20374435a78eabd</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <name>MCMC</name>
+      <anchorfile>classcasa_1_1MonteCarloSolver.html</anchorfile>
+      <anchor>a2b645e350513a4ca7e0c2ff5a53d7dfaa7569a0a9fd9e6a1bd4b7c6b68a8f8f7d</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <name>MCLocSolver</name>
+      <anchorfile>classcasa_1_1MonteCarloSolver.html</anchorfile>
+      <anchor>a2b645e350513a4ca7e0c2ff5a53d7dfaa5249004ebeb8afb661acaa97c9dbb6a6</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <name>NoKriging</name>
+      <anchorfile>classcasa_1_1MonteCarloSolver.html</anchorfile>
+      <anchor>a6c907ffba723ae7154ee0d678fd04a5fa8554bdc9d5829b560fa985bc8fcdc3c4</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <name>SmartKriging</name>
+      <anchorfile>classcasa_1_1MonteCarloSolver.html</anchorfile>
+      <anchor>a6c907ffba723ae7154ee0d678fd04a5fa2b6f249d87d5b730a82b0c0b7ad69c3a</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <name>GlobalKriging</name>
+      <anchorfile>classcasa_1_1MonteCarloSolver.html</anchorfile>
+      <anchor>a6c907ffba723ae7154ee0d678fd04a5fa0c7640a0675908bbab0034aaeb16c2ef</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <name>Normal</name>
+      <anchorfile>classcasa_1_1MonteCarloSolver.html</anchorfile>
+      <anchor>a37493f9bd7c022f1bf70006a75df45bea11e03200fe6e87003cfacf384ff6233f</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <name>Robust</name>
+      <anchorfile>classcasa_1_1MonteCarloSolver.html</anchorfile>
+      <anchor>a37493f9bd7c022f1bf70006a75df45bea9711a6fd5898efb4f493552e961afb3e</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <name>Mixed</name>
+      <anchorfile>classcasa_1_1MonteCarloSolver.html</anchorfile>
+      <anchor>a37493f9bd7c022f1bf70006a75df45beaa23e2938cceba60915342b6bdd841c6d</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <name>NoPrior</name>
+      <anchorfile>classcasa_1_1MonteCarloSolver.html</anchorfile>
+      <anchor>a072759f74bd4c0a42c5975f7c2d40ef6a9f27f0c5b734c1583af3186e2c0b54e5</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <name>MarginalPrior</name>
+      <anchorfile>classcasa_1_1MonteCarloSolver.html</anchorfile>
+      <anchor>a072759f74bd4c0a42c5975f7c2d40ef6a4ded07f284e666b28ea34f1ad02ff430</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <name>MultivariatePrior</name>
+      <anchorfile>classcasa_1_1MonteCarloSolver.html</anchorfile>
+      <anchor>a072759f74bd4c0a42c5975f7c2d40ef6a4bba6fa35379b6b9635f90619db7934c</anchor>
       <arglist></arglist>
     </member>
     <member kind="function" virtualness="virtual">
@@ -1998,10 +1808,10 @@
       <arglist></arglist>
     </member>
     <member kind="variable" protection="protected">
-      <type>std::vector&lt; size_t &gt;</type>
+      <type>std::vector&lt; int &gt;</type>
       <name>m_posDataMiningTbl</name>
       <anchorfile>classcasa_1_1ObsGridPropertyWell.html</anchorfile>
-      <anchor>a353f3a5f3a4b241f8f73b0bbe7704ee9</anchor>
+      <anchor>a44d47d34e4f6484707b5684ebfc58418</anchor>
       <arglist></arglist>
     </member>
     <member kind="variable" protection="protected">
@@ -2031,6 +1841,34 @@
       <anchorfile>classcasa_1_1ObsGridPropertyWell.html</anchorfile>
       <anchor>a8c642217afcedaa0be418d3073166d40</anchor>
       <arglist></arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual unsigned int</type>
+      <name>version</name>
+      <anchorfile>classcasa_1_1ObsGridPropertyWell.html</anchorfile>
+      <anchor>ab2e68a3a93f8e0865bba90fa05a92f3c</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual const char *</type>
+      <name>typeName</name>
+      <anchorfile>classcasa_1_1ObsGridPropertyWell.html</anchorfile>
+      <anchor>ae0e169eebae6f7324fa0029cde27870e</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual bool</type>
+      <name>save</name>
+      <anchorfile>classcasa_1_1ObsGridPropertyWell.html</anchorfile>
+      <anchor>a79967c53f8ba752611625c138b665fa7</anchor>
+      <arglist>(CasaSerializer &amp;sz, unsigned int version) const </arglist>
+    </member>
+    <member kind="function">
+      <type></type>
+      <name>ObsGridPropertyWell</name>
+      <anchorfile>classcasa_1_1ObsGridPropertyWell.html</anchorfile>
+      <anchor>a762bff753e448857e45eeaf119b12693</anchor>
+      <arglist>(CasaDeserializer &amp;dz, unsigned int objVer)</arglist>
     </member>
   </compound>
   <compound kind="class">
@@ -2216,14 +2054,14 @@
       <type>std::vector&lt; std::string &gt;</type>
       <name>m_name</name>
       <anchorfile>classcasa_1_1ObsGridPropertyXYZ.html</anchorfile>
-      <anchor>ae99436f444f520441e7aabd7946bbbdb</anchor>
+      <anchor>a810b2cbd32d2a4b6b5de2ae5b2bc5960</anchor>
       <arglist></arglist>
     </member>
     <member kind="variable" protection="protected">
-      <type>size_t</type>
+      <type>int</type>
       <name>m_posDataMiningTbl</name>
       <anchorfile>classcasa_1_1ObsGridPropertyXYZ.html</anchorfile>
-      <anchor>a5ac273a9edd88e465fb44d7343d76bea</anchor>
+      <anchor>a0b6edc32e3b0f5f2df810cf7c9385db9</anchor>
       <arglist></arglist>
     </member>
     <member kind="variable" protection="protected">
@@ -2253,6 +2091,34 @@
       <anchorfile>classcasa_1_1ObsGridPropertyXYZ.html</anchorfile>
       <anchor>a20af5cdc4c0a978703f7c32677770dab</anchor>
       <arglist></arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual unsigned int</type>
+      <name>version</name>
+      <anchorfile>classcasa_1_1ObsGridPropertyXYZ.html</anchorfile>
+      <anchor>ab1e5956267275f84715d8fd4b5ceb573</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual bool</type>
+      <name>save</name>
+      <anchorfile>classcasa_1_1ObsGridPropertyXYZ.html</anchorfile>
+      <anchor>ab8fbb8bb964dd8afa73da271d099dde5</anchor>
+      <arglist>(CasaSerializer &amp;sz, unsigned int fileVer) const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual const char *</type>
+      <name>typeName</name>
+      <anchorfile>classcasa_1_1ObsGridPropertyXYZ.html</anchorfile>
+      <anchor>a97c49b79b94b5951f9f02cc6c5e3ae0b</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function">
+      <type></type>
+      <name>ObsGridPropertyXYZ</name>
+      <anchorfile>classcasa_1_1ObsGridPropertyXYZ.html</anchorfile>
+      <anchor>a4568021786ae2fa50969fe64faa87705</anchor>
+      <arglist>(CasaDeserializer &amp;dz, unsigned int objVer)</arglist>
     </member>
   </compound>
   <compound kind="class">
@@ -2438,14 +2304,14 @@
       <type>std::vector&lt; std::string &gt;</type>
       <name>m_name</name>
       <anchorfile>classcasa_1_1ObsSourceRockMapProp.html</anchorfile>
-      <anchor>a8a93af31ae94034aed3596214a080911</anchor>
+      <anchor>ad3c2c9c2d63fecc9897c1e4b75419fc1</anchor>
       <arglist></arglist>
     </member>
     <member kind="variable" protection="protected">
-      <type>size_t</type>
+      <type>int</type>
       <name>m_posDataMiningTbl</name>
       <anchorfile>classcasa_1_1ObsSourceRockMapProp.html</anchorfile>
-      <anchor>a2bd4dd5ae578e6d0bdace1e90e83ddbd</anchor>
+      <anchor>ab30ce45f89e2e72ca252b53604b654af</anchor>
       <arglist></arglist>
     </member>
     <member kind="variable" protection="protected">
@@ -2475,6 +2341,34 @@
       <anchorfile>classcasa_1_1ObsSourceRockMapProp.html</anchorfile>
       <anchor>a9073d8e0a790473708377e61034d9d3f</anchor>
       <arglist></arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual unsigned int</type>
+      <name>version</name>
+      <anchorfile>classcasa_1_1ObsSourceRockMapProp.html</anchorfile>
+      <anchor>a6e2276835ce73df0269058dbffc3fd63</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual bool</type>
+      <name>save</name>
+      <anchorfile>classcasa_1_1ObsSourceRockMapProp.html</anchorfile>
+      <anchor>a6353a2c850712600278ae5d5a3331863</anchor>
+      <arglist>(CasaSerializer &amp;sz, unsigned int fileVer) const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual const char *</type>
+      <name>typeName</name>
+      <anchorfile>classcasa_1_1ObsSourceRockMapProp.html</anchorfile>
+      <anchor>a44e020edc55576d6414c368f4c607832</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function">
+      <type></type>
+      <name>ObsSourceRockMapProp</name>
+      <anchorfile>classcasa_1_1ObsSourceRockMapProp.html</anchorfile>
+      <anchor>a2b93eb5c765279cf4e75673ad237c99d</anchor>
+      <arglist>(CasaDeserializer &amp;dz, unsigned int objVer)</arglist>
     </member>
   </compound>
   <compound kind="class">
@@ -2686,14 +2580,14 @@
       <type>std::vector&lt; std::string &gt;</type>
       <name>m_name</name>
       <anchorfile>classcasa_1_1ObsTrapProp.html</anchorfile>
-      <anchor>ad16e88b1731436ce5fce24a517474f85</anchor>
+      <anchor>a73eb157c197bdd75b3c0261532950ebc</anchor>
       <arglist></arglist>
     </member>
     <member kind="variable" protection="protected">
-      <type>size_t</type>
+      <type>int</type>
       <name>m_posDataMiningTbl</name>
       <anchorfile>classcasa_1_1ObsTrapProp.html</anchorfile>
-      <anchor>aef81f4e3b6d03551375b655b2fa017ad</anchor>
+      <anchor>afaa4e95e9f9195b5ffabd34d2c484998</anchor>
       <arglist></arglist>
     </member>
     <member kind="variable" protection="protected">
@@ -2723,6 +2617,34 @@
       <anchorfile>classcasa_1_1ObsTrapProp.html</anchorfile>
       <anchor>a7ba0b5421ccd052206290d566757c9aa</anchor>
       <arglist></arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual unsigned int</type>
+      <name>version</name>
+      <anchorfile>classcasa_1_1ObsTrapProp.html</anchorfile>
+      <anchor>ac3a41ca61f1f29129548a1ae4aca18f9</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual bool</type>
+      <name>save</name>
+      <anchorfile>classcasa_1_1ObsTrapProp.html</anchorfile>
+      <anchor>a3dc2539f173a9329708f50589e146d39</anchor>
+      <arglist>(CasaSerializer &amp;sz, unsigned int fileVer) const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual const char *</type>
+      <name>typeName</name>
+      <anchorfile>classcasa_1_1ObsTrapProp.html</anchorfile>
+      <anchor>a857fe861d257667cab355e63f7c38c45</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function">
+      <type></type>
+      <name>ObsTrapProp</name>
+      <anchorfile>classcasa_1_1ObsTrapProp.html</anchorfile>
+      <anchor>a58ad47e6fafa70f92007df6b04ba4752</anchor>
+      <arglist>(CasaDeserializer &amp;dz, unsigned int objVer)</arglist>
     </member>
   </compound>
   <compound kind="class">
@@ -2867,6 +2789,34 @@
       <anchor>a142db1d3b3bd9ce082ad99a25a78e7cd</anchor>
       <arglist>(const Observable *parent, const std::vector&lt; double &gt; &amp;val)</arglist>
     </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual unsigned int</type>
+      <name>version</name>
+      <anchorfile>classcasa_1_1ObsValueDoubleArray.html</anchorfile>
+      <anchor>aab772387409ee9c15c22f42ef72bb3d5</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual const char *</type>
+      <name>typeName</name>
+      <anchorfile>classcasa_1_1ObsValueDoubleArray.html</anchorfile>
+      <anchor>aa856b793344cd854f416d8ca46ac47c6</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual bool</type>
+      <name>save</name>
+      <anchorfile>classcasa_1_1ObsValueDoubleArray.html</anchorfile>
+      <anchor>af6586c84d366c6e53fecf2c8852a870f</anchor>
+      <arglist>(CasaSerializer &amp;sz, unsigned int version) const </arglist>
+    </member>
+    <member kind="function">
+      <type></type>
+      <name>ObsValueDoubleArray</name>
+      <anchorfile>classcasa_1_1ObsValueDoubleArray.html</anchorfile>
+      <anchor>a6fc9e9b6c31b68a02c9f7a6202c21324</anchor>
+      <arglist>(CasaDeserializer &amp;dz, unsigned int objVer)</arglist>
+    </member>
   </compound>
   <compound kind="class">
     <name>casa::ObsValueDoubleScalar</name>
@@ -2969,6 +2919,34 @@
       <anchorfile>classcasa_1_1ObsValueDoubleScalar.html</anchorfile>
       <anchor>a35d1f660d0081b9459fde0dac1183c7c</anchor>
       <arglist>(const Observable *parent, double val)</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual unsigned int</type>
+      <name>version</name>
+      <anchorfile>classcasa_1_1ObsValueDoubleScalar.html</anchorfile>
+      <anchor>a2935bc7833de71872f309762f3b8edfa</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual const char *</type>
+      <name>typeName</name>
+      <anchorfile>classcasa_1_1ObsValueDoubleScalar.html</anchorfile>
+      <anchor>aa2b2a4a2bda8f41e129bb73bc62bf239</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual bool</type>
+      <name>save</name>
+      <anchorfile>classcasa_1_1ObsValueDoubleScalar.html</anchorfile>
+      <anchor>ace08f9c140274f8f96f3a5d64a00485d</anchor>
+      <arglist>(CasaSerializer &amp;sz, unsigned int version) const </arglist>
+    </member>
+    <member kind="function">
+      <type></type>
+      <name>ObsValueDoubleScalar</name>
+      <anchorfile>classcasa_1_1ObsValueDoubleScalar.html</anchorfile>
+      <anchor>ab428c171805a142d0aa864f1838e802b</anchor>
+      <arglist>(CasaDeserializer &amp;dz, unsigned int objVer)</arglist>
     </member>
   </compound>
   <compound kind="class">
@@ -3100,6 +3078,165 @@
     </member>
   </compound>
   <compound kind="class">
+    <name>casa::PrmLithoSTPThermalCond</name>
+    <filename>classcasa_1_1PrmLithoSTPThermalCond.html</filename>
+    <base>casa::Parameter</base>
+    <member kind="function">
+      <type></type>
+      <name>PrmLithoSTPThermalCond</name>
+      <anchorfile>classcasa_1_1PrmLithoSTPThermalCond.html</anchorfile>
+      <anchor>a4c0560b2965b40786aa00298a0fef5b6</anchor>
+      <arglist>(mbapi::Model &amp;mdl, const char *lithoName)</arglist>
+    </member>
+    <member kind="function">
+      <type></type>
+      <name>PrmLithoSTPThermalCond</name>
+      <anchorfile>classcasa_1_1PrmLithoSTPThermalCond.html</anchorfile>
+      <anchor>ad9ce96ca4365fd3a01137e30d34add9f</anchor>
+      <arglist>(const VarPrmLithoSTPThermalCond *parent, const char *lithoName, double val)</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual</type>
+      <name>~PrmLithoSTPThermalCond</name>
+      <anchorfile>classcasa_1_1PrmLithoSTPThermalCond.html</anchorfile>
+      <anchor>aa9fc79923d6b39be30ada0e56526b274</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual const char *</type>
+      <name>name</name>
+      <anchorfile>classcasa_1_1PrmLithoSTPThermalCond.html</anchorfile>
+      <anchor>a7c7e61c00ff893f99ab9b8a5e66d399d</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual const VarParameter *</type>
+      <name>parent</name>
+      <anchorfile>classcasa_1_1PrmLithoSTPThermalCond.html</anchorfile>
+      <anchor>a2faffad809acdef08cfc1101500d82fc</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual ErrorHandler::ReturnCode</type>
+      <name>setInModel</name>
+      <anchorfile>classcasa_1_1PrmLithoSTPThermalCond.html</anchorfile>
+      <anchor>a731b29e97891f2a4b4b00ec0655e38ea</anchor>
+      <arglist>(mbapi::Model &amp;caldModel)</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual std::string</type>
+      <name>validate</name>
+      <anchorfile>classcasa_1_1PrmLithoSTPThermalCond.html</anchorfile>
+      <anchor>a3d0f9e821a53867db4f28d111f9f4efb</anchor>
+      <arglist>(mbapi::Model &amp;caldModel)</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual std::vector&lt; double &gt;</type>
+      <name>asDoubleArray</name>
+      <anchorfile>classcasa_1_1PrmLithoSTPThermalCond.html</anchorfile>
+      <anchor>a045d07e1b3148833785c42a8f2bd35fc</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual int</type>
+      <name>asInteger</name>
+      <anchorfile>classcasa_1_1PrmLithoSTPThermalCond.html</anchorfile>
+      <anchor>a1c55aaa20b6855694d233b8a8406eab8</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual bool</type>
+      <name>operator==</name>
+      <anchorfile>classcasa_1_1PrmLithoSTPThermalCond.html</anchorfile>
+      <anchor>ac7296188b1d09b661ba00519cf24ad0f</anchor>
+      <arglist>(const Parameter &amp;prm) const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual unsigned int</type>
+      <name>version</name>
+      <anchorfile>classcasa_1_1PrmLithoSTPThermalCond.html</anchorfile>
+      <anchor>af7688dc9e90de85d831cd7e7e3b55743</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual bool</type>
+      <name>save</name>
+      <anchorfile>classcasa_1_1PrmLithoSTPThermalCond.html</anchorfile>
+      <anchor>af6c35f94da02df11efab13ac9889074e</anchor>
+      <arglist>(CasaSerializer &amp;sz, unsigned int version) const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual const char *</type>
+      <name>typeName</name>
+      <anchorfile>classcasa_1_1PrmLithoSTPThermalCond.html</anchorfile>
+      <anchor>a9f7ea416f3ba1b2b5a01b51a57d261b3</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function">
+      <type></type>
+      <name>PrmLithoSTPThermalCond</name>
+      <anchorfile>classcasa_1_1PrmLithoSTPThermalCond.html</anchorfile>
+      <anchor>a8da40b877885063df76d81559923de88</anchor>
+      <arglist>(CasaDeserializer &amp;dz, unsigned int objVer)</arglist>
+    </member>
+    <member kind="variable" protection="protected">
+      <type>const VarParameter *</type>
+      <name>m_parent</name>
+      <anchorfile>classcasa_1_1PrmLithoSTPThermalCond.html</anchorfile>
+      <anchor>a7f68a655b1c1d2db87dcaf0cd7edb23c</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="protected">
+      <type>std::string</type>
+      <name>m_name</name>
+      <anchorfile>classcasa_1_1PrmLithoSTPThermalCond.html</anchorfile>
+      <anchor>a94a23a27de733d40a99e93deda268cee</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="protected">
+      <type>std::string</type>
+      <name>m_lithoName</name>
+      <anchorfile>classcasa_1_1PrmLithoSTPThermalCond.html</anchorfile>
+      <anchor>a9c07bd59edf9c61056e726ef4b69ff7b</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="protected">
+      <type>double</type>
+      <name>m_value</name>
+      <anchorfile>classcasa_1_1PrmLithoSTPThermalCond.html</anchorfile>
+      <anchor>ae40f6d1120a0d6a1f06c61ecd9407d2d</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual unsigned int</type>
+      <name>version</name>
+      <anchorfile>classcasa_1_1PrmLithoSTPThermalCond.html</anchorfile>
+      <anchor>af7688dc9e90de85d831cd7e7e3b55743</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual bool</type>
+      <name>save</name>
+      <anchorfile>classcasa_1_1PrmLithoSTPThermalCond.html</anchorfile>
+      <anchor>af6c35f94da02df11efab13ac9889074e</anchor>
+      <arglist>(CasaSerializer &amp;sz, unsigned int version) const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual const char *</type>
+      <name>typeName</name>
+      <anchorfile>classcasa_1_1PrmLithoSTPThermalCond.html</anchorfile>
+      <anchor>a9f7ea416f3ba1b2b5a01b51a57d261b3</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function">
+      <type></type>
+      <name>PrmLithoSTPThermalCond</name>
+      <anchorfile>classcasa_1_1PrmLithoSTPThermalCond.html</anchorfile>
+      <anchor>a8da40b877885063df76d81559923de88</anchor>
+      <arglist>(CasaDeserializer &amp;dz, unsigned int objVer)</arglist>
+    </member>
+  </compound>
+  <compound kind="class">
     <name>casa::PrmOneCrustThinningEvent</name>
     <filename>classcasa_1_1PrmOneCrustThinningEvent.html</filename>
     <base>casa::Parameter</base>
@@ -3172,6 +3309,34 @@
       <anchorfile>classcasa_1_1PrmOneCrustThinningEvent.html</anchorfile>
       <anchor>af18b8bf8e0a534a8d935fe112b5b72ed</anchor>
       <arglist>(const Parameter &amp;prm) const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual unsigned int</type>
+      <name>version</name>
+      <anchorfile>classcasa_1_1PrmOneCrustThinningEvent.html</anchorfile>
+      <anchor>af7f33b7ef2ae5f04110748fdb45a41c5</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual bool</type>
+      <name>save</name>
+      <anchorfile>classcasa_1_1PrmOneCrustThinningEvent.html</anchorfile>
+      <anchor>ae2b1267c9ac2cfa268d8485a0ba6ddd7</anchor>
+      <arglist>(CasaSerializer &amp;sz, unsigned int version) const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual const char *</type>
+      <name>typeName</name>
+      <anchorfile>classcasa_1_1PrmOneCrustThinningEvent.html</anchorfile>
+      <anchor>a25db4ad059ee30a93a33c7458318a859</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function">
+      <type></type>
+      <name>PrmOneCrustThinningEvent</name>
+      <anchorfile>classcasa_1_1PrmOneCrustThinningEvent.html</anchorfile>
+      <anchor>af6969701cc774ea3669efe92a001684a</anchor>
+      <arglist>(CasaDeserializer &amp;dz, unsigned int objVer)</arglist>
     </member>
     <member kind="function" virtualness="virtual">
       <type>virtual unsigned int</type>
@@ -3367,6 +3532,34 @@
       <anchor>a141197f91a3c6d2fd5edb6e4493e145f</anchor>
       <arglist></arglist>
     </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual unsigned int</type>
+      <name>version</name>
+      <anchorfile>classcasa_1_1PrmPorosityModel.html</anchorfile>
+      <anchor>ae21e16f581fd1299a79b4cbd1232bb58</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual bool</type>
+      <name>save</name>
+      <anchorfile>classcasa_1_1PrmPorosityModel.html</anchorfile>
+      <anchor>a7acc1389b468d0e634fdb1e34b0bac8f</anchor>
+      <arglist>(CasaSerializer &amp;sz, unsigned int version) const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual const char *</type>
+      <name>typeName</name>
+      <anchorfile>classcasa_1_1PrmPorosityModel.html</anchorfile>
+      <anchor>add1e3592668e2fc6d03820d687b67301</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function">
+      <type></type>
+      <name>PrmPorosityModel</name>
+      <anchorfile>classcasa_1_1PrmPorosityModel.html</anchorfile>
+      <anchor>a79b3c3be1e01590b554c4cdb882bad5b</anchor>
+      <arglist>(CasaDeserializer &amp;dz, unsigned int objVer)</arglist>
+    </member>
   </compound>
   <compound kind="class">
     <name>casa::PrmSourceRockHC</name>
@@ -3504,6 +3697,34 @@
       <anchorfile>classcasa_1_1PrmSourceRockHC.html</anchorfile>
       <anchor>a476458516a30a18edfe0fbc2fe965f97</anchor>
       <arglist></arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual unsigned int</type>
+      <name>version</name>
+      <anchorfile>classcasa_1_1PrmSourceRockHC.html</anchorfile>
+      <anchor>a477a6a5e8d222837eb683fc26fc81bdf</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual bool</type>
+      <name>save</name>
+      <anchorfile>classcasa_1_1PrmSourceRockHC.html</anchorfile>
+      <anchor>a690738ca65d96400ec4cd5b7de4e71d8</anchor>
+      <arglist>(CasaSerializer &amp;sz, unsigned int version) const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual const char *</type>
+      <name>typeName</name>
+      <anchorfile>classcasa_1_1PrmSourceRockHC.html</anchorfile>
+      <anchor>af5b1ab6378704a271d19c4a4fa468fd8</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function">
+      <type></type>
+      <name>PrmSourceRockHC</name>
+      <anchorfile>classcasa_1_1PrmSourceRockHC.html</anchorfile>
+      <anchor>aa50e084ec4093c19f37b495ef3d502b3</anchor>
+      <arglist>(CasaDeserializer &amp;dz, unsigned int objVer)</arglist>
     </member>
   </compound>
   <compound kind="class">
@@ -3643,6 +3864,34 @@
       <anchor>a1a0365c2511301c1381e6a204f9f925f</anchor>
       <arglist></arglist>
     </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual unsigned int</type>
+      <name>version</name>
+      <anchorfile>classcasa_1_1PrmSourceRockHI.html</anchorfile>
+      <anchor>a8aac1008de4275d00ba94959dcbc78a9</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual bool</type>
+      <name>save</name>
+      <anchorfile>classcasa_1_1PrmSourceRockHI.html</anchorfile>
+      <anchor>a9146db85f60e8771cba82cb28710ac8c</anchor>
+      <arglist>(CasaSerializer &amp;sz, unsigned int version) const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual const char *</type>
+      <name>typeName</name>
+      <anchorfile>classcasa_1_1PrmSourceRockHI.html</anchorfile>
+      <anchor>a869650b8fb78908947a98cf12fd4766b</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function">
+      <type></type>
+      <name>PrmSourceRockHI</name>
+      <anchorfile>classcasa_1_1PrmSourceRockHI.html</anchorfile>
+      <anchor>a5d6a7de373f1c6deb32de4cec2226e04</anchor>
+      <arglist>(CasaDeserializer &amp;dz, unsigned int objVer)</arglist>
+    </member>
   </compound>
   <compound kind="class">
     <name>casa::PrmSourceRockPreAsphaltStartAct</name>
@@ -3781,6 +4030,34 @@
       <anchor>abb87e1677c9a242f56e32d6a98c8f936</anchor>
       <arglist></arglist>
     </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual unsigned int</type>
+      <name>version</name>
+      <anchorfile>classcasa_1_1PrmSourceRockPreAsphaltStartAct.html</anchorfile>
+      <anchor>ae8e65710a23b06cd4a032cdebf71b94d</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual bool</type>
+      <name>save</name>
+      <anchorfile>classcasa_1_1PrmSourceRockPreAsphaltStartAct.html</anchorfile>
+      <anchor>a903020a6ccb85d96571965e136af63cf</anchor>
+      <arglist>(CasaSerializer &amp;sz, unsigned int version) const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual const char *</type>
+      <name>typeName</name>
+      <anchorfile>classcasa_1_1PrmSourceRockPreAsphaltStartAct.html</anchorfile>
+      <anchor>a185c3b97f54719f6f231992c9db493b8</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function">
+      <type></type>
+      <name>PrmSourceRockPreAsphaltStartAct</name>
+      <anchorfile>classcasa_1_1PrmSourceRockPreAsphaltStartAct.html</anchorfile>
+      <anchor>a935c3032acd967e33d591e0e2cc0c901</anchor>
+      <arglist>(CasaDeserializer &amp;dz, unsigned int objVer)</arglist>
+    </member>
   </compound>
   <compound kind="class">
     <name>casa::PrmSourceRockTOC</name>
@@ -3918,6 +4195,34 @@
       <anchorfile>classcasa_1_1PrmSourceRockTOC.html</anchorfile>
       <anchor>a142f1ce2c53790001ff8cd1cee151bb9</anchor>
       <arglist></arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual unsigned int</type>
+      <name>version</name>
+      <anchorfile>classcasa_1_1PrmSourceRockTOC.html</anchorfile>
+      <anchor>a43b846d4581f31cdd59efcc06fd84331</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual bool</type>
+      <name>save</name>
+      <anchorfile>classcasa_1_1PrmSourceRockTOC.html</anchorfile>
+      <anchor>a76c3b6cd7d5975b6e0e6c8e81b8b4ee6</anchor>
+      <arglist>(CasaSerializer &amp;sz, unsigned int version) const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual const char *</type>
+      <name>typeName</name>
+      <anchorfile>classcasa_1_1PrmSourceRockTOC.html</anchorfile>
+      <anchor>a447c025a249089378f4f2b57f054d35e</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function">
+      <type></type>
+      <name>PrmSourceRockTOC</name>
+      <anchorfile>classcasa_1_1PrmSourceRockTOC.html</anchorfile>
+      <anchor>a6515e13366af7f35e329de7941934d8d</anchor>
+      <arglist>(CasaDeserializer &amp;dz, unsigned int objVer)</arglist>
     </member>
   </compound>
   <compound kind="class">
@@ -4064,6 +4369,34 @@
       <anchor>a2a36d59d2dcb6728aab663ec14f53f6f</anchor>
       <arglist></arglist>
     </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual unsigned int</type>
+      <name>version</name>
+      <anchorfile>classcasa_1_1PrmSourceRockType.html</anchorfile>
+      <anchor>a67c7eb3cd96611a5eefe8dd0cbec4e6d</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual bool</type>
+      <name>save</name>
+      <anchorfile>classcasa_1_1PrmSourceRockType.html</anchorfile>
+      <anchor>ae9d65140db5e59e242aada589a9b3e94</anchor>
+      <arglist>(CasaSerializer &amp;sz, unsigned int version) const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual const char *</type>
+      <name>typeName</name>
+      <anchorfile>classcasa_1_1PrmSourceRockType.html</anchorfile>
+      <anchor>a0f5a3e650a63e6479b26a4720600f41d</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function">
+      <type></type>
+      <name>PrmSourceRockType</name>
+      <anchorfile>classcasa_1_1PrmSourceRockType.html</anchorfile>
+      <anchor>ab5abc8f985dbc109164ec624ec38c097</anchor>
+      <arglist>(CasaDeserializer &amp;dz, unsigned int objVer)</arglist>
+    </member>
   </compound>
   <compound kind="class">
     <name>casa::PrmTopCrustHeatProduction</name>
@@ -4188,6 +4521,34 @@
       <anchor>adf5c5efdbce1213a59fa78b94b781e0c</anchor>
       <arglist></arglist>
     </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual unsigned int</type>
+      <name>version</name>
+      <anchorfile>classcasa_1_1PrmTopCrustHeatProduction.html</anchorfile>
+      <anchor>a4b86e48a49891b5f47d73bd1a8627035</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual bool</type>
+      <name>save</name>
+      <anchorfile>classcasa_1_1PrmTopCrustHeatProduction.html</anchorfile>
+      <anchor>ad907f37344030125d4d4a68d1460e141</anchor>
+      <arglist>(CasaSerializer &amp;sz, unsigned int version) const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual const char *</type>
+      <name>typeName</name>
+      <anchorfile>classcasa_1_1PrmTopCrustHeatProduction.html</anchorfile>
+      <anchor>afa3f755a80bd37bd6ebdfc46f2a90281</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function">
+      <type></type>
+      <name>PrmTopCrustHeatProduction</name>
+      <anchorfile>classcasa_1_1PrmTopCrustHeatProduction.html</anchorfile>
+      <anchor>abb116728fd2d06a6ae39a400d0db0678</anchor>
+      <arglist>(CasaDeserializer &amp;dz, unsigned int objVer)</arglist>
+    </member>
   </compound>
   <compound kind="class">
     <name>casa::RSProxy</name>
@@ -4201,21 +4562,18 @@
       <arglist></arglist>
     </member>
     <member kind="enumvalue">
-      <type>@</type>
       <name>NoKriging</name>
       <anchorfile>classcasa_1_1RSProxy.html</anchorfile>
       <anchor>a78d06d241dffea8143d3284ff4d3e9b6af2fcb17fe21e0b3674ef46985074db26</anchor>
       <arglist></arglist>
     </member>
     <member kind="enumvalue">
-      <type>@</type>
       <name>LocalKriging</name>
       <anchorfile>classcasa_1_1RSProxy.html</anchorfile>
       <anchor>a78d06d241dffea8143d3284ff4d3e9b6a4309dc4ff4f03b3bcdf03a26eef83d16</anchor>
       <arglist></arglist>
     </member>
     <member kind="enumvalue">
-      <type>@</type>
       <name>GlobalKriging</name>
       <anchorfile>classcasa_1_1RSProxy.html</anchorfile>
       <anchor>a78d06d241dffea8143d3284ff4d3e9b6a70b2cc285e416a3730ff88115faf5649</anchor>
@@ -4247,6 +4605,13 @@
       <name>kriging</name>
       <anchorfile>classcasa_1_1RSProxy.html</anchorfile>
       <anchor>a78331dc95423dce9b768cfd89eab2995</anchor>
+      <arglist>() const =0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual int</type>
+      <name>polynomialOrder</name>
+      <anchorfile>classcasa_1_1RSProxy.html</anchorfile>
+      <anchor>af07b446f105ce811898edc6c7b37ac6a</anchor>
       <arglist>() const =0</arglist>
     </member>
     <member kind="function" virtualness="pure">
@@ -4323,14 +4688,12 @@
       <arglist></arglist>
     </member>
     <member kind="enumvalue">
-      <type>@</type>
       <name>NotSubmitted</name>
       <anchorfile>classcasa_1_1RunCase.html</anchorfile>
       <anchor>ab208fcdf55a08ce05a2a22fac9199948a1ee34bf7c612acc1c62265ff640ccd6d</anchor>
       <arglist></arglist>
     </member>
     <member kind="enumvalue">
-      <type>@</type>
       <name>Scheduled</name>
       <anchorfile>classcasa_1_1RunCase.html</anchorfile>
       <anchor>ab208fcdf55a08ce05a2a22fac9199948a090ab404d1d0440b92c1525675cc43a3</anchor>
@@ -4507,74 +4870,65 @@
     <name>casa::RunManager</name>
     <filename>classcasa_1_1RunManager.html</filename>
     <base>casa::CasaSerializable</base>
-    <member kind="enumeration">
-      <type></type>
-      <name>ApplicationType</name>
-      <anchorfile>classcasa_1_1RunManager.html</anchorfile>
-      <anchor>ac9252a97b9af971dfb11ec8929e61f4c</anchor>
-      <arglist></arglist>
-    </member>
     <member kind="enumvalue">
-      <type>@</type>
       <name>fastcauldron</name>
       <anchorfile>classcasa_1_1RunManager.html</anchorfile>
       <anchor>ac9252a97b9af971dfb11ec8929e61f4ca5a08b6111419372caeedc9bd871d50f1</anchor>
       <arglist></arglist>
     </member>
     <member kind="enumvalue">
-      <type>@</type>
       <name>fastctc</name>
       <anchorfile>classcasa_1_1RunManager.html</anchorfile>
       <anchor>ac9252a97b9af971dfb11ec8929e61f4ca3e70ec805d918d3c63dabaecd030dd25</anchor>
       <arglist></arglist>
     </member>
     <member kind="enumvalue">
-      <type>@</type>
       <name>fastgenex6</name>
       <anchorfile>classcasa_1_1RunManager.html</anchorfile>
       <anchor>ac9252a97b9af971dfb11ec8929e61f4ca9b6242e2963156947168607351798672</anchor>
       <arglist></arglist>
     </member>
     <member kind="enumvalue">
-      <type>@</type>
       <name>fasttouch7</name>
       <anchorfile>classcasa_1_1RunManager.html</anchorfile>
       <anchor>ac9252a97b9af971dfb11ec8929e61f4caa881c0ee99a00385debb7682e25ab7f8</anchor>
       <arglist></arglist>
     </member>
     <member kind="enumvalue">
-      <type>@</type>
       <name>fastmig</name>
       <anchorfile>classcasa_1_1RunManager.html</anchorfile>
       <anchor>ac9252a97b9af971dfb11ec8929e61f4ca757f78d537d66509c8af437664672aad</anchor>
       <arglist></arglist>
     </member>
     <member kind="enumvalue">
-      <type>@</type>
       <name>tracktraps</name>
       <anchorfile>classcasa_1_1RunManager.html</anchorfile>
       <anchor>ac9252a97b9af971dfb11ec8929e61f4cae755ccaf202eda2eca4e7047c8437c84</anchor>
       <arglist></arglist>
     </member>
     <member kind="enumvalue">
-      <type>@</type>
       <name>track1d</name>
       <anchorfile>classcasa_1_1RunManager.html</anchorfile>
       <anchor>ac9252a97b9af971dfb11ec8929e61f4ca5f87a0e1f36678fce036af2586562c7f</anchor>
       <arglist></arglist>
     </member>
     <member kind="enumvalue">
-      <type>@</type>
       <name>datadriller</name>
       <anchorfile>classcasa_1_1RunManager.html</anchorfile>
       <anchor>ac9252a97b9af971dfb11ec8929e61f4ca35e332df86abe2a708809cf8dd8cb43f</anchor>
       <arglist></arglist>
     </member>
     <member kind="enumvalue">
-      <type>@</type>
       <name>generic</name>
       <anchorfile>classcasa_1_1RunManager.html</anchorfile>
       <anchor>ac9252a97b9af971dfb11ec8929e61f4ca1c9d2a3e6872653cdc3290e0a2651048</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumeration">
+      <type></type>
+      <name>ApplicationType</name>
+      <anchorfile>classcasa_1_1RunManager.html</anchorfile>
+      <anchor>ac9252a97b9af971dfb11ec8929e61f4c</anchor>
       <arglist></arglist>
     </member>
     <member kind="function" virtualness="virtual">
@@ -4607,6 +4961,13 @@
     </member>
     <member kind="function" virtualness="pure">
       <type>virtual ErrorHandler::ReturnCode</type>
+      <name>setMaxNumberOfPendingJobs</name>
+      <anchorfile>classcasa_1_1RunManager.html</anchorfile>
+      <anchor>adab8a5b1322e44c8d96ca9e1452527af</anchor>
+      <arglist>(size_t pendJobsNum)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual ErrorHandler::ReturnCode</type>
       <name>runScheduledCases</name>
       <anchorfile>classcasa_1_1RunManager.html</anchorfile>
       <anchor>af0c8db02d90b9652c6085a95ed700551</anchor>
@@ -4632,6 +4993,13 @@
       <anchorfile>classcasa_1_1RunManager.html</anchorfile>
       <anchor>ac45c847d74726125b742c70fe425b312</anchor>
       <arglist>(ApplicationType appType, int cpus=1, CauldronApp::ShellType sh=CauldronApp::bash, const std::string cmdLine=&quot;&quot;)</arglist>
+    </member>
+    <member kind="enumeration">
+      <type></type>
+      <name>ApplicationType</name>
+      <anchorfile>classcasa_1_1RunManager.html</anchorfile>
+      <anchor>ac9252a97b9af971dfb11ec8929e61f4c</anchor>
+      <arglist></arglist>
     </member>
   </compound>
   <compound kind="class">
@@ -4684,6 +5052,13 @@
       <name>setScenarioLocation</name>
       <anchorfile>classcasa_1_1ScenarioAnalysis.html</anchorfile>
       <anchor>aa4c0d764d036e470007d88a60272e64e</anchor>
+      <arglist>(const char *pathToCaseSet)</arglist>
+    </member>
+    <member kind="function">
+      <type>ErrorHandler::ReturnCode</type>
+      <name>restoreScenarioLocation</name>
+      <anchorfile>classcasa_1_1ScenarioAnalysis.html</anchorfile>
+      <anchor>af8dfb90f5decdf077f63d54b7e0c6e3c</anchor>
       <arglist>(const char *pathToCaseSet)</arglist>
     </member>
     <member kind="function">
@@ -4760,8 +5135,8 @@
       <type>ErrorHandler::ReturnCode</type>
       <name>addRSAlgorithm</name>
       <anchorfile>classcasa_1_1ScenarioAnalysis.html</anchorfile>
-      <anchor>aee0839ed2e6e550427509a062e487503</anchor>
-      <arglist>(const char *name, int order, RSProxy::RSKrigingType krType, const std::vector&lt; std::string &gt; &amp;doeList)</arglist>
+      <anchor>a4af832aa8ce6a874a030a7ede8923f0d</anchor>
+      <arglist>(const char *name, int order, RSProxy::RSKrigingType krType, const std::vector&lt; std::string &gt; &amp;doeList, double targetR2=0.95)</arglist>
     </member>
     <member kind="function">
       <type>RSProxySet &amp;</type>
@@ -4898,6 +5273,34 @@
       <anchor>a2f12faac1f599843ced4dd83424945c0</anchor>
       <arglist>(size_t prmNum) const </arglist>
     </member>
+    <member kind="function">
+      <type>double</type>
+      <name>minAbsSensitivityValue</name>
+      <anchorfile>classcasa_1_1TornadoSensitivityInfo.html</anchorfile>
+      <anchor>a368855ce59eb17f51145155dfa6f68ed</anchor>
+      <arglist>(size_t prmNum) const </arglist>
+    </member>
+    <member kind="function">
+      <type>double</type>
+      <name>maxAbsSensitivityValue</name>
+      <anchorfile>classcasa_1_1TornadoSensitivityInfo.html</anchorfile>
+      <anchor>a6349190eca4538a852033dce8e8da8ae</anchor>
+      <arglist>(size_t prmNum) const </arglist>
+    </member>
+    <member kind="function">
+      <type>double</type>
+      <name>minRelSensitivityValue</name>
+      <anchorfile>classcasa_1_1TornadoSensitivityInfo.html</anchorfile>
+      <anchor>a20f66d2ab6c3dad770e34a7b2c8f4d1a</anchor>
+      <arglist>(size_t prmNum) const </arglist>
+    </member>
+    <member kind="function">
+      <type>double</type>
+      <name>maxRelSensitivityValue</name>
+      <anchorfile>classcasa_1_1TornadoSensitivityInfo.html</anchorfile>
+      <anchor>a2f12faac1f599843ced4dd83424945c0</anchor>
+      <arglist>(size_t prmNum) const </arglist>
+    </member>
   </compound>
   <compound kind="class">
     <name>casa::TxtDeserializer</name>
@@ -4921,8 +5324,8 @@
       <type>virtual bool</type>
       <name>checkObjectDescription</name>
       <anchorfile>classcasa_1_1TxtDeserializer.html</anchorfile>
-      <anchor>a85908d587c839e4c07530909ce7936e1</anchor>
-      <arglist>(const char *objType, const std::string &amp;objName, unsigned int ver)</arglist>
+      <anchor>aa4c767be1557f6c04d62972aed8d5408</anchor>
+      <arglist>(const char *objType, const std::string &amp;objName, unsigned int &amp;ver)</arglist>
     </member>
     <member kind="function" virtualness="virtual">
       <type>virtual bool</type>
@@ -5250,21 +5653,18 @@
       <arglist></arglist>
     </member>
     <member kind="enumvalue">
-      <type>@</type>
       <name>Continuous</name>
       <anchorfile>classcasa_1_1VarParameter.html</anchorfile>
       <anchor>a34c88f2a5ac21283dfed3689c693328ba717bc4ee2522af80c8a9c7250c171338</anchor>
       <arglist></arglist>
     </member>
     <member kind="enumvalue">
-      <type>@</type>
       <name>Discrete</name>
       <anchorfile>classcasa_1_1VarParameter.html</anchorfile>
       <anchor>a34c88f2a5ac21283dfed3689c693328ba4003c715d49f668213952711c152fb02</anchor>
       <arglist></arglist>
     </member>
     <member kind="enumvalue">
-      <type>@</type>
       <name>Categorical</name>
       <anchorfile>classcasa_1_1VarParameter.html</anchorfile>
       <anchor>a34c88f2a5ac21283dfed3689c693328bac0cb12f80cb366836b96450dba15e483</anchor>
@@ -5421,21 +5821,18 @@
       <arglist></arglist>
     </member>
     <member kind="enumvalue">
-      <type>@</type>
       <name>Block</name>
       <anchorfile>classcasa_1_1VarPrmContinuous.html</anchorfile>
       <anchor>aae6536fb7ff2d99c1a4ab71c0a73f6e8a8d4eb6d4d1e2b85ee7dbbe42bc0b3da0</anchor>
       <arglist></arglist>
     </member>
     <member kind="enumvalue">
-      <type>@</type>
       <name>Triangle</name>
       <anchorfile>classcasa_1_1VarPrmContinuous.html</anchorfile>
       <anchor>aae6536fb7ff2d99c1a4ab71c0a73f6e8ae7c9212177d3c67086b41ea1ca6a441d</anchor>
       <arglist></arglist>
     </member>
     <member kind="enumvalue">
-      <type>@</type>
       <name>Normal</name>
       <anchorfile>classcasa_1_1VarPrmContinuous.html</anchorfile>
       <anchor>aae6536fb7ff2d99c1a4ab71c0a73f6e8a6269fe05157836585509745766f7ecf5</anchor>
@@ -5658,6 +6055,109 @@
     </member>
   </compound>
   <compound kind="class">
+    <name>casa::VarPrmLithoSTPThermalCond</name>
+    <filename>classcasa_1_1VarPrmLithoSTPThermalCond.html</filename>
+    <base>casa::VarPrmContinuous</base>
+    <member kind="function">
+      <type></type>
+      <name>VarPrmLithoSTPThermalCond</name>
+      <anchorfile>classcasa_1_1VarPrmLithoSTPThermalCond.html</anchorfile>
+      <anchor>a97d6408deef32cdb228bc8afa66d14d2</anchor>
+      <arglist>(const char *lithoName, double baseValue, double minValue, double maxValue, PDF pdfType=Block)</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual</type>
+      <name>~VarPrmLithoSTPThermalCond</name>
+      <anchorfile>classcasa_1_1VarPrmLithoSTPThermalCond.html</anchorfile>
+      <anchor>a198bfe7ac0141f15f03b87957479fcca</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual std::vector&lt; std::string &gt;</type>
+      <name>name</name>
+      <anchorfile>classcasa_1_1VarPrmLithoSTPThermalCond.html</anchorfile>
+      <anchor>a4a2423f2193fda96ff325ab617bc1b83</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual size_t</type>
+      <name>dimension</name>
+      <anchorfile>classcasa_1_1VarPrmLithoSTPThermalCond.html</anchorfile>
+      <anchor>a2d5b751075530df66a303c81854f81cb</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual SharedParameterPtr</type>
+      <name>newParameterFromDoubles</name>
+      <anchorfile>classcasa_1_1VarPrmLithoSTPThermalCond.html</anchorfile>
+      <anchor>a5ca4279c8bedc30888be60c14aa03787</anchor>
+      <arglist>(std::vector&lt; double &gt;::const_iterator &amp;vals) const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual unsigned int</type>
+      <name>version</name>
+      <anchorfile>classcasa_1_1VarPrmLithoSTPThermalCond.html</anchorfile>
+      <anchor>abb3faeda343a560e799b5029d3fcc757</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual const char *</type>
+      <name>typeName</name>
+      <anchorfile>classcasa_1_1VarPrmLithoSTPThermalCond.html</anchorfile>
+      <anchor>ade48f5596fc3d961fb5bb7a335f46959</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual bool</type>
+      <name>save</name>
+      <anchorfile>classcasa_1_1VarPrmLithoSTPThermalCond.html</anchorfile>
+      <anchor>ab481673704b181bab5d5a4781a109f14</anchor>
+      <arglist>(CasaSerializer &amp;sz, unsigned int version) const </arglist>
+    </member>
+    <member kind="function">
+      <type></type>
+      <name>VarPrmLithoSTPThermalCond</name>
+      <anchorfile>classcasa_1_1VarPrmLithoSTPThermalCond.html</anchorfile>
+      <anchor>ab3f4f7b139162119c75e0ede38cb3a3e</anchor>
+      <arglist>(CasaDeserializer &amp;dz, unsigned int objVer)</arglist>
+    </member>
+    <member kind="variable" protection="protected">
+      <type>std::string</type>
+      <name>m_lithoName</name>
+      <anchorfile>classcasa_1_1VarPrmLithoSTPThermalCond.html</anchorfile>
+      <anchor>a1919fe8db0fcfda2f744f0db390d6b5a</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual unsigned int</type>
+      <name>version</name>
+      <anchorfile>classcasa_1_1VarPrmLithoSTPThermalCond.html</anchorfile>
+      <anchor>abb3faeda343a560e799b5029d3fcc757</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual const char *</type>
+      <name>typeName</name>
+      <anchorfile>classcasa_1_1VarPrmLithoSTPThermalCond.html</anchorfile>
+      <anchor>ade48f5596fc3d961fb5bb7a335f46959</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual bool</type>
+      <name>save</name>
+      <anchorfile>classcasa_1_1VarPrmLithoSTPThermalCond.html</anchorfile>
+      <anchor>ab481673704b181bab5d5a4781a109f14</anchor>
+      <arglist>(CasaSerializer &amp;sz, unsigned int version) const </arglist>
+    </member>
+    <member kind="function">
+      <type></type>
+      <name>VarPrmLithoSTPThermalCond</name>
+      <anchorfile>classcasa_1_1VarPrmLithoSTPThermalCond.html</anchorfile>
+      <anchor>ab3f4f7b139162119c75e0ede38cb3a3e</anchor>
+      <arglist>(CasaDeserializer &amp;dz, unsigned int objVer)</arglist>
+    </member>
+  </compound>
+  <compound kind="class">
     <name>casa::VarPrmOneCrustThinningEvent</name>
     <filename>classcasa_1_1VarPrmOneCrustThinningEvent.html</filename>
     <base>casa::VarPrmContinuous</base>
@@ -5688,6 +6188,34 @@
       <anchorfile>classcasa_1_1VarPrmOneCrustThinningEvent.html</anchorfile>
       <anchor>ad3fec67fc91b4ef6a3b563bc6dd18627</anchor>
       <arglist>(std::vector&lt; double &gt;::const_iterator &amp;vals) const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual unsigned int</type>
+      <name>version</name>
+      <anchorfile>classcasa_1_1VarPrmOneCrustThinningEvent.html</anchorfile>
+      <anchor>a078fd425e9b8aef4d4d0f5686e1230a6</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual const char *</type>
+      <name>typeName</name>
+      <anchorfile>classcasa_1_1VarPrmOneCrustThinningEvent.html</anchorfile>
+      <anchor>a2b2bbfc8fb19b799b652635857cfa64a</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual bool</type>
+      <name>save</name>
+      <anchorfile>classcasa_1_1VarPrmOneCrustThinningEvent.html</anchorfile>
+      <anchor>a5ebcc01b62b37e5b8e548b0add29fdc5</anchor>
+      <arglist>(CasaSerializer &amp;sz, unsigned int version) const </arglist>
+    </member>
+    <member kind="function">
+      <type></type>
+      <name>VarPrmOneCrustThinningEvent</name>
+      <anchorfile>classcasa_1_1VarPrmOneCrustThinningEvent.html</anchorfile>
+      <anchor>a3ba72e36e18e43c563a89ef69e96154e</anchor>
+      <arglist>(CasaDeserializer &amp;dz, unsigned int objVer)</arglist>
     </member>
     <member kind="function" virtualness="virtual">
       <type>virtual unsigned int</type>
@@ -5749,6 +6277,34 @@
       <anchorfile>classcasa_1_1VarPrmPorosityModel.html</anchorfile>
       <anchor>af198c2f3d91a77afd2f3316a04b83fa6</anchor>
       <arglist>(std::vector&lt; double &gt;::const_iterator &amp;vals) const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual unsigned int</type>
+      <name>version</name>
+      <anchorfile>classcasa_1_1VarPrmPorosityModel.html</anchorfile>
+      <anchor>a5300e7d96f180143ea787ca53aa42755</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual const char *</type>
+      <name>typeName</name>
+      <anchorfile>classcasa_1_1VarPrmPorosityModel.html</anchorfile>
+      <anchor>ab851aaa2f18a7e3d509a1ee1e638497e</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual bool</type>
+      <name>save</name>
+      <anchorfile>classcasa_1_1VarPrmPorosityModel.html</anchorfile>
+      <anchor>a1ada726d8cada8ba347a2447337cdd27</anchor>
+      <arglist>(CasaSerializer &amp;sz, unsigned int version) const </arglist>
+    </member>
+    <member kind="function">
+      <type></type>
+      <name>VarPrmPorosityModel</name>
+      <anchorfile>classcasa_1_1VarPrmPorosityModel.html</anchorfile>
+      <anchor>aea080677122de24c7072b32a3c88295e</anchor>
+      <arglist>(CasaDeserializer &amp;dz, unsigned int objVer)</arglist>
     </member>
     <member kind="function" virtualness="virtual">
       <type>virtual unsigned int</type>
@@ -5860,6 +6416,34 @@
       <anchor>acc397ea8a1838b46bc4fbcafd81b2efc</anchor>
       <arglist></arglist>
     </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual unsigned int</type>
+      <name>version</name>
+      <anchorfile>classcasa_1_1VarPrmSourceRockHC.html</anchorfile>
+      <anchor>ab87751a70f3349d1469dc30ad56f2dcc</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual const char *</type>
+      <name>typeName</name>
+      <anchorfile>classcasa_1_1VarPrmSourceRockHC.html</anchorfile>
+      <anchor>ada913e57d3be5dedd12fa6f9903cc0c0</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual bool</type>
+      <name>save</name>
+      <anchorfile>classcasa_1_1VarPrmSourceRockHC.html</anchorfile>
+      <anchor>a1701032c3077b1a87641e64921a0a6a6</anchor>
+      <arglist>(CasaSerializer &amp;sz, unsigned int version) const </arglist>
+    </member>
+    <member kind="function">
+      <type></type>
+      <name>VarPrmSourceRockHC</name>
+      <anchorfile>classcasa_1_1VarPrmSourceRockHC.html</anchorfile>
+      <anchor>af3b1079907121c9b7099d6c8b6e6aa66</anchor>
+      <arglist>(CasaDeserializer &amp;dz, unsigned int objVer)</arglist>
+    </member>
   </compound>
   <compound kind="class">
     <name>casa::VarPrmSourceRockHI</name>
@@ -5942,6 +6526,34 @@
       <anchor>a6134cab2d7e85ad289e4840026b057df</anchor>
       <arglist></arglist>
     </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual unsigned int</type>
+      <name>version</name>
+      <anchorfile>classcasa_1_1VarPrmSourceRockHI.html</anchorfile>
+      <anchor>acbde6c244c08fe16d1201bd71ffbdad4</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual const char *</type>
+      <name>typeName</name>
+      <anchorfile>classcasa_1_1VarPrmSourceRockHI.html</anchorfile>
+      <anchor>ac17e3dade879f933e9182b1bf6cb41ef</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual bool</type>
+      <name>save</name>
+      <anchorfile>classcasa_1_1VarPrmSourceRockHI.html</anchorfile>
+      <anchor>a41ce51ed38a32278eb99fb3be4ed60c6</anchor>
+      <arglist>(CasaSerializer &amp;sz, unsigned int version) const </arglist>
+    </member>
+    <member kind="function">
+      <type></type>
+      <name>VarPrmSourceRockHI</name>
+      <anchorfile>classcasa_1_1VarPrmSourceRockHI.html</anchorfile>
+      <anchor>a0db6765b1db19bd3efc1fbba10aa2bc5</anchor>
+      <arglist>(CasaDeserializer &amp;dz, unsigned int objVer)</arglist>
+    </member>
   </compound>
   <compound kind="class">
     <name>casa::VarPrmSourceRockPreAsphaltStartAct</name>
@@ -5982,6 +6594,13 @@
       <anchor>a9b0a2b245a85a075db43af6239f4b61d</anchor>
       <arglist>(std::vector&lt; double &gt;::const_iterator &amp;vals) const </arglist>
     </member>
+    <member kind="function">
+      <type>std::string</type>
+      <name>layerName</name>
+      <anchorfile>classcasa_1_1VarPrmSourceRockPreAsphaltStartAct.html</anchorfile>
+      <anchor>a90588b258ab0679fda3bcff631ce9dca</anchor>
+      <arglist>() const </arglist>
+    </member>
     <member kind="function" virtualness="virtual">
       <type>virtual unsigned int</type>
       <name>version</name>
@@ -6016,6 +6635,34 @@
       <anchorfile>classcasa_1_1VarPrmSourceRockPreAsphaltStartAct.html</anchorfile>
       <anchor>af0f41d2a6c9f2236ff94ea0dce2f04d5</anchor>
       <arglist></arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual unsigned int</type>
+      <name>version</name>
+      <anchorfile>classcasa_1_1VarPrmSourceRockPreAsphaltStartAct.html</anchorfile>
+      <anchor>a9657e1e526d91820dd57fb8cf1c76d6f</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual const char *</type>
+      <name>typeName</name>
+      <anchorfile>classcasa_1_1VarPrmSourceRockPreAsphaltStartAct.html</anchorfile>
+      <anchor>ab22af6483da4be3b5ee570f20f07bdbe</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual bool</type>
+      <name>save</name>
+      <anchorfile>classcasa_1_1VarPrmSourceRockPreAsphaltStartAct.html</anchorfile>
+      <anchor>a00be9ce481801c92112733532a85b1a5</anchor>
+      <arglist>(CasaSerializer &amp;sz, unsigned int version) const </arglist>
+    </member>
+    <member kind="function">
+      <type></type>
+      <name>VarPrmSourceRockPreAsphaltStartAct</name>
+      <anchorfile>classcasa_1_1VarPrmSourceRockPreAsphaltStartAct.html</anchorfile>
+      <anchor>a2f7a50a79ba88e416524c8a8a38bbb18</anchor>
+      <arglist>(CasaDeserializer &amp;dz, unsigned int objVer)</arglist>
     </member>
   </compound>
   <compound kind="class">
@@ -6057,6 +6704,13 @@
       <anchor>a49ce3bc3fd9db49a1aef3066473773c9</anchor>
       <arglist>(std::vector&lt; double &gt;::const_iterator &amp;vals) const </arglist>
     </member>
+    <member kind="function">
+      <type>std::string</type>
+      <name>layerName</name>
+      <anchorfile>classcasa_1_1VarPrmSourceRockTOC.html</anchorfile>
+      <anchor>a55d636257328b5e4fa6c335ac9509929</anchor>
+      <arglist>() const </arglist>
+    </member>
     <member kind="function" virtualness="virtual">
       <type>virtual unsigned int</type>
       <name>version</name>
@@ -6091,6 +6745,34 @@
       <anchorfile>classcasa_1_1VarPrmSourceRockTOC.html</anchorfile>
       <anchor>ad990ed7dff14d40653dd4f164e0530c7</anchor>
       <arglist></arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual unsigned int</type>
+      <name>version</name>
+      <anchorfile>classcasa_1_1VarPrmSourceRockTOC.html</anchorfile>
+      <anchor>a2b692719e514296e104092d2511df436</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual const char *</type>
+      <name>typeName</name>
+      <anchorfile>classcasa_1_1VarPrmSourceRockTOC.html</anchorfile>
+      <anchor>ac060cdbc1045a4352b202e7db05e5340</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual bool</type>
+      <name>save</name>
+      <anchorfile>classcasa_1_1VarPrmSourceRockTOC.html</anchorfile>
+      <anchor>a50a70f176821e430c29d699de7c7857d</anchor>
+      <arglist>(CasaSerializer &amp;sz, unsigned int version) const </arglist>
+    </member>
+    <member kind="function">
+      <type></type>
+      <name>VarPrmSourceRockTOC</name>
+      <anchorfile>classcasa_1_1VarPrmSourceRockTOC.html</anchorfile>
+      <anchor>a0d8fc5bf9a3b6241592a01714fbd22f3</anchor>
+      <arglist>(CasaDeserializer &amp;dz, unsigned int objVer)</arglist>
     </member>
   </compound>
   <compound kind="class">
@@ -6131,6 +6813,34 @@
       <anchorfile>classcasa_1_1VarPrmSourceRockType.html</anchorfile>
       <anchor>a10585a3caed6aa2786e2bbe3a676a03f</anchor>
       <arglist>(const PrmSourceRockType *prm) const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual unsigned int</type>
+      <name>version</name>
+      <anchorfile>classcasa_1_1VarPrmSourceRockType.html</anchorfile>
+      <anchor>aa71188c8d78b8d1a5f095e69223decd4</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual const char *</type>
+      <name>typeName</name>
+      <anchorfile>classcasa_1_1VarPrmSourceRockType.html</anchorfile>
+      <anchor>a4067df1f658151b7e02225d1d0d72eb4</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual bool</type>
+      <name>save</name>
+      <anchorfile>classcasa_1_1VarPrmSourceRockType.html</anchorfile>
+      <anchor>acfe67f3e6ec472ed95e61bdab08cab16</anchor>
+      <arglist>(CasaSerializer &amp;sz, unsigned int version) const </arglist>
+    </member>
+    <member kind="function">
+      <type></type>
+      <name>VarPrmSourceRockType</name>
+      <anchorfile>classcasa_1_1VarPrmSourceRockType.html</anchorfile>
+      <anchor>a2d8c56d2dd64ac2fd3c5df7078a5861b</anchor>
+      <arglist>(CasaDeserializer &amp;dz, unsigned int objVer)</arglist>
     </member>
     <member kind="function" virtualness="virtual">
       <type>virtual unsigned int</type>
@@ -6228,6 +6938,34 @@
       <anchor>a2b3d30c8865bbe5de6b3428bca21acff</anchor>
       <arglist>(CasaDeserializer &amp;dz, unsigned int objVer)</arglist>
     </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual unsigned int</type>
+      <name>version</name>
+      <anchorfile>classcasa_1_1VarPrmTopCrustHeatProduction.html</anchorfile>
+      <anchor>a0bc693a573d4f754f6832b9491eb8a2c</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual const char *</type>
+      <name>typeName</name>
+      <anchorfile>classcasa_1_1VarPrmTopCrustHeatProduction.html</anchorfile>
+      <anchor>afa4c4526523bd7f5adad78f85e1aa98d</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual bool</type>
+      <name>save</name>
+      <anchorfile>classcasa_1_1VarPrmTopCrustHeatProduction.html</anchorfile>
+      <anchor>a953de6ade118b0649e448b7afcfc97a8</anchor>
+      <arglist>(CasaSerializer &amp;sz, unsigned int version) const </arglist>
+    </member>
+    <member kind="function">
+      <type></type>
+      <name>VarPrmTopCrustHeatProduction</name>
+      <anchorfile>classcasa_1_1VarPrmTopCrustHeatProduction.html</anchorfile>
+      <anchor>a2b3d30c8865bbe5de6b3428bca21acff</anchor>
+      <arglist>(CasaDeserializer &amp;dz, unsigned int objVer)</arglist>
+    </member>
   </compound>
   <compound kind="class">
     <name>casa::VarSpace</name>
@@ -6237,22 +6975,8 @@
       <type>virtual ErrorHandler::ReturnCode</type>
       <name>addParameter</name>
       <anchorfile>classcasa_1_1VarSpace.html</anchorfile>
-      <anchor>af74a4b8bf67f19070bed07ff136d46c3</anchor>
-      <arglist>(VarPrmCategorical *prm)=0</arglist>
-    </member>
-    <member kind="function" virtualness="pure">
-      <type>virtual ErrorHandler::ReturnCode</type>
-      <name>addParameter</name>
-      <anchorfile>classcasa_1_1VarSpace.html</anchorfile>
-      <anchor>a49c7f23cabacb4b802707b908309c500</anchor>
-      <arglist>(VarPrmContinuous *prm)=0</arglist>
-    </member>
-    <member kind="function" virtualness="pure">
-      <type>virtual ErrorHandler::ReturnCode</type>
-      <name>addParameter</name>
-      <anchorfile>classcasa_1_1VarSpace.html</anchorfile>
-      <anchor>a9c73d9d27bded5c7f6715aa66d2914a5</anchor>
-      <arglist>(VarPrmDiscrete *prm)=0</arglist>
+      <anchor>ae6eb3eca60d530933ed6b6ea414f6edd</anchor>
+      <arglist>(VarParameter *prm)=0</arglist>
     </member>
     <member kind="function" virtualness="pure">
       <type>virtual size_t</type>
@@ -6309,6 +7033,104 @@
       <anchorfile>classcasa_1_1VarSpace.html</anchorfile>
       <anchor>a6a0a48cd414e4dc3b799a3870f524c0c</anchor>
       <arglist>(size_t i) const =0</arglist>
+    </member>
+  </compound>
+  <compound kind="namespace">
+    <name>casa</name>
+    <filename>namespacecasa.html</filename>
+    <namespace>casa::BusinessLogicRulesSet</namespace>
+    <class kind="class">casa::CasaDeserializer</class>
+    <class kind="class">casa::CasaSerializable</class>
+    <class kind="class">casa::CasaSerializer</class>
+    <class kind="class">casa::CauldronApp</class>
+    <class kind="class">casa::DataDigger</class>
+    <class kind="class">casa::DoEGenerator</class>
+    <class kind="class">casa::MonteCarloSolver</class>
+    <class kind="class">casa::Observable</class>
+    <class kind="class">casa::ObsGridPropertyWell</class>
+    <class kind="class">casa::ObsGridPropertyXYZ</class>
+    <class kind="class">casa::ObsSourceRockMapProp</class>
+    <class kind="class">casa::ObsSpace</class>
+    <class kind="class">casa::ObsTrapProp</class>
+    <class kind="class">casa::ObsValue</class>
+    <class kind="class">casa::ObsValueDoubleArray</class>
+    <class kind="class">casa::ObsValueDoubleScalar</class>
+    <class kind="class">casa::Parameter</class>
+    <class kind="struct">casa::ParetoSensitivityInfo</class>
+    <class kind="class">casa::PrmLithoSTPThermalCond</class>
+    <class kind="class">casa::PrmOneCrustThinningEvent</class>
+    <class kind="class">casa::PrmPorosityModel</class>
+    <class kind="class">casa::PrmSourceRockHC</class>
+    <class kind="class">casa::PrmSourceRockHI</class>
+    <class kind="class">casa::PrmSourceRockPreAsphaltStartAct</class>
+    <class kind="class">casa::PrmSourceRockTOC</class>
+    <class kind="class">casa::PrmSourceRockType</class>
+    <class kind="class">casa::PrmTopCrustHeatProduction</class>
+    <class kind="class">casa::RSProxy</class>
+    <class kind="class">casa::RSProxySet</class>
+    <class kind="class">casa::RunCase</class>
+    <class kind="class">casa::RunCaseSet</class>
+    <class kind="class">casa::RunManager</class>
+    <class kind="class">casa::ScenarioAnalysis</class>
+    <class kind="class">casa::SensitivityCalculator</class>
+    <class kind="class">casa::TornadoSensitivityInfo</class>
+    <class kind="class">casa::TxtDeserializer</class>
+    <class kind="class">casa::TxtSerializer</class>
+    <class kind="class">casa::VarParameter</class>
+    <class kind="class">casa::VarPrmCategorical</class>
+    <class kind="class">casa::VarPrmContinuous</class>
+    <class kind="class">casa::VarPrmDiscrete</class>
+    <class kind="class">casa::VarPrmLithoSTPThermalCond</class>
+    <class kind="class">casa::VarPrmOneCrustThinningEvent</class>
+    <class kind="class">casa::VarPrmPorosityModel</class>
+    <class kind="class">casa::VarPrmSourceRockHC</class>
+    <class kind="class">casa::VarPrmSourceRockHI</class>
+    <class kind="class">casa::VarPrmSourceRockPreAsphaltStartAct</class>
+    <class kind="class">casa::VarPrmSourceRockTOC</class>
+    <class kind="class">casa::VarPrmSourceRockType</class>
+    <class kind="class">casa::VarPrmTopCrustHeatProduction</class>
+    <class kind="class">casa::VarSpace</class>
+    <member kind="function">
+      <type>double</type>
+      <name>SMcc2sp</name>
+      <anchorfile>namespacecasa.html</anchorfile>
+      <anchor>add106522985596bd8258f1efc29b6d0b</anchor>
+      <arglist>(double cc)</arglist>
+    </member>
+    <member kind="function">
+      <type>double</type>
+      <name>SMsp2cc</name>
+      <anchorfile>namespacecasa.html</anchorfile>
+      <anchor>a9e919c21ae01079a214e4aa57c16a16e</anchor>
+      <arglist>(double surfPor)</arglist>
+    </member>
+    <member kind="function">
+      <type>double</type>
+      <name>SMsp2cf</name>
+      <anchorfile>namespacecasa.html</anchorfile>
+      <anchor>aaedfeeaa49d0170b85984293fc2d3521</anchor>
+      <arglist>(double surfPor)</arglist>
+    </member>
+    <member kind="function">
+      <type>double</type>
+      <name>SMcc2cf</name>
+      <anchorfile>namespacecasa.html</anchorfile>
+      <anchor>a5a9fbbf4cc16210f7eef6d336c4a4f91</anchor>
+      <arglist>(double cc)</arglist>
+    </member>
+    <member kind="function">
+      <type>double</type>
+      <name>SMcf2sp</name>
+      <anchorfile>namespacecasa.html</anchorfile>
+      <anchor>ad693831ac3f141bbe33faa9edcea445f</anchor>
+      <arglist>(double clayFrac)</arglist>
+    </member>
+    <member kind="function">
+      <type>double</type>
+      <name>SMcf2cc</name>
+      <anchorfile>namespacecasa.html</anchorfile>
+      <anchor>a76146b8d4ee38fde100d629f731a2b72</anchor>
+      <arglist>(double clayFrac)</arglist>
     </member>
   </compound>
   <compound kind="namespace">
@@ -6377,5 +7199,191 @@
       <anchor>a128d13486810730ea07ceb5b45f0cffc</anchor>
       <arglist>(ScenarioAnalysis &amp;sa, const char *litName, const char *modelName, double minSurfPor, double maxSurfPor, double minCompCoef, double maxCompCoef, double minMinPor, double maxMinPor, double minCompCoef1, double maxCompCoef1, VarPrmContinuous::PDF pdfType)</arglist>
     </member>
+    <member kind="function">
+      <type>ErrorHandler::ReturnCode</type>
+      <name>VaryLithoSTPThermalCondCoeffParameter</name>
+      <anchorfile>namespacecasa_1_1BusinessLogicRulesSet.html</anchorfile>
+      <anchor>aeac4c6124ec4dcd16b4cbb41f8e6f4ca</anchor>
+      <arglist>(ScenarioAnalysis &amp;sa, const char *litName, double minVal, double maxVal, VarPrmContinuous::PDF pdfType)</arglist>
+    </member>
+  </compound>
+  <compound kind="namespace">
+    <name>mbapi</name>
+    <filename>namespacembapi.html</filename>
+  </compound>
+  <compound kind="namespace">
+    <name>sumext</name>
+    <filename>namespacesumext.html</filename>
+  </compound>
+  <compound kind="namespace">
+    <name>SUMlib</name>
+    <filename>namespaceSUMlib.html</filename>
+  </compound>
+  <compound kind="page">
+    <name>CASA_API_Descr</name>
+    <title>Computer Aided Scenario Analysis API</title>
+    <filename>CASA_API_Descr</filename>
+  </compound>
+  <compound kind="page">
+    <name>CASA_ClassHierachyPage</name>
+    <title>CASA interface classes hierarchy description.</title>
+    <filename>CASA_ClassHierachyPage</filename>
+  </compound>
+  <compound kind="page">
+    <name>CASA_VarParametersAndObservablesPage</name>
+    <title>Variable Parameters and Observables</title>
+    <filename>CASA_VarParametersAndObservablesPage</filename>
+  </compound>
+  <compound kind="page">
+    <name>CASA_ScenarioAnalysisPage</name>
+    <title>Scenario analysis workflows</title>
+    <filename>CASA_ScenarioAnalysisPage</filename>
+  </compound>
+  <compound kind="page">
+    <name>CASA_DataDiggerPage</name>
+    <title>Data Digger</title>
+    <filename>CASA_DataDiggerPage</filename>
+  </compound>
+  <compound kind="page">
+    <name>CASA_DoEGeneratorPage</name>
+    <title>Design of Experiments generator</title>
+    <filename>CASA_DoEGeneratorPage</filename>
+    <docanchor file="CASA_DoEGeneratorPage" title="Variety of DoE algorithms available in API">CASA_DoEGeneratorSection</docanchor>
+    <docanchor file="CASA_DoEGeneratorPage" title="Tornado design">TornadoSection</docanchor>
+    <docanchor file="CASA_DoEGeneratorPage" title="Plackett-Burman design">PlackettBurmanSection</docanchor>
+    <docanchor file="CASA_DoEGeneratorPage" title="Box-Behnken design">BoxBehnkenSection</docanchor>
+    <docanchor file="CASA_DoEGeneratorPage" title="Full Factorial design">FullFactorialSection</docanchor>
+    <docanchor file="CASA_DoEGeneratorPage" title="Space filling design">SpaceFillingSection</docanchor>
+    <docanchor file="CASA_DoEGeneratorPage" title="Basic/Optimized Latin Hypercube.">LatinHypercubeSection</docanchor>
+  </compound>
+  <compound kind="page">
+    <name>CASA_MonteCarloSolverPage</name>
+    <title>Monte Carlo solver</title>
+    <filename>CASA_MonteCarloSolverPage</filename>
+  </compound>
+  <compound kind="page">
+    <name>CASA_ObservablePage</name>
+    <title>Observable description</title>
+    <filename>CASA_ObservablePage</filename>
+  </compound>
+  <compound kind="page">
+    <name>CASA_ObservableGridPropWellPage</name>
+    <title>Cauldron grid property along a well trajectory</title>
+    <filename>CASA_ObservableGridPropWellPage</filename>
+  </compound>
+  <compound kind="page">
+    <name>CASA_ObservableGridPropXYZPage</name>
+    <title>Any Cauldron grid property at specified XYZ point</title>
+    <filename>CASA_ObservableGridPropXYZPage</filename>
+  </compound>
+  <compound kind="page">
+    <name>CASA_ObservableSourceRockMapPropPage</name>
+    <title>Any Genex map property value for source rock layer at</title>
+    <filename>CASA_ObservableSourceRockMapPropPage</filename>
+  </compound>
+  <compound kind="page">
+    <name>CASA_ObsSpacePage</name>
+    <title>Container for observables description</title>
+    <filename>CASA_ObsSpacePage</filename>
+  </compound>
+  <compound kind="page">
+    <name>CASA_ObservableTrapPropPage</name>
+    <title>Any trap property which could be extracted by datadriller after migration calculation.</title>
+    <filename>CASA_ObservableTrapPropPage</filename>
+  </compound>
+  <compound kind="page">
+    <name>CASA_ParameterPage</name>
+    <title>Cauldron project parameter</title>
+    <filename>CASA_ParameterPage</filename>
+  </compound>
+  <compound kind="page">
+    <name>CASA_LithoSTPThermalCondPage</name>
+    <title>Lithology STP (Standart Temperature and Pressure) thermal conductivity coefficient [W/m/K]</title>
+    <filename>CASA_LithoSTPThermalCondPage</filename>
+  </compound>
+  <compound kind="page">
+    <name>CASA_OneCrustThinningEventPage</name>
+    <title>Crust thinning parameter</title>
+    <filename>CASA_OneCrustThinningEventPage</filename>
+  </compound>
+  <compound kind="page">
+    <name>CASA_PorosityModelPage</name>
+    <title>Lithology porosity model</title>
+    <filename>CASA_PorosityModelPage</filename>
+  </compound>
+  <compound kind="page">
+    <name>CASA_SourceRockHCPage</name>
+    <title>Source rock H/C initial ratio parameter</title>
+    <filename>CASA_SourceRockHCPage</filename>
+  </compound>
+  <compound kind="page">
+    <name>CASA_SourceRockHIPage</name>
+    <title>Source rock Hydrogen Index (HI) initial ratio parameter</title>
+    <filename>CASA_SourceRockHIPage</filename>
+  </compound>
+  <compound kind="page">
+    <name>CASA_SourceRockPreAsphaltStartActPage</name>
+    <title>Source rock pre-asphaltene activation energy parameter</title>
+    <filename>CASA_SourceRockPreAsphaltStartActPage</filename>
+  </compound>
+  <compound kind="page">
+    <name>CASA_SourceRockTOCPage</name>
+    <title>Source rock initial Total Organic Contents (TOC) parameter</title>
+    <filename>CASA_SourceRockTOCPage</filename>
+  </compound>
+  <compound kind="page">
+    <name>CASA_SourceRockTypePage</name>
+    <title>Source rock type parameter</title>
+    <filename>CASA_SourceRockTypePage</filename>
+  </compound>
+  <compound kind="page">
+    <name>CASA_TopCrustHeatProductionPage</name>
+    <title>Top crust heat production rate parameter</title>
+    <filename>CASA_TopCrustHeatProductionPage</filename>
+  </compound>
+  <compound kind="page">
+    <name>CASA_RSProxyPage</name>
+    <title>Response surface proxy</title>
+    <filename>CASA_RSProxyPage</filename>
+  </compound>
+  <compound kind="page">
+    <name>CASA_KrigingPage</name>
+    <title>Kriging interpolation</title>
+    <filename>CASA_KrigingPage</filename>
+  </compound>
+  <compound kind="page">
+    <name>CASA_RunManagerPage</name>
+    <title>Jobs execution manager</title>
+    <filename>CASA_RunManagerPage</filename>
+  </compound>
+  <compound kind="page">
+    <name>CASA_SensitivityCalculatorPage</name>
+    <title>Sensitivity calculator for variable parameters</title>
+    <filename>CASA_SensitivityCalculatorPage</filename>
+  </compound>
+  <compound kind="page">
+    <name>CASA_VarParameterPage</name>
+    <title>Variable parameter</title>
+    <filename>CASA_VarParameterPage</filename>
+  </compound>
+  <compound kind="page">
+    <name>CASA_VarPrmCategoricalPage</name>
+    <title>Variable parameter for categorical values</title>
+    <filename>CASA_VarPrmCategoricalPage</filename>
+  </compound>
+  <compound kind="page">
+    <name>CASA_VarPrmContinuousPage</name>
+    <title>Continuous variable parameter</title>
+    <filename>CASA_VarPrmContinuousPage</filename>
+  </compound>
+  <compound kind="page">
+    <name>CASA_VarPrmDiscretePage</name>
+    <title>Discrete variable parameter</title>
+    <filename>CASA_VarPrmDiscretePage</filename>
+  </compound>
+  <compound kind="page">
+    <name>CASA_VarSpacePage</name>
+    <title>Container for variable parameters</title>
+    <filename>CASA_VarSpacePage</filename>
   </compound>
 </tagfile>

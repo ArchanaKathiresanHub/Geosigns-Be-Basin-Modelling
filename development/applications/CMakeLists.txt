@@ -15,8 +15,7 @@ if (BM_BUILD_SERIAL_APPS)
 	add_subdirectory(EosPackDemo)
 	add_subdirectory(track1d)
 	add_subdirectory(datadriller)
-	add_subdirectory(casa)
-	add_subdirectory(prograde)
+	add_subdirectory(CASADemo)
 endif (BM_BUILD_SERIAL_APPS)
 
 # Applications that can only be built on Unix at the moment.

@@ -29,10 +29,6 @@ include_directories(
 bm_include_libraries(
 	DataModel
 	DataAccess
-	DerivedProperties
-	GeoPhysics
-	Interpolation
-	LinearAlgebra
 	DistributedDataAccess
 	Utilities_Petsc
 	Serial_Hdf5
@@ -48,9 +44,8 @@ bm_include_libraries(
 
 target_link_libraries( fastgenex6
 	DataAccess
-	DerivedProperties
-	GeoPhysics
 	DistributedDataAccess
+	GeoPhysics
 	Utilities_Petsc
 	Serial_Hdf5
 	Parallel_Hdf5

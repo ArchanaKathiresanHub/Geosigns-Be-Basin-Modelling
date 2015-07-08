@@ -8,19 +8,14 @@
 %include "std_map.i"
 %include "std_pair.i"
 
-%include "enums.swg"
-%csconst(1);
-
 /// Shared pointer types wrapping
 // CASA API
 %include "boost_shared_ptr.i"
 // CASA API
 %shared_ptr(casa::Parameter)
 %shared_ptr(casa::PrmOneCrustThinningEvent)
-%shared_ptr(casa::PrmCrustThinning)
 %shared_ptr(casa::PrmTopCrustHeatProduction)
 %shared_ptr(casa::PrmPorosityModel)
-%shared_ptr(casa::PrmPermeabilityModel)
 %shared_ptr(casa::PrmLithoSTPThermalCond)
 %shared_ptr(casa::PrmSourceRockTOC)
 %shared_ptr(casa::PrmSourceRockHC)
@@ -28,28 +23,10 @@
 %shared_ptr(casa::PrmSourceRockType)
 %shared_ptr(casa::PrmSourceRockPreAsphaltStartAct)
 
-// CASA API enums constants
-%csconstvalue("Cauldron.PermeabilityModel.SANDSTONE_PERMEABILITY")   PermSandstone;
-%csconstvalue("Cauldron.PermeabilityModel.MUDSTONE_PERMEABILITY")    PermMudstone;
-%csconstvalue("Cauldron.PermeabilityModel.NONE_PERMEABILITY")        PermNone;  
-%csconstvalue("Cauldron.PermeabilityModel.IMPERMEABLE_PERMEABILITY") PermImpermeable;
-%csconstvalue("Cauldron.PermeabilityModel.MULTIPOINT_PERMEABILITY")  PermMultipoint;
-
-%csconstvalue("Cauldron.PorosityModel.EXPONENTIAL_POROSITY")        PorExponential;
-%csconstvalue("Cauldron.PorosityModel.SOIL_MECHANICS_POROSITY")     PorSoilMechanics;
-%csconstvalue("Cauldron.PorosityModel.DOUBLE_EXPONENTIAL_POROSITY") PorDoubleExponential;
-
-%csconstvalue("Cauldron.LithologyManager.PermeabilityModel.PermSandstone")   Sandstone;
-%csconstvalue("Cauldron.LithologyManager.PermeabilityModel.PermMudstone")    Mudstone;
-%csconstvalue("Cauldron.LithologyManager.PermeabilityModel.PermNone")        None;
-%csconstvalue("Cauldron.LithologyManager.PermeabilityModel.PermImpermeable") Impermeable;
-%csconstvalue("Cauldron.LithologyManager.PermeabilityModel.PermMultipoint")  Multipoint;
-%csconstvalue("Cauldron.LithologyManager.PermeabilityModel.PermUnknown")     Unknown;
-
 
 %{
+
 // Interface to DataModel
-#include "../../../DataModel/src/PropertyAttribute.h"
 #include "../../../DataModel/src/AbstractFormation.h"
 #include "../../../DataModel/src/AbstractSurface.h"
 #include "../../../DataModel/src/AbstractGrid.h"
@@ -159,8 +136,6 @@
 #include "../../../cmbAPI/src/SnapshotManagerImpl.h"
 #include "../../../cmbAPI/src/PropertyManager.h"
 #include "../../../cmbAPI/src/PropertyManagerImpl.h"
-#include "../../../cmbAPI/src/MapsManager.h"
-#include "../../../cmbAPI/src/MapsManagerImpl.h"
 #include "../../../cmbAPI/src/cmbAPI.h"
 // CASA API
 #include "../../../casaAPI/src/CauldronApp.h"
@@ -181,7 +156,6 @@
 #include "../../../casaAPI/src/ObsSpace.h"
 #include "../../../casaAPI/src/ObsSpaceImpl.h"
 #include "../../../casaAPI/src/Parameter.h"
-#include "../../../casaAPI/src/PrmCrustThinning.h"
 #include "../../../casaAPI/src/PrmOneCrustThinningEvent.h"
 #include "../../../casaAPI/src/PrmTopCrustHeatProduction.h"
 #include "../../../casaAPI/src/PrmSourceRockTOC.h"
@@ -190,7 +164,6 @@
 #include "../../../casaAPI/src/PrmSourceRockType.h"
 #include "../../../casaAPI/src/PrmSourceRockPreAsphaltStartAct.h"
 #include "../../../casaAPI/src/PrmPorosityModel.h"
-#include "../../../casaAPI/src/PrmPermeabilityModel.h"
 #include "../../../casaAPI/src/PrmLithoSTPThermalCond.h"
 #include "../../../casaAPI/src/RSProxy.h"
 #include "../../../casaAPI/src/RSProxyImpl.h"
@@ -217,7 +190,6 @@
 #include "../../../casaAPI/src/VarPrmSourceRockType.h"
 #include "../../../casaAPI/src/VarPrmSourceRockPreAsphaltStartAct.h"
 #include "../../../casaAPI/src/VarPrmPorosityModel.h"
-#include "../../../casaAPI/src/VarPrmPermeabilityModel.h"
 #include "../../../casaAPI/src/VarPrmLithoSTPThermalCond.h"
 
 #include "../../../FileSystem/src/Path.h"
@@ -253,7 +225,6 @@ using namespace casa;
 %rename(ComponentId2) DataAccess::Interface::ComponentId;
 
 // Interface to DataModel
-%include "../../../DataModel/src/PropertyAttribute.h"
 %include "../../../DataModel/src/AbstractFormation.h"
 %include "../../../DataModel/src/AbstractSurface.h"
 %include "../../../DataModel/src/AbstractGrid.h"
@@ -345,12 +316,6 @@ using namespace casa;
 
 // Interface for APIs library
 // CMB API
-%csconstvalue( "Cauldron.PermeabilityModel.IMPERMEABLE_PERMEABILITY" ) DataAccess::Interface::SANDSTONE_PERMEABILITY;
-%csconstvalue( "Cauldron.PermeabilityModel.MUDSTONE_PERMEABILITY"    ) DataAccess::Interface::MUDSTONE_PERMEABILITY;
-%csconstvalue( "Cauldron.PermeabilityModel.NONE_PERMEABILITY"        ) DataAccess::Interface::NONE_PERMEABILITY;
-%csconstvalue( "Cauldron.PermeabilityModel.IMPERMEABLE_PERMEABILITY" ) DataAccess::Interface::IMPERMEABLE_PERMEABILITY;
-%csconstvalue( "Cauldron.PermeabilityModel.MULTIPOINT_PERMEABILITY"  ) DataAccess::Interface::MULTIPOINT_PERMEABILITY;
-
 %include "../../../utilities/src/formattingexception.h"
 %include "../../../cmbAPI/src/ErrorHandler.h"
 %include "../../../cmbAPI/src/UndefinedValues.h"
@@ -366,8 +331,6 @@ using namespace casa;
 %include "../../../cmbAPI/src/SnapshotManagerImpl.h"
 %include "../../../cmbAPI/src/PropertyManager.h"
 %include "../../../cmbAPI/src/PropertyManagerImpl.h"
-%include "../../../cmbAPI/src/MapsManager.h"
-%include "../../../cmbAPI/src/MapsManagerImpl.h"
 %include "../../../cmbAPI/src/cmbAPI.h"
 // CASA API
 %include "../../../casaAPI/src/CauldronApp.h"
@@ -388,7 +351,6 @@ using namespace casa;
 %include "../../../casaAPI/src/ObsSpace.h"
 %include "../../../casaAPI/src/ObsSpaceImpl.h"
 %include "../../../casaAPI/src/Parameter.h"
-%include "../../../casaAPI/src/PrmCrustThinning.h"
 %include "../../../casaAPI/src/PrmOneCrustThinningEvent.h"
 %include "../../../casaAPI/src/PrmTopCrustHeatProduction.h"
 %include "../../../casaAPI/src/PrmSourceRockTOC.h"
@@ -397,7 +359,6 @@ using namespace casa;
 %include "../../../casaAPI/src/PrmSourceRockType.h"
 %include "../../../casaAPI/src/PrmSourceRockPreAsphaltStartAct.h"
 %include "../../../casaAPI/src/PrmPorosityModel.h"
-%include "../../../casaAPI/src/PrmPermeabilityModel.h"
 %include "../../../casaAPI/src/PrmLithoSTPThermalCond.h"
 %include "../../../casaAPI/src/RSProxy.h"
 %include "../../../casaAPI/src/RSProxyImpl.h"
@@ -424,7 +385,6 @@ using namespace casa;
 %include "../../../casaAPI/src/VarPrmSourceRockType.h"
 %include "../../../casaAPI/src/VarPrmSourceRockPreAsphaltStartAct.h"
 %include "../../../casaAPI/src/VarPrmPorosityModel.h"
-%include "../../../casaAPI/src/VarPrmPermeabilityModel.h"
 %include "../../../casaAPI/src/VarPrmLithoSTPThermalCond.h"
 
 %include "../../../FileSystem/src/Path.h"

@@ -29,7 +29,6 @@ bm_include_libraries(
    FileSystem
    utilities
    DataModel
-   DataAccess
 )
 
 include_directories(
@@ -42,7 +41,6 @@ target_link_libraries(casaapi
    cmbapi
    FileSystem
    utilities
-   DataAccess
    SUMlib
    ${Boost_LIBRARIES}
 )
@@ -68,8 +66,6 @@ configure_file(test/Ottoland.project3d Ottoland.project3d)
 configure_file(test/OttolandWithGenex.project3d OttolandWithGenex.project3d COPYONLY )
 configure_file(test/OttolandCatPrms.project3d OttolandCatPrms.project3d COPYONLY )
 configure_file(test/Ottoland_casa_state.txt Ottoland_casa_state.txt COPYONLY )
-configure_file(test/LithologyTesting.project3d LithologyTesting.project3d COPYONLY )
-
 
 add_gtest( NAME BLRSTest
    SOURCES test/BLRSTest.C

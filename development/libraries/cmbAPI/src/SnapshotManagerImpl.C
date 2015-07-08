@@ -23,7 +23,7 @@
 namespace mbapi
 {
 
-double SnapshotManagerImpl::s_snpTol = 1.e-4;
+double SnapshotManagerImpl::m_snpTol = 1.e-4;
 
 SnapshotManagerImpl::SnapshotManagerImpl()
 {
@@ -95,7 +95,7 @@ ErrorHandler::ReturnCode SnapshotManagerImpl::requestMajorSnapshot( double simTi
 
    for ( database::Table::iterator it = m_snpTable->begin(); !record && it != m_snpTable->end(); ++it )
    {
-      if ( std::abs(simTime - database::getTime( *it ) ) < s_snpTol )
+      if ( std::abs(simTime - database::getTime( *it ) ) < m_snpTol )
       {
          record = *it;
       }

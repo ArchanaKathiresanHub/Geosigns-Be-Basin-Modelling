@@ -26,11 +26,13 @@ void DataAccess::Interface::convertDistanceUnits ( const DistanceUnit From,
 
 bool ElementLess::operator()( const Element& E1, const Element& E2 ) const {
 
-   if( E1 ( Interface::X_COORD ) < E2 ( Interface::X_COORD ) ||
-       ( E1 ( Interface::X_COORD ) == E2 ( Interface::X_COORD ) && E1 ( Interface::Y_COORD ) < E2 ( Interface::Y_COORD ) ) )
-      return true;
-   else
-      return false;
+  if( E1 ( Interface::X_COORD ) < E2 ( Interface::X_COORD )) {
+    return true;
+  } else if ( E1 ( Interface::Y_COORD ) < E2 ( Interface::Y_COORD )) {
+    return true;
+  }
+
+  return false;
 }
 
 

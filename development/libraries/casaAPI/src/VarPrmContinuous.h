@@ -30,6 +30,7 @@
 /// - @subpage CASA_SourceRockTOCPage 
 /// - @subpage CASA_SourceRockHIPage 
 /// - @subpage CASA_SourceRockHCPage 
+/// - @subpage CASA_SourceRockTypePage
 /// - @subpage CASA_SourceRockPreAsphaltStartActPage
 /// - @subpage CASA_TopCrustHeatProductionPage 
 /// - @subpage CASA_OneCrustThinningEventPage 
