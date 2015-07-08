@@ -83,6 +83,8 @@ void DerivedProperties::PermeabilityFormationCalculator::calculate ( DerivedProp
          double chemicalCompactionValue, permNorm, permPlane;
          GeoPhysics::CompoundProperty porosity;
 
+         double currentAge = snapshot->getTime();
+
          for ( unsigned int i = verticalPermeability->firstI ( true ); i <= verticalPermeability->lastI ( true ); ++i ) {
             
             for ( unsigned int j = verticalPermeability->firstJ ( true ); j <= verticalPermeability->lastJ ( true ); ++j ) {
@@ -92,9 +94,9 @@ void DerivedProperties::PermeabilityFormationCalculator::calculate ( DerivedProp
                   for ( unsigned int k = verticalPermeability->firstK (); k <= verticalPermeability->lastK (); ++k ) {
                      chemicalCompactionValue = ( chemicalCompactionRequired ? chemicalCompaction->get ( i, j, k ) : 0.0 );
 
-                     (*lithologies)( i, j )->getPorosity ( ves->get ( i, j, k ) , maxVes->get ( i, j, k ),
+                     (*lithologies)( i, j, currentAge )->getPorosity ( ves->get ( i, j, k ) , maxVes->get ( i, j, k ),
                                                            chemicalCompactionRequired, chemicalCompactionValue, porosity );
-                     (*lithologies)( i, j )->calcBulkPermeabilityNP ( ves->get ( i, j, k ), maxVes->get ( i, j, k ), porosity, permNorm, permPlane );
+                     (*lithologies)( i, j, currentAge )->calcBulkPermeabilityNP ( ves->get ( i, j, k ), maxVes->get ( i, j, k ), porosity, permNorm, permPlane );
                      
                      verticalPermeability->set ( i, j, k, permNorm / GeoPhysics::MILLIDARCYTOM2 );
                      horizontalPermeability->set ( i, j, k, permPlane / GeoPhysics::MILLIDARCYTOM2 );
