@@ -15,6 +15,11 @@
 #include <sstream>
 using namespace std;
 
+// Derived property library
+#include "AbstractPropertyManager.h"
+#include "DerivedPropertyManager.h"
+#include "SurfaceProperty.h"
+
 // DataAccess API includes
 #include "Interface/GridMap.h"
 #include "Interface/Grid.h"
@@ -25,7 +30,9 @@ using namespace std;
 #include "Interface/Reservoir.h"
 #include "Interface/LithoType.h"
 #include "Interface/Property.h"
-#include "Interface/PropertyValue.h"
+
+#include "GeoPhysicsObjectFactory.h"
+#include "GeoPhysicsProjectHandle.h"
 
 using namespace DataAccess;
 using namespace Interface;
@@ -79,7 +86,7 @@ PropertyHandle propertyHandles[] =
 
 const int NumPropertyHandles = 5;
 
-static bool generateBHF (ProjectHandle * projectHandle, Record * record);
+static bool generateBHF (ProjectHandle * projectHandle, DerivedProperties::DerivedPropertyManager& propertyManager, Record * record);
 
 int main (int argc, char ** argv)
 {
@@ -150,7 +157,12 @@ int main (int argc, char ** argv)
       outputProjectFileName = inputProjectFileName;
    }
 
-   ProjectHandle *projectHandle = OpenCauldronProject (inputProjectFileName, "rw");
+   GeoPhysics::ObjectFactory* factory = new GeoPhysics::ObjectFactory;
+   DataAccess::Interface::ProjectHandle::UseFactory (factory);
+   GeoPhysics::ProjectHandle* projectHandle = dynamic_cast< GeoPhysics::ProjectHandle* >( OpenCauldronProject( inputProjectFileName, "rw" ) );
+   DerivedProperties::DerivedPropertyManager propertyManager ( projectHandle );
+
+   // GeoPhysics::ProjectHandle *projectHandle = OpenCauldronProject (inputProjectFileName, "rw");
 
    if (projectHandle == 0)
    {
@@ -166,6 +178,7 @@ int main (int argc, char ** argv)
    for (p = 0; p < NumPropertyHandles; ++p)
    {
       propertyHandles[p].property = projectHandle->findProperty (propertyHandles[p].name);
+
       if (!propertyHandles[p].property)
       {
 	 cerr << "Could not find the " << propertyHandles[p].name << " property in the project file " << endl
@@ -173,17 +186,13 @@ int main (int argc, char ** argv)
 	 return -1;
 
       }
-      PropertyValueList *propertyValueList =
-         projectHandle->getPropertyValues (SURFACE, propertyHandles[p].property, 0, 0, 0, 0, MAP);
 
-      if (propertyValueList->size () == 0)
-      {
+      if ( not propertyManager.surfacePropertyIsComputable ( propertyHandles[p].property )) {
 	 cerr << "Could not find the " << propertyHandles[p].name << " property in the project file " << endl
 	    << "Rerun pressure/temperature with the " << propertyHandles[p].name << " property turned on" << endl;
-	 delete propertyValueList;
 	 return -1;
       }
-      delete propertyValueList;
+
    }
 
    // iterate over the touchstone wells
@@ -197,7 +206,7 @@ int main (int argc, char ** argv)
       {
 	 Record * record = table->getRecord (i);
 
-	 generateBHF (projectHandle, record);
+	 generateBHF (projectHandle, propertyManager, record);
       }
 
       ((Interface::ProjectHandle *) projectHandle)->setSimulationDetails ( "cauldron2bhf", "Default", "" );
@@ -206,13 +215,13 @@ int main (int argc, char ** argv)
    }
    else
    {
-      generateBHF (projectHandle, 0);
+      generateBHF (projectHandle, propertyManager, 0);
    }
 
    return 0;
 }
 
-static bool generateBHF (ProjectHandle * projectHandle, Record * record)
+static bool generateBHF (ProjectHandle * projectHandle, DerivedProperties::DerivedPropertyManager& propertyManager, Record * record)
 {
    bool is3D = (record != 0);
 
@@ -377,34 +386,26 @@ static bool generateBHF (ProjectHandle * projectHandle, Record * record)
 	 bool failed = false;
          for (p = 0; p < NumPropertyHandles; ++p)
          {
-            PropertyValueList *topPropertyValues =
-                  projectHandle->getPropertyValues (SURFACE, propertyHandles[p].property, snapshot, 0, 0, topSurface,
-                                                    MAP);
 
-            if (topPropertyValues->size () == 0)
+            DerivedProperties::SurfacePropertyPtr topPropertyValues = propertyManager.getSurfaceProperty ( propertyHandles[p].property, snapshot, topSurface );
+
+            if ( topPropertyValues == 0 )
 	    {
 	       failed = true;
 	       continue;
 	    }
 
-            const PropertyValue *topPropertyValue = topPropertyValues->front ();
+            DerivedProperties::SurfacePropertyPtr bottomPropertyValues = propertyManager.getSurfaceProperty ( propertyHandles[p].property, snapshot, bottomSurface );
 
-
-
-            PropertyValueList *bottomPropertyValues =
-                  projectHandle->getPropertyValues (SURFACE, propertyHandles[p].property, snapshot, 0, 0, bottomSurface,
-                                                    MAP);
-
-            if (bottomPropertyValues->size () == 0)
+            if ( bottomPropertyValues == 0)
 	    {
 	       failed = true;
 	       continue;
 	    }
 
-            const PropertyValue *bottomPropertyValue = bottomPropertyValues->front ();
+            topValues[p] = topPropertyValues->interpolate ( coordI, coordJ );
 
-            topValues[p] = topPropertyValue->getGridMap ()->getValue (coordI, coordJ, (double) 0);
-            if (topValues[p] == topPropertyValue->getGridMap ()->getUndefinedValue ())
+            if ( topValues[p] == topPropertyValues->getUndefinedValue ())
 	    {
 	       failed = true;
 	       continue;
@@ -419,8 +420,8 @@ static bool generateBHF (ProjectHandle * projectHandle, Record * record)
 	       }
 	    }
 
-            bottomValues[p] = bottomPropertyValue->getGridMap ()->getValue (coordI, coordJ, (double) 0);
-            if (bottomValues[p] == bottomPropertyValue->getGridMap ()->getUndefinedValue ())
+            bottomValues[p] = bottomPropertyValues->interpolate ( coordI, coordJ );
+            if ( bottomValues[p] == bottomPropertyValues->getUndefinedValue ())
 	    {
 	       failed = true;
 	       continue;
