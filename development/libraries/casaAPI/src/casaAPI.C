@@ -73,7 +73,12 @@ static std::string CopyLithologyForTheLayer( ScenarioAnalysis & sa, const std::s
    int found = -1;
    for ( size_t i = 0; i < lithNames.size() && found < 0; ++i )
    {
-      if ( lithNames[i] == lithoName ) found = static_cast<int>( i );
+      if ( lithNames[i] == lithoName ||
+           lithNames[i].rfind( "_CASA_copy" ) != std::string::npos && lithNames[i].find( lithoName ) == 0 
+         )
+      {
+         found = static_cast<int>( i );
+      }
    }
    if ( found < 0 ) throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Layer " << layerName << " has no lithology type: " << lithoName;
 

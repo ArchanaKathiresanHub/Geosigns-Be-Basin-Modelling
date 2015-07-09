@@ -93,7 +93,7 @@ int main( int argc, char ** argv )
       if ( argv[i][0] == '-') // parser utility flags
       {
          if (      !strcmp( argv[i], "-q"        ) ) { g_VerboseLevel = 0; }
-         if (      !strcmp( argv[i], "-v"        ) && argc > i+1 && argv[i+1][0] != '-' ) { g_VerboseLevel = atol( argv[++i] ); }
+         else if ( !strcmp( argv[i], "-v"        ) && argc > i+1 && argv[i+1][0] != '-' ) { g_VerboseLevel = atol( argv[++i] ); }
          else if ( !strcmp( argv[i], "-tol"      ) && argc > i+1 && argv[i+1][0] != '-' ) { eps            = atof( argv[++i] ); }
          else if ( !strcmp( argv[i], "-project1" ) && argc > i+1 && argv[i+1][0] != '-' ) { in1File        =       argv[++i];   }
          else if ( !strcmp( argv[i], "-project2" ) && argc > i+1 && argv[i+1][0] != '-' ) { in2File        =       argv[++i];   }
