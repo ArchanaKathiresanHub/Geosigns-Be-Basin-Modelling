@@ -179,7 +179,11 @@ void TwoWayTimeCalculator::allocatePropertyValues ( OutputPropertyMap::PropertyV
 
 bool TwoWayTimeCalculator::initialise ( OutputPropertyMap::PropertyValueList& propertyValues ) {
 
-   if (FastcauldronSimulator::getInstance( ).getCauldron( )->no2Doutput( )) {
+   // If we are not at the present day snapshot (t=0Ma): we do not ouput/compute the property.
+   // !(*m_snapshot == *presentDaySnapshot) is a temporary coding --> cannot be fixed until derived property library is implemented
+   const Interface::Snapshot* presentDaySnapshot = FastcauldronSimulator::getInstance( ).findOrCreateSnapshot( 0.0 );
+   assert( presentDaySnapshot != 0 );
+   if (FastcauldronSimulator::getInstance( ).getCauldron( )->no2Doutput( ) or !(*m_snapshot == *presentDaySnapshot)) {
       propertyValues[0]->allowOutput( false );
    }
 
@@ -198,8 +202,10 @@ bool TwoWayTimeCalculator::initialise ( OutputPropertyMap::PropertyValueList& pr
       m_depth           = 0;
       m_seismicVelocity = 0;
       m_twoWayTimeTop   = 0;
+
       return m_pressure != 0 and m_temperature != 0;
    }
+
 }
 
 
@@ -321,6 +327,14 @@ bool TwoWayTimeVolumeCalculator::initialise ( OutputPropertyMap::PropertyValueLi
    // Store the TwoWayTime map of the surface at the top of the formation
    m_twoWayTimeTop   = PropertyManager::getInstance( ).findOutputPropertyMap( "TwoWayTime", 0, m_formation->getTopSurface( ), m_snapshot );
 
+   // If we are not at the present day snapshot (t=0Ma): we do not ouput/compute the property.
+   // !(*m_snapshot == *presentDaySnapshot) is a temporary coding --> cannot be fixed until derived property library is implemented
+   const Interface::Snapshot* presentDaySnapshot = FastcauldronSimulator::getInstance( ).findOrCreateSnapshot( 0.0 );
+   assert( presentDaySnapshot != 0 );
+   if (!(*m_snapshot == *presentDaySnapshot)) {
+      propertyValues[0]->allowOutput( false );
+   }
+
    return m_depth != 0 and m_seismicVelocity != 0 and m_twoWayTimeTop != 0;
 }
 
@@ -416,7 +430,7 @@ bool TwoWayTimeResidualCalculator::initialise( OutputPropertyMap::PropertyValueL
 
    // If there is no 2D outputs, or no initial Two Way Time map linked to the stratigraphic surface,
    // or if we are not at the present day snapshot (t=0Ma): we do not ouput/compute the property.
-   // !(*m_snapshot == *presentDaySnapshot) is a temporary hack --> cannot be fixed until derived property library is implemented
+   // !(*m_snapshot == *presentDaySnapshot) is a temporary coding --> cannot be fixed until derived property library is implemented
    const Interface::Snapshot* presentDaySnapshot = FastcauldronSimulator::getInstance( ).findOrCreateSnapshot( 0.0 );
    assert( presentDaySnapshot != 0 );
    if (FastcauldronSimulator::getInstance( ).getCauldron( )->no2Doutput( ) or !m_twoWayTimeInitial or !(*m_snapshot == *presentDaySnapshot) ) {
