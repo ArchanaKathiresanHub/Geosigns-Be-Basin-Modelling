@@ -162,8 +162,6 @@ int main (int argc, char ** argv)
    GeoPhysics::ProjectHandle* projectHandle = dynamic_cast< GeoPhysics::ProjectHandle* >( OpenCauldronProject( inputProjectFileName, "rw" ) );
    DerivedProperties::DerivedPropertyManager propertyManager ( projectHandle );
 
-   // GeoPhysics::ProjectHandle *projectHandle = OpenCauldronProject (inputProjectFileName, "rw");
-
    if (projectHandle == 0)
    {
       cerr << "Could not open project file " << inputProjectFileName << endl;
@@ -451,8 +449,6 @@ static bool generateBHF (ProjectHandle * projectHandle, DerivedProperties::Deriv
    }
 
    outputFile.close ();
-
-   // database::setFileName (record, outputFileName);
 
    return true;
 }
