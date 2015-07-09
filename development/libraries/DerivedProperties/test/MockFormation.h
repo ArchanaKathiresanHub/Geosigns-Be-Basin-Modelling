@@ -2,6 +2,7 @@
 #define _DERIVED_PROPERTIES__MOCK_FORMATION_H_
 
 #include <string>
+#include <iostream>
 
 #include "AbstractFormation.h"
 
@@ -28,6 +29,8 @@ namespace DataModel {
       ///
       /// If there is no surface below then a null string ("") will be returned.
       virtual const std::string& getBottomSurfaceName () const;
+
+      virtual void printOn ( std::ostream& os ) const;
 
    private :
 
@@ -59,6 +62,11 @@ inline const std::string& DataModel::MockFormation::getTopSurfaceName () const {
 inline const std::string& DataModel::MockFormation::getBottomSurfaceName () const {
    return m_bottomSurfaceName;
 }
+
+inline void DataModel::MockFormation::printOn ( std::ostream& os ) const {
+   os << "MockFormation::" << getName () << std::endl;
+}
+
 
 
 #endif // _DERIVED_PROPERTIES__MOCK_FORMATION_H_
