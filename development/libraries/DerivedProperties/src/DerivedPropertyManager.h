@@ -38,6 +38,35 @@ namespace DerivedProperties {
       virtual bool getNodeIsValid ( const unsigned int i, const unsigned int j ) const;
 
 
+      /// \brief Get the formation property values for all formations that are active at the snapshot age.
+      ///
+      /// If the formation property values have not been computed and there is an associated calculator
+      /// then the values will be calculated as required. Additional properties may also be calculated.
+      /// \param [in] property The property whose values are requested.
+      /// \param [in] snapshot The snapshot time at which the values were calculated.
+      /// \pre property is not be null and points to a valid property.
+      /// \pre snapshot is not null and points to a valid snapshot age.
+      /// \pre A calculator for this property exists.
+      /// \post The result contains a list of values of the required property at all the active formations for the required snapshot age.
+      virtual FormationPropertyList getFormationProperties ( const DataModel::AbstractProperty* property,
+                                                             const DataModel::AbstractSnapshot* snapshot,
+                                                             const bool                         includeBasement = false );
+
+      /// \brief Get the surface property values for all surfaces that are active at the snapshot age.
+      ///
+      /// If the surface property values have not been computed and there is an associated calculator
+      /// then the values will be calculated as required. Additional properties may also be calculated.
+      /// \param [in] property The property whose values are requested.
+      /// \param [in] snapshot The snapshot time at which the values were calculated.
+      /// \pre property is not be null and is a valid property.
+      /// \pre snapshot is not null and is a valid snapshot age.
+      /// \pre A calculator for this property exists.
+      /// \post The result contains a list of values of the required property at all the active surfaces for the required snapshot age.
+      virtual SurfacePropertyList getSurfaceProperties ( const DataModel::AbstractProperty* property,
+                                                         const DataModel::AbstractSnapshot* snapshot,
+                                                         const bool                         includeBasement = false );
+
+
    protected :
 
       /// \brief Get the geophysics project handle

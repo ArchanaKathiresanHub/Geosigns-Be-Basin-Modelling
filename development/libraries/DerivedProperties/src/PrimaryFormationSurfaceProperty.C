@@ -20,11 +20,7 @@ DerivedProperties::PrimaryFormationSurfaceProperty::PrimaryFormationSurfacePrope
 }
 
 DerivedProperties::PrimaryFormationSurfaceProperty::~PrimaryFormationSurfaceProperty() {
-
-   if ( m_propertyValue->hasGridMap ()) {
-      m_gridMap->restoreData ( false, true );
-   }
-
+   // Should check neither m_propertyValue nor m_gridMap at this point because the project handle may have deleted them already.
 }
 
 double DerivedProperties::PrimaryFormationSurfaceProperty::get ( unsigned int i,
@@ -49,4 +45,3 @@ void DerivedProperties::PrimaryFormationSurfaceProperty::retrieveData() const {
 void DerivedProperties::PrimaryFormationSurfaceProperty::restoreData() const {
    m_gridMap->restoreData();
 }
-

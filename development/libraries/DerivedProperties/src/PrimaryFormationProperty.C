@@ -19,11 +19,7 @@ DerivedProperties::PrimaryFormationProperty::PrimaryFormationProperty ( const Da
 }
 
 DerivedProperties::PrimaryFormationProperty::~PrimaryFormationProperty() {
-
-   if ( m_propertyValue->hasGridMap ()) {
-      m_gridMap->restoreData ( false, true );
-   }
-
+   // Should check neither m_propertyValue nor m_gridMap at this point because the project handle may have deleted them already.
 }
 
 

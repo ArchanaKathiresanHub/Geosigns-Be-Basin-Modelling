@@ -2,8 +2,11 @@
 
 #include "AbstractProperty.h"
 
+// DataAccess library.
 #include "Interface/Interface.h"
 #include "Interface/Property.h"
+#include "Interface/Snapshot.h"
+#include "Interface/Surface.h"
 
 #include "PrimarySurfaceProperty.h"
 #include "PrimaryFormationSurfaceProperty.h"
@@ -41,7 +44,6 @@ DerivedProperties::DerivedPropertyManager::DerivedPropertyManager ( GeoPhysics::
    loadPrimarySurfacePropertyCalculators ();
    loadPrimaryFormationSurfacePropertyCalculators ();
    loadPrimaryFormationMapPropertyCalculators ();
-
    loadDerivedFormationPropertyCalculator ();
    loadDerivedFormationMapPropertyCalculator ();
 }
@@ -58,7 +60,11 @@ const DataAccess::Interface::Grid* DerivedProperties::DerivedPropertyManager::ge
    return m_projectHandle->getActivityOutputGrid ();
 }
 
-bool DerivedProperties::DerivedPropertyManager::canAddDerivedFormationPropertyCalculator ( const FormationPropertyCalculatorPtr& formationPropertyCalculator) const {
+bool DerivedProperties::DerivedPropertyManager::canAddDerivedFormationPropertyCalculator ( const FormationPropertyCalculatorPtr& formationPropertyCalculator ) const {
+
+   if ( formationPropertyCalculator == 0 ) {
+      return false;
+   }
 
    const std::vector<std::string>& propertyNames = formationPropertyCalculator->getPropertyNames ();
 
@@ -75,7 +81,11 @@ bool DerivedProperties::DerivedPropertyManager::canAddDerivedFormationPropertyCa
    return false;
 }
 
-bool DerivedProperties::DerivedPropertyManager::canAddDerivedFormationMapPropertyCalculator ( const FormationMapPropertyCalculatorPtr& formationMapPropertyCalculator) const {
+bool DerivedProperties::DerivedPropertyManager::canAddDerivedFormationMapPropertyCalculator ( const FormationMapPropertyCalculatorPtr& formationMapPropertyCalculator ) const {
+
+   if ( formationMapPropertyCalculator == 0 ) {
+      return false;
+   }
 
    const std::vector<std::string>& propertyNames = formationMapPropertyCalculator->getPropertyNames ();
 
@@ -252,4 +262,49 @@ void DerivedProperties::DerivedPropertyManager::loadPrimaryFormationPropertyCalc
    } 
 
    delete allFormationProperties;
+}
+
+
+DerivedProperties::FormationPropertyList DerivedProperties::DerivedPropertyManager::getFormationProperties ( const DataModel::AbstractProperty* property,
+                                                                                                             const DataModel::AbstractSnapshot* snapshot,
+                                                                                                             const bool                         includeBasement ) {
+
+   DataAccess::Interface::FormationList* activeFormations = m_projectHandle->getFormations ( dynamic_cast <const DataAccess::Interface::Snapshot*>( snapshot ), includeBasement );
+   FormationPropertyList results;
+
+   // results.reserve ( activeFormations->size ());
+
+   for ( size_t i = 0; i < activeFormations->size (); ++i ) {
+      FormationPropertyPtr formationProperty = getFormationProperty ( property, snapshot, activeFormations->at ( i ));
+
+      if ( formationProperty != 0 ) {
+         results.push_back ( formationProperty );
+      }
+
+   }
+
+   delete activeFormations;
+   return results;
+}
+
+DerivedProperties::SurfacePropertyList DerivedProperties::DerivedPropertyManager::getSurfaceProperties ( const DataModel::AbstractProperty* property,
+                                                                                                         const DataModel::AbstractSnapshot* snapshot,
+                                                                                                         const bool                         includeBasement ) {
+
+   DataAccess::Interface::SurfaceList* activeSurfaces = m_projectHandle->getSurfaces ( dynamic_cast <const DataAccess::Interface::Snapshot*>( snapshot ), includeBasement );
+   SurfacePropertyList results;
+
+   // results.reserve ( activeSurfaces->size ());
+
+   for ( size_t i = 0; i < activeSurfaces->size (); ++i ) {
+      SurfacePropertyPtr surfaceProperty = getSurfaceProperty ( property, snapshot, activeSurfaces->at ( i ));
+
+      if ( surfaceProperty != 0 ) {
+         results.push_back ( surfaceProperty );
+      }
+
+   }
+
+   delete activeSurfaces;
+   return results;
 }

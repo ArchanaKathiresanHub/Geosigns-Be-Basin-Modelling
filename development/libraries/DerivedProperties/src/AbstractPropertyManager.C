@@ -442,7 +442,6 @@ bool DerivedProperties::AbstractPropertyManager::formationSurfacePropertyIsCompu
                                                                                         const DataModel::AbstractFormation* formation,
                                                                                         const DataModel::AbstractSurface*   surface ) const {
 
-
    FormationSurfacePropertyCalculatorPtr calculator = getFormationSurfaceCalculator ( property, 0 );
    bool isComputable;
 

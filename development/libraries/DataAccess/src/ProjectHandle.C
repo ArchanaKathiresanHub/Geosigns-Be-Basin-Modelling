@@ -983,7 +983,11 @@ bool ProjectHandle::loadProperties( void )
    m_properties.push_back( getFactory()->produceProperty( this, 0, "Permeability",                   "PermeabilityVec2",               "mD",    FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( this, 0, "Porosity",                       "PorosityVec2",                   "vol%",  FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( this, 0, "Pressure",                       "Pressure",                       "MPa",   FORMATIONPROPERTY, DataModel::CONTINUOUS_3D_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "Reflectivity",                   "ReflectivityVec2",               "",      FORMATIONPROPERTY, DataModel::SURFACE_2D_PROPERTY ));
+
+   // Reflectivity should be DataModel::SURFACE_2D_PROPERTY.
+   // Currently fastcauldron outputs both surface and a volume dataset for this property.
+   // The Volume data is largely filled with the null-value (99999) except at the surface.
+   m_properties.push_back( getFactory()->produceProperty( this, 0, "Reflectivity",                   "ReflectivityVec2",               "",      FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( this, 0, "SonicVelocity",                  "SonicVec2",                      "us/m",  FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY ));
 
    // not sure which attribute this property shoudl have, so give it the most general one
