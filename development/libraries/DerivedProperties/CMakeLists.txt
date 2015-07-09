@@ -14,6 +14,7 @@
 set(all_headers
   src/AbstractPropertyManager.h
   src/AbstractPropertyValues.h
+  src/AllochthonousLithologyFormationMapCalculator.h
   src/DerivedFormationMapProperty.h
   src/DerivedFormationProperty.h
   src/DerivedFormationSurfaceProperty.h
@@ -30,6 +31,8 @@ set(all_headers
   src/FormationSurfacePropertyAtSurface.h
   src/FormationSurfacePropertyCalculator.h
   src/FormationSurfacePropertyOffsetCalculator.h
+  src/FracturePressureFormationCalculator.h
+  src/Interpolate2DProperty.h
   src/HydrostaticPressureFormationCalculator.h
   src/HydrostaticPressureSurfaceCalculator.h
   src/LithostaticPressureFormationCalculator.h
@@ -54,6 +57,8 @@ set(all_headers
   src/SurfaceProperty.h
   src/SurfacePropertyCalculator.h
   src/SurfacePropertyOffsetCalculator.h
+  src/ThermalConductivityFormationCalculator.h
+  src/ThermalDiffusivityFormationCalculator.h
   src/ThicknessFormationMapCalculator.h
   src/VelocityFormationCalculator.h
   src/VesFormationCalculator.h
@@ -62,6 +67,7 @@ set(all_headers
 
 set(all_srcs
   src/AbstractPropertyManager.C
+  src/AllochthonousLithologyFormationMapCalculator.C
   src/DerivedFormationMapProperty.C
   src/DerivedFormationProperty.C
   src/DerivedFormationSurfaceProperty.C
@@ -70,11 +76,15 @@ set(all_srcs
   src/ErosionFactorFormationMapCalculator.C
   src/FaultElementFormationMapCalculator.C
   src/FormationMapProperty.C
+  src/FormationMapPropertyCalculator.C
   src/FormationProperty.C
   src/FormationPropertyAtSurface.C
+  src/FormationPropertyCalculator.C
   src/FormationSurfaceProperty.C
+  src/FormationSurfacePropertyCalculator.C
   src/FormationSurfacePropertyAtSurface.C
   src/FormationSurfacePropertyOffsetCalculator.C
+  src/FracturePressureFormationCalculator.C
   src/HydrostaticPressureFormationCalculator.C
   src/HydrostaticPressureSurfaceCalculator.C
   src/LithostaticPressureFormationCalculator.C
@@ -95,7 +105,10 @@ set(all_srcs
   src/PropertyCalculator.C
   src/PropertyRetriever.C
   src/SurfaceProperty.C
+  src/SurfacePropertyCalculator.C
   src/SurfacePropertyOffsetCalculator.C
+  src/ThermalConductivityFormationCalculator.C
+  src/ThermalDiffusivityFormationCalculator.C
   src/ThicknessFormationMapCalculator.C
   src/VelocityFormationCalculator.C
   src/VesFormationCalculator.C
@@ -109,6 +122,7 @@ add_library(DerivedProperties
 )
 
 target_link_libraries(DerivedProperties 
+  DataModel
   LinearAlgebra
   ${HDF5_LIBRARIES}
   ${Boost_LIBRARIES}
@@ -140,8 +154,18 @@ add_gtest( NAME DerivedProperties::SimplePropertyManagerTest
            LIBRARIES DerivedProperties SerialDataAccess GeoPhysics
 )
 
-add_gtest( NAME DerivedProperties::CompoundPropertyManagerTest
-           SOURCES test/CompoundPropertyManagerTest.C
+add_gtest( NAME DerivedProperties::CompoundFormationMapPropertyManagerTest
+           SOURCES test/CompoundFormationMapPropertyManagerTest.C
+           LIBRARIES DerivedProperties SerialDataAccess GeoPhysics
+)
+
+add_gtest( NAME DerivedProperties::CompoundContinuousPropertyManagerTest
+           SOURCES test/CompoundContinuousPropertyManagerTest.C
+           LIBRARIES DerivedProperties SerialDataAccess GeoPhysics
+)
+
+add_gtest( NAME DerivedProperties::CompoundDiscontinuousPropertyManagerTest
+           SOURCES test/CompoundDiscontinuousPropertyManagerTest.C
            LIBRARIES DerivedProperties SerialDataAccess GeoPhysics
 )
 

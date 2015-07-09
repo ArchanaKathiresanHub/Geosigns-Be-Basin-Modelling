@@ -36,7 +36,15 @@ namespace ibs
    class Path
    {
    public:
+      /// @brief Get full path to the application from which this function is called
+      /// @return full path to the application
+      static Path applicationFullPath();
+
       Path( const std::string & aPath ) : m_path( aPath ) { ; }
+
+      /// @brief Copy constructor
+      Path( const Path & aPath ) : m_path( aPath.m_path ) { ; }
+
       virtual ~Path() { ; }
 
       /// @brief Check if given path is exist
@@ -56,12 +64,16 @@ namespace ibs
 
       /// @brief Split path by path separator and return the number of elements in path
       /// @return number path elements
-      size_t size();
+      size_t size() const;
 
       /// @brief Path element accessor
       /// @param i access to i-th path element
       /// @return i-th path element as a string or empty string if i is out of bounds
-      std::string operator [] ( size_t i );
+      std::string operator [] ( size_t i ) const;
+
+      /// @brief Get full path to the file
+      /// @return full path
+      Path fullPath() const;
 
       /// @brief Add to path new element divided by path separator
       /// @param pathEl the new element of the path to be added
@@ -71,6 +83,9 @@ namespace ibs
          m_path = ( boost::filesystem::path( m_path ) / to_string( pathEl ) ).string();
          return *this;
       }
+
+      /// @brief Copy operator
+      Path & operator = (const Path & aPath ) { m_path = aPath.m_path; return *this; }
 
    protected:
       std::string m_path;

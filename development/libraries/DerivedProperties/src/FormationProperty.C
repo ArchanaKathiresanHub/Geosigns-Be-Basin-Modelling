@@ -43,3 +43,90 @@ double DerivedProperties::FormationProperty::interpolate ( unsigned int i,
    }
 
 }
+
+double DerivedProperties::FormationProperty::interpolate ( double i,
+                                                           double j,
+                                                           double k ) const {
+
+   double undefinedValue = getUndefinedValue ();
+
+   if ( i < 0.0 or j < 0.0 or k < 0.0 ) {
+      return undefinedValue;
+   }
+
+   const double MinOffset = 1e-6;
+
+   double values [ 8 ];
+   double weight [ 8 ];
+
+   unsigned int baseI = (unsigned int) i;
+   unsigned int baseJ = (unsigned int) j;
+   unsigned int baseK = (unsigned int) k;
+
+   double fractionI = i - (double) baseI;
+   double fractionJ = j - (double) baseJ;
+   double fractionK = k - (double) baseK;
+
+   if (fractionI <= MinOffset) fractionI = 0;
+   if (fractionJ <= MinOffset) fractionJ = 0;
+   if (fractionK <= MinOffset) fractionK = 0;
+
+   if (fractionI >= 1 - MinOffset) fractionI = 1;
+   if (fractionJ >= 1 - MinOffset) fractionJ = 1;
+   if (fractionK >= 1 - MinOffset) fractionK = 1;
+
+   if (fractionI == 0 && fractionJ == 0 && fractionK == 0)
+   {
+      return get (baseI, baseJ, baseK);
+   }
+
+   weight [ 0 ] = fractionI         * fractionJ         * fractionK;
+   weight [ 1 ] = fractionI         * fractionJ         * (1.0 - fractionK);
+   weight [ 2 ] = fractionI         * (1.0 - fractionJ) * fractionK;
+   weight [ 3 ] = fractionI         * (1.0 - fractionJ) * (1.0 - fractionK);
+   weight [ 4 ] = (1.0 - fractionI) * fractionJ         * fractionK;
+   weight [ 5 ] = (1.0 - fractionI) * fractionJ         * (1.0 - fractionK);
+   weight [ 6 ] = (1.0 - fractionI) * (1.0 - fractionJ) * fractionK;
+   weight [ 7 ] = (1.0 - fractionI) * (1.0 - fractionJ) * (1.0 - fractionK);
+
+   values [ 0 ] = get ( baseI + 1, baseJ + 1, baseK + 1);
+   values [ 1 ] = get ( baseI + 1, baseJ + 1, baseK    );
+   values [ 2 ] = get ( baseI + 1, baseJ,     baseK + 1);
+   values [ 3 ] = get ( baseI + 1, baseJ,     baseK    );
+   values [ 4 ] = get ( baseI,     baseJ + 1, baseK + 1);
+   values [ 5 ] = get ( baseI,     baseJ + 1, baseK    );
+   values [ 6 ] = get ( baseI,     baseJ,     baseK + 1);
+   values [ 7 ] = get ( baseI,     baseJ,     baseK    );
+
+   if (fractionI < 1 && fractionJ < 1 && fractionK < 1 &&
+       undefinedValue == values [ 7 ]) return undefinedValue;
+
+   if (fractionI < 1 && fractionJ < 1 && fractionK > 0 &&
+         undefinedValue == values [ 6 ]) return undefinedValue;
+
+   if (fractionI < 1 && fractionJ > 0 && fractionK < 1 &&
+         undefinedValue == values [ 5 ]) return undefinedValue;
+
+   if (fractionI < 1 && fractionJ > 0 && fractionK > 0 &&
+         undefinedValue == values [ 4 ]) return undefinedValue;
+
+   if (fractionI > 0 && fractionJ < 1 && fractionK < 1 &&
+         undefinedValue == values [ 3 ]) return undefinedValue;
+
+   if (fractionI > 0 && fractionJ < 1 && fractionK > 0 &&
+         undefinedValue == values [ 2 ]) return undefinedValue;
+
+   if (fractionI > 0 && fractionJ > 0 && fractionK < 1 &&
+         undefinedValue == values [ 1 ]) return undefinedValue;
+
+   if (fractionI > 0 && fractionJ > 0 && fractionK > 0 &&
+         undefinedValue == values [ 0 ]) return undefinedValue;
+
+   double result = 0;
+
+   for ( int i = 0; i < 8; ++i ) {
+      result += values [ i ] * weight [ i ];
+   }
+
+   return result;
+}

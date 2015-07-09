@@ -39,13 +39,26 @@ using namespace std;
 #include "Interface/LithoType.h"
 #include "Interface/Property.h"
 #include "Interface/PropertyValue.h"
-#include "Interface/ProjectHandle.h"
+
+#include "PropertyAttribute.h"
+#include "AbstractPropertyManager.h"
+#include "DerivedPropertyManager.h"
+
+#include "GeoPhysicsObjectFactory.h"
+#include "GeoPhysicsProjectHandle.h"
 
 // EosPack
 #include "EosPack.h"
 
 
 #include "array.h"
+
+#include "OutputPropertyValue.h"
+#include "FormationOutputPropertyValue.h"
+#include "FormationMapOutputPropertyValue.h"
+#include "FormationSurfaceOutputPropertyValue.h"
+#include "SurfaceOutputPropertyValue.h"
+
 
 #include <string>
 #include <sstream>
@@ -56,7 +69,7 @@ using namespace std;
 
 using namespace DataAccess;
 using namespace Interface;
-
+using namespace DerivedProperties;
 
 #include "errorhandling.h"
 
@@ -68,16 +81,18 @@ bool listProperties = false;
 bool listSnapshots = false;
 bool listStratigraphy = false;
 
+
+
+
 typedef pair <double, double> DoublePair;
 typedef vector < DoublePair > DoublePairVector;
 typedef vector < string > StringVector;
 typedef vector < double > DoubleVector;
 
-typedef map < const Property *, PropertyValueList * > PropertyValuesMap;
+typedef map < const Property *, OutputPropertyValuePtr > OutputPropertyValueMap;
+typedef map < const Formation *, OutputPropertyValueMap > FormationOutputPropertyValueMap;
+typedef map < const Snapshot *, FormationOutputPropertyValueMap> SnapshotFormationOutputPropertyValueMap;
 
-typedef map < const Property *, const PropertyValue * > PropertyValueMap;
-typedef map < const Formation *, PropertyValueMap > FormationPropertyValueMap;
-typedef map < const Snapshot *, FormationPropertyValueMap> SnapshotFormationPropertyValueMap;
 
 typedef map < const Formation *, unsigned int > FormationMaxKMap;
 
@@ -94,7 +109,12 @@ static bool parseStrings( StringVector & strings, char * stringsString );
 static bool parseAges( DoubleVector & ages, char * agesString );
 
 static bool acquireSnapshots( ProjectHandle * projectHandle, SnapshotList & snapshots, DoubleVector & ages );
-static bool acquireProperties( ProjectHandle * projectHandle, PropertyList & properties, StringVector & propertyNames );
+
+static bool acquireProperties ( ProjectHandle * projectHandle, 
+                                const AbstractPropertyManager& propertyManager,
+                                PropertyList & properties,
+                                StringVector & propertyNames );
+
 static bool acquireFormationSurfaces( ProjectHandle * projectHandle, FormationSurfaceVector & formationSurfacePairs, StringVector & formationNames, bool useTop );
 static bool acquireFormations( ProjectHandle * projectHandle, FormationSurfaceVector & formationSurfacePairs, StringVector & formationNames );
 static bool acquireSurfaces( ProjectHandle * projectHandle, FormationSurfaceVector & formationSurfacePairs, StringVector & formationSurfaceNames );
@@ -110,13 +130,21 @@ static bool specifiesFormationSurface( FormationSurface & formationSurface, cons
 static bool snapshotSorter( const Snapshot * snapshot1, const Snapshot * snapshot2 );
 static bool snapshotIsEqual( const Snapshot * snapshot1, const Snapshot * snapshot2 );
 
+void listOutputableProperties ( const GeoPhysics::ProjectHandle* projectHandle,
+                                const DerivedPropertyManager&    propertyManager );
+
+
+OutputPropertyValuePtr allocateOutputProperty ( DerivedProperties::AbstractPropertyManager& propertyManager, 
+                                                const DataModel::AbstractProperty* property, 
+                                                const DataModel::AbstractSnapshot* snapshot,
+                                                const FormationSurface& formationItem );
 
 static void outputSnapshotFormationData( ostream & outputStream
                                        , DoublePair & coordinatePair
                                        , const Snapshot * snapshot
                                        , FormationSurface & formationSurface
                                        , PropertyList & properties
-                                       , SnapshotFormationPropertyValueMap & allPropertyValues
+                                       , SnapshotFormationOutputPropertyValueMap & allOutputPropertyValues
                                        , FormationSurfaceVector & formationSurfacePairs
                                        , double i
                                        , double j
@@ -395,7 +423,10 @@ int main( int argc, char ** argv )
    }
 
 
-   Interface::ProjectHandle* projectHandle = ( Interface::ProjectHandle* )( OpenCauldronProject( inputProjectFileName, "r" ) );
+   GeoPhysics::ObjectFactory* factory = new GeoPhysics::ObjectFactory;
+   DataAccess::Interface::ProjectHandle::UseFactory (factory);
+   GeoPhysics::ProjectHandle* projectHandle = ( GeoPhysics::ProjectHandle* )( OpenCauldronProject( inputProjectFileName, "r" ) );
+   DerivedPropertyManager propertyManager ( projectHandle );
 
    if ( !projectHandle )
    {
@@ -408,48 +439,55 @@ int main( int argc, char ** argv )
 
    if ( listProperties )
    {
-      cout << endl;
-      PropertyList * myProperties = projectHandle->getProperties( false, SURFACE | FORMATION | FORMATIONSURFACE, 0, 0, 0, 0, VOLUME );
-      PropertyList::iterator propertyIter;
-      cout << "Available 3D output properties are: ";
-      for ( propertyIter = myProperties->begin(); propertyIter != myProperties->end(); ++propertyIter )
-      {
-         if ( propertyIter != myProperties->begin() ) cout << ", ";
-
-         cout << ( *propertyIter )->getName();
-      }
-      cout << endl;
-
-      cout << endl;
-      myProperties = projectHandle->getProperties( false, SURFACE | FORMATION, 0, 0, 0, 0, MAP );
-      cout << "Available 2D output properties are: ";
-      for ( propertyIter = myProperties->begin(); propertyIter != myProperties->end(); ++propertyIter )
-      {
-         if ( propertyIter != myProperties->begin() ) cout << ", ";
-
-         cout << ( *propertyIter )->getName();
-      }
-      cout << endl;
+      listOutputableProperties ( projectHandle, propertyManager );
    }
 
    if ( all2Dproperties )
    {
-      PropertyList * myProperties = projectHandle->getProperties( false, SURFACE | FORMATION, 0, 0, 0, 0, MAP );
-      PropertyList::iterator propertyIter;
-      for ( propertyIter = myProperties->begin(); propertyIter != myProperties->end(); ++propertyIter )
-      {
-         propertyNames.push_back( ( *propertyIter )->getName() );
+      PropertyList * allProperties = projectHandle->getProperties( true );
+
+      for ( size_t i = 0; i < allProperties->size (); ++i ) {
+         const Interface::Property* property = (*allProperties)[ i ];
+
+         bool addIt = false;
+
+         if (( property->getPropertyAttribute () == DataModel::CONTINUOUS_3D_PROPERTY or
+               property->getPropertyAttribute () == DataModel::SURFACE_2D_PROPERTY ) and 
+             propertyManager.surfacePropertyIsComputable ( property )) {
+            addIt = true;
+         } else if ( property->getPropertyAttribute () == DataModel::DISCONTINUOUS_3D_PROPERTY and 
+                     propertyManager.formationSurfacePropertyIsComputable ( property )) {
+            addIt = true;
+         } else if ( property->getPropertyAttribute () == DataModel::FORMATION_2D_PROPERTY and 
+                     propertyManager.formationMapPropertyIsComputable ( property )) {
+            addIt = true;
+         }
+
+         if ( addIt ) {
+            propertyNames.push_back( property->getName() );
+         }
+
       }
+
+      delete allProperties;
    }
 
    if ( all3Dproperties )
    {
-      PropertyList * myProperties = projectHandle->getProperties( false, SURFACE | FORMATION | FORMATIONSURFACE, 0, 0, 0, 0, VOLUME );
-      PropertyList::iterator propertyIter;
-      for ( propertyIter = myProperties->begin(); propertyIter != myProperties->end(); ++propertyIter )
-      {
-         propertyNames.push_back( ( *propertyIter )->getName() );
+      PropertyList * allProperties = projectHandle->getProperties( true );
+
+      for ( size_t i = 0; i < allProperties->size (); ++i ) {
+         const Interface::Property* property = (*allProperties)[ i ];
+
+         if (( property->getPropertyAttribute () == DataModel::CONTINUOUS_3D_PROPERTY or
+               property->getPropertyAttribute () == DataModel::DISCONTINUOUS_3D_PROPERTY ) and 
+             propertyManager.formationPropertyIsComputable ( property ))
+         {
+            propertyNames.push_back( property->getName() );
+         }
+
       }
+
    }
 
    if ( listSnapshots )
@@ -457,6 +495,7 @@ int main( int argc, char ** argv )
       cout << endl;
       SnapshotList * mySnapshots = projectHandle->getSnapshots();
       SnapshotList::iterator snapshotIter;
+      cout.precision ( 8 );
       cout << "Available snapshots are: ";
       for ( snapshotIter = mySnapshots->begin(); snapshotIter != mySnapshots->end(); ++snapshotIter )
       {
@@ -515,8 +554,30 @@ int main( int argc, char ** argv )
 
    const Interface::Grid * grid = projectHandle->getLowResolutionOutputGrid();
 
+   projectHandle->startActivity ( "track1d", grid, false, false );
+   bool coupledCalculation = false; // to do.
+   bool started;
+
+   started = projectHandle->initialise ( coupledCalculation );
+
+   if ( not started ) {
+      return 1;
+   }
+
+   started = projectHandle->setFormationLithologies ( false, true );
+
+   if ( not started ) {
+      return 1;
+   }
+
+   started = projectHandle->initialiseLayerThicknessHistory ( coupledCalculation );
+
+   if ( not started ) {
+      return 1;
+   }
+
    acquireSnapshots( projectHandle, snapshots, ages );
-   acquireProperties( projectHandle, properties, propertyNames );
+   acquireProperties( projectHandle, propertyManager, properties, propertyNames );
    acquireFormationSurfaces( projectHandle, formationSurfacePairs, topSurfaceFormationNames, true );
    acquireFormationSurfaces( projectHandle, formationSurfacePairs, bottomSurfaceFormationNames, false );
    acquireFormations( projectHandle, formationSurfacePairs, formationNames );
@@ -540,30 +601,28 @@ int main( int argc, char ** argv )
    FormationSurfaceVector::iterator formationSurfaceIter;
 
 
-   SnapshotFormationPropertyValueMap allPropertyValues;
+   SnapshotFormationOutputPropertyValueMap allOutputPropertyValues;
 
    snapshots.push_back( zeroSnapshot ); // we require depth properties for snapshot age 0
+
    for ( snapshotIter = snapshots.begin(); snapshotIter != snapshots.end(); ++snapshotIter )
    {
       const Snapshot * snapshot = *snapshotIter;
-      for ( formationSurfaceIter = formationSurfacePairs.begin();
-         formationSurfaceIter != formationSurfacePairs.end(); ++formationSurfaceIter )
+
+      for ( formationSurfaceIter = formationSurfacePairs.begin(); formationSurfaceIter != formationSurfacePairs.end(); ++formationSurfaceIter )
       {
          const Formation * formation = ( *formationSurfaceIter ).first;
 
          for ( propertyIter = properties.begin(); propertyIter != properties.end(); ++propertyIter )
          {
+
             const Property * property = *propertyIter;
-            PropertyValueList * propertyValues = projectHandle->getPropertyValues( SURFACE | FORMATION | FORMATIONSURFACE,
-               property, snapshot, 0, formation, 0, VOLUME );
-            if ( propertyValues->size() != 1 )
-            {
-               propertyValues = projectHandle->getPropertyValues( SURFACE | FORMATION,
-                  property, snapshot, 0, formation, 0, MAP );
-               if ( propertyValues->size() != 1 ) continue;
+            OutputPropertyValuePtr outputProperty = allocateOutputProperty ( propertyManager, property, snapshot, *formationSurfaceIter );
+
+            if ( outputProperty != 0 ) {
+               allOutputPropertyValues [ snapshot ][ formation ][ property ] = outputProperty;
             }
 
-            allPropertyValues[ snapshot ][ formation ][ property ] = ( *propertyValues )[ 0 ];
          }
       }
    }
@@ -575,8 +634,10 @@ int main( int argc, char ** argv )
       formationSurfaceIter != formationSurfacePairs.end(); ++formationSurfaceIter )
    {
       const Formation * formation = ( *formationSurfaceIter ).first;
-      const PropertyValue * depthPropertyValue = allPropertyValues[ zeroSnapshot ][ formation ][ depthProperty ];
-      if ( !depthPropertyValue )
+
+      OutputPropertyValuePtr depthOutputProperty = allOutputPropertyValues[ zeroSnapshot ][ formation ][ depthProperty ];
+
+      if ( depthOutputProperty == 0 )
       {
          cerr << "ERROR: Could not find data for depth property of formation " << formation->getName() << " at age " << zeroSnapshot->getTime() << endl;
          cerr << "       Skipping this formation!!" << endl;
@@ -584,7 +645,7 @@ int main( int argc, char ** argv )
       }
       else
       {
-         formationMaxKMap[ formation ] = depthPropertyValue->getGridMap()->getDepth();
+         formationMaxKMap[ formation ] = depthOutputProperty->getDepth();
       }
    }
 
@@ -624,25 +685,31 @@ int main( int argc, char ** argv )
 
       if ( versusDepth )
       {
+
          for ( snapshotIter = snapshots.begin(); snapshotIter != snapshots.end(); ++snapshotIter )
          {
+
             const Snapshot * snapshot = *snapshotIter;
-            for ( formationSurfaceIter = formationSurfacePairs.begin();
-               formationSurfaceIter != formationSurfacePairs.end(); ++formationSurfaceIter )
+
+            for ( formationSurfaceIter = formationSurfacePairs.begin(); formationSurfaceIter != formationSurfacePairs.end(); ++formationSurfaceIter )
             {
                const Formation * formation = ( *formationSurfaceIter ).first;
 
-               if ( !allPropertyValues[ snapshot ][ formation ][ properties[ 0 ] ] ) continue;
+               if ( allOutputPropertyValues[ snapshot ][ formation ][ properties[ 0 ]] == 0 ) continue;
 
                unsigned int maxK = formationMaxKMap[ formation ];
                unsigned int k;
+
                for ( k = 0; k < maxK; ++k )
                {
                   int kUsed = reverseOutputOrder ? maxK - 1 - k : k;
-                  outputSnapshotFormationData( outputStream, coordinatePair, snapshot, ( *formationSurfaceIter ), properties, allPropertyValues, formationSurfacePairs, i, j, kUsed, maxK );
+                  outputSnapshotFormationData( outputStream, coordinatePair, snapshot, ( *formationSurfaceIter ), properties, allOutputPropertyValues, formationSurfacePairs, i, j, kUsed, maxK );
                }
+
             }
+
          }
+
       }
       else
       {
@@ -659,14 +726,20 @@ int main( int argc, char ** argv )
                for ( snapshotIter = snapshots.begin(); snapshotIter != snapshots.end(); ++snapshotIter )
                {
                   const Snapshot * snapshot = *snapshotIter;
-                  if ( !allPropertyValues[ snapshot ][ formation ][ properties[ 0 ] ] ) continue;
 
-                  outputSnapshotFormationData( outputStream, coordinatePair, snapshot, ( *formationSurfaceIter ), properties, allPropertyValues, formationSurfacePairs, i, j, kUsed, maxK );
+                  if ( allOutputPropertyValues[ snapshot ][ formation ][ properties[ 0 ]] == 0 ) continue;
+
+                  outputSnapshotFormationData( outputStream, coordinatePair, snapshot, ( *formationSurfaceIter ), properties, allOutputPropertyValues, formationSurfacePairs, i, j, kUsed, maxK );
                }
             }
          }
       }
    }
+
+   if ( projectHandle != 0 ) {
+      projectHandle->finishActivity ( false );
+   }
+
    if ( outputFile.is_open() )
    {
       outputFile.close();
@@ -674,10 +747,82 @@ int main( int argc, char ** argv )
    return 0;
 }
 
+
+OutputPropertyValuePtr allocateOutputProperty ( DerivedProperties::AbstractPropertyManager& propertyManager, 
+                                                const DataModel::AbstractProperty* property, 
+                                                const DataModel::AbstractSnapshot* snapshot,
+                                                const FormationSurface& formationItem ) {
+
+   OutputPropertyValuePtr outputProperty;
+
+   const Interface::Formation* formation = formationItem.first;
+   const Interface::Surface* topSurface = 0;
+   const Interface::Surface* bottomSurface = 0;
+
+   if (( property->getPropertyAttribute () == DataModel::CONTINUOUS_3D_PROPERTY or
+         property->getPropertyAttribute () == DataModel::DISCONTINUOUS_3D_PROPERTY ) and 
+       propertyManager.formationPropertyIsComputable ( property, snapshot, formation ))
+   {
+      outputProperty = OutputPropertyValuePtr ( new FormationOutputPropertyValue ( propertyManager, property, snapshot, formation ));
+   }
+
+   if ( outputProperty == 0 ) {
+
+
+      if ( formation != 0 and formationItem.second.first != 0  ) {
+
+         if ( formation->getTopSurface () != 0 and formationItem.second.first == formation->getTopSurface ()) {
+            topSurface = formation->getTopSurface ();
+         } else if ( formation->getBottomSurface () != 0 and formationItem.second.first == formation->getBottomSurface ()) {
+            bottomSurface = formation->getBottomSurface ();
+         }
+
+      }
+
+      // First check if the surface property is computable
+      if (( property->getPropertyAttribute () == DataModel::CONTINUOUS_3D_PROPERTY or
+            property->getPropertyAttribute () == DataModel::SURFACE_2D_PROPERTY ) and 
+          (( topSurface != 0    and propertyManager.surfacePropertyIsComputable ( property, snapshot, topSurface )) or
+           ( bottomSurface != 0 and propertyManager.surfacePropertyIsComputable ( property, snapshot, bottomSurface ))))
+      {
+
+         if ( topSurface != 0 ) {
+            outputProperty = OutputPropertyValuePtr ( new SurfaceOutputPropertyValue ( propertyManager, property, snapshot, topSurface ));
+         } else if ( bottomSurface != 0 ) {
+            outputProperty = OutputPropertyValuePtr ( new SurfaceOutputPropertyValue ( propertyManager, property, snapshot, bottomSurface ));
+         }
+
+      }
+      // Next check if the formation-surface property is computable
+      else if ( property->getPropertyAttribute () == DataModel::DISCONTINUOUS_3D_PROPERTY and 
+                (( topSurface != 0    and propertyManager.formationSurfacePropertyIsComputable ( property, snapshot, formation, topSurface )) or
+                 ( bottomSurface != 0 and propertyManager.formationSurfacePropertyIsComputable ( property, snapshot, formation, bottomSurface ))))
+
+      {
+
+         if ( topSurface != 0 ) {
+            outputProperty = OutputPropertyValuePtr ( new FormationSurfaceOutputPropertyValue ( propertyManager, property, snapshot, formation, topSurface ));
+         } else if ( bottomSurface != 0 ) {
+            outputProperty = OutputPropertyValuePtr ( new FormationSurfaceOutputPropertyValue ( propertyManager, property, snapshot, formation, bottomSurface ));
+         }
+
+      }
+      // Finally check if the formation-map property is computable
+      else if ( property->getPropertyAttribute () == DataModel::FORMATION_2D_PROPERTY and 
+                propertyManager.formationMapPropertyIsComputable ( property, snapshot, formation ))
+      {
+         outputProperty = OutputPropertyValuePtr ( new FormationMapOutputPropertyValue ( propertyManager, property, snapshot, formation ));
+      }
+
+   }
+
+   return outputProperty;
+}
+
 void outputSnapshotFormationData( ostream & outputStream, DoublePair & coordinatePair,
-   const Snapshot * snapshot, FormationSurface  & formationSurface, PropertyList & properties,
-   SnapshotFormationPropertyValueMap & allPropertyValues,
-   FormationSurfaceVector & formationSurfacePairs, double i, double j, unsigned int k, unsigned int maxK )
+                                  const Snapshot * snapshot, FormationSurface  & formationSurface, PropertyList & properties,
+                                  SnapshotFormationOutputPropertyValueMap & allOutputPropertyValues,
+                                  FormationSurfaceVector & formationSurfacePairs, double i, double j, unsigned int k, unsigned int maxK )
 {
    int kInverse = ( maxK - 1 ) - k;
 
@@ -719,23 +864,29 @@ void outputSnapshotFormationData( ostream & outputStream, DoublePair & coordinat
    outputStream << "," << kInverse;
 
    PropertyList::iterator propertyIter;
+
    for ( propertyIter = properties.begin(); propertyIter != properties.end(); ++propertyIter )
    {
       const Property * property = *propertyIter;
-      const PropertyValue * propertyValue = allPropertyValues[ snapshot ][ formation ][ property ];
+      OutputPropertyValuePtr propertyValue = allOutputPropertyValues[ snapshot ][ formation ][ property ];
       outputStream << ",";
-      if ( propertyValue )
+
+      if ( propertyValue != 0 )
       {
-         const GridMap * gridMap = propertyValue->getGridMap();
-         // assert (maxK == gridMap->getDepth ());
-         double kIndex = gridMap->getDepth() > 1 ? (double)k : 0;
-         double value = gridMap->getValue( i, j, kIndex );
-         if ( value != gridMap->getUndefinedValue() )
+         // const GridMap * gridMap = propertyValue->getGridMap();
+
+         double kIndex = propertyValue->getDepth() > 1 ? (double)k : 0;
+         double value = propertyValue->getValue( i, j, kIndex );
+
+         if ( value != propertyValue->getUndefinedValue ()) //gridMap->getUndefinedValue() )
          {
             outputStream << value;
          }
          else
+         {
             outputStream << " ";
+         }
+
       }
       else
       {
@@ -744,6 +895,7 @@ void outputSnapshotFormationData( ostream & outputStream, DoublePair & coordinat
    }
    outputStream << endl;
 }
+
 
 /// destructive!!!
 bool splitString( char * string, char separator, char * & firstPart, char * & secondPart )
@@ -898,22 +1050,58 @@ bool acquireSnapshots( ProjectHandle * projectHandle, SnapshotList & snapshots, 
    return true;
 }
 
-bool acquireProperties( ProjectHandle * projectHandle, PropertyList & properties, StringVector & propertyNames )
+bool acquireProperties( ProjectHandle * projectHandle,
+                        const AbstractPropertyManager& propertyManager,
+                        PropertyList & properties,
+                        StringVector & propertyNames )
 {
    const Property * depthProperty = projectHandle->findProperty( "Depth" );
    assert( depthProperty );
    properties.push_back( depthProperty );
 
    StringVector::iterator stringIter;
+
    for ( stringIter = propertyNames.begin(); stringIter != propertyNames.end(); ++stringIter )
    {
+
       const Property * property = projectHandle->findProperty( *stringIter );
-      if ( !property )
+      bool isComputable = false;
+
+      if ( property == 0 )
       {
          cerr << "Could not find property named '" << *stringIter << "'" << endl;
          continue;
       }
-      properties.push_back( property );
+
+      if (( property->getPropertyAttribute () == DataModel::CONTINUOUS_3D_PROPERTY or
+            property->getPropertyAttribute () == DataModel::DISCONTINUOUS_3D_PROPERTY ) and 
+          propertyManager.formationPropertyIsComputable ( property ))
+      {
+         isComputable = true;
+      }
+      else if (( property->getPropertyAttribute () == DataModel::CONTINUOUS_3D_PROPERTY or
+                 property->getPropertyAttribute () == DataModel::SURFACE_2D_PROPERTY ) and 
+               propertyManager.surfacePropertyIsComputable ( property ))
+      {
+         isComputable = true;
+      }
+      else if ( property->getPropertyAttribute () == DataModel::DISCONTINUOUS_3D_PROPERTY and 
+                propertyManager.formationSurfacePropertyIsComputable ( property ))
+      {
+         isComputable = true;
+      }
+      else if ( property->getPropertyAttribute () == DataModel::FORMATION_2D_PROPERTY and 
+                propertyManager.formationMapPropertyIsComputable ( property ))
+      {
+         isComputable = true;
+      }
+
+      if ( isComputable ) {
+         properties.push_back( property );
+      } else {
+         cerr << "Could not find calculator for property named '" << *stringIter << "'" << endl;
+      }
+
    }
 
    return true;
@@ -1110,4 +1298,54 @@ void showUsage( const char* command, const char* message )
    cout << "Bracketed options are optional and options may be abbreviated" << endl << endl;
 
 }
+
+void listOutputableProperties ( const GeoPhysics::ProjectHandle* projectHandle,
+                                const DerivedPropertyManager&    propertyManager ) {
+
+
+   PropertyList * allProperties = projectHandle->getProperties ( true );
+
+   cout << "Available 3D output properties are: ";
+
+   for ( size_t i = 0; i < allProperties->size (); ++i ) {
+      const Interface::Property* property = (*allProperties)[ i ];
+
+      if (( property->getPropertyAttribute () == DataModel::CONTINUOUS_3D_PROPERTY or
+            property->getPropertyAttribute () == DataModel::DISCONTINUOUS_3D_PROPERTY ) and 
+          propertyManager.formationPropertyIsComputable ( property )) {
+         cout << property->getName () << "  ";            
+      }
+
+   }
+
+   cout << endl;
+   cout << endl;
+   cout << "Available 2D output properties are: ";
+
+   for ( size_t i = 0; i < allProperties->size (); ++i ) {
+      const Interface::Property* property = (*allProperties)[ i ];
+
+      if (( property->getPropertyAttribute () == DataModel::CONTINUOUS_3D_PROPERTY or
+            property->getPropertyAttribute () == DataModel::SURFACE_2D_PROPERTY ) and 
+          propertyManager.surfacePropertyIsComputable ( property )) {
+         cout << property->getName () << "  ";            
+      } else if ( property->getPropertyAttribute () == DataModel::DISCONTINUOUS_3D_PROPERTY and 
+                  propertyManager.formationSurfacePropertyIsComputable ( property )) {
+         cout << property->getName () << "  ";            
+      } else if ( property->getPropertyAttribute () == DataModel::FORMATION_2D_PROPERTY and 
+                  propertyManager.formationMapPropertyIsComputable ( property )) {
+         cout << property->getName () << "  ";            
+      }
+
+   }
+
+
+
+   cout << endl;
+   cout << endl;
+   delete allProperties;
+}
+
+
+
 

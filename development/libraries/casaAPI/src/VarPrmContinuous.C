@@ -13,6 +13,7 @@
 
 #include "VarPrmContinuous.h"
 
+#include "VarPrmCrustThinning.h"
 #include "VarPrmOneCrustThinningEvent.h"
 #include "VarPrmTopCrustHeatProduction.h"
 #include "VarPrmSourceRockTOC.h"
@@ -20,6 +21,7 @@
 #include "VarPrmSourceRockHI.h"
 #include "VarPrmSourceRockPreAsphaltStartAct.h"
 #include "VarPrmPorosityModel.h"
+#include "VarPrmPermeabilityModel.h"
 #include "VarPrmLithoSTPThermalCond.h"
 
 
@@ -98,13 +100,15 @@ namespace casa
             << ", but stream gave object with name: " << on;
       }
       // create new variabale parameter object depending on object type name from file
-      if (      ot == "VarPrmOneCrustThinningEvent"        ) { return new VarPrmOneCrustThinningEvent(        dz, vr ); }
+      if (      ot == "VarPrmCrustThinning"                ) { return new VarPrmCrustThinning(                dz, vr ); }
+      else if ( ot == "VarPrmOneCrustThinningEvent"        ) { return new VarPrmOneCrustThinningEvent(        dz, vr ); }
       else if ( ot == "VarPrmTopCrustHeatProduction"       ) { return new VarPrmTopCrustHeatProduction(       dz, vr ); }
       else if ( ot == "VarPrmSourceRockTOC"                ) { return new VarPrmSourceRockTOC(                dz, vr ); }
       else if ( ot == "VarPrmSourceRockHC"                 ) { return new VarPrmSourceRockHC(                 dz, vr ); }
       else if ( ot == "VarPrmSourceRockHI"                 ) { return new VarPrmSourceRockHI(                 dz, vr ); }
       else if ( ot == "VarPrmSourceRockPreAsphaltStartAct" ) { return new VarPrmSourceRockPreAsphaltStartAct( dz, vr ); }
       else if ( ot == "VarPrmPorosityModel"                ) { return new VarPrmPorosityModel(                dz, vr ); }
+      else if ( ot == "VarPrmPermeabilityModel"            ) { return new VarPrmPermeabilityModel(            dz, vr ); }
       else if ( ot == "VarPrmLithoSTPThermalCond"          ) { return new VarPrmLithoSTPThermalCond(          dz, vr ); }
       else
       {

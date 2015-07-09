@@ -8,7 +8,7 @@
 using namespace DataAccess;
 
 
-DataAccess::Interface::ProjectHandle *
+GeoPhysics::ProjectHandle *
 CrustalThicknessCalculatorFactory::produceProjectHandle ( database::Database * database, const string & name,
                                                           const string & accessMode) {
    return new CrustalThicknessCalculator ( database, name, accessMode );

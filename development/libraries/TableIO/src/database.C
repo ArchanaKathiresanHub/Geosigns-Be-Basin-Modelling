@@ -1,3 +1,14 @@
+//
+// Copyright (C) 2012-2015 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+// This utility allow to load and then compare table by table 2 .project3d files
+
 #include <stdlib.h>
 #include <assert.h>
 #include <string>
@@ -422,7 +433,7 @@ Record * Table::findRecord (const std::string & fieldName, const std::string & v
 Record * Table::findRecord (const std::string & field1, const std::string & value1, const std::string & field2, const std::string & value2, Record * other)
 {
 	int index1 = getIndex(field1);
-   int index2 = getIndex(field2);
+        int index2 = getIndex(field2);
 	if (index1 < 0 || index2 < 0) return 0;
 
 	Table::iterator iter;
@@ -430,9 +441,9 @@ Record * Table::findRecord (const std::string & field1, const std::string & valu
 	{
 		Record * record = * iter;
 		if (  record != other &&
-        value1 == record->getValue<std::string>(index1) && 
-        value2 == record->getValue<std::string>(index2)) 
-        return record;
+                      value1 == record->getValue<std::string>(index1) && 
+                      value2 == record->getValue<std::string>(index2)) 
+                   return record;
 	}
 	return 0;
 }
@@ -446,6 +457,63 @@ void Table::stable_sort (OrderingFunc func)
 {
 	std::stable_sort (m_records.begin (), m_records.end (), func);
 }
+
+
+   struct LocalTableSorter
+   {
+      LocalTableSorter( Table * tbl, const std::vector<std::string> & fldList ) 
+      {
+         const database::TableDefinition & tblDef = tbl->getTableDefinition();
+
+         // cache fields index and data type 
+         if ( fldList.empty() )
+         {
+            for ( int i = 0; i < tblDef.size(); ++i )
+            {
+               m_fldIDs.push_back( i );
+               m_fldTypes.push_back( tblDef.getFieldDefinition( i )->dataType() );
+            }
+         }
+         else
+         {
+            for ( size_t i = 0; i < fldList.size(); ++ i )
+            {
+               int ind = tbl->getIndex( fldList[i] );
+               if ( ind < 0 ) continue; // just ignore unknown fields
+               m_fldIDs.push_back( ind );
+               m_fldTypes.push_back( tblDef.getFieldDefinition( ind )->dataType() );
+            }
+         }
+      }
+
+      //  this function is used as less operator for the strict weak ordering
+      bool operator() ( const Record * r1, const Record * r2 )
+      {
+         assert( r1 != NULL && r2 != NULL );
+
+         for ( size_t i = 0; i < m_fldIDs.size(); ++ i )
+         {  int id = m_fldIDs[i];
+            switch ( m_fldTypes[i] )
+            {
+               case datatype::Bool:   { bool   v = r1->getValue<bool  >( id ); bool   w = r2->getValue<bool  >( id ); if ( v != w ) return v < w; } break;
+               case datatype::Int:    { int    v = r1->getValue<int   >( id ); int    w = r2->getValue<int   >( id ); if ( v != w ) return v < w; } break;
+               case datatype::Long:   { long   v = r1->getValue<long  >( id ); long   w = r2->getValue<long  >( id ); if ( v != w ) return v < w; } break;
+               case datatype::Float:  { float  v = r1->getValue<float >( id ); float  w = r2->getValue<float >( id ); if ( v != w ) return v < w; } break;
+               case datatype::Double: { double v = r1->getValue<double>( id ); double w = r2->getValue<double>( id ); if ( v != w ) return v < w; } break;
+               case datatype::String: { string v = r1->getValue<string>( id ); string w = r2->getValue<string>( id ); if ( v != w ) return v < w; } break;
+            }
+         }
+         return false;
+      }
+
+      std::vector<int>                 m_fldIDs;
+      std::vector<datatype::DataType>  m_fldTypes;
+   };
+
+   void Table::stable_sort (const std::vector<std::string> & fldList)
+   {
+      std::stable_sort( m_records.begin(), m_records.end(), LocalTableSorter( this, fldList ) );
+   }
 
 void Table::unique (EqualityFunc equalityFunc, MergeFunc mergeFunc)
 {

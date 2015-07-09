@@ -58,7 +58,7 @@ namespace GeoPhysics {
       ~ProjectHandle ();
 
       /// start a new activity
-      bool startActivity ( const std::string& name, const DataAccess::Interface::Grid* grid );
+      bool startActivity ( const std::string& name, const DataAccess::Interface::Grid* grid, bool saveAsInputGrid = false, bool createResultsFile = true, bool append = false );
 
       /// Assign the litholgies to the formations.
       ///

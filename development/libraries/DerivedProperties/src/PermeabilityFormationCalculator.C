@@ -3,6 +3,7 @@
 #include "DerivedPropertyManager.h"
 
 #include "Interface/RunParameters.h"
+#include "Interface/SimulationDetails.h"
 
 #include "GeoPhysicsFormation.h"
 #include "GeoPhysicalConstants.h"
@@ -12,8 +13,22 @@
 #include "PropertyRetriever.h"
 
 DerivedProperties::PermeabilityFormationCalculator::PermeabilityFormationCalculator ( const GeoPhysics::ProjectHandle* projectHandle ) : m_projectHandle ( projectHandle ) {
-   addPropertyName ( "PermeabilityVec2" );
-   addPropertyName ( "PermeabilityHVec2" );
+
+   bool chemicalCompactionRequired = m_projectHandle->getDetailsOfLastSimulation ( "fastcauldron" ) != 0 and
+                                     m_projectHandle->getDetailsOfLastSimulation ( "fastcauldron" )->getSimulatorMode () != "HydrostaticDecompaction" and
+                                     m_projectHandle->getRunParameters()->getChemicalCompaction ();
+
+
+   addPropertyName ( "Permeability" );
+   addPropertyName ( "HorizontalPermeability" );
+
+   addDependentPropertyName ( "Ves" );
+   addDependentPropertyName ( "MaxVes" );
+
+   if ( chemicalCompactionRequired ) {
+      addDependentPropertyName ( "ChemicalCompaction" );
+   }
+
 }
 
 void DerivedProperties::PermeabilityFormationCalculator::calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
@@ -26,8 +41,8 @@ void DerivedProperties::PermeabilityFormationCalculator::calculate ( DerivedProp
    const DataModel::AbstractProperty* aMaxVesProperty = propertyManager.getProperty ( "MaxVes" );
    const DataModel::AbstractProperty* aChemicalCompactionProperty = propertyManager.getProperty ( "ChemicalCompaction" );
 
-   const DataModel::AbstractProperty* aPermeabilityVProperty = propertyManager.getProperty ( "PermeabilityVec2" );
-   const DataModel::AbstractProperty* aPermeabilityHProperty = propertyManager.getProperty ( "PermeabilityHVec2" );
+   const DataModel::AbstractProperty* aPermeabilityVProperty = propertyManager.getProperty ( "Permeability" );
+   const DataModel::AbstractProperty* aPermeabilityHProperty = propertyManager.getProperty ( "HorizontalPermeability" );
    
    const FormationPropertyPtr ves    = propertyManager.getFormationProperty ( aVesProperty, snapshot, formation );
    const FormationPropertyPtr maxVes = propertyManager.getFormationProperty ( aMaxVesProperty, snapshot, formation );
@@ -41,10 +56,18 @@ void DerivedProperties::PermeabilityFormationCalculator::calculate ( DerivedProp
    
    if( ves != 0 and maxVes != 0 and geoFormation != 0 ) {
          
-      const FormationPropertyPtr chemicalCompaction = propertyManager.getFormationProperty ( aChemicalCompactionProperty, snapshot, formation );
-      bool chemicalCompactionRequired  = false;
+      bool chemicalCompactionRequired = m_projectHandle->getDetailsOfLastSimulation ( "fastcauldron" ) != 0 and
+                                        m_projectHandle->getDetailsOfLastSimulation ( "fastcauldron" )->getSimulatorMode () != "HydrostaticDecompaction" and
+                                        geoFormation->hasChemicalCompaction () and m_projectHandle->getRunParameters()->getChemicalCompaction ();
+
+      FormationPropertyPtr chemicalCompaction;
+
+      if ( chemicalCompactionRequired ) {
+         chemicalCompaction = propertyManager.getFormationProperty ( aChemicalCompactionProperty, snapshot, formation );
+         // Just in case the property is not found.
+         chemicalCompactionRequired = chemicalCompaction != 0;
+      }
       
-      chemicalCompactionRequired = geoFormation->hasChemicalCompaction () and m_projectHandle->getRunParameters()->getChemicalCompaction () and ( chemicalCompaction != 0 );
 
       const GeoPhysics::CompoundLithologyArray * lithologies = &geoFormation->getCompoundLithologyArray ();
       

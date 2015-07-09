@@ -9,7 +9,7 @@ namespace database
    class Database;
 }
 #include "Interface/Interface.h"
-#include "Interface/ProjectHandle.h"
+#include "DerivedPropertyManager.h"
 
 #include "SourceRock.h"
 
@@ -24,7 +24,7 @@ namespace GenexSimulation
    /*! 
       Derives from Interface::ProjectHandle
    */
-   class GenexSimulator : public Interface::ProjectHandle
+   class GenexSimulator : public GeoPhysics::ProjectHandle
    {
    public:
       //! Constructor
@@ -66,6 +66,8 @@ namespace GenexSimulation
       bool isPropertyRegistered(const string & propertyName);
 
    private:
+      DerivedProperties::DerivedPropertyManager * m_propertyManager;
+      // GenexSimulation::PropertyManager * m_propertyManager;
 
       vector<string> m_registeredProperties;
       vector<string> m_shaleProperties;

@@ -33,8 +33,7 @@ const ApplicableOutputRegion::ApplicableRegion PropertyOutputConstraints::s_prop
      ApplicableOutputRegion::SEDIMENTS_AND_BASEMENT,      /* ThCondVec              */
      ApplicableOutputRegion::SEDIMENTS_AND_BASEMENT,      /* VelocityVec            */
      ApplicableOutputRegion::SEDIMENTS_ONLY,              /* Vr                     */
-
-     //Scalar Properties
+     ApplicableOutputRegion::SEDIMENTS_ONLY,              /* MaxVes                 */
      ApplicableOutputRegion::SEDIMENTS_AND_BASEMENT,      /* Depth                  */
      ApplicableOutputRegion::SEDIMENTS_AND_BASEMENT,      /* HeatFlow               */
      ApplicableOutputRegion::SEDIMENTS_AND_BASEMENT,      /* HeatFlowY              */
@@ -48,7 +47,6 @@ const ApplicableOutputRegion::ApplicableRegion PropertyOutputConstraints::s_prop
      ApplicableOutputRegion::SEDIMENTS_ONLY,              /* IsoStaticWaterBottom   */
      ApplicableOutputRegion::SEDIMENTS_ONLY,              /* Massflux               */
      ApplicableOutputRegion::SEDIMENTS_ONLY,              /* Massflux_              */
-     ApplicableOutputRegion::SEDIMENTS_ONLY,              /* MaxVes                 */
      ApplicableOutputRegion::SEDIMENTS_AND_BASEMENT,      /* Temperature            */
      ApplicableOutputRegion::SEDIMENTS_ONLY,              /* Pressure               */
      ApplicableOutputRegion::SEDIMENTS_ONLY,              /* HydroStaticPressure    */
@@ -134,9 +132,9 @@ const ApplicableOutputRegion::ApplicableRegion PropertyOutputConstraints::s_prop
      ApplicableOutputRegion::SEDIMENTS_ONLY,              /* Volume calculations                       */
      ApplicableOutputRegion::SEDIMENTS_ONLY,              /* Transported volume calculations           */
      ApplicableOutputRegion::SEDIMENTS_ONLY,              /* Saturations                               */
-     ApplicableOutputRegion::SEDIMENTS_ONLY,              /* AverageSaturations                        */
+	  ApplicableOutputRegion::SEDIMENTS_ONLY,              /* AverageSaturations                        */
      ApplicableOutputRegion::SEDIMENTS_ONLY,              /* HC fluid velocity                         */
-     ApplicableOutputRegion::SEDIMENTS_ONLY,              /* CapillaryPressure                         */
+	  ApplicableOutputRegion::SEDIMENTS_ONLY,              /* CapillaryPressure                         */
      ApplicableOutputRegion::SEDIMENTS_ONLY,              /* Fluid Properties such as GOR, COR, OilAPI */
      ApplicableOutputRegion::SEDIMENTS_ONLY,              /* Brine properties viscosity density        */
      ApplicableOutputRegion::SEDIMENTS_ONLY,              /* Time of invasion                          */				
@@ -194,8 +192,7 @@ const bool PropertyOutputConstraints::s_outputPermitted [ PropertyListSize ][ Nu
    { false, false,  true, false,  true, false,  true,  true,  true, false },  /* ThCondVec              */
    { false, false,  true, false,  true, false,  true,  true,  true, false },  /* VelocityVec            */
    { false, false,  true, false,  true, false,  true,  true,  true, false },  /* Vr                     */
-
-   //Scalar Properties
+   {  true,  true,  true,  true, false,  true,  true,  true,  true, false },  /* MaxVes                 */
    {  true,  true,  true,  true, false,  true,  true,  true,  true, false },  /* Depth                  */
    { false, false,  true, false,  true, false,  true,  true,  true, false },  /* HeatFlow               */
    { false, false,  true, false,  true, false,  true,  true,  true, false },  /* HeatFlowY              */
@@ -209,7 +206,6 @@ const bool PropertyOutputConstraints::s_outputPermitted [ PropertyListSize ][ Nu
    { false, false,  true,  true,  true, false,  true,  true,  true, false },  /* IsoStaticWaterBottom   */
    { false, false,  true,  true,  true, false,  true,  true,  true, false },  /* Massflux               */
    { false, false,  true,  true,  true, false,  true,  true,  true, false },  /* Massflux_              */
-   {  true,  true,  true,  true, false,  true,  true,  true,  true, false },  /* MaxVes                 */
    { false, false,  true, false,  true, false,  true,  true,  true, false },  /* Temperature            */
    { false, false,  true,  true, false, false,  true,  true,  true, false },  /* Pressure               */
    { false, false,  true,  true, false, false,  true,  true,  true, false },  /* HydroStaticPressure    */
@@ -232,8 +228,8 @@ const bool PropertyOutputConstraints::s_outputPermitted [ PropertyListSize ][ Nu
    {  true,  true,  true,  true,  true,  true,  true,  true,  true, false },  /* Lithology              */
    { false, false,  true, false,  true, false,  true,  true,  true, false },  /* TwoWayTime             */
    { false, false,  true, false,  true, false,  true,  true,  true, false },  /* TwoWayTimeResidual     */
-
-
+   
+   
    { false, false,  true,  true, false, false,  true,  true,  true, false },  /* CapillaryPressureGas100 */
    { false, false,  true,  true, false, false,  true,  true,  true, false },  /* CapillaryPressureGas0   */
    { false, false,  true,  true, false, false,  true,  true,  true, false },  /* CapillaryPressureOil100 */
@@ -295,10 +291,10 @@ const bool PropertyOutputConstraints::s_outputPermitted [ PropertyListSize ][ Nu
    { false, false,  true,  true,  true, false,  true,  true,  true, false },  /* Volume calculations                       */ 
    { false, false,  true,  true,  true, false,  true,  true,  true, false },  /* Transported volume calculations           */ 
    { false, false,  true,  true,  true, false,  true,  true,  true, false },  /* Saturations                               */
-   { false, false,  true,  true,  true, false,  true,  true,  true, false },  /* AverageSaturations                        */
+	{ false, false,  true,  true,  true, false,  true,  true,  true, false },  /* AverageSaturations                        */
    { false, false,  true, false,  true, false,  true,  true,  true, false },  /* HC fliud velocity                         */
-   { false, false,  true,  true,  true, false,  true,  true,  true, false },  /* CapillaryPressure                         */
-   { false, false,  true,  true,  true, false,  true,  true,  true, false },  /* Fluid Properties such as GOR, COR, OilAPI */
+	{ false, false,  true,  true,  true, false,  true,  true,  true, false },  /* CapillaryPressure                         */
+	{ false, false,  true,  true,  true, false,  true,  true,  true, false },  /* Fluid Properties such as GOR, COR, OilAPI */
    { false, false,  true,  true,  true, false,  true,  true,  true, false },  /* Brine Properties density and viscosity    */
    { false, false,  true,  true,  true, false,  true,  true,  true, false },  /* Time of invasion                          */                                                                                                      
    {  true,  true,  true,  true, false,  true,  true, false },  /* ALCSmBasaltThickness     */
@@ -340,8 +336,7 @@ const bool PropertyOutputConstraints::s_outputRequired [ PropertyListSize ][ Num
    { false, false, false, false, false, false, false, false, false, false },  /* ThCondVec                                 */
    { false, false, false, false, false, false, false, false, false, false },  /* VelocityVec                               */
    { false, false,  true, false,  true, false,  true,  true,  true, false },  /* Vr                                        */
-
-   //Scalar Properties
+   {  true,  true,  true,  true, false,  true,  true,  true,  true, false },  /* MaxVes                                    */
    {  true,  true,  true,  true, false,  true,  true,  true,  true, false },  /* Depth                                     */
    { false, false, false, false, false, false, false, false, false, false },  /* HeatFlow                                  */
    { false, false, false, false, false, false, false, false, false, false },  /* HeatFlowY                                 */
@@ -355,7 +350,6 @@ const bool PropertyOutputConstraints::s_outputRequired [ PropertyListSize ][ Num
    { false, false, false, false, false, false, false, false, false, false },  /* IsoStaticWaterBottom                      */
    { false, false, false, false, false, false, false, false, false, false },  /* Massflux                                  */
    { false, false, false, false, false, false, false, false, false, false },  /* Massflux_                                 */
-   {  true,  true,  true,  true, false,  true,  true,  true,  true, false },  /* MaxVes                                    */
    { false, false,  true, false,  true, false,  true,  true,  true, false },  /* Temperature                               */
    { false, false,  true,  true, false, false,  true,  true,  true, false },  /* Pressure                                  */
    { false, false,  true,  true, false, false,  true,  true,  true, false },  /* HydroStaticPressure                       */
@@ -441,11 +435,11 @@ const bool PropertyOutputConstraints::s_outputRequired [ PropertyListSize ][ Num
    { false, false, false, false, false, false, false, false, false, false },  /* Volume calculations                       */ 
    { false, false, false, false, false, false, false, false, false, false },  /* Transported volume calculations           */ 
    { false, false, false, false, false, false, false, false, false, false },  /* Saturations                               */
-   { false, false, false, false, false, false, false, false, false, false },  /* AverageSaturations                        */
+	{ false, false, false, false, false, false, false, false, false, false },  /* AverageSaturations                        */
    { false, false, false, false, false, false, false, false, false, false },  /* HC fluid velocity                         */
-   { false, false, false, false, false, false, false, false, false, false },  /* CapillaryPressure                         */
+	{ false, false, false, false, false, false, false, false, false, false },  /* CapillaryPressure                         */
    { false, false, false, false, false, false, false, false, false, false },  /* Fluid Properties such as GOR, COR, OilAPI */
-   { false, false, false, false, false, false, false, false, false, false },  /* Brine properties density viscosity        */
+	{ false, false, false, false, false, false, false, false, false, false },  /* Brine properties density viscosity        */
    { false, false, false, false, false, false, false, false, false, false },  /* Time of Invasion                          */
    {  true,  true,  true,  true, false,  true,  true, false },  /* ALCSmBasaltThickness     */
    {  true,  true,  true,  true, false,  true,  true, false },  /* ALCMaxAsthenoMantleDepth */

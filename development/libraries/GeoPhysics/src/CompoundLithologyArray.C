@@ -29,7 +29,7 @@ GeoPhysics::CompoundLithologyArray::~CompoundLithologyArray () {
 
       }
 
-      ibs::Array<TimeDependantLithology*>::delete2d ( m_lithologies );
+      ibs::Array<TimeDependentLithology*>::delete2d ( m_lithologies );
    }
 
 }
@@ -56,12 +56,12 @@ void GeoPhysics::CompoundLithologyArray::allocate ( const DataAccess::Interface:
    m_size [ 0 ] = m_last [ 0 ] - m_first [ 0 ] + 1;
    m_size [ 1 ] = m_last [ 1 ] - m_first [ 1 ] + 1;
 
-   m_lithologies = ibs::Array<TimeDependantLithology*>::create2d ( m_size [ 0 ], m_size [ 1 ]);
+   m_lithologies = ibs::Array<TimeDependentLithology*>::create2d ( m_size [ 0 ], m_size [ 1 ]);
 
    for ( i = 0; i < length ( 0 ); ++i ) {
 
       for ( j = 0; j < length ( 1 ); ++j ) {
-         m_lithologies [ i ][ j ] = new TimeDependantLithology;
+         m_lithologies [ i ][ j ] = new TimeDependentLithology;
       }
 
    }
@@ -176,6 +176,14 @@ void GeoPhysics::CompoundLithologyArray::setAllochthonousInterpolator ( Allochth
 
 bool GeoPhysics::CompoundLithologyArray::isAllochthonousLithology ( const unsigned int subscriptI, const unsigned int subscriptJ ) const {
   return m_lithologies [ subscriptI - first ( 0 )][ subscriptJ - first ( 1 )]->currentIsAllochthonous ();
+}
+
+//------------------------------------------------------------//
+
+bool GeoPhysics::CompoundLithologyArray::isAllochthonousAtAge ( const unsigned int i,
+                                                                const unsigned int j,
+                                                                const double       age ) const {
+  return m_lithologies [ i - first ( 0 )][ j - first ( 1 )]->isAllochthonousAtAge ( age );
 }
 
 //------------------------------------------------------------//

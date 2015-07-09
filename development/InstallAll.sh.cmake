@@ -81,19 +81,6 @@ else
    popd > /dev/null
 fi
 
-#install wrapper scripts
-echo "Installing wrappers script:"
-# Install mpirun wrapper which is used by CASA API
-if [ -f @MPIRUN@ ]; then
-   echo " - mpirun_wrap.sh"
-   cp @MPIRUN@ $mainBinaryDirectory
-fi
-# Install mpiexec wrapper
-if [ -f @MPIEXEC@ ]; then
-   echo " - mpiexec_wrap.sh"
-   cp @MPIEXEC@ $mainBinaryDirectory
-fi
-
 echo "Configuring installation"
 echo " - Marking installation as successful"
 touch $miscDirectory/successfully_installed

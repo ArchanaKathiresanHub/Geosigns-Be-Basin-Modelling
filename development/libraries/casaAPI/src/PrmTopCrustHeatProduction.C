@@ -61,8 +61,8 @@ ErrorHandler::ReturnCode PrmTopCrustHeatProduction::setInModel( mbapi::Model & c
    const std::string & modelName = caldModel.tableValueAsString( s_basementTblName, 0, s_bottomBoundaryModel );
    if ( ErrorHandler::NoError != caldModel.errorCode() ) return caldModel.errorCode();
 
-   if ( modelName != "Fixed Temperature" ) return caldModel.reportError( ErrorHandler::ValidationError, 
-                            "Unsupported bottom boundary model for using top crust heat production. Supported 'Fixed Temperature' model only" );
+   if ( modelName == "Fixed HeatFlow" ) return caldModel.reportError( ErrorHandler::ValidationError, 
+                            "Unsupported bottom boundary model: 'Fixed HeatFlow' for using top crust heat production." );
 
    const std::string & heatProdMap = caldModel.tableValueAsString( s_basementTblName, 0, s_topCrushHeatProdGrid );
    if ( ErrorHandler::NoError != caldModel.errorCode() ) return caldModel.errorCode();
@@ -91,10 +91,9 @@ std::string PrmTopCrustHeatProduction::validate( mbapi::Model & caldModel )
       return oss.str();
    }
 
-   if ( modelName != "Fixed Temperature" )
+   if ( modelName == "Fixed HeatFlow" )
    {
-      oss << "Unsupported bottom boundary model for using top crust heat production rate.";
-      oss << " Supported 'Fixed Temperature' model only" << std::endl;
+      oss << "Unsupported bottom boundary model: 'Fixed HeatFlow' for using top crust heat production rate." << std::endl;
       return oss.str(); // another model, no reason to check further
    }
 

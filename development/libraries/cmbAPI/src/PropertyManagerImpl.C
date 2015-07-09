@@ -11,12 +11,20 @@
 /// @file PropertyManagerImpl.C
 /// @brief This file keeps implementation for API to 
 
+// CMB API
 #include "PropertyManagerImpl.h"
 #include "cmbAPI.h"
+
+// FileSystem library
+#include "FilePath.h"
+#include "FolderPath.h"
 
 #include "database.h"
 
 #include "cauldronschemafuncs.h"
+
+// STL
+#include <set>
 
 namespace mbapi
 {
@@ -31,7 +39,10 @@ PropertyManagerImpl::PropertyManagerImpl()
 void PropertyManagerImpl::setDatabase( database::Database * db, const std::string & projName )
 {
    m_db = db;
-   m_fltTimeTable = m_db->getTable( "FilterTimeIoTbl" );
+   m_fltTimeTable    = m_db->getTable( "FilterTimeIoTbl" );
+   m_snapshotIoTable = m_db->getTable( "SnapshotIoTbl" );
+   m_timeIoTable     = m_db->getTable( "TimeIoTbl" );
+   m_3dTimeIoTable   = m_db->getTable( "3DTimeIoTbl" );
 }
 
 ErrorHandler::ReturnCode PropertyManagerImpl::requestPropertyInSnapshots( const std::string & propName, const std::string & outputPropOption )
@@ -99,6 +110,79 @@ ErrorHandler::ReturnCode PropertyManagerImpl::requestPropertyInSnapshots( const 
    return NoError;
 }
 
+
+ErrorHandler::ReturnCode PropertyManagerImpl::copyResultsFiles( const std::string & oldProject, const std::string & newProject )
+{
+   if ( errorCode() != NoError ) resetError();
+
+   try 
+   {
+      std::set<std::string> fileList;
+
+      // collect .HDF files in a set
+      for ( size_t t = 0; t < 3; ++t )
+      {
+         database::Table * tbl = NULL;
+         std::string       colName;
+         switch ( t )
+         {
+            case 0: tbl = m_snapshotIoTable; colName = "SnapshotFileName"; break;
+            case 1: tbl = m_timeIoTable;     colName = "MapFileName";      break;
+            case 2: tbl = m_3dTimeIoTable;   colName = "MapFileName";      break;
+         }
+         if ( !tbl ) continue;
+
+         size_t tblSize = m_snapshotIoTable->size();
+         for ( size_t i = 0; i < tblSize; ++i )
+         {
+            database::Record * rec = tbl->getRecord( i );
+            if ( !rec ) continue;
+
+            const std::string & fileName = rec->getValue<std::string>( colName );
+            if ( fileName.empty() ) continue;
+            if ( !fileList.count( fileName ) ) fileList.insert( fileName );
+         }
+      }
+
+      // construct full paths to the results files
+      ibs::FilePath oldProjectPath( oldProject );
+      const std::string & oldProjectName = oldProjectPath.fileNameNoExtension();
+      oldProjectPath.cutLast(); // cut project file name
+      oldProjectPath << oldProjectName + "_CauldronOutputDir";
+      
+      ibs::FilePath newProjectPath( newProject );
+      const std::string & newProjectName  = newProjectPath.fileNameNoExtension();
+      newProjectPath.cutLast(); // cut project file name
+      newProjectPath << newProjectName + "_CauldronOutputDir";
+
+      // create new folder for results files if it doesn't exist
+      if ( !newProjectPath.exists() ) ibs::FolderPath( newProjectPath.path() ).create(); 
+
+      if ( !oldProjectPath.exists() && !fileList.empty() ) throw Exception( IoError ) << "Copy results files failed: no such folder: " << oldProjectPath.path();
+
+      for ( std::set<std::string>::const_iterator it = fileList.begin(); it != fileList.end(); ++it )
+      {
+         ibs::FilePath oldResFile( oldProjectPath.path() );
+         oldResFile << *it;
+         if ( !oldResFile.exists() ) throw Exception( IoError ) << "Copy results files failed: no such file: " << oldResFile.path();
+         ibs::FilePath newResFile( newProjectPath.path() );
+         newResFile << *it;
+         if ( newResFile.exists() ) throw Exception( IoError ) << "Copy results files failed: file already exists: " << newResFile.path();
+         
+         bool copied = true;
+         // for Time_*.h5/*_Results files make only links
+         if (      !(*it).compare( 0, 5,  "Time_", 0, 5 ) )                           { copied = oldResFile.linkFile( newResFile.fullPath() ); } 
+         else if ( !(*it).compare( 0, 25, "HydrostaticTemperature_Results", 0, 25 ) ) { copied = oldResFile.linkFile( newResFile.fullPath() ); } 
+         else if ( !(*it).compare( 0, 25, "PressureAndTemperature_Results", 0, 25 ) ) { copied = oldResFile.linkFile( newResFile.fullPath() ); } 
+         else                                                                         { copied = oldResFile.copyFile( newResFile.fullPath() ); }
+
+         if ( !copied ) throw Exception( IoError )  << "Can't copy file: " << oldResFile.path() << " to " << newResFile.path();
+      }
+   }
+   catch( const Exception & ex ) { reportError( ex.errorCode(), ex.what() ); }
+
+   return NoError;
+}
 
 std::string PropertyManagerImpl::outputOptionForProperty( const std::string & propName )
 {

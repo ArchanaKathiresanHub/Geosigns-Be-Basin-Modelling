@@ -89,6 +89,13 @@
     <name>ibs::Path</name>
     <filename>classibs_1_1Path.html</filename>
     <member kind="function">
+      <type></type>
+      <name>Path</name>
+      <anchorfile>classibs_1_1Path.html</anchorfile>
+      <anchor>a1bcea007f2e4e2bd9be8174b4696abcf</anchor>
+      <arglist>(const Path &amp;aPath)</arglist>
+    </member>
+    <member kind="function">
       <type>bool</type>
       <name>exists</name>
       <anchorfile>classibs_1_1Path.html</anchorfile>
@@ -120,15 +127,22 @@
       <type>size_t</type>
       <name>size</name>
       <anchorfile>classibs_1_1Path.html</anchorfile>
-      <anchor>a7e1fe6339927cf747915ea338b2cdec4</anchor>
-      <arglist>()</arglist>
+      <anchor>a8b8cfa2ddfcaa53c9c302e0c9da24854</anchor>
+      <arglist>() const </arglist>
     </member>
     <member kind="function">
       <type>std::string</type>
       <name>operator[]</name>
       <anchorfile>classibs_1_1Path.html</anchorfile>
-      <anchor>aa39fb7179c7b386157d83712b99f6a60</anchor>
-      <arglist>(size_t i)</arglist>
+      <anchor>acc8f96a3a0bd9b1aeee328a60f756013</anchor>
+      <arglist>(size_t i) const </arglist>
+    </member>
+    <member kind="function">
+      <type>Path</type>
+      <name>fullPath</name>
+      <anchorfile>classibs_1_1Path.html</anchorfile>
+      <anchor>a60747e1c2dfd3d78c11ef47ceb085c3d</anchor>
+      <arglist>() const </arglist>
     </member>
     <member kind="function">
       <type>Path &amp;</type>
@@ -136,6 +150,20 @@
       <anchorfile>classibs_1_1Path.html</anchorfile>
       <anchor>a5656a6ec4a00c1e107c3fb01faff8d86</anchor>
       <arglist>(const T &amp;pathEl)</arglist>
+    </member>
+    <member kind="function">
+      <type>Path &amp;</type>
+      <name>operator=</name>
+      <anchorfile>classibs_1_1Path.html</anchorfile>
+      <anchor>ae05c681dfabe4c17addc98b3fe4abbd0</anchor>
+      <arglist>(const Path &amp;aPath)</arglist>
+    </member>
+    <member kind="function" static="yes">
+      <type>static Path</type>
+      <name>applicationFullPath</name>
+      <anchorfile>classibs_1_1Path.html</anchorfile>
+      <anchor>a2e6454837655990fdc5b3267a8a48f9b</anchor>
+      <arglist>()</arglist>
     </member>
   </compound>
   <compound kind="struct">

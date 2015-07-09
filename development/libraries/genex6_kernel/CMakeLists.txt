@@ -27,6 +27,9 @@ bm_include_libraries(
 	CBMGenerics 
 	EosPack 
 	DerivedProperties
+	GeoPhysics
+	Interpolation
+	LinearAlgebra
 	utilities 
 	Serial_Hdf5 
 	OTGC_kernel6

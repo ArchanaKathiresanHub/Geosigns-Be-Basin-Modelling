@@ -576,7 +576,7 @@ bool  GeoPhysics::CompoundLithology::reCalcProperties(){
    mixSurfacePorosity(porosityModel, surfacePorosity, surfaceVoidRatio);
    mixCompactionCoefficients(compactionincr, compactionincrA, compactionincrB, compactiondecr, compactiondecrA, compactiondecrB, soilMechanicsCompactionCoefficient);
     
-   // create porosity object
+   //Create porosity object
    m_porosity = Porosity::create(porosityModel,
    surfacePorosity,
    minimumMechanicalPorosity,
@@ -994,9 +994,9 @@ void GeoPhysics::CompoundLithology::calcBulkDensity1(const FluidType* fluid,
       // Should this be multiplied by ( 1.0 - porosity )?
       BulkDensity = MatrixDensity;
 
-   }
+      }
 
-}
+   }
 
 
 //------------------------------------------------------------//

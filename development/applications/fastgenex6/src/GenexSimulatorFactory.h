@@ -1,7 +1,7 @@
 #ifndef _GENEXSIMULATION_GENEXSIMULATORFACTORY_H_
 #define _GENEXSIMULATION_GENEXSIMULATORFACTORY_H_
 
-#include "Interface/ObjectFactory.h"
+#include "GeoPhysicsObjectFactory.h"
 
 namespace DataAccess
 {
@@ -22,11 +22,11 @@ namespace database
 namespace GenexSimulation
 {
 
-class GenexSimulatorFactory : public DataAccess::Interface::ObjectFactory
+class GenexSimulatorFactory : public GeoPhysics::ObjectFactory
 {
 public:
    /// Produce the fastgenex6 specific ProjectHandle
-   virtual DataAccess::Interface::ProjectHandle * produceProjectHandle (database::Database * database, 
+   virtual GeoPhysics::ProjectHandle * produceProjectHandle (database::Database * database, 
                                                                              const string & name, 
                                                                              const string & accessMode);
 

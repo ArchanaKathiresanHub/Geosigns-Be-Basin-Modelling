@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2012-2014 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file ObsGridPropertyWell.h
 /// @brief This file keeps declaration of the class of grid property value as observable
@@ -36,20 +36,21 @@ namespace casa
    {
    public:
       /// @brief Create observable for the given grid property for specified grid position
-      static ObsGridPropertyWell * createNewInstance( const std::vector<double> & x ///< well trajectory X-th coordinates [m]
-                                                    , const std::vector<double> & y ///< well trajectory Y-th coordinates [m]
-                                                    , const std::vector<double> & z ///< well trajectory Z-th coordinates [m]
-                                                    , const char * propName         ///< name of the property
-                                                    , double simTime = 0.0          ///< simulation time [Ma]
-                                                    ) { return new ObsGridPropertyWell( x, y, z, propName, simTime ); };
-
+      static ObsGridPropertyWell * createNewInstance( const std::vector<double> & x             ///< well trajectory X-th coordinates [m]
+                                                    , const std::vector<double> & y             ///< well trajectory Y-th coordinates [m]
+                                                    , const std::vector<double> & z             ///< well trajectory Z-th coordinates [m]
+                                                    , const char                * propName      ///< name of the property
+                                                    , double                      simTime = 0.0 ///< simulation time [Ma]
+                                                    , const std::string         & name = ""     ///< user specified name for observable
+                                                    ) { return new ObsGridPropertyWell( x, y, z, propName, simTime, name ); };
 
       /// @brief Create observable for the given grid property for specified grid position
-      ObsGridPropertyWell( const std::vector<double> & x ///< well trajectory X-th coordinates [m]
-                         , const std::vector<double> & y ///< well trajectory Y-th coordinates [m]
-                         , const std::vector<double> & z ///< well trajectory Z-th coordinates [m]
-                         , const char * propName         ///< name of the property
-                         , double simTime                ///< simulation time [Ma]
+      ObsGridPropertyWell( const std::vector<double> & x         ///< well trajectory X-th coordinates [m]
+                         , const std::vector<double> & y         ///< well trajectory Y-th coordinates [m]
+                         , const std::vector<double> & z         ///< well trajectory Z-th coordinates [m]
+                         , const char                * propName  ///< name of the property
+                         , double                      simTime   ///< simulation time [Ma]
+                         , const std::string         & name = "" ///< custom name for observable
                          );
 
       /// @brief Destructor
@@ -59,7 +60,7 @@ namespace casa
       ///        it return name for each dimension
       /// @return observable name for each dimension
       virtual std::vector<std::string> name() const;
-      
+
       /// @brief Get observable dimension
       /// @return dimension of observable
       virtual size_t dimension() const { return m_x.size(); }
@@ -90,6 +91,10 @@ namespace casa
       /// @param w weight coefficient value
       virtual void setSAWeight( double w ) { m_saWeight = w;  }
 
+      /// @brief Get Z coordinates list
+      /// @return array with Z coordinate of each observable point along well
+      std::vector<double> depth() const { return m_z; }
+
       /// @brief Set weight coefficient for Uncertainty analysis
       /// @param w weight coefficient value
       virtual void setUAWeight( double w ) { m_uaWeight = w; }
@@ -97,7 +102,7 @@ namespace casa
       /// @brief Get weighting coefficient for uncertainty analysis
       /// return weighting coefficient. This coefficient should be used for RMSE calculation in Monte Carlo simulation
       virtual double uaWeight( ) const { return m_uaWeight; }
-   
+
       /// @brief Update Model to be sure that requested property will be saved at requested time
       /// @param caldModel Cauldron model
       /// @return NoError in case of success, or error code otherwise, error message will be set in caldModel.
@@ -107,6 +112,11 @@ namespace casa
       /// @param caldModel reference to Cauldron model
       /// @return observable value on success or NULL otherwise. Error code could be obtained from the Model object
       virtual ObsValue * getFromModel( mbapi::Model & caldModel );
+
+      /// @brief Do observable validation for the given model
+      /// @param caldModel reference to Cauldron model
+      /// @return empty string if there is no any problems with this observable, or error message if well is outside of the project 
+      virtual std::string checkObservableForProject( mbapi::Model & caldModel );
 
       /// @brief Create new observable value from set of doubles. This method is used for data conversion between SUMlib and CASA
       /// @param[in,out] val iterator for double array
@@ -136,25 +146,24 @@ namespace casa
       /// @}
 
    protected:
-      std::vector<double>     m_x;  ///< X-th coordinates
-      std::vector<double>     m_y;  ///< Y-th coordinates
-      std::vector<double>     m_z;  ///< Z-th coordinates
+      std::vector<double>       m_x;                ///< X-th coordinates
+      std::vector<double>       m_y;                ///< Y-th coordinates
+      std::vector<double>       m_z;                ///< Z-th coordinates
 
-      std::string             m_propName;  ///< Property name
-      double                  m_simTime;   ///< simulator time
+      std::string               m_propName;         ///< Property name
+      double                    m_simTime;          ///< simulator time
 
-      std::vector< std::string> m_name;      ///< name of the observable
+      std::vector< std::string> m_name;             ///< name of the observable
 
-      std::vector<int>        m_posDataMiningTbl; ///< row number in DataMiningIoTbl which corresponds this observable
+      std::vector<int>          m_posDataMiningTbl; ///< row number in DataMiningIoTbl which corresponds this observable
 
-      std::auto_ptr<ObsValue> m_refValue;  ///< reference value
-      double                  m_devValue;  ///< standard deviation for reference value
+      std::auto_ptr<ObsValue>   m_refValue;         ///< reference value
+      double                    m_devValue;         ///< standard deviation for reference value
 
-      double                  m_saWeight;  ///< Observable weight for sensitivity analysis
-      double                  m_uaWeight;  ///< Observable weight for uncertainty analysis
+      double                    m_saWeight;         ///< Observable weight for sensitivity analysis
+      double                    m_uaWeight;         ///< Observable weight for uncertainty analysis
 
    private:
-
       ObsGridPropertyWell( const ObsGridPropertyWell & );
       ObsGridPropertyWell & operator = ( const ObsGridPropertyWell & );
    };

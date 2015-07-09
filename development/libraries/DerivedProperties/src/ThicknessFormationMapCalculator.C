@@ -11,6 +11,8 @@
 
 DerivedProperties::ThicknessFormationMapCalculator::ThicknessFormationMapCalculator () {
    addPropertyName ( "Thickness" );
+
+   addDependentPropertyName ( "Depth" );
 }
 
 void DerivedProperties::ThicknessFormationMapCalculator::calculate ( AbstractPropertyManager&            propertyManager,

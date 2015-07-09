@@ -204,11 +204,16 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
 
   PetscOptionsHasName ( PETSC_NULL, "-minor", &addMinorProperties );
 
-  if( addMinorProperties ) {
+  PetscBool onlyPrimaryProperties = PETSC_FALSE;
+
+  PetscOptionsHasName ( PETSC_NULL, "-primary", &onlyPrimaryProperties );
+
+  if( addMinorProperties || onlyPrimaryProperties ) {
      looselyCoupledOutputProperties.push_back ( TEMPERATURE );
      looselyCoupledOutputProperties.push_back ( DEPTH );
      looselyCoupledOutputProperties.push_back ( PRESSURE );
      looselyCoupledOutputProperties.push_back ( CHEMICAL_COMPACTION );
+     looselyCoupledOutputProperties.push_back ( VR );
   }
   looselyCoupledOutputProperties.push_back ( VES );
   looselyCoupledOutputProperties.push_back ( MAXVES );
@@ -226,19 +231,17 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
   mapOutputProperties.push_back ( TWOWAYTIME );
   mapOutputProperties.push_back( TWOWAYTIME_RESIDUAL );
 
-  // Brine properties: density and viscosity
+  //Brine properties: density and viscosity
+#if 0
+  mapOutputProperties.push_back ( BRINE_PROPERTIES );
+#endif 
+
+  if( !onlyPrimaryProperties ) {
   m_volumeOutputProperties.push_back ( BRINE_PROPERTIES );     
-  
-  m_volumeOutputProperties.push_back ( DEPTH );
   m_volumeOutputProperties.push_back ( HYDROSTATICPRESSURE );
   m_volumeOutputProperties.push_back ( LITHOSTATICPRESSURE );
   m_volumeOutputProperties.push_back ( OVERPRESSURE );
-  m_volumeOutputProperties.push_back ( PRESSURE );
   m_volumeOutputProperties.push_back ( FRACTURE_PRESSURE );
-  m_volumeOutputProperties.push_back ( CHEMICAL_COMPACTION ); 
-  m_volumeOutputProperties.push_back ( VES );
-  m_volumeOutputProperties.push_back ( MAXVES );
-  m_volumeOutputProperties.push_back ( TEMPERATURE );
   m_volumeOutputProperties.push_back ( POROSITYVEC );
   m_volumeOutputProperties.push_back ( PERMEABILITYVEC );
   m_volumeOutputProperties.push_back ( HEAT_FLOW );
@@ -248,6 +251,17 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
   m_volumeOutputProperties.push_back ( FLUID_VELOCITY );
   m_volumeOutputProperties.push_back ( TWOWAYTIME );
 
+     m_volumeOutputProperties.push_back ( VELOCITYVEC );
+     m_volumeOutputProperties.push_back ( REFLECTIVITYVEC );
+  }
+  m_volumeOutputProperties.push_back ( DEPTH );
+  m_volumeOutputProperties.push_back ( PRESSURE );
+  m_volumeOutputProperties.push_back ( CHEMICAL_COMPACTION ); 
+  m_volumeOutputProperties.push_back ( VES );
+  m_volumeOutputProperties.push_back ( MAXVES );
+  m_volumeOutputProperties.push_back ( TEMPERATURE );
+  m_volumeOutputProperties.push_back ( VR );
+ 
 #if 0
   // Remove from list until the lithology id has been fixed.
   m_volumeOutputProperties.push_back ( LITHOLOGY );
@@ -259,10 +273,6 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
   m_volumeOutputProperties.push_back ( CAPILLARYPRESSUREOIL100 );
   m_volumeOutputProperties.push_back ( CAPILLARYPRESSUREOIL0 );
 #endif
-
-  m_volumeOutputProperties.push_back ( REFLECTIVITYVEC );
-  m_volumeOutputProperties.push_back ( VELOCITYVEC );
-  m_volumeOutputProperties.push_back ( VR );
 
   mapOutputProperties.push_back ( VR );
 
@@ -1421,6 +1431,9 @@ void Basin_Modelling::FEM_Grid::Save_Properties ( const double Current_Time ) {
         const Interface::Snapshot* snapshot = FastcauldronSimulator::getInstance ().findOrCreateSnapshot ( Current_Time );
         assert ( snapshot != 0 );
 
+        m_vreAlgorithm->getResults( m_vreOutputGrid );
+        m_vreOutputGrid.exportToModel( basinModel->layers, basinModel->getValidNeedles() );
+
         if ( ! basinModel->projectSnapshots.projectPrescribesMinorSnapshots ()) {
            FastcauldronSimulator::getInstance ().saveVolumeProperties ( looselyCoupledOutputProperties,
                                                                         snapshot,
@@ -1428,8 +1441,6 @@ void Basin_Modelling::FEM_Grid::Save_Properties ( const double Current_Time ) {
            savedMinorSnapshotTimes.insert ( Current_Time );
         }
 
-        m_vreAlgorithm->getResults( m_vreOutputGrid );
-        m_vreOutputGrid.exportToModel( basinModel->layers, basinModel->getValidNeedles() );
         computeErosionFactorMaps ( basinModel, Current_Time );
 
         FastcauldronSimulator::getInstance ().saveSourceRockProperties ( snapshot, genexOutputProperties, shaleGasOutputProperties );
@@ -3373,13 +3384,20 @@ void Basin_Modelling::FEM_Grid::Store_Computed_Deposition_Thickness ( const doub
   int Z_Count;
 
   Layer_Iterator Layers ( basinModel -> layers, Descending, Sediments_Only, Active_Layers_Only );
+ 
+   // Most of the time only the first layer has to be treated. However, for igneous intrusion and mobile layers,
+   // the time step of deposition can be zero, which means that two layers are deposited at the same time
+   // hence the for loop and the "if (!condition) break";
+   for (Layers.Initialise_Iterator (); ! Layers.Iteration_Is_Done (); Layers.Next() )
+   {
+
   LayerProps_Ptr Current_Layer = Layers.Current_Layer ();
   // Is this the best number to have here? I think so, but cannot prove it.
   // The snapshot times, time step, ... are written out (perhaps read in too) 
   // as a float, but stored and used as doubles.
   const double Float_Epsilon = pow ( 2.0, -23 ); 
 
-  if ( fabs ( Current_Time - Current_Layer -> depoage ) < NumericFunctions::Maximum ( Current_Time, 1.0 ) * Float_Epsilon ) {
+      if ( fabs ( Current_Time - Current_Layer -> depoage ) >= NumericFunctions::Maximum ( Current_Time, 1.0 ) * Float_Epsilon ) break;
 
      const Boolean2DArray& Valid_Needle = basinModel->getValidNeedles ();
 

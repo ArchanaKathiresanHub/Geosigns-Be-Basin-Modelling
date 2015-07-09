@@ -110,8 +110,8 @@ macro(today RESULT)
       execute_process(COMMAND "date" "+%Y-%m-%d" OUTPUT_VARIABLE ${RESULT})
       string(REGEX REPLACE "(....)-(..)-(..).*" "\\1\\2\\3" ${RESULT} ${${RESULT}})
    elseif(WIN32)
-        execute_process(COMMAND "cmd" " /C date /T" OUTPUT_VARIABLE ${RESULT})
-        string(REGEX REPLACE "(..)/(..)/..(..).*" "\\1\\2\\3" ${RESULT} ${${RESULT}})
+        execute_process(COMMAND "powershell" " get-date -format {yyyy-MMM-dd}" OUTPUT_VARIABLE ${RESULT})
+        string(REPLACE "\n" "" ${RESULT} ${${RESULT}})
    else (UNIX)
       message(WARNING "date not implemented.")
       set(${RESULT} "000000")
@@ -193,17 +193,23 @@ macro(add_csharp_unittest )
 	endforeach(param)
 
 	if (MSVC)
-        new_guid(Guid)
-        set(ProjectReferences)
-        if (ProjectReferenceName AND ProjectReferencePath AND ProjectReferenceGuid)
-		  file(TO_NATIVE_PATH "${ProjectReferencePath}" ProjectReferencePath)
-		  set(ProjectReferences "<ProjectReference Include='${ProjectReferencePath}'><Project>{${ProjectReferenceGuid}}</Project><Name>${ProjectReferenceName}</Name></ProjectReference>")
+      new_guid(Guid)
+      set(ProjectReferences)
+      if (ProjectReferenceName AND ProjectReferencePath AND ProjectReferenceGuid)
+         file(TO_NATIVE_PATH "${ProjectReferencePath}" ProjectReferencePath)
+		   set(ProjectReferences "<ProjectReference Include='${ProjectReferencePath}'><Project>{${ProjectReferenceGuid}}</Project><Name>${ProjectReferenceName}</Name></ProjectReference>")
 		endif()	
-		
+
+		set (DeploymentItemsList)
+      foreach (item ${DeploymentItems})
+		set( NativePathToFile)
+			file( TO_NATIVE_PATH "${item}" NativePathToFile)
+			set (DeploymentItemsList "${DeploymentItemsList}<None Include=\"${NativePathToFile}\">\n      <CopyToOutputDirectory>Always</CopyToOutputDirectory>\n    </None>\n" )
+	   endforeach(item)
 		if (TestSourceFilesList)
-			set(PrefixedTestSourceFilesList)
-		    foreach(fitem ${TestSourceFilesList} )
-				set(NativeFullPathToFile)
+		   set(PrefixedTestSourceFilesList)
+		   foreach(fitem ${TestSourceFilesList} )
+			   set(NativeFullPathToFile)
 				file( TO_NATIVE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/${fitem}" NativeFullPathToFile)
 				list(APPEND PrefixedTestSourceFilesList "${NativeFullPathToFile}")
 			endforeach(fitem)
@@ -212,31 +218,30 @@ macro(add_csharp_unittest )
 		    set(FileListForCompilation "*.cs")
 		endif(TestSourceFilesList)
 		
-        configure_file("${PROJECT_SOURCE_DIR}/cmake/CSharpTestProjectTemplate.csproj.cmake" "${Directory}/${TestProjectName}.csproj" @ONLY)
-				
+      configure_file("${PROJECT_SOURCE_DIR}/cmake/CSharpTestProjectTemplate.csproj.cmake" "${Directory}/${TestProjectName}.csproj" @ONLY)
+      		
 		## Write the local.testsettings file
 		set(TestSettings "${CMAKE_CURRENT_BINARY_DIR}/${Directory}/local.testsettings")
-		file(WRITE "${TestSettings}"
-"<?xml version='1.0' encoding='UTF-8'?><TestSettings name='Local' id='4fd90fa6-1a9f-49c6-a25d-79db40300acb' xmlns='http://microsoft.com/schemas/VisualStudio/TeamTest/2010'> <Description>These are default test settings for a local test run.</Description><Deployment>")
+		file(WRITE "${TestSettings}" "<?xml version='1.0' encoding='UTF-8'?><TestSettings name='Local' id='4fd90fa6-1a9f-49c6-a25d-79db40300acb' xmlns='http://microsoft.com/schemas/VisualStudio/TeamTest/2010'> <Description>These are default test settings for a local test run.</Description><Deployment>")
   
-        foreach (item ${DeploymentItems})
-		   file(APPEND "${TestSettings}" "<DeploymentItem filename='${item}' />")
-	    endforeach(item)
+      foreach (item ${DeploymentItems})
+         file(APPEND "${TestSettings}" "<DeploymentItem filename='${item}' />")
+      endforeach(item)
      
-	    if ( Platform STREQUAL x64 )
-		  set( TestSettingsExecutionParams hostProcessPlatform="MSIL" ) 
-		  # Adding this attribute let's MSTest test 64-bit code
-		  # Note, see http://www.cmake.org/Wiki/CMake/Language_Syntax for the weird rules on quoting in CMake
-		elseif ( Platform STREQUAL Win32 )
-		  set( TestSettingsExecutionParams )
-		  # Clearing that attribute, forces MSTest to run in 32-bit mode.
-		else()
-			message("Error: Cannot run MSTest on other platforms than x64 and Win32")
-			set( TestSettingsExecutionParams )
-		endif()
-	    file(APPEND "${TestSettings}" "</Deployment><Execution ${TestSettingsExecutionParams} ><TestTypeSpecific /><AgentRule name='LocalMachineDefaultRole'/></Execution></TestSettings>")
-	
-	    ## Include the generated C# project
+      if ( Platform STREQUAL x64 )
+		   set( TestSettingsExecutionParams hostProcessPlatform="MSIL" ) 
+         # Adding this attribute let's MSTest test 64-bit code
+         # Note, see http://www.cmake.org/Wiki/CMake/Language_Syntax for the weird rules on quoting in CMake
+      elseif ( Platform STREQUAL Win32 )
+         set( TestSettingsExecutionParams )
+         # Clearing that attribute, forces MSTest to run in 32-bit mode.
+      else()
+         message("Error: Cannot run MSTest on other platforms than x64 and Win32")
+         set( TestSettingsExecutionParams )
+      endif()
+      file(APPEND "${TestSettings}" "</Deployment><Execution ${TestSettingsExecutionParams} ><TestTypeSpecific /><AgentRule name='LocalMachineDefaultRole'/></Execution></TestSettings>")
+				     	
+	   ## Include the generated C# project
 		include_external_msproject("${TestProjectName}" "${CMAKE_CURRENT_BINARY_DIR}/${Directory}/${TestProjectName}.csproj"
 			TYPE "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}" # This GUID is a Windows C# project (see also http://msdn.microsoft.com/en-us/library/hb23x61k(v=vs.80).aspx ) 
 			PLATFORM "${Platform}"
@@ -244,13 +249,12 @@ macro(add_csharp_unittest )
 			${Dependencies}
 		)
 
-
-		# Add the test, and publish results if the necessary information is available
+      # Add the test, and publish results if the necessary information is available
 		
 		if (TfsServerUrl AND TfsBuildNumber AND TfsProjectName)
 		    add_test(NAME "${TestProjectName}"
 			   COMMAND "${MSTEST}" 
-				  "/testcontainer:${Directory}/$<CONFIGURATION>/${TestProjectName}.dll"
+				  "/testcontainer:${Directory}/bin/$<CONFIGURATION>/${TestProjectName}.dll"
 				  "/testsettings:${TestSettings}"
 				  "/test:${TestList}"
 				  "/publish:${TfsServerUrl}"
@@ -262,7 +266,7 @@ macro(add_csharp_unittest )
 		else()
 		    add_test(NAME "${TestProjectName}"
 			   COMMAND "${MSTEST}" 
-				  "/testcontainer:${Directory}/$<CONFIGURATION>/${TestProjectName}.dll"
+				  "/testcontainer:${Directory}/bin/$<CONFIGURATION>/${TestProjectName}.dll"
 				  "/testsettings:${TestSettings}"
 				  "/test:${TestList}"
 			)

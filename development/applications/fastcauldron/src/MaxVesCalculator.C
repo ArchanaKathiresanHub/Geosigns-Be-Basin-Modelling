@@ -5,9 +5,12 @@
 
 #include "Interface/RunParameters.h"
 
-
 OutputPropertyMap* allocateMaxVesCalculator ( const PropertyList property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot ) {
    return new DerivedOutputPropertyMap<MaxVesCalculator>( property, formation, surface, snapshot );
+}
+
+OutputPropertyMap* allocateMaxVesVolumeCalculator ( const PropertyList property, LayerProps* formation, const Interface::Snapshot* snapshot ) {
+   return new DerivedOutputPropertyMap<MaxVesVolumeCalculator>( property, formation, snapshot );
 }
 
 MaxVesCalculator::MaxVesCalculator ( LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot ) :
@@ -18,19 +21,29 @@ MaxVesCalculator::MaxVesCalculator ( LayerProps* formation, const Interface::Sur
 }
 
 bool MaxVesCalculator::operator ()( const OutputPropertyMap::OutputPropertyList& properties, 
-                                          OutputPropertyMap::PropertyValueList&  propertyValues ) {
+                                    OutputPropertyMap::PropertyValueList&  propertyValues ) {
 
    if ( m_isCalculated ) {
       return true;
    }
+   
+   bool useRealThickness = FastcauldronSimulator::getInstance ().getRunParameters ()->getNonGeometricLoop () and
+      (FastcauldronSimulator::getInstance ().getCauldron ()->DoOverPressure or FastcauldronSimulator::getInstance ().getCauldron ()-> Do_Iteratively_Coupled );
 
+   double age;
    unsigned int i;
    unsigned int j;
+   int k;
+   int usableK;
    double value;
    double undefinedValue;
 
    Interface::GridMap* maxVesMap;
    double ***maxVesVector;
+
+   if ( FastcauldronSimulator::getInstance ().getCauldron()->no2Doutput()) {
+      propertyValues [ 0 ]->allowOutput( false );
+   }
 
    maxVesMap = propertyValues [ 0 ]->getGridMap ();
    maxVesMap->retrieveData ();
@@ -39,31 +52,50 @@ bool MaxVesCalculator::operator ()( const OutputPropertyMap::OutputPropertyList&
    DMDAVecGetArray( m_formation->layerDA,
                     *m_formation->vectorList.VecArray [ MAXVES ],
                     &maxVesVector );
+                     
+   if ( m_snapshot != 0 ) {
+      age = m_snapshot->getTime ();
+   } else {
+      // If no snap-shot is defined then present-day MaxVes is saved.
+      age = 0.0;
+   }
 
    for ( i = maxVesMap->firstI (); i <= maxVesMap->lastI (); ++i ) {
 
       for ( j = maxVesMap->firstJ (); j <= maxVesMap->lastJ (); ++j ) {
 
          if ( FastcauldronSimulator::getInstance ().nodeIsDefined ( i, j )) {
-            value = maxVesVector [ m_kIndex ][ j ][ i ];
+
+            usableK = 0;        		
+            if ( m_surface == m_formation->getTopSurface ()) {
+               for ( k = int ( m_formation->getMaximumNumberOfElements ()) - 1; k >= 0; --k ) {
+                  double thickness = ( useRealThickness ? m_formation->getRealThickness ( i, j, k, age ) :  m_formation->getSolidThickness ( i, j, k, age ));
+
+                  if ( thickness != IBSNULLVALUE and thickness > 0 ) {
+                     usableK = k + 1;
+                     break;
+                  }
+               }
+
+            } else {
+               usableK = 0;
+            }
+            value = maxVesVector [ usableK ][ j ][ i ];
             maxVesMap->setValue ( i, j, value );
+            
          } else {
             maxVesMap->setValue ( i, j, undefinedValue );
          }
-
       }
-
    }
 
    maxVesMap->restoreData ();
-
    DMDAVecRestoreArray ( m_formation->layerDA,
                          *m_formation->vectorList.VecArray [ MAXVES ],
                          &maxVesVector );
 
    m_isCalculated = true;
-
-
+   
    return true;
 }
 
@@ -91,4 +123,79 @@ bool MaxVesCalculator::initialise ( OutputPropertyMap::PropertyValueList& proper
 
    return true;
 }
+
+
+MaxVesVolumeCalculator::MaxVesVolumeCalculator ( LayerProps* formation, const Interface::Snapshot* snapshot ) :
+   m_formation ( formation ), m_snapshot ( snapshot ) {
+
+   m_isCalculated = false;
+
+}
+
+bool MaxVesVolumeCalculator::operator ()( const OutputPropertyMap::OutputPropertyList& properties, 
+                                          OutputPropertyMap::PropertyValueList&  propertyValues ) {
+
+   unsigned int i;
+   unsigned int j;
+   unsigned int k;
+   double value;
+   Interface::GridMap* propertyMap;
+   double ***propertyVector;
+
+   propertyMap = propertyValues [ 0 ]->getGridMap ();
+   propertyMap->retrieveData ();
+
+   DMDAVecGetArray( m_formation->layerDA,
+                    *m_formation->vectorList.VecArray [ MAXVES ],
+                    &propertyVector );
+                    
+   for ( i = propertyMap->firstI (); i <= propertyMap->lastI (); ++i ) {
+
+      for ( j = propertyMap->firstJ (); j <= propertyMap->lastJ (); ++j ) {
+
+         if ( FastcauldronSimulator::getInstance ().nodeIsDefined ( i, j ) ) {
+
+            for ( k = propertyMap->firstK (); k <= propertyMap->lastK (); ++k ) {
+               propertyMap->setValue ( i, j, k, propertyVector [ k ][ j ][ i ] );
+            }
+
+         } else {
+
+            for ( k = propertyMap->firstK (); k <= propertyMap->lastK (); ++k ) {
+               propertyMap->setValue ( i, j, k, CAULDRONIBSNULLVALUE );
+            }
+
+         }
+
+      }
+
+   }
+
+   // The map has to be restored in case of any communicating of data is required.
+   propertyMap->restoreData ();
+
+   DMDAVecRestoreArray ( m_formation->layerDA,
+                         *m_formation->vectorList.VecArray [ MAXVES ],
+                         &propertyVector );
+
+   return true;
+}
+
+void MaxVesVolumeCalculator::allocatePropertyValues ( OutputPropertyMap::PropertyValueList& properties ) {
+
+   properties.push_back ((PropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "MaxVes", 
+                                                                                                            m_snapshot, 0, 
+                                                                                                            m_formation,
+                                                                                                            m_formation->getMaximumNumberOfElements () + 1 )));
+
+}
+
+bool MaxVesVolumeCalculator::initialise ( OutputPropertyMap::PropertyValueList& propertyValues ) {
+   return true;
+}
+
+
+
+
+
 

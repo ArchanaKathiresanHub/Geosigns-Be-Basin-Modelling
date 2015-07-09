@@ -7,6 +7,8 @@
 #include "Interface/Grid.h"
 #include "Interface/GridMap.h"
 
+#include "FormationProperty.h"
+
 #include <assert.h>
 
 #include <iostream>
@@ -39,10 +41,12 @@ void Barrier::updateBlocking (const migration::Formation * formation,
 #if 0
    cerr << "Update blocking of reservoir " << m_reservoir->getName () << " with formation " << formation->getName () << endl;
 #endif
-   const GridMap * gridMap = m_reservoir->getVolumePropertyGridMap (formation, "Permeability", snapshot);
+
+   DerivedProperties::FormationPropertyPtr gridMap = m_reservoir->getVolumeProperty (formation, "Permeability", snapshot);
+
    if (!gridMap) return;
    gridMap->retrieveData ();
-   unsigned int depth = gridMap->getDepth ();
+   unsigned int depth = gridMap->lengthK ();
 
    unsigned int lastI = m_reservoir->getGrid ()->lastI ();
    unsigned int lastJ = m_reservoir->getGrid ()->lastJ ();
@@ -56,7 +60,7 @@ void Barrier::updateBlocking (const migration::Formation * formation,
          if (m_values[i - m_firstI][j - m_firstJ]) continue; // already blocking
          for (unsigned int k = 0; k < depth; ++k)
          {
-            if ((value = gridMap->getValue (i, j, k)) != undefined && value < m_blockingPermeability)
+            if ((value = gridMap->get (i, j, k)) != undefined && value < m_blockingPermeability)
             {
                m_values[i - m_firstI][j - m_firstJ] = true;
                break;
@@ -65,7 +69,6 @@ void Barrier::updateBlocking (const migration::Formation * formation,
       }
    }
    gridMap->restoreData ();
-   // delete gridMap;
 }
 
 

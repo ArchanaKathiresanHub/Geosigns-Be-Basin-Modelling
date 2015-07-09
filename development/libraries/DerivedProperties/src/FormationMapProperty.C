@@ -1,4 +1,5 @@
 #include "FormationMapProperty.h"
+#include "Interpolate2DProperty.h"
 
 
 DerivedProperties::FormationMapProperty::FormationMapProperty ( const DataModel::AbstractProperty*  property,
@@ -11,4 +12,11 @@ DerivedProperties::FormationMapProperty::FormationMapProperty ( const DataModel:
    m_grid ( grid )
 {
    // Should check that they aint null.
+}
+
+double DerivedProperties::FormationMapProperty::interpolate ( double i,
+                                                              double j ) const {
+
+   Interpolate2DProperty<FormationMapProperty> interpolator;
+   return interpolator.interpolate ( *this, i, j );
 }

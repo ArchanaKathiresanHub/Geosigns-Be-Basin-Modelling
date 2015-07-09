@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2012-2014 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file JobSchedulerLocal.C
 /// @brief This file keeps methods implementation of the class for local job scheduler.
@@ -49,7 +49,7 @@ static size_t NumCPUS() { SYSTEM_INFO sysinfo; GetSystemInfo( &sysinfo ); return
 #endif
 
 
-#ifndef NDEBUG 
+#ifndef NDEBUG
 #define DEBUG( n, ... ) printf( __VA_ARGS__ );
 #else
 #define DEBUG( n, ... ) ;
@@ -63,7 +63,7 @@ class SystemProcess
 {
 public:
    SystemProcess( const std::string & cwd, const std::string& commandString, const std::string & outFile, const std::string & errFile );
-   
+
    virtual ~SystemProcess( )
    {
 #ifndef _WIN32
@@ -86,7 +86,7 @@ public:
    }
 
    bool isProcessRunning() { return m_isOk; };
-   
+
    void updateProcessStatus();
 private:
    bool m_isOk;
@@ -109,7 +109,7 @@ SystemProcess::SystemProcess( const std::string & cwd
    m_isOk = false;
 
 #ifndef _WIN32 // Unix implementaiton
-   
+
    // Split command line options in tokens
    std::istringstream       s( commandString );
    std::vector<std::string> argsV = std::vector<std::string>( std::istream_iterator<std::string>( s ), std::istream_iterator<std::string>() );
@@ -117,7 +117,7 @@ SystemProcess::SystemProcess( const std::string & cwd
 
    // Fill in argv list
    const char ** args = new const char*[ argsV.size() + 1 ];
-   
+
    for ( size_t n = 0; n < argsV.size(); ++n ) args[ n ] = argsV[ n ].c_str();
    args[ argsV.size() ] = NULL;
 
@@ -142,7 +142,7 @@ SystemProcess::SystemProcess( const std::string & cwd
             ibs::FolderPath tmpSubPrcDir( tmpDir );
             tmpSubPrcDir << getpid();
             // if subdir in TMPDIR doesn't exist - create the new one
-            if ( !tmpSubPrcDir.exists() ) tmpSubPrcDir.create();            
+            if ( !tmpSubPrcDir.exists() ) tmpSubPrcDir.create();
             setenv( "TMPDIR", tmpSubPrcDir.path().c_str(), 1 );
          }
 
@@ -249,7 +249,7 @@ public:
       m_command  = scriptName;
       m_jobName  = jobName;
       m_cpus     = cpus;
-      m_jobState = JobScheduler::NotSubmittedYet;  
+      m_jobState = JobScheduler::NotSubmittedYet;
 
       m_out = jobName + ".out";  // redirect stdout
       m_err = jobName + ".err";  // redirect stderr
@@ -258,13 +258,13 @@ public:
    virtual ~Job() { ; }
 
    const char * command() const { return m_command.c_str(); }
-  
+
    int cpus() const { return m_cpus; }
 
    void submit() { if ( JobScheduler::NotSubmittedYet == m_jobState ) m_jobState = JobScheduler::JobPending; }
 
    bool run()
-   { 
+   {
       if ( !m_proc.get() ) m_proc.reset( new SystemProcess( m_cwd, m_command, m_out, m_err ) );
       m_jobState = m_proc->isProcessRunning() ? JobScheduler::JobRunning : JobScheduler::JobFailed;
       return m_jobState == JobScheduler::JobRunning;
@@ -272,13 +272,13 @@ public:
 
    // check job status
    JobScheduler::JobState status()
-   { 
+   {
       switch ( m_jobState )
       {
          case JobScheduler::NotSubmittedYet:
          case JobScheduler::JobFinished:
          case JobScheduler::JobPending:
-         case JobScheduler::JobFailed:      
+         case JobScheduler::JobFailed:
             break;
 
          case JobScheduler::JobSucceeded: m_jobState = JobScheduler::JobFinished;  break; // on second request convert succeeded to finished
@@ -337,7 +337,7 @@ public:
       ok = ok ? dz.load( m_cwd,     "CWD"           ) : ok;
       ok = ok ? dz.load( m_jobName, "JobName"       ) : ok;
       ok = ok ? dz.load( m_cpus,    "CPUsNum"       ) : ok;
-      
+
       if ( !ok )
       {
          throw ErrorHandler::Exception( ErrorHandler::DeserializationError )
@@ -347,7 +347,7 @@ public:
 
 protected:
    std::auto_ptr<SystemProcess> m_proc;
-   
+
    JobScheduler::JobState m_jobState; // state of the job
 
    std::string   m_command;           // command to execute
@@ -414,7 +414,7 @@ JobScheduler::JobState JobSchedulerLocal::jobState( JobID id )
    if ( JobScheduler::JobPending == jobState ) // if it's pending try to run job
    {
      // ignore start job request if number of running jobs is equal number of CPU cores
-      if ( runningJobsNumber() < m_avCPUs ) 
+      if ( runningJobsNumber() < m_avCPUs )
       {
          // run job
          if ( !m_jobs[id]->run() )

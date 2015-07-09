@@ -56,7 +56,7 @@ set(unix_only_headers
       src/Local2DArray.h
       src/Local3DArray.h
       src/SimpleLithology.h
-      src/TimeDependantLithology.h
+      src/TimeDependentLithology.h
    )
 
 set(cross_platform_srcs
@@ -101,7 +101,7 @@ set(unix_only_srcs
       src/HCDensity.C
       src/LithologyManager.C
       src/SimpleLithology.C
-      src/TimeDependantLithology.C
+      src/TimeDependentLithology.C
    )
 
 set(unix_only_libs

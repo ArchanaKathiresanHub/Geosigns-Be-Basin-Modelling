@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2012-2014 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file JobSchedulerLSF.h
 /// @brief This file keeps declaration the job scheduler which uses LSF to submit jobs\n
@@ -36,7 +36,7 @@ namespace casa
 
       // Add job to the list
       virtual JobID addJob( const std::string & cwd, const std::string & scriptName, const std::string & jobName, int cpus );
-      
+
       // run job
       virtual JobState runJob( JobID job );
 
@@ -44,7 +44,7 @@ namespace casa
       virtual JobState jobState( JobID job );
 
       // should mpirun command contains -np CPUS or number of cpus will be requested by the job scheduler
-      virtual bool cpusNumberByScheduler() { return true; }
+      virtual bool cpusNumberByScheduler() { return false; }
 
       // Wait a bit (~10 sec) before asking about job state again
       // for the LOCAL cluster - do nothing
@@ -70,7 +70,7 @@ namespace casa
    private:
       class Job;                       // job OS dependent description
       std::vector<Job*> m_jobs;        // array of scheduled jobs
-      
+
       JobSchedulerLSF( const JobSchedulerLSF & jbS );
       JobSchedulerLSF & operator = ( const JobSchedulerLSF & jbS );
    };

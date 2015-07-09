@@ -48,22 +48,44 @@ namespace DerivedProperties {
       /// \brief Load primary property calculators that are associated with surface only.
       ///
       /// These are map properties loaded from the property-values in the project-handle.
-      void loadSurfacePropertyCalculators ();
+      void loadPrimarySurfacePropertyCalculators ();
 
       /// \brief Load primary property calculators that are associated with formation and surface.
       ///
       /// These are map properties loaded from the property-values in the project-handle.
-      void loadFormationSurfacePropertyCalculators ();
+      void loadPrimaryFormationSurfacePropertyCalculators ();
 
       /// \brief Load primary property calculators that are associated with formation only.
       ///
       /// These are map properties loaded from the property-values in the project-handle.
-      void loadFormationMapPropertyCalculators ();
+      void loadPrimaryFormationMapPropertyCalculators ();
 
       /// \brief Load primary property calculators that are associated with formation only.
       ///
       /// These are volume properties loaded from the property-values in the project-handle.
-      void loadFormationPropertyCalculators ();
+      void loadPrimaryFormationPropertyCalculators ();
+
+      /// \brief Load  derived formation property calculators.
+      ///
+      /// Here all the calculators for derived properties on formation are added to the set of calculators.
+      void loadDerivedFormationPropertyCalculator ();
+
+      /// \brief Load derived formation-map property calculators.
+      ///
+      /// Here all the calculators for derived properties for formation-map are added to the set of calculators.
+      void loadDerivedFormationMapPropertyCalculator ();
+
+      /// \brief Determine if the derived property calculator should be added to the property-manager.
+      ///
+      /// This does not look at the properties required for the property to be calculated, only
+      /// if a calculator for the property is already in the list.
+      bool canAddDerivedFormationPropertyCalculator ( const FormationPropertyCalculatorPtr& formationPropertyCalculator) const;
+
+      /// \brief Determine if the derived property calculator should be added to the property-manager.
+      ///
+      /// This does not look at the properties required for the property to be calculated, only
+      /// if a calculator for the property is already in the list.
+      bool canAddDerivedFormationMapPropertyCalculator ( const FormationMapPropertyCalculatorPtr& formationMapPropertyCalculator) const;
 
 
       /// \brief The geophysics project handle

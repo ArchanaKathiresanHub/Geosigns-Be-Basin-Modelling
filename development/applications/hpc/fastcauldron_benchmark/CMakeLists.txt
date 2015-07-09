@@ -34,6 +34,7 @@ add_executable(benchmark
 
 target_link_libraries(benchmark
   utilities
+  DataModel
   DataAccess
   TableIO
   SerialDataAccess
@@ -61,6 +62,7 @@ endif()
 
 bm_include_libraries(
       utilities
+      DataModel
       DataAccess
       TableIO
       SerialDataAccess

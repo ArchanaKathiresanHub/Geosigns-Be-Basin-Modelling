@@ -28,10 +28,15 @@ using namespace DataAccess;
 #include "AdsorptionSimulator.h"
 #include "SpeciesManager.h"
 
+namespace DerivedProperties
+{
+   class AbstractPropertyManager;
+}
 namespace Genex6
 {
    class Simulator;
    class SourceRockNode;
+   class PropertyManager;
 }
 
 #include "SourceRockAdsorptionHistory.h"
@@ -46,7 +51,9 @@ namespace Genex6
 {
 
 class LocalGridInterpolator;
+class LinearGridInterpolator;
 class SnapshotInterval;
+class PropertyManager;
 
 class SourceRock : public Interface::SourceRock
 {
@@ -75,6 +82,7 @@ public:
 
    ///  set second SR type, mixing parameter, check Sulphur
    bool setFormationData ( const Interface::Formation * aFormation );
+   void setPropertyManager ( DerivedProperties::AbstractPropertyManager * aPropertyManager );
 
    /// Whether to perform adsorption 
    bool doOutputAdsorptionProperties (void) const;
@@ -261,6 +269,7 @@ private:
    /// \brief List of all adsorption-history objects.
    Genex6::SourceRockAdsorptionHistoryList m_sourceRockNodeAdsorptionHistory;
 
+   DerivedProperties::AbstractPropertyManager * m_propertyManager;
 
    std::map<std::string, Interface::GridMap*> m_theSnapShotOutputMaps;
    static std::map<std::string, std::string> s_CfgFileNameBySRType;

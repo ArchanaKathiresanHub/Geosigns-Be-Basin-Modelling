@@ -65,17 +65,31 @@
     </member>
     <member kind="function">
       <type>ErrorHandler::ReturnCode</type>
+      <name>VaryCrustThinning</name>
+      <anchorfile>namespacecasa_1_1BusinessLogicRulesSet.html</anchorfile>
+      <anchor>ab903bbbad162159829b6da93a37d36aa</anchor>
+      <arglist>(ScenarioAnalysis &amp;sa, double minThickIni, double maxThickIni, const std::vector&lt; double &gt; &amp;minT0, const std::vector&lt; double &gt; &amp;maxT0, const std::vector&lt; double &gt; &amp;minDeltaT, const std::vector&lt; double &gt; &amp;maxDeltaT, const std::vector&lt; double &gt; &amp;minThinningFct, const std::vector&lt; double &gt; &amp;maxThinningFct, const std::vector&lt; std::string &gt; &amp;mapsList, VarPrmContinuous::PDF pdfType)</arglist>
+    </member>
+    <member kind="function">
+      <type>ErrorHandler::ReturnCode</type>
       <name>VaryPorosityModelParameters</name>
       <anchorfile>namespacecasa_1_1BusinessLogicRulesSet.html</anchorfile>
-      <anchor>a128d13486810730ea07ceb5b45f0cffc</anchor>
-      <arglist>(ScenarioAnalysis &amp;sa, const char *litName, const char *modelName, double minSurfPor, double maxSurfPor, double minCompCoef, double maxCompCoef, double minMinPor, double maxMinPor, double minCompCoef1, double maxCompCoef1, VarPrmContinuous::PDF pdfType)</arglist>
+      <anchor>ab20b3c3a6e9982a210b1dd51af72416e</anchor>
+      <arglist>(ScenarioAnalysis &amp;sa, const char *layerName, const char *litName, const char *modelName, double minSurfPor, double maxSurfPor, double minCompCoef, double maxCompCoef, double minMinPor, double maxMinPor, double minCompCoef1, double maxCompCoef1, VarPrmContinuous::PDF pdfType)</arglist>
+    </member>
+    <member kind="function">
+      <type>ErrorHandler::ReturnCode</type>
+      <name>VaryPermeabilityModelParameters</name>
+      <anchorfile>namespacecasa_1_1BusinessLogicRulesSet.html</anchorfile>
+      <anchor>aa0e42b2dff3a13685b0787aa86033aa3</anchor>
+      <arglist>(ScenarioAnalysis &amp;sa, const char *layerName, const char *lithoName, const char *modelName, std::vector&lt; double &gt; &amp;minModelPrms, std::vector&lt; double &gt; &amp;maxModelPrms, VarPrmContinuous::PDF pdfType)</arglist>
     </member>
     <member kind="function">
       <type>ErrorHandler::ReturnCode</type>
       <name>VaryLithoSTPThermalCondCoeffParameter</name>
       <anchorfile>namespacecasa_1_1BusinessLogicRulesSet.html</anchorfile>
-      <anchor>aeac4c6124ec4dcd16b4cbb41f8e6f4ca</anchor>
-      <arglist>(ScenarioAnalysis &amp;sa, const char *litName, double minVal, double maxVal, VarPrmContinuous::PDF pdfType)</arglist>
+      <anchor>ae5317eeb13647dd75ff3e3129eb0c9b0</anchor>
+      <arglist>(ScenarioAnalysis &amp;sa, const char *layerName, const char *litName, double minVal, double maxVal, VarPrmContinuous::PDF pdfType)</arglist>
     </member>
   </compound>
   <compound kind="file">
@@ -226,6 +240,14 @@
     <namespace>casa</namespace>
   </compound>
   <compound kind="file">
+    <name>PrmCrustThinning.h</name>
+    <path>C:/Apps/Cauldron/TWTT/development/libraries/casaAPI/src/</path>
+    <filename>PrmCrustThinning_8h</filename>
+    <includes id="Parameter_8h" name="Parameter.h" local="yes" imported="no">Parameter.h</includes>
+    <class kind="class">casa::PrmCrustThinning</class>
+    <namespace>casa</namespace>
+  </compound>
+  <compound kind="file">
     <name>PrmLithoSTPThermalCond.h</name>
     <path>C:/Apps/Cauldron/TWTT/development/libraries/casaAPI/src/</path>
     <filename>PrmLithoSTPThermalCond_8h</filename>
@@ -239,6 +261,14 @@
     <filename>PrmOneCrustThinningEvent_8h</filename>
     <includes id="Parameter_8h" name="Parameter.h" local="yes" imported="no">Parameter.h</includes>
     <class kind="class">casa::PrmOneCrustThinningEvent</class>
+    <namespace>casa</namespace>
+  </compound>
+  <compound kind="file">
+    <name>PrmPermeabilityModel.h</name>
+    <path>C:/Apps/Cauldron/TWTT/development/libraries/casaAPI/src/</path>
+    <filename>PrmPermeabilityModel_8h</filename>
+    <includes id="Parameter_8h" name="Parameter.h" local="yes" imported="no">Parameter.h</includes>
+    <class kind="class">casa::PrmPermeabilityModel</class>
     <namespace>casa</namespace>
   </compound>
   <compound kind="file">
@@ -453,6 +483,14 @@
     <namespace>casa</namespace>
   </compound>
   <compound kind="file">
+    <name>VarPrmCrustThinning.h</name>
+    <path>C:/Apps/Cauldron/TWTT/development/libraries/casaAPI/src/</path>
+    <filename>VarPrmCrustThinning_8h</filename>
+    <includes id="VarPrmContinuous_8h" name="VarPrmContinuous.h" local="yes" imported="no">VarPrmContinuous.h</includes>
+    <class kind="class">casa::VarPrmCrustThinning</class>
+    <namespace>casa</namespace>
+  </compound>
+  <compound kind="file">
     <name>VarPrmDiscrete.h</name>
     <path>C:/Apps/Cauldron/TWTT/development/libraries/casaAPI/src/</path>
     <filename>VarPrmDiscrete_8h</filename>
@@ -475,6 +513,15 @@
     <filename>VarPrmOneCrustThinningEvent_8h</filename>
     <includes id="VarPrmContinuous_8h" name="VarPrmContinuous.h" local="yes" imported="no">VarPrmContinuous.h</includes>
     <class kind="class">casa::VarPrmOneCrustThinningEvent</class>
+    <namespace>casa</namespace>
+  </compound>
+  <compound kind="file">
+    <name>VarPrmPermeabilityModel.h</name>
+    <path>C:/Apps/Cauldron/TWTT/development/libraries/casaAPI/src/</path>
+    <filename>VarPrmPermeabilityModel_8h</filename>
+    <includes id="VarPrmContinuous_8h" name="VarPrmContinuous.h" local="yes" imported="no">VarPrmContinuous.h</includes>
+    <includes id="PrmPermeabilityModel_8h" name="PrmPermeabilityModel.h" local="yes" imported="no">PrmPermeabilityModel.h</includes>
+    <class kind="class">casa::VarPrmPermeabilityModel</class>
     <namespace>casa</namespace>
   </compound>
   <compound kind="file">
@@ -1110,6 +1157,13 @@
       <anchor>a8691ee75a27bcf2c332cd0dd5ffe4ad4</anchor>
       <arglist></arglist>
     </member>
+    <member kind="variable" protection="protected">
+      <type>bool</type>
+      <name>m_clearSnapshots</name>
+      <anchorfile>classcasa_1_1CauldronApp.html</anchorfile>
+      <anchor>a3e79604ca412f2bd7f91ae1d22471522</anchor>
+      <arglist></arglist>
+    </member>
     <member kind="function" virtualness="virtual">
       <type>virtual unsigned int</type>
       <name>version</name>
@@ -1592,6 +1646,13 @@
       <anchor>a0af7863d52c62280dee93ee2d030044a</anchor>
       <arglist>(mbapi::Model &amp;caldModel)=0</arglist>
     </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual std::string</type>
+      <name>checkObservableForProject</name>
+      <anchorfile>classcasa_1_1Observable.html</anchorfile>
+      <anchor>a7a298d867c55ea2a2ecbf58a21b91bc8</anchor>
+      <arglist>(mbapi::Model &amp;caldModel)</arglist>
+    </member>
     <member kind="function" virtualness="pure">
       <type>virtual ObsValue *</type>
       <name>createNewObsValueFromDouble</name>
@@ -1629,8 +1690,8 @@
       <type></type>
       <name>ObsGridPropertyWell</name>
       <anchorfile>classcasa_1_1ObsGridPropertyWell.html</anchorfile>
-      <anchor>a8f5a6593082ca129cecfd3342768f9f6</anchor>
-      <arglist>(const std::vector&lt; double &gt; &amp;x, const std::vector&lt; double &gt; &amp;y, const std::vector&lt; double &gt; &amp;z, const char *propName, double simTime)</arglist>
+      <anchor>a7e8145f98bac5ae6a773de6146a90f13</anchor>
+      <arglist>(const std::vector&lt; double &gt; &amp;x, const std::vector&lt; double &gt; &amp;y, const std::vector&lt; double &gt; &amp;z, const char *propName, double simTime, const std::string &amp;name=&quot;&quot;)</arglist>
     </member>
     <member kind="function" virtualness="virtual">
       <type>virtual</type>
@@ -1695,6 +1756,13 @@
       <anchor>aa64e0071492040352abbc32ba720aea7</anchor>
       <arglist>(double w)</arglist>
     </member>
+    <member kind="function">
+      <type>std::vector&lt; double &gt;</type>
+      <name>depth</name>
+      <anchorfile>classcasa_1_1ObsGridPropertyWell.html</anchorfile>
+      <anchor>a381b60616de06759f0ae1770feb8be43</anchor>
+      <arglist>() const </arglist>
+    </member>
     <member kind="function" virtualness="virtual">
       <type>virtual void</type>
       <name>setUAWeight</name>
@@ -1721,6 +1789,13 @@
       <name>getFromModel</name>
       <anchorfile>classcasa_1_1ObsGridPropertyWell.html</anchorfile>
       <anchor>ad850b458c987cb8442af33f2145abe57</anchor>
+      <arglist>(mbapi::Model &amp;caldModel)</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual std::string</type>
+      <name>checkObservableForProject</name>
+      <anchorfile>classcasa_1_1ObsGridPropertyWell.html</anchorfile>
+      <anchor>a969399939cbe0714eef9489902e99915</anchor>
       <arglist>(mbapi::Model &amp;caldModel)</arglist>
     </member>
     <member kind="function" virtualness="virtual">
@@ -1762,8 +1837,8 @@
       <type>static ObsGridPropertyWell *</type>
       <name>createNewInstance</name>
       <anchorfile>classcasa_1_1ObsGridPropertyWell.html</anchorfile>
-      <anchor>a69b6b1c8df0ff1598bf4e48b57e4c7fd</anchor>
-      <arglist>(const std::vector&lt; double &gt; &amp;x, const std::vector&lt; double &gt; &amp;y, const std::vector&lt; double &gt; &amp;z, const char *propName, double simTime=0.0)</arglist>
+      <anchor>a22f4dfa859c51ff8137174076ffb8195</anchor>
+      <arglist>(const std::vector&lt; double &gt; &amp;x, const std::vector&lt; double &gt; &amp;y, const std::vector&lt; double &gt; &amp;z, const char *propName, double simTime=0.0, const std::string &amp;name=&quot;&quot;)</arglist>
     </member>
     <member kind="variable" protection="protected">
       <type>std::vector&lt; double &gt;</type>
@@ -1879,8 +1954,8 @@
       <type></type>
       <name>ObsGridPropertyXYZ</name>
       <anchorfile>classcasa_1_1ObsGridPropertyXYZ.html</anchorfile>
-      <anchor>a196d63c71f06a5048e9de5b2ddb3b3a0</anchor>
-      <arglist>(double x, double y, double z, const char *propName, double simTime)</arglist>
+      <anchor>a35d7c5727fa4aae3ab94e87613aad3b4</anchor>
+      <arglist>(double x, double y, double z, const char *propName, double simTime, const std::string &amp;name=&quot;&quot;)</arglist>
     </member>
     <member kind="function" virtualness="virtual">
       <type>virtual</type>
@@ -1974,6 +2049,13 @@
       <arglist>(mbapi::Model &amp;caldModel)</arglist>
     </member>
     <member kind="function" virtualness="virtual">
+      <type>virtual std::string</type>
+      <name>checkObservableForProject</name>
+      <anchorfile>classcasa_1_1ObsGridPropertyXYZ.html</anchorfile>
+      <anchor>ac69f9bff704b2204cf051b606735adcc</anchor>
+      <arglist>(mbapi::Model &amp;caldModel)</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
       <type>virtual ObsValue *</type>
       <name>createNewObsValueFromDouble</name>
       <anchorfile>classcasa_1_1ObsGridPropertyXYZ.html</anchorfile>
@@ -2012,8 +2094,8 @@
       <type>static ObsGridPropertyXYZ *</type>
       <name>createNewInstance</name>
       <anchorfile>classcasa_1_1ObsGridPropertyXYZ.html</anchorfile>
-      <anchor>a5e361049d2d2390a950559552663003d</anchor>
-      <arglist>(double x, double y, double z, const char *propName, double simTime=0.0)</arglist>
+      <anchor>af4c09a1b7b6a3d056c4f9a8fb344037a</anchor>
+      <arglist>(double x, double y, double z, const char *propName, double simTime=0.0, const std::string &amp;name=&quot;&quot;)</arglist>
     </member>
     <member kind="variable" protection="protected">
       <type>double</type>
@@ -2129,8 +2211,8 @@
       <type></type>
       <name>ObsSourceRockMapProp</name>
       <anchorfile>classcasa_1_1ObsSourceRockMapProp.html</anchorfile>
-      <anchor>a10a83eee88e9f2aa92110374babbd4a1</anchor>
-      <arglist>(double x, double y, const char *layerName, const char *propName, double simTime)</arglist>
+      <anchor>a23c3b0ab2c1be9164bb72f19a1972184</anchor>
+      <arglist>(double x, double y, const char *layerName, const char *propName, double simTime, const std::string &amp;name=&quot;&quot;)</arglist>
     </member>
     <member kind="function" virtualness="virtual">
       <type>virtual</type>
@@ -2262,8 +2344,8 @@
       <type>static ObsSourceRockMapProp *</type>
       <name>createNewInstance</name>
       <anchorfile>classcasa_1_1ObsSourceRockMapProp.html</anchorfile>
-      <anchor>ace4fbe2aeefc53232b936b00ebedbf95</anchor>
-      <arglist>(double x, double y, const char *layerName, const char *propName, double simTime=0.0)</arglist>
+      <anchor>a35fa6bb93ee4286c79356d303dbc8782</anchor>
+      <arglist>(double x, double y, const char *layerName, const char *propName, double simTime=0.0, const std::string &amp;name=&quot;&quot;)</arglist>
     </member>
     <member kind="variable" protection="protected">
       <type>double</type>
@@ -2405,8 +2487,8 @@
       <type></type>
       <name>ObsTrapProp</name>
       <anchorfile>classcasa_1_1ObsTrapProp.html</anchorfile>
-      <anchor>ac1c7ce92a542242e3e2a7fb07e0041aa</anchor>
-      <arglist>(double x, double y, const char *resName, const char *propName, double simTime)</arglist>
+      <anchor>a721bf195a6868b3ede3f5aa0c8e2f726</anchor>
+      <arglist>(double x, double y, const char *resName, const char *propName, double simTime, const std::string &amp;name=&quot;&quot;)</arglist>
     </member>
     <member kind="function" virtualness="virtual">
       <type>virtual</type>
@@ -2500,6 +2582,13 @@
       <arglist>(mbapi::Model &amp;caldModel)</arglist>
     </member>
     <member kind="function" virtualness="virtual">
+      <type>virtual std::string</type>
+      <name>checkObservableForProject</name>
+      <anchorfile>classcasa_1_1ObsTrapProp.html</anchorfile>
+      <anchor>a4e5a7f93512461778a7de9ab938f034b</anchor>
+      <arglist>(mbapi::Model &amp;caldModel)</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
       <type>virtual ObsValue *</type>
       <name>createNewObsValueFromDouble</name>
       <anchorfile>classcasa_1_1ObsTrapProp.html</anchorfile>
@@ -2538,8 +2627,8 @@
       <type>static ObsTrapProp *</type>
       <name>createNewInstance</name>
       <anchorfile>classcasa_1_1ObsTrapProp.html</anchorfile>
-      <anchor>a2dc50ad3ef17078e05d69362345e0bd3</anchor>
-      <arglist>(double x, double y, const char *resName, const char *propName, double simTime=0.0)</arglist>
+      <anchor>a6ca932b7256b64b7049c26ed569f50be</anchor>
+      <arglist>(double x, double y, const char *resName, const char *propName, double simTime=0.0, const std::string &amp;name=&quot;&quot;)</arglist>
     </member>
     <member kind="variable" protection="protected">
       <type>double</type>
@@ -3078,6 +3167,151 @@
     </member>
   </compound>
   <compound kind="class">
+    <name>casa::PrmCrustThinning</name>
+    <filename>classcasa_1_1PrmCrustThinning.html</filename>
+    <base>casa::Parameter</base>
+    <member kind="function">
+      <type></type>
+      <name>PrmCrustThinning</name>
+      <anchorfile>classcasa_1_1PrmCrustThinning.html</anchorfile>
+      <anchor>a0d5325274bd72f803724560a18377da6</anchor>
+      <arglist>(mbapi::Model &amp;mdl)</arglist>
+    </member>
+    <member kind="function">
+      <type></type>
+      <name>PrmCrustThinning</name>
+      <anchorfile>classcasa_1_1PrmCrustThinning.html</anchorfile>
+      <anchor>aebc020c884f537a53954034431605e6d</anchor>
+      <arglist>(const VarPrmCrustThinning *parent, const std::vector&lt; double &gt; &amp;prmValues, const std::vector&lt; std::string &gt; &amp;mapsList)</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual</type>
+      <name>~PrmCrustThinning</name>
+      <anchorfile>classcasa_1_1PrmCrustThinning.html</anchorfile>
+      <anchor>a8f700bd63bcb6afb529550921d9fa2c8</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual const char *</type>
+      <name>name</name>
+      <anchorfile>classcasa_1_1PrmCrustThinning.html</anchorfile>
+      <anchor>ac74da7485155dc505dfdaef9fd696c1e</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual const VarParameter *</type>
+      <name>parent</name>
+      <anchorfile>classcasa_1_1PrmCrustThinning.html</anchorfile>
+      <anchor>a7262a2f7759776cc18014ce70c0dfd38</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function">
+      <type>std::vector&lt; std::string &gt;</type>
+      <name>getMapsList</name>
+      <anchorfile>classcasa_1_1PrmCrustThinning.html</anchorfile>
+      <anchor>a5c1159ac0563b2c6043bc0e94374514e</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function">
+      <type>size_t</type>
+      <name>numberOfEvents</name>
+      <anchorfile>classcasa_1_1PrmCrustThinning.html</anchorfile>
+      <anchor>a1c395c26ba675f1e3d344e3c6c6d6e54</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual ErrorHandler::ReturnCode</type>
+      <name>setInModel</name>
+      <anchorfile>classcasa_1_1PrmCrustThinning.html</anchorfile>
+      <anchor>ab5983e6c21e31fa1053cd228e62af7db</anchor>
+      <arglist>(mbapi::Model &amp;caldModel)</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual std::string</type>
+      <name>validate</name>
+      <anchorfile>classcasa_1_1PrmCrustThinning.html</anchorfile>
+      <anchor>af47c87daa098d2fee0968b8818e412d7</anchor>
+      <arglist>(mbapi::Model &amp;caldModel)</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual std::vector&lt; double &gt;</type>
+      <name>asDoubleArray</name>
+      <anchorfile>classcasa_1_1PrmCrustThinning.html</anchorfile>
+      <anchor>a185be868b9275c302cc451f2b4e016df</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual int</type>
+      <name>asInteger</name>
+      <anchorfile>classcasa_1_1PrmCrustThinning.html</anchorfile>
+      <anchor>aa647fc5a440884267ee6d78f2286ddfe</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual bool</type>
+      <name>operator==</name>
+      <anchorfile>classcasa_1_1PrmCrustThinning.html</anchorfile>
+      <anchor>aa3c1f8362c372cda0927fb99268660a6</anchor>
+      <arglist>(const Parameter &amp;prm) const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual unsigned int</type>
+      <name>version</name>
+      <anchorfile>classcasa_1_1PrmCrustThinning.html</anchorfile>
+      <anchor>ad2991eb5e4fb0cea7677b682c9b50fc9</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual bool</type>
+      <name>save</name>
+      <anchorfile>classcasa_1_1PrmCrustThinning.html</anchorfile>
+      <anchor>a3c16afed6de4f99de57dbb34dc3f7e9e</anchor>
+      <arglist>(CasaSerializer &amp;sz, unsigned int version) const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual const char *</type>
+      <name>typeName</name>
+      <anchorfile>classcasa_1_1PrmCrustThinning.html</anchorfile>
+      <anchor>aa69340e702a7c15d1bad038ff9f08360</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function">
+      <type></type>
+      <name>PrmCrustThinning</name>
+      <anchorfile>classcasa_1_1PrmCrustThinning.html</anchorfile>
+      <anchor>a8aec809177153af97f946d2264f6663c</anchor>
+      <arglist>(CasaDeserializer &amp;dz, unsigned int objVer)</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual unsigned int</type>
+      <name>version</name>
+      <anchorfile>classcasa_1_1PrmCrustThinning.html</anchorfile>
+      <anchor>ad2991eb5e4fb0cea7677b682c9b50fc9</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual bool</type>
+      <name>save</name>
+      <anchorfile>classcasa_1_1PrmCrustThinning.html</anchorfile>
+      <anchor>a3c16afed6de4f99de57dbb34dc3f7e9e</anchor>
+      <arglist>(CasaSerializer &amp;sz, unsigned int version) const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual const char *</type>
+      <name>typeName</name>
+      <anchorfile>classcasa_1_1PrmCrustThinning.html</anchorfile>
+      <anchor>aa69340e702a7c15d1bad038ff9f08360</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function">
+      <type></type>
+      <name>PrmCrustThinning</name>
+      <anchorfile>classcasa_1_1PrmCrustThinning.html</anchorfile>
+      <anchor>a8aec809177153af97f946d2264f6663c</anchor>
+      <arglist>(CasaDeserializer &amp;dz, unsigned int objVer)</arglist>
+    </member>
+  </compound>
+  <compound kind="class">
     <name>casa::PrmLithoSTPThermalCond</name>
     <filename>classcasa_1_1PrmLithoSTPThermalCond.html</filename>
     <base>casa::Parameter</base>
@@ -3364,6 +3598,328 @@
       <name>PrmOneCrustThinningEvent</name>
       <anchorfile>classcasa_1_1PrmOneCrustThinningEvent.html</anchorfile>
       <anchor>af6969701cc774ea3669efe92a001684a</anchor>
+      <arglist>(CasaDeserializer &amp;dz, unsigned int objVer)</arglist>
+    </member>
+  </compound>
+  <compound kind="class">
+    <name>casa::PrmPermeabilityModel</name>
+    <filename>classcasa_1_1PrmPermeabilityModel.html</filename>
+    <base>casa::Parameter</base>
+    <member kind="enumeration">
+      <type></type>
+      <name>PermeabilityModelType</name>
+      <anchorfile>classcasa_1_1PrmPermeabilityModel.html</anchorfile>
+      <anchor>a01dbf74250f2f16a272e59b5ee8b60e1</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumeration">
+      <type></type>
+      <name>PermeabilityModelParametersOrder</name>
+      <anchorfile>classcasa_1_1PrmPermeabilityModel.html</anchorfile>
+      <anchor>a499930da6b5494c77da1facbb0a0a804</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <name>Sandstone</name>
+      <anchorfile>classcasa_1_1PrmPermeabilityModel.html</anchorfile>
+      <anchor>a01dbf74250f2f16a272e59b5ee8b60e1a4bd4c0b58a7cdb4585f304b8107c6d38</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <name>Mudstone</name>
+      <anchorfile>classcasa_1_1PrmPermeabilityModel.html</anchorfile>
+      <anchor>a01dbf74250f2f16a272e59b5ee8b60e1abfbb43a35e66f2a3b0907f0c5f923da7</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <name>None</name>
+      <anchorfile>classcasa_1_1PrmPermeabilityModel.html</anchorfile>
+      <anchor>a01dbf74250f2f16a272e59b5ee8b60e1af11b12436714408a1f6399507e20c79e</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <name>Impermeable</name>
+      <anchorfile>classcasa_1_1PrmPermeabilityModel.html</anchorfile>
+      <anchor>a01dbf74250f2f16a272e59b5ee8b60e1a6bc51ce9cffa3637b97f5db0e6c1fb66</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <name>Multipoint</name>
+      <anchorfile>classcasa_1_1PrmPermeabilityModel.html</anchorfile>
+      <anchor>a01dbf74250f2f16a272e59b5ee8b60e1a299cf2702fe25d0e745c0a465b03bdba</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <name>Unknown</name>
+      <anchorfile>classcasa_1_1PrmPermeabilityModel.html</anchorfile>
+      <anchor>a01dbf74250f2f16a272e59b5ee8b60e1a512166f5ea24d130c5aa6ad1ec7434d1</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <name>AnisotropicCoeff</name>
+      <anchorfile>classcasa_1_1PrmPermeabilityModel.html</anchorfile>
+      <anchor>a499930da6b5494c77da1facbb0a0a804aeaeaaaac38d1d42e08eaf2512981f6ae</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <name>DepositionalPerm</name>
+      <anchorfile>classcasa_1_1PrmPermeabilityModel.html</anchorfile>
+      <anchor>a499930da6b5494c77da1facbb0a0a804ad604db0c6828e190c4e1f9d24ff2b9c3</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <name>MPProfileNumPoints</name>
+      <anchorfile>classcasa_1_1PrmPermeabilityModel.html</anchorfile>
+      <anchor>a499930da6b5494c77da1facbb0a0a804a808436d4725f269c0f1ba239677479bc</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <name>ClayPercentage</name>
+      <anchorfile>classcasa_1_1PrmPermeabilityModel.html</anchorfile>
+      <anchor>a499930da6b5494c77da1facbb0a0a804a1a954f62cd7ebe4e49b5af1b7467bd05</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <name>SensitivityCoeff</name>
+      <anchorfile>classcasa_1_1PrmPermeabilityModel.html</anchorfile>
+      <anchor>a499930da6b5494c77da1facbb0a0a804aa70e6d6ddb85496f35e19fe9e63be6f0</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <name>RecoverCoeff</name>
+      <anchorfile>classcasa_1_1PrmPermeabilityModel.html</anchorfile>
+      <anchor>a499930da6b5494c77da1facbb0a0a804a85c040ac8989b7301ae39ab0c084852c</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="function">
+      <type></type>
+      <name>PrmPermeabilityModel</name>
+      <anchorfile>classcasa_1_1PrmPermeabilityModel.html</anchorfile>
+      <anchor>a595651c0407267b2ddf9151126f00b38</anchor>
+      <arglist>(mbapi::Model &amp;mdl, const char *lithoName)</arglist>
+    </member>
+    <member kind="function">
+      <type></type>
+      <name>PrmPermeabilityModel</name>
+      <anchorfile>classcasa_1_1PrmPermeabilityModel.html</anchorfile>
+      <anchor>a3b59a7edb70a03e22cb24663cfb0d5e7</anchor>
+      <arglist>(const VarPrmPermeabilityModel *parent, const char *lithoName, PermeabilityModelType mdlType, const std::vector&lt; double &gt; &amp;mdlPrms)</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual</type>
+      <name>~PrmPermeabilityModel</name>
+      <anchorfile>classcasa_1_1PrmPermeabilityModel.html</anchorfile>
+      <anchor>a3859b4e759889a72d28ef47b88b34864</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual const char *</type>
+      <name>name</name>
+      <anchorfile>classcasa_1_1PrmPermeabilityModel.html</anchorfile>
+      <anchor>a2cf95195d84435efc42d7fe9dbbe0a60</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual const VarParameter *</type>
+      <name>parent</name>
+      <anchorfile>classcasa_1_1PrmPermeabilityModel.html</anchorfile>
+      <anchor>a1b8d89bea44bddafe053b8f0863be0f9</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual ErrorHandler::ReturnCode</type>
+      <name>setInModel</name>
+      <anchorfile>classcasa_1_1PrmPermeabilityModel.html</anchorfile>
+      <anchor>ab711ca7d4d74fc9bf10ea4080b277d9f</anchor>
+      <arglist>(mbapi::Model &amp;caldModel)</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual std::string</type>
+      <name>validate</name>
+      <anchorfile>classcasa_1_1PrmPermeabilityModel.html</anchorfile>
+      <anchor>a882a0e396ab7a8f16fc5f3ab3f0cd7d1</anchor>
+      <arglist>(mbapi::Model &amp;caldModel)</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual std::vector&lt; double &gt;</type>
+      <name>asDoubleArray</name>
+      <anchorfile>classcasa_1_1PrmPermeabilityModel.html</anchorfile>
+      <anchor>afbf382a20db942b7388fa4feefc6f539</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual int</type>
+      <name>asInteger</name>
+      <anchorfile>classcasa_1_1PrmPermeabilityModel.html</anchorfile>
+      <anchor>a5134a5c0ecbc947267a8c852cb57e591</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual bool</type>
+      <name>operator==</name>
+      <anchorfile>classcasa_1_1PrmPermeabilityModel.html</anchorfile>
+      <anchor>ae115d678cc26c000010e4449ce4780f6</anchor>
+      <arglist>(const Parameter &amp;prm) const </arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>setVariationPosition</name>
+      <anchorfile>classcasa_1_1PrmPermeabilityModel.html</anchorfile>
+      <anchor>a0a8725ad2dcbc7d8749c568cf69b15b8</anchor>
+      <arglist>(double val)</arglist>
+    </member>
+    <member kind="function">
+      <type>const std::vector&lt; double &gt; &amp;</type>
+      <name>multipointPorosity</name>
+      <anchorfile>classcasa_1_1PrmPermeabilityModel.html</anchorfile>
+      <anchor>a5519fde14989dc6fe80c7e8cfb76b92b</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function">
+      <type>const std::vector&lt; double &gt; &amp;</type>
+      <name>multipointPermeability</name>
+      <anchorfile>classcasa_1_1PrmPermeabilityModel.html</anchorfile>
+      <anchor>a47c7f52e8c4bf120576ef0a07ef653d7</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual unsigned int</type>
+      <name>version</name>
+      <anchorfile>classcasa_1_1PrmPermeabilityModel.html</anchorfile>
+      <anchor>ae67a26cb2559caec3c7b547ef18ecb3a</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual bool</type>
+      <name>save</name>
+      <anchorfile>classcasa_1_1PrmPermeabilityModel.html</anchorfile>
+      <anchor>afba65323d54e9d756baaf1fd0607e717</anchor>
+      <arglist>(CasaSerializer &amp;sz, unsigned int version) const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual const char *</type>
+      <name>typeName</name>
+      <anchorfile>classcasa_1_1PrmPermeabilityModel.html</anchorfile>
+      <anchor>a3372e42c49070e6a1ccd6375b57f747b</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function">
+      <type></type>
+      <name>PrmPermeabilityModel</name>
+      <anchorfile>classcasa_1_1PrmPermeabilityModel.html</anchorfile>
+      <anchor>ab9ff2a348a2c1d10388d4dfe41a918eb</anchor>
+      <arglist>(CasaDeserializer &amp;dz, unsigned int objVer)</arglist>
+    </member>
+    <member kind="variable" protection="protected">
+      <type>const VarParameter *</type>
+      <name>m_parent</name>
+      <anchorfile>classcasa_1_1PrmPermeabilityModel.html</anchorfile>
+      <anchor>a046a88b93b8e4a852c451ccb680a1b0e</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="protected">
+      <type>std::string</type>
+      <name>m_name</name>
+      <anchorfile>classcasa_1_1PrmPermeabilityModel.html</anchorfile>
+      <anchor>a0917a9777730d72275a3942c599a50b1</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="protected">
+      <type>PermeabilityModelType</type>
+      <name>m_modelType</name>
+      <anchorfile>classcasa_1_1PrmPermeabilityModel.html</anchorfile>
+      <anchor>a13c4eb6889f388ac15286439fa9c7072</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="protected">
+      <type>std::string</type>
+      <name>m_lithoName</name>
+      <anchorfile>classcasa_1_1PrmPermeabilityModel.html</anchorfile>
+      <anchor>a2c8147cf7db31f1597c6b7ed6d3cba78</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="protected">
+      <type>double</type>
+      <name>m_anisotCoeff</name>
+      <anchorfile>classcasa_1_1PrmPermeabilityModel.html</anchorfile>
+      <anchor>a461013ec49d2d40d0c9c0b170aff4cc1</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="protected">
+      <type>double</type>
+      <name>m_depoPerm</name>
+      <anchorfile>classcasa_1_1PrmPermeabilityModel.html</anchorfile>
+      <anchor>a104960d68987e77b2d5f43393942ff0e</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="protected">
+      <type>double</type>
+      <name>m_clayPercentage</name>
+      <anchorfile>classcasa_1_1PrmPermeabilityModel.html</anchorfile>
+      <anchor>a627a399059217800ae03bb392f433fff</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="protected">
+      <type>double</type>
+      <name>m_sensitCoeff</name>
+      <anchorfile>classcasa_1_1PrmPermeabilityModel.html</anchorfile>
+      <anchor>ad4ae66715c227a552e969831f980fc52</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="protected">
+      <type>double</type>
+      <name>m_recoveryCoeff</name>
+      <anchorfile>classcasa_1_1PrmPermeabilityModel.html</anchorfile>
+      <anchor>ae337d80e3068dfc9e7d023582eb7dc96</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="protected">
+      <type>double</type>
+      <name>m_mpProfilePos</name>
+      <anchorfile>classcasa_1_1PrmPermeabilityModel.html</anchorfile>
+      <anchor>ab9a68ab4b1f3d883377501899f0a418d</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="protected">
+      <type>std::vector&lt; double &gt;</type>
+      <name>m_mpPorosity</name>
+      <anchorfile>classcasa_1_1PrmPermeabilityModel.html</anchorfile>
+      <anchor>aba6d862881bbfe2d5d34d7ea2ea9a2cd</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="protected">
+      <type>std::vector&lt; double &gt;</type>
+      <name>m_mpPermeab</name>
+      <anchorfile>classcasa_1_1PrmPermeabilityModel.html</anchorfile>
+      <anchor>aa7062ff98cb931f311412ed21499cffd</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual unsigned int</type>
+      <name>version</name>
+      <anchorfile>classcasa_1_1PrmPermeabilityModel.html</anchorfile>
+      <anchor>ae67a26cb2559caec3c7b547ef18ecb3a</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual bool</type>
+      <name>save</name>
+      <anchorfile>classcasa_1_1PrmPermeabilityModel.html</anchorfile>
+      <anchor>afba65323d54e9d756baaf1fd0607e717</anchor>
+      <arglist>(CasaSerializer &amp;sz, unsigned int version) const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual const char *</type>
+      <name>typeName</name>
+      <anchorfile>classcasa_1_1PrmPermeabilityModel.html</anchorfile>
+      <anchor>a3372e42c49070e6a1ccd6375b57f747b</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function">
+      <type></type>
+      <name>PrmPermeabilityModel</name>
+      <anchorfile>classcasa_1_1PrmPermeabilityModel.html</anchorfile>
+      <anchor>ab9ff2a348a2c1d10388d4dfe41a918eb</anchor>
       <arglist>(CasaDeserializer &amp;dz, unsigned int objVer)</arglist>
     </member>
   </compound>
@@ -5959,6 +6515,95 @@
     </member>
   </compound>
   <compound kind="class">
+    <name>casa::VarPrmCrustThinning</name>
+    <filename>classcasa_1_1VarPrmCrustThinning.html</filename>
+    <base>casa::VarPrmContinuous</base>
+    <member kind="function">
+      <type></type>
+      <name>VarPrmCrustThinning</name>
+      <anchorfile>classcasa_1_1VarPrmCrustThinning.html</anchorfile>
+      <anchor>a713433441fff581a82721fee49b2f429</anchor>
+      <arglist>(const std::vector&lt; double &gt; &amp;basePrmValues, const std::vector&lt; double &gt; &amp;minPrmValues, const std::vector&lt; double &gt; &amp;maxPrmValues, const std::vector&lt; std::string &gt; &amp;mapsList, PDF prmPDF)</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual std::vector&lt; std::string &gt;</type>
+      <name>name</name>
+      <anchorfile>classcasa_1_1VarPrmCrustThinning.html</anchorfile>
+      <anchor>ae14868f22ae1ae658f7fd25bb0a11e64</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual size_t</type>
+      <name>dimension</name>
+      <anchorfile>classcasa_1_1VarPrmCrustThinning.html</anchorfile>
+      <anchor>a5f112be337e157708ff8dfaff97c2ea1</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual SharedParameterPtr</type>
+      <name>newParameterFromDoubles</name>
+      <anchorfile>classcasa_1_1VarPrmCrustThinning.html</anchorfile>
+      <anchor>a4b10af9ff1c0e59723a34ceada06e952</anchor>
+      <arglist>(std::vector&lt; double &gt;::const_iterator &amp;vals) const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual unsigned int</type>
+      <name>version</name>
+      <anchorfile>classcasa_1_1VarPrmCrustThinning.html</anchorfile>
+      <anchor>a3a666562134f5fdbe42aca5154b2d81b</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual const char *</type>
+      <name>typeName</name>
+      <anchorfile>classcasa_1_1VarPrmCrustThinning.html</anchorfile>
+      <anchor>a11d960b02a3c158a72b45df62873cf18</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual bool</type>
+      <name>save</name>
+      <anchorfile>classcasa_1_1VarPrmCrustThinning.html</anchorfile>
+      <anchor>a53f8e9e21ebaa74de719fe0437f725a3</anchor>
+      <arglist>(CasaSerializer &amp;sz, unsigned int version) const </arglist>
+    </member>
+    <member kind="function">
+      <type></type>
+      <name>VarPrmCrustThinning</name>
+      <anchorfile>classcasa_1_1VarPrmCrustThinning.html</anchorfile>
+      <anchor>a6270fb2e34a22ecb3e56ece78e3cfe31</anchor>
+      <arglist>(CasaDeserializer &amp;dz, unsigned int objVer)</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual unsigned int</type>
+      <name>version</name>
+      <anchorfile>classcasa_1_1VarPrmCrustThinning.html</anchorfile>
+      <anchor>a3a666562134f5fdbe42aca5154b2d81b</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual const char *</type>
+      <name>typeName</name>
+      <anchorfile>classcasa_1_1VarPrmCrustThinning.html</anchorfile>
+      <anchor>a11d960b02a3c158a72b45df62873cf18</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual bool</type>
+      <name>save</name>
+      <anchorfile>classcasa_1_1VarPrmCrustThinning.html</anchorfile>
+      <anchor>a53f8e9e21ebaa74de719fe0437f725a3</anchor>
+      <arglist>(CasaSerializer &amp;sz, unsigned int version) const </arglist>
+    </member>
+    <member kind="function">
+      <type></type>
+      <name>VarPrmCrustThinning</name>
+      <anchorfile>classcasa_1_1VarPrmCrustThinning.html</anchorfile>
+      <anchor>a6270fb2e34a22ecb3e56ece78e3cfe31</anchor>
+      <arglist>(CasaDeserializer &amp;dz, unsigned int objVer)</arglist>
+    </member>
+  </compound>
+  <compound kind="class">
     <name>casa::VarPrmDiscrete</name>
     <filename>classcasa_1_1VarPrmDiscrete.html</filename>
     <base>casa::VarParameter</base>
@@ -6243,6 +6888,102 @@
       <name>VarPrmOneCrustThinningEvent</name>
       <anchorfile>classcasa_1_1VarPrmOneCrustThinningEvent.html</anchorfile>
       <anchor>a3ba72e36e18e43c563a89ef69e96154e</anchor>
+      <arglist>(CasaDeserializer &amp;dz, unsigned int objVer)</arglist>
+    </member>
+  </compound>
+  <compound kind="class">
+    <name>casa::VarPrmPermeabilityModel</name>
+    <filename>classcasa_1_1VarPrmPermeabilityModel.html</filename>
+    <base>casa::VarPrmContinuous</base>
+    <member kind="function">
+      <type></type>
+      <name>VarPrmPermeabilityModel</name>
+      <anchorfile>classcasa_1_1VarPrmPermeabilityModel.html</anchorfile>
+      <anchor>ae634b23050211634c1ce630b3aec3aeb</anchor>
+      <arglist>(const char *lithoName, PrmPermeabilityModel::PermeabilityModelType mdlType, const std::vector&lt; double &gt; &amp;baseModelPrms, const std::vector&lt; double &gt; &amp;minModelPrms, const std::vector&lt; double &gt; &amp;maxModelPrms, PDF prmPDF)</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual std::vector&lt; std::string &gt;</type>
+      <name>name</name>
+      <anchorfile>classcasa_1_1VarPrmPermeabilityModel.html</anchorfile>
+      <anchor>a6e4a4ac7c674688bdf4e8867fbfcdabd</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual size_t</type>
+      <name>dimension</name>
+      <anchorfile>classcasa_1_1VarPrmPermeabilityModel.html</anchorfile>
+      <anchor>aa7a93864fd1fa17cb87e4fbaaecc6779</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual SharedParameterPtr</type>
+      <name>newParameterFromDoubles</name>
+      <anchorfile>classcasa_1_1VarPrmPermeabilityModel.html</anchorfile>
+      <anchor>a1472bf69d3d5e5dc583b8bd1f220a1b2</anchor>
+      <arglist>(std::vector&lt; double &gt;::const_iterator &amp;vals) const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual unsigned int</type>
+      <name>version</name>
+      <anchorfile>classcasa_1_1VarPrmPermeabilityModel.html</anchorfile>
+      <anchor>ab437307d724e06db095b2bba2fc362d4</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual const char *</type>
+      <name>typeName</name>
+      <anchorfile>classcasa_1_1VarPrmPermeabilityModel.html</anchorfile>
+      <anchor>ae4b702e868157af849d40c1b1049ce12</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual bool</type>
+      <name>save</name>
+      <anchorfile>classcasa_1_1VarPrmPermeabilityModel.html</anchorfile>
+      <anchor>a3041855ce682a607a6dc4f0a92a57e70</anchor>
+      <arglist>(CasaSerializer &amp;sz, unsigned int version) const </arglist>
+    </member>
+    <member kind="function">
+      <type></type>
+      <name>VarPrmPermeabilityModel</name>
+      <anchorfile>classcasa_1_1VarPrmPermeabilityModel.html</anchorfile>
+      <anchor>a8c12be1005e02a2cf45328b24593e02e</anchor>
+      <arglist>(CasaDeserializer &amp;dz, unsigned int objVer)</arglist>
+    </member>
+    <member kind="function" static="yes">
+      <type>static std::vector&lt; double &gt;</type>
+      <name>createBaseCaseMPModelPrms</name>
+      <anchorfile>classcasa_1_1VarPrmPermeabilityModel.html</anchorfile>
+      <anchor>a37b032dd3985a6044fa7af28dfbd8ed0</anchor>
+      <arglist>(const std::vector&lt; double &gt; &amp;minModelPrms, const std::vector&lt; double &gt; &amp;maxModelPrms)</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual unsigned int</type>
+      <name>version</name>
+      <anchorfile>classcasa_1_1VarPrmPermeabilityModel.html</anchorfile>
+      <anchor>ab437307d724e06db095b2bba2fc362d4</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual const char *</type>
+      <name>typeName</name>
+      <anchorfile>classcasa_1_1VarPrmPermeabilityModel.html</anchorfile>
+      <anchor>ae4b702e868157af849d40c1b1049ce12</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual bool</type>
+      <name>save</name>
+      <anchorfile>classcasa_1_1VarPrmPermeabilityModel.html</anchorfile>
+      <anchor>a3041855ce682a607a6dc4f0a92a57e70</anchor>
+      <arglist>(CasaSerializer &amp;sz, unsigned int version) const </arglist>
+    </member>
+    <member kind="function">
+      <type></type>
+      <name>VarPrmPermeabilityModel</name>
+      <anchorfile>classcasa_1_1VarPrmPermeabilityModel.html</anchorfile>
+      <anchor>a8c12be1005e02a2cf45328b24593e02e</anchor>
       <arglist>(CasaDeserializer &amp;dz, unsigned int objVer)</arglist>
     </member>
   </compound>
@@ -7057,8 +7798,10 @@
     <class kind="class">casa::ObsValueDoubleScalar</class>
     <class kind="class">casa::Parameter</class>
     <class kind="struct">casa::ParetoSensitivityInfo</class>
+    <class kind="class">casa::PrmCrustThinning</class>
     <class kind="class">casa::PrmLithoSTPThermalCond</class>
     <class kind="class">casa::PrmOneCrustThinningEvent</class>
+    <class kind="class">casa::PrmPermeabilityModel</class>
     <class kind="class">casa::PrmPorosityModel</class>
     <class kind="class">casa::PrmSourceRockHC</class>
     <class kind="class">casa::PrmSourceRockHI</class>
@@ -7079,9 +7822,11 @@
     <class kind="class">casa::VarParameter</class>
     <class kind="class">casa::VarPrmCategorical</class>
     <class kind="class">casa::VarPrmContinuous</class>
+    <class kind="class">casa::VarPrmCrustThinning</class>
     <class kind="class">casa::VarPrmDiscrete</class>
     <class kind="class">casa::VarPrmLithoSTPThermalCond</class>
     <class kind="class">casa::VarPrmOneCrustThinningEvent</class>
+    <class kind="class">casa::VarPrmPermeabilityModel</class>
     <class kind="class">casa::VarPrmPorosityModel</class>
     <class kind="class">casa::VarPrmSourceRockHC</class>
     <class kind="class">casa::VarPrmSourceRockHI</class>
@@ -7194,17 +7939,31 @@
     </member>
     <member kind="function">
       <type>ErrorHandler::ReturnCode</type>
+      <name>VaryCrustThinning</name>
+      <anchorfile>namespacecasa_1_1BusinessLogicRulesSet.html</anchorfile>
+      <anchor>ab903bbbad162159829b6da93a37d36aa</anchor>
+      <arglist>(ScenarioAnalysis &amp;sa, double minThickIni, double maxThickIni, const std::vector&lt; double &gt; &amp;minT0, const std::vector&lt; double &gt; &amp;maxT0, const std::vector&lt; double &gt; &amp;minDeltaT, const std::vector&lt; double &gt; &amp;maxDeltaT, const std::vector&lt; double &gt; &amp;minThinningFct, const std::vector&lt; double &gt; &amp;maxThinningFct, const std::vector&lt; std::string &gt; &amp;mapsList, VarPrmContinuous::PDF pdfType)</arglist>
+    </member>
+    <member kind="function">
+      <type>ErrorHandler::ReturnCode</type>
       <name>VaryPorosityModelParameters</name>
       <anchorfile>namespacecasa_1_1BusinessLogicRulesSet.html</anchorfile>
-      <anchor>a128d13486810730ea07ceb5b45f0cffc</anchor>
-      <arglist>(ScenarioAnalysis &amp;sa, const char *litName, const char *modelName, double minSurfPor, double maxSurfPor, double minCompCoef, double maxCompCoef, double minMinPor, double maxMinPor, double minCompCoef1, double maxCompCoef1, VarPrmContinuous::PDF pdfType)</arglist>
+      <anchor>ab20b3c3a6e9982a210b1dd51af72416e</anchor>
+      <arglist>(ScenarioAnalysis &amp;sa, const char *layerName, const char *litName, const char *modelName, double minSurfPor, double maxSurfPor, double minCompCoef, double maxCompCoef, double minMinPor, double maxMinPor, double minCompCoef1, double maxCompCoef1, VarPrmContinuous::PDF pdfType)</arglist>
+    </member>
+    <member kind="function">
+      <type>ErrorHandler::ReturnCode</type>
+      <name>VaryPermeabilityModelParameters</name>
+      <anchorfile>namespacecasa_1_1BusinessLogicRulesSet.html</anchorfile>
+      <anchor>aa0e42b2dff3a13685b0787aa86033aa3</anchor>
+      <arglist>(ScenarioAnalysis &amp;sa, const char *layerName, const char *lithoName, const char *modelName, std::vector&lt; double &gt; &amp;minModelPrms, std::vector&lt; double &gt; &amp;maxModelPrms, VarPrmContinuous::PDF pdfType)</arglist>
     </member>
     <member kind="function">
       <type>ErrorHandler::ReturnCode</type>
       <name>VaryLithoSTPThermalCondCoeffParameter</name>
       <anchorfile>namespacecasa_1_1BusinessLogicRulesSet.html</anchorfile>
-      <anchor>aeac4c6124ec4dcd16b4cbb41f8e6f4ca</anchor>
-      <arglist>(ScenarioAnalysis &amp;sa, const char *litName, double minVal, double maxVal, VarPrmContinuous::PDF pdfType)</arglist>
+      <anchor>ae5317eeb13647dd75ff3e3129eb0c9b0</anchor>
+      <arglist>(ScenarioAnalysis &amp;sa, const char *layerName, const char *litName, double minVal, double maxVal, VarPrmContinuous::PDF pdfType)</arglist>
     </member>
   </compound>
   <compound kind="namespace">
@@ -7297,14 +8056,30 @@
     <filename>CASA_ParameterPage</filename>
   </compound>
   <compound kind="page">
+    <name>CASA_CrustThinningPage</name>
+    <title>Multi event crust thinning parameter</title>
+    <filename>CASA_CrustThinningPage</filename>
+  </compound>
+  <compound kind="page">
     <name>CASA_LithoSTPThermalCondPage</name>
     <title>Lithology STP (Standart Temperature and Pressure) thermal conductivity coefficient [W/m/K]</title>
     <filename>CASA_LithoSTPThermalCondPage</filename>
   </compound>
   <compound kind="page">
     <name>CASA_OneCrustThinningEventPage</name>
-    <title>Crust thinning parameter</title>
+    <title>One event crust thinning parameter</title>
     <filename>CASA_OneCrustThinningEventPage</filename>
+  </compound>
+  <compound kind="page">
+    <name>CASA_PermeabilityModelPage</name>
+    <title>Lithology permeability model</title>
+    <filename>CASA_PermeabilityModelPage</filename>
+    <docanchor file="CASA_PermeabilityModelPage">perm_vs_por</docanchor>
+    <docanchor file="CASA_PermeabilityModelPage">stand_lith_perm</docanchor>
+    <docanchor file="CASA_PermeabilityModelPage" title="None/Impermeable models means tiny constant permeability">PermeabilityModelPrmInpermeableSec</docanchor>
+    <docanchor file="CASA_PermeabilityModelPage" title="Permeability model for sandstone">PermeabilityModelPrmSandstoneSec</docanchor>
+    <docanchor file="CASA_PermeabilityModelPage" title="Permeability model for mudstone">PermeabilityModelPrmMudstoneSec</docanchor>
+    <docanchor file="CASA_PermeabilityModelPage" title="Permeability model is described by a Permeability vs Porosity profile">MultiPointPermModelSubSec</docanchor>
   </compound>
   <compound kind="page">
     <name>CASA_PorosityModelPage</name>

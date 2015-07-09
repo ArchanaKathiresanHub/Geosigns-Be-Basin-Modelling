@@ -448,18 +448,23 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::defineBaseCase( const char * projec
 {
    if ( m_baseCase.get() ) { throw ErrorHandler::Exception( ErrorHandler::AlreadyDefined ) << "defineBaseCase(): Base case is already defined"; }
    
-   m_baseCase.reset( new mbapi::Model() );
-   if ( NoError != m_baseCase->loadModelFromProjectFile( projectFileName ) )
-   {
-      throw ErrorHandler::Exception( ErrorHandler::IoError ) << "defineBaseCase() can not load model from " << projectFileName;
-   }
-   
+  
    m_baseCaseProjectFile = projectFileName;
 }
 
 mbapi::Model & ScenarioAnalysis::ScenarioAnalysisImpl::baseCase()
 {
-   if ( !m_baseCase.get() ) m_baseCase.reset( new mbapi::Model() );
+   if ( !m_baseCase.get() ) 
+   {
+      if ( m_baseCaseProjectFile.empty() ) throw Exception( ErrorHandler::UndefinedValue ) << "Base case was not defined for the scenario";
+
+      m_baseCase.reset( new mbapi::Model() );
+      if ( NoError != m_baseCase->loadModelFromProjectFile( m_baseCaseProjectFile.c_str() ) )
+      {
+         throw ErrorHandler::Exception( ErrorHandler::IoError ) << "defineBaseCase() can not load model from " << m_baseCaseProjectFile;
+      }
+   }
+ 
    return *( m_baseCase.get() );
 }
 
@@ -477,16 +482,27 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::setScenarioLocation( const char * p
          }
          else if ( !saFolder.empty( ) )
          {
-            throw ErrorHandler::Exception( ErrorHandler::IoError ) << " folder " << pathToCaseSet << " is not empty";
+            bool found = false;
+            for ( size_t i = 1; i < 99 && !found; ++i )
+            {
+               ibs::FolderPath tmpPath( saFolder );
+               tmpPath << "Iteration_" + ibs::to_string( i );
+               if ( !tmpPath.exists() )
+               {
+                  found = true;
+                  m_iterationNum = i;
+               }
+            }
+            if ( !found ) { throw ErrorHandler::Exception( ErrorHandler::IoError ) << " folder " << pathToCaseSet << " is not empty"; }
          }
 
-         m_caseSetPath = pathToCaseSet;
+         m_caseSetPath = saFolder.fullPath().path();
       }
    }
    catch ( const ibs::PathException & ex )
    {
       throw ErrorHandler::Exception( ErrorHandler::IoError ) << ex.what();
-   }      
+   }
 }
 
 void ScenarioAnalysis::ScenarioAnalysisImpl::restoreScenarioLocation( const char * pathToCaseSet )
@@ -602,7 +618,6 @@ DoEGenerator * ScenarioAnalysis::ScenarioAnalysisImpl::doeGenerator()
 
 void ScenarioAnalysis::ScenarioAnalysisImpl::applyMutations( RunCaseSet & cs )
 {
-   if ( !m_baseCase.get() ) throw Exception( ErrorHandler::UndefinedValue ) << "Base case was not defined for the scenario. Mutations failed";
    RunCaseSetImpl & rcs = dynamic_cast<RunCaseSetImpl&>( cs );
 
    // construct case set path like pathToScenario/Iteration_XX
@@ -640,7 +655,7 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::applyMutations( RunCaseSet & cs )
          casePath.create();
          casePath << projectFileName;
          // do mutation
-         cs->mutateCaseTo( *(m_baseCase.get()), casePath.path().c_str() );
+         cs->mutateCaseTo( baseCase(), casePath.path().c_str() );
 
          ++m_caseNum;
       }
@@ -706,7 +721,7 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::saveCalibratedCase( const char * pr
    bmCasePath << projFileName;
 
    // do mutation
-   bmCaseImpl->mutateCaseTo( *(m_baseCase.get()), bmCasePath.path().c_str() );
+   bmCaseImpl->mutateCaseTo( baseCase(), bmCasePath.path().c_str() );
    // add observables
    m_dataDigger->requestObservables( *m_obsSpace.get(), bmCaseImpl );
    // generate scripts
@@ -753,6 +768,8 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::addRSAlgorithm( const std::string  
       const std::vector<const casa::RunCase *> & rcs = m_doeCases->collectCompletedCases( doeList );
 
       if ( rcs.empty() ) throw Exception( RSProxyError ) << "addRSAlgorithm(): empty completed cases list for given DoEs";
+
+      if ( !obsSpace().size() ) throw Exception( RSProxyError ) << "No any observable is defined for proxy calculation";
 
       if ( NoError != proxy->calculateRSProxy( rcs ) ) { throw Exception( proxy->errorCode() ) << proxy->errorMessage(); }
    }

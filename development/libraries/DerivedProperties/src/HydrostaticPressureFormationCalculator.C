@@ -11,6 +11,10 @@ DerivedProperties::HydrostaticPressureFormationCalculator::HydrostaticPressureFo
    m_projectHandle ( projectHandle )
 {
    addPropertyName ( "HydroStaticPressure" );
+
+   addDependentPropertyName ( "Depth" );
+   addDependentPropertyName ( "Pressure" );
+   addDependentPropertyName ( "Temperature" );
 }
  
 void DerivedProperties::HydrostaticPressureFormationCalculator::calculate ( AbstractPropertyManager&            propertyManager,

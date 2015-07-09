@@ -217,11 +217,12 @@ namespace migration
 	 void broadcastTrapFillDepthProperties (void);
    private:
 
-	 const Interface::GridMap * getPropertyGridMap (const string & propertyName,
-	       const Interface::Snapshot * snapshot) const;
    public:
-	 const Interface::GridMap * getVolumePropertyGridMap (const Formation * formation,
-	       const string & propertyName, const Interface::Snapshot * snapshot) const;
+
+      DerivedProperties::FormationPropertyPtr getVolumeProperty ( const Formation * formation,
+                                                                  const string & propertyName,
+                                                                  const Interface::Snapshot * snapshot ) const;
+
    private:
 
        DerivedProperties::SurfacePropertyPtr getSeaBottomProperty ( const string & propertyName, const Interface::Snapshot * snapshot ) const;
@@ -238,10 +239,6 @@ namespace migration
 	       const Interface::Reservoir * reservoir,
 	       const Interface::Formation * formation,
 	       const Interface::Surface * surface) const;
-	 const Interface::GridMap * getReservoirPropertyGridMap (const string & propertyName,
-	       const Interface::Snapshot * snapshot) const;
-	 const Interface::GridMap * getTopSurfacePropertyGridMap (const string & propertyName,
-	       const Interface::Snapshot * snapshot) const;
       DerivedProperties::FormationPropertyPtr getFormationPropertyPtr ( const string &              propertyName,
                                                                         const Interface::Snapshot * snapshot ) const;
 
@@ -272,10 +269,6 @@ namespace migration
 	 double getErrorPVT (void);
 	 double getLossPVT (void);
 
-	 bool determineAverageDepth (void);
-	 inline void setAverageDepth (double depth);
-   public:
-	 double getAverageDepth (void);
    private:
 
 	 bool allProcessorsFinished (bool finished);
@@ -408,9 +401,6 @@ public:
 
 	 bool m_lowResEqualsHighRes;
 
-	 /// Average Depth at age 0 of the Reservoir, used for sorting purposes.
-	 double m_averageDepth;
-
 	 double m_undefinedValue;
 
          SurfaceGridMapContainer m_diffusionOverburdenGridMaps;
@@ -436,11 +426,6 @@ const string migration::Reservoir::depthPropertyName ( ) const
 {
    if( m_lowResEqualsHighRes ) return "Depth";
    else return "DepthHighRes";
-}
-
-void migration::Reservoir::setAverageDepth (double depth)
-{
-   m_averageDepth = depth;
 }
 
 unsigned int migration::Reservoir::getMaximumTrapCount (void)

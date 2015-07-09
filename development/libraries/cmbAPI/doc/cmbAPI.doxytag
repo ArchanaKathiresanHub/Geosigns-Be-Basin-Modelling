@@ -31,6 +31,7 @@
     <includes id="SourceRockManager_8h" name="SourceRockManager.h" local="yes" imported="no">SourceRockManager.h</includes>
     <includes id="StratigraphyManager_8h" name="StratigraphyManager.h" local="yes" imported="no">StratigraphyManager.h</includes>
     <includes id="FluidManager_8h" name="FluidManager.h" local="yes" imported="no">FluidManager.h</includes>
+    <includes id="MapsManager_8h" name="MapsManager.h" local="yes" imported="no">MapsManager.h</includes>
     <includes id="UndefinedValues_8h" name="UndefinedValues.h" local="yes" imported="no">UndefinedValues.h</includes>
     <class kind="class">mbapi::Model</class>
   </compound>
@@ -78,6 +79,13 @@
     <filename>LithologyManager_8h</filename>
     <includes id="ErrorHandler_8h" name="ErrorHandler.h" local="yes" imported="no">ErrorHandler.h</includes>
     <class kind="class">mbapi::LithologyManager</class>
+  </compound>
+  <compound kind="file">
+    <name>MapsManager.h</name>
+    <path>C:/Apps/Cauldron/TWTT/development/libraries/cmbAPI/src/</path>
+    <filename>MapsManager_8h</filename>
+    <includes id="ErrorHandler_8h" name="ErrorHandler.h" local="yes" imported="no">ErrorHandler.h</includes>
+    <class kind="class">mbapi::MapsManager</class>
   </compound>
   <compound kind="file">
     <name>MonteCarloSolver.h</name>
@@ -135,6 +143,11 @@
     <filename>Parameter_8h</filename>
   </compound>
   <compound kind="file">
+    <name>PrmCrustThinning.h</name>
+    <path>C:/Apps/Cauldron/TWTT/development/libraries/casaAPI/doc/casaAPI.doxytag:C:/Apps/Cauldron/TWTT/development/libraries/casaAPI/src/</path>
+    <filename>PrmCrustThinning_8h</filename>
+  </compound>
+  <compound kind="file">
     <name>PrmLithoSTPThermalCond.h</name>
     <path>C:/Apps/Cauldron/TWTT/development/libraries/casaAPI/doc/casaAPI.doxytag:C:/Apps/Cauldron/TWTT/development/libraries/casaAPI/src/</path>
     <filename>PrmLithoSTPThermalCond_8h</filename>
@@ -143,6 +156,11 @@
     <name>PrmOneCrustThinningEvent.h</name>
     <path>C:/Apps/Cauldron/TWTT/development/libraries/casaAPI/doc/casaAPI.doxytag:C:/Apps/Cauldron/TWTT/development/libraries/casaAPI/src/</path>
     <filename>PrmOneCrustThinningEvent_8h</filename>
+  </compound>
+  <compound kind="file">
+    <name>PrmPermeabilityModel.h</name>
+    <path>C:/Apps/Cauldron/TWTT/development/libraries/casaAPI/doc/casaAPI.doxytag:C:/Apps/Cauldron/TWTT/development/libraries/casaAPI/src/</path>
+    <filename>PrmPermeabilityModel_8h</filename>
   </compound>
   <compound kind="file">
     <name>PrmPorosityModel.h</name>
@@ -334,6 +352,11 @@
     <filename>VarPrmContinuous_8h</filename>
   </compound>
   <compound kind="file">
+    <name>VarPrmCrustThinning.h</name>
+    <path>C:/Apps/Cauldron/TWTT/development/libraries/casaAPI/doc/casaAPI.doxytag:C:/Apps/Cauldron/TWTT/development/libraries/casaAPI/src/</path>
+    <filename>VarPrmCrustThinning_8h</filename>
+  </compound>
+  <compound kind="file">
     <name>VarPrmDiscrete.h</name>
     <path>C:/Apps/Cauldron/TWTT/development/libraries/casaAPI/doc/casaAPI.doxytag:C:/Apps/Cauldron/TWTT/development/libraries/casaAPI/src/</path>
     <filename>VarPrmDiscrete_8h</filename>
@@ -347,6 +370,11 @@
     <name>VarPrmOneCrustThinningEvent.h</name>
     <path>C:/Apps/Cauldron/TWTT/development/libraries/casaAPI/doc/casaAPI.doxytag:C:/Apps/Cauldron/TWTT/development/libraries/casaAPI/src/</path>
     <filename>VarPrmOneCrustThinningEvent_8h</filename>
+  </compound>
+  <compound kind="file">
+    <name>VarPrmPermeabilityModel.h</name>
+    <path>C:/Apps/Cauldron/TWTT/development/libraries/casaAPI/doc/casaAPI.doxytag:C:/Apps/Cauldron/TWTT/development/libraries/casaAPI/src/</path>
+    <filename>VarPrmPermeabilityModel_8h</filename>
   </compound>
   <compound kind="file">
     <name>VarPrmPorosityModel.h</name>
@@ -629,28 +657,78 @@
     <filename>classmbapi_1_1LithologyManager.html</filename>
     <base>ErrorHandler</base>
     <member kind="enumvalue">
-      <name>Exponential</name>
+      <name>PorExponential</name>
       <anchorfile>classmbapi_1_1LithologyManager.html</anchorfile>
-      <anchor>a08cb1061f6837c519aac4693059d2e52a84ae9107844367f2629e8bb63be08c4b</anchor>
+      <anchor>a08cb1061f6837c519aac4693059d2e52a6136ef8a9cf81f8a7d7b3f3927b598e2</anchor>
       <arglist></arglist>
     </member>
     <member kind="enumvalue">
-      <name>SoilMechanics</name>
+      <name>PorSoilMechanics</name>
       <anchorfile>classmbapi_1_1LithologyManager.html</anchorfile>
-      <anchor>a08cb1061f6837c519aac4693059d2e52a9eb738599441dabdf9e6bd5916c80e35</anchor>
+      <anchor>a08cb1061f6837c519aac4693059d2e52a877a14dedc0be3867260fc50edf1c940</anchor>
       <arglist></arglist>
     </member>
     <member kind="enumvalue">
-      <name>DoubleExponential</name>
+      <name>PorDoubleExponential</name>
       <anchorfile>classmbapi_1_1LithologyManager.html</anchorfile>
-      <anchor>a08cb1061f6837c519aac4693059d2e52aab09c791a527b767e78d0a5303fd9bf2</anchor>
+      <anchor>a08cb1061f6837c519aac4693059d2e52a234b24e80c3f61b37e8d84f36ffca632</anchor>
       <arglist></arglist>
     </member>
     <member kind="enumvalue">
-      <name>Unknown</name>
+      <name>PorUnknown</name>
       <anchorfile>classmbapi_1_1LithologyManager.html</anchorfile>
-      <anchor>a08cb1061f6837c519aac4693059d2e52a4949d15dc8c5d90d29288d6e04ac0318</anchor>
+      <anchor>a08cb1061f6837c519aac4693059d2e52a9b69869589d397a08d02dba0bb30e9a3</anchor>
       <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <name>PermSandstone</name>
+      <anchorfile>classmbapi_1_1LithologyManager.html</anchorfile>
+      <anchor>a60a733ce7e8dc40d3c34a148b20009a7ad3e0bcc19fdcc2f3e03f794c2e81db6d</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <name>PermMudstone</name>
+      <anchorfile>classmbapi_1_1LithologyManager.html</anchorfile>
+      <anchor>a60a733ce7e8dc40d3c34a148b20009a7a8e9d552709ff2027e747509b12136903</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <name>PermNone</name>
+      <anchorfile>classmbapi_1_1LithologyManager.html</anchorfile>
+      <anchor>a60a733ce7e8dc40d3c34a148b20009a7aa719cc0bc6ee613e829bea534904628a</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <name>PermImpermeable</name>
+      <anchorfile>classmbapi_1_1LithologyManager.html</anchorfile>
+      <anchor>a60a733ce7e8dc40d3c34a148b20009a7a99f0ba9769e0c8ec515ad76ad1af1a30</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <name>PermMultipoint</name>
+      <anchorfile>classmbapi_1_1LithologyManager.html</anchorfile>
+      <anchor>a60a733ce7e8dc40d3c34a148b20009a7afdaf8e1a78818b355d55a08597c63f58</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <name>PermUnknown</name>
+      <anchorfile>classmbapi_1_1LithologyManager.html</anchorfile>
+      <anchor>a60a733ce7e8dc40d3c34a148b20009a7a8d81c57c9880b040907e0238eaed9539</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual ReturnCode</type>
+      <name>permeabilityModel</name>
+      <anchorfile>classmbapi_1_1LithologyManager.html</anchorfile>
+      <anchor>a4ffe87e6674c438a85dcdbaa24b00c25</anchor>
+      <arglist>(LithologyID id, PermeabilityModel &amp;prmModel, std::vector&lt; double &gt; &amp;modelPrms, std::vector&lt; double &gt; &amp;mpPor, std::vector&lt; double &gt; &amp;mpPerm)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual ReturnCode</type>
+      <name>setPermeabilityModel</name>
+      <anchorfile>classmbapi_1_1LithologyManager.html</anchorfile>
+      <anchor>ae06543991706b50048fd0dba809f5517</anchor>
+      <arglist>(LithologyID id, PermeabilityModel prmModel, const std::vector&lt; double &gt; &amp;modelPrms, const std::vector&lt; double &gt; &amp;mpPor, const std::vector&lt; double &gt; &amp;mpPerm)=0</arglist>
     </member>
     <member kind="function" virtualness="pure">
       <type>virtual double</type>
@@ -666,11 +744,25 @@
       <anchor>a00c6e62c15d3198ada668e10e4fe254f</anchor>
       <arglist>(LithologyID id, double stpThermCond)=0</arglist>
     </member>
+    <member kind="function" protection="protected" virtualness="virtual">
+      <type>virtual</type>
+      <name>~LithologyManager</name>
+      <anchorfile>classmbapi_1_1LithologyManager.html</anchorfile>
+      <anchor>a82c1a7759a01ca2d43630ac537a7595f</anchor>
+      <arglist>()</arglist>
+    </member>
     <member kind="enumeration">
       <type></type>
       <name>PorosityModel</name>
       <anchorfile>classmbapi_1_1LithologyManager.html</anchorfile>
       <anchor>a08cb1061f6837c519aac4693059d2e52</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumeration">
+      <type></type>
+      <name>PermeabilityModel</name>
+      <anchorfile>classmbapi_1_1LithologyManager.html</anchorfile>
+      <anchor>a60a733ce7e8dc40d3c34a148b20009a7</anchor>
       <arglist></arglist>
     </member>
     <member kind="typedef">
@@ -702,6 +794,20 @@
       <arglist>(LithologyID id)=0</arglist>
     </member>
     <member kind="function" virtualness="pure">
+      <type>virtual LithologyID</type>
+      <name>findID</name>
+      <anchorfile>classmbapi_1_1LithologyManager.html</anchorfile>
+      <anchor>a880822d08e356235c9008662c8a4d73f</anchor>
+      <arglist>(const std::string &amp;lName)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual LithologyID</type>
+      <name>copyLithology</name>
+      <anchorfile>classmbapi_1_1LithologyManager.html</anchorfile>
+      <anchor>a2950a1af483ae7163b611d0b52be677f</anchor>
+      <arglist>(LithologyID id, const std::string &amp;newLithoName)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
       <type>virtual ReturnCode</type>
       <name>porosityModel</name>
       <anchorfile>classmbapi_1_1LithologyManager.html</anchorfile>
@@ -714,6 +820,20 @@
       <anchorfile>classmbapi_1_1LithologyManager.html</anchorfile>
       <anchor>a178cf7cab18aa59e7ac5072e51b3d87c</anchor>
       <arglist>(LithologyID id, PorosityModel porModel, const std::vector&lt; double &gt; &amp;porModelPrms)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual ReturnCode</type>
+      <name>permeabilityModel</name>
+      <anchorfile>classmbapi_1_1LithologyManager.html</anchorfile>
+      <anchor>a4ffe87e6674c438a85dcdbaa24b00c25</anchor>
+      <arglist>(LithologyID id, PermeabilityModel &amp;prmModel, std::vector&lt; double &gt; &amp;modelPrms, std::vector&lt; double &gt; &amp;mpPor, std::vector&lt; double &gt; &amp;mpPerm)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual ReturnCode</type>
+      <name>setPermeabilityModel</name>
+      <anchorfile>classmbapi_1_1LithologyManager.html</anchorfile>
+      <anchor>ae06543991706b50048fd0dba809f5517</anchor>
+      <arglist>(LithologyID id, PermeabilityModel prmModel, const std::vector&lt; double &gt; &amp;modelPrms, const std::vector&lt; double &gt; &amp;mpPor, const std::vector&lt; double &gt; &amp;mpPerm)=0</arglist>
     </member>
     <member kind="function" virtualness="pure">
       <type>virtual double</type>
@@ -738,9 +858,176 @@
     </member>
   </compound>
   <compound kind="class">
+    <name>mbapi::MapsManager</name>
+    <filename>classmbapi_1_1MapsManager.html</filename>
+    <base>ErrorHandler</base>
+    <member kind="typedef">
+      <type>size_t</type>
+      <name>MapID</name>
+      <anchorfile>classmbapi_1_1MapsManager.html</anchorfile>
+      <anchor>abe3175b395c73694560b55b5937cbd21</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual std::vector&lt; MapID &gt;</type>
+      <name>mapsIDs</name>
+      <anchorfile>classmbapi_1_1MapsManager.html</anchorfile>
+      <anchor>a828c73f75d26647f49ce5a831c5f88fc</anchor>
+      <arglist>() const =0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual MapID</type>
+      <name>findID</name>
+      <anchorfile>classmbapi_1_1MapsManager.html</anchorfile>
+      <anchor>ad2185b8fb5a170bc00791f7a217e59b3</anchor>
+      <arglist>(const std::string &amp;mName)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual MapID</type>
+      <name>copyMap</name>
+      <anchorfile>classmbapi_1_1MapsManager.html</anchorfile>
+      <anchor>a1a73cf526affd2b3b70959b141852b21</anchor>
+      <arglist>(MapID id, const std::string &amp;newMapName)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual ErrorHandler::ReturnCode</type>
+      <name>saveMapToHDF</name>
+      <anchorfile>classmbapi_1_1MapsManager.html</anchorfile>
+      <anchor>a0975d2314562894f689a61f8fe418cb2</anchor>
+      <arglist>(MapID id, const std::string &amp;fileName)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual ErrorHandler::ReturnCode</type>
+      <name>mapValuesRange</name>
+      <anchorfile>classmbapi_1_1MapsManager.html</anchorfile>
+      <anchor>aaa990ce2478adc953eb78c85c0b32adb</anchor>
+      <arglist>(MapID id, double &amp;minV, double &amp;maxV)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual ErrorHandler::ReturnCode</type>
+      <name>scaleMap</name>
+      <anchorfile>classmbapi_1_1MapsManager.html</anchorfile>
+      <anchor>afec39c2b5ce52454053143086d5008f6</anchor>
+      <arglist>(MapID id, double coeff)=0</arglist>
+    </member>
+    <member kind="function" protection="protected">
+      <type></type>
+      <name>MapsManager</name>
+      <anchorfile>classmbapi_1_1MapsManager.html</anchorfile>
+      <anchor>a37eae64b416a7c493466381d9e84b43a</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function" protection="protected" virtualness="virtual">
+      <type>virtual</type>
+      <name>~MapsManager</name>
+      <anchorfile>classmbapi_1_1MapsManager.html</anchorfile>
+      <anchor>a392a277a7cc245e724dba778aa0e947e</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual std::vector&lt; MapID &gt;</type>
+      <name>mapsIDs</name>
+      <anchorfile>classmbapi_1_1MapsManager.html</anchorfile>
+      <anchor>a828c73f75d26647f49ce5a831c5f88fc</anchor>
+      <arglist>() const =0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual MapID</type>
+      <name>findID</name>
+      <anchorfile>classmbapi_1_1MapsManager.html</anchorfile>
+      <anchor>ad2185b8fb5a170bc00791f7a217e59b3</anchor>
+      <arglist>(const std::string &amp;mName)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual MapID</type>
+      <name>copyMap</name>
+      <anchorfile>classmbapi_1_1MapsManager.html</anchorfile>
+      <anchor>a1a73cf526affd2b3b70959b141852b21</anchor>
+      <arglist>(MapID id, const std::string &amp;newMapName)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual ErrorHandler::ReturnCode</type>
+      <name>saveMapToHDF</name>
+      <anchorfile>classmbapi_1_1MapsManager.html</anchorfile>
+      <anchor>a0975d2314562894f689a61f8fe418cb2</anchor>
+      <arglist>(MapID id, const std::string &amp;fileName)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual ErrorHandler::ReturnCode</type>
+      <name>mapValuesRange</name>
+      <anchorfile>classmbapi_1_1MapsManager.html</anchorfile>
+      <anchor>aaa990ce2478adc953eb78c85c0b32adb</anchor>
+      <arglist>(MapID id, double &amp;minV, double &amp;maxV)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual ErrorHandler::ReturnCode</type>
+      <name>scaleMap</name>
+      <anchorfile>classmbapi_1_1MapsManager.html</anchorfile>
+      <anchor>afec39c2b5ce52454053143086d5008f6</anchor>
+      <arglist>(MapID id, double coeff)=0</arglist>
+    </member>
+    <member kind="function" protection="protected">
+      <type></type>
+      <name>MapsManager</name>
+      <anchorfile>classmbapi_1_1MapsManager.html</anchorfile>
+      <anchor>a37eae64b416a7c493466381d9e84b43a</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function" protection="protected" virtualness="virtual">
+      <type>virtual</type>
+      <name>~MapsManager</name>
+      <anchorfile>classmbapi_1_1MapsManager.html</anchorfile>
+      <anchor>a392a277a7cc245e724dba778aa0e947e</anchor>
+      <arglist>()</arglist>
+    </member>
+  </compound>
+  <compound kind="class">
     <name>mbapi::Model</name>
     <filename>classmbapi_1_1Model.html</filename>
     <base>ErrorHandler</base>
+    <member kind="enumvalue">
+      <name>Bool</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>a7a5b549286d48303fd40115064a087e8a4def3e0e73ba5a12e557106059b6b37a</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <name>Int</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>a7a5b549286d48303fd40115064a087e8a816ee46011aaaedef4b3fd853ea52fa4</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <name>Long</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>a7a5b549286d48303fd40115064a087e8a343a8865c7ea93cb1d420e64ff6b82f6</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <name>Float</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>a7a5b549286d48303fd40115064a087e8a9c1742f9f18bf3f7111967fd3760c6e3</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <name>Double</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>a7a5b549286d48303fd40115064a087e8ae818507ab1b01095a232a8e81a8c68da</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <name>String</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>a7a5b549286d48303fd40115064a087e8a3bca3f8003eb4f92ab22e41570eac382</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumeration">
+      <type></type>
+      <name>ProjectTableColumnDataType</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>a7a5b549286d48303fd40115064a087e8</anchor>
+      <arglist></arglist>
+    </member>
     <member kind="function">
       <type></type>
       <name>Model</name>
@@ -756,6 +1043,13 @@
       <arglist>()</arglist>
     </member>
     <member kind="function">
+      <type>std::string</type>
+      <name>compareProject</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>ab195105149d6f9e12a8a50435bccd515</anchor>
+      <arglist>(Model &amp;mdl1, const std::set&lt; std::string &gt; &amp;compareTblsList, const std::set&lt; std::string &gt; &amp;ignoreTblsList, double relTol)</arglist>
+    </member>
+    <member kind="function">
       <type>Model &amp;</type>
       <name>operator=</name>
       <anchorfile>classmbapi_1_1Model.html</anchorfile>
@@ -763,11 +1057,39 @@
       <arglist>(const Model &amp;otherModel)</arglist>
     </member>
     <member kind="function">
+      <type>ErrorHandler::ReturnCode</type>
+      <name>tableSort</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>a9888ebb6f5146eb5e61faa87d36a9e54</anchor>
+      <arglist>(const std::string &amp;tblName, const std::vector&lt; std::string &gt; &amp;colsName)</arglist>
+    </member>
+    <member kind="function">
+      <type>std::vector&lt; std::string &gt;</type>
+      <name>tablesList</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>ae542e860b4334c9eb286323fcd90c1a6</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>std::vector&lt; std::string &gt;</type>
+      <name>tableColumnsList</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>aad56d43498f5900dad24ccb5ca673225</anchor>
+      <arglist>(const std::string &amp;tableName, std::vector&lt; ProjectTableColumnDataType &gt; &amp;colDataTypes)</arglist>
+    </member>
+    <member kind="function">
       <type>int</type>
       <name>tableSize</name>
       <anchorfile>classmbapi_1_1Model.html</anchorfile>
       <anchor>abfbcac1ce060100240c7f866623ae1ce</anchor>
       <arglist>(const std::string &amp;tableName)</arglist>
+    </member>
+    <member kind="function">
+      <type>long</type>
+      <name>tableValueAsInteger</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>ae26a07b62306ed91296314afddf2a5ed</anchor>
+      <arglist>(const std::string &amp;tableName, size_t rowNumber, const std::string &amp;propName)</arglist>
     </member>
     <member kind="function">
       <type>double</type>
@@ -782,6 +1104,13 @@
       <anchorfile>classmbapi_1_1Model.html</anchorfile>
       <anchor>a4f1c412e4cb1fafdb7fdfa7f1873ac26</anchor>
       <arglist>(const std::string &amp;tableName, size_t rowNumber, const std::string &amp;propName)</arglist>
+    </member>
+    <member kind="function">
+      <type>ErrorHandler::ReturnCode</type>
+      <name>setTableValue</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>abb3282fff42e86f1020e43fc5428bd2f</anchor>
+      <arglist>(const std::string &amp;tableName, size_t rowNumber, const std::string &amp;propName, long propValue)</arglist>
     </member>
     <member kind="function">
       <type>ErrorHandler::ReturnCode</type>
@@ -826,6 +1155,13 @@
       <arglist>(const char *projectFileName)</arglist>
     </member>
     <member kind="function">
+      <type>std::string</type>
+      <name>projectFileName</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>a912fec559a672a5625a029eea2278a22</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
       <type>StratigraphyManager &amp;</type>
       <name>stratigraphyManager</name>
       <anchorfile>classmbapi_1_1Model.html</anchorfile>
@@ -868,6 +1204,34 @@
       <arglist>()</arglist>
     </member>
     <member kind="function">
+      <type>MapsManager &amp;</type>
+      <name>mapsManager</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>a084516d88abc0ee0955037e26a42902f</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>ReturnCode</type>
+      <name>origin</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>a840578561e2be0c6e3e069f004061073</anchor>
+      <arglist>(double &amp;x, double &amp;y)</arglist>
+    </member>
+    <member kind="function">
+      <type>ReturnCode</type>
+      <name>arealSize</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>a65ce2138d1f29884606f4c1e5dd25afc</anchor>
+      <arglist>(double &amp;dimX, double &amp;dimY)</arglist>
+    </member>
+    <member kind="enumeration">
+      <type></type>
+      <name>ProjectTableColumnDataType</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>a7a5b549286d48303fd40115064a087e8</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="function">
       <type></type>
       <name>Model</name>
       <anchorfile>classmbapi_1_1Model.html</anchorfile>
@@ -882,6 +1246,13 @@
       <arglist>()</arglist>
     </member>
     <member kind="function">
+      <type>std::string</type>
+      <name>compareProject</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>ab195105149d6f9e12a8a50435bccd515</anchor>
+      <arglist>(Model &amp;mdl1, const std::set&lt; std::string &gt; &amp;compareTblsList, const std::set&lt; std::string &gt; &amp;ignoreTblsList, double relTol)</arglist>
+    </member>
+    <member kind="function">
       <type>Model &amp;</type>
       <name>operator=</name>
       <anchorfile>classmbapi_1_1Model.html</anchorfile>
@@ -889,11 +1260,39 @@
       <arglist>(const Model &amp;otherModel)</arglist>
     </member>
     <member kind="function">
+      <type>ErrorHandler::ReturnCode</type>
+      <name>tableSort</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>a9888ebb6f5146eb5e61faa87d36a9e54</anchor>
+      <arglist>(const std::string &amp;tblName, const std::vector&lt; std::string &gt; &amp;colsName)</arglist>
+    </member>
+    <member kind="function">
+      <type>std::vector&lt; std::string &gt;</type>
+      <name>tablesList</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>ae542e860b4334c9eb286323fcd90c1a6</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>std::vector&lt; std::string &gt;</type>
+      <name>tableColumnsList</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>aad56d43498f5900dad24ccb5ca673225</anchor>
+      <arglist>(const std::string &amp;tableName, std::vector&lt; ProjectTableColumnDataType &gt; &amp;colDataTypes)</arglist>
+    </member>
+    <member kind="function">
       <type>int</type>
       <name>tableSize</name>
       <anchorfile>classmbapi_1_1Model.html</anchorfile>
       <anchor>abfbcac1ce060100240c7f866623ae1ce</anchor>
       <arglist>(const std::string &amp;tableName)</arglist>
+    </member>
+    <member kind="function">
+      <type>long</type>
+      <name>tableValueAsInteger</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>ae26a07b62306ed91296314afddf2a5ed</anchor>
+      <arglist>(const std::string &amp;tableName, size_t rowNumber, const std::string &amp;propName)</arglist>
     </member>
     <member kind="function">
       <type>double</type>
@@ -908,6 +1307,13 @@
       <anchorfile>classmbapi_1_1Model.html</anchorfile>
       <anchor>a4f1c412e4cb1fafdb7fdfa7f1873ac26</anchor>
       <arglist>(const std::string &amp;tableName, size_t rowNumber, const std::string &amp;propName)</arglist>
+    </member>
+    <member kind="function">
+      <type>ErrorHandler::ReturnCode</type>
+      <name>setTableValue</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>abb3282fff42e86f1020e43fc5428bd2f</anchor>
+      <arglist>(const std::string &amp;tableName, size_t rowNumber, const std::string &amp;propName, long propValue)</arglist>
     </member>
     <member kind="function">
       <type>ErrorHandler::ReturnCode</type>
@@ -952,6 +1358,13 @@
       <arglist>(const char *projectFileName)</arglist>
     </member>
     <member kind="function">
+      <type>std::string</type>
+      <name>projectFileName</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>a912fec559a672a5625a029eea2278a22</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
       <type>StratigraphyManager &amp;</type>
       <name>stratigraphyManager</name>
       <anchorfile>classmbapi_1_1Model.html</anchorfile>
@@ -992,6 +1405,27 @@
       <anchorfile>classmbapi_1_1Model.html</anchorfile>
       <anchor>a8bc2f524b4271bb406d057140efffed3</anchor>
       <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>MapsManager &amp;</type>
+      <name>mapsManager</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>a084516d88abc0ee0955037e26a42902f</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>ReturnCode</type>
+      <name>origin</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>a840578561e2be0c6e3e069f004061073</anchor>
+      <arglist>(double &amp;x, double &amp;y)</arglist>
+    </member>
+    <member kind="function">
+      <type>ReturnCode</type>
+      <name>arealSize</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>a65ce2138d1f29884606f4c1e5dd25afc</anchor>
+      <arglist>(double &amp;dimX, double &amp;dimY)</arglist>
     </member>
   </compound>
   <compound kind="class">
@@ -1091,6 +1525,13 @@
       <anchorfile>classmbapi_1_1SourceRockManager.html</anchorfile>
       <anchor>a1aaa769f87b73110d49381358e65669a</anchor>
       <arglist>(SourceRockID id, double newTOC)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual ReturnCode</type>
+      <name>setTOCInitMapName</name>
+      <anchorfile>classmbapi_1_1SourceRockManager.html</anchorfile>
+      <anchor>a531d34a49050bfc54c19e7aa3e4629e9</anchor>
+      <arglist>(SourceRockID id, const std::string &amp;mapName)=0</arglist>
     </member>
     <member kind="function" virtualness="pure">
       <type>virtual double</type>
@@ -1196,6 +1637,13 @@
       <anchorfile>classmbapi_1_1SourceRockManager.html</anchorfile>
       <anchor>a1aaa769f87b73110d49381358e65669a</anchor>
       <arglist>(SourceRockID id, double newTOC)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual ReturnCode</type>
+      <name>setTOCInitMapName</name>
+      <anchorfile>classmbapi_1_1SourceRockManager.html</anchorfile>
+      <anchor>a531d34a49050bfc54c19e7aa3e4629e9</anchor>
+      <arglist>(SourceRockID id, const std::string &amp;mapName)=0</arglist>
     </member>
     <member kind="function" virtualness="pure">
       <type>virtual double</type>
@@ -1308,6 +1756,34 @@
       <arglist>(LayerID id)=0</arglist>
     </member>
     <member kind="function" virtualness="pure">
+      <type>virtual double</type>
+      <name>eldestLayerAge</name>
+      <anchorfile>classmbapi_1_1StratigraphyManager.html</anchorfile>
+      <anchor>ab51d60cb163935f5305f19c91ba57ab7</anchor>
+      <arglist>()=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual ErrorHandler::ReturnCode</type>
+      <name>layerLithologiesList</name>
+      <anchorfile>classmbapi_1_1StratigraphyManager.html</anchorfile>
+      <anchor>a1b19b2f0373285b8dfd7c909dc9944f0</anchor>
+      <arglist>(LayerID id, std::vector&lt; std::string &gt; &amp;lithoList, std::vector&lt; double &gt; &amp;lithoPercent)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual ErrorHandler::ReturnCode</type>
+      <name>setLayerLithologiesList</name>
+      <anchorfile>classmbapi_1_1StratigraphyManager.html</anchorfile>
+      <anchor>a907c128c45f029e469dc00b2156f5fa0</anchor>
+      <arglist>(LayerID id, const std::vector&lt; std::string &gt; &amp;lithoList, const std::vector&lt; double &gt; &amp;lithoPercent)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual std::vector&lt; LayerID &gt;</type>
+      <name>findLayersForLithology</name>
+      <anchorfile>classmbapi_1_1StratigraphyManager.html</anchorfile>
+      <anchor>ab5b7608a217dea56fc9c8946dcd44d36</anchor>
+      <arglist>(const std::string &amp;lithoName)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
       <type>virtual ReturnCode</type>
       <name>setLayerSurfaces</name>
       <anchorfile>classmbapi_1_1StratigraphyManager.html</anchorfile>
@@ -1441,6 +1917,34 @@
       <arglist>(LayerID id)=0</arglist>
     </member>
     <member kind="function" virtualness="pure">
+      <type>virtual double</type>
+      <name>eldestLayerAge</name>
+      <anchorfile>classmbapi_1_1StratigraphyManager.html</anchorfile>
+      <anchor>ab51d60cb163935f5305f19c91ba57ab7</anchor>
+      <arglist>()=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual ErrorHandler::ReturnCode</type>
+      <name>layerLithologiesList</name>
+      <anchorfile>classmbapi_1_1StratigraphyManager.html</anchorfile>
+      <anchor>a1b19b2f0373285b8dfd7c909dc9944f0</anchor>
+      <arglist>(LayerID id, std::vector&lt; std::string &gt; &amp;lithoList, std::vector&lt; double &gt; &amp;lithoPercent)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual ErrorHandler::ReturnCode</type>
+      <name>setLayerLithologiesList</name>
+      <anchorfile>classmbapi_1_1StratigraphyManager.html</anchorfile>
+      <anchor>a907c128c45f029e469dc00b2156f5fa0</anchor>
+      <arglist>(LayerID id, const std::vector&lt; std::string &gt; &amp;lithoList, const std::vector&lt; double &gt; &amp;lithoPercent)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual std::vector&lt; LayerID &gt;</type>
+      <name>findLayersForLithology</name>
+      <anchorfile>classmbapi_1_1StratigraphyManager.html</anchorfile>
+      <anchor>ab5b7608a217dea56fc9c8946dcd44d36</anchor>
+      <arglist>(const std::string &amp;lithoName)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
       <type>virtual ReturnCode</type>
       <name>setLayerSurfaces</name>
       <anchorfile>classmbapi_1_1StratigraphyManager.html</anchorfile>
@@ -1531,6 +2035,7 @@
     <filename>namespacembapi.html</filename>
     <class kind="class">mbapi::FluidManager</class>
     <class kind="class">mbapi::LithologyManager</class>
+    <class kind="class">mbapi::MapsManager</class>
     <class kind="class">mbapi::Model</class>
     <class kind="class">mbapi::PropertyManager</class>
     <class kind="class">mbapi::SnapshotManager</class>
@@ -1623,14 +2128,30 @@
     <filename>CASA_ParameterPage</filename>
   </compound>
   <compound kind="page">
+    <name>CASA_CrustThinningPage</name>
+    <title>Multi event crust thinning parameter</title>
+    <filename>CASA_CrustThinningPage</filename>
+  </compound>
+  <compound kind="page">
     <name>CASA_LithoSTPThermalCondPage</name>
     <title>Lithology STP (Standart Temperature and Pressure) thermal conductivity coefficient [W/m/K]</title>
     <filename>CASA_LithoSTPThermalCondPage</filename>
   </compound>
   <compound kind="page">
     <name>CASA_OneCrustThinningEventPage</name>
-    <title>Crust thinning parameter</title>
+    <title>One event crust thinning parameter</title>
     <filename>CASA_OneCrustThinningEventPage</filename>
+  </compound>
+  <compound kind="page">
+    <name>CASA_PermeabilityModelPage</name>
+    <title>Lithology permeability model</title>
+    <filename>CASA_PermeabilityModelPage</filename>
+    <docanchor file="CASA_PermeabilityModelPage">perm_vs_por</docanchor>
+    <docanchor file="CASA_PermeabilityModelPage">stand_lith_perm</docanchor>
+    <docanchor file="CASA_PermeabilityModelPage" title="None/Impermeable models means tiny constant permeability">PermeabilityModelPrmInpermeableSec</docanchor>
+    <docanchor file="CASA_PermeabilityModelPage" title="Permeability model for sandstone">PermeabilityModelPrmSandstoneSec</docanchor>
+    <docanchor file="CASA_PermeabilityModelPage" title="Permeability model for mudstone">PermeabilityModelPrmMudstoneSec</docanchor>
+    <docanchor file="LithologyManagerPage" title="Permeability model is described by a Permeability vs Porosity profile">MultiPointPermModelSubSec</docanchor>
   </compound>
   <compound kind="page">
     <name>CASA_PorosityModelPage</name>
@@ -1740,6 +2261,15 @@
     <docanchor file="LithologyManagerPage" title="Exponential porosity model">ExpPorosityModelSubSec</docanchor>
     <docanchor file="LithologyManagerPage" title="Soil mechanics porosity model">SoilMechPorosityModelSubSec</docanchor>
     <docanchor file="LithologyManagerPage" title="Double-Exponential porosity model">DoubleExpPorosityModelSubSec</docanchor>
+    <docanchor file="LithologyManagerPage" title="Permeability models">PermModelsSpec</docanchor>
+    <docanchor file="LithologyManagerPage" title="None model means tiny constant permeability">NonePermModelSubSec</docanchor>
+    <docanchor file="LithologyManagerPage" title="Permeability for sandstone">SandPermModelSubSec</docanchor>
+    <docanchor file="LithologyManagerPage" title="Permeability for mudstone">MudPermModelSubSec</docanchor>
+  </compound>
+  <compound kind="page">
+    <name>MapsManagerPage</name>
+    <title>Maps Manager</title>
+    <filename>MapsManagerPage</filename>
   </compound>
   <compound kind="page">
     <name>SourceRockManagerPage</name>

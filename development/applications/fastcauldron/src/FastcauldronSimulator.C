@@ -882,6 +882,9 @@ void FastcauldronSimulator::finalise ( const bool saveResults ) {
       m_fastcauldronSimulator->finishActivity ( saveResults );
 
       if ( saveResults and m_fastcauldronSimulator->getRank () == 0 and m_fastcauldronSimulator->getCalculationMode () != NO_CALCULATION_MODE ) {
+         m_fastcauldronSimulator->setSimulationDetails ( "fastcauldron",
+                                                         getSimulationModeString ( m_fastcauldronSimulator->getCalculationMode ()),
+                                                         m_fastcauldronSimulator->m_commandLine );
 
          if ( m_fastcauldronSimulator->getModellingMode () == Interface::MODE1D ) 
          {
@@ -1469,36 +1472,9 @@ void FastcauldronSimulator::setToConstantDensity () {
 //------------------------------------------------------------//
 
 void FastcauldronSimulator::correctAllPropertyLists () {
-
-   if ( getModellingMode () == Interface::MODE1D ) {
-      correctAllPropertyLists1D ();
-   } else {
-      correctAllPropertyLists3D ();
-   }
-
    correctTimeFilterDefaults ();
    connectOutputProperties ();
   
-}
-
-//------------------------------------------------------------//
-
-void FastcauldronSimulator::correctAllPropertyLists1D () {
-
-   if ( findProperty ( "ChemicalCompaction" ) == 0 ) {
-      m_properties.push_back (getFactory ()->produceProperty (this, 0, "ChemicalCompaction", "ChemicalCompaction", "", Interface::FORMATIONPROPERTY));
-   }
-
-}
-
-//------------------------------------------------------------//
-
-void FastcauldronSimulator::correctAllPropertyLists3D () {
-
-   if ( findProperty ( "ChemicalCompaction" ) == 0 ) {
-      m_properties.push_back (getFactory ()->produceProperty (this, 0, "ChemicalCompaction", "ChemicalCompaction", "", Interface::FORMATIONPROPERTY));
-   }
-
 }
 
 //------------------------------------------------------------//
@@ -1926,6 +1902,11 @@ void FastcauldronSimulator::readCommandLineParametersEarlyStage( const int argc,
    if ( getModellingMode () != Interface::MODE1D ) {
       H5_Parallel_PropertyList::setOneFilePerProcessOption ();
    }
+
+   for ( int i = 1; i < argc; ++i ) {
+      m_commandLine += std::string ( argv [ i ]) + ( i == argc - 1 ? "" : " " );
+   }
+
    H5_Parallel_PropertyList::setOneNodeCollectiveBufferingOption();
 }
 

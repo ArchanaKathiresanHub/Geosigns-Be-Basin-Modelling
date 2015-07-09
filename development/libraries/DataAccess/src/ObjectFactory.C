@@ -53,6 +53,7 @@
 #include "Interface/Reservoir.h"
 #include "Interface/RunParameters.h"
 #include "Interface/SGDensitySample.h"
+#include "Interface/SimulationDetails.h"
 #include "Interface/Snapshot.h"
 #include "Interface/SourceRock.h"
 #include "Interface/Surface.h"
@@ -171,6 +172,11 @@ ProjectData * ObjectFactory::produceProjectData (ProjectHandle * projectHandle, 
    return new ProjectData ( projectHandle, record );
 }
 
+SimulationDetails* ObjectFactory::produceSimulationDetails ( ProjectHandle * projectHandle, database::Record * record ) {
+   return new SimulationDetails ( projectHandle, record );
+}
+
+
 AllochthonousLithology * ObjectFactory::produceAllochthonousLithology (ProjectHandle * projectHandle, database::Record * record)
 {
   return new AllochthonousLithology (projectHandle, record);
@@ -261,12 +267,13 @@ InputValue * ObjectFactory::produceInputValue (ProjectHandle * projectHandle, da
 }
 
 Property * ObjectFactory::produceProperty (ProjectHandle * projectHandle, database::Record * record,
-      const string & userName, const string & cauldronName,
-      const string & unit, PropertyType type)
+                                           const string & userName, const string & cauldronName,
+                                           const string & unit, PropertyType type,
+                                           const DataModel::PropertyAttribute attr)
 {
    return new Property (projectHandle, record,
-	 userName, cauldronName,
-	 unit, type);
+                        userName, cauldronName,
+                        unit, type, attr);
 }
 
 PropertyValue * ObjectFactory::producePropertyValue (ProjectHandle * projectHandle, database::Record * record ,const string & name,

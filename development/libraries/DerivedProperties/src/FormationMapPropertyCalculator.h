@@ -31,6 +31,11 @@ namespace DerivedProperties {
                                const DataModel::AbstractFormation* formation,
                                      FormationMapPropertyList&     derivedProperties ) const = 0;
 
+      /// \brief Determine if the property is computable for the specific combination of formation and snapshot.
+      virtual bool isComputable ( const AbstractPropertyManager&      propManager,
+                                  const DataModel::AbstractSnapshot*  snapshot,
+                                  const DataModel::AbstractFormation* formation ) const;
+
    };
 
 

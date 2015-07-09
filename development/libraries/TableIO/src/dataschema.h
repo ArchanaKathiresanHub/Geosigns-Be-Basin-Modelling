@@ -1,3 +1,14 @@
+//
+// Copyright (C) 2012-2015 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+// This utility allow to load and then compare table by table 2 .project3d files
+
 #ifndef DATASCHEMA_H
 #define DATASCHEMA_H
 
@@ -8,21 +19,11 @@
 #include <stdlib.h>
 #include <assert.h>
 
-#ifdef sgi
-   #ifdef _STANDARD_C_PLUS_PLUS
-      #include<fstream>
-      using std::istream;
-      using std::ofstream;
-      using std::ostream;
-   #else // !_STANDARD_C_PLUS_PLUS
-      #include<fstream.h>
-   #endif // _STANDARD_C_PLUS_PLUS
-#else // !sgi
-   #include <fstream>
-   using std::istream;
-   using std::ofstream;
-   using std::ostream;
-#endif // sgi
+#include <fstream>
+
+using std::istream;
+using std::ofstream;
+using std::ostream;
 
 #include <string>
 #include <vector>
@@ -57,7 +58,7 @@ namespace database
       /// \param unit: a string describing the unit of the field
       /// \param defaultValue
       FieldDefinition (StorageType storageType, const std::string & name, datatype::DataType type,
-	    const std::string & unit, const std::string & defaultValue, int outputOrder = 10000);
+            const std::string & unit, const std::string & defaultValue, int outputOrder = 10000);
       ~FieldDefinition (void);
 
       /// Create a complete copy of this object and its attributes
@@ -68,7 +69,7 @@ namespace database
       /// outputs the unit value onto the specified stream
       bool saveUnitToStream (ostream & ofile, int & borrowed) const;
 
-    public:
+   public:
       /// returns the storage type (Volatile or Persistent)
       inline StorageType storageType () const;
       /// returns the name
@@ -123,7 +124,7 @@ namespace database
       /// by order
       inline size_t getPosition (size_t order) const;
 
-    public:
+   public:
       /// return the name of a TableDefinition
       inline const std::string & name () const;
       /// return the description of a TableDefinition
@@ -134,12 +135,12 @@ namespace database
 
       /// Creates a new FieldDefinition with the specified attributes
       bool addFieldDefinition (const std::string & name, datatype::DataType type,
-	    const std::string & unit, const std::string & defaultValue, int outputOrder = 10000);
+            const std::string & unit, const std::string & defaultValue, int outputOrder = 10000);
 
       /// Creates a new, volatile, FieldDefinition with the specified attributes.
       /// Fields of this FieldDefinition will not be saved.
       bool addVolatileFieldDefinition (const std::string & name, datatype::DataType type,
-	    const std::string & unit, const std::string & defaultValue);
+            const std::string & unit, const std::string & defaultValue);
 
       /// returns the FieldDefinition at the specified index
       inline FieldDefinition * getFieldDefinition (size_t i) const;
@@ -166,7 +167,7 @@ namespace database
 
       DataSchema * deepCopy () const;
 
-    public:
+      public:
       /// Create an empty DataSchema
       DataSchema (void);
       /// Destroy a DataSchema
@@ -249,7 +250,7 @@ namespace database
    size_t TableDefinition::getPosition (size_t order) const
    {
       assert (order < m_outputOrdering.size ());
-      
+
       return m_outputOrdering[order];
    }
 
@@ -266,9 +267,9 @@ namespace database
    FieldDefinition * TableDefinition::getFieldDefinition  (size_t i) const
    {
       if (i >= size ())
-	 return 0;
+         return 0;
       else
-	 return m_fieldDefinitionList[i];
+         return m_fieldDefinitionList[i];
    }
 
    size_t DataSchema::size (void) const

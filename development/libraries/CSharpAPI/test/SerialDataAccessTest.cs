@@ -13,7 +13,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Shell.BasinModeling.Cauldron;
 
-
 namespace BasinModelingLinkTest
 {
     [TestClass]
@@ -25,17 +24,18 @@ namespace BasinModelingLinkTest
             string pathToProject3D = @"..\..\..\..\..\Project.project3d";
             ProjectHandle projectHandle = CauldronAPI.OpenCauldronProject(pathToProject3D.Replace("\\", "/"), "r");
 
-            Assert.IsNotNull(projectHandle, "Could not open project file");
+            Assert.IsNotNull(projectHandle, "Could not open project file: "+pathToProject3D);
 
             FormationList formations = projectHandle.getFormations();
-            Assert.IsTrue(formations.Count == 1, "Not all formations loaded");
+            Assert.IsTrue(formations.Count == 1, "Not all formations loaded, expected 1 but loaded: " + formations.Count.ToString() );
 
             SurfaceList surfaces = projectHandle.getSurfaces();
-            Assert.IsTrue(surfaces.Count == 2, "Not all surfaces loaded");
+            Assert.IsTrue(surfaces.Count == 2, "Not all surfaces loaded, expected 2 but loaded: " + surfaces.Count.ToString() );
 
             // Get all possible properties
             PropertyList properties = projectHandle.getProperties(true);
-            Assert.IsTrue(properties.Count >= 402, "Not all possible properties loaded");
+            
+            Assert.IsTrue(properties.Count >= 395, "Not all possible properties loaded, expected > 395 but loaded: "+properties.Count.ToString() );
 
             // Get all defined properties
             properties = projectHandle.getProperties();

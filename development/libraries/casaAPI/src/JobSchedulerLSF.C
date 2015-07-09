@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2012-2014 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 // CMB
 #include "ErrorHandler.h"
@@ -89,14 +89,15 @@ public:
 #ifdef WITH_LSF_SCHEDULER
       if ( m_submit.projectName ) free( m_submit.projectName );
       if ( m_submit.command )     free( m_submit.command );
-      if ( m_submit.jobName )     free( m_submit.jobName ); 
-      if ( m_submit.cwd )         free( m_submit.cwd     ); 
-      if ( m_submit.outFile )     free( m_submit.outFile ); 
-      if ( m_submit.errFile )     free( m_submit.errFile ); 
+      if ( m_submit.jobName )     free( m_submit.jobName );
+      if ( m_submit.cwd )         free( m_submit.cwd     );
+      if ( m_submit.outFile )     free( m_submit.outFile );
+      if ( m_submit.errFile )     free( m_submit.errFile );
 #endif
    }
 
-   const char * command() const { 
+   const char * command() const
+   {
 #ifdef WITH_LSF_SCHEDULER
       return m_submit.command;
 #else
@@ -153,11 +154,12 @@ public:
 
       if ( jobInfo->status & JOB_STAT_RUN ) return JobRunning;     // job is running
 
-      if ( jobInfo->status & JOB_STAT_WAIT || // chunk job waiting its execution turn
-         jobInfo->status & JOB_STAT_PEND || // job is pending
-         jobInfo->status & JOB_STAT_PSUSP || // job is held                          
-         jobInfo->status & JOB_STAT_SSUSP || // job is suspended by LSF batch system
-         jobInfo->status & JOB_STAT_USUSP ) // job is suspended by user
+      if ( jobInfo->status & JOB_STAT_WAIT  || // chunk job waiting its execution turn
+           jobInfo->status & JOB_STAT_PEND  || // job is pending
+           jobInfo->status & JOB_STAT_PSUSP || // job is held
+           jobInfo->status & JOB_STAT_SSUSP || // job is suspended by LSF batch system
+           jobInfo->status & JOB_STAT_USUSP    // job is suspended by user
+         )
       {
          return JobPending;
       }
@@ -191,7 +193,7 @@ public:
       ok = ok ? sz.save( std::string( m_submit.errFile ),          "StdErrLogFile"  ) : ok;
       ok = ok ? sz.save( m_submit.options,          "OptionsFlags"   ) : ok;
       ok = ok ? sz.save( std::string( m_submit.cwd ),              "CWD"            ) : ok;
-      ok = ok ? sz.save( m_submit.options3,         "Options3Flags"  ) : ok; 
+      ok = ok ? sz.save( m_submit.options3,         "Options3Flags"  ) : ok;
       ok = ok ? sz.save( m_submit.numProcessors,    "CPUsNum"        ) : ok;
       ok = ok ? sz.save( m_submit.maxNumProcessors, "MaxCPUsNum"     ) : ok;
 
@@ -243,11 +245,10 @@ public:
       ok = ok ? dz.load( buf, "CWD" ) : ok;
       m_submit.cwd = strdup( buf.c_str() );
 
-      ok = ok ? dz.load( m_submit.options3,         "Options3Flags"  ) : ok; 
+      ok = ok ? dz.load( m_submit.options3,         "Options3Flags"  ) : ok;
       ok = ok ? dz.load( m_submit.numProcessors,    "CPUsNum"        ) : ok;
       ok = ok ? dz.load( m_submit.maxNumProcessors, "MaxCPUsNum"     ) : ok;
       ok = ok ? dz.load( m_lsfJobID,                "LSFJobID" ) : ok;
-      
 #else
       ok = ok ? dz.load( m_command,  "Command" ) : ok;
 #endif
@@ -265,7 +266,7 @@ public:
    // fields related to interaction with LSF
    struct submit      m_submit;     // lsf_submit use values from this structure to submit job
    struct submitReply m_submitRepl; // lsf_submit returns here some info in case of error
-   
+
    LS_LONG_INT        m_lsfJobID;   // job ID in LSF
 #else
    std::string        m_command;    // command to execute
@@ -340,7 +341,7 @@ JobScheduler::JobState JobSchedulerLSF::runJob( JobID job )
             << ", LSF error: " << lsberrno << ", message: " << lsb_sysmsg()
 #endif
          ;
-      } 
+      }
    }
    return jobState( job );
 }
@@ -385,7 +386,7 @@ JobSchedulerLSF::JobSchedulerLSF( CasaDeserializer & dz, unsigned int objVer )
    }
 
    bool ok = dz.load( m_clusterName, "ClusterName" );
-   
+
    size_t setSize;
    ok = ok ? dz.load( setSize, "JobsQueueSize" ) : ok;
    for ( size_t i = 0; i < setSize && ok; ++i )
@@ -409,7 +410,7 @@ void JobSchedulerLSF::printLSFBParametersInfo()
    {
       return throw ErrorHandler::Exception( ErrorHandler::LSFLibError ) << ls_sysmsg();
    }
-   
+
    std::cout << lsfbPrms->defaultQueues                << ": DEFAULT_QUEUE: A blank_separated list of queue names for automatic queue selection. " << std::endl;
    std::cout << lsfbPrms->defaultHostSpec              << ": DEFAULT_HOST_SPEC: The host name or host model name used as the system default for scaling CPULIMIT and RUNLIMIT. " << std::endl;
    std::cout << lsfbPrms->mbatchdInterval              << ": MBD_SLEEP_TIME: The interval in seconds at which the mbatchd dispatches jobs. " << std::endl;

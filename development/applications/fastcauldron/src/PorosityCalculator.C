@@ -66,6 +66,8 @@ bool PorosityCalculator::operator ()( const OutputPropertyMap::OutputPropertyLis
 
    }
 
+ 	OutputPropertyMap*  depth = PropertyManager::getInstance().findOutputPropertyMap ( "Depth", m_formation, m_surface, m_snapshot );
+
    porosityMap = propertyValues [ 0 ]->getGridMap ();
    porosityMap->retrieveData ();
    undefinedValue = porosityMap->getUndefinedValue ();
@@ -84,6 +86,7 @@ bool PorosityCalculator::operator ()( const OutputPropertyMap::OutputPropertyLis
 
             value = 100.0 * (*m_lithologies)( i, j )->porosity ( (*m_ves)( i, j ), (*m_maxVes)( i, j ), m_chemicalCompactionRequired, chemicalCompactionValue );
             porosityMap->setValue ( i, j, value );
+            
          } else {
             porosityMap->setValue ( i, j, undefinedValue );
          }
