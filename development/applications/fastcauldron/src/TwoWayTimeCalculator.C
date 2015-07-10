@@ -182,7 +182,7 @@ bool TwoWayTimeCalculator::initialise ( OutputPropertyMap::PropertyValueList& pr
    // If we are not at the present day snapshot (t=0Ma): we do not ouput/compute the property.
    // !(*m_snapshot == *presentDaySnapshot) is a temporary coding --> cannot be fixed until derived property library is implemented
    const Interface::Snapshot* presentDaySnapshot = FastcauldronSimulator::getInstance( ).findOrCreateSnapshot( 0.0 );
-   assert( presentDaySnapshot != 0 );
+   assert( ("presentDaySnapshot must be created", presentDaySnapshot != 0) );
    if (FastcauldronSimulator::getInstance( ).getCauldron( )->no2Doutput( ) or !(*m_snapshot == *presentDaySnapshot)) {
       propertyValues[0]->allowOutput( false );
    }
@@ -330,7 +330,7 @@ bool TwoWayTimeVolumeCalculator::initialise ( OutputPropertyMap::PropertyValueLi
    // If we are not at the present day snapshot (t=0Ma): we do not ouput/compute the property.
    // !(*m_snapshot == *presentDaySnapshot) is a temporary coding --> cannot be fixed until derived property library is implemented
    const Interface::Snapshot* presentDaySnapshot = FastcauldronSimulator::getInstance( ).findOrCreateSnapshot( 0.0 );
-   assert( presentDaySnapshot != 0 );
+   assert(( "presentDaySnapshot must be created", presentDaySnapshot != 0 ));
    if (!(*m_snapshot == *presentDaySnapshot)) {
       propertyValues[0]->allowOutput( false );
    }
@@ -432,7 +432,7 @@ bool TwoWayTimeResidualCalculator::initialise( OutputPropertyMap::PropertyValueL
    // or if we are not at the present day snapshot (t=0Ma): we do not ouput/compute the property.
    // !(*m_snapshot == *presentDaySnapshot) is a temporary coding --> cannot be fixed until derived property library is implemented
    const Interface::Snapshot* presentDaySnapshot = FastcauldronSimulator::getInstance( ).findOrCreateSnapshot( 0.0 );
-   assert( presentDaySnapshot != 0 );
+   assert( ("presentDaySnapshot must be created", presentDaySnapshot != 0) );
    if (FastcauldronSimulator::getInstance( ).getCauldron( )->no2Doutput( ) or !m_twoWayTimeInitial or !(*m_snapshot == *presentDaySnapshot) ) {
       propertyValues[0]->allowOutput( false );
    }
