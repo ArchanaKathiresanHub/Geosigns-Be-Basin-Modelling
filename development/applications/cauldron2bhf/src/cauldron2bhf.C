@@ -165,6 +165,11 @@ int main (int argc, char ** argv)
    if (projectHandle == 0)
    {
       cerr << "Could not open project file " << inputProjectFileName << endl;
+
+      if ( factory != 0 ) {
+         delete factory;
+      }
+
       return -1;
    }
 
@@ -181,6 +186,8 @@ int main (int argc, char ** argv)
       {
 	 cerr << "Could not find the " << propertyHandles[p].name << " property in the project file " << endl
 	    << "Rerun pressure/temperature with the " << propertyHandles[p].name << " property turned on" << endl;
+         delete projectHandle;
+         delete factory;
 	 return -1;
 
       }
@@ -188,6 +195,8 @@ int main (int argc, char ** argv)
       if ( not propertyManager.surfacePropertyIsComputable ( propertyHandles[p].property )) {
 	 cerr << "Could not find the " << propertyHandles[p].name << " property in the project file " << endl
 	    << "Rerun pressure/temperature with the " << propertyHandles[p].name << " property turned on" << endl;
+         delete projectHandle;
+         delete factory;
 	 return -1;
       }
 
@@ -216,6 +225,8 @@ int main (int argc, char ** argv)
       generateBHF (projectHandle, propertyManager, 0);
    }
 
+   delete projectHandle;
+   delete factory;
    return 0;
 }
 
