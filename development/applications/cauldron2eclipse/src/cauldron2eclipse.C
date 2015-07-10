@@ -321,6 +321,25 @@ int main (int argc, char ** argv)
       outputFileName = projectFileName.substr (0, dotPos);
    }
 
+   bool started = projectHandle->startActivity ( "cauldron2eclipse", projectHandle->getLowResolutionOutputGrid (), false, false, false );
+   bool coupledCalculation = false;
+
+   if ( not started) {
+      return 1;
+   }
+
+   started = projectHandle->initialise ( coupledCalculation );
+
+   if ( not started ) {
+      return 1;
+   }
+
+   started = projectHandle->setFormationLithologies ( false, true );
+
+   if ( not started ) {
+      return 1;
+   }
+
    if (doAscii)
    {
       outputFile.open ((outputFileName + ".ECL").c_str ());
@@ -1256,6 +1275,8 @@ int main (int argc, char ** argv)
    }
 
    CloseCauldronProject (projectHandle);
+   delete factory;
+
    if (debug)
       cerr << "Project closed" << endl;
 
