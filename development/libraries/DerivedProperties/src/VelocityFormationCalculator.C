@@ -66,6 +66,8 @@ void DerivedProperties::VelocityFormationCalculator::calculate ( DerivedProperti
                                                                                                                                 formation, 
                                                                                                                                 propertyManager.getMapGrid (),
                                                                                                                                 geophysicsFormation->getMaximumNumberOfElements() + 1 ));
+
+         double currentTime = snapshot->getTime();
          double undefinedValue = velocity->getUndefinedValue ();
          double velocityValue;
          
@@ -76,7 +78,7 @@ void DerivedProperties::VelocityFormationCalculator::calculate ( DerivedProperti
                if ( projectHandle->getNodeIsValid ( i, j )) {
                   
                   for ( unsigned int k = velocity->firstK (); k <= velocity->lastK (); ++k ) {
-                     (*lithologies)( i, j )->calcVelocity ( geophysicsFluid,
+                     (*lithologies)( i, j, currentTime )->calcVelocity ( geophysicsFluid,
                                                             velocityAlgorithm,
                                                             porosity->get ( i, j, k ),
                                                             bulkDensity->get ( i, j, k ),

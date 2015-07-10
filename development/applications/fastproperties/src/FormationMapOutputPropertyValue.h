@@ -27,7 +27,9 @@ public :
 
    const string & getName() const { return  m_formationMapProperty->getProperty()->getName(); }
 
-private :
+   bool hasMap() const { return  m_formationMapProperty != 0; }
+
+ private :
 
    DerivedProperties::FormationMapPropertyPtr m_formationMapProperty;
 

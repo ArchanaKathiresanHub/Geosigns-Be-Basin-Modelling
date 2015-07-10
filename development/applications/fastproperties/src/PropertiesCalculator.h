@@ -94,7 +94,8 @@ private:
    // The name of the last simulation fastcauldron mode
    string m_simulationMode;
 
-
+   // The type of snapshots to calculate derived properties at
+   int m_snapshotsType;
 public:
 
    bool showLists();

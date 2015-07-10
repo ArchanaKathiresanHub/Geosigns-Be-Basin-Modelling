@@ -30,6 +30,7 @@ public :
 
    const string & getName() const { return  m_formationProperty->getProperty()->getName(); }
 
+   bool hasMap() const { return  m_formationProperty != 0; }
 private :
 
    DerivedProperties::FormationPropertyPtr m_formationProperty;

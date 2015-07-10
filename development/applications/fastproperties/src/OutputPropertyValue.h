@@ -19,6 +19,7 @@ public :
    
    virtual const string & getName() const = 0;
 
+   virtual bool hasMap() const = 0;
 
 };
 

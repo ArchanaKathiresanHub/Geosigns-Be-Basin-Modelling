@@ -12,8 +12,13 @@ void DerivedProperties::FaultElementFormationMapCalculator::calculate ( Abstract
                                                                         const DataModel::AbstractFormation* formation,
                                                                               FormationMapPropertyList&     derivedProperties ) const {
 
-   const DataModel::AbstractProperty* faultElementProperty = propertyManager.getProperty ( "FaultElements" );
+ 
    const GeoPhysics::Formation* geophysicsFormation = dynamic_cast<const GeoPhysics::Formation*>( formation );
+
+   if( not geophysicsFormation->getContainsFaults () ) {
+      return;
+   }
+   const DataModel::AbstractProperty* faultElementProperty = propertyManager.getProperty ( "FaultElements" );
 
    derivedProperties.clear ();
 

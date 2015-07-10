@@ -66,6 +66,8 @@ void DerivedProperties::PermeabilityFormationSurfaceCalculator::calculate ( Deri
             DerivedFormationSurfacePropertyPtr ( new DerivedProperties::DerivedFormationSurfaceProperty ( aPermeabilityHProperty, snapshot, 
                                                                                                           formation, surface, propertyManager.getMapGrid () ));
          double undefinedValue = ves->getUndefinedValue ();
+         double currentTime = snapshot->getTime();
+
          double chemicalCompactionValue, permNorm, permPlane;
          GeoPhysics::CompoundProperty porosity;
 
@@ -88,11 +90,11 @@ void DerivedProperties::PermeabilityFormationSurfaceCalculator::calculate ( Deri
                      chemicalCompactionValue = ( chemicalCompactionRequired ? chemicalCompaction->get ( i, j ) : 0.0 );
 
 #ifdef FORMATION_PROPERTY
-                     (*lithologies)( i, j )->getPorosity ( ves->get ( i, j, vesK ), maxVes->get ( i, j, maxVesK ), chemicalCompactionRequired, chemicalCompactionValue, porosity );
-                     (*lithologies)( i, j )->calcBulkPermeabilityNP ( ves->get ( i, j, vesK ), maxVes->get ( i, j, maxVesK ), porosity, permNorm, permPlane );
+                     (*lithologies)( i, j, currentTime )->getPorosity ( ves->get ( i, j, vesK ), maxVes->get ( i, j, maxVesK ), chemicalCompactionRequired, chemicalCompactionValue, porosity );
+                     (*lithologies)( i, j, currentTime )->calcBulkPermeabilityNP ( ves->get ( i, j, vesK ), maxVes->get ( i, j, maxVesK ), porosity, permNorm, permPlane );
 #else
-                     (*lithologies)( i, j )->getPorosity ( ves->get ( i, j ), maxVes->get ( i, j ), chemicalCompactionRequired, chemicalCompactionValue, porosity );
-                     (*lithologies)( i, j )->calcBulkPermeabilityNP ( ves->get ( i, j ), maxVes->get ( i, j ), porosity, permNorm, permPlane );
+                     (*lithologies)( i, j, currentTime )->getPorosity ( ves->get ( i, j ), maxVes->get ( i, j ), chemicalCompactionRequired, chemicalCompactionValue, porosity );
+                     (*lithologies)( i, j, currentTime )->calcBulkPermeabilityNP ( ves->get ( i, j ), maxVes->get ( i, j ), porosity, permNorm, permPlane );
 #endif                     
                      
                      verticalPermeability->set ( i, j, permNorm / GeoPhysics::MILLIDARCYTOM2 );

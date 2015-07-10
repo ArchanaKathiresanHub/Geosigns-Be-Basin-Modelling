@@ -27,6 +27,7 @@ PropertiesCalculator::PropertiesCalculator( int aRank ) {
    m_listProperties = false;
    m_listSnapshots = false;
    m_listStratigraphy = false;
+   m_snapshotsType = MAJOR;
 
    m_projectFileName = "";
    m_simulationMode = "";
@@ -155,10 +156,12 @@ void PropertiesCalculator::calculateProperties( FormationVector& formationItems,
          {
 
             const Property * property = *propertyIter;
-            //  cout << property->getName() << " " << formation->getName() << endl;
             OutputPropertyValuePtr outputProperty = allocateOutputProperty ( * m_propertyManager, property, snapshot, formation );
 
             if ( outputProperty != 0 ) {
+               if( m_debug && m_rank == 0 ) {
+                  cout << "Allocate " << property->getName() << " " << formation->getName() << endl;
+               }
                allOutputPropertyValues [ snapshot ][ formation ][ property ] = outputProperty;
             }
 
@@ -190,7 +193,7 @@ bool PropertiesCalculator::acquireSnapshots( SnapshotList & snapshots )
 {
    if ( m_ages.size() == 0 )
    {
-      SnapshotList * allSnapshots = m_projectHandle->getSnapshots( MAJOR | MINOR );
+      SnapshotList * allSnapshots = m_projectHandle->getSnapshots( m_snapshotsType );
       snapshots = *allSnapshots;
       return true;
    }
@@ -214,7 +217,7 @@ bool PropertiesCalculator::acquireSnapshots( SnapshotList & snapshots )
             {
                if ( firstAge >= 0 )
                {
-                  const Snapshot * snapshot = m_projectHandle->findSnapshot( firstAge, MAJOR | MINOR );
+                  const Snapshot * snapshot = m_projectHandle->findSnapshot( firstAge, m_snapshotsType );
                   if ( snapshot ) snapshots.push_back( snapshot );
                   if ( m_debug && snapshot ) cerr << "adding single snapshot " << snapshot->getTime() << endl;
                }
@@ -228,7 +231,7 @@ bool PropertiesCalculator::acquireSnapshots( SnapshotList & snapshots )
                      Swap( firstAge, secondAge );
                   }
 
-                  SnapshotList * allSnapshots = m_projectHandle->getSnapshots( MAJOR | MINOR );
+                  SnapshotList * allSnapshots = m_projectHandle->getSnapshots( m_snapshotsType );
                   SnapshotList::iterator snapshotIter;
                   for ( snapshotIter = allSnapshots->begin(); snapshotIter != allSnapshots->end(); ++snapshotIter )
                   {
@@ -391,6 +394,7 @@ const GridMap * PropertiesCalculator::getPropertyGridMap ( const string & proper
       }
          
       propertyHasMap = (*propertyValues)[0]->hasGridMap();
+
       if( propertyHasMap == 0 ) {
          propertyHasMap = (*propertyValues)[0]->getGridMap();
       }
@@ -405,10 +409,14 @@ bool PropertiesCalculator::createSnapshotResultPropertyValue ( OutputPropertyVal
                                                                const Snapshot* snapshot, const Formation * formation ) {
    
 
+   if( not propertyValue->hasMap () ) {
+      return true;
+   }
+
    double p_depth = propertyValue->getDepth();
    
    PropertyValue *thePropertyValue = 0;
-
+   
    if( p_depth > 1 ) {
       if( ! getPropertyGridMap ( propertyValue->getName(), snapshot, formation )) {
          thePropertyValue = m_projectHandle->createVolumePropertyValue ( propertyValue->getName(), snapshot, 0, formation, p_depth );
@@ -521,7 +529,7 @@ OutputPropertyValuePtr PropertiesCalculator::allocateOutputProperty ( DerivedPro
       if ( property->getPropertyAttribute () == DataModel::FORMATION_2D_PROPERTY and 
            m_propertyManager->formationMapPropertyIsComputable ( property, snapshot, formation ))
       {
-         outputProperty = OutputPropertyValuePtr ( new FormationMapOutputPropertyValue ( * m_propertyManager, property, snapshot, formation ));
+          outputProperty = OutputPropertyValuePtr ( new FormationMapOutputPropertyValue ( * m_propertyManager, property, snapshot, formation ));
       }
       
    }
@@ -557,7 +565,7 @@ void PropertiesCalculator::printListSnapshots ()  {
    if ( m_listSnapshots && m_rank == 0 ) { 
 
       cout << endl;
-      SnapshotList * mySnapshots = m_projectHandle->getSnapshots( MAJOR | MINOR );
+      SnapshotList * mySnapshots = m_projectHandle->getSnapshots( m_snapshotsType );
       SnapshotList::iterator snapshotIter;
       
       cout.precision ( 8 );
@@ -736,6 +744,10 @@ bool PropertiesCalculator::parseCommandLine( int argc, char ** argv ) {
       else if ( strncmp( argv[ arg ], "-basement", Max( 3, (int)strlen( argv[ arg ] ) ) ) == 0 )
       {
          m_basement = true;
+      }
+      else if ( strncmp( argv[ arg ], "-minor", Max( 3, (int)strlen( argv[ arg ] ) ) ) == 0 )
+      {
+         m_snapshotsType = MAJOR | MINOR;
       }
       else if ( strncmp( argv[ arg ], "-all-2D-properties", Max( 7, (int)strlen( argv[ arg ] ) ) ) == 0 )
       {

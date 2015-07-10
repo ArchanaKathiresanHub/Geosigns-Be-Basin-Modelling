@@ -82,6 +82,7 @@ void DerivedProperties::PorosityFormationCalculator::calculate ( DerivedProperti
             chemicalCompaction->retrieveData();
          }
          double undefinedValue = ves->getUndefinedValue ();
+         double currentTime = snapshot->getTime();
          
          for ( unsigned int i = porosityProp->firstI ( true ); i <= porosityProp->lastI ( true ); ++i ) {
             
@@ -91,9 +92,9 @@ void DerivedProperties::PorosityFormationCalculator::calculate ( DerivedProperti
                   
                   for ( unsigned int k = porosityProp->firstK (); k <= porosityProp->lastK (); ++k ) {
                      double chemicalCompactionValue = ( chemicalCompactionRequired ? chemicalCompaction->get ( i, j, k ) : 0.0 );
-                     double value = 100.0 * (*lithologies)( i, j )->porosity ( ves->get ( i, j, k ), maxVes->get ( i, j, k ),
-                                                                               chemicalCompactionRequired,
-                                                                               chemicalCompactionValue );
+                     double value = 100.0 * (*lithologies)( i, j, currentTime )->porosity ( ves->get ( i, j, k ), maxVes->get ( i, j, k ),
+                                                                                            chemicalCompactionRequired,
+                                                                                            chemicalCompactionValue );
                      porosityProp->set ( i, j, k, value );
                   }
                } else {
