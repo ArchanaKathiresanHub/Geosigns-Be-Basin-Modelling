@@ -33,15 +33,21 @@ FCTCalc::FCTCalc( AppCtx* Application_Context )
    // Clear the formation property list until the formation properties (e.g. Thickness) are computed in FCTCalc
    m_mapOutputProperties.clear ();
 
+  PetscBool onlyPrimaryProperties = PETSC_FALSE;
+
+  PetscOptionsHasName ( PETSC_NULL, "-primary", &onlyPrimaryProperties );
+
    m_volumeOutputProperties.push_back ( LITHOLOGY );
    m_volumeOutputProperties.push_back ( DEPTH );
    m_volumeOutputProperties.push_back ( VES );
    m_volumeOutputProperties.push_back ( MAXVES );
-   m_volumeOutputProperties.push_back ( LITHOSTATICPRESSURE );
 
+   if( not ( onlyPrimaryProperties && FastcauldronSimulator::getInstance ().getCalculationMode () == HYDROSTATIC_DECOMPACTION_MODE )) {
+      m_volumeOutputProperties.push_back ( LITHOSTATICPRESSURE );
+      m_volumeOutputProperties.push_back ( POROSITYVEC );
+   } 
    // Required for porosity calculation.
    m_volumeOutputProperties.push_back ( CHEMICAL_COMPACTION ); 
-   m_volumeOutputProperties.push_back ( POROSITYVEC );
 
    if ( FastcauldronSimulator::getInstance ().getCalculationMode () == HYDROSTATIC_HIGH_RES_DECOMPACTION_MODE )
    {
