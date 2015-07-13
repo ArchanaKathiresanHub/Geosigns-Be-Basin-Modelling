@@ -15,16 +15,16 @@ void RenderService::start()
   MoMeshViz::init();
   BpaVizInit();
 
-	ServiceSettings settings;
-	//settings.setIP("127.0.0.1");
-	settings.setPort(8081);
+  ServiceSettings settings;
+  //settings.setIP("127.0.0.1");
+  settings.setPort(8081);
   settings.setUsedExtensions(ServiceSettings::MESHVIZXLM | ServiceSettings::MESHVIZ);
 
-	std::tr1::shared_ptr<ServiceListener> serviceListener(new BpaServiceListener(this));
-	Service::instance()->addListener(serviceListener);
+  std::tr1::shared_ptr<ServiceListener> serviceListener(new BpaServiceListener(this));
+  Service::instance()->addListener(serviceListener);
 
-	// Open the service by using the settings
-	Service::instance()->open(&settings);
+  // Open the service by using the settings
+  Service::instance()->open(&settings);
 
   logMessage("RenderService started", QtServiceBase::Information);
 }
@@ -33,8 +33,8 @@ void RenderService::stop()
 {
   logMessage("Stopping RenderService", QtServiceBase::Information);
 
-	// Close the service
-	Service::instance()->close();
+  // Close the service
+  Service::instance()->close();
 
   BpaVizFinish();
   MoMeshViz::finish();

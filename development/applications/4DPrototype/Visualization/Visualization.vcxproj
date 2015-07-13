@@ -131,6 +131,7 @@
     <ClCompile Include="ROICellFilter.cpp" />
     <ClCompile Include="SceneGraph.cpp" />
     <ClCompile Include="SkinExtractor.cpp" />
+    <ClCompile Include="SnapshotNode.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BpaMesh.h" />
@@ -139,6 +140,7 @@
     <ClInclude Include="ROICellFilter.h" />
     <ClInclude Include="SceneGraph.h" />
     <ClInclude Include="SkinExtractor.h" />
+    <ClInclude Include="SnapshotNode.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

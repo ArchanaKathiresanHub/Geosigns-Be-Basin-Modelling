@@ -1,6 +1,7 @@
 #include "MainWindow.h"
 #include "GLInfoDialog.h"
 #include <Visualization/SceneGraph.h>
+#include <Visualization/SnapshotNode.h>
 
 #include "Interface/ProjectHandle.h"
 #include "Interface/Property.h"
@@ -193,6 +194,12 @@ void MainWindow::updateUI()
   std::unique_ptr<di::SurfaceList> surfaces(m_projectHandle->getSurfaces());
   for(size_t i=0; i < surfaces->size(); ++i)
   {
+    //const di::GridMap* gridMap = (*surfaces)[i]->getInputDepthMap();
+    //unsigned int k0 = gridMap->firstK();
+    //unsigned int k1 = gridMap->lastK();
+    //unsigned int ni = gridMap->numI();
+    //unsigned int nj = gridMap->numJ();
+
     QTreeWidgetItem* item = new QTreeWidgetItem(surfacesItem, TreeWidgetItem_SurfaceType);
     item->setText(0, (*surfaces)[i]->getName().c_str());
   }
@@ -482,7 +489,7 @@ void MainWindow::onMeshModeToggled(bool value)
     m_ui.sliderSliceI->setMaximum(m_sceneGraph->numI() - 1);
     m_ui.sliderSliceJ->setMaximum(m_sceneGraph->numJ() - 1);
   }
-  else
+  else if(sender() == m_ui.radioButtonReservoirs)
   {
     m_sceneGraph->setMeshMode(SceneGraph::MeshMode_Reservoirs);
 
@@ -491,6 +498,10 @@ void MainWindow::onMeshModeToggled(bool value)
 
     m_ui.sliderSliceI->setValue((m_ui.sliderSliceI->value() * nih) / nil);
     m_ui.sliderSliceJ->setValue((m_ui.sliderSliceJ->value() * njh) / njl);
+  }
+  else if (sender() == m_ui.radioButtonSurfaces)
+  {
+    m_sceneGraph->setMeshMode(SceneGraph::MeshMode_Surfaces);
   }
 }
 

@@ -2,6 +2,7 @@
 #include "SceneExaminer.h"
 
 #include <Visualization/SceneGraph.h>
+#include <Visualization/SnapshotNode.h>
 
 #include <RemoteViz/Rendering/RenderArea.h>
 #include <RemoteViz/Rendering/Connection.h>
