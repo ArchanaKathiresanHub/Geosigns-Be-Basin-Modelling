@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'GLInfoDialog.ui'
 **
-** Created: Tue 6. May 10:33:56 2014
+** Created: Mon Jul 13 10:26:06 2015
 **      by: Qt User Interface Compiler version 4.8.4
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!

@@ -9,12 +9,16 @@
 #include "Interface/Surface.h"
 #include "Interface/Snapshot.h"
 #include "Interface/Grid.h"
+#include "Interface/FaultCollection.h"
+#include "Interface/Faulting.h"
 
 #include <QtGui/QFileDialog>
 #include <QtGui/QMessageBox>
 #include <QtGui/QTreeWidget>
 #include <QtGui/QLabel>
 #include <QtCore/QTime>
+
+#include <MeshVizInterface/mapping/MoMeshviz.h>
 
 namespace di = DataAccess::Interface;
 
@@ -24,12 +28,35 @@ namespace
   const int TreeWidgetItem_SurfaceType   = QTreeWidgetItem::UserType + 2;
   const int TreeWidgetItem_PropertyType  = QTreeWidgetItem::UserType + 3;
   const int TreeWidgetItem_ReservoirType = QTreeWidgetItem::UserType + 4;
+  const int TreeWidgetItem_FaultType     = QTreeWidgetItem::UserType + 5;
 }
 
 void MainWindow::fpsCallback(float fps, void* userData, SoQtViewer* viewer)
 {
   MainWindow* mainWnd = reinterpret_cast<MainWindow*>(userData);
   mainWnd->onFps(fps);
+}
+
+void MainWindow::initOIV()
+{
+  char* features[] =
+  {
+    "OpenInventor",
+    "MeshVizXLM"
+  };
+
+  float oivVersion = SoDB::getLicensingVersionNumber();
+
+  m_oivLicenseOK = true;
+  for (int i = 0; i < 2; ++i)
+  if (SoDB::LicenseCheck(features[i], oivVersion, nullptr, false, nullptr) < 0)
+    m_oivLicenseOK = false;
+
+  if (m_oivLicenseOK)
+  {
+    MoMeshViz::init();
+    BpaVizInit();
+  }
 }
 
 void MainWindow::onFps(float fps)
@@ -43,22 +70,27 @@ void MainWindow::loadProject(const QString& filename)
 
   {
     //std::string file = filename.toStdString();
-    QByteArray barray = filename.toAscii();
+    QByteArray barray = filename.toLatin1();
     const char* str = barray.data();
     m_projectHandle = di::OpenCauldronProject(str, "r");
   }
 
-  const size_t subdiv = 1;
-  m_sceneGraph = new SceneGraph;
-  m_sceneGraph->setup(m_projectHandle, subdiv);
-  m_sceneGraph->RenderMode = SnapshotNode::RenderMode_Skin;
+  setWindowFilePath(filename);
 
-  m_ui.renderWidget->getViewer()->setSceneGraph(m_sceneGraph);
-  m_ui.snapshotSlider->setMinimum(0);
-  m_ui.snapshotSlider->setMaximum(m_sceneGraph->snapshotCount() - 1);
-  m_ui.snapshotSlider->setValue(0);
-  m_ui.radioButtonSkin->setChecked(true);
-  
+  if (m_oivLicenseOK)
+  {
+    const size_t subdiv = 1;
+    m_sceneGraph = new SceneGraph;
+    m_sceneGraph->setup(m_projectHandle, subdiv);
+    m_sceneGraph->RenderMode = SnapshotNode::RenderMode_Skin;
+
+    m_ui.renderWidget->getViewer()->setSceneGraph(m_sceneGraph);
+    m_ui.snapshotSlider->setMinimum(0);
+    m_ui.snapshotSlider->setMaximum(m_sceneGraph->snapshotCount() - 1);
+    m_ui.snapshotSlider->setValue(0);
+    m_ui.radioButtonSkin->setChecked(true);
+  }
+
   updateUI();
 }
 
@@ -67,11 +99,24 @@ void MainWindow::closeProject()
   if(m_projectHandle != 0)
   {
     di::CloseCauldronProject(m_projectHandle);
-    m_projectHandle = 0;
 
-    m_ui.renderWidget->getViewer()->setSceneGraph(0);
+    m_projectHandle = nullptr;
+    m_sceneGraph = nullptr;
+
+    m_ui.renderWidget->getViewer()->setSceneGraph(nullptr);
     m_ui.treeWidget->clear();
   }
+}
+
+void MainWindow::enableUI(bool enabled)
+{
+  m_ui.groupBoxROI->setEnabled(enabled);
+  m_ui.groupBox->setEnabled(enabled);
+  m_ui.groupBox_2->setEnabled(enabled);
+  m_ui.groupBox_3->setEnabled(enabled);
+
+  m_ui.sliderVerticalScale->setEnabled(enabled);
+  m_ui.snapshotSlider->setEnabled(enabled);
 }
 
 void MainWindow::updateUI()
@@ -94,7 +139,7 @@ void MainWindow::updateUI()
   int type = di::VOLUME;
 
   // Add properties to parent node
-  std::shared_ptr<di::PropertyList> properties(m_projectHandle->getProperties(true, flags));
+  std::unique_ptr<di::PropertyList> properties(m_projectHandle->getProperties(true, flags));
   for(size_t i=0; i < properties->size(); ++i)
   {
     QTreeWidgetItem* item = new QTreeWidgetItem(propertiesItem, TreeWidgetItem_PropertyType);
@@ -102,23 +147,50 @@ void MainWindow::updateUI()
   }
 
   // Add formations to parent node
-  std::shared_ptr<di::FormationList> formations(m_projectHandle->getFormations());
+  std::unique_ptr<di::FormationList> formations(m_projectHandle->getFormations());
   for(size_t i=0; i < formations->size(); ++i)
   {
     QTreeWidgetItem* item = new QTreeWidgetItem(formationsItem, TreeWidgetItem_FormationType);
     item->setText(0, (*formations)[i]->getName().c_str());
 
     // Add reservoirs to parent formation
-    di::ReservoirList* reservoirs = (*formations)[i]->getReservoirs();
-    for(size_t j=0; j < reservoirs->size(); ++j)
+    std::unique_ptr<di::ReservoirList> reservoirs((*formations)[i]->getReservoirs());
+    if (!reservoirs->empty())
     {
-      QTreeWidgetItem* resItem = new QTreeWidgetItem(item, TreeWidgetItem_ReservoirType);
-      resItem->setText(0, (*reservoirs)[j]->getName().c_str());
+      QTreeWidgetItem* reservoirRoot = new QTreeWidgetItem(item);
+      reservoirRoot->setText(0, "Reservoirs");
+
+      for (size_t j = 0; j < reservoirs->size(); ++j)
+      {
+        QTreeWidgetItem* resItem = new QTreeWidgetItem(reservoirRoot, TreeWidgetItem_ReservoirType);
+        resItem->setText(0, (*reservoirs)[j]->getName().c_str());
+      }
+    }
+
+    // Add faults to parent formation
+    std::unique_ptr<di::FaultCollectionList> faultCollections((*formations)[i]->getFaultCollections());
+    if (!faultCollections->empty())
+    {
+      QTreeWidgetItem* faultRoot = new QTreeWidgetItem(item);
+      faultRoot->setText(0, "Faults");
+
+      for (size_t j = 0; j < faultCollections->size(); ++j)
+      {
+        QTreeWidgetItem* faultCollectionItem = new QTreeWidgetItem(faultRoot);
+        faultCollectionItem->setText(0, (*faultCollections)[j]->getName().c_str());
+
+        std::unique_ptr<di::FaultList> faults((*faultCollections)[j]->getFaults());
+        for (size_t k = 0; k < faults->size(); ++k)
+        {
+          QTreeWidgetItem* faultItem = new QTreeWidgetItem(faultCollectionItem, TreeWidgetItem_FaultType);
+          faultItem->setText(0, (*faults)[k]->getName().c_str());
+        }
+      }
     }
   }
 
   // Add surfaces to parent node
-  std::shared_ptr<di::SurfaceList> surfaces(m_projectHandle->getSurfaces());
+  std::unique_ptr<di::SurfaceList> surfaces(m_projectHandle->getSurfaces());
   for(size_t i=0; i < surfaces->size(); ++i)
   {
     QTreeWidgetItem* item = new QTreeWidgetItem(surfacesItem, TreeWidgetItem_SurfaceType);
@@ -126,7 +198,7 @@ void MainWindow::updateUI()
   }
 
   // Add reservoirs to parent node
-  std::shared_ptr<di::ReservoirList> reservoirs(m_projectHandle->getReservoirs());
+  std::unique_ptr<di::ReservoirList> reservoirs(m_projectHandle->getReservoirs());
   for(size_t i=0; i < reservoirs->size(); ++i)
   {
     QTreeWidgetItem* item = new QTreeWidgetItem(reservoirsItem, TreeWidgetItem_ReservoirType);
@@ -138,29 +210,34 @@ void MainWindow::updateUI()
   m_ui.treeWidget->addTopLevelItem(reservoirsItem);
   m_ui.treeWidget->addTopLevelItem(propertiesItem);
 
-  m_dimensionsLabel->setText(QString("Dimensions: %1x%2 / %3x%4")
-    .arg(m_sceneGraph->numI())
-    .arg(m_sceneGraph->numJ())
-    .arg(m_sceneGraph->numIHiRes())
-    .arg(m_sceneGraph->numJHiRes()));
+  enableUI(m_sceneGraph != nullptr);
 
-  //const di::Grid* grid = loResGrid;
-  m_ui.sliderSliceI->setMaximum(m_sceneGraph->numI() - 1);
-  m_ui.sliderSliceJ->setMaximum(m_sceneGraph->numJ() - 1);
+  if (m_sceneGraph)
+  {
+    m_dimensionsLabel->setText(QString("Dimensions: %1x%2 / %3x%4")
+      .arg(m_sceneGraph->numI())
+      .arg(m_sceneGraph->numJ())
+      .arg(m_sceneGraph->numIHiRes())
+      .arg(m_sceneGraph->numJHiRes()));
 
-  m_ui.sliderMinI->setMaximum(m_sceneGraph->numI() - 1);
-  m_ui.sliderMaxI->setMaximum(m_sceneGraph->numI() - 1);
-  m_ui.sliderMinJ->setMaximum(m_sceneGraph->numJ() - 1);
-  m_ui.sliderMaxJ->setMaximum(m_sceneGraph->numJ() - 1);
-  m_ui.sliderMinK->setMaximum(10);
-  m_ui.sliderMaxK->setMaximum(10);
+    //const di::Grid* grid = loResGrid;
+    m_ui.sliderSliceI->setMaximum(m_sceneGraph->numI() - 1);
+    m_ui.sliderSliceJ->setMaximum(m_sceneGraph->numJ() - 1);
 
-  m_ui.sliderMinI->setValue(0);
-  m_ui.sliderMinJ->setValue(0);
-  m_ui.sliderMinK->setValue(0);
-  m_ui.sliderMaxI->setValue(m_sceneGraph->numI() - 1);
-  m_ui.sliderMaxJ->setValue(m_sceneGraph->numJ() - 1);
-  m_ui.sliderMaxK->setValue(10); //NOOOOOOO no hardcoded values !!!1!1
+    m_ui.sliderMinI->setMaximum(m_sceneGraph->numI() - 1);
+    m_ui.sliderMaxI->setMaximum(m_sceneGraph->numI() - 1);
+    m_ui.sliderMinJ->setMaximum(m_sceneGraph->numJ() - 1);
+    m_ui.sliderMaxJ->setMaximum(m_sceneGraph->numJ() - 1);
+    m_ui.sliderMinK->setMaximum(10);
+    m_ui.sliderMaxK->setMaximum(10);
+
+    m_ui.sliderMinI->setValue(0);
+    m_ui.sliderMinJ->setValue(0);
+    m_ui.sliderMinK->setValue(0);
+    m_ui.sliderMaxI->setValue(m_sceneGraph->numI() - 1);
+    m_ui.sliderMaxJ->setValue(m_sceneGraph->numJ() - 1);
+    m_ui.sliderMaxK->setValue(10); //NOOOOOOO no hardcoded values !!!1!1
+  }
 }
 
 void MainWindow::connectSignals()
@@ -445,15 +522,27 @@ void MainWindow::onShowGLInfo()
 }
 
 MainWindow::MainWindow()
-  : m_fpsLabel(0)
-  , m_projectHandle(0)
+  : m_oivLicenseOK(false)
+  , m_dimensionsLabel(nullptr)
+  , m_timeLabel(nullptr)
+  , m_fpsLabel(nullptr)
+  , m_projectHandle(nullptr)
+  , m_sceneGraph(nullptr)
 {
-	m_ui.setupUi(this);
+  initOIV();
 
-	// Remove all the ugly buttons and scroll wheels that 
-	// you always get for free with these OIV viewers
-	m_ui.renderWidget->setDecoration(false);
+  m_ui.setupUi(this);
+
+  enableUI(false);
+
+  // Remove all the ugly buttons and scroll wheels that 
+  // you always get for free with these OIV viewers
+  m_ui.renderWidget->setDecoration(false);
   m_ui.renderWidget->getViewer()->setBackgroundColor(SbColor(.2f, .2f, .3f));
+
+  // Disable OIV widget if there's no valid license, to prevent it from drawing and crashing
+  if (!m_oivLicenseOK)
+    m_ui.renderWidget->setVisible(false);
 
   SoQtViewer* viewer = dynamic_cast<SoQtViewer*>(m_ui.renderWidget->getViewer());
   if(viewer != 0)

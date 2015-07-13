@@ -109,8 +109,8 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>..\..\..\..\3rdparty\hdf5.win64-1.8.11\hdf5\lib-msvc12;$(BPALIBDIR)\debug;$(QTDIR)\lib;$(OIVHOME)\arch-Windows-x86_64-msvc10-Debug\lib;$(REMOTEVIZHOME)\Services\arch-windows-x86_64-msvc10-Debug\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>QtCored4.lib;..\..\..\..\output\libraries\DataAccess\Debug\DataAccess.lib;..\..\..\..\output\libraries\CBMGenerics\Debug\CBMGenerics.lib;..\..\..\..\output\libraries\Serial_Hdf5\Debug\Serial_Hdf5.lib;..\..\..\..\output\libraries\SerialDataAccess\Debug\SerialDataAccess.lib;..\..\..\..\output\libraries\TableIO\Debug\TableIO.lib;..\..\..\..\output\libraries\utilities\Debug\utilities.lib;libhdf5_D.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\..\..\..\3rdparty\MicrosoftMPI-HPC-Pack-2012-R2\Lib\amd64;..\..\..\..\3rdparty\hdf5.win64-1.8.11\hdf5\lib-msvc12;$(QTDIR)\lib;$(OIVHOME)\arch-Windows-x86_64-msvc12-Debug\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>QtCored4.lib;..\..\..\..\output\libraries\DataAccess\Debug\DataAccess.lib;..\..\..\..\output\libraries\CBMGenerics\Debug\CBMGenerics.lib;..\..\..\..\output\libraries\Serial_Hdf5\Debug\Serial_Hdf5.lib;..\..\..\..\output\libraries\SerialDataAccess\Debug\SerialDataAccess.lib;..\..\..\..\output\libraries\TableIO\Debug\TableIO.lib;..\..\..\..\output\libraries\utilities\Debug\utilities.lib;libhdf5_D.lib;msmpi.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -166,9 +166,6 @@
     <ClInclude Include="BpaServiceListener.h" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\QtService\QtService.vcxproj">
-      <Project>{3edf0255-a77e-4385-b8d5-8cccf78ae719}</Project>
-    </ProjectReference>
     <ProjectReference Include="..\Visualization\Visualization.vcxproj">
       <Project>{5d7e3616-b024-414a-a027-294d19403e21}</Project>
     </ProjectReference>

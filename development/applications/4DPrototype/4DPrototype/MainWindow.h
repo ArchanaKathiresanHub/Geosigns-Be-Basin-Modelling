@@ -12,9 +12,11 @@ class QLabel;
 
 class MainWindow : public QMainWindow
 {
-	Q_OBJECT;
+  Q_OBJECT;
 
-	Ui::MainWindow m_ui;
+  Ui::MainWindow m_ui;
+
+  bool m_oivLicenseOK;
 
   QLabel* m_dimensionsLabel;
   QLabel* m_timeLabel;
@@ -26,11 +28,15 @@ class MainWindow : public QMainWindow
 
   static void fpsCallback(float fps, void* userData, SoQtViewer* viewer);
 
+  void initOIV();
+
   void onFps(float fps);
 
   void loadProject(const QString& filename);
 
   void closeProject();
+
+  void enableUI(bool enabled);
 
   void updateUI();
 
