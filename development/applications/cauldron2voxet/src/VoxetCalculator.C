@@ -29,9 +29,11 @@ VoxetCalculator::VoxetCalculator ( const GeoPhysics::ProjectHandle*           pr
                                    const GridDescription&                     gridDescription ) : 
    m_projectHandle ( projectHandle ),
    m_propertyManager ( propertyManager ),
-   m_gridDescription ( gridDescription )
+   m_gridDescription ( gridDescription ),
+   m_nodeIsDefined ( 0 ),
+   m_interpolatorIsDefined ( 0 ),
+   m_depthProperty ( 0 )
 {
-   m_depthProperty = 0;
 }
 
 //------------------------------------------------------------//
@@ -117,7 +119,7 @@ int VoxetCalculator::computeInterpolators ( const Snapshot * snapshot,
    m_interpolatorIsDefined = Array<bool>::create2d ( m_gridDescription.getVoxetNodeCount ( 0 ), m_gridDescription.getVoxetNodeCount ( 1 ), true );
 
    PropertyValueList* depthPropertyValueList = m_projectHandle->getPropertyValues (FORMATION, m_depthProperty, snapshot, 0, 0, 0);
-   DerivedProperties::FormationPropertyList depthDerivedPropertyValueList = m_propertyManager.getFormationProperties ( m_depthProperty, snapshot, true );
+   DerivedProperties::FormationPropertyList depthDerivedPropertyValueList = m_propertyManager.getFormationProperties ( m_depthProperty, snapshot, useBasement ());
 
    if ( depthDerivedPropertyValueList.size () == 0 ) {
       cerr << "Could not find the Depth property results in the project file " << endl
@@ -171,10 +173,7 @@ void VoxetCalculator::initialiseInterpolators ( const DerivedProperties::Formati
    float yValue;
 
    PropertyInterpolatorMap::iterator propertyIter;
-
    DerivedProperties::FormationPropertyPtr depthPropertyValue;
-   const GridMap *depthGridMap;
-
    DerivedProperties::FormationPropertyList::const_iterator depthPropertyIter;
 
    // Get the property-values lists for each property-interpolator.
@@ -185,7 +184,7 @@ void VoxetCalculator::initialiseInterpolators ( const DerivedProperties::Formati
          cout << "Initialising cauldron property " << propertyIter->first->getName () << endl;
       }
 
-      propertyIter->second->setSnapshot (m_projectHandle, m_propertyManager, snapshot);
+      propertyIter->second->setSnapshot (m_projectHandle, m_propertyManager, snapshot, useBasement ());
       propertyIter->second->getInterpolator ().setNullValue (propertyIter->second->getDerivedProperty (0)->getUndefinedValue ());
    }
 
@@ -367,8 +366,6 @@ void VoxetCalculator::calculatorInterpolatorValues ( const DerivedProperties::Fo
 
    DerivedProperties::FormationPropertyList::const_iterator depthPropertyIter;
    DerivedProperties::FormationPropertyPtr depthPropertyValue;
-
-   const GridMap *depthGridMap;
 
    for (propertyIter = m_propertyInterpolators.begin (); propertyIter != m_propertyInterpolators.end (); ++propertyIter)
    {
@@ -690,9 +687,10 @@ VoxetCalculator::PropertyInterpolator::~PropertyInterpolator () {
 
 void VoxetCalculator::PropertyInterpolator::setSnapshot ( const GeoPhysics::ProjectHandle*           projectHandle,
                                                           DerivedProperties::DerivedPropertyManager& propertyManager,
-                                                          const Snapshot*                            snapshot ) {
+                                                          const Snapshot*                            snapshot,
+                                                          const bool                                 useBasement ) {
    m_snapshot = snapshot;
-   m_derivedPropertyValues = propertyManager.getFormationProperties ( m_property, m_snapshot, true );
+   m_derivedPropertyValues = propertyManager.getFormationProperties ( m_property, m_snapshot, useBasement );
 }
 
 //------------------------------------------------------------//

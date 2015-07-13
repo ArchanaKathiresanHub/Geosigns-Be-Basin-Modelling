@@ -52,7 +52,8 @@ class VoxetCalculator {
 
       void setSnapshot ( const GeoPhysics::ProjectHandle*           projectHandle,
                          DerivedProperties::DerivedPropertyManager& propertyManager,
-                         const Snapshot*                            snapshot );
+                         const Snapshot*                            snapshot,
+                         const bool                                 useBasement );
 
       const Property* getProperty () const;
 

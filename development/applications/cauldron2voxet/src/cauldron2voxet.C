@@ -28,6 +28,7 @@ using namespace std;
 #include "Interface/Property.h"
 #include "Interface/PropertyValue.h"
 #include "Interface/ProjectHandle.h"
+#include "Interface/SimulationDetails.h"
 
 // GeoPhysics library
 #include "GeoPhysicsObjectFactory.h"
@@ -275,6 +276,42 @@ int main (int argc, char ** argv)
    DataAccess::Interface::ProjectHandle::UseFactory (factory);
    GeoPhysics::ProjectHandle* projectHandle = dynamic_cast< GeoPhysics::ProjectHandle* >( OpenCauldronProject( projectFileName, "r" ) );
    DerivedProperties::DerivedPropertyManager propertyManager ( projectHandle );
+
+   bool coupledCalculationMode = false;
+   bool started = projectHandle->startActivity ( "cauldron2voxet", projectHandle->getLowResolutionOutputGrid (), false, false, false );
+
+   if ( not started ) {
+      return 1;
+   }
+
+   const Interface::SimulationDetails* simulationDetails = projectHandle->getDetailsOfLastSimulation ( "fastcauldron" );
+
+   if ( simulationDetails != 0 ) {
+      coupledCalculationMode = simulationDetails->getSimulatorMode () == "Overpressure" or
+                               simulationDetails->getSimulatorMode () == "LooselyCoupledTemperature" or
+                               simulationDetails->getSimulatorMode () == "CoupledHighResDecompaction" or
+                               simulationDetails->getSimulatorMode () == "CoupledPressureAndTemperature" or
+                               simulationDetails->getSimulatorMode () == "CoupledDarcy";
+   } else {
+      // If this table is not present the assume that the last
+      // fastcauldron mode was not pressure mode.
+      // This table may not be present because we are running c2e on an old 
+      // project, before this table was added.
+      coupledCalculationMode = false;
+   }
+
+   started = projectHandle->initialise ( coupledCalculationMode );
+
+   if ( not started ) {
+      return 1;
+   }
+
+   started = projectHandle->setFormationLithologies ( true, true );
+
+   if ( not started ) {
+      return 1;
+   }
+
 
    const Snapshot *snapshot = projectHandle->findSnapshot (snapshotTime);
 
