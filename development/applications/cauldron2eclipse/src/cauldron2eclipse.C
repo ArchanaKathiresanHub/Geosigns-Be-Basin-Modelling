@@ -33,6 +33,7 @@ using namespace std;
 #include "Interface/LithoType.h"
 #include "Interface/Property.h"
 #include "Interface/PropertyValue.h"
+#include "Interface/SimulationDetails.h"
 
 #include "GeoPhysicsObjectFactory.h"
 #include "GeoPhysicsProjectHandle.h"
@@ -322,19 +323,36 @@ int main (int argc, char ** argv)
    }
 
    bool started = projectHandle->startActivity ( "cauldron2eclipse", projectHandle->getLowResolutionOutputGrid (), false, false, false );
-   bool coupledCalculation = false;
 
    if ( not started) {
       return 1;
    }
 
-   started = projectHandle->initialise ( coupledCalculation );
+   bool coupledCalculationMode = false;
+
+   const Interface::SimulationDetails* simulationDetails = projectHandle->getDetailsOfLastSimulation ( "fastcauldron" );
+
+   if ( simulationDetails != 0 ) {
+      coupledCalculationMode = simulationDetails->getSimulatorMode () == "Overpressure" or
+                               simulationDetails->getSimulatorMode () == "LooselyCoupledTemperature" or
+                               simulationDetails->getSimulatorMode () == "CoupledHighResDecompaction" or
+                               simulationDetails->getSimulatorMode () == "CoupledPressureAndTemperature" or
+                               simulationDetails->getSimulatorMode () == "CoupledDarcy";
+   } else {
+      // If this table is not present the assume that the last
+      // fastcauldron mode was not pressure mode.
+      // This table may not be present because we are running c2e on an old 
+      // project, before this table was added.
+      coupledCalculationMode = false;
+   }
+
+   started = projectHandle->initialise ( coupledCalculationMode );
 
    if ( not started ) {
       return 1;
    }
 
-   started = projectHandle->setFormationLithologies ( false, true );
+   started = projectHandle->setFormationLithologies ( true, true );
 
    if ( not started ) {
       return 1;
@@ -391,7 +409,6 @@ int main (int argc, char ** argv)
    unsigned int numberOfHorizons = 0;
 
    const Grid *grid = projectHandle->getLowResolutionOutputGrid ();
-   const GridMap *gridMap = 0;
 
    DerivedProperties::FormationPropertyPtr formationPropertyValue;
    DerivedProperties::FormationPropertyPtr topFormationValue;
@@ -420,10 +437,7 @@ int main (int argc, char ** argv)
       if (debug)
       {
          formationPropertyValue = *propertyValueIter;
-         const DataModel::AbstractFormation* formation = formationPropertyValue->getFormation ();
-
-         assert (formation);
-         formation->printOn (cerr);
+         formationPropertyValue->getFormation ()->printOn (cerr);
       }
 
       if (verbose)
@@ -458,7 +472,7 @@ int main (int argc, char ** argv)
 
    unsigned int numI = grid->numI ();
    unsigned int numJ = grid->numJ ();
-   unsigned int bottomIndex = bottomFormationValue->lengthK () - 1;//bottomGridMap->getDepth () - 1;
+   double bottomIndex = static_cast<double>(bottomFormationValue->lengthK () - 1);
 
    //------------- Binary data
    if (doBinary)
@@ -510,8 +524,8 @@ int main (int argc, char ** argv)
          maxPosY = Max (maxPosY, posJ);
 
 	 // get values even if one of or more of the cauldron node values are undefined
-         topDepth = GetValue (topFormationValue, ii, jj, (double) 0);
-         bottomDepth = GetValue (bottomFormationValue, ii, jj, (double) bottomIndex);
+         topDepth = GetValue (topFormationValue, ii, jj, 0.0 );
+         bottomDepth = GetValue (bottomFormationValue, ii, jj, bottomIndex );
 
 	 topDepth = -topDepth;
 	 minDepth = Min (minDepth, topDepth);
@@ -578,7 +592,7 @@ int main (int argc, char ** argv)
          continue;
       }
 
-      int numK = formationPropertyValue->lengthK ();
+      const int numK = formationPropertyValue->lengthK ();
 
       totalK += numK;
 
@@ -682,7 +696,7 @@ int main (int argc, char ** argv)
       }
       ++stratIndexEnd;
 
-      int numK = formationPropertyValue->lengthK ();
+      const int numK = formationPropertyValue->lengthK ();
 
       if (verbose)
       {
@@ -783,7 +797,7 @@ int main (int argc, char ** argv)
 
       ++stratIndex;
 
-      int numK = formationPropertyValue->lengthK ();
+      const int numK = formationPropertyValue->lengthK ();
 
       if (verbose)
       {
@@ -858,11 +872,11 @@ int main (int argc, char ** argv)
             continue;
          }
 
-         int numK = formationPropertyValue->lengthK ();
+         const int numK = formationPropertyValue->lengthK ();
 
          const Formation *formation = dynamic_cast<const Interface::Formation*>(formationPropertyValue->getFormation ());
 
-         assert (formation);
+         assert (("Formation is not derived from DataAccess.", formation != 0 ));
 
          const LithoType *lithoType1 = formation->getLithoType1 ();
          const LithoType *lithoType2 = formation->getLithoType2 ();
@@ -1194,7 +1208,7 @@ int main (int argc, char ** argv)
             cerr << "Formation: " << formationPropertyValue->getFormation ()->getName () << endl;
          }
 
-         int numK = formationPropertyValue->lengthK ();
+         const int numK = formationPropertyValue->lengthK ();
 
          if (verbose)
          {
