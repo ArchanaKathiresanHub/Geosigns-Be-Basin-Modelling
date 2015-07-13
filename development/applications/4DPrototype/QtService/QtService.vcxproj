@@ -128,6 +128,7 @@
     <ClInclude Include="qtservice.h" />
     <ClInclude Include="qtservice.moc.h" />
     <ClInclude Include="qtservice_p.h" />
+    <ClInclude Include="qtservice_win.moc.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
