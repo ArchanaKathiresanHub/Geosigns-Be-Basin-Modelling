@@ -1,12 +1,12 @@
 //                                                                      
 // Copyright (C) 2012-2015 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file PrmCrustThinning.C
 /// @brief This file keeps API implementation for single event crust thinning parameter handling
@@ -177,7 +177,7 @@ ErrorHandler::ReturnCode PrmCrustThinning::setInModel( mbapi::Model & caldModel 
                throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Crust thinning, copying " << oldMapName << " map failed";
             }
 
-            if ( ErrorHandler::NoError != mMgr.scaleMap( id, m_coeff[i]              ) ) 
+            if ( ErrorHandler::NoError != mMgr.scaleMap( id, m_coeff[i]              ) )
             {
                throw ErrorHandler::Exception( mMgr.errorCode() ) << mMgr.errorMessage();
             }
@@ -185,20 +185,19 @@ ErrorHandler::ReturnCode PrmCrustThinning::setInModel( mbapi::Model & caldModel 
             {
                throw ErrorHandler::Exception( mMgr.errorCode() ) << mMgr.errorMessage();
             }
-               
          }
          d.push_back( UndefinedDoubleValue );
          m.push_back( newMapName ); // just put map - no any scaling
       }
-   
+
       if ( t.back() != 0.0 ) // add last point - present time
       {
          t.push_back( 0.0 );
          d.push_back( d.back() );
          m.push_back( m.back() );
       }
- 
-      bool ok = true;     
+
+      bool ok = true;
       // add rows to the table eventsNumber + 2
       ok = ok ? ErrorHandler::NoError == caldModel.clearTable( s_crustIoTblName ) : ok;
 
@@ -212,9 +211,9 @@ ErrorHandler::ReturnCode PrmCrustThinning::setInModel( mbapi::Model & caldModel 
          ok = ok ? ErrorHandler::NoError == caldModel.setTableValue( s_crustIoTblName, i, s_crustIoTblAgeCol, t[t.size() - i - 1] ) : ok;
          ok = ok ? ErrorHandler::NoError == caldModel.setTableValue( s_crustIoTblName, i, s_crustIoTblThicknessCol, d[d.size() - i - 1] ) : ok;
          ok = ok ? ErrorHandler::NoError == caldModel.setTableValue( s_crustIoTblName, i, s_crustIoTblMapNameCol, m[m.size() - i - 1] ) : ok;
-         // set to 0 unused columns       
+         // set to 0 unused columns
          ok = ok ? ErrorHandler::NoError == caldModel.setTableValue( s_crustIoTblName, i, s_crustIoTblCalibThicknessCol, UndefinedDoubleValue ) : ok;
-         ok = ok ? ErrorHandler::NoError == caldModel.setTableValue( s_crustIoTblName, i, s_crustIoTblOptimThicknessCol, (long)0 ) : ok;
+         ok = ok ? ErrorHandler::NoError == caldModel.setTableValue( s_crustIoTblName, i, s_crustIoTblOptimThicknessCol, 0L ) : ok;
          ok = ok ? ErrorHandler::NoError == caldModel.setTableValue( s_crustIoTblName, i, s_crustIoTblErrThicknessCol, 0.0e0 ) : ok;
      }
      if ( !ok ) { throw ErrorHandler::Exception( caldModel.errorCode() ) << caldModel.errorMessage(); }
@@ -224,7 +223,7 @@ ErrorHandler::ReturnCode PrmCrustThinning::setInModel( mbapi::Model & caldModel 
    return ErrorHandler::NoError;
 }
 
-// Validate crust thinning parameter values 
+// Validate crust thinning parameter values
 std::string PrmCrustThinning::validate( mbapi::Model & caldModel )
 {
    std::ostringstream oss;

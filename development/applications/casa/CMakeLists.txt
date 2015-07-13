@@ -21,6 +21,7 @@ add_executable( casa
 )
 
 bm_include_libraries(
+   TableIO
    casaAPI
    cmbAPI
    CBMGenerics

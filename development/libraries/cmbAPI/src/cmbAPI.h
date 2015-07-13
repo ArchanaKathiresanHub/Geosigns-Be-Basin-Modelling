@@ -1,14 +1,14 @@
 //                                                                      
 // Copyright (C) 2012-2014 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
-/// @file cmbAPI.h 
+/// @file cmbAPI.h
 /// @brief This file keeps API declaration for creating and manipulating Cauldron data model
 
 #ifndef CMB_API
@@ -25,10 +25,12 @@
 
 #include "UndefinedValues.h"
 
+// TableIO
+#include "datatype.h"
+
 // STL
 #include <memory>
 #include <set>
-
 
 /// @mainpage Cauldron APIs
 /// @tableofcontents
@@ -82,18 +84,6 @@ namespace mbapi {
    public:
       /// @{
       /// Types definitions
-
-      /// @brief Defines possible data types for table columns in Cauldron project file
-      enum ProjectTableColumnDataType
-      {
-         NoDataType = -1,
-         Bool = 0, ///< For use with bool values.
-         Int,      ///< For use with int values.
-         Long,     ///< For use with long values.
-         Float,    ///< For use with float values.
-         Double,   ///< For use with double values.
-         String    ///< For use with string values.
-      };
       /// @}
 
       /// @{
@@ -101,11 +91,11 @@ namespace mbapi {
 
       /// @brief Constructor which creates an empty model
       Model();
-      
+
       /// @brief Destructor, no any actual work is needed here, all is done in the implementation part
       ~Model();
       /// @}
-      
+
       /// @{
       /// Set of interfaces for interacting with a Cauldron model.\n
       /// Interfaces were simplified to allow easy access from C# using Swig.\n
@@ -139,7 +129,7 @@ namespace mbapi {
       /// @param[in] tableName name of the table
       /// @param[out] colDataTypes for each table column it keeps data type lid double/string/integer
       /// @return list of column names for the given table on success, or empty list on any fail
-      std::vector<std::string> tableColumnsList( const std::string & tableName, std::vector<ProjectTableColumnDataType> & colDataTypes );
+      std::vector<std::string> tableColumnsList( const std::string & tableName, std::vector<datatype::DataType> & colDataTypes );
 
       /// @brief Get size of the given table
       /// @param[in] tableName name of the table in project file

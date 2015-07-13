@@ -31,10 +31,16 @@
 
 static std::string correctName( std::string name )
 {
+   std::string::iterator it = std::remove(  name.begin(), name.end(), ')' );
+   it = std::remove(  name.begin(), it, '+' );
+   name.resize( it - name.begin() );
+
    std::replace( name.begin(), name.end(), '/', '-' );
    std::replace( name.begin(), name.end(), ':', '-' );
    std::replace( name.begin(), name.end(), ' ', '-' );
    std::replace( name.begin(), name.end(), '_', '-' );
+   std::replace( name.begin(), name.end(), '(', '-' );
+   std::replace( name.begin(), name.end(), ',', '-' );
    return name;
 }
 
@@ -133,6 +139,7 @@ void CmdPlotRSProxyQC::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
    ofs << "   'h'\n";
    ofs << "];\n";
 
+   bool hasWellObs = false;
    // now go over simulations and proxy evaluation and for each observable
    // export data
    // 1st create observables list:
@@ -149,6 +156,7 @@ void CmdPlotRSProxyQC::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
       if ( wellObs && wellObs->dimension() > 1  )
       {
          ofs << obsWellData( i, sa, proxyCaseSet, testCaseSet );
+         hasWellObs = true;
       }
       
       for ( size_t o = 0; o < obsObj->dimension(); ++o )
@@ -162,7 +170,9 @@ void CmdPlotRSProxyQC::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
          }
          if ( !m_targetNames.empty() && !found ) continue;
 
-         ofs << "\nProxyQC( end+1 ).obsName = '" << correctName( obsName ) << "';\n";
+         ofs << "\n";
+         ofs << "ProxyQC( end+1 ).obsName = '" << obsName << "';\n";
+         ofs << "ProxyQC( end ).obsNameFN = '" << correctName( obsName ) << "';\n";
 
          ofs << "\nProxyQC( end ).obsRefAndDevValues = [";
          const casa::ObsValue * refVal =  obsObj->referenceValue(); 
@@ -250,33 +260,36 @@ void CmdPlotRSProxyQC::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
          }
       }
    }
-   // plot QC plot for all wells type targets
-   ofs << "\nhold off\n";
-   ofs << "for w = 1 : length( WellsObs )\n";
-   ofs << "   display( ['  processign QC plot for well: ' WellsObs(w).name] );\n";
-   ofs << "\n";
-   ofs << "  mr = markers( mod(w-1,length(markers))+1,:);\n";
-   ofs << "  cl = colors( mod(w,length(colors))+1,:);\n";
-   ofs << "\n";
-   ofs << "  h(w) = plot(  WellsObs(w).r2, WellsObs(w).depth,[cl mr], 'LineWidth', 4 );\n";
-   ofs << "  hold on\n";
-   ofs << "  legName{w} = WellsObs(w).name;\n";
-   ofs << "\n";
-   ofs << "end\n";
-   ofs << "axis('ij' );\n";
-   ofs << "\n";
-   ofs << "legend( h, legName, 'location', 'northwest' );\n";
-   ofs << "grid on;\n";
-   ofs << "\n";
-   ofs << "set( findobj( gcf(), 'type', 'axes', 'Tag', 'legend'), 'fontweight', 'bold' );\n";
-   ofs << "\n";
-   ofs << "ah=get (gcf, 'currentaxes');\n";
-   ofs << "set( ah, 'fontweight', 'bold' );\n";
-   ofs << "title( 'QC plot: R^2 vs depth for well type targets', 'fontweight', 'bold' );\n";
-   ofs << "\n";
-   ofs << "xlabel( 'R^2 []' );\n";
-   ofs << "ylabel( 'Depth [m]' );\n";
-   ofs << "print " << correctName( m_proxyName ) << "_" << "_proxyQC_wells.jpg -S1000,1000;\n\n";
+   if ( hasWellObs )
+   {
+      // plot QC plot for all wells type targets
+      ofs << "\nhold off\n";
+      ofs << "for w = 1 : length( WellsObs )\n";
+      ofs << "   display( ['  processign QC plot for well: ' WellsObs(w).name] );\n";
+      ofs << "\n";
+      ofs << "  mr = markers( mod(w-1,length(markers))+1,:);\n";
+      ofs << "  cl = colors( mod(w,length(colors))+1,:);\n";
+      ofs << "\n";
+      ofs << "  h(w) = plot(  WellsObs(w).r2, WellsObs(w).depth,[cl mr], 'LineWidth', 4 );\n";
+      ofs << "  hold on\n";
+      ofs << "  legName{w} = WellsObs(w).name;\n";
+      ofs << "\n";
+      ofs << "end\n";
+      ofs << "axis('ij' );\n";
+      ofs << "\n";
+      ofs << "legend( h, legName, 'location', 'northwest' );\n";
+      ofs << "grid on;\n";
+      ofs << "\n";
+      ofs << "set( findobj( gcf(), 'type', 'axes', 'Tag', 'legend'), 'fontweight', 'bold' );\n";
+      ofs << "\n";
+      ofs << "ah=get (gcf, 'currentaxes');\n";
+      ofs << "set( ah, 'fontweight', 'bold' );\n";
+      ofs << "title( 'QC plot: R^2 vs depth for well type targets', 'fontweight', 'bold' );\n";
+      ofs << "\n";
+      ofs << "xlabel( 'R^2 []' );\n";
+      ofs << "ylabel( 'Depth [m]' );\n";
+      ofs << "print " << correctName( m_proxyName ) << "_" << "_proxyQC_wells.jpg -S1000,1000;\n\n";
+   }
 
    // plot QC plot per observable
    ofs << "close\n clear h legName\naxis( 'xy' )\n";
@@ -370,7 +383,7 @@ void CmdPlotRSProxyQC::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
    ofs << "\n";
    ofs << "   clear h;\n";
    ofs << "   clear legName;\n";
-   ofs << "   eval( sprintf( 'print QC_" << correctName( m_proxyName ) << "_" << "%s.jpg -S1000,1000', ProxyQC(i).obsName ) );\n";
+   ofs << "   eval( sprintf( 'print QC_" << correctName( m_proxyName ) << "_" << "%s.jpg -S1000,1000', ProxyQC(i).obsNameFN ) );\n";
    ofs << "end\n";
 
    if ( m_commander.verboseLevel() > CasaCommander::Quiet )

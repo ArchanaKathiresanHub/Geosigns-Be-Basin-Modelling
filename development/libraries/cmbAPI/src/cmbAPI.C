@@ -1,12 +1,12 @@
 //                                                                      
 // Copyright (C) 2012-2014 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file cmbAPI.C
 /// @brief This file keeps API definition for creating Cauldron data model
@@ -65,7 +65,7 @@ public:
 
    // Set of universal access interfaces. Project file level
    std::vector<std::string> tablesList();
-   std::vector<std::string> tableColumnsList(   const std::string & tableName, std::vector<Model::ProjectTableColumnDataType> & colDataTypes );
+   std::vector<std::string> tableColumnsList(   const std::string & tableName, std::vector<datatype::DataType> & colDataTypes );
 
    int                      tableSize(     const std::string & tableName );
    void                     clearTable(    const std::string & tableName );
@@ -149,7 +149,7 @@ std::vector<std::string> Model::tablesList()
    return std::vector<std::string>();
 }
 
-std::vector<std::string> Model::tableColumnsList( const std::string & tableName, std::vector<Model::ProjectTableColumnDataType> & colTypes )
+std::vector<std::string> Model::tableColumnsList( const std::string & tableName, std::vector<datatype::DataType> & colTypes )
 {
    if ( errorCode() != NoError ) resetError(); // clean any previous error
 
@@ -598,7 +598,7 @@ std::vector<std::string> Model::ModelImpl::tablesList()
    return ret;
 }
 
-std::vector<std::string> Model::ModelImpl::tableColumnsList( const std::string & tableName, std::vector<Model::ProjectTableColumnDataType> & colTypes )
+std::vector<std::string> Model::ModelImpl::tableColumnsList( const std::string & tableName, std::vector<datatype::DataType> & colTypes )
 {
    std::vector<std::string> ret;
    colTypes.clear();
@@ -616,16 +616,7 @@ std::vector<std::string> Model::ModelImpl::tableColumnsList( const std::string &
       const database::FieldDefinition * fldDef = tblDef.getFieldDefinition( i );
       if ( !fldDef ) continue;
       ret.push_back( fldDef->name() );
-      switch ( fldDef->dataType() )
-      {
-         case datatype::Bool:   colTypes.push_back( Model::Bool   ); break;
-         case datatype::Int:    colTypes.push_back( Model::Int    ); break;
-         case datatype::Long:   colTypes.push_back( Model::Long   ); break;
-         case datatype::Float:  colTypes.push_back( Model::Float  ); break;
-         case datatype::Double: colTypes.push_back( Model::Double ); break;
-         case datatype::String: colTypes.push_back( Model::String ); break;
-         default: assert( 0 );
-      }
+      colTypes.push_back( fldDef->dataType() );
    }
 
    return ret;

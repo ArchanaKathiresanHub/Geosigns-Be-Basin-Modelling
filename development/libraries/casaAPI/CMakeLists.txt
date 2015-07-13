@@ -25,6 +25,7 @@ add_library(casaapi
 
 bm_include_libraries(
    CBMGenerics
+   TableIO
    cmbAPI
    FileSystem
    utilities
@@ -39,6 +40,7 @@ include_directories(
 )
 
 target_link_libraries(casaapi
+   TableIO
    cmbapi
    FileSystem
    utilities

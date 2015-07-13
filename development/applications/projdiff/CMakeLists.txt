@@ -21,6 +21,7 @@ add_executable( projdiff
 )
 
 bm_include_libraries(
+   TableIO
    cmbAPI
    CBMGenerics
    FileSystem
