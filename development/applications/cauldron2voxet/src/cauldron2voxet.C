@@ -29,6 +29,16 @@ using namespace std;
 #include "Interface/PropertyValue.h"
 #include "Interface/ProjectHandle.h"
 
+// GeoPhysics library
+#include "GeoPhysicsObjectFactory.h"
+#include "GeoPhysicsProjectHandle.h"
+
+// Derived property library
+#include "AbstractPropertyManager.h"
+#include "DerivedPropertyManager.h"
+#include "SurfaceProperty.h"
+#include "PrimarySurfaceProperty.h"
+
 #include "DepthInterpolator.h"
 #include "LayerInterpolator.h"
 #include "GridDescription.h"
@@ -63,7 +73,9 @@ double deltaX = MAXDOUBLE, deltaY = MAXDOUBLE, deltaZ = MAXDOUBLE;
 double countX = MAXDOUBLE, countY = MAXDOUBLE, countZ = MAXDOUBLE;
 
 /// Print to stdout a default voxet file based on the cauldron project file that has been input.
-void createVoxetProjectFile ( Interface::ProjectHandle* cauldronProject, ostream & outputStream, const Snapshot * snapshot );
+void createVoxetProjectFile ( Interface::ProjectHandle* cauldronProject,
+                              DerivedProperties::DerivedPropertyManager& propertyManager,
+                              ostream & outputStream, const Snapshot * snapshot );
 
 
 /// Write the values to the specified file.
@@ -259,7 +271,10 @@ int main (int argc, char ** argv)
       outputFileName = projectFileName.substr (0, dotPos);
    }
 
-   Interface::ProjectHandle * projectHandle = (Interface::ProjectHandle *) (OpenCauldronProject (projectFileName, "r"));
+   GeoPhysics::ObjectFactory* factory = new GeoPhysics::ObjectFactory;
+   DataAccess::Interface::ProjectHandle::UseFactory (factory);
+   GeoPhysics::ProjectHandle* projectHandle = dynamic_cast< GeoPhysics::ProjectHandle* >( OpenCauldronProject( projectFileName, "r" ) );
+   DerivedProperties::DerivedPropertyManager propertyManager ( projectHandle );
 
    const Snapshot *snapshot = projectHandle->findSnapshot (snapshotTime);
 
@@ -282,7 +297,7 @@ int main (int argc, char ** argv)
          return -1;
       }
 
-      createVoxetProjectFile (projectHandle, voxetProjectFileStream, snapshot);
+      createVoxetProjectFile (projectHandle, propertyManager, voxetProjectFileStream, snapshot);
       return 0;
    }
 
@@ -303,7 +318,7 @@ int main (int argc, char ** argv)
          return -1;
       }
 
-      createVoxetProjectFile (projectHandle, voxetProjectFileStream, snapshot);
+      createVoxetProjectFile (projectHandle, propertyManager, voxetProjectFileStream, snapshot);
       voxetProjectFileStream.close ();
 
       voxetProject = new VoxetProjectHandle (tmpVoxetFileName, projectHandle);
@@ -371,7 +386,8 @@ int main (int argc, char ** argv)
 
    const GridDescription & gridDescription = voxetProject->getGridDescription ();
 
-   VoxetCalculator vc (projectHandle, voxetProject->getGridDescription ());
+   VoxetCalculator vc (projectHandle, propertyManager, voxetProject->getGridDescription ());
+
    if (useBasement && verbose) cout << "Using basement" << endl;
    vc.useBasement() = useBasement;
 
@@ -430,10 +446,11 @@ int main (int argc, char ** argv)
          continue;
       }
 
-      PropertyValueList *propertyValueList = projectHandle->getPropertyValues (FORMATION, property, snapshot, 0, 0, 0, VOLUME);
-      unsigned int size = propertyValueList->size ();
 
-      delete propertyValueList;
+      DerivedProperties::FormationPropertyList propertyValueList ( propertyManager.getFormationProperties ( property, snapshot, useBasement ));
+
+      // Could just ask if property is computable.
+      unsigned int size = propertyValueList.size ();
 
       if (size == 0)
       {
@@ -503,6 +520,7 @@ int main (int argc, char ** argv)
 
    asciiOutputFile.close ();
    CloseCauldronProject (projectHandle);
+   delete factory;
 
    if (debug)
       cerr << "Project closed" << endl;
@@ -661,7 +679,9 @@ double selectDefined (double undefinedValue, double preferred, double alternativ
 }
 
 
-void createVoxetProjectFile ( Interface::ProjectHandle* cauldronProject, ostream &outputStream, const Snapshot * snapshot )
+void createVoxetProjectFile ( Interface::ProjectHandle* cauldronProject, 
+                              DerivedProperties::DerivedPropertyManager& propertyManager,
+                              ostream &outputStream, const Snapshot * snapshot )
 {
    char * propertyNames [] =
    {
@@ -730,30 +750,38 @@ void createVoxetProjectFile ( Interface::ProjectHandle* cauldronProject, ostream
    Interface::SurfaceList* surfaces = cauldronProject->getSurfaces ();
    const Interface::Surface * bottomSurface = surfaces->back ();
 
-   PropertyValueList* bottomDepthPropertyValueList = cauldronProject->getPropertyValues (SURFACE, depthProperty, snapshot, 0, 0, bottomSurface, MAP);
-   if (bottomDepthPropertyValueList->size () != 1)
+   DerivedProperties::SurfacePropertyPtr bottomDepthPropertyValue = propertyManager.getSurfaceProperty ( depthProperty, snapshot, bottomSurface );
+
+   if (bottomDepthPropertyValue == 0 )
    {
-      cerr << "Illegal number (" << bottomDepthPropertyValueList->size () << ") of depth property values for bottom surface " << bottomSurface->getName () << " at snapshot " << snapshot->getTime () << endl;
+      cerr << " Depth property for bottom surface " << bottomSurface->getName () << " at snapshot " << snapshot->getTime () << " is not available." << endl;
       return;
    }
-   const GridMap *bottomDepthGridMap = bottomDepthPropertyValueList->front ()->getGridMap ();
+
+   const GridMap *bottomDepthGridMap = 0; // = bottomDepthPropertyValueList->front ()->getGridMap ();
    const GridMap *topDepthGridMap = 0;
-      
+
+   if ( dynamic_cast<const DerivedProperties::PrimarySurfaceProperty*>(bottomDepthPropertyValue.get ()) != 0 ) {
+      bottomDepthGridMap = dynamic_cast<const DerivedProperties::PrimarySurfaceProperty*>(bottomDepthPropertyValue.get ())->getGridMap ();
+   }
+
    Interface::SurfaceList::iterator surfaceIter;
    for ( surfaceIter = surfaces->begin (); topDepthGridMap == 0 && surfaceIter != surfaces->end (); ++surfaceIter )
    {
       const Interface::Surface * topSurface = *surfaceIter;
 
-      PropertyValueList* topDepthPropertyValueList = cauldronProject->getPropertyValues (SURFACE, depthProperty, snapshot, 0, 0, topSurface, MAP);
-      if (topDepthPropertyValueList->size () != 1)
+      DerivedProperties::SurfacePropertyPtr topDepthPropertyValue = propertyManager.getSurfaceProperty ( depthProperty, snapshot, topSurface );
+
+      if ( topDepthPropertyValue == 0 )
       {
-         // cerr << "Illegal number (" << topDepthPropertyValueList->size () << ") of depth property values for top surface " << topSurface->getName () << " at snapshot " << snapshot->getTime () << endl;
-         delete topDepthPropertyValueList;
+         cerr << " Depth property for top surface " << topSurface->getName () << " at snapshot " << snapshot->getTime () << " is not available." << endl;
          continue;
       }
 
-      topDepthGridMap = topDepthPropertyValueList->front ()->getGridMap ();
-      delete topDepthPropertyValueList;
+      if ( dynamic_cast<const DerivedProperties::PrimarySurfaceProperty*>(topDepthPropertyValue.get ()) != 0 ) {
+         topDepthGridMap = dynamic_cast<const DerivedProperties::PrimarySurfaceProperty*>(topDepthPropertyValue.get ())->getGridMap ();
+      }
+
       break;
    }
 
