@@ -104,17 +104,10 @@ DerivedOutputPropertyMapFactory::DerivedOutputPropertyMapFactory () {
    mapTraits.m_isPrimaryProperty = true;
    m_mapPropertyTraitsMap [ VES ] = mapTraits;
 
-   mapTraits.m_propertyAllocator = allocatePrimaryPropertyCalculator;
-   mapTraits.m_outputAssociation = SURFACE_ASSOCIATION;
-   mapTraits.m_isPrimaryProperty = true;
-   m_mapPropertyTraitsMap [ MAXVES ] = mapTraits;
-
-#if 0
    mapTraits.m_propertyAllocator = allocateMaxVesCalculator;
    mapTraits.m_outputAssociation = SURFACE_FORMATION_ASSOCIATION;
    mapTraits.m_isPrimaryProperty = true;
    m_mapPropertyTraitsMap [ MAXVES ] = mapTraits;
-#endif
 
    mapTraits.m_propertyAllocator = allocatePrimaryPropertyCalculator;
    mapTraits.m_outputAssociation = SURFACE_ASSOCIATION;
