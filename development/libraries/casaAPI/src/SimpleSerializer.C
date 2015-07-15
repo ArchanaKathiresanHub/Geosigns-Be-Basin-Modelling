@@ -16,6 +16,7 @@
 
 // C lib
 #include <stdint.h>
+#include <string.h>
 
 namespace casa
 {
@@ -24,7 +25,7 @@ namespace casa
    typedef enum
    {
       BoolID = 0,
-      IntID, 
+      IntID,
       UintID,
       LlongID,
       RefID,
@@ -37,7 +38,7 @@ namespace casa
    static SimpleDataTypeBinID typeName2DataTypeID( const char * typeName )
    {
       if (      !strcmp( typeName, "bool"   ) ) return BoolID;
-      else if ( !strcmp( typeName, "int"    ) ) return IntID; 
+      else if ( !strcmp( typeName, "int"    ) ) return IntID;
       else if ( !strcmp( typeName, "uint"   ) ) return UintID;
       else if ( !strcmp( typeName, "llong"  ) ) return LlongID;
       else if ( !strcmp( typeName, "refID"  ) ) return RefID;
@@ -175,10 +176,10 @@ namespace casa
 
       if ( fileType == "bin" )
       {
-         m_file.open( fileName, std::ios::out | std::ios::trunc | std::ios::binary );
+         m_file.open( fileName.c_str(), std::ios::out | std::ios::trunc | std::ios::binary );
          m_isBinary = true;
       }
-      else if ( fileType == "txt" ) { m_file.open( fileName, std::ios::out | std::ios::trunc ); }
+      else if ( fileType == "txt" ) { m_file.open( fileName.c_str(), std::ios::out | std::ios::trunc ); }
       else
       {
          throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Unknown type of output file for saving ScenarioAnalysis object: " << fileType;

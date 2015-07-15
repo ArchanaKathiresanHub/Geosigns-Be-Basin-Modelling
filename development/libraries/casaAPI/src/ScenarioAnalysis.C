@@ -344,7 +344,8 @@ ErrorHandler::ReturnCode ScenarioAnalysis::saveScenario( const char * fileName, 
 {
    try
    {
-      m_pimpl->serialize( SimpleSerializer( fileName, fileType, version() ) );
+      SimpleSerializer outStream( fileName, fileType, version() );
+      m_pimpl->serialize( outStream );
    }
    catch ( const ErrorHandler::Exception & ex )
    {
