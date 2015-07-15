@@ -42,6 +42,7 @@ set(all_headers
   src/PermeabilityFormationCalculator.h
   src/PermeabilityFormationSurfaceCalculator.h
   src/PorosityFormationCalculator.h
+  src/PressureFormationCalculator.h
   src/PrimaryFormationMapProperty.h
   src/PrimaryFormationMapPropertyCalculator.h
   src/PrimaryFormationProperty.h
@@ -94,6 +95,7 @@ set(all_srcs
   src/PermeabilityFormationCalculator.C
   src/PermeabilityFormationSurfaceCalculator.C
   src/PorosityFormationCalculator.C
+  src/PressureFormationCalculator.C
   src/PrimaryFormationMapProperty.C
   src/PrimaryFormationMapPropertyCalculator.C
   src/PrimaryFormationProperty.C

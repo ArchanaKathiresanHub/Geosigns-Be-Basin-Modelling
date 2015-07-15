@@ -160,7 +160,7 @@ void PropertiesCalculator::calculateProperties( FormationVector& formationItems,
 
             if ( outputProperty != 0 ) {
                if( m_debug && m_rank == 0 ) {
-                  cout << "Allocate " << property->getName() << " " << formation->getName() << endl;
+                  cout << "Snapshot: " << snapshot->getTime() << " allocate " << property->getName() << " " << formation->getName() << endl;
                }
                allOutputPropertyValues [ snapshot ][ formation ][ property ] = outputProperty;
             }

@@ -32,6 +32,7 @@
 #include "ThermalConductivityFormationCalculator.h"
 #include "ThermalDiffusivityFormationCalculator.h"
 #include "VelocityFormationCalculator.h"
+#include "PressureFormationCalculator.h"
 
 // Derived formation-map property calcualtors
 #include "AllochthonousLithologyFormationMapCalculator.h"
@@ -155,6 +156,12 @@ void DerivedProperties::DerivedPropertyManager::loadDerivedFormationPropertyCalc
    }
    
    formationPropertyCalculator = FormationPropertyCalculatorPtr ( new VelocityFormationCalculator );
+
+   if ( canAddDerivedFormationPropertyCalculator ( formationPropertyCalculator )) {
+      addFormationPropertyCalculator ( formationPropertyCalculator );
+   }
+
+   formationPropertyCalculator = FormationPropertyCalculatorPtr ( new PressureFormationCalculator ( m_projectHandle ));
 
    if ( canAddDerivedFormationPropertyCalculator ( formationPropertyCalculator )) {
       addFormationPropertyCalculator ( formationPropertyCalculator );
