@@ -285,9 +285,7 @@ int main (int argc, char ** argv) {
 
    Mining::DomainPropertyFactory* factory = new DataAccess::Mining::DomainPropertyFactory;
 
-   Interface::ProjectHandle::UseFactory ( factory );
-
-   Mining::ProjectHandle* projectHandle = (Mining::ProjectHandle*)(OpenCauldronProject (projectFileName, "r"));
+   Mining::ProjectHandle* projectHandle = (Mining::ProjectHandle*)(OpenCauldronProject (projectFileName, "r", factory));
 
    projectHandle->startActivity ( "deviatedwell", projectHandle->getLowResolutionOutputGrid ());
    projectHandle->initialise ( true, false );

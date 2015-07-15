@@ -28,7 +28,8 @@ namespace DataAccess
          virtual ~DomainPropertyFactory ();
 
          /// Allocates a data-mining project-handle.
-         Interface::ProjectHandle* produceProjectHandle( database::Database * database, const string & name, const string & accessMode );
+         Interface::ProjectHandle* produceProjectHandle( database::Database * database, const string & name, 
+			 const string & accessMode );
 
          /// Allocate a new domain-property.
          virtual DomainProperty* allocate ( const DomainPropertyCollection * collection,

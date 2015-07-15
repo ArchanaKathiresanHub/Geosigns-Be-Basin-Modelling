@@ -724,7 +724,7 @@ bool SourceRock::preprocess()
                                                                                                       presentDay, 
                                                                                                       m_formation->getTopSurface () );
       if ( surfaceProperty != 0 ) {
-         tempMap = getProjectHandle()->GetFactoryToUse()->produceGridMap ( 0, 0, 
+		  tempMap = getProjectHandle()->getFactory()->produceGridMap ( 0, 0, 
                                                                           getProjectHandle()->getActivityOutputGrid (), 
                                                                           surfaceProperty->getUndefinedValue(), 1 );
          if( tempMap != 0 ) {
@@ -748,7 +748,7 @@ bool SourceRock::preprocess()
       DerivedProperties::FormationSurfacePropertyPtr surfaceProperty = m_propertyManager->getFormationSurfaceProperty ( property, presentDay, 
                                                                                                                         m_formation, m_formation->getTopSurface () );
       if( surfaceProperty != 0 ) {
-         vreMap = getProjectHandle()->GetFactoryToUse()->produceGridMap ( 0, 0, 
+         vreMap = getProjectHandle()->getFactory()->produceGridMap ( 0, 0, 
                                                                           getProjectHandle()->getActivityOutputGrid (), 
                                                                           surfaceProperty->getUndefinedValue(), 1 );
          if ( vreMap ) {

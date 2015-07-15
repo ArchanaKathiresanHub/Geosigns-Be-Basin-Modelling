@@ -1984,7 +1984,7 @@ bool Reservoir::saveGenexMaps( const string & speciesName, DataAccess::Interface
    float time = (float) aSnapshot->getTime ();
 
    const string extensionString = ".HDF";
-   Interface::MapWriter * mapWriter = m_projectHandle->GetFactoryToUse()->produceMapWriter();
+   Interface::MapWriter * mapWriter = m_projectHandle->getFactory()->produceMapWriter();
    
    const string dirToOutput = m_projectHandle->getProjectName() + "_CauldronOutputDir/";
 

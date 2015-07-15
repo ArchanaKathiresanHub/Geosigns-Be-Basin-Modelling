@@ -80,7 +80,7 @@ namespace DataAccess { namespace Mining
                                                                                       const std::string  & name,
                                                                                       const std::string  & accessMode )
    {
-      ProjectHandle * projectHandle = new ProjectHandle( database, name, accessMode );
+      ProjectHandle * projectHandle = new ProjectHandle( database, name, accessMode, this );
       initialiseDomainPropertyFactory( projectHandle );
       return projectHandle;
    }

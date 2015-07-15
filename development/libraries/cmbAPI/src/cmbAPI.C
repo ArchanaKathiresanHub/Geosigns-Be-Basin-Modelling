@@ -111,6 +111,7 @@ public:
    MapsManagerImpl                   m_mapMgr;
 
    std::auto_ptr<DataAccess::Interface::ProjectHandle>  m_projHandle;  // project file database (set of tables)
+   std::auto_ptr<DataAccess::Interface::ObjectFactory>  m_factory;  
    std::string                                          m_projFileName;  // project files name with path
 
    // model origin
@@ -848,7 +849,8 @@ Model::ModelImpl & Model::ModelImpl::operator = ( const Model::ModelImpl & other
 
 void Model::ModelImpl::loadModelFromProjectFile( const char * projectFileName )
 {
-   m_projHandle.reset( DataAccess::Interface::OpenCauldronProject( projectFileName, "rw" ) );
+	m_factory.reset(new DataAccess::Interface::ObjectFactory);
+	m_projHandle.reset( DataAccess::Interface::OpenCauldronProject( projectFileName, "rw", m_factory.get() ) );
 
    if ( !m_projHandle.get() )
    {

@@ -226,7 +226,7 @@ bool Formation::preprocessSourceRock ( const double startTime, const bool printD
       }
  
       if( m_genexData == 0 ) {
-         m_genexData = m_projectHandle->GetFactoryToUse()->produceGridMap ( 0, 0, m_projectHandle->getActivityOutputGrid (), 99999.0, NUM_COMPONENTS );
+         m_genexData = m_projectHandle->getFactory()->produceGridMap ( 0, 0, m_projectHandle->getActivityOutputGrid (), 99999.0, NUM_COMPONENTS );
       }
       const GeoPhysics::GeoPhysicsSourceRock * sourceRock = dynamic_cast<const GeoPhysics::GeoPhysicsSourceRock *>( getSourceRock1 ());
       GeoPhysics::GeoPhysicsSourceRock * sourceRock1 = const_cast<GeoPhysics::GeoPhysicsSourceRock *>( sourceRock );

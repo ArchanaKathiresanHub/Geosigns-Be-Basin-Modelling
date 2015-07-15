@@ -31,8 +31,9 @@ namespace DataAccess
       {
 	 public:
 
-            virtual ~ObjectFactory () {}
+		ObjectFactory() {}
 
+		virtual ~ObjectFactory () {}
 	    virtual ProjectHandle * produceProjectHandle (database::Database * database, const string & name, const string & accessMode);
 
 	    virtual Snapshot * produceSnapshot (ProjectHandle * projectHandle, database::Record * record);

@@ -26,6 +26,7 @@ using namespace std;
 #include "Interface/GridMap.h"
 #include "Interface/Grid.h"
 #include "Interface/ProjectHandle.h"
+#include "Interface/ObjectFactory.h"
 #include "Interface/Snapshot.h"
 #include "Interface/Surface.h"
 #include "Interface/Formation.h"
@@ -304,8 +305,7 @@ int main (int argc, char ** argv)
    }
 
    GeoPhysics::ObjectFactory* factory = new GeoPhysics::ObjectFactory;
-   DataAccess::Interface::ProjectHandle::UseFactory (factory);
-   GeoPhysics::ProjectHandle* projectHandle = dynamic_cast< GeoPhysics::ProjectHandle* >( OpenCauldronProject( projectFileName, "r" ) );
+   GeoPhysics::ProjectHandle* projectHandle = dynamic_cast< GeoPhysics::ProjectHandle* >( OpenCauldronProject( projectFileName, "r", factory ) );
    DerivedProperties::DerivedPropertyManager propertyManager ( projectHandle );
 
    if (projectFileName.length () == 0)
@@ -426,7 +426,7 @@ int main (int argc, char ** argv)
 
    for (propertyValueIter = depthPropertyValueList.begin (); propertyValueIter != depthPropertyValueList.end (); ++propertyValueIter)
    {
-      
+
       formationPropertyValue = *propertyValueIter;
 
       if (formationPropertyValue->getFormation () == 0 || (!basement && dynamic_cast<const Interface::Formation*>(formationPropertyValue->getFormation ())->kind () == BASEMENT_FORMATION))

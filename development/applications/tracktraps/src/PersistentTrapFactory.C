@@ -13,7 +13,7 @@ DataAccess::Interface::ProjectHandle *
 PersistentTrapFactory::produceProjectHandle (database::Database * database,
 	 const string & name, const string & accessMode)
 {
-   return new ProjectHandle (database, name, accessMode);
+   return new ProjectHandle (database, name, accessMode, this);
 }
 
 DataAccess::Interface::Trap *

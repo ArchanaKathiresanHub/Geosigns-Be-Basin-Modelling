@@ -20,7 +20,7 @@ using namespace DataAccess;
 Interface::ProjectHandle * GeoPhysics::ObjectFactory::produceProjectHandle ( database::Database * database,
                                                                              const string & name,
                                                                              const string & accessMode ) {
-   return new GeoPhysics::ProjectHandle ( database, name, accessMode );
+   return new GeoPhysics::ProjectHandle ( database, name, accessMode, this );
 }
 
 

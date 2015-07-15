@@ -1,6 +1,6 @@
 #include "test.project3d.h"
 #include "Interface/ProjectHandle.h"
-
+#include "Interface/ObjectFactory.h"
 
 #include <iostream>
 #include <string>
@@ -13,7 +13,8 @@ hpc :: TestProject3DFile
    , m_project()
 {
   write( fileName );
-  m_project.reset( DataAccess::Interface::OpenCauldronProject( fileName, "r" ));
+  m_factory.reset( new DataAccess::Interface::ObjectFactory());
+  m_project.reset( DataAccess::Interface::OpenCauldronProject( fileName, "r", m_factory.get() ));
 }   
 
 hpc :: TestProject3DFile

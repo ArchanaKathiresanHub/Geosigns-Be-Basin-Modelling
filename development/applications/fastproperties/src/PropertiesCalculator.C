@@ -72,10 +72,10 @@ void  PropertiesCalculator::finalise ( bool isComplete ) {
 
 //------------------------------------------------------------//
 
-bool PropertiesCalculator::CreateFrom (){
+bool PropertiesCalculator::CreateFrom ( DataAccess::Interface::ObjectFactory* factory ){
    
     if ( m_projectHandle == 0 ) {
-      m_projectHandle = ( GeoPhysics::ProjectHandle* )( OpenCauldronProject( m_projectFileName, "r" ) );
+      m_projectHandle = ( GeoPhysics::ProjectHandle* )( OpenCauldronProject( m_projectFileName, "r", factory ) );
 
       if(  m_projectHandle != 0 ) {
          m_propertyManager = new DerivedPropertyManager ( m_projectHandle );

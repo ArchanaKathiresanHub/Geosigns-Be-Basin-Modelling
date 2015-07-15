@@ -144,9 +144,7 @@ int main( int argc, char ** argv )
    if ( !parseCmdLineArgs( argc, argv, inputProjectFileName, outputProjectFileName ) ) return -1;
 
    std::auto_ptr<Mining::DomainPropertyFactory> factory( new DataAccess::Mining::DomainPropertyFactory );
-   Interface::ProjectHandle::UseFactory( factory.get() );
-
-   std::auto_ptr<Mining::ProjectHandle> projectHandle( dynamic_cast<Mining::ProjectHandle*>( OpenCauldronProject( inputProjectFileName, "r" ) ) );
+   std::auto_ptr<Mining::ProjectHandle> projectHandle( dynamic_cast<Mining::ProjectHandle*>( OpenCauldronProject( inputProjectFileName, "r", factory.get() ) ) );
 
    projectHandle->startActivity( "datadriller", projectHandle->getHighResolutionOutputGrid() );
    projectHandle->initialise();// true, false );

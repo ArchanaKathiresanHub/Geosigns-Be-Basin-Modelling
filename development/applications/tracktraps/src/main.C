@@ -99,8 +99,8 @@ int main (int argc, char ** argv)
       outputFileName = projectFileName;
    }
 
-   ProjectHandle::UseFactory (new PersistentTrapFactory);
-   ProjectHandle * projectHandle = (ProjectHandle *) Interface::OpenCauldronProject (projectFileName, "rw");
+   PersistentTrapFactory* factory = new PersistentTrapFactory;
+   ProjectHandle * projectHandle = (ProjectHandle *) Interface::OpenCauldronProject (projectFileName, "rw", factory);
 
    if (!projectHandle)
    {

@@ -11,6 +11,7 @@
 
 namespace DataAccess { namespace Interface {
    class ProjectHandle;
+   class ObjectFactory;
 } }
 
 namespace hpc
@@ -114,6 +115,7 @@ private:
    std::vector< std::string > m_cauldronCmdLine;
    boost::shared_ptr<DataAccess::Interface::ProjectHandle>  m_project;
    boost::shared_ptr<Path> m_projectSourceDir;
+   DataAccess::Interface::ObjectFactory*  m_factory;   
    VersionID m_version;
 };  
 

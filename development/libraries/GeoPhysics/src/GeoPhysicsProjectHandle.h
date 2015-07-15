@@ -17,7 +17,6 @@
 
 #include "Interface/ProjectHandle.h"
 
-
 namespace DataAccess {
 
    namespace Interface {
@@ -53,7 +52,7 @@ namespace GeoPhysics {
       typedef GeoPhysics::Local2DArray <double> DoubleLocal2DArray;
 
 
-      ProjectHandle ( database::Database * database, const std::string & name, const std::string & accessMode );
+      ProjectHandle ( database::Database * database, const std::string & name, const std::string & accessMode, DataAccess::Interface::ObjectFactory* objectFactory );
 
       ~ProjectHandle ();
 

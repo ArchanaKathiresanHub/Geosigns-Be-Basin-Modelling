@@ -12,6 +12,7 @@ using namespace std;
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include "Interface/ObjectFactory.h"
 
 #include "FastTouch.h"
 
@@ -249,7 +250,9 @@ int main (int argc, char ** argv)
     }
 
     ReportProgress (string ("Reading Project File: ") + inputFileName);
-    fastTouch = new FastTouch(inputFileName);
+
+    DataAccess::Interface::ObjectFactory* factory = new DataAccess::Interface::ObjectFactory(); 
+    fastTouch = new FastTouch(inputFileName, factory);
     
     status = (fastTouch != 0);
     
@@ -304,6 +307,8 @@ int main (int argc, char ** argv)
     CleanTempMCRFolder();
 
     PetscFinalize ();
+
+    delete factory;
 
     // To prevent functions registered with atexit being called as they are causing crashes
    EXIT (status ? 0 : -1);

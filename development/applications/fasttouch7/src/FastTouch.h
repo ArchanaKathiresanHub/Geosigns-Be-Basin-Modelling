@@ -21,6 +21,7 @@ namespace DataAccess
    namespace Interface
    {
       class TouchstoneMap;
+      class ObjectFactory;
    }
 }
 
@@ -38,7 +39,7 @@ namespace fasttouch
    {
       public:
          /**  Constructor. */
-         FastTouch (const std::string & inputFileName);
+         FastTouch (const std::string & inputFileName, DataAccess::Interface::ObjectFactory* factory);
          virtual ~FastTouch (void);
 
          bool saveTo (const std::string & outputFileName);

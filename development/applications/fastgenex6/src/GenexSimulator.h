@@ -33,9 +33,9 @@ namespace GenexSimulation
          \param name the name of the file
          \param accessMode read or write
       */
-      GenexSimulator (database::Database * database, const std::string & name, const std::string & accessMode);
+      GenexSimulator (database::Database * database, const std::string & name, const std::string & accessMode, DataAccess::Interface::ObjectFactory* objectFactory);
       
-      static GenexSimulator *CreateFrom (const std::string & inputFileName);
+      static GenexSimulator *CreateFrom (const std::string & inputFileName, DataAccess::Interface::ObjectFactory* objectFactory);
 
       virtual ~GenexSimulator (void);
 

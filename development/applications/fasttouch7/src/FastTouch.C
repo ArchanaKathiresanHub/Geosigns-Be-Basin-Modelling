@@ -27,6 +27,7 @@ using namespace database;
 using namespace fasttouch;
  
 #include "Interface/ProjectHandle.h"
+#include "Interface/ObjectFactory.h"
 #include "Interface/Formation.h"
 #include "Interface/Surface.h"
 #include "Interface/PropertyValue.h"
@@ -40,8 +41,8 @@ using namespace Interface;
 double MinimumAll (double myValue);
 
 
-FastTouch::FastTouch (const std::string & inputFileName )
-   : m_projectHandle( OpenCauldronProject (inputFileName, "rw"))
+FastTouch::FastTouch (const std::string & inputFileName, ObjectFactory* factory )
+   : m_projectHandle( OpenCauldronProject (inputFileName, "rw", factory))
    , m_masterTouch(*m_projectHandle)
 {
 }

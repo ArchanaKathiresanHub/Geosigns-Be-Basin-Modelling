@@ -15,7 +15,7 @@ GeoPhysics::ProjectHandle *
 GenexSimulatorFactory::produceProjectHandle (database::Database * database, const string & name, 
                                              const string & accessMode)
 {
-   return new GenexSimulator (database, name, accessMode);
+   return new GenexSimulator (database, name, accessMode, this);
 }
 
 DataAccess::Interface::SourceRock *

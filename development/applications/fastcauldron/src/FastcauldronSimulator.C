@@ -56,8 +56,8 @@ FastcauldronSimulator* FastcauldronSimulator::m_fastcauldronSimulator = 0;
 
 //------------------------------------------------------------//
 
-FastcauldronSimulator::FastcauldronSimulator (database::Database * database, const std::string & name, const std::string & accessMode) 
-   : GeoPhysics::ProjectHandle (database, name, accessMode) {
+FastcauldronSimulator::FastcauldronSimulator (database::Database * database, const std::string & name, const std::string & accessMode, DataAccess::Interface::ObjectFactory* objectFactory) 
+   : GeoPhysics::ProjectHandle (database, name, accessMode, objectFactory) {
 
    m_calculationMode = NO_CALCULATION_MODE;
    m_lateralStressInterpolator = 0;
@@ -90,11 +90,11 @@ FastcauldronSimulator::~FastcauldronSimulator () {
 
 //------------------------------------------------------------//
 
-FastcauldronSimulator* FastcauldronSimulator::CreateFrom ( AppCtx* cauldron ) {
-
+FastcauldronSimulator* FastcauldronSimulator::CreateFrom ( AppCtx* cauldron, DataAccess::Interface::ObjectFactory* objectFactory)
+{
 
    if ( m_fastcauldronSimulator == 0 ) {
-      m_fastcauldronSimulator = (FastcauldronSimulator*) Interface::OpenCauldronProject ( cauldron->getProjectFileName (), "rw" );
+      m_fastcauldronSimulator = (FastcauldronSimulator*) Interface::OpenCauldronProject ( cauldron->getProjectFileName (), "rw", objectFactory );
 
    }
 

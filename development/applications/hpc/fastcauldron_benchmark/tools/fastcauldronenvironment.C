@@ -9,6 +9,7 @@
 #include <fstream>
 
 #include "Interface/ProjectHandle.h"
+#include "Interface/ObjectFactory.h"
 
 namespace hpc
 {
@@ -150,10 +151,13 @@ FastCauldronEnvironment
    , m_processors(processors)
    , m_mpiCmdLine()
    , m_cauldronCmdLine()
-   , m_project( DataAccess::Interface::OpenCauldronProject( projectFile.getCanonicalPath(), "r"))
    , m_projectSourceDir( projectFile.getParentDirectory() )
    , m_version(version)                                             
 {
+  m_factory = new DataAccess::Interface::ObjectFactory();  
+  m_project = boost::shared_ptr<DataAccess::Interface::ProjectHandle>
+              ( DataAccess::Interface::OpenCauldronProject(projectFile.getCanonicalPath(), "r", m_factory));
+  
   if (!m_project)
      throw Exception() << "Could not open project file '" << projectFile << "'";
 }

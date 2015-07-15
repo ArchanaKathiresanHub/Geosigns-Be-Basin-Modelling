@@ -26,6 +26,7 @@ using namespace GenexSimulation;
 
 #include "Interface/Interface.h"
 #include "Interface/ProjectHandle.h"
+#include "Interface/ObjectFactory.h"
 #include "Interface/SourceRock.h"
 #include "Interface/Property.h"
 #include "Interface/PropertyValue.h"
@@ -53,11 +54,10 @@ void displayTime ( const double timeToDisplay, const char * msgToDisplay ) {
 
 }
 
-GenexSimulator::GenexSimulator (database::Database * database, const std::string & name, const std::string & accessMode)
-   : GeoPhysics::ProjectHandle (database, name, accessMode)
+GenexSimulator::GenexSimulator (database::Database * database, const std::string & name, const std::string & accessMode, DataAccess::Interface::ObjectFactory* objectFactory)
+   : GeoPhysics::ProjectHandle (database, name, accessMode, objectFactory)
 {
   registerProperties();
-  // m_propertyManager = new GenexSimulation::PropertyManager ( this );
   m_propertyManager = new DerivedProperties::DerivedPropertyManager ( this );
 }
 
@@ -73,9 +73,9 @@ GenexSimulator::~GenexSimulator (void)
 
 }
 
-GenexSimulator *GenexSimulator::CreateFrom(const std::string & inputFileName)
+GenexSimulator *GenexSimulator::CreateFrom(const std::string & inputFileName, DataAccess::Interface::ObjectFactory* objectFactory)
 {
-   return (GenexSimulator *) Interface::OpenCauldronProject (inputFileName, "rw");
+	return (GenexSimulator *) Interface::OpenCauldronProject (inputFileName, "rw", objectFactory);
 }
 
 bool GenexSimulator::saveTo(const std::string & outputFileName)
@@ -98,7 +98,7 @@ bool GenexSimulator::run()
 
    started =  GeoPhysics::ProjectHandle::initialise ( coupledCalculation );
    if (!started) return false;
-
+   
    started = setFormationLithologies ( false, true ); 
    if (!started) return false;
 

@@ -183,8 +183,7 @@ int main ( int argc, char* argv []) {
 
   AllochthonousLithologySimulator* allochthonousSimulator;
 
-  DataAccess::Interface::ProjectHandle::UseFactory (factory);
-  allochthonousSimulator = AllochthonousLithologySimulator::CreateFrom (projectFileName);
+  allochthonousSimulator = AllochthonousLithologySimulator::CreateFrom (projectFileName, factory);
 
 
   if ( mapOutputOnly ) {

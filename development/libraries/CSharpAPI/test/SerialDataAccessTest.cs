@@ -22,7 +22,8 @@ namespace BasinModelingLinkTest
         public void OpenProject3DTest()
         {
             string pathToProject3D = @"..\..\..\..\..\Project.project3d";
-            ProjectHandle projectHandle = CauldronAPI.OpenCauldronProject(pathToProject3D.Replace("\\", "/"), "r");
+            ObjectFactory factory = new ObjectFactory();
+            ProjectHandle projectHandle = CauldronAPI.OpenCauldronProject(pathToProject3D.Replace("\\", "/"), "r", factory);
 
             Assert.IsNotNull(projectHandle, "Could not open project file: "+pathToProject3D);
 

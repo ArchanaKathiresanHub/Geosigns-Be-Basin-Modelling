@@ -30,7 +30,7 @@ MigrationPropertyManager::~MigrationPropertyManager() {
 
 DataAccess::Interface::GridMap *  MigrationPropertyManager::produceDerivedGridMap ( DerivedProperties::FormationPropertyPtr aProperty  ) {
    
-   DataAccess::Interface::GridMap * theMap = getProjectHandle()->GetFactoryToUse()->produceGridMap ( 0, 0, getProjectHandle()->getActivityOutputGrid (), 
+   DataAccess::Interface::GridMap * theMap = getProjectHandle()->getFactory()->produceGridMap ( 0, 0, getProjectHandle()->getActivityOutputGrid (), 
                                                                                                      aProperty->lengthK() );
    theMap->retrieveData();
 
@@ -51,7 +51,7 @@ DataAccess::Interface::GridMap *  MigrationPropertyManager::produceDerivedGridMa
 
 DataAccess::Interface::GridMap *  MigrationPropertyManager::produceDerivedGridMap ( DerivedProperties::FormationSurfacePropertyPtr aProperty  ) {
    
-   DataAccess::Interface::GridMap * theMap = getProjectHandle()->GetFactoryToUse()->produceGridMap ( 0, 0, getProjectHandle()->getActivityOutputGrid (), 
+   DataAccess::Interface::GridMap * theMap = getProjectHandle()->getFactory()->produceGridMap ( 0, 0, getProjectHandle()->getActivityOutputGrid (), 
                                                                                                      aProperty->getUndefinedValue(), 1 );
    theMap->retrieveData();
 
@@ -71,7 +71,7 @@ DataAccess::Interface::GridMap *  MigrationPropertyManager::produceDerivedGridMa
 
 DataAccess::Interface::GridMap *  MigrationPropertyManager::produceDerivedGridMap ( DerivedProperties::SurfacePropertyPtr aProperty  ) {
    
-   DataAccess::Interface::GridMap * theMap = getProjectHandle()->GetFactoryToUse()->produceGridMap ( 0, 0, getProjectHandle()->getActivityOutputGrid (), 
+   DataAccess::Interface::GridMap * theMap = getProjectHandle()->getFactory()->produceGridMap ( 0, 0, getProjectHandle()->getActivityOutputGrid (), 
                                                                                                      aProperty->getUndefinedValue(), 1 );
    theMap->retrieveData();
 

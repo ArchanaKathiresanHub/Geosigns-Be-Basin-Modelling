@@ -54,7 +54,7 @@ public :
    /// Constructor.
    ///
    /// Only to be created by using the "CreateFrom" function.
-   FastcauldronSimulator (database::Database * database, const std::string & name, const std::string & accessMode);
+	FastcauldronSimulator (database::Database * database, const std::string & name, const std::string & accessMode, DataAccess::Interface::ObjectFactory* factory);
 
    ~FastcauldronSimulator ();
 
@@ -68,7 +68,7 @@ public :
    /// Open the project file and return a pointed to the fastcauldron simulator.
    ///
    /// Fix when singlton is complete.
-   static FastcauldronSimulator* CreateFrom ( AppCtx* cauldron );
+   static FastcauldronSimulator* CreateFrom ( AppCtx* cauldron, DataAccess::Interface::ObjectFactory* objectFactory );
 
    /// Finish any activity and deallocate the singleton object.
    ///

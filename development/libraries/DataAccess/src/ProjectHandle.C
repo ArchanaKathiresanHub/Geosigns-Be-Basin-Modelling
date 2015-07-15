@@ -111,15 +111,14 @@ using database::Record;
 
 const double DefaultUndefinedValue = 99999;
 
-/// ObjectFactory used in the creation of ProjectHandles
-static ObjectFactory * s_factoryToUse = 0;
 
-DataAccess::Interface::ProjectHandle * DataAccess::Interface::OpenCauldronProject( const string & name, const string & accessMode )
+
+DataAccess::Interface::ProjectHandle * DataAccess::Interface::OpenCauldronProject( const string & name, const string & accessMode, ObjectFactory* objectFactory )
 {
    Database * tables = CreateDatabaseFromCauldronProject( name );
    if ( tables )
    {
-      return Interface::ProjectHandle::GetFactoryToUse()->produceProjectHandle( tables, name, accessMode );
+      return objectFactory->produceProjectHandle( tables, name, accessMode );
    }
    else
    {
@@ -164,13 +163,6 @@ std::string Interface::ProjectHandle::GetSpeciesName( int i )
    return theComponentManager.GetSpeciesName( i );
 }
 
-ObjectFactory * ProjectHandle::GetFactoryToUse( void )
-{
-   if ( !s_factoryToUse )
-      s_factoryToUse = new ObjectFactory;
-   return s_factoryToUse;
-}
-
 const DataAccess::Interface::MessageHandler& ProjectHandle::getMessageHandler() const {
    return *m_messageHandler;
 }
@@ -179,14 +171,15 @@ const DataAccess::Interface::ApplicationGlobalOperations& ProjectHandle::getGlob
    return *m_globalOperations;
 }
 
-ProjectHandle::ProjectHandle( Database * tables, const string & name, const string & accessMode ) :
+ProjectHandle::ProjectHandle( Database * tables, const string & name, const string & accessMode, ObjectFactory* objectFactory ) :
 m_database( tables ), m_name( name ), m_accessMode( READWRITE ), m_activityOutputGrid( 0 ), m_mapPropertyValuesWriter( 0 )
 {
    (void) accessMode; // ignore warning about unused parameter
 
    m_messageHandler = 0;
    m_globalOperations = 0;
-   m_factory = GetFactoryToUse();
+   
+   m_factory = objectFactory;
 
    m_rank = ddd::GetRank();
    m_size = ddd::GetSize();
@@ -352,12 +345,6 @@ Interface::ModellingMode ProjectHandle::getModellingMode( void ) const
    return m_modellingMode;
 }
 
-bool ProjectHandle::UseFactory( ObjectFactory * factory )
-{
-   s_factoryToUse = factory;
-
-   return true;
-}
 
 ObjectFactory * ProjectHandle::getFactory( void ) const
 {

@@ -44,7 +44,8 @@ public :
    /// Returns the project-handle.
    Interface::ProjectHandle * produceProjectHandle ( database::Database * database,
                                                           const string &       name,
-                                                          const string &       accessMode);
+                                                          const string &       accessMode
+ 													      );
 
    /// Allocate a fastcauldron related-project.
    Interface::RelatedProject* produceRelatedProject ( Interface::ProjectHandle* projectHandle,

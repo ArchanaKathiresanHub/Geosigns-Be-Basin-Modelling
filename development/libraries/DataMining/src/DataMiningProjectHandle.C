@@ -21,8 +21,8 @@ using namespace std;
 #include "BasinTemperatureGradientCalculator.h"
 #include "BasementHeatFlowCalculator.h"
 
-DataAccess::Mining::ProjectHandle::ProjectHandle( database::Database * database, const std::string & name, const std::string & accessMode ) :
-   GeoPhysics::ProjectHandle ( database, name, accessMode ) {
+DataAccess::Mining::ProjectHandle::ProjectHandle( database::Database * database, const std::string & name, const std::string & accessMode, DataAccess::Interface::ObjectFactory* objectFactory ) :
+   GeoPhysics::ProjectHandle ( database, name, accessMode, objectFactory ) {
 
    addNewProperties();
 

@@ -3,6 +3,7 @@
 
 // Data access
 #include "Interface/Interface.h"
+#include "Interface/ObjectFactory.h"
 #include "Interface/ProjectHandle.h"
 #include "Interface/AllochthonousLithology.h"
 
@@ -16,7 +17,7 @@ namespace database
 }
 
 using namespace DataAccess;
-
+using namespace DataAccess::Interface;
 
 
 namespace AllochMod {
@@ -59,12 +60,12 @@ namespace AllochMod {
 
 
     /// Constructor
-    AllochthonousLithologySimulator (database::Database * database, const std::string & name, const std::string & accessMode);
+    AllochthonousLithologySimulator (database::Database * database, const std::string & name, const std::string & accessMode, ObjectFactory* factory);
 	
     ~AllochthonousLithologySimulator (void);
 
     /// \brief Open the project file and return a pointed to the allochthonous lithology modelling simulator.
-    static AllochthonousLithologySimulator* CreateFrom ( const std::string& projectFileName );
+    static AllochthonousLithologySimulator* CreateFrom ( const std::string& projectFileName, ObjectFactory* factory );
 
 
     /// \brief Calculate the 3-d implicit surface for each of the layers.
@@ -88,8 +89,6 @@ namespace AllochMod {
     /// 
     void getAllochthonousLithologyDistributionList ( const Interface::AllochthonousLithology*     theAllochthonousLithology,
                                                            AllochthonousLithologyDistributionSequence& associatedLithologyDistributions );
-
-
   };
 
   /** @} */

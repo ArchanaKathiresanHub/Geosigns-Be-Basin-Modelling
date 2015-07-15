@@ -48,8 +48,8 @@ static bool reservoirSorter (const Interface::Reservoir * reservoir1, const Inte
 
 extern string NumProcessorsArg;
 
-Migrator::Migrator (database::Database * database, const string & name, const string & accessMode) :
-   GeoPhysics::ProjectHandle (database, name, accessMode),
+Migrator::Migrator (database::Database * database, const string & name, const string & accessMode, DataAccess::Interface::ObjectFactory* objectFactory) :
+   GeoPhysics::ProjectHandle (database, name, accessMode, objectFactory),
    m_massBalance(0),
    m_propertyManager ( this )
 {
@@ -86,9 +86,9 @@ Migrator::~Migrator (void)
    }
 }
 
-Migrator * Migrator::CreateFrom (const string & inputFileName)
+Migrator * Migrator::CreateFrom (const string & inputFileName, DataAccess::Interface::ObjectFactory* objectFactory)
 {
-   Migrator * migrator = (Migrator *) Interface::OpenCauldronProject (inputFileName, "rw");
+	Migrator * migrator = (Migrator *) Interface::OpenCauldronProject (inputFileName, "rw", objectFactory);
    if (migrator) migrator->loadFaults ();
    return migrator;
 }

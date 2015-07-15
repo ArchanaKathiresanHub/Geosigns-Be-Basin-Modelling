@@ -35,8 +35,8 @@ void displayTime ( const double timeToDisplay, const char * msgToDisplay ) {
 }
 //------------------------------------------------------------//
 
-CrustalThicknessCalculator::CrustalThicknessCalculator (database::Database * database, const std::string & name, const std::string & accessMode) 
-   : GeoPhysics::ProjectHandle (database, name, accessMode) {
+CrustalThicknessCalculator::CrustalThicknessCalculator (database::Database * database, const std::string & name, const std::string & accessMode, ObjectFactory* factory) 
+   : GeoPhysics::ProjectHandle (database, name, accessMode, factory) {
 
    
    m_outputOptions = 0;
@@ -51,11 +51,11 @@ CrustalThicknessCalculator::~CrustalThicknessCalculator () {
 
 //------------------------------------------------------------//
 
-CrustalThicknessCalculator* CrustalThicknessCalculator::CreateFrom ( const string& inputFileName ) {
+CrustalThicknessCalculator* CrustalThicknessCalculator::CreateFrom ( const string& inputFileName, ObjectFactory* factory ) {
 
 
    if ( m_crustalThicknessCalculator == 0 ) {
-      m_crustalThicknessCalculator = (CrustalThicknessCalculator*) Interface::OpenCauldronProject ( inputFileName, "rw" );
+      m_crustalThicknessCalculator = (CrustalThicknessCalculator*) Interface::OpenCauldronProject ( inputFileName, "rw", factory );
 
    }
    m_projectFileName = inputFileName;

@@ -34,8 +34,8 @@ using Interface::LithoType;
 DataAccess::Interface::ProjectHandle *
 FastcauldronFactory::produceProjectHandle ( database::Database * database,
                                             const string & name,
-                                            const string & accessMode) {
-   return new FastcauldronSimulator ( database, name, accessMode );
+											const string & accessMode) {
+   return new FastcauldronSimulator ( database, name, accessMode, this );
 }
 
 

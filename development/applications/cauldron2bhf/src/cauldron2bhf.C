@@ -23,6 +23,7 @@ using namespace std;
 // DataAccess API includes
 #include "Interface/GridMap.h"
 #include "Interface/Grid.h"
+#include "Interface/ObjectFactory.h"
 #include "Interface/ProjectHandle.h"
 #include "Interface/Snapshot.h"
 #include "Interface/Surface.h"
@@ -157,9 +158,9 @@ int main (int argc, char ** argv)
       outputProjectFileName = inputProjectFileName;
    }
 
-   GeoPhysics::ObjectFactory* factory = new GeoPhysics::ObjectFactory;
-   DataAccess::Interface::ProjectHandle::UseFactory (factory);
-   GeoPhysics::ProjectHandle* projectHandle = dynamic_cast< GeoPhysics::ProjectHandle* >( OpenCauldronProject( inputProjectFileName, "rw" ) );
+   
+   ObjectFactory* factory = new ObjectFactory();
+   GeoPhysics::ProjectHandle* projectHandle = dynamic_cast< GeoPhysics::ProjectHandle* >( OpenCauldronProject( inputProjectFileName, "rw", factory ) );
    DerivedProperties::DerivedPropertyManager propertyManager ( projectHandle );
 
    if (projectHandle == 0)

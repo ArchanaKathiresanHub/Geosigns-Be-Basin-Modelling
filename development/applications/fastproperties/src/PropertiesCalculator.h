@@ -11,6 +11,7 @@
 #include "Interface/Snapshot.h"
 #include "Interface/Surface.h"
 #include "Interface/Formation.h"
+#include "Interface/ObjectFactory.h"
 
 #include "Interface/Property.h"
 #include "Interface/PropertyValue.h"
@@ -102,7 +103,7 @@ public:
 
    bool startActivity();
    void finalise ( bool isComplete );
-   bool CreateFrom( );
+   bool CreateFrom( DataAccess::Interface::ObjectFactory* factory);
 
    bool setFastcauldronActivityName();
 

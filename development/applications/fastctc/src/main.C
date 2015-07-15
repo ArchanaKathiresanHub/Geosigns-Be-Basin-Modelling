@@ -67,8 +67,6 @@ int main (int argc, char ** argv)
    int rank = 99999;
 
    CrustalThicknessCalculatorFactory* factory = new CrustalThicknessCalculatorFactory;
-   DataAccess::Interface::ProjectHandle::UseFactory (factory);
-
    PetscInitialize (&argc, &argv, (char *) 0, PETSC_NULL);
 
    MPI_Comm_rank(PETSC_COMM_WORLD, &rank);
@@ -161,7 +159,7 @@ int main (int argc, char ** argv)
    PetscLogDouble sim_Start_Time;
    PetscTime( &sim_Start_Time );   
 
-   if(!CrustalThicknessCalculator::CreateFrom( inputFileName )) {
+   if(!CrustalThicknessCalculator::CreateFrom( inputFileName, factory)) {
       fprintf(stderr, "MeSsAgE ERROR Can not open the project file\n");
       showUsage ();
       PetscFinalize ();

@@ -103,7 +103,6 @@ int main(int argc, char** argv)
    StartTiming();
 
    FastcauldronFactory* factory = new FastcauldronFactory;
-   DataAccess::Interface::ProjectHandle::UseFactory (factory);
 
    AppCtx *appctx = new AppCtx (argc, argv);
    HydraulicFracturingManager::getInstance ().setAppCtx ( appctx );
@@ -181,7 +180,7 @@ int main(int argc, char** argv)
    }
 
    StatisticsHandler::initialise ();
-   FastcauldronSimulator::CreateFrom ( appctx );
+   FastcauldronSimulator::CreateFrom ( appctx, factory );
    FastcauldronSimulator::getInstance() . readCommandLineParametersEarlyStage( argc, argv );
  
    FastcauldronSimulator::getInstance() . deleteTemporaryDirSnapshots();

@@ -28,6 +28,7 @@ using namespace std;
 #include "Interface/Property.h"
 #include "Interface/PropertyValue.h"
 #include "Interface/ProjectHandle.h"
+#include "Interface/ObjectFactory.h"
 #include "Interface/SimulationDetails.h"
 
 // GeoPhysics library
@@ -273,8 +274,7 @@ int main (int argc, char ** argv)
    }
 
    GeoPhysics::ObjectFactory* factory = new GeoPhysics::ObjectFactory;
-   DataAccess::Interface::ProjectHandle::UseFactory (factory);
-   GeoPhysics::ProjectHandle* projectHandle = dynamic_cast< GeoPhysics::ProjectHandle* >( OpenCauldronProject( projectFileName, "r" ) );
+   GeoPhysics::ProjectHandle* projectHandle = dynamic_cast< GeoPhysics::ProjectHandle* >( OpenCauldronProject( projectFileName, "r", factory ) );
    DerivedProperties::DerivedPropertyManager propertyManager ( projectHandle );
 
    bool coupledCalculationMode = false;

@@ -39,6 +39,8 @@ using namespace std;
 #include "Interface/LithoType.h"
 #include "Interface/Property.h"
 #include "Interface/PropertyValue.h"
+#include "Interface/ProjectHandle.h"
+#include "Interface/ObjectFactory.h"
 
 #include "PropertyAttribute.h"
 #include "AbstractPropertyManager.h"
@@ -424,13 +426,13 @@ int main( int argc, char ** argv )
 
 
    GeoPhysics::ObjectFactory* factory = new GeoPhysics::ObjectFactory;
-   DataAccess::Interface::ProjectHandle::UseFactory (factory);
-   GeoPhysics::ProjectHandle* projectHandle = ( GeoPhysics::ProjectHandle* )( OpenCauldronProject( inputProjectFileName, "r" ) );
+   GeoPhysics::ProjectHandle* projectHandle = ( GeoPhysics::ProjectHandle* )( OpenCauldronProject( inputProjectFileName, "r", factory ) );
    DerivedPropertyManager propertyManager ( projectHandle );
 
    if ( !projectHandle )
    {
       showUsage( argv[ 0 ], "Could not open specified project file" );
+	  delete factory;
       return -1;
    }
 
@@ -440,10 +442,10 @@ int main( int argc, char ** argv )
    if ( listProperties )
    {
       listOutputableProperties ( projectHandle, propertyManager );
-   }
+      }
 
    if ( all2Dproperties )
-   {
+      {
       PropertyList * allProperties = projectHandle->getProperties( true );
 
       for ( size_t i = 0; i < allProperties->size (); ++i ) {
@@ -461,11 +463,11 @@ int main( int argc, char ** argv )
          } else if ( property->getPropertyAttribute () == DataModel::FORMATION_2D_PROPERTY and 
                      propertyManager.formationMapPropertyIsComputable ( property )) {
             addIt = true;
-         }
+      }
 
          if ( addIt ) {
             propertyNames.push_back( property->getName() );
-         }
+   }
 
       }
 
@@ -482,7 +484,7 @@ int main( int argc, char ** argv )
          if (( property->getPropertyAttribute () == DataModel::CONTINUOUS_3D_PROPERTY or
                property->getPropertyAttribute () == DataModel::DISCONTINUOUS_3D_PROPERTY ) and 
              propertyManager.formationPropertyIsComputable ( property ))
-         {
+      {
             propertyNames.push_back( property->getName() );
          }
 
@@ -731,10 +733,10 @@ int main( int argc, char ** argv )
 
                   outputSnapshotFormationData( outputStream, coordinatePair, snapshot, ( *formationSurfaceIter ), properties, allOutputPropertyValues, formationSurfacePairs, i, j, kUsed, maxK );
                }
+               }
             }
          }
       }
-   }
 
    if ( projectHandle != 0 ) {
       projectHandle->finishActivity ( false );
@@ -744,6 +746,10 @@ int main( int argc, char ** argv )
    {
       outputFile.close();
    }
+
+   DataAccess::Interface::CloseCauldronProject( projectHandle );
+   delete factory;
+
    return 0;
 }
 
@@ -820,9 +826,9 @@ OutputPropertyValuePtr allocateOutputProperty ( DerivedProperties::AbstractPrope
 }
 
 void outputSnapshotFormationData( ostream & outputStream, DoublePair & coordinatePair,
-                                  const Snapshot * snapshot, FormationSurface  & formationSurface, PropertyList & properties,
+   const Snapshot * snapshot, FormationSurface  & formationSurface, PropertyList & properties,
                                   SnapshotFormationOutputPropertyValueMap & allOutputPropertyValues,
-                                  FormationSurfaceVector & formationSurfacePairs, double i, double j, unsigned int k, unsigned int maxK )
+   FormationSurfaceVector & formationSurfacePairs, double i, double j, unsigned int k, unsigned int maxK )
 {
    int kInverse = ( maxK - 1 ) - k;
 
@@ -885,7 +891,7 @@ void outputSnapshotFormationData( ostream & outputStream, DoublePair & coordinat
          else
          {
             outputStream << " ";
-         }
+      }
 
       }
       else
@@ -1097,7 +1103,7 @@ bool acquireProperties( ProjectHandle * projectHandle,
       }
 
       if ( isComputable ) {
-         properties.push_back( property );
+      properties.push_back( property );
       } else {
          cerr << "Could not find calculator for property named '" << *stringIter << "'" << endl;
       }

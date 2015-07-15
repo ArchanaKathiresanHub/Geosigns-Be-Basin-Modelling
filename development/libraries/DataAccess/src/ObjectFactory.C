@@ -70,7 +70,7 @@ using namespace Interface;
 
 ProjectHandle * ObjectFactory::produceProjectHandle (database::Database * database, const string & name, const string & accessMode)
 {
-   return new ProjectHandle (database, name, accessMode);
+   return new ProjectHandle (database, name, accessMode, this);
 }
 
 Snapshot * ObjectFactory::produceSnapshot (ProjectHandle * projectHandle, database::Record * record)

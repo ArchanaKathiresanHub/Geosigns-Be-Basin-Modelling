@@ -46,8 +46,8 @@
 using namespace DataAccess;
 using namespace CBMGenerics;
 
-GeoPhysics::ProjectHandle::ProjectHandle ( database::Database * database, const std::string & name, const std::string & accessMode ) :
-   DataAccess::Interface::ProjectHandle ( database, name, accessMode ) {
+GeoPhysics::ProjectHandle::ProjectHandle ( database::Database * database, const std::string & name, const std::string & accessMode, DataAccess::Interface::ObjectFactory* objectFactory ) :
+   DataAccess::Interface::ProjectHandle ( database, name, accessMode, objectFactory ) {
 
    m_lithologyManager = new LithologyManager ( this );
 

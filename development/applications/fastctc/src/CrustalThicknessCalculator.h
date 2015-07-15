@@ -23,7 +23,7 @@ class CrustalThicknessCalculator : public GeoPhysics::ProjectHandle {
 
 public :
    // Constructor / Destructor
-   CrustalThicknessCalculator( database::Database * database, const std::string & name, const std::string & accessMode );
+   CrustalThicknessCalculator( database::Database * database, const std::string & name, const std::string & accessMode, ObjectFactory* factory );
 
    ~CrustalThicknessCalculator();
 
@@ -31,7 +31,7 @@ public :
    static CrustalThicknessCalculator& getInstance ();
 
    // Open the project file
-   static CrustalThicknessCalculator* CreateFrom ( const string& inputFileName );
+   static CrustalThicknessCalculator* CreateFrom ( const string& inputFileName, ObjectFactory* factory );
 
    // Finish any activity and deallocate the singleton object.
    static void finalise ( const bool saveResults );

@@ -23,7 +23,7 @@ namespace DataAccess {
 
       public :
 
-         ProjectHandle (database::Database * database, const std::string & name, const std::string & accessMode);
+         ProjectHandle (database::Database * database, const std::string & name, const std::string & accessMode, DataAccess::Interface::ObjectFactory* objectFactory);
 
          /// \brief Get the domain-property collection.
          ///

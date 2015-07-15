@@ -17,8 +17,6 @@ int main( int argc, char ** argv )
    FormationVector formationItems;
 
    GeoPhysics::ObjectFactory* factory = new GeoPhysics::ObjectFactory;
-   DataAccess::Interface::ProjectHandle::UseFactory (factory);
-
    PropertiesCalculator propCalculator ( rank );
        
    if( !propCalculator.parseCommandLine( argc, argv )) {
@@ -27,7 +25,7 @@ int main( int argc, char ** argv )
       return -1;
    }
 
-   if( ! propCalculator.CreateFrom() ) {
+   if( ! propCalculator.CreateFrom(factory) ) {
 
       propCalculator.showUsage( argv[ 0 ], "Could not open specified project file" );
       PetscFinalize();
