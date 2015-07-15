@@ -97,7 +97,7 @@ bool PropertiesCalculator::startActivity() {
    
    const Interface::Grid * grid = m_projectHandle->getLowResolutionOutputGrid();
 
-   bool started = m_projectHandle->startActivity ( m_activityName, grid, false, true, true );
+   bool started = m_projectHandle->startActivity ( m_activityName, grid, false, true, m_activityName != "Fastproperties" );
 
    bool coupledCalculation = false; // to do.
  
@@ -680,10 +680,13 @@ bool PropertiesCalculator::setFastcauldronActivityName() {
    m_simulationMode = m_projectHandle->getDetailsOfLastSimulation ( "fastcauldron" )->getSimulatorMode ();
 
    if( m_simulationMode == "HydrostaticDecompaction" ||
-       m_simulationMode == "HydrostaticTemperature" ) {
+       m_simulationMode == "HydrostaticTemperature" ||
+       m_simulationMode == "Overpressure" ) {
       m_activityName = m_simulationMode;
    } else if( m_simulationMode == "CoupledPressureAndTemperature" ) {
       m_activityName = "PressureAndTemperature";
+   } else if( m_simulationMode == "LooselyCoupledTemperature" ) {
+      m_activityName = "OverpressuredTemperature";
    } else {
       m_activityName = "Fastproperties";
    }
