@@ -345,7 +345,7 @@ void CmdAddVarPrm::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
          }
          size_t numPts = atol( m_prms[pos++].c_str() ); // number of points for minimum multipoint perm. profile
 
-         minModelPrms.push_back( numPts );
+         minModelPrms.push_back( static_cast<double>( numPts ) );
          
          if ( pos + numPts * 2 >= m_prms.size() )
          {

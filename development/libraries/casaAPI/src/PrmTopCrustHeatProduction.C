@@ -56,7 +56,7 @@ PrmTopCrustHeatProduction::PrmTopCrustHeatProduction( mbapi::Model & mdl ) : m_p
 PrmTopCrustHeatProduction::~PrmTopCrustHeatProduction() {;}
 
 // Update given model with the parameter value
-ErrorHandler::ReturnCode PrmTopCrustHeatProduction::setInModel( mbapi::Model & caldModel )
+ErrorHandler::ReturnCode PrmTopCrustHeatProduction::setInModel( mbapi::Model & caldModel, size_t /* caseID */ )
 {
    const std::string & modelName = caldModel.tableValueAsString( s_basementTblName, 0, s_bottomBoundaryModel );
    if ( ErrorHandler::NoError != caldModel.errorCode() ) return caldModel.errorCode();

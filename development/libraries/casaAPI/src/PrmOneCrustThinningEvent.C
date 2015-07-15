@@ -82,7 +82,7 @@ PrmOneCrustThinningEvent::PrmOneCrustThinningEvent( const VarPrmOneCrustThinning
 }
 
 // Set this parameter value in Cauldron model
-ErrorHandler::ReturnCode PrmOneCrustThinningEvent::setInModel( mbapi::Model & mdl )
+ErrorHandler::ReturnCode PrmOneCrustThinningEvent::setInModel( mbapi::Model & mdl, size_t /* caseID */ )
 {
    bool oK = true;
    oK = oK ? ErrorHandler::NoError == mdl.clearTable( s_crustIoTblName ) : oK;

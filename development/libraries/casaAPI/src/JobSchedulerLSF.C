@@ -23,6 +23,40 @@
 // LSF
 #ifdef WITH_LSF_SCHEDULER
 #include <lsf/lsbatch.h>
+#else
+// In case we have no lsf.h for the platform, 
+// use some mockup to allow deserialization
+#define LSF_RLIM_NLIMITS  12
+#define DEFAULT_RLIMIT   -1
+
+typedef __int64 LS_LONG_INT;
+
+struct submit {
+   char   * projectName;
+   char   * command;
+   char   * jobName;
+   char   * outFile;
+   char   * errFile;
+   char   * cwd;
+   int      rLimits[LSF_RLIM_NLIMITS];
+   int      options; 
+   int      options2;
+   int      options3;
+   int      numProcessors;
+   int      maxNumProcessors;
+};
+
+struct submitReply
+{
+   int dummy;
+};
+
+#define  SUB_JOB_NAME       0x01
+#define  SUB_OUT_FILE       0x10
+#define  SUB_ERR_FILE       0x20
+#define  SUB_PROJECT_NAME   0x2000000
+#define  SUB3_CWD           0x40
+
 #endif
 
 // STL
@@ -40,6 +74,7 @@ static void Wait( int sec ) { sleep( sec ); }
 #else
 #include <windows.h>
 static void Wait( int milsec ) { Sleep( milsec * 1000 ); }
+#define strdup _strdup
 #endif
 
 
@@ -51,7 +86,6 @@ class JobSchedulerLSF::Job : public CasaSerializable
 public:
    Job( const std::string & cwd, const std::string & scriptName, const std::string & jobName, int cpus )
    {
-#ifdef WITH_LSF_SCHEDULER
       m_lsfJobID = -1;
       m_isFinished = false;
 
@@ -78,31 +112,21 @@ public:
 
       m_submit.numProcessors    = cpus; // initial number of processors needed by a (parallel) job
       m_submit.maxNumProcessors = cpus; // max num of processors required to run the (parallel) job
-#else
-      m_command = scriptName;
-      m_isFinished = true;   // without job scheduler all jobs considered as finished immediately
-#endif
    }
 
    ~Job()
    {  // allocated by strdup
-#ifdef WITH_LSF_SCHEDULER
       if ( m_submit.projectName ) free( m_submit.projectName );
       if ( m_submit.command )     free( m_submit.command );
       if ( m_submit.jobName )     free( m_submit.jobName );
       if ( m_submit.cwd )         free( m_submit.cwd     );
       if ( m_submit.outFile )     free( m_submit.outFile );
       if ( m_submit.errFile )     free( m_submit.errFile );
-#endif
    }
 
    const char * command() const
    {
-#ifdef WITH_LSF_SCHEDULER
       return m_submit.command;
-#else
-      return m_command.c_str();
-#endif
    }
 
    // check is job was submitted already
@@ -185,25 +209,21 @@ public:
    {
       bool ok = sz.save( m_isFinished, "IsFinished" );
 
-#ifdef WITH_LSF_SCHEDULER
       ok = ok ? sz.save( std::string( m_submit.projectName ),      "CldProjectName" ) : ok;
       ok = ok ? sz.save( std::string( m_submit.command ),          "ScriptName"     ) : ok;
       ok = ok ? sz.save( std::string( m_submit.jobName ),          "JobName"        ) : ok;
       ok = ok ? sz.save( std::string( m_submit.outFile ),          "StdOutLogFile"  ) : ok;
       ok = ok ? sz.save( std::string( m_submit.errFile ),          "StdErrLogFile"  ) : ok;
-      ok = ok ? sz.save( m_submit.options,          "OptionsFlags"   ) : ok;
+      ok = ok ? sz.save(              m_submit.options,            "OptionsFlags"   ) : ok;
       ok = ok ? sz.save( std::string( m_submit.cwd ),              "CWD"            ) : ok;
-      ok = ok ? sz.save( m_submit.options3,         "Options3Flags"  ) : ok;
-      ok = ok ? sz.save( m_submit.numProcessors,    "CPUsNum"        ) : ok;
-      ok = ok ? sz.save( m_submit.maxNumProcessors, "MaxCPUsNum"     ) : ok;
+      ok = ok ? sz.save(              m_submit.options3,           "Options3Flags"  ) : ok;
+      ok = ok ? sz.save(              m_submit.numProcessors,      "CPUsNum"        ) : ok;
+      ok = ok ? sz.save(              m_submit.maxNumProcessors,   "MaxCPUsNum"     ) : ok;
 
-      // TODO save necessar fields for submitRepl
+      // TODO save necessary fields for submitRepl
       //struct submitReply m_submitRepl; // lsf_submit returns here some info in case of error
 
       ok = ok ? sz.save( m_lsfJobID, "LSFJobID" ) : ok;
-#else
-      ok = ok ? sz.save( m_command,  "Command" ) : ok;
-#endif
       return ok;
    }
 
@@ -215,7 +235,7 @@ public:
       bool ok = dz.checkObjectDescription( typeName(), objName, objVer );
 
       ok = ok ? dz.load( m_isFinished, "IsFinished" ) : ok;
-#ifdef WITH_LSF_SCHEDULER
+
       // clean LSF structures
       memset( &m_submit,     0, sizeof( m_submit ) );
       memset( &m_submitRepl, 0, sizeof( m_submitRepl ) );
@@ -249,9 +269,7 @@ public:
       ok = ok ? dz.load( m_submit.numProcessors,    "CPUsNum"        ) : ok;
       ok = ok ? dz.load( m_submit.maxNumProcessors, "MaxCPUsNum"     ) : ok;
       ok = ok ? dz.load( m_lsfJobID,                "LSFJobID" ) : ok;
-#else
-      ok = ok ? dz.load( m_command,  "Command" ) : ok;
-#endif
+
       if ( !ok )
       {
          throw ErrorHandler::Exception( ErrorHandler::DeserializationError )
@@ -262,15 +280,11 @@ public:
  private:
    bool               m_isFinished; // was this job finished?
 
-#ifdef WITH_LSF_SCHEDULER
    // fields related to interaction with LSF
    struct submit      m_submit;     // lsf_submit use values from this structure to submit job
    struct submitReply m_submitRepl; // lsf_submit returns here some info in case of error
 
    LS_LONG_INT        m_lsfJobID;   // job ID in LSF
-#else
-   std::string        m_command;    // command to execute
-#endif
 
    // disable copy constructor/operator
    Job( const Job & jb );

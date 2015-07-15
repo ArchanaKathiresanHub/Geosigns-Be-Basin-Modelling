@@ -20,6 +20,7 @@
 
 // Utilities lib
 #include <NumericFunctions.h>
+#include "Path.h" // for to_string
 
 // STL/C lib
 #include <cassert>
@@ -120,7 +121,7 @@ PrmSourceRockTOC::~PrmSourceRockTOC() {;}
 
 
 // Update given model with the parameter value
-ErrorHandler::ReturnCode PrmSourceRockTOC::setInModel( mbapi::Model & caldModel )
+ErrorHandler::ReturnCode PrmSourceRockTOC::setInModel( mbapi::Model & caldModel, size_t caseID )
 {
    try
    {
@@ -173,7 +174,7 @@ ErrorHandler::ReturnCode PrmSourceRockTOC::setInModel( mbapi::Model & caldModel 
          }
 
          // copy map and rescale it for max TOC
-         mbapi::MapsManager::MapID cmID = mpMgr.copyMap( mID, mapName + "_VarTOC" );
+         mbapi::MapsManager::MapID cmID = mpMgr.copyMap( mID, mapName + "_Case_" + ibs::to_string( caseID ) + "_VarTOC" );
          if ( UndefinedIDValue == cmID )
          {
             ErrorHandler::Exception( ErrorHandler::IoError ) << "Copy TOC map " << mapName << " failed";

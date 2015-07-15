@@ -96,7 +96,8 @@ namespace casa
       // version of serialized object representation
       // version 0 - initial impelementation
       // version 1 - added run state of the case
-      virtual unsigned int version() const { return 1; }
+      // version 2 - added run case ID
+      virtual unsigned int version() const { return 2; }
 
       // Get type name of the serialaizable object, used in deserialization to create object with correct type
       virtual const char * typeName() const { return "RunCaseImpl"; }
@@ -107,6 +108,14 @@ namespace casa
       // Create a new instance and deserialize it from the given stream
       RunCaseImpl( CasaDeserializer & inStream, const char * objName );
 
+      /// @brief Get run case ID - unique case number in the RunCaseSet object
+      /// @return run case ID
+      virtual size_t id() const { return m_id; }
+
+      /// @brief Set run case ID - unique case number in the RunCaseSet object
+      /// @param id run case ID
+      void setID( size_t id ) { m_id = id; }
+
    private:
       std::auto_ptr<mbapi::Model>      m_model;                // Mutated model, available after mutateCaseTo call
       std::string                      m_modelProjectFileName; // full path to the project file
@@ -114,6 +123,7 @@ namespace casa
       std::vector<ObsValue*>           m_results;              // list of observables values
       CaseStatus                       m_runState;             // Stat of the run case (submitted/completed/failed)
 
+      size_t                           m_id;                   // unique number in RunCaseSet
       // disable copy constructor and copy operator
       RunCaseImpl( const RunCaseImpl & );
       RunCase & operator = ( const RunCaseImpl & );

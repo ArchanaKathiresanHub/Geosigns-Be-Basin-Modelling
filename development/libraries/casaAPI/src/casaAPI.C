@@ -631,7 +631,7 @@ ErrorHandler::ReturnCode VaryCrustThinning( casa::ScenarioAnalysis & sa
          if ( IsValueUndefined( baseValues[pos] ) ) { baseValues[pos] = 0.5 * ( minThinningFct[i] + maxThinningFct[i] ); }
          ++pos;
       }
-      if ( ErrorHandler::NoError != varPrmsSet.addParameter( new VarPrmCrustThinning( baseValues, minValues, maxValues, mapsList, pdfType ) ) );
+      if ( ErrorHandler::NoError != varPrmsSet.addParameter( new VarPrmCrustThinning( baseValues, minValues, maxValues, mapsList, pdfType ) ) )
       {
          return sa.moveError( varPrmsSet );
       }
@@ -829,7 +829,7 @@ ErrorHandler::ReturnCode VaryPermeabilityModelParameters( ScenarioAnalysis      
          basModelPrms = litMdlPrms;
          if ( mbapi::LithologyManager::PermMultipoint == litMdl )
          {
-            basModelPrms.push_back( litMdlMPPor.size() );
+            basModelPrms.push_back( static_cast<double>( litMdlMPPor.size() ) );
             for ( size_t i = 0; i < litMdlMPPor.size(); ++i )
             {
                basModelPrms.push_back( litMdlMPPor[i]  );

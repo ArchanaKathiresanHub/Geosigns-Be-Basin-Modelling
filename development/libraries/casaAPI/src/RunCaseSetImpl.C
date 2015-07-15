@@ -79,6 +79,14 @@ namespace casa
    // Move a new Cases to the collection and clear array 
    void RunCaseSetImpl::addNewCases( std::vector<RunCase*> & newCases, const std::string & expLabel )
    {
+      // assign new ids to
+      size_t startID = m_caseSet.empty() ? 0 : (m_caseSet.back()->id() + 1);
+
+      for ( size_t i = 0; i < newCases.size(); ++i )
+      {
+         RunCaseImpl * rc = dynamic_cast<RunCaseImpl*>( newCases[i] );
+         if ( rc ) { rc->setID( startID + i ); }
+      }
 
       if ( m_expSet.count( expLabel ) > 0 )
       {

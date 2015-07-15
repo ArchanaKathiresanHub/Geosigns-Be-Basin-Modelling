@@ -102,7 +102,7 @@ PrmSourceRockPreAsphaltStartAct::~PrmSourceRockPreAsphaltStartAct() {;}
 
 
 // Update given model with the parameter value
-ErrorHandler::ReturnCode PrmSourceRockPreAsphaltStartAct::setInModel( mbapi::Model & caldModel )
+ErrorHandler::ReturnCode PrmSourceRockPreAsphaltStartAct::setInModel( mbapi::Model & caldModel, size_t /* caseID */ )
 {
    try
    {

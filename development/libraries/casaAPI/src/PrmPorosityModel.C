@@ -147,7 +147,7 @@ PrmPorosityModel::PrmPorosityModel( const VarPrmPorosityModel * parent, const ch
 }
 
 // Update given model with the parameter value
-ErrorHandler::ReturnCode PrmPorosityModel::setInModel( mbapi::Model & caldModel )
+ErrorHandler::ReturnCode PrmPorosityModel::setInModel( mbapi::Model & caldModel, size_t /* caseID */ )
 {
    mbapi::LithologyManager & mgr = caldModel.lithologyManager();
    std::vector<double> porModelPrms;

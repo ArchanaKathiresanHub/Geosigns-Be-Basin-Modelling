@@ -11,24 +11,27 @@
 #ifndef TXT_SERIALIZER_H
 #define TXT_SERIALIZER_H
 
-#include <stdio.h>
-
+// CASA
 #include "CasaSerializer.h"
+
+// STL
+#include <fstream>
 
 namespace casa
 {
    /// @brief This class implements the ISerializer interface
-   class TxtSerializer : public CasaSerializer
+   class SimpleSerializer : public CasaSerializer
    {
    public:
 
       /// @brief  Constructor. Throw on null file handle and negative version number
-      /// @param  fileHandle file pointer, must be not null
+      /// @param fileName CASA state file name
+      /// @param fileType file type "txt" or "bin"
       /// @param  ver file version 
-      TxtSerializer( FILE * fileHandle, int ver );
+      SimpleSerializer( const std::string & fileName, const std::string & fileType, int ver );
 
       /// @brief  Destructor
-      virtual ~TxtSerializer() { ; }
+      virtual ~SimpleSerializer() { ; }
 
       /// @brief Save CasaSerializable object
       /// @param so CasaSerializable object reference
@@ -160,11 +163,14 @@ namespace casa
       virtual int version() { return m_version; }
 
    private:
-      FILE *      m_file;
-      int         m_version;
+      std::ofstream m_file;
+      int           m_version;
+      bool          m_isBinary;
 
-      TxtSerializer( const TxtSerializer & );               // copy constructor
-      TxtSerializer & operator = (const TxtSerializer &); // copy operator
+      SimpleSerializer( const SimpleSerializer & );             // copy constructor
+      SimpleSerializer & operator = (const SimpleSerializer &); // copy operator
+
+      bool saveObjectDescription( const std::string & objType, const std::string & objName, unsigned int ver );
    };
 }
 

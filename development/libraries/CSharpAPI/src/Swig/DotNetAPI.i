@@ -249,6 +249,10 @@ using namespace casa;
 // CASA Observable.h:newObsValueFromDoubles()
 %apply int  &INOUT { int & off };
 
+CSHARP_ARRAYS(char, byte)
+
+// CASA ScenarioAnalysis.h:loadScenario()
+%apply char INPUT[] { const char * stateFileBuf }
 
 %rename(ComponentId2) DataAccess::Interface::ComponentId;
 

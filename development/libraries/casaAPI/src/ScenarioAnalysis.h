@@ -188,7 +188,8 @@ namespace casa
       // version 3: Added RunManager cases state
       // version 4: SUMlib updated to the latest version
       // version 5: Changed the way how variable parameters set is serialized to keep the original order of variable parameters
-      int version() { return 5; }
+      // version 6: Fixed wrong name for RunManager object (was RunManger)
+      int version() { return 6; }
 
       /// @brief Save scenario to the file
       /// @param fileName - name of the file for scenario to be saved in
@@ -200,6 +201,13 @@ namespace casa
       /// @param  fileType "bin"/"txt" file type
       /// @return null if it fails, else the new casa::ScenarioAnalysis object.
       static ScenarioAnalysis * loadScenario( const char * fileName, const char * fileType );
+
+      /// @brief  Create new ScenarioAnaylysis object and read all data from the given memory stream
+      /// @param  buf memory where the state file was loaded
+      /// @param  bufSize size of the buffer
+      /// @param  fileType "bin"/"txt" file type
+      /// @return null if it fails, else the new casa::ScenarioAnalysis object.
+      static ScenarioAnalysis * loadScenario( const char * stateFileBuf, size_t bufSize, const char * fileType );
 
    private:
       /// @brief Copy constructor is disabled

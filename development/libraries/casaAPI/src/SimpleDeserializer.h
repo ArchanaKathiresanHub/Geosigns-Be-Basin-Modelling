@@ -14,23 +14,23 @@
 // CASA
 #include "CasaDeserializer.h"
 
-// STD C lib
-#include <stdio.h>
+// STL lib
+#include <istream>
 
 namespace casa
 {
    /// @brief This class implements the IDeserializer interface
-   class  TxtDeserializer : public CasaDeserializer
+   class  SimpleDeserializer : public CasaDeserializer
    {
    public:
 
       /// @brief Constructor
       /// @param fileHandle file pointer
       /// @param ver version
-      TxtDeserializer( FILE * fileHandle, unsigned int ver );
+      SimpleDeserializer( std::istream & fileHandle, unsigned int ver, bool isBinary = false );
 
       /// @brief Destructor
-      virtual ~TxtDeserializer();
+      virtual ~SimpleDeserializer();
 
       /// @brief Read the description of the next object from file and compare with given data. Works only for CasaSerializable objects
       /// @param objType string representation of object type as it returned by CasaSerializable::typeName() virtual method
@@ -170,12 +170,13 @@ namespace casa
       virtual int version() { return m_version; }
 
    private:
-      FILE          * m_file;
+      std::istream  & m_file;
       unsigned int    m_version;
       char          * m_buf;
+      bool            m_isBinary;
 
-      TxtDeserializer( const TxtDeserializer & );               // copy constructor
-      TxtDeserializer & operator = ( const TxtDeserializer & ); // copy operator
+      SimpleDeserializer( const SimpleDeserializer & );               // copy constructor
+      SimpleDeserializer & operator = ( const SimpleDeserializer & ); // copy operator
 
    };
 }

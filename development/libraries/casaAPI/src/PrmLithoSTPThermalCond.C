@@ -83,7 +83,7 @@ PrmLithoSTPThermalCond::PrmLithoSTPThermalCond( const VarPrmLithoSTPThermalCond 
 }
 
 // Update given model with the parameter value
-ErrorHandler::ReturnCode PrmLithoSTPThermalCond::setInModel( mbapi::Model & caldModel )
+ErrorHandler::ReturnCode PrmLithoSTPThermalCond::setInModel( mbapi::Model & caldModel, size_t /* caseID */ )
 {
    try
    {

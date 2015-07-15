@@ -92,7 +92,7 @@ PrmSourceRockType::PrmSourceRockType( const VarPrmSourceRockType * parent
 }
 
 // Update given model with the parameter value
-ErrorHandler::ReturnCode PrmSourceRockType::setInModel( mbapi::Model & caldModel )
+ErrorHandler::ReturnCode PrmSourceRockType::setInModel( mbapi::Model & caldModel, size_t /* caseID */ )
 {
    try
    {

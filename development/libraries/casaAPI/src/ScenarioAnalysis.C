@@ -32,8 +32,8 @@
 #include "RunCaseSetImpl.h"
 #include "RunManagerImpl.h"
 #include "SensitivityCalculatorImpl.h"
-#include "TxtSerializer.h"
-#include "TxtDeserializer.h"
+#include "SimpleSerializer.h"
+#include "SimpleDeserializer.h"
 #include "VarSpaceImpl.h"
 #include "VarPrmOneCrustThinningEvent.h"
 #include "VarPrmTopCrustHeatProduction.h"
@@ -342,32 +342,12 @@ ErrorHandler::ReturnCode ScenarioAnalysis::saveCalibratedCase( const char * proj
 // Save scenario to the file
 ErrorHandler::ReturnCode ScenarioAnalysis::saveScenario( const char * fileName, const char * fileType )
 {
-   FILE * fid = NULL;
    try
    {
-      fid = fopen( fileName, "w" );
-
-      if ( !fid ) throw Exception( SerializationError ) << "Can not open file: " << fileName << " for writing";
-
-      if ( !strcmp( "txt", fileType ) )
-      {
-         TxtSerializer txtOutStream( fid, version() );
-         m_pimpl->serialize( txtOutStream );
-      }
-      else if ( !strcmp( "bin", fileType ) )
-      {
-         throw Exception( NotImplementedAPI ) << "Binary serialization not implemented yet";
-      }
-      else
-      {
-         return reportError( NonexistingID,
-            std::string( "Unknown type of output file for saving ScenarioAnalysis object: " ) + fileType );
-      }
-      fclose( fid );
+      m_pimpl->serialize( SimpleSerializer( fileName, fileType, version() ) );
    }
    catch ( const ErrorHandler::Exception & ex )
    {
-      if ( fid ) fclose( fid );
       return reportError( ex.errorCode(), ex.what() );
    }
    return NoError;
@@ -377,12 +357,43 @@ ErrorHandler::ReturnCode ScenarioAnalysis::saveScenario( const char * fileName, 
 ScenarioAnalysis * ScenarioAnalysis::loadScenario( const char * fileName, const char * fileType )
 {
    std::auto_ptr<ScenarioAnalysis> sc( new ScenarioAnalysis() );
-   FILE * fid = NULL;
    try
    {
-      fid = fopen( fileName, "r" );
+      std::ifstream fid;
 
-      if ( !fid ) throw Exception( DeserializationError ) << "Can not open file: " << fileName << " for reading";
+      if (      !strcmp( "bin", fileType ) ) { fid.open( fileName, std::ofstream::binary ); }
+      else if ( !strcmp( "txt", fileType ) ) { fid.open( fileName ); }
+      else
+      {
+         throw Exception( NonexistingID ) << "Unknown type of input file for loading ScenarioAnalysis object: " << fileType;
+      }
+
+      if ( !fid.good() ) throw Exception(DeserializationError) << "Can not open file: " << fileName << " for reading";
+      
+      SimpleDeserializer inStream( fid, sc->version(), !strcmp( "bin", fileType ) );
+      sc->m_pimpl->deserialize( inStream );
+      if ( sc->errorCode() != ErrorHandler::NoError )
+      {
+         throw ErrorHandler::Exception( sc->errorCode() ) << sc->errorMessage();
+      }
+   }
+   catch ( const ErrorHandler::Exception & ex )
+   {
+      sc->reportError( ex.errorCode(), ex.what() );
+   }
+   return sc.release();
+}
+
+// Create new ScenarioAnaylysis object and read all data from the given file
+ScenarioAnalysis * ScenarioAnalysis::loadScenario( const char * stateFileBuf, size_t bufSize, const char * fileType )
+{
+   std::auto_ptr<ScenarioAnalysis> sc( new ScenarioAnalysis() );
+   try
+   {
+      std::string inpStr( stateFileBuf, bufSize );
+      std::istringstream fid( inpStr );
+
+      if ( !fid.good() ) throw Exception( DeserializationError ) << "Can not read from the given memory buffer";
 
       if ( !strcmp( "bin", fileType ) )
       {
@@ -390,7 +401,7 @@ ScenarioAnalysis * ScenarioAnalysis::loadScenario( const char * fileName, const 
       }
       else if ( !strcmp( "txt", fileType ) )
       {
-         TxtDeserializer txtInStream( fid, sc->version() );
+         SimpleDeserializer txtInStream( fid, sc->version() );
          sc->m_pimpl->deserialize( txtInStream );
          if ( sc->errorCode() != ErrorHandler::NoError )
          {
@@ -399,17 +410,16 @@ ScenarioAnalysis * ScenarioAnalysis::loadScenario( const char * fileName, const 
       }
       else
       {
-         throw Exception( NonexistingID ) << "Unknown type of input file for loading ScenarioAnalysis object: " << fileType;
+         throw Exception( NonexistingID ) << "Unknown type of input stream for loading ScenarioAnalysis object";
       }
-      fclose( fid );
    }
    catch ( const ErrorHandler::Exception & ex )
    {
-      if ( fid ) fclose( fid );
       sc->reportError( ex.errorCode(), ex.what() );
    }
    return sc.release();
 }
+
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -483,7 +493,7 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::setScenarioLocation( const char * p
          else if ( !saFolder.empty( ) )
          {
             bool found = false;
-            for ( size_t i = 1; i < 99 && !found; ++i )
+            for ( int i = 1; i < 99 && !found; ++i )
             {
                ibs::FolderPath tmpPath( saFolder );
                tmpPath << "Iteration_" + ibs::to_string( i );
@@ -791,7 +801,7 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::serialize( CasaSerializer & outStre
 
    ok = ok ? outStream.save( *(doeGenerator()),     "DoE"          ) : ok; // serialize doe generator
    ok = ok ? outStream.save( dataDigger(),          "DataDigger"   ) : ok; // data digger
-   ok = ok ? outStream.save( runManager(),          "RunManger "   ) : ok; // run manager
+   ok = ok ? outStream.save( runManager(),          "RunManager"   ) : ok; // run manager
 
    ok = ok ? outStream.save( mcSolver(),            "MCSolver"     ) : ok;
 
@@ -828,7 +838,10 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::deserialize( CasaDeserializer & inS
 
    m_doe.reset(        new DoEGeneratorImpl(          inStream, "DoE"                   ) );
    m_dataDigger.reset( new DataDiggerImpl(            inStream, "DataDigger"            ) );
-   m_runManager.reset( new RunManagerImpl(            inStream, "RunManger"             ) );
+   
+   // before version 6 it was an error in RunManager object name
+   if ( inStream.version() >= 6 ) { m_runManager.reset( new RunManagerImpl( inStream, "RunManager" ) ); }
+   else                           { m_runManager.reset( new RunManagerImpl( inStream, "RunManger" ) ); }
 
    m_mcSolver.reset(   new MonteCarloSolverImpl(      inStream, "MCSolver"              ) );
 

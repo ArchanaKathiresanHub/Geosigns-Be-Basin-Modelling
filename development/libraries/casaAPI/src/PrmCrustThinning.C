@@ -115,7 +115,7 @@ PrmCrustThinning::PrmCrustThinning( const VarPrmCrustThinning * parent, const st
 }
 
 // Set this parameter value in Cauldron model
-ErrorHandler::ReturnCode PrmCrustThinning::setInModel( mbapi::Model & caldModel )
+ErrorHandler::ReturnCode PrmCrustThinning::setInModel( mbapi::Model & caldModel, size_t caseID )
 {
    try
    {
@@ -167,7 +167,7 @@ ErrorHandler::ReturnCode PrmCrustThinning::setInModel( mbapi::Model & caldModel 
             {
                throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Crust thinning, unknown map is given: " << oldMapName;
             }
-
+            newMapName += std::string( "_Case_" ) + ibs::to_string( caseID );
             newMapName += "_CrustThinningEvent_";
             newMapName += ibs::to_string( i );
 

@@ -617,5 +617,19 @@ namespace Shell.BasinModeling.Cauldron.Test
 
          Assert.IsTrue(fileAContent == fileBContent);
       }
+
+      [TestMethod]
+      public void ScenarioAnalysis_DeserialzationTestFromByteArray() // deserialize casa state file from Byte [] array
+      {
+         Byte[] buf = File.ReadAllBytes(m_serialisedStateFileName);
+         ScenarioAnalysis sa = ScenarioAnalysis.loadScenario( buf, (uint)(buf.Length), "txt");
+
+         if ( ErrorHandler.ReturnCode.NoError != sa.errorCode() )
+         {
+            m_isDebug = true;
+            logMsg("Deserialization test failed with message:" + sa.errorMessage());
+         }
+         Assert.AreEqual(ErrorHandler.ReturnCode.NoError, sa.errorCode());
+      }
    }
 }

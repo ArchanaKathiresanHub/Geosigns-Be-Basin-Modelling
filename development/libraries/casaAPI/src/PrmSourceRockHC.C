@@ -97,7 +97,7 @@ PrmSourceRockHC::PrmSourceRockHC( const VarPrmSourceRockHC * parent, double val,
 }
 
 // Update given model with the parameter value
-ErrorHandler::ReturnCode PrmSourceRockHC::setInModel( mbapi::Model & caldModel )
+ErrorHandler::ReturnCode PrmSourceRockHC::setInModel( mbapi::Model & caldModel, size_t /* caseID */ )
 {
    try
    {

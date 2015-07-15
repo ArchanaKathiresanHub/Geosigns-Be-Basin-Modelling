@@ -66,8 +66,9 @@ namespace casa
 
       /// @brief Set this parameter value in Cauldron model
       /// @param caldModel reference to Cauldron model
+      /// @param caseID unique RunCase ID, in some parameters it is used in new map file name generation
       /// @return ErrorHandler::NoError in success, or error code otherwise     
-      virtual ErrorHandler::ReturnCode setInModel( mbapi::Model & caldModel );
+      virtual ErrorHandler::ReturnCode setInModel( mbapi::Model & caldModel, size_t caseID );
 
       /// @brief Validate HI value if it is in [0:100] range, also it check are any source rock
       ///        lithology in the model with the same layer name, does the parameter value is the
