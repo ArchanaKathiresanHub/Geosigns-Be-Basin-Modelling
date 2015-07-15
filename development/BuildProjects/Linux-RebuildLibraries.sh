@@ -2,7 +2,7 @@
 
 # Essential parameters
 LIBS="Boost Eigen PETSC HDF5"
-LIBDIR="/nfs/rvl/groups/ept-sg/SWEast/Cauldron/hpc-lib-staging-`whoami`"
+LIBDIR="/nfs/rvl/groups/ept-sg/SWEast/Cauldron/hpc-library"
 SRC=`dirname $0`/..
 USERGROUP=g_psaz00
 
@@ -39,6 +39,9 @@ combinations=`mktemp`
 trash="$combinations $trash"
 cat > $combinations  <<EOF
 #OS      Intel Compiler   Intel MPI   Shared Libs   Configuration
+RHEL5.10 ON               ON          OFF           Release
+RHEL5.10 ON               ON          OFF           Debug
+RHEL5.10 OFF              ON          ON            MemCheck
 RHEL6.4  ON               ON          OFF           Release
 RHEL6.4  ON               ON          OFF           Debug
 RHEL6.4  ON               ON          ON            Release
@@ -48,18 +51,15 @@ RHEL6.4  OFF              ON          OFF           Debug
 RHEL6.4  OFF              ON          ON            Release
 RHEL6.4  OFF              ON          ON            Debug
 RHEL6.4  OFF              ON          ON            MemCheck
-RHEL5.10 ON               ON          OFF           Release
-RHEL5.10 ON               ON          OFF           Debug
-RHEL5.10 OFF              ON          ON            MemCheck
-RHEL5.8  ON               ON          OFF           Release
-RHEL5.8  ON               ON          OFF           Debug
-RHEL5.8  ON               ON          ON            Release
-RHEL5.8  ON               ON          ON            Debug
-RHEL5.8  OFF              ON          OFF           Release
-RHEL5.8  OFF              ON          OFF           Debug
-RHEL5.8  OFF              ON          ON            Release
-RHEL5.8  OFF              ON          ON            Debug
-RHEL5.8  OFF              ON          ON            MemCheck
+RHEL6.6  ON               ON          OFF           Release
+RHEL6.6  ON               ON          OFF           Debug
+RHEL6.6  ON               ON          ON            Release
+RHEL6.6  ON               ON          ON            Debug
+RHEL6.6  OFF              ON          OFF           Release
+RHEL6.6  OFF              ON          OFF           Debug
+RHEL6.6  OFF              ON          ON            Release
+RHEL6.6  OFF              ON          ON            Debug
+RHEL6.6  OFF              ON          ON            MemCheck
 EOF
 
 
