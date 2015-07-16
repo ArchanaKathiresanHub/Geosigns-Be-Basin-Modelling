@@ -61,7 +61,7 @@ double Column::getVolumeBetweenDepths (double upperDepth, double lowerDepth) con
       
       if (bottomOfFill > topOfFill)
       {
-	 volume = getSurface () * getNetToGross () * (getPorosity () /* / 100.0 */ ) * (bottomOfFill - topOfFill);
+	      volume = getSurface () * getNetToGross () * getPorosity () * (bottomOfFill - topOfFill);
       }
 
       // Subtract the previously generated immobiles stuff from the volume
@@ -104,7 +104,7 @@ bool Column::isWasting (void)
    for (unsigned int phase = 0; phase < NumPhases; ++phase)
    {
       if (isWasting ((PhaseId) phase))
-	 return true;
+	   return true;
    }
    return false;
 }
@@ -114,7 +114,7 @@ bool Column::isSealing (void)
    for (unsigned int phase = 0; phase < NumPhases; ++phase)
    {
       if (isSealing ((PhaseId) phase))
-	 return true;
+	   return true;
    }
    return false;
 }
@@ -414,7 +414,7 @@ double LocalColumn::getPenetrationDistance (ComponentId c)
 }
 
 void LocalColumn::setFillDepth (PhaseId phase, double fillDepth)
-{
+{ 
    if (phase > FIRST_PHASE)
    {
       fillDepth = Max (fillDepth, getFillDepth (PhaseId (phase - 1)));
@@ -1348,13 +1348,13 @@ void LocalColumn::crackChargesToBeMigrated (OilToGasCracker & otgc, double start
       double gained = compositionCracked.getWeight ((ComponentId) component) - m_compositionToBeMigrated.getWeight ((ComponentId) component);
       if (gained > 0)
       {
-	 // stuff got generated
-	 compositionGained.set ((ComponentId) component, gained);
+         // stuff got generated
+         compositionGained.set ((ComponentId) component, gained);
       }
       else
       {
-	 // stuff got lost
-	 compositionLost.set ((ComponentId) component, -gained);
+         // stuff got lost
+         compositionLost.set ((ComponentId) component, -gained);
       }
    }
    
@@ -2140,7 +2140,7 @@ Column * ProxyColumn::getAdjacentColumn (PhaseId phase)
       RequestHandling::SendRequest (valueRequest, valueResponse);
       if (valueResponse.i >= 0 && valueResponse.j >= 0)
       {
-	 m_adjacentColumn[phase] = m_reservoir->getColumn (valueResponse.i, valueResponse.j);
+	      m_adjacentColumn[phase] = m_reservoir->getColumn (valueResponse.i, valueResponse.j);
       }
       setCached ((CacheBit) (BASEADJACENTCOLUMNCACHE + phase));
    }
@@ -2163,8 +2163,8 @@ Column * ProxyColumn::getTargetColumn (PhaseId phase)
 
       if (valueResponse.i >= 0 && valueResponse.j >= 0) // may not have been calculated yet!!
       {
-	 m_targetColumn[phase] = m_reservoir->getColumn (valueResponse.i, valueResponse.j);
-	 setCached ((CacheBit) (BASETARGETCOLUMNCACHE + phase));
+         m_targetColumn[phase] = m_reservoir->getColumn (valueResponse.i, valueResponse.j);
+         setCached ((CacheBit) (BASETARGETCOLUMNCACHE + phase));
       }
    }
 
@@ -2271,7 +2271,7 @@ ColumnArray::ColumnArray (Reservoir * reservoir,
    {
       for (unsigned int j = m_firstJLocal; j <= m_lastJLocal; ++j)
       {
-	 m_columns[i][j] = new LocalColumn (i, j, m_reservoir);
+	      m_columns[i][j] = new LocalColumn (i, j, m_reservoir);
       }
    }
 }
@@ -2282,14 +2282,14 @@ ColumnArray::~ColumnArray (void)
    {
       for (unsigned int i = firstILocal (); i <= lastILocal (); ++i)
       {
-	 for (unsigned int j = firstJLocal (); j <= lastJLocal (); ++j)
-	 {
-	    if (m_columns[i][j])
-	    {
-	       delete m_columns[i][j];
-	       m_columns[i][j] = 0;
-	    }
-	 }
+         for (unsigned int j = firstJLocal (); j <= lastJLocal (); ++j)
+         {
+	         if (m_columns[i][j])
+	         {
+	            delete m_columns[i][j];
+	            m_columns[i][j] = 0;
+	         }
+         }
       }
 
       Array < Column * >::delete2d (m_columns);
@@ -2337,15 +2337,15 @@ ProxyColumn * ColumnArray::getProxyColumn (unsigned int i, unsigned int j)
       Column * column = m_columns[i][j];
       if (!column)
       {
-	 column = m_columns[i][j] = proxyColumn = new ProxyColumn (i, j, m_reservoir);
-	 ++m_numberOfProxyColumns;
-	 // need to do this AFTER proxycolumn has been created and added to the datastructure.
-	 proxyColumn->registerWithLocal ();
+         column = m_columns[i][j] = proxyColumn = new ProxyColumn (i, j, m_reservoir);
+         ++m_numberOfProxyColumns;
+         // need to do this AFTER proxycolumn has been created and added to the datastructure.
+         proxyColumn->registerWithLocal ();
       }
       else
       {
-	 proxyColumn = dynamic_cast<ProxyColumn *> (column);
-	 assert (proxyColumn);
+         proxyColumn = dynamic_cast<ProxyColumn *> (column);
+         assert (proxyColumn);
       }
    }
    return proxyColumn;
@@ -2375,12 +2375,12 @@ bool ColumnArray::clearPreviousProperties (void)
    {
       for (unsigned int j = 0; j < m_numJGlobal; ++j)
       {
-	 Column * column = m_columns[i][j];
-	 if (!column)
-	 {
-	    continue;
-	 }
-	 column->clearPreviousProperties ();
+         Column * column = m_columns[i][j];
+         if (!column)
+         {
+            continue;
+         }
+         column->clearPreviousProperties ();
       }
    }
 
@@ -2393,14 +2393,14 @@ void ColumnArray::retainPreviousProperties (void)
    {
       for (unsigned int j = firstJLocal (); j <= lastJLocal (); ++j)
       {
-	 getLocalColumn (i, j)->retainPreviousProperties ();
+	      getLocalColumn (i, j)->retainPreviousProperties ();
       }
    }
 }
 
 ostream & operator<< (ostream & stream, Column &column)
 {
-      return stream << & column;
+   return stream << & column;
 }
 
 ostream & operator<< (ostream & stream, Column * column)

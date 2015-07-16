@@ -152,7 +152,6 @@ void Reservoir::removeTraps (void)
 bool Reservoir::computeTraps (void)
 {
    bool result = true;
-
    if (result) result = computeTrapTops ();
    if (result) m_maximumTrapCount = computeMaximumTrapCount ();
    if (result) result = computeTrapExtents ();
@@ -347,7 +346,7 @@ bool Reservoir::computeTargetColumn (PhaseId phase, unsigned int i, unsigned int
       return column->computeTargetColumn (phase);
 }
    
-// compute the column to which column (i,j) spillls to
+// compute the column to which column (i,j) spills to
 bool Reservoir::computeAdjacentColumn (PhaseId phase, unsigned int i, unsigned int j)
 {
    LocalColumn *column = getLocalColumn (i, j);
@@ -365,7 +364,7 @@ bool Reservoir::computeAdjacentColumn (PhaseId phase, unsigned int i, unsigned i
    return (adjacentColumn != 0);
 }
 
-// find the column to which column (i,j) spillls to and that is not in the trap
+// find the column to which column (i,j) spills to and that is not in the trap
 Column *  Reservoir::getAdjacentColumn (PhaseId phase, Column * column, Trap * trap)
 {
    assert (IsValid (column));
@@ -495,7 +494,7 @@ void Reservoir::computeTrapTop (PhaseId phase, unsigned int i, unsigned int j)
       return;
    }
 
-   // column does not have neigbours with smaller depth and left bottom neighbours all have greater depth
+  // column does not have neigbours with smaller depth and left bottom neighbours all have greater depth
 
    Trap * trap = new Trap (column);
    addTrap (trap);
@@ -1336,7 +1335,7 @@ bool Reservoir::computeLithostaticPressures (void)
 }
 
 /// Any zero-thickness column is to become wasting
-/// Any zero thickness neighbour of a non-zero-thickness column is to become sealing.
+/// Any non-zero-thickness neighbour of a zero-thickness column is to become sealing.
 /// Also includes the faults into the geometry
 bool Reservoir::refineGeometry (void)
 {
@@ -1345,53 +1344,53 @@ bool Reservoir::refineGeometry (void)
    {
       for (unsigned int j = m_columnArray->firstJLocal (); j <= m_columnArray->lastJLocal (); ++j)
       {
-	 LocalColumn * column = getLocalColumn (i, j);
-	 if (IsValid (column))
-	 {
-	    if (column->getThickness () < MinimumThickness)
-	    {
-	       column->setWasting (GAS);
-	       column->setWasting (OIL);
+         LocalColumn * column = getLocalColumn (i, j);
+         if (IsValid (column))
+         {
+            if (column->getThickness () < MinimumThickness)
+            {
+	            column->setWasting (GAS);
+	            column->setWasting (OIL);
 
-	       for (int n = 0; n < NumNeighbours; ++n)
-	       {
-		  Column * neighbourColumn = getColumn (i + NeighbourOffsets[n][I], j + NeighbourOffsets[n][J]);
-		  if (IsValid (neighbourColumn) && neighbourColumn->getThickness () >= MinimumThickness)
-		  {
-		     column->setSealing (GAS);
-		     column->setSealing (OIL);
-		     break;
-		  }
-	       }
-	       column->resetProxies ();
-	    }
-	    if (column->getFaultStatus () != NOFAULT)
-	    {
-	       switch (column->getFaultStatus ())
-	       {
-		  case SEAL:
-		     column->setSealing (GAS);
-		     column->setSealing (OIL);
-		     break;
-		  case PASS:
-		     break;
-		  case WASTE:
-		     column->setWasting (GAS);
-		     column->setWasting (OIL);
-		     break;
-		  case SEALOIL:
-		     column->setWasting (GAS);
-		     column->setSealing (OIL);
-		     break;
-		  case PASSOIL:
-		     column->setWasting (GAS);
-		     break;
-		  default:
-		     assert (false);
-	       }
-	       column->resetProxies ();
-	    }
-	 }
+	            for (int n = 0; n < NumNeighbours; ++n)
+	            {
+		            Column * neighbourColumn = getColumn (i + NeighbourOffsets[n][I], j + NeighbourOffsets[n][J]);
+		            if (IsValid (neighbourColumn) && neighbourColumn->getThickness () >= MinimumThickness)
+		            {
+		               column->setSealing (GAS);
+		               column->setSealing (OIL);
+		               break;
+                  }
+               }
+               column->resetProxies ();
+            }
+            if (column->getFaultStatus () != NOFAULT)
+            {
+               switch (column->getFaultStatus ())
+               {
+                  case SEAL:
+                  column->setSealing (GAS);
+                  column->setSealing (OIL);
+                  break;
+                  case PASS:
+                  break;
+                  case WASTE:
+                  column->setWasting (GAS);
+                  column->setWasting (OIL);
+                  break;
+                  case SEALOIL:
+                  column->setWasting (GAS);
+                  column->setSealing (OIL);
+                  break;
+                  case PASSOIL:
+                  column->setWasting (GAS);
+                  break;
+                  default:
+                  assert (false);
+               }
+               column->resetProxies ();
+            }
+         }
       }
    }
 
@@ -1724,7 +1723,7 @@ int Reservoir::computeMaximumTrapCount (bool countUndersized)
       TrapVector::iterator trapIter;
       for (trapIter = m_traps.begin (); trapIter != m_traps.end (); ++trapIter)
       {
-	      if ((*trapIter)->isUndersized ())
+         if ((*trapIter)->isUndersized ())
 	         --numberOfTraps;
       }
    }
@@ -2318,9 +2317,7 @@ bool Reservoir::fillAndSpill ()
    {
       m_biodegraded = biodegradeCharges ();
    }
-
-   // bool distributionFinished = false;
-
+   
    do
    {
 #ifndef MOVEDTODISTRIBUTECHARGES
@@ -2422,7 +2419,7 @@ double Reservoir::biodegradeCharges ()
 
    for (TrapVector::iterator trapIter = m_traps.begin (); trapIter != m_traps.end (); ++trapIter)
    {
-      biodegraded += (*trapIter)->biodegradeCharges(timeInterval, biodegrade);
+      biodegraded += (*trapIter)->biodegradeCharges(timeInterval, biodegrade);      
    }
    
    RequestHandling::FinishRequestHandling ();
@@ -2571,30 +2568,30 @@ bool Reservoir::determineTrapsToMerge (ConditionTest conditionTest)
       LocalColumn * crestColumn = trap->getCrestColumn ();
       for (int phase = FIRST_PHASE; phase < NUM_PHASES; ++phase)
       {
-	 Column * spillBackColumn;
-	 if (((spillBackColumn = crestColumn->getSpillBackTarget ((PhaseId) phase)) != 0) &&
-	       (* conditionTest) (crestColumn, spillBackColumn))
-	 {
-	    noTrapsToMerge = false;
+         Column * spillBackColumn;
+         if (((spillBackColumn = crestColumn->getSpillBackTarget ((PhaseId) phase)) != 0) &&
+            (* conditionTest) (crestColumn, spillBackColumn))
+         {
+            noTrapsToMerge = false;
 
-	    assert (spillBackColumn != crestColumn);
+            assert (spillBackColumn != crestColumn);
 
-	    if (crestColumn->isShallowerThan (spillBackColumn))
-	    {
-	       Column * trapSpillColumn = trap->getSpillColumn ();
-	       assert (trapSpillColumn);
+            if (crestColumn->isShallowerThan (spillBackColumn))
+            {
+               Column * trapSpillColumn = trap->getSpillColumn ();
+               assert (trapSpillColumn);
 
-	       trap->moveBackToCrestColumn ();
-	       trap->extendWith (spillBackColumn, trapSpillColumn->getTopDepth ());
-	    }
-	    else
-	    {
-	       // trap is absorbed
-	       trap->migrateTo (spillBackColumn);
-	       trap->setToBeAbsorbed ();
-	    }
-	    break;
-	 }
+               trap->moveBackToCrestColumn ();
+               trap->extendWith (spillBackColumn, trapSpillColumn->getTopDepth ());
+            }
+            else
+            {
+               // trap is absorbed
+               trap->migrateTo (spillBackColumn);
+               trap->setToBeAbsorbed ();
+            }
+         break;
+         }
       }
    }
    RequestHandling::FinishRequestHandling ();
@@ -2646,7 +2643,7 @@ void Reservoir::completeTrapExtensions (void)
       Trap * trap = * trapIter;
       if (trap->hasBeenExtended ())
       {
-	 trap->completeExtension ();
+         trap->completeExtension ();
       }
    }
    RequestHandling::FinishRequestHandling ();
@@ -3044,16 +3041,16 @@ void Reservoir::populateMigrationTables (TrapPropertiesRequest * tpRequests, uns
    {
       if (tpRequests[i].id >= 0) // globally valid id 
       {
-	 if (GetRank () == 0)
-	 {
-	    // map each number to another number that we are not going to use later
-	    ((Migrator *) m_projectHandle)->renumberMigrationRecordTrap (getEnd (),
-	       tpRequests[i].id, tpRequests[i].id + trapNumberOffset);
-	 }
+         if (GetRank () == 0)
+         {
+            // map each number to another number that we are not going to use later
+            ((Migrator *) m_projectHandle)->renumberMigrationRecordTrap (getEnd (),
+            tpRequests[i].id, tpRequests[i].id + trapNumberOffset);
+         }
 
-	 int oldId = tpRequests[i].id;
-	 changeTrapPropertiesRequestId (tpRequests, maxNumberOfRequests, tpRequests[i].id, tpRequests[i].id + trapNumberOffset);
-	 assert (oldId + trapNumberOffset == tpRequests[i].id);
+         int oldId = tpRequests[i].id;
+         changeTrapPropertiesRequestId (tpRequests, maxNumberOfRequests, tpRequests[i].id, tpRequests[i].id + trapNumberOffset);
+         assert (oldId + trapNumberOffset == tpRequests[i].id);
       }
    }
 
@@ -3068,32 +3065,31 @@ void Reservoir::populateMigrationTables (TrapPropertiesRequest * tpRequests, uns
    {
       if (tpRequests[i].id >= 0) // globally valid id 
       {
-	 if (tpRequests[i].rank == GetRank ()) // locally available trap
-	 {
-	    // id change with trapNumberOffset has not been applied to the traps themselves
-	    Trap * trap = findTrap (tpRequests[i].id - trapNumberOffset); 
-	    assert (trap);
+         if (tpRequests[i].rank == GetRank ()) // locally available trap
+         {
+            // id change with trapNumberOffset has not been applied to the traps themselves
+            Trap * trap = findTrap (tpRequests[i].id - trapNumberOffset); 
+            assert (trap);
 
-	    trapList.push_back (trap);
-	    // this is to be the new id
-	    idList.push_back (i + 1);
-	 }
+            trapList.push_back (trap);
+            // this is to be the new id
+            idList.push_back (i + 1);
+         }
 
-	 if (GetRank () == 0)
-	 {
-	    ((Migrator *) m_projectHandle)->renumberMigrationRecordTrap (getEnd (),
-	       tpRequests[i].id, i + 1);
-	 }
+         if (GetRank () == 0)
+         {
+            ((Migrator *) m_projectHandle)->renumberMigrationRecordTrap (getEnd (),
+               tpRequests[i].id, i + 1);
+         }
 
-	 changeTrapPropertiesRequestId (tpRequests, maxNumberOfRequests, tpRequests[i].id, i + 1);
+         changeTrapPropertiesRequestId (tpRequests, maxNumberOfRequests, tpRequests[i].id, i + 1);
 
-	 if (GetRank () == 0 && tpRequests[i].capacity >= minimumCapacity)
-	 {
-	    ((Migrator *) m_projectHandle)->addTrapRecord (this, tpRequests[i]);
-	 }
+         if (GetRank () == 0 && tpRequests[i].capacity >= minimumCapacity)
+         {
+	         ((Migrator *) m_projectHandle)->addTrapRecord (this, tpRequests[i]);
+         }
       }
    }
-
 
    // renumber the Traps themselves to new id's
    RequestHandling::StartRequestHandling (this, "populateMigrationTables");
@@ -3133,15 +3129,15 @@ void Reservoir::eliminateUndersizedTraps (TrapPropertiesRequest * tpRequests, un
       double currentCapacity = tpRequests[i].capacity;
       if (currentId < 0 || currentCapacity >= minimumCapacity)
       {
-	 finalIds[i] = currentId;
-	 continue;
+         finalIds[i] = currentId;
+         continue;
       }
 
 // #define SHOWTRAPELIMINATION
 
 #ifdef SHOWTRAPELIMINATION
       if (GetRank () == 0)
-	 cerr << "Eliminating trap " << originatingId;
+      cerr << "Eliminating trap " << originatingId;
 #endif
 
       int currentSpillId = tpRequests[i].spillid;
@@ -3153,60 +3149,60 @@ void Reservoir::eliminateUndersizedTraps (TrapPropertiesRequest * tpRequests, un
       bool finalIdFound = false;
       while (++iteration < maxIterations && currentlySpilling && currentId > 0 && currentCapacity < minimumCapacity)
       {
-	 unsigned int j;
-	 for (j = 0; j < maxNumberOfRequests; ++j)
-	 {
-	    if (tpRequests[j].id == currentSpillId)
-	    {
-	       if (j < i)
-	       {
+         unsigned int j;
+         for (j = 0; j < maxNumberOfRequests; ++j)
+         {
+	         if (tpRequests[j].id == currentSpillId)
+	         {
+	            if (j < i)
+	            {
 #ifdef SHOWTRAPELIMINATION
-		  if (GetRank () == 0)
-		  {
-		     cerr << "\t----->\t" << tpRequests[j].id;
-		  }
+		            if (GetRank () == 0)
+		            {
+		               cerr << "\t----->\t" << tpRequests[j].id;
+		            }
 #endif
-		  currentId = finalIds[j];
-		  currentCapacity = MAXDOUBLE;
-		  finalIdFound = true;
-	       }
-	       else
-	       {
-		  currentId = tpRequests[j].id;
-		  currentCapacity = tpRequests[j].capacity;
-		  currentSpillId = tpRequests[j].spillid;
-		  currentlySpilling = tpRequests[j].spilling;
-	       }
-	       break;
-	    }
-	 }
+                  currentId = finalIds[j];
+                  currentCapacity = MAXDOUBLE;
+                  finalIdFound = true;
+               }
+	            else
+	            {
+                  currentId = tpRequests[j].id;
+                  currentCapacity = tpRequests[j].capacity;
+                  currentSpillId = tpRequests[j].spillid;
+                  currentlySpilling = tpRequests[j].spilling;
+               }
+	            break;
+            }
+         }
 
-	 if (j == maxNumberOfRequests) // nothing was found, leaking
-	 {
-	    currentId = NoTrapId;
-	    currentCapacity = MAXDOUBLE;
-	    currentSpillId = NoTrapId;
-	    currentlySpilling = 0;
-	 }
+         if (j == maxNumberOfRequests) // nothing was found, leaking
+         {
+            currentId = NoTrapId;
+            currentCapacity = MAXDOUBLE;
+            currentSpillId = NoTrapId;
+            currentlySpilling = 0;
+         }
 
 #ifdef SHOWTRAPELIMINATION
-	 if (GetRank () == 0)
-	 {
-	    cerr << "\t=====>\t" << currentId;
-	 }
+         if (GetRank () == 0)
+         {
+            cerr << "\t=====>\t" << currentId;
+         }
 #endif
 
-	 if (finalIdFound) break;
+         if (finalIdFound) break;
       }
 
       if (currentId == tpRequests[i].id || currentCapacity < minimumCapacity) // Nothing came by, not spilling or too small.
       {
-	 currentId = NoTrapId;
+         currentId = NoTrapId;
 #ifdef SHOWTRAPELIMINATION
-	 if (GetRank () == 0)
-	 {
-	    cerr << "\t=====>\t" << currentId;
-	 }
+         if (GetRank () == 0)
+         {
+	         cerr << "\t=====>\t" << currentId;
+         }
 #endif
       }
 
@@ -3219,11 +3215,10 @@ void Reservoir::eliminateUndersizedTraps (TrapPropertiesRequest * tpRequests, un
       if (GetRank () == 0)
       {
 #ifdef SHOWTRAPELIMINATION
-	 cerr << endl;
+         cerr << endl;
 #endif
-	 ((Migrator *) m_projectHandle)->renumberMigrationRecordTrap (getEnd (), originatingId, currentId);
+         ((Migrator *) m_projectHandle)->renumberMigrationRecordTrap (getEnd (), originatingId, currentId);
       }
-
    }
 
    unsigned int p;
@@ -3231,10 +3226,10 @@ void Reservoir::eliminateUndersizedTraps (TrapPropertiesRequest * tpRequests, un
    {
       if (rank[p] == GetRank ())
       {
-	 Trap * trap = findTrap (from[p]);
-	 assert (trap);
-	 trap->setGlobalId (NoTrapId); // for the TrapId Map
-	 trap->setDrainageAreaId (to[p]); // for the DrainageAreaId Map
+         Trap * trap = findTrap (from[p]);
+         assert (trap);
+         trap->setGlobalId (NoTrapId); // for the TrapId Map
+         trap->setDrainageAreaId (to[p]); // for the DrainageAreaId Map
       }
    }
 

@@ -502,7 +502,6 @@ bool Migrator::chargeReservoir (Reservoir * reservoir, Reservoir * reservoirAbov
 
 // collect expelled charges into reservoirs from the formations that are
 // above reservoirBelow and not above or just above reservoir
-
 bool Migrator::collectAndMigrateExpelledCharges (Reservoir * reservoir, Reservoir * reservoirAbove, Reservoir * reservoirBelow,
       const Interface::Snapshot * start, const Interface::Snapshot * end, Barrier * barrier)
 {

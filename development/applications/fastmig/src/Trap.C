@@ -68,8 +68,10 @@ Trap::Trap (LocalColumn * column):
    column->setTrap (this);
    m_reservoir = column->getReservoir ();
    addToInterior (column);
+   assert(isInInterior(getCrestColumn()));
    closePerimeter (column);
-
+   assert(isOnPerimeter(getSpillColumn()));
+         
 #ifdef THISISNOTRIGHT
    m_minimumSpillDepth = WasteDepth;
    setMinimumSpillDepth (column->getTopDepth ());
@@ -350,7 +352,7 @@ void Trap::computeVolumeToDepthFunction (void)
       m_distributor->setLevelToVolume(m_levelToVolume);
 }
 
-void Trap::deleteDepthToVolumeFunction (void)
+/*void Trap::deleteDepthToVolumeFunction (void)
 {
    delete m_levelToVolume; // FIXME
    m_levelToVolume = 0;
@@ -360,7 +362,7 @@ void Trap::deleteDepthToVolumeFunction (void)
    delete m_volumeToDepth2;
    m_volumeToDepth2 = 0;
 #endif
-}
+}*/
 
 double Trap::getDepthForVolume (double volume)
 {
@@ -380,49 +382,50 @@ void Trap::computeArea (void)
    // this function assumes that the perimeter is sorted, highest lying column first
 
    getCrestColumn ()->setGlobalTrapId (getGlobalId ());
-   assert (getSpillColumn ());
-   if (getSpillColumn ()->isSealing ())
+   
+   // The perimeter is sorted with the sealing columns at the end.
+   // So, if the first column of the perimeter (given by getSpillColumn ()) is sealing, all columns in the perimeter are sealing
+   assert(getSpillColumn());
+   if (getSpillColumn ()->isSealing ())   
    {
-      // all columns in the perimeter are sealing as sealing columns are always at the back of the exterior
       return;
    }
 
    bool spillPointFound = false;
    while (!spillPointFound && m_perimeter.size () > 0)
    {
-         Column * spillColumn = getSpillColumn ();
+      Column * spillColumn = getSpillColumn ();
          
-	 // Should this column be in the perimeter or in the interior ?
-	 if (spillColumn->isSealing () || isSpillPoint (spillColumn))
-	 {
-	    // current spill point is sealing or is spilling to another point outside of the trap
-	    // The Trap's perimeter and interior are now complete.
-	    // This column is automatically the highest point of the Trap's perimeter,
-            // and thus the point where the Trap spills.
-            // It is also the first column in the Trap's perimeter.
+      // Should this column be in the perimeter or in the interior ?
+      if (spillColumn->isSealing () || isSpillPoint (spillColumn))
+      {
+         // current spill point is sealing or is spilling to another point outside of the trap
+         // The Trap's perimeter and interior are now complete.
+         // This column is automatically the highest point of the Trap's perimeter,
+         // and thus the point where the Trap spills.
+         // It is also the first column in the Trap's perimeter.
 
-            spillPointFound = true;
-         }
-         else
+         spillPointFound = true;
+      }
+      else
+      {
+         // It's not a spill point, hence it is an interior point
+         // Move column from perimeter to the interior.
+
+         if (spillColumn->getThickness () == 0)
          {
-            // It's not a spill point, hence it is an interior point
-            // Move column from perimeter to the interior.
-
-	    if (spillColumn->getThickness () == 0)
-	    {
-	       cerr << "WARNING from Trap::computeArea (): Adding zero thickness column " << spillColumn << " to trap " << this << endl;
-	       cerr << "                                   isSealing () = " << spillColumn->isSealing () << endl;
-	       cerr << "                                   spillColumn = " << getSpillColumn () << endl;
-	    }
-
-            removeFromPerimeter (spillColumn);
-            addToInterior (spillColumn);
-
-
-            // By removing this column from the perimeter and adding it to the interior,
-            // we created a hole in the perimeter that we have to close again.
-            closePerimeter (spillColumn);
+            cerr << "WARNING from Trap::computeArea (): Adding zero thickness column " << spillColumn << " to trap " << this << endl;
+            cerr << "                                   isSealing () = " << spillColumn->isSealing () << endl;
+            cerr << "                                   spillColumn = " << getSpillColumn () << endl;
          }
+
+         removeFromPerimeter (spillColumn);
+         addToInterior (spillColumn);
+
+         // By removing this column from the perimeter and adding it to the interior,
+         // we created a hole in the perimeter that we have to close again.
+         closePerimeter (spillColumn);
+      }
    }
 }
 
@@ -572,13 +575,13 @@ bool Trap::isSpillPoint (Column * column)
       Column * neighbourColumn = m_reservoir->getColumn (iNeighbour, jNeighbour);
       if (!IsValid (neighbourColumn))
       {
-	 return true;
+         return true;
       }
 
       if (!neighbourColumn->isSealing () && !isInInterior (neighbourColumn) && !isOnPerimeter (neighbourColumn) &&
 	    neighbourColumn->isShallowerThan (column)) 
       {
-	 return true;
+         return true;
       }
    }
    return false;
@@ -634,15 +637,16 @@ void Trap::closePerimeter (Column * column)
       int jOffset = NeighbourOffsets[k][J];
 
       unsigned int iNeighbour = column->getI () + iOffset;
+      assert(iNeighbour >= 0);
       unsigned int jNeighbour = column->getJ () + jOffset;
-
+      assert(jNeighbour >= 0);
       Column * neighbourColumn = m_reservoir->getColumn (iNeighbour, jNeighbour);
       if (!IsValid (neighbourColumn))
-	 continue;
+         continue;
 
-      if (!isInInterior (neighbourColumn) /* && !isOnPerimeter (neighbourColumn) */) 
+      if (!isInInterior (neighbourColumn)) 
       {
-	 addToPerimeter (neighbourColumn);
+         addToPerimeter (neighbourColumn);
       }
    }
 }
@@ -690,8 +694,7 @@ void Trap::removeFromPerimeter (Column * column)
 // Interior is sorted, highest first
 void Trap::addToInterior (Column * column)
 {
-
-   // Sealing columns can't be part of a trap,
+   // Sealing columns can't be part of a trap (not stored in the trap Interior),
    // Wasting columns can.
    assert (!column->isSealing ());
 
@@ -782,6 +785,8 @@ Column * Trap::getSpillColumn (void) const
 
 double Trap::getSpillDepth ()
 {
+   // The perimeter is sorted with the sealing columns at the end.
+   // So, if the first column of the perimeter (given by getSpillColumn ()) is sealing, all columns in the perimeter are sealing
    if (getSpillColumn ()->isSealing ())
       return SealDepth;
    else
@@ -1066,11 +1071,10 @@ bool Trap::isSpilling (void) const
 
 bool Trap::isUndersized (void) const
 {
-   // always merge zero-sized traps
-   return (getCapacity () == 0 || getCapacity () < getTrapCapacity ());
+   return (getCapacity () == 0 || getCapacity () < getMinimumTrapCapacity ());
 }
 
-double Trap::getTrapCapacity (void) const
+double Trap::getMinimumTrapCapacity (void) const
 {
    return m_reservoir->getTrapCapacity ();
 }
@@ -1161,25 +1165,62 @@ double Trap::biodegradeCharges(const double& timeInterval, const Biodegrade& bio
    if (requiresPVT ())
       computePVT ();
 
-   int phase = LAST_PHASE;
-   if (m_toBeDistributed[phase].isEmpty()) 
+   if (m_toBeDistributed[GAS].isEmpty() && m_toBeDistributed[OIL].isEmpty())
+      return 0;
+
+   assert(!m_toBeDistributed[GAS].isEmpty() || !m_toBeDistributed[OIL].isEmpty());
+
+#ifdef DEBUG_BIODEGRADATION
+   cerr << endl << ">>> DEBUG_BIODEGRADATION <<<<" << endl;
+   cerr << "Initial Gas mass = " << m_toBeDistributed[GAS].getWeight() << "; Initial Gas volume = " << m_toBeDistributed[GAS].getVolume() << endl;
+   cerr << "Initial Oil mass = " << m_toBeDistributed[OIL].getWeight() << "; Initial Oil volume = " << m_toBeDistributed[OIL].getVolume() << endl;
+#endif
+
+   Composition biodegradedGas;
+   Composition biodegradedOil;
+   
+   double const hydrocarbonWaterContactDepth = computeHydrocarbonWaterContactDepth();
+   setFillDepth(OIL, hydrocarbonWaterContactDepth);
+
+   double const hydrocarbonWaterContactTemperature = computeHydrocarbonWaterContactTemperature();
+
+   double volumeFractionOfGasBiodegraded = 0.0;
+   double volumeFractionOfOilBiodegraded = 0.0;
+   computePhaseVolumeProportionInBiodegradadedZone(timeInterval, volumeFractionOfGasBiodegraded, volumeFractionOfOilBiodegraded);
+
+   // Compute biodegradation for the GAS phase
+   if (volumeFractionOfGasBiodegraded > 0.0)
    {
-      phase = FIRST_PHASE;
-      if (m_toBeDistributed[phase].isEmpty())
-         return 0;
+      m_toBeDistributed[GAS].computeBiodegradation(timeInterval, hydrocarbonWaterContactTemperature, biodegrade,
+         biodegradedGas, volumeFractionOfGasBiodegraded);
+      m_toBeDistributed[GAS].subtract(biodegradedGas);
+      assert(m_toBeDistributed[GAS].getWeight() >= 0.0);
+   }
+   // Compute biodegradation for the OIL phase
+   if (volumeFractionOfOilBiodegraded > 0.0)
+   {
+      m_toBeDistributed[OIL].computeBiodegradation(timeInterval, hydrocarbonWaterContactTemperature, biodegrade,
+         biodegradedOil, volumeFractionOfOilBiodegraded);
+      m_toBeDistributed[OIL].subtract(biodegradedOil);
+      assert(m_toBeDistributed[OIL].getWeight() >= 0.0);
    }
 
-   double biodegraded = biodegradeCharges(timeInterval, biodegrade, (PhaseId)phase);
+   // Addition of the mass biodegraded in the two phases in order to report the global biodegradation
+   Composition biodegraded = biodegradedGas;
+   biodegraded.add(biodegradedOil);
+
+   // Report the biodegradation
+   m_reservoir->reportBiodegradationLoss(this, biodegraded);      
 
 #ifdef DETAILED_MASS_BALANCE
-   m_massBalance->subtractFromBalance("biodegraded", biodegraded);
+   m_massBalance->subtractFromBalance("biodegraded", biodegraded.getWeight());
 #endif
 
 #ifdef DETAILED_VOLUME_BALANCE
-   m_volumeBalance->subtractFromBalance("biodegraded", biodegraded);
+   m_volumeBalance->subtractFromBalance("biodegraded", biodegraded.getWeight());
 #endif
 
-   return biodegraded;
+   return biodegraded.getWeight();
 }
 
 /// If depths contains a vector of formations starting with the formation containing 
@@ -2150,7 +2191,7 @@ bool Trap::requiresDistribution (void)
    return result;
 }
 
-void Trap::checkDistributedCharges (PhaseId phase)
+/*void Trap::checkDistributedCharges (PhaseId phase)
 {
    const double MinimumVolume = 5000;
    const double MaximumCapacityError = 0.001;
@@ -2173,14 +2214,23 @@ void Trap::checkDistributedCharges (PhaseId phase)
             << ", used volume = " << usedTrapVolume << ", capacity = " << getCapacity () << endl;
       }
    }
+}*/
+
+double Trap::computethicknessAffectedByBiodegradationAboveOWC(const double timeInterval) const
+{
+   // Arbitrary value which states the thickness of the biodegradation impact above the OWC
+   double const inputThicknessAffectedByBiodegradationAboveOWC = 3;   // Original value entered by the user or by default: 3m/10Myr
+   double const thicknessAffectedByBiodegradationAboveOWC = inputThicknessAffectedByBiodegradationAboveOWC * timeInterval / 10;  // ~3m/10Myr, but depend on timeInterval
+
+   return thicknessAffectedByBiodegradationAboveOWC;
 }
 
 double Trap::computeHydrocarbonWaterContactDepth (void) const
 {
-   double volumeOil = m_toBeDistributed[OIL].getVolume();
-   double volumeGas = m_toBeDistributed[GAS].getVolume();
+   double const volumeOil = m_toBeDistributed[OIL].getVolume();
+   double const volumeGas = m_toBeDistributed[GAS].getVolume();
 
-   double maximumCapacityOfTrap = getVolumeBetweenDepths2(getTopDepth(), getBottomDepth());
+   double const maximumCapacityOfTrap = getVolumeBetweenDepths2(getTopDepth(), getBottomDepth());
    double hydrocarbonWaterContactDepth = -199999;  // initialisation with most likely "impossible" value
 
    if ((volumeGas + volumeOil) < maximumCapacityOfTrap)
@@ -2198,34 +2248,32 @@ double Trap::computeHydrocarbonWaterContactDepth (void) const
    return hydrocarbonWaterContactDepth;
 }
 
-double Trap::computeFractionVolumeBiodegraded (const double timeInterval)
+double Trap::computeFractionVolumeBiodegraded(const double timeInterval, const PhaseId phase)
 {
-   double const volumeOil = m_toBeDistributed[OIL].getVolume();
-   double const volumeGas = m_toBeDistributed[GAS].getVolume();
-
+   double const volumePhase = m_toBeDistributed[phase].getVolume();
+   
    // Arbitrary value which states the thickness of the biodegradation impact above the OWC
-   double const inputThicknessAffectedByBiodegradationAboveOWC = 3;   // Original value entered by the user or by default: 3m/10Myr
-   double const thicknessAffectedByBiodegradationAboveOWC = inputThicknessAffectedByBiodegradationAboveOWC * timeInterval / 10;  // ~3m/10Myr, but depend on timeInterval
+   double const thicknessAffectedByBiodegradationAboveOWC = computethicknessAffectedByBiodegradationAboveOWC(timeInterval);
 
    double const maximumCapacityOfTrap = getVolumeBetweenDepths2(getTopDepth(), getBottomDepth());
-   double const volumeBiodegraded = min(getVolumeBetweenDepths2(getFillDepth(OIL) - thicknessAffectedByBiodegradationAboveOWC, getFillDepth(OIL)), (volumeGas + volumeOil));
+   double const volumeBiodegraded = min(getVolumeBetweenDepths2(getFillDepth(OIL) - thicknessAffectedByBiodegradationAboveOWC, getFillDepth(OIL)), volumePhase);
 
    assert(volumeBiodegraded >= 0.0);
-   assert(volumeBiodegraded <= maximumCapacityOfTrap && volumeBiodegraded <= (volumeGas + volumeOil));
+   assert(volumeBiodegraded <= maximumCapacityOfTrap && volumeBiodegraded <= volumePhase);
 
-   double const fractionVolumeBiodegraded = volumeBiodegraded / (volumeGas + volumeOil);
+   double const fractionVolumeBiodegraded = volumeBiodegraded / volumePhase;
    assert(fractionVolumeBiodegraded >= 0.0 && fractionVolumeBiodegraded <= 1.0);
 
 #ifdef DEBUG_BIODEGRADATION
-   std::cerr << endl << "==== Compute the fraction of volume which is biodegraded ====" << endl;
-   std::cerr << "Volume of OIL in the Trap: " << volumeOil << " ; Volume of GAS in the Trap: " << volumeGas << endl;
-   std::cerr << "Volume total of HC in the Trap: " << volumeOil + volumeGas << endl;
-   std::cerr << "Top depth of the trap (crest column): " << getTopDepth() << endl;
-   std::cerr << "Hydrocarbon - water contact depth: " << getFillDepth(OIL) << endl;
-   std::cerr << "Bottom depth of the trap (spilling Point): " << getBottomDepth() << endl;
-   std::cerr << "Maximum capacity of the trap: " << getVolumeBetweenDepths2(getTopDepth(), getBottomDepth()) << endl;
-   std::cerr << "Volume impacted by biodegradation in the trap: " << volumeBiodegraded << endl;
-   std::cerr << "Fraction of the volume impacted by biodegradation: " << fractionVolumeBiodegraded * 100 << "% " << endl;
+   cerr << endl << "==== Compute the fraction of volume which is biodegraded ====" << endl;
+   cerr << "Volume of GAS in the Trap: " << m_toBeDistributed[GAS].getVolume() << " ; Volume of OIL in the Trap: " << m_toBeDistributed[OIL].getVolume() << endl;
+   cerr << "Volume total of HC in the Trap: " << m_toBeDistributed[GAS].getVolume() + m_toBeDistributed[OIL].getVolume() << endl;
+   cerr << "Top depth of the trap (crest column): " << getTopDepth() << endl;
+   cerr << "Hydrocarbon - water contact depth: " << getFillDepth(OIL) << endl;
+   cerr << "Bottom depth of the trap (spilling Point): " << getBottomDepth() << endl;
+   cerr << "Maximum capacity of the trap: " << getVolumeBetweenDepths2(getTopDepth(), getBottomDepth()) << endl;
+   cerr << "Volume impacted by biodegradation in the trap: " << volumeBiodegraded << endl;
+   cerr << "Fraction of the volume impacted by biodegradation: " << fractionVolumeBiodegraded * 100 << " % " << endl;
 #endif
 
    assert(getTopDepth() < getBottomDepth());
@@ -2244,7 +2292,7 @@ double Trap::computeHydrocarbonWaterContactTemperature()
 
    if (gridMapTemperature == 0) // No gridMap, then we use the temperature of the crest column for biodegradation
    {
-      std::cerr << "The temperature at the hydrocarbon - water contact can't be computed for the trapID " << getGlobalId()
+      cerr << "The temperature at the hydrocarbon - water contact can't be computed for the trapID " << getGlobalId()
          << " of the reservoir " << getReservoir()->getName()
          << ". The temperature at the crest of the trap has been selected instead." << endl;
       return hydrocarbonWaterContactTemperature;
@@ -2305,34 +2353,77 @@ double Trap::computeHydrocarbonWaterContactTemperature()
    }
 
 #ifdef DEBUG_BIODEGRADATION
-   std::cerr << endl << "==== Compute the temperature at the hydrocarbon - water contact ====" << endl;
-   std::cerr << "Temperature of the crest column: " << getCrestColumn()->getTemperature() << endl;
-   std::cerr << "Temperature at the hydrocarbon - Water contact: " << hydrocarbonWaterContactTemperature << endl;
+   cerr << endl << "==== Compute the temperature at the hydrocarbon - water contact ====" << endl;
+   cerr << "Temperature of the crest column: " << getCrestColumn()->getTemperature() << endl;
+   cerr << "Temperature at the hydrocarbon - Water contact: " << hydrocarbonWaterContactTemperature << endl;
 #endif
 
    return hydrocarbonWaterContactTemperature;
 }
 
-double Trap::biodegradeCharges (const double& timeInterval, const Biodegrade& biodegrade, PhaseId phase)
+void Trap::computePhaseVolumeProportionInBiodegradadedZone(const double timeInterval, double& volumeFractionOfGasBiodegraded, double& volumeFractionOfOilBiodegraded)
 {
-   Composition biodegraded;
+#ifdef DEBUG_BIODEGRADATION
+   cerr << endl << "==== Phase(s) impacted by bidoegradation ====" << endl;
+#endif
 
-   assert(!m_toBeDistributed[phase].isEmpty ());
+   double const thicknessAffectedByBiodegradationAboveOWC = computethicknessAffectedByBiodegradationAboveOWC(timeInterval);
    
-   double const hydrocarbonWaterContactDepth = computeHydrocarbonWaterContactDepth();
-   setFillDepth(OIL, hydrocarbonWaterContactDepth);
-   double const fractionVolumeBiodegraded = computeFractionVolumeBiodegraded(timeInterval);
+   if (m_toBeDistributed[GAS].isEmpty() && m_toBeDistributed[OIL].isEmpty()) // nothing in the trap
+   {
+      #ifdef DEBUG_BIODEGRADATION
+      cerr << "0) Nothing " << endl;
+      #endif
+      volumeFractionOfGasBiodegraded = 0;
+      volumeFractionOfOilBiodegraded = 0;
+   }
+   else if (m_toBeDistributed[OIL].isEmpty()) // only gas in the trap
+   {
+      #ifdef DEBUG_BIODEGRADATION
+      cerr << "1) Only GAS " << endl;
+      #endif
+      volumeFractionOfGasBiodegraded = computeFractionVolumeBiodegraded(timeInterval, GAS);
+      volumeFractionOfOilBiodegraded = 0;
+   }
+   else if (m_toBeDistributed[GAS].isEmpty())  // only oil in the trap
+   {
+      #ifdef DEBUG_BIODEGRADATION
+      cerr << "2) Only OIL " << endl;
+      #endif
+      volumeFractionOfGasBiodegraded = 0;
+      volumeFractionOfOilBiodegraded = computeFractionVolumeBiodegraded(timeInterval, OIL);
+   }
+   else  // case of a mixed-fill trap
+   {
+      double const maxCapacityOfTrap = getVolumeBetweenDepths2(getTopDepth(), getBottomDepth());
+      double const volumeBiodegraded = min(getVolumeBetweenDepths2(getFillDepth(OIL) - thicknessAffectedByBiodegradationAboveOWC, getFillDepth(OIL)), maxCapacityOfTrap);
 
-   double const hydrocarbonWaterContactTemperature = computeHydrocarbonWaterContactTemperature();
-      
-    m_toBeDistributed[phase].computeBiodegradation(timeInterval, hydrocarbonWaterContactTemperature, biodegrade,
-      biodegraded, fractionVolumeBiodegraded);
-   
-   m_toBeDistributed[phase].subtract(biodegraded);
+      if (m_toBeDistributed[OIL].getVolume() >= volumeBiodegraded) // only oil in the biodegraded zone
+      {
+         #ifdef DEBUG_BIODEGRADATION
+         cerr << "3) OIL and GAS, but only OIL is biodegraded " << endl;
+         #endif
+         volumeFractionOfGasBiodegraded = 0;
+         volumeFractionOfOilBiodegraded = computeFractionVolumeBiodegraded(timeInterval, OIL);
+      }
+      else // oil and gas are present in the biodegraded zone
+      {
+         #ifdef DEBUG_BIODEGRADATION
+         cerr << "4) Both phases are biodegraded " << endl;
+         #endif
+         volumeFractionOfOilBiodegraded = 1;
+         volumeFractionOfGasBiodegraded = (volumeBiodegraded - m_toBeDistributed[OIL].getVolume()) / m_toBeDistributed[GAS].getVolume();
+         volumeFractionOfGasBiodegraded = min(volumeFractionOfGasBiodegraded, 1);   // in case that the biodegradation zone extends above the volume of Gas 
+      }
+   }
+   assert(volumeFractionOfOilBiodegraded >= 0 && volumeFractionOfOilBiodegraded <= 1);
+   assert(volumeFractionOfGasBiodegraded >= 0 && volumeFractionOfGasBiodegraded <= 1);
 
-   m_reservoir->reportBiodegradationLoss (this, biodegraded);
-
-   return biodegraded.getWeight ();
+#ifdef DEBUG_BIODEGRADATION
+   cerr << endl << "==== Computation of the phase volume proportions in the biodegraded impact zone ====" << endl;
+   cerr << "Percent of Gas biodegraded: " << volumeFractionOfGasBiodegraded * 100 << " %" << endl;
+   cerr << "Percent of Oil biodegraded: " << volumeFractionOfOilBiodegraded * 100 << " %" << endl;
+#endif
 }
 
 void Trap::printInconsistentVolumes ()

@@ -63,13 +63,57 @@ namespace migration
 #ifdef COMPUTECAPACITY
 	void computeCapacity (void);
 #endif
+
+   /*!
+   * \brief Initialize the filling depths for each phase (liquid and vapor).
+   * \details The filling depth for each phase is initialy set to the top depth of the crest column.
+   */
    void initialize (void);
+
    virtual bool isSpillPoint (Column * column);
+
+   /*!
+   * \brief Boolean which informed if the \param column belong to the interior of the trap or not.
+   * \details All column "inside" a trap belong to the interior column vector.
+   * For information, the interior column vector is sorted such that shallowest columns are at the beginning, and deepest at the end.
+   * So, the first column of the interior column vector is the crest column.
+   * \return True if the \param column belong to the interior of the trap, false otherwise
+   */
    bool isInInterior (Column * column) const;
+
+   /*!
+   * \brief Boolean which informed if the \param column belong to the perimeter of the trap or not.
+   * \details All column "at the border" (perimeter) of the trap belong to the perimeter column vector.
+   * For information, the perimeter column vector is sorted such that shallowest columns are at the beginning, and deepest at the end.
+   * So, the first column of the perimeter is the spill column. The sealing column(s) are at the end of the vector.
+   * \return True if the \param column belong to the perimeter of the trap, false otherwise
+   */
    bool isOnPerimeter (Column * column) const;
+
+   /*!
+   * \brief Close the perimeter of a trap around a \param column
+   * \details After including a new \param column of the perimeter to the interior of a trap, the perimeter of the trap have now an opening.
+   * That's why we need to close the perimeter of the trap around this new interior \column. 
+   * In order to do this, each one of the 8 neighbours of the \column will be evaluated. If this column doesn't belong to the interior of a trap, this column will be included in the perimeter.
+   * If this column is not valid (you are for instance on the border of the model), nothing happen.
+   */
    void closePerimeter (Column * column);
+
+   /*!
+   * \brief Add the \param column the the interior column vector.
+   * \details All column "at the border" (perimeter) of the trap belong to the perimeter column vector.
+   * For information, the perimeter column vector is sorted such that shallowest columns are at the beginning, and deepest at the end.
+   * So, the first column of the perimeter is the spill column. The sealing column(s) are at the end of the vector.
+   */
    void addToPerimeter (Column * column);
    void removeFromPerimeter (Column * column);
+
+   /*!
+   * \brief Add the \param column the the interior column vector.
+   * \details All column "inside" a trap belong to the interior column vector.
+   * For information, the interior column vector is sorted such that shallowest columns are at the beginning, and deepest at the end.
+   * So, the first column of the interior column vector is the crest column.
+   */
    void addToInterior (Column * column);
 
    void addColumnsToBeAdded (void);
@@ -77,14 +121,37 @@ namespace migration
 
    bool contains (Column * column) const;
 
+   /*!
+   * \brief Print the columns belonging to the perimeter of the trap.
+   * \details All columns "at the border" (perimeter) of the trap belong to the perimeter column vector.
+   * For information, the perimeter column vector is sorted such that shallowest columns are at the beginning, and deepest at the end.
+   * So, the first column of the perimeter is the spill column. The sealing column(s) are at the end of the vector.
+   */
    void printPerimeter (void);
+
+   /*!
+   * \brief Print the columns belonging to the interoir of the trap.
+   * \details All columns "inside" a trap belong to the interior column vector.
+   * For information, the interior column vector is sorted such that shallowest columns are at the beginning, and deepest at the end.
+   * So, the first column of the interior column vector is the crest column.
+   */
    void printInterior (void);
 
    void printInconsistentVolumes (void);
 
+   /*!
+   * \brief Give the reservoir to which belong the trap.
+   * \return The reservoir to which belong the trap.
+   */
    Reservoir * getReservoir (void);
 
    LocalColumn * getCrestColumn (void) const;
+
+   /*!
+   * \brief Give the Spilling column.
+   * \details The spilling column is stored as the first element of the perimeter column vector.
+   * \return The Spilling column of the trap.
+   */
    Column * getSpillColumn (void) const;
    Column * getColumnToSpillTo (void);
 
@@ -145,8 +212,21 @@ namespace migration
    bool isSpilling (void) const;
    void resetSpilling (void);
 
+   /*!
+   * \brief Give the info if the trap is undersized or not.
+   * \details If a trap is undersized, it means that its capacity is smaller than the minimum trap capacity.
+   * If the capacity is smaller than the minimum trap capacity, this boolean will enable the merging of this trap with other ones.
+   * \return True if the trap is undersized (Trap capacity < minimum trap capacity), else false.
+   */
 	bool isUndersized (void) const;
-	double getTrapCapacity (void) const;
+
+   /*!
+   * \brief Get the minimum trap capacity" value in the [ReservoirIoTbl] of " .project3d".
+   * \details The obtained value is the minimum trap capacity allowed. This parameter helps to define if a trap is undersized or not.
+   * If a trap is undersized, it can be merged with others in further steps.
+   * \return The minimum trap capacity (in m3)
+   */
+   double getMinimumTrapCapacity(void) const;
 
    double getWeight (void) const;
    double getWeight (PhaseId phase) const;
@@ -156,6 +236,11 @@ namespace migration
    double getWeightToBeDistributed (void) const;
    double getWeightToBeDistributed (PhaseId phase) const;
 
+   /*!
+   * \brief Give the volume occupied by a \param phase inside the trap
+   * \details The volume is obtained by dividing the weight by the density
+   * \return The the volume occupied by a \param phase inside the trap (in m3)
+   */
    double getVolume (PhaseId phase) const;
    double getVolumeByColumns (PhaseId phase) const;
 
@@ -166,7 +251,7 @@ namespace migration
    void computeVolumeToDepthFunction (void);
    void computeVolumeToDepthFunction2 (void);
 
-   void deleteDepthToVolumeFunction (void);
+   //void deleteDepthToVolumeFunction (void);
 	 
    double getDepthForVolume (double volume);
 
@@ -181,17 +266,22 @@ namespace migration
 
    void collectAndSplitCharges (bool always = false);
 
-   void decomposeCharges (void);
-
-   void checkDistributedCharges (PhaseId phase);
+   //void checkDistributedCharges (PhaseId phase);
 
    /*!
-   * \brief Compute the fraction of the volume in the trap which is impacted by biodegradation
-   * This volume impacted by biodegradation is exclusively in a determined thickness above the hydrocarbon - water contact
-   * This thickness is determined thanks to a coefficient (ex: 3m/10Myr) and the \param timeInterval
-   * \return The fraction of volume in the trap impacted by biodegradation (from 0 to 1)
+   * \brief Compute the thickness above the hydrocarbon - water contact affected by biodegradation
+   * \details This thickness is determined thanks to a coefficient (ex: 3m/10Myr) and the \param timeInterval
+   * \return The thickness above the hydrocarbon - water contact affected by biodegradation (in meters)
    */
-   double computeFractionVolumeBiodegraded(const double timeInterval);
+   double computethicknessAffectedByBiodegradationAboveOWC(const double timeInterval) const;
+
+   /*!
+   * \brief Compute the fraction of the volume of the \param phase in the trap which is impacted by biodegradation
+   * \details This volume impacted by biodegradation is exclusively in a determined thickness above the hydrocarbon - water contact
+   * This thickness is determined thanks to a coefficient (ex: 3m/10Myr) and the \param timeInterval
+   * \return The fraction of volume of the \param phase in the trap impacted by biodegradation (from 0 to 1)
+   */
+   double computeFractionVolumeBiodegraded(const double timeInterval, const PhaseId phase);
 
    /*!
    * \brief Compute the temperature at the hydrocarbon - water contact (in °C)
@@ -201,16 +291,17 @@ namespace migration
    */
    double computeHydrocarbonWaterContactTemperature();
 
+   void Trap::computePhaseVolumeProportionInBiodegradadedZone(const double timeInterval, double& VolumeProportionGas, double& VolumeProportionOil);
+
    double biodegradeCharges (const double& timeInterval, const Biodegrade& biodegrade);
-   double biodegradeCharges (const double& timeInterval, const Biodegrade& biodegrade, PhaseId phase);
 
-         /// If depths contains a vector of formations starting with the formation containing 
-         /// this trap, return iterators pointing to the formations which constitute the 
-         /// overburden of this trap:
-         void iterateToFirstOverburdenFormation(const vector<FormationSurfaceGridMaps>& depths, vector<FormationSurfaceGridMaps>::
-            const_iterator& begin, vector<FormationSurfaceGridMaps>::const_iterator& end) const;
+   /// If depths contains a vector of formations starting with the formation containing 
+   /// this trap, return iterators pointing to the formations which constitute the 
+   /// overburden of this trap:
+   void iterateToFirstOverburdenFormation(const vector<FormationSurfaceGridMaps>& depths, vector<FormationSurfaceGridMaps>::
+      const_iterator& begin, vector<FormationSurfaceGridMaps>::const_iterator& end) const;
 
-	 // Methods used for diffusion leakage calculation:
+   // Methods used for diffusion leakage calculation:
    bool computeDiffusionOverburden(const SurfaceGridMapContainer& fullOverburden,
       const Interface::Snapshot* snapshot, const double& maxSealThickness, int maxFormations);
    bool computeSealFluidDensity(const SurfaceGridMapContainer& fullOverburden, 
@@ -237,10 +328,6 @@ namespace migration
 	 bool distributeCharges (void);
 
 	 void incrementChargeDistributionCount (void);
-
-/* 	 void spill (PhaseId phase); */
-/*          void leak (PhaseId phase); */
-/* 	 void waste (PhaseId phase); */
 
 	 void broadcastDiffusionStartTimes (void);
 	 void broadcastPenetrationDistances (void);
@@ -269,6 +356,12 @@ namespace migration
 	 void setToBeAbsorbed (void);
 	 bool isToBeAbsorbed (void);
 
+    /*!
+    * \brief Compute if a trap is full or not for a precise \param phase.
+    * \details The trap is full if the filling depth for this precise \param phase is deeper or equal than the bottom depth of this trap (the spillling point depth)
+    * Remark: a full mixed-fill trap will appear false for gas (on top), and true for oil (on the bottom)
+    * \return True if the trap is full for a precise \param phase, false otherwise
+    */
 	 bool isFull (PhaseId phase);
 
 	 void setDiffusionStartTime (double diffusionStartTime);

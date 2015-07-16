@@ -36,7 +36,7 @@ namespace DataAccess {
             if (m_tempFactor < 0.0)
             {
                cerr << "Warning: The temperature factor coefficient used for biodegradation is negative: " << m_tempFactor << ". No biodegradation computed" << endl;
-               return 199999;
+               return -199999;
             }
             return m_bioConsts[ index ] * m_tempFactor;
          }
