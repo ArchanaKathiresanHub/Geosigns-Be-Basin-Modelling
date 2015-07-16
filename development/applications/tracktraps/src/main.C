@@ -118,6 +118,9 @@ int main (int argc, char ** argv)
       projectHandle->saveProject (outputFileName);
    }
 
+   delete projectHandle;
+   delete factory;
+
    return 0;
 }
 

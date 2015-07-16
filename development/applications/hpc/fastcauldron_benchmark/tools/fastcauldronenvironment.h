@@ -115,7 +115,7 @@ private:
    std::vector< std::string > m_cauldronCmdLine;
    boost::shared_ptr<DataAccess::Interface::ProjectHandle>  m_project;
    boost::shared_ptr<Path> m_projectSourceDir;
-   DataAccess::Interface::ObjectFactory*  m_factory;   
+   boost::shared_ptr<DataAccess::Interface::ObjectFactory>  m_factory;   
    VersionID m_version;
 };  
 

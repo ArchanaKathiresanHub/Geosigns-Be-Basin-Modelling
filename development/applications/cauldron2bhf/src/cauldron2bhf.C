@@ -159,7 +159,7 @@ int main (int argc, char ** argv)
    }
 
    
-   ObjectFactory* factory = new ObjectFactory();
+   GeoPhysics::ObjectFactory* factory = new GeoPhysics::ObjectFactory();
    GeoPhysics::ProjectHandle* projectHandle = dynamic_cast< GeoPhysics::ProjectHandle* >( OpenCauldronProject( inputProjectFileName, "rw", factory ) );
    DerivedProperties::DerivedPropertyManager propertyManager ( projectHandle );
 

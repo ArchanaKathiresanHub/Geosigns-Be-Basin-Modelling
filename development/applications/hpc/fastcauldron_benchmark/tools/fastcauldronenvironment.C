@@ -154,9 +154,9 @@ FastCauldronEnvironment
    , m_projectSourceDir( projectFile.getParentDirectory() )
    , m_version(version)                                             
 {
-  m_factory = new DataAccess::Interface::ObjectFactory();  
+  m_factory.reset(new DataAccess::Interface::ObjectFactory());  
   m_project = boost::shared_ptr<DataAccess::Interface::ProjectHandle>
-              ( DataAccess::Interface::OpenCauldronProject(projectFile.getCanonicalPath(), "r", m_factory));
+              ( DataAccess::Interface::OpenCauldronProject(projectFile.getCanonicalPath(), "r", m_factory.get()));
   
   if (!m_project)
      throw Exception() << "Could not open project file '" << projectFile << "'";
