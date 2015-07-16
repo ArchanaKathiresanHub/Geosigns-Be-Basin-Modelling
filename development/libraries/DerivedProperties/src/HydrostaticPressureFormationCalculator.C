@@ -113,7 +113,7 @@ void DerivedProperties::HydrostaticPressureFormationCalculator::calculate ( Abst
 
    derivedProperties.clear ();
 
-   if ( currentFormation->getTopSurface ()->getSnapshot () != 0 and
+   if ( currentFormation->getTopSurface ()->getSnapshot () == 0 ||
         currentFormation->getTopSurface ()->getSnapshot ()->getTime () > snapshot->getTime ()) {
       formationAbove = dynamic_cast<const GeoPhysics::Formation*>( currentFormation->getTopSurface ()->getTopFormation ());
    }

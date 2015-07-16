@@ -4,6 +4,8 @@ using namespace std;
 
 #include "PropertiesCalculator.h"
 
+void displayTime ( const double timeToDisplay, const char * msgToDisplay );
+
 int main( int argc, char ** argv )
 {
 
@@ -16,20 +18,25 @@ int main( int argc, char ** argv )
    PropertyList properties;
    FormationVector formationItems;
 
+   PetscLogDouble sim_Start_Time;
+   PetscTime( &sim_Start_Time );   
+
    GeoPhysics::ObjectFactory* factory = new GeoPhysics::ObjectFactory;
    PropertiesCalculator propCalculator ( rank );
        
    if( !propCalculator.parseCommandLine( argc, argv )) {
 
       PetscFinalize();
-      return -1;
+      return 1;
    }
 
    if( ! propCalculator.CreateFrom(factory) ) {
 
       propCalculator.showUsage( argv[ 0 ], "Could not open specified project file" );
+
       PetscFinalize();
-      return -1;
+
+      return 1;
    }
  
    propCalculator.printOutputableProperties ();
@@ -39,14 +46,19 @@ int main( int argc, char ** argv )
    propCalculator.printListSnapshots();
    propCalculator.printListStratigraphy(); 
 
-   if ( propCalculator.showLists() )
-   {
+   if ( propCalculator.showLists() ) {
       propCalculator.finalise ( false );
+
+      PetscFinalize ();
+
       return 0;
    }
 
    if ( !propCalculator.startActivity () ) {
       propCalculator.finalise ( false );
+ 
+      PetscFinalize ();
+
       return 1;
    };
    
@@ -58,6 +70,12 @@ int main( int argc, char ** argv )
    
    propCalculator.finalise ( true );
 
+   PetscLogDouble sim_End_Time;
+   PetscTime( &sim_End_Time );   
+
+   displayTime( sim_End_Time - sim_Start_Time, "End of calculation" );
+
+   PetscFinalize ();
    return 0;
 }
 

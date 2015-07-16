@@ -66,8 +66,6 @@ void  PropertiesCalculator::finalise ( bool isComplete ) {
 
    delete m_projectHandle;
    m_projectHandle = 0;
-
-   PetscFinalize ();
 }
 
 //------------------------------------------------------------//
@@ -350,7 +348,6 @@ bool PropertiesCalculator::acquireFormations( FormationVector & formationsItems 
    return true;
 }
 //------------------------------------------------------------//
-
 const GridMap * PropertiesCalculator::getPropertyGridMap ( const string & propertyName,
                                                            const Interface::Snapshot * snapshot,
                                                            const Formation * formation ) 
@@ -403,7 +400,55 @@ const GridMap * PropertiesCalculator::getPropertyGridMap ( const string & proper
    }
    return propertyHasMap;
 }
-  
+//------------------------------------------------------------//
+
+bool PropertiesCalculator::toBeSaved( const string & propertyName, const Interface::Snapshot * snapshot, const Formation * formation ) 
+{
+   bool isSaved = false;
+   const Property* property = m_projectHandle->findProperty (propertyName);
+
+   if ( property != 0 ) {  
+      int selectionFlags = Interface::FORMATION | Interface::FORMATIONSURFACE;
+      bool volumeProperties = true;
+      PropertyValueList * propertyValues = m_projectHandle->getPropertyValues ( selectionFlags,
+                                                                                property,
+                                                                                snapshot, 
+                                                                                0, 
+                                                                                formation, 
+                                                                                0,
+                                                                                Interface::VOLUME ); 
+      
+      if ( propertyValues->size () == 0 ) {
+         delete propertyValues;
+         volumeProperties = false;
+
+         propertyValues = m_projectHandle->getPropertyValues ( selectionFlags,
+                                                               property,
+                                                               snapshot, 
+                                                               0, 
+                                                               formation, 
+                                                               0,
+                                                               Interface::MAP );     
+         if ( propertyValues->size () == 0 ) {
+            delete propertyValues;
+            
+            return true;
+         }
+      }
+
+      
+      if (propertyValues->size () != 1 && m_rank == 0 ) {
+         cout << propertyValues->size () << ( volumeProperties ? " volume " : " map " ) << "properties values are available for  " << propertyName 
+              << " at " << snapshot->getTime() << " for formation " << formation->getName() << endl;
+      }
+         
+      isSaved = ( (*propertyValues)[0]->hasGridMap() != 0 ) || (*propertyValues)[0]->hasRecord();
+      
+      delete propertyValues;
+   }
+   return not isSaved;
+}
+
 //------------------------------------------------------------//
 bool PropertiesCalculator::createSnapshotResultPropertyValue ( OutputPropertyValuePtr propertyValue,
                                                                const Snapshot* snapshot, const Formation * formation ) {
@@ -418,16 +463,22 @@ bool PropertiesCalculator::createSnapshotResultPropertyValue ( OutputPropertyVal
    PropertyValue *thePropertyValue = 0;
    
    if( p_depth > 1 ) {
-      if( ! getPropertyGridMap ( propertyValue->getName(), snapshot, formation )) {
+      if( toBeSaved ( propertyValue->getName(), snapshot, formation )) {
          thePropertyValue = m_projectHandle->createVolumePropertyValue ( propertyValue->getName(), snapshot, 0, formation, p_depth );
       } else {
          // the property is already in output file
+         if( false && m_debug && m_rank == 0 ) {
+            cout << propertyValue->getName() << " is in the output file" << endl;
+         }
       }
    } else {
-      if( ! getPropertyGridMap ( propertyValue->getName(), snapshot, formation )) {
+      if( toBeSaved ( propertyValue->getName(), snapshot, formation )) {
          thePropertyValue = m_projectHandle->createMapPropertyValue ( propertyValue->getName(), snapshot, 0, formation, 0 );
       } else {
          //  the property is already in output file
+        if( false && m_debug && m_rank == 0 ) {
+            cout << propertyValue->getName() << " is in the output file" << endl;
+         }
       }
    }     
  
@@ -917,4 +968,14 @@ bool snapshotSorter( const Snapshot * snapshot1, const Snapshot * snapshot2 )
    return snapshot1->getTime() > snapshot2->getTime();
 }
 
+void displayTime ( const double timeToDisplay, const char * msgToDisplay ) {
 
+   int hours   = (int)(  timeToDisplay / 3600.0 );
+   int minutes = (int)(( timeToDisplay - (hours * 3600.0) ) / 60.0 );
+   int seconds = (int)(  timeToDisplay - hours * 3600.0 - minutes * 60.0 );
+   
+   PetscPrintf ( PETSC_COMM_WORLD, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ \n" );
+   PetscPrintf ( PETSC_COMM_WORLD, "%s: %d hours %d minutes %d seconds\n", msgToDisplay, hours, minutes, seconds );
+   PetscPrintf ( PETSC_COMM_WORLD, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ \n" );
+
+}

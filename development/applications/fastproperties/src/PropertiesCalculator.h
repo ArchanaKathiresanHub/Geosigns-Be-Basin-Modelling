@@ -125,6 +125,10 @@ public:
                                         const Interface::Snapshot * snapshot,
                                         const Formation * formation );
 
+   bool toBeSaved ( const string & propertyName,
+                    const Interface::Snapshot * snapshot,
+                    const Formation * formation );
+
    void acquireAll3Dproperties();
    void acquireAll2Dproperties();
 

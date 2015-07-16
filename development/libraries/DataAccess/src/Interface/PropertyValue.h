@@ -120,6 +120,8 @@ namespace DataAccess
 	    virtual void printOn (ostream &) const;
 	    virtual void asString (string &) const;
 
+	    /// Return true if the property has a record in a project file
+	    bool hasRecord (void) const;
       protected:
 
             double getMode1DResult() const;
