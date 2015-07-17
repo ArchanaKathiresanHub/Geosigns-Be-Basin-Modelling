@@ -8,11 +8,13 @@
 #include "AbstractSnapshot.h"
 #include "AbstractSurface.h"
 #include "AbstractFormation.h"
+#include "AbstractReservoir.h"
 
 #include "SurfacePropertyCalculator.h"
 #include "FormationMapPropertyCalculator.h"
 #include "FormationPropertyCalculator.h"
 #include "FormationSurfacePropertyCalculator.h"
+#include "ReservoirPropertyCalculator.h"
 #include "PropertySnapshotCalculatorMap.h"
 
 namespace DerivedProperties {
@@ -86,6 +88,17 @@ namespace DerivedProperties {
                                                                         const DataModel::AbstractFormation* formation,
                                                                         const DataModel::AbstractSurface*   surface );
 
+      /// \brief Get the reservoir property values.
+      ///
+      /// If the reservoir property values have not been computed and there is an associated calculator
+      /// then the values will be calculated as required. Additional properties may also be calculated.
+      /// \param [in] property  The property whose values are requested.
+      /// \param [in] snapshot  The snapshot time at which the values were calculated.
+      /// \param [in] reservoir The reservoir to which the values are associated.
+      virtual ReservoirPropertyPtr getReservoirProperty ( const DataModel::AbstractProperty*  property,
+                                                          const DataModel::AbstractSnapshot*  snapshot,
+                                                          const DataModel::AbstractReservoir* reservoir );
+
       /// \brief Determine if the formation property is computable.
       ///
       /// If snapshot is null then this will determine if the property is computable at some undefined snapshot time.
@@ -150,6 +163,23 @@ namespace DerivedProperties {
                                                       const DataModel::AbstractSnapshot*  snapshot = 0,
                                                       const DataModel::AbstractFormation* formation = 0 ) const;
 
+
+      /// \brief Determine if the reservoir property is computable.
+      ///
+      /// If snapshot is null then this will determine if the property is computable at some undefined snapshot time.
+      /// If reservoir is null then this will determine if the property is computable at some undefined reservoir in the domain.
+      ///
+      /// \param [in] property  The property we would like to know is calculatable.
+      /// \param [in] snapshot  The snapshot at which we would like to know if the property is calculatable.
+      /// \param [in] reservoir The reservoir for which we would like to know if the property is calculatable.
+      /// \pre The property points to a valid property object.
+      /// \pre The snapshot points to a valid snapshot object or is null.
+      /// \pre The reservoir points to a valid reservoir object or is null.
+      virtual bool reservoirPropertyIsComputable ( const DataModel::AbstractProperty*  property,
+                                                   const DataModel::AbstractSnapshot*  snapshot = 0,
+                                                   const DataModel::AbstractReservoir* reservoir = 0 ) const;
+
+
       /// \brief Remove all properties associated with a particular snapshot.
       void removeProperties ( const DataModel::AbstractSnapshot* snapshot );
 
@@ -197,6 +227,14 @@ namespace DerivedProperties {
       void addFormationSurfacePropertyCalculator ( const FormationSurfacePropertyCalculatorPtr& calculator,
                                                    const DataModel::AbstractSnapshot*           snapshot = 0 );
 
+      /// \brief Add a calculator for a property or set of properties defined for a reservoir.
+      ///
+      /// \param [in] calculator  A calculator of reservoir properties.
+      /// \param [in] snapshot    The snapshot for which the calculator is valid.
+      ///
+      /// If the snapshot is null value then this indicates that the calculator is for any snapshot age.
+      void addReservoirPropertyCalculator ( const ReservoirPropertyCalculatorPtr& calculator,
+                                            const DataModel::AbstractSnapshot*    snapshot = 0 );
 
       /// \brief Add a set of property values to the availble property values.
       ///
@@ -217,6 +255,11 @@ namespace DerivedProperties {
       ///
       /// \param [in] formationSurfaceProperty  A set of property values associated with a formation and surface.
       void addFormationSurfaceProperty ( const FormationSurfacePropertyPtr& formationSurfaceProperty );
+
+      /// \brief Add a set of property values to the availble property values.
+      ///
+      /// \param [in] reservoirProperty  A set of property values associated with a reservoir.
+      void addReservoirProperty ( const ReservoirPropertyPtr& reservoirProperty );
 
       /// \brief Get the calculator for the property and snapshot.
       ///
@@ -252,6 +295,15 @@ namespace DerivedProperties {
       ///
       /// If no calculator has been added then a null will be returned.
       FormationPropertyCalculatorPtr getFormationCalculator ( const DataModel::AbstractProperty* property,
+                                                              const DataModel::AbstractSnapshot* snapshot ) const;
+
+      /// \brief Get the calculator for the property and snapshot.
+      ///
+      /// \param [in] property The property whose calulator is requested.
+      /// \param [in] snapshot The associated snapshot for the calcualtor.
+      ///
+      /// If no calculator has been added then a null will be returned.
+      ReservoirPropertyCalculatorPtr getReservoirCalculator ( const DataModel::AbstractProperty* property,
                                                               const DataModel::AbstractSnapshot* snapshot ) const;
 
       /// \brief Search the list of available surface property values for a specific set of values.
@@ -296,6 +348,16 @@ namespace DerivedProperties {
                                                                        const DataModel::AbstractFormation* formation,
                                                                        const DataModel::AbstractSurface*   surface ) const;      
 
+      /// \brief Search the list of available reservoir property values for a specific set of values.
+      ///
+      /// If the values are not found then a null will be returned.
+      /// \param [in] property  The property whose values are requested.
+      /// \param [in] snapshot  The snapshot time at which the values were calculated.
+      /// \param [in] reservoir The reservoir with which the values are associated.
+      ReservoirPropertyPtr findReservoirPropertyValues ( const DataModel::AbstractProperty*  property,
+                                                         const DataModel::AbstractSnapshot*  snapshot,
+                                                         const DataModel::AbstractReservoir* reservoir ) const;
+
    private :
 
       /// \brief Mapping from property and snapshot to the associated surface property calculator.
@@ -309,6 +371,9 @@ namespace DerivedProperties {
 
       /// \brief Mapping from property and snapshot to the associated formation and surface property calculator.
       typedef PropertySnapshotCalculatorMap<FormationSurfacePropertyCalculatorPtr> FormationSurfacePropertyCalculatorMap;
+
+      /// \brief Mapping from property and snapshot to the associated reservoir property calculator.
+      typedef PropertySnapshotCalculatorMap<ReservoirPropertyCalculatorPtr> ReservoirPropertyCalculatorMap;
 
 
 
@@ -335,6 +400,12 @@ namespace DerivedProperties {
 
       /// \brief List of all formation-properties that have been stored.
       FormationPropertyList           m_formationProperties;
+
+      /// \brief Map of property to reservoir-property calculator.
+      ReservoirPropertyCalculatorMap m_reservoirPropertyCalculators;
+
+      /// \brief List of all reservoir-properties that have been stored.
+      ReservoirPropertyList          m_reservoirProperties;
 
    };
 

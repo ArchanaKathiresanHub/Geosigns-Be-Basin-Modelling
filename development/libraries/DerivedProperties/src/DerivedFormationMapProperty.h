@@ -39,6 +39,7 @@ namespace DerivedProperties {
 
       /// \brief Get the undefined value.
       virtual double getUndefinedValue () const;
+
    private :
 
       /// \brief 2 dimensional array containing the formation map property values.

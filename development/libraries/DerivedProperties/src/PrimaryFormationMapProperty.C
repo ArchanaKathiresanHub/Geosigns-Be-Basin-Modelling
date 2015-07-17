@@ -3,6 +3,7 @@
 #include "Interface/Property.h"
 #include "Interface/Snapshot.h"
 #include "Interface/Formation.h"
+#include "Interface/Reservoir.h"
 #include "Interface/GridMap.h"
 #include "Interface/Grid.h"
 

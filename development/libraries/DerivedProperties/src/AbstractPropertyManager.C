@@ -118,6 +118,26 @@ void DerivedProperties::AbstractPropertyManager::addFormationSurfacePropertyCalc
 
 }
 
+void DerivedProperties::AbstractPropertyManager::addReservoirPropertyCalculator ( const ReservoirPropertyCalculatorPtr& calculator,
+                                                                                  const DataModel::AbstractSnapshot*    snapshot ) {
+
+   const std::vector<std::string>& propertyNames = calculator->getPropertyNames ();
+
+   assert ( propertyNames.size () > 0 );
+
+   for ( size_t i = 0; i < propertyNames.size (); ++i ) {
+      const DataModel::AbstractProperty* computedProperty = getProperty ( propertyNames [ i ]);
+
+      if ( computedProperty != 0 ) {
+         m_reservoirPropertyCalculators.insert ( computedProperty, snapshot, calculator );
+      } else {
+         // Error
+      }
+
+   }
+
+}
+
 DerivedProperties::SurfacePropertyCalculatorPtr DerivedProperties::AbstractPropertyManager::getSurfaceCalculator ( const DataModel::AbstractProperty* property,
                                                                                                                    const DataModel::AbstractSnapshot* snapshot ) const {
    return m_surfacePropertyCalculators.get ( property, snapshot );
@@ -139,6 +159,12 @@ DerivedProperties::FormationPropertyCalculatorPtr DerivedProperties::AbstractPro
 }
 
 
+DerivedProperties::ReservoirPropertyCalculatorPtr DerivedProperties::AbstractPropertyManager::getReservoirCalculator ( const DataModel::AbstractProperty* property,
+                                                                                                                       const DataModel::AbstractSnapshot* snapshot ) const {
+   return m_reservoirPropertyCalculators.get ( property, snapshot );
+}
+
+
 void DerivedProperties::AbstractPropertyManager::addSurfaceProperty ( const SurfacePropertyPtr& surfaceProperty ) {
    m_surfaceProperties.push_back ( surfaceProperty );
 }
@@ -153,6 +179,10 @@ void DerivedProperties::AbstractPropertyManager::addFormationProperty ( const Fo
 
 void DerivedProperties::AbstractPropertyManager::addFormationSurfaceProperty ( const FormationSurfacePropertyPtr& formationSurfaceProperty ) {
    m_formationSurfaceProperties.push_back ( formationSurfaceProperty );
+}
+
+void DerivedProperties::AbstractPropertyManager::addReservoirProperty ( const ReservoirPropertyPtr& reservoirProperty ) {
+   m_reservoirProperties.push_back ( reservoirProperty );
 }
 
 
@@ -226,6 +256,23 @@ DerivedProperties::FormationSurfacePropertyPtr DerivedProperties::AbstractProper
    }
 
    return FormationSurfacePropertyPtr ();
+}
+
+DerivedProperties::ReservoirPropertyPtr DerivedProperties::AbstractPropertyManager::findReservoirPropertyValues ( const DataModel::AbstractProperty*  property,
+                                                                                                                  const DataModel::AbstractSnapshot*  snapshot,
+                                                                                                                  const DataModel::AbstractReservoir* reservoir ) const {
+
+   for ( size_t i = 0; i < m_reservoirProperties.size (); ++i ) {
+
+      if ( m_reservoirProperties [ i ]->getProperty  () == property  and
+           m_reservoirProperties [ i ]->getSnapshot  () == snapshot  and
+           m_reservoirProperties [ i ]->getReservoir () == reservoir ) {
+         return m_reservoirProperties [ i ];
+      }
+
+   }
+
+   return ReservoirPropertyPtr ();
 }
 
 
@@ -396,6 +443,47 @@ DerivedProperties::FormationSurfacePropertyPtr DerivedProperties::AbstractProper
    return result;
 }
 
+DerivedProperties::ReservoirPropertyPtr DerivedProperties::AbstractPropertyManager::getReservoirProperty ( const DataModel::AbstractProperty*  property,
+                                                                                                           const DataModel::AbstractSnapshot*  snapshot,
+                                                                                                           const DataModel::AbstractReservoir* reservoir ) {
+   
+   ReservoirPropertyPtr result;
+
+   if ( property->getPropertyAttribute () == DataModel::FORMATION_2D_PROPERTY ) {
+
+      result = findReservoirPropertyValues ( property, snapshot, reservoir );
+
+      if ( result == 0 ) {
+         const ReservoirPropertyCalculatorPtr calculator = getReservoirCalculator ( property, snapshot );
+         ReservoirPropertyList  calculatedProperties;
+ 
+         if ( calculator != 0 ) {
+            calculator->calculate ( *this, snapshot, reservoir, calculatedProperties );
+
+            for ( size_t i = 0; i < calculatedProperties.size (); ++i ) {
+               addReservoirProperty ( calculatedProperties [ i ]);
+
+               if ( calculatedProperties [ i ]->getProperty () == property ) {
+                  result = calculatedProperties [ i ];
+               }
+
+            }
+
+            if ( result == 0 ) {
+               // Error.
+            }
+
+         } else {
+            // Error.
+         }
+
+      }
+
+   }
+
+   return result;
+}
+
 void DerivedProperties::AbstractPropertyManager::removeProperties ( const DataModel::AbstractSnapshot* snapshot ) {
 
    // Remove formation properties at snapshot time.
@@ -418,6 +506,10 @@ void DerivedProperties::AbstractPropertyManager::removeProperties ( const DataMo
                                                                      PropertyErasePredicate<SurfacePropertyPtr> ( snapshot ));
    m_surfaceProperties.erase ( surfacesToRemove, m_surfaceProperties.end ());
 
+   // Remove reservoir properties at snapshot time.
+   ReservoirPropertyList::iterator reservoirsToRemove = std::remove_if ( m_reservoirProperties.begin (), m_reservoirProperties.end (),
+                                                                         PropertyErasePredicate<ReservoirPropertyPtr> ( snapshot ));
+   m_reservoirProperties.erase ( reservoirsToRemove, m_reservoirProperties.end ());
 
 }
 
@@ -480,6 +572,22 @@ bool DerivedProperties::AbstractPropertyManager::formationMapPropertyIsComputabl
 
    if ( calculator != 0 ) {
       isComputable = calculator->isComputable ( *this, snapshot, formation );
+   } else {
+      isComputable = false;
+   }
+
+   return isComputable;
+}
+
+bool DerivedProperties::AbstractPropertyManager::reservoirPropertyIsComputable ( const DataModel::AbstractProperty*  property,
+                                                                                 const DataModel::AbstractSnapshot*  snapshot,
+                                                                                 const DataModel::AbstractReservoir* reservoir ) const {
+
+   ReservoirPropertyCalculatorPtr calculator = getReservoirCalculator ( property, 0 );
+   bool isComputable;
+
+   if ( calculator != 0 ) {
+      isComputable = calculator->isComputable ( *this, snapshot, reservoir );
    } else {
       isComputable = false;
    }

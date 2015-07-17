@@ -17,6 +17,7 @@
 #include "PrimaryFormationMapPropertyCalculator.h"
 #include "PrimaryFormationPropertyCalculator.h"
 #include "PrimaryFormationSurfacePropertyCalculator.h"
+#include "PrimaryReservoirPropertyCalculator.h"
 
 #include "FormationPropertyAtSurface.h"
 
@@ -40,13 +41,15 @@
 #include "FaultElementFormationMapCalculator.h"
 #include "ThicknessFormationMapCalculator.h"
 
-DerivedProperties::DerivedPropertyManager::DerivedPropertyManager ( GeoPhysics::ProjectHandle* projectHandle ) : m_projectHandle ( projectHandle ) {
-   loadPrimaryFormationPropertyCalculators ();
-   loadPrimarySurfacePropertyCalculators ();
-   loadPrimaryFormationSurfacePropertyCalculators ();
-   loadPrimaryFormationMapPropertyCalculators ();
-   loadDerivedFormationPropertyCalculator ();
-   loadDerivedFormationMapPropertyCalculator ();
+DerivedProperties::DerivedPropertyManager::DerivedPropertyManager ( GeoPhysics::ProjectHandle* projectHandle,
+                                                                    const bool                 debug ) : m_projectHandle ( projectHandle ) {
+   loadPrimaryFormationPropertyCalculators ( debug );
+   loadPrimarySurfacePropertyCalculators ( debug );
+   loadPrimaryFormationSurfacePropertyCalculators ( debug );
+   loadPrimaryFormationMapPropertyCalculators ( debug );
+   loadPrimaryReservoirPropertyCalculators ( debug );
+   loadDerivedFormationPropertyCalculator ( debug );
+   loadDerivedFormationMapPropertyCalculator ( debug );
 }
 
 const GeoPhysics::ProjectHandle* DerivedProperties::DerivedPropertyManager::getProjectHandle () const {
@@ -103,7 +106,7 @@ bool DerivedProperties::DerivedPropertyManager::canAddDerivedFormationMapPropert
    return false;
 }
 
-void DerivedProperties::DerivedPropertyManager::loadDerivedFormationPropertyCalculator () {
+void DerivedProperties::DerivedPropertyManager::loadDerivedFormationPropertyCalculator ( const bool debug ) {
 
    FormationPropertyCalculatorPtr formationPropertyCalculator;
 
@@ -169,7 +172,7 @@ void DerivedProperties::DerivedPropertyManager::loadDerivedFormationPropertyCalc
 
 }
 
-void DerivedProperties::DerivedPropertyManager::loadDerivedFormationMapPropertyCalculator () {
+void DerivedProperties::DerivedPropertyManager::loadDerivedFormationMapPropertyCalculator ( const bool debug ) {
 
    FormationMapPropertyCalculatorPtr formationMapPropertyCalculator;
 
@@ -199,7 +202,7 @@ void DerivedProperties::DerivedPropertyManager::loadDerivedFormationMapPropertyC
 
 }
 
-void DerivedProperties::DerivedPropertyManager::loadPrimarySurfacePropertyCalculators () {
+void DerivedProperties::DerivedPropertyManager::loadPrimarySurfacePropertyCalculators ( const bool debug ) {
 
    // Get a list of properties that have been saved.
    DataAccess::Interface::PropertyList* allSurfaceProperties = m_projectHandle->getProperties ( false, DataAccess::Interface::SURFACE, 0, 0, 0, 0, DataAccess::Interface::MAP );
@@ -211,13 +214,17 @@ void DerivedProperties::DerivedPropertyManager::loadPrimarySurfacePropertyCalcul
       const DataModel::AbstractSnapshotSet& snapshots = propertyCalculator->getSnapshots ();
       DataModel::AbstractSnapshotSet::const_iterator ssIter;
 
+      if ( debug ) {
+         std::cerr << " Adding surface primary property: " << property->getName () << std::endl;
+      }
+
       addSurfacePropertyCalculator ( propertyCalculator );
    } 
 
    delete allSurfaceProperties;
 }
 
-void DerivedProperties::DerivedPropertyManager::loadPrimaryFormationSurfacePropertyCalculators () {
+void DerivedProperties::DerivedPropertyManager::loadPrimaryFormationSurfacePropertyCalculators ( const bool debug ) {
 
    // Get a list of properties that have been saved.
    DataAccess::Interface::PropertyList* allFormationSurfaceProperties = m_projectHandle->getProperties ( false, DataAccess::Interface::FORMATIONSURFACE, 0, 0, 0, 0, DataAccess::Interface::MAP );
@@ -229,13 +236,17 @@ void DerivedProperties::DerivedPropertyManager::loadPrimaryFormationSurfacePrope
       const DataModel::AbstractSnapshotSet& snapshots = propertyCalculator->getSnapshots ();
       DataModel::AbstractSnapshotSet::const_iterator ssIter;
 
+      if ( debug ) {
+         std::cerr << " Adding formation-surface primary property: " << property->getName () << std::endl;
+      }
+
       addFormationSurfacePropertyCalculator ( propertyCalculator );
    } 
 
    delete allFormationSurfaceProperties;
 }
 
-void DerivedProperties::DerivedPropertyManager::loadPrimaryFormationMapPropertyCalculators () {
+void DerivedProperties::DerivedPropertyManager::loadPrimaryFormationMapPropertyCalculators ( const bool debug ) {
 
    // Get a list of properties that have been saved.
    DataAccess::Interface::PropertyList* allFormationMapProperties = m_projectHandle->getProperties ( false, DataAccess::Interface::FORMATION, 0, 0, 0, 0, DataAccess::Interface::MAP );
@@ -247,13 +258,39 @@ void DerivedProperties::DerivedPropertyManager::loadPrimaryFormationMapPropertyC
       const DataModel::AbstractSnapshotSet& snapshots = propertyCalculator->getSnapshots ();
       DataModel::AbstractSnapshotSet::const_iterator ssIter;
 
+      if ( debug ) {
+         std::cerr << " Adding formation-map primary property: " << property->getName () << std::endl;
+      }
+
       addFormationMapPropertyCalculator ( propertyCalculator );
    } 
 
    delete allFormationMapProperties;
 }
 
-void DerivedProperties::DerivedPropertyManager::loadPrimaryFormationPropertyCalculators () {
+void DerivedProperties::DerivedPropertyManager::loadPrimaryReservoirPropertyCalculators ( const bool debug ) {
+
+   // Get a list of properties that have been saved.
+   DataAccess::Interface::PropertyList* allReservoirProperties = m_projectHandle->getProperties ( false, DataAccess::Interface::RESERVOIR, 0, 0, 0, 0, DataAccess::Interface::MAP );
+
+   for ( size_t i = 0; i < allReservoirProperties->size (); ++i ) {
+      const DataAccess::Interface::Property* property = (*allReservoirProperties)[ i ];
+
+      PrimaryReservoirPropertyCalculatorPtr propertyCalculator = PrimaryReservoirPropertyCalculatorPtr ( new PrimaryReservoirPropertyCalculator ( m_projectHandle, property ));
+      const DataModel::AbstractSnapshotSet& snapshots = propertyCalculator->getSnapshots ();
+      DataModel::AbstractSnapshotSet::const_iterator ssIter;
+
+      if ( debug ) {
+         std::cerr << " Adding reservoir primary property: " << property->getName () << std::endl;
+      }
+
+      addReservoirPropertyCalculator ( propertyCalculator );
+   } 
+
+   delete allReservoirProperties;
+}
+
+void DerivedProperties::DerivedPropertyManager::loadPrimaryFormationPropertyCalculators ( const bool debug ) {
 
    // Get a list of properties that have been saved.
    DataAccess::Interface::PropertyList* allFormationProperties = m_projectHandle->getProperties ( false, DataAccess::Interface::FORMATION, 0, 0, 0, 0, DataAccess::Interface::VOLUME );
@@ -264,6 +301,10 @@ void DerivedProperties::DerivedPropertyManager::loadPrimaryFormationPropertyCalc
       PrimaryFormationPropertyCalculatorPtr formationPropertyCalculator ( new PrimaryFormationPropertyCalculator ( m_projectHandle, property ));
       const DataModel::AbstractSnapshotSet& snapshots = formationPropertyCalculator->getSnapshots ();
       DataModel::AbstractSnapshotSet::const_iterator ssIter;
+
+      if ( debug ) {
+         std::cerr << " Adding formation primary property: " << property->getName () << std::endl;
+      }
 
       addFormationPropertyCalculator ( formationPropertyCalculator );
    } 
@@ -279,7 +320,7 @@ DerivedProperties::FormationPropertyList DerivedProperties::DerivedPropertyManag
    DataAccess::Interface::FormationList* activeFormations = m_projectHandle->getFormations ( dynamic_cast <const DataAccess::Interface::Snapshot*>( snapshot ), includeBasement );
    FormationPropertyList results;
 
-   // results.reserve ( activeFormations->size ());
+   results.reserve ( activeFormations->size ());
 
    for ( size_t i = 0; i < activeFormations->size (); ++i ) {
       FormationPropertyPtr formationProperty = getFormationProperty ( property, snapshot, activeFormations->at ( i ));
@@ -294,6 +335,30 @@ DerivedProperties::FormationPropertyList DerivedProperties::DerivedPropertyManag
    return results;
 }
 
+DerivedProperties::FormationMapPropertyList DerivedProperties::DerivedPropertyManager::getFormationMapProperties ( const DataModel::AbstractProperty* property,
+                                                                                                                   const DataModel::AbstractSnapshot* snapshot,
+                                                                                                                   const bool                         includeBasement ) {
+
+   DataAccess::Interface::FormationList* activeFormations = m_projectHandle->getFormations ( dynamic_cast <const DataAccess::Interface::Snapshot*>( snapshot ), includeBasement );
+   FormationMapPropertyList results;
+
+   results.reserve ( activeFormations->size ());
+
+   for ( size_t i = 0; i < activeFormations->size (); ++i ) {
+      FormationMapPropertyPtr formationProperty = getFormationMapProperty ( property, snapshot, activeFormations->at ( i ));
+
+      if ( formationProperty != 0 ) {
+         results.push_back ( formationProperty );
+      }
+
+   }
+
+   delete activeFormations;
+   return results;
+}
+
+
+
 DerivedProperties::SurfacePropertyList DerivedProperties::DerivedPropertyManager::getSurfaceProperties ( const DataModel::AbstractProperty* property,
                                                                                                          const DataModel::AbstractSnapshot* snapshot,
                                                                                                          const bool                         includeBasement ) {
@@ -301,7 +366,7 @@ DerivedProperties::SurfacePropertyList DerivedProperties::DerivedPropertyManager
    DataAccess::Interface::SurfaceList* activeSurfaces = m_projectHandle->getSurfaces ( dynamic_cast <const DataAccess::Interface::Snapshot*>( snapshot ), includeBasement );
    SurfacePropertyList results;
 
-   // results.reserve ( activeSurfaces->size ());
+   results.reserve ( activeSurfaces->size ());
 
    for ( size_t i = 0; i < activeSurfaces->size (); ++i ) {
       SurfacePropertyPtr surfaceProperty = getSurfaceProperty ( property, snapshot, activeSurfaces->at ( i ));

@@ -3,6 +3,7 @@
 #include "Interface/Snapshot.h"
 #include "Interface/Formation.h"
 #include "Interface/Property.h"
+#include "Interface/Surface.h"
 #include "Interface/PropertyValue.h"
 
 #include "PrimaryFormationMapProperty.h"

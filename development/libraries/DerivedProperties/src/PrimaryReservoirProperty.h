@@ -1,5 +1,5 @@
-#ifndef DERIVED_PROPERTIES__PRIMARY_FORMATION_MAP_PROPERTY_H
-#define DERIVED_PROPERTIES__PRIMARY_FORMATION_MAP_PROPERTY_H
+#ifndef DERIVED_PROPERTIES__PRIMARY_RESERVOIR_PROPERTY_H
+#define DERIVED_PROPERTIES__PRIMARY_RESERVOIR_PROPERTY_H
 
 #include <boost/shared_ptr.hpp>
 #include <boost/multi_array.hpp>
@@ -13,21 +13,21 @@
 #include "Interface/GridMap.h"
 #include "Interface/PropertyValue.h"
 
-#include "FormationMapProperty.h"
+#include "ReservoirProperty.h"
 
 namespace DerivedProperties {
 
    /// \brief Contains the values of the property at the snapshot time for the surface.
    ///
    /// The values are stored in a two dimensional array.
-   class PrimaryFormationMapProperty : public FormationMapProperty {
+   class PrimaryReservoirProperty : public ReservoirProperty {
 
 
    public :
 
-      PrimaryFormationMapProperty ( const DataAccess::Interface::PropertyValue* propertyValue );
+      PrimaryReservoirProperty ( const DataAccess::Interface::PropertyValue* propertyValue );
 
-      ~PrimaryFormationMapProperty();
+      ~PrimaryReservoirProperty();
 
       /// \brief Get the value at the position.
       virtual double get ( unsigned int i,
@@ -52,9 +52,9 @@ namespace DerivedProperties {
 
    };
 
-   typedef boost::shared_ptr<PrimaryFormationMapProperty> PrimaryFormationMapPropertyPtr;
+   typedef boost::shared_ptr<PrimaryReservoirProperty> PrimaryReservoirPropertyPtr;
 
 }
 
 
-#endif // DERIVED_PROPERTIES__PRIMARY_FORMATION_MAP_PROPERTY_H
+#endif // DERIVED_PROPERTIES__PRIMARY_RESERVOIR_PROPERTY_H

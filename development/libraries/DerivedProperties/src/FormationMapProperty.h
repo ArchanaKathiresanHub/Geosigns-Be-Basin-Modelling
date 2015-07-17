@@ -16,9 +16,6 @@ namespace DerivedProperties {
 
    /// \brief Stores the values of the designated property for the formation.
    ///
-   /// The values of this property must be continuous such as temperature and pressure.
-   /// Properties such as porosity may not an object of this type to store their
-   /// values.
    /// The indices will use global index numbering.
    class FormationMapProperty : public AbstractPropertyValues {
 
