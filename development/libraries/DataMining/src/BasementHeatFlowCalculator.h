@@ -44,18 +44,8 @@ namespace DataAccess {
          DerivedProperties::FormationPropertyPtr m_ves;
          DerivedProperties::FormationPropertyPtr m_maxVes;
 
-         // const Interface::PropertyValue* m_temperature;
-         // const Interface::PropertyValue* m_pressure;
-         // const Interface::PropertyValue* m_depth;
-         // const Interface::PropertyValue* m_ves;
-         // const Interface::PropertyValue* m_maxVes;
-
-         // const DomainProperty* m_ves;
-         // const DomainProperty* m_maxVes;
-
          const GeoPhysics::Formation*   m_crust;
          const GeoPhysics::Formation*   m_bottomSediment;
-
 
          bool                  m_fromCrust;
          bool                  m_initialised;

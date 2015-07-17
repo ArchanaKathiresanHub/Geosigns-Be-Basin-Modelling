@@ -17,15 +17,6 @@ namespace DataAccess {
 
       public :
 
-         /// Interpolate a property in a 2d map.
-         double operator ()( const ElementPosition&                element,
-                             const DataAccess::Interface::GridMap* property ) const;
-
-         /// Interpolate a property in a 3d map.
-         double operator ()( const ElementPosition&                element,
-                             const DataAccess::Interface::GridMap* property,
-                             const unsigned int                    k ) const;
-
 
          /// Interpolate a property in a 2d map.
          double operator ()( const ElementPosition&                element,
@@ -44,6 +35,12 @@ namespace DataAccess {
          double operator ()( const ElementPosition&                  element,
                              DerivedProperties::FormationPropertyPtr property ) const;
 
+
+      private :
+
+         double doInterpolation ( const double  xi,
+                                  const double  eta,
+                                  const double* weights) const;
 
       };
 
