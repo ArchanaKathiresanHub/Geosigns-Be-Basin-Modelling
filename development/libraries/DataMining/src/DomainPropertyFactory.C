@@ -85,7 +85,7 @@ namespace DataAccess { namespace Mining
       return projectHandle;
    }
 
-   DomainPropertyCollection * DomainPropertyFactory::produceDomainPropertyCollection( Interface::ProjectHandle* projectHandle )
+   DomainPropertyCollection * DomainPropertyFactory::produceDomainPropertyCollection ( Interface::ProjectHandle* projectHandle )
    {
       return new DomainPropertyCollection( projectHandle );
    }
@@ -187,9 +187,10 @@ namespace DataAccess { namespace Mining
    }
 
    
-   DomainProperty* DomainPropertyFactory::allocate ( const DomainPropertyCollection * collection,
-                                                     const Interface::Snapshot      * snapshot,
-                                                     const Interface::Property      * property ) const
+   DomainProperty* DomainPropertyFactory::allocate ( const DomainPropertyCollection*            collection,
+                                                     DerivedProperties::DerivedPropertyManager& propertyManager,
+                                                     const Interface::Snapshot*                 snapshot,
+                                                     const Interface::Property*                 property ) const
    {
       PropertyToDomainPropertyAllocator::const_iterator allocIter = m_allocators.find( property );
       // should we check that the project-handle is the same,
@@ -197,7 +198,7 @@ namespace DataAccess { namespace Mining
       
       if ( allocIter != m_allocators.end() )
       {
-         return allocIter->second->allocate ( collection, snapshot, property );
+         return allocIter->second->allocate ( collection, propertyManager, snapshot, property );
       }
       else
       {

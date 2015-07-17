@@ -9,6 +9,8 @@
 
 #include "GeoPhysicsFormation.h"
 
+#include "DerivedPropertyManager.h"
+
 #include "DomainFormationProperty.h"
 #include "DomainPropertyCollection.h"
 #include "ElementPosition.h"
@@ -24,9 +26,10 @@ namespace DataAccess {
 
          using DomainFormationProperty::compute;
 
-         BasementHeatFlowCalculator ( const DomainPropertyCollection*  collection,
-                                      const Interface::Snapshot* snapshot,
-                                      const Interface::Property* property );
+         BasementHeatFlowCalculator ( const DomainPropertyCollection*            collection,
+                                      DerivedProperties::DerivedPropertyManager& propertyManager,
+                                      const Interface::Snapshot*                 snapshot,
+                                      const Interface::Property*                 property );
 
          /// Initialise the heat-flow calculator by getting the heat-flow-x, -y, -z and the magnitude properties.
          bool initialise ();
@@ -35,11 +38,17 @@ namespace DataAccess {
 
       private :
 
-         const Interface::PropertyValue* m_temperature;
-         const Interface::PropertyValue* m_pressure;
-         const Interface::PropertyValue* m_depth;
-         const Interface::PropertyValue* m_ves;
-         const Interface::PropertyValue* m_maxVes;
+         DerivedProperties::FormationPropertyPtr m_temperature;
+         DerivedProperties::FormationPropertyPtr m_pressure;
+         DerivedProperties::FormationPropertyPtr m_depth;
+         DerivedProperties::FormationPropertyPtr m_ves;
+         DerivedProperties::FormationPropertyPtr m_maxVes;
+
+         // const Interface::PropertyValue* m_temperature;
+         // const Interface::PropertyValue* m_pressure;
+         // const Interface::PropertyValue* m_depth;
+         // const Interface::PropertyValue* m_ves;
+         // const Interface::PropertyValue* m_maxVes;
 
          // const DomainProperty* m_ves;
          // const DomainProperty* m_maxVes;
@@ -58,9 +67,10 @@ namespace DataAccess {
 
       public :
 
-         DomainProperty* allocate ( const DomainPropertyCollection*  collection,
-                                    const Interface::Snapshot* snapshot,
-                                    const Interface::Property* property ) const;
+         DomainProperty* allocate ( const DomainPropertyCollection*            collection,
+                                    DerivedProperties::DerivedPropertyManager& propertyManager,
+                                    const Interface::Snapshot*                 snapshot,
+                                    const Interface::Property*                 property ) const;
 
       };
 

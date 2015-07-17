@@ -7,6 +7,8 @@
 #include "Interface/Property.h"
 #include "Interface/PropertyValue.h"
 
+#include "DerivedPropertyManager.h"
+
 #include "DomainFormationProperty.h"
 #include "DomainPropertyCollection.h"
 #include "ElementPosition.h"
@@ -22,10 +24,11 @@ namespace DataAccess {
 
          enum RequiredCalculation { X, Y, Z, MAGNITUDE };
 
-         FluidVelocityCalculator ( const DomainPropertyCollection*  collection,
-                                   const Interface::Snapshot* snapshot,
-                                   const Interface::Property* property,
-                                   const RequiredCalculation  calculation );
+         FluidVelocityCalculator ( const DomainPropertyCollection*            collection,
+                                   DerivedProperties::DerivedPropertyManager& propertyManager,
+                                   const Interface::Snapshot*                 snapshot,
+                                   const Interface::Property*                 property,
+                                   const RequiredCalculation                  calculation );
 
          /// Initialise the fluid-velocity calculator by getting the fluid-velocity-x, -y, -z and the magnitude properties.
          bool initialise ();
@@ -54,9 +57,10 @@ namespace DataAccess {
 
          FluidVelocityCalculatorAllocator ( const FluidVelocityCalculator::RequiredCalculation calculation );
 
-         DomainProperty* allocate ( const DomainPropertyCollection*  collection,
-                                    const Interface::Snapshot* snapshot,
-                                    const Interface::Property* property ) const;
+         DomainProperty* allocate ( const DomainPropertyCollection*            collection,
+                                    DerivedProperties::DerivedPropertyManager& propertyManager,
+                                    const Interface::Snapshot*                 snapshot,
+                                    const Interface::Property*                 property ) const;
 
       private :
 

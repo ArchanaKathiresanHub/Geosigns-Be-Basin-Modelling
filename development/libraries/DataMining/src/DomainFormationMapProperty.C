@@ -5,20 +5,20 @@
 namespace DataAccess { namespace Mining
 {
     
-   DomainFormationMapProperty::DomainFormationMapProperty( const DomainPropertyCollection * collection,
-                                                           const Interface::Snapshot      * snapshot,
-                                                           const Interface::Property      * property
+   DomainFormationMapProperty::DomainFormationMapProperty( const DomainPropertyCollection *           collection,
+                                                           DerivedProperties::DerivedPropertyManager& propertyManager,
+                                                           const Interface::Snapshot      *           snapshot,
+                                                           const Interface::Property      *           property
                                                          )
-      : DomainProperty( collection, snapshot, property )
+      : DomainProperty( collection, propertyManager, snapshot, property )
    {
 
-      Interface::PropertyValueList * values = getProjectHandle()->getPropertyValues( Interface::FORMATION, getProperty(), getSnapshot(), 0, 0, 0, MAP );
+      DerivedProperties::FormationMapPropertyList values = propertyManager.getFormationMapProperties ( getProperty (), getSnapshot (), true );
 
-      for ( Interface::PropertyValueList::const_iterator valueIter = values->begin(); valueIter != values->end(); ++valueIter )
-      {
-         m_values[ (*valueIter)->getFormation() ] = *valueIter;
+      for ( size_t i = 0; i < values.size (); ++i ) {
+         m_values [ values [ i ]->getFormation ()] = values [ i ];
       }
-      delete values;
+
    }
 
 
@@ -38,7 +38,7 @@ namespace DataAccess { namespace Mining
 
          if ( propIter != m_values.end() )
          {
-            const Interface::GridMap * grid = propIter->second->getGridMap();
+            DerivedProperties::FormationMapPropertyPtr grid = propIter->second;
             evaluations.setValue( getProperty(), interpolate2D( position, grid ) );
          }
          else
@@ -62,7 +62,7 @@ namespace DataAccess { namespace Mining
 
          if ( propIter != m_values.end() )
          {
-            const Interface::GridMap* grid = propIter->second->getGridMap ();
+            DerivedProperties::FormationMapPropertyPtr grid = propIter->second;
             return interpolate2D ( position, grid );
          }
          else
@@ -74,11 +74,12 @@ namespace DataAccess { namespace Mining
    }
 
 
-   DomainProperty* DomainFormationMapPropertyAllocator::allocate( const DomainPropertyCollection * collection,
-                                                                  const Interface::Snapshot      * snapshot,
-                                                                  const Interface::Property      * property ) const
+   DomainProperty* DomainFormationMapPropertyAllocator::allocate( const DomainPropertyCollection *           collection,
+                                                                  DerivedProperties::DerivedPropertyManager& propertyManager,
+                                                                  const Interface::Snapshot      *           snapshot,
+                                                                  const Interface::Property      *           property ) const
    {
-      return new DomainFormationMapProperty( collection, snapshot, property );
+      return new DomainFormationMapProperty( collection, propertyManager, snapshot, property );
    }
 }} // namespace DataAccess::Mining
 

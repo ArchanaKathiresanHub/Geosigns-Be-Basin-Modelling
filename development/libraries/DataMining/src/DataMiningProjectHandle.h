@@ -30,7 +30,7 @@ namespace DataAccess {
          /// Should this be a singleton? Since only one will exist.
          DomainPropertyCollection * getDomainPropertyCollection() { return m_domainPropertyCollection; }
 
-         CauldronDomain & getCauldronDomain() { return *m_cauldronDomain; };
+         CauldronDomain & getCauldronDomain() { return *m_cauldronDomain; }
 
          /// \brief Add an alternative name for the property name.
          void addAlternativeName ( const std::string& propertyName,

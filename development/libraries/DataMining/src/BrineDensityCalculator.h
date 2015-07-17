@@ -22,9 +22,10 @@ namespace DataAccess {
 
          using DomainFormationProperty::compute;
 
-         BrineDensityCalculator ( const DomainPropertyCollection* collection,
-                                  const Interface::Snapshot*      snapshot,
-                                  const Interface::Property*      property );
+         BrineDensityCalculator ( const DomainPropertyCollection*            collection,
+                                  DerivedProperties::DerivedPropertyManager& propertyManager,
+                                  const Interface::Snapshot*                 snapshot,
+                                  const Interface::Property*                 property );
 
          bool initialise ();
 
@@ -44,9 +45,10 @@ namespace DataAccess {
 
       public :
 
-         DomainProperty* allocate ( const DomainPropertyCollection* collection,
-                                    const Interface::Snapshot*      snapshot,
-                                    const Interface::Property*      property ) const;
+         DomainProperty* allocate ( const DomainPropertyCollection*            collection,
+                                    DerivedProperties::DerivedPropertyManager& propertyManager,
+                                    const Interface::Snapshot*                 snapshot,
+                                    const Interface::Property*                 property ) const;
 
       };
 

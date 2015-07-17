@@ -7,10 +7,11 @@
 #include "Interface/ProjectHandle.h"
 #include "Interface/Snapshot.h"
 
+#include "DerivedPropertyManager.h"
+
 // DataMining
 #include "DomainProperty.h"
 #include "DomainPropertyFactory.h"
-#include "DomainPropertyCollection.h"
 
 // STL
 #include <map>
@@ -35,7 +36,7 @@ namespace DataAccess
 
       public:
 
-         DomainPropertyCollection( Interface::ProjectHandle* projectHandle );
+         DomainPropertyCollection ( Interface::ProjectHandle* projectHandle );
 
          virtual ~DomainPropertyCollection ();
 
@@ -59,13 +60,15 @@ namespace DataAccess
          ///
          /// The first time a particular property is selected it will
          /// be allocated by the factory and saved in the collection.
-         virtual DomainProperty * getDomainProperty( const std::string & propertyName ) const;
+         virtual DomainProperty * getDomainProperty ( const std::string &                        propertyName,
+                                                      DerivedProperties::DerivedPropertyManager& propertyManager ) const;
 
          /// Retrieve a domain-property from the collection.
          ///
          /// The first time a particular property is selected it will
          /// be allocated by the factory and saved in the collection.
-         virtual DomainProperty * getDomainProperty ( const Interface::Property * property ) const;
+         virtual DomainProperty * getDomainProperty ( const Interface::Property *                property,
+                                                      DerivedProperties::DerivedPropertyManager& propertyManager ) const;
 
          /// \brief Initialises all the domain-properties that are in the collection.
          void initialiseProperties ();
@@ -75,9 +78,10 @@ namespace DataAccess
 
 
       private :
-         Interface::ProjectHandle      * m_projectHandle;   ///< The project-handle from which all properties are retrieved.
-         Mining::DomainPropertyFactory * m_propertyFactory; ///< The factory that allocates all domain-properties.
-         const Interface::Snapshot     * m_snapshot;        ///< The snapshot at which all properties are retrieved.
+
+         Interface::ProjectHandle*      m_projectHandle;   ///< The project-handle.
+         Mining::DomainPropertyFactory* m_propertyFactory; ///< The factory that allocates all domain-properties.
+         const Interface::Snapshot*     m_snapshot;        ///< The snapshot at which all properties are retrieved.
 
          /// The collection of domain-properties.
          ///

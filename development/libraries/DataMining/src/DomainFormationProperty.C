@@ -4,43 +4,22 @@
 #include "ElementFunctions.h"
 
 
-DataAccess::Mining::DomainFormationProperty::DomainFormationProperty ( const DomainPropertyCollection*  collection,
-                                                                       const Interface::Snapshot* snapshot,
-                                                                       const Interface::Property* property ) :
-   DomainProperty ( collection, snapshot, property )
+DataAccess::Mining::DomainFormationProperty::DomainFormationProperty ( const DomainPropertyCollection*            collection,
+                                                                       DerivedProperties::DerivedPropertyManager& propertyManager,
+                                                                       const Interface::Snapshot*                 snapshot,
+                                                                       const Interface::Property*                 property ) :
+   DomainProperty ( collection, propertyManager, snapshot, property )
 {
 
-   Interface::PropertyValueList* values;
-   Interface::PropertyValueList::const_iterator valueIter;
+   DerivedProperties::FormationPropertyList values = propertyManager.getFormationProperties ( getProperty (), getSnapshot (), true );
 
-   values = getProjectHandle ()->getPropertyValues ( Interface::FORMATION,// | Interface::FORMATIONSURFACE,
-                                                     getProperty (),
-                                                     getSnapshot ());
-
-   for ( valueIter = values->begin (); valueIter != values->end (); ++valueIter ) {
-      const Interface::PropertyValue* value = *valueIter;
-
-#if 0
-      value->printOn ( std::cout );
-#endif
-
-      m_values [ value->getFormation ()] = value;
+   for ( size_t i = 0; i < values.size (); ++i ) {
+      m_values [ values [ i ]->getFormation ()] = values [ i ];
    }
 
-   delete values;
 }
 
 DataAccess::Mining::DomainFormationProperty::~DomainFormationProperty () {
-
-#if 0
-   FormationToPropertyValueMapping::iterator gridIter;
-
-   for ( gridIter = m_values.begin (); gridIter != m_values.end (); ++gridIter ) {
-      const Interface::GridMap* grid = gridIter->second;
-      grid->release ();
-   }
-#endif
-
    m_values.clear ();
 }
 
@@ -50,7 +29,7 @@ double DataAccess::Mining::DomainFormationProperty::compute ( const ElementPosit
       FormationToPropertyValueMapping::const_iterator propIter = m_values.find ( position.getFormation ());
 
       if ( propIter != m_values.end ()) {
-         const Interface::GridMap* grid = propIter->second->getGridMap ();
+         DerivedProperties::FormationPropertyPtr grid = propIter->second;
 
          if ( position.getSurface () == 0 ) {
             return interpolate3D ( position, grid );
@@ -76,7 +55,7 @@ void DataAccess::Mining::DomainFormationProperty::compute ( const ElementPositio
       FormationToPropertyValueMapping::const_iterator propIter = m_values.find ( position.getFormation ());
 
       if ( propIter != m_values.end ()) {
-         const Interface::GridMap* grid = propIter->second->getGridMap ();
+         DerivedProperties::FormationPropertyPtr grid = propIter->second;
 
          if ( position.getSurface () == 0 ) {
             evaluations.setValue ( getProperty (), interpolate3D ( position, grid ));
@@ -106,7 +85,7 @@ void DataAccess::Mining::DomainFormationProperty::extractCoefficients ( const El
       FormationToPropertyValueMapping::const_iterator propIter = m_values.find ( position.getFormation ());
 
       if ( propIter != m_values.end ()) {
-         const Interface::GridMap* grid = propIter->second->getGridMap ();
+         DerivedProperties::FormationPropertyPtr grid = propIter->second;
 
          getElementCoefficients ( position, grid, coefficients );
       } else {
@@ -120,8 +99,9 @@ void DataAccess::Mining::DomainFormationProperty::extractCoefficients ( const El
 }
 
 
-DataAccess::Mining::DomainProperty* DataAccess::Mining::DomainFormationPropertyAllocator::allocate ( const DomainPropertyCollection*  collection,
-                                                                                                     const Interface::Snapshot*     snapshot,
-                                                                                                     const Interface::Property*     property ) const {
-   return new DomainFormationProperty ( collection, snapshot, property );
+DataAccess::Mining::DomainProperty* DataAccess::Mining::DomainFormationPropertyAllocator::allocate ( const DomainPropertyCollection*            collection,
+                                                                                                     DerivedProperties::DerivedPropertyManager& propertyManager,
+                                                                                                     const Interface::Snapshot*                 snapshot,
+                                                                                                     const Interface::Property*                 property ) const {
+   return new DomainFormationProperty ( collection, propertyManager, snapshot, property );
 }

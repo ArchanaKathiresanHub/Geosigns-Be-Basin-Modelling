@@ -4,7 +4,7 @@
 
 
 void DataAccess::Mining::getGeometryMatrix ( const ElementPosition&                      element,
-                                             const Interface::Grid*                      grid,
+                                             const DataModel::AbstractGrid*              grid,
                                              const FiniteElementMethod::ElementVector&   depth,
                                              FiniteElementMethod::ElementGeometryMatrix& geometryMatrix ) {
 
@@ -219,5 +219,63 @@ void DataAccess::Mining::getElementCoefficients ( const ElementPosition&        
 
    }
 #endif
+
+}
+
+
+void DataAccess::Mining::getGeometryMatrix ( const ElementPosition&                      element,
+                                             DerivedProperties::FormationPropertyPtr     depth,
+                                             FiniteElementMethod::ElementGeometryMatrix& geometryMatrix ) {
+
+   FiniteElementMethod::ElementVector depthValues;
+   getElementCoefficients ( element, depth, depthValues );
+   getGeometryMatrix ( element, depth->getGrid (), depthValues, geometryMatrix );
+}
+
+
+void DataAccess::Mining::getElementCoefficients ( const unsigned int                      iStart,
+                                                  const unsigned int                      jStart,
+                                                  const unsigned int                      kStart,
+                                                  DerivedProperties::FormationPropertyPtr property,
+                                                  FiniteElementMethod::ElementVector&     coefficients ) {
+
+   int l;
+   bool valueIsNull = false;
+
+   coefficients ( 1 ) = property->get ( iStart,     jStart,     kStart );
+   coefficients ( 2 ) = property->get ( iStart + 1, jStart,     kStart );
+   coefficients ( 3 ) = property->get ( iStart + 1, jStart + 1, kStart );
+   coefficients ( 4 ) = property->get ( iStart,     jStart + 1, kStart );
+
+   coefficients ( 5 ) = property->get ( iStart,     jStart,     kStart + 1 );
+   coefficients ( 6 ) = property->get ( iStart + 1, jStart,     kStart + 1 );
+   coefficients ( 7 ) = property->get ( iStart + 1, jStart + 1, kStart + 1 );
+   coefficients ( 8 ) = property->get ( iStart,     jStart + 1, kStart + 1 );
+
+   for ( l = 1; l <= 8; ++l ) {
+
+      if ( coefficients ( l ) == DataAccess::Interface::DefaultUndefinedMapValue ) {
+         valueIsNull = true;
+         break;
+      }
+
+   }
+
+   // If one value is null then set all values to be null.
+   if ( valueIsNull ) {
+
+      for ( l = 1; l <= 8; ++l ) {
+         coefficients ( l ) = DataAccess::Interface::DefaultUndefinedMapValue;
+      }
+
+   }
+
+}
+
+void DataAccess::Mining::getElementCoefficients ( const ElementPosition&                  element,
+                                                  DerivedProperties::FormationPropertyPtr property,
+                                                  FiniteElementMethod::ElementVector&     coefficients ) {
+
+   getElementCoefficients ( element.getI (), element.getJ (), element.getLocalK (), property, coefficients );
 
 }

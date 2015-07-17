@@ -7,6 +7,7 @@ using namespace std;
 
 #include "PropertyAttribute.h"
 
+#include "DomainPropertyCollection.h"
 #include "DomainPropertyFactory.h"
 
 #include "HeatFlowMagnitudeCalculator.h"

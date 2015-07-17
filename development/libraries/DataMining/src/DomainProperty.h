@@ -5,6 +5,8 @@
 #include "Interface/Snapshot.h"
 #include "Interface/Property.h"
 
+#include "DerivedPropertyManager.h"
+
 #include "ElementPosition.h"
 #include "InterpolatedPropertyValues.h"
 
@@ -25,9 +27,10 @@ namespace DataAccess
       {
       public :
 
-         DomainProperty( const DomainPropertyCollection * collection,
-                         const Interface::Snapshot      * snapshot,
-                         const Interface::Property      * property );
+         DomainProperty( const DomainPropertyCollection *           collection,
+                         DerivedProperties::DerivedPropertyManager& propertyManager,
+                         const Interface::Snapshot      *           snapshot,
+                         const Interface::Property      *           property );
 
          virtual ~DomainProperty();
 
@@ -39,6 +42,8 @@ namespace DataAccess
 
          /// Get the project-handle.
          const Interface::ProjectHandle * getProjectHandle() const;
+
+         DerivedProperties::DerivedPropertyManager& getPropertyManager () const;
 
          /// Get the property-collection.
          const DomainPropertyCollection * getPropertyCollection() const { return m_collection; }
@@ -63,9 +68,10 @@ namespace DataAccess
          virtual double compute( const ElementPosition & position ) const = 0;
 
       private :
-         const DomainPropertyCollection * m_collection; ///< The collection of all allocated properties 
-         const Interface::Snapshot      * m_snapshot;   ///< The snapshot to which the result apply.
-         const Interface::Property      * m_property;   ///< The property to which the results apply.
+         const DomainPropertyCollection *           m_collection;      ///< The collection of all allocated properties.
+         DerivedProperties::DerivedPropertyManager& m_propertyManager; ///< The manager of all properties.
+         const Interface::Snapshot      *           m_snapshot;        ///< The snapshot to which the result apply.
+         const Interface::Property      *           m_property;        ///< The property to which the results apply.
 
       };
 
@@ -78,9 +84,10 @@ namespace DataAccess
          virtual ~DomainPropertyAllocator() {;}
 
          /// Allocate a DomainProperty-derived object.
-         virtual DomainProperty * allocate ( const DomainPropertyCollection *  collection,
-                                             const Interface::Snapshot      * snapshot,
-                                             const Interface::Property      * property ) const = 0;
+         virtual DomainProperty * allocate ( const DomainPropertyCollection*            collection,
+                                             DerivedProperties::DerivedPropertyManager& propertyManager,
+                                             const Interface::Snapshot*                 snapshot,
+                                             const Interface::Property*                 property ) const = 0;
       };
    }
 }

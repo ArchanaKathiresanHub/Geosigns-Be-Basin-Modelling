@@ -22,9 +22,10 @@ namespace DataAccess {
 
          using DomainFormationProperty::compute;
 
-         BrineViscosityCalculator ( const DomainPropertyCollection* collection,
-                                    const Interface::Snapshot*      snapshot,
-                                    const Interface::Property*      property );
+         BrineViscosityCalculator ( const DomainPropertyCollection*            collection,
+                                    DerivedProperties::DerivedPropertyManager& propertyManager,
+                                    const Interface::Snapshot*                 snapshot,
+                                    const Interface::Property*                 property );
 
          bool initialise ();
 
@@ -42,9 +43,10 @@ namespace DataAccess {
 
       public :
 
-         DomainProperty* allocate ( const DomainPropertyCollection* collection,
-                                    const Interface::Snapshot*      snapshot,
-                                    const Interface::Property*      property ) const;
+         DomainProperty* allocate ( const DomainPropertyCollection*            collection,
+                                    DerivedProperties::DerivedPropertyManager& propertyManager,
+                                    const Interface::Snapshot*                 snapshot,
+                                    const Interface::Property*                 property ) const;
 
       };
 

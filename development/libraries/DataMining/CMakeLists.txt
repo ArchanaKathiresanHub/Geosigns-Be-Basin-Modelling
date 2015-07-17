@@ -26,6 +26,7 @@ bm_include_libraries(
 	utilities 
 	Interpolation 
 	LinearAlgebra 
+	DerivedProperties
 	TableIO 
 	EosPack 
 	DataAccess 
@@ -45,6 +46,7 @@ target_link_libraries(DataMining
 	LinearAlgebra
 	TableIO
 	EosPack
+	DerivedProperties
 	DataAccess
 	GeoPhysics
 	CBMGenerics

@@ -29,6 +29,7 @@ bm_include_libraries(
 	GeoPhysics
 	DataAccess
 	SerialDataAccess
+	DerivedProperties
 	EosPack
 	utilities
 	Serial_Hdf5
@@ -47,6 +48,7 @@ include_directories(
 target_link_libraries(deviatedwell
 	DataMining
 	GeoPhysics
+	DerivedProperties
 	DataAccess
 	SerialDataAccess
 	EosPack

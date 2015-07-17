@@ -7,6 +7,8 @@
 #include "Interface/Property.h"
 #include "Interface/PropertyValue.h"
 
+#include "DerivedPropertyManager.h"
+
 #include "DomainFormationProperty.h"
 #include "DomainPropertyCollection.h"
 #include "ElementPosition.h"
@@ -20,9 +22,10 @@ namespace DataAccess {
 
       public :
 
-         TemperatureGradientCalculator ( const DomainPropertyCollection* collection,
-                                         const Interface::Snapshot*      snapshot,
-                                         const Interface::Property*      property );
+         TemperatureGradientCalculator ( const DomainPropertyCollection*            collection,
+                                         DerivedProperties::DerivedPropertyManager& propertyManager,
+                                         const Interface::Snapshot*                 snapshot,
+                                         const Interface::Property*                 property );
 
          /// Initialise the porosity-calculator by getting the ves and max-ves properties.
          bool initialise ();
@@ -46,9 +49,10 @@ namespace DataAccess {
 
       public :
 
-         DomainProperty* allocate ( const DomainPropertyCollection*  collection,
-                                    const Interface::Snapshot* snapshot,
-                                    const Interface::Property* property ) const;
+         DomainProperty* allocate ( const DomainPropertyCollection*            collection,
+                                    DerivedProperties::DerivedPropertyManager& propertyManager,
+                                    const Interface::Snapshot*                 snapshot,
+                                    const Interface::Property*                 property ) const;
 
       };
 

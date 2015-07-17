@@ -2,39 +2,22 @@
 
 #include "Interface/PropertyValue.h"
 
-DataAccess::Mining::DomainSurfaceProperty::DomainSurfaceProperty ( const DomainPropertyCollection*  collection,
-                                                                   const Interface::Snapshot* snapshot,
-                                                                   const Interface::Property* property ) :
-   DomainProperty ( collection, snapshot, property )
+DataAccess::Mining::DomainSurfaceProperty::DomainSurfaceProperty ( const DomainPropertyCollection*            collection,
+                                                                   DerivedProperties::DerivedPropertyManager& propertyManager,
+                                                                   const Interface::Snapshot*                 snapshot,
+                                                                   const Interface::Property*                 property ) :
+   DomainProperty ( collection, propertyManager, snapshot, property )
 {
 
-   Interface::PropertyValueList* values;
-   Interface::PropertyValueList::const_iterator valueIter;
+   DerivedProperties::SurfacePropertyList values = propertyManager.getSurfaceProperties ( getProperty (), getSnapshot (), true );
 
-   values = getProjectHandle ()->getPropertyValues ( Interface::SURFACE,
-                                                     getProperty (),
-                                                     getSnapshot ());
-
-   for ( valueIter = values->begin (); valueIter != values->end (); ++valueIter ) {
-      const Interface::PropertyValue* value = *valueIter;
-
-      m_values [ value->getSurface ()] = value;
+   for ( size_t i = 0; i < values.size (); ++i ) {
+      m_values [ values [ i ]->getSurface ()] = values [ i ];
    }
 
-   delete values;
 }
 
 DataAccess::Mining::DomainSurfaceProperty::~DomainSurfaceProperty () {
-
-   SurfaceToPropertyValueMapping::iterator gridIter;
-
-#if 0
-   for ( gridIter = m_values.begin (); gridIter != m_values.end (); ++gridIter ) {
-      const Interface::GridMap* grid = gridIter->second;
-      grid->release ();
-   }
-#endif
-
    m_values.clear ();
 }
 
@@ -45,7 +28,7 @@ void DataAccess::Mining::DomainSurfaceProperty::compute ( const ElementPosition&
       SurfaceToPropertyValueMapping::const_iterator propIter = m_values.find ( position.getSurface ());
 
       if ( propIter != m_values.end ()) {
-         const Interface::GridMap* grid = propIter->second->getGridMap ();
+         DerivedProperties::SurfacePropertyPtr grid = propIter->second;
          evaluations.setValue ( getProperty (), interpolate2D ( position, grid ));
       } else {
          evaluations.setValue ( getProperty (), DataAccess::Interface::DefaultUndefinedMapValue );
@@ -69,7 +52,7 @@ double DataAccess::Mining::DomainSurfaceProperty::compute ( const ElementPositio
       SurfaceToPropertyValueMapping::const_iterator propIter = m_values.find ( position.getSurface ());
 
       if ( propIter != m_values.end ()) {
-         const Interface::GridMap* grid = propIter->second->getGridMap ();
+         DerivedProperties::SurfacePropertyPtr grid = propIter->second;
          return interpolate2D ( position, grid );
       } else {
          return DataAccess::Interface::DefaultUndefinedMapValue;
@@ -83,9 +66,10 @@ double DataAccess::Mining::DomainSurfaceProperty::compute ( const ElementPositio
 
 
 
-DataAccess::Mining::DomainProperty* DataAccess::Mining::DomainSurfacePropertyAllocator::allocate ( const DomainPropertyCollection*  collection,
-                                                                                                   const Interface::Snapshot* snapshot,
-                                                                                                   const Interface::Property* property ) const {
-   return new DomainSurfaceProperty ( collection, snapshot, property );
+DataAccess::Mining::DomainProperty* DataAccess::Mining::DomainSurfacePropertyAllocator::allocate ( const DomainPropertyCollection*            collection,
+                                                                                                   DerivedProperties::DerivedPropertyManager& propertyManager,
+                                                                                                   const Interface::Snapshot*                 snapshot,
+                                                                                                   const Interface::Property*                 property ) const {
+   return new DomainSurfaceProperty ( collection, propertyManager, snapshot, property );
 }
 

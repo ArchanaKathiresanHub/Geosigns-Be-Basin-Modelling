@@ -2,8 +2,9 @@
 
 #include "DataMiningProjectHandle.h"
 
-DataAccess::Mining::DataMiner::DataMiner ( Interface::ProjectHandle* projectHandle ) {
-   m_collection = ((Mining::ProjectHandle*)(projectHandle))->getDomainPropertyCollection ();
+DataAccess::Mining::DataMiner::DataMiner ( Mining::ProjectHandle*                     projectHandle,
+                                           DerivedProperties::DerivedPropertyManager& propertyManager ) : m_propertyManager ( propertyManager ) {
+   m_collection = projectHandle->getDomainPropertyCollection ();
 }
 
 DataAccess::Mining::DataMiner::~DataMiner () {
@@ -17,7 +18,7 @@ void DataAccess::Mining::DataMiner::setProperties ( const PropertySet& propertie
    for ( propIter = properties.begin (); propIter != properties.end (); ++propIter ) {
 
       if ( (*propIter) != 0 ) {
-         m_collection->getDomainProperty ( *propIter );
+         m_collection->getDomainProperty ( *propIter, m_propertyManager );
       }
 
    }
@@ -31,7 +32,7 @@ void DataAccess::Mining::DataMiner::compute ( const ElementPosition&            
 
    DomainProperty* domainProperty;
 
-   domainProperty = m_collection->getDomainProperty ( property );
+   domainProperty = m_collection->getDomainProperty ( property, m_propertyManager );
 
    if ( domainProperty != 0 ) {
       domainProperty->compute ( position, result );

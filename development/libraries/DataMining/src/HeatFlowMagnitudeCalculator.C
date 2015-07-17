@@ -3,10 +3,11 @@
 #include "GeoPhysicsFormation.h"
 #include "CompoundLithology.h"
 
-DataAccess::Mining::HeatFlowMagnitudeCalculator::HeatFlowMagnitudeCalculator ( const DomainPropertyCollection*  collection,
-                                                                               const Interface::Snapshot* snapshot,
-                                                                               const Interface::Property* property ) :
-   DomainFormationProperty ( collection, snapshot, property )
+DataAccess::Mining::HeatFlowMagnitudeCalculator::HeatFlowMagnitudeCalculator ( const DomainPropertyCollection*            collection,
+                                                                               DerivedProperties::DerivedPropertyManager& propertyManager,
+                                                                               const Interface::Snapshot*                 snapshot,
+                                                                               const Interface::Property*                 property ) :
+   DomainFormationProperty ( collection, propertyManager, snapshot, property )
 {
    m_heatFlowX = 0;
    m_heatFlowY = 0;
@@ -17,9 +18,9 @@ DataAccess::Mining::HeatFlowMagnitudeCalculator::HeatFlowMagnitudeCalculator ( c
 bool DataAccess::Mining::HeatFlowMagnitudeCalculator::initialise () {
 
    if ( not m_initialised ) {
-      m_heatFlowX = getPropertyCollection ()->getDomainProperty ( "HeatFlowX" );
-      m_heatFlowY = getPropertyCollection ()->getDomainProperty ( "HeatFlowY" );
-      m_heatFlowZ = getPropertyCollection ()->getDomainProperty ( "HeatFlowZ" );
+      m_heatFlowX = getPropertyCollection ()->getDomainProperty ( "HeatFlowX", getPropertyManager ());
+      m_heatFlowY = getPropertyCollection ()->getDomainProperty ( "HeatFlowY", getPropertyManager ());
+      m_heatFlowZ = getPropertyCollection ()->getDomainProperty ( "HeatFlowZ", getPropertyManager ());
 
       if ( m_heatFlowX != 0 and m_heatFlowY != 0 and m_heatFlowZ != 0 ) {
          m_initialised = true;
@@ -56,8 +57,9 @@ double DataAccess::Mining::HeatFlowMagnitudeCalculator::compute ( const ElementP
    return heatFlowMagnitude;
 }
 
-DataAccess::Mining::DomainProperty* DataAccess::Mining::HeatFlowMagnitudeCalculatorAllocator::allocate ( const DomainPropertyCollection*  collection,
-                                                                                                         const Interface::Snapshot* snapshot,
-                                                                                                         const Interface::Property* property ) const {
-   return new HeatFlowMagnitudeCalculator ( collection, snapshot, property );
+DataAccess::Mining::DomainProperty* DataAccess::Mining::HeatFlowMagnitudeCalculatorAllocator::allocate ( const DomainPropertyCollection*            collection,
+                                                                                                         DerivedProperties::DerivedPropertyManager& propertyManager,
+                                                                                                         const Interface::Snapshot*                 snapshot,
+                                                                                                         const Interface::Property*                 property ) const {
+   return new HeatFlowMagnitudeCalculator ( collection, propertyManager, snapshot, property );
 }

@@ -7,11 +7,12 @@
 #include "CompoundProperty.h"
 
 
-DataAccess::Mining::ThermalConductivityCalculator::ThermalConductivityCalculator ( const DomainPropertyCollection*  collection,
-                                                                                   const Interface::Snapshot* snapshot,
-                                                                                   const Interface::Property* property,
-                                                                                   const bool                 normalConductivity ) :
-   DomainFormationProperty ( collection, snapshot, property ),
+DataAccess::Mining::ThermalConductivityCalculator::ThermalConductivityCalculator ( const DomainPropertyCollection*            collection,
+                                                                                   DerivedProperties::DerivedPropertyManager& propertyManager,
+                                                                                   const Interface::Snapshot*                 snapshot,
+                                                                                   const Interface::Property*                 property,
+                                                                                   const bool                                 normalConductivity ) :
+   DomainFormationProperty ( collection, propertyManager, snapshot, property ),
    m_normalConductivity ( normalConductivity )
 {
    m_temperature = 0;
@@ -23,9 +24,9 @@ DataAccess::Mining::ThermalConductivityCalculator::ThermalConductivityCalculator
 bool DataAccess::Mining::ThermalConductivityCalculator::initialise () {
 
    if ( not m_initialised ) {
-      m_temperature = getPropertyCollection ()->getDomainProperty ( "Temperature" );
-      m_pressure = getPropertyCollection ()->getDomainProperty ( "Pressure" );
-      m_porosity = getPropertyCollection ()->getDomainProperty ( "Porosity" );
+      m_temperature = getPropertyCollection ()->getDomainProperty ( "Temperature", getPropertyManager ());
+      m_pressure = getPropertyCollection ()->getDomainProperty ( "Pressure", getPropertyManager ());
+      m_porosity = getPropertyCollection ()->getDomainProperty ( "Porosity", getPropertyManager ());
 
       if ( m_temperature != 0 and m_porosity != 0 and m_pressure != 0 ) {
          m_initialised = true;
@@ -85,8 +86,9 @@ DataAccess::Mining::ThermalConductivityCalculatorAllocator::ThermalConductivityC
 {
 }
 
-DataAccess::Mining::DomainProperty* DataAccess::Mining::ThermalConductivityCalculatorAllocator::allocate ( const DomainPropertyCollection*  collection,
-                                                                                                           const Interface::Snapshot* snapshot,
-                                                                                                           const Interface::Property* property ) const {
-   return new ThermalConductivityCalculator ( collection, snapshot, property, m_normalConductivity );
+DataAccess::Mining::DomainProperty* DataAccess::Mining::ThermalConductivityCalculatorAllocator::allocate ( const DomainPropertyCollection*            collection,
+                                                                                                           DerivedProperties::DerivedPropertyManager& propertyManager,
+                                                                                                           const Interface::Snapshot*                 snapshot,
+                                                                                                           const Interface::Property*                 property ) const {
+   return new ThermalConductivityCalculator ( collection, propertyManager, snapshot, property, m_normalConductivity );
 }

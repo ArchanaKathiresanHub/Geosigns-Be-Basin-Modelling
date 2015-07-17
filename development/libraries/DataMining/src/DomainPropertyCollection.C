@@ -6,10 +6,11 @@
 namespace DataAccess { namespace Mining
 {
 
-   DomainPropertyCollection::DomainPropertyCollection ( Interface::ProjectHandle * handle ) : m_projectHandle ( handle )
+   DomainPropertyCollection::DomainPropertyCollection ( Interface::ProjectHandle* handle ) :
+      m_projectHandle ( handle ),
+      m_snapshot ( 0 )
    {
-      m_snapshot = 0;
-      m_propertyFactory = (Mining::DomainPropertyFactory*)(m_projectHandle->getFactory ());
+      m_propertyFactory = dynamic_cast<Mining::DomainPropertyFactory*>( m_projectHandle->getFactory ());
    }
 
    DomainPropertyCollection::~DomainPropertyCollection()
@@ -40,14 +41,16 @@ namespace DataAccess { namespace Mining
       m_snapshot = 0;
    }
 
-   DomainProperty * DomainPropertyCollection::getDomainProperty( const std::string & propertyName ) const
+   DomainProperty * DomainPropertyCollection::getDomainProperty( const std::string &                        propertyName,
+                                                                 DerivedProperties::DerivedPropertyManager& propertyManager ) const
    {
       const Interface::Property * property = m_projectHandle->findProperty( propertyName );
       assert ( property != 0 );
-      return getDomainProperty ( property );
+      return getDomainProperty ( property, propertyManager );
    }
 
-   DomainProperty * DomainPropertyCollection::getDomainProperty( const Interface::Property * property ) const
+   DomainProperty * DomainPropertyCollection::getDomainProperty( const Interface::Property *                property,
+                                                                 DerivedProperties::DerivedPropertyManager& propertyManager ) const
    {
       assert ( property != 0 );
 
@@ -63,7 +66,7 @@ namespace DataAccess { namespace Mining
       {
          // If the property does not exist in the map then allocate a new one using the factory.
          // Then add it to the map and return the newly created domain-property.
-         result = m_propertyFactory->allocate( this, m_snapshot, property );
+         result = m_propertyFactory->allocate( this, propertyManager, m_snapshot, property );
          if ( !result )
          {
             std::cerr << "  Property " << property->getName () << " cannot be found in the domain-property factory." << std::endl;

@@ -3,11 +3,16 @@
 
 #include <map>
 
+#include "AbstractSurface.h"
+
 #include "Interface/ProjectHandle.h"
 #include "Interface/Snapshot.h"
 #include "Interface/GridMap.h"
 #include "Interface/Surface.h"
 #include "Interface/Property.h"
+
+#include "FormationProperty.h"
+#include "DerivedPropertyManager.h"
 
 #include "PropertyInterpolator2D.h"
 #include "ElementPosition.h"
@@ -23,13 +28,14 @@ namespace DataAccess {
       class DomainSurfaceProperty : public DomainProperty {
 
          /// \typedef SurfaceToGridMapMapping
-         typedef std::map < const Interface::Surface*, const Interface::PropertyValue*> SurfaceToPropertyValueMapping;
+         typedef std::map < const DataModel::AbstractSurface*, DerivedProperties::SurfacePropertyPtr > SurfaceToPropertyValueMapping;
 
       public :
 
-         DomainSurfaceProperty ( const DomainPropertyCollection*  collection,
-                                 const Interface::Snapshot* snapshot,
-                                 const Interface::Property* property );
+         DomainSurfaceProperty ( const DomainPropertyCollection*            collection,
+                                 DerivedProperties::DerivedPropertyManager& propertyManager,
+                                 const Interface::Snapshot*                 snapshot,
+                                 const Interface::Property*                 property );
 
          ~DomainSurfaceProperty ();
 
@@ -57,9 +63,10 @@ namespace DataAccess {
 
       public :
 
-         DomainProperty* allocate ( const DomainPropertyCollection*  collection,
-                                    const Interface::Snapshot*     snapshot,
-                                    const Interface::Property*     property ) const;
+         DomainProperty* allocate ( const DomainPropertyCollection*            collection,
+                                    DerivedProperties::DerivedPropertyManager& propertyManager,
+                                    const Interface::Snapshot*                 snapshot,
+                                    const Interface::Property*                 property ) const;
 
       };
 

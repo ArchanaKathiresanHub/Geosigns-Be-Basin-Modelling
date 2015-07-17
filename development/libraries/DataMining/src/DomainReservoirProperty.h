@@ -10,6 +10,8 @@
 #include "Interface/Reservoir.h"
 #include "Interface/Property.h"
 
+#include "DerivedPropertyManager.h"
+
 #include "PropertyInterpolator2D.h"
 #include "ElementPosition.h"
 #include "InterpolatedPropertyValues.h"
@@ -24,13 +26,14 @@ namespace DataAccess {
       class DomainReservoirProperty : public DomainProperty {
 
          /// \typedef SurfaceToGridMapMapping
-         typedef std::map < const Interface::Surface*, const Interface::PropertyValue*> SurfaceToPropertyValueMapping;
+         typedef std::map < const DataModel::AbstractSurface*, DerivedProperties::FormationMapPropertyPtr > SurfaceToPropertyValueMapping;
 
       public :
 
-         DomainReservoirProperty ( const DomainPropertyCollection*  collection,
-                                   const Interface::Snapshot* snapshot,
-                                   const Interface::Property* property );
+         DomainReservoirProperty ( const DomainPropertyCollection*            collection,
+                                   DerivedProperties::DerivedPropertyManager& propertyManager,
+                                   const Interface::Snapshot*                 snapshot,
+                                   const Interface::Property*                 property );
 
          ~DomainReservoirProperty ();
 
@@ -56,9 +59,10 @@ namespace DataAccess {
 
       public :
 
-         DomainProperty* allocate ( const DomainPropertyCollection*  collection,
-                                    const Interface::Snapshot* snapshot,
-                                    const Interface::Property* property ) const;
+         DomainProperty* allocate ( const DomainPropertyCollection*            collection,
+                                    DerivedProperties::DerivedPropertyManager& propertyManager,
+                                    const Interface::Snapshot*                 snapshot,
+                                    const Interface::Property*                 property ) const;
 
       };
 

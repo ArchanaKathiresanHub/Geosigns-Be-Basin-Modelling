@@ -5,30 +5,22 @@
 
 #include "GeoPhysicsProjectHandle.h"
 
-DataAccess::Mining::ConstantDomainFormationProperty::ConstantDomainFormationProperty ( const DomainPropertyCollection*  collection,
-                                                                                       const Interface::Snapshot* snapshot,
-                                                                                       const Interface::Property* property ) :
-   DomainProperty ( collection, snapshot, property )
+DataAccess::Mining::ConstantDomainFormationProperty::ConstantDomainFormationProperty ( const DomainPropertyCollection*            collection,
+                                                                                       DerivedProperties::DerivedPropertyManager& propertyManager,
+                                                                                       const Interface::Snapshot*                 snapshot,
+                                                                                       const Interface::Property*                 property ) :
+   DomainProperty ( collection, propertyManager, snapshot, property )
 {
 
-   Interface::PropertyValueList* values;
-   Interface::PropertyValueList::const_iterator valueIter;
+   DerivedProperties::FormationPropertyList values = propertyManager.getFormationProperties ( getProperty (), getSnapshot (), true );
 
-   values = getProjectHandle ()->getPropertyValues ( Interface::FORMATION,// | Interface::FORMATIONSURFACE,
-                                                     getProperty (),
-                                                     getSnapshot ());
-
-   for ( valueIter = values->begin (); valueIter != values->end (); ++valueIter ) {
-      const Interface::PropertyValue* value = *valueIter;
-
-      m_values [ value->getFormation ()] = value;
+   for ( size_t i = 0; i < values.size (); ++i ) {
+      m_values [ values [ i ]->getFormation ()] = values [ i ];
    }
 
-   delete values;
 }
 
 DataAccess::Mining::ConstantDomainFormationProperty::~ConstantDomainFormationProperty () {
-
    m_values.clear ();
 }
 
@@ -38,9 +30,9 @@ double DataAccess::Mining::ConstantDomainFormationProperty::compute ( const Elem
       FormationToPropertyValueMapping::const_iterator propIter = m_values.find ( position.getFormation ());
 
       if ( propIter != m_values.end ()) {
-         const Interface::GridMap* grid = propIter->second->getGridMap ();
+         DerivedProperties::FormationPropertyPtr grid = propIter->second;
 
-         return grid->getValue ( position.getI (), position.getJ (), position.getLocalK ());
+         return grid->get ( position.getI (), position.getJ (), position.getLocalK ());
       } else {
          return DataAccess::Interface::DefaultUndefinedMapValue;
       }
@@ -58,11 +50,11 @@ void DataAccess::Mining::ConstantDomainFormationProperty::extractCoefficients ( 
       FormationToPropertyValueMapping::const_iterator propIter = m_values.find ( position.getFormation ());
 
       if ( propIter != m_values.end ()) {
-         const Interface::GridMap* grid = propIter->second->getGridMap ();
+         DerivedProperties::FormationPropertyPtr grid = propIter->second;
 
          // Since the property is constant every where on the element setting all coeffs to the same value
          // returns the same constant value in the 3d interpolation functions.
-         coefficients.fill ( grid->getValue ( position.getI (), position.getJ (), position.getLocalK ()));
+         coefficients.fill ( grid->get ( position.getI (), position.getJ (), position.getLocalK ()));
       } else {
          coefficients.fill ( DataAccess::Interface::DefaultUndefinedMapValue );
       }
@@ -73,8 +65,9 @@ void DataAccess::Mining::ConstantDomainFormationProperty::extractCoefficients ( 
 
 }
 
-DataAccess::Mining::DomainProperty* DataAccess::Mining::ConstantDomainFormationPropertyAllocator::allocate ( const DomainPropertyCollection* collection,
-                                                                                                             const Interface::Snapshot*      snapshot,
-                                                                                                             const Interface::Property*      property ) const {
-   return new ConstantDomainFormationProperty ( collection, snapshot, property );
+DataAccess::Mining::DomainProperty* DataAccess::Mining::ConstantDomainFormationPropertyAllocator::allocate ( const DomainPropertyCollection*            collection,
+                                                                                                             DerivedProperties::DerivedPropertyManager& propertyManager,
+                                                                                                             const Interface::Snapshot*                 snapshot,
+                                                                                                             const Interface::Property*                 property ) const {
+   return new ConstantDomainFormationProperty ( collection, propertyManager, snapshot, property );
 }

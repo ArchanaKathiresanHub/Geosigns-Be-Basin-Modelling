@@ -7,6 +7,8 @@
 #include "Interface/Property.h"
 #include "Interface/PropertyValue.h"
 
+#include "DerivedPropertyManager.h"
+
 #include "DomainFormationProperty.h"
 #include "DomainPropertyCollection.h"
 #include "ElementPosition.h"
@@ -20,9 +22,10 @@ namespace DataAccess {
 
       public :
 
-         HeatFlowMagnitudeCalculator ( const DomainPropertyCollection*  collection,
-                                       const Interface::Snapshot* snapshot,
-                                       const Interface::Property* property );
+         HeatFlowMagnitudeCalculator ( const DomainPropertyCollection*            collection,
+                                       DerivedProperties::DerivedPropertyManager& propertyManager,
+                                       const Interface::Snapshot*                 snapshot,
+                                       const Interface::Property*                 property );
 
          /// Initialise the heat-flow-magniture calculator by getting the heat-flow-x, -y and -z properties.
          bool initialise ();
@@ -43,9 +46,10 @@ namespace DataAccess {
 
       public :
 
-         DomainProperty* allocate ( const DomainPropertyCollection*  collection,
-                                    const Interface::Snapshot* snapshot,
-                                    const Interface::Property* property ) const;
+         DomainProperty* allocate ( const DomainPropertyCollection*            collection,
+                                    DerivedProperties::DerivedPropertyManager& propertyManager,
+                                    const Interface::Snapshot*                 snapshot,
+                                    const Interface::Property*                 property ) const;
 
       };
 

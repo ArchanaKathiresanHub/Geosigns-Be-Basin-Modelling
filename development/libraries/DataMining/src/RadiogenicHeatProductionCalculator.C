@@ -3,10 +3,11 @@
 #include "GeoPhysicsFormation.h"
 #include "CompoundLithology.h"
 
-DataAccess::Mining::RadiogenicHeatProductionCalculator::RadiogenicHeatProductionCalculator ( const DomainPropertyCollection*  collection,
-                                                                                             const Interface::Snapshot* snapshot,
-                                                                                             const Interface::Property* property ) :
-   DomainFormationProperty ( collection, snapshot, property )
+DataAccess::Mining::RadiogenicHeatProductionCalculator::RadiogenicHeatProductionCalculator ( const DomainPropertyCollection*            collection,
+                                                                                             DerivedProperties::DerivedPropertyManager& propertyManager,
+                                                                                             const Interface::Snapshot*                 snapshot,
+                                                                                             const Interface::Property*                 property ) :
+   DomainFormationProperty ( collection, propertyManager, snapshot, property )
 {
 }
 
@@ -89,8 +90,9 @@ double DataAccess::Mining::RadiogenicHeatProductionCalculator::compute ( const E
    return heatProduction;
 }
 
-DataAccess::Mining::DomainProperty* DataAccess::Mining::RadiogenicHeatProductionCalculatorAllocator::allocate ( const DomainPropertyCollection*  collection,
-                                                                                                                const Interface::Snapshot* snapshot,
-                                                                                                                const Interface::Property* property ) const {
-   return new RadiogenicHeatProductionCalculator ( collection, snapshot, property );
+DataAccess::Mining::DomainProperty* DataAccess::Mining::RadiogenicHeatProductionCalculatorAllocator::allocate ( const DomainPropertyCollection*            collection,
+                                                                                                                DerivedProperties::DerivedPropertyManager& propertyManager,
+                                                                                                                const Interface::Snapshot*                 snapshot,
+                                                                                                                const Interface::Property*                 property ) const {
+   return new RadiogenicHeatProductionCalculator ( collection, propertyManager, snapshot, property );
 }

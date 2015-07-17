@@ -7,6 +7,8 @@
 #include "Interface/Property.h"
 #include "Interface/PropertyValue.h"
 
+#include "DerivedPropertyManager.h"
+
 #include "DomainFormationProperty.h"
 #include "DomainPropertyCollection.h"
 #include "ElementPosition.h"
@@ -20,10 +22,11 @@ namespace DataAccess {
 
       public :
 
-         PermeabilityCalculator ( const DomainPropertyCollection*  collection,
-                                  const Interface::Snapshot* snapshot,
-                                  const Interface::Property* property,
-                                  const bool                 normalPermeability );
+         PermeabilityCalculator ( const DomainPropertyCollection*            collection,
+                                  DerivedProperties::DerivedPropertyManager& propertyManager,
+                                  const Interface::Snapshot*                 snapshot,
+                                  const Interface::Property*                 property,
+                                  const bool                                 normalPermeability );
 
          /// Initialise the permeability-calculator by getting the ves and max-ves properties.
          bool initialise ();
@@ -52,9 +55,10 @@ namespace DataAccess {
 
          PermeabilityCalculatorAllocator ( const bool normalPermeability );
 
-         DomainProperty* allocate ( const DomainPropertyCollection*  collection,
-                                    const Interface::Snapshot* snapshot,
-                                    const Interface::Property* property ) const;
+         DomainProperty* allocate ( const DomainPropertyCollection*            collection,
+                                    DerivedProperties::DerivedPropertyManager& propertyManager,
+                                    const Interface::Snapshot*                 snapshot,
+                                    const Interface::Property*                 property ) const;
 
 
       private :

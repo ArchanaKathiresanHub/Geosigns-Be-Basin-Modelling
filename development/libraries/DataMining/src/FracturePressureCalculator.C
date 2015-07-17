@@ -6,10 +6,11 @@
 #include "CompoundLithology.h"
 #include "FracturePressureCalculator.h"
 
-DataAccess::Mining::FracturePressureCalculator::FracturePressureCalculator ( const DomainPropertyCollection*  collection,
-                                                                             const Interface::Snapshot* snapshot,
-                                                                             const Interface::Property* property ) :
-   DomainFormationProperty ( collection, snapshot, property )
+DataAccess::Mining::FracturePressureCalculator::FracturePressureCalculator ( const DomainPropertyCollection*            collection,
+                                                                             DerivedProperties::DerivedPropertyManager& propertyManager,
+                                                                             const Interface::Snapshot*                 snapshot,
+                                                                             const Interface::Property*                 property ) :
+   DomainFormationProperty ( collection, propertyManager, snapshot, property )
 {
    m_hydrostaticPressure = 0;
    m_lithostaticPressure = 0;
@@ -21,9 +22,9 @@ bool DataAccess::Mining::FracturePressureCalculator::initialise () {
 
    if ( not m_initialised ) {
 
-      m_hydrostaticPressure = getPropertyCollection ()->getDomainProperty ( "HydroStaticPressure" );
-      m_lithostaticPressure = getPropertyCollection ()->getDomainProperty ( "LithoStaticPressure" );
-      // m_porePressure = getPropertyCollection ()->getDomainProperty ( "Pressure" );;
+      m_hydrostaticPressure = getPropertyCollection ()->getDomainProperty ( "HydroStaticPressure", getPropertyManager ());
+      m_lithostaticPressure = getPropertyCollection ()->getDomainProperty ( "LithoStaticPressure", getPropertyManager ());
+      // m_porePressure = getPropertyCollection ()->getDomainProperty ( "Pressure", getPropertyManager ());
 
       if ( m_hydrostaticPressure != 0 and m_lithostaticPressure != 0 ) { //and m_porePressure != 0) {
          m_initialised = true;
@@ -83,8 +84,9 @@ double DataAccess::Mining::FracturePressureCalculator::compute ( const ElementPo
    return fracturePressure;
 }
 
-DataAccess::Mining::DomainProperty* DataAccess::Mining::FracturePressureCalculatorAllocator::allocate ( const DomainPropertyCollection*  collection,
-                                                                                                        const Interface::Snapshot* snapshot,
-                                                                                                        const Interface::Property* property ) const {
-   return new FracturePressureCalculator ( collection, snapshot, property );
+DataAccess::Mining::DomainProperty* DataAccess::Mining::FracturePressureCalculatorAllocator::allocate ( const DomainPropertyCollection*            collection,
+                                                                                                        DerivedProperties::DerivedPropertyManager& propertyManager,
+                                                                                                        const Interface::Snapshot*                 snapshot,
+                                                                                                        const Interface::Property*                 property ) const {
+   return new FracturePressureCalculator ( collection, propertyManager, snapshot, property );
 }

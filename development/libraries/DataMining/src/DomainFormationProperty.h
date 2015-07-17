@@ -9,6 +9,8 @@
 #include "Interface/Property.h"
 #include "Interface/PropertyValue.h"
 
+#include "DerivedPropertyManager.h"
+
 #include "FiniteElementTypes.h"
 
 #include "PropertyInterpolator2D.h"
@@ -27,9 +29,10 @@ namespace DataAccess {
 
       public :
 
-         DomainFormationProperty ( const DomainPropertyCollection*  collection,
-                                   const Interface::Snapshot* snapshot,
-                                   const Interface::Property* property );
+         DomainFormationProperty ( const DomainPropertyCollection*            collection,
+                                   DerivedProperties::DerivedPropertyManager& propertyManager,
+                                   const Interface::Snapshot*                 snapshot,
+                                   const Interface::Property*                 property );
 
          ~DomainFormationProperty ();
 
@@ -53,7 +56,7 @@ namespace DataAccess {
       protected :
 
          /// \typedef FormationToGridMapMapping
-         typedef std::map < const Interface::Formation*, const Interface::PropertyValue*> FormationToPropertyValueMapping;
+         typedef std::map < const DataModel::AbstractFormation*, DerivedProperties::FormationPropertyPtr > FormationToPropertyValueMapping;
 
          PropertyInterpolator2D           interpolate2D;
          PropertyInterpolator3D           interpolate3D;
@@ -67,9 +70,10 @@ namespace DataAccess {
 
       public :
 
-         DomainProperty* allocate ( const DomainPropertyCollection*  collection,
-                                    const Interface::Snapshot* snapshot,
-                                    const Interface::Property* property ) const;
+         DomainProperty* allocate ( const DomainPropertyCollection*            collection,
+                                    DerivedProperties::DerivedPropertyManager& propertyManager,
+                                    const Interface::Snapshot*                 snapshot,
+                                    const Interface::Property*                 property ) const;
 
       };
 
