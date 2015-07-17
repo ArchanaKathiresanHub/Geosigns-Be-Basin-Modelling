@@ -49,12 +49,16 @@ set(all_headers
   src/PrimaryFormationPropertyCalculator.h
   src/PrimaryFormationSurfaceProperty.h
   src/PrimaryFormationSurfacePropertyCalculator.h
+  src/PrimaryReservoirProperty.h
+  src/PrimaryReservoirPropertyCalculator.h
   src/PrimarySurfaceProperty.h
   src/PrimarySurfacePropertyCalculator.h
   src/PropertyCalculator.h
   src/PropertyErasePredicate.h
   src/PropertyRetriever.h
   src/PropertySnapshotCalculatorMap.h
+  src/ReservoirProperty.h
+  src/ReservoirPropertyCalculator.h
   src/SurfaceProperty.h
   src/SurfacePropertyCalculator.h
   src/SurfacePropertyOffsetCalculator.h
@@ -102,10 +106,14 @@ set(all_srcs
   src/PrimaryFormationPropertyCalculator.C
   src/PrimaryFormationSurfaceProperty.C
   src/PrimaryFormationSurfacePropertyCalculator.C
+  src/PrimaryReservoirProperty.C
+  src/PrimaryReservoirPropertyCalculator.C
   src/PrimarySurfaceProperty.C
   src/PrimarySurfacePropertyCalculator.C
   src/PropertyCalculator.C
   src/PropertyRetriever.C
+  src/ReservoirProperty.C
+  src/ReservoirPropertyCalculator.C
   src/SurfaceProperty.C
   src/SurfacePropertyCalculator.C
   src/SurfacePropertyOffsetCalculator.C
