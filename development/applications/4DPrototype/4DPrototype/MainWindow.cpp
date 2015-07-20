@@ -123,6 +123,7 @@ void MainWindow::enableUI(bool enabled)
 void MainWindow::updateUI()
 {
   m_ui.treeWidget->clear();
+  m_ui.treeWidget->setColumnCount(3);
 
   QTreeWidgetItem* formationsItem = new QTreeWidgetItem;
   formationsItem->setText(0, "Formations");
@@ -141,50 +142,69 @@ void MainWindow::updateUI()
 
   // Add properties to parent node
   std::unique_ptr<di::PropertyList> properties(m_projectHandle->getProperties(true, flags));
-  for(size_t i=0; i < properties->size(); ++i)
+  if (properties && !properties->empty())
   {
-    QTreeWidgetItem* item = new QTreeWidgetItem(propertiesItem, TreeWidgetItem_PropertyType);
-    item->setText(0, (*properties)[i]->getName().c_str());
+    for (size_t i = 0; i < properties->size(); ++i)
+    {
+      const di::Property* prop = (*properties)[i];
+
+      QTreeWidgetItem* item = new QTreeWidgetItem(propertiesItem, TreeWidgetItem_PropertyType);
+      item->setText(0, prop->getName().c_str());
+      item->setText(1, prop->getUnit().c_str());
+
+      di::PropertyType type = prop->getType();
+      QString typeStr = "";
+      switch (type)
+      {
+      case di::FORMATIONPROPERTY: typeStr = "FORMATIONPROPERTY"; break;
+      case di::RESERVOIRPROPERTY: typeStr = "RESERVOIRPROPERTY"; break;
+      case di::TRAPPROPERTY: typeStr = "TRAPPROPERTY"; break;
+      }
+      item->setText(2, typeStr);
+    }
   }
 
   // Add formations to parent node
-  std::unique_ptr<di::FormationList> formations(m_projectHandle->getFormations());
-  for(size_t i=0; i < formations->size(); ++i)
+  std::unique_ptr<di::FormationList> formations(m_projectHandle->getFormations(nullptr, true));
+  if (formations && !formations->empty())
   {
-    QTreeWidgetItem* item = new QTreeWidgetItem(formationsItem, TreeWidgetItem_FormationType);
-    item->setText(0, (*formations)[i]->getName().c_str());
-
-    // Add reservoirs to parent formation
-    std::unique_ptr<di::ReservoirList> reservoirs((*formations)[i]->getReservoirs());
-    if (!reservoirs->empty())
+    for (size_t i = 0; i < formations->size(); ++i)
     {
-      QTreeWidgetItem* reservoirRoot = new QTreeWidgetItem(item);
-      reservoirRoot->setText(0, "Reservoirs");
+      QTreeWidgetItem* item = new QTreeWidgetItem(formationsItem, TreeWidgetItem_FormationType);
+      item->setText(0, (*formations)[i]->getName().c_str());
 
-      for (size_t j = 0; j < reservoirs->size(); ++j)
+      // Add reservoirs to parent formation
+      std::unique_ptr<di::ReservoirList> reservoirs((*formations)[i]->getReservoirs());
+      if (reservoirs && !reservoirs->empty())
       {
-        QTreeWidgetItem* resItem = new QTreeWidgetItem(reservoirRoot, TreeWidgetItem_ReservoirType);
-        resItem->setText(0, (*reservoirs)[j]->getName().c_str());
-      }
-    }
+        QTreeWidgetItem* reservoirRoot = new QTreeWidgetItem(item);
+        reservoirRoot->setText(0, "Reservoirs");
 
-    // Add faults to parent formation
-    std::unique_ptr<di::FaultCollectionList> faultCollections((*formations)[i]->getFaultCollections());
-    if (!faultCollections->empty())
-    {
-      QTreeWidgetItem* faultRoot = new QTreeWidgetItem(item);
-      faultRoot->setText(0, "Faults");
-
-      for (size_t j = 0; j < faultCollections->size(); ++j)
-      {
-        QTreeWidgetItem* faultCollectionItem = new QTreeWidgetItem(faultRoot);
-        faultCollectionItem->setText(0, (*faultCollections)[j]->getName().c_str());
-
-        std::unique_ptr<di::FaultList> faults((*faultCollections)[j]->getFaults());
-        for (size_t k = 0; k < faults->size(); ++k)
+        for (size_t j = 0; j < reservoirs->size(); ++j)
         {
-          QTreeWidgetItem* faultItem = new QTreeWidgetItem(faultCollectionItem, TreeWidgetItem_FaultType);
-          faultItem->setText(0, (*faults)[k]->getName().c_str());
+          QTreeWidgetItem* resItem = new QTreeWidgetItem(reservoirRoot, TreeWidgetItem_ReservoirType);
+          resItem->setText(0, (*reservoirs)[j]->getName().c_str());
+        }
+      }
+
+      // Add faults to parent formation
+      std::unique_ptr<di::FaultCollectionList> faultCollections((*formations)[i]->getFaultCollections());
+      if (faultCollections && !faultCollections->empty())
+      {
+        QTreeWidgetItem* faultRoot = new QTreeWidgetItem(item);
+        faultRoot->setText(0, "Faults");
+
+        for (size_t j = 0; j < faultCollections->size(); ++j)
+        {
+          QTreeWidgetItem* faultCollectionItem = new QTreeWidgetItem(faultRoot);
+          faultCollectionItem->setText(0, (*faultCollections)[j]->getName().c_str());
+
+          std::unique_ptr<di::FaultList> faults((*faultCollections)[j]->getFaults());
+          for (size_t k = 0; k < faults->size(); ++k)
+          {
+            QTreeWidgetItem* faultItem = new QTreeWidgetItem(faultCollectionItem, TreeWidgetItem_FaultType);
+            faultItem->setText(0, (*faults)[k]->getName().c_str());
+          }
         }
       }
     }
@@ -192,24 +212,30 @@ void MainWindow::updateUI()
 
   // Add surfaces to parent node
   std::unique_ptr<di::SurfaceList> surfaces(m_projectHandle->getSurfaces());
-  for(size_t i=0; i < surfaces->size(); ++i)
+  if (surfaces && !surfaces->empty())
   {
-    //const di::GridMap* gridMap = (*surfaces)[i]->getInputDepthMap();
-    //unsigned int k0 = gridMap->firstK();
-    //unsigned int k1 = gridMap->lastK();
-    //unsigned int ni = gridMap->numI();
-    //unsigned int nj = gridMap->numJ();
+    for (size_t i = 0; i < surfaces->size(); ++i)
+    {
+      //const di::GridMap* gridMap = (*surfaces)[i]->getInputDepthMap();
+      //unsigned int k0 = gridMap->firstK();
+      //unsigned int k1 = gridMap->lastK();
+      //unsigned int ni = gridMap->numI();
+      //unsigned int nj = gridMap->numJ();
 
-    QTreeWidgetItem* item = new QTreeWidgetItem(surfacesItem, TreeWidgetItem_SurfaceType);
-    item->setText(0, (*surfaces)[i]->getName().c_str());
+      QTreeWidgetItem* item = new QTreeWidgetItem(surfacesItem, TreeWidgetItem_SurfaceType);
+      item->setText(0, (*surfaces)[i]->getName().c_str());
+    }
   }
 
   // Add reservoirs to parent node
   std::unique_ptr<di::ReservoirList> reservoirs(m_projectHandle->getReservoirs());
-  for(size_t i=0; i < reservoirs->size(); ++i)
+  if (reservoirs && !reservoirs->empty())
   {
-    QTreeWidgetItem* item = new QTreeWidgetItem(reservoirsItem, TreeWidgetItem_ReservoirType);
-    item->setText(0, (*reservoirs)[i]->getName().c_str());
+    for (size_t i = 0; i < reservoirs->size(); ++i)
+    {
+      QTreeWidgetItem* item = new QTreeWidgetItem(reservoirsItem, TreeWidgetItem_ReservoirType);
+      item->setText(0, (*reservoirs)[i]->getName().c_str());
+    }
   }
 
   m_ui.treeWidget->addTopLevelItem(formationsItem);

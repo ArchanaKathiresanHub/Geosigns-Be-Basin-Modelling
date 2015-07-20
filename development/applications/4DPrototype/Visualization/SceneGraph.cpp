@@ -1,6 +1,7 @@
 
 #include "SceneGraph.h"
 #include "SnapshotNode.h"
+#include "Mesh.h"
 #include "BpaMesh.h"
 #include "ROICellFilter.h"
 #include "SkinExtractor.h"
@@ -9,6 +10,11 @@
 #include "Interface/Grid.h"
 #include "Interface/Snapshot.h"
 #include "Interface/Property.h"
+
+//TMP
+#include "Interface/PropertyValue.h"
+#include "Interface/GridMap.h"
+
 #include "Interface/ProjectHandle.h"
 
 // OIV
@@ -25,6 +31,8 @@
 #include <MeshVizInterface/mapping/nodes/MoDataBinding.h>
 #include <MeshVizInterface/mapping/nodes/MoPredefinedColorMapping.h>
 #include <MeshVizInterface/mapping/nodes/MoCellFilter.h>
+#include <MeshVizInterface/mapping/nodes/MoMesh.h>
+#include <MeshVizInterface/mapping/nodes/MoMeshSkin.h>
 
 #include <algorithm>
 
@@ -126,43 +134,46 @@ void SceneGraph::createSnapshotsNodeHiRes(di::ProjectHandle* handle)
   std::vector<const di::Snapshot*> tmpSnapshotList(*snapshots);
   std::sort(tmpSnapshotList.begin(), tmpSnapshotList.end(), SnapshotCompare());
 
-  for(size_t i=0; i < tmpSnapshotList.size(); ++i)
+  const di::Property* depthProperty = handle->findProperty("Depth");
+
+  for (size_t i = 0; i < tmpSnapshotList.size(); ++i)
   {
     const di::Snapshot* snapshot = tmpSnapshotList[i];
     
-    std::shared_ptr<di::PropertyValueList> depthValues(new di::PropertyValueList);
-
-    for(size_t j=0; j < reservoirs->size(); ++j)
+    for (size_t j = 0; j < reservoirs->size(); ++j)
     {
       std::shared_ptr<di::PropertyValueList> depthTopValues(
         handle->getPropertyValues(flags, depthTopProperty, snapshot, (*reservoirs)[j], 0, 0, type));
-      
-      if(depthTopValues->size() == 1)
-        depthValues->push_back((*depthTopValues)[0]);
 
       std::shared_ptr<di::PropertyValueList> depthBottomValues(
         handle->getPropertyValues(flags, depthBottomProperty, snapshot, (*reservoirs)[j], 0, 0, type));
 
-      if(depthBottomValues->size() == 1)
-        depthValues->push_back((*depthBottomValues)[0]);
-    }
+      if (depthTopValues->size() == 1 && depthBottomValues->size() == 1)
+      {
+        ReservoirMesh* mesh = new ReservoirMesh((*depthTopValues)[0]->getGridMap(), (*depthBottomValues)[0]->getGridMap());
+        MoMesh* meshNode = new MoMesh;
+        meshNode->setMesh(mesh);
 
-    if(depthValues->empty())
-    {
-      m_snapshotsHiRes->addChild(new SoGroup);
-    }
-    else
-    {
-      SnapshotNode* snapshotNode = new SnapshotNode;
-      snapshotNode->setup(snapshot, depthValues, true, m_extractor, m_subdivision);
+        MoMaterial* material = new MoMaterial;
+        material->faceColoring = MoMaterial::COLOR;
+        material->faceColor = SbColor(.3f, .3f, .3f);
+        material->lineColoring = MoMaterial::COLOR;
+        material->lineColor = SbColor(0.0f, 0.0f, 0.0f);
 
-      // connect fields from scenegraph
-      snapshotNode->RenderMode.connectFrom(&RenderMode);
-      snapshotNode->SliceI.connectFrom(&SliceI);
-      snapshotNode->SliceJ.connectFrom(&SliceJ);
-      snapshotNode->Plane.connectFrom(&Plane);
+        MoMeshSkin* skinMesh = new MoMeshSkin;
 
-      m_snapshotsHiRes->addChild(snapshotNode);
+        SoSwitch* group = new SoSwitch;
+        group->addChild(meshNode);
+        group->addChild(material);
+        group->addChild(skinMesh);
+        group->whichChild = SO_SWITCH_ALL;
+
+        m_snapshotsHiRes->addChild(group);
+      }
+      else
+      {
+        m_snapshotsHiRes->addChild(new SoGroup);
+      }
     }
   }
 

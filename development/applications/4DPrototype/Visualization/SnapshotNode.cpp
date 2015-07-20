@@ -1,10 +1,12 @@
 #include "SnapshotNode.h"
 #include "BpaMesh.h"
+#include "Mesh.h"
 
 // DataAccess
 #include "Interface/Grid.h"
 #include "Interface/GridMap.h"
 #include "Interface/Snapshot.h"
+#include "Interface/Formation.h"
 #include "Interface/Reservoir.h"
 #include "Interface/Property.h"
 #include "Interface/ProjectHandle.h"
@@ -99,13 +101,14 @@ void SnapshotNode::setup(const di::Snapshot* snapshot, std::shared_ptr<di::Prope
   else
     grid = handle->getLowResolutionOutputGrid();
 
-  BpaMesh* bpaMesh = new BpaMesh(grid, depthValues, m_subdivision);
-  m_mesh->setMesh(bpaMesh);
-
   // This is necessary to enable double-sided lighting on slices
   SoShapeHints* shapeHints = new SoShapeHints;
   shapeHints->shapeType = SoShapeHints::UNKNOWN_SHAPE_TYPE;
   shapeHints->vertexOrdering = SoShapeHints::COUNTERCLOCKWISE;
+
+  /*
+  BpaMesh* bpaMesh = new BpaMesh(grid, depthValues, m_subdivision);
+  m_mesh->setMesh(bpaMesh);
 
   m_sliceI->sliceAxis = MoMeshLogicalSlice::SLICE_I;
   m_sliceJ->sliceAxis = MoMeshLogicalSlice::SLICE_J;
@@ -154,9 +157,97 @@ void SnapshotNode::setup(const di::Snapshot* snapshot, std::shared_ptr<di::Prope
   m_planeGroup->addChild(m_planeSlice);
   m_renderSwitch->addChild(m_planeGroup);
 
-  m_renderSwitch->whichChild = 0;
+  m_renderSwitch->whichChild = SO_SWITCH_NONE; // was 0
 
   addChild(m_renderSwitch);
+*/
+  //-------------- TMP
+  if (!hires)
+  {
+    const di::Property* depthProperty = handle->findProperty("Depth");
+    bool includeBasement = false;
+
+    // SURFACES
+
+    SoGroup* surfacesGroup = new SoGroup;
+    surfacesGroup->setName("surfaces");
+    surfacesGroup->addChild(shapeHints);
+
+    std::unique_ptr<di::SurfaceList> surfaces(handle->getSurfaces(snapshot, includeBasement));
+    for (auto surface : *surfaces)
+    {
+      std::shared_ptr<di::PropertyValueList> depthValues(
+        handle->getPropertyValues(di::SURFACE, depthProperty, snapshot, nullptr, nullptr, surface, di::SURFACE));
+      assert(depthValues->size() <= 1);
+      if (depthValues && !depthValues->empty())
+      {
+        SurfaceMesh* mesh = new SurfaceMesh((*depthValues)[0]->getGridMap());
+        MoMesh* meshNode = new MoMesh;
+        meshNode->setMesh(mesh);
+
+        MoMeshSurface* surfaceMesh = new MoMeshSurface;
+
+        SoSwitch* group = new SoSwitch;
+        group->addChild(meshNode);
+        group->addChild(surfaceMesh);
+        group->whichChild = SO_SWITCH_ALL;
+
+        surfacesGroup->addChild(group);
+      }
+    }
+    addChild(surfacesGroup);
+
+    // FORMATIONS
+
+    SoGroup* formationsGroup= new SoGroup;
+    formationsGroup->setName("formations");
+
+    // Create colormap for all formations
+    std::unique_ptr<di::FormationList> allFormations(handle->getFormations(nullptr, includeBasement));
+    std::map<std::string, SbColor> colorMap;
+    for (size_t i = 0; i < allFormations->size(); ++i)
+    {
+      SbColor color;
+      float hue = (float)i / (float)allFormations->size();
+      color.setHSVValue(hue, 1.f, 1.f);
+      std::string name = (*allFormations)[i]->getName();
+      colorMap[name] = color;
+    }
+
+    std::unique_ptr<di::FormationList> formations(handle->getFormations(snapshot, includeBasement));
+    for (auto formation : *formations)
+    {
+      std::shared_ptr<di::PropertyValueList> depthValues(
+        handle->getPropertyValues(di::FORMATION, depthProperty, snapshot, nullptr, formation, nullptr, di::VOLUME));
+      assert(depthValues->size() <= 1);
+      if (depthValues && !depthValues->empty())
+      {
+        FormationMesh* mesh = new FormationMesh((*depthValues)[0]->getGridMap());
+        MoMesh* meshNode = new MoMesh;
+        meshNode->setMesh(mesh);
+
+        MoMaterial* material = new MoMaterial;
+        material->faceColoring = MoMaterial::COLOR;
+        material->faceColor = colorMap[formation->getName()];
+        material->lineColoring = MoMaterial::COLOR;
+        material->lineColor = SbColor(0.0f, 0.0f, 0.0f);
+
+        MoMeshSkin* skinMesh= new MoMeshSkin;
+
+        SoSwitch* group = new SoSwitch;
+        group->addChild(meshNode);
+        group->addChild(material);
+        group->addChild(skinMesh);
+        group->whichChild = SO_SWITCH_ALL;
+
+        formationsGroup->addChild(group);
+      }
+    }
+    addChild(formationsGroup);
+  }
+
+  //--------------
+
 }
 
 const DataAccess::Interface::Snapshot* SnapshotNode::getSnapShot() const

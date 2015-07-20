@@ -56,7 +56,7 @@ public:
 /**
  *
  */
-class SurfaceTopology : public MiSurfaceTopologyExplicitI
+class ExtractedSurfaceTopology : public MiSurfaceTopologyExplicitI
 {
   size_t m_timestamp;
 
@@ -67,7 +67,7 @@ class SurfaceTopology : public MiSurfaceTopologyExplicitI
 
 public:
 
-  SurfaceTopology()
+  ExtractedSurfaceTopology()
     : m_timestamp(MxTimeStamp::getTimeStamp())
   {
   }
@@ -156,12 +156,12 @@ public:
  */
 class SurfaceMeshUnstructured : public MiSurfaceMeshUnstructured
 {
-  std::shared_ptr<SurfaceTopology> m_topology;
+  std::shared_ptr<ExtractedSurfaceTopology> m_topology;
   const MiGeometryI& m_geometry;
 
 public:
 
-  SurfaceMeshUnstructured(std::shared_ptr<SurfaceTopology> topology, const MiGeometryI& geometry)
+  SurfaceMeshUnstructured(std::shared_ptr<ExtractedSurfaceTopology> topology, const MiGeometryI& geometry)
     : m_topology(topology)
     , m_geometry(geometry)
   {
@@ -222,7 +222,7 @@ MiSurfaceMeshUnstructured* SkinExtractor::doSkinExtraction(const BpaMesh& mesh, 
   size_t nj = topology.getNumCellsJ();
   size_t nk = topology.getNumCellsK();
 
-  std::shared_ptr<SurfaceTopology> surfaceTopo(new SurfaceTopology);
+  std::shared_ptr<ExtractedSurfaceTopology> surfaceTopo(new ExtractedSurfaceTopology);
   surfaceTopo->reserve(ni * nj);
 
   size_t n[8]; // cellNodeIndices
