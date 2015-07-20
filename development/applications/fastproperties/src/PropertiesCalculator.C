@@ -97,8 +97,18 @@ bool PropertiesCalculator::startActivity() {
 
    bool started = m_projectHandle->startActivity ( m_activityName, grid, false, true, m_activityName != "Fastproperties" );
 
-   bool coupledCalculation = false; // to do.
+   // If this table is not present the assume that the last
+   // fastcauldron mode was not pressure mode.
+   // This table may not be present because we are running c2e on an old 
+   // project, before this table was added.
+   bool coupledCalculation = false; 
  
+   coupledCalculation = m_simulationMode == "Overpressure" or
+      m_simulationMode == "LooselyCoupledTemperature" or
+      m_simulationMode == "CoupledHighResDecompaction" or
+      m_simulationMode == "CoupledPressureAndTemperature" or
+      m_simulationMode == "CoupledDarcy";
+
    if( started ) {
       m_projectHandle->initialise ( coupledCalculation );
    }
@@ -738,6 +748,8 @@ bool PropertiesCalculator::setFastcauldronActivityName() {
       m_activityName = "PressureAndTemperature";
    } else if( m_simulationMode == "LooselyCoupledTemperature" ) {
       m_activityName = "OverpressuredTemperature";
+   } else if( m_simulationMode == "CoupledHighResDecompaction" or m_simulationMode == "HydrostaticHighResDecompaction") {
+      m_activityName = "HighResDecompaction";
    } else {
       m_activityName = "Fastproperties";
    }
