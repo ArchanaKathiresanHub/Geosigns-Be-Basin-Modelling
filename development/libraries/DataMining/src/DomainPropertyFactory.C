@@ -1,5 +1,7 @@
 #include "DomainPropertyFactory.h"
 
+#include "PropertyAttribute.h"
+
 #include "DomainSurfaceProperty.h"
 #include "DomainFormationProperty.h"
 #include "DomainFormationMapProperty.h"
@@ -20,15 +22,12 @@ using namespace CBMGenerics;
 static const char * s_SurfacePropList[] =
 {
      "AllochthonousLithology"
-   , "DepthHighRes"
    , "ErosionFactor"
    , "FaultElements"
    , "FCTCorrection"
-   , "MaxVesHighRes"
    , "ThicknessError"
    , "ThicknessHighRes"
    , "Thickness"
-   , "VesHighRes"
 };
 
 static const char * s_FormationPropCheckAllocList[] =
@@ -46,6 +45,7 @@ static const char * s_FormationPropList[] =
 {
      "BulkDensity"
    , "Depth"
+   , "DepthHighRes"
    , "Diffusivity"
    , "FluidVelocity"
    , "HopaneIsomerisation"
@@ -55,6 +55,7 @@ static const char * s_FormationPropList[] =
    , "Lithology"
    , "LithoStaticPressure"
    , "MaxVes"
+   , "MaxVesHighRes"
    , "Overburden"
    , "OverPressure"
    , "PermeabilityH"
@@ -69,6 +70,7 @@ static const char * s_FormationPropList[] =
    , "ThCond"
    , "Velocity"
    , "Ves"
+   , "VesHighRes"
    , "Vre"
    , "Vr"
 };
@@ -128,7 +130,21 @@ namespace DataAccess { namespace Mining
       for ( unsigned int i = 0; i < sizeof( s_SurfacePropList )/sizeof( const char *); ++i )
       {
          property = m_projectHandle->findProperty( s_SurfacePropList[i] );
-         m_allocators [ property ] = produceSurfacePropertyAllocator( handle, property );
+
+         if ( property != 0 ) {
+
+            if ( property->getPropertyAttribute () == DataModel::SURFACE_2D_PROPERTY ) {
+               m_allocators [ property ] = produceSurfacePropertyAllocator( handle, property );
+            } else if ( property->getPropertyAttribute () == DataModel::FORMATION_2D_PROPERTY ) {
+               m_allocators [ property ] = produceFormationMapPropertyAllocator( handle, property );
+            } else {
+               std::cerr << " The property " << property->getName () << " is neither a FORMATION_2D_PROPERTY nor a SURFACE_2D_PROPERTY." << std::endl;
+            }
+
+         } else {
+            std::cerr << " The property " << s_SurfacePropList[i] << " cannot be found." << std::endl;
+         }
+
       }
 
       // add formation properties
