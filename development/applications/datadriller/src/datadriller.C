@@ -188,7 +188,7 @@ int main( int argc, char ** argv )
 
    projectHandle->initialiseLayerThicknessHistory ( coupledCalculation );
 
-   DerivedProperties::DerivedPropertyManager propertyManager ( projectHandle.get (), true );
+   DerivedProperties::DerivedPropertyManager propertyManager ( projectHandle.get ());
 
 
    const Interface::Grid * grid   = projectHandle->getActivityOutputGrid();
