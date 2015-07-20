@@ -187,7 +187,6 @@ bool GenexSimulator::computeSourceRock ( Genex6::SourceRock * aSourceRock, const
    if( aSourceRock != 0 ) {
       aSourceRock->clear();
       aSourceRock->setPropertyManager ( m_propertyManager );
-      // aSourceRock->setPropertyManager ( dynamic_cast <DerivedProperties::AbstractPropertyManager *> ( m_propertyManager ));
       aSourceRock->setFormationData( aFormation ); // set layerName, formation, second SR type, mixing parameters, isSulphur
       
       bool isSulphur = aSourceRock->isSulphur();

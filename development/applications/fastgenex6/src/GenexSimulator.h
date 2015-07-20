@@ -66,8 +66,8 @@ namespace GenexSimulation
       bool isPropertyRegistered(const string & propertyName);
 
    private:
+
       DerivedProperties::DerivedPropertyManager * m_propertyManager;
-      // GenexSimulation::PropertyManager * m_propertyManager;
 
       vector<string> m_registeredProperties;
       vector<string> m_shaleProperties;
