@@ -44,10 +44,21 @@ set(VALGRIND_MPI "${Valgrind_ROOT}/lib/valgrind/libmpiwrap-amd64-linux.so")
 set(VALGRIND_MEMCHECK "${CMAKE_BINARY_DIR}/valgrind_memcheck.sh")
 set(VALGRIND_MEMCHECK_AUX "${CMAKE_BINARY_DIR}/aux/valgrind_memcheck.sh")
 
+if (BM_USE_INTEL_MPI)
+#  valgrind built with Intel MPI depends on libimf.so library which is located in Intel compiler folder
+#  for this we need to setup path to this library
+   set(SOURCE_INTEL_VARS "source ${INTEL_CXX_ROOT}/bin/compilervars.sh intel64")
+else (BM_USE_INTEL_MPI)
+   set(SOURCE_INTEL_VARS "")
+endif (BM_USE_INTEL_MPI)
+
 file(WRITE ${VALGRIND_MEMCHECK_AUX}
 "#/!bin/bash
 # Wrapper for memory check with Valgrind
 # This file has been generated automatically - Do not edit!
+
+${SOURCE_INTEL_VARS}
+source ${CMAKE_BINARY_DIR}/envsetup.sh
 
 export LD_PRELOAD=${VALGRIND_MPI}
 ${VALGRIND} --max-stackframe=8388656 --error-exitcode=1 --run-libc-freeres=no \"$@\" 
