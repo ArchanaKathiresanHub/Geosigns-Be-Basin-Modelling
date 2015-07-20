@@ -45,9 +45,10 @@ namespace DerivedProperties {
       /// then the values will be calculated as required. Additional properties may also be calculated.
       /// \param [in] property The property whose values are requested.
       /// \param [in] snapshot The snapshot time at which the values were calculated.
+      /// \param [in] includeBasement Indicate whether or not the basement formations should be included.
       /// \pre property is not be null and points to a valid property.
       /// \pre snapshot is not null and points to a valid snapshot age.
-      /// \pre A calculator for this property exists.
+      /// \pre A calculator or calculators for this property exists.
       /// \post The result contains a list of values of the required property at all the active formations for the required snapshot age.
       virtual FormationPropertyList getFormationProperties ( const DataModel::AbstractProperty* property,
                                                              const DataModel::AbstractSnapshot* snapshot,
@@ -59,9 +60,10 @@ namespace DerivedProperties {
       /// then the values will be calculated as required. Additional properties may also be calculated.
       /// \param [in] property The property whose values are requested.
       /// \param [in] snapshot The snapshot time at which the values were calculated.
+      /// \param [in] includeBasement Indicate whether or not the basement formations should be included.
       /// \pre property is not be null and points to a valid property.
       /// \pre snapshot is not null and points to a valid snapshot age.
-      /// \pre A calculator for this property exists.
+      /// \pre A calculator or calculators for this property exists.
       /// \post The result contains a list of values of the required property at all the active formations for the required snapshot age.
       virtual FormationMapPropertyList getFormationMapProperties ( const DataModel::AbstractProperty* property,
                                                                    const DataModel::AbstractSnapshot* snapshot,
@@ -73,9 +75,10 @@ namespace DerivedProperties {
       /// then the values will be calculated as required. Additional properties may also be calculated.
       /// \param [in] property The property whose values are requested.
       /// \param [in] snapshot The snapshot time at which the values were calculated.
+      /// \param [in] includeBasement Indicate whether or not the basement surfaces should be included.
       /// \pre property is not be null and is a valid property.
       /// \pre snapshot is not null and is a valid snapshot age.
-      /// \pre A calculator for this property exists.
+      /// \pre A calculator or calculators for this property exists.
       /// \post The result contains a list of values of the required property at all the active surfaces for the required snapshot age.
       virtual SurfacePropertyList getSurfaceProperties ( const DataModel::AbstractProperty* property,
                                                          const DataModel::AbstractSnapshot* snapshot,
