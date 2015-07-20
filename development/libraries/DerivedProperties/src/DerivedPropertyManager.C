@@ -37,7 +37,6 @@
 
 // Derived formation-map property calcualtors
 #include "AllochthonousLithologyFormationMapCalculator.h"
-#include "ErosionFactorFormationMapCalculator.h"
 #include "FaultElementFormationMapCalculator.h"
 #include "ThicknessFormationMapCalculator.h"
 
@@ -177,12 +176,6 @@ void DerivedProperties::DerivedPropertyManager::loadDerivedFormationMapPropertyC
    FormationMapPropertyCalculatorPtr formationMapPropertyCalculator;
 
    formationMapPropertyCalculator = FormationMapPropertyCalculatorPtr ( new AllochthonousLithologyFormationMapCalculator );
-
-   if ( canAddDerivedFormationMapPropertyCalculator ( formationMapPropertyCalculator )) {
-      addFormationMapPropertyCalculator ( formationMapPropertyCalculator );
-   }
-
-   formationMapPropertyCalculator = FormationMapPropertyCalculatorPtr ( new ErosionFactorFormationMapCalculator );
 
    if ( canAddDerivedFormationMapPropertyCalculator ( formationMapPropertyCalculator )) {
       addFormationMapPropertyCalculator ( formationMapPropertyCalculator );

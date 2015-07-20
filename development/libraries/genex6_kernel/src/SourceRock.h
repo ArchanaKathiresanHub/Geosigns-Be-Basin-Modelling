@@ -198,9 +198,6 @@ protected:
                                                       const Interface::Formation *formation, 
                                                       const Interface::Surface *surface) const;
 
-   const Interface::GridMap *getFormationPropertyGridMap (const string & propertyName,
-                                                               const Interface::Snapshot * snapshot) const;
-
    const Interface::GridMap * getSurfaceFormationPropertyGridMap (const string & propertyName,
                                                                        const Interface::Snapshot * snapshot) const;
 

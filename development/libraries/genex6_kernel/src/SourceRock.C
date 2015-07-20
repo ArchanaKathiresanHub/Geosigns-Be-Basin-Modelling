@@ -59,8 +59,6 @@ using Interface::LithoType;
 
 #include "AbstractPropertyManager.h"
 
-#define LOADEROSION 1
-
 namespace Genex6
 {
 class GenexSimulator;
@@ -1494,17 +1492,11 @@ bool SourceRock::process()
          permeabilityInterpolator->compute(intervalStart, startPermeability, intervalEnd, endPermeability ); 
       }
       
-      //erosion 
-
-#ifdef LOADEROSION
-      const GridMap *thicknessScalingAtStart = getFormationPropertyGridMap("ErosionFactor", intervalStart);      
-      const GridMap *thicknessScalingAtEnd   = getFormationPropertyGridMap("ErosionFactor", intervalEnd);
-#else
       property = m_propertyManager->getProperty ( "ErosionFactor" );
       
       DerivedProperties::FormationMapPropertyPtr thicknessScalingAtStart = m_propertyManager->getFormationMapProperty ( property, intervalStart, m_formation );
       DerivedProperties::FormationMapPropertyPtr thicknessScalingAtEnd   = m_propertyManager->getFormationMapProperty ( property, intervalEnd, m_formation );
-#endif
+
       if(thicknessScalingAtStart && thicknessScalingAtEnd) {
 
          ThicknessScalingInterpolator = new LinearGridInterpolator;
@@ -2279,12 +2271,8 @@ bool SourceRock::computeSnapShot ( const double previousTime,
    property = m_propertyManager->getProperty ( "Ves" );
    DerivedProperties::SurfacePropertyPtr calcVes = m_propertyManager->getSurfaceProperty ( property, theSnapshot, m_formation->getTopSurface () );
 
-#ifdef LOADEROSION
-   const GridMap *thicknessScaling = getFormationPropertyGridMap("ErosionFactor",theSnapshot );
-#else
    property = m_propertyManager->getProperty ( "ErosionFactor" );
    DerivedProperties::FormationMapPropertyPtr calcErosion = m_propertyManager->getFormationMapProperty ( property, theSnapshot, m_formation  );
-#endif
 
    property = m_propertyManager->getProperty ( "Temperature" );
    DerivedProperties::SurfacePropertyPtr calcTemp = m_propertyManager->getSurfaceProperty ( property, theSnapshot, m_formation->getTopSurface () );
@@ -2364,16 +2352,8 @@ bool SourceRock::computeSnapShot ( const double previousTime,
       double maximumVes = getVESMax();
       maximumVes *= Genex6::Constants::convertMpa2Pa;
 
-#ifdef LOADEROSION      
-      unsigned int depthThicknessScaling = 1;
-      if(thicknessScaling) {
-         thicknessScaling->retrieveData();
-         depthThicknessScaling = thicknessScaling->getDepth();
-      }
-#else
-
       if( calcErosion ) calcErosion->retrieveData();
-#endif
+
       //need to optimize..
       std::vector<Genex6::SourceRockNode*>::iterator itNode;
       for(itNode = m_theNodes.begin(); itNode != m_theNodes.end(); ++ itNode) { 
@@ -2385,12 +2365,8 @@ bool SourceRock::computeSnapShot ( const double previousTime,
          }
          double in_Temp = calcTemp->get(( *itNode)->GetI(), (*itNode)->GetJ());
 
-#ifdef LOADEROSION
-         double in_thicknessScaling = thicknessScaling ? 
-            thicknessScaling->getValue(( *itNode)->GetI(), (*itNode)->GetJ(), depthThicknessScaling - 1 ) : 1.0;
-#else
          double in_thicknessScaling = calcErosion ? calcErosion->get(( *itNode)->GetI(), (*itNode)->GetJ()) : 1.0;
-#endif
+
          double nodeHydrostaticPressure =  ( calcHP ?  1.0e6 * calcHP->get ((*itNode)->GetI(), (*itNode)->GetJ()) : Constants::UNDEFINEDVALUE );
 
          double nodePorePressure = ( calcPressure ?  1.0e6 * calcPressure->get ((*itNode)->GetI(), (*itNode)->GetJ()) : Constants::UNDEFINEDVALUE );
@@ -2465,15 +2441,9 @@ bool SourceRock::computeSnapShot ( const double previousTime,
       calcVes->restoreData();
       calcTemp->restoreData();
       calcVre->restoreData();
-      if( calcPressure ) calcPressure->restoreData();
 
-#ifdef LOADEROSION
-      if(thicknessScaling) {
-         thicknessScaling->restoreData();
-      }
-#else
+      if( calcPressure ) calcPressure->restoreData();
       if( calcErosion )  calcErosion->restoreData();
-#endif
    }
 
    return status;
@@ -2646,11 +2616,6 @@ const GridMap * SourceRock::getTopSurfacePropertyGridMap (const string & propert
                                                           const Interface::Snapshot * snapshot) const
 {
    return getPropertyGridMap (propertyName, snapshot, 0, 0, m_formation->getTopSurface ());
-}
-const GridMap * SourceRock::getFormationPropertyGridMap (const string & propertyName,
-                                                         const Interface::Snapshot * snapshot) const
-{
-   return getPropertyGridMap (propertyName, snapshot, 0, m_formation, 0);
 }
 
 const GridMap * SourceRock::getSurfaceFormationPropertyGridMap (const string & propertyName,const Interface::Snapshot * snapshot) const

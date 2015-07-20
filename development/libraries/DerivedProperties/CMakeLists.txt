@@ -20,7 +20,6 @@ set(all_headers
   src/DerivedFormationSurfaceProperty.h
   src/DerivedPropertyManager.h
   src/DerivedSurfaceProperty.h
-  src/ErosionFactorFormationMapCalculator.h
   src/FaultElementFormationMapCalculator.h
   src/FormationMapProperty.h
   src/FormationMapPropertyCalculator.h
@@ -78,7 +77,6 @@ set(all_srcs
   src/DerivedFormationSurfaceProperty.C
   src/DerivedPropertyManager.C
   src/DerivedSurfaceProperty.C
-  src/ErosionFactorFormationMapCalculator.C
   src/FaultElementFormationMapCalculator.C
   src/FormationMapProperty.C
   src/FormationMapPropertyCalculator.C
