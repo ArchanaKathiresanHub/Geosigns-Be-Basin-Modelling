@@ -214,13 +214,20 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
      looselyCoupledOutputProperties.push_back ( PRESSURE );
      looselyCoupledOutputProperties.push_back ( CHEMICAL_COMPACTION );
      looselyCoupledOutputProperties.push_back ( VR );
+ 
+     if( onlyPrimaryProperties ) {
+        basinModel->timefilter.setFilter ( "Temperature", "SedimentsPlusBasement" );
+        FastcauldronSimulator::getInstance ().setOutputPropertyOption ( TEMPERATURE, Interface::SEDIMENTS_AND_BASEMENT_OUTPUT );
+        
+        basinModel->timefilter.setFilter ( "Depth", "SedimentsPlusBasement" );
+        FastcauldronSimulator::getInstance ().setOutputPropertyOption ( DEPTH, Interface::SEDIMENTS_AND_BASEMENT_OUTPUT );
+     }
   }
   looselyCoupledOutputProperties.push_back ( VES );
   looselyCoupledOutputProperties.push_back ( MAXVES );
 
   // Surface properties
   basinModel->timefilter.setFilter ( "AllochthonousLithology", "SedimentsOnly" );
-
 
   mapOutputProperties.push_back ( DEPTH );
   mapOutputProperties.push_back ( POROSITYVEC );
@@ -237,20 +244,20 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
 #endif 
 
   if( !onlyPrimaryProperties ) {
-  m_volumeOutputProperties.push_back ( BRINE_PROPERTIES );     
-  m_volumeOutputProperties.push_back ( HYDROSTATICPRESSURE );
-  m_volumeOutputProperties.push_back ( LITHOSTATICPRESSURE );
-  m_volumeOutputProperties.push_back ( OVERPRESSURE );
-  m_volumeOutputProperties.push_back ( FRACTURE_PRESSURE );
-  m_volumeOutputProperties.push_back ( POROSITYVEC );
-  m_volumeOutputProperties.push_back ( PERMEABILITYVEC );
-  m_volumeOutputProperties.push_back ( HEAT_FLOW );
-  m_volumeOutputProperties.push_back ( DIFFUSIVITYVEC );
-  m_volumeOutputProperties.push_back ( BULKDENSITYVEC );
-  m_volumeOutputProperties.push_back ( THCONDVEC );
-  m_volumeOutputProperties.push_back ( FLUID_VELOCITY );
-  m_volumeOutputProperties.push_back ( TWOWAYTIME );
-
+     m_volumeOutputProperties.push_back ( BRINE_PROPERTIES );     
+     m_volumeOutputProperties.push_back ( HYDROSTATICPRESSURE );
+     m_volumeOutputProperties.push_back ( LITHOSTATICPRESSURE );
+     m_volumeOutputProperties.push_back ( OVERPRESSURE );
+     m_volumeOutputProperties.push_back ( FRACTURE_PRESSURE );
+     m_volumeOutputProperties.push_back ( POROSITYVEC );
+     m_volumeOutputProperties.push_back ( PERMEABILITYVEC );
+     m_volumeOutputProperties.push_back ( HEAT_FLOW );
+     m_volumeOutputProperties.push_back ( DIFFUSIVITYVEC );
+     m_volumeOutputProperties.push_back ( BULKDENSITYVEC );
+     m_volumeOutputProperties.push_back ( THCONDVEC );
+     m_volumeOutputProperties.push_back ( FLUID_VELOCITY );
+     m_volumeOutputProperties.push_back ( TWOWAYTIME );
+     
      m_volumeOutputProperties.push_back ( VELOCITYVEC );
      m_volumeOutputProperties.push_back ( REFLECTIVITYVEC );
   }

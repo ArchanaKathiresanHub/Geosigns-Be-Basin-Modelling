@@ -19,6 +19,15 @@ DerivedProperties::LithostaticPressureFormationCalculator::LithostaticPressureFo
 
    addDependentPropertyName ( "Ves" );
    addDependentPropertyName ( "Pressure" );
+
+   addDependentPropertyName( "Depth" );
+   
+   bool hydrostaticDecompactionMode = ( m_projectHandle->getDetailsOfLastSimulation ( "fastcauldron" ) != 0 and
+                                        ( m_projectHandle->getDetailsOfLastSimulation ( "fastcauldron" )->getSimulatorMode () == "HydrostaticDecompaction" ));
+
+   if( !hydrostaticDecompactionMode ) {
+      addDependentPropertyName( "Temperature");
+   }
 }
 
 void DerivedProperties::LithostaticPressureFormationCalculator::calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
@@ -219,4 +228,34 @@ void DerivedProperties::LithostaticPressureFormationCalculator::computeLithostat
 
    }
 
+}
+bool DerivedProperties::LithostaticPressureFormationCalculator::isComputable ( const AbstractPropertyManager&      propManager,
+                                                                               const DataModel::AbstractSnapshot*  snapshot,
+                                                                               const DataModel::AbstractFormation* formation ) const {
+
+   bool basementFormation = ( formation != 0 and ( formation->getName() == DataAccess::Interface::MantleFormationName or  formation->getName() == DataAccess::Interface::CrustFormationName ));
+
+   const std::vector<std::string>& dependentProperties = getDependentPropertyNames ();
+
+   bool propertyIsComputable = true;
+
+   // Determine if the required properties are computable.
+   for ( size_t i = 0; i < dependentProperties.size () and propertyIsComputable; ++i ) {
+      if( basementFormation and ( dependentProperties [ i ] == "Ves" or dependentProperties [ i ] == "Pressure" )) {
+
+         propertyIsComputable = true;
+
+      } else {
+         const DataModel::AbstractProperty* property = propManager.getProperty ( dependentProperties [ i ]);
+
+         if ( property == 0 ) {
+            propertyIsComputable = false;
+         } else {
+            propertyIsComputable = propertyIsComputable and propManager.formationPropertyIsComputable ( property, snapshot, formation );
+         }
+         
+      }
+   }
+
+   return propertyIsComputable;
 }

@@ -115,7 +115,7 @@ void DerivedProperties::HydrostaticPressureFormationCalculator::calculate ( Abst
    }
 
    if ( m_hydrostaticDecompactionMode ) {
-      fluidDensity = fluid->getConstantDensity();
+      fluidDensity = ( fluid ? fluid->getConstantDensity() : 0.0 );;
    }
 
    // Initialise the top set of nodes for the hydrostatic pressure.

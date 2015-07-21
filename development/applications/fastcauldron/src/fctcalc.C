@@ -42,6 +42,11 @@ FCTCalc::FCTCalc( AppCtx* Application_Context )
    m_volumeOutputProperties.push_back ( VES );
    m_volumeOutputProperties.push_back ( MAXVES );
 
+   if(( onlyPrimaryProperties && FastcauldronSimulator::getInstance ().getCalculationMode () == HYDROSTATIC_DECOMPACTION_MODE )) {
+
+      FastcauldronSimulator::getInstance ().setOutputPropertyOption ( DEPTH, Interface::SEDIMENTS_AND_BASEMENT_OUTPUT );
+   }
+
    if( not ( onlyPrimaryProperties && FastcauldronSimulator::getInstance ().getCalculationMode () == HYDROSTATIC_DECOMPACTION_MODE )) {
       m_volumeOutputProperties.push_back ( LITHOSTATICPRESSURE );
       m_volumeOutputProperties.push_back ( POROSITYVEC );
