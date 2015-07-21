@@ -34,6 +34,8 @@
 #include "ThermalDiffusivityFormationCalculator.h"
 #include "VelocityFormationCalculator.h"
 #include "PressureFormationCalculator.h"
+#include "BrineDensityCalculator.h"
+#include "BrineViscosityCalculator.h"
 
 // Derived formation-map property calcualtors
 #include "AllochthonousLithologyFormationMapCalculator.h"
@@ -169,6 +171,18 @@ void DerivedProperties::DerivedPropertyManager::loadDerivedFormationPropertyCalc
       addFormationPropertyCalculator ( formationPropertyCalculator );
    }
 
+   formationPropertyCalculator = FormationPropertyCalculatorPtr ( new BrineDensityCalculator ( m_projectHandle ));
+
+   if ( canAddDerivedFormationPropertyCalculator ( formationPropertyCalculator )) {
+      addFormationPropertyCalculator ( formationPropertyCalculator );
+   }
+
+   formationPropertyCalculator = FormationPropertyCalculatorPtr ( new BrineViscosityCalculator ( m_projectHandle ));
+
+   if ( canAddDerivedFormationPropertyCalculator ( formationPropertyCalculator )) {
+      addFormationPropertyCalculator ( formationPropertyCalculator );
+   }
+   
 }
 
 void DerivedProperties::DerivedPropertyManager::loadDerivedFormationMapPropertyCalculator ( const bool debug ) {
