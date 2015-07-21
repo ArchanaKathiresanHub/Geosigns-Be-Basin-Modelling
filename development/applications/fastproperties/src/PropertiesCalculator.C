@@ -138,10 +138,12 @@ void PropertiesCalculator::calculateProperties( FormationVector& formationItems,
 
    SnapshotFormationOutputPropertyValueMap allOutputPropertyValues;
 
+   bool zeroSnapshotAdded = false;
    if( snapshots.empty() ) {
       const Snapshot * zeroSnapshot = m_projectHandle->findSnapshot( 0 );
       
       snapshots.push_back( zeroSnapshot ); 
+      zeroSnapshotAdded = true;
    }
 
    const string outputDirName = m_projectHandle->getFullOutputDir () + "/";
@@ -180,7 +182,9 @@ void PropertiesCalculator::calculateProperties( FormationVector& formationItems,
       }
    }
 
-   snapshots.pop_back(); // to remove the explicitly added snapshot age 0
+   if( zeroSnapshotAdded ) {
+      snapshots.pop_back(); // to remove the explicitly added snapshot age 0
+   }
 
    for ( formationIter = formationItems.begin();  formationIter != formationItems.end(); ++formationIter )
    {
