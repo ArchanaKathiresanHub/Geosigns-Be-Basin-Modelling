@@ -93,6 +93,15 @@ namespace GeoPhysics {
                                   const double surfaceTemperature,
                                   const double temperatureGradient );
 
+      /// \brief Compute the brine density at a defined depth and pressure.
+      ///
+      /// The temperature is computed from a standard surface-temperature and 
+      /// the temperature gradient in the project file.
+      double getCorrectedSimpleDensity ( const double standardDepth,
+                                         const double pressureGradient,
+                                         const double surfaceTemperature,
+                                         const double temperatureGradient ) const;
+
       /// Compute the derivative of the fluid density w.r.t. pressure.
       double computeDensityDerivativeWRTPressure ( const double temperature, const double pressure ) const;
 

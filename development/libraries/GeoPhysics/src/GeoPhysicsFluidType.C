@@ -154,6 +154,15 @@ void GeoPhysics::FluidType::correctSimpleDensity ( const double standardDepth,
                                                    const double pressureGradient,
                                                    const double surfaceTemperature,
                                                    const double temperatureGradient ) {
+   m_densityVal = getCorrectedSimpleDensity ( standardDepth, pressureGradient, surfaceTemperature, temperatureGradient );
+}
+
+double GeoPhysics::FluidType::getCorrectedSimpleDensity ( const double standardDepth,
+                                                          const double pressureGradient,
+                                                          const double surfaceTemperature,
+                                                          const double temperatureGradient ) const {
+
+   double result;
 
    /// The density value should be changed only if the density model is not const.
    /// The user may have set some particular value for this.
@@ -166,10 +175,14 @@ void GeoPhysics::FluidType::correctSimpleDensity ( const double standardDepth,
       double pressure    = standardDepth * pressureGradient * 0.001;
 
       // reset the simple-density to the Batzle and Wang fnuction evaluated at the "standard" temperature and pressure.
-      m_densityVal = densityBatzleWang ( temperature, pressure );
+      result = densityBatzleWang ( temperature, pressure );
+   } else {
+      result = m_densityVal;
    }
 
+   return result;
 }
+
 
 double GeoPhysics::FluidType::computeDensityDerivativeWRTPressure ( const double temperature,
                                                                     const double pressure ) const {
