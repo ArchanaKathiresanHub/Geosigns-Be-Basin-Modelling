@@ -33,8 +33,8 @@ namespace DataAccess
          /// Return name of VRe algorithm.
          virtual const std::string& getVreAlgorithm () const;
 
-         /// Return name of velocity algorithm.
-         virtual const std::string& getVelAlgorithm () const;
+         /// Return model of velocity algorithm.
+		   virtual SeismicVelocityModel getSeismicVelocityAlgorithm() const;
 
          /// Return name of chemical compaction algorithm.
          virtual const std::string& getChemicalCompactionAlgorithm () const;
@@ -135,12 +135,16 @@ namespace DataAccess
 
          void asString ( std::string & str ) const;
 
-	 /// Maximum time step for Darcy simulator
-	 virtual double getDarcyMaxTimeStep() const;
+	      /// Maximum time step for Darcy simulator
+	      virtual double getDarcyMaxTimeStep() const;
 
       protected :
 
          int m_optimisationLevel;
+
+      private:
+
+		 SeismicVelocityModel m_seismicVelocityModel;
 
       };
 

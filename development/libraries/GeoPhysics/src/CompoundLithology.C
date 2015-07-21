@@ -1,6 +1,4 @@
 #include "CompoundLithology.h"
-#include "capillarySealStrength.h"
-#include "GeoPhysicsProjectHandle.h"
 
 #include <iostream>
 #include <sstream>
@@ -9,8 +7,10 @@
 #include <vector>
 
 #include "Interface/Interface.h"
-#include "Interface/Interface.h"
+#include "Interface/RunParameters.h"
 
+#include "capillarySealStrength.h"
+#include "GeoPhysicsProjectHandle.h"
 #include "NumericFunctions.h"
 #include "Quadrature.h"
 
@@ -22,7 +22,6 @@ using namespace capillarySealStrength;
 //#define NOPRESSURE 1
 
 GeoPhysics::CompoundLithology::CompoundLithology(GeoPhysics::ProjectHandle* projectHandle) : m_projectHandle(projectHandle)
-
 , m_porosity()
 {
 
@@ -504,9 +503,9 @@ bool  GeoPhysics::CompoundLithology::reCalcProperties(){
       return false;
    }
 
-   m_density = 0.0;
-   m_seismicVelocity = 0.0;
-
+   m_density                        = 0.0;
+   m_seismicVelocitySolid           = 0.0;
+   m_nExponentVelocity              = 0.0;
    m_depositionalPermeability       = 0.0;
    m_heatProduction                 = 0.0;
    m_permeabilityincr               = 0.0;
@@ -532,12 +531,13 @@ bool  GeoPhysics::CompoundLithology::reCalcProperties(){
    while (m_lithoComponents.end() != componentIter) {
       double pcMult = (double)(*percentIter) / 100;
 
-      // Matrix Property calculated using the arithmetic mean
+      //1. Matrix Property calculated using the arithmetic mean
       m_density                     += (*componentIter)->getDensity()  * pcMult;
+      m_seismicVelocitySolid        += (*componentIter)->getSeismicVelocity() * pcMult;
+      m_nExponentVelocity           += (*componentIter)->getVelocityExponent( ) * pcMult;
       m_depositionalPermeability    += (*componentIter)->getDepoPerm() * pcMult;
       m_thermalConductivityValue    += (*componentIter)->getThCondVal() * pcMult;
       m_heatProduction              += (*componentIter)->getHeatProduction() * pcMult;
-      m_seismicVelocity             += (*componentIter)->getSeismicVelocity() * pcMult;
       m_referenceSolidViscosity     += (*componentIter)->getReferenceSolidViscosity() * pcMult;
       m_lithologyActivationEnergy   += (*componentIter)->getLithologyActivationEnergy() * pcMult;
       minimumMechanicalPorosity     += (*componentIter)->getMinimumMechanicalPorosity() / 100.0 * pcMult;
@@ -545,19 +545,22 @@ bool  GeoPhysics::CompoundLithology::reCalcProperties(){
       m_quartzFraction              += (*componentIter)->getQuartzFraction() * pcMult;
       m_coatingClayFactor           += (*componentIter)->getClayCoatingFactor() * pcMult;
 
-      // Matrix Property calculated using the geometric mean
+      //2. Matrix Property calculated using the geometric mean
       m_thermalConductivityAnisotropy *= pow((*componentIter)->getThCondAn(), pcMult);
 
       m_specificSurfaceArea *= pow((*componentIter)->getSpecificSurfArea(), pcMult);
       m_geometricVariance *= pow((*componentIter)->getGeometricVariance(), pcMult);
 
-      //Matrix Property calculated using the algebraic mean
+      //3. Matrix Property calculated using the algebraic mean
       m_quartzGrainSize += pcMult * pow((*componentIter)->getQuartzGrainSize(), 3.0);
+
       ++componentIter;
       ++percentIter;
    }
    m_quartzGrainSize = pow(m_quartzGrainSize, 1.0 / 3.0);
-   //Temporary values before mixing
+
+   //4. Porosity
+   // temporary values before mixing
    DataAccess::Interface::PorosityModel porosityModel;
    double surfacePorosity;
    double surfaceVoidRatio;
@@ -592,8 +595,7 @@ bool  GeoPhysics::CompoundLithology::reCalcProperties(){
 
    setMinimumPorosity(porosityModel, surfaceVoidRatio, soilMechanicsCompactionCoefficient);
 
-
-
+   //5. Permeability
    if (surfacePorosity < 0.0299) {
       // Really less than 0.03 but some rounding may occur if user set a litho with 0.03 surface porosity
       m_fracturedPermeabilityScalingValue = 100.0;
@@ -601,6 +603,16 @@ bool  GeoPhysics::CompoundLithology::reCalcProperties(){
    else {
       m_fracturedPermeabilityScalingValue = 10.0; // What to set this to?  10, 50 or whatever.
    }
+
+   //6. Seismic velocity
+   DataAccess::Interface::SeismicVelocityModel seismicVelocityModel = m_projectHandle->getRunParameters()->getSeismicVelocityAlgorithm();
+   double mixedModulusSolid = this->mixModulusSolid();
+   m_seismicVelocity = m_seismicVelocity.create(seismicVelocityModel,
+	   m_seismicVelocitySolid,
+	   mixedModulusSolid,
+	   m_density,
+	   surfacePorosity,
+	   m_nExponentVelocity);
 
    return true;
 }
@@ -982,40 +994,10 @@ void GeoPhysics::CompoundLithology::calcBulkDensity1(const FluidType* fluid,
       // Should this be multiplied by ( 1.0 - porosity )?
       BulkDensity = MatrixDensity;
 
-   }
-
-}
-
-//------------------------------------------------------------//
-
-void GeoPhysics::CompoundLithology::calcVelocity(const FluidType*        fluid,
-   const VelocityAlgorithm velocityAlgorithm,
-   const double            Porosity,
-   const double            BulkDensity,
-   const double            porePressure,
-   const double            temperature,
-   double&           Velocity) const {
-
-   if (velocityAlgorithm == GARDNERS_VELOCITY_ALGORITHM) {
-
-      Velocity = pow(BulkDensity / GardnerVelocityConstant, 4);
-
-   }
-   else if (velocityAlgorithm == WYLLIES_VELOCITY_ALGORITHM) {
-
-      if (fluid != 0) {
-         double FluidVelocity;
-
-         FluidVelocity = fluid->seismicVelocity(temperature, porePressure);
-         Velocity = (FluidVelocity * m_seismicVelocity) / (Porosity * m_seismicVelocity + (1.0 - Porosity) * FluidVelocity);
-      }
-      else {
-         Velocity = m_seismicVelocity;
       }
 
    }
 
-}
 
 //------------------------------------------------------------//
 
@@ -1487,6 +1469,62 @@ void GeoPhysics::CompoundLithology::mixBrooksCoreyParameters()
       ++componentIter;
       ++percentIter;
    }
+}
+
+double GeoPhysics::CompoundLithology::mixModulusSolid() const
+{
+	double modulusSolid;
+	switch (m_mixmodeltype)
+	{
+	case HOMOGENEOUS || UNDEFINED:
+		modulusSolid = 1;
+		break;
+	case LAYERED:
+		modulusSolid = 0;
+		break;
+	default:
+		modulusSolid = 1;
+	}
+	double currentModlusSolid = 0;
+	double currentWeight = 0;
+
+	compContainer::const_iterator componentIter = m_lithoComponents.begin();
+	percentContainer::const_iterator percentIter = m_componentPercentage.begin();
+
+	while (m_lithoComponents.end() != componentIter) {
+		currentWeight = (double)(*percentIter) / 100;
+		currentModlusSolid = (*componentIter)->getDensity()*pow((*componentIter)->getSeismicVelocity(), 2);
+
+		switch (m_mixmodeltype)
+		{
+		case HOMOGENEOUS || UNDEFINED:
+			// geometric mean
+			modulusSolid *= pow(currentModlusSolid, currentWeight);
+			break;
+		case LAYERED:
+			// harmonic mean
+			modulusSolid += currentWeight / currentModlusSolid;
+			break;
+		default:
+			// geometric mean
+			modulusSolid *= pow(currentModlusSolid, currentWeight);
+		}
+
+		++componentIter;
+		++percentIter;
+	}
+
+	switch (m_mixmodeltype)
+	{
+	case HOMOGENEOUS || UNDEFINED:
+		return modulusSolid;
+		break;
+	case LAYERED:
+		return 1 / modulusSolid;
+		break;
+	default :
+		return modulusSolid;
+	}
 }
 
 //------------------------------------------------------------//

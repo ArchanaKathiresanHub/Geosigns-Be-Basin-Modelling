@@ -795,11 +795,19 @@ START-properties
     Type                : float
     Error Field         : Yes
 
-    Identification      : TwoWayTtime
-    Description         : one way travel time (two-way-travel time/2)
+    Identification      : TwoWayTimeGrid
+    Description         : The name of the two way (travel) time grid of the surface,
+                          this grid is supposed to be imported from nDIc(input by user)
+    Unit of measurement : 
+    Type                : string
+    Error Field         : No
+
+    Identification      : TwoWayTimeResidual
+    Description         : The difference between the TwoWayTimeGrid (input by user from nDI)
+                          and the TwoWayTime (computed in fastcauldron)
     Unit of measurement : s
-    Type                : float 
-    Error Field         : Yes
+    Type                : float
+    Error Field         : No
 
 # layer properties:
 
@@ -2012,11 +2020,24 @@ START-properties
     Error Field         : Yes
 
     Identification      : SeisVelocity
-    Description         : seismic velocity of a lithotype, fluidtype, matrix,
-                          fluid or bulk 
+    Description         : The seismic velocity of a lithotype, fluidtype, matrix,
+                          fluid or bulk
     Unit of measurement : m/s
     Type                : float
     Error Field         : Yes
+
+    Identification      : VelocityExponent
+    Description         : n exponent used for Lorcan's velocity computation mode
+    Unit of measurement : 
+    Type                : float
+    Error Field         : No
+    Default             : 0
+
+    Identification      : TwoWayTime
+    Description         : The two way (travel) time computed from the seismic velocity
+    Unit of measurement : s
+    Type                : float
+    Error Field         : No
 
     Identification      : HydraulicFracturingPercent
     Description         : Lithostatic pressure % to trigger hydraulic fracturing
@@ -3011,7 +3032,7 @@ START-properties
     Error Field         : No
 
     Identification      : VelAlgorithm
-    Description         : Active velocity model
+    Description         : Active seismic velocity model
     Type                : string
     Unit of measurement : 
     Error Field         : No
@@ -6578,7 +6599,6 @@ START-property-tables
     Column         : Depth
     Column         : ErrDepth
     Column         : DepthGrid
-    Column         : TwoWayTtime
 #  Layer properties:
     Column         : LayerName
     Column         : DepoSequence
@@ -6597,7 +6617,6 @@ START-property-tables
     Column         : Lithotype3
     Column         : Percent3
     Column         : MixModel
-    Column         : SeisVelocity
     Column         : Fluidtype
     Column         : TempGradient
     Column         : SourceRock
@@ -7475,6 +7494,7 @@ START-property-tables
     Column         : PermAnisotropy
     Column         : PermMixModel
     Column         : SeisVelocity
+    Column         : VelocityExponent
     Column         : CapC1
     Column         : CapC2
     Column         : PcKrModel
@@ -7715,6 +7735,12 @@ START-property-tables
     Column         : Sum
     Column         : NP
     Header         : Iso vr data for burial graph
+
+    Identification : TwoWayTimeIoTbl
+    Description    : Table to hold relationship between initial two way travel time and
+                     stratigraphic surfaces
+    Column         : SurfaceName
+    Column         : TwoWayTimeGrid
  
     Identification : TouchstoneMapIoTbl
     Description    : List of map choices made by user
@@ -7870,6 +7896,7 @@ START-application-class-properties
     Property : 1DTimeIoTbl
     Property : TemperatureIsoIoTbl
     Property : VrIsoIoTbl
+    Property : TwoWayTimeIoTbl
 # Genex History Location 
     Property : GenexHistoryLocationIoTbl
 # CrustalThicknessCalculator data

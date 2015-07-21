@@ -970,11 +970,11 @@ bool ProjectHandle::loadProperties( void )
    m_properties.push_back( getFactory()->produceProperty( this, 0, "Permeability",                   "PermeabilityVec2",               "mD",    FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( this, 0, "Porosity",                       "PorosityVec2",                   "vol%",  FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( this, 0, "Pressure",                       "Pressure",                       "MPa",   FORMATIONPROPERTY, DataModel::CONTINUOUS_3D_PROPERTY ));
-
+   
    // Reflectivity should be DataModel::SURFACE_2D_PROPERTY.
    // Currently fastcauldron outputs both surface and a volume dataset for this property.
    // The Volume data is largely filled with the null-value (99999) except at the surface.
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "Reflectivity",                   "ReflectivityVec2",               "",      FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( this, 0, "Reflectivity",                   "ReflectivityVec2",               "",      FORMATIONPROPERTY, DataModel::SURFACE_2D_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( this, 0, "SonicVelocity",                  "SonicVec2",                      "us/m",  FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY ));
 
    // not sure which attribute this property shoudl have, so give it the most general one
@@ -987,6 +987,8 @@ bool ProjectHandle::loadProperties( void )
    m_properties.push_back( getFactory()->produceProperty( this, 0, "ThicknessError",                 "ThicknessError",                 "m",     FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( this, 0, "ThicknessHighRes",               "ThicknessHighRes",               "m",     FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( this, 0, "Thickness",                      "Thickness",                      "m",     FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( this, 0, "TwoWayTime",                     "TwoWayTime",                     "s",     FORMATIONPROPERTY, DataModel::CONTINUOUS_3D_PROPERTY ) );
+   m_properties.push_back( getFactory()->produceProperty( this, 0, "TwoWayTimeResidual",             "TwoWayTimeResidual",             "s",     FORMATIONPROPERTY, DataModel::SURFACE_2D_PROPERTY ) );
    m_properties.push_back( getFactory()->produceProperty( this, 0, "Velocity",                       "VelocityVec2",                   "m/s",   FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( this, 0, "VesHighRes",                     "VesHighRes",                     "Pa",    FORMATIONPROPERTY, DataModel::CONTINUOUS_3D_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( this, 0, "Ves",                            "Ves",                            "Pa",    FORMATIONPROPERTY, DataModel::CONTINUOUS_3D_PROPERTY ));
@@ -1046,14 +1048,14 @@ bool ProjectHandle::loadProperties( void )
    for ( i = 0; i < ComponentManager::NumberOfOutputSpecies; ++i )
    {
       m_properties.push_back( getFactory()->produceProperty( this, 0,
-                                                             theComponentManager.GetSpeciesOutputPropertyName( i, false ),
-                                                             theComponentManager.GetSpeciesOutputPropertyName( i, false ),
+         theComponentManager.GetSpeciesOutputPropertyName( i, false ),
+         theComponentManager.GetSpeciesOutputPropertyName( i, false ),
                                                              theResultManager.GetResultUnit( GenexResultManager::OilGeneratedCum ), FORMATIONPROPERTY,
                                                              DataModel::FORMATION_2D_PROPERTY) );
 
       m_properties.push_back( getFactory()->produceProperty( this, 0,
-                                                             theComponentManager.GetSpeciesOutputPropertyName( i, true ),
-                                                             theComponentManager.GetSpeciesOutputPropertyName( i, true ),
+         theComponentManager.GetSpeciesOutputPropertyName( i, true ),
+         theComponentManager.GetSpeciesOutputPropertyName( i, true ),
                                                              theResultManager.GetResultUnit( GenexResultManager::OilGeneratedCum ), FORMATIONPROPERTY,
                                                              DataModel::FORMATION_2D_PROPERTY ) );
 
@@ -1063,8 +1065,8 @@ bool ProjectHandle::loadProperties( void )
    for ( i = 0; i < GenexResultManager::NumberOfResults; ++i )
    {
       m_properties.push_back( getFactory()->produceProperty( this, 0,
-                                                             theResultManager.GetResultName( i ),
-                                                             theResultManager.GetResultName( i ),
+         theResultManager.GetResultName( i ),
+         theResultManager.GetResultName( i ),
                                                              theResultManager.GetResultUnit( i ), FORMATIONPROPERTY,
                                                              DataModel::FORMATION_2D_PROPERTY ) );
    }
@@ -1072,45 +1074,45 @@ bool ProjectHandle::loadProperties( void )
    for ( i = 0; i < ComponentManager::NumberOfOutputSpecies; ++i )
    {
       m_properties.push_back( getFactory()->produceProperty( this, 0,
-                                                             theComponentManager.GetSpeciesName( i ) + "Concentration",
-                                                             theComponentManager.GetSpeciesName( i ) + "Concentration",
+         theComponentManager.GetSpeciesName( i ) + "Concentration",
+         theComponentManager.GetSpeciesName( i ) + "Concentration",
                                                              "kg/m3", FORMATIONPROPERTY,
                                                              DataModel::DISCONTINUOUS_3D_PROPERTY ) );
    }
 
    m_properties.push_back( getFactory()->produceProperty( this, 0,
-                                                          "ElementMass", "ElementMass",
+      "ElementMass", "ElementMass",
                                                           "kg/m3", FORMATIONPROPERTY,
                                                           DataModel::DISCONTINUOUS_3D_PROPERTY ) );
 
    m_properties.push_back( getFactory()->produceProperty( this, 0,
-                                                          "TransportedMass", "TransportedMass",
+      "TransportedMass", "TransportedMass",
                                                           "kg", FORMATIONPROPERTY,
                                                           DataModel::DISCONTINUOUS_3D_PROPERTY ) );
 
    for ( i = 0; i < ComponentManager::NumberOfOutputSpecies; ++i )
    {
       m_properties.push_back( getFactory()->produceProperty( this, 0,
-                                                             theComponentManager.GetSpeciesName( i ) + "Retained",
-                                                             theComponentManager.GetSpeciesName( i ) + "Retained",
+         theComponentManager.GetSpeciesName( i ) + "Retained",
+         theComponentManager.GetSpeciesName( i ) + "Retained",
                                                              theResultManager.GetResultUnit( GenexResultManager::OilGeneratedCum ), FORMATIONPROPERTY,
                                                              DataModel::FORMATION_2D_PROPERTY ) );
 
       m_properties.push_back( getFactory()->produceProperty( this, 0,
-                                                             theComponentManager.GetSpeciesName( i ) + "Adsorped",
-                                                             theComponentManager.GetSpeciesName( i ) + "Adsorped",
+         theComponentManager.GetSpeciesName( i ) + "Adsorped",
+         theComponentManager.GetSpeciesName( i ) + "Adsorped",
                                                              "scf/ton", FORMATIONPROPERTY,
                                                              DataModel::FORMATION_2D_PROPERTY ) );
 
       m_properties.push_back( getFactory()->produceProperty( this, 0,
-                                                             theComponentManager.GetSpeciesName( i ) + "AdsorpedExpelled",
-                                                             theComponentManager.GetSpeciesName( i ) + "AdsorpedExpelled",
+         theComponentManager.GetSpeciesName( i ) + "AdsorpedExpelled",
+         theComponentManager.GetSpeciesName( i ) + "AdsorpedExpelled",
                                                              "scf/ton", FORMATIONPROPERTY,
                                                              DataModel::FORMATION_2D_PROPERTY ) );
 
       m_properties.push_back( getFactory()->produceProperty( this, 0,
-                                                             theComponentManager.GetSpeciesName( i ) + "AdsorpedFree",
-                                                             theComponentManager.GetSpeciesName( i ) + "AdsorpedFree",
+         theComponentManager.GetSpeciesName( i ) + "AdsorpedFree",
+         theComponentManager.GetSpeciesName( i ) + "AdsorpedFree",
                                                              "scf/ton", FORMATIONPROPERTY,
                                                              DataModel::FORMATION_2D_PROPERTY ) );
 
@@ -1213,8 +1215,8 @@ bool ProjectHandle::loadProperties( void )
    for ( i = 0; i < CrustalThicknessInterface::numberOfOutputMaps; ++i )
    {
       m_properties.push_back( getFactory()->produceProperty( this, 0,
-                                                             CrustalThicknessInterface::outputMapsNames[ i ],
-                                                             CrustalThicknessInterface::outputMapsNames[ i ],
+         CrustalThicknessInterface::outputMapsNames[ i ],
+         CrustalThicknessInterface::outputMapsNames[ i ],
                                                              CrustalThicknessInterface::outputMapsUnits[ i ],
                                                              FORMATIONPROPERTY,
                                                              DataModel::SURFACE_2D_PROPERTY ));

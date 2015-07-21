@@ -23,11 +23,11 @@ namespace DataAccess
 	    /// stored
 	    virtual const string & getFileName (bool setIfNecessary = false) const;
 
-            /// Return the snapshot-kind:
-            ///   - System Generated; or
-            ///   - User Defined; or
-            ///   - "" (a null string).
-            virtual const std::string& getKind () const;
+       /// Return the snapshot-kind:
+       ///   - System Generated; or
+       ///   - User Defined; or
+       ///   - "" (a null string).
+       virtual const std::string& getKind () const;
 
 	    virtual void asString (string &) const;
 	    /// return the age of this snapshot in string form
@@ -37,11 +37,11 @@ namespace DataAccess
 	    virtual int getType (void) const;
 	    virtual bool getUseInResQ (void) const;
 
-            /// Set whether the snapshot file should be appended or not.
-            virtual void setAppendFile ( const bool append );
+       /// Set whether the snapshot file should be appended or not.
+       virtual void setAppendFile ( const bool append );
 
-            /// Indicates whether the snapshot file should be appended or not.
-            virtual bool getAppendFile () const;
+       /// Indicates whether the snapshot file should be appended or not.
+       virtual bool getAppendFile () const;
 
 	 private:
 	    mutable int m_type;

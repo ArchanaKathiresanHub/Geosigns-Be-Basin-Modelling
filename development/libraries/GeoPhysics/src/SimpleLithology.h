@@ -89,6 +89,9 @@ namespace GeoPhysics {
       /// Return the seismic velocity value.
       double getSeismicVelocity() const;
 
+	  /// Return the n exponent value used for the Lorcan's velocity computation mode.
+	  double getVelocityExponent() const;
+
       /// Return the specific surface area.
       double getSpecificSurfArea() const;
 
@@ -188,6 +191,7 @@ namespace GeoPhysics {
 
       double            m_heatproduction;
       double            m_seismicvelocity;
+	   double            m_nExponentVelocity;
 
       double            m_thermalcondaniso;
       double            m_thermalconductivityval;
@@ -284,6 +288,10 @@ inline double GeoPhysics::SimpleLithology::getHeatProduction() const {
 
 inline double GeoPhysics::SimpleLithology::getSeismicVelocity() const {
    return m_seismicvelocity;
+}
+
+inline double GeoPhysics::SimpleLithology::getVelocityExponent() const {
+	return m_nExponentVelocity;
 }
 
 inline bool GeoPhysics::SimpleLithology::isIncompressible() const {

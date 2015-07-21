@@ -137,6 +137,29 @@ const GridMap * Surface::getInputDepthMap (void) const
    else return 0;
 }
 
+const GridMap * Surface::getInputTwoWayTimeMap( void ) const
+{
+   const GridMap * gridMap = 0;
+   database::Table* twoWayTimeTbl = m_projectHandle -> getTable( "TwoWayTimeIoTbl" );
+   database::Table::iterator tblIter;
+
+   for (tblIter = twoWayTimeTbl->begin(); tblIter != twoWayTimeTbl->end(); ++tblIter)
+   {
+      Record * twoWayTimeRecord = *tblIter;
+      if (database::getSurfaceName( twoWayTimeRecord ) == getName( ))
+      {
+         const string &TwoWayTimeGridMapId = getTwoWayTimeGrid( twoWayTimeRecord );
+         if (TwoWayTimeGridMapId.length() != 0)
+         {
+            gridMap = m_projectHandle->loadInputMap( "TwoWayTimeIoTbl", TwoWayTimeGridMapId );
+            return gridMap;
+         }
+      }
+   }
+
+   return gridMap;
+}
+
 GridMap * Surface::loadDepthMap (void) const
 {
    double depth;
@@ -155,7 +178,7 @@ GridMap * Surface::loadDepthMap (void) const
       const string &depthGridMapId = getDepthGrid (m_record);
       if (depthGridMapId.length () != 0)
       {
-	 gridMap = m_projectHandle->loadInputMap ("StratIoTbl", depthGridMapId);
+	      gridMap = m_projectHandle->loadInputMap ("StratIoTbl", depthGridMapId);
       }
    }
    return gridMap;

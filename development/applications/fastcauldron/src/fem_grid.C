@@ -3,7 +3,6 @@
 #include "fem_grid.h"
 #include "fem_grid_auxiliary_functions.h"
 #include "FiniteElementTypes.h"
-// #include "preevaluated_basis_functions.h"
 #include "AllochthonousLithologyManager.h"
 #include "HydraulicFracturingManager.h"
 #include "PropertyManager.h"
@@ -184,8 +183,8 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
   if (( FastcauldronSimulator::getInstance ().getCalculationMode () == OVERPRESSURE_MODE or
         FastcauldronSimulator::getInstance ().getCalculationMode () == PRESSURE_AND_TEMPERATURE_MODE ) and
       not FastcauldronSimulator::getInstance ().getRunParameters ()->getNonGeometricLoop ()) {
-     concludingOutputProperties.push_back ( FCTCORRECTION );
-     concludingOutputProperties.push_back ( THICKNESSERROR );
+     m_concludingMapOutputProperties.push_back ( FCTCORRECTION );
+     m_concludingMapOutputProperties.push_back ( THICKNESSERROR );
   }
 #endif
 
@@ -193,13 +192,13 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
         FastcauldronSimulator::getInstance ().getCalculationMode () == PRESSURE_AND_TEMPERATURE_MODE or
         FastcauldronSimulator::getInstance ().getCalculationMode () == COUPLED_DARCY_MODE ) and
       not FastcauldronSimulator::getInstance ().getRunParameters ()->getNonGeometricLoop ()) {
-     concludingOutputProperties.push_back ( THICKNESSERROR );
+     m_concludingMapOutputProperties.push_back ( THICKNESSERROR );
   }
 
   if ( FastcauldronSimulator::getInstance ().getCalculationMode () == OVERPRESSURE_MODE or
        FastcauldronSimulator::getInstance ().getCalculationMode () == PRESSURE_AND_TEMPERATURE_MODE or
        FastcauldronSimulator::getInstance ().getCalculationMode () == COUPLED_DARCY_MODE ) {
-     concludingOutputProperties.push_back ( FCTCORRECTION );
+     m_concludingMapOutputProperties.push_back ( FCTCORRECTION );
   }
   PetscBool addMinorProperties;
 
@@ -229,6 +228,8 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
   mapOutputProperties.push_back ( PERMEABILITYVEC );
   mapOutputProperties.push_back ( TEMPERATURE );
   mapOutputProperties.push_back ( DIFFUSIVITYVEC );
+  mapOutputProperties.push_back ( TWOWAYTIME );
+  mapOutputProperties.push_back( TWOWAYTIME_RESIDUAL );
 
   //Brine properties: density and viscosity
 #if 0
@@ -236,18 +237,19 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
 #endif 
 
   if( !onlyPrimaryProperties ) {
-     m_volumeOutputProperties.push_back ( BRINE_PROPERTIES );     
-     m_volumeOutputProperties.push_back ( HYDROSTATICPRESSURE );
-     m_volumeOutputProperties.push_back ( LITHOSTATICPRESSURE );
-     m_volumeOutputProperties.push_back ( OVERPRESSURE );
-     m_volumeOutputProperties.push_back ( FRACTURE_PRESSURE );
-     m_volumeOutputProperties.push_back ( POROSITYVEC );
-     m_volumeOutputProperties.push_back ( PERMEABILITYVEC );
-     m_volumeOutputProperties.push_back ( HEAT_FLOW );
-     m_volumeOutputProperties.push_back ( DIFFUSIVITYVEC );
-     m_volumeOutputProperties.push_back ( BULKDENSITYVEC );
-     m_volumeOutputProperties.push_back ( THCONDVEC );
-     m_volumeOutputProperties.push_back ( FLUID_VELOCITY );
+  m_volumeOutputProperties.push_back ( BRINE_PROPERTIES );     
+  m_volumeOutputProperties.push_back ( HYDROSTATICPRESSURE );
+  m_volumeOutputProperties.push_back ( LITHOSTATICPRESSURE );
+  m_volumeOutputProperties.push_back ( OVERPRESSURE );
+  m_volumeOutputProperties.push_back ( FRACTURE_PRESSURE );
+  m_volumeOutputProperties.push_back ( POROSITYVEC );
+  m_volumeOutputProperties.push_back ( PERMEABILITYVEC );
+  m_volumeOutputProperties.push_back ( HEAT_FLOW );
+  m_volumeOutputProperties.push_back ( DIFFUSIVITYVEC );
+  m_volumeOutputProperties.push_back ( BULKDENSITYVEC );
+  m_volumeOutputProperties.push_back ( THCONDVEC );
+  m_volumeOutputProperties.push_back ( FLUID_VELOCITY );
+  m_volumeOutputProperties.push_back ( TWOWAYTIME );
 
      m_volumeOutputProperties.push_back ( VELOCITYVEC );
      m_volumeOutputProperties.push_back ( REFLECTIVITYVEC );
@@ -265,7 +267,7 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
   m_volumeOutputProperties.push_back ( LITHOLOGY );
 #endif
 
-#if 0
+#ifdef DEBUG_CAPILLARYPRESSURE 
   m_volumeOutputProperties.push_back ( CAPILLARYPRESSUREGAS100 );
   m_volumeOutputProperties.push_back ( CAPILLARYPRESSUREGAS0 );
   m_volumeOutputProperties.push_back ( CAPILLARYPRESSUREOIL100 );
@@ -308,13 +310,6 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
   mapOutputProperties.push_back ( FRACTURE_PRESSURE );
   mapOutputProperties.push_back ( HYDROSTATICPRESSURE );
   mapOutputProperties.push_back ( LITHOSTATICPRESSURE );
-
-#if 0
-  mapOutputProperties.push_back ( CAPILLARYPRESSUREGAS100 );
-  mapOutputProperties.push_back ( CAPILLARYPRESSUREGAS0 );
-  mapOutputProperties.push_back ( CAPILLARYPRESSUREOIL100 );
-  mapOutputProperties.push_back ( CAPILLARYPRESSUREOIL0 );
-#endif
 
   if ( FastcauldronSimulator::getInstance ().getCalculationMode () == OVERPRESSURED_TEMPERATURE_MODE or 
        FastcauldronSimulator::getInstance ().getCalculationMode () == COUPLED_HIGH_RES_DECOMPACTION_MODE )
@@ -627,8 +622,7 @@ void Basin_Modelling::FEM_Grid::solvePressure ( bool& solverHasConverged,
   assert ( snapshot != 0 );
 
   // e.g. thickness-error, fct-correction.
-  FastcauldronSimulator::getInstance ().saveMapProperties ( concludingOutputProperties, snapshot, Interface::SEDIMENTS_ONLY_OUTPUT );
-  
+  FastcauldronSimulator::getInstance ().saveMapProperties ( m_concludingMapOutputProperties, snapshot, Interface::SEDIMENTS_ONLY_OUTPUT );
 
   solverHasConverged = ! overpressureHasDiverged;
 
@@ -721,10 +715,6 @@ void Basin_Modelling::FEM_Grid::solveTemperature ( bool& solverHasConverged,
 
     m_surfaceNodeHistory.Output_Properties ();
 
-    const Interface::Snapshot* snapshot = FastcauldronSimulator::getInstance ().findOrCreateSnapshot ( 0.0 );
-    assert ( snapshot != 0 );
-    
-  
     //FTracks write to database
     if(basinModel->isModellingMode1D ())
     {
@@ -832,8 +822,7 @@ void Basin_Modelling::FEM_Grid::solveCoupled ( bool& solverHasConverged,
   assert ( snapshot != 0 );
 
   // e.g. thickness-error, fct-correction.
-  FastcauldronSimulator::getInstance ().saveMapProperties ( concludingOutputProperties, snapshot, Interface::SEDIMENTS_ONLY_OUTPUT );
-  
+  FastcauldronSimulator::getInstance ().saveMapProperties ( m_concludingMapOutputProperties, snapshot, Interface::SEDIMENTS_ONLY_OUTPUT );
 
   solverHasConverged = not overpressureHasDiverged;
 
@@ -3402,24 +3391,24 @@ void Basin_Modelling::FEM_Grid::Store_Computed_Deposition_Thickness ( const doub
    for (Layers.Initialise_Iterator (); ! Layers.Iteration_Is_Done (); Layers.Next() )
    {
 
-      LayerProps_Ptr Current_Layer = Layers.Current_Layer ();
-      // Is this the best number to have here? I think so, but cannot prove it.
-      // The snapshot times, time step, ... are written out (perhaps read in too) 
-      // as a float, but stored and used as doubles.
-      const double Float_Epsilon = pow ( 2.0, -23 ); 
+  LayerProps_Ptr Current_Layer = Layers.Current_Layer ();
+  // Is this the best number to have here? I think so, but cannot prove it.
+  // The snapshot times, time step, ... are written out (perhaps read in too) 
+  // as a float, but stored and used as doubles.
+  const double Float_Epsilon = pow ( 2.0, -23 ); 
 
       if ( fabs ( Current_Time - Current_Layer -> depoage ) >= NumericFunctions::Maximum ( Current_Time, 1.0 ) * Float_Epsilon ) break;
 
-      const Boolean2DArray& Valid_Needle = basinModel->getValidNeedles ();
+     const Boolean2DArray& Valid_Needle = basinModel->getValidNeedles ();
 
-      DMCreateGlobalVector ( *basinModel->mapDA, &(Current_Layer -> Computed_Deposition_Thickness) );
+    DMCreateGlobalVector ( *basinModel->mapDA, &(Current_Layer -> Computed_Deposition_Thickness) );
 
-      PETSC_2D_Array Computed_Deposition_Thickness ( *basinModel->mapDA, 
+    PETSC_2D_Array Computed_Deposition_Thickness ( *basinModel->mapDA, 
 						   Current_Layer -> Computed_Deposition_Thickness );
 
-      DMDAGetCorners ( Current_Layer->layerDA, &X_Start, &Y_Start, &Z_Start, &X_Count, &Y_Count, &Z_Count );
-      X_End = X_Start + X_Count;
-      Y_End = Y_Start + Y_Count;
+    DMDAGetCorners ( Current_Layer->layerDA, &X_Start, &Y_Start, &Z_Start, &X_Count, &Y_Count, &Z_Count );
+    X_End = X_Start + X_Count;
+    Y_End = Y_Start + Y_Count;
 
     if ( basinModel->isGeometricLoop ()) {
 

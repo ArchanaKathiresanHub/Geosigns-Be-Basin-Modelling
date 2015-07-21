@@ -51,7 +51,7 @@ LithoType::LithoType (ProjectHandle * projectHandle, Record * record) : DAObject
    } else if ( porosityModelStr == "Double_Exponential") {
      m_porosityModel = DOUBLE_EXPONENTIAL_POROSITY;
    } else {
-      std::cout << " Error in porosity model " << porosityModelStr << ". Using Exponential porosoty model as the default value." << endl;
+      std::cout << " Error in porosity model " << porosityModelStr << ". Using Exponential porosity model as the default value." << endl;
       // Error
       m_porosityModel = EXPONENTIAL_POROSITY;
    }
@@ -88,7 +88,7 @@ const string LithoType::s_attributeNames[] =
    // Doubles
    "Density", "HeatProd", "SurfacePorosity", "CompacCoefES", "CompacCoefESA","CompacCoefESB", "CompacCoefSC", "CompacCoefFM", "StpThCond",
    "ThCondAnisotropy", "DepoPerm", "PermDecrStressCoef", "PermIncrRelaxCoef", "PermAnisotropy",
-   "SeisVelocity", "CapC1", "CapC2", "Compaction_Coefficient_SM", "HydraulicFracturingPercent",
+   "SeisVelocity", "NExponentVelocity", "CapC1", "CapC2", "Compaction_Coefficient_SM", "HydraulicFracturingPercent",
    "ReferenceSolidViscosity", "ActivationEnergy", "MinimumPorosity", "SpecSurfArea", "GeoVariance",
    // Ints
    "UserDefined", "Number_Of_Data_Points"
@@ -222,6 +222,10 @@ double LithoType::getPermeabilityRecoveryCoefficient () const {
 
 double LithoType::getSeismicVelocity () const {
    return database::getSeisVelocity ( m_record );
+}
+
+double LithoType::getVelocityExponent() const {
+	return database::getVelocityExponent( m_record );
 }
 
 double LithoType::getCapillaryEntryPressureC1 () const {

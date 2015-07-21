@@ -297,7 +297,7 @@ namespace DataAccess
          // Doubles
          Density, HeatProd, SurfacePorosity, CompacCoefES,CompacCoefESA, CompacCoefESB, CompacCoefSC, CompacCoefFM, StpThCond,
          ThCondAnisotropy, DepoPerm, PermDecrStressCoef, PermIncrRelaxCoef, PermAnisotropy,
-         SeisVelocity, CapC1, CapC2, Compaction_Coefficient_SM, HydraulicFracturingPercent,
+         SeisVelocity, NExponentVelocity, CapC1, CapC2, Compaction_Coefficient_SM, HydraulicFracturingPercent,
          ReferenceSolidViscosity, ActivationEnergy, MinimumPorosity,
          // Ints
          UserDefined, Number_Of_Data_Points
@@ -425,9 +425,14 @@ namespace DataAccess
          CONSERVATIVE_2
       };
 
+	  /// Indicates which seismic velocity algorithm should be used.
+	  enum SeismicVelocityModel {
+		  GARDNERS_VELOCITY_ALGORITHM,
+		  LORCANS_VELOCITY_ALGORITHM,
+		  WYLLIES_VELOCITY_ALGORITHM
+	  };
 
       enum CoordinateAxis { X_COORD, Y_COORD };
-
 
       /// operator type definition used in the computation of GridMaps from other GridMaps
       typedef double( *BinaryOperator ) ( double, double );

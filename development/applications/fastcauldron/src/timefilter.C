@@ -10,15 +10,15 @@ using namespace std;
 
 TimeFilter::TimeFilter(){
 
-   PropertyList PLCount;
+   int PLCount;
 
-   for ( PLCount=DIFFUSIVITYVEC; PLCount<ENDPROPERTYLIST; ++PLCount) {
+   for ( PLCount=0; PLCount<ENDPROPERTYLIST; ++PLCount) {
       PropertyOutputOption[PLCount] = NOOUTPUT;
    }
 
-   for ( PLCount=DIFFUSIVITYVEC; PLCount<ENDPROPERTYLIST; ++PLCount) {
+   for ( PLCount=0; PLCount<ENDPROPERTYLIST; ++PLCount) {
       PropertyOutputOption[PLCount] = NOOUTPUT;
-      m_string2PropertyName [ PropertyName [ PLCount ] ] = PLCount;
+      m_string2PropertyName[PropertyName[PLCount]] = static_cast<PropertyList>(PLCount);
    }
 
    if ( sizeof ( PropertyName ) / sizeof ( std::string ) != ENDPROPERTYLIST + 1 ) {
@@ -44,12 +44,12 @@ PropertyList operator++(PropertyList& pl, int i){
 
 PropertyList getPropertyList ( const std::string& name ) {
 
-   PropertyList property;
+   int property;
 
-   for ( property = DIFFUSIVITYVEC; property != ENDPROPERTYLIST; ++property ) {
+   for ( property = 0; property != ENDPROPERTYLIST; ++property ) {
 
       if ( PropertyName [ property ] == name ) {
-         return property;
+         return static_cast<PropertyList>(property);
       }
 
    }
@@ -60,10 +60,10 @@ PropertyList getPropertyList ( const std::string& name ) {
 
 void TimeFilter::setFilter(const string & propertyName, const string & outputOption){
 
-  PropertyList PLCount;
+  int PLCount;
   bool propertyFound = false;
 
-  for ( PLCount=DIFFUSIVITYVEC; PLCount<ENDPROPERTYLIST; ++PLCount) {
+  for ( PLCount=0; PLCount<ENDPROPERTYLIST; ++PLCount) {
 
     if (PropertyName[PLCount] == propertyName) {
       PropertyOutputOption[PLCount] = getOutputRange(outputOption);
@@ -147,8 +147,8 @@ OutputOption TimeFilter::getOutputRange(const string & outputOption){
 }
 
 bool TimeFilter::IsSomethingSelected()const{
-  PropertyList PLCount;
-  for ( PLCount=DIFFUSIVITYVEC; PLCount<=THICKNESS; ++PLCount) {
+  int PLCount;
+  for ( PLCount=0; PLCount<=THICKNESS; ++PLCount) {
     if (PropertyOutputOption[PLCount]!= NOOUTPUT) {
       return true;
     }
@@ -163,7 +163,7 @@ bool TimeFilter::propertyIsSelected ( const PropertyList propertyId ) const {
 
 const std::string& propertyListName ( const PropertyList property ) {
 
-   if ( property >= DIFFUSIVITYVEC and property < ENDPROPERTYLIST ) {
+   if ( property >= 0 and property < ENDPROPERTYLIST ) {
       return PropertyName [ property ];
    } else {
       return PropertyName [ ENDPROPERTYLIST ];

@@ -5,12 +5,12 @@
 #include <vector>
 #include "EosPack.h"
 
-#include "GeoPhysicsFluidType.h"
-#include "SimpleLithology.h"
 #include "CompoundLithologyComposition.h"
 #include "CompoundProperty.h"
-#include "GeoPhysicalConstants.h"
+#include "GeoPhysicsFluidType.h"
 #include "Interface/Interface.h"
+#include "SeismicVelocity.h"
+#include "SimpleLithology.h"
 
 namespace GeoPhysics {
    class ProjectHandle;
@@ -19,7 +19,7 @@ namespace GeoPhysics {
 namespace GeoPhysics {
 
 
-   class CompoundLithology {
+	class CompoundLithology {
 
    public:
 
@@ -63,9 +63,6 @@ namespace GeoPhysics {
 
       /// Return the heat-production value for the compound-lithology.
       double heatproduction() const;
-
-      /// Return the seismic-velocity value for the compound-lithology.
-      double seismicvelocity() const;
 
       /// Return the specific Surface Area
       double specificSurfaceArea() const;
@@ -122,6 +119,12 @@ namespace GeoPhysics {
       /// Set the layer mixing model.
       void setMixModel(const std::string& mixmodel);
 
+	  /// Return the solid seismic-velocity value for the compound-lithology.
+	  double seismicVelocitySolid() const;
+
+	  /// Return the SeismicVelocity object for the compound-lithology.
+	  const SeismicVelocity& seismicVelocity() const;
+
       /// Return the thermal-conductivity anisotropy.
       double thermalcondaniso() const;
 
@@ -164,16 +167,6 @@ namespace GeoPhysics {
       void calcBulkDensity(const FluidType* fluid,
          const double Porosity,
          double &BulkDensity) const;
-
-      /// Calculate the velocity.
-      // Should this be a lithology function?
-      void calcVelocity(const FluidType*        fluid,
-         const VelocityAlgorithm velocityAlgorithm,
-         const double            Porosity,
-         const double            BulkDensity,
-         const double            porePressure,
-         const double            temperature,
-         double&           Velocity) const;
 
       /// Calculate the bulk thermal-conductivity.
       // Should this be a lithology function?
@@ -230,13 +223,6 @@ namespace GeoPhysics {
 
       const string getThermalModel() const;
 
-   protected:
-
-      double exponentialDecompactionFunction(const double ves) const;
-
-
-   public:
-
       double computePorosityDerivativeWRTPressure(const double ves,
          const double maxVes,
          const bool   includeChemicalCompaction,
@@ -286,14 +272,6 @@ namespace GeoPhysics {
       /// Compute the lithology-dependant fracture pressure.
       double fracturePressure(const double hydrostaticPressure,
          const double lithostaticPressure) const;
-
-   protected:
-
-      void setChemicalCompactionTerms(const double rockViscosity,
-         const double activationEnergy);
-
-
-   public:
 
       /// Compute the compound-porosity value.
       ///
@@ -350,6 +328,11 @@ namespace GeoPhysics {
       bool isFault() const;
 
    protected:
+
+	   void setChemicalCompactionTerms(const double rockViscosity,
+		   const double activationEnergy);
+
+	   double exponentialDecompactionFunction(const double ves) const;
       
       /// Decide whether or not you can mix the lithologies depending on the porosity models
       /// Return true if mixing is ok return false otherwise 
@@ -381,7 +364,8 @@ namespace GeoPhysics {
       double           m_density;
       double           m_depositionalPermeability;
       double           m_heatProduction;
-      double           m_seismicVelocity;
+	   double           m_seismicVelocitySolid;
+	   double           m_nExponentVelocity;
       double           m_permeabilityincr;
       double           m_permeabilitydecr;
       double           m_thermalConductivityValue;
@@ -433,7 +417,19 @@ namespace GeoPhysics {
 
       GeoPhysics::ProjectHandle* m_projectHandle;
 
-      Porosity m_porosity;
+	  Porosity m_porosity;
+
+   private:
+	   /*!
+	   * \brief Compute the solid modulus of the lithology according to the following mixing rules.
+	   * \details If the compound lithology is HOMOGENEOUS or UNDEFINED we use the geometric mean.
+	   *   If the compound lithology is LAYERED we use the harmonic mean.
+	   * \endif
+	   */
+	   double mixModulusSolid() const;
+
+	   /// The object used to compute the velocity (by using m_seismicVelocity.seismicVelocity() method).
+	   SeismicVelocity m_seismicVelocity;
 
    };
 
@@ -477,8 +473,12 @@ inline double GeoPhysics::CompoundLithology::heatproduction() const {
    return m_heatProduction;
 }
 
-inline double GeoPhysics::CompoundLithology::seismicvelocity() const {
-   return m_seismicVelocity;
+inline double GeoPhysics::CompoundLithology::seismicVelocitySolid() const {
+	return m_seismicVelocitySolid;
+}
+
+inline const GeoPhysics::SeismicVelocity& GeoPhysics::CompoundLithology::seismicVelocity() const {
+	return m_seismicVelocity;
 }
 
 inline double GeoPhysics::CompoundLithology::thermalcondaniso() const {
