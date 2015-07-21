@@ -43,6 +43,7 @@ namespace casa
                          , const std::vector<double>      & maxPrmValues  ///< max range parameter values
                          , const std::vector<std::string> & mapsList      ///< list of optional maps 
                          , PDF                              prmPDF        ///< probability density function (one for all sub-parameters)
+                         , const char                     * name          ///< user specified parameter name
                          );
 
       virtual ~VarPrmCrustThinning();
@@ -63,7 +64,7 @@ namespace casa
       /// @{
       /// @brief Defines version of serialized object representation. Must be updated on each change in save()
       /// @return Actual version of serialized object representation
-      virtual unsigned int version() const { return 0; }
+      virtual unsigned int version() const { return VarPrmContinuous::version() + 0; }
 
       /// @brief Get type name of the serialaizable object, used in deserialization to create object with correct type
       /// @return object class name
@@ -73,12 +74,12 @@ namespace casa
       /// @param sz Serializer stream
       /// @param  version stream version
       /// @return true if it succeeds, false if it fails.
-      virtual bool save( CasaSerializer & sz, unsigned int version ) const { return VarPrmContinuous::save( sz, version ); }
+      virtual bool save( CasaSerializer & sz, unsigned int version ) const;
 
       /// @brief Create a new var.parameter instance by deserializing it from the given stream
       /// @param dz input stream
       /// @param objVer version of object representation in stream
-      VarPrmCrustThinning( CasaDeserializer & dz, unsigned int objVer ) : VarPrmContinuous( dz, objVer ) { ; }
+      VarPrmCrustThinning( CasaDeserializer & dz, unsigned int objVer );
       /// @}
       
    protected:

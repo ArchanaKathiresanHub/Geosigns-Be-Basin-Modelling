@@ -54,8 +54,8 @@ TEST_F( RunManagerTest, Tornado2PrmsMutations )
    ASSERT_EQ( ErrorHandler::NoError, sc.defineBaseCase( m_projectFileName ) );
    
    // vary 2 parameters
-   ASSERT_EQ( ErrorHandler::NoError, BusinessLogicRulesSet::VarySourceRockTOC(          sc, m_layerName, m_minTOC,  m_maxTOC,  VarPrmContinuous::Block ) );
-   ASSERT_EQ( ErrorHandler::NoError, BusinessLogicRulesSet::VaryTopCrustHeatProduction( sc,              m_minTCHP, m_maxTCHP, VarPrmContinuous::Block ) );
+   ASSERT_EQ( ErrorHandler::NoError, BusinessLogicRulesSet::VarySourceRockTOC(          sc, 0, m_layerName, m_minTOC,  m_maxTOC,  VarPrmContinuous::Block ) );
+   ASSERT_EQ( ErrorHandler::NoError, BusinessLogicRulesSet::VaryTopCrustHeatProduction( sc, 0,              m_minTCHP, m_maxTCHP, VarPrmContinuous::Block ) );
 
    // set up and generate DoE
    ASSERT_EQ( ErrorHandler::NoError, sc.setDoEAlgorithm( DoEGenerator::Tornado ) );

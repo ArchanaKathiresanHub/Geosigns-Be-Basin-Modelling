@@ -23,11 +23,12 @@ namespace casa
    {
    public:
       /// @brief Create a new source rock preasphaltene activation energy variable parameter
-      VarPrmSourceRockPreAsphaltStartAct( const char * layerName ///< name of the layer the parameter variation
-                                        , double baseValue      ///< base value of parameter
-                                        , double minValue       ///< minimal value for the parameter variation
-                                        , double maxValue       ///< maximal value for the parameter variation
-                                        , PDF pdfType = Block   ///< type of PDF shape for the variable parameter
+      VarPrmSourceRockPreAsphaltStartAct( const char * layerName       ///< name of the layer the parameter variation
+                                        , double       baseValue       ///< base value of parameter
+                                        , double       minValue        ///< minimal value for the parameter variation
+                                        , double       maxValue        ///< maximal value for the parameter variation
+                                        , PDF          pdfType = Block ///< type of PDF shape for the variable parameter
+                                        , const char * name = 0        ///< user specified parameter name
                                         );
 
       /// @brief Destructor
@@ -53,7 +54,7 @@ namespace casa
        /// @{
       /// @brief Defines version of serialized object representation. Must be updated on each change in save()
       /// @return Actual version of serialized object representation
-      virtual unsigned int version() const { return 0; }
+      virtual unsigned int version() const { return VarPrmContinuous::version() + 0; }
 
       /// @brief Get type name of the serialaizable object, used in deserialization to create object with correct type
       /// @return object class name

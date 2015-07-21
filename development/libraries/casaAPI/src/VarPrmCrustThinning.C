@@ -18,6 +18,7 @@
 #include "Path.h" // for to_string
 
 #include <cassert>
+#include <cstring>
 
 namespace casa
 {
@@ -27,11 +28,13 @@ VarPrmCrustThinning::VarPrmCrustThinning( const std::vector<double>      & baseV
                                         , const std::vector<double>      & maxValues
                                         , const std::vector<std::string> & mapsName
                                         , PDF                              prmPDF
+                                        , const char                     * name
                                         ) 
 {
    m_pdf = prmPDF;
    m_mapsName.insert( m_mapsName.begin(), mapsName.begin(), mapsName.end() );
    m_eventsNumber = (baseValues.size() - 1) / 3;
+   m_name = name && strlen( name ) > 0 ? std::string( name ) : std::string( "" );
 
    // check input values
    if ( baseValues.size() != minValues.size() ||
@@ -79,15 +82,31 @@ VarPrmCrustThinning::~VarPrmCrustThinning()
 std::vector<std::string> VarPrmCrustThinning::name() const
 {
    std::vector<std::string> ret;
-   ret.push_back("InitialCrustThickness [m]");
+   if ( m_name.empty() )
+   {
+      ret.push_back( "InitialCrustThickness [m]" );
 
-   for ( size_t i = 0; i < m_eventsNumber; ++i )
-   {  
-      const std::string & evNum = ibs::to_string( m_eventsNumber );
+      for ( size_t i = 0; i < m_eventsNumber; ++i )
+      {  
+         const std::string & evNum = ibs::to_string( m_eventsNumber );
 
-      ret.push_back( std::string( "Event_" ) + evNum + "_StartTime [Ma]" );
-      ret.push_back( std::string( "Event_" ) + evNum + "_Duration [Ma]" );
-      ret.push_back( std::string( "Event_" ) + evNum + "_CrustThinningFactor [m/m] ");
+         ret.push_back( std::string( "Event_" ) + evNum + "_StartTime [Ma]" );
+         ret.push_back( std::string( "Event_" ) + evNum + "_Duration [Ma]" );
+         ret.push_back( std::string( "Event_" ) + evNum + "_CrustThinningFactor [m/m]");
+      }
+   }
+   else
+   {
+      ret.push_back( m_name );
+
+      for ( size_t i = 0; i < m_eventsNumber; ++i )
+      {  
+         const std::string & evNum = ibs::to_string( m_eventsNumber );
+
+         ret.push_back( m_name + std::string( "_" ) + evNum + "_t0" );
+         ret.push_back( m_name + std::string( "_" ) + evNum + "_dt" );
+         ret.push_back( m_name + std::string( "_" ) + evNum + "_fct" );
+      }
    }
    return ret;
 }
@@ -123,5 +142,31 @@ SharedParameterPtr VarPrmCrustThinning::newParameterFromDoubles( std::vector<dou
    return prm;
 }
 
+// Save all object data to the given stream, that object could be later reconstructed from saved data
+bool VarPrmCrustThinning::save( CasaSerializer & sz, unsigned int version ) const
+{
+   bool ok = VarPrmContinuous::save( sz, version );
+
+   ok = ok ? sz.save( m_eventsNumber, "eventsNum" ) : ok;
+   ok = ok ? sz.save( m_mapsName,     "mapsList"  ) : ok;
+
+   return ok;
 }
+
+// Create a new var.parameter instance by deserializing it from the given stream
+VarPrmCrustThinning::VarPrmCrustThinning( CasaDeserializer & dz, unsigned int objVer )
+{
+   bool ok = VarPrmContinuous::deserializeCommonPart( dz, objVer );
+
+   ok = ok ? dz.load( m_eventsNumber, "eventsNum" ) : ok;
+   ok = ok ? dz.load( m_mapsName,     "mapsList"  ) : ok;
+
+   if ( !ok )
+   {
+      throw ErrorHandler::Exception( ErrorHandler::DeserializationError )
+         << "VarPrmLithoSTPThermalCond deserialization unknown error";
+   }
+}
+
+} // namespace casa
 

@@ -556,3 +556,19 @@ void MatlabExporter::exportObsValues( const std::string & fName, const std::vect
    }
 }
 
+std::string MatlabExporter::correctName( std::string name )
+{
+   std::string::iterator it = std::remove(  name.begin(), name.end(), ')' );
+   it = std::remove(  name.begin(), it, '+' );
+   name.resize( it - name.begin() );
+
+   std::replace( name.begin(), name.end(), '/', '-' );
+   std::replace( name.begin(), name.end(), ':', '-' );
+   std::replace( name.begin(), name.end(), ' ', '-' );
+   std::replace( name.begin(), name.end(), '_', '-' );
+   std::replace( name.begin(), name.end(), '(', '-' );
+   std::replace( name.begin(), name.end(), ',', '-' );
+   return name;
+}
+
+

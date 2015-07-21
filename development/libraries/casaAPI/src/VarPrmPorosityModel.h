@@ -45,7 +45,8 @@ namespace casa
                          , double       baseCompCoeffB ///< base value for compaction coefficient "B" (Double_Exponential model only, for others must be UndefinedDoubleValue)
                          , double       minCompCoeffB  ///< minimal value for compaction coefficient "B" (Double_Exponential model only, for others must be UndefinedDoubleValue)
                          , double       maxCompCoeffB  ///< maximal value for compaction coefficient "B" (Double_Exponential model only, for others must be UndefinedDoubleValue)
-                         , PDF prmPDF                  ///< probability density function for all 4 sub-parameters
+                         , PDF          prmPDF         ///< probability density function for all 4 sub-parameters
+                         , const char * name = 0       ///< user specified parameter name
                          );
 
       virtual ~VarPrmPorosityModel();
@@ -66,7 +67,7 @@ namespace casa
       /// @{
       /// @brief Defines version of serialized object representation. Must be updated on each change in save()
       /// @return Actual version of serialized object representation
-      virtual unsigned int version() const { return 0; }
+      virtual unsigned int version() const { return VarPrmContinuous::version() + 0; }
 
       /// @brief Get type name of the serialaizable object, used in deserialization to create object with correct type
       /// @return object class name
@@ -85,8 +86,8 @@ namespace casa
       /// @}
    
    protected:
-      PrmPorosityModel::PorosityModelType   m_mdlType;
-      std::string                           m_lithoName; 
+      PrmPorosityModel::PorosityModelType   m_mdlType;   ///< porosity model type
+      std::string                           m_lithoName; ///< lithology name
    };
 }
 

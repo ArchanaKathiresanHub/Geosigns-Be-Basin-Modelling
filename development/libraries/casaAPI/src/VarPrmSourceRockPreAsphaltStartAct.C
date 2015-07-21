@@ -15,6 +15,7 @@
 #include "VarPrmSourceRockPreAsphaltStartAct.h"
 
 #include <cassert>
+#include <cstring>
 
 namespace casa
 {
@@ -24,9 +25,11 @@ VarPrmSourceRockPreAsphaltStartAct::VarPrmSourceRockPreAsphaltStartAct( const ch
                                                                       , double       minValue
                                                                       , double       maxValue
                                                                       , PDF          pdfType
+                                                                      , const char * name
                                                                       ) : m_layerName( layerName )
 {
    m_pdf = pdfType;
+   m_name = name && strlen( name ) > 0 ? std::string( name ) : std::string( "" );
 
    assert( minValue <= baseValue && maxValue >= baseValue );
 
@@ -43,9 +46,10 @@ VarPrmSourceRockPreAsphaltStartAct::~VarPrmSourceRockPreAsphaltStartAct()
 
 std::vector<std::string> VarPrmSourceRockPreAsphaltStartAct::name() const
 {
-	std::vector<std::string> ret;
-	ret.push_back( m_layerName + " PreasphaltenActivationEnergy [kJ/mol]" );
-	return ret;
+   std::vector<std::string> ret;
+   if ( m_name.empty() ) { ret.push_back( m_layerName + " PreasphaltenActivationEnergy [kJ/mol]" ); }
+   else                  { ret.push_back( m_name ); };
+   return ret;
 }
 
 SharedParameterPtr VarPrmSourceRockPreAsphaltStartAct::newParameterFromDoubles( std::vector<double>::const_iterator & vals ) const
@@ -75,16 +79,14 @@ bool VarPrmSourceRockPreAsphaltStartAct::save( CasaSerializer & sz, unsigned int
 }
 
 // Create a new var.parameter instance by deserializing it from the given stream
-VarPrmSourceRockPreAsphaltStartAct::VarPrmSourceRockPreAsphaltStartAct( CasaDeserializer & dz
-                                                                      , unsigned int objVer 
-                                                                      ) : VarPrmContinuous( dz, objVer )
+VarPrmSourceRockPreAsphaltStartAct::VarPrmSourceRockPreAsphaltStartAct( CasaDeserializer & dz, unsigned int objVer )
 {
-   bool ok = dz.load( m_layerName, "layerName" );
+   bool ok = VarPrmContinuous::deserializeCommonPart( dz, objVer );
+   ok = ok ? dz.load( m_layerName, "layerName" ) : ok;
 
    if ( !ok )
    {
-      throw ErrorHandler::Exception( ErrorHandler::DeserializationError )
-         << "VarPrmSourceRockPreAsphaltStartAct deserialization unknown error";
+      throw ErrorHandler::Exception( ErrorHandler::DeserializationError ) << "VarPrmSourceRockPreAsphaltStartAct deserialization unknown error";
    }
 }
 

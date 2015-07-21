@@ -29,21 +29,6 @@
 #include <memory>
 #include <algorithm>
 
-static std::string correctName( std::string name )
-{
-   std::string::iterator it = std::remove(  name.begin(), name.end(), ')' );
-   it = std::remove(  name.begin(), it, '+' );
-   name.resize( it - name.begin() );
-
-   std::replace( name.begin(), name.end(), '/', '-' );
-   std::replace( name.begin(), name.end(), ':', '-' );
-   std::replace( name.begin(), name.end(), ' ', '-' );
-   std::replace( name.begin(), name.end(), '_', '-' );
-   std::replace( name.begin(), name.end(), '(', '-' );
-   std::replace( name.begin(), name.end(), ',', '-' );
-   return name;
-}
-
 
 CmdPlotRSProxyQC::CmdPlotRSProxyQC( CasaCommander & parent, const std::vector< std::string > & cmdPrms ) : CasaCmd( parent, cmdPrms )
 {
@@ -172,7 +157,7 @@ void CmdPlotRSProxyQC::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
 
          ofs << "\n";
          ofs << "ProxyQC( end+1 ).obsName = '" << obsName << "';\n";
-         ofs << "ProxyQC( end ).obsNameFN = '" << correctName( obsName ) << "';\n";
+         ofs << "ProxyQC( end ).obsNameFN = '" << MatlabExporter::correctName( obsName ) << "';\n";
 
          ofs << "\nProxyQC( end ).obsRefAndDevValues = [";
          const casa::ObsValue * refVal =  obsObj->referenceValue(); 
@@ -288,7 +273,7 @@ void CmdPlotRSProxyQC::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
       ofs << "\n";
       ofs << "xlabel( 'R^2 []' );\n";
       ofs << "ylabel( 'Depth [m]' );\n";
-      ofs << "print " << correctName( m_proxyName ) << "_" << "_proxyQC_wells.jpg -S1000,1000;\n\n";
+      ofs << "print " << MatlabExporter::correctName( m_proxyName ) << "_" << "_proxyQC_wells.jpg -S1000,1000;\n\n";
    }
 
    // plot QC plot per observable
@@ -383,7 +368,7 @@ void CmdPlotRSProxyQC::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
    ofs << "\n";
    ofs << "   clear h;\n";
    ofs << "   clear legName;\n";
-   ofs << "   eval( sprintf( 'print QC_" << correctName( m_proxyName ) << "_" << "%s.jpg -S1000,1000', ProxyQC(i).obsNameFN ) );\n";
+   ofs << "   eval( sprintf( 'print QC_" << MatlabExporter::correctName( m_proxyName ) << "_" << "%s.jpg -S1000,1000', ProxyQC(i).obsNameFN ) );\n";
    ofs << "end\n";
 
    if ( m_commander.verboseLevel() > CasaCommander::Quiet )
@@ -501,7 +486,7 @@ std::string CmdPlotRSProxyQC::obsWellData( size_t                               
    }
 
    // dump as matlab
-   oss << "\nWellsObs( end+1 ).name = '" << correctName( name ) << "';\n";
+   oss << "\nWellsObs( end+1 ).name = '" << MatlabExporter::correctName( name ) << "';\n";
    oss << "WellsObs( end ).depth = [ ";
 
    for ( size_t i = 0; i < depth.size(); ++i )

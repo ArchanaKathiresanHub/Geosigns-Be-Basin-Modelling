@@ -8,10 +8,12 @@
 // Do not distribute without written permission from Shell.
 // 
 
+// casa app
 #include "CasaCommander.h"
 #include "CmdAddObs.h"
 #include "CfgFileParser.h"
 
+// CASA API
 #include "casaAPI.h"
 #include "ObsSpace.h"
 #include "ObsSourceRockMapProp.h"
@@ -21,10 +23,12 @@
 #include "ObsValueDoubleScalar.h"
 #include "ObsValueDoubleArray.h"
 
+// STD C
 #include <cstdlib>
+
+// STL
 #include <iostream>
 #include <sstream>
-
 #include <map>
 
 
@@ -57,7 +61,7 @@ protected:
 };
 
 ////////////////////////////////////////////////////////////////
-/// Observables type definistions
+/// Observables type definitions
 ////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////

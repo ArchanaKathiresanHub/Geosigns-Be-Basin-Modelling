@@ -19,15 +19,6 @@
 #include <cmath>
 #include <iostream>
 
-static std::string correctName( std::string name )
-{
-   std::replace( name.begin(), name.end(), '/', '-' );
-   std::replace( name.begin(), name.end(), ':', '-' );
-   std::replace( name.begin(), name.end(), ' ', '-' );
-   std::replace( name.begin(), name.end(), '_', '-' );
-   return name;
-}
-
 CmdPlotTornado::CmdPlotTornado( CasaCommander & parent, const std::vector< std::string > & cmdPrms ) : CasaCmd( parent, cmdPrms )
 {
    if ( m_prms.size() < 1 )
@@ -108,7 +99,7 @@ void CmdPlotTornado::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
 
       ++obsNum;
 
-      ofs << "TornadoSens.obsName{ " << obsNum << "} = '" << correctName( obsName ) << "';\n";
+      ofs << "TornadoSens.obsName{ " << obsNum << "} = '" << MatlabExporter::correctName( obsName ) << "';\n";
       ofs << "TornadoSens.obsRefVal( " << obsNum << ") = " << data[i].refObsValue() << ";\n";
 
       const std::vector<std::pair<const casa::VarParameter *, int> > & varPrmList = data[i].varPrmList();

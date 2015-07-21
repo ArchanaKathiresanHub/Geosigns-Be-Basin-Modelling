@@ -1,23 +1,30 @@
 ///                                                                      
-// Copyright (C) 2012-2014 Shell International Exploration & Production.
+// Copyright (C) 2012-2015 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
 // 
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
+
+// casa app
 #include "CasaCommander.h"
 #include "CmdAddVarPrm.h"
 #include "UndefinedValues.h"
 #include "CfgFileParser.h"
 
+// CASA API
 #include "casaAPI.h"
 
+// STD C
 #include <cstdlib>
+
+// STL
 #include <iostream>
+#include <map>
 
-
+// convert PDF name as string to CASA PDF type
 static casa::VarPrmContinuous::PDF Str2pdf( const std::string & pdf )
 {
    if (      pdf == "Block"    ) return casa::VarPrmContinuous::Block;    // equal PDF
@@ -27,116 +34,290 @@ static casa::VarPrmContinuous::PDF Str2pdf( const std::string & pdf )
    return casa::VarPrmContinuous::Block;
 }
 
-
-
-CmdAddVarPrm::CmdAddVarPrm( CasaCommander & parent, const std::vector< std::string > & cmdPrms ) : CasaCmd( parent, cmdPrms )
+///////////////////////////////////////////////////////////////////////////////
+// Class which define interface for parameter object factory
+class PrmType
 {
-   if ( m_prms.size() < 1 )
-   {
-      throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "No name of variable parameter was given";
-   }
+public:
+   /// @brief Destructor
+   virtual ~PrmType() {;}
 
-   if ( m_prms[0] != "TopCrustHeatProduction"
-     && m_prms[0] != "SourceRockTOC"
-     && m_prms[0] != "SourceRockHC"
-     && m_prms[0] != "SourceRockHI"
-     && m_prms[0] != "SourceRockType"
-     && m_prms[0] != "SourceRockPreasphActEnergy"
-     && m_prms[0] != "CrustThinningOneEvent"
-     && m_prms[0] != "CrustThinning"
-     && m_prms[0] != "PorosityModel"
-     && m_prms[0] != "PermeabilityModel"
-     && m_prms[0] != "STPThermalCondCoeff" 
-      )
-   {
-      throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Unknown variable parameter name: " << m_prms[0];
-   }
-   // check number of command parameters for var parameter
-   if ( m_prms[0] == "TopCrustHeatProduction"     &&  m_prms.size() !=  4 ||
-        m_prms[0] == "SourceRockTOC"              &&  m_prms.size() !=  5 ||
-        m_prms[0] == "SourceRockHC"               &&  m_prms.size() !=  5 ||
-        m_prms[0] == "SourceRockHI"               &&  m_prms.size() !=  5 ||
-        m_prms[0] == "SourceRockType"             &&  m_prms.size() !=  4 ||
-        m_prms[0] == "SourceRockPreasphActEnergy" &&  m_prms.size() !=  5 ||
-        m_prms[0] == "CrustThinningOneEvent"      &&  m_prms.size() != 10 ||
-        m_prms[0] == "CrustThinning"              &&  m_prms.size()  < 11 ||
-        m_prms[0] == "PorosityModel"              && (m_prms.size()  <  8 || m_prms.size() > 13) ||
-        m_prms[0] == "PermeabilityModel"          &&  m_prms.size()  < 10 ||
-        m_prms[0] == "STPThermalCondCoeff"        && (m_prms.size()  < 5  || m_prms.size() > 6)
-      )
-   {
-      throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Wrong number of parameters for " << m_prms[0];
-   }
-}
+   /// @brief add variable parameter to scenario
+   virtual void addParameterObject( std::auto_ptr<casa::ScenarioAnalysis> & sa
+                                  , const std::string                     & name
+                                  , const std::vector<std::string>        & prms
+                                  ) const = 0;
+   
+   /// @brief Get expected parameters number for the observable type
+   virtual size_t expectedParametersNumber() const = 0;
+   /// @brief Get optional parameters number for the observable type
+   virtual size_t optionalParametersNumber() const = 0;
 
-void CmdAddVarPrm::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
+   /// @brief Get varparameter type name
+   virtual std::string name() const = 0;
+   /// @brief Get varparameter group description
+   virtual std::string groupDescirption() const { return ""; }
+   /// @brief Get short description for observable type
+   virtual std::string description() const = 0;
+   /// @brief Get full description for observable type
+   virtual std::string fullDescription() const = 0;
+    /// @brief Get observable example for using in commands script file
+   virtual std::string usingExample( const char * cmdName ) const = 0;
+
+protected:
+   PrmType() {;}
+};
+
+////////////////////////////////////////////////////////////////
+/// Parameters type definitions
+////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////
+// TopCrustHeatProduction parameter
+////////////////////////////////////////////////////////////////
+//
+class TopCrustHeatProduction : public PrmType
 {
-   if ( m_commander.verboseLevel() > CasaCommander::Quiet )
+public:
+   TopCrustHeatProduction()  {;}
+   virtual ~TopCrustHeatProduction() {;}
+
+   virtual void addParameterObject( std::auto_ptr<casa::ScenarioAnalysis> & sa
+                                  , const std::string                     & name
+                                  , const std::vector<std::string>        & prms
+                                  ) const
    {
-      std::cout << "Add variable parameter: " << m_prms[0] << "(";
-      for ( size_t i = 1; i < m_prms.size(); ++i )
-      {
-         std::cout << m_prms[i] << ((i == m_prms.size() - 1) ? "" : ",");
-      }
-      std::cout << ")" << std::endl;
-   }
+      double                      minVal = atof(  prms[1].c_str() );
+      double                      maxVal = atof(  prms[2].c_str() );
+      casa::VarPrmContinuous::PDF ppdf = Str2pdf( prms[3] );
 
-   casa::VarPrmContinuous::PDF ppdf = casa::VarPrmContinuous::Block;
-
-   if ( m_prms[0] == "TopCrustHeatProduction" )
-   {
-      double minVal = atof( m_prms[1].c_str() );
-      double maxVal = atof( m_prms[2].c_str() );
-
-      ppdf = Str2pdf( m_prms[3] );
-
-      if ( ErrorHandler::NoError != casa::BusinessLogicRulesSet::VaryTopCrustHeatProduction( *sa.get(), minVal, maxVal, ppdf ) )
+      if ( ErrorHandler::NoError != casa::BusinessLogicRulesSet::VaryTopCrustHeatProduction( *sa.get(), name.c_str(), minVal, maxVal, ppdf ) )
       {
          throw ErrorHandler::Exception( sa->errorCode() ) << sa->errorMessage();
       }
    }
-   else if ( m_prms[0] == "SourceRockTOC" )
+      
+   size_t expectedParametersNumber() const { return 3; } // min, max, pdf
+   size_t optionalParametersNumber() const { return 0; } 
+
+   virtual std::string name() const { return "TopCrustHeatProduction"; }
+
+   virtual std::string description() const { return "surface radiogenic heat production of the basement [ uW/m^3]"; }
+
+   virtual std::string fullDescription() const
    {
-      double minVal = atof( m_prms[2].c_str() );
-      double maxVal = atof( m_prms[3].c_str() );
+      std::ostringstream oss;
 
-      ppdf = Str2pdf( m_prms[4] );
+      oss << "    TopCrustHeatProduction  <minVal> <maxVal> <prmPDF>\n";
+      oss << "    Where:\n";
+      oss << "       minVal - the parameter minimal range value\n";
+      oss << "       maxVal - the parameter maximal range value\n";
+      oss << "       prmPDF - the parameter probability density function type, the value could be one of the following:\n";
+      oss << "                \"Block\"    - uniform probability between min and max values,\n";
+      oss << "                \"Triangle\" - triangle shape probability function. The top triangle value is taken from the base case\n";
+      oss << "                \"Normal\"   - normal (or Gaussian) probability function. The position of highest value is taken from the base case\n";
 
-      if ( ErrorHandler::NoError != casa::BusinessLogicRulesSet::VarySourceRockTOC( *sa.get(), m_prms[1].c_str(), minVal, maxVal, ppdf ) )
+      return oss.str();
+   }
+
+   virtual std::string usingExample( const char * cmdName ) const
+   {
+      std::ostringstream oss;
+      oss << "\n";
+      oss << "    Example:\n";
+      oss << "    #              type               minVal  maxVal    prmPDF\n";
+      oss << "    " << cmdName << " \"TopCrustHeatProduction\"    0.1     4.9  \"Block\"\n";
+      oss << "\n";
+      return oss.str();
+   }
+};
+
+////////////////////////////////////////////////////////////////
+//  SourceRockTOC parameter
+////////////////////////////////////////////////////////////////
+//
+class SourceRockTOC : public PrmType
+{
+public:
+   SourceRockTOC()  {;}
+   virtual ~SourceRockTOC() {;}
+
+   virtual void addParameterObject( std::auto_ptr<casa::ScenarioAnalysis> & sa
+                                  , const std::string                     & name
+                                  , const std::vector<std::string>        & prms
+                                  ) const
+   {
+      double                      minVal = atof(    prms[2].c_str() );
+      double                      maxVal = atof(    prms[3].c_str() );
+      casa::VarPrmContinuous::PDF ppdf   = Str2pdf( prms[4] );
+
+      if ( ErrorHandler::NoError != casa::BusinessLogicRulesSet::VarySourceRockTOC( *sa.get(), name.c_str(), prms[1].c_str(), minVal, maxVal, ppdf ) )
       {
          throw ErrorHandler::Exception( sa->errorCode() ) << sa->errorMessage();
       }
    }
-   else if ( m_prms[0] == "SourceRockHC" )
+      
+   size_t expectedParametersNumber() const { return 4; } // layer_name, min, max, pdf
+   size_t optionalParametersNumber() const { return 0; } 
+
+   virtual std::string name() const { return "SourceRockTOC"; }
+
+   virtual std::string description() const { return "the initial total organic content in source rock [ weight % ]"; }
+
+   virtual std::string fullDescription() const
    {
-      double minVal = atof( m_prms[2].c_str() );
-      double maxVal = atof( m_prms[3].c_str() );
+      std::ostringstream oss;
+      oss << "    SourceRockTOC  <layerName> <minVal> <maxVal> <prmPDF>\n";
+      oss << "    Where:\n";
+      oss << "       layerName - source rock layer name\n";
+      oss << "       minVal    - the parameter minimal range value\n";
+      oss << "       maxVal    - the parameter maximal range value\n";
+      oss << "       prmPDF    - the parameter probability density function type\n";
+      oss << "\n";
 
-      ppdf = Str2pdf( m_prms[4] );
+      return oss.str();
+   }
 
-      if ( ErrorHandler::NoError != casa::BusinessLogicRulesSet::VarySourceRockHC( *sa.get(), m_prms[1].c_str(), minVal, maxVal, ppdf ) )
+   virtual std::string usingExample( const char * cmdName ) const
+   {
+      std::ostringstream oss;
+      oss << "    Example:\n";
+      oss << "    #             type         layerName        minVal  maxVal   prmPDF\n";
+      oss << "    "<< cmdName << " \"SourceRockTOC\" \"Lower Jurassic\"  0.5    1.0  \"Block\"\n";
+      return oss.str();
+   }
+};
+
+////////////////////////////////////////////////////////////////
+// SourceRockHC parameter
+////////////////////////////////////////////////////////////////
+//
+class SourceRockHC : public PrmType
+{
+public:
+   SourceRockHC()  {;}
+   virtual ~SourceRockHC() {;}
+
+   virtual void addParameterObject( std::auto_ptr<casa::ScenarioAnalysis> & sa
+                                  , const std::string                     & name
+                                  , const std::vector<std::string>        & prms
+                                  ) const
+   {
+      double                      minVal = atof( prms[2].c_str() );
+      double                      maxVal = atof( prms[3].c_str() );
+      casa::VarPrmContinuous::PDF ppdf   = Str2pdf( prms[4] );
+
+      if ( ErrorHandler::NoError != casa::BusinessLogicRulesSet::VarySourceRockHC( *sa.get(), name.c_str(), prms[1].c_str(), minVal, maxVal, ppdf ) )
       {
          throw ErrorHandler::Exception( sa->errorCode() ) << sa->errorMessage();
       }
    }
-   else if ( m_prms[0] == "SourceRockHI" )
+      
+   size_t expectedParametersNumber() const { return 4; } // layer_name, min, max, pdf
+   size_t optionalParametersNumber() const { return 0; } 
+
+   virtual std::string name() const { return "SourceRockHC"; }
+
+   virtual std::string description() const { return "the initial H/C ratio in source rock [ kg/tonne C ]"; }
+
+   virtual std::string fullDescription() const
    {
-      double minVal = atof( m_prms[2].c_str() );
-      double maxVal = atof( m_prms[3].c_str() );
+      std::ostringstream oss;
+      oss << "    SourceRockHC  <layerName> <minVal> <maxVal> <prmPDF>\n";
+      oss << "    Where:\n";
+      oss << "       layerName - source rock layer name\n";
+      oss << "       minVal    - the parameter minimal range value\n";
+      oss << "       maxVal    - the parameter maximal range value\n";
+      oss << "       prmPDF    - the parameter probability density function type\n";
+      return oss.str();
+   }
 
-      ppdf = Str2pdf( m_prms[4] );
+   virtual std::string usingExample( const char * cmdName ) const
+   {
+      std::ostringstream oss;
+      oss << "    Example:\n";
+      oss << "    #             type         layerName        minVal  maxVal   prmPDF\n";
+      oss << "    "<< cmdName << " \"SourceRockHC\" \"Lower Jurassic\"   0.5    1.0  \"Block\"\n";
+      return oss.str();
+   }
+};
 
-      if ( ErrorHandler::NoError != casa::BusinessLogicRulesSet::VarySourceRockHI( *sa.get(), m_prms[1].c_str(), minVal, maxVal, ppdf ) )
+////////////////////////////////////////////////////////////////
+//  SourceRockHI parameter
+////////////////////////////////////////////////////////////////
+//
+class SourceRockHI : public PrmType
+{
+public:
+   SourceRockHI()  {;}
+   virtual ~SourceRockHI() {;}
+
+   virtual void addParameterObject( std::auto_ptr<casa::ScenarioAnalysis> & sa
+                                  , const std::string                     & name
+                                  , const std::vector<std::string>        & prms
+                                  ) const
+   {
+      double                      minVal = atof( prms[2].c_str() );
+      double                      maxVal = atof( prms[3].c_str() );
+      casa::VarPrmContinuous::PDF ppdf = Str2pdf( prms[4] );
+
+      if ( ErrorHandler::NoError != casa::BusinessLogicRulesSet::VarySourceRockHI( *sa.get(), name.c_str(), prms[1].c_str(), minVal, maxVal, ppdf ) )
       {
          throw ErrorHandler::Exception( sa->errorCode() ) << sa->errorMessage();
       }
    }
-   else if ( m_prms[0] == "SourceRockType" )
+      
+   size_t expectedParametersNumber() const { return 4; } // layer_name, min, max, pdf
+   size_t optionalParametersNumber() const { return 0; } 
+
+   virtual std::string name() const { return "SourceRockHI"; }
+
+   virtual std::string description() const { return "the initial hydrogen index (HI) ratio in source rock [ kg/tonne ]"; }
+
+   virtual std::string fullDescription() const
    {
-      std::string layerName = m_prms[1];
-      std::vector<std::string> srtList    = CfgFileParser::list2array( m_prms[2], ',' );
-      std::vector<double>      srtWeights = CfgFileParser::set2array(  m_prms[3], ',' );
+      std::ostringstream oss;
+      oss << "    SourceRockHI  <layerName> <minVal> <maxVal> <prmPDF>\n";
+      oss << "    Where:\n";
+      oss << "       layerName - source rock layer name\n";
+      oss << "       minVal    - the parameter minimal range value\n";
+      oss << "       maxVal    - the parameter maximal range value\n";
+      oss << "       prmPDF    - the parameter probability density function type\n";
+
+      return oss.str();
+   }
+
+   virtual std::string usingExample( const char * cmdName ) const
+   {
+      std::ostringstream oss;
+      oss << "    Example:\n";
+      oss << "    #             type         layerName        minVal  maxVal   prmPDF\n";
+      oss << "    " << cmdName << " \"SourceRockHI\" \"Lower Jurassic\"    433.5    521.0  \"Block\"\n";
+      return oss.str();
+   }
+};
+
+
+////////////////////////////////////////////////////////////////
+// SourceRockType parameter
+////////////////////////////////////////////////////////////////
+//
+class SourceRockType : public PrmType
+{
+public:
+   SourceRockType()  {;}
+   virtual ~SourceRockType() {;}
+
+   virtual void addParameterObject( std::auto_ptr<casa::ScenarioAnalysis> & sa
+                                  , const std::string                     & name
+                                  , const std::vector<std::string>        & prms
+                                  ) const
+   {
+      std::string layerName = prms[1];
+      std::vector<std::string> srtList    = CfgFileParser::list2array( prms[2], ',' );
+      std::vector<double>      srtWeights = CfgFileParser::set2array(  prms[3], ',' );
       if (ErrorHandler::NoError != casa::BusinessLogicRulesSet::VarySourceRockType( *sa.get()
+                                                                                  , name.c_str()
                                                                                   , layerName.c_str()
                                                                                   , srtList
                                                                                   , srtWeights
@@ -144,39 +325,135 @@ void CmdAddVarPrm::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
       {
          throw ErrorHandler::Exception(sa->errorCode()) << sa->errorMessage();
       }
-   }   
-   else if ( m_prms[0] == "SourceRockPreasphActEnergy" )
+   }
+
+   size_t expectedParametersNumber() const { return 3; } // layer_name, source rocks list, wheights list
+   size_t optionalParametersNumber() const { return 0; } 
+
+   virtual std::string name() const { return "SourceRockType"; }
+
+   virtual std::string groupDescirption() const { return "\n  (Source rock parameters variation:)\n"; }
+
+   virtual std::string description() const
+   { 
+      std::ostringstream oss;
+
+      oss << "categorical parameter which could variate source rock type for the layer.\n";
+      oss << "                                 This parameter must be defined BEFORE any other SorceRock parameter";
+      return oss.str();
+   }
+
+   virtual std::string fullDescription() const
    {
-      double minVal = atof( m_prms[2].c_str() );
-      double maxVal = atof( m_prms[3].c_str() );
+      std::ostringstream oss;
+      oss << "    SourceRockType  <layerName> \"SRType1,SRType2,SRType3\" [w1,w2,w3 ]\n";
+      oss << "    Where:\n";
+      oss << "       layerName - source rock layer name\n";
+      oss << "       SRtype    - comma separated list of source rock types for variation\n";
+      oss << "       w1-w2     - comma separated list of source rock types weights\n";
+      return oss.str();
+   }
 
-      ppdf = Str2pdf( m_prms[4] );
+   virtual std::string usingExample( const char * cmdName ) const
+   {
+      std::ostringstream oss;
+      oss << "    Example:\n";
+      oss << "    #             type         layerName          category list             categories weight\n";
+      oss << "    "<< cmdName << " \"SourceRockType\" \"Lower Jurassic\"  \"Type1,Type2,Type3\" [0.8, 0.1, 0.1]\n";
+      return oss.str();
+   }
+};
 
-      if ( ErrorHandler::NoError != casa::BusinessLogicRulesSet::VarySourceRockPreAsphaltActEnergy( *sa.get(), m_prms[1].c_str(), minVal, maxVal, ppdf ) )
+////////////////////////////////////////////////////////////////
+// SourceRockPreasphActEnergy parameter
+////////////////////////////////////////////////////////////////
+//
+class SourceRockPreasphActEnergy : public PrmType
+{
+public:
+   SourceRockPreasphActEnergy()  {;}
+   virtual ~SourceRockPreasphActEnergy() {;}
+
+   virtual void addParameterObject( std::auto_ptr<casa::ScenarioAnalysis> & sa
+                                  , const std::string                     & name
+                                  , const std::vector<std::string>        & prms
+                                  ) const
+   {
+      double                      minVal = atof( prms[2].c_str() );
+      double                      maxVal = atof( prms[3].c_str() );
+      casa::VarPrmContinuous::PDF ppdf   = Str2pdf( prms[4] );
+
+      if ( ErrorHandler::NoError != casa::BusinessLogicRulesSet::VarySourceRockPreAsphaltActEnergy( *sa.get(), name.c_str(), prms[1].c_str(),
+                                                                                                    minVal, maxVal, ppdf ) )
       {
          throw ErrorHandler::Exception( sa->errorCode() ) << sa->errorMessage();
       }
+    }
+      
+   size_t expectedParametersNumber() const { return 4; } // layer_name, min, max, pdf
+   size_t optionalParametersNumber() const { return 0; } 
+
+   virtual std::string name() const { return "SourceRockPreasphActEnergy"; }
+
+   virtual std::string description() const { return "the activation energy limit for which the pre-asphalt cracking starts [ kJ/mol ]"; }
+
+   virtual std::string fullDescription() const
+   {
+      std::ostringstream oss;
+      oss << "    SourceRockPreasphActEnergy  <layerName> <minVal> <maxVal> <prmPDF>\n";
+      oss << "    Where:\n";
+      oss << "       layerName - source rock layer name\n";
+      oss << "       minVal    - the parameter minimal range value\n";
+      oss << "       maxVal    - the parameter maximal range value\n";
+      oss << "       prmPDF    - the parameter probability density function type\n";
+      return oss.str();
    }
-   else if ( m_prms[0] == "CrustThinningOneEvent" )
+
+   virtual std::string usingExample( const char * cmdName ) const
+   {
+      std::ostringstream oss;
+      oss << "    Example:\n";
+      oss << "    #             type         layerName        minVal  maxVal   prmPDF\n";
+      oss << "    " << cmdName << " \"SourceRockPreasphActEnergy\" \"Lower Jurassic\"    204.0  206.0  \"Block\"\n";
+      return oss.str();
+   }
+};
+
+
+////////////////////////////////////////////////////////////////
+// CrustThinningOneEvent parameter
+////////////////////////////////////////////////////////////////
+//
+class CrustThinningOneEvent : public PrmType
+{
+public:
+   CrustThinningOneEvent()  {;}
+   virtual ~CrustThinningOneEvent() {;}
+
+   virtual void addParameterObject( std::auto_ptr<casa::ScenarioAnalysis> & sa
+                                  , const std::string                     & name
+                                  , const std::vector<std::string>        & prms
+                                  ) const
    {
       // Initial crustal thickness
-      double minCrustThickn = atof( m_prms[1].c_str() );
-      double maxCrustThickn = atof( m_prms[2].c_str() );
+      double minCrustThickn = atof( prms[1].c_str() );
+      double maxCrustThickn = atof( prms[2].c_str() );
 
       // Start thinning time
-      double minTStart = atof( m_prms[3].c_str() );
-      double maxTStart = atof( m_prms[4].c_str() );
+      double minTStart = atof( prms[3].c_str() );
+      double maxTStart = atof( prms[4].c_str() );
 
       // Thinning duration
-      double minDeltaT = atof( m_prms[5].c_str() );
-      double maxDeltaT = atof( m_prms[6].c_str() );
+      double minDeltaT = atof( prms[5].c_str() );
+      double maxDeltaT = atof( prms[6].c_str() );
 
-      double minFactor = atof( m_prms[7].c_str() );
-      double maxFactor = atof( m_prms[8].c_str() );
+      double minFactor = atof( prms[7].c_str() );
+      double maxFactor = atof( prms[8].c_str() );
 
-      casa::VarPrmContinuous::PDF pdfType = Str2pdf( m_prms[9] );
+      casa::VarPrmContinuous::PDF pdfType = Str2pdf( prms[9] );
 
       if ( ErrorHandler::NoError != casa::BusinessLogicRulesSet::VaryOneCrustThinningEvent( *sa.get()
+                                                                                          , name.c_str()
                                                                                           , minCrustThickn
                                                                                           , maxCrustThickn
                                                                                           , minTStart
@@ -189,18 +466,68 @@ void CmdAddVarPrm::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
                                                                                           )
          ) { throw ErrorHandler::Exception( sa->errorCode() ) << sa->errorMessage(); }
    }
-   else if ( m_prms[0] == "CrustThinning" )
-   {
-      size_t eventsNumber = (m_prms.size() - 3) / 7;
-
-      if ( (m_prms.size() - 4) % 7 > 0 || m_prms.size() != (4+eventsNumber * 7) )
-      {
-         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Wrong number of parameters for " << m_prms[0];
-      }
       
+   size_t expectedParametersNumber() const { return 9; } // init crust thick min/max, t0 min/max, dt min/max, factor min/max, pdf
+   size_t optionalParametersNumber() const { return 0; } 
+
+   virtual std::string name() const { return "CrustThinningOneEvent"; }
+
+   virtual std::string description() const { return "a crust thickness function with one crust thinning event"; }
+
+   virtual std::string groupDescirption() const { return "\n  (Crust thinning variation:)\n"; }
+
+   virtual std::string fullDescription() const
+   {
+      std::ostringstream oss;
+      oss << "    CrustThinningOneEvent <IniCrstThickMn> <IniCrstThickMx> <mnT0> <mxT0> <mndT> <mxdT> <mnFact> <mxFct> <prmPDF>\n";
+      oss << "    Where:\n";
+      oss << "       IniCrstThickMn - initial crust thickness - minimal range value\n";
+      oss << "       IniCrstThickMx - initial crust thickness - maximal range value\n";
+      oss << "       mnT0           - crust thinning event start time [Ma] - minimal range value\n";
+      oss << "       mxT0           - crust thinning event start time [Ma] - maximal range value\n";
+      oss << "       mndT           - crust thinning event duration [MY] - minimal range value\n";
+      oss << "       mxdT           - crust thinning event duration [MY] - maximal range value\n";
+      oss << "       mnFact         - crust thickness factor - minimal range value\n";
+      oss << "       mxFact         - crust thickness factor - maximal range value\n";
+      oss << "       prmPDF         - the parameter probability density function type\n";
+      return oss.str();
+   }
+
+   virtual std::string usingExample( const char * cmdName ) const
+   {
+      std::ostringstream oss;
+      oss << "    Example:\n";
+      oss << "    #                                InCrThick   T0       dT    ThinFct  PDF\n";
+      oss << "    " << cmdName << " \"CrustThinningOneEvent\" 15000 40000 120 180 30 45   0.5 0.8 \"Block\"\n";
+      return oss.str();
+   }
+};
+
+////////////////////////////////////////////////////////////////
+// CrustThinning parameter
+////////////////////////////////////////////////////////////////
+//
+class CrustThinning : public PrmType
+{
+public:
+   CrustThinning()  {;}
+   virtual ~CrustThinning() {;}
+
+   virtual void addParameterObject( std::auto_ptr<casa::ScenarioAnalysis> & sa
+                                  , const std::string                     & name
+                                  , const std::vector<std::string>        & prms
+                                  ) const
+   {
+      size_t eventsNumber = (prms.size() - 3) / 7;
+
+      if ( ( prms.size() - 4) % 7 > 0 || prms.size() != (4+eventsNumber * 7) )
+      {
+         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Wrong number of parameters for " << prms[0];
+      }
+
       // Initial crustal thickness
-      double minCrustThickn = atof( m_prms[1].c_str() );
-      double maxCrustThickn = atof( m_prms[2].c_str() );
+      double minCrustThickn = atof( prms[1].c_str() );
+      double maxCrustThickn = atof( prms[2].c_str() );
 
       // Start thinning time
       std::vector<double> minT0( eventsNumber );
@@ -218,17 +545,18 @@ void CmdAddVarPrm::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
 
       for ( size_t i = 0; i < eventsNumber; ++i )
       {
-         minT0[i]     = atof( m_prms[pos++].c_str() );
-         maxT0[i]     = atof( m_prms[pos++].c_str() );
-         minDeltaT[i] = atof( m_prms[pos++].c_str() );
-         maxDeltaT[i] = atof( m_prms[pos++].c_str() );
-         minFactor[i] = atof( m_prms[pos++].c_str() );
-         maxFactor[i] = atof( m_prms[pos++].c_str() );
-         mapsList[i]  = m_prms[pos++];
+         minT0[i]     = atof( prms[pos++].c_str() );
+         maxT0[i]     = atof( prms[pos++].c_str() );
+         minDeltaT[i] = atof( prms[pos++].c_str() );
+         maxDeltaT[i] = atof( prms[pos++].c_str() );
+         minFactor[i] = atof( prms[pos++].c_str() );
+         maxFactor[i] = atof( prms[pos++].c_str() );
+         mapsList[i]  = prms[pos++];
       }
-      casa::VarPrmContinuous::PDF pdfType = Str2pdf( m_prms[pos] );
+      casa::VarPrmContinuous::PDF pdfType = Str2pdf( prms[pos] );
 
       if ( ErrorHandler::NoError != casa::BusinessLogicRulesSet::VaryCrustThinning( *sa.get()
+                                                                                  , name.c_str()
                                                                                   , minCrustThickn
                                                                                   , maxCrustThickn
                                                                                   , minT0
@@ -242,16 +570,74 @@ void CmdAddVarPrm::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
                                                                                   )
          ) { throw ErrorHandler::Exception( sa->errorCode() ) << sa->errorMessage(); }
    }
-   else if ( m_prms[0] == "PorosityModel" )
+
+   size_t expectedParametersNumber() const { return 10; } // init crust thick min/max, [t0 min/max, dt min/max, factor min/max mapname]+, pdf
+   size_t optionalParametersNumber() const { return 1000; } 
+
+   virtual std::string name() const { return "CrustThinning"; }
+
+   virtual std::string description() const
+   {
+      return "a crust thickness function with arbitrary number of crust thinning event and thickness maps support";
+   }
+
+   virtual std::string fullDescription() const
+   {
+      std::ostringstream oss;
+      oss << "    CrustThinning <IniCrstThickMn> <IniCrstThickMx> <mnT0> <mxT0> <mndT> <mxdT> <mnFact> <mxFct> <mapName>\n";
+      oss << "                                                   [<mnT0> <mxT0> <mndT> <mxdT> <mnFact> <mxFct> <mapName>]\n";
+      oss << "                                                    ...\n";
+      oss << "                                                   <prmPDF>\n";
+      oss << "    Where:\n";
+      oss << "       IniCrstThickMn - initial crust thickness - minimal range value\n";
+      oss << "       IniCrstThickMx - initial crust thickness - maximal range value\n";
+      oss << "       mnT0           - crust thinning event start time [Ma] - minimal range value\n";
+      oss << "       mxT0           - crust thinning event start time [Ma] - maximal range value\n";
+      oss << "       mndT           - crust thinning event duration [MY] - minimal range value\n";
+      oss << "       mxdT           - crust thinning event duration [MY] - maximal range value\n";
+      oss << "       mnFact         - crust thickness factor - minimal range value\n";
+      oss << "       mxFact         - crust thickness factor - maximal range value\n";
+      oss << "       mapName        - thickness map name\n";
+      oss << "       prmPDF         - the parameter probability density function type\n";
+      return oss.str();
+   }
+
+   virtual std::string usingExample( const char * cmdName ) const
+   {
+      std::ostringstream oss;
+      oss << "    Example:\n";
+      oss << "    #                      InCrThick      T0       dT      ThinFct   MapName\n";
+      oss << "    " << cmdName << " \"CrustThinning\" 20000  40000   200 250  20 30   0.7  0.9  ""\\ # first tinning event.\n";
+      oss << "                                          120 120  20 20   0.65 0.65 "" \\ # second tinnnng event - no variation\n";
+      oss << "                                          60  80   10 20   0.4  0.5  ""  \\ # third event\n";
+      oss << "                                          \"Block\"                      # PDF\n";
+      return oss.str();
+   }
+};
+
+////////////////////////////////////////////////////////////////
+// PorosityModel parameter
+////////////////////////////////////////////////////////////////
+//
+class PorosityModel : public PrmType
+{
+public:
+   PorosityModel()  {;}
+   virtual ~PorosityModel() {;}
+
+   virtual void addParameterObject( std::auto_ptr<casa::ScenarioAnalysis> & sa
+                                  , const std::string                     & name
+                                  , const std::vector<std::string>        & prms
+                                  ) const
    {
       size_t pos = 1;
-      const char * layerName   = ( m_prms.size() == 13 || m_prms.size() == 9 ) ? m_prms[pos++].c_str() : NULL;
-      const char * lithoName   = m_prms[pos++].c_str();
-      const char * modelName   = m_prms[pos++].c_str();
-      double       minSurfPor  = atof( m_prms[pos++].c_str() );
-      double       maxSurfPor  = atof( m_prms[pos++].c_str() );
-      double       minCompCoef = atof( m_prms[pos++].c_str() );
-      double       maxCompCoef = atof( m_prms[pos++].c_str() );
+      const char * layerName   = ( prms.size() == 13 || prms.size() == 9 ) ? prms[pos++].c_str() : NULL;
+      const char * lithoName   = prms[pos++].c_str();
+      const char * modelName   = prms[pos++].c_str();
+      double       minSurfPor  = atof( prms[pos++].c_str() );
+      double       maxSurfPor  = atof( prms[pos++].c_str() );
+      double       minCompCoef = atof( prms[pos++].c_str() );
+      double       maxCompCoef = atof( prms[pos++].c_str() );
 
       double minMinPor = UndefinedDoubleValue;
       double maxMinPor = UndefinedDoubleValue;
@@ -259,20 +645,21 @@ void CmdAddVarPrm::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
       double minCompCoef1 = UndefinedDoubleValue; 
       double maxCompCoef1 = UndefinedDoubleValue; 
 
-      if ( m_prms.size() == 12 || m_prms.size() == 13 )
+      if ( prms.size() == 12 || prms.size() == 13 )
       {
-         minMinPor    = atof( m_prms[pos++].c_str() );
-         maxMinPor    = atof( m_prms[pos++].c_str() );
-         minCompCoef1 = atof( m_prms[pos++].c_str() ); 
-         maxCompCoef1 = atof( m_prms[pos++].c_str() ); 
+         minMinPor    = atof( prms[pos++].c_str() );
+         maxMinPor    = atof( prms[pos++].c_str() );
+         minCompCoef1 = atof( prms[pos++].c_str() ); 
+         maxCompCoef1 = atof( prms[pos++].c_str() ); 
       }
-      else if ( m_prms.size() != 8 && m_prms.size() != 9 )
+      else if ( prms.size() != 8 && prms.size() != 9 )
       {
-         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Wrong number of parameters for " << m_prms[0];
+         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Wrong number of parameters for " << prms[0];
       }
-      casa::VarPrmContinuous::PDF pdfType = Str2pdf( m_prms.back() );
+      casa::VarPrmContinuous::PDF pdfType = Str2pdf( prms.back() );
 
       if ( ErrorHandler::NoError != casa::BusinessLogicRulesSet::VaryPorosityModelParameters( *sa.get()
+                                                                                            , name.c_str()
                                                                                             , layerName
                                                                                             , lithoName
                                                                                             , modelName
@@ -286,95 +673,157 @@ void CmdAddVarPrm::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
                                                                                             , maxCompCoef1
                                                                                             , pdfType
                                                                                             )
-         )
-      {
-         throw ErrorHandler::Exception( sa->errorCode() ) << sa->errorMessage();
-      }
+         ) { throw ErrorHandler::Exception( sa->errorCode() ) << sa->errorMessage(); }
    }
-   else if ( m_prms[0] == "PermeabilityModel" )
+      
+   size_t expectedParametersNumber() const { return 7; } // lay_name, lit_name, mod_name, surf_por mn/mx, cc mn/mx, min_por mn/mx, cc2 mn/mx, pdf
+   size_t optionalParametersNumber() const { return 5; } 
+
+   virtual std::string name() const { return "PorosityModel"; }
+
+   virtual std::string groupDescirption() const { return "\n  (Lithology parameters variation:)\n"; }
+   virtual std::string description() const { return "a variation of porosity model parameter for the given lithology"; }
+
+   virtual std::string fullDescription() const
+   {
+      std::ostringstream oss;
+      oss << "    PorosityModel [layName] <litName> <modelName> <mnSurfPr> <mxSurfPr> <mnCmpCf> <mxCmpCf> [<mnMinPr> <mxMinPr> <mnCmpCf1> <mxCmpCf1>] <prmPDF>\n";
+      oss << "    Where:\n";
+      oss << "       layName   - layer name (Optional). If it is given, the lithology will be copied and all changes will be done for the copy only\n";
+      oss << "       litName   - lithology name\n";
+      oss << "       modelName - porosity model name, allowed values: Exponential, Soil_Mechanics, Double_Exponential\n";
+      oss << "       mnSurfPr  - surface porosity - minimal range value\n";
+      oss << "       mxSurfPr  - surface porosity - maximal range value\n";
+      oss << "       mnCmpCf   - compaction coefficient - minimal range value\n";
+      oss << "       mxCmpCf   - compaction coefficient - maximal range value\n";
+      oss << "       mnMinPr   - minimal porosity (for Double_Exponential model only) - minimal range value\n";
+      oss << "       mxMinPr   - minimal porosity (for Double_Exponential model only) - maximal range value\n";
+      oss << "       mnCmpCf1  - compaction coefficient for the second exponent (for Double_Exponential model only) - minimal range value\n";
+      oss << "       mxCmpCf1  - compaction coefficient for the second exponent (for Double_Exponential model only) - maximal range value\n";
+      oss << "       prmPDF    - the parameter probability density function type\n";
+      oss << "\n";
+      oss << "    Note: for the Soil_Mechanics model only one parameter variation is possible, the second one should has same values\n";
+      oss << "          for min/max and will be ignored\n";
+      return oss.str();
+   }
+
+   virtual std::string usingExample( const char * cmdName ) const
+   {
+      std::ostringstream oss;
+      oss << "    Example 1:\n";
+      oss << "    #       VarPrmName      LithName             PorModel       SurfPor [%]  CompCoeff  Parameter PDF\n";
+      oss << "    " << cmdName << "  \"PorosityModel\" \"SM.Mudstone40%Clay\" \"Exponential\"  15 85        7.27 7.27  \"Block\"\n";
+      oss << "\n";
+      oss << "    Example 2:\n";
+      oss << "    #      VarPrmName      LithName              PorModel          SurfPor [%]  CompCoeff      Parameter PDF\n";
+      oss << "    " << cmdName << " \"PorosityModel\" \"SM.Mudstone40%Clay\"  \"Soil_Mechanics\"  15 85        0.1988 0.1988  \"Block\"\n";
+      return oss.str();
+   }
+};
+
+////////////////////////////////////////////////////////////////
+// PermeabilityModel parameter
+////////////////////////////////////////////////////////////////
+//
+class PermeabilityModel : public PrmType
+{
+public:
+   PermeabilityModel()  {;}
+   virtual ~PermeabilityModel() {;}
+
+   virtual void addParameterObject( std::auto_ptr<casa::ScenarioAnalysis> & sa
+                                  , const std::string                     & name
+                                  , const std::vector<std::string>        & prms
+                                  ) const
    {
       size_t pos = 1;
-      std::string layerName = m_prms[pos++];
-      std::string lithoName = m_prms[pos++];
-      std::string modelName = m_prms[pos++];
+      std::string layerName = prms[pos++];
+      std::string lithoName = prms[pos++];
+      std::string modelName = prms[pos++];
 
       std::vector<double> minModelPrms;
       std::vector<double> maxModelPrms;
 
       // Anis. coeff
-      minModelPrms.push_back( atof( m_prms[pos++].c_str() ) );
-      maxModelPrms.push_back( atof( m_prms[pos++].c_str() ) );
+      minModelPrms.push_back( atof( prms[pos++].c_str() ) );
+      maxModelPrms.push_back( atof( prms[pos++].c_str() ) );
 
-      if (      modelName == "Sandstone" || modelName == "Sands" )
+      if ( modelName == "Sandstone" || modelName == "Sands" )
       {
-         if ( m_prms.size() != 11 )
+         if ( prms.size() != 11 )
          {
-            throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Wrong number of parameters for " << m_prms[0] << ", expected 10, given " << m_prms.size();
+            throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Wrong number of parameters for " << prms[0] <<
+               ", expected 10, given " << prms.size();
          }
          // Depositional permeability 
-         minModelPrms.push_back( atof( m_prms[pos++].c_str() ) );
-         maxModelPrms.push_back( atof( m_prms[pos++].c_str() ) );
+         minModelPrms.push_back( atof( prms[pos++].c_str() ) );
+         maxModelPrms.push_back( atof( prms[pos++].c_str() ) );
          // Clay percentage
-         minModelPrms.push_back( atof( m_prms[pos++].c_str() ) );
-         maxModelPrms.push_back( atof( m_prms[pos++].c_str() ) );
+         minModelPrms.push_back( atof( prms[pos++].c_str() ) );
+         maxModelPrms.push_back( atof( prms[pos++].c_str() ) );
       }
       else if ( modelName == "Mudstone"  || modelName == "Shales" )
       {
-         if ( m_prms.size() != 13 )
+         if ( prms.size() != 13 )
          {
-            throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Wrong number of parameters for " << m_prms[0] << ", expected 12, given " << m_prms.size();
+            throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Wrong number of parameters for " << prms[0] <<
+               ", expected 12, given " << prms.size();
          }
          // Depositional permeability 
-         minModelPrms.push_back( atof( m_prms[pos++].c_str() ) );
-         maxModelPrms.push_back( atof( m_prms[pos++].c_str() ) );
+         minModelPrms.push_back( atof( prms[pos++].c_str() ) );
+         maxModelPrms.push_back( atof( prms[pos++].c_str() ) );
 
          // Sensitivity coeff. 
-         minModelPrms.push_back( atof( m_prms[pos++].c_str() ) );
-         maxModelPrms.push_back( atof( m_prms[pos++].c_str() ) );
+         minModelPrms.push_back( atof( prms[pos++].c_str() ) );
+         maxModelPrms.push_back( atof( prms[pos++].c_str() ) );
 
          // Recover coeff.
-         minModelPrms.push_back( atof( m_prms[pos++].c_str() ) );
-         maxModelPrms.push_back( atof( m_prms[pos++].c_str() ) );
+         minModelPrms.push_back( atof( prms[pos++].c_str() ) );
+         maxModelPrms.push_back( atof( prms[pos++].c_str() ) );
       }
       else if ( modelName == "Multipoint" )
       {
          // Min permeability curve
-         if ( pos >= m_prms.size() )
+         if ( pos >= prms.size() )
          {
-            throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Number of points for min. permeability profile for layer " << layerName << " not given";
+            throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Number of points for min. permeability profile for layer "
+               << layerName << " not given";
          }
-         size_t numPts = atol( m_prms[pos++].c_str() ); // number of points for minimum multipoint perm. profile
+         size_t numPts = atol( prms[pos++].c_str() ); // number of points for minimum multipoint perm. profile
 
          minModelPrms.push_back( static_cast<double>( numPts ) );
          
-         if ( pos + numPts * 2 >= m_prms.size() )
+         if ( pos + numPts * 2 >= prms.size() )
          {
-            throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Wrong number of points for of min. permeability profile for layer " << layerName;
+            throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Wrong number of points for of min. permeability profile for layer "
+               << layerName;
          }          
          // read points of minimal profile
          for ( size_t i = 0; i < numPts; ++i )
          {
-            minModelPrms.push_back( atof( m_prms[pos++].c_str() ) ); // porosity value
-            minModelPrms.push_back( atof( m_prms[pos++].c_str() ) ); // permeability value
+            minModelPrms.push_back( atof( prms[pos++].c_str() ) ); // porosity value
+            minModelPrms.push_back( atof( prms[pos++].c_str() ) ); // permeability value
          }
       
          // Max permeability curve
-         if ( pos >= m_prms.size() )
+         if ( pos >= prms.size() )
          {
-            throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Number of points for max. permeability profile for layer " << layerName << " not given";
+            throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Number of points for max. permeability profile for layer "
+               << layerName << " not given";
          }
-         numPts = atol( m_prms[pos++].c_str() ); // number of points for maximum multipoint perm. profile
+         numPts = atol( prms[pos++].c_str() ); // number of points for maximum multipoint perm. profile
          maxModelPrms.push_back( numPts );
 
-         if ( pos + numPts * 2 >= m_prms.size() )
+         if ( pos + numPts * 2 >= prms.size() )
          {
-            throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Wrong number of points for of max. permeability profile for layer " << layerName;
+            throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Wrong number of points for of max. permeability profile for layer "
+               << layerName;
          }
          // read points of maximal profile
          for ( size_t i = 0; i < numPts; ++i )
          {
-            maxModelPrms.push_back( atof( m_prms[pos++].c_str() ) ); // porosity value
-            maxModelPrms.push_back( atof( m_prms[pos++].c_str() ) ); // permeability value
+            maxModelPrms.push_back( atof( prms[pos++].c_str() ) ); // porosity value
+            maxModelPrms.push_back( atof( prms[pos++].c_str() ) ); // permeability value
          }
       }
       else 
@@ -382,13 +831,14 @@ void CmdAddVarPrm::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
          throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Unsupported porosity model (" << modelName <<") for the layer " << layerName; 
       }
 
-      if ( pos >= m_prms.size() ) 
+      if ( pos >= prms.size() ) 
       {
          throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "PDF of permeability model for layer " << layerName << " not specified";
       }
-      casa::VarPrmContinuous::PDF pdfType = Str2pdf( m_prms.back() );
+      casa::VarPrmContinuous::PDF pdfType = Str2pdf( prms.back() );
 
       if ( ErrorHandler::NoError != casa::BusinessLogicRulesSet::VaryPermeabilityModelParameters( *sa.get()
+                                                                                                , name.c_str()
                                                                                                 , layerName.c_str()
                                                                                                 , lithoName.c_str()
                                                                                                 , modelName.c_str()
@@ -396,26 +846,227 @@ void CmdAddVarPrm::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
                                                                                                 , maxModelPrms
                                                                                                 , pdfType
                                                                                                 )
-         )
-      {
-         throw ErrorHandler::Exception( sa->errorCode() ) << sa->errorMessage();
-      }
+         ) { throw ErrorHandler::Exception( sa->errorCode() ) << sa->errorMessage(); }
    }
-   else if ( m_prms[0] == "STPThermalCondCoeff" )
+      
+   size_t expectedParametersNumber() const { return 9; } // layer_name, min, max, pdf
+   size_t optionalParametersNumber() const { return 1000; } 
+
+   virtual std::string name() const { return "PermeabilityModel"; }
+
+   virtual std::string description() const { return "a variation of permeability model parameter for the given layer/lithology combination"; }
+
+   virtual std::string fullDescription() const
+   {
+      std::ostringstream oss;
+      oss << "    PermeabilityModel [<layName>] <litName> <modelName> <minAnisCf> <maxAnisCf> [other model min/max parameters value] <prmPDF>\n";
+      oss << "    Where:\n";
+      oss << "       layName       - layer name (Optional). If it is given, the lithology will be copied and all changes will be done for the copy only\n";
+      oss << "       litName       - lithology name\n";
+      oss << "       modelName     - permeability model name, allowed values: Sands, Shales, Multipoint\n";
+      oss << "       minAnisCf     - anisotropic coefficient - minimal range value                        (All models)\n";
+      oss << "       maxAnisCf     - anisotropic coefficient - maximal range value                        (All models)\n";
+      oss << "       minDepoPerm   - depositional permeability - minimal range value                      (Sands/Shales models)\n";
+      oss << "       maxDepoPerm   - depositional permeability - maximal range value                      (Sands/Shales models)\n";
+      oss << "       minClayPerc   - clay percentage - minimal range value                                (Sands model only)\n";
+      oss << "       maxClayPerc   - clay percentage - maximal range value                                (Sands model only)\n";
+      oss << "       minSensitCf   - sensitivity coefficient - minimal range value                        (Shales model only)\n";
+      oss << "       maxSensitCf   - sensitivity coefficient - maximal range value                        (Shales model only)\n";
+      oss << "       minRecoverCf  - recover coefficient - minimal range value                            (Shales model only)\n";
+      oss << "       maxRecoverCf  - recover coefficient - maximal range value                            (Shales model only)\n";
+      oss << "       minPPProfSize - number of points in minimal permeability vs porosity profile         (Multipoint model only)\n"; 
+      oss << "       minPPProf     - minimal profile of permeability vs porosity as set of pairs values   (Multipoint model only)\n";
+      oss << "       maxPPProfSize - number of points in maximal permeability vs porosity profile         (Multipoint model only)\n"; 
+      oss << "       maxPPProf     - maximal profile of permeability vs porosity as set of pairs values   (Multipoint model only)\n";
+      oss << "       prmPDF        - the parameter probability density function type\n";
+      return oss.str();
+   }
+
+   virtual std::string usingExample( const char * cmdName ) const
+   {
+      std::ostringstream oss;
+      oss << "    Example 1:\n";
+      oss << "    #       VarPrmName         LayerName        LitholName   PermModel AnisotCoef DepoPerm [mD] SensCoef RecovCoef Parameter PDF\n";
+      oss << "    " << cmdName << " \"PermeabilityModel\" \"Lower Jurassic\" \"Std. Shale\" \"Shales\"  1.0  1.0   0.005  0.015  1.0 2.0  0.01 0.01 \"Block\"\n";
+      oss << "\n";
+      oss << "    Example 2:\n";
+      oss << "    #       VarPrmName         LayerName        LitholName       PermModel AnisotCoef DepoPerm [mD] ClayPerc [%] Parameter PDF\n";
+      oss << "    " << cmdName << " \"PermeabilityModel\" \"Upper Jurassic\" \"Std. Sandstone\" \"Sands\"   1.0  1.0   5000  7000    1.0  2.0     \"Block\"\n";
+      oss << "\n";
+      oss << "    Example 3:\n";
+      oss << "    #       VarPrmName         LayerName    LitholName               PermModel     AnisotCoef\n";
+      oss << "    " << cmdName << " \"PermeabilityModel\" \"Paleocene\"  \"SM.Mudstone.40%Clay\"    \"Multipoint\"  1.0  1.0 \\ \n";
+      oss << "    #                                                        Min profile           NumPts   Por  Perm   Por Perm\n";
+      oss << "                                                                                   2        5    -7     60  -1.0 \\ \n";
+      oss << "    #                                                        Max profile           NumPts   Por  Perm   Por Perm\n";
+      oss << "                                                                                   2        5    -5     60   0.0 \\ \n";
+      oss << "    #                                                                              Parameter PDF\n";
+      oss << "                                                                                   \"Block\" \n";
+      oss << "\n";
+      return oss.str();
+   }
+};
+
+
+////////////////////////////////////////////////////////////////
+// STPThermalCondCoeff parameter
+////////////////////////////////////////////////////////////////
+//
+class STPThermalCondCoeff : public PrmType
+{
+public:
+   STPThermalCondCoeff()  {;}
+   virtual ~STPThermalCondCoeff() {;}
+
+   virtual void addParameterObject( std::auto_ptr<casa::ScenarioAnalysis> & sa
+                                  , const std::string                     & name
+                                  , const std::vector<std::string>        & prms
+                                  ) const
    {
       size_t pos = 1;
-      const char * layerName = m_prms.size() == 6 ? m_prms[pos++].c_str() : NULL;
-      const char * lithoName = m_prms[pos++].c_str();
-      double       minVal    = atof( m_prms[pos++].c_str() );
-      double       maxVal    = atof( m_prms[pos++].c_str() );
+      const char * layerName = prms.size() == 6 ? prms[pos++].c_str() : NULL;
+      const char * lithoName = prms[pos++].c_str();
+      double       minVal    = atof( prms[pos++].c_str() );
+      double       maxVal    = atof( prms[pos++].c_str() );
 
-      ppdf = Str2pdf( m_prms[pos++] );
+      casa::VarPrmContinuous::PDF ppdf = Str2pdf( prms[pos++] );
 
-      if ( ErrorHandler::NoError != casa::BusinessLogicRulesSet::VaryLithoSTPThermalCondCoeffParameter( *sa.get(), layerName, lithoName, minVal, maxVal, ppdf ) )
+      if ( ErrorHandler::NoError != casa::BusinessLogicRulesSet::VaryLithoSTPThermalCondCoeffParameter( *sa.get()
+                                                                                                      , name.c_str()
+                                                                                                      , layerName
+                                                                                                      , lithoName
+                                                                                                      , minVal
+                                                                                                      , maxVal
+                                                                                                      , ppdf
+                                                                                                      )
+         ) { throw ErrorHandler::Exception( sa->errorCode() ) << sa->errorMessage(); }
+   }
+
+   size_t expectedParametersNumber() const { return 4; } // layer_name, min, max, pdf
+   size_t optionalParametersNumber() const { return 1; } 
+
+   virtual std::string name() const { return "STPThermalCondCoeff"; }
+
+   virtual std::string description() const { return "a variation of STP (Standart P & T) thermal conductivity coefficient for the given lithology"; }
+
+   virtual std::string fullDescription() const
+   {
+      std::ostringstream oss;
+      oss << "    STPThermalCondCoeff [layName] <lithologyName> <minValue> <maxValue> <prmPDF>\n";
+      oss << "       layName       - layer name (Optional). If it is given, the lithology will be copied and all changes will be done for the copy only\n";
+      oss << "       lithologyName - lithology name\n";
+      oss << "       minVal    - the parameter minimal range value\n";
+      oss << "       maxVal    - the parameter maximal range value\n";
+      oss << "       prmPDF    - the parameter probability density function type\n";
+      return oss.str();
+   }
+
+   virtual std::string usingExample( const char * cmdName ) const
+   {
+      std::ostringstream oss;
+      oss << "    Example:\n";
+      oss << "    #       VarPrmName             LithName           min max  Parameter PDF\n";
+      oss << "    " << cmdName << " \"STPThermalCondCoeff\"  \"SM.Mudstone40%Clay\" 2   4   \"Block\"\n";
+      return oss.str();
+   }
+};
+
+
+////////////////////////////////////////////////////////////////
+/// Parameters types factory class
+////////////////////////////////////////////////////////////////
+
+class PrmTypesFactory
+{
+public:
+   PrmTypesFactory()
+   {
+      m_prmType["TopCrustHeatProduction"    ] = new TopCrustHeatProduction();
+      m_prmType["SourceRockType"            ] = new SourceRockType();
+      m_prmType["SourceRockTOC"             ] = new SourceRockTOC();
+      m_prmType["SourceRockHC"              ] = new SourceRockHC();
+      m_prmType["SourceRockHI"              ] = new SourceRockHI();
+      m_prmType["SourceRockPreasphActEnergy"] = new SourceRockPreasphActEnergy();
+      m_prmType["CrustThinningOneEvent"     ] = new CrustThinningOneEvent();
+      m_prmType["CrustThinning"             ] = new CrustThinning();
+      m_prmType["PorosityModel"             ] = new PorosityModel();
+      m_prmType["PermeabilityModel"         ] = new PermeabilityModel();
+      m_prmType["STPThermalCondCoeff"       ] = new STPThermalCondCoeff();
+   }
+
+   ~PrmTypesFactory() { for ( std::map<std::string, PrmType*>::iterator it = m_prmType.begin(); it != m_prmType.end(); ++it ) { delete it->second; } };
+
+   const PrmType * factory( const std::string & name ) const { return m_prmType.count( name ) ? m_prmType.find(name)->second : 0; }
+   
+   std::vector<std::string> typesNameList() const
+   {
+      std::vector<std::string> ret;
+      for ( std::map<std::string, PrmType*>::const_iterator it = m_prmType.begin(); it != m_prmType.end(); ++it )
       {
-         throw ErrorHandler::Exception( sa->errorCode() ) << sa->errorMessage();
+         ret.push_back( it->first );
+      }
+      return ret;
+   }
+
+private:
+   std::map<std::string, PrmType *> m_prmType; ///< Keeps all observables type
+};
+
+//////////////////////////////////////////
+// Parameters factory
+//////////////////////////////////////////
+static const PrmTypesFactory g_prmFactory;
+
+///////////////////////////////////////////////////////////////////////////////
+// CmdAddVarPrm methods
+///////////////////////////////////////////////////////////////////////////////
+CmdAddVarPrm::CmdAddVarPrm( CasaCommander & parent, const std::vector< std::string > & cmdPrms ) : CasaCmd( parent, cmdPrms )
+{
+   if ( m_prms.size() < 1 )
+   {
+      throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "No name of variable parameter was given";
+   }
+
+   // the first parameter could be varparameter name
+   const PrmType * pt = g_prmFactory.factory( m_prms[0] );
+   
+   if ( !pt && m_prms.size() > 1 )
+   {
+      pt = g_prmFactory.factory( m_prms[1] );
+      if ( pt )
+      {
+         m_prmName = m_prms[0];
+         m_prms.erase( m_prms.begin() );
       }
    }
+   
+   if ( !pt ) {  throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Unknown variable parameter name: " << m_prms[0]; }
+
+   size_t expPrmsNum = pt->expectedParametersNumber() + 1;
+   size_t expOptPrmNum = expPrmsNum + pt->optionalParametersNumber();
+
+   // check number of command parameters for var parameter
+   if ( m_prms.size() < expPrmsNum || m_prms.size() > expOptPrmNum )
+   {
+      throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Wrong number of parameters for " << m_prms[0] << " variable parameter";
+   }
+}
+
+void CmdAddVarPrm::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
+{
+   if ( m_commander.verboseLevel() > CasaCommander::Quiet )
+   {
+      std::cout << "Add variable parameter: " << m_prms[0] << "(";
+      for ( size_t i = 1; i < m_prms.size(); ++i )
+      {
+         std::cout << m_prms[i] << ((i == m_prms.size() - 1) ? "" : ",");
+      }
+      std::cout << ")" << std::endl;
+   }
+
+
+   g_prmFactory.factory( m_prms[0] )->addParameterObject( sa, m_prmName, m_prms );
+
 }
 
 void CmdAddVarPrm::printHelpPage( const char * cmdName )
@@ -426,212 +1077,28 @@ void CmdAddVarPrm::printHelpPage( const char * cmdName )
    std::cout << "  To define the variable parameter user should specify parameter type name and parameter range min/max values\n\n";
 
    std::cout << "  The following list of variable parameters is implemented for this command:\n";
-   std::cout << "    TopCrustHeatProduction     - surface radiogenic heat production of the basement [ uW/m^3].\n";
-   std::cout << "\n  (Source rock parameters variation:)\n";
-   std::cout << "    SourceRockType             - categorical parameter which could variate source rock type for the layer.\n";
-   std::cout << "                                 This parameter must be defined BEFORE any other SorceRock parameter\n";
-   std::cout << "    SourceRockTOC              - the initial total organic content in source rock [ weight % ].\n";
-   std::cout << "    SourceRockHC               - the initial H/C ratio in source rock [ kg/tonne C ].\n";
-   std::cout << "    SourceRockHI               - the initial hydrogen index (HI) ratio in source rock [ kg/tonne ].\n";
-   std::cout << "    SourceRockPreasphActEnergy - the activation energy limit for which the pre-asphalt cracking starts [ kJ/mol ].\n";
-   std::cout << "\n  (Crust thinning variation:)\n";
-   std::cout << "    CrustThinningOneEvent      - a crust thickness function with one crust thinning event.\n";
-   std::cout << "    CrustThinning              - a crust thickness function with arbitrary number of crust thinning event and thickness maps support.\n";
-   std::cout << "\n  (Lithology parameters variation:)\n";
-   std::cout << "\n  (Lithology parameters variation:)\n";
-   std::cout << "    PorosityModel              - a variation of porosity model parameter for the given lithology.\n";
-   std::cout << "    PermeabilityModel          - a variation of permeability model parameter for the given layer/lithology combination.\n";
-   std::cout << "    STPThermalCondCoeff        - a variation of STP (Standart P & T) thermal conductivity coefficient for the given lithology.\n";
-   std::cout << "\n";
+ 
+   const std::vector<std::string> & prmTypesName = g_prmFactory.typesNameList();
+
+   // print short description for each varparameter type
+   for ( size_t i = 0; i < prmTypesName.size(); ++ i )
+   {
+      const PrmType * prm = g_prmFactory.factory( prmTypesName[i] );
+
+      std::cout << prm->groupDescirption(); 
+      std::cout << "    " << prmTypesName[i] << " - " << prm->description() << ".\n";
+   }
    std::cout << "\n";
 
-   std::cout << "    TopCrustHeatProduction  <minVal> <maxVal> <prmPDF>\n";
-   std::cout << "    Where:\n";
-   std::cout << "       minVal - the parameter minimal range value\n";
-   std::cout << "       maxVal - the parameter maximal range value\n";
-   std::cout << "       prmPDF - the parameter probability density function type, the value could be one of the following:\n";
-   std::cout << "                \"Block\"    - uniform probability between min and max values,\n";
-   std::cout << "                \"Triangle\" - triangle shape probability function. The top triangle value is taken from the base case\n";
-   std::cout << "                \"Normal\"   - normal (or Gaussian) probability function. The position of highest value is taken from the base case\n";
-   std::cout << "\n";
-   std::cout << "    Example:\n";
-   std::cout << "    #              type               minVal  maxVal    prmPDF\n";
-   std::cout << "    " << cmdName << " \"TopCrustHeatProduction\"    0.1     4.9  \"Block\"\n";
-   std::cout << "\n";
+   // print examples of varparameters definition 
+   for ( size_t i = 0; i < prmTypesName.size(); ++ i )
+   {
+      const PrmType * prm = g_prmFactory.factory( prmTypesName[i] );
 
-   std::cout << "    SourceRockTOC  <layerName> <minVal> <maxVal> <prmPDF>\n";
-   std::cout << "    Where:\n";
-   std::cout << "       layerName - source rock layer name\n";
-   std::cout << "       minVal    - the parameter minimal range value\n";
-   std::cout << "       maxVal    - the parameter maximal range value\n";
-   std::cout << "       prmPDF    - the parameter probability density function type\n";
-   std::cout << "\n";
-
-   std::cout << "    SourceRockHC  <layerName> <minVal> <maxVal> <prmPDF>\n";
-   std::cout << "    Where:\n";
-   std::cout << "       layerName - source rock layer name\n";
-   std::cout << "       minVal    - the parameter minimal range value\n";
-   std::cout << "       maxVal    - the parameter maximal range value\n";
-   std::cout << "       prmPDF    - the parameter probability density function type\n";
-   std::cout << "\n";
-   std::cout << "    Example:\n";
-   std::cout << "    #             type         layerName        minVal  maxVal   prmPDF\n";
-   std::cout << "    "<< cmdName << " \"SourceRockHC\" \"Lower Jurassic\"   0.5    1.0  \"Block\"\n";
-   std::cout << "\n";
-
-   std::cout << "    SourceRockHI  <layerName> <minVal> <maxVal> <prmPDF>\n";
-   std::cout << "    Where:\n";
-   std::cout << "       layerName - source rock layer name\n";
-   std::cout << "       minVal    - the parameter minimal range value\n";
-   std::cout << "       maxVal    - the parameter maximal range value\n";
-   std::cout << "       prmPDF    - the parameter probability density function type\n";
-   std::cout << "\n";
-   std::cout << "    Example:\n";
-   std::cout << "    #             type         layerName        minVal  maxVal   prmPDF\n";
-   std::cout << "    " << cmdName << " \"SourceRockHI\" \"Lower Jurassic\"    433.5    521.0  \"Block\"\n";
-   std::cout << "\n";
-
-   std::cout << "    SourceRockType  <layerName> \"SRType1,SRType2,SRType3\" [w1,w2,w3 ]\n";
-   std::cout << "    Where:\n";
-   std::cout << "       layerName - source rock layer name\n";
-   std::cout << "       SRtype    - comma separated list of source rock types for variation\n";
-   std::cout << "       w1-w2     - comma separated list of source rock types weights\n";
-   std::cout << "\n";
-   std::cout << "    Example:\n";
-   std::cout << "    #             type         layerName          category list             categories weight\n";
-   std::cout << "    "<< cmdName << " \"SourceRockType\" \"Lower Jurassic\"  \"Type1,Type2,Type3\" [0.8, 0.1, 0.1]\n";
-   std::cout << "\n";
-
-   std::cout << "    SourceRockPreasphActEnergy  <layerName> <minVal> <maxVal> <prmPDF>\n";
-   std::cout << "    Where:\n";
-   std::cout << "       layerName - source rock layer name\n";
-   std::cout << "       minVal    - the parameter minimal range value\n";
-   std::cout << "       maxVal    - the parameter maximal range value\n";
-   std::cout << "       prmPDF    - the parameter probability density function type\n";
-   std::cout << "\n";
-   std::cout << "    Example:\n";
-   std::cout << "    #             type         layerName        minVal  maxVal   prmPDF\n";
-   std::cout << "    " << cmdName << " \"SourceRockPreasphActEnergy\" \"Lower Jurassic\"    204.0  206.0  \"Block\"\n";
-   std::cout << "\n";
-
-   std::cout << "    CrustThinningOneEvent <IniCrstThickMn> <IniCrstThickMx> <mnT0> <mxT0> <mndT> <mxdT> <mnFact> <mxFct> <prmPDF>\n";
-   std::cout << "    Where:\n";
-   std::cout << "       IniCrstThickMn - initial crust thickness - minimal range value\n";
-   std::cout << "       IniCrstThickMx - initial crust thickness - maximal range value\n";
-   std::cout << "       mnT0           - crust thinning event start time [Ma] - minimal range value\n";
-   std::cout << "       mxT0           - crust thinning event start time [Ma] - maximal range value\n";
-   std::cout << "       mndT           - crust thinning event duration [MY] - minimal range value\n";
-   std::cout << "       mxdT           - crust thinning event duration [MY] - maximal range value\n";
-   std::cout << "       mnFact         - crust thickness factor - minimal range value\n";
-   std::cout << "       mxFact         - crust thickness factor - maximal range value\n";
-   std::cout << "       prmPDF         - the parameter probability density function type\n";
-   std::cout << "\n";
-   std::cout << "    Example:\n";
-   std::cout << "    #                                InCrThick   T0       dT    ThinFct  PDF\n";
-   std::cout << "    " << cmdName << " \"CrustThinningOneEvent\" 15000 40000 120 180 30 45   0.5 0.8 \"Block\"\n";
-   std::cout << "\n";
-   
-   std::cout << "    CrustThinning <IniCrstThickMn> <IniCrstThickMx> <mnT0> <mxT0> <mndT> <mxdT> <mnFact> <mxFct> <mapName>\n";
-   std::cout << "                                                   [<mnT0> <mxT0> <mndT> <mxdT> <mnFact> <mxFct> <mapName>]\n";
-   std::cout << "                                                    ...\n";
-   std::cout << "                                                   <prmPDF>\n";
-   std::cout << "    Where:\n";
-   std::cout << "       IniCrstThickMn - initial crust thickness - minimal range value\n";
-   std::cout << "       IniCrstThickMx - initial crust thickness - maximal range value\n";
-   std::cout << "       mnT0           - crust thinning event start time [Ma] - minimal range value\n";
-   std::cout << "       mxT0           - crust thinning event start time [Ma] - maximal range value\n";
-   std::cout << "       mndT           - crust thinning event duration [MY] - minimal range value\n";
-   std::cout << "       mxdT           - crust thinning event duration [MY] - maximal range value\n";
-   std::cout << "       mnFact         - crust thickness factor - minimal range value\n";
-   std::cout << "       mxFact         - crust thickness factor - maximal range value\n";
-   std::cout << "       mapName        - thickness map name\n";
-   std::cout << "       prmPDF         - the parameter probability density function type\n";
-   std::cout << "\n";
-   std::cout << "    Example:\n";
-   std::cout << "    #                      InCrThick      T0       dT      ThinFct   MapName\n";
-   std::cout << "    " << cmdName << " \"CrustThinning\" 20000  40000   200 250  20 30   0.7  0.9  ""\\ # first tinning event.\n";
-   std::cout << "                                          120 120  20 20   0.65 0.65 "" \\ # second tinnnng event - no variation\n";
-   std::cout << "                                          60  80   10 20   0.4  0.5  ""  \\ # third event\n";
-   std::cout << "                                          \"Block\"                      # PDF\n";
-   std::cout << "\n";
-
-   std::cout << "    PorosityModel [layName] <litName> <modelName> <mnSurfPr> <mxSurfPr> <mnCmpCf> <mxCmpCf> [<mnMinPr> <mxMinPr> <mnCmpCf1> <mxCmpCf1>] <prmPDF>\n";
-   std::cout << "    Where:\n";
-   std::cout << "       layName   - layer name (Optional). If it is given, the lithology will be copied and all changes will be done for the copy only\n";
-   std::cout << "       litName   - lithology name\n";
-   std::cout << "       modelName - porosity model name, allowed values: Exponential, Soil_Mechanics, Double_Exponential\n";
-   std::cout << "       mnSurfPr  - surface porosity - minimal range value\n";
-   std::cout << "       mxSurfPr  - surface porosity - maximal range value\n";
-   std::cout << "       mnCmpCf   - compaction coefficient - minimal range value\n";
-   std::cout << "       mxCmpCf   - compaction coefficient - maximal range value\n";
-   std::cout << "       mnMinPr   - minimal porosity (for Double_Exponential model only) - minimal range value\n";
-   std::cout << "       mxMinPr   - minimal porosity (for Double_Exponential model only) - maximal range value\n";
-   std::cout << "       mnCmpCf1  - compaction coefficient for the second exponent (for Double_Exponential model only) - minimal range value\n";
-   std::cout << "       mxCmpCf1  - compaction coefficient for the second exponent (for Double_Exponential model only) - maximal range value\n";
-   std::cout << "       prmPDF    - the parameter probability density function type\n";
-   std::cout << "\n";
-   std::cout << "    Note: for the Soil_Mechanics model only one parameter variation is possible, the second one should has same values\n";
-   std::cout << "          for min/max and will be ignored\n";
-   std::cout << "\n";
-   std::cout << "    Example 1:\n";
-   std::cout << "    #       VarPrmName      LithName             PorModel       SurfPor [%]  CompCoeff  Parameter PDF\n";
-   std::cout << "    " << cmdName << "  \"PorosityModel\" \"SM.Mudstone40%Clay\" \"Exponential\"  15 85        7.27 7.27  \"Block\"\n";
-   std::cout << "\n";
-   std::cout << "    Example 2:\n";
-   std::cout << "    #      VarPrmName      LithName              PorModel          SurfPor [%]  CompCoeff      Parameter PDF\n";
-   std::cout << "    " << cmdName << " \"PorosityModel\" \"SM.Mudstone40%Clay\"  \"Soil_Mechanics\"  15 85        0.1988 0.1988  \"Block\"\n";
-
-   std::cout << "\n";
-   std::cout << "    PermeabilityModel [<layName>] <litName> <modelName> <minAnisCf> <maxAnisCf> [other model min/max parameters value] <prmPDF>\n";
-   std::cout << "    Where:\n";
-   std::cout << "       layName       - layer name (Optional). If it is given, the lithology will be copied and all changes will be done for the copy only\n";
-   std::cout << "       litName       - lithology name\n";
-   std::cout << "       modelName     - permeability model name, allowed values: Sands, Shales, Multipoint\n";
-   std::cout << "       minAnisCf     - anisotropic coefficient - minimal range value                        (All models)\n";
-   std::cout << "       maxAnisCf     - anisotropic coefficient - maximal range value                        (All models)\n";
-   std::cout << "       minDepoPerm   - depositional permeability - minimal range value                      (Sands/Shales models)\n";
-   std::cout << "       maxDepoPerm   - depositional permeability - maximal range value                      (Sands/Shales models)\n";
-   std::cout << "       minClayPerc   - clay percentage - minimal range value                                (Sands model only)\n";
-   std::cout << "       maxClayPerc   - clay percentage - maximal range value                                (Sands model only)\n";
-   std::cout << "       minSensitCf   - sensitivity coefficient - minimal range value                        (Shales model only)\n";
-   std::cout << "       maxSensitCf   - sensitivity coefficient - maximal range value                        (Shales model only)\n";
-   std::cout << "       minRecoverCf  - recover coefficient - minimal range value                            (Shales model only)\n";
-   std::cout << "       maxRecoverCf  - recover coefficient - maximal range value                            (Shales model only)\n";
-   std::cout << "       minPPProfSize - number of points in minimal permeability vs porosity profile         (Multipoint model only)\n"; 
-   std::cout << "       minPPProf     - minimal profile of permeability vs porosity as set of pairs values   (Multipoint model only)\n";
-   std::cout << "       maxPPProfSize - number of points in maximal permeability vs porosity profile         (Multipoint model only)\n"; 
-   std::cout << "       maxPPProf     - maximal profile of permeability vs porosity as set of pairs values   (Multipoint model only)\n";
-   std::cout << "       prmPDF        - the parameter probability density function type\n";
-   std::cout << "\n";
-   std::cout << "    Example 1:\n";
-   std::cout << "    #       VarPrmName         LayerName        LitholName   PermModel AnisotCoef DepoPerm [mD] SensCoef RecovCoef Parameter PDF\n";
-   std::cout << "    " << cmdName << " \"PermeabilityModel\" \"Lower Jurassic\" \"Std. Shale\" \"Shales\"  1.0  1.0   0.005  0.015  1.0 2.0  0.01 0.01 \"Block\"\n";
-   std::cout << "\n";
-   std::cout << "    Example 2:\n";
-   std::cout << "    #       VarPrmName         LayerName        LitholName       PermModel AnisotCoef DepoPerm [mD] ClayPerc [%] Parameter PDF\n";
-   std::cout << "    " << cmdName << " \"PermeabilityModel\" \"Upper Jurassic\" \"Std. Sandstone\" \"Sands\"   1.0  1.0   5000  7000    1.0  2.0     \"Block\"\n";
-   std::cout << "\n";
-   std::cout << "    Example 3:\n";
-   std::cout << "    #       VarPrmName         LayerName    LitholName               PermModel     AnisotCoef\n";
-   std::cout << "    " << cmdName << " \"PermeabilityModel\" \"Paleocene\"  \"SM.Mudstone.40%Clay\"    \"Multipoint\"  1.0  1.0 \\ \n";
-   std::cout << "    #                                                        Min profile           NumPts   Por  Perm   Por Perm\n";
-   std::cout << "                                                                                   2        5    -7     60  -1.0 \\ \n";
-   std::cout << "    #                                                        Max profile           NumPts   Por  Perm   Por Perm\n";
-   std::cout << "                                                                                   2        5    -5     60   0.0 \\ \n";
-   std::cout << "    #                                                                              Parameter PDF\n";
-   std::cout << "                                                                                   \"Block\" \n";
-   std::cout << "\n";
-
-   std::cout << "    STPThermalCondCoeff [layName] <lithologyName> <minValue> <maxValue> <prmPDF>\n";
-   std::cout << "       layName       - layer name (Optional). If it is given, the lithology will be copied and all changes will be done for the copy only\n";
-   std::cout << "       lithologyName - lithology name\n";
-   std::cout << "       minVal    - the parameter minimal range value\n";
-   std::cout << "       maxVal    - the parameter maximal range value\n";
-   std::cout << "       prmPDF    - the parameter probability density function type\n";
-   std::cout << "\n";
-   std::cout << "    Example:\n";
-   std::cout << "    #       VarPrmName             LithName           min max  Parameter PDF\n";
-   std::cout << "    " << cmdName << " \"STPThermalCondCoeff\"  \"SM.Mudstone40%Clay\" 2   4   \"Block\"\n";
-   std::cout << "\n";
+      std::cout << prm->fullDescription();
+      std::cout << "\n";
+      std::cout << "    Example:\n";
+      std::cout << prm->usingExample( cmdName );
+      std::cout << "\n";
+   }  
 }
-

@@ -15,14 +15,16 @@
 #include "VarPrmSourceRockHI.h"
 
 #include <cassert>
+#include <cstring>
 
 namespace casa
 {
 
-VarPrmSourceRockHI::VarPrmSourceRockHI( const char * layerName, double baseValue, double minValue, double maxValue, PDF pdfType ) : 
+VarPrmSourceRockHI::VarPrmSourceRockHI( const char * layerName, double baseValue, double minValue, double maxValue, PDF pdfType, const char * name ) : 
    m_layerName( layerName )
 {
    m_pdf = pdfType;
+   m_name = name && strlen( name ) > 0 ? std::string( name ) : std::string( "" );
 
    assert( minValue <= baseValue && maxValue >= baseValue );
 
@@ -40,7 +42,10 @@ VarPrmSourceRockHI::~VarPrmSourceRockHI()
 std::vector<std::string> VarPrmSourceRockHI::name() const
 {
 	std::vector<std::string> ret;
-	ret.push_back( m_layerName + " HI [kg/tonne]" );
+
+   if ( m_name.empty() ) { ret.push_back( m_layerName + " HI [kg/tonne]" ); }
+   else                  { ret.push_back( m_name ); }
+ 
 	return ret;
 }
 
@@ -52,8 +57,8 @@ SharedParameterPtr VarPrmSourceRockHI::newParameterFromDoubles( std::vector<doub
 
    if ( minV > prmV || prmV > maxV )
    {
-      throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Variation of source rock HI parameter for layer " << m_layerName << ": " << prmV << 
-                                                                        " falls out of range: [" << minV << ":" << maxV << "]";
+      throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Variation of source rock HI parameter for layer " <<
+                                       m_layerName << ": " << prmV << " falls out of range: [" << minV << ":" << maxV << "]";
    }
    SharedParameterPtr prm( new PrmSourceRockHI( this, prmV, m_layerName.c_str() ) );
 
@@ -71,14 +76,14 @@ bool VarPrmSourceRockHI::save( CasaSerializer & sz, unsigned int version ) const
 }
 
 // Create a new var.parameter instance by deserializing it from the given stream
-VarPrmSourceRockHI::VarPrmSourceRockHI( CasaDeserializer & dz, unsigned int objVer ) : VarPrmContinuous( dz, objVer )
+VarPrmSourceRockHI::VarPrmSourceRockHI( CasaDeserializer & dz, unsigned int objVer )
 {
-   bool ok = dz.load( m_layerName, "layerName" );
+   bool ok = VarPrmContinuous::deserializeCommonPart( dz, objVer );
+   ok = ok ? dz.load( m_layerName, "layerName" ) : ok;
 
    if ( !ok )
    {
-      throw ErrorHandler::Exception( ErrorHandler::DeserializationError )
-         << "VarPrmSourceRockHI deserialization unknown error";
+      throw ErrorHandler::Exception( ErrorHandler::DeserializationError ) << "VarPrmSourceRockHI deserialization unknown error";
    }
 }
 

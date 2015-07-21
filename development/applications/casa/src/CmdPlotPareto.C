@@ -73,11 +73,12 @@ void CmdPlotPareto::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
    ofs << "hold off\n";
    ofs << "close\n";
    
-   ofs << "ProxyName = '" << m_proxyName << "';\n";
+   ofs << "ProxyName = '" << MatlabExporter::correctName( m_proxyName ) << "';\n";
 
    for ( size_t i = 0; i < data.m_vprmSens.size(); ++i )
    {
-      ofs << " PrmParetoSensitivitySorted.prmName{ " << i+1 << "} = '" << data.m_vprmPtr[i]->name()[data.m_vprmSubID[i]] << "';\n";
+      ofs << " PrmParetoSensitivitySorted.prmName{ " << i+1 << "} = '" << 
+         MatlabExporter::correctName( data.m_vprmPtr[i]->name()[data.m_vprmSubID[i]] ) << "';\n";
       ofs << " PrmParetoSensitivitySorted.prmSens( " << i+1 << ") = " << data.m_vprmSens[i] << ";\n";
    }
 

@@ -43,6 +43,11 @@ namespace casa
          ok = sz.save( *(m_variation[i].get()), "enumValue" );
       }
      
+      if ( version >= 6 ) // version of ScenarioAnalysis object
+      {
+         ok = ok ? sz.save( m_name, "userGivenName" ) : ok;
+      }
+
       return ok;
    }
 
@@ -71,8 +76,8 @@ namespace casa
       return 0;
    }
    
-   // Constructor from input stream, implements common part of deserialization for continuous variable parameters
-   VarPrmCategorical::VarPrmCategorical( CasaDeserializer & dz, unsigned int objVer )
+   // Implements common part of deserialization for continuous variable parameters
+   bool VarPrmCategorical::deserializeCommonPart( CasaDeserializer & dz, unsigned int objVer )
    {
       if ( version() < objVer )
       {
@@ -99,11 +104,12 @@ namespace casa
          SharedParameterPtr prm( Parameter::load( dz, "enumValue" ) );
          m_variation.push_back( prm );
       }
- 
-      if ( !ok )
+
+      if ( objVer > 0 )
       {
-         throw ErrorHandler::Exception( ErrorHandler::DeserializationError )
-            << "VarPrmCategorical deserialization unknown error";
+         ok = ok ? dz.load( m_name, "userGivenName" ) : ok;
       }
+
+      return ok;
    }
 }

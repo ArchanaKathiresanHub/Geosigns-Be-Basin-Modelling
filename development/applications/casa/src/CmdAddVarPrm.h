@@ -30,6 +30,7 @@ public:
    static void printHelpPage( const char * cmdName );
 
 protected:
+   std::string m_prmName; ///< optional varparameter name
 };
 
 #endif // CASA_CMD_ADD_VARIABLE_PARAMETER_H

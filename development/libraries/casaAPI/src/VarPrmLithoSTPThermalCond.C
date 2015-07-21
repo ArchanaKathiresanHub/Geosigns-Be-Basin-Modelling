@@ -15,14 +15,22 @@
 #include "VarPrmLithoSTPThermalCond.h"
 
 #include <cassert>
+#include <cstring>
+
 
 namespace casa
 {
 
-VarPrmLithoSTPThermalCond::VarPrmLithoSTPThermalCond( const char * lithoName, double baseValue, double minValue, double maxValue, PDF pdfType ) : 
-   m_lithoName( lithoName )
+VarPrmLithoSTPThermalCond::VarPrmLithoSTPThermalCond( const char * lithoName
+                                                    , double       baseValue
+                                                    , double       minValue
+                                                    , double       maxValue
+                                                    , PDF          pdfType
+                                                    , const char * name
+                                                    ) : m_lithoName( lithoName )
 {
-   m_pdf = pdfType;
+   m_pdf  = pdfType;
+   m_name = name && strlen( name ) > 0 ? std::string( name ) : std::string( "" );
 
    assert( minValue <= baseValue && maxValue >= baseValue );
 
@@ -61,7 +69,6 @@ SharedParameterPtr VarPrmLithoSTPThermalCond::newParameterFromDoubles( std::vect
    return prm;
 }
 
-
 // Save all object data to the given stream, that object could be later reconstructed from saved data
 bool VarPrmLithoSTPThermalCond::save( CasaSerializer & sz, unsigned int version ) const
 {
@@ -72,9 +79,11 @@ bool VarPrmLithoSTPThermalCond::save( CasaSerializer & sz, unsigned int version 
 }
 
 // Create a new var.parameter instance by deserializing it from the given stream
-VarPrmLithoSTPThermalCond::VarPrmLithoSTPThermalCond( CasaDeserializer & dz, unsigned int objVer ) : VarPrmContinuous( dz, objVer )
+VarPrmLithoSTPThermalCond::VarPrmLithoSTPThermalCond( CasaDeserializer & dz, unsigned int objVer ) 
 {
-   bool ok = dz.load( m_lithoName, "lithoName" );
+   bool ok = VarPrmContinuous::deserializeCommonPart( dz, objVer );
+
+   ok = ok ? dz.load( m_lithoName, "lithoName" ) : ok;
 
    if ( !ok )
    {

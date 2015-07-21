@@ -117,6 +117,7 @@ namespace BusinessLogicRulesSet
 {
 // Add a parameter to variate layer thickness value [m] in given range
 ErrorHandler::ReturnCode VaryLayerThickness( ScenarioAnalysis & sa
+                                           , const char * name
                                            , const char * layerName
                                            , double minVal
                                            , double maxVal
@@ -127,9 +128,10 @@ ErrorHandler::ReturnCode VaryLayerThickness( ScenarioAnalysis & sa
 }
 
 // Add a parameter to variate top crust heat production value @f$ [\mu W/m^3] @f$ in given range
-ErrorHandler::ReturnCode VaryTopCrustHeatProduction( ScenarioAnalysis & sa
-                                                   , double minVal
-                                                   , double maxVal
+ErrorHandler::ReturnCode VaryTopCrustHeatProduction( ScenarioAnalysis    & sa
+                                                   , const char          * name
+                                                   , double                minVal
+                                                   , double                maxVal
                                                    , VarPrmContinuous::PDF rangeShape
                                                    )
 {
@@ -151,7 +153,7 @@ ErrorHandler::ReturnCode VaryTopCrustHeatProduction( ScenarioAnalysis & sa
          throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Value of parameter in base case is outside of the given range";
       }
 
-      if ( ErrorHandler::NoError != varPrmsSet.addParameter( new VarPrmTopCrustHeatProduction( baseValue[0], minVal, maxVal, rangeShape ) ) )
+      if ( ErrorHandler::NoError != varPrmsSet.addParameter( new VarPrmTopCrustHeatProduction( baseValue[0], minVal, maxVal, rangeShape, name ) ) )
       {
          return sa.moveError( varPrmsSet );
       }
@@ -165,10 +167,11 @@ ErrorHandler::ReturnCode VaryTopCrustHeatProduction( ScenarioAnalysis & sa
 }
 
 // Add a parameter to variate source rock lithology TOC value @f$ [%%] @f$ in given range
-ErrorHandler::ReturnCode VarySourceRockTOC( ScenarioAnalysis & sa
-                                          , const char * layerName
-                                          , double minVal
-                                          , double maxVal
+ErrorHandler::ReturnCode VarySourceRockTOC( ScenarioAnalysis    & sa
+                                          , const char          * name
+                                          , const char          * layerName
+                                          , double                minVal
+                                          , double                maxVal
                                           , VarPrmContinuous::PDF rangeShape
                                           )
 {
@@ -190,7 +193,7 @@ ErrorHandler::ReturnCode VarySourceRockTOC( ScenarioAnalysis & sa
          throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Value of parameter in base case is outside of the given range";
       }
 
-      if ( ErrorHandler::NoError != varPrmsSet.addParameter( new VarPrmSourceRockTOC( layerName, baseValue[0], minVal, maxVal, rangeShape ) ) )
+      if ( ErrorHandler::NoError != varPrmsSet.addParameter( new VarPrmSourceRockTOC( layerName, baseValue[0], minVal, maxVal, rangeShape, name ) ) )
       {
          return sa.moveError( varPrmsSet );
       }
@@ -204,10 +207,11 @@ ErrorHandler::ReturnCode VarySourceRockTOC( ScenarioAnalysis & sa
 }
 
 // Add a parameter to variate source rock lithology HI value [kg/tonne] in given range
-ErrorHandler::ReturnCode VarySourceRockHI( ScenarioAnalysis & sa
-                                         , const char * layerName
-                                         , double minVal
-                                         , double maxVal
+ErrorHandler::ReturnCode VarySourceRockHI( ScenarioAnalysis    & sa
+                                         , const char          * name
+                                         , const char          * layerName
+                                         , double                minVal
+                                         , double                maxVal
                                          , VarPrmContinuous::PDF rangeShape
                                          )
 {
@@ -248,7 +252,7 @@ ErrorHandler::ReturnCode VarySourceRockHI( ScenarioAnalysis & sa
          }
       }
 
-      if ( ErrorHandler::NoError != varPrmsSet.addParameter( new VarPrmSourceRockHI( layerName, baseValue[0], minVal, maxVal, rangeShape ) ) )
+      if ( ErrorHandler::NoError != varPrmsSet.addParameter( new VarPrmSourceRockHI( layerName, baseValue[0], minVal, maxVal, rangeShape, name ) ) )
       {
          return sa.moveError( varPrmsSet );
       }
@@ -263,9 +267,10 @@ ErrorHandler::ReturnCode VarySourceRockHI( ScenarioAnalysis & sa
 
 // Add a parameter to variate source rock lithology HC value [kg/tonne C] in given range
 ErrorHandler::ReturnCode VarySourceRockHC( ScenarioAnalysis & sa
-                                         , const char * layerName
-                                         , double minVal
-                                         , double maxVal
+                                         , const char          * name
+                                         , const char          * layerName
+                                         , double                minVal
+                                         , double                maxVal
                                          , VarPrmContinuous::PDF rangeShape
                                          )
 {
@@ -307,7 +312,7 @@ ErrorHandler::ReturnCode VarySourceRockHC( ScenarioAnalysis & sa
       }
 
       // add variable parameter to VarSpace
-      if ( ErrorHandler::NoError != varPrmsSet.addParameter( new VarPrmSourceRockHC( layerName, baseValue[0], minVal, maxVal, rangeShape ) ) )
+      if ( ErrorHandler::NoError != varPrmsSet.addParameter( new VarPrmSourceRockHC( layerName, baseValue[0], minVal, maxVal, rangeShape, name ) ) )
       {
          return sa.moveError( varPrmsSet );
       }
@@ -322,10 +327,11 @@ ErrorHandler::ReturnCode VarySourceRockHC( ScenarioAnalysis & sa
 
 
 // Add a parameter to variate source rock lithology pre-asphaltene activation energy value @f$ [kJ/mol] @f$ in given range
-ErrorHandler::ReturnCode VarySourceRockPreAsphaltActEnergy( ScenarioAnalysis & sa
-                                                          , const char * layerName
-                                                          , double minVal
-                                                          , double maxVal
+ErrorHandler::ReturnCode VarySourceRockPreAsphaltActEnergy( ScenarioAnalysis    & sa
+                                                          , const char          * name
+                                                          , const char          * layerName
+                                                          , double                minVal
+                                                          , double                maxVal
                                                           , VarPrmContinuous::PDF rangeShape
                                                           )
 {
@@ -347,7 +353,15 @@ ErrorHandler::ReturnCode VarySourceRockPreAsphaltActEnergy( ScenarioAnalysis & s
          throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Value of parameter in base case is outside of the given range";
       }
 
-      if ( ErrorHandler::NoError != varPrmsSet.addParameter( new VarPrmSourceRockPreAsphaltStartAct( layerName, baseValue[0], minVal, maxVal, rangeShape ) ) )
+      if ( ErrorHandler::NoError != varPrmsSet.addParameter( new VarPrmSourceRockPreAsphaltStartAct( layerName
+                                                                                                   , baseValue[0]
+                                                                                                   , minVal
+                                                                                                   , maxVal
+                                                                                                   , rangeShape
+                                                                                                   , name
+                                                                                                   )
+                                                           )
+         )
       {
          return sa.moveError( varPrmsSet );
       }
@@ -363,6 +377,7 @@ ErrorHandler::ReturnCode VarySourceRockPreAsphaltActEnergy( ScenarioAnalysis & s
 
 // Add parameter to variate source rock type for the specified layer
 ErrorHandler::ReturnCode VarySourceRockType( ScenarioAnalysis               & sa
+                                           , const char                     * name
                                            , const char                     * layerName
                                            , const std::vector<std::string> & stVariation
                                            , const std::vector<double>      & weights
@@ -440,7 +455,12 @@ ErrorHandler::ReturnCode VarySourceRockType( ScenarioAnalysis               & sa
       }
      
       // add variable parameter to VarSpace
-      if ( ErrorHandler::NoError != varPrmsSet.addParameter( new VarPrmSourceRockType( layerName, prm.sourceRockTypeName(), stVariation, weights ) ) )
+      if ( ErrorHandler::NoError != varPrmsSet.addParameter( new VarPrmSourceRockType( layerName
+                                                                                     , prm.sourceRockTypeName()
+                                                                                     , stVariation
+                                                                                     , weights
+                                                                                     , name
+                                                                                     ) ) )
       {
          return sa.moveError( varPrmsSet );
       }
@@ -455,10 +475,12 @@ ErrorHandler::ReturnCode VarySourceRockType( ScenarioAnalysis               & sa
  
 
 // Add 4 parameters to variate one crust thinning event.
-ErrorHandler::ReturnCode VaryOneCrustThinningEvent( casa::ScenarioAnalysis & sa, double minThickIni,    double maxThickIni,
-                                                                                 double minT0,          double maxT0,       
-                                                                                 double minDeltaT,      double maxDeltaT,   
-                                                                                 double minThinningFct, double maxThinningFct, VarPrmContinuous::PDF thingFctPDF )
+ErrorHandler::ReturnCode VaryOneCrustThinningEvent( casa::ScenarioAnalysis & sa, const char * name,
+                                                    double minThickIni,    double maxThickIni,
+                                                    double minT0,          double maxT0,       
+                                                    double minDeltaT,      double maxDeltaT,   
+                                                    double minThinningFct, double maxThinningFct, VarPrmContinuous::PDF thingFctPDF
+                                                  )
 {
    try
    {
@@ -516,7 +538,7 @@ ErrorHandler::ReturnCode VaryOneCrustThinningEvent( casa::ScenarioAnalysis & sa,
                                                                                               baseValues[1], minT0,          maxT0,
                                                                                               baseValues[2], minDeltaT,      maxDeltaT,
                                                                                               baseValues[3], minThinningFct, maxThinningFct,
-                                                                                              thingFctPDF ) ) )
+                                                                                              thingFctPDF, name ) ) )
       {
          return sa.moveError( varPrmsSet );
       }
@@ -531,6 +553,7 @@ ErrorHandler::ReturnCode VaryOneCrustThinningEvent( casa::ScenarioAnalysis & sa,
 
 // Add Multi-event crust thinning parameter with maps support
 ErrorHandler::ReturnCode VaryCrustThinning( casa::ScenarioAnalysis & sa
+                                           , const char                     * name
                                            , double                           minThickIni,    double                     maxThickIni    
                                            , const std::vector<double>      & minT0,          const std::vector<double> & maxT0          
                                            , const std::vector<double>      & minDeltaT,      const std::vector<double> & maxDeltaT      
@@ -631,7 +654,7 @@ ErrorHandler::ReturnCode VaryCrustThinning( casa::ScenarioAnalysis & sa
          if ( IsValueUndefined( baseValues[pos] ) ) { baseValues[pos] = 0.5 * ( minThinningFct[i] + maxThinningFct[i] ); }
          ++pos;
       }
-      if ( ErrorHandler::NoError != varPrmsSet.addParameter( new VarPrmCrustThinning( baseValues, minValues, maxValues, mapsList, pdfType ) ) )
+      if ( ErrorHandler::NoError != varPrmsSet.addParameter( new VarPrmCrustThinning( baseValues, minValues, maxValues, mapsList, pdfType, name ) ) )
       {
          return sa.moveError( varPrmsSet );
       }
@@ -644,6 +667,7 @@ ErrorHandler::ReturnCode VaryCrustThinning( casa::ScenarioAnalysis & sa
 
 // Add variation of porosity model parameters 
 ErrorHandler::ReturnCode VaryPorosityModelParameters( ScenarioAnalysis    & sa
+                                                    , const char          * name
                                                     , const char          * layerName
                                                     , const char          * litName
                                                     , const char          * modelName
@@ -728,11 +752,11 @@ ErrorHandler::ReturnCode VaryPorosityModelParameters( ScenarioAnalysis    & sa
       switch ( mdlType )
       {
          case PrmPorosityModel::DoubleExponential:
-            if ( baseMinPor    < minMinPor    || baseMinPor    > maxMinPor    ) { throw ex << "Minimal porosity in the base case is outside of the given range"; }
+            if ( baseMinPor < minMinPor || baseMinPor > maxMinPor ) { throw ex << "Minimal porosity in the base case is outside of the given range"; }
             if ( baseCompCoef1 < minCompCoef1 || baseCompCoef1 > maxCompCoef1 ) { throw ex << "Compaction coeff. (the second one) in the base case is outside of the given range"; }
 
          case PrmPorosityModel::Exponential:
-           if ( baseSurfPor  < minSurfPor  || baseSurfPor  > maxSurfPor  ) { throw ex << "Surface porosity in the base case is outside of the given range"; }
+           if ( baseSurfPor < minSurfPor || baseSurfPor > maxSurfPor ) { throw ex << "Surface porosity in the base case is outside of the given range"; }
            if ( baseCompCoef < minCompCoef || baseCompCoef > maxCompCoef ) { throw ex << "Value of comaction coeff. in the base case is outside of the given range"; }
            break;
 
@@ -741,7 +765,7 @@ ErrorHandler::ReturnCode VaryPorosityModelParameters( ScenarioAnalysis    & sa
                bool surfPorIsDef = IsValueUndefined( minSurfPor  ) || IsValueUndefined( maxSurfPor  ) ? false : true;
                bool compCofIsDef = IsValueUndefined( minCompCoef ) || IsValueUndefined( maxCompCoef ) ? false : true;
  
-               if ( surfPorIsDef && ( baseSurfPor  < minSurfPor  || baseSurfPor  > maxSurfPor  ) ) { throw ex << "Surface porosity in the base case is outside of the given range"; }
+               if ( surfPorIsDef && ( baseSurfPor < minSurfPor || baseSurfPor > maxSurfPor ) ) { throw ex << "Surface porosity in the base case is outside of the given range"; }
                if ( compCofIsDef && ( baseCompCoef < minCompCoef || baseCompCoef > maxCompCoef ) ) { throw ex << "Compaction coeff. in the base case is outside of the given range"; }
             }
             break;
@@ -757,7 +781,7 @@ ErrorHandler::ReturnCode VaryPorosityModelParameters( ScenarioAnalysis    & sa
                                                                                       baseMinPor,    minMinPor,    maxMinPor,
                                                                                       baseCompCoef,  minCompCoef,  maxCompCoef,
                                                                                       baseCompCoef1, minCompCoef1, maxCompCoef1,
-                                                                                      pdfType
+                                                                                      pdfType, name
                                                                                     ) )
          ) {  throw ErrorHandler::Exception( varPrmsSet.errorCode() ) << varPrmsSet.errorMessage(); }
    }
@@ -771,6 +795,7 @@ ErrorHandler::ReturnCode VaryPorosityModelParameters( ScenarioAnalysis    & sa
 
 /// @brief Add permeability model parameters variation
 ErrorHandler::ReturnCode VaryPermeabilityModelParameters( ScenarioAnalysis      & sa
+                                                        , const char            * name
                                                         , const char            * layerName
                                                         , const char            * lithoName
                                                         , const char            * modelName
@@ -866,7 +891,14 @@ ErrorHandler::ReturnCode VaryPermeabilityModelParameters( ScenarioAnalysis      
                                               CopyLithologyForTheLayer( sa, layerName, lithoName, "PrmMdl" ) : std::string( lithoName );
  
       VarSpace & varPrmsSet = sa.varSpace();
-      if ( ErrorHandler::NoError != varPrmsSet.addParameter( new VarPrmPermeabilityModel( newLithoName.c_str(), mdlType, basModelPrms, minModelPrms, maxModelPrms, pdfType ) ) )
+      if ( ErrorHandler::NoError != varPrmsSet.addParameter( new VarPrmPermeabilityModel( newLithoName.c_str()
+                                                                                        , mdlType
+                                                                                        , basModelPrms
+                                                                                        , minModelPrms
+                                                                                        , maxModelPrms
+                                                                                        , pdfType
+                                                                                        , name
+                                                                                        ) ) )
       {
          return sa.moveError( varPrmsSet );
       }
@@ -882,6 +914,7 @@ ErrorHandler::ReturnCode VaryPermeabilityModelParameters( ScenarioAnalysis      
 
 // Add STP thermal conductivity parameter variation for lithology
 ErrorHandler::ReturnCode VaryLithoSTPThermalCondCoeffParameter( ScenarioAnalysis    & sa
+                                                              , const char          * name
                                                               , const char          * layerName
                                                               , const char          * litName
                                                               , double                minVal
@@ -915,7 +948,13 @@ ErrorHandler::ReturnCode VaryLithoSTPThermalCondCoeffParameter( ScenarioAnalysis
       const std::string & newLithoName = ( layerName != NULL && strlen( layerName ) > 0 ) ? 
                                             CopyLithologyForTheLayer( sa, layerName, litName, "STPCoeff" ) : std::string( litName );
 
-      if ( ErrorHandler::NoError != varPrmsSet.addParameter( new VarPrmLithoSTPThermalCond( newLithoName.c_str(), baseVal, minVal, maxVal, pdfType ) ) )
+      if ( ErrorHandler::NoError != varPrmsSet.addParameter( new VarPrmLithoSTPThermalCond( newLithoName.c_str()
+                                                                                          , baseVal
+                                                                                          , minVal
+                                                                                          , maxVal
+                                                                                          , pdfType
+                                                                                          , name
+                                                                                          ) ) )
       {
          return sa.moveError( varPrmsSet );
       }

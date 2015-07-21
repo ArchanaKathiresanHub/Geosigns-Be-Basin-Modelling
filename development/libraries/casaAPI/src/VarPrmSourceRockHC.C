@@ -15,14 +15,16 @@
 #include "VarPrmSourceRockHC.h"
 
 #include <cassert>
+#include <cstring>
 
 namespace casa
 {
 
-VarPrmSourceRockHC::VarPrmSourceRockHC( const char * layerName, double baseValue, double minValue, double maxValue, PDF pdfType ) : 
+VarPrmSourceRockHC::VarPrmSourceRockHC( const char * layerName, double baseValue, double minValue, double maxValue, PDF pdfType, const char * name ) : 
    m_layerName( layerName )
 {
    m_pdf = pdfType;
+   m_name = name && strlen( name ) > 0 ? std::string( name ) : std::string( "" );
 
    assert( minValue <= baseValue && maxValue >= baseValue );
 
@@ -39,8 +41,9 @@ VarPrmSourceRockHC::~VarPrmSourceRockHC()
 
 std::vector<std::string> VarPrmSourceRockHC::name() const
 {
-	std::vector<std::string> ret;
-	ret.push_back( m_layerName + " H/C [kg/tonne C]" );
+   std::vector<std::string> ret;
+   if ( m_name.empty() ) { ret.push_back( m_layerName + " H/C [kg/tonne C]" ); }
+   else                  { ret.push_back( m_name ); }
 	return ret;
 }
 
@@ -71,14 +74,14 @@ bool VarPrmSourceRockHC::save( CasaSerializer & sz, unsigned int version ) const
 }
 
 // Create a new var.parameter instance by deserializing it from the given stream
-VarPrmSourceRockHC::VarPrmSourceRockHC( CasaDeserializer & dz, unsigned int objVer ) : VarPrmContinuous( dz, objVer )
+VarPrmSourceRockHC::VarPrmSourceRockHC( CasaDeserializer & dz, unsigned int objVer )
 {
-   bool ok = dz.load( m_layerName, "layerName" );
+   bool ok = VarPrmContinuous::deserializeCommonPart( dz, objVer );
+   ok = ok ? dz.load( m_layerName, "layerName" ) : ok;
 
    if ( !ok )
    {
-      throw ErrorHandler::Exception( ErrorHandler::DeserializationError )
-         << "VarPrmSourceRockHC deserialization unknown error";
+      throw ErrorHandler::Exception( ErrorHandler::DeserializationError ) << "VarPrmSourceRockHC deserialization unknown error";
    }
 }
 

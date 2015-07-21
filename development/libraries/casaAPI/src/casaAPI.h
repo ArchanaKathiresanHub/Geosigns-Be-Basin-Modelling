@@ -147,6 +147,7 @@ namespace casa
       /// @return ErrorHandler::NoError on success or error code otherwise
       ErrorHandler::ReturnCode VaryLayerThickness(
             ScenarioAnalysis    & sa          ///< [in,out] casa::ScenarioAnalysis object reference, if any error, this object will keep an error message
+          , const char          * name        ///< user specified name for variable parameter 
           , const char          * layerName   ///< [in] name of the layer in base case model to variate it thickness
           , double                minVal      ///< [in] the minimal range value 
           , double                maxVal      ///< [in] the maximal range value 
@@ -158,6 +159,7 @@ namespace casa
       /// @return ErrorHandler::NoError on success or error code otherwise
       ErrorHandler::ReturnCode VaryTopCrustHeatProduction(
             ScenarioAnalysis    & sa          ///< [in,out] casa::ScenarioAnalysis object reference, if any error, this object will keep an error message
+          , const char          * name        ///< user specified name for variable parameter 
           , double                minVal      ///< [in] the minimal range value 
           , double                maxVal      ///< [in] the maximal range value 
           , VarPrmContinuous::PDF rangeShape  /**< [in] defines a type of probability function for the parameter. If PDF needs some middle
@@ -168,6 +170,7 @@ namespace casa
       /// @return ErrorHandler::NoError on success or error code otherwise
       ErrorHandler::ReturnCode VarySourceRockTOC(
             ScenarioAnalysis    & sa          ///< [in,out] casa::ScenarioAnalysis object reference, if any error, this object will keep an error message
+          , const char          * name        ///< user specified name for variable parameter 
           , const char          * layerName   ///< [in] layer name. If layer has mixing of source rocks, for all of them TOC will be changed
           , double                minVal      ///< [in] the minimal range value 
           , double                maxVal      ///< [in] the maximal range value 
@@ -179,6 +182,7 @@ namespace casa
       /// @return ErrorHandler::NoError on success or error code otherwise
       ErrorHandler::ReturnCode VarySourceRockHI(
             ScenarioAnalysis    & sa          ///< [in,out] casa::ScenarioAnalysis object reference, if any error, this object will keep an error message
+          , const char          * name        ///< user specified name for variable parameter 
           , const char          * layerName   ///< [in] layer name
           , double                minVal      ///< [in] the minimal range value 
           , double                maxVal      ///< [in] the maximal range value 
@@ -190,6 +194,7 @@ namespace casa
       /// @return ErrorHandler::NoError on success or error code otherwise
       ErrorHandler::ReturnCode VarySourceRockHC(
             ScenarioAnalysis    & sa          ///< [in,out] casa::ScenarioAnalysis object reference, if any error, this object will keep an error message
+          , const char          * name        ///< user specified name for variable parameter 
           , const char          * layerName   ///< [in] layer name 
           , double                minVal      ///< [in] the minimal range value 
           , double                maxVal      ///< [in] the maximal range value 
@@ -201,6 +206,7 @@ namespace casa
       /// @return ErrorHandler::NoError on success or error code otherwise
       ErrorHandler::ReturnCode VarySourceRockPreAsphaltActEnergy(
            ScenarioAnalysis    & sa          ///< [in,out] casa::ScenarioAnalysis object reference, if any error, this object will keep an error message
+         , const char          * name        ///< user specified name for variable parameter 
          , const char          * layerName   ///< [in] layer name
          , double                minVal      ///< [in] the minimal range value 
          , double                maxVal      ///< [in] the maximal range value 
@@ -212,6 +218,7 @@ namespace casa
       /// @return ErrorHandler::NoError on success or error code otherwise
       ErrorHandler::ReturnCode VarySourceRockType(
             ScenarioAnalysis               & sa          ///< [in,out] casa::ScenarioAnalysis object reference, if any error, this object will keep an error message
+          , const char                     * name        ///< user specified name for variable parameter 
           , const char                     * layerName   ///< [in] layer name
           , const std::vector<std::string> & stVariation ///< [in] list of source rock types to variate them 
           , const std::vector<double>      & weights     ///< [in] weighting coefficient for each parameter value
@@ -222,6 +229,7 @@ namespace casa
       /// @return ErrorHandler::NoError on success or error code otherwise
       ErrorHandler::ReturnCode VaryOneCrustThinningEvent(
             ScenarioAnalysis    & sa             ///< [in,out] casa::ScenarioAnalysis object reference, if any error, this object will keep an error message
+          , const char          * name           ///< user specified name for variable parameter 
           , double                minThickIni    ///< [in] minimal range value for the initial crust thickness
           , double                maxThickIni    ///< [in] maximal range value for the initial crust thickness
           , double                minT0          ///< [in] minimal range value for the start time of crust thinning
@@ -255,6 +263,7 @@ namespace casa
       /// @return ErrorHandler::NoError on success or error code otherwise
       ErrorHandler::ReturnCode VaryCrustThinning(
             ScenarioAnalysis          & sa             ///< [in,out] casa::ScenarioAnalysis object reference, if any error, this object will keep an error message
+          , const char                * name           ///< user specified name for variable parameter 
           , double                      minThickIni    ///< [in] minimal range value for the initial crust thickness.
           , double                      maxThickIni    ///< [in] maximal range value for the initial crust thickness.
           , const std::vector<double> & minT0          ///< [in] minimal range value for the start time of crust thinning
@@ -273,6 +282,7 @@ namespace casa
       /// @return ErrorHandler::NoError on success or error code otherwise
       ErrorHandler::ReturnCode VaryPorosityModelParameters( 
             ScenarioAnalysis    & sa            ///< [in,out] casa::ScenarioAnalysis object reference, if any error, this object will keep an error message
+          , const char          * name          ///< user specified name for variable parameter 
           , const char *          layerName     ///< [in] stratigraphy layer name, if layerName is not NULL, it will copy lithology record before making changes
           , const char *          litName       ///< [in] lithology name
           , const char *          modelName     ///< [in] porosity model name, supported now: Exponential, Soil_Mechanics, Double_Exponential
@@ -292,6 +302,7 @@ namespace casa
       /// @return ErrorHandler::NoError on success or error code otherwise
       ErrorHandler::ReturnCode VaryPermeabilityModelParameters(
             ScenarioAnalysis      & sa            ///< [in,out] casa::ScenarioAnalysis object reference, if any error, this object will keep an error message
+          , const char            * name          ///< user specified name for variable parameter 
           , const char            * layerName     ///< [in] stratigraphy layer name
           , const char            * lithoName     ///< [in] lithology name, because layer could have a mix of lithology, we need to now which lithology it is
           , const char            * modelName     ///< [in] permeability model name, supported now Sandstone, Mudstone, Multipoint
@@ -321,6 +332,7 @@ namespace casa
       /// @return ErrorHandler::NoError on success or error code otherwise
       ErrorHandler::ReturnCode VaryLithoSTPThermalCondCoeffParameter( 
          ScenarioAnalysis    & sa            ///< [in,out] casa::ScenarioAnalysis object reference, if any error, this object will keep an error message
+       , const char          * name          ///< user specified name for variable parameter 
        , const char *          layerName     ///< [in] stratigraphy layer name, if layerName is not NULL, it will copy lithology record before making changes
        , const char *          litName       ///< [in] lithology name
        , double                minVal        ///< [in] min range value for the STP thermal conductivity coeff. 
@@ -328,7 +340,8 @@ namespace casa
       , VarPrmContinuous::PDF pdfType          /**< [in] probability function type for the variable parameter. If PDF needs 
                                                      some middle parameter value it will be taken from the base case model */
        );
-};
-}
+   } // namespace BusinessLogicRulesSet
+
+} // namespace casa
 
 #endif // CASA_API

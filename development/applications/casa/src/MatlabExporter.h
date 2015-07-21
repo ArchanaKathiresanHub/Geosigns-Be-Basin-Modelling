@@ -41,6 +41,9 @@ public:
    template <typename T> MatlabExporter & operator << ( const T    & val ) { m_ofs << val; return *this; }
    MatlabExporter                       & operator << ( const char * val ) { m_ofs << val; return *this; }
 
+   // replace _(.,: in given string
+   static std::string correctName( std::string name );
+
 private:
    std::string   m_fname;
    std::ofstream m_ofs;

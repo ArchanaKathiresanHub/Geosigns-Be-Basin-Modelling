@@ -22,6 +22,7 @@
 
 // STL/C lib
 #include <cassert>
+#include <cstring>
 #include <memory>
 #include <cmath>
 
@@ -104,11 +105,13 @@ VarPrmPermeabilityModel::VarPrmPermeabilityModel( const char                    
                                                 , const std::vector<double>                   & minModelPrms 
                                                 , const std::vector<double>                   & maxModelPrms  
                                                 , PDF                                           prmPDF
+                                                , const char                                  * name
                                                 ) 
 {
-   m_pdf            = prmPDF;
-   m_mdlType        = mdlType;
-   m_lithoName      = lithoName;
+   m_pdf       = prmPDF;
+   m_mdlType   = mdlType;
+   m_lithoName = lithoName;
+   m_name      = name && strlen( name ) > 0 ? std::string( name ) : std::string( "" );
       
    if ( PrmPermeabilityModel::None == mdlType || PrmPermeabilityModel::Impermeable == mdlType )
    {
@@ -176,33 +179,69 @@ VarPrmPermeabilityModel::~VarPrmPermeabilityModel()
 
 std::vector<std::string> VarPrmPermeabilityModel::name() const
 {
-	std::vector<std::string> ret;
-   switch ( m_mdlType )
+   std::vector<std::string> ret;
+   
+   if ( m_name.empty() )
    {
-      case PrmPermeabilityModel::None:
-      case PrmPermeabilityModel::Impermeable:
-         break;
+      switch ( m_mdlType )
+      {
+         case PrmPermeabilityModel::None:
+         case PrmPermeabilityModel::Impermeable:
+            break;
 
-      case PrmPermeabilityModel::Sandstone:
-         ret.resize( PrmPermeabilityModel::ClayPercentage + 1 );
-         ret[PrmPermeabilityModel::AnisotropicCoeff] = m_lithoName + ". Anisotropic coeff. [kv/kh]";
-         ret[PrmPermeabilityModel::DepositionalPerm] = m_lithoName + ". Depositional permeability [mD]";
-         ret[PrmPermeabilityModel::ClayPercentage]   = m_lithoName + ". Sandstone clay percentage [%]";
-         break;
+         case PrmPermeabilityModel::Sandstone:
+            ret.resize( PrmPermeabilityModel::ClayPercentage + 1 );
+            ret[PrmPermeabilityModel::AnisotropicCoeff] = m_lithoName + ". Anisotropic coeff. [kv/kh]";
+            ret[PrmPermeabilityModel::DepositionalPerm] = m_lithoName + ". Depositional permeability [mD]";
+            ret[PrmPermeabilityModel::ClayPercentage]   = m_lithoName + ". Sandstone clay percentage [%]";
+            break;
 
-      case PrmPermeabilityModel::Mudstone:
-         ret.resize( PrmPermeabilityModel::RecoverCoeff + 1 );
-         ret[PrmPermeabilityModel::AnisotropicCoeff] = m_lithoName + ". Anisotropic coeff. [kv/kh]";
-         ret[PrmPermeabilityModel::DepositionalPerm] = m_lithoName + ". Depositional permeability [mD]";
-         ret[PrmPermeabilityModel::SensitivityCoeff] = m_lithoName + ". Sensitivity coeff. []";
-         ret[PrmPermeabilityModel::RecoverCoeff]     = m_lithoName + ". Recovery coeff. []";
-         break;
-         
-      case PrmPermeabilityModel::Multipoint:
-         ret.resize( PrmPermeabilityModel::AnisotropicCoeff + 1 );
-         ret[PrmPermeabilityModel::AnisotropicCoeff] = m_lithoName + ". Anisotropic coeff. [kv/kh]";
-         ret.push_back( m_lithoName + ". Profile variation parameter []" );
-         break;
+         case PrmPermeabilityModel::Mudstone:
+            ret.resize( PrmPermeabilityModel::RecoverCoeff + 1 );
+            ret[PrmPermeabilityModel::AnisotropicCoeff] = m_lithoName + ". Anisotropic coeff. [kv/kh]";
+            ret[PrmPermeabilityModel::DepositionalPerm] = m_lithoName + ". Depositional permeability [mD]";
+            ret[PrmPermeabilityModel::SensitivityCoeff] = m_lithoName + ". Sensitivity coeff. []";
+            ret[PrmPermeabilityModel::RecoverCoeff]     = m_lithoName + ". Recovery coeff. []";
+            break;
+            
+         case PrmPermeabilityModel::Multipoint:
+            ret.resize( PrmPermeabilityModel::AnisotropicCoeff + 1 );
+            ret[PrmPermeabilityModel::AnisotropicCoeff] = m_lithoName + ". Anisotropic coeff. [kv/kh]";
+            ret.push_back( m_lithoName + ". Profile variation parameter []" );
+            break;
+      }
+   }
+   else
+   {
+      switch ( m_mdlType )
+      {
+         case PrmPermeabilityModel::None:
+         case PrmPermeabilityModel::Impermeable:
+            break;
+
+         case PrmPermeabilityModel::Sandstone:
+            ret.resize( PrmPermeabilityModel::ClayPercentage + 1 );
+            ret[PrmPermeabilityModel::AnisotropicCoeff] = m_name + "_ansCoef";
+            ret[PrmPermeabilityModel::DepositionalPerm] = m_name + "_depPerm";
+            ret[PrmPermeabilityModel::ClayPercentage]   = m_name + "_clayPrc";
+            break;
+
+         case PrmPermeabilityModel::Mudstone:
+            ret.resize( PrmPermeabilityModel::RecoverCoeff + 1 );
+            ret[PrmPermeabilityModel::AnisotropicCoeff] = m_name + "_ansCoef";
+            ret[PrmPermeabilityModel::DepositionalPerm] = m_name + "_depPerm";
+            ret[PrmPermeabilityModel::SensitivityCoeff] = m_name + "_sensCof";
+            ret[PrmPermeabilityModel::RecoverCoeff]     = m_name + "_recvCof";
+            break;
+            
+         case PrmPermeabilityModel::Multipoint:
+            ret.resize( PrmPermeabilityModel::AnisotropicCoeff + 1 );
+            ret[PrmPermeabilityModel::AnisotropicCoeff] = m_name + "_ansCoef";
+            ret.push_back( m_name + "_intCoef" );
+            break;
+      }
+      if ( ret.size() > 0 ) ret[0] = m_name;
+      else ret.push_back( m_name );
    }
 	return ret;
 }
@@ -276,20 +315,21 @@ bool VarPrmPermeabilityModel::save( CasaSerializer & sz, unsigned int version ) 
 }
 
 // Constructor from input stream
-VarPrmPermeabilityModel::VarPrmPermeabilityModel( CasaDeserializer & dz, unsigned int objVer ) : VarPrmContinuous( dz, objVer ) // call parent constructor first
+VarPrmPermeabilityModel::VarPrmPermeabilityModel( CasaDeserializer & dz, unsigned int objVer ) 
 {
+   bool ok = VarPrmContinuous::deserializeCommonPart( dz, objVer );
+   
    int mdlTypeSaved;
-
-   bool ok = dz.load( mdlTypeSaved, "PorModelType" );
+   ok = ok ? dz.load( mdlTypeSaved, "PorModelType" ) : ok;
    
    if ( ok ) m_mdlType = static_cast<PrmPermeabilityModel::PermeabilityModelType>( mdlTypeSaved );
 
-   ok = ok ? dz.load( m_lithoName,      "LithologyName"  ) : ok;
+   ok = ok ? dz.load( m_lithoName,  "LithologyName"  ) : ok;
 
    if ( !ok )
    {
-      throw ErrorHandler::Exception( ErrorHandler::DeserializationError )
-         << "VarPrmPermeabilityModel deserialization unknown error";
+      throw ErrorHandler::Exception( ErrorHandler::DeserializationError ) << "VarPrmPermeabilityModel deserialization unknown error";
    }
 }
+
 }

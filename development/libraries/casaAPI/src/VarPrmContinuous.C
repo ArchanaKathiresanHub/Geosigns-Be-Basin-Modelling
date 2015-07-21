@@ -83,6 +83,11 @@ namespace casa
       ok = ok ? sz.save( *(m_minValue.get()),  "minValue" )  : ok;
       ok = ok ? sz.save( *(m_maxValue.get()),  "maxValue" )  : ok;
       
+      if ( version >= 6 ) // version of ScenarioAnalysis object
+      {
+         ok = ok ? sz.save( m_name, "userGivenName" ) : ok;
+      }
+
       return ok;
    }
 
@@ -120,7 +125,7 @@ namespace casa
    }
    
    // Constructor from input stream, implements common part of deserialization for continuous variable parameters
-   VarPrmContinuous::VarPrmContinuous( CasaDeserializer & dz, unsigned int objVer )
+   bool VarPrmContinuous::deserializeCommonPart( CasaDeserializer & dz, unsigned int objVer )
    {
       if ( version() < objVer )
       {
@@ -146,11 +151,13 @@ namespace casa
          m_minValue.reset(  Parameter::load( dz, "minValue"  ) );
          m_maxValue.reset(  Parameter::load( dz, "maxValue"  ) );
       }
-      else
-      {
-         throw ErrorHandler::Exception( ErrorHandler::DeserializationError )
-            << "VarPrmContinuous deserialization unknown error";
+
+      if ( objVer > 0 )
+      {  
+         ok = ok ? dz.load( m_name, "userGivenName" ) : ok;
       }
+
+      return ok;
    }
 }
 
