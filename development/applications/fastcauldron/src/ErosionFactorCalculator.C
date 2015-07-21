@@ -26,7 +26,11 @@ bool ErosionFactorCalculator::operator ()( const OutputPropertyMap::OutputProper
    double currentAge = m_snapshot->getTime ();
    double depoAge = m_formation->depoage;
 
-   bool isNonGeometricLoop = FastcauldronSimulator::getInstance ().getRunParameters ()->getNonGeometricLoop ();
+   bool isNonGeometricLoop = ( FastcauldronSimulator::getInstance ().getCalculationMode () == OVERPRESSURE_MODE or
+                               FastcauldronSimulator::getInstance ().getCalculationMode () == OVERPRESSURED_TEMPERATURE_MODE or 
+                               FastcauldronSimulator::getInstance ().getCalculationMode () == PRESSURE_AND_TEMPERATURE_MODE or 
+                               FastcauldronSimulator::getInstance ().getCalculationMode () == COUPLED_DARCY_MODE ) and                               
+                              FastcauldronSimulator::getInstance ().getRunParameters ()->getNonGeometricLoop ();
    unsigned int i;
    unsigned int j;
    int k;
