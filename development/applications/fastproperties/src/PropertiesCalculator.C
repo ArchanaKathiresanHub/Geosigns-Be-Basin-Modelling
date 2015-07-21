@@ -137,9 +137,12 @@ void PropertiesCalculator::calculateProperties( FormationVector& formationItems,
    FormationVector::iterator formationIter;
 
    SnapshotFormationOutputPropertyValueMap allOutputPropertyValues;
-   const Snapshot * zeroSnapshot = m_projectHandle->findSnapshot( 0 );
 
-   snapshots.push_back( zeroSnapshot ); 
+   if( snapshots.empty() ) {
+      const Snapshot * zeroSnapshot = m_projectHandle->findSnapshot( 0 );
+      
+      snapshots.push_back( zeroSnapshot ); 
+   }
 
    const string outputDirName = m_projectHandle->getFullOutputDir () + "/";
    struct stat fileStatus;
@@ -227,7 +230,7 @@ bool PropertiesCalculator::acquireSnapshots( SnapshotList & snapshots )
                {
                   const Snapshot * snapshot = m_projectHandle->findSnapshot( firstAge, m_snapshotsType );
                   if ( snapshot ) snapshots.push_back( snapshot );
-                  if ( m_debug && snapshot ) cerr << "adding single snapshot " << snapshot->getTime() << endl;
+                  if ( m_debug && m_rank == 0 && snapshot ) cerr << "adding single snapshot " << snapshot->getTime() << endl;
                }
             }
             else
@@ -247,7 +250,7 @@ bool PropertiesCalculator::acquireSnapshots( SnapshotList & snapshots )
                      if ( snapshot->getTime() >= firstAge && snapshot->getTime() <= secondAge )
                      {
                         if ( snapshot ) snapshots.push_back( snapshot );
-                        if ( m_debug && snapshot ) cerr << "adding range snapshot " << snapshot->getTime() << endl;
+                        if ( m_debug && snapshot && m_rank == 0 ) cerr << "adding range snapshot " << snapshot->getTime() << endl;
                      }
                   }
                }
@@ -258,7 +261,7 @@ bool PropertiesCalculator::acquireSnapshots( SnapshotList & snapshots )
    }
    sort( snapshots.begin(), snapshots.end(), snapshotSorter );
 
-   if ( m_debug )
+   if ( m_debug && m_rank == 0 )
    {
       cerr << "Snapshots ordered" << endl;
       SnapshotList::iterator snapshotIter;
@@ -271,7 +274,7 @@ bool PropertiesCalculator::acquireSnapshots( SnapshotList & snapshots )
    SnapshotList::iterator firstObsolete = unique( snapshots.begin(), snapshots.end(), snapshotIsEqual );
    snapshots.erase( firstObsolete, snapshots.end() );
 
-   if ( m_debug )
+   if ( m_debug && m_rank == 0 )
    {
       cerr << "Snapshots uniquefied" << endl;
       SnapshotList::iterator snapshotIter;
@@ -295,7 +298,7 @@ bool PropertiesCalculator::acquireProperties( PropertyList & properties )
       const Property * property = m_projectHandle->findProperty( *stringIter );
       bool isComputable = false;
 
-      if ( property == 0 )
+      if ( property == 0 && m_rank == 0 )
       {
          cerr << "Could not find property named '" << *stringIter << "'" << endl;
          continue;
@@ -316,7 +319,9 @@ bool PropertiesCalculator::acquireProperties( PropertyList & properties )
       if ( isComputable ) {
          properties.push_back( property );
       } else {
-         cerr << "Could not find calculator for property named '" << *stringIter << "'" << endl;
+         if( m_rank == 0 ) {
+            cerr << "Could not find calculator for property named '" << *stringIter << "'" << endl;
+         }
       }
 
    }
@@ -333,7 +338,7 @@ bool PropertiesCalculator::acquireFormations( FormationVector & formationsItems 
       for ( stringIter = m_formationNames.begin(); stringIter != m_formationNames.end(); ++stringIter )
       {
          const Formation * formation = m_projectHandle->findFormation( *stringIter );
-         if ( !formation )
+         if ( !formation && m_rank == 0 )
          {
             cerr << "Could not find formation named '" << *stringIter << "'" << endl;
             continue;
