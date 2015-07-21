@@ -44,6 +44,10 @@ void DerivedProperties::BrineDensityCalculator::calculate ( AbstractPropertyMana
    const GeoPhysics::Formation* currentFormation = dynamic_cast<const GeoPhysics::Formation*>( formation );
    const GeoPhysics::FluidType* fluid = dynamic_cast<const GeoPhysics::FluidType*>(currentFormation->getFluidType ());
 
+   if ( fluid == 0 ) {
+      return;
+   }
+
    const DataModel::AbstractProperty* brineDensityProperty = propertyManager.getProperty ( getPropertyNames ()[ 0 ]);
    DerivedFormationPropertyPtr brineDensity = DerivedFormationPropertyPtr ( new DerivedProperties::DerivedFormationProperty ( brineDensityProperty, snapshot, formation, 
                                                                                                                               propertyManager.getMapGrid (),
