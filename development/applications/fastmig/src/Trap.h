@@ -206,6 +206,23 @@ namespace migration
 
    const MonotonicIncreasingPiecewiseLinearInvertableFunction* levelToVolume() const;
 
+   /*!
+   * \brief Give the maximum capacity of a trap
+   * \details The capacity is computed thanks to m_levelToVolume, from the MonotonicIncreasingPiecewiseLinearInvertableFunction class.
+   * This object affects for a filling depth in the trap (FillDepth - TopDepth) the volume occupied in the trap, and by inversion a volume occupied correspond to a filling depth in the trap.
+   * This function increases from the top to the bottom of the trap (i.e. the volume occupied increase). After the whole filling of the trap, this function is constant (see figure below).
+   * That's why in order to obtain the maximum / the trap capacity, a very big number is given as input, here: "numeric_limits<double>::max()".
+   *
+   * Volume / Capacity (m3)
+   *    |
+   *    |    _ _ _ _ _ _ _ _ _
+   *    |   /
+   *    |  /
+   *    | /
+   *    |/____________________ Filling Depth (m)
+   *  
+   * \return The maximum capacity of a trap (in m3).
+   */
    double getCapacity (void) const;
 
    void setSpilling (void);
@@ -239,14 +256,42 @@ namespace migration
    /*!
    * \brief Give the volume occupied by a \param phase inside the trap
    * \details The volume is obtained by dividing the weight by the density
-   * \return The the volume occupied by a \param phase inside the trap (in m3)
+   * \return The volume occupied by a \param phase inside the trap (in m3)
    */
    double getVolume (PhaseId phase) const;
    double getVolumeByColumns (PhaseId phase) const;
 
+   /*!
+   * \brief Compute the volume between two depths in a trap
+   * \details The volume is computed thanks to the m_levelToVolume of the MonotonicIncreasingPiecewiseLinearInvertableFunction class.
+   * This function computes the volume between the top of the trap and the \param lowerDepth, and substract the volume between the top of the trap and the \param upperDepth.
+   * With this substraction, the final result is the volume in the trap between \param lowerDepth and \param upperDepth.
+   * \return The volume between two depths inside the trap (in m3)
+   */
    double getVolumeBetweenDepths (double upperDepth, double lowerDepth) const;
+
+   /*!
+   * \brief Compute the volume between two depths in a trap
+   * \details The volume is computed thanks to the columns inside of the trap. 
+   * This function makes an iteration on all the iterior column of the trap, and addition all the volumes included between the \param lowerDepth and \param upperDepth. 
+   * \return The volume between two depths inside the trap (in m3)
+   */
    double getVolumeBetweenDepths2 (double upperDepth, double lowerDepth) const;
 
+   /*!
+   * \brief Compute the function that maps capacity to depth.
+   * \details Compute the m_levelToVolume, from the MonotonicIncreasingPiecewiseLinearInvertableFunction class.
+   * This object affects for a filling depth in the trap (FillDepth - TopDepth) the volume occupied in the trap, and by inversion a volume occupied correspond to a filling depth in the trap.
+   * This function increases from the top to the bottom of the trap (i.e. the volume occupied increase). After the whole filling of the trap, this function is constant (see figure below).
+   *
+   * Volume / Capacity (m3)
+   *    |
+   *    |    _ _ _ _ _ _ _ _ _
+   *    |   /
+   *    |  /
+   *    | /
+   *    |/____________________ Filling Depth (m)
+   */
    void computeDepthToVolumeFunction (void);
    void computeVolumeToDepthFunction (void);
    void computeVolumeToDepthFunction2 (void);

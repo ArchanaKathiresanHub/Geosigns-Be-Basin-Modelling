@@ -15,7 +15,7 @@ namespace DataAccess {
 namespace Interface {
 
 // Construction of BioConst for each component in the following order: Asphaltene, Resins, C15 + Aro, C15 + Sat, C6 - 14 Aro, C6 - 14 Sat, C5, C4, C3, C2, C1, COx, N2
-const double myconstBio[] = { 0.1, 0.061, 0.05, 0.011, 0.007, 0.009, 0.001, 0.0008, 0.0003, 0.0005, 0.0008, 0.0, 0.001 };
+const double myconstBio[] = { 0.1, 0.061, 0.05, 0.011, 0.007, 0.009, 0.001, 0.0008, 0.0003, 0.0005, 0.0008, 1.0, 0.001 };
 std::vector<double> constBio(myconstBio, myconstBio + sizeof(myconstBio) / sizeof(double));
 BioConsts bioConsts = BioConsts(70.0, constBio);
  
@@ -40,7 +40,7 @@ TEST(Biodegrade, biodegradation_computation_synthetic_data)
    myBiodegrade.calculate(1.0, 55.0, inputComponents, lostComponents);
 
    double expectedResults[NumComponents] = { 0.0145529741736539, 0.348929710298962, 0.856661585310736, 23.081331256783, 34.0877224922136, 27.9284200135241, 72.0367988712538,
-      74.8881728268666, 84.4660815127512, 80.0268313782813, 74.8881728268666, 100, 72.0367988712538, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+      74.8881728268666, 84.4660815127512, 80.0268313782813, 74.8881728268666, 0.0, 72.0367988712538, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
 
    for (component = 0; component < NumComponents; ++component)
    {
@@ -57,7 +57,7 @@ TEST(Biodegrade, biodegradation_computation_synthetic_data)
    myBiodegrade.calculate(5.0, 79.9, inputComponents, lostComponents);
 
    double expectedResults2[NumComponents] = { 0.0, 7.5289774414955000E-10, 9.7227228934571000E-07, 3.6886161881690100E+01, 9.1836673484161200E-01, 9.3107058810331500E+00, 3.3829807026248200E+05, 9.4551510083537900E-02,
-      0.0, 1.7152172752004700E+02, 9.4551510083537900E+05, 153.0, 9.1463057760881300E-08, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+      0.0, 1.7152172752004700E+02, 9.4551510083537900E+05, 0.0, 9.1463057760881300E-08, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
 
    for (component = 0; component < NumComponents; ++component)
    {
@@ -241,7 +241,10 @@ TEST(Biodegrade, biodegradation_computation_biodegradation_coeff_extreme)
 
    for (component = 0; component < 13; ++component)
    {
-      EXPECT_DOUBLE_EQ(100.0, lostComponents[component]);
+      if (component == 11)  // CO2 never biodegraded
+         EXPECT_DOUBLE_EQ(0.0, lostComponents[component]);
+      else
+         EXPECT_DOUBLE_EQ(100.0, lostComponents[component]);
    }
 
    // Biodegradation coefficient of "1" => no biodegradation
@@ -317,7 +320,7 @@ TEST(Biodegrade, biodegradation_computation_time_factor_extreme)
    myBiodegrade.calculate(0.1, 65.0, inputComponents, lostComponents);
 
    double expectedResults[NumComponents] = { 0.00000000814724, 0.00000078683973, 0.00000285841311, 0.00032235126544, 0.00058039240833, 0.00042821596684, 0.00220205102276, 
-      0.00241367777771, 0.00336549957570, 0.00286631580669, 0.00241367777771, 100.0, 0.00220205102276, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+      0.00241367777771, 0.00336549957570, 0.00286631580669, 0.00241367777771, 0.0, 0.00220205102276, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
 
    for (component = 0; component < NumComponents; ++component)
    {
@@ -334,7 +337,8 @@ TEST(Biodegrade, biodegradation_computation_time_factor_extreme)
    myBiodegrade = Biodegrade(80.0, bioConsts, 100000);   
    myBiodegrade.calculate(0.1, 65.0, inputComponents, lostComponents);
 
-   double expectedResults2[NumComponents] = { 7.82418782834847, 99.96173528596960, 99.99999999996140, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+   double expectedResults2[NumComponents] = { 7.82418782834847, 99.96173528596960, 99.99999999996140, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0,
+      0.0, 100.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
    
    for (component = 0; component < NumComponents; ++component)
    {
@@ -404,7 +408,7 @@ TEST(Biodegrade, biodegradation_computation_temperature_factor_extreme)
    myBiodegrade1.calculate(0.1, 55.0, inputComponents, lostComponents);
 
    double expectedResults[NumComponents] = { 54.99282023156210, 56.09153120618890, 56.52592993697070, 59.69569511642810, 60.59632728828810, 60.09806777532430, 64.24952625930910, 64.64618369700500, 66.33815919236100,
-      65.46731847278640, 64.64618369700500, 100.0, 64.24952625930910, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+      65.46731847278640, 64.64618369700500, 0.0, 64.24952625930910, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
 
    for (component = 0; component < NumComponents; ++component)
    {
@@ -424,8 +428,7 @@ TEST(Biodegrade, biodegradation_computation_temperature_factor_extreme)
 
    for (component = 0; component < 13; ++component) // only the 13 first components with BioConst are interesting here
    {
-      if (component!=11)
-         EXPECT_DOUBLE_EQ(0.0, lostComponents[component]);
+      EXPECT_DOUBLE_EQ(0.0, lostComponents[component]);
    }
 
    // Temperature factor == 0
@@ -441,7 +444,10 @@ TEST(Biodegrade, biodegradation_computation_temperature_factor_extreme)
 
    for (component = 0; component < 13; ++component) // only the 13 first components with BioConst are interesting here
    {
-      EXPECT_DOUBLE_EQ(100, lostComponents[component]);
+      if (component == 11)  // CO2 never biodegraded
+         EXPECT_DOUBLE_EQ(0.0, lostComponents[component]);
+      else
+         EXPECT_DOUBLE_EQ(100, lostComponents[component]);
    }
 
    // Small negative value
@@ -482,6 +488,7 @@ TEST(Biodegrade, biodegradation_computation_temperature_factor_extreme)
 // Evaluation of the CO2 comportement: perfect biodegradation (for now)
 TEST(Biodegrade, biodegradation_CO2_comportement)
 {
+   // If the CO2 biodegradation coefficient is set to 1.0 (default value recommanded) 
    for (component = 0; component < NumComponents; ++component)
    {
       inputComponents[component] = 100;
@@ -490,7 +497,21 @@ TEST(Biodegrade, biodegradation_CO2_comportement)
 
    Biodegrade myBiodegrade = Biodegrade(80.0, bioConsts, 0.5);
    myBiodegrade.calculate(0.000001, 79.9, inputComponents, lostComponents);
-   EXPECT_DOUBLE_EQ(100.0, lostComponents[11]);
+   EXPECT_DOUBLE_EQ(0.0, lostComponents[11]);
+
+   // If the CO2 biodegradation coefficient is different from the recommanded value of 1.0 (still, there should be no biodegradation)
+   for (component = 0; component < NumComponents; ++component)
+   {
+      inputComponents[component] = 100.0;
+      lostComponents[component] = 0.0;
+   }
+
+   const double myconstBio5[] = { 0.1, 0.061, 0.05, 0.011, 0.007, 0.009, 0.001, 0.0008, 0.0003, 0.0005, 0.0008, 1.0, 0.001 };
+   std::vector<double> constBio2(myconstBio5, myconstBio5 + sizeof(myconstBio5) / sizeof(double));
+   BioConsts bioConsts2 = BioConsts(70.0, constBio);
+   Biodegrade myBiodegrade2 = Biodegrade(80.0, bioConsts2, 0.5);
+   myBiodegrade2.calculate(1, 55.0, inputComponents, lostComponents);
+   EXPECT_DOUBLE_EQ(0.0, lostComponents[11]);
 }
 
 
@@ -541,7 +562,7 @@ TEST(Biodegrade, biodegradation_trap_temperature_extreme)
    myBiodegrade.calculate(500.0, 200000.0, inputComponents, lostComponents);
 
    double expectedResults[NumComponents] = { 0.31949058717070, 22.82982485735640, 59.18134658409860, 100.0, 100.0, 100.0,
-      100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+      100.0, 100.0, 100.0, 100.0, 100.0, 0.0, 100.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
 
    for (component = 0; component < NumComponents; ++component)
    {

@@ -29,7 +29,16 @@ void Biodegrade::calculate(const double& timeInterval, const double& temperature
          lost[compIdx] = 0.0;
          continue;
       }
-      
+
+      // No biodegradation allow for CO2 
+      // (this loop can be usefull because even if the biodegradation coefficient of CO2 is set to "1.0",
+      // with extreme values, for the temperature factor for instance, there is a risk that CO2 can still be slightly biodegraded)
+      if (compIdx == 11 )
+      {
+         lost[compIdx] = 0.0;
+         continue;
+      }
+           
       // Calculate the weight reduction factors by biodegradation:
       double bigT = pow((m_maxBioTemp - temperatureTrap) / m_maxBioTemp, m_bioConsts[compIdx]);
       double degradeFactor = pow ((1.0 - bigT), (timeInterval * m_timeFactor));
@@ -47,7 +56,7 @@ void Biodegrade::calculate(const double& timeInterval, const double& temperature
          continue;
       }
 
-      lost[compIdx] = (1.0 - degradeFactor) * input[compIdx];
+      lost[compIdx] = (1.0 - degradeFactor) * input[compIdx];      
    }
 }
 

@@ -293,7 +293,7 @@ bool Reservoir::computeTrapExtents (void)
       (*trapIter)->printPerimeter ();
 
       cerr << GetRankString () << ": " << getName () << "::spillColumn = " << (*trapIter)->getSpillColumn () << endl;
-#endif
+#endif     
    }
 
    RequestHandling::FinishRequestHandling ();
@@ -374,7 +374,7 @@ Column *  Reservoir::getAdjacentColumn (PhaseId phase, Column * column, Trap * t
    assert (depth != getUndefinedValue ());
 
    double minGradient = SealDepth;
-
+   
 #if 0
    if (column->isWasting(phase)) // charge will go upward
    {
@@ -663,7 +663,7 @@ bool Reservoir::computeProperties (void)
 bool Reservoir::computeDepths (void)
 {
    DerivedProperties::FormationPropertyPtr formationGridMap = getFormationPropertyPtr ("Depth", getEnd ());
-
+   
    if (!formationGridMap)
    {
       cerr << "ERROR: " << getName () <<
@@ -706,10 +706,11 @@ bool Reservoir::computeDepths (void)
             if (bottomValue == formationGridMap->getUndefinedValue ())
             {
                assert (topValue == getUndefinedValue ());
-
                bottomValue = getUndefinedValue ();
             }
             column->setBottomDepth (bottomValue);
+
+            assert(column->getTopDepth() <= column->getBottomDepth());
          }
       }
    }
@@ -755,6 +756,7 @@ bool Reservoir::computeDepths (void)
 	         {
                column->setTopDepth (getUndefinedValue ());
                column->setBottomDepth (getUndefinedValue ());
+               assert(column->getTopDepth() <= column->getBottomDepth());
 	         }
 	         else
 	         {
@@ -771,6 +773,7 @@ bool Reservoir::computeDepths (void)
                column->setBottomDepth (bottomValue);
 
                assert (column->isValid ());
+               assert (column->getTopDepth() <= column->getBottomDepth());
 	         }
 	      }
       }
@@ -878,21 +881,21 @@ bool Reservoir::adaptOverburdens (void)
    {
       for (unsigned int j = m_columnArray->firstJLocal (); j <= m_columnArray->lastJLocal (); ++j)
       {
-	 LocalColumn * column = getLocalColumn (i, j);
+         LocalColumn * column = getLocalColumn (i, j);
 
-	 if (column->getTopDepth () != getUndefinedValue ())
-	 {
-	    double formationTopDepth = gridMap->get( i, j );
+         if (column->getTopDepth () != getUndefinedValue ())
+         {
+	         double formationTopDepth = gridMap->get( i, j );
 
-	    double reservoirDepthOffset = 0;
+	         double reservoirDepthOffset = 0;
 
             if (formationTopDepth != gridUndefinedValue)
-	    {
-	       reservoirDepthOffset = column->getTopDepth () - formationTopDepth;
-	       reservoirDepthOffset = Max (0.0, reservoirDepthOffset);
-	    } 
-	    column->setOverburden (column->getOverburden () + reservoirDepthOffset);
-	 }
+	         {
+	            reservoirDepthOffset = column->getTopDepth () - formationTopDepth;
+	            reservoirDepthOffset = Max (0.0, reservoirDepthOffset);
+	         } 
+	         column->setOverburden (column->getOverburden () + reservoirDepthOffset);
+         }
       }
    }
    gridMap->restoreData( ); 
@@ -1349,7 +1352,7 @@ bool Reservoir::refineGeometry (void)
          {
             if (column->getThickness () < MinimumThickness)
             {
-	            column->setWasting (GAS);
+               column->setWasting (GAS);
 	            column->setWasting (OIL);
 
 	            for (int n = 0; n < NumNeighbours; ++n)

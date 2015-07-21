@@ -248,25 +248,25 @@ void Trap::computeVolumeToDepthFunction2 (void)
       ConstColumnIterator iter;
       for (iter = m_interior.begin (); iter != m_interior.end (); ++iter)
       {
-	 Column * column = * iter;
+         Column * column = * iter;
 
-	 // dirty trick to process both bottom and top depths in one block
-	 for (int i = 0; i < 2; i++)
-	 {
-	    double depth = (i == 0 ? column->getTopDepth () : column->getBottomDepth ());
+         // dirty trick to process both bottom and top depths in one block
+         for (int i = 0; i < 2; i++)
+         {
+	         double depth = (i == 0 ? column->getTopDepth () : column->getBottomDepth ());
 
-	    if (depth >= getBottomDepth () || depth <= getTopDepth ())
-	    {
-	       // not required.
-	       continue;
-	    }
+	         if (depth >= getBottomDepth () || depth <= getTopDepth ())
+	         {
+	            // not required.
+	            continue;
+	         }
 
-	    double volume = getVolumeBetweenDepths2 (getTopDepth (), depth);
+         double volume = getVolumeBetweenDepths2 (getTopDepth (), depth);
 
-	    m_volumeToDepth2->addPoint (volume, depth);
-	    ++pointsTested;
-	    ++pointsUsed;
-	 }
+         m_volumeToDepth2->addPoint (volume, depth);
+         ++pointsTested;
+         ++pointsUsed;
+         }
       }
    }
    else
@@ -281,34 +281,34 @@ void Trap::computeVolumeToDepthFunction2 (void)
       double depth = getTopDepth ();
       while (depth < getBottomDepth ())
       {
-	 ++pointsTested;
+         ++pointsTested;
 
-	 double currentDepth = Min (getBottomDepth (), depth + depthIncrement);
-	 double volume = getVolumeBetweenDepths2 (getTopDepth (), currentDepth);
+         double currentDepth = Min (getBottomDepth (), depth + depthIncrement);
+         double volume = getVolumeBetweenDepths2 (getTopDepth (), currentDepth);
 
-	 double volumeIncrease = (volume - previousVolume) / getCapacity ();
+         double volumeIncrease = (volume - previousVolume) / getCapacity ();
 
-	 if (volumeIncrease > MaximumVolumeIncrease)
-	 {
-	    // step is too large, decrease step size and try again.
-	    depthIncrement /= 2;
-	    continue;
-	 }
-	 else
-	 {
-	    depth = currentDepth;
+         if (volumeIncrease > MaximumVolumeIncrease)
+         {
+            // step is too large, decrease step size and try again.
+            depthIncrement /= 2;
+            continue;
+         }
+         else
+         {
+            depth = currentDepth;
 
-	    if (volumeIncrease < MinimumVolumeIncrease)
-	    {
-	       depthIncrement *= 2;
-	    }
-	 }
+            if (volumeIncrease < MinimumVolumeIncrease)
+            {
+               depthIncrement *= 2;
+            }
+         }
 
-	 ++pointsUsed;
+         ++pointsUsed;
 
-	 m_volumeToDepth2->addPoint (volume, depth);
+         m_volumeToDepth2->addPoint (volume, depth);
 
-	 previousVolume = volume;
+         previousVolume = volume;
       }
    }
 
@@ -509,7 +509,6 @@ void Trap::completeExtension (void)
    {
       LocalColumn *curCrestColumn = getCrestColumn ();
 
-
       Column * spillColumn = getSpillColumn ();
 
       // add the columns that were passed on by the trap to be absorbed
@@ -651,9 +650,9 @@ void Trap::closePerimeter (Column * column)
    }
 }
 
-/// add a column to the Trap's perimeter such that the perimeter is sorted,
+/// Add a column to the Trap's perimeter such that the perimeter is sorted,
 /// highest lying column first.
-/// Put sealing columns add the end
+/// Put sealing columns at the end
 void Trap::addToPerimeter (Column * column)
 {
    ColumnIterator iter;
@@ -661,7 +660,8 @@ void Trap::addToPerimeter (Column * column)
    for ( iter = m_perimeter.begin (); iter != m_perimeter.end (); ++iter)
    {
       Column * perimeterColumn = * iter;
-      if (column == perimeterColumn) return;
+      if (column == perimeterColumn) 
+         return;
       if (perimeterColumn->isSealing () || (!column->isSealing () && perimeterColumn->isDeeperThan (column)))
       {
          break;
@@ -820,7 +820,7 @@ void Trap::computeSpillTarget (void)
    if (getFinalSpillTarget (GAS) == getCrestColumn ())
    {
       cerr << "ERROR: final spill target(): "
-	 << getFinalSpillTarget (GAS) << " == crest column: " << getCrestColumn () << endl;
+	        << getFinalSpillTarget (GAS) << " == crest column: " << getCrestColumn () << endl;
       cerr << GetRankString () << ": " << this << "->getSpillColumn () = " << m_spillTarget << endl;
       printSpillTrajectory (GAS);
       printInterior ();
@@ -1813,14 +1813,14 @@ bool Trap::computeSealPressureLeakParametersImpl(const Interface::FracturePressu
    {
       if (!(*p).base ().valid ())
       {
-	 cerr << "Trap.C:1694: Exiting as no valid permeability property found for base of formation: '" <<
-	    (*f)->getName () << "' at time: " << snapshot->getTime () << "." << endl;
-	 cerr.flush ();
+         cerr << "Trap.C:1694: Exiting as no valid permeability property found for base of formation: '" <<
+	         (*f)->getName () << "' at time: " << snapshot->getTime () << "." << endl;
+         cerr.flush ();
 
-	 return false;
+	      return false;
       }
       else
-	 permeability = (*p).base ()[functions::tuple (i, j)];
+	      permeability = (*p).base ()[functions::tuple (i, j)];
    }
 
    // But as depth and temperatureC are of course continuous properties, we may get them from 
@@ -2242,7 +2242,7 @@ double Trap::computeHydrocarbonWaterContactDepth (void) const
    {
       hydrocarbonWaterContactDepth = getBottomDepth();
    }
-      
+   
    assert((hydrocarbonWaterContactDepth >= getTopDepth()) && (hydrocarbonWaterContactDepth <= getBottomDepth()));
 
    return hydrocarbonWaterContactDepth;

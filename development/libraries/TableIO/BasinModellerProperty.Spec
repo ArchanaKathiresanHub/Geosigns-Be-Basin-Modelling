@@ -4549,7 +4549,7 @@ Identification      : HcLiquidBrineCapillaryEntryPressure
     Description         : Bio Degradation factor 
     Unit of measurement : 
     Type                : double 
-    Default             : 0.0
+    Default             : 1.0
     Error Field         : Yes 
 
     Identification      : C6_14Aro_BioFactor 

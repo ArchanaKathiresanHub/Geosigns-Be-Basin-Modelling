@@ -21,7 +21,14 @@ namespace DataAccess {
          BioConsts( const double& tempFactor, const vector<double>& bioConsts ) :
             m_tempFactor( tempFactor ),
             m_bioConsts( bioConsts )
-         {}
+         {
+            // No biodegradation allowed for CO2
+            if (bioConsts[11] != 1.0)
+            {
+               cerr << "Error: you try to biodegrade CO2. The CO2 shouldn't been biodegraded, its biodegradation coefficient has been reset to 1.0 (no biodegradation of CO2 possible)" << endl;
+               m_bioConsts[11] = 1.0;
+            }
+         }
 
          size_t size() const { return m_bioConsts.size(); }
 
@@ -38,6 +45,7 @@ namespace DataAccess {
                cerr << "Warning: The temperature factor coefficient used for biodegradation is negative: " << m_tempFactor << ". No biodegradation computed" << endl;
                return -199999;
             }
+
             return m_bioConsts[ index ] * m_tempFactor;
          }
       };
