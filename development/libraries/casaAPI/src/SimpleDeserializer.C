@@ -38,12 +38,12 @@ namespace casa
       {
       case BoolID:   return "bool";
       case IntID:    return "int";
-      case UintID:   return"uint";
-      case LlongID:  return"llong";
-      case RefID:    return"refID";
-      case FloatID:  return"float";
-      case DoubleID: return"double";
-      case StringID: return"string";
+      case UintID:   return "uint";
+      case LlongID:  return "llong";
+      case RefID:    return "refID";
+      case FloatID:  return "float";
+      case DoubleID: return "double";
+      case StringID: return "string";
       }
       return "";
    }
