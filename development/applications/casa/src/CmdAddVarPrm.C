@@ -102,17 +102,18 @@ public:
 
    virtual std::string name() const { return "TopCrustHeatProduction"; }
 
-   virtual std::string description() const { return "surface radiogenic heat production of the basement [ uW/m^3]"; }
+   virtual std::string description() const { return "surface radiogenic heat production rate of the basement [ uW/m^3]"; }
 
    virtual std::string fullDescription() const
    {
       std::ostringstream oss;
 
-      oss << "    TopCrustHeatProduction  <minVal> <maxVal> <prmPDF>\n";
+      oss << "    [varPrmName] TopCrustHeatProduction  <minVal> <maxVal> <prmPDF>\n";
       oss << "    Where:\n";
-      oss << "       minVal - the parameter minimal range value\n";
-      oss << "       maxVal - the parameter maximal range value\n";
-      oss << "       prmPDF - the parameter probability density function type, the value could be one of the following:\n";
+      oss << "       varPrmName - user specified variable parameter name (Optional)\n";
+      oss << "       minVal     - the parameter minimal range value\n";
+      oss << "       maxVal     - the parameter maximal range value\n";
+      oss << "       prmPDF     - the parameter probability density function type, the value could be one of the following:\n";
       oss << "                \"Block\"    - uniform probability between min and max values,\n";
       oss << "                \"Triangle\" - triangle shape probability function. The top triangle value is taken from the base case\n";
       oss << "                \"Normal\"   - normal (or Gaussian) probability function. The position of highest value is taken from the base case\n";
@@ -123,10 +124,8 @@ public:
    virtual std::string usingExample( const char * cmdName ) const
    {
       std::ostringstream oss;
-      oss << "\n";
-      oss << "    Example:\n";
-      oss << "    #              type               minVal  maxVal    prmPDF\n";
-      oss << "    " << cmdName << " \"TopCrustHeatProduction\"    0.1     4.9  \"Block\"\n";
+      oss << "    #                                      type               minVal  maxVal prmPDF\n";
+      oss << "    " << cmdName << " \"Radiogenic heat rate\"  \"TopCrustHeatProduction\"    0.1     4.9  \"Block\"\n";
       oss << "\n";
       return oss.str();
    }
@@ -167,12 +166,13 @@ public:
    virtual std::string fullDescription() const
    {
       std::ostringstream oss;
-      oss << "    SourceRockTOC  <layerName> <minVal> <maxVal> <prmPDF>\n";
+      oss << "    [varPrmName] SourceRockTOC  <layerName> <minVal> <maxVal> <prmPDF>\n";
       oss << "    Where:\n";
-      oss << "       layerName - source rock layer name\n";
-      oss << "       minVal    - the parameter minimal range value\n";
-      oss << "       maxVal    - the parameter maximal range value\n";
-      oss << "       prmPDF    - the parameter probability density function type\n";
+      oss << "       varPrmName - user specified variable parameter name (Optional)\n";
+      oss << "       layerName  - source rock layer name\n";
+      oss << "       minVal     - the parameter minimal range value\n";
+      oss << "       maxVal     - the parameter maximal range value\n";
+      oss << "       prmPDF     - the parameter probability density function type\n";
       oss << "\n";
 
       return oss.str();
@@ -181,9 +181,8 @@ public:
    virtual std::string usingExample( const char * cmdName ) const
    {
       std::ostringstream oss;
-      oss << "    Example:\n";
-      oss << "    #             type         layerName        minVal  maxVal   prmPDF\n";
-      oss << "    "<< cmdName << " \"SourceRockTOC\" \"Lower Jurassic\"  0.5    1.0  \"Block\"\n";
+      oss << "    #                              type         layerName        minVal  maxVal   prmPDF\n";
+      oss << "    "<< cmdName << " \"Lower Jurasic TOC\" \"SourceRockTOC\" \"Lower Jurassic\"  0.5    1.0  \"Block\"\n";
       return oss.str();
    }
 };
@@ -218,25 +217,27 @@ public:
 
    virtual std::string name() const { return "SourceRockHC"; }
 
+   virtual std::string groupDescirption() const { return "\n  (Source rock parameters variation:)\n"; }
+
    virtual std::string description() const { return "the initial H/C ratio in source rock [ kg/tonne C ]"; }
 
    virtual std::string fullDescription() const
    {
       std::ostringstream oss;
-      oss << "    SourceRockHC  <layerName> <minVal> <maxVal> <prmPDF>\n";
+      oss << "    [varPrmName] SourceRockHC  <layerName> <minVal> <maxVal> <prmPDF>\n";
       oss << "    Where:\n";
-      oss << "       layerName - source rock layer name\n";
-      oss << "       minVal    - the parameter minimal range value\n";
-      oss << "       maxVal    - the parameter maximal range value\n";
-      oss << "       prmPDF    - the parameter probability density function type\n";
+      oss << "       varPrmName - user specified variable parameter name (Optional)\n";
+      oss << "       layerName  - source rock layer name\n";
+      oss << "       minVal     - the parameter minimal range value\n";
+      oss << "       maxVal     - the parameter maximal range value\n";
+      oss << "       prmPDF     - the parameter probability density function type\n";
       return oss.str();
    }
 
    virtual std::string usingExample( const char * cmdName ) const
    {
       std::ostringstream oss;
-      oss << "    Example:\n";
-      oss << "    #             type         layerName        minVal  maxVal   prmPDF\n";
+      oss << "    #          type         layerName        minVal  maxVal   prmPDF\n";
       oss << "    "<< cmdName << " \"SourceRockHC\" \"Lower Jurassic\"   0.5    1.0  \"Block\"\n";
       return oss.str();
    }
@@ -277,12 +278,13 @@ public:
    virtual std::string fullDescription() const
    {
       std::ostringstream oss;
-      oss << "    SourceRockHI  <layerName> <minVal> <maxVal> <prmPDF>\n";
+      oss << "    [varPrmName] SourceRockHI  <layerName> <minVal> <maxVal> <prmPDF>\n";
       oss << "    Where:\n";
-      oss << "       layerName - source rock layer name\n";
-      oss << "       minVal    - the parameter minimal range value\n";
-      oss << "       maxVal    - the parameter maximal range value\n";
-      oss << "       prmPDF    - the parameter probability density function type\n";
+      oss << "       varPrmName - user specified variable parameter name (Optional)\n";
+      oss << "       layerName  - source rock layer name\n";
+      oss << "       minVal     - the parameter minimal range value\n";
+      oss << "       maxVal     - the parameter maximal range value\n";
+      oss << "       prmPDF     - the parameter probability density function type\n";
 
       return oss.str();
    }
@@ -290,8 +292,7 @@ public:
    virtual std::string usingExample( const char * cmdName ) const
    {
       std::ostringstream oss;
-      oss << "    Example:\n";
-      oss << "    #             type         layerName        minVal  maxVal   prmPDF\n";
+      oss << "    #           type         layerName        minVal  maxVal   prmPDF\n";
       oss << "    " << cmdName << " \"SourceRockHI\" \"Lower Jurassic\"    433.5    521.0  \"Block\"\n";
       return oss.str();
    }
@@ -332,8 +333,6 @@ public:
 
    virtual std::string name() const { return "SourceRockType"; }
 
-   virtual std::string groupDescirption() const { return "\n  (Source rock parameters variation:)\n"; }
-
    virtual std::string description() const
    { 
       std::ostringstream oss;
@@ -346,19 +345,19 @@ public:
    virtual std::string fullDescription() const
    {
       std::ostringstream oss;
-      oss << "    SourceRockType  <layerName> \"SRType1,SRType2,SRType3\" [w1,w2,w3 ]\n";
+      oss << "    [varPrmName] SourceRockType  <layerName> \"SRType1,SRType2,SRType3\" [w1,w2,w3 ]\n";
       oss << "    Where:\n";
-      oss << "       layerName - source rock layer name\n";
-      oss << "       SRtype    - comma separated list of source rock types for variation\n";
-      oss << "       w1-w2     - comma separated list of source rock types weights\n";
+      oss << "       varPrmName - user specified variable parameter name (Optional)\n";
+      oss << "       layerName  - source rock layer name\n";
+      oss << "       SRtype     - comma separated list of source rock types for variation\n";
+      oss << "       w1-w2      - comma separated list of source rock types weights\n";
       return oss.str();
    }
 
    virtual std::string usingExample( const char * cmdName ) const
    {
       std::ostringstream oss;
-      oss << "    Example:\n";
-      oss << "    #             type         layerName          category list             categories weight\n";
+      oss << "    #             type         layerName          category list       categories weight\n";
       oss << "    "<< cmdName << " \"SourceRockType\" \"Lower Jurassic\"  \"Type1,Type2,Type3\" [0.8, 0.1, 0.1]\n";
       return oss.str();
    }
@@ -400,20 +399,20 @@ public:
    virtual std::string fullDescription() const
    {
       std::ostringstream oss;
-      oss << "    SourceRockPreasphActEnergy  <layerName> <minVal> <maxVal> <prmPDF>\n";
+      oss << "    [varPrmName] SourceRockPreasphActEnergy  <layerName> <minVal> <maxVal> <prmPDF>\n";
       oss << "    Where:\n";
-      oss << "       layerName - source rock layer name\n";
-      oss << "       minVal    - the parameter minimal range value\n";
-      oss << "       maxVal    - the parameter maximal range value\n";
-      oss << "       prmPDF    - the parameter probability density function type\n";
+      oss << "       varPrmName - user specified variable parameter name (Optional)\n";
+      oss << "       layerName  - source rock layer name\n";
+      oss << "       minVal     - the parameter minimal range value\n";
+      oss << "       maxVal     - the parameter maximal range value\n";
+      oss << "       prmPDF     - the parameter probability density function type\n";
       return oss.str();
    }
 
    virtual std::string usingExample( const char * cmdName ) const
    {
       std::ostringstream oss;
-      oss << "    Example:\n";
-      oss << "    #             type         layerName        minVal  maxVal   prmPDF\n";
+      oss << "    #             type                   layerName        minVal  maxVal   prmPDF\n";
       oss << "    " << cmdName << " \"SourceRockPreasphActEnergy\" \"Lower Jurassic\"    204.0  206.0  \"Block\"\n";
       return oss.str();
    }
@@ -474,13 +473,12 @@ public:
 
    virtual std::string description() const { return "a crust thickness function with one crust thinning event"; }
 
-   virtual std::string groupDescirption() const { return "\n  (Crust thinning variation:)\n"; }
-
    virtual std::string fullDescription() const
    {
       std::ostringstream oss;
-      oss << "    CrustThinningOneEvent <IniCrstThickMn> <IniCrstThickMx> <mnT0> <mxT0> <mndT> <mxdT> <mnFact> <mxFct> <prmPDF>\n";
+      oss << "    [varPrmName] CrustThinningOneEvent <IniCrstThickMn> <IniCrstThickMx> <mnT0> <mxT0> <mndT> <mxdT> <mnFact> <mxFct> <prmPDF>\n";
       oss << "    Where:\n";
+      oss << "       varPrmName     - user specified variable parameter name (Optional)\n";
       oss << "       IniCrstThickMn - initial crust thickness - minimal range value\n";
       oss << "       IniCrstThickMx - initial crust thickness - maximal range value\n";
       oss << "       mnT0           - crust thinning event start time [Ma] - minimal range value\n";
@@ -496,8 +494,7 @@ public:
    virtual std::string usingExample( const char * cmdName ) const
    {
       std::ostringstream oss;
-      oss << "    Example:\n";
-      oss << "    #                                InCrThick   T0       dT    ThinFct  PDF\n";
+      oss << "    #                                InCrThick   T0      dT    ThinFct  PDF\n";
       oss << "    " << cmdName << " \"CrustThinningOneEvent\" 15000 40000 120 180 30 45   0.5 0.8 \"Block\"\n";
       return oss.str();
    }
@@ -581,14 +578,17 @@ public:
       return "a crust thickness function with arbitrary number of crust thinning event and thickness maps support";
    }
 
+   virtual std::string groupDescirption() const { return "\n  (Crust thinning variation:)\n"; }
+
    virtual std::string fullDescription() const
    {
       std::ostringstream oss;
-      oss << "    CrustThinning <IniCrstThickMn> <IniCrstThickMx> <mnT0> <mxT0> <mndT> <mxdT> <mnFact> <mxFct> <mapName>\n";
-      oss << "                                                   [<mnT0> <mxT0> <mndT> <mxdT> <mnFact> <mxFct> <mapName>]\n";
-      oss << "                                                    ...\n";
-      oss << "                                                   <prmPDF>\n";
+      oss << "    [varPrmName] CrustThinning <IniCrstThickMn> <IniCrstThickMx> <mnT0> <mxT0> <mndT> <mxdT> <mnFact> <mxFct> <mapName>\n";
+      oss << "                                                                [<mnT0> <mxT0> <mndT> <mxdT> <mnFact> <mxFct> <mapName>]\n";
+      oss << "                                                                ...\n";
+      oss << "                                                                <prmPDF>\n";
       oss << "    Where:\n";
+      oss << "       varPrmName     - user specified variable parameter name (Optional)\n";
       oss << "       IniCrstThickMn - initial crust thickness - minimal range value\n";
       oss << "       IniCrstThickMx - initial crust thickness - maximal range value\n";
       oss << "       mnT0           - crust thinning event start time [Ma] - minimal range value\n";
@@ -605,12 +605,11 @@ public:
    virtual std::string usingExample( const char * cmdName ) const
    {
       std::ostringstream oss;
-      oss << "    Example:\n";
       oss << "    #                      InCrThick      T0       dT      ThinFct   MapName\n";
-      oss << "    " << cmdName << " \"CrustThinning\" 20000  40000   200 250  20 30   0.7  0.9  ""\\ # first tinning event.\n";
-      oss << "                                          120 120  20 20   0.65 0.65 "" \\ # second tinnnng event - no variation\n";
-      oss << "                                          60  80   10 20   0.4  0.5  ""  \\ # third event\n";
-      oss << "                                          \"Block\"                      # PDF\n";
+      oss << "    " << cmdName << " \"CrustThinning\" 20000  40000   200 250  20 30   0.7  0.9   \\ # first tinning event.\n";
+      oss << "                                          120 120  20 20   0.65 0.65  \\ # second tinnnng event - no variation\n";
+      oss << "                                          60  80   10 20   0.4  0.5   \\ # third event\n";
+      oss << "                                          \"Block\"                       # PDF\n";
       return oss.str();
    }
 };
@@ -681,26 +680,26 @@ public:
 
    virtual std::string name() const { return "PorosityModel"; }
 
-   virtual std::string groupDescirption() const { return "\n  (Lithology parameters variation:)\n"; }
    virtual std::string description() const { return "a variation of porosity model parameter for the given lithology"; }
 
    virtual std::string fullDescription() const
    {
       std::ostringstream oss;
-      oss << "    PorosityModel [layName] <litName> <modelName> <mnSurfPr> <mxSurfPr> <mnCmpCf> <mxCmpCf> [<mnMinPr> <mxMinPr> <mnCmpCf1> <mxCmpCf1>] <prmPDF>\n";
+      oss << "    [varPrmName] PorosityModel [layName] <litName> <modelName> <mnSurfPr> <mxSurfPr> <mnCmpCf> <mxCmpCf> [<mnMinPr> <mxMinPr> <mnCmpCf1> <mxCmpCf1>] <prmPDF>\n";
       oss << "    Where:\n";
-      oss << "       layName   - layer name (Optional). If it is given, the lithology will be copied and all changes will be done for the copy only\n";
-      oss << "       litName   - lithology name\n";
-      oss << "       modelName - porosity model name, allowed values: Exponential, Soil_Mechanics, Double_Exponential\n";
-      oss << "       mnSurfPr  - surface porosity - minimal range value\n";
-      oss << "       mxSurfPr  - surface porosity - maximal range value\n";
-      oss << "       mnCmpCf   - compaction coefficient - minimal range value\n";
-      oss << "       mxCmpCf   - compaction coefficient - maximal range value\n";
-      oss << "       mnMinPr   - minimal porosity (for Double_Exponential model only) - minimal range value\n";
-      oss << "       mxMinPr   - minimal porosity (for Double_Exponential model only) - maximal range value\n";
-      oss << "       mnCmpCf1  - compaction coefficient for the second exponent (for Double_Exponential model only) - minimal range value\n";
-      oss << "       mxCmpCf1  - compaction coefficient for the second exponent (for Double_Exponential model only) - maximal range value\n";
-      oss << "       prmPDF    - the parameter probability density function type\n";
+      oss << "       varPrmName - user specified variable parameter name (Optional)\n";
+      oss << "       layName    - layer name (Optional). If it is given, the lithology will be copied and all changes will be done for the copy only\n";
+      oss << "       litName    - lithology name\n";
+      oss << "       modelName  - porosity model name, allowed values: Exponential, Soil_Mechanics, Double_Exponential\n";
+      oss << "       mnSurfPr   - surface porosity - minimal range value\n";
+      oss << "       mxSurfPr   - surface porosity - maximal range value\n";
+      oss << "       mnCmpCf    - compaction coefficient - minimal range value\n";
+      oss << "       mxCmpCf    - compaction coefficient - maximal range value\n";
+      oss << "       mnMinPr    - minimal porosity (for Double_Exponential model only) - minimal range value\n";
+      oss << "       mxMinPr    - minimal porosity (for Double_Exponential model only) - maximal range value\n";
+      oss << "       mnCmpCf1   - compaction coefficient for the second exponent (for Double_Exponential model only) - minimal range value\n";
+      oss << "       mxCmpCf1   - compaction coefficient for the second exponent (for Double_Exponential model only) - maximal range value\n";
+      oss << "       prmPDF     - the parameter probability density function type\n";
       oss << "\n";
       oss << "    Note: for the Soil_Mechanics model only one parameter variation is possible, the second one should has same values\n";
       oss << "          for min/max and will be ignored\n";
@@ -710,7 +709,6 @@ public:
    virtual std::string usingExample( const char * cmdName ) const
    {
       std::ostringstream oss;
-      oss << "    Example 1:\n";
       oss << "    #       VarPrmName      LithName             PorModel       SurfPor [%]  CompCoeff  Parameter PDF\n";
       oss << "    " << cmdName << "  \"PorosityModel\" \"SM.Mudstone40%Clay\" \"Exponential\"  15 85        7.27 7.27  \"Block\"\n";
       oss << "\n";
@@ -856,11 +854,14 @@ public:
 
    virtual std::string description() const { return "a variation of permeability model parameter for the given layer/lithology combination"; }
 
+   virtual std::string groupDescirption() const { return "\n  (Lithology parameters variation:)\n"; }
+
    virtual std::string fullDescription() const
    {
       std::ostringstream oss;
-      oss << "    PermeabilityModel [<layName>] <litName> <modelName> <minAnisCf> <maxAnisCf> [other model min/max parameters value] <prmPDF>\n";
+      oss << "    [varPrmName] PermeabilityModel [<layName>] <litName> <modelName> <minAnisCf> <maxAnisCf> [other model min/max parameters value] <prmPDF>\n";
       oss << "    Where:\n";
+      oss << "       varPrmName    - user specified variable parameter name (Optional)\n";
       oss << "       layName       - layer name (Optional). If it is given, the lithology will be copied and all changes will be done for the copy only\n";
       oss << "       litName       - lithology name\n";
       oss << "       modelName     - permeability model name, allowed values: Sands, Shales, Multipoint\n";
@@ -885,7 +886,6 @@ public:
    virtual std::string usingExample( const char * cmdName ) const
    {
       std::ostringstream oss;
-      oss << "    Example 1:\n";
       oss << "    #       VarPrmName         LayerName        LitholName   PermModel AnisotCoef DepoPerm [mD] SensCoef RecovCoef Parameter PDF\n";
       oss << "    " << cmdName << " \"PermeabilityModel\" \"Lower Jurassic\" \"Std. Shale\" \"Shales\"  1.0  1.0   0.005  0.015  1.0 2.0  0.01 0.01 \"Block\"\n";
       oss << "\n";
@@ -952,7 +952,8 @@ public:
    virtual std::string fullDescription() const
    {
       std::ostringstream oss;
-      oss << "    STPThermalCondCoeff [layName] <lithologyName> <minValue> <maxValue> <prmPDF>\n";
+      oss << "    [varPrmName] STPThermalCondCoeff [layName] <lithologyName> <minValue> <maxValue> <prmPDF>\n";
+      oss << "       varPrmName    - user specified variable parameter name (Optional)\n";
       oss << "       layName       - layer name (Optional). If it is given, the lithology will be copied and all changes will be done for the copy only\n";
       oss << "       lithologyName - lithology name\n";
       oss << "       minVal    - the parameter minimal range value\n";
@@ -964,7 +965,6 @@ public:
    virtual std::string usingExample( const char * cmdName ) const
    {
       std::ostringstream oss;
-      oss << "    Example:\n";
       oss << "    #       VarPrmName             LithName           min max  Parameter PDF\n";
       oss << "    " << cmdName << " \"STPThermalCondCoeff\"  \"SM.Mudstone40%Clay\" 2   4   \"Block\"\n";
       return oss.str();
@@ -1088,7 +1088,7 @@ void CmdAddVarPrm::printHelpPage( const char * cmdName )
       std::cout << prm->groupDescirption(); 
       std::cout << "    " << prmTypesName[i] << " - " << prm->description() << ".\n";
    }
-   std::cout << "\n";
+   std::cout << "\n\nDetailed description:\n\n";
 
    // print examples of varparameters definition 
    for ( size_t i = 0; i < prmTypesName.size(); ++ i )
