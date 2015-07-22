@@ -17,6 +17,7 @@ set(all_headers
   src/AllochthonousLithologyFormationMapCalculator.h
   src/BrineDensityCalculator.h
   src/BrineViscosityCalculator.h
+  src/BulkDensityFormationCalculator.h
   src/DerivedFormationMapProperty.h
   src/DerivedFormationProperty.h
   src/DerivedFormationSurfaceProperty.h
@@ -76,6 +77,7 @@ set(all_srcs
   src/AllochthonousLithologyFormationMapCalculator.C
   src/BrineDensityCalculator.C
   src/BrineViscosityCalculator.C
+  src/BulkDensityFormationCalculator.C
   src/DerivedFormationMapProperty.C
   src/DerivedFormationProperty.C
   src/DerivedFormationSurfaceProperty.C
