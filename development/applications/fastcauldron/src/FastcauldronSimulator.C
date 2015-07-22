@@ -933,7 +933,6 @@ void FastcauldronSimulator::correctTimeFilterDefaults3D () {
    bool containsHorizontalPermeability = false;
    bool containsLithologyId = false;
    bool containsBiomarkers = false;
-   bool containsVelocity = false;
    bool basementOutputRequested = false;
    bool outputALC = false;
    int  i;
@@ -1080,12 +1079,6 @@ void FastcauldronSimulator::correctTimeFilterDefaults3D () {
          } 
 
       }
-
-      if ( name == "VelocityVec" ) {
-         if (property->getOption() != Interface::NO_OUTPUT) {
-            containsVelocity = true;
-         }
-      }
           
       const PropertyList propertyListValue = getPropertyList ( name );
       Interface::PropertyOutputOption option = property->getOption ();
@@ -1097,18 +1090,6 @@ void FastcauldronSimulator::correctTimeFilterDefaults3D () {
       }
 
    }
-   
-   if (containsVelocity) {
-      const Interface::OutputProperty * property = findTimeOutputProperty("TwoWayTime");
-      if (property == 0) {
-         m_timeOutputProperties.push_back(getFactory()->produceOutputProperty(this, getModellingMode(), Interface::SEDIMENTS_ONLY_OUTPUT, "TwoWayTime"));
-      }
-      const Interface::OutputProperty * propertyResidual = findTimeOutputProperty( "TwoWayTimeResidual" );
-      if (propertyResidual == 0) {
-         m_timeOutputProperties.push_back( getFactory( )->produceOutputProperty( this, getModellingMode( ), Interface::SEDIMENTS_ONLY_OUTPUT, "TwoWayTimeResidual" ) );
-      }
-   }
-
 
    if ( basementOutputRequested ) { // and not depthOutputIncludesBasement
       /// Must now enable depth output for basement, if it is not already on.
