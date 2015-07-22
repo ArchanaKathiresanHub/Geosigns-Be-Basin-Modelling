@@ -2,7 +2,6 @@
 #define _MIGRATION_BIODEGRADE_H_
 
 #include "Interface/BiodegradationParameters.h"
-#include "Interface/BioConsts.h"
 
 namespace migration {
 
@@ -58,7 +57,7 @@ public:
 private:
 
    double const m_maxBioTemp;
-   DataAccess::Interface::BioConsts m_bioConsts;
+   DataAccess::Interface::BioConsts const m_bioConsts;
    double const m_timeFactor;
 };
 

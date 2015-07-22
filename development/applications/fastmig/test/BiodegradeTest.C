@@ -17,7 +17,7 @@ namespace Interface {
 // Construction of BioConst for each component in the following order: Asphaltene, Resins, C15 + Aro, C15 + Sat, C6 - 14 Aro, C6 - 14 Sat, C5, C4, C3, C2, C1, COx, N2
 const double myconstBio[] = { 0.1, 0.061, 0.05, 0.011, 0.007, 0.009, 0.001, 0.0008, 0.0003, 0.0005, 0.0008, 1.0, 0.001 };
 std::vector<double> constBio(myconstBio, myconstBio + sizeof(myconstBio) / sizeof(double));
-BioConsts bioConsts = BioConsts(70.0, constBio);
+const BioConsts bioConsts = BioConsts(70.0, constBio);
  
 
 const unsigned int NumComponents = 23;
@@ -53,8 +53,8 @@ TEST(Biodegrade, biodegradation_computation_synthetic_data)
    double lostComponents[NumComponents] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
       0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
 
-   myBiodegrade = Biodegrade(80.0, bioConsts, 0.5);
-   myBiodegrade.calculate(5.0, 79.9, inputComponents, lostComponents);
+   Biodegrade myBiodegrade2 = Biodegrade(80.0, bioConsts, 0.5);
+   myBiodegrade2.calculate(5.0, 79.9, inputComponents, lostComponents);
 
    double expectedResults2[NumComponents] = { 0.0, 7.5289774414955000E-10, 9.7227228934571000E-07, 3.6886161881690100E+01, 9.1836673484161200E-01, 9.3107058810331500E+00, 3.3829807026248200E+05, 9.4551510083537900E-02,
       0.0, 1.7152172752004700E+02, 9.4551510083537900E+05, 0.0, 9.1463057760881300E-08, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
@@ -147,11 +147,11 @@ TEST(Biodegrade, biodegradation_computation_variable_trend)
       lostComponents1[component] = 0.0;
       lostComponents2[component] = 0.0;
    }
-   myBiodegrade1 = Biodegrade(80.0, bioConsts, 0.5); // with time Factor 1 = 0.5
-   myBiodegrade1.calculate(1, 55.0, inputComponents, lostComponents1);
+   Biodegrade myBiodegrade3 = Biodegrade(80.0, bioConsts, 0.5); // with time Factor 1 = 0.5
+   myBiodegrade3.calculate(1, 55.0, inputComponents, lostComponents1);
 
-   myBiodegrade2 = Biodegrade(80.0, bioConsts, 0.50001); // with time Factor 2 = 0.50001 > time Factor 1
-   myBiodegrade2.calculate(1, 55.0, inputComponents, lostComponents2);
+   Biodegrade myBiodegrade4 = Biodegrade(80.0, bioConsts, 0.50001); // with time Factor 2 = 0.50001 > time Factor 1
+   myBiodegrade4.calculate(1, 55.0, inputComponents, lostComponents2);
 
    for (component = 0; component < 13; ++component) // only the 13 first components with BioConst are interesting here
    {
@@ -168,9 +168,9 @@ TEST(Biodegrade, biodegradation_computation_variable_trend)
       lostComponents2[component] = 0.0;
    }
 
-   myBiodegrade = Biodegrade(80.0, bioConsts, 0.5);
-   myBiodegrade.calculate(0.1, 55.0, inputComponents, lostComponents1); // with time Interval 1 = 0.1 Myr
-   myBiodegrade.calculate(0.10005, 55.0, inputComponents, lostComponents2); // with time Interval 2 = 0.10005 Myr > time Interval 1 = 0.1 Myr
+   Biodegrade myBiodegrade5 = Biodegrade(80.0, bioConsts, 0.5);
+   myBiodegrade5.calculate(0.1, 55.0, inputComponents, lostComponents1); // with time Interval 1 = 0.1 Myr
+   myBiodegrade5.calculate(0.10005, 55.0, inputComponents, lostComponents2); // with time Interval 2 = 0.10005 Myr > time Interval 1 = 0.1 Myr
 
    for (component = 0; component < 13; ++component) // only the 13 first components with BioConst are interesting here
    {
@@ -187,14 +187,14 @@ TEST(Biodegrade, biodegradation_computation_variable_trend)
       lostComponents2[component] = 0.0;
    }
 
-   myBiodegrade = Biodegrade(80.0, bioConsts, 0.5);   // with the original values { 0.1, 0.061, 0.05, 0.011, 0.007, 0.009, 0.001, 0.0008, 0.0003, 0.0005, 0.0008, 0.0, 0.001 }
-   myBiodegrade.calculate(1, 55.0, inputComponents, lostComponents1);
+   Biodegrade myBiodegrade6 = Biodegrade(80.0, bioConsts, 0.5);   // with the original values { 0.1, 0.061, 0.05, 0.011, 0.007, 0.009, 0.001, 0.0008, 0.0003, 0.0005, 0.0008, 0.0, 0.001 }
+   myBiodegrade6.calculate(1, 55.0, inputComponents, lostComponents1);
 
    const double myconstBio2[] = { 0.11, 0.06100001, 0.06, 0.0111, 0.07, 0.01, 0.002, 0.000800001, 0.00035, 1, 0.008, 0.1, 10 };
    std::vector<double> constBio(myconstBio2, myconstBio2 + sizeof(myconstBio2) / sizeof(double));
-   bioConsts2 = BioConsts(70.0, constBio);
-   myBiodegrade2 = Biodegrade(80.0, bioConsts2, 0.5);   // with the new values { 0.11, 0.06100001, 0.06, 0.0111, 0.07, 0.01, 0.002, 0.000800001, 0.00035, 1, 0.008, 0.1, 10 }
-   myBiodegrade2.calculate(1, 55.0, inputComponents, lostComponents2);
+   BioConsts bioConsts3 = BioConsts(70.0, constBio);
+   Biodegrade myBiodegrade7 = Biodegrade(80.0, bioConsts3, 0.5);   // with the new values { 0.11, 0.06100001, 0.06, 0.0111, 0.07, 0.01, 0.002, 0.000800001, 0.00035, 1, 0.008, 0.1, 10 }
+   myBiodegrade7.calculate(1, 55.0, inputComponents, lostComponents2);
 
    for (component = 0; component < 13; ++component) // only the 13 first components with BioConst are interesting here
    {
@@ -235,9 +235,9 @@ TEST(Biodegrade, biodegradation_computation_biodegradation_coeff_extreme)
 
    const double myconstBio3[] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
    std::vector<double> constBio2(myconstBio3, myconstBio3 + sizeof(myconstBio3) / sizeof(double));
-   bioConsts2 = BioConsts(70.0, constBio2);
-   myBiodegrade2 = Biodegrade(80.0, bioConsts2, 0.5);
-   myBiodegrade2.calculate(1, 55.0, inputComponents, lostComponents);
+   BioConsts bioConsts3 = BioConsts(70.0, constBio2);
+   Biodegrade myBiodegrade3 = Biodegrade(80.0, bioConsts3, 0.5);
+   myBiodegrade3.calculate(1, 55.0, inputComponents, lostComponents);
 
    for (component = 0; component < 13; ++component)
    {
@@ -256,9 +256,9 @@ TEST(Biodegrade, biodegradation_computation_biodegradation_coeff_extreme)
 
    const double myconstBio4[] = { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 };
    std::vector<double> constBio3(myconstBio4, myconstBio4 + sizeof(myconstBio4) / sizeof(double));
-   bioConsts2 = BioConsts(70.0, constBio3);
-   myBiodegrade2 = Biodegrade(80.0, bioConsts2, 0.5);
-   myBiodegrade2.calculate(1, 55.0, inputComponents, lostComponents);
+   BioConsts bioConsts4 = BioConsts(70.0, constBio3);
+   Biodegrade myBiodegrade4 = Biodegrade(80.0, bioConsts4, 0.5);
+   myBiodegrade4.calculate(1, 55.0, inputComponents, lostComponents);
 
    for (component = 0; component < 13; ++component)
    {
@@ -274,9 +274,9 @@ TEST(Biodegrade, biodegradation_computation_biodegradation_coeff_extreme)
 
    const double myconstBio5[] = { 2.0, 4.0, 6.0, 1000.0, 25.0, 1.00001, 10.0, 8725.0, 254.0, 17.5, 15.0, 75.0, 1572857872742.0 };
    std::vector<double> constBio4(myconstBio5, myconstBio5 + sizeof(myconstBio5) / sizeof(double));
-   bioConsts2 = BioConsts(70.0, constBio4);
-   myBiodegrade2 = Biodegrade(80.0, bioConsts2, 0.5);
-   myBiodegrade2.calculate(1, 55.0, inputComponents, lostComponents);
+   BioConsts bioConsts5 = BioConsts(70.0, constBio4);
+   Biodegrade myBiodegrade5 = Biodegrade(80.0, bioConsts5, 0.5);
+   myBiodegrade5.calculate(1, 55.0, inputComponents, lostComponents);
 
    for (component = 0; component < NumComponents; ++component)
    {
@@ -334,8 +334,8 @@ TEST(Biodegrade, biodegradation_computation_time_factor_extreme)
       lostComponents[component] = 0.0;
    }
 
-   myBiodegrade = Biodegrade(80.0, bioConsts, 100000);   
-   myBiodegrade.calculate(0.1, 65.0, inputComponents, lostComponents);
+   Biodegrade myBiodegrade2 = Biodegrade(80.0, bioConsts, 100000);
+   myBiodegrade2.calculate(0.1, 65.0, inputComponents, lostComponents);
 
    double expectedResults2[NumComponents] = { 7.82418782834847, 99.96173528596960, 99.99999999996140, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0,
       0.0, 100.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
@@ -352,8 +352,8 @@ TEST(Biodegrade, biodegradation_computation_time_factor_extreme)
       lostComponents[component] = 0.0;
    }
 
-   myBiodegrade = Biodegrade(80.0, bioConsts, 0.0);
-   myBiodegrade.calculate(0.1, 65.0, inputComponents, lostComponents);
+   Biodegrade myBiodegrade3 = Biodegrade(80.0, bioConsts, 0.0);
+   myBiodegrade3.calculate(0.1, 65.0, inputComponents, lostComponents);
 
    for (component = 0; component < NumComponents; ++component)
    {
@@ -367,8 +367,8 @@ TEST(Biodegrade, biodegradation_computation_time_factor_extreme)
       lostComponents[component] = 0.0;
    }
 
-   myBiodegrade = Biodegrade(80.0, bioConsts, -0.0000001);
-   myBiodegrade.calculate(0.1, 65.0, inputComponents, lostComponents);
+   Biodegrade myBiodegrade4 = Biodegrade(80.0, bioConsts, -0.0000001);
+   myBiodegrade4.calculate(0.1, 65.0, inputComponents, lostComponents);
 
    for (component = 0; component < NumComponents; ++component)
    {
@@ -382,8 +382,8 @@ TEST(Biodegrade, biodegradation_computation_time_factor_extreme)
       lostComponents[component] = 0.0;
    }
 
-   myBiodegrade = Biodegrade(80.0, bioConsts, -200000);
-   myBiodegrade.calculate(0.1, 65.0, inputComponents, lostComponents);
+   Biodegrade myBiodegrade5 = Biodegrade(80.0, bioConsts, -200000);
+   myBiodegrade5.calculate(0.1, 65.0, inputComponents, lostComponents);
 
    for (component = 0; component < NumComponents; ++component)
    {
@@ -422,9 +422,9 @@ TEST(Biodegrade, biodegradation_computation_temperature_factor_extreme)
       lostComponents[component] = 0.0;
    }
 
-   bioConsts1 = BioConsts(100000, constBio);
-   myBiodegrade1 = Biodegrade(80.0, bioConsts1, 0.5);
-   myBiodegrade1.calculate(0.1, 55.0, inputComponents, lostComponents);
+   BioConsts bioConsts2 = BioConsts(100000, constBio);
+   Biodegrade myBiodegrade2 = Biodegrade(80.0, bioConsts2, 0.5);
+   myBiodegrade2.calculate(0.1, 55.0, inputComponents, lostComponents);
 
    for (component = 0; component < 13; ++component) // only the 13 first components with BioConst are interesting here
    {
@@ -438,9 +438,9 @@ TEST(Biodegrade, biodegradation_computation_temperature_factor_extreme)
       lostComponents[component] = 0.0;
    }
 
-   bioConsts1 = BioConsts(0.0, constBio);
-   myBiodegrade1 = Biodegrade(80.0, bioConsts1, 0.5);
-   myBiodegrade1.calculate(0.1, 55.0, inputComponents, lostComponents);
+   BioConsts bioConsts3 = BioConsts(0.0, constBio);
+   Biodegrade myBiodegrade3 = Biodegrade(80.0, bioConsts3, 0.5);
+   myBiodegrade3.calculate(0.1, 55.0, inputComponents, lostComponents);
 
    for (component = 0; component < 13; ++component) // only the 13 first components with BioConst are interesting here
    {
@@ -457,9 +457,9 @@ TEST(Biodegrade, biodegradation_computation_temperature_factor_extreme)
       lostComponents[component] = 0.0;
    }
 
-   bioConsts1 = BioConsts(-0.00001, constBio);
-   myBiodegrade1 = Biodegrade(80.0, bioConsts1, 1.0);
-   myBiodegrade1.calculate(1.0, 55.0, inputComponents, lostComponents);
+   BioConsts bioConsts4 = BioConsts(-0.00001, constBio);
+   Biodegrade myBiodegrade4 = Biodegrade(80.0, bioConsts4, 1.0);
+   myBiodegrade4.calculate(1.0, 55.0, inputComponents, lostComponents);
 
    for (component = 0; component < 13; ++component) // only the 13 first components with BioConst are interesting here
    {
@@ -473,9 +473,9 @@ TEST(Biodegrade, biodegradation_computation_temperature_factor_extreme)
       lostComponents[component] = 0.0;
    }
 
-   bioConsts1 = BioConsts(-100000, constBio);
-   myBiodegrade1 = Biodegrade(80.0, bioConsts1, 1.0);
-   myBiodegrade1.calculate(1.0, 55.0, inputComponents, lostComponents);
+   BioConsts bioConsts5 = BioConsts(-100000, constBio);
+   Biodegrade myBiodegrade5 = Biodegrade(80.0, bioConsts5, 1.0);
+   myBiodegrade5.calculate(1.0, 55.0, inputComponents, lostComponents);
 
    for (component = 0; component < 13; ++component) // only the 13 first components with BioConst are interesting here
    {
@@ -558,8 +558,8 @@ TEST(Biodegrade, biodegradation_trap_temperature_extreme)
       inputComponents[component] = 100;
       lostComponents[component] = 0.0;
    }
-   myBiodegrade = Biodegrade(250000.0, bioConsts, 0.5);
-   myBiodegrade.calculate(500.0, 200000.0, inputComponents, lostComponents);
+   Biodegrade myBiodegrade2 = Biodegrade(250000.0, bioConsts, 0.5);
+   myBiodegrade2.calculate(500.0, 200000.0, inputComponents, lostComponents);
 
    double expectedResults[NumComponents] = { 0.31949058717070, 22.82982485735640, 59.18134658409860, 100.0, 100.0, 100.0,
       100.0, 100.0, 100.0, 100.0, 100.0, 0.0, 100.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
@@ -575,8 +575,8 @@ TEST(Biodegrade, biodegradation_trap_temperature_extreme)
       inputComponents[component] = 100;
       lostComponents[component] = 0.0;
    }
-   myBiodegrade = Biodegrade(-350000.0, bioConsts, 0.5);
-   myBiodegrade.calculate(1.0, -200000.0, inputComponents, lostComponents);
+   Biodegrade myBiodegrade3 = Biodegrade(-350000.0, bioConsts, 0.5);
+   myBiodegrade3.calculate(1.0, -200000.0, inputComponents, lostComponents);
 
    for (component = 0; component < NumComponents; ++component)
    {
@@ -589,8 +589,8 @@ TEST(Biodegrade, biodegradation_trap_temperature_extreme)
       inputComponents[component] = 100;
       lostComponents[component] = 0.0;
    }
-   myBiodegrade = Biodegrade(-250000.0, bioConsts, 0.5);
-   myBiodegrade.calculate(1.0, -300000.0, inputComponents, lostComponents);
+   Biodegrade myBiodegrade4 = Biodegrade(-250000.0, bioConsts, 0.5);
+   myBiodegrade4.calculate(1.0, -300000.0, inputComponents, lostComponents);
 
    for (component = 0; component < NumComponents; ++component)
    {
@@ -604,8 +604,8 @@ TEST(Biodegrade, biodegradation_trap_temperature_extreme)
       inputComponents[component] = 100;
       lostComponents[component] = 0.0;
    }
-   myBiodegrade = Biodegrade(-200.0, bioConsts, 0.5);
-   myBiodegrade.calculate(1.0, 55.0, inputComponents, lostComponents);
+   Biodegrade myBiodegrade5 = Biodegrade(-200.0, bioConsts, 0.5);
+   myBiodegrade5.calculate(1.0, 55.0, inputComponents, lostComponents);
 
    for (component = 0; component < NumComponents; ++component)
    {

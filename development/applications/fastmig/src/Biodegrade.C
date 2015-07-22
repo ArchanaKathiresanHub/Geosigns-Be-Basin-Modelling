@@ -1,8 +1,7 @@
-#include "Biodegrade.h"
-
 #include <iostream>
-
 #include <math.h>
+
+#include "Biodegrade.h"
 
 namespace migration {
 
@@ -19,7 +18,7 @@ void Biodegrade::calculate(const double timeInterval, const double temperatureTr
    {
       cerr << "Warning: The time factor coefficient used for biodegradation is negative: " << m_timeFactor << ". No biodegradation computed" << endl;
       return;
-   }   
+   }
    
    for (int compIdx = 0; compIdx < m_bioConsts.size(); compIdx++)
    {

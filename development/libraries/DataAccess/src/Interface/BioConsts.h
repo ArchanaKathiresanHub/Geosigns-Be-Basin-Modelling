@@ -5,17 +5,15 @@
 #include <vector>
 #include <assert.h>
 
+#include "EosPack.h"
+
 namespace DataAccess {
 
    namespace Interface {
 
       class BioConsts
       {
-      private:
-
-         double m_tempFactor;
-         std::vector<double> m_bioConsts;
-
+      
       public:
 
          BioConsts( const double& tempFactor, const vector<double>& bioConsts ) :
@@ -23,14 +21,14 @@ namespace DataAccess {
             m_bioConsts( bioConsts )
          {
             // No biodegradation allowed for CO2
-            if (bioConsts[11] != 1.0)
+            if (bioConsts[COX] != 1.0)
             {
                cerr << "Warning: you try to biodegrade CO2. The CO2 cannot be biodegraded, its biodegradation coefficient has been reset to 1.0" << endl;
-               m_bioConsts[11] = 1.0;
+               m_bioConsts[COX] = 1.0;
             }
          }
 
-         size_t size() const { return m_bioConsts.size(); }
+         const size_t& size() const { return m_bioConsts.size(); }
 
          double operator[]( int index ) const
          {
@@ -48,6 +46,11 @@ namespace DataAccess {
 
             return m_bioConsts[ index ] * m_tempFactor;
          }
+      
+      private:
+
+         double const m_tempFactor;
+         std::vector<double> m_bioConsts;
       };
    } // namespace DataAccess::Interface
 } // namespace DataAccess
