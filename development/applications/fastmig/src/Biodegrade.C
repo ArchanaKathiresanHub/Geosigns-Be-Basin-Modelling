@@ -6,11 +6,10 @@
 
 namespace migration {
 
-// Biodegradation processing: compute the weight lost
-void Biodegrade::calculate(const double& timeInterval, const double& temperatureTrap, 
+void Biodegrade::calculate(const double timeInterval, const double temperatureTrap, 
    const double* input, double* lost) const
 {
-   assert(timeInterval > 0.0);
+   assert(timeInterval > 0.0); // the timeInterval (= time between the two snapshots) needs to be positive
 
    if (temperatureTrap > m_maxBioTemp) // condition for biodegradation to happen
       return;
@@ -40,8 +39,8 @@ void Biodegrade::calculate(const double& timeInterval, const double& temperature
       }
            
       // Calculate the weight reduction factors by biodegradation:
-      double bigT = pow((m_maxBioTemp - temperatureTrap) / m_maxBioTemp, m_bioConsts[compIdx]);
-      double degradeFactor = pow ((1.0 - bigT), (timeInterval * m_timeFactor));
+      double T = pow((m_maxBioTemp - temperatureTrap) / m_maxBioTemp, m_bioConsts[compIdx]);
+      double degradeFactor = pow ((1.0 - T), (timeInterval * m_timeFactor));
 
       if (degradeFactor < 0.0)
       {

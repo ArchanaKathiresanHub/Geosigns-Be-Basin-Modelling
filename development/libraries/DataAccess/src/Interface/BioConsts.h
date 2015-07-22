@@ -25,7 +25,7 @@ namespace DataAccess {
             // No biodegradation allowed for CO2
             if (bioConsts[11] != 1.0)
             {
-               cerr << "Error: you try to biodegrade CO2. The CO2 shouldn't been biodegraded, its biodegradation coefficient has been reset to 1.0 (no biodegradation of CO2 possible)" << endl;
+               cerr << "Warning: you try to biodegrade CO2. The CO2 cannot be biodegraded, its biodegradation coefficient has been reset to 1.0" << endl;
                m_bioConsts[11] = 1.0;
             }
          }

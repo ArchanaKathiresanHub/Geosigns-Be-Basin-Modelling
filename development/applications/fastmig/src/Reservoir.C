@@ -710,7 +710,7 @@ bool Reservoir::computeDepths (void)
             }
             column->setBottomDepth (bottomValue);
 
-            assert(column->getTopDepth() <= column->getBottomDepth());
+            assert(column->getTopDepth() <= column->getBottomDepth()); // The top depth of the column needs to be shallower than the bottom depth
          }
       }
    }
@@ -756,7 +756,7 @@ bool Reservoir::computeDepths (void)
 	         {
                column->setTopDepth (getUndefinedValue ());
                column->setBottomDepth (getUndefinedValue ());
-               assert(column->getTopDepth() <= column->getBottomDepth());
+               assert(column->getTopDepth() <= column->getBottomDepth()); // The top depth of the column needs to be shallower than the bottom depth
 	         }
 	         else
 	         {
@@ -773,7 +773,7 @@ bool Reservoir::computeDepths (void)
                column->setBottomDepth (bottomValue);
 
                assert (column->isValid ());
-               assert (column->getTopDepth() <= column->getBottomDepth());
+               assert (column->getTopDepth() <= column->getBottomDepth()); // The top depth of the column needs to be shallower than the bottom depth
 	         }
 	      }
       }

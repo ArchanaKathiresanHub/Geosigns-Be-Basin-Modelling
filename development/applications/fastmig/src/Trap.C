@@ -650,9 +650,6 @@ void Trap::closePerimeter (Column * column)
    }
 }
 
-/// Add a column to the Trap's perimeter such that the perimeter is sorted,
-/// highest lying column first.
-/// Put sealing columns at the end
 void Trap::addToPerimeter (Column * column)
 {
    ColumnIterator iter;

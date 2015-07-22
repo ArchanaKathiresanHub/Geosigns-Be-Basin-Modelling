@@ -8,19 +8,13 @@ namespace migration {
 
 class Biodegrade
 {
-private:
-
-   double m_maxBioTemp;
-   DataAccess::Interface::BioConsts m_bioConsts;
-   double m_timeFactor;
 
 public:
 
    /*!
    * \brief Constructor used for the biodegradation parameters within Fastmig
    */
-   Biodegrade(const DataAccess::Interface::BiodegradationParameters* 
-         biodegradationparameters):
+   Biodegrade(const DataAccess::Interface::BiodegradationParameters* biodegradationparameters):
       m_maxBioTemp(biodegradationparameters->maxBioTemp()),
       m_bioConsts(biodegradationparameters->bioConsts()),
       m_timeFactor(biodegradationparameters->timeFactor())
@@ -35,7 +29,10 @@ public:
       m_timeFactor(timeFactor)
    {}
 
-   void calculate(const double& timeInterval, const double& temperatureTrap,
+   /*!
+   * \brief Biodegradation processing: compute the weight lost
+   */
+   void calculate(const double timeInterval, const double temperatureTrap,
       const double* input, double* lost) const;
 
    /*!
@@ -56,6 +53,13 @@ public:
    * \return timeFactor, a user-tuneable rate scalar for all component class (in 1/Myr). Set by default to 0.5.
    */
    const double& timeFactor() const { return m_timeFactor; }
+
+
+private:
+
+   double const m_maxBioTemp;
+   DataAccess::Interface::BioConsts m_bioConsts;
+   double const m_timeFactor;
 };
 
 } // namespace migration
