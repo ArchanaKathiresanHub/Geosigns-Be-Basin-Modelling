@@ -4487,112 +4487,112 @@ Identification      : HcLiquidBrineCapillaryEntryPressure
     Unit of measurement : C (degCentigrade)
     Type                : double 
     Default             : 80.0 
-    Error Field         : Yes
+    Error Field         : No
 
     Identification      : TempConstant 
     Description         : Bio Degrad. temperature constant 
     Unit of measurement : 1/C 
     Type                : double 
     Default             : 70.0 
-    Error Field         : Yes 
+    Error Field         : No 
 
     Identification      : TimeConstant 
     Description         : Bio Degrad. time Constant 
     Unit of measurement : 1/Ma 
     Type                : double 
     Default             : 0.5
-    Error Field         : Yes 
+    Error Field         : No 
 
     Identification      : C1_BioFactor 
     Description         : Bio Degradation factor 
     Unit of measurement : 
     Type                : double 
     Default             : 0.0008 
-    Error Field         : Yes 
+    Error Field         : No 
 
     Identification      : C2_BioFactor 
     Description         : Bio Degradation factor 
     Unit of measurement : 
     Type                : double 
     Default             : 0.0005 
-    Error Field         : Yes 
+    Error Field         : No 
 
     Identification      : C3_BioFactor 
     Description         : Bio Degradation factor 
     Unit of measurement : 
     Type                : double 
     Default             : 0.0003
-    Error Field         : Yes 
+    Error Field         : No 
 
     Identification      : C4_BioFactor 
     Description         : Bio Degradation factor 
     Unit of measurement : 
     Type                : double 
     Default             : 0.0008
-    Error Field         : Yes 
+    Error Field         : No 
 
     Identification      : C5_BioFactor 
     Description         : Bio Degradation factor 
     Unit of measurement : 
     Type                : double 
     Default             : 0.001
-    Error Field         : Yes 
+    Error Field         : No 
 
     Identification      : N2_BioFactor 
     Description         : Bio Degradation factor 
     Unit of measurement : 
     Type                : double 
     Default             : 0.001
-    Error Field         : Yes 
+    Error Field         : No 
 
     Identification      : COx_BioFactor 
     Description         : Bio Degradation factor 
     Unit of measurement : 
     Type                : double 
     Default             : 1.0
-    Error Field         : Yes 
+    Error Field         : No 
 
     Identification      : C6_14Aro_BioFactor 
     Description         : Bio Degradation factor 
     Unit of measurement : 
     Type                : double 
     Default             : 0.007
-    Error Field         : Yes 
+    Error Field         : No 
 
     Identification      : C6_14Sat_BioFactor 
     Description         : Bio Degradation factor 
     Unit of measurement : 
     Type                : double 
     Default             : 0.009
-    Error Field         : Yes 
+    Error Field         : No 
 
     Identification      : C15Aro_BioFactor 
     Description         : Bio Degradation factor 
     Unit of measurement : 
     Type                : double 
     Default             : 0.05
-    Error Field         : Yes 
+    Error Field         : No 
 
     Identification      : C15Sat_BioFactor 
     Description         : Bio Degradation factor 
     Unit of measurement : 
     Type                : double 
     Default             : 0.011
-    Error Field         : Yes 
+    Error Field         : No 
 
     Identification      : resins_BioFactor 
     Description         : Bio Degradation factor 
     Unit of measurement : 
     Type                : double 
     Default             : 0.061
-    Error Field         : Yes 
+    Error Field         : No 
 
     Identification      : asphaltenes_BioFactor 
     Description         : Bio Degradation factor 
     Unit of measurement : 
     Type                : double 
     Default             : 0.1
-    Error Field         : Yes 
+    Error Field         : No 
 
 #### Diffusion Constants -----------------------------
 
