@@ -28,7 +28,7 @@ GeoPhysics::CompoundLithology::CompoundLithology(GeoPhysics::ProjectHandle* proj
    m_mixmodeltype = HOMOGENEOUS;
    m_lithologyFractureGradient = 1.0;
    m_isFaultLithology = false;
-
+   m_isBasementLithology = false;
 }
 //------------------------------------------------------------//
 
@@ -115,12 +115,7 @@ GeoPhysics::CompoundLithologyComposition GeoPhysics::CompoundLithology::getCompo
 
 
 bool GeoPhysics::CompoundLithology::isBasement() const {
-
-   const string lithoname = m_lithoComponents[0]->getName();
-   if ((this->m_lithoComponents.size() == 1) && (lithoname == "Crust" || lithoname == "Litho. Mantle" || lithoname == DataAccess::Interface::ALCBasalt)) {
-      return true;
-   }
-   return false;
+   return m_isBasementLithology;
 }
 //------------------------------------------------------------//
 
@@ -614,6 +609,13 @@ bool  GeoPhysics::CompoundLithology::reCalcProperties(){
 	   surfacePorosity,
 	   m_nExponentVelocity);
 
+   const string lithoname = m_lithoComponents[0]->getName();
+   m_isBasementLithology = false;
+
+   if (( m_lithoComponents.size() == 1) && (lithoname == "Crust" || lithoname == "Litho. Mantle" || lithoname == DataAccess::Interface::ALCBasalt)) {
+      m_isBasementLithology = true;
+   }
+
    return true;
 }
 
@@ -909,59 +911,39 @@ void GeoPhysics::CompoundLithology::calcBulkDensXHeatCapacity(const FluidType* f
 
 //------------------------------------------------------------//
 
-void GeoPhysics::CompoundLithology::calcBulkDensity(const FluidType* fluid,
-   const double     Porosity,
-   double&    BulkDensity) const {
+double GeoPhysics::CompoundLithology::computeDensity ( const double temperature,
+                                                       const double lithoPressure ) const {
+   return ( not isBasement () ? m_density : m_lithoComponents[0]->getDensity(temperature, lithoPressure));
+}
 
-   double MatrixDensity = m_density;
+//------------------------------------------------------------//
+
+void GeoPhysics::CompoundLithology::calcBulkDensity ( const FluidType* fluid,
+                                                      const double     porosity,
+                                                            double&    bulkDensity ) const {
 
    if (fluid != 0) {
       double FluidDensity = fluid->getConstantDensity();
-
-      BulkDensity = MatrixDensity * (1.0 - Porosity) + FluidDensity * Porosity;
-   }
-   else {
-      // Should this be multiplied by ( 1.0 - porosity )?
-      BulkDensity = MatrixDensity;
+      bulkDensity = m_density * (1.0 - porosity) + FluidDensity * porosity;
+   } else {
+      bulkDensity = m_density;
    }
 
 }
 
 //------------------------------------------------------------//
 
-void GeoPhysics::CompoundLithology::calcBulkDensity(const FluidType* fluid,
-   const double     Porosity,
-   const double     porePressure,
-   const double     temperature,
-   const double     lithoPressure,
-   double&    BulkDensity) const {
+void GeoPhysics::CompoundLithology::calcBulkDensity ( const FluidType* fluid,
+                                                      const double     porosity,
+                                                      const double     porePressure,
+                                                      const double     temperature,
+                                                            double&    bulkDensity ) const {
 
-   bool LithoHasFluid = false;
-   if (fluid != 0) LithoHasFluid = true;
-
-   //double MatrixDensity = m_density;
-   double MatrixDensity;
-
-#ifdef NOPRESSURE
-   MatrixDensity = (!isBasement() ? m_density : m_lithoComponents[0]->getDensity(temperature, 0.0));
-#else
-   // temporary remove pressure term from the density calculation
-   MatrixDensity = (!isBasement() ? m_density : m_lithoComponents[0]->getDensity(temperature, lithoPressure));
-#endif
-
-   if (LithoHasFluid) {
-
+   if ( fluid != 0 ) {
       double FluidDensity = fluid->density(temperature, porePressure);
-
-      BulkDensity = (MatrixDensity * (1.0 - Porosity))
-         + (FluidDensity * Porosity);
-
-   }
-   else {
-
-      // Should this be multiplied by ( 1.0 - porosity )?
-      BulkDensity = MatrixDensity;
-
+      bulkDensity = ( m_density * (1.0 - porosity)) + (FluidDensity * porosity);
+   } else {
+      bulkDensity = m_density;
    }
 
 }
@@ -969,35 +951,23 @@ void GeoPhysics::CompoundLithology::calcBulkDensity(const FluidType* fluid,
 //------------------------------------------------------------//
 
 // use this function in calculation of BulkDensity output property
-void GeoPhysics::CompoundLithology::calcBulkDensity1(const FluidType* fluid,
-   const double     Porosity,
-   const double     porePressure,
-   const double     temperature,
-   const double     lithoPressure,
-   double&    BulkDensity) const {
-
-   bool LithoHasFluid = false;
-   if (fluid != 0) LithoHasFluid = true;
-
-   //double MatrixDensity = m_density;
+void GeoPhysics::CompoundLithology::calcBulkDensity ( const FluidType* fluid,
+                                                      const double     porosity,
+                                                      const double     porePressure,
+                                                      const double     temperature,
+                                                      const double     lithoPressure,
+                                                            double&    bulkDensity ) const {
+   
    double MatrixDensity = (!isBasement() ? m_density : m_lithoComponents[0]->getDensity(temperature, lithoPressure));
 
-   if (LithoHasFluid) {
-
+   if ( fluid != 0 ) {
       double FluidDensity = fluid->density(temperature, porePressure);
-
-      BulkDensity = (MatrixDensity * (1.0 - Porosity)) + (FluidDensity * Porosity);
-
-   }
-   else {
-
-      // Should this be multiplied by ( 1.0 - porosity )?
-      BulkDensity = MatrixDensity;
-
-      }
-
+      bulkDensity = (MatrixDensity * (1.0 - porosity)) + (FluidDensity * porosity);
+   } else {
+      bulkDensity = MatrixDensity;
    }
 
+}
 
 //------------------------------------------------------------//
 

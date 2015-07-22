@@ -19,7 +19,7 @@ namespace GeoPhysics {
 namespace GeoPhysics {
 
 
-	class CompoundLithology {
+   class CompoundLithology {
 
    public:
 
@@ -146,27 +146,44 @@ namespace GeoPhysics {
          const double  LithoPressure,
          double& BulkDensXHeatCapacity) const;
 
-      /// Calculate the bulk-density value.
-      // Should this be a lithology function?
-      void calcBulkDensity(const FluidType* fluid,
-         const double Porosity,
-         const double porePressure,
-         const double temperature,
-         const double lithoPresure,
-         double &BulkDensity) const;
+      /// \brief Compute the density of the lithology.
+      ///
+      /// The lithologies "Crust", "Litho. Mantle" and ALCBasalt can only appear 
+      /// in the basement. In ALC mode the density of these lithologies depends on 
+      /// temperature and lithostatic-pressure.
+      double computeDensity ( const double temperature,
+                              const double lithoPressure ) const;
 
-      void calcBulkDensity1(const FluidType* fluid,
-         const double Porosity,
-         const double porePressure,
-         const double temperature,
-         const double lithoPresure,
-         double &BulkDensity) const;
 
-      /// Calculate the bulk-density value.
+      /// \brief Calculate the bulk density.
+      ///
+      /// This function is to be used only in alc mode, where the density
+      /// in the basement lithologies depends on the pressure and temperature.
       // Should this be a lithology function?
-      void calcBulkDensity(const FluidType* fluid,
-         const double Porosity,
-         double &BulkDensity) const;
+      void calcBulkDensity ( const FluidType* fluid,
+                             const double     porosity,
+                             const double     porePressure,
+                             const double     temperature,
+                             const double     lithoPresure,
+                                   double&    bulkDensity ) const;
+
+      /// \brief Calculate the bulk density.
+      ///
+      /// This function is to be used only in coupled mode when ALC is not enabled.
+      /// The density of the lithologies in the basement lithologies is constant.
+      void calcBulkDensity ( const FluidType* fluid,
+                             const double     porosity,
+                             const double     porePressure,
+                             const double     temperature,
+                                   double&    bulkDensity ) const;
+
+      /// \brief Calculate the bulk density.
+      ///
+      /// This function is to be used only in hydrostatic mode and when ALC is not enabled.
+      /// The density of the lithologies in the basement lithologies is constant.
+      void calcBulkDensity ( const FluidType* fluid,
+                             const double     porosity,
+                                   double&    bulkDensity ) const;
 
       /// Calculate the bulk thermal-conductivity.
       // Should this be a lithology function?
@@ -417,19 +434,22 @@ namespace GeoPhysics {
 
       GeoPhysics::ProjectHandle* m_projectHandle;
 
-	  Porosity m_porosity;
+      Porosity m_porosity;
 
    private:
-	   /*!
-	   * \brief Compute the solid modulus of the lithology according to the following mixing rules.
-	   * \details If the compound lithology is HOMOGENEOUS or UNDEFINED we use the geometric mean.
-	   *   If the compound lithology is LAYERED we use the harmonic mean.
-	   * \endif
-	   */
-	   double mixModulusSolid() const;
 
-	   /// The object used to compute the velocity (by using m_seismicVelocity.seismicVelocity() method).
-	   SeismicVelocity m_seismicVelocity;
+      /*!
+       * \brief Compute the solid modulus of the lithology according to the following mixing rules.
+       * \details If the compound lithology is HOMOGENEOUS or UNDEFINED we use the geometric mean.
+       *   If the compound lithology is LAYERED we use the harmonic mean.
+       * \endif
+       */
+      double mixModulusSolid() const;
+
+      /// The object used to compute the velocity (by using m_seismicVelocity.seismicVelocity() method).
+      SeismicVelocity m_seismicVelocity;
+
+      bool m_isBasementLithology;
 
    };
 

@@ -88,15 +88,17 @@ bool BulkDensityCalculator::operator ()( const OutputPropertyMap::OutputProperty
 
          if ( FastcauldronSimulator::getInstance ().nodeIsDefined ( i, j )) {
             porosity = 0.01 * (*m_porosity)( i, j );
+
             if( isALC ) {
                curLithology = m_formation->getLithology( i, j, m_kIndex );
             } else {
                curLithology = (*m_lithologies)( i, j );
             }
+
             if ( isHydrostaticDecompaction ) {
                curLithology->calcBulkDensity ( m_fluid, porosity, value );
             } else {
-               curLithology->calcBulkDensity1 ( m_fluid, porosity, (*m_pressure)( i, j ), (*m_temperature)( i, j ), 
+               curLithology->calcBulkDensity ( m_fluid, porosity, (*m_pressure)( i, j ), (*m_temperature)( i, j ), 
                                                ( m_lithopressure != 0 ? (*m_lithopressure)( i, j ) : 0 ), value );
             }
 
@@ -254,7 +256,7 @@ bool BulkDensityVolumeCalculator::operator ()( const OutputPropertyMap::OutputPr
                if ( isHydrostaticDecompaction ) {
                   curLithology->calcBulkDensity ( m_fluid, porosity, value );
                } else {
-                  curLithology->calcBulkDensity1 ( m_fluid,
+                  curLithology->calcBulkDensity ( m_fluid,
                                                   porosity,
                                                   m_pressure->getVolumeValue ( i, j, k ),
                                                   m_temperature->getVolumeValue ( i, j, k ),
