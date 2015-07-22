@@ -127,7 +127,7 @@ void CmdRunMC::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
       }
       if ( !itNum ) break; // converged
       
-      if ( m_commander.verboseLevel() > CasaCommander::Quiet )
+      if ( m_commander.verboseLevel() > CasaCommander::Minimal )
       {
          if ( itNum > 1 )
          {
@@ -138,6 +138,14 @@ void CmdRunMC::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
          }
          std::cout << itNum;
          std::cout.flush();
+      }
+      else if ( m_commander.verboseLevel() > CasaCommander::Quiet )
+      {
+         if ( (itNum % 10) == 0 )
+         {
+            std::cout << "  " << itNum << " iterations completed\n";
+            std::cout.flush();
+         }
       }
    }
 

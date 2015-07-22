@@ -80,7 +80,7 @@ static void ParseCoefficientsFromString( const std::string & str, std::vector<do
    {
       double value = 0.0;
       stream >> value;
-      if ( !stream ) break;                                                                                                                                                             
+      if ( !stream ) break;
       result.push_back( value );
    }
 }

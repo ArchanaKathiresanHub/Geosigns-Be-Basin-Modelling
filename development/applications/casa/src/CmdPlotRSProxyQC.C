@@ -361,7 +361,7 @@ void CmdPlotRSProxyQC::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
    ofs << "\n";
    ofs << "   ah=get (gcf, 'currentaxes');\n";
    ofs << "   set( ah, 'fontweight', 'bold' );\n";
-   ofs << "   title( ['" << m_proxyName << " QC plot: ' ProxyQC(i).obsName], 'fontweight', 'bold' );\n";
+   ofs << "   title( ['" << m_proxyName << " QC plot: ' ProxyQC(i).obsNameFN], 'fontweight', 'bold' );\n";
    ofs << "\n";
    ofs << "   xlabel( 'Simulated value' );\n";
    ofs << "   ylabel( 'Proxy value' );\n";

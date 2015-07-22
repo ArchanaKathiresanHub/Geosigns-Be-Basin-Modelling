@@ -46,7 +46,7 @@ SourceRockManagerImpl::SourceRockManagerImpl()
 // Copy operator
 SourceRockManagerImpl & SourceRockManagerImpl::operator = ( const SourceRockManagerImpl & otherSrRockMgr )
 {
-   throw std::runtime_error( "Not implemented yet" );
+   throw ErrorHandler::Exception( ErrorHandler::NotImplementedAPI ) << "SourceRockManagerImpl::operator = () not implemented yet";
    return *this;
 }
 
@@ -418,7 +418,7 @@ ErrorHandler::ReturnCode SourceRockManagerImpl::setHCIni( SourceRockID id, doubl
       }
       rec->setValue( s_hcIni, newHC );
    }
-   catch ( const Exception & e ) { reportError( e.errorCode(), e.what() ); }
+   catch ( const Exception & e ) { return reportError( e.errorCode(), e.what() ); }
 
    return NoError;
 }
@@ -460,9 +460,9 @@ ErrorHandler::ReturnCode SourceRockManagerImpl::setPreAsphActEnergy( SourceRockI
 
    try
    {
-      if ( newVal < 200.0 || newVal > 220.0 )
+      if ( newVal < 100.0 || newVal > 300.0 )
       {
-         throw Exception( OutOfRangeValue ) << "pre-asphaltene activation energy  value must be in range [200:220]" <<
+         throw Exception( OutOfRangeValue ) << "pre-asphaltene activation energy  value must be in range [100:300]" <<
                                                " but given is: " << newVal;
       }
 
@@ -482,7 +482,7 @@ ErrorHandler::ReturnCode SourceRockManagerImpl::setPreAsphActEnergy( SourceRockI
       }
       rec->setValue( s_PreAsphaltStartAct, newVal );
    }
-   catch ( const Exception & e ) { reportError( e.errorCode(), e.what() ); }
+   catch ( const Exception & e ) { return reportError( e.errorCode(), e.what() ); }
 
    return NoError;
 }
