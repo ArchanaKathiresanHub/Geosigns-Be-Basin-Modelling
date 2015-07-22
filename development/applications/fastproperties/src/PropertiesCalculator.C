@@ -114,7 +114,7 @@ bool PropertiesCalculator::startActivity() {
    }
 
    if( started ) {
-      started = m_projectHandle->setFormationLithologies ( false, true );
+      started = m_projectHandle->setFormationLithologies ( true, true );
    }
    if( started) {
       started = m_projectHandle->initialiseLayerThicknessHistory ( coupledCalculation );
