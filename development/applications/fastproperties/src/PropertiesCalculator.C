@@ -404,7 +404,7 @@ const GridMap * PropertiesCalculator::getPropertyGridMap ( const string & proper
       }
 
       
-      if (propertyValues->size () != 1 && m_rank == 0 ) {
+      if ( propertyValues->size () != 1 && m_debug &&  m_rank == 0 ) {
          cout << propertyValues->size () << ( volumeProperties ? " volume " : " map " ) << "properties values are available for  " << propertyName 
               << " at " << snapshot->getTime() << " for formation " << formation->getName() << endl;
       }
