@@ -418,8 +418,35 @@ namespace migration
 	 void setPenetrationDistance (ComponentId c, double penetrationDistance);
 	 double getPenetrationDistance (ComponentId c);
 
+    /*!
+    * \brief Set the filling depth for a particular \param phase
+    * \details This limit represent the transition between water and the hydrocarbon  \param phase.
+    */
 	 void setFillDepth (PhaseId phase, double fillDepth);
+
+    /*!
+    * \brief Get the filling depth for a particular \param phase
+    * \details This limit represent the transition between water and the hydrocarbon  \param phase.
+    * \return The absolute depth of the filling depth inside a trap for a particular \param phase (from the surface)
+    */
 	 double getFillDepth (PhaseId phase);
+
+    /*!
+    * \brief Set the Hydrocarbon - Water contact depth
+    * \details This limit represent the transition between water and hydrocarbon.
+    * With this function, we don't know if the hydrocarbon in question are GAS or OIL (ie. this limit can be equal to getFillDepth(GAS) or getFillDepth(OIL) )
+    * This limit is used to compute biodegradation.
+    */
+    inline void setHydrocarbonWaterContactDepth(double hydrocarbonDepth) { m_hydrocarbonWaterContactDepth = hydrocarbonDepth; };
+
+    /*!
+    * \brief Get the Hydrocarbon - Water contact depth
+    * \details This limit represent the transition between water and hydrocarbon.
+    * With this function, we don't know if the hydrocarbon in question are GAS or OIL (ie. this limit can be equal to getFillDepth(GAS) or getFillDepth(OIL) )
+    * This limit is used to compute biodegradation.
+    * \return The absolute depth of the hydrocarbon - water contact (from the surface)
+    */
+    inline double getHydrocarbonWaterContactDepth() const { return m_hydrocarbonWaterContactDepth; };
 
    /*!
    * \brief Compute the Hydrocarbon - Water contact depth
@@ -468,6 +495,7 @@ namespace migration
    double m_penetrationDistances[DiffusionComponentSize];
 
    double m_fillDepth[NUM_PHASES];
+   double m_hydrocarbonWaterContactDepth;
 #ifdef COMPUTECAPACITY
    double m_capacity;
 #endif

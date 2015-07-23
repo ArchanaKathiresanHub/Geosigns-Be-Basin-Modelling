@@ -1178,6 +1178,7 @@ double Trap::biodegradeCharges(const double& timeInterval, const Biodegrade& bio
    
    double const hydrocarbonWaterContactDepth = computeHydrocarbonWaterContactDepth();
    setFillDepth(OIL, hydrocarbonWaterContactDepth);
+   setHydrocarbonWaterContactDepth(hydrocarbonWaterContactDepth);
 
    double const hydrocarbonWaterContactTemperature = computeHydrocarbonWaterContactTemperature();
 
@@ -1203,7 +1204,8 @@ double Trap::biodegradeCharges(const double& timeInterval, const Biodegrade& bio
    }
 
    // Addition of the mass biodegraded in the two phases in order to report the global biodegradation
-   Composition biodegraded = biodegradedGas;
+   Composition biodegraded;
+   biodegraded.add(biodegradedGas);
    biodegraded.add(biodegradedOil);
 
    // Report the biodegradation
@@ -2253,7 +2255,7 @@ double Trap::computeFractionVolumeBiodegraded(const double timeInterval, const P
    double const thicknessAffectedByBiodegradationAboveOWC = computethicknessAffectedByBiodegradationAboveOWC(timeInterval);
 
    double const maximumCapacityOfTrap = getVolumeBetweenDepths2(getTopDepth(), getBottomDepth());
-   double const volumeBiodegraded = min(getVolumeBetweenDepths2(getFillDepth(OIL) - thicknessAffectedByBiodegradationAboveOWC, getFillDepth(OIL)), volumePhase);
+   double const volumeBiodegraded = min(getVolumeBetweenDepths2(getHydrocarbonWaterContactDepth() - thicknessAffectedByBiodegradationAboveOWC, getHydrocarbonWaterContactDepth()), volumePhase);
 
    assert(volumeBiodegraded >= 0.0);
    assert(volumeBiodegraded <= maximumCapacityOfTrap && volumeBiodegraded <= volumePhase);
@@ -2266,7 +2268,7 @@ double Trap::computeFractionVolumeBiodegraded(const double timeInterval, const P
    cerr << "Volume of GAS in the Trap: " << m_toBeDistributed[GAS].getVolume() << " ; Volume of OIL in the Trap: " << m_toBeDistributed[OIL].getVolume() << endl;
    cerr << "Volume total of HC in the Trap: " << m_toBeDistributed[GAS].getVolume() + m_toBeDistributed[OIL].getVolume() << endl;
    cerr << "Top depth of the trap (crest column): " << getTopDepth() << endl;
-   cerr << "Hydrocarbon - water contact depth: " << getFillDepth(OIL) << endl;
+   cerr << "Hydrocarbon - water contact depth: " << getHydrocarbonWaterContactDepth() << endl;
    cerr << "Bottom depth of the trap (spilling Point): " << getBottomDepth() << endl;
    cerr << "Maximum capacity of the trap: " << getVolumeBetweenDepths2(getTopDepth(), getBottomDepth()) << endl;
    cerr << "Volume impacted by biodegradation in the trap: " << volumeBiodegraded << endl;
@@ -2301,14 +2303,14 @@ double Trap::computeHydrocarbonWaterContactTemperature()
 
    // If the hydrocarbon - water contact is included between the top and the bottom of the crest column
    // The interpolation of temperature will be done only on the crest column
-   if (getFillDepth(OIL) <= getCrestColumn()->getBottomDepth())
+   if (getHydrocarbonWaterContactDepth() <= getCrestColumn()->getBottomDepth())
    {
       // Obtain the depths at the top and bottom of the crest column
       double const topCrestColumnDepth = getCrestColumn()->getTopDepth();
       double const bottomCrestColumnDepth = getCrestColumn()->getBottomDepth();
 
       // Transform the depth of the hydrocarbon - water contact in a node position of the crest column
-      double const percentageHeightHydrocarbonWaterContact = (bottomCrestColumnDepth - getFillDepth(OIL)) / (bottomCrestColumnDepth - topCrestColumnDepth);
+      double const percentageHeightHydrocarbonWaterContact = (bottomCrestColumnDepth - getHydrocarbonWaterContactDepth()) / (bottomCrestColumnDepth - topCrestColumnDepth);
       double const nodeHydrocarbonWaterContact = (depth - 1) * percentageHeightHydrocarbonWaterContact;
 
       LocalColumn const * column = getReservoir()->getLocalColumn(getCrestColumn()->getI(), getCrestColumn()->getJ());
@@ -2328,14 +2330,14 @@ double Trap::computeHydrocarbonWaterContactTemperature()
       {
          const LocalColumn * column = dynamic_cast<LocalColumn *> (*iter);
 
-         if (getFillDepth(OIL) <= column->getBottomDepth() && getFillDepth(OIL) >= column->getTopDepth())
+         if (getHydrocarbonWaterContactDepth() <= column->getBottomDepth() && getHydrocarbonWaterContactDepth() >= column->getTopDepth())
          {
             // Compute the temperature at the top of the crest column
             double const topColumnDepth = column->getTopDepth();
             double const bottomColumnDepth = column->getBottomDepth();
 
             // Transform the depth of the hydrocarbon - water contact in a node position of the crest column
-            double const percentageHeightHydrocarbonWaterContact = (bottomColumnDepth - getFillDepth(OIL)) / (bottomColumnDepth - topColumnDepth);
+            double const percentageHeightHydrocarbonWaterContact = (bottomColumnDepth - getHydrocarbonWaterContactDepth()) / (bottomColumnDepth - topColumnDepth);
             double const nodeHydrocarbonWaterContact = (depth - 1) * percentageHeightHydrocarbonWaterContact;
 
             double index = nodeHydrocarbonWaterContact - column->getTopDepthOffset() * (depth - 1);
@@ -2393,7 +2395,7 @@ void Trap::computePhaseVolumeProportionInBiodegradadedZone(const double timeInte
    else  // case of a mixed-fill trap
    {
       double const maxCapacityOfTrap = getVolumeBetweenDepths2(getTopDepth(), getBottomDepth());
-      double const volumeBiodegraded = min(getVolumeBetweenDepths2(getFillDepth(OIL) - thicknessAffectedByBiodegradationAboveOWC, getFillDepth(OIL)), maxCapacityOfTrap);
+      double const volumeBiodegraded = min(getVolumeBetweenDepths2(getHydrocarbonWaterContactDepth() - thicknessAffectedByBiodegradationAboveOWC, getHydrocarbonWaterContactDepth()), maxCapacityOfTrap);
 
       if (m_toBeDistributed[OIL].getVolume() >= volumeBiodegraded) // only oil in the biodegraded zone
       {
