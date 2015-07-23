@@ -2,6 +2,7 @@
 
 #include "Interface/Surface.h"
 #include "Interface/Snapshot.h"
+#include "Interface/RunParameters.h"
 #include "Interface/SimulationDetails.h"
 
 #include "GeoPhysicsFormation.h"
@@ -97,10 +98,6 @@ void DerivedProperties::HydrostaticPressureFormationCalculator::calculate ( Abst
 
    const GeoPhysics::FluidType* fluid = dynamic_cast<const GeoPhysics::FluidType*>(currentFormation->getFluidType ());
 
-   if( m_hydrostaticDecompactionMode || m_hydrostaticMode ) {
-      (( GeoPhysics::FluidType *) fluid )->setDensityToConstant ();      
-   }
-
    double fluidDensityTop;
    double fluidDensityBottom;
    double fluidDensity = 0;
@@ -118,8 +115,14 @@ void DerivedProperties::HydrostaticPressureFormationCalculator::calculate ( Abst
       formationAbove = dynamic_cast<const GeoPhysics::Formation*>( currentFormation->getTopSurface ()->getTopFormation ());
    }
 
-   if ( m_hydrostaticDecompactionMode ) {
-      fluidDensity = ( fluid ? fluid->getConstantDensity() : 0.0 );;
+   if ( fluid == 0 ) {
+      fluidDensity = 0.0;
+   } else if ( m_hydrostaticDecompactionMode ) {
+      double temperatureGradient = 0.001 * m_projectHandle->getRunParameters ()->getTemperatureGradient ();
+      fluidDensity = fluid->getCorrectedSimpleDensity ( GeoPhysics::FluidType::DefaultStandardDepth,
+                                                        GeoPhysics::FluidType::DefaultHydrostaticPressureGradient,
+                                                        GeoPhysics::FluidType::StandardSurfaceTemperature,
+                                                        temperatureGradient );
    }
 
    // Initialise the top set of nodes for the hydrostatic pressure.
