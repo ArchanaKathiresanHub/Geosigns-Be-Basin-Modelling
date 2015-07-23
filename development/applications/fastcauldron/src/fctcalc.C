@@ -37,7 +37,11 @@ FCTCalc::FCTCalc( AppCtx* Application_Context )
 
   PetscOptionsHasName ( PETSC_NULL, "-primary", &onlyPrimaryProperties );
 
+#if LITHOLOGYID
+  // Remove from list until the lithology id has been fixed.
    m_volumeOutputProperties.push_back ( LITHOLOGY );
+#endif
+
    m_volumeOutputProperties.push_back ( DEPTH );
    m_volumeOutputProperties.push_back ( VES );
    m_volumeOutputProperties.push_back ( MAXVES );
@@ -208,11 +212,16 @@ void FCTCalc::writeCauldronSnapShotTime ( const double time ) {
   }
 
   if ( FastcauldronSimulator::getInstance ().getCalculationMode () == HYDROSTATIC_DECOMPACTION_MODE ) {
+
+#if LITHOLOGYID
      cauldron->Retrieve_Lithology_ID ();
+#endif
      FastcauldronSimulator::getInstance ().saveVolumeProperties ( m_volumeOutputProperties,
                                                                   snapshot,
                                                                   Interface::SEDIMENTS_AND_BASEMENT_OUTPUT );
+#if LITHOLOGYID
      cauldron->deleteLithologyIDs ();
+#endif
   }
 
 }
