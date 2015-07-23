@@ -2265,7 +2265,6 @@ bool SourceRock::computeSnapShot ( const double previousTime,
       cout<<"Computing SnapShot t:"<<time<<endl;
    }
 
-   //erosion
    const DataModel::AbstractProperty* property = 0;
 
    property = m_propertyManager->getProperty ( "Ves" );
