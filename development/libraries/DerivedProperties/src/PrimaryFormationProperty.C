@@ -10,12 +10,14 @@ DerivedProperties::PrimaryFormationProperty::PrimaryFormationProperty ( const Da
    FormationProperty ( propertyValue->getProperty (), 
                        propertyValue->getSnapshot (),
                        propertyValue->getFormation (),
-                       propertyValue->getGridMap ()->getGrid (),
-                       propertyValue->getGridMap ()->lastK () + 1 ),
+                       ( propertyValue->getGridMap () != 0 ? propertyValue->getGridMap ()->getGrid () : 0 ),
+                       ( propertyValue->getGridMap () != 0 ? propertyValue->getGridMap ()->lastK () + 1 : 0 )),
    m_propertyValue ( propertyValue ),
    m_gridMap ( propertyValue->getGridMap () )
 {
-   m_gridMap->retrieveData ( true );
+   if( m_gridMap ) {
+      m_gridMap->retrieveData ( true );
+   }
 }
 
 DerivedProperties::PrimaryFormationProperty::~PrimaryFormationProperty() {
