@@ -127,6 +127,11 @@ namespace DerivedProperties {
       /// Here all the calculators for derived properties for formation-map are added to the set of calculators.
       void loadDerivedFormationMapPropertyCalculator ( const bool debug );
 
+      /// \brief Load derived surface property calculators.
+      ///
+      /// Here all the calculators for derived properties for surfaces are added to the set of calculators.
+      void loadDerivedSurfacePropertyCalculator ( const bool debug );
+
       /// \brief Determine if the derived property calculator should be added to the property-manager.
       ///
       /// This does not look at the properties required for the property to be calculated, only
@@ -139,6 +144,11 @@ namespace DerivedProperties {
       /// if a calculator for the property is already in the list.
       bool canAddDerivedFormationMapPropertyCalculator ( const FormationMapPropertyCalculatorPtr& formationMapPropertyCalculator) const;
 
+      /// \brief Determine if the derived property calculator should be added to the property-manager.
+      ///
+      /// This does not look at the properties required for the property to be calculated, only
+      /// if a calculator for the property is already in the list.
+      bool canAddDerivedSurfacePropertyCalculator ( const SurfacePropertyCalculatorPtr& surfacePropertyCalculator ) const;
 
       /// \brief The geophysics project handle
       GeoPhysics::ProjectHandle* m_projectHandle;

@@ -59,6 +59,7 @@ set(all_headers
   src/PropertyErasePredicate.h
   src/PropertyRetriever.h
   src/PropertySnapshotCalculatorMap.h
+  src/ReflectivitySurfaceCalculator.h
   src/ReservoirProperty.h
   src/ReservoirPropertyCalculator.h
   src/SurfaceProperty.h
@@ -116,6 +117,7 @@ set(all_srcs
   src/PrimarySurfacePropertyCalculator.C
   src/PropertyCalculator.C
   src/PropertyRetriever.C
+  src/ReflectivitySurfaceCalculator.C
   src/ReservoirProperty.C
   src/ReservoirPropertyCalculator.C
   src/SurfaceProperty.C

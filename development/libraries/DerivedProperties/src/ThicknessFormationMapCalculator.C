@@ -54,3 +54,12 @@ void DerivedProperties::ThicknessFormationMapCalculator::calculate ( AbstractPro
    }
 
 }
+
+
+bool DerivedProperties::ThicknessFormationMapCalculator::isComputable ( const AbstractPropertyManager&      propManager,
+                                                                        const DataModel::AbstractSnapshot*  snapshot,
+                                                                        const DataModel::AbstractFormation* formation ) const {
+   
+   const DataModel::AbstractProperty* depth   = propManager.getProperty ( "Depth" );
+   return propManager.formationPropertyIsComputable ( depth, snapshot, formation );
+}

@@ -43,6 +43,9 @@
 #include "FaultElementFormationMapCalculator.h"
 #include "ThicknessFormationMapCalculator.h"
 
+// Derived surface property calcualtors
+#include "ReflectivitySurfaceCalculator.h"
+
 DerivedProperties::DerivedPropertyManager::DerivedPropertyManager ( GeoPhysics::ProjectHandle* projectHandle,
                                                                     const bool                 debug ) : m_projectHandle ( projectHandle ) {
    loadPrimaryFormationPropertyCalculators ( debug );
@@ -52,6 +55,7 @@ DerivedProperties::DerivedPropertyManager::DerivedPropertyManager ( GeoPhysics::
    loadPrimaryReservoirPropertyCalculators ( debug );
    loadDerivedFormationPropertyCalculator ( debug );
    loadDerivedFormationMapPropertyCalculator ( debug );
+   loadDerivedSurfacePropertyCalculator ( debug );
 }
 
 const GeoPhysics::ProjectHandle* DerivedProperties::DerivedPropertyManager::getProjectHandle () const {
@@ -100,6 +104,27 @@ bool DerivedProperties::DerivedPropertyManager::canAddDerivedFormationMapPropert
       // If any of the properties computed by the calculator are not currently computable then 
       // the calculator need to be added to the list of calculators.
       if ( not formationMapPropertyIsComputable ( getProperty ( propertyNames [ i ]))) {
+         return true;
+      }
+
+   }
+
+   return false;
+}
+
+bool DerivedProperties::DerivedPropertyManager::canAddDerivedSurfacePropertyCalculator ( const SurfacePropertyCalculatorPtr& surfacePropertyCalculator ) const {
+
+   if ( surfacePropertyCalculator == 0 ) {
+      return false;
+   }
+
+   const std::vector<std::string>& propertyNames = surfacePropertyCalculator->getPropertyNames ();
+
+   for ( size_t i = 0; i < propertyNames.size (); ++i ) {
+
+      // If any of the properties computed by the calculator are not currently computable then 
+      // the calculator need to be added to the list of calculators.
+      if ( not surfacePropertyIsComputable ( getProperty ( propertyNames [ i ]))) {
          return true;
       }
 
@@ -212,6 +237,18 @@ void DerivedProperties::DerivedPropertyManager::loadDerivedFormationMapPropertyC
 
    if ( canAddDerivedFormationMapPropertyCalculator ( formationMapPropertyCalculator )) {
       addFormationMapPropertyCalculator ( formationMapPropertyCalculator );
+   }
+
+}
+
+void DerivedProperties::DerivedPropertyManager::loadDerivedSurfacePropertyCalculator ( const bool debug ) {
+
+   SurfacePropertyCalculatorPtr surfacePropertyCalculator;
+
+   surfacePropertyCalculator = SurfacePropertyCalculatorPtr ( new ReflectivitySurfaceCalculator ( m_projectHandle ));
+
+   if ( canAddDerivedSurfacePropertyCalculator ( surfacePropertyCalculator )) {
+      addSurfacePropertyCalculator ( surfacePropertyCalculator );
    }
 
 }
