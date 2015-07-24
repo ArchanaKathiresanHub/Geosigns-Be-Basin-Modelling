@@ -57,7 +57,6 @@ private:
   SoGroup*          m_appearance;
   MoDrawStyle*      m_drawStyle;
   SoSwitch*         m_snapshots;
-  SoSwitch*         m_snapshotsHiRes;
   SoSwitch*         m_resolutionSwitch;
 
   MoPredefinedColorMapping* m_colorMap;
@@ -76,8 +75,6 @@ private:
   void createFilterNode();
 
   void createAppearanceNode();
-
-  void createSnapshotsNodeHiRes(DataAccess::Interface::ProjectHandle* handle);
 
   void createSnapshotsNode(DataAccess::Interface::ProjectHandle* handle);
 
@@ -120,6 +117,12 @@ public:
   void setRenderStyle(bool drawFaces, bool drawEdges);
 
   void getRenderStyle(bool& drawFaces, bool& drawEdges);
+
+  void setFormationVisibility(const std::string& name, bool visible);
+
+  void setSurfaceVisibility(const std::string& name, bool visible);
+
+  void setReservoirVisibility(const std::string& name, bool visible);
 
   int numI() const;
 

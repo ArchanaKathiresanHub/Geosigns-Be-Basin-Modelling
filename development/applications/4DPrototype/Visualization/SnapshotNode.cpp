@@ -7,6 +7,7 @@
 #include "Interface/GridMap.h"
 #include "Interface/Snapshot.h"
 #include "Interface/Formation.h"
+#include "Interface/Surface.h"
 #include "Interface/Reservoir.h"
 #include "Interface/Property.h"
 #include "Interface/ProjectHandle.h"
@@ -75,6 +76,9 @@ SnapshotNode::SnapshotNode()
 , m_planeGroup(new SoGroup)
 , m_renderSwitch(new SoSwitch)
 , m_skinExtractor(0)
+, m_formationsGroup(new SoGroup)
+, m_surfacesGroup(new SoGroup)
+, m_reservoirsGroup(new SoGroup)
 {
   SO_NODE_CONSTRUCTOR(SnapshotNode);
   SO_NODE_ADD_FIELD(RenderMode, (0));
@@ -86,6 +90,146 @@ SnapshotNode::SnapshotNode()
   m_sliceI->sliceIndex.connectFrom(&SliceI);
   m_sliceJ->sliceIndex.connectFrom(&SliceJ);
   m_planeSlice->plane.connectFrom(&Plane);
+
+  m_surfacesGroup->setName("surfaces");
+  m_formationsGroup->setName("formations");
+  m_reservoirsGroup->setName("reservoirs");
+}
+
+void SnapshotNode::setup(const di::Snapshot* snapshot)
+{
+  m_snapshot = snapshot;
+
+  di::ProjectHandle* handle = snapshot->getProjectHandle();
+
+  const std::string depthKey = "Depth";
+  const std::string depthTopKey = "ResRockTop";
+  const std::string depthBottomKey = "ResRockBottom";
+
+  const di::Property* depthProperty = handle->findProperty(depthKey);
+
+  bool includeBasement = false;
+
+  // SURFACES
+
+  std::unique_ptr<di::SurfaceList> surfaces(handle->getSurfaces(snapshot, includeBasement));
+  for (auto surface : *surfaces)
+  {
+    std::shared_ptr<di::PropertyValueList> depthValues(
+      handle->getPropertyValues(di::SURFACE, depthProperty, snapshot, nullptr, nullptr, surface, di::SURFACE));
+    assert(depthValues->size() <= 1);
+    if (depthValues && !depthValues->empty())
+    {
+      SurfaceMesh* mesh = new SurfaceMesh((*depthValues)[0]->getGridMap());
+      MoMesh* meshNode = new MoMesh;
+      meshNode->setMesh(mesh);
+
+      MoMeshSurface* surfaceMesh = new MoMeshSurface;
+
+      SoSwitch* group = new SoSwitch;
+      group->addChild(meshNode);
+      group->addChild(surfaceMesh);
+      group->whichChild = SO_SWITCH_NONE;
+
+      m_surfacesMap[surface->getName()] = group;
+
+      m_surfacesGroup->addChild(group);
+    }
+  }
+  addChild(m_surfacesGroup);
+
+  // FORMATIONS
+
+  // Create colormap for all formations
+  std::unique_ptr<di::FormationList> allFormations(handle->getFormations(nullptr, includeBasement));
+  std::map<std::string, SbColor> colorMap;
+  for (size_t i = 0; i < allFormations->size(); ++i)
+  {
+    SbColor color;
+    float hue = (float)i / (float)allFormations->size();
+    color.setHSVValue(hue, 1.f, 1.f);
+    std::string name = (*allFormations)[i]->getName();
+    colorMap[name] = color;
+  }
+
+  std::unique_ptr<di::FormationList> formations(handle->getFormations(snapshot, includeBasement));
+  for (auto formation : *formations)
+  {
+    std::shared_ptr<di::PropertyValueList> depthValues(
+      handle->getPropertyValues(di::FORMATION, depthProperty, snapshot, nullptr, formation, nullptr, di::VOLUME));
+    assert(depthValues->size() <= 1);
+    if (depthValues && !depthValues->empty())
+    {
+      FormationMesh* mesh = new FormationMesh((*depthValues)[0]->getGridMap());
+      MoMesh* meshNode = new MoMesh;
+      meshNode->setMesh(mesh);
+
+      MoMaterial* material = new MoMaterial;
+      material->faceColoring = MoMaterial::COLOR;
+      material->faceColor = colorMap[formation->getName()];
+      material->lineColoring = MoMaterial::COLOR;
+      material->lineColor = SbColor(0.0f, 0.0f, 0.0f);
+
+      MoMeshSkin* skinMesh = new MoMeshSkin;
+
+      SoSwitch* group = new SoSwitch;
+      group->addChild(meshNode);
+      group->addChild(material);
+      group->addChild(skinMesh);
+      group->whichChild = SO_SWITCH_ALL;
+
+      m_formationsMap[formation->getName()] = group;
+
+      m_formationsGroup->addChild(group);
+    }
+  }
+  addChild(m_formationsGroup);
+
+  // RESERVOIRS
+
+  const di::Property* depthTopProperty = handle->findProperty(depthTopKey);
+  const di::Property* depthBottomProperty = handle->findProperty(depthBottomKey);
+
+  for (auto formation : *formations)
+  {
+    std::unique_ptr<di::ReservoirList> reservoirs(handle->getReservoirs(formation));
+
+    for (auto reservoir : *reservoirs)
+    {
+      std::unique_ptr<di::PropertyValueList> depthTopValues(
+        handle->getPropertyValues(di::RESERVOIR, depthTopProperty, snapshot, reservoir, 0, 0, di::MAP));
+
+      std::shared_ptr<di::PropertyValueList> depthBottomValues(
+        handle->getPropertyValues(di::RESERVOIR, depthBottomProperty, snapshot, reservoir, 0, 0, di::MAP));
+
+      if (depthTopValues->size() == 1 && depthBottomValues->size() == 1)
+      {
+        ReservoirMesh* mesh = new ReservoirMesh((*depthTopValues)[0]->getGridMap(), (*depthBottomValues)[0]->getGridMap());
+        MoMesh* meshNode = new MoMesh;
+        meshNode->setMesh(mesh);
+
+        MoMaterial* material = new MoMaterial;
+        material->faceColoring = MoMaterial::COLOR;
+        material->faceColor = SbColor(.3f, .3f, .3f);
+        material->lineColoring = MoMaterial::COLOR;
+        material->lineColor = SbColor(0.0f, 0.0f, 0.0f);
+
+        MoMeshSkin* skinMesh = new MoMeshSkin;
+
+        SoSwitch* group = new SoSwitch;
+        group->addChild(meshNode);
+        group->addChild(material);
+        group->addChild(skinMesh);
+        group->whichChild = SO_SWITCH_NONE;
+
+        m_reservoirsMap[reservoir->getName()] = group;
+
+        m_reservoirsGroup->addChild(group);
+      }
+    }
+  }
+
+  addChild(m_reservoirsGroup);
 }
 
 void SnapshotNode::setup(const di::Snapshot* snapshot, std::shared_ptr<di::PropertyValueList> depthValues, bool hires, Extractor& extractor, size_t subdivision)
@@ -161,92 +305,6 @@ void SnapshotNode::setup(const di::Snapshot* snapshot, std::shared_ptr<di::Prope
 
   addChild(m_renderSwitch);
 */
-  //-------------- TMP
-  if (!hires)
-  {
-    const di::Property* depthProperty = handle->findProperty("Depth");
-    bool includeBasement = false;
-
-    // SURFACES
-
-    SoGroup* surfacesGroup = new SoGroup;
-    surfacesGroup->setName("surfaces");
-    surfacesGroup->addChild(shapeHints);
-
-    std::unique_ptr<di::SurfaceList> surfaces(handle->getSurfaces(snapshot, includeBasement));
-    for (auto surface : *surfaces)
-    {
-      std::shared_ptr<di::PropertyValueList> depthValues(
-        handle->getPropertyValues(di::SURFACE, depthProperty, snapshot, nullptr, nullptr, surface, di::SURFACE));
-      assert(depthValues->size() <= 1);
-      if (depthValues && !depthValues->empty())
-      {
-        SurfaceMesh* mesh = new SurfaceMesh((*depthValues)[0]->getGridMap());
-        MoMesh* meshNode = new MoMesh;
-        meshNode->setMesh(mesh);
-
-        MoMeshSurface* surfaceMesh = new MoMeshSurface;
-
-        SoSwitch* group = new SoSwitch;
-        group->addChild(meshNode);
-        group->addChild(surfaceMesh);
-        group->whichChild = SO_SWITCH_ALL;
-
-        surfacesGroup->addChild(group);
-      }
-    }
-    addChild(surfacesGroup);
-
-    // FORMATIONS
-
-    SoGroup* formationsGroup= new SoGroup;
-    formationsGroup->setName("formations");
-
-    // Create colormap for all formations
-    std::unique_ptr<di::FormationList> allFormations(handle->getFormations(nullptr, includeBasement));
-    std::map<std::string, SbColor> colorMap;
-    for (size_t i = 0; i < allFormations->size(); ++i)
-    {
-      SbColor color;
-      float hue = (float)i / (float)allFormations->size();
-      color.setHSVValue(hue, 1.f, 1.f);
-      std::string name = (*allFormations)[i]->getName();
-      colorMap[name] = color;
-    }
-
-    std::unique_ptr<di::FormationList> formations(handle->getFormations(snapshot, includeBasement));
-    for (auto formation : *formations)
-    {
-      std::shared_ptr<di::PropertyValueList> depthValues(
-        handle->getPropertyValues(di::FORMATION, depthProperty, snapshot, nullptr, formation, nullptr, di::VOLUME));
-      assert(depthValues->size() <= 1);
-      if (depthValues && !depthValues->empty())
-      {
-        FormationMesh* mesh = new FormationMesh((*depthValues)[0]->getGridMap());
-        MoMesh* meshNode = new MoMesh;
-        meshNode->setMesh(mesh);
-
-        MoMaterial* material = new MoMaterial;
-        material->faceColoring = MoMaterial::COLOR;
-        material->faceColor = colorMap[formation->getName()];
-        material->lineColoring = MoMaterial::COLOR;
-        material->lineColor = SbColor(0.0f, 0.0f, 0.0f);
-
-        MoMeshSkin* skinMesh= new MoMeshSkin;
-
-        SoSwitch* group = new SoSwitch;
-        group->addChild(meshNode);
-        group->addChild(material);
-        group->addChild(skinMesh);
-        group->whichChild = SO_SWITCH_ALL;
-
-        formationsGroup->addChild(group);
-      }
-    }
-    addChild(formationsGroup);
-  }
-
-  //--------------
 
 }
 
@@ -290,6 +348,33 @@ void SnapshotNode::setProperty(const di::Property* prop)
   m_scalarSet->touch();
 
   m_skin->colorScalarSetId = 0;
+}
+
+void SnapshotNode::setFormationVisibility(const std::string& name, bool visible)
+{
+  auto iter = m_formationsMap.find(name);
+  if (iter != m_formationsMap.end())
+    iter->second->whichChild = visible 
+      ? SO_SWITCH_ALL 
+      : SO_SWITCH_NONE;
+}
+
+void SnapshotNode::setSurfaceVisibility(const std::string& name, bool visible)
+{
+  auto iter = m_surfacesMap.find(name);
+  if (iter != m_surfacesMap.end())
+    iter->second->whichChild = visible
+      ? SO_SWITCH_ALL
+      : SO_SWITCH_NONE;
+}
+
+void SnapshotNode::setReservoirVisibility(const std::string& name, bool visible)
+{
+  auto iter = m_reservoirsMap.find(name);
+  if (iter != m_reservoirsMap.end())
+    iter->second->whichChild = visible
+    ? SO_SWITCH_ALL
+    : SO_SWITCH_NONE;
 }
 
 MoScalarSetI* SnapshotNode::scalarSet() const

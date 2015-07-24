@@ -114,72 +114,6 @@ struct SnapshotCompare
   }
 };
 
-void SceneGraph::createSnapshotsNodeHiRes(di::ProjectHandle* handle)
-{
-  int flags = di::RESERVOIR;
-  int type = di::MAP;
-
-  std::string depthTopKey = "ResRockTop";
-  std::string depthBottomKey = "ResRockBottom";
-
-  const di::Property* depthTopProperty = handle->findProperty(depthTopKey);
-  const di::Property* depthBottomProperty = handle->findProperty(depthBottomKey);
-
-  std::shared_ptr<di::ReservoirList> reservoirs(handle->getReservoirs());
-
-  m_snapshotsHiRes = new SoSwitch;
-
-  // Sort snapshots so oldest is first in list
-  std::shared_ptr<di::SnapshotList> snapshots(handle->getSnapshots(di::MAJOR));
-  std::vector<const di::Snapshot*> tmpSnapshotList(*snapshots);
-  std::sort(tmpSnapshotList.begin(), tmpSnapshotList.end(), SnapshotCompare());
-
-  const di::Property* depthProperty = handle->findProperty("Depth");
-
-  for (size_t i = 0; i < tmpSnapshotList.size(); ++i)
-  {
-    const di::Snapshot* snapshot = tmpSnapshotList[i];
-    
-    for (size_t j = 0; j < reservoirs->size(); ++j)
-    {
-      std::shared_ptr<di::PropertyValueList> depthTopValues(
-        handle->getPropertyValues(flags, depthTopProperty, snapshot, (*reservoirs)[j], 0, 0, type));
-
-      std::shared_ptr<di::PropertyValueList> depthBottomValues(
-        handle->getPropertyValues(flags, depthBottomProperty, snapshot, (*reservoirs)[j], 0, 0, type));
-
-      if (depthTopValues->size() == 1 && depthBottomValues->size() == 1)
-      {
-        ReservoirMesh* mesh = new ReservoirMesh((*depthTopValues)[0]->getGridMap(), (*depthBottomValues)[0]->getGridMap());
-        MoMesh* meshNode = new MoMesh;
-        meshNode->setMesh(mesh);
-
-        MoMaterial* material = new MoMaterial;
-        material->faceColoring = MoMaterial::COLOR;
-        material->faceColor = SbColor(.3f, .3f, .3f);
-        material->lineColoring = MoMaterial::COLOR;
-        material->lineColor = SbColor(0.0f, 0.0f, 0.0f);
-
-        MoMeshSkin* skinMesh = new MoMeshSkin;
-
-        SoSwitch* group = new SoSwitch;
-        group->addChild(meshNode);
-        group->addChild(material);
-        group->addChild(skinMesh);
-        group->whichChild = SO_SWITCH_ALL;
-
-        m_snapshotsHiRes->addChild(group);
-      }
-      else
-      {
-        m_snapshotsHiRes->addChild(new SoGroup);
-      }
-    }
-  }
-
-  m_snapshotsHiRes->whichChild = 0;
-}
-
 void SceneGraph::createSnapshotsNode(di::ProjectHandle* handle)
 {
   int flags = di::FORMATION;// | di::SURFACE | di::FORMATIONSURFACE;
@@ -200,14 +134,8 @@ void SceneGraph::createSnapshotsNode(di::ProjectHandle* handle)
   {
     const di::Snapshot* snapshot = tmpSnapshotList[i];
     
-    std::shared_ptr<di::PropertyValueList> depthValues(
-      handle->getPropertyValues(flags, depthProperty, snapshot, 0, 0, 0, type));
-
-    if(depthValues->empty())
-      continue;
-
     SnapshotNode* snapshotNode = new SnapshotNode;
-    snapshotNode->setup(snapshot, depthValues, false, m_extractor, m_subdivision);
+    snapshotNode->setup(snapshot);
 
     // connect fields from scenegraph
     snapshotNode->RenderMode.connectFrom(&RenderMode);
@@ -232,7 +160,6 @@ void SceneGraph::createRootNode()
   
   m_resolutionSwitch = new SoSwitch;
   m_resolutionSwitch->addChild(m_snapshots);
-  m_resolutionSwitch->addChild(m_snapshotsHiRes);
   m_resolutionSwitch->whichChild = 0;
   addChild(m_resolutionSwitch);
 
@@ -283,7 +210,6 @@ SceneGraph::SceneGraph()
   , m_appearance(0)
   , m_drawStyle(0)
   , m_snapshots(0)
-  , m_snapshotsHiRes(0)
   , m_resolutionSwitch(0)
   , m_colorMap(0)
   , m_planeManipInitialized(false)
@@ -318,14 +244,9 @@ void SceneGraph::setup(di::ProjectHandle* handle, size_t subdivision)
   createAppearanceNode();
   std::cout << "Creating snapshots"<< std::endl;
   createSnapshotsNode(handle);
-  std::cout << "Creating hi-res snapshots"<< std::endl;
-  createSnapshotsNodeHiRes(handle);
   std::cout << "Done creating snapshots"<< std::endl;
 
   m_extractor.start();
-
-  m_snapshots->whichChild.connectFrom(&m_snapshotsHiRes->whichChild);
-  m_snapshotsHiRes->whichChild.connectFrom(&m_snapshots->whichChild);
 
   createRootNode();
 }
@@ -336,7 +257,6 @@ void SceneGraph::setProperty(const DataAccess::Interface::Property* prop, SoSwit
   double globalMaxVal = -globalMinVal;
 
   for(int i=0; i < snapshots->getNumChildren(); ++i)
-  //int i = snapshots->whichChild.getValue();
   {
     SnapshotNode* node = dynamic_cast<SnapshotNode*>(snapshots->getChild(i));
     if(node != 0)
@@ -357,8 +277,8 @@ void SceneGraph::setProperty(const DataAccess::Interface::Property* prop, SoSwit
 
 void SceneGraph::setProperty(const DataAccess::Interface::Property* prop)
 {
-  if(prop->getType() == di::RESERVOIRPROPERTY)
-    setProperty(prop, m_snapshotsHiRes);
+  if (prop->getType() == di::RESERVOIRPROPERTY)
+    ;// setProperty(prop, m_snapshotsHiRes);
   else
     setProperty(prop, m_snapshots);
 }
@@ -429,6 +349,24 @@ void SceneGraph::getRenderStyle(bool& drawFaces, bool& drawEdges)
 {
   drawFaces = m_drawStyle->displayFaces.getValue();
   drawEdges = m_drawStyle->displayEdges.getValue();
+}
+
+void SceneGraph::setFormationVisibility(const std::string& name, bool visible)
+{
+  for (int i = 0; i < m_snapshots->getNumChildren(); ++i)
+    static_cast<SnapshotNode*>(m_snapshots->getChild(i))->setFormationVisibility(name, visible);
+}
+
+void SceneGraph::setSurfaceVisibility(const std::string& name, bool visible)
+{
+  for (int i = 0; i < m_snapshots->getNumChildren(); ++i)
+    static_cast<SnapshotNode*>(m_snapshots->getChild(i))->setSurfaceVisibility(name, visible);
+}
+
+void SceneGraph::setReservoirVisibility(const std::string& name, bool visible)
+{
+  for (int i = 0; i < m_snapshots->getNumChildren(); ++i)
+    static_cast<SnapshotNode*>(m_snapshots->getChild(i))->setReservoirVisibility(name, visible);
 }
 
 int SceneGraph::numI() const

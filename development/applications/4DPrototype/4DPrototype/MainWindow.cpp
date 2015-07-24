@@ -113,7 +113,6 @@ void MainWindow::enableUI(bool enabled)
 {
   m_ui.groupBoxROI->setEnabled(enabled);
   m_ui.groupBox->setEnabled(enabled);
-  m_ui.groupBox_2->setEnabled(enabled);
   m_ui.groupBox_3->setEnabled(enabled);
 
   m_ui.sliderVerticalScale->setEnabled(enabled);
@@ -165,13 +164,14 @@ void MainWindow::updateUI()
   }
 
   // Add formations to parent node
-  std::unique_ptr<di::FormationList> formations(m_projectHandle->getFormations(nullptr, true));
+  std::unique_ptr<di::FormationList> formations(m_projectHandle->getFormations(nullptr, false));
   if (formations && !formations->empty())
   {
     for (size_t i = 0; i < formations->size(); ++i)
     {
       QTreeWidgetItem* item = new QTreeWidgetItem(formationsItem, TreeWidgetItem_FormationType);
       item->setText(0, (*formations)[i]->getName().c_str());
+      item->setCheckState(0, Qt::Checked);
 
       // Add reservoirs to parent formation
       std::unique_ptr<di::ReservoirList> reservoirs((*formations)[i]->getReservoirs());
@@ -216,14 +216,9 @@ void MainWindow::updateUI()
   {
     for (size_t i = 0; i < surfaces->size(); ++i)
     {
-      //const di::GridMap* gridMap = (*surfaces)[i]->getInputDepthMap();
-      //unsigned int k0 = gridMap->firstK();
-      //unsigned int k1 = gridMap->lastK();
-      //unsigned int ni = gridMap->numI();
-      //unsigned int nj = gridMap->numJ();
-
       QTreeWidgetItem* item = new QTreeWidgetItem(surfacesItem, TreeWidgetItem_SurfaceType);
       item->setText(0, (*surfaces)[i]->getName().c_str());
+      item->setCheckState(0, Qt::Unchecked);
     }
   }
 
@@ -235,6 +230,7 @@ void MainWindow::updateUI()
     {
       QTreeWidgetItem* item = new QTreeWidgetItem(reservoirsItem, TreeWidgetItem_ReservoirType);
       item->setText(0, (*reservoirs)[i]->getName().c_str());
+      item->setCheckState(0, Qt::Unchecked);
     }
   }
 
@@ -290,9 +286,6 @@ void MainWindow::connectSignals()
   connect(m_ui.radioButtonSlices, SIGNAL(toggled(bool)), this, SLOT(onRenderModeToggled(bool)));
   connect(m_ui.radioButtonCrossSection, SIGNAL(toggled(bool)), this, SLOT(onRenderModeToggled(bool)));
   connect(m_ui.sliderVerticalScale, SIGNAL(valueChanged(int)), this, SLOT(onVerticalScaleSliderValueChanged(int)));
-  connect(m_ui.radioButtonFormations, SIGNAL(toggled(bool)), this, SLOT(onMeshModeToggled(bool)));
-  connect(m_ui.radioButtonSurfaces, SIGNAL(toggled(bool)), this, SLOT(onMeshModeToggled(bool)));
-  connect(m_ui.radioButtonReservoirs, SIGNAL(toggled(bool)), this, SLOT(onMeshModeToggled(bool)));
   connect(m_ui.checkBoxDrawFaces, SIGNAL(toggled(bool)), this, SLOT(onRenderStyleChanged()));
   connect(m_ui.checkBoxDrawEdges, SIGNAL(toggled(bool)), this, SLOT(onRenderStyleChanged()));
 
@@ -304,6 +297,8 @@ void MainWindow::connectSignals()
   connect(m_ui.sliderMaxJ, SIGNAL(valueChanged(int)), this, SLOT(onROISliderValueChanged(int)));
   connect(m_ui.sliderMinK, SIGNAL(valueChanged(int)), this, SLOT(onROISliderValueChanged(int)));
   connect(m_ui.sliderMaxK, SIGNAL(valueChanged(int)), this, SLOT(onROISliderValueChanged(int)));
+
+  connect(m_ui.treeWidget, SIGNAL(itemChanged(QTreeWidgetItem*, int)), this, SLOT(onTreeWidgetItemChanged(QTreeWidgetItem*, int)));
 }
 
 void MainWindow::onActionOpenTriggered()
@@ -495,42 +490,6 @@ void MainWindow::onRenderModeToggled(bool value)
   }
 }
 
-void MainWindow::onMeshModeToggled(bool value)
-{
-  if(!value)
-    return;
-
-  int nih = m_sceneGraph->numIHiRes();
-  int nil = m_sceneGraph->numI();
-  int njh = m_sceneGraph->numJHiRes();
-  int njl = m_sceneGraph->numJ();
-
-  if(sender() == m_ui.radioButtonFormations)
-  {
-    m_sceneGraph->setMeshMode(SceneGraph::MeshMode_All);
-
-    m_ui.sliderSliceI->setValue((m_ui.sliderSliceI->value() * nil) / nih);
-    m_ui.sliderSliceJ->setValue((m_ui.sliderSliceJ->value() * njl) / njh);
-
-    m_ui.sliderSliceI->setMaximum(m_sceneGraph->numI() - 1);
-    m_ui.sliderSliceJ->setMaximum(m_sceneGraph->numJ() - 1);
-  }
-  else if(sender() == m_ui.radioButtonReservoirs)
-  {
-    m_sceneGraph->setMeshMode(SceneGraph::MeshMode_Reservoirs);
-
-    m_ui.sliderSliceI->setMaximum(m_sceneGraph->numIHiRes() - 1);
-    m_ui.sliderSliceJ->setMaximum(m_sceneGraph->numJHiRes() - 1);
-
-    m_ui.sliderSliceI->setValue((m_ui.sliderSliceI->value() * nih) / nil);
-    m_ui.sliderSliceJ->setValue((m_ui.sliderSliceJ->value() * njh) / njl);
-  }
-  else if (sender() == m_ui.radioButtonSurfaces)
-  {
-    m_sceneGraph->setMeshMode(SceneGraph::MeshMode_Surfaces);
-  }
-}
-
 void MainWindow::onRenderStyleChanged()
 {
   bool drawFaces = m_ui.checkBoxDrawFaces->isChecked();
@@ -556,6 +515,25 @@ void MainWindow::onShowGLInfo()
 {
   GLInfoDialog dlg(this);
   dlg.exec();
+}
+
+void MainWindow::onTreeWidgetItemChanged(QTreeWidgetItem* item, int column)
+{
+  std::string name = item->text(0).toStdString();
+  bool checked = item->checkState(0) == Qt::Checked;
+
+  switch (item->type())
+  {
+  case TreeWidgetItem_FormationType:
+    m_sceneGraph->setFormationVisibility(name, checked);
+    break;
+  case TreeWidgetItem_SurfaceType:
+    m_sceneGraph->setSurfaceVisibility(name, checked);
+    break;
+  case TreeWidgetItem_ReservoirType:
+    m_sceneGraph->setReservoirVisibility(name, checked);
+    break;
+  }
 }
 
 MainWindow::MainWindow()

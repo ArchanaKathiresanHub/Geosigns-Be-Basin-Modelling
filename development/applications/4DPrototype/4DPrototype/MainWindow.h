@@ -66,13 +66,13 @@ private slots:
 
   void onRenderModeToggled(bool value);
 
-  void onMeshModeToggled(bool value);
-
   void onRenderStyleChanged();
 
   void onItemDoubleClicked(QTreeWidgetItem* item, int column);
 
   void onShowGLInfo();
+
+  void onTreeWidgetItemChanged(QTreeWidgetItem* item, int column);
 
 public:
 

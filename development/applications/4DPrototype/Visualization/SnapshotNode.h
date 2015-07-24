@@ -44,6 +44,14 @@ class VISUALIZATIONDLL_API SnapshotNode : public SoSeparator
   SoSwitch*           m_renderSwitch;
   SkinExtractor*      m_skinExtractor;
 
+  SoGroup* m_formationsGroup;
+  SoGroup* m_surfacesGroup;
+  SoGroup* m_reservoirsGroup;
+
+  std::map<std::string, SoSwitch*> m_formationsMap;
+  std::map<std::string, SoSwitch*> m_surfacesMap;
+  std::map<std::string, SoSwitch*> m_reservoirsMap;
+
 public:
 
   enum RenderMode
@@ -58,6 +66,8 @@ public:
 
   SnapshotNode();
 
+  void setup(const DataAccess::Interface::Snapshot* snapshot);
+
   void setup(
     const DataAccess::Interface::Snapshot* snapshot,
     std::shared_ptr<DataAccess::Interface::PropertyValueList> depthValues,
@@ -68,6 +78,12 @@ public:
   const DataAccess::Interface::Snapshot* getSnapShot() const;
 
   void setProperty(const DataAccess::Interface::Property* prop);
+
+  void setFormationVisibility(const std::string& name, bool visible);
+
+  void setSurfaceVisibility(const std::string& name, bool visible);
+
+  void setReservoirVisibility(const std::string& name, bool visible);
 
   MoScalarSetI* scalarSet() const;
 

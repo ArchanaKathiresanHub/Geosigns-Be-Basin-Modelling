@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'MainWindow.ui'
 **
-** Created: Mon Jul 13 10:26:21 2015
+** Created: Mon Jul 20 14:21:39 2015
 **      by: Qt User Interface Compiler version 4.8.4
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -53,11 +53,6 @@ public:
     QHBoxLayout *horizontalLayout_2;
     QLabel *label_7;
     QSlider *sliderVerticalScale;
-    QGroupBox *groupBox_2;
-    QVBoxLayout *verticalLayout;
-    QRadioButton *radioButtonFormations;
-    QRadioButton *radioButtonSurfaces;
-    QRadioButton *radioButtonReservoirs;
     QGroupBox *groupBox_3;
     QVBoxLayout *verticalLayout_3;
     QCheckBox *checkBoxDrawFaces;
@@ -160,29 +155,6 @@ public:
 
 
         verticalLayout_4->addLayout(horizontalLayout_2);
-
-        groupBox_2 = new QGroupBox(layoutWidget);
-        groupBox_2->setObjectName(QString::fromUtf8("groupBox_2"));
-        verticalLayout = new QVBoxLayout(groupBox_2);
-        verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
-        radioButtonFormations = new QRadioButton(groupBox_2);
-        radioButtonFormations->setObjectName(QString::fromUtf8("radioButtonFormations"));
-        radioButtonFormations->setChecked(true);
-
-        verticalLayout->addWidget(radioButtonFormations);
-
-        radioButtonSurfaces = new QRadioButton(groupBox_2);
-        radioButtonSurfaces->setObjectName(QString::fromUtf8("radioButtonSurfaces"));
-
-        verticalLayout->addWidget(radioButtonSurfaces);
-
-        radioButtonReservoirs = new QRadioButton(groupBox_2);
-        radioButtonReservoirs->setObjectName(QString::fromUtf8("radioButtonReservoirs"));
-
-        verticalLayout->addWidget(radioButtonReservoirs);
-
-
-        verticalLayout_4->addWidget(groupBox_2);
 
         groupBox_3 = new QGroupBox(layoutWidget);
         groupBox_3->setObjectName(QString::fromUtf8("groupBox_3"));
@@ -402,7 +374,7 @@ public:
 
     void retranslateUi(QMainWindow *MainWindow)
     {
-        //MainWindow->setWindowTitle(QApplication::translate("MainWindow", "MainWindow", 0, QApplication::UnicodeUTF8));
+        MainWindow->setWindowTitle(QApplication::translate("MainWindow", "MainWindow", 0, QApplication::UnicodeUTF8));
         action_Open->setText(QApplication::translate("MainWindow", "&Open...", 0, QApplication::UnicodeUTF8));
         action_Quit->setText(QApplication::translate("MainWindow", "&Quit", 0, QApplication::UnicodeUTF8));
         action_RenderAllSnapshots->setText(QApplication::translate("MainWindow", "Render all snapshots", 0, QApplication::UnicodeUTF8));
@@ -410,10 +382,6 @@ public:
         action_RenderAllSlices->setText(QApplication::translate("MainWindow", "Render all slices", 0, QApplication::UnicodeUTF8));
         action_SwitchProperties->setText(QApplication::translate("MainWindow", "Switch properties", 0, QApplication::UnicodeUTF8));
         label_7->setText(QApplication::translate("MainWindow", "Vertical scale", 0, QApplication::UnicodeUTF8));
-        groupBox_2->setTitle(QApplication::translate("MainWindow", "Mesh", 0, QApplication::UnicodeUTF8));
-        radioButtonFormations->setText(QApplication::translate("MainWindow", "Formations", 0, QApplication::UnicodeUTF8));
-        radioButtonSurfaces->setText(QApplication::translate("MainWindow", "Surfaces", 0, QApplication::UnicodeUTF8));
-        radioButtonReservoirs->setText(QApplication::translate("MainWindow", "Reservoirs", 0, QApplication::UnicodeUTF8));
         groupBox_3->setTitle(QApplication::translate("MainWindow", "Render style", 0, QApplication::UnicodeUTF8));
         checkBoxDrawFaces->setText(QApplication::translate("MainWindow", "Faces", 0, QApplication::UnicodeUTF8));
         checkBoxDrawEdges->setText(QApplication::translate("MainWindow", "Edges", 0, QApplication::UnicodeUTF8));

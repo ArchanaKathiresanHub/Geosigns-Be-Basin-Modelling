@@ -268,11 +268,14 @@ bool FormationTopology::isDead(size_t i, size_t j, size_t k) const
     m_geometry.isUndefined(i, j, k) ||
     m_geometry.isUndefined(i, j + 1, k) ||
     m_geometry.isUndefined(i + 1, j, k) ||
-    m_geometry.isUndefined(i + 1, j + 1, k) ||
+    m_geometry.isUndefined(i + 1, j + 1, k);
+  /*
+  ||
     m_geometry.isUndefined(i, j, k + 1) ||
     m_geometry.isUndefined(i, j + 1, k + 1) ||
     m_geometry.isUndefined(i + 1, j, k + 1) ||
     m_geometry.isUndefined(i + 1, j + 1, k + 1);
+    */
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -290,11 +293,14 @@ bool ReservoirTopology::isDead(size_t i, size_t j, size_t k) const
     m_geometry.isUndefined(i, j, k) ||
     m_geometry.isUndefined(i, j + 1, k) ||
     m_geometry.isUndefined(i + 1, j, k) ||
-    m_geometry.isUndefined(i + 1, j + 1, k) ||
+    m_geometry.isUndefined(i + 1, j + 1, k);
+  /*
+  ||
     m_geometry.isUndefined(i, j, k + 1) ||
     m_geometry.isUndefined(i, j + 1, k + 1) ||
     m_geometry.isUndefined(i + 1, j, k + 1) ||
     m_geometry.isUndefined(i + 1, j + 1, k + 1);
+    */
 }
 
 //--------------------------------------------------------------------------------------------------
