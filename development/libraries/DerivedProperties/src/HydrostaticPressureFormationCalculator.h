@@ -33,11 +33,35 @@ namespace DerivedProperties {
 
    private :
 
+      /// \brief Compute hydrostatic pressure after a fastcauldron hydrostatic decompaction simulation mode.
+      void computeHydrostaticPressureForDecomapctionMode ( AbstractPropertyManager&            propertyManager,
+                                                           const DataModel::AbstractSnapshot*  snapshot,
+                                                           const DataModel::AbstractFormation* formation,
+                                                           FormationPropertyList&              derivedProperties ) const;
+
+      /// \brief Compute hydrostatic pressure after a fastcauldron hydrostatic temperature simulation mode.
+      void computeHydrostaticPressureForHydrostaticMode ( AbstractPropertyManager&            propertyManager,
+                                                          const DataModel::AbstractSnapshot*  snapshot,
+                                                          const DataModel::AbstractFormation* formation,
+                                                          FormationPropertyList&              derivedProperties ) const;
+
+      /// \brief Compute hydrostatic pressure after a fastcauldron coupled simulation mode.
+      void computeHydrostaticPressureForCoupledMode ( AbstractPropertyManager&            propertyManager,
+                                                      const DataModel::AbstractSnapshot*  snapshot,
+                                                      const DataModel::AbstractFormation* formation,
+                                                      FormationPropertyList&              derivedProperties ) const;
+
       /// \brief Compute the hydrostatic pressure at the top of the domain.
       void computeHydrostaticPressureAtSeaBottom ( const AbstractPropertyManager&     propertyManager,
                                                    const double                       snapshotAge,
                                                    const GeoPhysics::FluidType*       fluid,
                                                          DerivedFormationPropertyPtr& hydrostaticPressure ) const;
+
+     /// \brief Compute the hydrostatic pressure at the top of the domain.
+      void computeHydrostaticPressureAtSeaBottomForHydrostatic ( const AbstractPropertyManager&     propertyManager,
+                                                                 const double                       snapshotAge,
+                                                                 const GeoPhysics::FluidType*       fluid,
+                                                                 DerivedFormationPropertyPtr& hydrostaticPressure ) const;
 
       /// \brief Copy the hydrostatic pressure from the formation directly above the surface.
       void copyHydrostaticPressureFromLayerAbove ( AbstractPropertyManager&            propertyManager,

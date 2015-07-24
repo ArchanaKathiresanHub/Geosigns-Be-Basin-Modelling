@@ -10,7 +10,13 @@ namespace GeoPhysics {
                                       const double      seaBottomDepth,
                                             double&     hydrostaticPressure );
    
-
+ 
+   void computeHydrostaticPressureSimpleDensity  ( const FluidType*  fluid,
+                                                   const double  fluidDensity,
+                                                   const double  seaTemperature,
+                                                   const double  seaBottomDepth,
+                                                   double&     hydrostaticPressure );
+      
 }
 
 #endif // _GEOPHYSICS__GEOPHYSICAL_FUNCTIONS_H_
