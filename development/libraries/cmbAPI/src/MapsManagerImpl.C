@@ -214,19 +214,19 @@ ErrorHandler::ReturnCode MapsManagerImpl::mapValuesRange( MapID id, double & min
    if ( errorCode() != NoError ) resetError();
    try
    {
-      loadGridMap( id ); // check if map is loaded and load it if not loaded before  
+      loadGridMap( id ); // check if map is loaded and load it if not loaded before
 
       // get the first value as initial value for min/max
       bool firstVal = true;
       const double nulVal = m_mapObj[id]->getUndefinedValue();
-      
+
       for (    unsigned int i = m_mapObj[id]->firstI(); i <= m_mapObj[id]->lastI(); ++i )
       {
          for ( unsigned int j = m_mapObj[id]->firstJ(); j <= m_mapObj[id]->lastJ(); ++j )
          {
             double v = m_mapObj[id]->getValue( i, j );
             if ( NumericFunctions::isEqual( v, nulVal, 1e-5 ) ) { continue; } // skip undefined values
-            
+
             if ( firstVal )
             {
                minV = maxV = v;
@@ -253,7 +253,7 @@ ErrorHandler::ReturnCode MapsManagerImpl::scaleMap( MapID id, double coeff )
    {
       double oldMin;
       double oldMax;
-      
+
       if ( NoError != mapValuesRange( id, oldMin, oldMax ) ) throw ErrorHandler::Exception( errorCode() ) << errorMessage();
 
       double nulVal = m_mapObj[id]->getUndefinedValue();
@@ -263,7 +263,7 @@ ErrorHandler::ReturnCode MapsManagerImpl::scaleMap( MapID id, double coeff )
          for ( unsigned int j = m_mapObj[id]->firstJ(); j <= m_mapObj[id]->lastJ(); ++j )
          {
             double v = m_mapObj[id]->getValue( i, j );
-            
+
             m_mapObj[id]->setValue( i, j, NumericFunctions::isEqual( v, nulVal, 1e-5 ) ? nulVal : v * coeff );
          }
       }
@@ -295,7 +295,7 @@ void MapsManagerImpl::setProject( DataAccess::Interface::ProjectHandle * ph, con
    if ( !table ) return; // no table - no maps
 
    size_t recNum = table->size();
-   
+
    m_mapObj.resize( recNum, NULL );
 
    ibs::FilePath projectFile( projectFileName );

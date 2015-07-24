@@ -143,7 +143,7 @@ void CmdRunMC::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
       {
          if ( (itNum % 10) == 0 )
          {
-            std::cout << "  " << itNum << " iterations completed\n";
+            std::cout << "\n  " << itNum << " iterations completed";
             std::cout.flush();
          }
       }

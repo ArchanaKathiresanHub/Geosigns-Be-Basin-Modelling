@@ -338,7 +338,7 @@ public:
       std::ostringstream oss;
 
       oss << "categorical parameter which could variate source rock type for the layer.\n";
-      oss << "                                 This parameter must be defined BEFORE any other SorceRock parameter";
+      oss << "                                 This parameter must be defined BEFORE any other SourceRock parameter";
       return oss.str();
    }
 
@@ -517,7 +517,7 @@ public:
    {
       size_t eventsNumber = (prms.size() - 3) / 7;
 
-      if ( ( prms.size() - 4) % 7 > 0 || prms.size() != (4+eventsNumber * 7) )
+      if ( prms.size() != (4+eventsNumber * 7) )
       {
          throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Wrong number of parameters for " << prms[0];
       }
@@ -790,19 +790,19 @@ public:
          size_t numPts = atol( prms[pos++].c_str() ); // number of points for minimum multipoint perm. profile
 
          minModelPrms.push_back( static_cast<double>( numPts ) );
-         
+
          if ( pos + numPts * 2 >= prms.size() )
          {
             throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Wrong number of points for of min. permeability profile for layer "
                << layerName;
-         }          
+         }
          // read points of minimal profile
          for ( size_t i = 0; i < numPts; ++i )
          {
             minModelPrms.push_back( atof( prms[pos++].c_str() ) ); // porosity value
             minModelPrms.push_back( atof( prms[pos++].c_str() ) ); // permeability value
          }
-      
+
          // Max permeability curve
          if ( pos >= prms.size() )
          {
@@ -824,12 +824,12 @@ public:
             maxModelPrms.push_back( atof( prms[pos++].c_str() ) ); // permeability value
          }
       }
-      else 
+      else
       {
          throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Unsupported porosity model (" << modelName <<") for the layer " << layerName; 
       }
 
-      if ( pos >= prms.size() ) 
+      if ( pos >= prms.size() )
       {
          throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "PDF of permeability model for layer " << layerName << " not specified";
       }
@@ -846,9 +846,9 @@ public:
                                                                                                 )
          ) { throw ErrorHandler::Exception( sa->errorCode() ) << sa->errorMessage(); }
    }
-      
-   size_t expectedParametersNumber() const { return 9; } // layer_name, min, max, pdf
-   size_t optionalParametersNumber() const { return 1000; } 
+
+   size_t expectedParametersNumber() const { return 9; }
+   size_t optionalParametersNumber() const { return 1000; }
 
    virtual std::string name() const { return "PermeabilityModel"; }
 

@@ -247,7 +247,7 @@ void CmdPlotRSProxyQC::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
    }
    if ( hasWellObs )
    {
-      // plot QC plot for all wells type targets
+      // plot QC plot for build proxy cases wells type targets
       ofs << "\nhold off\n";
       ofs << "for w = 1 : length( WellsObs )\n";
       ofs << "   display( ['  processign QC plot for well: ' WellsObs(w).name] );\n";
@@ -255,7 +255,7 @@ void CmdPlotRSProxyQC::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
       ofs << "  mr = markers( mod(w-1,length(markers))+1,:);\n";
       ofs << "  cl = colors( mod(w,length(colors))+1,:);\n";
       ofs << "\n";
-      ofs << "  h(w) = plot(  WellsObs(w).r2, WellsObs(w).depth,[cl mr], 'LineWidth', 4 );\n";
+      ofs << "  h(w) = plot(  WellsObs(w).r2build, WellsObs(w).depth,[cl mr], 'LineWidth', 4 );\n";
       ofs << "  hold on\n";
       ofs << "  legName{w} = WellsObs(w).name;\n";
       ofs << "\n";
@@ -269,11 +269,40 @@ void CmdPlotRSProxyQC::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
       ofs << "\n";
       ofs << "ah=get (gcf, 'currentaxes');\n";
       ofs << "set( ah, 'fontweight', 'bold' );\n";
-      ofs << "title( 'QC plot: R^2 vs depth for well type targets', 'fontweight', 'bold' );\n";
+      ofs << "title( 'QC plot: R^2 (Build) vs depth for well type targets', 'fontweight', 'bold' );\n";
       ofs << "\n";
-      ofs << "xlabel( 'R^2 []' );\n";
+      ofs << "xlabel( 'R^2 (Build proxy Cases) []' );\n";
       ofs << "ylabel( 'Depth [m]' );\n";
-      ofs << "print " << MatlabExporter::correctName( m_proxyName ) << "_" << "_proxyQC_wells.jpg -S1000,1000;\n\n";
+      ofs << "print " << MatlabExporter::correctName( m_proxyName ) << "_" << "_proxyQC_wells_build.jpg -S1000,1000;\n\n";
+
+      ofs << "close\n";
+      // plot QC plot for test cases wells type targets
+      ofs << "\nhold off\n";
+      ofs << "for w = 1 : length( WellsObs )\n";
+      ofs << "   display( ['  processign QC plot for well: ' WellsObs(w).name] );\n";
+      ofs << "\n";
+      ofs << "  mr = markers( mod(w-1,length(markers))+1,:);\n";
+      ofs << "  cl = colors( mod(w,length(colors))+1,:);\n";
+      ofs << "\n";
+      ofs << "  h(w) = plot(  WellsObs(w).r2test, WellsObs(w).depth,[cl mr], 'LineWidth', 4 );\n";
+      ofs << "  hold on\n";
+      ofs << "  legName{w} = WellsObs(w).name;\n";
+      ofs << "\n";
+      ofs << "end\n";
+      ofs << "axis('ij' );\n";
+      ofs << "\n";
+      ofs << "legend( h, legName, 'location', 'northwest' );\n";
+      ofs << "grid on;\n";
+      ofs << "\n";
+      ofs << "set( findobj( gcf(), 'type', 'axes', 'Tag', 'legend'), 'fontweight', 'bold' );\n";
+      ofs << "\n";
+      ofs << "ah=get (gcf, 'currentaxes');\n";
+      ofs << "set( ah, 'fontweight', 'bold' );\n";
+      ofs << "title( 'QC plot: R^2 (Test) vs depth for well type targets', 'fontweight', 'bold' );\n";
+      ofs << "\n";
+      ofs << "xlabel( 'R^2 (Test proxy Cases) []' );\n";
+      ofs << "ylabel( 'Depth [m]' );\n";
+      ofs << "print " << MatlabExporter::correctName( m_proxyName ) << "_" << "_proxyQC_wells_test.jpg -S1000,1000;\n\n";
    }
 
    // plot QC plot per observable
@@ -407,23 +436,25 @@ std::string CmdPlotRSProxyQC::obsWellData( size_t                               
 
    std::vector< std::vector<double> > simVals( wellObs->dimension() );
    std::vector< std::vector<double> > prxVals( wellObs->dimension() );
-   
+
    const std::vector<double> & depth = wellObs->depth();
-   std::vector<double> R2( wellObs->dimension(), 0.0 );
+   std::vector<double> R2build( wellObs->dimension(), 0.0 );
+   std::vector<double> R2test( wellObs->dimension(), 0.0 );
 
    // go over DoEs which were used to construct proxy at first
    size_t csPos = 0;
+
    for ( size_t e = 0; e < m_caseList.size(); ++e )
-   {            
+   {
       // select next experiment
-      sa->doeCaseSet().filterByExperimentName( m_caseList[e] );        
+      sa->doeCaseSet().filterByExperimentName( m_caseList[e] );
 
       if ( !sa->doeCaseSet().size() ) continue; // skip empty experiments
 
       // collect observable values for e-th experiment
       for ( size_t c = 0; c < sa->doeCaseSet().size(); ++c )
       {
-         const casa::ObsValue * obv = sa->doeCaseSet().runCase( c )->obsValue( obsID );             
+         const casa::ObsValue * obv = sa->doeCaseSet().runCase( c )->obsValue( obsID );
          const std::vector<double> & vals = obv->asDoubleArray();
          assert( vals.size() == simVals.size() );
          for ( size_t i = 0; i < vals.size(); ++i ) { simVals[i].push_back( vals[i] ); }
@@ -436,10 +467,43 @@ std::string CmdPlotRSProxyQC::obsWellData( size_t                               
       }
    }
 
+   // calculate average for simulated value
+   std::vector<double> avrVals( simVals.size(), 0.0 );
+   for ( size_t i = 0; i < simVals.size(); ++i )
+   {
+      for ( size_t j = 0; j < simVals[i].size(); ++j )
+      {
+         avrVals[i] += simVals[i][j];
+      }
+      if ( simVals[i].size() > 0 ) avrVals[i] = avrVals[i] / simVals[i].size();
+   }
+
+   // calculate R^2 with depth
+   for ( size_t i = 0; i < wellObs->dimension(); ++i )
+   {
+      double sum1 = 0.0;
+      double sum2 = 0.0;
+      for ( size_t j = 0; j < simVals[i].size(); ++j )
+      {
+         sum1 += ( simVals[i][j] - prxVals[i][j] ) * ( simVals[i][j] - prxVals[i][j] );
+         sum2 += ( avrVals[i]    - prxVals[i][j] ) * ( avrVals[i]    - prxVals[i][j] );
+
+      }
+      R2build[i] = 1.0e0 - (sum2 > 0.0 ? sum1 / sum2 : 1.0);
+   }
+
    // go over DoE which were given for testing proxy
    csPos = 0;
+   avrVals.clear();
+   avrVals.assign( simVals.size(), 0.0 );
+   for ( size_t c = 0; c < simVals.size(); ++c )
+   {
+      simVals[c].clear();
+      prxVals[c].clear();
+   }
+
    for ( size_t e = 0; e < m_testCaseList.size(); ++e )
-   {         
+   {
       sa->doeCaseSet().filterByExperimentName( m_testCaseList[e] );
 
       if ( !sa->doeCaseSet().size() ) continue; // skip empty experiments
@@ -461,7 +525,6 @@ std::string CmdPlotRSProxyQC::obsWellData( size_t                               
    }
 
    // calculate average for simulated value
-   std::vector<double> avrVals( simVals.size(), 0.0 );
    for ( size_t i = 0; i < simVals.size(); ++i )
    {
       for ( size_t j = 0; j < simVals[i].size(); ++j )
@@ -470,7 +533,7 @@ std::string CmdPlotRSProxyQC::obsWellData( size_t                               
       }
       if ( simVals[i].size() > 0 ) avrVals[i] = avrVals[i] / simVals[i].size();
    }
-   
+
    // calculate R^2 with depth
    for ( size_t i = 0; i < wellObs->dimension(); ++i )
    {
@@ -482,7 +545,7 @@ std::string CmdPlotRSProxyQC::obsWellData( size_t                               
          sum2 += ( avrVals[i]    - prxVals[i][j] ) * ( avrVals[i]    - prxVals[i][j] );
 
       }
-      R2[i] = 1.0e0 - (sum2 > 0.0 ? sum1 / sum2 : 1.0);
+      R2test[i] = 1.0e0 - (sum2 > 0.0 ? sum1 / sum2 : 1.0);
    }
 
    // dump as matlab
@@ -494,13 +557,21 @@ std::string CmdPlotRSProxyQC::obsWellData( size_t                               
       oss << depth[i] << " ";
    }
    oss << "];\n";
-   
-   oss << "WellsObs( end ).r2 = [ ";
-   for ( size_t i = 0; i < R2.size(); ++i )
+
+   oss << "WellsObs( end ).r2build = [ ";
+   for ( size_t i = 0; i < R2build.size(); ++i )
    {
-      oss << R2[i] << " ";
+      oss << R2build[i] << " ";
    }
    oss << "];\n";
+
+   oss << "WellsObs( end ).r2test = [ ";
+   for ( size_t i = 0; i < R2test.size(); ++i )
+   {
+      oss << R2test[i] << " ";
+   }
+   oss << "];\n";
+
 
    return oss.str();
 }
