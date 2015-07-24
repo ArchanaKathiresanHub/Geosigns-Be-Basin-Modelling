@@ -1,3 +1,12 @@
+//                                                                      
+// Copyright (C) 2015-2015 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
 #ifndef DERIVED_PROPERTIES__BULK_DENSITY_CALCULATOR_H
 #define DERIVED_PROPERTIES__BULK_DENSITY_CALCULATOR_H
 
@@ -24,7 +33,7 @@ namespace DerivedProperties {
       virtual void calculate ( AbstractPropertyManager&            propManager,
                                const DataModel::AbstractSnapshot*  snapshot,
                                const DataModel::AbstractFormation* formation,
-                                     FormationPropertyList&        derivedProperties ) const;
+                               FormationPropertyList&              derivedProperties ) const;
 
    private :
 
@@ -34,25 +43,25 @@ namespace DerivedProperties {
       void computeBulkDensityBasementNonAlc ( DerivedProperties::AbstractPropertyManager& propertyManager,
                                               const DataModel::AbstractSnapshot*          snapshot,
                                               const GeoPhysics::Formation*                formation,
-                                                    FormationPropertyList&                derivedProperties ) const;
+                                              FormationPropertyList&                      derivedProperties ) const;
 
       /// \brief Calculate the bulk density in the basement when ALC mode has been enabled.
       void computeBulkDensityBasementAlc ( DerivedProperties::AbstractPropertyManager& propertyManager,
                                            const DataModel::AbstractSnapshot*          snapshot,
                                            const GeoPhysics::Formation*                formation,
-                                                 FormationPropertyList&                derivedProperties ) const;
+                                           FormationPropertyList&                      derivedProperties ) const;
 
       /// \brief Calculate the bulk density in the sediments when the fastcauldron simulation mode was coupled.
       void computeBulkDensitySedimentsCoupled ( DerivedProperties::AbstractPropertyManager& propertyManager,
                                                 const DataModel::AbstractSnapshot*          snapshot,
                                                 const GeoPhysics::Formation*                formation,
-                                                      FormationPropertyList&                derivedProperties ) const;
+                                                FormationPropertyList&                      derivedProperties ) const;
 
       /// \brief Calculate the bulk density in the sediments when the fastcauldron simulation mode was hydrostatic.
       void computeBulkDensitySedimentsHydrostatic ( DerivedProperties::AbstractPropertyManager& propertyManager,
                                                     const DataModel::AbstractSnapshot*          snapshot,
                                                     const GeoPhysics::Formation*                formation,
-                                                          FormationPropertyList&                derivedProperties ) const;
+                                                    FormationPropertyList&                      derivedProperties ) const;
 
       /// \brief Used to indicate whether ALC mode was enabled or not.
       bool m_alcModeEnabled;

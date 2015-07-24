@@ -1,3 +1,12 @@
+//                                                                      
+// Copyright (C) 2015-2015 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
 #include "AbstractPropertyManager.h"
 #include "DerivedFormationProperty.h"
 #include "DerivedPropertyManager.h"
@@ -55,7 +64,7 @@ DerivedProperties::BulkDensityFormationCalculator::BulkDensityFormationCalculato
 void DerivedProperties::BulkDensityFormationCalculator::calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
                                                                     const DataModel::AbstractSnapshot*          snapshot,
                                                                     const DataModel::AbstractFormation*         formation,
-                                                                          FormationPropertyList&                derivedProperties ) const {
+                                                                    FormationPropertyList&                      derivedProperties ) const {
 
    const GeoPhysics::Formation* geoFormation = dynamic_cast<const GeoPhysics::Formation*>( formation );
 
@@ -87,7 +96,7 @@ void DerivedProperties::BulkDensityFormationCalculator::calculate ( DerivedPrope
 void DerivedProperties::BulkDensityFormationCalculator::computeBulkDensitySedimentsHydrostatic ( DerivedProperties::AbstractPropertyManager& propertyManager,
                                                                                                  const DataModel::AbstractSnapshot*          snapshot,
                                                                                                  const GeoPhysics::Formation*                formation,
-                                                                                                       FormationPropertyList&                derivedProperties ) const {
+                                                                                                 FormationPropertyList&                      derivedProperties ) const {
 
    const DataModel::AbstractProperty* bulkDensityProperty  = propertyManager.getProperty ( "BulkDensity" );
    const DataModel::AbstractProperty* porosityProperty     = propertyManager.getProperty ( "Porosity" );
@@ -104,15 +113,15 @@ void DerivedProperties::BulkDensityFormationCalculator::computeBulkDensitySedime
 
       const GeoPhysics::FluidType* fluid = dynamic_cast<const GeoPhysics::FluidType*>(formation->getFluidType ());
 
-      const double temperatureGradient = 0.001 * m_projectHandle->getRunParameters ()->getTemperatureGradient ();
-      double fluidDensity = fluidDensity = fluid->getCorrectedSimpleDensity ( GeoPhysics::FluidType::DefaultStandardDepth,
-                                                                              GeoPhysics::FluidType::DefaultHydrostaticPressureGradient,
-                                                                              GeoPhysics::FluidType::StandardSurfaceTemperature,
-                                                                              temperatureGradient );
-      double undefinedValue = bulkDensity->getUndefinedValue ();
-      double solidDensity;
-      double currentTime = snapshot->getTime ();
       const GeoPhysics::CompoundLithologyArray& lithologies = formation->getCompoundLithologyArray ();
+      const double temperatureGradient = 0.001 * m_projectHandle->getRunParameters ()->getTemperatureGradient ();
+      const double fluidDensity = fluid->getCorrectedSimpleDensity ( GeoPhysics::FluidType::DefaultStandardDepth,
+                                                                     GeoPhysics::FluidType::DefaultHydrostaticPressureGradient,
+                                                                     GeoPhysics::FluidType::StandardSurfaceTemperature,
+                                                                     temperatureGradient );
+      const double undefinedValue = bulkDensity->getUndefinedValue ();
+      const double currentTime = snapshot->getTime ();
+      double solidDensity;
 
       for ( unsigned int i = bulkDensity->firstI ( true ); i <= bulkDensity->lastI ( true ); ++i ) {
             
@@ -122,7 +131,7 @@ void DerivedProperties::BulkDensityFormationCalculator::computeBulkDensitySedime
                solidDensity = lithologies ( i, j, currentTime )->density ();
 
                for ( unsigned int k = bulkDensity->firstK (); k <= bulkDensity->lastK (); ++k ) {
-                  double porosity = 0.01 * layerPorosity->get ( i, j, k );
+                  const double porosity = 0.01 * layerPorosity->get ( i, j, k );
                   bulkDensity->set ( i, j, k,  ( 1.0 - porosity ) * solidDensity + porosity * fluidDensity );
                }
 
@@ -147,7 +156,7 @@ void DerivedProperties::BulkDensityFormationCalculator::computeBulkDensitySedime
 void DerivedProperties::BulkDensityFormationCalculator::computeBulkDensitySedimentsCoupled ( DerivedProperties::AbstractPropertyManager& propertyManager,
                                                                                              const DataModel::AbstractSnapshot*          snapshot,
                                                                                              const GeoPhysics::Formation*                formation,
-                                                                                                   FormationPropertyList&                derivedProperties ) const {
+                                                                                             FormationPropertyList&                      derivedProperties ) const {
 
    const DataModel::AbstractProperty* bulkDensityProperty  = propertyManager.getProperty ( "BulkDensity" );
    const DataModel::AbstractProperty* temperatureProperty  = propertyManager.getProperty ( "Temperature" );
@@ -168,8 +177,8 @@ void DerivedProperties::BulkDensityFormationCalculator::computeBulkDensitySedime
 
       const GeoPhysics::FluidType* fluid = dynamic_cast<const GeoPhysics::FluidType*>(formation->getFluidType ());
       const GeoPhysics::CompoundLithologyArray& lithologies = formation->getCompoundLithologyArray ();
-      double currentTime = snapshot->getTime ();
-      double undefinedValue = bulkDensity->getUndefinedValue ();
+      const double currentTime = snapshot->getTime ();
+      const double undefinedValue = bulkDensity->getUndefinedValue ();
 
       for ( unsigned int i = bulkDensity->firstI ( true ); i <= bulkDensity->lastI ( true ); ++i ) {
 
@@ -179,8 +188,8 @@ void DerivedProperties::BulkDensityFormationCalculator::computeBulkDensitySedime
                double solidDensity = lithologies ( i, j, currentTime )->density ();
 
                for ( unsigned int k = bulkDensity->firstK (); k <= bulkDensity->lastK (); ++k ) {
-                  double porosity = 0.01 * layerPorosity->get ( i, j, k );
-                  double fluidDensity = fluid->density ( temperature->get ( i, j, k ), porePressure->get ( i, j, k ));
+                  const double porosity = 0.01 * layerPorosity->get ( i, j, k );
+                  const double fluidDensity = fluid->density ( temperature->get ( i, j, k ), porePressure->get ( i, j, k ));
                   bulkDensity->set ( i, j, k, ( 1.0 - porosity ) * solidDensity + porosity * fluidDensity );
                }
 
@@ -204,7 +213,7 @@ void DerivedProperties::BulkDensityFormationCalculator::computeBulkDensitySedime
 void DerivedProperties::BulkDensityFormationCalculator::computeBulkDensityBasementNonAlc ( DerivedProperties::AbstractPropertyManager& propertyManager,
                                                                                            const DataModel::AbstractSnapshot*          snapshot,
                                                                                            const GeoPhysics::Formation*                formation,
-                                                                                                 FormationPropertyList&                derivedProperties ) const {
+                                                                                           FormationPropertyList&                      derivedProperties ) const {
 
 
    const DataModel::AbstractProperty* bulkDensityProperty  = propertyManager.getProperty ( "BulkDensity" );
@@ -217,8 +226,8 @@ void DerivedProperties::BulkDensityFormationCalculator::computeBulkDensityBaseme
 
    const GeoPhysics::CompoundLithologyArray& lithologies = formation->getCompoundLithologyArray ();
    // In non alc mode the crust and mantle have the same lithology in all locations, take the first lithology.
-   double solidDensity = lithologies ( bulkDensity->firstI ( false ), bulkDensity->firstJ ( false ))->density ();
-   double undefinedValue = bulkDensity->getUndefinedValue ();
+   const double solidDensity = lithologies ( bulkDensity->firstI ( false ), bulkDensity->firstJ ( false ))->density ();
+   const double undefinedValue = bulkDensity->getUndefinedValue ();
 
    for ( unsigned int i = bulkDensity->firstI ( true ); i <= bulkDensity->lastI ( true ); ++i ) {
 
@@ -248,7 +257,7 @@ void DerivedProperties::BulkDensityFormationCalculator::computeBulkDensityBaseme
 void DerivedProperties::BulkDensityFormationCalculator::computeBulkDensityBasementAlc ( DerivedProperties::AbstractPropertyManager& propertyManager,
                                                                                         const DataModel::AbstractSnapshot*          snapshot,
                                                                                         const GeoPhysics::Formation*                formation,
-                                                                                              FormationPropertyList&                derivedProperties ) const {
+                                                                                        FormationPropertyList&                      derivedProperties ) const {
 
    const DataModel::AbstractProperty* bulkDensityProperty  = propertyManager.getProperty ( "BulkDensity" );
    const DataModel::AbstractProperty* temperatureProperty  = propertyManager.getProperty ( "Temperature" );
@@ -264,7 +273,7 @@ void DerivedProperties::BulkDensityFormationCalculator::computeBulkDensityBaseme
                                                                                                                                 propertyManager.getMapGrid (),
                                                                                                                                 formation->getMaximumNumberOfElements() + 1 ));
       const GeoPhysics::CompoundLithologyArray& lithologies = formation->getCompoundLithologyArray ();
-      double undefinedValue = bulkDensity->getUndefinedValue ();
+      const double undefinedValue = bulkDensity->getUndefinedValue ();
 
       for ( unsigned int i = bulkDensity->firstI ( true ); i <= bulkDensity->lastI ( true ); ++i ) {
 
