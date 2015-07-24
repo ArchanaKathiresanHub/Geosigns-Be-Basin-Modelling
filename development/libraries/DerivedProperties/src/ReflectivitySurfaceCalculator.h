@@ -28,10 +28,10 @@ namespace DerivedProperties {
       /// \param [out] derivedProperties On exit will contain a single surface property, the reflectivity of the surface.
       /// \pre snapshot points to a valid snapshot age.
       /// \pre surface points to a valid surface.
-      virtual void calculate ( AbstractPropertyManager&            propManager,
-                               const DataModel::AbstractSnapshot*  snapshot,
-                               const DataModel::AbstractSurface*   surface,
-                                     SurfacePropertyList&          derivedProperties ) const;
+      virtual void calculate ( AbstractPropertyManager&           propManager,
+                               const DataModel::AbstractSnapshot* snapshot,
+                               const DataModel::AbstractSurface*  surface,
+                               SurfacePropertyList&               derivedProperties ) const;
 
       /// \brief Determine if the property is computable for the specific combination of surface and snapshot.
       ///

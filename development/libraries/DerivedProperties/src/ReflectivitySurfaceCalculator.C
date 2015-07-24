@@ -22,7 +22,7 @@ DerivedProperties::ReflectivitySurfaceCalculator::ReflectivitySurfaceCalculator 
 void DerivedProperties::ReflectivitySurfaceCalculator::calculate ( AbstractPropertyManager&            propManager,
                                                                    const DataModel::AbstractSnapshot*  snapshot,
                                                                    const DataModel::AbstractSurface*   surface,
-                                                                         SurfacePropertyList&          derivedProperties ) const {
+                                                                   SurfacePropertyList&                derivedProperties ) const {
 
    if ( surface == 0 or snapshot == 0 ) {
       return;
@@ -102,11 +102,11 @@ void DerivedProperties::ReflectivitySurfaceCalculator::calculate ( AbstractPrope
             if ( surfaceIndex == thicknesses.size ()) {
                reflectivityValue = undefinedValue;
             } else {
-               double bulkDensity = layerBulkDensity->get ( i, j );
-               double bulkDensityAbove = bulkDensities [ surfaceIndex ]->get ( i, j );
+               const double bulkDensity = layerBulkDensity->get ( i, j );
+               const double bulkDensityAbove = bulkDensities [ surfaceIndex ]->get ( i, j );
 
-               double velocity = layerVelocity->get ( i, j );
-               double velocityAbove = velocities [ surfaceIndex ]->get ( i, j );
+               const double velocity = layerVelocity->get ( i, j );
+               const double velocityAbove = velocities [ surfaceIndex ]->get ( i, j );
 
                reflectivityValue = ( bulkDensityAbove * velocityAbove - bulkDensity * velocity ) /
                                    ( bulkDensityAbove * velocityAbove + bulkDensity * velocity );

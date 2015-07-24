@@ -24,19 +24,19 @@
 #include "PropertyAttribute.h"
 
 // Derived formation property calculators
+#include "BrineDensityCalculator.h"
+#include "BrineViscosityCalculator.h"
+#include "BulkDensityFormationCalculator.h"
 #include "FracturePressureFormationCalculator.h"
 #include "HydrostaticPressureFormationCalculator.h"
 #include "LithostaticPressureFormationCalculator.h"
 #include "OverpressureFormationCalculator.h"
 #include "PermeabilityFormationCalculator.h"
 #include "PorosityFormationCalculator.h"
+#include "PressureFormationCalculator.h"
 #include "ThermalConductivityFormationCalculator.h"
 #include "ThermalDiffusivityFormationCalculator.h"
 #include "VelocityFormationCalculator.h"
-#include "PressureFormationCalculator.h"
-#include "BrineDensityCalculator.h"
-#include "BrineViscosityCalculator.h"
-#include "BulkDensityFormationCalculator.h"
 
 // Derived formation-map property calcualtors
 #include "AllochthonousLithologyFormationMapCalculator.h"
@@ -81,7 +81,7 @@ bool DerivedProperties::DerivedPropertyManager::canAddDerivedFormationPropertyCa
    for ( size_t i = 0; i < propertyNames.size (); ++i ) {
 
       // If any of the properties computed by the calculator are not currently computable then 
-      // the calculator need to be added to the list of calculators.
+      // the formation calculator needs to be added to the list of all formation calculators.
       if ( not formationPropertyIsComputable ( getProperty ( propertyNames [ i ]))) {
          return true;
       }
@@ -102,7 +102,7 @@ bool DerivedProperties::DerivedPropertyManager::canAddDerivedFormationMapPropert
    for ( size_t i = 0; i < propertyNames.size (); ++i ) {
 
       // If any of the properties computed by the calculator are not currently computable then 
-      // the calculator need to be added to the list of calculators.
+      // the formation-map calculator needs to be added to the list of formation-map calculators.
       if ( not formationMapPropertyIsComputable ( getProperty ( propertyNames [ i ]))) {
          return true;
       }
@@ -123,7 +123,7 @@ bool DerivedProperties::DerivedPropertyManager::canAddDerivedSurfacePropertyCalc
    for ( size_t i = 0; i < propertyNames.size (); ++i ) {
 
       // If any of the properties computed by the calculator are not currently computable then 
-      // the calculator need to be added to the list of calculators.
+      // the surface calculator needs to be added to the list of surface calculators.
       if ( not surfacePropertyIsComputable ( getProperty ( propertyNames [ i ]))) {
          return true;
       }
