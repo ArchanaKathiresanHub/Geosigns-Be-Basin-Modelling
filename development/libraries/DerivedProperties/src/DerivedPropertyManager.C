@@ -137,6 +137,24 @@ void DerivedProperties::DerivedPropertyManager::loadDerivedFormationPropertyCalc
 
    FormationPropertyCalculatorPtr formationPropertyCalculator;
 
+   formationPropertyCalculator = FormationPropertyCalculatorPtr ( new BrineDensityCalculator ( m_projectHandle ));
+
+   if ( canAddDerivedFormationPropertyCalculator ( formationPropertyCalculator )) {
+      addFormationPropertyCalculator ( formationPropertyCalculator );
+   }
+
+   formationPropertyCalculator = FormationPropertyCalculatorPtr ( new BrineViscosityCalculator ( m_projectHandle ));
+
+   if ( canAddDerivedFormationPropertyCalculator ( formationPropertyCalculator )) {
+      addFormationPropertyCalculator ( formationPropertyCalculator );
+   }
+
+   formationPropertyCalculator = FormationPropertyCalculatorPtr ( new BulkDensityFormationCalculator ( m_projectHandle ));
+
+   if ( canAddDerivedFormationPropertyCalculator ( formationPropertyCalculator )) {
+      addFormationPropertyCalculator ( formationPropertyCalculator );
+   }
+
    formationPropertyCalculator = FormationPropertyCalculatorPtr ( new FracturePressureFormationCalculator ( m_projectHandle ));
 
    if ( canAddDerivedFormationPropertyCalculator ( formationPropertyCalculator )) {
@@ -173,6 +191,12 @@ void DerivedProperties::DerivedPropertyManager::loadDerivedFormationPropertyCalc
       addFormationPropertyCalculator ( formationPropertyCalculator );
    }
    
+   formationPropertyCalculator = FormationPropertyCalculatorPtr ( new PressureFormationCalculator ( m_projectHandle ));
+
+   if ( canAddDerivedFormationPropertyCalculator ( formationPropertyCalculator )) {
+      addFormationPropertyCalculator ( formationPropertyCalculator );
+   }
+
    formationPropertyCalculator = FormationPropertyCalculatorPtr ( new ThermalConductivityFormationCalculator ( m_projectHandle ));
 
    if ( canAddDerivedFormationPropertyCalculator ( formationPropertyCalculator )) {
@@ -186,30 +210,6 @@ void DerivedProperties::DerivedPropertyManager::loadDerivedFormationPropertyCalc
    }
    
    formationPropertyCalculator = FormationPropertyCalculatorPtr ( new VelocityFormationCalculator );
-
-   if ( canAddDerivedFormationPropertyCalculator ( formationPropertyCalculator )) {
-      addFormationPropertyCalculator ( formationPropertyCalculator );
-   }
-
-   formationPropertyCalculator = FormationPropertyCalculatorPtr ( new PressureFormationCalculator ( m_projectHandle ));
-
-   if ( canAddDerivedFormationPropertyCalculator ( formationPropertyCalculator )) {
-      addFormationPropertyCalculator ( formationPropertyCalculator );
-   }
-
-   formationPropertyCalculator = FormationPropertyCalculatorPtr ( new BrineDensityCalculator ( m_projectHandle ));
-
-   if ( canAddDerivedFormationPropertyCalculator ( formationPropertyCalculator )) {
-      addFormationPropertyCalculator ( formationPropertyCalculator );
-   }
-
-   formationPropertyCalculator = FormationPropertyCalculatorPtr ( new BrineViscosityCalculator ( m_projectHandle ));
-
-   if ( canAddDerivedFormationPropertyCalculator ( formationPropertyCalculator )) {
-      addFormationPropertyCalculator ( formationPropertyCalculator );
-   }
-
-   formationPropertyCalculator = FormationPropertyCalculatorPtr ( new BulkDensityFormationCalculator ( m_projectHandle ));
 
    if ( canAddDerivedFormationPropertyCalculator ( formationPropertyCalculator )) {
       addFormationPropertyCalculator ( formationPropertyCalculator );

@@ -74,7 +74,7 @@ void DerivedProperties::ReflectivitySurfaceCalculator::calculate ( AbstractPrope
    }
 
    if ( thicknesses.size () == 0 ) {
-      return; // ?
+      return;
    }
 
    DerivedSurfacePropertyPtr reflectivity = DerivedSurfacePropertyPtr ( new DerivedProperties::DerivedSurfaceProperty ( reflectivityProperty, snapshot, surface, propManager.getMapGrid ()));
@@ -97,16 +97,23 @@ void DerivedProperties::ReflectivitySurfaceCalculator::calculate ( AbstractPrope
                ++surfaceIndex;
             }
 
-            double bulkDensity = layerBulkDensity->get ( i, j );
-            double bulkDensityAbove = bulkDensities [ surfaceIndex ]->get ( i, j );
+            double reflectivityValue;
 
-            double velocity = layerVelocity->get ( i, j );
-            double velocityAbove = velocities [ surfaceIndex ]->get ( i, j );
+            if ( surfaceIndex == thicknesses.size ()) {
+               reflectivityValue = undefinedValue;
+            } else {
+               double bulkDensity = layerBulkDensity->get ( i, j );
+               double bulkDensityAbove = bulkDensities [ surfaceIndex ]->get ( i, j );
 
-            double reflectivityValue = ( bulkDensityAbove * velocityAbove - bulkDensity * velocity ) /
-                                       ( bulkDensityAbove * velocityAbove + bulkDensity * velocity );
+               double velocity = layerVelocity->get ( i, j );
+               double velocityAbove = velocities [ surfaceIndex ]->get ( i, j );
+
+               reflectivityValue = ( bulkDensityAbove * velocityAbove - bulkDensity * velocity ) /
+                                   ( bulkDensityAbove * velocityAbove + bulkDensity * velocity );
+            }
 
             reflectivity->set ( i, j, reflectivityValue );
+
          } else {
             reflectivity->set ( i, j, undefinedValue );
          }
