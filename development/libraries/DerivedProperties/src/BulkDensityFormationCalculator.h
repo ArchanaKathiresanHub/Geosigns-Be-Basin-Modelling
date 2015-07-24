@@ -30,27 +30,34 @@ namespace DerivedProperties {
 
       const GeoPhysics::ProjectHandle* m_projectHandle;
 
+      /// \brief Calculate the bulk density in the basement when ALC mode has not been enabled.
       void computeBulkDensityBasementNonAlc ( DerivedProperties::AbstractPropertyManager& propertyManager,
                                               const DataModel::AbstractSnapshot*          snapshot,
                                               const GeoPhysics::Formation*                formation,
                                                     FormationPropertyList&                derivedProperties ) const;
 
+      /// \brief Calculate the bulk density in the basement when ALC mode has been enabled.
       void computeBulkDensityBasementAlc ( DerivedProperties::AbstractPropertyManager& propertyManager,
                                            const DataModel::AbstractSnapshot*          snapshot,
                                            const GeoPhysics::Formation*                formation,
                                                  FormationPropertyList&                derivedProperties ) const;
 
+      /// \brief Calculate the bulk density in the sediments when the fastcauldron simulation mode was coupled.
       void computeBulkDensitySedimentsCoupled ( DerivedProperties::AbstractPropertyManager& propertyManager,
                                                 const DataModel::AbstractSnapshot*          snapshot,
                                                 const GeoPhysics::Formation*                formation,
                                                       FormationPropertyList&                derivedProperties ) const;
 
+      /// \brief Calculate the bulk density in the sediments when the fastcauldron simulation mode was hydrostatic.
       void computeBulkDensitySedimentsHydrostatic ( DerivedProperties::AbstractPropertyManager& propertyManager,
                                                     const DataModel::AbstractSnapshot*          snapshot,
                                                     const GeoPhysics::Formation*                formation,
                                                           FormationPropertyList&                derivedProperties ) const;
 
+      /// \brief Used to indicate whether ALC mode was enabled or not.
       bool m_alcModeEnabled;
+
+      /// \brief Used to indicate whether the fastcauldron simulation mode was coupled or not (hydrostatic).
       bool m_coupledModeEnabled;
 
    };
