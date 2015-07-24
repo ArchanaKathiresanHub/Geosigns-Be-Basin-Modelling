@@ -26,7 +26,7 @@ namespace GeoPhysics
 		case DataAccess::Interface::GARDNERS_VELOCITY_ALGORITHM:
 			return SeismicVelocity(new SeismicVelocityGardner());
 
-		case DataAccess::Interface::LORCANS_VELOCITY_ALGORITHM:
+		case DataAccess::Interface::KENNANS_VELOCITY_ALGORITHM:
 			return SeismicVelocity(new SeismicVelocityLorcan(modulusSolid,
 				densitySolid,
 				porositySurface,

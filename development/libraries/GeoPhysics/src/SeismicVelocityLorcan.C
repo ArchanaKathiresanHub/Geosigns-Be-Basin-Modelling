@@ -39,7 +39,7 @@ namespace GeoPhysics
 			///3 Scale the porosity for the modulus computation
 			double porosityScaled = porosity / m_porositySurface;
 			if (porosityScaled >= 1){
-				//suspension line
+				//suspension line (phi>phi_surf, so this is no more a solid rock)
 				return seismicVelocityFluid;
 			}
 
@@ -47,7 +47,7 @@ namespace GeoPhysics
 			double modulusPrograde = this->modulusN(modulusSurface, porosityScaled, m_nExponent);
 
 			double modulusN = 0;
-			///5 If we are one the retrograde path (decompaction)
+			///5 If we are in retrograde path (decompaction)
 			if (currentVes < maxVes)
 			{
 				///5.1. Compute the Reuss modulus (n=-1)

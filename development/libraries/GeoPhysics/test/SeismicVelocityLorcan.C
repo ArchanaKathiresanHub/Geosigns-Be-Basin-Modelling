@@ -8,7 +8,7 @@ TEST(SeismicVelocityLorcan, std_sandstone_compaction)
 {
 	// with std. sandstone
 	SeismicVelocity myVelocity;
-	myVelocity = myVelocity.create(DataAccess::Interface::LORCANS_VELOCITY_ALGORITHM, 6097, 98509533850, 2650, 0.48, 0.75);
+	myVelocity = myVelocity.create(DataAccess::Interface::KENNANS_VELOCITY_ALGORITHM, 6097, 98509533850, 2650, 0.48, 0.75);
 
 	//Compaction when ves=vesMax
 
@@ -44,7 +44,7 @@ TEST(SeismicVelocityLorcan, std_sandstone_decompaction)
 {
 	// with std. sandstone
 	SeismicVelocity myVelocity;
-	myVelocity = myVelocity.create(DataAccess::Interface::LORCANS_VELOCITY_ALGORITHM, 6097, 98509533850, 2650, 0.48, 0.75);
+	myVelocity = myVelocity.create(DataAccess::Interface::KENNANS_VELOCITY_ALGORITHM, 6097, 98509533850, 2650, 0.48, 0.75);
 
 	//Decompaction when ves<vesMax
 
@@ -90,7 +90,7 @@ TEST(SeismicVelocityLorcan, std_shale_compaction)
 {
 	// with std. shale
 	SeismicVelocity myVelocity;
-	myVelocity = myVelocity.create(DataAccess::Interface::LORCANS_VELOCITY_ALGORITHM, 5000, 67750000000, 2710, 0.7, -0.75);
+	myVelocity = myVelocity.create(DataAccess::Interface::KENNANS_VELOCITY_ALGORITHM, 5000, 67750000000, 2710, 0.7, -0.75);
 
 	//Compaction when ves=vesMax
 
@@ -126,7 +126,7 @@ TEST(SeismicVelocityLorcan, std_shale_decompaction)
 {
 	// with std. shale
 	SeismicVelocity myVelocity;
-	myVelocity = myVelocity.create(DataAccess::Interface::LORCANS_VELOCITY_ALGORITHM, 5000, 67750000000, 2710, 0.7, -0.75);
+	myVelocity = myVelocity.create(DataAccess::Interface::KENNANS_VELOCITY_ALGORITHM, 5000, 67750000000, 2710, 0.7, -0.75);
 
 	//Decompaction when ves<vesMax
 
@@ -174,6 +174,6 @@ TEST(SeismicVelocityLorcan, death_test)
 
 	// divide by zero crash test
 	SeismicVelocity myVelocity;
-	myVelocity = myVelocity.create(DataAccess::Interface::LORCANS_VELOCITY_ALGORITHM, 5000, 0, 2710, 0.7, -0.75);
+	myVelocity = myVelocity.create(DataAccess::Interface::KENNANS_VELOCITY_ALGORITHM, 5000, 0, 2710, 0.7, -0.75);
 	ASSERT_DEATH(myVelocity.seismicVelocity(0, 1000, 2000, 0, 40, 40), "Assertion.*denominator!=0");
 }

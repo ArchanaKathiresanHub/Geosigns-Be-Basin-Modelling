@@ -428,7 +428,7 @@ namespace DataAccess
 	  /// Indicates which seismic velocity algorithm should be used.
 	  enum SeismicVelocityModel {
 		  GARDNERS_VELOCITY_ALGORITHM,
-		  LORCANS_VELOCITY_ALGORITHM,
+		  KENNANS_VELOCITY_ALGORITHM,
 		  WYLLIES_VELOCITY_ALGORITHM
 	  };
 

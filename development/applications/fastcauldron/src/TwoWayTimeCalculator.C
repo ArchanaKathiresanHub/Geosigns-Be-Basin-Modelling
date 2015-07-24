@@ -23,16 +23,12 @@ OutputPropertyMap* allocateTwoWayTimeResidualCalculator( const PropertyList prop
 
 
 TwoWayTimeCalculator::TwoWayTimeCalculator ( LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot ) :
-m_formation( formation ), m_surface( surface ), m_snapshot( snapshot ),
+m_formation( formation ),
 m_topFormation( dynamic_cast<LayerProps const * const>( surface->getTopFormation( )) ),
-m_bottomFormation( dynamic_cast<LayerProps const * const>(surface->getBottomFormation( )) )
+m_bottomFormation( dynamic_cast<LayerProps const * const>(surface->getBottomFormation( )) ),
+m_surface( surface ), m_snapshot( snapshot ),
+m_depth( 0 ), m_pressure( 0 ), m_seismicVelocity( 0 ), m_temperature( 0 ), m_twoWayTimeTop( 0 ), m_isCalculated( false )
 {
-   m_depth           = 0;
-   m_pressure        = 0;
-   m_seismicVelocity = 0;
-   m_temperature     = 0;
-   m_twoWayTimeTop   = 0;
-   m_isCalculated    = false;
 }
 
 bool TwoWayTimeCalculator::operator ()( const OutputPropertyMap::OutputPropertyList& properties, 
@@ -56,44 +52,24 @@ bool TwoWayTimeCalculator::operator ()( const OutputPropertyMap::OutputPropertyL
    double undefinedValue;
    Interface::GridMap* TwoWayTimeMap;
 
-   if (not m_pressure->isCalculated( )) {
-
-      if (not m_pressure->calculate( )) {
-         return false;
-      }
-
+   if (not m_pressure->isCalculated( ) and not m_pressure->calculate( )) {
+      return false;
    }
 
-   if (not m_temperature->isCalculated( )) {
-
-      if (not m_temperature->calculate( )) {
-         return false;
-      }
-
+   if (not m_temperature->isCalculated( ) and not m_temperature->calculate( )) {
+      return false;
    }
 
-   if (m_depth != 0 and not m_depth->isCalculated( )) {
-
-      if (not m_depth->calculate( )) {
-         return false;
-      }
-
+   if (m_depth != 0 and not m_depth->isCalculated( ) and not m_depth->calculate( )) {
+      return false;
    }
 
-   if (m_seismicVelocity != 0 and not m_seismicVelocity->isCalculated( )) {
-
-      if (not m_seismicVelocity->calculate( )) {
-         return false;
-      }
-
+   if (m_seismicVelocity != 0 and not m_seismicVelocity->isCalculated( ) and not m_seismicVelocity->calculate( )) {
+      return false;
    }
 
-   if (m_twoWayTimeTop != 0 and not m_twoWayTimeTop->isCalculated( )) {
-
-      if (not m_twoWayTimeTop->calculate( )) {
-         return false;
-      }
-
+   if (m_twoWayTimeTop != 0 and not m_twoWayTimeTop->isCalculated( ) and not m_twoWayTimeTop->calculate( )) {
+      return false;
    }
 
    TwoWayTimeMap = propertyValues [ 0 ]->getGridMap ();
@@ -119,11 +95,11 @@ bool TwoWayTimeCalculator::operator ()( const OutputPropertyMap::OutputPropertyL
                   seismicVelocityBulk = 2 * m_seismicVelocity->getVolumeValue( i, j, k ) * m_seismicVelocity->getVolumeValue( i, j, k + 1 );
                   if ( seismicVelocityBulk != 0 ){
                      seismicVelocityBulk /= m_seismicVelocity->getVolumeValue( i, j, k ) + m_seismicVelocity->getVolumeValue( i, j, k + 1 );
-                     ///2.3 Compute the twoWayTime between the nodes
-                     value += 2 * distance / seismicVelocityBulk;
+                     ///2.3 Compute the twoWayTime between the nodes (in ms)
+                     value += 2 * distance / (seismicVelocityBulk*10e3);
                   }
                   else {
-                     // In case we have basalt or other lithologies which are blocking the seismic waves (Vp=0)
+                     // In case of weird lithologies which are blocking the seismic waves (Vp=0), this should not be allowed by the UI
                      value = undefinedValue;
                   }
                }
@@ -139,12 +115,12 @@ bool TwoWayTimeCalculator::operator ()( const OutputPropertyMap::OutputPropertyL
                   if (m_bottomFormation->isBasement()) {
                      value = undefinedValue;
                   }
-                  // If there is some sediments , the TwoWayTime value is computed using the fluid of the last sediment deposited
+                  // If there is some sediments , the TwoWayTime value is computed (in ms) using the fluid of the last sediment deposited
                   else {
-                     assert( m_bottomFormation->fluid != 0 );
+                     assert( ("The model is under water but there is no fluid", m_bottomFormation->fluid != 0 ) );
                      seismciVelocityFluid = m_bottomFormation->fluid->seismicVelocity( (*m_temperature)(i, j), (*m_pressure)(i, j) );
-                     assert( seismciVelocityFluid != 0 );
-                     value = 2 * seaBottomDepth / seismciVelocityFluid;
+                     assert( ("The model is under water but there is no fluid seismic velocity", seismciVelocityFluid != 0 ) );
+                     value = 2 * seaBottomDepth / (seismciVelocityFluid*10e3);
                   }
                }
                ///3. If no water above, then the initial TwoWayTime is 0
@@ -215,12 +191,9 @@ bool TwoWayTimeCalculator::initialise ( OutputPropertyMap::PropertyValueList& pr
 
 
 TwoWayTimeVolumeCalculator::TwoWayTimeVolumeCalculator ( LayerProps* formation, const Interface::Snapshot* snapshot ) :
-   m_formation ( formation ), m_snapshot ( snapshot ) {
-
-   m_depth           = 0;
-   m_seismicVelocity = 0;
-   m_twoWayTimeTop   = 0;
-   m_isCalculated    = false;
+   m_formation ( formation ), m_snapshot ( snapshot ),
+   m_depth(0), m_seismicVelocity(0), m_twoWayTimeTop(0), m_isCalculated(false)
+{
 }
 
 bool TwoWayTimeVolumeCalculator::operator ()( const OutputPropertyMap::OutputPropertyList& properties, 
@@ -241,28 +214,16 @@ bool TwoWayTimeVolumeCalculator::operator ()( const OutputPropertyMap::OutputPro
    double undefinedValue;
    Interface::GridMap* TwoWayTimeMap;
 
-   if (not m_depth->isCalculated( )) {
-
-      if (not m_depth->calculate( )) {
-         return false;
-      }
-
+   if (not m_depth->isCalculated( ) and not m_depth->calculate( )) {
+      return false;
    }
 
-   if (not m_seismicVelocity->isCalculated( )) {
-
-      if (not m_seismicVelocity->calculate( )) {
-         return false;
-      }
-
+   if (not m_seismicVelocity->isCalculated( ) and not m_seismicVelocity->calculate( )) {
+      return false;
    }
 
-   if (not m_twoWayTimeTop->isCalculated( )) {
-
-      if (not m_twoWayTimeTop->calculate( )) {
-         return false;
-      }
-
+   if (not m_twoWayTimeTop->isCalculated( ) and not m_twoWayTimeTop->calculate( )) {
+      return false;
    }
 
    TwoWayTimeMap = propertyValues [ 0 ]->getGridMap ();
@@ -287,9 +248,10 @@ bool TwoWayTimeVolumeCalculator::operator ()( const OutputPropertyMap::OutputPro
                distance = m_depth->getVolumeValue( i, j, k ) - m_depth->getVolumeValue( i, j, k+1 );
                ///2.2 Compute the harmonic mean of the velocity between the nodes
                seismicVelocityBulk = 2* m_seismicVelocity->getVolumeValue( i, j, k ) * m_seismicVelocity->getVolumeValue( i, j, k+1 );
+               assert( ("Dividing by zero during harmonic mean", seismicVelocityBulk != 0) );
                seismicVelocityBulk /= (m_seismicVelocity->getVolumeValue( i, j, k ) + m_seismicVelocity->getVolumeValue( i, j, k+1 ));
-               ///2.3 Compute the twoWayTime between the nodes
-               value += 2 * distance / seismicVelocityBulk;
+               ///2.3 Compute the twoWayTime between the nodes (in ms)
+               value += 2 * distance / (seismicVelocityBulk*10e3);
 
                TwoWayTimeMap->setValue ( i, j, k, value );
             }
@@ -345,9 +307,8 @@ bool TwoWayTimeVolumeCalculator::initialise ( OutputPropertyMap::PropertyValueLi
 
 
 TwoWayTimeResidualCalculator::TwoWayTimeResidualCalculator( LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot ) :
-m_formation( formation ), m_surface( surface ), m_snapshot( snapshot )
+m_formation( formation ), m_surface( surface ), m_snapshot( snapshot ), m_isCalculated(false)
 {
-   m_isCalculated = false;
 }
 
 bool TwoWayTimeResidualCalculator::operator ()( const OutputPropertyMap::OutputPropertyList& properties,
@@ -365,12 +326,8 @@ bool TwoWayTimeResidualCalculator::operator ()( const OutputPropertyMap::OutputP
    Interface::GridMap* TwoWayTimeResidualMap;
 
 
-   if (not m_twoWayTimeCauldron->isCalculated( )) {
-
-      if (not m_twoWayTimeCauldron->calculate( )) {
-         return false;
-      }
-
+   if (not m_twoWayTimeCauldron->isCalculated( ) and not m_twoWayTimeCauldron->calculate( )) {
+      return false;
    }
 
    TwoWayTimeResidualMap = propertyValues[0]->getGridMap( );
@@ -386,16 +343,11 @@ bool TwoWayTimeResidualCalculator::operator ()( const OutputPropertyMap::OutputP
       for (j = TwoWayTimeResidualMap->firstJ( ); j <= TwoWayTimeResidualMap->lastJ( ); ++j) {
 
          // if the surface is linked to an intial two way time
-         if (m_twoWayTimeInitial != 0) {
-            if (FastcauldronSimulator::getInstance().nodeIsDefined( i, j )) {
+         if (m_twoWayTimeInitial != 0 and FastcauldronSimulator::getInstance().nodeIsDefined( i, j )) {
 
-               value = m_twoWayTimeCauldron->getMapValue( i, j ) - m_twoWayTimeInitial->getValue( i, j );
-               TwoWayTimeResidualMap->setValue( i, j, value );
+            value = m_twoWayTimeCauldron->getMapValue( i, j ) - m_twoWayTimeInitial->getValue( i, j );
+            TwoWayTimeResidualMap->setValue( i, j, value );
 
-            }
-            else {
-               TwoWayTimeResidualMap->setValue( i, j, undefinedValue );
-            }
          }
          else {
             TwoWayTimeResidualMap->setValue( i, j, undefinedValue );

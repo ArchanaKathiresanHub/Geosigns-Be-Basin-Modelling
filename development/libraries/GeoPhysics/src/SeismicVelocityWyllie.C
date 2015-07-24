@@ -22,7 +22,7 @@ namespace GeoPhysics
 		//If there is a fluid
 		if (seismicVelocityFluid != -1){
 			double denominator = porosity * m_seismicVelocitySolid + (1.0 - porosity) * seismicVelocityFluid;
-			assert(denominator!=0);
+			assert( ("Dividing by zero using transit time average", denominator!=0) );
 			velocity = (seismicVelocityFluid * m_seismicVelocitySolid) / denominator;
 		}
 		//Else, if there is no fluid

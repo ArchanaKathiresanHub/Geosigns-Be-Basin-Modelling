@@ -69,8 +69,6 @@ const ApplicableOutputRegion::ApplicableRegion PropertyOutputConstraints::s_prop
      ApplicableOutputRegion::SEDIMENTS_AND_BASEMENT,      /* Lithology              */
      ApplicableOutputRegion::SEDIMENTS_ONLY,              /* TwoWayTime             */
      ApplicableOutputRegion::SEDIMENTS_ONLY,              /* TwoWayTimeResidual     */
-
-
      ApplicableOutputRegion::SEDIMENTS_ONLY,              /* CapillaryPressureGas100 */
      ApplicableOutputRegion::SEDIMENTS_ONLY,              /* CapillaryPressureGas0   */
      ApplicableOutputRegion::SEDIMENTS_ONLY,              /* CapillaryPressureOil100 */
@@ -132,9 +130,9 @@ const ApplicableOutputRegion::ApplicableRegion PropertyOutputConstraints::s_prop
      ApplicableOutputRegion::SEDIMENTS_ONLY,              /* Volume calculations                       */
      ApplicableOutputRegion::SEDIMENTS_ONLY,              /* Transported volume calculations           */
      ApplicableOutputRegion::SEDIMENTS_ONLY,              /* Saturations                               */
-	  ApplicableOutputRegion::SEDIMENTS_ONLY,              /* AverageSaturations                        */
+     ApplicableOutputRegion::SEDIMENTS_ONLY,              /* AverageSaturations                        */
      ApplicableOutputRegion::SEDIMENTS_ONLY,              /* HC fluid velocity                         */
-	  ApplicableOutputRegion::SEDIMENTS_ONLY,              /* CapillaryPressure                         */
+     ApplicableOutputRegion::SEDIMENTS_ONLY,              /* CapillaryPressure                         */
      ApplicableOutputRegion::SEDIMENTS_ONLY,              /* Fluid Properties such as GOR, COR, OilAPI */
      ApplicableOutputRegion::SEDIMENTS_ONLY,              /* Brine properties viscosity density        */
      ApplicableOutputRegion::SEDIMENTS_ONLY,              /* Time of invasion                          */				
@@ -228,8 +226,6 @@ const bool PropertyOutputConstraints::s_outputPermitted [ PropertyListSize ][ Nu
    {  true,  true,  true,  true,  true,  true,  true,  true,  true, false },  /* Lithology              */
    { false, false,  true, false,  true, false,  true,  true,  true, false },  /* TwoWayTime             */
    { false, false,  true, false,  true, false,  true,  true,  true, false },  /* TwoWayTimeResidual     */
-   
-   
    { false, false,  true,  true, false, false,  true,  true,  true, false },  /* CapillaryPressureGas100 */
    { false, false,  true,  true, false, false,  true,  true,  true, false },  /* CapillaryPressureGas0   */
    { false, false,  true,  true, false, false,  true,  true,  true, false },  /* CapillaryPressureOil100 */
@@ -291,10 +287,10 @@ const bool PropertyOutputConstraints::s_outputPermitted [ PropertyListSize ][ Nu
    { false, false,  true,  true,  true, false,  true,  true,  true, false },  /* Volume calculations                       */ 
    { false, false,  true,  true,  true, false,  true,  true,  true, false },  /* Transported volume calculations           */ 
    { false, false,  true,  true,  true, false,  true,  true,  true, false },  /* Saturations                               */
-	{ false, false,  true,  true,  true, false,  true,  true,  true, false },  /* AverageSaturations                        */
+   { false, false,  true,  true,  true, false,  true,  true,  true, false },  /* AverageSaturations                        */
    { false, false,  true, false,  true, false,  true,  true,  true, false },  /* HC fliud velocity                         */
 	{ false, false,  true,  true,  true, false,  true,  true,  true, false },  /* CapillaryPressure                         */
-	{ false, false,  true,  true,  true, false,  true,  true,  true, false },  /* Fluid Properties such as GOR, COR, OilAPI */
+   { false, false,  true,  true,  true, false,  true,  true,  true, false },  /* Fluid Properties such as GOR, COR, OilAPI */
    { false, false,  true,  true,  true, false,  true,  true,  true, false },  /* Brine Properties density and viscosity    */
    { false, false,  true,  true,  true, false,  true,  true,  true, false },  /* Time of invasion                          */                                                                                                      
    {  true,  true,  true,  true, false,  true,  true, false },  /* ALCSmBasaltThickness     */
@@ -372,8 +368,6 @@ const bool PropertyOutputConstraints::s_outputRequired [ PropertyListSize ][ Num
    {  true,  true,  true,  true,  true,  true,  true,  true,  true, false },  /* Lithology                                 */
    { false, false, false, false, false, false, false, false, false, false },  /* TwoWayTime                                */
    { false, false, false, false, false, false, false, false, false, false },  /* TwoWayTimeResidual                        */
-
-
    { false, false,  true,  true, false, false,  true,  true,  true, false },  /* CapillaryPressureGas100                   */
    { false, false,  true,  true, false, false,  true,  true,  true, false },  /* CapillaryPressureGas0                     */
    { false, false,  true,  true, false, false,  true,  true,  true, false },  /* CapillaryPressureOil100                   */

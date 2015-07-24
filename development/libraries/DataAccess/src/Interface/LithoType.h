@@ -130,8 +130,8 @@ namespace DataAccess
          /// Return the seismic velocity.
          virtual double getSeismicVelocity () const;
 
-		   /// Return the n exponent parameter used for the Lorcan's viscosity computation mode.
-		   virtual double getVelocityExponent() const;
+         /// Return the n exponent parameter used for the Lorcan's viscosity computation mode.
+         virtual double getVelocityExponent() const;
 
          /// Return the capillary entry pressure c1.
          virtual double getCapillaryEntryPressureC1 () const;
