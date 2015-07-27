@@ -35,7 +35,6 @@ void DerivedProperties::LithostaticPressureFormationCalculator::calculate ( Deri
                                                                             const DataModel::AbstractFormation* formation,
                                                                                   FormationPropertyList&        derivedProperties ) const {
 
-
    const GeoPhysics::Formation* geoFormation = dynamic_cast<const GeoPhysics::Formation*>( formation );
 
    if( geoFormation != 0 and geoFormation->kind() == DataAccess::Interface::BASEMENT_FORMATION ) {
@@ -114,9 +113,10 @@ void DerivedProperties::LithostaticPressureFormationCalculator::calculateForBase
    if( currentFormation!= 0 && depth != 0 and ( hydrostaticDecompactionMode || temperature != 0 )) {
 
       PropertyRetriever depthRetriever ( depth );
+      PropertyRetriever tempRetriever;
 
       if( !hydrostaticDecompactionMode ) {
-         PropertyRetriever tempRetriever ( temperature );
+         tempRetriever.reset ( temperature );
       }
 
       DerivedFormationPropertyPtr lithostaticPressure = 
@@ -233,7 +233,7 @@ bool DerivedProperties::LithostaticPressureFormationCalculator::isComputable ( c
                                                                                const DataModel::AbstractSnapshot*  snapshot,
                                                                                const DataModel::AbstractFormation* formation ) const {
 
-   bool basementFormation = ( formation != 0 and ( formation->getName() == DataAccess::Interface::MantleFormationName or  formation->getName() == DataAccess::Interface::CrustFormationName ));
+   bool basementFormation = ( dynamic_cast<const GeoPhysics::Formation*>( formation ) != 0 and dynamic_cast<const GeoPhysics::Formation*>( formation )->kind () == DataAccess::Interface::BASEMENT_FORMATION );
 
    const std::vector<std::string>& dependentProperties = getDependentPropertyNames ();
 
@@ -241,10 +241,9 @@ bool DerivedProperties::LithostaticPressureFormationCalculator::isComputable ( c
 
    // Determine if the required properties are computable.
    for ( size_t i = 0; i < dependentProperties.size () and propertyIsComputable; ++i ) {
+
       if( basementFormation and ( dependentProperties [ i ] == "Ves" or dependentProperties [ i ] == "Pressure" )) {
-
          propertyIsComputable = true;
-
       } else {
          const DataModel::AbstractProperty* property = propManager.getProperty ( dependentProperties [ i ]);
 
@@ -255,6 +254,7 @@ bool DerivedProperties::LithostaticPressureFormationCalculator::isComputable ( c
          }
          
       }
+
    }
 
    return propertyIsComputable;

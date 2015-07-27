@@ -73,9 +73,9 @@ void DerivedProperties::BulkDensityFormationCalculator::calculate ( DerivedPrope
       if ( geoFormation->kind () == DataAccess::Interface::BASEMENT_FORMATION ) {
 
          if ( m_alcModeEnabled ) {
-            computeBulkDensityBasementNonAlc ( propertyManager, snapshot, geoFormation, derivedProperties );
-         } else {
             computeBulkDensityBasementAlc ( propertyManager, snapshot, geoFormation, derivedProperties );
+         } else {
+            computeBulkDensityBasementNonAlc ( propertyManager, snapshot, geoFormation, derivedProperties );
          }
 
       } else {
@@ -301,4 +301,35 @@ void DerivedProperties::BulkDensityFormationCalculator::computeBulkDensityBaseme
       derivedProperties.push_back ( bulkDensity );
    }
 
+}
+
+bool DerivedProperties::BulkDensityFormationCalculator::isComputable ( const AbstractPropertyManager&      propManager,
+                                                                       const DataModel::AbstractSnapshot*  snapshot,
+                                                                       const DataModel::AbstractFormation* formation ) const {
+
+   bool basementFormation = ( dynamic_cast<const GeoPhysics::Formation*>( formation ) != 0 and dynamic_cast<const GeoPhysics::Formation*>( formation )->kind () == DataAccess::Interface::BASEMENT_FORMATION );
+
+   const std::vector<std::string>& dependentProperties = getDependentPropertyNames ();
+
+   bool propertyIsComputable = true;
+
+   // Determine if the required properties are computable.
+   for ( size_t i = 0; i < dependentProperties.size () and propertyIsComputable; ++i ) {
+
+      if ( basementFormation and ( not m_alcModeEnabled or dependentProperties [ i ] == "Porosity" or dependentProperties [ i ] == "Pressure" )) {
+         propertyIsComputable = true;
+      } else {
+         const DataModel::AbstractProperty* property = propManager.getProperty ( dependentProperties [ i ]);
+
+         if ( property == 0 ) {
+            propertyIsComputable = false;
+         } else {
+            propertyIsComputable = propertyIsComputable and propManager.formationPropertyIsComputable ( property, snapshot, formation );
+         }
+         
+      }
+
+   }
+
+   return propertyIsComputable;
 }

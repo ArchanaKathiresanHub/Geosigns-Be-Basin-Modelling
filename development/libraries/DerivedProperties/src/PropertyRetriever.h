@@ -11,6 +11,9 @@ namespace DerivedProperties {
    public :
 
       /// \brief Constructor.
+      PropertyRetriever ();
+
+      /// \brief Constructor.
       ///
       /// \param [in] propertyValues The property value to be retrieved.
       /// The values will be retrieved only if they are in the un-retrieved state.
@@ -22,10 +25,16 @@ namespace DerivedProperties {
       /// un-retrieved state when an object of this type was created.
       ~PropertyRetriever ();
 
+      /// \brief Reset the property.
+      ///
+      /// \param [in] propertyValues The property value to be retrieved.
+      /// The values will be retrieved only if they are in the un-retrieved state.
+      void reset ( const AbstractPropertyValuesPtr& propertyValues );
+
    private :
 
       /// \brief The property values to be retrieved.
-      const AbstractPropertyValuesPtr& m_propertyValues;
+      AbstractPropertyValuesPtr m_propertyValues;
 
       /// \brief Indicate whether or not the property values should be restored on destruction of this object.
       bool  m_restoreOnExit;
