@@ -189,13 +189,11 @@ void PropertiesCalculator::calculateProperties( FormationVector& formationItems,
    for ( formationIter = formationItems.begin();  formationIter != formationItems.end(); ++formationIter )
    {
       const Formation * formation = *formationIter;
-      
+
       for ( snapshotIter = snapshots.begin(); snapshotIter != snapshots.end(); ++snapshotIter )
       {
          const Snapshot * snapshot = *snapshotIter;
-         
-         if ( allOutputPropertyValues[ snapshot ][ formation ][ properties[ 0 ]] == 0 ) continue;
-         
+
          outputSnapshotFormationData( snapshot, formation, properties, allOutputPropertyValues );
          m_projectHandle->continueActivity();
       }
@@ -360,6 +358,11 @@ bool PropertiesCalculator::acquireFormations( FormationVector & formationsItems 
       {
          const Formation * formation = *formationIter;
          formationsItems.push_back( formation );
+
+         if ( m_debug ) {
+            cout << " adding formation "  << formation->getName () << endl;
+         }
+
       }
    }
 
