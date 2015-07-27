@@ -224,8 +224,8 @@ double LithoType::getSeismicVelocity () const {
    return database::getSeisVelocity ( m_record );
 }
 
-double LithoType::getVelocityExponent() const {
-	return database::getVelocityExponent( m_record );
+double LithoType::getSeismicVelocityExponent() const {
+	return database::getSeisVelocityExponent( m_record );
 }
 
 double LithoType::getCapillaryEntryPressureC1 () const {

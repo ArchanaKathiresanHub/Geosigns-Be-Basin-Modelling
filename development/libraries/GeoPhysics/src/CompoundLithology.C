@@ -529,7 +529,7 @@ bool  GeoPhysics::CompoundLithology::reCalcProperties(){
       //1. Matrix Property calculated using the arithmetic mean
       m_density                     += (*componentIter)->getDensity()  * pcMult;
       m_seismicVelocitySolid        += (*componentIter)->getSeismicVelocity() * pcMult;
-      m_nExponentVelocity           += (*componentIter)->getVelocityExponent( ) * pcMult;
+      m_nExponentVelocity           += (*componentIter)->getSeismicVelocityExponent( ) * pcMult;
       m_depositionalPermeability    += (*componentIter)->getDepoPerm() * pcMult;
       m_thermalConductivityValue    += (*componentIter)->getThCondVal() * pcMult;
       m_heatProduction              += (*componentIter)->getHeatProduction() * pcMult;
