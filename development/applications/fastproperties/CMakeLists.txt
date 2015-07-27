@@ -16,12 +16,14 @@ set (all_headers,
 	src/PropertiesCalculator.h
 	src/FormationMapOutputPropertyValue.h
 	src/FormationOutputPropertyValue.h
-	src/OutputPropertyValue.h)
+	src/OutputPropertyValue.h
+	src/SurfaceOutputPropertyValue.h)
 
 set(all_srcs
 	src/FormationMapOutputPropertyValue.C
 	src/FormationOutputPropertyValue.C
 	src/PropertiesCalculator.C
+	src/SurfaceOutputPropertyValue.C
 	src/main.C)
 
 source_group(include FILES ${all_headers})

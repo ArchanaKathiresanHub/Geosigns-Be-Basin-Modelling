@@ -316,6 +316,10 @@ bool PropertiesCalculator::acquireProperties( PropertyList & properties )
                 m_propertyManager->formationMapPropertyIsComputable ( property ))
       {
          isComputable = true;
+      } else if ( property->getPropertyAttribute () == DataModel::SURFACE_2D_PROPERTY and 
+                m_propertyManager->surfacePropertyIsComputable ( property ))
+      {
+         isComputable = true;
       }
 
       if ( isComputable ) {
@@ -430,7 +434,7 @@ bool PropertiesCalculator::toBeSaved( const string & propertyName, const Interfa
    const Property* property = m_projectHandle->findProperty (propertyName);
 
    if ( property != 0 ) {  
-      int selectionFlags = Interface::FORMATION | Interface::FORMATIONSURFACE;
+      int selectionFlags = Interface::FORMATION | Interface::FORMATIONSURFACE | Interface::SURFACE;
       bool volumeProperties = true;
       PropertyValueList * propertyValues = m_projectHandle->getPropertyValues ( selectionFlags,
                                                                                 property,
@@ -490,16 +494,19 @@ bool PropertiesCalculator::createSnapshotResultPropertyValue ( OutputPropertyVal
       } else {
          // the property is already in output file
          if( false && m_debug && m_rank == 0 ) {
-            cout << propertyValue->getName() << " is in the output file" << endl;
+            cout << "Volume " <<propertyValue->getName() << " is in the output file" << endl;
          }
       }
    } else {
+      const DataModel::AbstractSurface* surface = propertyValue->getSurface ();
+
       if( toBeSaved ( propertyValue->getName(), snapshot, formation )) {
-         thePropertyValue = m_projectHandle->createMapPropertyValue ( propertyValue->getName(), snapshot, 0, formation, 0 );
+
+         thePropertyValue = m_projectHandle->createMapPropertyValue ( propertyValue->getName(), snapshot, 0, formation, (DataAccess::Interface::Surface *)surface );
       } else {
          //  the property is already in output file
         if( false && m_debug && m_rank == 0 ) {
-            cout << propertyValue->getName() << " is in the output file" << endl;
+           cout << "Map " << propertyValue->getName() << " is in the output file" << endl;
          }
       }
    }     
@@ -574,6 +581,10 @@ void PropertiesCalculator::acquireAll2Dproperties() {
               m_propertyManager->formationMapPropertyIsComputable ( property )) {
             m_propertyNames.push_back( property->getName() );
          }
+         if ( property->getPropertyAttribute () == DataModel::SURFACE_2D_PROPERTY and 
+              m_propertyManager->surfacePropertyIsComputable ( property )) {
+            m_propertyNames.push_back( property->getName() );
+         }
          
       }
       
@@ -603,6 +614,24 @@ OutputPropertyValuePtr PropertiesCalculator::allocateOutputProperty ( DerivedPro
            m_propertyManager->formationMapPropertyIsComputable ( property, snapshot, formation ))
       {
           outputProperty = OutputPropertyValuePtr ( new FormationMapOutputPropertyValue ( * m_propertyManager, property, snapshot, formation ));
+
+      } else if ( property->getPropertyAttribute () == DataModel::SURFACE_2D_PROPERTY ) {
+
+         const Interface::Surface* topSurface = 0;
+         const Interface::Surface* bottomSurface = 0;
+
+         if ( formation->getTopSurface () != 0  ) {
+            topSurface = formation->getTopSurface ();
+         } else if ( formation->getBottomSurface () != 0 ) {
+            bottomSurface = formation->getBottomSurface ();
+         }
+         if( topSurface != 0 && m_propertyManager->surfacePropertyIsComputable ( property, snapshot, topSurface )) 
+         {
+            outputProperty = OutputPropertyValuePtr ( new SurfaceOutputPropertyValue ( * m_propertyManager, property, snapshot, topSurface ));
+         } else if( bottomSurface != 0 && m_propertyManager->surfacePropertyIsComputable ( property, snapshot, bottomSurface )) 
+         {
+            outputProperty = OutputPropertyValuePtr ( new SurfaceOutputPropertyValue ( * m_propertyManager, property, snapshot, bottomSurface ));
+         }
       }
       
    }
@@ -731,6 +760,11 @@ void PropertiesCalculator::printOutputableProperties () {
          
          if ( property->getPropertyAttribute () == DataModel::FORMATION_2D_PROPERTY and 
               m_propertyManager->formationMapPropertyIsComputable ( property )) {
+            PetscPrintf( PETSC_COMM_WORLD, "%s ", property->getName ().c_str() );
+         }
+         
+         if ( property->getPropertyAttribute () == DataModel::SURFACE_2D_PROPERTY and 
+              m_propertyManager->surfacePropertyIsComputable ( property )) {
             PetscPrintf( PETSC_COMM_WORLD, "%s ", property->getName ().c_str() );
          }
          

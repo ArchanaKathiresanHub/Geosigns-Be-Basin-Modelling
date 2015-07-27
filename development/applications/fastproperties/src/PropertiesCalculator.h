@@ -25,6 +25,7 @@
 #include "OutputPropertyValue.h"
 #include "FormationOutputPropertyValue.h"
 #include "FormationMapOutputPropertyValue.h"
+#include "SurfaceOutputPropertyValue.h"
 
 using namespace std;
 

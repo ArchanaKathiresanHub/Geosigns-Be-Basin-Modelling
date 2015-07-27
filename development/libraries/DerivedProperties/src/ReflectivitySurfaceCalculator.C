@@ -12,7 +12,7 @@
 #include "PropertyRetriever.h"
 
 DerivedProperties::ReflectivitySurfaceCalculator::ReflectivitySurfaceCalculator ( const GeoPhysics::ProjectHandle* projectHandle ) : m_projectHandle ( projectHandle ) {
-   addPropertyName ( "Reflectivity" );
+   addPropertyName ( "ReflectivityVec2" );
 
    addDependentPropertyName ( "Thickness" );
    addDependentPropertyName ( "BulkDensity" );
@@ -37,7 +37,7 @@ void DerivedProperties::ReflectivitySurfaceCalculator::calculate ( AbstractPrope
       return;
    }
 
-   const DataModel::AbstractProperty* reflectivityProperty   = propManager.getProperty ( "Reflectivity" );
+   const DataModel::AbstractProperty* reflectivityProperty = propManager.getProperty ( "ReflectivityVec2" );
    const DataModel::AbstractProperty* thicknessProperty   = propManager.getProperty ( "Thickness" );
    const DataModel::AbstractProperty* bulkDensityProperty = propManager.getProperty ( "BulkDensity" );
    const DataModel::AbstractProperty* velocityProperty    = propManager.getProperty ( "Velocity" );
@@ -58,6 +58,8 @@ void DerivedProperties::ReflectivitySurfaceCalculator::calculate ( AbstractPrope
 
    // Get thickness, bulk-density and velocity from all surfaces above.
    while ( formationAboveFound ) {
+      
+      surfaceAbove = formationAbove->getTopSurface ();
 
       FormationMapPropertyPtr     thickness   = propManager.getFormationMapProperty     ( thicknessProperty,   snapshot, formationAbove );
       FormationSurfacePropertyPtr bulkDensity = propManager.getFormationSurfaceProperty ( bulkDensityProperty, snapshot, formationAbove, surfaceAbove );
@@ -67,7 +69,6 @@ void DerivedProperties::ReflectivitySurfaceCalculator::calculate ( AbstractPrope
       bulkDensities.push_back ( bulkDensity );
       velocities.push_back ( velocity );
 
-      surfaceAbove = formationAbove->getTopSurface ();
       formationAbove = surfaceAbove->getTopFormation ();
 
       formationAboveFound = formationAbove != 0 and formationAbove->getBottomSurface ()->getSnapshot ()->getTime () > snapshot->getTime ();
@@ -119,6 +120,8 @@ void DerivedProperties::ReflectivitySurfaceCalculator::calculate ( AbstractPrope
          }
 
       }
+
+      derivedProperties.push_back ( reflectivity );
 
    }
 

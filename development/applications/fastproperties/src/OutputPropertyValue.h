@@ -2,6 +2,7 @@
 #define FASTPROPERTIES_OUTPUT_PROPERTY_VALUE__H
 
 #include "Interface/Interface.h"
+#include "AbstractSurface.h"
 
 class OutputPropertyValue {
 
@@ -21,6 +22,7 @@ public :
 
    virtual bool hasMap() const = 0;
 
+   virtual const DataModel::AbstractSurface* getSurface() const { return 0; }
 };
 
 typedef boost::shared_ptr<OutputPropertyValue> OutputPropertyValuePtr;
