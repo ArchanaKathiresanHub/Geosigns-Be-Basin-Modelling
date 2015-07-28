@@ -1,9 +1,19 @@
-#include "SeismicVelocityLorcan.h"
+//                                                                      
+// Copyright (C) 2015-2015 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
+#include "SeismicVelocityKennan.h"
 #include <cmath>
 
 namespace GeoPhysics
 {
-	SeismicVelocityLorcan::SeismicVelocityLorcan(const double modulusSolid,
+	SeismicVelocityKennan::SeismicVelocityKennan(const double modulusSolid,
 		const double densitySolid,
 		const double porositySurface,
 		const double nExponent) :
@@ -14,10 +24,10 @@ namespace GeoPhysics
 		m_nExponent(nExponent)
 	{}
 
-	SeismicVelocityLorcan::~SeismicVelocityLorcan()
+	SeismicVelocityKennan::~SeismicVelocityKennan()
 	{}
 
-	double SeismicVelocityLorcan::seismicVelocity(const double seismicVelocityFluid,
+	double SeismicVelocityKennan::seismicVelocity(const double seismicVelocityFluid,
 		const double densityFluid,
 		const double densityBulk,
 		const double porosity,
@@ -80,7 +90,7 @@ namespace GeoPhysics
 		return velocity;
 	}
 
-	double SeismicVelocityLorcan::modulusN(const double modulusSurface,
+	double SeismicVelocityKennan::modulusN(const double modulusSurface,
 		const double porosityScaled,
 		const double nExponent) const
 	{

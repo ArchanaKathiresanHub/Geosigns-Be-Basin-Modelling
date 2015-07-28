@@ -157,7 +157,7 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
   mapOutputProperties.push_back ( THICKNESS );
   mapOutputProperties.push_back ( ALLOCHTHONOUS_LITHOLOGY );
 
-#if 0
+#if DEBUG_1D
   if(basinModel->isModellingMode1D () && basinModel -> filterwizard.IsSmectiteIlliteCalculationNeeded())
   {
      mapOutputProperties.push_back ( ILLITEFRACTION );
@@ -178,15 +178,6 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
   // We will always require the erosion-factors to be saved.
   basinModel->timefilter.setFilter ( "ErosionFactor", "SedimentsOnly" );
   mapOutputProperties.push_back ( EROSIONFACTOR );
-
-#if 0
-  if (( FastcauldronSimulator::getInstance ().getCalculationMode () == OVERPRESSURE_MODE or
-        FastcauldronSimulator::getInstance ().getCalculationMode () == PRESSURE_AND_TEMPERATURE_MODE ) and
-      not FastcauldronSimulator::getInstance ().getRunParameters ()->getNonGeometricLoop ()) {
-     m_concludingMapOutputProperties.push_back ( FCTCORRECTION );
-     m_concludingMapOutputProperties.push_back ( THICKNESSERROR );
-  }
-#endif
 
   if (( FastcauldronSimulator::getInstance ().getCalculationMode () == OVERPRESSURE_MODE or
         FastcauldronSimulator::getInstance ().getCalculationMode () == PRESSURE_AND_TEMPERATURE_MODE or
@@ -236,7 +227,8 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
   mapOutputProperties.push_back ( TEMPERATURE );
   mapOutputProperties.push_back ( DIFFUSIVITYVEC );
   mapOutputProperties.push_back ( TWOWAYTIME );
-  mapOutputProperties.push_back( TWOWAYTIME_RESIDUAL );
+  mapOutputProperties.push_back ( TWOWAYTIME_RESIDUAL );
+  mapOutputProperties.push_back ( SONICVEC );
 
   //Brine properties: density and viscosity
 #if 0
@@ -256,8 +248,8 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
      m_volumeOutputProperties.push_back ( BULKDENSITYVEC );
      m_volumeOutputProperties.push_back ( THCONDVEC );
      m_volumeOutputProperties.push_back ( FLUID_VELOCITY );
+     m_volumeOutputProperties.push_back ( SONICVEC );
      m_volumeOutputProperties.push_back ( TWOWAYTIME );
-     
      m_volumeOutputProperties.push_back ( VELOCITYVEC );
      m_volumeOutputProperties.push_back ( REFLECTIVITYVEC );
   }
@@ -268,11 +260,6 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
   m_volumeOutputProperties.push_back ( MAXVES );
   m_volumeOutputProperties.push_back ( TEMPERATURE );
   m_volumeOutputProperties.push_back ( VR );
- 
-#if 0
-  // Remove from list until the lithology id has been fixed.
-  m_volumeOutputProperties.push_back ( LITHOLOGY );
-#endif
 
 #ifdef DEBUG_CAPILLARYPRESSURE 
   m_volumeOutputProperties.push_back ( CAPILLARYPRESSUREGAS100 );
@@ -285,13 +272,11 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
 
   if (basinModel->isModellingMode1D())
   {
-     m_volumeOutputProperties.push_back ( SONICVEC );
      m_volumeOutputProperties.push_back ( ILLITEFRACTION );
      m_volumeOutputProperties.push_back ( BIOMARKERS );
 
      mapOutputProperties.push_back ( ILLITEFRACTION );
      mapOutputProperties.push_back ( BIOMARKERS );
-     mapOutputProperties.push_back ( SONICVEC );
   }
 
   mapOutputProperties.push_back ( HEAT_FLOW );
@@ -3784,29 +3769,6 @@ void Basin_Modelling::FEM_Grid::Print_Needle ( const double currentAge, const in
               value = int ( 100.0 * ( Current_Layer -> Current_Properties ( Basin_Modelling::Pore_Pressure, K, J, I ) /
                                       Current_Layer -> Current_Properties ( Basin_Modelling::Lithostatic_Pressure, K, J, I )));
             }
-
-//             buffer << setw ( 20 ) << Layer_Name << "  " 
-//                  << setw (  4 ) << I
-//                  << setw (  4 ) << J
-//                  << setw (  4 ) << K
-//                  << setw ( 14 ) << currentAge
-//                  << setw ( 14 ) << Current_Layer -> Current_Properties ( Basin_Modelling::Depth, K, J, I )
-//                  << setw ( 14 ) << Current_Layer -> Current_Properties ( Basin_Modelling::Overpressure, K, J, I )
-//                  << setw ( 14 ) << Current_Layer -> Current_Properties ( Basin_Modelling::Pore_Pressure, K, J, I )
-//                  << setw ( 14 ) << Current_Layer -> Current_Properties ( Basin_Modelling::Hydrostatic_Pressure, K, J, I )
-//                  << setw ( 14 ) << Current_Layer -> Current_Properties ( Basin_Modelling::Lithostatic_Pressure, K, J, I )
-//                  << setw ( 14 ) << fracturePressure
-//                  << setw ( 14 ) << Current_Layer -> Current_Properties ( Basin_Modelling::VES_FP, K, J, I ) * Pa_To_MPa
-//                  << setw ( 14 ) << Current_Layer -> Current_Properties ( Basin_Modelling::Max_VES, K, J, I ) * Pa_To_MPa
-//                  << setw ( 14 ) << Porosity.mixedProperty ()
-//                  << setw ( 15 ) << log10 ( Permeability_Normal_Compound / MILLIDARCYTOM2 )
-//                  << setw (  4 ) << int ( Current_Layer -> fracturedPermeabilityScaling ( I, J, K ))
-//                  << setw (  4 ) << value
-//                  << setw ( 14 ) << Current_Layer -> Current_Properties ( Basin_Modelling::Temperature, K, J, I )
-//                  << setw ( 14 ) << Current_Layer -> Current_Properties ( Basin_Modelling::Chemical_Compaction, K, J, I )
-//                  << setw (  4 ) << int ( DOFs ( GlobalK [ K ], J, I ))
-//                  << setw (  4 ) << includedDOF
-//                  << endl;
 
             buffer << setw ( 20 ) << Layer_Name << "  " ;
             buffer << setw (  4 ) << I;

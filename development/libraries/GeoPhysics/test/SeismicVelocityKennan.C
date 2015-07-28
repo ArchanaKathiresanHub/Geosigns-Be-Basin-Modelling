@@ -1,10 +1,10 @@
-#include "../src/SeismicVelocityLorcan.h"
+#include "../src/SeismicVelocityKennan.h"
 
 #include <gtest/gtest.h>
 
 using namespace GeoPhysics;
 
-TEST(SeismicVelocityLorcan, std_sandstone_compaction)
+TEST(SeismicVelocityKennan, std_sandstone_compaction)
 {
 	// with std. sandstone
 	SeismicVelocity myVelocity;
@@ -40,7 +40,7 @@ TEST(SeismicVelocityLorcan, std_sandstone_compaction)
 	EXPECT_EQ(1507, myVelocity.seismicVelocity(1507, 1000, 2200, 0.5, 40, 40));
 }
 
-TEST(SeismicVelocityLorcan, std_sandstone_decompaction)
+TEST(SeismicVelocityKennan, std_sandstone_decompaction)
 {
 	// with std. sandstone
 	SeismicVelocity myVelocity;
@@ -86,7 +86,7 @@ TEST(SeismicVelocityLorcan, std_sandstone_decompaction)
 	EXPECT_EQ(1507, myVelocity.seismicVelocity(1507, 1000, 2200, 0.5, 0, 40));
 }
 
-TEST(SeismicVelocityLorcan, std_shale_compaction)
+TEST(SeismicVelocityKennan, std_shale_compaction)
 {
 	// with std. shale
 	SeismicVelocity myVelocity;
@@ -122,7 +122,7 @@ TEST(SeismicVelocityLorcan, std_shale_compaction)
 	EXPECT_EQ(1507, myVelocity.seismicVelocity(1507, 1000, 2000, 0.8, 40, 40));
 }
 
-TEST(SeismicVelocityLorcan, std_shale_decompaction)
+TEST(SeismicVelocityKennan, std_shale_decompaction)
 {
 	// with std. shale
 	SeismicVelocity myVelocity;
@@ -168,7 +168,7 @@ TEST(SeismicVelocityLorcan, std_shale_decompaction)
 	EXPECT_EQ(1507, myVelocity.seismicVelocity(1507, 1000, 2000, 0.8, 0, 40));
 }
 
-TEST(SeismicVelocityLorcan, death_test)
+TEST(SeismicVelocityKennan, death_test)
 {
 	::testing::FLAGS_gtest_death_test_style = "threadsafe";
 
