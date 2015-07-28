@@ -1,5 +1,16 @@
+//                                                                      
+// Copyright (C) 2015-2015 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "TwoWayTimeCalculator.h"
 
+#include "cauldronschemafuncs.h"
 #include "DerivedOutputPropertyMap.h"
 #include "FastcauldronSimulator.h"
 #include "PropertyManager.h"
@@ -333,22 +344,29 @@ bool TwoWayTimeResidualCalculator::operator ()( const OutputPropertyMap::OutputP
    TwoWayTimeResidualMap = propertyValues[0]->getGridMap( );
    TwoWayTimeResidualMap->retrieveData( );
    // access to data if there is a map
-   if (m_twoWayTimeInitial != 0) {
-      m_twoWayTimeInitial->retrieveData();
+   if (m_twoWayTimeInitialMap != 0) {
+      m_twoWayTimeInitialMap->retrieveData();
    }
    undefinedValue = TwoWayTimeResidualMap->getUndefinedValue( );
 
    for (i = TwoWayTimeResidualMap->firstI( ); i <= TwoWayTimeResidualMap->lastI( ); ++i) {
 
-      for (j = TwoWayTimeResidualMap->firstJ( ); j <= TwoWayTimeResidualMap->lastJ( ); ++j) {
+      for (j = TwoWayTimeResidualMap->firstJ(); j <= TwoWayTimeResidualMap->lastJ(); ++j) {
 
-         // if the surface is linked to an intial two way time
-         if (m_twoWayTimeInitial != 0 and FastcauldronSimulator::getInstance().nodeIsDefined( i, j )) {
+         if (FastcauldronSimulator::getInstance().nodeIsDefined( i, j )){
 
-            value = m_twoWayTimeCauldron->getMapValue( i, j ) - m_twoWayTimeInitial->getValue( i, j );
+            // if the surface is linked to an intial two way time map
+            if (m_twoWayTimeInitialMap != 0) {
+               value = m_twoWayTimeCauldron->getMapValue( i, j ) - m_twoWayTimeInitialMap->getValue( i, j );
+            }
+            // else the surface is linked to an intial two way time scalar
+            else {
+               assert( ("There must be a two way time map inpute or a two way time scalar input", m_twoWayTimeInitialScalar != -9999) );
+               value = m_twoWayTimeCauldron->getMapValue( i, j ) - m_twoWayTimeInitialScalar;
+            }
             TwoWayTimeResidualMap->setValue( i, j, value );
-
          }
+
          else {
             TwoWayTimeResidualMap->setValue( i, j, undefinedValue );
          }
@@ -357,8 +375,8 @@ bool TwoWayTimeResidualCalculator::operator ()( const OutputPropertyMap::OutputP
 
    }
 
-   if (m_twoWayTimeInitial != 0) {
-      m_twoWayTimeInitial->restoreData();
+   if (m_twoWayTimeInitialMap != 0) {
+      m_twoWayTimeInitialMap->restoreData();
    }
    TwoWayTimeResidualMap->restoreData();
    m_isCalculated = true;
@@ -377,15 +395,19 @@ void TwoWayTimeResidualCalculator::allocatePropertyValues( OutputPropertyMap::Pr
 bool TwoWayTimeResidualCalculator::initialise( OutputPropertyMap::PropertyValueList& propertyValues ) {
 
 
-   m_twoWayTimeCauldron = PropertyManager::getInstance( ).findOutputPropertyMap( "TwoWayTime", m_formation, m_surface, m_snapshot );
-   m_twoWayTimeInitial = m_surface->getInputTwoWayTimeMap( );
+   m_twoWayTimeCauldron = PropertyManager::getInstance().findOutputPropertyMap( "TwoWayTime", m_formation, m_surface, m_snapshot );
+   m_twoWayTimeInitialMap = m_surface->getInputTwoWayTimeMap();
+   // if there is no input map we need to check for a scalar
+   if ( !m_twoWayTimeInitialMap ) {
+      m_twoWayTimeInitialScalar = m_surface->getInputTwoWayTimeScalar();
+   }
 
-   // If there is no 2D outputs, or no initial Two Way Time map linked to the stratigraphic surface,
+   // If there is no 2D outputs, or no initial Two Way Time map/scalar linked to the stratigraphic surface,
    // or if we are not at the present day snapshot (t=0Ma): we do not ouput/compute the property.
    // !(*m_snapshot == *presentDaySnapshot) is a temporary coding --> cannot be fixed until derived property library is implemented
-   const Interface::Snapshot* presentDaySnapshot = FastcauldronSimulator::getInstance( ).findOrCreateSnapshot( 0.0 );
+   const Interface::Snapshot* presentDaySnapshot = FastcauldronSimulator::getInstance().findOrCreateSnapshot( 0.0 );
    assert( ("presentDaySnapshot must be created", presentDaySnapshot != 0) );
-   if (FastcauldronSimulator::getInstance( ).getCauldron( )->no2Doutput( ) or !m_twoWayTimeInitial or !(*m_snapshot == *presentDaySnapshot) ) {
+   if (FastcauldronSimulator::getInstance().getCauldron()->no2Doutput() or ( !m_twoWayTimeInitialMap and m_twoWayTimeInitialScalar == -9999 ) or !(*m_snapshot == *presentDaySnapshot)) {
       propertyValues[0]->allowOutput( false );
    }
 

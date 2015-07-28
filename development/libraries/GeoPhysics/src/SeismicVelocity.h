@@ -1,3 +1,13 @@
+//                                                                      
+// Copyright (C) 2015-2015 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #ifndef _GEOPHYSICS__SEISMICVELOCITY_H_
 #define _GEOPHYSICS__SEISMICVELOCITY_H_
 
@@ -10,7 +20,7 @@ namespace GeoPhysics
 {
 	/*! \class SeismicVelocity
 	* \brief Abstract class defining the algorithm to compute the seismic velocity value.
-	* The seismic velocity can be modelled with Gardner's, Lorcan's or Wyllie's model.
+	* The seismic velocity can be modelled with Gardner's, Kennan's or Wyllie's model.
 	*/
 	class SeismicVelocity
 	{
@@ -20,12 +30,12 @@ namespace GeoPhysics
 
 		/*!
 		* \brief Create a seismicVelocity object corresponding to the seismic velocity model.
-		* \param SeismicVelocityModel Model to compute seismic velocity. Can be Gardner's, Lorcan's or Wyllie's.
+		* \param SeismicVelocityModel Model to compute seismic velocity. Can be Gardner's, Kennan's or Wyllie's.
 		* \param seimsicVelocitySolid The seismic velocity value of the matrix lithology (of the solid part, excluding porosity and fluid).
 		* \param modulusSolid The modulus value of the matrix lithology (of the solid part, excluding porosity and fluid).
 		* \param densitySolid The density of the matrix lithology (of the solid part, excluding porosity and fluid).
 		* \param porositySurface The depositional porosity (also called surface porosity or critical porosity).
-		* \param nExponent The exponent used for the Lorcan's velocity formula [-1,1]. In general, from pure shale (n=-1) to pure sand (n=1).
+		* \param nExponent The exponent used for the Kennan's velocity formula [-1,1]. In general, from pure shale (n=-1) to pure sand (n=1).
 		*/
 		SeismicVelocity create(const Model SeismicVelocityModel,
 			const double seimsicVelocitySolid,

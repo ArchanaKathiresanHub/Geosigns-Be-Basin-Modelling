@@ -1,4 +1,13 @@
-#include "GeoPhysicalConstants.h"
+//                                                                      
+// Copyright (C) 2015-2015 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "SeismicVelocityWyllie.h"
 
 namespace GeoPhysics

@@ -442,7 +442,6 @@ namespace GeoPhysics {
        * \brief Compute the solid modulus of the lithology according to the following mixing rules.
        * \details If the compound lithology is HOMOGENEOUS or UNDEFINED we use the geometric mean.
        *   If the compound lithology is LAYERED we use the harmonic mean.
-       * \endif
        */
       double mixModulusSolid() const;
 

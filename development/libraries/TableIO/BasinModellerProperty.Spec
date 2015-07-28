@@ -805,7 +805,7 @@ START-properties
     Identification      : TwoWayTimeResidual
     Description         : The difference between the TwoWayTimeGrid (input by user from nDI)
                           and the TwoWayTime (computed in fastcauldron)
-    Unit of measurement : s
+    Unit of measurement : ms
     Type                : float
     Error Field         : No
 
@@ -2027,17 +2027,18 @@ START-properties
     Error Field         : Yes
 
     Identification      : SeisVelocityExponent
-    Description         : n exponent used for Lorcan's velocity computation mode
+    Description         : n exponent used for Kennan's velocity computation mode
     Unit of measurement : 
     Type                : float
     Error Field         : No
     Default             : 0
 
     Identification      : TwoWayTime
-    Description         : The two way (travel) time computed from the seismic velocity
-    Unit of measurement : s
+    Description         : The two way (travel) time
+    Unit of measurement : ms
     Type                : float
     Error Field         : No
+    Default             : -9999
 
     Identification      : HydraulicFracturingPercent
     Description         : Lithostatic pressure % to trigger hydraulic fracturing
@@ -7738,9 +7739,11 @@ START-property-tables
 
     Identification : TwoWayTimeIoTbl
     Description    : Table to hold relationship between initial two way travel time and
-                     stratigraphic surfaces
+                     stratigraphic surfaces (e.g. maps from nDI under TwoWayTimeGrid
+                     or constant initial two way time under TwoWayTime) 
     Column         : SurfaceName
     Column         : TwoWayTimeGrid
+    Column         : TwoWayTime
  
     Identification : TouchstoneMapIoTbl
     Description    : List of map choices made by user

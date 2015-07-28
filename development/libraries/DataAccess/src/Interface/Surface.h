@@ -37,8 +37,13 @@ namespace DataAccess
 	    /// Return the present day, user-supplied Surface depth GridMap.
 	    virtual const GridMap * getInputDepthMap (void) const;
 
-       /// Return the present day, user-supplied Surface two way (travel) time GridMap.
+       /// \brief Return the present day, user-supplied two way time map from TwoWayTimeIoTbl for this Surface.
+       /// \details If there is no map return a null pointer.
        virtual const GridMap * getInputTwoWayTimeMap (void) const;
+
+       /// \brief Return the present day, user-supplied two way time scalar from TwoWayTimeIoTbl for this Surface.
+       /// \details Default value is -9999.
+       virtual float getInputTwoWayTimeScalar( void ) const;
 
 	    /// Return the Formation found above this Surface if there is one.
 	    virtual const Formation * getTopFormation (void) const;
@@ -70,7 +75,8 @@ namespace DataAccess
 
 	    string m_mangledName;
 
-       static const int DepthMap = 0;
+       static const int DepthMap      = 0;
+       static const int TwoWayTimeMap = 1;
 
 	    const Formation * m_top;
 	    const Formation * m_bottom;

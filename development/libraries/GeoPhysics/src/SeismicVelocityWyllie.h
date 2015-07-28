@@ -1,3 +1,13 @@
+//                                                                      
+// Copyright (C) 2015-2015 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #ifndef _GEOPHYSICS__SEISMICVELOCITYWYLLIE_H_
 #define _GEOPHYSICS__SEISMICVELOCITYWYLLIE_H_
 
@@ -7,6 +17,7 @@ namespace GeoPhysics
 {
 	/*! \class SeismicVelocityWyllie
 	* \brief  Derived class of SeismicVelocity::Algorithm using the Wyllies's model for the seismic velocity computation.
+   * It is refered in the UI as the "Transit Time Average (Wyllie)" seismic velocity algorithm.
 	* \details \f[ Vp = \frac{ Vp_{fluid} * Vp_{solid} }{ \phi * Vp_{solid} + (1 - \phi)*Vp_{fluid} } \f]
 	*/
 	class SeismicVelocityWyllie : public SeismicVelocity::Algorithm

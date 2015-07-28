@@ -140,24 +140,53 @@ const GridMap * Surface::getInputDepthMap (void) const
 const GridMap * Surface::getInputTwoWayTimeMap( void ) const
 {
    const GridMap * gridMap = 0;
-   database::Table* twoWayTimeTbl = m_projectHandle -> getTable( "TwoWayTimeIoTbl" );
+   // if the map is already loaded
+   if ((gridMap = (GridMap *)getChild( TwoWayTimeMap )) != 0) return gridMap;
+
+   // else load it if possible
+   else {
+      database::Table* twoWayTimeTbl = m_projectHandle->getTable( "TwoWayTimeIoTbl" );
+      database::Table::iterator tblIter;
+
+      for (tblIter = twoWayTimeTbl->begin(); tblIter != twoWayTimeTbl->end(); ++tblIter)
+      {
+         Record * twoWayTimeRecord = *tblIter;
+         // find the good line for the Surface in the table
+         if (database::getSurfaceName( twoWayTimeRecord ) == getName())
+         {
+            const string &TwoWayTimeGridMapId = getTwoWayTimeGrid( twoWayTimeRecord );
+            if (TwoWayTimeGridMapId.length() != 0)
+            {
+               gridMap = m_projectHandle->loadInputMap( "TwoWayTimeIoTbl", TwoWayTimeGridMapId );
+               return gridMap;
+            }
+         }
+      }
+      return gridMap;
+   }
+}
+
+float Surface::getInputTwoWayTimeScalar( void ) const
+{
+
+   database::Table* twoWayTimeTbl = m_projectHandle->getTable( "TwoWayTimeIoTbl" );
    database::Table::iterator tblIter;
 
    for (tblIter = twoWayTimeTbl->begin(); tblIter != twoWayTimeTbl->end(); ++tblIter)
    {
       Record * twoWayTimeRecord = *tblIter;
-      if (database::getSurfaceName( twoWayTimeRecord ) == getName( ))
+      // find the good line for the Surface in the table
+      if (database::getSurfaceName( twoWayTimeRecord ) == getName())
       {
-         const string &TwoWayTimeGridMapId = getTwoWayTimeGrid( twoWayTimeRecord );
-         if (TwoWayTimeGridMapId.length() != 0)
+         float twoWayTimeScalar = database::getTwoWayTime( twoWayTimeRecord );
+         // a two way time needs two be a positive number
+         if (twoWayTimeScalar >= 0)
          {
-            gridMap = m_projectHandle->loadInputMap( "TwoWayTimeIoTbl", TwoWayTimeGridMapId );
-            return gridMap;
+            return twoWayTimeScalar;
          }
       }
    }
-
-   return gridMap;
+   return -9999;
 }
 
 GridMap * Surface::loadDepthMap (void) const
@@ -167,7 +196,6 @@ GridMap * Surface::loadDepthMap (void) const
 
    if ((depth = getDepth (m_record)) != RecordValueUndefined)
    {
-      //const Grid * grid = m_projectHandle->getInputGrid ();
       const Grid * grid = m_projectHandle->getActivityOutputGrid();
       if (!grid) grid = (Grid *) m_projectHandle->getInputGrid ();
       gridMap = m_projectHandle->getFactory ()->produceGridMap (this, DepthMap, grid, depth);

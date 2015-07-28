@@ -1,6 +1,16 @@
+//                                                                      
+// Copyright (C) 2015-2015 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "SeismicVelocity.h"
 #include "SeismicVelocityGardner.h"
-#include "SeismicVelocityLorcan.h"
+#include "SeismicVelocityKennan.h"
 #include "SeismicVelocityWyllie.h"
 
 namespace GeoPhysics
@@ -27,7 +37,7 @@ namespace GeoPhysics
 			return SeismicVelocity(new SeismicVelocityGardner());
 
 		case DataAccess::Interface::KENNANS_VELOCITY_ALGORITHM:
-			return SeismicVelocity(new SeismicVelocityLorcan(modulusSolid,
+			return SeismicVelocity(new SeismicVelocityKennan(modulusSolid,
 				densitySolid,
 				porositySurface,
 				nExponent));

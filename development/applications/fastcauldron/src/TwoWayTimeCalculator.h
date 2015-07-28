@@ -1,3 +1,13 @@
+//                                                                      
+// Copyright (C) 2015-2015 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #ifndef _FASTCAULDRON_TWOWAYTIMECALCULATOR_H_
 #define _FASTCAULDRON_TWOWAYTIMECALCULATOR_H_
 
@@ -109,8 +119,10 @@ private:
 
    /// The two way travel time maps computed from TwoWayTimeCalculator
    OutputPropertyMap * m_twoWayTimeCauldron;
-   /// The initial two way travel time (in ms, at t=0Ma) of m_surface, this is a user input
-   const Interface::GridMap * m_twoWayTimeInitial;
+   /// The initial two way travel time map (in ms, at t=0Ma) of m_surface, this is a user input
+   const Interface::GridMap * m_twoWayTimeInitialMap;
+
+   float m_twoWayTimeInitialScalar;
 
    bool m_isCalculated;
 

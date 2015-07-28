@@ -89,7 +89,7 @@ namespace GeoPhysics {
       /// Return the seismic velocity value.
       double getSeismicVelocity() const;
 
-	  /// Return the n exponent value used for the Lorcan's velocity computation mode.
+	  /// Return the n exponent value used for the Kennan's velocity computation mode.
       double getSeismicVelocityExponent() const;
 
       /// Return the specific surface area.

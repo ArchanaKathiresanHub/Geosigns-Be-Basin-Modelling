@@ -1,3 +1,13 @@
+//                                                                      
+// Copyright (C) 2015-2015 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #ifndef _GEOPHYSICS__SEISMICVELOCITYGARDNER_H_
 #define _GEOPHYSICS__SEISMICVELOCITYGARDNER_H_
 
@@ -8,6 +18,7 @@ namespace GeoPhysics
 {
 	/*! \class SeismicVelocityGardner
 	* \brief  Derived class of SeismicVelocity::Algorithm using the Garnder's model for the seismic velocity computation.
+   * It is refered in the UI as the "Density Power Law (Gardner)" seismic velocity algorithm.
 	* \details \f[ Vp = (\frac{ \rho_{bulk} }{ G })^4 \f] where \f[G = 309.4\f]
 	*	G is the Gardner constant.
 	*/

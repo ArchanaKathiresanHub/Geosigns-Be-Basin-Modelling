@@ -988,7 +988,7 @@ bool ProjectHandle::loadProperties( void )
    m_properties.push_back( getFactory()->produceProperty( this, 0, "ThicknessHighRes",               "ThicknessHighRes",               "m",     FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( this, 0, "Thickness",                      "Thickness",                      "m",     FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( this, 0, "TwoWayTime",                     "TwoWayTime",                     "s",     FORMATIONPROPERTY, DataModel::CONTINUOUS_3D_PROPERTY ) );
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "TwoWayTimeResidual",             "TwoWayTimeResidual",             "s",     FORMATIONPROPERTY, DataModel::SURFACE_2D_PROPERTY ) );
+   m_properties.push_back( getFactory()->produceProperty( this, 0, "TwoWayTimeResidual",            "TwoWayTimeResidual",             "s",     FORMATIONPROPERTY, DataModel::SURFACE_2D_PROPERTY ) );
    m_properties.push_back( getFactory()->produceProperty( this, 0, "Velocity",                       "VelocityVec2",                   "m/s",   FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( this, 0, "VesHighRes",                     "VesHighRes",                     "Pa",    FORMATIONPROPERTY, DataModel::CONTINUOUS_3D_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( this, 0, "Ves",                            "Ves",                            "Pa",    FORMATIONPROPERTY, DataModel::CONTINUOUS_3D_PROPERTY ));

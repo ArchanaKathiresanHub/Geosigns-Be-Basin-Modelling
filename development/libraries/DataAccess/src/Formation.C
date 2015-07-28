@@ -322,7 +322,7 @@ const GridMap * Formation::getLithoType1PercentageMap (void) const
 
       if (lithoTypeGridMapId.length () != 0)
       {
-	 gridMap = m_projectHandle->loadInputMap ("StratIoTbl", lithoTypeGridMapId);
+         gridMap = m_projectHandle->loadInputMap ("StratIoTbl", lithoTypeGridMapId);
       }
       else if ((percentage = getPercent1 (m_record)) != RecordValueUndefined)
       {
