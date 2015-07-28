@@ -502,7 +502,19 @@ bool PropertiesCalculator::createSnapshotResultPropertyValue ( OutputPropertyVal
 
       if( toBeSaved ( propertyValue->getName(), snapshot, formation )) {
 
-         thePropertyValue = m_projectHandle->createMapPropertyValue ( propertyValue->getName(), snapshot, 0, formation, (DataAccess::Interface::Surface *)surface );
+         const DataAccess::Interface::Surface*   daSurface   = dynamic_cast<const DataAccess::Interface::Surface *>(surface);
+         const DataAccess::Interface::Formation* daFormation = dynamic_cast<const DataAccess::Interface::Formation *>(formation);
+
+         if ( propertyValue->getProperty ()->getPropertyAttribute () == DataModel::SURFACE_2D_PROPERTY ) {
+            thePropertyValue = m_projectHandle->createMapPropertyValue ( propertyValue->getName(), snapshot, 0, 0, daSurface );
+         } else if ( propertyValue->getProperty ()->getPropertyAttribute () == DataModel::FORMATION_2D_PROPERTY ) {
+            thePropertyValue = m_projectHandle->createMapPropertyValue ( propertyValue->getName(), snapshot, 0, daFormation, 0 );
+         } else if ( propertyValue->getProperty ()->getPropertyAttribute () == DataModel::DISCONTINUOUS_3D_PROPERTY ) {
+            thePropertyValue = m_projectHandle->createMapPropertyValue ( propertyValue->getName(), snapshot, 0, daFormation, daSurface );
+         } else if ( propertyValue->getProperty ()->getPropertyAttribute () == DataModel::CONTINUOUS_3D_PROPERTY ) {
+            thePropertyValue = m_projectHandle->createMapPropertyValue ( propertyValue->getName(), snapshot, 0, 0, daSurface );
+         }
+
       } else {
          //  the property is already in output file
         if( false && m_debug && m_rank == 0 ) {

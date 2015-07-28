@@ -3,7 +3,7 @@
 SurfaceOutputPropertyValue::SurfaceOutputPropertyValue ( DerivedProperties::AbstractPropertyManager& propertyManager,
                                                          const DataModel::AbstractProperty*          property,
                                                          const DataModel::AbstractSnapshot*          snapshot,
-                                                         const DataModel::AbstractSurface*           surface ) {
+                                                         const DataModel::AbstractSurface*           surface ) : OutputPropertyValue ( property ) {
 
    if ( property != 0 and snapshot != 0 and surface != 0 ) {
       m_surfaceProperty = propertyManager.getSurfaceProperty ( property, snapshot, surface );

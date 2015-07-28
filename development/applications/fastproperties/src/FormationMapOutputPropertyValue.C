@@ -3,7 +3,7 @@
 FormationMapOutputPropertyValue::FormationMapOutputPropertyValue ( DerivedProperties::AbstractPropertyManager& propertyManager,
                                                                    const DataModel::AbstractProperty*          property,
                                                                    const DataModel::AbstractSnapshot*          snapshot,
-                                                                   const DataModel::AbstractFormation*         formation ) {
+                                                                   const DataModel::AbstractFormation*         formation ) : OutputPropertyValue ( property ) {
 
    if ( property != 0 and snapshot != 0 and formation != 0 ) {
       m_formationMapProperty = propertyManager.getFormationMapProperty ( property, snapshot, formation );
