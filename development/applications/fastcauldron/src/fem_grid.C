@@ -152,240 +152,126 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
   Accumulated_Property_Calculation_Time = 0.0;
   Accumulated_Property_Saving_Time = 0.0;
 
-  // Set properties that may be required for the calculation
-  // Formation properties
-  mapOutputProperties.push_back ( THICKNESS );
+  // RESPECT ALPHABETIC ORDER WHEN ADDING/EDITING PROPERTY
+  // RESPECT ORGANISATION WHEN ADDING/EDITING PROPERTY
+
+  //------------------------------------------------------------------------------------------------
+  //1. Map properties----------------------------------------------------------------------------------
+  //---------------------------------------------------------------------------------------------------
+
+
+  //1.0 Forced outputs map properties-----
+  //--------------------------------------
+  // We update the project file to force output, they are required for the calculation
+
+  basinModel->timefilter.setFilter( "AllochthonousLithology", "SedimentsOnly" );
   mapOutputProperties.push_back ( ALLOCHTHONOUS_LITHOLOGY );
-
-#if DEBUG_1D
-  if(basinModel->isModellingMode1D () && basinModel -> filterwizard.IsSmectiteIlliteCalculationNeeded())
-  {
-     mapOutputProperties.push_back ( ILLITEFRACTION );
-  }
-  if(basinModel->isModellingMode1D () && basinModel -> filterwizard.IsBiomarkersCalculationNeeded())
-  {
-     mapOutputProperties.push_back ( STERANEAROMATISATION );
-     mapOutputProperties.push_back ( STERANEISOMERISATION );
-     mapOutputProperties.push_back ( HOPANEISOMERISATION  );
-  }
-#endif
-
-  if ( FastcauldronSimulator::getInstance ().getBasinHasActiveFaults ()) {
-    mapOutputProperties.push_back ( FAULTELEMENTS );
-    basinModel->timefilter.setFilter ( "FaultElements", "SedimentsOnly" );
-  }
-
-  // We will always require the erosion-factors to be saved.
-  basinModel->timefilter.setFilter ( "ErosionFactor", "SedimentsOnly" );
+  basinModel->timefilter.setFilter( "ErosionFactor", "SedimentsOnly" );
   mapOutputProperties.push_back ( EROSIONFACTOR );
 
-  if (( FastcauldronSimulator::getInstance ().getCalculationMode () == OVERPRESSURE_MODE or
-        FastcauldronSimulator::getInstance ().getCalculationMode () == PRESSURE_AND_TEMPERATURE_MODE or
-        FastcauldronSimulator::getInstance ().getCalculationMode () == COUPLED_DARCY_MODE ) and
-      not FastcauldronSimulator::getInstance ().getRunParameters ()->getNonGeometricLoop ()) {
-     m_concludingMapOutputProperties.push_back ( THICKNESSERROR );
+  // If we have active faults
+  if (FastcauldronSimulator::getInstance().getBasinHasActiveFaults()) {
+     mapOutputProperties.push_back ( FAULTELEMENTS );
+     basinModel->timefilter.setFilter( "FaultElements", "SedimentsOnly" );
   }
 
-  if ( FastcauldronSimulator::getInstance ().getCalculationMode () == OVERPRESSURE_MODE or
-       FastcauldronSimulator::getInstance ().getCalculationMode () == PRESSURE_AND_TEMPERATURE_MODE or
-       FastcauldronSimulator::getInstance ().getCalculationMode () == COUPLED_DARCY_MODE ) {
-     m_concludingMapOutputProperties.push_back ( FCTCORRECTION );
-  }
-  PetscBool addMinorProperties;
+  // If we are using the advanced lithospheric calculator
+  if (basinModel->isALC()) {
+     mapOutputProperties.push_back( TOPBASALTALC );
+     basinModel->timefilter.setFilter( "ALCStepTopBasaltDepth", "SedimentsPlusBasement" );
+     FastcauldronSimulator::getInstance().setOutputPropertyOption( TOPBASALTALC, Interface::SEDIMENTS_AND_BASEMENT_OUTPUT );
 
-  PetscOptionsHasName ( PETSC_NULL, "-minor", &addMinorProperties );
+     mapOutputProperties.push_back( MOHOALC );
+     basinModel->timefilter.setFilter( "ALCStepMohoDepth", "SedimentsPlusBasement" );
+     FastcauldronSimulator::getInstance().setOutputPropertyOption( MOHOALC, Interface::SEDIMENTS_AND_BASEMENT_OUTPUT );
 
-  PetscBool onlyPrimaryProperties = PETSC_FALSE;
-
-  PetscOptionsHasName ( PETSC_NULL, "-primary", &onlyPrimaryProperties );
-
-  if( addMinorProperties || onlyPrimaryProperties ) {
-     looselyCoupledOutputProperties.push_back ( TEMPERATURE );
-     looselyCoupledOutputProperties.push_back ( DEPTH );
-     looselyCoupledOutputProperties.push_back ( PRESSURE );
-     looselyCoupledOutputProperties.push_back ( CHEMICAL_COMPACTION );
-     looselyCoupledOutputProperties.push_back ( VR );
- 
-     if( onlyPrimaryProperties ) {
-        basinModel->timefilter.setFilter ( "Temperature", "SedimentsPlusBasement" );
-        FastcauldronSimulator::getInstance ().setOutputPropertyOption ( TEMPERATURE, Interface::SEDIMENTS_AND_BASEMENT_OUTPUT );
-        
-        basinModel->timefilter.setFilter ( "Depth", "SedimentsPlusBasement" );
-        FastcauldronSimulator::getInstance ().setOutputPropertyOption ( DEPTH, Interface::SEDIMENTS_AND_BASEMENT_OUTPUT );
+     if (basinModel->timefilter.PropertyOutputOption[HLMOD] != NOOUTPUT) {
+        mapOutputProperties.push_back( HLMOD );
+        basinModel->timefilter.setFilter( "ALCMaxAsthenoMantleDepth", "SedimentsPlusBasement" );
+     }
+     if (basinModel->timefilter.PropertyOutputOption[BASALTTHICKNESS] != NOOUTPUT) {
+        mapOutputProperties.push_back( BASALTTHICKNESS );
+        basinModel->timefilter.setFilter( "ALCSmBasaltThickness", "SedimentsPlusBasement" );
+     }
+     if (basinModel->timefilter.PropertyOutputOption[THICKNESSCCRUSTALC] != NOOUTPUT) {
+        mapOutputProperties.push_back( THICKNESSCCRUSTALC );
+        basinModel->timefilter.setFilter( "ALCStepContCrustThickness", "SedimentsPlusBasement" );
+     }
+     if (basinModel->timefilter.PropertyOutputOption[THICKNESSBASALTALC] != NOOUTPUT) {
+        mapOutputProperties.push_back( THICKNESSBASALTALC );
+        basinModel->timefilter.setFilter( "ALCStepBasaltThickness", "SedimentsPlusBasement" );
+     }
+     if (basinModel->timefilter.PropertyOutputOption[ALCORIGMANTLE] != NOOUTPUT) {
+        mapOutputProperties.push_back( ALCORIGMANTLE );
+        basinModel->timefilter.setFilter( "ALCOrigLithMantleDepth", "SedimentsPlusBasement" );
+     }
+     if (basinModel->timefilter.PropertyOutputOption[ALCSMCRUST] != NOOUTPUT) {
+        mapOutputProperties.push_back( ALCSMCRUST );
+        basinModel->timefilter.setFilter( "ALCSmContCrustThickness", "SedimentsPlusBasement" );
+     }
+     if (basinModel->timefilter.PropertyOutputOption[ALCSMTOPBASALT] != NOOUTPUT) {
+        mapOutputProperties.push_back( ALCSMTOPBASALT );
+        basinModel->timefilter.setFilter( "ALCSmTopBasaltDepth", "SedimentsPlusBasement" );
+     }
+     if (basinModel->timefilter.PropertyOutputOption[ALCSMMOHO] != NOOUTPUT) {
+        mapOutputProperties.push_back( ALCSMMOHO );
+        basinModel->timefilter.setFilter( "ALCSmMohoDepth", "SedimentsPlusBasement" );
      }
   }
-  looselyCoupledOutputProperties.push_back ( VES );
-  looselyCoupledOutputProperties.push_back ( MAXVES );
 
-  // Surface properties
-  basinModel->timefilter.setFilter ( "AllochthonousLithology", "SedimentsOnly" );
 
-  mapOutputProperties.push_back ( DEPTH );
-  mapOutputProperties.push_back ( POROSITYVEC );
+  //1.1 Regular map properties------------
+  //--------------------------------------
+  // Set map properties that may be required for the calculation
+
+  mapOutputProperties.push_back ( BULKDENSITYVEC );
   mapOutputProperties.push_back ( CHEMICAL_COMPACTION );
-  mapOutputProperties.push_back ( PERMEABILITYVEC );
-  mapOutputProperties.push_back ( TEMPERATURE );
+  mapOutputProperties.push_back ( DEPTH );
   mapOutputProperties.push_back ( DIFFUSIVITYVEC );
+  mapOutputProperties.push_back ( FRACTURE_PRESSURE );
+  mapOutputProperties.push_back ( HEAT_FLOW );
+  mapOutputProperties.push_back ( HYDROSTATICPRESSURE );
+  mapOutputProperties.push_back ( LITHOSTATICPRESSURE );
+  mapOutputProperties.push_back ( MAXVES );
+  mapOutputProperties.push_back ( OVERPRESSURE );
+  mapOutputProperties.push_back ( PERMEABILITYHVEC );
+  mapOutputProperties.push_back ( PERMEABILITYVEC );
+  mapOutputProperties.push_back ( PRESSURE );
+  mapOutputProperties.push_back ( POROSITYVEC );
+  mapOutputProperties.push_back ( REFLECTIVITYVEC );
+  mapOutputProperties.push_back ( TEMPERATURE );
+  mapOutputProperties.push_back ( THCONDVEC );
+  mapOutputProperties.push_back ( THICKNESS );
   mapOutputProperties.push_back ( TWOWAYTIME );
   mapOutputProperties.push_back ( TWOWAYTIME_RESIDUAL );
   mapOutputProperties.push_back ( SONICVEC );
-
-  //Brine properties: density and viscosity
-#if 0
-  mapOutputProperties.push_back ( BRINE_PROPERTIES );
-#endif 
-
-  if( !onlyPrimaryProperties ) {
-     m_volumeOutputProperties.push_back ( BRINE_PROPERTIES );     
-     m_volumeOutputProperties.push_back ( HYDROSTATICPRESSURE );
-     m_volumeOutputProperties.push_back ( LITHOSTATICPRESSURE );
-     m_volumeOutputProperties.push_back ( OVERPRESSURE );
-     m_volumeOutputProperties.push_back ( FRACTURE_PRESSURE );
-     m_volumeOutputProperties.push_back ( POROSITYVEC );
-     m_volumeOutputProperties.push_back ( PERMEABILITYVEC );
-     m_volumeOutputProperties.push_back ( HEAT_FLOW );
-     m_volumeOutputProperties.push_back ( DIFFUSIVITYVEC );
-     m_volumeOutputProperties.push_back ( BULKDENSITYVEC );
-     m_volumeOutputProperties.push_back ( THCONDVEC );
-     m_volumeOutputProperties.push_back ( FLUID_VELOCITY );
-     m_volumeOutputProperties.push_back ( SONICVEC );
-     m_volumeOutputProperties.push_back ( TWOWAYTIME );
-     m_volumeOutputProperties.push_back ( VELOCITYVEC );
-     m_volumeOutputProperties.push_back ( REFLECTIVITYVEC );
-  }
-  m_volumeOutputProperties.push_back ( DEPTH );
-  m_volumeOutputProperties.push_back ( PRESSURE );
-  m_volumeOutputProperties.push_back ( CHEMICAL_COMPACTION ); 
-  m_volumeOutputProperties.push_back ( VES );
-  m_volumeOutputProperties.push_back ( MAXVES );
-  m_volumeOutputProperties.push_back ( TEMPERATURE );
-  m_volumeOutputProperties.push_back ( VR );
-
-#ifdef DEBUG_CAPILLARYPRESSURE 
-  m_volumeOutputProperties.push_back ( CAPILLARYPRESSUREGAS100 );
-  m_volumeOutputProperties.push_back ( CAPILLARYPRESSUREGAS0 );
-  m_volumeOutputProperties.push_back ( CAPILLARYPRESSUREOIL100 );
-  m_volumeOutputProperties.push_back ( CAPILLARYPRESSUREOIL0 );
-#endif
-
+  mapOutputProperties.push_back ( VELOCITYVEC );
+  mapOutputProperties.push_back ( VES );
   mapOutputProperties.push_back ( VR );
 
+  // Set map properties for 1D simulation mode only
   if (basinModel->isModellingMode1D())
   {
-     m_volumeOutputProperties.push_back ( ILLITEFRACTION );
-     m_volumeOutputProperties.push_back ( BIOMARKERS );
-
-     mapOutputProperties.push_back ( ILLITEFRACTION );
-     mapOutputProperties.push_back ( BIOMARKERS );
+     mapOutputProperties.push_back( ILLITEFRACTION );
+     mapOutputProperties.push_back( BIOMARKERS );
   }
-
-  mapOutputProperties.push_back ( HEAT_FLOW );
 
   // If the pressure calculator is changed to solve for the pore-pressure (or Hubberts potential, see Annette) 
   // then remove the if statement. Keep only the assignment of the fluid-velocities.
-  if ( basinModel->DoOverPressure or basinModel->Do_Iteratively_Coupled )  {
-    mapOutputProperties.push_back ( FLUID_VELOCITY );
+  if (basinModel->DoOverPressure or basinModel->Do_Iteratively_Coupled)  {
+     mapOutputProperties.push_back ( FLUID_VELOCITY );
   }
 
-  mapOutputProperties.push_back ( BULKDENSITYVEC );
-  mapOutputProperties.push_back ( VELOCITYVEC );
-
-
-  mapOutputProperties.push_back ( REFLECTIVITYVEC );
-  mapOutputProperties.push_back ( PERMEABILITYHVEC );
-  mapOutputProperties.push_back ( THCONDVEC );
-
-  mapOutputProperties.push_back ( VES );
-  mapOutputProperties.push_back ( MAXVES );
-  mapOutputProperties.push_back ( OVERPRESSURE );
-  mapOutputProperties.push_back ( PRESSURE );
-  mapOutputProperties.push_back ( FRACTURE_PRESSURE );
-  mapOutputProperties.push_back ( HYDROSTATICPRESSURE );
-  mapOutputProperties.push_back ( LITHOSTATICPRESSURE );
-
-  if ( FastcauldronSimulator::getInstance ().getCalculationMode () == OVERPRESSURED_TEMPERATURE_MODE or 
-       FastcauldronSimulator::getInstance ().getCalculationMode () == COUPLED_HIGH_RES_DECOMPACTION_MODE )
-  {
-     FastcauldronSimulator::getInstance ().setOutputPropertyOption ( VES, Interface::NO_OUTPUT );
-     FastcauldronSimulator::getInstance ().setOutputPropertyOption ( MAXVES, Interface::NO_OUTPUT );
-     FastcauldronSimulator::getInstance ().setOutputPropertyOption ( OVERPRESSURE, Interface::NO_OUTPUT );
-     FastcauldronSimulator::getInstance ().setOutputPropertyOption ( PRESSURE, Interface::NO_OUTPUT );
-     FastcauldronSimulator::getInstance ().setOutputPropertyOption ( HYDROSTATICPRESSURE, Interface::NO_OUTPUT );
-     FastcauldronSimulator::getInstance ().setOutputPropertyOption ( LITHOSTATICPRESSURE, Interface::NO_OUTPUT );
-  }
-
-  // If overpressure is being calculated then Ves and MaxVes MUST be output for
-  // possible later loosely coupled calculations.
-  if (( basinModel->DoOverPressure || basinModel->Do_Iteratively_Coupled ) && 
-      ( basinModel->timefilter.PropertyOutputOption [ VES ] == NOOUTPUT ||
-        basinModel->timefilter.PropertyOutputOption [ VES ] == SOURCEROCKONLY )) {
-    basinModel->timefilter.setFilter ( "Ves", "SedimentsOnly" );
-  }
-
-  // If we are doing overpressure calculation only then set lithostatic to be no more that sediments-only for output.
-  if ( basinModel->DoOverPressure && 
-       basinModel->timefilter.PropertyOutputOption [ LITHOSTATICPRESSURE ] == SEDIMENTSPLUSBASEMENT ) {
-    basinModel->timefilter.setFilter ( "LithoStaticPressure", "SedimentsOnly" );
-  }
-
-  if (( basinModel->DoOverPressure || basinModel->Do_Iteratively_Coupled ) && 
-      ( basinModel->timefilter.PropertyOutputOption [ MAXVES ] == NOOUTPUT ||
-        basinModel->timefilter.PropertyOutputOption [ MAXVES ] == SOURCEROCKONLY )) {
-    basinModel->timefilter.setFilter ( "MaxVes", "SedimentsOnly" );
-  }
-
-  // If temperature is being calculated then make sure that temperature is being output.
-  if (( basinModel->DoTemperature || basinModel->Do_Iteratively_Coupled )) {
-
-    if ( basinModel->timefilter.PropertyOutputOption [ TEMPERATURE ] == NOOUTPUT ) {
-      basinModel->timefilter.setFilter ( "Temperature", "SourceRockOnly" );
-    }
-
-  }
-  if ( basinModel->isALC() ) {
-     mapOutputProperties.push_back ( TOPBASALTALC );
-     basinModel->timefilter.setFilter ( "ALCStepTopBasaltDepth", "SedimentsPlusBasement" );
-     FastcauldronSimulator::getInstance ().setOutputPropertyOption ( TOPBASALTALC, Interface::SEDIMENTS_AND_BASEMENT_OUTPUT );
-
-     mapOutputProperties.push_back ( MOHOALC );
-     basinModel->timefilter.setFilter ( "ALCStepMohoDepth", "SedimentsPlusBasement" );
-     FastcauldronSimulator::getInstance ().setOutputPropertyOption ( MOHOALC, Interface::SEDIMENTS_AND_BASEMENT_OUTPUT );
-
-     if(  basinModel->timefilter.PropertyOutputOption [ HLMOD ] != NOOUTPUT ) {
-        mapOutputProperties.push_back ( HLMOD );
-        basinModel->timefilter.setFilter ( "ALCMaxAsthenoMantleDepth", "SedimentsPlusBasement" );
-     }
-     if(  basinModel->timefilter.PropertyOutputOption [ BASALTTHICKNESS ] != NOOUTPUT ) {
-        mapOutputProperties.push_back ( BASALTTHICKNESS );
-        basinModel->timefilter.setFilter ( "ALCSmBasaltThickness", "SedimentsPlusBasement" );
-     }
-     if(  basinModel->timefilter.PropertyOutputOption [ THICKNESSCCRUSTALC ] != NOOUTPUT ) {
-        mapOutputProperties.push_back ( THICKNESSCCRUSTALC );
-        basinModel->timefilter.setFilter ( "ALCStepContCrustThickness", "SedimentsPlusBasement" );
-     }
-     if(  basinModel->timefilter.PropertyOutputOption [ THICKNESSBASALTALC ] != NOOUTPUT ) {
-        mapOutputProperties.push_back ( THICKNESSBASALTALC );
-        basinModel->timefilter.setFilter ( "ALCStepBasaltThickness", "SedimentsPlusBasement" );
-     }
-     if(  basinModel->timefilter.PropertyOutputOption [ ALCORIGMANTLE ] != NOOUTPUT ) {
-        mapOutputProperties.push_back ( ALCORIGMANTLE );
-        basinModel->timefilter.setFilter ( "ALCOrigLithMantleDepth", "SedimentsPlusBasement" );
-     }
-     if(  basinModel->timefilter.PropertyOutputOption [ ALCSMCRUST ] != NOOUTPUT ) {
-        mapOutputProperties.push_back ( ALCSMCRUST );
-        basinModel->timefilter.setFilter ( "ALCSmContCrustThickness", "SedimentsPlusBasement" );
-     }
-     if(  basinModel->timefilter.PropertyOutputOption [ ALCSMTOPBASALT ] != NOOUTPUT ) {
-        mapOutputProperties.push_back ( ALCSMTOPBASALT );
-        basinModel->timefilter.setFilter ( "ALCSmTopBasaltDepth", "SedimentsPlusBasement" );
-     }
-     if(  basinModel->timefilter.PropertyOutputOption [ ALCSMMOHO ] != NOOUTPUT ) {
-        mapOutputProperties.push_back ( ALCSMMOHO );
-        basinModel->timefilter.setFilter ( "ALCSmMohoDepth", "SedimentsPlusBasement" );
+  // Set map properties computed by Darcy flow simulation
+  if (FastcauldronSimulator::getInstance().getMcfHandler().solveFlowEquations()) {
+     if (true or FastcauldronSimulator::getInstance().getMcfHandler().outputDarcyMaps()) {
+        mapOutputProperties.push_back( GENEX_PROPERTY_CONCENTRATIONS );
+        mapOutputProperties.push_back( SATURATION );
      }
   }
 
-  if ( FastcauldronSimulator::getInstance ().getCauldron ()->integrateGenexEquations ()) {
+  // Set map properties computed by GenEx
+  if (FastcauldronSimulator::getInstance().getCauldron()->integrateGenexEquations()) {
      mapOutputProperties.push_back ( GENEX_PROPERTIES );
      mapOutputProperties.push_back ( EXPULSION_API_INST );
      mapOutputProperties.push_back ( EXPULSION_API_CUM );
@@ -399,7 +285,7 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
      mapOutputProperties.push_back ( EXPULSION_AROMATICITY_CUM );
      mapOutputProperties.push_back ( KEROGEN_CONVERSION_RATIO );
      mapOutputProperties.push_back ( OIL_GENERATED_CUM );
-     mapOutputProperties.push_back ( OIL_GENERATED_RATE ); 
+     mapOutputProperties.push_back ( OIL_GENERATED_RATE );
      mapOutputProperties.push_back ( OIL_EXPELLED_CUM );
      mapOutputProperties.push_back ( OIL_EXPELLEDRATE );
      mapOutputProperties.push_back ( HC_GAS_GENERATED_CUM );
@@ -416,76 +302,257 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
      mapOutputProperties.push_back ( WET_GAS_EXPELLED_RATE );
   }
 
-  if ( FastcauldronSimulator::getInstance ().getMcfHandler ().solveFlowEquations ()) {
-
-     if ( true or FastcauldronSimulator::getInstance ().getMcfHandler ().outputDarcyMaps ()) {
-        mapOutputProperties.push_back ( GENEX_PROPERTY_CONCENTRATIONS );
-        mapOutputProperties.push_back ( SATURATION );
-        // mapOutputProperties.push_back ( AVERAGE_SATURATION );
-        // mapOutputProperties.push_back ( CAPILLARY_PRESSURE );
-        // mapOutputProperties.push_back ( FLUID_PROPERTIES );
-     }
-
-
-#if 0
-     m_volumeOutputProperties.push_back ( AVERAGE_SATURATION );
-     m_volumeOutputProperties.push_back ( HC_FLUID_VELOCITY );
-#endif
-
-     m_volumeOutputProperties.push_back ( GENEX_PROPERTY_CONCENTRATIONS );
-     m_volumeOutputProperties.push_back ( PVT_PROPERTIES );
-     m_volumeOutputProperties.push_back ( SATURATION );
-     m_volumeOutputProperties.push_back ( RELATIVE_PERMEABILITY );
-     m_volumeOutputProperties.push_back ( CAPILLARY_PRESSURE );
-     m_volumeOutputProperties.push_back ( FLUID_PROPERTIES );
-
-     if ( FastcauldronSimulator::getInstance ().getMcfHandler ().saveVolumeOutput ()) {
-        m_volumeOutputProperties.push_back ( VOLUME_CALCULATIONS );
-     }
-
-     if ( FastcauldronSimulator::getInstance ().getMcfHandler ().saveTransportedVolumeOutput ()) {
-        m_volumeOutputProperties.push_back ( TRANSPORTED_VOLUME_CALCULATIONS );
-     }
-
-     // Time of invasion is needed only at present day.
-     m_concludingVolumeOutputProperties.push_back ( TIME_OF_ELEMENT_INVASION );
-  }
-
-
-#if 0
-  // If we are doing a loosely coupled calculation then do not update the pressure related properties.
-  if ( basinModel->IsCalculationCoupled && ( basinModel->DoTemperature )) {
-    basinModel->timefilter.setFilter ( "Ves", "None" );
-    basinModel->timefilter.setFilter ( "MaxVes", "None" );
-    basinModel->timefilter.setFilter ( "OverPressure", "None" );
-    basinModel->timefilter.setFilter ( "Pressure", "None" );
-  }
-#endif
-
-  // Properties required by GenEx.
-  genexOutputProperties.push_back ( TEMPERATURE );
-  genexOutputProperties.push_back ( VES );
-
-  genexOutputProperties.push_back ( VR );
+  // Set map properties required by GenEx , they are saved at minor snapshots for Genex
+  // In case GenEx is run after fastcauldron
+  genexOutputProperties.push_back ( EROSIONFACTOR );
   genexOutputProperties.push_back ( MAXVES );
   genexOutputProperties.push_back ( PRESSURE );
-  genexOutputProperties.push_back ( EROSIONFACTOR );
-  
-  shaleGasOutputProperties.push_back ( VR );
-  shaleGasOutputProperties.push_back ( EROSIONFACTOR );
-  shaleGasOutputProperties.push_back ( MAXVES );
-  shaleGasOutputProperties.push_back ( PRESSURE );
+  genexOutputProperties.push_back ( TEMPERATURE );
+  genexOutputProperties.push_back ( VES );
+  genexOutputProperties.push_back ( VR );
 
-  shaleGasOutputProperties.push_back ( TEMPERATURE );
-  shaleGasOutputProperties.push_back ( VES );
-  shaleGasOutputProperties.push_back ( CHEMICAL_COMPACTION ); 
+  // Set map properties required by SGS (Shale Gas Simulator) , they are saved at minor snapshots for Genex
+  // In case SGS is run after fastcauldron
+  shaleGasOutputProperties.push_back ( CHEMICAL_COMPACTION );
+  shaleGasOutputProperties.push_back ( EROSIONFACTOR );
   shaleGasOutputProperties.push_back ( HYDROSTATICPRESSURE );
   shaleGasOutputProperties.push_back ( LITHOSTATICPRESSURE );
-  shaleGasOutputProperties.push_back ( POROSITYVEC );
+  shaleGasOutputProperties.push_back ( MAXVES );
   shaleGasOutputProperties.push_back ( PERMEABILITYVEC );
+  shaleGasOutputProperties.push_back ( POROSITYVEC );
+  shaleGasOutputProperties.push_back ( PRESSURE );
+  shaleGasOutputProperties.push_back ( TEMPERATURE );
+  shaleGasOutputProperties.push_back ( VES );
+  shaleGasOutputProperties.push_back ( VR );
 
+
+  //1.2 Concluding map properties---------
+  //--------------------------------------
+  // Set the map properties that may only required at present time t=0Ma
+
+  if (FastcauldronSimulator::getInstance().getCalculationMode() == OVERPRESSURE_MODE or
+     FastcauldronSimulator::getInstance().getCalculationMode() == PRESSURE_AND_TEMPERATURE_MODE or
+     FastcauldronSimulator::getInstance().getCalculationMode() == COUPLED_DARCY_MODE) {
+     m_concludingMapOutputProperties.push_back ( FCTCORRECTION );
+  }
+  if ((FastcauldronSimulator::getInstance().getCalculationMode() == OVERPRESSURE_MODE or
+     FastcauldronSimulator::getInstance().getCalculationMode() == PRESSURE_AND_TEMPERATURE_MODE or
+     FastcauldronSimulator::getInstance().getCalculationMode() == COUPLED_DARCY_MODE) and
+     not FastcauldronSimulator::getInstance().getRunParameters()->getNonGeometricLoop()) {
+     m_concludingMapOutputProperties.push_back ( THICKNESSERROR );
+  }
+
+
+  //1.4 Debug properties------------------
+  //--------------------------------------
+
+#if BRINE_PROPERTIES //Brine properties: density and viscosity
+  mapOutputProperties.push_back ( BRINE_PROPERTIES );
+#endif
+
+#if DEBUG_1D_PROPERTIES
+  if (basinModel->isModellingMode1D() && basinModel->filterwizard.IsSmectiteIlliteCalculationNeeded())
+  {
+     mapOutputProperties.push_back ( ILLITEFRACTION );
+  }
+  if (basinModel->isModellingMode1D() && basinModel->filterwizard.IsBiomarkersCalculationNeeded())
+  {
+     mapOutputProperties.push_back ( STERANEAROMATISATION );
+     mapOutputProperties.push_back ( STERANEISOMERISATION );
+     mapOutputProperties.push_back ( HOPANEISOMERISATION  );
+  }
+#endif
+
+#if DEBUG_DARCY
+  if (FastcauldronSimulator::getInstance().getMcfHandler().solveFlowEquations()) {
+     if (true or FastcauldronSimulator::getInstance().getMcfHandler().outputDarcyMaps()) {
+        mapOutputProperties.push_back ( AVERAGE_SATURATION );
+        mapOutputProperties.push_back ( CAPILLARY_PRESSURE );
+        mapOutputProperties.push_back ( FLUID_PROPERTIES );
+     }
+  }
+#endif
+
+
+  //------------------------------------------------------------------------------------------------
+  //2. Volume properties----------------------------------------------------------------------------
+  //------------------------------------------------------------------------------------------------
+
+
+  //2.0 Forced/Blocked volume (and therefore map) properties
+  //--------------------------------------
+  // We update the project file to force or block output (both for map and volume), they are required for the calculation
+
+  // Block properties output for overpressure-temperature and coupled-high-resolution-decompaction
+  if (FastcauldronSimulator::getInstance().getCalculationMode() == OVERPRESSURED_TEMPERATURE_MODE or
+     FastcauldronSimulator::getInstance().getCalculationMode() == COUPLED_HIGH_RES_DECOMPACTION_MODE)
+  {
+     FastcauldronSimulator::getInstance().setOutputPropertyOption( HYDROSTATICPRESSURE, Interface::NO_OUTPUT );
+     FastcauldronSimulator::getInstance().setOutputPropertyOption( LITHOSTATICPRESSURE, Interface::NO_OUTPUT );
+     FastcauldronSimulator::getInstance().setOutputPropertyOption( MAXVES, Interface::NO_OUTPUT );
+     FastcauldronSimulator::getInstance().setOutputPropertyOption( OVERPRESSURE, Interface::NO_OUTPUT );
+     FastcauldronSimulator::getInstance().setOutputPropertyOption( PRESSURE, Interface::NO_OUTPUT );
+     FastcauldronSimulator::getInstance().setOutputPropertyOption( VES, Interface::NO_OUTPUT );
+  }
+
+  // If we are doing overpressure calculation only then set lithostatic to be no more that sediments-only for output.
+  if (basinModel->DoOverPressure &&
+     basinModel->timefilter.PropertyOutputOption[LITHOSTATICPRESSURE] == SEDIMENTSPLUSBASEMENT) {
+     basinModel->timefilter.setFilter( "LithoStaticPressure", "SedimentsOnly" );
+  }
+
+  // If temperature is being calculated then make sure that temperature is being output.
+  if ((basinModel->DoTemperature || basinModel->Do_Iteratively_Coupled)) {
+     if (basinModel->timefilter.PropertyOutputOption[TEMPERATURE] == NOOUTPUT) {
+        basinModel->timefilter.setFilter( "Temperature", "SourceRockOnly" );
+     }
+  }
+
+  // If overpressure is being calculated then Ves and MaxVes MUST be output for
+  // possible later loosely coupled calculations.
+  if (basinModel->DoOverPressure || basinModel->Do_Iteratively_Coupled) {
+     if (basinModel->timefilter.PropertyOutputOption[VES] == NOOUTPUT ||
+        basinModel->timefilter.PropertyOutputOption[VES] == SOURCEROCKONLY) {
+        basinModel->timefilter.setFilter( "Ves", "SedimentsOnly" );
+     }
+     if (basinModel->timefilter.PropertyOutputOption[MAXVES] == NOOUTPUT ||
+        basinModel->timefilter.PropertyOutputOption[MAXVES] == SOURCEROCKONLY) {
+        basinModel->timefilter.setFilter( "MaxVes", "SedimentsOnly" );
+     }
+  }
+
+
+  //2.1 Primary volume properties---------
+  //--------------------------------------
+  //Set the primary volume properties that may be required for the simulation
+
+  m_volumeOutputProperties.push_back( CHEMICAL_COMPACTION );
+  m_volumeOutputProperties.push_back( DEPTH );
+  m_volumeOutputProperties.push_back( MAXVES );
+  m_volumeOutputProperties.push_back( PRESSURE );
+  m_volumeOutputProperties.push_back( TEMPERATURE );
+  m_volumeOutputProperties.push_back( VES );
+  m_volumeOutputProperties.push_back( VR );
+
+  // Set primary volume properties for 1D simulation mode only
+  // Will they be derived properties?
+  if (basinModel->isModellingMode1D())
+  {
+     m_volumeOutputProperties.push_back( ILLITEFRACTION );
+     m_volumeOutputProperties.push_back( BIOMARKERS );
+  }
+
+  // Set primary volume properties computed by Darcy flow equation
+  if (FastcauldronSimulator::getInstance().getMcfHandler().solveFlowEquations()) {
+     m_volumeOutputProperties.push_back( CAPILLARY_PRESSURE );
+     m_volumeOutputProperties.push_back( FLUID_PROPERTIES );
+     m_volumeOutputProperties.push_back( GENEX_PROPERTY_CONCENTRATIONS );
+     m_volumeOutputProperties.push_back( PVT_PROPERTIES );
+     m_volumeOutputProperties.push_back( RELATIVE_PERMEABILITY );
+     m_volumeOutputProperties.push_back( SATURATION );
+     if (FastcauldronSimulator::getInstance().getMcfHandler().saveVolumeOutput()) {
+        m_volumeOutputProperties.push_back( VOLUME_CALCULATIONS );
+     }
+     if (FastcauldronSimulator::getInstance().getMcfHandler().saveTransportedVolumeOutput()) {
+        m_volumeOutputProperties.push_back( TRANSPORTED_VOLUME_CALCULATIONS );
+     }
+  }
+
+  //2.2 Derieved volume properties--------
+  //--------------------------------------
+  //Set the derived volume properties that may be required for the simulation
+
+  PetscBool onlyPrimaryProperties = PETSC_FALSE;
+  PetscOptionsHasName( PETSC_NULL, "-primary", &onlyPrimaryProperties );
+  if( !onlyPrimaryProperties ) {
+     m_volumeOutputProperties.push_back ( BRINE_PROPERTIES );  
+     m_volumeOutputProperties.push_back ( BULKDENSITYVEC );
+     m_volumeOutputProperties.push_back ( DIFFUSIVITYVEC );
+     m_volumeOutputProperties.push_back ( FLUID_VELOCITY );
+     m_volumeOutputProperties.push_back ( FRACTURE_PRESSURE );
+     m_volumeOutputProperties.push_back ( HEAT_FLOW );
+     m_volumeOutputProperties.push_back ( HYDROSTATICPRESSURE );
+     m_volumeOutputProperties.push_back ( LITHOSTATICPRESSURE );
+     m_volumeOutputProperties.push_back ( OVERPRESSURE );
+     m_volumeOutputProperties.push_back ( PERMEABILITYVEC );
+     m_volumeOutputProperties.push_back ( POROSITYVEC );
+     m_volumeOutputProperties.push_back ( REFLECTIVITYVEC );
+     m_volumeOutputProperties.push_back ( SONICVEC );
+     m_volumeOutputProperties.push_back ( THCONDVEC );
+     m_volumeOutputProperties.push_back ( TWOWAYTIME );
+     m_volumeOutputProperties.push_back ( VELOCITYVEC );
+  }
+
+
+  //2.3 Concluding volume properties------
+  //--------------------------------------
+  //Set the volume properties that may only required at present time t = 0Ma
+
+  // Set concluding volume properties computed by flow equation
+  if (FastcauldronSimulator::getInstance().getMcfHandler().solveFlowEquations()) {
+     m_concludingVolumeOutputProperties.push_back( TIME_OF_ELEMENT_INVASION );
+  }
+
+  //2. Loosely coupled properties--------
+  //--------------------------------------
+  // Not clear to us why we need this list, this will need to be checked when revising properties
+
+  PetscBool addMinorProperties;
+  PetscOptionsHasName( PETSC_NULL, "-minor", &addMinorProperties );
+
+  if (addMinorProperties || onlyPrimaryProperties) {
+     looselyCoupledOutputProperties.push_back( CHEMICAL_COMPACTION );
+     looselyCoupledOutputProperties.push_back( DEPTH );
+     looselyCoupledOutputProperties.push_back( PRESSURE );
+     looselyCoupledOutputProperties.push_back( TEMPERATURE );
+     looselyCoupledOutputProperties.push_back( VR );
+
+     if (onlyPrimaryProperties) {
+        basinModel->timefilter.setFilter( "Depth", "SedimentsPlusBasement" );
+        FastcauldronSimulator::getInstance().setOutputPropertyOption( DEPTH, Interface::SEDIMENTS_AND_BASEMENT_OUTPUT );
+
+        basinModel->timefilter.setFilter( "Temperature", "SedimentsPlusBasement" );
+        FastcauldronSimulator::getInstance().setOutputPropertyOption( TEMPERATURE, Interface::SEDIMENTS_AND_BASEMENT_OUTPUT );
+     }
+  }
+  looselyCoupledOutputProperties.push_back( MAXVES );
+  looselyCoupledOutputProperties.push_back( VES );
+
+
+  //2.2 Debug properties------------------
+  //--------------------------------------
+
+#ifdef DEBUG_CAPILLARYPRESSURE 
+  m_volumeOutputProperties.push_back( CAPILLARYPRESSUREGAS100 );
+  m_volumeOutputProperties.push_back( CAPILLARYPRESSUREGAS0 );
+  m_volumeOutputProperties.push_back( CAPILLARYPRESSUREOIL100 );
+  m_volumeOutputProperties.push_back( CAPILLARYPRESSUREOIL0 );
+#endif
+
+#if DEBUG_DARCY
+  m_volumeOutputProperties.push_back( AVERAGE_SATURATION );
+  m_volumeOutputProperties.push_back( HC_FLUID_VELOCITY );
+#endif
+
+#if DEBUG_LOOSELY_COUPLED
+  // If we are doing a loosely coupled calculation then do not update the pressure related properties.
+  if (basinModel->IsCalculationCoupled && (basinModel->DoTemperature)) {
+     basinModel->timefilter.setFilter ( "Ves", "None" );
+     basinModel->timefilter.setFilter ( "MaxVes", "None" );
+     basinModel->timefilter.setFilter ( "OverPressure", "None" );
+     basinModel->timefilter.setFilter ( "Pressure", "None" );
+  }
+#endif
+
+
+
+  //------------------------------------------------------------------------------------------------
+  //3. Initialise-----------------------------------------------------------------------------------
+  //------------------------------------------------------------------------------------------------
   // Initialise the surfaceNodeHistory object, by reading in the 
   // specification file containing all nodes that are to be recorded.
+  // Is it used by someone? This will need to be checked when revising properties
+
   m_surfaceNodeHistory.Read_Spec_File ();
   savedMinorSnapshotTimes.clear ();
 

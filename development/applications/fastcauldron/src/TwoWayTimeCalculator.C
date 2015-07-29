@@ -131,7 +131,7 @@ bool TwoWayTimeCalculator::operator ()( const OutputPropertyMap::OutputPropertyL
                      assert( ("The model is under water but there is no fluid", m_bottomFormation->fluid != 0 ) );
                      seismciVelocityFluid = m_bottomFormation->fluid->seismicVelocity( (*m_temperature)(i, j), (*m_pressure)(i, j) );
                      assert( ("The model is under water but there is no fluid seismic velocity", seismciVelocityFluid != 0 ) );
-                     value = 2 * seaBottomDepth / (seismciVelocityFluid*10e3);
+                     value = 10e3 * 2 * seaBottomDepth / seismciVelocityFluid;
                   }
                }
                ///3. If no water above, then the initial TwoWayTime is 0
@@ -262,7 +262,7 @@ bool TwoWayTimeVolumeCalculator::operator ()( const OutputPropertyMap::OutputPro
                assert( ("Dividing by zero during harmonic mean", seismicVelocityBulk != 0) );
                seismicVelocityBulk /= (m_seismicVelocity->getVolumeValue( i, j, k ) + m_seismicVelocity->getVolumeValue( i, j, k+1 ));
                ///2.3 Compute the twoWayTime between the nodes (in ms)
-               value += 2 * distance / (seismicVelocityBulk*10e3);
+               value += 10e3 * 2 * distance / seismicVelocityBulk;
 
                TwoWayTimeMap->setValue ( i, j, k, value );
             }

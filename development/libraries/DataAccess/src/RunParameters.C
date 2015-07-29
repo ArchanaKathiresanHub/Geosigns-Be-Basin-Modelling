@@ -62,7 +62,7 @@ void RunParameters::initialiseSeismicVelocityAlgorithm( ) {
    else if (seismicVelocityModelStr == "Wyllie\'s Time-Average") {
       m_seismicVelocityModel = WYLLIES_VELOCITY_ALGORITHM;
    }
-   else if (seismicVelocityModelStr == "Kennan\'s Velocity-Modulus") {
+   else if (seismicVelocityModelStr == "Kennan\'s Velocity-Porosity") {
       m_seismicVelocityModel = KENNANS_VELOCITY_ALGORITHM;
    }
    else {
