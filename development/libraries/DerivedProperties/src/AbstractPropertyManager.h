@@ -216,7 +216,8 @@ namespace DerivedProperties {
       ///
       /// If the snapshot is null value then this indicates that the calculator is for any snapshot age.
       void addFormationPropertyCalculator ( const FormationPropertyCalculatorPtr& calculator,
-                                            const DataModel::AbstractSnapshot*    snapshot = 0 );
+                                            const DataModel::AbstractSnapshot*    snapshot = 0,
+                                            const bool                            debug = false );
  
       /// \brief Add a calculator for a property or set of properties defined on a surface and formation.
       ///

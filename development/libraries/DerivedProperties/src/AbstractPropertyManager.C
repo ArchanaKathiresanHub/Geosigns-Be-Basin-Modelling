@@ -57,11 +57,16 @@ void DerivedProperties::AbstractPropertyManager::addFormationMapPropertyCalculat
 }
 
 void DerivedProperties::AbstractPropertyManager::addFormationPropertyCalculator ( const FormationPropertyCalculatorPtr& calculator,
-                                                                                  const DataModel::AbstractSnapshot*    snapshot ) {
+                                                                                  const DataModel::AbstractSnapshot*    snapshot,
+                                                                                  const bool                            debug ) {
 
    const std::vector<std::string>& propertyNames = calculator->getPropertyNames ();
 
    assert ( propertyNames.size () > 0 );
+
+   if ( debug ) {
+      std::cerr << " Adding formation derived property calculator for: ";
+   }
 
    for ( size_t i = 0; i < propertyNames.size (); ++i ) {
       const DataModel::AbstractProperty* computedProperty = getProperty ( propertyNames [ i ]);
@@ -70,6 +75,19 @@ void DerivedProperties::AbstractPropertyManager::addFormationPropertyCalculator 
          // Add calculator to the property->calculator mapping.
          m_formationPropertyCalculators.insert ( computedProperty, snapshot, calculator );
 
+         if ( debug ) {
+
+            for ( size_t j = 0; j < propertyNames.size (); ++j ) {
+               std::cerr << propertyNames [ j ];
+
+               if ( j < propertyNames.size () - 1 ) {
+                  std::cerr << ", ";
+               }
+
+            }
+
+         }
+
          // Add the necessary surface/formation-surface offset property calculator for the 3d property.
          if ( computedProperty->getPropertyAttribute () == DataModel::CONTINUOUS_3D_PROPERTY ) {
             SurfacePropertyCalculatorPtr surfaceCalculator;
@@ -77,6 +95,11 @@ void DerivedProperties::AbstractPropertyManager::addFormationPropertyCalculator 
                                                                                                                         calculator->getDependentPropertyNames ()));
 
             if ( not surfacePropertyIsComputable ( computedProperty )) {
+
+               if ( debug ) {
+                  std::cerr << "(+surface)";
+               }
+
                addSurfacePropertyCalculator ( surfaceCalculator, snapshot );
             }
 
@@ -86,6 +109,11 @@ void DerivedProperties::AbstractPropertyManager::addFormationPropertyCalculator 
                                                                                                                                           calculator->getDependentPropertyNames ()));
 
             if ( not formationSurfacePropertyIsComputable ( computedProperty )) {
+
+               if ( debug ) {
+                  std::cerr << "(+formation-surface)";
+               }
+
                addFormationSurfacePropertyCalculator ( surfaceCalculator, snapshot );
             }
          }
@@ -94,6 +122,10 @@ void DerivedProperties::AbstractPropertyManager::addFormationPropertyCalculator 
          // Error
       }
 
+   }
+
+   if ( debug ) {
+      std::cerr << std::endl;
    }
 
 }

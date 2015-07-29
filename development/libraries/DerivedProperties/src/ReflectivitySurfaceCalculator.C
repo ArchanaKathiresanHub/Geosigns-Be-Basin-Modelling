@@ -12,7 +12,7 @@
 #include "PropertyRetriever.h"
 
 DerivedProperties::ReflectivitySurfaceCalculator::ReflectivitySurfaceCalculator ( const GeoPhysics::ProjectHandle* projectHandle ) : m_projectHandle ( projectHandle ) {
-   addPropertyName ( "ReflectivityVec2" );
+   addPropertyName ( "Reflectivity" );
 
    addDependentPropertyName ( "Thickness" );
    addDependentPropertyName ( "BulkDensity" );
@@ -37,7 +37,7 @@ void DerivedProperties::ReflectivitySurfaceCalculator::calculate ( AbstractPrope
       return;
    }
 
-   const DataModel::AbstractProperty* reflectivityProperty = propManager.getProperty ( "ReflectivityVec2" );
+   const DataModel::AbstractProperty* reflectivityProperty = propManager.getProperty ( "Reflectivity" );
    const DataModel::AbstractProperty* thicknessProperty   = propManager.getProperty ( "Thickness" );
    const DataModel::AbstractProperty* bulkDensityProperty = propManager.getProperty ( "BulkDensity" );
    const DataModel::AbstractProperty* velocityProperty    = propManager.getProperty ( "Velocity" );
@@ -62,8 +62,8 @@ void DerivedProperties::ReflectivitySurfaceCalculator::calculate ( AbstractPrope
       surfaceAbove = formationAbove->getTopSurface ();
 
       FormationMapPropertyPtr     thickness   = propManager.getFormationMapProperty     ( thicknessProperty,   snapshot, formationAbove );
-      FormationSurfacePropertyPtr bulkDensity = propManager.getFormationSurfaceProperty ( bulkDensityProperty, snapshot, formationAbove, surfaceAbove );
-      FormationSurfacePropertyPtr velocity    = propManager.getFormationSurfaceProperty ( velocityProperty,    snapshot, formationAbove, surfaceAbove );
+      FormationSurfacePropertyPtr bulkDensity = propManager.getFormationSurfaceProperty ( bulkDensityProperty, snapshot, formationAbove, formationAbove->getBottomSurface ());
+      FormationSurfacePropertyPtr velocity    = propManager.getFormationSurfaceProperty ( velocityProperty,    snapshot, formationAbove, formationAbove->getBottomSurface ());
 
       thicknesses.push_back ( thickness );
       bulkDensities.push_back ( bulkDensity );
@@ -114,17 +114,15 @@ void DerivedProperties::ReflectivitySurfaceCalculator::calculate ( AbstractPrope
             }
 
             reflectivity->set ( i, j, reflectivityValue );
-
          } else {
             reflectivity->set ( i, j, undefinedValue );
          }
 
       }
 
-      derivedProperties.push_back ( reflectivity );
-
    }
 
+   derivedProperties.push_back ( reflectivity );
 }
 
 bool DerivedProperties::ReflectivitySurfaceCalculator::isComputable ( const AbstractPropertyManager&     propManager,
@@ -145,8 +143,8 @@ bool DerivedProperties::ReflectivitySurfaceCalculator::isComputable ( const Abst
 
       if ( formationBelow != 0 ) {
          return propManager.formationMapPropertyIsComputable ( thickness, snapshot, formationBelow ) and 
-                propManager.formationPropertyIsComputable ( bulkDensity, snapshot, formationBelow ) and 
-                propManager.formationPropertyIsComputable ( velocity, snapshot, formationBelow );
+                propManager.formationSurfacePropertyIsComputable ( bulkDensity, snapshot, formationBelow, surface ) and 
+                propManager.formationSurfacePropertyIsComputable ( velocity, snapshot, formationBelow, surface );
       } else {
          return false;
       }

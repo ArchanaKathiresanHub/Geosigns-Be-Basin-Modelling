@@ -76,7 +76,7 @@ bool PropertiesCalculator::CreateFrom ( DataAccess::Interface::ObjectFactory* fa
       m_projectHandle = ( GeoPhysics::ProjectHandle* )( OpenCauldronProject( m_projectFileName, "r", factory ) );
 
       if(  m_projectHandle != 0 ) {
-         m_propertyManager = new DerivedPropertyManager ( m_projectHandle );
+         m_propertyManager = new DerivedPropertyManager ( m_projectHandle, m_debug );
       }
    }
    if(  m_projectHandle == 0 ||  m_propertyManager == 0 ) {
@@ -475,6 +475,39 @@ bool PropertiesCalculator::toBeSaved( const string & propertyName, const Interfa
    return not isSaved;
 }
 
+bool PropertiesCalculator::toBeSaved( const string & propertyName, const Interface::Snapshot * snapshot, const Surface * surface ) 
+{
+   bool isSaved = false;
+   const Property* property = m_projectHandle->findProperty (propertyName);
+
+   if ( property != 0 ) {  
+      int selectionFlags = Interface::SURFACE;
+      bool volumeProperties = false;
+      PropertyValueList * propertyValues = m_projectHandle->getPropertyValues ( selectionFlags,
+                                                                                property,
+                                                                                snapshot, 
+                                                                                0, 
+                                                                                0, 
+                                                                                surface,
+                                                                                Interface::MAP ); 
+
+      if ( propertyValues->size () == 0 ) {
+         delete propertyValues;
+         return true;
+      }
+      
+      if (propertyValues->size () != 1 && m_rank == 0 ) {
+         cout << propertyValues->size () << ( volumeProperties ? " volume " : " map " ) << "properties values are available for  " << propertyName 
+              << " at " << snapshot->getTime() << " for surface " << surface->getName() << endl;
+      }
+         
+      isSaved = ( (*propertyValues)[0]->hasGridMap() != 0 ) || (*propertyValues)[0]->hasRecord();
+      
+      delete propertyValues;
+   }
+   return not isSaved;
+}
+
 //------------------------------------------------------------//
 bool PropertiesCalculator::createSnapshotResultPropertyValue ( OutputPropertyValuePtr propertyValue,
                                                                const Snapshot* snapshot, const Formation * formation ) {
@@ -498,12 +531,12 @@ bool PropertiesCalculator::createSnapshotResultPropertyValue ( OutputPropertyVal
          }
       }
    } else {
+
       const DataModel::AbstractSurface* surface = propertyValue->getSurface ();
+      const DataAccess::Interface::Surface*   daSurface   = dynamic_cast<const DataAccess::Interface::Surface *>(surface);
+      const DataAccess::Interface::Formation* daFormation = dynamic_cast<const DataAccess::Interface::Formation *>(formation);
 
-      if( toBeSaved ( propertyValue->getName(), snapshot, formation )) {
-
-         const DataAccess::Interface::Surface*   daSurface   = dynamic_cast<const DataAccess::Interface::Surface *>(surface);
-         const DataAccess::Interface::Formation* daFormation = dynamic_cast<const DataAccess::Interface::Formation *>(formation);
+      if ( toBeSaved ( propertyValue->getName(), snapshot, daSurface )) {
 
          if ( propertyValue->getProperty ()->getPropertyAttribute () == DataModel::SURFACE_2D_PROPERTY ) {
             thePropertyValue = m_projectHandle->createMapPropertyValue ( propertyValue->getName(), snapshot, 0, 0, daSurface );

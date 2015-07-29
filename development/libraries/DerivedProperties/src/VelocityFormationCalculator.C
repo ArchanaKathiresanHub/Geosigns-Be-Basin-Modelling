@@ -50,75 +50,72 @@ void DerivedProperties::VelocityFormationCalculator::calculate ( DerivedProperti
    GeoPhysics::ProjectHandle const * const projectHandle   = dynamic_cast<const GeoPhysics::ProjectHandle*>( geophysicsFormation->getProjectHandle ());
    
    derivedProperties.clear ();
-   
+
    if ( porosity != 0 and bulkDensity != 0 and pressure != 0 and temperature != 0 and ves!=0 and maxVes!=0 and geophysicsFormation != 0 ) {
       GeoPhysics::FluidType const * const geophysicsFluid = dynamic_cast<const GeoPhysics::FluidType*>( geophysicsFormation->getFluidType ());
 
-      GeoPhysics::CompoundLithologyArray const * const lithologies = &geophysicsFormation->getCompoundLithologyArray ();
-      
-      if ( lithologies != 0 ) {
+      const GeoPhysics::CompoundLithologyArray& lithologies = geophysicsFormation->getCompoundLithologyArray ();
 
-         PropertyRetriever porosityRetriever ( porosity );
-         PropertyRetriever bulkDensityRetriever ( bulkDensity );
-         PropertyRetriever pressureRetriever ( pressure );
-         PropertyRetriever temperatureRetriever ( temperature );
-         PropertyRetriever vesRetriever( ves );
-         PropertyRetriever maxVesRetriever( maxVes );
+      PropertyRetriever porosityRetriever ( porosity );
+      PropertyRetriever bulkDensityRetriever ( bulkDensity );
+      PropertyRetriever pressureRetriever ( pressure );
+      PropertyRetriever temperatureRetriever ( temperature );
+      PropertyRetriever vesRetriever( ves );
+      PropertyRetriever maxVesRetriever( maxVes );
 
-         DerivedFormationPropertyPtr velocity = DerivedFormationPropertyPtr ( new DerivedProperties::DerivedFormationProperty ( velocityProperty,
-                                                                                                                                snapshot,
-                                                                                                                                formation, 
-                                                                                                                                propertyManager.getMapGrid (),
-                                                                                                                                geophysicsFormation->getMaximumNumberOfElements() + 1 ));
-         double undefinedValue = velocity->getUndefinedValue ();
-         double velocityValue;
-         double seismciVelocityFluid;
-         double densityFluid;
-         
-         for ( unsigned int i = velocity->firstI ( true ); i <= velocity->lastI ( true ); ++i ) {
-            
-            for ( unsigned int j = velocity->firstJ ( true ); j <= velocity->lastJ ( true ); ++j ) {
-               
-               if ( projectHandle->getNodeIsValid ( i, j )) {
-                  
-                  for ( unsigned int k = velocity->firstK (); k <= velocity->lastK (); ++k ) {
+      DerivedFormationPropertyPtr velocity = DerivedFormationPropertyPtr ( new DerivedProperties::DerivedFormationProperty ( velocityProperty,
+                                                                                                                             snapshot,
+                                                                                                                             formation, 
+                                                                                                                             propertyManager.getMapGrid (),
+                                                                                                                             geophysicsFormation->getMaximumNumberOfElements() + 1 ));
 
-                     if (geophysicsFluid != 0) {
-                        seismciVelocityFluid = geophysicsFluid->seismicVelocity(temperature->get(i, j, k),
-                                                                                pressure->get(i, j, k));
-                        densityFluid = geophysicsFluid->density(temperature->get(i, j, k),
-                                                                pressure->get(i, j, k));
-                     }
-                     else {
-                        seismciVelocityFluid = -1;
-                        densityFluid = -1;
-                     }
+      double currentTime = snapshot->getTime ();
+      double undefinedValue = velocity->getUndefinedValue ();
+      double velocityValue;
+      double seismciVelocityFluid;
+      double densityFluid;
 
-                     velocityValue = (*lithologies)(i, j)->seismicVelocity().seismicVelocity(seismciVelocityFluid,
-                                                                                             densityFluid,
-                                                                                             bulkDensity->get(i, j, k),
-                                                                                             0.01 * porosity->get(i, j, k),
-                                                                                             ves->get(i, j, k),
-                                                                                             maxVes->get(i, j, k));
+      for ( unsigned int i = velocity->firstI ( true ); i <= velocity->lastI ( true ); ++i ) {
 
-                     velocity->set ( i, j, k, velocityValue );
+         for ( unsigned int j = velocity->firstJ ( true ); j <= velocity->lastJ ( true ); ++j ) {
+
+            if ( projectHandle->getNodeIsValid ( i, j )) {
+
+               for ( unsigned int k = velocity->firstK (); k <= velocity->lastK (); ++k ) {
+
+                  if ( geophysicsFluid != 0 ) {
+                     seismciVelocityFluid = geophysicsFluid->seismicVelocity(temperature->get(i, j, k),
+                                                                             pressure->get(i, j, k));
+                     densityFluid = geophysicsFluid->density(temperature->get(i, j, k),
+                                                             pressure->get(i, j, k));
+                  } else {
+                     seismciVelocityFluid = -1;
+                     densityFluid = -1;
                   }
 
-               } else {
+                  velocityValue = lithologies ( i, j, currentTime )->seismicVelocity().seismicVelocity ( seismciVelocityFluid,
+                                                                                                         densityFluid,
+                                                                                                         bulkDensity->get(i, j, k),
+                                                                                                         0.01 * porosity->get(i, j, k),
+                                                                                                         ves->get(i, j, k),
+                                                                                                         maxVes->get(i, j, k));
 
-                  for ( unsigned int k = velocity->firstK (); k <= velocity->lastK (); ++k ) {
-                     velocity->set ( i, j, k, undefinedValue );
-                  }
+                  velocity->set ( i, j, k, velocityValue );
+               }
 
+            } else {
+
+               for ( unsigned int k = velocity->firstK (); k <= velocity->lastK (); ++k ) {
+                  velocity->set ( i, j, k, undefinedValue );
                }
 
             }
 
          }
 
-         derivedProperties.push_back ( velocity );
       }
 
+      derivedProperties.push_back ( velocity );
    }
 
 }
