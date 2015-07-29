@@ -46,4 +46,17 @@ double BiodegradationParameters::timeFactor() const
   return database::getTimeConstant(m_record);
 }
 
+double BiodegradationParameters::bioRate() const
+{
+   double bioRate = database::getBioRate(m_record);
+
+   // The biodegradation rate cannot be negative
+   if (bioRate < 0)
+   {
+      cerr << "Warning: The bioRate coefficient used for biodegradation is negative: " << bioRate << ". No area impacted by biodegrdation, thus no biodegradation computed" << endl;
+      bioRate = 0;
+   }      
+   return bioRate;
+}
+
 } } // namespace DataAccess::Implementation

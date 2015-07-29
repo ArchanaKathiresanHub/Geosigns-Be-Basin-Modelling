@@ -318,7 +318,7 @@ namespace migration
    * \details This thickness is determined thanks to a coefficient (ex: 3m/10Myr) and the \param timeInterval
    * \return The thickness above the hydrocarbon - water contact affected by biodegradation (in meters)
    */
-   double computethicknessAffectedByBiodegradationAboveOWC(const double timeInterval) const;
+   double computethicknessAffectedByBiodegradationAboveOWC(const double timeInterval, const double bioRate) const;
 
    /*!
    * \brief Compute the fraction of the volume of the \param phase in the trap which is impacted by biodegradation
@@ -326,7 +326,7 @@ namespace migration
    * This thickness is determined thanks to a coefficient (ex: 3m/10Myr) and the \param timeInterval
    * \return The fraction of volume of the \param phase in the trap impacted by biodegradation (from 0 to 1)
    */
-   double computeFractionVolumeBiodegraded(const double timeInterval, const PhaseId phase);
+   double computeFractionVolumeBiodegraded(const double timeInterval, const PhaseId phase, const double bioRate);
 
    /*!
    * \brief Compute the temperature at the hydrocarbon - water contact (in °C)
@@ -336,7 +336,7 @@ namespace migration
    */
    double computeHydrocarbonWaterContactTemperature();
 
-   void Trap::computePhaseVolumeProportionInBiodegradadedZone(const double timeInterval, double& VolumeProportionGas, double& VolumeProportionOil);
+   void Trap::computePhaseVolumeProportionInBiodegradadedZone(const double timeInterval, double& VolumeProportionGas, double& VolumeProportionOil, const Biodegrade& biodegrade);
 
    double biodegradeCharges (const double& timeInterval, const Biodegrade& biodegrade);
 
@@ -416,7 +416,7 @@ namespace migration
 	 const double * getPenetrationDistances ();
 
 	 void setPenetrationDistance (ComponentId c, double penetrationDistance);
-	 double getPenetrationDistance (ComponentId c);
+    double getPenetrationDistance (ComponentId c);
 
     /*!
     * \brief Set the filling depth for a particular \param phase

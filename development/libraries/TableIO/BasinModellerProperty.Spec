@@ -4503,6 +4503,13 @@ Identification      : HcLiquidBrineCapillaryEntryPressure
     Default             : 0.5
     Error Field         : No 
 
+	Identification      : BioRate 
+    Description         : Biodegradation impact zone rate. This rate helps to define the thickness affected by biodegradation above OWC
+    Unit of measurement : m/Ma 
+    Type                : double 
+    Default             : 0.3
+    Error Field         : No 
+
     Identification      : C1_BioFactor 
     Description         : Bio Degradation factor 
     Unit of measurement : 
@@ -7073,6 +7080,7 @@ START-property-tables
     Column         : MaxBioTemp 
     Column         : TempConstant 
     Column         : TimeConstant 
+	Column         : BioRate 
     Column         : C1_BioFactor 
     Column         : C2_BioFactor 
     Column         : C3_BioFactor 

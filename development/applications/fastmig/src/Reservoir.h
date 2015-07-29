@@ -92,16 +92,16 @@ namespace migration
 	 bool adaptOverburdens (void);
 	 /// compute the porosities at the top of the reservoir
 	 bool computePorosities (void);
-         /// compute the permeabilities:
-         bool computePermeabilities (void);
+    /// compute the permeabilities:
+    bool computePermeabilities (void);
 	 /// compute the temperatures at the top of the reservoir
 	 bool computeTemperatures (void);
 	 /// compute the pressures at the top of the reservoir
 	 bool computePressures (void);
-         /// Sometimes we also need the hydrostatic pressure at the top of a trap:
-         bool computeHydrostaticPressures (void);
-         /// And the lithostatic pressures:
-         bool computeLithostaticPressures (void);
+    /// Sometimes we also need the hydrostatic pressure at the top of a trap:
+    bool computeHydrostaticPressures (void);
+    /// And the lithostatic pressures:
+    bool computeLithostaticPressures (void);
 	 /// Load the necessary overburden properties used for diffusion:
 	 bool computeOverburdenGridMaps (void);
 
@@ -382,7 +382,7 @@ public:
 	 /// the number of times distributeCharges was performed on a trap
 	 long m_chargeDistributionCount;
 
-	 /// The traps created during the previous interval;
+	 /// The traps created during the previous interval
 	 TrapVector m_previousTraps;
 
 	 /// The columns of the reservoir

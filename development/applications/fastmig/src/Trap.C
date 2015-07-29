@@ -390,7 +390,7 @@ void Trap::computeArea (void)
    {
       return;
    }
-
+   
    bool spillPointFound = false;
    while (!spillPointFound && m_perimeter.size () > 0)
    {
@@ -418,7 +418,7 @@ void Trap::computeArea (void)
             cerr << "                                   isSealing () = " << spillColumn->isSealing () << endl;
             cerr << "                                   spillColumn = " << getSpillColumn () << endl;
          }
-
+           
          removeFromPerimeter (spillColumn);
          addToInterior (spillColumn);
 
@@ -492,7 +492,7 @@ void Trap::extendWith (Column * column, double minimumSpillDepth)
    if (DebugOn)
    {
       cerr << GetRankString () << ": " << m_reservoir->getName () << this
-	 << ": extendWith (" << column << ", " << minimumSpillDepth << ")" << endl;
+	        << ": extendWith (" << column << ", " << minimumSpillDepth << ")" << endl;
    }
 
    // addToPerimeter (column);
@@ -578,7 +578,7 @@ bool Trap::isSpillPoint (Column * column)
       }
 
       if (!neighbourColumn->isSealing () && !isInInterior (neighbourColumn) && !isOnPerimeter (neighbourColumn) &&
-	    neighbourColumn->isShallowerThan (column)) 
+	    neighbourColumn->isShallowerThan (column))
       {
          return true;
       }
@@ -1184,7 +1184,7 @@ double Trap::biodegradeCharges(const double& timeInterval, const Biodegrade& bio
 
    double volumeFractionOfGasBiodegraded = 0.0;
    double volumeFractionOfOilBiodegraded = 0.0;
-   computePhaseVolumeProportionInBiodegradadedZone(timeInterval, volumeFractionOfGasBiodegraded, volumeFractionOfOilBiodegraded);
+   computePhaseVolumeProportionInBiodegradadedZone(timeInterval, volumeFractionOfGasBiodegraded, volumeFractionOfOilBiodegraded, biodegrade);
 
    // Compute biodegradation for the GAS phase
    if (volumeFractionOfGasBiodegraded > 0.0)
@@ -1912,15 +1912,17 @@ bool Trap::distributeCharges (void)
 #endif
 
    // Check if wasting is possible:
-   if (getWasteDepth(GAS) != WasteDepth) {
+   if (getWasteDepth(GAS) != WasteDepth) 
+   {
       double wasteLevel = getWasteDepth(GAS) - getTopDepth();
-      if (wasteLevel < m_levelToVolume->invert(numeric_limits<double>::max())) {
-	 m_distributor->setWasteLevel(wasteLevel);
-	 m_distributor->setWasting(true);
+      if (wasteLevel < m_levelToVolume->invert(numeric_limits<double>::max())) 
+      {
+         m_distributor->setWasteLevel(wasteLevel);
+         m_distributor->setWasting(true);
       }
    }
 
-   // Check is leaking is necessary:
+   // Check if leaking is necessary:
    m_distributor->setLeaking(!isUndersized());
 
    Composition gasLeaked;
@@ -2215,11 +2217,10 @@ bool Trap::requiresDistribution (void)
    }
 }*/
 
-double Trap::computethicknessAffectedByBiodegradationAboveOWC(const double timeInterval) const
+double Trap::computethicknessAffectedByBiodegradationAboveOWC(const double timeInterval, const double bioRate) const
 {
    // Arbitrary value which states the thickness of the biodegradation impact above the OWC
-   double const inputThicknessAffectedByBiodegradationAboveOWC = 3;   // Original value entered by the user or by default: 3m/10Myr
-   double const thicknessAffectedByBiodegradationAboveOWC = inputThicknessAffectedByBiodegradationAboveOWC * timeInterval / 10;  // ~3m/10Myr, but depend on timeInterval
+   double const thicknessAffectedByBiodegradationAboveOWC = bioRate * timeInterval;  // Original value entered by the user or by default: 0.3m/Myr, but depend also on timeInterval
 
    return thicknessAffectedByBiodegradationAboveOWC;
 }
@@ -2242,17 +2243,17 @@ double Trap::computeHydrocarbonWaterContactDepth (void) const
       hydrocarbonWaterContactDepth = getBottomDepth();
    }
    
-   assert((hydrocarbonWaterContactDepth >= getTopDepth()) && (hydrocarbonWaterContactDepth <= getBottomDepth()));
+  assert((hydrocarbonWaterContactDepth >= getTopDepth()) && (hydrocarbonWaterContactDepth <= getBottomDepth()));
 
    return hydrocarbonWaterContactDepth;
 }
 
-double Trap::computeFractionVolumeBiodegraded(const double timeInterval, const PhaseId phase)
+double Trap::computeFractionVolumeBiodegraded(const double timeInterval, const PhaseId phase, const double bioRate)
 {
    double const volumePhase = m_toBeDistributed[phase].getVolume();
    
    // Arbitrary value which states the thickness of the biodegradation impact above the OWC
-   double const thicknessAffectedByBiodegradationAboveOWC = computethicknessAffectedByBiodegradationAboveOWC(timeInterval);
+   double const thicknessAffectedByBiodegradationAboveOWC = computethicknessAffectedByBiodegradationAboveOWC(timeInterval, bioRate);
 
    double const maximumCapacityOfTrap = getVolumeBetweenDepths2(getTopDepth(), getBottomDepth());
    double const volumeBiodegraded = min(getVolumeBetweenDepths2(getHydrocarbonWaterContactDepth() - thicknessAffectedByBiodegradationAboveOWC, getHydrocarbonWaterContactDepth()), volumePhase);
@@ -2360,13 +2361,13 @@ double Trap::computeHydrocarbonWaterContactTemperature()
    return hydrocarbonWaterContactTemperature;
 }
 
-void Trap::computePhaseVolumeProportionInBiodegradadedZone(const double timeInterval, double& volumeFractionOfGasBiodegraded, double& volumeFractionOfOilBiodegraded)
+void Trap::computePhaseVolumeProportionInBiodegradadedZone(const double timeInterval, double& volumeFractionOfGasBiodegraded, double& volumeFractionOfOilBiodegraded, const Biodegrade& biodegrade)
 {
 #ifdef DEBUG_BIODEGRADATION
    cerr << endl << "==== Phase(s) impacted by bidoegradation ====" << endl;
 #endif
 
-   double const thicknessAffectedByBiodegradationAboveOWC = computethicknessAffectedByBiodegradationAboveOWC(timeInterval);
+   double const thicknessAffectedByBiodegradationAboveOWC = computethicknessAffectedByBiodegradationAboveOWC(timeInterval, biodegrade.bioRate());
    
    if (m_toBeDistributed[GAS].isEmpty() && m_toBeDistributed[OIL].isEmpty()) // nothing in the trap
    {
@@ -2381,7 +2382,7 @@ void Trap::computePhaseVolumeProportionInBiodegradadedZone(const double timeInte
       #ifdef DEBUG_BIODEGRADATION
       cerr << "1) Only GAS " << endl;
       #endif
-      volumeFractionOfGasBiodegraded = computeFractionVolumeBiodegraded(timeInterval, GAS);
+      volumeFractionOfGasBiodegraded = computeFractionVolumeBiodegraded(timeInterval, GAS, biodegrade.bioRate());
       volumeFractionOfOilBiodegraded = 0;
    }
    else if (m_toBeDistributed[GAS].isEmpty())  // only oil in the trap
@@ -2390,7 +2391,7 @@ void Trap::computePhaseVolumeProportionInBiodegradadedZone(const double timeInte
       cerr << "2) Only OIL " << endl;
       #endif
       volumeFractionOfGasBiodegraded = 0;
-      volumeFractionOfOilBiodegraded = computeFractionVolumeBiodegraded(timeInterval, OIL);
+      volumeFractionOfOilBiodegraded = computeFractionVolumeBiodegraded(timeInterval, OIL, biodegrade.bioRate());
    }
    else  // case of a mixed-fill trap
    {
@@ -2403,7 +2404,7 @@ void Trap::computePhaseVolumeProportionInBiodegradadedZone(const double timeInte
          cerr << "3) OIL and GAS, but only OIL is biodegraded " << endl;
          #endif
          volumeFractionOfGasBiodegraded = 0;
-         volumeFractionOfOilBiodegraded = computeFractionVolumeBiodegraded(timeInterval, OIL);
+         volumeFractionOfOilBiodegraded = computeFractionVolumeBiodegraded(timeInterval, OIL, biodegrade.bioRate());
       }
       else // oil and gas are present in the biodegraded zone
       {

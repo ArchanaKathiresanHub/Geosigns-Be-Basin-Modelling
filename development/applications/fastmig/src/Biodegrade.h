@@ -16,7 +16,8 @@ public:
    Biodegrade(const DataAccess::Interface::BiodegradationParameters* biodegradationparameters):
       m_maxBioTemp(biodegradationparameters->maxBioTemp()),
       m_bioConsts(biodegradationparameters->bioConsts()),
-      m_timeFactor(biodegradationparameters->timeFactor())
+      m_timeFactor(biodegradationparameters->timeFactor()),
+      m_bioRate(biodegradationparameters->bioRate())
    {}
  
    /*!
@@ -25,7 +26,8 @@ public:
    Biodegrade(const double maxBioTemp, const DataAccess::Interface::BioConsts bioConsts, const double timeFactor) :
       m_maxBioTemp(maxBioTemp),
       m_bioConsts(bioConsts),
-      m_timeFactor(timeFactor)
+      m_timeFactor(timeFactor),
+      m_bioRate(0.3)
    {}
 
    /*!
@@ -53,12 +55,20 @@ public:
    */
    const double& timeFactor() const { return m_timeFactor; }
 
+   /*!
+   * \brief Get the biodegradation rate.
+   * \details This rate helps to define the thickness affected by biodegradation above OWC
+   * \return bioRate, a user-tuneable rate scalar which sets how the biodegradation is expending above the OWC (in m/Myr). Set by default to 0.3.
+   */
+   const double& bioRate() const { return m_bioRate; }
+
 
 private:
 
    double const m_maxBioTemp;
    DataAccess::Interface::BioConsts const m_bioConsts;
    double const m_timeFactor;
+   double const m_bioRate;
 };
 
 } // namespace migration

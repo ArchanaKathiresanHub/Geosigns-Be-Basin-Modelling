@@ -5,7 +5,7 @@
 #include <vector>
 #include <assert.h>
 
-#include "EosPack.h"
+#include "Interface/Interface.h"
 
 namespace DataAccess {
 

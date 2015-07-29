@@ -33,6 +33,13 @@ namespace DataAccess
       * \return timeFactor, a user-tuneable rate scalar for all component class (in 1/Myr). Set by default to 0.5.
       */
 	 	double timeFactor() const;
+
+      /*!
+      * \brief Get the biodegradation rate.
+      * \details This rate helps to define the thickness affected by biodegradation above OWC
+      * \return bioRate, a user-tuneable rate scalar which sets how the biodegradation is expending above the OWC (in m/Myr). Set by default to 0.3.
+      */
+      double bioRate() const;
 	  };
    } 
 } // namespace DataAccess::Interface
