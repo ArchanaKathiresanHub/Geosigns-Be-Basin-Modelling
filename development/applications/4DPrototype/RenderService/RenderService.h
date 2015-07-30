@@ -1,10 +1,15 @@
 #ifndef RENDERSERVICE_H_INCLUDED
 #define RENDERSERVICE_H_INCLUDED
 
+#ifdef USE_QTSERVICE
 #include <QtService/qtservice.h>
 #include <QtCore/QCoreApplication>
+#endif
 
-class RenderService : public QtService<QCoreApplication>
+class RenderService
+#ifdef USE_QTSERVICE
+ : public QtService<QCoreApplication>
+#endif
 {
 protected:
 

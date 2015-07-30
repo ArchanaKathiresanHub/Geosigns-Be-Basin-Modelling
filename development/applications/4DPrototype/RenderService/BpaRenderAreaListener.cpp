@@ -13,6 +13,7 @@
 #include <Inventor/nodes/SoGradientBackground.h>
 
 #include <Interface/ProjectHandle.h>
+#include <Interface/ObjectFactory.h>
 #include <Interface/Property.h>
 
 #include <string>
@@ -27,13 +28,13 @@ namespace
 {
   std::list<std::string> &split(const std::string &s, char delim, std::list<std::string> &elems) 
   {
-      stringstream ss(s);
-      string item;
+    stringstream ss(s);
+    string item;
 
-      while (getline(ss, item, delim)) 
-          elems.push_back(item);
+    while (getline(ss, item, delim)) 
+      elems.push_back(item);
 
-      return elems;
+    return elems;
   }
 }
 
@@ -42,11 +43,11 @@ void BpaRenderAreaListener::createSceneGraph(const std::string& id)
   std::cout << "Loading scenegraph..."<< std::endl;
 
   //const std::string rootdir = "E:/Data/";
-  const std::string rootdir = "C:/bpa/data/";
+  const std::string rootdir = "/home/ree/CauldronSmall";
   const std::string filename = "/Project.project3d";
-  std::string path = rootdir + id + filename;
+  std::string path = rootdir + filename;
 
-  m_handle.reset(di::OpenCauldronProject(path, "r"));
+  m_handle.reset(di::OpenCauldronProject(path, "r", m_factory.get()));
 
   std::cout << "Project loaded!" << std::endl;
 
@@ -61,13 +62,13 @@ void BpaRenderAreaListener::createSceneGraph(const std::string& id)
 
   m_examiner = new SceneExaminer();
   m_examiner->addChild(background);
-	m_examiner->addChild(m_sceneGraph);
+  m_examiner->addChild(m_sceneGraph);
 
-	// Apply the sceneExaminer node as renderArea scene graph
-	m_renderArea->getSceneManager()->setSceneGraph(m_examiner);
+  // Apply the sceneExaminer node as renderArea scene graph
+  m_renderArea->getSceneManager()->setSceneGraph(m_examiner);
 
-	// viewall
-	m_examiner->viewAll(m_renderArea->getSceneManager()->getViewportRegion());
+  // viewall
+  m_examiner->viewAll(m_renderArea->getSceneManager()->getViewportRegion());
 
   std::cout << "...done" << std::endl;
 }
@@ -75,6 +76,8 @@ void BpaRenderAreaListener::createSceneGraph(const std::string& id)
 BpaRenderAreaListener::BpaRenderAreaListener(RenderArea* renderArea)
   : m_renderArea(renderArea)
   , m_sceneGraph(0)
+  , m_examiner(0)
+  , m_factory(new di::ObjectFactory)
   , m_handle(0)
 {
 }
@@ -99,7 +102,7 @@ void BpaRenderAreaListener::sendProjectInfo() const
   msg += ", ";
   msg += "\"properties\": [";
 
-    // Add properties to parent node
+  // Add properties to parent node
   int flags = di::FORMATION;
   int type = di::VOLUME;
 
@@ -247,10 +250,10 @@ void BpaRenderAreaListener::onResize(RenderArea* renderArea, unsigned int width,
 void BpaRenderAreaListener::onRequestedSize(RenderArea* renderArea, Connection* sender, unsigned int width, unsigned int height)
 {
   std::cout << "[BpaRenderAreaListener] onRequestedResize(renderArea = " 
-    << renderArea->getId() 
-    << ", connection = " << sender->getId() 
-    << ", width = " << width 
-    << ", height = " << height << ")" << std::endl;
+	    << renderArea->getId() 
+	    << ", connection = " << sender->getId() 
+	    << ", width = " << width 
+	    << ", height = " << height << ")" << std::endl;
 
   renderArea->resize(width, height);
 }

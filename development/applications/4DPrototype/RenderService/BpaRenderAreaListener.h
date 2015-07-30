@@ -10,6 +10,7 @@ namespace DataAccess
   namespace Interface
   {
     class ProjectHandle;
+    class ObjectFactory;
   }
 }
 
@@ -22,7 +23,8 @@ class BpaRenderAreaListener : public RenderAreaListener
   SceneGraph*    m_sceneGraph;
   SceneExaminer* m_examiner;
 
-  std::shared_ptr<DataAccess::Interface::ProjectHandle> m_handle;
+  std::unique_ptr<DataAccess::Interface::ObjectFactory> m_factory;
+  std::unique_ptr<DataAccess::Interface::ProjectHandle> m_handle;
 
   void createSceneGraph(const std::string& id);
 

@@ -1,12 +1,12 @@
 #include "RenderService.h"
 #include "BpaServiceListener.h"
 
-#include <windows.h>
+//#include <windows.h>
 #include <signal.h>
 
 #include <Visualization/SceneGraph.h>
 
-#include <MeshVizInterface/mapping/MoMeshviz.h>
+#include <MeshVizInterface/mapping/MoMeshViz.h>
 
 #include <RemoteViz/Rendering/Service.h>
 #include <RemoteViz/Rendering/ServiceSettings.h>
@@ -17,6 +17,7 @@ using namespace RemoteViz::Rendering;
 
 bool running; 
 
+/*
 void sleep(unsigned int time) // milliseconds
 { 
 #if defined(_WIN32)
@@ -25,7 +26,7 @@ void sleep(unsigned int time) // milliseconds
   usleep(time * 1000);
 #endif
 }
-
+*/
 void sighandler(int sig)
 {
   running = false;
@@ -44,18 +45,18 @@ int main(int argc, char* argv[])
   MoMeshViz::init();
   BpaVizInit();
 
-	ServiceSettings settings;
-	//settings.setIP("127.0.0.1");
-	settings.setPort(8081);
+  ServiceSettings settings;
+  settings.setIP("172.28.16.121");
+  settings.setPort(8080);
   settings.setUsedExtensions(ServiceSettings::MESHVIZXLM | ServiceSettings::MESHVIZ);
 
-	std::tr1::shared_ptr<ServiceListener> serviceListener(new BpaServiceListener);
-	Service::instance()->addListener(serviceListener);
+  std::shared_ptr<ServiceListener> serviceListener(new BpaServiceListener);
+  Service::instance()->addListener(serviceListener);
 
-	// Open the service by using the settings
-	if(Service::instance()->open(&settings))
+  // Open the service by using the settings
+  if(Service::instance()->open(&settings))
   {
-	  std::cout << "The BPA RenderService is running. Press Ctrl+C to stop." << std::endl;
+    std::cout << "The BPA RenderService is running. Press Ctrl+C to stop." << std::endl;
 
     signal(SIGABRT, &sighandler);
     signal(SIGTERM, &sighandler);
@@ -69,8 +70,8 @@ int main(int argc, char* argv[])
       sleep(1);
     }
 
-	  // Close the service
-	  Service::instance()->close();
+    // Close the service
+    Service::instance()->close();
   }
   else
   {
@@ -81,7 +82,7 @@ int main(int argc, char* argv[])
   BpaVizFinish();
   MoMeshViz::finish();
 
-	return 0;
+  return 0;
 
 #endif
 }
