@@ -2220,7 +2220,7 @@ bool Trap::requiresDistribution (void)
 double Trap::computethicknessAffectedByBiodegradationAboveOWC(const double timeInterval, const double bioRate) const
 {
    // Arbitrary value which states the thickness of the biodegradation impact above the OWC
-   double const thicknessAffectedByBiodegradationAboveOWC = bioRate * timeInterval;  // Original value entered by the user or by default: 0.3m/Myr, but depend also on timeInterval
+   double const thicknessAffectedByBiodegradationAboveOWC = bioRate * timeInterval;  // Original value entered by the user or by default: 0.3m/Myr, but depends also on timeInterval
 
    return thicknessAffectedByBiodegradationAboveOWC;
 }
