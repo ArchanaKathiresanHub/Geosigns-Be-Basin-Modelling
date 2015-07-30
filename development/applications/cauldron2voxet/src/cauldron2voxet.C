@@ -722,22 +722,46 @@ void createVoxetProjectFile ( Interface::ProjectHandle* cauldronProject,
 {
    char * propertyNames [] =
    {
-      "Depth", "Pressure", "OverPressure", "HydroStaticPressure", "LithoStaticPressure", "Temperature", "Vr", "Ves", "MaxVes", "Porosity", "Permeability", "BulkDensity", ""
+      "Depth",
+      "Pressure", "OverPressure", "HydroStaticPressure", "LithoStaticPressure",
+      "Temperature", "Vr",
+      "Ves", "MaxVes",
+      "Porosity", "Permeability", "BulkDensity",
+      "Velocity", "TwoWayTime",
+      ""
    };
 
    char * units [] =
    {
-      "m", "MPa", "MPa", "MPa", "MPa", "degC", "percent", "Pa", "Pa", "percent", "mD", "kg/m^3", ""
+      "m",
+      "MPa", "MPa", "MPa", "MPa",
+      "degC", "percent",
+      "Pa", "Pa",
+      "percent", "mD", "kg/m^3",
+      "m/s", "ms",
+      ""
    };
 
    double conversions [] =
    {
-      1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0
+      1,
+      1, 1, 1, 1,
+      1, 1,
+      1, 1,
+      1, 1, 1,
+      1, 1,
+      0
    };
 
    char * outputPropertyNames [] =
    {
-      "BPA_Depth", "BPA_Pressure", "BPA_OverPressure", "BPA_HydrostaticPressure", "BPA_LithoStaticPressure", "BPA_Temperature", "BPA_Vr", "BPA_Ves", "BPA_MaxVes", "BPA_Porosity", "BPA_Permeability", "BPA_BulkDensity", ""
+      "BPA_Depth",
+      "BPA_Pressure", "BPA_OverPressure", "BPA_HydrostaticPressure", "BPA_LithoStaticPressure",
+      "BPA_Temperature", "BPA_Vr",
+      "BPA_Ves", "BPA_MaxVes",
+      "BPA_Porosity", "BPA_Permeability", "BPA_BulkDensity",
+      "BPA_Velocity", "BPA_TwoWayTime",
+      ""
    };
 
    database::DataSchema* voxetSchema = database::createVoxetSchema ();

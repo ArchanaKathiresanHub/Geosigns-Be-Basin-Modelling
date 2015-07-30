@@ -173,6 +173,7 @@ PropertyConversion conversions[] =
    { "Porosity",               "POROSITY", PercentageToFraction, 1, false },
    { "Diffusivity",            "DIFFUSIV", 0, 1, true },
    { "BulkDensity",            "BULKDENS", 0, 1, true },
+   { "TwoWayTime",             "TWTT    ", 0, 1, true },
    { "", "", 0, 0, false }
 };
 
