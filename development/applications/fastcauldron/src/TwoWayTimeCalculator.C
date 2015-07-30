@@ -107,7 +107,7 @@ bool TwoWayTimeCalculator::operator ()( const OutputPropertyMap::OutputPropertyL
                   if ( seismicVelocityBulk != 0 ){
                      seismicVelocityBulk /= m_seismicVelocity->getVolumeValue( i, j, k ) + m_seismicVelocity->getVolumeValue( i, j, k + 1 );
                      ///2.3 Compute the twoWayTime between the nodes (in ms)
-                     value += 2 * distance / (seismicVelocityBulk*10e3);
+                     value += 10e3 * 2 * distance / (seismicVelocityBulk);
                   }
                   else {
                      // In case of weird lithologies which are blocking the seismic waves (Vp=0), this should not be allowed by the UI
