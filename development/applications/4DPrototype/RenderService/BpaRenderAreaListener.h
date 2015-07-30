@@ -3,16 +3,10 @@
 
 #include <memory>
 
+#include <Interface/Interface.h>
+
 using namespace RemoteViz::Rendering;
 
-namespace DataAccess
-{
-  namespace Interface
-  {
-    class ProjectHandle;
-    class ObjectFactory;
-  }
-}
 
 class SceneGraph;
 class SceneExaminer;

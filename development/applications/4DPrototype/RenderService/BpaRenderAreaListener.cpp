@@ -28,13 +28,13 @@ namespace
 {
   std::list<std::string> &split(const std::string &s, char delim, std::list<std::string> &elems) 
   {
-    stringstream ss(s);
-    string item;
+      stringstream ss(s);
+      string item;
 
-    while (getline(ss, item, delim)) 
-      elems.push_back(item);
+      while (getline(ss, item, delim)) 
+          elems.push_back(item);
 
-    return elems;
+      return elems;
   }
 }
 
@@ -43,7 +43,7 @@ void BpaRenderAreaListener::createSceneGraph(const std::string& id)
   std::cout << "Loading scenegraph..."<< std::endl;
 
   //const std::string rootdir = "E:/Data/";
-  const std::string rootdir = "/home/ree/CauldronSmall";
+  const std::string rootdir = "V:/data/output_cauldron";
   const std::string filename = "/Project.project3d";
   std::string path = rootdir + filename;
 
@@ -62,13 +62,13 @@ void BpaRenderAreaListener::createSceneGraph(const std::string& id)
 
   m_examiner = new SceneExaminer();
   m_examiner->addChild(background);
-  m_examiner->addChild(m_sceneGraph);
+	m_examiner->addChild(m_sceneGraph);
 
-  // Apply the sceneExaminer node as renderArea scene graph
-  m_renderArea->getSceneManager()->setSceneGraph(m_examiner);
+	// Apply the sceneExaminer node as renderArea scene graph
+	m_renderArea->getSceneManager()->setSceneGraph(m_examiner);
 
-  // viewall
-  m_examiner->viewAll(m_renderArea->getSceneManager()->getViewportRegion());
+	// viewall
+	m_examiner->viewAll(m_renderArea->getSceneManager()->getViewportRegion());
 
   std::cout << "...done" << std::endl;
 }
@@ -78,7 +78,7 @@ BpaRenderAreaListener::BpaRenderAreaListener(RenderArea* renderArea)
   , m_sceneGraph(0)
   , m_examiner(0)
   , m_factory(new di::ObjectFactory)
-  , m_handle(0)
+  , m_handle((di::ProjectHandle*)0)
 {
 }
 
@@ -102,7 +102,7 @@ void BpaRenderAreaListener::sendProjectInfo() const
   msg += ", ";
   msg += "\"properties\": [";
 
-  // Add properties to parent node
+    // Add properties to parent node
   int flags = di::FORMATION;
   int type = di::VOLUME;
 
@@ -250,10 +250,10 @@ void BpaRenderAreaListener::onResize(RenderArea* renderArea, unsigned int width,
 void BpaRenderAreaListener::onRequestedSize(RenderArea* renderArea, Connection* sender, unsigned int width, unsigned int height)
 {
   std::cout << "[BpaRenderAreaListener] onRequestedResize(renderArea = " 
-	    << renderArea->getId() 
-	    << ", connection = " << sender->getId() 
-	    << ", width = " << width 
-	    << ", height = " << height << ")" << std::endl;
+    << renderArea->getId() 
+    << ", connection = " << sender->getId() 
+    << ", width = " << width 
+    << ", height = " << height << ")" << std::endl;
 
   renderArea->resize(width, height);
 }

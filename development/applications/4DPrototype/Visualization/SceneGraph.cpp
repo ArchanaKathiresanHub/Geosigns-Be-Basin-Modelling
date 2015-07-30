@@ -251,20 +251,20 @@ void SceneGraph::setup(di::ProjectHandle* handle, size_t subdivision)
   createRootNode();
 }
 
-void SceneGraph::setProperty(const DataAccess::Interface::Property* prop, SoSwitch* snapshots)
+void SceneGraph::setProperty(const DataAccess::Interface::Property* prop)
 {
   double globalMinVal = std::numeric_limits<double>::max();
   double globalMaxVal = -globalMinVal;
 
-  for(int i=0; i < snapshots->getNumChildren(); ++i)
+  for(int i=0; i < m_snapshots->getNumChildren(); ++i)
   {
-    SnapshotNode* node = dynamic_cast<SnapshotNode*>(snapshots->getChild(i));
+    SnapshotNode* node = dynamic_cast<SnapshotNode*>(m_snapshots->getChild(i));
     if(node != 0)
     {
       node->setProperty(prop);
 
-      double minVal = node->scalarSet()->getScalarSet()->getMin();
-      double maxVal = node->scalarSet()->getScalarSet()->getMax();
+      double minVal = 0.0, maxVal = 0.0;
+      node->getPropertyValueRange(minVal, maxVal);
 
       globalMaxVal = (maxVal > globalMaxVal) ? maxVal : globalMaxVal;
       globalMinVal = (minVal < globalMinVal) ? minVal : globalMinVal;
@@ -273,14 +273,6 @@ void SceneGraph::setProperty(const DataAccess::Interface::Property* prop, SoSwit
 
   m_colorMap->minValue = (float)globalMinVal;
   m_colorMap->maxValue = (float)globalMaxVal;
-}
-
-void SceneGraph::setProperty(const DataAccess::Interface::Property* prop)
-{
-  if (prop->getType() == di::RESERVOIRPROPERTY)
-    ;// setProperty(prop, m_snapshotsHiRes);
-  else
-    setProperty(prop, m_snapshots);
 }
 
 int SceneGraph::snapshotCount() const

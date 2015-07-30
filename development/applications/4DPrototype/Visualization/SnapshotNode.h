@@ -85,7 +85,7 @@ public:
 
   void setReservoirVisibility(const std::string& name, bool visible);
 
-  MoScalarSetI* scalarSet() const;
+  void getPropertyValueRange(double& minVal, double& maxVal) const;
 
   SoSFInt32 RenderMode;
 

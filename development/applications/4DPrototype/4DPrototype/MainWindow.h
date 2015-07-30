@@ -22,7 +22,8 @@ class MainWindow : public QMainWindow
   QLabel* m_timeLabel;
   QLabel* m_fpsLabel;
 
-  DataAccess::Interface::ProjectHandle* m_projectHandle;
+  std::unique_ptr<DataAccess::Interface::ObjectFactory> m_factory;
+  std::unique_ptr<DataAccess::Interface::ProjectHandle> m_projectHandle;
   
   SceneGraph* m_sceneGraph;
 

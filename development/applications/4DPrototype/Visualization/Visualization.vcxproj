@@ -129,6 +129,7 @@
     <ClCompile Include="BpaMesh.cpp" />
     <ClCompile Include="Extractor.cpp" />
     <ClCompile Include="Mesh.cpp" />
+    <ClCompile Include="Property.cpp" />
     <ClCompile Include="ROICellFilter.cpp" />
     <ClCompile Include="SceneGraph.cpp" />
     <ClCompile Include="SkinExtractor.cpp" />
@@ -139,6 +140,7 @@
     <ClInclude Include="defines.h" />
     <ClInclude Include="Extractor.h" />
     <ClInclude Include="Mesh.h" />
+    <ClInclude Include="Property.h" />
     <ClInclude Include="ROICellFilter.h" />
     <ClInclude Include="SceneGraph.h" />
     <ClInclude Include="SkinExtractor.h" />

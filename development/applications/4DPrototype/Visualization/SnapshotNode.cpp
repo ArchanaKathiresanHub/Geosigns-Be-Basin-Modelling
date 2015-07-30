@@ -1,6 +1,7 @@
 #include "SnapshotNode.h"
 #include "BpaMesh.h"
 #include "Mesh.h"
+#include "Property.h"
 
 // DataAccess
 #include "Interface/Grid.h"
@@ -170,13 +171,19 @@ void SnapshotNode::setup(const di::Snapshot* snapshot)
       material->lineColoring = MoMaterial::COLOR;
       material->lineColor = SbColor(0.0f, 0.0f, 0.0f);
 
+      MoScalarSetI* scalarSet = new MoScalarSetI;
+
       MoMeshSkin* skinMesh = new MoMeshSkin;
 
+      SoSeparator* sep = new SoSeparator;
+      sep->addChild(meshNode);
+      sep->addChild(material);
+      sep->addChild(scalarSet);
+      sep->addChild(skinMesh);
+
       SoSwitch* group = new SoSwitch;
-      group->addChild(meshNode);
-      group->addChild(material);
-      group->addChild(skinMesh);
       group->whichChild = SO_SWITCH_ALL;
+      group->addChild(sep);
 
       m_formationsMap[formation->getName()] = group;
 
@@ -336,18 +343,35 @@ void SnapshotNode::setProperty(const di::Property* prop)
     type = di::VOLUME;
   }
 
-  std::shared_ptr<di::PropertyValueList> values(
-    handle->getPropertyValues(flags, prop, m_snapshot, 0, 0, 0, type));
+  std::unique_ptr<di::FormationList> formations(handle->getFormations(m_snapshot, false));
+  for (auto formation : *formations)
+  {
+    auto iter = m_formationsMap.find(formation->getName());
+    if (iter == m_formationsMap.end())
+      continue;
 
-  BpaProperty* bpaProperty = new BpaProperty(grid->numI(), grid->numJ(), values, m_subdivision);
+    SoSeparator* sep = static_cast<SoSeparator*>(iter->second->getChild(0));
+    MoScalarSetI* scalarSet = static_cast<MoScalarSetI*>(sep->getChild(2));
+    const MiScalardSetI* prevDataSet = scalarSet->getScalarSet();
+    delete prevDataSet;
 
-  const MiScalardSetI* scalarSet = m_scalarSet->getScalarSet();
-  delete scalarSet; // not reference counted, so delete it ourselves!!
+    std::unique_ptr<di::PropertyValueList> values(handle->getPropertyValues(flags, prop, m_snapshot, nullptr, formation, nullptr, type));
 
-  m_scalarSet->setScalarSet(bpaProperty);
-  m_scalarSet->touch();
+    ScalarProperty* dataSet = nullptr;
+    MoMaterial::ColoringType colorType = MoMaterial::COLOR;
 
-  m_skin->colorScalarSetId = 0;
+    if (values->size() == 1)
+    {
+      dataSet = new ScalarProperty(prop->getName(), (*values)[0]->getGridMap());
+      colorType = MoMaterial::CONTOURING;
+    }
+
+    MoMaterial* material = static_cast<MoMaterial*>(sep->getChild(1));
+    material->faceColoring.setValue(colorType);
+
+    scalarSet->setScalarSet(dataSet);
+    scalarSet->touch();
+  }
 }
 
 void SnapshotNode::setFormationVisibility(const std::string& name, bool visible)
@@ -377,7 +401,18 @@ void SnapshotNode::setReservoirVisibility(const std::string& name, bool visible)
     : SO_SWITCH_NONE;
 }
 
-MoScalarSetI* SnapshotNode::scalarSet() const
+void SnapshotNode::getPropertyValueRange(double& minVal, double& maxVal) const
 {
-  return m_scalarSet;
+  for (int i = 0; i < m_formationsGroup->getNumChildren(); ++i)
+  {
+    SoGroup* group = static_cast<SoGroup*>(m_formationsGroup->getChild(i));
+    SoSeparator* sep = static_cast<SoSeparator*>(group->getChild(0));
+    MoScalarSetI* scalarSet = static_cast<MoScalarSetI*>(sep->getChild(2));
+    const MiScalardSetI* dataSet = scalarSet->getScalarSet();
+    if (dataSet)
+    {
+      minVal = dataSet->getMin();
+      maxVal = dataSet->getMax();
+    }
+  }
 }

@@ -158,12 +158,14 @@
     <ClCompile Include="RenderService.cpp" />
     <ClCompile Include="SceneExaminer.cpp" />
     <ClCompile Include="BpaServiceListener.cpp" />
+    <ClCompile Include="SceneInteractor.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BpaRenderAreaListener.h" />
     <ClInclude Include="RenderService.h" />
     <ClInclude Include="SceneExaminer.h" />
     <ClInclude Include="BpaServiceListener.h" />
+    <ClInclude Include="SceneInteractor.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\QtService\QtService.vcxproj">

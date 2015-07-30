@@ -82,8 +82,6 @@ private:
 
   void initializeManip();
 
-  void setProperty(const DataAccess::Interface::Property* prop, SoSwitch* snapshots);
-
 public:
 
   static void initClass();

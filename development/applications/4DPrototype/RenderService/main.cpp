@@ -17,8 +17,7 @@ using namespace RemoteViz::Rendering;
 
 bool running; 
 
-/*
-void sleep(unsigned int time) // milliseconds
+void sleepms(unsigned int time) // milliseconds
 { 
 #if defined(_WIN32)
   Sleep(time);
@@ -26,7 +25,7 @@ void sleep(unsigned int time) // milliseconds
   usleep(time * 1000);
 #endif
 }
-*/
+
 void sighandler(int sig)
 {
   running = false;
@@ -46,8 +45,8 @@ int main(int argc, char* argv[])
   BpaVizInit();
 
   ServiceSettings settings;
-  settings.setIP("172.28.16.121");
-  settings.setPort(8080);
+  settings.setIP("127.0.0.1");
+  settings.setPort(8081);
   settings.setUsedExtensions(ServiceSettings::MESHVIZXLM | ServiceSettings::MESHVIZ);
 
   std::shared_ptr<ServiceListener> serviceListener(new BpaServiceListener);
@@ -56,6 +55,9 @@ int main(int argc, char* argv[])
   // Open the service by using the settings
   if(Service::instance()->open(&settings))
   {
+    std::cout << "IP : " << settings.getIP() << std::endl;
+    std::cout << "Hostname : " << settings.getHostname() << std::endl;
+    std::cout << "Port : " << settings.getPort() << std::endl;
     std::cout << "The BPA RenderService is running. Press Ctrl+C to stop." << std::endl;
 
     signal(SIGABRT, &sighandler);
@@ -67,7 +69,7 @@ int main(int argc, char* argv[])
     while (running)
     {
       Service::instance()->dispatch();
-      sleep(1);
+      sleepms(1);
     }
 
     // Close the service
@@ -76,7 +78,7 @@ int main(int argc, char* argv[])
   else
   {
     std::cout << "Error starting service" << std::endl;
-    sleep(5000);
+    sleepms(5000);
   }
 
   BpaVizFinish();

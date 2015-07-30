@@ -1,9 +1,11 @@
 #include "MainWindow.h"
 #include "GLInfoDialog.h"
+  
 #include <Visualization/SceneGraph.h>
 #include <Visualization/SnapshotNode.h>
 
-#include "Interface/ProjectHandle.h"
+#include <Interface/ProjectHandle.h>
+#include <Interface/ObjectFactory.h>
 #include "Interface/Property.h"
 #include "Interface/Formation.h"
 #include "Interface/Reservoir.h"
@@ -73,7 +75,7 @@ void MainWindow::loadProject(const QString& filename)
     //std::string file = filename.toStdString();
     QByteArray barray = filename.toLatin1();
     const char* str = barray.data();
-    m_projectHandle = di::OpenCauldronProject(str, "r");
+    m_projectHandle.reset(di::OpenCauldronProject(str, "r", m_factory.get()));
   }
 
   setWindowFilePath(filename);
@@ -82,13 +84,13 @@ void MainWindow::loadProject(const QString& filename)
   {
     const size_t subdiv = 1;
     m_sceneGraph = new SceneGraph;
-    m_sceneGraph->setup(m_projectHandle, subdiv);
+    m_sceneGraph->setup(m_projectHandle.get(), subdiv);
     m_sceneGraph->RenderMode = SnapshotNode::RenderMode_Skin;
 
     m_ui.renderWidget->getViewer()->setSceneGraph(m_sceneGraph);
     m_ui.snapshotSlider->setMinimum(0);
     m_ui.snapshotSlider->setMaximum(m_sceneGraph->snapshotCount() - 1);
-    m_ui.snapshotSlider->setValue(0);
+    m_ui.snapshotSlider->setValue(m_ui.snapshotSlider->maximum());
     m_ui.radioButtonSkin->setChecked(true);
   }
 
@@ -99,9 +101,9 @@ void MainWindow::closeProject()
 {
   if(m_projectHandle != 0)
   {
-    di::CloseCauldronProject(m_projectHandle);
+    //di::CloseCauldronProject(m_projectHandle.get());
+    //m_projectHandle = nullptr;
 
-    m_projectHandle = nullptr;
     m_sceneGraph = nullptr;
 
     m_ui.renderWidget->getViewer()->setSceneGraph(nullptr);
@@ -541,6 +543,7 @@ MainWindow::MainWindow()
   , m_dimensionsLabel(nullptr)
   , m_timeLabel(nullptr)
   , m_fpsLabel(nullptr)
+  , m_factory(new di::ObjectFactory)
   , m_projectHandle(nullptr)
   , m_sceneGraph(nullptr)
 {
