@@ -672,9 +672,15 @@ OutputPropertyValuePtr PropertiesCalculator::allocateOutputProperty ( DerivedPro
          }
          if( topSurface != 0 && m_propertyManager->surfacePropertyIsComputable ( property, snapshot, topSurface )) 
          {
+            if( m_debug && m_rank == 0 ) {
+               cout << "Formation " << formation->getName() << " and the top surface " << topSurface->getName() << endl;
+            }
             outputProperty = OutputPropertyValuePtr ( new SurfaceOutputPropertyValue ( * m_propertyManager, property, snapshot, topSurface ));
          } else if( bottomSurface != 0 && m_propertyManager->surfacePropertyIsComputable ( property, snapshot, bottomSurface )) 
          {
+            if( m_debug && m_rank == 0 ) {
+               cout << "Formation " << formation->getName() << " and the bottom surface " << bottomSurface->getName() << endl;
+            }
             outputProperty = OutputPropertyValuePtr ( new SurfaceOutputPropertyValue ( * m_propertyManager, property, snapshot, bottomSurface ));
          }
       }

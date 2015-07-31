@@ -29,7 +29,7 @@ public :
 
    const DataModel::AbstractSurface* getSurface() const { return  m_surfaceProperty->getSurface(); }
 
-   bool hasMap() const { return  m_surfaceProperty != 0; }
+   bool hasMap() const;
 
  private :
 

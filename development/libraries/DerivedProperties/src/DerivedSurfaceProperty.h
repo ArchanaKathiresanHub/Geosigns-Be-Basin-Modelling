@@ -39,6 +39,13 @@ namespace DerivedProperties {
 
       /// \brief Get the undefined value.
       virtual double getUndefinedValue () const;
+
+      /// \brief Return false.
+      bool isPrimary () const;
+
+      /// \ brief Get the gridMap
+      const DataAccess::Interface::GridMap* getGridMap() const;
+
    private :
 
       /// \brief 2 dimensional array containing the surface property values.
@@ -50,5 +57,15 @@ namespace DerivedProperties {
 
 }
 
+
+inline bool DerivedProperties::DerivedSurfaceProperty::isPrimary () const {
+
+   return false;
+}
+
+inline const DataAccess::Interface::GridMap* DerivedProperties::DerivedSurfaceProperty::getGridMap() const {
+
+   return 0;
+}
 
 #endif // DERIVED_PROPERTIES__DERIVED_SURFACE_PROPERTY_H

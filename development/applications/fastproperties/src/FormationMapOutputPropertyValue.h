@@ -27,7 +27,7 @@ public :
 
    const string & getName() const { return  m_formationMapProperty->getProperty()->getName(); }
 
-   bool hasMap() const { return  m_formationMapProperty != 0; }
+   bool hasMap() const;
 
  private :
 

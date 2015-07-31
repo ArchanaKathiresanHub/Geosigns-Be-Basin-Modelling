@@ -36,3 +36,14 @@ unsigned int FormationOutputPropertyValue::getDepth () const {
    
 }
 
+bool FormationOutputPropertyValue::hasMap() const { 
+
+   if( m_formationProperty != 0 ) {
+
+      if( m_formationProperty->isPrimary() and m_formationProperty->getGridMap() == 0 ) {
+         return false;
+      }
+      return true;
+   }
+   return false;
+}

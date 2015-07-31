@@ -31,3 +31,15 @@ unsigned int SurfaceOutputPropertyValue::getDepth () const {
    
 }
 
+
+bool SurfaceOutputPropertyValue::hasMap() const { 
+
+   if( m_surfaceProperty != 0 ) {
+
+      if( m_surfaceProperty->isPrimary() and m_surfaceProperty->getGridMap() == 0 ) {
+         return false;
+      }
+      return true;
+   }
+   return false;
+}

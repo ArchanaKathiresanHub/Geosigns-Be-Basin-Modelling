@@ -31,3 +31,14 @@ unsigned int FormationMapOutputPropertyValue::getDepth () const {
    
 }
 
+bool FormationMapOutputPropertyValue::hasMap() const { 
+
+   if( m_formationMapProperty != 0 ) {
+
+      if( m_formationMapProperty->isPrimary() and m_formationMapProperty->getGridMap() == 0 ) {
+         return false;
+      }
+      return true;
+   }
+   return false;
+}

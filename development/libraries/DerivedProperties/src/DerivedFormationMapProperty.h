@@ -40,7 +40,12 @@ namespace DerivedProperties {
       /// \brief Get the undefined value.
       virtual double getUndefinedValue () const;
 
-   private :
+       /// \brief Return false
+      bool isPrimary () const;
+
+      /// \ brief Return 0
+      const DataAccess::Interface::GridMap* getGridMap() const;
+  private :
 
       /// \brief 2 dimensional array containing the formation map property values.
       boost::multi_array<double,2> m_values;
@@ -51,5 +56,14 @@ namespace DerivedProperties {
 
 }
 
+inline bool DerivedProperties::DerivedFormationMapProperty::isPrimary () const {
+
+   return false;
+}
+
+inline const DataAccess::Interface::GridMap* DerivedProperties::DerivedFormationMapProperty::getGridMap() const {
+
+   return 0;
+}
 
 #endif // DERIVED_PROPERTIES__DERIVED_FORMATION_MAP_PROPERTY_H

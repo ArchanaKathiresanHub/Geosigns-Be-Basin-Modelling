@@ -12,6 +12,8 @@
 
 #include "AbstractPropertyValues.h"
 
+#include "Interface/GridMap.h"
+
 namespace DerivedProperties {
 
    /// \brief Stores the values of the designated property for the formation.
@@ -62,6 +64,11 @@ namespace DerivedProperties {
       virtual double interpolate ( double i,
                                    double j ) const;
 
+      /// \brief Return true if the property is primary.
+      virtual bool isPrimary () const = 0;
+
+      /// \ brief Get the gridMap
+      virtual const DataAccess::Interface::GridMap* getGridMap() const = 0;
    private :
 
       const DataModel::AbstractProperty*  m_property;
