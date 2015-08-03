@@ -99,6 +99,8 @@ add_gtest( NAME "Fastmig::Biodegrade"
 
 endif (BM_PARALLEL)
 
+generate_dox( src/fastmig.cfg )
+
 # Local Variables:
 # mode: cmake
 # cmake-tab-width: 4
