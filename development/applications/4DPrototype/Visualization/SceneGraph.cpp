@@ -97,7 +97,7 @@ void SceneGraph::createAppearanceNode()
   //material->transparency = .75f;
 
   MoDataBinding* binding = new MoDataBinding;
-  binding->dataBinding = MoDataBinding::PER_NODE;
+  binding->dataBinding = MoDataBinding::PER_CELL;
 
   m_appearance = new SoGroup;
   m_appearance->addChild(m_colorMap);
@@ -273,6 +273,16 @@ void SceneGraph::setProperty(const DataAccess::Interface::Property* prop)
 
   m_colorMap->minValue = (float)globalMinVal;
   m_colorMap->maxValue = (float)globalMaxVal;
+}
+
+void SceneGraph::setVectorProperty(const DataAccess::Interface::Property* prop[3])
+{
+  for (int i = 0; i < m_snapshots->getNumChildren(); ++i)
+  {
+    SnapshotNode* node = dynamic_cast<SnapshotNode*>(m_snapshots->getChild(i));
+    if (node != 0)
+      node->setVectorProperty(prop);
+  }
 }
 
 int SceneGraph::snapshotCount() const

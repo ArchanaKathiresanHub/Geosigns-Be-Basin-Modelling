@@ -96,6 +96,8 @@ public:
 
   void setProperty(const DataAccess::Interface::Property* prop);
 
+  void setVectorProperty(const DataAccess::Interface::Property* prop[3]);
+
   int snapshotCount() const;
 
   const DataAccess::Interface::Snapshot* getSnapshot(int index) const;

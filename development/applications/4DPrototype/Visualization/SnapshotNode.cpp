@@ -26,12 +26,14 @@
 // MeshVizXLM
 #include <MeshVizInterface/mapping/nodes/MoMesh.h>
 #include <MeshVizInterface/mapping/nodes/MoMeshSkin.h>
+#include <MeshVizInterface/mapping/nodes/MoMeshVector.h>
 #include <MeshVizInterface/mapping/nodes/MoMeshLogicalSlice.h>
 #include <MeshVizInterface/mapping/nodes/MoMeshPlaneSlice.h>
 #include <MeshVizInterface/mapping/nodes/MoMeshOutline.h>
 #include <MeshVizInterface/mapping/nodes/MoMaterial.h>
 #include <MeshVizInterface/mapping/nodes/MoDrawStyle.h>
-#include <MeshVizInterface/mapping/nodes/MoScalarSetI.h>
+#include <MeshVizInterface/mapping/nodes/MoScalarSetIjk.h>
+#include <MeshVizInterface/mapping/nodes/MoVec3SetIjk.h>
 #include <MeshVizInterface/mapping/nodes/MoDataBinding.h>
 #include <MeshVizInterface/mapping/nodes/MoPredefinedColorMapping.h>
 #include <MeshVizInterface/mapping/nodes/MoCellFilter.h>
@@ -67,7 +69,7 @@ void SnapshotNode::exitClass()
 SnapshotNode::SnapshotNode()
 : m_snapshot(0)
 , m_mesh(new MoMesh)
-, m_scalarSet(new MoScalarSetI)
+, m_scalarSet(new MoScalarSetIjk)
 , m_skin(new MoMeshSkin)
 , m_sliceI(new MoMeshLogicalSlice)
 , m_sliceJ(new MoMeshLogicalSlice)
@@ -171,15 +173,22 @@ void SnapshotNode::setup(const di::Snapshot* snapshot)
       material->lineColoring = MoMaterial::COLOR;
       material->lineColor = SbColor(0.0f, 0.0f, 0.0f);
 
-      MoScalarSetI* scalarSet = new MoScalarSetI;
+      MoScalarSetIjk* scalarSet = new MoScalarSetIjk;
+      MoVec3SetIjk* vectorSet = new MoVec3SetIjk;
 
-      MoMeshSkin* skinMesh = new MoMeshSkin;
+      MoMeshSkin* meshSkin = new MoMeshSkin;
+      MoMeshVector* meshVector = new MoMeshVector;
+      SoSwitch* vectorSwitch = new SoSwitch;
+      vectorSwitch->addChild(meshVector);
+      vectorSwitch->whichChild = SO_SWITCH_NONE;
 
       SoSeparator* sep = new SoSeparator;
       sep->addChild(meshNode);
       sep->addChild(material);
       sep->addChild(scalarSet);
-      sep->addChild(skinMesh);
+      sep->addChild(vectorSet);
+      sep->addChild(meshSkin);
+      sep->addChild(vectorSwitch);
 
       SoSwitch* group = new SoSwitch;
       group->whichChild = SO_SWITCH_ALL;
@@ -322,15 +331,13 @@ const DataAccess::Interface::Snapshot* SnapshotNode::getSnapShot() const
 
 void SnapshotNode::setProperty(const di::Property* prop)
 {
-  di::PropertyType propType = prop->getType();
-
   di::ProjectHandle* handle = m_snapshot->getProjectHandle();
 
   const di::Grid* grid;
   int flags;
   int type;
 
-  if (propType == di::RESERVOIRPROPERTY)
+  if (prop->getType() == di::RESERVOIRPROPERTY)
   {
     grid = handle->getHighResolutionOutputGrid();
     flags = di::RESERVOIR;
@@ -351,8 +358,8 @@ void SnapshotNode::setProperty(const di::Property* prop)
       continue;
 
     SoSeparator* sep = static_cast<SoSeparator*>(iter->second->getChild(0));
-    MoScalarSetI* scalarSet = static_cast<MoScalarSetI*>(sep->getChild(2));
-    const MiScalardSetI* prevDataSet = scalarSet->getScalarSet();
+    MoScalarSetIjk* scalarSet = static_cast<MoScalarSetIjk*>(sep->getChild(2));
+    const MiScalardSetIjk* prevDataSet = scalarSet->getScalarSet();
     delete prevDataSet;
 
     std::unique_ptr<di::PropertyValueList> values(handle->getPropertyValues(flags, prop, m_snapshot, nullptr, formation, nullptr, type));
@@ -371,6 +378,55 @@ void SnapshotNode::setProperty(const di::Property* prop)
 
     scalarSet->setScalarSet(dataSet);
     scalarSet->touch();
+  }
+}
+
+void SnapshotNode::setVectorProperty(const DataAccess::Interface::Property* prop[3])
+{
+  di::ProjectHandle* handle = m_snapshot->getProjectHandle();
+
+  std::unique_ptr<di::FormationList> formations(handle->getFormations(m_snapshot, false));
+  for (auto formation : *formations)
+  {
+    auto iter = m_formationsMap.find(formation->getName());
+    if (iter == m_formationsMap.end())
+      continue;
+
+    SoSeparator* sep = static_cast<SoSeparator*>(iter->second->getChild(0));
+    MoVec3SetIjk* vectorSet = static_cast<MoVec3SetIjk*>(sep->getChild(3));
+    const MiVec3dSetIjk* prevDataSet = vectorSet->getVec3Set();
+    delete prevDataSet;
+
+    bool ok = true;
+
+    const di::GridMap* gridMaps[3] = { 0, 0, 0 };
+    for (int i = 0; ok && i < 3; ++i)
+    {
+      std::unique_ptr<di::PropertyValueList> values(
+        handle->getPropertyValues(
+        di::FORMATION,
+        prop[i],
+        m_snapshot,
+        nullptr,
+        formation,
+        nullptr,
+        di::VOLUME));
+
+      if (values->size() == 1)
+        gridMaps[i] = (*values)[0]->getGridMap();
+      else
+        ok = false;
+    }
+
+    if (ok)
+    {
+      VectorProperty* dataSet = new VectorProperty(prop[0]->getName(), gridMaps);
+      vectorSet->setVec3Set(dataSet);
+      vectorSet->touch();
+    }
+
+    SoSwitch* vectorSwitch = static_cast<SoSwitch*>(sep->getChild(5));
+    vectorSwitch->whichChild = ok ? SO_SWITCH_ALL : SO_SWITCH_NONE;
   }
 }
 
@@ -407,8 +463,8 @@ void SnapshotNode::getPropertyValueRange(double& minVal, double& maxVal) const
   {
     SoGroup* group = static_cast<SoGroup*>(m_formationsGroup->getChild(i));
     SoSeparator* sep = static_cast<SoSeparator*>(group->getChild(0));
-    MoScalarSetI* scalarSet = static_cast<MoScalarSetI*>(sep->getChild(2));
-    const MiScalardSetI* dataSet = scalarSet->getScalarSet();
+    MoScalarSetIjk* scalarSet = static_cast<MoScalarSetIjk*>(sep->getChild(2));
+    const MiScalardSetIjk* dataSet = scalarSet->getScalarSet();
     if (dataSet)
     {
       minVal = dataSet->getMin();

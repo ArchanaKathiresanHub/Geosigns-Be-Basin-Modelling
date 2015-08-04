@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'MainWindow.ui'
 **
-** Created: Mon Jul 20 14:21:39 2015
+** Created: Tue Aug 4 12:08:40 2015
 **      by: Qt User Interface Compiler version 4.8.4
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -29,6 +29,7 @@
 #include <QtGui/QSpacerItem>
 #include <QtGui/QSplitter>
 #include <QtGui/QStatusBar>
+#include <QtGui/QTabWidget>
 #include <QtGui/QTreeWidget>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QWidget>
@@ -45,11 +46,17 @@ public:
     QAction *action_RenderAllSlices;
     QAction *action_SwitchProperties;
     QWidget *centralwidget;
-    QHBoxLayout *horizontalLayout_3;
+    QVBoxLayout *verticalLayout_5;
     QSplitter *splitter;
     QWidget *layoutWidget;
     QVBoxLayout *verticalLayout_4;
+    QTabWidget *tabWidget;
+    QWidget *tab;
+    QVBoxLayout *verticalLayout;
     QTreeWidget *treeWidget;
+    QWidget *tab_2;
+    QVBoxLayout *verticalLayout_6;
+    QTreeWidget *treeWidgetProperties;
     QHBoxLayout *horizontalLayout_2;
     QLabel *label_7;
     QSlider *sliderVerticalScale;
@@ -97,7 +104,7 @@ public:
     {
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName(QString::fromUtf8("MainWindow"));
-        MainWindow->resize(857, 833);
+        MainWindow->resize(813, 833);
         action_Open = new QAction(MainWindow);
         action_Open->setObjectName(QString::fromUtf8("action_Open"));
         action_Quit = new QAction(MainWindow);
@@ -112,8 +119,8 @@ public:
         action_SwitchProperties->setObjectName(QString::fromUtf8("action_SwitchProperties"));
         centralwidget = new QWidget(MainWindow);
         centralwidget->setObjectName(QString::fromUtf8("centralwidget"));
-        horizontalLayout_3 = new QHBoxLayout(centralwidget);
-        horizontalLayout_3->setObjectName(QString::fromUtf8("horizontalLayout_3"));
+        verticalLayout_5 = new QVBoxLayout(centralwidget);
+        verticalLayout_5->setObjectName(QString::fromUtf8("verticalLayout_5"));
         splitter = new QSplitter(centralwidget);
         splitter->setObjectName(QString::fromUtf8("splitter"));
         splitter->setOrientation(Qt::Horizontal);
@@ -122,7 +129,14 @@ public:
         verticalLayout_4 = new QVBoxLayout(layoutWidget);
         verticalLayout_4->setObjectName(QString::fromUtf8("verticalLayout_4"));
         verticalLayout_4->setContentsMargins(0, 0, 0, 0);
-        treeWidget = new QTreeWidget(layoutWidget);
+        tabWidget = new QTabWidget(layoutWidget);
+        tabWidget->setObjectName(QString::fromUtf8("tabWidget"));
+        tabWidget->setTabPosition(QTabWidget::South);
+        tab = new QWidget();
+        tab->setObjectName(QString::fromUtf8("tab"));
+        verticalLayout = new QVBoxLayout(tab);
+        verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
+        treeWidget = new QTreeWidget(tab);
         QTreeWidgetItem *__qtreewidgetitem = new QTreeWidgetItem();
         __qtreewidgetitem->setText(0, QString::fromUtf8("1"));
         treeWidget->setHeaderItem(__qtreewidgetitem);
@@ -132,8 +146,30 @@ public:
         sizePolicy.setVerticalStretch(0);
         sizePolicy.setHeightForWidth(treeWidget->sizePolicy().hasHeightForWidth());
         treeWidget->setSizePolicy(sizePolicy);
+        treeWidget->header()->setVisible(false);
 
-        verticalLayout_4->addWidget(treeWidget);
+        verticalLayout->addWidget(treeWidget);
+
+        tabWidget->addTab(tab, QString());
+        tab_2 = new QWidget();
+        tab_2->setObjectName(QString::fromUtf8("tab_2"));
+        verticalLayout_6 = new QVBoxLayout(tab_2);
+        verticalLayout_6->setObjectName(QString::fromUtf8("verticalLayout_6"));
+        treeWidgetProperties = new QTreeWidget(tab_2);
+        QTreeWidgetItem *__qtreewidgetitem1 = new QTreeWidgetItem();
+        __qtreewidgetitem1->setText(3, QString::fromUtf8("4"));
+        __qtreewidgetitem1->setText(2, QString::fromUtf8("3"));
+        __qtreewidgetitem1->setText(1, QString::fromUtf8("2"));
+        __qtreewidgetitem1->setText(0, QString::fromUtf8("1"));
+        treeWidgetProperties->setHeaderItem(__qtreewidgetitem1);
+        treeWidgetProperties->setObjectName(QString::fromUtf8("treeWidgetProperties"));
+        treeWidgetProperties->setColumnCount(4);
+
+        verticalLayout_6->addWidget(treeWidgetProperties);
+
+        tabWidget->addTab(tab_2, QString());
+
+        verticalLayout_4->addWidget(tabWidget);
 
         horizontalLayout_2 = new QHBoxLayout();
         horizontalLayout_2->setObjectName(QString::fromUtf8("horizontalLayout_2"));
@@ -144,8 +180,8 @@ public:
 
         sliderVerticalScale = new QSlider(layoutWidget);
         sliderVerticalScale->setObjectName(QString::fromUtf8("sliderVerticalScale"));
-        sliderVerticalScale->setMinimum(1);
-        sliderVerticalScale->setMaximum(5);
+        sliderVerticalScale->setMinimum(0);
+        sliderVerticalScale->setMaximum(10);
         sliderVerticalScale->setPageStep(1);
         sliderVerticalScale->setOrientation(Qt::Horizontal);
         sliderVerticalScale->setTickPosition(QSlider::TicksBelow);
@@ -177,6 +213,7 @@ public:
 
         groupBoxROI = new QGroupBox(layoutWidget);
         groupBoxROI->setObjectName(QString::fromUtf8("groupBoxROI"));
+        groupBoxROI->setEnabled(true);
         gridLayout_2 = new QGridLayout(groupBoxROI);
         gridLayout_2->setObjectName(QString::fromUtf8("gridLayout_2"));
         checkBoxROI = new QCheckBox(groupBoxROI);
@@ -339,12 +376,12 @@ public:
         renderWidget->setSizePolicy(sizePolicy2);
         splitter->addWidget(renderWidget);
 
-        horizontalLayout_3->addWidget(splitter);
+        verticalLayout_5->addWidget(splitter);
 
         MainWindow->setCentralWidget(centralwidget);
         menubar = new QMenuBar(MainWindow);
         menubar->setObjectName(QString::fromUtf8("menubar"));
-        menubar->setGeometry(QRect(0, 0, 857, 21));
+        menubar->setGeometry(QRect(0, 0, 813, 21));
         menu_File = new QMenu(menubar);
         menu_File->setObjectName(QString::fromUtf8("menu_File"));
         menuTest = new QMenu(menubar);
@@ -369,6 +406,9 @@ public:
 
         retranslateUi(MainWindow);
 
+        tabWidget->setCurrentIndex(0);
+
+
         QMetaObject::connectSlotsByName(MainWindow);
     } // setupUi
 
@@ -381,6 +421,8 @@ public:
         action_OpenGLInfo->setText(QApplication::translate("MainWindow", "OpenGL Info", 0, QApplication::UnicodeUTF8));
         action_RenderAllSlices->setText(QApplication::translate("MainWindow", "Render all slices", 0, QApplication::UnicodeUTF8));
         action_SwitchProperties->setText(QApplication::translate("MainWindow", "Switch properties", 0, QApplication::UnicodeUTF8));
+        tabWidget->setTabText(tabWidget->indexOf(tab), QApplication::translate("MainWindow", "Structure", 0, QApplication::UnicodeUTF8));
+        tabWidget->setTabText(tabWidget->indexOf(tab_2), QApplication::translate("MainWindow", "Properties", 0, QApplication::UnicodeUTF8));
         label_7->setText(QApplication::translate("MainWindow", "Vertical scale", 0, QApplication::UnicodeUTF8));
         groupBox_3->setTitle(QApplication::translate("MainWindow", "Render style", 0, QApplication::UnicodeUTF8));
         checkBoxDrawFaces->setText(QApplication::translate("MainWindow", "Faces", 0, QApplication::UnicodeUTF8));

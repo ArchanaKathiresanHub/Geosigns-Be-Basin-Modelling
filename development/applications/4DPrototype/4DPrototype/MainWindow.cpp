@@ -92,6 +92,7 @@ void MainWindow::loadProject(const QString& filename)
     m_ui.snapshotSlider->setMaximum(m_sceneGraph->snapshotCount() - 1);
     m_ui.snapshotSlider->setValue(m_ui.snapshotSlider->maximum());
     m_ui.radioButtonSkin->setChecked(true);
+    m_ui.renderWidget->getViewer()->getGuiAlgoViewers()->viewAll();
   }
 
   updateUI();
@@ -108,6 +109,7 @@ void MainWindow::closeProject()
 
     m_ui.renderWidget->getViewer()->setSceneGraph(nullptr);
     m_ui.treeWidget->clear();
+    m_ui.treeWidgetProperties->clear();
   }
 }
 
@@ -124,7 +126,6 @@ void MainWindow::enableUI(bool enabled)
 void MainWindow::updateUI()
 {
   m_ui.treeWidget->clear();
-  m_ui.treeWidget->setColumnCount(3);
 
   QTreeWidgetItem* formationsItem = new QTreeWidgetItem;
   formationsItem->setText(0, "Formations");
@@ -132,14 +133,21 @@ void MainWindow::updateUI()
   QTreeWidgetItem* surfacesItem = new QTreeWidgetItem;
   surfacesItem->setText(0, "Surfaces");
 
-  QTreeWidgetItem* propertiesItem = new QTreeWidgetItem;
-  propertiesItem->setText(0, "Properties");
-
   QTreeWidgetItem* reservoirsItem = new QTreeWidgetItem;
   reservoirsItem->setText(0, "Reservoirs");
 
   int flags = di::FORMATION;
   int type = di::VOLUME;
+
+  m_ui.treeWidgetProperties->clear();
+  QTreeWidgetItem* header = m_ui.treeWidgetProperties->headerItem();
+  header->setText(0, "Name");
+  header->setText(1, "Unit");
+  header->setText(2, "Type");
+  header->setText(3, "Attribute");
+
+  QTreeWidgetItem* propertiesItem = new QTreeWidgetItem;
+  propertiesItem->setText(0, "Properties");
 
   // Add properties to parent node
   std::unique_ptr<di::PropertyList> properties(m_projectHandle->getProperties(true, flags));
@@ -157,13 +165,29 @@ void MainWindow::updateUI()
       QString typeStr = "";
       switch (type)
       {
-      case di::FORMATIONPROPERTY: typeStr = "FORMATIONPROPERTY"; break;
-      case di::RESERVOIRPROPERTY: typeStr = "RESERVOIRPROPERTY"; break;
-      case di::TRAPPROPERTY: typeStr = "TRAPPROPERTY"; break;
+      case di::FORMATIONPROPERTY: typeStr = "Formation"; break;
+      case di::RESERVOIRPROPERTY: typeStr = "Reservoir"; break;
+      case di::TRAPPROPERTY: typeStr = "Trap"; break;
       }
       item->setText(2, typeStr);
+
+      DataModel::PropertyAttribute attr = prop->getPropertyAttribute();
+      QString attrStr = "";
+      switch (attr)
+      {
+      case DataModel::CONTINUOUS_3D_PROPERTY:     attrStr = "Continuous 3D"; break;
+      case DataModel::DISCONTINUOUS_3D_PROPERTY:  attrStr = "Discontinuous 3D"; break;
+      case DataModel::SURFACE_2D_PROPERTY:        attrStr = "Surface 2D"; break;
+      case DataModel::FORMATION_2D_PROPERTY:      attrStr = "Formation 2D"; break;
+      case DataModel::TRAP_PROPERTY:              attrStr = "Trap"; break;
+      case DataModel::UNKNOWN_PROPERTY_ATTRIBUTE: attrStr = "Unknown"; break;
+      }
+      item->setText(3, attrStr);
     }
   }
+
+  m_ui.treeWidgetProperties->addTopLevelItem(propertiesItem);
+  propertiesItem->setExpanded(true);
 
   // Add formations to parent node
   std::unique_ptr<di::FormationList> formations(m_projectHandle->getFormations(nullptr, false));
@@ -236,10 +260,14 @@ void MainWindow::updateUI()
     }
   }
 
+
   m_ui.treeWidget->addTopLevelItem(formationsItem);
   m_ui.treeWidget->addTopLevelItem(surfacesItem);
   m_ui.treeWidget->addTopLevelItem(reservoirsItem);
-  m_ui.treeWidget->addTopLevelItem(propertiesItem);
+
+  formationsItem->setExpanded(true);
+  surfacesItem->setExpanded(true);
+  reservoirsItem->setExpanded(true);
 
   enableUI(m_sceneGraph != nullptr);
 
@@ -281,7 +309,7 @@ void MainWindow::connectSignals()
   connect(m_ui.action_OpenGLInfo, SIGNAL(triggered()), this, SLOT(onShowGLInfo()));
 
   connect(m_ui.snapshotSlider, SIGNAL(valueChanged(int)), this, SLOT(onSliderValueChanged(int)));
-  connect(m_ui.treeWidget, SIGNAL(itemDoubleClicked(QTreeWidgetItem*, int)), this, SLOT(onItemDoubleClicked(QTreeWidgetItem*, int)));
+  connect(m_ui.treeWidgetProperties, SIGNAL(itemDoubleClicked(QTreeWidgetItem*, int)), this, SLOT(onItemDoubleClicked(QTreeWidgetItem*, int)));
   connect(m_ui.sliderSliceI, SIGNAL(valueChanged(int)), this, SLOT(onSliceIValueChanged(int)));
   connect(m_ui.sliderSliceJ, SIGNAL(valueChanged(int)), this, SLOT(onSliceJValueChanged(int)));
   connect(m_ui.radioButtonSkin, SIGNAL(toggled(bool)), this, SLOT(onRenderModeToggled(bool)));
@@ -451,7 +479,8 @@ void MainWindow::onSliceJValueChanged(int value)
 
 void MainWindow::onVerticalScaleSliderValueChanged(int value)
 {
-  m_sceneGraph->setVerticalScale((float)value);
+  float scale = powf(10.f, .2f * value);
+  m_sceneGraph->setVerticalScale(scale);
 }
 
 void MainWindow::onROISliderValueChanged(int value)
@@ -504,11 +533,36 @@ void MainWindow::onItemDoubleClicked(QTreeWidgetItem* item, int column)
 {
   if(item->type() == TreeWidgetItem_PropertyType)
   {
-    const di::Property* prop = m_projectHandle->findProperty(item->text(0).toStdString());
-
-    if(prop != 0)
+    std::string name = item->text(0).toStdString();
+    if (name == "HeatFlow")
     {
-      m_sceneGraph->setProperty(prop);
+      std::string suffix[] = { "X", "Y", "Z" };
+      const di::Property* props[3];
+      props[0] = m_projectHandle->findProperty(name + "X");
+      props[1] = m_projectHandle->findProperty(name + "Y");
+      props[2] = m_projectHandle->findProperty(name + "Z");
+
+      bool ok = true;
+      for (int i = 0; i < 3; ++i)
+      {
+        props[i] = m_projectHandle->findProperty(name + suffix[i]);
+        ok = ok && (props[i] != 0 && props[i]->hasPropertyValues(di::FORMATION, 0, 0, 0, 0, di::VOLUME));
+      }
+
+      if (ok)
+        m_sceneGraph->setVectorProperty(props);
+      else
+        std::cout << "No vector property values found for " << name << std::endl;
+
+    }
+    else
+    {
+      const di::Property* prop = m_projectHandle->findProperty(name);
+
+      if (prop != 0 && prop->hasPropertyValues(di::FORMATION, 0, 0, 0, 0, di::VOLUME))
+        m_sceneGraph->setProperty(prop);
+      else
+        std::cout << "No property values found for " << name << std::endl;
     }
   }
 }

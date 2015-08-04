@@ -16,7 +16,7 @@ class MoMeshSkin;
 class MoMeshLogicalSlice;
 class MoMeshPlaneSlice;
 class MoMeshOutline;
-class MoScalarSetI;
+class MoScalarSetIjk;
 
 class SkinExtractor;
 class Extractor;
@@ -33,7 +33,7 @@ class VISUALIZATIONDLL_API SnapshotNode : public SoSeparator
   size_t m_subdivision;
 
   MoMesh*             m_mesh;
-  MoScalarSetI*       m_scalarSet;
+  MoScalarSetIjk*     m_scalarSet;
   MoMeshSkin*         m_skin;
   MoMeshLogicalSlice* m_sliceI;
   MoMeshLogicalSlice* m_sliceJ;
@@ -78,6 +78,8 @@ public:
   const DataAccess::Interface::Snapshot* getSnapShot() const;
 
   void setProperty(const DataAccess::Interface::Property* prop);
+
+  void setVectorProperty(const DataAccess::Interface::Property* prop[3]);
 
   void setFormationVisibility(const std::string& name, bool visible);
 
