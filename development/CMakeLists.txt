@@ -51,7 +51,7 @@ option( BM_USE_FLEXLM "Whether to require a license via FlexLM" OFF)
 #
 # Variables concerning version numbers
 #
-set(BM_VERSION_NUMBER_MAJOR "2014" CACHE STRING "Numerical version major string. Anything like 2014")
+set(BM_VERSION_NUMBER_MAJOR "2016" CACHE STRING "Numerical version major string. Anything like 2014")
 set(BM_VERSION_NUMBER_MINOR "01" CACHE STRING "Numerical version minor string. Anything like 01")
 set(BM_VERSION_NUMBER ${BM_VERSION_NUMBER_MAJOR}.${BM_VERSION_NUMBER_MINOR})
 set(BM_VERSION_TAG "nightly" CACHE STRING "Version tag. E.g. nightly, cmake, etc")
