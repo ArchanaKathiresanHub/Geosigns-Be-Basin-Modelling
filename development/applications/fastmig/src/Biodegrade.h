@@ -23,11 +23,11 @@ public:
    /*!
    * \brief Constructor used for the biodegradation parameters in unit tests only
    */
-   Biodegrade(const double maxBioTemp, const DataAccess::Interface::BioConsts bioConsts, const double timeFactor) :
+   Biodegrade(const double maxBioTemp, const DataAccess::Interface::BioConsts bioConsts, const double timeFactor, const double bioRate = 0.3) :
       m_maxBioTemp(maxBioTemp),
       m_bioConsts(bioConsts),
       m_timeFactor(timeFactor),
-      m_bioRate(0.3)
+      m_bioRate(bioRate)
    {}
 
    /*!
