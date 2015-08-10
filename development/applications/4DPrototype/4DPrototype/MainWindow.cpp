@@ -82,16 +82,14 @@ void MainWindow::loadProject(const QString& filename)
 
   if (m_oivLicenseOK)
   {
-    const size_t subdiv = 1;
-    m_sceneGraph = new SceneGraph;
-    m_sceneGraph->setup(m_projectHandle.get(), subdiv);
-    m_sceneGraph->RenderMode = SnapshotNode::RenderMode_Skin;
+    m_sceneGraphManager.setup(m_projectHandle.get());
+    //m_sceneGraph = new SceneGraph;
+    //m_sceneGraph->setup(m_projectHandle.get());
 
-    m_ui.renderWidget->getViewer()->setSceneGraph(m_sceneGraph);
+    m_ui.renderWidget->getViewer()->setSceneGraph(m_sceneGraphManager.getRoot());
     m_ui.snapshotSlider->setMinimum(0);
-    m_ui.snapshotSlider->setMaximum(m_sceneGraph->snapshotCount() - 1);
+    m_ui.snapshotSlider->setMaximum((int)m_sceneGraphManager.getSnapshotCount() - 1);
     m_ui.snapshotSlider->setValue(m_ui.snapshotSlider->maximum());
-    m_ui.radioButtonSkin->setChecked(true);
     m_ui.renderWidget->getViewer()->getGuiAlgoViewers()->viewAll();
   }
 
@@ -269,34 +267,30 @@ void MainWindow::updateUI()
   surfacesItem->setExpanded(true);
   reservoirsItem->setExpanded(true);
 
-  enableUI(m_sceneGraph != nullptr);
+  enableUI(true);// m_sceneGraph != nullptr);
 
-  if (m_sceneGraph)
-  {
-    m_dimensionsLabel->setText(QString("Dimensions: %1x%2 / %3x%4")
-      .arg(m_sceneGraph->numI())
-      .arg(m_sceneGraph->numJ())
-      .arg(m_sceneGraph->numIHiRes())
-      .arg(m_sceneGraph->numJHiRes()));
+  m_dimensionsLabel->setText(QString("Dimensions: %1x%2 / %3x%4")
+    .arg(m_sceneGraphManager.numI())
+    .arg(m_sceneGraphManager.numJ())
+    .arg(m_sceneGraphManager.numIHiRes())
+    .arg(m_sceneGraphManager.numJHiRes()));
 
-    //const di::Grid* grid = loResGrid;
-    m_ui.sliderSliceI->setMaximum(m_sceneGraph->numI() - 1);
-    m_ui.sliderSliceJ->setMaximum(m_sceneGraph->numJ() - 1);
+  m_ui.sliderSliceI->setMaximum(m_sceneGraphManager.numI() - 2);
+  m_ui.sliderSliceJ->setMaximum(m_sceneGraphManager.numJ() - 2);
 
-    m_ui.sliderMinI->setMaximum(m_sceneGraph->numI() - 1);
-    m_ui.sliderMaxI->setMaximum(m_sceneGraph->numI() - 1);
-    m_ui.sliderMinJ->setMaximum(m_sceneGraph->numJ() - 1);
-    m_ui.sliderMaxJ->setMaximum(m_sceneGraph->numJ() - 1);
-    m_ui.sliderMinK->setMaximum(10);
-    m_ui.sliderMaxK->setMaximum(10);
+  m_ui.sliderMinI->setMaximum(m_sceneGraphManager.numI() - 1);
+  m_ui.sliderMaxI->setMaximum(m_sceneGraphManager.numI() - 1);
+  m_ui.sliderMinJ->setMaximum(m_sceneGraphManager.numJ() - 1);
+  m_ui.sliderMaxJ->setMaximum(m_sceneGraphManager.numJ() - 1);
+  m_ui.sliderMinK->setMaximum(10);
+  m_ui.sliderMaxK->setMaximum(10);
 
-    m_ui.sliderMinI->setValue(0);
-    m_ui.sliderMinJ->setValue(0);
-    m_ui.sliderMinK->setValue(0);
-    m_ui.sliderMaxI->setValue(m_sceneGraph->numI() - 1);
-    m_ui.sliderMaxJ->setValue(m_sceneGraph->numJ() - 1);
-    m_ui.sliderMaxK->setValue(10); //NOOOOOOO no hardcoded values !!!1!1
-  }
+  m_ui.sliderMinI->setValue(0);
+  m_ui.sliderMinJ->setValue(0);
+  m_ui.sliderMinK->setValue(0);
+  m_ui.sliderMaxI->setValue(m_sceneGraphManager.numI() - 1);
+  m_ui.sliderMaxJ->setValue(m_sceneGraphManager.numJ() - 1);
+  m_ui.sliderMaxK->setValue(10); //NOOOOOOO no hardcoded values !!!1!1
 }
 
 void MainWindow::connectSignals()
@@ -310,11 +304,11 @@ void MainWindow::connectSignals()
 
   connect(m_ui.snapshotSlider, SIGNAL(valueChanged(int)), this, SLOT(onSliderValueChanged(int)));
   connect(m_ui.treeWidgetProperties, SIGNAL(itemDoubleClicked(QTreeWidgetItem*, int)), this, SLOT(onItemDoubleClicked(QTreeWidgetItem*, int)));
+
+  connect(m_ui.checkBoxSliceI, SIGNAL(toggled(bool)), this, SLOT(onSliceToggled(bool)));
+  connect(m_ui.checkBoxSliceJ, SIGNAL(toggled(bool)), this, SLOT(onSliceToggled(bool)));
   connect(m_ui.sliderSliceI, SIGNAL(valueChanged(int)), this, SLOT(onSliceIValueChanged(int)));
   connect(m_ui.sliderSliceJ, SIGNAL(valueChanged(int)), this, SLOT(onSliceJValueChanged(int)));
-  connect(m_ui.radioButtonSkin, SIGNAL(toggled(bool)), this, SLOT(onRenderModeToggled(bool)));
-  connect(m_ui.radioButtonSlices, SIGNAL(toggled(bool)), this, SLOT(onRenderModeToggled(bool)));
-  connect(m_ui.radioButtonCrossSection, SIGNAL(toggled(bool)), this, SLOT(onRenderModeToggled(bool)));
   connect(m_ui.sliderVerticalScale, SIGNAL(valueChanged(int)), this, SLOT(onVerticalScaleSliderValueChanged(int)));
   connect(m_ui.checkBoxDrawFaces, SIGNAL(toggled(bool)), this, SLOT(onRenderStyleChanged()));
   connect(m_ui.checkBoxDrawEdges, SIGNAL(toggled(bool)), this, SLOT(onRenderStyleChanged()));
@@ -464,61 +458,49 @@ void MainWindow::onActionSwitchPropertiesTriggered()
 void MainWindow::onSliderValueChanged(int value)
 {
   //m_timeLabel->setText(QString("Time: %1").arg(m_sceneGraph->getSnapshot(value)->getTime()));
-  m_sceneGraph->setCurrentSnapshot(value);
+  //m_sceneGraph->setCurrentSnapshot(value);
+  m_sceneGraphManager.setCurrentSnapshot(value);
 }
 
 void MainWindow::onSliceIValueChanged(int value)
 {
-  m_sceneGraph->SliceI = value;
+  m_sceneGraphManager.setSlicePosition(0, value);
 }
 
 void MainWindow::onSliceJValueChanged(int value)
 {
-  m_sceneGraph->SliceJ = value;
+  m_sceneGraphManager.setSlicePosition(1, value);
 }
 
 void MainWindow::onVerticalScaleSliderValueChanged(int value)
 {
   float scale = powf(10.f, .2f * value);
-  m_sceneGraph->setVerticalScale(scale);
+  m_sceneGraphManager.setVerticalScale(scale);
+  //m_sceneGraph->setVerticalScale(scale);
 }
 
 void MainWindow::onROISliderValueChanged(int value)
 {
-  m_sceneGraph->setROI(
-    (size_t)m_ui.sliderMinI->value(),
-    (size_t)m_ui.sliderMinJ->value(),
-    (size_t)m_ui.sliderMinK->value(),
-    (size_t)m_ui.sliderMaxI->value(),
-    (size_t)m_ui.sliderMaxJ->value(),
-    (size_t)m_ui.sliderMaxK->value());
+  //m_sceneGraph->setROI(
+  //  (size_t)m_ui.sliderMinI->value(),
+  //  (size_t)m_ui.sliderMinJ->value(),
+  //  (size_t)m_ui.sliderMinK->value(),
+  //  (size_t)m_ui.sliderMaxI->value(),
+  //  (size_t)m_ui.sliderMaxJ->value(),
+  //  (size_t)m_ui.sliderMaxK->value());
 }
 
 void MainWindow::onROIToggled(bool value)
 {
-  m_sceneGraph->enableROI(value);
+  //m_sceneGraph->enableROI(value);
 }
 
-void MainWindow::onRenderModeToggled(bool value)
+void MainWindow::onSliceToggled(bool value)
 {
-  if(!value)
-    return;
-
-  if(sender() == m_ui.radioButtonSkin)
-  {
-    m_sceneGraph->RenderMode = SnapshotNode::RenderMode_Skin;
-    m_sceneGraph->showPlaneManip(false);
-  }
-  else if(sender() == m_ui.radioButtonSlices)
-  {
-    m_sceneGraph->RenderMode = SnapshotNode::RenderMode_Slices;
-    m_sceneGraph->showPlaneManip(false);
-  }
+  if (sender() == m_ui.checkBoxSliceI)
+    m_sceneGraphManager.enableSlice(0, value);
   else
-  {
-    m_sceneGraph->RenderMode = SnapshotNode::RenderMode_CrossSection;
-    m_sceneGraph->showPlaneManip(true);
-  }
+    m_sceneGraphManager.enableSlice(1, value);;
 }
 
 void MainWindow::onRenderStyleChanged()
@@ -526,7 +508,7 @@ void MainWindow::onRenderStyleChanged()
   bool drawFaces = m_ui.checkBoxDrawFaces->isChecked();
   bool drawEdges = m_ui.checkBoxDrawEdges->isChecked();
 
-  m_sceneGraph->setRenderStyle(drawFaces, drawEdges);
+  //m_sceneGraph->setRenderStyle(drawFaces, drawEdges);
 }
 
 void MainWindow::onItemDoubleClicked(QTreeWidgetItem* item, int column)
@@ -581,7 +563,7 @@ void MainWindow::onTreeWidgetItemChanged(QTreeWidgetItem* item, int column)
   switch (item->type())
   {
   case TreeWidgetItem_FormationType:
-    m_sceneGraph->setFormationVisibility(name, checked);
+    m_sceneGraphManager.setFormationVisibility(name, checked);
     break;
   case TreeWidgetItem_SurfaceType:
     m_sceneGraph->setSurfaceVisibility(name, checked);

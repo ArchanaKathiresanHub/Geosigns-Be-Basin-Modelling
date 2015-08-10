@@ -3,7 +3,9 @@
 
 #include "MainWindow.ui.h"
 
-#include "Interface/Interface.h"
+#include <Visualization/SceneGraphManager.h>
+
+#include <Interface/Interface.h>
 
 #include <QtGui/QMainWindow>
 
@@ -26,6 +28,7 @@ class MainWindow : public QMainWindow
   std::unique_ptr<DataAccess::Interface::ProjectHandle> m_projectHandle;
   
   SceneGraph* m_sceneGraph;
+  SceneGraphManager m_sceneGraphManager;
 
   static void fpsCallback(float fps, void* userData, SoQtViewer* viewer);
 
@@ -65,7 +68,7 @@ private slots:
 
   void onROIToggled(bool value);
 
-  void onRenderModeToggled(bool value);
+  void onSliceToggled(bool value);
 
   void onRenderStyleChanged();
 

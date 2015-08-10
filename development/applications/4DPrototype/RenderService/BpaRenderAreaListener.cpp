@@ -53,7 +53,6 @@ void BpaRenderAreaListener::createSceneGraph(const std::string& id)
 
   SceneGraph* sceneGraph = new SceneGraph;
   sceneGraph->setup(m_handle.get());
-  sceneGraph->RenderMode = SnapshotNode::RenderMode_Skin;
   m_sceneGraph = sceneGraph;
 
   SoGradientBackground* background = new SoGradientBackground;
@@ -178,20 +177,6 @@ void BpaRenderAreaListener::onReceivedMessage(RenderArea* renderArea, Connection
   {
     int index = atoi(argument.c_str());
     m_sceneGraph->setCurrentSnapshot(index);
-  }
-  else if(command == "RENDERMODE")
-  {
-    if(argument == "skin")
-      m_sceneGraph->RenderMode = SnapshotNode::RenderMode_Skin;
-    else
-      m_sceneGraph->RenderMode = SnapshotNode::RenderMode_Slices;
-  }
-  else if(command == "MESHMODE")
-  {
-    if(argument == "formations")
-      m_sceneGraph->setMeshMode(SceneGraph::MeshMode_All);
-    else
-      m_sceneGraph->setMeshMode(SceneGraph::MeshMode_Reservoirs);
   }
   else if(command == "VSCALE")
   {

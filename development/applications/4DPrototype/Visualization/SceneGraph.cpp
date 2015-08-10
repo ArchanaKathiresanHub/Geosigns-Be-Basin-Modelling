@@ -1,6 +1,7 @@
 
 #include "SceneGraph.h"
 #include "SnapshotNode.h"
+#include "Property.h"
 #include "Mesh.h"
 #include "BpaMesh.h"
 #include "ROICellFilter.h"
@@ -10,6 +11,7 @@
 #include "Interface/Grid.h"
 #include "Interface/Snapshot.h"
 #include "Interface/Property.h"
+#include "Interface/Formation.h"
 
 //TMP
 #include "Interface/PropertyValue.h"
@@ -28,6 +30,7 @@
 #include <MeshVizInterface/mapping/nodes/MoMaterial.h>
 #include <MeshVizInterface/mapping/nodes/MoDrawStyle.h>
 #include <MeshVizInterface/mapping/nodes/MoScalarSetI.h>
+#include <MeshVizInterface/mapping/nodes/MoScalarSetIjk.h>
 #include <MeshVizInterface/mapping/nodes/MoDataBinding.h>
 #include <MeshVizInterface/mapping/nodes/MoPredefinedColorMapping.h>
 #include <MeshVizInterface/mapping/nodes/MoCellFilter.h>
@@ -114,8 +117,65 @@ struct SnapshotCompare
   }
 };
 
+SoGroup* SceneGraph::createSnapshotNode(di::ProjectHandle* handle, const di::Snapshot* snapshot)
+{
+  std::vector<const di::GridMap*> depthMaps;
+
+  std::string depthKey = "Depth";
+  const di::Property* depthProperty = handle->findProperty(depthKey);
+
+  std::vector<double> formationIds;
+
+  std::unique_ptr<di::FormationList> formations(handle->getFormations(snapshot, false));
+  for (size_t i = 0; i < formations->size(); ++i)
+  {
+    const di::Formation* formation = (*formations)[i];
+    std::unique_ptr<di::PropertyValueList> values(handle->getPropertyValues(di::FORMATION, depthProperty, snapshot, 0, formation, 0, di::VOLUME));
+
+    assert(values->size() == 1);
+
+    const di::GridMap* depthMap = (*values)[0]->getGridMap();
+    depthMaps.push_back(depthMap);
+
+    // Add formation id for each k-layer of this formation
+    double id = (double)m_formationIdMap[(*formations)[i]->getName()];
+    for (int j = 0; j < (int)depthMap->getDepth() - 1; ++j)
+      formationIds.push_back(id);
+  }
+
+  SoGroup* group = new SoGroup;
+
+  if (!depthMaps.empty())
+  {
+    //std::shared_ptr<SnapshotGeometry> geometry(new SnapshotGeometry(depthMaps));
+    //std::shared_ptr<ChunkTopology> topology(new ChunkTopology(geometry, 0, geometry->numK() - 1));
+    //HexahedronMesh* meshData = new HexahedronMesh(geometry, topology);
+
+    //MoMesh* mesh = new MoMesh;
+    //mesh->setMesh(meshData);
+
+    //MoScalarSetIjk* scalarSet = new MoScalarSetIjk;
+    //scalarSet->setScalarSet(new FormationIdProperty(formationIds));
+
+    //MoMeshSkin* meshSkin = new MoMeshSkin;
+
+    //group->addChild(mesh);
+    //group->addChild(scalarSet);
+    //group->addChild(meshSkin);
+  }
+
+  return group;
+}
+
 void SceneGraph::createSnapshotsNode(di::ProjectHandle* handle)
 {
+  // Setup formation id lookup
+  std::unique_ptr<di::FormationList> formations(handle->getFormations(0, false));
+  for (size_t i = 0; i < formations->size(); ++i)
+    m_formationIdMap[(*formations)[i]->getName()] = (int)i;
+
+  std::cout << "Creating snapshots" << std::endl;
+
   int flags = di::FORMATION;// | di::SURFACE | di::FORMATIONSURFACE;
   int type  = di::VOLUME;
 
@@ -124,7 +184,7 @@ void SceneGraph::createSnapshotsNode(di::ProjectHandle* handle)
 
   m_snapshots = new SoSwitch;
 
-  std::shared_ptr<di::SnapshotList> snapshots(handle->getSnapshots(di::MAJOR));
+  std::unique_ptr<di::SnapshotList> snapshots(handle->getSnapshots(di::MAJOR));
 
   // Sort snapshots so oldest is first in list
   std::vector<const di::Snapshot*> tmpSnapshotList(*snapshots);
@@ -133,20 +193,23 @@ void SceneGraph::createSnapshotsNode(di::ProjectHandle* handle)
   for(size_t i=0; i < tmpSnapshotList.size(); ++i)
   {
     const di::Snapshot* snapshot = tmpSnapshotList[i];
+    m_snapshots->addChild(createSnapshotNode(handle, snapshot));
     
-    SnapshotNode* snapshotNode = new SnapshotNode;
-    snapshotNode->setup(snapshot);
+    //SnapshotNode* snapshotNode = new SnapshotNode;
+    //snapshotNode->setup(snapshot);
 
-    // connect fields from scenegraph
-    snapshotNode->RenderMode.connectFrom(&RenderMode);
-    snapshotNode->SliceI.connectFrom(&SliceI);
-    snapshotNode->SliceJ.connectFrom(&SliceJ);
-    snapshotNode->Plane.connectFrom(&Plane);
+    //// connect fields from scenegraph
+    //snapshotNode->SliceI.connectFrom(&SliceI);
+    //snapshotNode->SliceJ.connectFrom(&SliceJ);
+    //snapshotNode->Plane.connectFrom(&Plane);
 
-    m_snapshots->addChild(snapshotNode);
+    //m_snapshots->addChild(snapshotNode);
   }
 
   m_snapshots->whichChild = 0;
+  m_colorMap->maxValue = (float)(formations->size() - 1);
+
+  std::cout << "Done creating snapshots" << std::endl;
 }
 
 void SceneGraph::createRootNode()
@@ -157,11 +220,7 @@ void SceneGraph::createRootNode()
   addChild(m_verticalScale);
   addChild(m_cellFilterSwitch);
   addChild(m_appearance);
-  
-  m_resolutionSwitch = new SoSwitch;
-  m_resolutionSwitch->addChild(m_snapshots);
-  m_resolutionSwitch->whichChild = 0;
-  addChild(m_resolutionSwitch);
+  addChild(m_snapshots);
 
   m_planeManipSwitch->addChild(m_planeManip);
   m_planeManipSwitch->whichChild = SO_SWITCH_NONE;
@@ -210,14 +269,12 @@ SceneGraph::SceneGraph()
   , m_appearance(0)
   , m_drawStyle(0)
   , m_snapshots(0)
-  , m_resolutionSwitch(0)
   , m_colorMap(0)
   , m_planeManipInitialized(false)
   , m_planeManipSwitch(new SoSwitch)
   , m_planeManip(new SoClipPlaneManip)
 {
   SO_NODE_CONSTRUCTOR(SceneGraph);
-  SO_NODE_ADD_FIELD(RenderMode, (0));
   SO_NODE_ADD_FIELD(SliceI, (0));
   SO_NODE_ADD_FIELD(SliceJ, (0));
   SO_NODE_ADD_FIELD(Plane, (getDefaultPlane()));
@@ -228,10 +285,8 @@ SceneGraph::~SceneGraph()
 
 }
 
-void SceneGraph::setup(di::ProjectHandle* handle, size_t subdivision)
+void SceneGraph::setup(di::ProjectHandle* handle)
 {
-  m_subdivision = subdivision;
-
   const di::Grid* loresGrid = handle->getLowResolutionOutputGrid();
   const di::Grid* hiresGrid = handle->getHighResolutionOutputGrid();
 
@@ -242,11 +297,9 @@ void SceneGraph::setup(di::ProjectHandle* handle, size_t subdivision)
 
   createFilterNode();
   createAppearanceNode();
-  std::cout << "Creating snapshots"<< std::endl;
   createSnapshotsNode(handle);
-  std::cout << "Done creating snapshots"<< std::endl;
 
-  m_extractor.start();
+  //m_extractor.start();
 
   createRootNode();
 }
@@ -327,20 +380,6 @@ void SceneGraph::setVerticalScale(float scale)
   m_verticalScale->scaleFactor = SbVec3f(1.0f, 1.0f, scale);
 }
 
-void SceneGraph::setMeshMode(MeshMode mode)
-{
-  int child = 0;
-
-  switch (mode)
-  {
-  case MeshMode_All:        child = 0; break;
-  case MeshMode_Reservoirs: child = 1; break;
-  case MeshMode_Surfaces:   child = 2; break;
-  }
-
-  m_resolutionSwitch->whichChild = child;
-}
-
 void SceneGraph::setRenderStyle(bool drawFaces, bool drawEdges)
 {
   m_drawStyle->displayFaces = drawFaces;
@@ -373,22 +412,22 @@ void SceneGraph::setReservoirVisibility(const std::string& name, bool visible)
 
 int SceneGraph::numI() const
 {
-  return (int)(m_numI * m_subdivision);
+  return (int)m_numI;
 }
 
 int SceneGraph::numJ() const
 {
-  return (int)(m_numJ * m_subdivision);
+  return (int)m_numJ;
 }
 
 int SceneGraph::numIHiRes() const
 {
-  return (int)(m_numIHiRes * m_subdivision);
+  return (int)m_numIHiRes;
 }
 
 int SceneGraph::numJHiRes() const
 {
-  return (int)(m_numJHiRes * m_subdivision);
+  return (int)m_numJHiRes;
 }
 
 void BpaVizInit()

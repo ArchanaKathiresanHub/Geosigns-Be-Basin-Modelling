@@ -125,3 +125,47 @@ MiMeshIjk::StorageLayout VectorProperty::getStorageLayout() const
 {
   return MiMeshIjk::LAYOUT_IJK;
 }
+
+//---------------------------------------------------------------------------------------
+// VectorProperty
+//---------------------------------------------------------------------------------------
+FormationIdProperty::FormationIdProperty(const std::vector<double>& ids)
+: m_ids(ids)
+, m_timeStamp(MxTimeStamp::getTimeStamp())
+{
+}
+
+double FormationIdProperty::get(size_t i, size_t j, size_t k) const
+{
+  return m_ids[k];
+}
+
+MiDataSet::DataBinding FormationIdProperty::getBinding() const
+{
+  return MiDataSet::PER_CELL;
+}
+
+double FormationIdProperty::getMin() const
+{
+  return m_ids[0];
+}
+
+double FormationIdProperty::getMax() const
+{
+  return m_ids[m_ids.size() - 1];
+}
+
+std::string FormationIdProperty::getName() const
+{
+  return "FormationIds";
+}
+
+size_t FormationIdProperty::getTimeStamp() const
+{
+  return m_timeStamp;
+}
+
+MiMeshIjk::StorageLayout FormationIdProperty::getStorageLayout() const
+{
+  return MiMeshIjk::LAYOUT_IJK;
+}

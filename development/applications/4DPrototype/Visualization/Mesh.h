@@ -86,6 +86,101 @@ public:
 };
 
 /**
+ * Contains the geometry for an entire snapshot
+ */
+class SnapshotGeometry : public MiGeometryI
+{
+  std::vector<const DataAccess::Interface::GridMap*> m_depthMaps;
+
+  struct IndexPair
+  {
+    size_t gridMapIndex;
+    unsigned int kIndex;
+  };
+
+  std::vector<IndexPair> m_indexMap;
+
+  size_t m_numI;
+  size_t m_numJ;
+  size_t m_numK;
+
+  double m_minX;
+  double m_minY;
+  double m_minZ;
+  double m_maxZ;
+
+  double m_deltaX;
+  double m_deltaY;
+
+  size_t m_timeStamp;
+
+public:
+
+  explicit SnapshotGeometry(const std::vector<const DataAccess::Interface::GridMap*>& depthMaps);
+
+  size_t numI() const;
+
+  size_t numJ() const;
+
+  size_t numK() const;
+
+  bool isUndefined(size_t i, size_t j, size_t k) const;
+
+  MbVec3d getCoord(unsigned int i, unsigned int j, unsigned int k) const;
+
+  virtual MbVec3d getCoord(size_t index) const;
+
+  virtual MbVec3d getMin() const;
+
+  virtual MbVec3d getMax() const;
+
+  virtual size_t getTimeStamp() const;
+};
+
+/**
+* Defines the cell topology for a 'chunk' of a snapshot
+*/
+class SnapshotTopology : public MiHexahedronTopologyExplicitIjk
+{
+  size_t m_numI;
+  size_t m_numJ;
+  size_t m_numK;
+
+  size_t m_timeStamp;
+
+  std::shared_ptr<SnapshotGeometry> m_geometry;
+
+public:
+
+  explicit SnapshotTopology(std::shared_ptr<SnapshotGeometry> geometry);
+
+  virtual void getCellNodeIndices(
+    size_t i, size_t j, size_t k,
+    size_t& n0, size_t& n1, size_t& n2, size_t& n3,
+    size_t& n4, size_t& n5, size_t& n6, size_t& n7) const;
+
+  virtual MiMeshIjk::StorageLayout getStorageLayout() const;
+
+  virtual size_t getBeginNodeId() const;
+
+  virtual size_t getEndNodeId() const;
+
+  virtual std::string getNodeName(size_t i) const;
+
+  virtual size_t getNumCellsI() const;
+
+  virtual size_t getNumCellsJ() const;
+
+  virtual size_t getNumCellsK() const;
+
+  virtual size_t getTimeStamp() const;
+
+  virtual bool hasDeadCells() const;
+
+  virtual bool isDead(size_t i, size_t j, size_t k) const;
+};
+
+/**
 * Defines the cell topology for a volume mesh
 */
 class VolumeTopology : public MiHexahedronTopologyExplicitIjk
@@ -215,6 +310,25 @@ class FormationMesh : public MiVolumeMeshHexahedronIjk
 public:
 
   explicit FormationMesh(const DataAccess::Interface::GridMap* depthMap);
+
+  const MiHexahedronTopologyExplicitIjk& getTopology() const;
+
+  const MiGeometryI& getGeometry() const;
+};
+
+/**
+* Represents the mesh for a single formation
+*/
+class HexahedronMesh : public MiVolumeMeshHexahedronIjk
+{
+  std::shared_ptr<MiGeometryI> m_geometry;
+  std::shared_ptr<MiHexahedronTopologyExplicitIjk> m_topology;
+
+public:
+
+  HexahedronMesh(
+    std::shared_ptr<MiGeometryI> geometry,
+    std::shared_ptr<MiHexahedronTopologyExplicitIjk> topology);
 
   const MiHexahedronTopologyExplicitIjk& getTopology() const;
 

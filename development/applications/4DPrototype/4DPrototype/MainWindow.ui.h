@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'MainWindow.ui'
 **
-** Created: Tue Aug 4 12:08:40 2015
+** Created: Mon Aug 10 10:59:38 2015
 **      by: Qt User Interface Compiler version 4.8.4
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -24,9 +24,7 @@
 #include <QtGui/QMainWindow>
 #include <QtGui/QMenu>
 #include <QtGui/QMenuBar>
-#include <QtGui/QRadioButton>
 #include <QtGui/QSlider>
-#include <QtGui/QSpacerItem>
 #include <QtGui/QSplitter>
 #include <QtGui/QStatusBar>
 #include <QtGui/QTabWidget>
@@ -80,17 +78,12 @@ public:
     QLabel *label_4;
     QSlider *sliderMaxJ;
     QGroupBox *groupBox;
-    QVBoxLayout *verticalLayout_2;
-    QRadioButton *radioButtonSkin;
-    QRadioButton *radioButtonSlices;
     QHBoxLayout *horizontalLayout;
-    QSpacerItem *horizontalSpacer;
     QGridLayout *gridLayout;
-    QLabel *labelSliceI;
+    QCheckBox *checkBoxSliceI;
     QSlider *sliderSliceI;
-    QLabel *labelSliceJ;
+    QCheckBox *checkBoxSliceJ;
     QSlider *sliderSliceJ;
-    QRadioButton *radioButtonCrossSection;
     QLabel *label_8;
     QSlider *snapshotSlider;
     SoQtWrapper *renderWidget;
@@ -104,7 +97,7 @@ public:
     {
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName(QString::fromUtf8("MainWindow"));
-        MainWindow->resize(813, 833);
+        MainWindow->resize(813, 900);
         action_Open = new QAction(MainWindow);
         action_Open->setObjectName(QString::fromUtf8("action_Open"));
         action_Quit = new QAction(MainWindow);
@@ -292,31 +285,14 @@ public:
 
         groupBox = new QGroupBox(layoutWidget);
         groupBox->setObjectName(QString::fromUtf8("groupBox"));
-        verticalLayout_2 = new QVBoxLayout(groupBox);
-        verticalLayout_2->setObjectName(QString::fromUtf8("verticalLayout_2"));
-        radioButtonSkin = new QRadioButton(groupBox);
-        radioButtonSkin->setObjectName(QString::fromUtf8("radioButtonSkin"));
-        radioButtonSkin->setChecked(true);
-
-        verticalLayout_2->addWidget(radioButtonSkin);
-
-        radioButtonSlices = new QRadioButton(groupBox);
-        radioButtonSlices->setObjectName(QString::fromUtf8("radioButtonSlices"));
-
-        verticalLayout_2->addWidget(radioButtonSlices);
-
-        horizontalLayout = new QHBoxLayout();
+        horizontalLayout = new QHBoxLayout(groupBox);
         horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
-        horizontalSpacer = new QSpacerItem(20, 20, QSizePolicy::Fixed, QSizePolicy::Minimum);
-
-        horizontalLayout->addItem(horizontalSpacer);
-
         gridLayout = new QGridLayout();
         gridLayout->setObjectName(QString::fromUtf8("gridLayout"));
-        labelSliceI = new QLabel(groupBox);
-        labelSliceI->setObjectName(QString::fromUtf8("labelSliceI"));
+        checkBoxSliceI = new QCheckBox(groupBox);
+        checkBoxSliceI->setObjectName(QString::fromUtf8("checkBoxSliceI"));
 
-        gridLayout->addWidget(labelSliceI, 0, 0, 1, 1);
+        gridLayout->addWidget(checkBoxSliceI, 0, 0, 1, 1);
 
         sliderSliceI = new QSlider(groupBox);
         sliderSliceI->setObjectName(QString::fromUtf8("sliderSliceI"));
@@ -324,10 +300,10 @@ public:
 
         gridLayout->addWidget(sliderSliceI, 0, 1, 1, 1);
 
-        labelSliceJ = new QLabel(groupBox);
-        labelSliceJ->setObjectName(QString::fromUtf8("labelSliceJ"));
+        checkBoxSliceJ = new QCheckBox(groupBox);
+        checkBoxSliceJ->setObjectName(QString::fromUtf8("checkBoxSliceJ"));
 
-        gridLayout->addWidget(labelSliceJ, 1, 0, 1, 1);
+        gridLayout->addWidget(checkBoxSliceJ, 1, 0, 1, 1);
 
         sliderSliceJ = new QSlider(groupBox);
         sliderSliceJ->setObjectName(QString::fromUtf8("sliderSliceJ"));
@@ -337,14 +313,6 @@ public:
 
 
         horizontalLayout->addLayout(gridLayout);
-
-
-        verticalLayout_2->addLayout(horizontalLayout);
-
-        radioButtonCrossSection = new QRadioButton(groupBox);
-        radioButtonCrossSection->setObjectName(QString::fromUtf8("radioButtonCrossSection"));
-
-        verticalLayout_2->addWidget(radioButtonCrossSection);
 
 
         verticalLayout_4->addWidget(groupBox);
@@ -435,12 +403,9 @@ public:
         label_2->setText(QApplication::translate("MainWindow", "maxI", 0, QApplication::UnicodeUTF8));
         label_3->setText(QApplication::translate("MainWindow", "minJ", 0, QApplication::UnicodeUTF8));
         label_4->setText(QApplication::translate("MainWindow", "maxJ", 0, QApplication::UnicodeUTF8));
-        groupBox->setTitle(QApplication::translate("MainWindow", "Rendering", 0, QApplication::UnicodeUTF8));
-        radioButtonSkin->setText(QApplication::translate("MainWindow", "Skin", 0, QApplication::UnicodeUTF8));
-        radioButtonSlices->setText(QApplication::translate("MainWindow", "Slices", 0, QApplication::UnicodeUTF8));
-        labelSliceI->setText(QApplication::translate("MainWindow", "I", 0, QApplication::UnicodeUTF8));
-        labelSliceJ->setText(QApplication::translate("MainWindow", "J", 0, QApplication::UnicodeUTF8));
-        radioButtonCrossSection->setText(QApplication::translate("MainWindow", "Cross section", 0, QApplication::UnicodeUTF8));
+        groupBox->setTitle(QApplication::translate("MainWindow", "Slices", 0, QApplication::UnicodeUTF8));
+        checkBoxSliceI->setText(QApplication::translate("MainWindow", "I", 0, QApplication::UnicodeUTF8));
+        checkBoxSliceJ->setText(QApplication::translate("MainWindow", "J", 0, QApplication::UnicodeUTF8));
         label_8->setText(QApplication::translate("MainWindow", "Time", 0, QApplication::UnicodeUTF8));
         menu_File->setTitle(QApplication::translate("MainWindow", "&File", 0, QApplication::UnicodeUTF8));
         menuTest->setTitle(QApplication::translate("MainWindow", "Test", 0, QApplication::UnicodeUTF8));

@@ -154,6 +154,200 @@ size_t Geometry2::getTimeStamp() const
 }
 
 //--------------------------------------------------------------------------------------------------
+// SnapshotGeometry
+//--------------------------------------------------------------------------------------------------
+SnapshotGeometry::SnapshotGeometry(const std::vector<const DataAccess::Interface::GridMap*>& depthMaps)
+: m_depthMaps(depthMaps)
+, m_timeStamp(MxTimeStamp::getTimeStamp())
+{
+  assert(!depthMaps.empty());
+
+  const di::GridMap* depthMapTop = depthMaps[0];
+  const di::GridMap* depthMapBottom = depthMaps[depthMaps.size() - 1];
+
+  // Build a mapping from global k-indices to a gridmap index, and a local k
+  for (size_t i = 0; i < depthMaps.size(); ++i)
+  {
+    // Skip last k for each gridmap to avoid duplication with the next layer
+    for (unsigned int j = 0; j < depthMaps[i]->getDepth() - 1; ++j)
+    {
+      IndexPair p = { i, j };
+      m_indexMap.push_back(p);
+    }
+  }
+
+  // ... still need to include the last one though
+  IndexPair p = { depthMaps.size() - 1, depthMapBottom->getDepth() - 1 };
+  m_indexMap.push_back(p);
+
+  m_numI = depthMapTop->numI();
+  m_numJ = depthMapTop->numJ();
+  m_numK = m_indexMap.size();
+
+  m_minX = depthMapTop->minI();
+  m_minY = depthMapTop->minJ();
+
+  m_deltaX = depthMapTop->deltaI();
+  m_deltaY = depthMapTop->deltaJ();
+
+  double minDepth, maxDepth;
+
+  depthMapTop->getMinMaxValue(minDepth, maxDepth);
+  m_maxZ = -minDepth;
+
+  depthMapBottom->getMinMaxValue(minDepth, maxDepth);
+  m_minZ = -maxDepth;
+}
+
+size_t SnapshotGeometry::numI() const
+{
+  return m_numI;
+}
+
+size_t SnapshotGeometry::numJ() const
+{
+  return m_numJ;
+}
+
+size_t SnapshotGeometry::numK() const
+{
+  return m_numK;
+}
+
+bool SnapshotGeometry::isUndefined(size_t i, size_t j, size_t k) const
+{
+  IndexPair p = m_indexMap[k];
+
+  return m_depthMaps[p.gridMapIndex]->getValue((unsigned int)i, (unsigned int)j, p.kIndex) == di::DefaultUndefinedMapValue;
+}
+
+MbVec3d SnapshotGeometry::getCoord(unsigned int i, unsigned int j, unsigned int k) const
+{
+  IndexPair p = m_indexMap[k];
+
+  return MbVec3d(
+    m_minX + i * m_deltaX,
+    m_minY + j * m_deltaY,
+    -m_depthMaps[p.gridMapIndex]->getValue(i, j, p.kIndex));
+}
+
+MbVec3d SnapshotGeometry::getCoord(size_t index) const
+{
+  size_t rowStride = m_numI;
+  size_t sliceStride = rowStride * m_numJ;
+
+  unsigned int k = (unsigned int)(index / sliceStride);
+  unsigned int j = (unsigned int)((index - k * sliceStride) / rowStride);
+  unsigned int i = (unsigned int)(index - k * sliceStride - j * rowStride);
+
+  return getCoord(i, j, k);
+}
+
+MbVec3d SnapshotGeometry::getMin() const
+{
+  return MbVec3d(m_minX, m_minY, m_minZ);
+}
+
+MbVec3d SnapshotGeometry::getMax() const
+{
+  return MbVec3d(
+    m_minX + (m_numI - 1) * m_deltaX,
+    m_minY + (m_numJ - 1) * m_deltaY,
+    m_maxZ);
+}
+
+size_t SnapshotGeometry::getTimeStamp() const
+{
+  return m_timeStamp;
+}
+
+//--------------------------------------------------------------------------------------------------
+// SnapshotTopology
+//--------------------------------------------------------------------------------------------------
+
+SnapshotTopology::SnapshotTopology(std::shared_ptr<SnapshotGeometry> geometry)
+  : m_numI(geometry->numI() - 1)
+  , m_numJ(geometry->numJ() - 1)
+  , m_numK(geometry->numK() - 1)
+  , m_timeStamp(MxTimeStamp::getTimeStamp())
+  , m_geometry(geometry)
+{
+}
+
+void SnapshotTopology::getCellNodeIndices(
+  size_t i, size_t j, size_t k,
+  size_t& n0, size_t& n1, size_t& n2, size_t& n3,
+  size_t& n4, size_t& n5, size_t& n6, size_t& n7) const
+{
+  size_t rowStride = m_numI + 1;
+  size_t sliceStride = rowStride * (m_numJ + 1);
+
+  n0 = k * sliceStride + j * rowStride + i;
+  n1 = n0 + 1;
+  n2 = n1 + rowStride;
+  n3 = n0 + rowStride;
+
+  n4 = n0 + sliceStride;
+  n5 = n1 + sliceStride;
+  n6 = n2 + sliceStride;
+  n7 = n3 + sliceStride;
+}
+
+MiMeshIjk::StorageLayout SnapshotTopology::getStorageLayout() const
+{
+  return MiMeshIjk::LAYOUT_IJK;
+}
+
+size_t SnapshotTopology::getBeginNodeId() const
+{
+  return 0;
+}
+
+size_t SnapshotTopology::getEndNodeId() const
+{
+  return (m_numI + 1) * (m_numJ + 1) + (m_numK + 1);
+}
+
+std::string SnapshotTopology::getNodeName(size_t i) const
+{
+  return "";
+}
+
+size_t SnapshotTopology::getNumCellsI() const
+{
+  return m_numI;
+}
+
+size_t SnapshotTopology::getNumCellsJ() const
+{
+  return m_numJ;
+}
+
+size_t SnapshotTopology::getNumCellsK() const
+{
+  return m_numK;
+}
+
+size_t SnapshotTopology::getTimeStamp() const
+{
+  return m_timeStamp;
+}
+
+bool SnapshotTopology::hasDeadCells() const
+{
+  return true; //probably
+}
+
+bool SnapshotTopology::isDead(size_t i, size_t j, size_t k) const
+{
+  return
+    m_geometry->isUndefined(i, j, k) ||
+    m_geometry->isUndefined(i, j + 1, k) ||
+    m_geometry->isUndefined(i + 1, j, k) ||
+    m_geometry->isUndefined(i + 1, j + 1, k);
+}
+
+//--------------------------------------------------------------------------------------------------
 // VolumeTopology
 //--------------------------------------------------------------------------------------------------
 
@@ -389,6 +583,27 @@ const MiHexahedronTopologyExplicitIjk& FormationMesh::getTopology() const
 }
 
 const MiGeometryI& FormationMesh::getGeometry() const
+{
+  return *m_geometry;
+}
+
+//--------------------------------------------------------------------------------------------------
+// ReservoirMesh
+//--------------------------------------------------------------------------------------------------
+HexahedronMesh::HexahedronMesh(
+  std::shared_ptr<MiGeometryI> geometry,
+  std::shared_ptr<MiHexahedronTopologyExplicitIjk> topology)
+  : m_geometry(geometry)
+  , m_topology(topology)
+{
+}
+
+const MiHexahedronTopologyExplicitIjk& HexahedronMesh::getTopology() const
+{
+  return *m_topology;
+}
+
+const MiGeometryI& HexahedronMesh::getGeometry() const
 {
   return *m_geometry;
 }

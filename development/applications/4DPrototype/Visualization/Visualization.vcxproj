@@ -132,6 +132,7 @@
     <ClCompile Include="Property.cpp" />
     <ClCompile Include="ROICellFilter.cpp" />
     <ClCompile Include="SceneGraph.cpp" />
+    <ClCompile Include="SceneGraphManager.cpp" />
     <ClCompile Include="SkinExtractor.cpp" />
     <ClCompile Include="SnapshotNode.cpp" />
   </ItemGroup>
@@ -143,6 +144,7 @@
     <ClInclude Include="Property.h" />
     <ClInclude Include="ROICellFilter.h" />
     <ClInclude Include="SceneGraph.h" />
+    <ClInclude Include="SceneGraphManager.h" />
     <ClInclude Include="SkinExtractor.h" />
     <ClInclude Include="SnapshotNode.h" />
   </ItemGroup>

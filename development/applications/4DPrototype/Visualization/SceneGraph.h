@@ -34,20 +34,7 @@ class SnapshotNode;
  */
 class VISUALIZATIONDLL_API SceneGraph : public SoSeparator
 {
-public:
-
-  enum MeshMode
-  {
-    MeshMode_All,
-    MeshMode_Reservoirs,
-    MeshMode_Surfaces
-  };
-
-private:
-
   SO_NODE_HEADER(SceneGraph);
-
-  size_t            m_subdivision;
 
   SoScale*          m_verticalScale;
   SoSwitch*         m_cellFilterSwitch;
@@ -57,7 +44,6 @@ private:
   SoGroup*          m_appearance;
   MoDrawStyle*      m_drawStyle;
   SoSwitch*         m_snapshots;
-  SoSwitch*         m_resolutionSwitch;
 
   MoPredefinedColorMapping* m_colorMap;
   
@@ -70,11 +56,17 @@ private:
   int m_numIHiRes;
   int m_numJHiRes;
 
+  std::map<std::string, int> m_formationIdMap;
+
   Extractor m_extractor;
 
   void createFilterNode();
 
   void createAppearanceNode();
+
+  SoGroup* createSnapshotNode(
+    DataAccess::Interface::ProjectHandle* handle, 
+    const DataAccess::Interface::Snapshot* snapshot);
 
   void createSnapshotsNode(DataAccess::Interface::ProjectHandle* handle);
 
@@ -92,7 +84,7 @@ public:
 
   ~SceneGraph();
     
-  void setup(DataAccess::Interface::ProjectHandle* handle, size_t subdivision=1);
+  void setup(DataAccess::Interface::ProjectHandle* handle);
 
   void setProperty(const DataAccess::Interface::Property* prop);
 
@@ -112,8 +104,6 @@ public:
 
   void setVerticalScale(float scale);
 
-  void setMeshMode(MeshMode mode);
-
   void setRenderStyle(bool drawFaces, bool drawEdges);
 
   void getRenderStyle(bool& drawFaces, bool& drawEdges);
@@ -131,8 +121,6 @@ public:
   int numIHiRes() const;
 
   int numJHiRes() const;
-
-  SoSFInt32 RenderMode;
 
   SoSFUInt32 SliceI;
 
