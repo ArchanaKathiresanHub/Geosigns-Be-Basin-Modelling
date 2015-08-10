@@ -14,6 +14,8 @@ namespace OTGC6
 {
 SimulatorState::SimulatorState() : SimulatorStateBase()
 {
+   m_concTotalOilForTSR = 0.0;
+ 
 }
 
 SimulatorState::SimulatorState(const double inReferenceTime, 
@@ -45,10 +47,10 @@ SimulatorState::SimulatorState(const double inReferenceTime,
       }
 
    }
-//    if(Genex6::SpeciesManager::LSO4 > 0) {
-//       GetSpeciesStateById(Genex6::SpeciesManager::LSO4)->SetConcentration(2);
-//       GetSpeciesResult(Genex6::SpeciesManager::LSO4).SetConcentration(2);
-//    }
+    // if(Genex6::SpeciesManager::LSO4 > 0) {
+    //    GetSpeciesStateById(Genex6::SpeciesManager::LSO4)->SetConcentration(3);
+    //    GetSpeciesResult(Genex6::SpeciesManager::LSO4).SetConcentration(3);
+    // }
 }
 
 

@@ -22,7 +22,13 @@ using namespace std;
 
 bool BenchmarkTest::execute()
 {
-   int simulation_type = (m_simulateGX5 ? Genex6::Constants::SIMOTGC | Genex6::Constants::SIMOTGC5 : Genex6::Constants::SIMOTGC);
+   int simulation_type;
+   if( m_simType == BENCHMARK ) {
+      simulation_type = (m_simulateGX5 ? Genex6::Constants::SIMOTGC | Genex6::Constants::SIMOTGC5 : Genex6::Constants::SIMOTGC);
+   } else if ( m_simType == TSRBENCHMARK ) {
+      simulation_type = Constants::SIMOTGC | Genex6::Constants::SIMTSR;
+   }
+
    std::auto_ptr<Genex6::Simulator> theSimulator (new Genex6::Simulator(m_theData.m_configurationFilePath, 
                                                                         simulation_type,
                                                                         m_theData.m_sourceRockType, 
@@ -183,12 +189,19 @@ bool TransformSch::execute()
 void BenchmarkTest::setStateFromTestFile(const std::string &testFileFullPathName)
 {
    cout << endl;
-   cout << "-------------------- OTGC Library Benchmark";
-   if(m_simulateGX5) { 
-      cout << " (genex5 simulation) ------------------" << endl;
+   if( m_simType == BENCHMARK ) {
+      cout << "-------------------- OTGC Library Benchmark";
+      if(m_simulateGX5) { 
+         cout << " (genex5 simulation) ------------------" << endl;
+      } else {
+         cout << " --------------------------------------" << endl;
+      }
+   } else if( m_simType == TSRBENCHMARK ) {
+      cout << "-------------------- TSR Benchmark --------------------------------------" << endl;
    } else {
-      cout << " --------------------------------------" << endl;
+      cout << "-------------------- Unknown Benchmark --------------------------------------" << endl;
    }
+
    cout << endl;
    cout << "Executing benchmark: " << m_testFileFullPathName << endl;
    std::ifstream testFile(testFileFullPathName.c_str());
@@ -481,6 +494,7 @@ UnitTest *createBenchmarkTest(const std::string &testFileFullPathName)
 UnitTestFactory::UnitTestFactory()
 {
    registerFactoryMethod(BENCHMARK, createBenchmarkTest);
+   registerFactoryMethod(TSRBENCHMARK, createBenchmarkTest);
    registerFactoryMethod(TRANSFORMSCH2CFG, createTransformSchTest);
 }
 void UnitTestFactory::registerFactoryMethod(int factoryMethodKey, factoryMethod theMethod)
@@ -488,13 +502,28 @@ void UnitTestFactory::registerFactoryMethod(int factoryMethodKey, factoryMethod 
    m_registeredFactoryMethods.insert(make_pair(factoryMethodKey,theMethod));
 }
 UnitTest *UnitTestFactory::createTest (int factoryMethodKey, const std::string &testFileFullPathName, 
-                                       bool flagGX5, bool flagApprox)
+                                       bool &flagGX5, bool &flagApprox)
 {
    std::map<int,factoryMethod>::iterator it = m_registeredFactoryMethods.find(factoryMethodKey);
+
    if(it != m_registeredFactoryMethods.end())  {
+
       UnitTest *ret = (*(it->second))(testFileFullPathName);
+ 
+      if( factoryMethodKey == TSRBENCHMARK ) {
+         if( flagGX5 ) {
+            flagGX5 = false;
+            cout << "Genex5 is not compatible with TSR" << endl;
+         }
+         if( !flagApprox ) {
+            cout << "-na option is redundant in TSR" << endl;
+         }
+         flagApprox = false;
+      }
       ret->setGX5(flagGX5);
       ret->setApprox(flagApprox);
+      ret->setSimulationType( (UnitTestType) factoryMethodKey );
+
       try {
          ret->setStateFromTestFile(testFileFullPathName);
       } catch(int &ex) { 
@@ -523,11 +552,16 @@ UnitTestType UnitTestFactory::determineTestType(const std::string &testFullPathN
       if("[Table:OTGCTest]" == line) {
          for(getline (testFile, line, '\n'); line!="[EndOfTable]"; getline (testFile, line, '\n')) {
             
+            theTokens.clear();
             Genex6::ParseLine(line, delim, theTokens);
             
             if("TestType" == theTokens[0]) {
                if("BENCHMARK" == theTokens[1]) {
                   ret = BENCHMARK;
+                  break;
+               }
+               if("TSRBENCHMARK" == theTokens[1]) {
+                  ret = TSRBENCHMARK;
                   break;
                }
                if("TRANSFORMSCH2CFG" == theTokens[1]) {

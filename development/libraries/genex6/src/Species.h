@@ -66,6 +66,7 @@ public:
 
    bool isGX5() const;
    bool isGenex() const;
+   bool isTSR() const;
 
    void OutputCompositionOnScreen();
    void OutputPropertiesOnScreen() const;
@@ -109,15 +110,15 @@ public:
    double FunDiffusivityHybrid(const double s_FrequencyFactor, const double s_Peff, 
                                const double s_TK, const double s_VogelFulcherTemperature);
 
-   double ComputeArrheniusReactionRate2a(const SimulatorStateBase &theSimulatorState, 
-                                         const double s_FrequencyFactor, 
-                                         const double s_Peff, 
-                                         const double s_TK,  
-                                         const double s_VogelFulcherTemperature,
-                                         const double s_kerogenTransformationRatio, 
-                                         const double s_precokeTransformationRatio, 
-                                         const double s_coke2TransformationRatio);
-
+   double ComputeArrheniusReactionRate2a( SimulatorStateBase &theSimulatorState, 
+                                          const double s_FrequencyFactor, 
+                                          const double s_Peff, 
+                                          const double s_TK,  
+                                          const double s_VogelFulcherTemperature,
+                                          const double s_kerogenTransformationRatio, 
+                                          const double s_precokeTransformationRatio, 
+                                          const double s_coke2TransformationRatio);
+   
    /// \brief Return constant reference to chemical-model.
    const ChemicalModel& getChemicalModel () const;
 

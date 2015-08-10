@@ -57,6 +57,10 @@ public:
 
    virtual double ComputeDiffusionConcDependence(const double in_Waso) = 0;
 
+   virtual double getTotalOilForTSR() const;
+   virtual void   incTotalOilForTSR( double currentConc ) {};
+   virtual void   setTotalOilForTSR( double currentConc ) {};
+
    void setInitialToc ( const double toc );
 
    double getInitialToc () const;
@@ -157,6 +161,10 @@ inline double SimulatorStateBase::getTocAtVre05 () const {
 
 inline bool SimulatorStateBase::tocAtVre05Set () const {
    return m_tocAtVre05Set;
+}
+
+inline double SimulatorStateBase::getTotalOilForTSR() const {
+   return 0.0;
 }
 
 

@@ -505,6 +505,7 @@ void Simulator::PreprocessTimeStepComputation(const Input &theInput)
    ComputeCoke2TransformatioRatio();
    m_currentState->SetLumpedConcentrationsToZero();
    m_currentState->SetResultsToZero();
+   m_currentState->setTotalOilForTSR ( 0.0 );
 }
 
 void Simulator::ProcessTimeStepComputation( const Input &theSourceRockInput ) 
@@ -604,13 +605,15 @@ void Simulator::ComputeCoke2TransformatioRatio()
    double tempCoke2transRatio = 0;
 
    if(coke2UltimateMass > 1e-30) {
-      tempCoke2transRatio = 
-         (tempCoke2transRatio = m_currentState->GetSpeciesConcentrationByName(m_theChemicalModel->getSpeciesManager ().getCoke2Id ()) / coke2UltimateMass) > 1 ? 1.0 : tempCoke2transRatio;
-	}
+      tempCoke2transRatio = m_currentState->GetSpeciesConcentrationByName(m_theChemicalModel->getSpeciesManager ().getCoke2Id ()) / coke2UltimateMass;
+      if( tempCoke2transRatio > 1 ) {
+         tempCoke2transRatio = 1.0; 
+      }
+   }
 
    if(tempCoke2transRatio > m_currentState->getMaxCoke2TransTransfRatio())	{
       m_currentState->setMaxCoke2TransTransfRatio(tempCoke2transRatio);
-   }
+   } 
 }
 double Simulator::CheckInitialHC(const double in_VRE, const double in_HC) 
 {

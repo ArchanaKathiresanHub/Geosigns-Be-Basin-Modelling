@@ -43,14 +43,32 @@ public:
    double ComputeWbo()  {return 0.0;}
 
    void SetLumpedConcentrationsToZero(){};
-   void SetResultsToZero(){};
-   double ComputeKerogenTransformatioRatio( const SpeciesManager& speciesManager,
-                                            int aSimulationType ){ return 0.0; }; 
+   void SetResultsToZero(){ };
+   double ComputeKerogenTransformatioRatio( const SpeciesManager& speciesManager,int aSimulationType ){ return 0.0; }; 
    double ComputeDiffusionConcDependence(const double in_Waso){ return 0.0; }; 
+
+   double getTotalOilForTSR () const;
+   void incTotalOilForTSR ( double curentConc );
+   void setTotalOilForTSR ( double curentConc );
+
 protected:
    void initSpeciesUltimateMass ( const SpeciesManager& speciesManager );
+private:
 
+   double m_concTotalOilForTSR;
 };
+
+inline double SimulatorState::getTotalOilForTSR () const {
+   return m_concTotalOilForTSR;
+}
+
+inline void SimulatorState::incTotalOilForTSR ( double curentConc ) {
+   m_concTotalOilForTSR += curentConc;
+}
+
+inline void SimulatorState::setTotalOilForTSR ( double curentConc ) {
+   m_concTotalOilForTSR = curentConc;
+}
 
 } 
 #endif // _OTGC_KERNEL6__SIMULATOR_STATE_H_
