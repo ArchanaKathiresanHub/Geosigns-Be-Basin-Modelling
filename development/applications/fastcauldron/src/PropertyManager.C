@@ -21,9 +21,9 @@ PropertyManager::PropertyManager () {
 
    int i;
 
-   // Mapping from the time-io-table property name to the name that appears in the time-filter gui.
+   // Mapping from the time-io-table property name to the name that appears in the time-filter old gui.
    // Would it be better to have only those that are not an identity mapping on the map?
-   // e.g. Porosity -> PorosityVec, and not Depth -> depth.
+   // e.g. Porosity -> PorosityVec, and not Depth -> Depth.
    m_propertyName2OutputName [ "AllochthonousLithology" ] = "AllochthonousLithology";
    m_propertyName2OutputName [ "BulkDensity" ]            = "BulkDensityVec";
    m_propertyName2OutputName [ "Depth" ]                  = "Depth"; 

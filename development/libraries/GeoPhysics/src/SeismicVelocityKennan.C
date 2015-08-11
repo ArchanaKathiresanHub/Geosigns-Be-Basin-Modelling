@@ -48,7 +48,7 @@ namespace GeoPhysics
 
 			///3 Scale the porosity for the modulus computation
 			double porosityScaled = porosity / m_porositySurface;
-			if (porosityScaled >= 1){
+			if (porosityScaled > 1){
 				//suspension line (phi>phi_surf, so this is no more a solid rock)
 				return seismicVelocityFluid;
 			}

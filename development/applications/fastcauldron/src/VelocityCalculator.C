@@ -237,7 +237,7 @@ void VelocityVolumeCalculator::allocatePropertyValues ( OutputPropertyMap::Prope
 
 bool VelocityVolumeCalculator::initialise ( OutputPropertyMap::PropertyValueList& propertyValues ) {
 
-   m_bulkDensity = PropertyManager::getInstance( ).findOutputPropertyVolume( "BulkDensity", m_formation, m_snapshot );
+   m_bulkDensity = PropertyManager::getInstance().findOutputPropertyVolume ( "BulkDensity", m_formation, m_snapshot );
    m_porosity    = PropertyManager::getInstance().findOutputPropertyVolume ( "Porosity", m_formation, m_snapshot );
    m_pressure    = PropertyManager::getInstance().findOutputPropertyVolume ( "Pressure", m_formation, m_snapshot );
    m_temperature = PropertyManager::getInstance().findOutputPropertyVolume ( "Temperature", m_formation, m_snapshot );
