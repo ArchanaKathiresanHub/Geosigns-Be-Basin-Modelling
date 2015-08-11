@@ -58,6 +58,8 @@ TEST(SeismicVelocityWyllie, std_shale)
 	EXPECT_EQ(myVelocity.seismicVelocity(1507, 1000, 2000, 0.5, 0, 40), myVelocity.seismicVelocity(1507, 800, 1550, 0.5, 50, 50));
 }
 
+//assert is only handled in Debug
+#ifdef DEBUG
 TEST(SeismicVelocityWyllie, death_test)
 {
 	::testing::FLAGS_gtest_death_test_style = "threadsafe";
@@ -67,3 +69,4 @@ TEST(SeismicVelocityWyllie, death_test)
 	myVelocity = myVelocity.create(DataAccess::Interface::WYLLIES_VELOCITY_ALGORITHM, 5000, 2710, 67750000000, 0.7, 0);
 	ASSERT_DEATH(myVelocity.seismicVelocity(0, 1000, 2000, 0, 40, 40), "Assertion.*denominator!=0");
 }
+#endif

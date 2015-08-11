@@ -168,6 +168,8 @@ TEST(SeismicVelocityKennan, std_shale_decompaction)
 	EXPECT_EQ(1507, myVelocity.seismicVelocity(1507, 1000, 2000, 0.8, 0, 40));
 }
 
+//assert is only handled in Debug
+#ifdef DEBUG
 TEST(SeismicVelocityKennan, death_test)
 {
 	::testing::FLAGS_gtest_death_test_style = "threadsafe";
@@ -177,3 +179,4 @@ TEST(SeismicVelocityKennan, death_test)
 	myVelocity = myVelocity.create(DataAccess::Interface::KENNANS_VELOCITY_ALGORITHM, 5000, 0, 2710, 0.7, -0.75);
 	ASSERT_DEATH(myVelocity.seismicVelocity(0, 1000, 2000, 0, 40, 40), "Assertion.*denominator!=0");
 }
+#endif
