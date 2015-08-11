@@ -3170,10 +3170,10 @@ bool AppCtx::createFormationLithologies ( const bool canRunSaltModelling ) {
       continue;
     }
 
-    Current_Layer -> Previous_Topmost_Segments.allocate ( FastcauldronSimulator::getInstance ().getActivityOutputGrid ());
+    Current_Layer -> Previous_Topmost_Segments.reallocate ( FastcauldronSimulator::getInstance ().getActivityOutputGrid ());
     Current_Layer -> Previous_Topmost_Segments.fill ( -1 );
 
-    Current_Layer -> Current_Topmost_Segments.allocate ( FastcauldronSimulator::getInstance ().getActivityOutputGrid ());
+    Current_Layer -> Current_Topmost_Segments.reallocate ( FastcauldronSimulator::getInstance ().getActivityOutputGrid ());
     Current_Layer -> Current_Topmost_Segments.fill ( -1 );
 
     Layers++;

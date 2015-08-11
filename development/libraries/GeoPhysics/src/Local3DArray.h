@@ -1,6 +1,9 @@
 #ifndef _GEOPHYSICS__LOCAL_3D_ARRAY_H_
 #define _GEOPHYSICS__LOCAL_3D_ARRAY_H_
 
+#include <assert.h>
+
+
 #include "Interface/Grid.h"
 
 #include "array.h"
@@ -22,13 +25,18 @@ namespace GeoPhysics {
       /// Constructor
       Local3DArray ();
 
+      /// Constructor
+      Local3DArray ( const DataAccess::Interface::Grid* grid,
+                     const unsigned int                 depth,
+                     const bool                         includeGhostNodes = true );
+
       /// Destructor
       ~Local3DArray ();
 
       /// Allocate the array with the grid map.
-      void allocate ( const DataAccess::Interface::Grid* grid,
-                      const unsigned int                 depth,
-                      const bool                         includeGhostNodes = true );
+      void reallocate ( const DataAccess::Interface::Grid* grid,
+                        const unsigned int                 depth,
+                        const bool                         includeGhostNodes = true );
 
       /// The first index of the array in the dimension.
       unsigned int first  ( const unsigned int dim ) const;
@@ -91,6 +99,16 @@ GeoPhysics::Local3DArray<T>::Local3DArray () {
 //------------------------------------------------------------//
 
 template <typename T>
+GeoPhysics::Local3DArray<T>::Local3DArray ( const DataAccess::Interface::Grid* grid,
+                                            const unsigned int                 depth,
+                                            const bool                         includeGhostNodes ) {
+   m_values = 0;
+   reallocate ( grid, depth, includeGhostNodes );
+}
+
+//------------------------------------------------------------//
+
+template <typename T>
 GeoPhysics::Local3DArray<T>::~Local3DArray () {
 
    if ( m_values != 0 ) {
@@ -102,9 +120,13 @@ GeoPhysics::Local3DArray<T>::~Local3DArray () {
 //------------------------------------------------------------//
 
 template <typename T>
-void GeoPhysics::Local3DArray<T>::allocate ( const DataAccess::Interface::Grid* grid,
-                                             const unsigned int                 depth,
-                                             const bool                         includeGhostNodes ) {
+void GeoPhysics::Local3DArray<T>::reallocate ( const DataAccess::Interface::Grid* grid,
+                                               const unsigned int                 depth,
+                                               const bool                         includeGhostNodes ) {
+
+   if ( m_values != 0 ) {
+      ibs::Array<T>::delete3d ( m_values );
+   }
 
    m_first [ 0 ] = grid->firstI ( includeGhostNodes );
    m_first [ 1 ] = grid->firstJ ( includeGhostNodes );
@@ -112,7 +134,7 @@ void GeoPhysics::Local3DArray<T>::allocate ( const DataAccess::Interface::Grid* 
 
    m_last [ 0 ] = grid->lastI ( includeGhostNodes );
    m_last [ 1 ] = grid->lastJ ( includeGhostNodes );
-   m_last [ 2 ] = depth;
+   m_last [ 2 ] = depth - 1;
 
    m_size [ 0 ] = m_last [ 0 ] - m_first [ 0 ] + 1;
    m_size [ 1 ] = m_last [ 1 ] - m_first [ 1 ] + 1;

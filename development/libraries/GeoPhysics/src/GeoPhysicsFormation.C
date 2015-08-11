@@ -636,13 +636,6 @@ void GeoPhysics::Formation::restoreAllThicknessMaps () {
 
 //------------------------------------------------------------//
 
-void GeoPhysics::Formation::setThicknessArrays () {
-   m_solidThickness.allocate ( m_projectHandle->getActivityOutputGrid (), getMaximumNumberOfElements ());
-   m_realThickness.allocate  ( m_projectHandle->getActivityOutputGrid (), getMaximumNumberOfElements ());   
-}
-
-//------------------------------------------------------------//
-
 double GeoPhysics::Formation::computeRealThickness ( const unsigned int i,
                                                      const unsigned int j,
                                                      const unsigned int k,
