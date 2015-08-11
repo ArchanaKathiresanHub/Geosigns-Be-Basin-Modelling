@@ -56,6 +56,7 @@ else ()
 	add_subdirectory(fastmig)
    	add_subdirectory(fastctc)
 	add_subdirectory(fastgenex6)
+	add_subdirectory(hpc)
 endif ()
 
 # Local Variables:

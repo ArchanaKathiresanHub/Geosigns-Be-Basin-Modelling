@@ -35,15 +35,19 @@ namespace CauldronIO
     // forward declarations
     class SnapShot;
     class Map;
-    class Grid;
     class Property;
     class Formation;
     class Volume;
+    class Surface;
+    class DiscontinuousVolume;
     // type definitions
-    typedef pair<const Formation*, const Volume*> FormationVolume;
-    typedef vector<const FormationVolume *> FormationVolumeList;
-    typedef vector<const SnapShot *> SnapShotList;
-    typedef vector<const Grid *> GridList;
+    typedef pair<boost::shared_ptr<const Formation>, boost::shared_ptr<const Volume> > FormationVolume;
+    /// the disadvantage is that when an object has been added to the list, it cannot be modified any longer...
+    typedef vector<boost::shared_ptr<const FormationVolume > > FormationVolumeList;
+    typedef vector<boost::shared_ptr<const SnapShot > > SnapShotList;
+    typedef vector<boost::shared_ptr<const Surface > > SurfaceList;
+    typedef vector<boost::shared_ptr<const Volume > > VolumeList;
+    typedef vector<boost::shared_ptr<const DiscontinuousVolume > > DiscontinuousVolumeList;
     
     /// \brief Main entry: project class
     class Project
@@ -56,12 +60,10 @@ namespace CauldronIO
         ~Project();
 
 		/// \brief Adds a snapshot to the current project
-		void AddSnapShot(const SnapShot *);
+		void AddSnapShot(boost::shared_ptr<const SnapShot> snapShot);
 
         /// Basic info: 
-        /// TODO consider removing some of these properties below; they may not be relevant
-
-        /// \brief Name of the project
+         /// \brief Name of the project
         const string& GetName() const;
         /// \brief Description of the project
         const string& GetDescription() const;
@@ -73,7 +75,7 @@ namespace CauldronIO
         ModellingMode GetModelingMode() const;
 
         /// \brief Gets the list of snapshots
-        const boost::shared_ptr<SnapShotList> GetSnapShots() const;
+        const boost::shared_ptr<const SnapShotList> GetSnapShots() const;
 
     private:
 	    boost::shared_ptr<SnapShotList> _snapShotList;
@@ -89,19 +91,29 @@ namespace CauldronIO
 	    SnapShot(double age, SnapShotKind kind, bool isMinorShapshot);
         ~SnapShot();
 
-	    /// \brief Add a grid to the snapshot
-	    void AddGrid(const Grid* grid);
+	    /// \brief Add a surface to the snapshot; ownership is transfered
+	    void AddSurface(boost::shared_ptr<const Surface> surface);
+ 	    /// \brief Add a volume to the snapshot; ownership is transfered
+        void AddVolume(boost::shared_ptr<const Volume> volume);
+        /// \brief Add a discontinuous volume to the snapshot; ownership is transfered
+        void AddDiscontinuousVolume(boost::shared_ptr<const DiscontinuousVolume> discVolume);
 
 	    // Basic info
         double GetAge () const;
         SnapShotKind GetKind() const;
 	    bool IsMinorShapshot() const;
 
-        // Contained data
-        const boost::shared_ptr<GridList> GetGridList() const;
+        /// \brief Get the list of surfaces
+        const boost::shared_ptr<const SurfaceList> GetSurfaceList() const;
+        /// \brief Get the list of volumes
+        const boost::shared_ptr<const VolumeList> GetVolumeList() const;
+        /// \brief Get the list of discontinuous volumes
+        const boost::shared_ptr<const DiscontinuousVolumeList> GetDiscontinuousVolumeList() const;
 		
     private:
-	    boost::shared_ptr<GridList> _gridList;
+	    boost::shared_ptr<SurfaceList> _surfaceList;
+        boost::shared_ptr<VolumeList> _volumeList;
+        boost::shared_ptr<DiscontinuousVolumeList> _discVolumeList;
         SnapShotKind _kind;
         bool _isMinor;
         double _age;
@@ -149,10 +161,55 @@ namespace CauldronIO
         size_t _kstart, _kend;
     };
 
-    /// \brief Grid container class: baseclass for both Map and Volume
-    class Grid
+    /// \brief Surface container class
+    class Surface
     {
     public:
+        /// \brief Construct a new surface. Ownership of all objects is transfered to the surface
+        /// \brief Depthmap can be null, for example for thickness or erosionfactor. 
+        /// \brief These are formation maps, not associated with a particular surface
+        Surface(const string& name, SubsurfaceKind kind, boost::shared_ptr<const Property> property, 
+            boost::shared_ptr<const Map> valueMap);
+
+        /// \brief Get the name of this surface
+        const string& GetName() const;
+        /// \brief Get the values for this surface
+        const boost::shared_ptr<const Map> GetValueMap() const;
+        /// \brief Returns the subsurface kind
+        SubsurfaceKind GetSubSurfaceKind() const;
+        /// \brief return the associate property with this grid
+        const boost::shared_ptr<const Property> GetProperty() const;
+        /// \brief Associate a formation with this map
+        void SetFormation(boost::shared_ptr<const Formation> formation);
+        /// \brief Get the associated formation for this map
+        const boost::shared_ptr<const Formation> GetFormation() const;
+        /// \brief Set the associated Depth surface for this surface
+        void SetDepthSurface(boost::shared_ptr<const Surface> surface);
+        /// \brief Get the associated Depth surface for this surface; CAN BE NULL
+        const boost::shared_ptr<const Surface> GetDepthSurface() const;
+
+    private:
+        SubsurfaceKind _subSurfaceKind;
+        boost::shared_ptr<const Property> _property;
+        boost::shared_ptr<const Formation> _formation;
+        boost::shared_ptr<const Map> _valueMap;
+        boost::shared_ptr<const Surface> _depthSurface;
+        string _name;
+    };
+
+    /// \brief Map container class
+    class Map
+    {
+    public:
+        /// \brief Create a new map specifying cell-centricity and the undefined value
+        Map(bool cellCentered, float undefined);
+        ~Map();
+
+        /// \brief Assign data to the map : geometry must have been assigned
+        void SetData_IJ(float* data);
+        /// \brief assign a geometry
+        void SetGeometry(size_t numI, size_t numJ, double deltaI, double deltaJ, double minI, double minJ);
+
         /// \brief return true if this map is cell centered
         bool IsCellCentered() const;
         /// \brief return true if this map is node centered
@@ -161,9 +218,9 @@ namespace CauldronIO
         size_t GetNumI() const;
         /// \brief return the local vertical resolution
         size_t GetNumJ() const;
-        /// \brief return the distance between two vertical gridlines
+        /// \brief return the distance between two vertical grid lines
         double GetDeltaI() const;
-        /// \brief return the distance between two horizontal gridlines
+        /// \brief return the distance between two horizontal grid lines
         double GetDeltaJ() const;
         /// return the leftmost grid coordinate value
         double GetMinI() const;
@@ -173,55 +230,6 @@ namespace CauldronIO
         double GetMaxI() const;
         /// \brief return the topmost grid coordinate value
         double GetMaxJ() const;
-
-        // Values
-
-        /// \brief returns the undefined value equivalent
-        float GetUndefinedValue() const;
-        /// \brief returns true if the value is constant for the entire grid
-        virtual bool IsConstant() const;
-        /// \brief Set a constant value for this Grid
-        virtual void SetConstantValue(float value);
-
-        /// \brief Returns the subsurface kind
-        SubsurfaceKind GetSubSurfaceKind() const;
-        /// \brief Sets the subsurface kind
-        void SetSubserfaceKind(SubsurfaceKind kind);
-
-        /// \brief return the associate property with this grid
-        const boost::shared_ptr<const Property> GetProperty() const;
-        /// \brief set the associated property for this grid
-        void SetProperty(const Property* property);
-
-    protected:
-        /// \brief Can only be created by a derived class
-        Grid(bool cellCentered, float undefined);
-    
-    private:
-		boost::shared_ptr<const Property> _property;
-		SubsurfaceKind _subSurfaceKind;
-    protected:
-        double _deltaI, _deltaJ, _minI, _minJ, _maxI, _maxJ;
-        size_t _numI, _numJ;
-        bool _geometryAssigned;
-        float _constantValue, _undefinedValue;
-        bool _isConstant, _isCellCentered;
-    };
-
-    /// \brief Map container class
-    class Map : public Grid
-    {
-    public:
-        /// \brief Create a new map specifying cell-centricity and the undefined value
-        Map(bool cellCentered, float undefined);
-        ~Map();
-
-        /// \brief Assign data to the map : geometry must have been assigned
-        void SetData_IJ(float* data);
-
-        /// \brief assign a geometry
-        void SetGeometry(size_t numI, size_t numJ, double deltaI, double deltaJ, double minI, double minJ, double maxI, double maxJ);
-
         /// \brief Returns true if data is represented per row
         bool CanGetRow() const;
         /// \brief Returns true if data is represented per column
@@ -231,55 +239,78 @@ namespace CauldronIO
         /// \brief 
         float GetValue(size_t i, size_t j) const;
         /// \brief Gets an entire row; can be null if this map is not row-ordered (or throw an exception)
-        const float* GetRowValues(size_t j);
+        float const * GetRowValues(size_t j);
         /// \brief Gets an entire column; can be null if this map is not row-ordered (or throw an exception)
-        const float* GetColumnValues(size_t i);
+        float const * GetColumnValues(size_t i);
         /// \brief Returns pointer to entire data 
-        const float* GetSurfaceValues();
-        /// \brief Associate a formation with this map
-        void SetFormation(const Formation* formation);
-        /// \brief Get the associated formation for this map
-        const boost::shared_ptr<const Formation> GetFormation() const;
+        float const * GetSurfaceValues();
         /// \brief Convenience function to get an index into the 1D volume data 
-        size_t GetMapIndex(size_t i, size_t j) const;
+        inline size_t GetMapIndex(size_t i, size_t j) const;
+
+        bool IsConstant() const;
+        void SetConstantValue(float constantValue);
+        float GetUndefinedValue() const;
 
     private:
-        typedef size_t (Map::*ComputeIndexFn)(size_t i, size_t j) const;
-        ComputeIndexFn _indexCalc;
-        size_t ComputeIndex_IJ(size_t i, size_t j) const;
+        double _deltaI, _deltaJ, _minI, _minJ, _maxI, _maxJ;
+        size_t _numI, _numJ;
+        bool _geometryAssigned;
+        float _constantValue, _undefinedValue;
+        bool _isConstant, _isCellCentered;
         void SetData(float* data, bool setValue = false, float value = 0);
         float* _internalData;
-        boost::shared_ptr<const Formation> _formation;
     };
 
     /// \brief A continuous volume is continuous across formation boundaries. It can still be (legacy) node centered as well as cell centered.
-    class Volume : public Grid
+    class Volume
     {
     public:
         /// \brief Constructor
-        Volume(bool cellCentered, float undefined);
+        Volume(bool cellCentered, float undefined, SubsurfaceKind kind, boost::shared_ptr<const Property> property);
         ~Volume();
+
+        /// \brief Returns the subsurface kind
+        SubsurfaceKind GetSubSurfaceKind() const;
+        /// \brief return the associate property with this grid
+        const boost::shared_ptr<const Property> GetProperty() const;
 
         /// \brief Assign data to the volume as a 1D array: K fastest, then I, then J
         void SetData_KIJ(float* data, bool setValue = false, float value = 0);
         /// \brief Assign data to the volume as a 1D array: I fastest, then J, then K
         void SetData_IJK(float* data, bool setValue = false, float value = 0);
 
-        // Geometry
+        /// \brief assign a geometry: the k-offset is the index of the first k-element (can be zero)
+        void SetGeometry(size_t numI, size_t numJ, size_t numK, size_t offsetK,
+            double deltaI, double deltaJ, double minI, double minJ);
 
-        /// \brief assign a geometry
-        void SetGeometry(size_t numI, size_t numJ, size_t numK, 
-            double deltaI, double deltaJ, 
-            double minI, double minJ, double minK, 
-            double maxI, double maxJ, double maxK);
-
+        /// \brief return true if this volume is cell centered
+        bool IsCellCentered() const;
+        /// \brief return true if this volume is node centered
+        bool IsNodeCentered() const { return !IsCellCentered(); }
+        /// \brief return the local horizontal resolution
+        size_t GetNumI() const;
         /// \brief return the local vertical resolution
+        size_t GetNumJ() const;
+        /// \brief return the number of k elements in this volume
         size_t GetNumK() const;
-        double GetDeltaK() const;
-        double GetMinK() const;
-        double GetMaxK() const;
+        /// \brief return the index of the first k element
+        size_t GetFirstK() const;
+        /// \brief return the index of the last k element (inclusive)
+        size_t GetLastK() const;
+        /// \brief return the distance between two vertical gridlines
+        double GetDeltaI() const;
+        /// \brief return the distance between two horizontal gridlines
+        double GetDeltaJ() const;
+        /// return the leftmost grid coordinate value
+        double GetMinI() const;
+        /// \brief return the bottommost grid coordinate value
+        double GetMinJ() const;
 
-        // Values
+        /// \brief return the rightmost grid coordinate value
+        double GetMaxI() const;
+        /// \brief return the topmost grid coordinate value
+        double GetMaxJ() const;
+        double GetMaxK() const;
 
         /// \brief Returns true if data is represented per row, for constant k
 	    bool CanGetRow() const;
@@ -288,57 +319,61 @@ namespace CauldronIO
 	    /// \brief Returns true if data is represented per needle, for constant ij
         bool CanGetNeedle() const;
 	    /// \brief Returns true if data is represented per surface, for constant k
-        bool CanGetSurface() const;
+        bool CanGetSurface_IJ() const;
 	    /// \brief 
 	    bool IsUndefined(size_t i, size_t j, size_t k) const;
+        bool IsConstant() const;
+        void SetConstantValue(float constantValue);
+        float GetUndefinedValue() const;
+
 	    /// \brief 
 	    float GetValue(size_t i, size_t j, size_t k) const;
 	    /// \brief Gets an entire row; can be null if this volume is not row-ordered (or throw an exception)
-	    const float* GetRowValues(size_t j, size_t k);
+	    float const * GetRowValues(size_t j, size_t k);
 	    /// \brief Gets an entire column; can be null if this volume is not row-ordered (or throw an exception)
-	    const float* GetColumnValues(size_t i, size_t k);
+	    float const * GetColumnValues(size_t i, size_t k);
         /// \brief Gets an entire needle; can be 
-        const float* GetNeedleValues(size_t i, size_t j);
+        float const * GetNeedleValues(size_t i, size_t j);
 	    /// \brief Returns pointer to entire data 
-        const float* GetSurface(size_t k);
-	    /// \brief Returns pointer to entire data 
-	    const float* GetVolumeValues();
-        /// \brief Convenience function to get an index into the 1D volume data 
-        size_t GetVolumeIndex(size_t i, size_t j, size_t k) const;
+        float const * GetSurface_IJ(size_t k);
+	    /// \brief Returns pointer to entire data: can be NULL
+	    float const * GetVolumeValues_IJK();
+        /// \brief Returns pointer to entire data: can be NULL 
+        float const * GetVolumeValues_KIJ();
+
+        /// \brief Convenience function to get an index into the 1D volume data : indexing is through the full-k range, corresponding to the depth volume
+        size_t ComputeIndex_IJK(size_t i, size_t j, size_t k) const;
+        /// \brief Convenience function to get an index into the 1D volume data : indexing is through the full-k range, corresponding to the depth volume
+        size_t ComputeIndex_KIJ(size_t i, size_t j, size_t k) const;
 
     private:
-        typedef size_t(Volume::*ComputeVolIndexFn)(size_t i, size_t j, size_t k) const;
-        size_t ComputeIndex_IJK(size_t i, size_t j, size_t k) const;
-        size_t ComputeIndex_KIJ(size_t i, size_t j, size_t k) const;
-        ComputeVolIndexFn _indexCalc;
-        void SetData(float* data, bool setValue = false, float value = 0);
-        float* _internalData;
-        size_t _numK;
-        double _minK, _maxK, _deltaK;
+        void SetData(float* data, float* internalData, bool setValue = false, float value = 0);
+        inline bool IsDataAvailable() const;
+        float* _internalDataIJK;
+        float* _internalDataKIJ;
+        double _deltaI, _deltaJ, _minI, _minJ, _maxI, _maxJ;
+        size_t _numI, _numJ, _numK, _firstK;
+        bool _geometryAssigned;
+        float _constantValue, _undefinedValue;
+        bool _isConstant, _isCellCentered;
+        SubsurfaceKind _subSurfaceKind;
+        boost::shared_ptr<const Property> _property;
     };
 
     /// \brief This is a legacy volume. It is node centered and therefore, most properties are discontinuous across formation boundaries
-    class DiscontinuousVolume : public Grid
+    class DiscontinuousVolume
     {
     public:
         /// \brief Create a new discontinuous volume by providing the first subvolume
-        DiscontinuousVolume(const Formation* formation, const Volume* volume, float undefined);
+        DiscontinuousVolume();
         ~DiscontinuousVolume();
         /// \brief This type of volume is NOT cell centered
-        virtual bool IsCellCentered() const { return false; }
-        /// \brief Adds a volume to the list: -- OWNERSHIP of the volume is transfered to this class --
-        void AddVolume(const Formation* formation, const Volume* volume);
+        bool IsCellCentered() const { return false; }
+        /// \brief Adds a volume to the list
+        void AddVolume(boost::shared_ptr<const Formation> formation, boost::shared_ptr<const Volume> volume);
         /// \brief Get the entire list of (sub)volumes
-        const boost::shared_ptr<FormationVolumeList> GetVolumeList() const;
+        const boost::shared_ptr<const FormationVolumeList> GetVolumeList() const;
 
-        /// Overrides
-        //////////////////////////////////////////////////////////////////////////
-
-        /// \brief returns true if the value is constant for the entire grid
-        virtual bool IsConstant() const;
-        /// \brief Set a constant value for this Grid
-        virtual void SetConstantValue(float value);
-       
     private:
         boost::shared_ptr<FormationVolumeList> _volumeList;
     };

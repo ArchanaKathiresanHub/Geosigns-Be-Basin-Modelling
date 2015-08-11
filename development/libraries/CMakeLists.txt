@@ -36,6 +36,7 @@ add_subdirectory(calibration_kernel)
 add_subdirectory(OTGC_kernel6)
 add_subdirectory(CrustalThickness)
 add_subdirectory(functions)
+add_subdirectory(VisualizationIO)
 
 if(UNIX)
 	# Libraries that can only be built on Unix at the moment.

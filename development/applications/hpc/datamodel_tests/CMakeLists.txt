@@ -16,25 +16,48 @@ source_group("Header Files" FILES ${all_headers})
 FILE( GLOB all_srcs src/*.cpp)
 source_group("Source Files" FILES ${all_srcs})
 
-add_library(VisualizationIO ${all_srcs} ${all_headers})
+add_executable(datamodel_tests ${all_srcs} ${all_headers})
 
 include_directories(
 	${HDF5_INCLUDE_DIRS}
+	${MPI_INCLUDE_DIRS}
+	${PETSC_INCLUDE_DIRS}
 )
 
 bm_include_libraries(
+	DataModel
+	DataAccess
+	utilities
+	Utilities_Petsc
+	#SerialDataAccess
+    DistributedDataAccess
+	DataAccess
+	GeoPhysics
+	DerivedProperties
+	TableIO
+    VisualizationIO
 )
 
-target_link_libraries(VisualizationIO
-  ${HDF5_LIBRARIES}
-  ${Boost_LIBRARIES}
+target_link_libraries(datamodel_tests
+	DataModel
+	DataAccess
+	utilities
+	Utilities_Petsc
+	#SerialDataAccess
+    DistributedDataAccess
+	DataAccess
+	GeoPhysics
+	DerivedProperties
+	TableIO
+    VisualizationIO
+	${HDF5_LIBRARIES}
+	${MPI_LIBRARIES}
+	${PETSC_LIBRARIES}
+	${Boost_LIBRARIES}
 )
 
-generate_dox( VisualizationIO.cfg )
-
-add_gtest( NAME CauldronIO::Project
-           SOURCES test/Project.cpp
-           LIBRARIES VisualizationIO
+install(TARGETS datamodel_tests
+	RUNTIME DESTINATION bin
 )
 
 # Local Variables:

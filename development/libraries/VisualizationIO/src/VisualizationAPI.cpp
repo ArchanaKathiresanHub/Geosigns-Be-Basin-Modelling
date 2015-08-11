@@ -21,14 +21,10 @@ CauldronIO::Project::Project(const string& name, const string& description, cons
 CauldronIO::Project::~Project()
 {
     // Delete all snapshots
-    for (int i = 0; i < _snapShotList->size(); ++i)
-    {
-        delete _snapShotList->at(i);
-    }
     _snapShotList->clear();
 }
 
-void CauldronIO::Project::AddSnapShot(const SnapShot * snapShot)
+void CauldronIO::Project::AddSnapShot(boost::shared_ptr<const SnapShot > snapShot)
 {
     if (!snapShot) throw CauldronIOException("Cannot add empty snapshot");
     
@@ -65,7 +61,7 @@ CauldronIO::ModellingMode CauldronIO::Project::GetModelingMode() const
     return _mode;
 }
 
-const boost::shared_ptr<SnapShotList> CauldronIO::Project::GetSnapShots() const
+const boost::shared_ptr<const SnapShotList> CauldronIO::Project::GetSnapShots() const
 {
     return _snapShotList;
 }
@@ -78,29 +74,53 @@ CauldronIO::SnapShot::SnapShot(double age, SnapShotKind kind, bool isMinorShapsh
     _age = age;
     _kind = kind;
     _isMinor = isMinorShapshot;
-    _gridList.reset(new GridList());
+    _volumeList.reset(new VolumeList());
+    _discVolumeList.reset(new DiscontinuousVolumeList());
+    _surfaceList.reset(new SurfaceList());
 }
 
 CauldronIO::SnapShot::~SnapShot()
 {
     // Delete all snapshots
-    for (int i = 0; i < _gridList->size(); ++i)
-    {
-        delete _gridList->at(i);
-    }
-    _gridList->clear();
+    _volumeList->clear();
+    _discVolumeList->clear();
+    _surfaceList->clear();
 }
 
-void CauldronIO::SnapShot::AddGrid(const Grid* grid)
+void CauldronIO::SnapShot::AddSurface(boost::shared_ptr<const Surface> surface)
 {
-    if (!grid) throw CauldronIOException("Cannot add empty snapshot");
+    if (!surface) throw CauldronIOException("Cannot add empty surface");
 
     // Check if snapshot exists
-    for (int i = 0; i < _gridList->size(); ++i)
+    for (int i = 0; i < _surfaceList->size(); ++i)
     {
-        if (_gridList->at(i) == grid) throw CauldronIOException("Cannot add snapshot twice");
+        if (_surfaceList->at(i) == surface) throw CauldronIOException("Cannot add surface twice");
     }
-    _gridList->push_back(grid);
+    _surfaceList->push_back(surface);
+}
+
+void CauldronIO::SnapShot::AddVolume(boost::shared_ptr<const Volume> volume)
+{
+    if (!volume) throw CauldronIOException("Cannot add empty volume");
+
+    // Check if snapshot exists
+    for (int i = 0; i < _volumeList->size(); ++i)
+    {
+        if (_volumeList->at(i) == volume) throw CauldronIOException("Cannot add volume twice");
+    }
+    _volumeList->push_back(volume);
+}
+
+void CauldronIO::SnapShot::AddDiscontinuousVolume(boost::shared_ptr<const DiscontinuousVolume> discVolume)
+{
+    if (!discVolume) throw CauldronIOException("Cannot add empty volume");
+
+    // Check if snapshot exists
+    for (int i = 0; i < _discVolumeList->size(); ++i)
+    {
+        if (_discVolumeList->at(i) == discVolume) throw CauldronIOException("Cannot add volume twice");
+    }
+    _discVolumeList->push_back(discVolume);
 }
 
 double CauldronIO::SnapShot::GetAge() const
@@ -118,9 +138,19 @@ bool CauldronIO::SnapShot::IsMinorShapshot() const
     return _isMinor;
 }
 
-const boost::shared_ptr<GridList> CauldronIO::SnapShot::GetGridList() const
+const boost::shared_ptr<const SurfaceList> CauldronIO::SnapShot::GetSurfaceList() const
 {
-    return _gridList;
+    return _surfaceList;
+}
+
+const boost::shared_ptr<const VolumeList> CauldronIO::SnapShot::GetVolumeList() const
+{
+    return _volumeList;
+}
+
+const boost::shared_ptr<const DiscontinuousVolumeList> CauldronIO::SnapShot::GetDiscontinuousVolumeList() const
+{
+    return _discVolumeList;
 }
 
 /// Property implementation
@@ -187,109 +217,124 @@ const string& CauldronIO::Formation::GetName() const
     return _name;
 }
 
-/// Grid implementation
+/// Surface implementation
 //////////////////////////////////////////////////////////////////////////
 
-
-CauldronIO::Grid::Grid(bool cellCentered, float undefined)
+CauldronIO::Surface::Surface(const string& name, SubsurfaceKind kind, 
+                             boost::shared_ptr<const Property> property, boost::shared_ptr<const Map> valueMap)
 {
-    _isCellCentered = cellCentered;
-    _isConstant = false;
-    _geometryAssigned = false;
-    _undefinedValue = undefined;
+    _name = name;
+    _subSurfaceKind = kind;
+    _property = property;
+    _valueMap = valueMap;
 }
 
-bool CauldronIO::Grid::IsCellCentered() const
+const string& CauldronIO::Surface::GetName() const
 {
-    return _isCellCentered;
+    return _name;
 }
 
-size_t CauldronIO::Grid::GetNumI() const
+const boost::shared_ptr<const Map> CauldronIO::Surface::GetValueMap() const
 {
-    return _numI;
+    return _valueMap;
 }
 
-size_t CauldronIO::Grid::GetNumJ() const
-{
-    return _numJ;
-}
-
-double CauldronIO::Grid::GetDeltaI() const
-{
-    return _deltaI;
-}
-
-double CauldronIO::Grid::GetDeltaJ() const
-{
-    return _deltaJ;
-}
-
-double CauldronIO::Grid::GetMinI() const
-{
-    return _minI;
-}
-
-double CauldronIO::Grid::GetMinJ() const
-{
-    return _minJ;
-}
-
-double CauldronIO::Grid::GetMaxI() const
-{
-    return _maxI;
-}
-
-double CauldronIO::Grid::GetMaxJ() const
-{
-    return _maxJ;
-}
-
-float CauldronIO::Grid::GetUndefinedValue() const
-{
-    return _undefinedValue;
-}
-
-bool CauldronIO::Grid::IsConstant() const
-{
-    return _isConstant;
-}
-
-void CauldronIO::Grid::SetConstantValue(float value)
-{
-    _isConstant = false;
-    _constantValue = value;
-}
-
-CauldronIO::SubsurfaceKind CauldronIO::Grid::GetSubSurfaceKind() const
+CauldronIO::SubsurfaceKind CauldronIO::Surface::GetSubSurfaceKind() const
 {
     return _subSurfaceKind;
 }
 
-void CauldronIO::Grid::SetSubserfaceKind(SubsurfaceKind kind)
-{
-    _subSurfaceKind = kind;
-}
-
-const boost::shared_ptr<const Property> CauldronIO::Grid::GetProperty() const
+const boost::shared_ptr<const Property> CauldronIO::Surface::GetProperty() const
 {
     return _property;
 }
 
-void CauldronIO::Grid::SetProperty(const Property* property)
+void CauldronIO::Surface::SetFormation(boost::shared_ptr<const Formation> formation)
 {
-    if (!property) throw CauldronIOException("Cannot set null property");
-    _property.reset(property);
+    _formation = formation;
+}
+
+const boost::shared_ptr<const Formation> CauldronIO::Surface::GetFormation() const
+{
+    return _formation;
+}
+
+void CauldronIO::Surface::SetDepthSurface(boost::shared_ptr<const Surface> surface)
+{
+    _depthSurface = surface;
+}
+
+const boost::shared_ptr<const Surface> CauldronIO::Surface::GetDepthSurface() const
+{
+    return _depthSurface;
 }
 
 /// Map implementation
 //////////////////////////////////////////////////////////////////////////
 
-
-CauldronIO::Map::Map(bool cellCentered, float undefined) : Grid(cellCentered, undefined)
+CauldronIO::Map::Map(bool cellCentered, float undefined)
 {
     // Indexing into the map is unknown
-    _indexCalc = NULL;
     _internalData = NULL;
+    _isCellCentered = cellCentered;
+    _undefinedValue = undefined;
+    _isConstant = false;
+}
+
+size_t CauldronIO::Map::GetNumI() const
+{
+    return _numI;
+}
+
+size_t CauldronIO::Map::GetNumJ() const
+{
+    return _numJ;
+}
+
+double CauldronIO::Map::GetDeltaI() const
+{
+    return _deltaI;
+}
+
+double CauldronIO::Map::GetDeltaJ() const
+{
+    return _deltaJ;
+}
+
+double CauldronIO::Map::GetMinI() const
+{
+    return _minI;
+}
+
+double CauldronIO::Map::GetMinJ() const
+{
+    return _minJ;
+}
+
+double CauldronIO::Map::GetMaxI() const
+{
+    return _maxI;
+}
+
+double CauldronIO::Map::GetMaxJ() const
+{
+    return _maxJ;
+}
+
+float CauldronIO::Map::GetUndefinedValue() const
+{
+    return _undefinedValue;
+}
+
+bool CauldronIO::Map::IsConstant() const
+{
+    return _isConstant;
+}
+
+void CauldronIO::Map::SetConstantValue(float value)
+{
+    _isConstant = true;
+    _constantValue = value;
 }
 
 CauldronIO::Map::~Map()
@@ -301,7 +346,6 @@ CauldronIO::Map::~Map()
 void CauldronIO::Map::SetData_IJ(float* data)
 {
     SetData(data);
-    _indexCalc = &Map::ComputeIndex_IJ;
 }
 
 void CauldronIO::Map::SetData(float* data, bool setValue, float value)
@@ -326,7 +370,7 @@ void CauldronIO::Map::SetData(float* data, bool setValue, float value)
         if (!data) throw CauldronIOException("Cannot set data from empty buffer");
 
         // copy the data: this will not throw an exception if it fails
-        memcpy(_internalData, data, sizeof(float) * _numI * _numJ);
+        std::memcpy(_internalData, data, sizeof(float) * _numI * _numJ);
     }
     // assign a value if necessary
     else
@@ -335,29 +379,22 @@ void CauldronIO::Map::SetData(float* data, bool setValue, float value)
     }
 }
 
-size_t CauldronIO::Map::ComputeIndex_IJ(size_t i, size_t j) const
-{
-    assert(_geometryAssigned);
-    assert(i >= 0 && i < _numI && j >= 0 && j < _numJ);
-    return _numI * j + i;
-}
-
-void CauldronIO::Map::SetGeometry(size_t numI, size_t numJ, double deltaI, double deltaJ, double minI, double minJ, double maxI, double maxJ)
+void CauldronIO::Map::SetGeometry(size_t numI, size_t numJ, double deltaI, double deltaJ, double minI, double minJ)
 {
     _numI = numI;
     _numJ = numJ;
     _deltaI = deltaI;
     _deltaJ = deltaJ;
     _minI = minI;
-    _maxI = maxI;
-    _maxI = maxI;
-    _maxJ = maxJ;
+    _minJ = minJ;
+    _maxI = minI + deltaI * numI;
+    _maxJ = minJ + deltaJ * numJ;
     _geometryAssigned = true;
 }
 
 bool CauldronIO::Map::CanGetRow() const
 {
-    return _indexCalc == &Map::ComputeIndex_IJ;
+    return true;
 }
 
 bool CauldronIO::Map::CanGetColumn() const
@@ -368,23 +405,23 @@ bool CauldronIO::Map::CanGetColumn() const
 
 bool CauldronIO::Map::IsUndefined(size_t i, size_t j) const
 {
-    assert((_internalData || _isConstant) && _indexCalc);
+    assert(_internalData || _isConstant);
     if (_isConstant) return _constantValue == _undefinedValue;
 
-    return _internalData[(this->*_indexCalc)(i, j)] == _undefinedValue;
+    return _internalData[GetMapIndex(i, j)] == _undefinedValue;
 }
 
 float CauldronIO::Map::GetValue(size_t i, size_t j) const
 {
-    assert((_internalData || _isConstant) && _indexCalc);
+    assert(_internalData || _isConstant);
     if (_isConstant) return _constantValue;
     
-    return _internalData[(this->*_indexCalc)(i, j)];
+    return _internalData[GetMapIndex(i, j)];
 }
 
-const float* CauldronIO::Map::GetRowValues(size_t j) 
+float const * CauldronIO::Map::GetRowValues(size_t j)
 {
-    assert((_internalData || _isConstant) && _indexCalc);
+    assert(_internalData || _isConstant);
     if (!CanGetRow()) throw CauldronIOException("Cannot return row values");
 
     // Create our internal buffer if not existing
@@ -393,9 +430,9 @@ const float* CauldronIO::Map::GetRowValues(size_t j)
     return _internalData + GetMapIndex(0, j);
 }
 
-const float* CauldronIO::Map::GetColumnValues(size_t i) 
+float const * CauldronIO::Map::GetColumnValues(size_t i)
 {
-    assert((_internalData || _isConstant) && _indexCalc);
+    assert(_internalData || _isConstant);
     if (!CanGetColumn()) throw CauldronIOException("Cannot return column values");
 
     // Create our internal buffer if not existing
@@ -404,9 +441,9 @@ const float* CauldronIO::Map::GetColumnValues(size_t i)
     return _internalData + GetMapIndex(i, 0);
 }
 
-const float* CauldronIO::Map::GetSurfaceValues() 
+float const * CauldronIO::Map::GetSurfaceValues()
 {
-    assert((_internalData || _isConstant) && _indexCalc);
+    assert(_internalData || _isConstant);
 
     // Create our internal buffer if not existing
     if (!_internalData && _isConstant) SetData(NULL, true, _constantValue);
@@ -414,61 +451,61 @@ const float* CauldronIO::Map::GetSurfaceValues()
     return _internalData;
 }
 
-void CauldronIO::Map::SetFormation(const Formation* formation)
-{
-    if (!formation) throw CauldronIOException("Cannot set null formation");
-    _formation.reset(formation);
-}
-
-const boost::shared_ptr<const Formation> CauldronIO::Map::GetFormation() const
-{
-    return _formation;
-}
-
 size_t CauldronIO::Map::GetMapIndex(size_t i, size_t j) const
 {
-    if (!_indexCalc) throw CauldronIOException("Cannot compute index without data assigned");
-    return (this->*_indexCalc)(i, j);
+    assert(_geometryAssigned);
+    assert(i >= 0 && i < _numI && j >= 0 && j < _numJ);
+    return _numI * j + i;
 }
 
 /// Volume implementation
 //////////////////////////////////////////////////////////////////////////
 
-CauldronIO::Volume::Volume(bool cellCentered, float undefined) : Grid(cellCentered, undefined)
+CauldronIO::Volume::Volume(bool cellCentered, float undefined, SubsurfaceKind kind, boost::shared_ptr<const Property> property)
 {
     // Indexing into the volume is unknown
-    _indexCalc = NULL;
-    _internalData = NULL;
+    _internalDataIJK = NULL;
+    _internalDataKIJ = NULL;
+    _isCellCentered = cellCentered;
+    _undefinedValue = undefined;
+    _isConstant = false;
+    _subSurfaceKind = kind;
+    _property = property;
 }
 
 CauldronIO::Volume::~Volume()
 {
-    if (_internalData) delete[] _internalData;
-    _internalData = NULL;
+    if (_internalDataIJK) delete[] _internalDataIJK;
+    if (_internalDataKIJ) delete[] _internalDataKIJ;
+    _internalDataIJK = NULL;
+    _internalDataKIJ = NULL;
+}
+
+const boost::shared_ptr<const Property> CauldronIO::Volume::GetProperty() const
+{
+    return _property;
 }
 
 void CauldronIO::Volume::SetData_KIJ(float* data, bool setValue /*= false*/, float value /*= 0*/)
 {
-    SetData(data, setValue, value);
-    _indexCalc = &Volume::ComputeIndex_KIJ;
+    SetData(data, _internalDataKIJ, setValue, value);
 }
 
 void CauldronIO::Volume::SetData_IJK(float* data, bool setValue /*= false*/, float value /*= 0*/)
 {
-    SetData(data, setValue, value);
-    _indexCalc = &Volume::ComputeIndex_IJK;
+    SetData(data, _internalDataIJK, setValue, value);
 }
 
-void CauldronIO::Volume::SetData(float* data, bool setValue /*= false*/, float value /*= 0*/)
+void CauldronIO::Volume::SetData(float* data, float* internalData, bool setValue /*= false*/, float value /*= 0*/)
 {
     if (!_geometryAssigned) throw CauldronIOException("Cannot assign data without geometry known");
 
     // If our data buffer exists, we will just reuse it. Otherwise, allocate
-    if (!_internalData)
+    if (!internalData)
     {
         try
         {
-            _internalData = new float[_numI * _numJ * _numK];
+            internalData = new float[_numI * _numJ * _numK];
         }
         catch (std::bad_alloc& ba)
         {
@@ -481,30 +518,90 @@ void CauldronIO::Volume::SetData(float* data, bool setValue /*= false*/, float v
         if (!data) throw CauldronIOException("Cannot set data from empty buffer");
 
         // copy the data: this will not throw an exception if it fails
-        memcpy(_internalData, data, sizeof(float) * _numI * _numJ * _numK);
+        memcpy(internalData, data, sizeof(float) * _numI * _numJ * _numK);
     }
     // assign a value if necessary
     else
     {
-        std::fill(_internalData, _internalData + _numI * _numJ * _numK, value);
+        std::fill(internalData, internalData + _numI * _numJ * _numK, value);
     }
 }
 
-void CauldronIO::Volume::SetGeometry(size_t numI, size_t numJ, size_t numK, double deltaI, 
-    double deltaJ, double minI, double minJ, double minK, double maxI, double maxJ, double maxK)
+bool CauldronIO::Volume::IsDataAvailable() const
+{
+    return _isConstant || (_internalDataIJK != NULL) || (_internalDataKIJ != NULL);
+}
+
+void CauldronIO::Volume::SetGeometry(size_t numI, size_t numJ, size_t numK, size_t offsetK, double deltaI,
+    double deltaJ, double minI, double minJ)
 {
     _numI = numI;
     _numJ = numJ;
     _numK = numK;
     _deltaI = deltaI;
     _deltaJ = deltaJ;
-    _maxI = maxI;
-    _maxJ = maxJ;
-    _maxK = maxK;
+    _maxI = minI + deltaI * numI;
+    _maxJ = minJ + deltaJ * numJ;
     _minI = minI;
     _minJ = minJ;
-    _minK = minK;
+    _firstK = offsetK;
     _geometryAssigned = true;
+}
+
+size_t CauldronIO::Volume::GetNumI() const
+{
+    return _numI;
+}
+
+size_t CauldronIO::Volume::GetNumJ() const
+{
+    return _numJ;
+}
+
+double CauldronIO::Volume::GetDeltaI() const
+{
+    return _deltaI;
+}
+
+double CauldronIO::Volume::GetDeltaJ() const
+{
+    return _deltaJ;
+}
+
+double CauldronIO::Volume::GetMinI() const
+{
+    return _minI;
+}
+
+double CauldronIO::Volume::GetMinJ() const
+{
+    return _minJ;
+}
+
+double CauldronIO::Volume::GetMaxI() const
+{
+    return _maxI;
+}
+
+double CauldronIO::Volume::GetMaxJ() const
+{
+    return _maxJ;
+}
+
+float CauldronIO::Volume::GetUndefinedValue() const
+{
+    return _undefinedValue;
+}
+
+bool CauldronIO::Volume::IsConstant() const
+{
+    return _isConstant;
+}
+
+void CauldronIO::Volume::SetConstantValue(float value)
+{
+    _isConstant = true;
+    _constantValue = value;
 }
 
 size_t CauldronIO::Volume::GetNumK() const
@@ -512,19 +609,19 @@ size_t CauldronIO::Volume::GetNumK() const
     return _numK;
 }
 
-double CauldronIO::Volume::GetMinK() const
+size_t CauldronIO::Volume::GetFirstK() const
 {
-    return _minK;
+    return _firstK;
 }
 
-double CauldronIO::Volume::GetMaxK() const
+size_t CauldronIO::Volume::GetLastK() const
 {
-    return _maxK;
+    return _firstK + _numK - 1;
 }
 
 bool CauldronIO::Volume::CanGetRow() const
 {
-    return _indexCalc == &Volume::ComputeIndex_IJK;
+    return _internalDataIJK != NULL;
 }
 
 bool CauldronIO::Volume::CanGetColumn() const
@@ -534,164 +631,137 @@ bool CauldronIO::Volume::CanGetColumn() const
 
 bool CauldronIO::Volume::CanGetNeedle() const
 {
-    return _indexCalc == &Volume::ComputeIndex_KIJ;
+    return _internalDataKIJ != NULL;
 }
 
-bool CauldronIO::Volume::CanGetSurface() const
+bool CauldronIO::Volume::CanGetSurface_IJ() const
 {
-    return _indexCalc == &Volume::ComputeIndex_IJK;
+    return _internalDataIJK != NULL;
 }
 
 bool CauldronIO::Volume::IsUndefined(size_t i, size_t j, size_t k) const
 {
-    assert((_internalData || _isConstant) && _indexCalc);
+    assert(IsDataAvailable());
     if (_isConstant) return _constantValue == _undefinedValue;
-
-    return _internalData[(this->*_indexCalc)(i, j, k)] == _undefinedValue;
+    if (_internalDataIJK) return _internalDataIJK[ComputeIndex_IJK(i, j, k)] == _undefinedValue;
+    
+    assert(_internalDataKIJ);
+    return _internalDataKIJ[ComputeIndex_KIJ(i, j, k)] == _undefinedValue;
 }
 
 float CauldronIO::Volume::GetValue(size_t i, size_t j, size_t k) const
 {
-    assert((_internalData || _isConstant) && _indexCalc);
+    assert(IsDataAvailable());
     if (_isConstant) return _constantValue;
+    if (_internalDataIJK) return _internalDataIJK[ComputeIndex_IJK(i, j, k)];
 
-    return _internalData[(this->*_indexCalc)(i, j, k)];
+    assert(_internalDataKIJ);
+    return _internalDataKIJ[ComputeIndex_KIJ(i, j, k)];
 }
 
-const float* CauldronIO::Volume::GetRowValues(size_t j, size_t k)
+float const * CauldronIO::Volume::GetRowValues(size_t j, size_t k)
 {
-    assert((_internalData || _isConstant) && _indexCalc);
+    assert(IsDataAvailable());
     if (!CanGetRow()) throw CauldronIOException("Cannot return row values");
 
     // Create our internal buffer if not existing
-    if (!_internalData && _isConstant) SetData(NULL, true, _constantValue);
+    if (!_internalDataIJK && _isConstant) SetData(NULL, NULL, true, _constantValue);
 
     // Assume IJK ordering
-    assert(_indexCalc == &Volume::ComputeIndex_IJK);
-    return _internalData + GetVolumeIndex(0, j, k);
+    assert(_internalDataIJK);
+    return _internalDataIJK + ComputeIndex_IJK(0, j, k);
 }
 
-const float* CauldronIO::Volume::GetColumnValues(size_t i, size_t k)
+float const * CauldronIO::Volume::GetColumnValues(size_t i, size_t k)
 {
-    assert((_internalData || _isConstant) && _indexCalc);
+    assert(IsDataAvailable());
     if (!CanGetColumn()) throw CauldronIOException("Cannot return column values");
 
     throw CauldronIOException("Not implemented");
 }
 
-const float* CauldronIO::Volume::GetNeedleValues(size_t i, size_t j)
+float const * CauldronIO::Volume::GetNeedleValues(size_t i, size_t j)
 {
-    assert((_internalData || _isConstant) && _indexCalc);
+    assert(IsDataAvailable());
     if (!CanGetNeedle()) throw CauldronIOException("Cannot return needle values");
 
     // Create our internal buffer if not existing
-    if (!_internalData && _isConstant) SetData(NULL, true, _constantValue);
+    if (!_internalDataKIJ && _isConstant) SetData(NULL, NULL, true, _constantValue);
 
-    return _internalData + GetVolumeIndex(i, j, 0);
+    return _internalDataKIJ + ComputeIndex_KIJ(i, j, _firstK);
 }
 
-const float* CauldronIO::Volume::GetSurface(size_t k)
+float const * CauldronIO::Volume::GetSurface_IJ(size_t k)
 {
-    assert((_internalData || _isConstant) && _indexCalc);
-    if (!CanGetSurface()) throw CauldronIOException("Cannot return surface values");
+    assert(IsDataAvailable());
+    if (!CanGetSurface_IJ()) throw CauldronIOException("Cannot return surface values");
 
     // Create our internal buffer if not existing
-    if (!_internalData && _isConstant) SetData(NULL, true, _constantValue);
+    if (!_internalDataIJK && _isConstant) SetData(NULL, NULL, true, _constantValue);
 
-    return _internalData + GetVolumeIndex(0, 0, k);
+    return _internalDataIJK + ComputeIndex_IJK(0, 0, k);
 }
 
-const float* CauldronIO::Volume::GetVolumeValues()
+float const * CauldronIO::Volume::GetVolumeValues_KIJ()
 {
-    assert((_internalData || _isConstant) && _indexCalc);
+    assert(IsDataAvailable());
 
     // Create our internal buffer if not existing
-    if (!_internalData && _isConstant) SetData(NULL, true, _constantValue);
+    if (!_internalDataKIJ && _isConstant) SetData(NULL, NULL, true, _constantValue);
 
-    return _internalData;
+    return _internalDataKIJ;
 }
 
-size_t CauldronIO::Volume::GetVolumeIndex(size_t i, size_t j, size_t k) const
+float const * CauldronIO::Volume::GetVolumeValues_IJK()
 {
-    if (!_indexCalc) throw CauldronIOException("Cannot compute index without data assigned");
-    return (this->*_indexCalc)(i, j, k);
+    assert(IsDataAvailable());
+
+    // Create our internal buffer if not existing
+    if (!_internalDataIJK && _isConstant) SetData(NULL, NULL, true, _constantValue);
+
+    return _internalDataIJK;
 }
 
 size_t CauldronIO::Volume::ComputeIndex_IJK(size_t i, size_t j, size_t k) const
 {
     assert(_geometryAssigned);
-    assert(i >= 0 && i < _numI && j >= 0 && j < _numJ && k >= 0 && k < _numK);
+    assert(i >= 0 && i < _numI && j >= 0 && j < _numJ && k >= _firstK && k < _numK + _firstK);
 
-    return (i + j * _numI + k * _numI * _numJ);
+    return (i + j * _numI + (k -_firstK) * _numI * _numJ);
 }
 
 size_t CauldronIO::Volume::ComputeIndex_KIJ(size_t i, size_t j, size_t k) const
 {
     assert(_geometryAssigned);
-    assert(i >= 0 && i < _numI && j >= 0 && j < _numJ && k >= 0 && k < _numK);
+    assert(i >= 0 && i < _numI && j >= 0 && j < _numJ && k >= _firstK && k < _numK + _firstK);
 
-    return (k + i * _numK + j * _numI * _numK);
+    return ((k - _firstK) + i * _numK + j * _numI * _numK);
 }
 
 /// DiscontinuousVolume implementation
 //////////////////////////////////////////////////////////////////////////
 
-CauldronIO::DiscontinuousVolume::DiscontinuousVolume(const Formation* formation, const Volume* volume, float undefined) : Grid(false, undefined)
+CauldronIO::DiscontinuousVolume::DiscontinuousVolume()
 {
-    if (!formation) throw CauldronIOException("Cannot create Discontinuous volume: formation cannot be null");
-    if (!volume) throw CauldronIOException("Cannot create Discontinuous volume: volume cannot be null");
-
-    // Set some Grid parameters from the first volume
-    _deltaI = volume->GetDeltaI();
-    _deltaJ = volume->GetDeltaJ();
-    _minI = volume->GetMinI();
-    _minJ = volume->GetMinJ();
-    _maxI = volume->GetMaxI();
-    _maxJ = volume->GetMaxJ();
-    _numI = volume->GetNumI();
-    _numJ = volume->GetNumJ();
-    _geometryAssigned = true;
     _volumeList.reset(new FormationVolumeList());
-
-    AddVolume(formation, volume);
 }
 
 CauldronIO::DiscontinuousVolume::~DiscontinuousVolume()
 {
-    for (size_t i = 0; i < _volumeList->size(); ++i)
-    {
-        // We do not need to delete a formation
-        delete _volumeList->at(i)->second;
-    }
-
-    _volumeList->clear();
+     _volumeList->clear();
 }
 
-void CauldronIO::DiscontinuousVolume::AddVolume(const Formation* formation, const Volume* volume)
+void CauldronIO::DiscontinuousVolume::AddVolume(boost::shared_ptr<const Formation> formation, 
+                                                boost::shared_ptr<const Volume> volume)
 {
     if (!formation) throw CauldronIOException("Cannot add subvolume: formation cannot be null");
     if (!volume) throw CauldronIOException("Cannot add subvolume: volume cannot be null");
 
-    const FormationVolume* pair = new FormationVolume(formation, volume);
+    boost::shared_ptr<const FormationVolume> pair(new FormationVolume(formation, volume));
     _volumeList->push_back(pair);
 }
 
-const boost::shared_ptr<FormationVolumeList> CauldronIO::DiscontinuousVolume::GetVolumeList() const
+const boost::shared_ptr<const FormationVolumeList> CauldronIO::DiscontinuousVolume::GetVolumeList() const
 {
     return _volumeList;
-}
-
-bool CauldronIO::DiscontinuousVolume::IsConstant() const
-{
-    for (size_t i = 0; i < _volumeList->size(); ++i)
-    {
-        if (!_volumeList->at(i)->second->IsConstant()) return false;
-    }
-
-    return true;
-}
-
-void CauldronIO::DiscontinuousVolume::SetConstantValue(float value)
-{
-    throw CauldronIOException("Cannot set a constant value on a discontinuous volume");
 }
