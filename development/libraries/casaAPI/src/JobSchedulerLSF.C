@@ -29,6 +29,11 @@
 #define LSF_RLIM_NLIMITS  12
 #define DEFAULT_RLIMIT   -1
 
+#ifndef _WIN32
+#include <inttypes.h>
+typedef int64_t __int64;
+#endif
+
 typedef __int64 LS_LONG_INT;
 
 struct submit {
