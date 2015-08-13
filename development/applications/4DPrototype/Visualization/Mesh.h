@@ -1,7 +1,10 @@
 #ifndef MESH_H_INCLUDED
 #define MESH_H_INCLUDED
 
+#include "GridMapCollection.h"
+
 #include "Interface/Interface.h"
+#include "Interface/GridMap.h"
 
 #include <MeshVizInterface/mesh/MiVolumeMeshHexahedronIjk.h>
 #include <MeshVizInterface/mesh/MiSurfaceMeshUnstructured.h>
@@ -85,24 +88,13 @@ public:
   virtual size_t getTimeStamp() const;
 };
 
+
 /**
  * Contains the geometry for an entire snapshot
  */
 class SnapshotGeometry : public MiGeometryI
 {
-  std::vector<const DataAccess::Interface::GridMap*> m_depthMaps;
-
-  struct IndexPair
-  {
-    size_t gridMapIndex;
-    unsigned int kIndex;
-  };
-
-  std::vector<IndexPair> m_indexMap;
-
-  size_t m_numI;
-  size_t m_numJ;
-  size_t m_numK;
+  GridMapCollection m_depthMaps;
 
   double m_minX;
   double m_minY;

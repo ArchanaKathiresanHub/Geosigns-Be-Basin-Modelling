@@ -1,9 +1,6 @@
 #include "MainWindow.h"
 #include "GLInfoDialog.h"
   
-#include <Visualization/SceneGraph.h>
-#include <Visualization/SnapshotNode.h>
-
 #include <Interface/ProjectHandle.h>
 #include <Interface/ObjectFactory.h>
 #include "Interface/Property.h"
@@ -32,6 +29,8 @@ namespace
   const int TreeWidgetItem_PropertyType  = QTreeWidgetItem::UserType + 3;
   const int TreeWidgetItem_ReservoirType = QTreeWidgetItem::UserType + 4;
   const int TreeWidgetItem_FaultType     = QTreeWidgetItem::UserType + 5;
+  const int TreeWidgetItem_FormationGroupType = QTreeWidgetItem::UserType + 6;
+  const int TreeWidgetItem_SurfaceGroupType   = QTreeWidgetItem::UserType + 7;
 }
 
 void MainWindow::fpsCallback(float fps, void* userData, SoQtViewer* viewer)
@@ -58,7 +57,6 @@ void MainWindow::initOIV()
   if (m_oivLicenseOK)
   {
     MoMeshViz::init();
-    BpaVizInit();
   }
 }
 
@@ -83,8 +81,6 @@ void MainWindow::loadProject(const QString& filename)
   if (m_oivLicenseOK)
   {
     m_sceneGraphManager.setup(m_projectHandle.get());
-    //m_sceneGraph = new SceneGraph;
-    //m_sceneGraph->setup(m_projectHandle.get());
 
     m_ui.renderWidget->getViewer()->setSceneGraph(m_sceneGraphManager.getRoot());
     m_ui.snapshotSlider->setMinimum(0);
@@ -125,14 +121,21 @@ void MainWindow::updateUI()
 {
   m_ui.treeWidget->clear();
 
-  QTreeWidgetItem* formationsItem = new QTreeWidgetItem;
+  QTreeWidgetItem* formationsItem = new QTreeWidgetItem(TreeWidgetItem_FormationGroupType);
   formationsItem->setText(0, "Formations");
+  formationsItem->setCheckState(0, Qt::Checked);
+  QFont font = formationsItem->font(0);
+  font.setBold(true);
+  formationsItem->setFont(0, font);
 
-  QTreeWidgetItem* surfacesItem = new QTreeWidgetItem;
+  QTreeWidgetItem* surfacesItem = new QTreeWidgetItem(TreeWidgetItem_SurfaceGroupType);
   surfacesItem->setText(0, "Surfaces");
+  surfacesItem->setCheckState(0, Qt::Unchecked);
+  surfacesItem->setFont(0, font);
 
   QTreeWidgetItem* reservoirsItem = new QTreeWidgetItem;
   reservoirsItem->setText(0, "Reservoirs");
+  reservoirsItem->setFont(0, font);
 
   int flags = di::FORMATION;
   int type = di::VOLUME;
@@ -441,7 +444,7 @@ void MainWindow::onActionSwitchPropertiesTriggered()
   for(int i=0; i < n; ++i)
   {
     const di::Property* prop = m_projectHandle->findProperty(propertyNames[i]);
-    m_sceneGraph->setProperty(prop);
+    m_sceneGraphManager.setProperty(propertyNames[i]);
     qApp->processEvents();
     m_ui.renderWidget->getViewer()->render();
   }
@@ -508,7 +511,7 @@ void MainWindow::onRenderStyleChanged()
   bool drawFaces = m_ui.checkBoxDrawFaces->isChecked();
   bool drawEdges = m_ui.checkBoxDrawEdges->isChecked();
 
-  //m_sceneGraph->setRenderStyle(drawFaces, drawEdges);
+  m_sceneGraphManager.setRenderStyle(drawFaces, drawEdges);
 }
 
 void MainWindow::onItemDoubleClicked(QTreeWidgetItem* item, int column)
@@ -532,19 +535,14 @@ void MainWindow::onItemDoubleClicked(QTreeWidgetItem* item, int column)
       }
 
       if (ok)
-        m_sceneGraph->setVectorProperty(props);
+        ;// m_sceneGraphManager.setProperty(props);
       else
         std::cout << "No vector property values found for " << name << std::endl;
 
     }
     else
     {
-      const di::Property* prop = m_projectHandle->findProperty(name);
-
-      if (prop != 0 && prop->hasPropertyValues(di::FORMATION, 0, 0, 0, 0, di::VOLUME))
-        m_sceneGraph->setProperty(prop);
-      else
-        std::cout << "No property values found for " << name << std::endl;
+      m_sceneGraphManager.setProperty(name);
     }
   }
 }
@@ -563,13 +561,18 @@ void MainWindow::onTreeWidgetItemChanged(QTreeWidgetItem* item, int column)
   switch (item->type())
   {
   case TreeWidgetItem_FormationType:
-    m_sceneGraphManager.setFormationVisibility(name, checked);
+    m_sceneGraphManager.enableFormation(name, checked);
     break;
   case TreeWidgetItem_SurfaceType:
-    m_sceneGraph->setSurfaceVisibility(name, checked);
+    m_sceneGraphManager.enableSurface(name, checked);
     break;
   case TreeWidgetItem_ReservoirType:
-    m_sceneGraph->setReservoirVisibility(name, checked);
+    //m_sceneGraph->setReservoirVisibility(name, checked);
+    break;
+  case TreeWidgetItem_FormationGroupType:
+  case TreeWidgetItem_SurfaceGroupType:
+    for (int i = 0; i < item->childCount(); ++i)
+      item->child(i)->setCheckState(0, item->checkState(0));
     break;
   }
 }

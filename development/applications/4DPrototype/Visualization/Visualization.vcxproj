@@ -115,7 +115,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <AdditionalIncludeDirectories>..\..\..\libraries\DataModel\src;..\..\..\libraries\DataAccess\src;..\..\..\libraries\TableIO\src;$(OIVHOME)\include;$(BOOST_INCLUDEDIR);..\..\..\..\3rdparty\MicrosoftMPI-HPC-Pack-2012-R2\Inc;..\..\..\..\3rdparty\hdf5.win64-1.8.11\hdf5\include</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>VISUALIZATIONDLL_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>VISUALIZATIONDLL_EXPORTS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -131,22 +131,19 @@
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Property.cpp" />
     <ClCompile Include="ROICellFilter.cpp" />
-    <ClCompile Include="SceneGraph.cpp" />
     <ClCompile Include="SceneGraphManager.cpp" />
     <ClCompile Include="SkinExtractor.cpp" />
-    <ClCompile Include="SnapshotNode.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BpaMesh.h" />
     <ClInclude Include="defines.h" />
     <ClInclude Include="Extractor.h" />
+    <ClInclude Include="GridMapCollection.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Property.h" />
     <ClInclude Include="ROICellFilter.h" />
-    <ClInclude Include="SceneGraph.h" />
     <ClInclude Include="SceneGraphManager.h" />
     <ClInclude Include="SkinExtractor.h" />
-    <ClInclude Include="SnapshotNode.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

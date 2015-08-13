@@ -1,8 +1,7 @@
 #include "BpaRenderAreaListener.h"
 #include "SceneExaminer.h"
 
-#include <Visualization/SceneGraph.h>
-#include <Visualization/SnapshotNode.h>
+#include <Visualization/SceneGraphManager.h>
 
 #include <RemoteViz/Rendering/RenderArea.h>
 #include <RemoteViz/Rendering/Connection.h>
@@ -42,18 +41,21 @@ void BpaRenderAreaListener::createSceneGraph(const std::string& id)
 {
   std::cout << "Loading scenegraph..."<< std::endl;
 
-  //const std::string rootdir = "E:/Data/";
-  const std::string rootdir = "V:/data/output_cauldron";
+  const std::string rootdir = "V:/data/CauldronSmall";
   const std::string filename = "/Project.project3d";
   std::string path = rootdir + filename;
 
   m_handle.reset(di::OpenCauldronProject(path, "r", m_factory.get()));
 
+  if (!m_handle)
+  {
+    std::cout << "Failed to load project!" << std::endl;
+    return;
+  }
+
   std::cout << "Project loaded!" << std::endl;
 
-  SceneGraph* sceneGraph = new SceneGraph;
-  sceneGraph->setup(m_handle.get());
-  m_sceneGraph = sceneGraph;
+  m_sceneGraphManager.setup(m_handle.get());
 
   SoGradientBackground* background = new SoGradientBackground;
   background->color0 = SbColor(.1f, .1f, .2f);
@@ -61,23 +63,24 @@ void BpaRenderAreaListener::createSceneGraph(const std::string& id)
 
   m_examiner = new SceneExaminer();
   m_examiner->addChild(background);
-	m_examiner->addChild(m_sceneGraph);
+  m_examiner->addChild(m_sceneGraphManager.getRoot());
 
-	// Apply the sceneExaminer node as renderArea scene graph
-	m_renderArea->getSceneManager()->setSceneGraph(m_examiner);
+  // Apply the sceneExaminer node as renderArea scene graph
+  m_renderArea->getSceneManager()->setSceneGraph(m_examiner);
 
-	// viewall
-	m_examiner->viewAll(m_renderArea->getSceneManager()->getViewportRegion());
+  // viewall
+  m_examiner->viewAll(m_renderArea->getSceneManager()->getViewportRegion());
 
   std::cout << "...done" << std::endl;
 }
 
 BpaRenderAreaListener::BpaRenderAreaListener(RenderArea* renderArea)
   : m_renderArea(renderArea)
-  , m_sceneGraph(0)
   , m_examiner(0)
   , m_factory(new di::ObjectFactory)
   , m_handle((di::ProjectHandle*)0)
+  , m_drawFaces(true)
+  , m_drawEdges(true)
 {
 }
 
@@ -89,15 +92,15 @@ void BpaRenderAreaListener::sendProjectInfo() const
 {
   std::string msg = "{ \"projectInfo\": { ";
 
-  msg += "\"snapshotCount\": " + std::to_string((long long)m_sceneGraph->snapshotCount());
+  msg += "\"snapshotCount\": " + std::to_string((long long)m_sceneGraphManager.getSnapshotCount());
   msg += ", ";
-  msg += "\"numI\": " + std::to_string((long long)m_sceneGraph->numI());
+  msg += "\"numI\": " + std::to_string((long long)m_sceneGraphManager.numI());
   msg += ", ";
-  msg += "\"numJ\": " + std::to_string((long long)m_sceneGraph->numJ());
+  msg += "\"numJ\": " + std::to_string((long long)m_sceneGraphManager.numJ());
   msg += ", ";
-  msg += "\"numIHiRes\": " + std::to_string((long long)m_sceneGraph->numIHiRes());
+  msg += "\"numIHiRes\": " + std::to_string((long long)m_sceneGraphManager.numIHiRes());
   msg += ", ";
-  msg += "\"numJHiRes\": " + std::to_string((long long)m_sceneGraph->numJHiRes());
+  msg += "\"numJHiRes\": " + std::to_string((long long)m_sceneGraphManager.numJHiRes());
   msg += ", ";
   msg += "\"properties\": [";
 
@@ -120,7 +123,7 @@ void BpaRenderAreaListener::onOpenedConnection(RenderArea* renderArea, Connectio
 {
   std::cout << "[BpaRenderAreaListener] onOpenedConnection(renderArea = " << renderArea->getId() << ", connection = " << connection->getId() << ")" << std::endl;
 
-  if(m_sceneGraph == 0)
+  if(m_sceneGraphManager.getRoot() == 0)
     createSceneGraph(renderArea->getId());
   sendProjectInfo();
 }
@@ -176,44 +179,36 @@ void BpaRenderAreaListener::onReceivedMessage(RenderArea* renderArea, Connection
   else if(command == "SNAPSHOT")
   {
     int index = atoi(argument.c_str());
-    m_sceneGraph->setCurrentSnapshot(index);
+    m_sceneGraphManager.setCurrentSnapshot(index);
   }
   else if(command == "VSCALE")
   {
     int scale = atoi(argument.c_str());
-    m_sceneGraph->setVerticalScale((float)scale);
+    m_sceneGraphManager.setVerticalScale((float)scale);
   }
   else if(command == "SLICEI")
   {
     int index = atoi(argument.c_str());
-    m_sceneGraph->SliceI = index;
+    m_sceneGraphManager.setSlicePosition(0, index);
   }
   else if(command == "SLICEJ")
   {
     int index = atoi(argument.c_str());
-    m_sceneGraph->SliceJ = index;
+    m_sceneGraphManager.setSlicePosition(1, index);
   }
   else if(command == "SETPROPERTY")
   {
-    const di::Property* prop = m_handle->findProperty(argument);
-    if(prop != 0)
-      m_sceneGraph->setProperty(prop);
+    m_sceneGraphManager.setProperty(argument);
   }
   else if(command == "DRAWFACES")
   {
-    bool drawFaces, drawEdges;
-    m_sceneGraph->getRenderStyle(drawFaces, drawEdges);
-    drawFaces = (argument == "TRUE");
-
-    m_sceneGraph->setRenderStyle(drawFaces, drawEdges);
+    m_drawFaces = (argument == "TRUE");
+    m_sceneGraphManager.setRenderStyle(m_drawFaces, m_drawEdges);
   }
-  else if(command == "DRAWEDGES")
+  else if (command == "DRAWEDGES")
   {
-    bool drawFaces, drawEdges;
-    m_sceneGraph->getRenderStyle(drawFaces, drawEdges);
-    drawEdges = (argument == "TRUE");
-
-    m_sceneGraph->setRenderStyle(drawFaces, drawEdges);
+    m_drawEdges = (argument == "TRUE");
+    m_sceneGraphManager.setRenderStyle(m_drawFaces, m_drawEdges);
   }
   else if(command == "VIEWALL")
   {

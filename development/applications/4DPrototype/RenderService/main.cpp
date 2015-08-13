@@ -4,8 +4,6 @@
 //#include <windows.h>
 #include <signal.h>
 
-#include <Visualization/SceneGraph.h>
-
 #include <MeshVizInterface/mapping/MoMeshViz.h>
 
 #include <RemoteViz/Rendering/Service.h>
@@ -42,7 +40,6 @@ int main(int argc, char* argv[])
 #else
 
   MoMeshViz::init();
-  BpaVizInit();
 
   ServiceSettings settings;
   settings.setIP("127.0.0.1");
@@ -81,7 +78,6 @@ int main(int argc, char* argv[])
     sleepms(5000);
   }
 
-  BpaVizFinish();
   MoMeshViz::finish();
 
   return 0;

@@ -1,6 +1,8 @@
 #ifndef PROPERTY_H_INCLUDED
 #define PROPERTY_H_INCLUDED
 
+#include "GridMapCollection.h"
+
 #include <MeshVizInterface/mesh/data/MiDataSetIjk.h>
 
 #include <vector>
@@ -15,20 +17,17 @@ namespace DataAccess
 
 class ScalarProperty : public MiDataSetIjk<double>
 {
-  const DataAccess::Interface::GridMap* m_values;
+  GridMapCollection m_values;
 
   std::string m_name;
 
   MiDataSet::DataBinding m_binding;
 
-  double m_minValue;
-  double m_maxValue;
-
   size_t m_timestamp;
 
 public:
 
-  ScalarProperty(const std::string& name, const DataAccess::Interface::GridMap* values);
+  ScalarProperty(const std::string& name, const GridMapCollection& values);
 
   virtual double get(size_t i, size_t j, size_t k) const;
 

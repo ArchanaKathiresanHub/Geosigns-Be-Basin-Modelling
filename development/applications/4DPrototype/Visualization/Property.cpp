@@ -6,31 +6,17 @@
 
 namespace di = DataAccess::Interface;
 
-ScalarProperty::ScalarProperty(const std::string& name, const di::GridMap* values)
-: m_values(values)
-, m_name(name)
-, m_binding(MiDataSet::PER_CELL)
-, m_timestamp(MxTimeStamp::getTimeStamp())
+ScalarProperty::ScalarProperty(const std::string& name, const GridMapCollection& values)
+  : m_values(values)
+  , m_name(name)
+  , m_binding(MiDataSet::PER_CELL)
+  , m_timestamp(MxTimeStamp::getTimeStamp())
 {
-  //m_numI = values->numI();
-  //m_numJ = values->numJ();
-  //m_numK = values->getDepth();
-
-  values->getMinMaxValue(m_minValue, m_maxValue);
 }
 
 double ScalarProperty::get(size_t i, size_t j, size_t k) const
 {
-  /*
-  size_t rowStride = m_numI;
-  size_t sliceStride = m_numI * m_numJ;
-
-  size_t k = index / sliceStride;
-  size_t j = (index - k * sliceStride) / rowStride;
-  size_t i = index - k * sliceStride - j * rowStride;
-  */
-  
-  return m_values->getValue((unsigned int)(i), (unsigned int)(j), (unsigned int)k);
+  return m_values.getValue(i, j, k);
 }
 
 MiDataSet::DataBinding ScalarProperty::getBinding() const
@@ -40,12 +26,12 @@ MiDataSet::DataBinding ScalarProperty::getBinding() const
 
 double ScalarProperty::getMin() const
 {
-  return m_minValue;
+  return m_values.minValue();
 }
 
 double ScalarProperty::getMax() const
 {
-  return m_maxValue;
+  return m_values.maxValue();
 }
 
 std::string ScalarProperty::getName() const

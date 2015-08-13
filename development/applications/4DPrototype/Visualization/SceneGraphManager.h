@@ -13,12 +13,17 @@
 class SnapshotGeometry;
 class SnapshotTopology;
 class FormationIdProperty;
+class ScalarProperty;
 class HexahedronMesh;
+class SurfaceMesh;
 
 class SoSeparator;
 class SoSwitch; 
 class SoGroup;
+class SoNode;
+class SoShapeHints;
 
+class MoLegend;
 class SoScale;
 class MoDrawStyle;
 class MoMaterial;
@@ -28,12 +33,15 @@ class MoMesh;
 class MoScalarSetIjk;
 class MoMeshSkin;
 class MoMeshSlab;
+class MoMeshSurface;
 
 namespace DataAccess
 {
   namespace Interface
   {
     class ProjectHandle;
+    class Formation;
+    class Surface;
     class Property;
     class Snapshot;
   }
@@ -41,7 +49,7 @@ namespace DataAccess
 
 struct SnapshotInfo
 {
-  struct FormationBounds
+  struct Formation
   {
     int id;
     int minK;
@@ -63,6 +71,28 @@ struct SnapshotInfo
     }
   };
 
+  struct Surface
+  {
+    int id;
+
+    SoSeparator* root;
+    MoMesh* mesh;
+    SurfaceMesh* meshData;
+    MoMeshSurface* surfaceMesh;
+
+    Surface()
+      : id(0)
+      , root(0)
+      , mesh(0)
+      , meshData(0)
+      , surfaceMesh(0)
+    {
+    }
+  };
+
+  const DataAccess::Interface::Snapshot* snapshot;
+  const DataAccess::Interface::Property* currentProperty;
+
   SoSeparator* root;
 
   MoMesh* mesh;
@@ -70,32 +100,46 @@ struct SnapshotInfo
 
   MoScalarSetIjk* scalarSet;
   FormationIdProperty* formationIdProperty;
+  ScalarProperty* scalarProperty;
 
   SoSwitch* sliceSwitch[3];
   MoMeshSlab* slice[3];
 
   SoGroup* chunksGroup;
+  SoGroup* surfacesGroup;
   SoGroup* slicesGroup;
 
-  std::vector<FormationBounds> formations; 
+  std::vector<Formation> formations; 
   std::vector<Chunk> chunks;
+  std::vector<Surface> surfaces;
 
-  size_t formationVisibilityTimestamp;
+  size_t formationsTimeStamp;
+  size_t surfacesTimeStamp;
 
   SnapshotInfo();
 };
 
 struct FormationInfo
 {
+  const DataAccess::Interface::Formation* formation;
+
   int id;
   bool visible;
-  std::string name;
+};
+
+struct SurfaceInfo
+{
+  const DataAccess::Interface::Surface* surface;
+
+  int id;
+  bool visible;
 };
 
 class VISUALIZATIONDLL_API SceneGraphManager
 {
   const DataAccess::Interface::ProjectHandle* m_projectHandle;
   const DataAccess::Interface::Property* m_depthProperty;
+  const DataAccess::Interface::Property* m_currentProperty;
 
   int m_numI;
   int m_numJ;
@@ -103,16 +147,21 @@ class VISUALIZATIONDLL_API SceneGraphManager
   int m_numJHiRes;
 
   std::map<std::string, int> m_formationIdMap;
+  std::map<std::string, int> m_surfaceIdMap;
   std::vector<FormationInfo> m_formations;
+  std::vector<SurfaceInfo>   m_surfaces;
   std::vector<SnapshotInfo>  m_snapshots;
 
-  size_t m_formationVisibilityTimestamp;
+  size_t m_formationsTimeStamp;
+  size_t m_surfacesTimeStamp;
   size_t m_currentSnapshot;
 
   size_t m_slicePosition[3];
   bool   m_sliceEnabled[3];
 
   SoGroup*        m_root;
+  SoShapeHints*   m_formationShapeHints;
+  SoShapeHints*   m_surfaceShapeHints;
   SoScale*        m_scale;
 
   // Appearance group
@@ -122,8 +171,15 @@ class VISUALIZATIONDLL_API SceneGraphManager
   MoDataBinding*  m_dataBinding;
   MoColorMapping* m_colorMap;
 
+  MoLegend*       m_legend;
+  SoSwitch*       m_legendSwitch;
+
   SoSwitch*       m_snapshotsSwitch;
 
+  void updateSnapshotFormations(size_t index);
+  void updateSnapshotSurfaces(size_t index);
+  void updateSnapshotProperties(size_t index);
+  void updateSnapshotSlices(size_t index);
   void updateSnapshot(size_t index);
 
   SnapshotInfo createSnapshotNode(const DataAccess::Interface::Snapshot* snapshot);
@@ -135,7 +191,7 @@ public:
 
   SceneGraphManager::SceneGraphManager();
 
-  SoGroup* getRoot() const;
+  SoNode* getRoot() const;
 
   void setCurrentSnapshot(size_t index);
 
@@ -151,7 +207,13 @@ public:
 
   void setVerticalScale(float scale);
 
-  void setFormationVisibility(const std::string& name, bool visible);
+  void setRenderStyle(bool drawFaces, bool drawEdges);
+
+  void setProperty(const std::string& name);
+
+  void enableFormation(const std::string& name, bool enabled);
+
+  void enableSurface(const std::string& name, bool enabled);
 
   void enableSlice(int slice, bool enabled);
 

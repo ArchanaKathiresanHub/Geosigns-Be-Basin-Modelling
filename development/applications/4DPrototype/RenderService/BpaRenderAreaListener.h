@@ -1,4 +1,8 @@
-#pragma once
+#ifndef BPARENDERAREALISTENER_H_INCLUDED
+#define BPARENDERAREALISTENER_H_INCLUDED
+
+#include <Visualization/SceneGraphManager.h>
+
 #include <RemoteViz/Rendering/RenderAreaListener.h>
 
 #include <memory>
@@ -7,18 +11,19 @@
 
 using namespace RemoteViz::Rendering;
 
-
-class SceneGraph;
 class SceneExaminer;
 
 class BpaRenderAreaListener : public RenderAreaListener
 {
-  RenderArea*    m_renderArea;
-  SceneGraph*    m_sceneGraph;
-  SceneExaminer* m_examiner;
+  SceneGraphManager m_sceneGraphManager;
+  RenderArea*       m_renderArea;
+  SceneExaminer*    m_examiner;
 
   std::unique_ptr<DataAccess::Interface::ObjectFactory> m_factory;
   std::unique_ptr<DataAccess::Interface::ProjectHandle> m_handle;
+
+  bool m_drawFaces;
+  bool m_drawEdges;
 
   void createSceneGraph(const std::string& id);
 
@@ -66,3 +71,4 @@ public:
 
 };
 
+#endif

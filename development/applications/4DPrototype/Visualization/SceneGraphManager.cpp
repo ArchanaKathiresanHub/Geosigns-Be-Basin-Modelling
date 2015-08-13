@@ -5,6 +5,8 @@
 #include <Inventor/nodes/SoGroup.h>
 #include <Inventor/nodes/SoSwitch.h>
 #include <Inventor/nodes/SoScale.h>
+#include <Inventor/nodes/SoShapeHints.h>
+#include <Inventor/nodes/SoAnnotation.h>
 
 #include <MeshVizInterface/MxTimeStamp.h>
 #include <MeshVizInterface/mapping/nodes/MoDrawStyle.h>
@@ -14,7 +16,9 @@
 #include <MeshVizInterface/mapping/nodes/MoMesh.h>
 #include <MeshVizInterface/mapping/nodes/MoMeshSkin.h>
 #include <MeshVizInterface/mapping/nodes/MoMeshSlab.h>
+#include <MeshVizInterface/mapping/nodes/MoMeshSurface.h>
 #include <MeshVizInterface/mapping/nodes/MoScalarSetIjk.h>
+#include <MeshVizInterface/mapping/nodes/MoLegend.h>
 
 #include <Interface/ProjectHandle.h>
 #include <Interface/Grid.h>
@@ -22,6 +26,7 @@
 #include <Interface/Property.h>
 #include <Interface/PropertyValue.h>
 #include <Interface/Formation.h>
+#include <Interface/Surface.h>
 #include <Interface/Snapshot.h>
 
 #include <memory>
@@ -29,13 +34,19 @@
 namespace di = DataAccess::Interface;
 
 SnapshotInfo::SnapshotInfo()
-  : root(0)
+  : snapshot(0)
+  , currentProperty(0)
+  , root(0)
   , mesh(0)
   , meshData(0)
   , scalarSet(0)
   , formationIdProperty(0)
+  , scalarProperty(0)
   , chunksGroup(0)
-  , formationVisibilityTimestamp(MxTimeStamp::getTimeStamp())
+  , surfacesGroup(0)
+  , slicesGroup(0)
+  , formationsTimeStamp(MxTimeStamp::getTimeStamp())
+  , surfacesTimeStamp(MxTimeStamp::getTimeStamp())
 {
   for (int i = 0; i < 3; ++i)
   {
@@ -44,12 +55,14 @@ SnapshotInfo::SnapshotInfo()
   }
 }
 
-void SceneGraphManager::updateSnapshot(size_t index)
+void SceneGraphManager::updateSnapshotFormations(size_t index)
 {
   SnapshotInfo& snapshot = m_snapshots[index];
 
+
+  // Update formations
   if (
-    snapshot.formationVisibilityTimestamp != m_formationVisibilityTimestamp && 
+    snapshot.formationsTimeStamp != m_formationsTimeStamp &&
     snapshot.chunksGroup != 0)
   {
     snapshot.chunksGroup->removeAllChildren();
@@ -92,8 +105,100 @@ void SceneGraphManager::updateSnapshot(size_t index)
     }
 
     snapshot.chunks.swap(tmpChunks);
-    snapshot.formationVisibilityTimestamp = m_formationVisibilityTimestamp;
+    snapshot.formationsTimeStamp = m_formationsTimeStamp;
   }
+}
+
+void SceneGraphManager::updateSnapshotSurfaces(size_t index)
+{
+  SnapshotInfo& snapshot = m_snapshots[index];
+
+  // Update surfaces
+  if (snapshot.surfacesTimeStamp != m_surfacesTimeStamp)
+  {
+    for (size_t i = 0; i < snapshot.surfaces.size(); ++i)
+    {
+      int id = snapshot.surfaces[i].id;
+
+      if (m_surfaces[id].visible && snapshot.surfaces[i].root == 0)
+      {
+        const di::Surface* surface = m_surfaces[id].surface;
+        std::unique_ptr<di::PropertyValueList> values(m_projectHandle->getPropertyValues(
+          di::SURFACE, m_depthProperty, snapshot.snapshot, nullptr, nullptr, surface, di::MAP));
+
+        assert(values->size() == 1); //TODO: should not be an assert
+
+        snapshot.surfaces[i].meshData = new SurfaceMesh((*values)[0]->getGridMap());
+        snapshot.surfaces[i].mesh = new MoMesh;
+        snapshot.surfaces[i].mesh->setMesh(snapshot.surfaces[i].meshData);
+        snapshot.surfaces[i].surfaceMesh = new MoMeshSurface;
+
+        SoSeparator* root = new SoSeparator;
+        root->addChild(snapshot.surfaces[i].mesh);
+        root->addChild(snapshot.surfaces[i].surfaceMesh);
+
+        snapshot.surfaces[i].root = root;
+        snapshot.surfacesGroup->addChild(root);
+      }
+      else
+      {
+        if (!m_surfaces[id].visible && snapshot.surfaces[i].root != 0)
+        {
+          // The meshData is not reference counted, need to delete this ourselves
+          delete snapshot.surfaces[i].meshData;
+          snapshot.surfacesGroup->removeChild(snapshot.surfaces[i].root);
+          snapshot.surfaces[i].root = 0;
+          snapshot.surfaces[i].mesh = 0;
+          snapshot.surfaces[i].meshData = 0;
+          snapshot.surfaces[i].surfaceMesh = 0;
+        }
+      }
+    }
+
+    snapshot.surfacesTimeStamp = m_surfacesTimeStamp;
+  }
+}
+
+void SceneGraphManager::updateSnapshotProperties(size_t index)
+{
+  SnapshotInfo& snapshot = m_snapshots[index];
+
+  // Update properties
+  if (snapshot.currentProperty != m_currentProperty)
+  {
+    std::vector<const di::GridMap*> gridMaps;
+
+    for (size_t i = 0; i < snapshot.formations.size(); ++i)
+    {
+      int id = snapshot.formations[i].id;
+      const di::Formation* formation = m_formations[id].formation;
+
+      std::unique_ptr<di::PropertyValueList> values(m_projectHandle->getPropertyValues(
+        di::FORMATION, m_currentProperty, snapshot.snapshot, nullptr, formation, nullptr, di::VOLUME));
+
+      assert(values->size() == 1); //TODO: change to exception
+
+      gridMaps.push_back((*values)[0]->getGridMap());
+    }
+
+    const MiScalardSetIjk* prevDataSet = snapshot.scalarSet->getScalarSet();
+    delete prevDataSet;
+
+    ScalarProperty* dataSet = new ScalarProperty(m_currentProperty->getName(), gridMaps);
+
+    snapshot.scalarSet->setScalarSet(dataSet);
+    snapshot.scalarSet->touch();
+
+    static_cast<MoPredefinedColorMapping*>(m_colorMap)->minValue = (float)dataSet->getMin();
+    static_cast<MoPredefinedColorMapping*>(m_colorMap)->maxValue = (float)dataSet->getMax();
+
+    snapshot.currentProperty = m_currentProperty;
+  }
+}
+
+void SceneGraphManager::updateSnapshotSlices(size_t index)
+{
+  SnapshotInfo& snapshot = m_snapshots[index];
 
   for (int i = 0; i < 2; ++i)
   {
@@ -124,9 +229,18 @@ void SceneGraphManager::updateSnapshot(size_t index)
   }
 }
 
+void SceneGraphManager::updateSnapshot(size_t index)
+{
+  updateSnapshotFormations(index);
+  updateSnapshotSurfaces(index);
+  updateSnapshotProperties(index);
+  updateSnapshotSlices(index);
+}
+
 SnapshotInfo SceneGraphManager::createSnapshotNode(const di::Snapshot* snapshot)
 {
   SnapshotInfo info;
+  info.snapshot = snapshot;
 
   std::vector<const di::GridMap*> depthMaps;
   std::vector<double> formationIds;
@@ -149,10 +263,11 @@ SnapshotInfo SceneGraphManager::createSnapshotNode(const di::Snapshot* snapshot)
     // Depth of the formation in cells
     int depth = depthMap->getDepth() - 1;
 
-    SnapshotInfo::FormationBounds bounds;
+    SnapshotInfo::Formation bounds;
     bounds.id = m_formationIdMap[formation->getName()];
     bounds.minK = k;
     bounds.maxK = k + depth;
+
     info.formations.push_back(bounds);
 
     k = bounds.maxK;
@@ -160,6 +275,17 @@ SnapshotInfo SceneGraphManager::createSnapshotNode(const di::Snapshot* snapshot)
     // Add formation id for each k-layer of this formation
     for (int j = 0; j < depth; ++j)
       formationIds.push_back((double)bounds.id);
+  }
+
+  std::unique_ptr<di::SurfaceList> surfaces(m_projectHandle->getSurfaces(snapshot, false));
+  for (size_t i = 0; i < surfaces->size(); ++i)
+  {
+    const di::Surface* surface = (*surfaces)[i];
+
+    SnapshotInfo::Surface srfc;
+    srfc.id = m_surfaceIdMap[surface->getName()];
+
+    info.surfaces.push_back(srfc);
   }
 
   info.root = new SoSeparator;
@@ -177,17 +303,23 @@ SnapshotInfo SceneGraphManager::createSnapshotNode(const di::Snapshot* snapshot)
     info.formationIdProperty = new FormationIdProperty(formationIds);
 
     info.scalarSet = new MoScalarSetIjk;
+    info.scalarSet->setName("formationID");
     info.scalarSet->setScalarSet(info.formationIdProperty);
 
     info.chunksGroup = new SoGroup;
+    info.chunksGroup->setName("chunks");
+    info.surfacesGroup = new SoGroup;
+    info.surfacesGroup->setName("surfaces");
     info.slicesGroup = new SoGroup;
-
-    // setup slabs here...
+    info.slicesGroup->setName("slices");
 
     info.root->addChild(info.mesh);
     info.root->addChild(info.scalarSet);
     info.root->addChild(info.chunksGroup);
     info.root->addChild(info.slicesGroup);
+    // Add surfaceShapeHints to prevent backface culling, and enable double-sided lighting
+    info.root->addChild(m_surfaceShapeHints);
+    info.root->addChild(info.surfacesGroup);
   }
 
   return info;
@@ -222,6 +354,16 @@ void SceneGraphManager::setupSnapshots()
 
 void SceneGraphManager::setupSceneGraph()
 {
+  // Backface culling is enabled for solid shapes with ordered vertices
+  m_formationShapeHints = new SoShapeHints;
+  m_formationShapeHints->shapeType = SoShapeHints::SOLID;
+  m_formationShapeHints->vertexOrdering = SoShapeHints::COUNTERCLOCKWISE;
+
+  // Double sided lighting is enabled for surfaces with ordered vertices
+  m_surfaceShapeHints = new SoShapeHints;
+  m_surfaceShapeHints->shapeType = SoShapeHints::UNKNOWN_SHAPE_TYPE;
+  m_surfaceShapeHints->vertexOrdering = SoShapeHints::COUNTERCLOCKWISE;
+
   m_scale = new SoScale;
   m_scale->scaleFactor = SbVec3f(1.f, 1.f, 1.f);
 
@@ -243,17 +385,35 @@ void SceneGraphManager::setupSceneGraph()
   m_colorMap = colorMap;
 
   m_appearanceNode = new SoGroup;
+  m_appearanceNode->setName("appearance");
   m_appearanceNode->addChild(m_drawStyle);
   m_appearanceNode->addChild(m_material);
   m_appearanceNode->addChild(m_dataBinding);
   m_appearanceNode->addChild(m_colorMap);
 
+  m_legend = new MoLegend;
+  m_legend->vertical = true;
+  m_legend->topRight.setValue(-.8f, 1.0f);
+  m_legend->bottomLeft.setValue(-1.f, .0f);
+
+  m_legendSwitch = new SoSwitch;
+  m_legendSwitch->addChild(m_legend);
+  m_legendSwitch->whichChild = SO_SWITCH_NONE;
+
+  SoAnnotation* annotation = new SoAnnotation;
+  annotation->boundingBoxIgnoring = true;
+  annotation->addChild(m_legendSwitch);
+
   m_snapshotsSwitch = new SoSwitch;
+  m_snapshotsSwitch->setName("snapshots");
   m_snapshotsSwitch->whichChild = SO_SWITCH_NONE;
 
   m_root = new SoGroup;
+  m_root->setName("root");
+  m_root->addChild(m_formationShapeHints);
   m_root->addChild(m_scale);
   m_root->addChild(m_appearanceNode);
+  m_root->addChild(annotation);
   m_root->addChild(m_snapshotsSwitch);
 
   setupSnapshots();
@@ -262,13 +422,32 @@ void SceneGraphManager::setupSceneGraph()
 }
 
 SceneGraphManager::SceneGraphManager()
-: m_projectHandle(0)
-, m_depthProperty(0)
-, m_formationVisibilityTimestamp(MxTimeStamp::getTimeStamp())
+  : m_projectHandle(0)
+  , m_depthProperty(0)
+  , m_currentProperty(0)
+  , m_numI(0)
+  , m_numJ(0)
+  , m_numIHiRes(0)
+  , m_numJHiRes(0)
+  , m_formationsTimeStamp(MxTimeStamp::getTimeStamp())
+  , m_surfacesTimeStamp(MxTimeStamp::getTimeStamp())
+  , m_currentSnapshot(0)
+  , m_root(0)
+  , m_formationShapeHints(0)
+  , m_surfaceShapeHints(0)
+  , m_scale(0)
+  , m_appearanceNode(0)
+  , m_drawStyle(0)
+  , m_material(0)
+  , m_dataBinding(0)
+  , m_colorMap(0)
+  , m_legend(0)
+  , m_legendSwitch(0)
+  , m_snapshotsSwitch(0)
 {
 }
 
-SoGroup* SceneGraphManager::getRoot() const
+SoNode* SceneGraphManager::getRoot() const
 {
   return m_root;
 }
@@ -310,18 +489,51 @@ void SceneGraphManager::setVerticalScale(float scale)
   m_scale->scaleFactor = SbVec3f(1.f, 1.f, scale);
 }
 
-void SceneGraphManager::setFormationVisibility(const std::string& name, bool visible)
+void SceneGraphManager::setRenderStyle(bool drawFaces, bool drawEdges)
+{
+  m_drawStyle->displayFaces = drawFaces;
+  m_drawStyle->displayEdges = drawEdges;
+}
+
+void SceneGraphManager::setProperty(const std::string& name)
+{
+  const di::Property* prop = m_projectHandle->findProperty(name);
+  if (prop == 0 || prop == m_currentProperty || !prop->hasPropertyValues(di::FORMATION, 0, 0, 0, 0, di::VOLUME))
+    return;
+
+  m_currentProperty = prop;
+
+  updateSnapshot(m_currentSnapshot);
+}
+
+void SceneGraphManager::enableFormation(const std::string& name, bool enabled)
 {
   auto iter = m_formationIdMap.find(name);
   if (iter == m_formationIdMap.end())
     return;
 
   int id = iter->second;
-  if (m_formations[id].visible == visible)
+  if (m_formations[id].visible == enabled)
     return;
 
-  m_formations[id].visible = visible;
-  m_formationVisibilityTimestamp = MxTimeStamp::getTimeStamp();
+  m_formations[id].visible = enabled;
+  m_formationsTimeStamp = MxTimeStamp::getTimeStamp();
+
+  updateSnapshot(m_currentSnapshot);
+}
+
+void SceneGraphManager::enableSurface(const std::string& name, bool enabled)
+{
+  auto iter = m_surfaceIdMap.find(name);
+  if (iter == m_surfaceIdMap.end())
+    return;
+
+  int id = iter->second;
+  if (m_surfaces[id].visible == enabled)
+    return;
+
+  m_surfaces[id].visible = enabled;
+  m_surfacesTimeStamp = MxTimeStamp::getTimeStamp();
 
   updateSnapshot(m_currentSnapshot);
 }
@@ -360,16 +572,32 @@ void SceneGraphManager::setup(const di::ProjectHandle* handle)
     m_slicePosition[i] = 0;
   }
 
+  // Get all available formations
   std::unique_ptr<di::FormationList> formations(handle->getFormations(0, false));
   for (size_t i = 0; i < formations->size(); ++i)
   {
     m_formationIdMap[(*formations)[i]->getName()] = (int)i;
 
     FormationInfo info;
+    info.formation = (*formations)[i];
     info.id = (int)i;
     info.visible = true;
-    info.name = (*formations)[i]->getName();
+
     m_formations.push_back(info);
+  }
+
+  // Get all available surfaces
+  std::unique_ptr<di::SurfaceList> surfaces(handle->getSurfaces(0, false));
+  for (size_t i = 0; i < surfaces->size(); ++i)
+  {
+    m_surfaceIdMap[(*surfaces)[i]->getName()] = (int)i;
+
+    SurfaceInfo info;
+    info.surface = (*surfaces)[i];
+    info.id = (int)i;
+    info.visible = false;
+
+    m_surfaces.push_back(info);
   }
 
   setupSceneGraph();

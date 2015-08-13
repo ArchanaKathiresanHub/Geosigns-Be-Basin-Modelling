@@ -1,7 +1,7 @@
 #include "RenderService.h"
 #include "BpaServiceListener.h"
 
-#include <Visualization/SceneGraph.h>
+#include <Visualization/SceneGraphManager.h>
 
 #include <MeshVizInterface/mapping/MoMeshViz.h>
 
@@ -13,7 +13,6 @@ void RenderService::start()
   //logMessage("Starting RenderService", QtServiceBase::Information);
 
   MoMeshViz::init();
-  BpaVizInit();
 
   ServiceSettings settings;
   //settings.setIP("127.0.0.1");
@@ -36,7 +35,6 @@ void RenderService::stop()
   // Close the service
   Service::instance()->close();
 
-  BpaVizFinish();
   MoMeshViz::finish();
 }
 

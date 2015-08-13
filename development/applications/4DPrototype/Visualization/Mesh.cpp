@@ -163,26 +163,6 @@ SnapshotGeometry::SnapshotGeometry(const std::vector<const DataAccess::Interface
   assert(!depthMaps.empty());
 
   const di::GridMap* depthMapTop = depthMaps[0];
-  const di::GridMap* depthMapBottom = depthMaps[depthMaps.size() - 1];
-
-  // Build a mapping from global k-indices to a gridmap index, and a local k
-  for (size_t i = 0; i < depthMaps.size(); ++i)
-  {
-    // Skip last k for each gridmap to avoid duplication with the next layer
-    for (unsigned int j = 0; j < depthMaps[i]->getDepth() - 1; ++j)
-    {
-      IndexPair p = { i, j };
-      m_indexMap.push_back(p);
-    }
-  }
-
-  // ... still need to include the last one though
-  IndexPair p = { depthMaps.size() - 1, depthMapBottom->getDepth() - 1 };
-  m_indexMap.push_back(p);
-
-  m_numI = depthMapTop->numI();
-  m_numJ = depthMapTop->numJ();
-  m_numK = m_indexMap.size();
 
   m_minX = depthMapTop->minI();
   m_minY = depthMapTop->minJ();
@@ -190,51 +170,42 @@ SnapshotGeometry::SnapshotGeometry(const std::vector<const DataAccess::Interface
   m_deltaX = depthMapTop->deltaI();
   m_deltaY = depthMapTop->deltaJ();
 
-  double minDepth, maxDepth;
-
-  depthMapTop->getMinMaxValue(minDepth, maxDepth);
-  m_maxZ = -minDepth;
-
-  depthMapBottom->getMinMaxValue(minDepth, maxDepth);
-  m_minZ = -maxDepth;
+  m_maxZ = -m_depthMaps.minValue();
+  m_minZ = -m_depthMaps.maxValue();
 }
 
 size_t SnapshotGeometry::numI() const
 {
-  return m_numI;
+  return m_depthMaps.numI();
 }
 
 size_t SnapshotGeometry::numJ() const
 {
-  return m_numJ;
+  return m_depthMaps.numJ();
 }
 
 size_t SnapshotGeometry::numK() const
 {
-  return m_numK;
+  return m_depthMaps.numK();
 }
 
 bool SnapshotGeometry::isUndefined(size_t i, size_t j, size_t k) const
 {
-  IndexPair p = m_indexMap[k];
-
-  return m_depthMaps[p.gridMapIndex]->getValue((unsigned int)i, (unsigned int)j, p.kIndex) == di::DefaultUndefinedMapValue;
+  return m_depthMaps.getValue(i, j, k) == di::DefaultUndefinedMapValue;
 }
 
 MbVec3d SnapshotGeometry::getCoord(unsigned int i, unsigned int j, unsigned int k) const
 {
-  IndexPair p = m_indexMap[k];
-
   return MbVec3d(
     m_minX + i * m_deltaX,
     m_minY + j * m_deltaY,
-    -m_depthMaps[p.gridMapIndex]->getValue(i, j, p.kIndex));
+    -m_depthMaps.getValue(i, j, k));
 }
 
 MbVec3d SnapshotGeometry::getCoord(size_t index) const
 {
-  size_t rowStride = m_numI;
-  size_t sliceStride = rowStride * m_numJ;
+  size_t rowStride = m_depthMaps.numI();
+  size_t sliceStride = rowStride * m_depthMaps.numJ();
 
   unsigned int k = (unsigned int)(index / sliceStride);
   unsigned int j = (unsigned int)((index - k * sliceStride) / rowStride);
@@ -251,8 +222,8 @@ MbVec3d SnapshotGeometry::getMin() const
 MbVec3d SnapshotGeometry::getMax() const
 {
   return MbVec3d(
-    m_minX + (m_numI - 1) * m_deltaX,
-    m_minY + (m_numJ - 1) * m_deltaY,
+    m_minX + (m_depthMaps.numI() - 1) * m_deltaX,
+    m_minY + (m_depthMaps.numJ() - 1) * m_deltaY,
     m_maxZ);
 }
 

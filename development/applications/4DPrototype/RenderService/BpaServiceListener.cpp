@@ -3,7 +3,7 @@
 #include "SceneExaminer.h"
 #include "RenderService.h"
 
-#include <Visualization/SceneGraph.h>
+#include <Visualization/SceneGraphManager.h>
 
 #include <RemoteViz/Rendering/RenderArea.h>
 
