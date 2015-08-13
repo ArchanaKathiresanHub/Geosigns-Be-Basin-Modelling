@@ -1,17 +1,27 @@
-#include <petscts.h>
 #include "VisualizationAPI.h"
 #include "ImportProjectHandle.h"
+#include <ctime>
+#include <cstring>
 
 int main(int argc, char ** argv)
 {
     if (argc <= 1) return 1;
-    PetscInitialize(&argc, &argv, (char *)0, PETSC_NULL);
 
     string projectFileName = argv[1];
-    boost::shared_ptr<CauldronIO::Project> project = ImportProjectHandle::CreateFromProjectHandle(projectFileName, true);
+    bool verbose = true;
+    if (argc == 3 && std::strcmp(argv[2],"non-verbose") == 0) verbose = false;
+    double readMB;
+    size_t readSurfaces, readFormations, nonzeroSurfaces, nonzeroFormations;
 
-    PetscFinalize();
+    clock_t start = clock();
+    boost::shared_ptr<CauldronIO::Project> project = ImportProjectHandle::CreateFromProjectHandle(projectFileName, verbose, readMB, 
+        readSurfaces, nonzeroSurfaces, readFormations, nonzeroFormations);
 
+    float timeInSeconds = (float)(clock() - start) / CLOCKS_PER_SEC;
+    cout << "Read " << readMB << " MB in " << timeInSeconds << " seconds: " << readMB / timeInSeconds << " MB/s" << endl;
+    cout << "Read " << nonzeroSurfaces << " non-constant surfaces (" << readSurfaces << " total). Read " << nonzeroFormations << " non-constant formations ("
+        << readFormations << " total)" << endl;
+        
     return 0;
 }
 

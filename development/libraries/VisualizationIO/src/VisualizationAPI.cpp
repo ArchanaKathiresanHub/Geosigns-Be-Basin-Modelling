@@ -9,14 +9,13 @@
 //
 
 #include "VisualizationAPI.h"
-
 #include <assert.h>
-
 #include <new>
 #include <algorithm>
 #include <cstring>
 
 using namespace CauldronIO;
+using namespace std;
 
 /// Project Implementation
 //////////////////////////////////////////////////////////////////////////
@@ -37,7 +36,7 @@ CauldronIO::Project::~Project()
     _snapShotList->clear();
 }
 
-void CauldronIO::Project::AddSnapShot(boost::shared_ptr<const SnapShot > snapShot)
+void CauldronIO::Project::AddSnapShot(const boost::shared_ptr<const SnapShot>& snapShot)
 {
     if (!snapShot) throw CauldronIOException("Cannot add empty snapshot");
     
@@ -100,7 +99,7 @@ CauldronIO::SnapShot::~SnapShot()
     _surfaceList->clear();
 }
 
-void CauldronIO::SnapShot::AddSurface(boost::shared_ptr<const Surface> surface)
+void CauldronIO::SnapShot::AddSurface(const boost::shared_ptr<const Surface>& surface)
 {
     if (!surface) throw CauldronIOException("Cannot add empty surface");
 
@@ -112,7 +111,7 @@ void CauldronIO::SnapShot::AddSurface(boost::shared_ptr<const Surface> surface)
     _surfaceList->push_back(surface);
 }
 
-void CauldronIO::SnapShot::AddVolume(boost::shared_ptr<const Volume> volume)
+void CauldronIO::SnapShot::AddVolume(const boost::shared_ptr<const Volume>& volume)
 {
     if (!volume) throw CauldronIOException("Cannot add empty volume");
 
@@ -124,7 +123,7 @@ void CauldronIO::SnapShot::AddVolume(boost::shared_ptr<const Volume> volume)
     _volumeList->push_back(volume);
 }
 
-void CauldronIO::SnapShot::AddDiscontinuousVolume(boost::shared_ptr<const DiscontinuousVolume> discVolume)
+void CauldronIO::SnapShot::AddDiscontinuousVolume(const boost::shared_ptr<const DiscontinuousVolume>& discVolume)
 {
     if (!discVolume) throw CauldronIOException("Cannot add empty volume");
 

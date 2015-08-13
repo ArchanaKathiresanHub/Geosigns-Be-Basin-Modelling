@@ -1,16 +1,23 @@
+//
+// Copyright (C) 2012-2015 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "ImportProjectHandle.h"
 #include "Interface/ProjectHandle.h"
 #include "Interface/ObjectFactory.h"
 #include "Interface/Property.h"
 #include "Interface/PropertyValue.h"
 #include "Interface/Surface.h"
-
 #include "Interface/GridMap.h"
 #include "Interface/ProjectData.h"
-
 #include <string>
 #include <iostream>
-
 
 using namespace DataAccess;
 using namespace DataAccess::Interface;
@@ -18,11 +25,12 @@ using namespace DataModel;
 
 #define allSelection SURFACE | FORMATION | FORMATIONSURFACE | RESERVOIR
 
-boost::shared_ptr<CauldronIO::Project> ImportProjectHandle::CreateFromProjectHandle(const string& projectFileName, bool verbose)
+boost::shared_ptr<CauldronIO::Project> ImportProjectHandle::CreateFromProjectHandle(const string& projectname, bool verbose,
+    double& readMB, size_t& readSurfaces, size_t& nonzeroSurfaces, size_t& readFormations, size_t& nonzeroFormations)
 {
     // Try to open the projectHandle
     boost::shared_ptr<ObjectFactory> factory(new ObjectFactory());
-    boost::shared_ptr<Interface::ProjectHandle> projectHandle(OpenCauldronProject(projectFileName, "r", factory.get()));
+    boost::shared_ptr<Interface::ProjectHandle> projectHandle(OpenCauldronProject(projectname, "r", factory.get()));
     if (!projectHandle)
     {
         cerr << "Could not open the project handle" << endl;
@@ -30,7 +38,7 @@ boost::shared_ptr<CauldronIO::Project> ImportProjectHandle::CreateFromProjectHan
     }
 
     // For distributed data access, we need an activity output grid
-    projectHandle->startActivity("Dummy", projectHandle->getLowResolutionOutputGrid());
+    //projectHandle->startActivity("Dummy", projectHandle->getLowResolutionOutputGrid());
 
     // Get modeling mode
     ModellingMode modeIn = projectHandle->getModellingMode();
@@ -48,11 +56,17 @@ boost::shared_ptr<CauldronIO::Project> ImportProjectHandle::CreateFromProjectHan
     ImportProjectHandle import(verbose);
     import.AddSnapShots(projectHandle, project);
 
+    readMB = import._readMB;
+    readSurfaces = import._readSurfaces;
+    readFormations = import._readFormations;
+    nonzeroFormations = import._nonzeroFormations;
+    nonzeroSurfaces = import._nonzeroSurfaces;
+    
     return project;
 }
 
 void ImportProjectHandle::AddSnapShots(boost::shared_ptr<Interface::ProjectHandle> projectHandle, 
-                                       boost::shared_ptr<CauldronIO::Project> project) const
+                                       boost::shared_ptr<CauldronIO::Project> project)
 {
     boost::shared_ptr<SnapshotList> snapShots;
     snapShots.reset(projectHandle->getSnapshots(MAJOR | MINOR));
@@ -70,7 +84,7 @@ void ImportProjectHandle::AddSnapShots(boost::shared_ptr<Interface::ProjectHandl
 }
 
 boost::shared_ptr<const CauldronIO::SnapShot> ImportProjectHandle::CreateSnapShotIO(boost::shared_ptr<Interface::ProjectHandle> projectHandle,
-    const DataAccess::Interface::Snapshot* snapShot) const
+    const DataAccess::Interface::Snapshot* snapShot)
 {
     boost::shared_ptr<CauldronIO::SnapShot> snapShotIO(new CauldronIO::SnapShot(snapShot->getTime(), 
         GetSnapShotKind(snapShot), snapShot->getType() == MINOR));
@@ -148,7 +162,7 @@ boost::shared_ptr<const CauldronIO::SnapShot> ImportProjectHandle::CreateSnapSho
 
 boost::shared_ptr<vector<boost::shared_ptr<CauldronIO::Surface> > >  ImportProjectHandle::CreateSurfaces(
     boost::shared_ptr<DataAccess::Interface::ProjectHandle> projectHandle, boost::shared_ptr<FormationInfoList> depthFormations,
-    const DataAccess::Interface::Snapshot* snapShot) const
+    const DataAccess::Interface::Snapshot* snapShot) 
 {
     boost::shared_ptr<vector<boost::shared_ptr<CauldronIO::Surface> > > surfaces(new vector<boost::shared_ptr<CauldronIO::Surface> >());
     
@@ -227,7 +241,7 @@ ImportProjectHandle::FormationInfo* ImportProjectHandle::FindDepthInfo(boost::sh
 
 boost::shared_ptr<CauldronIO::DiscontinuousVolume> ImportProjectHandle::CreateDiscontinuousVolume(
     boost::shared_ptr<PropertyValueList> propValueList,
-    boost::shared_ptr<FormationInfoList> depthFormations) const
+    boost::shared_ptr<FormationInfoList> depthFormations) 
 {
     boost::shared_ptr<CauldronIO::DiscontinuousVolume> aggregrateVolume(new CauldronIO::DiscontinuousVolume());
 
@@ -247,7 +261,7 @@ boost::shared_ptr<CauldronIO::DiscontinuousVolume> ImportProjectHandle::CreateDi
 }
 
 boost::shared_ptr<CauldronIO::Volume> ImportProjectHandle::CreateVolume(const DataAccess::Interface::PropertyValue* propValue,
-    boost::shared_ptr<FormationInfoList> depthFormations) const
+    boost::shared_ptr<FormationInfoList> depthFormations) 
 {
     // Create a new empty volume
     boost::shared_ptr<CauldronIO::Volume> volume = CreateEmptyVolume(propValue);
@@ -290,8 +304,12 @@ boost::shared_ptr<CauldronIO::Volume> ImportProjectHandle::CreateVolume(const Da
 
         volume->SetData_IJK(inputData);
         delete[] inputData;
+
+        _readMB += 4 * gridMap->numI()*gridMap->numJ()*(1 + gridMap->lastK()) / double(1024 * 1024);
+        _nonzeroFormations++;
     }
 
+    _readFormations++;
     return volume;
 }
 
@@ -310,7 +328,7 @@ boost::shared_ptr<CauldronIO::Volume> ImportProjectHandle::CreateEmptyVolume(con
 }
 
 boost::shared_ptr<CauldronIO::Volume> ImportProjectHandle::CreateContinuousVolume(boost::shared_ptr<DataAccess::Interface::PropertyValueList> propValues,
-    boost::shared_ptr<FormationInfoList> depthFormations) const
+    boost::shared_ptr<FormationInfoList> depthFormations) 
 {
     // Construct a volume from a set of formations; the prop-values should allow for this
     if (propValues->size() == 0) throw CauldronIO::CauldronIOException("Cannot create volume from empty property value list");
@@ -324,7 +342,7 @@ boost::shared_ptr<CauldronIO::Volume> ImportProjectHandle::CreateContinuousVolum
     // Find the total depth size & offset
     assert(depthFormations->at(0)->kStart == 0);
     size_t maxK = 0;
-    size_t minK = 65536;
+    size_t minK = std::numeric_limits<size_t>::max();
     for (size_t i = 0; i < propValues->size(); ++i)
     {
         FormationInfo* depthInfo = FindDepthInfo(depthFormations, propValues->at(i)->getFormation());
@@ -366,16 +384,26 @@ boost::shared_ptr<CauldronIO::Volume> ImportProjectHandle::CreateContinuousVolum
                     float val = (float)gridMap->getValue(i, j, k);
                     inputData[index++] = val;
 
-                    if (firstConstant) constantValue = val;
+                    if (firstConstant)
+                    {
+                        constantValue = val; 
+                        firstConstant = false;
+                    }
                     if (isConstant) isConstant = val == constantValue;
                 }
             }
         }
+
+        _readMB += 4 * gridMap->numI()*gridMap->numJ()*(1 + gridMap->lastK()) / double(1024 * 1024);
+        _readFormations++;
     }
 
     // Assign the data
-    if (!isConstant) 
-        volume->SetData_IJK(inputData); 
+    if (!isConstant)
+    {
+        _nonzeroFormations += propValues->size();
+        volume->SetData_IJK(inputData);
+    }
     else
         volume->SetConstantValue(constantValue);
 
@@ -384,7 +412,7 @@ boost::shared_ptr<CauldronIO::Volume> ImportProjectHandle::CreateContinuousVolum
     return volume;
 }
 
-boost::shared_ptr<const CauldronIO::Map> ImportProjectHandle::CreateMapIO(const GridMap* gridmap) const
+boost::shared_ptr<const CauldronIO::Map> ImportProjectHandle::CreateMapIO(const GridMap* gridmap) 
 {
     assert(gridmap);
     gridmap->retrieveData();
@@ -410,7 +438,12 @@ boost::shared_ptr<const CauldronIO::Map> ImportProjectHandle::CreateMapIO(const 
                 mapData[index++] = (float)gridmap->getValue(i, j);
         map->SetData_IJ(mapData);
         delete[] mapData;
+
+        _readMB += 4 * map->GetNumI()*map->GetNumJ() / double(1024 * 1024);
+        _nonzeroSurfaces++;
     }
+
+    _readSurfaces++;
 
     return map;
 }
@@ -418,6 +451,8 @@ boost::shared_ptr<const CauldronIO::Map> ImportProjectHandle::CreateMapIO(const 
 ImportProjectHandle::ImportProjectHandle(bool verbose)
 {
     _verbose = verbose;
+    _readMB = 0;
+    _readSurfaces = _readFormations = _nonzeroFormations = _nonzeroSurfaces = 0;
 }
 
 CauldronIO::SnapShotKind ImportProjectHandle::GetSnapShotKind(const Snapshot* snapShot) const
@@ -546,10 +581,35 @@ boost::shared_ptr<ImportProjectHandle::FormationInfoList> ImportProjectHandle::G
         info->depthStart = min;
         info->depthEnd = max;
 
-        double depth1 = map->getValue(0, 0, map->firstK());
-        double depth2 = map->getValue(0, 0, map->lastK());
-        info->reverseDepth = depth1 > depth2;
+        // Find average depth values in first and last k slice
+        double depth1 = 0, depth2 = 0; 
+        size_t numElem1 = 0, numElem2 = 0;
+        for (unsigned int i = map->firstI(); i <= map->lastI(); ++i)
+        {
+            for (unsigned int j = map->firstJ(); j <= map->lastJ(); ++j)
+            {
+                double val = map->getValue(i, j, map->firstK());
+                if (val != map->getUndefinedValue())
+                {
+                    numElem1++;
+                    depth1 += val;
+                }
+                val = map->getValue(i, j, map->lastK());
+                if (val != map->getUndefinedValue())
+                {
+                    numElem2++;
+                    depth2 += val;
+                }
+            }
+        }
 
+        if (numElem1 == 0 || numElem2 == 0)
+            throw CauldronIO::CauldronIOException("Cannot sort depth formations: depth values undefined");
+
+        depth1 /= numElem1;
+        depth2 /= numElem2;
+
+        info->reverseDepth = depth1 > depth2;
         depthFormations->push_back(info);
     }
 

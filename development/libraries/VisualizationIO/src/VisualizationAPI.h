@@ -1,3 +1,13 @@
+//
+// Copyright (C) 2012-2015 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #ifndef _CAULDRONIO_H_
 #define _CAULDRONIO_H_
 
@@ -5,8 +15,6 @@
 #include <string>
 #include <utility>
 #include <stdexcept>
-using namespace std;
-
 #include <boost/shared_ptr.hpp>
 
 namespace CauldronIO
@@ -25,11 +33,11 @@ namespace CauldronIO
     enum SubsurfaceKind { Sediment, Basement, None };
 
     // Our own exception class
-    class CauldronIOException : public runtime_error
+    class CauldronIOException : public std::runtime_error
     {
     public:
-        CauldronIOException(const string& message) : runtime_error(message) {}
-        CauldronIOException(const char* message) : runtime_error(message) {}
+        CauldronIOException(const std::string& message) : std::runtime_error(message) {}
+        CauldronIOException(const char* message) : std::runtime_error(message) {}
     };
 
     // forward declarations
@@ -41,36 +49,36 @@ namespace CauldronIO
     class Surface;
     class DiscontinuousVolume;
     // type definitions
-    typedef pair<boost::shared_ptr<const Formation>, boost::shared_ptr<const Volume> > FormationVolume;
+    typedef std::pair<boost::shared_ptr<const Formation>, boost::shared_ptr<const Volume> > FormationVolume;
     /// the disadvantage is that when an object has been added to the list, it cannot be modified any longer...
-    typedef vector<boost::shared_ptr<const FormationVolume > > FormationVolumeList;
-    typedef vector<boost::shared_ptr<const SnapShot > > SnapShotList;
-    typedef vector<boost::shared_ptr<const Surface > > SurfaceList;
-    typedef vector<boost::shared_ptr<const Volume > > VolumeList;
-    typedef vector<boost::shared_ptr<const DiscontinuousVolume > > DiscontinuousVolumeList;
+    typedef std::vector<boost::shared_ptr<const FormationVolume > > FormationVolumeList;
+    typedef std::vector<boost::shared_ptr<const SnapShot > > SnapShotList;
+    typedef std::vector<boost::shared_ptr<const Surface > > SurfaceList;
+    typedef std::vector<boost::shared_ptr<const Volume > > VolumeList;
+    typedef std::vector<boost::shared_ptr<const DiscontinuousVolume > > DiscontinuousVolumeList;
     
     /// \brief Main entry: project class
     class Project
     {
     public:
         /// \brief Create an empty project
-        Project(const string& name, const string& description, const string& team, const string& version, 
+        Project(const std::string& name, const std::string& description, const std::string& team, const std::string& version,
             ModellingMode mode);
 
         ~Project();
 
 		/// \brief Adds a snapshot to the current project
-		void AddSnapShot(boost::shared_ptr<const SnapShot> snapShot);
+		void AddSnapShot(const boost::shared_ptr<const SnapShot>& snapShot);
 
         /// Basic info: 
          /// \brief Name of the project
-        const string& GetName() const;
+        const std::string& GetName() const;
         /// \brief Description of the project
-        const string& GetDescription() const;
+        const std::string& GetDescription() const;
         /// \brief Team working on this project (?)
-        const string& GetTeam() const;
+        const std::string& GetTeam() const;
         /// \brief Obsolete
-        const string& GetProgramVersion() const;
+        const std::string& GetProgramVersion() const;
         /// \brief Modeling mode for this run
         ModellingMode GetModelingMode() const;
 
@@ -79,7 +87,7 @@ namespace CauldronIO
 
     private:
 	    boost::shared_ptr<SnapShotList> _snapShotList;
-        string _name, _description, _team, _version;
+        std::string _name, _description, _team, _version;
         ModellingMode _mode;
     };
 
@@ -92,11 +100,11 @@ namespace CauldronIO
         ~SnapShot();
 
 	    /// \brief Add a surface to the snapshot; ownership is transfered
-	    void AddSurface(boost::shared_ptr<const Surface> surface);
+	    void AddSurface(const boost::shared_ptr<const Surface>& surface);
  	    /// \brief Add a volume to the snapshot; ownership is transfered
-        void AddVolume(boost::shared_ptr<const Volume> volume);
+        void AddVolume(const boost::shared_ptr<const Volume>& volume);
         /// \brief Add a discontinuous volume to the snapshot; ownership is transfered
-        void AddDiscontinuousVolume(boost::shared_ptr<const DiscontinuousVolume> discVolume);
+        void AddDiscontinuousVolume(const boost::shared_ptr<const DiscontinuousVolume>& discVolume);
 
 	    // Basic info
         double GetAge () const;
@@ -124,23 +132,23 @@ namespace CauldronIO
 	{
 	public:
         /// \brief 
-        Property(const string& name, const string& username, const string& cauldronName, const string& unit,
+        Property(const std::string& name, const std::string& username, const std::string& cauldronName, const std::string& unit,
             PropertyType type, PropertyAttribute attrib);
 	    /// \brief Returns the name of this property
-        const string& GetName() const;
+        const std::string& GetName() const;
 	    /// \brief Returns the user name of this property
-        const string& GetUserName() const;
+        const std::string& GetUserName() const;
 	    /// \brief Returns the cauldron name of this property
-        const string& GetCauldronName() const;
+        const std::string& GetCauldronName() const;
 	    /// \brief Return the unit of this property
-        const string& GetUnit() const;
+        const std::string& GetUnit() const;
 	    /// \brief Returns the PropertyType
         PropertyType GetType() const;
 	    /// \brief Returns the PropertyAttribute
         PropertyAttribute GetAttribute() const;
 
     private:
-	    string _name, _username, _cauldronName, _unit;
+	    std::string _name, _username, _cauldronName, _unit;
 	    PropertyType _type;
 	    PropertyAttribute _attrib;
     };
@@ -150,14 +158,14 @@ namespace CauldronIO
     {
     public:
         /// \brief Creates a new formation covering a depth range and name
-        Formation(size_t kStart, size_t kEnd, const string& name);
+        Formation(size_t kStart, size_t kEnd, const std::string& name);
         /// \brief Get the depth range
         void GetDepthRange(size_t &start, size_t &end) const;
         /// \brief Get the formation name
-        const string& GetName() const;
+        const std::string& GetName() const;
 
     private:
-        string _name;
+        std::string _name;
         size_t _kstart, _kend;
     };
 
@@ -166,13 +174,13 @@ namespace CauldronIO
     {
     public:
         /// \brief Construct a new surface. Ownership of all objects is transfered to the surface
-        /// \brief Depthmap can be null, for example for thickness or erosionfactor. 
-        /// \brief These are formation maps, not associated with a particular surface
-        Surface(const string& name, SubsurfaceKind kind, boost::shared_ptr<const Property> property, 
+        /// Depthmap can be null, for example for thickness or erosionfactor. 
+        /// These are formation maps, not associated with a particular surface
+        Surface(const std::string& name, SubsurfaceKind kind, boost::shared_ptr<const Property> property, 
             boost::shared_ptr<const Map> valueMap);
 
         /// \brief Get the name of this surface
-        const string& GetName() const;
+        const std::string& GetName() const;
         /// \brief Get the values for this surface
         const boost::shared_ptr<const Map> GetValueMap() const;
         /// \brief Returns the subsurface kind
@@ -194,7 +202,7 @@ namespace CauldronIO
         boost::shared_ptr<const Formation> _formation;
         boost::shared_ptr<const Map> _valueMap;
         boost::shared_ptr<const Surface> _depthSurface;
-        string _name;
+        std::string _name;
     };
 
     /// \brief Map container class

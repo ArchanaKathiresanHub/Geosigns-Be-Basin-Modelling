@@ -20,20 +20,13 @@ add_executable(datamodel_tests ${all_srcs} ${all_headers})
 
 include_directories(
 	${HDF5_INCLUDE_DIRS}
-	${MPI_INCLUDE_DIRS}
-	${PETSC_INCLUDE_DIRS}
 )
 
 bm_include_libraries(
 	DataModel
 	DataAccess
-	utilities
-	Utilities_Petsc
-	#SerialDataAccess
-    DistributedDataAccess
+	SerialDataAccess
 	DataAccess
-	GeoPhysics
-	DerivedProperties
 	TableIO
     VisualizationIO
 )
@@ -41,18 +34,11 @@ bm_include_libraries(
 target_link_libraries(datamodel_tests
 	DataModel
 	DataAccess
-	utilities
-	Utilities_Petsc
-	#SerialDataAccess
-    DistributedDataAccess
+	SerialDataAccess
 	DataAccess
-	GeoPhysics
-	DerivedProperties
 	TableIO
     VisualizationIO
 	${HDF5_LIBRARIES}
-	${MPI_LIBRARIES}
-	${PETSC_LIBRARIES}
 	${Boost_LIBRARIES}
 )
 
