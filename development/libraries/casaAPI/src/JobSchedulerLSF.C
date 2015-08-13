@@ -30,11 +30,12 @@
 #define DEFAULT_RLIMIT   -1
 
 #ifndef _WIN32
-#include <inttypes.h>
-typedef int64_t __int64;
+#include <sys/types.h>
+typedef int64_t LS_LONG_INT;
+#else
+typedef __int64 LS_LONG_INT;
 #endif
 
-typedef __int64 LS_LONG_INT;
 
 struct submit {
    char   * projectName;
@@ -228,7 +229,7 @@ public:
       // TODO save necessary fields for submitRepl
       //struct submitReply m_submitRepl; // lsf_submit returns here some info in case of error
 
-      ok = ok ? sz.save( m_lsfJobID, "LSFJobID" ) : ok;
+      ok = ok ? sz.save( static_cast<long long>( m_lsfJobID ), "LSFJobID" ) : ok;
       return ok;
    }
 
@@ -273,7 +274,10 @@ public:
       ok = ok ? dz.load( m_submit.options3,         "Options3Flags"  ) : ok;
       ok = ok ? dz.load( m_submit.numProcessors,    "CPUsNum"        ) : ok;
       ok = ok ? dz.load( m_submit.maxNumProcessors, "MaxCPUsNum"     ) : ok;
-      ok = ok ? dz.load( m_lsfJobID,                "LSFJobID" ) : ok;
+
+      long long rjid;
+      ok = ok ? dz.load( rjid,                      "LSFJobID" ) : ok;
+      m_lsfJobID = static_cast<LS_LONG_INT>( rjid );
 
       if ( !ok )
       {
