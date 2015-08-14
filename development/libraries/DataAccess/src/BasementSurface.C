@@ -79,14 +79,14 @@ GridMap * BasementSurface::computeDepthMap (void) const
    if (!thicknessMap) return false;
    if (!depthMap) return false;
 
-   GridMap * myDepthMap = m_projectHandle->getFactory ()->produceGridMap (this, DepthMap, depthMap, thicknessMap, add );
+   GridMap * myDepthMap = m_projectHandle->getFactory ()->produceGridMap (this, DEPTH, depthMap, thicknessMap, add );
 
    return myDepthMap;
 }
 
 
 GridMap * BasementSurface::computeDepthMap ( const GridMap* operand1, UnaryFunctor& op ) const {
-   GridMap * myDepthMap = m_projectHandle->getFactory ()->produceGridMap (this, DepthMap, operand1, op);
+   GridMap * myDepthMap = m_projectHandle->getFactory ()->produceGridMap (this, DEPTH, operand1, op);
    return myDepthMap;
 }
 

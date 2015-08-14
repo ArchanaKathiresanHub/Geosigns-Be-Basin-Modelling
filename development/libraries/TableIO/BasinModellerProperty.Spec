@@ -798,7 +798,7 @@ START-properties
     Identification      : TwoWayTimeGrid
     Description         : The name of the two way (travel) time grid of the surface,
                           this grid is supposed to be imported from nDIc(input by user)
-    Unit of measurement : 
+    Unit of measurement : ms
     Type                : string
     Error Field         : No
 

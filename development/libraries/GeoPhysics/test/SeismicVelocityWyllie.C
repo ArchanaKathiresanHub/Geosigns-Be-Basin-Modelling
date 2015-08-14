@@ -59,7 +59,7 @@ TEST(SeismicVelocityWyllie, std_shale)
 }
 
 //assert is only handled in Debug
-#ifdef DEBUG
+#ifndef NDEBUG
 TEST(SeismicVelocityWyllie, death_test)
 {
 	::testing::FLAGS_gtest_death_test_style = "threadsafe";

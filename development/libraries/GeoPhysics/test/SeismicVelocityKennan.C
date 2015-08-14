@@ -169,7 +169,7 @@ TEST(SeismicVelocityKennan, std_shale_decompaction)
 }
 
 //assert is only handled in Debug
-#ifdef DEBUG
+#ifndef NDEBUG
 TEST(SeismicVelocityKennan, death_test)
 {
 	::testing::FLAGS_gtest_death_test_style = "threadsafe";

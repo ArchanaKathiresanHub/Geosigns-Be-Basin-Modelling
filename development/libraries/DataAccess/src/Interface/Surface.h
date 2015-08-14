@@ -75,8 +75,10 @@ namespace DataAccess
 
 	    string m_mangledName;
 
-       static const int DepthMap      = 0;
-       static const int TwoWayTimeMap = 1;
+       enum MapType {
+          DEPTH,
+          TWOWAYTIME,
+       };
 
 	    const Formation * m_top;
 	    const Formation * m_bottom;

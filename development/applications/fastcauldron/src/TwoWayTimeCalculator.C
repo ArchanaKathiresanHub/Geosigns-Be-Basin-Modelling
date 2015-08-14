@@ -361,7 +361,7 @@ bool TwoWayTimeResidualCalculator::operator ()( const OutputPropertyMap::OutputP
             }
             // else the surface is linked to an intial two way time scalar
             else {
-               assert( ("There must be a two way time map inpute or a two way time scalar input", m_twoWayTimeInitialScalar != -9999) );
+               assert( ("There must be a two way time map input or a two way time scalar input", m_twoWayTimeInitialScalar != -9999) );
                value = m_twoWayTimeCauldron->getMapValue( i, j ) - m_twoWayTimeInitialScalar;
             }
             TwoWayTimeResidualMap->setValue( i, j, value );
