@@ -24,6 +24,8 @@
 #include <Interface/ProjectHandle.h>
 #include <Interface/ObjectFactory.h>
 #include <Interface/Property.h>
+#include <Interface/Formation.h>
+#include <Interface/Surface.h>
 
 #include <string>
 #include <list>
@@ -112,13 +114,29 @@ void BpaRenderAreaListener::sendProjectInfo() const
   msg += ", ";
   msg += "\"numJHiRes\": " + std::to_string((long long)m_sceneGraphManager.numJHiRes());
   msg += ", ";
+  msg += "\"formations\": [";
+
+  std::unique_ptr<di::FormationList> formations(m_handle->getFormations(0, false));
+  if (!formations->empty())
+    msg += "\"" + (*formations)[0]->getName() + "\"";
+  for (size_t i = 1; i < formations->size(); ++i)
+    msg += ", \"" + (*formations)[i]->getName() + "\"";
+  msg += "], \"surfaces\": [";
+
+  std::unique_ptr<di::SurfaceList> surfaces(m_handle->getSurfaces(0, false));
+  if (!surfaces->empty())
+    msg += "\"" + (*surfaces)[0]->getName() + "\"";
+  for (size_t i = 1; i < surfaces->size(); ++i)
+    msg += ", \"" + (*surfaces)[i]->getName() + "\"";
+  msg += "], ";
+
   msg += "\"properties\": [";
 
     // Add properties to parent node
   int flags = di::FORMATION;
   int type = di::VOLUME;
 
-  std::shared_ptr<di::PropertyList> properties(m_handle->getProperties(true, flags));
+  std::unique_ptr<di::PropertyList> properties(m_handle->getProperties(true, flags));
   if(!properties->empty())
     msg += "\"" + (*properties)[0]->getName() + "\"";
   for(size_t i=1; i < properties->size(); ++i)
@@ -158,8 +176,17 @@ void BpaRenderAreaListener::onReceivedMessage(RenderArea* renderArea, Connection
   string command = elems.front();
   elems.pop_front();
   string argument;
-  if(!elems.empty())
+  if (!elems.empty())
+  {
     argument = elems.front();
+    elems.pop_front();
+  }
+  string argument2;
+  if (!elems.empty())
+  {
+    argument2 = elems.front();
+    elems.pop_front();
+  }
 
   // parse the commands
   if (command == "FPS")
@@ -196,12 +223,22 @@ void BpaRenderAreaListener::onReceivedMessage(RenderArea* renderArea, Connection
     int scale = atoi(argument.c_str());
     m_sceneGraphManager.setVerticalScale((float)scale);
   }
+  else if (command == "ENABLESLICEI")
+  {
+    bool enabled = (argument == "TRUE");
+    m_sceneGraphManager.enableSlice(0, enabled);
+  }
   else if(command == "SLICEI")
   {
     int index = atoi(argument.c_str());
     m_sceneGraphManager.setSlicePosition(0, index);
   }
-  else if(command == "SLICEJ")
+  else if (command == "ENABLESLICEJ")
+  {
+    bool enabled = (argument == "TRUE");
+    m_sceneGraphManager.enableSlice(1, enabled);
+  }
+  else if (command == "SLICEJ")
   {
     int index = atoi(argument.c_str());
     m_sceneGraphManager.setSlicePosition(1, index);
@@ -225,7 +262,18 @@ void BpaRenderAreaListener::onReceivedMessage(RenderArea* renderArea, Connection
     SbViewportRegion vpregion = m_renderArea->getSceneManager()->getViewportRegion();
     m_examiner->viewAll(vpregion);
   }
+  else if (command == "ENABLEFORMATION")
+  {
+    bool enabled = (argument2 == "TRUE");
+    m_sceneGraphManager.enableFormation(argument, enabled);
+  }
+  else if (command == "ENABLESURFACE")
+  {
+    bool enabled = (argument2 == "TRUE");
+    m_sceneGraphManager.enableSurface(argument, enabled);
+  }
 }
+
 
 void BpaRenderAreaListener::onRender(RenderArea* renderArea)
 {

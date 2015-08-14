@@ -191,6 +191,9 @@ void SceneGraphManager::updateSnapshotProperties(size_t index)
       gridMaps.push_back((*values)[0]->getGridMap());
     }
 
+    if (gridMaps.empty())
+      return;
+
     const MiScalardSetIjk* prevDataSet = snapshot.scalarSet->getScalarSet();
     delete prevDataSet;
 
@@ -209,6 +212,9 @@ void SceneGraphManager::updateSnapshotProperties(size_t index)
 void SceneGraphManager::updateSnapshotSlices(size_t index)
 {
   SnapshotInfo& snapshot = m_snapshots[index];
+
+  if (snapshot.slicesGroup == 0)
+    return;
 
   for (int i = 0; i < 2; ++i)
   {

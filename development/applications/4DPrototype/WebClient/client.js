@@ -10,6 +10,151 @@ var leftMargin = 300;
 var bottomMargin = 100;
 var timestamp = 0;
 
+function showTab(index)
+{
+    var elems = [
+        document.getElementById('formations'),
+        document.getElementById('properties')];
+
+    var tabs = [
+        document.getElementById('formationsTab'),
+        document.getElementById('propertiesTab')];
+
+    elems[index].style.display = "block";
+    elems[1 - index].style.display = "none";
+
+    tabs[index].style["background-color"] = "#dddddd";
+    tabs[1-index].style["background-color"] = "#ffffff";
+}
+
+function initFormations(names)
+{
+    var fmt = "<div><input type='checkbox' name='xxx' checked onchange='onFormationCheckBoxChanged(this)'>xxx</input></div>";
+    var formationsDiv = document.getElementById("formationsList");
+
+    for(var i=0; i < names.length; ++i)
+        formationsDiv.innerHTML += fmt.replace(/xxx/g, names[i]);
+}
+
+function initSurfaces(names)
+{
+    var fmt = "<div><input type='checkbox' name='xxx' onchange='onSurfaceCheckBoxChanged(this)'>xxx</input></div>";
+    var surfacesDiv = document.getElementById("surfacesList");
+
+    for(var i=0; i < names.length; ++i)
+        surfacesDiv.innerHTML += fmt.replace(/xxx/g, names[i]);
+}
+
+function initProperties(names)
+{
+    var fmt = "<div><input type='radio' name='property' value='xxx' onclick='onPropertyRadioButtonClicked(this)'>xxx</input></div>";
+    var propertiesList = document.getElementById("propertiesList");
+
+    for(var i=0; i < names.length; ++i)
+        propertiesList.innerHTML += fmt.replace(/xxx/g, names[i]);
+}
+
+function initUI(projectInfo)
+{
+    initFormations(projectInfo.formations);
+    initSurfaces(projectInfo.surfaces);
+    initProperties(projectInfo.properties);
+
+    var sliceI = document.getElementById("sliceISlider");
+    sliceI.min = 0;
+    sliceI.max = projectInfo.numI - 2;
+    sliceI.step = 1;
+
+    var sliceJ = document.getElementById("sliceJSlider");
+    sliceJ.min = 0;
+    sliceJ.max = projectInfo.numJ - 2;
+    sliceJ.step = 1;
+
+    var timeSlider = document.getElementById("timeSlider");
+    timeSlider.min = 0;
+    timeSlider.max = projectInfo.snapshotCount - 1;
+    timeSlider.step = 1;
+}
+
+function onFormationCheckBoxChanged(elem)
+{
+    console.log("formation " + elem.name + " enabled = " + elem.checked);
+
+    var enabled = (elem.checked ? "TRUE" : "FALSE");
+    theRenderArea.sendMessage("ENABLEFORMATION " + elem.name + " " + enabled);
+}
+
+function onSurfaceCheckBoxChanged(elem)
+{
+    console.log("surface " + elem.name + " enabled = " + elem.checked);
+    var enabled = (elem.checked ? "TRUE" : "FALSE");
+    theRenderArea.sendMessage("ENABLESURFACE " + elem.name + " " + enabled);
+}
+
+function onPropertyRadioButtonClicked(elem)
+{
+    console.log("property " + elem.value + " clicked");
+    theRenderArea.sendMessage("SETPROPERTY " + elem.value);
+}
+
+function onSliceIPositionChanged(elem)
+{
+    console.log("sliceI position = " + elem.value);
+    theRenderArea.sendMessage("SLICEI " + elem.value)
+}
+
+function onSliceICheckBoxChanged(elem)
+{
+    console.log("sliceI enabled = " + elem.checked);
+    var arg = elem.checked ? "TRUE" : "FALSE";
+    theRenderArea.sendMessage("ENABLESLICEI " + arg);
+}
+
+function onSliceJPositionChanged(elem)
+{
+    console.log("sliceJ position = " + elem.value);
+    theRenderArea.sendMessage("SLICEJ " + elem.value)
+}
+
+function onSliceJCheckBoxChanged(elem)
+{
+    console.log("sliceJ enabled = " + elem.checked);
+    var arg = elem.checked ? "TRUE" : "FALSE";
+    theRenderArea.sendMessage("ENABLESLICEJ " + arg);
+}
+
+function onVerticalScaleSliderChanged(elem)
+{
+    console.log("vertical scale = " + elem.value);
+    theRenderArea.sendMessage("VSCALE " + elem.value);
+}
+
+function onDrawFacesCheckBoxChanged(elem)
+{
+    console.log("draw faces = " + elem.checked);
+    var arg = elem.checked ? "TRUE":"FALSE";
+    theRenderArea.sendMessage("DRAWFACES " + arg);
+}
+
+function onDrawEdgesCheckBoxChanged(elem)
+{
+    console.log("draw edges = " + elem.checked);
+    var arg = elem.checked ? "TRUE":"FALSE";
+    theRenderArea.sendMessage("DRAWEDGES " + arg);
+}
+
+function onTimeSliderChanged(elem)
+{
+    console.log("timeSlider = " + elem.value);
+    theRenderArea.sendMessage("SNAPSHOT " + elem.value);
+}
+
+function onButtonViewAllClicked()
+{
+    console.log("view all");
+    theRenderArea.sendMessage("VIEWALL");
+}
+
 function resizeCanvas()
 {
     var w = window.innerWidth - leftMargin;
@@ -21,7 +166,7 @@ function resizeCanvas()
 function onWindowResize()
 {
     if(resizeTimer)
-	clearTimeout(resizeTimer);
+	   clearTimeout(resizeTimer);
     resizeTimer = setTimeout(resizeCanvas, 1000);
 }
 
@@ -31,9 +176,9 @@ function receivedImage(length){
     fps += 1;
     if(timestamp != 0)
     {
-	var newtimestamp = window.performance.now();
-	console.log("latency: " + (newtimestamp - timestamp));
-	timestamp = 0;
+    	var newtimestamp = window.performance.now();
+    	console.log("latency: " + (newtimestamp - timestamp));
+    	timestamp = 0;
     }
 }
 
@@ -42,16 +187,8 @@ function receivedMessage(message)
     var msgObj = JSON.parse(message);
     if(msgObj.projectInfo)
     {
-	theRenderArea.projectInfo = msgObj.projectInfo;
-
-	$("#slider_snapshot").prop('max', msgObj.projectInfo.snapshotCount - 1);
-	$("#slider_sliceI").prop('max', msgObj.projectInfo.numI - 1);
-	$("#slider_sliceJ").prop('max', msgObj.projectInfo.numJ - 1);
-
-	for(var i=0; i < msgObj.projectInfo.properties.length; ++i)
-	{
-	    $("#properties").append("<option>" + msgObj.projectInfo.properties[i] + "</option>");
-	}
+    	theRenderArea.projectInfo = msgObj.projectInfo;
+        initUI(msgObj.projectInfo);
     }
 }
 
@@ -97,16 +234,16 @@ function websocketURL()
 
 function init() 
 { 
-    window.canvas = $("#TheCanvas");
-    $(window).resize(onWindowResize);
+    window.canvas = document.getElementById("TheCanvas");
+    //$(window).resize(onWindowResize);
 
     //var defaultWidth  = 2560;
     //var defaultHeight = 1440;
     // This function is called immediately after the page is loaded. Initialization of 
     // the renderArea. "TheCanvas" refers to the id of the canvas. 
     theRenderArea = new RemoteVizRenderArea("TheCanvas", //defaultWidth, defaultHeight);
-	window.innerWidth - leftMargin, 
-	window.innerHeight - bottomMargin);
+    	window.innerWidth - leftMargin, 
+    	window.innerHeight - bottomMargin);
 
     // add a listener on the receivedImage event.
     theRenderArea.addReceivedImageListener(receivedImage);
@@ -118,21 +255,6 @@ function init()
     var url = websocketURL() + generateGUID();
     theRenderArea.connectTo(url);
 
-    // Bind an event handler to the "slidestop" JavaScript event, or trigger that event on an element.
-    $("#slider_maxfps").on('slidestop', maxfps);
-    $("#slider_squality").on('slidestop', squality);
-    $("#slider_iquality").on('slidestop', iquality);
-    $("#slider_scalefactor").on('slidestop', scalefactor);
-    $("#slider_snapshot").on('slidestop', snapshot);
-    $("#slider_vscale").on('slidestop', vscale);
-    $("#slider_sliceI").on('slidestop', sliceI);
-    $("#slider_sliceJ").on('slidestop', sliceJ);
-    $("[name='rendermode']").change(renderModeChanged);
-    $("[name='meshmode']").change(meshModeChanged);
-    $("#properties").change(propertyChanged);
-    $('#checkbox_faces').change(drawFacesChanged);
-    $('#checkbox_edges').change(drawEdgesChanged);
-    $("#button_viewall").click(function() { theRenderArea.sendMessage("VIEWALL") });
     // Calls a function or executes a code snippet repeatedly to refresh the bandwidth and the fps
     window.setInterval("measurebandwithandfps()",1000);
 	
@@ -175,28 +297,10 @@ function meshModeChanged()
     theRenderArea.sendMessage("MESHMODE " + meshMode);
 }
 
-function renderModeChanged()
-{
-    renderMode = $("[name='rendermode']:checked").val();
-    theRenderArea.sendMessage("RENDERMODE " + renderMode);
-}
-
 function propertyChanged()
 {
     var prop = $("#properties").prop("value");
     theRenderArea.sendMessage("SETPROPERTY " + prop);
-}
-
-function drawFacesChanged() 
-{
-    var arg = $(this).prop('checked') ? "TRUE":"FALSE";
-    theRenderArea.sendMessage("DRAWFACES " + arg);
-}
-
-function drawEdgesChanged()
-{
-    var arg = $(this).prop('checked') ? "TRUE":"FALSE";
-    theRenderArea.sendMessage("DRAWEDGES " + arg);
 }
 
 function cwidth(){
@@ -242,11 +346,6 @@ function iquality(){
     theRenderArea.sendMessage("INTERACTIVEQUALITY " + $("#slider_iquality").val());
 }
 
-function scalefactor(){
-    // call when moving the scale factor slider
-    theRenderArea.sendMessage("SCALEFACTOR " + $("#slider_scalefactor").val());
-}
-	
 function snapshot(){
     timestamp = window.performance.now();
     theRenderArea.sendMessage("SNAPSHOT " + $("#slider_snapshot").val());
