@@ -2413,7 +2413,7 @@ void Trap::computePhaseVolumeProportionInBiodegradadedZone(const double timeInte
          #endif
          volumeFractionOfOilBiodegraded = 1;
          volumeFractionOfGasBiodegraded = (volumeBiodegraded - m_toBeDistributed[OIL].getVolume()) / m_toBeDistributed[GAS].getVolume();
-         volumeFractionOfGasBiodegraded = min(volumeFractionOfGasBiodegraded, 1);   // in case that the biodegradation zone extends above the volume of Gas 
+         volumeFractionOfGasBiodegraded = min(volumeFractionOfGasBiodegraded, 1.0);   // in case that the biodegradation zone extends above the volume of Gas 
       }
    }
    assert(volumeFractionOfOilBiodegraded >= 0 && volumeFractionOfOilBiodegraded <= 1);
