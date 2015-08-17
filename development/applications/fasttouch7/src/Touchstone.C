@@ -174,7 +174,7 @@ bool TouchstoneWrapper::loadTcf ( )
    //is a direct analog run
    m_directAnalogRun = m_tcfInfo->IsDirectAnalogRun();
 
-   //create number of realizations and read seed parameter   
+   //create number of realizations  
    if ( !m_directAnalogRun ) m_nrOfRealizations = m_tcfInfo->Realizations();	
 
    // Create a Touchstone Calculation Context
