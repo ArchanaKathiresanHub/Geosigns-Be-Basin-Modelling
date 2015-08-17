@@ -15,10 +15,11 @@ using namespace std;
 #include "CompoundLithology.h"
 #include "ElementFunctions.h"
 
-DataAccess::Mining::TemperatureGradientCalculator::TemperatureGradientCalculator ( const DomainPropertyCollection*  collection,
-                                                                                   const Interface::Snapshot* snapshot,
-                                                                                   const Interface::Property* property ) :
-   DomainFormationProperty ( collection, snapshot, property )
+DataAccess::Mining::TemperatureGradientCalculator::TemperatureGradientCalculator ( const DomainPropertyCollection*            collection,
+                                                                                   DerivedProperties::DerivedPropertyManager& propertyManager,
+                                                                                   const Interface::Snapshot*                 snapshot,
+                                                                                   const Interface::Property*                 property ) :
+   DomainFormationProperty ( collection, propertyManager, snapshot, property )
 {
 
    m_depth = 0;
@@ -29,8 +30,8 @@ DataAccess::Mining::TemperatureGradientCalculator::TemperatureGradientCalculator
 bool DataAccess::Mining::TemperatureGradientCalculator::initialise () {
 
    if ( not m_initialised ) {
-      m_depth = dynamic_cast<const DomainFormationProperty*>(getPropertyCollection ()->getDomainProperty ( "Depth" ));
-      m_temperature = dynamic_cast<const DomainFormationProperty*>(getPropertyCollection ()->getDomainProperty ( "Temperature" ));
+      m_depth = dynamic_cast<const DomainFormationProperty*>(getPropertyCollection ()->getDomainProperty ( "Depth", getPropertyManager ()));
+      m_temperature = dynamic_cast<const DomainFormationProperty*>(getPropertyCollection ()->getDomainProperty ( "Temperature", getPropertyManager ()));
 
       if ( m_depth != 0 and m_temperature != 0 ) {
          m_initialised = true;
@@ -81,10 +82,11 @@ double DataAccess::Mining::TemperatureGradientCalculator::compute ( const Elemen
    return calculationResult;
 }
 
-DataAccess::Mining::DomainProperty* DataAccess::Mining::TemperatureGradientCalculatorAllocator::allocate ( const DomainPropertyCollection* collection,
-                                                                                                           const Interface::Snapshot*      snapshot,
-                                                                                                           const Interface::Property*      property ) const {
-   return new TemperatureGradientCalculator ( collection, snapshot, property );
+DataAccess::Mining::DomainProperty* DataAccess::Mining::TemperatureGradientCalculatorAllocator::allocate ( const DomainPropertyCollection*            collection,
+                                                                                                           DerivedProperties::DerivedPropertyManager& propertyManager,
+                                                                                                           const Interface::Snapshot*                 snapshot,
+                                                                                                           const Interface::Property*                 property ) const {
+   return new TemperatureGradientCalculator ( collection, propertyManager, snapshot, property );
 }
 
 

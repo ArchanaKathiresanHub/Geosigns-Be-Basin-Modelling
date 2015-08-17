@@ -1,3 +1,14 @@
+//
+// Copyright (C) 2012-2015 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+// This utility allow to load and then compare table by table 2 .project3d files
+
 #ifndef DATABASE_H
 #define DATABASE_H
 
@@ -25,20 +36,17 @@ using std::ostream;
 
 namespace database
 {
-
-
 	class Database;
 	class Table;
 	class Record;
 
-
-	template < class Type > TABLEIO_DLL_EXPORT void checkType (const Type & a, const datatype::DataType type);
-	template <> TABLEIO_DLL_EXPORT void checkType < bool > (const bool & a, const datatype::DataType type);
-	template <> TABLEIO_DLL_EXPORT void checkType < int >(const int &a, const datatype::DataType type);
-	template <> TABLEIO_DLL_EXPORT void checkType < long >(const long &a, const datatype::DataType type);
-	template <> TABLEIO_DLL_EXPORT void checkType < float >(const float &a, const datatype::DataType type);
-	template <> TABLEIO_DLL_EXPORT void checkType < double >(const double &a, const datatype::DataType type);
-	template <> TABLEIO_DLL_EXPORT void checkType < std::string > (const std::string & a, const datatype::DataType type);
+   template < class Type > TABLEIO_DLL_EXPORT void checkType (     const Type        &a, const datatype::DataType type );
+   template <> TABLEIO_DLL_EXPORT void checkType < bool > (        const bool        &a, const datatype::DataType type );
+   template <> TABLEIO_DLL_EXPORT void checkType < int >(          const int         &a, const datatype::DataType type );
+   template <> TABLEIO_DLL_EXPORT void checkType < long >(         const long        &a, const datatype::DataType type );
+   template <> TABLEIO_DLL_EXPORT void checkType < float >(        const float       &a, const datatype::DataType type );
+   template <> TABLEIO_DLL_EXPORT void checkType < double >(       const double      &a, const datatype::DataType type );
+   template <> TABLEIO_DLL_EXPORT void checkType < std::string > ( const std::string &a, const datatype::DataType type );
 
 	/// Fields contain the values of a Record.
 	/// This class is a template because we need a different Field class for different types,
@@ -49,11 +57,11 @@ namespace database
         public:
            virtual ~AbstractField() {} 
 
-           AbstractField(const FieldDefinition & fieldDefinition)
+         AbstractField( const FieldDefinition & fieldDefinition )
               : m_fieldDefinition(fieldDefinition)
            {}
 
-           const FieldDefinition & getFieldDefinition (void) const
+         const FieldDefinition & getFieldDefinition() const
            { return m_fieldDefinition; }
 
            boost::shared_ptr<AbstractField> clone() const
@@ -71,7 +79,7 @@ namespace database
 	template < class Type > class Field : public AbstractField
 	{
 	 public:
-		virtual ~Field (void) {}
+         virtual ~Field() {}
 
 		/// save the value to a stream.
 		bool saveToStream (ostream & ofile, int &borrowed);
@@ -89,7 +97,7 @@ namespace database
                    m_value = value;
                 }
 
-		const Type & getValue (void) const
+         const Type & getValue() const
                 {
                    checkType < Type > (m_value, getFieldDefinition().dataType ());
                    return m_value; 
@@ -116,13 +124,13 @@ namespace database
 		void printOn (ostream &);
 
 		/// Return the table name
-		const std::string & tableName (void) const;
+         const std::string & tableName() const;
 
 		/// Return the list index of the field with the specified name.
 		inline int getIndex (const std::string & fieldName);
 
-		inline const TableDefinition & getTableDefinition (void) const;
-		inline Table * getTable (void) const;
+         inline const TableDefinition & getTableDefinition() const;
+         inline Table * getTable() const;
 
 
                 template <typename Type>
@@ -167,10 +175,10 @@ namespace database
  
 		// Record (const TableDefinition & tableDefinition, Table * table);
 		//      Record (Record & record);
-		void createFields (void);
+         void createFields();
 
-		void destroyYourself (void);
-		void addToTable (void);
+         void destroyYourself();
+         void addToTable();
 
 		
 		bool saveToStream (ostream & ofile, bool rowBased);
@@ -233,10 +241,13 @@ namespace database
 		/// Sort the records with the specified ordering function.
 		void sort (OrderingFunc func);
 		void stable_sort (OrderingFunc func);
+      /// Sort the records according to the given fields list
+      void stable_sort (const std::vector<std::string> & fldList);
+
 		/// Remove duplicate records based on the specified equality function after merging them based on the specified merge function
 		void unique (EqualityFunc equalityFunc, MergeFunc mergeFunc = 0);
 		/// Return the name of the Table.
-		inline const std::string & name (void);
+      inline const std::string & name();
 
 		inline Record * getRecord (Table::iterator & iter);
 
@@ -244,7 +255,7 @@ namespace database
 		inline const TableDefinition & getTableDefinition () const;
 
 		/// Return the number of Records in the Table.
-		inline size_t size (void);
+      inline size_t size();
 
 		/// Return the Record at the specified index
 		inline Record *getRecord (int i);
@@ -273,9 +284,9 @@ namespace database
 		bool loadFromStream (istream & ifile);
 
 		/// Return an iterator pointing to the beginning of the Table.
-		inline Table::iterator begin (void);
+      inline Table::iterator begin();
 		/// Return an iterator pointing to the end of the Table.
-		inline Table::iterator end (void);
+      inline Table::iterator end();
 
 	 private:
 		friend class Database;
@@ -285,7 +296,7 @@ namespace database
 		RecordList m_records;
 
 		Table (const TableDefinition & tableDefinition);
-		~Table (void);
+      ~Table();
 
 		/// Get the partitioning for the field name
 		/// Remove the partitionings
@@ -318,12 +329,15 @@ namespace database
 		static Database *CreateFromFile (const std::string & filename, const DataSchema & dataSchema);
 
 		/// Destroy this Database.
-		~Database (void);
+      ~Database();
+
+      /// Return the number of Tables in the Database.
+      inline size_t size();
 
 		/// Add text to the database header
 		void addHeader (const std::string & text);
 		/// Clear the database header
-		void clearHeader (void);
+      void clearHeader();
 
 		/// Get the Table with the specified name.
 		Table *getTable (const std::string & name);
@@ -337,7 +351,7 @@ namespace database
 		bool saveToFile (const std::string & filename);
 
 		/// Save the contents of this database back to the file from which it was read.
-		bool resave (void);
+      bool resave();
 
 		/// Fill the tables of this database from the specified file.
 		bool loadFromFile (const std::string & filename);
@@ -347,18 +361,18 @@ namespace database
                 { return m_fileName; }
 
 		/// Return an iterator pointing to the beginning of the Database.
-		inline Database::iterator begin (void);
+      inline Database::iterator begin();
 		/// Return an iterator pointing to the end of the Database.
-		inline Database::iterator end (void);
+      inline Database::iterator end();
 
 		inline static void SetFieldWidth (int fieldWidth);
-		inline static int GetFieldWidth (void);
+      inline static int GetFieldWidth();
 
 		inline static void SetPrecision (int precision);
-		inline static int GetPrecision (void);
+      inline static int GetPrecision();
 
 		inline static void SetMaxFieldsPerLine (int fields);
-		inline static int GetMaxFieldsPerLine (void);
+      inline static int GetMaxFieldsPerLine();
 
 		bool saveToStream (ostream & ofile);
 
@@ -388,12 +402,17 @@ namespace database
 	///////////////////////////////////////////////////////////////////////
 	// IMPLEMENTATIONS ////////////////////////////////////////////////////
 	///////////////////////////////////////////////////////////////////////
-	Database::iterator Database::begin (void)
+   size_t Database::size()
+   {
+      return m_tables.size();
+   }
+
+   Database::iterator Database::begin()
 	{
 		return m_tables.begin ();
 	}
 
-	Database::iterator Database::end (void)
+   Database::iterator Database::end()
 	{
 		return m_tables.end ();
 	}
@@ -403,7 +422,7 @@ namespace database
 		s_precision = precision;
 	}
 
-	int Database::GetPrecision (void)
+   int Database::GetPrecision()
 	{
 		return s_precision;
 	}
@@ -413,7 +432,7 @@ namespace database
 		s_maxFieldsPerLine = fields;
 	}
 
-	int Database::GetMaxFieldsPerLine (void)
+   int Database::GetMaxFieldsPerLine()
 	{
 		return s_maxFieldsPerLine;
 	}
@@ -423,7 +442,7 @@ namespace database
 		s_fieldWidth = fieldWidth;
 	}
 
-	int Database::GetFieldWidth (void)
+   int Database::GetFieldWidth()
 	{
 		return s_fieldWidth;
 	}
@@ -433,12 +452,12 @@ namespace database
 		return (iter == m_records.end () ? 0 : * iter);
 	}
 
-	size_t Table::size (void)
+   size_t Table::size()
 	{
 		return m_records.size ();
 	}
 
-	const std::string & Table::name (void)
+   const std::string & Table::name()
 	{
 		return m_tableDefinition.name ();
 	}
@@ -466,12 +485,12 @@ namespace database
 		return m_tableDefinition.getIndex (fieldName);
 	}
 
-	Table::iterator Table::begin (void)
+   Table::iterator Table::begin()
 	{
 		return m_records.begin ();
 	}
 
-	Table::iterator Table::end (void)
+   Table::iterator Table::end()
 	{
 		return m_records.end ();
 	}
@@ -481,17 +500,14 @@ namespace database
 		return m_tableDefinition.getIndex (fieldName);
 	}
 
-	const TableDefinition & Record::getTableDefinition (void) const
+   const TableDefinition & Record::getTableDefinition() const
 	{
 		return m_tableDefinition;
 	}
 
-	Table * Record::getTable (void) const
+   Table * Record::getTable() const
 	{
 		return m_table;
 	}
-
-
-
 }
 #endif

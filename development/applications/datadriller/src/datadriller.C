@@ -14,6 +14,12 @@
 #include "Interface/Property.h"
 #include "Interface/PropertyValue.h"
 #include "Interface/ProjectHandle.h"
+#include "Interface/SimulationDetails.h"
+
+// Derived property manager
+#include "DerivedPropertyManager.h"
+#include "FormationMapProperty.h"
+#include "ReservoirProperty.h"
 
 // EosPack
 #include "EosPack.h"
@@ -32,6 +38,7 @@ using namespace CBMGenerics;
 #include "DomainProperty.h"
 #include "DomainPropertyFactory.h"
 #include "DomainPropertyCollection.h"
+
 
 #include "errorhandling.h"
 
@@ -56,28 +63,34 @@ const double StockTankTemperature = 15.0;
 bool debug   = false;
 bool verbose = false;
 
-static double GetTrapPropertyValue( Mining::ProjectHandle      * projectHandle
-                                  , const Interface::Property  * property
-                                  , const Interface::Snapshot  * snapshot
-                                  , const Interface::Reservoir * reservoir
-                                  , double x
-                                  , double y
-                                  );
+static double GetTrapPropertyValue( Mining::ProjectHandle      * projectHandle,
+                                    DerivedProperties::DerivedPropertyManager& propertyManager,
+                                    const Interface::Property  * property,
+                                    const Interface::Snapshot  * snapshot,
+                                    const Interface::Reservoir * reservoir,
+                                    double x,
+                                    double y );
 
-static double ComputeTrapPropertyValue( Mining::ProjectHandle      * projectHandle
-                                      , const Interface::Trap      * trap
-                                      , const Interface::Property  * property
-                                      , const Interface::Snapshot  * snapshot
-                                      , const Interface::Reservoir * reservoir
-                                      , unsigned int i
-                                      , unsigned int j
-                                      );
+static double ComputeTrapPropertyValue( Mining::ProjectHandle      * projectHandle,
+                                        DerivedProperties::DerivedPropertyManager& propertyManager,
+                                        const Interface::Trap      * trap,
+                                        const Interface::Property  * property,
+                                        const Interface::Snapshot  * snapshot,
+                                        const Interface::Reservoir * reservoir,
+                                        unsigned int i,
+                                        unsigned int j );
 
 static const Interface::GridMap * GetPropertyGridMap( Mining::ProjectHandle      * projectHandle
                                                     , const Interface::Property  * property
                                                     , const Interface::Snapshot  * snapshot
                                                     , const Interface::Reservoir * reservoir
                                                     );
+
+static DerivedProperties::ReservoirPropertyPtr GetPropertyGridMap ( Mining::ProjectHandle*                     projectHandle,
+                                                                    DerivedProperties::DerivedPropertyManager& propertyManager,
+                                                                    const Interface::Property*                 property,
+                                                                    const Interface::Snapshot*                 snapshot,
+                                                                    const Interface::Reservoir*                reservoir );
 
 static bool performPVT( double masses[ComponentManager::NumberOfOutputSpecies]
                       , double temperature
@@ -144,12 +157,39 @@ int main( int argc, char ** argv )
    if ( !parseCmdLineArgs( argc, argv, inputProjectFileName, outputProjectFileName ) ) return -1;
 
    std::auto_ptr<Mining::DomainPropertyFactory> factory( new DataAccess::Mining::DomainPropertyFactory );
-   Interface::ProjectHandle::UseFactory( factory.get() );
+   std::auto_ptr<Mining::ProjectHandle> projectHandle( dynamic_cast<Mining::ProjectHandle*>( OpenCauldronProject( inputProjectFileName, "r", factory.get() ) ) );
 
-   std::auto_ptr<Mining::ProjectHandle> projectHandle( dynamic_cast<Mining::ProjectHandle*>( OpenCauldronProject( inputProjectFileName, "r" ) ) );
+
+   bool coupledCalculation = false;
+
+   const Interface::SimulationDetails* simulationDetails = projectHandle->getDetailsOfLastSimulation ( "fastcauldron" );
+
+   if ( simulationDetails != 0 ) {
+      coupledCalculation = simulationDetails->getSimulatorMode () == "Overpressure" or
+                           simulationDetails->getSimulatorMode () == "LooselyCoupledTemperature" or
+                           simulationDetails->getSimulatorMode () == "CoupledHighResDecompaction" or
+                           simulationDetails->getSimulatorMode () == "CoupledPressureAndTemperature" or
+                           simulationDetails->getSimulatorMode () == "CoupledDarcy";
+   } else {
+      // If this table is not present the assume that the last
+      // fastcauldron mode was not pressure mode.
+      // This table may not be present because we are running c2e on an old 
+      // project, before this table was added.
+      coupledCalculation = false;
+   }
+
 
    projectHandle->startActivity( "datadriller", projectHandle->getHighResolutionOutputGrid() );
-   projectHandle->initialise();// true, false );
+   projectHandle->initialise ( coupledCalculation );
+
+   if ( not projectHandle->setFormationLithologies ( false, true )) {
+      std::cerr << " Cannot set lithologies." << std::endl;
+   }
+
+   projectHandle->initialiseLayerThicknessHistory ( coupledCalculation );
+
+   DerivedProperties::DerivedPropertyManager propertyManager ( projectHandle.get ());
+
 
    const Interface::Grid * grid   = projectHandle->getActivityOutputGrid();
    CauldronDomain        & domain = projectHandle->getCauldronDomain();
@@ -199,12 +239,12 @@ int main( int argc, char ** argv )
                const Interface::Reservoir * reservoir = projectHandle->findReservoir( reservoirName );
                if ( !reservoir ) throw RecordException( "Unknown ReservoirName value: %", reservoirName );
 
-               value = GetTrapPropertyValue( projectHandle.get(), property, snapshot, reservoir, x, y );
+               value = GetTrapPropertyValue( projectHandle.get(), propertyManager, property, snapshot, reservoir, x, y );
             }
             // Get property for X,Y,Z point or for Surface or Formation map
             else if ( z != Interface::DefaultUndefinedScalarValue || !surfaceName.empty() || !formationName.empty() )
             {
-               domain.setSnapshot( snapshot );
+               domain.setSnapshot( snapshot, propertyManager );
                domainProperties->setSnapshot( snapshot );
 
                unsigned int i, j;
@@ -239,7 +279,7 @@ int main( int argc, char ** argv )
                }
  
                // calculate property value for specified position
-               DomainProperty * domainProperty = domainProperties->getDomainProperty( property );
+               DomainProperty * domainProperty = domainProperties->getDomainProperty( property, propertyManager );
                if ( domainProperty )
                {
                   domainProperty->initialise();
@@ -264,13 +304,13 @@ int main( int argc, char ** argv )
    return 0;
 }
 
-double GetTrapPropertyValue( Mining::ProjectHandle      * projectHandle
-                           , const Interface::Property  * property
-                           , const Interface::Snapshot  * snapshot
-                           , const Interface::Reservoir * reservoir
-                           , double x
-                           , double y
-                           )
+double GetTrapPropertyValue( Mining::ProjectHandle      * projectHandle,
+                             DerivedProperties::DerivedPropertyManager& propertyManager,
+                             const Interface::Property  * property,
+                             const Interface::Snapshot  * snapshot,
+                             const Interface::Reservoir * reservoir,
+                             double x,
+                             double y )
 {
    const Interface::Grid * grid = projectHandle->getActivityOutputGrid();
    
@@ -278,14 +318,14 @@ double GetTrapPropertyValue( Mining::ProjectHandle      * projectHandle
    assert( grid == projectHandle->getHighResolutionOutputGrid() ); // expecting that this activity always dealing with high resolution grid
 
    const Interface::Property * trapIdProperty = projectHandle->findProperty( "ResRockTrapId" );
-   const Interface::GridMap  * trapIdGridMap  = GetPropertyGridMap( projectHandle, trapIdProperty, snapshot, reservoir );
-   assert( trapIdGridMap );
+   DerivedProperties::ReservoirPropertyPtr trapIdGridMap = GetPropertyGridMap( projectHandle, propertyManager, trapIdProperty, snapshot, reservoir );
+   assert (( "Unable to find ResRockTrapId map", trapIdGridMap ));
 
    unsigned int i, j;
 
    if( !grid->getGridPoint( x, y, i, j ) ) throw RecordException( "Illegal (XCoord, YCoord) pair: (%, %)", x, y );
 
-   int trapId = (int) trapIdGridMap->getValue( i, j );
+   int trapId = static_cast<int>( trapIdGridMap->get( i, j ));
 
    if ( trapId <= 0 ) throw RecordException( "No trap at (XCoord, YCoord) pair: (%, %)", x, y );
 
@@ -296,17 +336,17 @@ double GetTrapPropertyValue( Mining::ProjectHandle      * projectHandle
 
    trap->getGridPosition( i, j );
 
-   return ComputeTrapPropertyValue( projectHandle, trap, property, snapshot, reservoir, i, j );
+   return ComputeTrapPropertyValue( projectHandle, propertyManager, trap, property, snapshot, reservoir, i, j );
 }
 
-double ComputeTrapPropertyValue( Mining::ProjectHandle      * projectHandle
-                               , const Interface::Trap      * trap
-                               , const Interface::Property  * property
-                               , const Interface::Snapshot  * snapshot
-                               , const Interface::Reservoir * reservoir
-                               , unsigned int i
-                               , unsigned int j
-                               )
+double ComputeTrapPropertyValue( Mining::ProjectHandle      * projectHandle,
+                                 DerivedProperties::DerivedPropertyManager& propertyManager,
+                                 const Interface::Trap      * trap,
+                                 const Interface::Property  * property,
+                                 const Interface::Snapshot  * snapshot,
+                                 const Interface::Reservoir * reservoir,
+                                 unsigned int i,
+                                 unsigned int j )
 {
    double value = Interface::DefaultUndefinedScalarValue;
 
@@ -527,7 +567,7 @@ double ComputeTrapPropertyValue( Mining::ProjectHandle      * projectHandle
       CauldronDomain           & domain           = projectHandle->getCauldronDomain();
       DomainPropertyCollection * domainProperties = projectHandle->getDomainPropertyCollection();
 
-      domain.setSnapshot( snapshot );
+      domain.setSnapshot( snapshot, propertyManager );
       domainProperties->setSnapshot( snapshot );
 
       double x, y;
@@ -539,16 +579,21 @@ double ComputeTrapPropertyValue( Mining::ProjectHandle      * projectHandle
       {
          assert( false );
       }
-      value = domainProperties->getDomainProperty( property )->compute( element );
+      value = domainProperties->getDomainProperty( property, propertyManager )->compute( element );
    }
    else if ( propertyName == "Porosity" )
    {
       const Interface::Property * reservoirProperty = projectHandle->findProperty( "ResRockPorosity" );
       if ( property )
       {
-         const Interface::GridMap * reservoirPropertyGridMap = GetPropertyGridMap( projectHandle, reservoirProperty, snapshot, reservoir );
-         if ( reservoirPropertyGridMap ) { value = reservoirPropertyGridMap->getValue( i, j ); }
-         reservoirPropertyGridMap->release ();
+         DerivedProperties::ReservoirPropertyPtr reservoirPropertyGridMap = GetPropertyGridMap( projectHandle, propertyManager, reservoirProperty, snapshot, reservoir );
+         // const Interface::GridMap * reservoirPropertyGridMap = GetPropertyGridMap( projectHandle, reservoirProperty, snapshot, reservoir );
+
+         if ( reservoirPropertyGridMap ) {
+            value = reservoirPropertyGridMap->get ( i, j );
+         }
+
+         // reservoirPropertyGridMap->release ();
       }
    }
    else
@@ -557,6 +602,25 @@ double ComputeTrapPropertyValue( Mining::ProjectHandle      * projectHandle
    }
 
    return value;
+}
+
+static DerivedProperties::ReservoirPropertyPtr GetPropertyGridMap ( Mining::ProjectHandle*                     projectHandle,
+                                                                    DerivedProperties::DerivedPropertyManager& propertyManager,
+                                                                    const Interface::Property*                 property,
+                                                                    const Interface::Snapshot*                 snapshot,
+                                                                       const Interface::Reservoir*                reservoir ) {
+
+   DerivedProperties::ReservoirPropertyPtr result;
+
+   if ( property->getPropertyAttribute () == DataModel::FORMATION_2D_PROPERTY ) {
+      result = propertyManager.getReservoirProperty ( property, snapshot, reservoir );
+   }
+
+   if ( result == 0 ) {
+      throw RecordException( "Could not find value for property: %", property->getName() ); 
+   }
+
+   return result;
 }
 
 const Interface::GridMap * GetPropertyGridMap( Mining::ProjectHandle      * projectHandle

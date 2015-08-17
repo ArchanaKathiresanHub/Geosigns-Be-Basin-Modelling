@@ -5,7 +5,7 @@
 #include "AbstractProperty.h"
 
 #include "Interface/Interface.h"
-
+#include "Interface/SimulationDetails.h"
 
 #include "GeoPhysicsFormation.h"
 #include "GeoPhysicalConstants.h"
@@ -16,6 +16,11 @@
 
 DerivedProperties::ThermalConductivityFormationCalculator::ThermalConductivityFormationCalculator ( const GeoPhysics::ProjectHandle* projectHandle ) : m_projectHandle ( projectHandle ) {
    addPropertyName ( "ThCondVec2" );
+
+   addDependentPropertyName ( "Temperature" );
+   addDependentPropertyName ( "Pressure" );
+   addDependentPropertyName ( "LithoStaticPressure" );
+   addDependentPropertyName ( "Porosity" );
 }
 
 void DerivedProperties::ThermalConductivityFormationCalculator::calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
@@ -40,6 +45,11 @@ void DerivedProperties::ThermalConductivityFormationCalculator::calculate ( Deri
 
    bool basementFormationAndAlcMode = ( geoFormation != 0 and geoFormation->kind() == DataAccess::Interface::BASEMENT_FORMATION ) and m_projectHandle->isALC ();
 
+   bool hydrostaticMode = ( m_projectHandle->getDetailsOfLastSimulation ( "fastcauldron" ) != 0 and
+                            ( m_projectHandle->getDetailsOfLastSimulation ( "fastcauldron" )->getSimulatorMode () == "HydrostaticDecompaction" or
+                              m_projectHandle->getDetailsOfLastSimulation ( "fastcauldron" )->getSimulatorMode () == "HydrostaticTemperature" or
+                              m_projectHandle->getDetailsOfLastSimulation ( "fastcauldron" )->getSimulatorMode () == "HydrostaticHighResDecompaction" ));
+
    if ( basementFormationAndAlcMode ) {
       lithostaticPressure = propertyManager.getFormationProperty ( lithostaticPressureProperty, snapshot, formation );
    } else {
@@ -60,6 +70,12 @@ void DerivedProperties::ThermalConductivityFormationCalculator::calculate ( Deri
       const GeoPhysics::CompoundLithologyArray& lithologies = geoFormation->getCompoundLithologyArray ();
       const GeoPhysics::FluidType* fluid = dynamic_cast<const GeoPhysics::FluidType*>(geoFormation->getFluidType ());
 
+      double currentTime = snapshot->getTime();
+      
+      if( hydrostaticMode ) {
+         (( GeoPhysics::FluidType *) fluid )->setDensityToConstant ();
+      }
+
       // We could use any of the formation-properties here to get the undefined value.
       double undefinedValue = thermalConductivity->getUndefinedValue ();
       double thermalConductivityNormal;
@@ -70,7 +86,7 @@ void DerivedProperties::ThermalConductivityFormationCalculator::calculate ( Deri
          for ( unsigned int j = thermalConductivity->firstJ ( true ); j <= thermalConductivity->lastJ ( true ); ++j ) {
                
             if ( m_projectHandle->getNodeIsValid ( i, j )) {
-               const GeoPhysics::CompoundLithology* lithology = lithologies ( i, j );
+               const GeoPhysics::CompoundLithology* lithology = lithologies ( i, j, currentTime );
 
                for ( unsigned int k = thermalConductivity->firstK (); k <= thermalConductivity->lastK (); ++k ) {
 

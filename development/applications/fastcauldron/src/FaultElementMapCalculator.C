@@ -21,7 +21,8 @@ bool FaultElementMapCalculator::operator ()( const OutputPropertyMap::OutputProp
       return true;
    }
 
-   if ( not m_formation->getContainsFaults ()) {
+   if ( not m_formation->getContainsFaults () || 
+        FastcauldronSimulator::getInstance ().getCauldron()->no2Doutput()) {
       propertyValues [ 0 ]->allowOutput ( false );
       m_isCalculated = true;
       return true;

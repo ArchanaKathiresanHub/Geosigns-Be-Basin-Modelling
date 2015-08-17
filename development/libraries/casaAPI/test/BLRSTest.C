@@ -8,6 +8,7 @@
 #include "../src/PrmSourceRockType.h"
 #include "../src/PrmSourceRockPreAsphaltStartAct.h"
 #include "../src/PrmTopCrustHeatProduction.h"
+#include "../src/PrmCrustThinning.h"
 #include "../src/PrmOneCrustThinningEvent.h"
 #include "../src/PrmPorosityModel.h"
 #include "../src/PrmPermeabilityModel.h"
@@ -19,6 +20,7 @@
 #include "../src/VarPrmSourceRockType.h"
 #include "../src/VarPrmSourceRockPreAsphaltStartAct.h"
 #include "../src/VarPrmTopCrustHeatProduction.h"
+#include "../src/VarPrmCrustThinning.h"
 #include "../src/VarPrmOneCrustThinningEvent.h"
 #include "../src/VarPrmPorosityModel.h"
 #include "../src/VarPrmPermeabilityModel.h"
@@ -60,7 +62,7 @@ TEST_F( BLRSTest, VaryTopCrustHeatProductionTest )
    ASSERT_EQ( ErrorHandler::NoError, sc.defineBaseCase( m_testProject ) );
 
    // add the new variable parameter TopCrustHeatProduction to the scenario analysis by using one of the BLRS API function
-   ASSERT_EQ( ErrorHandler::NoError, VaryTopCrustHeatProduction( sc,  0.2, 4.0, VarPrmContinuous::Block ) );
+   ASSERT_EQ( ErrorHandler::NoError, VaryTopCrustHeatProduction( sc, 0, 0.2, 4.0, VarPrmContinuous::Block ) );
 
    // get varspace 
    casa::VarSpaceImpl & varPrms = dynamic_cast<casa::VarSpaceImpl&>( sc.varSpace() );
@@ -92,7 +94,7 @@ TEST_F( BLRSTest, VarySourceRockTOCTest )
    ASSERT_EQ( ErrorHandler::NoError, sc.defineBaseCase( m_testProject ) );
 
    // set the parameter
-   ASSERT_EQ( ErrorHandler::NoError, VarySourceRockTOC( sc, "Lower Jurassic", 10.0, 30.0, VarPrmContinuous::Block ) );
+   ASSERT_EQ( ErrorHandler::NoError, VarySourceRockTOC( sc, 0, "Lower Jurassic", 10.0, 30.0, VarPrmContinuous::Block ) );
 
    // get varspace 
    casa::VarSpaceImpl & varPrms = dynamic_cast<casa::VarSpaceImpl&>( sc.varSpace( ) );
@@ -123,9 +125,9 @@ TEST_F( BLRSTest, VarySourceRockHITest )
    ASSERT_EQ( ErrorHandler::NoError, sc.defineBaseCase( m_testProject ) );
 
    // set the parameter
-   ASSERT_EQ( ErrorHandler::NoError, VarySourceRockHI( sc, "Lower Jurassic", 371.0, 571.0, VarPrmContinuous::Block ) );
+   ASSERT_EQ( ErrorHandler::NoError, VarySourceRockHI( sc, 0, "Lower Jurassic", 371.0, 571.0, VarPrmContinuous::Block ) );
    // expect failure so HI and H/C can't be variated both in the same time
-   ASSERT_EQ( ErrorHandler::AlreadyDefined, VarySourceRockHC( sc, "Lower Jurassic", 0.5,   1.5,   VarPrmContinuous::Block ) );
+   ASSERT_EQ( ErrorHandler::AlreadyDefined, VarySourceRockHC( sc, 0, "Lower Jurassic", 0.5,   1.5,   VarPrmContinuous::Block ) );
 
    // get varspace 
    casa::VarSpaceImpl & varPrms = dynamic_cast<casa::VarSpaceImpl&>( sc.varSpace( ) );
@@ -156,9 +158,9 @@ TEST_F( BLRSTest, VarySourceRockHCTest )
    ASSERT_EQ( ErrorHandler::NoError, sc.defineBaseCase( m_testProject ) );
 
    // set the parameter
-   ASSERT_EQ( ErrorHandler::NoError, VarySourceRockHC( sc, "Lower Jurassic", 0.5, 1.75,   VarPrmContinuous::Block ) );
+   ASSERT_EQ( ErrorHandler::NoError, VarySourceRockHC( sc, 0, "Lower Jurassic", 0.5, 1.75,   VarPrmContinuous::Block ) );
    // expect failure so HI and H/C can't be variated both in the same time
-   ASSERT_EQ( ErrorHandler::AlreadyDefined, VarySourceRockHI( sc, "Lower Jurassic", 371.0, 571.0, VarPrmContinuous::Block ) );
+   ASSERT_EQ( ErrorHandler::AlreadyDefined, VarySourceRockHI( sc, 0, "Lower Jurassic", 371.0, 571.0, VarPrmContinuous::Block ) );
 
    // get varspace 
    casa::VarSpaceImpl & varPrms = dynamic_cast<casa::VarSpaceImpl&>(sc.varSpace());
@@ -189,7 +191,7 @@ TEST_F( BLRSTest, VarySourceRockPreasphaltActEnergyTest )
    ASSERT_EQ( ErrorHandler::NoError, sc.defineBaseCase( m_testProject ) );
 
    // set the parameter
-   ASSERT_EQ( ErrorHandler::NoError, VarySourceRockPreAsphaltActEnergy( sc, "Lower Jurassic", 208, 212, VarPrmContinuous::Block ) );
+   ASSERT_EQ( ErrorHandler::NoError, VarySourceRockPreAsphaltActEnergy( sc, 0, "Lower Jurassic", 208, 212, VarPrmContinuous::Block ) );
 
    // get varspace 
    casa::VarSpaceImpl & varPrms = dynamic_cast<casa::VarSpaceImpl&>(sc.varSpace());
@@ -233,14 +235,14 @@ TEST_F( BLRSTest, VarySourceRockTypeTest )
       // set one of the Source Rock parameter
       switch( i )
       {
-         case 0: ASSERT_EQ( ErrorHandler::NoError, VarySourceRockTOC(                 sc, "Lower Jurassic", 10.0,  30.0,  VarPrmContinuous::Block ) ); break;
-         case 1: ASSERT_EQ( ErrorHandler::NoError, VarySourceRockHI(                  sc, "Lower Jurassic", 371.0, 571.0, VarPrmContinuous::Block ) ); break;
-         case 2: ASSERT_EQ( ErrorHandler::NoError, VarySourceRockHC(                  sc, "Lower Jurassic", 0.5,   1.75,  VarPrmContinuous::Block ) ); break;
-         case 3: ASSERT_EQ( ErrorHandler::NoError, VarySourceRockPreAsphaltActEnergy( sc, "Lower Jurassic", 208.0, 212.0, VarPrmContinuous::Block ) ); break;
+         case 0: ASSERT_EQ( ErrorHandler::NoError, VarySourceRockTOC(                 sc, 0, "Lower Jurassic", 10.0,  30.0,  VarPrmContinuous::Block ) ); break;
+         case 1: ASSERT_EQ( ErrorHandler::NoError, VarySourceRockHI(                  sc, 0, "Lower Jurassic", 371.0, 571.0, VarPrmContinuous::Block ) ); break;
+         case 2: ASSERT_EQ( ErrorHandler::NoError, VarySourceRockHC(                  sc, 0, "Lower Jurassic", 0.5,   1.75,  VarPrmContinuous::Block ) ); break;
+         case 3: ASSERT_EQ( ErrorHandler::NoError, VarySourceRockPreAsphaltActEnergy( sc, 0, "Lower Jurassic", 208.0, 212.0, VarPrmContinuous::Block ) ); break;
          default: break;
       }
       // expect a failure if any of source rock variable parameters are defined before source rock type variation
-      ASSERT_EQ( ErrorHandler::AlreadyDefined, VarySourceRockType( sc, "Lower Jurassic", srList, srWeights ) );
+      ASSERT_EQ( ErrorHandler::AlreadyDefined, VarySourceRockType( sc, 0, "Lower Jurassic", srList, srWeights ) );
    }
 
    // create new scenario analysis
@@ -250,7 +252,7 @@ TEST_F( BLRSTest, VarySourceRockTypeTest )
    ASSERT_EQ( ErrorHandler::NoError, sc.defineBaseCase( m_testProjectCatPrms ) );
 
    // define new variable parameter
-   ASSERT_EQ( ErrorHandler::NoError, VarySourceRockType( sc, "Lower Jurassic", srList, srWeights ) );
+   ASSERT_EQ( ErrorHandler::NoError, VarySourceRockType( sc, 0, "Lower Jurassic", srList, srWeights ) );
 
    // get varspace 
    casa::VarSpaceImpl & varPrms = dynamic_cast<casa::VarSpaceImpl &>( sc.varSpace() );
@@ -279,7 +281,7 @@ TEST_F( BLRSTest, VaryOneCrustThinningEvent )
 
    // set the parameter
    ASSERT_EQ( ErrorHandler::NoError, 
-              casa::BusinessLogicRulesSet::VaryOneCrustThinningEvent( sc, 15000.0, 40000.0, 120.0, 230.0, 30.0, 45.0, 0.5, 0.8, VarPrmContinuous::Block ) );
+              casa::BusinessLogicRulesSet::VaryOneCrustThinningEvent( sc, 0, 15000.0, 40000.0, 120.0, 230.0, 30.0, 45.0, 0.5, 0.8, VarPrmContinuous::Block ) );
 
    // get varspace 
    casa::VarSpaceImpl & varPrms = dynamic_cast<casa::VarSpaceImpl&>( sc.varSpace( ) );
@@ -313,6 +315,70 @@ TEST_F( BLRSTest, VaryOneCrustThinningEvent )
    ASSERT_NEAR( baseV[3], 0.55,    eps );  
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+// Test how ones can add variate one crust thinning event parameters
+TEST_F( BLRSTest, VaryCrustThinningNoMaps )
+{
+   // create new scenario analysis
+   ScenarioAnalysis sc;
+
+   // load base case to scenario
+   ASSERT_EQ( ErrorHandler::NoError, sc.defineBaseCase( m_testProject ) );
+
+   std::vector<double> minT0(3), maxT0(3), minDeltaT(3), maxDeltaT(3), minThinningFct(3), maxThinningFct(3);
+   std::vector<std::string> mapsList( 3 );
+
+   minT0[0] = 240.0; minT0[1] = 190.0; minT0[2] = 140.0;
+   maxT0[0] = 260.0; maxT0[1] = 210.0; maxT0[2] = 160.0;
+
+   minDeltaT[0] = 5.0;  minDeltaT[1] =  5.0; minDeltaT[2] =  5.0;
+   maxDeltaT[0] = 10.0; maxDeltaT[1] = 10.0; maxDeltaT[2] = 10.0;
+
+   minThinningFct[0] = 0.5; minThinningFct[1] = 0.6; minThinningFct[2] = 0.7;
+   maxThinningFct[0] = 0.7; maxThinningFct[1] = 0.8; maxThinningFct[2] = 0.9; 
+
+   // set the parameter
+   ASSERT_EQ( ErrorHandler::NoError, 
+              casa::BusinessLogicRulesSet::VaryCrustThinning( sc, 0
+                                                                , 15000.0,        40000.0
+                                                                , minT0,          maxT0
+                                                                , minDeltaT,      maxDeltaT
+                                                                , minThinningFct, maxThinningFct
+                                                                , mapsList, VarPrmContinuous::Block ) );
+   // get varspace 
+   casa::VarSpaceImpl & varPrms = dynamic_cast<casa::VarSpaceImpl&>( sc.varSpace( ) );
+
+   // check how the parameter was set
+   ASSERT_EQ( varPrms.size(), 1 );
+
+   const VarPrmCrustThinning * p1c = dynamic_cast<const VarPrmCrustThinning*>( varPrms.continuousParameter( 0 ) );
+   ASSERT_TRUE( p1c != NULL ); // do we have required the parameter in the list?
+
+   const std::vector<double> & minV  = p1c->minValue()->asDoubleArray();
+   const std::vector<double> & maxV  = p1c->maxValue()->asDoubleArray();
+   const std::vector<double> & baseV = p1c->baseValue()->asDoubleArray();
+
+   ASSERT_EQ( minV.size(),  10 );
+   ASSERT_EQ( baseV.size(), 10 );
+   ASSERT_EQ( maxV.size(),  10 );
+
+   // does it range have given min/base/max values
+   ASSERT_NEAR( minV[0], 15000.0, eps ); ASSERT_NEAR( baseV[0], 27500.0, eps ); ASSERT_NEAR( maxV[0], 40000.0, eps ); 
+   
+   // event 1
+   ASSERT_NEAR( minV[1], 240.0, eps ); ASSERT_NEAR( baseV[1], 250.0, eps ); ASSERT_NEAR( maxV[1], 260.0, eps ); 
+   ASSERT_NEAR( minV[2], 5.0,   eps ); ASSERT_NEAR( baseV[2], 7.5,   eps ); ASSERT_NEAR( maxV[2], 10.0,  eps ); 
+   ASSERT_NEAR( minV[3], 0.5,   eps ); ASSERT_NEAR( baseV[3], 0.6,   eps ); ASSERT_NEAR( maxV[3], 0.7,   eps ); 
+   // event 2
+   ASSERT_NEAR( minV[4], 190.0, eps ); ASSERT_NEAR( baseV[4], 200.0, eps ); ASSERT_NEAR( maxV[4], 210.0,  eps ); 
+   ASSERT_NEAR( minV[5], 5.0,   eps ); ASSERT_NEAR( baseV[5], 7.5,   eps ); ASSERT_NEAR( maxV[5], 10.0,   eps ); 
+   ASSERT_NEAR( minV[6], 0.6,   eps ); ASSERT_NEAR( baseV[6], 0.7,   eps ); ASSERT_NEAR( maxV[6], 0.8,    eps ); 
+   // event3                                                                                   
+   ASSERT_NEAR( minV[7], 140.0, eps ); ASSERT_NEAR( baseV[7], 150.0, eps ); ASSERT_NEAR( maxV[7], 160.0,  eps );
+   ASSERT_NEAR( minV[8], 5.0,   eps ); ASSERT_NEAR( baseV[8], 7.5,   eps ); ASSERT_NEAR( maxV[8], 10.0,   eps );
+   ASSERT_NEAR( minV[9], 0.7,   eps ); ASSERT_NEAR( baseV[9], 0.8,   eps ); ASSERT_NEAR( maxV[9], 0.9,    eps );
+}
+
 
 /////////////////////////////////////////////////////////////////////////////////////////
 // Exponential model test
@@ -322,7 +388,7 @@ TEST_F( BLRSTest, VaryPorosityExponentialModelParameters )
    ASSERT_EQ( ErrorHandler::NoError, sc.defineBaseCase( m_testProject ) );
 
    // the first one - try to give wrong porosity model name
-   ASSERT_EQ( ErrorHandler::OutOfRangeValue, casa::BusinessLogicRulesSet::VaryPorosityModelParameters( sc, "Std. Sandstone"
+   ASSERT_EQ( ErrorHandler::OutOfRangeValue, casa::BusinessLogicRulesSet::VaryPorosityModelParameters( sc, 0, "Permian", "Std. Sandstone"
                , "Eponential"
                , 30.0, 60.0, 2.0, 4.0, UndefinedDoubleValue, UndefinedDoubleValue, UndefinedDoubleValue, UndefinedDoubleValue, VarPrmContinuous::Block 
                ) );
@@ -330,6 +396,8 @@ TEST_F( BLRSTest, VaryPorosityExponentialModelParameters )
    // set the parameter
    ASSERT_EQ( ErrorHandler::NoError, casa::BusinessLogicRulesSet::VaryPorosityModelParameters( 
               sc
+            , 0
+            , "Permian"
             , "Std. Sandstone"
             , "Exponential"
             , 30.0, 60.0
@@ -367,6 +435,22 @@ TEST_F( BLRSTest, VaryPorosityExponentialModelParameters )
    // does it have base values from project?
    ASSERT_NEAR( baseV[0], 48.0, eps );  
    ASSERT_NEAR( baseV[1], 3.22, eps );  
+
+   // do we have copy of lithology for the given layer?
+   mbapi::Model & mdl = sc.baseCase();
+   mbapi::StratigraphyManager & strMgr = mdl.stratigraphyManager();
+
+   mbapi::StratigraphyManager::LayerID lid = strMgr.layerID( "Permian" );
+   ASSERT_NE( UndefinedIDValue, lid );
+
+   std::vector<std::string> lithoList;
+   std::vector<double>      lithoPercent;
+
+   ASSERT_EQ( ErrorHandler::NoError, strMgr.layerLithologiesList( lid, lithoList, lithoPercent ) );
+   ASSERT_EQ( lithoList[0], std::string( "Std. Sandstone_Permian_PorMdl_CASA_copy" ) );
+
+   mbapi::LithologyManager & lthMgr = mdl.lithologyManager();
+   ASSERT_NE( UndefinedIDValue, lthMgr.findID( "Std. Sandstone_Permian_PorMdl_CASA_copy" ) );
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -377,7 +461,7 @@ TEST_F( BLRSTest, VaryPorositySoilMechanicsModelParameters )
    ASSERT_EQ( ErrorHandler::NoError, sc.defineBaseCase( m_testProject ) );
 
    // the first one - try to define both parameters in inconsistent way
-   ASSERT_EQ( ErrorHandler::OutOfRangeValue, casa::BusinessLogicRulesSet::VaryPorosityModelParameters( sc, "Std. Sandstone"
+   ASSERT_EQ( ErrorHandler::OutOfRangeValue, casa::BusinessLogicRulesSet::VaryPorosityModelParameters( sc, 0, NULL, "Std. Sandstone"
                , "Soil_Mechanics"
                , 30.0, 60.0, 2.0, 4.0, UndefinedDoubleValue, UndefinedDoubleValue, UndefinedDoubleValue, UndefinedDoubleValue, VarPrmContinuous::Block 
                ) );
@@ -385,6 +469,8 @@ TEST_F( BLRSTest, VaryPorositySoilMechanicsModelParameters )
    // set the parameter
    ASSERT_EQ( ErrorHandler::NoError, casa::BusinessLogicRulesSet::VaryPorosityModelParameters( 
               sc
+            , 0
+            , NULL
             , "Std. Sandstone"
             , "Soil_Mechanics"
             , 30.0, 60.0
@@ -432,6 +518,8 @@ TEST_F( BLRSTest, VaryPorosityDoubleExponentialModelParameters )
    // set the parameter
    ASSERT_EQ( ErrorHandler::NoError, casa::BusinessLogicRulesSet::VaryPorosityModelParameters( 
               sc
+            , 0
+            , "Permian"
             , "Std. Sandstone"
             , "Double_Exponential"
             , 30.0, 60.0  // surface porosity
@@ -490,7 +578,7 @@ TEST_F( BLRSTest, VaryLithoSTPThermalCondCoeff )
 
    // set the parameter
    ASSERT_EQ( ErrorHandler::NoError, 
-              casa::BusinessLogicRulesSet::VaryLithoSTPThermalCondCoeffParameter( sc, "Std. Shale", 1, 2, VarPrmContinuous::Block ) );
+              casa::BusinessLogicRulesSet::VaryLithoSTPThermalCondCoeffParameter( sc, 0, NULL, "Std. Shale", 1, 2, VarPrmContinuous::Block ) );
 
    // get varspace 
    casa::VarSpaceImpl & varPrms = dynamic_cast<casa::VarSpaceImpl&>( sc.varSpace( ) );
@@ -528,6 +616,7 @@ TEST_F( BLRSTest, VaryPermeabilityNoneModelParameters )
 
    // Try to set variation of None model - it has no any parameters and can't be varied
    ASSERT_EQ( ErrorHandler::OutOfRangeValue, casa::BusinessLogicRulesSet::VaryPermeabilityModelParameters( sc
+                                                                                                         , 0
                                                                                                          , "Upper Jurassic"
                                                                                                          , "Std. Shale"
                                                                                                          , "None"
@@ -537,6 +626,7 @@ TEST_F( BLRSTest, VaryPermeabilityNoneModelParameters )
                                                                                                          ) );
    // Try to set variation of None model - it has no any parameters and can't be varied
    ASSERT_EQ( ErrorHandler::OutOfRangeValue, casa::BusinessLogicRulesSet::VaryPermeabilityModelParameters( sc
+                                                                                                         , 0
                                                                                                          , "Upper Jurassic"
                                                                                                          , "Std. Shale"
                                                                                                          , "Impermeable"
@@ -569,6 +659,7 @@ TEST_F( BLRSTest, VaryPermeabilitySandstoneModelParameters )
    
    // Try to set variation of Sandstone model with different number of input parameters
    ASSERT_EQ( ErrorHandler::UndefinedValue, casa::BusinessLogicRulesSet::VaryPermeabilityModelParameters( sc
+                                                                                                         , 0
                                                                                                          , "Upper Jurassic"
                                                                                                          , "Std. Sandstone"
                                                                                                          , "Sandstone"
@@ -580,6 +671,7 @@ TEST_F( BLRSTest, VaryPermeabilitySandstoneModelParameters )
 
    // try to give wrong porosity model name
    ASSERT_EQ( ErrorHandler::OutOfRangeValue, casa::BusinessLogicRulesSet::VaryPermeabilityModelParameters( sc
+                                                                                                         , 0
                                                                                                          , "Upper Jurassic"
                                                                                                          , "Std. Sandstone"
                                                                                                          , "Std. Sandstone"
@@ -589,6 +681,7 @@ TEST_F( BLRSTest, VaryPermeabilitySandstoneModelParameters )
                                                                                                          ) );
    // try to give wrong layer name
    ASSERT_EQ( ErrorHandler::NonexistingID, casa::BusinessLogicRulesSet::VaryPermeabilityModelParameters( sc
+                                                                                                         , 0
                                                                                                          , "Wrong layer name"
                                                                                                          , "Std. Sandstone"
                                                                                                          , "Sands"
@@ -598,6 +691,7 @@ TEST_F( BLRSTest, VaryPermeabilitySandstoneModelParameters )
                                                                                                          ) );
    // try to give wrong lithology name
    ASSERT_EQ( ErrorHandler::NonexistingID, casa::BusinessLogicRulesSet::VaryPermeabilityModelParameters( sc
+                                                                                                         , 0
                                                                                                          , "LowerUpper Jurassic"
                                                                                                          , "Wrong lithology name"
                                                                                                          , "Sands"
@@ -616,6 +710,7 @@ TEST_F( BLRSTest, VaryPermeabilitySandstoneModelParameters )
    maxMdlPrms[ PrmPermeabilityModel::RecoverCoeff ] = UndefinedDoubleValue; 
 
    ASSERT_EQ( ErrorHandler::UndefinedValue, casa::BusinessLogicRulesSet::VaryPermeabilityModelParameters( sc
+                                                                                                        , 0
                                                                                                         , "Upper Jurassic"
                                                                                                         , "Std. Sandstone"
                                                                                                         , "Shales"
@@ -631,6 +726,7 @@ TEST_F( BLRSTest, VaryPermeabilitySandstoneModelParameters )
 
    // set the parameters variation
    ASSERT_EQ( ErrorHandler::NoError, casa::BusinessLogicRulesSet::VaryPermeabilityModelParameters( sc
+                                                                                                 , 0
                                                                                                  , "Upper Jurassic"
                                                                                                  , "Std. Sandstone"
                                                                                                  , "Sands"
@@ -700,6 +796,7 @@ TEST_F( BLRSTest, VaryPermeabilityMudstoneModelParameters )
 
    // set the parameters variation
    ASSERT_EQ( ErrorHandler::NoError, casa::BusinessLogicRulesSet::VaryPermeabilityModelParameters( sc
+                                                                                                 , 0
                                                                                                  , "Mid Cretaceous"
                                                                                                  , "Std. Chalk"
                                                                                                  , "Shales"
@@ -771,6 +868,7 @@ TEST_F( BLRSTest, VaryPermeabilityMultipointModelParameters )
    
    // set the parameters variation, expecting an error here because Permian layer has Std. Sandstone lithology
    ASSERT_EQ( ErrorHandler::NonexistingID, casa::BusinessLogicRulesSet::VaryPermeabilityModelParameters( sc
+                                                                                                 , 0
                                                                                                  , "Permian"
                                                                                                  , "SM. Sandstone"
                                                                                                  , "Multipoint"
@@ -779,6 +877,7 @@ TEST_F( BLRSTest, VaryPermeabilityMultipointModelParameters )
                                                                                                  , VarPrmContinuous::Block ) );
    // no it should be smooth
    ASSERT_EQ( ErrorHandler::NoError, casa::BusinessLogicRulesSet::VaryPermeabilityModelParameters( sc
+                                                                                                       , 0
                                                                                                        , "Permian"
                                                                                                        , "Std. Sandstone"
                                                                                                        , "Multipoint"
@@ -855,6 +954,7 @@ TEST_F( BLRSTest, VaryPermeabilityMultipointModelParameters )
 
    // set the parameters variation
    ASSERT_EQ( ErrorHandler::NoError, casa::BusinessLogicRulesSet::VaryPermeabilityModelParameters( sc
+                                                                                                 , 0
                                                                                                  , "Triassic"
                                                                                                  , "Std. Shale"
                                                                                                  , "Multipoint"

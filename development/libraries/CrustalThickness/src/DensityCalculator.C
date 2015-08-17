@@ -10,6 +10,8 @@
 #include "Interface/ProjectHandle.h"
 #include "Interface/ObjectFactory.h"
 
+#include "LithostaticPressureFormationCalculator.h"
+
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -22,32 +24,29 @@ DensityCalculator::DensityCalculator() {
 
    m_depthBasementMap = 0; 
    m_depthWaterBottomMap = 0; 
-   m_pressureBasementMap = 0; 
-   m_pressureWaterBottomMap = 0;
 
    m_sedimentDensity = 0.0;
    m_waterBottomDepthValue = 0.0;
+
    m_sedimentThickness = 0.0;
    m_topBasementDepthValue = 0.0;
 } 
 
 //------------------------------------------------------------//
-void DensityCalculator::loadData( Interface::ProjectHandle* projectHandle, const string & baseSurfaceName ) {
+void DensityCalculator::loadData( GeoPhysics::ProjectHandle* projectHandle, const string & baseSurfaceName ) {
 
    bool debug = false;
 
+   PropertyManager derivedManager (projectHandle);
+
    const Interface::Snapshot * zeroSnapshot = projectHandle->findSnapshot (0);
-   
-   const Interface::Property * depthProperty =  projectHandle->findProperty("Depth");
-   if (!depthProperty) {
-      string s = "Could not find property named Depth.";
-      throw s;
-   }
-   const Interface::Property * pressureProperty = projectHandle->findProperty("LithoStaticPressure");
+   const DataModel::AbstractProperty* pressureProperty = derivedManager.getProperty ( "LithoStaticPressure" );
+  
    if (!pressureProperty) {
       string s = "Could not find property named LithoStaticPressure.";
       throw s;
    }
+
    // Find the depth of the bottom of sediment
    const Interface::Surface * bottomOfSedimentSurface;
 
@@ -80,48 +79,28 @@ void DensityCalculator::loadData( Interface::ProjectHandle* projectHandle, const
     }
 
    // Find the pressure property of the bottom of sediment
-   const Interface::Formation * bottomFormation = bottomOfSedimentSurface->getTopFormation ();
-
-   Interface::PropertyValueList * propertyValues = projectHandle->getPropertyValues (SURFACE | FORMATION | FORMATIONSURFACE,
-                                                                                     pressureProperty, zeroSnapshot, 0, bottomFormation, 0, VOLUME);
-   if (propertyValues->size() != 1) {
-      stringstream ss;
-      ss << "Could not find property LithoStaticPressure for formation " << bottomFormation->getName() <<  " at age " << zeroSnapshot->getTime() << "." << endl;
-
-      throw ss.str();
-   }
-   const Interface::PropertyValue * pressureBasement = (* propertyValues)[0];
-   
+   m_pressureBasement = derivedManager.getSurfaceProperty ( pressureProperty, zeroSnapshot, bottomOfSedimentSurface );
+    
    // Find the depth of the top of sediment
    Interface::FormationList * myFormations = projectHandle->getFormations (zeroSnapshot, true);
    const Interface::Formation * formationWB = (*myFormations)[0]; // find Water bottom
- 
-  if (!formationWB) {
+   
+   if (!formationWB) {
       string s = "Could not find topformation.";
       throw s;
    } 
-
+   
    const Interface::Surface * topOfSedimentSurface = formationWB->getTopSurface();
-
+   
    if(debug && projectHandle->getRank() == 0) {
       cout << "Top formation: " << formationWB->getName() << "; surface below " << topOfSedimentSurface->getName() << "." << endl;
    }
    
    // Find the pressure property of the top of sediment
-   propertyValues = projectHandle->getPropertyValues (SURFACE | FORMATION | FORMATIONSURFACE, pressureProperty, zeroSnapshot, 0, formationWB, 0, VOLUME);
-
-   if (propertyValues->size() != 1) {
-      stringstream ss;
-      ss << "Could not find property LithoStaticPressure for formation." << formationWB->getName() << " at age " << zeroSnapshot->getTime() << "."<< endl;
-
-      throw ss.str();
-   }
-   const Interface::PropertyValue * pressureWaterBottom = (* propertyValues)[0];
-
+   m_pressureWaterBottom = derivedManager.getSurfaceProperty ( pressureProperty, zeroSnapshot, topOfSedimentSurface );
+ 
    m_depthBasementMap    = const_cast<Interface::GridMap *>(bottomOfSedimentSurface->getInputDepthMap());
    m_depthWaterBottomMap = const_cast<Interface::GridMap *>(topOfSedimentSurface->getInputDepthMap());
-   m_pressureBasementMap    = pressureBasement->getGridMap();
-   m_pressureWaterBottomMap = pressureWaterBottom->getGridMap();
 
 }
 #if 0
@@ -143,8 +122,8 @@ void DensityCalculator::retrieveData() {
 
    m_depthBasementMap->retrieveData ();
    m_depthWaterBottomMap->retrieveData ();
-   m_pressureBasementMap->retrieveData ();
-   m_pressureWaterBottomMap->retrieveData ();
+   m_pressureBasement->retrieveData ();
+   m_pressureWaterBottom->retrieveData ();
 }
 
 //------------------------------------------------------------//
@@ -152,8 +131,8 @@ void DensityCalculator::restoreData() {
 
    m_depthBasementMap->restoreData ();
    m_depthWaterBottomMap->restoreData ();
-   m_pressureBasementMap->restoreData ();
-   m_pressureWaterBottomMap->restoreData ();
+   m_pressureBasement->restoreData ();
+   m_pressureWaterBottom->restoreData ();
 }
 //------------------------------------------------------------//
 void DensityCalculator::computeNode( unsigned int i, unsigned int j ) {
@@ -170,15 +149,13 @@ void DensityCalculator::computeNode( unsigned int i, unsigned int j ) {
       m_sedimentThickness = Interface::DefaultUndefinedMapValue; // or 0.0?  
    }
    
-   unsigned int maxK = m_pressureWaterBottomMap->getDepth() - 1 ;
-
-   double pressureTopBasementValue = m_pressureBasementMap->getValue (i, j);
-   double pressureWaterBottomValue = m_pressureWaterBottomMap->getValue (i, j, maxK);
+   double pressureTopBasementValue = m_pressureBasement->get (i, j);
+   double pressureWaterBottomValue = m_pressureWaterBottom->get (i, j);
 
    m_sedimentDensity = Interface::DefaultUndefinedMapValue;
 
-   if((pressureTopBasementValue != m_pressureBasementMap->getUndefinedValue()) &&
-      (pressureWaterBottomValue != m_pressureWaterBottomMap->getUndefinedValue()) &&
+   if((pressureTopBasementValue != m_pressureBasement->getUndefinedValue()) &&
+      (pressureWaterBottomValue != m_pressureWaterBottom->getUndefinedValue()) &&
       (m_sedimentThickness != Interface::DefaultUndefinedMapValue)) {
    
       // Integrated sediment density calculated across grid using pressure at WaterBottom and TopBasement surfaces
@@ -199,6 +176,7 @@ double DensityCalculator::getTopBasementDepthValue() const {
 double DensityCalculator::getSedimentDensity() const {
    return m_sedimentDensity;
 }
+
 //------------------------------------------------------------//
 double DensityCalculator::getWLS( const double backstrippingMantleDensity, const double densityDiff ) const {
 
@@ -227,3 +205,9 @@ double DensityCalculator::getWLS( const double backstrippingMantleDensity, const
    // } 
    // return WLS;
 }
+//------------------------------------------------------------//
+PropertyManager::PropertyManager ( GeoPhysics::ProjectHandle* projectHandle ) :
+   DerivedProperties::DerivedPropertyManager ( projectHandle ) {
+      
+
+}  

@@ -39,7 +39,13 @@ namespace DerivedProperties {
       /// \brief Restore the grid map.
       virtual void restoreData () const;
 
-   private :
+       /// \brief Return true if the property is primary.
+      virtual bool isPrimary () const;
+
+      /// \ brief Get the gridMap
+      virtual const DataAccess::Interface::GridMap* getGridMap() const;
+
+  private :
 
       const FormationPropertyPtr m_formationProperty;
       unsigned int               m_offset;

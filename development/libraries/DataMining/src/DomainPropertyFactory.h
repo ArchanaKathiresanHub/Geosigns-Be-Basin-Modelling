@@ -10,6 +10,8 @@
 
 #include "GeoPhysicsObjectFactory.h"
 
+#include "DerivedPropertyManager.h"
+
 #include "DomainProperty.h"
 #include "CauldronDomain.h"
 
@@ -28,12 +30,14 @@ namespace DataAccess
          virtual ~DomainPropertyFactory ();
 
          /// Allocates a data-mining project-handle.
-         Interface::ProjectHandle* produceProjectHandle( database::Database * database, const string & name, const string & accessMode );
+         Interface::ProjectHandle* produceProjectHandle( database::Database * database, const string & name, 
+			 const string & accessMode );
 
          /// Allocate a new domain-property.
-         virtual DomainProperty* allocate ( const DomainPropertyCollection * collection,
-                                            const Interface::Snapshot      * snapshot,
-                                            const Interface::Property      * property ) const;
+         virtual DomainProperty* allocate ( const DomainPropertyCollection*            collection,
+                                            DerivedProperties::DerivedPropertyManager& propertyManager,
+                                            const Interface::Snapshot*                 snapshot,
+                                            const Interface::Property*                 property ) const;
 
          /// Determine is the property has an associated allocator.
          virtual bool containsAllocator( const Interface::Property* property ) const;
@@ -65,7 +69,7 @@ namespace DataAccess
                                                                              const Interface::Property      * property );
 
          /// Allocate a domain-property-collection.
-         virtual DomainPropertyCollection* produceDomainPropertyCollection( Interface::ProjectHandle * projectHandle );
+         virtual DomainPropertyCollection* produceDomainPropertyCollection( Interface::ProjectHandle* projectHandle );
 
          virtual CauldronDomain* produceCauldronDomain( Interface::ProjectHandle * projectHandle );
 

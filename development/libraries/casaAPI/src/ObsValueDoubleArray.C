@@ -60,7 +60,7 @@ namespace casa
       bool ok = dz.load( parentID, "ObservableID" );
       m_parent = ok ? dz.id2ptr<Observable>( parentID ) : 0;
       
-      ok = ok ? dz.load( m_value, "scalarVal" ) : ok;
+      ok = ok ? dz.load( m_value, "arrayOfVals" ) : ok;
 
       if ( !ok || !m_parent )
       {

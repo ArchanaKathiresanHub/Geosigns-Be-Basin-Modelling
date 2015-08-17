@@ -43,6 +43,12 @@ bool Species::isGX5() const
 {
    return m_theChemicalModel->isGX5();
 }
+
+bool Species::isTSR() const
+{
+   return m_theChemicalModel->isTSR();
+}
+
 double Species::GetMolWeight() const
 {
    return (m_theProps->GetMolWeight());
@@ -357,14 +363,14 @@ void Species::OutputPropertiesOnFile(ofstream &outfile) const
 /*
 Sub ArrhReact2a
 */
-double Species::ComputeArrheniusReactionRate2a(const SimulatorStateBase &theSimulatorState, 
-                                               const double s_FrequencyFactor, 
-                                               const double s_Peff, 
-                                               const double s_TK,  
-                                               const double s_VogelFulcherTemperature,
-                                               const double s_kerogenTransformationRatio, 
-                                               const double s_precokeTransformationRatio, 
-                                               const double s_coke2TransformationRatio)
+double Species::ComputeArrheniusReactionRate2a( SimulatorStateBase &theSimulatorState, 
+                                                const double s_FrequencyFactor, 
+                                                const double s_Peff, 
+                                                const double s_TK,  
+                                                const double s_VogelFulcherTemperature,
+                                                const double s_kerogenTransformationRatio, 
+                                                const double s_precokeTransformationRatio, 
+                                                const double s_coke2TransformationRatio )
 {
    //new changes of activation entropy with coking, seems to much improve fit to lab data
    //Const dSperCoke As Single = -150
@@ -381,15 +387,38 @@ double Species::ComputeArrheniusReactionRate2a(const SimulatorStateBase &theSimu
            activationEnergy2 * s_kerogenTransformationRatio;
     } else {
       if(m_theChemicalModel->getSpeciesManager ().getKerogenId () == m_id || m_theChemicalModel->getSpeciesManager ().getPreasphaltId () == m_id) {
-         ActU = activationEnergy1 * (1.0 - s_kerogenTransformationRatio) + 
-            activationEnergy2 * s_kerogenTransformationRatio;
+
+         ActU = activationEnergy1 * (1.0 - s_kerogenTransformationRatio) + activationEnergy2 * s_kerogenTransformationRatio;
       } else if(m_theChemicalModel->getSpeciesManager ().getAsphaltenesId () == m_id || m_theChemicalModel->getSpeciesManager ().getResinsId () == m_id) {
-         ActU = activationEnergy1 * (1.0 - s_precokeTransformationRatio) + 
-            activationEnergy2 * s_precokeTransformationRatio;
+
+         ActU = activationEnergy1 * (1.0 - s_precokeTransformationRatio) + activationEnergy2 * s_precokeTransformationRatio;
       } else {
-         ActU = activationEnergy1 * (1.0 - s_coke2TransformationRatio) + 
-            activationEnergy2 * s_coke2TransformationRatio;
+
+         ActU = activationEnergy1 * (1.0 - s_coke2TransformationRatio) + activationEnergy2 * s_coke2TransformationRatio;
       }
+   }
+
+   double accessibleAN = 0.0;
+   const double ccToAn = 0.95008;
+
+   if( isTSR() ) {
+      int CO3id = m_theChemicalModel->getSpeciesManager ().getCO3Id ();
+      int SO4id = m_theChemicalModel->getSpeciesManager ().getSO4Id ();
+
+      const double molWtCO3overSO4 = 0.625;
+
+      accessibleAN = ccToAn - theSimulatorState.GetSpeciesConcentrationByName( CO3id ) / 
+         ( theSimulatorState.GetSpeciesConcentrationByName( CO3id ) + 
+           theSimulatorState.GetSpeciesConcentrationByName( SO4id ) * molWtCO3overSO4 );  
+
+      if( accessibleAN < 0.0 ) {
+         accessibleAN = 0.0;
+      }
+
+      if( m_theProps->IsOil() ) {
+         theSimulatorState.incTotalOilForTSR( theSimulatorState.GetSpeciesConcentrationByName ( m_id ) );
+      }
+
    }
 
    GeneralParametersHandler & theHandler = GeneralParametersHandler::getInstance();
@@ -427,6 +456,16 @@ double Species::ComputeArrheniusReactionRate2a(const SimulatorStateBase &theSimu
          ArrheniusReactionRate = s_FrequencyFactor * 
             exp((-(ActU + s_Peff * volume) / s_TK + entropy) / Genex6::Constants::R);
    }
+
+   if( isTSR() ) {
+      if( GetMassFactorBySpecies( m_theChemicalModel->getSpeciesManager ().getSO4Id ()) < 0 ) {
+         ArrheniusReactionRate = ArrheniusReactionRate * accessibleAN / ccToAn;
+      }
+      if( m_theProps->IsHCgas() and theSimulatorState.getTotalOilForTSR () > 1.0 ) {
+         ArrheniusReactionRate = 0.0;
+      }
+   }
+
    return ArrheniusReactionRate;
  }
 double Species::FunDiffusivityHybrid(const double s_FrequencyFactor, const double s_Peff, 
@@ -478,7 +517,8 @@ void Species::ComputeTimeStep(SimulatorStateBase &theSimulatorState,
    int    firstTimeStep = ( isGenex() ? 0 : 1 );
    int    firstTimeStepForUpdate = ( isOTGC_5 ? 0 : firstTimeStep );
 
-   int currentTimeStep = theSimulatorState.GetTimeStep();
+   int  currentTimeStep = theSimulatorState.GetTimeStep();
+   bool isTSRapproximation = isTSR() and currentTimeStep > firstTimeStep + 1;
 
    SpeciesState *currentSpeciesState = theSimulatorState.GetSpeciesStateById(m_id);
    if(currentSpeciesState) {
@@ -486,10 +526,13 @@ void Species::ComputeTimeStep(SimulatorStateBase &theSimulatorState,
       if(isGX5()){
          concentrationApproximation = concentration;
       } else if(m_approximate && currentTimeStep > firstTimeStep + 1) {
-         concentrationApproximation = currentSpeciesState->GetConcentrationApproximation();
+         concentrationApproximation = currentSpeciesState->GetConcentrationApproximation( isTSRapproximation );
       } 
-      else { 
+      else  { 
          concentrationApproximation = concentration;
+      }
+      if( isTSRapproximation ) {
+         concentrationApproximation = currentSpeciesState->GetConcentrationApproximation( isTSRapproximation );
       }
     }
    
@@ -523,7 +566,12 @@ void Species::ComputeTimeStep(SimulatorStateBase &theSimulatorState,
             //reactionOrder = 1.0;
           }
       }
-
+      if( isTSRapproximation ) {
+         if( concentrationApproximation < 0 ) {
+            concentrationApproximation = 0.0;
+            reactionOrder = 1.0;
+         }
+      }
       concentration = (concentration + m_positiveGenRate * in_dT) /
          (1.0 + (m_theta + ArrheniusReactionRate * pow(concentrationApproximation, (reactionOrder - 1.0))) * in_dT);
 
@@ -579,8 +627,10 @@ bool Species::validate()
             status = false;
             break;
          } else {
-            m_massFactorsBySpecies[i] = 0.0;
-         }
+            if( !isTSR() ) {
+               m_massFactorsBySpecies[i] = 0.0;
+            }
+        }
       } 
    }
    return status;

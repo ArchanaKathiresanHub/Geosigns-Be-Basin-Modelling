@@ -1,23 +1,26 @@
-#include "MainWindow.h"
-#include <Visualization/SceneGraph.h>
+//
+// Copyright (C) 2012-2015 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
 
-#include <MeshVizInterface/mapping/MoMeshviz.h>
+#include "MainWindow.h"
+
+#include <Interface/ObjectFactory.h>
+#include <Interface/ProjectHandle.h>
 
 #include <QtGui/QApplication>
 
 int main(int argc, char** argv)
 {
-  MoMeshViz::init();
-  BpaVizInit();
+  QApplication app(argc, argv);
 
-	QApplication app(argc, argv);
+  MainWindow window;
+  window.show();
 
-	MainWindow window;
-	window.show();
-
-	int result = app.exec();
-
-	MoMeshViz::finish();
-
-	return result;
+  return app.exec();
 }

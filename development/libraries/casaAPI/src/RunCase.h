@@ -100,6 +100,10 @@ namespace casa
       /// @return true if RunCases have the same parameters set, false otherwise
       virtual bool operator == ( const RunCase & cs ) const = 0;
 
+      /// @brief Get run case ID - unique case number in the RunCaseSet object
+      /// @return run case ID
+      virtual size_t id() const = 0;
+
    protected:
       RunCase() { ; }
    };

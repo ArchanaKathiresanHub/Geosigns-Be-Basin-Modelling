@@ -8,10 +8,10 @@
 using namespace DataAccess;
 
 
-DataAccess::Interface::ProjectHandle *
+DataAccess::Interface::ProjectHandle*
 CrustalThicknessCalculatorFactory::produceProjectHandle ( database::Database * database, const string & name,
                                                           const string & accessMode) {
-   return new CrustalThicknessCalculator ( database, name, accessMode );
+   return new CrustalThicknessCalculator ( database, name, accessMode, this );
 }
 
 DataAccess::Interface::CrustalThicknessData *

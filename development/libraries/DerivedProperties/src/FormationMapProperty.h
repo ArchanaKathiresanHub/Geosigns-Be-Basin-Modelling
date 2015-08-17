@@ -12,13 +12,12 @@
 
 #include "AbstractPropertyValues.h"
 
+#include "Interface/GridMap.h"
+
 namespace DerivedProperties {
 
    /// \brief Stores the values of the designated property for the formation.
    ///
-   /// The values of this property must be continuous such as temperature and pressure.
-   /// Properties such as porosity may not an object of this type to store their
-   /// values.
    /// The indices will use global index numbering.
    class FormationMapProperty : public AbstractPropertyValues {
 
@@ -61,7 +60,15 @@ namespace DerivedProperties {
       virtual double get ( unsigned int i,
                            unsigned int j ) const = 0;
 
+      /// \brief Interpolate the value of the property at the position i,j.
+      virtual double interpolate ( double i,
+                                   double j ) const;
 
+      /// \brief Return true if the property is primary.
+      virtual bool isPrimary () const = 0;
+
+      /// \ brief Get the gridMap
+      virtual const DataAccess::Interface::GridMap* getGridMap() const = 0;
    private :
 
       const DataModel::AbstractProperty*  m_property;

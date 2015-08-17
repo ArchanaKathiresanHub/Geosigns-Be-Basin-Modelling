@@ -1,9 +1,21 @@
+//
+// Copyright (C) 2012-2015 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #ifndef MAINWINDOW_H_INCLUDED
 #define MAINWINDOW_H_INCLUDED
 
 #include "MainWindow.ui.h"
 
-#include "Interface/Interface.h"
+#include <Visualization/SceneGraphManager.h>
+
+#include <Interface/Interface.h>
 
 #include <QtGui/QMainWindow>
 
@@ -12,25 +24,33 @@ class QLabel;
 
 class MainWindow : public QMainWindow
 {
-	Q_OBJECT;
+  Q_OBJECT;
 
-	Ui::MainWindow m_ui;
+  Ui::MainWindow m_ui;
+
+  bool m_oivLicenseOK;
 
   QLabel* m_dimensionsLabel;
   QLabel* m_timeLabel;
   QLabel* m_fpsLabel;
 
-  DataAccess::Interface::ProjectHandle* m_projectHandle;
+  std::unique_ptr<DataAccess::Interface::ObjectFactory> m_factory;
+  std::unique_ptr<DataAccess::Interface::ProjectHandle> m_projectHandle;
   
   SceneGraph* m_sceneGraph;
+  SceneGraphManager m_sceneGraphManager;
 
   static void fpsCallback(float fps, void* userData, SoQtViewer* viewer);
+
+  void initOIV();
 
   void onFps(float fps);
 
   void loadProject(const QString& filename);
 
   void closeProject();
+
+  void enableUI(bool enabled);
 
   void updateUI();
 
@@ -58,15 +78,15 @@ private slots:
 
   void onROIToggled(bool value);
 
-  void onRenderModeToggled(bool value);
-
-  void onMeshModeToggled(bool value);
+  void onSliceToggled(bool value);
 
   void onRenderStyleChanged();
 
   void onItemDoubleClicked(QTreeWidgetItem* item, int column);
 
   void onShowGLInfo();
+
+  void onTreeWidgetItemChanged(QTreeWidgetItem* item, int column);
 
 public:
 

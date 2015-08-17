@@ -70,7 +70,7 @@ using namespace Interface;
 
 ProjectHandle * ObjectFactory::produceProjectHandle (database::Database * database, const string & name, const string & accessMode)
 {
-   return new ProjectHandle (database, name, accessMode);
+   return new ProjectHandle (database, name, accessMode, this);
 }
 
 Snapshot * ObjectFactory::produceSnapshot (ProjectHandle * projectHandle, database::Record * record)
@@ -267,12 +267,13 @@ InputValue * ObjectFactory::produceInputValue (ProjectHandle * projectHandle, da
 }
 
 Property * ObjectFactory::produceProperty (ProjectHandle * projectHandle, database::Record * record,
-      const string & userName, const string & cauldronName,
-      const string & unit, PropertyType type)
+                                           const string & userName, const string & cauldronName,
+                                           const string & unit, PropertyType type,
+                                           const DataModel::PropertyAttribute attr)
 {
    return new Property (projectHandle, record,
-	 userName, cauldronName,
-	 unit, type);
+                        userName, cauldronName,
+                        unit, type, attr);
 }
 
 PropertyValue * ObjectFactory::producePropertyValue (ProjectHandle * projectHandle, database::Record * record ,const string & name,

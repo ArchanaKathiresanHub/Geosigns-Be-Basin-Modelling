@@ -28,6 +28,14 @@ add_library(CrustalThickness
 bm_include_libraries(
 	DataModel
 	DataAccess
+	DerivedProperties
+	GeoPhysics
+	EosPack	
+	CBMGenerics
+	utilities
+	Interpolation
+	LinearAlgebra
+	Utilities_Petsc
 	TableIO
 	Serial_Hdf5
 )
@@ -38,10 +46,14 @@ include_directories(
 
 target_link_libraries(CrustalThickness
 	DataAccess
+	DerivedProperties	
+	EosPack	
+	CBMGenerics
+	utilities
 	TableIO
 	Serial_Hdf5
 	${HDF5_LIBRARIES}
-)
+) 
 
 install(TARGETS CrustalThickness
 	RUNTIME DESTINATION bin

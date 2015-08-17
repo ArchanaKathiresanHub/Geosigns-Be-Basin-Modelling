@@ -11,6 +11,8 @@ using namespace std;
 
 #include "database.h"
 
+#include "PropertyAttribute.h"
+
 #include "MessageHandler.h"
 #include "ApplicationGlobalOperations.h"
 
@@ -53,7 +55,7 @@ namespace DataAccess
    {
       /// Create a project from a project file with the given name and access mode ("r" or "rw") and
       /// return the associated ProjectHandle
-      ProjectHandle * OpenCauldronProject( const string & name, const string & accessMode );
+      ProjectHandle * OpenCauldronProject( const string & name, const string & accessMode, ObjectFactory* objectFactory );
 
       /// @brief Create TableIO database object from project file. This function is used by OpenCauldronProject()
       /// @param name project file name
@@ -70,7 +72,7 @@ namespace DataAccess
       {
       public:
          /// Constructor
-         ProjectHandle( database::Database * database, const string & name, const string & accessMode );
+         ProjectHandle( database::Database * database, const string & name, const string & accessMode, ObjectFactory* objectFactory );
 
          /// Destructor
          virtual ~ProjectHandle( void );
@@ -83,9 +85,7 @@ namespace DataAccess
          /// Get a handle to the Table with the given name
          database::Table * getTable( const string & tableName ) const;
 
-         /// Specify a new ObjectFactory
-         static bool UseFactory( ObjectFactory * factory );
-
+ 
          /// return the ObjectFactory
          ObjectFactory * getFactory( void ) const;
 
@@ -100,6 +100,9 @@ namespace DataAccess
          /// \brief Get list of simulation details.
          SimulationDetailsListPtr getSimulationDetails () const;
 
+         /// \brief Get the details of the last simulation for a particular simulator.
+         const SimulationDetails* getDetailsOfLastSimulation ( const std::string& simulatorName ) const;
+
          /// Return the full file name of the project
          virtual const string & getName( void ) const;
          /// Return the directory of the project
@@ -110,7 +113,7 @@ namespace DataAccess
          virtual const string & getFileName( void ) const;
 
          /// start a new activity
-         bool startActivity( const string & name, const Grid * grid, bool saveAsInputGrid = false );
+         bool startActivity( const string & name, const Grid * grid, bool saveAsInputGrid = false, bool createResultsFile = true, bool append = false );
 
          /// Restart an activity.
          bool restartActivity( void );
@@ -309,6 +312,9 @@ namespace DataAccess
             const Reservoir * reservoir = 0, const Formation * formation = 0,
             const Surface * surface = 0, int propertyTypes = MAP | VOLUME ) const;
 
+         /// \brief Get the list of properties that have the particular PropertyAttribute.
+         virtual PropertyListPtr getProperties ( const DataModel::PropertyAttribute attr ) const;
+
          /// @brief Return a list of property values based on the given arguments.
          ///
          /// @param[in] selectionFlags is logical OR for the following flags:
@@ -410,8 +416,6 @@ namespace DataAccess
          /// Load the input map specified by the given arguments
          GridMap * loadInputMap( const string & referringTable, const string & mapName );
 
-         static ObjectFactory * GetFactoryToUse( void );
-
          const Grid * findOutputGrid( int numI, int numJ ) const;
          const Grid * findGrid( int numI, int numJ ) const;
 
@@ -489,7 +493,7 @@ namespace DataAccess
          void setPermafrost( const bool aPermafrost );
 
       protected:
-         friend ProjectHandle * OpenCauldronProject( const string & name, const string & accessMode );
+		  friend ProjectHandle * OpenCauldronProject( const string & name, const string & accessMode, DataAccess::Interface::ObjectFactory* objectFactory );
 
          typedef enum { READONLY, READWRITE } AccessMode;
          //1DComponent
@@ -700,7 +704,7 @@ namespace DataAccess
 
          Snapshot * createSnapshot( database::Record record );
 
-         bool initializeMapPropertyValuesWriter( void );
+         bool initializeMapPropertyValuesWriter( const bool append = false );
          bool finalizeMapPropertyValuesWriter( void );
 
          bool saveCreatedMapPropertyValues( void );

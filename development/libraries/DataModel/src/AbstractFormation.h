@@ -2,6 +2,7 @@
 #define _DATA_MODEL__ABSTRACT_FORMATION_H_
 
 #include <string>
+#include <iostream>
 
 namespace DataModel {
 
@@ -24,6 +25,9 @@ namespace DataModel {
       ///
       /// If there is no surface below then a null string ("") will be returned.
       virtual const std::string& getBottomSurfaceName () const = 0;
+
+      /// \brief Output information about the formation to the ostream.
+      virtual void printOn ( std::ostream& os ) const = 0;
 
    };
 

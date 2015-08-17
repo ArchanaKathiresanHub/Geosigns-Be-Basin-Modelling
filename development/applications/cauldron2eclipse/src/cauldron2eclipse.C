@@ -17,10 +17,16 @@
 #include <vector>
 using namespace std;
 
+// Derived property library
+#include "AbstractPropertyManager.h"
+#include "DerivedPropertyManager.h"
+#include "SurfaceProperty.h"
+
 // DataAccess API includes
 #include "Interface/GridMap.h"
 #include "Interface/Grid.h"
 #include "Interface/ProjectHandle.h"
+#include "Interface/ObjectFactory.h"
 #include "Interface/Snapshot.h"
 #include "Interface/Surface.h"
 #include "Interface/Formation.h"
@@ -28,6 +34,10 @@ using namespace std;
 #include "Interface/LithoType.h"
 #include "Interface/Property.h"
 #include "Interface/PropertyValue.h"
+#include "Interface/SimulationDetails.h"
+
+#include "GeoPhysicsObjectFactory.h"
+#include "GeoPhysicsProjectHandle.h"
 
 #include <string.h>
 
@@ -133,7 +143,7 @@ void startDataBlocks (int numItems, int size = 4);
 void writeWord (char * word);
 
 // gets a gridmap value of a point within a cell, even if one of the corners is undefined
-double GetValue (const GridMap * gridMap, double i, double j, double k);
+double GetValue (const DerivedProperties::FormationPropertyPtr& gridMap, double i, double j, double k);
 
 void GetCornerIndices (double kIndices[], int k, int numK);
 
@@ -163,6 +173,7 @@ PropertyConversion conversions[] =
    { "Porosity",               "POROSITY", PercentageToFraction, 1, false },
    { "Diffusivity",            "DIFFUSIV", 0, 1, true },
    { "BulkDensity",            "BULKDENS", 0, 1, true },
+   { "TwoWayTime",             "TWT     ", 0, 1, true },
    { "", "", 0, 0, false }
 };
 
@@ -294,7 +305,9 @@ int main (int argc, char ** argv)
       return -1;
    }
 
-   ProjectHandle *projectHandle = OpenCauldronProject (projectFileName, "r");
+   GeoPhysics::ObjectFactory* factory = new GeoPhysics::ObjectFactory;
+   GeoPhysics::ProjectHandle* projectHandle = dynamic_cast< GeoPhysics::ProjectHandle* >( OpenCauldronProject( projectFileName, "r", factory ) );
+   DerivedProperties::DerivedPropertyManager propertyManager ( projectHandle );
 
    if (projectFileName.length () == 0)
    {
@@ -308,6 +321,42 @@ int main (int argc, char ** argv)
    if (outputFileName.length () == 0)
    {
       outputFileName = projectFileName.substr (0, dotPos);
+   }
+
+   bool started = projectHandle->startActivity ( "cauldron2eclipse", projectHandle->getLowResolutionOutputGrid (), false, false, false );
+
+   if ( not started) {
+      return 1;
+   }
+
+   bool coupledCalculationMode = false;
+
+   const Interface::SimulationDetails* simulationDetails = projectHandle->getDetailsOfLastSimulation ( "fastcauldron" );
+
+   if ( simulationDetails != 0 ) {
+      coupledCalculationMode = simulationDetails->getSimulatorMode () == "Overpressure" or
+                               simulationDetails->getSimulatorMode () == "LooselyCoupledTemperature" or
+                               simulationDetails->getSimulatorMode () == "CoupledHighResDecompaction" or
+                               simulationDetails->getSimulatorMode () == "CoupledPressureAndTemperature" or
+                               simulationDetails->getSimulatorMode () == "CoupledDarcy";
+   } else {
+      // If this table is not present the assume that the last
+      // fastcauldron mode was not pressure mode.
+      // This table may not be present because we are running c2e on an old 
+      // project, before this table was added.
+      coupledCalculationMode = false;
+   }
+
+   started = projectHandle->initialise ( coupledCalculationMode );
+
+   if ( not started ) {
+      return 1;
+   }
+
+   started = projectHandle->setFormationLithologies ( true, true );
+
+   if ( not started ) {
+      return 1;
    }
 
    if (doAscii)
@@ -349,9 +398,9 @@ int main (int argc, char ** argv)
    }
 
    // Get the depth volumes for all formations to build the eclipse grid.
-   PropertyValueList *depthPropertyValueList = projectHandle->getPropertyValues (FORMATION, depthProperty, snapshot, 0, 0, 0);
+   DerivedProperties::FormationPropertyList depthPropertyValueList ( propertyManager.getFormationProperties ( depthProperty, snapshot, basement ));
 
-   if (depthPropertyValueList->size () == 0)
+   if (depthPropertyValueList.size () == 0)
    {
       cerr << "Could not find the Depth property results in the project file " << endl << "Are you sure the project file contains output data?" << endl;
       return -1;
@@ -361,13 +410,13 @@ int main (int argc, char ** argv)
    unsigned int numberOfHorizons = 0;
 
    const Grid *grid = projectHandle->getLowResolutionOutputGrid ();
-   const GridMap *gridMap = 0;
 
-   const GridMap *topGridMap = 0;
-   const GridMap *bottomGridMap = 0;
-   const PropertyValue *propertyValue;
+   DerivedProperties::FormationPropertyPtr formationPropertyValue;
+   DerivedProperties::FormationPropertyPtr topFormationValue;
+   DerivedProperties::FormationPropertyPtr bottomFormationValue;
 
-   PropertyValueList::iterator propertyValueIter;
+   DerivedProperties::FormationPropertyList::iterator propertyValueIter;
+
    if (debug)
    {
       cerr << "Formations with Depth property found: " << endl;
@@ -376,22 +425,20 @@ int main (int argc, char ** argv)
    if (verbose)
       cout << "Writing COORD" << endl;
 
-   for (propertyValueIter = depthPropertyValueList->begin (); propertyValueIter != depthPropertyValueList->end (); ++propertyValueIter)
+   for (propertyValueIter = depthPropertyValueList.begin (); propertyValueIter != depthPropertyValueList.end (); ++propertyValueIter)
    {
-      propertyValue = *propertyValueIter;
 
-      if (propertyValue->getFormation () == 0 || (!basement && propertyValue->getFormation ()->kind () == BASEMENT_FORMATION))
+      formationPropertyValue = *propertyValueIter;
+
+      if (formationPropertyValue->getFormation () == 0 || (!basement && dynamic_cast<const Interface::Formation*>(formationPropertyValue->getFormation ())->kind () == BASEMENT_FORMATION))
       {
          continue;
       }
 
       if (debug)
       {
-         propertyValue = *propertyValueIter;
-         const Formation *formation = propertyValue->getFormation ();
-
-         assert (formation);
-         formation->printOn (cerr);
+         formationPropertyValue = *propertyValueIter;
+         formationPropertyValue->getFormation ()->printOn (cerr);
       }
 
       if (verbose)
@@ -400,21 +447,17 @@ int main (int argc, char ** argv)
          cout.flush ();
       }
 
-      gridMap = propertyValue->getGridMap ();
-      assert (gridMap != 0);
-
-      if (!topGridMap)
-      {
-         topGridMap = gridMap;
+      if ( topFormationValue == 0 ) {
+         topFormationValue = formationPropertyValue;
       }
 
-      numberOfHorizons += gridMap->getDepth ();
+      numberOfHorizons += formationPropertyValue->lengthK ();
    }
 
    if (verbose)
       cout << endl;
 
-   bottomGridMap = gridMap;
+   bottomFormationValue = formationPropertyValue;
 
    numberOfHorizons++;
 
@@ -430,7 +473,7 @@ int main (int argc, char ** argv)
 
    unsigned int numI = grid->numI ();
    unsigned int numJ = grid->numJ ();
-   unsigned int bottomIndex = bottomGridMap->getDepth () - 1;
+   double bottomIndex = static_cast<double>(bottomFormationValue->lengthK () - 1);
 
    //------------- Binary data
    if (doBinary)
@@ -482,8 +525,8 @@ int main (int argc, char ** argv)
          maxPosY = Max (maxPosY, posJ);
 
 	 // get values even if one of or more of the cauldron node values are undefined
-         topDepth = GetValue (topGridMap, ii, jj, (double) 0);
-         bottomDepth = GetValue (bottomGridMap, ii, jj, (double) bottomIndex);
+         topDepth = GetValue (topFormationValue, ii, jj, 0.0 );
+         bottomDepth = GetValue (bottomFormationValue, ii, jj, bottomIndex );
 
 	 topDepth = -topDepth;
 	 minDepth = Min (minDepth, topDepth);
@@ -541,17 +584,16 @@ int main (int argc, char ** argv)
    int itemCount = 0;
    int totalK = 0;
 
-   for (propertyValueIter = depthPropertyValueList->begin (); propertyValueIter != depthPropertyValueList->end (); ++propertyValueIter)
+   for (propertyValueIter = depthPropertyValueList.begin (); propertyValueIter != depthPropertyValueList.end (); ++propertyValueIter)
    {
-      const PropertyValue *propertyValue = *propertyValueIter;
+      formationPropertyValue = *propertyValueIter;
 
-      if (propertyValue->getFormation () == 0 || (!basement && propertyValue->getFormation ()->kind () == BASEMENT_FORMATION))
+      if (formationPropertyValue->getFormation () == 0 || (!basement && dynamic_cast<const Interface::Formation*>(formationPropertyValue->getFormation ())->kind () == BASEMENT_FORMATION))
       {
          continue;
       }
 
-      gridMap = propertyValue->getGridMap ();
-      int numK = gridMap->getDepth ();
+      const int numK = formationPropertyValue->lengthK ();
 
       totalK += numK;
 
@@ -586,7 +628,7 @@ int main (int argc, char ** argv)
 			double jjj = jIndices[jx];
 			double iii = iIndices[ix];
 
-			double depth = GetValue (gridMap, iii, jjj, kkk);
+			double depth = GetValue (formationPropertyValue, iii, jjj, kkk);
 			
 			if (doAscii)
 			{
@@ -610,7 +652,6 @@ int main (int argc, char ** argv)
             }
          }
       }
-      gridMap->release ();
    }
    if (verbose)
       cout << endl;
@@ -646,18 +687,17 @@ int main (int argc, char ** argv)
    numDepth = 0;
    int stratIndexEnd = 0;
 
-   for (propertyValueIter = depthPropertyValueList->begin (); propertyValueIter != depthPropertyValueList->end (); ++propertyValueIter)
+   for (propertyValueIter = depthPropertyValueList.begin (); propertyValueIter != depthPropertyValueList.end (); ++propertyValueIter)
    {
-      const PropertyValue *propertyValue = *propertyValueIter;
+      formationPropertyValue = *propertyValueIter;
 
-      if (propertyValue->getFormation () == 0 || (!basement && propertyValue->getFormation ()->kind () == BASEMENT_FORMATION))
+      if (formationPropertyValue->getFormation () == 0 || (!basement && dynamic_cast<const Interface::Formation*>(formationPropertyValue->getFormation ())->kind () == BASEMENT_FORMATION))
       {
          continue;
       }
       ++stratIndexEnd;
 
-      gridMap = propertyValue->getGridMap ();
-      int numK = gridMap->getDepth ();
+      const int numK = formationPropertyValue->lengthK ();
 
       if (verbose)
       {
@@ -675,7 +715,7 @@ int main (int argc, char ** argv)
                dNum = 0;
                char charOut = '0';
 
-	       if (gridMap->getValue (i, j, k) != gridMap->getUndefinedValue ())
+	       if (formationPropertyValue->get (i, j, k) != formationPropertyValue->getUndefinedValue ())
                {
                   charOut = '1';
 
@@ -747,19 +787,18 @@ int main (int argc, char ** argv)
    numDepth = 0;
    unsigned int stratIndex = 0;
 
-   for (propertyValueIter = depthPropertyValueList->begin (); propertyValueIter != depthPropertyValueList->end (); ++propertyValueIter)
+   for (propertyValueIter = depthPropertyValueList.begin (); propertyValueIter != depthPropertyValueList.end (); ++propertyValueIter)
    {
-      const PropertyValue *propertyValue = *propertyValueIter;
+      formationPropertyValue = *propertyValueIter;
 
-      if (propertyValue->getFormation () == 0 || (!basement && propertyValue->getFormation ()->kind () == BASEMENT_FORMATION))
+      if (formationPropertyValue->getFormation () == 0 || (!basement && dynamic_cast<const Interface::Formation*>(formationPropertyValue->getFormation ())->kind () == BASEMENT_FORMATION))
       {
          continue;
       }
 
       ++stratIndex;
 
-      gridMap = propertyValue->getGridMap ();
-      int numK = gridMap->getDepth ();
+      const int numK = formationPropertyValue->lengthK ();
 
       if (verbose)
       {
@@ -825,21 +864,20 @@ int main (int argc, char ** argv)
 
       // Lithology maps are based on the high res input grid, not on the low res output grid
       numDepth = 0;
-      for (propertyValueIter = depthPropertyValueList->begin (); propertyValueIter != depthPropertyValueList->end (); ++propertyValueIter)
+      for (propertyValueIter = depthPropertyValueList.begin (); propertyValueIter != depthPropertyValueList.end (); ++propertyValueIter)
       {
-         const PropertyValue *propertyValue = *propertyValueIter;
+         formationPropertyValue = *propertyValueIter;
 
-         if (propertyValue->getFormation () == 0 || (!basement && propertyValue->getFormation ()->kind () == BASEMENT_FORMATION))
+         if (formationPropertyValue->getFormation () == 0 || (!basement && dynamic_cast<const Interface::Formation*>(formationPropertyValue->getFormation ())->kind () == BASEMENT_FORMATION))
          {
             continue;
          }
 
-         gridMap = propertyValue->getGridMap ();
-         int numK = gridMap->getDepth ();
+         const int numK = formationPropertyValue->lengthK ();
 
-         const Formation *formation = propertyValue->getFormation ();
+         const Formation *formation = dynamic_cast<const Interface::Formation*>(formationPropertyValue->getFormation ());
 
-         assert (formation);
+         assert (("Formation is not derived from DataAccess.", formation != 0 ));
 
          const LithoType *lithoType1 = formation->getLithoType1 ();
          const LithoType *lithoType2 = formation->getLithoType2 ();
@@ -1077,7 +1115,6 @@ int main (int argc, char ** argv)
                }
             }
          }
-         gridMap->release ();
       }
       if (verbose)
          cout << endl;
@@ -1116,16 +1153,16 @@ int main (int argc, char ** argv)
          continue;
       }
 
-      PropertyValueList *propertyValueList = projectHandle->getPropertyValues (FORMATION, property, snapshot, 0, 0, 0);
+      DerivedProperties::FormationPropertyList propertyValueList ( propertyManager.getFormationProperties ( property, snapshot, basement ));
 
-      if (propertyValueList->size () == 0)
+      if (propertyValueList.size () == 0)
       {
          if (debug)
             cerr << "Property " << conversion.cauldronName << " has no values" << endl;
          continue;
       }
 
-      if (propertyValueList->size () < stratIndex)
+      if (propertyValueList.size () < stratIndex)
       {
          if (debug)
 	    if (basement)
@@ -1136,7 +1173,7 @@ int main (int argc, char ** argv)
       }
 
       if (debug)
-         cerr << "Property " << conversion.cauldronName << " has " << propertyValueList->size () << " values" << endl;
+         cerr << "Property " << conversion.cauldronName << " has " << propertyValueList.size () << " values" << endl;
 
       if (verbose)
          cout << "Writing " << conversion.eclipseName << endl;
@@ -1158,27 +1195,21 @@ int main (int argc, char ** argv)
       }
       //-------------
 
-      for (propertyValueIter = propertyValueList->begin (); propertyValueIter != propertyValueList->end (); ++propertyValueIter)
+      for (propertyValueIter = propertyValueList.begin (); propertyValueIter != propertyValueList.end (); ++propertyValueIter)
       {
-         const PropertyValue *propertyValue = *propertyValueIter;
+         formationPropertyValue = *propertyValueIter;
 
-         if (propertyValue->getFormation () == 0 || (!basement && propertyValue->getFormation ()->kind () == BASEMENT_FORMATION))
+         if (formationPropertyValue->getFormation () == 0 || (!basement && dynamic_cast<const Interface::Formation*>(formationPropertyValue->getFormation ())->kind () == BASEMENT_FORMATION))
          {
             continue;
          }
 
-         if (debug && propertyValue->getSurface () != 0)
+         if (debug && formationPropertyValue->getFormation () != 0)
          {
-            cerr << "Surface: " << propertyValue->getSurface ()->getName () << endl;
+            cerr << "Formation: " << formationPropertyValue->getFormation ()->getName () << endl;
          }
 
-         if (debug && propertyValue->getFormation () != 0)
-         {
-            cerr << "Formation: " << propertyValue->getFormation ()->getName () << endl;
-         }
-
-         gridMap = propertyValue->getGridMap ();
-         int numK = gridMap->getDepth ();
+         const int numK = formationPropertyValue->lengthK ();
 
          if (verbose)
          {
@@ -1191,9 +1222,9 @@ int main (int argc, char ** argv)
             {
                for (i = 0; i < numI; ++i)
                {
-                  double propValue = gridMap->getValue (i, j, k);
+                  double propValue = formationPropertyValue->get (i, j, k);
 
-                  if (propValue == gridMap->getUndefinedValue ())
+                  if (propValue == formationPropertyValue->getUndefinedValue ())
                   {
                      propValue = EclipseUndefined;
                   }
@@ -1231,7 +1262,6 @@ int main (int argc, char ** argv)
                }
             }
          }
-         gridMap->release ();
       }
       if (verbose)
          cout << endl;
@@ -1243,7 +1273,6 @@ int main (int argc, char ** argv)
       }
       //-------------
 
-      delete propertyValueList;
       if (doAscii)
       {
          outputFile << "/" << endl << endl;
@@ -1261,6 +1290,8 @@ int main (int argc, char ** argv)
    }
 
    CloseCauldronProject (projectHandle);
+   delete factory;
+
    if (debug)
       cerr << "Project closed" << endl;
 
@@ -1334,7 +1365,7 @@ int findLithologId (double density, double heatprod, double porosurf)
    return index;
 }
 
-double GetValue (const GridMap * gridMap, double i, double j, double k)
+double GetValue (const DerivedProperties::FormationPropertyPtr& gridMap, double i, double j, double k)
 {
    unsigned int iBase = (unsigned int) i;
    unsigned int jBase = (unsigned int) j;
@@ -1353,7 +1384,7 @@ double GetValue (const GridMap * gridMap, double i, double j, double k)
       {
 	 for (unsigned int kInc = 0; kInc < 2; ++kInc)
 	 {
-	    double valueAtIndex = gridMap->getValue (iBase + iInc, jBase + jInc, kBase + kInc);
+	    double valueAtIndex = gridMap->get (iBase + iInc, jBase + jInc, kBase + kInc);
 	    if (valueAtIndex != gridMap->getUndefinedValue ())
 	    {
 	       double weightAtIndex = (iInc == 0 ? 1 - iFrac : iFrac) * (jInc == 0 ? 1 - jFrac : jFrac) * (kInc == 0 ? 1 - kFrac : kFrac);

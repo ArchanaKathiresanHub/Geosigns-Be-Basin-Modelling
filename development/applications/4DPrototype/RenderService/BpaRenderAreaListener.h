@@ -1,30 +1,41 @@
-#pragma once
+//
+// Copyright (C) 2012-2015 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
+#ifndef BPARENDERAREALISTENER_H_INCLUDED
+#define BPARENDERAREALISTENER_H_INCLUDED
+
+#include <Visualization/SceneGraphManager.h>
+
 #include <RemoteViz/Rendering/RenderAreaListener.h>
 
 #include <memory>
 
+#include <Interface/Interface.h>
+
 using namespace RemoteViz::Rendering;
 
-namespace DataAccess
-{
-  namespace Interface
-  {
-    class ProjectHandle;
-  }
-}
-
-class SceneGraph;
 class SceneExaminer;
 
 class BpaRenderAreaListener : public RenderAreaListener
 {
-  RenderArea*    m_renderArea;
-  SceneGraph*    m_sceneGraph;
-  SceneExaminer* m_examiner;
+  SceneGraphManager m_sceneGraphManager;
+  RenderArea*       m_renderArea;
+  SceneExaminer*    m_examiner;
 
-  std::shared_ptr<DataAccess::Interface::ProjectHandle> m_handle;
+  std::unique_ptr<DataAccess::Interface::ObjectFactory> m_factory;
+  std::unique_ptr<DataAccess::Interface::ProjectHandle> m_handle;
 
-  void createSceneGraph();
+  bool m_drawFaces;
+  bool m_drawEdges;
+
+  void createSceneGraph(const std::string& id);
 
 public:
 
@@ -70,3 +81,4 @@ public:
 
 };
 
+#endif

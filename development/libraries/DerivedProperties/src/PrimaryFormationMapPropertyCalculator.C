@@ -3,6 +3,7 @@
 #include "Interface/Snapshot.h"
 #include "Interface/Formation.h"
 #include "Interface/Property.h"
+#include "Interface/Surface.h"
 #include "Interface/PropertyValue.h"
 
 #include "PrimaryFormationMapProperty.h"
@@ -52,6 +53,24 @@ void DerivedProperties::PrimaryFormationMapPropertyCalculator::calculate ( Abstr
 
    }
 
+}
+
+bool DerivedProperties::PrimaryFormationMapPropertyCalculator::isComputable ( const AbstractPropertyManager&      propManager,
+                                                                              const DataModel::AbstractSnapshot*  snapshot,
+                                                                              const DataModel::AbstractFormation* formation ) const {
+
+   (void) propManager;
+
+   for ( size_t i = 0; i < m_formationPropertyValues.size (); ++i ) {
+      const DataAccess::Interface::PropertyValue* propVal = m_formationPropertyValues [ i ];
+
+      if ( propVal->getProperty () == m_property and ( formation == 0 or propVal->getFormation () == formation ) and ( snapshot == 0 or propVal->getSnapshot () == snapshot )) {
+         return true;
+      }
+
+   }
+
+   return false;
 }
 
 const DataModel::AbstractSnapshotSet& DerivedProperties::PrimaryFormationMapPropertyCalculator::getSnapshots () const {

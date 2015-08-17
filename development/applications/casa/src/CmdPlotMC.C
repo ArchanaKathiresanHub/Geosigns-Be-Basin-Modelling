@@ -70,6 +70,10 @@ void CmdPlotMC::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
    ofs << "colormap(cc);\n";
    ofs << "colInd = 1 + floor((MCSamplingRMSE - minRMSE)./(maxRMSE - minRMSE)*(size(cc, 1) - 1));\n";
    ofs << "\n";
+   ofs << "if ( ( maxRMSE - minRMSE ) < 1.0e-10 );\n";
+   ofs << "   maxRMSE = 1;\n";
+   ofs << "end;\n";
+   ofs << "\n";
    ofs << "mSize(1:length(MCSamplingRMSE)) = markerSize;\n";
    ofs << "\n";
    ofs << "for i = 1:prmsNumber\n";
@@ -112,8 +116,8 @@ void CmdPlotMC::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
    ofs << "subplot( prmsNumber, 2*prmsNumber + 1, [2*prmsNumber+1:2*prmsNumber+1:(prmsNumber * (2*prmsNumber+1))] );\n";
    ofs << "axis off\n";
    ofs << "\n";
-   ofs << "if ( MCGOF(1) > 0 )\n";
-   ofs << "c = floor( length( cc ) * (1-MCGOF(1)/100) );\n";
+   ofs << "if ( MCGOF(1) > 0 && MCGOF(1) < 1 )\n";
+   ofs << "   c = floor( length( cc ) * (1-MCGOF(1)/100) );\n";
    ofs << "   bar( MCGOF(1), 'facecolor', cc(c,:) );\n";
    ofs << "   axis( [0 2 0 100] );\n";
    ofs << "   text( 0.2, MCGOF(1), sprintf('  GOF\\n%g%%', MCGOF(1) ), 'fontweight', 'bold' );\n";

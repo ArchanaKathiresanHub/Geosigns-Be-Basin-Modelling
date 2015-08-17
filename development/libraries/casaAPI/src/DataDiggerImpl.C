@@ -39,13 +39,37 @@ namespace casa
 
    ErrorHandler::ReturnCode DataDiggerImpl::requestObservables( ObsSpace & obs, RunCaseSet & rcs )
    {
-      RunCaseSetImpl & rcSet = dynamic_cast<RunCaseSetImpl &>(rcs);
-
-      // go through all run cases
-      for ( size_t rc = 0; rc < rcSet.size(); ++rc )
+      try
       {
-         if ( NoError != requestObservables( obs, rcSet[rc] ) ) return errorCode();
+         RunCaseSetImpl & rcSet   = dynamic_cast<RunCaseSetImpl &>(rcs);
+         ObsSpaceImpl   & obSpace = dynamic_cast<ObsSpaceImpl &>(obs);
+
+         // check observables against each project, if any one fail for one 
+         // of the project - report error     
+         for ( size_t ob = 0; ob < obSpace.size(); ++ob )
+         {
+            for ( size_t rc = 0; rc < rcSet.size(); ++rc )
+            {
+               mbapi::Model * mdl = rcSet[rc]->caseModel();
+               assert( mdl != NULL );
+
+               const std::string & msg = obSpace[ob]->checkObservableForProject( *mdl );
+
+               if ( !msg.empty() )
+               { 
+                  throw Exception( OutOfRangeValue ) << "Observable " << obSpace[ob]->name()[0] << 
+                     " will fail for the case: " << rc + 1 << " due to: " << msg;
+               }
+            }
+         }
+
+         // go through all run cases and request observables
+         for ( size_t rc = 0; rc < rcSet.size(); ++rc )
+         {
+            if ( NoError != requestObservables( obs, rcSet[rc] ) ) throw Exception( errorCode() ) << errorMessage();
+         }
       }
+      catch ( const ErrorHandler::Exception & ex ) { return reportError( ex.errorCode(), ex.what() ); }
 
       return NoError;
    }

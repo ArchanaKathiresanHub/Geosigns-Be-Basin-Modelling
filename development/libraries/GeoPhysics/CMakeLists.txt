@@ -20,12 +20,16 @@ set(cross_platform_headers
       src/PermeabilityMudStone.h
       src/PermeabilityMultiPoint.h
       src/PermeabilitySandStone.h
-	  src/SchneiderCompactionCalculator.h
-	  src/SoilMechanicsPorosity.h
+      src/SeismicVelocity.h
+      src/SeismicVelocityGardner.h
+      src/SeismicVelocityKennan.h
+      src/SeismicVelocityWyllie.h
+      src/SchneiderCompactionCalculator.h
+      src/SoilMechanicsPorosity.h
       src/VreTtiMethod.h
       src/VreArrheniusMethod.h
       src/VitriniteReflectance.h
-	  src/WalderhaugCompactionCalculator.h
+      src/WalderhaugCompactionCalculator.h
 )
 
 set(unix_only_headers
@@ -64,12 +68,16 @@ set(cross_platform_srcs
       src/PermeabilityMudStone.C
       src/PermeabilityMultiPoint.C
       src/PermeabilitySandStone.C
-	  src/SchneiderCompactionCalculator.C
-	  src/SoilMechanicsPorosity.C
+      src/SeismicVelocity.C
+      src/SeismicVelocityGardner.C
+      src/SeismicVelocityKennan.C
+      src/SeismicVelocityWyllie.C
+      src/SchneiderCompactionCalculator.C
+      src/SoilMechanicsPorosity.C
       src/VreTtiMethod.C
       src/VreArrheniusMethod.C
       src/VitriniteReflectance.C
-	  src/WalderhaugCompactionCalculator.C
+      src/WalderhaugCompactionCalculator.C
 )
 
 set(unix_only_srcs
@@ -210,6 +218,21 @@ add_gtest( NAME GeoPhysics::PermeabilityMultiPoint
 
 add_gtest( NAME GeoPhysics::SchneiderCompactionCalculator
       SOURCES test/SchneiderCompactionCalculatorTest.C 
+      LIBRARIES GeoPhysics SerialDataAccess
+)
+
+add_gtest( NAME GeoPhysics::SeismicVelocityGardner
+      SOURCES test/SeismicVelocityGardner.C 
+      LIBRARIES GeoPhysics SerialDataAccess
+)
+
+add_gtest( NAME GeoPhysics::SeismicVelocityKennan
+      SOURCES test/SeismicVelocityKennan.C 
+      LIBRARIES GeoPhysics SerialDataAccess
+)
+
+add_gtest( NAME GeoPhysics::SeismicVelocityWyllie
+      SOURCES test/SeismicVelocityWyllie.C 
       LIBRARIES GeoPhysics SerialDataAccess
 )
 

@@ -42,6 +42,12 @@ namespace DerivedProperties {
       /// \brief Get the undefined value.
       virtual double getUndefinedValue () const;
 
+      /// \brief Return false.
+      bool isPrimary () const;
+
+      /// \ brief Get the gridMap
+      const DataAccess::Interface::GridMap* getGridMap() const;
+
    private :
 
       /// \brief 3D array containing the property values for the formation.
@@ -63,6 +69,16 @@ inline double DerivedProperties::DerivedFormationProperty::get ( unsigned int i,
                                                                  unsigned int j,
                                                                  unsigned int k ) const {
    return m_values [ i - firstI(true)][ j - firstJ(true)][ k - firstK ()];
+}
+
+inline bool DerivedProperties::DerivedFormationProperty::isPrimary () const {
+
+   return false;
+}
+
+inline const DataAccess::Interface::GridMap* DerivedProperties::DerivedFormationProperty::getGridMap() const {
+
+   return 0;
 }
 
 #endif // _DERIVED_PROPERTIES__DERIVED_FORMATION_PROPERTY_H_

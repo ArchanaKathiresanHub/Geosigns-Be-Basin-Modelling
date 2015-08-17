@@ -33,15 +33,30 @@ FCTCalc::FCTCalc( AppCtx* Application_Context )
    // Clear the formation property list until the formation properties (e.g. Thickness) are computed in FCTCalc
    m_mapOutputProperties.clear ();
 
+  PetscBool onlyPrimaryProperties = PETSC_FALSE;
+
+  PetscOptionsHasName ( PETSC_NULL, "-primary", &onlyPrimaryProperties );
+
+#if LITHOLOGYID
+  // Remove from list until the lithology id has been fixed.
    m_volumeOutputProperties.push_back ( LITHOLOGY );
+#endif
+
    m_volumeOutputProperties.push_back ( DEPTH );
    m_volumeOutputProperties.push_back ( VES );
    m_volumeOutputProperties.push_back ( MAXVES );
-   m_volumeOutputProperties.push_back ( LITHOSTATICPRESSURE );
 
+   if(( onlyPrimaryProperties && FastcauldronSimulator::getInstance ().getCalculationMode () == HYDROSTATIC_DECOMPACTION_MODE )) {
+
+      FastcauldronSimulator::getInstance ().setOutputPropertyOption ( DEPTH, Interface::SEDIMENTS_AND_BASEMENT_OUTPUT );
+   }
+
+   if( not ( onlyPrimaryProperties && FastcauldronSimulator::getInstance ().getCalculationMode () == HYDROSTATIC_DECOMPACTION_MODE )) {
+      m_volumeOutputProperties.push_back ( LITHOSTATICPRESSURE );
+      m_volumeOutputProperties.push_back ( POROSITYVEC );
+   } 
    // Required for porosity calculation.
    m_volumeOutputProperties.push_back ( CHEMICAL_COMPACTION ); 
-   m_volumeOutputProperties.push_back ( POROSITYVEC );
 
    if ( FastcauldronSimulator::getInstance ().getCalculationMode () == HYDROSTATIC_HIGH_RES_DECOMPACTION_MODE )
    {
@@ -197,11 +212,16 @@ void FCTCalc::writeCauldronSnapShotTime ( const double time ) {
   }
 
   if ( FastcauldronSimulator::getInstance ().getCalculationMode () == HYDROSTATIC_DECOMPACTION_MODE ) {
+
+#if LITHOLOGYID
      cauldron->Retrieve_Lithology_ID ();
+#endif
      FastcauldronSimulator::getInstance ().saveVolumeProperties ( m_volumeOutputProperties,
                                                                   snapshot,
                                                                   Interface::SEDIMENTS_AND_BASEMENT_OUTPUT );
+#if LITHOLOGYID
      cauldron->deleteLithologyIDs ();
+#endif
   }
 
 }

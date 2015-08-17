@@ -37,6 +37,14 @@ namespace DataAccess
 	    /// Return the present day, user-supplied Surface depth GridMap.
 	    virtual const GridMap * getInputDepthMap (void) const;
 
+       /// \brief Return the present day, user-supplied two way time map from TwoWayTimeIoTbl for this Surface.
+       /// \details If there is no map return a null pointer.
+       virtual const GridMap * getInputTwoWayTimeMap (void) const;
+
+       /// \brief Return the present day, user-supplied two way time scalar from TwoWayTimeIoTbl for this Surface.
+       /// \details Default value is -9999.
+       virtual float getInputTwoWayTimeScalar( void ) const;
+
 	    /// Return the Formation found above this Surface if there is one.
 	    virtual const Formation * getTopFormation (void) const;
 	    /// Return the Formation found below this Surface if there is one.
@@ -48,34 +56,37 @@ namespace DataAccess
 	    virtual GridMap * loadDepthMap (void) const;
 	    virtual GridMap * computeDepthMap (void) const;
 
-            virtual SurfaceKind kind () const;
+       virtual SurfaceKind kind () const;
 
 	    virtual void printOn (ostream &) const;
 
 	    virtual void asString (string &) const;
 
-            /// \brief Get the deposition sequence of the formation directly BELOW the surface.
-            /// 
-            /// This function is required because it may be called before the formations have been set.
-            /// If the formation below is part of the basement a scalar null value will be returned.
-            int getFormationDepoSequenceNumber () const;
+       /// \brief Get the deposition sequence of the formation directly BELOW the surface.
+       /// 
+       /// This function is required because it may be called before the formations have been set.
+       /// If the formation below is part of the basement a scalar null value will be returned.
+       int getFormationDepoSequenceNumber () const;
 
 	 protected :
 
-            /// The record is null.
-            Surface (ProjectHandle * projectHandle);
+       /// The record is null.
+       Surface (ProjectHandle * projectHandle);
 
 	    string m_mangledName;
 
-            static const int DepthMap = 0;
+       enum MapType {
+          DEPTH,
+          TWOWAYTIME,
+       };
 
 	    const Formation * m_top;
 	    const Formation * m_bottom;
 
 	    const Snapshot * m_snapshot;
 
-            SurfaceKind m_kind;
-            int m_formationDepositionSequenceNumber;
+       SurfaceKind m_kind;
+       int m_formationDepositionSequenceNumber;
 
       };
 

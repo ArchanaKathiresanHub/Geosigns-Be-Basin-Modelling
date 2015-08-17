@@ -34,8 +34,8 @@ using Interface::LithoType;
 DataAccess::Interface::ProjectHandle *
 FastcauldronFactory::produceProjectHandle ( database::Database * database,
                                             const string & name,
-                                            const string & accessMode) {
-   return new FastcauldronSimulator ( database, name, accessMode );
+											const string & accessMode) {
+   return new FastcauldronSimulator ( database, name, accessMode, this );
 }
 
 
@@ -51,13 +51,14 @@ DataAccess::Interface::RunParameters * FastcauldronFactory::produceRunParameters
 
 
 DataAccess::Interface::Property * FastcauldronFactory::produceProperty ( Interface::ProjectHandle * projectHandle,
-                                                                              database::Record *              record,
-                                                                              const string &                  userName,
-                                                                              const string &                  cauldronName,
-                                                                              const string &                  unit, 
-                                                                              Interface::PropertyType         type) {
+                                                                         database::Record *              record,
+                                                                         const string &                  userName,
+                                                                         const string &                  cauldronName,
+                                                                         const string &                  unit, 
+                                                                         Interface::PropertyType         type,
+                                                                         const DataModel::PropertyAttribute attr ) {
 
-   return new Property (projectHandle, record, userName, cauldronName, unit, type);
+   return new Property (projectHandle, record, userName, cauldronName, unit, type, attr );
 
 }
 

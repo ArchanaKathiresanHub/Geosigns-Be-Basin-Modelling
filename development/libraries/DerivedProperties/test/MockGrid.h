@@ -13,6 +13,19 @@ namespace DataModel {
 
    public :
 
+      /// \brief X-coordinate of default origin of grid.
+      static const double OriginX;
+
+      /// \brief Y-coordinate of default origin of grid.
+      static const double OriginY;
+
+      /// \brief Spacing between nodes in x-direction.
+      static const double DeltaX;
+
+      /// \brief Spacing between nodes in y-direction.
+      static const double DeltaY;
+
+
       MockGrid ( const int startI, const int ghostStartI,
                  const int startJ, const int ghostStartJ,
                  const int endI,   const int ghostEndI,
@@ -30,6 +43,25 @@ namespace DataModel {
       /// return the last local vertical index
       virtual int lastJ ( bool includeGhosts ) const;
 
+      /// return the distance between two vertical gridlines
+      virtual double deltaI () const;
+
+      /// return the distance between two horizontal gridlines
+      virtual double deltaJ () const;
+
+      /// return the leftmost grid coordinate value
+      virtual double minI () const;
+
+      /// return the bottommost grid coordinate value
+      virtual double minJ () const;
+
+      /// return the rightmost grid coordinate value
+      virtual double maxI () const;
+
+      /// return the topmost grid coordinate value
+      virtual double maxJ () const;
+
+
    private :
 
       /// \brief The non-ghost index is in position 0 and the ghost index is in position 1.
@@ -42,6 +74,20 @@ namespace DataModel {
    };
 
 } // namespace DataModel
+
+
+/// \brief X-coordinate of default origin of grid.
+const double DataModel::MockGrid::OriginX = 0.0;
+
+/// \brief Y-coordinate of default origin of grid.
+const double DataModel::MockGrid::OriginY = 0.0;
+
+/// \brief Spacing between nodes in x-direction.
+const double DataModel::MockGrid::DeltaX  = 100.0;
+
+/// \brief Spacing between nodes in y-direction.
+const double DataModel::MockGrid::DeltaY  = 100.0;
+
 
 inline DataModel::MockGrid::MockGrid ( const int startI, const int ghostStartI,
                                        const int startJ, const int ghostStartJ,
@@ -75,6 +121,31 @@ inline int DataModel::MockGrid::lastI ( const bool includeGhosts ) const {
 
 inline int DataModel::MockGrid::lastJ ( const bool includeGhosts ) const {
    return m_lastJ [(includeGhosts ? 1 : 0 )];
+}
+
+
+inline double DataModel::MockGrid::deltaI () const {
+   return DeltaX;
+}
+
+inline double DataModel::MockGrid::deltaJ () const {
+   return DeltaY;
+}
+
+inline double DataModel::MockGrid::minI () const {
+   return OriginX;
+}
+
+inline double DataModel::MockGrid::minJ () const {
+   return OriginY;
+}
+
+inline double DataModel::MockGrid::maxI () const {
+   return OriginX + ( m_lastI [ 1 ] - m_firstI [ 1 ]) * DeltaX;
+}
+
+inline double DataModel::MockGrid::maxJ () const {
+   return OriginY + ( m_lastJ [ 1 ] - m_firstJ [ 1 ]) * DeltaY;
 }
 
 

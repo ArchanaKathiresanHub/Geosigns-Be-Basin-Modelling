@@ -20,16 +20,31 @@ include_directories(
 
 bm_include_libraries(
 	DataModel
+	DataAccess
 	SerialDataAccess
+	Interpolation
+	LinearAlgebra
+	GeoPhysics
+	DerivedProperties
 	DataAccess
 	TableIO
 	CBMGenerics
+	EosPack
+	utilities
 )
 
 target_link_libraries(cauldron2eclipse
+	DataMining
 	DataAccess
 	SerialDataAccess
+	Interpolation
+	LinearAlgebra
+	GeoPhysics
+	DerivedProperties
+	DataAccess	
 	TableIO
+	EosPack
+	utilities
 	${HDF5_LIBRARIES}
 )
 

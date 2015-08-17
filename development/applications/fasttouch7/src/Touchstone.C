@@ -174,7 +174,7 @@ bool TouchstoneWrapper::loadTcf ( )
    //is a direct analog run
    m_directAnalogRun = m_tcfInfo->IsDirectAnalogRun();
 
-   //create number of realizations   
+   //create number of realizations  
    if ( !m_directAnalogRun ) m_nrOfRealizations = m_tcfInfo->Realizations();	
 
    // Create a Touchstone Calculation Context
@@ -254,7 +254,8 @@ bool TouchstoneWrapper::loadTcf ( )
    try 
    { 
       int randomSeed = 0; 
-      for ( int  i = 0; i != strlen(m_filename); ++i ) randomSeed +=m_filename[i];
+      //read the seed parameter from the TCF file using the RealizationSeed() function
+      randomSeed = m_tcfInfo->RealizationSeed();
       if ( !m_directAnalogRun ) m_tslibCalcContext->CreateRealizations( m_nrOfRealizations, randomSeed, 1); 
    }      
    catch ( const GeocosmException & g ) 

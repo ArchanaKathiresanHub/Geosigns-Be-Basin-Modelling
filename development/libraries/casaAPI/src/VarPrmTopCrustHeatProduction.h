@@ -27,7 +27,8 @@ namespace casa
       /// @param minValue  minimal range value
       /// @param maxValue  maximal range value
       /// @param pdfType type of probabiltiy density function for this variable parameter
-      VarPrmTopCrustHeatProduction( double baseValue, double minValue, double maxValue, PDF pdfType );
+      /// @param name user specified parameter name
+      VarPrmTopCrustHeatProduction( double baseValue, double minValue, double maxValue, PDF pdfType, const char * name = 0 );
 
       /// @brief Destructor
       virtual ~VarPrmTopCrustHeatProduction();
@@ -48,7 +49,7 @@ namespace casa
       /// @{
       /// @brief Defines version of serialized object representation. Must be updated on each change in save()
       /// @return Actual version of serialized object representation
-      virtual unsigned int version() const { return 0; }
+      virtual unsigned int version() const { return VarPrmContinuous::version() + 0; }
 
       /// @brief Get type name of the serialaizable object, used in deserialization to create object with correct type
       /// @return object class name
@@ -58,12 +59,12 @@ namespace casa
       /// @param sz Serializer stream
       /// @param  version stream version
       /// @return true if it succeeds, false if it fails.
-      virtual bool save( CasaSerializer & sz, unsigned int version ) const { return VarPrmContinuous::save( sz, version ); }
+      virtual bool save( CasaSerializer & sz, unsigned int version ) const;
 
       /// @brief Create a new var.parameter instance by deserializing it from the given stream
       /// @param dz input stream
       /// @param objVer version of object representation in stream
-      VarPrmTopCrustHeatProduction( CasaDeserializer & dz, unsigned int objVer ) : VarPrmContinuous( dz, objVer ) { ; }
+      VarPrmTopCrustHeatProduction( CasaDeserializer & dz, unsigned int objVer );
 
    protected:
    };

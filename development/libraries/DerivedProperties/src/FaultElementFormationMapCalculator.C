@@ -12,8 +12,13 @@ void DerivedProperties::FaultElementFormationMapCalculator::calculate ( Abstract
                                                                         const DataModel::AbstractFormation* formation,
                                                                               FormationMapPropertyList&     derivedProperties ) const {
 
-   const DataModel::AbstractProperty* faultElementProperty = propertyManager.getProperty ( "FaultElements" );
+ 
    const GeoPhysics::Formation* geophysicsFormation = dynamic_cast<const GeoPhysics::Formation*>( formation );
+
+   if( not geophysicsFormation->getContainsFaults () ) {
+      return;
+   }
+   const DataModel::AbstractProperty* faultElementProperty = propertyManager.getProperty ( "FaultElements" );
 
    derivedProperties.clear ();
 
@@ -21,6 +26,8 @@ void DerivedProperties::FaultElementFormationMapCalculator::calculate ( Abstract
                                                                                                                                         snapshot,
                                                                                                                                         formation,
                                                                                                                                         propertyManager.getMapGrid ()));
+   faultElements->retrieveData();
+
    double undefinedValue = faultElements->getUndefinedValue ();
 
    for ( unsigned int i = faultElements->firstI ( true ); i <= faultElements->lastI ( true ); ++i ) {
@@ -29,7 +36,7 @@ void DerivedProperties::FaultElementFormationMapCalculator::calculate ( Abstract
 
          if ( propertyManager.getNodeIsValid ( i, j )) {
 
-            if ( geophysicsFormation->getCompoundLithology ( i, j )->isFault ()) {
+            if ( geophysicsFormation->getCompoundLithologyArray()( i, j, snapshot->getTime() )->isFault ()) {
                faultElements->set ( i, j, 1.0 );
             } else {
                faultElements->set ( i, j, 0.0 );
@@ -42,6 +49,7 @@ void DerivedProperties::FaultElementFormationMapCalculator::calculate ( Abstract
       }
 
    }
+   faultElements->restoreData();
 
    derivedProperties.push_back ( faultElements );
 }

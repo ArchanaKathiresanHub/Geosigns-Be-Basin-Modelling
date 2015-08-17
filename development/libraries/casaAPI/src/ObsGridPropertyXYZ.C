@@ -28,29 +28,34 @@ namespace casa
 {
 
 // Create observable for the given grid property for specified grid position
-ObsGridPropertyXYZ::ObsGridPropertyXYZ( double x, double y, double z, const char * propName, double simTime )
+ObsGridPropertyXYZ::ObsGridPropertyXYZ( double x
+                                      , double y
+                                      , double z
+                                      , const char * propName
+                                      , double simTime
+                                      , const std::string & name
+                                      )
+                                      : m_x( x )
+                                      , m_y( y )
+                                      , m_z( z )
+                                      , m_propName( propName )
+                                      , m_simTime( simTime )
+                                      , m_devValue( 0.0 )
+                                      , m_saWeight( 1.0 )
+                                      , m_uaWeight( 1.0 )
+                                      , m_posDataMiningTbl( -1 )
 {
-   assert( propName  != NULL );
-
-   m_posDataMiningTbl = -1;
-
-   m_x = x;
-   m_y = y;
-   m_z = z;
-
-   m_propName  = propName;
-   m_simTime  = simTime;
-   m_devValue = 0.0;
-
-   m_saWeight = 1.0;
-   m_uaWeight = 1.0;
-
-
+   // check input values
+   if ( m_propName.empty() ) throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "No property name specified for point target";
+   
    // construct observable name
-
-   std::ostringstream oss;
-   oss << m_propName << "(" << m_x << "," << m_y << "," << m_z << "," << m_simTime << ")";
-   m_name.push_back( oss.str() );
+   if ( name.empty() )
+   {
+      std::ostringstream oss;
+      oss << m_propName << "(" << m_x << "," << m_y << "," << m_z << "," << m_simTime << ")";
+      m_name.push_back( oss.str() );
+   }
+   else { m_name.push_back( name ); }
 }
 
 // Destructor
@@ -138,6 +143,27 @@ ObsValue * ObsGridPropertyXYZ::getFromModel( mbapi::Model & caldModel )
 
    return new ObsValueDoubleScalar( this, val );
 }
+
+// Check well against project coordinates
+std::string ObsGridPropertyXYZ::checkObservableForProject( mbapi::Model & caldModel )
+{
+   std::ostringstream oss;
+
+   double x0, y0;
+   caldModel.origin( x0, y0 );
+   
+   double dimX, dimY;
+   caldModel.arealSize( dimX, dimY );
+
+   if ( m_x < x0 || m_x > x0 + dimX ||
+        m_y < y0 || m_y > y0 + dimY )
+   {
+      oss << "Point is outside of the project boundaries"; 
+   }
+
+   return oss.str();
+}
+
 
 // Create this observable value from double array (converting data from SUMlib for response surface evaluation
 ObsValue * ObsGridPropertyXYZ::createNewObsValueFromDouble( std::vector<double>::const_iterator & val ) const

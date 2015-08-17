@@ -6,6 +6,8 @@
 #include "InterfaceInput.h"
 #include "InterfaceOutput.h"
 
+#include "GeoPhysicsProjectHandle.h"
+
 using namespace DataAccess;
 using namespace std;
 
@@ -17,11 +19,11 @@ const int SUR = 0x0004;
 
 void displayTime ( const double timeToDisplay, const char * msgToDisplay );
 
-class CrustalThicknessCalculator : public Interface::ProjectHandle {
+class CrustalThicknessCalculator : public GeoPhysics::ProjectHandle {
 
 public :
    // Constructor / Destructor
-   CrustalThicknessCalculator( database::Database * database, const std::string & name, const std::string & accessMode );
+   CrustalThicknessCalculator( database::Database * database, const std::string & name, const std::string & accessMode, ObjectFactory* factory );
 
    ~CrustalThicknessCalculator();
 
@@ -29,7 +31,7 @@ public :
    static CrustalThicknessCalculator& getInstance ();
 
    // Open the project file
-   static CrustalThicknessCalculator* CreateFrom ( const string& inputFileName );
+   static CrustalThicknessCalculator* CreateFrom ( const string& inputFileName, ObjectFactory* factory );
 
    // Finish any activity and deallocate the singleton object.
    static void finalise ( const bool saveResults );

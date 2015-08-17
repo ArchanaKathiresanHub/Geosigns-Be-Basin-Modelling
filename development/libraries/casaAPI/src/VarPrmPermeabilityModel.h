@@ -30,13 +30,14 @@ namespace casa
                                                           );
 
       /// @brief Construct variable parameter for variation of permeability model parameters for the layer with specific lithology
-      /// Permeability models and their parameters are described @link CASA_PermeabilityModelPage here. @endlink
+      /// Permeability models and their parameters are described @link CASA_PermeabilityModelPage here @endlink 
       VarPrmPermeabilityModel( const char                                  * lithoName     ///< name of the lithology
                              , PrmPermeabilityModel::PermeabilityModelType   mdlType       ///< perm. model type: None/Impermeable/Sanstone/Mudstone/Multipoint
                              , const std::vector<double>                   & baseModelPrms ///< base case model parameters
                              , const std::vector<double>                   & minModelPrms  ///< min case model parameters
                              , const std::vector<double>                   & maxModelPrms  ///< max case model parameters
                              , PDF                                           prmPDF        ///< probability density function for all 4 sub-parameters
+                             , const char                                  * name = 0      ///< user specified parameter name
                          );
 
       virtual ~VarPrmPermeabilityModel();
@@ -57,7 +58,7 @@ namespace casa
       /// @{
       /// @brief Defines version of serialized object representation. Must be updated on each change in save()
       /// @return Actual version of serialized object representation
-      virtual unsigned int version() const { return 0; }
+      virtual unsigned int version() const { return VarPrmContinuous::version() + 0; }
 
       /// @brief Get type name of the serialaizable object, used in deserialization to create object with correct type
       /// @return object class name
@@ -76,8 +77,8 @@ namespace casa
       /// @}
    
    protected:
-      PrmPermeabilityModel::PermeabilityModelType m_mdlType;
-      std::string                                 m_lithoName; 
+      PrmPermeabilityModel::PermeabilityModelType m_mdlType;   ///< permeability model type
+      std::string                                 m_lithoName; ///< lithology name
    };
 }
 

@@ -189,7 +189,7 @@ PrmPermeabilityModel::PrmPermeabilityModel( const VarPrmPermeabilityModel * pare
 }
 
 // Update given model with the parameter value
-ErrorHandler::ReturnCode PrmPermeabilityModel::setInModel( mbapi::Model & caldModel )
+ErrorHandler::ReturnCode PrmPermeabilityModel::setInModel( mbapi::Model & caldModel, size_t /* caseID */ )
 {
    std::vector<double> modelPrms;
    

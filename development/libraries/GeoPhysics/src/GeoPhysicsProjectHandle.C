@@ -46,8 +46,8 @@
 using namespace DataAccess;
 using namespace CBMGenerics;
 
-GeoPhysics::ProjectHandle::ProjectHandle ( database::Database * database, const std::string & name, const std::string & accessMode ) :
-   DataAccess::Interface::ProjectHandle ( database, name, accessMode ) {
+GeoPhysics::ProjectHandle::ProjectHandle ( database::Database * database, const std::string & name, const std::string & accessMode, DataAccess::Interface::ObjectFactory* objectFactory ) :
+   DataAccess::Interface::ProjectHandle ( database, name, accessMode, objectFactory ) {
 
    m_lithologyManager = new LithologyManager ( this );
 
@@ -201,11 +201,11 @@ GeoPhysics::BasementLithologyProps * GeoPhysics::ProjectHandle::getBasementLitho
 
 //------------------------------------------------------------//
 
-bool GeoPhysics::ProjectHandle::startActivity ( const std::string& name, const DataAccess::Interface::Grid* grid ) {
+bool GeoPhysics::ProjectHandle::startActivity ( const std::string& name, const DataAccess::Interface::Grid* grid, bool saveAsInputGrid, bool createResultsFile, bool append ) {
 
    bool started;
 
-   started = DataAccess::Interface::ProjectHandle::startActivity ( name, grid );
+   started = DataAccess::Interface::ProjectHandle::startActivity ( name, grid, saveAsInputGrid, createResultsFile, append );
 
    if ( started ) {
       // Now get the boundaries of the activity grid for this process.
@@ -596,7 +596,7 @@ void GeoPhysics::ProjectHandle::addFormationUndefinedAreas ( const Interface::Fo
 
 bool GeoPhysics::ProjectHandle::initialiseValidNodes ( const bool readSizeFromVolumeData ) {
 
-   m_validNodes.allocate ( getActivityOutputGrid ());
+   m_validNodes.reallocate ( getActivityOutputGrid ());
    m_validNodes.fill ( true );
 
    Interface::MutableFormationList::iterator formationIter;
@@ -769,7 +769,7 @@ bool GeoPhysics::ProjectHandle::createSeaBottomTemperature () {
    unsigned int j;
 
    //Create 2D Array of Polyfunction for Sea Bottom Temperature
-   m_seaBottomTemperature.allocate ( getActivityOutputGrid ());
+   m_seaBottomTemperature.reallocate ( getActivityOutputGrid ());
 
    Interface::PaleoPropertyList* surfaceTemperatureHistory = getSurfaceTemperatureHistory ();
    Interface::PaleoPropertyList::const_iterator surfaceTemperatureIter;
@@ -821,7 +821,7 @@ bool GeoPhysics::ProjectHandle::createPaleoBathymetry () {
    unsigned int j;
 
    //Create 2D Array of Polyfunction for sea bottom depth.
-   m_seaBottomDepth.allocate ( getActivityOutputGrid ());
+   m_seaBottomDepth.reallocate ( getActivityOutputGrid ());
 
    Interface::PaleoPropertyList* surfaceDepthHistory = getSurfaceDepthHistory ();
    Interface::PaleoPropertyList::const_iterator surfaceDepthIter;
@@ -880,7 +880,7 @@ bool GeoPhysics::ProjectHandle::createMantleHeatFlow () {
       unsigned int j;
 
       //Create 2D Array of Polyfunction for Mantle HeatFlow
-      m_mantleHeatFlow.allocate ( getActivityOutputGrid ());
+      m_mantleHeatFlow.reallocate ( getActivityOutputGrid ());
 
       Interface::PaleoSurfacePropertyList* heatFlowHistory = getHeatFlowHistory ();
       Interface::PaleoSurfacePropertyList::const_iterator heatFlowIter;
@@ -925,9 +925,9 @@ bool GeoPhysics::ProjectHandle::createBasaltThicknessAndECT () {
       unsigned int j;
 
       //Create 2D Array of Polyfunction for Crust Thickness
-      m_crustThicknessHistory.allocate ( getActivityOutputGrid ());
-      m_basaltThicknessHistory.allocate ( getActivityOutputGrid ());
-      m_endOfRiftEvent.allocate ( getActivityOutputGrid ());
+      m_crustThicknessHistory.reallocate ( getActivityOutputGrid ());
+      m_basaltThicknessHistory.reallocate ( getActivityOutputGrid ());
+      m_endOfRiftEvent.reallocate ( getActivityOutputGrid ());
 
       Interface::PaleoFormationPropertyList* crustThicknesses = getCrustFormation ()->getPaleoThicknessHistory ();
       Interface::PaleoFormationPropertyList::reverse_iterator crustThicknessIter;
@@ -1085,7 +1085,7 @@ bool GeoPhysics::ProjectHandle::createCrustThickness () {
 
 
    //Create 2D Array of Polyfunction for Crust Thickness
-   m_crustThicknessHistory.allocate ( getActivityOutputGrid ());
+   m_crustThicknessHistory.reallocate ( getActivityOutputGrid ());
   
    if ( getBottomBoundaryConditions () == Interface::FIXED_BASEMENT_TEMPERATURE ) {
 
@@ -1130,7 +1130,7 @@ bool GeoPhysics::ProjectHandle::createCrustThickness () {
       Interface::PaleoFormationPropertyList* crustThicknesses = getCrustFormation ()->getPaleoThicknessHistory ();
       Interface::PaleoFormationPropertyList::const_iterator crustThicknessIter;
   
-      m_contCrustThicknessHistory.allocate ( getActivityOutputGrid ());
+      m_contCrustThicknessHistory.reallocate ( getActivityOutputGrid ());
     
       double localInitialCrustThickness =  -9999999999.9;
       double localMaximumCrustThickness =  -9999999999.9;
@@ -1475,9 +1475,9 @@ bool GeoPhysics::ProjectHandle::initialiseLayerThicknessHistory ( const bool ove
 
       GeoPhysics::Formation* formation = dynamic_cast<GeoPhysics::Formation*>(*formationIter);
 
-      formation->m_solidThickness.allocate ( getActivityOutputGrid (), formation->getMaximumNumberOfElements ());
-      formation->m_realThickness.allocate  ( getActivityOutputGrid (), formation->getMaximumNumberOfElements ());
-      formation->m_presentDayErodedThickness.allocate ( getActivityOutputGrid ());
+      formation->m_solidThickness.reallocate ( getActivityOutputGrid (), formation->getMaximumNumberOfElements ());
+      formation->m_realThickness.reallocate  ( getActivityOutputGrid (), formation->getMaximumNumberOfElements ());
+      formation->m_presentDayErodedThickness.reallocate ( getActivityOutputGrid ());
 
    }
 

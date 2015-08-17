@@ -6,11 +6,12 @@
 #include "CompoundProperty.h"
 
 
-DataAccess::Mining::PermeabilityCalculator::PermeabilityCalculator ( const DomainPropertyCollection*  collection,
-                                                                     const Interface::Snapshot* snapshot,
-                                                                     const Interface::Property* property,
-                                                                     const bool                 normalPermeability ) :
-   DomainFormationProperty ( collection, snapshot, property ),
+DataAccess::Mining::PermeabilityCalculator::PermeabilityCalculator ( const DomainPropertyCollection*            collection,
+                                                                     DerivedProperties::DerivedPropertyManager& propertyManager,
+                                                                     const Interface::Snapshot*                 snapshot,
+                                                                     const Interface::Property*                 property,
+                                                                     const bool                                 normalPermeability ) :
+   DomainFormationProperty ( collection, propertyManager, snapshot, property ),
    m_normalPermeability ( normalPermeability )
 {
    m_ves = 0;
@@ -21,8 +22,8 @@ DataAccess::Mining::PermeabilityCalculator::PermeabilityCalculator ( const Domai
 bool DataAccess::Mining::PermeabilityCalculator::initialise () {
 
    if ( not m_initialised ) {
-      m_ves = getPropertyCollection ()->getDomainProperty ( "Ves" );
-      m_maxVes = getPropertyCollection ()->getDomainProperty ( "MaxVes" );
+      m_ves = getPropertyCollection ()->getDomainProperty ( "Ves", getPropertyManager ());
+      m_maxVes = getPropertyCollection ()->getDomainProperty ( "MaxVes", getPropertyManager ());
 
       if ( m_ves != 0 and m_maxVes != 0 ) {
          m_initialised = true;
@@ -85,8 +86,9 @@ DataAccess::Mining::PermeabilityCalculatorAllocator::PermeabilityCalculatorAlloc
 {
 }
 
-DataAccess::Mining::DomainProperty* DataAccess::Mining::PermeabilityCalculatorAllocator::allocate ( const DomainPropertyCollection*  collection,
-                                                                                                    const Interface::Snapshot* snapshot,
-                                                                                                    const Interface::Property* property ) const {
-   return new PermeabilityCalculator ( collection, snapshot, property, m_normalPermeability );
+DataAccess::Mining::DomainProperty* DataAccess::Mining::PermeabilityCalculatorAllocator::allocate ( const DomainPropertyCollection*            collection,
+                                                                                                    DerivedProperties::DerivedPropertyManager& propertyManager,
+                                                                                                    const Interface::Snapshot*                 snapshot,
+                                                                                                    const Interface::Property*                 property ) const {
+   return new PermeabilityCalculator ( collection, propertyManager, snapshot, property, m_normalPermeability );
 }

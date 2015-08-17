@@ -3170,10 +3170,10 @@ bool AppCtx::createFormationLithologies ( const bool canRunSaltModelling ) {
       continue;
     }
 
-    Current_Layer -> Previous_Topmost_Segments.allocate ( FastcauldronSimulator::getInstance ().getActivityOutputGrid ());
+    Current_Layer -> Previous_Topmost_Segments.reallocate ( FastcauldronSimulator::getInstance ().getActivityOutputGrid ());
     Current_Layer -> Previous_Topmost_Segments.fill ( -1 );
 
-    Current_Layer -> Current_Topmost_Segments.allocate ( FastcauldronSimulator::getInstance ().getActivityOutputGrid ());
+    Current_Layer -> Current_Topmost_Segments.reallocate ( FastcauldronSimulator::getInstance ().getActivityOutputGrid ());
     Current_Layer -> Current_Topmost_Segments.fill ( -1 );
 
     Layers++;
@@ -3918,32 +3918,24 @@ bool AppCtx::findActiveElements(const double time)
     return true;
   }
 
-  // loop backwards through the layers excluding the Mantle, Crust and Surface
+  // loop backwards through the layers i.e. upwards in the deposition sequence excluding the Mantle, Crust and Surface
   for (i = int(nlayers-3); i>=0; i--) {
 
     if (0 == layers[i]->getMaximumNumberOfElements()) continue;
     
     // if we have already deposited this layer then all elements are active
-    if (time < layers[i]->depoage) {
+    if (time <= layers[i]->depoage) {
 	layers[i]->setNrOfActiveElements(layers[i]->getMaximumNumberOfElements());
     } else {
 
-      //Time is Greater (or Equal) than this layer's start of Deposition -> exit loop
-      if (time > layers[i+1]->depoage || ( fabs(time-layers[i+1]->depoage) < time*1e-6 ) ) break;
-
-      //Set Nb Active Elts to Nb Elts for Mobile Layers
-      if (layers[i]->isMobileLayer ()) {
-	layers[i]->setNrOfActiveElements(layers[i]->getMaximumNumberOfElements());
-      } else {
-
-	// otherwise set the number of active elements according
-	// to the proportion of the layer deposited
-
-	int Number_Active_Elements;
-  	Number_Active_Elements = layers[i]->getMaximumNumberOfElements();
-
-	layers[i]->setNrOfActiveElements( Number_Active_Elements );
+      //Time is Greater (or Equal) than this layer's start of Deposition i.e. the end of the deposition of the layer above -> exit loop
+      if (time > layers[i+1]->depoage || ( fabs(time-layers[i+1]->depoage) < time*1e-9 ) )
+      {
+         break;
       }
+
+      //Set the number of active elements according to the proportion of layer deposited
+      layers[i]->setNrOfActiveElements(layers[i]->getMaximumNumberOfElements());     
 
       // terminate the processing as this is the last layer being deposited
       break;

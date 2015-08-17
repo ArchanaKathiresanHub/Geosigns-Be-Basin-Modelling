@@ -27,7 +27,10 @@ namespace casa
 {
 
    // Constructor
-   RunCaseImpl::RunCaseImpl() : m_runState( NotSubmitted ) { ; }
+   RunCaseImpl::RunCaseImpl()
+      : m_runState( NotSubmitted )
+      , m_id( 0 )
+   { ; }
 
    // Destructor
    RunCaseImpl::~RunCaseImpl()
@@ -107,7 +110,7 @@ namespace casa
       // apply mutations
       for ( size_t i = 0; i < m_prmsSet.size(); ++i )
       {
-         if ( ErrorHandler::NoError != m_prmsSet[i]->setInModel( *(m_model.get()) ) ) 
+         if ( ErrorHandler::NoError != m_prmsSet[i]->setInModel( *(m_model.get()), id() ) ) 
          {
             throw ErrorHandler::Exception( m_model->errorCode() ) << m_model->errorMessage();
          }
@@ -201,10 +204,9 @@ namespace casa
             ok = sz.save( *m_results[i], "CaseObsVal" );
          }
       }
-      if ( fileVersion >= 3 )
-      {
-         ok = ok ? sz.save( static_cast<int>( m_runState ), "RunCaseState" ) : ok;
-      }
+      if ( fileVersion >= 3 ) { ok = ok ? sz.save( static_cast<int>( m_runState ), "RunCaseState" ) : ok; }
+      if ( fileVersion >= 5 ) { ok = ok ? sz.save( m_id,                           "RunCaseID"    ) : ok; }
+
       return ok;
    }
 
@@ -244,9 +246,16 @@ namespace casa
          m_results.push_back( ov );
       }
 
-      int st;
-      ok = ok ? dz.load( st, "RunCaseState" ) : ok;
-      m_runState = ok ? static_cast<CaseStatus>( st ) : NotSubmitted;
+      if ( objVer >= 1 )
+      {
+         int st;
+         ok = ok ? dz.load( st, "RunCaseState" ) : ok;
+         m_runState = ok ? static_cast<CaseStatus>(st) : NotSubmitted;
+      }
+      else { m_runState = NotSubmitted; }
+      
+      if ( objVer >= 2 ) { ok = ok ? dz.load( m_id, "RunCaseID" ) : ok; }
+      else               { m_id = 0; }
 
       if ( !ok )
       {

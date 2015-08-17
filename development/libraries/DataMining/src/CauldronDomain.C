@@ -21,7 +21,8 @@ DataAccess::Mining::CauldronDomain::~CauldronDomain()
 }
 
 //------------------------------------------------------------//
-void DataAccess::Mining::CauldronDomain::setSnapshot( const Interface::Snapshot * snapshot )
+void DataAccess::Mining::CauldronDomain::setSnapshot( const Interface::Snapshot *                snapshot,
+                                                      DerivedProperties::DerivedPropertyManager& propertyManager )
 {
    if ( m_snapshot == snapshot ) return;
 
@@ -30,34 +31,7 @@ void DataAccess::Mining::CauldronDomain::setSnapshot( const Interface::Snapshot 
    m_snapshot = snapshot;
 
    // Get all 3d depth grids.
-   Interface::PropertyValueList * domainDepths = m_projectHandle->getPropertyValues( FORMATION, m_depthProperty, m_snapshot, 0, 0, 0, VOLUME );
-
-   for ( Interface::PropertyValueList::const_iterator depthIter = domainDepths->begin(); depthIter != domainDepths->end(); ++depthIter )
-   {
-      const Interface::PropertyValue * propertyValue = *depthIter;
-      const Interface::GridMap       * grid          = propertyValue->getGridMap();
-      const Interface::Formation     * formation     = propertyValue->getFormation();
-
-      // Add depth grid to list.
-      m_domainDepths.push_back( propertyValue );
-
-      // Create mapping from formation->depth-grid.
-      m_formationToMap [ formation ] = propertyValue;
-
-      // Create mapping from depth-grid->formation (the inverse of above).
-      m_mapToFormation [ propertyValue ] = formation;
-
-#if 0
-      cout << " depth map : "  << propertyValue->getSnapshot ()->getTime () << "  "
-           << propertyValue->getFormation ()->getName () << "  "
-           << grid->getValue ( (unsigned int)(0), 0, 0 ) << "  " 
-           << grid->getValue ( (unsigned int)(0), 0, grid->getDepth () - 1 ) << "  "
-           << grid->getDepth ()
-           << endl;
-#endif
-   }
-
-   delete domainDepths;
+   m_domainDerivedDepths = propertyManager.getFormationProperties ( m_depthProperty, m_snapshot, true );
 }
 
 //------------------------------------------------------------//
@@ -121,13 +95,18 @@ bool DataAccess::Mining::CauldronDomain::findLocation( double x, double y, doubl
       double bottomDepth = Interface::DefaultUndefinedMapValue;
 
       int count = 0;
-      for ( PropertyValueList::const_iterator depthIter = m_domainDepths.begin(); depthIter != m_domainDepths.end(); ++depthIter )
+
+
+      for ( DerivedProperties::FormationPropertyList::const_iterator depthIter = m_domainDerivedDepths.begin(); depthIter != m_domainDerivedDepths.end(); ++depthIter )
       {
-         const Interface::PropertyValue * grid = *depthIter;
 
-         if ( count == 0 ) { topDepth = interpolate2D( element, grid->getGridMap(), 0 ); }
+         DerivedProperties::FormationPropertyPtr grid = *depthIter;
 
-         bottomDepth = interpolate2D( element, grid->getGridMap(), grid->getGridMap()->getDepth() - 1 );
+         if ( count == 0 ) { 
+            topDepth = interpolate2D ( element, grid, 0 );
+         }
+
+         bottomDepth = interpolate2D( element, grid, grid->lastK ());
 
          if ( topDepth == Interface::DefaultUndefinedMapValue or bottomDepth == Interface::DefaultUndefinedMapValue )
          {
@@ -136,11 +115,11 @@ bool DataAccess::Mining::CauldronDomain::findLocation( double x, double y, doubl
 
          if ( NumericFunctions::inRange( z, topDepth, bottomDepth ) )
          {
-            topDepth = interpolate2D( element, grid->getGridMap (), 0 );
+            topDepth = interpolate2D( element, grid, 0 );
 
-            for ( unsigned int l = 0; l < grid->getGridMap()->getDepth() - 1; ++l )
+            for ( unsigned int l = 0; l < grid->lengthK () - 1; ++l )
             {
-               bottomDepth = interpolate2D( element, grid->getGridMap(), l + 1 );
+               bottomDepth = interpolate2D( element, grid, l + 1 );
 
                if ( topDepth < bottomDepth and NumericFunctions::inRange( z, topDepth, bottomDepth ) )
                {
@@ -150,7 +129,8 @@ bool DataAccess::Mining::CauldronDomain::findLocation( double x, double y, doubl
                   element.setDepthPosition( count + l, l );
 
                   // The grid must be in the mapping.
-                  element.setFormation( m_mapToFormation.find( grid )->second );
+                  element.setFormation( dynamic_cast<const Interface::Formation*>( grid->getFormation ()));
+                  // element.setFormation( m_mapToFormation.find( grid )->second );
                   break;
                }
                topDepth = bottomDepth;
@@ -160,13 +140,17 @@ bool DataAccess::Mining::CauldronDomain::findLocation( double x, double y, doubl
          else
          {
             // Minus 1 because we do not want to include the end (bottom) point twice.
-            count += grid->getGridMap ()->getDepth() - 1;
+            count += grid->lengthK () - 1;
          }
+
          topDepth = bottomDepth;
       }
+
    }
 
-   if ( not elementFound ) { element.clear (); }
+   if ( not elementFound ) {
+      element.clear ();
+   }
 
    return elementFound;
 }
@@ -193,17 +177,19 @@ bool DataAccess::Mining::CauldronDomain::findLocation( double x, double y, const
       if ( element.getI() != (unsigned int)(Interface::DefaultUndefinedMapValue ) )
       {
          int  count = 0;
-         for ( PropertyValueList::const_iterator depthIter = m_domainDepths.begin(); depthIter != m_domainDepths.end(); ++depthIter )
-         {
-            const Interface::PropertyValue* grid = *depthIter;
+
+
+         for ( DerivedProperties::FormationPropertyList::const_iterator depthIter = m_domainDerivedDepths.begin(); depthIter != m_domainDerivedDepths.end(); ++depthIter ) {
+
+            DerivedProperties::FormationPropertyPtr grid = *depthIter;
 
             // The formation must be in the domain of the map, since the this grid was added at the same time!
-            const Interface::Formation* formation = m_mapToFormation.find( grid )->second;
+            const Interface::Formation* formation = dynamic_cast<const Interface::Formation*>( grid->getFormation ());//m_mapToFormation.find( grid )->second;
 
             if ( formation->getTopSurface() == surface )
             {
                // Interpolate the depth at the (x,y) point on the surface.
-               surfaceDepth = interpolate2D( element, grid->getGridMap(), 0 );
+               surfaceDepth = interpolate2D ( element, grid, 0 );
 
                if ( surfaceDepth != Interface::DefaultUndefinedMapValue )
                {
@@ -221,10 +207,12 @@ bool DataAccess::Mining::CauldronDomain::findLocation( double x, double y, const
             }
             else
             {
-               count += grid->getGridMap()->getDepth () - 1;
+               count += grid->lengthK () - 1;
             }
          }
+
       }
+
    }
    
    if ( not elementFound ) { element.clear (); }
@@ -247,15 +235,16 @@ bool DataAccess::Mining::CauldronDomain::findLocation( double x, double y, const
       if ( element.getI() != (unsigned int)(Interface::DefaultUndefinedMapValue ) )
       {
          int  count = 0;
-         for ( PropertyValueList::const_iterator depthIter = m_domainDepths.begin(); depthIter != m_domainDepths.end(); ++depthIter )
-         {
-            const Interface::PropertyValue * grid = *depthIter;
+
+         for ( DerivedProperties::FormationPropertyList::const_iterator depthIter = m_domainDerivedDepths.begin(); depthIter != m_domainDerivedDepths.end(); ++depthIter ) {
+
+            DerivedProperties::FormationPropertyPtr grid = *depthIter;
 
             // The formation must be in the domain of the map, since the this grid was added at the same time!
-            if ( m_mapToFormation.find( grid )->second == formation )
+            if ( grid->getFormation () == formation )
             { 
                // Interpolate the depth at the (x,y) point on the surface.
-               surfaceDepth = interpolate2D( element, grid->getGridMap(), 0 );
+               surfaceDepth = interpolate2D( element, grid, 0 );
 
                if ( surfaceDepth != Interface::DefaultUndefinedMapValue )
                {
@@ -272,7 +261,7 @@ bool DataAccess::Mining::CauldronDomain::findLocation( double x, double y, const
             }
             else
             {
-               count += grid->getGridMap()->getDepth () - 1;
+               count += grid->lengthK () - 1;
             }
          }
       }
@@ -287,9 +276,7 @@ bool DataAccess::Mining::CauldronDomain::findLocation( double x, double y, const
 //------------------------------------------------------------//
 
 void DataAccess::Mining::CauldronDomain::clear () {
-   m_domainDepths.clear ();
-   m_formationToMap.clear ();
-   m_mapToFormation.clear ();
+   m_domainDerivedDepths.clear ();
 }
 
 //------------------------------------------------------------//
@@ -300,11 +287,12 @@ void DataAccess::Mining::CauldronDomain::getTopSurface( double x, double y, Elem
 
    bool foundSurface = false;
 
-   if ( element.isValidPlaneElement() and m_domainDepths.size() != 0 ) 
+   if ( element.isValidPlaneElement() and m_domainDerivedDepths.size() != 0 ) 
    {
-      const Interface::PropertyValue * grid       = m_domainDepths [ 0 ];
-      const Interface::Formation     * formation  = m_mapToFormation.find ( grid )->second;
-      const Interface::Surface       * topSurface = formation->getTopSurface ();
+
+      DerivedProperties::FormationPropertyPtr grid = m_domainDerivedDepths [ 0 ];
+      const Interface::Formation*             formation = dynamic_cast<const Interface::Formation*>( grid->getFormation ());
+      const Interface::Surface*               topSurface = formation->getTopSurface ();
 
       if ( includeBasement or formation->kind() != Interface::BASEMENT_FORMATION )
       {
@@ -312,7 +300,7 @@ void DataAccess::Mining::CauldronDomain::getTopSurface( double x, double y, Elem
          PropertyInterpolator2D interpolate2D;
 
          // Interpolate the depth at the (x,y) point on the surface.
-         surfaceDepth = interpolate2D( element, grid->getGridMap(), 0 );
+         surfaceDepth = interpolate2D( element, grid, 0 );
 
          if ( surfaceDepth != Interface::DefaultUndefinedMapValue )
          {
@@ -326,10 +314,15 @@ void DataAccess::Mining::CauldronDomain::getTopSurface( double x, double y, Elem
             element.setSurface ( topSurface );
             element.getActualPoint ()( 2 ) = surfaceDepth;
          }
+
       }
+
    }   
 
-   if ( not foundSurface ) { element.clear(); }
+   if ( not foundSurface ) {
+      element.clear();
+   }
+
 }
 
 //------------------------------------------------------------//
@@ -339,12 +332,12 @@ void DataAccess::Mining::CauldronDomain::getBottomSurface( double x, double y, E
 
    setPlaneElement ( element, x, y );
 
-   if ( element.isValidPlaneElement() and m_domainDepths.size() != 0 and
-        ( includeBasement or m_domainDepths[ 0 ]->getFormation()->kind () != Interface::BASEMENT_FORMATION )
-      )
-   {
-      unsigned int bottomSedimentGridIndex = m_domainDepths.size() - 1;
-      if ( m_domainDepths[ m_domainDepths.size() - 1 ]->getFormation()->kind() == Interface::BASEMENT_FORMATION )
+   if ( element.isValidPlaneElement() and m_domainDerivedDepths.size() != 0 and
+        ( includeBasement or dynamic_cast<const Interface::Formation*>( m_domainDerivedDepths[ 0 ]->getFormation ())->kind () != Interface::BASEMENT_FORMATION )) {
+
+      unsigned int bottomSedimentGridIndex = m_domainDerivedDepths.size() - 1;
+
+      if ( dynamic_cast<const Interface::Formation*>( m_domainDerivedDepths[ m_domainDerivedDepths.size() - 1 ]->getFormation ())->kind () == Interface::BASEMENT_FORMATION )
       {
          // If the bottom formation is a basement-formation then so is the one above.
          // The bottom is the crust and above this is the crust.
@@ -356,21 +349,21 @@ void DataAccess::Mining::CauldronDomain::getBottomSurface( double x, double y, E
       for ( unsigned int i = 0; i <= bottomSedimentGridIndex; ++i )
       {
          // Minus one because we do not want to count the end points twice.
-         count += m_domainDepths [ i ]->getGridMap ()->getDepth () - 1;
+         count += m_domainDerivedDepths [ i ]->lengthK () - 1;
       }
 
-      const Interface::PropertyValue * grid       = m_domainDepths[ bottomSedimentGridIndex ];
-      const Interface::Formation     * formation  = m_mapToFormation.find( grid )->second;
-      const Interface::Surface       * topSurface = formation->getTopSurface();
+      DerivedProperties::FormationPropertyPtr grid = m_domainDerivedDepths[ bottomSedimentGridIndex ];
+      const Interface::Formation*             formation = dynamic_cast<const Interface::Formation*>( grid->getFormation ());
+      const Interface::Surface*               topSurface = formation->getTopSurface ();
 
       double surfaceDepth;
       PropertyInterpolator2D interpolate2D;
 
       // Set the k value before interpolating
-      element.setDepthPosition( count, m_domainDepths [ bottomSedimentGridIndex ]->getGridMap()->getDepth () - 1 );
+      element.setDepthPosition( count, m_domainDerivedDepths [ bottomSedimentGridIndex ]->lengthK () - 1 );
 
       // Interpolate the depth at the (x,y) point on the surface.
-      surfaceDepth = interpolate2D( element, grid->getGridMap() );
+      surfaceDepth = interpolate2D ( element, grid );
 
       if ( surfaceDepth != Interface::DefaultUndefinedMapValue )
       {

@@ -165,6 +165,11 @@ namespace DataAccess
       /// \brief Smart pointer to vector of simulation-details.
       typedef boost::shared_ptr<SimulationDetailsList> SimulationDetailsListPtr;
 
+      /// \typedef PropertyListPtr
+      /// \brief Smart pointer to vector of properties.
+      typedef boost::shared_ptr<PropertyList> PropertyListPtr;
+
+
       const string ALCBasalt = "ALC Basalt";
 
       // Shale-gas specific classes.
@@ -250,7 +255,7 @@ namespace DataAccess
       };
 
 
-      /// Specifies whether a Property applies to Formations or Reservoirs
+      /// Specifies whether a Property applies to formations, reservoirs or traps.
       enum PropertyType { FORMATIONPROPERTY, RESERVOIRPROPERTY, TRAPPROPERTY };
 
       /// Indicates the type of formation.
@@ -292,7 +297,7 @@ namespace DataAccess
          // Doubles
          Density, HeatProd, SurfacePorosity, CompacCoefES,CompacCoefESA, CompacCoefESB, CompacCoefSC, CompacCoefFM, StpThCond,
          ThCondAnisotropy, DepoPerm, PermDecrStressCoef, PermIncrRelaxCoef, PermAnisotropy,
-         SeisVelocity, CapC1, CapC2, Compaction_Coefficient_SM, HydraulicFracturingPercent,
+         SeisVelocity, NExponentVelocity, CapC1, CapC2, Compaction_Coefficient_SM, HydraulicFracturingPercent,
          ReferenceSolidViscosity, ActivationEnergy, MinimumPorosity,
          // Ints
          UserDefined, Number_Of_Data_Points
@@ -420,9 +425,14 @@ namespace DataAccess
          CONSERVATIVE_2
       };
 
+	  /// Indicates which seismic velocity algorithm should be used.
+	  enum SeismicVelocityModel {
+		  GARDNERS_VELOCITY_ALGORITHM,
+		  KENNANS_VELOCITY_ALGORITHM,
+		  WYLLIES_VELOCITY_ALGORITHM
+	  };
 
       enum CoordinateAxis { X_COORD, Y_COORD };
-
 
       /// operator type definition used in the computation of GridMaps from other GridMaps
       typedef double( *BinaryOperator ) ( double, double );

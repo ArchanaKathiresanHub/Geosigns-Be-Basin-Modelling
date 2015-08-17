@@ -20,6 +20,7 @@
 #include "SUMlibUtils.h"
 #include "VarSpace.h"
 #include "VarParameter.h"
+#include "VarPrmContinuous.h"
 
 #include <cassert>
 #include <sstream>
@@ -113,9 +114,38 @@ namespace casa
                                                   : m_obs( obs )
                                                   , m_obsSubID( obsSubID )
                                                   , m_refObsValue( obsRefVal )
-                                                  , m_vprmPtr( varPrms )
-                                                  , m_sensitivities( sensData )
-                                                  , m_relSensitivities( relSensData ) {;}
+   {
+
+      for ( size_t i = 0; i < varPrms.size(); ++i )
+      {
+         const VarParameter * vprm = varPrms[i].first;
+         int subID = varPrms[i].second;
+
+         switch ( vprm->variationType() )
+         {
+            case casa::VarParameter::Continuous:
+               {
+                  const casa::VarPrmContinuous * cprm = dynamic_cast<const casa::VarPrmContinuous*>( vprm );
+                  const std::vector<bool> & selPrms = cprm->selected();
+
+                  if ( selPrms[subID] )  // if parameter not fixed add to tornado
+                  { 
+                     m_vprmPtr.push_back( varPrms[i] );
+                     m_sensitivities.push_back( sensData[i] );
+                     m_relSensitivities.push_back( relSensData[i] );
+                  }
+               }
+               break;
+
+            case casa::VarParameter::Categorical:
+            default:
+               m_vprmPtr.push_back( varPrms[i] );
+               m_sensitivities.push_back( sensData[i] );
+               m_relSensitivities.push_back( relSensData[i] );
+               break;
+         }
+      }
+   }
 
    TornadoSensitivityInfo::TornadoSensitivityInfo( const TornadoSensitivityInfo & tsi )
                                                  : m_obs( tsi.observable() )
@@ -186,6 +216,7 @@ namespace casa
          // fill and scale variable parameters ranges
          SUMlib::ParameterPdf pdf;
          sumext::convertVarSpace2ParameterPdf( *m_varSpace, parSpace, pdf );
+         // scale also excluded disabled parameters (where min=max)
          pdf.scale();
 
          // fill observables and weights
@@ -223,9 +254,30 @@ namespace casa
          for ( size_t i = 0; i < m_varSpace->size(); ++i )
          {
             const VarParameter * vprm = m_varSpace->parameter( i );
-            for ( int j = 0; j < vprm->dimension(); ++j )
+ 
+            switch ( vprm->variationType() )
             {
-               varPrmsPerm.push_back( std::pair< const VarParameter *, int >( vprm, j ) );
+               case casa::VarParameter::Continuous:
+                  {
+                     const casa::VarPrmContinuous * cprm = dynamic_cast<const casa::VarPrmContinuous*>( vprm );
+                     const std::vector<bool> & selPrms = cprm->selected();
+   
+                     for ( int j = 0; j < vprm->dimension(); ++j )
+                     {
+                        if ( selPrms[j] ) { varPrmsPerm.push_back( std::pair< const VarParameter *, int >( vprm, j ) ); }
+                     }
+                  }
+                  break;
+
+               case casa::VarParameter::Categorical:
+               default:
+                  {
+                     for ( int j = 0; j < vprm->dimension(); ++j )
+                     {
+                        varPrmsPerm.push_back( std::pair< const VarParameter *, int >( vprm, j ) );
+                     }
+                  }
+                  break;
             }
          }
         

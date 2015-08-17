@@ -56,8 +56,8 @@ FastcauldronSimulator* FastcauldronSimulator::m_fastcauldronSimulator = 0;
 
 //------------------------------------------------------------//
 
-FastcauldronSimulator::FastcauldronSimulator (database::Database * database, const std::string & name, const std::string & accessMode) 
-   : GeoPhysics::ProjectHandle (database, name, accessMode) {
+FastcauldronSimulator::FastcauldronSimulator (database::Database * database, const std::string & name, const std::string & accessMode, DataAccess::Interface::ObjectFactory* objectFactory) 
+   : GeoPhysics::ProjectHandle (database, name, accessMode, objectFactory) {
 
    m_calculationMode = NO_CALCULATION_MODE;
    m_lateralStressInterpolator = 0;
@@ -90,11 +90,11 @@ FastcauldronSimulator::~FastcauldronSimulator () {
 
 //------------------------------------------------------------//
 
-FastcauldronSimulator* FastcauldronSimulator::CreateFrom ( AppCtx* cauldron ) {
-
+FastcauldronSimulator* FastcauldronSimulator::CreateFrom ( AppCtx* cauldron, DataAccess::Interface::ObjectFactory* objectFactory)
+{
 
    if ( m_fastcauldronSimulator == 0 ) {
-      m_fastcauldronSimulator = (FastcauldronSimulator*) Interface::OpenCauldronProject ( cauldron->getProjectFileName (), "rw" );
+      m_fastcauldronSimulator = (FastcauldronSimulator*) Interface::OpenCauldronProject ( cauldron->getProjectFileName (), "rw", objectFactory );
 
    }
 
@@ -1083,7 +1083,7 @@ void FastcauldronSimulator::correctTimeFilterDefaults3D () {
       const PropertyList propertyListValue = getPropertyList ( name );
       Interface::PropertyOutputOption option = property->getOption ();
 
-      if ( propertyListValue >= DIFFUSIVITYVEC and propertyListValue < ENDPROPERTYLIST and getModellingMode () == property->getMode ()) {
+      if ( propertyListValue >= 0 and propertyListValue < ENDPROPERTYLIST and getModellingMode () == property->getMode ()) {
          m_propertyConstraints.constrain ( propertyListValue, option );
          property->setOption ( option );
 
@@ -1374,7 +1374,6 @@ void FastcauldronSimulator::correctTimeFilterDefaults3D () {
    m_timeOutputProperties.push_back ( newProperty );
 
 
-
    if ( not containsChemicalCompaction ) {
       if ( getRunParameters ()->getChemicalCompaction () ) {
          m_timeOutputProperties.push_back ( getFactory ()->produceOutputProperty ( this, getModellingMode (), Interface::SEDIMENTS_ONLY_OUTPUT, "ChemicalCompaction" ));
@@ -1454,36 +1453,9 @@ void FastcauldronSimulator::setToConstantDensity () {
 //------------------------------------------------------------//
 
 void FastcauldronSimulator::correctAllPropertyLists () {
-
-   if ( getModellingMode () == Interface::MODE1D ) {
-      correctAllPropertyLists1D ();
-   } else {
-      correctAllPropertyLists3D ();
-   }
-
    correctTimeFilterDefaults ();
    connectOutputProperties ();
   
-}
-
-//------------------------------------------------------------//
-
-void FastcauldronSimulator::correctAllPropertyLists1D () {
-
-   if ( findProperty ( "ChemicalCompaction" ) == 0 ) {
-      m_properties.push_back (getFactory ()->produceProperty (this, 0, "ChemicalCompaction", "ChemicalCompaction", "", Interface::FORMATIONPROPERTY));
-   }
-
-}
-
-//------------------------------------------------------------//
-
-void FastcauldronSimulator::correctAllPropertyLists3D () {
-
-   if ( findProperty ( "ChemicalCompaction" ) == 0 ) {
-      m_properties.push_back (getFactory ()->produceProperty (this, 0, "ChemicalCompaction", "ChemicalCompaction", "", Interface::FORMATIONPROPERTY));
-   }
-
 }
 
 //------------------------------------------------------------//

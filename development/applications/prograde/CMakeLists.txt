@@ -24,6 +24,7 @@ bm_include_libraries(
    cmbAPI
    CBMGenerics
    FileSystem
+   TableIO
    DataAccess
    utilities
 )

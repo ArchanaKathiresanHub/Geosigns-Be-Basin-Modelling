@@ -13,11 +13,12 @@ using namespace std;
 #include "CompoundLithology.h"
 #include "ElementFunctions.h"
 
-DataAccess::Mining::FluidVelocityCalculator::FluidVelocityCalculator ( const DomainPropertyCollection*  collection,
-                                                                       const Interface::Snapshot* snapshot,
-                                                                       const Interface::Property* property,
-                                                                       const RequiredCalculation  calculation ) :
-   DomainFormationProperty ( collection, snapshot, property ),
+DataAccess::Mining::FluidVelocityCalculator::FluidVelocityCalculator ( const DomainPropertyCollection*            collection,
+                                                                       DerivedProperties::DerivedPropertyManager& propertyManager,
+                                                                       const Interface::Snapshot*                 snapshot,
+                                                                       const Interface::Property*                 property,
+                                                                       const RequiredCalculation                  calculation ) :
+   DomainFormationProperty ( collection, propertyManager, snapshot, property ),
    m_calculation ( calculation )
 {
 
@@ -36,13 +37,13 @@ bool DataAccess::Mining::FluidVelocityCalculator::initialise () {
 
    if ( not m_initialised ) {
       
-      m_depth = getPropertyCollection ()->getDomainProperty ( "Depth" );
-      m_temperature = getPropertyCollection ()->getDomainProperty ( "Temperature" );
-      m_porosity = getPropertyCollection ()->getDomainProperty ( "Porosity" );
-      m_permeabilityN = getPropertyCollection ()->getDomainProperty ( "Permeability" );
-      m_permeabilityH = getPropertyCollection ()->getDomainProperty ( "HorizontalPermeability" );
-      m_overpressure = getPropertyCollection ()->getDomainProperty ( "OverPressure" );
-      m_hydrostaticPressure = getPropertyCollection ()->getDomainProperty ( "HydroStaticPressure" );
+      m_depth = getPropertyCollection ()->getDomainProperty ( "Depth", getPropertyManager ());
+      m_temperature = getPropertyCollection ()->getDomainProperty ( "Temperature", getPropertyManager ());
+      m_porosity = getPropertyCollection ()->getDomainProperty ( "Porosity", getPropertyManager ());
+      m_permeabilityN = getPropertyCollection ()->getDomainProperty ( "Permeability", getPropertyManager ());
+      m_permeabilityH = getPropertyCollection ()->getDomainProperty ( "HorizontalPermeability", getPropertyManager ());
+      m_overpressure = getPropertyCollection ()->getDomainProperty ( "OverPressure", getPropertyManager ());
+      m_hydrostaticPressure = getPropertyCollection ()->getDomainProperty ( "HydroStaticPressure", getPropertyManager ());
 
       if ( m_depth != 0 and m_temperature != 0 and m_porosity != 0 and m_permeabilityN != 0 and m_permeabilityH != 0 and m_overpressure != 0 and m_hydrostaticPressure != 0 ) {
          m_initialised = true;
@@ -146,8 +147,9 @@ DataAccess::Mining::FluidVelocityCalculatorAllocator::FluidVelocityCalculatorAll
    m_calculation ( calculation ) {
 }
 
-DataAccess::Mining::DomainProperty* DataAccess::Mining::FluidVelocityCalculatorAllocator::allocate ( const DomainPropertyCollection*  collection,
-                                                                                                     const Interface::Snapshot* snapshot,
-                                                                                                     const Interface::Property* property ) const {
-   return new FluidVelocityCalculator ( collection, snapshot, property, m_calculation );
+DataAccess::Mining::DomainProperty* DataAccess::Mining::FluidVelocityCalculatorAllocator::allocate ( const DomainPropertyCollection*            collection,
+                                                                                                     DerivedProperties::DerivedPropertyManager& propertyManager,
+                                                                                                     const Interface::Snapshot*                 snapshot,
+                                                                                                     const Interface::Property*                 property ) const {
+   return new FluidVelocityCalculator ( collection, propertyManager, snapshot, property, m_calculation );
 }

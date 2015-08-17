@@ -27,7 +27,8 @@ bool AllochthonousLithologyMapCalculator::operator ()( const OutputPropertyMap::
    double undefinedValue;
    Interface::GridMap* allochthonousLithologyMap;
 
-   if ( not m_formation->hasAllochthonousLithology ()) {
+   if ( not m_formation->hasAllochthonousLithology () || 
+        FastcauldronSimulator::getInstance ().getCauldron()->no2Doutput() ) {
       propertyValues [ 0 ]->allowOutput ( false );
       m_isCalculated = true;
       return true;

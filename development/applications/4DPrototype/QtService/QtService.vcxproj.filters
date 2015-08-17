@@ -32,5 +32,8 @@
     <ClInclude Include="qtservice.moc.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="qtservice_win.moc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

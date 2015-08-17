@@ -207,14 +207,13 @@ int main (int argc, char ** argv)
    Migrator * migrator = 0;
 
    ObjectFactory* objectFactory = new ObjectFactory();
-   DataAccess::Interface::ProjectHandle::UseFactory (objectFactory);
 
    StartTime ();
 
    if (status)
    {
       ReportProgress ("Reading Project File: ", inputFileName);
-      migrator = Migrator::CreateFrom (inputFileName);
+	  migrator = Migrator::CreateFrom (inputFileName, objectFactory);
       status = (migrator != 0);
    }
 

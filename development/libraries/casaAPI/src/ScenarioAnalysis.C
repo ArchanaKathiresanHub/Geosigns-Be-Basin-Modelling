@@ -32,8 +32,8 @@
 #include "RunCaseSetImpl.h"
 #include "RunManagerImpl.h"
 #include "SensitivityCalculatorImpl.h"
-#include "TxtSerializer.h"
-#include "TxtDeserializer.h"
+#include "SimpleSerializer.h"
+#include "SimpleDeserializer.h"
 #include "VarSpaceImpl.h"
 #include "VarPrmOneCrustThinningEvent.h"
 #include "VarPrmTopCrustHeatProduction.h"
@@ -67,9 +67,9 @@ public:
 
    // Define a base case for scenario analysis from model, makes deep copy of the model
    void defineBaseCase( const mbapi::Model & bcModel );
-   
+
    // Define a base case for scenario analysis from file.
-   void defineBaseCase( const char * projectFileName ); 
+   void defineBaseCase( const char * projectFileName );
 
    // get base case project file name
    const char * baseCaseProjectFileName() const { return m_baseCaseProjectFile.c_str(); }
@@ -82,18 +82,18 @@ public:
 
    // Restore path where SA generated a bunch of cases
    void restoreScenarioLocation( const char * pathToCaseSet );
-    
+
    // Get path to top level folder where the set of generated cases are located
    const char *scenarioLocation() const { return m_caseSetPath.c_str(); }
 
    // Provide variable parameters set manager
    VarSpace & varSpace() { return *(m_varSpace.get()); }
-   
+
    // Define DoE algorithm. This function should be called before accessing to the instance of DoEGenerator
    // algo Type of DoE algorithm
    // return ErrorHandler::NoError in case of success, or error code otherwise
    void setDoEAlgorithm( DoEGenerator::DoEAlgorithm algo );
-   
+
    // Get reference to instance of DoE generator which will be used in scenario analysis. If algorithm
    // wasn't set before by ScenarioAnalysis::setDoEAlgorithm(), the DoEGenerator::Tornado algorithm will be chosen.
    // return reference to the DoEGenerator instance.
@@ -117,7 +117,7 @@ public:
    // Get data digger associated with this scenario analysis
    // return reference to the instance of data digger
    DataDigger & dataDigger() { return *( m_dataDigger.get() ); }
-   
+
    // Get list of observables for this scenario
    // return Observables set manager
    ObsSpace & obsSpace() { return *( m_obsSpace.get() ); }
@@ -126,7 +126,7 @@ public:
    // order order of polynomial approximation
    // krType do we need Kriging interpolation, and which one?
    void addRSAlgorithm( const std::string & name, int order, RSProxy::RSKrigingType krType, const std::vector<std::string> & doeList, double targetR2 );
-  
+
    // Get response surface proxies set
    RSProxySet & rsProxySet() { return *(m_rsProxySet.get() ); }
 
@@ -144,12 +144,12 @@ public:
    {
       m_mcSolver.reset( new MonteCarloSolverImpl( algo, kr, priorDist, measureDist ) );
    }
-   
+
    // Get Monte Carlo solver
    // return reference to Monte Carlo solver. If MC solver algorithm wasn't defined befor by ScenarioAnalysis::setMCAlgorithm(), it
    //         will be set up to MC with no Kriging by default.
    MonteCarloSolver & mcSolver()  { return *(m_mcSolver.get()); }
- 
+
    // Save best matched case from Monte Carlo solver as calibrated scenario
    void saveCalibratedCase( const char * projFileName, size_t mcSampleNum );
 
@@ -172,7 +172,7 @@ private:
    std::auto_ptr<ObsSpaceImpl>              m_obsSpace;           // observables manager
    std::auto_ptr<VarSpaceImpl>              m_varSpace;           // variable parameters manager
    std::auto_ptr<DoEGeneratorImpl>          m_doe;
-   
+
    std::auto_ptr<RunCaseSetImpl>            m_doeCases;
    std::auto_ptr<RunCaseSetImpl>            m_mcCases;
 
@@ -342,32 +342,13 @@ ErrorHandler::ReturnCode ScenarioAnalysis::saveCalibratedCase( const char * proj
 // Save scenario to the file
 ErrorHandler::ReturnCode ScenarioAnalysis::saveScenario( const char * fileName, const char * fileType )
 {
-   FILE * fid = NULL;
    try
    {
-      fid = fopen( fileName, "w" );
-      
-      if ( !fid ) throw Exception( SerializationError ) << "Can not open file: " << fileName << " for writing";
-
-      if ( !strcmp( "txt", fileType ) )
-      {
-         TxtSerializer txtOutStream( fid, version() );
-         m_pimpl->serialize( txtOutStream );
-      }
-      else if ( !strcmp( "bin", fileType ) )
-      {
-         throw Exception( NotImplementedAPI ) << "Binary serialization not implemented yet";
-      }
-      else
-      {
-         return reportError( NonexistingID,
-            std::string( "Unknown type of output file for saving ScenarioAnalysis object: " ) + fileType );
-      }
-      fclose( fid );
+      SimpleSerializer outStream( fileName, fileType, version() );
+      m_pimpl->serialize( outStream );
    }
    catch ( const ErrorHandler::Exception & ex )
    {
-      if ( fid ) fclose( fid );
       return reportError( ex.errorCode(), ex.what() );
    }
    return NoError;
@@ -377,12 +358,43 @@ ErrorHandler::ReturnCode ScenarioAnalysis::saveScenario( const char * fileName, 
 ScenarioAnalysis * ScenarioAnalysis::loadScenario( const char * fileName, const char * fileType )
 {
    std::auto_ptr<ScenarioAnalysis> sc( new ScenarioAnalysis() );
-   FILE * fid = NULL;
    try
    {
-      fid = fopen( fileName, "r" );
+      std::ifstream fid;
 
-      if ( !fid ) throw Exception( DeserializationError ) << "Can not open file: " << fileName << " for reading";
+      if (      !strcmp( "bin", fileType ) ) { fid.open( fileName, std::ofstream::binary ); }
+      else if ( !strcmp( "txt", fileType ) ) { fid.open( fileName ); }
+      else
+      {
+         throw Exception( NonexistingID ) << "Unknown type of input file for loading ScenarioAnalysis object: " << fileType;
+      }
+
+      if ( !fid.good() ) throw Exception(DeserializationError) << "Can not open file: " << fileName << " for reading";
+      
+      SimpleDeserializer inStream( fid, sc->version(), !strcmp( "bin", fileType ) );
+      sc->m_pimpl->deserialize( inStream );
+      if ( sc->errorCode() != ErrorHandler::NoError )
+      {
+         throw ErrorHandler::Exception( sc->errorCode() ) << sc->errorMessage();
+      }
+   }
+   catch ( const ErrorHandler::Exception & ex )
+   {
+      sc->reportError( ex.errorCode(), ex.what() );
+   }
+   return sc.release();
+}
+
+// Create new ScenarioAnaylysis object and read all data from the given file
+ScenarioAnalysis * ScenarioAnalysis::loadScenario( const char * stateFileBuf, size_t bufSize, const char * fileType )
+{
+   std::auto_ptr<ScenarioAnalysis> sc( new ScenarioAnalysis() );
+   try
+   {
+      std::string inpStr( stateFileBuf, bufSize );
+      std::istringstream fid( inpStr );
+
+      if ( !fid.good() ) throw Exception( DeserializationError ) << "Can not read from the given memory buffer";
 
       if ( !strcmp( "bin", fileType ) )
       {
@@ -390,7 +402,7 @@ ScenarioAnalysis * ScenarioAnalysis::loadScenario( const char * fileName, const 
       }
       else if ( !strcmp( "txt", fileType ) )
       {
-         TxtDeserializer txtInStream( fid, sc->version() );
+         SimpleDeserializer txtInStream( fid, sc->version() );
          sc->m_pimpl->deserialize( txtInStream );
          if ( sc->errorCode() != ErrorHandler::NoError )
          {
@@ -399,17 +411,16 @@ ScenarioAnalysis * ScenarioAnalysis::loadScenario( const char * fileName, const 
       }
       else
       {
-         throw Exception( NonexistingID ) << "Unknown type of input file for loading ScenarioAnalysis object: " << fileType;
+         throw Exception( NonexistingID ) << "Unknown type of input stream for loading ScenarioAnalysis object";
       }
-      fclose( fid );
    }
    catch ( const ErrorHandler::Exception & ex )
    {
-      if ( fid ) fclose( fid );
       sc->reportError( ex.errorCode(), ex.what() );
    }
    return sc.release();
 }
+
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -447,19 +458,24 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::defineBaseCase( const mbapi::Model 
 void ScenarioAnalysis::ScenarioAnalysisImpl::defineBaseCase( const char * projectFileName )
 {
    if ( m_baseCase.get() ) { throw ErrorHandler::Exception( ErrorHandler::AlreadyDefined ) << "defineBaseCase(): Base case is already defined"; }
-   
-   m_baseCase.reset( new mbapi::Model() );
-   if ( NoError != m_baseCase->loadModelFromProjectFile( projectFileName ) )
-   {
-      throw ErrorHandler::Exception( ErrorHandler::IoError ) << "defineBaseCase() can not load model from " << projectFileName;
-   }
-   
+
+
    m_baseCaseProjectFile = projectFileName;
 }
 
 mbapi::Model & ScenarioAnalysis::ScenarioAnalysisImpl::baseCase()
 {
-   if ( !m_baseCase.get() ) m_baseCase.reset( new mbapi::Model() );
+   if ( !m_baseCase.get() )
+   {
+      if ( m_baseCaseProjectFile.empty() ) throw Exception( ErrorHandler::UndefinedValue ) << "Base case was not defined for the scenario";
+
+      m_baseCase.reset( new mbapi::Model() );
+      if ( NoError != m_baseCase->loadModelFromProjectFile( m_baseCaseProjectFile.c_str() ) )
+      {
+         throw ErrorHandler::Exception( ErrorHandler::IoError ) << "defineBaseCase() can not load model from " << m_baseCaseProjectFile;
+      }
+   }
+
    return *( m_baseCase.get() );
 }
 
@@ -477,16 +493,27 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::setScenarioLocation( const char * p
          }
          else if ( !saFolder.empty( ) )
          {
-            throw ErrorHandler::Exception( ErrorHandler::IoError ) << " folder " << pathToCaseSet << " is not empty";
+            bool found = false;
+            for ( int i = 1; i < 99 && !found; ++i )
+            {
+               ibs::FolderPath tmpPath( saFolder );
+               tmpPath << "Iteration_" + ibs::to_string( i );
+               if ( !tmpPath.exists() )
+               {
+                  found = true;
+                  m_iterationNum = i;
+               }
+            }
+            if ( !found ) { throw ErrorHandler::Exception( ErrorHandler::IoError ) << " folder " << pathToCaseSet << " is not empty"; }
          }
 
-         m_caseSetPath = pathToCaseSet;
+         m_caseSetPath = saFolder.fullPath().path();
       }
    }
    catch ( const ibs::PathException & ex )
    {
       throw ErrorHandler::Exception( ErrorHandler::IoError ) << ex.what();
-   }      
+   }
 }
 
 void ScenarioAnalysis::ScenarioAnalysisImpl::restoreScenarioLocation( const char * pathToCaseSet )
@@ -501,13 +528,13 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::restoreScenarioLocation( const char
       {
          throw ErrorHandler::Exception( ErrorHandler::IoError ) << " folder " << pathToCaseSet << " does not exist or empty";
       }
-      
+
       m_caseSetPath = pathToCaseSet;
       const std::vector<std::string> & expNames = m_doeCases->experimentNames();
 
       // construct case set path like pathToScenario/Iteration_XX
       bool found = false;
-      
+
       ibs::FolderPath caseSetPath( m_caseSetPath );
 
       for ( m_iterationNum = 1; m_iterationNum < 100 && !found; ++m_iterationNum )
@@ -582,7 +609,7 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::restoreScenarioLocation( const char
    catch ( const ibs::PathException & ex )
    {
       throw ErrorHandler::Exception( ErrorHandler::IoError ) << ex.what();
-   }      
+   }
 }
 
 void ScenarioAnalysis::ScenarioAnalysisImpl::setDoEAlgorithm( DoEGenerator::DoEAlgorithm algo )
@@ -602,16 +629,15 @@ DoEGenerator * ScenarioAnalysis::ScenarioAnalysisImpl::doeGenerator()
 
 void ScenarioAnalysis::ScenarioAnalysisImpl::applyMutations( RunCaseSet & cs )
 {
-   if ( !m_baseCase.get() ) throw Exception( ErrorHandler::UndefinedValue ) << "Base case was not defined for the scenario. Mutations failed";
    RunCaseSetImpl & rcs = dynamic_cast<RunCaseSetImpl&>( cs );
 
    // construct case set path like pathToScenario/Iteration_XX
    ibs::FolderPath caseSetPath( m_caseSetPath );
 
-   std::string expFld = std::string( "Iteration_" ) + ibs::to_string( m_iterationNum );   
+   std::string expFld = std::string( "Iteration_" ) + ibs::to_string( m_iterationNum );
    // also use experiment name (if it was set) in folder name pathToScenario/Iteration_XX_ExperimentName
    if ( !rcs.filter().empty() ) { expFld += std::string( "_" ) + rcs.filter(); }
-   
+
    caseSetPath << expFld;
 
    for ( size_t i = 0; i < rcs.size(); ++i )
@@ -619,7 +645,7 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::applyMutations( RunCaseSet & cs )
       // construct case project path: pathToScenario/Iteration_XX_ExperimentName/Case_XX/ProjectName.project3d
       ibs::FolderPath casePath = caseSetPath;
       casePath << ( std::string( "Case_" ) + ibs::to_string( m_caseNum ) );
-      
+
       // extract project file name:
       std::string projectFileName = "Project.project3d";
       if ( !m_baseCaseProjectFile.empty() )
@@ -640,7 +666,7 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::applyMutations( RunCaseSet & cs )
          casePath.create();
          casePath << projectFileName;
          // do mutation
-         cs->mutateCaseTo( *(m_baseCase.get()), casePath.path().c_str() );
+         cs->mutateCaseTo( baseCase(), casePath.path().c_str() );
 
          ++m_caseNum;
       }
@@ -652,7 +678,7 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::applyMutations( RunCaseSet & cs )
 void ScenarioAnalysis::ScenarioAnalysisImpl::validateCaseSet( RunCaseSet & cs )
 {
    RunCaseSetImpl & rcs = dynamic_cast<RunCaseSetImpl&>( cs );
-   
+
    // exception object which will keep list of validation error
    ErrorHandler::Exception ex( ErrorHandler::ValidationError );
    bool allValid = true;
@@ -691,7 +717,7 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::saveCalibratedCase( const char * pr
    {
       throw Exception( MonteCarloSolverError ) << "Can not generate calibrated case: " << projFileName << ". Monte Carlo simulation should be done first";
    }
-   
+
    RunCaseImpl * bmCaseImpl = dynamic_cast<RunCaseImpl*>( bmCase );
 
    // construct best matched case set path like pathToScenario/BestMatch_projFileName
@@ -699,14 +725,14 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::saveCalibratedCase( const char * pr
 
    ibs::FolderPath bmCasePath( m_caseSetPath );
    bmCasePath << std::string( "Calibrated_" ) + fp.fileNameNoExtension();
-   
+
    if ( bmCasePath.exists() ) throw ErrorHandler::Exception( ErrorHandler::IoError ) << " folder " << bmCasePath.path() << " is not empty";
-   
+
    bmCasePath.create();
    bmCasePath << projFileName;
 
    // do mutation
-   bmCaseImpl->mutateCaseTo( *(m_baseCase.get()), bmCasePath.path().c_str() );
+   bmCaseImpl->mutateCaseTo( baseCase(), bmCasePath.path().c_str() );
    // add observables
    m_dataDigger->requestObservables( *m_obsSpace.get(), bmCaseImpl );
    // generate scripts
@@ -734,7 +760,7 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::addRSAlgorithm( const std::string  
       throw Exception( AlreadyDefined ) << "addRSAlgorithm(): proxy with name: " << name << ", already exists in the scenario";
    }
    else
-   { 
+   {
       switch ( order )
       {
          case -1: proxy = new RSProxyImpl( name, varSpace(), obsSpace(), 0,     krType, true, targetR2 ); break;
@@ -754,17 +780,19 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::addRSAlgorithm( const std::string  
 
       if ( rcs.empty() ) throw Exception( RSProxyError ) << "addRSAlgorithm(): empty completed cases list for given DoEs";
 
+      if ( !obsSpace().size() ) throw Exception( RSProxyError ) << "No observable is defined for proxy calculation";
+
       if ( NoError != proxy->calculateRSProxy( rcs ) ) { throw Exception( proxy->errorCode() ) << proxy->errorMessage(); }
    }
 }
- 
+
 void ScenarioAnalysis::ScenarioAnalysisImpl::serialize( CasaSerializer & outStream )
 {
    bool ok = outStream.save( m_caseSetPath,         "caseSetPath"  );
    ok = ok ? outStream.save( m_baseCaseProjectFile, "baseCaseProjectFile" ) : ok;
    ok = ok ? outStream.save( m_iterationNum,        "iterationNum" ) : ok;
    ok = ok ? outStream.save( m_caseNum,             "caseNum"      ) : ok;
-                                                                   
+
    ok = ok ? outStream.save( obsSpace(),            "ObsSpace"     ) : ok; // serialize observables manager
    ok = ok ? outStream.save( varSpace(),            "VarSpace"     ) : ok; // serialize variable parameters set
 
@@ -774,8 +802,8 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::serialize( CasaSerializer & outStre
 
    ok = ok ? outStream.save( *(doeGenerator()),     "DoE"          ) : ok; // serialize doe generator
    ok = ok ? outStream.save( dataDigger(),          "DataDigger"   ) : ok; // data digger
-   ok = ok ? outStream.save( runManager(),          "RunManger "   ) : ok; // run manager
-                                                                   
+   ok = ok ? outStream.save( runManager(),          "RunManager"   ) : ok; // run manager
+
    ok = ok ? outStream.save( mcSolver(),            "MCSolver"     ) : ok;
 
    if ( outStream.version() > 1 )
@@ -790,7 +818,7 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::serialize( CasaSerializer & outStre
 void ScenarioAnalysis::ScenarioAnalysisImpl::deserialize( CasaDeserializer & inStream )
 {
    bool ok = inStream.load( m_caseSetPath,         "caseSetPath" );
-   
+
    // read base case name and load it as a model
    std::string baseCaseName;
    ok = ok ? inStream.load( baseCaseName, "baseCaseProjectFile" ) : ok;
@@ -811,7 +839,10 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::deserialize( CasaDeserializer & inS
 
    m_doe.reset(        new DoEGeneratorImpl(          inStream, "DoE"                   ) );
    m_dataDigger.reset( new DataDiggerImpl(            inStream, "DataDigger"            ) );
-   m_runManager.reset( new RunManagerImpl(            inStream, "RunManger"             ) );
+   
+   // before version 6 it was an error in RunManager object name
+   if ( inStream.version() >= 6 ) { m_runManager.reset( new RunManagerImpl( inStream, "RunManager" ) ); }
+   else                           { m_runManager.reset( new RunManagerImpl( inStream, "RunManger" ) ); }
 
    m_mcSolver.reset(   new MonteCarloSolverImpl(      inStream, "MCSolver"              ) );
 

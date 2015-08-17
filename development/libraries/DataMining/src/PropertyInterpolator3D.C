@@ -1,7 +1,7 @@
 #include "PropertyInterpolator3D.h"
 
-double DataAccess::Mining::PropertyInterpolator3D::operator ()( const ElementPosition&                element,
-                                                                const DataAccess::Interface::GridMap* property ) const {
+double DataAccess::Mining::PropertyInterpolator3D::operator ()( const ElementPosition&                  element,
+                                                                DerivedProperties::FormationPropertyPtr property ) const {
 
    // Check for element vlidity.
 
@@ -24,14 +24,14 @@ double DataAccess::Mining::PropertyInterpolator3D::operator ()( const ElementPos
       return DataAccess::Interface::DefaultUndefinedMapValue;
    }
 
-   weights [ 0 ] = property->getValue ( i, j, k );
-   weights [ 1 ] = property->getValue ( i + 1, j, k );
-   weights [ 2 ] = property->getValue ( i + 1, j + 1, k );
-   weights [ 3 ] = property->getValue ( i, j + 1, k );
-   weights [ 4 ] = property->getValue ( i, j, k + 1 );
-   weights [ 5 ] = property->getValue ( i + 1, j, k + 1 );
-   weights [ 6 ] = property->getValue ( i + 1, j + 1, k + 1 );
-   weights [ 7 ] = property->getValue ( i, j + 1, k + 1 );
+   weights [ 0 ] = property->get ( i, j, k );
+   weights [ 1 ] = property->get ( i + 1, j, k );
+   weights [ 2 ] = property->get ( i + 1, j + 1, k );
+   weights [ 3 ] = property->get ( i, j + 1, k );
+   weights [ 4 ] = property->get ( i, j, k + 1 );
+   weights [ 5 ] = property->get ( i + 1, j, k + 1 );
+   weights [ 6 ] = property->get ( i + 1, j + 1, k + 1 );
+   weights [ 7 ] = property->get ( i, j + 1, k + 1 );
 
    for ( l = 0; l < 8; ++l ) {
 

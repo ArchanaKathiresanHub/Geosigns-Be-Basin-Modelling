@@ -33,7 +33,7 @@ AllochMod::AllochthonousModellingFactory::produceProjectHandle ( database::Datab
                                                                  const string & name,
                                                                  const string & accessMode) {
 //   std::cout << "AllochthonousModellingFactory::produceProjectHandle" << std::endl;
-  return new AllochthonousLithologySimulator ( database, name, accessMode );
+  return new AllochthonousLithologySimulator ( database, name, accessMode, this );
 }
 
 DataAccess::Interface::AllochthonousLithology *

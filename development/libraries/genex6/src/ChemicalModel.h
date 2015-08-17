@@ -49,6 +49,7 @@ public:
    bool isOTGC5() const;
    bool isSim5() const;
    bool isGenex() const;
+   bool isTSR() const;
 
    double GetElemAtomWeightByName(const int ElemName) const;
    double GetSpeciesMolWeightByName(const int SpeciesName) const;
@@ -211,6 +212,12 @@ inline bool Genex6::ChemicalModel::isOTGC5() const
 {
    return (m_simulationType & Genex6::Constants::SIMOTGC5) ? true : false;
 }
+
+inline bool Genex6::ChemicalModel::isTSR() const
+{
+   return (m_simulationType & Genex6::Constants::SIMTSR) ? true : false;
+}
+
 inline bool Genex6::ChemicalModel::isSim5() const
 {
    return isGX5() || isOTGC5();

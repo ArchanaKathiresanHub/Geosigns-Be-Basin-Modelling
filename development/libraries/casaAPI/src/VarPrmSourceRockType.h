@@ -25,10 +25,11 @@ namespace casa
    {
    public:
       /// @brief Create a new initial source rock HI variable parameter
-      VarPrmSourceRockType( const char                                                * layerName   ///< name of the layer for source rock type variation
-                           , const std::string                                         & baseVal     ///< base value of parameter
-                           , const std::vector<std::string>                            & variation   ///< set of possible values for this parameter 
-                           , const std::vector<double>                                 & weights     ///< parameter values weights
+      VarPrmSourceRockType( const char                                                * layerName  ///< name of the layer for source rock type variation
+                           , const std::string                                         & baseVal   ///< base value of parameter
+                           , const std::vector<std::string>                            & variation ///< set of possible values for this parameter 
+                           , const std::vector<double>                                 & weights   ///< parameter values weights
+                           , const char                                                * name      ///< user defined parameter name  
                            );
 
       /// @brief Destructor
@@ -49,7 +50,7 @@ namespace casa
       /// @{
       /// @brief Defines version of serialized object representation. Must be updated on each change in save()
       /// @return Actual version of serialized object representation
-      virtual unsigned int version() const { return 0; }
+      virtual unsigned int version() const { return VarPrmCategorical::version() + 0; }
 
       /// @brief Get type name of the serialaizable object, used in deserialization to create object with correct type
       /// @return object class name

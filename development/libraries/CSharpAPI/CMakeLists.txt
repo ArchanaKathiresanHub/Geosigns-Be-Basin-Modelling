@@ -62,7 +62,7 @@ swig_add_module( Cauldron csharp src/Swig/DotNetAPI.i
     ${CMAKE_CURRENT_BINARY_DIR}/version.rc
 )
 
-swig_link_libraries( Cauldron casaapi cmbapi Serial_Hdf5 TableIO SerialDataAccess DataAccess EosPack ${Boost_LIBRARIES} )
+swig_link_libraries( Cauldron casaapi cmbapi Serial_Hdf5 TableIO DataModel SerialDataAccess DataAccess EosPack ${Boost_LIBRARIES} )
 
 SET_TARGET_PROPERTIES(Cauldron PROPERTIES LINK_FLAGS "/FORCE:MULTIPLE")
 
@@ -89,6 +89,7 @@ file(COPY ${CMAKE_CURRENT_BINARY_DIR}/csharp/read-only/Shell.BasinModeling.Cauld
   DESTINATION  ${CMAKE_CURRENT_BINARY_DIR}/csharp
   FILE_PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ 
 )
+
 include_external_msproject(Shell.BasinModeling.Cauldron ${CMAKE_CURRENT_BINARY_DIR}/csharp/Shell.BasinModeling.Cauldron.csproj
     TYPE "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}" # This GUID is a Windows C# project (see also http://msdn.microsoft.com/en-us/library/hb23x61k(v=vs.80).aspx ) 
     PLATFORM "${BM_WINDOWS_PLATFORM}"
@@ -143,8 +144,7 @@ add_csharp_unittest(
   TFS_BUILD_NUMBER ${BM_TFS_BUILD_NUMBER}
   TFS_PROJECT_NAME ${BM_TFS_PROJECT_NAME}
   DEPLOYMENT_ITEMS 
-    "Debug/Cauldron.dll" 
-    "Release/Cauldron.dll" 
+    "../\$(Configuration)/Cauldron.dll" 
   PROJECT_REFERENCE
     Shell.BasinModeling.Cauldron
     "${Guid}"

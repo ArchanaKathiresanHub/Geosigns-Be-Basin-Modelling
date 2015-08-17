@@ -20,8 +20,14 @@ void DerivedProperties::AllochthonousLithologyFormationMapCalculator::calculate 
                                                                                   const DataModel::AbstractFormation* formation,
                                                                                         FormationMapPropertyList&     derivedProperties ) const {
 
-   const DataModel::AbstractProperty* allochLithoProperty = propertyManager.getProperty ( "AllochthonousLithology" );
    const GeoPhysics::Formation* geoFormation = dynamic_cast<const GeoPhysics::Formation*>( formation );
+
+   if ( not geoFormation->hasAllochthonousLithology ()) {
+      return;
+   }
+
+
+   const DataModel::AbstractProperty* allochLithoProperty = propertyManager.getProperty ( "AllochthonousLithology" );
 
    derivedProperties.clear ();
 

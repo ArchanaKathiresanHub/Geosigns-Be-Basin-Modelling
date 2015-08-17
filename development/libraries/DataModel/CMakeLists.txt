@@ -9,5 +9,26 @@
 # Do not distribute without written permission from Shell.              #
 #                                                                       #
 #########################################################################
-FILE( GLOB all_headers src/*.h )
+
+set(all_headers
+  src/AbstractFormation.h
+  src/AbstractGrid.h
+  src/AbstractProperty.h
+  src/AbstractReservoir.h
+  src/AbstractSnapshot.h
+  src/AbstractSurface.h
+  src/PropertyAttribute.h
+)
+
+set(all_sources
+  src/PropertyAttribute.C
+)
+
+
 source_group(include FILES ${all_headers})
+source_group(source  FILES ${all_sources})
+
+add_library(DataModel
+	${all_sources}
+	${all_headers}
+)

@@ -28,9 +28,12 @@ void CfgFileParser::parseFile( const std::string & cmdFile, CasaCommander & cmdQ
    std::string line;
    std::string cmdLine;
 
+   size_t lineNum = 0;
    // process command
    while( std::getline( file, line ) )
    {
+      ++lineNum;
+
       if ( line[0] == '#' || line.empty() ) continue;
 
       // check if line is splitted by \ character. If yes - just read next one and concatenate
@@ -95,7 +98,7 @@ void CfgFileParser::parseFile( const std::string & cmdFile, CasaCommander & cmdQ
          }
          ++tokNum;
       }
-      cmdQueue.addCommand( cmdID, cmdPrms );
+      cmdQueue.addCommand( cmdID, cmdPrms, lineNum );
       cmdLine = "";
    }
 }
@@ -150,7 +153,9 @@ void CfgFileParser::readTrajectoryFile( const std::string & fileName,
                                         std::vector<double> & z,
                                         std::vector<double> & ref )
 {
-   std::ifstream file( fileName.c_str() );
+   std::ifstream ifs( fileName.c_str() );
+
+   if ( !ifs.is_open() ) { throw::std::runtime_error( std::string("Can not open trajectory file: " ) + fileName ); }
 
    x.clear();
    y.clear();
@@ -160,7 +165,7 @@ void CfgFileParser::readTrajectoryFile( const std::string & fileName,
    std::string line;
    
    // process one line 
-   while( std::getline( file, line ) )
+   while( std::getline( ifs, line ) )
    {
       if ( line[0] == '#' ) continue;
 
@@ -195,6 +200,8 @@ void CfgFileParser::readTrajectoryFile( const std::string & fileName,
          ref.push_back( rv );
       }
    }
+
+   ifs.close();
 }
 
 // read parameters value from plain data file

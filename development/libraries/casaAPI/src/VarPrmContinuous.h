@@ -30,11 +30,12 @@
 /// - @subpage CASA_SourceRockTOCPage 
 /// - @subpage CASA_SourceRockHIPage 
 /// - @subpage CASA_SourceRockHCPage 
-/// - @subpage CASA_SourceRockTypePage
 /// - @subpage CASA_SourceRockPreAsphaltStartActPage
 /// - @subpage CASA_TopCrustHeatProductionPage 
 /// - @subpage CASA_OneCrustThinningEventPage 
+/// - @subpage CASA_CrustThinningPage
 /// - @subpage CASA_PorosityModelPage 
+/// - @subpage CASA_PermeabilityModelPage
 /// - @subpage CASA_LithoSTPThermalCondPage
 
 namespace casa
@@ -117,18 +118,18 @@ namespace casa
    protected:
       VarPrmContinuous() : m_pdf(Block) {;}
 
-      // version of serialized object representation
-      virtual unsigned int version() const { return 0; } // could be overloaded by child classes
+      /// @brief Defines version of serialized object representation. Must be updated on each change in save()
+      /// @return Actual version of serialized object representation
+      virtual unsigned int version() const { return 1; }
 
-      /// @brief  Constructor from input stream, implements common part of deserialization for continuous variable parameters
+      /// @brief  Implements common part of deserialization for continuous variable parameters
       /// @param dz input stream
       /// @param objVer The object version.
-      VarPrmContinuous( CasaDeserializer & dz, unsigned int objVer );
+      bool deserializeCommonPart( CasaDeserializer & dz, unsigned int objVer );
 
       SharedParameterPtr m_baseValue;   ///< Base parameter value, used also as object factory for concrete parameter value
       SharedParameterPtr m_minValue;    ///< Base parameter value, used also as object factory for concrete parameter value
       SharedParameterPtr m_maxValue;    ///< Base parameter value, used also as object factory for concrete parameter value
-
       PDF                m_pdf;         ///< Probability density function for parameter. Block is default value
    
    private:

@@ -17,20 +17,23 @@
 // STL/C lib
 #include <sstream>
 #include <cassert>
+#include <cstring>
 
 namespace casa
 {
 
-VarPrmSourceRockType::VarPrmSourceRockType( const char                                                * layerName 
-                                          , const std::string                                         & baseVal 
-                                          , const std::vector<std::string>                            & variation 
-                                          , const std::vector<double>                                 & weights
+VarPrmSourceRockType::VarPrmSourceRockType( const char                     * layerName 
+                                          , const std::string              & baseVal 
+                                          , const std::vector<std::string> & variation 
+                                          , const std::vector<double>      & weights
+                                          , const char                     * name
                                           )
-{ 
+{
    assert( variation.size() == weights.size() );
 
    m_baseVal = variation.size() + 1;
    m_weights.assign( weights.begin(), weights.end() );
+   m_name = name && strlen( name ) > 0 ? std::string( name ) : std::string( "" );
 
    for ( size_t i = 0; i < variation.size(); ++i )
    {
@@ -57,16 +60,21 @@ std::vector<std::string> VarPrmSourceRockType::name() const
 {
    std::vector<std::string> ret;
 
-   if ( !m_variation.empty() )
+   if ( m_name.empty() ) 
    {
-      const PrmSourceRockType * prm = dynamic_cast<const PrmSourceRockType*>( m_variation.front().get() );
-      if ( prm )
+      if ( !m_variation.empty() )
       {
-         std::ostringstream oss;
-         oss << prm->layerName() + " Source rock type (" << m_variation.size() << ")";
-	      ret.push_back( oss.str() );
+         const PrmSourceRockType * prm = dynamic_cast<const PrmSourceRockType*>( m_variation.front().get() );
+         if ( prm )
+         {
+            std::ostringstream oss;
+            oss << prm->layerName() + " Source rock type (" << m_variation.size() << ")";
+	         ret.push_back( oss.str() );
+         }
       }
    }
+   else { ret.push_back( m_name ); }
+
 	return ret;
 }
 
@@ -83,19 +91,17 @@ int VarPrmSourceRockType::index( const PrmSourceRockType * prm ) const
 bool VarPrmSourceRockType::save( CasaSerializer & sz, unsigned int version ) const
 {
    bool ok = VarPrmCategorical::save( sz, version );
-
    return ok;
 }
 
 // Create a new var.parameter instance by deserializing it from the given stream
-VarPrmSourceRockType::VarPrmSourceRockType( CasaDeserializer & dz, unsigned int objVer ) : VarPrmCategorical( dz, objVer )
+VarPrmSourceRockType::VarPrmSourceRockType( CasaDeserializer & dz, unsigned int objVer ) 
 {
-   bool ok = true;
+   bool ok = VarPrmCategorical::deserializeCommonPart( dz, objVer );
 
    if ( !ok )
    {
-      throw ErrorHandler::Exception( ErrorHandler::DeserializationError )
-         << "VarPrmSourceRockType deserialization unknown error";
+      throw ErrorHandler::Exception( ErrorHandler::DeserializationError ) << "VarPrmSourceRockType deserialization unknown error";
    }
 }
 

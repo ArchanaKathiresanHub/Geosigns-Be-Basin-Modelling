@@ -41,6 +41,10 @@ bool MaxVesCalculator::operator ()( const OutputPropertyMap::OutputPropertyList&
    Interface::GridMap* maxVesMap;
    double ***maxVesVector;
 
+   if ( FastcauldronSimulator::getInstance ().getCauldron()->no2Doutput()) {
+      propertyValues [ 0 ]->allowOutput( false );
+   }
+
    maxVesMap = propertyValues [ 0 ]->getGridMap ();
    maxVesMap->retrieveData ();
    undefinedValue = maxVesMap->getUndefinedValue ();

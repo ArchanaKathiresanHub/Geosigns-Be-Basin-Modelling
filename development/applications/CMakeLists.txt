@@ -1,6 +1,6 @@
 #########################################################################
 #                                                                       #
-# Copyright (C) 2012-2013 Shell International Exploration & Production. #
+# Copyright (C) 2012-2015 Shell International Exploration & Production. #
 # All rights reserved.                                                  #
 #                                                                       #
 # Developed under license for Shell by PDS BV.                          #
@@ -17,6 +17,7 @@ if (BM_BUILD_SERIAL_APPS)
 	add_subdirectory(datadriller)
 	add_subdirectory(casa)
 	add_subdirectory(prograde)
+   add_subdirectory(projdiff)
 endif (BM_BUILD_SERIAL_APPS)
 
 # Applications that can only be built on Unix at the moment.
@@ -26,6 +27,7 @@ if (UNIX)
 		add_subdirectory(fastmig)
 		add_subdirectory(fastgenex6)
 		add_subdirectory(fastctc)
+		add_subdirectory(fastproperties)
 		add_subdirectory(TsLibDemo)
         add_subdirectory(fasttouch7)
 	endif()
@@ -52,8 +54,9 @@ if (UNIX)
 else ()
 	add_subdirectory(fastcauldron)
 	add_subdirectory(fastmig)
-   add_subdirectory(fastctc)
+   	add_subdirectory(fastctc)
 	add_subdirectory(fastgenex6)
+	add_subdirectory(hpc)
 endif ()
 
 # Local Variables:

@@ -17,6 +17,7 @@
 // DataAccess API includes
 #include "Interface/Interface.h"
 #include "Interface/ProjectHandle.h"
+#include "Interface/ObjectFactory.h"
 #include "Interface/Snapshot.h"
 #include "Interface/Trap.h"
 #include "Interface/Surface.h"
@@ -230,7 +231,8 @@ int main (int argc, char ** argv)
       return -1;
 #endif
 
-   ProjectHandle *projectHandle = OpenCauldronProject (projectFileName, "r");
+   ObjectFactory* factory = new ObjectFactory();
+   ProjectHandle *projectHandle = OpenCauldronProject (projectFileName, "r", factory);
 
    if (projectHandle == 0)
    {
@@ -257,7 +259,7 @@ int main (int argc, char ** argv)
       }
    }
 
-
+   delete factory;
    return 0;
 }
 

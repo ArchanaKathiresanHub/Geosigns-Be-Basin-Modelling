@@ -18,17 +18,6 @@ namespace migration {
 
 MigrationPropertyManager::MigrationPropertyManager ( GeoPhysics::ProjectHandle* projectHandle ) :
    DerivedProperties::DerivedPropertyManager ( projectHandle ) {
-   
-   addFormationPropertyCalculator ( DerivedProperties::FormationPropertyCalculatorPtr ( new DerivedProperties::PorosityFormationCalculator ( projectHandle ) ));
-
-   addFormationPropertyCalculator ( DerivedProperties::FormationPropertyCalculatorPtr ( new DerivedProperties::PermeabilityFormationCalculator ( projectHandle ) ));
-   addFormationSurfacePropertyCalculator ( DerivedProperties::FormationSurfacePropertyCalculatorPtr ( new DerivedProperties::PermeabilityFormationSurfaceCalculator ( projectHandle ) ));
-
-   addFormationPropertyCalculator ( DerivedProperties::FormationPropertyCalculatorPtr ( new DerivedProperties::HydrostaticPressureFormationCalculator ( projectHandle )));
-   addSurfacePropertyCalculator ( DerivedProperties::SurfacePropertyCalculatorPtr ( new DerivedProperties::HydrostaticPressureSurfaceCalculator ( projectHandle )));
-
-   addSurfacePropertyCalculator ( DerivedProperties::SurfacePropertyCalculatorPtr ( new DerivedProperties::LithostaticPressureSurfaceCalculator ( projectHandle )));
-   addFormationPropertyCalculator ( DerivedProperties::FormationPropertyCalculatorPtr ( new DerivedProperties::LithostaticPressureFormationCalculator ( projectHandle )));
 } 
       
 MigrationPropertyManager::~MigrationPropertyManager() {
@@ -41,7 +30,7 @@ MigrationPropertyManager::~MigrationPropertyManager() {
 
 DataAccess::Interface::GridMap *  MigrationPropertyManager::produceDerivedGridMap ( DerivedProperties::FormationPropertyPtr aProperty  ) {
    
-   DataAccess::Interface::GridMap * theMap = getProjectHandle()->GetFactoryToUse()->produceGridMap ( 0, 0, getProjectHandle()->getActivityOutputGrid (), 
+   DataAccess::Interface::GridMap * theMap = getProjectHandle()->getFactory()->produceGridMap ( 0, 0, getProjectHandle()->getActivityOutputGrid (), 
                                                                                                      aProperty->lengthK() );
    theMap->retrieveData();
 
@@ -62,7 +51,7 @@ DataAccess::Interface::GridMap *  MigrationPropertyManager::produceDerivedGridMa
 
 DataAccess::Interface::GridMap *  MigrationPropertyManager::produceDerivedGridMap ( DerivedProperties::FormationSurfacePropertyPtr aProperty  ) {
    
-   DataAccess::Interface::GridMap * theMap = getProjectHandle()->GetFactoryToUse()->produceGridMap ( 0, 0, getProjectHandle()->getActivityOutputGrid (), 
+   DataAccess::Interface::GridMap * theMap = getProjectHandle()->getFactory()->produceGridMap ( 0, 0, getProjectHandle()->getActivityOutputGrid (), 
                                                                                                      aProperty->getUndefinedValue(), 1 );
    theMap->retrieveData();
 
@@ -82,7 +71,7 @@ DataAccess::Interface::GridMap *  MigrationPropertyManager::produceDerivedGridMa
 
 DataAccess::Interface::GridMap *  MigrationPropertyManager::produceDerivedGridMap ( DerivedProperties::SurfacePropertyPtr aProperty  ) {
    
-   DataAccess::Interface::GridMap * theMap = getProjectHandle()->GetFactoryToUse()->produceGridMap ( 0, 0, getProjectHandle()->getActivityOutputGrid (), 
+   DataAccess::Interface::GridMap * theMap = getProjectHandle()->getFactory()->produceGridMap ( 0, 0, getProjectHandle()->getActivityOutputGrid (), 
                                                                                                      aProperty->getUndefinedValue(), 1 );
    theMap->retrieveData();
 

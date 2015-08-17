@@ -24,6 +24,7 @@ namespace database
 }
 
 #include "Interface/ProjectHandle.h"
+#include "Interface/ObjectFactory.h"
 
 namespace DataAccess
 {
@@ -43,7 +44,7 @@ namespace PersistentTraps
    {
       public:
 	 /// Constructor
-	 ProjectHandle (database::Database * database, const string & name, const string & accessMode);
+	 ProjectHandle (database::Database * database, const string & name, const string & accessMode, DataAccess::Interface::ObjectFactory* factory);
 
 	 /// Destructor
 	 ~ProjectHandle (void);

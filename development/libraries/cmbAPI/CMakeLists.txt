@@ -74,5 +74,5 @@ configure_file( test/Inputs.HDF Inputs.HDF COPYONLY )
 
 add_gtest( NAME mbapiModelTest
    SOURCES test/mbapiModelTest.C
-   LIBRARIES cmbapi DataAccess SerialDataAccess
+   LIBRARIES cmbapi TableIO DataAccess SerialDataAccess
 )

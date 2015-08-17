@@ -26,6 +26,8 @@
 #include <windows.h>
 #endif
 
+#include <iostream>
+
 namespace ibs
 {
 
@@ -117,8 +119,8 @@ bool FilePath::copyFile( const Path & destPath )
    if ( destPath.exists() ) return false;
 
    try
-   {
-      boost::filesystem::copy_file( boost::filesystem::path( m_path ), boost::filesystem::path( destPath.path() ) );
+   { 
+      boost::filesystem::copy_file( boost::filesystem::absolute( boost::filesystem::path( m_path ) ), boost::filesystem::path( destPath.path() ) );
    }
    catch ( ... )
    {
@@ -127,22 +129,20 @@ bool FilePath::copyFile( const Path & destPath )
    return true;
 }
 
-std::string FilePath::pathToExecutable()
+bool FilePath::linkFile( const Path & destPath )
 {
-   std::string epath;
-#ifndef _WIN32
-	char buf[FILENAME_MAX];
-   size_t len = readlink( "/proc/self/exe", buf, sizeof(buf) - 1 );
-   buf[len]= '\0';
-   epath = std::string( buf );
-#else
-   TCHAR buf[MAX_PATH];
+   if ( destPath.exists() ) return false;
 
-   DWORD length = GetModuleFileName( NULL, buf, sizeof( buf ) - 1 );
-   epath = std::string( buf );
-#endif
-   FilePath pathTo( epath );
-   return pathTo.filePath();
+   const boost::filesystem::path & curPath = boost::filesystem::absolute( boost::filesystem::path( m_path ) );
+   try
+   { 
+      boost::filesystem::create_symlink( curPath, boost::filesystem::path( destPath.path() ) );
+   }
+   catch ( ... )
+   {
+      return false;
+   }
+   return true;
 }
 
 }

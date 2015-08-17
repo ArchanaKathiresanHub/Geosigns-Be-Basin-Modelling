@@ -50,6 +50,7 @@ GeoPhysics::SimpleLithology::SimpleLithology(Interface::ProjectHandle * projectH
    m_density = Interface::LithoType::getDensity();
    m_heatproduction = Interface::LithoType::getHeatProduction();
    m_seismicvelocity = Interface::LithoType::getSeismicVelocity();
+   m_nExponentVelocity = Interface::LithoType::getSeismicVelocityExponent();
 
    m_specificSurfaceArea = Interface::LithoType::getSpecificSurfArea() * 1000; // convert to m2/kg
    m_geometricVariance = Interface::LithoType::getGeometricVariance();

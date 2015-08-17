@@ -39,4 +39,34 @@ void GeoPhysics::computeHydrostaticPressure  ( const FluidType*  fluid,
   }
 
 }
-   
+ 
+void GeoPhysics::computeHydrostaticPressureSimpleDensity  ( const FluidType*  fluid,
+                                                            const double  fluidDensity,
+                                                            const double  seaTemperature,
+                                                            const double  seaBottomDepth,
+                                                            double&     hydrostaticPressure ) {
+
+
+  if (( fluid != 0 ) && ( seaBottomDepth > 0.0 )) {
+
+    //
+    //
+    // Is this really necessary? I think so, if the sea bottom is fairly 
+    // deep then this integration method will be more accurate. For shallower
+    // sea bottoms then it probably does not make that much difference. Also,
+    // the integration here uses the true fluid density, whereas the simple 
+    // integration (used previously) uses a standard density (=1000 kg/m^3)
+    //
+  
+    hydrostaticPressure = AtmosphericPressure +  seaBottomDepth * fluidDensity * AccelerationDueToGravity * PascalsToMegaPascals; 
+
+  } else if (( fluid == 0 ) && ( seaBottomDepth > 0.0 )) {
+    hydrostaticPressure = AtmosphericPressure + StandardWaterDensity 
+                               * AccelerationDueToGravity * seaBottomDepth * PascalsToMegaPascals;
+
+  } else {
+    hydrostaticPressure = AtmosphericPressure;
+  }
+
+}
+ 

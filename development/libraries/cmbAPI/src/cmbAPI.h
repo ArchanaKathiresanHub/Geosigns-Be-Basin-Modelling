@@ -1,20 +1,18 @@
 //                                                                      
 // Copyright (C) 2012-2014 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
-/// @file cmbAPI.h 
+/// @file cmbAPI.h
 /// @brief This file keeps API declaration for creating and manipulating Cauldron data model
 
 #ifndef CMB_API
 #define CMB_API
-
-#include <memory>
 
 #include "ErrorHandler.h"
 #include "LithologyManager.h"
@@ -26,6 +24,13 @@
 #include "MapsManager.h"
 
 #include "UndefinedValues.h"
+
+// TableIO
+#include "datatype.h"
+
+// STL
+#include <memory>
+#include <set>
 
 /// @mainpage Cauldron APIs
 /// @tableofcontents
@@ -86,27 +91,57 @@ namespace mbapi {
 
       /// @brief Constructor which creates an empty model
       Model();
-      
+
       /// @brief Destructor, no any actual work is needed here, all is done in the implementation part
       ~Model();
       /// @}
-      
+
       /// @{
       /// Set of interfaces for interacting with a Cauldron model.\n
       /// Interfaces were simplified to allow easy access from C# using Swig.\n
       /// For interfaces which returns double or string values, user can request error code
       /// and error message from the model itself, after the interface call.
 
+      /// @brief Compare projects and return all differences found
+      /// @return full list of differences as a string
+      std::string compareProject( Model & mdl1                                  ///< the model to compare with
+                                , const std::set<std::string> & compareTblsList ///< list of tables to compare, if only some of the table should be compared
+                                , const std::set<std::string> & ignoreTblsList  ///< list of tables to ignore them during comparison
+                                , double relTol                                 ///< relative tolerance value to compare float point values
+                                );
+
       /// @brief Copy model, creates a deep copy of the model
       /// @param[in] otherModel - model to copy
       Model & operator = ( const Model & otherModel );
 
+      /// @brief Sort record in the table
+      /// @param tblName table name to sort
+      /// @param colsName list of columns to use in sort
+      /// @return NoError on success, or error code otherwise
+      ErrorHandler::ReturnCode tableSort( const std::string & tblName, const std::vector<std::string> & colsName );
+
       // Set of universal access interfaces. Project file level
+      /// @brief Get all table names in project
+      /// @return list of tables from project as an array
+      std::vector<std::string> tablesList();
+
+      /// @brief Get list of all column names in the given table, and datatype for each column
+      /// @param[in] tableName name of the table
+      /// @param[out] colDataTypes for each table column it keeps data type lid double/string/integer
+      /// @return list of column names for the given table on success, or empty list on any fail
+      std::vector<std::string> tableColumnsList( const std::string & tableName, std::vector<datatype::DataType> & colDataTypes );
 
       /// @brief Get size of the given table
       /// @param[in] tableName name of the table in project file
       /// @return number of rows in table or UndefinedIntegerValue if any error happened.
       int tableSize( const std::string & tableName );
+
+      /// @brief Get value from the table
+      /// @param tableName name of the table in project file
+      /// @param rowNumber row number in the table
+      /// @param propName name of the column
+      /// @return requested value from the table or  UndefinedIntegerValue if any error happened 
+      long tableValueAsInteger( const std::string & tableName, size_t rowNumber, const std::string & propName );
 
       /// @brief Get value from the table
       /// @param tableName name of the table in project file
@@ -121,6 +156,14 @@ namespace mbapi {
       /// @param propName name of the column
       /// @return requested value from the table. or UndefinedStringValue if any error happened
       std::string tableValueAsString( const std::string & tableName, size_t rowNumber, const std::string & propName );
+
+      /// @brief Set value in the table
+      /// @param tableName name of the table in project file
+      /// @param rowNumber row number in the table
+      /// @param propName name of the column
+      /// @param propValue value to be set in the table
+      /// @return ErrorHandler::NoError on success, error code otherwise
+      ErrorHandler::ReturnCode setTableValue( const std::string & tableName, size_t rowNumber, const std::string & propName, long propValue );
 
       /// @brief Set value in the table
       /// @param tableName name of the table in project file
@@ -163,6 +206,12 @@ namespace mbapi {
       /// @return NoError in case of success, error code otherwise.
       ReturnCode saveModelToProjectFile( const char * projectFileName );
 
+      /// @brief Get project file name
+      /// @return project file name or empty string if project wasn't loaded or saved before
+      std::string projectFileName();
+
+      // Access to some project functionality
+
       /// @brief Get model stratigraphy manager. It allows manipulate model startigraphy
       /// @return reference to the model stratigraphy. It created/deleted by the Model itself.
       StratigraphyManager & stratigraphyManager();
@@ -190,6 +239,21 @@ namespace mbapi {
       /// @brief Get input maps manager. It provides access to the GridMapIoTbl in project file
       /// @return reference to maps manager
       MapsManager & mapsManager();
+
+
+      // Request some project porperties
+
+      /// @brief Get basin model origin areal position
+      /// @param[out] x x coordinate [m] for the project origin
+      /// @param[out] y y coordinate [m] for the project origin
+      /// @return ErrorHandler::NoError on success, or error code otherwise
+      ReturnCode origin( double & x, double & y );
+
+      /// @brief Get basin model areal dimenstions
+      /// @param[out] dimX length [m] of the model along X axis
+      /// @param[out] dimY length [m] of the model along Y axis
+      /// @return ErrorHandler::NoError on success, or error code otherwise
+      ReturnCode arealSize( double & dimX, double & dimY );
 
       ///@}
 

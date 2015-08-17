@@ -5,6 +5,7 @@
 #include "AbstractProperty.h"
 
 #include "Interface/RunParameters.h"
+#include "Interface/SimulationDetails.h"
 
 #include "GeoPhysicsFormation.h"
 #include "GeoPhysicalConstants.h"
@@ -16,6 +17,10 @@
 
 DerivedProperties::FracturePressureFormationCalculator::FracturePressureFormationCalculator ( const GeoPhysics::ProjectHandle* projectHandle ) : m_projectHandle ( projectHandle ) {
    addPropertyName ( "FracturePressure" );
+
+   addDependentPropertyName ( "Depth" );
+   addDependentPropertyName ( "HydroStaticPressure" );
+   addDependentPropertyName ( "LithoStaticPressure" );
 }
 
 void DerivedProperties::FracturePressureFormationCalculator::calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
@@ -34,6 +39,12 @@ void DerivedProperties::FracturePressureFormationCalculator::calculate ( Derived
 
    const GeoPhysics::Formation* geoFormation = dynamic_cast<const GeoPhysics::Formation*>( formation );
 
+
+   bool hydrostaticMode = ( m_projectHandle->getDetailsOfLastSimulation ( "fastcauldron" ) != 0 and
+                            ( m_projectHandle->getDetailsOfLastSimulation ( "fastcauldron" )->getSimulatorMode () == "HydrostaticDecompaction" or
+                              m_projectHandle->getDetailsOfLastSimulation ( "fastcauldron" )->getSimulatorMode () == "HydrostaticTemperature" or
+                              m_projectHandle->getDetailsOfLastSimulation ( "fastcauldron" )->getSimulatorMode () == "HydrostaticHighResDecompaction" ));
+
    if ( depth != 0 and hydrostaticPressure != 0 and lithostaticPressure != 0 and geoFormation != 0 ) {
       const double age = snapshot->getTime ();
       const GeoPhysics::FracturePressureCalculator& fracturePressureCalculator = m_projectHandle->getFracturePressureCalculator();
@@ -49,6 +60,10 @@ void DerivedProperties::FracturePressureFormationCalculator::calculate ( Derived
       const GeoPhysics::CompoundLithologyArray * lithologies = &geoFormation->getCompoundLithologyArray ();
       const GeoPhysics::FluidType* fluid = dynamic_cast<const GeoPhysics::FluidType*>(geoFormation->getFluidType ());
 
+      if( hydrostaticMode ) {
+         ( (GeoPhysics::FluidType*) fluid )->setDensityToConstant ();
+      }
+
       // We could use any of the formation-properties here to get the undefined value.
       double undefinedValue = depth->getUndefinedValue ();
       double pressureValue;
@@ -58,7 +73,7 @@ void DerivedProperties::FracturePressureFormationCalculator::calculate ( Derived
          for ( unsigned int j = fracturePressure->firstJ ( true ); j <= fracturePressure->lastJ ( true ); ++j ) {
                
             if ( m_projectHandle->getNodeIsValid ( i, j )) {
-               const GeoPhysics::CompoundLithology* lithology = (*lithologies)( i, j );
+               const GeoPhysics::CompoundLithology* lithology = (*lithologies)( i, j, age );
 
                double seaTemperature = m_projectHandle->getSeaBottomTemperature ( i, j, age );
                double surfaceDepth = m_projectHandle->getSeaBottomDepth ( i, j, age );

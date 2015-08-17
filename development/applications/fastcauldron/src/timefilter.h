@@ -19,9 +19,11 @@ const string OutputOptionName[] = {
 };
  
 enum PropertyList {
+   //Please use alphabetic order inside subcategories, and update PropertyOutputConstraints.C according to the order
+
    //Vector Properties
-   DIFFUSIVITYVEC, POROSITYVEC, VELOCITYVEC, REFLECTIVITYVEC, SONICVEC,
-   BULKDENSITYVEC, THCONDVEC, PERMEABILITYVEC, PERMEABILITYHVEC, VR, MAXVES,
+   BULKDENSITYVEC, DIFFUSIVITYVEC, PERMEABILITYHVEC, PERMEABILITYVEC, POROSITYVEC,
+   REFLECTIVITYVEC, SONICVEC, THCONDVEC, VELOCITYVEC, VR, MAXVES,
 
    //Scalar Properties
    DEPTH, HEAT_FLOW, HEAT_FLOWY, HEAT_FLOWZ, HEAT_FLOW_,
@@ -31,7 +33,7 @@ enum PropertyList {
    BIOMARKERS, STERANEAROMATISATION, STERANEISOMERISATION,HOPANEISOMERISATION,
    ILLITEFRACTION, ALLOCHTHONOUS_LITHOLOGY, EROSIONFACTOR, 
    FAULTELEMENTS, FCTCORRECTION, THICKNESS, THICKNESSERROR, CHEMICAL_COMPACTION,
-   LITHOLOGY,
+   LITHOLOGY, TWOWAYTIME, TWOWAYTIME_RESIDUAL,
 
    //
    CAPILLARYPRESSUREGAS100, CAPILLARYPRESSUREGAS0, CAPILLARYPRESSUREOIL100, CAPILLARYPRESSUREOIL0,
@@ -132,6 +134,8 @@ enum PropertyList {
    // ALC properties
    BASALTTHICKNESS, HLMOD, TOPBASALTALC, MOHOALC, THICKNESSCCRUSTALC, THICKNESSBASALTALC,
    ALCSMCRUST, ALCSMTOPBASALT, ALCSMMOHO, ALCORIGMANTLE, 
+
+   // End of enum. Do not put anything after this.
    ENDPROPERTYLIST
 };
 
@@ -224,15 +228,15 @@ const int PropertyListSize = int(ENDPROPERTYLIST);
 const std::string& propertyListName ( const PropertyList property );
 
 const string PropertyName[] = {
+  "BulkDensityVec",
   "DiffusivityVec",
+  "PermeabilityHVec",
+  "PermeabilityVec",
   "PorosityVec",
-  "VelocityVec",
   "ReflectivityVec",
   "SonicVec",
-  "BulkDensityVec",
   "ThCondVec",
-  "PermeabilityVec",
-  "PermeabilityHVec",
+  "VelocityVec",
   "VrVec",
   "MaxVes",
   "Depth",
@@ -268,6 +272,8 @@ const string PropertyName[] = {
   "ThicknessError",
   "ChemicalCompaction",
   "Lithology",
+  "TwoWayTime",
+  "TwoWayTimeResidual",
   "CapillaryPressureGas100",
   "CapillaryPressureGas0",
   "CapillaryPressureOil100",

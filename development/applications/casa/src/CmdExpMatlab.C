@@ -32,9 +32,6 @@ void CmdExpMatlab::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
       std::cout << "Export CASA results to : " << m_dataFileName << std::endl;
    }
 
-   // Go over all command and extract location and base case name
-   const std::vector< SharedCmdPtr > & cmds = m_commander.cmdQueue();
-
    MatlabExporter mex( m_dataFileName );
    mex.exportScenario( *sa.get(), sa->baseCaseProjectFileName(), sa->scenarioLocation() );
 }

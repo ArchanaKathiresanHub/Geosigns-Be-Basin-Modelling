@@ -1,7 +1,7 @@
 #ifndef _CRUSTAL_THICKNESS_FACTORY_H_
 #define _CRUSTAL_THICKNESS_FACTORY_H_
 
-#include "Interface/ObjectFactory.h"
+#include "GeoPhysicsObjectFactory.h"
 
 namespace DataAccess
 {
@@ -19,11 +19,11 @@ namespace database
 }
 
 
-class CrustalThicknessCalculatorFactory : public DataAccess::Interface::ObjectFactory
+class CrustalThicknessCalculatorFactory : public GeoPhysics::ObjectFactory
 {
 public:
    /// Produce the CrustalThicknessCalculator specific ProjectHandle
-   virtual DataAccess::Interface::ProjectHandle * produceProjectHandle (database::Database * database, 
+	virtual DataAccess::Interface::ProjectHandle* produceProjectHandle (database::Database * database, 
                                                                              const string & name,  const string & accessMode);
    /// Produce the InterfaceInput
    virtual DataAccess::Interface::CrustalThicknessData * produceCrustalThicknessData (DataAccess::Interface::ProjectHandle * projectHandle, database::Record * record);

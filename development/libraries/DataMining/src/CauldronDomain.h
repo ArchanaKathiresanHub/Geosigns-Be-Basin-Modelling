@@ -10,6 +10,8 @@
 #include "Interface/Grid.h"
 #include "Interface/PropertyValue.h"
 
+#include "DerivedPropertyManager.h"
+
 #include "Point.h"
 #include "ElementPosition.h"
 #include "CauldronWell.h"
@@ -24,27 +26,7 @@ namespace DataAccess
    {
       /// Objects of this type contain the 3d depths for the basin,
       /// at the specified snapshot time.
-      class CauldronDomain
-      {
-         /// \typdef GridMapList
-         /// The sequence of depth maps.
-         ///
-         /// Stored in reverse depositional order, i.e. youngest first.
-         typedef std::vector<const Interface::PropertyValue*> PropertyValueList;
-
-         /// \typedef FormationToGridMap
-         /// A mapping from the formation to a corresponding depth map.
-         ///
-         /// The inverse of GridMapToFormation, the inverse exists because the mapping is both injective and surjective.
-         /// When considering only the set of formations in the domain (not Cauldron domain), and the set of property-values
-         /// in the range (or is that co-domain?).
-         typedef std::map <const Interface::Formation*, const Interface::PropertyValue*> FormationToGridMap;
-
-         /// \typedef GridMapToFormation
-         /// A mapping from the depth map to a corresponding formation.
-         ///
-         /// The inverse of FormationToGridMap.
-         typedef std::map <const Interface::PropertyValue*, const Interface::Formation*> GridMapToFormation;
+      class CauldronDomain {
 
       public :
 
@@ -56,7 +38,8 @@ namespace DataAccess
          ///
          /// All previously read depth data is removed and the new
          /// depth data (for the specified snapshot time) is read.
-         void setSnapshot( const Interface::Snapshot* snapshot );
+         void setSnapshot( const Interface::Snapshot*                 snapshot,
+                           DerivedProperties::DerivedPropertyManager& propertyManager );
 
          /// \brief Find the element/formation in which the the point (x,y,z) lies.
          ///
@@ -160,13 +143,9 @@ namespace DataAccess
          const Interface::Property*    m_depthProperty;
 
          /// The depth properties for the layers.
-         PropertyValueList  m_domainDepths;
+         DerivedProperties::FormationPropertyList m_domainDerivedDepths;
 
-         /// Mapping from formation to depth-grid-map. Enables retrieving the depth map for a given formation.
-         FormationToGridMap m_formationToMap;
 
-         /// Mapping from depth-grid-map to formation. Enables retrieving the formation for a given depth map.
-         GridMapToFormation m_mapToFormation;
       };
    }
 }

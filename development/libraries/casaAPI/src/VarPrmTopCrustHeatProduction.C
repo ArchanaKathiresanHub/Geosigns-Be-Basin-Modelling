@@ -16,13 +16,16 @@
 #include "VarPrmTopCrustHeatProduction.h"
 
 #include <cassert>
+#include <cstring>
+
 
 namespace casa
 {
 
-VarPrmTopCrustHeatProduction::VarPrmTopCrustHeatProduction( double baseValue, double minValue, double maxValue, PDF pdfType )
+VarPrmTopCrustHeatProduction::VarPrmTopCrustHeatProduction( double baseValue, double minValue, double maxValue, PDF pdfType, const char * name )
 {
    m_pdf = pdfType;
+   m_name = name && strlen( name ) > 0 ? std::string( name ) : std::string( "" );
   
    m_minValue.reset( new PrmTopCrustHeatProduction( this, minValue ) );
    m_maxValue.reset( new PrmTopCrustHeatProduction( this, maxValue ) );
@@ -40,7 +43,9 @@ VarPrmTopCrustHeatProduction::~VarPrmTopCrustHeatProduction()
 std::vector<std::string> VarPrmTopCrustHeatProduction::name() const
 {
 	std::vector<std::string> ret;
-	ret.push_back( "TopCrustHeatProdRate [\\mu W/m^3]" );
+
+   if ( m_name.empty() ) { ret.push_back( "TopCrustHeatProdRate [\\mu W/m^3]" ); }
+   else                  { ret.push_back( m_name ); }
 
 	return ret;
 }
@@ -61,5 +66,24 @@ SharedParameterPtr VarPrmTopCrustHeatProduction::newParameterFromDoubles( std::v
 
    return prm;
 }
+
+// Save all object data to the given stream, that object could be later reconstructed from saved data
+bool VarPrmTopCrustHeatProduction::save( CasaSerializer & sz, unsigned int version ) const
+{
+   bool ok = VarPrmContinuous::save( sz, version );
+   return ok;
+}
+
+// Create a new var.parameter instance by deserializing it from the given stream
+VarPrmTopCrustHeatProduction::VarPrmTopCrustHeatProduction( CasaDeserializer & dz, unsigned int objVer )
+{
+   bool ok =  VarPrmContinuous::deserializeCommonPart( dz, objVer );
+
+   if ( !ok )
+   {
+      throw ErrorHandler::Exception( ErrorHandler::DeserializationError ) << "VarPrmTopCrustHeatProduction deserialization unknown error";
+   }
+}
+
 
 }

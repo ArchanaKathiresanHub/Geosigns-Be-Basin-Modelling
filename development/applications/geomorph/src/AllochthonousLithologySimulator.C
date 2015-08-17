@@ -16,6 +16,7 @@ using namespace database;
 #include "Interface/Grid.h"
 #include "Interface/Formation.h"
 #include "Interface/Interface.h"
+#include "Interface/ObjectFactory.h"
 #include "Interface/ProjectHandle.h"
 #include "Interface/AllochthonousLithology.h"
 #include "hdf5funcs.h"
@@ -23,6 +24,7 @@ using namespace database;
 #include "WallTime.h"
 
 using namespace DataAccess;
+using namespace DataAccess::Interface;
 
 const std::string AllochMod::AllochthonousLithologySimulator::GeomorphRunStatus = "AllochthonousModelling";
 
@@ -37,8 +39,8 @@ bool AllochMod::AllochthonousLithologySimulator::DistributionMapEarlierThan::ope
 
 //------------------------------------------------------------//
 
-AllochMod::AllochthonousLithologySimulator::AllochthonousLithologySimulator (database::Database * database, const std::string & name, const std::string & accessMode)
-      : Interface::ProjectHandle (database, name, accessMode)
+AllochMod::AllochthonousLithologySimulator::AllochthonousLithologySimulator (database::Database * database, const std::string & name, const std::string & accessMode, ObjectFactory* factory)
+      : Interface::ProjectHandle (database, name, accessMode, factory)
 {
   if ( allochthonousModellingRequired ()) {
      startActivity ( GeomorphRunStatus, getHighResolutionOutputGrid ());
@@ -74,8 +76,9 @@ void AllochMod::AllochthonousLithologySimulator::printOn (std::ostream & ostr) c
 
 //------------------------------------------------------------//
 
-AllochMod::AllochthonousLithologySimulator* AllochMod::AllochthonousLithologySimulator::CreateFrom ( const std::string & projectFileName ) {
-  return (AllochthonousLithologySimulator*) Interface::OpenCauldronProject ( projectFileName, "rw" );
+AllochMod::AllochthonousLithologySimulator* AllochMod::AllochthonousLithologySimulator::CreateFrom ( const std::string & projectFileName, DataAccess::Interface::ObjectFactory* factory ) {
+   
+   return (AllochthonousLithologySimulator*) Interface::OpenCauldronProject ( projectFileName, "rw", factory );
 }
 
 //------------------------------------------------------------//

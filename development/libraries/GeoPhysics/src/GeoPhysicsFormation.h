@@ -106,8 +106,6 @@ namespace GeoPhysics {
       double getPresentDayErodedThickness ( const unsigned int i,
                                             const unsigned int j ) const;
 
-      void setThicknessArrays ();
-
       virtual void retrieveAllThicknessMaps ();
 
       virtual void restoreAllThicknessMaps ();

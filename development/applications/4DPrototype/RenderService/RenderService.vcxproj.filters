@@ -27,10 +27,10 @@
     <ClCompile Include="BpaRenderAreaListener.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="TestMesh.cpp">
+    <ClCompile Include="RenderService.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="RenderService.cpp">
+    <ClCompile Include="SceneInteractor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -45,6 +45,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="RenderService.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneInteractor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

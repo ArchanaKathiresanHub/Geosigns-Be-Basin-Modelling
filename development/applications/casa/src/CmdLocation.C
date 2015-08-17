@@ -26,14 +26,29 @@ void CmdLocation::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
 {
    if ( m_commander.verboseLevel() > CasaCommander::Quiet )
    {
-      std::cout << "Generating the set of case in folder: " << m_locPath << "..." << std::endl;
+      std::cout << "Generating the set of cases in folder: " << m_locPath << "..." << std::endl;
    }
    
    if ( ErrorHandler::NoError != sa->setScenarioLocation( m_locPath.c_str() )  ||
-        ErrorHandler::NoError != sa->applyMutations( sa->doeCaseSet() ) ||
-        ErrorHandler::NoError != sa->dataDigger().requestObservables( sa->obsSpace(), sa->doeCaseSet() )
-      )
+        ErrorHandler::NoError != sa->applyMutations( sa->doeCaseSet() ) )
+      
    {
       throw ErrorHandler::Exception( sa->errorCode() ) << sa->errorMessage();
    }
+
+   if ( m_commander.verboseLevel() > CasaCommander::Quiet )
+   {
+      std::cout << "Data digger requesting observables ..." << std::endl;
+   }
+
+   if ( ErrorHandler::NoError != sa->dataDigger().requestObservables( sa->obsSpace(), sa->doeCaseSet() ) )
+   {
+      throw ErrorHandler::Exception( sa->dataDigger().errorCode() ) << sa->dataDigger().errorMessage();
+   }
+
+   if ( m_commander.verboseLevel() > CasaCommander::Quiet )
+   {
+      std::cout << "Cases generation succeeded." << std::endl;
+   }
 }
+

@@ -56,8 +56,8 @@ namespace migration
    {
       public:
 	 /// Constructor
-	 Migrator (database::Database * database, const string & name, const string & accessMode);
-	 static Migrator *CreateFrom (const string & inputFileName);
+	 Migrator (database::Database * database, const string & name, const string & accessMode, DataAccess::Interface::ObjectFactory* objectFactory);
+	 static Migrator *CreateFrom (const string & inputFileName, DataAccess::Interface::ObjectFactory* objectFactory);
 	 virtual ~Migrator (void);
 
 	 bool saveTo (const string & outputFileName);

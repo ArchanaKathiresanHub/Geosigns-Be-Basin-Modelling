@@ -24,10 +24,12 @@ using namespace DataAccess;
 using namespace Interface;
 
 Property::Property (ProjectHandle * projectHandle, database::Record * record,
-      const string & userName, const string & cauldronName, const string & unit,
-      PropertyType type) :
+                    const string & userName, const string & cauldronName, const string & unit,
+                    PropertyType type,
+                    const DataModel::PropertyAttribute attr) :
    DAObject (projectHandle, record),
-   m_userName (userName), m_cauldronName (cauldronName), m_unit (unit), m_type (type)
+   m_userName (userName), m_cauldronName (cauldronName), m_unit (unit), m_type (type),
+   m_propertyAttribute ( attr )
 {
 }
 
@@ -67,6 +69,10 @@ const string & Property::getUnit (void) const
 PropertyType Property::getType (void) const
 {
    return m_type;
+}
+
+DataModel::PropertyAttribute Property::getPropertyAttribute () const {
+   return m_propertyAttribute;
 }
 
 PropertyValueList * Property::getPropertyValues (int selectionFlags,

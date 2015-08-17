@@ -33,8 +33,22 @@ int Usage( const char * pName )
 {
    std::cout << "Utility for cleaning and upgrading Cauldron project3d files" << std::endl;
    std::cout << "Usage: " << std::endl;
-   std::cout << "   " << pName << " [-clean] [-project] in.project3d [[-save] out.project3d]" << std::endl;
+   std::cout << "   " << pName << " [-clean [-table <comma sep. tables list>]] [-project] in.project3d [[-save] out.project3d]" << std::endl;
    return 0;
+}
+
+static std::vector<std::string> list2array( const std::string & listOfStr, char sep )
+{
+   std::vector<std::string> strList;          // array where we will keep strings from list to return
+   std::istringstream       iss( listOfStr ); // tokenizer
+   std::string              result;           // one token
+
+   while( std::getline( iss, result, sep ) ) 
+   {
+      if ( result.empty() || (result.size() == 1 && result[0] == sep ) ) continue; // skip spaces and separators
+           strList.push_back( result ); // add token to the list
+   }
+   return strList;
 }
 
 
@@ -46,6 +60,8 @@ int main( int argc, char ** argv )
 
    const char * inFile = NULL;
    const char * outFile = NULL;
+   
+   std::vector<std::string> tablesList;
 
    // parser input args
    for ( int i = 1; i < argc; ++i )
@@ -55,6 +71,10 @@ int main( int argc, char ** argv )
          if (      !strcmp( argv[i], "-clean"   ) ) { cleanResult = true; }
          else if ( !strcmp( argv[i], "-project" ) && argc > i+1 && argv[i+1][0] != '-' ) { inFile = argv[++i]; }
          else if ( !strcmp( argv[i], "-save"    ) && argc > i+1 && argv[i+1][0] != '-' ) { outFile = argv[++i]; }
+         else if ( !strcmp( argv[i], "-table"   ) && argc > i+1 && argv[i+1][0] != '-' )
+         {
+            tablesList = list2array( argv[++i], ',' );
+         }
          else
          {
             Message( std::string( "Unknown parameter: " ) + argv[i] );
@@ -104,6 +124,11 @@ int main( int argc, char ** argv )
       numRecs += cldProject.tableSize( "DepthIoTbl" );
       cldProject.clearTable( "DepthIoTbl" );
 
+      for ( size_t i = 0; i < tablesList.size(); ++i )
+      {
+         numRecs += cldProject.tableSize( tablesList[i] );
+         cldProject.clearTable( tablesList[i] );
+      }
       std::cout << std::endl << "Deleted " << numRecs << " records in all tables" << std::endl;
    }
 

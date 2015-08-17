@@ -190,31 +190,6 @@ const double DefaultHcCurveExponent = 2.0;
 
 //------------------------------------------------------------//
 
-/// \var GardnerVelocityConstant
-/// Constant used in computation of the Gardner velocity-density velocity algorithm.
-const double GardnerVelocityConstant = 309.4;
-
-/// \var GardnersVelocityDensityAlgorithm
-/// Gardners velocity-density velocity algorithm.
-const string GardnersVelocityDensityAlgorithm = "Gardner\'s Velocity-Density";
-
-/// \var WylliesTimeAverageAlgorithm
-/// Wyllie's Time-Average velocity algorithm.
-const string WylliesTimeAverageAlgorithm = "Wyllie\'s Time-Average";
-
-/// \var DefaultVelocityAlgorithm
-/// The default velocity-algorithm to be used if none is specified in the project file.
-const string DefaultVelocityAlgorithm = GardnersVelocityDensityAlgorithm;
-
-// /// Indicates which velocity algorithm should be used.
-// enum VelocityAlgorithm { GARDNERS_VELOCITY_ALGORITHM, WYLLIES_VELOCITY_ALGORITHM };
-
-// const std::string& velocityAlgorithmImage ( const VelocityAlgorithm vel );
-
-// VelocityAlgorithm velocityAlgorithmValue ( const std::string& algorithmName );
-
-//------------------------------------------------------------//
-
 
 const double Zero                   = 0.0;
 const double NegOne                 = -1.0;
@@ -547,35 +522,6 @@ typedef ibs::Array2D <int> Integer_Array_2D;
 typedef PETSc_Local_2D_Array <bool> Boolean2DArray;
 
 typedef PETSc_Local_3D_Array <bool> Boolean3DArray;
-
-
-//------------------------------------------------------------//
-
-// inline const std::string& velocityAlgorithmImage ( const VelocityAlgorithm vel ) {
-
-//    static const std::string UnknownAlgorithmName = "UnknownAlgorithm";
-
-//    if ( vel == GARDNERS_VELOCITY_ALGORITHM ) {
-//       return GardnersVelocityDensityAlgorithm;
-//    } else if ( vel == WYLLIES_VELOCITY_ALGORITHM ) {
-//       return WylliesTimeAverageAlgorithm;
-//    } else {
-//       return UnknownAlgorithmName;
-//    }
-
-// }
-
-// inline VelocityAlgorithm velocityAlgorithmValue ( const std::string& algorithmName ) {
-
-//    if ( algorithmName == GardnersVelocityDensityAlgorithm ) {
-//       return GARDNERS_VELOCITY_ALGORITHM;
-//    } else if ( algorithmName == WylliesTimeAverageAlgorithm ) {
-//       return WYLLIES_VELOCITY_ALGORITHM;
-//    } else {
-//       return GARDNERS_VELOCITY_ALGORITHM;
-//    }
-
-// }
 
 
 #endif // GLOBALDEFS

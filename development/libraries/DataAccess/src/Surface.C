@@ -131,10 +131,62 @@ const Snapshot * Surface::getSnapshot (void) const
 const GridMap * Surface::getInputDepthMap (void) const
 {
    const GridMap * gridMap;
-   if ((gridMap = (GridMap *) getChild (DepthMap)) != 0) return gridMap;
+   if ((gridMap = (GridMap *) getChild (DEPTH)) != 0) return gridMap;
    if ((gridMap = loadDepthMap ()) != 0) return gridMap;
    else if ((gridMap = computeDepthMap ()) != 0) return gridMap;
    else return 0;
+}
+
+const GridMap * Surface::getInputTwoWayTimeMap( void ) const
+{
+   const GridMap * gridMap = 0;
+   // if the map is already loaded
+   if ((gridMap = (GridMap *)getChild( TWOWAYTIME )) != 0) return gridMap;
+
+   // else load it if possible
+   else {
+      database::Table* twoWayTimeTbl = m_projectHandle->getTable( "TwoWayTimeIoTbl" );
+      database::Table::iterator tblIter;
+
+      for (tblIter = twoWayTimeTbl->begin(); tblIter != twoWayTimeTbl->end(); ++tblIter)
+      {
+         Record * twoWayTimeRecord = *tblIter;
+         // find the good line for the Surface in the table
+         if (database::getSurfaceName( twoWayTimeRecord ) == getName())
+         {
+            const string &TwoWayTimeGridMapId = getTwoWayTimeGrid( twoWayTimeRecord );
+            if (TwoWayTimeGridMapId.length() != 0)
+            {
+               gridMap = m_projectHandle->loadInputMap( "TwoWayTimeIoTbl", TwoWayTimeGridMapId );
+               return gridMap;
+            }
+         }
+      }
+      return gridMap;
+   }
+}
+
+float Surface::getInputTwoWayTimeScalar( void ) const
+{
+
+   database::Table* twoWayTimeTbl = m_projectHandle->getTable( "TwoWayTimeIoTbl" );
+   database::Table::iterator tblIter;
+
+   for (tblIter = twoWayTimeTbl->begin(); tblIter != twoWayTimeTbl->end(); ++tblIter)
+   {
+      Record * twoWayTimeRecord = *tblIter;
+      // find the good line for the Surface in the table
+      if (database::getSurfaceName( twoWayTimeRecord ) == getName())
+      {
+         float twoWayTimeScalar = database::getTwoWayTime( twoWayTimeRecord );
+         // a two way time needs two be a positive number
+         if (twoWayTimeScalar >= 0)
+         {
+            return twoWayTimeScalar;
+         }
+      }
+   }
+   return -9999;
 }
 
 GridMap * Surface::loadDepthMap (void) const
@@ -144,18 +196,17 @@ GridMap * Surface::loadDepthMap (void) const
 
    if ((depth = getDepth (m_record)) != RecordValueUndefined)
    {
-      //const Grid * grid = m_projectHandle->getInputGrid ();
       const Grid * grid = m_projectHandle->getActivityOutputGrid();
       if (!grid) grid = (Grid *) m_projectHandle->getInputGrid ();
-      gridMap = m_projectHandle->getFactory ()->produceGridMap (this, DepthMap, grid, depth);
-      assert (gridMap == (GridMap *) getChild (DepthMap));
+      gridMap = m_projectHandle->getFactory ()->produceGridMap (this, DEPTH, grid, depth);
+      assert (gridMap == (GridMap *) getChild (DEPTH));
    }
    else
    {
       const string &depthGridMapId = getDepthGrid (m_record);
       if (depthGridMapId.length () != 0)
       {
-	 gridMap = m_projectHandle->loadInputMap ("StratIoTbl", depthGridMapId);
+	      gridMap = m_projectHandle->loadInputMap ("StratIoTbl", depthGridMapId);
       }
    }
    return gridMap;
@@ -179,7 +230,7 @@ GridMap * Surface::computeDepthMap (void) const
    if (!thicknessMap) return false;
    if (!depthMap) return false;
 
-   GridMap * myDepthMap = m_projectHandle->getFactory ()->produceGridMap (this, DepthMap, depthMap, thicknessMap, ::minus);
+   GridMap * myDepthMap = m_projectHandle->getFactory ()->produceGridMap (this, DEPTH, depthMap, thicknessMap, ::minus);
 
    return myDepthMap;
 }

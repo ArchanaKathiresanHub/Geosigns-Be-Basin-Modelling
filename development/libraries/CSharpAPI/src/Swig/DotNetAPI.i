@@ -17,6 +17,7 @@
 // CASA API
 %shared_ptr(casa::Parameter)
 %shared_ptr(casa::PrmOneCrustThinningEvent)
+%shared_ptr(casa::PrmCrustThinning)
 %shared_ptr(casa::PrmTopCrustHeatProduction)
 %shared_ptr(casa::PrmPorosityModel)
 %shared_ptr(casa::PrmPermeabilityModel)
@@ -48,6 +49,7 @@
 
 %{
 // Interface to DataModel
+#include "../../../DataModel/src/PropertyAttribute.h"
 #include "../../../DataModel/src/AbstractFormation.h"
 #include "../../../DataModel/src/AbstractSurface.h"
 #include "../../../DataModel/src/AbstractGrid.h"
@@ -179,6 +181,7 @@
 #include "../../../casaAPI/src/ObsSpace.h"
 #include "../../../casaAPI/src/ObsSpaceImpl.h"
 #include "../../../casaAPI/src/Parameter.h"
+#include "../../../casaAPI/src/PrmCrustThinning.h"
 #include "../../../casaAPI/src/PrmOneCrustThinningEvent.h"
 #include "../../../casaAPI/src/PrmTopCrustHeatProduction.h"
 #include "../../../casaAPI/src/PrmSourceRockTOC.h"
@@ -246,10 +249,15 @@ using namespace casa;
 // CASA Observable.h:newObsValueFromDoubles()
 %apply int  &INOUT { int & off };
 
+CSHARP_ARRAYS(char, byte)
+
+// CASA ScenarioAnalysis.h:loadScenario()
+%apply char INPUT[] { const char * stateFileBuf }
 
 %rename(ComponentId2) DataAccess::Interface::ComponentId;
 
 // Interface to DataModel
+%include "../../../DataModel/src/PropertyAttribute.h"
 %include "../../../DataModel/src/AbstractFormation.h"
 %include "../../../DataModel/src/AbstractSurface.h"
 %include "../../../DataModel/src/AbstractGrid.h"
@@ -384,6 +392,7 @@ using namespace casa;
 %include "../../../casaAPI/src/ObsSpace.h"
 %include "../../../casaAPI/src/ObsSpaceImpl.h"
 %include "../../../casaAPI/src/Parameter.h"
+%include "../../../casaAPI/src/PrmCrustThinning.h"
 %include "../../../casaAPI/src/PrmOneCrustThinningEvent.h"
 %include "../../../casaAPI/src/PrmTopCrustHeatProduction.h"
 %include "../../../casaAPI/src/PrmSourceRockTOC.h"

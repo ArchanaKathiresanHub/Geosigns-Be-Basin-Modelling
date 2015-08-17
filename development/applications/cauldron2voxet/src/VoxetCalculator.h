@@ -5,7 +5,18 @@
 #include <istream>
 #include <sstream>
 
+// Data model library.
+#include "AbstractSnapshot.h"
+
+// Data Access and GeoPhysics libraries.
 #include "Interface/Interface.h"
+#include "GeoPhysicsProjectHandle.h"
+
+// Derived property library
+#include "AbstractPropertyManager.h"
+#include "DerivedPropertyManager.h"
+#include "FormationProperty.h"
+#include "SurfaceProperty.h"
 
 namespace DataAccess { namespace Interface {
    class Property;
@@ -39,16 +50,16 @@ class VoxetCalculator {
 
       ~PropertyInterpolator ();
 
-      void setSnapshot ( const ProjectHandle* projectHandle,
-                         const Snapshot*      snapshot );
+      void setSnapshot ( const GeoPhysics::ProjectHandle*           projectHandle,
+                         DerivedProperties::DerivedPropertyManager& propertyManager,
+                         const Snapshot*                            snapshot,
+                         const bool                                 useBasement );
 
       const Property* getProperty () const;
 
       const Snapshot* getSnapshot () const;
 
-      const PropertyValueList& getPropertyValues () const;
-
-      const PropertyValue* getPropertyValue ( const unsigned int position ) const;
+      DerivedProperties::FormationPropertyPtr getDerivedProperty ( const unsigned int position ) const;
 
       VoxetDomainInterpolator& getInterpolator ();
 
@@ -57,7 +68,9 @@ class VoxetCalculator {
       const Property*         m_property;
       const Snapshot*         m_snapshot;
       VoxetDomainInterpolator m_interpolators;
-      PropertyValueList*      m_propertyValues;
+
+      DerivedProperties::FormationPropertyList m_derivedPropertyValues;
+
    };
 
 
@@ -66,8 +79,9 @@ class VoxetCalculator {
 
 public :
 
-   VoxetCalculator ( const ProjectHandle*   projectHandle,
-                     const GridDescription& gridDescription );
+   VoxetCalculator ( const GeoPhysics::ProjectHandle*           projectHandle,
+                     DerivedProperties::DerivedPropertyManager& propertyManager,
+                     const GridDescription&                     gridDescription );
 
    ~VoxetCalculator ();
 
@@ -114,15 +128,16 @@ private :
    void calculatorInterpolatorValues ( const PropertyValueList* depthPropertyValueList,
                                        const bool               verbose );
 
-   void setDefinedNodes ( const PropertyValueList* depthPropertyValueList);
+   int getMaximumNumberOfLayerNodes ( const DerivedProperties::FormationPropertyList& depthPropertyValueList ) const;
 
-   float interpolatedProperty ( const Grid*    grid,
-                                const GridMap* property,
-                                const unsigned int computedI,
-                                const unsigned int computedJ,
-                                const unsigned int k,
-                                const float    x,
-                                const float    y  ) const;
+   void calculatorInterpolatorValues ( const DerivedProperties::FormationPropertyList& depthPropertyValueList,
+                                       const bool                                      verbose );
+
+   void initialiseInterpolators ( const DerivedProperties::FormationPropertyList& depthPropertyValueList,
+                                  const Snapshot*                                 snapshot,
+                                  const bool                                      verbose );
+
+   void setDefinedNodes ( const DerivedProperties::FormationPropertyList& depthPropertyValueList);
 
    /// Return whether the element {(i,j),(i+1,j),(i+1,j+1),(i,j+1)}, from the cauldron map, has all valid nodes.
    ///
@@ -131,9 +146,9 @@ private :
    ///     0 <= j < number-J-Nodes - 1.
    bool validCauldronElement ( const int i, const int j ) const;
 
-   const ProjectHandle*      m_projectHandle;
-
-   const GridDescription     m_gridDescription;
+   const GeoPhysics::ProjectHandle*           m_projectHandle;
+   DerivedProperties::DerivedPropertyManager& m_propertyManager;
+   const GridDescription                      m_gridDescription;
    
    bool**                    m_nodeIsDefined;
    bool**                    m_interpolatorIsDefined;

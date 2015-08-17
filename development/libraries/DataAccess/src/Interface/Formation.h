@@ -45,20 +45,20 @@ namespace DataAccess
 	    /// a hiatus or an erosion.
 	    virtual const GridMap * getInputThicknessMap (void) const;
 
-            /// Return the first lithotype of this Formation
-            virtual const LithoType * getLithoType1 (void) const;
-            /// Return the percentage map of the first lithotype
-            virtual const GridMap * getLithoType1PercentageMap (void) const;
+       /// Return the first lithotype of this Formation
+       virtual const LithoType * getLithoType1 (void) const;
+       /// Return the percentage map of the first lithotype
+       virtual const GridMap * getLithoType1PercentageMap (void) const;
 
-            /// Return the second lithotype of this Formation
-            virtual const LithoType * getLithoType2 (void) const;
-            /// Return the percentage map of the second lithotype
-            virtual const GridMap * getLithoType2PercentageMap (void) const;
+       /// Return the second lithotype of this Formation
+       virtual const LithoType * getLithoType2 (void) const;
+       /// Return the percentage map of the second lithotype
+       virtual const GridMap * getLithoType2PercentageMap (void) const;
 
-            /// Return the third lithotype of this Formation
-            virtual const LithoType * getLithoType3 (void) const;
-            /// Return the percentage map of the third lithotype
-            virtual const GridMap * getLithoType3PercentageMap (void) const;
+       /// Return the third lithotype of this Formation
+       virtual const LithoType * getLithoType3 (void) const;
+       /// Return the percentage map of the third lithotype
+       virtual const GridMap * getLithoType3PercentageMap (void) const;
 
 	    /// return the list of reservoirs in this formation.
 	    virtual ReservoirList * getReservoirs (void) const;
@@ -177,11 +177,11 @@ namespace DataAccess
 
 	    string m_mangledName;
 
-            static const unsigned int ThicknessMap = 0;
-            static const unsigned int LithoType1Map = 1;
-            static const unsigned int LithoType2Map = 2;
-            static const unsigned int LithoType3Map = 3;
-            static const unsigned int MixingHIMap = 4;
+       static const unsigned int ThicknessMap = 0;
+       static const unsigned int LithoType1Map = 1;
+       static const unsigned int LithoType2Map = 2;
+       static const unsigned int LithoType3Map = 3;
+       static const unsigned int MixingHIMap = 4;
 
 	    Surface * m_top;
 	    Surface * m_bottom;
@@ -189,15 +189,15 @@ namespace DataAccess
 	    mutable AllochthonousLithology const * m_allochthonousLithology;
 	    mutable SourceRock const * m_sourceRock1;
 	    mutable SourceRock const * m_sourceRock2;
-            mutable LithoType const * m_lithoType1;
-            mutable LithoType const * m_lithoType2;
-            mutable LithoType const * m_lithoType3;
+       mutable LithoType const * m_lithoType1;
+       mutable LithoType const * m_lithoType2;
+       mutable LithoType const * m_lithoType3;
 
-            mutable const FluidType* m_fluidType;
+       mutable const FluidType* m_fluidType;
 
-            FormationKind m_kind;
+       FormationKind m_kind;
 
-            const IgneousIntrusionEvent* m_igneousIntrusion;
+       const IgneousIntrusionEvent* m_igneousIntrusion;
 
       };
 

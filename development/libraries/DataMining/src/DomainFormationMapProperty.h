@@ -3,11 +3,15 @@
 
 #include <map>
 
+#include "AbstractFormation.h"
+
 #include "Interface/ProjectHandle.h"
 #include "Interface/Snapshot.h"
 #include "Interface/GridMap.h"
 #include "Interface/Surface.h"
 #include "Interface/Property.h"
+
+#include "DerivedPropertyManager.h"
 
 #include "PropertyInterpolator2D.h"
 #include "ElementPosition.h"
@@ -22,13 +26,14 @@ namespace DataAccess
       class DomainFormationMapProperty : public DomainProperty
       {
          /// \typedef SurfaceToGridMapMapping
-         typedef std::map < const Interface::Formation *, const Interface::PropertyValue * > FormationMapToPropertyValueMapping;
+         typedef std::map < const DataModel::AbstractFormation *, DerivedProperties::FormationMapPropertyPtr > FormationMapToPropertyValueMapping;
 
       public :
 
-         DomainFormationMapProperty( const DomainPropertyCollection * collection,
-                                     const Interface::Snapshot      * snapshot,
-                                     const Interface::Property      * property );
+         DomainFormationMapProperty( const DomainPropertyCollection *           collection,
+                                     DerivedProperties::DerivedPropertyManager& propertyManager,
+                                     const Interface::Snapshot      *           snapshot,
+                                     const Interface::Property      *           property );
 
          virtual ~DomainFormationMapProperty();
 
@@ -51,9 +56,10 @@ namespace DataAccess
       class DomainFormationMapPropertyAllocator : public DomainPropertyAllocator
       {
       public :
-         DomainProperty* allocate ( const DomainPropertyCollection * collection,
-                                    const Interface::Snapshot      * snapshot,
-                                    const Interface::Property      * property ) const;
+         DomainProperty* allocate ( const DomainPropertyCollection *           collection,
+                                    DerivedProperties::DerivedPropertyManager& propertyManager,
+                                    const Interface::Snapshot      *           snapshot,
+                                    const Interface::Property      *           property ) const;
       };
    }
 }

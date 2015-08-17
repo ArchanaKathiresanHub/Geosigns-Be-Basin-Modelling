@@ -64,8 +64,9 @@ namespace casa
 
       /// @brief Set this parameter value in Cauldron model
       /// @param caldModel reference to Cauldron model
+      /// @param caseID unique RunCase ID, in some parameters it is used in new map file name generation
       /// @return ErrorHandler::NoError in success, or error code otherwise     
-      virtual ErrorHandler::ReturnCode setInModel( mbapi::Model & caldModel );
+      virtual ErrorHandler::ReturnCode setInModel( mbapi::Model & caldModel, size_t caseID );
 
       /// @brief Validate parameter value if it is inside of valid range
       /// @param caldModel reference to Cauldron model

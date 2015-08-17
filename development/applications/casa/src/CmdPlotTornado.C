@@ -39,6 +39,12 @@ CmdPlotTornado::CmdPlotTornado( CasaCommander & parent, const std::vector< std::
 
    if ( m_prms.size() > 2 )
    {
+      const std::vector<std::string> & givenTargetNames = CfgFileParser::list2array( m_prms[2], ',' );
+      m_targetNames.insert( givenTargetNames.begin(), givenTargetNames.end() );
+   }
+
+   if ( m_prms.size() > 3 )
+   {
       throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Unknown parameter of PlotTornado command: " << m_prms[2];
    }
 }
@@ -70,24 +76,31 @@ void CmdPlotTornado::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
 
    ofs << "%CASA Tornado diagram plotting script\n";
 
-   // export cases parameters
-   //ofs.exportParametersInfo( *sa.get() );
-
-   // export cases observables
-   //ofs.exportObservablesInfo( *sa.get() );
-
-  
    ofs << "clear all\n";
    ofs << "hold off\n";
    ofs << "close\n";
    
    //ofs << "ProxyName = '" << m_proxyName << "';\n";
 
-   for ( size_t i = 0; i < data.size(); ++i )
+   for ( size_t i = 0, obsNum = 0; i < data.size(); ++i )
    {
-      const std::vector< std::string > & obsNames = data[i].observable()->name();
-      ofs << "TornadoSens.obsName{ " << i+1 << "} = '" << obsNames[data[i].observableSubID()] << "';\n";
-      ofs << "TornadoSens.obsRefVal( " << i+1 << ") = " << data[i].refObsValue() << ";\n";
+      // get name of the observable
+      const casa::Observable * obsObj = data[i].observable();
+      if ( !obsObj ) continue;
+      const std::vector<std::string> & obsNamesList = obsObj->name();
+      const std::string & obsName = obsNamesList[data[i].observableSubID()];
+
+      bool found = false;
+      for ( std::set<std::string>::const_iterator it = m_targetNames.begin(); !found && it != m_targetNames.end(); ++it )
+      {
+         if ( obsName.find( *it ) != std::string::npos ) found = true; 
+      }
+      if ( !m_targetNames.empty() && !found ) continue;
+
+      ++obsNum;
+
+      ofs << "TornadoSens.obsName{ " << obsNum << "} = '" << MatlabExporter::correctName( obsName ) << "';\n";
+      ofs << "TornadoSens.obsRefVal( " << obsNum << ") = " << data[i].refObsValue() << ";\n";
 
       const std::vector<std::pair<const casa::VarParameter *, int> > & varPrmList = data[i].varPrmList();
       const casa::TornadoSensitivityInfo::SensitivityData            & sens       = data[i].sensitivities();
@@ -98,7 +111,7 @@ void CmdPlotTornado::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
          const std::vector<std::string> & prmNames = varPrmList[j].first->name();
          const std::string & prmName = prmNames[varPrmList[j].second];
 
-         ofs << "TornadoSens.prmNames{ " << i+1 << ", " << j+1 << "} = '" << prmName << "';\n";
+         ofs << "TornadoSens.prmNames{ " << obsNum << ", " << j+1 << "} = '" << prmName << "';\n";
 
          double minVal; 
          double maxVal;
@@ -119,10 +132,10 @@ void CmdPlotTornado::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
             minRelVal = relSens[j][0];
             maxRelVal = relSens[j][1];
          }
-         ofs << "TornadoSens.absSensMin( " << i+1 << ", " << j+1 << ") = " << minVal << ";\n";
-         ofs << "TornadoSens.absSensMax( " << i+1 << ", " << j+1 << ") = " << maxVal << ";\n";
-         ofs << "TornadoSens.relSensMin( " << i+1 << ", " << j+1 << ") = " << minRelVal << ";\n";
-         ofs << "TornadoSens.relSensMax( " << i+1 << ", " << j+1 << ") = " << maxRelVal << ";\n";
+         ofs << "TornadoSens.absSensMin( " << obsNum << ", " << j+1 << ") = " << minVal << ";\n";
+         ofs << "TornadoSens.absSensMax( " << obsNum << ", " << j+1 << ") = " << maxVal << ";\n";
+         ofs << "TornadoSens.relSensMin( " << obsNum << ", " << j+1 << ") = " << minRelVal << ";\n";
+         ofs << "TornadoSens.relSensMax( " << obsNum << ", " << j+1 << ") = " << maxRelVal << ";\n";
       }
    }
 
@@ -193,18 +206,26 @@ void CmdPlotTornado::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
    ofs << "   grid on\n";
    ofs << "   \n";
    ofs << "   print( sprintf( 'tornado_%d.jpg', i ) );\n";
+   ofs << "   eval( sprintf( 'print Tornado_%s.jpg -S1000,1000', TornadoSens.obsName{i} ) );\n";
+
    ofs << "end\n";
 }
 
 void CmdPlotTornado::printHelpPage( const char * cmdName )
 {
-   std::cout << "  " << cmdName << " <DoEs list> <scriptName> \n";
+   std::cout << "  " << cmdName << " <DoEsList> <scriptName> [targetsList]\n";
    std::cout << "   - create Matlab/Octave .m script file which could be used to create a plot with Tornado\n";
    std::cout << "     diagram per observable to show the local parameters sensitivity\n";
-   std::cout << "     \n";
+   std::cout << "     Where:\n";
+   std::cout << "       DoEsList - list of DoE which will be used for tornado diagram construction. Based on this list,\n";
+   std::cout << "                  the 1st order RS with Kriging will be created and used for parameters sensitivity calculation\n";
+   std::cout << "       scriptName - name of the output matlab/octave file which will be generated. User should run this script to\n";
+   std::cout << "                    create Tornado plots pictures\n";
+   std::cout << "       targetsList - optional comma separated targets name list for which Tornado diagrams will be generated\n";
+   std::cout << "\n";
    std::cout << "     Example:\"" << cmdName << "\" command:\n";
    std::cout << " #                                DoEs list     Matlab/Octave script name\n";
-   std::cout << "         " << cmdName << "\"FullFactorial,Tornado\"    \"TornadoPlotTornadoFFDoEs.m\"\n";
+   std::cout << "         " << cmdName << "\"FullFactorial,Tornado\"    \"TornadoPlotTornadoFFDoEs.m\"   \"Target1,Target2\" \n";
 }
 
 

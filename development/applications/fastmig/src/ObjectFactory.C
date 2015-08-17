@@ -12,7 +12,7 @@ DataAccess::Interface::ProjectHandle *
 ObjectFactory::produceProjectHandle (database::Database * database,
 	 const string & name, const string & accessMode)
 {
-   return new Migrator (database, name, accessMode);
+   return new Migrator (database, name, accessMode, this);
 }
 
 DataAccess::Interface::Reservoir *

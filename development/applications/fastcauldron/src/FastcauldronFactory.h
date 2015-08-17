@@ -1,6 +1,8 @@
 #ifndef __FASTCAULDRONOBJECTFACTORY_HH_
 #define __FASTCAULDRONOBJECTFACTORY_HH_
 
+#include "PropertyAttribute.h"
+
 #include "GeoPhysicsObjectFactory.h"
 // #include "Interface/ObjectFactory.h"
 
@@ -42,7 +44,8 @@ public :
    /// Returns the project-handle.
    Interface::ProjectHandle * produceProjectHandle ( database::Database * database,
                                                           const string &       name,
-                                                          const string &       accessMode);
+                                                          const string &       accessMode
+ 													      );
 
    /// Allocate a fastcauldron related-project.
    Interface::RelatedProject* produceRelatedProject ( Interface::ProjectHandle* projectHandle,
@@ -53,11 +56,12 @@ public :
 
    /// Allocate a fastcauldron property.
    Interface::Property * produceProperty ( Interface::ProjectHandle * projectHandle,
-                                                database::Record *              record,
-                                                const string &                  userName,
-                                                const string &                  cauldronName,
-                                                const string &                  unit, 
-                                                Interface::PropertyType         type);
+                                           database::Record *                 record,
+                                           const string &                     userName,
+                                           const string &                     cauldronName,
+                                           const string &                     unit, 
+                                           Interface::PropertyType            type,
+                                           const DataModel::PropertyAttribute attr );
 
    /// Allocate a fastcauldron property-value.
    Interface::PropertyValue * producePropertyValue ( Interface::ProjectHandle *   projectHandle,

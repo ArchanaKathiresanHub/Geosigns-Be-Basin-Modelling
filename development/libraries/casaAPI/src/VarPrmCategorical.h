@@ -91,15 +91,17 @@ namespace casa
    protected:
       VarPrmCategorical() {;}
 
-      /// @brief  Constructor from input stream, implements common part of deserialization for continuous variable parameters
+      /// @brief Defines version of serialized object representation. Must be updated on each change in save()
+      /// @return Actual version of serialized object representation
+      virtual unsigned int version() const { return 1; }
+
+      /// @brief Implements common part of deserialization for continuous variable parameters
       /// @param dz input stream
       /// @param objVer The object version.
-      VarPrmCategorical( CasaDeserializer & dz, unsigned int objVer );
-
+      bool deserializeCommonPart( CasaDeserializer & dz, unsigned int objVer );
 
       std::vector<SharedParameterPtr> m_variation;
       size_t                          m_baseVal;
-
       std::vector<double>             m_weights;
    };
 }

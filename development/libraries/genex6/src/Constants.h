@@ -10,6 +10,7 @@ namespace Genex6
       const int SIMGENEX  = 0x0002;
       const int SIMGENEX5 = 0x0004;
       const int SIMOTGC5  = 0x0008;
+      const int SIMTSR    = 0x0010;
 
       const double s_undefinedValue = 9999.0;
       enum {TOTAL_OM, AROMATIC_IMMOBILE_OM, MOBILE_OM, NUMBER_OF_ORGANIC_MATTER_TYPES};

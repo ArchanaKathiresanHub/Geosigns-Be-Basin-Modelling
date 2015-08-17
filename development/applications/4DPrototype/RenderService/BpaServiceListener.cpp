@@ -1,9 +1,19 @@
+//
+// Copyright (C) 2012-2015 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "BpaServiceListener.h"
 #include "BpaRenderAreaListener.h"
 #include "SceneExaminer.h"
 #include "RenderService.h"
 
-#include <Visualization/SceneGraph.h>
+#include <Visualization/SceneGraphManager.h>
 
 #include <RemoteViz/Rendering/RenderArea.h>
 
@@ -23,8 +33,8 @@ namespace di = DataAccess::Interface;
 BpaServiceListener::BpaServiceListener(RenderService* renderService)
   : m_renderService(renderService)
 {
-  if(m_renderService != 0)
-    m_renderService->logMessage("BpaServiceListener instantiated");
+  //if(m_renderService != 0)
+  //  m_renderService->logMessage("BpaServiceListener instantiated");
 }
 
 BpaServiceListener::~BpaServiceListener()
@@ -38,8 +48,8 @@ bool BpaServiceListener::onPendingCreateRenderArea(
   Device* device, 
   ConnectionParameters* parameters)
 {
-  if(m_renderService != 0)
-    m_renderService->logMessage("Accepting connection");
+  //if(m_renderService != 0)
+  //  m_renderService->logMessage("Accepting connection");
 
   std::cout << "Accepting connection, renderAreaId = '" << renderAreaId << "' (" << width << "x" << height << ")" << std::endl;
   return true; // accept connection
@@ -47,8 +57,8 @@ bool BpaServiceListener::onPendingCreateRenderArea(
 
 bool BpaServiceListener::onPendingShareRenderArea(RenderArea* renderArea, Device* device, ConnectionParameters* parameters)
 {
-  if(m_renderService != 0)
-    m_renderService->logMessage("RenderArea shared");
+  //if(m_renderService != 0)
+  //  m_renderService->logMessage("RenderArea shared");
 
   std::cout << "Accepting connection, shared renderAreaId = '" << renderArea->getId() << std::endl;
   return true; // accept connection
@@ -56,8 +66,8 @@ bool BpaServiceListener::onPendingShareRenderArea(RenderArea* renderArea, Device
   
 void BpaServiceListener::onInstantiatedRenderArea(RenderArea *renderArea)
 {
-  if(m_renderService != 0)
-    m_renderService->logMessage("RenderArea instantiated");
+  //if(m_renderService != 0)
+  //  m_renderService->logMessage("RenderArea instantiated");
 
   std::cout << "onInstantiatedRenderArea(renderArea = " << renderArea->getId() << std::endl;
 
@@ -72,7 +82,7 @@ void BpaServiceListener::onInstantiatedRenderArea(RenderArea *renderArea)
   renderArea->getTouchManager()->addRecognizer(longTapRecognizer);
 	
 	// Add the renderAreaListener instance as renderArea listener
-  std::tr1::shared_ptr<RenderAreaListener> renderAreaListener(new BpaRenderAreaListener(renderArea));
+  std::shared_ptr<RenderAreaListener> renderAreaListener(new BpaRenderAreaListener(renderArea));
 	renderArea->addListener(renderAreaListener);
 }
 
@@ -83,24 +93,24 @@ void BpaServiceListener::onDisposedRenderArea(const std::string& renderAreaId)
 
 void BpaServiceListener::onConnectedDevice(const std::string& deviceId)
 {
-  if(m_renderService != 0)
-    m_renderService->logMessage("New device connected");
+  //if(m_renderService != 0)
+  //  m_renderService->logMessage("New device connected");
 
   std::cout << "Device '" << deviceId << "' connected" << std::endl;
 }
 
 void BpaServiceListener::onDisconnectedDevice(const std::string& deviceId)
 {
-  if(m_renderService != 0)
-    m_renderService->logMessage("Device disconnected");
+  //if(m_renderService != 0)
+  //  m_renderService->logMessage("Device disconnected");
 
   std::cout << "Device '" << deviceId << "' disconnected" << std::endl;
 }
 
 void BpaServiceListener::onMissingLicense(const std::string& renderAreaId, ConnectionParameters* parameters)
 {
-  if(m_renderService != 0)
-    m_renderService->logMessage("Missing license");
+  //if(m_renderService != 0)
+  //  m_renderService->logMessage("Missing license");
 
   std::cout << "License missing (renderAreaId = '" << renderAreaId << "')" << std::endl;
 }

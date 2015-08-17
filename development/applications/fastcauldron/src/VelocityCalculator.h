@@ -13,6 +13,9 @@
 #include "Interface/Snapshot.h"
 #include "Interface/GridMap.h"
 
+/*! \class VelocityCalculator
+* \brief Class used to compute the 2D seismic velocity (Velocity) property.
+*/
 class VelocityCalculator {
 
 public :
@@ -29,24 +32,29 @@ public :
 
 private :
 
-   LayerProps* m_formation;
-   const Interface::Surface* m_surface;
-   const Interface::Snapshot* m_snapshot;
+   LayerProps          const * const m_formation;
+   Interface::Surface  const * const m_surface;
+   Interface::Snapshot const * const m_snapshot;
 
+   OutputPropertyMap* m_bulkDensity;
    OutputPropertyMap* m_porosity;
    OutputPropertyMap* m_pressure;
    OutputPropertyMap* m_temperature;
-   OutputPropertyMap* m_bulkDensity;
+   OutputPropertyMap* m_ves;
+   OutputPropertyMap* m_maxVes;
 
    bool m_isCalculated;
 
-   /// Other dependencies.
-   const CompoundLithologyArray* m_lithologies;
-   const FluidType*              m_fluid;
+   /// The lithologies of the formation
+   CompoundLithologyArray const * const m_lithologies;
+   /// The fluid of the formation
+   FluidType const * const m_fluid;
 
 };
 
-
+/*! \class VelocityVolumeCalculator
+* \brief Class used to compute the 3D seismic velocity (Velocity) property.
+*/
 class VelocityVolumeCalculator {
 
 public :
@@ -63,19 +71,22 @@ public :
 
 private :
 
-   LayerProps* m_formation;
-   const Interface::Snapshot* m_snapshot;
+   LayerProps                const * const m_formation;
+   Interface::Snapshot       const * const m_snapshot;
 
+   OutputPropertyMap* m_bulkDensity;
    OutputPropertyMap* m_porosity;
    OutputPropertyMap* m_pressure;
    OutputPropertyMap* m_temperature;
-   OutputPropertyMap* m_bulkDensity;
+   OutputPropertyMap* m_ves;
+   OutputPropertyMap* m_maxVes;
 
    bool m_isCalculated;
 
-   /// Other dependencies.
-   const CompoundLithologyArray* m_lithologies;
-   const FluidType*              m_fluid;
+   /// The lithologies of the formation
+   CompoundLithologyArray const * const m_lithologies;
+   /// The fluid of the formation
+   FluidType const * const m_fluid;
 
 };
 

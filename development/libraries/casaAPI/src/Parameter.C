@@ -14,6 +14,7 @@
 #include "ErrorHandler.h"
 
 #include "PrmOneCrustThinningEvent.h"
+#include "PrmCrustThinning.h"
 #include "PrmSourceRockTOC.h"
 #include "PrmSourceRockHC.h"
 #include "PrmSourceRockHI.h"
@@ -38,6 +39,7 @@ casa::Parameter * casa::Parameter::load( CasaDeserializer & dz, const char * obj
          << ", but stream gave object with name: " << on;
    }
    if (      ot == "PrmOneCrustThinningEvent"        ) { return new PrmOneCrustThinningEvent(        dz, vr ); }
+   else if ( ot == "PrmCrustThinning"                ) { return new PrmCrustThinning(                dz, vr ); }
    else if ( ot == "PrmSourceRockTOC"                ) { return new PrmSourceRockTOC(                dz, vr ); }
    else if ( ot == "PrmSourceRockHC"                 ) { return new PrmSourceRockHC(                 dz, vr ); }
    else if ( ot == "PrmSourceRockHI"                 ) { return new PrmSourceRockHI(                 dz, vr ); }

@@ -3,10 +3,11 @@
 #include "GeoPhysicsFormation.h"
 #include "CompoundLithology.h"
 
-DataAccess::Mining::PorosityCalculator::PorosityCalculator ( const DomainPropertyCollection*  collection,
-                                                             const Interface::Snapshot* snapshot,
-                                                             const Interface::Property* property ) :
-   DomainFormationProperty ( collection, snapshot, property )
+DataAccess::Mining::PorosityCalculator::PorosityCalculator ( const DomainPropertyCollection*            collection,
+                                                             DerivedProperties::DerivedPropertyManager& propertyManager,
+                                                             const Interface::Snapshot*                 snapshot,
+                                                             const Interface::Property*                 property ) :
+   DomainFormationProperty ( collection, propertyManager, snapshot, property )
 {
    m_ves = 0;
    m_maxVes = 0;
@@ -16,8 +17,8 @@ DataAccess::Mining::PorosityCalculator::PorosityCalculator ( const DomainPropert
 bool DataAccess::Mining::PorosityCalculator::initialise () {
 
    if ( not m_initialised ) {
-      m_ves = getPropertyCollection ()->getDomainProperty ( "Ves" );
-      m_maxVes = getPropertyCollection ()->getDomainProperty ( "MaxVes" );
+      m_ves = getPropertyCollection ()->getDomainProperty ( "Ves", getPropertyManager ());
+      m_maxVes = getPropertyCollection ()->getDomainProperty ( "MaxVes", getPropertyManager ());
 
       if ( m_ves != 0 and m_maxVes != 0 ) {
          m_initialised = true;
@@ -57,8 +58,9 @@ double DataAccess::Mining::PorosityCalculator::compute ( const ElementPosition& 
    return porosity;
 }
 
-DataAccess::Mining::DomainProperty* DataAccess::Mining::PorosityCalculatorAllocator::allocate ( const DomainPropertyCollection*  collection,
-                                                                                                const Interface::Snapshot* snapshot,
-                                                                                                const Interface::Property* property ) const {
-   return new PorosityCalculator ( collection, snapshot, property );
+DataAccess::Mining::DomainProperty* DataAccess::Mining::PorosityCalculatorAllocator::allocate ( const DomainPropertyCollection*            collection,
+                                                                                                DerivedProperties::DerivedPropertyManager& propertyManager,
+                                                                                                const Interface::Snapshot*                 snapshot,
+                                                                                                const Interface::Property*                 property ) const {
+   return new PorosityCalculator ( collection, propertyManager, snapshot, property );
 }

@@ -29,6 +29,9 @@ using namespace std;
 #include "Interface/Property.h"
 #include "Interface/PropertyValue.h"
 #include "Interface/ProjectHandle.h"
+#include "Interface/SimulationDetails.h"
+
+#include "DerivedPropertyManager.h"
 
 #include "NumericFunctions.h"
 
@@ -285,16 +288,35 @@ int main (int argc, char ** argv) {
 
    Mining::DomainPropertyFactory* factory = new DataAccess::Mining::DomainPropertyFactory;
 
-   Interface::ProjectHandle::UseFactory ( factory );
-
-   Mining::ProjectHandle* projectHandle = (Mining::ProjectHandle*)(OpenCauldronProject (projectFileName, "r"));
+   Mining::ProjectHandle* projectHandle = (Mining::ProjectHandle*)(OpenCauldronProject (projectFileName, "r", factory));
+   DerivedProperties::DerivedPropertyManager propertyManager ( projectHandle );
 
    projectHandle->startActivity ( "deviatedwell", projectHandle->getLowResolutionOutputGrid ());
    projectHandle->initialise ( true, false );
 
-   if ( not projectHandle->setFormationLithologies ( false, false )) {
+   if ( not projectHandle->setFormationLithologies ( false, true )) {
       std::cerr << " Cannot set lithologies." << std::endl;
    }
+
+   bool coupledCalculation = false;
+
+   const Interface::SimulationDetails* simulationDetails = projectHandle->getDetailsOfLastSimulation ( "fastcauldron" );
+
+   if ( simulationDetails != 0 ) {
+      coupledCalculation = simulationDetails->getSimulatorMode () == "Overpressure" or
+                           simulationDetails->getSimulatorMode () == "LooselyCoupledTemperature" or
+                           simulationDetails->getSimulatorMode () == "CoupledHighResDecompaction" or
+                           simulationDetails->getSimulatorMode () == "CoupledPressureAndTemperature" or
+                           simulationDetails->getSimulatorMode () == "CoupledDarcy";
+   } else {
+      // If this table is not present the assume that the last
+      // fastcauldron mode was not pressure mode.
+      // This table may not be present because we are running c2e on an old 
+      // project, before this table was added.
+      coupledCalculation = false;
+   }
+
+   projectHandle->initialiseLayerThicknessHistory ( coupledCalculation );
 
    if ( listAllProperties ) {
       projectHandle->listProperties ( std::cout );
@@ -313,10 +335,10 @@ int main (int argc, char ** argv) {
 
    DomainPropertyCollection* domainProperties = projectHandle->getDomainPropertyCollection ();
 
-   domain.setSnapshot ( snapshot );
+   domain.setSnapshot ( snapshot, propertyManager );
    domainProperties->setSnapshot ( snapshot );
 
-   DataMiner miner ( projectHandle );
+   DataMiner miner ( projectHandle, propertyManager );
 
    ElementPositionSequence positions;
    DataMiner::ResultValues results;

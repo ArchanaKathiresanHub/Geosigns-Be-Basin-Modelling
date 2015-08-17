@@ -24,8 +24,8 @@ namespace GeoPhysics {
       ~Local2DArray ();
 
       /// Allocate the array with the grid map.
-      void allocate ( const DataAccess::Interface::Grid* grid,
-                      const bool                         includeGhostNodes = true );
+      void reallocate ( const DataAccess::Interface::Grid* grid,
+                        const bool                         includeGhostNodes = true );
 
       /// The first index of the array in the dimension.
       unsigned int first  ( const unsigned int dim ) const;
@@ -93,8 +93,12 @@ GeoPhysics::Local2DArray<T>::~Local2DArray () {
 //------------------------------------------------------------//
 
 template <typename T>
-void GeoPhysics::Local2DArray<T>::allocate ( const DataAccess::Interface::Grid* grid,
-                                             const bool                         includeGhostNodes ) {
+void GeoPhysics::Local2DArray<T>::reallocate ( const DataAccess::Interface::Grid* grid,
+                                               const bool                         includeGhostNodes ) {
+
+   if ( m_values != 0 ) {
+      ibs::Array<T>::delete2d ( m_values );
+   }
 
    m_first [ 0 ] = grid->firstI ( includeGhostNodes );
    m_first [ 1 ] = grid->firstJ ( includeGhostNodes );

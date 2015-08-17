@@ -17,10 +17,11 @@ using namespace std;
 #include "ElementFunctions.h"
 #include "DomainProperty.h"
 
-DataAccess::Mining::BasinTemperatureGradientCalculator::BasinTemperatureGradientCalculator ( const DomainPropertyCollection*  collection,
-                                                                                             const Interface::Snapshot* snapshot,
-                                                                                             const Interface::Property* property ) :
-   DomainFormationProperty ( collection, snapshot, property )
+DataAccess::Mining::BasinTemperatureGradientCalculator::BasinTemperatureGradientCalculator ( const DomainPropertyCollection*            collection,
+                                                                                             DerivedProperties::DerivedPropertyManager& propertyManager,
+                                                                                             const Interface::Snapshot*                 snapshot,
+                                                                                             const Interface::Property*                 property ) :
+   DomainFormationProperty ( collection, propertyManager, snapshot, property )
 {
 
    m_temperature = 0;
@@ -30,7 +31,7 @@ DataAccess::Mining::BasinTemperatureGradientCalculator::BasinTemperatureGradient
 bool DataAccess::Mining::BasinTemperatureGradientCalculator::initialise () {
 
    if ( not m_initialised ) {
-      m_temperature = getPropertyCollection ()->getDomainProperty ( "Temperature" );
+      m_temperature = getPropertyCollection ()->getDomainProperty ( "Temperature", getPropertyManager ());
 
       if ( m_temperature != 0 ) {
          m_initialised = true;
@@ -102,10 +103,11 @@ double DataAccess::Mining::BasinTemperatureGradientCalculator::compute ( const E
    return temperatureGradient;
 }
 
-DataAccess::Mining::DomainProperty* DataAccess::Mining::BasinTemperatureGradientCalculatorAllocator::allocate ( const DomainPropertyCollection*  collection,
-                                                                                                                const Interface::Snapshot* snapshot,
-                                                                                                                const Interface::Property* property ) const {
-   return new BasinTemperatureGradientCalculator ( collection, snapshot, property );
+DataAccess::Mining::DomainProperty* DataAccess::Mining::BasinTemperatureGradientCalculatorAllocator::allocate ( const DomainPropertyCollection*            collection,
+                                                                                                                DerivedProperties::DerivedPropertyManager& propertyManager,
+                                                                                                                const Interface::Snapshot*                 snapshot,
+                                                                                                                const Interface::Property*                 property ) const {
+   return new BasinTemperatureGradientCalculator ( collection, propertyManager, snapshot, property );
 }
 
 

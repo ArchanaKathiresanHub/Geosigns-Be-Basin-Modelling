@@ -3,10 +3,11 @@
 #include "GeoPhysicsFormation.h"
 #include "CompoundLithology.h"
 
-DataAccess::Mining::BrineViscosityCalculator::BrineViscosityCalculator ( const DomainPropertyCollection*  collection,
-                                                                         const Interface::Snapshot* snapshot,
-                                                                         const Interface::Property* property ) :
-   DomainFormationProperty ( collection, snapshot, property )
+DataAccess::Mining::BrineViscosityCalculator::BrineViscosityCalculator ( const DomainPropertyCollection*            collection,
+                                                                         DerivedProperties::DerivedPropertyManager& propertyManager,
+                                                                         const Interface::Snapshot*                 snapshot,
+                                                                         const Interface::Property*                 property ) :
+   DomainFormationProperty ( collection, propertyManager, snapshot, property )
 {
    m_temperature = 0;
    m_initialised = false;
@@ -15,7 +16,7 @@ DataAccess::Mining::BrineViscosityCalculator::BrineViscosityCalculator ( const D
 bool DataAccess::Mining::BrineViscosityCalculator::initialise () {
 
    if ( not m_initialised ) {
-      m_temperature = getPropertyCollection ()->getDomainProperty ( "Temperature" );
+      m_temperature = getPropertyCollection ()->getDomainProperty ( "Temperature", getPropertyManager ());
 
       if ( m_temperature != 0 ) {
          m_initialised = true;
@@ -52,8 +53,9 @@ double DataAccess::Mining::BrineViscosityCalculator::compute ( const ElementPosi
    return viscosity;
 }
 
-DataAccess::Mining::DomainProperty* DataAccess::Mining::BrineViscosityCalculatorAllocator::allocate ( const DomainPropertyCollection*  collection,
-                                                                                                      const Interface::Snapshot* snapshot,
-                                                                                                      const Interface::Property* property ) const {
-   return new BrineViscosityCalculator ( collection, snapshot, property );
+DataAccess::Mining::DomainProperty* DataAccess::Mining::BrineViscosityCalculatorAllocator::allocate ( const DomainPropertyCollection*            collection,
+                                                                                                      DerivedProperties::DerivedPropertyManager& propertyManager,
+                                                                                                      const Interface::Snapshot*                 snapshot,
+                                                                                                      const Interface::Property*                 property ) const {
+   return new BrineViscosityCalculator ( collection, propertyManager, snapshot, property );
 }

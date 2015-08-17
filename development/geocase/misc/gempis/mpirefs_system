@@ -99,7 +99,7 @@ mpi_buildfile_INTELMPI()
 {
     # parse the assignment list find out the number of processor 
     # fill in the rest of the machine list (order is not important)
-    . /apps/3rdparty/intel/impi/4.0.2.003/intel64/bin/mpivars.sh
+    . /apps/3rdparty/intel/impi/4.1.1.036/intel64/bin/mpivars.sh
 
     # find out the number of processor I have been allowed 
     # and put me at the top of the list

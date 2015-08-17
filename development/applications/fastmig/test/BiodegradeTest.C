@@ -614,7 +614,7 @@ TEST(Biodegrade, biodegradation_trap_temperature_extreme)
 }
 
 
-
+#ifndef NDEBUG
 // This test evaluates the comportement of the assert: assert(timeInterval > 0.0)
 TEST(Biodegrade, biodegradation_death_test)
 {
@@ -630,6 +630,7 @@ TEST(Biodegrade, biodegradation_death_test)
    Biodegrade myBiodegrade = Biodegrade(80.0, bioConsts, 0.5);
    ASSERT_DEATH(myBiodegrade.calculate(-1.0, 55.0, inputComponents, lostComponents), "Assertion.*timeInterval > 0.0");
 }
+#endif
 
 } // namespace DataAccess::Interface
 } // namespace DataAccess

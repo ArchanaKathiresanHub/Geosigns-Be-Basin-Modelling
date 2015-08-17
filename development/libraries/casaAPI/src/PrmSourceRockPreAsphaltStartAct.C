@@ -102,7 +102,7 @@ PrmSourceRockPreAsphaltStartAct::~PrmSourceRockPreAsphaltStartAct() {;}
 
 
 // Update given model with the parameter value
-ErrorHandler::ReturnCode PrmSourceRockPreAsphaltStartAct::setInModel( mbapi::Model & caldModel )
+ErrorHandler::ReturnCode PrmSourceRockPreAsphaltStartAct::setInModel( mbapi::Model & caldModel, size_t /* caseID */ )
 {
    try
    {
@@ -156,8 +156,8 @@ std::string PrmSourceRockPreAsphaltStartAct::validate( mbapi::Model & caldModel 
 {
    std::ostringstream oss;
 
-   if (      m_value < 200 ) oss << "Preasphalt act. energy value for the layer " << m_layerName << ", can not be less then 200.0 kJ/mole: " << m_value << std::endl;
-   else if ( m_value > 220 ) oss << "Preasphalt act. energy value for the layer " << m_layerName << ", can not be more than 220.0 kJ/mole: " << m_value << std::endl;
+   if (      m_value < 100 ) oss << "Preasphalt act. energy value for the layer " << m_layerName << ", can not be less then 100.0 kJ/mole: " << m_value << std::endl;
+   else if ( m_value > 300 ) oss << "Preasphalt act. energy value for the layer " << m_layerName << ", can not be more than 300.0 kJ/mole: " << m_value << std::endl;
 
    mbapi::SourceRockManager & mgr = caldModel.sourceRockManager();
 

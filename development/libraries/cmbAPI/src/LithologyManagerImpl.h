@@ -134,35 +134,35 @@ namespace mbapi {
       // Copy operator is disabled
       LithologyManagerImpl & operator = ( const LithologyManagerImpl & otherLithMgr );
 
-      static const char * m_lithoTypesTableName;        // table name for lithologies type in project file
-      static const char * m_lithoTypeNameFieldName;     // column name for lithology type name 
+      static const char * s_lithoTypesTableName;        // table name for lithologies type in project file
+      static const char * s_lithoTypeNameFieldName;     // column name for lithology type name 
 
-      static const char * m_porosityModelFieldName;     // column name for type of porosity model
-      static const char * m_surfPorosityFieldName;      // column name for surface porosity (porosity model parameter)
-      static const char * m_ccExponentialFieldName;     // column name for compaction coefficient of Exponential porosity model     
-      static const char * m_ccaDblExponentialFieldName; // column name for compaction coefficient A of Double Exponential porosity model 
-      static const char * m_ccbDblExponentialFieldName; // column name for compaction coefficient B of Double Exponential porosity model 
+      static const char * s_porosityModelFieldName;     // column name for type of porosity model
+      static const char * s_surfPorosityFieldName;      // column name for surface porosity (porosity model parameter)
+      static const char * s_ccExponentialFieldName;     // column name for compaction coefficient of Exponential porosity model     
+      static const char * s_ccaDblExponentialFieldName; // column name for compaction coefficient A of Double Exponential porosity model 
+      static const char * s_ccbDblExponentialFieldName; // column name for compaction coefficient B of Double Exponential porosity model 
 
-      static const char * m_ccSoilMechanicsFieldName;   // column name for compaction coefficient of the Soil Model porosity model
-      static const char * m_minPorosityFieldName;       // column name for minimal porosity of the Double Exponential porosity model
-      static const char * m_stpThermalCondFieldName;    // column name for STP thermal conductivity coefficient
+      static const char * s_ccSoilMechanicsFieldName;   // column name for compaction coefficient of the Soil Model porosity model
+      static const char * s_minPorosityFieldName;       // column name for minimal porosity of the Double Exponential porosity model
+      static const char * s_stpThermalCondFieldName;    // column name for STP thermal conductivity coefficient
 
-      static const char * m_permeabilityModelFieldName;        // column name for permeability model
-      static const char * m_permeabilityAnisotropyFieldName;   // column name for permeability anisotropy coefficient 
-      static const char * m_DepositionalPermFieldName;         // column name for depositional permeability [mD]
-      static const char * m_mpNumberOfDataPointsFieldName;     // column name for the number of data points in perm. vs. porosity profile
-      static const char * m_mpPorosityFieldName;               // column name for porosity table values list
-      static const char * m_mpPermpeabilityFieldName;          // column name for permeability table values list
-      static const char * m_mudPermeabilityRecoveryCoeff;      // column name for permeability recovery coeff
-      static const char * m_mudPermeabilitySensitivityCoeff;   // column name for permeability sensitivity coeff
-      static const char * m_permSandClayPercentage;            // column name for sand clay percentage
+      static const char * s_permeabilityModelFieldName;        // column name for permeability model
+      static const char * s_permeabilityAnisotropyFieldName;   // column name for permeability anisotropy coefficient 
+      static const char * s_DepositionalPermFieldName;         // column name for depositional permeability [mD]
+      static const char * s_mpNumberOfDataPointsFieldName;     // column name for the number of data points in perm. vs. porosity profile
+      static const char * s_mpPorosityFieldName;               // column name for porosity table values list
+      static const char * s_mpPermpeabilityFieldName;          // column name for permeability table values list
+      static const char * s_mudPermeabilityRecoveryCoeff;      // column name for permeability recovery coeff
+      static const char * s_mudPermeabilitySensitivityCoeff;   // column name for permeability sensitivity coeff
+      static const char * s_permSandClayPercentage;            // column name for sand clay percentage
 
-      static const char * m_lithoThCondTableName;       // table name for lithology tabulated thermo conductivity function
-      static const char * m_lithoHeatCapTableName;      // table name for lithology tabulated heat capacity function
-      static const char * m_LithotypeFieldName;         // column name for lithology name
-      static const char * m_TempIndexFieldName;         // column name for temperature index
-      static const char * m_ThCondFieldName;            // column name for thermal conductivity value
-      static const char * m_HeatCapacityFieldName;      // column name for heat capacity value
+      static const char * s_lithoThCondTableName;       // table name for lithology tabulated thermo conductivity function
+      static const char * s_lithoHeatCapTableName;      // table name for lithology tabulated heat capacity function
+      static const char * s_LithotypeFieldName;         // column name for lithology name
+      static const char * s_TempIndexFieldName;         // column name for temperature index
+      static const char * s_ThCondFieldName;            // column name for thermal conductivity value
+      static const char * s_HeatCapacityFieldName;      // column name for heat capacity value
 
 
       database::Database * m_db; // cauldron project database

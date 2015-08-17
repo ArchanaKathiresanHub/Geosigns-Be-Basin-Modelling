@@ -38,19 +38,21 @@ namespace casa
    public:
 
       /// @brief Create new observable object for the given grid property for specified grid position
-      static ObsGridPropertyXYZ * createNewInstance( double x                ///< X-th grid coordinate [m]
-                                                   , double y                ///< Y-th grid coordinate [m]
-                                                   , double z                ///< Z-th grid coordinate [m]
-                                                   , const char * propName   ///< name of the property
-                                                   , double simTime = 0.0    ///< simulation time [Ma]
-                                                   ) { return new ObsGridPropertyXYZ( x, y, z, propName, simTime ); }
+      static ObsGridPropertyXYZ * createNewInstance( double              x             ///< X-th grid coordinate [m]
+                                                   , double              y             ///< Y-th grid coordinate [m]
+                                                   , double              z             ///< Z-th grid coordinate [m]
+                                                   , const char        * propName      ///< name of the property
+                                                   , double              simTime = 0.0 ///< simulation time [Ma]
+                                                   , const std::string & name = ""     ///< user specified name for observable
+                                                   ) { return new ObsGridPropertyXYZ( x, y, z, propName, simTime, name ); }
 
       /// @brief Create observable for the given grid property for specified grid position
-      ObsGridPropertyXYZ( double x              ///< X-th grid coordinate [m]
-                        , double y              ///< Y-th grid coordinate [m]
-                        , double z              ///< Z-th grid coordinate [m]
-                        , const char * propName ///< name of the property
-                        , double simTime        ///< simulation time [Ma]
+      ObsGridPropertyXYZ( double              x         ///< X-th grid coordinate [m]
+                        , double              y         ///< Y-th grid coordinate [m]
+                        , double              z         ///< Z-th grid coordinate [m]
+                        , const char        * propName  ///< name of the property
+                        , double              simTime   ///< simulation time [Ma]
+                        , const std::string & name = "" ///< user specified name for observable
                         );
 
       /// @brief Destructor
@@ -107,6 +109,11 @@ namespace casa
       /// @param caldModel reference to Cauldron model
       /// @return observable value on success or NULL otherwise. Error code could be obtained from the Model object
       virtual ObsValue * getFromModel( mbapi::Model & caldModel );
+
+      /// @brief Do observable validation for the given model
+      /// @param caldModel reference to Cauldron model
+      /// @return empty string if there is no any problems with this observable, or error message if point is outside of the project 
+      virtual std::string checkObservableForProject( mbapi::Model & caldModel );
 
       /// @brief Create new observable value from set of doubles. This method is used for data conversion between SUMlib and CASA
       /// @param[in,out] val iterator for double array

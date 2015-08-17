@@ -4,47 +4,47 @@
 #include "PrimaryOutputPropertyMap.h"
 #include "PrimaryOutputPropertyVolume.h"
 
+#include "AllochthonousLithologyMapCalculator.h"
+#include "BiomarkersAdapter.h"
+#include "BulkDensityCalculator.h"
+#include "ErosionFactorCalculator.h"
+#include "FaultElementMapCalculator.h"
+#include "FluidVelocityCalculator.h"
+#include "HeatFlowCalculator.h"
+#include "LithologyIdCalculator.h"
 #include "MaxVesCalculator.h"
 #include "PorosityCalculator.h"
 #include "PermeabilityCalculator.h"
-#include "BulkDensityCalculator.h"
-#include "ThicknessCalculator.h"
-#include "VelocityCalculator.h"
 #include "ReflectivityCalculator.h"
 #include "SonicCalculator.h"
+#include "SmectiteIlliteAdapter.h"
 #include "ThermalConductivityCalculator.h"
 #include "ThermalDiffusivityCalculator.h"
-#include "AllochthonousLithologyMapCalculator.h"
-#include "ErosionFactorCalculator.h"
-#include "FaultElementMapCalculator.h"
-#include "HeatFlowCalculator.h"
-#include "FluidVelocityCalculator.h"
+#include "ThicknessCalculator.h"
+#include "TwoWayTimeCalculator.h"
+#include "VelocityCalculator.h"
 #include "VitriniteReflectanceCalculator.h"
-#include "SmectiteIlliteAdapter.h"
-#include "BiomarkersAdapter.h"
-#include "LithologyIdCalculator.h"
 
 #include "ComponentConcentrationCalculator.h"
 #include "SaturationCalculator.h"
-
 
 #include "RequiredGenex5PropertyCalculator.h"
 #include "OptionalGenexPropertyCalculator.h"
 
 #include "BasementPropertyCalculator.h"
 
-#include "ThicknessErrorMapCalculator.h"
 #include "FCTCorrectionCalculator.h"
+#include "ThicknessErrorMapCalculator.h"
 
 #include "PvtHcProperties.h"
 #include "HcFluidVelocityCalculator.h"
-#include "VolumeCalculator.h"
-#include "TransportedVolumeCalculator.h"
 #include "RelativePermeabilityCalculator.h"
+#include "TransportedVolumeCalculator.h"
+#include "VolumeCalculator.h"
 
+#include "BrineProperties.h"
 #include "CapillaryPressureCalculator.h"
 #include "FluidPropertyCalculator.h"
-#include "BrineProperties.h"
 #include "TimeOfElementInvasionCalculator.h"
 #include "FracturePressureMapCalculator.h"
 #include "FracturePressureVolumeCalculator.h"
@@ -109,7 +109,6 @@ DerivedOutputPropertyMapFactory::DerivedOutputPropertyMapFactory () {
    mapTraits.m_isPrimaryProperty = true;
    m_mapPropertyTraitsMap [ MAXVES ] = mapTraits;
 
-
    mapTraits.m_propertyAllocator = allocatePrimaryPropertyCalculator;
    mapTraits.m_outputAssociation = SURFACE_ASSOCIATION;
    mapTraits.m_isPrimaryProperty = true;
@@ -124,11 +123,6 @@ DerivedOutputPropertyMapFactory::DerivedOutputPropertyMapFactory () {
    mapTraits.m_isPrimaryProperty = false;
    m_mapPropertyTraitsMap [ HEAT_FLOW ] = mapTraits;
 
-   // mapTraits.m_propertyAllocator = allocateVitriniteReflectanceCalculator;
-   // mapTraits.m_outputAssociation = SURFACE_ASSOCIATION;
-   // mapTraits.m_isPrimaryProperty = false;
-   // m_mapPropertyTraitsMap [ VR ] = mapTraits;
-
    mapTraits.m_propertyAllocator = allocateSmectiteIlliteAdapter;
    mapTraits.m_outputAssociation = SURFACE_ASSOCIATION;
    mapTraits.m_isPrimaryProperty = false;
@@ -138,6 +132,16 @@ DerivedOutputPropertyMapFactory::DerivedOutputPropertyMapFactory () {
    mapTraits.m_outputAssociation = SURFACE_ASSOCIATION;
    mapTraits.m_isPrimaryProperty = false;
    m_mapPropertyTraitsMap [ BIOMARKERS ] = mapTraits;
+
+   mapTraits.m_propertyAllocator = allocateTwoWayTimeCalculator;
+   mapTraits.m_outputAssociation = SURFACE_ASSOCIATION;
+   mapTraits.m_isPrimaryProperty = false;
+   m_mapPropertyTraitsMap[ TWOWAYTIME ] = mapTraits;
+
+   mapTraits.m_propertyAllocator = allocateTwoWayTimeResidualCalculator;
+   mapTraits.m_outputAssociation = SURFACE_ASSOCIATION;
+   mapTraits.m_isPrimaryProperty = false;
+   m_mapPropertyTraitsMap[ TWOWAYTIME_RESIDUAL ] = mapTraits;
 
    // Formation properties.
    mapTraits.m_propertyAllocator = allocateThicknessCalculator;
@@ -221,88 +225,71 @@ DerivedOutputPropertyMapFactory::DerivedOutputPropertyMapFactory () {
    mapTraits.m_outputAssociation = FORMATION_ASSOCIATION;
    mapTraits.m_isPrimaryProperty = false;
    m_mapPropertyTraitsMap [ GENEX_PROPERTIES ] = mapTraits;
-//    m_mapPropertyTraitsMap [ SPECIES_C1 ] = mapTraits;
-
-
-
 
    mapTraits.m_propertyAllocator = allocateInstantaneousExpulsionApiCalculator;
    mapTraits.m_outputAssociation = FORMATION_ASSOCIATION;
    mapTraits.m_isPrimaryProperty = false;
    m_mapPropertyTraitsMap [ EXPULSION_API_INST ] = mapTraits;
 
-
    mapTraits.m_propertyAllocator = allocateCumulativeExpulsionApiCalculator;
    mapTraits.m_outputAssociation = FORMATION_ASSOCIATION;
    mapTraits.m_isPrimaryProperty = false;
    m_mapPropertyTraitsMap [ EXPULSION_API_CUM ] = mapTraits;
-
 
    mapTraits.m_propertyAllocator = allocateInstantaneousExpulsionCondensateGasRatioCalculator;
    mapTraits.m_outputAssociation = FORMATION_ASSOCIATION;
    mapTraits.m_isPrimaryProperty = false;
    m_mapPropertyTraitsMap [ EXPULSION_CONDENSATE_GAS_RATIO_INST ] = mapTraits;
 
-
    mapTraits.m_propertyAllocator = allocateCumulativeExpulsionCondensateGasRatioCalculator;
    mapTraits.m_outputAssociation = FORMATION_ASSOCIATION;
    mapTraits.m_isPrimaryProperty = false;
    m_mapPropertyTraitsMap [ EXPULSION_CONDENSATE_GAS_RATIO_CUM ] = mapTraits;
-
 
    mapTraits.m_propertyAllocator = allocateInstantaneousExpulsionGasOilRatioCalculator;
    mapTraits.m_outputAssociation = FORMATION_ASSOCIATION;
    mapTraits.m_isPrimaryProperty = false;
    m_mapPropertyTraitsMap [ EXPULSION_GAS_OIL_RATIO_INST ] = mapTraits;
 
-
    mapTraits.m_propertyAllocator = allocateCumulativeExpulsionGasOilRatioCalculator;
    mapTraits.m_outputAssociation = FORMATION_ASSOCIATION;
    mapTraits.m_isPrimaryProperty = false;
    m_mapPropertyTraitsMap [ EXPULSION_GAS_OIL_RATIO_CUM ] = mapTraits;
-
 
    mapTraits.m_propertyAllocator = allocateInstantaneousExpulsionGasWetnessCalculator;
    mapTraits.m_outputAssociation = FORMATION_ASSOCIATION;
    mapTraits.m_isPrimaryProperty = false;
    m_mapPropertyTraitsMap [ EXPULSION_GAS_WETNESS_INST ] = mapTraits;
 
-
    mapTraits.m_propertyAllocator = allocateCumulativeExpulsionGasWetnessCalculator;
    mapTraits.m_outputAssociation = FORMATION_ASSOCIATION;
    mapTraits.m_isPrimaryProperty = false;
    m_mapPropertyTraitsMap [ EXPULSION_GAS_WETNESS_CUM ] = mapTraits;
-
 
    mapTraits.m_propertyAllocator = allocateInstantaneousExpulsionAromaticityCalculator;
    mapTraits.m_outputAssociation = FORMATION_ASSOCIATION;
    mapTraits.m_isPrimaryProperty = false;
    m_mapPropertyTraitsMap [ EXPULSION_AROMATICITY_INST ] = mapTraits;
 
-
    mapTraits.m_propertyAllocator = allocateCumulativeExpulsionAromaticityCalculator;
    mapTraits.m_outputAssociation = FORMATION_ASSOCIATION;
    mapTraits.m_isPrimaryProperty = false;
    m_mapPropertyTraitsMap [ EXPULSION_AROMATICITY_CUM ] = mapTraits;
-
 
    mapTraits.m_propertyAllocator = allocateKerogenConversionRatioCalculator;
    mapTraits.m_outputAssociation = FORMATION_ASSOCIATION;
    mapTraits.m_isPrimaryProperty = false;
    m_mapPropertyTraitsMap [ KEROGEN_CONVERSION_RATIO ] = mapTraits;
 
-
    mapTraits.m_propertyAllocator = allocateOilGeneratedCumulativeCalculator;
    mapTraits.m_outputAssociation = FORMATION_ASSOCIATION;
    mapTraits.m_isPrimaryProperty = false;
    m_mapPropertyTraitsMap [ OIL_GENERATED_CUM ] = mapTraits;
 
-
    mapTraits.m_propertyAllocator = allocateOilGeneratedRateCalculator;
    mapTraits.m_outputAssociation = FORMATION_ASSOCIATION;
    mapTraits.m_isPrimaryProperty = false;
    m_mapPropertyTraitsMap [ OIL_GENERATED_RATE ] = mapTraits;
-
 
    mapTraits.m_propertyAllocator = allocateOilExpelledCumulativeCalculator;
    mapTraits.m_outputAssociation = FORMATION_ASSOCIATION;
@@ -319,72 +306,60 @@ DerivedOutputPropertyMapFactory::DerivedOutputPropertyMapFactory () {
    mapTraits.m_isPrimaryProperty = false;
    m_mapPropertyTraitsMap [ OIL_EXPELLEDRATE ] = mapTraits;
 
-
    mapTraits.m_propertyAllocator = allocateHcGasGeneratedCumulativeCalculator;
    mapTraits.m_outputAssociation = FORMATION_ASSOCIATION;
    mapTraits.m_isPrimaryProperty = false;
    m_mapPropertyTraitsMap [ HC_GAS_GENERATED_CUM ] = mapTraits;
-
 
    mapTraits.m_propertyAllocator = allocateHcGasGeneratedRateCalculator;
    mapTraits.m_outputAssociation = FORMATION_ASSOCIATION;
    mapTraits.m_isPrimaryProperty = false;
    m_mapPropertyTraitsMap [ HC_GAS_GENERATED_RATE ] = mapTraits;
 
-
    mapTraits.m_propertyAllocator = allocateHcGasExpelledCumulativeCalculator;
    mapTraits.m_outputAssociation = FORMATION_ASSOCIATION;
    mapTraits.m_isPrimaryProperty = false;
    m_mapPropertyTraitsMap [ HC_GAS_EXPELLED_CUM ] = mapTraits;
-
 
    mapTraits.m_propertyAllocator = allocateHcGasExpelledRateCalculator;
    mapTraits.m_outputAssociation = FORMATION_ASSOCIATION;
    mapTraits.m_isPrimaryProperty = false;
    m_mapPropertyTraitsMap [ HC_GAS_EXPELLED_RATE ] = mapTraits;
 
-
    mapTraits.m_propertyAllocator = allocateDryGasGeneratedCumulativeCalculator;
    mapTraits.m_outputAssociation = FORMATION_ASSOCIATION;
    mapTraits.m_isPrimaryProperty = false;
    m_mapPropertyTraitsMap [ DRY_GAS_GENERATED_CUM ] = mapTraits;
-
 
    mapTraits.m_propertyAllocator = allocateDryGasGeneratedRateCalculator;
    mapTraits.m_outputAssociation = FORMATION_ASSOCIATION;
    mapTraits.m_isPrimaryProperty = false;
    m_mapPropertyTraitsMap [ DRY_GAS_GENERATED_RATE ] = mapTraits;
 
-
    mapTraits.m_propertyAllocator = allocateDryGasExpelledCumulativeCalculator;
    mapTraits.m_outputAssociation = FORMATION_ASSOCIATION;
    mapTraits.m_isPrimaryProperty = false;
    m_mapPropertyTraitsMap [ DRY_GAS_EXPELLED_CUM ] = mapTraits;
-
 
    mapTraits.m_propertyAllocator = allocateDryGasExpelledRateCalculator;
    mapTraits.m_outputAssociation = FORMATION_ASSOCIATION;
    mapTraits.m_isPrimaryProperty = false;
    m_mapPropertyTraitsMap [ DRY_GAS_EXPELLED_RATE ] = mapTraits;
 
-
    mapTraits.m_propertyAllocator = allocateWetGasGeneratedCumulativeCalculator;
    mapTraits.m_outputAssociation = FORMATION_ASSOCIATION;
    mapTraits.m_isPrimaryProperty = false;
    m_mapPropertyTraitsMap [ WET_GAS_GENERATED_CUM ] = mapTraits;
-
 
    mapTraits.m_propertyAllocator = allocateWetGasGeneratedRateCalculator;
    mapTraits.m_outputAssociation = FORMATION_ASSOCIATION;
    mapTraits.m_isPrimaryProperty = false;
    m_mapPropertyTraitsMap [ WET_GAS_GENERATED_RATE ] = mapTraits;
 
-
    mapTraits.m_propertyAllocator = allocateWetGasExpelledCumulativeCalculator;
    mapTraits.m_outputAssociation = FORMATION_ASSOCIATION;
    mapTraits.m_isPrimaryProperty = false;
    m_mapPropertyTraitsMap [ WET_GAS_EXPELLED_CUM ] = mapTraits;
-
 
    mapTraits.m_propertyAllocator = allocateWetGasExpelledRateCalculator;
    mapTraits.m_outputAssociation = FORMATION_ASSOCIATION;
@@ -535,6 +510,10 @@ DerivedOutputPropertyMapFactory::DerivedOutputPropertyMapFactory () {
    volumeTraits.m_isPrimaryProperty = false;
    m_volumePropertyTraitsMap [ VELOCITYVEC ] = volumeTraits;
 
+   volumeTraits.m_propertyAllocator = allocateTwoWayTimeVolumeCalculator;
+   volumeTraits.m_isPrimaryProperty = false;
+   m_volumePropertyTraitsMap[ TWOWAYTIME ] = volumeTraits;
+
    volumeTraits.m_propertyAllocator = allocateVitriniteReflectanceVolumeCalculator;
    volumeTraits.m_isPrimaryProperty = false;
    m_volumePropertyTraitsMap [ VR ] = volumeTraits;
@@ -551,24 +530,6 @@ DerivedOutputPropertyMapFactory::DerivedOutputPropertyMapFactory () {
    volumeTraits.m_isPrimaryProperty = false;
    m_volumePropertyTraitsMap [ LITHOLOGY ] = volumeTraits;
 
-  //  volumeTraits.m_propertyAllocator = allocateCapillaryPressureGas100VolumeCalculator;
-//    volumeTraits.m_isPrimaryProperty = false;
-//    m_volumePropertyTraitsMap [ CAPILLARYPRESSUREGAS100 ] = volumeTraits;
-
-//    volumeTraits.m_propertyAllocator = allocateCapillaryPressureGas0VolumeCalculator;
-//    volumeTraits.m_isPrimaryProperty = false;
-//    m_volumePropertyTraitsMap [ CAPILLARYPRESSUREGAS0 ] = volumeTraits;
-
-//    volumeTraits.m_propertyAllocator = allocateCapillaryPressureOil100VolumeCalculator;
-//    volumeTraits.m_isPrimaryProperty = false;
-//    m_volumePropertyTraitsMap [ CAPILLARYPRESSUREOIL100 ] = volumeTraits;
-
-//    volumeTraits.m_propertyAllocator = allocateCapillaryPressureOil0VolumeCalculator;
-//    volumeTraits.m_isPrimaryProperty = false;
-//    m_volumePropertyTraitsMap [ CAPILLARYPRESSUREOIL0 ] = volumeTraits;
-
-
-
    // This set of properties is made up of all the 13 hc species-concentrations.
    mapTraits.m_propertyAllocator = allocateComponentConcentrationCalculator;
    mapTraits.m_outputAssociation = FORMATION_ASSOCIATION;
@@ -580,12 +541,12 @@ DerivedOutputPropertyMapFactory::DerivedOutputPropertyMapFactory () {
    volumeTraits.m_isPrimaryProperty = false;
    m_volumePropertyTraitsMap [ GENEX_PROPERTY_CONCENTRATIONS ] = volumeTraits;
 
-
-
-   // mapTraits.m_propertyAllocator = allocatePvtPropertiesCalculator;
-   // mapTraits.m_outputAssociation = FORMATION_ASSOCIATION;
-   // mapTraits.m_isPrimaryProperty = false;
-   // m_mapPropertyTraitsMap [ PVT_PROPERTIES ] = mapTraits;
+#ifdef DEBUG_PVTPROPERTIES
+   mapTraits.m_propertyAllocator = allocatePvtPropertiesCalculator;
+   mapTraits.m_outputAssociation = FORMATION_ASSOCIATION;
+   mapTraits.m_isPrimaryProperty = false;
+   m_mapPropertyTraitsMap [ PVT_PROPERTIES ] = mapTraits;
+#endif
 
    // This set of properties is comprised of: liquid- and vapour-density and -viscosity.
    // Should we also include the brine-density and -viscosity?
@@ -603,7 +564,6 @@ DerivedOutputPropertyMapFactory::DerivedOutputPropertyMapFactory () {
    volumeTraits.m_isPrimaryProperty = false;
    m_volumePropertyTraitsMap [ TRANSPORTED_VOLUME_CALCULATIONS ] = volumeTraits;
 
-
    // The set of liquid- vapour- and brine-saturations.
    mapTraits.m_propertyAllocator = allocateSaturationCalculator;
    mapTraits.m_outputAssociation = FORMATION_ASSOCIATION;
@@ -614,7 +574,7 @@ DerivedOutputPropertyMapFactory::DerivedOutputPropertyMapFactory () {
    volumeTraits.m_isPrimaryProperty = false;
    m_volumePropertyTraitsMap [ SATURATION ] = volumeTraits;
 
-    //average saturations
+   // Average saturations
    mapTraits.m_propertyAllocator = allocateAverageSaturationCalculator;
    mapTraits.m_outputAssociation = FORMATION_ASSOCIATION;
    mapTraits.m_isPrimaryProperty = false;
@@ -626,16 +586,35 @@ DerivedOutputPropertyMapFactory::DerivedOutputPropertyMapFactory () {
 
 
     //Capillary Pressure
-  
    volumeTraits.m_propertyAllocator = allocateCapillaryPressureVolumeCalculator;
    volumeTraits.m_isPrimaryProperty = false;
    m_volumePropertyTraitsMap [ CAPILLARY_PRESSURE  ] = volumeTraits;
 
+#ifdef DEBUG_CAPILLARYPRESSURE 
+   volumeTraits.m_propertyAllocator = allocateCapillaryPressureGas100VolumeCalculator;
+   volumeTraits.m_isPrimaryProperty = false;
+   m_volumePropertyTraitsMap[CAPILLARYPRESSUREGAS100] = volumeTraits;
+   
+   volumeTraits.m_propertyAllocator = allocateCapillaryPressureGas0VolumeCalculator;
+   volumeTraits.m_isPrimaryProperty = false;
+   m_volumePropertyTraitsMap[CAPILLARYPRESSUREGAS0] = volumeTraits;
+   
+   volumeTraits.m_propertyAllocator = allocateCapillaryPressureOil100VolumeCalculator;
+   volumeTraits.m_isPrimaryProperty = false;
+   m_volumePropertyTraitsMap[CAPILLARYPRESSUREOIL100] = volumeTraits;
+   
+   volumeTraits.m_propertyAllocator = allocateCapillaryPressureOil0VolumeCalculator;
+   volumeTraits.m_isPrimaryProperty = false;
+   m_volumePropertyTraitsMap[CAPILLARYPRESSUREOIL0] = volumeTraits;
+#endif
+
  //Fluid properties such as GOR, CGR, API
-   // mapTraits.m_propertyAllocator = allocateFluidPropertyCalculator;
-//    mapTraits.m_outputAssociation = FORMATION_ASSOCIATION;
-//    mapTraits.m_isPrimaryProperty = false;
-//    m_mapPropertyTraitsMap [ FLUID_PROPERTIES ] = mapTraits;
+#ifdef DEBUG_FLUIDPROPERTIES
+   mapTraits.m_propertyAllocator = allocateFluidPropertyCalculator;
+   mapTraits.m_outputAssociation = FORMATION_ASSOCIATION;
+   mapTraits.m_isPrimaryProperty = false;
+   m_mapPropertyTraitsMap [ FLUID_PROPERTIES ] = mapTraits;
+#endif
 
    volumeTraits.m_propertyAllocator = allocateFluidPropertyVolumeCalculator;
    volumeTraits.m_isPrimaryProperty = false;

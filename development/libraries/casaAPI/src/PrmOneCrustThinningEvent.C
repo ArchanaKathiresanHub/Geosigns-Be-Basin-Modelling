@@ -34,6 +34,10 @@ static const char * s_stratIoTblAgeCol       = "DepoAge";
 static const char * s_crustIoTblName         = "CrustIoTbl";
 static const char * s_crustIoTblAgeCol       = "Age";
 static const char * s_crustIoTblThicknessCol = "Thickness";
+static const char * s_crustIoTblCalibThicknessCol = "CalibThickness";
+static const char * s_crustIoTblOptimThicknessCol = "OptimThickness";
+static const char * s_crustIoTblErrThicknessCol   = "ErrThickness";
+
 static const double s_eps = 1.e-8;
 
 // Constructor. Get parameter values from the model
@@ -78,64 +82,70 @@ PrmOneCrustThinningEvent::PrmOneCrustThinningEvent( const VarPrmOneCrustThinning
 }
 
 // Set this parameter value in Cauldron model
-ErrorHandler::ReturnCode PrmOneCrustThinningEvent::setInModel( mbapi::Model & caldModel )
+ErrorHandler::ReturnCode PrmOneCrustThinningEvent::setInModel( mbapi::Model & mdl, size_t /* caseID */ )
 {
-   if ( ErrorHandler::NoError != caldModel.clearTable( s_crustIoTblName ) ) return caldModel.errorCode();
-  
-   // get position in table the eldest layer
-   int firstLayerRow = caldModel.tableSize( s_stratIoTblName ) - 1;
-   if ( ErrorHandler::NoError != caldModel.errorCode() ) return caldModel.errorCode();
-   
-   // get age of the eldest layer
-   double eldestAge = caldModel.tableValueAsDouble( s_stratIoTblName, firstLayerRow, s_stratIoTblAgeCol );
-   if ( ErrorHandler::NoError != caldModel.errorCode() ) return caldModel.errorCode();
+   bool oK = true;
+   oK = oK ? ErrorHandler::NoError == mdl.clearTable( s_crustIoTblName ) : oK;
+   if ( !oK ) return mdl.errorCode();
 
+   // get position in table the eldest layer
+   int firstLayerRow = mdl.tableSize( s_stratIoTblName ) - 1;
+   oK = oK ? ErrorHandler::NoError == mdl.errorCode() : oK;
+   if ( !oK ) return mdl.errorCode();
+
+   // get age of the eldest layer
+   double eldestAge = mdl.tableValueAsDouble( s_stratIoTblName, firstLayerRow, s_stratIoTblAgeCol );
+   oK = oK ? ErrorHandler::NoError == mdl.errorCode() : oK;
 
    // add 4 rows to the table
-   for ( size_t i = 0; i < 4; ++i )
+   for ( size_t i = 0; i < 4 && oK; ++i )
    {
-      if ( ErrorHandler::NoError != caldModel.addRowToTable( s_crustIoTblName ) ) return caldModel.errorCode();
-   }
+      oK = oK ? ErrorHandler::NoError == mdl.addRowToTable( s_crustIoTblName ) : oK;
+
+      // set to 0 unused columns
+      oK = oK ? ErrorHandler::NoError == mdl.setTableValue( s_crustIoTblName, i, s_crustIoTblCalibThicknessCol, UndefinedDoubleValue ) : oK;
+      oK = oK ? ErrorHandler::NoError == mdl.setTableValue( s_crustIoTblName, i, s_crustIoTblOptimThicknessCol, (long)0 ) : oK;
+      oK = oK ? ErrorHandler::NoError == mdl.setTableValue( s_crustIoTblName, i, s_crustIoTblErrThicknessCol, 0.0e0 ) : oK;
+    }
 
    // 0 time
-   if ( ErrorHandler::NoError != caldModel.setTableValue( s_crustIoTblName, 0, s_crustIoTblAgeCol,       0.0                          ) ) return caldModel.errorCode();
-   if ( ErrorHandler::NoError != caldModel.setTableValue( s_crustIoTblName, 0, s_crustIoTblThicknessCol, m_initialThickness * m_coeff ) ) return caldModel.errorCode();
-
+   oK = oK ? ErrorHandler::NoError == mdl.setTableValue( s_crustIoTblName, 0, s_crustIoTblAgeCol,       0.0                          ) : oK;
+   oK = oK ? ErrorHandler::NoError == mdl.setTableValue( s_crustIoTblName, 0, s_crustIoTblThicknessCol, m_initialThickness * m_coeff ) : oK;
    // end event time
-   if ( ErrorHandler::NoError != caldModel.setTableValue( s_crustIoTblName, 1, s_crustIoTblAgeCol,       m_t0 - m_dt                  ) ) return caldModel.errorCode();
-   if ( ErrorHandler::NoError != caldModel.setTableValue( s_crustIoTblName, 1, s_crustIoTblThicknessCol, m_initialThickness * m_coeff ) ) return caldModel.errorCode();
+   oK = oK ? ErrorHandler::NoError == mdl.setTableValue( s_crustIoTblName, 1, s_crustIoTblAgeCol,       m_t0 - m_dt                  ) : oK;
+   oK = oK ? ErrorHandler::NoError == mdl.setTableValue( s_crustIoTblName, 1, s_crustIoTblThicknessCol, m_initialThickness * m_coeff ) : oK;
    // request snapshot at this time
    // start event time
-   if ( ErrorHandler::NoError != caldModel.setTableValue( s_crustIoTblName, 2, s_crustIoTblAgeCol,       m_t0               ) ) return caldModel.errorCode();
-   if ( ErrorHandler::NoError != caldModel.setTableValue( s_crustIoTblName, 2, s_crustIoTblThicknessCol, m_initialThickness ) ) return caldModel.errorCode();
+   oK = oK ? ErrorHandler::NoError == mdl.setTableValue( s_crustIoTblName, 2, s_crustIoTblAgeCol,       m_t0               ) : oK;
+   oK = oK ? ErrorHandler::NoError == mdl.setTableValue( s_crustIoTblName, 2, s_crustIoTblThicknessCol, m_initialThickness ) : oK;
 
    // before time begin
-   if ( ErrorHandler::NoError != caldModel.setTableValue( s_crustIoTblName, 3, s_crustIoTblAgeCol,       eldestAge          ) ) return caldModel.errorCode();
-   if ( ErrorHandler::NoError != caldModel.setTableValue( s_crustIoTblName, 3, s_crustIoTblThicknessCol, m_initialThickness ) ) return caldModel.errorCode();
+   oK = oK ? ErrorHandler::NoError == mdl.setTableValue( s_crustIoTblName, 3, s_crustIoTblAgeCol,       eldestAge          ) : oK;
+   oK = oK ? ErrorHandler::NoError == mdl.setTableValue( s_crustIoTblName, 3, s_crustIoTblThicknessCol, m_initialThickness ) : oK;
 
    // request snapshots at start event time and at finish event time
-   if ( ErrorHandler::NoError != caldModel.snapshotManager().requestMajorSnapshot( m_t0 - m_dt ) ) return caldModel.errorCode();
-   if ( ErrorHandler::NoError != caldModel.snapshotManager().requestMajorSnapshot( m_t0        ) ) return caldModel.errorCode();
+   oK = oK ? ErrorHandler::NoError == mdl.snapshotManager().requestMajorSnapshot( m_t0 - m_dt ) : oK;
+   oK = oK ? ErrorHandler::NoError == mdl.snapshotManager().requestMajorSnapshot( m_t0        ) : oK;
 
-   return ErrorHandler::NoError;
+   return oK ? ErrorHandler::NoError : mdl.errorCode();
 }
 
-// Validate crust thinning parameter values 
+// Validate crust thinning parameter values
 std::string PrmOneCrustThinningEvent::validate( mbapi::Model & caldModel )
 {
    std::ostringstream oss;
 
-   if (      m_initialThickness < 0.0    ) { oss << "Initial crust thickness value can not be negative: "                             << m_initialThickness << "\n"; }
-   else if ( m_initialThickness > 100000 ) { oss << "Too big value for the initial crust thickness, it can not be more then 100 km: " << m_initialThickness << "\n"; }
+   if ( m_initialThickness < 0.0    ) { oss << "Initial crust thickness value can not be negative: "   << m_initialThickness << "\n"; }
+   if ( m_initialThickness > 100000 ) { oss << "Initial crust thickness can not be more then 100 km: " << m_initialThickness << "\n"; }
 
-   if      ( m_t0 <= 0.0   ) { oss << "Starting time for the crust thinning event must be greater than 0: " << m_t0 << "\n"; }
-   else if ( m_t0 > 1000.0 ) { oss << "Too big value for the starting time of crust thinning event: "       << m_t0 << "\n"; }
+   if ( m_t0 <= 0.0   ) { oss << "Starting time for the crust thinning event must be greater than 0: " << m_t0 << "\n"; }
+   if ( m_t0 > 1000.0 ) { oss << "Too big value for the starting time of crust thinning event: "       << m_t0 << "\n"; }
 
-   if (      m_dt < 0    ) { oss << "Duration of the crust thinning event can not be negative: "                   << m_dt << "\n"; }
-   else if ( m_dt > m_t0 ) { oss << "Duration of the crust thinning event can not be greater than starting time: " << m_dt << "\n"; }
+   if ( m_dt < 0    ) { oss << "Duration of the crust thinning event can not be negative: "                   << m_dt << "\n"; }
+   if ( m_dt > m_t0 ) { oss << "Duration of the crust thinning event can not be greater than starting time: " << m_dt << "\n"; }
 
-   if (      m_coeff < 0 ) { oss << "Crust thinning factor can not be negative: "      << m_coeff << "\n"; }
-   else if ( m_coeff > 1 ) { oss << "Crust thinning factor can not greater than 1.0: " << m_coeff << "\n"; }
+   if ( m_coeff < 0 ) { oss << "Crust thinning factor can not be negative: "      << m_coeff << "\n"; }
+   if ( m_coeff > 1 ) { oss << "Crust thinning factor can not greater than 1.0: " << m_coeff << "\n"; }
  
 
    int crustIoTblSize = caldModel.tableSize( s_crustIoTblName );

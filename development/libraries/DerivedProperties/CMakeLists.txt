@@ -15,12 +15,14 @@ set(all_headers
   src/AbstractPropertyManager.h
   src/AbstractPropertyValues.h
   src/AllochthonousLithologyFormationMapCalculator.h
+  src/BrineDensityCalculator.h
+  src/BrineViscosityCalculator.h
+  src/BulkDensityFormationCalculator.h
   src/DerivedFormationMapProperty.h
   src/DerivedFormationProperty.h
   src/DerivedFormationSurfaceProperty.h
   src/DerivedPropertyManager.h
   src/DerivedSurfaceProperty.h
-  src/ErosionFactorFormationMapCalculator.h
   src/FaultElementFormationMapCalculator.h
   src/FormationMapProperty.h
   src/FormationMapPropertyCalculator.h
@@ -32,6 +34,7 @@ set(all_headers
   src/FormationSurfacePropertyCalculator.h
   src/FormationSurfacePropertyOffsetCalculator.h
   src/FracturePressureFormationCalculator.h
+  src/Interpolate2DProperty.h
   src/HydrostaticPressureFormationCalculator.h
   src/HydrostaticPressureSurfaceCalculator.h
   src/LithostaticPressureFormationCalculator.h
@@ -41,18 +44,24 @@ set(all_headers
   src/PermeabilityFormationCalculator.h
   src/PermeabilityFormationSurfaceCalculator.h
   src/PorosityFormationCalculator.h
+  src/PressureFormationCalculator.h
   src/PrimaryFormationMapProperty.h
   src/PrimaryFormationMapPropertyCalculator.h
   src/PrimaryFormationProperty.h
   src/PrimaryFormationPropertyCalculator.h
   src/PrimaryFormationSurfaceProperty.h
   src/PrimaryFormationSurfacePropertyCalculator.h
+  src/PrimaryReservoirProperty.h
+  src/PrimaryReservoirPropertyCalculator.h
   src/PrimarySurfaceProperty.h
   src/PrimarySurfacePropertyCalculator.h
   src/PropertyCalculator.h
   src/PropertyErasePredicate.h
   src/PropertyRetriever.h
   src/PropertySnapshotCalculatorMap.h
+  src/ReflectivitySurfaceCalculator.h
+  src/ReservoirProperty.h
+  src/ReservoirPropertyCalculator.h
   src/SurfaceProperty.h
   src/SurfacePropertyCalculator.h
   src/SurfacePropertyOffsetCalculator.h
@@ -67,17 +76,22 @@ set(all_headers
 set(all_srcs
   src/AbstractPropertyManager.C
   src/AllochthonousLithologyFormationMapCalculator.C
+  src/BrineDensityCalculator.C
+  src/BrineViscosityCalculator.C
+  src/BulkDensityFormationCalculator.C
   src/DerivedFormationMapProperty.C
   src/DerivedFormationProperty.C
   src/DerivedFormationSurfaceProperty.C
   src/DerivedPropertyManager.C
   src/DerivedSurfaceProperty.C
-  src/ErosionFactorFormationMapCalculator.C
   src/FaultElementFormationMapCalculator.C
   src/FormationMapProperty.C
+  src/FormationMapPropertyCalculator.C
   src/FormationProperty.C
   src/FormationPropertyAtSurface.C
+  src/FormationPropertyCalculator.C
   src/FormationSurfaceProperty.C
+  src/FormationSurfacePropertyCalculator.C
   src/FormationSurfacePropertyAtSurface.C
   src/FormationSurfacePropertyOffsetCalculator.C
   src/FracturePressureFormationCalculator.C
@@ -90,17 +104,24 @@ set(all_srcs
   src/PermeabilityFormationCalculator.C
   src/PermeabilityFormationSurfaceCalculator.C
   src/PorosityFormationCalculator.C
+  src/PressureFormationCalculator.C
   src/PrimaryFormationMapProperty.C
   src/PrimaryFormationMapPropertyCalculator.C
   src/PrimaryFormationProperty.C
   src/PrimaryFormationPropertyCalculator.C
   src/PrimaryFormationSurfaceProperty.C
   src/PrimaryFormationSurfacePropertyCalculator.C
+  src/PrimaryReservoirProperty.C
+  src/PrimaryReservoirPropertyCalculator.C
   src/PrimarySurfaceProperty.C
   src/PrimarySurfacePropertyCalculator.C
   src/PropertyCalculator.C
   src/PropertyRetriever.C
+  src/ReflectivitySurfaceCalculator.C
+  src/ReservoirProperty.C
+  src/ReservoirPropertyCalculator.C
   src/SurfaceProperty.C
+  src/SurfacePropertyCalculator.C
   src/SurfacePropertyOffsetCalculator.C
   src/ThermalConductivityFormationCalculator.C
   src/ThermalDiffusivityFormationCalculator.C
@@ -117,6 +138,7 @@ add_library(DerivedProperties
 )
 
 target_link_libraries(DerivedProperties 
+  DataModel
   LinearAlgebra
   ${HDF5_LIBRARIES}
   ${Boost_LIBRARIES}
@@ -148,8 +170,18 @@ add_gtest( NAME DerivedProperties::SimplePropertyManagerTest
            LIBRARIES DerivedProperties SerialDataAccess GeoPhysics
 )
 
-add_gtest( NAME DerivedProperties::CompoundPropertyManagerTest
-           SOURCES test/CompoundPropertyManagerTest.C
+add_gtest( NAME DerivedProperties::CompoundFormationMapPropertyManagerTest
+           SOURCES test/CompoundFormationMapPropertyManagerTest.C
+           LIBRARIES DerivedProperties SerialDataAccess GeoPhysics
+)
+
+add_gtest( NAME DerivedProperties::CompoundContinuousPropertyManagerTest
+           SOURCES test/CompoundContinuousPropertyManagerTest.C
+           LIBRARIES DerivedProperties SerialDataAccess GeoPhysics
+)
+
+add_gtest( NAME DerivedProperties::CompoundDiscontinuousPropertyManagerTest
+           SOURCES test/CompoundDiscontinuousPropertyManagerTest.C
            LIBRARIES DerivedProperties SerialDataAccess GeoPhysics
 )
 

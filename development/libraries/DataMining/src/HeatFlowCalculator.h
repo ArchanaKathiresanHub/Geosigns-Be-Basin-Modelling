@@ -7,6 +7,8 @@
 #include "Interface/Property.h"
 #include "Interface/PropertyValue.h"
 
+#include "DerivedPropertyManager.h"
+
 #include "DomainFormationProperty.h"
 #include "DomainPropertyCollection.h"
 #include "ElementPosition.h"
@@ -22,10 +24,11 @@ namespace DataAccess {
 
          enum RequiredCalculation { X, Y, Z, MAGNITUDE };
 
-         HeatFlowCalculator ( const DomainPropertyCollection*  collection,
-                              const Interface::Snapshot* snapshot,
-                              const Interface::Property* property,
-                              const RequiredCalculation  calculation );
+         HeatFlowCalculator ( const DomainPropertyCollection*            collection,
+                              DerivedProperties::DerivedPropertyManager& propertyManager,
+                              const Interface::Snapshot*                 snapshot,
+                              const Interface::Property*                 property,
+                              const RequiredCalculation                  calculation );
 
          /// Initialise the heat-flow calculator by getting the heat-flow-x, -y, -z and the magnitude properties.
          bool initialise ();
@@ -56,9 +59,10 @@ namespace DataAccess {
 
          HeatFlowCalculatorAllocator ( const HeatFlowCalculator::RequiredCalculation calculation );
 
-         DomainProperty* allocate ( const DomainPropertyCollection*  collection,
-                                    const Interface::Snapshot* snapshot,
-                                    const Interface::Property* property ) const;
+         DomainProperty* allocate ( const DomainPropertyCollection*            collection,
+                                    DerivedProperties::DerivedPropertyManager& propertyManager,
+                                    const Interface::Snapshot*                 snapshot,
+                                    const Interface::Property*                 property ) const;
 
       private :
 

@@ -459,13 +459,17 @@ void ChemicalModel::ComputeStoichiometry()
 void ChemicalModel::SetSpeciesReactionOrder()
 {
    SpeciesProperties *curSpeciesProp; 
+
    if(isGX5()) {
+
       curSpeciesProp = GetSpeciesById(m_speciesManager.getKerogenId ())->GetSpeciesProperties();
       curSpeciesProp->SetReactionOrder(1.5);
       Species *specPreashalt = GetSpeciesById(m_speciesManager.getPreasphaltId ());
       curSpeciesProp = specPreashalt->GetSpeciesProperties();
       curSpeciesProp->SetReactionOrder(specPreashalt->ComputeReactionOrder());
-   } else if(m_simulationType & Genex6::Constants::SIMOTGC) {
+
+   } else if(( m_simulationType & Genex6::Constants::SIMOTGC ) and ( ! isTSR () )) {
+
       for(int i = 0; i < m_speciesManager.getNumberOfSpecies (); ++i) {
          if(m_theSpecies[i] != NULL) {
             curSpeciesProp = m_theSpecies[i]->GetSpeciesProperties();
@@ -475,9 +479,26 @@ void ChemicalModel::SetSpeciesReactionOrder()
          }
       }
       curSpeciesProp = GetSpeciesById(m_speciesManager.getC2Id ())->GetSpeciesProperties();
-      if(curSpeciesProp->IsReactive()) {
+
+      if(curSpeciesProp->IsReactive()) { 
          curSpeciesProp->SetReactionOrder(2.0);
       }
+
+   } else if( isTSR() ) {
+       for(int i = 0; i < m_speciesManager.getNumberOfSpecies (); ++i) {
+         if(m_theSpecies[i] != NULL) {
+            curSpeciesProp = m_theSpecies[i]->GetSpeciesProperties();
+            if(curSpeciesProp->IsReactive()) {
+               curSpeciesProp->SetReactionOrder(1.5);
+            }
+         }
+      }
+      curSpeciesProp = GetSpeciesById(m_speciesManager.getC1Id ())->GetSpeciesProperties();
+ 
+      if(curSpeciesProp->IsReactive()) {
+         curSpeciesProp->SetReactionOrder( 1.0 );
+      }
+     
    } else {
       double reactionOrderToSet;
       for(int i = 0, curSpecId = 1; i < m_speciesManager.getNumberOfSpecies (); ++i, ++ curSpecId) {

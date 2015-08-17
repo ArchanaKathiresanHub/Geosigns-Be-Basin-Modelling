@@ -46,6 +46,11 @@ Genex6::SpeciesManager::SpeciesManager () {
    LSO4 = -1;
    LN2 = -1;
    LCOx = -1;
+   LCO3 = -1;
+
+   LSulfur  = -1;
+   LCarsul1 = -1;
+   LCarsul2 = -2;
 
    for ( i = 0; i < numberOfSpecies + 1; ++i ) {
       s_mappingToPvtComponents [ i ] = pvtFlash::UNKNOWN;
@@ -257,6 +262,14 @@ void Genex6::SpeciesManager::setSpeciesNum ( const std::string& speciesName, int
       LcokeS = id;
    } else if( Genex6::toLower ( speciesName ) == "[so4]" ) {
       LSO4 = id;
+   } else if( Genex6::toLower ( speciesName ) == "sulfur" ) {
+      LSulfur = id;
+   } else if( Genex6::toLower ( speciesName ) == "carsul1" ) {
+      LCarsul1 = id;
+   } else if( Genex6::toLower ( speciesName ) == "carsul2" ) {
+      LCarsul2 = id;
+   } else if( Genex6::toLower ( speciesName ) == "[co3]" ) {
+      LCO3 = id;
    }
 
 }

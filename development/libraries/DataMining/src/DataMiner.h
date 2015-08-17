@@ -3,10 +3,10 @@
 
 #include <vector>
 
-#include "Interface/ProjectHandle.h"
 #include "Interface/Property.h"
 
 #include "ElementPosition.h"
+#include "DataMiningProjectHandle.h"
 #include "DomainPropertyCollection.h"
 #include "InterpolatedPropertyValues.h"
 
@@ -28,7 +28,8 @@ namespace DataAccess {
 
 
 
-         DataMiner ( Interface::ProjectHandle* projectHandle );
+         DataMiner ( Mining::ProjectHandle*                     projectHandle,
+                     DerivedProperties::DerivedPropertyManager& propertyManager );
 
          ~DataMiner ();
 
@@ -71,7 +72,8 @@ namespace DataAccess {
 
       private :
 
-         DomainPropertyCollection* m_collection;
+         DerivedProperties::DerivedPropertyManager& m_propertyManager;
+         DomainPropertyCollection*                  m_collection;
 
       };
 

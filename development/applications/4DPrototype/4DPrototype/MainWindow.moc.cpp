@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'MainWindow.h'
 **
-** Created: Tue 13. May 13:25:45 2014
+** Created: Mon Aug 10 11:11:36 2015
 **      by: The Qt Meta Object Compiler version 63 (Qt 4.8.4)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -42,10 +42,10 @@ static const uint qt_meta_data_MainWindow[] = {
      268,  145,   11,   11, 0x08,
      297,  145,   11,   11, 0x08,
      316,  145,   11,   11, 0x08,
-     342,  145,   11,   11, 0x08,
-     366,   11,   11,   11, 0x08,
-     401,  389,   11,   11, 0x08,
-     443,   11,   11,   11, 0x08,
+     337,   11,   11,   11, 0x08,
+     372,  360,   11,   11, 0x08,
+     414,   11,   11,   11, 0x08,
+     429,  360,   11,   11, 0x08,
 
        0        // eod
 };
@@ -60,10 +60,11 @@ static const char qt_meta_stringdata_MainWindow[] = {
     "onSliceJValueChanged(int)\0"
     "onVerticalScaleSliderValueChanged(int)\0"
     "onROISliderValueChanged(int)\0"
-    "onROIToggled(bool)\0onRenderModeToggled(bool)\0"
-    "onMeshModeToggled(bool)\0onRenderStyleChanged()\0"
-    "item,column\0onItemDoubleClicked(QTreeWidgetItem*,int)\0"
+    "onROIToggled(bool)\0onSliceToggled(bool)\0"
+    "onRenderStyleChanged()\0item,column\0"
+    "onItemDoubleClicked(QTreeWidgetItem*,int)\0"
     "onShowGLInfo()\0"
+    "onTreeWidgetItemChanged(QTreeWidgetItem*,int)\0"
 };
 
 void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
@@ -82,11 +83,11 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         case 7: _t->onVerticalScaleSliderValueChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
         case 8: _t->onROISliderValueChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
         case 9: _t->onROIToggled((*reinterpret_cast< bool(*)>(_a[1]))); break;
-        case 10: _t->onRenderModeToggled((*reinterpret_cast< bool(*)>(_a[1]))); break;
-        case 11: _t->onMeshModeToggled((*reinterpret_cast< bool(*)>(_a[1]))); break;
-        case 12: _t->onRenderStyleChanged(); break;
-        case 13: _t->onItemDoubleClicked((*reinterpret_cast< QTreeWidgetItem*(*)>(_a[1])),(*reinterpret_cast< int(*)>(_a[2]))); break;
-        case 14: _t->onShowGLInfo(); break;
+        case 10: _t->onSliceToggled((*reinterpret_cast< bool(*)>(_a[1]))); break;
+        case 11: _t->onRenderStyleChanged(); break;
+        case 12: _t->onItemDoubleClicked((*reinterpret_cast< QTreeWidgetItem*(*)>(_a[1])),(*reinterpret_cast< int(*)>(_a[2]))); break;
+        case 13: _t->onShowGLInfo(); break;
+        case 14: _t->onTreeWidgetItemChanged((*reinterpret_cast< QTreeWidgetItem*(*)>(_a[1])),(*reinterpret_cast< int(*)>(_a[2]))); break;
         default: ;
         }
     }

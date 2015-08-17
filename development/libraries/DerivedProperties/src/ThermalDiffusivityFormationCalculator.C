@@ -5,6 +5,7 @@
 #include "AbstractProperty.h"
 
 #include "Interface/Interface.h"
+#include "Interface/SimulationDetails.h"
 
 #include "GeoPhysicsFormation.h"
 #include "GeoPhysicalConstants.h"
@@ -15,6 +16,11 @@
 
 DerivedProperties::ThermalDiffusivityFormationCalculator::ThermalDiffusivityFormationCalculator ( const GeoPhysics::ProjectHandle* projectHandle ) : m_projectHandle ( projectHandle ) {
    addPropertyName ( "DiffusivityVec2" );
+
+   addDependentPropertyName ( "Temperature" );
+   addDependentPropertyName ( "Pressure" );
+   addDependentPropertyName ( "LithoStaticPressure" );
+   addDependentPropertyName ( "Porosity" );
 }
 
 void DerivedProperties::ThermalDiffusivityFormationCalculator::calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
@@ -38,6 +44,11 @@ void DerivedProperties::ThermalDiffusivityFormationCalculator::calculate ( Deriv
    const GeoPhysics::Formation* geoFormation = dynamic_cast<const GeoPhysics::Formation*>( formation );
 
    bool basementFormationAndAlcMode = ( geoFormation != 0 and geoFormation->kind() == DataAccess::Interface::BASEMENT_FORMATION ) and m_projectHandle->isALC ();
+
+   bool hydrostaticMode = ( m_projectHandle->getDetailsOfLastSimulation ( "fastcauldron" ) != 0 and
+                            ( m_projectHandle->getDetailsOfLastSimulation ( "fastcauldron" )->getSimulatorMode () == "HydrostaticDecompaction" or
+                              m_projectHandle->getDetailsOfLastSimulation ( "fastcauldron" )->getSimulatorMode () == "HydrostaticTemperature" or
+                              m_projectHandle->getDetailsOfLastSimulation ( "fastcauldron" )->getSimulatorMode () == "HydrostaticHighResDecompaction" ));
 
    if ( basementFormationAndAlcMode ) {
       lithostaticPressure = propertyManager.getFormationProperty ( lithostaticPressureProperty, snapshot, formation );
@@ -63,15 +74,21 @@ void DerivedProperties::ThermalDiffusivityFormationCalculator::calculate ( Deriv
       double thermalConductivityPlane;
       double bulkDensityXHeatCapacity;
 
+      double currentTime = snapshot->getTime();
+
+      if( hydrostaticMode ) {
+         (( GeoPhysics::FluidType *) fluid )->setDensityToConstant ();
+      }
+
       for ( unsigned int i = thermalDiffusivity->firstI ( true ); i <= thermalDiffusivity->lastI ( true ); ++i ) {
             
          for ( unsigned int j = thermalDiffusivity->firstJ ( true ); j <= thermalDiffusivity->lastJ ( true ); ++j ) {
                
             if ( m_projectHandle->getNodeIsValid ( i, j )) {
-               const GeoPhysics::CompoundLithology* lithology = lithologies ( i, j );
+               const GeoPhysics::CompoundLithology* lithology = lithologies ( i, j, currentTime );
 
                for ( unsigned int k = thermalDiffusivity->firstK (); k <= thermalDiffusivity->lastK (); ++k ) {
-
+                  
                   if ( basementFormationAndAlcMode ) {
                      lithology->calcBulkDensXHeatCapacity ( fluid,
                                                             0.01 * porosity->get ( i, j, k ),

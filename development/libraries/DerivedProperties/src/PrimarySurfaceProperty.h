@@ -51,7 +51,10 @@ namespace DerivedProperties {
 
       /// \ brief Get the gridMap
       const DataAccess::Interface::GridMap* getGridMap() const;
-   private :
+ 
+      /// \brief Return true.
+      bool isPrimary () const;
+  private :
 
       const DataAccess::Interface::PropertyValue* m_propertyValue;
       const DataAccess::Interface::GridMap* m_gridMap;
@@ -62,6 +65,11 @@ namespace DerivedProperties {
 
 }
 
+inline bool DerivedProperties::PrimarySurfaceProperty::isPrimary () const {
+
+   return true;
+
+}
 
 #endif // DERIVED_PROPERTIES__PRIMARY_SURFACE_PROPERTY_H
 

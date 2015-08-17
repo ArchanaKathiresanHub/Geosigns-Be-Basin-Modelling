@@ -1,5 +1,7 @@
 #include "DomainPropertyFactory.h"
 
+#include "PropertyAttribute.h"
+
 #include "DomainSurfaceProperty.h"
 #include "DomainFormationProperty.h"
 #include "DomainFormationMapProperty.h"
@@ -20,15 +22,12 @@ using namespace CBMGenerics;
 static const char * s_SurfacePropList[] =
 {
      "AllochthonousLithology"
-   , "DepthHighRes"
    , "ErosionFactor"
    , "FaultElements"
    , "FCTCorrection"
-   , "MaxVesHighRes"
    , "ThicknessError"
    , "ThicknessHighRes"
    , "Thickness"
-   , "VesHighRes"
 };
 
 static const char * s_FormationPropCheckAllocList[] =
@@ -46,6 +45,7 @@ static const char * s_FormationPropList[] =
 {
      "BulkDensity"
    , "Depth"
+   , "DepthHighRes"
    , "Diffusivity"
    , "FluidVelocity"
    , "HopaneIsomerisation"
@@ -55,6 +55,7 @@ static const char * s_FormationPropList[] =
    , "Lithology"
    , "LithoStaticPressure"
    , "MaxVes"
+   , "MaxVesHighRes"
    , "Overburden"
    , "OverPressure"
    , "PermeabilityH"
@@ -69,6 +70,7 @@ static const char * s_FormationPropList[] =
    , "ThCond"
    , "Velocity"
    , "Ves"
+   , "VesHighRes"
    , "Vre"
    , "Vr"
 };
@@ -80,12 +82,12 @@ namespace DataAccess { namespace Mining
                                                                                       const std::string  & name,
                                                                                       const std::string  & accessMode )
    {
-      ProjectHandle * projectHandle = new ProjectHandle( database, name, accessMode );
+      ProjectHandle * projectHandle = new ProjectHandle( database, name, accessMode, this );
       initialiseDomainPropertyFactory( projectHandle );
       return projectHandle;
    }
 
-   DomainPropertyCollection * DomainPropertyFactory::produceDomainPropertyCollection( Interface::ProjectHandle* projectHandle )
+   DomainPropertyCollection * DomainPropertyFactory::produceDomainPropertyCollection ( Interface::ProjectHandle* projectHandle )
    {
       return new DomainPropertyCollection( projectHandle );
    }
@@ -128,7 +130,21 @@ namespace DataAccess { namespace Mining
       for ( unsigned int i = 0; i < sizeof( s_SurfacePropList )/sizeof( const char *); ++i )
       {
          property = m_projectHandle->findProperty( s_SurfacePropList[i] );
-         m_allocators [ property ] = produceSurfacePropertyAllocator( handle, property );
+
+         if ( property != 0 ) {
+
+            if ( property->getPropertyAttribute () == DataModel::SURFACE_2D_PROPERTY ) {
+               m_allocators [ property ] = produceSurfacePropertyAllocator( handle, property );
+            } else if ( property->getPropertyAttribute () == DataModel::FORMATION_2D_PROPERTY ) {
+               m_allocators [ property ] = produceFormationMapPropertyAllocator( handle, property );
+            } else {
+               std::cerr << " The property " << property->getName () << " is neither a FORMATION_2D_PROPERTY nor a SURFACE_2D_PROPERTY." << std::endl;
+            }
+
+         } else {
+            std::cerr << " The property " << s_SurfacePropList[i] << " cannot be found." << std::endl;
+         }
+
       }
 
       // add formation properties
@@ -187,9 +203,10 @@ namespace DataAccess { namespace Mining
    }
 
    
-   DomainProperty* DomainPropertyFactory::allocate ( const DomainPropertyCollection * collection,
-                                                     const Interface::Snapshot      * snapshot,
-                                                     const Interface::Property      * property ) const
+   DomainProperty* DomainPropertyFactory::allocate ( const DomainPropertyCollection*            collection,
+                                                     DerivedProperties::DerivedPropertyManager& propertyManager,
+                                                     const Interface::Snapshot*                 snapshot,
+                                                     const Interface::Property*                 property ) const
    {
       PropertyToDomainPropertyAllocator::const_iterator allocIter = m_allocators.find( property );
       // should we check that the project-handle is the same,
@@ -197,7 +214,7 @@ namespace DataAccess { namespace Mining
       
       if ( allocIter != m_allocators.end() )
       {
-         return allocIter->second->allocate ( collection, snapshot, property );
+         return allocIter->second->allocate ( collection, propertyManager, snapshot, property );
       }
       else
       {

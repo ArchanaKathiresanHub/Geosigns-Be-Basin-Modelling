@@ -28,7 +28,7 @@ class UnitTest;
 UnitTest *createTransformSchTest(const std::string &testFileFullPathName);
 UnitTest *createBenchmarkTest(const std::string &testFileFullPathName);
 
-enum UnitTestType{BENCHMARK, TRANSFORMSCH2CFG, SENSITIVITY, numOfTestTypes};
+enum UnitTestType{BENCHMARK, TSRBENCHMARK, TRANSFORMSCH2CFG, SENSITIVITY, numOfTestTypes};
 
 class UnitTest
 {
@@ -39,9 +39,11 @@ public:
    
    void setGX5(bool in_flag){ m_simulateGX5 = in_flag; }
    void setApprox(bool in_flag){ m_approximateFlag = in_flag; }
+   void setSimulationType( UnitTestType in_simType ) { m_simType = in_simType; }
 protected:
    bool m_simulateGX5;
    bool m_approximateFlag;
+   UnitTestType m_simType;
 };
 
 struct BenchmarkTestSimulatorData
@@ -178,7 +180,7 @@ public:
    UnitTestFactory();
    static UnitTestType determineTestType(const std::string &testFullPathName);
    void registerFactoryMethod(int factoryMethodKey, factoryMethod theMethod);
-   UnitTest *createTest (int factoryMethodKey, const std::string &testFileFullPathName, bool flagGX5, bool flagApprox);
+   UnitTest *createTest (int factoryMethodKey, const std::string &testFileFullPathName, bool &flagGX5, bool &flagApprox);
 private:
    std::map<int,factoryMethod> m_registeredFactoryMethods;
 };

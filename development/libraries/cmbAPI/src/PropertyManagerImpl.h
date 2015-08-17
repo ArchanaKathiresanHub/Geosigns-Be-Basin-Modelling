@@ -54,9 +54,18 @@ namespace mbapi
       /// @return ErrorHandler::NoError on success, error code otherwise
       virtual ErrorHandler::ReturnCode requestPropertyInSnapshots( const std::string & propName, const std::string & outputPropOption = "" );
 
+      /// @brief Copy all .HDF results files from old project path to the new project path
+      /// @param oldProject old project name with full path
+      /// @param newProject new project name with full path
+      /// @return ErrorHandler::NoError on success, error code otherwise
+      ErrorHandler::ReturnCode copyResultsFiles( const std::string & oldProject, const std::string & newProject );
+
    private:
-      database::Database                              * m_db;           // project database
-      database::Table                                 * m_fltTimeTable; // FilterTimeIo table
+      database::Database                              * m_db;              // project database
+      database::Table                                 * m_fltTimeTable;    // FilterTimeIo table
+      database::Table                                 * m_snapshotIoTable; // SnapshotIoTbl
+      database::Table                                 * m_timeIoTable;     // TimeIoTbl
+      database::Table                                 * m_3dTimeIoTable;   // 3DTimeIoTbl
 
    
       // None, SourceRockOnly, SedimentsOnly, SedimentsPlusBasement depends on property name

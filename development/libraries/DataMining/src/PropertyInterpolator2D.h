@@ -5,6 +5,10 @@
 
 #include "Interface/GridMap.h"
 
+#include "FormationProperty.h"
+#include "FormationMapProperty.h"
+#include "SurfaceProperty.h"
+
 namespace DataAccess {
 
    namespace Mining {
@@ -13,14 +17,30 @@ namespace DataAccess {
 
       public :
 
+
          /// Interpolate a property in a 2d map.
          double operator ()( const ElementPosition&                element,
-                             const DataAccess::Interface::GridMap* property ) const;
+                             DerivedProperties::SurfacePropertyPtr property ) const;
+
+         /// Interpolate a property in a 2d map.
+         double operator ()( const ElementPosition&                     element,
+                             DerivedProperties::FormationMapPropertyPtr property ) const;
 
          /// Interpolate a property in a 3d map.
-         double operator ()( const ElementPosition&                element,
-                             const DataAccess::Interface::GridMap* property,
-                             const unsigned int                    k ) const;
+         double operator ()( const ElementPosition&                  element,
+                             DerivedProperties::FormationPropertyPtr property,
+                             const unsigned int                      k ) const;
+
+         /// Interpolate a property.
+         double operator ()( const ElementPosition&                  element,
+                             DerivedProperties::FormationPropertyPtr property ) const;
+
+
+      private :
+
+         double doInterpolation ( const double  xi,
+                                  const double  eta,
+                                  const double* weights) const;
 
       };
 

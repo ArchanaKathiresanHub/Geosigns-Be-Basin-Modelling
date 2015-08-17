@@ -9,7 +9,7 @@ namespace database
    class Database;
 }
 #include "Interface/Interface.h"
-#include "Interface/ProjectHandle.h"
+#include "DerivedPropertyManager.h"
 
 #include "SourceRock.h"
 
@@ -24,7 +24,7 @@ namespace GenexSimulation
    /*! 
       Derives from Interface::ProjectHandle
    */
-   class GenexSimulator : public Interface::ProjectHandle
+   class GenexSimulator : public GeoPhysics::ProjectHandle
    {
    public:
       //! Constructor
@@ -33,9 +33,9 @@ namespace GenexSimulation
          \param name the name of the file
          \param accessMode read or write
       */
-      GenexSimulator (database::Database * database, const std::string & name, const std::string & accessMode);
+      GenexSimulator (database::Database * database, const std::string & name, const std::string & accessMode, DataAccess::Interface::ObjectFactory* objectFactory);
       
-      static GenexSimulator *CreateFrom (const std::string & inputFileName);
+      static GenexSimulator *CreateFrom (const std::string & inputFileName, DataAccess::Interface::ObjectFactory* objectFactory);
 
       virtual ~GenexSimulator (void);
 
@@ -66,6 +66,8 @@ namespace GenexSimulation
       bool isPropertyRegistered(const string & propertyName);
 
    private:
+
+      DerivedProperties::DerivedPropertyManager * m_propertyManager;
 
       vector<string> m_registeredProperties;
       vector<string> m_shaleProperties;

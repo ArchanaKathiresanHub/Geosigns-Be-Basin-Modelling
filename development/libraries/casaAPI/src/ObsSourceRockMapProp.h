@@ -36,19 +36,21 @@ namespace casa
    public:
 
       /// @brief Create new observable object for the given grid property for specified grid position
-      static ObsSourceRockMapProp * createNewInstance( double x                ///< X-th grid coordinate [m]
-                                                     , double y                ///< Y-th grid coordinate [m]
-                                                     , const char * layerName  ///< source rock layer name
-                                                     , const char * propName   ///< name of the property
-                                                     , double simTime = 0.0    ///< simulation time [Ma]
-                                                     ) { return new ObsSourceRockMapProp( x, y, layerName, propName, simTime ); }
+      static ObsSourceRockMapProp * createNewInstance( double              x             ///< X-th grid coordinate [m]
+                                                     , double              y             ///< Y-th grid coordinate [m]
+                                                     , const char        * layerName     ///< source rock layer name
+                                                     , const char        * propName      ///< name of the property
+                                                     , double              simTime = 0.0 ///< simulation time [Ma]
+                                                     , const std::string & name = ""     ///< user specified name for observable
+                                                     ) { return new ObsSourceRockMapProp( x, y, layerName, propName, simTime, name ); }
 
       /// @brief Create observable for the given grid property for specified grid position
-      ObsSourceRockMapProp( double x              ///< X-th grid coordinate [m]
-                          , double y              ///< Y-th grid coordinate [m]
-                          , const char * layerName  ///< source rock layer name
-                          , const char * propName ///< name of the property
-                          , double simTime        ///< simulation time [Ma]
+      ObsSourceRockMapProp( double              x         ///< X-th grid coordinate [m]
+                          , double              y         ///< Y-th grid coordinate [m]
+                          , const char        * layerName ///< source rock layer name
+                          , const char        * propName  ///< name of the property
+                          , double              simTime   ///< simulation time [Ma]
+                          , const std::string & name = "" ///< user specified name for observable
                          );
 
       /// @brief Destructor

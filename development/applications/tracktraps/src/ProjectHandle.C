@@ -20,8 +20,8 @@ using namespace std;
 static bool reservoirSorter (const Interface::Reservoir * reservoir1, const Interface::Reservoir * reservoir2);
 
 ProjectHandle::ProjectHandle (database::Database * database,
-      const string & name, const string & accessMode)
-   : Interface::ProjectHandle (database, name, accessMode)
+      const string & name, const string & accessMode, DataAccess::Interface::ObjectFactory* factory)
+   : Interface::ProjectHandle (database, name, accessMode, factory)
 {
 }
 

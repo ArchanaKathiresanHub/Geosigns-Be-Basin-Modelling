@@ -49,8 +49,8 @@ echo "Installing binaries"
 install -d $mainBinaryDirectory
 install @CMAKE_INSTALL_PREFIX@/bin/* $mainBinaryDirectory
 
-# BPA expects the binaries to be in the LinuxRHEL64 folder. For BPA we pick the RHEL6 binaries
-if /apps/sss/share/getos2 | grep -q LinuxRHEL64_x86_64_6 ; then
+# BPA expects the binaries to be in the LinuxRHEL64 folder. For BPA we pick the RHEL64 binaries
+if /apps/sss/share/getos2 | grep -q LinuxRHEL64_x86_64_64 ; then
   pushd $targetDirectory > /dev/null
   ln -s @CSCE_PLATFORM@ LinuxRHEL64
   popd > /dev/null
@@ -79,19 +79,6 @@ else
          tar --no-same-permissions -xf xsd.tar
       popd > /dev/null
    popd > /dev/null
-fi
-
-#install wrapper scripts
-echo "Installing wrappers script:"
-# Install mpirun wrapper which is used by CASA API
-if [ -f @MPIRUN@ ]; then
-   echo " - mpirun_wrap.sh"
-   cp @MPIRUN@ $mainBinaryDirectory
-fi
-# Install mpiexec wrapper
-if [ -f @MPIEXEC@ ]; then
-   echo " - mpiexec_wrap.sh"
-   cp @MPIEXEC@ $mainBinaryDirectory
 fi
 
 echo "Configuring installation"

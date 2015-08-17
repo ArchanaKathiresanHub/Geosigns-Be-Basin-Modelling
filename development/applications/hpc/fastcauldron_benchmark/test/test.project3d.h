@@ -8,6 +8,7 @@
 
 namespace DataAccess { namespace Interface {
    class ProjectHandle;
+   class ObjectFactory;
 } }
 
 namespace hpc
@@ -31,6 +32,7 @@ namespace hpc
 
       std::string m_fileName;
       boost::shared_ptr<DataAccess::Interface::ProjectHandle> m_project;
+      boost::shared_ptr<DataAccess::Interface::ObjectFactory> m_factory;
    };
 
 }

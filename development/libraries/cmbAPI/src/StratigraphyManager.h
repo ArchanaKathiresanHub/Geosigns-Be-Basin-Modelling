@@ -69,6 +69,10 @@ namespace mbapi {
       /// @return surface name on success, or empty string otherwise
       virtual std::string surfaceName( LayerID id ) = 0;
 
+      /// @brief Get age of the eldest layer in stratigraphy
+      /// @return age of the eldest (first) layer, UndefinedDoubleValue if no any layer is defined
+      virtual double eldestLayerAge() = 0;
+
       // Layer -> lithology type relation methods
 
       /// @brief Get all lithologies associated with the given layer and percentage of each lithology in a mix

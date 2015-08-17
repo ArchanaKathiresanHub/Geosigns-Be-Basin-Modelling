@@ -17,6 +17,7 @@
 #include "consts.h"
 #include "TrapperIoTableRec.h"
 #include "PTDiagramCalculator.h"
+#include "Interface/ObjectFactory.h"
 
 #define PTDIAG_VERSION "3.6"
 
@@ -286,7 +287,8 @@ int main( int argc, char ** argv )
    }
    else if ( !projectFileName.empty() )
    {
-      DataAccess::Interface::ProjectHandle * ph = DataAccess::Interface::OpenCauldronProject( projectFileName, "r" );
+	  DataAccess::Interface::ObjectFactory* factory = new DataAccess::Interface::ObjectFactory;
+	  DataAccess::Interface::ProjectHandle * ph = DataAccess::Interface::OpenCauldronProject( projectFileName, "r", factory );
       if ( !ph )
       {
          std::cerr << "Failing to load project: " << projectFileName << "\n";
@@ -317,6 +319,7 @@ int main( int argc, char ** argv )
       }
 
       DataAccess::Interface::CloseCauldronProject( ph );
+	  delete factory;
    }
    else if ( !compFileName.empty() )
    {

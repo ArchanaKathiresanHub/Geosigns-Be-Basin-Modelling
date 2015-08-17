@@ -3,10 +3,11 @@
 #include "GeoPhysicsFormation.h"
 #include "CompoundLithology.h"
 
-DataAccess::Mining::BrineDensityCalculator::BrineDensityCalculator ( const DomainPropertyCollection*  collection,
-                                                                     const Interface::Snapshot* snapshot,
-                                                                     const Interface::Property* property ) :
-   DomainFormationProperty ( collection, snapshot, property )
+DataAccess::Mining::BrineDensityCalculator::BrineDensityCalculator ( const DomainPropertyCollection*            collection,
+                                                                     DerivedProperties::DerivedPropertyManager& propertyManager,
+                                                                     const Interface::Snapshot*                 snapshot,
+                                                                     const Interface::Property*                 property ) :
+   DomainFormationProperty ( collection, propertyManager, snapshot, property )
 {
    m_temperature = 0;
    m_porePressure = 0;
@@ -16,8 +17,8 @@ DataAccess::Mining::BrineDensityCalculator::BrineDensityCalculator ( const Domai
 bool DataAccess::Mining::BrineDensityCalculator::initialise () {
 
    if ( not m_initialised ) {
-      m_temperature = getPropertyCollection ()->getDomainProperty ( "Temperature" );
-      m_porePressure = getPropertyCollection ()->getDomainProperty ( "Pressure" );
+      m_temperature = getPropertyCollection ()->getDomainProperty ( "Temperature", getPropertyManager ());
+      m_porePressure = getPropertyCollection ()->getDomainProperty ( "Pressure", getPropertyManager ());
 
       if ( m_temperature != 0 and m_porePressure != 0 ) {
          m_initialised = true;
@@ -55,8 +56,9 @@ double DataAccess::Mining::BrineDensityCalculator::compute ( const ElementPositi
    return density;
 }
 
-DataAccess::Mining::DomainProperty* DataAccess::Mining::BrineDensityCalculatorAllocator::allocate ( const DomainPropertyCollection*  collection,
-                                                                                                    const Interface::Snapshot* snapshot,
-                                                                                                    const Interface::Property* property ) const {
-   return new BrineDensityCalculator ( collection, snapshot, property );
+DataAccess::Mining::DomainProperty* DataAccess::Mining::BrineDensityCalculatorAllocator::allocate ( const DomainPropertyCollection*            collection,
+                                                                                                    DerivedProperties::DerivedPropertyManager& propertyManager,
+                                                                                                    const Interface::Snapshot*                 snapshot,
+                                                                                                    const Interface::Property*                 property ) const {
+   return new BrineDensityCalculator ( collection, propertyManager, snapshot, property );
 }

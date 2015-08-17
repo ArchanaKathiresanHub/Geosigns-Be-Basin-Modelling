@@ -20,6 +20,8 @@
 
 #include "MatlabExporter.h"
 
+#include <iomanip>
+
 using namespace casa;
 
 MatlabExporter::MatlabExporter( const std::string & dataFileName )
@@ -465,7 +467,7 @@ void MatlabExporter::exportMCResults( ScenarioAnalysis & sc )
    m_ofs << "MCSamplingRMSE = [\n";
    for ( size_t i = 0; i < mcRMSEs.size(); ++i )
    {
-      m_ofs << mcRMSEs[i] << "\n";
+      m_ofs << std::scientific << std::setprecision( 10 )  << std::setfill( '0' ) << mcRMSEs[i] << "\n";
    }
    m_ofs << "];\n\n";
 
@@ -555,4 +557,20 @@ void MatlabExporter::exportObsValues( const std::string & fName, const std::vect
       ofs << "\n";
    }
 }
+
+std::string MatlabExporter::correctName( std::string name )
+{
+   std::string::iterator it = std::remove(  name.begin(), name.end(), ')' );
+   it = std::remove(  name.begin(), it, '+' );
+   name.resize( it - name.begin() );
+
+   std::replace( name.begin(), name.end(), '/', '-' );
+   std::replace( name.begin(), name.end(), ':', '-' );
+   std::replace( name.begin(), name.end(), ' ', '-' );
+   std::replace( name.begin(), name.end(), '_', '-' );
+   std::replace( name.begin(), name.end(), '(', '-' );
+   std::replace( name.begin(), name.end(), ',', '-' );
+   return name;
+}
+
 

@@ -125,6 +125,11 @@ namespace casa
       /// when it can be discarded
       virtual ObsValue * getFromModel( mbapi::Model & caldModel ) = 0;
 
+      /// @brief Do observable validation for the given model
+      /// @param caldModel reference to Cauldron model
+      /// @return empty string if there is no any problems with this observable, or error message if something wrong
+      virtual std::string checkObservableForProject( mbapi::Model & caldModel ) { return ""; }
+
       /// @brief Create new observable value from set of doubles. This method is used for data conversion between SUMlib and CASA
       /// @param[in,out] val iterator for double array
       /// @return new observable value on success, or NULL pointer otherwise

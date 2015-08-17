@@ -38,6 +38,11 @@ add_executable( cauldron2voxet
 bm_include_libraries(
 	DataModel
 	SerialDataAccess
+	Interpolation
+	LinearAlgebra
+	GeoPhysics
+	EosPack
+	DerivedProperties
 	DataAccess
 	utilities
 	TableIO
@@ -50,12 +55,19 @@ include_directories(
 )
 
 target_link_libraries(cauldron2voxet
+	DataMining
 	DataAccess
 	SerialDataAccess
+	Interpolation
+	LinearAlgebra
+	GeoPhysics
+	DerivedProperties
+	DataAccess	
 	TableIO
+	EosPack
+	utilities
 	Serial_Hdf5
 	CBMGenerics
-	utilities
 	${HDF5_LIBRARIES}
 )
 

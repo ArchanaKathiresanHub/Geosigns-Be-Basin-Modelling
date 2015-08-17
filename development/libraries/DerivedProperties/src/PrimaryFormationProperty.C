@@ -10,20 +10,18 @@ DerivedProperties::PrimaryFormationProperty::PrimaryFormationProperty ( const Da
    FormationProperty ( propertyValue->getProperty (), 
                        propertyValue->getSnapshot (),
                        propertyValue->getFormation (),
-                       propertyValue->getGridMap ()->getGrid (),
-                       propertyValue->getGridMap ()->lastK () + 1 ),
+                       ( propertyValue->getGridMap () != 0 ? propertyValue->getGridMap ()->getGrid () : 0 ),
+                       ( propertyValue->getGridMap () != 0 ? propertyValue->getGridMap ()->lastK () + 1 : 0 )),
    m_propertyValue ( propertyValue ),
    m_gridMap ( propertyValue->getGridMap () )
 {
-   m_gridMap->retrieveData ( true );
+   if( m_gridMap ) {
+      m_gridMap->retrieveData ( true );
+   }
 }
 
 DerivedProperties::PrimaryFormationProperty::~PrimaryFormationProperty() {
-
-   if ( m_propertyValue->hasGridMap ()) {
-      m_gridMap->restoreData ( false, true );
-   }
-
+   // Should check neither m_propertyValue nor m_gridMap at this point because the project handle may have deleted them already.
 }
 
 

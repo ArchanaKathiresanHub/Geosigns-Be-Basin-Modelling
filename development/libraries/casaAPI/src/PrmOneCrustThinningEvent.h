@@ -26,7 +26,7 @@ namespace mbapi
    class Model;
 }
 
-/// @page CASA_OneCrustThinningEventPage Crust thinning parameter
+/// @page CASA_OneCrustThinningEventPage One event crust thinning parameter
 /// 
 /// Crust thickness in Cauldron should be defined by a piecewise linear function @f$ D( t ) @f$ 
 /// User must provide a sorted by time a sequence of points @f$ [p_0(t_0, d_0), p_1(t_1, d_1), ... ] @f$ .
@@ -71,8 +71,9 @@ namespace casa
 
       /// @brief Set this parameter value in Cauldron model
       /// @param caldModel reference to Cauldron model
+      /// @param caseID unique RunCase ID, in some parameters it is used in new map file name generation
       /// @return ErrorHandler::NoError in success, or error code otherwise     
-      virtual ErrorHandler::ReturnCode setInModel( mbapi::Model & caldModel );
+      virtual ErrorHandler::ReturnCode setInModel( mbapi::Model & caldModel, size_t caseID );
 
       /// @brief Validate crust thinning parameter values 
       /// @param caldModel reference to Cauldron model

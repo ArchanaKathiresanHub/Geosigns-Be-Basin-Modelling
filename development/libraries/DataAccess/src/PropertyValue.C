@@ -136,6 +136,14 @@ bool PropertyValue::toBeSaved () const {
    return true;
 }
 
+bool PropertyValue::hasRecord() const {
+
+
+  if (! getRecord() ) return false;
+  
+  return true;
+
+}
 
 GridMap * PropertyValue::createGridMap (const Grid * grid, unsigned int depth)
 {

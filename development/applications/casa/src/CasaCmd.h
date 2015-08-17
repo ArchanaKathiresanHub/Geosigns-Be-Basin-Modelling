@@ -39,7 +39,7 @@ public:
 protected:
    /// @brief Constructor
    /// @param cmdPrms list of command parameters as set of strings
-   CasaCmd(CasaCommander & parent, const std::vector< std::string > & cmdPrms) : m_commander( parent )
+   CasaCmd( CasaCommander & parent, const std::vector< std::string > & cmdPrms ) : m_commander( parent )
    {
       m_prms.insert( m_prms.begin(), cmdPrms.begin(), cmdPrms.end() );
    }

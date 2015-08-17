@@ -21,6 +21,7 @@
 #include "CmdDoE.h"
 #include "CmdEvaluateResponse.h"
 #include "CmdExpMatlab.h"
+#include "CmdExpDataTxt.h"
 #include "CmdGenerateBestMatchedCase.h"
 #include "CmdLocation.h"
 #include "CmdPlotMC.h"
@@ -36,50 +37,57 @@
 
 #include <typeinfo>
 
-static const char * CmdNameAddCldApp      = "app";
-static const char * CmdNameAddObservable  = "target";
-static const char * CmdNameAddVarPrm      = "varprm";
-static const char * CmdNameGenerateBMCase = "generateCalibratedCase";
-static const char * CmdNameRun            = "run";
-static const char * CmdNameRunReload      = "runReload";
-static const char * CmdNamePlotMC         = "plotMC";
-static const char * CmdNamePlotP10P90     = "plotP10P90";
-static const char * CmdNamePlotPareto     = "plotPareto";
-static const char * CmdNamePlotTornado    = "plotTornado";
+static const char * CNAddCldApp      = "app";
+static const char * CNAddObservable  = "target";
+static const char * CNAddVarPrm      = "varprm";
+static const char * CNExpDataTxt     = "exportDataTxt";
+static const char * CNGenerateBMCase = "generateCalibratedCase";
+static const char * CNRun            = "run";
+static const char * CNRunReload      = "runReload";
+static const char * CNPlotMC         = "plotMC";
+static const char * CNPlotP10P90     = "plotP10P90";
+static const char * CNPlotPareto     = "plotPareto";
+static const char * CNPlotTornado    = "plotTornado";
 
 CasaCommander::CasaCommander()
 {
    m_msgLvl = Minimal;
 }
 
-void CasaCommander::addCommand( const std::string & cmdName, const std::vector< std::string > & prms )
+void CasaCommander::addCommand( const std::string & cmdName, const std::vector< std::string > & prms, size_t lineNum )
 {
    SharedCmdPtr  cmd;
 
-   if (      cmdName == CmdNameAddCldApp      ) cmd.reset( new CmdAddCldApp(               *this, prms ) );// add cauldron application to pipeline
-   else if ( cmdName == "base_project"        ) cmd.reset( new CmdBaseProject(             *this, prms ) );// set scenario base case 
-   else if ( cmdName == CmdNameAddVarPrm      ) cmd.reset( new CmdAddVarPrm(               *this, prms ) );// create variable parameter
-   else if ( cmdName == CmdNameAddObservable  ) cmd.reset( new CmdAddObs(                  *this, prms ) );// create observable
-   else if ( cmdName == "doe"                 ) cmd.reset( new CmdDoE(                     *this, prms ) );// create doe
-   else if ( cmdName == CmdNameRun            ) cmd.reset( new CmdRun(                     *this, prms ) );// run planned DoE experiments
-   else if ( cmdName == CmdNameRunReload      ) cmd.reset( new CmdRunReload(               *this, prms ) );// reload the results of run of DoE experiments
-   else if ( cmdName == "location"            ) cmd.reset( new CmdLocation(                *this, prms ) );// where cases will be generated, run mutator
-   else if ( cmdName == "response"            ) cmd.reset( new CmdCreateResponse(          *this, prms ) );// calculate coefficients for response surface approximation
-   else if ( cmdName == "evaluate"            ) cmd.reset( new CmdEvaluateResponse(        *this, prms ) );// calculate observables value using response surface approximation
-   else if ( cmdName == "exportMatlab"        ) cmd.reset( new CmdExpMatlab(               *this, prms ) );// export all data to matlab file
-   else if ( cmdName == "montecarlo"          ) cmd.reset( new CmdRunMC(                   *this, prms ) );// run MC/MCMC simulation
-   else if ( cmdName == CmdNameGenerateBMCase ) cmd.reset( new CmdGenerateBestMatchedCase( *this, prms ) ); // create calibrated run case
-   else if ( cmdName == "savestate"           ) cmd.reset( new CmdSaveState(               *this, prms ) );// save CASA state to file
-   else if ( cmdName == "loadstate"           ) cmd.reset( new CmdLoadState(               *this, prms ) );// load CASA state from the file
-   else if ( cmdName == CmdNamePlotMC         ) cmd.reset( new CmdPlotMC(                  *this, prms ) );// create plot with MC/MCMC results
-   else if ( cmdName == "plotRSProxyQC"       ) cmd.reset( new CmdPlotRSProxyQC(           *this, prms ) );// create QC plot for RSProxy results
-   else if ( cmdName == CmdNamePlotP10P90     ) cmd.reset( new CmdPlotP10P90(              *this, prms ) );// create plot of CDF & 1-CDF for each observable
-   else if ( cmdName == CmdNamePlotPareto     ) cmd.reset( new CmdPlotPareto(              *this, prms ) );// create plot of Pareto diagram for parameters sensitivity over all observables
-   else if ( cmdName == CmdNamePlotTornado    ) cmd.reset( new CmdPlotTornado(             *this, prms ) );// create plot of Tornado diagram for each observable for parameters sensitivity
+   if (      cmdName == CNAddCldApp      ) cmd.reset( new CmdAddCldApp(               *this, prms ) );// add cauldron application to pipeline
+   else if ( cmdName == "base_project"   ) cmd.reset( new CmdBaseProject(             *this, prms ) );// set scenario base case 
+   else if ( cmdName == CNAddVarPrm      ) cmd.reset( new CmdAddVarPrm(               *this, prms ) );// create variable parameter
+   else if ( cmdName == CNAddObservable  ) cmd.reset( new CmdAddObs(                  *this, prms ) );// create observable
+   else if ( cmdName == "doe"            ) cmd.reset( new CmdDoE(                     *this, prms ) );// create doe
+   else if ( cmdName == CNRun            ) cmd.reset( new CmdRun(                     *this, prms ) );// run planned DoE experiments
+   else if ( cmdName == CNRunReload      ) cmd.reset( new CmdRunReload(               *this, prms ) );// reload the results of run of DoE experiments
+   else if ( cmdName == "location"       ) cmd.reset( new CmdLocation(                *this, prms ) );// where cases will be generated, run mutator
+   else if ( cmdName == "response"       ) cmd.reset( new CmdCreateResponse(          *this, prms ) );// calculate coefficients for RS approximation
+   else if ( cmdName == "evaluate"       ) cmd.reset( new CmdEvaluateResponse(        *this, prms ) );// calculate observables value using RS approximation
+   else if ( cmdName == "exportMatlab"   ) cmd.reset( new CmdExpMatlab(               *this, prms ) );// export all data to matlab file
+   else if ( cmdName == CNExpDataTxt     ) cmd.reset( new CmdExpDataTxt(              *this, prms ) );// export data of QC-ing proxy to matlab file
+   else if ( cmdName == "montecarlo"     ) cmd.reset( new CmdRunMC(                   *this, prms ) );// run MC/MCMC simulation
+   else if ( cmdName == CNGenerateBMCase ) cmd.reset( new CmdGenerateBestMatchedCase( *this, prms ) ); // create calibrated run case
+   else if ( cmdName == "savestate"      ) cmd.reset( new CmdSaveState(               *this, prms ) );// save CASA state to file
+   else if ( cmdName == "loadstate"      ) cmd.reset( new CmdLoadState(               *this, prms ) );// load CASA state from the file
+   else if ( cmdName == CNPlotMC         ) cmd.reset( new CmdPlotMC(                  *this, prms ) );// create plot with MC/MCMC results
+   else if ( cmdName == "plotRSProxyQC"  ) cmd.reset( new CmdPlotRSProxyQC(           *this, prms ) );// create QC plot for RSProxy results
+   else if ( cmdName == CNPlotP10P90     ) cmd.reset( new CmdPlotP10P90(              *this, prms ) );// create plot of CDF & 1-CDF for each observable
+   else if ( cmdName == CNPlotPareto     ) cmd.reset( new CmdPlotPareto(              *this, prms ) );// create plot of Pareto diagram for parameters 
+                                                                                                      // sensitivity over all observables
+   else if ( cmdName == CNPlotTornado    ) cmd.reset( new CmdPlotTornado(             *this, prms ) );// create plot of Tornado diagram for each observable 
+                                                                                                      // for parameters sensitivity
 
    else throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Unknown command: " << cmdName;
 
    m_cmds.push_back( cmd );
+
+   m_cmdNames.push_back( cmdName );
+   m_inpFileCmdPos.push_back( lineNum );
 
    if ( m_msgLvl > Minimal )
    {
@@ -96,6 +104,7 @@ void CasaCommander::executeCommands( std::auto_ptr<casa::ScenarioAnalysis> & sa 
 {
    for ( size_t i = 0; i < m_cmds.size(); ++i )
    {
+      m_curCmd = i;
       m_cmds[i]->execute( sa );
    }
 }
@@ -108,29 +117,32 @@ void CasaCommander::printHelpPage( const std::string & cmd )
       std::cout << "Here is a list of implemented commands. To get detailed help on any command just specify this command name with -help option \n";
    }
    
-   if ( cmd.empty() ) // print all commands
+   if (      cmd == CNAddCldApp      ) { CmdAddCldApp::printHelpPage(               CNAddCldApp      ); }
+   else if ( cmd == CNAddObservable  ) { CmdAddObs::printHelpPage(                  CNAddObservable  ); }
+   else if ( cmd == CNAddVarPrm      ) { CmdAddVarPrm::printHelpPage(               CNAddVarPrm      ); }
+   else if ( cmd == CNExpDataTxt     ) { CmdExpDataTxt::printHelpPage(              CNExpDataTxt     ); }
+   else if ( cmd == CNRun            ) { CmdRun::printHelpPage(                     CNRun            ); }
+   else if ( cmd == CNRunReload      ) { CmdRunReload::printHelpPage(               CNRunReload      ); }
+   else if ( cmd == CNGenerateBMCase ) { CmdGenerateBestMatchedCase::printHelpPage( CNGenerateBMCase ); }
+   else if ( cmd == CNPlotMC         ) { CmdPlotMC::printHelpPage(                  CNPlotMC         ); }
+   else if ( cmd == CNPlotP10P90     ) { CmdPlotP10P90::printHelpPage(              CNPlotP10P90     ); }
+   else if ( cmd == CNPlotPareto     ) { CmdPlotPareto::printHelpPage(              CNPlotPareto     ); }
+   else if ( cmd == CNPlotTornado    ) { CmdPlotTornado::printHelpPage(             CNPlotTornado    ); }
+   else // print all commands
    {
-      std::cout << "   " << CmdNameAddCldApp      << " - add new Cauldron app to application pipeline\n";
-      std::cout << "   " << CmdNameAddObservable  << " - specify new observable (target)\n";
-      std::cout << "   " << CmdNameAddVarPrm      << " - specify new variable parameter\n";
-      std::cout << "   " << CmdNameRun            << " - execute generated cases on HPC cluster\n";
-      std::cout << "   " << CmdNameRunReload      << " - reload results of completed cases\n";
-      std::cout << "   " << CmdNameGenerateBMCase << " - generate run case with parameters set from MonteCarlo simulation sample with minimal RMSE\n";
+      std::cout << "   " << CNAddCldApp      << " - add new Cauldron app to application pipeline\n";
+      std::cout << "   " << CNAddObservable  << " - specify new observable (target)\n";
+      std::cout << "   " << CNAddVarPrm      << " - specify new variable parameter\n";
+      std::cout << "   " << CNRun            << " - execute generated cases on HPC cluster\n";
+      std::cout << "   " << CNRunReload      << " - reload results of completed cases\n";
+      std::cout << "   " << CNGenerateBMCase << " - generate run case with parameters set from MonteCarlo simulation sample with minimal RMSE\n";
+      std::cout << "   " << "\nVarious export data commands:" << "\n";
+      std::cout << "   " << CNExpDataTxt     << " - export to text file various set of data like DoE generated parameters, observables and etc\n";
       std::cout << "   " << "\nVarious plot commands:" << "\n";
-      std::cout << "   " << CmdNamePlotMC         << " - create Matlab/Octave script to create a set of MC sampling plots for each pair of variable parameters\n";
-      std::cout << "   " << CmdNamePlotP10P90     << " - create Matlab/Octave script to plot P10-P90 CDF diagram for each observable\n";
-      std::cout << "   " << CmdNamePlotPareto     << " - create Matlab/Octave script to plot Pareto diagram for parameters sensitivity over all observables\n";
-      std::cout << "   " << CmdNamePlotTornado    << " - create Matlab/Octave script to plot Tornado diagrams for parameters sensitivity for each observable\n";
+      std::cout << "   " << CNPlotMC         << " - create Matlab/Octave script to create a set of MC sampling plots for each pair of variable parameters\n";
+      std::cout << "   " << CNPlotP10P90     << " - create Matlab/Octave script to plot P10-P90 CDF diagram for each observable\n";
+      std::cout << "   " << CNPlotPareto     << " - create Matlab/Octave script to plot Pareto diagram for parameters sensitivity over all observables\n";
+      std::cout << "   " << CNPlotTornado    << " - create Matlab/Octave script to plot Tornado diagrams for parameters sensitivity for each observable\n";
    }
-   else if ( cmd == CmdNameAddCldApp      ) { CmdAddCldApp::printHelpPage(               CmdNameAddCldApp      ); }
-   else if ( cmd == CmdNameAddObservable  ) { CmdAddObs::printHelpPage(                  CmdNameAddObservable  ); }
-   else if ( cmd == CmdNameAddVarPrm      ) { CmdAddVarPrm::printHelpPage(               CmdNameAddVarPrm      ); }
-   else if ( cmd == CmdNameRun            ) { CmdAddVarPrm::printHelpPage(               CmdNameRun            ); }
-   else if ( cmd == CmdNameRunReload      ) { CmdAddVarPrm::printHelpPage(               CmdNameRunReload      ); }
-   else if ( cmd == CmdNameGenerateBMCase ) { CmdGenerateBestMatchedCase::printHelpPage( CmdNameGenerateBMCase ); }
-   else if ( cmd == CmdNamePlotMC         ) { CmdPlotMC::printHelpPage(                  CmdNamePlotMC         ); }
-   else if ( cmd == CmdNamePlotP10P90     ) { CmdPlotP10P90::printHelpPage(              CmdNamePlotP10P90     ); }
-   else if ( cmd == CmdNamePlotPareto     ) { CmdPlotPareto::printHelpPage(              CmdNamePlotPareto     ); }
-   else if ( cmd == CmdNamePlotTornado    ) { CmdPlotTornado::printHelpPage(             CmdNamePlotTornado    ); }
 }
 

@@ -47,7 +47,7 @@ add_environment_path( "${CMAKE_COMMAND_PATH}" )
 # Add license server
 if (BM_USE_FLEXLM)
 add_environment_variable( SIEPRTS_LICENSE_FILE
-      "3000@ams1-s-07489.europe.shell.com:3000@houic-s-9320.americas.shell.com:3000@cbj-s-8447.asia-pac.shell.com"
+      "3000@muntse-s-09786.europe.shell.com:3000@pejjbt-s-08251.asia-pac.shell.com:3000@houcy1-s-07016.americas.shell.com"
 )
 endif()
 #NOTE: This variables can be reverse engineered by running the a IBS application

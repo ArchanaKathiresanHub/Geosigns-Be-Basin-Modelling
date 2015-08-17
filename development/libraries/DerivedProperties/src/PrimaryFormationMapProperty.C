@@ -3,6 +3,7 @@
 #include "Interface/Property.h"
 #include "Interface/Snapshot.h"
 #include "Interface/Formation.h"
+#include "Interface/Reservoir.h"
 #include "Interface/GridMap.h"
 #include "Interface/Grid.h"
 
@@ -18,11 +19,7 @@ DerivedProperties::PrimaryFormationMapProperty::PrimaryFormationMapProperty ( co
 }
 
 DerivedProperties::PrimaryFormationMapProperty::~PrimaryFormationMapProperty() {
-
-   if ( m_propertyValue->hasGridMap ()) {
-      m_gridMap->restoreData ( false, true );
-   }
-
+   // Should check neither m_propertyValue nor m_gridMap at this point because the project handle may have deleted them already.
 }
 
 

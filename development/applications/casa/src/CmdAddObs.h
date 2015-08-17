@@ -12,6 +12,7 @@
 
 #include "CasaCmd.h"
 
+
 /// @brief Add new observable definition to scenario
 class CmdAddObs : public CasaCmd
 {
@@ -20,7 +21,7 @@ public:
    /// @param cmdPrms list of command parameters as set of strings
    CmdAddObs( CasaCommander & parent, const std::vector< std::string > & cmdPrms );
 
-   virtual ~CmdAddObs() { ; }
+   virtual ~CmdAddObs() {;}
 
    /// @brief Run command
    virtual void execute( std::auto_ptr<casa::ScenarioAnalysis> & sa );
@@ -30,6 +31,7 @@ public:
    static void printHelpPage( const char * cmdName );
 
 protected:
+   std::string m_obsName; ///< optional observable name
 };
 
 #endif // CASA_CMD_ADD_OBSERVABLE_H

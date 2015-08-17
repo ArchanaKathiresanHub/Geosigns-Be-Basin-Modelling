@@ -1,9 +1,11 @@
 #ifndef _INTERFACE_RESERVOIR_H_
 #define _INTERFACE_RESERVOIR_H_
 
-#include "Interface/DAObject.h"
+#include "AbstractReservoir.h"
 
+#include "Interface/DAObject.h"
 #include "Interface/Interface.h"
+#include "Interface/Formation.h"
 
 #include <map>
 
@@ -14,7 +16,7 @@ namespace DataAccess
 
       /// Reservoir Class
       /// A Reservoir object models a carrier bed in a Formation.
-      class Reservoir : public DAObject
+      class Reservoir : public DataModel::AbstractReservoir, public DAObject
       {
 	 public:
 	    Reservoir (ProjectHandle * projectHandle, database::Record * record);

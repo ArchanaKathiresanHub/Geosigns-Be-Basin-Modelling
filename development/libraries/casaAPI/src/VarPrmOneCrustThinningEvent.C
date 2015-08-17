@@ -16,26 +16,29 @@
 #include "VarPrmOneCrustThinningEvent.h"
 
 #include <cassert>
+#include <cstring>
 
 namespace casa
 {
 
-VarPrmOneCrustThinningEvent::VarPrmOneCrustThinningEvent( double baseThickIni,    double minThickIni,    double maxThickIni, 
-                                                          double baseT0,          double minT0,          double maxT0,       
-                                                          double baseDeltaT,      double minDeltaT,      double maxDeltaT,   
-                                                          double baseThinningFct, double minThinningFct, double maxThinningFct, 
-                                                          PDF prmPDF )
+VarPrmOneCrustThinningEvent::VarPrmOneCrustThinningEvent( double baseThickIni,    double minThickIni,    double maxThickIni,
+                                                          double baseT0,          double minT0,          double maxT0,
+                                                          double baseDeltaT,      double minDeltaT,      double maxDeltaT,
+                                                          double baseThinningFct, double minThinningFct, double maxThinningFct,
+                                                          PDF prmPDF, const char * name )
 {
    m_pdf = prmPDF;
-   
-   if ( baseThickIni    < minThickIni    ) throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Base value of crust initial thickness less than minimal value";
-   if ( baseThickIni    > maxThickIni    ) throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Base value of crust initial thickness greater than maximal value";
-   if ( baseT0          < minT0          ) throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Base value of event start time less than minimal value";
-   if ( baseT0          > maxT0          ) throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Base value of event start time greater than maximal value";
-   if ( baseDeltaT      < minDeltaT      ) throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Base value of event duration less than minimal value";
-   if ( baseDeltaT      > maxDeltaT      ) throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Base value of event duration greater than maximal value";
-   if ( baseThinningFct < minThinningFct ) throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Base value of crust thinning factor less than minimal value";
-   if ( baseThinningFct > maxThinningFct ) throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Base value of crust thinning factor greater than maximal value";
+   m_name = name && strlen( name ) > 0 ? std::string( name ) : std::string( "" );
+
+   ErrorHandler::Exception ex( ErrorHandler::OutOfRangeValue );
+   if ( baseThickIni    < minThickIni    ) throw ex << "Base value of crust initial thickness less than minimal value";
+   if ( baseThickIni    > maxThickIni    ) throw ex << "Base value of crust initial thickness greater than maximal value";
+   if ( baseT0          < minT0          ) throw ex << "Base value of event start time less than minimal value";
+   if ( baseT0          > maxT0          ) throw ex << "Base value of event start time greater than maximal value";
+   if ( baseDeltaT      < minDeltaT      ) throw ex << "Base value of event duration less than minimal value";
+   if ( baseDeltaT      > maxDeltaT      ) throw ex << "Base value of event duration greater than maximal value";
+   if ( baseThinningFct < minThinningFct ) throw ex << "Base value of crust thinning factor less than minimal value";
+   if ( baseThinningFct > maxThinningFct ) throw ex << "Base value of crust thinning factor greater than maximal value";
 
    m_minValue.reset( new PrmOneCrustThinningEvent( this, minThickIni, minT0, minDeltaT, minThinningFct ) );
    m_maxValue.reset( new PrmOneCrustThinningEvent( this, maxThickIni, maxT0, maxDeltaT, maxThinningFct ) );
@@ -50,10 +53,20 @@ VarPrmOneCrustThinningEvent::~VarPrmOneCrustThinningEvent()
 std::vector<std::string> VarPrmOneCrustThinningEvent::name() const
 {
    std::vector<std::string> ret;
-   ret.push_back("InitialCrustThickness [m]");
-   ret.push_back("EventStartTime [Ma]");
-   ret.push_back("EventDuration [Ma]");
-   ret.push_back("CrustThinningFactor [m/m]");
+   if ( m_name.empty() )
+   {
+      ret.push_back( "InitialCrustThickness [m]" );
+      ret.push_back( "EventStartTime [Ma]" );
+      ret.push_back( "EventDuration [Ma]" );
+      ret.push_back( "CrustThinningFactor [m/m]" );
+   }
+   else
+   {
+      ret.push_back( m_name );
+      ret.push_back( m_name + "_t0" );
+      ret.push_back( m_name + "_dt" );
+      ret.push_back( m_name + "_fct" );
+   }
    return ret;
 }
 
@@ -78,5 +91,25 @@ SharedParameterPtr VarPrmOneCrustThinningEvent::newParameterFromDoubles( std::ve
 
    return prm;
 }
+
+// Save all object data to the given stream, that object could be later reconstructed from saved data
+bool VarPrmOneCrustThinningEvent::save( CasaSerializer & sz, unsigned int version ) const
+{
+   bool ok = VarPrmContinuous::save( sz, version );
+
+   return ok;
+}
+
+// Create a new var.parameter instance by deserializing it from the given stream
+VarPrmOneCrustThinningEvent::VarPrmOneCrustThinningEvent( CasaDeserializer & dz, unsigned int objVer ) 
+{
+   bool ok = VarPrmContinuous::deserializeCommonPart( dz, objVer );
+
+   if ( !ok )
+   {
+      throw ErrorHandler::Exception( ErrorHandler::DeserializationError ) << "VarPrmOneCrustThinningEvent deserialization unknown error";
+   }
+}
+
 
 }

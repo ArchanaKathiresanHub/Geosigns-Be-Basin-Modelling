@@ -1,4 +1,5 @@
 #include "Interface/ProjectHandle.h"
+#include "Interface/ObjectFactory.h"
 #include "database.h"
 #include "cauldronschemafuncs.h"
 #include "formattingexception.h"
@@ -118,8 +119,9 @@ int main(int argc, char ** argv)
       return 1;
    }
 
+   DataAccess::Interface::ObjectFactory* factory = new DataAccess::Interface::ObjectFactory(); 
    boost::shared_ptr<DataAccess::Interface::ProjectHandle> project( 
-      DataAccess::Interface::OpenCauldronProject( inputProjectFile, "r")
+      DataAccess::Interface::OpenCauldronProject( inputProjectFile, "r", factory)
    );
 
    database::Record * projectTbl = project->getTable("ProjectIoTbl")->getRecord(0);
@@ -419,6 +421,7 @@ int main(int argc, char ** argv)
    setWindowYMax( projectTbl, layerNYout - 1 );
 
    project->saveToFile( outputDir + "/" + inputProjectFile);
+   delete factory;
 
    return 0;
 }

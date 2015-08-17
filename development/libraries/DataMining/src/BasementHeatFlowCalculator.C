@@ -17,59 +17,39 @@ using namespace std;
 #include "CompoundLithology.h"
 #include "ElementFunctions.h"
 
-DataAccess::Mining::BasementHeatFlowCalculator::BasementHeatFlowCalculator ( const DomainPropertyCollection*  collection,
-                                                                             const Interface::Snapshot* snapshot,
-                                                                             const Interface::Property* property ) :
-   DomainFormationProperty ( collection, snapshot, property )
+DataAccess::Mining::BasementHeatFlowCalculator::BasementHeatFlowCalculator ( const DomainPropertyCollection*            collection,
+                                                                             DerivedProperties::DerivedPropertyManager& propertyManager,
+                                                                             const Interface::Snapshot*                 snapshot,
+                                                                             const Interface::Property*                 property ) :
+   DomainFormationProperty ( collection, propertyManager, snapshot, property ),
+   m_fromCrust ( true ),
+   m_initialised ( false )
 {
-
-   m_depth = 0;
-   m_temperature = 0;
-
-   m_crust = 0;
-   m_bottomSediment = 0;
-
-   m_ves = 0;
-   m_maxVes = 0;
-
-   m_fromCrust = true;
-   m_initialised = false;
 }
 
 bool DataAccess::Mining::BasementHeatFlowCalculator::initialise () {
 
    if ( not m_initialised ) {
-      Interface::PropertyValueList* propVals;
-      Interface::PropertyValueList::const_iterator propValIter;
-
+      DerivedProperties::FormationPropertyPtr propVals;
 
       m_crust = dynamic_cast<const GeoPhysics::Formation*>(getProjectHandle ()->findFormation ( "Crust" ));
+      m_temperature = getPropertyManager ().getFormationProperty ( getProjectHandle ()->findProperty ( "Temperature" ),
+                                                                   getSnapshot (),
+                                                                   m_crust );
 
-      propVals = getProjectHandle ()->getPropertyValues ( Interface::FORMATION, getProjectHandle ()->findProperty ( "Temperature" ), getSnapshot (), 0, m_crust, 0, Interface::VOLUME );
-
-      if ( propVals->size () != 1 ) {
-         // // What to do
-         // delete propVals;
-         // m_initialised = false;
+      if ( m_temperature == 0 ) {
+         // What to do
          // return false;
-      } else {
-         m_temperature = (*propVals)[ 0 ];
       }
 
-      delete propVals;
+      m_depth = getPropertyManager ().getFormationProperty ( getProjectHandle ()->findProperty ( "Depth" ),
+                                                             getSnapshot (),
+                                                             m_crust );
 
-      propVals = getProjectHandle ()->getPropertyValues ( Interface::FORMATION, getProjectHandle ()->findProperty ( "Depth" ), getSnapshot (), 0, m_crust, 0, Interface::VOLUME );
-
-      if ( propVals->size () != 1 ) {
-         // // What to do
-         // delete propVals;
-         // m_initialised = false;
+      if ( m_depth == 0 ) {
+         // What to do
          // return false;
-      } else {
-         m_depth = (*propVals)[ 0 ];
       }
-
-      delete propVals;
 
 
       if ( m_crust != 0 ) {
@@ -81,79 +61,64 @@ bool DataAccess::Mining::BasementHeatFlowCalculator::initialise () {
 
       if ( m_bottomSediment != 0 ) {
 
-         propVals = getProjectHandle ()->getPropertyValues ( Interface::FORMATION, getProjectHandle ()->findProperty ( "Temperature" ), getSnapshot (), 0, m_bottomSediment, 0, Interface::VOLUME );
+         propVals = getPropertyManager ().getFormationProperty ( getProjectHandle ()->findProperty ( "Temperature" ),
+                                                                 getSnapshot (),
+                                                                 m_bottomSediment );
 
-         if ( propVals->size () != 1 ) {
-            // // What to do
-            // delete propVals;
-            // m_initialised = false;
-            // return false;
-         } else {
-            m_temperature = (*propVals)[ 0 ];
-            m_fromCrust = false;
-         }
-
-         delete propVals;
-
-         propVals = getProjectHandle ()->getPropertyValues ( Interface::FORMATION, getProjectHandle ()->findProperty ( "Depth" ), getSnapshot (), 0, m_bottomSediment, 0, Interface::VOLUME );
-
-         if ( propVals->size () != 1 ) {
-            // // What to do
-            // delete propVals;
-            // m_initialised = false;
+         if ( propVals == 0 ) {
+            // What to do
             // return false;
             m_fromCrust = true;
          } else {
-            m_depth = (*propVals)[ 0 ];
+            m_temperature = propVals;
             m_fromCrust = false;
          }
 
-         delete propVals;
+         m_depth = getPropertyManager ().getFormationProperty ( getProjectHandle ()->findProperty ( "Depth" ),
+                                                                getSnapshot (),
+                                                                m_bottomSediment );
 
-         propVals = getProjectHandle ()->getPropertyValues ( Interface::FORMATION, getProjectHandle ()->findProperty ( "Ves" ), getSnapshot (), 0, m_bottomSediment, 0, Interface::VOLUME );
-
-         if ( propVals->size () != 1 ) {
-            // // What to do
-            // delete propVals;
-            // m_initialised = false;
+         if ( propVals == 0 ) {
+            // What to do
             // return false;
             m_fromCrust = true;
          } else {
-            m_ves = (*propVals)[ 0 ];
+            m_depth = propVals;
             m_fromCrust = false;
          }
 
-         delete propVals;
+         m_ves = getPropertyManager ().getFormationProperty ( getProjectHandle ()->findProperty ( "Ves" ),
+                                                              getSnapshot (),
+                                                              m_bottomSediment );
 
-         propVals = getProjectHandle ()->getPropertyValues ( Interface::FORMATION, getProjectHandle ()->findProperty ( "MaxVes" ), getSnapshot (), 0, m_bottomSediment, 0, Interface::VOLUME );
+         m_fromCrust = m_ves == 0;
 
-         if ( propVals->size () != 1 ) {
-            // // What to do
-            // delete propVals;
-            // m_initialised = false;
+         if ( m_ves == 0 ) {
+            // What to do
             // return false;
-            m_fromCrust = true;
-         } else {
-            m_maxVes = (*propVals)[ 0 ];
-            m_fromCrust = false;
          }
 
-         delete propVals;
+         m_maxVes = getPropertyManager ().getFormationProperty ( getProjectHandle ()->findProperty ( "MaxVes" ),
+                                                                 getSnapshot (),
+                                                                 m_bottomSediment );
 
-         propVals = getProjectHandle ()->getPropertyValues ( Interface::FORMATION, getProjectHandle ()->findProperty ( "Pressure" ), getSnapshot (), 0, m_bottomSediment, 0, Interface::VOLUME );
+         m_fromCrust = m_maxVes == 0;
 
-         if ( propVals->size () != 1 ) {
-            // // What to do
-            // delete propVals;
-            // m_initialised = false;
+         if ( m_maxVes == 0 ) {
+            // What to do
             // return false;
-            m_fromCrust = true;
-         } else {
-            m_pressure = (*propVals)[ 0 ];
-            m_fromCrust = false;
          }
 
-         delete propVals;
+         m_pressure = getPropertyManager ().getFormationProperty ( getProjectHandle ()->findProperty ( "Pressure" ),
+                                                                   getSnapshot (),
+                                                                   m_bottomSediment );
+
+         m_fromCrust = m_pressure == 0;
+
+         if ( m_pressure == 0 ) {
+            // What to do
+            // return false;
+         }
 
       }
 
@@ -201,14 +166,14 @@ double DataAccess::Mining::BasementHeatFlowCalculator::compute ( const ElementPo
    const GeoPhysics::CompoundLithology* lithology = m_crust->getCompoundLithology ( position.getI (), position.getJ ());
 
    if ( m_fromCrust ) {
-      mapKSize = m_temperature->getGridMap ()->lastK () - 1;
+      mapKSize = m_temperature->lastK () - 1;
    } else {
       mapKSize = 0;
    }
 
-   getElementCoefficients ( position.getI (), position.getJ (), mapKSize, m_depth->getGridMap (), depthCoeffs );
-   getElementCoefficients ( position.getI (), position.getJ (), mapKSize, m_temperature->getGridMap (), temperatureCoeffs );
-   getElementCoefficients ( position.getI (), position.getJ (), mapKSize, m_pressure->getGridMap (), pressureCoeffs );
+   getElementCoefficients ( position.getI (), position.getJ (), mapKSize, m_depth, depthCoeffs );
+   getElementCoefficients ( position.getI (), position.getJ (), mapKSize, m_temperature, temperatureCoeffs );
+   getElementCoefficients ( position.getI (), position.getJ (), mapKSize, m_pressure, pressureCoeffs );
 
    getGeometryMatrix ( position,
                        dynamic_cast<const GeoPhysics::ProjectHandle*>(getProjectHandle ())->getCauldronGridDescription (),
@@ -224,8 +189,8 @@ double DataAccess::Mining::BasementHeatFlowCalculator::compute ( const ElementPo
    } else {
       finiteElement.setQuadraturePoint ( position.getReferencePoint ()( 0 ), position.getReferencePoint ()( 1 ), 1.0 );
 
-      getElementCoefficients ( position.getI (), position.getJ (), mapKSize, m_ves->getGridMap (), vesCoeffs );
-      getElementCoefficients ( position.getI (), position.getJ (), mapKSize, m_maxVes->getGridMap (), maxVesCoeffs );
+      getElementCoefficients ( position.getI (), position.getJ (), mapKSize, m_ves, vesCoeffs );
+      getElementCoefficients ( position.getI (), position.getJ (), mapKSize, m_maxVes, maxVesCoeffs );
 
       fluid = dynamic_cast<const GeoPhysics::FluidType*>(m_bottomSediment->getFluidType ());
 
@@ -256,10 +221,11 @@ double DataAccess::Mining::BasementHeatFlowCalculator::compute ( const ElementPo
    return basementHeatFlow;
 }
 
-DataAccess::Mining::DomainProperty* DataAccess::Mining::BasementHeatFlowCalculatorAllocator::allocate ( const DomainPropertyCollection*  collection,
-                                                                                                        const Interface::Snapshot* snapshot,
-                                                                                                        const Interface::Property* property ) const {
-   return new BasementHeatFlowCalculator ( collection, snapshot, property );
+DataAccess::Mining::DomainProperty* DataAccess::Mining::BasementHeatFlowCalculatorAllocator::allocate ( const DomainPropertyCollection*            collection,
+                                                                                                        DerivedProperties::DerivedPropertyManager& propertyManager,
+                                                                                                        const Interface::Snapshot*                 snapshot,
+                                                                                                        const Interface::Property*                 property ) const {
+   return new BasementHeatFlowCalculator ( collection, propertyManager, snapshot, property );
 }
 
 

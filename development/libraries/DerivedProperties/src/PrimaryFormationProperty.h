@@ -47,6 +47,9 @@ namespace DerivedProperties {
       /// \brief Restore the grid map.
       virtual void restoreData () const;
 
+      /// \brief Return true.
+      bool isPrimary () const;
+
    private :
 
       const DataAccess::Interface::PropertyValue* m_propertyValue;
@@ -58,5 +61,9 @@ namespace DerivedProperties {
 
 }
 
+inline bool DerivedProperties::PrimaryFormationProperty::isPrimary () const {
+
+   return true;
+}
 
 #endif // DERIVED_PROPERTIES__PRIMARY_FORMATION_PROPERTY_H

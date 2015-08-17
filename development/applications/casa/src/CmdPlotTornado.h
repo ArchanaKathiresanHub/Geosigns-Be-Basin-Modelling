@@ -12,6 +12,8 @@
 
 #include "CasaCmd.h"
 
+#include <set>
+
 /// @brief Define base projet for scenario
 class CmdPlotTornado : public CasaCmd
 {
@@ -32,6 +34,7 @@ public:
 protected:
    std::string              m_mFileName;
    std::vector<std::string> m_doeNames;
+   std::set<std::string>    m_targetNames;
 };
 
 #endif // CASA_CMD_PLOT_TORNADO_H

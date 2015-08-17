@@ -23,14 +23,14 @@ namespace DataAccess {
 
       public :
 
-         ProjectHandle (database::Database * database, const std::string & name, const std::string & accessMode);
+         ProjectHandle (database::Database * database, const std::string & name, const std::string & accessMode, DataAccess::Interface::ObjectFactory* objectFactory);
 
          /// \brief Get the domain-property collection.
          ///
          /// Should this be a singleton? Since only one will exist.
          DomainPropertyCollection * getDomainPropertyCollection() { return m_domainPropertyCollection; }
 
-         CauldronDomain & getCauldronDomain() { return *m_cauldronDomain; };
+         CauldronDomain & getCauldronDomain() { return *m_cauldronDomain; }
 
          /// \brief Add an alternative name for the property name.
          void addAlternativeName ( const std::string& propertyName,

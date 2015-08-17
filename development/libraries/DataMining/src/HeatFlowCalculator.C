@@ -15,11 +15,12 @@ using namespace std;
 #include "CompoundLithology.h"
 #include "ElementFunctions.h"
 
-DataAccess::Mining::HeatFlowCalculator::HeatFlowCalculator ( const DomainPropertyCollection*  collection,
-                                                             const Interface::Snapshot* snapshot,
-                                                             const Interface::Property* property,
-                                                             const RequiredCalculation  calculation ) :
-   DomainFormationProperty ( collection, snapshot, property ),
+DataAccess::Mining::HeatFlowCalculator::HeatFlowCalculator ( const DomainPropertyCollection*            collection,
+                                                             DerivedProperties::DerivedPropertyManager& propertyManager,
+                                                             const Interface::Snapshot*                 snapshot,
+                                                             const Interface::Property*                 property,
+                                                             const RequiredCalculation                  calculation ) :
+   DomainFormationProperty ( collection, propertyManager, snapshot, property ),
    m_calculation ( calculation )
 {
 
@@ -38,13 +39,13 @@ bool DataAccess::Mining::HeatFlowCalculator::initialise () {
 
    if ( not m_initialised ) {
 
-      m_ves = getPropertyCollection ()->getDomainProperty ( "Ves" );
-      m_maxVes = getPropertyCollection ()->getDomainProperty ( "MaxVes" );
+      m_ves = getPropertyCollection ()->getDomainProperty ( "Ves", getPropertyManager ());
+      m_maxVes = getPropertyCollection ()->getDomainProperty ( "MaxVes", getPropertyManager ());
 
-      m_depth = dynamic_cast<const DomainFormationProperty*>(getPropertyCollection ()->getDomainProperty ( "Depth" ));
-      m_temperature = dynamic_cast<const DomainFormationProperty*>(getPropertyCollection ()->getDomainProperty ( "Temperature" ));
-      m_overpressure = dynamic_cast<const DomainFormationProperty*>(getPropertyCollection ()->getDomainProperty ( "OverPressure" ));
-      m_hydrostaticPressure = dynamic_cast<const DomainFormationProperty*>(getPropertyCollection ()->getDomainProperty ( "HydroStaticPressure" ));
+      m_depth = dynamic_cast<const DomainFormationProperty*>(getPropertyCollection ()->getDomainProperty ( "Depth", getPropertyManager ()));
+      m_temperature = dynamic_cast<const DomainFormationProperty*>(getPropertyCollection ()->getDomainProperty ( "Temperature", getPropertyManager ()));
+      m_overpressure = dynamic_cast<const DomainFormationProperty*>(getPropertyCollection ()->getDomainProperty ( "OverPressure", getPropertyManager ()));
+      m_hydrostaticPressure = dynamic_cast<const DomainFormationProperty*>(getPropertyCollection ()->getDomainProperty ( "HydroStaticPressure", getPropertyManager ()));
 
       if ( m_ves != 0 and m_maxVes != 0 and m_depth != 0 and m_temperature != 0 and m_overpressure != 0 and m_hydrostaticPressure != 0 ) {
          m_initialised = true;
@@ -202,10 +203,11 @@ DataAccess::Mining::HeatFlowCalculatorAllocator::HeatFlowCalculatorAllocator ( c
    m_calculation ( calculation ) {
 }
 
-DataAccess::Mining::DomainProperty* DataAccess::Mining::HeatFlowCalculatorAllocator::allocate ( const DomainPropertyCollection*  collection,
-                                                                                                const Interface::Snapshot* snapshot,
-                                                                                                const Interface::Property* property ) const {
-   return new HeatFlowCalculator ( collection, snapshot, property, m_calculation );
+DataAccess::Mining::DomainProperty* DataAccess::Mining::HeatFlowCalculatorAllocator::allocate ( const DomainPropertyCollection*            collection,
+                                                                                                DerivedProperties::DerivedPropertyManager& propertyManager,
+                                                                                                const Interface::Snapshot*                 snapshot,
+                                                                                                const Interface::Property*                 property ) const {
+   return new HeatFlowCalculator ( collection, propertyManager, snapshot, property, m_calculation );
 }
 
 

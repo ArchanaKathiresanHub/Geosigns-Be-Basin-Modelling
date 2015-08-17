@@ -36,20 +36,21 @@ namespace casa
    {
    public:
       /// @brief Create observable for the given grid property for specified grid position
-      static ObsGridPropertyWell * createNewInstance( const std::vector<double> & x ///< well trajectory X-th coordinates [m]
-                                                    , const std::vector<double> & y ///< well trajectory Y-th coordinates [m]
-                                                    , const std::vector<double> & z ///< well trajectory Z-th coordinates [m]
-                                                    , const char * propName         ///< name of the property
-                                                    , double simTime = 0.0          ///< simulation time [Ma]
-                                                    ) { return new ObsGridPropertyWell( x, y, z, propName, simTime ); };
-
+      static ObsGridPropertyWell * createNewInstance( const std::vector<double> & x             ///< well trajectory X-th coordinates [m]
+                                                    , const std::vector<double> & y             ///< well trajectory Y-th coordinates [m]
+                                                    , const std::vector<double> & z             ///< well trajectory Z-th coordinates [m]
+                                                    , const char                * propName      ///< name of the property
+                                                    , double                      simTime = 0.0 ///< simulation time [Ma]
+                                                    , const std::string         & name = ""     ///< user specified name for observable
+                                                    ) { return new ObsGridPropertyWell( x, y, z, propName, simTime, name ); };
 
       /// @brief Create observable for the given grid property for specified grid position
-      ObsGridPropertyWell( const std::vector<double> & x ///< well trajectory X-th coordinates [m]
-                         , const std::vector<double> & y ///< well trajectory Y-th coordinates [m]
-                         , const std::vector<double> & z ///< well trajectory Z-th coordinates [m]
-                         , const char * propName         ///< name of the property
-                         , double simTime                ///< simulation time [Ma]
+      ObsGridPropertyWell( const std::vector<double> & x         ///< well trajectory X-th coordinates [m]
+                         , const std::vector<double> & y         ///< well trajectory Y-th coordinates [m]
+                         , const std::vector<double> & z         ///< well trajectory Z-th coordinates [m]
+                         , const char                * propName  ///< name of the property
+                         , double                      simTime   ///< simulation time [Ma]
+                         , const std::string         & name = "" ///< custom name for observable
                          );
 
       /// @brief Destructor
@@ -90,6 +91,10 @@ namespace casa
       /// @param w weight coefficient value
       virtual void setSAWeight( double w ) { m_saWeight = w;  }
 
+      /// @brief Get Z coordinates list
+      /// @return array with Z coordinate of each observable point along well
+      std::vector<double> depth() const { return m_z; }
+
       /// @brief Set weight coefficient for Uncertainty analysis
       /// @param w weight coefficient value
       virtual void setUAWeight( double w ) { m_uaWeight = w; }
@@ -107,6 +112,11 @@ namespace casa
       /// @param caldModel reference to Cauldron model
       /// @return observable value on success or NULL otherwise. Error code could be obtained from the Model object
       virtual ObsValue * getFromModel( mbapi::Model & caldModel );
+
+      /// @brief Do observable validation for the given model
+      /// @param caldModel reference to Cauldron model
+      /// @return empty string if there is no any problems with this observable, or error message if well is outside of the project 
+      virtual std::string checkObservableForProject( mbapi::Model & caldModel );
 
       /// @brief Create new observable value from set of doubles. This method is used for data conversion between SUMlib and CASA
       /// @param[in,out] val iterator for double array

@@ -24,7 +24,7 @@ namespace Genex6
       static const int numberOfElements = 5;
 
       /// \brief The maximum number of species.
-      static const int numberOfSpecies = 36;
+      static const int numberOfSpecies = 38;
    
 
       /// \brief Constructor.
@@ -123,6 +123,9 @@ namespace Genex6
 
       /// \brief Get the id of COx species.
       int getCOxId () const;
+
+      /// \brief Get the id of CO3 species.
+      int getCO3Id () const;
       //@}
 
 
@@ -249,6 +252,12 @@ namespace Genex6
       int LSO4;
       int LN2;
       int LCOx;
+      int LCO3;
+
+      // TSR
+      int LSulfur;
+      int LCarsul1;
+      int LCarsul2;
 
 
       /// \brief Mapping from the species-id to pvt-species-id.
@@ -473,6 +482,10 @@ inline int Genex6::SpeciesManager::getCokeSId () const {
 
 inline int Genex6::SpeciesManager::getSO4Id () const {
    return LSO4;
+}
+
+inline int Genex6::SpeciesManager::getCO3Id () const {
+   return LCO3;
 }
 
 inline const std::string& Genex6::SpeciesManager::getSpeciesName ( const int id ) const {

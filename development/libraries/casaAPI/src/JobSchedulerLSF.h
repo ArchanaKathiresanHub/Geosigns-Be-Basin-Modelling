@@ -44,7 +44,7 @@ namespace casa
       virtual JobState jobState( JobID job );
 
       // should mpirun command contains -np CPUS or number of cpus will be requested by the job scheduler
-      virtual bool cpusNumberByScheduler() { return true; }
+      virtual bool cpusNumberByScheduler() { return false; }
 
       // Wait a bit (~10 sec) before asking about job state again
       // for the LOCAL cluster - do nothing

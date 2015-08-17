@@ -69,9 +69,9 @@ namespace Shell.BasinModeling.Cauldron.Test
 
          // vary 2 parameters
          Assert.IsTrue(ErrorHandler.ReturnCode.NoError ==
-                       CauldronAPI.VarySourceRockTOC(sa, m_layerName, m_minTOC, m_maxTOC, VarPrmContinuous.PDF.Block));
+            CauldronAPI.VarySourceRockTOC(sa, "", m_layerName, m_minTOC, m_maxTOC, VarPrmContinuous.PDF.Block));
          Assert.IsTrue(ErrorHandler.ReturnCode.NoError ==
-                       CauldronAPI.VaryTopCrustHeatProduction(sa, m_minTCHP, m_maxTCHP, VarPrmContinuous.PDF.Block));
+                       CauldronAPI.VaryTopCrustHeatProduction(sa, "", m_minTCHP, m_maxTCHP, VarPrmContinuous.PDF.Block));
 
          // add 2 observables for T & VRE
          Observable ob = ObsGridPropertyXYZ.createNewInstance(460001.0, 6750001.0, 2751.0, "Temperature", 0.01);
@@ -184,9 +184,9 @@ namespace Shell.BasinModeling.Cauldron.Test
          VarSpace varPrms = sa.varSpace();
 
          Assert.IsTrue(ErrorHandler.ReturnCode.NoError ==
-                       CauldronAPI.VarySourceRockTOC(sa, m_layerName, m_minTOC, m_maxTOC, VarPrmContinuous.PDF.Block));
+                       CauldronAPI.VarySourceRockTOC(sa, "", m_layerName, m_minTOC, m_maxTOC, VarPrmContinuous.PDF.Block));
          Assert.IsTrue(ErrorHandler.ReturnCode.NoError ==
-                       CauldronAPI.VaryTopCrustHeatProduction(sa, m_minTCHP, m_maxTCHP, VarPrmContinuous.PDF.Block));
+                       CauldronAPI.VaryTopCrustHeatProduction(sa, "", m_minTCHP, m_maxTCHP, VarPrmContinuous.PDF.Block));
 
          Assert.IsTrue(2 == varPrms.size());
 
@@ -239,9 +239,9 @@ namespace Shell.BasinModeling.Cauldron.Test
 
          // vary 2 parameters
          Assert.IsTrue(ErrorHandler.ReturnCode.NoError ==
-                       CauldronAPI.VarySourceRockTOC(sa, m_layerName, m_minTOC, m_maxTOC, VarPrmContinuous.PDF.Block));
+                       CauldronAPI.VarySourceRockTOC(sa, "", m_layerName, m_minTOC, m_maxTOC, VarPrmContinuous.PDF.Block));
          Assert.IsTrue(ErrorHandler.ReturnCode.NoError ==
-                       CauldronAPI.VaryTopCrustHeatProduction(sa, m_minTCHP, m_maxTCHP, VarPrmContinuous.PDF.Block));
+                       CauldronAPI.VaryTopCrustHeatProduction(sa, "", m_minTCHP, m_maxTCHP, VarPrmContinuous.PDF.Block));
 
          // set up and generate DoE
          Assert.IsTrue(ErrorHandler.ReturnCode.NoError == sa.setDoEAlgorithm(DoEGenerator.DoEAlgorithm.Tornado));
@@ -298,9 +298,9 @@ namespace Shell.BasinModeling.Cauldron.Test
 
          // vary 2 parameters
          Assert.IsTrue(ErrorHandler.ReturnCode.NoError ==
-                       CauldronAPI.VarySourceRockTOC(sa, m_layerName, m_minTOC, m_maxTOC, VarPrmContinuous.PDF.Block));
+                       CauldronAPI.VarySourceRockTOC(sa, "", m_layerName, m_minTOC, m_maxTOC, VarPrmContinuous.PDF.Block));
          Assert.IsTrue(ErrorHandler.ReturnCode.NoError ==
-                       CauldronAPI.VaryTopCrustHeatProduction(sa, m_minTCHP, m_maxTCHP, VarPrmContinuous.PDF.Block));
+                       CauldronAPI.VaryTopCrustHeatProduction(sa, "", m_minTCHP, m_maxTCHP, VarPrmContinuous.PDF.Block));
 
          // set up and generate DoE
          Assert.IsTrue(ErrorHandler.ReturnCode.NoError == sa.setDoEAlgorithm(DoEGenerator.DoEAlgorithm.Tornado));
@@ -616,6 +616,20 @@ namespace Shell.BasinModeling.Cauldron.Test
          string fileBContent = File.ReadAllText(@".\casa_state_reloaded_2.txt");
 
          Assert.IsTrue(fileAContent == fileBContent);
+      }
+
+      [TestMethod]
+      public void ScenarioAnalysis_DeserialzationTestFromByteArray() // deserialize casa state file from Byte [] array
+      {
+         Byte[] buf = File.ReadAllBytes(m_serialisedStateFileName);
+         ScenarioAnalysis sa = ScenarioAnalysis.loadScenario( buf, (uint)(buf.Length), "txt");
+
+         if ( ErrorHandler.ReturnCode.NoError != sa.errorCode() )
+         {
+            m_isDebug = true;
+            logMsg("Deserialization test failed with message:" + sa.errorMessage());
+         }
+         Assert.AreEqual(ErrorHandler.ReturnCode.NoError, sa.errorCode());
       }
    }
 }

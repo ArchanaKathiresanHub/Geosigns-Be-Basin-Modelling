@@ -21,6 +21,7 @@ using namespace std;
 #include "Interface/GridMap.h"
 #include "Interface/Grid.h"
 #include "Interface/ProjectHandle.h"
+#include "Interface/ObjectFactory.h"
 #include "Interface/Snapshot.h"
 #include "Interface/Surface.h"
 #include "Interface/Formation.h"
@@ -342,7 +343,8 @@ int main (int argc, char ** argv)
       return 1;
    }
 
-   ProjectHandle *projectHandle = OpenCauldronProject (projectFileName, "r");
+   ObjectFactory* factory = new ObjectFactory(); 
+   ProjectHandle *projectHandle = OpenCauldronProject (projectFileName, "r", factory);
 
    if (projectFileName.length () == 0)
    {
@@ -587,6 +589,7 @@ int main (int argc, char ** argv)
    delete depthPropertyValueList;
    delete isoSurfacePropertyValueList;
    delete formations;
+   delete factory;
    Array<double>::delete2d ( depthMap );
 
    CloseCauldronProject (projectHandle);

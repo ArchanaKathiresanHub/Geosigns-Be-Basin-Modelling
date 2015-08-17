@@ -19,6 +19,7 @@
 
 // C lib
 #include <cassert>
+#include <cstring>
 #include <cmath>
 
 namespace casa
@@ -39,11 +40,13 @@ VarPrmPorosityModel::VarPrmPorosityModel( const char * lithoName
                                         , double                              minCompCoeffB 
                                         , double                              maxCompCoeffB 
                                         , PDF                                 prmPDF
+                                        , const char                        * name
                                         )
 {
-   m_pdf            = prmPDF;
-   m_mdlType        = mdlType;
-   m_lithoName      = lithoName;
+   m_pdf       = prmPDF;
+   m_mdlType   = mdlType;
+   m_lithoName = lithoName;
+   m_name      = name && strlen( name ) > 0 ? std::string( name ) : std::string( "" );
 
    std::vector<double> minPorModelPrms; // minimal range parameters 
    std::vector<double> maxPorModelPrms; // maximal range parameters
@@ -104,23 +107,46 @@ VarPrmPorosityModel::~VarPrmPorosityModel()
 std::vector<std::string> VarPrmPorosityModel::name() const
 {
 	std::vector<std::string> ret;
-   switch ( m_mdlType )
+
+   if ( m_name.empty() )
    {
-      case PrmPorosityModel::Exponential:
-         ret.push_back( "SurfacePorosity [%]" );
-         ret.push_back( "Compaction Coefficient [10e-8 Pa-1]" );
-         break;
+      switch ( m_mdlType )
+      {
+         case PrmPorosityModel::Exponential:
+            ret.push_back( m_lithoName + ". SurfacePorosity [%]" );
+            ret.push_back( m_lithoName + ". Compaction Coefficient [10e-8 Pa-1]" );
+            break;
 
-      case PrmPorosityModel::SoilMechanics:
-         ret.push_back( "Clay fraction [%]" );
-         break;
+         case PrmPorosityModel::SoilMechanics:
+            ret.push_back( m_lithoName + ". Clay fraction [%]" );
+            break;
 
-      case PrmPorosityModel::DoubleExponential:
-         ret.push_back( "SurfacePorosity [%]" );
-         ret.push_back( "MinimalPorosity [%]" );
-         ret.push_back( "Compaction Coefficient A [10e-8 Pa-1]" );
-         ret.push_back( "Compaction Coefficient B [10e-8 Pa-1]" );
-         break;
+         case PrmPorosityModel::DoubleExponential:
+            ret.push_back( m_lithoName + ". SurfacePorosity [%]" );
+            ret.push_back( m_lithoName + ". MinimalPorosity [%]" );
+            ret.push_back( m_lithoName + ". Compaction Coefficient A [10e-8 Pa-1]" );
+            ret.push_back( m_lithoName + ". Compaction Coefficient B [10e-8 Pa-1]" );
+            break;
+      }
+   }
+   else
+   {
+      ret.push_back( m_name );
+      switch ( m_mdlType )
+      {
+         case PrmPorosityModel::Exponential:
+            ret.push_back( m_name + "_CC" );
+            break;
+
+         case PrmPorosityModel::SoilMechanics:
+            break;
+
+         case PrmPorosityModel::DoubleExponential:
+            ret.push_back( m_name + "_MP" );
+            ret.push_back( m_name + "_CCA" );
+            ret.push_back( m_name + "_CCB" );
+            break;
+      }
    }
 	return ret;
 }
@@ -172,20 +198,21 @@ bool VarPrmPorosityModel::save( CasaSerializer & sz, unsigned int version ) cons
 }
 
 // Constructor from input stream
-VarPrmPorosityModel::VarPrmPorosityModel( CasaDeserializer & dz, unsigned int objVer ) : VarPrmContinuous( dz, objVer ) // call parent constructor first
+VarPrmPorosityModel::VarPrmPorosityModel( CasaDeserializer & dz, unsigned int objVer )
 {
-   int mdlTypeSaved;
+   bool ok = VarPrmContinuous::deserializeCommonPart( dz, objVer );
 
-   bool ok = dz.load( mdlTypeSaved, "PorModelType" );
+   int mdlTypeSaved;
+   ok = ok ? dz.load( mdlTypeSaved, "PorModelType" ) : ok;
    
    if ( ok ) m_mdlType = static_cast<PrmPorosityModel::PorosityModelType>( mdlTypeSaved );
 
-   ok = ok ? dz.load( m_lithoName,      "LithologyName"  ) : ok;
+   ok = ok ? dz.load( m_lithoName, "LithologyName"  ) : ok;
 
    if ( !ok )
    {
-      throw ErrorHandler::Exception( ErrorHandler::DeserializationError )
-         << "VarPrmPorosityModel deserialization unknown error";
+      throw ErrorHandler::Exception( ErrorHandler::DeserializationError ) << "VarPrmPorosityModel deserialization unknown error";
    }
 }
-}
+
+} // namespace casa

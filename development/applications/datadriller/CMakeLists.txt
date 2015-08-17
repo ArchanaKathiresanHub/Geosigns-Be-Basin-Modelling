@@ -27,6 +27,7 @@ bm_include_libraries(
 	SerialDataAccess
 	CBMGenerics
 	GeoPhysics
+	DerivedProperties
 	CrustalThinkness
 	Serial_Hdf5
 	EosPack
@@ -47,6 +48,7 @@ target_link_libraries(datadriller
 	SerialDataAccess
 	CBMGenerics
 	GeoPhysics
+	DerivedProperties
 	Serial_Hdf5
 	EosPack
 	utilities

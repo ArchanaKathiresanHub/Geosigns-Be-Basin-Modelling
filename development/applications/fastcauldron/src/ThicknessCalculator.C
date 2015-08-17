@@ -105,6 +105,9 @@ bool ThicknessCalculator::initialise ( OutputPropertyMap::PropertyValueList& pro
       m_depthAbove = PropertyManager::getInstance().findOutputPropertyMap ( "Depth", m_formation, surfaceAbove, m_snapshot );
       m_depthBelow = PropertyManager::getInstance().findOutputPropertyMap ( "Depth", m_formation, surfaceBelow, m_snapshot );
    }
+   if ( FastcauldronSimulator::getInstance ().getCauldron()->no2Doutput()) {
+      propertyValues [ 0 ]->allowOutput( false );
+   }
 
    return m_depthAbove != 0 and m_depthBelow != 0;
 }

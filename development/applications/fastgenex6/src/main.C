@@ -177,15 +177,9 @@ int main (int argc, char ** argv)
    //create the factory
    theFactory = new GenexSimulatorFactory;
 
-   if(theFactory) { 
-      DataAccess::Interface::ProjectHandle::UseFactory (theFactory);
-      status = true;
-   }
    //create the ProjectHandle
-   if (status) {
-      theGenexSimulator = GenexSimulator::CreateFrom (inputFileName);
-      status = (theGenexSimulator != 0);
-   }
+   theGenexSimulator = GenexSimulator::CreateFrom (inputFileName, theFactory);
+   status = (theGenexSimulator != 0);
 
    H5_Parallel_PropertyList::setOneFilePerProcessOption();
 
