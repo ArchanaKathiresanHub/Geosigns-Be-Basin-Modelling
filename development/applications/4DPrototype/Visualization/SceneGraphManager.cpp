@@ -134,7 +134,7 @@ void SceneGraphManager::updateSnapshotSurfaces(size_t index)
       {
         const di::Surface* surface = m_surfaces[id].surface;
         std::unique_ptr<di::PropertyValueList> values(m_projectHandle->getPropertyValues(
-          di::SURFACE, m_depthProperty, snapshot.snapshot, nullptr, nullptr, surface, di::MAP));
+          di::SURFACE, m_depthProperty, snapshot.snapshot, 0, 0, surface, di::MAP));
 
         assert(values->size() == 1); //TODO: should not be an assert
 
@@ -184,7 +184,7 @@ void SceneGraphManager::updateSnapshotProperties(size_t index)
       const di::Formation* formation = m_formations[id].formation;
 
       std::unique_ptr<di::PropertyValueList> values(m_projectHandle->getPropertyValues(
-        di::FORMATION, m_currentProperty, snapshot.snapshot, nullptr, formation, nullptr, di::VOLUME));
+        di::FORMATION, m_currentProperty, snapshot.snapshot, 0, formation, 0, di::VOLUME));
 
       assert(values->size() == 1); //TODO: change to exception
 
@@ -341,10 +341,6 @@ SnapshotInfo SceneGraphManager::createSnapshotNode(const di::Snapshot* snapshot)
   return info;
 }
 
-void SceneGraphManager::setupSnapshots()
-{
-  std::unique_ptr<di::SnapshotList> snapshots(m_projectHandle->getSnapshots(di::MAJOR));
-
   struct SnapshotCompare
   {
     bool operator()(const di::Snapshot* s0, const di::Snapshot* s1) const
@@ -352,6 +348,10 @@ void SceneGraphManager::setupSnapshots()
       return s0->getTime() > s1->getTime();
     }
   };
+
+void SceneGraphManager::setupSnapshots()
+{
+  std::unique_ptr<di::SnapshotList> snapshots(m_projectHandle->getSnapshots(di::MAJOR));
 
   // Sort snapshots so oldest is first in list
   std::vector<const di::Snapshot*> tmpSnapshotList(*snapshots);

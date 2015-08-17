@@ -52,8 +52,8 @@ int main(int argc, char* argv[])
   MoMeshViz::init();
 
   ServiceSettings settings;
-  settings.setIP("127.0.0.1");
-  settings.setPort(8081);
+  settings.setIP("172.28.16.121");
+  settings.setPort(8080);
   settings.setUsedExtensions(ServiceSettings::MESHVIZXLM | ServiceSettings::MESHVIZ);
 
   std::shared_ptr<ServiceListener> serviceListener(new BpaServiceListener);

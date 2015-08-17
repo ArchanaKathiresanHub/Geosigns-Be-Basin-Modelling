@@ -53,7 +53,8 @@ void BpaRenderAreaListener::createSceneGraph(const std::string& id)
 {
   std::cout << "Loading scenegraph..."<< std::endl;
 
-  const std::string rootdir = "V:/data/CauldronSmall";
+  //const std::string rootdir = "V:/data/CauldronSmall";
+  const std::string rootdir = "/home/ree/CauldronSmall";
   const std::string filename = "/Project.project3d";
   std::string path = rootdir + filename;
 

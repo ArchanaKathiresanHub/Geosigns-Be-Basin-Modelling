@@ -12,6 +12,7 @@
 #define GRIDMAPCOLLECTION_H_INCLUDED
 
 #include <vector>
+#include <limits>
 
 #include <Interface/GridMap.h>
 

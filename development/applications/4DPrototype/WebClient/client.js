@@ -227,7 +227,7 @@ function websocketURL()
 	url = "ws://" + loc.hostname;
 
     // add port
-    url += ":8081/";
+    url += ":8080/";
 
     return url;
 }

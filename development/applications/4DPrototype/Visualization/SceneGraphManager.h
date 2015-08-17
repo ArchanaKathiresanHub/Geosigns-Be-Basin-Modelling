@@ -199,7 +199,7 @@ class VISUALIZATIONDLL_API SceneGraphManager
 
 public:
 
-  SceneGraphManager::SceneGraphManager();
+  SceneGraphManager();
 
   SoNode* getRoot() const;
 
