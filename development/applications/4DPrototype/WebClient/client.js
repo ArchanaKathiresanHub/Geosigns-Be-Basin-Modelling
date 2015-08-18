@@ -17,14 +17,14 @@ function showTab(index)
         document.getElementById('properties')];
 
     var tabs = [
-        document.getElementById('formationsTab'),
+        document.getElementById('structureTab'),
         document.getElementById('propertiesTab')];
 
     elems[index].style.display = "block";
     elems[1 - index].style.display = "none";
 
-    tabs[index].style["background-color"] = "#dddddd";
-    tabs[1-index].style["background-color"] = "#ffffff";
+    tabs[index].className="activeTab";
+    tabs[1-index].className="tab";
 }
 
 function initFormations(names)
@@ -227,7 +227,7 @@ function websocketURL()
 	url = "ws://" + loc.hostname;
 
     // add port
-    url += ":8080/";
+    url += ":8081/";
 
     return url;
 }
