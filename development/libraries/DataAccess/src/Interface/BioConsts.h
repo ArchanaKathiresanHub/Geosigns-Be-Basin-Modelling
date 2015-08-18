@@ -28,7 +28,7 @@ namespace DataAccess {
             }
          }
 
-         const size_t& size() const { return m_bioConsts.size(); }
+         size_t size() const { return m_bioConsts.size(); }
 
          double operator[]( int index ) const
          {
