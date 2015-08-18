@@ -312,31 +312,31 @@ SnapshotInfo SceneGraphManager::createSnapshotNode(const di::Snapshot* snapshot)
     std::shared_ptr<SnapshotTopology> topology(new SnapshotTopology(geometry));
 
     info.meshData = new HexahedronMesh(geometry, topology);
-
-    info.mesh = new MoMesh;
-    info.mesh->setMesh(info.meshData);
-
-    info.formationIdProperty = new FormationIdProperty(formationIds);
-
-    info.scalarSet = new MoScalarSetIjk;
-    info.scalarSet->setName("formationID");
-    info.scalarSet->setScalarSet(info.formationIdProperty);
-
-    info.chunksGroup = new SoGroup;
-    info.chunksGroup->setName("chunks");
-    info.surfacesGroup = new SoGroup;
-    info.surfacesGroup->setName("surfaces");
-    info.slicesGroup = new SoGroup;
-    info.slicesGroup->setName("slices");
-
-    info.root->addChild(info.mesh);
-    info.root->addChild(info.scalarSet);
-    info.root->addChild(info.chunksGroup);
-    info.root->addChild(info.slicesGroup);
-    // Add surfaceShapeHints to prevent backface culling, and enable double-sided lighting
-    info.root->addChild(m_surfaceShapeHints);
-    info.root->addChild(info.surfacesGroup);
   }
+
+  info.mesh = new MoMesh;
+  info.mesh->setMesh(info.meshData);
+
+  info.formationIdProperty = new FormationIdProperty(formationIds);
+
+  info.scalarSet = new MoScalarSetIjk;
+  info.scalarSet->setName("formationID");
+  info.scalarSet->setScalarSet(info.formationIdProperty);
+
+  info.chunksGroup = new SoGroup;
+  info.chunksGroup->setName("chunks");
+  info.surfacesGroup = new SoGroup;
+  info.surfacesGroup->setName("surfaces");
+  info.slicesGroup = new SoGroup;
+  info.slicesGroup->setName("slices");
+
+  info.root->addChild(info.mesh);
+  info.root->addChild(info.scalarSet);
+  info.root->addChild(info.chunksGroup);
+  info.root->addChild(info.slicesGroup);
+  // Add surfaceShapeHints to prevent backface culling, and enable double-sided lighting
+  info.root->addChild(m_surfaceShapeHints);
+  info.root->addChild(info.surfacesGroup);
 
   return info;
 }
@@ -514,7 +514,7 @@ void SceneGraphManager::setRenderStyle(bool drawFaces, bool drawEdges)
 void SceneGraphManager::setProperty(const std::string& name)
 {
   const di::Property* prop = m_projectHandle->findProperty(name);
-  if (prop == 0 || prop == m_currentProperty || !prop->hasPropertyValues(di::FORMATION, 0, 0, 0, 0, di::VOLUME))
+  if (prop == 0 || prop == m_currentProperty)
     return;
 
   m_currentProperty = prop;

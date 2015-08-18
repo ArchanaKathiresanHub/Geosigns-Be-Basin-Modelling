@@ -147,9 +147,6 @@ void MainWindow::updateUI()
   reservoirsItem->setText(0, "Reservoirs");
   reservoirsItem->setFont(0, font);
 
-  int flags = di::FORMATION;
-  int type = di::VOLUME;
-
   m_ui.treeWidgetProperties->clear();
   QTreeWidgetItem* header = m_ui.treeWidgetProperties->headerItem();
   header->setText(0, "Name");
@@ -161,12 +158,17 @@ void MainWindow::updateUI()
   propertiesItem->setText(0, "Properties");
 
   // Add properties to parent node
-  std::unique_ptr<di::PropertyList> properties(m_projectHandle->getProperties(true, flags));
+  std::unique_ptr<di::PropertyList> properties(m_projectHandle->getProperties(true));
   if (properties && !properties->empty())
   {
     for (size_t i = 0; i < properties->size(); ++i)
     {
       const di::Property* prop = (*properties)[i];
+
+      const int allFlags = di::FORMATION | di::SURFACE | di::RESERVOIR | di::FORMATIONSURFACE;
+      const int allTypes = di::MAP | di::VOLUME;
+      if (!prop->hasPropertyValues(allFlags, 0, 0, 0, 0, allTypes))
+        continue;
 
       QTreeWidgetItem* item = new QTreeWidgetItem(propertiesItem, TreeWidgetItem_PropertyType);
       item->setText(0, prop->getName().c_str());

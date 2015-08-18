@@ -53,8 +53,8 @@ void BpaRenderAreaListener::createSceneGraph(const std::string& id)
 {
   std::cout << "Loading scenegraph..."<< std::endl;
 
-  //const std::string rootdir = "V:/data/CauldronSmall";
-  const std::string rootdir = "/home/ree/CauldronSmall";
+  const std::string rootdir = "V:/data/CauldronSmall";
+  //const std::string rootdir = "/home/ree/CauldronSmall";
   const std::string filename = "/Project.project3d";
   std::string path = rootdir + filename;
 
@@ -133,16 +133,26 @@ void BpaRenderAreaListener::sendProjectInfo() const
 
   msg += "\"properties\": [";
 
-    // Add properties to parent node
-  int flags = di::FORMATION;
-  int type = di::VOLUME;
+  // Add properties to parent node
 
-  std::unique_ptr<di::PropertyList> properties(m_handle->getProperties(true, flags));
-  if(!properties->empty())
-    msg += "\"" + (*properties)[0]->getName() + "\"";
-  for(size_t i=1; i < properties->size(); ++i)
-    msg += ", \"" + (*properties)[i]->getName() + "\"";
+  const int allFlags = di::FORMATION | di::SURFACE | di::RESERVOIR | di::FORMATIONSURFACE;
+  const int allTypes = di::MAP | di::VOLUME;
 
+  std::unique_ptr<di::PropertyList> properties(m_handle->getProperties(true));
+
+  // Get the list of property names for which values are available
+  std::vector<std::string> propertyNames;
+  for (size_t i = 1; i < properties->size(); ++i)
+  {
+    const di::Property* prop = (*properties)[i];
+    if (prop->hasPropertyValues(allFlags, 0, 0, 0, 0, allTypes))
+      propertyNames.push_back(prop->getName());
+  }
+
+  if (!propertyNames.empty())
+    msg += "\"" + propertyNames[0]+ "\"";
+  for (size_t i = 1; i < propertyNames.size(); ++i)
+    msg += ", \"" + propertyNames[i] + "\"";
   msg += "] } }";
 
   m_renderArea->sendMessage(msg);
