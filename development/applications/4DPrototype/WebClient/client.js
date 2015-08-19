@@ -227,7 +227,7 @@ function websocketURL()
 	url = "ws://" + loc.hostname;
 
     // add port
-    url += ":8081/";
+    url += ":8080/";
 
     return url;
 }
@@ -336,14 +336,14 @@ function maxfps(){
     theRenderArea.sendMessage("FPS " + $("#slider_maxfps").val());
 }
 
-function squality(){
+function onQualitySliderChanged(value){
     // call when moving the still quality slider
-    theRenderArea.sendMessage("STILLQUALITY " + $("#slider_squality").val());
+    theRenderArea.sendMessage("STILLQUALITY " + value);
 }
 
-function iquality(){
+function onInteractiveQualitySliderChanged(value){
     // call when moving the interactive quality slider
-    theRenderArea.sendMessage("INTERACTIVEQUALITY " + $("#slider_iquality").val());
+    theRenderArea.sendMessage("INTERACTIVEQUALITY " + value);
 }
 
 function snapshot(){

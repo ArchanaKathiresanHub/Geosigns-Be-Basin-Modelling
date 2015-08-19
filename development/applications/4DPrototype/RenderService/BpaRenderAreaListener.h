@@ -51,7 +51,9 @@ public:
 
   virtual void onReceivedMessage(RenderArea* renderArea, Connection* sender, const std::string& message);
 
-  virtual void onRender(RenderArea* renderArea);
+  virtual bool onPreRender(RenderArea* renderArea, bool& clearWindow, bool& clearZBuffer);
+
+  virtual void onPostRender(RenderArea* renderArea);
 
   virtual void onResize(RenderArea* renderArea, unsigned int width, unsigned int height);
 

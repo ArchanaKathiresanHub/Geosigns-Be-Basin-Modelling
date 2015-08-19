@@ -50,8 +50,6 @@ SnapshotInfo::SnapshotInfo()
   , mesh(0)
   , meshData(0)
   , scalarSet(0)
-  , formationIdProperty(0)
-  , scalarProperty(0)
   , chunksGroup(0)
   , surfacesGroup(0)
   , slicesGroup(0)
@@ -78,7 +76,7 @@ void SceneGraphManager::updateSnapshotFormations(size_t index)
     snapshot.chunksGroup->removeAllChildren();
 
     bool buildingChunk = false;
-    int minK, maxK;
+    int minK=0, maxK=0;
 
     std::vector<SnapshotInfo::Chunk> tmpChunks;
 
@@ -194,16 +192,24 @@ void SceneGraphManager::updateSnapshotProperties(size_t index)
     if (gridMaps.empty())
       return;
 
-    const MiScalardSetIjk* prevDataSet = snapshot.scalarSet->getScalarSet();
-    delete prevDataSet;
+    std::shared_ptr<ScalarProperty> newDataSet(new ScalarProperty(m_currentProperty->getName(), gridMaps));
+    snapshot.scalarSet->setScalarSet(newDataSet.get());
+    snapshot.scalarDataSet = newDataSet;
 
-    ScalarProperty* dataSet = new ScalarProperty(m_currentProperty->getName(), gridMaps);
+    float minValue = (float)snapshot.scalarDataSet->getMin();
+    float maxValue = (float)snapshot.scalarDataSet->getMax();
 
-    snapshot.scalarSet->setScalarSet(dataSet);
-    snapshot.scalarSet->touch();
+    // Round minValue and maxValue down resp. up to 'nice' numbers
+    float e = round(log10(maxValue - minValue)) - 1.f;
+    float delta = powf(10.f, e);
+    minValue = delta * floor(minValue / delta);
+    maxValue = delta * ceil(maxValue / delta);
 
-    static_cast<MoPredefinedColorMapping*>(m_colorMap)->minValue = (float)dataSet->getMin();
-    static_cast<MoPredefinedColorMapping*>(m_colorMap)->maxValue = (float)dataSet->getMax();
+    static_cast<MoPredefinedColorMapping*>(m_colorMap)->minValue = minValue;
+    static_cast<MoPredefinedColorMapping*>(m_colorMap)->maxValue = maxValue;
+
+    m_legend->minValue = minValue;
+    m_legend->maxValue = maxValue;
 
     snapshot.currentProperty = m_currentProperty;
   }
@@ -317,11 +323,11 @@ SnapshotInfo SceneGraphManager::createSnapshotNode(const di::Snapshot* snapshot)
   info.mesh = new MoMesh;
   info.mesh->setMesh(info.meshData);
 
-  info.formationIdProperty = new FormationIdProperty(formationIds);
+  info.formationIdDataSet.reset(new FormationIdProperty(formationIds));
 
   info.scalarSet = new MoScalarSetIjk;
   info.scalarSet->setName("formationID");
-  info.scalarSet->setScalarSet(info.formationIdProperty);
+  info.scalarSet->setScalarSet(info.formationIdDataSet.get());
 
   info.chunksGroup = new SoGroup;
   info.chunksGroup->setName("chunks");
@@ -407,10 +413,17 @@ void SceneGraphManager::setupSceneGraph()
   m_appearanceNode->addChild(m_dataBinding);
   m_appearanceNode->addChild(m_colorMap);
 
+  float right = .8f, top = .9f, w = .1f, h = .4f;
   m_legend = new MoLegend;
   m_legend->vertical = true;
-  m_legend->topRight.setValue(-.8f, 1.0f);
-  m_legend->bottomLeft.setValue(-1.f, .0f);
+  m_legend->topRight.setValue(right, top);
+  m_legend->bottomLeft.setValue(right - w, top - h);
+  m_legend->title="Property";
+  m_legend->titlePosition = MoLegend::POS_TOP;
+  m_legend->titleFontSize = 18.f;
+  m_legend->valuesFontSize = 16.f;
+  m_legend->numValues = 5;
+  m_legend->displayValues = true;
 
   m_legendSwitch = new SoSwitch;
   m_legendSwitch->addChild(m_legend);
@@ -518,6 +531,10 @@ void SceneGraphManager::setProperty(const std::string& name)
     return;
 
   m_currentProperty = prop;
+
+  std::string title = name + "\r\n[" + prop->getUnit() + "]";
+  m_legend->title = title.c_str();
+  m_legendSwitch->whichChild = SO_SWITCH_ALL;
 
   updateSnapshot(m_currentSnapshot);
 }

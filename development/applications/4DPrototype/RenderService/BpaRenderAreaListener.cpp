@@ -49,12 +49,12 @@ namespace
   }
 }
 
-void BpaRenderAreaListener::createSceneGraph(const std::string& id)
+void BpaRenderAreaListener::createSceneGraph(const std::string& /*id*/)
 {
   std::cout << "Loading scenegraph..."<< std::endl;
 
-  const std::string rootdir = "V:/data/CauldronSmall";
-  //const std::string rootdir = "/home/ree/CauldronSmall";
+  //const std::string rootdir = "V:/data/CauldronSmall";
+  const std::string rootdir = "/home/ree/CauldronSmall";
   const std::string filename = "/Project.project3d";
   std::string path = rootdir + filename;
 
@@ -176,10 +176,9 @@ void BpaRenderAreaListener::onClosedConnection(RenderArea* renderArea, const std
   }
 }
 
-void BpaRenderAreaListener::onReceivedMessage(RenderArea* renderArea, Connection* sender, const string& message)
+void BpaRenderAreaListener::onReceivedMessage(RenderArea* renderArea, Connection* /*sender*/, const string& message)
 {
   std::cout << "[BpaRenderAreaListener] onReceivedMessage(renderArea = " << renderArea->getId() << ", message = " << message << ")" << std::endl;
-  SoSeparator* root = (SoSeparator*) renderArea->getSceneManager()->getSceneGraph();
   
   std::list<std::string> elems;
   split(message, ' ', elems); // split the received message, pattern : "COMMAND ARGUMENT"
@@ -206,7 +205,9 @@ void BpaRenderAreaListener::onReceivedMessage(RenderArea* renderArea, Connection
   }
   else if (command == "STILLQUALITY")
   {
-    renderArea->getSettings()->setStillCompressionQuality((float)atof(argument.c_str())); 
+    float quality = (float)atof(argument.c_str());
+    std::cout << "Setting still quality to " << quality << std::endl;
+    renderArea->getSettings()->setStillCompressionQuality(quality);
   }
   else if (command == "SCALEFACTOR")
   {
@@ -214,7 +215,9 @@ void BpaRenderAreaListener::onReceivedMessage(RenderArea* renderArea, Connection
   }
   else if (command == "INTERACTIVEQUALITY")
   {
-    renderArea->getSettings()->setInteractiveCompressionQuality((float)atof(argument.c_str())); 
+    float quality = (float)atof(argument.c_str());
+    std::cout << "Setting interactive quality to " << quality << std::endl;
+    renderArea->getSettings()->setInteractiveCompressionQuality(quality);
   }
   else if (command == "WIDTH")
   {
@@ -285,10 +288,19 @@ void BpaRenderAreaListener::onReceivedMessage(RenderArea* renderArea, Connection
   }
 }
 
-
-void BpaRenderAreaListener::onRender(RenderArea* renderArea)
+bool BpaRenderAreaListener::onPreRender(RenderArea* /*renderArea*/, bool& clearWindow, bool& clearZBuffer)
 {
-  //std::cout << "[BpaRenderAreaListener] onRender(renderArea = " << renderArea->getId() << ")" << std::endl;
+  std::cout << "," << std::flush;
+
+  clearWindow = true;
+  clearZBuffer = true;
+
+  return true;
+}
+
+void BpaRenderAreaListener::onPostRender(RenderArea* /*renderArea*/)
+{
+  std::cout << "." << std::flush;
 }
 
 void BpaRenderAreaListener::onResize(RenderArea* renderArea, unsigned int width, unsigned int height)
@@ -307,57 +319,57 @@ void BpaRenderAreaListener::onRequestedSize(RenderArea* renderArea, Connection* 
   renderArea->resize(width, height);
 }
 
-bool BpaRenderAreaListener::onMouseUp(int x, int y, int button)
+bool BpaRenderAreaListener::onMouseUp(int /*x*/, int /*y*/, int /*button*/)
 {
   return true;
 }
 
-bool BpaRenderAreaListener::onMouseDown(int x, int y, int button)
+bool BpaRenderAreaListener::onMouseDown(int /*x*/, int /*y*/, int /*button*/)
 {
   return true;
 }
 
-bool BpaRenderAreaListener::onMouseMove(int x, int y)
+bool BpaRenderAreaListener::onMouseMove(int /*x*/, int /*y*/)
 {
   return true;
 }
 
-bool BpaRenderAreaListener::onMouseEnter(int x, int y)
+bool BpaRenderAreaListener::onMouseEnter(int /*x*/, int /*y*/)
 {
   return true;
 }
 
-bool BpaRenderAreaListener::onMouseLeave(int x, int y)
+bool BpaRenderAreaListener::onMouseLeave(int /*x*/, int /*y*/)
 {
   return true;
 }
 
-bool BpaRenderAreaListener::onMouseWheel(int delta)
+bool BpaRenderAreaListener::onMouseWheel(int /*delta*/)
 {
   return true;
 }
 
-bool BpaRenderAreaListener::onKeyUp(const std::string& key)
+bool BpaRenderAreaListener::onKeyUp(const std::string& /*key*/)
 {
   return true;
 }
 
-bool BpaRenderAreaListener::onKeyDown(const std::string& key)
+bool BpaRenderAreaListener::onKeyDown(const std::string& /*key*/)
 {
   return true;
 }
 
-bool BpaRenderAreaListener::onTouchStart(unsigned int id, int x, int y)
+bool BpaRenderAreaListener::onTouchStart(unsigned int /*id*/, int /*x*/, int /*y*/)
 {
   return true;
 }
 
-bool BpaRenderAreaListener::onTouchEnd(unsigned int id, int x, int y)
+bool BpaRenderAreaListener::onTouchEnd(unsigned int /*id*/, int /*x*/, int /*y*/)
 {
   return true;
 }
 
-bool BpaRenderAreaListener::onTouchMove(unsigned int id, int x, int y)
+bool BpaRenderAreaListener::onTouchMove(unsigned int /*id*/, int /*x*/, int /*y*/)
 {
   return true;
 }

@@ -62,8 +62,8 @@
 				<div class="section">
 					<input id="maxFpsSlider" type="range" value="0" oninput="onMaxFpsSliderChanged(this)">Max FPS</input>
 					<div style="margin-top: 10px">JPEG Quality</div>
-					<input id="qualitySlider" type="range" value="0" oninput="onQualitySliderChanged(this)">Still</input>
-					<input id="iqualitySlider" type="range" value="0" oninput="onInteractiveQualitySliderChanged(this)">Interactive</input>
+					<input id="qualitySlider" min="0" max="1" step="0.05" type="range" value="0" oninput="onQualitySliderChanged(this.value)">Still</input>
+					<input id="iqualitySlider" min="0" max="1" step="0.05" type="range" value="0" oninput="onInteractiveQualitySliderChanged(this.value)">Interactive</input>
 				</div>
 			</div>
 

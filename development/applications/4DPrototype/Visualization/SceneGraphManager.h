@@ -44,6 +44,8 @@ class MoScalarSetIjk;
 class MoMeshSkin;
 class MoMeshSlab;
 class MoMeshSurface;
+template<class T>
+class MiDataSetIjk;
 
 namespace DataAccess
 {
@@ -109,8 +111,8 @@ struct SnapshotInfo
   HexahedronMesh* meshData;
 
   MoScalarSetIjk* scalarSet;
-  FormationIdProperty* formationIdProperty;
-  ScalarProperty* scalarProperty;
+  std::shared_ptr<MiDataSetIjk<double> > scalarDataSet;
+  std::shared_ptr<FormationIdProperty> formationIdDataSet;
 
   SoSwitch* sliceSwitch[3];
   MoMeshSlab* slice[3];
