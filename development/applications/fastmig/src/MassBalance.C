@@ -93,7 +93,7 @@ void MassBalance<STREAM>::printBalance (void) const
 
    vector < string >::const_iterator itDescription;
    vector < double >::const_iterator itQuantity;
-   int len;
+   size_t len;
 
    double totalIn = 0;
 

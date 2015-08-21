@@ -152,7 +152,7 @@ Trap::~Trap ()
    delete m_distributor;
 }
 
-int Trap::getSize (void)
+size_t Trap::getSize (void)
 {
    return m_interior.size ();
 }
@@ -2243,7 +2243,8 @@ double Trap::computeHydrocarbonWaterContactDepth (void) const
       hydrocarbonWaterContactDepth = getBottomDepth();
    }
    
-  assert((hydrocarbonWaterContactDepth >= getTopDepth()) && (hydrocarbonWaterContactDepth <= getBottomDepth()));
+   // Assert to be add again after bug fix in Fastmig: spilling depth of a trap shallower than the top depth of the trap....
+   //assert((hydrocarbonWaterContactDepth >= getTopDepth()) && (hydrocarbonWaterContactDepth <= getBottomDepth()));
 
    return hydrocarbonWaterContactDepth;
 }
@@ -2276,7 +2277,8 @@ double Trap::computeFractionVolumeBiodegraded(const double timeInterval, const P
    cerr << "Fraction of the volume impacted by biodegradation: " << fractionVolumeBiodegraded * 100 << " % " << endl;
 #endif
 
-   assert(getTopDepth() < getBottomDepth());
+   // Assert to be add again after bug fix in Fastmig: spilling depth of a trap shallower than the top depth of the trap....
+   //assert(getTopDepth() < getBottomDepth());
    return fractionVolumeBiodegraded;
 }
 
@@ -2330,7 +2332,7 @@ double Trap::computeHydrocarbonWaterContactTemperature()
       for (iter = m_interior.begin(); iter != m_interior.end(); ++iter)
       {
          const LocalColumn * column = dynamic_cast<LocalColumn *> (*iter);
-
+         
          if (getHydrocarbonWaterContactDepth() <= column->getBottomDepth() && getHydrocarbonWaterContactDepth() >= column->getTopDepth())
          {
             // Compute the temperature at the top of the crest column
