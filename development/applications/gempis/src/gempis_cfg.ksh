@@ -48,11 +48,11 @@ usage()
 do_cfg2html()
 {
     # no background images
-    $GEMPIS_EXEDIR/cfg2html $TMPDIR
+    $GEMPIS_EXEDIR/cfg2html $GTMPDIR
 
     # remove unnecessary stuff
-    rm -f $TMPDIR/*.txt
-    rm -f $TMPDIR/*.save
+    rm -f $GTMPDIR/*.txt
+    rm -f $GTMPDIR/*.save
 }
 
 
@@ -95,8 +95,8 @@ pack_data()
     echo "Bundling data in `pwd`."
 
     # create compressed tarball of everything in the tmp directory
-    echo "Executing command [tar cf $OUTFILE $TMPDIR]."
-    tar cf $OUTFILE $TMPDIR
+    echo "Executing command [tar cf $OUTFILE $GTMPDIR]."
+    tar cf $OUTFILE $GTMPDIR
 
     echo "Executing command [gzip -f $OUTFILE]."
     gzip -f $OUTFILE
@@ -154,13 +154,13 @@ get_computer()
     echo ""
 
     # make temp directory
-    make_userdir $TMPDIR
+    make_userdir $GTMPDIR
 
     # get computer information 
     do_cfg2html
 
     # get information about the user
-    get_user > $TMPDIR/$GEMPIS_USERNAME.txt
+    get_user > $GTMPDIR/$GEMPIS_USERNAME.txt
 
     # pack the data up 
     pack_data
@@ -458,7 +458,7 @@ verbose "Defining gempis_cfg trap handler."
 trap trap_handler INT TERM QUIT HUP
 
 # define cfg stuff
-TMPDIR=$GEMPIS_PROGNAME
+GTMPDIR=$GEMPIS_PROGNAME
 FILENAME=${GEMPIS_PROGNAME}-${GEMPIS_USERNAME}.tar
 OUTFILE=`pwd`/$FILENAME
 

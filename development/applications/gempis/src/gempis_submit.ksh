@@ -354,7 +354,7 @@ verbose "Defining [`uname`] trap handler."
 trap trap_handler INT QUIT HUP
 
 # define cfg stuff
-TMPDIR=$GEMPIS_PROGNAME
+GTMPDIR=$GEMPIS_PROGNAME
 FILENAME=${GEMPIS_PROGNAME}-${GEMPIS_USERNAME}.tar
 OUTFILE=`pwd`/$FILENAME
 
