@@ -210,6 +210,7 @@ LocalColumn::LocalColumn (unsigned int i, unsigned int j, Reservoir * reservoir)
    std::fill (m_penetrationDistances, m_penetrationDistances + DiffusionComponentSize, (double) 0);
    m_diffusionStartTime = -1;
    clearProperties ();
+   m_pasteurizationStatus = 0;
 }
 
 LocalColumn::~LocalColumn (void)
@@ -364,7 +365,7 @@ Column * LocalColumn::getSpillBackTarget (PhaseId phase)
       for (int spillBackPhase = FIRST_PHASE; spillBackPhase < NUM_PHASES; ++spillBackPhase)
       {
          if (spillTarget->getFinalSpillTarget ((PhaseId) spillBackPhase) == this)
-	    return spillTarget;
+	         return spillTarget;
       }
    }
    return 0;
@@ -1224,28 +1225,28 @@ bool LocalColumn::computeTargetColumn (PhaseId phase)
    {
       if (isWasting (phase))
       {
-	 // the stuff is not going anywhere else.
-	 m_targetColumn[phase] = this;
+         // the stuff is not going anywhere else.
+         m_targetColumn[phase] = this;
       }
       else if (isSealing (phase))
       {
-	 // what is to happen if a charge migrates up (e.g. from a source rock) into a sealing column?
-	 m_targetColumn[phase] = this;
+         // what is to happen if a charge migrates up (e.g. from a source rock) into a sealing column?
+         m_targetColumn[phase] = this;
       }
       else
       {
-	 Column * adjacentColumn = getAdjacentColumn (phase);
-	 assert (!adjacentColumn || !adjacentColumn->isSealing (phase));
+         Column * adjacentColumn = getAdjacentColumn (phase);
+         assert (!adjacentColumn || !adjacentColumn->isSealing (phase));
 
-	 if (adjacentColumn == 0 || adjacentColumn == this)
-	 {
-	    m_targetColumn[phase] = this;
-	 }
-	 else
-	 {
-	    adjacentColumn->computeTargetColumn (phase);
-	    m_targetColumn[phase] = adjacentColumn->getTargetColumn (phase);
-	 }
+         if (adjacentColumn == 0 || adjacentColumn == this)
+         {
+	         m_targetColumn[phase] = this;
+         }
+         else
+         {
+	         adjacentColumn->computeTargetColumn (phase);
+	         m_targetColumn[phase] = adjacentColumn->getTargetColumn (phase);
+         }
       }
 #if 0
       if (m_targetColumn[phase])

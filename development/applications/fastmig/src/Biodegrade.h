@@ -17,17 +17,19 @@ public:
       m_maxBioTemp(biodegradationparameters->maxBioTemp()),
       m_bioConsts(biodegradationparameters->bioConsts()),
       m_timeFactor(biodegradationparameters->timeFactor()),
-      m_bioRate(biodegradationparameters->bioRate())
+      m_bioRate(biodegradationparameters->bioRate()),
+      m_pasteurizationInd(biodegradationparameters->pasteurizationInd())
    {}
  
    /*!
    * \brief Constructor used for the biodegradation parameters in unit tests only
    */
-   Biodegrade(const double maxBioTemp, const DataAccess::Interface::BioConsts bioConsts, const double timeFactor, const double bioRate = 0.3) :
+   Biodegrade(const double maxBioTemp, const DataAccess::Interface::BioConsts bioConsts, const double timeFactor, const double bioRate = 0.3, const bool pasteurizationInd = 0) :
       m_maxBioTemp(maxBioTemp),
       m_bioConsts(bioConsts),
       m_timeFactor(timeFactor),
-      m_bioRate(bioRate)
+      m_bioRate(bioRate),
+      m_pasteurizationInd(pasteurizationInd)
    {}
 
    /*!
@@ -62,6 +64,13 @@ public:
    */
    const double& bioRate() const { return m_bioRate; }
 
+   /*!
+   * \brief Get back the pasteurization status
+   * \details Describe if the biodegradation process should take into account the pasteurization (bool = 1) or not (bool =0).
+   * \return The pasteurization status (1 = On, 0 = Off)
+   */
+   const bool& pasteurizationInd() const { return m_pasteurizationInd; }
+
 
 private:
 
@@ -69,6 +78,7 @@ private:
    DataAccess::Interface::BioConsts const m_bioConsts;
    double const m_timeFactor;
    double const m_bioRate;
+   bool const m_pasteurizationInd;
 };
 
 } // namespace migration

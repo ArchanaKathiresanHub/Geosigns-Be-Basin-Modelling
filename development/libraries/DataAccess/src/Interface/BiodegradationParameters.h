@@ -40,6 +40,13 @@ namespace DataAccess
       * \return bioRate, a user-tuneable rate scalar which sets how the biodegradation is expending above the OWC (in m/Myr). Set by default to 0.3.
       */
       double bioRate() const;
+
+      /*!
+      * \brief Get back the pasteurization status
+      * \details Describe if the biodegradation process should take into account the pasteurization (bool = 1) or not (bool = 0).
+      * \return The pasteurization status (1 = On, 0 = Off)
+      */
+      bool pasteurizationInd() const;
 	  };
    } 
 } // namespace DataAccess::Interface

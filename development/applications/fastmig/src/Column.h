@@ -165,11 +165,11 @@ namespace migration
 
 	 virtual FaultStatus getFaultStatus (void);
 
-         virtual bool isSpilling (void);
-         virtual bool isUndersized (void);
+    virtual bool isSpilling (void);
+    virtual bool isUndersized (void);
 
-         virtual bool isSealing (PhaseId phase);
-         virtual bool isWasting (PhaseId phase);
+    virtual bool isSealing (PhaseId phase);
+    virtual bool isWasting (PhaseId phase);
 
 	 virtual double getDiffusionStartTime ();
 	 virtual void setDiffusionStartTime (double diffusionStartTime);
@@ -283,12 +283,12 @@ namespace migration
 	 virtual double getImmobilesDensity (void) const;
 #endif
 
-         virtual double getPermeability (void) const;
-         virtual void setPermeability (double newPermeability);
+    virtual double getPermeability (void) const;
+    virtual void setPermeability (double newPermeability);
 
 	 virtual FaultStatus getFaultStatus (void);
 	 virtual void setFaultStatus (FaultStatus newFaultStatus);
-
+   
 	 unsigned int getColumnStatus (void);
 
     /*!
@@ -298,16 +298,33 @@ namespace migration
 	 virtual double getTemperature (void) const;
 	 virtual double getPreviousTemperature (void) const;
 	 virtual void setTemperature (double newTemperature);
-    
+
+    /*!
+    * \brief Get the pasteurization status of a column
+    * \details -1 = the column has been part of a trap before but is not pasteurized
+    *           0 = the column has not yet been part of a trap and is set as neutral column (i.e. the column was outside of any trap at all previous snapshots)
+    *           1 = the column has been part of a trap before and is pasteurized           
+    * \return The pasteurization status of a column
+    */
+    inline int getPasteurizationStatus() const { return m_pasteurizationStatus; };
+
+    /*!
+    * \brief Set the pasteurization status of a column
+    * \details -1 = the column has been part of a trap before but is not pasteurized
+    *           0 = the column has not yet been part of a trap and is set as neutral column (i.e. the column was outside of any trap at all previous snapshots)
+    *           1 = the column has been part of a trap before and is pasteurized
+    */
+    inline void setPasteurizationStatus(int status) { m_pasteurizationStatus = status; };
+
 	 virtual double getPressure (void) const;
 	 virtual double getPreviousPressure (void) const;
 	 virtual void setPressure (double newPressure);
 
-         virtual double getHydrostaticPressure (void) const;
-         virtual void setHydrostaticPressure (double newHydrostaticpressure);
+    virtual double getHydrostaticPressure (void) const;
+    virtual void setHydrostaticPressure (double newHydrostaticpressure);
 
-         virtual double getLithostaticPressure (void) const;
-         virtual void setLithostaticPressure (double newLithostaticPressure);
+    virtual double getLithostaticPressure (void) const;
+    virtual void setLithostaticPressure (double newLithostaticPressure);
 
 #ifdef USEOTGC
 	 void setImmobiles (const Immobiles & immobiles);
@@ -377,7 +394,7 @@ namespace migration
 	 inline bool containsComposition (void);
 	 inline void resetComposition (void);
 
-         virtual void resetCompositionState ();
+    virtual void resetCompositionState ();
 	 virtual void addComposition (Composition & composition);
 	 virtual void addLeakComposition (Composition & composition);
 	 virtual void addWasteComposition (Composition & composition);
@@ -390,13 +407,13 @@ namespace migration
 
 	 virtual void addToYourTrap (unsigned int i, unsigned int j);
 
-         virtual bool isSpilling (void);
-         virtual bool isUndersized (void);
+    virtual bool isSpilling (void);
+    virtual bool isUndersized (void);
 
 	 Column * getSpillBackTarget (PhaseId phase);
 
-         virtual bool isSpillingBack (void);
-         virtual bool isSpillingBack (PhaseId phase);
+    virtual bool isSpillingBack (void);
+    virtual bool isSpillingBack (PhaseId phase);
 
 	 virtual double getDiffusionStartTime ();
 	 virtual void setDiffusionStartTime (double diffusionStartTime);
@@ -478,7 +495,8 @@ namespace migration
 	 Column * m_targetColumn[NumPhases];
 
 	 Trap * m_trap;
-
+    int m_pasteurizationStatus;
+    
 	 Composition m_compositionToBeMigrated;
 
 #ifdef USEOTGC

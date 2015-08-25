@@ -65,4 +65,9 @@ double BiodegradationParameters::bioRate() const
    return bioRate;
 }
 
+bool BiodegradationParameters::pasteurizationInd() const
+{
+   return database::getPasteurizationInd(m_record);
+}
+
 } } // namespace DataAccess::Implementation

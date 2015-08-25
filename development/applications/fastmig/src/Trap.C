@@ -1186,6 +1186,16 @@ double Trap::biodegradeCharges(const double& timeInterval, const Biodegrade& bio
    double volumeFractionOfOilBiodegraded = 0.0;
    computePhaseVolumeProportionInBiodegradadedZone(timeInterval, volumeFractionOfGasBiodegraded, volumeFractionOfOilBiodegraded, biodegrade);
 
+   // If the user has toggle on the pasteurization effect
+   if (biodegrade.pasteurizationInd())
+   {
+      // Assesses pasteurization and states if a trap is or not pasteurized
+      if (isPasteurized(hydrocarbonWaterContactTemperature, biodegrade.maxBioTemp()))
+      {
+         return 0.0; // if a trap is pasteurized => no biodegradation, return 0
+      }
+   }
+   
    // Compute biodegradation for the GAS phase
    if (volumeFractionOfGasBiodegraded > 0.0)
    {
@@ -1220,6 +1230,163 @@ double Trap::biodegradeCharges(const double& timeInterval, const Biodegrade& bio
 #endif
 
    return biodegraded.getWeight();
+}
+
+bool Trap::isPasteurized(const double hydrocarbonWaterContactTemperature, const double maxBiodegradationTemperature)
+{
+#ifdef DEBUG_BIODEGRADATION
+   cerr << endl << "==== Compute pasteurization status ====" << endl;
+   // Count the number of columns for each different status
+   int countNotPasteurized = 0;
+   int countNeutral = 0;
+   int countPasteurized = 0;
+#endif
+
+   // Evaluation of the state of the columns
+   // Loop to check if some columns are already identified as pasteurized in the trap. If yes, no need to re-compute the pasteurization status
+   bool needToComputeColumnPasteurizationStatus = true;
+   ConstColumnIterator iter;
+   for (iter = m_interior.begin(); iter != m_interior.end(); ++iter)
+   {
+      LocalColumn * column = dynamic_cast<LocalColumn *> (*iter);
+      
+      #ifdef DEBUG_BIODEGRADATION
+      if (column->getPasteurizationStatus() == -1)
+         countNotPasteurized++;
+      if (column->getPasteurizationStatus() == 0)
+         countNeutral++;
+      if (column->getPasteurizationStatus() == 1)
+         countPasteurized++;
+      #endif
+      
+      // If at least one column of the trap is identify as pasteurized, it means that this trap already existed at the previous snapshot,
+      // and that there is no need to assess again the pasteurization status. The trap will be pasteurized; except if it merges with an not-pasteurized trap.
+      if (column->getPasteurizationStatus() == 1)
+      {
+         needToComputeColumnPasteurizationStatus = false;
+         break;
+      }
+   }
+   #ifdef DEBUG_BIODEGRADATION
+   cerr << "Number of not-Pasteurized / neutral / Pasteurized columns: " << countNotPasteurized << ", " << countNeutral << ", " << countPasteurized << endl;
+   cerr << "needToComputeColumnPasteurizationStatus = " << needToComputeColumnPasteurizationStatus << endl;
+   #endif
+
+
+   // Need to define the status of columns according to the temperature at the OWC (new trap or existing trap with not-pasteurized columns)
+   if (needToComputeColumnPasteurizationStatus == true)
+   {
+      if (hydrocarbonWaterContactTemperature >= maxBiodegradationTemperature) // Trap pasteurized if temperature higher or equal to the maximum temperature allowed for biodegradation 
+      {
+         for (iter = m_interior.begin(); iter != m_interior.end(); ++iter)
+         {
+            LocalColumn * column = dynamic_cast<LocalColumn *> (*iter);
+            column->setPasteurizationStatus(1); // columns pasteurized
+         }
+      }
+      else // Trap not-pasteurized
+      {
+         for (iter = m_interior.begin(); iter != m_interior.end(); ++iter)
+         {
+            LocalColumn * column = dynamic_cast<LocalColumn *> (*iter);
+            column->setPasteurizationStatus(-1); // columns not-pasteurized
+         }
+      }
+   }   
+
+   // Loop to check what kind of columns are present in the trap: pasteurized and/or not-pasteurized and/or neutral
+   bool includeNotPasteurizedColumn = false;
+   bool includeNeutralColumn = false;
+   bool includePasteurizedColumn = false;
+      
+   for (iter = m_interior.begin(); iter != m_interior.end(); ++iter)
+   {
+      LocalColumn * column = dynamic_cast<LocalColumn *> (*iter);
+            
+      // Break the loop if the predominant kind of column have already been found (pasteurized and not-pasteurized)
+      // Indeed, if those two kinds of columns have already been found inside the trap, the behaviour of the trap is already known (see next section)
+      // Remark: as their name is a clear indication, neutral columns won't change the behavior of the trap
+      if (includeNotPasteurizedColumn == true && includePasteurizedColumn == true)
+         break;
+
+      // Check if the trap includes not-pasteurized column
+      if (column->getPasteurizationStatus() == -1)
+      {
+         includeNotPasteurizedColumn = true;
+         continue;
+      }
+      // Check if the trap includes neutral column
+      if (column->getPasteurizationStatus() == 0)
+      {
+         includeNeutralColumn = true;
+         continue;
+      }
+      // Check if the trap includes pasteurized column
+      if (column->getPasteurizationStatus() == 1)
+      {
+         includePasteurizedColumn = true;
+         continue;
+      } 
+   }
+   
+   // Give the expected behavior of the trap according to the kind of columns that it possesses
+   // 1) If the trap is a mix of NOT-pasteurized and neutral columns => the trap is NOT pasteurized
+   if ((includeNotPasteurizedColumn == true && includeNeutralColumn == false && includePasteurizedColumn == false)
+      || (includeNotPasteurizedColumn == true && includeNeutralColumn == true && includePasteurizedColumn == false))
+   {
+      for (iter = m_interior.begin(); iter != m_interior.end(); ++iter)
+      {
+         LocalColumn * column = dynamic_cast<LocalColumn *> (*iter);
+         column->setPasteurizationStatus(-1);   //set all the columns of this trap as not-pasteurized
+      }
+      return false;
+   }
+
+   // 2) If the trap is a mix of pasteurized and neutral columns => the trap is pasteurized
+   // Rationale behind this: if the trap grows and (neutral) columns are added to the trap, those columns will be at a deeper depth and so already pasteurized
+   if ((includeNotPasteurizedColumn == false && includeNeutralColumn == false && includePasteurizedColumn == true)
+      || (includeNotPasteurizedColumn == false && includeNeutralColumn == true && includePasteurizedColumn == true))
+   {
+      for (iter = m_interior.begin(); iter != m_interior.end(); ++iter)
+      {
+         LocalColumn * column = dynamic_cast<LocalColumn *> (*iter);
+         column->setPasteurizationStatus(1);   //set all the columns of this trap as pasteurized
+      }
+      return true;
+   }
+
+   // 3) If the trap is a mix of pasteurized and not-pasteurized columns => the trap is not-pasteurized if the temperature is below the pasteurization temperature
+   // Rationale behind this: merging of two traps, so the bacteria in one (not pasteurized) trap can migrate to the other (previously pasteurized) trap
+   // Moreover, the temperature at the OWC is not high enough at this snapshot to pasteurized the trap
+   if ((includeNotPasteurizedColumn == true && includeNeutralColumn == false && includePasteurizedColumn == true)
+      || (includeNotPasteurizedColumn == true && includeNeutralColumn == true && includePasteurizedColumn == true)
+      && (hydrocarbonWaterContactTemperature <= maxBiodegradationTemperature))
+   {
+      for (iter = m_interior.begin(); iter != m_interior.end(); ++iter)
+      {
+         LocalColumn * column = dynamic_cast<LocalColumn *> (*iter);
+         column->setPasteurizationStatus(-1);   //set all the columns of this trap as not-pasteurized
+      }
+      return false;
+   }
+
+   // 4) If the trap is a mix of pasteurized and not-pasteurized columns => the trap is not-pasteurized if the temperature is below the pasteurization temperature
+   // Rationale behind this: merging of two traps, so the bacteria in one (not pasteurized) trap can migrate to the other (previously pasteurized) trap
+   // But the temperature at this snapshot is too high and pasteurized the trap
+   if ((includeNotPasteurizedColumn == true && includeNeutralColumn == false && includePasteurizedColumn == true)
+      || (includeNotPasteurizedColumn == true && includeNeutralColumn == true && includePasteurizedColumn == true)
+      && (hydrocarbonWaterContactTemperature >= maxBiodegradationTemperature))
+   {
+      for (iter = m_interior.begin(); iter != m_interior.end(); ++iter)
+      {
+         LocalColumn * column = dynamic_cast<LocalColumn *> (*iter);
+         column->setPasteurizationStatus(1);   //set all the columns of this trap as pasteurized
+      }
+      return true;
+   }
+
+   // No reason to reach this point of the function, so the "return false" is just an extra security
+   return false;
 }
 
 /// If depths contains a vector of formations starting with the formation containing 
@@ -2329,7 +2496,7 @@ double Trap::computeHydrocarbonWaterContactTemperature()
       // Find a column of the trap with a bottom depth deeper than the hydrocarbon - water contact
       // and a top depth shallower than the hydrocarbon - water contact
       ConstColumnIterator iter;
-      for (iter = m_interior.begin(); iter != m_interior.end(); ++iter)
+      for (iter = m_interior.begin(); iter != m_interior.end(); ++iter) 
       {
          const LocalColumn * column = dynamic_cast<LocalColumn *> (*iter);
          

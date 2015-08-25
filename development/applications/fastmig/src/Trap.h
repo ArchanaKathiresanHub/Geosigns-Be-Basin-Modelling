@@ -48,7 +48,7 @@ namespace migration
    /// Destructor
    virtual ~Trap (void);
 
-   int getSize (void);
+   size_t getSize (void);
 
    void computeArea (void);
 
@@ -336,10 +336,27 @@ namespace migration
    */
    double computeHydrocarbonWaterContactTemperature();
 
-   void Trap::computePhaseVolumeProportionInBiodegradadedZone(const double timeInterval, double& VolumeProportionGas, double& VolumeProportionOil, const Biodegrade& biodegrade);
+   void computePhaseVolumeProportionInBiodegradadedZone(const double timeInterval, double& VolumeProportionGas, double& VolumeProportionOil, const Biodegrade& biodegrade);
 
    double biodegradeCharges (const double& timeInterval, const Biodegrade& biodegrade);
 
+   /*!
+   * \brief Assesses if a trap is pasteurized or not
+   * \details This status is based on the status of the columns that composed the trap. 
+   * If the status of the columns is flagged as pasteurized, then no biodegradation should happen in the trap.
+   * If the status of the columns is flagged as not-pasteurized, then biodegradation should occurs in the trap if the temperature allows it.
+   *
+   * Handeling of particular cases:
+   *  A mix of pasteurized and neutral columns => the trap is pasteurized
+   *     Rationale behind this: if the trap grows and (neutral) columns are added to the trap, those columns will be at a deeper depth and so already pasteurized
+   *  A mix of NOT pasteurized and neutral columns => the trap is NOT pasteurized
+   *  A mix of pasteurized and NOT pasteurized columns => the trap is NOT pasteurized
+   *     Rationale behind this: merging of two traps, so the bacteria in one (not pasteurized) trap can migrate to the other (previously pasteurized) trap
+
+   * \return The pateurization status of the trap: TRUE = trap is pasteurized / FALSE = trap not pasteurized
+   */
+   bool isPasteurized(const double hydrocarbonWaterContactTemperature, const double maxBiodegradationTemperature);
+   
    /// If depths contains a vector of formations starting with the formation containing 
    /// this trap, return iterators pointing to the formations which constitute the 
    /// overburden of this trap:

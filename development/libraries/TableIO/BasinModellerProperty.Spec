@@ -4532,6 +4532,13 @@ Identification      : HcLiquidBrineCapillaryEntryPressure
     Default             : 0.3
     Error Field         : No 
 
+	Identification      : PasteurizationInd 
+    Description         : Switch for pasteurization in biodegradation (1 = On, 0 = Off)
+    Unit of measurement :
+    Type                : boolean
+    Default             : 0
+    Error Field         : No 
+
     Identification      : C1_BioFactor 
     Description         : Bio Degradation factor 
     Unit of measurement : 
@@ -7088,7 +7095,7 @@ START-property-tables
     Column         : Lithotype3
     Column         : LayerFrequency 
     Column         : LayerFrequencyGrid
-    Column         : BioDegradInd 
+    Column         : BioDegradInd
     Column         : OilToGasCrackingInd 
     Column         : DiffusionInd 
     Column         : BlockingInd 
@@ -7100,7 +7107,8 @@ START-property-tables
     Column         : MaxBioTemp 
     Column         : TempConstant 
     Column         : TimeConstant 
-	Column         : BioRate 
+	Column         : BioRate
+	Column         : PasteurizationInd
     Column         : C1_BioFactor 
     Column         : C2_BioFactor 
     Column         : C3_BioFactor 
