@@ -52,6 +52,7 @@ namespace migration
 	 virtual double getTopDepth (void) const = 0;
 	 virtual void setBottomDepth (double depth) = 0;
 	 virtual double getBottomDepth (void) const = 0;
+    virtual double getTopDepthOffset(void) const = 0;
 	 virtual double getThickness (void);
 	 virtual double getCapacity (double spillDepth = 1e8);
 
@@ -66,14 +67,14 @@ namespace migration
 
 	 virtual FaultStatus getFaultStatus (void) = 0;
 
-         virtual bool isSpilling (void) = 0;
-         virtual bool isUndersized (void) = 0;
+    virtual bool isSpilling (void) = 0;
+    virtual bool isUndersized (void) = 0;
 
-         virtual bool isSealing (PhaseId phase) = 0;
-         virtual bool isWasting (PhaseId phase) = 0;
+    virtual bool isSealing (PhaseId phase) = 0;
+    virtual bool isWasting (PhaseId phase) = 0;
 
-         bool isSealing (void);
-         bool isWasting (void);
+    bool isSealing (void);
+    bool isWasting (void);
 
 	 virtual double getDiffusionStartTime () = 0;
 	 virtual void setDiffusionStartTime (double diffusionStartTime) = 0;
@@ -156,6 +157,7 @@ namespace migration
 	 virtual double getTopDepth (void) const;
 	 virtual void setBottomDepth (double depth);
 	 virtual double getBottomDepth (void) const;
+    virtual double getTopDepthOffset(void) const;
 	 virtual double getNetToGross (void) const;
 	 virtual double getPorosity (void) const;
 
@@ -215,6 +217,7 @@ namespace migration
 
 	 mutable double m_topDepth;
 	 mutable double m_bottomDepth;
+    mutable double m_topDepthOffset;
 	 mutable double m_netToGross;
 	 mutable double m_porosity;
 

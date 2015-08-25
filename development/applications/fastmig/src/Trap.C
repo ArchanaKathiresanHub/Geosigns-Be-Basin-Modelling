@@ -2496,10 +2496,10 @@ double Trap::computeHydrocarbonWaterContactTemperature()
       // Find a column of the trap with a bottom depth deeper than the hydrocarbon - water contact
       // and a top depth shallower than the hydrocarbon - water contact
       ConstColumnIterator iter;
-      for (iter = m_interior.begin(); iter != m_interior.end(); ++iter) 
+      for (iter = m_interior.begin(); iter != m_interior.end(); ++iter)
       {
-         const LocalColumn * column = dynamic_cast<LocalColumn *> (*iter);
-         
+         Column * column = *iter;
+
          if (getHydrocarbonWaterContactDepth() <= column->getBottomDepth() && getHydrocarbonWaterContactDepth() >= column->getTopDepth())
          {
             // Compute the temperature at the top of the crest column
@@ -2516,8 +2516,8 @@ double Trap::computeHydrocarbonWaterContactTemperature()
             hydrocarbonWaterContactTemperature = (gridMapTemperature->interpolate(column->getI(), column->getJ(), index));
 
             break;
-         }
       }
+   }
 
    }
 

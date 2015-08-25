@@ -942,6 +942,11 @@ void LocalColumn::getValue (ColumnValueRequest & request, ColumnValueRequest & r
 	 response.j = getJ ();
 	 response.value = getBottomDepth ();
 	 break;
+      case TOPDEPTHOFFSET:
+   response.i = getI();
+   response.j = getJ();
+   response.value = getTopDepthOffset ();
+   break;
       case DIFFUSIONSTARTTIME:
 	 response.i = getI ();
 	 response.j = getJ ();
@@ -1120,6 +1125,8 @@ double LocalColumn::getValue (ValueSpec valueSpec, PhaseId phase)
 	 return getTopDepth ();
       case BOTTOMDEPTH:
 	 return getBottomDepth ();
+      case TOPDEPTHOFFSET:
+    return getTopDepthOffset();
       case CAPACITY:
 	 return getCapacity ();
       case THICKNESS:
@@ -1888,6 +1895,23 @@ double ProxyColumn::getBottomDepth (void) const
    }
 
    return m_bottomDepth;
+}
+
+double ProxyColumn::getTopDepthOffset(void) const
+{
+   if (!isCached(TOPDEPTHOFFSETCACHE))
+   {
+      ColumnValueRequest valueRequest;
+      ColumnValueRequest valueResponse;
+
+      valueRequest.i = getI();
+      valueRequest.j = getJ();
+      valueRequest.valueSpec = TOPDEPTHOFFSET;
+      RequestHandling::SendRequest(valueRequest, valueResponse);
+      m_bottomDepth = valueResponse.value;
+      setCached(TOPDEPTHOFFSETCACHE);
+   }
+   return m_topDepthOffset;
 }
 
 double ProxyColumn::getNetToGross (void) const
