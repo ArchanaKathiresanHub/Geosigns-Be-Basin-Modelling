@@ -20,10 +20,12 @@
 			<div>
 
 				<div id="formations" style="background-color: #ffffff; padding-left: 10px; height: 300px; overflow:auto">
-					<p>Formations</p>
+					<div>Formations</div>
 					<div id="formationsList"></div>
-					<p>Surfaces</p>
+					<div>Surfaces</div>
 					<div id="surfacesList"></div>
+					<div>Faults</div>
+					<div id="faultsList"></div>
 				</div>
 
 				<div id="properties" style="background-color: #ffffff; padding-left: 10px; height: 300px; overflow:auto; display: none">
@@ -35,8 +37,8 @@
 				<div class="header">Viewing options</div>
 				<div class="section">
 					<input id="verticalScaleSlider" type="range" min="0" max="10" value="1" oninput="onVerticalScaleSliderChanged(this)">Vert. scale</input><br>
-					<input type="checkbox" checked onchange="onDrawFacesCheckBoxChanged(this)">Faces</input><br>
-					<input type="checkbox" checked onchange="onDrawEdgesCheckBoxChanged(this)">Edges</input><br>
+					<input type="checkbox" id="checkBoxDrawFaces" checked onchange="onRenderStyleChanged()">Faces</input><br>
+					<input type="checkbox" id="checkBoxDrawEdges" checked onchange="onRenderStyleChanged()">Edges</input><br>
 					<button onclick="onButtonViewAllClicked()">View all</button>
 				</div>
 			</div>
@@ -44,10 +46,10 @@
 			<div>
 				<div class="header">Slices</div>
 				<div class="section">
-					<input id="sliceICheckBox" type="checkbox" onchange="onSliceICheckBoxChanged(this)">I</input>
-					<input id="sliceISlider" type="range" value="0" oninput="onSliceIPositionChanged(this)"/><br>
-					<input id="sliceJCheckBox" type="checkbox" onchange="onSliceJCheckBoxChanged(this)">J</input>
-					<input id="sliceJSlider" type="range" value="0" oninput="onSliceJPositionChanged(this)"/><br>
+					<input id="sliceICheckBox" type="checkbox" onchange="onSliceCheckBoxChanged(0, this)">I</input>
+					<input id="sliceISlider" type="range" value="0" oninput="onSlicePositionChanged(0, this)"/><br>
+					<input id="sliceJCheckBox" type="checkbox" onchange="onSliceCheckBoxChanged(1, this)">J</input>
+					<input id="sliceJSlider" type="range" value="0" oninput="onSlicePositionChanged(1, this)"/><br>
 				</div>
 			</div>	
 			<div>
@@ -60,10 +62,16 @@
 			<div>
 				<div class="header">Settings</div>
 				<div class="section">
-					<input id="maxFpsSlider" type="range" value="0" oninput="onMaxFpsSliderChanged(this)">Max FPS</input>
 					<div style="margin-top: 10px">JPEG Quality</div>
-					<input id="qualitySlider" min="0" max="1" step="0.05" type="range" value="0" oninput="onQualitySliderChanged(this.value)">Still</input>
-					<input id="iqualitySlider" min="0" max="1" step="0.05" type="range" value="0" oninput="onInteractiveQualitySliderChanged(this.value)">Interactive</input>
+					<input id="qualitySlider" min="0" max="1" step="0.05" type="range" value="0" oninput="onQualitySliderChanged(this.valueAsNumber)">Still</input>
+					<input id="iqualitySlider" min="0" max="1" step="0.05" type="range" value="0" oninput="onInteractiveQualitySliderChanged(this.valueAsNumber)">Interactive</input>
+				</div>
+			</div>
+
+			<div>
+				<div class="header">Performance</div>
+				<div class="section">
+					<div id="bandwidthfps"></div>
 				</div>
 			</div>
 
@@ -76,8 +84,7 @@
 	    	</canvas>
 		</div>
 	</div>
-	<!-- <div id="messagelog"></div> -->
-	<div style="float: bottom;" id="bandwidthfps"></div>
+
 </body>
 
 </html>

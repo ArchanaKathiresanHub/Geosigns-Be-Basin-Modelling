@@ -10,6 +10,7 @@
 
 #include "BpaRenderAreaListener.h"
 #include "SceneExaminer.h"
+#include "jsonxx.h"
 
 #include <Visualization/SceneGraphManager.h>
 
@@ -26,6 +27,8 @@
 #include <Interface/Property.h>
 #include <Interface/Formation.h>
 #include <Interface/Surface.h>
+#include <Interface/FaultCollection.h>
+#include <Interface/Faulting.h>
 
 #include <string>
 #include <list>
@@ -53,10 +56,12 @@ void BpaRenderAreaListener::createSceneGraph(const std::string& /*id*/)
 {
   std::cout << "Loading scenegraph..."<< std::endl;
 
-  //const std::string rootdir = "V:/data/CauldronSmall";
-  const std::string rootdir = "/home/ree/CauldronSmall";
+  const std::string rootdir = "V:/data/";
+  //const std::string rootdir = "/home/ree/";
+  const std::string project = "CauldronSmall";
   const std::string filename = "/Project.project3d";
-  std::string path = rootdir + filename;
+
+  std::string path = rootdir + project + filename;
 
   m_handle.reset(di::OpenCauldronProject(path, "r", m_factory.get()));
 
@@ -115,25 +120,55 @@ void BpaRenderAreaListener::sendProjectInfo() const
   msg += ", ";
   msg += "\"numJHiRes\": " + std::to_string((long long)m_sceneGraphManager.numJHiRes());
   msg += ", ";
+
+  // formations
   msg += "\"formations\": [";
-
   std::unique_ptr<di::FormationList> formations(m_handle->getFormations(0, false));
-  if (!formations->empty())
-    msg += "\"" + (*formations)[0]->getName() + "\"";
-  for (size_t i = 1; i < formations->size(); ++i)
-    msg += ", \"" + (*formations)[i]->getName() + "\"";
-  msg += "], \"surfaces\": [";
-
+  for (size_t i = 0; i < formations->size(); ++i)
+  {
+    msg += "\"" + (*formations)[i]->getName() + "\"";
+    if (i < formations->size() - 1)
+      msg += ", ";
+  }
+  msg += "], ";
+  
+  // surfaces
+  msg += "\"surfaces\": [";
   std::unique_ptr<di::SurfaceList> surfaces(m_handle->getSurfaces(0, false));
-  if (!surfaces->empty())
-    msg += "\"" + (*surfaces)[0]->getName() + "\"";
-  for (size_t i = 1; i < surfaces->size(); ++i)
-    msg += ", \"" + (*surfaces)[i]->getName() + "\"";
+  for (size_t i = 0; i < surfaces->size(); ++i)
+  {
+    msg += "\"" + (*surfaces)[i]->getName() + "\"";
+    if (i < surfaces->size() - 1)
+      msg += ", ";
+  }
   msg += "], ";
 
-  msg += "\"properties\": [";
+  // faults
+  msg += "\"faultCollections\": [";
+  std::unique_ptr<di::FaultCollectionList> faultCollections(m_handle->getFaultCollections(0));
+  if (faultCollections && !faultCollections->empty())
+  {
+    for (size_t i = 0; i < faultCollections->size(); ++i)
+    {
+      msg += "{ \"name\": \"" + (*faultCollections)[i]->getName() + "\", \"faults\": [";
 
-  // Add properties to parent node
+      std::unique_ptr<di::FaultList> faults((*faultCollections)[i]->getFaults());
+      for (size_t j = 0; j < faults->size(); ++j)
+      {
+        msg += "\"" + (*faults)[j]->getName() + "\"";
+        if (j < faults->size() - 1)
+          msg += ", ";
+      }
+      msg += "]}";
+
+      if (i < faultCollections->size() - 1)
+        msg += ", ";
+    }
+  }
+  msg += "], ";
+
+  // properties
+  msg += "\"properties\": [";
 
   const int allFlags = di::FORMATION | di::SURFACE | di::RESERVOIR | di::FORMATIONSURFACE;
   const int allTypes = di::MAP | di::VOLUME;
@@ -149,10 +184,12 @@ void BpaRenderAreaListener::sendProjectInfo() const
       propertyNames.push_back(prop->getName());
   }
 
-  if (!propertyNames.empty())
-    msg += "\"" + propertyNames[0]+ "\"";
-  for (size_t i = 1; i < propertyNames.size(); ++i)
-    msg += ", \"" + propertyNames[i] + "\"";
+  for (size_t i = 0; i < propertyNames.size(); ++i)
+  {
+    msg += "\"" + propertyNames[i] + "\"";
+    if (i < propertyNames.size() - 1)
+      msg += ", ";
+  }
   msg += "] } }";
 
   m_renderArea->sendMessage(msg);
@@ -180,111 +217,106 @@ void BpaRenderAreaListener::onReceivedMessage(RenderArea* renderArea, Connection
 {
   std::cout << "[BpaRenderAreaListener] onReceivedMessage(renderArea = " << renderArea->getId() << ", message = " << message << ")" << std::endl;
   
-  std::list<std::string> elems;
-  split(message, ' ', elems); // split the received message, pattern : "COMMAND ARGUMENT"
+  jsonxx::Object jsonObj;
+  if (!jsonObj.parse(message))
+    return;
 
-  string command = elems.front();
-  elems.pop_front();
-  string argument;
-  if (!elems.empty())
-  {
-    argument = elems.front();
-    elems.pop_front();
-  }
-  string argument2;
-  if (!elems.empty())
-  {
-    argument2 = elems.front();
-    elems.pop_front();
-  }
+  auto cmd = jsonObj.get<std::string>("cmd");
+  auto params = jsonObj.get<jsonxx::Object>("params");
 
-  // parse the commands
-  if (command == "FPS")
+  if (cmd == "EnableFormation")
   {
-    //renderArea->getSettings()->setMaxSendingFPS(atoi(argument.c_str()));
+    auto name = params.get<std::string>("name");
+    auto enabled = params.get<bool>("enabled");
+
+    m_sceneGraphManager.enableFormation(name, enabled);
   }
-  else if (command == "STILLQUALITY")
+  else if (cmd == "EnableSurface")
   {
-    float quality = (float)atof(argument.c_str());
-    std::cout << "Setting still quality to " << quality << std::endl;
-    renderArea->getSettings()->setStillCompressionQuality(quality);
+    auto name = params.get<std::string>("name");
+    auto enabled = params.get<bool>("enabled");
+
+    m_sceneGraphManager.enableSurface(name, enabled);
   }
-  else if (command == "SCALEFACTOR")
+  else if (cmd == "EnableSlice")
   {
-    renderArea->getSettings()->setInteractiveScaleFactor((float)atof(argument.c_str()));
+    auto slice = params.get<jsonxx::Number>("slice");
+    auto enabled = params.get<bool>("enabled");
+
+    m_sceneGraphManager.enableSlice((int)slice, enabled);
   }
-  else if (command == "INTERACTIVEQUALITY")
+  else if (cmd == "SetSlicePosition")
   {
-    float quality = (float)atof(argument.c_str());
-    std::cout << "Setting interactive quality to " << quality << std::endl;
-    renderArea->getSettings()->setInteractiveCompressionQuality(quality);
+    auto slice = params.get<jsonxx::Number>("slice");
+    auto position = params.get<jsonxx::Number>("position");
+
+    m_sceneGraphManager.setSlicePosition((int)slice, (int)position);
   }
-  else if (command == "WIDTH")
+  else if (cmd == "EnableFault")
   {
-    renderArea->resize(atoi(argument.c_str()),renderArea->getSceneManager()->getSize()[1]);
+    auto collection = params.get<std::string>("collection");
+    auto name = params.get<std::string>("name");
+    auto enabled = params.get<bool>("enabled");
+
+    m_sceneGraphManager.enableFault(collection, name, enabled);
   }
-  else if (command == "HEIGHT")
+  else if (cmd == "SetProperty")
   {
-    renderArea->resize(renderArea->getSceneManager()->getSize()[0], atoi(argument.c_str()));
+    auto name = params.get<std::string>("name");
+
+    m_sceneGraphManager.setProperty(name);
   }
-  else if(command == "SNAPSHOT")
+  else if (cmd == "SetVerticalScale")
   {
-    int index = atoi(argument.c_str());
-    m_sceneGraphManager.setCurrentSnapshot(index);
-  }
-  else if(command == "VSCALE")
-  {
-    int scale = atoi(argument.c_str());
+    auto scale = params.get<jsonxx::Number>("scale");
+
     m_sceneGraphManager.setVerticalScale((float)scale);
   }
-  else if (command == "ENABLESLICEI")
+  else if (cmd == "SetRenderStyle")
   {
-    bool enabled = (argument == "TRUE");
-    m_sceneGraphManager.enableSlice(0, enabled);
+    auto drawFaces = params.get<bool>("drawFaces");
+    auto drawEdges = params.get<bool>("drawEdges");
+
+    m_sceneGraphManager.setRenderStyle(drawFaces, drawEdges);
   }
-  else if(command == "SLICEI")
+  else if (cmd == "SetCurrentSnapshot")
   {
-    int index = atoi(argument.c_str());
-    m_sceneGraphManager.setSlicePosition(0, index);
+    auto index = params.get<jsonxx::Number>("index");
+
+    m_sceneGraphManager.setCurrentSnapshot((int)index);
   }
-  else if (command == "ENABLESLICEJ")
-  {
-    bool enabled = (argument == "TRUE");
-    m_sceneGraphManager.enableSlice(1, enabled);
-  }
-  else if (command == "SLICEJ")
-  {
-    int index = atoi(argument.c_str());
-    m_sceneGraphManager.setSlicePosition(1, index);
-  }
-  else if(command == "SETPROPERTY")
-  {
-    m_sceneGraphManager.setProperty(argument);
-  }
-  else if(command == "DRAWFACES")
-  {
-    m_drawFaces = (argument == "TRUE");
-    m_sceneGraphManager.setRenderStyle(m_drawFaces, m_drawEdges);
-  }
-  else if (command == "DRAWEDGES")
-  {
-    m_drawEdges = (argument == "TRUE");
-    m_sceneGraphManager.setRenderStyle(m_drawFaces, m_drawEdges);
-  }
-  else if(command == "VIEWALL")
+  else if (cmd == "ViewAll")
   {
     SbViewportRegion vpregion = m_renderArea->getSceneManager()->getViewportRegion();
     m_examiner->viewAll(vpregion);
   }
-  else if (command == "ENABLEFORMATION")
+  else if (cmd == "SetStillQuality")
   {
-    bool enabled = (argument2 == "TRUE");
-    m_sceneGraphManager.enableFormation(argument, enabled);
+    auto quality = params.get<jsonxx::Number>("quality");
+
+    std::cout << "Setting still quality to " << quality << std::endl;
+    renderArea->getSettings()->setStillCompressionQuality((float)quality);
   }
-  else if (command == "ENABLESURFACE")
+  else if (cmd == "SetInteractiveQuality")
   {
-    bool enabled = (argument2 == "TRUE");
-    m_sceneGraphManager.enableSurface(argument, enabled);
+    auto quality = params.get<jsonxx::Number>("quality");
+
+    std::cout << "Setting interactive quality to " << quality << std::endl;
+    renderArea->getSettings()->setInteractiveCompressionQuality((float)quality);
+  }
+  else if (cmd == "SetWidth")
+  {
+    auto width = params.get<jsonxx::Number>("width");
+    auto height = renderArea->getSceneManager()->getSize()[1];
+
+    renderArea->resize((int)width, (int)height);
+  }
+  else if (cmd == "SetHeight")
+  {
+    auto width = renderArea->getSceneManager()->getSize()[0];
+    auto height = params.get<jsonxx::Number>("height"); 
+
+    renderArea->resize((int)width, (int)height);
   }
 }
 

@@ -39,8 +39,9 @@ namespace
   const int TreeWidgetItem_PropertyType  = QTreeWidgetItem::UserType + 3;
   const int TreeWidgetItem_ReservoirType = QTreeWidgetItem::UserType + 4;
   const int TreeWidgetItem_FaultType     = QTreeWidgetItem::UserType + 5;
-  const int TreeWidgetItem_FormationGroupType = QTreeWidgetItem::UserType + 6;
-  const int TreeWidgetItem_SurfaceGroupType   = QTreeWidgetItem::UserType + 7;
+  const int TreeWidgetItem_FaultCollectionType = QTreeWidgetItem::UserType + 6;
+  const int TreeWidgetItem_FormationGroupType  = QTreeWidgetItem::UserType + 7;
+  const int TreeWidgetItem_SurfaceGroupType    = QTreeWidgetItem::UserType + 8;
 }
 
 void MainWindow::fpsCallback(float fps, void* userData, SoQtViewer* viewer)
@@ -235,14 +236,16 @@ void MainWindow::updateUI()
 
         for (size_t j = 0; j < faultCollections->size(); ++j)
         {
-          QTreeWidgetItem* faultCollectionItem = new QTreeWidgetItem(faultRoot);
+          QTreeWidgetItem* faultCollectionItem = new QTreeWidgetItem(faultRoot, TreeWidgetItem_FaultCollectionType);
           faultCollectionItem->setText(0, (*faultCollections)[j]->getName().c_str());
+          faultCollectionItem->setCheckState(0, Qt::Unchecked);
 
           std::unique_ptr<di::FaultList> faults((*faultCollections)[j]->getFaults());
           for (size_t k = 0; k < faults->size(); ++k)
           {
             QTreeWidgetItem* faultItem = new QTreeWidgetItem(faultCollectionItem, TreeWidgetItem_FaultType);
             faultItem->setText(0, (*faults)[k]->getName().c_str());
+            faultItem->setCheckState(0, Qt::Unchecked);
           }
         }
       }
@@ -568,6 +571,8 @@ void MainWindow::onShowGLInfo()
 void MainWindow::onTreeWidgetItemChanged(QTreeWidgetItem* item, int column)
 {
   std::string name = item->text(0).toStdString();
+  std::string parentName = item->parent() != 0 ? item->parent()->text(0).toStdString() : "";
+
   bool checked = item->checkState(0) == Qt::Checked;
 
   switch (item->type())
@@ -579,8 +584,11 @@ void MainWindow::onTreeWidgetItemChanged(QTreeWidgetItem* item, int column)
     m_sceneGraphManager.enableSurface(name, checked);
     break;
   case TreeWidgetItem_ReservoirType:
-    //m_sceneGraph->setReservoirVisibility(name, checked);
     break;
+  case TreeWidgetItem_FaultType:
+    m_sceneGraphManager.enableFault(parentName, name, checked);
+    break;
+  case TreeWidgetItem_FaultCollectionType:
   case TreeWidgetItem_FormationGroupType:
   case TreeWidgetItem_SurfaceGroupType:
     for (int i = 0; i < item->childCount(); ++i)

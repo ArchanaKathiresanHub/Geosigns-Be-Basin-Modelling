@@ -56,8 +56,8 @@ bool Geometry::isUndefined(size_t i, size_t j, size_t k) const
 MbVec3d Geometry::getCoord(unsigned int i, unsigned int j, unsigned int k) const
 {
   return MbVec3d(
-    m_minX + i * m_deltaX,
-    m_minY + j * m_deltaY,
+    /*m_minX + */i * m_deltaX,
+    /*m_minY + */j * m_deltaY,
     -m_depthMap->getValue(i, j, k));
 }
 
@@ -207,8 +207,8 @@ bool SnapshotGeometry::isUndefined(size_t i, size_t j, size_t k) const
 MbVec3d SnapshotGeometry::getCoord(unsigned int i, unsigned int j, unsigned int k) const
 {
   return MbVec3d(
-    m_minX + i * m_deltaX,
-    m_minY + j * m_deltaY,
+    /*m_minX +*/ i * m_deltaX,
+    /*m_minY +*/ j * m_deltaY,
     -m_depthMaps.getValue(i, j, k));
 }
 

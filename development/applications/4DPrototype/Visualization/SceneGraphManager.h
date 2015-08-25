@@ -32,6 +32,7 @@ class SoSwitch;
 class SoGroup;
 class SoNode;
 class SoShapeHints;
+class SoLineSet;
 
 class MoLegend;
 class SoScale;
@@ -44,6 +45,7 @@ class MoScalarSetIjk;
 class MoMeshSkin;
 class MoMeshSlab;
 class MoMeshSurface;
+class MoMeshFenceSlice;
 template<class T>
 class MiDataSetIjk;
 
@@ -54,6 +56,7 @@ namespace DataAccess
     class ProjectHandle;
     class Formation;
     class Surface;
+    class Fault;
     class Property;
     class Snapshot;
   }
@@ -102,6 +105,21 @@ struct SnapshotInfo
     }
   };
 
+  struct Fault
+  {
+    int id;
+
+    SoLineSet* lines;
+    MoMeshFenceSlice* fence;
+
+    Fault()
+      : id(0)
+      , lines(0)
+      , fence(0)
+    {
+    }
+  };
+
   const DataAccess::Interface::Snapshot* snapshot;
   const DataAccess::Interface::Property* currentProperty;
 
@@ -119,14 +137,17 @@ struct SnapshotInfo
 
   SoGroup* chunksGroup;
   SoGroup* surfacesGroup;
+  SoGroup* faultsGroup;
   SoGroup* slicesGroup;
 
   std::vector<Formation> formations; 
   std::vector<Chunk> chunks;
   std::vector<Surface> surfaces;
+  std::vector<Fault> faults;
 
   size_t formationsTimeStamp;
   size_t surfacesTimeStamp;
+  size_t faultsTimeStamp;
 
   SnapshotInfo();
 };
@@ -147,6 +168,14 @@ struct SurfaceInfo
   bool visible;
 };
 
+struct FaultInfo
+{
+  const DataAccess::Interface::Fault* fault;
+
+  int id;
+  bool visible;
+};
+
 class VISUALIZATIONDLL_API SceneGraphManager
 {
   const DataAccess::Interface::ProjectHandle* m_projectHandle;
@@ -158,14 +187,21 @@ class VISUALIZATIONDLL_API SceneGraphManager
   int m_numIHiRes;
   int m_numJHiRes;
 
+  double m_minX;
+  double m_minY;
+
   std::map<std::string, int> m_formationIdMap;
   std::map<std::string, int> m_surfaceIdMap;
+  std::map<std::string, int> m_faultIdMap;
+
   std::vector<FormationInfo> m_formations;
   std::vector<SurfaceInfo>   m_surfaces;
+  std::vector<FaultInfo>     m_faults;
   std::vector<SnapshotInfo>  m_snapshots;
 
   size_t m_formationsTimeStamp;
   size_t m_surfacesTimeStamp;
+  size_t m_faultsTimeStamp;
   size_t m_currentSnapshot;
 
   size_t m_slicePosition[3];
@@ -190,6 +226,7 @@ class VISUALIZATIONDLL_API SceneGraphManager
 
   void updateSnapshotFormations(size_t index);
   void updateSnapshotSurfaces(size_t index);
+  void updateSnapshotFaults(size_t index);
   void updateSnapshotProperties(size_t index);
   void updateSnapshotSlices(size_t index);
   void updateSnapshot(size_t index);
@@ -226,6 +263,8 @@ public:
   void enableFormation(const std::string& name, bool enabled);
 
   void enableSurface(const std::string& name, bool enabled);
+
+  void enableFault(const std::string& collectionName, const std::string& name, bool enabled);
 
   void enableSlice(int slice, bool enabled);
 

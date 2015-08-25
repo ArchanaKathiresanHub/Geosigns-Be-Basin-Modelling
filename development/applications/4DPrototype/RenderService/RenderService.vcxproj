@@ -154,6 +154,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="BpaRenderAreaListener.cpp" />
+    <ClCompile Include="jsonxx.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="RenderService.cpp" />
     <ClCompile Include="SceneExaminer.cpp" />
@@ -162,6 +163,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BpaRenderAreaListener.h" />
+    <ClInclude Include="jsonxx.h" />
     <ClInclude Include="RenderService.h" />
     <ClInclude Include="SceneExaminer.h" />
     <ClInclude Include="BpaServiceListener.h" />
