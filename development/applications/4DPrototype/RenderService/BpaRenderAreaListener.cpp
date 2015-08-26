@@ -38,20 +38,6 @@ using namespace std;
 
 namespace di = DataAccess::Interface;
 
-namespace
-{
-  std::list<std::string> &split(const std::string &s, char delim, std::list<std::string> &elems) 
-  {
-      stringstream ss(s);
-      string item;
-
-      while (getline(ss, item, delim)) 
-          elems.push_back(item);
-
-      return elems;
-  }
-}
-
 void BpaRenderAreaListener::createSceneGraph(const std::string& /*id*/)
 {
   std::cout << "Loading scenegraph..."<< std::endl;
@@ -76,17 +62,14 @@ void BpaRenderAreaListener::createSceneGraph(const std::string& /*id*/)
   m_sceneGraphManager.setup(m_handle.get());
 
   SoGradientBackground* background = new SoGradientBackground;
-  background->color0 = SbColor(.1f, .1f, .2f);
-  background->color1 = SbColor(.2f, .2f, .5f);
+  background->color0 = SbColor(.1f, .1f, .1f);
+  background->color1 = SbColor(.2f, .2f, .3f);
 
   m_examiner = new SceneExaminer();
   m_examiner->addChild(background);
   m_examiner->addChild(m_sceneGraphManager.getRoot());
 
-  // Apply the sceneExaminer node as renderArea scene graph
   m_renderArea->getSceneManager()->setSceneGraph(m_examiner);
-
-  // viewall
   m_examiner->viewAll(m_renderArea->getSceneManager()->getViewportRegion());
 
   std::cout << "...done" << std::endl;
@@ -108,91 +91,63 @@ BpaRenderAreaListener::~BpaRenderAreaListener()
 
 void BpaRenderAreaListener::sendProjectInfo() const
 {
-  std::string msg = "{ \"projectInfo\": { ";
+  // Add formation names
+  jsonxx::Array formations;
+  std::unique_ptr<di::FormationList> formationList(m_handle->getFormations(0, false));
+  for (auto formation : *formationList)
+    formations << formation->getName();
 
-  msg += "\"snapshotCount\": " + std::to_string((long long)m_sceneGraphManager.getSnapshotCount());
-  msg += ", ";
-  msg += "\"numI\": " + std::to_string((long long)m_sceneGraphManager.numI());
-  msg += ", ";
-  msg += "\"numJ\": " + std::to_string((long long)m_sceneGraphManager.numJ());
-  msg += ", ";
-  msg += "\"numIHiRes\": " + std::to_string((long long)m_sceneGraphManager.numIHiRes());
-  msg += ", ";
-  msg += "\"numJHiRes\": " + std::to_string((long long)m_sceneGraphManager.numJHiRes());
-  msg += ", ";
+  // Add surface names
+  jsonxx::Array surfaces;
+  std::unique_ptr<di::SurfaceList> surfaceList(m_handle->getSurfaces(0, false));
+  for (auto surface : *surfaceList)
+    surfaces << surface->getName();
 
-  // formations
-  msg += "\"formations\": [";
-  std::unique_ptr<di::FormationList> formations(m_handle->getFormations(0, false));
-  for (size_t i = 0; i < formations->size(); ++i)
+  // Add fault collections
+  jsonxx::Array faultCollections;
+  std::unique_ptr<di::FaultCollectionList> faultCollectionList(m_handle->getFaultCollections(0));
+  for (auto faultCollection : *faultCollectionList)
   {
-    msg += "\"" + (*formations)[i]->getName() + "\"";
-    if (i < formations->size() - 1)
-      msg += ", ";
+    jsonxx::Array faults;
+    std::unique_ptr<di::FaultList> faultList(faultCollection->getFaults());
+    for (auto fault : *faultList)
+      faults << fault->getName();
+
+    jsonxx::Object collection;
+    collection << "name" << faultCollection->getName();
+    collection << "faults" << faults;
+
+    faultCollections << collection;
   }
-  msg += "], ";
-  
-  // surfaces
-  msg += "\"surfaces\": [";
-  std::unique_ptr<di::SurfaceList> surfaces(m_handle->getSurfaces(0, false));
-  for (size_t i = 0; i < surfaces->size(); ++i)
-  {
-    msg += "\"" + (*surfaces)[i]->getName() + "\"";
-    if (i < surfaces->size() - 1)
-      msg += ", ";
-  }
-  msg += "], ";
 
-  // faults
-  msg += "\"faultCollections\": [";
-  std::unique_ptr<di::FaultCollectionList> faultCollections(m_handle->getFaultCollections(0));
-  if (faultCollections && !faultCollections->empty())
-  {
-    for (size_t i = 0; i < faultCollections->size(); ++i)
-    {
-      msg += "{ \"name\": \"" + (*faultCollections)[i]->getName() + "\", \"faults\": [";
-
-      std::unique_ptr<di::FaultList> faults((*faultCollections)[i]->getFaults());
-      for (size_t j = 0; j < faults->size(); ++j)
-      {
-        msg += "\"" + (*faults)[j]->getName() + "\"";
-        if (j < faults->size() - 1)
-          msg += ", ";
-      }
-      msg += "]}";
-
-      if (i < faultCollections->size() - 1)
-        msg += ", ";
-    }
-  }
-  msg += "], ";
-
-  // properties
-  msg += "\"properties\": [";
-
+  // Add properties
+  jsonxx::Array properties;
   const int allFlags = di::FORMATION | di::SURFACE | di::RESERVOIR | di::FORMATIONSURFACE;
   const int allTypes = di::MAP | di::VOLUME;
-
-  std::unique_ptr<di::PropertyList> properties(m_handle->getProperties(true));
-
-  // Get the list of property names for which values are available
-  std::vector<std::string> propertyNames;
-  for (size_t i = 1; i < properties->size(); ++i)
+  std::unique_ptr<di::PropertyList> propertyList(m_handle->getProperties(true));
+  for (auto property : *propertyList)
   {
-    const di::Property* prop = (*properties)[i];
-    if (prop->hasPropertyValues(allFlags, 0, 0, 0, 0, allTypes))
-      propertyNames.push_back(prop->getName());
+    if (property->hasPropertyValues(allFlags, 0, 0, 0, 0, allTypes))
+      properties << property->getName();
   }
 
-  for (size_t i = 0; i < propertyNames.size(); ++i)
-  {
-    msg += "\"" + propertyNames[i] + "\"";
-    if (i < propertyNames.size() - 1)
-      msg += ", ";
-  }
-  msg += "] } }";
+  // Assemble complete projectInfo structure
+  jsonxx::Object projectInfo;
+  projectInfo
+    << "snapshotCount" << (int)m_sceneGraphManager.getSnapshotCount()
+    << "numI" << m_sceneGraphManager.numI()
+    << "numJ" << m_sceneGraphManager.numJ()
+    << "numIHiRes" << m_sceneGraphManager.numIHiRes()
+    << "numJHiRes" << m_sceneGraphManager.numJHiRes()
+    << "formations" << formations
+    << "surfaces" << surfaces
+    << "faultCollections" << faultCollections
+    << "properties" << properties;
 
-  m_renderArea->sendMessage(msg);
+  jsonxx::Object msg;
+  msg << "projectInfo" << projectInfo;
+
+  m_renderArea->sendMessage(msg.write(jsonxx::JSON));
 }
 
 void BpaRenderAreaListener::onOpenedConnection(RenderArea* renderArea, Connection* connection)
@@ -294,14 +249,12 @@ void BpaRenderAreaListener::onReceivedMessage(RenderArea* renderArea, Connection
   {
     auto quality = params.get<jsonxx::Number>("quality");
 
-    std::cout << "Setting still quality to " << quality << std::endl;
     renderArea->getSettings()->setStillCompressionQuality((float)quality);
   }
   else if (cmd == "SetInteractiveQuality")
   {
     auto quality = params.get<jsonxx::Number>("quality");
 
-    std::cout << "Setting interactive quality to " << quality << std::endl;
     renderArea->getSettings()->setInteractiveCompressionQuality((float)quality);
   }
   else if (cmd == "SetWidth")
