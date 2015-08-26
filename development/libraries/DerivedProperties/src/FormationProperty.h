@@ -10,6 +10,8 @@
 #include "AbstractFormation.h"
 #include "AbstractGrid.h"
 
+#include "NumericFunctions.h"
+
 #include "AbstractPropertyValues.h"
 
 #include "Interface/GridMap.h"
@@ -70,6 +72,13 @@ namespace DerivedProperties {
 
       /// \brief The number of nodes in the z-direction.
       unsigned int lengthK () const;
+
+      /// \brief Get the value of the property at the position i,j,k.
+      ///
+      /// If any of the i, j or k values is out of range then a null value will be returned.
+      virtual double checkedGet ( unsigned int i,
+                                  unsigned int j,
+                                  unsigned int k ) const;
 
       /// \brief Get the value of the property at the position i,j,k.
       virtual double get ( unsigned int i,
@@ -165,5 +174,19 @@ inline unsigned int DerivedProperties::FormationProperty::lastK () const {
 inline unsigned int DerivedProperties::FormationProperty::lengthK () const {
    return m_numberK;
 }
+
+inline double DerivedProperties::FormationProperty::checkedGet ( unsigned int i,
+                                                                 unsigned int j,
+                                                                 unsigned int k ) const {
+
+   if ( NumericFunctions::inRange<unsigned int>( i, firstI ( true ), lastI ( true )) and
+        NumericFunctions::inRange<unsigned int>( j, firstJ ( true ), lastJ ( true )) and
+        NumericFunctions::inRange<unsigned int>( k, firstK (), lastK ())) {
+      return get ( i, j, k );
+   } else {
+      return getUndefinedValue ();
+   }
+}
+
 
 #endif // _DERIVED_PROPERTIES__FORMATION_PROPERTY_H_
