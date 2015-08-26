@@ -1125,14 +1125,14 @@ bool Reservoir::saveComputedProperty (const string & name, ValueSpec valueSpec, 
    {
       for (unsigned int j = m_columnArray->firstJLocal (); j <= m_columnArray->lastJLocal (); ++j)
       {
-	 if (IsValid (getLocalColumn (i, j)))
-	 {
-	    gridMap->setValue (i, j, getLocalColumn (i, j)->getValue (valueSpec, phase));
-	 }
-	 else
-	 {
-	    gridMap->setValue (i, j, gridMap->getUndefinedValue ());
-	 }
+         if (IsValid (getLocalColumn (i, j)))
+         {
+         gridMap->setValue (i, j, getLocalColumn (i, j)->getValue (valueSpec, phase));
+         }
+         else
+         {
+         gridMap->setValue (i, j, gridMap->getUndefinedValue ());
+         }
       }
    }
    gridMap->restoreData ();
@@ -1840,8 +1840,8 @@ bool Reservoir::crackChargesToBeMigrated (OilToGasCracker & otgc)
    {
       for (unsigned int j = m_columnArray->firstJLocal (); j <= m_columnArray->lastJLocal (); ++j)
       {
-	 LocalColumn * column = getLocalColumn (i, j);
-	 column->crackChargesToBeMigrated (otgc, m_start->getTime(), m_end->getTime());
+         LocalColumn * column = getLocalColumn (i, j);
+         column->crackChargesToBeMigrated (otgc, m_start->getTime(), m_end->getTime());
       }
    }
 
@@ -2262,7 +2262,7 @@ bool Reservoir::fillAndSpill ()
    m_biodegraded = 0;
    if (isBioDegradationOn())
    {
-         m_biodegraded = biodegradeCharges ();
+      m_biodegraded = biodegradeCharges ();
    }
 
    do
@@ -2312,8 +2312,8 @@ bool Reservoir::distributionHasFinished (void)
    {
       if ((*trapIter)->requiresDistribution ())
       {
-	 value = false;
-	 break;
+         value = false;
+         break;
       }
    }
 
@@ -2366,7 +2366,7 @@ double Reservoir::biodegradeCharges ()
 
    for (TrapVector::iterator trapIter = m_traps.begin (); trapIter != m_traps.end (); ++trapIter)
    {
-     biodegraded += (*trapIter)->biodegradeCharges(timeInterval, biodegrade);
+         biodegraded += (*trapIter)->biodegradeCharges(timeInterval, biodegrade);
    }
 
    RequestHandling::FinishRequestHandling ();
@@ -2440,10 +2440,6 @@ bool Reservoir::diffusionLeakCharges ()
 
 bool Reservoir::distributeCharges ()
 {
-#if 0
-   cerrstrstr << GetRankString () << ": " << getName () << "::distributeCharges ()" << endl;
-#endif
-
    bool distributionFinished = true;
    RequestHandling::StartRequestHandling (this, "distributeCharges");
 
@@ -2451,7 +2447,7 @@ bool Reservoir::distributeCharges ()
 
    for (trapIter = m_traps.begin (); trapIter != m_traps.end (); ++trapIter)
    {
-     distributionFinished &= (*trapIter)->distributeCharges ();
+      distributionFinished &= (*trapIter)->distributeCharges ();
    }
 
    RequestHandling::FinishRequestHandling ();
@@ -2573,7 +2569,7 @@ void Reservoir::absorbTraps(void)
       {
          trap->beAbsorbed();
 
-	 delete trap;
+	      delete trap;
          trapIter = m_traps.erase(trapIter);
          continue;
       }
@@ -2590,7 +2586,7 @@ void Reservoir::completeTrapExtensions (void)
       Trap * trap = * trapIter;
       if (trap->hasBeenExtended ())
       {
-	 trap->completeExtension ();
+         trap->completeExtension ();
       }
    }
    RequestHandling::FinishRequestHandling ();
@@ -3577,12 +3573,12 @@ void Reservoir::processMigrationRequests (void)
 
       for (mrIter = m_migrationRequests.begin (), i = 0; mrIter != m_migrationRequests.end (); ++mrIter, ++i)
       {
-	 processMigration (* mrIter);
+         processMigration (* mrIter);
       }
 
       for (mrIter = m_migrationRequests.begin (), i = 0; mrIter != m_migrationRequests.end (); ++mrIter, ++i)
       {
-	 processAbsorption (* mrIter);
+	      processAbsorption (* mrIter);
       }
    }
 

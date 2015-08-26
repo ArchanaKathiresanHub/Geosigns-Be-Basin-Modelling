@@ -1248,8 +1248,8 @@ bool Trap::isPasteurized(const double hydrocarbonWaterContactTemperature, const 
    ConstColumnIterator iter;
    for (iter = m_interior.begin(); iter != m_interior.end(); ++iter)
    {
-      LocalColumn * column = dynamic_cast<LocalColumn *> (*iter);
-      
+      Column * column = *iter;
+
       #ifdef DEBUG_BIODEGRADATION
       if (column->getPasteurizationStatus() == -1)
          countNotPasteurized++;
@@ -1269,7 +1269,7 @@ bool Trap::isPasteurized(const double hydrocarbonWaterContactTemperature, const 
    }
    #ifdef DEBUG_BIODEGRADATION
    cerr << "Number of not-Pasteurized / neutral / Pasteurized columns: " << countNotPasteurized << ", " << countNeutral << ", " << countPasteurized << endl;
-   cerr << "needToComputeColumnPasteurizationStatus = " << needToComputeColumnPasteurizationStatus << endl;
+   cerr << "Need to compute the pasteurization status ? " << needToComputeColumnPasteurizationStatus << endl;
    #endif
 
 
@@ -1280,7 +1280,7 @@ bool Trap::isPasteurized(const double hydrocarbonWaterContactTemperature, const 
       {
          for (iter = m_interior.begin(); iter != m_interior.end(); ++iter)
          {
-            LocalColumn * column = dynamic_cast<LocalColumn *> (*iter);
+            Column * column = *iter;
             column->setPasteurizationStatus(1); // columns pasteurized
          }
       }
@@ -1288,7 +1288,7 @@ bool Trap::isPasteurized(const double hydrocarbonWaterContactTemperature, const 
       {
          for (iter = m_interior.begin(); iter != m_interior.end(); ++iter)
          {
-            LocalColumn * column = dynamic_cast<LocalColumn *> (*iter);
+            Column * column = *iter; 
             column->setPasteurizationStatus(-1); // columns not-pasteurized
          }
       }
@@ -1301,7 +1301,7 @@ bool Trap::isPasteurized(const double hydrocarbonWaterContactTemperature, const 
       
    for (iter = m_interior.begin(); iter != m_interior.end(); ++iter)
    {
-      LocalColumn * column = dynamic_cast<LocalColumn *> (*iter);
+      Column * column = *iter;
             
       // Break the loop if the predominant kind of column have already been found (pasteurized and not-pasteurized)
       // Indeed, if those two kinds of columns have already been found inside the trap, the behaviour of the trap is already known (see next section)
@@ -1336,7 +1336,7 @@ bool Trap::isPasteurized(const double hydrocarbonWaterContactTemperature, const 
    {
       for (iter = m_interior.begin(); iter != m_interior.end(); ++iter)
       {
-         LocalColumn * column = dynamic_cast<LocalColumn *> (*iter);
+         Column * column = *iter;
          column->setPasteurizationStatus(-1);   //set all the columns of this trap as not-pasteurized
       }
       return false;
@@ -1349,7 +1349,7 @@ bool Trap::isPasteurized(const double hydrocarbonWaterContactTemperature, const 
    {
       for (iter = m_interior.begin(); iter != m_interior.end(); ++iter)
       {
-         LocalColumn * column = dynamic_cast<LocalColumn *> (*iter);
+         Column * column = *iter;
          column->setPasteurizationStatus(1);   //set all the columns of this trap as pasteurized
       }
       return true;
@@ -1364,7 +1364,7 @@ bool Trap::isPasteurized(const double hydrocarbonWaterContactTemperature, const 
    {
       for (iter = m_interior.begin(); iter != m_interior.end(); ++iter)
       {
-         LocalColumn * column = dynamic_cast<LocalColumn *> (*iter);
+         Column * column = *iter;
          column->setPasteurizationStatus(-1);   //set all the columns of this trap as not-pasteurized
       }
       return false;
@@ -1379,7 +1379,7 @@ bool Trap::isPasteurized(const double hydrocarbonWaterContactTemperature, const 
    {
       for (iter = m_interior.begin(); iter != m_interior.end(); ++iter)
       {
-         LocalColumn * column = dynamic_cast<LocalColumn *> (*iter);
+         Column * column = *iter;
          column->setPasteurizationStatus(1);   //set all the columns of this trap as pasteurized
       }
       return true;

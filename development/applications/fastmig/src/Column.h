@@ -99,7 +99,9 @@ namespace migration
 	 inline bool isDeeperThan (Column * column, bool useTieBreaker = true);
 	 inline bool isShallowerThan (Column * column, bool useTieBreaker = true);
 
-
+    virtual int getPasteurizationStatus() const = 0;
+    virtual void setPasteurizationStatus(int status) = 0;
+    
 	 virtual Column * getAdjacentColumn (PhaseId phase) = 0;
 
 	 virtual Column * getTargetColumn (PhaseId phase) = 0;
@@ -189,6 +191,9 @@ namespace migration
 	 virtual void addMigrated (PhaseId phase, double weight);
 	 virtual void addFlux (double weight);
 
+    virtual int getPasteurizationStatus() const;
+    virtual void setPasteurizationStatus(int status);
+
 	 virtual Column * getAdjacentColumn (PhaseId phase);
 
 	 virtual Column * getTargetColumn (PhaseId phase);
@@ -220,6 +225,7 @@ namespace migration
     mutable double m_topDepthOffset;
 	 mutable double m_netToGross;
 	 mutable double m_porosity;
+    mutable int    m_pasteurizationStatus;
 
 	 FaultStatus m_faultStatus;
 
@@ -479,11 +485,11 @@ namespace migration
 #ifdef USEOTGC
 	 double m_immobilesVolume;
 #endif
-         double m_permeability;
+    double m_permeability;
 	 double m_temperature;
 	 double m_pressure;
-         double m_hydrostaticPressure;
-         double m_lithostaticPressure;
+    double m_hydrostaticPressure;
+    double m_lithostaticPressure;
 
 	 FaultStatus m_faultStatus;
 

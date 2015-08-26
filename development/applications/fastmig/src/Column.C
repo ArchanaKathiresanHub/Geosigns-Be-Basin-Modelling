@@ -156,21 +156,13 @@ Column * Column::getFinalTargetColumn (PhaseId phase)
 {
    Column * column = this;
    Column * targetColumn = column->getTargetColumn (phase);
-#if 0
-   cerr << GetRankString () << ": " << this << " getFinalTargetColumn (" << phase << "): ";
-   cerr << targetColumn;
-#endif
+
    while (column != targetColumn)
    {
       column = targetColumn;
       targetColumn = column->getTargetColumn (phase);
-#if 0
-      cerr << " -> " << targetColumn;
-#endif
    }
-#if 0
-   cerr << endl;
-#endif
+
    return targetColumn;
 }
 
@@ -453,9 +445,6 @@ double Column::getFillHeight (PhaseId phase)
 
 void LocalColumn::setChargeDensity (PhaseId phase, double chargeDensity)
 {
-#if 0
-   cerr << GetRankString () << ": " << this << "->setChargeDensity (" << phase << ", " << chargeDensity << ")" << endl;
-#endif
    m_chargeDensity[phase] = chargeDensity;
 }
 
@@ -570,11 +559,6 @@ double LocalColumn::getFlow (void)
 
 double LocalColumn::getLateralChargeDensity (PhaseId phase)
 {
-#if 0
-   cerr << GetRankString () << ": " << this << "->getLateralChargeDensity (" << phase << ") = "
-      << getChargeDensity (phase) << " * " << getFillHeight (phase)
-      << " = " << getChargeDensity (phase) * getFillHeight (phase) << endl;
-#endif
    if (IsValid (this))
    {
       return getChargeDensity (phase) * getFillHeight (phase) * getPorosity ();
@@ -775,9 +759,6 @@ double LocalColumn::getPermeability (void) const
 
 void LocalColumn::setFaultStatus (FaultStatus newFaultStatus)
 {
-#if 0
-   cerr << GetRankString () << ": " << this << "->setFaultStatus (" << newFaultStatus << ")" << endl;
-#endif
    m_faultStatus = newFaultStatus;
 }
 
@@ -813,9 +794,6 @@ double LocalColumn::getPreviousTemperature (void) const
 
 void LocalColumn::setPressure (double newPressure)
 {
-#if 0
-   cerr << GetRankString () << ": " << this << "->setPressure (" << newPressure << ")" << endl;
-#endif
    m_pressure = newPressure;
 }
 
@@ -857,9 +835,6 @@ bool LocalColumn::isMinimum (void)
 
 void LocalColumn::setWasting (PhaseId phase)
 {
-#if 0
-   cerr << GetRankString () << ": " << this << "->setWasting (" << phase << ")" << endl;
-#endif
    setBit (BASESEALINGSET + phase, false);
    setBit (BASEWASTINGSET + phase, true);
 }
@@ -871,9 +846,6 @@ bool LocalColumn::isWasting (PhaseId phase)
 
 void LocalColumn::setSealing (PhaseId phase)
 {
-#if 0
-   cerr << GetRankString () << ": " << this << "->setSealing (" << phase << ")" << endl;
-#endif
    setBit (BASEWASTINGSET + phase, false);
    setBit (BASESEALINGSET + phase, true);
 }
@@ -905,6 +877,9 @@ void LocalColumn::setValue (ColumnValueRequest & request)
       case SETCHARGEDENSITY:
 	 setChargeDensity ((PhaseId) request.phase, request.value);
 	 break;
+      case SETPASTEURIZATIONSTATUS:
+    setPasteurizationStatus((int) request.value);
+    break;
       case ADDMIGRATED:
 	 addMigrated ((PhaseId) request.phase, request.value);
 	 break;
@@ -1012,6 +987,11 @@ void LocalColumn::getValue (ColumnValueRequest & request, ColumnValueRequest & r
 	 response.phase = request.phase;
 	 response.value = (double) isWasting ((PhaseId) request.phase);
 	 break;
+      case PASTEURIZATIONSTATUS:
+   response.i = getI();
+   response.j = getJ();
+   response.value = getPasteurizationStatus();
+   break;
       case GLOBALTRAPID:
 	 response.i = getI ();
 	 response.j = getJ ();
@@ -1173,6 +1153,8 @@ double LocalColumn::getValue (ValueSpec valueSpec, PhaseId phase)
 	 return getCompositionWeight ();
       case CHARGEQUANTITY:
 	 return getChargeQuantity (phase);
+      case PASTEURIZATIONSTATUS:
+    return getPasteurizationStatus();
       case FLOWDIRECTION:
 	 return getFlowDirection (phase);
       default:
@@ -1184,12 +1166,6 @@ double LocalColumn::getValue (ValueSpec valueSpec, PhaseId phase)
 
 void LocalColumn::setTrap (Trap * trap)
 {
-#if 0
-   if (trap)
-   {
-      cerr << GetRankString () << ": " << m_reservoir->getName () << "::" << * this << "->setTrap (" << trap->getLocalId () << ")" << endl;
-   }
-#endif
    m_trap = trap;
 }
 
@@ -1205,10 +1181,6 @@ void LocalColumn::setAdjacentColumn (PhaseId phase, Column * column)
 
    m_adjacentColumn[phase] = column;
    setBit (BASEADJACENTCOLUMNSET + phase, true);
-
-#if 0
-      cerr << GetRankString () << ": " << m_reservoir->getName () << "::" << this << "(" << PhaseNames[phase] << ") -> " << column << endl;
-#endif
 }
 
 bool LocalColumn::adjacentColumnSet (PhaseId phase)
@@ -1255,12 +1227,6 @@ bool LocalColumn::computeTargetColumn (PhaseId phase)
 	         m_targetColumn[phase] = adjacentColumn->getTargetColumn (phase);
          }
       }
-#if 0
-      if (m_targetColumn[phase])
-      {
-	 cerr << GetRankString () << ": targetColumn" << m_targetColumn[phase] << " <=== " << this <<  endl;
-      }
-#endif
    }
 
    return (m_targetColumn[phase] != 0);
@@ -1289,9 +1255,6 @@ Column * LocalColumn::getSpillTarget ()
    else
    {
       Column * targetColumn = m_trap->getSpillTarget ();
-#if 0
-      cerr << GetRankString () << ": " << this << " spillsTo " << targetColumn << endl;
-#endif
       return targetColumn;
    }
 }
@@ -1324,10 +1287,6 @@ void LocalColumn::resetChargeDensities (void)
 #ifdef USEOTGC
 void LocalColumn::crackChargesToBeMigrated (OilToGasCracker & otgc, double startTime, double endTime)
 {
-#if 0
-   cerr << GetRankString () << ": " << this << "->crackChargesToBeMigrated ()" << endl;
-#endif
-   
    Composition compositionCracked;
 
    Immobiles immobilesOut;
@@ -1405,9 +1364,6 @@ void LocalColumn::migrateChargesToBeMigrated (void)
 {
    if (m_compositionToBeMigrated.isEmpty ()) return;
 
-#if 0
-   cerrstrstr << GetRankString () << ": " << this << "->migrateChargesToBeMigrated (" << m_compositionToBeMigrated.getWeight () << ")" << endl;
-#endif
    Composition phaseCompositions[NumPhases];
 
    flashChargesToBeMigrated (phaseCompositions);
@@ -1419,21 +1375,14 @@ void LocalColumn::migrateChargesToBeMigrated (void)
 
       Column * targetColumn = getFinalTargetColumn ((PhaseId) phase);
       assert (IsValid (targetColumn));
-#if 0
-      cerrstrstr << GetRankString () << ": " << this << "->migrateChargesToBeMigrated ("
-	 << targetColumn << ", " << PhaseNames[phase] << ", " << phaseCompositions[phase].getWeight () << " kg of " << PhaseNames[phase] << ")" << endl;
-#endif
+
       double weight = phaseCompositions[phase].getWeight ();
       targetColumn->addComposition (phaseCompositions[phase]);
 
-#if 0
-      cerr << "migrated to << " << targetColumn << " = " << phaseCompositions[phase] << endl;
-#endif
-
       if (getPreviousGlobalTrapId () >= 0)
-	 m_reservoir->reportLateralMigration (getPreviousGlobalTrapId (), targetColumn, phaseCompositions[phase]);
+         m_reservoir->reportLateralMigration (getPreviousGlobalTrapId (), targetColumn, phaseCompositions[phase]);
       else
-	 m_reservoir->reportVerticalMigration (this, targetColumn, phaseCompositions[phase]);
+	      m_reservoir->reportVerticalMigration (this, targetColumn, phaseCompositions[phase]);
 
       addMigrated ((PhaseId) phase, weight);
    }
@@ -1470,62 +1419,26 @@ void LocalColumn::resetCompositionState ()
 
 void LocalColumn::addComposition (Composition & composition)
 {
-#if 0
-      cerr << GetRankString () << ": " << this << "->addInitialComposition (" << composition.getWeight () << ")" << endl;
-#endif
-
    m_composition.add (composition);
    m_compositionState |= INITIAL;
-
-#if 0
-   cerr << GetRankString () << ": " << this << "->weight = " << getCompositionWeight () << endl;
-   cerr.flush ();
-#endif
 }
 
 void LocalColumn::addLeakComposition (Composition & composition)
 {
-#if 0
-   cerr << GetRankString () << ": " << this << "->addLeakComposition (" << composition.getWeight () << ")" << endl;
-#endif
-
    m_composition.add (composition);
    m_compositionState |= LEAKED;
-
-#if 0
-      cerr << GetRankString () << ": " << this << "->weight after leaking = " << getCompositionWeight () << endl;
-      cerr.flush ();
-#endif
 }
 
 void LocalColumn::addWasteComposition (Composition & composition)
 {
-#if 0
-   cerr << GetRankString () << ": " << this << "->addWasteComposition (" << composition.getWeight () << ")" << endl;
-#endif
-
    m_composition.add (composition);
    m_compositionState |= WASTED;
-
-#if 0
-   cerr << GetRankString () << ": " << this << "->weight after wasting = " << getCompositionWeight () << endl;
-   cerr.flush ();
-#endif
 }
 
 void LocalColumn::addSpillComposition (Composition & composition)
 {
-#if 0
-   cerr << GetRankString () << ": " << this << "->addSpillComposition (" << composition.getWeight () << ")" << endl;
-#endif
-
    m_composition.add (composition);
    m_compositionState |= SPILLED;
-
-#if 0
-   cerr << GetRankString () << ": " << this << "->weight after spilling = " << getCompositionWeight () << endl;
-   cerr.flush ();
-#endif
 }
 
 void LocalColumn::flashChargesToBeMigrated (Composition * compositionsOut)
@@ -1603,9 +1516,6 @@ void LocalColumn::addToYourTrap (unsigned int i, unsigned int j)
 
 void LocalColumn::addProxy (int rank)
 {
-#if 0
-   cerr << GetRankString () << ": " << this << "->addProxy (" << rank << ", " << m_proxies.size () << ")" << endl;
-#endif
    m_proxies.push_back (rank);
 }
 
@@ -1766,9 +1676,6 @@ void ProxyColumn::addWasteComposition (Composition & composition)
 
 void ProxyColumn::addSpillComposition (Composition & composition)
 {
-#if 0
-   cerr << GetRankString () << ": " << this << "->addSpillComposition (" << composition.getWeight () << ")" << endl;
-#endif
    ColumnCompositionRequest chargesRequest;
    ColumnCompositionRequest chargesResponse;
 
@@ -1863,7 +1770,6 @@ double ProxyColumn::getTopDepth (void) const
       setCached (TOPDEPTHCACHE);
    }
 
-   // cerr << "ProxyColumn (" << getI () << ", " << getJ () << ")->topDepth = " << m_topDepth << endl;
    return m_topDepth;
 }
 
@@ -2151,6 +2057,36 @@ void ProxyColumn::addFlux (double weight)
    RequestHandling::SendRequest (valueRequest, valueResponse);
 }
 
+void ProxyColumn::setPasteurizationStatus(int status)
+{
+   ColumnValueRequest valueRequest;
+   ColumnValueRequest valueResponse;
+
+   valueRequest.i = getI();
+   valueRequest.j = getJ();
+   valueRequest.valueSpec = SETPASTEURIZATIONSTATUS;
+   valueRequest.value = (double)status;
+   RequestHandling::SendRequest(valueRequest, valueResponse);
+}
+
+int ProxyColumn::getPasteurizationStatus() const
+{
+   if (!isCached(PASTEURIZATIONSTATUSCACHE))
+   {
+      ColumnValueRequest valueRequest;
+      ColumnValueRequest valueResponse;
+
+      valueRequest.i = getI();
+      valueRequest.j = getJ();
+      valueRequest.valueSpec = PASTEURIZATIONSTATUS;
+      RequestHandling::SendRequest(valueRequest, valueResponse);
+      m_pasteurizationStatus = valueResponse.value;
+      setCached(PASTEURIZATIONSTATUSCACHE);
+   }
+
+   return m_pasteurizationStatus;
+}
+
 Column * ProxyColumn::getAdjacentColumn (PhaseId phase)
 {
    if (!isCached ((CacheBit) (BASEADJACENTCOLUMNCACHE + phase)))
@@ -2241,11 +2177,6 @@ Column * ProxyColumn::getTrapSpillColumn (void)
 
 void ProxyColumn::registerWithLocal (void)
 {
-
-#if 0
-   cerr << GetRankString () << ": " << "(" << getI () << ", " << getJ ()
-      << ")->registerWithLocal (" << GetRank (getI (), getJ ()) << ")" << endl;
-#endif
    ColumnValueRequest valueRequest;
    ColumnValueRequest valueResponse;
 

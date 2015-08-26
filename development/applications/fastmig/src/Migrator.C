@@ -176,12 +176,6 @@ bool Migrator::compute (void)
 
       if (!start) continue;
 
-      
-
-#if 0
-      cerr << GetRankString () << ": " << "Snapshot:: " << end->getTime () << endl;
-#endif
-
       if (activeReservoirs (end))
       {
          if (!chargeReservoirs (start, end))
@@ -210,9 +204,6 @@ bool Migrator::compute (void)
       m_massBalance = 0;
    }
 
-#if 0
-   cerr << GetRankString () << ": " << "Finishing activity" << endl;
-#endif
    finishActivity ();
 
    setSimulationDetails ( "fastmig", "Default", "" );
@@ -222,9 +213,6 @@ bool Migrator::compute (void)
       PetscPrintf ( PETSC_COMM_WORLD, "MeSsAgE ERROR Unable to merge output files\n");
       status = false;
    }
-#if 0
-   cerr << GetRankString () << ": " << "Finished activity" << endl;
-#endif
 
    return status;
 }
@@ -334,14 +322,9 @@ bool Migrator::chargeReservoirs (const Interface::Snapshot * start, const Interf
          reservoirAbove = 0;
 
       assert (reservoir);
-#if 0
-      cerr << GetRankString () << ": " << "Evaluating Reservoir: " << reservoir->getName () << endl;
-#endif
+
       if (reservoir->isActive (start))
       {
-#if 0
-         cerr << GetRankString () << ": " << "Charging Reservoir: " << reservoir->getName () << endl;
-#endif
          if (!chargeReservoir (reservoir, reservoirAbove, reservoirBelow, start, end))
             return false;
          reservoirBelow = reservoir;
@@ -518,10 +501,6 @@ bool Migrator::chargeReservoir (Reservoir * reservoir, Reservoir * reservoirAbov
 bool Migrator::collectAndMigrateExpelledCharges (Reservoir * reservoir, Reservoir * reservoirAbove, Reservoir * reservoirBelow,
       const Interface::Snapshot * start, const Interface::Snapshot * end, Barrier * barrier)
 {
-#if 0
-   cerr << GetRankString () << ": " << "collectAndMigrateExpelledCharges (" << reservoir->getName () << ") starting" << endl;
-#endif
-
    Interface::FormationList * formations = getAllFormations ();
 
    bool withinRange = false; // whether we reached the formation just above the reservoir's formation
@@ -544,15 +523,9 @@ bool Migrator::collectAndMigrateExpelledCharges (Reservoir * reservoir, Reservoi
       if (withinRange || formationBelow == reservoir->getFormation () || formationBelowBelow == reservoir->getFormation ())
       {
          withinRange = true;
-#if 0
-         cerr << " is within range" << endl;
-#endif
       }
       else
       {
-#if 0
-         cerr << " is out of range" << endl;
-#endif
          continue;
       }
 
@@ -634,10 +607,6 @@ bool Migrator::collectAndMigrateExpelledCharges (Reservoir * reservoir, Reservoi
          break;
       }
    }
-
-#if 0
-   cerr << GetRankString () << ": " << "collectAndMigrateExpelledCharges (" << reservoir->getName () << ") finished" << endl;
-#endif
    return false;
 }
 
@@ -1147,10 +1116,6 @@ void Migrator::clearMigrationRecordLists (void)
 
 void Migrator::renumberMigrationRecordTrap (const Interface::Snapshot * snapshot, int oldTrapNumber, int newTrapNumber)
 {
-#if 0
-   cerr << snapshot->getTime () << ": Renumbering MigrationIoRecordTrap " << oldTrapNumber << " to " << newTrapNumber << endl;
-#endif
-   
    assert (GetRank () == 0);
    for (int i = 0; i < NUMBEROFPROCESSES; ++i)
    {
