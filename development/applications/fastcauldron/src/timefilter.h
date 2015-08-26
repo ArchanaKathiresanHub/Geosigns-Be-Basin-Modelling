@@ -238,7 +238,7 @@ const string PropertyName[] = {
   "ThCondVec",
   "VelocityVec",
   "VrVec",
-  "MaxVes",
+  "MaxVesVec",
   "Depth",
   "HeatFlow",
   "HeatFlowY",
