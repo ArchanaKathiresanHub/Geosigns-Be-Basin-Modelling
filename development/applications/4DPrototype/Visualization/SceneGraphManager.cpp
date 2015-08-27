@@ -18,7 +18,6 @@
 #include <Inventor/nodes/SoShapeHints.h>
 #include <Inventor/nodes/SoAnnotation.h>
 #include <Inventor/nodes/SoVertexProperty.h>
-#include <Inventor/nodes/SoLineSet.h>
 
 #include <MeshVizInterface/MxTimeStamp.h>
 #include <MeshVizInterface/mapping/nodes/MoDrawStyle.h>
@@ -29,7 +28,6 @@
 #include <MeshVizInterface/mapping/nodes/MoMeshSkin.h>
 #include <MeshVizInterface/mapping/nodes/MoMeshSlab.h>
 #include <MeshVizInterface/mapping/nodes/MoMeshSurface.h>
-#include <MeshVizInterface/mapping/nodes/MoMeshFenceSlice.h>
 #include <MeshVizInterface/mapping/nodes/MoScalarSetIjk.h>
 #include <MeshVizInterface/mapping/nodes/MoLegend.h>
 
@@ -169,6 +167,65 @@ void SceneGraphManager::updateSnapshotSurfaces(size_t index)
   snapshot.surfacesTimeStamp = m_surfacesTimeStamp;
 }
 
+namespace
+{
+  inline double lerp(double x0, double x1, double a)
+  {
+    return (1.0 - a) * x0 + a * x1;
+  }
+
+  double getZ(const SnapshotGeometry& geometry, double x, double y, int k)
+  {
+    MbVec3d minVec = geometry.getMin();
+    MbVec3d maxVec = geometry.getMax();
+
+    x = std::max(std::min(x, maxVec[0]), minVec[0]);
+    y = std::max(std::min(y, maxVec[1]), minVec[1]);
+
+    double normX = (x - minVec[0]) / geometry.deltaX();
+    double normY = (y - minVec[1]) / geometry.deltaY();
+
+    int i0 = (int)floor(normX);
+    int j0 = (int)floor(normY);
+    // Take care not to read outside the bounds of the 3D array
+    int i1 = std::min(i0 + 1, (int)geometry.numI() - 1);
+    int j1 = std::min(j0 + 1, (int)geometry.numJ() - 1);
+
+    double di = normX - i0;
+    double dj = normY - j0;
+
+    double z00 = -geometry.getDepth(i0, j0, k);
+    double z01 = -geometry.getDepth(i0, j1, k);
+    double z10 = -geometry.getDepth(i1, j0, k);
+    double z11 = -geometry.getDepth(i1, j1, k);
+
+    return lerp(
+      lerp(z00, z01, dj),
+      lerp(z10, z11, dj),
+      di);
+  }
+}
+
+std::shared_ptr<FaultMesh> generateFaultMesh(const std::vector<SbVec2d>& points, const SnapshotGeometry& geometry, int k0, int k1)
+{
+  std::vector<MbVec3d> coords;
+  coords.reserve(2 * points.size());
+
+  for (auto p : points)
+  {
+    double z0 = getZ(geometry, p[0], p[1], k0);
+    double z1 = getZ(geometry, p[0], p[1], k1);
+
+    coords.emplace_back(p[0], p[1], z0);
+    coords.emplace_back(p[0], p[1], z1);
+  }
+
+  auto faultGeometry = std::make_shared<FaultGeometry>(coords);
+  auto faultTopology = std::make_shared<FaultTopology>(points.size() - 1);
+
+  return std::make_shared<FaultMesh>(faultGeometry, faultTopology);
+}
+
 void SceneGraphManager::updateSnapshotFaults(size_t index)
 {
   SnapshotInfo& snapshot = m_snapshots[index];
@@ -181,35 +238,32 @@ void SceneGraphManager::updateSnapshotFaults(size_t index)
   {
     int id = snapshot.faults[i].id;
 
-    if (m_faults[id].visible && snapshot.faults[i].lines == 0)
+    if (m_faults[id].visible && snapshot.faults[i].root == 0)
     {
       const di::PointSequence& points = m_faults[id].fault->getFaultLine();
 
-      //MoMeshFenceSlice* fence = new MoMeshFenceSlice;
-      //fence->direction = SbVec3f(.0f, .0f, -1.f);
+      std::vector<SbVec2d> oivpoints;
+      oivpoints.reserve(points.size());
+      for (auto p : points)
+        oivpoints.emplace_back(p(di::X_COORD) - m_minX, p(di::Y_COORD) - m_minY);
+      
+      snapshot.faults[i].meshData = generateFaultMesh(oivpoints, *snapshot.geometry, snapshot.faults[i].minK, snapshot.faults[i].maxK);
+      snapshot.faults[i].root = new SoSeparator;
+      snapshot.faults[i].mesh = new MoMesh;
+      snapshot.faults[i].mesh->setMesh(snapshot.faults[i].meshData.get());
+      snapshot.faults[i].surfaceMesh = new MoMeshSurface;
 
-      SoVertexProperty* vertexProperty = new SoVertexProperty;
-      for (size_t j = 0; j < points.size(); ++j)
-      {
-        di::Point p = points[j];
-        double x = p(di::X_COORD) - m_minX;
-        double y = p(di::Y_COORD) - m_minY;
-        //fence->polyline.set1Value((int)j, (float)x, (float)y, .0f);
-        vertexProperty->vertex.set1Value((int)j, (float)x, (float)y, .0f);
-      }
-
-      //snapshot.faults[i].fence = fence;
-      //snapshot.faultsGroup->addChild(fence);
-      SoLineSet* lines = new SoLineSet;
-      lines->vertexProperty = vertexProperty;
-
-      snapshot.faults[i].lines = lines;
-      snapshot.faultsGroup->addChild(lines);
+      snapshot.faults[i].root->addChild(snapshot.faults[i].mesh);
+      snapshot.faults[i].root->addChild(snapshot.faults[i].surfaceMesh);
+      snapshot.faultsGroup->addChild(snapshot.faults[i].root);
     }
-    else if (!m_faults[id].visible && snapshot.faults[i].lines != 0)
+    else if (!m_faults[id].visible && snapshot.faults[i].root != 0)
     {
-      snapshot.faultsGroup->removeChild(snapshot.faults[i].lines);
-      snapshot.faults[i].lines = 0;
+      snapshot.faultsGroup->removeChild(snapshot.faults[i].root);
+      snapshot.faults[i].root = 0;
+      snapshot.faults[i].mesh = 0;
+      snapshot.faults[i].surfaceMesh = 0;
+      snapshot.faults[i].meshData.reset();
     }
   }
 
@@ -358,7 +412,9 @@ SnapshotInfo SceneGraphManager::createSnapshotNode(const di::Snapshot* snapshot)
     {
       for (size_t j = 0; j < faultCollections->size(); ++j)
       {
-        std::unique_ptr<di::FaultList> faults((*faultCollections)[j]->getFaults());
+        const di::FaultCollection* collection = (*faultCollections)[j];
+
+        std::unique_ptr<di::FaultList> faults(collection->getFaults());
         if (faults && !faults->empty())
         {
           for (size_t k = 0; k < faults->size(); ++k)
@@ -366,7 +422,9 @@ SnapshotInfo SceneGraphManager::createSnapshotNode(const di::Snapshot* snapshot)
             const di::Fault* fault = (*faults)[k];
 
             SnapshotInfo::Fault flt;
-            flt.id = m_faultIdMap[fault->getName()];
+            flt.id = m_faultIdMap[std::make_tuple(collection->getName(), fault->getName())];
+            flt.minK = bounds.minK;
+            flt.maxK = bounds.maxK;
 
             info.faults.push_back(flt);
           }
@@ -378,10 +436,8 @@ SnapshotInfo SceneGraphManager::createSnapshotNode(const di::Snapshot* snapshot)
   std::unique_ptr<di::SurfaceList> surfaces(m_projectHandle->getSurfaces(snapshot, false));
   for (size_t i = 0; i < surfaces->size(); ++i)
   {
-    const di::Surface* surface = (*surfaces)[i];
-
     SnapshotInfo::Surface srfc;
-    srfc.id = m_surfaceIdMap[surface->getName()];
+    srfc.id = m_surfaceIdMap[(*surfaces)[i]->getName()];
 
     info.surfaces.push_back(srfc);
   }
@@ -390,10 +446,10 @@ SnapshotInfo SceneGraphManager::createSnapshotNode(const di::Snapshot* snapshot)
 
   if (!depthMaps.empty())
   {
-    std::shared_ptr<SnapshotGeometry> geometry(new SnapshotGeometry(depthMaps));
-    std::shared_ptr<SnapshotTopology> topology(new SnapshotTopology(geometry));
+    info.geometry.reset(new SnapshotGeometry(depthMaps));
+    info.topology.reset(new SnapshotTopology(info.geometry));
 
-    info.meshData = new HexahedronMesh(geometry, topology);
+    info.meshData = new HexahedronMesh(info.geometry, info.topology);
   }
 
   info.mesh = new MoMesh;
@@ -426,21 +482,14 @@ SnapshotInfo SceneGraphManager::createSnapshotNode(const di::Snapshot* snapshot)
   return info;
 }
 
-  struct SnapshotCompare
-  {
-    bool operator()(const di::Snapshot* s0, const di::Snapshot* s1) const
-    {
-      return s0->getTime() > s1->getTime();
-    }
-  };
-
 void SceneGraphManager::setupSnapshots()
 {
   std::unique_ptr<di::SnapshotList> snapshots(m_projectHandle->getSnapshots(di::MAJOR));
 
   // Sort snapshots so oldest is first in list
   std::vector<const di::Snapshot*> tmpSnapshotList(*snapshots);
-  std::sort(tmpSnapshotList.begin(), tmpSnapshotList.end(), SnapshotCompare());
+  std::sort(tmpSnapshotList.begin(), tmpSnapshotList.end(), 
+    [](const di::Snapshot* s1, const di::Snapshot* s2) { return s1->getTime() > s2->getTime(); });
 
   for (size_t i = 0; i < tmpSnapshotList.size(); ++i)
   {
@@ -655,7 +704,7 @@ void SceneGraphManager::enableSurface(const std::string& name, bool enabled)
 
 void SceneGraphManager::enableFault(const std::string& collectionName, const std::string& name, bool enabled)
 {
-  auto iter = m_faultIdMap.find(name);
+  auto iter = m_faultIdMap.find(std::make_tuple(collectionName, name));
   if (iter == m_faultIdMap.end())
     return;
 
@@ -733,6 +782,7 @@ void SceneGraphManager::setup(const di::ProjectHandle* handle)
     m_surfaces.push_back(info);
   }
 
+  // Get faults
   std::unique_ptr<di::FaultCollectionList> faultCollections(handle->getFaultCollections(0));
   if (faultCollections && !faultCollections->empty())
   {
@@ -741,7 +791,10 @@ void SceneGraphManager::setup(const di::ProjectHandle* handle)
       std::unique_ptr<di::FaultList> faults((*faultCollections)[i]->getFaults());
       for (size_t j = 0; j < faults->size(); ++j)
       {
-        m_faultIdMap[(*faults)[j]->getName()] = (int)j;
+        m_faultIdMap[
+          std::make_tuple(
+            (*faultCollections)[i]->getName(), 
+            (*faults)[j]->getName())] = (int)j;
 
         FaultInfo info;
         info.fault = (*faults)[j];

@@ -26,6 +26,7 @@ class FormationIdProperty;
 class ScalarProperty;
 class HexahedronMesh;
 class SurfaceMesh;
+class FaultMesh;
 
 class SoSeparator;
 class SoSwitch; 
@@ -108,14 +109,20 @@ struct SnapshotInfo
   struct Fault
   {
     int id;
+    int minK;
+    int maxK;
 
-    SoLineSet* lines;
-    MoMeshFenceSlice* fence;
+    SoSeparator* root;
+    MoMesh* mesh;
+    MoMeshSurface* surfaceMesh;
+
+    std::shared_ptr<FaultMesh> meshData;
 
     Fault()
       : id(0)
-      , lines(0)
-      , fence(0)
+      , root(0)
+      , mesh(0)
+      , surfaceMesh(0)
     {
     }
   };
@@ -124,6 +131,9 @@ struct SnapshotInfo
   const DataAccess::Interface::Property* currentProperty;
 
   SoSeparator* root;
+
+  std::shared_ptr<SnapshotGeometry> geometry;
+  std::shared_ptr<SnapshotTopology> topology;
 
   MoMesh* mesh;
   HexahedronMesh* meshData;
@@ -192,7 +202,7 @@ class VISUALIZATIONDLL_API SceneGraphManager
 
   std::map<std::string, int> m_formationIdMap;
   std::map<std::string, int> m_surfaceIdMap;
-  std::map<std::string, int> m_faultIdMap;
+  std::map<std::tuple<std::string, std::string>, int> m_faultIdMap;
 
   std::vector<FormationInfo> m_formations;
   std::vector<SurfaceInfo>   m_surfaces;

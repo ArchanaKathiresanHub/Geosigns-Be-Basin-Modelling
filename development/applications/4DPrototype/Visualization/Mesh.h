@@ -126,7 +126,13 @@ public:
 
   size_t numK() const;
 
+  double deltaX() const;
+
+  double deltaY() const;
+
   bool isUndefined(size_t i, size_t j, size_t k) const;
+
+  double getDepth(unsigned int i, unsigned int j, unsigned int k) const;
 
   MbVec3d getCoord(unsigned int i, unsigned int j, unsigned int k) const;
 
@@ -373,4 +379,67 @@ public:
   virtual const MiGeometryI& getGeometry() const;
 };
 
+class FaultGeometry : public MiGeometryI
+{
+  std::vector<MbVec3d> m_coords;
+  size_t m_timeStamp;
+
+public:
+
+  explicit FaultGeometry(const std::vector<MbVec3d> coords);
+
+  virtual MbVec3d getCoord(size_t index) const;
+
+  //virtual MbVec3d getMin() const;
+
+  //virtual MbVec3d getMax() const;
+
+  virtual size_t getTimeStamp() const;
+};
+
+/**
+ *
+ */
+class FaultTopology : public MiSurfaceTopologyExplicitI
+{
+  std::vector<QuadCell> m_cells;
+  size_t m_timeStamp;
+
+public:
+
+  explicit FaultTopology(size_t numCells);
+
+  virtual const MiSurfaceCell* getCell(size_t id) const;
+
+  virtual size_t getBeginNodeId() const;
+
+  virtual size_t getEndNodeId() const;
+
+  virtual size_t getNumCells() const;
+
+  virtual bool isDead(size_t i) const;
+
+  virtual size_t getTimeStamp() const;
+
+  virtual bool hasDeadCells() const;
+};
+
+/**
+*
+*/
+class FaultMesh : public MiSurfaceMeshUnstructured
+{
+  std::shared_ptr<FaultGeometry> m_geometry;
+  std::shared_ptr<FaultTopology> m_topology;
+
+public:
+
+  FaultMesh(
+    std::shared_ptr<FaultGeometry> geometry,
+    std::shared_ptr<FaultTopology> topology);
+
+  virtual const MiSurfaceTopologyExplicitI& getTopology() const;
+
+  virtual const MiGeometryI& getGeometry() const;
+};
 #endif
