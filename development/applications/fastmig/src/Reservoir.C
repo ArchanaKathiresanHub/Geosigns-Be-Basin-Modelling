@@ -2362,6 +2362,12 @@ double Reservoir::biodegradeCharges ()
    const BiodegradationParameters* biodegradationParameters = 
       getProjectHandle()->getBiodegradationParameters();
    double timeInterval = m_start->getTime() - m_end->getTime();
+
+   if (timeInterval >= 30)
+   {
+      cerr << "WARNING: The time interval between the two snapshots " << m_start->getTime() << " Ma and " << m_end->getTime() << 
+         " Ma involving biodegradation is bigger than 30 Ma, the biodegradation results can be questionable due to the large time interval" << endl;
+   }
    Biodegrade biodegrade(biodegradationParameters);
 
    for (TrapVector::iterator trapIter = m_traps.begin (); trapIter != m_traps.end (); ++trapIter)
