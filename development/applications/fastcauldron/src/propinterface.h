@@ -264,8 +264,9 @@ public:
    /// Adjust the Current time and Permafrost time step  
    void   adjustTimeStepToPermafrost ( const double Previous_Time, double & Current_Time );
    double getNextPermafrostTimeStep () const;
-   double getNextPermafrostAge () const;
-   //
+   double getNextPermafrostAge () const;   
+   /// Retrieve the last time at which an igneous intrusion started or a NoDataValue if no intrusion ever occurs
+   double getPreviousIgneousIntrusionTime( const double Current_Time ) const; 
 
    /// Initialises other minor layer data fields.
    void setLayerData ();

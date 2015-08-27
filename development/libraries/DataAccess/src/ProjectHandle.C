@@ -226,7 +226,6 @@ m_database( tables ), m_name( name ), m_accessMode( READWRITE ), m_activityOutpu
    loadGrids();
    loadSurfaces();
    loadFormations();
-   loadIgneousIntrusions();
    loadReservoirs();
    loadMobileLayers();
    loadTouchstoneMaps();
@@ -264,7 +263,8 @@ m_database( tables ), m_name( name ), m_accessMode( READWRITE ), m_activityOutpu
       connectMigrations();
       connectUpAndDownstreamTrappers();
    }
-
+   
+   loadIgneousIntrusions();
    loadFaults();
 
    /*
@@ -1457,7 +1457,8 @@ bool ProjectHandle::loadIgneousIntrusions() {
       }
 
    }
-
+   
+   m_previousIgneousIntrusionTime = DefaultUndefinedValue;
    return true;
 }
 
@@ -4288,26 +4289,6 @@ const Interface::Formation * ProjectHandle::findFormation( const string & name )
    return 0;
 }
 
-const Interface::IgneousIntrusionEvent* ProjectHandle::findIgneousIntrusionEvent( const Formation* formation ) const {
-
-   if ( formation->getIsIgneousIntrusion() ) {
-      MutableIgneousIntrusionEventList::const_iterator intrusionIter;
-
-      for ( intrusionIter = m_igneousIntrusionEvents.begin(); intrusionIter != m_igneousIntrusionEvents.end(); ++intrusionIter )
-      {
-         const IgneousIntrusionEvent* intrusionEvent = *intrusionIter;
-
-         if ( intrusionEvent->getFormation() == formation ) {
-            return intrusionEvent;
-         }
-
-      }
-
-   }
-
-   return 0;
-}
-
 
 const Interface::FluidType * ProjectHandle::findFluid( const string & name ) const
 {
@@ -5714,5 +5695,18 @@ void ProjectHandle::setPermafrost( const bool aPermafrost )
    if ( permafrostRecord != 0 ) {
       permafrostRecord->setPermafrost( aPermafrost );
    }
+}
+
+
+double ProjectHandle::getPreviousIgneousIntrusionTime( const double Current_Time ){
+   MutableIgneousIntrusionEventList::const_iterator intrusionIter;
+   for ( intrusionIter = m_igneousIntrusionEvents.begin(); intrusionIter != m_igneousIntrusionEvents.end(); ++intrusionIter )
+   {
+      if ( Current_Time == (*intrusionIter)->getEndOfIntrusion()->getTime() )
+      {
+         m_previousIgneousIntrusionTime = Current_Time;
+      }
+   }
+   return m_previousIgneousIntrusionTime;
 }
 

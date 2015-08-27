@@ -1,6 +1,7 @@
 #include "Interface/IgneousIntrusionEvent.h"
 #include "Interface/Formation.h"
 #include "Interface/Snapshot.h"
+#include "Interface/Surface.h"
 #include "Interface/ProjectHandle.h"
 
 
@@ -18,19 +19,20 @@ DataAccess::Interface::IgneousIntrusionEvent::IgneousIntrusionEvent ( ProjectHan
    double intrusionAge;
 
    m_formation = m_projectHandle->findFormation ( database::getLayerName (m_record));
-   assert ( m_formation != 0 );
-
+   assert (("The formation for the igneous intrusion is invalid", m_formation != 0 ));
+   
    intrusionAge = database::getIgneousIntrusionAge ( m_record );
-   assert ( intrusionAge != DefaultUndefinedScalarValue );
-
+   assert (("The intrusion age is no data value", intrusionAge != DefaultUndefinedScalarValue ));
+   assert (( "The time of intrusion should be smaller than the time of deposition", intrusionAge <= m_formation->getTopSurface()->getSnapshot()->getTime() ));
+       
    m_snapshot = m_projectHandle->findSnapshot ( intrusionAge );
-   assert ( m_snapshot != 0 );
-
+   assert (("The snapshot is invalid", m_snapshot != 0 ));
+   
    // Intrusion event and snapshot must have the same age.
-   assert ( intrusionAge == m_snapshot->getTime ());
-
+   assert (("The intrusion age must have the same age than his snapshot", intrusionAge == m_snapshot->getTime ()));
+   
    m_intrusionTemperature = database::getIgneousIntrusionTemperature ( m_record );
-   assert ( m_intrusionTemperature != DefaultUndefinedScalarValue );
+   assert (("The temperature of igneous intrsuion cannot be no data value", m_intrusionTemperature != DefaultUndefinedScalarValue ));
 }
 
 DataAccess::Interface::IgneousIntrusionEvent::~IgneousIntrusionEvent () {
