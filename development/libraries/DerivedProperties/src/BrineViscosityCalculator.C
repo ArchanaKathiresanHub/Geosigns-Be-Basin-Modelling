@@ -18,7 +18,6 @@ DerivedProperties::BrineViscosityCalculator::BrineViscosityCalculator ( const Ge
 {
    addPropertyName ( "BrineViscosity" );
    addDependentPropertyName ( "Temperature" );
-   addDependentPropertyName ( "Pressure" );
 }
 
 
@@ -41,20 +40,15 @@ void DerivedProperties::BrineViscosityCalculator::calculate ( AbstractPropertyMa
 
    const DataModel::AbstractProperty* temperatureProperty = propertyManager.getProperty ( "Temperature" );
    FormationPropertyPtr temperature = propertyManager.getFormationProperty ( temperatureProperty, snapshot, formation );
-   
-   PropertyRetriever temperatureRetriever ( temperature );
-   
-   const DataModel::AbstractProperty* pressureProperty = propertyManager.getProperty ( "Pressure" );
-   FormationPropertyPtr pressure = propertyManager.getFormationProperty ( pressureProperty, snapshot, formation );
 
-   PropertyRetriever pressureRetriever ( pressure );
+   PropertyRetriever temperatureRetriever ( temperature );
 
    for ( unsigned int i = brineViscosity->firstI ( true ); i <= brineViscosity->lastI ( true ); ++i ) {
 
       for ( unsigned int j = brineViscosity->firstJ ( true ); j <= brineViscosity->lastJ ( true ); ++j ) {
 
          for ( unsigned int k = brineViscosity->firstK (); k <= brineViscosity->lastK (); ++k ) {
-            brineViscosity->set ( i, j, k, fluid->viscosity ( temperature->get ( i, j, k ), pressure->get ( i, j, k )));
+            brineViscosity->set ( i, j, k, fluid->viscosity ( temperature->get ( i, j, k )));
          }
 
       }

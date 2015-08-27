@@ -2037,6 +2037,8 @@ bool GeoPhysics::ProjectHandle::setIgneousIntrusionThicknessHistory ( const unsi
 
    }
 
+   Interface::MobileLayerList::const_iterator mapIter;
+   Interface::MobileLayerList* mobileLayerThicknesses = formation->getMobileLayers ();
    const Interface::IgneousIntrusionEvent* intrusionEvent = formation->getIgneousIntrusionEvent ();
 
    endOfIntrusionAge = intrusionEvent->getEndOfIntrusion ()->getTime ();

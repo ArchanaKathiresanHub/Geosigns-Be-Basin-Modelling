@@ -34,7 +34,6 @@ namespace DataAccess {
       private :
 
          const DomainProperty* m_temperature;
-         const DomainProperty* m_pressure;
          bool                  m_initialised;
 
       };

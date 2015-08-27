@@ -1595,10 +1595,8 @@ void Basin_Modelling::FEM_Grid::Determine_Next_Pressure_Time_Step ( const double
                                                                           double& Time_Step,
                                                                     const int     Number_Of_Newton_Iterations,
                                                                     const int     numberOfGeometricIterations ) {
-	//Store Time_Step for igneous intrusion computation
-	const double previousTimeStep = Time_Step;
-  
-	if ( Current_Time == (*majorSnapshots)->time ()) {
+
+  if ( Current_Time == (*majorSnapshots)->time ()) {
     Time_Step = basinModel->getInitialTimeStep ( Current_Time );
   } else {
      const double Increase_Factor = basinModel -> timestepincr;
@@ -1637,9 +1635,6 @@ void Basin_Modelling::FEM_Grid::Determine_Next_Pressure_Time_Step ( const double
   }
 
   Determine_Permafrost_Time_Step ( Current_Time, Time_Step );
-  //If during an igneous intrusion, change the time step
-  determineIgneousIntrusionTimeStep( Current_Time, previousTimeStep, Time_Step);
-  
 }
 
 
@@ -1659,9 +1654,7 @@ void Basin_Modelling::FEM_Grid::Determine_Next_Temperature_Time_Step ( const dou
    double Decrease_Factor                                = basinModel -> timestepdecr;
    double Predicted_Time_Step;
    double Predicted_Time_Step_In_Source_Rocks;
-   //Store Time_Step for igneous intrusion computation
-   const double previousTimeStep = Time_Step;
-   
+
    MPI_Barrier(PETSC_COMM_WORLD);
 
    if ( Current_Time == (*majorSnapshots)->time ()) {
@@ -1710,8 +1703,6 @@ void Basin_Modelling::FEM_Grid::Determine_Next_Temperature_Time_Step ( const dou
    }
 
    Determine_Permafrost_Time_Step ( Current_Time, Time_Step );
-   //If during an igneous intrusion, change the time step
-   determineIgneousIntrusionTimeStep( Current_Time, previousTimeStep, Time_Step);
 }
 
 
@@ -1724,10 +1715,8 @@ void Basin_Modelling::FEM_Grid::Determine_Next_Coupled_Time_Step ( const double 
                                                                          double& Time_Step,
                                                                    const int     Number_Of_Overpressure_Newton_Iterations,
                                                                    const int     numberOfGeometricIterations ) {
-	//Store Time_Step for igneous intrusion computation
-	const double previousTimeStep = Time_Step;
-  
-	if ( Current_Time == (*majorSnapshots)->time ()) {
+
+  if ( Current_Time == (*majorSnapshots)->time ()) {
     Time_Step = basinModel->getInitialTimeStep ( Current_Time );
   } else {
      const double Increase_Factor = basinModel->timestepincr;
@@ -1805,8 +1794,6 @@ void Basin_Modelling::FEM_Grid::Determine_Next_Coupled_Time_Step ( const double 
   }
 
   Determine_Permafrost_Time_Step ( Current_Time, Time_Step );
-  //If during an igneous intrusion, change the time step
-  determineIgneousIntrusionTimeStep( Current_Time, previousTimeStep, Time_Step);
 }
 
 
@@ -1982,8 +1969,7 @@ void Basin_Modelling::FEM_Grid::Construct_Temperature_FEM_Grid ( const double   
   Temperature_Calculator.setSurfaceTemperature ( basinModel, Current_Time );
   Set_Pressure_Dependent_Properties ( Current_Time );
   Compute_Temperature_Dependant_Properties ( Previous_Time, Current_Time );
-  Temperature_Calculator.computeHeatProduction ( Previous_Time, Current_Time );
-  
+
 }
 
 
@@ -3444,92 +3430,92 @@ void Basin_Modelling::FEM_Grid::Copy_Current_Properties () {
 
 void Basin_Modelling::FEM_Grid::Store_Computed_Deposition_Thickness ( const double Current_Time ) {
 
-	int I, J;
-	int K;
-	int X_Start;
-	int Y_Start;
-	int Z_Start;
-	int X_End;
-	int Y_End;
-	int Z_End;
-	int X_Count;
-	int Y_Count;
-	int Z_Count;
+  int I, J;
+  int K;
+  int X_Start;
+  int Y_Start;
+  int Z_Start;
+  int X_End;
+  int Y_End;
+  int Z_End;
+  int X_Count;
+  int Y_Count;
+  int Z_Count;
 
-	Layer_Iterator Layers ( basinModel -> layers, Descending, Sediments_Only, Active_Layers_Only );
+  Layer_Iterator Layers ( basinModel -> layers, Descending, Sediments_Only, Active_Layers_Only );
+ 
+   // Most of the time only the first layer has to be treated. However, for igneous intrusion and mobile layers,
+   // the time step of deposition can be zero, which means that two layers are deposited at the same time
+   // hence the for loop and the "if (!condition) break";
+   for (Layers.Initialise_Iterator (); ! Layers.Iteration_Is_Done (); Layers.Next() )
+   {
 
-	// Most of the time only the first layer has to be treated. However, for igneous intrusion and mobile layers,
-	// the time step of deposition can be zero, which means that two layers are deposited at the same time
-	// hence the for loop and the "if (!condition) break";
-	for (Layers.Initialise_Iterator (); ! Layers.Iteration_Is_Done (); Layers.Next() )
-	{
+  LayerProps_Ptr Current_Layer = Layers.Current_Layer ();
+  // Is this the best number to have here? I think so, but cannot prove it.
+  // The snapshot times, time step, ... are written out (perhaps read in too) 
+  // as a float, but stored and used as doubles.
+  const double Float_Epsilon = pow ( 2.0, -23 ); 
 
-		LayerProps_Ptr Current_Layer = Layers.Current_Layer ();
-		// Is this the best number to have here? I think so, but cannot prove it.
-		// The snapshot times, time step, ... are written out (perhaps read in too) 
-		// as a float, but stored and used as doubles.
-		const double Float_Epsilon = pow ( 2.0, -23 ); 
+      if ( fabs ( Current_Time - Current_Layer -> depoage ) >= NumericFunctions::Maximum ( Current_Time, 1.0 ) * Float_Epsilon ) break;
 
-		if ( fabs ( Current_Time - Current_Layer -> depoage ) >= NumericFunctions::Maximum ( Current_Time, 1.0 ) * Float_Epsilon ) break;
+     const Boolean2DArray& Valid_Needle = basinModel->getValidNeedles ();
 
-		const Boolean2DArray& Valid_Needle = basinModel->getValidNeedles ();
+    DMCreateGlobalVector ( *basinModel->mapDA, &(Current_Layer -> Computed_Deposition_Thickness) );
 
-		DMCreateGlobalVector ( *basinModel->mapDA, &(Current_Layer -> Computed_Deposition_Thickness) );
+    PETSC_2D_Array Computed_Deposition_Thickness ( *basinModel->mapDA, 
+						   Current_Layer -> Computed_Deposition_Thickness );
 
-		PETSC_2D_Array Computed_Deposition_Thickness ( *basinModel->mapDA, 
-				Current_Layer -> Computed_Deposition_Thickness );
+    DMDAGetCorners ( Current_Layer->layerDA, &X_Start, &Y_Start, &Z_Start, &X_Count, &Y_Count, &Z_Count );
+    X_End = X_Start + X_Count;
+    Y_End = Y_Start + Y_Count;
 
-		DMDAGetCorners ( Current_Layer->layerDA, &X_Start, &Y_Start, &Z_Start, &X_Count, &Y_Count, &Z_Count );
-		X_End = X_Start + X_Count;
-		Y_End = Y_Start + Y_Count;
+    if ( basinModel->isGeometricLoop ()) {
 
-		if ( basinModel->isGeometricLoop ()) {
+      PETSC_3D_Array Depth ( Current_Layer->layerDA, Current_Layer->Current_Properties ( Basin_Modelling::Depth ));
 
-			PETSC_3D_Array Depth ( Current_Layer->layerDA, Current_Layer->Current_Properties ( Basin_Modelling::Depth ));
+      Z_End = Z_Start + Z_Count;
 
-			Z_End = Z_Start + Z_Count;
+      for ( I = X_Start; I < X_End; I++ ) {
 
-			for ( I = X_Start; I < X_End; I++ ) {
+        for ( J = Y_Start; J < Y_End; J++ ) {
 
-				for ( J = Y_Start; J < Y_End; J++ ) {
+          if ( Valid_Needle ( I, J )) {
+            Computed_Deposition_Thickness ( J, I ) = Depth ( Z_Start, J, I ) - Depth ( Z_End - 1, J, I );
+          }
 
-					if ( Valid_Needle ( I, J )) {
-						Computed_Deposition_Thickness ( J, I ) = Depth ( Z_Start, J, I ) - Depth ( Z_End - 1, J, I );
-					}
+        }
 
-				}
+      }
 
-			}
+    } else {
 
-		} else {
+      double         Computed_Solid_Thickness;
+      PETSC_3D_Array Solid_Thickness ( Current_Layer->layerDA, Current_Layer->Current_Properties ( Basin_Modelling::Solid_Thickness ));
 
-			double         Computed_Solid_Thickness;
-			PETSC_3D_Array Solid_Thickness ( Current_Layer->layerDA, Current_Layer->Current_Properties ( Basin_Modelling::Solid_Thickness ));
+        // Minus 1 here because we are looping over segment arrays NOT node arrays.
+        Z_End = Z_Start + Z_Count - 1;
 
-			// Minus 1 here because we are looping over segment arrays NOT node arrays.
-			Z_End = Z_Start + Z_Count - 1;
+      for ( I = X_Start; I < X_End; I++ ) {
 
-			for ( I = X_Start; I < X_End; I++ ) {
+        for ( J = Y_Start; J < Y_End; J++ ) {
 
-				for ( J = Y_Start; J < Y_End; J++ ) {
+          if ( Valid_Needle ( I, J )) {
+            Computed_Solid_Thickness = 0.0;
 
-					if ( Valid_Needle ( I, J )) {
-						Computed_Solid_Thickness = 0.0;
+            for ( K = Z_Start; K < Z_End; K++ ) {
+              Computed_Solid_Thickness = Computed_Solid_Thickness + Solid_Thickness ( K, J, I );
+            }
 
-						for ( K = Z_Start; K < Z_End; K++ ) {
-							Computed_Solid_Thickness = Computed_Solid_Thickness + Solid_Thickness ( K, J, I );
-						}
+            Computed_Deposition_Thickness ( J, I ) = Computed_Solid_Thickness;
+          }
 
-						Computed_Deposition_Thickness ( J, I ) = Computed_Solid_Thickness;
-					}
+        }
 
-				}
+      }
 
-			}
+    }
 
-		}
-
-	}
+  }
 
 }
 
@@ -4109,29 +4095,3 @@ void Basin_Modelling::FEM_Grid::Determine_Permafrost_Time_Step ( const double  C
    } 
 }
 
-//------------------------------------------------------------//
-void Basin_Modelling::FEM_Grid::determineIgneousIntrusionTimeStep ( const double Current_Time, const double previousTimeStep, double & Time_Step ) {
-   const double previousIgneousIntrusionTime = basinModel->getPreviousIgneousIntrusionTime( Current_Time );
-   //Most of the time, this function is not needed
-   if( previousIgneousIntrusionTime == 99999 )
-   {
-      return;
-   }
-
-   //If the current time step is the beginning of an igneous intrusion, the next time step should last 25 years
-   //This value allows the temperature solver not to oscillate
-   if( Current_Time == previousIgneousIntrusionTime )
-   {
-      Time_Step = 0.000025;
-      return;
-   }
-   //If the current time step is after an igneous intrusion but not too far from this intrusion
-   double maxDurationEffect = std::max(0.100000, basinModel->getInitialTimeStep( Current_Time ));
-   if( (previousIgneousIntrusionTime - maxDurationEffect) < Current_Time )
-   {
-      Time_Step = 2 * previousTimeStep;
-   }
-
-   return;
-   
-}

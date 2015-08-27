@@ -10,7 +10,6 @@ DataAccess::Mining::BrineViscosityCalculator::BrineViscosityCalculator ( const D
    DomainFormationProperty ( collection, propertyManager, snapshot, property )
 {
    m_temperature = 0;
-   m_pressure = 0;
    m_initialised = false;
 }
 
@@ -18,9 +17,8 @@ bool DataAccess::Mining::BrineViscosityCalculator::initialise () {
 
    if ( not m_initialised ) {
       m_temperature = getPropertyCollection ()->getDomainProperty ( "Temperature", getPropertyManager ());
-      m_pressure = getPropertyCollection ()->getDomainProperty ( "Pressure", getPropertyManager ());
-      
-      if ( m_temperature != 0 && m_pressure != 0 ) {
+
+      if ( m_temperature != 0 ) {
          m_initialised = true;
       } else {
          m_initialised = false;
@@ -38,7 +36,6 @@ double DataAccess::Mining::BrineViscosityCalculator::compute ( const ElementPosi
    }
 
    double temperature;
-   double pressure;
    double porePressure;
    double viscosity;
 
@@ -46,10 +43,9 @@ double DataAccess::Mining::BrineViscosityCalculator::compute ( const ElementPosi
    const GeoPhysics::FluidType* fluid = dynamic_cast<const GeoPhysics::FluidType*>(formation->getFluidType ());
 
    temperature = m_temperature->compute ( position );
-   pressure = m_pressure->compute ( position );
-   
+
    if ( temperature != Interface::DefaultUndefinedMapValue and fluid != 0 ) {
-      viscosity = fluid->viscosity ( temperature, pressure );
+      viscosity = fluid->viscosity ( temperature );
    } else {
       viscosity = Interface::DefaultUndefinedMapValue;
    }
