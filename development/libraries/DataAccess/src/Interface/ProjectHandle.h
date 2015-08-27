@@ -156,6 +156,11 @@ namespace DataAccess
          /// Find the Reservoir with the given name
          virtual const Reservoir * findReservoir( const string & name ) const;
 
+         /// \brief Find the igneous-intrusion event associated with the formation.
+         ///
+         /// If none is found the a null will be returned.
+         virtual const IgneousIntrusionEvent* findIgneousIntrusionEvent( const Formation* formation ) const;
+
          /// Find the Property  with the given name
          virtual const Property * findProperty( const string & name ) const;
 
@@ -486,10 +491,7 @@ namespace DataAccess
 
          /// Set whether or not to model permafrost
          void setPermafrost( const bool aPermafrost );
-         
-         /// Return whether or not it is the beginning of an igneous intrusion
-         double getPreviousIgneousIntrusionTime( const double Current_Time );
-         
+
       protected:
 		  friend ProjectHandle * OpenCauldronProject( const string & name, const string & accessMode, DataAccess::Interface::ObjectFactory* objectFactory );
 
@@ -821,8 +823,7 @@ namespace DataAccess
 
       private:
          static float GetUndefinedValue( hid_t fileId );
-         double m_previousIgneousIntrusionTime;
-         
+
          /// \brief Allocate architecture related clases.
          ///
          /// E.g. Message-handler, global-operations.

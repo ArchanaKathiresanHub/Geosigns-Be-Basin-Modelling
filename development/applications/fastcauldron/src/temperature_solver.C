@@ -16,7 +16,7 @@
 
 //Data access library
 #include "Interface/GridMap.h"
-#include "Interface/IgneousIntrusionEvent.h"
+
 #include "PetscLogStages.h"
 
 //------------------------------------------------------------//
@@ -129,145 +129,7 @@ void Temperature_Solver::Compute_Crust_Heat_Production ( )
 
 }
 
-//------------------------------------------------------------//
 
-#undef  __FUNCT__
-#define __FUNCT__ "Temperature_Solver::computeHeatProduction"
-
-void Temperature_Solver::computeHeatProduction ( const double previousTime,
-                                                 const double currentTime ) const {
-
-   unsigned int i;
-   unsigned int j;
-   unsigned int k;
-
-   int xStart;
-   int yStart;
-   int zStart;
-   int xCount;
-   int yCount;
-   int zCount;
-
-   LayerProps_Ptr currentLayer;
-   Basin_Modelling::Layer_Iterator Layers;
-   const CompoundLithology*  currentLithology;
-
-   double heatProduction;
-
-   Layers.Initialise_Iterator ( Basin_Model -> layers, Basin_Modelling::Descending, Basin_Modelling::Sediments_Only, Basin_Modelling::Active_Layers_Only );
-
-   if ( Layers.Iteration_Is_Done ()) {
-      return;
-   }
-
-   DMDAGetCorners ( *Basin_Model->mapDA, &xStart, &yStart, PETSC_NULL, &xCount, &yCount, PETSC_NULL );
-   const Boolean2DArray& Valid_Needle = Basin_Model->getValidNeedles ();
-
-
-   while ( ! Layers.Iteration_Is_Done () ) {
-    
-      currentLayer = Layers.Current_Layer ();
-
-      PETSC_3D_Array layerPorosity ( currentLayer->layerDA, currentLayer->Porosity );
-      PETSC_3D_Array layerHeatProduction ( currentLayer->layerDA, currentLayer->BulkHeatProd );
-      DMDAGetCorners ( currentLayer->layerDA, PETSC_NULL, PETSC_NULL, &zStart, PETSC_NULL, PETSC_NULL, &zCount );
-      
-      //For everything except igneous intrusion at the time of intrusion
-      if ( !(currentLayer->getIsIgneousIntrusion ()) or previousTime != currentLayer->getIgneousIntrusionAge ()) {
-         
-         for ( i = xStart; i < xStart + xCount; ++i ) {
-
-            for ( j = yStart; j < yStart + yCount; ++j ) {
-
-               if ( Valid_Needle ( i, j )) {
-                  currentLithology = currentLayer->getLithology ( i, j );
-
-                  for ( k = 0; k < zCount; k++ ) {
-                     currentLithology->calcBulkHeatProd ( layerPorosity ( k, j, i ), heatProduction );
-                     layerHeatProduction ( k, j, i ) = heatProduction;
-                  }
-
-               }
-
-            }
-
-         }
-         
-
-      } else { //For igneous intrusion at the time of intrusion
-
-         
-         #ifdef DEBUG_HEATPRODUCTIONFORINTRUSION
-         if ( FastcauldronSimulator::getInstance ().getRank () == 0 ) {
-            cout << " Setting igneous intrusion "  << previousTime << "  " << currentLayer->getIgneousIntrusionTemperature () << endl;
-         }
-         #endif
-
-         const bool   temperatureIsActive = currentLayer->Current_Properties.propertyIsActivated ( Basin_Modelling::Temperature );
-         const bool   depthIsActive = currentLayer->Current_Properties.propertyIsActivated ( Basin_Modelling::Depth );
-         const double timeStep = ( previousTime - currentTime ) * Secs_IN_MA;
-         double heatProductionRateForIntrusion;
-         const double intrusionTemperature = currentLayer->getIgneousIntrusionTemperature ();
-         double heatCapacity;
-
-         if ( not temperatureIsActive ) {
-            currentLayer->Current_Properties.Activate_Property ( Basin_Modelling::Temperature );
-         }
-         if ( not depthIsActive ) {
-	           currentLayer->Current_Properties.Activate_Property ( Basin_Modelling::Depth );
-         }
-
-         for ( i = xStart; i < xStart + xCount; ++i ) {
-
-            for ( j = yStart; j < yStart + yCount; ++j ) {
-
-               if ( Valid_Needle ( i, j )) {
-                  double thickness = currentLayer->Current_Properties ( Basin_Modelling::Depth, 0, j, i ) - currentLayer->Current_Properties ( Basin_Modelling::Depth, zCount-1 , j, i );
-
-                  if (thickness <= 1 ) {
-                     continue;
-                  }
-		     
-                  currentLithology = currentLayer->getLithology ( i, j );
-
-                  heatCapacity = currentLithology->densityXheatcapacity ( intrusionTemperature, 0.0 );
-                  
-                  // The physical equation was not fitting the expected results, we determined a numerical factor in order to fit the benchmark
-                  double factor = 41/thickness + 0.59;
-                  heatProductionRateForIntrusion = factor * heatCapacity * ( intrusionTemperature - currentLayer->Current_Properties ( Basin_Modelling::Temperature, 0, j, i )) / timeStep;
-
-                  
-                  #ifdef DEBUG_HEATPRODUCTIONFORINTRUSION
-                  // Some values printed to help in debug mode => to delete once the prototype is released
-                  if ( i == 1 and j == 1 ) {
-                     cout << " heatProductionForIntrusion " << heatProductionRateForIntrusion << "  " 
-                          << heatProduction << "  "
-                          << intrusionTemperature << "  "
-                          << currentLayer->Current_Properties ( Basin_Modelling::Temperature, 0, j, i ) << "  "
-                          << timeStep/Secs_IN_MA << "  "
-                          << endl;
-                  }
-                  #endif
-
-                  for ( k = 0; k < zCount; ++k ) {
-                     layerHeatProduction ( k, j, i ) = heatProductionRateForIntrusion;
-                  }
-
-               }
-
-            }
-
-         }
-
-         if ( not temperatureIsActive ) {
-            currentLayer -> Current_Properties.Restore_Property ( Basin_Modelling::Temperature );
-         }
-      }
-
-      Layers++;
-   }
-
-} 
 
 //------------------------------------------------------------//
 

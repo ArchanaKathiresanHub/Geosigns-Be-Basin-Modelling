@@ -483,10 +483,7 @@ const SourceRock * Formation::getSourceRock2 (void) const
 }
 
 bool Formation::getIsIgneousIntrusion () const {
-	if( m_kind == SEDIMENT_FORMATION ){
-		return (database::getIsIgneousIntrusion ( m_record ) == 1);
-	}
-	else return false;
+   return database::getIsIgneousIntrusion ( m_record ) == 1;
 }
 
 double Formation::getIgneousIntrusionAge () const {

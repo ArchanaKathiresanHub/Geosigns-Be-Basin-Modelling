@@ -11,11 +11,6 @@
 #########################################################################
 
 set(cross_platform_headers
-      src/BrinePhases.h
-      src/BrineConductivity.h
-      src/BrineDensity.h
-      src/BrineVelocity.h
-      src/BrineViscosity.h
       src/ChemicalCompactionCalculator.h
       src/DoubleExponentialPorosity.h
       src/ExponentialPorosity.h
@@ -65,11 +60,6 @@ set(unix_only_headers
    )
 
 set(cross_platform_srcs
-      src/BrinePhases.C
-      src/BrineConductivity.C
-      src/BrineDensity.C
-      src/BrineVelocity.C
-      src/BrineViscosity.C
       src/ChemicalCompactionCalculator.C
       src/DoubleExponentialPorosity.C
       src/ExponentialPorosity.C
@@ -176,25 +166,20 @@ generate_dox( GeoPhysics.cfg )
 
 ### Unit Tests
 
-add_gtest( NAME GeoPhysics::BrineConductivity
-      SOURCES test/BrineConductivity.C src/BrinePhases.C
-      LIBRARIES GeoPhysics
-)
+#add_gtest( NAME GeoPhysics::BrineDensity
+#      SOURCES test/BrineDensity.C src/BrinePhases.C
+#      LIBRARIES GeoPhysics
+#)
 
-add_gtest( NAME GeoPhysics::BrineDensity
-      SOURCES test/BrineDensity.C src/BrinePhases.C
-      LIBRARIES GeoPhysics
-)
+#add_gtest( NAME GeoPhysics::BrineVelocity
+#      SOURCES test/BrineVelocity.C src/BrinePhases.C
+#      LIBRARIES GeoPhysics
+#)
 
-add_gtest( NAME GeoPhysics::BrineVelocity
-      SOURCES test/BrineVelocity.C src/BrinePhases.C
-      LIBRARIES GeoPhysics
-)
-
-add_gtest( NAME GeoPhysics::BrineViscosity
-      SOURCES test/BrineViscosity.C src/BrinePhases.C
-      LIBRARIES GeoPhysics
-)
+#add_gtest( NAME GeoPhysics::BrineViscosity
+#      SOURCES test/BrineViscosity.C src/BrinePhases.C
+#      LIBRARIES GeoPhysics
+#)
 
 add_gtest( NAME GeoPhysics::ChemicalCompactionCalculator
       SOURCES test/ChemicalCompactionCalculatorTest.C 
