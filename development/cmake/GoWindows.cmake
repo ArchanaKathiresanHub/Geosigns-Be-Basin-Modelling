@@ -10,7 +10,7 @@ if (IS_DIRECTORY "c:/opt")
   set(buildToolDirectory "c:/opt")
 endif()
 
-set( BOOST_ROOT "${buildToolDirectory}/boost_1_56_0" CACHE PATH "Location of the Boost C++ libraries")
+set( BOOST_ROOT "${buildToolDirectory}/boost_1_59_0" CACHE PATH "Location of the Boost C++ libraries")
 
 set( BM_PLATFORM_ID "MSWindows_Amd64" CACHE STRING "An identifier for the platform (OS, etc...) for this is build" )
 

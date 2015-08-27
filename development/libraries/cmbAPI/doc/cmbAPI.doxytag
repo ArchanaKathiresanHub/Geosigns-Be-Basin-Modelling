@@ -670,55 +670,6 @@
     <name>mbapi::Model</name>
     <filename>classmbapi_1_1Model.html</filename>
     <base>ErrorHandler</base>
-    <member kind="enumeration">
-      <type></type>
-      <name>ProjectTableColumnDataType</name>
-      <anchorfile>classmbapi_1_1Model.html</anchorfile>
-      <anchor>a7a5b549286d48303fd40115064a087e8</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="enumvalue">
-      <type>@</type>
-      <name>Bool</name>
-      <anchorfile>classmbapi_1_1Model.html</anchorfile>
-      <anchor>a7a5b549286d48303fd40115064a087e8a4def3e0e73ba5a12e557106059b6b37a</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="enumvalue">
-      <type>@</type>
-      <name>Int</name>
-      <anchorfile>classmbapi_1_1Model.html</anchorfile>
-      <anchor>a7a5b549286d48303fd40115064a087e8a816ee46011aaaedef4b3fd853ea52fa4</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="enumvalue">
-      <type>@</type>
-      <name>Long</name>
-      <anchorfile>classmbapi_1_1Model.html</anchorfile>
-      <anchor>a7a5b549286d48303fd40115064a087e8a343a8865c7ea93cb1d420e64ff6b82f6</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="enumvalue">
-      <type>@</type>
-      <name>Float</name>
-      <anchorfile>classmbapi_1_1Model.html</anchorfile>
-      <anchor>a7a5b549286d48303fd40115064a087e8a9c1742f9f18bf3f7111967fd3760c6e3</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="enumvalue">
-      <type>@</type>
-      <name>Double</name>
-      <anchorfile>classmbapi_1_1Model.html</anchorfile>
-      <anchor>a7a5b549286d48303fd40115064a087e8ae818507ab1b01095a232a8e81a8c68da</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="enumvalue">
-      <type>@</type>
-      <name>String</name>
-      <anchorfile>classmbapi_1_1Model.html</anchorfile>
-      <anchor>a7a5b549286d48303fd40115064a087e8a3bca3f8003eb4f92ab22e41570eac382</anchor>
-      <arglist></arglist>
-    </member>
     <member kind="function">
       <type></type>
       <name>Model</name>
@@ -765,8 +716,8 @@
       <type>std::vector&lt; std::string &gt;</type>
       <name>tableColumnsList</name>
       <anchorfile>classmbapi_1_1Model.html</anchorfile>
-      <anchor>aad56d43498f5900dad24ccb5ca673225</anchor>
-      <arglist>(const std::string &amp;tableName, std::vector&lt; ProjectTableColumnDataType &gt; &amp;colDataTypes)</arglist>
+      <anchor>ac1e71be07092eab702c59b1f97ee867d</anchor>
+      <arglist>(const std::string &amp;tableName, std::vector&lt; datatype::DataType &gt; &amp;colDataTypes)</arglist>
     </member>
     <member kind="function">
       <type>int</type>
