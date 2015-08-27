@@ -72,7 +72,10 @@ do
    shared_libs=`echo $flavour | cut -f 4 -d ,`
    configuration=`echo $flavour | cut -f 5 -d ,`
 
-   bash $SRC/BuildProjects/Linux-DoOnPlatform.sh $platform bash -s <<EOF &
+   echo  'Run build for $platform intel_compiler: $intel_compiler'
+
+#   bash $SRC/BuildProjects/Linux-DoOnPlatform.sh $platform bash -s <<EOF &
+   cat >  test.sh <<EOF 
 #!/bin/bash
 
 TMPLIBDIR=\`mktemp -d\` || { echo "Cannot create temporary installation directory"; exit 1; }
@@ -108,8 +111,11 @@ echo DONE
 exit 0
 EOF
 
+    bash $SRC/BuildProjects/Linux-DoOnPlatform.sh $platform bash $SRC/BuildProjects/test.sh
+
 done
 
+rm -rf $SRC/BuildProjects/test.sh
 wait
 
 echo Libraries are ready for deployment in directory $LIBDIR

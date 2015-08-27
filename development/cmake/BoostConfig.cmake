@@ -12,7 +12,7 @@
 
 include( cmake/AddPackage.cmake)
 
-set(BOOST_LIBS_LIST filesystem system thread atomic date_time chrono)
+set(BOOST_LIBS_LIST filesystem system thread atomic date_time chrono log iostreams)
 
 if (UNIX)
    # Convert the compiler name that CMake has to a toolset name that the Boost
@@ -29,11 +29,11 @@ if (UNIX)
          "using ${toolset} : ${CMAKE_CXX_COMPILER_VERSION} : ${CMAKE_CXX_COMPILER} ;\n"
    )
 
-   # filesystem;system;thread;atomic -> "filesystem,system,thread,atomic"
+   # filesystem;system;thread;atomic;log;iostreams -> "filesystem,system,thread,atomic,log,iostreams"
    #
    string( REPLACE ";" "," COMMA_SEP_BOOST_LIBS_LIST "${BOOST_LIBS_LIST}")
 
-   # filesystem;system;thread;atomic -> "boost_filesystem boost_system boost_thread boost_atomic"
+   # filesystem;system;thread;atomic... -> "boost_filesystem boost_system boost_thread boost_atomic..."
    #
    string( REPLACE ";" " boost_" TMP_BOOST_LIBS_LIST "${BOOST_LIBS_LIST}")
    set(PREFIXED_BOOST_LIBS_LIST "boost_${TMP_BOOST_LIBS_LIST}")
@@ -42,9 +42,9 @@ if (UNIX)
    # Add Boost as an external project
    add_external_project_to_repository(
          NAME Boost
-         VERSION 1.56.0
-         ARCHIVE "${THIRD_PARTY_DIR}/sources/boost_1_56_0.tar.gz"
-         ARCHIVE_MD5 "8c54705c424513fa2be0042696a3a162"
+         VERSION 1.59.0
+         ARCHIVE "${THIRD_PARTY_DIR}/sources/boost_1_59_0.tar.gz"
+         ARCHIVE_MD5 "4f3bcac57378b2bf0e4f82d4904fca91"
          PATCH_COMMAND
             "./bootstrap.sh"
             "--with-libraries=${COMMA_SEP_BOOST_LIBS_LIST}"
@@ -76,9 +76,9 @@ if (UNIX)
       CAPABILITY BoostLib
       NAME    "Boost"
       VENDOR  "Boost"
-      VERSION "1.56.0"
+      VERSION "1.59.0"
       LICENSE_TYPE "Boost v1"
-      LICENSE_FILE "${THIRD_PARTY_DIR}/licenses/Boost-1.56.0.txt"
+      LICENSE_FILE "${THIRD_PARTY_DIR}/licenses/Boost-1.59.0.txt"
       URL "http://boost.org"
       DESCRIPTION "Free peer-reviewed portable C++ source libraries"
       REQUIRED_AT  "Runtime"
@@ -111,15 +111,15 @@ elseif(WIN32)
         set(Boost_USE_STATIC_LIBS        ON) # only find static libs
     endif()
 
-    find_package( Boost 1.56.0 REQUIRED COMPONENTS ${BOOST_LIBS_LIST} )
+    find_package( Boost 1.59.0 REQUIRED COMPONENTS ${BOOST_LIBS_LIST} )
 
     add_external_package_info(
       CAPABILITY BoostLib
       NAME    "Boost"
       VENDOR  "Boost"
-      VERSION "1.56.0"
+      VERSION "1.59.0"
       LICENSE_TYPE "Boost v1"
-      LICENSE_FILE "${THIRD_PARTY_DIR}/licenses/Boost-1.56.0.txt"
+      LICENSE_FILE "${THIRD_PARTY_DIR}/licenses/Boost-1.59.0.txt"
       URL "http://boost.org"
       DESCRIPTION "Free peer-reviewed portable C++ source libraries"
       REQUIRED_AT  "Runtime"

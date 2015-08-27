@@ -16,9 +16,9 @@ include( cmake/AddPackage.cmake)
 # Add Boost as an external project
 add_external_project_to_repository(
       NAME Eigen
-      VERSION 3.2.1
-      ARCHIVE "${THIRD_PARTY_DIR}/sources/eigen-3.2.1.tar.gz"
-      ARCHIVE_MD5 "a0e0a32d62028218b1c1848ad7121476"
+      VERSION 3.2.5
+      ARCHIVE "${THIRD_PARTY_DIR}/sources/eigen-3.2.5.tar.gz"
+      ARCHIVE_MD5 "8cc513ac6ec687117acadddfcacf551b"
       CONFIGURE_COMMAND "${CMAKE_COMMAND}" "-E" "echo" "Eigen doesn't need to be configured."
       BUILD_COMMAND   "${CMAKE_COMMAND}" "-E" "echo" "Eigen doesn't need to be built."
       INSTALL_COMMAND "${CMAKE_COMMAND}" "-E" "copy_directory" "{SRCBUILD}/Eigen" "{ROOT}/include/eigen3/Eigen"
