@@ -37,13 +37,14 @@ bool DataAccess::Mining::FluidVelocityCalculator::initialise () {
 
    if ( not m_initialised ) {
       
-      m_depth = getPropertyCollection ()->getDomainProperty ( "Depth", getPropertyManager ());
-      m_temperature = getPropertyCollection ()->getDomainProperty ( "Temperature", getPropertyManager ());
-      m_porosity = getPropertyCollection ()->getDomainProperty ( "Porosity", getPropertyManager ());
-      m_permeabilityN = getPropertyCollection ()->getDomainProperty ( "Permeability", getPropertyManager ());
-      m_permeabilityH = getPropertyCollection ()->getDomainProperty ( "HorizontalPermeability", getPropertyManager ());
-      m_overpressure = getPropertyCollection ()->getDomainProperty ( "OverPressure", getPropertyManager ());
+      m_depth               = getPropertyCollection ()->getDomainProperty ( "Depth", getPropertyManager ());
+      m_permeabilityH       = getPropertyCollection ()->getDomainProperty ( "HorizontalPermeability", getPropertyManager ());
       m_hydrostaticPressure = getPropertyCollection ()->getDomainProperty ( "HydroStaticPressure", getPropertyManager ());
+      m_overpressure        = getPropertyCollection ()->getDomainProperty ( "OverPressure", getPropertyManager ());
+      m_permeabilityN       = getPropertyCollection ()->getDomainProperty ( "Permeability", getPropertyManager ());
+      m_porosity            = getPropertyCollection ()->getDomainProperty ( "Porosity", getPropertyManager ());
+      m_pressure            = getPropertyCollection ()->getDomainProperty ( "Pressure", getPropertyManager ());
+      m_temperature         = getPropertyCollection ()->getDomainProperty ( "Temperature", getPropertyManager ());
 
       if ( m_depth != 0 and m_temperature != 0 and m_porosity != 0 and m_permeabilityN != 0 and m_permeabilityH != 0 and m_overpressure != 0 and m_hydrostaticPressure != 0 ) {
          m_initialised = true;
@@ -68,11 +69,12 @@ double DataAccess::Mining::FluidVelocityCalculator::compute ( const ElementPosit
    double fluidVelocityMagnitude;
    double calculationResult;
 
-   double temperature;
-   double porosity;
-   double permeabilityN;
-   double permeabilityH;
    double fluidViscosity;
+   double permeabilityH;
+   double permeabilityN;
+   double porosity;
+   double pressure;
+   double temperature;
 
    FiniteElementMethod::ThreeVector fluidVelocity;
    FiniteElementMethod::Matrix3x3 fluidMobility;
@@ -104,12 +106,13 @@ double DataAccess::Mining::FluidVelocityCalculator::compute ( const ElementPosit
    finiteElement.setGeometry ( geometryMatrix );
    finiteElement.setQuadraturePoint ( position.getReferencePoint ()( 0 ), position.getReferencePoint ()( 1 ), position.getReferencePoint ()( 2 ));
 
-   temperature = m_temperature->compute ( position );
-   porosity = 0.01 * m_porosity->compute ( position );
-   permeabilityN = m_permeabilityN->compute ( position ) / GeoPhysics::M2TOMILLIDARCY;
    permeabilityH = m_permeabilityH->compute ( position ) / GeoPhysics::M2TOMILLIDARCY;
-
-   fluidViscosity = fluid->viscosity ( temperature );
+   permeabilityN = m_permeabilityN->compute ( position ) / GeoPhysics::M2TOMILLIDARCY;
+   porosity = 0.01 * m_porosity->compute ( position );   
+   pressure = m_pressure->compute ( position );
+   temperature = m_temperature->compute ( position );
+      
+   fluidViscosity = fluid->viscosity ( temperature, pressure );
 
    gradOverpressure = finiteElement.interpolateGrad ( overpressureCoeffs );
    gradHydrostaticPressure = finiteElement.interpolateGrad ( hydrostaticPressureCoeffs );
