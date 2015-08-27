@@ -1803,9 +1803,9 @@ double ProxyColumn::getBottomDepth (void) const
    return m_bottomDepth;
 }
 
-double ProxyColumn::getTopDepthOffset(void) const
+double ProxyColumn::getTopDepthOffset (void) const
 {
-   if (!isCached(TOPDEPTHOFFSETCACHE))
+   if (!isCached (TOPDEPTHOFFSETCACHE))
    {
       ColumnValueRequest valueRequest;
       ColumnValueRequest valueResponse;
@@ -1814,9 +1814,10 @@ double ProxyColumn::getTopDepthOffset(void) const
       valueRequest.j = getJ();
       valueRequest.valueSpec = TOPDEPTHOFFSET;
       RequestHandling::SendRequest(valueRequest, valueResponse);
-      m_bottomDepth = valueResponse.value;
+      m_topDepthOffset = valueResponse.value;
       setCached(TOPDEPTHOFFSETCACHE);
    }
+
    return m_topDepthOffset;
 }
 
