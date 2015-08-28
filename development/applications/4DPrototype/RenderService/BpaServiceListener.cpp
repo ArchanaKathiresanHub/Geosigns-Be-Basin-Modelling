@@ -45,8 +45,8 @@ bool BpaServiceListener::onPendingCreateRenderArea(
   const std::string& renderAreaId, 
   unsigned int& width, 
   unsigned int& height, 
-  Device* device, 
-  ConnectionParameters* parameters)
+  Device* /*device*/, 
+  ConnectionParameters* /*parameters*/)
 {
   //if(m_renderService != 0)
   //  m_renderService->logMessage("Accepting connection");
@@ -55,7 +55,7 @@ bool BpaServiceListener::onPendingCreateRenderArea(
   return true; // accept connection
 }
 
-bool BpaServiceListener::onPendingShareRenderArea(RenderArea* renderArea, Device* device, ConnectionParameters* parameters)
+bool BpaServiceListener::onPendingShareRenderArea(RenderArea* renderArea, Device* /*device*/, ConnectionParameters* /*parameters*/)
 {
   //if(m_renderService != 0)
   //  m_renderService->logMessage("RenderArea shared");
@@ -107,7 +107,7 @@ void BpaServiceListener::onDisconnectedDevice(const std::string& deviceId)
   std::cout << "Device '" << deviceId << "' disconnected" << std::endl;
 }
 
-void BpaServiceListener::onMissingLicense(const std::string& renderAreaId, ConnectionParameters* parameters)
+void BpaServiceListener::onMissingLicense(const std::string& renderAreaId, ConnectionParameters* /*parameters*/)
 {
   //if(m_renderService != 0)
   //  m_renderService->logMessage("Missing license");

@@ -306,7 +306,7 @@ size_t SnapshotTopology::getEndNodeId() const
   return (m_numI + 1) * (m_numJ + 1) + (m_numK + 1);
 }
 
-std::string SnapshotTopology::getNodeName(size_t i) const
+std::string SnapshotTopology::getNodeName(size_t /*i*/) const
 {
   return "";
 }
@@ -414,7 +414,7 @@ size_t VolumeTopology::getEndNodeId() const
   return (m_numI + 1) * (m_numJ + 1) * (m_numK + 1);
 }
 
-std::string VolumeTopology::getNodeName(size_t i) const
+std::string VolumeTopology::getNodeName(size_t /*i*/) const
 {
   return "";
 }
@@ -617,7 +617,7 @@ ReservoirMesh::ReservoirMesh(
 
   size_t ni = depthMapTop->numI() - 1;
   size_t nj = depthMapTop->numJ() - 1;
-  size_t nk = 2;
+
   m_topology = std::make_shared<ReservoirTopology>(ni, nj, *m_geometry);
 }
 
@@ -706,7 +706,7 @@ size_t FaultTopology::getNumCells() const
   return m_cells.size();
 }
 
-bool FaultTopology::isDead(size_t i) const
+bool FaultTopology::isDead(size_t /*i*/) const
 {
   return false;
 }

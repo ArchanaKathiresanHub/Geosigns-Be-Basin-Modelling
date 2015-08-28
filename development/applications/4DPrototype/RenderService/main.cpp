@@ -11,7 +11,10 @@
 #include "RenderService.h"
 #include "BpaServiceListener.h"
 
-//#include <windows.h>
+#ifndef _WIN32
+#include <unistd.h> // for usleep
+#endif
+
 #include <signal.h>
 
 #include <MeshVizInterface/mapping/MoMeshViz.h>
@@ -34,13 +37,13 @@ void sleepms(unsigned int time) // milliseconds
 #endif
 }
 
-void sighandler(int sig)
+void sighandler(int /*sig*/)
 {
   running = false;
 }
 //#define COMPILE_AS_SERVICE
 
-int main(int argc, char* argv[])
+int main(int /*argc*/, char* /*argv*/[])
 {
 #ifdef COMPILE_AS_SERVICE
 

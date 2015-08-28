@@ -56,11 +56,11 @@ void RenderService::resume()
 {
 }
 
-void RenderService::processCommand(int code)
+void RenderService::processCommand(int /*code*/)
 {
 }
 
-RenderService::RenderService(int argc, char** argv)
+RenderService::RenderService(int /*argc*/, char** /*argv*/)
 #ifdef USE_QTSERVICE
   : QtService(argc, argv, "RenderService")
 #endif

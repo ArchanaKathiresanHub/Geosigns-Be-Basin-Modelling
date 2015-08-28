@@ -111,8 +111,12 @@ void SceneGraphManager::updateSnapshotFormations(size_t index)
   for (size_t i = 0; i < tmpChunks.size(); ++i)
   {
     MoMeshSkin* meshSkin = new MoMeshSkin;
-    uint32_t rangeMin[] = { 0, 0, tmpChunks[i].minK };
-    uint32_t rangeMax[] = { m_numI - 1, m_numJ - 1, tmpChunks[i].maxK - 1 };
+    uint32_t rangeMin[] = { 0, 0, (uint32_t)tmpChunks[i].minK };
+    uint32_t rangeMax[] = { 
+      (uint32_t)(m_numI - 1), 
+      (uint32_t)(m_numJ - 1), 
+      (uint32_t)(tmpChunks[i].maxK - 1) };
+
     meshSkin->minCellRanges.setValues(0, 3, rangeMin);
     meshSkin->maxCellRanges.setValues(0, 3, rangeMax);
 
@@ -173,11 +177,18 @@ void SceneGraphManager::updateSnapshotSurfaces(size_t index)
 
 namespace
 {
+  /**
+   * Linear interpolation
+   */
   inline double lerp(double x0, double x1, double a)
   {
     return (1.0 - a) * x0 + a * x1;
   }
 
+  /**
+   * Get a depth value from geometry, using floating point x and y coordinates
+   * and bilinear interpolation
+   */
   double getZ(const SnapshotGeometry& geometry, double x, double y, int k)
   {
     MbVec3d minVec = geometry.getMin();

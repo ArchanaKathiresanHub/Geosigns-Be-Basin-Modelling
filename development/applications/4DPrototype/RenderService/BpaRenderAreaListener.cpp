@@ -42,8 +42,8 @@ void BpaRenderAreaListener::createSceneGraph(const std::string& /*id*/)
 {
   std::cout << "Loading scenegraph..."<< std::endl;
 
-  const std::string rootdir = "V:/data/";
-  //const std::string rootdir = "/home/ree/";
+  //const std::string rootdir = "V:/data/";
+  const std::string rootdir = "/home/ree/";
   const std::string project = "CauldronSmall";
   const std::string filename = "/Project.project3d";
 
@@ -91,6 +91,8 @@ BpaRenderAreaListener::~BpaRenderAreaListener()
 
 void BpaRenderAreaListener::sendProjectInfo() const
 {
+  std::cout << "Sending project info" << std::endl;
+
   // Add formation names
   jsonxx::Array formations;
   std::unique_ptr<di::FormationList> formationList(m_handle->getFormations(0, false));
@@ -146,6 +148,8 @@ void BpaRenderAreaListener::sendProjectInfo() const
 
   jsonxx::Object msg;
   msg << "projectInfo" << projectInfo;
+
+  std::cout << msg.write(jsonxx::JSON) << std::endl;
 
   m_renderArea->sendMessage(msg.write(jsonxx::JSON));
 }
