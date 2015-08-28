@@ -31,6 +31,8 @@
 #include <MeshVizInterface/mapping/nodes/MoScalarSetIjk.h>
 #include <MeshVizInterface/mapping/nodes/MoLegend.h>
 
+#include <MeshViz/graph/PoAutoCubeAxis.h>
+
 #include <Interface/ProjectHandle.h>
 #include <Interface/Grid.h>
 #include <Interface/GridMap.h>
@@ -50,6 +52,8 @@ SnapshotInfo::SnapshotInfo()
   : snapshot(0)
   , currentProperty(0)
   , root(0)
+  , coordinateGrid(0)
+  , coordinateGridSwitch(0)
   , mesh(0)
   , meshData(0)
   , scalarSet(0)
@@ -365,6 +369,10 @@ void SceneGraphManager::updateSnapshot(size_t index)
   updateSnapshotFaults(index);
   updateSnapshotProperties(index);
   updateSnapshotSlices(index);
+
+  m_snapshots[index].coordinateGridSwitch->whichChild = m_showGrid
+    ? SO_SWITCH_ALL
+    : SO_SWITCH_NONE;
 }
 
 SnapshotInfo SceneGraphManager::createSnapshotNode(const di::Snapshot* snapshot)
@@ -443,6 +451,7 @@ SnapshotInfo SceneGraphManager::createSnapshotNode(const di::Snapshot* snapshot)
   }
 
   info.root = new SoSeparator;
+  info.coordinateGridSwitch = new SoSwitch;
 
   if (!depthMaps.empty())
   {
@@ -450,6 +459,24 @@ SnapshotInfo SceneGraphManager::createSnapshotNode(const di::Snapshot* snapshot)
     info.topology.reset(new SnapshotTopology(info.geometry));
 
     info.meshData = new HexahedronMesh(info.geometry, info.topology);
+
+    // Setup coordinate axes
+    info.coordinateGrid = new PoAutoCubeAxis;
+    MbVec3d minVec = info.geometry->getMin();
+    MbVec3d maxVec = info.geometry->getMax();
+    double dx = (maxVec[0] - minVec[0]) * .05;
+    double dy = (maxVec[1] - minVec[1]) * .05;
+    info.coordinateGrid->start = SbVec3f((float)(minVec[0] - dx), (float)(minVec[1] - dy), (float)minVec[2]);
+    info.coordinateGrid->end = SbVec3f((float)(maxVec[0] + dx), (float)(maxVec[1] + dy), (float)maxVec[2]);
+    info.coordinateGrid->gradStart = info.coordinateGrid->start.getValue();
+    info.coordinateGrid->gradEnd = info.coordinateGrid->end.getValue();
+
+    info.coordinateGrid->isGridLinesXVisible = true;
+    info.coordinateGrid->isGridLinesYVisible = true;
+    info.coordinateGrid->isGridLinesZVisible = true;
+
+    info.coordinateGridSwitch->addChild(info.coordinateGrid);
+    info.coordinateGridSwitch->whichChild = SO_SWITCH_NONE;
   }
 
   info.mesh = new MoMesh;
@@ -470,6 +497,7 @@ SnapshotInfo SceneGraphManager::createSnapshotNode(const di::Snapshot* snapshot)
   info.slicesGroup = new SoGroup;
   info.slicesGroup->setName("slices");
 
+  info.root->addChild(info.coordinateGridSwitch);
   info.root->addChild(info.mesh);
   info.root->addChild(info.scalarSet);
   info.root->addChild(info.chunksGroup);
@@ -588,6 +616,7 @@ SceneGraphManager::SceneGraphManager()
   , m_numJHiRes(0)
   , m_minX(0.0)
   , m_minY(0.0)
+  , m_showGrid(false)
   , m_formationsTimeStamp(MxTimeStamp::getTimeStamp())
   , m_surfacesTimeStamp(MxTimeStamp::getTimeStamp())
   , m_faultsTimeStamp(MxTimeStamp::getTimeStamp())
@@ -728,6 +757,16 @@ void SceneGraphManager::setSlicePosition(int slice, int position)
 {
   m_slicePosition[slice] = position;
   updateSnapshot(m_currentSnapshot);
+}
+
+void SceneGraphManager::showCoordinateGrid(bool show)
+{
+  if (show != m_showGrid)
+  {
+    m_showGrid = show;
+
+    updateSnapshot(m_currentSnapshot);
+  }
 }
 
 void SceneGraphManager::setup(const di::ProjectHandle* handle)

@@ -330,6 +330,7 @@ void MainWindow::connectSignals()
   connect(m_ui.sliderVerticalScale, SIGNAL(valueChanged(int)), this, SLOT(onVerticalScaleSliderValueChanged(int)));
   connect(m_ui.checkBoxDrawFaces, SIGNAL(toggled(bool)), this, SLOT(onRenderStyleChanged()));
   connect(m_ui.checkBoxDrawEdges, SIGNAL(toggled(bool)), this, SLOT(onRenderStyleChanged()));
+  connect(m_ui.checkBoxDrawGrid, SIGNAL(toggled(bool)), this, SLOT(onCoordinateGridToggled(bool)));
 
   // ROI
   connect(m_ui.checkBoxROI, SIGNAL(toggled(bool)), this, SLOT(onROIToggled(bool)));
@@ -518,7 +519,7 @@ void MainWindow::onSliceToggled(bool value)
   if (sender() == m_ui.checkBoxSliceI)
     m_sceneGraphManager.enableSlice(0, value);
   else
-    m_sceneGraphManager.enableSlice(1, value);;
+    m_sceneGraphManager.enableSlice(1, value);
 }
 
 void MainWindow::onRenderStyleChanged()
@@ -527,6 +528,11 @@ void MainWindow::onRenderStyleChanged()
   bool drawEdges = m_ui.checkBoxDrawEdges->isChecked();
 
   m_sceneGraphManager.setRenderStyle(drawFaces, drawEdges);
+}
+
+void MainWindow::onCoordinateGridToggled(bool value)
+{
+  m_sceneGraphManager.showCoordinateGrid(value);
 }
 
 void MainWindow::onItemDoubleClicked(QTreeWidgetItem* item, int column)

@@ -35,6 +35,7 @@ class SoNode;
 class SoShapeHints;
 class SoLineSet;
 
+class PoAutoCubeAxis;
 class MoLegend;
 class SoScale;
 class MoDrawStyle;
@@ -132,6 +133,9 @@ struct SnapshotInfo
 
   SoSeparator* root;
 
+  PoAutoCubeAxis* coordinateGrid;
+  SoSwitch* coordinateGridSwitch;
+
   std::shared_ptr<SnapshotGeometry> geometry;
   std::shared_ptr<SnapshotTopology> topology;
 
@@ -209,6 +213,8 @@ class VISUALIZATIONDLL_API SceneGraphManager
   std::vector<FaultInfo>     m_faults;
   std::vector<SnapshotInfo>  m_snapshots;
 
+  bool m_showGrid;
+
   size_t m_formationsTimeStamp;
   size_t m_surfacesTimeStamp;
   size_t m_faultsTimeStamp;
@@ -279,6 +285,8 @@ public:
   void enableSlice(int slice, bool enabled);
 
   void setSlicePosition(int slice, int position);
+
+  void showCoordinateGrid(bool show);
 
   void setup(const DataAccess::Interface::ProjectHandle* handle);
 };

@@ -234,6 +234,12 @@ void BpaRenderAreaListener::onReceivedMessage(RenderArea* renderArea, Connection
 
     m_sceneGraphManager.setRenderStyle(drawFaces, drawEdges);
   }
+  else if (cmd == "ShowCoordinateGrid")
+  {
+    auto showGrid = params.get<bool>("show");
+
+    m_sceneGraphManager.showCoordinateGrid(showGrid);
+  }
   else if (cmd == "SetCurrentSnapshot")
   {
     auto index = params.get<jsonxx::Number>("index");

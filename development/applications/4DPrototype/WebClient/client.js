@@ -235,6 +235,20 @@ function onRenderStyleChanged()
     theRenderArea.sendMessage(JSON.stringify(msg));
 }
 
+function onShowGridChanged(elem)
+{
+    var showGrid = elem.checked;
+
+    var msg = {
+        cmd: "ShowCoordinateGrid",
+        params: {
+            show: showGrid
+        }
+    }
+
+    theRenderArea.sendMessage(JSON.stringify(msg));
+}
+
 function onTimeSliderChanged(elem)
 {
     console.log("timeSlider = " + elem.value);
