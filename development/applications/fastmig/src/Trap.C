@@ -1260,7 +1260,7 @@ bool Trap::isPasteurized(const double hydrocarbonWaterContactTemperature, const 
       #endif
       
       // If at least one column of the trap is identify as pasteurized, it means that this trap already existed at the previous snapshot,
-      // and that there is no need to assess again the pasteurization status. The trap will be pasteurized; except if it merges with an not-pasteurized trap.
+      // and that there is no need to assess again the pasteurization status. The trap will be pasteurized, except if it merges with a not-pasteurized trap.
       if (column->getPasteurizationStatus() == 1)
       {
          needToComputeColumnPasteurizationStatus = false;
@@ -1294,9 +1294,9 @@ bool Trap::isPasteurized(const double hydrocarbonWaterContactTemperature, const 
       }
    }   
 
-   // Loop to check what kind of columns are present in the trap: pasteurized and/or not-pasteurized and/or neutral
+   // Loop to check what kind of columns are present in the trap: pasteurized and/or not-pasteurized
+   // Remark: as their name is a clear indication, neutral columns won't change the behavior of the trap
    bool includeNotPasteurizedColumn = false;
-   bool includeNeutralColumn = false;
    bool includePasteurizedColumn = false;
       
    for (iter = m_interior.begin(); iter != m_interior.end(); ++iter)
@@ -1305,7 +1305,6 @@ bool Trap::isPasteurized(const double hydrocarbonWaterContactTemperature, const 
             
       // Break the loop if the predominant kind of column have already been found (pasteurized and not-pasteurized)
       // Indeed, if those two kinds of columns have already been found inside the trap, the behaviour of the trap is already known (see next section)
-      // Remark: as their name is a clear indication, neutral columns won't change the behavior of the trap
       if (includeNotPasteurizedColumn == true && includePasteurizedColumn == true)
          break;
 
@@ -1313,12 +1312,6 @@ bool Trap::isPasteurized(const double hydrocarbonWaterContactTemperature, const 
       if (column->getPasteurizationStatus() == -1)
       {
          includeNotPasteurizedColumn = true;
-         continue;
-      }
-      // Check if the trap includes neutral column
-      if (column->getPasteurizationStatus() == 0)
-      {
-         includeNeutralColumn = true;
          continue;
       }
       // Check if the trap includes pasteurized column
@@ -1330,9 +1323,8 @@ bool Trap::isPasteurized(const double hydrocarbonWaterContactTemperature, const 
    }
    
    // Give the expected behavior of the trap according to the kind of columns that it possesses
-   // 1) If the trap is a mix of NOT-pasteurized and neutral columns => the trap is NOT pasteurized
-   if ((includeNotPasteurizedColumn == true && includeNeutralColumn == false && includePasteurizedColumn == false)
-      || (includeNotPasteurizedColumn == true && includeNeutralColumn == true && includePasteurizedColumn == false))
+   // 1) If the trap includes only NOT-pasteurized columns (and possibly neutral columns) => the trap is NOT pasteurized
+   if (includeNotPasteurizedColumn == true && includePasteurizedColumn == false)
    {
       for (iter = m_interior.begin(); iter != m_interior.end(); ++iter)
       {
@@ -1342,10 +1334,9 @@ bool Trap::isPasteurized(const double hydrocarbonWaterContactTemperature, const 
       return false;
    }
 
-   // 2) If the trap is a mix of pasteurized and neutral columns => the trap is pasteurized
+   // 2) If the trap includes only pasteurized columns (and possibly neutral columns) => the trap is pasteurized
    // Rationale behind this: if the trap grows and (neutral) columns are added to the trap, those columns will be at a deeper depth and so already pasteurized
-   if ((includeNotPasteurizedColumn == false && includeNeutralColumn == false && includePasteurizedColumn == true)
-      || (includeNotPasteurizedColumn == false && includeNeutralColumn == true && includePasteurizedColumn == true))
+   if (includeNotPasteurizedColumn == false && includePasteurizedColumn == true)
    {
       for (iter = m_interior.begin(); iter != m_interior.end(); ++iter)
       {
@@ -1357,32 +1348,28 @@ bool Trap::isPasteurized(const double hydrocarbonWaterContactTemperature, const 
 
    // 3) If the trap is a mix of pasteurized and not-pasteurized columns => the trap is not-pasteurized if the temperature is below the pasteurization temperature
    // Rationale behind this: merging of two traps, so the bacteria in one (not pasteurized) trap can migrate to the other (previously pasteurized) trap
-   // Moreover, the temperature at the OWC is not high enough at this snapshot to pasteurized the trap
-   if ((includeNotPasteurizedColumn == true && includeNeutralColumn == false && includePasteurizedColumn == true)
-      || (includeNotPasteurizedColumn == true && includeNeutralColumn == true && includePasteurizedColumn == true)
-      && (hydrocarbonWaterContactTemperature <= maxBiodegradationTemperature))
+   if (includeNotPasteurizedColumn == true && includePasteurizedColumn == true)
    {
-      for (iter = m_interior.begin(); iter != m_interior.end(); ++iter)
+      // The temperature at the OWC is not high enough at this snapshot to pasteurized the trap
+      if (hydrocarbonWaterContactTemperature <= maxBiodegradationTemperature)
       {
-         Column * column = *iter;
-         column->setPasteurizationStatus(-1);   //set all the columns of this trap as not-pasteurized
+         for (iter = m_interior.begin(); iter != m_interior.end(); ++iter)
+         {
+            Column * column = *iter;
+            column->setPasteurizationStatus(-1);   //set all the columns of this trap as not-pasteurized
+         }
+         return false;
       }
-      return false;
-   }
+      else // The temperature at this snapshot is too high and pasteurized the trap
+      {
+         for (iter = m_interior.begin(); iter != m_interior.end(); ++iter)
+         {
+            Column * column = *iter;
+            column->setPasteurizationStatus(1);   //set all the columns of this trap as pasteurized
+         }
+         return true;
+      }
 
-   // 4) If the trap is a mix of pasteurized and not-pasteurized columns => the trap is not-pasteurized if the temperature is below the pasteurization temperature
-   // Rationale behind this: merging of two traps, so the bacteria in one (not pasteurized) trap can migrate to the other (previously pasteurized) trap
-   // But the temperature at this snapshot is too high and pasteurized the trap
-   if ((includeNotPasteurizedColumn == true && includeNeutralColumn == false && includePasteurizedColumn == true)
-      || (includeNotPasteurizedColumn == true && includeNeutralColumn == true && includePasteurizedColumn == true)
-      && (hydrocarbonWaterContactTemperature >= maxBiodegradationTemperature))
-   {
-      for (iter = m_interior.begin(); iter != m_interior.end(); ++iter)
-      {
-         Column * column = *iter;
-         column->setPasteurizationStatus(1);   //set all the columns of this trap as pasteurized
-      }
-      return true;
    }
 
    // No reason to reach this point of the function, so the "return false" is just an extra security
