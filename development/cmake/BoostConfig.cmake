@@ -12,7 +12,7 @@
 
 include( cmake/AddPackage.cmake)
 
-set(BOOST_LIBS_LIST filesystem system thread atomic date_time chrono log iostreams)
+set(BOOST_LIBS_LIST log filesystem system thread atomic date_time chrono iostreams regex)
 
 if (WIN32)
     list(APPEND BOOST_LIBS_LIST zlib)
