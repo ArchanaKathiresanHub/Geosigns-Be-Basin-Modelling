@@ -18,6 +18,7 @@
 #include <Inventor/nodes/SoShapeHints.h>
 #include <Inventor/nodes/SoAnnotation.h>
 #include <Inventor/nodes/SoVertexProperty.h>
+#include <Inventor/nodes/SoMaterial.h>
 
 #include <MeshVizInterface/MxTimeStamp.h>
 #include <MeshVizInterface/mapping/nodes/MoDrawStyle.h>
@@ -32,6 +33,8 @@
 #include <MeshVizInterface/mapping/nodes/MoLegend.h>
 
 #include <MeshViz/graph/PoAutoCubeAxis.h>
+#include <MeshViz/graph/PoLinearAxis.h>
+#include <MeshViz/graph/PoGenAxis.h>
 
 #include <Interface/ProjectHandle.h>
 #include <Interface/Grid.h>
@@ -386,6 +389,107 @@ void SceneGraphManager::updateSnapshot(size_t index)
     : SO_SWITCH_NONE;
 }
 
+namespace
+{
+
+  void initAutoAxis(PoCartesianAxis *axis, PbMiscTextAttr *textAtt, SbBool isXYAxis)
+  {
+
+    if (isXYAxis) 
+    {
+      //axis->marginType.setValue(PoCartesianAxis::FIXED_MARGIN);
+      //axis->marginStart.setValue(0.5);
+      //axis->marginEnd.setValue(0.5);
+      //axis->tickSubDef.setValue(PoCartesianAxis::NUM_SUB_TICK);
+      //axis->tickNumOrPeriod.setValue(1);
+    }
+
+    axis->titleFontSize = 0.10F;
+    //axis->setMiscTextAttr(textAtt);
+    axis->gradFontSize = 0.06F;
+    axis->gradVisibility = PoAxis::VISIBILITY_ON;
+
+    SoMaterial *axisMtl = SO_GET_PART(axis, "bodyApp.material", SoMaterial);
+    axisMtl->diffuseColor.setHSVValue(0.56F, 0.25F, 1);
+    axis->set("bodyApp.drawStyle", "lineWidth 1.5");
+
+  }
+
+  PoAutoCubeAxis* initCoordinateGrid(const MbVec3d& minVec, const MbVec3d& maxVec)
+  {
+    double dx = (maxVec[0] - minVec[0]) * .05;
+    double dy = (maxVec[1] - minVec[1]) * .05;
+
+    SbVec3f start((float)(minVec[0] - dx), (float)(minVec[1] - dy), (float)minVec[2]);
+    SbVec3f end((float)(maxVec[0] + dx), (float)(maxVec[1] + dy), (float)maxVec[2]);
+      
+    PoAutoCubeAxis* grid = new PoAutoCubeAxis(
+      start,
+      end,
+      PoAutoCubeAxis::LINEAR,
+      PoAutoCubeAxis::LINEAR,
+      PoAutoCubeAxis::LINEAR);
+
+    //PbDomain* domain = new PbDomain(SbBox3f(start, end))
+    grid->gradStart = grid->start.getValue();
+    grid->gradEnd = grid->end.getValue();
+
+    grid->isGridLinesXVisible = true;
+    grid->isGridLinesYVisible = true;
+    grid->isGridLinesZVisible = true;
+
+    grid->set("appearance.material", "diffuseColor 1 1 1");
+    grid->set("mainGradGridApp.drawStyle", "lineWidth 0.2");
+    grid->set("mainGradGridApp.drawStyle", "linePattern 0xF0F0");
+    grid->set("subGradGridApp.drawStyle", "style INVISIBLE");
+    //grid->isIntersectingGradsVisible = TRUE;
+    //grid->setDomain(domain);
+
+    const char* axisNames[] = {
+      "xAxis03", "xAxis12", "xAxis65", "xAxis74",
+      "yAxis01", "yAxis76", "yAxis45", "yAxis32",
+      "zAxis07", "zAxis34", "zAxis25", "zAxis16"
+    };
+
+    for (int i = 0; i < 12; ++i)
+    {
+      PoLinearAxis* axis = SO_GET_PART(grid, axisNames[i], PoLinearAxis);
+      initAutoAxis(axis, 0, i < 8);
+    }
+    //PoLinearAxis *xAxis[4];
+    //xAxis[0] = SO_GET_PART(grid, "xAxis03", PoLinearAxis);
+    //xAxis[1] = SO_GET_PART(grid, "xAxis12", PoLinearAxis);
+    //xAxis[2] = SO_GET_PART(grid, "xAxis65", PoLinearAxis);
+    //xAxis[3] = SO_GET_PART(grid, "xAxis74", PoLinearAxis);
+    //for (int i = 0; i < 4; i++) {
+    //  initAutoAxis(xAxis[i], 0/*textAtt*/, TRUE);
+    //  //xAxis[i]->gradList.setValues(0, NB_MONTH, (const char**)monthList);
+    //}
+
+    //PoLinearAxis *yAxis[4];
+    //yAxis[0] = SO_GET_PART(grid, "yAxis01", PoLinearAxis);
+    //yAxis[1] = SO_GET_PART(grid, "yAxis76", PoLinearAxis);
+    //yAxis[2] = SO_GET_PART(grid, "yAxis45", PoLinearAxis);
+    //yAxis[3] = SO_GET_PART(grid, "yAxis32", PoLinearAxis);
+    //for (int i = 0; i < 4; i++) {
+    //  initAutoAxis(yAxis[i], 0/*textAtt*/, TRUE);
+    //  //yAxis[i]->gradList.setValues(0, NB_COMPAGNY, (const char**)compagnyList);
+    //}
+
+    //PoLinearAxis *zAxis[4];
+    //zAxis[0] = SO_GET_PART(grid, "zAxis07", PoLinearAxis);
+    //zAxis[1] = SO_GET_PART(grid, "zAxis34", PoLinearAxis);
+    //zAxis[2] = SO_GET_PART(grid, "zAxis25", PoLinearAxis);
+    //zAxis[3] = SO_GET_PART(grid, "zAxis16", PoLinearAxis);
+    //for (int i = 0; i < 4; i++) {
+    //  initAutoAxis(zAxis[i], 0/*textAtt*/, FALSE);
+    //  zAxis[i]->multFactorPosition = PoLinearAxis::MULT_FACTOR_GRAD;
+    //}
+
+    return grid;
+  }
+}
+
 SnapshotInfo SceneGraphManager::createSnapshotNode(const di::Snapshot* snapshot)
 {
   SnapshotInfo info;
@@ -472,21 +576,14 @@ SnapshotInfo SceneGraphManager::createSnapshotNode(const di::Snapshot* snapshot)
     info.meshData = new HexahedronMesh(info.geometry, info.topology);
 
     // Setup coordinate axes
-    info.coordinateGrid = new PoAutoCubeAxis;
     MbVec3d minVec = info.geometry->getMin();
     MbVec3d maxVec = info.geometry->getMax();
-    double dx = (maxVec[0] - minVec[0]) * .05;
-    double dy = (maxVec[1] - minVec[1]) * .05;
-    info.coordinateGrid->start = SbVec3f((float)(minVec[0] - dx), (float)(minVec[1] - dy), (float)minVec[2]);
-    info.coordinateGrid->end = SbVec3f((float)(maxVec[0] + dx), (float)(maxVec[1] + dy), (float)maxVec[2]);
-    info.coordinateGrid->gradStart = info.coordinateGrid->start.getValue();
-    info.coordinateGrid->gradEnd = info.coordinateGrid->end.getValue();
+    info.coordinateGrid = initCoordinateGrid(minVec, maxVec);
 
-    info.coordinateGrid->isGridLinesXVisible = true;
-    info.coordinateGrid->isGridLinesYVisible = true;
-    info.coordinateGrid->isGridLinesZVisible = true;
+    SoSeparator* coordinateGridSep = new SoSeparator;
+    coordinateGridSep->addChild(info.coordinateGrid);
 
-    info.coordinateGridSwitch->addChild(info.coordinateGrid);
+    info.coordinateGridSwitch->addChild(coordinateGridSep);
     info.coordinateGridSwitch->whichChild = SO_SWITCH_NONE;
   }
 
