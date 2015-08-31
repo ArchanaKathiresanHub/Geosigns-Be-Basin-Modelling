@@ -8,6 +8,8 @@
 // Do not distribute without written permission from Shell.
 //
 
+#include <limits>
+
 #include "VisualizationIO_projectHandle.h"
 
 using namespace DataAccess;

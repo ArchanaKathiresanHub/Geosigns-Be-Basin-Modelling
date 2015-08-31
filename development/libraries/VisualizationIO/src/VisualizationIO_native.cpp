@@ -9,6 +9,7 @@
 //
 
 #include "VisualizationIO_native.h"
+
 using namespace CauldronIO;
 
 CauldronIO::MapNative::MapNative(bool cellCentered) : Map(cellCentered)
