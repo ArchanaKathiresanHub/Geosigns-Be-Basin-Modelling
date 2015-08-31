@@ -140,7 +140,7 @@ bool BrinePropertiesVolumeCalculator::operator ()( const OutputPropertyMap::Outp
                            //Pressure in MPa, temp in C
 
                            brineDensity = m_fluid->density (temperature, pressure);
-                           brineViscosity=m_fluid->viscosity(temperature);
+                           brineViscosity=m_fluid->viscosity(temperature, pressure);
                            
                            brineDensityMap->setValue(i,j,k,brineDensity);
                            brineViscosityMap->setValue(i,j,k,brineViscosity);

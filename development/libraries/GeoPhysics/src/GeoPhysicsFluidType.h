@@ -10,6 +10,11 @@
 #include "Interface/FluidType.h"
 #include "Interface/Interface.h"
 
+#include "BrineConductivity.h"
+#include "BrineDensity.h"
+#include "BrineVelocity.h"
+#include "BrineViscosity.h"
+
 
 namespace DataAccess
 {
@@ -109,7 +114,7 @@ namespace GeoPhysics {
       double computeDensityDerivativeWRTTemperature ( const double temperature, const double pressure ) const;
 
       /// Compute the fluid viscosity.
-      double viscosity ( const double temperature ) const;
+      double viscosity ( const double temperature, const double pressure ) const;
 
       /// Compute the thermal conductivity.
       double thermalConductivity ( const double temperature, const double pressure ) const;
@@ -183,6 +188,12 @@ namespace GeoPhysics {
       // For permafrost.
       double m_pressureTerm;
       double m_salinityTerm;
+      
+      /// For Brine properties
+      BrineConductivity m_conductivity;
+      BrineDensity m_density;
+      BrineVelocity m_velocity;
+      BrineViscosity m_viscosity;
 
       double solidDensityTimesHeatCapacity ( const double temperature ) const;
 

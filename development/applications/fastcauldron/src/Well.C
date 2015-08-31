@@ -350,7 +350,7 @@ void Well::Save_Well_Data( Location& needle, const string& Related_Project_Name 
                                                     nodeThermalConductivityNormal,
                                                     nodeThermalConductivityTangential );
 
-          fluidViscosity = currentLayer->fluid->viscosity ( nodeTemperature );
+          fluidViscosity = currentLayer->fluid->viscosity ( nodeTemperature, nodePorePressure );
           fluidDensity = currentLayer->fluid->density ( nodeTemperature, Get_Well_Interpolated_Value ( needle, pressure ));
         }
 

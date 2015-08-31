@@ -533,10 +533,10 @@ void Basin_Modelling::computeFluidVelocity
 
   lithology->getPorosity ( VES, maxVES, includeChemicalCompaction, chemicalCompactionTerm, currentCompoundPorosity );
   porosity = currentCompoundPorosity.mixedProperty ();
-
-  fluidViscosity = fluid->viscosity ( temperature );
+ 
 
   porePressure = ( overpressure + hydrostaticPressure ) * Pa_To_MPa;
+  fluidViscosity = fluid->viscosity ( temperature, porePressure );
   relativePermeability = fluid->relativePermeability ( temperature, porePressure ) * currentElementRelativePermeability;
 
   matrixTransposeVectorProduct ( gradBasis, currentElementPo, referenceGradOverpressure );
@@ -628,11 +628,12 @@ double Basin_Modelling::CFL_Value
     double Current_VES              = FiniteElementMethod::innerProduct ( Basis, Current_Element_VES );
     double Current_Max_VES          = FiniteElementMethod::innerProduct ( Basis, Current_Element_Max_VES );
     double Chemical_Compaction_Term = FiniteElementMethod::innerProduct ( Basis, Current_Element_Chemical_Compaction );
+    double Current_Pressure         = FiniteElementMethod::innerProduct ( Basis, Current_Ph ) + FiniteElementMethod::innerProduct ( Basis, Current_Po );
 
     CompoundProperty Current_Porosity;
     lithology->getPorosity ( Current_VES, Current_Max_VES, includeChemicalCompaction, Chemical_Compaction_Term, Current_Porosity );
 
-    double Fluid_Viscosity = Fluid->viscosity ( Current_Temperature );
+    double Fluid_Viscosity = Fluid->viscosity ( Current_Temperature, Current_Pressure );
 
     bool Has_Fractured = maxValue ( Fracture_Pressure_Exceeded ) > 0.0;
 
@@ -839,7 +840,7 @@ void Basin_Modelling::computeHeatFlow
 
     fluidDensity   = fluid->density ( temperature, porePressure );
     heatCapacity   = fluid->heatCapacity ( temperature, porePressure );
-    fluidViscosity = fluid->viscosity ( temperature );
+    fluidViscosity = fluid->viscosity ( temperature, porePressure );
 
     bool hasFractured = false;
 
@@ -1051,7 +1052,7 @@ void Basin_Modelling::applyPressureNeumannBoundaryConditions
         lithology->getPorosity ( Current_VES, Current_Max_VES, includeChemicalCompaction, Current_Chemical_Compaction, Current_Compound_Porosity );
 
         Current_Fluid_Density  = Fluid->density ( Current_Temperature,  Pa_To_MPa * Current_Pore_Pressure );
-        Fluid_Viscosity = Fluid->viscosity ( Current_Temperature );
+        Fluid_Viscosity = Fluid->viscosity ( Current_Temperature, Pa_To_MPa * Current_Pore_Pressure );
 
         Compute_Normal ( Jacobian, Normal );
         Normal_Length = FiniteElementMethod::length ( Normal );
@@ -1593,7 +1594,7 @@ void Basin_Modelling::Assemble_Element_Pressure_System (
             double previousFluidDensity = Fluid->density ( previousTemperature, Pa_To_MPa * previousPorePressure );
             double currentFluidDensity  = Fluid->density ( currentTemperature,  Pa_To_MPa * currentPorePressure );
 
-            double fluidViscosity       = Fluid->viscosity ( currentTemperature );
+            double fluidViscosity       = Fluid->viscosity ( currentTemperature, Pa_To_MPa * currentPorePressure );
 
             double currentRelativePermeability = relativePermeability * Fluid->relativePermeability( currentTemperature, Pa_To_MPa * currentPorePressure );
 
@@ -1949,7 +1950,7 @@ void Basin_Modelling::Assemble_Element_Pressure_System (
             double previousFluidDensity = Fluid->density ( previousTemperature, Pa_To_MPa * previousPorePressure );
             double currentFluidDensity  = Fluid->density ( currentTemperature,  Pa_To_MPa * currentPorePressure );
 
-            double fluidViscosity       = Fluid->viscosity ( currentTemperature );
+            double fluidViscosity       = Fluid->viscosity ( currentTemperature, Pa_To_MPa * currentPorePressure );
 
             double currentRelativePermeability = relativePermeability * Fluid->relativePermeability( currentTemperature, Pa_To_MPa * currentPorePressure );
 
@@ -2291,7 +2292,7 @@ void Basin_Modelling::Assemble_Element_Temperature_System
         if ( Include_Advection_Term && Fluid != 0 ) {
 
           Fluid_Density_Heat_Capacity = Fluid->densXheatCapacity ( Current_Temperature, Current_Pore_Pressure );
-          Fluid_Viscosity = Fluid->viscosity ( Current_Temperature );
+          Fluid_Viscosity = Fluid->viscosity ( Current_Temperature, Current_Pore_Pressure );
 
           matrixTransposeVectorProduct ( Grad_Basis, Current_Po, Reference_Grad_Overpressure );
           matrixTransposeVectorProduct ( Jacobian_Inverse, Reference_Grad_Overpressure, Grad_Overpressure );
@@ -2591,7 +2592,7 @@ void Basin_Modelling::Assemble_Element_Temperature_Residual
         if ( Include_Advection_Term && Fluid != 0 ) {
 
           Fluid_Density_Heat_Capacity = Fluid->densXheatCapacity ( Current_Temperature, Current_Pore_Pressure );
-          Fluid_Viscosity = Fluid->viscosity ( Current_Temperature );
+          Fluid_Viscosity = Fluid->viscosity ( Current_Temperature, Current_Pore_Pressure  );
 
           matrixTransposeVectorProduct ( Grad_Basis, Current_Po, Reference_Grad_Overpressure );
           matrixTransposeVectorProduct ( Jacobian_Inverse, Reference_Grad_Overpressure, Grad_Overpressure );
@@ -2906,7 +2907,7 @@ void Basin_Modelling::Assemble_Element_Temperature_Stiffness_Matrix
         if ( Include_Advection_Term && Fluid != 0 ) {
 
           Fluid_Density_Heat_Capacity = Fluid->densXheatCapacity ( Current_Temperature, Current_Pore_Pressure );
-          Fluid_Viscosity = Fluid->viscosity ( Current_Temperature );
+          Fluid_Viscosity = Fluid->viscosity ( Current_Temperature, Current_Pore_Pressure );
           Fluid_RelativePermeability = Fluid->relativePermeability ( Current_Temperature, Current_Pore_Pressure );
 
           matrixTransposeVectorProduct ( Grad_Basis, Current_Po, Reference_Grad_Overpressure );
