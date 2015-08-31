@@ -16,6 +16,7 @@
 #include "Interface/Surface.h"
 #include "Interface/GridMap.h"
 #include "Interface/ProjectData.h"
+#include "VisualizationIO_projectHandle.h"
 #include <string>
 #include <iostream>
 
@@ -25,21 +26,8 @@ using namespace DataModel;
 
 #define allSelection SURFACE | FORMATION | FORMATIONSURFACE | RESERVOIR
 
-boost::shared_ptr<CauldronIO::Project> ImportProjectHandle::CreateFromProjectHandle(const string& projectname, bool verbose,
-    double& readMB, size_t& readSurfaces, size_t& nonzeroSurfaces, size_t& readFormations, size_t& nonzeroFormations)
+boost::shared_ptr<CauldronIO::Project> ImportProjectHandle::CreateFromProjectHandle(boost::shared_ptr<ProjectHandle> projectHandle, bool verbose)
 {
-    // Try to open the projectHandle
-    boost::shared_ptr<ObjectFactory> factory(new ObjectFactory());
-    boost::shared_ptr<Interface::ProjectHandle> projectHandle(OpenCauldronProject(projectname, "r", factory.get()));
-    if (!projectHandle)
-    {
-        cerr << "Could not open the project handle" << endl;
-        return NULL;
-    }
-
-    // For distributed data access, we need an activity output grid
-    //projectHandle->startActivity("Dummy", projectHandle->getLowResolutionOutputGrid());
-
     // Get modeling mode
     ModellingMode modeIn = projectHandle->getModellingMode();
     CauldronIO::ModellingMode mode = modeIn == MODE1D ? CauldronIO::MODE1D : CauldronIO::MODE3D;
@@ -56,12 +44,6 @@ boost::shared_ptr<CauldronIO::Project> ImportProjectHandle::CreateFromProjectHan
     ImportProjectHandle import(verbose);
     import.AddSnapShots(projectHandle, project);
 
-    readMB = import._readMB;
-    readSurfaces = import._readSurfaces;
-    readFormations = import._readFormations;
-    nonzeroFormations = import._nonzeroFormations;
-    nonzeroSurfaces = import._nonzeroSurfaces;
-    
     return project;
 }
 
@@ -76,14 +58,17 @@ void ImportProjectHandle::AddSnapShots(boost::shared_ptr<Interface::ProjectHandl
         const Snapshot* snapShot = snapShots->at(i);
 
          // Create a new snapshot
-        boost::shared_ptr<const CauldronIO::SnapShot> snapShotIO = CreateSnapShotIO(projectHandle, snapShot);  
+        boost::shared_ptr<CauldronIO::SnapShot> snapShotIO = CreateSnapShotIO(projectHandle, snapShot);  
 
         // Add to project
         project->AddSnapShot(snapShotIO);
+
+        // TEMP!!!
+        //if (i == 1) break;
     }
 }
 
-boost::shared_ptr<const CauldronIO::SnapShot> ImportProjectHandle::CreateSnapShotIO(boost::shared_ptr<Interface::ProjectHandle> projectHandle,
+boost::shared_ptr<CauldronIO::SnapShot> ImportProjectHandle::CreateSnapShotIO(boost::shared_ptr<Interface::ProjectHandle> projectHandle,
     const DataAccess::Interface::Snapshot* snapShot)
 {
     boost::shared_ptr<CauldronIO::SnapShot> snapShotIO(new CauldronIO::SnapShot(snapShot->getTime(), 
@@ -93,7 +78,7 @@ boost::shared_ptr<const CauldronIO::SnapShot> ImportProjectHandle::CreateSnapSho
         cout << "== Adding " << (snapShot->getType() == MINOR ? "Minor" : "Major") << " snapshot with Age: " << snapShot->getTime() << " === " << endl;
 
     // Create depth-geometry information
-    boost::shared_ptr<FormationInfoList> depthFormations = GetDepthFormations(projectHandle, snapShot);
+    boost::shared_ptr<CauldronIO::FormationInfoList> depthFormations = GetDepthFormations(projectHandle, snapShot);
 
     // Add all the surfaces
     ///////////////////////////////////////////////////////////
@@ -137,6 +122,7 @@ boost::shared_ptr<const CauldronIO::SnapShot> ImportProjectHandle::CreateSnapSho
             if (_verbose)
                 cout << " - Adding continuous volume size(" << propValues->size() << ") for property" << prop->getName() << endl;
             boost::shared_ptr<CauldronIO::Volume> volume = CreateContinuousVolume(propValues, depthFormations);
+            volume->SetDepthVolume(depthVolume);
             snapShotIO->AddVolume(volume);
         }
         else if (attrib == DISCONTINUOUS_3D_PROPERTY)
@@ -144,6 +130,7 @@ boost::shared_ptr<const CauldronIO::SnapShot> ImportProjectHandle::CreateSnapSho
             if (_verbose)
                 cout << " - Adding discontinuous volume size(" << propValues->size() << ") for property" << prop->getName() << endl;
             boost::shared_ptr<CauldronIO::DiscontinuousVolume> discVolume = CreateDiscontinuousVolume(propValues, depthFormations);
+            discVolume->SetDepthVolume(depthVolume);
             snapShotIO->AddDiscontinuousVolume(discVolume);
         }
         else if (prop->getName() == "Reflectivity")
@@ -161,7 +148,7 @@ boost::shared_ptr<const CauldronIO::SnapShot> ImportProjectHandle::CreateSnapSho
 }
 
 boost::shared_ptr<vector<boost::shared_ptr<CauldronIO::Surface> > >  ImportProjectHandle::CreateSurfaces(
-    boost::shared_ptr<DataAccess::Interface::ProjectHandle> projectHandle, boost::shared_ptr<FormationInfoList> depthFormations,
+    boost::shared_ptr<DataAccess::Interface::ProjectHandle> projectHandle, boost::shared_ptr<CauldronIO::FormationInfoList> depthFormations,
     const DataAccess::Interface::Snapshot* snapShot) 
 {
     boost::shared_ptr<vector<boost::shared_ptr<CauldronIO::Surface> > > surfaces(new vector<boost::shared_ptr<CauldronIO::Surface> >());
@@ -200,7 +187,7 @@ boost::shared_ptr<vector<boost::shared_ptr<CauldronIO::Surface> > >  ImportProje
         boost::shared_ptr<const CauldronIO::Formation> formationIO = CreateFormation(formation, depthFormations);
 
         // Get the surface data
-        boost::shared_ptr<const CauldronIO::Map> propertyMap = CreateMapIO(propValue->getGridMap());
+        boost::shared_ptr<CauldronIO::Map> propertyMap = CreateMapIO(propValue);
 
         // Create the surface object
         boost::shared_ptr<CauldronIO::Surface> surfaceIO(new CauldronIO::Surface(surfaceName,
@@ -225,23 +212,12 @@ boost::shared_ptr<const CauldronIO::Surface> ImportProjectHandle::FindDepthSurfa
             return depthSurface;
     }
 
-    return NULL;
-}
-
-ImportProjectHandle::FormationInfo* ImportProjectHandle::FindDepthInfo(boost::shared_ptr<FormationInfoList> depthFormations, 
-    const DataAccess::Interface::Formation* formation) const
-{
-    for (size_t i = 0; i < depthFormations->size(); ++i)
-    {
-        if (depthFormations->at(i)->formation == formation) return depthFormations->at(i);
-    }
-
-    throw CauldronIO::CauldronIOException("Cannot find depth formation for requested formation");
+    return boost::shared_ptr<const CauldronIO::Surface>();
 }
 
 boost::shared_ptr<CauldronIO::DiscontinuousVolume> ImportProjectHandle::CreateDiscontinuousVolume(
     boost::shared_ptr<PropertyValueList> propValueList,
-    boost::shared_ptr<FormationInfoList> depthFormations) 
+    boost::shared_ptr<CauldronIO::FormationInfoList> depthFormations)
 {
     boost::shared_ptr<CauldronIO::DiscontinuousVolume> aggregrateVolume(new CauldronIO::DiscontinuousVolume());
 
@@ -250,8 +226,8 @@ boost::shared_ptr<CauldronIO::DiscontinuousVolume> ImportProjectHandle::CreateDi
         const PropertyValue* propValue = propValueList->at(i);
         
         // Create a new volume & formation
-        boost::shared_ptr<const CauldronIO::Volume> volume = CreateVolume(propValue, depthFormations);
-        boost::shared_ptr<const CauldronIO::Formation> formation = CreateFormation(propValue->getFormation(), depthFormations);
+        boost::shared_ptr<CauldronIO::Volume> volume = CreateVolume(propValue, depthFormations);
+        boost::shared_ptr<CauldronIO::Formation> formation = CreateFormation(propValue->getFormation(), depthFormations);
 
         // Add pair
         aggregrateVolume->AddVolume(formation, volume);
@@ -261,55 +237,18 @@ boost::shared_ptr<CauldronIO::DiscontinuousVolume> ImportProjectHandle::CreateDi
 }
 
 boost::shared_ptr<CauldronIO::Volume> ImportProjectHandle::CreateVolume(const DataAccess::Interface::PropertyValue* propValue,
-    boost::shared_ptr<FormationInfoList> depthFormations) 
+    boost::shared_ptr<CauldronIO::FormationInfoList> depthFormations)
 {
     // Create a new empty volume
     boost::shared_ptr<CauldronIO::Volume> volume = CreateEmptyVolume(propValue);
+    CauldronIO::FormationInfo* depthInfo = CauldronIO::VolumeProjectHandle::FindDepthInfo(depthFormations, propValue->getFormation());
 
-    // Find the depth information
-    FormationInfo* depthInfo = FindDepthInfo(depthFormations, propValue->getFormation());
-    size_t depthK = 1 + depthInfo->kEnd - depthInfo->kStart;
+    // Retrieve later
+    CauldronIO::VolumeProjectHandle* volumeProjectHandle = dynamic_cast<CauldronIO::VolumeProjectHandle*>(volume.get());
+    volumeProjectHandle->SetDataStore(propValue, depthInfo);
 
-    // Set the values
-    const GridMap* gridMap = propValue->getGridMap();
-    gridMap->retrieveData();
-
-    if (gridMap->isConstant())
-    {
-        volume->SetConstantValue((float)gridMap->getConstantValue());
-    }
-    else
-    {
-        float* inputData = new float[gridMap->numI() * gridMap->numJ() * depthK];
-        volume->SetGeometry(gridMap->numI(), gridMap->numJ(), depthK, depthInfo->kStart, gridMap->deltaI(), gridMap->deltaJ(), gridMap->minI(), gridMap->minJ());
-
-        // Get the volume data for this formation
-        gridMap->retrieveData();
-        assert(gridMap->firstI() == 0 && gridMap->firstJ() == 0 && gridMap->firstK() == 0);
-
-        for (unsigned int k = 0; k <= gridMap->lastK(); ++k)
-        {
-            size_t kIndex = depthInfo->reverseDepth ? depthInfo->kEnd - (size_t)k : depthInfo->kStart + (size_t)k;
-            size_t index = volume->ComputeIndex_IJK(0, 0, kIndex);
-
-            for (unsigned int j = 0; j <= gridMap->lastJ(); ++j)
-            {
-                for (unsigned int i = 0; i <= gridMap->lastI(); ++i)
-                {
-                    float val = (float)gridMap->getValue(i, j, k);
-                    inputData[index++] = val;
-                }
-            }
-        }
-
-        volume->SetData_IJK(inputData);
-        delete[] inputData;
-
-        _readMB += 4 * gridMap->numI()*gridMap->numJ()*(1 + gridMap->lastK()) / double(1024 * 1024);
-        _nonzeroFormations++;
-    }
-
-    _readFormations++;
+    // Assign a UUID
+    volume->SetUUID(_uuidGenerator());
     return volume;
 }
 
@@ -317,18 +256,16 @@ boost::shared_ptr<CauldronIO::Volume> ImportProjectHandle::CreateEmptyVolume(con
 {
     assert(propVal->getFormation());
     const Property* prop = propVal->getProperty();
-    const GridMap* propGridMap = propVal->getGridMap();
-    propGridMap->retrieveData();
 
     boost::shared_ptr<const CauldronIO::Property> propertyIO(new CauldronIO::Property(prop->getName(), prop->getUserName(), prop->getCauldronName(),
         prop->getUnit(), GetPropertyType(prop), GetPropertyAttribute(prop)));
-    boost::shared_ptr<CauldronIO::Volume> volume(new CauldronIO::Volume(false, (float)propGridMap->getUndefinedValue(), GetSubSurfaceKind(propVal->getFormation()), propertyIO));
+    boost::shared_ptr<CauldronIO::Volume> volume(new CauldronIO::VolumeProjectHandle(false, GetSubSurfaceKind(propVal->getFormation()), propertyIO));
 
     return volume;
 }
 
 boost::shared_ptr<CauldronIO::Volume> ImportProjectHandle::CreateContinuousVolume(boost::shared_ptr<DataAccess::Interface::PropertyValueList> propValues,
-    boost::shared_ptr<FormationInfoList> depthFormations) 
+    boost::shared_ptr<CauldronIO::FormationInfoList> depthFormations)
 {
     // Construct a volume from a set of formations; the prop-values should allow for this
     if (propValues->size() == 0) throw CauldronIO::CauldronIOException("Cannot create volume from empty property value list");
@@ -336,134 +273,46 @@ boost::shared_ptr<CauldronIO::Volume> ImportProjectHandle::CreateContinuousVolum
     // Create a new empty volume
     const PropertyValue* propVal = propValues->at(0);
     boost::shared_ptr<CauldronIO::Volume> volume = CreateEmptyVolume(propVal);
+
     if (!(propVal->getProperty()->getPropertyAttribute() == CONTINUOUS_3D_PROPERTY))
         throw CauldronIO::CauldronIOException("Cannot create a volume for a non-continuous 3D property");
 
-    // Find the total depth size & offset
-    assert(depthFormations->at(0)->kStart == 0);
-    size_t maxK = 0;
-    size_t minK = std::numeric_limits<size_t>::max();
-    for (size_t i = 0; i < propValues->size(); ++i)
-    {
-        FormationInfo* depthInfo = FindDepthInfo(depthFormations, propValues->at(i)->getFormation());
-        // TODO: check if formations are continuous.. (it is assumed now)
-        maxK = max(maxK, depthInfo->kEnd);
-        minK = min(minK, depthInfo->kStart);
-    }
-    size_t depthK = 1 + maxK - minK;
+    // Cache data to be able to retrieve later
+    CauldronIO::VolumeProjectHandle* volumeProjectHandle = dynamic_cast<CauldronIO::VolumeProjectHandle*>(volume.get());
+    volumeProjectHandle->SetDataStore(propValues, depthFormations);
 
-    // Allocate some space
-    const GridMap* propGridMap = propVal->getGridMap();
-    float* inputData = new float[propGridMap->numI() * propGridMap->numJ() * depthK];
-    volume->SetGeometry(propGridMap->numI(), propGridMap->numJ(), depthK, minK, propGridMap->deltaI(), propGridMap->deltaJ(), propGridMap->minI(), propGridMap->minJ());
-    
-    // Detect a constant volume consisting of all constant subvolumes (bit extreme case though)
-    float constantValue;
-    bool isConstant = true;
-    bool firstConstant = true;
-
-    // Get data
-    for (size_t i = 0; i < propValues->size(); ++i)
-    {
-        const GridMap* gridMap = propValues->at(i)->getGridMap();
-        FormationInfo* depthInfo = FindDepthInfo(depthFormations, propValues->at(i)->getFormation());
-
-        // Get the volume data for this formation
-        gridMap->retrieveData();
-        assert(gridMap->firstI() == 0 && gridMap->firstJ() == 0 && gridMap->firstK() == 0);
-
-        for (unsigned int k = 0; k <= gridMap->lastK(); ++k)
-        {
-            size_t kIndex = depthInfo->reverseDepth ? depthInfo->kEnd - (size_t)k : depthInfo->kStart + (size_t)k;
-            size_t index = volume->ComputeIndex_IJK(0, 0, kIndex);
-            
-            for (unsigned int j = 0; j <= gridMap->lastJ(); ++j)
-            {
-                for (unsigned int i = 0; i <= gridMap->lastI(); ++i)
-                {
-                    float val = (float)gridMap->getValue(i, j, k);
-                    inputData[index++] = val;
-
-                    if (firstConstant)
-                    {
-                        constantValue = val; 
-                        firstConstant = false;
-                    }
-                    if (isConstant) isConstant = val == constantValue;
-                }
-            }
-        }
-
-        _readMB += 4 * gridMap->numI()*gridMap->numJ()*(1 + gridMap->lastK()) / double(1024 * 1024);
-        _readFormations++;
-    }
-
-    // Assign the data
-    if (!isConstant)
-    {
-        _nonzeroFormations += propValues->size();
-        volume->SetData_IJK(inputData);
-    }
-    else
-        volume->SetConstantValue(constantValue);
-
-    delete[] inputData;
+    volume->SetUUID(_uuidGenerator());
 
     return volume;
 }
 
-boost::shared_ptr<const CauldronIO::Map> ImportProjectHandle::CreateMapIO(const GridMap* gridmap) 
+boost::shared_ptr<CauldronIO::Map> ImportProjectHandle::CreateMapIO(const DataAccess::Interface::PropertyValue* propVal)
 {
-    assert(gridmap);
-    gridmap->retrieveData();
-    assert(gridmap->firstI() == 0);
-    assert(gridmap->firstJ() == 0);
+    // Create a projectHandle specific Map object
+    CauldronIO::MapProjectHandle* mapInternal = new CauldronIO::MapProjectHandle(false);
 
-    boost::shared_ptr<CauldronIO::Map> map(new CauldronIO::Map(false, (float)gridmap->getUndefinedValue()));
-    // Set the geometry
-    map->SetGeometry(gridmap->numI(), gridmap->numJ(), gridmap->deltaI(), gridmap->deltaJ(), gridmap->minI(), gridmap->minJ());
-    
-    if (gridmap->isConstant())
-    {
-        map->SetConstantValue((float)gridmap->getConstantValue());
-    }
-    else
-    {
-        // Get the data
-        float* mapData = new float[map->GetNumI() * map->GetNumJ()];
-        size_t index = 0;
-        for (unsigned int j = 0; j < map->GetNumJ(); ++j)
-            for (unsigned int i = 0; i < map->GetNumI(); ++ i)
-                // Store row first
-                mapData[index++] = (float)gridmap->getValue(i, j);
-        map->SetData_IJ(mapData);
-        delete[] mapData;
+    boost::shared_ptr<CauldronIO::Map> map(mapInternal);
+    // Set data to be retrieved later
+    mapInternal->SetDataStore(propVal);
 
-        _readMB += 4 * map->GetNumI()*map->GetNumJ() / double(1024 * 1024);
-        _nonzeroSurfaces++;
-    }
-
-    _readSurfaces++;
-
+    map->SetUUID(_uuidGenerator());
     return map;
 }
 
 ImportProjectHandle::ImportProjectHandle(bool verbose)
 {
     _verbose = verbose;
-    _readMB = 0;
-    _readSurfaces = _readFormations = _nonzeroFormations = _nonzeroSurfaces = 0;
 }
 
 CauldronIO::SnapShotKind ImportProjectHandle::GetSnapShotKind(const Snapshot* snapShot) const
 {
     // Get snapshot kind
     const string snapShotKind = snapShot->getKind();
-    CauldronIO::SnapShotKind kind = CauldronIO::SnapShotKind::NONE;
+    CauldronIO::SnapShotKind kind = CauldronIO::NONE;
     if (snapShotKind == "System Generated")
-        kind = CauldronIO::SnapShotKind::SYSTEM;
+        kind = CauldronIO::SYSTEM;
     else if (snapShotKind == "User Defined")
-        kind = CauldronIO::SnapShotKind::USERDEFINED;
+        kind = CauldronIO::USERDEFINED;
 
     return kind;
 }
@@ -474,14 +323,14 @@ CauldronIO::PropertyType ImportProjectHandle::GetPropertyType(const Property* pr
     CauldronIO::PropertyType typeIO;
     switch (type)
     {
-    case PropertyType::FORMATIONPROPERTY:
-        typeIO = CauldronIO::PropertyType::FormationProperty;
+    case FORMATIONPROPERTY:
+        typeIO = CauldronIO::FormationProperty;
         break;
-    case PropertyType::RESERVOIRPROPERTY:
-        typeIO = CauldronIO::PropertyType::ReservoirProperty;
+    case RESERVOIRPROPERTY:
+        typeIO = CauldronIO::ReservoirProperty;
         break;
-    case PropertyType::TRAPPROPERTY:
-        typeIO = CauldronIO::PropertyType::TrapProperty;
+    case TRAPPROPERTY:
+        typeIO = CauldronIO::TrapProperty;
         break;
     }
 
@@ -490,16 +339,16 @@ CauldronIO::PropertyType ImportProjectHandle::GetPropertyType(const Property* pr
 
 CauldronIO::SubsurfaceKind  ImportProjectHandle::GetSubSurfaceKind(const Surface* surface) const
 {
-    CauldronIO::SubsurfaceKind kind = CauldronIO::SubsurfaceKind::None;
+    CauldronIO::SubsurfaceKind kind = CauldronIO::None;
     if (!surface) return kind;
 
     switch (surface->kind())
     {
-    case SurfaceKind::BASEMENT_SURFACE:
-        kind = CauldronIO::SubsurfaceKind::Basement;
+    case BASEMENT_SURFACE:
+        kind = CauldronIO::Basement;
         break;
-    case SurfaceKind::SEDIMENT_SURFACE:
-        kind = CauldronIO::SubsurfaceKind::Sediment;
+    case SEDIMENT_SURFACE:
+        kind = CauldronIO::Sediment;
         break;
     }
 
@@ -508,16 +357,16 @@ CauldronIO::SubsurfaceKind  ImportProjectHandle::GetSubSurfaceKind(const Surface
 
 CauldronIO::SubsurfaceKind ImportProjectHandle::GetSubSurfaceKind(const DataAccess::Interface::Formation* formation) const
 {
-    CauldronIO::SubsurfaceKind kind = CauldronIO::SubsurfaceKind::None;
+    CauldronIO::SubsurfaceKind kind = CauldronIO::None;
     if (!formation) return kind;
 
     switch (formation->kind())
     {
-    case FormationKind::BASEMENT_FORMATION:
-        kind = CauldronIO::SubsurfaceKind::Basement;
+    case BASEMENT_FORMATION:
+        kind = CauldronIO::Basement;
         break;
-    case FormationKind::SEDIMENT_FORMATION:
-        kind = CauldronIO::SubsurfaceKind::Sediment;
+    case SEDIMENT_FORMATION:
+        kind = CauldronIO::Sediment;
         break;
     }
 
@@ -530,30 +379,30 @@ CauldronIO::PropertyAttribute ImportProjectHandle::GetPropertyAttribute(const Pr
     CauldronIO::PropertyAttribute attribIO;
     switch (attrib)
     {
-    case PropertyAttribute::CONTINUOUS_3D_PROPERTY:
-        attribIO = CauldronIO::PropertyAttribute::Continuous3DProperty;
+    case CONTINUOUS_3D_PROPERTY:
+        attribIO = CauldronIO::Continuous3DProperty;
         break;
-    case PropertyAttribute::DISCONTINUOUS_3D_PROPERTY:
-        attribIO = CauldronIO::PropertyAttribute::Discontinuous3DProperty;
+    case DISCONTINUOUS_3D_PROPERTY:
+        attribIO = CauldronIO::Discontinuous3DProperty;
         break;
-    case PropertyAttribute::FORMATION_2D_PROPERTY:
-        attribIO = CauldronIO::PropertyAttribute::Formation2DProperty;
+    case FORMATION_2D_PROPERTY:
+        attribIO = CauldronIO::Formation2DProperty;
         break;
-    case PropertyAttribute::SURFACE_2D_PROPERTY:
-        attribIO = CauldronIO::PropertyAttribute::Surface2DProperty;
+    case SURFACE_2D_PROPERTY:
+        attribIO = CauldronIO::Surface2DProperty;
         break;
     default:
-        attribIO = CauldronIO::PropertyAttribute::Other;
+        attribIO = CauldronIO::Other;
         break;
     }
 
     return attribIO;
 }
 
-boost::shared_ptr<ImportProjectHandle::FormationInfoList> ImportProjectHandle::GetDepthFormations(boost::shared_ptr<Interface::ProjectHandle> projectHandle, 
+boost::shared_ptr<CauldronIO::FormationInfoList> ImportProjectHandle::GetDepthFormations(boost::shared_ptr<Interface::ProjectHandle> projectHandle,
                                                                                                   const Snapshot* snapShot) const
 {
-    boost::shared_ptr<FormationInfoList> depthFormations(new FormationInfoList());
+    boost::shared_ptr<CauldronIO::FormationInfoList> depthFormations(new CauldronIO::FormationInfoList());
 
     // Find the depth property
     const Property* depthProp = projectHandle->findProperty("Depth");
@@ -568,9 +417,8 @@ boost::shared_ptr<ImportProjectHandle::FormationInfoList> ImportProjectHandle::G
     {
         double min, max;
         GridMap* map = propValues->at(i)->getGridMap();
-        map->retrieveData();
         map->getMinMaxValue(min, max);
-        FormationInfo* info = new FormationInfo();
+        CauldronIO::FormationInfo* info = new CauldronIO::FormationInfo();
         info->formation = propValues->at(i)->getFormation();
         info->kStart = map->firstK();
         info->kEnd = map->lastK();
@@ -614,13 +462,13 @@ boost::shared_ptr<ImportProjectHandle::FormationInfoList> ImportProjectHandle::G
     }
 
     // Sort the list
-    std::sort(depthFormations->begin(), depthFormations->end(), FormationInfo::CompareFormations);
+    std::sort(depthFormations->begin(), depthFormations->end(), CauldronIO::FormationInfo::CompareFormations);
 
     // Capture global k-range
     size_t currentK = depthFormations->at(0)->kEnd;
     for (int i = 1; i < depthFormations->size(); ++i)
     {
-        FormationInfo* info = depthFormations->at(i);
+        CauldronIO::FormationInfo* info = depthFormations->at(i);
         info->kStart += currentK;
         info->kEnd += currentK;
         currentK = info->kEnd;
@@ -628,11 +476,13 @@ boost::shared_ptr<ImportProjectHandle::FormationInfoList> ImportProjectHandle::G
     return depthFormations;
 }
 
-boost::shared_ptr<const CauldronIO::Formation> ImportProjectHandle::CreateFormation(const DataAccess::Interface::Formation* formation, 
-                                                            boost::shared_ptr<FormationInfoList> depthFormations) const
+boost::shared_ptr<CauldronIO::Formation> ImportProjectHandle::CreateFormation(const DataAccess::Interface::Formation* formation, 
+    boost::shared_ptr<CauldronIO::FormationInfoList> depthFormations) const
 {
-    if (!formation) return NULL;
-    FormationInfo* info = NULL;
+    boost::shared_ptr<CauldronIO::Formation> formationPtr;
+    
+    if (!formation) return formationPtr;
+    CauldronIO::FormationInfo* info = NULL;
     
     // Find the depth formation
     for (size_t i = 0; i < depthFormations->size(); ++i)
@@ -644,14 +494,9 @@ boost::shared_ptr<const CauldronIO::Formation> ImportProjectHandle::CreateFormat
         }
     }
 
-    if (!info) return NULL;
+    if (!info) return formationPtr;
 
-    boost::shared_ptr<const CauldronIO::Formation>formationIO(new CauldronIO::Formation(info->kStart, info->kEnd, info->formation->getName()));
+    formationPtr.reset(new CauldronIO::Formation(info->kStart, info->kEnd, info->formation->getName()));
 
-    return formationIO;
-}
-
-bool ImportProjectHandle::FormationInfo::CompareFormations(const FormationInfo* info1, const FormationInfo* info2)
-{
-    return info1->depthStart < info2->depthStart;
+    return formationPtr;
 }

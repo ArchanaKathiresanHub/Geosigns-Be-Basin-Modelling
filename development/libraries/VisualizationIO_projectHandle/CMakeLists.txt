@@ -10,13 +10,13 @@
 #                                                                       #
 #########################################################################
 
-FILE( GLOB all_headers src/*.h )
+FILE( GLOB all_headers src/*.h src/*.hpp)
 source_group("Header Files" FILES ${all_headers})
 
 FILE( GLOB all_srcs src/*.cpp)
 source_group("Source Files" FILES ${all_srcs})
 
-add_executable(datamodel_tests ${all_srcs} ${all_headers})
+add_library(VisualizationIO_projectHandle ${all_srcs} ${all_headers})
 
 include_directories(
 	${HDF5_INCLUDE_DIRS}
@@ -29,24 +29,17 @@ bm_include_libraries(
 	DataAccess
 	TableIO
     VisualizationIO
-    VisualizationIO_projectHandle
 )
 
-target_link_libraries(
-    datamodel_tests
+target_link_libraries(VisualizationIO_projectHandle
 	DataModel
 	DataAccess
 	SerialDataAccess
 	DataAccess
 	TableIO
     VisualizationIO
-    VisualizationIO_projectHandle
 	${HDF5_LIBRARIES}
 	${Boost_LIBRARIES}
-)
-
-install(TARGETS datamodel_tests
-	RUNTIME DESTINATION bin
 )
 
 # Local Variables:

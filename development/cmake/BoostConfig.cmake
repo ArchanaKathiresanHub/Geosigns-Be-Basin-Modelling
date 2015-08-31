@@ -14,6 +14,10 @@ include( cmake/AddPackage.cmake)
 
 set(BOOST_LIBS_LIST filesystem system thread atomic date_time chrono log iostreams)
 
+if (WIN32)
+    list(APPEND BOOST_LIBS_LIST zlib)
+endif (WIN32)
+
 if (UNIX)
    # Convert the compiler name that CMake has to a toolset name that the Boost
    # build system can understand
