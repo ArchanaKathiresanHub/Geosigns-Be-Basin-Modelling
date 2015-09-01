@@ -25,7 +25,7 @@ namespace CauldronIO
     {
     public:
         static bool ExportToXML(boost::shared_ptr<Project>& project, const std::string& filename);
-        static std::string ImportExport::GetXMLIndexingFileName(const boost::filesystem::path& path);
+        static std::string GetXMLIndexingFileName(const boost::filesystem::path& path);
 
     private:
         class DataStore;
@@ -44,7 +44,7 @@ namespace CauldronIO
 
         boost::filesystem::path _outputPath;
 
-        // Internal helper class        
+        // Internal helper class
         class DataStore
         {
         public:
@@ -56,7 +56,7 @@ namespace CauldronIO
             size_t GetLastSize() const;
             bool GetCompress() const;
             bool GetFP16() const;
-        
+
         private:
             std::vector<char> Decompress(const char* data, size_t size) const;
             std::vector<char> Compress(const char* data, size_t size) const;

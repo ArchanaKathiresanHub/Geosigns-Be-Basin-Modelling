@@ -16,7 +16,10 @@
 #include <boost/iostreams/filtering_stream.hpp>
 #include <boost/iostreams/filter/gzip.hpp>
 #include <boost/lexical_cast.hpp>
+
 //#include "half.hpp" // this is not compiling on Linux
+
+#include <iostream>
 #include <fstream>
 #include <cstring>
 
