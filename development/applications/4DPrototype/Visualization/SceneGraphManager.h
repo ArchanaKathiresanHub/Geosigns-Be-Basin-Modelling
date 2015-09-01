@@ -26,6 +26,7 @@ class FormationIdProperty;
 class ScalarProperty;
 class HexahedronMesh;
 class SurfaceMesh;
+class ReservoirMesh;
 class FaultMesh;
 
 class SoSeparator;
@@ -58,6 +59,7 @@ namespace DataAccess
     class ProjectHandle;
     class Formation;
     class Surface;
+    class Reservoir;
     class Fault;
     class Property;
     class Snapshot;
@@ -107,6 +109,25 @@ struct SnapshotInfo
     }
   };
 
+  struct Reservoir
+  {
+    int id;
+
+    SoSeparator* root;
+    MoMesh* mesh;
+    ReservoirMesh* meshData;
+    MoMeshSkin* skin;
+
+    Reservoir()
+      : id(0)
+      , root(0)
+      , mesh(0)
+      , meshData(0)
+      , skin(0)
+    {
+    }
+  };
+
   struct Fault
   {
     int id;
@@ -151,16 +172,19 @@ struct SnapshotInfo
 
   SoGroup* chunksGroup;
   SoGroup* surfacesGroup;
+  SoGroup* reservoirsGroup;
   SoGroup* faultsGroup;
   SoGroup* slicesGroup;
 
   std::vector<Formation> formations; 
   std::vector<Chunk> chunks;
   std::vector<Surface> surfaces;
+  std::vector<Reservoir> reservoirs;
   std::vector<Fault> faults;
 
   size_t formationsTimeStamp;
   size_t surfacesTimeStamp;
+  size_t reservoirsTimeStamp;
   size_t faultsTimeStamp;
 
   SnapshotInfo();
@@ -182,6 +206,14 @@ struct SurfaceInfo
   bool visible;
 };
 
+struct ReservoirInfo
+{
+  const DataAccess::Interface::Reservoir* reservoir;
+
+  int id;
+  bool visible;
+};
+
 struct FaultInfo
 {
   const DataAccess::Interface::Fault* fault;
@@ -194,6 +226,8 @@ class VISUALIZATIONDLL_API SceneGraphManager
 {
   const DataAccess::Interface::ProjectHandle* m_projectHandle;
   const DataAccess::Interface::Property* m_depthProperty;
+  const DataAccess::Interface::Property* m_resRockTopProperty;
+  const DataAccess::Interface::Property* m_resRockBottomProperty;
   const DataAccess::Interface::Property* m_currentProperty;
 
   int m_numI;
@@ -208,10 +242,12 @@ class VISUALIZATIONDLL_API SceneGraphManager
 
   std::map<std::string, int> m_formationIdMap;
   std::map<std::string, int> m_surfaceIdMap;
+  std::map<std::string, int> m_reservoirIdMap;
   std::map<std::tuple<std::string, std::string>, int> m_faultIdMap;
 
   std::vector<FormationInfo> m_formations;
   std::vector<SurfaceInfo>   m_surfaces;
+  std::vector<ReservoirInfo> m_reservoirs;
   std::vector<FaultInfo>     m_faults;
   std::vector<SnapshotInfo>  m_snapshots;
 
@@ -219,6 +255,7 @@ class VISUALIZATIONDLL_API SceneGraphManager
 
   size_t m_formationsTimeStamp;
   size_t m_surfacesTimeStamp;
+  size_t m_reservoirsTimeStamp;
   size_t m_faultsTimeStamp;
   size_t m_currentSnapshot;
 
@@ -249,6 +286,7 @@ class VISUALIZATIONDLL_API SceneGraphManager
   void updateCoordinateGrid();
   void updateSnapshotFormations();
   void updateSnapshotSurfaces();
+  void updateSnapshotReservoirs();
   void updateSnapshotFaults();
   void updateSnapshotProperties();
   void updateSnapshotSlices();
@@ -287,6 +325,8 @@ public:
   void enableFormation(const std::string& name, bool enabled);
 
   void enableSurface(const std::string& name, bool enabled);
+
+  void enableReservoir(const std::string& name, bool enabled);
 
   void enableFault(const std::string& collectionName, const std::string& name, bool enabled);
 

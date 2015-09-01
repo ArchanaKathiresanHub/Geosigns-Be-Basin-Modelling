@@ -479,7 +479,6 @@ void MainWindow::onActionSwitchPropertiesTriggered()
 void MainWindow::onSliderValueChanged(int value)
 {
   //m_timeLabel->setText(QString("Time: %1").arg(m_sceneGraph->getSnapshot(value)->getTime()));
-  //m_sceneGraph->setCurrentSnapshot(value);
   m_sceneGraphManager.setCurrentSnapshot(value);
 }
 
@@ -497,7 +496,6 @@ void MainWindow::onVerticalScaleSliderValueChanged(int value)
 {
   float scale = powf(10.f, .2f * value);
   m_sceneGraphManager.setVerticalScale(scale);
-  //m_sceneGraph->setVerticalScale(scale);
 }
 
 void MainWindow::onROISliderValueChanged(int value)
@@ -592,6 +590,7 @@ void MainWindow::onTreeWidgetItemChanged(QTreeWidgetItem* item, int column)
     m_sceneGraphManager.enableSurface(name, checked);
     break;
   case TreeWidgetItem_ReservoirType:
+    m_sceneGraphManager.enableReservoir(name, checked);
     break;
   case TreeWidgetItem_FaultType:
     m_sceneGraphManager.enableFault(parentName, name, checked);

@@ -63,6 +63,14 @@ function initSurfaces(names)
         surfacesDiv.appendChild(createCheckBoxDiv(names[i], false, onSurfaceCheckBoxChanged));
 }
 
+function initReservoirs(names)
+{
+    var reservoirsDiv = document.getElementById("reservoirsList");
+
+    for(var i=0; i < names.length; ++i)
+        reservoirsDiv.appendChild(createCheckBoxDiv(names[i], false, onReservoirCheckBoxChanged));
+}
+
 function initFaults(collections)
 {
     var collectionsDiv = document.getElementById("faultsList");
@@ -96,6 +104,7 @@ function initUI(projectInfo)
 {
     initFormations(projectInfo.formations);
     initSurfaces(projectInfo.surfaces);
+    initReservoirs(projectInfo.reservoirs);
     initFaults(projectInfo.faultCollections);
     initProperties(projectInfo.properties);
 
@@ -141,6 +150,21 @@ function onSurfaceCheckBoxChanged(elem)
                 enabled: elem.checked 
             }
         };
+
+    theRenderArea.sendMessage(JSON.stringify(msg));
+}
+
+function onReservoirCheckBoxChanged(elem)
+{
+    console.log("reservoir " + elem.name + " enabled = " + elem.checked);
+
+    var msg = {
+        cmd: "EnableReservoir",
+        params: {
+            name: elem.name,
+            enabled: elem.checked
+        }
+    }
 
     theRenderArea.sendMessage(JSON.stringify(msg));
 }

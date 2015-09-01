@@ -62,7 +62,7 @@ public:
 /**
 * Geometry class for reservoirs, which are defined by the top and bottom properties
 */
-class Geometry2 : public MiGeometryI
+class ReservoirGeometry : public MiGeometryI
 {
   const DataAccess::Interface::GridMap* m_depthMaps[2];
 
@@ -81,7 +81,7 @@ class Geometry2 : public MiGeometryI
 
 public:
 
-  Geometry2(
+  ReservoirGeometry(
     const DataAccess::Interface::GridMap* depthMapTop, 
     const DataAccess::Interface::GridMap* depthMapBottom);
 
@@ -240,11 +240,11 @@ public:
 
 class ReservoirTopology : public VolumeTopology
 {
-  const Geometry2& m_geometry;
+  const ReservoirGeometry& m_geometry;
 
 public:
 
-  ReservoirTopology(size_t numI, size_t numJ, const Geometry2& geometry);
+  ReservoirTopology(size_t numI, size_t numJ, const ReservoirGeometry& geometry);
 
   virtual bool isDead(size_t i, size_t j, size_t k) const;
 };
@@ -348,7 +348,7 @@ public:
 */
 class ReservoirMesh: public MiVolumeMeshHexahedronIjk
 {
-  std::shared_ptr<Geometry2> m_geometry;
+  std::shared_ptr<ReservoirGeometry> m_geometry;
   std::shared_ptr<ReservoirTopology> m_topology;
 
 public:

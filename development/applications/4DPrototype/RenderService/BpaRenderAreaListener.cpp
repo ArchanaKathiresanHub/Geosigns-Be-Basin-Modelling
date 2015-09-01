@@ -27,6 +27,7 @@
 #include <Interface/Property.h>
 #include <Interface/Formation.h>
 #include <Interface/Surface.h>
+#include <Interface/Reservoir.h>
 #include <Interface/FaultCollection.h>
 #include <Interface/Faulting.h>
 
@@ -42,8 +43,8 @@ void BpaRenderAreaListener::createSceneGraph(const std::string& /*id*/)
 {
   std::cout << "Loading scenegraph..."<< std::endl;
 
-  //const std::string rootdir = "V:/data/";
-  const std::string rootdir = "/home/ree/";
+  const std::string rootdir = "V:/data/";
+  //const std::string rootdir = "/home/ree/";
   const std::string project = "CauldronSmall";
   const std::string filename = "/Project.project3d";
 
@@ -105,6 +106,12 @@ void BpaRenderAreaListener::sendProjectInfo() const
   for (auto surface : *surfaceList)
     surfaces << surface->getName();
 
+  // Add reservoir names
+  jsonxx::Array reservoirs;
+  std::unique_ptr<di::ReservoirList> reservoirList(m_handle->getReservoirs());
+  for (auto reservoir : *reservoirList)
+    reservoirs << reservoir->getName();
+
   // Add fault collections
   jsonxx::Array faultCollections;
   std::unique_ptr<di::FaultCollectionList> faultCollectionList(m_handle->getFaultCollections(0));
@@ -143,6 +150,7 @@ void BpaRenderAreaListener::sendProjectInfo() const
     << "numJHiRes" << m_sceneGraphManager.numJHiRes()
     << "formations" << formations
     << "surfaces" << surfaces
+    << "reservoirs" << reservoirs
     << "faultCollections" << faultCollections
     << "properties" << properties;
 
@@ -196,6 +204,13 @@ void BpaRenderAreaListener::onReceivedMessage(RenderArea* renderArea, Connection
     auto enabled = params.get<bool>("enabled");
 
     m_sceneGraphManager.enableSurface(name, enabled);
+  }
+  else if (cmd == "EnableReservoir")
+  {
+    auto name = params.get<std::string>("name");
+    auto enabled = params.get<bool>("enabled");
+
+    m_sceneGraphManager.enableReservoir(name, enabled);
   }
   else if (cmd == "EnableSlice")
   {
