@@ -178,7 +178,7 @@ generate_dox( GeoPhysics.cfg )
 
 add_gtest( NAME GeoPhysics::BrineConductivity
       SOURCES test/BrineConductivity.C src/BrinePhases.C
-      LIBRARIES GeoPhysics
+      LIBRARIES GeoPhysics SerialDataAccess
 )
 
 #add_gtest( NAME GeoPhysics::BrineDensity
