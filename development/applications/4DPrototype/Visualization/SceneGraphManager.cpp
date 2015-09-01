@@ -52,11 +52,11 @@
 namespace di = DataAccess::Interface;
 
 SnapshotInfo::SnapshotInfo()
-  : snapshot(0)
+  : minZ(0.0)
+  , maxZ(0.0)
+  , snapshot(0)
   , currentProperty(0)
   , root(0)
-  , coordinateGrid(0)
-  , coordinateGridSwitch(0)
   , mesh(0)
   , meshData(0)
   , scalarSet(0)
@@ -75,9 +75,33 @@ SnapshotInfo::SnapshotInfo()
   }
 }
 
-void SceneGraphManager::updateSnapshotFormations(size_t index)
+void SceneGraphManager::updateCoordinateGrid()
 {
-  SnapshotInfo& snapshot = m_snapshots[index];
+  SnapshotInfo& snapshot = m_snapshots[m_currentSnapshot];
+
+  float sizeX = (float)(m_maxX - m_minX);
+  float sizeY = (float)(m_maxY - m_minY);
+  float sizeZ = (float)(snapshot.maxZ - snapshot.minZ);
+
+  const float margin = .05f;
+  float dx = sizeX * margin;
+  float dy = sizeY * margin;
+
+  float verticalScale = m_scale->scaleFactor.getValue()[2];
+  SbVec3f start(-dx, -dy, -sizeZ * verticalScale);
+  SbVec3f end(sizeX + dx, sizeY + dy, 0.0f);
+  SbVec3f gradStart(start[0], start[1], (float)-snapshot.minZ);
+  SbVec3f gradEnd(end[0], end[1], (float)-snapshot.maxZ);
+
+  m_coordinateGrid->start = start;
+  m_coordinateGrid->end = end;
+  m_coordinateGrid->gradStart = gradStart;
+  m_coordinateGrid->gradEnd = gradEnd;
+}
+
+void SceneGraphManager::updateSnapshotFormations()
+{
+  SnapshotInfo& snapshot = m_snapshots[m_currentSnapshot];
 
   // Update formations
   if (snapshot.formationsTimeStamp == m_formationsTimeStamp || snapshot.chunksGroup == 0)
@@ -131,9 +155,9 @@ void SceneGraphManager::updateSnapshotFormations(size_t index)
 }
 
 
-void SceneGraphManager::updateSnapshotSurfaces(size_t index)
+void SceneGraphManager::updateSnapshotSurfaces()
 {
-  SnapshotInfo& snapshot = m_snapshots[index];
+  SnapshotInfo& snapshot = m_snapshots[m_currentSnapshot];
 
   // Update surfaces
   if (snapshot.surfacesTimeStamp == m_surfacesTimeStamp)
@@ -244,9 +268,9 @@ std::shared_ptr<FaultMesh> generateFaultMesh(const std::vector<SbVec2d>& points,
   return std::make_shared<FaultMesh>(faultGeometry, faultTopology);
 }
 
-void SceneGraphManager::updateSnapshotFaults(size_t index)
+void SceneGraphManager::updateSnapshotFaults()
 {
-  SnapshotInfo& snapshot = m_snapshots[index];
+  SnapshotInfo& snapshot = m_snapshots[m_currentSnapshot];
 
   // Update formations
   if (snapshot.faultsTimeStamp == m_faultsTimeStamp)
@@ -288,9 +312,9 @@ void SceneGraphManager::updateSnapshotFaults(size_t index)
   snapshot.faultsTimeStamp = m_faultsTimeStamp;
 }
 
-void SceneGraphManager::updateSnapshotProperties(size_t index)
+void SceneGraphManager::updateSnapshotProperties()
 {
-  SnapshotInfo& snapshot = m_snapshots[index];
+  SnapshotInfo& snapshot = m_snapshots[m_currentSnapshot];
 
   // Update properties
   if (snapshot.currentProperty == m_currentProperty)
@@ -340,9 +364,9 @@ void SceneGraphManager::updateSnapshotProperties(size_t index)
   snapshot.currentProperty = m_currentProperty;
 }
 
-void SceneGraphManager::updateSnapshotSlices(size_t index)
+void SceneGraphManager::updateSnapshotSlices()
 {
-  SnapshotInfo& snapshot = m_snapshots[index];
+  SnapshotInfo& snapshot = m_snapshots[m_currentSnapshot];
 
   if (snapshot.slicesGroup == 0)
     return;
@@ -376,74 +400,79 @@ void SceneGraphManager::updateSnapshotSlices(size_t index)
   }
 }
 
-void SceneGraphManager::updateSnapshot(size_t index)
+void SceneGraphManager::updateSnapshot()
 {
-  updateSnapshotFormations(index);
-  updateSnapshotSurfaces(index);
-  updateSnapshotFaults(index);
-  updateSnapshotProperties(index);
-  updateSnapshotSlices(index);
+  updateSnapshotFormations();
+  updateSnapshotSurfaces();
+  updateSnapshotFaults();
+  updateSnapshotProperties();
+  updateSnapshotSlices();
 
-  m_snapshots[index].coordinateGridSwitch->whichChild = m_showGrid
-    ? SO_SWITCH_ALL
-    : SO_SWITCH_NONE;
+  updateCoordinateGrid();
 }
 
 namespace
 {
 
-  void initAutoAxis(PoCartesianAxis *axis, PbMiscTextAttr *textAtt, SbBool isXYAxis)
+  void initAutoAxis(PoLinearAxis *axis, PbMiscTextAttr *textAtt, SbBool isXYAxis)
   {
-
     if (isXYAxis) 
     {
-      //axis->marginType.setValue(PoCartesianAxis::FIXED_MARGIN);
-      //axis->marginStart.setValue(0.5);
-      //axis->marginEnd.setValue(0.5);
-      //axis->tickSubDef.setValue(PoCartesianAxis::NUM_SUB_TICK);
-      //axis->tickNumOrPeriod.setValue(1);
+      axis->marginType.setValue(PoCartesianAxis::FIXED_MARGIN);
+      axis->marginStart.setValue(0.5);
+      axis->marginEnd.setValue(0.5);
+      axis->tickSubDef.setValue(PoCartesianAxis::NUM_SUB_TICK);
+      axis->tickNumOrPeriod.setValue(1);
     }
 
-    axis->titleFontSize = 0.10F;
+    //axis->titleFontSize = 0.10F;
     //axis->setMiscTextAttr(textAtt);
-    axis->gradFontSize = 0.06F;
+    //axis->gradFontSize = 0.06F;
     axis->gradVisibility = PoAxis::VISIBILITY_ON;
+    axis->titleVisibility = PoAxis::VISIBILITY_ON;
+    //axis->tickMainLength = 1.f;
+    //axis->gradFontSize = 1.f;
+
+    axis->arrowVisibility = PoAxis::VISIBILITY_ON;
 
     SoMaterial *axisMtl = SO_GET_PART(axis, "bodyApp.material", SoMaterial);
     axisMtl->diffuseColor.setHSVValue(0.56F, 0.25F, 1);
     axis->set("bodyApp.drawStyle", "lineWidth 1.5");
-
   }
 
-  PoAutoCubeAxis* initCoordinateGrid(const MbVec3d& minVec, const MbVec3d& maxVec)
+  PoAutoCubeAxis* initCoordinateGrid(double minX, double minY, double maxX, double maxY)
   {
-    double dx = (maxVec[0] - minVec[0]) * .05;
-    double dy = (maxVec[1] - minVec[1]) * .05;
+    const double margin = .05;
+    double dx = (maxX - minX) * margin;
+    double dy = (maxY - minY) * margin;
 
-    SbVec3f start((float)(minVec[0] - dx), (float)(minVec[1] - dy), (float)minVec[2]);
-    SbVec3f end((float)(maxVec[0] + dx), (float)(maxVec[1] + dy), (float)maxVec[2]);
+    SbVec3f start((float)(-dx), (float)(-dy), -1000.f);
+    SbVec3f end((float)(maxX - minX + dx), (float)(maxY - minY + dy), 0.0f);
       
     PoAutoCubeAxis* grid = new PoAutoCubeAxis(
       start,
       end,
       PoAutoCubeAxis::LINEAR,
       PoAutoCubeAxis::LINEAR,
-      PoAutoCubeAxis::LINEAR);
+      PoAutoCubeAxis::LINEAR,
+      "X", "Y", "Depth");
 
-    //PbDomain* domain = new PbDomain(SbBox3f(start, end))
-    grid->gradStart = grid->start.getValue();
-    grid->gradEnd = grid->end.getValue();
+    grid->gradStart = start;
+    grid->gradEnd = end;
 
     grid->isGridLinesXVisible = true;
     grid->isGridLinesYVisible = true;
     grid->isGridLinesZVisible = true;
 
-    grid->set("appearance.material", "diffuseColor 1 1 1");
+    grid->set("appearance.material", "diffuseColor 0.5 0.5 1.0");
     grid->set("mainGradGridApp.drawStyle", "lineWidth 0.2");
     grid->set("mainGradGridApp.drawStyle", "linePattern 0xF0F0");
     grid->set("subGradGridApp.drawStyle", "style INVISIBLE");
-    //grid->isIntersectingGradsVisible = TRUE;
-    //grid->setDomain(domain);
+    grid->isIntersectingGradsVisible = TRUE;
+
+    float maxSize = (float)std::max(maxX - minX, maxY - minY);
+    PbDomain* domain = new PbDomain(SbBox3f(.0f, .0f, -maxSize, maxSize, maxSize, 0.0f));
+    grid->setDomain(domain);
 
     const char* axisNames[] = {
       "xAxis03", "xAxis12", "xAxis65", "xAxis74",
@@ -456,35 +485,6 @@ namespace
       PoLinearAxis* axis = SO_GET_PART(grid, axisNames[i], PoLinearAxis);
       initAutoAxis(axis, 0, i < 8);
     }
-    //PoLinearAxis *xAxis[4];
-    //xAxis[0] = SO_GET_PART(grid, "xAxis03", PoLinearAxis);
-    //xAxis[1] = SO_GET_PART(grid, "xAxis12", PoLinearAxis);
-    //xAxis[2] = SO_GET_PART(grid, "xAxis65", PoLinearAxis);
-    //xAxis[3] = SO_GET_PART(grid, "xAxis74", PoLinearAxis);
-    //for (int i = 0; i < 4; i++) {
-    //  initAutoAxis(xAxis[i], 0/*textAtt*/, TRUE);
-    //  //xAxis[i]->gradList.setValues(0, NB_MONTH, (const char**)monthList);
-    //}
-
-    //PoLinearAxis *yAxis[4];
-    //yAxis[0] = SO_GET_PART(grid, "yAxis01", PoLinearAxis);
-    //yAxis[1] = SO_GET_PART(grid, "yAxis76", PoLinearAxis);
-    //yAxis[2] = SO_GET_PART(grid, "yAxis45", PoLinearAxis);
-    //yAxis[3] = SO_GET_PART(grid, "yAxis32", PoLinearAxis);
-    //for (int i = 0; i < 4; i++) {
-    //  initAutoAxis(yAxis[i], 0/*textAtt*/, TRUE);
-    //  //yAxis[i]->gradList.setValues(0, NB_COMPAGNY, (const char**)compagnyList);
-    //}
-
-    //PoLinearAxis *zAxis[4];
-    //zAxis[0] = SO_GET_PART(grid, "zAxis07", PoLinearAxis);
-    //zAxis[1] = SO_GET_PART(grid, "zAxis34", PoLinearAxis);
-    //zAxis[2] = SO_GET_PART(grid, "zAxis25", PoLinearAxis);
-    //zAxis[3] = SO_GET_PART(grid, "zAxis16", PoLinearAxis);
-    //for (int i = 0; i < 4; i++) {
-    //  initAutoAxis(zAxis[i], 0/*textAtt*/, FALSE);
-    //  zAxis[i]->multFactorPosition = PoLinearAxis::MULT_FACTOR_GRAD;
-    //}
 
     return grid;
   }
@@ -566,25 +566,15 @@ SnapshotInfo SceneGraphManager::createSnapshotNode(const di::Snapshot* snapshot)
   }
 
   info.root = new SoSeparator;
-  info.coordinateGridSwitch = new SoSwitch;
 
   if (!depthMaps.empty())
   {
     info.geometry.reset(new SnapshotGeometry(depthMaps));
     info.topology.reset(new SnapshotTopology(info.geometry));
-
     info.meshData = new HexahedronMesh(info.geometry, info.topology);
 
-    // Setup coordinate axes
-    MbVec3d minVec = info.geometry->getMin();
-    MbVec3d maxVec = info.geometry->getMax();
-    info.coordinateGrid = initCoordinateGrid(minVec, maxVec);
-
-    SoSeparator* coordinateGridSep = new SoSeparator;
-    coordinateGridSep->addChild(info.coordinateGrid);
-
-    info.coordinateGridSwitch->addChild(coordinateGridSep);
-    info.coordinateGridSwitch->whichChild = SO_SWITCH_NONE;
+    info.minZ = info.geometry->getMin()[2];
+    info.maxZ = info.geometry->getMax()[2];
   }
 
   info.mesh = new MoMesh;
@@ -605,7 +595,6 @@ SnapshotInfo SceneGraphManager::createSnapshotNode(const di::Snapshot* snapshot)
   info.slicesGroup = new SoGroup;
   info.slicesGroup->setName("slices");
 
-  info.root->addChild(info.coordinateGridSwitch);
   info.root->addChild(info.mesh);
   info.root->addChild(info.scalarSet);
   info.root->addChild(info.chunksGroup);
@@ -638,6 +627,14 @@ void SceneGraphManager::setupSnapshots()
   m_snapshotsSwitch->whichChild = 0;
 }
 
+void SceneGraphManager::setupCoordinateGrid()
+{
+  m_coordinateGrid = initCoordinateGrid(m_minX, m_minY, m_maxX, m_maxY);
+  m_coordinateGridSwitch = new SoSwitch;
+  m_coordinateGridSwitch->addChild(m_coordinateGrid);
+  m_coordinateGridSwitch->whichChild = SO_SWITCH_NONE;
+}
+
 void SceneGraphManager::setupSceneGraph()
 {
   // Backface culling is enabled for solid shapes with ordered vertices
@@ -649,6 +646,8 @@ void SceneGraphManager::setupSceneGraph()
   m_surfaceShapeHints = new SoShapeHints;
   m_surfaceShapeHints->shapeType = SoShapeHints::UNKNOWN_SHAPE_TYPE;
   m_surfaceShapeHints->vertexOrdering = SoShapeHints::COUNTERCLOCKWISE;
+
+  setupCoordinateGrid();
 
   m_scale = new SoScale;
   m_scale->scaleFactor = SbVec3f(1.f, 1.f, 1.f);
@@ -704,6 +703,7 @@ void SceneGraphManager::setupSceneGraph()
   m_root = new SoGroup;
   m_root->setName("root");
   m_root->addChild(m_formationShapeHints);
+  m_root->addChild(m_coordinateGridSwitch);
   m_root->addChild(m_scale);
   m_root->addChild(m_appearanceNode);
   m_root->addChild(annotation);
@@ -724,6 +724,8 @@ SceneGraphManager::SceneGraphManager()
   , m_numJHiRes(0)
   , m_minX(0.0)
   , m_minY(0.0)
+  , m_maxX(0.0)
+  , m_maxY(0.0)
   , m_showGrid(false)
   , m_formationsTimeStamp(MxTimeStamp::getTimeStamp())
   , m_surfacesTimeStamp(MxTimeStamp::getTimeStamp())
@@ -732,6 +734,8 @@ SceneGraphManager::SceneGraphManager()
   , m_root(0)
   , m_formationShapeHints(0)
   , m_surfaceShapeHints(0)
+  , m_coordinateGrid(0)
+  , m_coordinateGridSwitch(0)
   , m_scale(0)
   , m_appearanceNode(0)
   , m_drawStyle(0)
@@ -751,9 +755,10 @@ SoNode* SceneGraphManager::getRoot() const
 
 void SceneGraphManager::setCurrentSnapshot(size_t index)
 {
-  updateSnapshot(index);
   m_currentSnapshot = index;
   m_snapshotsSwitch->whichChild = (int)index;
+
+  updateSnapshot();
 }
 
 size_t SceneGraphManager::getSnapshotCount() const
@@ -784,6 +789,7 @@ int SceneGraphManager::numJHiRes() const
 void SceneGraphManager::setVerticalScale(float scale)
 {
   m_scale->scaleFactor = SbVec3f(1.f, 1.f, scale);
+  updateCoordinateGrid();
 }
 
 void SceneGraphManager::setRenderStyle(bool drawFaces, bool drawEdges)
@@ -804,7 +810,7 @@ void SceneGraphManager::setProperty(const std::string& name)
   m_legend->title = title.c_str();
   m_legendSwitch->whichChild = SO_SWITCH_ALL;
 
-  updateSnapshot(m_currentSnapshot);
+  updateSnapshot();
 }
 
 void SceneGraphManager::enableFormation(const std::string& name, bool enabled)
@@ -820,7 +826,7 @@ void SceneGraphManager::enableFormation(const std::string& name, bool enabled)
   m_formations[id].visible = enabled;
   m_formationsTimeStamp = MxTimeStamp::getTimeStamp();
 
-  updateSnapshot(m_currentSnapshot);
+  updateSnapshot();
 }
 
 void SceneGraphManager::enableSurface(const std::string& name, bool enabled)
@@ -836,7 +842,7 @@ void SceneGraphManager::enableSurface(const std::string& name, bool enabled)
   m_surfaces[id].visible = enabled;
   m_surfacesTimeStamp = MxTimeStamp::getTimeStamp();
 
-  updateSnapshot(m_currentSnapshot);
+  updateSnapshot();
 }
 
 void SceneGraphManager::enableFault(const std::string& collectionName, const std::string& name, bool enabled)
@@ -852,19 +858,19 @@ void SceneGraphManager::enableFault(const std::string& collectionName, const std
   m_faults[id].visible = enabled;
   m_faultsTimeStamp = MxTimeStamp::getTimeStamp();
 
-  updateSnapshot(m_currentSnapshot);
+  updateSnapshot();
 }
 
 void SceneGraphManager::enableSlice(int slice, bool enabled)
 {
   m_sliceEnabled[slice] = enabled;
-  updateSnapshot(m_currentSnapshot);
+  updateSnapshot();
 }
 
 void SceneGraphManager::setSlicePosition(int slice, int position)
 {
   m_slicePosition[slice] = position;
-  updateSnapshot(m_currentSnapshot);
+  updateSnapshot();
 }
 
 void SceneGraphManager::showCoordinateGrid(bool show)
@@ -873,7 +879,15 @@ void SceneGraphManager::showCoordinateGrid(bool show)
   {
     m_showGrid = show;
 
-    updateSnapshot(m_currentSnapshot);
+    if (!show)
+    {
+      m_coordinateGridSwitch->whichChild = SO_SWITCH_NONE;
+    }
+    else
+    {
+      updateCoordinateGrid();
+      m_coordinateGridSwitch->whichChild = SO_SWITCH_ALL;
+    }
   }
 }
 
@@ -893,6 +907,8 @@ void SceneGraphManager::setup(const di::ProjectHandle* handle)
   m_numJHiRes = hiresGrid->numJ();
   m_minX = loresGrid->minI();
   m_minY = loresGrid->minJ();
+  m_maxX = loresGrid->maxI();
+  m_maxY = loresGrid->maxJ();
 
   m_currentSnapshot = 0;
   for (int i = 0; i < 3; ++i)

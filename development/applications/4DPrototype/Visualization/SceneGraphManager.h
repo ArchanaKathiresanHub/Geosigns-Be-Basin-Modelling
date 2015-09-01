@@ -128,13 +128,13 @@ struct SnapshotInfo
     }
   };
 
+  double minZ; // = max depth (negative)
+  double maxZ;
+
   const DataAccess::Interface::Snapshot* snapshot;
   const DataAccess::Interface::Property* currentProperty;
 
   SoSeparator* root;
-
-  PoAutoCubeAxis* coordinateGrid;
-  SoSwitch* coordinateGridSwitch;
 
   std::shared_ptr<SnapshotGeometry> geometry;
   std::shared_ptr<SnapshotTopology> topology;
@@ -203,6 +203,8 @@ class VISUALIZATIONDLL_API SceneGraphManager
 
   double m_minX;
   double m_minY;
+  double m_maxX;
+  double m_maxY;
 
   std::map<std::string, int> m_formationIdMap;
   std::map<std::string, int> m_surfaceIdMap;
@@ -226,6 +228,10 @@ class VISUALIZATIONDLL_API SceneGraphManager
   SoGroup*        m_root;
   SoShapeHints*   m_formationShapeHints;
   SoShapeHints*   m_surfaceShapeHints;
+
+  PoAutoCubeAxis* m_coordinateGrid;
+  SoSwitch*       m_coordinateGridSwitch;
+
   SoScale*        m_scale;
 
   // Appearance group
@@ -240,16 +246,18 @@ class VISUALIZATIONDLL_API SceneGraphManager
 
   SoSwitch*       m_snapshotsSwitch;
 
-  void updateSnapshotFormations(size_t index);
-  void updateSnapshotSurfaces(size_t index);
-  void updateSnapshotFaults(size_t index);
-  void updateSnapshotProperties(size_t index);
-  void updateSnapshotSlices(size_t index);
-  void updateSnapshot(size_t index);
+  void updateCoordinateGrid();
+  void updateSnapshotFormations();
+  void updateSnapshotSurfaces();
+  void updateSnapshotFaults();
+  void updateSnapshotProperties();
+  void updateSnapshotSlices();
+  void updateSnapshot();
 
   SnapshotInfo createSnapshotNode(const DataAccess::Interface::Snapshot* snapshot);
     
   void setupSnapshots();
+  void setupCoordinateGrid();
   void setupSceneGraph();
 
 public:

@@ -29,6 +29,7 @@
 #include <QtCore/QTime>
 
 #include <MeshVizInterface/mapping/MoMeshviz.h>
+#include <MeshViz/PoMeshViz.h>
 
 namespace di = DataAccess::Interface;
 
@@ -68,6 +69,7 @@ void MainWindow::initOIV()
   if (m_oivLicenseOK)
   {
     MoMeshViz::init();
+    PoMeshViz::init();
   }
 }
 
