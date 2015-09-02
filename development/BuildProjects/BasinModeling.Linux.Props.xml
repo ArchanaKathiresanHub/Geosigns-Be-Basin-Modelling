@@ -37,6 +37,7 @@ WARNING:  DO NOT MODIFY this file unless you are knowledgeable about MSBuild and
 
       <putty_dir Condition="'$(putty_dir)' == '' And Exists('C:\opt\putty')">C:\opt\putty</putty_dir>
 
+      <rsh_exe   Condition="'$(rsh_exe)' == ''"  >"$(cygwin_bin_dir.Replace('\','/'))ssh.exe -q"</rsh_exe>
       <ssh_exe   Condition="'$(ssh_exe)' == ''"  >"$(cygwin_bin_dir)ssh.exe"</ssh_exe>
       <scp_exe   Condition="'$(scp_exe)' == ''"  >"$(cygwin_bin_dir)scp.exe"</scp_exe>
       <cpio_exe  Condition="'$(cpio_exe)' == ''" >"$(cygwin_bin_dir)cpio.exe"</cpio_exe>
@@ -85,8 +86,7 @@ WARNING:  DO NOT MODIFY this file unless you are knowledgeable about MSBuild and
 
       <!-- Copy source with rsync -->
       <!---<rsh>$(putty_dir)\PLINK.exe -batch -ssh -i $(AgentKeyAlt)</rsh>-->
-      <rsh>$(ssh_exe) -q </rsh>
-      <copy_code>$(rsync_exe) --rsh="$(rsh)" --recursive --delete . $(AgentAccountAlt)@$(AgentHost):$(RemoteSourceDirAlt)</copy_code>
+      <copy_code>$(rsync_exe) --rsh="$(rsh_exe)" --recursive --delete . $(AgentAccountAlt)@$(AgentHost):$(RemoteSourceDirAlt)</copy_code>
 
       <!-- Execute remote build script -->
       <run_on_platform>$(RemoteSourceDirAlt)/development/BuildProjects/Linux-DoOnPlatform.sh $(Platform) $(ProcessorAllocation)$(AllocatedProcessors)</run_on_platform>
