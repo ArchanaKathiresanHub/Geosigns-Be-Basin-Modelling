@@ -41,7 +41,7 @@ WARNING:  DO NOT MODIFY this file unless you are knowledgeable about MSBuild and
 
       <!-- Command to start non interactive SSH session -->
       <!--- <ssh_command>$(putty_dir)\PLINK.exe -batch -ssh -i "$(AgentKey)" $(AgentAccount)@$(AgentHost)</ssh_command>-->
-      <ssh_command>$(ssh_exe) $(AgentAccount)@$(AgentHost)</ssh_command>-->
+      <ssh_command>$(ssh_exe) $(AgentAccount)@$(AgentHost)</ssh_command>
 
       <!-- Command to SCP (SSH copy). Note the 'echo y' which is necessary when copying 
            something to a destination host that has not been connected with before. 

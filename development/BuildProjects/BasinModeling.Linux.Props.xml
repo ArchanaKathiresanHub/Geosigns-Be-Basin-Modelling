@@ -30,7 +30,7 @@ WARNING:  DO NOT MODIFY this file unless you are knowledgeable about MSBuild and
 
    <!-- STANDARD UTILITIES -->
    <PropertyGroup Label="StandardUtilities" >
-      <!--- Look where is cygwin installed -->
+      <!-- Look where is cygwin installed -->
       <cygwin_bin_dir  Condition="'$(cygwin_bin_dir)' == '' And Exists('C:\cygwin\bin')"     >C:\cygwin\bin\</cygwin_bin_dir>
       <cygwin_bin_dir  Condition="'$(cygwin_bin_dir)' == '' And Exists('D:\cygwin\bin')"     >D:\cygwin\bin\</cygwin_bin_dir>
       <cygwin_bin_dir  Condition="'$(cygwin_bin_dir)' == '' And Exists('C:\opt\cygwin\bin')" >C:\opt\cygwin\bin\</cygwin_bin_dir>
@@ -44,15 +44,15 @@ WARNING:  DO NOT MODIFY this file unless you are knowledgeable about MSBuild and
       <rsync_exe Condition="'$(rsync_exe)' == ''">"$(cygwin_bin_dir)rsync.exe"</rsync_exe>
 
       <!-- Command to start non interactive SSH session -->
-      <!--- <ssh_command>$(putty_dir)\PLINK.exe -batch -ssh -i "$(AgentKey)" $(AgentAccount)@$(AgentHost)</ssh_command>-->
-      <ssh_command>$(ssh_exe) $(AgentAccount)@$(AgentHost)</ssh_command>-->
+      <!-- <ssh_command>$(putty_dir)\PLINK.exe -batch -ssh -i "$(AgentKey)" $(AgentAccount)@$(AgentHost)</ssh_command>-->
+      <ssh_command>$(ssh_exe) $(AgentAccount)@$(AgentHost)</ssh_command>
       <ssh_command_alt>$(putty_dir)\PLINK.exe -batch -ssh -i "$(AgentKeyAlt)" $(AgentAccountAlt)@$(AgentHost)</ssh_command_alt>
 
       <!-- Command to SCP (SSH copy). Note the 'echo y' which is necessary when copying 
            something to a destination host that has not been connected with before. 
            The 'y' answers yes to the question whether or not to trust the new host
        -->
-      <!--- <scp_command>echo y | $(putty_dir)\PSCP.EXE -i "$(AgentKey)"</scp_command>-->
+      <!-- <scp_command>echo y | $(putty_dir)\PSCP.EXE -i "$(AgentKey)"</scp_command>-->
       <scp_command>echo y | $(scp_exe)</scp_command>
       <scp_command_alt>echo y | $(putty_dir)\PSCP.EXE -i "$(AgentKeyAlt)"</scp_command_alt>
 
