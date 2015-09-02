@@ -142,7 +142,7 @@ WARNING:  DO NOT MODIFY this file unless you are knowledgeable about MSBuild and
       <MakeDir Condition="!Exists('$(TestResultsRoot)')" Directories="$(TestResultsRoot)" />
 	
 	   <!-- Copy the JUnit results -->
-	   <Exec Command="$(scp_command) &quot;$(AgentAccountAlt)@$(AgentHost):$(RemoteTestResults)/*-junit.xml&quot; &quot;$(TestResultsRoot)&quot;"/>
+	   <Exec Command="$(scp_command) &quot;$(AgentAccountAlt)@$(AgentHost):$(RemoteTestResults)/*-junit.xml&quot; &quot;$(TestResultsRoot.Replace('\','/'))&quot;"/>
 
 	   <ItemGroup>
          <JUnitLogFiles Include="$(TestResultsRoot)\*-junit.xml" />

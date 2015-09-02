@@ -48,14 +48,14 @@ WARNING:  DO NOT MODIFY this file unless you are knowledgeable about MSBuild and
            The 'y' answers yes to the question whether or not to trust the new host
       -->
       <!--- <scp_command>echo y | $(putty_dir)\PSCP.EXE -i "$(AgentKey)"</scp_command>-->
-      <scp_command>echo y | $(scp_exe)</scp_command>
+      <scp_command>echo y | $(scp_exe) -q</scp_command>
    </PropertyGroup>
 
    <PropertyGroup Label="DeployCommands" >
       <!-- Remove old one if exist and create new deploy dir -->
       <make_deploy_dir>$(ssh_command) "rm -Rf $(DeployDir)/$(Configuration); mkdir -p $(DeployDir)/$(Configuration)"</make_deploy_dir>
       <!-- Copy packed binaries to deploy folder -->
-      <copy_zip>$(scp_command) -r "$(build_dir_cmake)/*.zip" "$(AgentAccount)@$(AgentHost):$(DeployDir)/$(Configuration)/"</copy_zip>
+      <copy_zip>$(scp_command) -r "$(build_dir_cmake.Replace('\','/'))/*.zip" "$(AgentAccount)@$(AgentHost):$(DeployDir)/$(Configuration)/"</copy_zip>
    </PropertyGroup>
 
    <Target Name="DeployBinariesToHouston">
