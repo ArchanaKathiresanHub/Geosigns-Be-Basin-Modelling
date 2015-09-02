@@ -16,7 +16,7 @@
 
 namespace di = DataAccess::Interface;
 
-ScalarProperty::ScalarProperty(const std::string& name, const GridMapCollection& values)
+FormationProperty::FormationProperty(const std::string& name, const GridMapCollection& values)
   : m_values(values)
   , m_name(name)
   , m_binding(MiDataSet::PER_CELL)
@@ -24,39 +24,198 @@ ScalarProperty::ScalarProperty(const std::string& name, const GridMapCollection&
 {
 }
 
-double ScalarProperty::get(size_t i, size_t j, size_t k) const
+double FormationProperty::get(size_t i, size_t j, size_t k) const
 {
   return m_values.getValue(i, j, k);
 }
 
-MiDataSet::DataBinding ScalarProperty::getBinding() const
+MiDataSet::DataBinding FormationProperty::getBinding() const
 {
   return m_binding;
 }
 
-double ScalarProperty::getMin() const
+double FormationProperty::getMin() const
 {
   return m_values.minValue();
 }
 
-double ScalarProperty::getMax() const
+double FormationProperty::getMax() const
 {
   return m_values.maxValue();
 }
 
-std::string ScalarProperty::getName() const
+std::string FormationProperty::getName() const
 {
   return m_name;
 }
 
-size_t ScalarProperty::getTimeStamp() const
+size_t FormationProperty::getTimeStamp() const
 {
   return m_timestamp;
 }
 
-MiMeshIjk::StorageLayout ScalarProperty::getStorageLayout() const
+MiMeshIjk::StorageLayout FormationProperty::getStorageLayout() const
 {
   return MiMeshIjk::LAYOUT_IJK;
+}
+
+
+//---------------------------------------------------------------------------------------
+// Formation2DProperty
+//---------------------------------------------------------------------------------------
+Formation2DProperty::Formation2DProperty(const std::string& name, const std::vector<const DataAccess::Interface::GridMap*>& values)
+  : m_values(values)
+  , m_name(name)
+  , m_binding(MiDataSet::PER_CELL)
+  , m_timestamp(MxTimeStamp::getTimeStamp())
+  , m_minVal( std::numeric_limits<double>::max())
+  , m_maxVal(-std::numeric_limits<double>::max())
+{
+  for (auto gridMap : values)
+  {
+    if (gridMap)
+    {
+      double minVal = 0.0, maxVal = 0.0;
+      gridMap->getMinMaxValue(minVal, maxVal);
+
+      m_minVal = std::min(m_minVal, minVal);
+      m_maxVal = std::max(m_maxVal, maxVal);
+    }
+  }
+}
+
+double Formation2DProperty::get(size_t i, size_t j, size_t k) const
+{
+  const di::GridMap* gridMap = m_values[k];
+
+  return gridMap 
+    ? gridMap->getValue((unsigned int)i, (unsigned int)j) 
+    : -std::numeric_limits<double>::infinity();
+}
+
+MiDataSet::DataBinding Formation2DProperty::getBinding() const
+{
+  return m_binding;
+}
+
+double Formation2DProperty::getMin() const
+{
+  return m_minVal;
+}
+
+double Formation2DProperty::getMax() const
+{
+  return m_maxVal;
+}
+
+std::string Formation2DProperty::getName() const
+{
+  return m_name;
+}
+
+size_t Formation2DProperty::getTimeStamp() const
+{
+  return m_timestamp;
+}
+
+MiMeshIjk::StorageLayout Formation2DProperty::getStorageLayout() const
+{
+  return MiMeshIjk::LAYOUT_IJK;
+}
+
+//---------------------------------------------------------------------------------------
+// SurfaceProperty
+//---------------------------------------------------------------------------------------
+SurfaceProperty::SurfaceProperty(const std::string& name, const DataAccess::Interface::GridMap* values)
+  : m_values(values)
+  , m_numI(values->numI())
+  , m_numJ(values->numJ())
+  , m_name(name)
+  , m_binding(MiDataSet::PER_CELL)
+  , m_timestamp(MxTimeStamp::getTimeStamp())
+  , m_minVal(0.0)
+  , m_maxVal(0.0)
+{
+  values->getMinMaxValue(m_minVal, m_maxVal);
+}
+
+double SurfaceProperty::get(size_t index) const
+{
+  unsigned int i = (unsigned int)index % (m_numI - 1);
+  unsigned int j = (unsigned int)index / (m_numI - 1);
+  return m_values->getValue(i, j);
+}
+
+MiDataSet::DataBinding SurfaceProperty::getBinding() const
+{
+  return m_binding;
+}
+
+double SurfaceProperty::getMin() const
+{
+  return m_minVal;
+}
+
+double SurfaceProperty::getMax() const
+{
+  return m_maxVal;
+}
+
+std::string SurfaceProperty::getName() const
+{
+  return m_name;
+}
+
+size_t SurfaceProperty::getTimeStamp() const
+{
+  return m_timestamp;
+}
+
+//---------------------------------------------------------------------------------------
+// VectorProperty
+//---------------------------------------------------------------------------------------
+ReservoirProperty::ReservoirProperty(const std::string& name, const DataAccess::Interface::GridMap* values)
+  : m_values(values)
+  , m_name(name)
+  , m_binding(MiDataSet::PER_CELL)
+  , m_timestamp(MxTimeStamp::getTimeStamp())
+  , m_minVal(0.0)
+  , m_maxVal(0.0)
+{
+  values->getMinMaxValue(m_minVal, m_maxVal);
+}
+
+double ReservoirProperty::get(size_t i, size_t j, size_t k) const
+{
+  return m_values->getValue(
+    (unsigned int)i,
+    (unsigned int)j,
+    (unsigned int)k);
+}
+
+MiDataSet::DataBinding ReservoirProperty::getBinding() const
+{
+  return m_binding;
+}
+
+double ReservoirProperty::getMin() const
+{
+  return m_minVal;
+}
+
+double ReservoirProperty::getMax() const
+{
+  return m_maxVal;
+}
+
+std::string ReservoirProperty::getName() const
+{
+  return m_name;
+}
+
+size_t ReservoirProperty::getTimeStamp() const
+{
+  return m_timestamp;
 }
 
 //---------------------------------------------------------------------------------------

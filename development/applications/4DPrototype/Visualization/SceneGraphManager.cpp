@@ -29,6 +29,7 @@
 #include <MeshVizInterface/mapping/nodes/MoMeshSkin.h>
 #include <MeshVizInterface/mapping/nodes/MoMeshSlab.h>
 #include <MeshVizInterface/mapping/nodes/MoMeshSurface.h>
+#include <MeshVizInterface/mapping/nodes/MoScalarSet.h>
 #include <MeshVizInterface/mapping/nodes/MoScalarSetIjk.h>
 #include <MeshVizInterface/mapping/nodes/MoLegend.h>
 
@@ -102,6 +103,21 @@ void SceneGraphManager::updateCoordinateGrid()
   m_coordinateGrid->gradEnd = gradEnd;
 }
 
+void SceneGraphManager::updateFormationProperties()
+{
+
+}
+
+void SceneGraphManager::updateSurfaceProperties()
+{
+
+}
+
+void SceneGraphManager::updateReservoirProperties()
+{
+
+}
+
 void SceneGraphManager::updateSnapshotFormations()
 {
   SnapshotInfo& snapshot = m_snapshots[m_currentSnapshot];
@@ -157,6 +173,52 @@ void SceneGraphManager::updateSnapshotFormations()
   snapshot.formationsTimeStamp = m_formationsTimeStamp;
 }
 
+namespace
+{
+
+  MiDataSetI<double>* createSurfaceProperty(const di::Property* prop, const di::Surface* surface, const di::Snapshot* snapshot)
+  {
+    if (!prop)
+      return nullptr;
+
+    DataModel::PropertyAttribute attr = prop->getPropertyAttribute();
+    if (attr != DataModel::CONTINUOUS_3D_PROPERTY)
+      return nullptr;
+
+    std::unique_ptr<di::PropertyValueList> values(
+      prop->getPropertyValues(di::SURFACE, snapshot, nullptr, nullptr, surface));
+
+    if (!values || values->empty())
+      return nullptr;
+
+    return new SurfaceProperty(prop->getName(), (*values)[0]->getGridMap());
+  }
+
+  MiDataSetIjk<double>* createFormationProperty(const di::Property* prop, const SnapshotInfo& info)
+  {
+    return nullptr;
+  }
+
+  MiDataSetIjk<double>* createReservoirProperty(const di::Property* prop, const di::Reservoir* reservoir, const di::Snapshot* snapshot)
+  {
+    if (!prop)
+      return nullptr;
+
+    DataModel::PropertyAttribute attr = prop->getPropertyAttribute();
+    DataAccess::Interface::PropertyType type = prop->getType();
+
+    if (attr != DataModel::FORMATION_2D_PROPERTY || type != di::RESERVOIRPROPERTY)
+      return nullptr;
+
+    std::unique_ptr<di::PropertyValueList> values(
+      prop->getPropertyValues(di::RESERVOIR, snapshot, reservoir, nullptr, nullptr));
+
+    if (!values || values->empty())
+      return nullptr;
+
+    return new ReservoirProperty(prop->getName(), (*values)[0]->getGridMap());
+  }
+}
 
 void SceneGraphManager::updateSnapshotSurfaces()
 {
@@ -181,10 +243,14 @@ void SceneGraphManager::updateSnapshotSurfaces()
       surf.meshData = new SurfaceMesh((*values)[0]->getGridMap());
       surf.mesh = new MoMesh;
       surf.mesh->setMesh(surf.meshData);
+      surf.scalarSet = new MoScalarSet;
+      surf.propertyData= createSurfaceProperty(m_currentProperty, surface, snapshot.snapshot);
+      surf.scalarSet->setScalarSet(surf.propertyData);
       surf.surfaceMesh = new MoMeshSurface;
 
       SoSeparator* root = new SoSeparator;
       root->addChild(surf.mesh);
+      root->addChild(surf.scalarSet);
       root->addChild(surf.surfaceMesh);
 
       surf.root = root;
@@ -194,10 +260,13 @@ void SceneGraphManager::updateSnapshotSurfaces()
     {
       // The meshData is not reference counted, need to delete this ourselves
       delete surf.meshData;
+      delete surf.propertyData;
       snapshot.surfacesGroup->removeChild(surf.root);
       surf.root = 0;
       surf.mesh = 0;
       surf.meshData = 0;
+      surf.scalarSet = 0;
+      surf.propertyData = 0;
       surf.surfaceMesh = 0;
     }
   }
@@ -230,9 +299,13 @@ void SceneGraphManager::updateSnapshotReservoirs()
       res.mesh = new MoMesh;
       res.meshData = new ReservoirMesh((*topValues)[0]->getGridMap(), (*bottomValues)[0]->getGridMap());
       res.mesh->setMesh(res.meshData);
+      res.scalarSet = new MoScalarSet;
+      res.propertyData = createReservoirProperty(m_currentProperty, reservoir, snapshot.snapshot);
+      res.scalarSet->setScalarSet(res.propertyData);
       res.skin = new MoMeshSkin;
 
       res.root->addChild(res.mesh);
+      res.root->addChild(res.scalarSet);
       res.root->addChild(res.skin);
 
       snapshot.reservoirsGroup->addChild(res.root);
@@ -240,10 +313,13 @@ void SceneGraphManager::updateSnapshotReservoirs()
     else if (!m_reservoirs[id].visible && res.root != 0)
     {
       delete res.meshData;
+      delete res.propertyData;
       snapshot.reservoirsGroup->removeChild(res.root);
       res.root = 0;
       res.mesh = 0;
       res.meshData = 0;
+      res.scalarSet = 0;
+      res.propertyData = 0;
       res.skin = 0;
     }
   }
@@ -361,13 +437,15 @@ void SceneGraphManager::updateSnapshotFaults()
   snapshot.faultsTimeStamp = m_faultsTimeStamp;
 }
 
-void SceneGraphManager::updateSnapshotProperties()
+MiDataSetIjk<double>* SceneGraphManager::createFormationProperty(const di::Property* prop, const SnapshotInfo& snapshot)
 {
-  SnapshotInfo& snapshot = m_snapshots[m_currentSnapshot];
+  if (!prop)
+    return nullptr;
 
-  // Update properties
-  if (snapshot.currentProperty == m_currentProperty)
-    return;
+  if (prop->getType() != di::FORMATIONPROPERTY)
+    return nullptr;
+
+  DataModel::PropertyAttribute attr = prop->getPropertyAttribute();
 
   std::vector<const di::GridMap*> gridMaps;
   bool gridMapsOK = true;
@@ -377,38 +455,83 @@ void SceneGraphManager::updateSnapshotProperties()
     int id = snapshot.formations[i].id;
     const di::Formation* formation = m_formations[id].formation;
 
-    int flags = di::FORMATION;
-    int type = di::VOLUME;
-    std::unique_ptr<di::PropertyValueList> values(m_projectHandle->getPropertyValues(
-      flags, m_currentProperty, snapshot.snapshot, 0, formation, 0, type));
+    std::unique_ptr<di::PropertyValueList> values(
+      prop->getPropertyValues(di::FORMATION, snapshot.snapshot, nullptr, formation, nullptr));
 
-    if (values->size() == 1)
-      gridMaps.push_back((*values)[0]->getGridMap());
+    di::GridMap* gridMap = nullptr;
+    if (values && !values->empty())
+      gridMap = (*values)[0]->getGridMap();
+
+    if (attr == DataModel::FORMATION_2D_PROPERTY)
+    {
+      int k0 = snapshot.formations[i].minK;
+      int k1 = snapshot.formations[i].maxK;
+      for (int k = k0; k < k1; ++k)
+        gridMaps.push_back(gridMap);
+    }
     else
-      gridMapsOK = false;
+    {
+      if (gridMap != nullptr)
+        gridMaps.push_back(gridMap);
+      else
+        gridMapsOK = false;
+    }
   }
 
   if (gridMaps.empty() || !gridMapsOK)
+    return nullptr;
+
+  const std::string& name = prop->getName();
+  if (attr == DataModel::FORMATION_2D_PROPERTY)
+    return new Formation2DProperty(name, gridMaps);
+  else
+    return new FormationProperty(name, gridMaps);
+}
+
+void SceneGraphManager::updateSnapshotProperties()
+{
+  SnapshotInfo& snapshot = m_snapshots[m_currentSnapshot];
+
+  // Update properties
+  if (snapshot.currentProperty == m_currentProperty)
     return;
 
-  std::shared_ptr<ScalarProperty> newDataSet(new ScalarProperty(m_currentProperty->getName(), gridMaps));
-  snapshot.scalarSet->setScalarSet(newDataSet.get());
-  snapshot.scalarDataSet = newDataSet;
+  snapshot.scalarDataSet.reset(createFormationProperty(m_currentProperty, snapshot));
+  snapshot.scalarSet->setScalarSet(snapshot.scalarDataSet.get());
 
-  float minValue = (float)snapshot.scalarDataSet->getMin();
-  float maxValue = (float)snapshot.scalarDataSet->getMax();
+  bool haveFormationProperty = (bool)snapshot.scalarDataSet;
 
-  // Round minValue and maxValue down resp. up to 'nice' numbers
-  float e = round(log10(maxValue - minValue)) - 1.f;
-  float delta = powf(10.f, e);
-  minValue = delta * floor(minValue / delta);
-  maxValue = delta * ceil(maxValue / delta);
+  bool haveSurfaceProperty = false;
+  for (auto &surf : snapshot.surfaces)
+  {
+    if (surf.root)
+    {
+      delete surf.propertyData;
+      surf.propertyData = createSurfaceProperty(m_currentProperty, m_surfaces[surf.id].surface, snapshot.snapshot);
+      surf.scalarSet->setScalarSet(surf.propertyData);
 
-  static_cast<MoPredefinedColorMapping*>(m_colorMap)->minValue = minValue;
-  static_cast<MoPredefinedColorMapping*>(m_colorMap)->maxValue = maxValue;
+      if (surf.propertyData)
+        haveSurfaceProperty = true;
+    }
+  }
 
-  m_legend->minValue = minValue;
-  m_legend->maxValue = maxValue;
+  bool haveReservoirProperty = false;
+  for (auto &res : snapshot.reservoirs)
+  {
+    if (res.root)
+    {
+      delete res.propertyData;
+      res.propertyData = createReservoirProperty(m_currentProperty, m_reservoirs[res.id].reservoir, snapshot.snapshot);
+      res.scalarSet->setScalarSet(res.propertyData);
+
+      if (res.propertyData)
+        haveReservoirProperty = true;
+    }
+  }
+
+  m_formationMaterial->faceColoring = haveFormationProperty ? MoMaterial::CONTOURING : MoMaterial::COLOR;
+  m_surfaceMaterial->faceColoring = haveSurfaceProperty ? MoMaterial::CONTOURING : MoMaterial::COLOR;
+  m_reservoirMaterial->faceColoring = haveReservoirProperty ? MoMaterial::CONTOURING : MoMaterial::COLOR;
 
   snapshot.currentProperty = m_currentProperty;
 }
@@ -449,6 +572,54 @@ void SceneGraphManager::updateSnapshotSlices()
   }
 }
 
+void SceneGraphManager::updateColorMap()
+{
+  SnapshotInfo& snapshot = m_snapshots[m_currentSnapshot];
+
+  double minValue =  std::numeric_limits<double>::max();
+  double maxValue = -std::numeric_limits<double>::max();
+
+  if (snapshot.scalarDataSet)
+  {
+    minValue = std::min(minValue, snapshot.scalarDataSet->getMin());
+    maxValue = std::max(maxValue, snapshot.scalarDataSet->getMax());
+  }
+
+  for (auto const& surf : snapshot.surfaces)
+  {
+    if (surf.propertyData)
+    {
+      minValue = std::min(minValue, surf.propertyData->getMin());
+      maxValue = std::max(maxValue, surf.propertyData->getMax());
+    }
+  }
+
+  for (auto const& res : snapshot.reservoirs)
+  {
+    if (res.propertyData)
+    {
+      minValue = std::min(minValue, res.propertyData->getMin());
+      maxValue = std::max(maxValue, res.propertyData->getMax());
+    }
+  }
+
+  // Round minValue and maxValue down resp. up to 'nice' numbers
+  if (minValue != maxValue)
+  {
+    double e = round(log10(maxValue - minValue)) - 1.0;
+    double delta = pow(10.0, e);
+
+    minValue = delta * floor(minValue / delta);
+    maxValue = delta * ceil(maxValue / delta);
+  }
+
+  static_cast<MoPredefinedColorMapping*>(m_colorMap)->minValue = (float)minValue;
+  static_cast<MoPredefinedColorMapping*>(m_colorMap)->maxValue = (float)maxValue;
+
+  m_legend->minValue = minValue;
+  m_legend->maxValue = maxValue;
+}
+
 void SceneGraphManager::updateSnapshot()
 {
   updateSnapshotFormations();
@@ -457,6 +628,7 @@ void SceneGraphManager::updateSnapshot()
   updateSnapshotFaults();
   updateSnapshotProperties();
   updateSnapshotSlices();
+  updateColorMap();
 
   updateCoordinateGrid();
 }
@@ -639,11 +811,11 @@ SnapshotInfo SceneGraphManager::createSnapshotNode(const di::Snapshot* snapshot)
   info.mesh = new MoMesh;
   info.mesh->setMesh(info.meshData);
 
-  info.formationIdDataSet.reset(new FormationIdProperty(formationIds));
+  info.scalarDataSet.reset(new FormationIdProperty(formationIds));
 
   info.scalarSet = new MoScalarSetIjk;
   info.scalarSet->setName("formationID");
-  info.scalarSet->setScalarSet(info.formationIdDataSet.get());
+  info.scalarSet->setScalarSet(info.scalarDataSet.get());
 
   info.chunksGroup = new SoGroup;
   info.chunksGroup->setName("chunks");
@@ -658,11 +830,14 @@ SnapshotInfo SceneGraphManager::createSnapshotNode(const di::Snapshot* snapshot)
 
   info.root->addChild(info.mesh);
   info.root->addChild(info.scalarSet);
+  info.root->addChild(m_formationMaterial);
   info.root->addChild(info.chunksGroup);
   info.root->addChild(info.slicesGroup);
   // Add surfaceShapeHints to prevent backface culling, and enable double-sided lighting
   info.root->addChild(m_surfaceShapeHints);
+  info.root->addChild(m_surfaceMaterial);
   info.root->addChild(info.surfacesGroup);
+  info.root->addChild(m_reservoirMaterial);
   info.root->addChild(info.reservoirsGroup);
   info.root->addChild(info.faultsGroup);
 
@@ -762,6 +937,25 @@ void SceneGraphManager::setupSceneGraph()
   m_snapshotsSwitch->setName("snapshots");
   m_snapshotsSwitch->whichChild = SO_SWITCH_NONE;
 
+  m_formationMaterial = new MoMaterial;
+  m_surfaceMaterial = new MoMaterial;
+  m_reservoirMaterial = new MoMaterial;
+
+  SbColor defaultFaceColor(.5f, .5f, .5f);
+  SbColor defaultLineColor(.0f, .0f, .0f);
+  m_formationMaterial->faceColor = defaultFaceColor;
+  m_formationMaterial->lineColor = defaultLineColor;
+  m_formationMaterial->faceColoring = MoMaterial::CONTOURING;
+  m_formationMaterial->lineColoring = MoMaterial::COLOR;
+  m_surfaceMaterial->faceColor = defaultFaceColor;
+  m_surfaceMaterial->lineColor = defaultLineColor;
+  m_surfaceMaterial->faceColoring = MoMaterial::CONTOURING;
+  m_surfaceMaterial->lineColoring = MoMaterial::COLOR;
+  m_reservoirMaterial->faceColor = defaultFaceColor;
+  m_reservoirMaterial->lineColor = defaultLineColor;
+  m_reservoirMaterial->faceColoring = MoMaterial::COLOR;
+  m_reservoirMaterial->lineColoring = MoMaterial::COLOR;
+
   m_root = new SoGroup;
   m_root->setName("root");
   m_root->addChild(m_formationShapeHints);
@@ -796,6 +990,9 @@ SceneGraphManager::SceneGraphManager()
   , m_reservoirsTimeStamp(MxTimeStamp::getTimeStamp())
   , m_faultsTimeStamp(MxTimeStamp::getTimeStamp())
   , m_currentSnapshot(0)
+  , m_formationMaterial(0)
+  , m_surfaceMaterial(0)
+  , m_reservoirMaterial(0)
   , m_root(0)
   , m_formationShapeHints(0)
   , m_surfaceShapeHints(0)

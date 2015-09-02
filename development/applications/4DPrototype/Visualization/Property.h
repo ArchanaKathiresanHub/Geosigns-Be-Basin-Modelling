@@ -13,6 +13,7 @@
 
 #include "GridMapCollection.h"
 
+#include <MeshVizInterface/mesh/data/MiDataSetI.h>
 #include <MeshVizInterface/mesh/data/MiDataSetIjk.h>
 
 #include <vector>
@@ -25,7 +26,7 @@ namespace DataAccess
   }
 }
 
-class ScalarProperty : public MiDataSetIjk<double>
+class FormationProperty : public MiDataSetIjk<double>
 {
   GridMapCollection m_values;
 
@@ -37,7 +38,7 @@ class ScalarProperty : public MiDataSetIjk<double>
 
 public:
 
-  ScalarProperty(const std::string& name, const GridMapCollection& values);
+  FormationProperty(const std::string& name, const GridMapCollection& values);
 
   virtual double get(size_t i, size_t j, size_t k) const;
 
@@ -52,6 +53,109 @@ public:
   virtual size_t getTimeStamp() const;
 
   virtual MiMeshIjk::StorageLayout getStorageLayout() const;
+};
+
+/**
+ *
+ */
+class Formation2DProperty : public MiDataSetIjk<double>
+{
+  std::vector<const DataAccess::Interface::GridMap*> m_values;
+
+  std::string m_name;
+
+  MiDataSet::DataBinding m_binding;
+
+  size_t m_timestamp;
+
+  double m_minVal;
+  double m_maxVal;
+
+public:
+
+  Formation2DProperty(const std::string& name, const std::vector<const DataAccess::Interface::GridMap*>& values);
+
+  virtual double get(size_t i, size_t j, size_t k) const;
+
+  virtual MiDataSet::DataBinding getBinding() const;
+
+  virtual double getMin() const;
+
+  virtual double getMax() const;
+
+  virtual std::string getName() const;
+
+  virtual size_t getTimeStamp() const;
+
+  virtual MiMeshIjk::StorageLayout getStorageLayout() const;
+};
+
+/**
+*
+*/
+class SurfaceProperty: public MiDataSetI<double>
+{
+  const DataAccess::Interface::GridMap* m_values;
+  unsigned int m_numI;
+  unsigned int m_numJ;
+
+  std::string m_name;
+
+  MiDataSet::DataBinding m_binding;
+
+  size_t m_timestamp;
+
+  double m_minVal;
+  double m_maxVal;
+
+public:
+
+  SurfaceProperty(const std::string& name, const DataAccess::Interface::GridMap* values);
+
+  virtual double get(size_t i) const;
+
+  virtual MiDataSet::DataBinding getBinding() const;
+
+  virtual double getMin() const;
+
+  virtual double getMax() const;
+
+  virtual std::string getName() const;
+
+  virtual size_t getTimeStamp() const;
+};
+
+/**
+*
+*/
+class ReservoirProperty: public MiDataSetIjk<double>
+{
+  const DataAccess::Interface::GridMap* m_values;
+
+  std::string m_name;
+
+  MiDataSet::DataBinding m_binding;
+
+  size_t m_timestamp;
+
+  double m_minVal;
+  double m_maxVal;
+
+public:
+
+  ReservoirProperty(const std::string& name, const DataAccess::Interface::GridMap* values);
+
+  virtual double get(size_t i, size_t j, size_t k) const;
+
+  virtual MiDataSet::DataBinding getBinding() const;
+
+  virtual double getMin() const;
+
+  virtual double getMax() const;
+
+  virtual std::string getName() const;
+
+  virtual size_t getTimeStamp() const;
 };
 
 class VectorProperty : public MiDataSetIjk<MbVec3d>

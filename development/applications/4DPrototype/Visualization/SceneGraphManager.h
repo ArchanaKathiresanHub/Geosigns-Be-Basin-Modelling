@@ -23,7 +23,6 @@
 class SnapshotGeometry;
 class SnapshotTopology;
 class FormationIdProperty;
-class ScalarProperty;
 class HexahedronMesh;
 class SurfaceMesh;
 class ReservoirMesh;
@@ -44,6 +43,7 @@ class MoMaterial;
 class MoDataBinding;
 class MoColorMapping;
 class MoMesh;
+class MoScalarSet;
 class MoScalarSetIjk;
 class MoMeshSkin;
 class MoMeshSlab;
@@ -51,6 +51,8 @@ class MoMeshSurface;
 class MoMeshFenceSlice;
 template<class T>
 class MiDataSetIjk;
+template<class T>
+class MiDataSetI;
 
 namespace DataAccess
 {
@@ -97,6 +99,8 @@ struct SnapshotInfo
     SoSeparator* root;
     MoMesh* mesh;
     SurfaceMesh* meshData;
+    MoScalarSet* scalarSet;
+    MiDataSetI<double>* propertyData;
     MoMeshSurface* surfaceMesh;
 
     Surface()
@@ -104,6 +108,8 @@ struct SnapshotInfo
       , root(0)
       , mesh(0)
       , meshData(0)
+      , scalarSet(0)
+      , propertyData(0)
       , surfaceMesh(0)
     {
     }
@@ -116,6 +122,8 @@ struct SnapshotInfo
     SoSeparator* root;
     MoMesh* mesh;
     ReservoirMesh* meshData;
+    MoScalarSet* scalarSet;
+    MiDataSetIjk<double>* propertyData;
     MoMeshSkin* skin;
 
     Reservoir()
@@ -123,6 +131,8 @@ struct SnapshotInfo
       , root(0)
       , mesh(0)
       , meshData(0)
+      , scalarSet(0)
+      , propertyData(0)
       , skin(0)
     {
     }
@@ -165,7 +175,6 @@ struct SnapshotInfo
 
   MoScalarSetIjk* scalarSet;
   std::shared_ptr<MiDataSetIjk<double> > scalarDataSet;
-  std::shared_ptr<FormationIdProperty> formationIdDataSet;
 
   SoSwitch* sliceSwitch[3];
   MoMeshSlab* slice[3];
@@ -262,6 +271,10 @@ class VISUALIZATIONDLL_API SceneGraphManager
   size_t m_slicePosition[3];
   bool   m_sliceEnabled[3];
 
+  MoMaterial*     m_formationMaterial;
+  MoMaterial*     m_surfaceMaterial;
+  MoMaterial*     m_reservoirMaterial;
+
   SoGroup*        m_root;
   SoShapeHints*   m_formationShapeHints;
   SoShapeHints*   m_surfaceShapeHints;
@@ -283,13 +296,19 @@ class VISUALIZATIONDLL_API SceneGraphManager
 
   SoSwitch*       m_snapshotsSwitch;
 
+  MiDataSetIjk<double>* createFormationProperty(const DataAccess::Interface::Property* prop, const SnapshotInfo& snapshot);
+
   void updateCoordinateGrid();
+  void updateFormationProperties();
+  void updateSurfaceProperties();
+  void updateReservoirProperties();
   void updateSnapshotFormations();
   void updateSnapshotSurfaces();
   void updateSnapshotReservoirs();
   void updateSnapshotFaults();
   void updateSnapshotProperties();
   void updateSnapshotSlices();
+  void updateColorMap();
   void updateSnapshot();
 
   SnapshotInfo createSnapshotNode(const DataAccess::Interface::Snapshot* snapshot);
