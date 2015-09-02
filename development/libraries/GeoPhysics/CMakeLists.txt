@@ -181,20 +181,20 @@ add_gtest( NAME GeoPhysics::BrineConductivity
       LIBRARIES GeoPhysics SerialDataAccess
 )
 
-#add_gtest( NAME GeoPhysics::BrineDensity
-#      SOURCES test/BrineDensity.C src/BrinePhases.C
-#      LIBRARIES GeoPhysics
-#)
+add_gtest( NAME GeoPhysics::BrineDensity
+      SOURCES test/BrineDensity.C src/BrinePhases.C
+      LIBRARIES GeoPhysics
+)
 
-#add_gtest( NAME GeoPhysics::BrineVelocity
-#      SOURCES test/BrineVelocity.C src/BrinePhases.C
-#      LIBRARIES GeoPhysics
-#)
+add_gtest( NAME GeoPhysics::BrineVelocity
+      SOURCES test/BrineVelocity.C src/BrinePhases.C
+      LIBRARIES GeoPhysics
+)
 
-#add_gtest( NAME GeoPhysics::BrineViscosity
-#      SOURCES test/BrineViscosity.C src/BrinePhases.C
-#      LIBRARIES GeoPhysics
-#)
+add_gtest( NAME GeoPhysics::BrineViscosity
+      SOURCES test/BrineViscosity.C src/BrinePhases.C
+      LIBRARIES GeoPhysics
+)
 
 add_gtest( NAME GeoPhysics::ChemicalCompactionCalculator
       SOURCES test/ChemicalCompactionCalculatorTest.C 

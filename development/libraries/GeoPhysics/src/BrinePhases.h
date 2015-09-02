@@ -64,7 +64,7 @@ namespace GeoPhysics
       {
          temp = temperature > s_MaxTemperature ? s_MaxTemperature : ( temperature < s_MinTemperature ? s_MinTemperature : temperature );
          pres = pressure    > s_MaxPressure    ? s_MaxPressure    : ( pressure    < s_MinPressure    ? s_MinPressure    : pressure    );
-         sal  = salinity    > s_MaxSalinity    ? s_MaxSalinity    : ( sal         < s_MinSalinity    ? s_MinSalinity    : salinity    );
+         sal  = salinity    > s_MaxSalinity    ? s_MaxSalinity    : ( salinity         < s_MinSalinity    ? s_MinSalinity    : salinity    );
       }
 
    private:
