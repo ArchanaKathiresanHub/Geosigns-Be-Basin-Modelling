@@ -3,7 +3,7 @@
 
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">RHEL6.4</Platform>
+    <Platform Condition=" '$(Platform)' == '' ">RHEL6.6</Platform>
 	<VersionNumberMajor Condition=" '$(VersionNumberMajor)' == '' ">9999</VersionNumberMajor>
 	<VersionNumberMinor Condition=" '$(VersionNumberMinor)' == '' ">99</VersionNumberMinor>
 	<VersionTag Condition=" '$(VersionTag)' == '' ">nightly</VersionTag>
