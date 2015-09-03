@@ -48,8 +48,9 @@ namespace casa
 
       /// @brief Add a new Case to the set
       /// @param newRun new Case to be scheduled for run
+      /// @param scenarioID some unique name of the scenario to have reference in GUI
       /// @return ErrorHandler::NoError on success or error code otherwise
-      virtual ErrorHandler::ReturnCode scheduleCase( RunCase & newRun );
+      virtual ErrorHandler::ReturnCode scheduleCase( RunCase & newRun, const std::string & scenarioID );
 
       /// @brief Define how many jobs could be in Pending state. If there are to many jobs submitted,
       ///        cluster starts to reduce available slots for the user, in this case better do not 

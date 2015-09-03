@@ -65,8 +65,9 @@ namespace casa
       /// @brief Generates script file which contains environment set up and application run for given input/output project file
       /// @param inProjectFile input project file name
       /// @param outProjectFile output project file name
+      /// @param scenarioID uniquie scenario ID to allow set reference between GUI and engine
       /// @return generated script as a string
-      virtual std::string generateScript( const std::string & inProjectFile, const std::string & outProjectFile );
+      virtual std::string generateScript( const std::string & inProjectFile, const std::string & outProjectFile, const std::string & scenarioID );
 
       /// @brief Set path where applications with different versions are. Could be also set through IBS_ROOT environment variable
       /// @param rootPath path to IBS folder with different versions of cauldron

@@ -72,6 +72,8 @@ void CmdPlotPareto::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
    ofs << "clear all\n";
    ofs << "hold off\n";
    ofs << "close\n";
+
+   ofs << "\nScenarioID    = '" << sa->scenarioID() << "';\n";
    
    ofs << "ProxyName = '" << MatlabExporter::correctName( m_proxyName ) << "';\n";
 

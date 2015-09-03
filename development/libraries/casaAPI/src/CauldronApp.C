@@ -127,7 +127,7 @@ namespace casa
    }
 
    // generate script the application
-   std::string CauldronApp::generateScript( const std::string & inProjectFile, const std::string & outProjectFile )
+   std::string CauldronApp::generateScript( const std::string & inProjectFile, const std::string & outProjectFile, const std::string & scenarioID )
    {
       // in case of generic app we should put in the script the given script body
       if ( !m_scriptBody.empty() ) return m_scriptBody;
@@ -156,9 +156,20 @@ namespace casa
 
       switch ( m_sh )
       {
-      case bash: oss << "#!/bin/bash\n\n"; break;
-      case csh:  oss << "#!/bin/csh\n\n";  break;
-      case cmd:  oss << "@echo off\n\n";   break;
+      case bash: 
+         oss << "#!/bin/bash\n\n";
+         oss << "export CASA_SCENARIO_ID='" << scenarioID << "'\n\n";
+         break;
+
+      case csh:
+         oss << "#!/bin/csh\n\n";
+         oss << "setenv CASA_SCENARIO_ID '" << scenarioID << "'\n\n";
+         break;
+
+      case cmd:
+         oss << "@echo off\n\n";
+         oss << "set CASA_SCENARIO_ID=\"" << scenarioID << "\"\n\n";
+         break;
       }
 
       // dump all necessary predefined environment variables to the script

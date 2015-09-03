@@ -89,7 +89,7 @@ void CmdRun::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
          std::cout << "    " << (sa->doeCaseSet()[i])->projectPath() << std::endl;
       }
 
-      if ( ErrorHandler::NoError != rm.scheduleCase( *(sa->doeCaseSet()[i]) ) )
+      if ( ErrorHandler::NoError != rm.scheduleCase( *(sa->doeCaseSet()[i]), sa->scenarioID() ) )
       {
          throw ErrorHandler::Exception( rm.errorCode() ) << rm.errorMessage();
       }
@@ -123,7 +123,7 @@ void CmdRun::printHelpPage( const char * cmdName )
    std::cout << "    of jobs submitted at one time will be restricted by the number of cores on local host.\n";
    std::cout << "    Max number of pending jobs optional parameter allows to keep the number of pending jobs on HPC\n";
    std::cout << "    below or equal the given value. New jobs will not be submitted till pending jobs will start\n";
-   std::cout << "    This allows to follow a \"fair-share\" policy on HPC cluster.\n\n";
+   std::cout << "    This allows to follow a \"fair-share\" policy on HPC cluster.\n";
    std::cout << "\n";
    std::cout << "    Examples:\n";
    std::cout << "    #     Cluster  Cauldron version.\n";

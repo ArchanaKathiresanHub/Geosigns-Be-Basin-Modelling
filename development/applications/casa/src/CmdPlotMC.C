@@ -47,7 +47,8 @@ void CmdPlotMC::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
    ofs << "clear all\n";
    ofs << "hold off\n";
    ofs << "close\n";
-
+   ofs << "\nScenarioID    = '" << sa->scenarioID() << "';\n";
+   
    ofs << "\ncolors = [\n   'b'\n   'g'\n   'r'\n   'c'\n   'm'\n   'y'\n   'k'\n   'w'\n   ];\n";
    ofs << "subPlotSize = 600;\n";
    ofs << "markerSize = 10;\n";

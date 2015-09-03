@@ -65,6 +65,12 @@ public:
 
    ~ScenarioAnalysisImpl();
 
+   // Define scenario ID
+   void defineScenarioID( const char * scID ) { m_scenarioID = std::string( scID ); }
+
+   // Get scenario ID 
+   const char * scenarioID() { return m_scenarioID.c_str(); }
+
    // Define a base case for scenario analysis from model, makes deep copy of the model
    void defineBaseCase( const mbapi::Model & bcModel );
 
@@ -166,6 +172,7 @@ public:
    void deserialize( CasaDeserializer & inStream );
 
 private:
+   std::string                              m_scenarioID;          // scenario ID, some id which will be mentioned in all generated files
    std::string                              m_caseSetPath;         // path to folder which will be the root folder for all scenario cases
    std::string                              m_baseCaseProjectFile; // path to the base case project file
    int                                      m_iterationNum;        // Scenario analysis iteration number
@@ -206,7 +213,16 @@ RSProxySet            & ScenarioAnalysis::rsProxySet()            { return m_pim
 RunCaseSet            & ScenarioAnalysis::mcCaseSet()             { return m_pimpl->mcCaseSet();             }
 MonteCarloSolver      & ScenarioAnalysis::mcSolver()              { return m_pimpl->mcSolver();              }
 SensitivityCalculator & ScenarioAnalysis::sensitivityCalculator() { return m_pimpl->sensitivityCalculator(); }
+const char            * ScenarioAnalysis::scenarioID()            { return m_pimpl->scenarioID();            }
 
+// Define Scenario ID
+ErrorHandler::ReturnCode ScenarioAnalysis::defineScenarioID( const char * scID )
+{
+   if ( !scID ) { return this->ErrorHandler::reportError( OutOfRangeValue, "Empty scenario ID" ); }
+   m_pimpl->defineScenarioID( scID );
+
+   return NoError;
+}
 
 // Define base case for scenario from cauldron model in memory
 ErrorHandler::ReturnCode ScenarioAnalysis::defineBaseCase( const mbapi::Model & bcModel )
@@ -435,6 +451,7 @@ ScenarioAnalysis::ScenarioAnalysisImpl::ScenarioAnalysisImpl()
    m_iterationNum = 1;
    m_caseNum      = 1;
    m_caseSetPath = ".";
+   m_scenarioID = "Undefined";
 
    m_varSpace.reset(   new VarSpaceImpl()   );
    m_obsSpace.reset(   new ObsSpaceImpl()   );
@@ -759,7 +776,7 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::saveCalibratedCase( const char * pr
    // add observables
    m_dataDigger->requestObservables( *m_obsSpace.get(), bmCaseImpl );
    // generate scripts
-   m_runManager->scheduleCase( *bmCaseImpl );
+   m_runManager->scheduleCase( *bmCaseImpl, scenarioID() );
 }
 
 void ScenarioAnalysis::ScenarioAnalysisImpl::addRSAlgorithm( const std::string              & name
@@ -834,6 +851,8 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::serialize( CasaSerializer & outStre
       ok = ok ? outStream.save( *m_sensCalc.get(),     "SensitivityCalculator" ) : ok;
    }
 
+   if ( outStream.version() > 6 ) { ok = ok ? outStream.save( m_scenarioID, "scenarioID" ) : ok; }
+
    if ( !ok ) throw ErrorHandler::Exception( SerializationError ) << "Serialization error in ScenarioAnalysis";
 }
 
@@ -872,6 +891,8 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::deserialize( CasaDeserializer & inS
    m_sensCalc.reset(  inStream.version() > 1 ? new SensitivityCalculatorImpl( inStream, "SensitivityCalculator" ) : 
                                                new SensitivityCalculatorImpl( m_varSpace.get(), m_obsSpace.get() ) 
                    );
+
+   if ( inStream.version() >= 7 ) { inStream.load( m_scenarioID, "scenarioID" ); }
 }
 
 }

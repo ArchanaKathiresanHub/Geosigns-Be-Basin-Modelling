@@ -48,6 +48,8 @@ void CmdPlotP10P90::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
    ofs << "hold off\n";
    ofs << "close\n";
 
+   ofs << "\nScenarioID    = '" << sa->scenarioID() << "';\n";
+   
    ofs.exportObservablesInfo( *sa.get() );
    ofs.exportMCResults(       *sa.get() );
 

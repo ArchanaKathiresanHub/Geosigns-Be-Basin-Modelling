@@ -119,7 +119,7 @@ ErrorHandler::ReturnCode RunManagerImpl::addApplication( CauldronApp * app )
 
 ///////////////////////////////////////////////////////////////////////////////
 // Add Case to set
-ErrorHandler::ReturnCode RunManagerImpl::scheduleCase( RunCase & newRun )
+ErrorHandler::ReturnCode RunManagerImpl::scheduleCase( RunCase & newRun, const std::string & scenarioID )
 {
    if ( newRun.runStatus() != RunCase::NotSubmitted ) return NoError;
 
@@ -154,7 +154,7 @@ ErrorHandler::ReturnCode RunManagerImpl::scheduleCase( RunCase & newRun )
 
       if ( !m_cldVersion.empty() ) m_appList[i]->setCauldronVersion( m_cldVersion ); // if another version is defined by user, set up it
 
-      const std::string appScript = m_appList[i]->generateScript( pfp.fileName(), "" );
+      const std::string appScript = m_appList[i]->generateScript( pfp.fileName(), "", scenarioID );
       
       if ( m_jobSched->cpusNumberByScheduler() )
       {
@@ -234,7 +234,8 @@ ErrorHandler::ReturnCode RunManagerImpl::runScheduledCases( bool asyncRun )
          int running   = 0;
          int pending   = 0;
          int totJobs   = 0;
-
+         int notSubm   = 0;
+         
          // loop over all cases
          for ( size_t i = 0; i < m_jobs.size(); ++i )
          {
@@ -263,8 +264,9 @@ ErrorHandler::ReturnCode RunManagerImpl::runScheduledCases( bool asyncRun )
 
                switch ( jobState )
                {
-                  case JobScheduler::JobFailed: // job failed!!! shouldn't run others in a pipeline! 
+                  case JobScheduler::JobFailed: // job failed!!! shouldn't run others in a pipeline! Count them as failed
                      ++crashed;
+                     prevCrashed += (m_jobs[i].size() - j - 1);
                      m_jobs[i].resize( j+1 ); // drop all other jobs for this case
                      m_cases[i]->setRunStatus( RunCase::Failed );
                      break;
@@ -292,6 +294,8 @@ ErrorHandler::ReturnCode RunManagerImpl::runScheduledCases( bool asyncRun )
                      continue; // continue pipeline processing
                      break;
                }
+               // keep counting how many substages are going to run
+               if ( !contAppPipeline ) { notSubm += m_jobs[i].size() - j - 1; }
             }
 
             // If pipeline was successfully completed and case marked as scheduled - move it to completed state
@@ -302,7 +306,7 @@ ErrorHandler::ReturnCode RunManagerImpl::runScheduledCases( bool asyncRun )
          }
 
          // check if it was a change in any state of jobs, report it
-         if ( prevSubmitted != submitted || prevFinished != finished || prevCrashed != crashed || prevPending != pending || prevRunning != running )
+         if ( prevSubmitted != submitted || prevFinished != finished || prevPending != pending || prevRunning != running )
          {
             time_t curTm = time( 0 );
             std::string curStrTime( ctime( &curTm ) );
@@ -313,13 +317,14 @@ ErrorHandler::ReturnCode RunManagerImpl::runScheduledCases( bool asyncRun )
             std::cout << "total: "       << totJobs   << 
                          ", submitted: " << submitted <<
                          ", finished: "  << finished  << 
-                         ", failed: "    << crashed   << 
+                         ", failed: "    << prevCrashed + crashed   << 
                          ", pending: "   << pending   << 
-                         ", running: "   << running   << std::endl;
+                         ", running: "   << running   << 
+                         ", not submitted yet: " << notSubm << std::endl;
 
             prevSubmitted = submitted;
             prevFinished  = finished;
-            prevCrashed   = crashed;
+            prevCrashed   += crashed;
             prevPending   = pending;
             prevRunning   = running;
          }

@@ -89,7 +89,7 @@ TEST_F( RunManagerTest, Tornado2PrmsMutations )
 
    for ( size_t i = 0; i < sc.doeCaseSet().size(); ++i )
    {
-      rm.scheduleCase( *(sc.doeCaseSet()[i]) );
+      rm.scheduleCase( *(sc.doeCaseSet()[i]), sc.scenarioID() );
    }
 
    // check generated scripts

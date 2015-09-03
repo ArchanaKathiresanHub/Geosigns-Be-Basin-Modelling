@@ -34,12 +34,14 @@
 #include "CmdRunReload.h"
 #include "CmdRunMC.h"
 #include "CmdSaveState.h"
+#include "CmdScenarioID.h"
 #include "CmdLoadState.h"
 
 #include <typeinfo>
 
 static const char * CNAddCldApp      = "app";
 static const char * CNAddObservable  = "target";
+static const char * CNScenarioID     = "scenarioID";
 static const char * CNAddVarPrm      = "varprm";
 static const char * CNExpDataTxt     = "exportDataTxt";
 static const char * CNGenerateBMCase = "generateCalibratedCase";
@@ -82,6 +84,7 @@ void CasaCommander::addCommand( const std::string & cmdName, const std::vector< 
    else if ( cmdName == CNPlotP10P90     ) cmd.reset( new CmdPlotP10P90(              *this, prms ) );// create plot of CDF & 1-CDF for each observable
    else if ( cmdName == CNPlotPareto     ) cmd.reset( new CmdPlotPareto(              *this, prms ) );// create plot of Pareto diagram for parameters 
                                                                                                       // sensitivity over all observables
+   else if ( cmdName == CNScenarioID     ) cmd.reset( new CmdScenarioID(              *this, prms ) );// define scenario ID
    else if ( cmdName == CNPlotTornado    ) cmd.reset( new CmdPlotTornado(             *this, prms ) );// create plot of Tornado diagram for each observable 
                                                                                                       // for parameters sensitivity
 
@@ -131,6 +134,7 @@ void CasaCommander::printHelpPage( const std::string & cmd )
    else if ( cmd == CNPlotMC         ) { CmdPlotMC::printHelpPage(                  CNPlotMC         ); }
    else if ( cmd == CNPlotP10P90     ) { CmdPlotP10P90::printHelpPage(              CNPlotP10P90     ); }
    else if ( cmd == CNPlotPareto     ) { CmdPlotPareto::printHelpPage(              CNPlotPareto     ); }
+   else if ( cmd == CNScenarioID     ) { CmdScenarioID::printHelpPage(              CNScenarioID     ); }
    else if ( cmd == CNPlotTornado    ) { CmdPlotTornado::printHelpPage(             CNPlotTornado    ); }
    else // print all commands
    {
@@ -144,6 +148,7 @@ void CasaCommander::printHelpPage( const std::string & cmd )
       std::cout << "   " << "\nVarious export data commands:" << "\n";
       std::cout << "   " << CNExpDataTxt     << " - export to text file various set of data like DoE generated parameters, observables and etc\n";
       std::cout << "   " << "\nVarious plot commands:" << "\n";
+      std::cout << "   " << CNScenarioID     << " - define scenario ID, this ID will be copied to all CASA API generated files\n";
       std::cout << "   " << CNPlotMC         << " - create Matlab/Octave script to create a set of MC sampling plots for each pair of variable parameters\n";
       std::cout << "   " << CNPlotP10P90     << " - create Matlab/Octave script to plot P10-P90 CDF diagram for each observable\n";
       std::cout << "   " << CNPlotPareto     << " - create Matlab/Octave script to plot Pareto diagram for parameters sensitivity over all observables\n";

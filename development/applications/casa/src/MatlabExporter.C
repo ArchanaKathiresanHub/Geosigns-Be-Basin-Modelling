@@ -557,6 +557,7 @@ void MatlabExporter::exportMCResults( ScenarioAnalysis & sc )
 void MatlabExporter::exportScenario( ScenarioAnalysis & sc, const std::string & baseCaseName, const std::string & location )
 {
    // export globals
+   m_ofs << "ScenarioID    = '" << sc.scenarioID() << "';\n";
    m_ofs << "BaseCaseName  = '" << baseCaseName << "';\n";
    m_ofs << "PathToCaseSet = '" << location << "';\n";
 

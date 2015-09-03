@@ -49,6 +49,15 @@ namespace casa
       /// @brief Destructor
       ~ScenarioAnalysis();
 
+      /// @brief Define scenario ID
+      /// @param scID id for scenario
+      /// @return ErrorHandler::NoError on success or error code otherwise
+      ErrorHandler::ReturnCode defineScenarioID( const char * scID );
+
+      /// @brief Return scenario ID
+      /// @return scenario ID
+      const char * scenarioID();
+
       /// @brief Define a base case for scenario analysis
       /// @param bcModel Cauldron model loaded into memory
       /// @return ErrorHandler::NoError on success or error code otherwise
@@ -193,7 +202,8 @@ namespace casa
       // version 4: SUMlib updated to the latest version
       // version 5: Changed the way how variable parameters set is serialized to keep the original order of variable parameters
       // version 6: Fixed wrong name for RunManager object (was RunManger)
-      int version() { return 6; }
+      // version 7: Added scenario ID
+      int version() { return 7; }
 
       /// @brief Save scenario to the file
       /// @param fileName - name of the file for scenario to be saved in

@@ -98,6 +98,8 @@ void CmdPlotRSProxyQC::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
    ofs << "%CASA " << m_proxyName << " rs proxy QC plots\n";
    ofs << "clear all\n\n";
 
+   ofs << "\nScenarioID    = '" << sa->scenarioID() << "';\n";
+
    ofs << "plotMarkerSize = 6;\n\n";
 
    ofs << "colors = [\n";

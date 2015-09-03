@@ -79,7 +79,9 @@ void CmdPlotTornado::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
    ofs << "clear all\n";
    ofs << "hold off\n";
    ofs << "close\n";
-   
+
+   ofs << "\nScenarioID    = '" << sa->scenarioID() << "';\n";
+
    //ofs << "ProxyName = '" << m_proxyName << "';\n";
 
    for ( size_t i = 0, obsNum = 0; i < data.size(); ++i )
