@@ -287,7 +287,7 @@ public:
 #ifndef _WIN32
       int    id() { return m_proc.get() ? m_proc->m_pid : -1; }
 #else
-      HANDLE id() { return m_proc.get() ? m_proc->m_pid : -1; }
+      HANDLE id() { return m_proc.get() ? m_proc->hProcess : 0; }
 #endif
 
 
