@@ -83,7 +83,7 @@ bool VelocityCalculator::operator ()( const OutputPropertyMap::OutputPropertyLis
 			 value = (*m_lithologies)(i, j)->seismicVelocity().seismicVelocity(seismciVelocityFluid,
 				 densityFluid,
 				 (*m_bulkDensity)(i, j),
-				 0.01 * (*m_porosity)(i, j),
+				 (*m_porosity)(i, j) / 100.0,
 				 (*m_ves)(i, j),
 				 (*m_maxVes)(i, j));
 
@@ -202,7 +202,7 @@ bool VelocityVolumeCalculator::operator ()( const OutputPropertyMap::OutputPrope
 				value = (*m_lithologies)(i, j)->seismicVelocity().seismicVelocity(seismciVelocityFluid,
 					densityFluid,
 					m_bulkDensity->getVolumeValue(i, j, k),
-					0.01 * m_porosity->getVolumeValue(i, j, k),
+					m_porosity->getVolumeValue(i, j, k) / 100,
 					m_ves->getVolumeValue(i, j, k),
 					m_maxVes->getVolumeValue(i, j, k));
 
