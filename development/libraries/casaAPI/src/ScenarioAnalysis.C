@@ -691,7 +691,7 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::applyMutations( RunCaseSet & cs )
          // do mutation
          cs->mutateCaseTo( baseCase(), casePath.path().c_str() );
 
-         ++m_caseNum;
+         m_caseNum += i < rcs.size() ? 1 : 0; // do not count base case
       }
    }
    ++m_iterationNum;
