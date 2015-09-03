@@ -202,7 +202,7 @@ bool VelocityVolumeCalculator::operator ()( const OutputPropertyMap::OutputPrope
 				value = (*m_lithologies)(i, j)->seismicVelocity().seismicVelocity(seismciVelocityFluid,
 					densityFluid,
 					m_bulkDensity->getVolumeValue(i, j, k),
-					m_porosity->getVolumeValue(i, j, k) / 100,
+					m_porosity->getVolumeValue(i, j, k) / 100.0,
 					m_ves->getVolumeValue(i, j, k),
 					m_maxVes->getVolumeValue(i, j, k));
 
