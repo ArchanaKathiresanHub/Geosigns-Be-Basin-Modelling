@@ -19,7 +19,7 @@
 CmdScenarioID::CmdScenarioID( CasaCommander & parent, const std::vector< std::string > & cmdPrms ) : CasaCmd( parent, cmdPrms )
 {
    m_id = m_prms.size() > 0 ? m_prms[0] : "";
-   if ( m_id.empty() ) throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Scenario ID does not provided";
+   if ( m_id.empty() ) throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Scenario ID is not provided";
 }
 
 void CmdScenarioID::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )

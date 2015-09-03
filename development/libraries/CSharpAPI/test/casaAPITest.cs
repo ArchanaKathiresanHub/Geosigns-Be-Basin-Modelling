@@ -339,7 +339,7 @@ namespace Shell.BasinModeling.Cauldron.Test
          RunCaseSet caseSet = sa.doeCaseSet();
          for (uint i = 0; i < sa.doeCaseSet().size(); ++i)
          {
-            rm.scheduleCase(caseSet.runCase(i));
+            rm.scheduleCase(caseSet.runCase(i), sa.scenarioID() );
          }
 
          // check generated scripts
