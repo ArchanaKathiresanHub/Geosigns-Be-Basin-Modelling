@@ -148,6 +148,9 @@ namespace Basin_Modelling {
      /// \brief Compute the next time step for permafrost calculations.
      void Determine_Permafrost_Time_Step ( const double  Current_Time, double & Time_Step );
 
+     /// \ brief Compute the next time step for igneous intrusion
+     void determineIgneousIntrusionTimeStep ( const double Current_Time, const double previousTimeStep, double & Time_Step );
+     
      /// \brief Allocate the Finite element grids for overpressure and temperature. 
      ///
      /// The grids are different for both calculations so 2 are needed.

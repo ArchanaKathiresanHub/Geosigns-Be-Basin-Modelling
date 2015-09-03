@@ -16,6 +16,10 @@ public:
   Temperature_Solver(AppCtx* Application_Context );
 
   void Compute_Crust_Heat_Production ();
+  
+  /// \brief Computes the heat production for each node in the domain.
+  void computeHeatProduction ( const double previousTime,
+                                 const double currentTime ) const;
 
   void Compute_Heat_Flow_Boundary_Conditions ( const double Current_Time );
 

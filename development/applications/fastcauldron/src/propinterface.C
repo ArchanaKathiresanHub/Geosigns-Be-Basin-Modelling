@@ -4,9 +4,7 @@
 #include "propinterface.h"
 #include "readproperties.h"
 #include "ghost_array.h"
-//#include "error.h"
 #include "utils.h"
-//#include <unistd.h>
 #include "AllochthonousLithologyManager.h"
 #include "temperature_solver.h"
 #include "HydraulicFracturingManager.h"
@@ -440,6 +438,13 @@ double AppCtx::getNextPermafrostTimeStep () const {
 double AppCtx::getNextPermafrostAge () const {
 
    return ( m_permafrostAges.size() != 0 ? m_permafrostAges[m_permafrostCurrentInd] : 0.0 );
+
+}
+
+//------------------------------------------------------------//
+double AppCtx::getPreviousIgneousIntrusionTime( const double Current_Time ) const {
+
+   return FastcauldronSimulator::getInstance().getPreviousIgneousIntrusionTime( Current_Time );
 
 }
 
