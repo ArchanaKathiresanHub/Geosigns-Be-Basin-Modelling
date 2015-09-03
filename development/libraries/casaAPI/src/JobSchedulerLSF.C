@@ -156,6 +156,19 @@ public:
       return isSubmitted();
    }
 
+   bool stop()
+   {
+#ifdef WITH_LSF_SCHEDULER
+      if ( isSubmitted() )
+      {
+         return lsb_forcekilljob( m_lsfJobID ) < 0 ? false : true;
+      }
+#endif
+      return true;
+   }
+
+   LS_LONG_INT id() { return m_lsfJobID; }
+
    // check job status
    JobScheduler::JobState status()
    {
@@ -369,6 +382,30 @@ JobScheduler::JobState JobSchedulerLSF::runJob( JobID job )
    return jobState( job );
 }
 
+// stop submitted job
+JobScheduler::JobState JobSchedulerLSF::stopJob( JobID job )
+{
+   if ( job >= m_jobs.size() ) 
+   {
+      throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "runJob(): no job with ID: "  << job << " in the queue";
+   }
+
+   if ( m_jobs[job]->isSubmitted() )
+   {
+      // spawn job to the cluster
+      if ( !m_jobs[job]->stop() )
+      {
+         throw ErrorHandler::Exception( ErrorHandler::LSFLibError ) << "Stopping the job " << m_jobs[ job ]->command() << " on cluster failed"
+#ifdef WITH_LSF_SCHEDULER
+            << ", LSF error: " << lsberrno << ", message: " << lsb_sysmsg()
+#endif
+         ;
+      }
+   }
+
+   return JobFailed;
+}
+
 // get job state
 JobScheduler::JobState JobSchedulerLSF::jobState( JobID id )
 {
@@ -379,6 +416,16 @@ JobScheduler::JobState JobSchedulerLSF::jobState( JobID id )
    if ( !job->isSubmitted() ) return NotSubmittedYet;  // job wasn't submitted yet
 
    return job->status();   // unknown status
+}
+
+std::string JobSchedulerLSF::schedulerJobID( JobID id )
+{
+   if ( id >= m_jobs.size() ) throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "jobState(): no such job in the queue";
+
+   std::ostringstream oss;
+   oss << m_jobs[id]->id();
+
+   return oss.str();
 }
 
 void JobSchedulerLSF::sleep()

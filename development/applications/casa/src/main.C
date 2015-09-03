@@ -22,6 +22,8 @@ int main( int argc, char ** argv )
       std::cout << " options are:\n";
       std::cout << "    -quiet|minimal|detailed - set level of printed on screen information to off/minimal/full\n";
       std::cout << "    -help print help page about CASADemo commands and exit\n";
+      std::cout << "\n    To stop execution of casa scenario - create in the current folder (where casa app was started)\n";
+      std::cout << "    an empty  file with the name: \"" << casa::RunManager::s_scenarioExecStopFileName << "\".\n";
       return -1;
    }
 

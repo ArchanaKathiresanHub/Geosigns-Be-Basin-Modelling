@@ -67,7 +67,7 @@ public:
    virtual ~SystemProcess( )
    {
 #ifndef _WIN32
-//      if ( m_isOk ) kill( m_pid, SIGTERM );
+      if ( m_isOk ) kill( m_pid, SIGTERM );
 
       // get TMPDIR value if it is set
       const char * tmpDir = getenv( "TMPDIR" );
@@ -88,14 +88,15 @@ public:
    bool isProcessRunning() { return m_isOk; };
 
    void updateProcessStatus();
-private:
-   bool m_isOk;
+
 #ifndef _WIN32
-   int m_pid;
+      int m_pid;
 #else
-   HANDLE hProcess;
+      HANDLE hProcess;
 #endif
 
+private:
+   bool m_isOk;
 };
 
 // Start a new process using fork/exec, and mangle the file descriptors
@@ -270,6 +271,26 @@ public:
       return m_jobState == JobScheduler::JobRunning;
    }
 
+   bool stop()
+   {
+      if ( JobScheduler::JobPending == m_jobState )
+      {
+         m_jobState = JobScheduler::JobFailed;
+      }
+      else if ( JobScheduler::JobRunning == m_jobState )
+      {
+         m_proc.reset( NULL );
+      }
+      return true;
+   }
+
+#ifndef _WIN32
+      int    id() { return m_proc.get() ? m_proc->m_pid : -1; }
+#else
+      HANDLE id() { return m_proc.get() ? m_proc->m_pid : -1; }
+#endif
+
+
    // check job status
    JobScheduler::JobState status()
    {
@@ -404,6 +425,32 @@ JobScheduler::JobState JobSchedulerLocal::runJob( JobID job )
    return jobState( job );
 }
 
+// stop submitted job
+JobScheduler::JobState JobSchedulerLocal::stopJob( JobID job )
+{
+   if ( job >= m_jobs.size() ) 
+   {
+      throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "runJob(): no job with ID: "  << job << " in the queue";
+   }
+
+   switch ( m_jobs[job]->status() )
+   {
+      case JobScheduler::JobPending:
+      case JobScheduler::JobRunning:
+         if ( !m_jobs[job]->stop() )
+         {
+            throw ErrorHandler::Exception( ErrorHandler::LSFLibError ) << "Stopping the job " << m_jobs[ job ]->command() << " failed";
+         }
+         break;
+
+      default:
+         break;
+   }
+
+   return JobScheduler::JobFailed;
+}
+
+
 // get job state
 JobScheduler::JobState JobSchedulerLocal::jobState( JobID id )
 {
@@ -427,6 +474,17 @@ JobScheduler::JobState JobSchedulerLocal::jobState( JobID id )
 
    return jobState;
 }
+
+std::string JobSchedulerLocal::schedulerJobID( JobID id )
+{
+   if ( id >= m_jobs.size() ) throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "jobState(): no such job in the queue";
+
+   std::ostringstream oss;
+   oss << m_jobs[id]->id();
+
+   return oss.str();
+}
+
 
 void JobSchedulerLocal::sleep()
 {

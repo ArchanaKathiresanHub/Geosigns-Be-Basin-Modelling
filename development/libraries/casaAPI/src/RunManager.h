@@ -89,6 +89,12 @@ namespace casa
       };
       /// @}
       
+      /// @name Constants definitions
+      /// @{
+      static const char * s_scenarioExecStopFileName; /// To stop scenario execution user could create in current folder file with this name
+      static const char * s_jobsIDListFileName;       /// File name to keep the plain list of submitted jobs
+      ///@}
+      
       /// @brief Destructor
       virtual ~RunManager() {;}
 

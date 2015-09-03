@@ -30,6 +30,7 @@
 #include "CmdPlotRSProxyQC.h"
 #include "CmdPlotTornado.h"
 #include "CmdRun.h"
+#include "CmdRunBaseCase.h"
 #include "CmdRunReload.h"
 #include "CmdRunMC.h"
 #include "CmdSaveState.h"
@@ -43,6 +44,7 @@ static const char * CNAddVarPrm      = "varprm";
 static const char * CNExpDataTxt     = "exportDataTxt";
 static const char * CNGenerateBMCase = "generateCalibratedCase";
 static const char * CNRun            = "run";
+static const char * CNRunBaseCase    = "runBaseCase";
 static const char * CNRunReload      = "runReload";
 static const char * CNPlotMC         = "plotMC";
 static const char * CNPlotP10P90     = "plotP10P90";
@@ -64,6 +66,7 @@ void CasaCommander::addCommand( const std::string & cmdName, const std::vector< 
    else if ( cmdName == CNAddObservable  ) cmd.reset( new CmdAddObs(                  *this, prms ) );// create observable
    else if ( cmdName == "doe"            ) cmd.reset( new CmdDoE(                     *this, prms ) );// create doe
    else if ( cmdName == CNRun            ) cmd.reset( new CmdRun(                     *this, prms ) );// run planned DoE experiments
+   else if ( cmdName == CNRunBaseCase    ) cmd.reset( new CmdRunBaseCase(             *this, prms ) );// run base case project
    else if ( cmdName == CNRunReload      ) cmd.reset( new CmdRunReload(               *this, prms ) );// reload the results of run of DoE experiments
    else if ( cmdName == "location"       ) cmd.reset( new CmdLocation(                *this, prms ) );// where cases will be generated, run mutator
    else if ( cmdName == "response"       ) cmd.reset( new CmdCreateResponse(          *this, prms ) );// calculate coefficients for RS approximation
@@ -122,6 +125,7 @@ void CasaCommander::printHelpPage( const std::string & cmd )
    else if ( cmd == CNAddVarPrm      ) { CmdAddVarPrm::printHelpPage(               CNAddVarPrm      ); }
    else if ( cmd == CNExpDataTxt     ) { CmdExpDataTxt::printHelpPage(              CNExpDataTxt     ); }
    else if ( cmd == CNRun            ) { CmdRun::printHelpPage(                     CNRun            ); }
+   else if ( cmd == CNRunBaseCase    ) { CmdRunBaseCase::printHelpPage(             CNRunBaseCase    ); }
    else if ( cmd == CNRunReload      ) { CmdRunReload::printHelpPage(               CNRunReload      ); }
    else if ( cmd == CNGenerateBMCase ) { CmdGenerateBestMatchedCase::printHelpPage( CNGenerateBMCase ); }
    else if ( cmd == CNPlotMC         ) { CmdPlotMC::printHelpPage(                  CNPlotMC         ); }
@@ -134,6 +138,7 @@ void CasaCommander::printHelpPage( const std::string & cmd )
       std::cout << "   " << CNAddObservable  << " - specify new observable (target)\n";
       std::cout << "   " << CNAddVarPrm      << " - specify new variable parameter\n";
       std::cout << "   " << CNRun            << " - execute generated cases on HPC cluster\n";
+      std::cout << "   " << CNRunBaseCase    << " - execute base case project on HPC cluster\n";
       std::cout << "   " << CNRunReload      << " - reload results of completed cases\n";
       std::cout << "   " << CNGenerateBMCase << " - generate run case with parameters set from MonteCarlo simulation sample with minimal RMSE\n";
       std::cout << "   " << "\nVarious export data commands:" << "\n";
@@ -145,4 +150,5 @@ void CasaCommander::printHelpPage( const std::string & cmd )
       std::cout << "   " << CNPlotTornado    << " - create Matlab/Octave script to plot Tornado diagrams for parameters sensitivity for each observable\n";
    }
 }
+
 

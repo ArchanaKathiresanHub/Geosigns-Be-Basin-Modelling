@@ -30,6 +30,11 @@ if (MSVC)
 	add_definitions( "-D_USE_MATH_DEFINES" )
 endif(MSVC)
 
+
+target_link_libraries(utilities
+   ${Boost_LIBRARIES}
+)
+
 install(TARGETS utilities
 	RUNTIME DESTINATION bin
 	LIBRARY	DESTINATION lib

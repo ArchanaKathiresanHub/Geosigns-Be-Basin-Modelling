@@ -43,9 +43,16 @@ namespace casa
 
       // Collect observables value from simulation results for given case
       // obs - set of observables
-      // rcs - RunCaseSet object which keeps list of cases and reference to the cauldron model
+      // rcs - RunCaseSet object which keeps a set of cases
       // return ErrorHandler::NoError on success, or error code otherwise
       virtual ErrorHandler::ReturnCode collectRunResults( ObsSpace & obs, RunCaseSet & rcs );
+
+      // Collect observables value from simulation results for the given case
+      // obs - casaObsSpace object which keeps list of observables. For each observable, data digger will create ObsValue object 
+      // rcs - casa::RunCase object which keeps list of observables and reference to Cauldron model
+      // return ErrorHandler::NoError on success, or error code otherwise
+      virtual ErrorHandler::ReturnCode collectRunResults( ObsSpace & obs, RunCase * rcs );
+
 
       // Serialization / Deserialization
       /// @{
@@ -68,6 +75,7 @@ namespace casa
       /// @param objVer version of object representation in stream
       /// @return new observable instance on susccess, or throw and exception in case of any error
       DataDiggerImpl( CasaDeserializer & inStream, const char * objName );
+
       /// @}
 
    protected:

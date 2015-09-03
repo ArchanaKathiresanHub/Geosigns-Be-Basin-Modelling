@@ -173,6 +173,34 @@ void MatlabExporter::exportParametersInfo( ScenarioAnalysis & sc )
 
             case VarParameter::Categorical:  m_ofs << " " << prm->asInteger();  break;
             default: assert( false ); break;
+         }
+     }
+     m_ofs << "\n";
+   }
+   m_ofs << "];\n\n";
+
+   // Parameters values for the base case
+   m_ofs << "ParametersValBaseCase = [\n";
+
+   const casa::RunCase * cs = sc.baseCaseRunCase();
+   if ( cs )
+   {
+      for ( size_t j = 0; j < cs->parametersNumber(); ++j )
+      {
+         SharedParameterPtr prm = cs->parameter( j );
+
+         switch( prm->parent()->variationType() )
+         {
+            case VarParameter::Discrete:
+            case VarParameter::Continuous:
+               {
+                  const std::vector<double> & prmVals = prm->asDoubleArray();
+                  for ( size_t k = 0; k < prmVals.size(); ++k ) { m_ofs << "\t" << prmVals[k]; }
+               }
+               break;
+
+            case VarParameter::Categorical:  m_ofs << " " << prm->asInteger();  break;
+            default: assert( false ); break;
          }        
      }
      m_ofs << "\n";
@@ -243,6 +271,26 @@ void MatlabExporter::exportObservablesInfo( ScenarioAnalysis & sc )
       m_ofs << std::endl;
    }
    m_ofs << "];\n\n";
+
+   m_ofs << "ObservablesValBaseCase = [\n";
+   casa::RunCase * cs = sc.baseCaseRunCase();
+   if ( cs )
+   {
+      for ( size_t j = 0; j < cs->observablesNumber(); ++j )
+      {
+         ObsValue * obv = cs->obsValue( j );
+
+         if ( obv && obv->isDouble() )
+         {
+            const std::vector<double> & vals = obv->asDoubleArray();
+            for ( size_t k = 0; k < vals.size(); ++k ) m_ofs << "\t" << vals[k];
+         }
+      }
+
+      m_ofs << std::endl;
+   }
+   m_ofs << "];\n\n";
+
 
    // Third - observables MSE for each case
    m_ofs << "ObservablesMSE = [\n";

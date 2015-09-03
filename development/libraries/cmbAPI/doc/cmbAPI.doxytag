@@ -2,7 +2,7 @@
 <tagfile>
   <compound kind="file">
     <name>cmbAPI.h</name>
-    <path>D:/cauldron/trunk/development/libraries/cmbAPI/src/</path>
+    <path>/scratch/nlskon/cld-dev/Trunk/development/libraries/cmbAPI/src/</path>
     <filename>cmbAPI_8h</filename>
     <includes id="ErrorHandler_8h" name="ErrorHandler.h" local="yes" imported="no">ErrorHandler.h</includes>
     <includes id="LithologyManager_8h" name="LithologyManager.h" local="yes" imported="no">LithologyManager.h</includes>
@@ -18,13 +18,13 @@
   </compound>
   <compound kind="file">
     <name>ErrorHandler.h</name>
-    <path>D:/cauldron/trunk/development/libraries/cmbAPI/src/</path>
+    <path>/scratch/nlskon/cld-dev/Trunk/development/libraries/cmbAPI/src/</path>
     <filename>ErrorHandler_8h</filename>
     <class kind="class">ErrorHandler</class>
   </compound>
   <compound kind="file">
     <name>FluidManager.h</name>
-    <path>D:/cauldron/trunk/development/libraries/cmbAPI/src/</path>
+    <path>/scratch/nlskon/cld-dev/Trunk/development/libraries/cmbAPI/src/</path>
     <filename>FluidManager_8h</filename>
     <includes id="ErrorHandler_8h" name="ErrorHandler.h" local="yes" imported="no">ErrorHandler.h</includes>
     <class kind="class">mbapi::FluidManager</class>
@@ -32,7 +32,7 @@
   </compound>
   <compound kind="file">
     <name>LithologyManager.h</name>
-    <path>D:/cauldron/trunk/development/libraries/cmbAPI/src/</path>
+    <path>/scratch/nlskon/cld-dev/Trunk/development/libraries/cmbAPI/src/</path>
     <filename>LithologyManager_8h</filename>
     <includes id="ErrorHandler_8h" name="ErrorHandler.h" local="yes" imported="no">ErrorHandler.h</includes>
     <class kind="class">mbapi::LithologyManager</class>
@@ -40,7 +40,7 @@
   </compound>
   <compound kind="file">
     <name>MapsManager.h</name>
-    <path>D:/cauldron/trunk/development/libraries/cmbAPI/src/</path>
+    <path>/scratch/nlskon/cld-dev/Trunk/development/libraries/cmbAPI/src/</path>
     <filename>MapsManager_8h</filename>
     <includes id="ErrorHandler_8h" name="ErrorHandler.h" local="yes" imported="no">ErrorHandler.h</includes>
     <class kind="class">mbapi::MapsManager</class>
@@ -48,7 +48,7 @@
   </compound>
   <compound kind="file">
     <name>PropertyManager.h</name>
-    <path>D:/cauldron/trunk/development/libraries/cmbAPI/src/</path>
+    <path>/scratch/nlskon/cld-dev/Trunk/development/libraries/cmbAPI/src/</path>
     <filename>PropertyManager_8h</filename>
     <includes id="ErrorHandler_8h" name="ErrorHandler.h" local="yes" imported="no">ErrorHandler.h</includes>
     <class kind="class">mbapi::PropertyManager</class>
@@ -56,7 +56,7 @@
   </compound>
   <compound kind="file">
     <name>SnapshotManager.h</name>
-    <path>D:/cauldron/trunk/development/libraries/cmbAPI/src/</path>
+    <path>/scratch/nlskon/cld-dev/Trunk/development/libraries/cmbAPI/src/</path>
     <filename>SnapshotManager_8h</filename>
     <includes id="ErrorHandler_8h" name="ErrorHandler.h" local="yes" imported="no">ErrorHandler.h</includes>
     <class kind="class">mbapi::SnapshotManager</class>
@@ -64,7 +64,7 @@
   </compound>
   <compound kind="file">
     <name>SourceRockManager.h</name>
-    <path>D:/cauldron/trunk/development/libraries/cmbAPI/src/</path>
+    <path>/scratch/nlskon/cld-dev/Trunk/development/libraries/cmbAPI/src/</path>
     <filename>SourceRockManager_8h</filename>
     <includes id="ErrorHandler_8h" name="ErrorHandler.h" local="yes" imported="no">ErrorHandler.h</includes>
     <class kind="class">mbapi::SourceRockManager</class>
@@ -72,7 +72,7 @@
   </compound>
   <compound kind="file">
     <name>StratigraphyManager.h</name>
-    <path>D:/cauldron/trunk/development/libraries/cmbAPI/src/</path>
+    <path>/scratch/nlskon/cld-dev/Trunk/development/libraries/cmbAPI/src/</path>
     <filename>StratigraphyManager_8h</filename>
     <includes id="ErrorHandler_8h" name="ErrorHandler.h" local="yes" imported="no">ErrorHandler.h</includes>
     <class kind="class">mbapi::StratigraphyManager</class>
@@ -80,7 +80,7 @@
   </compound>
   <compound kind="file">
     <name>UndefinedValues.h</name>
-    <path>D:/cauldron/trunk/development/libraries/cmbAPI/src/</path>
+    <path>/scratch/nlskon/cld-dev/Trunk/development/libraries/cmbAPI/src/</path>
     <filename>UndefinedValues_8h</filename>
     <member kind="define">
       <type>#define</type>

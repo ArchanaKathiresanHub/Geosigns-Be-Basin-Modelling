@@ -38,6 +38,10 @@
 
 namespace casa
 {
+
+const char * RunManager::s_scenarioExecStopFileName = "stop_exec_scenario";
+const char * RunManager::s_jobsIDListFileName       = "casa_jobs_list.txt";
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // RunManager / RunManagerImpl methods definition
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -89,6 +93,10 @@ RunManagerImpl::RunManagerImpl( const std::string & clusterName ) : m_maxPending
 #endif
       , "datadriller", false );
    addApplication( dda ); // insert datadriller application to extract data results
+
+   // delete file with jobs list if exist
+   ibs::FilePath jobsIDFile( std::string( "./" ) + s_jobsIDListFileName );
+   if ( jobsIDFile.exists() ) { jobsIDFile.remove(); }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -212,6 +220,13 @@ ErrorHandler::ReturnCode RunManagerImpl::runScheduledCases( bool asyncRun )
 
       while ( !allFinished ) // loop till all will be finished
       {
+
+         if ( ibs::FilePath( std::string( "./" ) + RunManager::s_scenarioExecStopFileName ).exists() )
+         {
+            stopAllSubmittedJobs();
+            return NoError;
+         }
+
          // counters for jobs states
          int finished  = 0;
          int submitted = 0;
@@ -235,6 +250,14 @@ ErrorHandler::ReturnCode RunManagerImpl::runScheduledCases( bool asyncRun )
                if ( (m_maxPendingJobs < 1 || pending < m_maxPendingJobs) && JobScheduler::NotSubmittedYet == jobState )
                {
                   jobState = m_jobSched->runJob( job ); // submit job
+
+                  // log job ID
+                  std::ofstream ofs( s_jobsIDListFileName, ios_base::out | ios_base::app );
+                  if ( ofs.is_open() )
+                  {
+                     ofs << m_jobSched->schedulerJobID( job ) << std::endl;
+                  }
+ 
                   ++submitted;
                }
 
@@ -521,6 +544,38 @@ RunManagerImpl::RunManagerImpl( CasaDeserializer & dz, const char * objName )
 
    if ( !ok ) throw Exception( DeserializationError ) << "RunManagerImpl deserialization error";
 }
+
+
+// in case of scenario execution aborted - kill all submitted not finished jobs
+void RunManagerImpl::stopAllSubmittedJobs()
+{
+   // loop over all cases
+   for (    size_t i = 0; i < m_jobs.size(); ++i )
+   {
+      for ( size_t j = 0; j < m_jobs[i].size(); ++j )
+      {
+         JobScheduler::JobState jobState = m_jobSched->jobState( m_jobs[i][j] );
+
+         switch ( jobState )
+         {
+            case JobScheduler::NotSubmittedYet:
+            case JobScheduler::JobFailed: 
+            case JobScheduler::JobFinished:
+            case JobScheduler::JobSucceeded:
+               break; // job is not in queue - do nothing
+
+            case JobScheduler::JobPending:
+            case JobScheduler::JobRunning:
+               m_jobSched->stopJob( m_jobs[i][j] );         // kill the job
+               m_cases[i]->setRunStatus( RunCase::Failed ); // invalidate case
+               break;
+
+            default: break;
+         }
+      }
+   }
+}
+
 
 }
 

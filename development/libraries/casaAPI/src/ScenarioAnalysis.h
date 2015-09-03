@@ -64,8 +64,12 @@ namespace casa
       const char * baseCaseProjectFileName() const;
 
       /// @brief Get base case model
-      /// @return pointer to the base case model if it was set before, empty model otherwise
+      /// @return reference to the base case model if it was set before, empty model otherwise
       mbapi::Model & baseCase();
+
+      /// @brief Get RunCase for the base case project
+      /// @return pointer to the base case run case if it was set before, or null pointer otherwise
+      RunCase * baseCaseRunCase();
 
       /// @brief Set path where SA will generate a bunch of cases. By default it is the current folder
       /// @param pathToCaseSet

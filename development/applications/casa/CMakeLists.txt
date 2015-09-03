@@ -32,6 +32,7 @@ bm_include_libraries(
 
 include_directories(
    ${SUMPP_INCLUDE_DIR}
+   utilities
 )
 
 target_link_libraries( casa

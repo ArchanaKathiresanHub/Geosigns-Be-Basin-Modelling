@@ -78,11 +78,24 @@ namespace casa
       /// @return ErrorHandler::NoError on success, or error code otherwise
       virtual ErrorHandler::ReturnCode requestObservables( ObsSpace & obs, RunCaseSet & rcs ) = 0;
 
-      /// @brief Collect observables value from simulation results for given case
+      /// @brief Insert into project file request for observables values using datadriller cauldron app and data mining interface.
+      /// Observables must be requested after case mutation.
+      /// @param obs casaObsSpace object which keeps list of observables. For each observable, data digger will request data using datadriller table
+      /// @param rc casa::RunCase object pointer
+      /// @return ErrorHandler::NoError on success, or error code otherwise
+      virtual ErrorHandler::ReturnCode requestObservables( ObsSpace & obs, RunCase * rcs ) = 0;
+
+      /// @brief Collect observables value from simulation results for the given case set
       /// @param obs casaObsSpace object which keeps list of observables. For each observable, data digger will create ObsValue object for each run case
-      /// @param rcs casa::RunCaseSet object which keeps list of observables and reference to Cauldron model
+      /// @param rcs casa::RunCaseSet object which keeps a set of casa::RunCase objects 
       /// @return ErrorHandler::NoError on success, or error code otherwise
       virtual ErrorHandler::ReturnCode collectRunResults( ObsSpace & obs, RunCaseSet & rcs ) = 0;
+
+      /// @brief Collect observables value from simulation results for the given case
+      /// @param obs casaObsSpace object which keeps list of observables. For each observable, data digger will create ObsValue object 
+      /// @param rcs casa::RunCase object which keeps list of observables and reference to Cauldron model
+      /// @return ErrorHandler::NoError on success, or error code otherwise
+      virtual ErrorHandler::ReturnCode collectRunResults( ObsSpace & obs, RunCase * rcs ) = 0;
 
    protected:
       DataDigger() {;}

@@ -98,28 +98,36 @@ namespace casa
       return NoError;
    }
 
-   // Add Case to set
+   // Collect observables for all cases in the given case set
    ErrorHandler::ReturnCode DataDiggerImpl::collectRunResults( ObsSpace & obs, RunCaseSet & rcs )
    {
-      RunCaseSetImpl & runCaseSet = dynamic_cast<RunCaseSetImpl&>(rcs);
-      ObsSpaceImpl   & observSpace = dynamic_cast<ObsSpaceImpl&>(obs);
+      RunCaseSetImpl & runCaseSet = dynamic_cast<RunCaseSetImpl &>(rcs);
 
       for ( size_t c = 0; c < runCaseSet.size(); ++c )
       {
-         RunCaseImpl * runCase = dynamic_cast<RunCaseImpl*>(runCaseSet[c]);
-         assert( runCase->observablesNumber() == 0 );
+         if ( NoError != collectRunResults( obs, runCaseSet[c] ) ) return errorCode();
+      }
+      return NoError;
+   }
 
-         mbapi::Model & caseModel = runCase->loadProject();
-         if ( caseModel.errorCode() != NoError ) { return moveError( caseModel ); }
+   // Collect observables for the given RunCase
+   ErrorHandler::ReturnCode DataDiggerImpl::collectRunResults( ObsSpace & obs, RunCase * cs )
+   {
+      ObsSpaceImpl & observSpace = dynamic_cast<ObsSpaceImpl&>(obs);
+      RunCaseImpl  * runCase     = dynamic_cast<RunCaseImpl*>( cs );
 
-         for ( size_t ob = 0; ob < observSpace.size(); ++ob )
-         {
-            Observable * obDef = observSpace[ob];
-            ObsValue   * obVal = obDef->getFromModel( caseModel );
+      assert( runCase->observablesNumber() == 0 );
 
-            if ( !obVal ) return moveError( caseModel );
-            runCase->addObsValue( obVal );
-         }
+      mbapi::Model & caseModel = runCase->loadProject();
+      if ( caseModel.errorCode() != NoError ) { return moveError( caseModel ); }
+
+      for ( size_t ob = 0; ob < observSpace.size(); ++ob )
+      {
+         Observable * obDef = observSpace[ob];
+         ObsValue   * obVal = obDef->getFromModel( caseModel );
+
+         if ( !obVal ) return moveError( caseModel );
+         runCase->addObsValue( obVal );
       }
       return NoError;
    }

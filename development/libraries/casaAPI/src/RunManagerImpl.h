@@ -30,6 +30,7 @@ namespace casa
    class RunManagerImpl : public RunManager
    {
    public:
+
       RunManagerImpl( const std::string & clusterName = "" );
       virtual ~RunManagerImpl();
 
@@ -107,6 +108,8 @@ namespace casa
 
       std::vector< std::vector< JobScheduler::JobID > >   m_jobs;  ///< queue of jobs for each case
       std::vector< RunCaseImpl * >                        m_cases; ///< list of run cases
+   
+      void stopAllSubmittedJobs();                     ///< in case of scenario execution aborted - kill all submitted not finished jobs
    };
 }
 
