@@ -59,6 +59,7 @@ SnapshotInfo::SnapshotInfo()
   , snapshot(0)
   , currentProperty(0)
   , root(0)
+  , formationsRoot(0)
   , mesh(0)
   , meshData(0)
   , scalarSet(0)
@@ -101,21 +102,6 @@ void SceneGraphManager::updateCoordinateGrid()
   m_coordinateGrid->end = end;
   m_coordinateGrid->gradStart = gradStart;
   m_coordinateGrid->gradEnd = gradEnd;
-}
-
-void SceneGraphManager::updateFormationProperties()
-{
-
-}
-
-void SceneGraphManager::updateSurfaceProperties()
-{
-
-}
-
-void SceneGraphManager::updateReservoirProperties()
-{
-
 }
 
 void SceneGraphManager::updateSnapshotFormations()
@@ -293,22 +279,23 @@ void SceneGraphManager::updateSnapshotReservoirs()
       std::unique_ptr<di::PropertyValueList> bottomValues(m_projectHandle->getPropertyValues(
         di::RESERVOIR, m_resRockBottomProperty, snapshot.snapshot, reservoir, 0, 0, di::MAP));
 
-      assert(topValues->size() == 1 && bottomValues->size() == 1);
+      if (topValues && !topValues->empty() && bottomValues && !bottomValues->empty())
+      {
+        res.root = new SoSeparator;
+        res.mesh = new MoMesh;
+        res.meshData = new ReservoirMesh((*topValues)[0]->getGridMap(), (*bottomValues)[0]->getGridMap());
+        res.mesh->setMesh(res.meshData);
+        res.scalarSet = new MoScalarSet;
+        res.propertyData = createReservoirProperty(m_currentProperty, reservoir, snapshot.snapshot);
+        res.scalarSet->setScalarSet(res.propertyData);
+        res.skin = new MoMeshSkin;
 
-      res.root = new SoSeparator;
-      res.mesh = new MoMesh;
-      res.meshData = new ReservoirMesh((*topValues)[0]->getGridMap(), (*bottomValues)[0]->getGridMap());
-      res.mesh->setMesh(res.meshData);
-      res.scalarSet = new MoScalarSet;
-      res.propertyData = createReservoirProperty(m_currentProperty, reservoir, snapshot.snapshot);
-      res.scalarSet->setScalarSet(res.propertyData);
-      res.skin = new MoMeshSkin;
+        res.root->addChild(res.mesh);
+        res.root->addChild(res.scalarSet);
+        res.root->addChild(res.skin);
 
-      res.root->addChild(res.mesh);
-      res.root->addChild(res.scalarSet);
-      res.root->addChild(res.skin);
-
-      snapshot.reservoirsGroup->addChild(res.root);
+        snapshot.reservoirsGroup->addChild(res.root);
+      }
     }
     else if (!m_reservoirs[id].visible && res.root != 0)
     {
@@ -499,9 +486,6 @@ void SceneGraphManager::updateSnapshotProperties()
   snapshot.scalarDataSet.reset(createFormationProperty(m_currentProperty, snapshot));
   snapshot.scalarSet->setScalarSet(snapshot.scalarDataSet.get());
 
-  bool haveFormationProperty = (bool)snapshot.scalarDataSet;
-
-  bool haveSurfaceProperty = false;
   for (auto &surf : snapshot.surfaces)
   {
     if (surf.root)
@@ -509,13 +493,9 @@ void SceneGraphManager::updateSnapshotProperties()
       delete surf.propertyData;
       surf.propertyData = createSurfaceProperty(m_currentProperty, m_surfaces[surf.id].surface, snapshot.snapshot);
       surf.scalarSet->setScalarSet(surf.propertyData);
-
-      if (surf.propertyData)
-        haveSurfaceProperty = true;
     }
   }
 
-  bool haveReservoirProperty = false;
   for (auto &res : snapshot.reservoirs)
   {
     if (res.root)
@@ -523,15 +503,8 @@ void SceneGraphManager::updateSnapshotProperties()
       delete res.propertyData;
       res.propertyData = createReservoirProperty(m_currentProperty, m_reservoirs[res.id].reservoir, snapshot.snapshot);
       res.scalarSet->setScalarSet(res.propertyData);
-
-      if (res.propertyData)
-        haveReservoirProperty = true;
     }
   }
-
-  m_formationMaterial->faceColoring = haveFormationProperty ? MoMaterial::CONTOURING : MoMaterial::COLOR;
-  m_surfaceMaterial->faceColoring = haveSurfaceProperty ? MoMaterial::CONTOURING : MoMaterial::COLOR;
-  m_reservoirMaterial->faceColoring = haveReservoirProperty ? MoMaterial::CONTOURING : MoMaterial::COLOR;
 
   snapshot.currentProperty = m_currentProperty;
 }
@@ -797,6 +770,8 @@ SnapshotInfo SceneGraphManager::createSnapshotNode(const di::Snapshot* snapshot)
   }
 
   info.root = new SoSeparator;
+  info.formationsRoot = new SoSeparator;
+  info.formationsRoot->setName("formations");
 
   if (!depthMaps.empty())
   {
@@ -809,6 +784,7 @@ SnapshotInfo SceneGraphManager::createSnapshotNode(const di::Snapshot* snapshot)
   }
 
   info.mesh = new MoMesh;
+  info.mesh->setName("snapshotMesh");
   info.mesh->setMesh(info.meshData);
 
   info.scalarDataSet.reset(new FormationIdProperty(formationIds));
@@ -828,16 +804,15 @@ SnapshotInfo SceneGraphManager::createSnapshotNode(const di::Snapshot* snapshot)
   info.slicesGroup = new SoGroup;
   info.slicesGroup->setName("slices");
 
-  info.root->addChild(info.mesh);
-  info.root->addChild(info.scalarSet);
-  info.root->addChild(m_formationMaterial);
-  info.root->addChild(info.chunksGroup);
-  info.root->addChild(info.slicesGroup);
+  info.formationsRoot->addChild(info.mesh);
+  info.formationsRoot->addChild(info.scalarSet);
+  info.formationsRoot->addChild(info.chunksGroup);
+  info.formationsRoot->addChild(info.slicesGroup);
+
+  info.root->addChild(info.formationsRoot);
   // Add surfaceShapeHints to prevent backface culling, and enable double-sided lighting
   info.root->addChild(m_surfaceShapeHints);
-  info.root->addChild(m_surfaceMaterial);
   info.root->addChild(info.surfacesGroup);
-  info.root->addChild(m_reservoirMaterial);
   info.root->addChild(info.reservoirsGroup);
   info.root->addChild(info.faultsGroup);
 
@@ -876,11 +851,13 @@ void SceneGraphManager::setupSceneGraph()
 {
   // Backface culling is enabled for solid shapes with ordered vertices
   m_formationShapeHints = new SoShapeHints;
+  m_formationShapeHints->setName("formationShapeHints");
   m_formationShapeHints->shapeType = SoShapeHints::SOLID;
   m_formationShapeHints->vertexOrdering = SoShapeHints::COUNTERCLOCKWISE;
 
   // Double sided lighting is enabled for surfaces with ordered vertices
   m_surfaceShapeHints = new SoShapeHints;
+  m_surfaceShapeHints->setName("surfaceShapeHints");
   m_surfaceShapeHints->shapeType = SoShapeHints::UNKNOWN_SHAPE_TYPE;
   m_surfaceShapeHints->vertexOrdering = SoShapeHints::COUNTERCLOCKWISE;
 
@@ -897,7 +874,8 @@ void SceneGraphManager::setupSceneGraph()
   m_material = new MoMaterial;
   m_material->faceColoring = MoMaterial::CONTOURING;
   m_material->lineColoring = MoMaterial::COLOR;
-  m_material->lineColor = SbColor(0, 0, 0);
+  m_material->faceColor = SbColor(.5f, .5f, .5f);
+  m_material->lineColor = SbColor(.0f, .0f, .0f);
 
   m_dataBinding = new MoDataBinding;
   m_dataBinding->dataBinding = MoDataBinding::PER_CELL;
@@ -937,25 +915,6 @@ void SceneGraphManager::setupSceneGraph()
   m_snapshotsSwitch->setName("snapshots");
   m_snapshotsSwitch->whichChild = SO_SWITCH_NONE;
 
-  m_formationMaterial = new MoMaterial;
-  m_surfaceMaterial = new MoMaterial;
-  m_reservoirMaterial = new MoMaterial;
-
-  SbColor defaultFaceColor(.5f, .5f, .5f);
-  SbColor defaultLineColor(.0f, .0f, .0f);
-  m_formationMaterial->faceColor = defaultFaceColor;
-  m_formationMaterial->lineColor = defaultLineColor;
-  m_formationMaterial->faceColoring = MoMaterial::CONTOURING;
-  m_formationMaterial->lineColoring = MoMaterial::COLOR;
-  m_surfaceMaterial->faceColor = defaultFaceColor;
-  m_surfaceMaterial->lineColor = defaultLineColor;
-  m_surfaceMaterial->faceColoring = MoMaterial::CONTOURING;
-  m_surfaceMaterial->lineColoring = MoMaterial::COLOR;
-  m_reservoirMaterial->faceColor = defaultFaceColor;
-  m_reservoirMaterial->lineColor = defaultLineColor;
-  m_reservoirMaterial->faceColoring = MoMaterial::COLOR;
-  m_reservoirMaterial->lineColoring = MoMaterial::COLOR;
-
   m_root = new SoGroup;
   m_root->setName("root");
   m_root->addChild(m_formationShapeHints);
@@ -990,9 +949,6 @@ SceneGraphManager::SceneGraphManager()
   , m_reservoirsTimeStamp(MxTimeStamp::getTimeStamp())
   , m_faultsTimeStamp(MxTimeStamp::getTimeStamp())
   , m_currentSnapshot(0)
-  , m_formationMaterial(0)
-  , m_surfaceMaterial(0)
-  , m_reservoirMaterial(0)
   , m_root(0)
   , m_formationShapeHints(0)
   , m_surfaceShapeHints(0)

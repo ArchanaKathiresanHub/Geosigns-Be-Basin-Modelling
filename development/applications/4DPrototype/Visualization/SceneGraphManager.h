@@ -165,10 +165,11 @@ struct SnapshotInfo
   const DataAccess::Interface::Snapshot* snapshot;
   const DataAccess::Interface::Property* currentProperty;
 
-  SoSeparator* root;
-
   std::shared_ptr<SnapshotGeometry> geometry;
   std::shared_ptr<SnapshotTopology> topology;
+
+  SoSeparator* root;
+  SoSeparator* formationsRoot;
 
   MoMesh* mesh;
   HexahedronMesh* meshData;
@@ -271,10 +272,6 @@ class VISUALIZATIONDLL_API SceneGraphManager
   size_t m_slicePosition[3];
   bool   m_sliceEnabled[3];
 
-  MoMaterial*     m_formationMaterial;
-  MoMaterial*     m_surfaceMaterial;
-  MoMaterial*     m_reservoirMaterial;
-
   SoGroup*        m_root;
   SoShapeHints*   m_formationShapeHints;
   SoShapeHints*   m_surfaceShapeHints;
@@ -299,9 +296,6 @@ class VISUALIZATIONDLL_API SceneGraphManager
   MiDataSetIjk<double>* createFormationProperty(const DataAccess::Interface::Property* prop, const SnapshotInfo& snapshot);
 
   void updateCoordinateGrid();
-  void updateFormationProperties();
-  void updateSurfaceProperties();
-  void updateReservoirProperties();
   void updateSnapshotFormations();
   void updateSnapshotSurfaces();
   void updateSnapshotReservoirs();
