@@ -200,44 +200,27 @@ struct SnapshotInfo
   SnapshotInfo();
 };
 
-struct FormationInfo
-{
-  const DataAccess::Interface::Formation* formation;
-
-  int id;
-  bool visible;
-};
-
-struct SurfaceInfo
-{
-  const DataAccess::Interface::Surface* surface;
-
-  int id;
-  bool visible;
-};
-
-struct ReservoirInfo
-{
-  const DataAccess::Interface::Reservoir* reservoir;
-
-  int id;
-  bool visible;
-};
-
-struct FaultInfo
-{
-  const DataAccess::Interface::Fault* fault;
-
-  int id;
-  bool visible;
-};
-
 class VISUALIZATIONDLL_API SceneGraphManager
 {
+  template<class T>
+  struct ObjectInfo
+  {
+    const T* object;
+
+    int id;
+    bool visible;
+  };
+
+  typedef ObjectInfo<DataAccess::Interface::Formation> FormationInfo;
+  typedef ObjectInfo<DataAccess::Interface::Surface> SurfaceInfo;
+  typedef ObjectInfo<DataAccess::Interface::Reservoir> ReservoirInfo;
+  typedef ObjectInfo<DataAccess::Interface::Fault> FaultInfo;
+
   const DataAccess::Interface::ProjectHandle* m_projectHandle;
   const DataAccess::Interface::Property* m_depthProperty;
   const DataAccess::Interface::Property* m_resRockTopProperty;
   const DataAccess::Interface::Property* m_resRockBottomProperty;
+  const DataAccess::Interface::Property* m_resRockTrapIdProperty;
   const DataAccess::Interface::Property* m_currentProperty;
 
   int m_numI;
@@ -249,6 +232,8 @@ class VISUALIZATIONDLL_API SceneGraphManager
   double m_minY;
   double m_maxX;
   double m_maxY;
+
+  unsigned int m_maxPersistentTrapId;
 
   std::map<std::string, int> m_formationIdMap;
   std::map<std::string, int> m_surfaceIdMap;
@@ -287,6 +272,8 @@ class VISUALIZATIONDLL_API SceneGraphManager
   MoMaterial*     m_material;
   MoDataBinding*  m_dataBinding;
   MoColorMapping* m_colorMap;
+  MoColorMapping* m_trapIdColorMap;
+  SoSwitch*       m_colorMapSwitch;
 
   MoLegend*       m_legend;
   SoSwitch*       m_legendSwitch;

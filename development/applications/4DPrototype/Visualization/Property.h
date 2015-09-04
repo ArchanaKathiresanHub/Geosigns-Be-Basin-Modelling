@@ -26,6 +26,9 @@ namespace DataAccess
   }
 }
 
+/**
+ *
+ */
 class FormationProperty : public MiDataSetIjk<double>
 {
   GridMapCollection m_values;
@@ -158,6 +161,9 @@ public:
   virtual size_t getTimeStamp() const;
 };
 
+/**
+*
+*/
 class VectorProperty : public MiDataSetIjk<MbVec3d>
 {
   const DataAccess::Interface::GridMap* m_values[3];
@@ -191,6 +197,9 @@ public:
   virtual MiMeshIjk::StorageLayout getStorageLayout() const;
 };
 
+/**
+*
+*/
 class FormationIdProperty : public MiDataSetIjk<double>
 {
   std::vector<double> m_ids;
@@ -200,6 +209,44 @@ class FormationIdProperty : public MiDataSetIjk<double>
 public:
 
   explicit FormationIdProperty(const std::vector<double>& ids);
+
+  virtual double get(size_t i, size_t j, size_t k) const;
+
+  virtual MiDataSet::DataBinding getBinding() const;
+
+  virtual double getMin() const;
+
+  virtual double getMax() const;
+
+  virtual std::string getName() const;
+
+  virtual size_t getTimeStamp() const;
+
+  virtual MiMeshIjk::StorageLayout getStorageLayout() const;
+};
+
+/**
+ *
+ */
+class PersistentTrapIdProperty : public MiDataSetIjk<double>
+{
+  const DataAccess::Interface::GridMap* m_trapIds;
+  std::vector<unsigned int> m_translationTable;
+  unsigned int m_minId;
+
+  size_t m_timeStamp;
+
+  double m_minVal;
+  double m_maxVal;
+
+  double translateId(double id) const;
+
+public:
+
+  PersistentTrapIdProperty(
+    const DataAccess::Interface::GridMap* trapIds, 
+    const std::vector<unsigned int>& translationTable, 
+    unsigned int minId);
 
   virtual double get(size_t i, size_t j, size_t k) const;
 

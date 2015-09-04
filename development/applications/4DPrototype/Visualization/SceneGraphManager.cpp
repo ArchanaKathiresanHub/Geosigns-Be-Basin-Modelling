@@ -25,6 +25,7 @@
 #include <MeshVizInterface/mapping/nodes/MoMaterial.h>
 #include <MeshVizInterface/mapping/nodes/MoDataBinding.h>
 #include <MeshVizInterface/mapping/nodes/MoPredefinedColorMapping.h>
+#include <MeshVizInterface/mapping/nodes/MoLevelColorMapping.h>
 #include <MeshVizInterface/mapping/nodes/MoMesh.h>
 #include <MeshVizInterface/mapping/nodes/MoMeshSkin.h>
 #include <MeshVizInterface/mapping/nodes/MoMeshSlab.h>
@@ -48,6 +49,8 @@
 #include <Interface/Snapshot.h>
 #include <Interface/FaultCollection.h>
 #include <Interface/Faulting.h>
+#include <Interface/Trap.h>
+#include <Interface/Trapper.h>
 
 #include <memory>
 
@@ -161,6 +164,93 @@ void SceneGraphManager::updateSnapshotFormations()
 
 namespace
 {
+  MoColorMapping* createTrapsColorMap(unsigned int maxId)
+  {
+    MoLevelColorMapping* colorMapping = new MoLevelColorMapping;
+
+    colorMapping->colors.set1Value(0, SbColorRGBA(.5f, .5f, .5f, 1.f));
+
+    for (unsigned int i = 1; i <= maxId; ++i)
+    {
+      float h = fmodf(.13f * i, 1.f);
+      SbColorRGBA color;
+      color.setHSVAValue(h, 1.f, 1.f, 1.f);
+      colorMapping->colors.set1Value(i, color);
+    }
+
+    for (int i = 0; i <= (int)(maxId + 1); ++i)
+      colorMapping->values.set1Value(i, i - .5f);
+
+    return colorMapping;
+  }
+
+  PersistentTrapIdProperty* createPersistentTrapIdProperty(const di::Property* trapIdProperty, const di::Reservoir* reservoir, const di::Snapshot* snapshot)
+  {
+    di::ProjectHandle* handle = snapshot->getProjectHandle();
+
+    // Create a mapping from id -> persistentId for all traps in this snapshot
+    std::vector<std::tuple<unsigned int, unsigned int> > idmap;
+    std::unique_ptr<di::TrapList> traps(handle->getTraps(reservoir, snapshot, 0));
+    for (auto trap : *traps)
+    {
+      unsigned int id = trap->getId();
+      const di::Trapper* trapper = handle->findTrapper(reservoir, snapshot, id, 0);
+      if (trapper)
+      {
+        unsigned int persistentId = trapper->getPersistentId();
+        idmap.push_back(std::make_tuple(id, persistentId));
+      }
+    }
+
+    if (idmap.empty())
+      return nullptr;
+
+    std::sort(idmap.begin(), idmap.end());
+
+    // Create translation table
+    unsigned int minId = std::get<0>(idmap[0]);
+    unsigned int maxId = std::get<0>(idmap[idmap.size() - 1]);
+    unsigned int index = 0;
+    std::vector<unsigned int> table;
+    for (unsigned int i = minId; i <= maxId; ++i)
+    {
+      if (i == std::get<0>(idmap[index]))
+        table.push_back(std::get<1>(idmap[index++]));
+      else
+        table.push_back(0);
+    }
+
+    std::unique_ptr<di::PropertyValueList> trapIdValues(trapIdProperty->getPropertyValues(di::RESERVOIR, snapshot, reservoir, 0, 0));
+    if (!trapIdValues || trapIdValues->empty())
+      return nullptr;
+
+    const di::GridMap* trapIds = (*trapIdValues)[0]->getGridMap();
+
+    return new PersistentTrapIdProperty(trapIds, table, minId);
+  }
+
+  unsigned int getMaxPersistentTrapId(const di::ProjectHandle* handle)
+  {
+    unsigned int maxPersistentId = 0;
+
+    std::unique_ptr<di::SnapshotList> snapshots(handle->getSnapshots());
+    for (auto snapshot : *snapshots)
+    {
+      // Create a mapping from id -> persistentId for all traps in this snapshot
+      std::unique_ptr<di::TrapList> traps(handle->getTraps(nullptr, nullptr, 0));
+      for (auto trap : *traps)
+      {
+        const di::Trapper* trapper = handle->findTrapper(trap->getReservoir(), trap->getSnapshot(), trap->getId(), 0);
+        if (!trapper)
+          continue;
+
+        unsigned int persistentId = trapper->getPersistentId();
+        maxPersistentId = std::max(maxPersistentId, persistentId);
+      }
+    }
+
+    return maxPersistentId;
+  }
 
   MiDataSetI<double>* createSurfaceProperty(const di::Property* prop, const di::Surface* surface, const di::Snapshot* snapshot)
   {
@@ -190,6 +280,9 @@ namespace
     if (!prop)
       return nullptr;
 
+    //if (prop->getName() == "ResRockTrapId")
+    //  return createPersistentTrapIdProperty(prop, reservoir, snapshot);
+      
     DataModel::PropertyAttribute attr = prop->getPropertyAttribute();
     DataAccess::Interface::PropertyType type = prop->getType();
 
@@ -204,6 +297,7 @@ namespace
 
     return new ReservoirProperty(prop->getName(), (*values)[0]->getGridMap());
   }
+
 }
 
 void SceneGraphManager::updateSnapshotSurfaces()
@@ -220,7 +314,7 @@ void SceneGraphManager::updateSnapshotSurfaces()
 
     if (m_surfaces[id].visible && surf.root == 0)
     {
-      const di::Surface* surface = m_surfaces[id].surface;
+      const di::Surface* surface = m_surfaces[id].object;
       std::unique_ptr<di::PropertyValueList> values(m_projectHandle->getPropertyValues(
         di::SURFACE, m_depthProperty, snapshot.snapshot, 0, 0, surface, di::MAP));
 
@@ -273,7 +367,7 @@ void SceneGraphManager::updateSnapshotReservoirs()
 
     if (m_reservoirs[id].visible && res.root == 0)
     {
-      const di::Reservoir* reservoir = m_reservoirs[id].reservoir;
+      const di::Reservoir* reservoir = m_reservoirs[id].object;
       std::unique_ptr<di::PropertyValueList> topValues(m_projectHandle->getPropertyValues(
         di::RESERVOIR, m_resRockTopProperty, snapshot.snapshot, reservoir, 0, 0, di::MAP));
       std::unique_ptr<di::PropertyValueList> bottomValues(m_projectHandle->getPropertyValues(
@@ -394,7 +488,7 @@ void SceneGraphManager::updateSnapshotFaults()
 
     if (m_faults[id].visible && snapshot.faults[i].root == 0)
     {
-      const di::PointSequence& points = m_faults[id].fault->getFaultLine();
+      const di::PointSequence& points = m_faults[id].object->getFaultLine();
 
       std::vector<SbVec2d> oivpoints;
       oivpoints.reserve(points.size());
@@ -440,7 +534,7 @@ MiDataSetIjk<double>* SceneGraphManager::createFormationProperty(const di::Prope
   for (size_t i = 0; i < snapshot.formations.size(); ++i)
   {
     int id = snapshot.formations[i].id;
-    const di::Formation* formation = m_formations[id].formation;
+    const di::Formation* formation = m_formations[id].object;
 
     std::unique_ptr<di::PropertyValueList> values(
       prop->getPropertyValues(di::FORMATION, snapshot.snapshot, nullptr, formation, nullptr));
@@ -491,7 +585,7 @@ void SceneGraphManager::updateSnapshotProperties()
     if (surf.root)
     {
       delete surf.propertyData;
-      surf.propertyData = createSurfaceProperty(m_currentProperty, m_surfaces[surf.id].surface, snapshot.snapshot);
+      surf.propertyData = createSurfaceProperty(m_currentProperty, m_surfaces[surf.id].object, snapshot.snapshot);
       surf.scalarSet->setScalarSet(surf.propertyData);
     }
   }
@@ -501,7 +595,7 @@ void SceneGraphManager::updateSnapshotProperties()
     if (res.root)
     {
       delete res.propertyData;
-      res.propertyData = createReservoirProperty(m_currentProperty, m_reservoirs[res.id].reservoir, snapshot.snapshot);
+      res.propertyData = createReservoirProperty(m_currentProperty, m_reservoirs[res.id].object, snapshot.snapshot);
       res.scalarSet->setScalarSet(res.propertyData);
     }
   }
@@ -883,13 +977,18 @@ void SceneGraphManager::setupSceneGraph()
   MoPredefinedColorMapping* colorMap = new MoPredefinedColorMapping;
   colorMap->predefColorMap = MoPredefinedColorMapping::STANDARD;
   m_colorMap = colorMap;
+  m_trapIdColorMap = createTrapsColorMap(m_maxPersistentTrapId);
+  m_colorMapSwitch = new SoSwitch;
+  m_colorMapSwitch->addChild(m_colorMap);
+  m_colorMapSwitch->addChild(m_trapIdColorMap);
+  m_colorMapSwitch->whichChild = 0;
 
   m_appearanceNode = new SoGroup;
   m_appearanceNode->setName("appearance");
   m_appearanceNode->addChild(m_drawStyle);
   m_appearanceNode->addChild(m_material);
   m_appearanceNode->addChild(m_dataBinding);
-  m_appearanceNode->addChild(m_colorMap);
+  m_appearanceNode->addChild(m_colorMapSwitch);
 
   float right = .8f, top = .9f, w = .1f, h = .4f;
   m_legend = new MoLegend;
@@ -934,6 +1033,7 @@ SceneGraphManager::SceneGraphManager()
   , m_depthProperty(0)
   , m_resRockTopProperty(0)
   , m_resRockBottomProperty(0)
+  , m_resRockTrapIdProperty(0)
   , m_currentProperty(0)
   , m_numI(0)
   , m_numJ(0)
@@ -943,6 +1043,7 @@ SceneGraphManager::SceneGraphManager()
   , m_minY(0.0)
   , m_maxX(0.0)
   , m_maxY(0.0)
+  , m_maxPersistentTrapId(0)
   , m_showGrid(false)
   , m_formationsTimeStamp(MxTimeStamp::getTimeStamp())
   , m_surfacesTimeStamp(MxTimeStamp::getTimeStamp())
@@ -960,6 +1061,7 @@ SceneGraphManager::SceneGraphManager()
   , m_material(0)
   , m_dataBinding(0)
   , m_colorMap(0)
+  , m_trapIdColorMap(0)
   , m_legend(0)
   , m_legendSwitch(0)
   , m_snapshotsSwitch(0)
@@ -1132,10 +1234,12 @@ void SceneGraphManager::setup(const di::ProjectHandle* handle)
   const std::string depthKey = "Depth";
   const std::string resRockTopKey = "ResRockTop";
   const std::string resRockBottomKey = "ResRockBottom";
+  const std::string resRockTrapIdKey = "ResRockTrapId";
 
   m_depthProperty = handle->findProperty(depthKey);
   m_resRockTopProperty = handle->findProperty(resRockTopKey);
   m_resRockBottomProperty = handle->findProperty(resRockBottomKey);
+  m_resRockTrapIdProperty = handle->findProperty(resRockTrapIdKey);
 
   const di::Grid* loresGrid = handle->getLowResolutionOutputGrid();
   const di::Grid* hiresGrid = handle->getHighResolutionOutputGrid();
@@ -1163,7 +1267,7 @@ void SceneGraphManager::setup(const di::ProjectHandle* handle)
     m_formationIdMap[(*formations)[i]->getName()] = (int)i;
 
     FormationInfo info;
-    info.formation = (*formations)[i];
+    info.object = (*formations)[i];
     info.id = (int)i;
     info.visible = true;
 
@@ -1177,7 +1281,7 @@ void SceneGraphManager::setup(const di::ProjectHandle* handle)
     m_surfaceIdMap[(*surfaces)[i]->getName()] = (int)i;
 
     SurfaceInfo info;
-    info.surface = (*surfaces)[i];
+    info.object = (*surfaces)[i];
     info.id = (int)i;
     info.visible = false;
 
@@ -1191,7 +1295,7 @@ void SceneGraphManager::setup(const di::ProjectHandle* handle)
     m_reservoirIdMap[(*reservoirs)[i]->getName()] = (int)i;
 
     ReservoirInfo info;
-    info.reservoir = (*reservoirs)[i];
+    info.object = (*reservoirs)[i];
     info.id = (int)i;
     info.visible = false;
 
@@ -1213,7 +1317,7 @@ void SceneGraphManager::setup(const di::ProjectHandle* handle)
             (*faults)[j]->getName())] = (int)j;
 
         FaultInfo info;
-        info.fault = (*faults)[j];
+        info.object = (*faults)[j];
         info.id = (int)j;
         info.visible = false;
 
@@ -1221,6 +1325,8 @@ void SceneGraphManager::setup(const di::ProjectHandle* handle)
       }
     }
   }
+
+  m_maxPersistentTrapId = getMaxPersistentTrapId(handle);
 
   setupSceneGraph();
 }

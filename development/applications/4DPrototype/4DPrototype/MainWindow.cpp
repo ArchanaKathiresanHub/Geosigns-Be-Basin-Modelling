@@ -270,14 +270,13 @@ void MainWindow::updateUI()
   std::unique_ptr<di::ReservoirList> reservoirs(m_projectHandle->getReservoirs());
   if (reservoirs && !reservoirs->empty())
   {
-    for (size_t i = 0; i < reservoirs->size(); ++i)
+    for (auto reservoir : *reservoirs)
     {
       QTreeWidgetItem* item = new QTreeWidgetItem(reservoirsItem, TreeWidgetItem_ReservoirType);
-      item->setText(0, (*reservoirs)[i]->getName().c_str());
+      item->setText(0, reservoir->getName().c_str());
       item->setCheckState(0, Qt::Unchecked);
     }
   }
-
 
   m_ui.treeWidget->addTopLevelItem(formationsItem);
   m_ui.treeWidget->addTopLevelItem(surfacesItem);

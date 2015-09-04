@@ -324,3 +324,64 @@ MiMeshIjk::StorageLayout FormationIdProperty::getStorageLayout() const
 {
   return MiMeshIjk::LAYOUT_IJK;
 }
+
+//---------------------------------------------------------------------------------------
+// PersistentTrapIdProperty
+//---------------------------------------------------------------------------------------
+double PersistentTrapIdProperty::translateId(double id) const
+{
+  int index = (int)id - (int)m_minId;
+  index = std::max(0, std::min(index, (int)m_translationTable.size() - 1));
+  return m_translationTable[index];
+}
+
+PersistentTrapIdProperty::PersistentTrapIdProperty(
+  const DataAccess::Interface::GridMap* trapIds,
+  const std::vector<unsigned int>& translationTable,
+  unsigned int minId)
+  : m_trapIds(trapIds)
+  , m_translationTable(translationTable)
+  , m_minId(minId)
+  , m_timeStamp(MxTimeStamp::getTimeStamp())
+{
+  double minTrapId, maxTrapId;
+  m_trapIds->getMinMaxValue(minTrapId, maxTrapId);
+
+  m_minVal = translateId(minTrapId);
+  m_maxVal = translateId(maxTrapId);
+}
+
+double PersistentTrapIdProperty::get(size_t i, size_t j, size_t /*k*/) const
+{
+  return translateId(m_trapIds->getValue((unsigned int)i, (unsigned int)j));
+}
+
+MiDataSet::DataBinding PersistentTrapIdProperty::getBinding() const
+{
+  return MiDataSet::PER_CELL;
+}
+
+double PersistentTrapIdProperty::getMin() const
+{
+  return m_minVal;
+}
+
+double PersistentTrapIdProperty::getMax() const
+{
+  return m_maxVal;
+}
+
+std::string PersistentTrapIdProperty::getName() const
+{
+  return "PersistentTrapId";
+}
+
+size_t PersistentTrapIdProperty::getTimeStamp() const
+{
+  return m_timeStamp;
+}
+
+MiMeshIjk::StorageLayout PersistentTrapIdProperty::getStorageLayout() const
+{
+  return MiMeshIjk::LAYOUT_IJK;
+}
