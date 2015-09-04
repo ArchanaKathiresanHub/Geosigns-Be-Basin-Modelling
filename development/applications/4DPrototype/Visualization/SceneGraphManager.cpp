@@ -641,6 +641,9 @@ void SceneGraphManager::updateSnapshotSlices()
 
 void SceneGraphManager::updateColorMap()
 {
+  if (!m_currentProperty)
+    return;
+
   SnapshotInfo& snapshot = m_snapshots[m_currentSnapshot];
 
   double minValue =  std::numeric_limits<double>::max();

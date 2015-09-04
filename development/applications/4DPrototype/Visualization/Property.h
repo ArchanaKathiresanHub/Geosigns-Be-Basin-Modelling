@@ -204,6 +204,9 @@ class FormationIdProperty : public MiDataSetIjk<double>
 {
   std::vector<double> m_ids;
 
+  double m_minVal;
+  double m_maxVal;
+
   size_t m_timeStamp;
 
 public:
