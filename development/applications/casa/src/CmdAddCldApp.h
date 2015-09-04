@@ -30,8 +30,9 @@ public:
    static void printHelpPage( const char * cmdName );
 
 private:
-   unsigned int m_app;
-   int          m_cpus;
+   unsigned int m_app;           ///< application name
+   int          m_cpus;          ///< number of CPUS for the application
+   size_t       m_maxRunLimMin;  ///< hard limit for application execution time [Minutes]
 };
 
 #endif // CASA_CMD_ADD_CAULDRON_APPLICATION_H

@@ -53,7 +53,11 @@ namespace casa
       std::string clusterName() { return m_clusterName; }
 
       // Add job to the list
-      virtual JobID addJob( const std::string & cwd, const std::string & scriptName, const std::string & jobName, int cpus ) = 0;
+      virtual JobID addJob( const std::string & cwd
+                          , const std::string & scriptName
+                          , const std::string & jobName
+                          , int                 cpus
+                          , size_t              runTimeLim ) = 0;
 
       // Restore job state by analysing output files
       virtual JobState restoreJobState( const std::string & cwd, const std::string & scriptName, const std::string & jobName );

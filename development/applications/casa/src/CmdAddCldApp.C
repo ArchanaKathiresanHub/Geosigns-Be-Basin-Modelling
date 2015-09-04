@@ -15,7 +15,6 @@
 
 #include <cstdlib>
 #include <iostream>
-#include <locale>
 
 CmdAddCldApp::CmdAddCldApp( CasaCommander & parent, const std::vector< std::string > & cmdPrms ) : CasaCmd( parent, cmdPrms )
 {
@@ -27,17 +26,23 @@ CmdAddCldApp::CmdAddCldApp( CasaCommander & parent, const std::vector< std::stri
 
    // set it to negative that later we can check - was it given or not
    m_cpus = -1;
+   m_maxRunLimMin = 0;
 
    size_t it = 0;
    
    // read cpus number if was given
-   std::locale loc;
-   if ( m_prms.size() > 1 && std::isdigit( m_prms[it][0], loc ) )
+   if ( m_prms.size() > 1 && CfgFileParser::isNumericPrm( m_prms[it] ) )
    {
       m_cpus = atol( m_prms[it].c_str() );
       if ( m_cpus < 1 || m_cpus > 100000 ) throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << 
          "Wrong number of cpus: " << m_cpus << ", for application: " << m_prms[it+1];
 
+      ++it;
+   }
+
+   if ( m_prms.size() > 2 &&  CfgFileParser::isNumericPrm( m_prms[it] ) )
+   {
+      m_maxRunLimMin = atol( m_prms[it].c_str() );
       ++it;
    }
 
@@ -82,10 +87,10 @@ void CmdAddCldApp::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
    {
       const std::string & appName = m_prms[p++];
 
-      app = casa::RunManager::createApplication( casa::RunManager::generic, m_cpus, sh, appName );
+      app = casa::RunManager::createApplication( casa::RunManager::generic, m_cpus, m_maxRunLimMin, sh, appName );
    }
    else { 
-   app = casa::RunManager::createApplication( static_cast<casa::RunManager::ApplicationType>( m_app ), m_cpus, sh ); }
+   app = casa::RunManager::createApplication( static_cast<casa::RunManager::ApplicationType>( m_app ), m_cpus, m_maxRunLimMin, sh ); }
 
    assert( 0 != app );
 

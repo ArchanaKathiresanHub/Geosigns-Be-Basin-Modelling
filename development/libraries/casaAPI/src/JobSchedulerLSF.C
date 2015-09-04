@@ -90,10 +90,11 @@ namespace casa
 class JobSchedulerLSF::Job : public CasaSerializable
 {
 public:
-   Job( const std::string & cwd, const std::string & scriptName, const std::string & jobName, int cpus )
+   Job( const std::string & cwd, const std::string & scriptName, const std::string & jobName, int cpus, size_t runtTimeLim )
    {
-      m_lsfJobID = -1;
+      m_lsfJobID   = -1;
       m_isFinished = false;
+      m_runTimeLim = runtTimeLim;
 
       // clean LSF structures
       memset( &m_submit,     0, sizeof( m_submit ) );
@@ -101,7 +102,8 @@ public:
 
       // resource limits are initialized to default
       for ( int i = 0; i < LSF_RLIM_NLIMITS; ++i ) { m_submit.rLimits[i] = DEFAULT_RLIMIT; }
-
+      if ( m_runTimeLim > 0 ) { m_submit.rLimits[LSF_RLIMIT_RUN] = m_runTimeLim; }
+ 
       /// Prepare job to submit through LSF
       m_submit.projectName      = strdup( s_LSF_CAULDRON_PROJECT_NAME ); // add project name (must be the same for all cauldron app)
       m_submit.command          = strdup( scriptName.c_str() );
@@ -218,7 +220,7 @@ public:
 
    // Serialization / Deserialization
    // version of serialized object representation
-   virtual unsigned int version() const { return 0; }
+   virtual unsigned int version() const { return 1; }
 
    // Get type name of the serialaizable object, used in deserialization to create object with correct type
    virtual const char * typeName() const { return "JobSchedulerLSF::Job"; }
@@ -243,7 +245,13 @@ public:
       //struct submitReply m_submitRepl; // lsf_submit returns here some info in case of error
 
       ok = ok ? sz.save( static_cast<long long>( m_lsfJobID ), "LSFJobID" ) : ok;
+
+      if ( version > 0 )
+      {
+         ok = ok ? sz.save( m_runTimeLim, "JobRunTimeLimit" ) : ok;
+      }
       return ok;
+        
    }
 
    // Create a new instance and deserialize it from the given stream
@@ -292,6 +300,12 @@ public:
       ok = ok ? dz.load( rjid,                      "LSFJobID" ) : ok;
       m_lsfJobID = static_cast<LS_LONG_INT>( rjid );
 
+      if ( objVer > 0 )
+      {
+         ok = ok ? dz.load( m_runTimeLim, "JobRunTimeLimit" ) : ok;
+      }
+      else { m_runTimeLim = 0; }
+
       if ( !ok )
       {
          throw ErrorHandler::Exception( ErrorHandler::DeserializationError )
@@ -307,6 +321,7 @@ public:
    struct submitReply m_submitRepl; // lsf_submit returns here some info in case of error
 
    LS_LONG_INT        m_lsfJobID;   // job ID in LSF
+   size_t             m_runTimeLim; // runt time job limitation [Minutes]
 
    // disable copy constructor/operator
    Job( const Job & jb );
@@ -353,12 +368,17 @@ JobSchedulerLSF::~JobSchedulerLSF()
 }
 
 // Add job to the list
-JobScheduler::JobID JobSchedulerLSF::addJob( const std::string & cwd, const std::string & scriptName, const std::string & jobName, int cpus )
+JobScheduler::JobID JobSchedulerLSF::addJob( const std::string & cwd
+                                           , const std::string & scriptName
+                                           , const std::string & jobName
+                                           , int                 cpus
+                                           , size_t              runTimeLim
+                                           )
 {
    ibs::FilePath scriptStatFile( scriptName + ".failed" );
    if ( scriptStatFile.exists() ) scriptStatFile.remove();
 
-   m_jobs.push_back( new Job( cwd, scriptName, jobName, cpus ) );
+   m_jobs.push_back( new Job( cwd, scriptName, jobName, cpus, runTimeLim ) );
    return m_jobs.size() - 1; // the position of the new job in the list is it JobID
 }
 

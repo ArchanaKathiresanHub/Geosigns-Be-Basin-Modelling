@@ -35,7 +35,7 @@ namespace casa
       virtual void setClusterName( const char * clusterName ) { m_clusterName = clusterName; }
 
       // Add job to the list
-      virtual JobID addJob( const std::string & cwd, const std::string & scriptName, const std::string & jobName, int cpus );
+      virtual JobID addJob( const std::string & cwd, const std::string & scriptName, const std::string & jobName, int cpus, size_t runTimeLim );
 
       // run job
       virtual JobState runJob( JobID job );

@@ -100,10 +100,11 @@ namespace casa
 
       /// @brief Factory for creating application objects which can be used for creating calculation pipeline
       /// @return pointer to the application object which later should be passed to RunManager::addApplication() method      
-      static CauldronApp * createApplication( ApplicationType appType                       ///< type of application
-                                            , int cpus = 1                                  ///< (optional) it defines the number of cpus to use in this application
-                                            , CauldronApp::ShellType sh = CauldronApp::bash ///< (optional) shell type (define how run scripts will be generated)
-                                            , const std::string cmdLine = ""                ///< (optional) for general application, should contains the script body
+      static CauldronApp * createApplication( ApplicationType   appType           ///< type of application
+                                            , int               cpus = 1          ///< (optional) run applicaton on this cpus number
+                                            , size_t            runTimeLimit = 0  ///< (optional) hard time limit for application
+                                            , CauldronApp::ShellType sh = CauldronApp::bash ///< (optional) shell type for the script
+                                            , const std::string cmdLine = ""      ///< (optional) if app is "general", contains the script body
                                             );                               
 
       /// @brief Set up Cauldron version. Version should be defined as "v2014.1007" (which is the default)
@@ -126,17 +127,17 @@ namespace casa
       /// @return ErrorHandler::NoError on success or error code otherwise
       virtual ErrorHandler::ReturnCode scheduleCase( RunCase & newRun, const std::string & scenarioID ) = 0;
 
+      /// @brief Execute all scheduled cases
+      /// @param asyncRun
+      /// @return ErrorHandler::NoError on success or error code otherwise
+      virtual ErrorHandler::ReturnCode runScheduledCases( bool asyncRun ) = 0;
+
       /// @brief Define how many jobs could be in Pending state. If there are to many jobs submitted,
       ///        cluster starts to reduce available slots for the user, in this case better do not 
       ///        submit all jobs in one time but keep feeding cluster with new jobs as previous one was finished
       /// @param pendJobsNum the number of pending jobs after which RunManager will stop to schedule the new jobs
       /// @return ErrorHandler::NoError on success or error code otherwise
       virtual ErrorHandler::ReturnCode setMaxNumberOfPendingJobs( size_t pendJobsNum ) = 0;
-
-      /// @brief Execute all scheduled cases
-      /// @param asyncRun
-      /// @return ErrorHandler::NoError on success or error code otherwise
-      virtual ErrorHandler::ReturnCode runScheduledCases( bool asyncRun ) = 0;
 
       /// @brief Set HPC cluster name
       /// @param clusterName name of the HPC cluster

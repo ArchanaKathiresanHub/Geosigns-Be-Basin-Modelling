@@ -16,6 +16,7 @@
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
+#include <locale>
 
 #include <cassert>
 #include <cmath>
@@ -236,5 +237,11 @@ void CfgFileParser::readParametersValueFile( const std::string & fileName, std::
       }
       if ( !oneLineVals.empty() ) dataVals.push_back( oneLineVals );
    }
+}
+
+bool CfgFileParser::isNumericPrm( const std::string prm )
+{
+   std::locale loc;
+   return std::isdigit( prm[0], loc );
 }
 

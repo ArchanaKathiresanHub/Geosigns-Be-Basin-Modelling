@@ -383,17 +383,21 @@ namespace casa
             ok = ok ? sz.save( it->second, "EnvVarVal" ) : ok;
          }
 
-         ok = ok ? sz.save( m_appName,                "AppName"        ) : ok;
-         ok = ok ? sz.save( m_scriptBody,             "ScriptBody"     ) : ok;
-         ok = ok ? sz.save( m_parallel,               "IsAppParallel"  ) : ok;
-         ok = ok ? sz.save( m_cpus,                   "CPUsNum"        ) : ok;
-         ok = ok ? sz.save( static_cast<int>( m_sh ), "ShellType"      ) : ok;
-         ok = ok ? sz.save( m_version,                "CldVersion"     ) : ok;
-         ok = ok ? sz.save( m_rootPath,               "IBSROOT"        ) : ok;
-         ok = ok ? sz.save( m_mpirunCmd,              "MPIRunCmd"      ) : ok;
-         ok = ok ? sz.save( m_inputOpt,               "InputOpt"       ) : ok;
-         ok = ok ? sz.save( m_outputOpt,              "OutputOpt"      ) : ok;
-         ok = ok ? sz.save( m_optionsList,            "AppOptionsList" ) : ok;
+         ok = ok ? sz.save( m_appName,                "AppName"         ) : ok;
+         ok = ok ? sz.save( m_scriptBody,             "ScriptBody"      ) : ok;
+         ok = ok ? sz.save( m_parallel,               "IsAppParallel"   ) : ok;
+         ok = ok ? sz.save( m_cpus,                   "CPUsNum"         ) : ok;
+         ok = ok ? sz.save( static_cast<int>( m_sh ), "ShellType"       ) : ok;
+         ok = ok ? sz.save( m_version,                "CldVersion"      ) : ok;
+         ok = ok ? sz.save( m_rootPath,               "IBSROOT"         ) : ok;
+         ok = ok ? sz.save( m_mpirunCmd,              "MPIRunCmd"       ) : ok;
+         ok = ok ? sz.save( m_inputOpt,               "InputOpt"        ) : ok;
+         ok = ok ? sz.save( m_outputOpt,              "OutputOpt"       ) : ok;
+         ok = ok ? sz.save( m_optionsList,            "AppOptionsList"  ) : ok;
+         if ( fileVersion > 0 )
+         {
+            ok = ok ? sz.save( m_runTimeLim,          "AppRunTimeLimit" ) : ok;
+         }
       }
       return ok;
    }
@@ -416,20 +420,26 @@ namespace casa
          m_env[vn] = vv;
       }
 
-      ok = ok ? dz.load( m_appName,    "AppName"         ) : ok;
-      ok = ok ? dz.load( m_scriptBody, "ScriptBody"      ) : ok;
-      ok = ok ? dz.load( m_parallel,   "IsAppParallel"   ) : ok;
-      ok = ok ? dz.load( m_cpus,       "CPUsNum"         ) : ok;
+      ok = ok ? dz.load( m_appName,       "AppName"         ) : ok;
+      ok = ok ? dz.load( m_scriptBody,    "ScriptBody"      ) : ok;
+      ok = ok ? dz.load( m_parallel,      "IsAppParallel"   ) : ok;
+      ok = ok ? dz.load( m_cpus,          "CPUsNum"         ) : ok;
       int sht;
-      ok = ok ? dz.load( sht,           "ShellType"      ) : ok;
+      ok = ok ? dz.load( sht,             "ShellType"       ) : ok;
       m_sh = static_cast<ShellType>( sht );
-      ok = ok ? dz.load( m_version,     "CldVersion"     ) : ok;
-      ok = ok ? dz.load( m_rootPath,    "IBSROOT"        ) : ok;
-      ok = ok ? dz.load( m_mpirunCmd,   "MPIRunCmd"      ) : ok;
-      ok = ok ? dz.load( m_inputOpt,    "InputOpt"       ) : ok;
-      ok = ok ? dz.load( m_outputOpt,   "OutputOpt"      ) : ok;
-      ok = ok ? dz.load( m_optionsList, "AppOptionsList" ) : ok;
+      ok = ok ? dz.load( m_version,       "CldVersion"      ) : ok;
+      ok = ok ? dz.load( m_rootPath,      "IBSROOT"         ) : ok;
+      ok = ok ? dz.load( m_mpirunCmd,     "MPIRunCmd"       ) : ok;
+      ok = ok ? dz.load( m_inputOpt,      "InputOpt"        ) : ok;
+      ok = ok ? dz.load( m_outputOpt,     "OutputOpt"       ) : ok;
+      ok = ok ? dz.load( m_optionsList,   "AppOptionsList"  ) : ok;
 
+      if ( objVer > 0 )
+      {
+         ok = ok ? dz.load( m_runTimeLim, "AppRunTimeLimit" ) : ok;
+      }
+      else { m_runTimeLim = 0; }
+ 
       if ( !ok )
       {
          throw ErrorHandler::Exception( ErrorHandler::DeserializationError )
@@ -437,4 +447,5 @@ namespace casa
       }
    }
 }
+
 

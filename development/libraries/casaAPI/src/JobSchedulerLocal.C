@@ -19,6 +19,9 @@
 #include "FilePath.h"
 #include "FolderPath.h"
 
+// utilities
+#include "WallTime.h"
+
 // STL
 #include <iterator>
 #include <memory>
@@ -67,7 +70,11 @@ public:
    virtual ~SystemProcess( )
    {
 #ifndef _WIN32
-      if ( m_isOk ) kill( m_pid, SIGTERM );
+      if ( m_isOk ) 
+      {
+         kill( -m_pid, SIGTERM );
+         Wait( 1 );
+      }
 
       // get TMPDIR value if it is set
       const char * tmpDir = getenv( "TMPDIR" );
@@ -80,7 +87,7 @@ public:
          if ( tmpSubPrcDir.exists() ) tmpSubPrcDir.remove();
       }
 #else
-      if ( m_isOk   ) { TerminateProcess( hProcess, 0 ); }
+      if ( m_isOk   ) { TerminateProcess( hProcess, 0 ); Wait( 1 ); }
       if ( hProcess ) { CloseHandle( hProcess ); }
 #endif
    }
@@ -88,15 +95,18 @@ public:
    bool isProcessRunning() { return m_isOk; };
 
    void updateProcessStatus();
+   size_t getRunTime() { return static_cast<size_t>( (WallTime::clock() - m_startTime).floatValue() / 60.0 ); }
 
 #ifndef _WIN32
       int m_pid;
+      int m_gid;
 #else
       HANDLE hProcess;
 #endif
 
 private:
-   bool m_isOk;
+   bool           m_isOk;
+   WallTime::Time m_startTime;
 };
 
 // Start a new process using fork/exec, and mangle the file descriptors
@@ -108,6 +118,8 @@ SystemProcess::SystemProcess( const std::string & cwd
 {
    DEBUG( 1, "Running command: %s\n", commandString.c_str() );
    m_isOk = false;
+
+   m_startTime = WallTime::clock();
 
 #ifndef _WIN32 // Unix implementaiton
 
@@ -163,6 +175,8 @@ SystemProcess::SystemProcess( const std::string & cwd
    else // parent
    {
       m_pid = pid;
+      setpgid( m_pid, m_pid ); // set group ID for the child process to kill all child subprocesses
+
       m_isOk = true;
       delete [] args;
    }
@@ -244,13 +258,14 @@ void SystemProcess::updateProcessStatus()
 class JobSchedulerLocal::Job : public CasaSerializable
 {
 public:
-   Job( const std::string & cwd, const std::string & scriptName, const std::string & jobName, int cpus )
+   Job( const std::string & cwd, const std::string & scriptName, const std::string & jobName, int cpus, size_t runTimeLim )
    {
-      m_cwd      = cwd;
-      m_command  = scriptName;
-      m_jobName  = jobName;
-      m_cpus     = cpus;
-      m_jobState = JobScheduler::NotSubmittedYet;
+      m_cwd        = cwd;
+      m_command    = scriptName;
+      m_jobName    = jobName;
+      m_cpus       = cpus;
+      m_jobState   = JobScheduler::NotSubmittedYet;
+      m_runTimeLim = runTimeLim;
 
       m_out = jobName + ".out";  // redirect stdout
       m_err = jobName + ".err";  // redirect stderr
@@ -273,14 +288,8 @@ public:
 
    bool stop()
    {
-      if ( JobScheduler::JobPending == m_jobState )
-      {
-         m_jobState = JobScheduler::JobFailed;
-      }
-      else if ( JobScheduler::JobRunning == m_jobState )
-      {
-         m_proc.reset( NULL );
-      }
+      if (      JobScheduler::JobPending == m_jobState ) { m_jobState = JobScheduler::JobFailed; }
+      else if ( JobScheduler::JobRunning == m_jobState ) { m_jobState = JobScheduler::JobFailed; m_proc.reset( NULL ); }
       return true;
    }
 
@@ -307,7 +316,11 @@ public:
          case JobScheduler::JobRunning:
             m_proc->updateProcessStatus();
 
-            if ( m_proc->isProcessRunning() ) { m_jobState = JobScheduler::JobRunning; }
+            if ( m_proc->isProcessRunning() ) 
+            {
+               if ( m_runTimeLim && m_proc->getRunTime() > m_runTimeLim ) { stop(); }
+               else                                                       { m_jobState = JobScheduler::JobRunning; }
+            }
             else
             {
                if (      ibs::FilePath ( m_command + ".success" ).exists() ) { m_jobState = JobScheduler::JobSucceeded; }
@@ -322,7 +335,7 @@ public:
    }
 
    // version of serialized object representation
-   virtual unsigned int version() const { return 0; }
+   virtual unsigned int version() const { return 1; }
 
    // Get type name of the serialaizable object, used in deserialization to create object with correct type
    virtual const char * typeName() const { return "JobSchedulerLocal::Job"; }
@@ -338,6 +351,10 @@ public:
       ok = ok ? sz.save( m_cwd,     "CWD"           ) : ok;
       ok = ok ? sz.save( m_jobName, "JobName"       ) : ok;
       ok = ok ? sz.save( m_cpus,    "CPUsNum"       ) : ok;
+      if ( version > 0 )
+      {
+         ok = ok ? sz.save( m_runTimeLim, "runTimeLimMinutes" ) : ok;
+      }
       return ok;
    }
 
@@ -359,6 +376,12 @@ public:
       ok = ok ? dz.load( m_jobName, "JobName"       ) : ok;
       ok = ok ? dz.load( m_cpus,    "CPUsNum"       ) : ok;
 
+      if ( objVer > 0 )
+      {
+         ok = ok ? dz.load( m_runTimeLim, "runTimeLimMinutes" ) : ok;
+      }
+      else { m_runTimeLim = 0; }
+ 
       if ( !ok )
       {
          throw ErrorHandler::Exception( ErrorHandler::DeserializationError )
@@ -377,6 +400,7 @@ protected:
    std::string   m_cwd;               // path to folder with script name. Will be set as current for the job
    std::string   m_jobName;           // name of the job
    int           m_cpus;              // number of cpus for the job (does not used yet)
+   size_t        m_runTimeLim; // runt time job limitation [Minutes]
 };
 
 
@@ -402,12 +426,17 @@ void JobSchedulerLocal::setClusterName( const char * clusterName )
 }
 
 // Add job to the list
-JobScheduler::JobID JobSchedulerLocal::addJob( const std::string & cwd, const std::string & scriptName, const std::string & jobName, int cpus )
+JobScheduler::JobID JobSchedulerLocal::addJob( const std::string & cwd
+                                             , const std::string & scriptName
+                                             , const std::string & jobName
+                                             , int                 cpus
+                                             , size_t              runTimeLim
+                                             )
 {
    ibs::FilePath scriptStatFile( scriptName + ".failed" );
    if ( scriptStatFile.exists() ) scriptStatFile.remove();
 
-   m_jobs.push_back( new Job( cwd, scriptName, jobName, cpus ) );
+   m_jobs.push_back( new Job( cwd, scriptName, jobName, cpus, runTimeLim ) );
    return m_jobs.size() - 1; // the position of the new job in the list is it JobID
 }
 

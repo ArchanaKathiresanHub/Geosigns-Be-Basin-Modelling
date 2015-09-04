@@ -81,6 +81,14 @@ namespace casa
       /// @return cpus number
       int cpus() { return m_cpus; }
 
+      /// @brief Set the run time limitiation in minutes for the application, if application is running longer it will be killed
+      /// @param runTimeLim the maximal number of minutes the application is allowed to run
+      void setRunTimeLimit( size_t runTimeLim ) { m_runTimeLim = runTimeLim; }
+
+      /// @brief Get run time limits for this application [Minutes], a job scheduler is using this number
+      /// @return minutes number for the run time limitation
+      int runTimeLimit() { return m_runTimeLim; }
+
       /// @brief Add application option
       /// @param opt new option
       void addOption( const std::string & opt ) { m_optionsList.push_back( opt ); }
@@ -93,7 +101,7 @@ namespace casa
       /// @{
       /// @brief Defines version of serialized object representation. Must be updated on each change in save()
       /// @return Actual version of serialized object representation
-      virtual unsigned int version() const { return 0; }
+      virtual unsigned int version() const { return 1; }
 
       /// @brief Save all object data to the given stream, that object could be later reconstructed from saved data
       /// @param sz Serializer stream
@@ -114,20 +122,21 @@ namespace casa
 
    protected:
 
-      std::map< std::string, std::string >   m_env; ///< keeps environment variables in map: [variable] -> value
-      std::string                            m_appName;      ///< name of application like fastcauldron/genex6/...
-      std::string                            m_scriptBody;   ///< in case of general app keeps script body
-      bool                                   m_parallel;     ///< is this application parallel?
-      int                                    m_cpus;         ///< how many cpus should use application
+      std::map< std::string, std::string >   m_env;            ///< keeps environment variables in map: [variable] -> value
+      std::string                            m_appName;        ///< name of application like fastcauldron/genex6/...
+      std::string                            m_scriptBody;     ///< in case of general app keeps script body
+      bool                                   m_parallel;       ///< is this application parallel?
+      int                                    m_cpus;           ///< how many cpus should use application
+      size_t                                 m_runTimeLim;     ///< hard limit for applictaion run time
 
-      ShellType                              m_sh;  ///< type of shell (setting environment variables differ in different shell scripts
+      ShellType                              m_sh;             ///< type of shell (setting environment variables differ in different shell scripts
 
-      std::string                            m_version;      ///< Cauldron version which will be used
-      std::string                            m_rootPath;     ///< path prefix to applications root like /apps/sssdev/ibs
-      std::string                            m_mpirunCmd;    ///< mpirun command with parameters
+      std::string                            m_version;        ///< Cauldron version which will be used
+      std::string                            m_rootPath;       ///< path prefix to applications root like /apps/sssdev/ibs
+      std::string                            m_mpirunCmd;      ///< mpirun command with parameters
 
-      std::string                            m_inputOpt;     ///< command line option for app to load input project file
-      std::string                            m_outputOpt;    ///< command line option for app to save output project file
+      std::string                            m_inputOpt;       ///< command line option for app to load input project file
+      std::string                            m_outputOpt;      ///< command line option for app to save output project file
 
       std::vector< std::string >             m_optionsList;    ///< List of options for the application
       bool                                   m_clearSnapshots; ///< Add or not to script file cleaning results call

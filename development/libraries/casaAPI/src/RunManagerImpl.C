@@ -45,7 +45,11 @@ const char * RunManager::s_jobsIDListFileName       = "casa_jobs_list.txt";
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // RunManager / RunManagerImpl methods definition
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-CauldronApp * RunManager::createApplication( ApplicationType appType, int cpus, CauldronApp::ShellType sh, std::string cmdLine )
+CauldronApp * RunManager::createApplication( ApplicationType        appType
+                                           , int                    cpus
+                                           , size_t                 runTimeLimit
+                                           , CauldronApp::ShellType sh
+                                           , std::string            cmdLine )
 {
    std::auto_ptr<CauldronApp> app;
    switch ( appType )
@@ -62,7 +66,11 @@ CauldronApp * RunManager::createApplication( ApplicationType appType, int cpus, 
          break;
       default: break;
    }
-   if ( app.get() ) app->setCPUs( cpus );
+   if ( app.get() )
+   {
+      app->setCPUs( cpus );
+      app->setRunTimeLimit( runTimeLimit );
+   }
 
    return app.release();
 }
@@ -180,10 +188,11 @@ ErrorHandler::ReturnCode RunManagerImpl::scheduleCase( RunCase & newRun, const s
 
       ////////////////////////////////////////
       /// put job to the queue through job scheduler
-      JobScheduler::JobID id = m_jobSched->addJob( pfp.filePath().c_str(),  // cwd
-                                                   scriptFile.path(),       // script name
-                                                   oss.str(),               // job name
-                                                   m_appList[i]->cpus()     // number of CPUs for this job
+      JobScheduler::JobID id = m_jobSched->addJob( pfp.filePath().c_str()       // cwd
+                                                 , scriptFile.path()            // script name
+                                                 , oss.str()                    // job name
+                                                 , m_appList[i]->cpus()         // number of CPUs for this job
+                                                 , m_appList[i]->runTimeLimit() // run time limit
                                                  );
 
       // put job to the queue for the current case
@@ -250,7 +259,7 @@ ErrorHandler::ReturnCode RunManagerImpl::runScheduledCases( bool asyncRun )
 
                if ( (m_maxPendingJobs < 1 || pending < m_maxPendingJobs) && JobScheduler::NotSubmittedYet == jobState )
                {
-                  jobState = m_jobSched->runJob( job ); // submit job
+                  jobState = m_jobSched->runJob( job ); // submit the job
 
                   // log job ID
                   std::ofstream ofs( s_jobsIDListFileName, ios_base::out | ios_base::app );
@@ -445,10 +454,11 @@ void RunManagerImpl::restoreCaseStatus( RunCase * cs )
 
             ////////////////////////////////////////
             /// put job to the queue through job scheduler
-            JobScheduler::JobID id = m_jobSched->addJob( pfp.filePath().c_str(),  // cwd
-                                                         stageScript[i],          // script name
-                                                         oss.str(),               // job name
-                                                         m_appList[i]->cpus()     // number of CPUs for this job
+            JobScheduler::JobID id = m_jobSched->addJob( pfp.filePath().c_str()       // cwd
+                                                       , stageScript[i]               // script name
+                                                       , oss.str()                    // job name
+                                                       , m_appList[i]->cpus()         // number of CPUs for this job
+                                                       , m_appList[i]->runTimeLimit() // run time limit
                                                        );
 
             // put job to the queue for the current case
