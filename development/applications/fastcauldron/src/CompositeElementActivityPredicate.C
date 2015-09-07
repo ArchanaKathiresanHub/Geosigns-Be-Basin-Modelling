@@ -11,7 +11,12 @@ CompositeElementActivityPredicate::~CompositeElementActivityPredicate () {
 }
 
 CompositeElementActivityPredicate& CompositeElementActivityPredicate::compose ( const ElementActivityPredicatePtr& part ) {
-   m_activityComposition.push_back ( part );
+
+   if ( part != 0 ) {
+      // Only add non-null pointers to the list.
+      m_activityComposition.push_back ( part );
+   }
+
    return *this;
 }
 
