@@ -28,6 +28,7 @@
 // use some mockup to allow deserialization
 #define LSF_RLIM_NLIMITS  12
 #define DEFAULT_RLIMIT   -1
+#define LSF_RLIMIT_RUN    9 
 
 #ifndef _WIN32
 #include <sys/types.h>

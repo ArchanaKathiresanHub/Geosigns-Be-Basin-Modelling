@@ -19,9 +19,6 @@
 #include "FilePath.h"
 #include "FolderPath.h"
 
-// utilities
-#include "WallTime.h"
-
 // STL
 #include <iterator>
 #include <memory>
@@ -37,6 +34,7 @@
 #include <sys/wait.h>
 #else
 #include <windows.h>
+#include <winbase.h>
 #endif
 
 #include <cstdio>
@@ -60,12 +58,52 @@ static size_t NumCPUS() { SYSTEM_INFO sysinfo; GetSystemInfo( &sysinfo ); return
 
 namespace casa
 {
+class JSTimer
+{
+public:
+   JSTimer() : m_begin( -1.0 )
+   {
+#ifdef _WIN32
+      LARGE_INTEGER ifrq;
+      QueryPerformanceFrequency( &ifrq );
+      m_invQPfrq = 1.0 / (double)(ifrq.QuadPart);
+#endif
+   }
+
+   double time() // Return wall-clock time in seconds
+   {
+      if ( m_begin < 0 ) m_begin = get_time(); // timer wasn't started start it now
+      return get_time() - m_begin;
+   }
+
+   void   start()      { m_begin = get_time();        } // Start timer
+
+protected:
+   double m_begin;    // start time
+#ifdef _WIN32
+   double  m_invQPfrq;
+#endif
+   double get_time() const // query time
+   {
+#ifndef _WIN32
+      // astronomical time
+      struct timeval    tv;
+      gettimeofday( &tv, NULL );
+      return tv.tv_sec + tv.tv_usec * 1.0e-6;
+#else
+      // astronomical time
+      LARGE_INTEGER tick_count;
+      QueryPerformanceCounter( &tick_count );
+      return tick_count.QuadPart * m_invQPfrq;
+#endif
+   }
+};
 
 // SystemProcess represents a low-level system process
 class SystemProcess
 {
 public:
-   SystemProcess( const std::string & cwd, const std::string& commandString, const std::string & outFile, const std::string & errFile );
+   SystemProcess( const std::string & cwd, const std::string & commandString, const std::string & outFile, const std::string & errFile );
 
    virtual ~SystemProcess( )
    {
@@ -95,7 +133,7 @@ public:
    bool isProcessRunning() { return m_isOk; };
 
    void updateProcessStatus();
-   size_t getRunTime() { return static_cast<size_t>( (WallTime::clock() - m_startTime).floatValue() / 60.0 ); }
+   size_t getRunTime() { return static_cast<size_t>( m_procTimer.time() / 60.0 ); }
 
 #ifndef _WIN32
       int m_pid;
@@ -105,8 +143,8 @@ public:
 #endif
 
 private:
-   bool           m_isOk;
-   WallTime::Time m_startTime;
+   bool    m_isOk;
+   JSTimer m_procTimer;
 };
 
 // Start a new process using fork/exec, and mangle the file descriptors
@@ -119,7 +157,7 @@ SystemProcess::SystemProcess( const std::string & cwd
    DEBUG( 1, "Running command: %s\n", commandString.c_str() );
    m_isOk = false;
 
-   m_startTime = WallTime::clock();
+   m_procTimer.start();
 
 #ifndef _WIN32 // Unix implementaiton
 

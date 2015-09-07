@@ -25,7 +25,7 @@ std::string ProgressManager::report (const std::string & message)
 
    WallTime::Duration executionTime = clockTime - m_timeStarted;
 
-   int len = message.size ();
+   size_t len = message.size ();
 
    ostringstream buf;
    buf << message;
