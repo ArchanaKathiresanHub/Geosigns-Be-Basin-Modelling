@@ -85,23 +85,23 @@ namespace CauldronIO
         ~Project();
 
 		/// \brief Adds a snapshot to the current project
-		void AddSnapShot(boost::shared_ptr<SnapShot>& snapShot);
+		void addSnapShot(boost::shared_ptr<SnapShot>& snapShot);
 
         /// \brief Retrieve all data in project
-        void Retrieve();
+        void retrieve();
 
         /// \returns Name of the project
-        const std::string& GetName() const;
+        const std::string& getName() const;
         /// \returns Description of the project
-        const std::string& GetDescription() const;
+        const std::string& getDescription() const;
         /// \returns Team working on this project (?)
-        const std::string& GetTeam() const;
+        const std::string& getTeam() const;
         /// \returns Obsolete
-        const std::string& GetProgramVersion() const;
+        const std::string& getProgramVersion() const;
         /// \returns Modeling mode for this run
-        ModellingMode GetModelingMode() const;
+        ModellingMode getModelingMode() const;
         /// \returns The list of snapshots
-        const SnapShotList& GetSnapShots() const;
+        const SnapShotList& getSnapShots() const;
 
     private:
         SnapShotList _snapShotList;
@@ -123,28 +123,28 @@ namespace CauldronIO
 
         /// \brief Retrieve all data in snapshot: 
         /// This will iterate over all contained data (surfaces, volumes, etc.)
-        void Retrieve();
+        void retrieve();
 
 	    /// \brief Add a surface to the snapshot; ownership is transfered
-	    void AddSurface(boost::shared_ptr<Surface>& surface);
+	    void addSurface(boost::shared_ptr<Surface>& surface);
  	    /// \brief Add a volume to the snapshot; ownership is transfered
-        void AddVolume(boost::shared_ptr<Volume>& volume);
+        void addVolume(boost::shared_ptr<Volume>& volume);
         /// \brief Add a discontinuous volume to the snapshot; ownership is transfered
-        void AddDiscontinuousVolume(boost::shared_ptr<DiscontinuousVolume>& discVolume);
+        void addDiscontinuousVolume(boost::shared_ptr<DiscontinuousVolume>& discVolume);
 
 	    /// \returns Age of snapshot
-        double GetAge () const;
+        double getAge () const;
         /// \returns kind of snapshot
-        SnapShotKind GetKind() const;
+        SnapShotKind getKind() const;
 	    /// \returns True if this is a minor snapshot
-        bool IsMinorShapshot() const;
+        bool isMinorShapshot() const;
 
         /// \returns the list of surfaces
-        const SurfaceList& GetSurfaceList() const;
+        const SurfaceList& getSurfaceList() const;
         /// \returns the list of volumes
-        const VolumeList& GetVolumeList() const;
+        const VolumeList& getVolumeList() const;
         /// \returns the list of discontinuous volumes
-        const DiscontinuousVolumeList& GetDiscontinuousVolumeList() const;
+        const DiscontinuousVolumeList& getDiscontinuousVolumeList() const;
 		
     private:
 	    SurfaceList _surfaceList;
@@ -170,17 +170,17 @@ namespace CauldronIO
         Property(const std::string& name, const std::string& username, const std::string& cauldronName, const std::string& unit,
             PropertyType type, PropertyAttribute attrib);
 	    /// \returns the name of this property
-        const std::string& GetName() const;
+        const std::string& getName() const;
 	    /// \returns the user name of this property
-        const std::string& GetUserName() const;
+        const std::string& getUserName() const;
 	    /// \returns the cauldron name of this property
-        const std::string& GetCauldronName() const;
+        const std::string& getCauldronName() const;
 	    /// \return the unit of this property
-        const std::string& GetUnit() const;
+        const std::string& getUnit() const;
 	    /// \returns the PropertyType
-        PropertyType GetType() const;
+        PropertyType getType() const;
 	    /// \returns the PropertyAttribute
-        PropertyAttribute GetAttribute() const;
+        PropertyAttribute getAttribute() const;
 
     private:
 	    std::string _name, _username, _cauldronName, _unit;
@@ -199,9 +199,9 @@ namespace CauldronIO
         /// \param [in] name name of the formation
         Formation(size_t kStart, size_t kEnd, const std::string& name);
         /// \returns the depth range
-        void GetDepthRange(size_t &start, size_t &end) const;
+        void getDepthRange(size_t &start, size_t &end) const;
         /// \returns the formation name
-        const std::string& GetName() const;
+        const std::string& getName() const;
 
     private:
         std::string _name;
@@ -224,27 +224,27 @@ namespace CauldronIO
             boost::shared_ptr<Map> valueMap);
 
         /// \brief Get the name of this surface
-        const std::string& GetName() const;
+        const std::string& getName() const;
         /// \brief Get the values for this surface
-        const boost::shared_ptr<Map> GetValueMap() const;
+        const boost::shared_ptr<Map> getValueMap() const;
         /// \returns the subsurface kind
-        SubsurfaceKind GetSubSurfaceKind() const;
+        SubsurfaceKind getSubSurfaceKind() const;
         /// \returns the associate property with this grid
-        const boost::shared_ptr<const Property> GetProperty() const;
+        const boost::shared_ptr<const Property> getProperty() const;
         /// \brief Associate a formation with this map
         /// \param [in] formation the formation to be associated with this map. Optional
-        void SetFormation(boost::shared_ptr<const Formation> formation);
+        void setFormation(boost::shared_ptr<const Formation> formation);
         /// \returns the associated formation for this map. Can be null
-        const boost::shared_ptr<const Formation> GetFormation() const;
+        const boost::shared_ptr<const Formation> getFormation() const;
         /// \brief Set the associated Depth surface for this surface
         /// \param [in] surface the depth-surface to associate with this 
-        void SetDepthSurface(boost::shared_ptr<const Surface> surface);
+        void setDepthSurface(boost::shared_ptr<const Surface> surface);
         /// \returns the associated Depth surface for this surface; CAN BE NULL
-        const boost::shared_ptr<const Surface> GetDepthSurface() const;
+        const boost::shared_ptr<const Surface> getDepthSurface() const;
         /// \brief Retrieve actual data into memory
-        void Retrieve();
+        void retrieve();
         /// \returns true if data is available
-        bool IsRetrieved() const;
+        bool isRetrieved() const;
 
     private:
         SubsurfaceKind _subSurfaceKind;
@@ -265,14 +265,14 @@ namespace CauldronIO
         ~Map();
 
         /// \returns the currently assigned UUID; this can be useful for referencing other maps, not in memory
-        const boost::uuids::uuid& GetUUID() const;
+        const boost::uuids::uuid& getUUID() const;
         /// \brief Sets the currently assigned UUID; this can be useful for referencing other maps, not in memory
         /// \param [in] uuid the uuid to associate this map with
-        void SetUUID(const boost::uuids::uuid& uuid);
+        void setUUID(const boost::uuids::uuid& uuid);
 
         /// \brief Assign data to the map : geometry must have been assigned
         /// \param [in] data pointer to the xy data, ordered row-wise
-        void SetData_IJ(float* data);
+        void setData_IJ(float* data);
         /// \brief assign a geometry
         /// \param [in] numI number of elements in i-direction
         /// \param [in] numJ number of elements in j-direction
@@ -280,77 +280,77 @@ namespace CauldronIO
         /// \param [in] deltaJ spacing in j-direction
         /// \param [in] minI map origin in i-direction
         /// \param [in] minJ map origin in j-direction
-        void SetGeometry(size_t numI, size_t numJ, double deltaI, double deltaJ, double minI, double minJ);
+        void setGeometry(size_t numI, size_t numJ, double deltaI, double deltaJ, double minI, double minJ);
         /// \brief Retrieve the data
-        virtual void Retrieve() = 0;
+        virtual void retrieve() = 0;
         /// \returns true if data is available
-        bool IsRetrieved() const;
+        bool isRetrieved() const;
         /// \returns true if this map is cell centered
-        bool IsCellCentered() const;
+        bool isCellCentered() const;
         /// \returns true if this map is node centered
-        bool IsNodeCentered() const { return !IsCellCentered(); }
+        bool isNodeCentered() const { return !isCellCentered(); }
         /// \returns the local horizontal resolution
-        size_t GetNumI() const;
+        size_t getNumI() const;
         /// \returns  the local vertical resolution
-        size_t GetNumJ() const;
+        size_t getNumJ() const;
         /// \returns  the distance between two vertical grid lines
-        double GetDeltaI() const;
+        double getDeltaI() const;
         /// \returns  the distance between two horizontal grid lines
-        double GetDeltaJ() const;
+        double getDeltaJ() const;
         /// \returns the leftmost grid coordinate value
-        double GetMinI() const;
+        double getMinI() const;
         /// \returns  the bottommost grid coordinate value
-        double GetMinJ() const;
+        double getMinJ() const;
         /// \returns  the rightmost grid coordinate value
-        double GetMaxI() const;
+        double getMaxI() const;
         /// \returns  the topmost grid coordinate value
-        double GetMaxJ() const;
+        double getMaxJ() const;
         /// \returns  true if data is represented per row
-        bool CanGetRow() const;
+        bool canGetRow() const;
         /// \returns true if data is represented per column
-        bool CanGetColumn() const;
+        bool canGetColumn() const;
         /// \brief Gets the value at the specified grid coordinate
         /// \param [in] i row index
         /// \param [in] j column index
         /// \returns
-        float GetValue(size_t i, size_t j) const;
+        float getValue(size_t i, size_t j) const;
         /// \brief Gets an entire row; can be null if this map is not row-ordered (or throw an exception)
         /// \param [in] j column index
         /// \returns
-        float const * GetRowValues(size_t j);
+        float const * getRowValues(size_t j);
         /// \brief Gets an entire column; can be null if this map is not row-ordered (or throw an exception)
         /// \param [in] i row index
         /// \returns
-        float const * GetColumnValues(size_t i);
+        float const * getColumnValues(size_t i);
         /// \returns pointer to entire data 
-        float const * GetSurfaceValues();
+        float const * getSurfaceValues();
         /// \brief Convenience function to get an index into the 1D volume data 
         /// \param [in] i row index
         /// \param [in] j column index
-        inline size_t GetMapIndex(size_t i, size_t j) const;
+        inline size_t getMapIndex(size_t i, size_t j) const;
         /// \returns true if surface is constant
-        bool IsConstant() const;
+        bool isConstant() const;
         /// \brief Set a constant value for this surface
         /// \param [in] constantValue
-        void SetConstantValue(float constantValue);
+        void setConstantValue(float constantValue);
         /// \returns the constant value
-        float GetConstantValue() const;
+        float getConstantValue() const;
         /// \returns true if grid coordinate is undefined
         /// \param [in] i row index
         /// \param [in] j column index
-        bool IsUndefined(size_t i, size_t j) const;
+        bool isUndefined(size_t i, size_t j) const;
         /// \returns the undefined value
-        float GetUndefinedValue() const;
+        float getUndefinedValue() const;
         /// \brief Set the undefined value
         /// \param [in] undefined the undefined value value
-        void SetUndefinedValue(float undefined);
+        void setUndefinedValue(float undefined);
 
     private:
         double _deltaI, _deltaJ, _minI, _minJ, _maxI, _maxJ;
         size_t _numI, _numJ;
         float _constantValue, _undefinedValue;
         bool _isConstant, _isCellCentered;
-        void SetData(float* data, bool setValue = false, float value = 0);
+        void setData(float* data, bool setValue = false, float value = 0);
         float* _internalData;
         boost::uuids::uuid _uuid;
 
@@ -376,35 +376,35 @@ namespace CauldronIO
         ~Volume();
 
         /// \returns the SubsurfaceKind
-        SubsurfaceKind GetSubSurfaceKind() const;
+        SubsurfaceKind getSubSurfaceKind() const;
         /// \returns the associate property with this grid
-        const boost::shared_ptr<const Property> GetProperty() const;
+        const boost::shared_ptr<const Property> getProperty() const;
         /// \brief Assigns a related depth volume to this volume
         /// \param [in] depthVolume the depth volume to assign to this volume
-        void SetDepthVolume(boost::shared_ptr<const Volume> depthVolume);
+        void setDepthVolume(boost::shared_ptr<const Volume> depthVolume);
         /// \returns an associated depth volume; should not be null
-        boost::shared_ptr<const Volume> GetDepthVolume() const;
+        boost::shared_ptr<const Volume> getDepthVolume() const;
 
         /// \returns the currently assigned UUID; this can be useful for referencing other maps, not in memory
-        const boost::uuids::uuid& GetUUID() const;
+        const boost::uuids::uuid& getUUID() const;
         /// \brief Sets the currently assigned UUID; this can be useful for referencing other maps, not in memory
         /// \param [in] uuid the uuid to associate with this volume
-        void SetUUID(const boost::uuids::uuid& uuid);
+        void setUUID(const boost::uuids::uuid& uuid);
         /// \brief Retrieve the data: to be implemented by inherited class
-        virtual void Retrieve() = 0;
+        virtual void retrieve() = 0;
         /// \returns true if data is available
-        bool IsRetrieved() const;
+        bool isRetrieved() const;
 
         /// \brief Assign data to the volume as a 1D array: K fastest, then I, then J
         /// \param [in] data a pointer to the data; it will be copied, no ownership is transferred
         /// \param [in] setValue if true, a constant value will be assigned to the data
         /// \param [in] value the value to assign to the data if setValue is true
-        void SetData_KIJ(float* data, bool setValue = false, float value = 0);
+        void setData_KIJ(float* data, bool setValue = false, float value = 0);
         /// \brief Assign data to the volume as a 1D array: I fastest, then J, then K
         /// \param [in] data a pointer to the data; it will be copied, no ownership is transferred
         /// \param [in] setValue if true, a constant value will be assigned to the data
         /// \param [in] value the value to assign to the data if setValue is true
-        void SetData_IJK(float* data, bool setValue = false, float value = 0);
+        void setData_IJK(float* data, bool setValue = false, float value = 0);
 
         /// \brief assign a geometry: the k-offset is the index of the first k-element (can be zero)
         /// \param [in] numI number of elements in i-dimension
@@ -415,96 +415,96 @@ namespace CauldronIO
         /// \param [in] deltaJ spacing in j-dimension
         /// \param [in] minI the volume origin in i-dimension
         /// \param [in] minJ the volume origin in j-dimension
-        void SetGeometry(size_t numI, size_t numJ, size_t numK, size_t offsetK,
+        void setGeometry(size_t numI, size_t numJ, size_t numK, size_t offsetK,
             double deltaI, double deltaJ, double minI, double minJ);
 
         /// \returns true if this volume is cell centered
-        bool IsCellCentered() const;
+        bool isCellCentered() const;
         /// \returns true if this volume is node centered
-        bool IsNodeCentered() const { return !IsCellCentered(); }
+        bool isNodeCentered() const { return !isCellCentered(); }
         /// \returns the local horizontal resolution
-        size_t GetNumI() const;
+        size_t getNumI() const;
         /// \returns the local vertical resolution
-        size_t GetNumJ() const;
+        size_t getNumJ() const;
         /// \returns the number of k elements in this volume
-        size_t GetNumK() const;
+        size_t getNumK() const;
         /// \returns the index of the first k element
-        size_t GetFirstK() const;
+        size_t getFirstK() const;
         /// \returns the index of the last k element (inclusive)
-        size_t GetLastK() const;
+        size_t getLastK() const;
         /// \returns the distance between two vertical gridlines
-        double GetDeltaI() const;
+        double getDeltaI() const;
         /// \returns the distance between two horizontal gridlines
-        double GetDeltaJ() const;
+        double getDeltaJ() const;
         /// return the leftmost grid coordinate value
-        double GetMinI() const;
+        double getMinI() const;
         /// \returns the bottommost grid coordinate value
-        double GetMinJ() const;
+        double getMinJ() const;
         /// \returns the rightmost grid coordinate value
-        double GetMaxI() const;
+        double getMaxI() const;
         /// \returns the topmost grid coordinate value
-        double GetMaxJ() const;
+        double getMaxJ() const;
         /// \returns true if IJK data is present (false if not present or constant data)
-        bool HasDataIJK() const;
+        bool hasDataIJK() const;
         /// \returns true if KIJ data is present (false if not present or constant data)
-        bool HasDataKIJ() const;
+        bool hasDataKIJ() const;
 
         /// \param [in] i index in i-dimension
         /// \param [in] j index in j-dimension
         /// \param [in] k index in k-dimension
         /// \returns if value is undefined
-        bool IsUndefined(size_t i, size_t j, size_t k) const;
+        bool isUndefined(size_t i, size_t j, size_t k) const;
         /// \brief Set the undefined value
-        void SetUndefinedValue(float undefined);
+        void setUndefinedValue(float undefined);
         /// \returns the undefined value
-        float GetUndefinedValue() const;
+        float getUndefinedValue() const;
         /// \returns true if surface is constant
-        bool IsConstant() const;
+        bool isConstant() const;
         /// \brief Set a constant value for this volume
         /// \param [in] constantValue the value to assign to all data of this volume
-        void SetConstantValue(float constantValue);
+        void setConstantValue(float constantValue);
         /// \returns the constant value
-        float GetConstantValue() const;
+        float getConstantValue() const;
 
         /// \param [in] i index in i-dimension
         /// \param [in] j index in j-dimension
         /// \param [in] k index in k-dimension
         /// \returns the value at the specified grid coordinate
-        float GetValue(size_t i, size_t j, size_t k) const;
+        float getValue(size_t i, size_t j, size_t k) const;
         /// \param [in] j index in j-dimension
         /// \param [in] k index in k-dimension
         /// \returns an entire row of data; can be null if this volume is not row-ordered (or throw an exception)
-        float const * GetRowValues(size_t j, size_t k);
+        float const * getRowValues(size_t j, size_t k);
         /// \param [in] i index in i-dimension
         /// \param [in] k index in k-dimension
         /// \returns an entire column of data; can be null if this volume is not row-ordered (or throw an exception)
-        float const * GetColumnValues(size_t i, size_t k);
+        float const * getColumnValues(size_t i, size_t k);
         /// \param [in] i index in i-dimension
         /// \param [in] j index in j-dimension
         /// \throws CauldronIOException
         /// \returns an entire needle of data; can be null if this volume is not needle-ordered (or throw an exception)
-        float const * GetNeedleValues(size_t i, size_t j);
+        float const * getNeedleValues(size_t i, size_t j);
         /// \param [in] k index in k-dimension
         /// \returns pointer to entire data for the surface at depth k; can be null if data is not stored per ij surface
-        float const * GetSurface_IJ(size_t k);
+        float const * getSurface_IJ(size_t k);
         /// \returns pointer to entire data: can be NULL
-        float const * GetVolumeValues_IJK();
+        float const * getVolumeValues_IJK();
         /// \returns pointer to entire data: can be NULL 
-        float const * GetVolumeValues_KIJ();
+        float const * getVolumeValues_KIJ();
 
         /// \brief Convenience function to get an index into the 1D volume data : indexing is through the full-k range, corresponding to the depth volume
         /// \param [in] i index in i-dimension
         /// \param [in] j index in j-dimension
         /// \param [in] k index in k-dimension
-        size_t ComputeIndex_IJK(size_t i, size_t j, size_t k) const;
+        size_t computeIndex_IJK(size_t i, size_t j, size_t k) const;
         /// \brief Convenience function to get an index into the 1D volume data : indexing is through the full-k range, corresponding to the depth volume
         /// \param [in] i index in i-dimension
         /// \param [in] j index in j-dimension
         /// \param [in] k index in k-dimension
-        size_t ComputeIndex_KIJ(size_t i, size_t j, size_t k) const;
+        size_t computeIndex_KIJ(size_t i, size_t j, size_t k) const;
 
     private:
-        void SetData(float* data, float** internalData, bool setValue = false, float value = 0);
+        void setData(float* data, float** internalData, bool setValue = false, float value = 0);
         float* _internalDataIJK;
         float* _internalDataKIJ;
         double _deltaI, _deltaJ, _minI, _minJ, _maxI, _maxJ;
@@ -530,20 +530,20 @@ namespace CauldronIO
         /// \brief Destructor
         ~DiscontinuousVolume();
         /// \returns false; this volume is NOT cell centered
-        bool IsCellCentered() const { return false; }
+        bool isCellCentered() const { return false; }
         /// \brief Adds a volume/formation pair to the list
         /// \param [in] formation Formation instance
         /// \param [in] volume Volume instance
-        void AddVolume(boost::shared_ptr<Formation> formation, boost::shared_ptr<Volume> volume);
+        void addVolume(boost::shared_ptr<Formation> formation, boost::shared_ptr<Volume> volume);
         /// \brief Get the entire list of (sub)volumes
-        const FormationVolumeList& GetVolumeList() const;
+        const FormationVolumeList& getVolumeList() const;
         /// \brief Assigns a related depth volume to this volume
         /// \param [in] depthVolume the depth volume to associate with this DiscontinuousVolume
-        void SetDepthVolume(boost::shared_ptr<const Volume> depthVolume);
+        void setDepthVolume(boost::shared_ptr<const Volume> depthVolume);
         /// \returns The associated depth volume 
-        boost::shared_ptr<const Volume> GetDepthVolume() const;
+        boost::shared_ptr<const Volume> getDepthVolume() const;
         /// \brief Load all data in this volume
-        void Retrieve();
+        void retrieve();
 
     private:
         FormationVolumeList _volumeList;

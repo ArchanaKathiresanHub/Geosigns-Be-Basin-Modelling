@@ -27,7 +27,7 @@ namespace CauldronIO
         bool reverseDepth;
         const DataAccess::Interface::PropertyValue* propValue;
 
-        static bool CompareFormations(const FormationInfo* info1, const FormationInfo* info2);
+        static bool compareFormations(const FormationInfo* info1, const FormationInfo* info2);
     };
     typedef vector<FormationInfo*> FormationInfoList;
     
@@ -39,9 +39,9 @@ namespace CauldronIO
         MapProjectHandle(bool cellCentered);
         
         /// \brief Override the retrieve method to load data from datastore
-        virtual void Retrieve();
+        virtual void retrieve();
         /// \brief Set all variables needed to retrieve the data
-        void SetDataStore(const DataAccess::Interface::PropertyValue* propVal);
+        void setDataStore(const DataAccess::Interface::PropertyValue* propVal);
 
     private:
         const DataAccess::Interface::PropertyValue* _propVal;
@@ -54,19 +54,19 @@ namespace CauldronIO
         VolumeProjectHandle(bool cellCentered, SubsurfaceKind kind, boost::shared_ptr<const Property> property);
 
         /// \brief Override the retrieve method to load data from datastore
-        virtual void Retrieve();
+        virtual void retrieve();
         /// \brief Set all variables needed to retrieve the data for multiple formations
-        void SetDataStore(boost::shared_ptr<DataAccess::Interface::PropertyValueList> propValues,
+        void setDataStore(boost::shared_ptr<DataAccess::Interface::PropertyValueList> propValues,
             boost::shared_ptr<CauldronIO::FormationInfoList> depthFormations);
         /// \brief Set all variables needed to retrieve the data
-        void SetDataStore(const DataAccess::Interface::PropertyValue* propVal, const CauldronIO::FormationInfo* depthFormation);
+        void setDataStore(const DataAccess::Interface::PropertyValue* propVal, const CauldronIO::FormationInfo* depthFormation);
 
         /// \brief Helper method
-        static FormationInfo* FindDepthInfo(boost::shared_ptr<CauldronIO::FormationInfoList> depthFormations, const DataAccess::Interface::Formation* formation);
+        static FormationInfo* findDepthInfo(boost::shared_ptr<CauldronIO::FormationInfoList> depthFormations, const DataAccess::Interface::Formation* formation);
 
     private:
-        void RetrieveMultipleFormations();
-        void RetrieveSingleFormation();
+        void retrieveMultipleFormations();
+        void retrieveSingleFormation();
         boost::shared_ptr<DataAccess::Interface::PropertyValueList> _propValues;
         boost::shared_ptr<CauldronIO::FormationInfoList> _depthFormations;
         const DataAccess::Interface::PropertyValue* _propVal;

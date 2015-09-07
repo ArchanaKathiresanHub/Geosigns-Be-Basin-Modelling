@@ -24,23 +24,23 @@ namespace CauldronIO
     class ImportExport
     {
     public:
-        static bool ExportToXML(boost::shared_ptr<Project>& project, const std::string& filename);
-        static std::string GetXMLIndexingFileName(const boost::filesystem::path& path);
+        static bool exportToXML(boost::shared_ptr<Project>& project, const std::string& filename);
+        static std::string getXMLIndexingFileName(const boost::filesystem::path& path);
 
     private:
         class DataStore;
 
         ImportExport(const boost::filesystem::path& path);
-        void AddProject(boost::property_tree::ptree& pt, boost::shared_ptr<Project>& project);
-        void AddProperty(boost::property_tree::ptree &node, const boost::shared_ptr<const Property>& property);
-        void AddFormation(boost::property_tree::ptree& node, const boost::shared_ptr<const Formation>& formation);
-        void AddGeometryInfo(boost::property_tree::ptree& tree, const boost::shared_ptr<const Map>& map);
-        void AddGeometryInfo(boost::property_tree::ptree& tree, const boost::shared_ptr<const Volume>& volume);
-        void AddDataStorage(boost::property_tree::ptree& volNode, const boost::shared_ptr<Volume>& volume, DataStore& dataStore);
-        std::string GetFilename(const boost::uuids::uuid& uuid) const;
+        void addProject(boost::property_tree::ptree& pt, boost::shared_ptr<Project>& project);
+        void addProperty(boost::property_tree::ptree &node, const boost::shared_ptr<const Property>& property) const;
+        void addFormation(boost::property_tree::ptree& node, const boost::shared_ptr<const Formation>& formation) const;
+        void addGeometryInfo(boost::property_tree::ptree& tree, const boost::shared_ptr<const Map>& map) const;
+        void addGeometryInfo(boost::property_tree::ptree& tree, const boost::shared_ptr<const Volume>& volume) const;
+        void addDataStorage(boost::property_tree::ptree& volNode, const boost::shared_ptr<Volume>& volume, DataStore& dataStore) const;
+        std::string getFilename(const boost::uuids::uuid& uuid) const;
 
-        void WriteSurface(const boost::shared_ptr<Surface>& surfaceIO, DataStore& store);
-        void WriteVolume(const boost::shared_ptr<Volume>& volume, bool dataIJK, DataStore& store);
+        void writeSurface(const boost::shared_ptr<Surface>& surfaceIO, DataStore& store) const;
+        void writeVolume(const boost::shared_ptr<Volume>& volume, bool dataIJK, DataStore& store) const;
 
         boost::filesystem::path _outputPath;
 
@@ -50,17 +50,17 @@ namespace CauldronIO
         public:
             DataStore(const std::string& filename, bool compress, bool fp16);
             ~DataStore();
-            size_t GetOffset() const;
-            void AddData(const float* data, size_t size, float undef);
-            const std::string& GetFileName() const;
-            size_t GetLastSize() const;
-            bool GetCompress() const;
-            bool GetFP16() const;
+            size_t getOffset() const;
+            void addData(const float* data, size_t size, float undef);
+            const std::string& getFileName() const;
+            size_t getLastSize() const;
+            bool getCompress() const;
+            bool getFP16() const;
 
         private:
-            std::vector<char> Decompress(const char* data, size_t size) const;
-            std::vector<char> Compress(const char* data, size_t size) const;
-            template <typename T> void GetStatistics(const T* data, size_t size, T undef);
+            std::vector<char> decompress(const char* data, size_t size) const;
+            std::vector<char> compress(const char* data, size_t size) const;
+            template <typename T> void getStatistics(const T* data, size_t size, T undef);
             boost::iostreams::stream<boost::iostreams::file_sink> _file;
             size_t _offset, _lastSize;
             std::string _fileName;

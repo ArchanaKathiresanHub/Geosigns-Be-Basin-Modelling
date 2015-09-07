@@ -34,21 +34,21 @@ int main(int argc, char ** argv)
 
     // Import from ProjectHandle
     cout << "Importing from project handle (requires reading depth formations)" << endl;
-    boost::shared_ptr<CauldronIO::Project> project = ImportProjectHandle::CreateFromProjectHandle(projectHandle, false);
+    boost::shared_ptr<CauldronIO::Project> project = ImportProjectHandle::createFromProjectHandle(projectHandle, false);
     timeInSeconds = (float)(clock() - start) / CLOCKS_PER_SEC;
     cout << "Finished import in " << timeInSeconds << " seconds " << endl;    
     
     // Retrieve data
     cout << "Retrieving data" << endl;
     start = clock();
-    project->Retrieve();
+    project->retrieve();
     timeInSeconds = (float)(clock() - start) / CLOCKS_PER_SEC;
     cout << "Finished retrieve in " << timeInSeconds << " seconds " << endl;
 
     // Export to native format
     cout << "Writing to new format" << endl;
     start = clock();
-    CauldronIO::ImportExport::ExportToXML(project, "output-dir");
+    CauldronIO::ImportExport::exportToXML(project, "output-dir");
     timeInSeconds = (float)(clock() - start) / CLOCKS_PER_SEC;
     cout << "Wrote to new format in " << timeInSeconds << " seconds" << endl;
     return 0;

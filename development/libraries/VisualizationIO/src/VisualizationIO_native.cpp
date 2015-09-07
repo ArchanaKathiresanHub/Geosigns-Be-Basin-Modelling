@@ -16,12 +16,12 @@ CauldronIO::MapNative::MapNative(bool cellCentered) : Map(cellCentered)
 {
 }
 
-void CauldronIO::MapNative::Retrieve()
+void CauldronIO::MapNative::retrieve()
 {
     throw CauldronIOException("Not implemented");
 }
 
-void CauldronIO::MapNative::SetDataStore(const std::string& filename, bool compressed, size_t offset, size_t size)
+void CauldronIO::MapNative::setDataStore(const std::string& filename, bool compressed, size_t offset, size_t size)
 {
     _filename = filename;
     _compressed = compressed;
@@ -34,12 +34,12 @@ CauldronIO::VolumeNative::VolumeNative(bool cellCentered, SubsurfaceKind kind, b
 {
 }
 
-void CauldronIO::VolumeNative::Retrieve()
+void CauldronIO::VolumeNative::retrieve()
 {
     throw CauldronIOException("Not implemented");
 }
 
-void CauldronIO::VolumeNative::SetDataStore(const std::string& filename, bool compressed, size_t offset, size_t size)
+void CauldronIO::VolumeNative::setDataStore(const std::string& filename, bool compressed, size_t offset, size_t size)
 {
     _filename = filename;
     _compressed = compressed;

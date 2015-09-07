@@ -23,9 +23,9 @@ namespace CauldronIO
         MapNative(bool cellCentered);
         
         /// \brief Override the retrieve method to load data from datastore
-        virtual void Retrieve();
+        virtual void retrieve();
         /// \brief Set all variables needed to retrieve the data; consider actually adding a reference to a datastore object that can do the logic
-        void SetDataStore(const std::string& filename, bool compressed, size_t offset, size_t size);
+        void setDataStore(const std::string& filename, bool compressed, size_t offset, size_t size);
 
     private:
         std::string _filename;
@@ -40,9 +40,9 @@ namespace CauldronIO
         VolumeNative(bool cellCentered, SubsurfaceKind kind, boost::shared_ptr<const Property> property);
 
         /// \brief Override the retrieve method to load data from datastore
-        virtual void Retrieve();
+        virtual void retrieve();
         /// \brief Set all variables needed to retrieve the data; consider actually adding a reference to a datastore object that can do the logic
-        void SetDataStore(const std::string& filename, bool compressed, size_t offset, size_t size);
+        void setDataStore(const std::string& filename, bool compressed, size_t offset, size_t size);
 
     private:
         std::string _filename;
