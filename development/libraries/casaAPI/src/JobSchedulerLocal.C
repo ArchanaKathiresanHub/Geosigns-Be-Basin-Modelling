@@ -31,6 +31,7 @@
 #include <unistd.h>
 #include <sys/socket.h>
 #include <sys/types.h>
+#include <sys/time.h>
 #include <sys/wait.h>
 #else
 #include <windows.h>
