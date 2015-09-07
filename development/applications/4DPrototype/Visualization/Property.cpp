@@ -338,8 +338,9 @@ MiMeshIjk::StorageLayout FormationIdProperty::getStorageLayout() const
 double PersistentTrapIdProperty::translateId(double id) const
 {
   int index = (int)id - (int)m_minId;
-  index = std::max(0, std::min(index, (int)m_translationTable.size() - 1));
-  return m_translationTable[index];
+  return (index < 0 || index >= (int)m_translationTable.size())
+    ? 0.0
+    : m_translationTable[index];
 }
 
 PersistentTrapIdProperty::PersistentTrapIdProperty(

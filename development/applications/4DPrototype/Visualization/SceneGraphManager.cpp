@@ -280,8 +280,8 @@ namespace
     if (!prop)
       return nullptr;
 
-    //if (prop->getName() == "ResRockTrapId")
-    //  return createPersistentTrapIdProperty(prop, reservoir, snapshot);
+    if (prop->getName() == "ResRockTrapId")
+      return createPersistentTrapIdProperty(prop, reservoir, snapshot);
       
     DataModel::PropertyAttribute attr = prop->getPropertyAttribute();
     DataAccess::Interface::PropertyType type = prop->getType();
@@ -643,6 +643,8 @@ void SceneGraphManager::updateColorMap()
 {
   if (!m_currentProperty)
     return;
+
+  m_colorMapSwitch->whichChild = (m_currentProperty == m_resRockTrapIdProperty) ? 1 : 0;
 
   SnapshotInfo& snapshot = m_snapshots[m_currentSnapshot];
 
