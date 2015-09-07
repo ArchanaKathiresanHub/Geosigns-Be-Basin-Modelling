@@ -1,3 +1,12 @@
+//                                                                      
+// Copyright (C) 2015 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
 #ifndef FASTCAUDLRON__COMPOSITE_ELEMENT_ACTIVITY_PREDICATE__H
 #define FASTCAUDLRON__COMPOSITE_ELEMENT_ACTIVITY_PREDICATE__H
 
@@ -10,7 +19,7 @@
 
 /// \brief A composition of element activity predicates.
 ///
-/// The result of each of the individual predicates is combined using a Boolean and.
+/// The result of each of the individual predicates is combined using a logical conjuction operation (Boolean AND).
 /// An example of use may be for the pressure solver, only elements which have a
 /// non-zero thickness and with a non-zero porosity are included in the domain. So
 /// both types of activity predicate must be added.
