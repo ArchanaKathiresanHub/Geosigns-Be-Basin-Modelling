@@ -763,7 +763,8 @@ namespace
     grid->isIntersectingGradsVisible = TRUE;
 
     float maxSize = (float)std::max(maxX - minX, maxY - minY);
-    PbDomain* domain = new PbDomain(SbBox3f(.0f, .0f, -maxSize, maxSize, maxSize, 0.0f));
+    SbBox3f bbox(.0f, .0f, -maxSize, maxSize, maxSize, .0f);
+    PbDomain* domain = new PbDomain(bbox);
     grid->setDomain(domain);
 
     const char* axisNames[] = {
