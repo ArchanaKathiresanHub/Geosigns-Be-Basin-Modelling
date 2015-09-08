@@ -63,7 +63,7 @@ void BpaRenderAreaListener::createSceneGraph(const std::string& /*id*/)
   m_sceneGraphManager.setup(m_handle.get());
 
   SoGradientBackground* background = new SoGradientBackground;
-  background->color0 = SbColor(.1f, .1f, .1f);
+  background->color0 = SbColor(.2f, .2f, .2f);
   background->color1 = SbColor(.2f, .2f, .3f);
 
   m_examiner = new SceneExaminer();
@@ -258,6 +258,20 @@ void BpaRenderAreaListener::onReceivedMessage(RenderArea* renderArea, Connection
     auto showGrid = params.get<bool>("show");
 
     m_sceneGraphManager.showCoordinateGrid(showGrid);
+  }
+  else if (cmd == "SetProjection")
+  {
+    auto typeStr = params.get<std::string>("type");
+    //auto type = (typeStr == "Perspective")
+    //  ? SceneGraphManager::PerspectiveProjection
+    //  : SceneGraphManager::OrthographicProjection;
+    //m_sceneGraphManager.setProjection(type);
+
+    auto mode = (typeStr == "Perspective")
+      ? SceneInteractor::PERSPECTIVE
+      : SceneInteractor::ORTHOGRAPHIC;
+
+    m_examiner->setCameraMode(mode);
   }
   else if (cmd == "SetCurrentSnapshot")
   {

@@ -126,24 +126,18 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="BpaMesh.cpp" />
-    <ClCompile Include="Extractor.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Property.cpp" />
     <ClCompile Include="ROICellFilter.cpp" />
     <ClCompile Include="SceneGraphManager.cpp" />
-    <ClCompile Include="SkinExtractor.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="BpaMesh.h" />
     <ClInclude Include="defines.h" />
-    <ClInclude Include="Extractor.h" />
     <ClInclude Include="GridMapCollection.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Property.h" />
     <ClInclude Include="ROICellFilter.h" />
     <ClInclude Include="SceneGraphManager.h" />
-    <ClInclude Include="SkinExtractor.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

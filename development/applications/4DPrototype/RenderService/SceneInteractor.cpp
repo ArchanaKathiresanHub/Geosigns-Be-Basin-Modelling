@@ -38,6 +38,20 @@ SceneInteractor::SceneInteractor()
   SoOrthographicCamera* orthoCamera = new SoOrthographicCamera();
   m_orthoInteractor = SoCameraInteractor::getNewInstance(orthoCamera);
 
+  orthoCamera->orientation.connectFrom(&perspCamera->orientation);
+  orthoCamera->position.connectFrom(&perspCamera->position);
+  orthoCamera->nearDistance.connectFrom(&perspCamera->nearDistance);
+  orthoCamera->farDistance.connectFrom(&perspCamera->farDistance);
+  orthoCamera->focalDistance.connectFrom(&perspCamera->focalDistance);
+  orthoCamera->aspectRatio.connectFrom(&perspCamera->aspectRatio);
+
+  perspCamera->orientation.connectFrom(&orthoCamera->orientation);
+  perspCamera->position.connectFrom(&orthoCamera->position);
+  perspCamera->nearDistance.connectFrom(&orthoCamera->nearDistance);
+  perspCamera->farDistance.connectFrom(&orthoCamera->farDistance);
+  perspCamera->focalDistance.connectFrom(&orthoCamera->focalDistance);
+  perspCamera->aspectRatio.connectFrom(&orthoCamera->aspectRatio);
+
   // Camera switch
   m_cameraSwitch = new SoSwitch();
   {

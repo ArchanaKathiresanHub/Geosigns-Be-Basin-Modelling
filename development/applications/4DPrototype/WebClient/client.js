@@ -273,6 +273,22 @@ function onShowGridChanged(elem)
     theRenderArea.sendMessage(JSON.stringify(msg));
 }
 
+function onPerspectiveChanged(elem)
+{
+    var projection = elem.checked 
+        ? "Perspective" 
+        : "Orthographic";
+
+    var msg = {
+        cmd: "SetProjection",
+        params: {
+            type: projection
+        }
+    }
+
+    theRenderArea.sendMessage(JSON.stringify(msg));
+}
+
 function onTimeSliderChanged(elem)
 {
     console.log("timeSlider = " + elem.value);

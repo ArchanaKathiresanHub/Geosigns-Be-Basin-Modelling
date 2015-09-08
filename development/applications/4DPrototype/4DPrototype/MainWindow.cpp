@@ -96,6 +96,7 @@ void MainWindow::loadProject(const QString& filename)
     m_sceneGraphManager.setup(m_projectHandle.get());
 
     m_ui.renderWidget->getViewer()->setSceneGraph(m_sceneGraphManager.getRoot());
+
     m_ui.snapshotSlider->setMinimum(0);
     m_ui.snapshotSlider->setMaximum((int)m_sceneGraphManager.getSnapshotCount() - 1);
     m_ui.snapshotSlider->setValue(m_ui.snapshotSlider->maximum());
@@ -332,6 +333,7 @@ void MainWindow::connectSignals()
   connect(m_ui.checkBoxDrawFaces, SIGNAL(toggled(bool)), this, SLOT(onRenderStyleChanged()));
   connect(m_ui.checkBoxDrawEdges, SIGNAL(toggled(bool)), this, SLOT(onRenderStyleChanged()));
   connect(m_ui.checkBoxDrawGrid, SIGNAL(toggled(bool)), this, SLOT(onCoordinateGridToggled(bool)));
+  connect(m_ui.checkBoxPerspective, SIGNAL(toggled(bool)), this, SLOT(onPerspectiveToggled(bool)));
 
   // ROI
   connect(m_ui.checkBoxROI, SIGNAL(toggled(bool)), this, SLOT(onROIToggled(bool)));
@@ -532,6 +534,15 @@ void MainWindow::onRenderStyleChanged()
 void MainWindow::onCoordinateGridToggled(bool value)
 {
   m_sceneGraphManager.showCoordinateGrid(value);
+}
+
+void MainWindow::onPerspectiveToggled(bool value)
+{
+  m_sceneGraphManager.setProjection(value 
+    ? SceneGraphManager::PerspectiveProjection 
+    : SceneGraphManager::OrthographicProjection);
+
+  static_cast<SoQtViewer*>(m_ui.renderWidget->getViewer())->setCamera(m_sceneGraphManager.getCamera());
 }
 
 void MainWindow::onItemDoubleClicked(QTreeWidgetItem* item, int column)

@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'MainWindow.ui'
 **
-** Created: Fri Aug 28 12:58:51 2015
+** Created: Mon Sep 7 12:12:21 2015
 **      by: Qt User Interface Compiler version 4.8.4
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -64,7 +64,7 @@ public:
     QCheckBox *checkBoxDrawFaces;
     QCheckBox *checkBoxDrawGrid;
     QCheckBox *checkBoxDrawEdges;
-    QCheckBox *checkBox_2;
+    QCheckBox *checkBoxPerspective;
     QGroupBox *groupBoxROI;
     QGridLayout *gridLayout_2;
     QCheckBox *checkBoxROI;
@@ -211,11 +211,12 @@ public:
 
         gridLayout_3->addWidget(checkBoxDrawEdges, 1, 0, 1, 1);
 
-        checkBox_2 = new QCheckBox(groupBox_3);
-        checkBox_2->setObjectName(QString::fromUtf8("checkBox_2"));
-        checkBox_2->setEnabled(false);
+        checkBoxPerspective = new QCheckBox(groupBox_3);
+        checkBoxPerspective->setObjectName(QString::fromUtf8("checkBoxPerspective"));
+        checkBoxPerspective->setEnabled(true);
+        checkBoxPerspective->setChecked(true);
 
-        gridLayout_3->addWidget(checkBox_2, 1, 1, 1, 1);
+        gridLayout_3->addWidget(checkBoxPerspective, 1, 1, 1, 1);
 
 
         horizontalLayout_3->addLayout(gridLayout_3);
@@ -415,7 +416,7 @@ public:
         checkBoxDrawFaces->setText(QApplication::translate("MainWindow", "Faces", 0, QApplication::UnicodeUTF8));
         checkBoxDrawGrid->setText(QApplication::translate("MainWindow", "Coordinate grid", 0, QApplication::UnicodeUTF8));
         checkBoxDrawEdges->setText(QApplication::translate("MainWindow", "Edges", 0, QApplication::UnicodeUTF8));
-        checkBox_2->setText(QApplication::translate("MainWindow", "Reserved", 0, QApplication::UnicodeUTF8));
+        checkBoxPerspective->setText(QApplication::translate("MainWindow", "Perspective", 0, QApplication::UnicodeUTF8));
         groupBoxROI->setTitle(QApplication::translate("MainWindow", "ROI", 0, QApplication::UnicodeUTF8));
         checkBoxROI->setText(QApplication::translate("MainWindow", "Enable", 0, QApplication::UnicodeUTF8));
         label_5->setText(QApplication::translate("MainWindow", "minK", 0, QApplication::UnicodeUTF8));

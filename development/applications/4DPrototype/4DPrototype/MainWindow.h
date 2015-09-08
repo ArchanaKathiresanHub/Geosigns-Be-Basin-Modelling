@@ -84,6 +84,8 @@ private slots:
 
   void onCoordinateGridToggled(bool value);
 
+  void onPerspectiveToggled(bool value);
+
   void onItemDoubleClicked(QTreeWidgetItem* item, int column);
 
   void onShowGLInfo();

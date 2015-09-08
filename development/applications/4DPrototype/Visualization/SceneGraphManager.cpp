@@ -19,6 +19,8 @@
 #include <Inventor/nodes/SoAnnotation.h>
 #include <Inventor/nodes/SoVertexProperty.h>
 #include <Inventor/nodes/SoMaterial.h>
+#include <Inventor/nodes/SoPerspectiveCamera.h>
+#include <Inventor/nodes/SoOrthographicCamera.h>
 
 #include <MeshVizInterface/MxTimeStamp.h>
 #include <MeshVizInterface/mapping/nodes/MoDrawStyle.h>
@@ -154,7 +156,9 @@ void SceneGraphManager::updateSnapshotFormations()
 
     meshSkin->minCellRanges.setValues(0, 3, rangeMin);
     meshSkin->maxCellRanges.setValues(0, 3, rangeMax);
-
+#ifdef _DEBUG
+    meshSkin->parallel = false;
+#endif
     snapshot.chunksGroup->addChild(meshSkin);
   }
 
@@ -164,6 +168,11 @@ void SceneGraphManager::updateSnapshotFormations()
 
 namespace
 {
+  SoGroup* createArrows()
+  {
+    return nullptr;
+  }
+
   MoColorMapping* createTrapsColorMap(unsigned int maxId)
   {
     MoLevelColorMapping* colorMapping = new MoLevelColorMapping;
@@ -949,6 +958,24 @@ void SceneGraphManager::setupCoordinateGrid()
 
 void SceneGraphManager::setupSceneGraph()
 {
+  m_perspectiveCamera = new SoPerspectiveCamera;
+  m_orthographicCamera = new SoOrthographicCamera;
+  m_perspectiveCamera->orientation.connectFrom(&m_orthographicCamera->orientation);
+  m_orthographicCamera->orientation.connectFrom(&m_perspectiveCamera->orientation);
+  m_perspectiveCamera->position.connectFrom(&m_orthographicCamera->position);
+  m_orthographicCamera->position.connectFrom(&m_perspectiveCamera->position);
+  m_perspectiveCamera->nearDistance.connectFrom(&m_orthographicCamera->nearDistance);
+  m_orthographicCamera->nearDistance.connectFrom(&m_perspectiveCamera->nearDistance);
+  m_perspectiveCamera->farDistance.connectFrom(&m_orthographicCamera->farDistance);
+  m_orthographicCamera->farDistance.connectFrom(&m_perspectiveCamera->farDistance);
+  m_perspectiveCamera->focalDistance.connectFrom(&m_orthographicCamera->focalDistance);
+  m_orthographicCamera->focalDistance.connectFrom(&m_perspectiveCamera->focalDistance);
+
+  m_cameraSwitch = new SoSwitch;
+  m_cameraSwitch->addChild(m_perspectiveCamera);
+  m_cameraSwitch->addChild(m_orthographicCamera);
+  m_cameraSwitch->whichChild = SO_SWITCH_NONE;// (m_projectionType == PerspectiveProjection) ? 0 : 1;
+
   // Backface culling is enabled for solid shapes with ordered vertices
   m_formationShapeHints = new SoShapeHints;
   m_formationShapeHints->setName("formationShapeHints");
@@ -1022,6 +1049,7 @@ void SceneGraphManager::setupSceneGraph()
 
   m_root = new SoGroup;
   m_root->setName("root");
+  m_root->addChild(m_cameraSwitch);
   m_root->addChild(m_formationShapeHints);
   m_root->addChild(m_coordinateGridSwitch);
   m_root->addChild(m_scale);
@@ -1051,6 +1079,7 @@ SceneGraphManager::SceneGraphManager()
   , m_maxY(0.0)
   , m_maxPersistentTrapId(0)
   , m_showGrid(false)
+  , m_projectionType(PerspectiveProjection)
   , m_formationsTimeStamp(MxTimeStamp::getTimeStamp())
   , m_surfacesTimeStamp(MxTimeStamp::getTimeStamp())
   , m_reservoirsTimeStamp(MxTimeStamp::getTimeStamp())
@@ -1112,6 +1141,24 @@ int SceneGraphManager::numJHiRes() const
   return m_numJHiRes;
 }
 
+SoCamera* SceneGraphManager::getCamera() const
+{
+  bool perspective = m_cameraSwitch->whichChild.getValue() == 0;
+  if (perspective)
+    return m_perspectiveCamera;
+  else
+    return m_orthographicCamera;
+}
+
+void SceneGraphManager::setProjection(SceneGraphManager::ProjectionType type)
+{
+  if (type != m_projectionType)
+  {
+    m_projectionType = type;
+    m_cameraSwitch->whichChild = (type == PerspectiveProjection) ? 0 : 1;
+  }
+}
+
 void SceneGraphManager::setVerticalScale(float scale)
 {
   m_scale->scaleFactor = SbVec3f(1.f, 1.f, scale);
@@ -1132,7 +1179,7 @@ void SceneGraphManager::setProperty(const std::string& name)
 
   m_currentProperty = prop;
 
-  std::string title = name + "\r\n[" + prop->getUnit() + "]";
+  std::string title = name + " [" + prop->getUnit() + "]";
   m_legend->title = title.c_str();
   m_legendSwitch->whichChild = SO_SWITCH_ALL;
 

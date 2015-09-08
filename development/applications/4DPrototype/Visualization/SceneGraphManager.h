@@ -33,8 +33,9 @@ class SoSwitch;
 class SoGroup;
 class SoNode;
 class SoShapeHints;
-class SoLineSet;
-
+class SoCamera;
+class SoPerspectiveCamera;
+class SoOrthographicCamera;
 class PoAutoCubeAxis;
 class MoLegend;
 class SoScale;
@@ -202,6 +203,16 @@ struct SnapshotInfo
 
 class VISUALIZATIONDLL_API SceneGraphManager
 {
+public:
+
+  enum ProjectionType
+  {
+    PerspectiveProjection,
+    OrthographicProjection
+  };
+
+private:
+
   template<class T>
   struct ObjectInfo
   {
@@ -247,6 +258,7 @@ class VISUALIZATIONDLL_API SceneGraphManager
   std::vector<SnapshotInfo>  m_snapshots;
 
   bool m_showGrid;
+  ProjectionType m_projectionType;
 
   size_t m_formationsTimeStamp;
   size_t m_surfacesTimeStamp;
@@ -256,6 +268,10 @@ class VISUALIZATIONDLL_API SceneGraphManager
 
   size_t m_slicePosition[3];
   bool   m_sliceEnabled[3];
+
+  SoPerspectiveCamera*  m_perspectiveCamera;
+  SoOrthographicCamera* m_orthographicCamera;
+  SoSwitch*             m_cameraSwitch;
 
   SoGroup*        m_root;
   SoShapeHints*   m_formationShapeHints;
@@ -315,6 +331,10 @@ public:
   int numIHiRes() const;
 
   int numJHiRes() const;
+
+  SoCamera* getCamera() const;
+
+  void setProjection(ProjectionType type);
 
   void setVerticalScale(float scale);
 
