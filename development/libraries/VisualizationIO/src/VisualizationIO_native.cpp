@@ -23,10 +23,10 @@ void CauldronIO::MapNative::retrieve()
 
 void CauldronIO::MapNative::setDataStore(const std::string& filename, bool compressed, size_t offset, size_t size)
 {
-    _filename = filename;
-    _compressed = compressed;
-    _offset = offset;
-    _size = size;
+    m_filename = filename;
+    m_compressed = compressed;
+    m_offset = offset;
+    m_size = size;
 }
 
 CauldronIO::VolumeNative::VolumeNative(bool cellCentered, SubsurfaceKind kind, boost::shared_ptr<const Property> property) 
@@ -41,8 +41,8 @@ void CauldronIO::VolumeNative::retrieve()
 
 void CauldronIO::VolumeNative::setDataStore(const std::string& filename, bool compressed, size_t offset, size_t size)
 {
-    _filename = filename;
-    _compressed = compressed;
-    _offset = offset;
-    _size = size;
+    m_filename = filename;
+    m_compressed = compressed;
+    m_offset = offset;
+    m_size = size;
 }

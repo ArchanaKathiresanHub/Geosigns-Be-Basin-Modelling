@@ -44,7 +44,7 @@ namespace CauldronIO
         void setDataStore(const DataAccess::Interface::PropertyValue* propVal);
 
     private:
-        const DataAccess::Interface::PropertyValue* _propVal;
+        const DataAccess::Interface::PropertyValue* m_propVal;
     };
 
     /// \brief Implementation of Volume class that can retrieve data from a ProjectHandle
@@ -67,10 +67,10 @@ namespace CauldronIO
     private:
         void retrieveMultipleFormations();
         void retrieveSingleFormation();
-        boost::shared_ptr<DataAccess::Interface::PropertyValueList> _propValues;
-        boost::shared_ptr<CauldronIO::FormationInfoList> _depthFormations;
-        const DataAccess::Interface::PropertyValue* _propVal;
-        const CauldronIO::FormationInfo* _depthInfo;
+        boost::shared_ptr<DataAccess::Interface::PropertyValueList> m_propValues;
+        boost::shared_ptr<CauldronIO::FormationInfoList> m_depthFormations;
+        const DataAccess::Interface::PropertyValue* m_propVal;
+        const CauldronIO::FormationInfo* m_depthInfo;
     };
 }
 #endif

@@ -104,9 +104,9 @@ namespace CauldronIO
         const SnapShotList& getSnapShots() const;
 
     private:
-        SnapShotList _snapShotList;
-        std::string _name, _description, _team, _version;
-        ModellingMode _mode;
+        SnapShotList m_snapShotList;
+        std::string m_name, m_description, m_team, m_version;
+        ModellingMode m_mode;
     };
 
     /// \class SnapShot 
@@ -147,12 +147,12 @@ namespace CauldronIO
         const DiscontinuousVolumeList& getDiscontinuousVolumeList() const;
 		
     private:
-	    SurfaceList _surfaceList;
-        VolumeList _volumeList;
-        DiscontinuousVolumeList _discVolumeList;
-        SnapShotKind _kind;
-        bool _isMinor;
-        double _age;
+	    SurfaceList m_surfaceList;
+        VolumeList m_volumeList;
+        DiscontinuousVolumeList m_discVolumeList;
+        SnapShotKind m_kind;
+        bool m_isMinor;
+        double m_age;
 	};
     
 	/// \class Property 
@@ -183,9 +183,9 @@ namespace CauldronIO
         PropertyAttribute getAttribute() const;
 
     private:
-	    std::string _name, _username, _cauldronName, _unit;
-	    PropertyType _type;
-	    PropertyAttribute _attrib;
+	    std::string m_name, m_username, m_cauldronName, m_unit;
+	    PropertyType m_type;
+	    PropertyAttribute m_attrib;
     };
 
     /// \class Formation
@@ -204,8 +204,8 @@ namespace CauldronIO
         const std::string& getName() const;
 
     private:
-        std::string _name;
-        size_t _kstart, _kend;
+        std::string m_name;
+        size_t m_kstart, m_kend;
     };
 
     /// \class Surface
@@ -247,12 +247,12 @@ namespace CauldronIO
         bool isRetrieved() const;
 
     private:
-        SubsurfaceKind _subSurfaceKind;
-        boost::shared_ptr<const Property> _property;
-        boost::shared_ptr<const Formation> _formation;
-        boost::shared_ptr<const Surface> _depthSurface;
-        boost::shared_ptr<Map> _valueMap;
-        std::string _name;
+        SubsurfaceKind m_subSurfaceKind;
+        boost::shared_ptr<const Property> m_property;
+        boost::shared_ptr<const Formation> m_formation;
+        boost::shared_ptr<const Surface> m_depthSurface;
+        boost::shared_ptr<Map> m_valueMap;
+        std::string m_name;
     };
 
     /// \class Map 
@@ -346,17 +346,17 @@ namespace CauldronIO
         void setUndefinedValue(float undefined);
 
     private:
-        double _deltaI, _deltaJ, _minI, _minJ, _maxI, _maxJ;
-        size_t _numI, _numJ;
-        float _constantValue, _undefinedValue;
-        bool _isConstant, _isCellCentered;
+        double m_deltaI, m_deltaJ, m_minI, m_minJ, m_maxI, m_maxJ;
+        size_t m_numI, m_numJ;
+        float m_constantValue, m_undefinedValue;
+        bool m_isConstant, m_isCellCentered;
         void setData(float* data, bool setValue = false, float value = 0);
-        float* _internalData;
-        boost::uuids::uuid _uuid;
+        float* m_internalData;
+        boost::uuids::uuid m_uuid;
 
     protected:
-        bool _retrieved;
-        bool _geometryAssigned;
+        bool m_retrieved;
+        bool m_geometryAssigned;
     };
 
     /// \class Volume
@@ -505,19 +505,19 @@ namespace CauldronIO
 
     private:
         void setData(float* data, float** internalData, bool setValue = false, float value = 0);
-        float* _internalDataIJK;
-        float* _internalDataKIJ;
-        double _deltaI, _deltaJ, _minI, _minJ, _maxI, _maxJ;
-        size_t _numI, _numJ, _numK, _firstK;
-        float _constantValue, _undefinedValue;
-        bool _isConstant, _isCellCentered;
-        SubsurfaceKind _subSurfaceKind;
-        boost::shared_ptr<const Property> _property;
-        boost::shared_ptr<const Volume> _depthVolume;
-        boost::uuids::uuid _uuid;
+        float* m_internalDataIJK;
+        float* m_internalDataKIJ;
+        double m_deltaI, m_deltaJ, m_minI, m_minJ, m_maxI, m_maxJ;
+        size_t m_numI, m_numJ, m_numK, m_firstK;
+        float m_constantValue, m_undefinedValue;
+        bool m_isConstant, m_isCellCentered;
+        SubsurfaceKind m_subSurfaceKind;
+        boost::shared_ptr<const Property> m_property;
+        boost::shared_ptr<const Volume> m_depthVolume;
+        boost::uuids::uuid m_uuid;
 
     protected:
-        bool _retrieved, _geometryAssigned;
+        bool m_retrieved, m_geometryAssigned;
     };
 
     /// \class DiscontinuousVolume
@@ -546,8 +546,8 @@ namespace CauldronIO
         void retrieve();
 
     private:
-        FormationVolumeList _volumeList;
-        boost::shared_ptr<const Volume> _depthVolume;
+        FormationVolumeList m_volumeList;
+        boost::shared_ptr<const Volume> m_depthVolume;
     };
 }
 

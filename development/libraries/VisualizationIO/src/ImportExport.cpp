@@ -73,11 +73,11 @@ void ImportExport::addProject(boost::property_tree::ptree& pt, boost::shared_ptr
 
     BOOST_FOREACH(boost::shared_ptr<const SnapShot> snapShot, snapShotList)
     {
-        boost::filesystem::path volumeStorePath(_outputPath);
+        boost::filesystem::path volumeStorePath(m_outputPath);
         volumeStorePath /= "Snapshot_" + boost::lexical_cast<std::string>(snapShot->getAge()) + "_volumes.cldrn";
         DataStore volumeStore(volumeStorePath.string(), __compress__, __fp16__);
 
-        boost::filesystem::path surfaceStorePath(_outputPath);
+        boost::filesystem::path surfaceStorePath(m_outputPath);
         surfaceStorePath /= "Snapshot_" + boost::lexical_cast<std::string>(snapShot->getAge()) + "_surfaces.cldrn";
         DataStore surfaceDataStore(surfaceStorePath.string(), __compress__, __fp16__);
 
@@ -196,7 +196,7 @@ std::string CauldronIO::ImportExport::getFilename(const boost::uuids::uuid& uuid
 
 CauldronIO::ImportExport::ImportExport(const boost::filesystem::path& path)
 {
-    _outputPath = path;
+    m_outputPath = path;
 }
 
 void CauldronIO::ImportExport::addProperty(boost::property_tree::ptree &node, const boost::shared_ptr<const Property>& property) const
@@ -319,26 +319,26 @@ std::string CauldronIO::ImportExport::getXMLIndexingFileName(const boost::filesy
 
 CauldronIO::ImportExport::DataStore::DataStore(const std::string& filename, bool compress, bool fp16)
 {
-    _file.open(filename, BOOST_IOS::binary);
-    _offset = 0;
-    _fileName = filename;
-    _compress = compress;
-    _fp16 = fp16;
+    m_file.open(filename, BOOST_IOS::binary);
+    m_offset = 0;
+    m_fileName = filename;
+    m_compress = compress;
+    m_fp16 = fp16;
 }
 
 CauldronIO::ImportExport::DataStore::~DataStore()
 {
-    _file.flush();
-    _file.close();
+    m_file.flush();
+    m_file.close();
 
     // Delete if empty
-    if (_offset == 0)
-        boost::filesystem::remove(_fileName);
+    if (m_offset == 0)
+        boost::filesystem::remove(m_fileName);
 }
 
 size_t CauldronIO::ImportExport::DataStore::getOffset() const
 {
-    return _offset;
+    return m_offset;
 }
 
 void CauldronIO::ImportExport::DataStore::addData(const float* data, size_t size, float undef)
@@ -378,7 +378,7 @@ void CauldronIO::ImportExport::DataStore::addData(const float* data, size_t size
     }
 #endif
 
-    if (_compress)
+    if (m_compress)
     {
         compressed = compress(dataToWrite, sizeToWrite);
 
@@ -386,9 +386,9 @@ void CauldronIO::ImportExport::DataStore::addData(const float* data, size_t size
         sizeToWrite = compressed.size();
     }
 
-    _file.write((char*)dataToWrite, sizeToWrite);
-    _offset += sizeToWrite;
-    _lastSize = sizeToWrite;
+    m_file.write((char*)dataToWrite, sizeToWrite);
+    m_offset += sizeToWrite;
+    m_lastSize = sizeToWrite;
 
     //if (halfArray) delete[] halfArray;
 }
@@ -445,20 +445,20 @@ void CauldronIO::ImportExport::DataStore::getStatistics(const T* data, size_t si
 
 const std::string& CauldronIO::ImportExport::DataStore::getFileName() const
 {
-    return _fileName;
+    return m_fileName;
 }
 
 size_t CauldronIO::ImportExport::DataStore::getLastSize() const
 {
-    return _lastSize;
+    return m_lastSize;
 }
 
 bool CauldronIO::ImportExport::DataStore::getCompress() const
 {
-    return _compress;
+    return m_compress;
 }
 
 bool CauldronIO::ImportExport::DataStore::getFP16() const
 {
-    return _fp16;
+    return m_fp16;
 }

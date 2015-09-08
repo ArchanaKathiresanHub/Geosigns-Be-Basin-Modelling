@@ -28,9 +28,9 @@ namespace CauldronIO
         void setDataStore(const std::string& filename, bool compressed, size_t offset, size_t size);
 
     private:
-        std::string _filename;
-        bool _compressed;
-        size_t _offset, _size;
+        std::string m_filename;
+        bool m_compressed;
+        size_t m_offset, m_size;
     };
 
     /// \brief Volume class implementation with native retrieve of data
@@ -45,9 +45,9 @@ namespace CauldronIO
         void setDataStore(const std::string& filename, bool compressed, size_t offset, size_t size);
 
     private:
-        std::string _filename;
-        bool _compressed;
-        size_t _offset, _size;
+        std::string m_filename;
+        bool m_compressed;
+        size_t m_offset, m_size;
     };
 }
 #endif

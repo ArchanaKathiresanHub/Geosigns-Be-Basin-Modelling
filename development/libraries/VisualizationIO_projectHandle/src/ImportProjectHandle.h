@@ -40,8 +40,8 @@ private:
     /// Private constructor
     ImportProjectHandle(bool verbose);
 
-    bool _verbose;
-    boost::uuids::random_generator _uuidGenerator;
+    bool m_verbose;
+    boost::uuids::random_generator m_uuidGenerator;
 
     /// Private helper methods
     CauldronIO::SnapShotKind getSnapShotKind(const DataAccess::Interface::Snapshot* snapShot) const;

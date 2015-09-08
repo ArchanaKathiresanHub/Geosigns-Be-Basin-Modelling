@@ -24,7 +24,7 @@ using namespace DataAccess;
 using namespace DataAccess::Interface;
 using namespace DataModel;
 
-#define allSelection SURFACE | FORMATION | FORMATIONSURFACE | RESERVOIR
+#define ALLSELECTION SURFACE | FORMATION | FORMATIONSURFACE | RESERVOIR
 
 boost::shared_ptr<CauldronIO::Project> ImportProjectHandle::createFromProjectHandle(boost::shared_ptr<ProjectHandle> projectHandle, bool verbose)
 {
@@ -74,7 +74,7 @@ boost::shared_ptr<CauldronIO::SnapShot> ImportProjectHandle::createSnapShotIO(bo
     boost::shared_ptr<CauldronIO::SnapShot> snapShotIO(new CauldronIO::SnapShot(snapShot->getTime(), 
         getSnapShotKind(snapShot), snapShot->getType() == MINOR));
 
-    if (_verbose)
+    if (m_verbose)
         cout << "== Adding " << (snapShot->getType() == MINOR ? "Minor" : "Major") << " snapshot with Age: " << snapShot->getTime() << " === " << endl;
 
     // Create depth-geometry information
@@ -119,7 +119,7 @@ boost::shared_ptr<CauldronIO::SnapShot> ImportProjectHandle::createSnapShotIO(bo
         PropertyAttribute attrib = prop->getPropertyAttribute();
         if (attrib == CONTINUOUS_3D_PROPERTY)
         {
-            if (_verbose)
+            if (m_verbose)
                 cout << " - Adding continuous volume size(" << propValues->size() << ") for property" << prop->getName() << endl;
             boost::shared_ptr<CauldronIO::Volume> volume = createContinuousVolume(propValues, depthFormations);
             volume->setDepthVolume(depthVolume);
@@ -127,7 +127,7 @@ boost::shared_ptr<CauldronIO::SnapShot> ImportProjectHandle::createSnapShotIO(bo
         }
         else if (attrib == DISCONTINUOUS_3D_PROPERTY)
         {
-            if (_verbose)
+            if (m_verbose)
                 cout << " - Adding discontinuous volume size(" << propValues->size() << ") for property" << prop->getName() << endl;
             boost::shared_ptr<CauldronIO::DiscontinuousVolume> discVolume = createDiscontinuousVolume(propValues, depthFormations);
             discVolume->setDepthVolume(depthVolume);
@@ -135,7 +135,7 @@ boost::shared_ptr<CauldronIO::SnapShot> ImportProjectHandle::createSnapShotIO(bo
         }
         else if (prop->getName() == "Reflectivity")
         {
-            if (_verbose)
+            if (m_verbose)
                 cout << " - Ignoring Reflectivity volume" << endl;
         }
         else
@@ -155,7 +155,7 @@ boost::shared_ptr<vector<boost::shared_ptr<CauldronIO::Surface> > >  ImportProje
     
     // Add all the surfaces
     ////////////////////////////////////////////////////////
-    boost::shared_ptr<PropertyValueList> propValues(projectHandle->getPropertyValues(allSelection, 0, snapShot, 0, 0, 0, MAP));
+    boost::shared_ptr<PropertyValueList> propValues(projectHandle->getPropertyValues(ALLSELECTION, 0, snapShot, 0, 0, 0, MAP));
 
     for (size_t i = 0; i < propValues->size(); ++i)
     {
@@ -173,11 +173,11 @@ boost::shared_ptr<vector<boost::shared_ptr<CauldronIO::Surface> > >  ImportProje
         if (surface)
         {
             surfaceName = surface->getName();
-            if (_verbose)
+            if (m_verbose)
                 cout << " - Adding surface: " << surface->getName() << " with property " << prop->getName() << endl;
         }
         else
-            if (_verbose)
+            if (m_verbose)
                 cout << " - Adding map for formation: " << formation->getName() << " with property " << prop->getName() << endl;
 
         // Create a property
@@ -248,7 +248,7 @@ boost::shared_ptr<CauldronIO::Volume> ImportProjectHandle::createVolume(const Da
     volumeProjectHandle->setDataStore(propValue, depthInfo);
 
     // Assign a UUID
-    volume->setUUID(_uuidGenerator());
+    volume->setUUID(m_uuidGenerator());
     return volume;
 }
 
@@ -281,7 +281,7 @@ boost::shared_ptr<CauldronIO::Volume> ImportProjectHandle::createContinuousVolum
     CauldronIO::VolumeProjectHandle* volumeProjectHandle = dynamic_cast<CauldronIO::VolumeProjectHandle*>(volume.get());
     volumeProjectHandle->setDataStore(propValues, depthFormations);
 
-    volume->setUUID(_uuidGenerator());
+    volume->setUUID(m_uuidGenerator());
 
     return volume;
 }
@@ -295,13 +295,13 @@ boost::shared_ptr<CauldronIO::Map> ImportProjectHandle::createMapIO(const DataAc
     // Set data to be retrieved later
     mapInternal->setDataStore(propVal);
 
-    map->setUUID(_uuidGenerator());
+    map->setUUID(m_uuidGenerator());
     return map;
 }
 
 ImportProjectHandle::ImportProjectHandle(bool verbose)
 {
-    _verbose = verbose;
+    m_verbose = verbose;
 }
 
 CauldronIO::SnapShotKind ImportProjectHandle::getSnapShotKind(const Snapshot* snapShot) const

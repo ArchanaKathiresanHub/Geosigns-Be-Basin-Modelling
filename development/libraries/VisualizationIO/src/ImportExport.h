@@ -42,7 +42,7 @@ namespace CauldronIO
         void writeSurface(const boost::shared_ptr<Surface>& surfaceIO, DataStore& store) const;
         void writeVolume(const boost::shared_ptr<Volume>& volume, bool dataIJK, DataStore& store) const;
 
-        boost::filesystem::path _outputPath;
+        boost::filesystem::path m_outputPath;
 
         // Internal helper class
         class DataStore
@@ -61,11 +61,11 @@ namespace CauldronIO
             std::vector<char> decompress(const char* data, size_t size) const;
             std::vector<char> compress(const char* data, size_t size) const;
             template <typename T> void getStatistics(const T* data, size_t size, T undef);
-            boost::iostreams::stream<boost::iostreams::file_sink> _file;
-            size_t _offset, _lastSize;
-            std::string _fileName;
-            bool _compress;
-            bool _fp16;
+            boost::iostreams::stream<boost::iostreams::file_sink> m_file;
+            size_t m_offset, m_lastSize;
+            std::string m_fileName;
+            bool m_compress;
+            bool m_fp16;
         };
     };
 }
