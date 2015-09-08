@@ -1,5 +1,8 @@
 #include "PermeabilityCalculator.h"
 
+#include "Interface/ProjectHandle.h"
+#include "Interface/RunParameters.h"
+
 #include "GeoPhysicsFormation.h"
 #include "GeoPhysicalConstants.h"
 #include "CompoundLithology.h"
@@ -16,6 +19,8 @@ DataAccess::Mining::PermeabilityCalculator::PermeabilityCalculator ( const Domai
 {
    m_ves = 0;
    m_maxVes = 0;
+   m_chemicalCompaction = 0;
+   m_chemicalCompactionRequired = getPropertyCollection ()->getProjectHandle ()->getRunParameters ()->getChemicalCompaction ();
    m_initialised = false;
 }
 
@@ -25,7 +30,13 @@ bool DataAccess::Mining::PermeabilityCalculator::initialise () {
       m_ves = getPropertyCollection ()->getDomainProperty ( "Ves", getPropertyManager ());
       m_maxVes = getPropertyCollection ()->getDomainProperty ( "MaxVes", getPropertyManager ());
 
-      if ( m_ves != 0 and m_maxVes != 0 ) {
+      if ( m_chemicalCompactionRequired ) {
+         m_chemicalCompaction = getPropertyCollection ()->getDomainProperty ( "ChemicalCompaction", getPropertyManager ());
+      } else {
+         m_chemicalCompaction = 0;
+      }
+
+      if ( m_ves != 0 and m_maxVes != 0 and (( m_chemicalCompactionRequired and m_chemicalCompaction != 0 ) or not m_chemicalCompactionRequired )) {
          m_initialised = true;
       } else {
          m_initialised = false;
@@ -45,19 +56,29 @@ double DataAccess::Mining::PermeabilityCalculator::compute ( const ElementPositi
    GeoPhysics::CompoundProperty porosity;
    double ves;
    double maxVes;
+   double chemicalCompaction;
    double permeabilityN;
    double permeabilityP;
+
+   const Interface::Formation* formation = position.getFormation ();
+   const GeoPhysics::Formation* geoForm = dynamic_cast<const GeoPhysics::Formation*>( formation );
+   bool layerRequiresChemicalCompaction = m_chemicalCompactionRequired and ( geoForm != 0 and geoForm->hasChemicalCompaction ());
 
    ves = m_ves->compute ( position );
    maxVes = m_maxVes->compute ( position );
 
-   if ( ves != Interface::DefaultUndefinedMapValue and maxVes != Interface::DefaultUndefinedMapValue ) {
+   if ( layerRequiresChemicalCompaction ) {
+      chemicalCompaction = m_chemicalCompaction->compute ( position );
+   } else {
+      chemicalCompaction = Interface::DefaultUndefinedMapValue;
+   }
 
-      const Interface::Formation* formation = position.getFormation ();
-      const GeoPhysics::Formation* geoForm = dynamic_cast<const GeoPhysics::Formation*>( formation );
+   if ( ves != Interface::DefaultUndefinedMapValue and maxVes != Interface::DefaultUndefinedMapValue and 
+        (( layerRequiresChemicalCompaction and chemicalCompaction != Interface::DefaultUndefinedMapValue ) or not layerRequiresChemicalCompaction )) {
+
       const GeoPhysics::CompoundLithology* lithology = geoForm->getCompoundLithology ( position.getI (), position.getJ ());
 
-      lithology->getPorosity ( ves, maxVes, false, 1.0, porosity );
+      lithology->getPorosity ( ves, maxVes, layerRequiresChemicalCompaction, chemicalCompaction, porosity );
       lithology->calcBulkPermeabilityNP ( ves, maxVes, porosity, permeabilityN, permeabilityP );
 
       permeabilityN *= GeoPhysics::M2TOMILLIDARCY;

@@ -44,6 +44,7 @@ static const char * s_FormationPropCheckAllocList[] =
 static const char * s_FormationPropList[] =
 {
      "BulkDensity"
+   , "ChemicalCompaction"
    , "Depth"
    , "DepthHighRes"
    , "Diffusivity"

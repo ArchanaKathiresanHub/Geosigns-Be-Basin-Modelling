@@ -40,6 +40,8 @@ namespace DataAccess {
 
          const DomainProperty* m_ves;
          const DomainProperty* m_maxVes;
+         const DomainProperty* m_chemicalCompaction;
+         bool                  m_chemicalCompactionRequired;
          bool                  m_initialised;
 
       };
