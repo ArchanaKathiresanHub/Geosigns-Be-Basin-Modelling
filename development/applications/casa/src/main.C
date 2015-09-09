@@ -32,6 +32,9 @@ int main( int argc, char ** argv )
    CasaCommander                 cmdQueue;
    bool                          cmdExecutionStarted = false; // to distinct execution error from input file parsing errors
 
+   // New scenario object
+   std::auto_ptr<casa::ScenarioAnalysis> sc( new casa::ScenarioAnalysis() );
+
    try
    {
       // parse args
@@ -56,9 +59,6 @@ int main( int argc, char ** argv )
    
       cmdFile.parseFile( argv[1], cmdQueue );
 
-      // New scenario object
-      std::auto_ptr<casa::ScenarioAnalysis> sc( new casa::ScenarioAnalysis() );
-
       //process commands
       cmdExecutionStarted = true;
       cmdQueue.executeCommands( sc );
@@ -76,6 +76,7 @@ int main( int argc, char ** argv )
       {
          std::cerr << "Exception on processing command: " << cmdQueue.curCmdName() << " located at line " << 
             cmdQueue.curCmdInputFileLineNumber() << " of input file " << cmdFileName << std::endl;
+         sc->runManager().stopAllSubmittedJobs();
       }
       std::cerr << "CASA error ID:" << ex.errorCode() << ", message: " << ex.what() << std::endl;
       return -1;
@@ -86,8 +87,9 @@ int main( int argc, char ** argv )
       {
          std::cerr << "Exception on processing command: " << cmdQueue.curCmdName() << " located at line " << 
             cmdQueue.curCmdInputFileLineNumber() << " of input file " << cmdFileName << std::endl;
+         sc->runManager().stopAllSubmittedJobs();
       }
-       std::cerr << "CASA unknown exception, aborting..." << std::endl;
+      std::cerr << "CASA unknown exception, aborting..." << std::endl;
       return -1;
    }
 }

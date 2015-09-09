@@ -80,18 +80,7 @@ CauldronApp * RunManager::createApplication( ApplicationType        appType
 RunManagerImpl::RunManagerImpl( const std::string & clusterName ) : m_maxPendingJobs( 0 )
 {
    // create instance of job scheduler
-#if defined (_WIN32) || !defined (WITH_LSF_SCHEDULER)
-   m_jobSched.reset( new JobSchedulerLocal() );
-#else
-   if ( clusterName == "LOCAL" )
-   {
-      m_jobSched.reset( new JobSchedulerLocal() );
-   }
-   else
-   {
-      m_jobSched.reset( new JobSchedulerLSF( clusterName ) );
-   }
-#endif
+   createJobScheduler( clusterName );
 
    CauldronApp * dda = new CauldronApp(
 #ifdef _WIN32
@@ -100,11 +89,8 @@ RunManagerImpl::RunManagerImpl( const std::string & clusterName ) : m_maxPending
       CauldronApp::bash
 #endif
       , "datadriller", false );
-   addApplication( dda ); // insert datadriller application to extract data results
 
-   // delete file with jobs list if exist
-   ibs::FilePath jobsIDFile( std::string( "./" ) + s_jobsIDListFileName );
-   if ( jobsIDFile.exists() ) { jobsIDFile.remove(); }
+   addApplication( dda ); // insert datadriller application to extract data results
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -377,9 +363,75 @@ ErrorHandler::ReturnCode RunManagerImpl::setClusterName( const char * clusterNam
    return NoError;
 }
 
+
+///////////////////////////////////////////////////////////////////////////////
+// Delete all cases in queue
+ErrorHandler::ReturnCode RunManagerImpl::removeAllScheduledCases()
+{
+   try
+   {
+      // loop over all cases and check that all jobs are stopped
+      for (    size_t i = 0; i < m_jobs.size(); ++i )
+      {  
+         for ( size_t j = 0; j < m_jobs[i].size(); ++j )
+         {
+            JobScheduler::JobState jobState = m_jobSched->jobState( m_jobs[i][j] );
+            if ( JobScheduler::JobPending == jobState ||
+                 JobScheduler::JobRunning == jobState ) 
+            {
+                  throw Exception( RunManagerError ) << "Job " << m_cases[i]->projectPath() << " stage " <<
+                                                   j << " is still in Pending/Running state";
+            }
+         }
+      }
+
+      // recreate instance of job scheduler
+      createJobScheduler( clusterName() );
+
+      // clear queue arrays
+      m_cases.clear();
+      m_jobs.clear();     
+   }
+   catch ( Exception & ex ) { return reportError( ex.errorCode(), ex.what() ); }
+
+   return NoError;
+}
+
+// in case of scenario execution aborted - kill all submitted not finished jobs
+ErrorHandler::ReturnCode RunManagerImpl::stopAllSubmittedJobs()
+{
+   // loop over all cases
+   for (    size_t i = 0; i < m_jobs.size(); ++i )
+   {
+      for ( size_t j = 0; j < m_jobs[i].size(); ++j )
+      {
+         JobScheduler::JobState jobState = m_jobSched->jobState( m_jobs[i][j] );
+
+         switch ( jobState )
+         {
+            case JobScheduler::NotSubmittedYet:
+            case JobScheduler::JobFailed: 
+            case JobScheduler::JobFinished:
+            case JobScheduler::JobSucceeded:
+               break; // job is not in queue - do nothing
+
+            case JobScheduler::JobPending:
+            case JobScheduler::JobRunning:
+               m_jobSched->stopJob( m_jobs[i][j] );         // kill the job
+               m_cases[i]->setRunStatus( RunCase::Failed ); // invalidate case
+               break;
+
+            default: break;
+         }
+      }
+   }
+   return NoError;
+}
+
+
 ///////////////////////////////////////////////////////////////////////////////
 // Get cluster name from job scheduler
-std::string RunManagerImpl::clusterName() { return m_jobSched->clusterName(); }
+std::string RunManagerImpl::clusterName() { return m_jobSched.get() ? m_jobSched->clusterName() : "LOCAL"; }
 
 
 void RunManagerImpl::restoreCaseStatus( RunCase * cs )
@@ -560,37 +612,19 @@ RunManagerImpl::RunManagerImpl( CasaDeserializer & dz, const char * objName )
    if ( !ok ) throw Exception( DeserializationError ) << "RunManagerImpl deserialization error";
 }
 
-
-// in case of scenario execution aborted - kill all submitted not finished jobs
-void RunManagerImpl::stopAllSubmittedJobs()
+// create job scheduler depending on cluster name and OS
+void RunManagerImpl::createJobScheduler( const std::string & clusterName )
 {
-   // loop over all cases
-   for (    size_t i = 0; i < m_jobs.size(); ++i )
-   {
-      for ( size_t j = 0; j < m_jobs[i].size(); ++j )
-      {
-         JobScheduler::JobState jobState = m_jobSched->jobState( m_jobs[i][j] );
-
-         switch ( jobState )
-         {
-            case JobScheduler::NotSubmittedYet:
-            case JobScheduler::JobFailed: 
-            case JobScheduler::JobFinished:
-            case JobScheduler::JobSucceeded:
-               break; // job is not in queue - do nothing
-
-            case JobScheduler::JobPending:
-            case JobScheduler::JobRunning:
-               m_jobSched->stopJob( m_jobs[i][j] );         // kill the job
-               m_cases[i]->setRunStatus( RunCase::Failed ); // invalidate case
-               break;
-
-            default: break;
-         }
-      }
-   }
+#if defined (_WIN32) || !defined (WITH_LSF_SCHEDULER)
+   m_jobSched.reset( new JobSchedulerLocal() );
+#else
+   if ( clusterName == "LOCAL" ) { m_jobSched.reset( new JobSchedulerLocal()            ); }
+   else                          { m_jobSched.reset( new JobSchedulerLSF( clusterName ) ); }
+#endif
+   // delete file with jobs list if exist
+   ibs::FilePath jobsIDFile( std::string( "./" ) + s_jobsIDListFileName );
+   if ( jobsIDFile.exists() ) { jobsIDFile.remove(); }
 }
-
-
+ 
 }
 

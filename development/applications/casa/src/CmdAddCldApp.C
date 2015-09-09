@@ -45,6 +45,7 @@ CmdAddCldApp::CmdAddCldApp( CasaCommander & parent, const std::vector< std::stri
       m_maxRunLimMin = atol( m_prms[it].c_str() );
       ++it;
    }
+   std::cerr << "Add applicatoin it=" << it << std::endl;
 
    if (      m_prms[it] == "fastcauldron" ) m_app = casa::RunManager::fastcauldron;
    else if ( m_prms[it] == "fastgenex6"   ) m_app = casa::RunManager::fastgenex6;
@@ -68,8 +69,8 @@ void CmdAddCldApp::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
    casa::CauldronApp::ShellType sh = casa::CauldronApp::bash;
 #endif // _WIN32
 
-   // was cpus number given?
-   size_t p = m_cpus < 0 ? 1 : 2;
+   // was cpus number and time limit given?
+   size_t p = m_cpus < 0 ? 1 : (m_maxRunLimMin == 0 ? 2 : 3);
    if ( m_cpus < 0 ) { m_cpus = 1; } // if not - set it to 1
 
    if ( m_commander.verboseLevel() > CasaCommander::Quiet )

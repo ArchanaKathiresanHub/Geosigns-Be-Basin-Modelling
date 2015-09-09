@@ -63,6 +63,14 @@ namespace casa
       /// @param asyncRun
       virtual ErrorHandler::ReturnCode runScheduledCases( bool asyncRun );
 
+      ///< In case of scenario execution aborted (any exceptions for example) - it kills all submitted but not finished jobs
+      /// @return ErrorHandler::NoError on success or error code otherwise
+      virtual ErrorHandler::ReturnCode stopAllSubmittedJobs();
+
+      ///< Clean scheduled cases list and remove them from the queue
+      ///< Return ErrorHandler::NoError on success or error code if some cases in submitted/running states
+      virtual ErrorHandler::ReturnCode removeAllScheduledCases();
+
       /// @brief Set HPC cluster name
       /// @param clusterName name of the HPC cluster
       virtual ErrorHandler::ReturnCode setClusterName( const char * clusterName );
@@ -109,8 +117,8 @@ namespace casa
 
       std::vector< std::vector< JobScheduler::JobID > >   m_jobs;  ///< queue of jobs for each case
       std::vector< RunCaseImpl * >                        m_cases; ///< list of run cases
-   
-      void stopAllSubmittedJobs();                     ///< in case of scenario execution aborted - kill all submitted not finished jobs
+
+      void createJobScheduler( const std::string & clusterName );  ///< create job scheduler depending on cluster name and OS
    };
 }
 

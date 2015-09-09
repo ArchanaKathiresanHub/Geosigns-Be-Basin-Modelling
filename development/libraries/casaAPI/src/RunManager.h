@@ -132,6 +132,14 @@ namespace casa
       /// @return ErrorHandler::NoError on success or error code otherwise
       virtual ErrorHandler::ReturnCode runScheduledCases( bool asyncRun ) = 0;
 
+      ///< In case of scenario execution aborted (any exceptions for example) - it kills all submitted but not finished jobs
+      /// @return ErrorHandler::NoError on success or error code otherwise
+      virtual ErrorHandler::ReturnCode stopAllSubmittedJobs() = 0;
+
+      ///< Clean scheduled cases list and remove them from the queue
+      ///< Return ErrorHandler::NoError on success or error code if some cases in submitted/running states
+      virtual ErrorHandler::ReturnCode removeAllScheduledCases() = 0;
+
       /// @brief Define how many jobs could be in Pending state. If there are to many jobs submitted,
       ///        cluster starts to reduce available slots for the user, in this case better do not 
       ///        submit all jobs in one time but keep feeding cluster with new jobs as previous one was finished

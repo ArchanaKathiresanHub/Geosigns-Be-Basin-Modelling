@@ -21,6 +21,20 @@
 #include <cassert>
 #include <cmath>
 
+static std::string trim( const std::string & s )
+{
+   std::string::const_iterator it = s.begin();
+   while ( it != s.end() && isspace(*it) ) it++;
+
+   std::string::const_reverse_iterator rit = s.rbegin();
+   while ( rit.base() != it && isspace(*rit) ) rit++;
+
+   // remove "" around string if so
+   if ( *it  == '"' ) { it++; }
+   if ( *rit == '"' ) { rit++; }
+
+   return std::string( it, rit.base() );
+}
 
 void CfgFileParser::parseFile( const std::string & cmdFile, CasaCommander & cmdQueue )
 {
@@ -54,48 +68,63 @@ void CfgFileParser::parseFile( const std::string & cmdFile, CasaCommander & cmdQ
       std::string result;
       // get command itself first
       int tokNum = 0;
-      std::string opt;
 
       while( std::getline( iss, result, ' ') ) 
       {
          if ( result.empty() || (result.size() == 1 && result[0] == ' ') ) continue; // ignore spaces
          if ( result[0] == '#' ) break; // ignore all after comment
 
-         if ( 0 == tokNum )// get cmd name
+         if ( 0 == tokNum ) // get cmd name
          {
             cmdID = result;
          }
          else
          {
-            if ( opt.size() ) // continue parsing one option
+            if ( result[0] == '"' ) // need to get the full string without any change inside
             {
-               if ( *result.rbegin() == '"' )
-               {                  
-                  opt += " " + result.substr( 0, result.size()-1 ); 
-                  cmdPrms.push_back( opt );
-                  opt = "";
+               std::string opt = result.substr( 1, result.size() - 1 );
+               if ( *opt.rbegin() == '"' )
+               {
+                  opt.erase( opt.size() - 1, 1 );
                }
-               else { opt += " " + result; }
-            
+               else if ( std::getline( iss, result, '"' ) )
+               {
+                  opt += " " + result;
+               }
+               else 
+               {
+                  std::ostringstream oss;
+                  oss << "Can not find closing \" for the string: " << opt << ", at line: " << lineNum << ", command: " << cmdID;
+                  throw::std::runtime_error( oss.str().c_str() ); 
+               }
+
+               cmdPrms.push_back( opt );
+               continue;
             }
-            else // new option
+            else if ( result[0] == '[' ) // get whole array in one go
             {
-               if ( result[0] == '"' )
+               std::string opt = result;
+               if ( *opt.rbegin() != ']' )
                {
-                  if ( *result.rbegin() == '"'  )
+                  if ( std::getline( iss, result, ']' ) )
                   {
-                     cmdPrms.push_back( result.substr( 1, result.size() - 2 ) );
+                     opt += " " + result + "]";
                   }
-                  else
+                  else 
                   {
-                     opt = result.substr( 1 );
+                     std::ostringstream oss;
+                     oss << "Can not find closing ] for the set: " << opt << ", at line: " << lineNum << ", command: " << cmdID;
+                     throw::std::runtime_error( oss.str().c_str() ); 
                   }
                }
-               else
-               {
-                  cmdPrms.push_back( result );
-               }
-            }  
+               cmdPrms.push_back( opt );
+               continue;
+            }
+            else 
+            {
+               cmdPrms.
+                  push_back( result );
+            }
          }
          ++tokNum;
       }
@@ -105,9 +134,15 @@ void CfgFileParser::parseFile( const std::string & cmdFile, CasaCommander & cmdQ
 }
 
 // split list of strings divided by sep in to array of strings
-std::vector<std::string> CfgFileParser::list2array( const std::string & listOfStr, char sep )
+std::vector<std::string> CfgFileParser::list2array( const std::string & lst, char sep )
 {
    std::vector<std::string> strList; // array where we will keep strings from list to return
+
+   std::string listOfStr = lst;
+
+   // cut []
+   if ( listOfStr[0]                    == '[' ) listOfStr.erase( 0, 1 );
+   if ( listOfStr[listOfStr.size() - 1] == ']' ) listOfStr.erase( listOfStr.size() - 1, 1 );
 
    std::istringstream iss( listOfStr ); // tokenizer
 
@@ -117,7 +152,7 @@ std::vector<std::string> CfgFileParser::list2array( const std::string & listOfSt
    {
       if ( result.empty() || (result.size() == 1 && result[0] == sep ) ) continue; // skip spaces and separators
 
-      strList.push_back( result ); // add token to the list
+      strList.push_back( trim( result ) ); // add token to the list
    }
 
    return strList;

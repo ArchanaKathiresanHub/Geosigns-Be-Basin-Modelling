@@ -40,6 +40,7 @@ public:
       MonteCarloSolverError, ///< Error happened in MC solver
       RSProxyError,          ///< Error happened in response surface builder
       SUMLibException,       ///< Exception was caught during SUMLib call
+      RunManagerError,       ///< Error happened in RunManager
       LSFLibError,           ///< Error happened in RunManager when it interracts with LSF
       WrongPath,             ///< Wrong path given
       SerializationError,    ///< Error happens during serialization process

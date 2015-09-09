@@ -205,6 +205,7 @@ namespace casa
 
       // dump input/output project name
       oss << " " << m_inputOpt << " " << inProjectFile;
+
       if ( m_appName.substr( 0, 7 ) == "track1d" )
       {
          oss << " " << m_outputOpt;
