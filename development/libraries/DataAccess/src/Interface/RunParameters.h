@@ -142,15 +142,6 @@ namespace DataAccess
 
          int m_optimisationLevel;
 
-      private:
-         /*!
-         * \brief Initialise m_seismicVelocityModel member with the value of the seismic velocity algorithm
-         */
-         void initialiseSeismicVelocityAlgorithm();
-        
-         /// Value of the seismic velocity algorithm
-         SeismicVelocityModel m_seismicVelocityModel;
-
       };
 
 

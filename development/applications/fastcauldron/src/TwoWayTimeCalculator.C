@@ -35,11 +35,12 @@ OutputPropertyMap* allocateTwoWayTimeResidualCalculator( const PropertyList prop
 
 TwoWayTimeCalculator::TwoWayTimeCalculator ( LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot ) :
 m_formation( formation ),
-m_topFormation( dynamic_cast<LayerProps const * const>( surface->getTopFormation( )) ),
-m_bottomFormation( dynamic_cast<LayerProps const * const>(surface->getBottomFormation( )) ),
 m_surface( surface ), m_snapshot( snapshot ),
 m_depth( 0 ), m_pressure( 0 ), m_seismicVelocity( 0 ), m_temperature( 0 ), m_twoWayTimeTop( 0 ), m_isCalculated( false )
 {
+   assert( ("The surface specified for the calculator is a nul pointer", surface != 0) );
+   m_topFormation = dynamic_cast<LayerProps const *>(surface->getTopFormation());
+   m_bottomFormation = dynamic_cast<LayerProps const *>(surface->getBottomFormation());
 }
 
 bool TwoWayTimeCalculator::operator ()( const OutputPropertyMap::OutputPropertyList& properties, 
@@ -63,11 +64,11 @@ bool TwoWayTimeCalculator::operator ()( const OutputPropertyMap::OutputPropertyL
    double undefinedValue;
    Interface::GridMap* TwoWayTimeMap;
 
-   if (not m_pressure->isCalculated( ) and not m_pressure->calculate( )) {
+   if (m_pressure!=0 and not m_pressure->isCalculated() and not m_pressure->calculate()) {
       return false;
    }
 
-   if (not m_temperature->isCalculated( ) and not m_temperature->calculate( )) {
+   if (m_temperature!=0 and not m_temperature->isCalculated() and not m_temperature->calculate()) {
       return false;
    }
 
@@ -225,15 +226,15 @@ bool TwoWayTimeVolumeCalculator::operator ()( const OutputPropertyMap::OutputPro
    double undefinedValue;
    Interface::GridMap* TwoWayTimeMap;
 
-   if (not m_depth->isCalculated( ) and not m_depth->calculate( )) {
+   if (m_depth!=0 and not m_depth->isCalculated( ) and not m_depth->calculate( )) {
       return false;
    }
 
-   if (not m_seismicVelocity->isCalculated( ) and not m_seismicVelocity->calculate( )) {
+   if (m_seismicVelocity!=0 and not m_seismicVelocity->isCalculated() and not m_seismicVelocity->calculate()) {
       return false;
    }
 
-   if (not m_twoWayTimeTop->isCalculated( ) and not m_twoWayTimeTop->calculate( )) {
+   if (m_twoWayTimeTop!=0 and not m_twoWayTimeTop->isCalculated() and not m_twoWayTimeTop->calculate()) {
       return false;
    }
 
@@ -337,7 +338,7 @@ bool TwoWayTimeResidualCalculator::operator ()( const OutputPropertyMap::OutputP
    Interface::GridMap* TwoWayTimeResidualMap;
 
 
-   if (not m_twoWayTimeCauldron->isCalculated( ) and not m_twoWayTimeCauldron->calculate( )) {
+   if (m_twoWayTimeCauldron!=0 and not m_twoWayTimeCauldron->isCalculated() and not m_twoWayTimeCauldron->calculate()) {
       return false;
    }
 

@@ -15,9 +15,11 @@ OutputPropertyMap* allocateVelocityVolumeCalculator ( const PropertyList propert
 VelocityCalculator::VelocityCalculator ( LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot ) :
    m_formation ( formation ), m_surface ( surface ), m_snapshot ( snapshot ),
    m_bulkDensity( 0 ), m_porosity( 0 ), m_pressure( 0 ), m_temperature( 0 ),
-   m_ves( 0 ), m_maxVes( 0 ), m_isCalculated( false ),
-   m_lithologies( &m_formation->getCompoundLithologyArray( ) ), m_fluid( m_formation->fluid )
+   m_ves( 0 ), m_maxVes( 0 ), m_isCalculated( false )
 {
+   assert( ("The surface formation for the calculator is a nul pointer", formation != 0) );
+   m_lithologies = &m_formation->getCompoundLithologyArray();
+   m_fluid = m_formation->fluid;
 }
 
 bool VelocityCalculator::operator ()( const OutputPropertyMap::OutputPropertyList& properties, 
@@ -37,27 +39,27 @@ bool VelocityCalculator::operator ()( const OutputPropertyMap::OutputPropertyLis
    double undefinedValue;
    Interface::GridMap* velocityMap;
 
-   if ( not m_porosity->isCalculated () and not m_porosity->calculate ()) {
+   if (m_porosity!=0 and not m_porosity->isCalculated() and not m_porosity->calculate()) {
       return false;
    }
 
-   if ( not m_pressure->isCalculated () and not m_pressure->calculate ()) {
+   if (m_pressure!=0 and not m_pressure->isCalculated() and not m_pressure->calculate()) {
       return false;
    }
 
-   if ( not m_temperature->isCalculated () and not m_temperature->calculate ()) {
+   if (m_temperature!=0 and not m_temperature->isCalculated() and not m_temperature->calculate()) {
       return false;
    }
 
-   if ( not m_bulkDensity->isCalculated () and not m_bulkDensity->calculate ()) {
+   if (m_bulkDensity!=0 and not m_bulkDensity->isCalculated() and not m_bulkDensity->calculate()) {
       return false;
    }
 
-   if (not m_ves->isCalculated() and not m_ves->calculate()) {
+   if (m_ves!=0 and not m_ves->isCalculated() and not m_ves->calculate()) {
 		return false;
    }
 
-   if (not m_maxVes->isCalculated() and not m_maxVes->calculate()) {
+   if (m_maxVes!=0 and not m_maxVes->isCalculated() and not m_maxVes->calculate()) {
 	   return false;
    }
 
@@ -152,27 +154,27 @@ bool VelocityVolumeCalculator::operator ()( const OutputPropertyMap::OutputPrope
    double undefinedValue;
    Interface::GridMap* velocityMap;
 
-   if ( not m_porosity->isCalculated () and not m_porosity->calculate ()) {
+   if (m_porosity!=0 and not m_porosity->isCalculated() and not m_porosity->calculate()) {
       return false;
    }
 
-   if ( not m_pressure->isCalculated () and not m_pressure->calculate ()) {
+   if (m_pressure!=0 and not m_pressure->isCalculated () and not m_pressure->calculate ()) {
       return false;
    }
 
-   if ( not m_temperature->isCalculated () and not m_temperature->calculate ()) {
+   if (m_temperature!=0 and not m_temperature->isCalculated () and not m_temperature->calculate ()) {
       return false;
    }
 
-   if ( not m_bulkDensity->isCalculated () and not m_bulkDensity->calculate ()) {
+   if (m_bulkDensity!=0 and not m_bulkDensity->isCalculated() and not m_bulkDensity->calculate()) {
       return false;
    }
 
-   if (not m_ves->isCalculated() and not m_ves->calculate()) {
+   if (m_ves!=0 and not m_ves->isCalculated() and not m_ves->calculate()) {
 		return false;
    }
 
-   if (not m_maxVes->isCalculated() and not m_maxVes->calculate()) {
+   if (m_maxVes!=0 and not m_maxVes->isCalculated() and not m_maxVes->calculate()) {
 		return false;
    }
 

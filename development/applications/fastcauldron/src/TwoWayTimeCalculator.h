@@ -44,9 +44,9 @@ private :
 
    LayerProps const * const m_formation;
    /// The formation above the m_formation if there is one
-   LayerProps const * const m_topFormation;
+   LayerProps const * m_topFormation;
    /// The formation under the m_formation if there is one
-   LayerProps const * const m_bottomFormation;
+   LayerProps const * m_bottomFormation;
    Interface::Surface  const * const m_surface;
    Interface::Snapshot const * const m_snapshot;
 

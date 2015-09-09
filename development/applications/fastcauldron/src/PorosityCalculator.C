@@ -66,8 +66,6 @@ bool PorosityCalculator::operator ()( const OutputPropertyMap::OutputPropertyLis
 
    }
 
- 	OutputPropertyMap*  depth = PropertyManager::getInstance().findOutputPropertyMap ( "Depth", m_formation, m_surface, m_snapshot );
-
    porosityMap = propertyValues [ 0 ]->getGridMap ();
    porosityMap->retrieveData ();
    undefinedValue = porosityMap->getUndefinedValue ();

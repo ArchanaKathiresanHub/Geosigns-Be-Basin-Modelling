@@ -46,9 +46,9 @@ private :
    bool m_isCalculated;
 
    /// The lithologies of the formation
-   CompoundLithologyArray const * const m_lithologies;
+   CompoundLithologyArray const * m_lithologies;
    /// The fluid of the formation
-   FluidType const * const m_fluid;
+   FluidType const * m_fluid;
 
 };
 
