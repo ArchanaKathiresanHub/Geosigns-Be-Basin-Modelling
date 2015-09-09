@@ -1690,12 +1690,7 @@ void Basin_Modelling::Assemble_Element_Pressure_System (
             const int cij = I * Number_Of_Y_Points * Number_Of_Z_Points + J * Number_Of_Z_Points + K;
             matC( cij ) = integrationWeight * bulkFluidDensityDerivative * timeStepInv;           
 
-            // T3a + T3b
-            
-
             const int abij = cij * 3;
-
-            // T3c
           
             Eigen::Matrix3d eigenFluidMobility;
 
@@ -2041,7 +2036,6 @@ void Basin_Modelling::Assemble_Element_Pressure_System (
 
             addOuterProduct ( integrationWeight * bulkFluidDensityDerivative * timeStepInv, Basis, Basis, Element_Jacobian );
 
-            // T3c
             matrixMatrixProduct ( scaledGradBasis, fluidMobility, scaledGradBasis2 );
             addOuterProduct ( integrationWeight, scaledGradBasis, scaledGradBasis2, Element_Jacobian );
          }
