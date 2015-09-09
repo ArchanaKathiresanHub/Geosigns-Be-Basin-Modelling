@@ -942,6 +942,8 @@ void FastcauldronSimulator::correctTimeFilterDefaults3D () {
    // variable will be updated to the biomarkers output option value.
    Interface::PropertyOutputOption biomarkersOption = Interface::NO_OUTPUT;
 
+   Interface::PropertyOutputOption horizontalPermeabilityOption = Interface::NO_OUTPUT;
+
    Interface::OutputProperty* newProperty;
    Interface::MutableOutputPropertyList::iterator propertyIter;
 
@@ -1040,6 +1042,7 @@ void FastcauldronSimulator::correctTimeFilterDefaults3D () {
 
       if ( name == "HorizontalPermeability" ) {
          containsHorizontalPermeability = true;
+         horizontalPermeabilityOption = property->getOption();
       }
 
       if ( name == "ALCStepTopBasaltDepth" || name == "ALCStepMohoDepth"   ) {
@@ -1390,11 +1393,26 @@ void FastcauldronSimulator::correctTimeFilterDefaults3D () {
       m_timeOutputProperties.push_back ( getFactory ()->produceOutputProperty ( this, getModellingMode (), Interface::SEDIMENTS_ONLY_OUTPUT, "Lithology" ));
    }
 
-   if ( not containsHorizontalPermeability ) {
-      const Interface::OutputProperty* permeability = findTimeOutputProperty ( "PermeabilityVec" );
-      Interface::PropertyOutputOption option = ( permeability == 0 ? Interface::NO_OUTPUT : permeability->getOption ());
+   const Interface::OutputProperty* permeability = findTimeOutputProperty ( "PermeabilityVec" );
 
-      m_timeOutputProperties.push_back ( getFactory ()->produceOutputProperty ( this, getModellingMode (), option, "HorizontalPermeability" ));
+   // If defined in the FilterTimeIoTbl Permeability output option is set by default SedimentsOnly 
+   const Interface::PropertyOutputOption permeabilityOption = ( permeability == 0 ? Interface::NO_OUTPUT : permeability->getOption ());
+
+
+   if ( not containsHorizontalPermeability ) {
+      if( permeability != 0 ) {
+         m_timeOutputProperties.push_back ( getFactory ()->produceOutputProperty ( this, getModellingMode (), permeabilityOption, "HorizontalPermeability" ));
+      }
+   } else {
+      if( horizontalPermeabilityOption == Interface::NO_OUTPUT and permeability != 0 ) {
+         Interface::OutputProperty* horizontalPermeabilityProperty = const_cast< Interface::OutputProperty* >(findTimeOutputProperty ( "HorizontalPermeability" ));
+
+         horizontalPermeabilityProperty->setOption( permeabilityOption );
+      }    
+      if( permeability == 0 ) {
+         m_timeOutputProperties.push_back ( getFactory ()->produceOutputProperty ( this, getModellingMode (), horizontalPermeabilityOption, "PermeabilityVec" ));
+
+      }
    }
 
    using namespace CBMGenerics;
