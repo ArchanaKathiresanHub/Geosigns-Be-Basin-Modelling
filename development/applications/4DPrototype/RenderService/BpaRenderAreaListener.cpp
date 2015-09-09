@@ -13,6 +13,7 @@
 #include "jsonxx.h"
 
 #include <Visualization/SceneGraphManager.h>
+#include <Visualization/CameraUtil.h>
 
 #include <RemoteViz/Rendering/RenderArea.h>
 #include <RemoteViz/Rendering/Connection.h>
@@ -21,6 +22,7 @@
 #include <Inventor/SoSceneManager.h>
 #include <Inventor/nodes/SoSeparator.h>
 #include <Inventor/nodes/SoGradientBackground.h>
+#include <Inventor/ViewerComponents/SoCameraInteractor.h>
 
 #include <Interface/ProjectHandle.h>
 #include <Interface/ObjectFactory.h>
@@ -283,6 +285,31 @@ void BpaRenderAreaListener::onReceivedMessage(RenderArea* renderArea, Connection
   {
     SbViewportRegion vpregion = m_renderArea->getSceneManager()->getViewportRegion();
     m_examiner->viewAll(vpregion);
+  }
+  else if (cmd == "SetViewPreset")
+  {
+    auto preset = params.get<std::string>("preset");
+
+    static const std::string presetKeys[] = 
+    {
+      "Top", "Left", "Front",
+      "Bottom", "Right", "Back"
+    };
+
+    static const ViewPreset presetValues[] =
+    {
+      ViewPreset_Top, ViewPreset_Left, ViewPreset_Front,
+      ViewPreset_Bottom, ViewPreset_Right, ViewPreset_Back
+    };
+
+    for (int i = 0; i < 6; ++i)
+    {
+      if (preset == presetKeys[i])
+      {
+        setViewPreset(m_examiner->getCameraInteractor()->getCamera(), presetValues[i]);
+        break;
+      }
+    }
   }
   else if (cmd == "SetStillQuality")
   {

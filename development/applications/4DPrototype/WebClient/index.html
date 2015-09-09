@@ -43,6 +43,18 @@
 					<input type="checkbox" id="checkBoxDrawGrid" onchange="onShowGridChanged(this)">Coordinate grid</input><br>
 					<input type="checkbox" id="checkBoxPerspective" checked onchange="onPerspectiveChanged(this)">Perspective</input><br>
 					<button onclick="onButtonViewAllClicked()">View all</button>
+					<table>
+						<tr>
+							<td><button style="width:100%" onclick="onButtonViewPresetClicked(0)">Top</button></td>
+							<td><button style="width:100%" onclick="onButtonViewPresetClicked(1)">Left</button></td>
+							<td><button style="width:100%" onclick="onButtonViewPresetClicked(2)">Front</button></td>
+						</tr>
+						<tr>
+							<td><button style="width:100%" onclick="onButtonViewPresetClicked(3)">Bottom</button></td>
+							<td><button style="width:100%" onclick="onButtonViewPresetClicked(4)">Right</button></td>
+							<td><button style="width:100%" onclick="onButtonViewPresetClicked(5)">Back</button></td>
+						</tr>
+					</table>
 				</div>
 			</div>
 

@@ -315,6 +315,22 @@ function onButtonViewAllClicked()
     theRenderArea.sendMessage(JSON.stringify(msg));
 }
 
+function onButtonViewPresetClicked(index)
+{
+    var viewDirs = [ "Top", "Left", "Front", "Bottom", "Right", "Back" ];
+
+    console.log("view preset " + viewDirs[index]);
+
+    var msg = {
+        cmd: "SetViewPreset",
+        params: {
+            preset: viewDirs[index]
+        }
+    }
+
+    theRenderArea.sendMessage(JSON.stringify(msg));
+}
+
 function onQualitySliderChanged(value)
 {
     var msg = {

@@ -31,6 +31,8 @@
 #include <MeshVizInterface/mapping/MoMeshviz.h>
 #include <MeshViz/PoMeshViz.h>
 
+#include <Visualization/CameraUtil.h>
+
 namespace di = DataAccess::Interface;
 
 namespace
@@ -86,7 +88,9 @@ void MainWindow::loadProject(const QString& filename)
     //std::string file = filename.toStdString();
     QByteArray barray = filename.toLatin1();
     const char* str = barray.data();
+    std::cout << "Loading project..." << std::endl;
     m_projectHandle.reset(di::OpenCauldronProject(str, "r", m_factory.get()));
+    std::cout << "...done" << std::endl;
   }
 
   setWindowFilePath(filename);
@@ -94,12 +98,14 @@ void MainWindow::loadProject(const QString& filename)
   if (m_oivLicenseOK)
   {
     m_sceneGraphManager.setup(m_projectHandle.get());
+    m_sceneGraphManager.setProjection(SceneGraphManager::PerspectiveProjection);
 
     m_ui.renderWidget->getViewer()->setSceneGraph(m_sceneGraphManager.getRoot());
 
     m_ui.snapshotSlider->setMinimum(0);
     m_ui.snapshotSlider->setMaximum((int)m_sceneGraphManager.getSnapshotCount() - 1);
     m_ui.snapshotSlider->setValue(m_ui.snapshotSlider->maximum());
+
     m_ui.renderWidget->getViewer()->getGuiAlgoViewers()->viewAll();
   }
 
@@ -319,8 +325,16 @@ void MainWindow::connectSignals()
   connect(m_ui.action_RenderAllSnapshots, SIGNAL(triggered()), this, SLOT(onActionRenderAllSnapshotsTriggered()));
   connect(m_ui.action_RenderAllSlices, SIGNAL(triggered()), this, SLOT(onActionRenderAllSlicesTriggered()));
   connect(m_ui.action_SwitchProperties, SIGNAL(triggered()), this, SLOT(onActionSwitchPropertiesTriggered()));
-
   connect(m_ui.action_OpenGLInfo, SIGNAL(triggered()), this, SLOT(onShowGLInfo()));
+  connect(m_ui.action_ViewAll, SIGNAL(triggered()), this, SLOT(onActionViewAllTriggered()));
+
+  QAction* actions[] =
+  {
+    m_ui.action_ViewTop, m_ui.action_ViewLeft, m_ui.action_ViewFront, 
+    m_ui.action_ViewBottom, m_ui.action_ViewRight, m_ui.action_ViewBack
+  };
+  for (int i = 0; i < 6; ++i)
+    connect(actions[i], SIGNAL(triggered()), this, SLOT(onActionViewPresetTriggered()));
 
   connect(m_ui.snapshotSlider, SIGNAL(valueChanged(int)), this, SLOT(onSliderValueChanged(int)));
   connect(m_ui.treeWidgetProperties, SIGNAL(itemDoubleClicked(QTreeWidgetItem*, int)), this, SLOT(onItemDoubleClicked(QTreeWidgetItem*, int)));
@@ -357,6 +371,36 @@ void MainWindow::onActionOpenTriggered()
   if(!filename.isNull())
   {
     loadProject(filename);
+  }
+}
+
+void MainWindow::onActionViewAllTriggered()
+{
+  m_ui.renderWidget->getViewer()->getGuiAlgoViewers()->viewAll();
+}
+
+void MainWindow::onActionViewPresetTriggered()
+{
+  static const QAction* actions[] =
+  {
+    m_ui.action_ViewTop, m_ui.action_ViewLeft, m_ui.action_ViewFront,
+    m_ui.action_ViewBottom, m_ui.action_ViewRight, m_ui.action_ViewBack
+  };
+
+  static const ViewPreset presets[] =
+  {
+    ViewPreset_Top, ViewPreset_Left, ViewPreset_Front,
+    ViewPreset_Bottom, ViewPreset_Right, ViewPreset_Back
+  };
+
+  for (int i = 0; i < 6; ++i)
+  {
+    if (sender() == actions[i])
+    {
+      SoCamera* camera = m_sceneGraphManager.getCamera();
+      setViewPreset(camera, presets[i]);
+      break;
+    }
   }
 }
 

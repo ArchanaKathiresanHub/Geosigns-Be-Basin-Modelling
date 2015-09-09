@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>813</width>
+    <width>1114</width>
     <height>900</height>
    </rect>
   </property>
@@ -363,7 +363,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>813</width>
+     <width>1114</width>
      <height>21</height>
     </rect>
    </property>
@@ -389,7 +389,21 @@
     </property>
     <addaction name="action_OpenGLInfo"/>
    </widget>
+   <widget class="QMenu" name="menu_View">
+    <property name="title">
+     <string>&amp;View</string>
+    </property>
+    <addaction name="action_ViewAll"/>
+    <addaction name="separator"/>
+    <addaction name="action_ViewTop"/>
+    <addaction name="action_ViewLeft"/>
+    <addaction name="action_ViewFront"/>
+    <addaction name="action_ViewBottom"/>
+    <addaction name="action_ViewRight"/>
+    <addaction name="action_ViewBack"/>
+   </widget>
    <addaction name="menu_File"/>
+   <addaction name="menu_View"/>
    <addaction name="menuTest"/>
    <addaction name="menuHelp"/>
   </widget>
@@ -422,6 +436,41 @@
   <action name="action_SwitchProperties">
    <property name="text">
     <string>Switch properties</string>
+   </property>
+  </action>
+  <action name="action_ViewAll">
+   <property name="text">
+    <string>View &amp;all</string>
+   </property>
+  </action>
+  <action name="action_ViewTop">
+   <property name="text">
+    <string>&amp;Top</string>
+   </property>
+  </action>
+  <action name="action_ViewLeft">
+   <property name="text">
+    <string>&amp;Left</string>
+   </property>
+  </action>
+  <action name="action_ViewFront">
+   <property name="text">
+    <string>&amp;Front</string>
+   </property>
+  </action>
+  <action name="action_ViewBottom">
+   <property name="text">
+    <string>&amp;Bottom</string>
+   </property>
+  </action>
+  <action name="action_ViewRight">
+   <property name="text">
+    <string>&amp;Right</string>
+   </property>
+  </action>
+  <action name="action_ViewBack">
+   <property name="text">
+    <string>Bac&amp;k</string>
    </property>
   </action>
  </widget>

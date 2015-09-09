@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'MainWindow.ui'
 **
-** Created: Mon Sep 7 12:12:21 2015
+** Created: Tue Sep 8 14:09:29 2015
 **      by: Qt User Interface Compiler version 4.8.4
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -43,6 +43,13 @@ public:
     QAction *action_OpenGLInfo;
     QAction *action_RenderAllSlices;
     QAction *action_SwitchProperties;
+    QAction *action_ViewAll;
+    QAction *action_ViewTop;
+    QAction *action_ViewLeft;
+    QAction *action_ViewFront;
+    QAction *action_ViewBottom;
+    QAction *action_ViewRight;
+    QAction *action_ViewBack;
     QWidget *centralwidget;
     QVBoxLayout *verticalLayout_5;
     QSplitter *splitter;
@@ -94,13 +101,14 @@ public:
     QMenu *menu_File;
     QMenu *menuTest;
     QMenu *menuHelp;
+    QMenu *menu_View;
     QStatusBar *statusbar;
 
     void setupUi(QMainWindow *MainWindow)
     {
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName(QString::fromUtf8("MainWindow"));
-        MainWindow->resize(813, 900);
+        MainWindow->resize(1114, 900);
         action_Open = new QAction(MainWindow);
         action_Open->setObjectName(QString::fromUtf8("action_Open"));
         action_Quit = new QAction(MainWindow);
@@ -113,6 +121,20 @@ public:
         action_RenderAllSlices->setObjectName(QString::fromUtf8("action_RenderAllSlices"));
         action_SwitchProperties = new QAction(MainWindow);
         action_SwitchProperties->setObjectName(QString::fromUtf8("action_SwitchProperties"));
+        action_ViewAll = new QAction(MainWindow);
+        action_ViewAll->setObjectName(QString::fromUtf8("action_ViewAll"));
+        action_ViewTop = new QAction(MainWindow);
+        action_ViewTop->setObjectName(QString::fromUtf8("action_ViewTop"));
+        action_ViewLeft = new QAction(MainWindow);
+        action_ViewLeft->setObjectName(QString::fromUtf8("action_ViewLeft"));
+        action_ViewFront = new QAction(MainWindow);
+        action_ViewFront->setObjectName(QString::fromUtf8("action_ViewFront"));
+        action_ViewBottom = new QAction(MainWindow);
+        action_ViewBottom->setObjectName(QString::fromUtf8("action_ViewBottom"));
+        action_ViewRight = new QAction(MainWindow);
+        action_ViewRight->setObjectName(QString::fromUtf8("action_ViewRight"));
+        action_ViewBack = new QAction(MainWindow);
+        action_ViewBack->setObjectName(QString::fromUtf8("action_ViewBack"));
         centralwidget = new QWidget(MainWindow);
         centralwidget->setObjectName(QString::fromUtf8("centralwidget"));
         verticalLayout_5 = new QVBoxLayout(centralwidget);
@@ -369,19 +391,22 @@ public:
         MainWindow->setCentralWidget(centralwidget);
         menubar = new QMenuBar(MainWindow);
         menubar->setObjectName(QString::fromUtf8("menubar"));
-        menubar->setGeometry(QRect(0, 0, 813, 21));
+        menubar->setGeometry(QRect(0, 0, 1114, 21));
         menu_File = new QMenu(menubar);
         menu_File->setObjectName(QString::fromUtf8("menu_File"));
         menuTest = new QMenu(menubar);
         menuTest->setObjectName(QString::fromUtf8("menuTest"));
         menuHelp = new QMenu(menubar);
         menuHelp->setObjectName(QString::fromUtf8("menuHelp"));
+        menu_View = new QMenu(menubar);
+        menu_View->setObjectName(QString::fromUtf8("menu_View"));
         MainWindow->setMenuBar(menubar);
         statusbar = new QStatusBar(MainWindow);
         statusbar->setObjectName(QString::fromUtf8("statusbar"));
         MainWindow->setStatusBar(statusbar);
 
         menubar->addAction(menu_File->menuAction());
+        menubar->addAction(menu_View->menuAction());
         menubar->addAction(menuTest->menuAction());
         menubar->addAction(menuHelp->menuAction());
         menu_File->addAction(action_Open);
@@ -391,6 +416,14 @@ public:
         menuTest->addAction(action_RenderAllSlices);
         menuTest->addAction(action_SwitchProperties);
         menuHelp->addAction(action_OpenGLInfo);
+        menu_View->addAction(action_ViewAll);
+        menu_View->addSeparator();
+        menu_View->addAction(action_ViewTop);
+        menu_View->addAction(action_ViewLeft);
+        menu_View->addAction(action_ViewFront);
+        menu_View->addAction(action_ViewBottom);
+        menu_View->addAction(action_ViewRight);
+        menu_View->addAction(action_ViewBack);
 
         retranslateUi(MainWindow);
 
@@ -409,6 +442,13 @@ public:
         action_OpenGLInfo->setText(QApplication::translate("MainWindow", "OpenGL Info", 0, QApplication::UnicodeUTF8));
         action_RenderAllSlices->setText(QApplication::translate("MainWindow", "Render all slices", 0, QApplication::UnicodeUTF8));
         action_SwitchProperties->setText(QApplication::translate("MainWindow", "Switch properties", 0, QApplication::UnicodeUTF8));
+        action_ViewAll->setText(QApplication::translate("MainWindow", "View &all", 0, QApplication::UnicodeUTF8));
+        action_ViewTop->setText(QApplication::translate("MainWindow", "&Top", 0, QApplication::UnicodeUTF8));
+        action_ViewLeft->setText(QApplication::translate("MainWindow", "&Left", 0, QApplication::UnicodeUTF8));
+        action_ViewFront->setText(QApplication::translate("MainWindow", "&Front", 0, QApplication::UnicodeUTF8));
+        action_ViewBottom->setText(QApplication::translate("MainWindow", "&Bottom", 0, QApplication::UnicodeUTF8));
+        action_ViewRight->setText(QApplication::translate("MainWindow", "&Right", 0, QApplication::UnicodeUTF8));
+        action_ViewBack->setText(QApplication::translate("MainWindow", "Bac&k", 0, QApplication::UnicodeUTF8));
         tabWidget->setTabText(tabWidget->indexOf(tab), QApplication::translate("MainWindow", "Structure", 0, QApplication::UnicodeUTF8));
         tabWidget->setTabText(tabWidget->indexOf(tab_2), QApplication::translate("MainWindow", "Properties", 0, QApplication::UnicodeUTF8));
         label_7->setText(QApplication::translate("MainWindow", "Vertical scale", 0, QApplication::UnicodeUTF8));
@@ -432,6 +472,7 @@ public:
         menu_File->setTitle(QApplication::translate("MainWindow", "&File", 0, QApplication::UnicodeUTF8));
         menuTest->setTitle(QApplication::translate("MainWindow", "Test", 0, QApplication::UnicodeUTF8));
         menuHelp->setTitle(QApplication::translate("MainWindow", "Help", 0, QApplication::UnicodeUTF8));
+        menu_View->setTitle(QApplication::translate("MainWindow", "&View", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 
 };

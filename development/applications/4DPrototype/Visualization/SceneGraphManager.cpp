@@ -939,6 +939,7 @@ void SceneGraphManager::setupSnapshots()
 
   for (size_t i = 0; i < tmpSnapshotList.size(); ++i)
   {
+    std::cout << "Creating node " << i << std::endl;
     const di::Snapshot* snapshot = tmpSnapshotList[i];
     SnapshotInfo info = createSnapshotNode(snapshot);
     m_snapshots.push_back(info);
@@ -1152,11 +1153,8 @@ SoCamera* SceneGraphManager::getCamera() const
 
 void SceneGraphManager::setProjection(SceneGraphManager::ProjectionType type)
 {
-  if (type != m_projectionType)
-  {
-    m_projectionType = type;
-    m_cameraSwitch->whichChild = (type == PerspectiveProjection) ? 0 : 1;
-  }
+  m_projectionType = type;
+  m_cameraSwitch->whichChild = (type == PerspectiveProjection) ? 0 : 1;
 }
 
 void SceneGraphManager::setVerticalScale(float scale)
