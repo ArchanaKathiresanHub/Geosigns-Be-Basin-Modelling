@@ -61,8 +61,8 @@ WARNING:  DO NOT MODIFY this file unless you are knowledgeable about MSBuild and
          "Basin Modeling" - it is linked on build server to "BasingModeling" for windows builds.
       -->
       <deploy_dir_scp_format0>$(build_dir_cmake.Replace('\','/'))</deploy_dir_scp_format0>
-      <deploy_dir_scp_format1>$(build_dir_cmake0.Replace(':',''))</deploy_dir_scp_format1>
-      <deploy_dir_scp_format2>/cygdrive/$(build_dir_cmake1.Replace(' ',''))</deploy_dir_scp_format2>
+      <deploy_dir_scp_format1>$(deploy_dir_scp_format0.Replace(':',''))</deploy_dir_scp_format1>
+      <deploy_dir_scp_format2>/cygdrive/$(deploy_dir_scp_format1.Replace(' ',''))</deploy_dir_scp_format2>
       <copy_zip>$(scp_command) -r $(deploy_dir_scp_format2)/*.zip "$(AgentAccount)@$(AgentHost):$(DeployDir)/$(Configuration)/"</copy_zip>
    </PropertyGroup>
 
