@@ -16,7 +16,7 @@
 
 namespace di = DataAccess::Interface;
 
-FormationProperty::FormationProperty(const std::string& name, const GridMapCollection& values)
+FormationProperty::FormationProperty(const std::string& name, const std::vector<const di::GridMap*>& values)
   : m_values(values)
   , m_name(name)
   , m_binding(MiDataSet::PER_CELL)
@@ -84,6 +84,12 @@ Formation2DProperty::Formation2DProperty(const std::string& name, const std::vec
   }
 }
 
+Formation2DProperty::~Formation2DProperty()
+{
+  for (auto gridMap : m_values)
+    gridMap->release();
+}
+
 double Formation2DProperty::get(size_t i, size_t j, size_t k) const
 {
   const di::GridMap* gridMap = m_values[k];
@@ -139,6 +145,11 @@ SurfaceProperty::SurfaceProperty(const std::string& name, const DataAccess::Inte
   values->getMinMaxValue(m_minVal, m_maxVal);
 }
 
+SurfaceProperty::~SurfaceProperty()
+{
+  m_values->release();
+}
+
 double SurfaceProperty::get(size_t index) const
 {
   unsigned int i = (unsigned int)index % (m_numI - 1);
@@ -183,6 +194,11 @@ ReservoirProperty::ReservoirProperty(const std::string& name, const DataAccess::
   , m_maxVal(0.0)
 {
   values->getMinMaxValue(m_minVal, m_maxVal);
+}
+
+ReservoirProperty::~ReservoirProperty()
+{
+  m_values->release();
 }
 
 double ReservoirProperty::get(size_t i, size_t j, size_t k) const
@@ -232,6 +248,12 @@ VectorProperty::VectorProperty(const std::string& name, const DataAccess::Interf
   //m_numI = values[0]->numI();
   //m_numJ = values[0]->numJ();
   //m_numK = values[0]->getDepth();
+}
+
+VectorProperty::~VectorProperty()
+{
+  for (int i = 0; i < 3; ++i)
+    m_values[i]->release();
 }
 
 MbVec3d VectorProperty::get(size_t i, size_t j, size_t k) const
@@ -357,6 +379,11 @@ PersistentTrapIdProperty::PersistentTrapIdProperty(
 
   m_minVal = translateId(minTrapId);
   m_maxVal = translateId(maxTrapId);
+}
+
+PersistentTrapIdProperty::~PersistentTrapIdProperty()
+{
+  m_trapIds->release();
 }
 
 double PersistentTrapIdProperty::get(size_t i, size_t j, size_t /*k*/) const

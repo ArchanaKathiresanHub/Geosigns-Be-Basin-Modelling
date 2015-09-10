@@ -14,6 +14,7 @@
 #include "defines.h"
 
 #include <map>
+#include <list>
 #include <vector>
 #include <string>
 #include <memory>
@@ -99,18 +100,16 @@ struct SnapshotInfo
 
     SoSeparator* root;
     MoMesh* mesh;
-    SurfaceMesh* meshData;
     MoScalarSet* scalarSet;
-    MiDataSetI<double>* propertyData;
     MoMeshSurface* surfaceMesh;
+    std::shared_ptr<SurfaceMesh> meshData;
+    std::shared_ptr<MiDataSetI<double> > propertyData;
 
     Surface()
       : id(0)
       , root(0)
       , mesh(0)
-      , meshData(0)
       , scalarSet(0)
-      , propertyData(0)
       , surfaceMesh(0)
     {
     }
@@ -122,18 +121,17 @@ struct SnapshotInfo
 
     SoSeparator* root;
     MoMesh* mesh;
-    ReservoirMesh* meshData;
     MoScalarSet* scalarSet;
-    MiDataSetIjk<double>* propertyData;
     MoMeshSkin* skin;
+
+    std::shared_ptr<ReservoirMesh> meshData;
+    std::shared_ptr<MiDataSetIjk<double> > propertyData;
 
     Reservoir()
       : id(0)
       , root(0)
       , mesh(0)
-      , meshData(0)
       , scalarSet(0)
-      , propertyData(0)
       , skin(0)
     {
     }
@@ -173,7 +171,7 @@ struct SnapshotInfo
   SoSeparator* formationsRoot;
 
   MoMesh* mesh;
-  HexahedronMesh* meshData;
+  std::shared_ptr<HexahedronMesh> meshData;
 
   MoScalarSetIjk* scalarSet;
   std::shared_ptr<MiDataSetIjk<double> > scalarDataSet;
@@ -199,6 +197,7 @@ struct SnapshotInfo
   size_t faultsTimeStamp;
 
   SnapshotInfo();
+  ~SnapshotInfo();
 };
 
 class VISUALIZATIONDLL_API SceneGraphManager
@@ -246,6 +245,8 @@ private:
 
   unsigned int m_maxPersistentTrapId;
 
+  std::vector<const DataAccess::Interface::Snapshot*> m_snapshotList;
+
   std::map<std::string, int> m_formationIdMap;
   std::map<std::string, int> m_surfaceIdMap;
   std::map<std::string, int> m_reservoirIdMap;
@@ -255,7 +256,9 @@ private:
   std::vector<SurfaceInfo>   m_surfaces;
   std::vector<ReservoirInfo> m_reservoirs;
   std::vector<FaultInfo>     m_faults;
-  std::vector<SnapshotInfo>  m_snapshots;
+
+  std::list<SnapshotInfo> m_snapshotInfoCache;
+  size_t m_maxCacheItems;
 
   bool m_showGrid;
   ProjectionType m_projectionType;
@@ -264,7 +267,6 @@ private:
   size_t m_surfacesTimeStamp;
   size_t m_reservoirsTimeStamp;
   size_t m_faultsTimeStamp;
-  size_t m_currentSnapshot;
 
   size_t m_slicePosition[3];
   bool   m_sliceEnabled[3];
@@ -296,7 +298,7 @@ private:
 
   SoSwitch*       m_snapshotsSwitch;
 
-  MiDataSetIjk<double>* createFormationProperty(const DataAccess::Interface::Property* prop, const SnapshotInfo& snapshot);
+  std::shared_ptr<MiDataSetIjk<double> > createFormationProperty(const DataAccess::Interface::Property* prop, const SnapshotInfo& snapshot);
 
   void updateCoordinateGrid();
   void updateSnapshotFormations();

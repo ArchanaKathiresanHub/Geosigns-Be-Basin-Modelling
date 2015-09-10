@@ -120,6 +120,8 @@ public:
 
   explicit SnapshotGeometry(const std::vector<const DataAccess::Interface::GridMap*>& depthMaps);
 
+  virtual ~SnapshotGeometry();
+
   size_t numI() const;
 
   size_t numJ() const;

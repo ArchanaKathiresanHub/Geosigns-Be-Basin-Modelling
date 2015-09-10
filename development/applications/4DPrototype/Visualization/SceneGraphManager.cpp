@@ -85,9 +85,16 @@ SnapshotInfo::SnapshotInfo()
   }
 }
 
+SnapshotInfo::~SnapshotInfo()
+{
+
+}
+
 void SceneGraphManager::updateCoordinateGrid()
 {
-  SnapshotInfo& snapshot = m_snapshots[m_currentSnapshot];
+  assert(!m_snapshotInfoCache.empty());
+
+  SnapshotInfo& snapshot = *m_snapshotInfoCache.begin();
 
   float sizeX = (float)(m_maxX - m_minX);
   float sizeY = (float)(m_maxY - m_minY);
@@ -111,7 +118,9 @@ void SceneGraphManager::updateCoordinateGrid()
 
 void SceneGraphManager::updateSnapshotFormations()
 {
-  SnapshotInfo& snapshot = m_snapshots[m_currentSnapshot];
+  assert(!m_snapshotInfoCache.empty());
+
+  SnapshotInfo& snapshot = *m_snapshotInfoCache.begin();
 
   // Update formations
   if (snapshot.formationsTimeStamp == m_formationsTimeStamp || snapshot.chunksGroup == 0)
@@ -193,7 +202,8 @@ namespace
     return colorMapping;
   }
 
-  PersistentTrapIdProperty* createPersistentTrapIdProperty(const di::Property* trapIdProperty, const di::Reservoir* reservoir, const di::Snapshot* snapshot)
+  std::shared_ptr<PersistentTrapIdProperty> createPersistentTrapIdProperty(
+    const di::Property* trapIdProperty, const di::Reservoir* reservoir, const di::Snapshot* snapshot)
   {
     di::ProjectHandle* handle = snapshot->getProjectHandle();
 
@@ -235,7 +245,7 @@ namespace
 
     const di::GridMap* trapIds = (*trapIdValues)[0]->getGridMap();
 
-    return new PersistentTrapIdProperty(trapIds, table, minId);
+    return std::make_shared<PersistentTrapIdProperty>(trapIds, table, minId);
   }
 
   unsigned int getMaxPersistentTrapId(const di::ProjectHandle* handle)
@@ -261,7 +271,7 @@ namespace
     return maxPersistentId;
   }
 
-  MiDataSetI<double>* createSurfaceProperty(const di::Property* prop, const di::Surface* surface, const di::Snapshot* snapshot)
+  std::shared_ptr<MiDataSetI<double> > createSurfaceProperty(const di::Property* prop, const di::Surface* surface, const di::Snapshot* snapshot)
   {
     if (!prop)
       return nullptr;
@@ -276,7 +286,7 @@ namespace
     if (!values || values->empty())
       return nullptr;
 
-    return new SurfaceProperty(prop->getName(), (*values)[0]->getGridMap());
+    return std::make_shared<SurfaceProperty>(prop->getName(), (*values)[0]->getGridMap());
   }
 
   MiDataSetIjk<double>* createFormationProperty(const di::Property* prop, const SnapshotInfo& info)
@@ -284,7 +294,7 @@ namespace
     return nullptr;
   }
 
-  MiDataSetIjk<double>* createReservoirProperty(const di::Property* prop, const di::Reservoir* reservoir, const di::Snapshot* snapshot)
+  std::shared_ptr<MiDataSetIjk<double> > createReservoirProperty(const di::Property* prop, const di::Reservoir* reservoir, const di::Snapshot* snapshot)
   {
     if (!prop)
       return nullptr;
@@ -304,14 +314,16 @@ namespace
     if (!values || values->empty())
       return nullptr;
 
-    return new ReservoirProperty(prop->getName(), (*values)[0]->getGridMap());
+    return std::make_shared<ReservoirProperty>(prop->getName(), (*values)[0]->getGridMap());
   }
 
 }
 
 void SceneGraphManager::updateSnapshotSurfaces()
 {
-  SnapshotInfo& snapshot = m_snapshots[m_currentSnapshot];
+  assert(!m_snapshotInfoCache.empty());
+
+  SnapshotInfo& snapshot = *m_snapshotInfoCache.begin();
 
   // Update surfaces
   if (snapshot.surfacesTimeStamp == m_surfacesTimeStamp)
@@ -329,12 +341,12 @@ void SceneGraphManager::updateSnapshotSurfaces()
 
       assert(values->size() == 1); //TODO: should not be an assert
 
-      surf.meshData = new SurfaceMesh((*values)[0]->getGridMap());
+      surf.meshData = std::make_shared<SurfaceMesh>((*values)[0]->getGridMap());
       surf.mesh = new MoMesh;
-      surf.mesh->setMesh(surf.meshData);
+      surf.mesh->setMesh(surf.meshData.get());
       surf.scalarSet = new MoScalarSet;
-      surf.propertyData= createSurfaceProperty(m_currentProperty, surface, snapshot.snapshot);
-      surf.scalarSet->setScalarSet(surf.propertyData);
+      surf.propertyData = createSurfaceProperty(snapshot.currentProperty, surface, snapshot.snapshot);
+      surf.scalarSet->setScalarSet(surf.propertyData.get());
       surf.surfaceMesh = new MoMeshSurface;
 
       SoSeparator* root = new SoSeparator;
@@ -347,9 +359,6 @@ void SceneGraphManager::updateSnapshotSurfaces()
     }
     else if (!m_surfaces[id].visible && surf.root != 0)
     {
-      // The meshData is not reference counted, need to delete this ourselves
-      delete surf.meshData;
-      delete surf.propertyData;
       snapshot.surfacesGroup->removeChild(surf.root);
       surf.root = 0;
       surf.mesh = 0;
@@ -365,7 +374,9 @@ void SceneGraphManager::updateSnapshotSurfaces()
 
 void SceneGraphManager::updateSnapshotReservoirs()
 {
-  SnapshotInfo& snapshot = m_snapshots[m_currentSnapshot];
+  assert(!m_snapshotInfoCache.empty());
+
+  SnapshotInfo& snapshot = *m_snapshotInfoCache.begin();
 
   if (snapshot.reservoirsTimeStamp == m_reservoirsTimeStamp)
     return;
@@ -386,11 +397,11 @@ void SceneGraphManager::updateSnapshotReservoirs()
       {
         res.root = new SoSeparator;
         res.mesh = new MoMesh;
-        res.meshData = new ReservoirMesh((*topValues)[0]->getGridMap(), (*bottomValues)[0]->getGridMap());
-        res.mesh->setMesh(res.meshData);
+        res.meshData = std::make_shared<ReservoirMesh>((*topValues)[0]->getGridMap(), (*bottomValues)[0]->getGridMap());
+        res.mesh->setMesh(res.meshData.get());
         res.scalarSet = new MoScalarSet;
-        res.propertyData = createReservoirProperty(m_currentProperty, reservoir, snapshot.snapshot);
-        res.scalarSet->setScalarSet(res.propertyData);
+        res.propertyData = createReservoirProperty(snapshot.currentProperty, reservoir, snapshot.snapshot);
+        res.scalarSet->setScalarSet(res.propertyData.get());
         res.skin = new MoMeshSkin;
 
         res.root->addChild(res.mesh);
@@ -402,8 +413,6 @@ void SceneGraphManager::updateSnapshotReservoirs()
     }
     else if (!m_reservoirs[id].visible && res.root != 0)
     {
-      delete res.meshData;
-      delete res.propertyData;
       snapshot.reservoirsGroup->removeChild(res.root);
       res.root = 0;
       res.mesh = 0;
@@ -485,7 +494,9 @@ std::shared_ptr<FaultMesh> generateFaultMesh(const std::vector<SbVec2d>& points,
 
 void SceneGraphManager::updateSnapshotFaults()
 {
-  SnapshotInfo& snapshot = m_snapshots[m_currentSnapshot];
+  assert(!m_snapshotInfoCache.empty());
+
+  SnapshotInfo& snapshot = *m_snapshotInfoCache.begin();
 
   // Update formations
   if (snapshot.faultsTimeStamp == m_faultsTimeStamp)
@@ -527,7 +538,7 @@ void SceneGraphManager::updateSnapshotFaults()
   snapshot.faultsTimeStamp = m_faultsTimeStamp;
 }
 
-MiDataSetIjk<double>* SceneGraphManager::createFormationProperty(const di::Property* prop, const SnapshotInfo& snapshot)
+std::shared_ptr<MiDataSetIjk<double> > SceneGraphManager::createFormationProperty(const di::Property* prop, const SnapshotInfo& snapshot)
 {
   if (!prop)
     return nullptr;
@@ -573,29 +584,30 @@ MiDataSetIjk<double>* SceneGraphManager::createFormationProperty(const di::Prope
 
   const std::string& name = prop->getName();
   if (attr == DataModel::FORMATION_2D_PROPERTY)
-    return new Formation2DProperty(name, gridMaps);
+    return std::make_shared<Formation2DProperty>(name, gridMaps);
   else
-    return new FormationProperty(name, gridMaps);
+    return std::make_shared<FormationProperty>(name, gridMaps);
 }
 
 void SceneGraphManager::updateSnapshotProperties()
 {
-  SnapshotInfo& snapshot = m_snapshots[m_currentSnapshot];
+  assert(!m_snapshotInfoCache.empty());
+
+  SnapshotInfo& snapshot = *m_snapshotInfoCache.begin();
 
   // Update properties
   if (snapshot.currentProperty == m_currentProperty)
     return;
 
-  snapshot.scalarDataSet.reset(createFormationProperty(m_currentProperty, snapshot));
+  snapshot.scalarDataSet = createFormationProperty(m_currentProperty, snapshot);
   snapshot.scalarSet->setScalarSet(snapshot.scalarDataSet.get());
 
   for (auto &surf : snapshot.surfaces)
   {
     if (surf.root)
     {
-      delete surf.propertyData;
       surf.propertyData = createSurfaceProperty(m_currentProperty, m_surfaces[surf.id].object, snapshot.snapshot);
-      surf.scalarSet->setScalarSet(surf.propertyData);
+      surf.scalarSet->setScalarSet(surf.propertyData.get());
     }
   }
 
@@ -603,9 +615,8 @@ void SceneGraphManager::updateSnapshotProperties()
   {
     if (res.root)
     {
-      delete res.propertyData;
       res.propertyData = createReservoirProperty(m_currentProperty, m_reservoirs[res.id].object, snapshot.snapshot);
-      res.scalarSet->setScalarSet(res.propertyData);
+      res.scalarSet->setScalarSet(res.propertyData.get());
     }
   }
 
@@ -614,7 +625,9 @@ void SceneGraphManager::updateSnapshotProperties()
 
 void SceneGraphManager::updateSnapshotSlices()
 {
-  SnapshotInfo& snapshot = m_snapshots[m_currentSnapshot];
+  assert(!m_snapshotInfoCache.empty());
+
+  SnapshotInfo& snapshot = *m_snapshotInfoCache.begin();
 
   if (snapshot.slicesGroup == 0)
     return;
@@ -655,7 +668,9 @@ void SceneGraphManager::updateColorMap()
 
   m_colorMapSwitch->whichChild = (m_currentProperty == m_resRockTrapIdProperty) ? 1 : 0;
 
-  SnapshotInfo& snapshot = m_snapshots[m_currentSnapshot];
+  assert(!m_snapshotInfoCache.empty());
+
+  SnapshotInfo& snapshot = *m_snapshotInfoCache.begin();
 
   double minValue =  std::numeric_limits<double>::max();
   double maxValue = -std::numeric_limits<double>::max();
@@ -800,19 +815,18 @@ SnapshotInfo SceneGraphManager::createSnapshotNode(const di::Snapshot* snapshot)
   info.snapshot = snapshot;
 
   std::vector<const di::GridMap*> depthMaps;
-  std::vector<double> formationIds;
-
+  
   int k = 0;
 
-  std::unique_ptr<di::FormationList> formations(m_projectHandle->getFormations(snapshot, false));
-  for (size_t i = 0; i < formations->size(); ++i)
+  // Get the formation geometry
+  std::unique_ptr<di::FormationList> formationList(m_projectHandle->getFormations(snapshot, false));
+  for (auto formation : *formationList)
   {
-    const di::Formation* formation = (*formations)[i];
-
     std::unique_ptr<di::PropertyValueList> values(m_projectHandle->getPropertyValues(
       di::FORMATION, m_depthProperty, snapshot, 0, formation, 0, di::VOLUME));
 
-    assert(values->size() == 1);
+    if (!values || values->empty())
+      continue;
 
     const di::GridMap* depthMap = (*values)[0]->getGridMap();
     depthMaps.push_back(depthMap);
@@ -824,51 +838,65 @@ SnapshotInfo SceneGraphManager::createSnapshotNode(const di::Snapshot* snapshot)
     bounds.id = m_formationIdMap[formation->getName()];
     bounds.minK = k;
     bounds.maxK = k + depth;
-
     info.formations.push_back(bounds);
 
     k = bounds.maxK;
+  }
 
-    // Add formation id for each k-layer of this formation
-    for (int j = 0; j < depth; ++j)
+  // Generate formation ids list
+  std::vector<double> formationIds;
+  for (auto bounds : info.formations)
+  {
+    int depth = bounds.maxK - bounds.minK;
+    for (int i = 0; i < depth; ++i)
       formationIds.push_back((double)bounds.id);
+  }
+
+  // Get faults for each formation
+  for (auto bounds : info.formations)
+  {
+    auto formation = m_formations[bounds.id].object;
 
     // Add faults, if any
     std::unique_ptr<di::FaultCollectionList> faultCollections(formation->getFaultCollections());
-    if (faultCollections)
+    if (!faultCollections)
+      continue;
+
+    for (auto collection : *faultCollections)
     {
-      for (auto collection : *faultCollections)
+      std::unique_ptr<di::FaultList> faults(collection->getFaults());
+      if (!faults)
+        continue;
+
+      for (auto fault : *faults)
       {
-        std::unique_ptr<di::FaultList> faults(collection->getFaults());
-        if (faults)
-        {
-          for (auto fault : *faults)
-          {
-            SnapshotInfo::Fault flt;
-            flt.id = m_faultIdMap[std::make_tuple(collection->getName(), fault->getName())];
-            flt.minK = bounds.minK;
-            flt.maxK = bounds.maxK;
+        SnapshotInfo::Fault flt;
+        flt.id = m_faultIdMap[std::make_tuple(collection->getName(), fault->getName())];
+        flt.minK = bounds.minK;
+        flt.maxK = bounds.maxK;
 
-            info.faults.push_back(flt);
-          }
-        }
-      }
-    }
-
-    // Add reservoirs
-    std::unique_ptr<di::ReservoirList> reservoirList(formation->getReservoirs());
-    if (reservoirList)
-    {
-      for (auto reservoir : *reservoirList)
-      {
-        SnapshotInfo::Reservoir res;
-        res.id = m_reservoirIdMap[reservoir->getName()];
-
-        info.reservoirs.push_back(res);
+        info.faults.push_back(flt);
       }
     }
   }
 
+  // Add reservoirs
+  for (auto formation : *formationList)
+  {
+    std::unique_ptr<di::ReservoirList> reservoirList(formation->getReservoirs());
+    if (!reservoirList)
+      continue;
+
+    for (auto reservoir : *reservoirList)
+    {
+      SnapshotInfo::Reservoir res;
+      res.id = m_reservoirIdMap[reservoir->getName()];
+
+      info.reservoirs.push_back(res);
+    }
+  }
+
+  // Add surfaces
   std::unique_ptr<di::SurfaceList> surfaces(m_projectHandle->getSurfaces(snapshot, false));
   for (size_t i = 0; i < surfaces->size(); ++i)
   {
@@ -878,15 +906,17 @@ SnapshotInfo SceneGraphManager::createSnapshotNode(const di::Snapshot* snapshot)
     info.surfaces.push_back(srfc);
   }
 
+  // Build the scenegraph
   info.root = new SoSeparator;
+  info.root->ref();
   info.formationsRoot = new SoSeparator;
   info.formationsRoot->setName("formations");
 
   if (!depthMaps.empty())
   {
-    info.geometry.reset(new SnapshotGeometry(depthMaps));
-    info.topology.reset(new SnapshotTopology(info.geometry));
-    info.meshData = new HexahedronMesh(info.geometry, info.topology);
+    info.geometry = std::make_shared<SnapshotGeometry>(depthMaps);
+    info.topology = std::make_shared<SnapshotTopology>(info.geometry);
+    info.meshData = std::make_shared<HexahedronMesh>(info.geometry, info.topology);
 
     info.minZ = info.geometry->getMin()[2];
     info.maxZ = info.geometry->getMax()[2];
@@ -894,9 +924,9 @@ SnapshotInfo SceneGraphManager::createSnapshotNode(const di::Snapshot* snapshot)
 
   info.mesh = new MoMesh;
   info.mesh->setName("snapshotMesh");
-  info.mesh->setMesh(info.meshData);
+  info.mesh->setMesh(info.meshData.get());
 
-  info.scalarDataSet.reset(new FormationIdProperty(formationIds));
+  info.scalarDataSet = std::make_shared<FormationIdProperty>(formationIds);
 
   info.scalarSet = new MoScalarSetIjk;
   info.scalarSet->setName("formationID");
@@ -933,20 +963,9 @@ void SceneGraphManager::setupSnapshots()
   std::unique_ptr<di::SnapshotList> snapshots(m_projectHandle->getSnapshots(di::MAJOR));
 
   // Sort snapshots so oldest is first in list
-  std::vector<const di::Snapshot*> tmpSnapshotList(*snapshots);
-  std::sort(tmpSnapshotList.begin(), tmpSnapshotList.end(), 
+  m_snapshotList = *snapshots;
+  std::sort(m_snapshotList.begin(), m_snapshotList.end(), 
     [](const di::Snapshot* s1, const di::Snapshot* s2) { return s1->getTime() > s2->getTime(); });
-
-  for (size_t i = 0; i < tmpSnapshotList.size(); ++i)
-  {
-    std::cout << "Creating node " << i << std::endl;
-    const di::Snapshot* snapshot = tmpSnapshotList[i];
-    SnapshotInfo info = createSnapshotNode(snapshot);
-    m_snapshots.push_back(info);
-    m_snapshotsSwitch->addChild(info.root);
-  }
-
-  m_snapshotsSwitch->whichChild = 0;
 }
 
 void SceneGraphManager::setupCoordinateGrid()
@@ -1046,7 +1065,7 @@ void SceneGraphManager::setupSceneGraph()
 
   m_snapshotsSwitch = new SoSwitch;
   m_snapshotsSwitch->setName("snapshots");
-  m_snapshotsSwitch->whichChild = SO_SWITCH_NONE;
+  m_snapshotsSwitch->whichChild = SO_SWITCH_ALL;
 
   m_root = new SoGroup;
   m_root->setName("root");
@@ -1079,13 +1098,13 @@ SceneGraphManager::SceneGraphManager()
   , m_maxX(0.0)
   , m_maxY(0.0)
   , m_maxPersistentTrapId(0)
+  , m_maxCacheItems(5)
   , m_showGrid(false)
   , m_projectionType(PerspectiveProjection)
   , m_formationsTimeStamp(MxTimeStamp::getTimeStamp())
   , m_surfacesTimeStamp(MxTimeStamp::getTimeStamp())
   , m_reservoirsTimeStamp(MxTimeStamp::getTimeStamp())
   , m_faultsTimeStamp(MxTimeStamp::getTimeStamp())
-  , m_currentSnapshot(0)
   , m_root(0)
   , m_formationShapeHints(0)
   , m_surfaceShapeHints(0)
@@ -1111,15 +1130,46 @@ SoNode* SceneGraphManager::getRoot() const
 
 void SceneGraphManager::setCurrentSnapshot(size_t index)
 {
-  m_currentSnapshot = index;
-  m_snapshotsSwitch->whichChild = (int)index;
+  const di::Snapshot* snapshot = m_snapshotList[index];
+
+  // Don't do anything if this is already the current snapshot
+  if (!m_snapshotInfoCache.empty() && m_snapshotInfoCache.begin()->snapshot == snapshot)
+    return;
+
+  // See if we have this node in the cache
+  auto iter = std::find_if(
+    m_snapshotInfoCache.begin(), 
+    m_snapshotInfoCache.end(), 
+    [snapshot](const SnapshotInfo& info) { return info.snapshot == snapshot; });
+
+  if (iter == m_snapshotInfoCache.end()) // not available
+  {
+    // Create a new node, and add it to the front of the cache
+    SnapshotInfo newNode = createSnapshotNode(snapshot);
+    m_snapshotInfoCache.push_front(newNode);
+
+    // Limit cache size 
+    if (m_snapshotInfoCache.size() > m_maxCacheItems)
+    {
+      m_snapshotInfoCache.back().root->unref();
+      m_snapshotInfoCache.pop_back();
+    }
+  }
+  else // node is in cache
+  {
+    // Move node to the front of the list, making it the current one
+    m_snapshotInfoCache.splice(m_snapshotInfoCache.begin(), m_snapshotInfoCache, iter);
+  }
+
+  m_snapshotsSwitch->removeAllChildren();
+  m_snapshotsSwitch->addChild(m_snapshotInfoCache.begin()->root);
 
   updateSnapshot();
 }
 
 size_t SceneGraphManager::getSnapshotCount() const
 {
-  return (size_t)m_snapshotsSwitch->getNumChildren();
+  return m_snapshotList.size();
 }
 
 int SceneGraphManager::numI() const
@@ -1304,7 +1354,6 @@ void SceneGraphManager::setup(const di::ProjectHandle* handle)
   m_maxX = loresGrid->maxI();
   m_maxY = loresGrid->maxJ();
 
-  m_currentSnapshot = 0;
   for (int i = 0; i < 3; ++i)
   {
     m_sliceEnabled[i] = false;

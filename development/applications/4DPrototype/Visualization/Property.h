@@ -39,9 +39,12 @@ class FormationProperty : public MiDataSetIjk<double>
 
   size_t m_timestamp;
 
+  FormationProperty(const FormationProperty&) = delete;
+  FormationProperty& operator=(const FormationProperty&) = delete;
+
 public:
 
-  FormationProperty(const std::string& name, const GridMapCollection& values);
+  FormationProperty(const std::string& name, const std::vector<const DataAccess::Interface::GridMap*>& values);
 
   virtual double get(size_t i, size_t j, size_t k) const;
 
@@ -74,9 +77,14 @@ class Formation2DProperty : public MiDataSetIjk<double>
   double m_minVal;
   double m_maxVal;
 
+  Formation2DProperty(const Formation2DProperty&) = delete;
+  Formation2DProperty& operator=(const Formation2DProperty&) = delete;
+
 public:
 
   Formation2DProperty(const std::string& name, const std::vector<const DataAccess::Interface::GridMap*>& values);
+
+  virtual ~Formation2DProperty();
 
   virtual double get(size_t i, size_t j, size_t k) const;
 
@@ -111,9 +119,14 @@ class SurfaceProperty: public MiDataSetI<double>
   double m_minVal;
   double m_maxVal;
 
+  SurfaceProperty(const SurfaceProperty&) = delete;
+  SurfaceProperty& operator=(const SurfaceProperty&) = delete;
+
 public:
 
   SurfaceProperty(const std::string& name, const DataAccess::Interface::GridMap* values);
+
+  virtual ~SurfaceProperty();
 
   virtual double get(size_t i) const;
 
@@ -144,9 +157,14 @@ class ReservoirProperty: public MiDataSetIjk<double>
   double m_minVal;
   double m_maxVal;
 
+  ReservoirProperty(const ReservoirProperty&) = delete;
+  ReservoirProperty& operator=(const ReservoirProperty) = delete;
+
 public:
 
   ReservoirProperty(const std::string& name, const DataAccess::Interface::GridMap* values);
+
+  virtual ~ReservoirProperty();
 
   virtual double get(size_t i, size_t j, size_t k) const;
 
@@ -178,9 +196,14 @@ class VectorProperty : public MiDataSetIjk<MbVec3d>
 
   size_t m_timestamp;
 
+  VectorProperty(const VectorProperty&) = delete;
+  VectorProperty& operator=(const VectorProperty&) = delete;
+
 public:
 
   VectorProperty(const std::string& name, const DataAccess::Interface::GridMap* values[3]);
+
+  virtual ~VectorProperty();
 
   virtual MbVec3d get(size_t i, size_t j, size_t k) const;
 
@@ -244,12 +267,17 @@ class PersistentTrapIdProperty : public MiDataSetIjk<double>
 
   double translateId(double id) const;
 
+  PersistentTrapIdProperty(const PersistentTrapIdProperty&) = delete;
+  PersistentTrapIdProperty& operator=(const PersistentTrapIdProperty&) = delete;
+
 public:
 
   PersistentTrapIdProperty(
     const DataAccess::Interface::GridMap* trapIds, 
     const std::vector<unsigned int>& translationTable, 
     unsigned int minId);
+
+  virtual ~PersistentTrapIdProperty();
 
   virtual double get(size_t i, size_t j, size_t k) const;
 

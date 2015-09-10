@@ -185,6 +185,11 @@ SnapshotGeometry::SnapshotGeometry(const std::vector<const DataAccess::Interface
   m_minZ = -m_depthMaps.maxValue();
 }
 
+SnapshotGeometry::~SnapshotGeometry()
+{
+
+}
+
 size_t SnapshotGeometry::numI() const
 {
   return m_depthMaps.numI();

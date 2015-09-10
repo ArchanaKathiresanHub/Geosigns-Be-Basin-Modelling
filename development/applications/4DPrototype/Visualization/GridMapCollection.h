@@ -37,6 +37,10 @@ class GridMapCollection
   double m_minValue;
   double m_maxValue;
 
+  // Make this class noncopyable, because we're releasing the gridmaps in the destructor
+  GridMapCollection(const GridMapCollection&) = delete;
+  GridMapCollection& operator=(const GridMapCollection&) = delete;
+
 public:
 
   GridMapCollection(const std::vector<const DataAccess::Interface::GridMap*>& gridMaps)
@@ -72,6 +76,12 @@ public:
     m_numI = last->numI();
     m_numJ = last->numJ();
     m_numK = m_indexMap.size();
+  }
+
+  ~GridMapCollection()
+  {
+    for (auto gridMap : m_gridMaps)
+      gridMap->release();
   }
 
   double getValue(size_t i, size_t j, size_t k) const
