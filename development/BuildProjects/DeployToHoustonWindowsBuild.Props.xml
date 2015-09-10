@@ -54,9 +54,16 @@ WARNING:  DO NOT MODIFY this file unless you are knowledgeable about MSBuild and
    <PropertyGroup Label="DeployCommands" >
       <!-- Remove old one if exist and create new deploy dir -->
       <make_deploy_dir>$(ssh_command) "rm -Rf $(DeployDir)/$(Configuration); mkdir -p $(DeployDir)/$(Configuration)"</make_deploy_dir>
-      <!-- Copy packed binaries to deploy folder -->
-      <deploy_dir_scp_format>/cygdrive/$(build_dir_cmake.Replace('\','/'))</deploy_dir_scp_format>
-      <copy_zip>$(scp_command) -r "$(deploy_dir_scp_format.Replace(':',''))/*.zip" "$(AgentAccount)@$(AgentHost):$(DeployDir)/$(Configuration)/"</copy_zip>
+      <!-- Copy packed binaries to deploy folder,
+         scp accepts path in unix format, and cygwin has all windows drives mounted under /cygdrive/ root folder without ':' in drive name,
+         like this: /cygdrive/f/cauldron. That is why we need to replace \ with / and remove :
+         Spaces in the folder paths require to put path in "" whichs not allows to expand wildcards - remove spaces from folder name 
+         "Basin Modeling" - it is linked on build server to "BasingModeling" for windows builds.
+      -->
+      <deploy_dir_scp_format0>$(build_dir_cmake.Replace('\','/'))</deploy_dir_scp_format0>
+      <deploy_dir_scp_format1>$(build_dir_cmake0.Replace(':',''))</deploy_dir_scp_format1>
+      <deploy_dir_scp_format2>/cygdrive/$(build_dir_cmake1.Replace(' ',''))</deploy_dir_scp_format2>
+      <copy_zip>$(scp_command) -r $(deploy_dir_scp_format2)/*.zip "$(AgentAccount)@$(AgentHost):$(DeployDir)/$(Configuration)/"</copy_zip>
    </PropertyGroup>
 
    <Target Name="DeployBinariesToHouston">
