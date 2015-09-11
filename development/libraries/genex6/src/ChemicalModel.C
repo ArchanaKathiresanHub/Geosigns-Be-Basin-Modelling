@@ -1225,10 +1225,10 @@ ChemicalModel::ChemicalModel(const std::string &in_FulPathConfigurationFileName,
    ifstream theReactFile;
    
    theReactFile.open(in_FulPathConfigurationFileName.c_str());
-   cout << "Attempting to open " << in_FulPathConfigurationFileName << endl;
  
    if(!theReactFile) {
-      cout << "No file available!!!" << endl;
+      cerr << "MeSsAgE ERROR Attempting to open file : " + in_FulPathConfigurationFileName + "\nNo cfg file available in the $GENEX5DIR directory... Aborting... " << endl;
+      throw ("MeSsAgE ERROR Attempting to open file : " + in_FulPathConfigurationFileName + "\nNo cfg file available in the $GENEX5DIR directory... Aborting... ");
    }
    std::string line;
    //temp values just for the C++ prototype

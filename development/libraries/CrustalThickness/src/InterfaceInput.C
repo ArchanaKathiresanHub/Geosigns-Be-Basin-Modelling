@@ -3,6 +3,9 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 
+#include "errorhandling.h"
+#include <Interface\ProjectHandle.h>
+
 //------------------------------------------------------------//
 InterfaceInput::InterfaceInput(Interface::ProjectHandle * projectHandle, database::Record * record) :
    Interface::CrustalThicknessData(projectHandle, record) {
@@ -112,12 +115,11 @@ void InterfaceInput::loadConfigurationFile( const string & inFile ) {
    }
 
    ifstream  ConfigurationFile;
-   //   ConfigurationFile.open( inFile.c_str() );
    ConfigurationFile.open( fullpath.c_str() );
    
    if(!ConfigurationFile) {
-      string s = "Attempting to open file :" + fullpath + "\nNo cfg file available in the $CTCDIR directory... Aborting... ";
-      throw s;
+      getProjectHandle()->getMessageHandler().printLine( "Attempting to open file :" + fullpath + "\nNo cfg file available in the $CTCDIR directory... Aborting..." );
+      throw RecordException( "Attempting to open file :" + fullpath + "\nNo cfg file available in the $CTCDIR directory... Aborting..." );
    }
 
    string line;

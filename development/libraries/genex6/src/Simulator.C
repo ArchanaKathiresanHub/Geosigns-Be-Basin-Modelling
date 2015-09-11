@@ -283,9 +283,8 @@ void Simulator::LoadDataFromConfigurationFile()
    
    if(!ConfigurationFile) {
      //throw
-      cout<<"Attempting to open file :"<<FullPathConfigurationFileName<<endl;
-      cout<<"No cfg file available in the $GENEX5DIR directory... Aborting... "<<endl;
-      return;
+      cerr<<"MeSsAgE ERROR Attempting to open file : " + FullPathConfigurationFileName + "\nNo cfg file available in the $GENEX5DIR directory... Aborting... "<<endl;
+      throw ( "MeSsAgE ERROR Attempting to open file : " + FullPathConfigurationFileName + "\nNo cfg file available in the $GENEX5DIR directory... Aborting... ");
    }
 
    bool finishReadingFile = false;  

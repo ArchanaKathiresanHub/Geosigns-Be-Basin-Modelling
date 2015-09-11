@@ -2648,6 +2648,11 @@ bool GeoPhysics::ProjectHandle::loadALCConfigurationFile(const string & cfgFileN
       ifstream  ConfigurationFile;
       ConfigurationFile.open( fullpath.c_str() );
 
+      if (!ConfigurationFile) {
+         getMessageHandler().printLine( " MeSsAgE ERROR Attempting to open file : " + fullpath + "\nNo cfg file available in the $CTCDIR directory... Aborting..." );
+         throw RecordException( " MeSsAgE ERROR Attempting to open file : " + fullpath + "\nNo cfg file available in the $CTCDIR directory... Aborting..." );
+      }
+
       m_basementLithoProps = new BasementLithologyProps();
       if( !m_basementLithoProps->loadConfigurationFile ( ConfigurationFile )) {
          ConfigurationFile.close();
