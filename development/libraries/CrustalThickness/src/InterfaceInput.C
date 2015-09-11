@@ -4,7 +4,7 @@
 #include <math.h>
 
 #include "errorhandling.h"
-#include <Interface\ProjectHandle.h>
+#include <Interface/ProjectHandle.h>
 
 //------------------------------------------------------------//
 InterfaceInput::InterfaceInput(Interface::ProjectHandle * projectHandle, database::Record * record) :
