@@ -180,9 +180,6 @@ SnapshotGeometry::SnapshotGeometry(const std::vector<const DataAccess::Interface
 
   m_deltaX = depthMapTop->deltaI();
   m_deltaY = depthMapTop->deltaJ();
-
-  m_maxZ = -m_depthMaps.minValue();
-  m_minZ = -m_depthMaps.maxValue();
 }
 
 SnapshotGeometry::~SnapshotGeometry()
@@ -247,16 +244,18 @@ MbVec3d SnapshotGeometry::getCoord(size_t index) const
 
 MbVec3d SnapshotGeometry::getMin() const
 {
+  double minZ = -m_depthMaps.maxValue();
   //return MbVec3d(m_minX, m_minY, m_minZ);
-  return MbVec3d(0.0, 0.0, m_minZ);
+  return MbVec3d(0.0, 0.0, minZ);
 }
 
 MbVec3d SnapshotGeometry::getMax() const
 {
+  double maxZ = -m_depthMaps.minValue();
   return MbVec3d(
     /*m_minX + */(m_depthMaps.numI() - 1) * m_deltaX,
     /*m_minY + */(m_depthMaps.numJ() - 1) * m_deltaY,
-    m_maxZ);
+    maxZ);
 }
 
 size_t SnapshotGeometry::getTimeStamp() const
@@ -268,13 +267,38 @@ size_t SnapshotGeometry::getTimeStamp() const
 // SnapshotTopology
 //--------------------------------------------------------------------------------------------------
 
+#define USEDEADMAP
+
 SnapshotTopology::SnapshotTopology(std::shared_ptr<SnapshotGeometry> geometry)
   : m_numI(geometry->numI() - 1)
   , m_numJ(geometry->numJ() - 1)
   , m_numK(geometry->numK() - 1)
+  , m_deadMap(0)
   , m_timeStamp(MxTimeStamp::getTimeStamp())
   , m_geometry(geometry)
 {
+#ifdef USEDEADMAP
+  m_deadMap = new bool[m_numI * m_numJ];
+
+  bool* p = m_deadMap;
+
+  for (size_t i = 0; i < m_numI; ++i)
+  {
+    for (size_t j = 0; j < m_numJ; ++j)
+    {
+      *p++ =
+        m_geometry->isUndefined(i, j, 0) ||
+        m_geometry->isUndefined(i, j+1, 0) ||
+        m_geometry->isUndefined(i+1, j, 0) ||
+        m_geometry->isUndefined(i+1, j+1, 0);
+    }
+  }
+#endif
+}
+
+SnapshotTopology::~SnapshotTopology()
+{
+  delete[] m_deadMap;
 }
 
 void SnapshotTopology::getCellNodeIndices(
@@ -343,11 +367,15 @@ bool SnapshotTopology::hasDeadCells() const
 
 bool SnapshotTopology::isDead(size_t i, size_t j, size_t k) const
 {
+#ifdef USEDEADMAP
+  return m_deadMap[i * m_numJ + j];
+#else
   return
     m_geometry->isUndefined(i, j, k) ||
     m_geometry->isUndefined(i, j + 1, k) ||
     m_geometry->isUndefined(i + 1, j, k) ||
     m_geometry->isUndefined(i + 1, j + 1, k);
+#endif
 }
 
 //--------------------------------------------------------------------------------------------------

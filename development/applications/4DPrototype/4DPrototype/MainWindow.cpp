@@ -295,6 +295,8 @@ void MainWindow::updateUI()
 
   enableUI(true);// m_sceneGraph != nullptr);
 
+  m_snapshotCountLabel->setText(QString("%1 snapshots")
+    .arg(m_sceneGraphManager.getSnapshotCount()));
   m_dimensionsLabel->setText(QString("Dimensions: %1x%2 / %3x%4")
     .arg(m_sceneGraphManager.numI())
     .arg(m_sceneGraphManager.numJ())
@@ -660,6 +662,7 @@ void MainWindow::onTreeWidgetItemChanged(QTreeWidgetItem* item, int column)
 
 MainWindow::MainWindow()
   : m_oivLicenseOK(false)
+  , m_snapshotCountLabel(nullptr)
   , m_dimensionsLabel(nullptr)
   , m_timeLabel(nullptr)
   , m_fpsLabel(nullptr)
@@ -687,15 +690,21 @@ MainWindow::MainWindow()
   {
     viewer->setSceneGraph(0); // avoids annoying 'Qt by Nokia' text in 3D view
 
+    int labelFrameStyle = QFrame::Panel | QFrame::Sunken;
+
+    m_snapshotCountLabel = new QLabel;
+    m_snapshotCountLabel->setFrameStyle(labelFrameStyle);
+
     m_fpsLabel = new QLabel;
-    m_fpsLabel->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+    m_fpsLabel->setFrameStyle(labelFrameStyle);
 
     m_dimensionsLabel = new QLabel;
-    m_dimensionsLabel->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+    m_dimensionsLabel->setFrameStyle(labelFrameStyle);
 
     m_timeLabel = new QLabel;
-    m_timeLabel->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+    m_timeLabel->setFrameStyle(labelFrameStyle);
 
+    statusBar()->addPermanentWidget(m_snapshotCountLabel);
     statusBar()->addPermanentWidget(m_dimensionsLabel);
     statusBar()->addPermanentWidget(m_timeLabel);
     statusBar()->addPermanentWidget(m_fpsLabel);

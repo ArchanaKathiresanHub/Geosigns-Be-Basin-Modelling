@@ -87,7 +87,10 @@ Formation2DProperty::Formation2DProperty(const std::string& name, const std::vec
 Formation2DProperty::~Formation2DProperty()
 {
   for (auto gridMap : m_values)
-    gridMap->release();
+  {
+    if (gridMap)
+      gridMap->release();
+  }
 }
 
 double Formation2DProperty::get(size_t i, size_t j, size_t k) const

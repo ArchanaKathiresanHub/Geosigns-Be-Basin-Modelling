@@ -273,11 +273,7 @@ namespace
 
   std::shared_ptr<MiDataSetI<double> > createSurfaceProperty(const di::Property* prop, const di::Surface* surface, const di::Snapshot* snapshot)
   {
-    if (!prop)
-      return nullptr;
-
-    DataModel::PropertyAttribute attr = prop->getPropertyAttribute();
-    if (attr != DataModel::CONTINUOUS_3D_PROPERTY)
+    if (!prop || prop->getPropertyAttribute() != DataModel::CONTINUOUS_3D_PROPERTY)
       return nullptr;
 
     std::unique_ptr<di::PropertyValueList> values(
@@ -538,55 +534,59 @@ void SceneGraphManager::updateSnapshotFaults()
   snapshot.faultsTimeStamp = m_faultsTimeStamp;
 }
 
-std::shared_ptr<MiDataSetIjk<double> > SceneGraphManager::createFormationProperty(const di::Property* prop, const SnapshotInfo& snapshot)
+std::shared_ptr<MiDataSetIjk<double> > SceneGraphManager::createFormation2DProperty(
+  const std::string& name, 
+  const di::PropertyValueList& values, 
+  const SnapshotInfo& snapshot)
 {
-  if (!prop)
-    return nullptr;
-
-  if (prop->getType() != di::FORMATIONPROPERTY)
-    return nullptr;
-
-  DataModel::PropertyAttribute attr = prop->getPropertyAttribute();
-
+  size_t i = 0;
   std::vector<const di::GridMap*> gridMaps;
-  bool gridMapsOK = true;
-
-  for (size_t i = 0; i < snapshot.formations.size(); ++i)
+  for (auto fmt : snapshot.formations)
   {
-    int id = snapshot.formations[i].id;
-    const di::Formation* formation = m_formations[id].object;
+    const di::Formation* formation = m_formations[fmt.id].object;
+    const di::GridMap* gridMap = nullptr;
+    if (i < values.size() && formation == values[i]->getFormation())
+      gridMap = values[i++]->getGridMap();
 
-    std::unique_ptr<di::PropertyValueList> values(
-      prop->getPropertyValues(di::FORMATION, snapshot.snapshot, nullptr, formation, nullptr));
-
-    di::GridMap* gridMap = nullptr;
-    if (values && !values->empty())
-      gridMap = (*values)[0]->getGridMap();
-
-    if (attr == DataModel::FORMATION_2D_PROPERTY)
-    {
-      int k0 = snapshot.formations[i].minK;
-      int k1 = snapshot.formations[i].maxK;
-      for (int k = k0; k < k1; ++k)
-        gridMaps.push_back(gridMap);
-    }
-    else
-    {
-      if (gridMap != nullptr)
-        gridMaps.push_back(gridMap);
-      else
-        gridMapsOK = false;
-    }
+    for (int k = fmt.minK; k < fmt.maxK; ++k)
+      gridMaps.push_back(gridMap);
   }
 
-  if (gridMaps.empty() || !gridMapsOK)
+  if (gridMaps.empty())
     return nullptr;
 
-  const std::string& name = prop->getName();
-  if (attr == DataModel::FORMATION_2D_PROPERTY)
-    return std::make_shared<Formation2DProperty>(name, gridMaps);
+  return std::make_shared<Formation2DProperty>(name, gridMaps);
+}
+
+std::shared_ptr<MiDataSetIjk<double> > SceneGraphManager::createFormation3DProperty(
+  const std::string& name, 
+  const di::PropertyValueList& values, 
+  const SnapshotInfo& snapshot)
+{
+  std::vector<const di::GridMap*> gridMaps;
+  for (auto value : values)
+    gridMaps.push_back(value->getGridMap());
+
+  if (gridMaps.empty())
+    return nullptr;
+
+  return std::make_shared<FormationProperty>(name, gridMaps);
+}
+
+std::shared_ptr<MiDataSetIjk<double> > SceneGraphManager::createFormationProperty(const di::Property* prop, const SnapshotInfo& snapshot)
+{
+  if (!prop || prop->getType() != di::FORMATIONPROPERTY)
+    return nullptr;
+
+  std::unique_ptr<di::PropertyValueList> values(
+    prop->getPropertyValues(di::FORMATION, snapshot.snapshot, 0, 0, 0));
+
+  std::string name = prop->getName();
+
+  if (prop->getPropertyAttribute() == DataModel::FORMATION_2D_PROPERTY)
+    return createFormation2DProperty(name, *values, snapshot);
   else
-    return std::make_shared<FormationProperty>(name, gridMaps);
+    return createFormation3DProperty(name, *values, snapshot);
 }
 
 void SceneGraphManager::updateSnapshotProperties()
@@ -818,26 +818,23 @@ SnapshotInfo SceneGraphManager::createSnapshotNode(const di::Snapshot* snapshot)
   
   int k = 0;
 
-  // Get the formation geometry
-  std::unique_ptr<di::FormationList> formationList(m_projectHandle->getFormations(snapshot, false));
-  for (auto formation : *formationList)
-  {
-    std::unique_ptr<di::PropertyValueList> values(m_projectHandle->getPropertyValues(
-      di::FORMATION, m_depthProperty, snapshot, 0, formation, 0, di::VOLUME));
+  // Get a list of all the formation depth values in this snapshot. This list is already 
+  // sorted from top to bottom when we get it from DataAccess lib
+  std::unique_ptr<di::PropertyValueList> depthValues(m_projectHandle->getPropertyValues(
+    di::FORMATION, m_depthProperty, snapshot, 0, 0, 0, di::VOLUME));
 
-    if (!values || values->empty())
+  for (auto depthValue : *depthValues)
+  {
+    auto formation = depthValue->getFormation();
+    if (formation->kind() == di::BASEMENT_FORMATION)
       continue;
 
-    const di::GridMap* depthMap = (*values)[0]->getGridMap();
-    depthMaps.push_back(depthMap);
-
-    // Depth of the formation in cells
-    int depth = depthMap->getDepth() - 1;
+    depthMaps.push_back(depthValue->getGridMap());
 
     SnapshotInfo::Formation bounds;
     bounds.id = m_formationIdMap[formation->getName()];
     bounds.minK = k;
-    bounds.maxK = k + depth;
+    bounds.maxK = k + depthMaps.back()->getDepth() - 1;
     info.formations.push_back(bounds);
 
     k = bounds.maxK;
@@ -880,6 +877,8 @@ SnapshotInfo SceneGraphManager::createSnapshotNode(const di::Snapshot* snapshot)
     }
   }
 
+  std::unique_ptr<di::FormationList> formationList(m_projectHandle->getFormations(snapshot, false));
+
   // Add reservoirs
   for (auto formation : *formationList)
   {
@@ -918,8 +917,13 @@ SnapshotInfo SceneGraphManager::createSnapshotNode(const di::Snapshot* snapshot)
     info.topology = std::make_shared<SnapshotTopology>(info.geometry);
     info.meshData = std::make_shared<HexahedronMesh>(info.geometry, info.topology);
 
-    info.minZ = info.geometry->getMin()[2];
-    info.maxZ = info.geometry->getMax()[2];
+    // Find minimum and maximum depth value
+    double minValue1, maxValue1, minValue2, maxValue2;
+    depthMaps[0]->getMinMaxValue(minValue1, maxValue1);
+    depthMaps[depthMaps.size() - 1]->getMinMaxValue(minValue2, maxValue2);
+
+    info.minZ = -std::max(maxValue1, maxValue2);
+    info.maxZ = -std::min(minValue1, minValue2);
   }
 
   info.mesh = new MoMesh;
@@ -1017,6 +1021,7 @@ void SceneGraphManager::setupSceneGraph()
   m_drawStyle->displayFaces = true;
   m_drawStyle->displayEdges = true;
   m_drawStyle->displayPoints = false;
+  m_drawStyle->fadingThreshold = 20.0f; // does this actually work???
 
   m_material = new MoMaterial;
   m_material->faceColoring = MoMaterial::CONTOURING;

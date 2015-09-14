@@ -108,8 +108,6 @@ class SnapshotGeometry : public MiGeometryI
 
   double m_minX;
   double m_minY;
-  double m_minZ;
-  double m_maxZ;
 
   double m_deltaX;
   double m_deltaY;
@@ -152,9 +150,11 @@ public:
 */
 class SnapshotTopology : public MiHexahedronTopologyExplicitIjk
 {
-  size_t m_numI;
-  size_t m_numJ;
-  size_t m_numK;
+  size_t m_numI; // num cells in I direction
+  size_t m_numJ; // num cells in J direction
+  size_t m_numK; // num cells in K direction
+
+  bool* m_deadMap;
 
   size_t m_timeStamp;
 
@@ -163,6 +163,11 @@ class SnapshotTopology : public MiHexahedronTopologyExplicitIjk
 public:
 
   explicit SnapshotTopology(std::shared_ptr<SnapshotGeometry> geometry);
+
+  ~SnapshotTopology();
+
+  SnapshotTopology(const SnapshotTopology&) = delete;
+  SnapshotTopology& operator=(const SnapshotTopology&) = delete;
 
   virtual void getCellNodeIndices(
     size_t i, size_t j, size_t k,

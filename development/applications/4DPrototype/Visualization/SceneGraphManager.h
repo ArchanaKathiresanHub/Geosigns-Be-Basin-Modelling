@@ -21,6 +21,8 @@
 
 #include <Inventor/SbColor.h>
 
+#include <Interface/Interface.h>
+
 class SnapshotGeometry;
 class SnapshotTopology;
 class FormationIdProperty;
@@ -55,20 +57,6 @@ template<class T>
 class MiDataSetIjk;
 template<class T>
 class MiDataSetI;
-
-namespace DataAccess
-{
-  namespace Interface
-  {
-    class ProjectHandle;
-    class Formation;
-    class Surface;
-    class Reservoir;
-    class Fault;
-    class Property;
-    class Snapshot;
-  }
-}
 
 struct SnapshotInfo
 {
@@ -298,7 +286,17 @@ private:
 
   SoSwitch*       m_snapshotsSwitch;
 
-  std::shared_ptr<MiDataSetIjk<double> > createFormationProperty(const DataAccess::Interface::Property* prop, const SnapshotInfo& snapshot);
+  std::shared_ptr<MiDataSetIjk<double> > createFormation2DProperty(
+    const std::string& name, 
+    const DataAccess::Interface::PropertyValueList& values, 
+    const SnapshotInfo& snapshot);
+  std::shared_ptr<MiDataSetIjk<double> > createFormation3DProperty(
+    const std::string& name, 
+    const DataAccess::Interface::PropertyValueList& values, 
+    const SnapshotInfo& snapshot);
+  std::shared_ptr<MiDataSetIjk<double> > createFormationProperty(
+    const DataAccess::Interface::Property* prop, 
+    const SnapshotInfo& snapshot);
 
   void updateCoordinateGrid();
   void updateSnapshotFormations();

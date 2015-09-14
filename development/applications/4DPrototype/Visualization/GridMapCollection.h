@@ -34,12 +34,27 @@ class GridMapCollection
   size_t m_numJ;
   size_t m_numK;
 
-  double m_minValue;
-  double m_maxValue;
+  mutable double m_minValue;
+  mutable double m_maxValue;
+  mutable bool m_minMaxValid;
 
   // Make this class noncopyable, because we're releasing the gridmaps in the destructor
   GridMapCollection(const GridMapCollection&) = delete;
   GridMapCollection& operator=(const GridMapCollection&) = delete;
+
+  void initMinMax() const
+  {
+    for (size_t i = 0; i < m_gridMaps.size(); ++i)
+    {
+      double minval, maxval;
+      m_gridMaps[i]->getMinMaxValue(minval, maxval);
+
+      m_minValue = std::min(m_minValue, minval);
+      m_maxValue = std::max(m_maxValue, maxval);
+    }
+
+    m_minMaxValid = true;
+  }
 
 public:
 
@@ -47,18 +62,13 @@ public:
     : m_gridMaps(gridMaps)
     , m_minValue(std::numeric_limits<double>::max())
     , m_maxValue(-std::numeric_limits<double>::max())
+    , m_minMaxValid(false)
   {
     assert(!gridMaps.empty());
 
     // Build a mapping from global k-indices to a gridmap index, and a local k
     for (size_t i = 0; i < gridMaps.size(); ++i)
     {
-      double minval, maxval;
-      gridMaps[i]->getMinMaxValue(minval, maxval);
-
-      m_minValue = std::min(m_minValue, minval);
-      m_maxValue = std::max(m_maxValue, maxval);
-
       // Skip last k for each gridmap to avoid duplication with the next layer
       for (unsigned int j = 0; j < gridMaps[i]->getDepth() - 1; ++j)
       {
@@ -81,7 +91,10 @@ public:
   ~GridMapCollection()
   {
     for (auto gridMap : m_gridMaps)
-      gridMap->release();
+    {
+      if (gridMap)
+        gridMap->release();
+    }
   }
 
   double getValue(size_t i, size_t j, size_t k) const
@@ -94,8 +107,21 @@ public:
   size_t numJ() const { return m_numJ; }
   size_t numK() const { return m_numK; }
 
-  double minValue() const { return m_minValue; }
-  double maxValue() const { return m_maxValue; }
+  double minValue() const 
+  { 
+    if (!m_minMaxValid)
+      initMinMax();
+
+    return m_minValue; 
+  }
+
+  double maxValue() const 
+  { 
+    if (!m_minMaxValid)
+      initMinMax();
+
+    return m_maxValue; 
+  }
 };
 
 #endif

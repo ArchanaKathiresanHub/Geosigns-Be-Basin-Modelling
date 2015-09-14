@@ -30,6 +30,7 @@ class MainWindow : public QMainWindow
 
   bool m_oivLicenseOK;
 
+  QLabel* m_snapshotCountLabel;
   QLabel* m_dimensionsLabel;
   QLabel* m_timeLabel;
   QLabel* m_fpsLabel;
