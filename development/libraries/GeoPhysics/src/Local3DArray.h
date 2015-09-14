@@ -1,5 +1,5 @@
-#ifndef _GEOPHYSICS__LOCAL_3D_ARRAY_H_
-#define _GEOPHYSICS__LOCAL_3D_ARRAY_H_
+#ifndef GEOPHYSICS__LOCAL_3D_ARRAY_H
+#define GEOPHYSICS__LOCAL_3D_ARRAY_H
 
 #include <assert.h>
 
@@ -63,6 +63,12 @@ namespace GeoPhysics {
 
 
    private :
+
+      /// \brief Disallow copy construction.
+      Local3DArray ( const Local3DArray& );
+
+      /// \brief Disallow assignment.
+      Local3DArray& operator=( const Local3DArray& );
 
       T*** m_values;
 
@@ -223,4 +229,4 @@ inline unsigned int GeoPhysics::Local3DArray<T>::length ( const unsigned int dim
 }
 
 
-#endif // _GEOPHYSICS__LOCAL_3D_ARRAY_H_
+#endif // GEOPHYSICS__LOCAL_3D_ARRAY_H

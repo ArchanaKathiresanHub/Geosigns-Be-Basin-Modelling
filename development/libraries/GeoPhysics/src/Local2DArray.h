@@ -1,5 +1,5 @@
-#ifndef _GEOPHYSICS__LOCAL_2D_ARRAY_H_
-#define _GEOPHYSICS__LOCAL_2D_ARRAY_H_
+#ifndef GEOPHYSICS__LOCAL_2D_ARRAY_H
+#define GEOPHYSICS__LOCAL_2D_ARRAY_H
 
 #include "Interface/Grid.h"
 
@@ -50,6 +50,12 @@ namespace GeoPhysics {
 
 
    private :
+
+      /// \brief Disallow copy construction.
+      Local2DArray ( const Local2DArray& );
+
+      /// \brief Disallow assignment.
+      Local2DArray& operator=( const Local2DArray& );
 
       T** m_values;
 
@@ -171,4 +177,4 @@ inline unsigned int GeoPhysics::Local2DArray<T>::length ( const unsigned int dim
 }
 
 
-#endif // _GEOPHYSICS__LOCAL_2D_ARRAY_H_
+#endif // GEOPHYSICS__LOCAL_2D_ARRAY_H
