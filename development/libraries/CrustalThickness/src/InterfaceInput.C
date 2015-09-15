@@ -118,8 +118,8 @@ void InterfaceInput::loadConfigurationFile( const string & inFile ) {
    ConfigurationFile.open( fullpath.c_str() );
    
    if(!ConfigurationFile) {
-      getProjectHandle()->getMessageHandler().printLine( "Attempting to open file :" + fullpath + "\nNo cfg file available in the $CTCDIR directory... Aborting..." );
-      throw RecordException( "Attempting to open file :" + fullpath + "\nNo cfg file available in the $CTCDIR directory... Aborting..." );
+      getProjectHandle()->getMessageHandler().printLine( "MeSsAgE ERROR Attempting to open file :" + fullpath + "\nNo cfg file available in the $CTCDIR directory... Aborting..." );
+      throw RecordException( "MeSsAgE ERROR Attempting to open file :" + fullpath + "\nNo cfg file available in the $CTCDIR directory... Aborting..." );
    }
 
    string line;

@@ -2649,8 +2649,8 @@ bool GeoPhysics::ProjectHandle::loadALCConfigurationFile(const string & cfgFileN
       ConfigurationFile.open( fullpath.c_str() );
 
       if (!ConfigurationFile) {
-         getMessageHandler().printLine( " MeSsAgE ERROR Attempting to open file : " + fullpath + "\nNo cfg file available in the $CTCDIR directory... Aborting..." );
-         throw RecordException( " MeSsAgE ERROR Attempting to open file : " + fullpath + "\nNo cfg file available in the $CTCDIR directory... Aborting..." );
+         getMessageHandler().printLine( "MeSsAgE ERROR Attempting to open file : " + fullpath + "\nNo cfg file available in the $CTCDIR directory... Aborting..." );
+         throw RecordException( "MeSsAgE ERROR Attempting to open file : " + fullpath + "\nNo cfg file available in the $CTCDIR directory... Aborting..." );
       }
 
       m_basementLithoProps = new BasementLithologyProps();
