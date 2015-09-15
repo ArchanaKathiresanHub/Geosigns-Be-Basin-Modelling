@@ -9,22 +9,21 @@
 //
 
 #include "ImportExport.h"
+#include "VisualizationIO_native.h"
+#include "DataStore.h"
+
 #include <boost/foreach.hpp>
 #include <boost/uuid/uuid_io.hpp>
+#include <boost/uuid/string_generator.hpp>
 #include <boost/system/error_code.hpp>
-#include <boost/filesystem.hpp>
-#include <boost/iostreams/filtering_stream.hpp>
-#include <boost/iostreams/filter/gzip.hpp>
 #include <boost/lexical_cast.hpp>
-
-//#include "half.hpp" // this is not compiling on Linux
+#include <boost/property_tree/xml_parser.hpp>
 
 #include <iostream>
 #include <fstream>
 #include <cstring>
 
 #define __compress__ true
-#define __fp16__ true
 
 using namespace CauldronIO;
 
@@ -75,11 +74,11 @@ void ImportExport::addProject(boost::property_tree::ptree& pt, boost::shared_ptr
     {
         boost::filesystem::path volumeStorePath(m_outputPath);
         volumeStorePath /= "Snapshot_" + boost::lexical_cast<std::string>(snapShot->getAge()) + "_volumes.cldrn";
-        DataStore volumeStore(volumeStorePath.string(), __compress__, __fp16__);
+        DataStore volumeStore(volumeStorePath.string(), __compress__, true);
 
         boost::filesystem::path surfaceStorePath(m_outputPath);
         surfaceStorePath /= "Snapshot_" + boost::lexical_cast<std::string>(snapShot->getAge()) + "_surfaces.cldrn";
-        DataStore surfaceDataStore(surfaceStorePath.string(), __compress__, __fp16__);
+        DataStore surfaceDataStore(surfaceStorePath.string(), __compress__, true);
 
         ptree & node = pt.add("project.snapshots.snapshot", "");
         node.put("<xmlattr>.age", snapShot->getAge());
@@ -102,19 +101,7 @@ void ImportExport::addProject(boost::property_tree::ptree& pt, boost::shared_ptr
             if (surfaceIO->getValueMap()->isConstant())
                 surface.put("constantvalue", surfaceIO->getValueMap()->getConstantValue());
             else
-            {
-                boost::property_tree::ptree& subNode = surface.add("datastore", "");
-                std::string fileName = getFilename(surfaceIO->getValueMap()->getUUID());
-                subNode.put("<xmlattr>.file", surfaceDataStore.getFileName());
-                subNode.put("<xmlattr>.format", "fp16");
-                subNode.put("<xmlattr>.conversion", "none");
-                subNode.put("<xmlattr>.row-ordered", "yes");
-                subNode.put("<xmlattr>.compression", "gzip");
-                subNode.put("<xmlattr>.offset", surfaceDataStore.getOffset());
-                
-                writeSurface(surfaceIO, surfaceDataStore);
-                subNode.put("<xmlattr>.size", surfaceDataStore.getLastSize());
-            }
+                surfaceDataStore.addSurface(surfaceIO, surface);
 
             // Set depth surface
             boost::shared_ptr<const Surface> depthSurface = surfaceIO->getDepthSurface();
@@ -143,7 +130,7 @@ void ImportExport::addProject(boost::property_tree::ptree& pt, boost::shared_ptr
             addGeometryInfo(volNode, volume);
 
             // Data storage
-            addDataStorage(volNode, volume, volumeStore);
+            volumeStore.addVolume(volume, volNode);
 
             // Set depth volume
             boost::shared_ptr<const Volume> depthVolume = volume->getDepthVolume();
@@ -182,7 +169,7 @@ void ImportExport::addProject(boost::property_tree::ptree& pt, boost::shared_ptr
                 subvolNode.put("<xmlattr>.uuid", subVolume->getUUID());
                 subvolNode.put("<xmlattr>.cell-centered", subVolume->isCellCentered());
                 addGeometryInfo(subvolNode, subVolume);
-                addDataStorage(subvolNode, subVolume, volumeStore);
+                volumeStore.addVolume(subVolume, subvolNode);
                 addProperty(subvolNode, subVolume->getProperty());
             }
         }
@@ -251,214 +238,219 @@ void CauldronIO::ImportExport::addGeometryInfo(boost::property_tree::ptree& tree
     subNode.put("<xmlattr>.undefinedvalue", volume->getUndefinedValue());
 }
 
-void CauldronIO::ImportExport::addDataStorage(boost::property_tree::ptree& volNode, const boost::shared_ptr<Volume>& volume, DataStore& dataStore) const
+//////////////////////////////////////////////////////////////////////////
+/// Importing from native format
+//////////////////////////////////////////////////////////////////////////
+
+boost::shared_ptr<Project> CauldronIO::ImportExport::importFromXML(const std::string& filename)
 {
-    if (volume->isConstant())
+    if (!boost::filesystem::exists(filename))
+        throw CauldronIOException("Cannot open file");
+    
+    using boost::property_tree::ptree;
+    ptree pt;
+    
+    try
     {
-        volNode.put("constantvalue", volume->getConstantValue());
-        return;
+        read_xml(filename, pt);
+    }
+    catch (boost::property_tree::xml_parser::xml_parser_error e)
+    {
+        throw CauldronIOException("Error during parsing xml file");
     }
 
-    if (volume->hasDataIJK())
+    ImportExport importExport;
+    boost::shared_ptr<Project> project;
+
+    // todo: add a try/catch here and catch the specific exception
+    try
     {
-        boost::property_tree::ptree& subNode = volNode.add("datastore", "");
-        subNode.put("<xmlattr>.file", dataStore.getFileName());
-        subNode.put("<xmlattr>.format", "fp16");
-        subNode.put("<xmlattr>.conversion", "none");
-        subNode.put("<xmlattr>.compression", "gzip");
-        subNode.put("<xmlattr>.offset", dataStore.getOffset());
-        subNode.put("<xmlattr>.dataIJK", true);
-        subNode.put("<xmlattr>.dataKIJ", false);
-        // Write the volume and update the offset
-        writeVolume(volume, true, dataStore);
-        subNode.put("<xmlattr>.size", dataStore.getLastSize());
+        project = importExport.getProject(pt);
     }
-
-    if (volume->hasDataKIJ())
+    catch (boost::property_tree::ptree_bad_path e)
     {
-        boost::property_tree::ptree& subNode = volNode.add("datastore", "");
-        subNode.put("<xmlattr>.file", dataStore.getFileName());
-        subNode.put("<xmlattr>.format", "fp16");
-        subNode.put("<xmlattr>.conversion", "none");
-        subNode.put("<xmlattr>.compression", "gzip");
-        subNode.put("<xmlattr>.offset", dataStore.getOffset());
-        subNode.put("<xmlattr>.dataIJK", false);
-        subNode.put("<xmlattr>.dataKIJ", true);
-
-        // Write the volume and update the offset
-        writeVolume(volume, false, dataStore);
-        subNode.put("<xmlattr>.size", dataStore.getLastSize());
+        throw CauldronIOException("error during xml parse");
     }
-}
-
-void CauldronIO::ImportExport::writeSurface(const boost::shared_ptr<Surface>& surfaceIO, DataStore& store) const
-{
-    boost::shared_ptr<Map> map = surfaceIO->getValueMap();
-    if (map->isConstant()) return;
-    store.addData(map->getSurfaceValues(), map->getNumI()*map->getNumJ(), map->getUndefinedValue());
-}
-
-void CauldronIO::ImportExport::writeVolume(const boost::shared_ptr<Volume>& volume, bool dataIJK, DataStore& store) const
-{
-    if (volume->isConstant()) return;
-    const float* data = (dataIJK ? volume->getVolumeValues_IJK() : volume->getVolumeValues_KIJ());
-
-    store.addData(data, volume->getNumI()*volume->getNumK()*volume->getNumK(), volume->getUndefinedValue());
+    
+    return project;
 }
 
 std::string CauldronIO::ImportExport::getXMLIndexingFileName(const boost::filesystem::path& path)
 {
-    boost::filesystem::path result = path / "cauldron_outputs.xml";
-
+    boost::filesystem::path result = "cauldron_outputs.xml";
     return std::string(result.string());
 }
 
-//////////////////////////////////////////////////////////////////////////
-/// DataStore implementation
-//////////////////////////////////////////////////////////////////////////
-
-CauldronIO::ImportExport::DataStore::DataStore(const std::string& filename, bool compress, bool fp16)
+boost::shared_ptr<Project> CauldronIO::ImportExport::getProject(const boost::property_tree::ptree& pt) const
 {
-    m_file.open(filename, BOOST_IOS::binary);
-    m_offset = 0;
-    m_fileName = filename;
-    m_compress = compress;
-    m_fp16 = fp16;
-}
+    boost::uuids::string_generator gen;
+    
+    std::string projectName = pt.get<std::string>("project.name");
+    std::string projectDescript = pt.get<std::string>("project.description");
+    std::string projectTeam = pt.get<std::string>("project.team");
+    ModellingMode mode = (ModellingMode)pt.get<int>("project.modelingmode");
+    std::string projectVersion = pt.get<std::string>("project.programversion");
 
-CauldronIO::ImportExport::DataStore::~DataStore()
-{
-    m_file.flush();
-    m_file.close();
+    // Create the project
+    boost::shared_ptr<Project> project(new Project(projectName, projectDescript, projectTeam, projectVersion, mode));
 
-    // Delete if empty
-    if (m_offset == 0)
-        boost::filesystem::remove(m_fileName);
-}
-
-size_t CauldronIO::ImportExport::DataStore::getOffset() const
-{
-    return m_offset;
-}
-
-void CauldronIO::ImportExport::DataStore::addData(const float* data, size_t size, float undef)
-{
-    char* dataToWrite = (char*)data;
-    size_t sizeToWrite = sizeof(float)*size;
-
-    std::vector<char> compressed;
-
-#if 0
-    using namespace half_float;
-    half* halfArray = NULL;
-    half undefHalf = std::numeric_limits<half>::infinity();
-
-    if (_fp16)
+    BOOST_FOREACH(boost::property_tree::ptree::value_type const& snapShotNodes, pt.get_child("project.snapshots"))
     {
-        // TEMP
-        //GetStatistics<float>(data, size, undef);
-
-        halfArray = new half[size];
-        for (size_t i = 0; i < size; ++i)
+        if (snapShotNodes.first == "snapshot") // there are no other values
         {
-            // We need to treat undef values in a special way
-            float inputData = *(data + i);
-            if (inputData == undef)
-                halfArray[i] = undefHalf;
-            else
-                halfArray[i] = half_cast<half>(inputData);
-        }
+            const boost::property_tree::ptree& snapShotNode = snapShotNodes.second;
+            double age = snapShotNode.get<double>("<xmlattr>.age");
+            SnapShotKind kind = (SnapShotKind)snapShotNode.get<int>("<xmlattr>.kind");
+            bool isminor = snapShotNode.get<bool>("<xmlattr>.isminor");
 
-        //GetStatistics<half>(halfArray, size, undefHalf);
-        
-        dataToWrite = (char*)halfArray;
-     
-        assert(sizeof(float) == 4 && sizeof(half) == 2);
-        sizeToWrite /= 2;
-    }
-#endif
+            // Create the snapshot
+            boost::shared_ptr<SnapShot> snapShot(new SnapShot(age, kind, isminor));
 
-    if (m_compress)
-    {
-        compressed = compress(dataToWrite, sizeToWrite);
+            // Find all surfaces
+            BOOST_FOREACH(boost::property_tree::ptree::value_type const& surfaceNodes, snapShotNode.get_child("surfaces"))
+            {
+                if (surfaceNodes.first == "surface") 
+                {
+                    const boost::property_tree::ptree& surfaceNode = surfaceNodes.second;
+                    std::string surfaceName = surfaceNode.get<std::string>("<xmlattr>.name");
+                    SubsurfaceKind surfaceKind = (SubsurfaceKind)surfaceNode.get<int>("<xmlattr>.subsurfacekind");
+                    std::string uuid = surfaceNode.get<std::string>("<xmlattr>.uuid");
 
-        dataToWrite = (char*)(&compressed[0]);
-        sizeToWrite = compressed.size();
-    }
+                    // Get the property
+                    boost::shared_ptr<Property> property = getProperty(surfaceNode);
+                    boost::shared_ptr<Map> valueMap = getValueMap(surfaceNode);
+                    valueMap->setUUID(gen(uuid));
 
-    m_file.write((char*)dataToWrite, sizeToWrite);
-    m_offset += sizeToWrite;
-    m_lastSize = sizeToWrite;
+                    // Check for optional depthSurfaceUUID
+                    boost::optional<std::string> depthSurfaceUUID = surfaceNode.get_optional<std::string>("depthsurface-uuid");
+                    if (depthSurfaceUUID)
+                    {
+                        MapNative* mapNative = dynamic_cast<MapNative*>(valueMap.get());
+                        mapNative->setDepthSurfaceUUID(gen(*depthSurfaceUUID));
+                    }
 
-    //if (halfArray) delete[] halfArray;
-}
+                    // Create the surface
+                    boost::shared_ptr<Surface> surface(new Surface(surfaceName, surfaceKind, property, valueMap));
 
-std::vector<char> CauldronIO::ImportExport::DataStore::decompress(const char* data, size_t size) const
-{
-    std::vector<char> decompressed = std::vector<char>();
+                    // Set formation
+                    boost::shared_ptr<const Formation> formation = getFormation(surfaceNode);
+                    if (formation)
+                        surface->setFormation(formation);
 
-    boost::iostreams::filtering_ostream os;
-    os.push(boost::iostreams::gzip_decompressor());
-    os.push(boost::iostreams::back_inserter(decompressed));
-    os.write(data, size);
-    os.flush();
+                    // Add to snapshot
+                    snapShot->addSurface(surface);
+                }
+            }
 
-    return decompressed;
-}
+            // TODO: cross-reference depth surfaces 
 
-std::vector<char> CauldronIO::ImportExport::DataStore::compress(const char* data, size_t size) const
-{
-    std::vector<char> compressed = std::vector<char>();
-
-    boost::iostreams::filtering_ostream os;
-    os.push(boost::iostreams::gzip_compressor());
-    os.push(boost::iostreams::back_inserter(compressed));
-    os.write(data, size);
-    os.flush();
-
-    return compressed;
-}
-
-template <typename T>
-void CauldronIO::ImportExport::DataStore::getStatistics(const T* data, size_t size, T undef)
-{
-    T minValue = std::numeric_limits<T>::max();
-    T maxValue = std::numeric_limits<T>::lowest();
-    size_t undefs = 0;
-
-    for (size_t i = 0; i < size; ++i)
-    {
-        if (data[i] == undef) 
-            undefs++;
-        else
-        {
-            minValue = std::min(data[i], minValue);
-            maxValue = std::max(data[i], maxValue);
+            project->addSnapShot(snapShot);
         }
     }
 
-    //if (undefs > 0)
-    //    std::cout << "Undef" << std::endl;
-
-    std::cout << "Min, max, undefs: " << minValue << "," << maxValue << "," << undefs << std::endl;
+    return project;
 }
 
-const std::string& CauldronIO::ImportExport::DataStore::getFileName() const
+boost::shared_ptr<Property> CauldronIO::ImportExport::getProperty(const boost::property_tree::ptree& surfaceNode) const
 {
-    return m_fileName;
+    boost::shared_ptr<Property> property;
+    BOOST_FOREACH(boost::property_tree::ptree::value_type const& propertyNodes, surfaceNode.get_child(""))
+    {
+        if (propertyNodes.first == "property")
+        {
+            // We only need one (and there should only be one)
+            const boost::property_tree::ptree& propertyNode = propertyNodes.second;
+            std::string name = propertyNode.get<std::string>("<xmlattr>.name");
+            std::string cauldronname = propertyNode.get<std::string>("<xmlattr>.cauldronname");
+            std::string username = propertyNode.get<std::string>("<xmlattr>.username");
+            std::string unit = propertyNode.get<std::string>("<xmlattr>.unit");
+            PropertyType type = (PropertyType)propertyNode.get<int>("<xmlattr>.type");
+            PropertyAttribute attrib = (PropertyAttribute)propertyNode.get<int>("<xmlattr>.attribute");
+
+            property.reset(new Property(name, username, cauldronname, unit, type, attrib));
+            return property;
+        }
+    }
+
+    return property;
 }
 
-size_t CauldronIO::ImportExport::DataStore::getLastSize() const
+boost::shared_ptr<Map> CauldronIO::ImportExport::getValueMap(const boost::property_tree::ptree& surfaceNode) const
 {
-    return m_lastSize;
+    // TODO: cell-centered should be read/written to xml, not assumed
+    MapNative* mapNative = new MapNative(false);
+
+    boost::shared_ptr<Map> valueMap(mapNative);
+    BOOST_FOREACH(boost::property_tree::ptree::value_type const& nodes, surfaceNode.get_child(""))
+    {
+        if (nodes.first == "geometry")
+        {
+            const boost::property_tree::ptree& geometryNode = nodes.second;
+            double minI, minJ, maxI, maxJ, deltaI, deltaJ;
+            float undef;
+            size_t numI, numJ;
+
+            numI = geometryNode.get<size_t>("<xmlattr>.numI");
+            numJ = geometryNode.get<size_t>("<xmlattr>.numJ");
+            minI = geometryNode.get<double>("<xmlattr>.minI");
+            minJ = geometryNode.get<double>("<xmlattr>.minJ");
+            maxI = geometryNode.get<double>("<xmlattr>.maxI");
+            maxJ = geometryNode.get<double>("<xmlattr>.maxJ");
+            deltaI = geometryNode.get<double>("<xmlattr>.deltaI");
+            deltaJ = geometryNode.get<double>("<xmlattr>.deltaJ");
+            undef = geometryNode.get<float>("<xmlattr>.undefinedvalue");
+
+            valueMap->setGeometry(numI, numJ, deltaI, deltaJ, minI, minJ);
+            valueMap->setUndefinedValue(undef);
+        }
+        //////////////////////////////////////////////////////////////////////////////
+        /// TODO: move this logic (as well as storing it) to VisualizationIO_native
+        //////////////////////////////////////////////////////////////////////////////
+        else if (nodes.first == "constantvalue")
+        {
+            float value = surfaceNode.get<float>("constantvalue");
+            valueMap->setConstantValue(value);
+        }
+        else if (nodes.first == "datastore")
+        {
+            // Extract some data
+            const boost::property_tree::ptree& datastoreNode = nodes.second;
+            bool compressed, row_ordered;
+            std::string format, conversion, filename;
+            size_t offset, size;
+
+            filename = datastoreNode.get<std::string>("<xmlattr>.file");
+            compressed = datastoreNode.get<std::string>("<xmlattr>.compression") == "gzip";
+            format = datastoreNode.get<std::string>("<xmlattr>.format");
+            size = datastoreNode.get<size_t>("<xmlattr>.size");
+            offset = datastoreNode.get<size_t>("<xmlattr>.offset");
+            row_ordered = datastoreNode.get<std::string>("<xmlattr>.row-ordered") == "yes";
+
+            // TODO: we ignore the format and row_ordered-ness for now
+            mapNative->setDataStore(filename, compressed, offset, size);
+        }
+    }
+
+    return valueMap;
 }
 
-bool CauldronIO::ImportExport::DataStore::getCompress() const
+boost::shared_ptr<const Formation> CauldronIO::ImportExport::getFormation(const boost::property_tree::ptree& surfaceNode) const
 {
-    return m_compress;
-}
+    boost::shared_ptr<const Formation> formation;
+    BOOST_FOREACH(boost::property_tree::ptree::value_type const& nodes, surfaceNode.get_child(""))
+    {
+        if (nodes.first == "formation")
+        {
+            const boost::property_tree::ptree& formationNode = nodes.second;
+            size_t start, end;
+            std::string name = formationNode.get<std::string>("<xmlattr>.name");
+            start = formationNode.get<size_t>("<xmlattr>.kstart");
+            end = formationNode.get<size_t>("<xmlattr>.kend");
 
-bool CauldronIO::ImportExport::DataStore::getFP16() const
-{
-    return m_fp16;
+            formation.reset(new Formation(start, end, name));
+            return formation;
+        }
+    }
+
+    return formation;
 }

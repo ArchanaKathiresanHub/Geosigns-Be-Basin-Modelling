@@ -26,11 +26,14 @@ namespace CauldronIO
         virtual void retrieve();
         /// \brief Set all variables needed to retrieve the data; consider actually adding a reference to a datastore object that can do the logic
         void setDataStore(const std::string& filename, bool compressed, size_t offset, size_t size);
+        /// \brief Assign an associated depth surface by UUID
+        void setDepthSurfaceUUID(const boost::uuids::uuid& uuid);
 
     private:
         std::string m_filename;
         bool m_compressed;
         size_t m_offset, m_size;
+        boost::uuids::uuid m_uuid_depth;
     };
 
     /// \brief Volume class implementation with native retrieve of data

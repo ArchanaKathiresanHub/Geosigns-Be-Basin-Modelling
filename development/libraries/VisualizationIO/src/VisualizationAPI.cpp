@@ -543,6 +543,8 @@ CauldronIO::Volume::Volume(bool cellCentered, SubsurfaceKind kind, boost::shared
     m_isConstant = false;
     m_subSurfaceKind = kind;
     m_property = property;
+    m_retrieved = false;
+    m_geometryAssigned = false;
 }
 
 CauldronIO::Volume::~Volume()

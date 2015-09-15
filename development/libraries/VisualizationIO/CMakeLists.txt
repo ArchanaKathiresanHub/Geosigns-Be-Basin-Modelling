@@ -33,7 +33,7 @@ target_link_libraries(VisualizationIO
 generate_dox( VisualizationIO.cfg )
 
 add_gtest( NAME CauldronIO::Project
-           SOURCES test/Project.cpp
+           SOURCES test/Project.cpp test/DataStore.cpp
            LIBRARIES VisualizationIO
 )
 

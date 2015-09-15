@@ -272,6 +272,7 @@ namespace CauldronIO
 
         /// \brief Assign data to the map : geometry must have been assigned
         /// \param [in] data pointer to the xy data, ordered row-wise
+        /// \note data ownership is not transferred; data should be deleted by client if obsolete
         void setData_IJ(float* data);
         /// \brief assign a geometry
         /// \param [in] numI number of elements in i-direction
