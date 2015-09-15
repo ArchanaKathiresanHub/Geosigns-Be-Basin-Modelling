@@ -821,7 +821,7 @@ void ExplicitMultiComponentFlowSolver::computePressure ( FormationSubdomainEleme
          if ( FastcauldronSimulator::getInstance ().getMapElement ( i, j ).isValid ()) {
 
             for ( k = formationGrid.lastK (); k >= formationGrid.firstK (); --k ) {
-               SubdomainElement& element = formationGrid ( i, j, k );
+               SubdomainElement& element = formationGrid.getElement ( i, j, k );
                const LayerElement& layerElement = element.getLayerElement ();
 
                if ( layerElement.isActive ()) {
@@ -1080,7 +1080,7 @@ void ExplicitMultiComponentFlowSolver::transportComponents ( FormationSubdomainE
 
          for ( k = formationGrid.lastK (); k >= formationGrid.firstK (); --k ) {
 
-            const SubdomainElement& element = formationGrid ( i, j, k );
+            const SubdomainElement& element = formationGrid.getElement ( i, j, k );
             const LayerElement& layerElement = element.getLayerElement ();
 
             unsigned int elementK = element.getK ();
@@ -1255,15 +1255,15 @@ double ExplicitMultiComponentFlowSolver::computeElementFaceFlux ( const Subdomai
       NumericFunctions::Quadrature3D::Iterator quad;
       NumericFunctions::Quadrature3D::getInstance ().get ( m_faceQuadratureDegree, face, quad );
 
-   for ( quad.initialise (); not quad.isDone (); ++quad ) {
-      finiteElement.setQuadraturePoint ( quad.getX (), quad.getY (), quad.getZ ());
-      getElementBoundaryNormal ( layerElement, finiteElement.getJacobian (), face, normal, dsDt );
-      weight = dsDt * quad.getWeight ();
+      for ( quad.initialise (); not quad.isDone (); ++quad ) {
+         finiteElement.setQuadraturePoint ( quad.getX (), quad.getY (), quad.getZ ());
+         getElementBoundaryNormal ( layerElement, finiteElement.getJacobian (), face, normal, dsDt );
+         weight = dsDt * quad.getWeight ();
 
-      // The face-flux can be scaled by some of these values after the 
-      // end of the loop, since they are invariant within the loop.
-      faceFlux += weight * relativePermeability * permeabilityValue * pressureGradient / phaseViscosity;
-   }
+         // The face-flux can be scaled by some of these values after the 
+         // end of the loop, since they are invariant within the loop.
+         faceFlux += weight * relativePermeability * permeabilityValue * pressureGradient / phaseViscosity;
+      }
 
    }
 
@@ -1470,7 +1470,7 @@ void ExplicitMultiComponentFlowSolver::computeFluxTerms ( FormationSubdomainElem
          for ( k = formationGrid.firstK (); k <= formationGrid.lastK (); ++k ) {
 
 
-            const SubdomainElement& element = formationGrid ( i, j, k );
+            const SubdomainElement& element = formationGrid.getElement ( i, j, k );
             const LayerElement& layerElement = element.getLayerElement ();
 
             unsigned int elementK = element.getK ();
@@ -1731,7 +1731,7 @@ void ExplicitMultiComponentFlowSolver::scaleFluxTermsByTimeStep ( FormationSubdo
       for ( j = elementGrid.firstJ (); j <= elementGrid.lastJ (); ++j ) {
 
          for ( k = formationGrid.firstK (); k <= formationGrid.lastK (); ++k ) {
-            const SubdomainElement& element = formationGrid ( i, j, k );
+            const SubdomainElement& element = formationGrid.getElement ( i, j, k );
 
             if ( elementContainsHc ( element.getI (), element.getJ (), element.getK ())) {
             unsigned int elementK = element.getK ();
@@ -1912,14 +1912,14 @@ void ExplicitMultiComponentFlowSolver::computeTemporalContributions ( FormationS
          if ( FastcauldronSimulator::getInstance ().getMapElement ( i, j ).isValid ()) {
 
             for ( k = formationGrid.firstK (); k <= formationGrid.lastK (); ++k ) {
-               SubdomainElement& element = formationGrid ( i, j, k );
+               SubdomainElement& element = formationGrid.getElement ( i, j, k );
                computeTemporalContributions ( element, elementContainsHc, layerConcentration, previousTerm ( i, j, element.getK ()), poreVolumeInterpolator, lambdaStart, lambda );
             }
 
          } else {
 
             for ( k = formationGrid.firstK (); k <= formationGrid.lastK (); ++k ) {
-               previousTerm ( i, j, formationGrid ( i, j, k ).getK ()).zero ();
+               previousTerm ( i, j, formationGrid.getElement ( i, j, k ).getK ()).zero ();
             }
 
          }
@@ -2017,7 +2017,7 @@ void ExplicitMultiComponentFlowSolver::divideByMassMatrix ( FormationSubdomainEl
 
             for ( k = formationGrid.firstK (); k <= formationGrid.lastK (); ++k ) {
 
-               const SubdomainElement& element = formationGrid ( i, j, k );
+               const SubdomainElement& element = formationGrid.getElement ( i, j, k );
                unsigned int elementK = element.getK ();
 
                if ( element.getLayerElement ().isActive () and elementContainsHc ( element.getI (), element.getJ (), element.getK ())) {
@@ -2085,7 +2085,7 @@ void ExplicitMultiComponentFlowSolver::updateTransportedMasses ( FormationSubdom
 
             for ( k = formationGrid.firstK (); k <= formationGrid.lastK (); ++k ) {
 
-               const SubdomainElement& element = formationGrid ( i, j, k );
+               const SubdomainElement& element = formationGrid.getElement ( i, j, k );
                unsigned int elementK = element.getK ();
 
                if ( element.getLayerElement ().isActive ()) {
@@ -2137,7 +2137,7 @@ void ExplicitMultiComponentFlowSolver::activateProperties ( Subdomain&          
       Basin_Modelling::Fundamental_Property_Manager& previousProperties = iter->getFormation ().Previous_Properties;
       activated.fill ( false );
 
-      for ( p = 0;  p < Basin_Modelling::Number_Of_Fundamental_Properties; ++p ) {
+      for ( p = 0;  p < Basin_Modelling::NumberOfFundamentalProperties; ++p ) {
          Basin_Modelling::Fundamental_Property prop = Basin_Modelling::Fundamental_Property ( p );
 
          activated ( p ) = currentProperties.propertyIsActivated ( prop );
@@ -2151,7 +2151,7 @@ void ExplicitMultiComponentFlowSolver::activateProperties ( Subdomain&          
       currentAlreadyActivatedProperties.push_back ( activated );
       activated.fill ( false );
 
-      for ( p = 0;  p < Basin_Modelling::Number_Of_Fundamental_Properties; ++p ) {
+      for ( p = 0;  p < Basin_Modelling::NumberOfFundamentalProperties; ++p ) {
          Basin_Modelling::Fundamental_Property prop = Basin_Modelling::Fundamental_Property ( p );
 
          activated ( p ) = previousProperties.propertyIsActivated ( prop );
@@ -2187,7 +2187,7 @@ void ExplicitMultiComponentFlowSolver::deactivateProperties ( Subdomain&        
       Basin_Modelling::Fundamental_Property_Manager& currentProperties = iter->getFormation ().Current_Properties;
       const ConstrainedBooleanArray& activated = currentAlreadyActivatedProperties [ count ];
 
-      for ( p = 0;  p < Basin_Modelling::Number_Of_Fundamental_Properties; ++p ) {
+      for ( p = 0;  p < Basin_Modelling::NumberOfFundamentalProperties; ++p ) {
          Basin_Modelling::Fundamental_Property prop = Basin_Modelling::Fundamental_Property ( p );
 
          if ( not activated ( p )) {
@@ -2207,7 +2207,7 @@ void ExplicitMultiComponentFlowSolver::deactivateProperties ( Subdomain&        
       Basin_Modelling::Fundamental_Property_Manager& previousProperties = iter->getFormation ().Previous_Properties;
       const ConstrainedBooleanArray& activated = previousAlreadyActivatedProperties [ count ];
 
-      for ( p = 0;  p < Basin_Modelling::Number_Of_Fundamental_Properties; ++p ) {
+      for ( p = 0;  p < Basin_Modelling::NumberOfFundamentalProperties; ++p ) {
          Basin_Modelling::Fundamental_Property prop = Basin_Modelling::Fundamental_Property ( p );
 
          if ( not activated ( p )) {
@@ -2248,7 +2248,7 @@ void ExplicitMultiComponentFlowSolver::collectGlobalSaturation ( FormationSubdom
 
             for ( k = formationGrid.firstK (); k <= formationGrid.lastK (); ++k ) {
 
-               const SubdomainElement& element = formationGrid ( i, j, k );
+               const SubdomainElement& element = formationGrid.getElement ( i, j, k );
                const LayerElement&     layerElement = element.getLayerElement ();
 
                if ( layerElement.isActive ()) {
@@ -2479,7 +2479,7 @@ void ExplicitMultiComponentFlowSolver::estimateHcTransport ( FormationSubdomainE
 
          for ( k = formationGrid.firstK (); k <= formationGrid.lastK (); ++k ) {
 
-            const SubdomainElement& element = formationGrid ( i, j, k );
+            const SubdomainElement& element = formationGrid.getElement ( i, j, k );
             const LayerElement& layerElement = element.getLayerElement ();
 
             unsigned int elementK = element.getK ();

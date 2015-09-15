@@ -194,9 +194,20 @@ void LayerProps::setElementInvariants () {
 
 }
 
+void LayerProps::setLayerElements () {
+
+   ElementVolumeGrid&  elementGrid = getVolumeGrid ( 1 );
+
+   m_elements.create ( elementGrid.getDa ());
+   setElementInvariants ();
+}
+
+
 void LayerProps::initialise () {
 
    bool includedInDarcySimulation = FastcauldronSimulator::getInstance ().getMcfHandler ().solveFlowEquations ();
+
+   setLayerElements ();
 
    if ( m_record != 0 ) {
 
@@ -226,11 +237,6 @@ void LayerProps::initialise () {
       lithoMixModel = Interface::Formation::getMixModelStr ();
 
       fluid = (FluidType*)Interface::Formation::getFluidType ();
-
-      ElementVolumeGrid&  elementGrid = getVolumeGrid ( 1 );
-      m_elements.create ( elementGrid.getDa ());
-      setElementInvariants ();
-
 
       if ( includedInDarcySimulation ) {
          m_componentLayerVolumes.construct ( FastcauldronSimulator::getInstance ().getElementGrid (),
@@ -312,13 +318,11 @@ void LayerProps::initialise () {
                                        getMaximumNumberOfElements (),
                                        ElementFaceValues::NumberOfFaces );
 
-      // if ( darcySimulation ) {
          // Allocate the vector containing the transported masses.
          ElementVolumeGrid& elementGrid = getVolumeGrid ( 1 );
 
          DMCreateGlobalVector ( elementGrid.getDa (), &m_transportedMasses );
          VecSet ( m_transportedMasses, 0.0 );
-      // }
 
       } // if includedInDarcySimulation
 
@@ -399,84 +403,14 @@ void LayerProps::initialise () {
    m_molarMass (   pvtFlash::C6_14AROS ) = 1.564147e+02;
  
    if ( isSourceRock ()) {
-
       initialiseSourceRockProperties ( false );
-
-#if 0
-      double SomeLargeValue = 1.0e10;
-
-      // The map could be filled with any value since it is over-written anyway with the correct "Boolean" value.
-      Interface::GridMap* nodeIsValid = m_projectHandle->getFactory ()->produceGridMap ( 0, 0, 
-                                                                                         m_projectHandle->getActivityOutputGrid (),
-                                                                                         10.0 );
-      Interface::GridMap* vre = m_projectHandle->getFactory ()->produceGridMap ( 0, 0, 
-                                                                                 m_projectHandle->getActivityOutputGrid (),
-                                                                                 SomeLargeValue );
-
-      GeoPhysics::GeoPhysicsSourceRock* sourceRock = (GeoPhysicsSourceRock*)(getSourceRock1 ());
-
-      int i;
-      int j;
-      // int cmp;
-      // pvtFlash::ComponentId species;
-
-      nodeIsValid->retrieveData ();
-      vre->retrieveData ();
-
-      m_genexData = FastcauldronSimulator::getInstance ().getFactory ()->produceGridMap ( 0, 0,
-                                                                                          FastcauldronSimulator::getInstance ().getLowResolutionOutputGrid (),
-                                                                                          99999.0,
-                                                                                          NumberOfPVTComponents);
-                                                                                          // CBMGenerics::ComponentManager::NumberOfOutputSpecies );
-
-      for ( i = FastcauldronSimulator::getInstance ().firstI (); i <= FastcauldronSimulator::getInstance ().lastI (); ++i ) {
-
-         for ( j = FastcauldronSimulator::getInstance ().firstJ (); j <= FastcauldronSimulator::getInstance ().lastJ (); ++j ) {
-            bool isValid = FastcauldronSimulator::getInstance ().getNodeIsValid ( i, j );
-            nodeIsValid->setValue ( i, j, isValid );
-         }
-
-      }
-
-      sourceRock->setFormationData ( this );
-      sourceRock->initialize ( true );
-      sourceRock->preprocess ( nodeIsValid, vre, true );
-
-      // for ( cmp = 0; cmp < CBMGenerics::ComponentManager::NumberOfSpeciesToFlash; ++cmp ) {
-      //    species = pvtFlash::ComponentId ( cmp );
-      //    // Which value to use for the gorm?
-      //    m_molarMass ( species ) = pvtFlash::EosPack::getInstance ().getMolWeight ( cmp, 1.0 );
-
-      //    //    const Genex5::Species* gen5Species = sourceRock->getSimulator ().getChemicalModel ().GetSpeciesByName ( CBMGenerics::ComponentManager::getInstance().GetSpeciesName ( cmp ));
-
-      //    //    if ( gen5Species != 0 ) {
-      //    //       // m_molarMass ( species ) = gen5Species->ComputeMolWeight (); //GetMolWeight ();
-
-      //    //       // Which value to use for the gorm?
-      //    //       m_molarMass ( species ) = pvtFlash::EosPack::getInstance ().getMolWeight ( cmp, 1.0 );
-      //    //    } else {
-      //    //       // Assign some big number. Should this be an error?
-      //    //       m_molarMass ( species ) = 1.0e20;
-      //    //    }
-
-      //    // if ( sourceRock->getSimulator ().getChemicalModel ().GetSpeciesById ( cmp ) != 0 ) {
-      //    //    m_molarMass ( species ) = sourceRock->getSimulator ().getChemicalModel ().GetSpeciesById ( cmp )->ComputeMolWeight (); //GetMolWeight ();
-      //    // } else {
-      //    //    m_molarMass ( species ) = 1.0e20;
-      //    // }
-
-      // }
-
-      delete nodeIsValid;
-      delete vre;
-#endif
    }
 
 }
 
 void LayerProps::connectElements ( LayerProps* layerAbove ) {
 
-   if ( layerAbove == 0 or isCrust () or isMantle ()) {
+   if ( layerAbove == 0 ) {
       // Nothing to do here!
       return;
    }
@@ -487,8 +421,7 @@ void LayerProps::connectElements ( LayerProps* layerAbove ) {
 
    const int numberOfLowerElements = getMaximumNumberOfElements () - 1;
 
-   const ElementGrid&     grid = FastcauldronSimulator::getInstance ().getElementGrid ();
-   // const MapElementArray& mapElements = FastcauldronSimulator::getInstance ().getMapElementArray ();
+   const ElementGrid& grid = FastcauldronSimulator::getInstance ().getElementGrid ();
 
    for ( i = grid.firstI (); i <= grid.lastI (); ++i ) {
 
@@ -710,23 +643,6 @@ bool LayerProps::allocateNewVecs ( AppCtx* basinModel, const double Current_Time
 
     initialiseTemperature( basinModel, Current_Time );
 
-//     setVec ( Previous_Real_Thickness_Vector, Zero );
-//     setVec ( Previous_Solid_Thickness, Zero );
-//     setVec ( Previous_Depth, Zero );
-//     setVec ( Previous_Overpressure, Zero );
-//     setVec ( Previous_Hydrostatic_Pressure, Zero );
-//     setVec ( Previous_Pore_Pressure, Zero );
-//     setVec ( Previous_Lithostatic_Pressure, Zero );
-//     setVec ( Previous_VES, Zero );
-//     setVec ( Previous_Max_VES, Zero );
-//     setVec ( Previous_Temperature, Zero );
-
-
-//     setVec ( Previous_Temperature, Zero );
-//     setVec ( Previous_VES, Zero );
-//     setVec ( Previous_Max_VES, Zero );
-    //    setVec( Previous_Temperature,CAULDRONIBSNULLVALUE);
-
     createVec ( Chemical_Compaction );
     createVec ( Previous_Chemical_Compaction );
 
@@ -923,7 +839,6 @@ void LayerProps::Create_FC_Thickness_Polyfunction ( const DM& Map_DA ) {
   // Is there any need for this now? Since the function getMaximumNumberOfElements
   // returns a non-negative integer.
   Number_Of_Segments = NumericFunctions::Maximum<unsigned int> ( 0, getMaximumNumberOfElements ());
-//   Number_Of_Segments  = ( getMaximumNumberOfElements() > 0 ) ? getMaximumNumberOfElements() : 0;
 
   if ( Number_Of_Segments > 0 )
   {
@@ -1076,8 +991,6 @@ void LayerProps::initialiseSourceRockProperties ( const bool printInitialisation
 
       int i;
       int j;
-      // int cmp;
-      // pvtFlash::ComponentId species;
 
       nodeIsValid->retrieveData ();
       vre->retrieveData ();
@@ -1098,7 +1011,6 @@ void LayerProps::initialiseSourceRockProperties ( const bool printInitialisation
       }
 
       GeoPhysics::GeoPhysicsSourceRock* sourceRock = (GeoPhysicsSourceRock*)(getSourceRock1 ());
-      // sourceRock->clearSimulator ();
       sourceRock->clear ();
       sourceRock->setFormationData ( this );
       sourceRock->initialiseNodes ();
@@ -1311,8 +1223,6 @@ void LayerProps::setLayerElementActivity ( const double age ) {
    bool activeSegment3;
    bool activeSegment4;
 
-   bool geometricLoop = fastcauldron.getCauldron ()->isGeometricLoop ();
-
    for ( i = mapElements.firstI ( true ); i <= mapElements.lastI ( true ); ++i ) {
 
       for ( j = mapElements.firstJ ( true ); j <= mapElements.lastJ ( true ); ++j ) {
@@ -1326,17 +1236,11 @@ void LayerProps::setLayerElementActivity ( const double age ) {
 
                if ( mapElement.isOnProcessor ()) {
 
-                  if ( geometricLoop ) {
-                     activeSegment1 = getSolidThickness ( mapElement.getNodeIPosition ( 0 ), mapElement.getNodeJPosition ( 0 ), k, age ) > DepositingThicknessTolerance;
-                     activeSegment2 = getSolidThickness ( mapElement.getNodeIPosition ( 1 ), mapElement.getNodeJPosition ( 1 ), k, age ) > DepositingThicknessTolerance;
-                     activeSegment3 = getSolidThickness ( mapElement.getNodeIPosition ( 2 ), mapElement.getNodeJPosition ( 2 ), k, age ) > DepositingThicknessTolerance;
-                     activeSegment4 = getSolidThickness ( mapElement.getNodeIPosition ( 3 ), mapElement.getNodeJPosition ( 3 ), k, age ) > DepositingThicknessTolerance;
-                  } else {
-                     activeSegment1 = getRealThickness ( mapElement.getNodeIPosition ( 0 ), mapElement.getNodeJPosition ( 0 ), k, age ) > DepositingThicknessTolerance;
-                     activeSegment2 = getRealThickness ( mapElement.getNodeIPosition ( 1 ), mapElement.getNodeJPosition ( 1 ), k, age ) > DepositingThicknessTolerance;
-                     activeSegment3 = getRealThickness ( mapElement.getNodeIPosition ( 2 ), mapElement.getNodeJPosition ( 2 ), k, age ) > DepositingThicknessTolerance;
-                     activeSegment4 = getRealThickness ( mapElement.getNodeIPosition ( 3 ), mapElement.getNodeJPosition ( 3 ), k, age ) > DepositingThicknessTolerance;
-                  }
+                  // Can mapElement.getNodeIPosition be replaced with i, or i +1? same for J.
+                  activeSegment1 = getDepositingThickness ( mapElement.getNodeIPosition ( 0 ), mapElement.getNodeJPosition ( 0 ), k, age ) > DepositingThicknessTolerance;
+                  activeSegment2 = getDepositingThickness ( mapElement.getNodeIPosition ( 1 ), mapElement.getNodeJPosition ( 1 ), k, age ) > DepositingThicknessTolerance;
+                  activeSegment3 = getDepositingThickness ( mapElement.getNodeIPosition ( 2 ), mapElement.getNodeJPosition ( 2 ), k, age ) > DepositingThicknessTolerance;
+                  activeSegment4 = getDepositingThickness ( mapElement.getNodeIPosition ( 3 ), mapElement.getNodeJPosition ( 3 ), k, age ) > DepositingThicknessTolerance;
 
                   // if any segment is active then the element is active.
                   if ( activeSegment1 or activeSegment2 or activeSegment3 or activeSegment4 ) {
@@ -1349,6 +1253,7 @@ void LayerProps::setLayerElementActivity ( const double age ) {
                      volumeElement.setIsActiveBoundary ( VolumeData::Right, activeSegment2 or activeSegment3 );
                      volumeElement.setIsActiveBoundary ( VolumeData::Back,  activeSegment3 or activeSegment4 );
                      volumeElement.setIsActiveBoundary ( VolumeData::Left,  activeSegment4 or activeSegment1 );
+
                   } else {
                      volumeElement.setIsActive ( false );
                   }
@@ -1364,15 +1269,10 @@ void LayerProps::setLayerElementActivity ( const double age ) {
 
                      if ( NumericFunctions::inRange<unsigned int> ( j, mapElements.firstJ ( false ), mapElements.lastJ ( false ))) {
 
-                        if ( geometricLoop ) {
-                           activeSegment1 = getSolidThickness ( i, j,     k, age ) > DepositingThicknessTolerance;
-                           activeSegment2 = getSolidThickness ( i, j + 1, k, age ) > DepositingThicknessTolerance;
-                        } else {
-                           activeSegment1 = getRealThickness ( i, j,     k, age ) > DepositingThicknessTolerance;
-                           activeSegment2 = getRealThickness ( i, j + 1, k, age ) > DepositingThicknessTolerance;
-                        }
+                        activeSegment1 = getDepositingThickness ( i, j,     k, age ) > DepositingThicknessTolerance;
+                        activeSegment2 = getDepositingThickness ( i, j + 1, k, age ) > DepositingThicknessTolerance;
 
-                        volumeElement.setIsActive ( activeSegment1 or activeSegment1 );
+                        volumeElement.setIsActive ( activeSegment1 or activeSegment2 );
                         volumeElement.setIsActiveBoundary ( VolumeData::GAMMA_5, activeSegment1 or activeSegment2 );
                      } 
 
@@ -1380,15 +1280,10 @@ void LayerProps::setLayerElementActivity ( const double age ) {
 
                      if ( NumericFunctions::inRange<unsigned int> ( j, mapElements.firstJ ( false ), mapElements.lastJ ( false ))) {
 
-                        if ( geometricLoop ) {
-                           activeSegment1 = getSolidThickness ( i, j,     k, age ) > DepositingThicknessTolerance;
-                           activeSegment2 = getSolidThickness ( i, j + 1, k, age ) > DepositingThicknessTolerance;
-                        } else {
-                           activeSegment1 = getRealThickness ( i, j,     k, age ) > DepositingThicknessTolerance;
-                           activeSegment2 = getRealThickness ( i, j + 1, k, age ) > DepositingThicknessTolerance;
-                        }
+                        activeSegment1 = getDepositingThickness ( i, j,     k, age ) > DepositingThicknessTolerance;
+                        activeSegment2 = getDepositingThickness ( i, j + 1, k, age ) > DepositingThicknessTolerance;
 
-                        volumeElement.setIsActive ( activeSegment1 or activeSegment1 );
+                        volumeElement.setIsActive ( activeSegment1 or activeSegment2 );
                         volumeElement.setIsActiveBoundary ( VolumeData::GAMMA_3, activeSegment1 or activeSegment2 );
                      } 
 
@@ -1398,15 +1293,10 @@ void LayerProps::setLayerElementActivity ( const double age ) {
 
                      if ( NumericFunctions::inRange<unsigned int> ( i, mapElements.firstI ( false ), mapElements.lastI ( false ))) {
 
-                        if ( geometricLoop ) {
-                           activeSegment1 = getSolidThickness ( i,     j, k, age ) > DepositingThicknessTolerance;
-                           activeSegment2 = getSolidThickness ( i + 1, j, k, age ) > DepositingThicknessTolerance;
-                        } else {
-                           activeSegment1 = getRealThickness ( i,     j, k, age ) > DepositingThicknessTolerance;
-                           activeSegment2 = getRealThickness ( i + 1, j, k, age ) > DepositingThicknessTolerance;
-                        }
+                        activeSegment1 = getDepositingThickness ( i,     j, k, age ) > DepositingThicknessTolerance;
+                        activeSegment2 = getDepositingThickness ( i + 1, j, k, age ) > DepositingThicknessTolerance;
 
-                        volumeElement.setIsActive ( activeSegment1 or activeSegment1 );
+                        volumeElement.setIsActive ( activeSegment1 or activeSegment2 );
                         volumeElement.setIsActiveBoundary ( VolumeData::GAMMA_4, activeSegment1 or activeSegment2 );
                      } 
 
@@ -1415,15 +1305,10 @@ void LayerProps::setLayerElementActivity ( const double age ) {
 
                      if ( NumericFunctions::inRange<unsigned int> ( i, mapElements.firstI ( false ), mapElements.lastI ( false ))) {
 
-                        if ( geometricLoop ) {
-                           activeSegment1 = getSolidThickness ( i,     j, k, age ) > DepositingThicknessTolerance;
-                           activeSegment2 = getSolidThickness ( i + 1, j, k, age ) > DepositingThicknessTolerance;
-                        } else {
-                           activeSegment1 = getRealThickness ( i,     j, k, age ) > DepositingThicknessTolerance;
-                           activeSegment2 = getRealThickness ( i + 1, j, k, age ) > DepositingThicknessTolerance;
-                        }
+                        activeSegment1 = getDepositingThickness ( i,     j, k, age ) > DepositingThicknessTolerance;
+                        activeSegment2 = getDepositingThickness ( i + 1, j, k, age ) > DepositingThicknessTolerance;
 
-                        volumeElement.setIsActive ( activeSegment1 or activeSegment1 );
+                        volumeElement.setIsActive ( activeSegment1 or activeSegment2 );
                         volumeElement.setIsActiveBoundary ( VolumeData::GAMMA_4, activeSegment1 or activeSegment2 );
                      } 
 
@@ -1458,10 +1343,14 @@ double LayerProps::getDepositingThickness ( const unsigned int i,
                                             const unsigned int k,
                                             const double       age ) const {
 
-   if ( FastcauldronSimulator::getInstance ().getCauldron ()->isGeometricLoop ()) {
-      return getSolidThickness ( i, j, k, age );
-   } else {
+   if (( FastcauldronSimulator::getInstance ().getCalculationMode () == PRESSURE_AND_TEMPERATURE_MODE or
+         FastcauldronSimulator::getInstance ().getCalculationMode () == OVERPRESSURE_MODE or
+         FastcauldronSimulator::getInstance ().getCalculationMode () == OVERPRESSURED_TEMPERATURE_MODE or
+         FastcauldronSimulator::getInstance ().getCalculationMode () == COUPLED_DARCY_MODE ) and
+       not FastcauldronSimulator::getInstance ().getCauldron ()->isGeometricLoop ()) {
       return getRealThickness ( i, j, k, age );
+   } else {
+      return getSolidThickness ( i, j, k, age );
    }
 
 }
@@ -2000,8 +1889,6 @@ void LayerProps::deleteFaultElementsMap () {
 
    PetscBool validVector ( faultElements != 0 ? PETSC_TRUE : PETSC_FALSE );
 
-  // VecValid ( faultElements, &validVector );
-  
   if ( validVector ) {
     VecDestroy ( &faultElements );
     faultElements = Vec ( 0 );
@@ -2014,8 +1901,6 @@ void LayerProps::deleteFaultElementsMap () {
 void LayerProps::deleteErosionFactorMap () {
 
   PetscBool validVector ( erosionFactor != 0 ? PETSC_TRUE : PETSC_FALSE );
-
-  // VecValid ( erosionFactor, &validVector );
 
   if ( validVector ) {
     VecDestroy ( &erosionFactor );
@@ -2201,11 +2086,6 @@ void LayerProps::Determine_CFL_Value ( AppCtx* Basin_Model,
   double Origin_X = grid.originI;
   double Origin_Y = grid.originJ;
 
-//   double Delta_X  = Basin_Model -> getDeltaX  ( Basin_Model -> Grid_Resolution );
-//   double Delta_Y  = Basin_Model -> getDeltaY  ( Basin_Model -> Grid_Resolution );
-//   double Origin_X = Basin_Model -> getXorigin ( Basin_Model -> Grid_Resolution );
-//   double Origin_Y = Basin_Model -> getYorigin ( Basin_Model -> Grid_Resolution );
-
   const CompoundLithology*  Element_Lithology;
 
 
@@ -2220,7 +2100,6 @@ void LayerProps::Determine_CFL_Value ( AppCtx* Basin_Model,
   ElementGeometryMatrix Geometry_Matrix;
 
   ElementVector Exceeded_Fracture_Pressure;
-//    Boolean_Vector Exceeded_Fracture_Pressure;
 
   bool Include_Ghost_Values = true;
 
@@ -2709,15 +2588,6 @@ void LayerProps::integrateGenexEquations ( const double previousTime,
                                      &permeabilityInterp,
                                      &vreInterp,
                                      m_genexData );
-
-
-//    if ( previousTime - currentTime > sourceRock->getMaximumTimeStepSize ( depoage ) and currentTime < depoage ) {
-//       extractGenexDataInterval ( previousTime, currentTime, vesInterp, temperatureInterp );
-//       sourceRock->computeTimeInterval ( previousTime, currentTime, &vesInterp, &temperatureInterp, &thicknessInterp );
-//    } else {
-//       extractGenexDataInstance ( currentTime, vesInterp, temperatureInterp );
-//       sourceRock->computeTimeInstance ( currentTime, &vesInterp, &temperatureInterp, &thicknessInterp );
-//    }
 
 }
 

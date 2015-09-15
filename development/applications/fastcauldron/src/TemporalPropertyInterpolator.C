@@ -64,7 +64,7 @@ void TemporalPropertyInterpolator::computeTemporalProperty ( FormationSubdomainE
          if ( FastcauldronSimulator::getInstance ().getMapElement ( i, j ).isValid ()) {
 
             for ( k = formationGrid.lastK (); k >= formationGrid.firstK (); --k ) {
-               SubdomainElement& element = formationGrid ( i, j, k );
+               SubdomainElement& element = formationGrid.getElement ( i, j, k );
                const LayerElement& layerElement = element.getLayerElement ();
 
                ElementTemporalPropertyInterpolator& elementInterpolator = interpolator ( element.getK (), element.getJ (), element.getI ());

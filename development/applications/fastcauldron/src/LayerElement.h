@@ -11,6 +11,7 @@
 #include "Nodal3DIndexArray.h"
 
 #include "BoundaryId.h"
+#include "globaldefs.h"
 
 /// Some forward declarations of types.
 class LayerProps;
@@ -190,24 +191,17 @@ public :
    enum NodeId { NODE_1, NODE_2, NODE_3, NODE_4, NODE_5, NODE_6, NODE_7, NODE_8 };
 
 
-   /// The number of nodes in an element.
-   ///
-   /// Since all elements are hexahedral then there are 8 nodes per element.
-   static const int NumberOfNodes = 8;
-
-
-
-   /// Constructor.
+   /// \brief Constructor.
    LayerElement ();
 
-   /// Copy constructor.
+   /// \brief Copy constructor.
    LayerElement ( const LayerElement& element );
 
 
-   /// Assigmnent operator.
+   /// \brief Assigmnent operator.
    LayerElement& operator=( const LayerElement& element );
 
-   /// Return whether or not the element is part of a defined region.
+   /// \brief Return whether or not the element is part of a defined region.
    ///
    /// If element is not active then all other values except element position should be ignored.
    bool isActive () const;
@@ -218,71 +212,60 @@ public :
    /// \name Element position.
    //@{
 
-   /// Return the const reference to the position.
+   /// \brief Return the const reference to the position.
    const Mesh3DIndex& getPosition () const;
 
-   /// Get the i-index of the map.
+   /// \brief Get the i-index of the map.
    int getIPosition () const;
 
-   /// Get the j-index of the map.
+   /// \brief Get the j-index of the map.
    int getJPosition () const;
 
-   /// Get the local k-index of the map.
+   /// \brief Get the local k-index of the map.
    int getLocalKPosition () const;
 
-   /// Get the global k-index of the map.
-   int getGlobalKPosition () const;
-
-   /// Set the local map indicies.
+   /// \brief Set the local map indicies.
    void setPosition ( const int i,
                       const int j,
                       const int localK );
-
-   /// Set the global k map index.
-   void setPosition ( const int globalK );
 
    //@}
 
    /// \name Node position.
    //@{
 
-   /// Return a const referecne to the node-postions array.
+   /// \brief Return a const referecne to the node-postions array.
    const Nodal3DIndexArray& getNodePositions () const;
 
-   /// Return the const reference to the node index.
+   /// \brief Return the const reference to the node index.
    const Mesh3DIndex& getNode ( const int node ) const;
 
-   /// Get the i-index of the node.
+   /// \brief Get the i-index of the node.
    ///
-   /// node in range [ 0 .. 7 ]
+   /// \param node The node at which the i-position is requested.
+   /// \pre node in range [ 0 .. 7 ]
    int getNodeIPosition ( const int node ) const;
 
-   /// Get the j-index of the node.
+   /// \brief Get the j-index of the node.
    ///
-   /// node in range [ 0 .. 7 ]
+   /// \param node The node at which the j-position is requested.
+   /// \pre node in range [ 0 .. 7 ]
    int getNodeJPosition ( const int node ) const;
 
-   /// Get the k-index of the node.
+   /// \brief Get the k-index of the node for the formation in which the element lies.
    ///
-   /// node in range [ 0 .. 7 ]
+   /// \param node The node at which the k-position is requested.
+   /// \pre node in range [ 0 .. 7 ]
    int getNodeLocalKPosition ( const int node ) const;
 
-   /// Get the global k-index of the node.
+   /// \brief Set the node indices.
    ///
-   /// node in range [ 0 .. 7 ]
-   int getNodeGlobalKPosition ( const int node ) const;
-
-   /// Set the node indices.
-   ///
-   /// node in range [ 0 .. 7 ]
+   /// \param node The node at which the k-position is requested.
+   /// \pre node in range [ 0 .. 7 ]
    void setNodePosition ( const int node,
                           const int i,
                           const int j,
                           const int localK );
-
-   /// Set the global-k position for the indicated node.
-   void setNodePosition ( const int node,
-                          const int globalK );
 
    //@}
 
@@ -290,19 +273,7 @@ public :
    /// \name Boundary indications.
    //@{
 
-   /// Return whether or not the boundary of the element is on the defined domain boundary.
-   ///
-   /// Which element-boundary is indicated by boundary-id.
-   bool isOnDomainBoundary ( const VolumeData::BoundaryId id ) const;
-
-   /// Set whether or not the boundary of the element is on the defined domain boundary.
-   ///
-   /// Which element-boundary is indicated by boundary-id.
-   void setIsOnDomainBoundary ( const VolumeData::BoundaryId id,
-                                const bool       value );
-
-
-   /// Return whether or not the boundary of the element is on the processor boundary.
+   /// \brief Return whether or not the boundary of the element is on the processor boundary.
    ///
    /// The processor boundary is a sub-set of the domain-boundary, i.e. if an element
    /// is not active then even though it may lie on a processsor boundary this will return false.
@@ -310,7 +281,7 @@ public :
    /// boundaryId in range [ Gamma_1 .. Gamma_6 ]
    bool isOnProcessorBoundary ( const VolumeData::BoundaryId id ) const;
 
-   /// Set whether or not the boundary of the element is on the processor boundary.
+   /// \brief Set whether or not the boundary of the element is on the processor boundary.
    ///
    /// Which element-boundary is indicated by boundary-id.
    /// boundaryId in range [ Gamma_1 .. Gamma_6 ]
@@ -318,23 +289,23 @@ public :
                                    const bool       value );
 
 
-   /// Return whether or not the boundary of element is active.
+   /// \brief Return whether or not the boundary of element is active.
    ///
    /// Which element-boundary is indicated by boundary-id.
    bool isActiveBoundary ( const VolumeData::BoundaryId id ) const;
 
-   /// Set whether or not the boundary of the element is active.
+   /// \brief Set whether or not the boundary of the element is active.
    ///
    /// Which element-boundary is indicated by boundary-id.
    void setIsActiveBoundary ( const VolumeData::BoundaryId id,
                               const bool       value );
 
-   /// Get whether or not the element lies on the current processor.
+   /// \brief Get whether or not the element lies on the current processor.
    ///
    /// If element does not lie on this processor then node and boundary data should be ignored.
    bool isOnProcessor () const;
 
-   /// Set whether or not the element lies on the current processor.
+   /// \brief Set whether or not the element lies on the current processor.
    void setIsOnProcessor ( const bool value );
 
    //@}
@@ -343,12 +314,12 @@ public :
    /// \name Neighbour information.
    //@{
 
-   /// Return the neighbouring element.
+   /// \brief Return the neighbouring element.
    ///
    /// May return null if element does not exist.
    const LayerElement* getNeighbour ( const VolumeData::BoundaryId id ) const;
 
-   /// Return the neighbouring element.
+   /// \brief Return the neighbouring element.
    ///
    /// May return null if element does not exist.
    /// If lateral face has measure zero then a null will be returned.
@@ -366,17 +337,17 @@ public :
    /// \name Layer and lithology information.
    //@{
 
-   /// Return pointer to element's lithology.
+   /// \brief Return pointer to element's lithology.
    const Lithology* getLithology () const;
 
-   /// Set element's lithology.
+   /// \brief Set element's lithology.
    void setLithology ( const Lithology* lithology );
 
-   /// Return pointer to element's fluid.
+   /// \brief Return pointer to element's fluid.
    const GeoPhysics::FluidType* getFluid () const;
 
 
-   /// Return pointer to formation in which element lives.
+   /// \brief Return pointer to formation in which element lives.
    const LayerProps* getFormation () const;
 
    /// Set formation in which element lives.
@@ -384,53 +355,50 @@ public :
 
    //@}
 
-   /// Return a string representation of the volume-element position.
+   /// \brief Return a string representation of the volume-element position.
    std::string positionImage () const;
 
-   /// Return a string representation of the map-element.
+   /// \brief Return a string representation of the map-element.
    std::string image () const;
 
 private :
 
-   /// Return the active neighbouring element shallower than current element.
+   /// \brief Return the active neighbouring element shallower than current element.
    ///
    /// May return null if element does not exist.
    const LayerElement* getShallowerActiveNeighbour () const;
 
-   /// Return the active neighbouring element deeper than current element.
+   /// \brief Return the active neighbouring element deeper than current element.
    ///
    /// May return null if element does not exist.
    const LayerElement* getDeeperActiveNeighbour () const;
 
 
-   /// Array of node positions.
+   /// \brief Array of node positions.
    Nodal3DIndexArray m_nodePositions;
 
-   /// Element position
+   /// \brief Element position
    Mesh3DIndex m_arrayPosition;
 
-   /// Array indicating if element boundary lies on domain boundary.
-   bool        m_onDomainBoundary [ VolumeData::NumberOfBoundaries ];
-
-   /// Array indicating if element boundary lies on processor-partition boundary.
+   /// \brief Array indicating if element boundary lies on processor-partition boundary.
    bool        m_onProcessorBoundary [ VolumeData::NumberOfBoundaries ];
 
-   /// Array indicating if element boundary is active.
+   /// \brief Array indicating if element boundary is active.
    bool        m_activeBoundary [ VolumeData::NumberOfBoundaries ];
 
-   /// Pointers to neighbouring elements across faces.
+   /// \brief Pointers to neighbouring elements across faces.
    const LayerElement* m_neighbours [ VolumeData::NumberOfBoundaries ];
 
-   /// Is the element active or not.
+   /// \brief Is the element active or not.
    bool        m_isActive;
 
-   /// Does the element lie in this processor partition or is it a ghost element.
+   /// \brief Does the element lie in this processor partition or is it a ghost element.
    bool        m_onProcessor;
 
-   /// The formation in which the element lies.
+   /// \brief The formation in which the element lies.
    const LayerProps*  m_formation;
 
-   /// The lithology contained in the element.
+   /// \brief The lithology contained in the element.
    const Lithology*   m_lithology;
 
 }; 
@@ -471,11 +439,7 @@ inline int LayerElement::getJPosition () const {
 }
 
 inline int LayerElement::getLocalKPosition () const {
-   return m_arrayPosition.getLocalK ();
-}
-
-inline int LayerElement::getGlobalKPosition () const {
-   return m_arrayPosition.getGlobalK ();
+   return m_arrayPosition.getK ();
 }
 
 inline const Nodal3DIndexArray& LayerElement::getNodePositions () const {
@@ -491,19 +455,11 @@ inline int LayerElement::getNodeJPosition ( const int node ) const {
 }
 
 inline int LayerElement::getNodeLocalKPosition ( const int node ) const {
-   return m_nodePositions ( node ).getLocalK ();
-}
-
-inline int LayerElement::getNodeGlobalKPosition ( const int node ) const {
-   return m_nodePositions ( node ).getGlobalK ();
+   return m_nodePositions ( node ).getK ();
 }
 
 inline const Mesh3DIndex& LayerElement::getNode ( const int node ) const {
    return m_nodePositions ( node );
-}
-
-inline bool LayerElement::isOnDomainBoundary ( const VolumeData::BoundaryId id ) const {
-   return m_onDomainBoundary [ id ];
 }
 
 inline bool LayerElement::isOnProcessorBoundary ( const VolumeData::BoundaryId id ) const {

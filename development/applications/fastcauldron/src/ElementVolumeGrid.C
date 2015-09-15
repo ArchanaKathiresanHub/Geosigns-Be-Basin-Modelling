@@ -12,6 +12,18 @@ ElementVolumeGrid::ElementVolumeGrid () {
 
 //------------------------------------------------------------//
 
+ElementVolumeGrid::ElementVolumeGrid ( const ElementGrid& grid,
+                                       const int          numberOfZElements,
+                                       const int          numberOfDofs ) {
+   m_xPartitioning = 0;
+   m_numberOfXProcessors = 0;
+   m_yPartitioning = 0;
+   m_numberOfYProcessors = 0;
+   construct ( grid, numberOfZElements, numberOfDofs );
+}
+
+//------------------------------------------------------------//
+
 ElementVolumeGrid::~ElementVolumeGrid () {
 
    if ( isInitialised ()) {

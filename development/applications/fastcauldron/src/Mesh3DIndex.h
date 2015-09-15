@@ -9,9 +9,6 @@ class Mesh3DIndex {
 
 public :
 
-   enum LocalityIndicator { LOCAL, GLOBAL };
-
-
    /// Constructor
    Mesh3DIndex ();
 
@@ -20,9 +17,6 @@ public :
               const int j,
               const int localK );
 
-   /// Set the global-k position.
-   void set ( const int globalK );
-
    /// Get the i-position.
    int getI () const;
 
@@ -30,14 +24,7 @@ public :
    int getJ () const;
 
    /// Get the k-position (either local or global)
-   int getK ( const LocalityIndicator indicator = LOCAL ) const;
-
-   /// Get the local-k-position.
-   int getLocalK () const;
-
-   /// Get the global-k-position.
-   int getGlobalK () const;
-
+   int getK () const;
 
    /// Assignment operator.
    Mesh3DIndex& operator=( const Mesh3DIndex& index );
@@ -53,17 +40,8 @@ private :
    /// J index in plane (always a global related value)
    int m_j;
 
-   /// K index in vertical direction.
-   ///
-   /// The first position is the k relative to the layer k-index set.
-   /// The second position is the k relative to the domain k-index set.
-   int m_ks [ 2 ];
-
-   // /// K index in vertical relative to the layer k-index set.
-   // int m_localK;
-
-   // /// K index in vertical relative to the domain k-index set.
-   // int m_globalK;
+   /// K index in vertical direction for the layer.
+   int m_k;
 
 };
 
@@ -79,20 +57,8 @@ inline int Mesh3DIndex::getJ () const {
    return m_j;
 }
 
-inline int Mesh3DIndex::getK ( const LocalityIndicator indicator ) const {
-   return m_ks [ indicator ];
-   // return ( indicator == LOCAL ? getLocalK () : getGlobalK ());
-}
-
-
-inline int Mesh3DIndex::getLocalK () const {
-   return m_ks [ LOCAL ];
-   // return m_localK;
-}
-
-inline int Mesh3DIndex::getGlobalK () const {
-   return m_ks [ GLOBAL ];
-   // return m_globalK;
+inline int Mesh3DIndex::getK () const {
+   return m_k;
 }
 
 #endif // _FASTCAULDRON__MESH_INDEX__H_

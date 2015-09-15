@@ -24,18 +24,18 @@
 
 const std::string& Basin_Modelling::fundamentalPropertyImage ( const Fundamental_Property property ) {
 
-  static const string propertyNames [ Number_Of_Fundamental_Properties + 1 ] = { "Depth",
-                                                                                 "Thickness",
-                                                                                 "SolidThickness",
-                                                                                 "HydroStaticPressure",
-                                                                                 "LithoStaticPressure",
-                                                                                 "OverPressure",
-                                                                                 "Pressure", 
-                                                                                 "ChemicalCompaction",
-                                                                                 "Ves",
-                                                                                 "MaxVes",
-                                                                                 "Temperature",
-                                                                                 "No such property name" };
+  static const string propertyNames [ NumberOfFundamentalProperties + 1 ] = { "Depth",
+                                                                              "Thickness",
+                                                                              "SolidThickness",
+                                                                              "HydroStaticPressure",
+                                                                              "LithoStaticPressure",
+                                                                              "OverPressure",
+                                                                              "Pressure", 
+                                                                              "ChemicalCompaction",
+                                                                              "Ves",
+                                                                              "MaxVes",
+                                                                              "Temperature",
+                                                                              "No such property name" };
 
   if ( property >= Depth && property < No_Property ) {
     return propertyNames [ property ];
@@ -50,18 +50,18 @@ const std::string& Basin_Modelling::fundamentalPropertyImage ( const Fundamental
 
 const std::string& Basin_Modelling::fundamentalPropertyName ( const Fundamental_Property property ) {
 
-  static const string propertyNames [ Number_Of_Fundamental_Properties + 1 ] = { "Depth",
-                                                                                 "Thickness",
-                                                                                 "UNKNOWN",
-                                                                                 "HydroStaticPressure",
-                                                                                 "LithoStaticPressure",
-                                                                                 "OverPressure",
-                                                                                 "Pressure", 
-                                                                                 "ChemicalCompaction",
-                                                                                 "Ves",
-                                                                                 "MaxVes",
-                                                                                 "Temperature",
-                                                                                 "UNKNOWN" };
+  static const string propertyNames [ NumberOfFundamentalProperties + 1 ] = { "Depth",
+                                                                              "Thickness",
+                                                                              "UNKNOWN",
+                                                                              "HydroStaticPressure",
+                                                                              "LithoStaticPressure",
+                                                                              "OverPressure",
+                                                                              "Pressure", 
+                                                                              "ChemicalCompaction",
+                                                                              "Ves",
+                                                                              "MaxVes",
+                                                                              "Temperature",
+                                                                              "UNKNOWN" };
 
   if ( property >= Depth && property < No_Property ) {
     return propertyNames [ property ];
@@ -309,7 +309,7 @@ void Basin_Modelling::Fundamental_Property_Manager::Extract_Property ( const Fun
 
   int I;
 
-  for ( I = 0; I < Number_Of_Nodes; I++ ) {
+  for ( I = 0; I < NumberOfElementNodes; I++ ) {
      Property_Values ( I + 1 ) = this -> operator ()( Property, Positions ( I ).Z_Position, Positions ( I ).Y_Position, Positions ( I ).X_Position );
     // Property_Values ( I + 1 ) = this -> operator ()( Property, Positions ( I ));
 //      Property_Values ( I + 1 ) = ( Positions.Z_Position, Position.Y_Position, Position.X_Position );
@@ -327,7 +327,7 @@ void Basin_Modelling::Fundamental_Property_Manager::Extract_Property ( const Fun
 
    int i;
 
-   for ( i = 0; i < Number_Of_Nodes; ++i ) {
+   for ( i = 0; i < NumberOfElementNodes; ++i ) {
       propertyValues ( i + 1 ) = operator ()( property, indices ( i ));
    }
 

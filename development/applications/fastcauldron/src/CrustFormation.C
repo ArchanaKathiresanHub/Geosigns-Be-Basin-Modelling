@@ -82,6 +82,7 @@ void CrustFormation::initialise () {
       m_heatProductionMap->retrieveGhostedData ();
    }
 
+   setLayerElements ();
 }
 
 //------------------------------------------------------------//

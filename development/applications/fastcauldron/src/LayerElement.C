@@ -24,7 +24,6 @@ LayerElement::LayerElement () {
    int i;
 
    for ( i = 0; i < NumberOfBoundaries; ++i ) {
-      m_onDomainBoundary [ i ] = false;
       m_onProcessorBoundary [ i ] = false;
       m_neighbours [ i ] = 0;
       m_activeBoundary [ i ] = false;
@@ -51,7 +50,6 @@ LayerElement& LayerElement::operator= ( const LayerElement& element ) {
    int i;
 
    for ( i = 0; i < NumberOfBoundaries; ++i ) {
-      m_onDomainBoundary [ i ] = element.m_onDomainBoundary [ i ];
       m_onProcessorBoundary [ i ] = element.m_onProcessorBoundary [ i ];
       m_neighbours [ i ] = element.m_neighbours [ i ];
       m_activeBoundary [ i ] = element.m_activeBoundary [ i ];
@@ -89,12 +87,6 @@ void LayerElement::setPosition ( const int i,
 
 //------------------------------------------------------------//
 
-void LayerElement::setPosition ( const int globalK ) {
-   m_arrayPosition.set ( globalK );
-}
-
-//------------------------------------------------------------//
-
 void LayerElement::setNodePosition ( const int node,
                                       const int i,
                                       const int j,
@@ -102,21 +94,6 @@ void LayerElement::setNodePosition ( const int node,
 
 
    m_nodePositions ( node ).set ( i, j, localK );
-}
-
-//------------------------------------------------------------//
-
-void LayerElement::setNodePosition ( const int node,
-                                      const int globalK ) {
-
-   m_nodePositions ( node ).set ( globalK );
-}
-
-//------------------------------------------------------------//
-
-void LayerElement::setIsOnDomainBoundary ( const BoundaryId id,
-                                           const bool       value ) {
-   m_onDomainBoundary [ id ] = value;
 }
 
 //------------------------------------------------------------//
@@ -185,20 +162,11 @@ std::string LayerElement::image () const {
 
       for ( i = m_nodePositions.first (); i <= m_nodePositions.last (); ++i ) {
          buffer << m_nodePositions ( i ).image ();
-         // buffer << "{ " << m_nodePositions [ i ].i << ", "  << m_nodePositions [ i ].j << ", "  << m_nodePositions [ i ].localK << ", " << m_nodePositions [ i ].globalK << " } ";
 
          if ( i < m_nodePositions.last ()) {
             buffer << ", ";
          }
 
-      }
-
-      buffer << "}" << endl;
-
-      buffer << " On domain boundary: {";
-
-      for ( i = 0; i < NumberOfBoundaries; ++i ) {
-         buffer << ( m_onDomainBoundary [ i ] ? " TRUE" : "FALSE" ) << "  ";
       }
 
       buffer << "}" << endl;

@@ -77,12 +77,7 @@ namespace Basin_Modelling {
   Fundamental_Property operator++ ( Fundamental_Property& Property, const int Dummy );
 
 
-  const int Number_Of_Fundamental_Properties = int ( No_Property );
-
-  ///
-  /// Since we are using linear hexahedra elements, there are 8 nodes per element.
-  ///
-  const int Number_Of_Nodes = 8;
+  const int NumberOfFundamentalProperties = int ( No_Property );
 
 
   //------------------------------------------------------------//
@@ -134,7 +129,7 @@ namespace Basin_Modelling {
 
   private :
 
-    PetscScalar Properties [ Number_Of_Fundamental_Properties ];
+    PetscScalar Properties [ NumberOfFundamentalProperties ];
 
   }; // end class Property_Array
 
@@ -179,7 +174,7 @@ namespace Basin_Modelling {
 
   private :
 
-    Property_Position Entries [ Number_Of_Nodes ];
+    Property_Position Entries [ NumberOfElementNodes ];
 
   }; // end class Element_Positions
 
@@ -338,16 +333,13 @@ namespace Basin_Modelling {
                              Vec&            Previous_Property ) const;
 
 
-    PETSC_3D_Array Properties        [ Number_Of_Fundamental_Properties ];
-    Vec_Ptr        Vector_Properties [ Number_Of_Fundamental_Properties ];
-    bool           Property_Active   [ Number_Of_Fundamental_Properties ];
+    PETSC_3D_Array Properties        [ NumberOfFundamentalProperties ];
+    Vec_Ptr        Vector_Properties [ NumberOfFundamentalProperties ];
+    bool           Property_Active   [ NumberOfFundamentalProperties ];
 
     DA_Const_Ptr   Layer_DA;
-//      DA_Ptr         Layer_DA;
 
   }; // end class Fundamental_Property_Manager
-
-
 
   ///------------------------------------------------------------//
   ///
@@ -401,8 +393,10 @@ namespace Basin_Modelling {
   ///
   void deleteErosionFactorMaps ( AppCtx* basinModel );
 
+
   void collectAndSaveIsoValues(const double Current_Time, AppCtx *basinModel );
   void updateSedimentBottomSurfaceCurves(const double Current_Time, AppCtx *basinModel);
+
 
   void computeBasementLithostaticPressure ( AppCtx* basinModel,
 					    const double    age );
@@ -421,7 +415,7 @@ namespace Basin_Modelling {
 
 inline PetscScalar Basin_Modelling::Fundamental_Property_Manager::operator ()( const Fundamental_Property  Property, 
                                                                                const Mesh3DIndex&          index ) const {
-   return Properties [ Property ]( index.getLocalK (), index.getJ (), index.getI ());
+   return Properties [ Property ]( index.getK (), index.getJ (), index.getI ());
 }
 
 //------------------------------------------------------------//
@@ -437,7 +431,7 @@ inline PetscScalar Basin_Modelling::Fundamental_Property_Manager::operator () ( 
 
 inline PetscScalar& Basin_Modelling::Fundamental_Property_Manager::operator ()( const Fundamental_Property  Property, 
                                                                                 const Mesh3DIndex&          index ) {
-   return Properties [ Property ]( index.getLocalK (), index.getJ (), index.getI ());
+   return Properties [ Property ]( index.getK (), index.getJ (), index.getI ());
 }
 
 //------------------------------------------------------------//

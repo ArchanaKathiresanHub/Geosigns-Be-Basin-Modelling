@@ -127,7 +127,7 @@ public:
    /// \brief Set the activity of the layer elements.
    ///
    /// Both element and face activity is set.
-   void setLayerElementActivity ( const double age );
+   virtual void setLayerElementActivity ( const double age );
 
    /// \brief Return a constant reference to the array containing the layer elements.
    const LayerElementArray& getLayerElements () const;
@@ -475,6 +475,9 @@ public:
    double getChemicalCompactionVesValue() const;
 
  protected :
+
+   /// \brief Allocate array containing all the layer elements and set members that will not change, e.g. (i,j,k) position.
+   void setLayerElements ();
 
    bool Calculate_Chemical_Compaction;
    void extractGenexDataInterval ( const double startTime,

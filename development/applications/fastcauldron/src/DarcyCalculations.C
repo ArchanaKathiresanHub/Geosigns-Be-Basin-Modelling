@@ -264,7 +264,7 @@ void DarcyCalculations::applyOtgc ( FormationSubdomainElementGrid&      formatio
          if ( FastcauldronSimulator::getInstance ().getMapElement ( i, j ).isValid ()) {
 
             for ( k = formationGrid.firstK (); k <= formationGrid.lastK (); ++k ) {
-               SubdomainElement& element = formationGrid ( i, j, k );
+               SubdomainElement& element = formationGrid.getElement ( i, j, k );
                PVTComponents& concentration = layerConcentrations ( k, j, i );
                ImmobileSpeciesValues& immobiles = layerImmobileComponents ( k, j, i );
 
@@ -410,7 +410,7 @@ void DarcyCalculations::computeSourceTerm ( FormationSubdomainElementGrid& forma
          if ( FastcauldronSimulator::getInstance ().getMapElement ( i, j ).isValid ()) {
 
             for ( k = formationGrid.firstK (); k <= formationGrid.lastK (); ++k ) {
-               SubdomainElement& element = formationGrid ( i, j, k );
+               SubdomainElement& element = formationGrid.getElement ( i, j, k );
 
                if ( m_interpolateSourceTerm && sourceTermInterpolator != 0 ) {
                   PVTComponents& curSourceTerm = sourceTerm ( i, j, element.getK ());
@@ -441,7 +441,7 @@ void DarcyCalculations::computeSourceTerm ( FormationSubdomainElementGrid& forma
          } else {
 
             for ( k = formationGrid.firstK (); k <= formationGrid.lastK (); ++k ) {
-               sourceTerm ( i, j, formationGrid ( i, j, k ).getK ()).zero ();
+               sourceTerm ( i, j, formationGrid.getElement ( i, j, k ).getK ()).zero ();
             }
 
          }
@@ -521,7 +521,7 @@ int DarcyCalculations::flashComponents ( FormationSubdomainElementGrid& formatio
 
             for ( k = formationGrid.firstK (); k <= formationGrid.lastK (); ++k ) {
 
-               const SubdomainElement& element = formationGrid ( i, j, k );
+               const SubdomainElement& element = formationGrid.getElement ( i, j, k );
                unsigned int elementK = element.getK ();
 
                if ( element.getLayerElement ().isActive () and elementContainsHc ( element.getI (), element.getJ (), element.getK ())) {
@@ -574,7 +574,7 @@ int DarcyCalculations::flashComponents ( FormationSubdomainElementGrid& formatio
          } else {
 
             for ( k = formationGrid.firstK (); k <= formationGrid.lastK (); ++k ) {
-               const SubdomainElement& element = formationGrid ( i, j, k );
+               const SubdomainElement& element = formationGrid.getElement ( i, j, k );
 
                phaseComposition ( element.getI (), element.getJ (), element.getK ()).zero ();
                phaseDensities ( element.getI (), element.getJ (), element.getK ())( pvtFlash::LIQUID_PHASE ) = 1000.0;
@@ -650,7 +650,7 @@ void DarcyCalculations::setConcentrations ( FormationSubdomainElementGrid& forma
 
             for ( k = formationGrid.firstK (); k <= formationGrid.lastK (); ++k ) {
 
-               const SubdomainElement& element = formationGrid ( i, j, k );
+               const SubdomainElement& element = formationGrid.getElement ( i, j, k );
                unsigned int elementK = element.getK ();
 
                if ( element.getLayerElement ().isActive () and elementContainsHc ( element.getI (), element.getJ (), element.getK ())) {
@@ -928,7 +928,7 @@ void DarcyCalculations::setSaturations ( FormationSubdomainElementGrid& formatio
 
             for ( k = formationGrid.firstK (); k <= formationGrid.lastK (); ++k ) {
 
-               const SubdomainElement& element = formationGrid ( i, j, k );
+               const SubdomainElement& element = formationGrid.getElement ( i, j, k );
                unsigned int elementK = element.getK ();
 
                if ( element.getLayerElement ().isActive ()) {
@@ -1127,7 +1127,7 @@ void DarcyCalculations::setSaturations ( FormationSubdomainElementGrid& formatio
 
             for ( k = formationGrid.firstK (); k <= formationGrid.lastK (); ++k ) {
 
-               const SubdomainElement& element = formationGrid ( i, j, k );
+               const SubdomainElement& element = formationGrid.getElement ( i, j, k );
                elementK = element.getK ();
 
                if ( element.getLayerElement ().isActive () and elementContainsHc ( element.getI (), element.getJ (), element.getK ())) {
@@ -1153,7 +1153,7 @@ void DarcyCalculations::setSaturations ( FormationSubdomainElementGrid& formatio
          } else {
 
             for ( k = formationGrid.firstK (); k <= formationGrid.lastK (); ++k ) {
-               const SubdomainElement& element = formationGrid ( i, j, k );
+               const SubdomainElement& element = formationGrid.getElement ( i, j, k );
                saturations ( i, j, element.getK ()).initialise ();
             }
 
@@ -1231,7 +1231,7 @@ double DarcyCalculations::totalLayerHcMass ( FormationSubdomainElementGrid& form
          if ( FastcauldronSimulator::getInstance ().getMapElement ( i, j ).isValid ()) {
 
             for ( k = formationGrid.lastK (); k >= formationGrid.firstK (); --k ) {
-               SubdomainElement& element = formationGrid ( i, j, k );
+               SubdomainElement& element = formationGrid.getElement ( i, j, k );
                const LayerElement& layerElement = element.getLayerElement ();
 
                if ( layerElement.isActive ()) {
@@ -1573,7 +1573,7 @@ void DarcyCalculations::setTimeOfElementInvasion ( FormationSubdomainElementGrid
 
             for ( k = formationGrid.firstK (); k <= formationGrid.lastK (); ++k ) {
 
-               const SubdomainElement& element = formationGrid ( i, j, k );
+               const SubdomainElement& element = formationGrid.getElement ( i, j, k );
                unsigned int elementK = element.getK ();
 
                if ( element.getLayerElement ().isActive ()) {

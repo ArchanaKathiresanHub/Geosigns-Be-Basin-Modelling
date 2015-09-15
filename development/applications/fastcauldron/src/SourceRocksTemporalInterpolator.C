@@ -35,7 +35,7 @@ SourceRocksTemporalInterpolator::SourceRocksTemporalInterpolator ( Subdomain& su
             if ( FastcauldronSimulator::getInstance ().getMapElement ( i, j ).isValid ()) {
                
                for ( k = formationGrid.firstK (); k <= formationGrid.lastK (); ++k ) {
-                  stermInterpolator->initialize( formationGrid ( i, j, k ).getLayerElement() );
+                  stermInterpolator->initialize( formationGrid.getElement ( i, j, k ).getLayerElement() );
                }
             }
          }

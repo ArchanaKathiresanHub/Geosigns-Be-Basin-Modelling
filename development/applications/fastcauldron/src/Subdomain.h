@@ -7,10 +7,13 @@
 #include "FormationMapping.h"
 
 
+#include "globaldefs.h"
 #include "layer.h"
 #include "SubdomainElement.h"
 #include "ElementVolumeGrid.h"
 #include "NodalVolumeGrid.h"
+#include "StratigraphicColumn.h"
+#include "StratigraphicGrids.h"
 
 #include "FormationSubdomainElementGrid.h"
 
@@ -23,7 +26,7 @@ class Subdomain {
    /// \typedef FormationToElementGridMap
    /// \brief Mapping from a formation to formation-subdomain-element-grid.
    // Should eventually re-do the subdomain class to use the vector dorectly.
-   typedef FormationMapping FormationToElementGridMap;
+   typedef FormationMapping<FormationSubdomainElementGrid> FormationToElementGridMap;
 
 #if 0
    typedef std::map<const LayerProps*, FormationSubdomainElementGrid*> FormationToElementGridMap;
@@ -355,12 +358,6 @@ public :
    /// \name Subdomain formation access.
    //@{
 
-   // // Should this be removed?
-   // LayerList& getLayers ();
-
-   // // Should this be removed?
-   // const LayerList& getLayers () const;
-
    /// \brief Determine whether or not a formation is in this subdomain.
    bool hasLayer ( const LayerProps* formation ) const;
 
@@ -379,11 +376,6 @@ public :
    /// \name Grid creation and access.
    //@{
 
-   /// \brief Create a volume-grid with the number of dofs indicated and add it to the array of volume-grids.
-   ///
-   /// If volume-grid exists already then no action will be taken.
-   void createVolumeGrid ( const int numberOfDofs );
-
    /// \brief Return reference to ElementVolumeGrid with corresponding number of dofs.
    ///
    /// If the corresponding volume-grid does not exist then one will be created.
@@ -393,12 +385,6 @@ public :
    ///
    /// If the corresponding volume-grid does not exist then one will be created.
    const ElementVolumeGrid& getVolumeGrid ( const int numberOfDofs = 1 ) const;
-
-
-   /// \brief Create a node-grid with the number of dofs indicated and add it to the array of node-grids.
-   ///
-   /// If node-grid exists already then no action will be taken.
-   void createNodeGrid ( const int numberOfDofs );
 
    /// \brief Return reference to NodalGrid with corresponding number of dofs.
    ///
@@ -420,22 +406,6 @@ public :
 
 private :
 
-   /// \brief Allocate a new element-volume-grid with the number of dofs indicated and add it to the array of element-grids.
-   ///
-   /// If element-volume-grid exists already then no action will be taken.
-   /// This functions exists so as to have only a sungle function that allocates element-volume-grids.
-   /// It is const because one of the get-element-grid is const.
-   void allocateElementGrid ( const int numberOfDofs ) const;
-
-   /// \brief Allocate a new node-grid with the number of dofs indicated and add it to the array of node-grids.
-   ///
-   /// If node-grid exists already then no action will be taken.
-   /// This functions exists so as to have only a sungle function that allocates nodal-volume-grids.
-   /// It is const because one of the get-node-grid is const.
-   void allocateNodeGrid ( const int numberOfDofs ) const;
-
-   // Does nothing! Should be removed.
-   void initialise ( const int numberOfElements );
 
    /// \brief Determine if any source rock formations are active.
    bool determineSourceRockActivity () const;
@@ -474,10 +444,12 @@ private :
    /// \brief Determine if any source-rock layer contains sulphur.
    bool determineContainsSulphur () const;
 
+   /// \brief The stratigraphic column for this sub-domain.
+   StratigraphicColumn               m_column;
 
-   /// list of layers in the subdomain.
-   std::vector<LayerProps*>          m_layers;
-   // LayerList                      m_layers;
+   /// \brief Contains the node and elements grids for the current size sub-domain.
+   StratigraphicGrids                m_grids;
+
 
    /// Is any layer active.
    bool                           m_isActive;
@@ -491,12 +463,6 @@ private :
    /// Mapping from layer to formation-element-grid.
    FormationToElementGridMap      m_layerMap;
 
-   /// Array of element-volume-grids.
-   mutable ElementVolumeGridArray m_elementVolumeGrids;
-
-   /// Array of nodal-volume-grids.
-   mutable NodalVolumeGridArray   m_nodalGrids;
-
    /// Current age.
    double                         m_currentAge;
 
@@ -506,8 +472,8 @@ private :
    /// Mapping from subdomain-global-k to formation-element-grid.
    vector<FormationSubdomainElementGrid*> m_globalKToFormationGridMapping;
 
-   /// Vector containing the dof numbers for the scalar nodal grid.
-   Vec m_scalarDofNumbers;
+   /// \brief 3D array containing the dof numbers for the scalar nodal grid.
+   LocalIntegerArray3D               m_scalarDofNumbers;
 
    /// The maximum width of the stencil.
    // Get better description for this.
@@ -536,7 +502,7 @@ private :
 inline const SubdomainElement& Subdomain::getElement ( const int i,
                                                        const int j,
                                                        const int k ) const {
-   return (*m_globalKToFormationGridMapping [ k ])( i, j, m_globalKToLayerKMapping [ k ]);
+   return m_globalKToFormationGridMapping [ k ]->getElement ( i, j, m_globalKToLayerKMapping [ k ]);
 }
 
 //------------------------------------------------------------//

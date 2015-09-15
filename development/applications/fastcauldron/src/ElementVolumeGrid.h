@@ -15,6 +15,11 @@ public :
 
    ElementVolumeGrid ();
 
+   /// Construct the element volume grid.
+   ElementVolumeGrid ( const ElementGrid& grid,
+                       const int          numberOfZElements,
+                       const int          numberOfDofs );
+
    ~ElementVolumeGrid ();
 
 

@@ -5,11 +5,13 @@
 #include "LayerElement.h"
 #include "SubdomainElement.h"
 #include "BoundaryId.h"
+#include "FormationElementGrid.h"
 
-class LayerProps;
+#include "layer.h"
+
 
 /// \brief Class containing subdomain-elements for a formation.
-class FormationSubdomainElementGrid {
+class FormationSubdomainElementGrid : public FormationElementGrid <SubdomainElement>{
 
    /// \brief 3D-array of subdomain-elements.
    typedef PETSc_Local_3D_Array <SubdomainElement> FormationElementArray;
@@ -139,70 +141,50 @@ public :
                              const bool includeGhosts = false ) const;
 
 
-   /// \brief Get whether or not the formation is active.
-   bool isActive () const;
+   /// \brief Unhide the firstI function with no parameters.
+   using FormationElementGrid <SubdomainElement>::firstI;
 
-   /// \brief Get element at the specified location.
-   const SubdomainElement& operator ()( const int i,
-                                        const int j,
-                                        const int k ) const;
+   /// \brief Unhide the firstJ function with no parameters.
+   using FormationElementGrid <SubdomainElement>::firstJ;
 
-   /// \brief Get element at the specified location.
-   SubdomainElement& operator ()( const int i,
-                                  const int j,
-                                  const int k );
+   /// \brief Unhide the lastI function with no parameters.
+   using FormationElementGrid <SubdomainElement>::lastI;
+
+   /// \brief Unhide the lastJ function with no parameters.
+   using FormationElementGrid <SubdomainElement>::lastJ;
+
+   /// \brief Unhide the lengthI function with no parameters.
+   using FormationElementGrid <SubdomainElement>::lengthI;
+
+   /// \brief Unhide the lengthJ function with no parameters.
+   using FormationElementGrid <SubdomainElement>::lengthJ;
 
 
    /// \brief The first index in the x-direction.
    ///
    /// A closed interval [ firstI .. lastI ].
-   int firstI ( const bool includeGhosts = false ) const;
+   int firstI ( const bool includeGhosts ) const;
 
    /// \brief The first index in the y-direction.
    ///
    /// A closed interval [ firstJ .. lastJ ].
-   int firstJ ( const bool includeGhosts = false ) const;
-
-   /// \brief The first index in the z-direction.
-   ///
-   /// A closed interval [ firstK .. lastK ].
-   /// Counting starts from bottom up, i.e. firstK is the bottom element in the stack of elements.
-   /// There are no ghost-elements in the k-direction.
-   int firstK () const;
-
+   int firstJ ( const bool includeGhosts ) const;
 
    /// \brief The last index in the x-direction.
    ///
    /// A closed interval [ firstI .. lastI ].
-   int lastI ( const bool includeGhosts = false ) const;
+   int lastI ( const bool includeGhosts ) const;
 
    /// \brief The last index in the y-direction.
    ///
    /// A closed interval [ firstJ .. lastJ ].
-   int lastJ ( const bool includeGhosts = false ) const;
-
-   /// \brief The last index in the z-direction.
-   ///
-   ///
-   /// A closed interval [ firstK .. lastK ].
-   /// Counting starts from bottom up, i.e. lastK is the top element in the stack of elements.
-   /// There are no ghost-elements in the k-direction.
-   int lastK () const;
+   int lastJ ( const bool includeGhosts ) const;
 
    /// \brief The number of items in the I-dimension.
-   int lengthI ( const bool includeGhosts = false ) const;
+   int lengthI ( const bool includeGhosts ) const;
 
    /// \brief The number of items in the J-dimension.
-   int lengthJ ( const bool includeGhosts = false ) const;
-
-   /// \brief The number of items in the K-dimension.
-   int lengthK () const;
-
-   /// \brief Get the formation associated with this object.
-   LayerProps& getFormation ();
-
-   /// \brief Get the formation associated with this object.
-   const LayerProps& getFormation () const;
+   int lengthJ ( const bool includeGhosts ) const;
 
    /// Create a volume-grid with the number of dofs indicated and add it to the array of volume-grids.
    ///
@@ -218,22 +200,6 @@ public :
    ///
    /// If the corresponding volume-grid does not exist then one will be created.
    const ElementVolumeGrid& getVolumeGrid ( const int numberOfDofs = 1 ) const;
-
-private :
-
-
-   /// \brief Set the subdomain-elements with the layer-element.
-   void copyLayerElements ();
-
-   /// \brief Set the subdomain-element neighbours.
-   void linkElements ();
-
-
-   /// \brief The formation associated with an object.
-   LayerProps&           m_formation;
-
-   /// \brief The subdomain-elements for this object.
-   FormationElementArray m_elements;
 
 };
 
@@ -253,28 +219,6 @@ void FormationSubdomainElementGrid::initialiseIterator ( GenericElementIterator<
    iter.initialise ( this, includeGhosts );
 }
 
-// //------------------------------------------------------------//
-
-// inline bool FormationSubdomainElementGrid::isActive () const {
-//    return m_formation.isActive ();
-// }
-
-//------------------------------------------------------------//
-
-inline SubdomainElement& FormationSubdomainElementGrid::operator ()( const int i,
-                                                                     const int j,
-                                                                     const int k ) {
-   return m_elements ( i, j, k );
-}
-
-//------------------------------------------------------------//
-
-inline const SubdomainElement& FormationSubdomainElementGrid::operator ()( const int i,
-                                                                           const int j,
-                                                                           const int k ) const {
-   return m_elements ( i, j, k );
-}
-
 //------------------------------------------------------------//
 
 inline int FormationSubdomainElementGrid::firstI ( const bool includeGhosts ) const {
@@ -285,12 +229,6 @@ inline int FormationSubdomainElementGrid::firstI ( const bool includeGhosts ) co
 
 inline int FormationSubdomainElementGrid::firstJ ( const bool includeGhosts ) const {
    return m_elements.firstJ ( includeGhosts );
-}
-
-//------------------------------------------------------------//
-
-inline int FormationSubdomainElementGrid::firstK () const {
-   return m_elements.firstK ();
 }
 
 //------------------------------------------------------------//
@@ -307,11 +245,6 @@ inline int FormationSubdomainElementGrid::lastJ ( const bool includeGhosts ) con
 
 //------------------------------------------------------------//
 
-inline int FormationSubdomainElementGrid::lastK () const {
-   return m_elements.lastK ();
-}
-//------------------------------------------------------------//
-
 inline int FormationSubdomainElementGrid::lengthI ( const bool includeGhosts ) const {
    return lastI ( includeGhosts ) - firstI ( includeGhosts ) + 1;
 }
@@ -321,25 +254,6 @@ inline int FormationSubdomainElementGrid::lengthI ( const bool includeGhosts ) c
 inline int FormationSubdomainElementGrid::lengthJ ( const bool includeGhosts ) const {
    return lastJ ( includeGhosts ) - firstJ ( includeGhosts ) + 1;
 }
-//------------------------------------------------------------//
-
-
-inline int FormationSubdomainElementGrid::lengthK () const {
-   return lastK () - firstK () + 1;
-}
-
-
-// //------------------------------------------------------------//
-
-// inline LayerProps& FormationSubdomainElementGrid::getFormation () {
-//    return m_formation;
-// }
-
-// //------------------------------------------------------------//
-
-// inline const LayerProps& FormationSubdomainElementGrid::getFormation () const {
-//    return m_formation;
-// }
 
 //------------------------------------------------------------//
 

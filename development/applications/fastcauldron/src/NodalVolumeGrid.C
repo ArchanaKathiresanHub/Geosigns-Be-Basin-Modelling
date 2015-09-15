@@ -11,6 +11,19 @@ NodalVolumeGrid::NodalVolumeGrid () {
 
 //------------------------------------------------------------//
 
+NodalVolumeGrid::NodalVolumeGrid ( const NodalGrid& grid,
+                                   const int        numberOfZNodes,
+                                   const int        numberOfDofs ) {
+
+   m_xPartitioning = 0;
+   m_numberOfXProcessors = 0;
+   m_yPartitioning = 0;
+   m_numberOfYProcessors = 0;
+   construct ( grid, numberOfZNodes, numberOfDofs );
+}
+
+//------------------------------------------------------------//
+
 NodalVolumeGrid::~NodalVolumeGrid () {
 
    if ( m_xPartitioning != 0 ) {

@@ -3,11 +3,12 @@
 
 #include <set>
 
+#include <vector>
 #include <string>
 using std::string;
 
 #include "ghost_array.h"
-
+#include "Local3DArray.h"
 #include <assert.h>
 #include "array.h"
 
@@ -99,6 +100,9 @@ const int DefaultMassMatrixQuadratureDegree = 3;
 /// \brief The quadrature degree that is used when computing the interpolators.
 const int DarcyInterpolatorQuadratureDegree = 3;
 
+
+/// \brief The number of nodes that make up a hexahedral element.
+const int NumberOfElementNodes = 8;
 
 
 /// \var DepositingThicknessTolerance
@@ -430,7 +434,7 @@ enum CalculationMode {
   /// Fully-coupled PT with Darcy flow calculation.
   COUPLED_DARCY_MODE,
 
-  /// No calculaction selected.
+  /// No calculation selected.
   NO_CALCULATION_MODE };
 
 const int NumberOfCalculationModes = int ( NO_CALCULATION_MODE + 1 );
@@ -523,6 +527,14 @@ typedef PETSc_Local_2D_Array <bool> Boolean2DArray;
 
 typedef PETSc_Local_3D_Array <bool> Boolean3DArray;
 
+// Think about change this to the PETSc_Local_3D_Array?
+// Consider tidying up all the array types.
+typedef GeoPhysics::Local3DArray<bool> LocalBooleanArray3D;
+
+typedef GeoPhysics::Local3DArray<int> LocalIntegerArray3D;
+
+
+typedef std::vector<int> IntegerArray;
 
 #endif // GLOBALDEFS
  

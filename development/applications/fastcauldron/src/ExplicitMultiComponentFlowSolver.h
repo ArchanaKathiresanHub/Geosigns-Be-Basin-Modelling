@@ -51,7 +51,7 @@
 /// These are solved using an explicit method.
 class ExplicitMultiComponentFlowSolver {
 
-   typedef ConstrainedArray < bool, 0, Basin_Modelling::Number_Of_Fundamental_Properties - 1 > ConstrainedBooleanArray;
+   typedef ConstrainedArray < bool, 0, Basin_Modelling::NumberOfFundamentalProperties - 1 > ConstrainedBooleanArray;
 
    typedef std::vector<ConstrainedBooleanArray> ConstrainedBooleanArrayMap;
 

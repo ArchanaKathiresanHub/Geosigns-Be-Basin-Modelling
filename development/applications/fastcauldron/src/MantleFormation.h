@@ -58,6 +58,13 @@ public :
 
    const CompoundLithology* getLithology(const int iPosition, const int jPosition, const int kPosition ) const;
 
+   /// \brief Set the activity of the mantle layer elements.
+   ///
+   /// Both element and face activity is set.
+   /// Since the solid/real-thickness histories are not set for the mantle the depths 
+   /// will be used, which must therefore be defined before calling this.
+   virtual void setLayerElementActivity ( const double age );
+
    void setBasaltLitho (const int iPosition, const int jPosition, const int kPosition );
    bool getPreviousBasaltLitho(const int iPosition, const int jPosition, const int kPosition ); 
 

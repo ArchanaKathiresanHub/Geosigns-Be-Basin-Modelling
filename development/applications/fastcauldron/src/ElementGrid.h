@@ -49,6 +49,9 @@ public :
    /// This is a closed interval.
    int lastI ( const bool includeGhosts = false ) const;
 
+   /// \brief Get the number of elements in the x-dimension.
+   int lengthI ( const bool includeGhosts = false ) const;
+
    /// Get the local y-start position. 
    int firstJ ( const bool includeGhosts = false ) const;
 
@@ -56,6 +59,9 @@ public :
    ///
    /// This is a closed interval.
    int lastJ ( const bool includeGhosts = false ) const;
+
+   /// \brief Get the number of elements in the y-dimension.
+   int lengthJ ( const bool includeGhosts = false ) const;
 
    /// \brief Indicate whether or not the position (i, j) is part of the valid set of indices in the element-grid.
    ///
@@ -128,12 +134,20 @@ inline int ElementGrid::lastI ( const bool includeGhosts ) const {
    return ( includeGhosts ? m_localInfo.gxs + m_localInfo.gxm - 1 : m_localInfo.xs + m_localInfo.xm - 1 );
 }
 
+inline int ElementGrid::lengthI ( const bool includeGhosts ) const {
+   return lastI ( includeGhosts ) - firstI ( includeGhosts ) + 1;
+}
+
 inline int ElementGrid::firstJ ( const bool includeGhosts ) const {
    return ( includeGhosts ? m_localInfo.gys : m_localInfo.ys );
 }
 
 inline int ElementGrid::lastJ ( const bool includeGhosts ) const {
    return ( includeGhosts ? m_localInfo.gys + m_localInfo.gym - 1 : m_localInfo.ys + m_localInfo.ym - 1 );
+}
+
+inline int ElementGrid::lengthJ ( const bool includeGhosts ) const {
+   return lastJ ( includeGhosts ) - firstJ ( includeGhosts ) + 1;
 }
 
 inline bool ElementGrid::isInitialised () const {

@@ -10,6 +10,12 @@ public :
 
    NodalVolumeGrid ();
 
+   /// Construct the nodal-volume grid.
+   NodalVolumeGrid ( const NodalGrid& grid,
+                     const int        numberOfZNodes,
+                     const int        numberOfDofs );
+
+
    ~NodalVolumeGrid ();
 
 

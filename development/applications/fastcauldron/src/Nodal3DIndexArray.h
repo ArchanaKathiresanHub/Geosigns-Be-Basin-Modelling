@@ -23,8 +23,7 @@ public :
    int getJ ( const int position ) const;
 
    /// Get the K at the position, either local or global.
-   int getK ( const int  position,
-              const Mesh3DIndex::LocalityIndicator indicator = Mesh3DIndex::LOCAL ) const;
+   int getK ( const int  position ) const;
 
    /// Get the local-k at the position.
    int getLocalK ( const int position ) const;
@@ -66,17 +65,12 @@ inline int Nodal3DIndexArray::getJ ( const int position ) const {
    return m_nodalIndices [ position ].getJ ();
 }
 
-inline int Nodal3DIndexArray::getK ( const int  position,
-                                     const Mesh3DIndex::LocalityIndicator indicator ) const {
-   return m_nodalIndices [ position ].getK ( indicator );
+inline int Nodal3DIndexArray::getK ( const int  position ) const {
+   return m_nodalIndices [ position ].getK ();
 }
 
 inline int Nodal3DIndexArray::getLocalK ( const int position ) const {
-   return m_nodalIndices [ position ].getLocalK ();
-}
-
-inline int Nodal3DIndexArray::getGlobalK ( const int position ) const {
-   return m_nodalIndices [ position ].getGlobalK ();
+   return m_nodalIndices [ position ].getK ();
 }
 
 inline int Nodal3DIndexArray::first () const {

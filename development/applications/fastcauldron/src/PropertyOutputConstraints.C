@@ -464,7 +464,7 @@ PropertyOutputConstraints::PropertyOutputConstraints () {
       for ( calcMode = 0; calcMode < NumberOfCalculationModes; ++calcMode ) {
 
          if ( not s_outputPermitted [ property ][ calcMode ] and s_outputRequired [ property ][ calcMode ]) {
-            cout << setw ( 22 ) << propertyListName ( PropertyList ( property )) << "  " << CalculationModeImage [ calcMode ] << endl;
+            cout << setw ( 22 ) << propertyListName ( PropertyList ( property )) << "  " << getSimulationModeString ( calcMode ) << endl;
          }
 
       }
