@@ -25,7 +25,6 @@ struct BlockSizeStruct<const double> {
 
 /// Used to indicate which updating method is required.
 enum PETScUpdateMode { NO_UPDATE, UPDATE_EXCLUDING_GHOSTS, UPDATE_INCLUDING_GHOSTS };
-// enum PETScUpdateMode { UPDATE_EXCLUDING_GHOSTS, UPDATE_INCLUDING_GHOSTS };
 
 /// An interface class giving simplified access to DA global and local 
 /// vectors and arrays.
@@ -39,7 +38,6 @@ public :
    typedef BlockValueType ValueType;
 
    static const int BlockSize = BlockSizeStruct<BlockValueType>::result;
-   // static const int BlockSize = ValueType::BlockSize;
 
    /// \brief Default constructor.
    PetscBlockVector ();
@@ -90,12 +88,10 @@ public :
    ValueType& operator ()( const int k, const int j, const int i );
 
    /// \brief Return constant reference to the value-type at the index position.
-   const ValueType& operator ()( const Mesh3DIndex& index,
-                                 const Mesh3DIndex::LocalityIndicator locality = Mesh3DIndex::LOCAL ) const;
+   const ValueType& operator ()( const Mesh3DIndex& index ) const;
 
    /// \brief Return reference to the value-type at the index position.
-   ValueType& operator ()( const Mesh3DIndex& index,
-                           const Mesh3DIndex::LocalityIndicator locality = Mesh3DIndex::LOCAL );
+   ValueType& operator ()( const Mesh3DIndex& index );
 
 
    /// \brief Get the local x-start position. 
@@ -311,9 +307,6 @@ void PetscBlockVector<BlockValueType>::restoreVector ( const PETScUpdateMode upd
 
            case UPDATE_INCLUDING_GHOSTS :
 
-              // DAVecRestoreArray    ( m_da, m_localVector, &m_values );
-              // DALocalToGlobalBegin ( m_da, m_localVector,  m_globalVector );
-
               //  Petsc 3.3: Should the ghosted locations be zero in global vector????
               DMLocalToGlobalBegin ( m_da, m_localVector, ADD_VALUES,  m_globalVector );
               DMLocalToGlobalEnd   ( m_da, m_localVector, ADD_VALUES, m_globalVector );
@@ -332,88 +325,9 @@ void PetscBlockVector<BlockValueType>::restoreVector ( const PETScUpdateMode upd
       DMRestoreLocalVector ( m_da, &m_localVector );
    }
 
-   // if ( m_globalVector != m_localVector ) {
-   //    DARestoreLocalVector ( m_da, &m_localVector );
-   // }
-
    m_dataRestored = true;
    m_values = 0;
 }
-
-
-// template<typename BlockValueType>
-// void PetscBlockVector<BlockValueType>::restoreVector ( const PETScUpdateMode updateMode ) {
-
-//    DAVecRestoreArray ( m_da, m_localVector, &m_values );
-
-//    switch ( updateMode ) {
-
-//       case NO_UPDATE :
-
-//          break;
-   
-//       case UPDATE_EXCLUDING_GHOSTS :
-
-//          // Should the mode here be the same as that used when setting the global vector?
-//          DALocalToGlobal ( m_da, m_localVector, INSERT_VALUES, m_globalVector );
-//          break;
-
-//       case UPDATE_INCLUDING_GHOSTS :
-
-//          // DAVecRestoreArray    ( m_da, m_localVector, &m_values );
-//          DALocalToGlobalBegin ( m_da, m_localVector, m_globalVector );
-//          DALocalToGlobalEnd   ( m_da, m_localVector, m_globalVector );
-//          break;
-
-//       default :
-      
-//          PetscPrintf ( PETSC_COMM_WORLD, " WARNING: Update Method not recognized in PETSCBlockVector::restoreGlobalVector\n" );
-//          break;
-
-//    }
-
-//    if ( m_globalVector != m_localVector ) {
-//       DARestoreLocalVector ( m_da, &m_localVector );
-//    }
-
-//    m_dataRestored = true;
-//    m_values = 0;
-// }
-
-//------------------------------------------------------------//
-
-// template<typename BlockValueType>
-// void PetscBlockVector<BlockValueType>::restoreVector ( const PETScUpdateMode updateMode ) {
-
-//    switch ( updateMode ) {
-
-//       case UPDATE_EXCLUDING_GHOSTS :
-
-//          // Should the mode here be the same as that used when setting the global vector?
-//          DAVecRestoreArray ( m_da, m_localVector, &m_values );
-//          break;
-
-//       case UPDATE_INCLUDING_GHOSTS :
-
-//          DAVecRestoreArray    ( m_da, m_localVector, &m_values );
-//          DALocalToGlobalBegin ( m_da, m_localVector, m_globalVector );
-//          DALocalToGlobalEnd   ( m_da, m_localVector, m_globalVector );
-//          break;
-
-//       default :
-      
-//          PetscPrintf ( PETSC_COMM_WORLD, " WARNING: Update Method not recognized in PETSCBlockVector::restoreGlobalVector\n" );
-//          break;
-
-//    }
-
-//    if ( m_globalVector != m_localVector ) {
-//       DARestoreLocalVector ( m_da, &m_localVector );
-//    }
-
-//    m_dataRestored = true;
-//    m_values = 0;
-// }
 
 //------------------------------------------------------------//
 
@@ -432,17 +346,15 @@ inline typename PetscBlockVector<BlockValueType>::ValueType& PetscBlockVector<Bl
 //------------------------------------------------------------//
 
 template<typename BlockValueType>
-inline const typename PetscBlockVector<BlockValueType>::ValueType& PetscBlockVector<BlockValueType>::operator ()( const Mesh3DIndex& index,
-                                                                                                                  const Mesh3DIndex::LocalityIndicator locality ) const {
-   return m_values [ index.getK ( locality )][ index.getJ ()][ index.getI ()];
+inline const typename PetscBlockVector<BlockValueType>::ValueType& PetscBlockVector<BlockValueType>::operator ()( const Mesh3DIndex& index ) const {
+   return m_values [ index.getK ()][ index.getJ ()][ index.getI ()];
 }
 
 //------------------------------------------------------------//
 
 template<typename BlockValueType>
-inline typename PetscBlockVector<BlockValueType>::ValueType& PetscBlockVector<BlockValueType>::operator ()( const Mesh3DIndex& index,
-                                                                                                            const Mesh3DIndex::LocalityIndicator locality ) {
-   return m_values [ index.getK ( locality )][ index.getJ ()][ index.getI ()];
+inline typename PetscBlockVector<BlockValueType>::ValueType& PetscBlockVector<BlockValueType>::operator ()( const Mesh3DIndex& index ) {
+   return m_values [ index.getK ()][ index.getJ ()][ index.getI ()];
 }
 
 //------------------------------------------------------------//

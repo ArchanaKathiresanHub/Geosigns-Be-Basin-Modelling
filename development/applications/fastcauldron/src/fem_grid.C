@@ -2016,23 +2016,14 @@ void Basin_Modelling::FEM_Grid::Construct_FEM_Grid ( const double               
   basinModel->SetIncludedNodeArrays ();
 
   setDOFs ();
-
   setLayerElements ( Current_Time );
-
-
-  if ( basinModel -> DoOverPressure || basinModel -> Do_Iteratively_Coupled ) {
-     pressureSolver->setLayerElements ( Pressure_FEM_Grid,
-                                        Pressure_DOF_Numbers );
-  } 
-
 }
 
 //------------------------------------------------------------//
 
 void Basin_Modelling::FEM_Grid::setLayerElements ( const double age ) {
 
-   Layer_Iterator basinLayers ( basinModel->layers, Descending, Sediments_Only, Active_And_Inactive_Layers );
-   // Layer_Iterator basinLayers ( basinModel->layers, Descending, Sediments_Only, Active_Layers_Only );
+   Layer_Iterator basinLayers ( basinModel->layers, Descending, Basement_And_Sediments, Active_And_Inactive_Layers );
    LayerProps_Ptr currentLayer;
 
    while ( not basinLayers.Iteration_Is_Done ()) {
@@ -2047,26 +2038,21 @@ void Basin_Modelling::FEM_Grid::setLayerElements ( const double age ) {
 
 void Basin_Modelling::FEM_Grid::integrateChemicalCompaction( const double PreviousTime, const double CurrentTime )
 {
-	//The chemical compaction is computed only if the global boolean is true
-	if ( basinModel -> Do_Chemical_Compaction ) {
-		//Get the data from the fem_grid objects
-		m_chemicalCompactionGrid       -> addLayers(
-				basinModel->mapDA,
-				basinModel->layers,
-				basinModel->getValidNeedles(),
-				PreviousTime,
-				CurrentTime
-		);
+   //The chemical compaction is computed only if the global boolean is true
+   if ( basinModel -> Do_Chemical_Compaction ) {
+      //Get the data from the fem_grid objects
+      m_chemicalCompactionGrid->addLayers ( basinModel->mapDA,
+                                            basinModel->layers,
+                                            basinModel->getValidNeedles(),
+                                            PreviousTime,
+                                            CurrentTime );
 
-		m_chemicalCompactionCalculator -> computeOnTimeStep(
-				*m_chemicalCompactionGrid
-		);
+      m_chemicalCompactionCalculator->computeOnTimeStep( *m_chemicalCompactionGrid );
 
-		m_chemicalCompactionGrid       -> exportToModel(
-				basinModel->layers,
-				basinModel->getValidNeedles()
-		);
-	}
+      m_chemicalCompactionGrid->exportToModel ( basinModel->layers,
+                                                basinModel->getValidNeedles());
+   }
+
 }
 
 //------------------------------------------------------------//
@@ -3972,6 +3958,7 @@ void Basin_Modelling::FEM_Grid::Print_Needle ( const double currentAge, const in
                       << setw ( 14 ) << 0.0 << setw ( 14 ) << 0.0 << setw ( 14 ) << 0.0
                       << setw ( 14 ) << 0.0 << setw ( 14 ) << 0.0 << setw ( 14 ) << 0.0;
             }
+
             buffer << endl;
           }
 
