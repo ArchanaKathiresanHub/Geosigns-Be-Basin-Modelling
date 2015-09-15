@@ -157,10 +157,6 @@ public :
                                   Double_Array_2D& Depth_Above,
                             const Boolean2DArray&  Valid_Needle );
 
-   void setLayerElements ( const DM  femGrid,
-                           const Vec dofNumbers );
-
-
 protected :
 
    static int PlaneQuadratureDegrees [ NumberOfOptimisationLevels ];
