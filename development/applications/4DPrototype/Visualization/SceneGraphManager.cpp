@@ -202,71 +202,55 @@ namespace
     return colorMapping;
   }
 
+  // A PersistentTrapIdProperty consists of the values of the ResRockTrapId property, combined with
+  // a translation table to convert the regular trap ids to persistent trap ids. This function builds
+  // the translation table, gets the ResRockTrapId values, and creates the PersistentTrapIdProperty.
   std::shared_ptr<PersistentTrapIdProperty> createPersistentTrapIdProperty(
     const di::Property* trapIdProperty, const di::Reservoir* reservoir, const di::Snapshot* snapshot)
   {
     di::ProjectHandle* handle = snapshot->getProjectHandle();
 
     // Create a mapping from id -> persistentId for all traps in this snapshot
-    std::vector<std::tuple<unsigned int, unsigned int> > idmap;
-    std::unique_ptr<di::TrapList> traps(handle->getTraps(reservoir, snapshot, 0));
-    for (auto trap : *traps)
-    {
-      unsigned int id = trap->getId();
-      const di::Trapper* trapper = handle->findTrapper(reservoir, snapshot, id, 0);
-      if (trapper)
-      {
-        unsigned int persistentId = trapper->getPersistentId();
-        idmap.push_back(std::make_tuple(id, persistentId));
-      }
-    }
-
-    if (idmap.empty())
+    std::unique_ptr<di::TrapperList> trappers(handle->getTrappers(reservoir, snapshot, 0, 0));
+    if (trappers->empty())
       return nullptr;
 
-    std::sort(idmap.begin(), idmap.end());
+    // Sort on id
+    std::sort(trappers->begin(), trappers->end(),
+      [](const di::Trapper* t1, const di::Trapper* t2) { return t1->getId() < t2->getId(); });
 
     // Create translation table
-    unsigned int minId = std::get<0>(idmap[0]);
-    unsigned int maxId = std::get<0>(idmap[idmap.size() - 1]);
+    unsigned int minId = (*trappers)[0]->getId();
+    unsigned int maxId = (*trappers)[trappers->size() - 1]->getId();
     unsigned int index = 0;
     std::vector<unsigned int> table;
-    for (unsigned int i = minId; i <= maxId; ++i)
+    for (unsigned int id = minId; id <= maxId; ++id)
     {
-      if (i == std::get<0>(idmap[index]))
-        table.push_back(std::get<1>(idmap[index++]));
+      if (id == (*trappers)[index]->getId())
+        table.push_back((*trappers)[index++]->getPersistentId());
       else
-        table.push_back(0);
+        table.push_back(0); // add 0 if there is no trapper with this id
     }
 
-    std::unique_ptr<di::PropertyValueList> trapIdValues(trapIdProperty->getPropertyValues(di::RESERVOIR, snapshot, reservoir, 0, 0));
-    if (!trapIdValues || trapIdValues->empty())
+    // Get the property values
+    std::unique_ptr<di::PropertyValueList> trapIdValues(
+      trapIdProperty->getPropertyValues(di::RESERVOIR, snapshot, reservoir, 0, 0));
+    if (trapIdValues->empty())
       return nullptr;
 
     const di::GridMap* trapIds = (*trapIdValues)[0]->getGridMap();
-
     return std::make_shared<PersistentTrapIdProperty>(trapIds, table, minId);
   }
 
+  // Utility function to get the maximum persistent trap id. This is useful for constructing
+  // a colormap for the trap id property.
   unsigned int getMaxPersistentTrapId(const di::ProjectHandle* handle)
   {
     unsigned int maxPersistentId = 0;
 
-    std::unique_ptr<di::SnapshotList> snapshots(handle->getSnapshots());
-    for (auto snapshot : *snapshots)
-    {
-      // Create a mapping from id -> persistentId for all traps in this snapshot
-      std::unique_ptr<di::TrapList> traps(handle->getTraps(nullptr, nullptr, 0));
-      for (auto trap : *traps)
-      {
-        const di::Trapper* trapper = handle->findTrapper(trap->getReservoir(), trap->getSnapshot(), trap->getId(), 0);
-        if (!trapper)
-          continue;
-
-        unsigned int persistentId = trapper->getPersistentId();
-        maxPersistentId = std::max(maxPersistentId, persistentId);
-      }
-    }
+    std::unique_ptr<di::TrapperList> trappers(handle->getTrappers(nullptr, nullptr, 0, 0));
+    for (auto trapper : *trappers)
+      maxPersistentId = std::max(maxPersistentId, trapper->getPersistentId());
 
     return maxPersistentId;
   }

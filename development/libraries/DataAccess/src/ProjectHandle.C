@@ -4927,6 +4927,25 @@ Interface::Trapper * ProjectHandle::findTrapper( const Interface::Reservoir * re
    return findTrapper( m_trappers, reservoir, snapshot, id, persistentId );
 }
 
+Interface::TrapperList* ProjectHandle::getTrappers(const Interface::Reservoir* reservoir, 
+  const Interface::Snapshot* snapshot, unsigned int id, unsigned int persistentId) const
+{
+  Interface::TrapperList* trapperList = new Interface::TrapperList;
+
+  Interface::MutableTrapperList::const_iterator trapperIter;
+
+  for (trapperIter = m_trappers.begin(); trapperIter != m_trappers.end(); ++trapperIter)
+  {
+    Trapper * trapper = *trapperIter;
+
+    if (trapper->matchesConditions(reservoir, snapshot, id, persistentId))
+      trapperList->push_back(trapper);
+  }
+
+  return trapperList;
+}
+
+
 void ProjectHandle::deleteTimeOutputProperties() {
 
    MutableOutputPropertyList::const_iterator propIter;

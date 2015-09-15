@@ -280,6 +280,11 @@ namespace DataAccess
          virtual Trapper * findTrapper( const Reservoir * reservoir,
             const Snapshot * snapshot, unsigned int id, unsigned int persistentId ) const;
 
+         // return a list of Trapper objects based on the given arguments.
+         // if an argument equals 0, it is used as a wildcard.  
+         virtual TrapperList* getTrappers(const Reservoir* reservoir,
+           const Snapshot* snapshot, unsigned int id, unsigned int persistentId) const;
+
          /// return a Trap that meets the given condition arguments.
          /// If an argument equals 0, it is used as a wildcard.
          /// If all arguments are non-0, at most one trap can meet the conditions.
