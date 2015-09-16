@@ -33,6 +33,14 @@
 
 /// \brief The domain on which the coupled, pressure or temperature equations will be solved.
 ///
+/// For the age that has been assigned a computational domain object will contain:
+///    1. The number of active nodes for this rank;
+///    2. The number of active nodes for all ranks;
+///    3. The number of active elements for this rank;
+///    4. A list containing the active elements for this rank.
+///
+/// Each active node will have a unique global dof number.
+///
 /// For PETSc DM objects the counting starts with 0 at the bottom of each needle and counts upwards.
 class ComputationalDomain {
 
@@ -72,34 +80,49 @@ public :
    /// \brief Reset the ComputationalDomain to the new age.
    ///
    /// This will update the DOF numbers, active elements, ...
-   /// \param [in] age The age to which the domain should be set.
+   /// \param [in] age     The age to which the domain should be set.
+   /// \param [in] verbose Control how much output to be printed.
    void resetAge ( const double age,
                    const bool   verbose = false );
 
    /// \brief Return the current age of the computational domain.
    double getCurrentAge () const;
 
+
+   /// \brief Return the first dof number for this process.
+   int getLocalStartDof () const;
+
    /// \brief Return the number of active nodes for the rank.
-   int getNumberOfActiveNodes () const;
+   int getLocalNumberOfActiveNodes () const;
+
+   /// \brief Return the number of active nodes for all ranks.
+   int getGlobalNumberOfActiveNodes () const;
+
 
    /// \brief Return the number of active elements for the rank.
-   int getNumberOfActiveElements () const;
+   int getLocalNumberOfActiveElements () const;
 
    /// \brief Get a const reference to element at position i.
    ///
    /// Only active elements that are local to the rank will be returned here.
+   /// \param [in] i The index of the element required.
+   /// \pre i should be in the half open interval [0,getLocalNumberOfActiveElements ())
    const GeneralElement& getElement ( const size_t i ) const;
 
    /// \brief Get a reference to element at position i.
    ///
    /// Only active elements that are local to the rank will be returned here.
+   /// \param [in] i The index of the element required.
+   /// \pre i should be in the half open interval [0,getLocalNumberOfActiveElements ())
    GeneralElement& getElement ( const size_t i );
+
 
    /// \brief Get the stratigraphic column for the computational domain.
    const StratigraphicColumn& getStratigraphicColumn () const;
 
    /// \brief Get access to node grids for this computational domain.
    const StratigraphicGrids& getStratigraphicGrids () const;
+
 
    /// \brief Get 3 dimensional array of node activity.
    ///
@@ -155,9 +178,15 @@ private :
    void setElementNodeKValues ( const bool verbose );
 
    /// \brief Determines all active elements that are local to the mpi rank.
-   void determineActiveElements (const bool verbose );
+   ///
+   /// This is achieved by looping over all element in the domain and using the activity
+   /// predicate to determine if the element is considered active.
+   void determineActiveElements ( const bool verbose );
 
    /// \brief Determines all active nodes that are both local to the mpi rank and its ghost nodes.
+   ///
+   /// Once all the active element has been determined: for each active element loop over all
+   /// nodes to find the set of active nodes. The node may be owned by another process.
    void determineActiveNodes ( const bool verbose );
 
    /// \brief Assign the global dof number to the nodes of every active element.
@@ -219,7 +248,7 @@ private :
    int                               m_maximumNumberOfElements;
 
    /// \brief Array of number of active nodes on al processes.
-   std::vector<int>                  m_numberOfActiveNodesPerProcess;
+   IntegerArray                      m_numberOfActiveNodesPerProcess;
 
    /// \brief The rank on which this part of the computational domain lies.
    int                               m_rank;
@@ -241,11 +270,15 @@ inline double ComputationalDomain::getCurrentAge () const {
    return m_currentAge;
 }
 
-inline int ComputationalDomain::getNumberOfActiveElements () const {
+inline int ComputationalDomain::getLocalNumberOfActiveElements () const {
    return m_activeElements.size ();
 }
 
-inline int ComputationalDomain::getNumberOfActiveNodes () const {
+inline int ComputationalDomain::getLocalStartDof () const {
+   return m_localStartDofNumber;
+}
+
+inline int ComputationalDomain::getLocalNumberOfActiveNodes () const {
    return m_numberOfActiveNodesPerProcess [ m_rank ];
 }
 

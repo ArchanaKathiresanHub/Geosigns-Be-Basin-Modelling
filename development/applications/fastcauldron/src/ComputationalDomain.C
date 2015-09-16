@@ -9,22 +9,21 @@
 // 
 #include "ComputationalDomain.h"
 
+// Access STL library.
 #include <algorithm>
 #include <numeric>
-
 #include <iostream>
 #include <sstream>
-using namespace std;
 
+// Access utilities library.
 #include "NumericFunctions.h"
 
-#include "Lithology.h"
-
+// Access to fastcauldron application code.
 #include "FastcauldronSimulator.h"
-#include "propinterface.h"
-#include "PetscBlockVector.h"
-
 #include "LayerElement.h"
+#include "Lithology.h"
+#include "PetscBlockVector.h"
+#include "propinterface.h"
 
 //------------------------------------------------------------//
 
@@ -79,6 +78,12 @@ ComputationalDomain::~ComputationalDomain () {
       VecDestroy ( &m_globalDofNumbers );
    }
    
+}
+
+//------------------------------------------------------------//
+
+int ComputationalDomain::getGlobalNumberOfActiveNodes () const {
+   return std::accumulate ( m_numberOfActiveNodesPerProcess.begin (), m_numberOfActiveNodesPerProcess.end (), 0 );
 }
 
 //------------------------------------------------------------//
@@ -243,18 +248,18 @@ void ComputationalDomain::numberNodeDofs ( const bool verbose ) {
    }
 
    if ( verbose ) {
-      stringstream buffer;
+      std::stringstream buffer;
 
-      buffer << " numberNodeDofs " << activeSegments << "  " << inactiveSegments << endl;
+      buffer << " numberNodeDofs " << activeSegments << "  " << inactiveSegments << std::endl;
       PetscSynchronizedPrintf ( PETSC_COMM_WORLD, buffer.str ().c_str ());
       PetscSynchronizedFlush ( PETSC_COMM_WORLD );
 
       if ( fc.getCauldron ()->debug1 ) {
          double globalStencilWidth;
          double localStencilWidth = static_cast<double>( maximumDegenerateSegments );
-         int stencilWidth 
+         int stencilWidth;
 
-            MPI_Allreduce( &localStencilWidth, &globalStencilWidth, 1, MPI_DOUBLE, MPI_MAX, PETSC_COMM_WORLD);
+         MPI_Allreduce( &localStencilWidth, &globalStencilWidth, 1, MPI_DOUBLE, MPI_MAX, PETSC_COMM_WORLD);
          stencilWidth = static_cast<int>(globalStencilWidth);
          PetscPrintf ( PETSC_COMM_WORLD, " Maximum number of degenerate segments: %d \n", stencilWidth );
       }
@@ -317,7 +322,7 @@ void ComputationalDomain::numberGlobalDofs ( const bool verbose ) {
    }
 
    if ( verbose and m_rank + 1 == FastcauldronSimulator::getInstance ().getSize ()) {
-      cout << " Total number of dofs : " << globalDofNumber << endl;
+      std::cout << " Total number of dofs : " << globalDofNumber << std::endl;
    }
 
    dof.restoreVector ( UPDATE_EXCLUDING_GHOSTS );
@@ -393,7 +398,9 @@ void ComputationalDomain::resetAge ( const double age,
    setElementNodeKValues ( verbose );
    determineActiveElements ( verbose );
    determineActiveNodes ( verbose );
+   // Now that the active/inactive nodes have been determined and counted the active nodes can be numbered.
    numberGlobalDofs ( verbose );
+   // Now for each active element assign the global dof numbers.
    getElementGobalDofNumbers ();
 }
 
@@ -442,7 +449,8 @@ void ComputationalDomain::setElementNodeKValues ( const bool verbose ) {
 void ComputationalDomain::determineActiveElements ( const bool verbose ) {
 
    m_activeElements.clear ();
-   // Is it worth counting the number of elements that are active to allocate the exact sze of the list required.
+   // Allocate sufficient memory to contain all active elements.
+   // Is it worth counting the number of elements that are active to allocate the exact sze of the list required?
    m_activeElements.reserve ( m_maximumNumberOfElements );
    int activeElementCount;
 
@@ -474,6 +482,7 @@ void ComputationalDomain::determineActiveElements ( const bool verbose ) {
             // Print line for each MPI process.
             PetscSynchronizedPrintf ( PETSC_COMM_WORLD, " number active elements for layer %s is %d\n", m_column.getLayer ( l )->getName ().c_str (), activeElementCount );
          }
+
       }
 
    }
@@ -525,7 +534,8 @@ void ComputationalDomain::determineActiveNodes ( const bool verbose ) {
    for ( unsigned int i = nodeGrid.firstI ( true ); i <= nodeGrid.lastI ( true ); ++i ) {
 
       for ( unsigned int j = nodeGrid.firstJ ( true ); j <= nodeGrid.lastJ ( true ); ++j ) {
-         bool localNode = NumericFunctions::inRange<unsigned int> ( i, nodeGrid.firstI (), nodeGrid.lastI ()) and NumericFunctions::inRange<unsigned int> ( j, nodeGrid.firstJ (), nodeGrid.lastJ ());
+         bool localNode = NumericFunctions::inRange<unsigned int> ( i, nodeGrid.firstI (), nodeGrid.lastI ()) and
+                          NumericFunctions::inRange<unsigned int> ( j, nodeGrid.firstJ (), nodeGrid.lastJ ());
 
          for ( unsigned int k = m_activeNodes.first ( 2 ); k <= m_activeNodes.last ( 2 ); ++k ) {
 
@@ -547,7 +557,8 @@ void ComputationalDomain::determineActiveNodes ( const bool verbose ) {
    }
 
    if ( verbose ) {
-      stringstream buffer;
+      std::stringstream buffer;
+
       buffer << " There are " << m_rank << ":  " << activeNodeCount << " active nodes "  << inactiveNodes << endl;
       PetscSynchronizedPrintf ( PETSC_COMM_WORLD, buffer.str ().c_str ());
       PetscSynchronizedFlush ( PETSC_COMM_WORLD );
@@ -572,7 +583,7 @@ void ComputationalDomain::determineActiveNodes ( const bool verbose ) {
    }
 
    if ( verbose ) {
-      stringstream buffer;
+      std::stringstream buffer;
 
       buffer << " local start dof " << m_rank
              << ":  " << activeNodeCount << "  " << m_localStartDofNumber << "  "

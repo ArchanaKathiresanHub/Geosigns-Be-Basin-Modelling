@@ -1,3 +1,12 @@
+//                                                                      
+// Copyright (C) 2015 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
 #include "VtkMeshWriter.h"
 
 #include <sstream>
@@ -14,7 +23,8 @@ VtkMeshWriter::VtkMeshWriter () :
 
 
 void VtkMeshWriter::save ( const ComputationalDomain& domain,
-                           const std::string&         fileName ) const {
+                           const std::string&         fileName,
+                           const bool                 useProjectOrigin ) const {
 
    IntegerArray numberOfActiveNodes;
    IntegerArray numberOfActiveElements;
@@ -39,7 +49,7 @@ void VtkMeshWriter::save ( const ComputationalDomain& domain,
       allElementLayerIds.resize ( totalNumberOfElements );
    }
 
-   getLocalNodes ( domain, localNodes );
+   getLocalNodes ( domain, localNodes, useProjectOrigin );
    gatherAllNodes ( localNodes, numberOfActiveNodes, allNodes );
 
    getLocalElementDofs ( domain, localElementDofs );
@@ -132,24 +142,27 @@ void VtkMeshWriter::getNumberOfActiveNodesAndElements ( const ComputationalDomai
 
    int value;
 
-   value = domain.getNumberOfActiveNodes ();
+   value = domain.getLocalNumberOfActiveNodes ();
    MPI_Allgather ( &value, 1, MPI_INT, numberOfActiveNodes.data (), 1, MPI_INT, PETSC_COMM_WORLD );
 
-   value = domain.getNumberOfActiveElements ();
+   value = domain.getLocalNumberOfActiveElements ();
    MPI_Allgather ( &value, 1, MPI_INT, numberOfActiveElements.data (), 1, MPI_INT, PETSC_COMM_WORLD );
 
 }
 
 void VtkMeshWriter::getLocalNodes ( const ComputationalDomain& domain,
-                                    DoubleArray&               activeNodes ) const {
+                                    DoubleArray&               activeNodes,
+                                    const bool                 useProjectOrigin ) const {
 
    const FastcauldronSimulator& fc = FastcauldronSimulator::getInstance ();
    const StratigraphicColumn& stratigraphicColumn = domain.getStratigraphicColumn ();
 
    double deltaX = fc.getCauldronGridDescription ().deltaI;
    double deltaY = fc.getCauldronGridDescription ().deltaJ;
-   double originX = fc.getCauldronGridDescription ().originI + fc.firstI () * deltaX;
-   double originY = fc.getCauldronGridDescription ().originJ + fc.firstJ () * deltaY;
+
+   double originX = fc.firstI () * deltaX + ( useProjectOrigin ? fc.getCauldronGridDescription ().originI : 0.0 );
+   double originY = fc.firstJ () * deltaY + ( useProjectOrigin ? fc.getCauldronGridDescription ().originJ : 0.0 );
+
    double x;
    double y;
    double z;
@@ -224,7 +237,7 @@ void VtkMeshWriter::getLocalElementDofs ( const ComputationalDomain& domain,
 
    int count = 0;
 
-   for ( int i = 0; i < domain.getNumberOfActiveElements (); ++i ) {
+   for ( int i = 0; i < domain.getLocalNumberOfActiveElements (); ++i ) {
       const GeneralElement& element = domain.getElement ( i );
 
       for ( int j = 0; j < NodesPerElement; ++j, ++count ) {
@@ -243,7 +256,7 @@ void VtkMeshWriter::getLocalElementLayerIds ( const ComputationalDomain& domain,
 
    int count = 0;
 
-   for ( int i = 0; i < domain.getNumberOfActiveElements (); ++i ) {
+   for ( int i = 0; i < domain.getLocalNumberOfActiveElements (); ++i ) {
       const GeneralElement& element = domain.getElement ( i );
       size_t value = stratigraphicColumn.getLayerIndex ( element.getLayerElement ().getFormation ());
 

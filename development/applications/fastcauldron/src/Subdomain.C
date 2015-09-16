@@ -305,10 +305,6 @@ void Subdomain::resizeGrids ( const int elementCount,
       return;
    }
 
-   unsigned int i;
-   bool resizeDofVector = m_grids.getNumberOfNodes () != nodeCount;
-   PetscBool isValid;
-
    m_grids.resizeGrids ( elementCount, nodeCount );
    m_scalarDofNumbers.reallocate ( FastcauldronSimulator::getInstance ().getActivityOutputGrid (), nodeCount );
 }

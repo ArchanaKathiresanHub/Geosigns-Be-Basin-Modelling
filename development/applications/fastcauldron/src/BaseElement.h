@@ -51,16 +51,29 @@ public :
    //@{
 
    /// \brief Set the k value for the node.
+   ///
+   /// \param node A node of the element.
+   /// \param k    The k-index value of the node.
+   /// \pre node in range [ 0 .. 7 ]
    void setNodeK ( const int node,
                    const int k );
 
    /// \brief Get the i value for the node.
+   ///
+   /// \param node A node of the element.
+   /// \pre node in range [ 0 .. 7 ]
    int getNodeI ( const int node ) const;
 
    /// \brief Get the j value for the node.
+   ///
+   /// \param node A node of the element.
+   /// \pre node in range [ 0 .. 7 ]
    int getNodeJ ( const int node ) const;
 
    /// \brief Get the k value for the node.
+   ///
+   /// \param node A node of the element.
+   /// \pre node in range [ 0 .. 7 ]
    int getNodeK ( const int node ) const;
 
    /// \brief Get the positions of all nodes relative to the subdomain numbering system.

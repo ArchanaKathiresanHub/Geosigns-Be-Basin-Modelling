@@ -1,10 +1,21 @@
+//                                                                      
+// Copyright (C) 2015 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
 #ifndef FASTCAULDRON__VTK_MESH_WRITER__H
 #define FASTCAULDRON__VTK_MESH_WRITER__H
 
+// Access to STL library.
 #include <iostream>
 #include <vector>
 #include <string>
 
+// Access to fastcauldron application code.
 #include "ComputationalDomain.h"
 
 /// \brief Writes the domain to a file in VTK format.
@@ -18,8 +29,13 @@ public :
    VtkMeshWriter ();
 
    /// \brief Write the vtk file of the domain.
+   ///
+   /// \param [in] domain The domain for which the mesh output is required.
+   /// \param [in] fileName The name of the file in which the mesh will be written.
+   /// \param [in] useProjectOrigin Should the project origin be used, if not then (0,0) will be the origin.
    void save ( const ComputationalDomain& domain,
-               const std::string&         fileName ) const;
+               const std::string&         fileName,
+               const bool                 useProjectOrigin = true ) const;
 
 private :
 
@@ -42,7 +58,8 @@ private :
 
    /// \brief Get the node positions for the nodes that are local to the process.
    void getLocalNodes ( const ComputationalDomain& domain,
-                        DoubleArray&               activeNodes ) const;
+                        DoubleArray&               activeNodes,
+                        const bool                 useProjectOrigin ) const;
 
    /// \brief Get the element dof numbers for the dofs that are local to the process.
    void getLocalElementDofs ( const ComputationalDomain& domain,
