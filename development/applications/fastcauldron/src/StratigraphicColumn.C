@@ -72,6 +72,21 @@ const LayerProps* StratigraphicColumn::getLayer ( const std::string& layerName )
 
 //------------------------------------------------------------//
 
+size_t StratigraphicColumn::getLayerIndex ( const LayerProps* layer ) const {
+
+   for ( size_t i = 0; i < m_layers.size (); ++i ) {
+
+      if ( m_layers [ i ] == layer ) {
+         return i;
+      }
+
+   }
+
+   return m_layers.size () + 1;
+}
+
+//------------------------------------------------------------//
+
 int StratigraphicColumn::getNumberOfLogicalElementsInDepth ( const double age ) const {
 
    if ( age < 0.0 ) {

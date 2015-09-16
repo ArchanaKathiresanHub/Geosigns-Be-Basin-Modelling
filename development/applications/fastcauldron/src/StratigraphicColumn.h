@@ -62,6 +62,9 @@ public :
    /// \brief Get the layer at the position i.
    LayerProps* getLayer ( const size_t i );
 
+   /// \brief Get the layer at the position i.
+   size_t getLayerIndex ( const LayerProps* layer ) const;
+
    /// \brief Determine whether or not a formation is a part of this stratigraphic column.
    bool containsLayer ( const LayerProps* formation ) const;
 
