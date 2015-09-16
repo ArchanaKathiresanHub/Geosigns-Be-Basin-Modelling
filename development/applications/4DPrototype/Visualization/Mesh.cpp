@@ -267,7 +267,23 @@ size_t SnapshotGeometry::getTimeStamp() const
 // SnapshotTopology
 //--------------------------------------------------------------------------------------------------
 
-#define USEDEADMAP
+void SnapshotTopology::initDeadMap()
+{
+  m_deadMap = new bool[m_numI * m_numJ];
+
+  bool* p = m_deadMap;
+  for (size_t i = 0; i < m_numI; ++i)
+  {
+    for (size_t j = 0; j < m_numJ; ++j)
+    {
+      *p++ =
+        m_geometry->isUndefined(i, j, 0) ||
+        m_geometry->isUndefined(i, j + 1, 0) ||
+        m_geometry->isUndefined(i + 1, j, 0) ||
+        m_geometry->isUndefined(i + 1, j + 1, 0);
+    }
+  }
+}
 
 SnapshotTopology::SnapshotTopology(std::shared_ptr<SnapshotGeometry> geometry)
   : m_numI(geometry->numI() - 1)
@@ -277,23 +293,7 @@ SnapshotTopology::SnapshotTopology(std::shared_ptr<SnapshotGeometry> geometry)
   , m_timeStamp(MxTimeStamp::getTimeStamp())
   , m_geometry(geometry)
 {
-#ifdef USEDEADMAP
-  m_deadMap = new bool[m_numI * m_numJ];
-
-  bool* p = m_deadMap;
-
-  for (size_t i = 0; i < m_numI; ++i)
-  {
-    for (size_t j = 0; j < m_numJ; ++j)
-    {
-      *p++ =
-        m_geometry->isUndefined(i, j, 0) ||
-        m_geometry->isUndefined(i, j+1, 0) ||
-        m_geometry->isUndefined(i+1, j, 0) ||
-        m_geometry->isUndefined(i+1, j+1, 0);
-    }
-  }
-#endif
+  initDeadMap();
 }
 
 SnapshotTopology::~SnapshotTopology()
@@ -367,15 +367,7 @@ bool SnapshotTopology::hasDeadCells() const
 
 bool SnapshotTopology::isDead(size_t i, size_t j, size_t k) const
 {
-#ifdef USEDEADMAP
   return m_deadMap[i * m_numJ + j];
-#else
-  return
-    m_geometry->isUndefined(i, j, k) ||
-    m_geometry->isUndefined(i, j + 1, k) ||
-    m_geometry->isUndefined(i + 1, j, k) ||
-    m_geometry->isUndefined(i + 1, j + 1, k);
-#endif
 }
 
 //--------------------------------------------------------------------------------------------------

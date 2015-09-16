@@ -160,6 +160,8 @@ class SnapshotTopology : public MiHexahedronTopologyExplicitIjk
 
   std::shared_ptr<SnapshotGeometry> m_geometry;
 
+  void initDeadMap();
+
 public:
 
   explicit SnapshotTopology(std::shared_ptr<SnapshotGeometry> geometry);

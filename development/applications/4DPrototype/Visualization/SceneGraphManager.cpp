@@ -58,6 +58,8 @@
 
 namespace di = DataAccess::Interface;
 
+SoSwitch* createCompass();
+
 SnapshotInfo::SnapshotInfo()
   : minZ(0.0)
   , maxZ(0.0)
@@ -177,10 +179,6 @@ void SceneGraphManager::updateSnapshotFormations()
 
 namespace
 {
-  SoGroup* createArrows()
-  {
-    return nullptr;
-  }
 
   MoColorMapping* createTrapsColorMap(unsigned int maxId)
   {
@@ -1065,8 +1063,10 @@ void SceneGraphManager::setupSceneGraph()
   m_root->addChild(m_appearanceNode);
   m_root->addChild(annotation);
   m_root->addChild(m_snapshotsSwitch);
+  m_root->addChild(createCompass());
 
   setupSnapshots();
+
 
   static_cast<MoPredefinedColorMapping*>(m_colorMap)->maxValue = (float)(m_formationIdMap.size() - 1);
 }

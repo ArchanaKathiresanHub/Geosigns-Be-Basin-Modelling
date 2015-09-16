@@ -38,10 +38,6 @@ class GridMapCollection
   mutable double m_maxValue;
   mutable bool m_minMaxValid;
 
-  // Make this class noncopyable, because we're releasing the gridmaps in the destructor
-  GridMapCollection(const GridMapCollection&) = delete;
-  GridMapCollection& operator=(const GridMapCollection&) = delete;
-
   void initMinMax() const
   {
     for (size_t i = 0; i < m_gridMaps.size(); ++i)
@@ -96,6 +92,10 @@ public:
         gridMap->release();
     }
   }
+
+  // Make this class noncopyable, because we're releasing the gridmaps in the destructor
+  GridMapCollection(const GridMapCollection&) = delete;
+  GridMapCollection& operator=(const GridMapCollection&) = delete;
 
   double getValue(size_t i, size_t j, size_t k) const
   {

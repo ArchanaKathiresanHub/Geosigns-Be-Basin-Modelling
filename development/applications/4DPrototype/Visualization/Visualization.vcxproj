@@ -127,6 +127,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="CameraUtil.cpp" />
+    <ClCompile Include="Compass.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Property.cpp" />
     <ClCompile Include="ROICellFilter.cpp" />
