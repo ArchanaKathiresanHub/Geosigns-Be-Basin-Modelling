@@ -1,6 +1,8 @@
 #ifndef _GENEX6__SPECIESSTATE_H_
 #define _GENEX6__SPECIESSTATE_H_
 
+#include <cmath>
+
 namespace Genex6
 {
 class Species;
@@ -184,7 +186,13 @@ inline double SpeciesState::GetConcentrationApproximation( const bool isTSR ) co
 {
 
    if( isTSR ) {
-      return (3.0 * (m_concentration[THIRD] - m_concentration[SECOND]) + m_concentration[FIRST]);
+      const double concApprox = 3.0 * (m_concentration[THIRD] - m_concentration[SECOND]) + m_concentration[FIRST];
+
+      if( m_concentration[THIRD] != 0.0 and fabs ( concApprox / m_concentration[THIRD] ) < 1e-8 ) {
+         return 0.0;
+      }
+
+      return concApprox;
    }
    if ( m_concentration[FIRST] > 0.0 ) {
       // For compatibility with OTGC-5.

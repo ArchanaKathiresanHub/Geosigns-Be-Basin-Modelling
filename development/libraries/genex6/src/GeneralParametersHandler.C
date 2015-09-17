@@ -50,7 +50,7 @@ GeneralParametersHandler::GeneralParametersHandler()
    m_ParameterValues[Sprecoke]             = 0.4;
    m_ParameterValues[Scoke1]               = 0.5;
    m_ParameterValues[Shetero]              = 0.1;
-   m_ParameterValues[SO4massfract]         = 0.0;
+   m_ParameterValues[SO4massfract]         = 3.0;
    
    m_ParameterValues[PreasphalteneAromMin] = 0.2; 
    m_ParameterValues[PreasphalteneAromMax] = 0.9;      

@@ -407,10 +407,11 @@ double Species::ComputeArrheniusReactionRate2a( SimulatorStateBase &theSimulator
 
       const double molWtCO3overSO4 = 0.625;
 
-      accessibleAN = ccToAn - theSimulatorState.GetSpeciesConcentrationByName( CO3id ) / 
-         ( theSimulatorState.GetSpeciesConcentrationByName( CO3id ) + 
-           theSimulatorState.GetSpeciesConcentrationByName( SO4id ) * molWtCO3overSO4 );  
-
+      const double val = theSimulatorState.GetSpeciesConcentrationByName( CO3id ) + 
+         theSimulatorState.GetSpeciesConcentrationByName( SO4id ) * molWtCO3overSO4;
+      if( val != 0.0 ) {
+         accessibleAN = ccToAn - theSimulatorState.GetSpeciesConcentrationByName( CO3id ) / val;
+      }
       if( accessibleAN < 0.0 ) {
          accessibleAN = 0.0;
       }
