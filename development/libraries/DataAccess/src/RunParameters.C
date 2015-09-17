@@ -25,6 +25,7 @@ using namespace database;
 #include "Interface/RunParameters.h"
 #include "Interface/ProjectHandle.h"
 
+#include "errorhandling.h"
 #include "NumericFunctions.h"
 
 
@@ -78,7 +79,9 @@ const std::string& RunParameters::getChemicalCompactionAlgorithm () const{
 }
 
 double RunParameters::getPrefReconstep () const {
-   return database::getPrefReconstep ( m_record );
+   double prefReconstep(database::getPrefReconstep ( m_record ));
+   if ( prefReconstep <= 0 ) throw RecordException( "Unvalid value of PrefReconstep: %; Cauldron cannot run back in time",prefReconstep);
+   return prefReconstep;
 }
 
 double RunParameters::getOptimalSourceRockTempDiff () const {
@@ -171,7 +174,9 @@ bool RunParameters::useBurialRateTimeStepping () const {
 }
 
 double RunParameters::getSegmentFractionToBury () const {
-   return database::getStepsPerSegment ( m_record );
+   double stepsPerSegment(database::getStepsPerSegment ( m_record ));
+   if ( stepsPerSegment <= 0 ) throw RecordException( "Unvalid value of StepsPerSegment: %; Cauldron cannot run back in time",stepsPerSegment);
+   return stepsPerSegment;
 }
 
 double RunParameters::getDarcyMaxTimeStep () const {
