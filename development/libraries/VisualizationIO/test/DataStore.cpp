@@ -11,7 +11,7 @@ TEST( DataStore, Compression )
         '\x00', '\xff', '\xcb', '\x48', '\xcd', '\xc9', '\xc9', '\x07',
         '\x00', '\x86', '\xa6', '\x10', '\x36', '\x05', '\x00', '\x00',
         '\x00', };
-
+#ifdef _WIN32
     size_t size = 5;
     char* compressed = DataStore::compress(hello, size);
 
@@ -40,4 +40,5 @@ TEST( DataStore, Compression )
 
     delete[] compressed;
     delete[] decompressed;
+#endif
 }
