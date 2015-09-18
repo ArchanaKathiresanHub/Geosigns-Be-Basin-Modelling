@@ -14,7 +14,6 @@
 
 #include <boost/foreach.hpp>
 #include <boost/uuid/uuid_io.hpp>
-#include <boost/uuid/string_generator.hpp>
 #include <boost/system/error_code.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/property_tree/xml_parser.hpp>
@@ -22,8 +21,6 @@
 #include <iostream>
 #include <fstream>
 #include <cstring>
-
-#define __compress__ true
 
 using namespace CauldronIO;
 
@@ -74,11 +71,11 @@ void ImportExport::addProject(boost::property_tree::ptree& pt, boost::shared_ptr
     {
         boost::filesystem::path volumeStorePath(m_outputPath);
         volumeStorePath /= "Snapshot_" + boost::lexical_cast<std::string>(snapShot->getAge()) + "_volumes.cldrn";
-        DataStore volumeStore(volumeStorePath.string(), __compress__, true);
+        DataStoreSave volumeStore(volumeStorePath.string());
 
         boost::filesystem::path surfaceStorePath(m_outputPath);
         surfaceStorePath /= "Snapshot_" + boost::lexical_cast<std::string>(snapShot->getAge()) + "_surfaces.cldrn";
-        DataStore surfaceDataStore(surfaceStorePath.string(), __compress__, true);
+        DataStoreSave surfaceDataStore(surfaceStorePath.string());
 
         ptree & node = pt.add("project.snapshots.snapshot", "");
         node.put("<xmlattr>.age", snapShot->getAge());
@@ -89,55 +86,26 @@ void ImportExport::addProject(boost::property_tree::ptree& pt, boost::shared_ptr
         BOOST_FOREACH(const boost::shared_ptr<Surface>& surfaceIO, surfaces)
         {
             // General properties
-            ptree& surface = node.add("surfaces.surface", "");
-            surface.put("<xmlattr>.name", surfaceIO->getName());
-            surface.put("<xmlattr>.subsurfacekind", surfaceIO->getSubSurfaceKind());
-            surface.put("<xmlattr>.uuid", surfaceIO->getValueMap()->getUUID());
-            
-            // Set geometry
-            addGeometryInfo(surface, surfaceIO->getValueMap());
+            ptree& surfaceNode = node.add("surfaces.surface", "");
 
             // Data storage
-            if (surfaceIO->getValueMap()->isConstant())
-                surface.put("constantvalue", surfaceIO->getValueMap()->getConstantValue());
-            else
-                surfaceDataStore.addSurface(surfaceIO, surface);
-
-            // Set depth surface
-            boost::shared_ptr<const Surface> depthSurface = surfaceIO->getDepthSurface();
-            if (depthSurface)
-                surface.put("depthsurface-uuid", depthSurface->getValueMap()->getUUID());
+            surfaceDataStore.addSurface(surfaceIO, surfaceNode);
 
             // Set property
-            addProperty(surface, surfaceIO->getProperty());
+            addProperty(surfaceNode, surfaceIO->getProperty());
 
             // Set formation
             boost::shared_ptr<const Formation> formation = surfaceIO->getFormation();
             if (formation)
-                addFormation(surface, formation);
+                addFormation(surfaceNode, formation);
         }
 
         const VolumeList volumes = snapShot->getVolumeList();
         BOOST_FOREACH(const boost::shared_ptr<Volume>& volume, volumes)
         {
-            // General properties
+            // Add volume
             ptree& volNode = node.add("volumes.volume", "");
-            volNode.put("<xmlattr>.subsurfacekind", volume->getSubSurfaceKind());
-            volNode.put("<xmlattr>.uuid", volume->getUUID());
-            volNode.put("<xmlattr>.cell-centered", volume->isCellCentered());
-
-            // Set geometry
-            addGeometryInfo(volNode, volume);
-
-            // Data storage
             volumeStore.addVolume(volume, volNode);
-
-            // Set depth volume
-            boost::shared_ptr<const Volume> depthVolume = volume->getDepthVolume();
-            if (depthVolume)
-                volNode.put("depthvolume-uuid", depthVolume->getUUID());
-
-            // Set property
             addProperty(volNode, volume->getProperty());
         }
 
@@ -146,7 +114,6 @@ void ImportExport::addProject(boost::property_tree::ptree& pt, boost::shared_ptr
         {
             // General properties
             ptree& volNode = node.add("aggregate-volumes.aggregate-volume", "");
-            volNode.put("<xmlattr>.cell-centered", volume->isCellCentered());
 
             // Set depth volume
             boost::shared_ptr<const Volume> depthVolume = volume->getDepthVolume();
@@ -165,10 +132,6 @@ void ImportExport::addProject(boost::property_tree::ptree& pt, boost::shared_ptr
 
                 // Add volume 
                 ptree& subvolNode = subNode.add("volume", "");
-                subvolNode.put("<xmlattr>.subsurfacekind", subVolume->getSubSurfaceKind());
-                subvolNode.put("<xmlattr>.uuid", subVolume->getUUID());
-                subvolNode.put("<xmlattr>.cell-centered", subVolume->isCellCentered());
-                addGeometryInfo(subvolNode, subVolume);
                 volumeStore.addVolume(subVolume, subvolNode);
                 addProperty(subvolNode, subVolume->getProperty());
             }
@@ -207,37 +170,6 @@ void CauldronIO::ImportExport::addFormation(boost::property_tree::ptree& node, c
     subNode.put("<xmlattr>.kend", end);
 }
 
-void CauldronIO::ImportExport::addGeometryInfo(boost::property_tree::ptree& node, const boost::shared_ptr<const Map>& map) const
-{
-    boost::property_tree::ptree& subNode = node.add("geometry", "");
-    subNode.put("<xmlattr>.numI", map->getNumI());
-    subNode.put("<xmlattr>.numJ", map->getNumJ());
-    subNode.put("<xmlattr>.minI", map->getMinI());
-    subNode.put("<xmlattr>.minJ", map->getMinJ());
-    subNode.put("<xmlattr>.maxI", map->getMaxI());
-    subNode.put("<xmlattr>.maxJ", map->getMaxJ());
-    subNode.put("<xmlattr>.deltaI", map->getDeltaI());
-    subNode.put("<xmlattr>.deltaJ", map->getDeltaJ());
-    subNode.put("<xmlattr>.undefinedvalue", map->getUndefinedValue());
-}
-
-void CauldronIO::ImportExport::addGeometryInfo(boost::property_tree::ptree& tree, const boost::shared_ptr<const Volume>& volume) const
-{
-    boost::property_tree::ptree& subNode = tree.add("geometry", "");
-    subNode.put("<xmlattr>.numI", volume->getNumI());
-    subNode.put("<xmlattr>.numJ", volume->getNumJ());
-    subNode.put("<xmlattr>.numK", volume->getNumK());
-    subNode.put("<xmlattr>.minI", volume->getMinI());
-    subNode.put("<xmlattr>.minJ", volume->getMinJ());
-    subNode.put("<xmlattr>.maxI", volume->getMaxI());
-    subNode.put("<xmlattr>.maxJ", volume->getMaxJ());
-    subNode.put("<xmlattr>.firstK", volume->getFirstK());
-    subNode.put("<xmlattr>.lastK", volume->getLastK());
-    subNode.put("<xmlattr>.deltaI", volume->getDeltaI());
-    subNode.put("<xmlattr>.deltaJ", volume->getDeltaJ());
-    subNode.put("<xmlattr>.undefinedvalue", volume->getUndefinedValue());
-}
-
 //////////////////////////////////////////////////////////////////////////
 /// Importing from native format
 //////////////////////////////////////////////////////////////////////////
@@ -249,7 +181,9 @@ boost::shared_ptr<Project> CauldronIO::ImportExport::importFromXML(const std::st
     
     using boost::property_tree::ptree;
     ptree pt;
-    
+
+    std::cout << "Reading XML into boost property tree" << std::endl;
+
     try
     {
         read_xml(filename, pt);
@@ -262,7 +196,6 @@ boost::shared_ptr<Project> CauldronIO::ImportExport::importFromXML(const std::st
     ImportExport importExport;
     boost::shared_ptr<Project> project;
 
-    // todo: add a try/catch here and catch the specific exception
     try
     {
         project = importExport.getProject(pt);
@@ -283,8 +216,6 @@ std::string CauldronIO::ImportExport::getXMLIndexingFileName(const boost::filesy
 
 boost::shared_ptr<Project> CauldronIO::ImportExport::getProject(const boost::property_tree::ptree& pt) const
 {
-    boost::uuids::string_generator gen;
-    
     std::string projectName = pt.get<std::string>("project.name");
     std::string projectDescript = pt.get<std::string>("project.description");
     std::string projectTeam = pt.get<std::string>("project.team");
@@ -306,43 +237,155 @@ boost::shared_ptr<Project> CauldronIO::ImportExport::getProject(const boost::pro
             // Create the snapshot
             boost::shared_ptr<SnapShot> snapShot(new SnapShot(age, kind, isminor));
 
-            // Find all surfaces
-            BOOST_FOREACH(boost::property_tree::ptree::value_type const& surfaceNodes, snapShotNode.get_child("surfaces"))
+            boost::optional<boost::property_tree::ptree const&> hasSurfaces = snapShotNode.get_child_optional("surfaces");
+            if (hasSurfaces)
             {
-                if (surfaceNodes.first == "surface") 
+                // Find all surfaces
+                /////////////////////////////////////////
+                BOOST_FOREACH(boost::property_tree::ptree::value_type const& surfaceNodes, snapShotNode.get_child("surfaces"))
                 {
-                    const boost::property_tree::ptree& surfaceNode = surfaceNodes.second;
-                    std::string surfaceName = surfaceNode.get<std::string>("<xmlattr>.name");
-                    SubsurfaceKind surfaceKind = (SubsurfaceKind)surfaceNode.get<int>("<xmlattr>.subsurfacekind");
-                    std::string uuid = surfaceNode.get<std::string>("<xmlattr>.uuid");
-
-                    // Get the property
-                    boost::shared_ptr<Property> property = getProperty(surfaceNode);
-                    boost::shared_ptr<Map> valueMap = getValueMap(surfaceNode);
-                    valueMap->setUUID(gen(uuid));
-
-                    // Check for optional depthSurfaceUUID
-                    boost::optional<std::string> depthSurfaceUUID = surfaceNode.get_optional<std::string>("depthsurface-uuid");
-                    if (depthSurfaceUUID)
+                    if (surfaceNodes.first == "surface")
                     {
-                        MapNative* mapNative = dynamic_cast<MapNative*>(valueMap.get());
-                        mapNative->setDepthSurfaceUUID(gen(*depthSurfaceUUID));
+                        const boost::property_tree::ptree& surfaceNode = surfaceNodes.second;
+                        
+                        boost::shared_ptr<Property> property = getProperty(surfaceNode);
+                        boost::shared_ptr<Surface> surface = DataStoreLoad::getSurface(surfaceNode, property);
+
+                        // Set formation
+                        boost::shared_ptr<const Formation> formation = getFormation(surfaceNode);
+                        if (formation)
+                            surface->setFormation(formation);
+
+                        // Add to snapshot
+                        snapShot->addSurface(surface);
                     }
+                }
 
-                    // Create the surface
-                    boost::shared_ptr<Surface> surface(new Surface(surfaceName, surfaceKind, property, valueMap));
+                // Cross-reference depth surfaces
+                BOOST_FOREACH(const boost::shared_ptr<Surface>& surface, snapShot->getSurfaceList())
+                {
+                    MapNative* mapNative = dynamic_cast<MapNative*>(surface->getValueMap().get());
+                    if (mapNative->hasDepthMap())
+                    {
+                        const boost::uuids::uuid& depthMapUUID = mapNative->getDepthSurfaceUUID();
 
-                    // Set formation
-                    boost::shared_ptr<const Formation> formation = getFormation(surfaceNode);
-                    if (formation)
-                        surface->setFormation(formation);
-
-                    // Add to snapshot
-                    snapShot->addSurface(surface);
+                        BOOST_FOREACH(const boost::shared_ptr<Surface>& depthSurface, snapShot->getSurfaceList())
+                        {
+                            if (depthSurface->getValueMap()->getUUID() == depthMapUUID)
+                            {
+                                surface->setDepthSurface(depthSurface);
+                                break;
+                            }
+                        }
+                    }
                 }
             }
 
-            // TODO: cross-reference depth surfaces 
+            // Find all (continuous) volumes
+            /////////////////////////////////////////
+
+            boost::optional<boost::property_tree::ptree const&> hasVolumes = snapShotNode.get_child_optional("volumes");
+            if (hasVolumes)
+            {
+                BOOST_FOREACH(boost::property_tree::ptree::value_type const& volumeNodes, snapShotNode.get_child("volumes"))
+                {
+                    if (volumeNodes.first == "volume")
+                    {
+                        const boost::property_tree::ptree& volumeNode = volumeNodes.second;
+                        boost::shared_ptr<Property> property = getProperty(volumeNode);
+                        boost::shared_ptr<Volume> volume = DataStoreLoad::getVolume(volumeNode, property);
+                        snapShot->addVolume(volume);
+                    }
+                }
+
+                // Cross-reference depth volumes
+                BOOST_FOREACH(const boost::shared_ptr<Volume>& volume, snapShot->getVolumeList())
+                {
+                    VolumeNative* volumeNative = dynamic_cast<VolumeNative*>(volume.get());
+                    if (volumeNative->hasDepthMap())
+                    {
+                        const boost::uuids::uuid& depthMapUUID = volumeNative->getDepthSurfaceUUID();
+
+                        BOOST_FOREACH(const boost::shared_ptr<Volume>& depthVolume, snapShot->getVolumeList())
+                        {
+                            if (depthVolume->getUUID() == depthMapUUID)
+                            {
+                                volume->setDepthVolume(depthVolume);
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Find all discontinuous) volumes
+            /////////////////////////////////////////
+
+            boost::optional<boost::property_tree::ptree const&> hasDCVolumes = snapShotNode.get_child_optional("aggregate-volumes");
+            if (hasDCVolumes)
+            {
+                BOOST_FOREACH(boost::property_tree::ptree::value_type const& volumeNodes, snapShotNode.get_child("aggregate-volumes"))
+                {
+                    if (volumeNodes.first == "aggregate-volume")
+                    {
+                        const boost::property_tree::ptree& volumeNode = volumeNodes.second;
+                        boost::shared_ptr<DiscontinuousVolume> discVolume(new DiscontinuousVolumeNative());
+
+                        boost::optional<boost::uuids::uuid> depthSurfaceUUID = volumeNode.get_optional<boost::uuids::uuid>("depthvolume-uuid");
+                        if (depthSurfaceUUID)
+                        {
+                            DiscontinuousVolumeNative* volumeNative = static_cast<DiscontinuousVolumeNative*>(discVolume.get());
+                            volumeNative->setDepthSurfaceUUID(*depthSurfaceUUID);
+                        }
+
+                        // Get all formation-volumes
+                        BOOST_FOREACH(boost::property_tree::ptree::value_type const& formationVolumeNodes, volumeNode.get_child("formation-volumes"))
+                        {
+                            if (formationVolumeNodes.first == "formation-volume")
+                            {
+                                const boost::property_tree::ptree& formationVolumeNode = formationVolumeNodes.second;
+                                boost::shared_ptr<Formation> formation = getFormation(formationVolumeNode);
+                                boost::shared_ptr<Volume> volume;
+
+                                // Find the volume
+                                BOOST_FOREACH(boost::property_tree::ptree::value_type const& nodes, formationVolumeNode.get_child(""))
+                                {
+                                    if (nodes.first == "volume") 
+                                    {
+                                        boost::shared_ptr<Property> property = getProperty(nodes.second);
+                                        volume = DataStoreLoad::getVolume(nodes.second, property);
+                                        break;
+                                    }
+                                }
+                                assert(volume);
+                                
+                                discVolume->addVolume(formation, volume);
+                            }
+                        }
+                        
+                        snapShot->addDiscontinuousVolume(discVolume);
+                    }
+                }
+
+                // Cross-reference depth volumes
+                BOOST_FOREACH(const boost::shared_ptr<DiscontinuousVolume>& discVolume, snapShot->getDiscontinuousVolumeList())
+                {
+                    DiscontinuousVolumeNative* volumeNative = static_cast<DiscontinuousVolumeNative*>(discVolume.get());
+                    if (volumeNative->hasDepthMap())
+                    {
+                        const boost::uuids::uuid& depthMapUUID = volumeNative->getDepthSurfaceUUID();
+
+                        BOOST_FOREACH(const boost::shared_ptr<Volume>& depthVolume, snapShot->getVolumeList())
+                        {
+                            if (depthVolume->getUUID() == depthMapUUID)
+                            {
+                                discVolume->setDepthVolume(depthVolume);
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
 
             project->addSnapShot(snapShot);
         }
@@ -375,68 +418,9 @@ boost::shared_ptr<Property> CauldronIO::ImportExport::getProperty(const boost::p
     return property;
 }
 
-boost::shared_ptr<Map> CauldronIO::ImportExport::getValueMap(const boost::property_tree::ptree& surfaceNode) const
+boost::shared_ptr<Formation> CauldronIO::ImportExport::getFormation(const boost::property_tree::ptree& surfaceNode) const
 {
-    // TODO: cell-centered should be read/written to xml, not assumed
-    MapNative* mapNative = new MapNative(false);
-
-    boost::shared_ptr<Map> valueMap(mapNative);
-    BOOST_FOREACH(boost::property_tree::ptree::value_type const& nodes, surfaceNode.get_child(""))
-    {
-        if (nodes.first == "geometry")
-        {
-            const boost::property_tree::ptree& geometryNode = nodes.second;
-            double minI, minJ, maxI, maxJ, deltaI, deltaJ;
-            float undef;
-            size_t numI, numJ;
-
-            numI = geometryNode.get<size_t>("<xmlattr>.numI");
-            numJ = geometryNode.get<size_t>("<xmlattr>.numJ");
-            minI = geometryNode.get<double>("<xmlattr>.minI");
-            minJ = geometryNode.get<double>("<xmlattr>.minJ");
-            maxI = geometryNode.get<double>("<xmlattr>.maxI");
-            maxJ = geometryNode.get<double>("<xmlattr>.maxJ");
-            deltaI = geometryNode.get<double>("<xmlattr>.deltaI");
-            deltaJ = geometryNode.get<double>("<xmlattr>.deltaJ");
-            undef = geometryNode.get<float>("<xmlattr>.undefinedvalue");
-
-            valueMap->setGeometry(numI, numJ, deltaI, deltaJ, minI, minJ);
-            valueMap->setUndefinedValue(undef);
-        }
-        //////////////////////////////////////////////////////////////////////////////
-        /// TODO: move this logic (as well as storing it) to VisualizationIO_native
-        //////////////////////////////////////////////////////////////////////////////
-        else if (nodes.first == "constantvalue")
-        {
-            float value = surfaceNode.get<float>("constantvalue");
-            valueMap->setConstantValue(value);
-        }
-        else if (nodes.first == "datastore")
-        {
-            // Extract some data
-            const boost::property_tree::ptree& datastoreNode = nodes.second;
-            bool compressed, row_ordered;
-            std::string format, conversion, filename;
-            size_t offset, size;
-
-            filename = datastoreNode.get<std::string>("<xmlattr>.file");
-            compressed = datastoreNode.get<std::string>("<xmlattr>.compression") == "gzip";
-            format = datastoreNode.get<std::string>("<xmlattr>.format");
-            size = datastoreNode.get<size_t>("<xmlattr>.size");
-            offset = datastoreNode.get<size_t>("<xmlattr>.offset");
-            row_ordered = datastoreNode.get<std::string>("<xmlattr>.row-ordered") == "yes";
-
-            // TODO: we ignore the format and row_ordered-ness for now
-            mapNative->setDataStore(filename, compressed, offset, size);
-        }
-    }
-
-    return valueMap;
-}
-
-boost::shared_ptr<const Formation> CauldronIO::ImportExport::getFormation(const boost::property_tree::ptree& surfaceNode) const
-{
-    boost::shared_ptr<const Formation> formation;
+    boost::shared_ptr<Formation> formation;
     BOOST_FOREACH(boost::property_tree::ptree::value_type const& nodes, surfaceNode.get_child(""))
     {
         if (nodes.first == "formation")

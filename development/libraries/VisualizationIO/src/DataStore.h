@@ -13,47 +13,72 @@
 
 #include <boost/shared_ptr.hpp>
 #include <boost/property_tree/ptree.hpp>
-#include <boost/property_tree/xml_parser.hpp>
-#include <boost/iostreams/stream.hpp>
-#include <boost/iostreams/device/file.hpp>
 #include <boost/filesystem.hpp>
+#include <iostream>
+#include <fstream>
 
 namespace CauldronIO
 {
     class Surface;
     class Volume;
+    class Property;
+    class Map;
 
-    // Internal helper class
-    class DataStore
+    /// \brief Little struct to hold data 
+    struct DataStoreParams
+    {
+    };
+
+    /// \brief Native implementation
+    struct DataStoreParamsNative : DataStoreParams
+    {
+        std::string fileName;
+        size_t offset;
+        size_t size;
+        bool compressed;
+    };
+
+    class DataStoreLoad
     {
     public:
-        DataStore(const std::string& filename, bool compress, bool write);
-        ~DataStore();
-        void addSurface(const boost::shared_ptr<Surface>& surfaceIO, boost::property_tree::ptree& ptree);
-        void addVolume(const boost::shared_ptr<Volume>& volume, boost::property_tree::ptree& ptree);
-        
-        // TODO: This should be higher level, similar to the addSurface/addVolume
-        float* getData(size_t offset, size_t& size);
+        DataStoreLoad(DataStoreParams* params);
+        float* getData(size_t& size);
+        ~DataStoreLoad();
 
         // Returns a decompressed char* with size "size", for given input data char* and size
         static char* decompress(const char* data, size_t& size);
+
+        static boost::shared_ptr<Volume> getVolume(const boost::property_tree::ptree& ptree, boost::shared_ptr<Property> property);
+        static boost::shared_ptr<Surface> getSurface(const boost::property_tree::ptree& ptree, boost::shared_ptr<Property> property);
+
+    private:
+        std::ifstream m_file_in;
+        DataStoreParamsNative* m_params;
+    };
+
+    // Internal helper class
+    class DataStoreSave
+    {
+    public:
+        DataStoreSave(const std::string& filename);
+        ~DataStoreSave();
+
+        void addSurface(const boost::shared_ptr<Surface>& surfaceIO, boost::property_tree::ptree& ptree);
+        void addVolume(const boost::shared_ptr<Volume>& volume, boost::property_tree::ptree& ptree);
+        
         // Returns a compressed char* with size "size", for given input data char* and size
         static char* compress(const char* data, size_t& size);
 
     private:
-        size_t getOffset() const;
-        const std::string& getFileName() const;
-        size_t getLastSize() const;
-        void addData(const float* data, size_t size, float undef);
-        void writeVolume(const boost::shared_ptr<Volume>& volume, bool dataIJK);
-        template <typename T> void getStatistics(const T* data, size_t size, T undef);
+        void addGeometryInfo(boost::property_tree::ptree& tree, const boost::shared_ptr<const Map>& map) const;
+        void addGeometryInfo(boost::property_tree::ptree& tree, const boost::shared_ptr<const Volume>& volume) const;
+        void addData(const float* data, size_t size, bool compressData);
+        void writeVolume(const boost::shared_ptr<Volume>& volume, bool dataIJK, bool compress);
 
-        boost::iostreams::stream<boost::iostreams::file_sink> m_file_out;
-        boost::iostreams::stream<boost::iostreams::file_source> m_file_in;
+        std::ofstream m_file_out;
         size_t m_offset, m_lastSize;
         std::string m_fileName;
         bool m_compress;
-        bool m_write;
     };
 }
 

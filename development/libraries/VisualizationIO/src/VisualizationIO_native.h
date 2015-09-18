@@ -15,6 +15,8 @@
 
 namespace CauldronIO
 {
+    struct DataStoreParams;
+
     /// \brief Map class implementation with native retrieve of data
     class MapNative : public Map
     {
@@ -25,14 +27,17 @@ namespace CauldronIO
         /// \brief Override the retrieve method to load data from datastore
         virtual void retrieve();
         /// \brief Set all variables needed to retrieve the data; consider actually adding a reference to a datastore object that can do the logic
-        void setDataStore(const std::string& filename, bool compressed, size_t offset, size_t size);
+        void setDataStore(DataStoreParams* params);
         /// \brief Assign an associated depth surface by UUID
         void setDepthSurfaceUUID(const boost::uuids::uuid& uuid);
+        /// \brief Returns true if a depthMap UUID has been assigned
+        bool hasDepthMap() const;
+        /// \brief Returns the depthmap UUID
+        const boost::uuids::uuid& getDepthSurfaceUUID() const;
 
     private:
-        std::string m_filename;
-        bool m_compressed;
-        size_t m_offset, m_size;
+        DataStoreParams* m_params;
+        bool m_hasDepthMap_uuid;
         boost::uuids::uuid m_uuid_depth;
     };
 
@@ -45,12 +50,37 @@ namespace CauldronIO
         /// \brief Override the retrieve method to load data from datastore
         virtual void retrieve();
         /// \brief Set all variables needed to retrieve the data; consider actually adding a reference to a datastore object that can do the logic
-        void setDataStore(const std::string& filename, bool compressed, size_t offset, size_t size);
+        void setDataStore(DataStoreParams* params, bool dataIJK);
+        /// \brief Assign an associated depth surface by UUID
+        void setDepthSurfaceUUID(const boost::uuids::uuid& uuid);
+        /// \brief Returns true if a depthMap UUID has been assigned
+        bool hasDepthMap() const;
+        /// \brief Returns the depthmap UUID
+        const boost::uuids::uuid& getDepthSurfaceUUID() const;
 
     private:
-        std::string m_filename;
-        bool m_compressed;
-        size_t m_offset, m_size;
+        bool m_hasDepthMap_uuid, m_dataIJK, m_dataKIJ;
+        boost::uuids::uuid m_uuid_depth;
+        DataStoreParams* m_paramsIJK;
+        DataStoreParams* m_paramsKIJ;
+    };
+
+    /// \brief Volume class implementation with native retrieve of data
+    class DiscontinuousVolumeNative : public DiscontinuousVolume
+    {
+    public:
+        DiscontinuousVolumeNative();
+
+        /// \brief Assign an associated depth surface by UUID
+        void setDepthSurfaceUUID(const boost::uuids::uuid& uuid);
+        /// \brief Returns true if a depthMap UUID has been assigned
+        bool hasDepthMap() const;
+        /// \brief Returns the depthmap UUID
+        const boost::uuids::uuid& getDepthSurfaceUUID();
+
+    private:
+        bool m_hasDepthMap_uuid;
+        boost::uuids::uuid m_uuid_depth;
     };
 }
 #endif

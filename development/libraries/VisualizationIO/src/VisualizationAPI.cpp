@@ -166,9 +166,9 @@ const DiscontinuousVolumeList& CauldronIO::SnapShot::getDiscontinuousVolumeList(
 
 void CauldronIO::SnapShot::retrieve()
 {
-    BOOST_FOREACH(boost::shared_ptr<DiscontinuousVolume>& volume, m_discVolumeList)
-        volume->retrieve();
     BOOST_FOREACH(boost::shared_ptr<Volume>& volume, m_volumeList)
+        volume->retrieve();
+    BOOST_FOREACH(boost::shared_ptr<DiscontinuousVolume>& volume, m_discVolumeList)
         volume->retrieve();
     BOOST_FOREACH(boost::shared_ptr<Surface>& surface, m_surfaceList)
         surface->retrieve();
@@ -513,6 +513,12 @@ void CauldronIO::Map::retrieve()
 bool CauldronIO::Map::isRetrieved() const
 {
     return m_retrieved;
+}
+
+
+bool CauldronIO::Map::isCellCentered() const
+{
+    return m_isCellCentered;
 }
 
 const boost::uuids::uuid& CauldronIO::Map::getUUID() const

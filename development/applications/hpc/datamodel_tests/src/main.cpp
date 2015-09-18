@@ -1,3 +1,12 @@
+//
+// Copyright (C) 2012-2015 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
 #include "VisualizationAPI.h"
 #include "ImportProjectHandle.h"
 #include "ImportExport.h"
@@ -6,11 +15,21 @@
 #include <ctime>
 #include <cstring>
 
-#define IMPORT true
-
+/// \brief Small wrapper application for the VisualizationIO libraries
 int main(int argc, char ** argv)
 {
-    if (IMPORT)
+    if (argc <= 1)
+    {
+        cout << "Usage: datamodel_test.exe [ -import-native | -import-projectHandle <projectHandle> | -convert <projectHandle> ] " << endl
+             << " -import-native       : loads cauldron_outputs.xml from the current directory, reads all the data into memory" << endl
+             << " -import-projectHandle: loads the specified projectHandle into memory" << endl
+             << " -convert             : converts the specified projectHandle to new native format" << endl;
+        return 1;
+    }
+
+    string mode = argv[1];
+
+    if (mode == "-import-native")
     {
         clock_t start = clock();
         float timeInSeconds;
@@ -29,18 +48,15 @@ int main(int argc, char ** argv)
 
         return 0;
     }
-    else
+    else if (mode == "-import-projectHandle" || mode == "-convert")
     {
-
-        if (argc <= 1)
+        if (argc < 3)
         {
-            cerr << "Please specify project3D file" << endl;
+            cerr << "Please specify project3D filename" << endl;
             return 1;
         }
-
-        string projectFileName = argv[1];
-        bool verbose = true;
-        if (argc == 3 && std::strcmp(argv[2], "non-verbose") == 0) verbose = false;
+        
+        string projectFileName = argv[2];
         clock_t start = clock();
         float timeInSeconds;
 
@@ -62,20 +78,29 @@ int main(int argc, char ** argv)
         timeInSeconds = (float)(clock() - start) / CLOCKS_PER_SEC;
         cout << "Finished import in " << timeInSeconds << " seconds " << endl;
 
-        // Retrieve data
-        cout << "Retrieving data" << endl;
-        start = clock();
-        project->retrieve();
-        timeInSeconds = (float)(clock() - start) / CLOCKS_PER_SEC;
-        cout << "Finished retrieve in " << timeInSeconds << " seconds " << endl;
+        if (mode == "-import-projectHandle")
+        {
+            // Retrieve data
+            cout << "Retrieving data" << endl;
+            start = clock();
+            project->retrieve();
+            timeInSeconds = (float)(clock() - start) / CLOCKS_PER_SEC;
+            cout << "Finished retrieve in " << timeInSeconds << " seconds " << endl;
+        }
+        else
+        {
+            // Export to native format: it will retrieve data when needed
+            cout << "Writing to new format" << endl;
+            start = clock();
+            CauldronIO::ImportExport::exportToXML(project, "output-dir");
+            timeInSeconds = (float)(clock() - start) / CLOCKS_PER_SEC;
+            cout << "Wrote to new format in " << timeInSeconds << " seconds" << endl;
+        }
 
-        // Export to native format
-        cout << "Writing to new format" << endl;
-        start = clock();
-        CauldronIO::ImportExport::exportToXML(project, "output-dir");
-        timeInSeconds = (float)(clock() - start) / CLOCKS_PER_SEC;
-        cout << "Wrote to new format in " << timeInSeconds << " seconds" << endl;
         return 0;
     }
+
+    cerr << "Unknown command line parameter. Exiting..." << endl;
+    return 1;
 }
 

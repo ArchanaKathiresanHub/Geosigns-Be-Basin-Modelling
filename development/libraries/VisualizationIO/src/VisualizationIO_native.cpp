@@ -15,17 +15,17 @@ using namespace CauldronIO;
 
 CauldronIO::MapNative::MapNative(bool cellCentered) : Map(cellCentered)
 {
+    m_hasDepthMap_uuid = false;
 }
 
 void CauldronIO::MapNative::retrieve()
 {
-    if (!boost::filesystem::exists(m_filename))
-        throw CauldronIOException("Cannot retrieve file for reading");
+    if (isConstant()) return;
     
-    DataStore datastore(m_filename, m_compressed, false);
+    DataStoreLoad datastore(m_params);
     
-    size_t size = m_size;
-    float* data = datastore.getData(m_offset, size);
+    size_t size;
+    float* data = datastore.getData(size);
 
     if (size != sizeof(float)*getNumI()*getNumJ())
         throw CauldronIOException("Error during decompression of data");
@@ -36,35 +36,124 @@ void CauldronIO::MapNative::retrieve()
     delete[] data;
 }
 
-// TODO: datastore should prepare a little struct with data that it can consume,
+// TODO: datastore should prepare a little struct with data that MapNative can consume,
 // the actual parameters needed to load data later should be hidden from this client
-void CauldronIO::MapNative::setDataStore(const std::string& filename, bool compressed, size_t offset, size_t size)
+void CauldronIO::MapNative::setDataStore(DataStoreParams* params)
 {
-    m_filename = filename;
-    m_compressed = compressed;
-    m_offset = offset;
-    m_size = size;
+    m_params = params;
 }
 
 void CauldronIO::MapNative::setDepthSurfaceUUID(const boost::uuids::uuid& uuid)
 {
     m_uuid_depth = uuid;
+    m_hasDepthMap_uuid = true;
 }
+
+bool CauldronIO::MapNative::hasDepthMap() const
+{
+    return m_hasDepthMap_uuid;
+}
+
+const boost::uuids::uuid& CauldronIO::MapNative::getDepthSurfaceUUID() const
+{
+    return m_uuid_depth;
+}
+
+/// VolumeNative implementation
+//////////////////////////////////////////////////////////////////////////
 
 CauldronIO::VolumeNative::VolumeNative(bool cellCentered, SubsurfaceKind kind, boost::shared_ptr<const Property> property)
     : Volume(cellCentered, kind, property)
 {
+    m_hasDepthMap_uuid = false;
+    m_dataIJK = false;
+    m_dataKIJ = false;
 }
 
 void CauldronIO::VolumeNative::retrieve()
 {
-    throw CauldronIOException("Not implemented");
+    if (isConstant()) return;
+
+    if (m_dataIJK)
+    {
+        DataStoreLoad datastore(m_paramsIJK);
+
+        size_t size;
+        float* data = datastore.getData(size);
+
+        if (size != sizeof(float)*getNumI()*getNumJ()*getNumK())
+            throw CauldronIOException("Error during decompression of data");
+
+        // Geometry should already have been set
+        assert(m_geometryAssigned);
+        setData_IJK(data);
+        delete[] data;
+    }
+
+    if (m_dataKIJ)
+    {
+        DataStoreLoad datastore(m_paramsKIJ);
+
+        size_t size;
+        float* data = datastore.getData(size);
+
+        if (size != sizeof(float)*getNumI()*getNumJ()*getNumK())
+            throw CauldronIOException("Error during decompression of data");
+
+        // Geometry should already have been set
+        assert(m_geometryAssigned);
+        setData_KIJ(data);
+        delete[] data;
+    }
 }
 
-void CauldronIO::VolumeNative::setDataStore(const std::string& filename, bool compressed, size_t offset, size_t size)
+void CauldronIO::VolumeNative::setDataStore(DataStoreParams* params, bool dataIJK)
 {
-    m_filename = filename;
-    m_compressed = compressed;
-    m_offset = offset;
-    m_size = size;
+    if (dataIJK)
+    {
+        m_paramsIJK = params;
+        m_dataIJK = true;
+    }
+    else
+    {
+        m_paramsKIJ = params;
+        m_dataKIJ = true;
+    }
+}
+
+void CauldronIO::VolumeNative::setDepthSurfaceUUID(const boost::uuids::uuid& uuid)
+{
+    m_uuid_depth = uuid;
+    m_hasDepthMap_uuid = true;
+}
+
+bool CauldronIO::VolumeNative::hasDepthMap() const
+{
+    return m_hasDepthMap_uuid;
+}
+
+const boost::uuids::uuid& CauldronIO::VolumeNative::getDepthSurfaceUUID() const
+{
+    return m_uuid_depth;
+}
+
+CauldronIO::DiscontinuousVolumeNative::DiscontinuousVolumeNative()
+{
+    m_hasDepthMap_uuid = false;
+}
+
+void CauldronIO::DiscontinuousVolumeNative::setDepthSurfaceUUID(const boost::uuids::uuid& uuid)
+{
+    m_hasDepthMap_uuid = true;
+    m_uuid_depth = uuid;
+}
+
+bool CauldronIO::DiscontinuousVolumeNative::hasDepthMap() const
+{
+    return m_hasDepthMap_uuid;
+}
+
+const boost::uuids::uuid& CauldronIO::DiscontinuousVolumeNative::getDepthSurfaceUUID()
+{
+    return m_uuid_depth;
 }

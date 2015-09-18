@@ -30,13 +30,11 @@ namespace CauldronIO
         void addProject(boost::property_tree::ptree& pt, boost::shared_ptr<Project>& project);
         void addProperty(boost::property_tree::ptree &node, const boost::shared_ptr<const Property>& property) const;
         void addFormation(boost::property_tree::ptree& node, const boost::shared_ptr<const Formation>& formation) const;
-        void addGeometryInfo(boost::property_tree::ptree& tree, const boost::shared_ptr<const Map>& map) const;
-        void addGeometryInfo(boost::property_tree::ptree& tree, const boost::shared_ptr<const Volume>& volume) const;
         std::string getFilename(const boost::uuids::uuid& uuid) const;
         boost::shared_ptr<Property> getProperty(const boost::property_tree::ptree& surfaceNode) const;
-        boost::shared_ptr<Map> getValueMap(const boost::property_tree::ptree& surfaceNode) const;
-        boost::shared_ptr<const Formation> getFormation(const boost::property_tree::ptree& surfaceNode) const;
+        boost::shared_ptr<Formation> getFormation(const boost::property_tree::ptree& surfaceNode) const;
         boost::shared_ptr<Project> getProject(const boost::property_tree::ptree& pt) const;
+        
         boost::filesystem::path m_outputPath;
     };
 }
