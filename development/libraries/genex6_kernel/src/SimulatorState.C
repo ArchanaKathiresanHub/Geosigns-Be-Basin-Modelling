@@ -787,7 +787,9 @@ void SimulatorState::ComputeFirstTimeInstance(ChemicalModel *theChmod)
             //Species Result
             GetSpeciesResult(speciesId).SetConcentration(newKerogenMass);
             newTotal += newKerogenMass;
-         } else if(speciesId == speciesManager.getSO4Id ()) {
+         }
+#if 0 
+         else if(speciesId == speciesManager.getSO4Id ()) {
             GeneralParametersHandler & theHandler = GeneralParametersHandler::getInstance();
             double massfract_SO4 = theHandler.GetParameterById(GeneralParametersHandler::SO4massfract);
             currState->SetConcentration(massfract_SO4);
@@ -795,16 +797,10 @@ void SimulatorState::ComputeFirstTimeInstance(ChemicalModel *theChmod)
             GetSpeciesResult(speciesId).SetConcentration(massfract_SO4);
             newTotal += massfract_SO4;
          }
+#endif
          AddSpeciesStateById(speciesId, currState);
       }
-//       GetSpeciesStateById(speciesManager.getKerogenId ())->SetConcentration(newKerogenMass);
-//       GetSpeciesResult(speciesManager.getKerogenId ()).SetConcentration(newKerogenMass);
-//       if( speciesManager.getSO4Id () > 0 ) {
-//          GeneralParametersHandler & theHandler = GeneralParametersHandler::getInstance();
-//          double massfract_SO4 = theHandler.GetParameterById(GeneralParametersHandler::SO4massfract);
-//          GetSpeciesStateById(speciesManager.getSO4Id ())->SetConcentration(massfract_SO4);
-//          GetSpeciesResult(speciesManager.getSO4Id ()).SetConcentration(massfract_SO4);
-//       }
+
       double AromaticOM = 0.0; 
       double Oil = 0.0;
 
