@@ -29,8 +29,6 @@ NodalGrid::~NodalGrid () {
 void NodalGrid::construct ( const DataAccess::Interface::Grid* nodeGrid,
                             const int                          rank ) {
 
-   const DMDALocalInfo& info = dynamic_cast<const DataAccess::Interface::DistributedGrid*>(nodeGrid)->getLocalInfo ();
-
    // Used temporarily to create the DA, ownership of contents 
    // is then passed to the m_localInfo.da component.
    DM nodalDa;

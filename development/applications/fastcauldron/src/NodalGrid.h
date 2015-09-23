@@ -8,6 +8,8 @@
 
 #include "Interface/Grid.h"
 
+#include "NumericFunctions.h"
+
 
 /// Class describing processor-local regular 2d-nodal-grids.
 class NodalGrid {
@@ -58,6 +60,13 @@ public :
    ///
    /// This is a closed interval.
    int lastJ ( const bool includeGhosts = false ) const;
+
+   /// \brief Indicate whether or not the position (i, j) is part of the valid set of indices in the node-grid.
+   ///
+   /// The node grid is based on the petsc box-stencil.
+   bool isPartOfStencil ( const int i,
+                          const int j,
+                          const bool includeGhosts = false ) const;
 
    /// The DA object on which the nodal-grid is based.
    DM getDa ();
@@ -135,6 +144,17 @@ inline int NodalGrid::firstJ ( const bool includeGhosts ) const {
 inline int NodalGrid::lastJ ( const bool includeGhosts ) const {
    return ( includeGhosts ? m_localInfo.gys + m_localInfo.gym - 1 : m_localInfo.ys + m_localInfo.ym - 1 );
 }
+
+inline bool NodalGrid::isPartOfStencil ( const int i,
+                                         const int j,
+                                         const bool includeGhosts ) const {
+
+   return NumericFunctions::inRange<int>( i, firstI ( includeGhosts ), lastI ( includeGhosts )) and
+          NumericFunctions::inRange<int>( j, firstJ ( includeGhosts ), lastJ ( includeGhosts ));
+
+
+}
+
 
 inline bool NodalGrid::isInitialised () const {
    // This test could be applied to the y-partitioning array.

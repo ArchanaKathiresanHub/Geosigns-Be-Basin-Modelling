@@ -24,6 +24,7 @@ VtkMeshWriter::VtkMeshWriter () :
 
 void VtkMeshWriter::save ( const ComputationalDomain& domain,
                            const std::string&         fileName,
+                           const double               zScale,
                            const bool                 useProjectOrigin ) const {
 
    IntegerArray numberOfActiveNodes;
@@ -49,7 +50,7 @@ void VtkMeshWriter::save ( const ComputationalDomain& domain,
       allElementLayerIds.resize ( totalNumberOfElements );
    }
 
-   getLocalNodes ( domain, localNodes, useProjectOrigin );
+   getLocalNodes ( domain, localNodes, zScale, useProjectOrigin );
    gatherAllNodes ( localNodes, numberOfActiveNodes, allNodes );
 
    getLocalElementDofs ( domain, localElementDofs );
@@ -109,6 +110,7 @@ void VtkMeshWriter::writeFile ( const std::string&  fileName,
       file << "CELL_TYPES " << numberOfElements << std::endl;
 
       for ( int i = 0; i < numberOfElements; ++i ) {
+         // 12 is the general hexahedral element shape.
          file << " 12" << endl;
       }
 
@@ -152,6 +154,7 @@ void VtkMeshWriter::getNumberOfActiveNodesAndElements ( const ComputationalDomai
 
 void VtkMeshWriter::getLocalNodes ( const ComputationalDomain& domain,
                                     DoubleArray&               activeNodes,
+                                    const double               zScale,
                                     const bool                 useProjectOrigin ) const {
 
    const FastcauldronSimulator& fc = FastcauldronSimulator::getInstance ();
@@ -195,7 +198,7 @@ void VtkMeshWriter::getLocalNodes ( const ComputationalDomain& domain,
             if ( domain.getActiveNodes ()( i, j, numberOfNodesInDepth - 1 )) {
                activeNodes [ count++ ] = x;
                activeNodes [ count++ ] = y;
-               activeNodes [ count++ ] = z;
+               activeNodes [ count++ ] = zScale * z;
             }
 
             globalK = numberOfNodesInDepth - 2;
@@ -210,7 +213,7 @@ void VtkMeshWriter::getLocalNodes ( const ComputationalDomain& domain,
                   if ( domain.getActiveNodes ()( i, j, globalK )) {
                      activeNodes [ count++ ] = x;
                      activeNodes [ count++ ] = y;
-                     activeNodes [ count++ ] = z;
+                     activeNodes [ count++ ] = zScale * z;
                   }
 
                }

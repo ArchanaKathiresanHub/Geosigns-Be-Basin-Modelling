@@ -42,6 +42,7 @@ ComputationalDomain::ComputationalDomain ( const LayerProps& topLayer,
    m_globalDofNumbers ( PETSC_NULL ),
    m_currentAge ( -1.0 ),
    m_localStartDofNumber ( 0 ),
+   m_localMaximumNumberDegenerateSegments ( 0 ),
    m_rank ( FastcauldronSimulator::getInstance ().getRank ())
 {
 
@@ -133,13 +134,13 @@ void ComputationalDomain::assignDofNumbersUsingDepth ( const FormationGeneralEle
       double segmentThickness = layerDepth ( k, j, i ) - layerDepth ( k + 1, j, i );
 
       if ( segmentThickness > DepositingThicknessTolerance ) {
-         m_scalarDofNumbers ( i, j, globalK ) = globalK;
+         m_depthIndexNumbers ( i, j, globalK ) = globalK;
          ++activeSegments;
       } else {
-         m_scalarDofNumbers ( i, j, globalK ) = m_scalarDofNumbers ( i, j, globalK + 1 );
+         m_depthIndexNumbers ( i, j, globalK ) = m_depthIndexNumbers ( i, j, globalK + 1 );
          ++inactiveSegments;
          maximumDegenerateSegments = NumericFunctions::Maximum ( maximumDegenerateSegments,
-                                                                 static_cast<int>( m_scalarDofNumbers ( i, j, globalK + 1 ) - globalK ));
+                                                                 static_cast<int>( m_depthIndexNumbers ( i, j, globalK + 1 ) - globalK ));
       }
 
    }
@@ -159,13 +160,13 @@ void ComputationalDomain::assignDofNumbersUsingThickness ( const FormationGenera
    for ( int k = layerGrid.lastK (); k >= layerGrid.firstK (); --k, --globalK ) {
 
       if ( layerGrid.getFormation ().getDepositingThickness ( i, j, k, m_currentAge ) > DepositingThicknessTolerance ) {
-         m_scalarDofNumbers ( i, j, globalK ) = globalK;
+         m_depthIndexNumbers ( i, j, globalK ) = globalK;
          ++activeSegments;
       } else {
-         m_scalarDofNumbers ( i, j, globalK ) = m_scalarDofNumbers ( i, j, globalK + 1 );
+         m_depthIndexNumbers ( i, j, globalK ) = m_depthIndexNumbers ( i, j, globalK + 1 );
          ++inactiveSegments;
          maximumDegenerateSegments = NumericFunctions::Maximum ( maximumDegenerateSegments,
-                                                                 static_cast<int>( m_scalarDofNumbers ( i, j, globalK + 1 ) - globalK ));
+                                                                 static_cast<int>( m_depthIndexNumbers ( i, j, globalK + 1 ) - globalK ));
       }
 
    }
@@ -184,7 +185,7 @@ void ComputationalDomain::numberNodeDofs ( const bool verbose ) {
    const FastcauldronSimulator& fc = FastcauldronSimulator::getInstance ();
    const NodalVolumeGrid& scalarNodeGrid = m_grids.getNodeGrid ( 1 );
 
-   m_scalarDofNumbers.fill ( 0 );
+   m_depthIndexNumbers.fill ( 0 );
 
    int activeSegments = 0;
    int inactiveSegments = 0;
@@ -223,7 +224,7 @@ void ComputationalDomain::numberNodeDofs ( const bool verbose ) {
 
             // Number nodes, top down but in reverse numbering.
             // So the nodes are numbered from the bottom up, i.e. 0 at the bottom.
-            m_scalarDofNumbers ( i, j, numberOfNodesInDepth ) = numberOfNodesInDepth;
+            m_depthIndexNumbers ( i, j, numberOfNodesInDepth ) = numberOfNodesInDepth;
             globalK = numberOfNodesInDepth - 1;
 
             for ( size_t l = firstLayerIndex; l < m_column.getNumberOfLayers (); ++l ) {
@@ -246,6 +247,8 @@ void ComputationalDomain::numberNodeDofs ( const bool verbose ) {
    if ( mantleLayer != 0 and not mantleDepthRetrieved ) {
       mantleDepth.Restore_Global_Array ( No_Update );
    }
+
+   m_localMaximumNumberDegenerateSegments = maximumDegenerateSegments;
 
    if ( verbose ) {
       std::stringstream buffer;
@@ -421,10 +424,13 @@ void ComputationalDomain::setElementNodeKValues ( const bool verbose ) {
          FormationGeneralElementGrid* grid = m_layerMap [ m_column.getLayer ( l )];
 
          if ( verbose ) {
-            PetscPrintf ( PETSC_COMM_WORLD, " Renumber general elements: layer top k-value - %d, layer name - %s\n", globalKValue, m_column.getLayer ( l )->getName ().c_str ());
+            PetscPrintf ( PETSC_COMM_WORLD,
+                          " Renumber general elements: layer top k-value - %d, layer name - %s\n",
+                          globalKValue,
+                          m_column.getLayer ( l )->getName ().c_str ());
          }
 
-         grid->setElementNodeKValues ( m_scalarDofNumbers, topValue, globalKValue );
+         grid->setElementNodeKValues ( m_depthIndexNumbers, topValue, globalKValue );
          globalKValue -= grid->lengthK ();
 
          const IntegerArray& kIndices = grid->getSubdomainNodeKIndices ();
@@ -480,7 +486,10 @@ void ComputationalDomain::determineActiveElements ( const bool verbose ) {
 
          if ( verbose ) {
             // Print line for each MPI process.
-            PetscSynchronizedPrintf ( PETSC_COMM_WORLD, " number active elements for layer %s is %d\n", m_column.getLayer ( l )->getName ().c_str (), activeElementCount );
+            PetscSynchronizedPrintf ( PETSC_COMM_WORLD,
+                                      " number active elements for layer %s is %d\n",
+                                      m_column.getLayer ( l )->getName ().c_str (),
+                                      activeElementCount );
          }
 
       }
@@ -489,7 +498,9 @@ void ComputationalDomain::determineActiveElements ( const bool verbose ) {
 
    if ( verbose ) {
       // Print line for each MPI process.
-      PetscSynchronizedPrintf ( PETSC_COMM_WORLD, " There are %d avtive elements.\n", m_activeElements.size ());
+      PetscSynchronizedPrintf ( PETSC_COMM_WORLD,
+                                " There are %d avtive elements.\n",
+                                m_activeElements.size ());
    }
 
 }
@@ -530,10 +541,10 @@ void ComputationalDomain::determineActiveNodes ( const bool verbose ) {
    int inactiveNodes = 0;
 
    // Now that all the necessary information about active nodes has been gathered 
-   // it is now possible to set the node activity for both the ghost and local nodes.
-   for ( unsigned int i = nodeGrid.firstI ( true ); i <= nodeGrid.lastI ( true ); ++i ) {
+   // it is now possible to set the node activity for the local nodes.
+   for ( unsigned int i = nodeGrid.firstI (); i <= nodeGrid.lastI (); ++i ) {
 
-      for ( unsigned int j = nodeGrid.firstJ ( true ); j <= nodeGrid.lastJ ( true ); ++j ) {
+      for ( unsigned int j = nodeGrid.firstJ (); j <= nodeGrid.lastJ (); ++j ) {
          bool localNode = NumericFunctions::inRange<unsigned int> ( i, nodeGrid.firstI (), nodeGrid.lastI ()) and
                           NumericFunctions::inRange<unsigned int> ( j, nodeGrid.firstJ (), nodeGrid.lastJ ());
 
@@ -622,7 +633,7 @@ void ComputationalDomain::resizeGrids ( const int nodeCount ) {
       DMCreateGlobalVector ( m_grids.getNodeGrid ( 1 ).getDa (), &m_globalDofNumbers );
    }
 
-   m_scalarDofNumbers.reallocate ( FastcauldronSimulator::getInstance ().getActivityOutputGrid (), nodeCount );
+   m_depthIndexNumbers.reallocate ( FastcauldronSimulator::getInstance ().getActivityOutputGrid (), nodeCount );
    m_activeNodes.reallocate ( FastcauldronSimulator::getInstance ().getActivityOutputGrid (), nodeCount );
 }
 

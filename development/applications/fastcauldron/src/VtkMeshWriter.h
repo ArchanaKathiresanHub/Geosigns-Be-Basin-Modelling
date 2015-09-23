@@ -32,9 +32,14 @@ public :
    ///
    /// \param [in] domain The domain for which the mesh output is required.
    /// \param [in] fileName The name of the file in which the mesh will be written.
+   /// \param [in] zScale   How much to scale the depth.
    /// \param [in] useProjectOrigin Should the project origin be used, if not then (0,0) will be the origin.
+   ///
+   /// Some project may be very thin when compared to the lateral extent, so in order to 
+   /// better display such projects the zScale parameter can scale the depth dimension.
    void save ( const ComputationalDomain& domain,
                const std::string&         fileName,
+               const double               zScale = 1.0,
                const bool                 useProjectOrigin = true ) const;
 
 private :
@@ -55,10 +60,10 @@ private :
                                             IntegerArray&              numberOfActiveNodes,
                                             IntegerArray&              numberOfActiveElements ) const;
 
-
    /// \brief Get the node positions for the nodes that are local to the process.
    void getLocalNodes ( const ComputationalDomain& domain,
                         DoubleArray&               activeNodes,
+                        const double               zScale,
                         const bool                 useProjectOrigin ) const;
 
    /// \brief Get the element dof numbers for the dofs that are local to the process.

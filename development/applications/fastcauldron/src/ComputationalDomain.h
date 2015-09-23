@@ -37,13 +37,17 @@
 ///    1. The number of active nodes for this rank;
 ///    2. The number of active nodes for all ranks;
 ///    3. The number of active elements for this rank;
-///    4. A list containing the active elements for this rank.
+///    4. A list containing the active elements for this rank;
+///    5. An array containing the k-index values on this rank which includes the ghost nodes.
 ///
 /// Each active node will have a unique global dof number.
+///
+/// What is a k-index? A k-index is ...
 ///
 /// For PETSc DM objects the counting starts with 0 at the bottom of each needle and counts upwards.
 class ComputationalDomain {
 
+   /// \typedef FormationGeneralElementGrid
    typedef FormationElementGrid<GeneralElement> FormationGeneralElementGrid;
 
    /// \typedef FormationToElementGridMap
@@ -53,8 +57,8 @@ class ComputationalDomain {
 
    /// \brief Array of pointers to GeneralElement.
    ///
-   /// The raw pointer is used here because we take a reference of the element from the 3d array of elements.
-   /// It will be used to hold a list of elements that are active.
+   /// The raw pointer is used here because we take a reference of the element from the 
+   /// 3d array of elements. It will be used to hold a list of elements that are active.
    typedef std::vector<GeneralElement*> GeneralElementArray;
 
 public :
@@ -95,9 +99,17 @@ public :
    /// \brief Return the number of active nodes for the rank.
    int getLocalNumberOfActiveNodes () const;
 
+   /// \brief Determine if the dof number is from the dofs that are local to the process or not.
+   bool isLocalDof ( const int dof ) const;
+
    /// \brief Return the number of active nodes for all ranks.
    int getGlobalNumberOfActiveNodes () const;
 
+   /// \brief Get the maximum number of zero thickness segments for the rank.
+   ///
+   /// This number will include zero thickness segments that are local to
+   /// the rank and for the ghost nodes.
+   int getMaximumNumberDegenerateSegments () const;
 
    /// \brief Return the number of active elements for the rank.
    int getLocalNumberOfActiveElements () const;
@@ -129,10 +141,17 @@ public :
    /// A node is active it it takes active part the computation for the computational-domain.
    /// If n nodes are at the same location, due to a series of zero thickness segments, then 
    /// only 1 of them will be active.
+   /// The active nodes array is valid only for the nodes that are local to the rank, it 
+   /// does not include the ghost nodes.
    const LocalBooleanArray3D& getActiveNodes () const;
 
-   /// \brief Get the 3 dimensional array containing WHAT EXACTLY.
+   /// \brief Get the 3 dimensional array containing the k-index values.
+   ///
+   /// The index values are for both local and ghost nodes of the rank.
    const LocalIntegerArray3D& getDepthIndices () const;
+
+   /// \brief Get the PETSc vector that contains the global dof numbers.
+   Vec getDofVector () const;
 
    //
    // New Dof2DMDAMapping (or something like that)
@@ -194,7 +213,7 @@ private :
 
    /// \brief Assign the depth index numbers based on depth values.
    ///
-   /// This function updates the member m_scalarDofNumbers.
+   /// This function updates the member m_depthIndexNumbers.
    void assignDofNumbersUsingDepth ( const FormationGeneralElementGrid& layerGrid,
                                      const PETSC_3D_Array&              layerDepth,
                                      const int                          i,
@@ -206,7 +225,7 @@ private :
 
    /// \brief Assign the depth index numbers based on segments thicknesses.
    ///
-   /// This function updates the member m_scalarDofNumbers.
+   /// This function updates the member m_depthIndexNumbers.
    void assignDofNumbersUsingThickness ( const FormationGeneralElementGrid& layerGrid,
                                          const int                          i,
                                          const int                          j,
@@ -232,8 +251,8 @@ private :
    /// \brief All the active elements in the computational domain.
    GeneralElementArray               m_activeElements;
 
-   /// \brief Array containing the dof numbers for the computational domain.
-   LocalIntegerArray3D               m_scalarDofNumbers;
+   /// \brief Array containing the k-index numbers for the computational domain.
+   LocalIntegerArray3D               m_depthIndexNumbers;
 
    /// \brief Vector containing the dof numbers for the computational domain.
    Vec                               m_globalDofNumbers;
@@ -249,6 +268,11 @@ private :
 
    /// \brief Array of number of active nodes on al processes.
    IntegerArray                      m_numberOfActiveNodesPerProcess;
+
+   /// \brief The maximum number of zero thickness segments for this process
+   ///
+   /// This will include local and ghost segments.
+   int                               m_localMaximumNumberDegenerateSegments;
 
    /// \brief The rank on which this part of the computational domain lies.
    int                               m_rank;
@@ -266,8 +290,16 @@ inline const StratigraphicColumn& ComputationalDomain::getStratigraphicColumn ()
    return m_column;
 }
 
+inline const StratigraphicGrids& ComputationalDomain::getStratigraphicGrids () const {
+   return m_grids;
+}
+
 inline double ComputationalDomain::getCurrentAge () const {
    return m_currentAge;
+}
+
+inline int ComputationalDomain::getMaximumNumberDegenerateSegments () const {
+   return m_localMaximumNumberDegenerateSegments;
 }
 
 inline int ComputationalDomain::getLocalNumberOfActiveElements () const {
@@ -282,8 +314,12 @@ inline int ComputationalDomain::getLocalNumberOfActiveNodes () const {
    return m_numberOfActiveNodesPerProcess [ m_rank ];
 }
 
+inline bool ComputationalDomain::isLocalDof ( const int dof ) const {
+   return m_localStartDofNumber <= dof and dof < m_localStartDofNumber + m_numberOfActiveNodesPerProcess [ m_rank ];
+}
+
 inline const LocalIntegerArray3D& ComputationalDomain::getDepthIndices () const {
-   return m_scalarDofNumbers;
+   return m_depthIndexNumbers;
 }
 
 inline const LocalBooleanArray3D& ComputationalDomain::getActiveNodes () const {
@@ -298,7 +334,8 @@ inline GeneralElement& ComputationalDomain::getElement ( const size_t i ) {
    return *m_activeElements [ i ];
 }
 
-inline const ComputationalDomain::FormationGeneralElementGrid* ComputationalDomain::getFormationGrid ( const LayerProps* layer ) const {
+inline const ComputationalDomain::FormationGeneralElementGrid*
+ComputationalDomain::getFormationGrid ( const LayerProps* layer ) const {
 
    FormationToElementGridMap::const_iterator iter = m_layerMap.find ( layer );
 
@@ -308,6 +345,10 @@ inline const ComputationalDomain::FormationGeneralElementGrid* ComputationalDoma
       return 0;
    }
 
+}
+
+inline Vec ComputationalDomain::getDofVector () const {
+   return m_globalDofNumbers;
 }
 
 
