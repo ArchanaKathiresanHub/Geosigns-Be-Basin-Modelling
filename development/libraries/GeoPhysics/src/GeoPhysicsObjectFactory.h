@@ -42,7 +42,6 @@ namespace GeoPhysics {
                                                                    const string &       accessMode
 																   );
 
-
       /// Allocate a GeoPhysics fluid-type.
       DataAccess::Interface::FluidType* produceFluidType ( DataAccess::Interface::ProjectHandle* projectHandle,
                                                            database::Record*                     record );

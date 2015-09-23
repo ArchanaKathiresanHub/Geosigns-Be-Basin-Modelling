@@ -1,11 +1,21 @@
+//
+// Copyright (C) 2010-2015 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "Composition.h"
 #include "EosPack.h"
 #include "migration.h"
 #include "rankings.h"
-#include "CBMGenerics/src/consts.h"
+#include "consts.h"
 
 #ifdef DEBUG_PVT
-#include "CBMGenerics/src/waterDensity.h"
+#include "waterDensity.h"
 #endif
 
 #include <assert.h>

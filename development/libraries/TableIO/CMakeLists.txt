@@ -32,7 +32,7 @@ add_library( TableIO
 
 # under Linux we are building Boost that is why this target exist
 if (UNIX)
-   add_dependencies(TableIO Boost)
+add_dependencies(TableIO Boost)
 endif (UNIX)
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})

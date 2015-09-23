@@ -5,7 +5,7 @@
 #include "CapillarySealStrength.h"
 
 #include "Composition.h"
-#include "functions/src/MonotonicIncreasingPiecewiseLinearInvertableFunction.h"
+#include "MonotonicIncreasingPiecewiseLinearInvertableFunction.h"
 
 using functions::MonotonicIncreasingPiecewiseLinearInvertableFunction;
 

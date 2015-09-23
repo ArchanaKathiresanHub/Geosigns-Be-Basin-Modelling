@@ -89,7 +89,7 @@ GeoPhysics::ProjectHandle::ProjectHandle ( database::Database * database, const 
 
    loadFracturePressureCalculator ();
 #if 0
-   if( getRunParameters ()->getHydrodynamicCapillaryPressureFlowPath() ) {
+   if( getRunParameters ()->getHydrodynamicCapillaryPressure() ) {
      computeHCTables();
    }
 #endif

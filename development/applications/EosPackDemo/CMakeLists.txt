@@ -15,11 +15,13 @@ add_executable(EosPackDemo src/main.C)
 bm_include_libraries(
 	EosPack
 	CBMGenerics
+        utilities
 )
 
 target_link_libraries( EosPackDemo
 	EosPack
 	CBMGenerics
+        utilities
 )
 
 install( TARGETS EosPackDemo

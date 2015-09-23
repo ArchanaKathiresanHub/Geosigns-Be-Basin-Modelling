@@ -3,13 +3,13 @@
 #include "EosPack.h"
 
 #ifdef sgi
-   #ifdef _STANDARD_C_PLUS_PLUS
-      #include <iostream>
-   #else // !_STANDARD_C_PLUS_PLUS
-      #include<iostream.h>
-   #endif // _STANDARD_C_PLUS_PLUS
+#ifdef _STANDARD_C_PLUS_PLUS
+#include <iostream>
+#else // !_STANDARD_C_PLUS_PLUS
+#include<iostream.h>
+#endif // _STANDARD_C_PLUS_PLUS
 #else // !sgi
-   #include <iostream>
+#include <iostream>
 #endif // sgi
 
 #include <vector>
@@ -122,7 +122,7 @@ Immobiles & Immobiles::operator= (const Immobiles & original)
 
 ostream & migration::operator<< (ostream & stream, Immobiles &immobiles)
 {
-      return stream << & immobiles;
+   return stream << & immobiles;
 }
 
 ostream & migration::operator<< (ostream & stream, Immobiles * immobiles)

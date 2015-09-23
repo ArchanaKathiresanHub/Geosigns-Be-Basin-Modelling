@@ -26,6 +26,7 @@ Barrier::Barrier (Reservoir * reservoir) : m_reservoir (reservoir)
 
    m_values = Array<bool>::create2d (m_reservoir->getGrid ()->numI (),  m_reservoir->getGrid ()->numJ (), false);
    m_blockingPermeability = m_reservoir->getBlockingPermeability ();
+   m_blockingPorosity = m_reservoir->getBlockingPorosity();
 }
 
 Barrier::~Barrier (void)
@@ -36,7 +37,14 @@ Barrier::~Barrier (void)
 
 /// Use permeability properties of given formation to update the barrier's properties
 void Barrier::updateBlocking (const migration::Formation * formation,
-      const DataAccess::Interface::Snapshot * snapshot)
+                              const DataAccess::Interface::Snapshot * snapshot)
+{
+   updateBlockingPermeability(formation, snapshot);
+   updateBlockingPorosity(formation, snapshot);
+}
+
+void Barrier::updateBlockingPermeability (const migration::Formation * formation,
+                                          const DataAccess::Interface::Snapshot * snapshot)
 {
 #if 0
    cerr << "Update blocking of reservoir " << m_reservoir->getName () << " with formation " << formation->getName () << endl;
@@ -69,7 +77,43 @@ void Barrier::updateBlocking (const migration::Formation * formation,
       }
    }
    gridMap->restoreData ();
+
 }
+   
+void Barrier::updateBlockingPorosity (const migration::Formation * formation,
+                                      const DataAccess::Interface::Snapshot * snapshot)
+{
+#if 0
+   cerr << "Update blocking of reservoir " << m_reservoir->getName () << " with formation " << formation->getName () << endl;
+#endif
+   DerivedProperties::FormationPropertyPtr gridMap = m_reservoir->getVolumeProperty(formation, "Porosity", snapshot);
+   if (!gridMap) return;
+   gridMap->retrieveData ();
+   unsigned int depth = gridMap->lengthK();
+
+   unsigned int lastI = m_reservoir->getGrid ()->lastI ();
+   unsigned int lastJ = m_reservoir->getGrid ()->lastJ ();
+   double undefined = gridMap->getUndefinedValue ();
+
+   double value;
+   for (unsigned int i = m_firstI; i <= lastI; ++i)
+   {
+      for (unsigned int j = m_firstJ; j <= lastJ; ++j)
+      {
+         if (m_values[i - m_firstI][j - m_firstJ]) continue; // already blocking
+         for (unsigned int k = 0; k < depth; ++k)
+         {
+            if ((value = gridMap->get (i, j, k)) != undefined && value < m_blockingPorosity)
+            {
+               m_values[i - m_firstI][j - m_firstJ] = true;
+               break;
+            }
+         }
+      }
+   }
+   gridMap->restoreData ();
+   
+      }
 
 
 /// return whether the barrier is blocking for (i, j)

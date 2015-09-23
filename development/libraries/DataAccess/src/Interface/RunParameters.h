@@ -99,6 +99,34 @@ namespace DataAccess
          virtual bool getConstrainVES () const;
          /// @}
 
+         /// \name Fastmig (flow-path) parameters.
+         /// @{
+         
+         /// Indicates whether to perform flow path algorithm which considers capillary  and hydrodinamic forces.
+         virtual bool getHydrodynamicCapillaryPressure () const;
+
+         /// Indicates minimum oil column height a reservoir must be able to sustain
+         virtual double getMinOilColumnHeight () const;
+
+         /// Indicates minimum gas column height a reservoir must be able to sustain
+         virtual double getMinGasColumnHeight () const;
+
+         /// Indicates whether to perform vertical or non-vertical secondary migration.
+         virtual bool getVerticalSecondaryMigration () const;
+
+         /// Indicates whether to automatically detect reservoir nodes.
+         virtual bool getReservoirDetection () const;
+
+         /// Indicates whether to use secondary migration blocking
+         virtual bool getBlockingInd () const;
+
+         /// Permeability at which secondary migration blocks
+         virtual double getBlockingPermeability () const;
+
+         /// Porosity at which secondary migration blocks
+         virtual double getBlockingPorosity () const;
+         /// @}
+         
          virtual const std::string& getFracturePressureFunction () const;
 
          virtual const std::string& getFractureType () const;

@@ -3,15 +3,15 @@
 #include "petsc.h"
 
 #ifdef sgi
-   #ifdef _STANDARD_C_PLUS_PLUS
-      #include <iostream>
-      using namespace std;
-   #else // !_STANDARD_C_PLUS_PLUS
-      #include<iostream.h>
-   #endif // _STANDARD_C_PLUS_PLUS
+#ifdef _STANDARD_C_PLUS_PLUS
+#include <iostream>
+using namespace std;
+#else // !_STANDARD_C_PLUS_PLUS
+#include<iostream.h>
+#endif // _STANDARD_C_PLUS_PLUS
 #else // !sgi
-   #include <iostream>
-   using namespace std;
+#include <iostream>
+using namespace std;
 #endif // sgi
 
 #include "Migrator.h"
@@ -105,7 +105,7 @@ int main (int argc, char ** argv)
    {
       char cmd[150];
 
-      sprintf (cmd, "myddd %s %d &", argv[0],  getpid ());
+      sprintf (cmd, "ddd %s %d &", argv[0],  getpid ());
       system (cmd);
       sleep (10);
    }
@@ -148,7 +148,7 @@ int main (int argc, char ** argv)
    MPI_Comm_rank(PETSC_COMM_WORLD, &rank);
    
    
-   #ifdef FLEXLM
+#ifdef FLEXLM
    int rc = EPTFLEXLM_OK;
   
    char feature[EPTFLEXLM_MAX_FEATURE_LEN];
@@ -168,53 +168,53 @@ int main (int argc, char ** argv)
       rc = EPTFlexLmInit(errmessage);
       if ( rc != EPTFLEXLM_OK )
       {
-	  fprintf(stderr, "\n@@@@@@@@@@@@@@@\n FlexLm license init problems: fastcauldron cannot start.\n Please contact your helpdesk\n@@@@@@@@@@@@@@@\n");
+         fprintf(stderr, "\n@@@@@@@@@@@@@@@\n FlexLm license init problems: fastcauldron cannot start.\n Please contact your helpdesk\n@@@@@@@@@@@@@@@\n");
       }
       // FlexLM license handling: Checkout
       rc = EPTFlexLmCheckOut( feature, version, errmessage );
       if (rc == EPTFLEXLM_WARN)
       {
-	  fprintf(stderr,"\n@@@@@@@@@@@@@@@\n FlexLm license warning: fastcauldron will still start anyway.\n@@@@@@@@@@@@@@@\n");
+         fprintf(stderr,"\n@@@@@@@@@@@@@@@\n FlexLm license warning: fastcauldron will still start anyway.\n@@@@@@@@@@@@@@@\n");
       }
       else if ( rc != EPTFLEXLM_OK )
       {
-	  fprintf(stderr,"\n@@@@@@@@@@@@@@@\n FlexLm license error: fastcauldron cannot start.\n Please contact your helpdesk\n@@@@@@@@@@@@@@@\n");
+         fprintf(stderr,"\n@@@@@@@@@@@@@@@\n FlexLm license error: fastcauldron cannot start.\n Please contact your helpdesk\n@@@@@@@@@@@@@@@\n");
       }
    }
    
    MPI_Bcast ( &rc, 1, MPI_INT, 0, PETSC_COMM_WORLD);
    
-   #endif
+#endif
    
 #ifdef FLEXLM
    if( rc != EPTFLEXLM_OK && rc != EPTFLEXLM_WARN)
    {
-       //FlexLM license check in only for node with rank = 0
-       if( rank == 0 )
-       {
+      //FlexLM license check in only for node with rank = 0
+      if( rank == 0 )
+      {
 	 // FlexLm license check in, close down and enable logging
 	 EPTFlexLmCheckIn( feature );
 	 EPTFlexLmTerminate();
-       }
-	// Close PetSc
-       PetscFinalize ();
+      }
+      // Close PetSc
+      PetscFinalize ();
 
-       return -1;
+      return -1;
    }
 #endif
    
    bool status = true;
    Migrator * migrator = 0;
 
-   ObjectFactory* objectFactory = new ObjectFactory();
-
+   //ObjectFactory* objectFactory = new ObjectFactory();
+   
    StartTime ();
 
    if (status)
    {
       ReportProgress ("Reading Project File: ", inputFileName);
-	  migrator = Migrator::CreateFrom (inputFileName, objectFactory);
-      status = (migrator != 0);
+      migrator = new Migrator(inputFileName);
+         status = (migrator != 0);
    }
 
    if (status)
@@ -243,11 +243,11 @@ int main (int argc, char ** argv)
       if (GetRank () == 0)
       {
 	 migrator->sanitizeMigrationRecords ();
-	 // migrator->checkMigrationRecords ();
+	 migrator->checkMigrationRecords ();
 	 migrator->sortMigrationRecords ();
-	 // migrator->checkMigrationRecords ();
+	 migrator->checkMigrationRecords ();
 	 migrator->uniqueMigrationRecords ();
-	 // migrator->checkMigrationRecords ();
+	 migrator->checkMigrationRecords ();
 	 status = migrator->saveTo (outputFileName);
       }
    }
@@ -264,9 +264,9 @@ int main (int argc, char ** argv)
    }
 
    delete migrator;
-   delete objectFactory;
+   //delete objectFactory;
 
-   #ifdef FLEXLM
+#ifdef FLEXLM
    //FlexLM license check in only for node with rank = 0
    if( rank == 0 )
    {
@@ -274,7 +274,7 @@ int main (int argc, char ** argv)
       EPTFlexLmCheckIn( feature );
       EPTFlexLmTerminate();
    }
-   #endif
+#endif
    
    PetscFinalize ();
 
@@ -283,5 +283,5 @@ int main (int argc, char ** argv)
 
 void printUsage (char * argv0)
 {
-      PetscPrintf (PETSC_COMM_WORLD, "usage: %s -project fileName [-save fileName]\n", argv0);
+   PetscPrintf (PETSC_COMM_WORLD, "usage: %s -project fileName [-save fileName]\n", argv0);
 }

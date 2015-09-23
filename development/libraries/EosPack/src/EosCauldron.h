@@ -43,6 +43,15 @@ public:
    /// \note All input should be in MKS SI units
    static EosPvtTable* ConcoctBrew ( int iNc, int isRK, double *pvtData, double *pT, double *pLohrenz, double dCritAoverB, int iPhaseMethod );
 
+   static EosPvtTable* ConcoctBrew ( int iNc, int isRK, double *pMolecularWeight, 
+                                     double *pCriticalPressure, 
+                                     double *pCriticalTemperature,
+                                     double *pCriticalVolume, 
+                                     double *pAcentricFactor,
+                                     double *pOmegaA, double *pOmegaB, 
+                                     double *pShiftC, double *pBinary,
+                                     double *pLohrenz );
+
 
    /// \brief Entry point for Cauldron 
    ///
@@ -89,6 +98,9 @@ public:
                                  double *pAccumulation, double* pKValues,
                                  double *pPhaseAcc, double *pMassFraction, double *pDensity,
                                  double *pViscosity, EosPvtTable *pvtTable, int iItersNum, double dStopTol, double dNewtonRelCoef );
+
+   static void EosGetProperties ( int iFlashes, int iOil, int iGas, double *pPressure,double *pTemperature, double *pAccumulation,
+                                  double *pPhaseAcc, double *pMassFraction, double *pDensity, double *pViscosity, EosPvtTable *pvttable );
 
    /// \brief Default constructor
    EosCauldron();

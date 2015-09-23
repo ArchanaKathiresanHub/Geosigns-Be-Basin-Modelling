@@ -1,7 +1,7 @@
 #ifndef _MIGRATION_TRANSLATEPROPS_H_
 #define _MIGRATION_TRANSLATEPROPS_H_
 
-#include "CBMGenerics/src/capillarySealStrength.h"
+#include "capillarySealStrength.h"
 
 #include "Interface/LithoType.h"
 #include "Interface/Formation.h"

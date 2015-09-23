@@ -1,3 +1,13 @@
+//
+// Copyright (C) 2010-2015 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #ifndef _MIGRATION_RESERVOIR_H_
 #define _MIGRATION_RESERVOIR_H_
 
@@ -40,181 +50,183 @@ namespace migration
 {
    class OilToGasCracker;
 
-   typedef bool (* ConditionTest)(Column * columnA, Column * columnB);
+   typedef bool (*ConditionTest)(Column * columnA, Column * columnB);
 
    /// This class implements the Reservoir-specific migration functionality.
    /// It also implements the inter-process communication functionality as this is reservoir-scoped.
    /// It is constructed on top of the DataAccess::Reservoir class.
    class Reservoir : public Interface::Reservoir
    {
-      public:
-	 /// This constructor is called by the object factory
-	 Reservoir (Interface::ProjectHandle * projectHandle, database::Record * record);
+   public:
+      /// This constructor is called by the object factory
+      Reservoir (Interface::ProjectHandle * projectHandle, Migrator * const migrator, database::Record * record);
 
-	 /// Destructor
-	 virtual ~Reservoir (void);
+      /// Destructor
+      virtual ~Reservoir (void);
+
+      /// move the traps computed during the previous snapshot interval to the list of previous traps.
+      void retainPreviousTraps (void);
+      /// Remove the traps in the list of previous traps.
+      void removePreviousTraps (void);
+      /// Remove the traps in the list of traps.
+      void removeTraps (void);
+      /// retain properties calculated during the previous snapshot interval that
+      /// are required during the current snapshot interval.
+      void retainPreviousProperties (void);
+
+      /// reset all computed property values
+      bool clearProperties (void);
+      /// compute new input-based property values.
+      bool computeProperties (void);
+
+      /// reset properties from a previous timestep
+      bool clearPreviousProperties (void);
+
+      /// get index of the reservoir in a list of reservoirs
+      int getIndex (void);
 
    private:
-	 /// create the column grid of this reservoir.
-	 void createColumns (void);
-	 /// destroy the column grid of this reservoir.
-	 void destroyColumns (void);
+      /// create the column grid of this reservoir.
+      void createColumns (void);
+      /// destroy the column grid of this reservoir.
+      void destroyColumns (void);
+      /// compute the top and bottom depths of the reservoir
+      bool computeDepths (void);
+      /// compute the faults of the reservoir
+      bool computeFaults (void);
+      /// compute the overburdens of the reservoir
+      bool computeOverburdens (void);
+      /// compute the hydrostatic pressures as seabottom
+      bool computeSeaBottomPressures (void);
+      /// increase the overburdens of the reservoir in case it does not lie at the top of a formation
+      bool adaptOverburdens (void);
+      /// compute the porosities at the top of the reservoir
+      bool computePorosities (void);
+      /// compute the permeabilities:
+      bool computePermeabilities (void);
+      /// compute the temperatures at the top of the reservoir
+      bool computeTemperatures (void);
+      /// compute the pressures at the top of the reservoir
+      bool computePressures (void);
+      /// Sometimes we also need the hydrostatic pressure at the top of a trap:
+      bool computeHydrostaticPressures (void);
+      /// And the lithostatic pressures:
+      bool computeLithostaticPressures (void);
+      /// Load the necessary overburden properties used for diffusion:
+      bool computeOverburdenGridMaps (void);
 
    public:
-	 /// move the traps computed during the previous snapshot interval to the list of previous traps.
-	 void retainPreviousTraps (void);
-	 /// Remove the traps in the list of previous traps.
-	 void removePreviousTraps (void);
-	 /// Remove the traps in the list of traps.
-	 void removeTraps (void);
-	 /// retain properties calculated during the previous snapshot interval that
-	 /// are required during the current snapshot interval.
-	 void retainPreviousProperties (void);
-   public:
+      /// refine geometry, to take into account zero thicknesses
+      bool refineGeometry (void);
 
-	 /// reset all computed property values
-	 bool clearProperties (void);
-	 /// compute new input-based property values.
-	 bool computeProperties (void);
+      void setSourceFormation (const Formation * formation);
+      void setSourceReservoir (const Reservoir * reservoir);
 
-	 /// reset properties from a previous timestep
-	 bool clearPreviousProperties (void);
+      const Formation * getSourceFormation (void);
+
+      const Reservoir * getSourceReservoir (void);
+
+      double getMassStoredInColumns (void);
+      /// save properties that were derived from input maps during the current snapshot interval
+      bool saveComputedInputProperties (const bool saveSnapshot);
+      /// save properties the migration module computed during the current snapshot interval
+      bool saveComputedOutputProperties (const bool saveSnapshot);
+      /// save HCpathways along the reservoir seal
+      bool saveComputedPathways (const Interface::Snapshot *) const;
    private:
-	 /// compute the top and bottom depths of the reservoir
-	 bool computeDepths (void);
-	 /// compute the faults of the reservoir
-	 bool computeFaults (void);
-	 /// compute the overburdens of the reservoir
-	 bool computeOverburdens (void);
-	 /// compute the hydrostatic pressures as seabottom
-	 bool computeSeaBottomPressures (void);
-	 /// increase the overburdens of the reservoir in case it does not lie at the top of a formation
-	 bool adaptOverburdens (void);
-	 /// compute the porosities at the top of the reservoir
-	 bool computePorosities (void);
-         /// compute the permeabilities:
-         bool computePermeabilities (void);
-	 /// compute the temperatures at the top of the reservoir
-	 bool computeTemperatures (void);
-	 /// compute the pressures at the top of the reservoir
-	 bool computePressures (void);
-         /// Sometimes we also need the hydrostatic pressure at the top of a trap:
-         bool computeHydrostaticPressures (void);
-         /// And the lithostatic pressures:
-         bool computeLithostaticPressures (void);
-	 /// Load the necessary overburden properties used for diffusion:
-	 bool computeOverburdenGridMaps (void);
+      /// save the property specified by valueSpec under the given name for the given phase (if applicable).
+      bool saveComputedProperty (const string & name, ValueSpec valueSpec, PhaseId phase = NO_PHASE);
+
+      void changeTrapPropertiesRequestId (TrapPropertiesRequest * tpRequests, unsigned int maxNumberOfRequests, int oldId, int newId);
+      /// collect properties of traps in tpRequests
+      void collectTrapProperties (TrapPropertiesRequest * tpRequests, unsigned int maxNumberOfRequests);
+      /// renumber the traps in the MigrationIoTbl and fill the TrapIoTbl
+      void populateMigrationTables (TrapPropertiesRequest * tpRequests, unsigned int maxNumberOfRequests);
+      void eliminateUndersizedTraps (TrapPropertiesRequest * tpRequests, unsigned int maxNumberOfRequests);
+   public:
+      /// save trap-related scalar properties
+      bool saveTrapProperties (const bool saveSnapshot);
+
+      /// compute the traps of this reservoir
+      bool computeTraps (void);
+      /// compute the migration paths of this reservoir
+      bool computePathways (void);
+      /// compute the migration target columns of all columns.
+      bool computeTargetColumns (void);
+      /// compute the charge fluxes through the reservoir
+      bool computeFluxes (void);
+
+      void printInconsistentTrapVolumes (void);
+
+      /// recompute the depth to volume functions if oil to gas cracking has been performed
+      bool recomputeTrapDepthToVolumeFunctions (void);
+   private:
+      /// compute the columns for which the depth is at a local minimum and create a trap for them.
+      bool computeTrapTops (void);
+      /// compute the areas covered by each trap.
+      bool computeTrapExtents (void);
+
+
+      /// initialize the traps
+      bool initializeTraps (void);
+
+      /// If the column at the given indices is at a local depth minimum, create a trap for it.
+      void computeTrapTop (PhaseId phase, unsigned int i, unsigned int j);
+
+      bool computeTargetColumn (PhaseId phase, unsigned int i, unsigned int j);
 
    public:
-	 /// refine geometry, to take into account zero thicknesses
-	 bool refineGeometry (void);
+      double getSurface (unsigned int i, unsigned int j) const;
 
-	 void setSourceFormation (const Formation * formation);
-	 void setSourceReservoir (const Reservoir * reservoir);
-
-	 const Formation * getSourceFormation (void);
-
-	 const Reservoir * getSourceReservoir (void);
-
-	 double getMassStoredInColumns (void);
-	 /// save properties that were derived from input maps during the current snapshot interval
-	 bool saveComputedInputProperties ( const bool saveSnapshot );
-	 /// save properties the migration module computed during the current snapshot interval
-	 bool saveComputedOutputProperties ( const bool saveSnapshot );
    private:
-	 /// save the property specified by valueSpec under the given name for the given phase (if applicable).
-	 bool saveComputedProperty (const string & name, ValueSpec valueSpec, PhaseId phase = NO_PHASE);
-   private:
-	 void changeTrapPropertiesRequestId (TrapPropertiesRequest * tpRequests, unsigned int maxNumberOfRequests, int oldId, int newId);
-	 /// collect properties of traps in tpRequests
-	 void collectTrapProperties (TrapPropertiesRequest * tpRequests, unsigned int maxNumberOfRequests);
-	 /// renumber the traps in the MigrationIoTbl and fill the TrapIoTbl
-	 void populateMigrationTables (TrapPropertiesRequest * tpRequests, unsigned int maxNumberOfRequests);
-	 void eliminateUndersizedTraps (TrapPropertiesRequest * tpRequests, unsigned int maxNumberOfRequests);
-   public:
-	 /// save trap-related scalar properties
-	 bool saveTrapProperties ( const bool saveSnapshot );
+      bool computeAdjacentColumn (PhaseId phase, unsigned int i, unsigned int j);
 
-	 /// compute the traps of this reservoir
-	 bool computeTraps (void);
-	 /// compute the migration paths of this reservoir
-	 bool computePathways (void);
-	 /// compute the migration target columns of all columns.
-	 bool computeTargetColumns (void);
-	 /// compute the charge fluxes through the reservoir
-	 bool computeFluxes (void);
+      bool computeFlux (PhaseId phase, unsigned int i, unsigned int j);
 
-	 void printInconsistentTrapVolumes (void);
+      Trap * findTrap (int globalId);
 
-	 /// recompute the depth to volume functions if oil to gas cracking has been performed
-	 bool recomputeTrapDepthToVolumeFunctions (void);
-   private:
-	 /// compute the columns for which the depth is at a local minimum and create a trap for them.
-	 bool computeTrapTops (void);
-	 /// compute the areas covered by each trap.
-	 bool computeTrapExtents (void);
-
-
-	 /// initialize the traps
-	 bool initializeTraps (void);
-
-	 /// If the column at the given indices is at a local depth minimum, create a trap for it.
-	 void computeTrapTop (PhaseId phase, unsigned int i, unsigned int j);
-
-	 bool computeTargetColumn (PhaseId phase, unsigned int i, unsigned int j);
+      void addTrap (Trap * trap);
 
    public:
-	 double getSurface (unsigned int i, unsigned int j) const;
-   private:
+      Column * getAdjacentColumn (PhaseId phase, Column * column, Trap * trap = 0);
 
-	 bool computeAdjacentColumn (PhaseId phase, unsigned int i, unsigned int j);
+      void processTrapProperties (TrapPropertiesRequest & tpRequest);
 
-	 bool computeFlux (PhaseId phase, unsigned int i, unsigned int j);
+      bool crackChargesToBeMigrated (OilToGasCracker & otgc);
 
-	 Trap * findTrap (int globalId);
+      bool collectLeakedCharges (Reservoir * leakingReservoir, Barrier * barrier);
 
-	 void addTrap (Trap * trap);
-
-   public:
-	 Column * getAdjacentColumn (PhaseId phase, Column * column, Trap * trap = 0);
-
-	 void processTrapProperties (TrapPropertiesRequest & tpRequest);
-
-	 bool crackChargesToBeMigrated (OilToGasCracker & otgc);
-
-	 bool collectLeakedCharges (Reservoir * leakingReservoir, Barrier * barrier);
-
-	 bool collectExpelledCharges (const Formation * formation, unsigned int direction,
-	       Barrier * barrier);
-	 void deleteExpelledChargeMaps (const Formation * formation);
+      bool collectExpelledCharges (const Formation * formation, unsigned int direction,
+                                   Barrier * barrier);
+      void deleteExpelledChargeMaps (const Formation * formation);
 
    public:
-	 bool fillAndSpill (void);
+      bool fillAndSpill (void);
    private:
-	 bool distributionHasFinished (void);
-	 bool distributeCharges (void);
+      bool distributionHasFinished (void);
+      bool distributeCharges (void);
    public:
-	 void incrementChargeDistributionCount (void);
-	 void reportChargeDistributionCount (void);
+      void incrementChargeDistributionCount (void);
+      void reportChargeDistributionCount (void);
    private:
-         void reportLeakages (void);
-         bool computeDistributionParameters (void);
-	 double biodegradeCharges (void);
-         bool isDiffusionOn (void);
-         bool diffusionLeakCharges (void);
-	 void mergeSpillingTraps (void);
+      void reportLeakages (void);
+      bool computeDistributionParameters (void);
+      double biodegradeCharges (void);
+      bool isDiffusionOn (void);
+      bool diffusionLeakCharges (void);
+      void mergeSpillingTraps (void);
 #ifdef MERGEUNDERSIZEDTRAPSAPRIORI
-	 bool mergeUndersizedTraps (void);
+      bool mergeUndersizedTraps (void);
 #endif
-	 bool determineTrapsToMerge (ConditionTest conditionTest);
-	 void absorbTraps (void);
-	 void removeUndersizedTraps (void);
-	 void completeTrapExtensions (void);
+      bool determineTrapsToMerge (ConditionTest conditionTest);
+      void absorbTraps (void);
+      void removeUndersizedTraps (void);
+      void completeTrapExtensions (void);
    public:
-	 void broadcastTrapDiffusionStartTimes (void);
-	 void broadcastTrapPenetrationDistances (void);
-	 void broadcastTrapChargeProperties (void);
-	 void broadcastTrapFillDepthProperties (void);
+      void broadcastTrapDiffusionStartTimes (void);
+      void broadcastTrapPenetrationDistances (void);
+      void broadcastTrapChargeProperties (void);
+      void broadcastTrapFillDepthProperties (void);
    private:
 
    public:
@@ -225,27 +237,27 @@ namespace migration
 
    private:
 
-       DerivedProperties::SurfacePropertyPtr getSeaBottomProperty ( const string & propertyName, const Interface::Snapshot * snapshot ) const;
-       DerivedProperties::SurfacePropertyPtr getTopSurfaceProperty ( const string & propertyName, const Interface::Snapshot * snapshot ) const;
-       DerivedProperties::SurfacePropertyPtr getBottomSurfaceProperty ( const string & propertyName, const Interface::Snapshot * snapshot ) const;
-       DerivedProperties::FormationPropertyPtr getTopFormationProperty ( const string & propertyName, const Interface::Snapshot * snapshot ) const;
-       DerivedProperties::FormationPropertyPtr getSeaBottomFormationProperty ( const string & propertyName, const Interface::Snapshot * snapshot ) const;
+      DerivedProperties::SurfacePropertyPtr getSeaBottomProperty (const string & propertyName, const Interface::Snapshot * snapshot) const;
+      DerivedProperties::SurfacePropertyPtr getTopSurfaceProperty (const string & propertyName, const Interface::Snapshot * snapshot) const;
+      DerivedProperties::SurfacePropertyPtr getBottomSurfaceProperty (const string & propertyName, const Interface::Snapshot * snapshot) const;
+      DerivedProperties::FormationPropertyPtr getTopFormationProperty (const string & propertyName, const Interface::Snapshot * snapshot) const;
+      DerivedProperties::FormationPropertyPtr getSeaBottomFormationProperty (const string & propertyName, const Interface::Snapshot * snapshot) const;
 
-      const Interface::Formation* getSeaBottomFormation ( const Interface::Snapshot * snapshot ) const;
-      const Interface::Formation* getTopFormation ( const Interface::Snapshot * snapshot ) const;
+      const Interface::Formation* getSeaBottomFormation (const Interface::Snapshot * snapshot) const;
+      const Interface::Formation* getTopFormation (const Interface::Snapshot * snapshot) const;
 
-	 const Interface::GridMap * getPropertyGridMap (const string & propertyName,
-	       const Interface::Snapshot * snapshot,
-	       const Interface::Reservoir * reservoir,
-	       const Interface::Formation * formation,
-	       const Interface::Surface * surface) const;
+      const Interface::GridMap * getPropertyGridMap (const string & propertyName,
+                                                     const Interface::Snapshot * snapshot,
+                                                     const Interface::Reservoir * reservoir,
+                                                     const Interface::Formation * formation,
+                                                     const Interface::Surface * surface) const;
       DerivedProperties::FormationPropertyPtr getFormationPropertyPtr ( const string &              propertyName,
                                                                         const Interface::Snapshot * snapshot ) const;
 
 	 ProxyColumn * getProxyColumn (unsigned int i, unsigned int j);
    public:
-	 LocalColumn * getLocalColumn (unsigned int i, unsigned int j);
-	 Column * getColumn (unsigned int i, unsigned int j);
+         LocalColumn * getLocalColumn (unsigned int i, unsigned int j) const;
+         Column * getColumn (unsigned int i, unsigned int j) const;
 
 	 const Interface::Grid * getGrid (void) const;
    private:
@@ -256,7 +268,7 @@ namespace migration
 
 	 inline bool hasName (const string & name);
 
-         inline const string depthPropertyName() const;
+         inline const string depthPropertyName () const;
          
    public:
 	 inline void setStart (const DataAccess::Interface::Snapshot * start);
@@ -288,6 +300,7 @@ namespace migration
 	 void clearProxyProperties (ColumnValueRequest & valueRequest);
 	 void manipulateColumn (ColumnColumnRequest & columnRequest);
 	 void manipulateColumnComposition (ColumnCompositionRequest & compositionRequest);
+         void getColumnComposition (ColumnCompositionRequest & compositionRequest, ColumnCompositionRequest & compositionResponse);
 
 
 	 MigrationRequest * findMigrationRequest (MigrationRequest & request);
@@ -326,12 +339,12 @@ namespace migration
 	 bool subtractChargesToBeMigrated (ComponentId componentId, const DataAccess::Interface::GridMap * gridMap, double fraction, Barrier * barrier);
 	 bool checkChargesToBeMigrated (ComponentId componentId);
 
+   public:
 	 void addBlocked (ComponentId componentId, double mass);
 	 void addBlocked (const Composition & composition);
 	 void subtractBlocked (ComponentId componentId, double mass);
 	 void subtractBlocked (const Composition & composition);
 
-public:
 	 const Composition & getBlocked (void) const;
 	 double getTotalBlocked (void) const;
 
@@ -358,10 +371,14 @@ public:
 	 bool processMigration (MigrationRequest & mr);
 	 bool processAbsorption (MigrationRequest & mr);
 
-      bool preprocessSourceRock(const Formation * formation, const double startTime ) ; 
+         bool preprocessSourceRock (const Formation * formation, const double startTime);
 
-      bool saveGenexMaps( const string & speciesName, DataAccess::Interface::GridMap * aMap, const Formation * formation, const Snapshot * aSnapshot );
-     private:
+         bool saveGenexMaps (const string & speciesName, DataAccess::Interface::GridMap * aMap, const Formation * formation, const Snapshot * aSnapshot);
+
+   private:
+
+         // Pointer to the migrator object
+         Migrator * const m_migrator;
 
 	 /// The Traps we work on
 	 TrapVector m_traps;
@@ -409,7 +426,9 @@ public:
 	 MigrationRequestVector m_migrationRequests;
 
 	 bool m_computeFluxesHasFinished;
-  };
+
+         int m_index;
+   };
 }
 
 bool migration::Reservoir::lowResEqualsHighRes (void) const
@@ -422,9 +441,9 @@ bool migration::Reservoir::hasName (const string & name)
    return getName () == name;
 }
 
-const string migration::Reservoir::depthPropertyName ( ) const
+const string migration::Reservoir::depthPropertyName () const
 {
-   if( m_lowResEqualsHighRes ) return "Depth";
+   if (m_lowResEqualsHighRes) return "Depth";
    else return "DepthHighRes";
 }
 

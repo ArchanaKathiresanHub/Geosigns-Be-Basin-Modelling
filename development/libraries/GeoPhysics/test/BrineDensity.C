@@ -65,18 +65,18 @@ TEST ( BrineDensity, testing_non_negative )
    {
       for ( int j=0; j<=4; ++j )
       {
-         EXPECT_GE( valuesCheck.phaseChange( -1000.0, 0.1*double(i), 0.1*double(j) ), 0.0 );
-         EXPECT_GE( valuesCheck.phaseChange( -100.0, 0.1*double(i), 0.1*double(j) ), 0.0 );
-         EXPECT_GE( valuesCheck.phaseChange( 0.0, 0.1*double(i), 0.1*double(j) ), 0.0 );
-         EXPECT_GE( valuesCheck.phaseChange( 80.0, 0.1*double(i), 0.1*double(j) ), 0.0 );
-         EXPECT_GE( valuesCheck.phaseChange( 150.0, 0.1*double(i), 0.1*double(j) ), 0.0 );
-         EXPECT_GE( valuesCheck.phaseChange( 280.0, 0.1*double(i), 0.1*double(j) ), 0.0 );
-         EXPECT_GE( valuesCheck.phaseChange( 450.0, 0.1*double(i), 0.1*double(j) ), 0.0 );
-         EXPECT_GE( valuesCheck.phaseChange( 680.0, 0.1*double(i), 0.1*double(j) ), 0.0 );
-         EXPECT_GE( valuesCheck.phaseChange( 900.0, 0.1*double(i), 0.1*double(j) ), 0.0 );
-         EXPECT_GE( valuesCheck.phaseChange( 1200.0, 0.1*double(i), 0.1*double(j) ), 0.0 );
-         EXPECT_GE( valuesCheck.phaseChange( 2000.0, 0.1*double(i), 0.1*double(j) ), 0.0 );
-         EXPECT_GE( valuesCheck.phaseChange( 6800.0, 0.1*double(i), 0.1*double(j) ), 0.0 );
+         EXPECT_GT( valuesCheck.phaseChange( -1000.0, 0.1*double(i), 0.1*double(j) ), 0.0 );
+         EXPECT_GT( valuesCheck.phaseChange( -100.0, 0.1*double(i), 0.1*double(j) ), 0.0 );
+         EXPECT_GT( valuesCheck.phaseChange( 0.0, 0.1*double(i), 0.1*double(j) ), 0.0 );
+         EXPECT_GT( valuesCheck.phaseChange( 80.0, 0.1*double(i), 0.1*double(j) ), 0.0 );
+         EXPECT_GT( valuesCheck.phaseChange( 150.0, 0.1*double(i), 0.1*double(j) ), 0.0 );
+         EXPECT_GT( valuesCheck.phaseChange( 280.0, 0.1*double(i), 0.1*double(j) ), 0.0 );
+         EXPECT_GT( valuesCheck.phaseChange( 450.0, 0.1*double(i), 0.1*double(j) ), 0.0 );
+         EXPECT_GT( valuesCheck.phaseChange( 680.0, 0.1*double(i), 0.1*double(j) ), 0.0 );
+         EXPECT_GT( valuesCheck.phaseChange( 900.0, 0.1*double(i), 0.1*double(j) ), 0.0 );
+         EXPECT_GT( valuesCheck.phaseChange( 1200.0, 0.1*double(i), 0.1*double(j) ), 0.0 );
+         EXPECT_GT( valuesCheck.phaseChange( 2000.0, 0.1*double(i), 0.1*double(j) ), 0.0 );
+         EXPECT_GT( valuesCheck.phaseChange( 6800.0, 0.1*double(i), 0.1*double(j) ), 0.0 );
       }
    }
 }
@@ -125,7 +125,7 @@ TEST ( BrineDensity, testing_ordering_temperature )
 {
    BrineDensityTest valuesCheck;
   
-   for ( int i=0; i<100; ++i )
+   for ( int i=0; i<=100; ++i )
    {
       for ( int j=0; j<4; ++j )
       {

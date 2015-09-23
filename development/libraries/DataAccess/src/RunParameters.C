@@ -28,7 +28,6 @@ using namespace database;
 #include "errorhandling.h"
 #include "NumericFunctions.h"
 
-
 using namespace DataAccess;
 using namespace Interface;
 
@@ -136,6 +135,38 @@ bool RunParameters::getConstrainVES () const {
    return database::getConstrain_VES ( m_record ) == 1;
 }
 
+bool RunParameters::getVerticalSecondaryMigration () const {
+   return database::getVerticalSecondaryMigration ( m_record ) != 0;
+}
+
+bool RunParameters::getHydrodynamicCapillaryPressure () const {
+   return database::getHydrodynamicCapillaryPressure ( m_record ) != 0;
+}
+
+bool RunParameters::getReservoirDetection () const {
+   return database::getReservoirDetection ( m_record ) != 0;
+}
+
+double RunParameters::getMinOilColumnHeight () const {
+   return database::getMinOilColumnHeight ( m_record );
+}
+
+double RunParameters::getMinGasColumnHeight () const {
+   return database::getMinGasColumnHeight ( m_record );
+}
+
+bool RunParameters::getBlockingInd () const {
+   return database::getBlockingInd ( m_record ) != 0;
+}
+
+double RunParameters::getBlockingPermeability  () const {
+   return database::getBlockingPermeability ( m_record );
+}
+
+double RunParameters::getBlockingPorosity  () const {
+   return database::getBlockingPorosity ( m_record );
+}
+
 const std::string& RunParameters::getFracturePressureFunction () const {
    return database::getFracturePressureFunction ( m_record );
 }
@@ -147,6 +178,7 @@ const std::string& RunParameters::getFractureType () const {
 int RunParameters::getFractureModel () const {
    return database::getFractureModel ( m_record );
 }
+
 
 bool RunParameters::getChemicalCompaction () const {
    return database::getChemicalCompaction ( m_record ) == 1;

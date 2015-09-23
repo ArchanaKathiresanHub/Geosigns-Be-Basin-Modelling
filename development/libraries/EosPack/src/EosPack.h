@@ -1,15 +1,29 @@
+// Copyright (C) 2010-2015 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #ifndef EOSPACK_H
 #define EOSPACK_H
 
-///#include "Genex5Framework.h"
 #include "ComponentManager.h"
 #include "polynomials.h"
+//#include "IBSinterpolator2d.h"
 
 #include <vector>
 #include <string>
 
 using std::vector;
 using std::string;
+
+namespace ibs
+{
+   class Interpolator2d;
+}
 
 namespace pvtFlash
 {
@@ -73,6 +87,11 @@ namespace pvtFlash
 
    const int N_PHASES = CBMGenerics::ComponentManager::NumberOfPhases;
 
+   enum PhaseId
+   {
+      FIRST_PASE = 0, GAS = 0, VAPOUR = 0, OIL = 1, LIQUID = 1, LAST_PHASE = 1, NUM_PHASES = 2
+   };
+
    enum PVTPhase { VAPOUR_PHASE = 0, LIQUID_PHASE = 1 };
 
    extern std::string pvtPropertiesConfigFile;
@@ -92,6 +111,8 @@ namespace pvtFlash
    public:
       /// \brief returns the only instance of this (singleton) class
       static EosPack& getInstance();
+
+      static const char * getEosPackDir ();
  
       /// \brief In multithreading cases we need separate instance for each thread. Creates such instance
       static EosPack* createNewInstance() { return new EosPack(); }
@@ -117,8 +138,7 @@ namespace pvtFlash
       ///                and the k-values will be stored in the array.
       bool compute( double temperature, 
                     double pressure, 
-                    double compMasses[],                                        
-                    //double  phaseCompMasses[][CBMGenerics::ComponentManager::NumberOfOutputSpecies],
+                    double compMasses[],
                     double phaseCompMasses[][CBMGenerics::ComponentManager::NumberOfSpeciesToFlash],
                     double phaseDensity[],
                     double phaseViscosity[],
@@ -126,6 +146,9 @@ namespace pvtFlash
                     double gorm = 0.0,
                     double* kValues = 0
                   );
+
+      bool compute (double temperature, double pressure, int componentId,
+	            int & phase, double & density, double & viscosity);
 
       /// \brief Compute with lumped sulphur species into C15+Sat and C6-14Aro
       bool computeWithLumping( double temperature, 
@@ -199,6 +222,10 @@ namespace pvtFlash
 
       int m_isRK;
 
+      ibs::Interpolator2d * m_phaseTable[NUM_COMPONENTS];
+      ibs::Interpolator2d * m_densityTable[NUM_COMPONENTS];
+      ibs::Interpolator2d * m_viscosityTable[NUM_COMPONENTS];
+
       polynomials::PiecewisePolynomial** m_propertyFunc;   // [NUM_COMP][PropertyId] (component-based data)
       // PropertyId=0: molecular weight
       // PropertyId=1: acentric factor
@@ -210,6 +237,10 @@ namespace pvtFlash
       polynomials::PiecewisePolynomial* m_omegaA;          // [1], general data
       polynomials::PiecewisePolynomial* m_omegaB;          // [1], general data
       polynomials::PiecewisePolynomial* m_corrLBC;         // [5], general data
+
+      bool loadComponentTables (int componentId);
+      bool getComponentPhaseValues (int componentId, double temperature, double pressure, int & phase, double & density, double & viscosity);
+      bool computeComponentPhaseValues (int componentId, double temperature, double pressure, int & phase, double & density, double & viscosity);
 
       bool m_isReadInOk;
 
@@ -229,6 +260,9 @@ namespace pvtFlash
    
    /// Size(weights) = ComponentManager::NumberOfOutputSpecies
    double getMolWeight( int componentId, const vector<double>& weights );
+
+   /// Crtical Temperature per component
+   double getCriticalTemperature (int componentId, double gorm);
    
    double criticalTemperatureAccordingToLiMixingRule( const vector<double>& weights, const double& gorm );
    double criticalTemperatureAccordingToLiMixingRuleWithLumping( const vector<double>& weights, const double& gorm );

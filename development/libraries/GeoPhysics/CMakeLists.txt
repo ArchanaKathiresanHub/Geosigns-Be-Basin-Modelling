@@ -29,12 +29,12 @@ set(cross_platform_headers
       src/SeismicVelocityGardner.h
       src/SeismicVelocityKennan.h
       src/SeismicVelocityWyllie.h
-      src/SchneiderCompactionCalculator.h
-      src/SoilMechanicsPorosity.h
+	  src/SchneiderCompactionCalculator.h
+	  src/SoilMechanicsPorosity.h
       src/VreTtiMethod.h
       src/VreArrheniusMethod.h
       src/VitriniteReflectance.h
-      src/WalderhaugCompactionCalculator.h
+	  src/WalderhaugCompactionCalculator.h
 )
 
 set(unix_only_headers
@@ -82,12 +82,12 @@ set(cross_platform_srcs
       src/SeismicVelocityGardner.C
       src/SeismicVelocityKennan.C
       src/SeismicVelocityWyllie.C
-      src/SchneiderCompactionCalculator.C
-      src/SoilMechanicsPorosity.C
+	  src/SchneiderCompactionCalculator.C
+	  src/SoilMechanicsPorosity.C
       src/VreTtiMethod.C
       src/VreArrheniusMethod.C
       src/VitriniteReflectance.C
-      src/WalderhaugCompactionCalculator.C
+	  src/WalderhaugCompactionCalculator.C
 )
 
 set(unix_only_srcs
@@ -150,7 +150,7 @@ add_library( GeoPhysics
 
 # under Linux we are building Boost that is why this target exist
 if (UNIX)
-   add_dependencies(GeoPhysics Boost)
+add_dependencies(GeoPhysics Boost)
 endif (UNIX)
 
 bm_include_libraries( 

@@ -23,7 +23,6 @@ Interface::ProjectHandle * GeoPhysics::ObjectFactory::produceProjectHandle ( dat
    return new GeoPhysics::ProjectHandle ( database, name, accessMode, this );
 }
 
-
 Interface::FluidType* GeoPhysics::ObjectFactory::produceFluidType ( Interface::ProjectHandle* projectHandle,
                                                                     database::Record*         record ) {
 

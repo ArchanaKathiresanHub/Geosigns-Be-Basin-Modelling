@@ -21,26 +21,28 @@ using namespace DataAccess;
 namespace migration
 {
 
-Surface::Surface (Interface::ProjectHandle * projectHandle, database::Record * record)
-   : Interface::Surface (projectHandle, record)
-{
-}
+   Surface::Surface (Interface::ProjectHandle * projectHandle, Migrator * const migrator, database::Record * record)
+      : Interface::Surface (projectHandle, record),
+        m_migrator (migrator)
+   {
+   }
 
-Surface::~Surface (void)
-{
-}
+   Surface::~Surface (void)
+   {
+   }
 
-const Surface * Surface::getTopSurface () const
-{
-   const Interface::Formation * formation = getTopFormation ();
+   const Surface * Surface::getTopSurface () const
+   {
+      const Interface::Formation * formation = getTopFormation ();
       
-   return (const Surface *) (formation ? formation->getTopSurface () : 0);
-}
+      return (const Surface *) (formation ? formation->getTopSurface () : 0);
+   }
 
-const Surface * Surface::getBottomSurface () const
-{
-   const Interface::Formation * formation = getBottomFormation ();
+   const Surface * Surface::getBottomSurface () const
+   {
+      const Interface::Formation * formation = getBottomFormation ();
       
-   return (const Surface *) (formation ? formation->getBottomSurface () : 0);
-}
+      return (const Surface *) (formation ? formation->getBottomSurface () : 0);
+   }
+
 }

@@ -3066,6 +3066,30 @@ START-properties
     Error Field         : No
     Default             : 1
 
+    Identification      : VerticalSecondaryMigration
+    Description         : Perform vertical or non-vertical secondary migrattion
+    Type                : integer
+    Error Field         : No
+    Time dependent      : No
+    Property I/O        : No
+    Default             : 1
+
+    Identification      : HydrodynamicCapillaryPressure
+    Description         : Consider hydrodynamic and capillary forces in flow path modeling
+    Type                : integer
+    Error Field         : No
+    Time dependent      : No
+    Property I/O        : No
+    Default             : 0
+
+    Identification      : ReservoirDetection
+    Description         : Automatic detection of nodes that are reservoir candidates
+    Type                : integer
+    Error Field         : No
+    Time dependent      : No
+    Property I/O        : No
+    Default             : 0
+
     Identification      : Constrain_VES
     Description         : Constrain VES to be greater than zero/Reference VES (0 or 1.0e5)(Should be Boolean)
     Type                : integer
@@ -3337,6 +3361,24 @@ START-properties
     Default             : 0
     Error Field         : No
 
+    Identification      : MinOilColumnHeight 
+    Description         : minimum oil column height
+    Unit of measurement : m
+    Type                : double 
+    Default		: 0.5
+    Error Field         : No
+    Time dependent      : No
+    Property I/O        : No
+
+    Identification      : MinGasColumnHeight 
+    Description         : minimum gas column height
+    Unit of measurement : m
+    Type                : double
+    Default		: 0.5
+    Error Field         : No
+    Time dependent      : No
+    Property I/O        : No
+
     Identification      : ActivityMode
     Description         : Reservoir activityMode
     Type                : string
@@ -3364,6 +3406,15 @@ START-properties
     Unit of measurement : mD
     Default             : 1e-9
     Error Field         : No
+
+    Identification      : BlockingPorosity
+    Description         : Porosity at which to block secondary migration
+    Type                : float
+    Unit of measurement : %
+    Default		: 0
+    Error Field         : No
+    Time dependent      : No
+    Property I/O        : No
 
     Identification      : PermafrostInd
     Description         : Indicate whether or not include permafrost modelling (1 = yes, 0 = no)
@@ -6440,6 +6491,9 @@ START-property-tables
     Column         : Optimisation_Level
     Column         : Temperature_Gradient
     Column         : Constrain_VES
+    Column         : VerticalSecondaryMigration
+    Column         : HydrodynamicCapillaryPressure
+    Column         : ReservoirDetection
     Column         : HeatFlowSolution
     Column         : PrefSnapstep
     Column         : StepsPerSegment
@@ -7083,9 +7137,12 @@ START-property-tables
     Column         : LayerFrequencyGrid
     Column         : BioDegradInd 
     Column         : OilToGasCrackingInd 
-    Column         : DiffusionInd 
+    Column         : DiffusionInd
+    Column         : MinOilColumnHeight
+    Column         : MinGasColumnHeight
     Column         : BlockingInd 
-    Column         : BlockingPermeability 
+    Column         : BlockingPermeability
+    Column         : BlockingPorosity
     Header         : Reservoir Data
 
     Identification : BioDegradIoTbl

@@ -1,46 +1,46 @@
 #ifndef _MIGRATION_DISTRIBUTE_LEAK_H_
 #define _MIGRATION_DISTRIBUTE_LEAK_H_
 
-#include "functions/src/MonotonicIncreasingPiecewiseLinearInvertableFunction.h"
-#include "functions/src/Tuple2.h"
+#include "MonotonicIncreasingPiecewiseLinearInvertableFunction.h"
+#include "Tuple2.h"
 
 using functions::MonotonicIncreasingPiecewiseLinearInvertableFunction;
 using functions::Tuple2;
 
 namespace migration { namespace distribute {
 
-class Leak
-{
-private:
+      class Leak
+      {
+      private:
 
-   double m_fluidDensity;
-   double m_sealFluidDensity;
-   double m_maxSealPressure;
+         double m_fluidDensity;
+         double m_sealFluidDensity;
+         double m_maxSealPressure;
 
-   Tuple2<double> m_maxBuoyancy;
+         Tuple2<double> m_maxBuoyancy;
 
 #ifdef DEBUG_LEAK
-   Tuple2<double> m_capacity;
+         Tuple2<double> m_capacity;
 #endif
 
-public:
+      public:
 
-   Leak(const double& fluidDensity, const double& sealFluidDensity, const double& maxSealPressure,  
-      const MonotonicIncreasingPiecewiseLinearInvertableFunction* levelToVolume);
+         Leak(const double& fluidDensity, const double& sealFluidDensity, const double& maxSealPressure,  
+              const MonotonicIncreasingPiecewiseLinearInvertableFunction* levelToVolume);
 
-   void distribute(const double& fluidVolume, double& fluidVolumeLeaked) const;
+         void distribute(const double& fluidVolume, double& fluidVolumeLeaked) const;
 
-   double& getFluidDensity() { return m_fluidDensity; }
+         double& getFluidDensity() { return m_fluidDensity; }
 
-   const double& fluidDensity() const { return m_fluidDensity; }
-   const double& sealFluidDensity() const { return m_sealFluidDensity; }
-   const double& maxSealPressure() const { return m_maxSealPressure; }
+         const double& fluidDensity() const { return m_fluidDensity; }
+         const double& sealFluidDensity() const { return m_sealFluidDensity; }
+         const double& maxSealPressure() const { return m_maxSealPressure; }
 
-   const double& maxLevel() const { return m_maxBuoyancy[0]; }
-   const double& maxVolume() const { return m_maxBuoyancy[1]; }
-   const Tuple2<double>& maxContent() const { return m_maxBuoyancy; }
-};
+         const double& maxLevel() const { return m_maxBuoyancy[0]; }
+         const double& maxVolume() const { return m_maxBuoyancy[1]; }
+         const Tuple2<double>& maxContent() const { return m_maxBuoyancy; }
+      };
 
-} } // namespace migration::distribute
+   } } // namespace migration::distribute
 
 #endif

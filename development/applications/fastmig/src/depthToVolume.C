@@ -1,6 +1,6 @@
 #include "depthToVolume.h"
 
-#include "functions/src/Tuple2.h"
+#include "Tuple2.h"
 
 #include <map>
 #include <limits>

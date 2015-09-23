@@ -19,24 +19,29 @@ namespace migration
 
    class Barrier
    {
-      public:
-	 /// Constructor
-	 Barrier (Reservoir * reservoir);
-	 virtual ~Barrier (void);
+   public:
+      /// Constructor
+      Barrier (Reservoir * reservoir);
+      virtual ~Barrier (void);
 
-         /// Use permeability properties of given formation to update the barrier's properties
-         void updateBlocking (const Formation * formation,
-               const DataAccess::Interface::Snapshot * snapshot);
+      /// Use permeability and porosity properties of given formation to update the barrier's properties
+      void updateBlocking (const Formation * formation,
+                           const DataAccess::Interface::Snapshot * snapshot);
+      void updateBlockingPermeability (const Formation * formation,
+                                       const DataAccess::Interface::Snapshot * snapshot);
+      void updateBlockingPorosity (const Formation * formation,
+                                   const DataAccess::Interface::Snapshot * snapshot);
 
-         /// return whether the barrier is blocking for (i, j)
-         bool isBlocking (unsigned int i, unsigned int j);
+      /// return whether the barrier is blocking for (i, j)
+      bool isBlocking (unsigned int i, unsigned int j);
 
-      private:
-         bool ** m_values;
-         Reservoir * m_reservoir;
-         double m_blockingPermeability;
-         unsigned int m_firstI;
-         unsigned int m_firstJ;
+   private:
+      bool ** m_values;
+      Reservoir * m_reservoir;
+      double m_blockingPermeability;
+      double m_blockingPorosity;
+      unsigned int m_firstI;
+      unsigned int m_firstJ;
    };
 }
 

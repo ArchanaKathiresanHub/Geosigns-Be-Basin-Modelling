@@ -2,7 +2,7 @@
 
 #include "FixedOilMaxBuoyancyGasLevel.h"
 #include "LimitedFixedOilMaxBuoyancyHCLevel.h"
-#include "functions/src/Tuple2.h"
+#include "Tuple2.h"
 #include <math.h>
 
 #ifdef sgi

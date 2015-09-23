@@ -60,6 +60,8 @@ namespace CBMGenerics
          NumberOfPhases = 2
       };
 
+      int GetSpeciedIdByEnum ( const SpeciesNamesId id ) const;
+
       const std::string GetSpeciesName( int speciesIndex ) const;
       const std::string GetPhaseName( int phaseIndex ) const;
 
@@ -129,6 +131,11 @@ namespace CBMGenerics
    inline bool ComponentManager::isSbearingHCsComponent( const int id ) const 
    {
       return id != C6Minus14BP and id > H2S and id < NumberOfSpecies;
+   }
+
+   inline int CBMGenerics::ComponentManager::GetSpeciedIdByEnum ( const SpeciesNamesId id ) const
+   {
+      return static_cast<int>( id );
    }
 }
 #endif

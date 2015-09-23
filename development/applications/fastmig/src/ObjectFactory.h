@@ -24,21 +24,37 @@ namespace database
 
 namespace migration
 {
+   class Migrator;
 
    class ObjectFactory : public GeoPhysics::ObjectFactory
    {
+   public:
 
-      virtual DataAccess::Interface::ProjectHandle * produceProjectHandle (database::Database * database,
-                                                                           const string & name, const string & accessMode);
+      ObjectFactory(Migrator * migrator):
+         m_migrator(migrator)
+      {}
 
-      virtual DataAccess::Interface::Reservoir * produceReservoir (DataAccess::Interface::ProjectHandle * projectHandle,
+         virtual DataAccess::Interface::Reservoir * produceReservoir (DataAccess::Interface::ProjectHandle * projectHandle,
+                                                                      database::Record * record);
+
+         virtual DataAccess::Interface::Formation * produceFormation (DataAccess::Interface::ProjectHandle * projectHandle,
+                                                                      database::Record * record);
+
+         virtual DataAccess::Interface::Surface * produceSurface (DataAccess::Interface::ProjectHandle * projectHandle,
+                                                                  database::Record * record);
+
+   private:
+
+         DataAccess::Interface::Reservoir * produceMigrationReservoir (DataAccess::Interface::ProjectHandle * projectHandle,
+                                                                       database::Record * record);
+
+         DataAccess::Interface::Formation * produceMigrationFormation (DataAccess::Interface::ProjectHandle * projectHandle,
+                                                                       database::Record * record);
+
+         DataAccess::Interface::Surface * produceMigrationSurface (DataAccess::Interface::ProjectHandle * projectHandle,
                                                                    database::Record * record);
 
-      virtual DataAccess::Interface::Formation * produceFormation (DataAccess::Interface::ProjectHandle * projectHandle,
-                                                                   database::Record * record);
-
-      virtual DataAccess::Interface::Surface * produceSurface (DataAccess::Interface::ProjectHandle * projectHandle,
-                                                               database::Record * record);
+         Migrator * const m_migrator;
    };
 }
 

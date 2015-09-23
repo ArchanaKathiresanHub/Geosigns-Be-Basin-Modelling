@@ -3,13 +3,13 @@
 #ifdef USEOTGC
 
 #ifdef sgi
-   #ifdef _STANDARD_C_PLUS_PLUS
-      #include <iostream>
-   #else // !_STANDARD_C_PLUS_PLUS
-      #include<iostream.h>
-   #endif // _STANDARD_C_PLUS_PLUS
+#ifdef _STANDARD_C_PLUS_PLUS
+#include <iostream>
+#else // !_STANDARD_C_PLUS_PLUS
+#include<iostream.h>
+#endif // _STANDARD_C_PLUS_PLUS
 #else // !sgi
-   #include <iostream>
+#include <iostream>
 #endif // sgi
 
 #include <math.h>
@@ -30,43 +30,43 @@ namespace migration
 {
    class Immobiles
    {
-      public:
-	 /// Constructor
-	 Immobiles (void);
+   public:
+      /// Constructor
+      Immobiles (void);
 
-	 /// Destructor
-	 virtual ~Immobiles (void);
+      /// Destructor
+      virtual ~Immobiles (void);
 
-	 inline void reset (ImmobilesId immobilesId);
-	 inline void set (ImmobilesId immobilesId, double weight);
-	 inline void add (ImmobilesId immobilesId, double weight);
-	 inline void subtract (ImmobilesId immobilesId, double weight);
-	 inline void checkWeight (ImmobilesId immobilesId);
-	 inline bool isEmpty (ImmobilesId immobilesId) const;
+      inline void reset (ImmobilesId immobilesId);
+      inline void set (ImmobilesId immobilesId, double weight);
+      inline void add (ImmobilesId immobilesId, double weight);
+      inline void subtract (ImmobilesId immobilesId, double weight);
+      inline void checkWeight (ImmobilesId immobilesId);
+      inline bool isEmpty (ImmobilesId immobilesId) const;
 	 
-	 inline double getWeight (ImmobilesId immobilesId) const;
+      inline double getWeight (ImmobilesId immobilesId) const;
 
-	 double getVolume (void) const;
-	 inline double getVolume (ImmobilesId immobilesId) const;
+      double getVolume (void) const;
+      inline double getVolume (ImmobilesId immobilesId) const;
 
-         inline vector<double> getWeights() const;
+      inline vector<double> getWeights() const;
 
-	 void reset (void);
-	 void set (const Immobiles & immobiles);
-	 void add (const Immobiles & immobiles);
-	 void subtract (const Immobiles & immobiles);
-	 bool isEmpty (void) const;
-	 double getWeight (void) const;
-	 void setWeight(const double& weight);
+      void reset (void);
+      void set (const Immobiles & immobiles);
+      void add (const Immobiles & immobiles);
+      void subtract (const Immobiles & immobiles);
+      bool isEmpty (void) const;
+      double getWeight (void) const;
+      void setWeight(const double& weight);
 
-	 void addFraction (const Immobiles & immobiles, double fraction);
-	 void subtractFraction (const Immobiles & immobiles, double fraction);
+      void addFraction (const Immobiles & immobiles, double fraction);
+      void subtractFraction (const Immobiles & immobiles, double fraction);
 
-	 Immobiles & operator= (const Immobiles & original);
+      Immobiles & operator= (const Immobiles & original);
 
-      private:
+   private:
 
-	 double m_weights[NumImmobiles];
+      double m_weights[NumImmobiles];
    };
 
    ostream & operator<< (ostream & stream, Immobiles & immobiles);

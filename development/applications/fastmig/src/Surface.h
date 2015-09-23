@@ -31,6 +31,7 @@ using namespace DataAccess;
 /// Surface Class
 namespace migration
 {
+   class Migrator;
 
    /// This class implements the Surface-specific migration functionality.
    /// It is constructed on top of the DataAccess::formation class.
@@ -38,13 +39,16 @@ namespace migration
    {
       public:
 	 /// This constructor is called by the object factory
-	 Surface (Interface::ProjectHandle * projectHandle, database::Record * record);
+      Surface (Interface::ProjectHandle * projectHandle, Migrator * const migrator, database::Record * record);
 
 	 /// Destructor
 	 virtual ~Surface (void);
 
 	 const Surface * getTopSurface () const;
 	 const Surface * getBottomSurface () const;
+
+   private:
+         Migrator * const m_migrator;
    };
 }
 

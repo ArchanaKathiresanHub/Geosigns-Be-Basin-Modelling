@@ -3,19 +3,19 @@
 
 namespace migration {
 
-class DiffusionCoefficient {
+   class DiffusionCoefficient {
 
-private:
+   private:
 
-   double m_diffusionFactor;
-   double m_activationTemperature;
+      double m_diffusionFactor;
+      double m_activationTemperature;
 
-public:
+   public:
 
-   DiffusionCoefficient(const double& diffusionFactor, const double& ActivationEnergy);
+      DiffusionCoefficient(const double& diffusionFactor, const double& ActivationEnergy);
 
-   double coefficient(const double& temperatureC, const double& porosityFrac) const; 
-};
+      double coefficient(const double& temperatureC, const double& porosityFrac) const; 
+   };
 
 } // namespace migration
 

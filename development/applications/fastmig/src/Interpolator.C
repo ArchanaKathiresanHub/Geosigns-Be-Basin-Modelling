@@ -48,17 +48,17 @@ Interpolator::Interpolator (Interpolator::SorterType sorterType) : m_sorted (fal
 {
    switch (sorterType)
    {
-      case UnOrdered:
-	 m_sorterFunc = UnOrderedSorter;
-	 break;
-      case Ascending:
-	 m_sorterFunc = AscendingSorter;
-	 break;
-      case Descending:
-	 m_sorterFunc = DescendingSorter;
-	 break;
-      default:
-	 assert (false);
+   case UnOrdered:
+      m_sorterFunc = UnOrderedSorter;
+      break;
+   case Ascending:
+      m_sorterFunc = AscendingSorter;
+      break;
+   case Descending:
+      m_sorterFunc = DescendingSorter;
+      break;
+   default:
+      assert (false);
    }
 }
 

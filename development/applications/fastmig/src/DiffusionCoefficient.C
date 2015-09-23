@@ -1,6 +1,6 @@
 #include "DiffusionCoefficient.h"
 #include "migration.h"
-#include "CBMGenerics/src/consts.h"
+#include "consts.h"
 
 #include <iostream>
 #include <algorithm>
@@ -10,30 +10,30 @@ using CBMGenerics::C2K;
 
 namespace migration {
 
-const double R_GAS = 8.31451;
+   const double R_GAS = 8.31451;
 
-DiffusionCoefficient::DiffusionCoefficient(const double& diffusionFactor, const double& activationEnergy):
-   m_diffusionFactor(diffusionFactor),
-   m_activationTemperature(activationEnergy / R_GAS)
-{
-}
+   DiffusionCoefficient::DiffusionCoefficient(const double& diffusionFactor, const double& activationEnergy):
+      m_diffusionFactor(diffusionFactor),
+      m_activationTemperature(activationEnergy / R_GAS)
+   {
+   }
 
-double DiffusionCoefficient::coefficient(const double& temperatureC, const double& porosityFrac) const
-{
-   // FIXME: Probably this is used in order to prevent underflows in pow(porosity, 2.2): 
-   double porosity = max(0.0001, porosityFrac);
+   double DiffusionCoefficient::coefficient(const double& temperatureC, const double& porosityFrac) const
+   {
+      // FIXME: Probably this is used in order to prevent underflows in pow(porosity, 2.2): 
+      double porosity = max(0.0001, porosityFrac);
 
-   // Calculate the diffusion coefficient coef for this formation:
-   double temperatureK = temperatureC + C2K;
-   double dc1 = m_diffusionFactor * exp(- m_activationTemperature / temperatureK);
-   double coef = dc1 * pow(porosity, 2.2);
+      // Calculate the diffusion coefficient coef for this formation:
+      double temperatureK = temperatureC + C2K;
+      double dc1 = m_diffusionFactor * exp(- m_activationTemperature / temperatureK);
+      double coef = dc1 * pow(porosity, 2.2);
 
 #ifdef DIFFUSIONDEBUG
-   std::cerr << "Diffusion coefficient for temperature " << temperatureK << " and porosity " << porosity << " = " << coef << std::endl;
-   std::cerr << "using activation energy " << m_activationTemperature * R_GAS << endl;
+      std::cerr << "Diffusion coefficient for temperature " << temperatureK << " and porosity " << porosity << " = " << coef << std::endl;
+      std::cerr << "using activation energy " << m_activationTemperature * R_GAS << endl;
 #endif
 
-   return coef;
-}
+      return coef;
+   }
 
 } // namespace migration

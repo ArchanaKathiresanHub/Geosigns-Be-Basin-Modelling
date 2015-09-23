@@ -44,10 +44,8 @@ namespace DataAccess
 	    /// Return the ActivityMode, one of "AlwaysActive", "NeverActive", "ActiveFrom"
 	    virtual const string & getActivityMode (void) const;
 
-#if 0
 	    /// Determine whether the reservoir is active at the given snapshot
-	    virtual bool isActive (const INTERFACE::Snapshot * snapshot) const;
-#endif
+	    virtual bool isActive (const Interface::Snapshot * snapshot) const;
 
 	    /// Return the time at which this Reservoir becomes active.
 	    /// Only valid if ActivityMode == "ActiveFrom".
@@ -57,6 +55,12 @@ namespace DataAccess
             bool isBlockingEnabled (void) const;
             /// return the vertical migration blocking permeability threshold.
             double getBlockingPermeability (void) const;
+            /// return the vertical migration blocking porosity threshold.
+            double getBlockingPorosity (void) const;
+
+            /// Return the minimum height for gas and oil columns
+            double getMinOilColumnHeight (void) const;
+            double getMinGasColumnHeight (void) const;
 
 	    /// Return whether diffusion takes place during migration
 	    virtual bool isDiffusionOn (void) const;
@@ -79,10 +83,11 @@ namespace DataAccess
 	    void setTrappersUpAndDownstreamConnected (double time);
 	    bool trappersAreUpAndDownstreamConnected (double time) const;
 
-	 private:
+         private:
+            const Formation * m_formation;
+
 	    string m_mangledName;
 
-	    const Formation * m_formation;
 	    static const string s_MapAttributeNames[];
 
 	    map<double, bool> m_trappersUpAndDownstreamConnected;

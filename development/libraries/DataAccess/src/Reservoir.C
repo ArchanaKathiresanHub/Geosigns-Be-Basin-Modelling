@@ -29,6 +29,9 @@ using namespace database;
 #include "Interface/GridMap.h"
 #include "Interface/Formation.h"
 #include "Interface/Reservoir.h"
+#include "Interface/Surface.h"
+#include "Interface/Snapshot.h"
+
 
 using namespace DataAccess;
 using namespace Interface;
@@ -68,14 +71,14 @@ double Reservoir::getActivityStart (void) const
    return database::getActivityStart (m_record);
 }
 
-#if 0
-bool Reservoir::isActive (const INTERFACE::Snapshot * snapshot) const
+
+bool Reservoir::isActive (const Interface::Snapshot * snapshot) const
 {
    if (getActivityMode () == "NeverActive") return false; // not active anyway
 
-   const INTERFACE::Formation * formation = getFormation ();
-   const INTERFACE::Surface * topSurface = formation->getTopSurface ();
-   const INTERFACE::Snapshot * depoSnapshot = topSurface->getSnapshot ();
+   const Interface::Formation * formation = getFormation ();
+   const Interface::Surface * topSurface = formation->getTopSurface();
+   const Interface::Snapshot * depoSnapshot = topSurface->getSnapshot();
 
    if (depoSnapshot->getTime () <= snapshot->getTime ()) return false; // not active anyway
 
@@ -83,13 +86,13 @@ bool Reservoir::isActive (const INTERFACE::Snapshot * snapshot) const
 
    if (getActivityMode () == "ActiveFrom")
    {
-      const INTERFACE::Snapshot * activeFromSnapshot = m_projectHandle->findSnapshot (getActivityStart ());
+      const Interface::Snapshot * activeFromSnapshot = m_projectHandle->findSnapshot (getActivityStart ());
       return (activeFromSnapshot->getTime () >= snapshot->getTime ());
    }
 
    return true;
 }
-#endif
+
 
 const string & Reservoir::getFormationName (void) const
 {
@@ -100,7 +103,6 @@ void Reservoir::setFormation (const Formation * formation)
 {
    m_formation = formation;
 }
-
 
 const Formation * Reservoir::getFormation (void) const
 {
@@ -122,9 +124,24 @@ double Reservoir::getBlockingPermeability (void) const
    return database::getBlockingPermeability (m_record);
 }
 
+double Reservoir::getBlockingPorosity (void) const
+{
+   return database::getBlockingPorosity (m_record);
+}
+
 bool Reservoir::isDiffusionOn (void) const
 {
    return database::getDiffusionInd (m_record) == 1;
+}
+
+double Reservoir::getMinOilColumnHeight (void) const
+{
+   return database::getMinOilColumnHeight (m_record);
+}
+
+double Reservoir::getMinGasColumnHeight (void) const
+{
+   return database::getMinGasColumnHeight (m_record);
 }
 
 bool Reservoir::isBioDegradationOn (void) const

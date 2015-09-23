@@ -6,10 +6,10 @@
 #include "Biodegrade.h"
 #include "Interface/DiffusionLeakageParameters.h"
 #include "SurfaceGridMapContainer.h"
-#include "functions/src/MonotonicIncreasingPiecewiseLinearInvertableFunction.h"
+#include "MonotonicIncreasingPiecewiseLinearInvertableFunction.h"
 #include "Interface/LithoType.h"
 #include "Interface/Formation.h"
-#include "CBMGenerics/src/capillarySealStrength.h"
+#include "capillarySealStrength.h"
 #include "Distributor.h"
 #include "DiffusionOverburdenProperties.h"
 #include "translateProps.h"
@@ -41,289 +41,289 @@ namespace migration
 
    class Trap
    {
-      public:
-	 /// Constructor
-	 Trap (LocalColumn * column);
+   public:
+      /// Constructor
+      Trap (LocalColumn * column);
 
-	 /// Destructor
-	 virtual ~Trap (void);
+      /// Destructor
+      virtual ~Trap (void);
 
-	 int getSize (void);
+      int getSize (void);
 
-	 void computeArea (void);
+      void computeArea (void);
 
-	 void becomeObsolete (void);
-	 void beAbsorbed (void);
+      void becomeObsolete (void);
+      void beAbsorbed (void);
 
-	 void extendWith (Column * column, double minimumSpillDepth);
-	 void completeExtension (void);
+      void extendWith (Column * column, double minimumSpillDepth);
+      void completeExtension (void);
 
-	 void migrateTo (Column * column);
+      void migrateTo (Column * column);
 
 #ifdef COMPUTECAPACITY
-	 void computeCapacity (void);
+      void computeCapacity (void);
 #endif
-	 void initialize (void);
-	 virtual bool isSpillPoint (Column * column);
-	 bool isInInterior (Column * column) const;
-	 bool isOnPerimeter (Column * column) const;
-	 void closePerimeter (Column * column);
-	 void addToPerimeter (Column * column);
-	 void removeFromPerimeter (Column * column);
-	 void addToInterior (Column * column);
+      void initialize (void);
+      virtual bool isSpillPoint (Column * column);
+      bool isInInterior (Column * column) const;
+      bool isOnPerimeter (Column * column) const;
+      void closePerimeter (Column * column);
+      void addToPerimeter (Column * column);
+      void removeFromPerimeter (Column * column);
+      void addToInterior (Column * column);
 
-	 void addColumnsToBeAdded (void);
-	 void addToToBeAdded (int i, int j);
+      void addColumnsToBeAdded (void);
+      void addToToBeAdded (int i, int j);
 
-	 bool contains (Column * column) const;
+      bool contains (Column * column) const;
 
-	 void printPerimeter (void);
-	 void printInterior (void);
+      void printPerimeter (void);
+      void printInterior (void);
 
-	 void printInconsistentVolumes (void);
+      void printInconsistentVolumes (void);
 
-	 Reservoir * getReservoir (void);
+      Reservoir * getReservoir (void);
 
-	 LocalColumn * getCrestColumn (void) const;
-	 Column * getSpillColumn (void) const;
-	 Column * getColumnToSpillTo (void);
+      LocalColumn * getCrestColumn (void) const;
+      Column * getSpillColumn (void) const;
+      Column * getColumnToSpillTo (void);
 
-	 double getSpillDepth (void);
+      double getSpillDepth (void);
 
-	 void computeSpillTarget (void);
-	 Column * getSpillTarget (void);
+      void computeSpillTarget (void);
+      Column * getSpillTarget (void);
 
-	 void computeWasteColumns (void);
-	 Column * getWasteColumn (PhaseId phase);
-	 double getWasteDepth (PhaseId phase);
+      void computeWasteColumns (void);
+      Column * getWasteColumn (PhaseId phase);
+      double getWasteDepth (PhaseId phase);
 
-	 Column * getFinalSpillTarget (PhaseId phase);
-         void printSpillTrajectory (PhaseId phase);
+      Column * getFinalSpillTarget (PhaseId phase);
+      void printSpillTrajectory (PhaseId phase);
 
-	 unsigned int getI (void);
-	 unsigned int getJ (void);
+      unsigned int getI (void);
+      unsigned int getJ (void);
 
-	 void setSealPermeability (double permeability);
-	 void setFracturePressure (double pressure);
+      void setSealPermeability (double permeability);
+      void setFracturePressure (double pressure);
 
-	 double getTopDepth (void) const;
-	 double getBottomDepth (void) const;
+      double getTopDepth (void) const;
+      double getBottomDepth (void) const;
 
-	 double getTemperature (void) const;
-	 double getPreviousTemperature (void) const;
-	 double getPermeability (void) const;
-	 double getSealPermeability (void) const;
-	 double getFracturePressure (void) const;
-	 double getPressure (void) const;
-	 double getPreviousPressure (void) const;
-	 double getHydrostaticPressure (void) const;
-	 double getLithostaticPressure (void) const;
-	 double getNetToGross (void) const;
+      double getTemperature (void) const;
+      double getPreviousTemperature (void) const;
+      double getPermeability (void) const;
+      double getSealPermeability (void) const;
+      double getFracturePressure (void) const;
+      double getPressure (void) const;
+      double getPreviousPressure (void) const;
+      double getHydrostaticPressure (void) const;
+      double getLithostaticPressure (void) const;
+      double getNetToGross (void) const;
 
-         const MonotonicIncreasingPiecewiseLinearInvertableFunction* levelToVolume() const;
+      const MonotonicIncreasingPiecewiseLinearInvertableFunction* levelToVolume() const;
 
-	 double getCapacity (void) const;
+      double getCapacity (void) const;
 
-         void setSpilling (void);
-         bool isSpilling (void) const;
-         void resetSpilling (void);
+      void setSpilling (void);
+      bool isSpilling (void) const;
+      void resetSpilling (void);
 
-	 bool isUndersized (void) const;
-	 double getTrapCapacity (void) const;
+      bool isUndersized (void) const;
+      double getTrapCapacity (void) const;
 
-	 double getWeight (void) const;
-	 double getWeight (PhaseId phase) const;
-	 double getWeight (ComponentId component) const;
-	 double getWeight (PhaseId phase, ComponentId component) const;
+      double getWeight (void) const;
+      double getWeight (PhaseId phase) const;
+      double getWeight (ComponentId component) const;
+      double getWeight (PhaseId phase, ComponentId component) const;
 
-	 double getWeightToBeDistributed (void) const;
-	 double getWeightToBeDistributed (PhaseId phase) const;
+      double getWeightToBeDistributed (void) const;
+      double getWeightToBeDistributed (PhaseId phase) const;
 
-	 double getVolume (PhaseId phase) const;
-	 double getVolumeByColumns (PhaseId phase) const;
+      double getVolume (PhaseId phase) const;
+      double getVolumeByColumns (PhaseId phase) const;
 
-	 double getVolumeBetweenDepths (double upperDepth, double lowerDepth) const;
-	 double getVolumeBetweenDepths2 (double upperDepth, double lowerDepth) const;
+      double getVolumeBetweenDepths (double upperDepth, double lowerDepth) const;
+      double getVolumeBetweenDepths2 (double upperDepth, double lowerDepth) const;
 
-         void computeDepthToVolumeFunction (void);
-	 void computeVolumeToDepthFunction (void);
-         void computeVolumeToDepthFunction2 (void);
+      void computeDepthToVolumeFunction (void);
+      void computeVolumeToDepthFunction (void);
+      void computeVolumeToDepthFunction2 (void);
 
-	 void deleteDepthToVolumeFunction (void);
+      void deleteDepthToVolumeFunction (void);
 	 
-	 double getDepthForVolume (double volume);
+      double getDepthForVolume (double volume);
 
-	 void setLocalId (int id);
-	 int getLocalId (void);
+      void setLocalId (int id);
+      int getLocalId (void);
 
-	 void setGlobalId (int id);
-	 int getGlobalId (void);
+      void setGlobalId (int id);
+      int getGlobalId (void);
 
-	 void setDrainageAreaId (int id);
-	 int getDrainageAreaId (void);
+      void setDrainageAreaId (int id);
+      int getDrainageAreaId (void);
 
-	 void collectAndSplitCharges (bool always = false);
+      void collectAndSplitCharges (bool always = false);
 
-	 void decomposeCharges (void);
+      void decomposeCharges (void);
 
-	 void checkDistributedCharges (PhaseId phase);
+      void checkDistributedCharges (PhaseId phase);
 
-	 double biodegradeCharges (const double& timeInterval, const Biodegrade& biodegrade);
-	 double biodegradeCharges (const double& timeInterval, const Biodegrade& biodegrade, PhaseId phase);
+      double biodegradeCharges (const double& timeInterval, const Biodegrade& biodegrade);
+      double biodegradeCharges (const double& timeInterval, const Biodegrade& biodegrade, PhaseId phase);
 
-         /// If depths contains a vector of formations starting with the formation containing 
-         /// this trap, return iterators pointing to the formations which constitute the 
-         /// overburden of this trap:
-         void iterateToFirstOverburdenFormation(const vector<FormationSurfaceGridMaps>& depths, vector<FormationSurfaceGridMaps>::
-            const_iterator& begin, vector<FormationSurfaceGridMaps>::const_iterator& end) const;
+      /// If depths contains a vector of formations starting with the formation containing 
+      /// this trap, return iterators pointing to the formations which constitute the 
+      /// overburden of this trap:
+      void iterateToFirstOverburdenFormation(const vector<FormationSurfaceGridMaps>& depths, vector<FormationSurfaceGridMaps>::
+                                             const_iterator& begin, vector<FormationSurfaceGridMaps>::const_iterator& end) const;
 
-	 // Methods used for diffusion leakage calculation:
-	 bool computeDiffusionOverburden(const SurfaceGridMapContainer& fullOverburden,
-	    const Interface::Snapshot* snapshot, const double& maxSealThickness, int maxFormations);
-         bool computeSealFluidDensity(const SurfaceGridMapContainer& fullOverburden, 
-            const Snapshot* snapshot, bool& sealPresent, double& sealFluidDensity) const;
-	 bool computeDiffusionOverburdenImpl(const SurfaceGridMapContainer& fullOverburden,
-	    const Snapshot* snapshot, const double& maxSealThickness, int maxFormations,
-	    vector<DiffusionLeak::OverburdenProp>& diffusionOverburdenProps) const;
+      // Methods used for diffusion leakage calculation:
+      bool computeDiffusionOverburden(const SurfaceGridMapContainer& fullOverburden,
+                                      const Interface::Snapshot* snapshot, const double& maxSealThickness, int maxFormations);
+      bool computeSealFluidDensity(const SurfaceGridMapContainer& fullOverburden, 
+                                   const Snapshot* snapshot, bool& sealPresent, double& sealFluidDensity) const;
+      bool computeDiffusionOverburdenImpl(const SurfaceGridMapContainer& fullOverburden,
+                                          const Snapshot* snapshot, const double& maxSealThickness, int maxFormations,
+                                          vector<DiffusionLeak::OverburdenProp>& diffusionOverburdenProps) const;
 
-	 void diffusionLeakCharges(const double& intervalStartTime, const double & intervalEndTime,
-	       const Interface::DiffusionLeakageParameters* 
-	       parameters, const double& maxTimeStep, const double& maxFluxError);
+      void diffusionLeakCharges(const double& intervalStartTime, const double & intervalEndTime,
+                                const Interface::DiffusionLeakageParameters* 
+                                parameters, const double& maxTimeStep, const double& maxFluxError);
 
-	 /// Methods used for seal failure calculations:
-         bool computeDistributionParameters(const Interface::FracturePressureFunctionParameters* 
-	    parameters, const SurfaceGridMapContainer& fullOverburden, const Interface::Snapshot* snapshot);
-	 bool computeSealPressureLeakParametersImpl(const Interface::FracturePressureFunctionParameters* 
-	    fracturePressureParameters, const SurfaceGridMapContainer& fullOverburden, const Snapshot* snapshot,
-            bool& sealPresent, double& fracPressure, double& sealFluidDensity, vector<translateProps::
-            CreateCapillaryLithoProp::output>& lithProps, vector<double>& lithFracs, CBMGenerics::capillarySealStrength::
-            MixModel& mixModel, double& permeability) const;
-	 bool computeForFunctionOfLithostaticPressure(const SurfaceGridMapContainer& fullOverburden,
-	    const Formation* formation, const vector<double>& lithFracs, double& fracPressure) const;
+      /// Methods used for seal failure calculations:
+      bool computeDistributionParameters(const Interface::FracturePressureFunctionParameters* 
+                                         parameters, const SurfaceGridMapContainer& fullOverburden, const Interface::Snapshot* snapshot);
+      bool computeSealPressureLeakParametersImpl(const Interface::FracturePressureFunctionParameters* 
+                                                 fracturePressureParameters, const SurfaceGridMapContainer& fullOverburden, const Snapshot* snapshot,
+                                                 bool& sealPresent, double& fracPressure, double& sealFluidDensity, vector<translateProps::
+                                                 CreateCapillaryLithoProp::output>& lithProps, vector<double>& lithFracs, CBMGenerics::capillarySealStrength::
+                                                 MixModel& mixModel, double& permeability) const;
+      bool computeForFunctionOfLithostaticPressure(const SurfaceGridMapContainer& fullOverburden,
+                                                   const Formation* formation, const vector<double>& lithFracs, double& fracPressure) const;
 
-	 bool distributeCharges (void);
+      bool distributeCharges (void);
 
-	 void incrementChargeDistributionCount (void);
+      void incrementChargeDistributionCount (void);
 
-/* 	 void spill (PhaseId phase); */
-/*          void leak (PhaseId phase); */
-/* 	 void waste (PhaseId phase); */
+      /* 	 void spill (PhaseId phase); */
+      /*          void leak (PhaseId phase); */
+      /* 	 void waste (PhaseId phase); */
 
-	 void broadcastDiffusionStartTimes (void);
-	 void broadcastPenetrationDistances (void);
+      void broadcastDiffusionStartTimes (void);
+      void broadcastPenetrationDistances (void);
 
-	 void broadcastFillDepthProperties (void);
-	 void broadcastChargeProperties (void);
+      void broadcastFillDepthProperties (void);
+      void broadcastChargeProperties (void);
 
-	 bool isSpillingBack (void);
+      bool isSpillingBack (void);
 
-	 void moveBackToToBeDistributed (PhaseId lighterPhase);
-	 void moveBackToCrestColumn (void);
-	 void moveBackToCrestColumn (PhaseId phase);
+      void moveBackToToBeDistributed (PhaseId lighterPhase);
+      void moveBackToCrestColumn (void);
+      void moveBackToCrestColumn (PhaseId phase);
 
-	 void moveBackToBeMigrated (void);
-	 void moveBackToBeMigrated (PhaseId phase);
+      void moveBackToBeMigrated (void);
+      void moveBackToBeMigrated (PhaseId phase);
 
-	 bool requiresDistribution (void);
-	 bool requiresPVT (void);
-	 bool computePVT (void);
+      bool requiresDistribution (void);
+      bool requiresPVT (void);
+      bool computePVT (void);
 
-	 void resetExtended (void);
-	 void setExtended (void);
-	 bool hasBeenExtended (void);
+      void resetExtended (void);
+      void setExtended (void);
+      bool hasBeenExtended (void);
 
-	 void resetToBeAbsorbed (void);
-	 void setToBeAbsorbed (void);
-	 bool isToBeAbsorbed (void);
+      void resetToBeAbsorbed (void);
+      void setToBeAbsorbed (void);
+      bool isToBeAbsorbed (void);
 
-	 bool isFull (PhaseId phase);
+      bool isFull (PhaseId phase);
 
-	 void setDiffusionStartTime (double diffusionStartTime);
-	 double getDiffusionStartTime ();
+      void setDiffusionStartTime (double diffusionStartTime);
+      double getDiffusionStartTime ();
 
-	 void setPenetrationDistances (const double * penetrationDistances);
-	 const double * getPenetrationDistances ();
+      void setPenetrationDistances (const double * penetrationDistances);
+      const double * getPenetrationDistances ();
 
-	 void setPenetrationDistance (ComponentId c, double penetrationDistance);
-	 double getPenetrationDistance (ComponentId c);
+      void setPenetrationDistance (ComponentId c, double penetrationDistance);
+      double getPenetrationDistance (ComponentId c);
 
-	 void setFillDepth (PhaseId phase, double fillDepth);
-	 double getFillDepth (PhaseId phase);
+      void setFillDepth (PhaseId phase, double fillDepth);
+      double getFillDepth (PhaseId phase);
 
-	 void setMinimumSpillDepth (double minimumSpillDepth);
-	 double getMinimumSpillDepth (void);
+      void setMinimumSpillDepth (double minimumSpillDepth);
+      double getMinimumSpillDepth (void);
 
-	 double getDensity (PhaseId phase) const;
-	 double getSurface (PhaseId phase);
+      double getDensity (PhaseId phase) const;
+      double getSurface (PhaseId phase);
 
-	 void negotiateDensity (PhaseId phase);
+      void negotiateDensity (PhaseId phase);
 
-         double getSealPressureLeakages(void) const;
-         double getSealPressureLeakages(PhaseId phase) const;
+      double getSealPressureLeakages(void) const;
+      double getSealPressureLeakages(PhaseId phase) const;
 
-         double getDiffusionLeakages(void) const;         
+      double getDiffusionLeakages(void) const;         
 
-	 void reportLeakage ();
+      void reportLeakage ();
 
-	 void collectProperties (TrapPropertiesRequest & tpRequest);
-	 bool saveProperties (void);
+      void collectProperties (TrapPropertiesRequest & tpRequest);
+      bool saveProperties (void);
 
-      protected:
-	 Reservoir * m_reservoir;
+   protected:
+      Reservoir * m_reservoir;
 
-	 ColumnVector m_perimeter;
-	 ColumnVector m_interior;
+      ColumnVector m_perimeter;
+      ColumnVector m_interior;
 
-	 IntPairVector m_toBeAdded;
+      IntPairVector m_toBeAdded;
 
-	 Column * m_spillTarget;
+      Column * m_spillTarget;
 
-	 Column * m_wasteColumns[NUM_PHASES];
+      Column * m_wasteColumns[NUM_PHASES];
 
-	 double m_wasteDepths[NUM_PHASES];
+      double m_wasteDepths[NUM_PHASES];
 
-	 Composition m_toBeDistributed[NUM_PHASES];
-	 Composition m_distributed[NUM_PHASES];
-         Composition m_diffusionLeaked[NUM_PHASES];
-         Composition m_sealPressureLeaked[NUM_PHASES];
+      Composition m_toBeDistributed[NUM_PHASES];
+      Composition m_distributed[NUM_PHASES];
+      Composition m_diffusionLeaked[NUM_PHASES];
+      Composition m_sealPressureLeaked[NUM_PHASES];
 
-	 double m_diffusionStartTime;
-	 double m_penetrationDistances[DiffusionComponentSize];
+      double m_diffusionStartTime;
+      double m_penetrationDistances[DiffusionComponentSize];
 
-	 double m_fillDepth[NUM_PHASES];
+      double m_fillDepth[NUM_PHASES];
 #ifdef COMPUTECAPACITY
-	 double m_capacity;
+      double m_capacity;
 #endif
 
 #ifdef THISISNOTRIGHT
-	 double m_minimumSpillDepth;
+      double m_minimumSpillDepth;
 #endif
-	 double m_sealPermeability;
-	 double m_fracturePressure;
+      double m_sealPermeability;
+      double m_fracturePressure;
 
-         migration::Interpolator * m_volumeToDepth2;
-         const MonotonicIncreasingPiecewiseLinearInvertableFunction* m_levelToVolume;
-         Distributor* m_distributor;
+      migration::Interpolator * m_volumeToDepth2;
+      const MonotonicIncreasingPiecewiseLinearInvertableFunction* m_levelToVolume;
+      Distributor* m_distributor;
 
-	 int m_id;
-	 int m_globalId;
-	 int m_drainageAreaId;
+      int m_id;
+      int m_globalId;
+      int m_drainageAreaId;
 
-	 bool m_spilling;
-	 bool m_extended;
-	 bool m_toBeAbsorbed;
-	 bool m_computedPVT;
+      bool m_spilling;
+      bool m_extended;
+      bool m_toBeAbsorbed;
+      bool m_computedPVT;
 
-         DiffusionOverburdenProperties* m_diffusionOverburdenProps;
+      DiffusionOverburdenProperties* m_diffusionOverburdenProps;
 
 #ifdef DETAILED_MASS_BALANCE
-         ofstream m_massBalanceFile;
-	 MassBalance<ofstream>* m_massBalance;
+      ofstream m_massBalanceFile;
+      MassBalance<ofstream>* m_massBalance;
 #endif
 
 #ifdef DETAILED_MASS_BALANCE
-         ofstream m_volumeBalanceFile;
-	 MassBalance<ofstream>* m_volumeBalance;
+      ofstream m_volumeBalanceFile;
+      MassBalance<ofstream>* m_volumeBalance;
 #endif
 
    };

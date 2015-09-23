@@ -12,6 +12,7 @@
 #include "CauldronGridDescription.h"
 #include "GeoPhysicsFormation.h"
 #include "FracturePressureCalculator.h"
+#include "GeoPhysicsObjectFactory.h"
 
 #include "Local2DArray.h"
 
@@ -29,6 +30,7 @@ namespace DataAccess {
 }
 
 namespace GeoPhysics {
+   class ObjectFactory;
    class LithologyManager;
    class AllochthonousLithologyManager;
    class BasementLithologyProps;
@@ -36,8 +38,12 @@ namespace GeoPhysics {
 
 namespace GeoPhysics {
 
-   class ProjectHandle : public DataAccess::Interface::ProjectHandle {
+   /// Create a project from a project file with the given name and access mode ("r" or "rw") and
+   /// return the associated ProjectHandle
+   ProjectHandle * OpenCauldronProject( const string & name, const string & accessMode );
 
+   class ProjectHandle : public DataAccess::Interface::ProjectHandle
+   {
       typedef GeoPhysics::Local2DArray <CBMGenerics::Polyfunction> PolyFunction2DArray;
 
       typedef std::list<double> FloatStack;

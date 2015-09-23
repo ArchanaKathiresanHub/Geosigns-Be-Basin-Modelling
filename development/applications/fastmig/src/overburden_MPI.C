@@ -2,7 +2,7 @@
 #include "overburden_MPI.h"
 #include "overburden.h"
 // #include "SelectIfThicknessIsLargerThanZero.h"
-#include "functions/src/Tuple2.h"
+#include "Tuple2.h"
 
 #include "Interface/ProjectHandle.h"
 #include "Interface/PropertyValue.h"

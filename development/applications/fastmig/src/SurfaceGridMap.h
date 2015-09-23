@@ -1,7 +1,7 @@
 #ifndef _MIGRATION_SURFACEGRIDMAP_H_
 #define _MIGRATION_SURFACEGRIDMAP_H_
 
-#include "functions/src/Tuple2.h"
+#include "Tuple2.h"
 
 #include "Interface/GridMap.h"
 

@@ -21,9 +21,9 @@ add_library(EosPack
    ${all_headers}
 )
 
-bm_include_libraries(CBMGenerics)
+bm_include_libraries(CBMGenerics utilities)
 
-target_link_libraries(EosPack CBMGenerics) 
+target_link_libraries(EosPack CBMGenerics utilities) 
 
 generate_dox( src/EosPack.cfg )
 

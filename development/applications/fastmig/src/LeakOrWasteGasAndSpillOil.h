@@ -4,8 +4,8 @@
 #include "LeakGasAndSpillOil.h"
 #include "Waste.h"
 
-#include "functions/src/MonotonicIncreasingPiecewiseLinearInvertableFunction.h"
-#include "functions/src/Tuple2.h"
+#include "MonotonicIncreasingPiecewiseLinearInvertableFunction.h"
+#include "Tuple2.h"
 
 using functions::MonotonicIncreasingPiecewiseLinearInvertableFunction;
 using functions::Tuple2;

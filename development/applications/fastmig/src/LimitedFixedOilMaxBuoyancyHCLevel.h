@@ -2,7 +2,7 @@
 #define _MIGRATION_DISTRIBUTE_LIMITEDFIXEDOILMAXBUOYANCYHCLEVEL_H_
 
 #include "FixedOilMaxBuoyancyHCLevel.h"
-#include "functions/src/Tuple2.h"
+#include "Tuple2.h"
 
 #include <limits>
 #include <assert.h>

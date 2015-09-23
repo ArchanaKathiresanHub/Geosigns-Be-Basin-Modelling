@@ -1,8 +1,8 @@
 #ifndef _MIGRATION_DISTRIBUTE_WASTE_H_
 #define _MIGRATION_DISTRIBUTE_WASTE_H_
 
-#include "functions/src/Tuple2.h"
-#include "functions/src/MonotonicIncreasingPiecewiseLinearInvertableFunction.h"
+#include "Tuple2.h"
+#include "MonotonicIncreasingPiecewiseLinearInvertableFunction.h"
 
 using functions::MonotonicIncreasingPiecewiseLinearInvertableFunction;
 using functions::Tuple2;

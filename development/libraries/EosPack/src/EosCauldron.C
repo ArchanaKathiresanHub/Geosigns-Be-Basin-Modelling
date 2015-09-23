@@ -123,6 +123,126 @@ EosPvtTable *EosCauldron::ConcoctBrew ( int iNc,            // Number of compone
    return ( pvttable );
 }
 
+/* 
+// ConcoctBrew
+//
+//   Construction of pvttable
+//
+//   See EosCauldron.h for argument list description
+// 
+// 1) Generate an instance of the pvt table from supplied data
+*/
+EosPvtTable *EosCauldron::ConcoctBrew ( int iNc, int isRK, double *pMolecularWeight, 
+                                        double *pCriticalPressure, double *pCriticalTemperature,
+                                        double *pCriticalVolume, double *pAcentricFactor,
+                                        double *pOmegaA, double *pOmegaB, double *pShiftC, 
+                                        double *pBinary, double *pLohrenz )
+{
+
+
+   static const double sqrt2 = sqrt ( 2.0 );
+
+   double* pMw = ( double* ) malloc ( ( 1 + iNc * ( 9 + iNc ) ) * sizeof ( double ) );
+   double  pdTables[EOS_METHOD_LAST_DOUBLE];
+   int     piTables[EOS_METHOD_LAST_INTEGER];
+   double* pPc  = pMw  + iNc;
+   double* pTc  = pPc  + iNc;
+   double* pVc  = pTc  + iNc;
+   double* pIft = pVc  + iNc;
+   double* pAc  = pIft + iNc;
+   double* pT   = pAc  + iNc;
+   double* pA   = pT   + 1;
+   double* pB   = pA   + iNc;
+   double* pC   = pB   + iNc;
+   double* pI   = pC   + iNc;
+   EosPvtTable *pvttable;
+   int i;
+
+   /* Default temperature SI units */
+   *pT = 373.16;
+
+   /* Component terms */
+   for ( i = 0; i < iNc; i++ ) 
+   {
+      pMw[i]  = pMolecularWeight[i];
+      pPc[i]  = pCriticalPressure[i];
+      pTc[i]  = pCriticalTemperature[i];
+      pVc[i]  = pCriticalVolume[i];
+      pAc[i]  = pAcentricFactor[i];
+      pA[i]   = pOmegaA[i];
+      pB[i]   = pOmegaB[i];
+      pC[i]   = pShiftC[i];
+      pIft[i] = 0.0;
+   }
+
+   /* Binary interaction terms */
+   for ( i = 0; i < iNc * iNc; i++ ) 
+   {
+      pI[i] = pBinary[i]; 
+   }
+
+   /* Initialize integers for PVT */
+   if ( isRK )
+   {
+      piTables[EOS_METHOD] = EOS_PVT_SRK;
+   }
+   else
+   {
+      piTables[EOS_METHOD] = EOS_PVT_PRCORR;
+   }
+   piTables[EOS_METHOD_COMPONENTS] = iNc;
+   piTables[EOS_METHOD_PHASEID]    = 2;
+   piTables[EOS_METHOD_NUMBERABC]  = 0;
+   piTables[EOS_METHOD_HEATDATA]   = EOS_OPTION_OFF;
+   piTables[EOS_METHOD_OWNMEMORY]  = EOS_OPTION_ON;
+   piTables[EOS_METHOD_SALTS]      = 0;
+   piTables[EOS_METHOD_WATERMODEL] = EOS_WATER_CORRELATIONS;
+   piTables[EOS_METHOD_TYPE_OF_C]  = EOS_CONSTANT_C;
+
+   /* Initialize doubles for PVT tables */
+   if ( isRK )
+   {
+      pdTables[EOS_METHOD_KB1] = 1.0;
+      pdTables[EOS_METHOD_KB2] = 0.0;
+   }
+   else
+   {
+      pdTables[EOS_METHOD_KB1] = 1.0 + sqrt2;
+      pdTables[EOS_METHOD_KB2] = 1.0 - sqrt2;
+
+#if 0
+      pdTables[EOS_METHOD_KB1] = 1.0 + sqrt ( 2.0 );
+      pdTables[EOS_METHOD_KB2] = 1.0 - sqrt ( 2.0 );
+#endif
+   }
+   pdTables[EOS_METHOD_SALINITY]    = 20000.0;
+   pdTables[EOS_METHOD_WATERIFT]    = 35.0;
+   pdTables[EOS_METHOD_PRESCONV]    = 1.0;
+   pdTables[EOS_METHOD_TEMPCONV]    = 1.0;
+   pdTables[EOS_METHOD_VOLCONV]     = 1.0; 
+   pdTables[EOS_METHOD_VISCCONV]    = 1.0; 
+   pdTables[EOS_METHOD_DENSCONV]    = 1.0; 
+   pdTables[EOS_METHOD_HEATCONV]    = 1.0; 
+   pdTables[EOS_METHOD_TENSCONV]    = 1.0; 
+   pdTables[EOS_METHOD_CRITZMINUSB] = 0.25;
+   pdTables[EOS_METHOD_CRITAOVERB]  = 5.0;
+   pdTables[EOS_METHOD_VTUNE]       = 0.0;
+   pdTables[EOS_METHOD_VTUNE0]      = pLohrenz[0];
+   pdTables[EOS_METHOD_VTUNE1]      = pLohrenz[1];
+   pdTables[EOS_METHOD_VTUNE2]      = pLohrenz[2];
+   pdTables[EOS_METHOD_VTUNE3]      = pLohrenz[3];
+   pdTables[EOS_METHOD_VTUNE4]      = pLohrenz[4];
+
+   /* Do the deed */
+   pvttable = ( EosPvtTable* ) new EosPvtTable ( 3, piTables, pdTables, pMw, pT, NULL );
+
+   /* Free the molecular weight */
+   free ( pMw );
+
+   /* Return pointer */
+   return ( pvttable );
+}
+
 // Interface routine to compute the phase properties 
 //
 // Set EosCauldron.h for description of input
@@ -245,6 +365,107 @@ void EosCauldron::EosGetProperties( int iFlashes,          // Number of flashes
 
    /* Construct model */
    pvtmodel = new EosPvtModel( 0, piFlasher, pdFlasher );
+
+   /* Do the flash */
+   pvtmodel->DoFlash( program, &pvttable );
+
+   /* Destruct the class */
+   delete pvtmodel;
+   delete program;
+}
+
+/* 
+// EosGetProperties
+//
+// Interface routine to compute the phase properties 
+//
+// Set EosCauldron.h for description of input
+//
+// 1) Load data into pointI and pointR array
+// 2) Construct EosCauldron instance
+// 3) Construct EosPvtModel instance
+// 4) Do flash
+// 5) Deconstruct EosCauldron and EosPvtModel
+*/
+void EosCauldron::EosGetProperties
+   (
+         int iFlashes, 
+         int iOil,
+         int iGas,
+         double *pPressure,
+         double *pTemperature,
+         double *pAccumulation,
+         double *pPhaseAcc,
+         double *pMassFraction,
+         double *pDensity,
+         double *pViscosity,
+         EosPvtTable *pvttable
+   )
+{
+   int piApplication[EOS_APPLICATION_LAST_INTEGER];
+   double *pointR[EOS_APPLICATION_LAST_DARRAY];
+   int *pointI[EOS_APPLICATION_LAST_IARRAY];
+   double pdFlasher[EOS_LAST_DOUBLE];
+   int piFlasher[EOS_LAST_INTEGER];
+   EosPvtModel *pvtmodel;
+   EosCauldron *program;
+
+   /* Set the integer data */
+   piApplication[EOS_APPLICATION_COMPONENTS] = pvttable->GetNumberHydrocarbons ( );
+   piApplication[EOS_APPLICATION_FLASHES] = iFlashes;
+   piApplication[EOS_APPLICATION_LIQUID] = iOil;
+   piApplication[EOS_APPLICATION_VAPOUR] = iGas;
+
+   /* Set integer pointers */
+   pointI[INTEGERDATA] = piApplication;
+   pointI[EOS_APPLICATION_EOSCOMPS] = NULL;
+   pointI[EOS_APPLICATION_INDIRECTION] = NULL;
+   pointI[EOS_APPLICATION_PHASES] = NULL;
+
+   /* Set real pointers */
+   pointR[REALDATA] = NULL;
+   pointR[EOS_APPLICATION_PRESSURE] = pPressure;
+   pointR[EOS_APPLICATION_TEMPERATURE] = pTemperature;
+   pointR[EOS_APPLICATION_ACCUMULATION] = pAccumulation;
+   pointR[EOS_APPLICATION_DENSITY] = pDensity;
+   pointR[EOS_APPLICATION_DDENSITY] = NULL;
+   pointR[EOS_APPLICATION_TOTALPHASE] = pPhaseAcc;
+   pointR[EOS_APPLICATION_DTOTALPHASE] = NULL;
+   pointR[EOS_APPLICATION_VISCOSITIES] = pViscosity;
+   pointR[EOS_APPLICATION_DVISCOSITIES] = NULL;
+   pointR[EOS_APPLICATION_TENSIONS] = NULL;
+   pointR[EOS_APPLICATION_DTENSIONS] = NULL;
+   pointR[EOS_APPLICATION_FRACTION] = pMassFraction;
+   pointR[EOS_APPLICATION_DFRACTION] = NULL;
+   pointR[EOS_APPLICATION_DEPTH] = NULL;
+   pointR[EOS_APPLICATION_SPLIT] = NULL;
+   pointR[EOS_APPLICATION_KVALUES] = NULL;
+   pointR[EOS_APPLICATION_BPRESSURE] = NULL;
+   pointR[EOS_APPLICATION_DPRESSURE] = NULL;
+   pointR[EOS_APPLICATION_MW] = NULL;
+   pointR[EOS_APPLICATION_PHASEPRESSURE] = NULL;
+
+   /* Flasher integer data */
+   piFlasher[PVTMETHOD]         = EOS_PVT_MODEL;
+   piFlasher[EOS_MAXITN]        = 50;
+   piFlasher[EOS_MAXFLASH]      = 32;
+   piFlasher[EOS_MICHELSON]     = EOS_OPTION_OFF;
+   piFlasher[EOS_SUBSTITUTIONS] = 0;
+   piFlasher[EOS_OWNMEMORY]     = EOS_OPTION_ON;
+   piFlasher[EOS_DEBUG]         = EOS_OPTION_OFF;
+
+   /* Flasher real data */
+   pdFlasher[EOS_ENORM]            = 1.0e80;
+   pdFlasher[EOS_TINY]             = 1.0e-15;
+   pdFlasher[EOS_CONVERGENCE]      = 0.0001;
+   pdFlasher[EOS_THERMALDIFFUSION] = 0.0;
+   pdFlasher[EOS_BUBBLEREDUCE]     = 0.5;
+
+   /* Read Cauldron data */
+   program = new EosCauldron ( 0, pointI, pointR );
+
+   /* Construct model */
+   pvtmodel = new EosPvtModel ( 0, piFlasher, pdFlasher );
 
    /* Do the flash */
    pvtmodel->DoFlash( program, &pvttable );

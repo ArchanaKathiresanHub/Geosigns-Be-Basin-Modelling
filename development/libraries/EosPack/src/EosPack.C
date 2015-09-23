@@ -1,3 +1,12 @@
+// Copyright (C) 2010-2015 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "stdafx.h"
 
 #include <iostream>
@@ -5,6 +14,7 @@
 #include <iomanip>
 #include <sstream>
 #include <limits>
+#include <cstring>
 
 #include <assert.h>
 
@@ -22,10 +32,15 @@ void testPolynomialParse();
 #include "EosPvtTable.h"
 #include "EosPvtModel.h"
 #include "Parse.h"
+#include "IBSinterpolator2d.h"
+#include "ComponentManager.h"
 
 std::string pvtFlash::pvtPropertiesConfigFile;
 
 static const std::string ConfigFileName = "PVT_properties.cfg";
+
+static bool LoadLine (istream & infile, string & line);
+static size_t LoadWordFromLine (string & line, size_t linePos, string & word);
 
 pvtFlash::EosPack::EosPack() : m_isReadInOk( true ),
                                m_propertyFunc( 0 ),
@@ -279,6 +294,21 @@ pvtFlash::EosPack::~EosPack()
    if ( m_corrLBC ) delete [] m_corrLBC;
 }   
 
+const char * pvtFlash::EosPack::getEosPackDir ()
+{
+   const char *eosPackDir;
+
+   if (!(eosPackDir = getenv ("MYEOSPACKDIR")))
+   {
+      eosPackDir = getenv ("EOSPACKDIR");
+   }
+   if (!eosPackDir)
+   {
+      throw string ("Environment Variable EOSPACKDIR not set.");
+   }
+
+   return eosPackDir;
+}
 
 pvtFlash::EosPack& pvtFlash::EosPack::getInstance()
 {
@@ -819,6 +849,183 @@ bool pvtFlash::EosPack::compute( double  temperature,
    return true;
 }
 
+bool pvtFlash::EosPack::compute (double temperature, double pressure, int componentId,
+                                 int & phase, double & density, double & viscosity)
+{
+   try
+   {
+      loadComponentTables(componentId);
+
+      if (!getComponentPhaseValues (componentId, temperature, pressure, phase, density, viscosity))
+      {
+	 return computeComponentPhaseValues (componentId, temperature, pressure, phase, density, viscosity);
+      }
+      return true;
+
+   }
+   catch(string s)
+   {
+      cerr << "Error in EosPack: " << s << endl;  
+      return false;
+   }
+   catch(...)
+   {
+      cerr << "Error: unhandled exception in EosPack. " << endl;  
+      return false;
+   }
+}
+
+bool pvtFlash::EosPack::loadComponentTables (int componentId)
+{
+   if (m_densityTable[componentId] != 0)
+   {
+      assert (m_phaseTable[componentId] != 0);
+      assert (m_viscosityTable[componentId] != 0);
+      return true;
+   }
+
+   const char * eosPackDir = getEosPackDir();
+
+   ifstream infile;
+
+   string filename = eosPackDir;
+   filename += "/";
+   filename += pvtFlash::ComponentIdNames[componentId];
+   filename += ".tbl";
+
+   infile.open (filename.c_str (), ios::in);
+
+   if (!infile.is_open ())
+   {
+      throw string (filename + " could not be opened.");
+   }
+
+   string line;
+   if (!LoadLine (infile, line) || !LoadLine (infile, line))
+   {
+      throw string (filename + " does not contain enough data.");
+   }
+
+   m_phaseTable[componentId] = new ibs::Interpolator2d;
+   m_densityTable[componentId] = new ibs::Interpolator2d;
+   m_viscosityTable[componentId] = new ibs::Interpolator2d;
+
+   int lineCount = 0;
+
+   while (LoadLine (infile, line))
+   {
+      ++lineCount;
+
+      size_t linePos = 0;
+      string word;
+
+      linePos = LoadWordFromLine (line, linePos, word); // component name
+
+      double temperature;
+      double pressure;
+      double mass[NUM_PHASES];
+      double density[NUM_PHASES];
+      double viscosity[NUM_PHASES];
+
+      linePos = LoadWordFromLine (line, linePos, word); // temperature
+      temperature = atof (word.c_str ());
+
+      linePos = LoadWordFromLine (line, linePos, word); // pressure
+      pressure = atof (word.c_str ());
+
+      linePos = LoadWordFromLine (line, linePos, word); // mass[VAPOUR]
+      mass[VAPOUR] = atof (word.c_str ());
+
+      linePos = LoadWordFromLine (line, linePos, word); // mass[LIQUID]
+      mass[LIQUID] = atof (word.c_str ());
+
+      linePos = LoadWordFromLine (line, linePos, word); // density[VAPOUR]
+      density[VAPOUR] = atof (word.c_str ());
+
+      linePos = LoadWordFromLine (line, linePos, word); // density[LIQUID]
+      density[LIQUID] = atof (word.c_str ());
+
+      linePos = LoadWordFromLine (line, linePos, word); // viscosity[VAPOUR]
+      viscosity[VAPOUR] = atof (word.c_str ());
+
+      linePos = LoadWordFromLine (line, linePos, word); // viscosity[LIQUID]
+      viscosity[LIQUID] = atof (word.c_str ());
+
+      if (mass[VAPOUR] > 0.5)
+      {
+	 (* m_phaseTable[componentId]).addPoint (temperature, pressure, (double) VAPOUR);
+	 (* m_densityTable[componentId]).addPoint (temperature, pressure, density[VAPOUR]);
+	 (* m_viscosityTable[componentId]).addPoint (temperature, pressure, viscosity[VAPOUR]);
+      }
+      else
+      {
+	 (* m_phaseTable[componentId]).addPoint (temperature, pressure, (double) LIQUID);
+	 (* m_densityTable[componentId]).addPoint (temperature, pressure, density[LIQUID]);
+	 (* m_viscosityTable[componentId]).addPoint (temperature, pressure, viscosity[LIQUID]);
+      }
+   }
+
+   return true;
+}
+
+
+bool pvtFlash::EosPack::getComponentPhaseValues (int componentId, double temperature, double pressure, int & phase, double & density, double & viscosity)
+{
+   assert (m_phaseTable[componentId]);
+   assert (m_densityTable[componentId]);
+   assert (m_viscosityTable[componentId]);
+
+   static double requiredPhaseAccuracy = 0.001;
+      
+   double phaseMix = (*m_phaseTable[componentId]).compute (temperature, pressure);
+
+   if (phaseMix > requiredPhaseAccuracy && phaseMix < 1 - requiredPhaseAccuracy)
+   {
+      return false; // phase not sufficiently determined
+   }
+
+   phase = (phaseMix < 0.5) ? 0 /* VAPOUR */ : 1 /* LIQUID */;
+
+   density = (* m_densityTable[componentId]).compute (temperature, pressure);
+   viscosity = (* m_viscosityTable[componentId]).compute (temperature, pressure);
+
+
+   return true;
+}
+
+bool pvtFlash::EosPack::computeComponentPhaseValues (int componentId, double temperature, double pressure, int & phase, double & density, double & viscosity)
+{
+   double compMasses[pvtFlash::NUM_COMPONENTS];
+
+   double phaseCompMasses[pvtFlash::NUM_PHASES][pvtFlash::NUM_COMPONENTS];
+   double phaseDensity[pvtFlash::NUM_PHASES];
+   double phaseViscosity[pvtFlash::NUM_PHASES];
+
+   memset (compMasses, 0, sizeof (double) * pvtFlash::NUM_COMPONENTS);
+   memset (phaseCompMasses, 0, sizeof (double) * pvtFlash::NUM_COMPONENTS * pvtFlash::NUM_PHASES);
+   memset (phaseDensity, 0, sizeof (double) * pvtFlash::NUM_PHASES);
+   memset (phaseViscosity, 0, sizeof (double) * pvtFlash::NUM_PHASES);
+
+   compMasses[componentId] = 1.0;
+
+   computeWithLumping (temperature, pressure, compMasses, phaseCompMasses, phaseDensity, phaseViscosity);
+
+   if (phaseCompMasses[VAPOUR][componentId] > 0.5)
+   {
+      phase = VAPOUR;
+      density = phaseDensity[VAPOUR];
+      viscosity = phaseViscosity[VAPOUR];
+   }
+   else
+   {
+      phase = LIQUID;
+      density = phaseDensity[LIQUID];
+      viscosity = phaseViscosity[LIQUID];
+   }
+
+   return true;
+}
+
 double pvtFlash::EosPack::getMolWeightLumped( int componentId, double gorm )
 {
    return getMolWeight( getLumpedIndex( componentId ), gorm );
@@ -833,6 +1040,12 @@ double pvtFlash::EosPack::getCriticalTemperature( int componentId, double gorm )
 {
    return m_propertyFunc[componentId][5]( gorm );
 } 
+
+double pvtFlash::getCriticalTemperature(int componentId, double gorm)
+{
+   EosPack& eosPack = EosPack::getInstance();
+   return eosPack.getCriticalTemperature( componentId, gorm );
+}
 
 double pvtFlash::EosPack::getCriticalVolume( int componentId, double gorm )
 {
@@ -1024,7 +1237,12 @@ void pvtFlash::EosPack::setNonLinearSolverConvParameters( int maxItersNum, doubl
    m_NewtonRelaxCoeff = newtonRelCoeff;
 }
 
+bool LoadLine (istream & infile, string & line)
+{
+   getline (infile, line, '\n');
 
+   return (!infile.eof ());
+}
 
 void testPolynomialParse()
 {
@@ -1057,5 +1275,27 @@ void testPolynomialParse()
    
    x = 4.0;
    std::cout << "x=" << x << " -> " << piecewise(x) << std::endl;
+}
+
+// searches from linePos, returns the 'word' in word and returns the linePos beyond 'word'
+size_t LoadWordFromLine (string & line, size_t linePos, string & word)
+{
+   const string separators = " \t";
+   word = "";
+
+   size_t wordStartPos = line.find_first_not_of (separators, linePos);
+   if (wordStartPos == string::npos) return string::npos;
+
+   // not a string but a numerical value
+   size_t wordEndPos = line.find_first_of (separators, wordStartPos + 1);
+
+   size_t wordLength;
+   if (wordEndPos == string::npos)
+      wordLength = string::npos;
+   else
+      wordLength = wordEndPos - wordStartPos;
+
+   word = line.substr (wordStartPos, wordLength);
+   return wordEndPos + 1;
 }
 

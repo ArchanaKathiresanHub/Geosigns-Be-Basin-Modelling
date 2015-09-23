@@ -8,29 +8,42 @@
 
 using namespace migration;
 
-DataAccess::Interface::ProjectHandle *
-ObjectFactory::produceProjectHandle (database::Database * database,
-	 const string & name, const string & accessMode)
-{
-   return new Migrator (database, name, accessMode, this);
-}
-
 DataAccess::Interface::Reservoir *
 ObjectFactory::produceReservoir (DataAccess::Interface::ProjectHandle * projectHandle, database::Record * record)
 {
-   return new Reservoir (projectHandle, record);
+   return produceMigrationReservoir (projectHandle, record);
 }
 
 DataAccess::Interface::Formation *
 ObjectFactory::produceFormation (DataAccess::Interface::ProjectHandle * projectHandle, database::Record * record)
 {
-   return new Formation (projectHandle, record);
+   return produceMigrationFormation (projectHandle, record);
 }
 
 DataAccess::Interface::Surface *
 ObjectFactory::produceSurface (DataAccess::Interface::ProjectHandle * projectHandle, database::Record * record)
 {
-   return new Surface (projectHandle, record);
+   return produceMigrationSurface (projectHandle, record);
 }
 
+
+// Private methods using the Migrator pointer for production
+
+DataAccess::Interface::Reservoir *
+ObjectFactory::produceMigrationReservoir (DataAccess::Interface::ProjectHandle * projectHandle, database::Record * record)
+{
+   return new Reservoir (projectHandle, m_migrator, record);
+}
+
+DataAccess::Interface::Formation *
+ObjectFactory::produceMigrationFormation (DataAccess::Interface::ProjectHandle * projectHandle, database::Record * record)
+{
+   return new Formation (projectHandle, m_migrator, record);
+}
+
+DataAccess::Interface::Surface *
+ObjectFactory::produceMigrationSurface (DataAccess::Interface::ProjectHandle * projectHandle, database::Record * record)
+{
+   return new Surface (projectHandle, m_migrator, record);
+}
 

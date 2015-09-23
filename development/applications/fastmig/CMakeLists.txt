@@ -1,6 +1,6 @@
 #########################################################################
 #                                                                       #
-# Copyright (C) 2012-2013 Shell International Exploration & Production. #
+# Copyright (C) 2012-2015 Shell International Exploration & Production. #
 # All rights reserved.                                                  #
 #                                                                       #
 # Developed under license for Shell by PDS BV.                          #
@@ -34,6 +34,7 @@ bm_include_libraries(
 	DataAccess
 	DistributedDataAccess
 	DerivedProperties
+        FiniteElements
 	GeoPhysics
 	Interpolation
 	LinearAlgebra
@@ -61,6 +62,7 @@ target_link_libraries(fastmig
 	Parallel_Hdf5
 	EosPack	
 	CBMGenerics
+        FiniteElements
 	genex6
 	genex6_kernel
 	OTGC_kernel6

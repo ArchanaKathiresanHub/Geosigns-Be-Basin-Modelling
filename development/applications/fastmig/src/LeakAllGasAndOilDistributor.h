@@ -5,7 +5,7 @@
 
 #include "Composition.h"
 
-#include "functions/src/MonotonicIncreasingPiecewiseLinearInvertableFunction.h"
+#include "MonotonicIncreasingPiecewiseLinearInvertableFunction.h"
 
 #include <limits>
 

@@ -1,7 +1,7 @@
 #ifndef _MIGRATION_DEPTHTOVOLUME_H_
 #define _MIGRATION_DEPTHTOVOLUME_H_
 
-#include "functions/src/MonotonicIncreasingPiecewiseLinearInvertableFunction.h"
+#include "MonotonicIncreasingPiecewiseLinearInvertableFunction.h"
 
 #include <vector>
 
