@@ -255,6 +255,7 @@ CSHARP_ARRAYS(char, byte)
 %apply char INPUT[] { const char * stateFileBuf }
 
 %rename(ComponentId2) DataAccess::Interface::ComponentId;
+%rename(PhaseId2) pvtFlash::PhaseId;
 
 // Interface to DataModel
 %include "../../../DataModel/src/PropertyAttribute.h"

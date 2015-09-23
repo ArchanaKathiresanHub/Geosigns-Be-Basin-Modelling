@@ -12,18 +12,12 @@
 
 #include "ComponentManager.h"
 #include "polynomials.h"
-//#include "IBSinterpolator2d.h"
 
 #include <vector>
 #include <string>
 
 using std::vector;
 using std::string;
-
-namespace ibs
-{
-   class Interpolator2d;
-}
 
 namespace pvtFlash
 {
@@ -147,8 +141,8 @@ namespace pvtFlash
                     double* kValues = 0
                   );
 
-      bool compute (double temperature, double pressure, int componentId,
-	            int & phase, double & density, double & viscosity);
+      //bool compute (double temperature, double pressure, int componentId,
+	  //          int & phase, double & density, double & viscosity);
 
       /// \brief Compute with lumped sulphur species into C15+Sat and C6-14Aro
       bool computeWithLumping( double temperature, 
@@ -222,10 +216,6 @@ namespace pvtFlash
 
       int m_isRK;
 
-      ibs::Interpolator2d * m_phaseTable[NUM_COMPONENTS];
-      ibs::Interpolator2d * m_densityTable[NUM_COMPONENTS];
-      ibs::Interpolator2d * m_viscosityTable[NUM_COMPONENTS];
-
       polynomials::PiecewisePolynomial** m_propertyFunc;   // [NUM_COMP][PropertyId] (component-based data)
       // PropertyId=0: molecular weight
       // PropertyId=1: acentric factor
@@ -237,10 +227,6 @@ namespace pvtFlash
       polynomials::PiecewisePolynomial* m_omegaA;          // [1], general data
       polynomials::PiecewisePolynomial* m_omegaB;          // [1], general data
       polynomials::PiecewisePolynomial* m_corrLBC;         // [5], general data
-
-      bool loadComponentTables (int componentId);
-      bool getComponentPhaseValues (int componentId, double temperature, double pressure, int & phase, double & density, double & viscosity);
-      bool computeComponentPhaseValues (int componentId, double temperature, double pressure, int & phase, double & density, double & viscosity);
 
       bool m_isReadInOk;
 
