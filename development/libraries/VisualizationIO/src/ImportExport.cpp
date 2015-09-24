@@ -47,7 +47,7 @@ bool ImportExport::exportToXML(boost::shared_ptr<Project>& project, const std::s
     newExport.addProject(pt, project);
 
     // Write property tree to XML file
-    std::string xmlFileName = getXMLIndexingFileName(outputPath);
+    std::string xmlFileName = getXMLIndexingFileName();
     write_xml(xmlFileName, pt);
 
     return true;
@@ -208,7 +208,7 @@ boost::shared_ptr<Project> CauldronIO::ImportExport::importFromXML(const std::st
     return project;
 }
 
-std::string CauldronIO::ImportExport::getXMLIndexingFileName(const boost::filesystem::path& path)
+std::string CauldronIO::ImportExport::getXMLIndexingFileName()
 {
     boost::filesystem::path result = "cauldron_outputs.xml";
     return std::string(result.string());

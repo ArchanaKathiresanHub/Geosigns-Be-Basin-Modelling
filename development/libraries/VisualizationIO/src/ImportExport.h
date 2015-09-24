@@ -21,9 +21,14 @@ namespace CauldronIO
     class ImportExport
     {
     public:
-        static bool exportToXML(boost::shared_ptr<Project>& project, const std::string& filename);
+        /// \brief Exports the current Project to XML and saves all 2D and 3D data in the supplied path
+        /// Returns true on success, throws a CauldronIOException on failure
+        static bool exportToXML(boost::shared_ptr<Project>& project, const std::string& path);
+        /// \brief Creates a new Project from the supplied XML indexing file
+        /// Throws a CauldronIOException on failure
         static boost::shared_ptr<Project> importFromXML(const std::string& filename);
-        static std::string getXMLIndexingFileName(const boost::filesystem::path& path);
+        /// \brief Returns the default XML indexing filename 
+        static std::string getXMLIndexingFileName();
 
     private:
         ImportExport(const boost::filesystem::path& path = "");

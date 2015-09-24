@@ -34,7 +34,7 @@ int main(int argc, char ** argv)
         clock_t start = clock();
         float timeInSeconds;
 
-        boost::shared_ptr<CauldronIO::Project> project = CauldronIO::ImportExport::importFromXML(CauldronIO::ImportExport::getXMLIndexingFileName("."));
+        boost::shared_ptr<CauldronIO::Project> project = CauldronIO::ImportExport::importFromXML(CauldronIO::ImportExport::getXMLIndexingFileName());
 
         timeInSeconds = (float)(clock() - start) / CLOCKS_PER_SEC;
         cout << "Finished import in " << timeInSeconds << " seconds " << endl;

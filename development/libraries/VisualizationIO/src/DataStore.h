@@ -38,17 +38,22 @@ namespace CauldronIO
         bool compressed;
     };
 
+    /// \brief Little class to load data from binary storage
     class DataStoreLoad
     {
     public:
+        /// \brief Prepares the dataload from the given parameters
         DataStoreLoad(DataStoreParams* params);
+        /// \brief Load the data from the datastore
         float* getData(size_t& size);
         ~DataStoreLoad();
 
         // Returns a decompressed char* with size "size", for given input data char* and size
         static char* decompress(const char* data, size_t& size);
 
+        /// \brief Creates a volume from the current XML node and assigns given Property
         static boost::shared_ptr<Volume> getVolume(const boost::property_tree::ptree& ptree, boost::shared_ptr<Property> property);
+        /// \brief Creates a surface from the current XML node and assigns given Property
         static boost::shared_ptr<Surface> getSurface(const boost::property_tree::ptree& ptree, boost::shared_ptr<Property> property);
 
     private:
@@ -56,14 +61,17 @@ namespace CauldronIO
         DataStoreParamsNative* m_params;
     };
 
-    // Internal helper class
+    /// \brief Little class to load data from binary storage
     class DataStoreSave
     {
     public:
+        /// \brief Creates a new instance, to store binary data to the given filename
         DataStoreSave(const std::string& filename);
         ~DataStoreSave();
 
+        /// \brief Adds a surface to the XML node, and writes the binary data
         void addSurface(const boost::shared_ptr<Surface>& surfaceIO, boost::property_tree::ptree& ptree);
+        /// \brief Adds a volume to the XML node, and writes the binary data
         void addVolume(const boost::shared_ptr<Volume>& volume, boost::property_tree::ptree& ptree);
         
         // Returns a compressed char* with size "size", for given input data char* and size
