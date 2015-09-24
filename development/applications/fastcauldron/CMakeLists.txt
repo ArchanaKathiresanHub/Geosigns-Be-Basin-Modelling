@@ -90,7 +90,6 @@ set( all_headers,
      src/MapElement.h
      src/mapinterpolator.h
      src/MatrixInterpolator.h
-     src/MatrixSparsityPattern.h
      src/MaxVesCalculator.h
      src/MemoryChecker.h
      src/Mesh3DIndex.h
@@ -236,7 +235,6 @@ set( all_srcs_except_main
      src/MantleFormation.C
      src/MapElement.C
      src/mapinterpolator.C
-     src/MatrixSparsityPattern.C
      src/MaxVesCalculator.C
      src/MemoryChecker.C
      src/Mesh3DIndex.C
