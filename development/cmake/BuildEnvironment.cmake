@@ -20,12 +20,12 @@ add_environment_variable(IBS_LIMITEDBUILDANDINSTALL true)
 add_environment_variable(IBS_FIELDWIDTH 24)
 
 # Set environment variables to various configuration files that are used by the applications
-add_environment_variable( EOSPACKDIR "${PROJECT_SOURCE_DIR}/misc/eospack")
-add_environment_variable( GENEXDIR "${PROJECT_SOURCE_DIR}/misc/genex40")
-add_environment_variable( GENEX5DIR "${PROJECT_SOURCE_DIR}/misc/genex50")
-add_environment_variable( GENEX6DIR "${PROJECT_SOURCE_DIR}/misc/genex60")
-add_environment_variable( OTGCDIR "${PROJECT_SOURCE_DIR}/misc/OTGC")
-add_environment_variable( CTCDIR "${PROJECT_SOURCE_DIR}/misc")
+add_environment_variable( EOSPACKDIR "${PROJECT_SOURCE_DIR}/geocase/misc/eospack")
+add_environment_variable( GENEXDIR "${PROJECT_SOURCE_DIR}/geocase/misc/genex40")
+add_environment_variable( GENEX5DIR "${PROJECT_SOURCE_DIR}/geocase/misc/genex50")
+add_environment_variable( GENEX6DIR "${PROJECT_SOURCE_DIR}/geocase/misc/genex60")
+add_environment_variable( OTGCDIR "${PROJECT_SOURCE_DIR}/geocase/misc/OTGC")
+add_environment_variable( CTCDIR "${PROJECT_SOURCE_DIR}/geocase/misc")
 
 if (TSLIB_ROOT)
 add_environment_variable( GEOCOSMBASEDIR "${TSLIB_ROOT}" )
