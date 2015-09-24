@@ -191,7 +191,8 @@ private :
    void numberGlobalDofs ( const bool verbose );
 
    /// \brief Resize all arrays and vectors to the new size.
-   void resizeGrids ( const int nodeCount );
+   void resizeGrids ( const int previousNodeCount,
+                      const int newNodeCount );
 
    /// \brief Set the k-values for the nodes of each of the elements.
    void setElementNodeKValues ( const bool verbose );

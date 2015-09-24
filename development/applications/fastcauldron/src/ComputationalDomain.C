@@ -384,19 +384,19 @@ void ComputationalDomain::getElementGobalDofNumbers () {
 void ComputationalDomain::resetAge ( const double age,
                                      const bool   verbose ) {
 
+   const int previousNodeCount = m_column.getNumberOfLogicalNodesInDepth ( m_currentAge );
+   const int newNodeCount = m_column.getNumberOfLogicalNodesInDepth ( age );
+   const int elementCount = m_column.getNumberOfLogicalElementsInDepth ( age );
+
    m_currentAge = age;
-
-   const int nodeCount = m_column.getNumberOfLogicalNodesInDepth ( m_currentAge );
-   const int elementCount = m_column.getNumberOfLogicalElementsInDepth ( m_currentAge );
-
-   m_isActive = m_column.getNumberOfLayers () > 0 and nodeCount > 1;
+   m_isActive = m_column.getNumberOfLayers () > 0 and newNodeCount > 1;
 
    if ( verbose ) {
-      PetscPrintf ( PETSC_COMM_WORLD, " Resetting computational domain: age - 4.5%f, nodes - %d \n", age, nodeCount );
+      PetscPrintf ( PETSC_COMM_WORLD, " Resetting computational domain: age - %f, nodes - %d \n", age, newNodeCount );
    }
 
-   m_grids.resizeGrids ( elementCount, nodeCount );
-   resizeGrids ( nodeCount );
+   m_grids.resizeGrids ( elementCount, newNodeCount );
+   resizeGrids ( previousNodeCount, newNodeCount );
    numberNodeDofs ( verbose );
    setElementNodeKValues ( verbose );
    determineActiveElements ( verbose );
@@ -499,7 +499,7 @@ void ComputationalDomain::determineActiveElements ( const bool verbose ) {
    if ( verbose ) {
       // Print line for each MPI process.
       PetscSynchronizedPrintf ( PETSC_COMM_WORLD,
-                                " There are %d avtive elements.\n",
+                                " There are %d active elements.\n",
                                 m_activeElements.size ());
    }
 
@@ -570,7 +570,7 @@ void ComputationalDomain::determineActiveNodes ( const bool verbose ) {
    if ( verbose ) {
       std::stringstream buffer;
 
-      buffer << " There are " << m_rank << ":  " << activeNodeCount << " active nodes "  << inactiveNodes << endl;
+      buffer << " There are " << m_rank << ":  " << activeNodeCount << " active nodes, "  << inactiveNodes << " inactive nodes." << endl;
       PetscSynchronizedPrintf ( PETSC_COMM_WORLD, buffer.str ().c_str ());
       PetscSynchronizedFlush ( PETSC_COMM_WORLD );
    }
@@ -612,19 +612,20 @@ void ComputationalDomain::determineActiveNodes ( const bool verbose ) {
 
 //------------------------------------------------------------//
 
-void ComputationalDomain::resizeGrids ( const int nodeCount ) {
+void ComputationalDomain::resizeGrids ( const int previousNodeCount,
+                                        const int newNodeCount ) {
 
-   if ( nodeCount <= 1 ) {
+   if ( newNodeCount <= 1 ) {
       return;
    }
 
-   bool resizeDofVector = m_grids.getNodeGrid ( 1 ).getNumberOfZNodes () != nodeCount;
+   bool resizeDofVector = previousNodeCount != newNodeCount;
    PetscBool isValid;
 
    VecValid ( m_globalDofNumbers, &isValid );
 
    // This is used for the node dof vector.
-   if ( nodeCount > 1 and ( resizeDofVector or not isValid )) {
+   if ( newNodeCount > 1 and ( resizeDofVector or not isValid )) {
 
       if ( isValid ) {
          VecDestroy ( &m_globalDofNumbers );
@@ -633,8 +634,8 @@ void ComputationalDomain::resizeGrids ( const int nodeCount ) {
       DMCreateGlobalVector ( m_grids.getNodeGrid ( 1 ).getDa (), &m_globalDofNumbers );
    }
 
-   m_depthIndexNumbers.reallocate ( FastcauldronSimulator::getInstance ().getActivityOutputGrid (), nodeCount );
-   m_activeNodes.reallocate ( FastcauldronSimulator::getInstance ().getActivityOutputGrid (), nodeCount );
+   m_depthIndexNumbers.reallocate ( FastcauldronSimulator::getInstance ().getActivityOutputGrid (), newNodeCount );
+   m_activeNodes.reallocate ( FastcauldronSimulator::getInstance ().getActivityOutputGrid (), newNodeCount );
 }
 
 //------------------------------------------------------------//
