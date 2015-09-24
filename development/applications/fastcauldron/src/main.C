@@ -25,6 +25,7 @@
 #include "Interface/Grid.h"
 
 #include "MemoryChecker.h"
+#include "FastcauldronStartup.h"
 
 #ifdef FLEXLM
 #undef FLEXLM
@@ -47,28 +48,8 @@ int ourRank ();
 void finaliseFastcauldron ( AppCtx* appctx, 
                             char* feature,
                             const char* errorMessage = "",
-                            FastcauldronFactory* factory = 0 ) {
+                            FastcauldronFactory* factory = 0 );
 
-   if ( strlen ( errorMessage ) > 0 ) {
-      PetscPrintf ( PETSC_COMM_WORLD,
-                    "\n %s \n", errorMessage );
-   }
-
-   if ( factory != 0 ) {
-      delete factory;
-   }
-
-   delete appctx;
-   FastcauldronSimulator::finalise ( false );
-   PetscFinalize ();
-
-#ifdef FLEXLM
-   if ( ourRank () == 0 ) {
-      EPTFlexLmCheckIn( feature );
-      EPTFlexLmTerminate();
-   }
-#endif
-}
 
 static void abortOnBadAlloc () {
    cerr << " cannot allocate ersources, aborting"  << endl;
@@ -106,8 +87,6 @@ int main(int argc, char** argv)
 
    AppCtx *appctx = new AppCtx (argc, argv);
    HydraulicFracturingManager::getInstance ().setAppCtx ( appctx );
-
-   string processId = IntegerToString ( GetProcPID ());
 
 
 
@@ -173,122 +152,31 @@ int main(int argc, char** argv)
    sprintf(feature, "ibs_cauldron_calc");
 #endif
 
+   std::string errorMessage;
+   returnStatus = FastcauldronStartup::startup ( argc, argv, appctx, factory, canRunSaltModelling, errorMessage );
 
-   if ( not appctx->readProjectName ()) {
-     finaliseFastcauldron ( appctx, feature, "MeSsAgE ERROR Error when reading the project file", factory );
-     return 1;
-   }
+   if ( returnStatus != 0 ) {
 
-   StatisticsHandler::initialise ();
-   FastcauldronSimulator::CreateFrom ( appctx, factory );
-   FastcauldronSimulator::getInstance() . readCommandLineParametersEarlyStage( argc, argv );
- 
-   FastcauldronSimulator::getInstance() . deleteTemporaryDirSnapshots();
+      if ( errorMessage != "" ) {
+         PetscPrintf ( PETSC_COMM_WORLD, "\n %s \n", errorMessage.c_str ());
+      }
 
-   FastcauldronSimulator::getInstance ().setFormationElementHeightScalingFactors ();
+      if ( factory != 0 ) {
+         delete factory;
+      }
 
-   if ( not FastcauldronSimulator::getInstance ().setCalculationMode ( appctx->getCalculationMode () )) {
-     finaliseFastcauldron ( appctx, feature, "MeSsAgE ERROR Error when setting calculation mode", factory );
-     return 1;
-   }
-
-   FastcauldronSimulator::getInstance ().getMcfHandler ().determineUsage ();
-   FastcauldronSimulator::getInstance ().initialiseFastcauldronLayers ();
-
-   if ( not appctx->readProjectFile ()) {
-     finaliseFastcauldron ( appctx, feature, "MeSsAgE ERROR Error when reading the project file", factory );
-     return 1;
-   }
-
-   // There are several command line parameters that can be set only after the project file has been read.
-   FastcauldronSimulator::getInstance ().readCommandLineParametersLateStage ( argc, argv );
-
-   // Initialise anything that is to be set from the environment.
-   appctx->setParametersFromEnvironment ();
-
-#if 0
-   appctx->Switch_To_Low_Resolution_Maps ();
-#endif
-
-   appctx->Display_Grid_Description();
-
-   Filterwizard *fw = &appctx->filterwizard;
-
-   appctx->setLayerBottSurfaceName ();
-
-   // Process Data Map and Assess Valid Nodes
-   appctx->setValidNodeArray ();
-
-   appctx->Examine_Load_Balancing ();
-   appctx->Output_Number_Of_Geological_Events();
-
-#if 0
-   if ( not appctx->Determine_Maximum_Crust_Thinning_Ratio ()) {
-      finaliseFastcauldron ( appctx, feature, "MeSsAgE ERROR Error determining crust thinning history.", factory );
-      return 1;
-   }
-#else
-   // cout << " CHeck the crust thinning ration functionality." << endl;
-#endif
-
-   if ( ! appctx->createFormationLithologies ( canRunSaltModelling )) {
-
-     PetscPrintf ( PETSC_COMM_WORLD,
-                   "\n---------------- Unable to create lithologies ----------------\n");
-     delete appctx;
-     FastcauldronSimulator::finalise ( false );
-
-     // Close PetSc
-     PetscFinalize ();
+      delete appctx;
+      FastcauldronSimulator::finalise ( false );
+      PetscFinalize ();
 
 #ifdef FLEXLM
-     //FlexLM license check in only for node with rank = 0
-     if ( ourRank () == 0 )
-     {
-       // FlexLm license check in, close down and enable logging
-       EPTFlexLmCheckIn( feature );
-       EPTFlexLmTerminate();
-     }
+      if ( ourRank () == 0 ) {
+         EPTFlexLmCheckIn( feature );
+         EPTFlexLmTerminate();
+      }
 #endif
 
-     return 1;
-   }
-
-   // Find which derived properties are required
-   fw->InitDerivedCalculationsNeeded ();
-
-   appctx->Locate_Related_Project ();
-   appctx->setInitialTimeStep ();
-   FastcauldronSimulator::getInstance ().getMcfHandler ().initialise ();
-   FastcauldronSimulator::getInstance ().updateSourceRocksForDarcy ();
-   // Must be done after updating source-rocks for Darcy, since this disables adsorption.
-   FastcauldronSimulator::getInstance ().updateSourceRocksForGenex ();
-
-   // Now that every thing has been loaded, we can correct the property lists:
-   //     o Property list;
-   //     o PropertyValue list;
-   //     o OutputPropertyList;
-   //
-   // And any associations between the objects can be made.
-   FastcauldronSimulator::getInstance ().correctAllPropertyLists ();
-   FastcauldronSimulator::getInstance ().updateSnapshotFileCreationFlags ();
-
-   const bool overpressureCalculation = FastcauldronSimulator::getInstance ().getCalculationMode () == OVERPRESSURE_MODE or
-                                        FastcauldronSimulator::getInstance ().getCalculationMode () == OVERPRESSURED_TEMPERATURE_MODE or
-                                        FastcauldronSimulator::getInstance ().getCalculationMode () == COUPLED_HIGH_RES_DECOMPACTION_MODE or
-                                        FastcauldronSimulator::getInstance ().getCalculationMode () == PRESSURE_AND_TEMPERATURE_MODE or
-                                        FastcauldronSimulator::getInstance ().getCalculationMode () == COUPLED_DARCY_MODE;
-
-   if ( not FastcauldronSimulator::getInstance ().initialiseLayerThicknessHistory ( overpressureCalculation )) {
-     finaliseFastcauldron ( appctx, feature, "MeSsAgE ERROR when initialising thickness history.", factory );
-     return 1;
-   }
-
-   if ( FastcauldronSimulator::getInstance ().getCalculationMode () == OVERPRESSURED_TEMPERATURE_MODE or
-        FastcauldronSimulator::getInstance ().getCalculationMode () == COUPLED_HIGH_RES_DECOMPACTION_MODE ) {
-
-      // Scale the initalised solid-thicknesses by the fct-correction factors.
-      FastcauldronSimulator::getInstance ().applyFctCorrections ();
+      return returnStatus;
    }
 
 
@@ -441,4 +329,24 @@ int ourRank () {
    }
 
    return myRank;
+}
+
+
+void finaliseFastcauldron ( AppCtx* appctx, 
+                            char* feature,
+                            const char* errorMessage,
+                            FastcauldronFactory* factory ) {
+
+   if ( strlen ( errorMessage ) > 0 ) {
+      PetscPrintf ( PETSC_COMM_WORLD,
+                    "\n %s \n", errorMessage );
+   }
+
+   if ( factory != 0 ) {
+      delete factory;
+   }
+
+   delete appctx;
+   FastcauldronSimulator::finalise ( false );
+   PetscFinalize ();
 }
