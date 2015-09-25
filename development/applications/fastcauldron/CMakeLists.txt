@@ -113,7 +113,6 @@ set( all_headers,
      src/PrimaryOutputPropertyMap.h
      src/PrimaryOutputPropertyVolume.h
      src/PropertiesIoTbl.h
-     src/PropertyCoefficientMatrix.h
      src/Property.h
      src/property_manager.h
      src/PropertyManager.h
@@ -256,7 +255,6 @@ set( all_srcs_except_main
      src/PrimaryOutputPropertyVolume.C
      src/PropertiesIoTbl.C
      src/Property.C
-     src/PropertyCoefficientMatrix.C
      src/property_manager.C
      src/PropertyManager.C
      src/PropertyOutputConstraints.C
