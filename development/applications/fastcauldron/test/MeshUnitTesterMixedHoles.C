@@ -23,9 +23,9 @@
 #include "FastcauldronSimulator.h"
 #include "FastcauldronStartup.h"
 #include "HydraulicFracturingManager.h"
-#include "VtkMeshWriter.h"
 #include "layer.h"
 #include "propinterface.h"
+#include "VtkMeshWriter.h"
 
 // Access to unit testing helper class
 #include "MeshUnitTester.h"
@@ -40,6 +40,9 @@ TEST ( DofCountingUnitTest, MixedHoles ) {
 
    char* projectName = "./MeshWithMixedHolesStripes.project3d";
 
+   // argc and argv will be used in place of command line 
+   // parameters when initialising PETSc and fastcauldron.
+   // There are 4 non-null values in the array argv.
    int   argc = 4;
    char** argv = new char*[argc + 1];
 
@@ -65,6 +68,7 @@ TEST ( DofCountingUnitTest, MixedHoles ) {
 
       if ( returnStatus == 0 ) {
          // The computational domain consists only of sediments: 0 .. n - 3
+         // the last 2 layers on the array are for the cryst and mantle.
          ComputationalDomain domain ( *FastcauldronSimulator::getInstance ().getCauldron ()->layers [ 0 ],
                                       *FastcauldronSimulator::getInstance ().getCauldron ()->layers [ FastcauldronSimulator::getInstance ().getCauldron ()->layers.size () - 3 ],
                                       CompositeElementActivityPredicate ().compose ( ElementActivityPredicatePtr ( new ElementThicknessActivityPredicate ))
@@ -82,7 +86,7 @@ TEST ( DofCountingUnitTest, MixedHoles ) {
          mut.setTime ( currentTime );
          domain.resetAge ( currentTime );
          vktWriter.save ( domain, testFileName );
-         mut.compareFiles ( validFileName, testFileName );
+         ASSERT_TRUE ( mut.compareFiles ( validFileName, testFileName ));
       }
 
       FastcauldronSimulator::finalise ( false );

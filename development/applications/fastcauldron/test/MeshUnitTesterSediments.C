@@ -24,21 +24,25 @@
 #include "FastcauldronSimulator.h"
 #include "FastcauldronStartup.h"
 #include "HydraulicFracturingManager.h"
-#include "VtkMeshWriter.h"
 #include "layer.h"
 #include "propinterface.h"
+#include "VtkMeshWriter.h"
 
 // Access to unit testing helper class
 #include "MeshUnitTester.h"
 
 //
 // A simple test for sediments only with no holes.
-// There are some zero thickness elements when the time = 10. 
+// There are some zero thickness elements when the time = 10Ma
+// these should not be included in the computational domain.
 //
 TEST ( DofCountingUnitTest, SedimentMesh ) {
 
    char* projectName = "./Acquifer.project3d";
 
+   // argc and argv will be used in place of command line 
+   // parameters when initialising PETSc and fastcauldron.
+   // There are 4 non-null values in the array argv.
    int   argc = 4;
    char** argv = new char*[argc + 1];
 
@@ -64,6 +68,7 @@ TEST ( DofCountingUnitTest, SedimentMesh ) {
 
       if ( returnStatus == 0 ) {
          // The computational domain consists only of sediments: 0 .. n - 3
+         // the last 2 layers on the array are for the cryst and mantle.
          ComputationalDomain domain ( *FastcauldronSimulator::getInstance ().getCauldron ()->layers [ 0 ],
                                       *FastcauldronSimulator::getInstance ().getCauldron ()->layers [ FastcauldronSimulator::getInstance ().getCauldron ()->layers.size () - 3 ],
                                       CompositeElementActivityPredicate ().compose ( ElementActivityPredicatePtr ( new ElementThicknessActivityPredicate )));
@@ -83,7 +88,7 @@ TEST ( DofCountingUnitTest, SedimentMesh ) {
          vktWriter.save ( domain, testFileName );
          ASSERT_TRUE ( mut.compareFiles ( validFileName, testFileName ));
 
-         // Second test is for time = 10Ma.
+         // Second test is for time = 0Ma.
          testFileName = "test_noholes_seds_only_0.vtk";
          validFileName = "valid_noholes_seds_only_0.vtk";
          currentTime = 0.0;

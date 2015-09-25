@@ -23,9 +23,9 @@
 #include "FastcauldronSimulator.h"
 #include "FastcauldronStartup.h"
 #include "HydraulicFracturingManager.h"
-#include "VtkMeshWriter.h"
 #include "layer.h"
 #include "propinterface.h"
+#include "VtkMeshWriter.h"
 
 // Access to unit testing helper class
 #include "MeshUnitTester.h"
@@ -33,12 +33,16 @@
 
 //
 // A simple test for sediments and basement with no holes.
-// There are some zero thickness elements when the time = 10. 
+// There are some zero thickness elements when the time = 10Ma
+// these should not be included in the computational domain.
 //
 TEST ( DofCountingUnitTest, FullMesh ) {
 
    char* projectName = "./Acquifer.project3d";
 
+   // argc and argv will be used in place of command line 
+   // parameters when initialising PETSc and fastcauldron.
+   // There are 4 non-null values in the array argv.
    int   argc = 4;
    char** argv = new char*[argc + 1];
 

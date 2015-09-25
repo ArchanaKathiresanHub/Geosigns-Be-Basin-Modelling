@@ -12,7 +12,7 @@
 
 #include <string>
 
-/// \brief A helper class for the fastcauldorn dof counting unit tests.
+/// \brief A helper class for the fastcauldron dof counting unit tests.
 class MeshUnitTester {
 
 public :

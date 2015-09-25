@@ -96,7 +96,7 @@ bool MeshUnitTester::compareFiles ( const std::string& leftFileName,
    }
 
    if ( leftFile == rightFile ) {
-      std::cerr << " Files are the same." << std::endl;
+      std::cerr << " Cannot compare a files with itself, please provide two different files to compare." << std::endl;
       leftFile.close ();
       rightFile.close ();
       return false;
