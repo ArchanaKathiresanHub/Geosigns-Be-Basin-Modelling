@@ -26,46 +26,30 @@ LookUp::LookUp( std::vector<double> const &pressure /* rows */, std::vector<doub
 }
 
 LookUp::LookUp(std::vector<double> const &pressure /* rows */, std::vector<double> const &temperature /* columns */, 
-               std::vector<double> const &values ,
-               std::vector<float> const &phases )
-    : m_pressure(pressure), m_temperature(temperature) 
+               std::vector<double> const &values )
+   : m_pressure(pressure), m_temperature(temperature), m_data( values )
 {
    std::sort(m_pressure.begin(), m_pressure.end());
    std::sort(m_temperature.begin(), m_temperature.end());
-   
-   for ( int i = 0; i < m_pressure.size() * m_temperature.size(); ++ i ) {
-      m_data.push_back( make_pair( values[i], phases[i] ));
-   }
+
 }
 
 bool LookUp::checkValidity() const 
 {
-  
    if( m_data.size() != m_pressure.size() * m_temperature.size() ){
       return false;
    }
-   for ( unsigned int i = 0; i < m_pressure.size() * m_temperature.size(); ++ i ) {
-      if( m_data[i].first < 0 ) {
-         if( m_data[i].second > 0 ) {
-            return false;
-         }
-      }
-      if( m_data[i].second < 0 ) {
-         if( m_data[i].first > 0 ) {
-            return false;
-         }
-      }
-   }  
+
    return true;
 }
 
 void LookUp::printValue( const double p1, const double t1 ) const
 {
-   dataValue val;
+   double val;
    //  lookup.printTable();
    get( p1, t1, val );
    
-   std::cout << "Val(" << p1 << "," << t1 << ") = " << val.first << " " << val.second << std::endl;
+   std::cout << "Val(" << p1 << "," << t1 << ") = " << val << std::endl;
 }
 
 void LookUp::printTable() const
@@ -81,7 +65,7 @@ void LookUp::printTable() const
       std::cout << m_pressure [i] << "\t";
       for( unsigned int j = 0; j < m_temperature.size(); ++ j ) {
          
-         std::cout <<  m_data[k].first << " " << m_data[k].second << "\t";
+         std::cout <<  m_data[k] <<  "\t";
          ++ k;
       }
       std::cout << std::endl;
@@ -89,7 +73,7 @@ void LookUp::printTable() const
    std::cout << std::endl;
 }
 
-dataValue LookUp::getValue( int i, int j ) const
+double LookUp::getValue( int i, int j ) const
 {
 #ifdef DEBUG    
    std::cout << "data(" << i << "," << j << ") = " << m_data [ i * 4 + j ] << std::endl;
@@ -98,7 +82,7 @@ dataValue LookUp::getValue( int i, int j ) const
    return m_data [ i * m_temperature.size() + j ];
 }
 
-bool LookUp::get(double p, double t, dataValue &value) const
+bool LookUp::get(double p, double t, double &value) const
 {
    std::vector<double>::const_iterator p_pos = std::lower_bound(m_pressure.begin(), m_pressure.end(), p);
    if(p_pos == m_pressure.end())
@@ -165,36 +149,30 @@ bool LookUp::get(double p, double t, dataValue &value) const
       }
    } 
    
-   const dataValue value00 = getValue( p_ind, t_ind );
+   const double value00 = getValue( p_ind, t_ind );
    
    if ( fractionP == 0 and fractionT == 0 ) {
-      value.first = value00.first;
-      value.second = value00.second;
+      value = value00;
       
-      return value.second != undefined;
+      return value != undefined;
    }
    
-   const dataValue value01 = getValue( p_ind, t_ind1 );
-   const dataValue value10 = getValue( p_ind1, t_ind );
-   const dataValue value11 = getValue( p_ind1, t_ind1 );
+   const double value01 = getValue( p_ind, t_ind1 );
+   const double value10 = getValue( p_ind1, t_ind );
+   const double value11 = getValue( p_ind1, t_ind1 );
    
-   if( value00.second == undefined or value01.second == undefined or
-       value10.second == undefined or value11.second == undefined ) {
+   if( value00 == undefined or value01 == undefined or
+       value10 == undefined or value11 == undefined ) {
       
-      value.first = -1;
-      value.second = -1;
+      value = -1;
       return false;
    }
    
-   value.first = value00.first * ( 1 - fractionT ) *( 1 - fractionP ) + 
-      value01.first * ( 1 - fractionP ) * fractionT +  
-      value10.first * fractionP * ( 1 - fractionT ) +
-      value11.first * fractionP * fractionT;
-   
-   value.second = value00.second * ( 1 - fractionT ) * ( 1 - fractionP ) + 
-      value01.second * ( 1 - fractionP ) * fractionT +  
-      value10.second * fractionP * ( 1 - fractionT ) +
-      value11.second * fractionP * fractionT;
+   value = value00 * ( 1 - fractionT ) * ( 1 - fractionP ) + 
+      value01 * ( 1 - fractionP ) * fractionT +  
+      value10 * fractionP * ( 1 - fractionT ) +
+      value11 * fractionP * fractionT;
+
      
    return true;
 }

@@ -26,7 +26,6 @@ enum TSR_Table {
     NumberOfTables };
 
 typedef map < TSR_Table, const double* > TSR_TablesData;
-typedef map < TSR_Table, const float* >  TSR_TablesDataPhases;
 
 const double invMolarMass = 17.1115674; // 1000 / 58.44 ) (molarMass NaCl = 58.44 g/mol)
 
@@ -41,11 +40,10 @@ public:
 
     // interpolate a value for salinity
     bool getValueForSalinity( const double salinity, pvtFlash::ComponentId id, 
-                              const double pressure, const double temperature, TSR_Tables::dataValue & value );
+                              const double pressure, const double temperature, double & value );
 
 private:
     TSR_TablesData m_tableData;
-    TSR_TablesDataPhases m_tableDataPhases;
     const TSR_Tables::LookUp * m_lookupTables [TSR_Tables::NumberOfTables];
     
     void allocateTable( TSR_Table tableName );

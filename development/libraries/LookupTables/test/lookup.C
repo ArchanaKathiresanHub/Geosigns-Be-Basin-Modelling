@@ -10,62 +10,50 @@ TEST( TSRlookupTest, GetValue )
    const TSR_Tables::LookUp * oneTable = tables.getTable( TSR_Tables::H2S_H2O_NaCl2m );
 
    //   EXPECT_GE( oneTable, 0 );
-   TSR_Tables::dataValue oneValue;
+   double oneValue;
 
    bool result = oneTable->get( 600, 20, oneValue );
-   EXPECT_DOUBLE_EQ( 0.029635110999999999, oneValue.first );
-   EXPECT_FLOAT_EQ( 1, oneValue.second );
+   EXPECT_DOUBLE_EQ( 0.029635110999999999, oneValue );
  
    result = oneTable->get( 600, 24.5, oneValue );
-   EXPECT_DOUBLE_EQ( 0.029694186550000001, oneValue.first );
-   EXPECT_FLOAT_EQ(  1, oneValue.second  );
+   EXPECT_DOUBLE_EQ( 0.029694186550000001, oneValue );
 
    result = oneTable->get( 555, 20, oneValue );
-   EXPECT_DOUBLE_EQ(  0.029308884400000002, oneValue.first );
-   EXPECT_FLOAT_EQ(  1, oneValue.second );
+   EXPECT_DOUBLE_EQ(  0.029308884400000002, oneValue );
 
    result = oneTable->get( 501, 42, oneValue );
-   EXPECT_DOUBLE_EQ(  0.029457453596000001, oneValue.first );
-   EXPECT_FLOAT_EQ(  1, oneValue.second  );
+   EXPECT_DOUBLE_EQ(  0.029457453596000001, oneValue );
 
    result = oneTable->get( 1, 0, oneValue );
-   EXPECT_DOUBLE_EQ( 0.0024186780000000001, oneValue.first );
-   EXPECT_FLOAT_EQ(  0, oneValue.second  );
+   EXPECT_DOUBLE_EQ( 0.0024186780000000001, oneValue );
    EXPECT_TRUE( result );
 
    result = oneTable->get( 1000, 300, oneValue );
-   EXPECT_DOUBLE_EQ(  -1, oneValue.first );
-   EXPECT_FLOAT_EQ(  -1, oneValue.second  );
+   EXPECT_DOUBLE_EQ(  -1, oneValue );
    EXPECT_FALSE( result );
 
    result = oneTable->get( 1000, 275, oneValue );
-   EXPECT_DOUBLE_EQ(  0.016581459999999999, oneValue.first );
-   EXPECT_FLOAT_EQ(  0, oneValue.second  );
+   EXPECT_DOUBLE_EQ(  0.016581459999999999, oneValue );
    EXPECT_TRUE( result );
 
    result = oneTable->get( 1000, 276, oneValue );
-   EXPECT_DOUBLE_EQ( -1, oneValue.first );
-   EXPECT_FLOAT_EQ( -1, oneValue.second  );
+   EXPECT_DOUBLE_EQ( -1, oneValue );
    EXPECT_FALSE( result );
 
    result = oneTable->get( 95, 110, oneValue );
-   EXPECT_DOUBLE_EQ(  0.032146769999999998, oneValue.first );
-   EXPECT_FLOAT_EQ(  0.5, oneValue.second  );
+   EXPECT_DOUBLE_EQ(  0.032146769999999998, oneValue );
    EXPECT_TRUE( result );
 
    result = oneTable->get( 96, 110, oneValue );
-   EXPECT_DOUBLE_EQ(  0.032405372799999999, oneValue.first );
-   EXPECT_FLOAT_EQ(  0.6, oneValue.second  );
+   EXPECT_DOUBLE_EQ(  0.032405372799999999, oneValue );
    EXPECT_TRUE( result );
 
    result = oneTable->get( 95, 105, oneValue );
-   EXPECT_DOUBLE_EQ( 0.031945420249999995, oneValue.first );
-   EXPECT_FLOAT_EQ(  0.75, oneValue.second  );
+   EXPECT_DOUBLE_EQ( 0.031945420249999995, oneValue );
    EXPECT_TRUE( result );
 
    result = oneTable->get( 96, 105, oneValue );
-   EXPECT_DOUBLE_EQ(  0.032079509899999997, oneValue.first );
-   EXPECT_FLOAT_EQ(  0.8, oneValue.second );
+   EXPECT_DOUBLE_EQ(  0.032079509899999997, oneValue );
    EXPECT_TRUE( result );
 
 
@@ -132,16 +120,14 @@ TEST( TSRlookupTest, GetValueForSalinity )
 {
    TSR_Tables::LookUpDirectory tables;
   
-   TSR_Tables::dataValue oneValue;
+   double oneValue;
    double cauldronSalinity = 0.01;
 
    bool result = tables.getValueForSalinity ( cauldronSalinity, pvtFlash::H2S, 1, 0, oneValue );
-   EXPECT_DOUBLE_EQ ( 0.0031675776551219623, oneValue.first );
-   EXPECT_DOUBLE_EQ ( 0.0, oneValue.second );
+   EXPECT_DOUBLE_EQ ( 0.0031675776551219623, oneValue );
    EXPECT_TRUE (  result );
 
    result = tables.getValueForSalinity ( cauldronSalinity, pvtFlash::COX, 1, 0, oneValue );
-   EXPECT_DOUBLE_EQ ( 0.0013333701143596641, oneValue.first );
-   EXPECT_DOUBLE_EQ ( 0.0, oneValue.second );
+   EXPECT_DOUBLE_EQ ( 0.0013333701143596641, oneValue );
    EXPECT_TRUE (  result );
 }

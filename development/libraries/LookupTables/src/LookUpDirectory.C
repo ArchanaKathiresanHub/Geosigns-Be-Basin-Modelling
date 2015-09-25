@@ -14,17 +14,6 @@
 #include "H2S-H2O-NaCl4.h"
 #include "H2S-H2O-NaCl6.h"
 
-#include "CO2-H2O-phases.h"
-#include "CO2-H2O-NaCl1-phases.h"
-#include "CO2-H2O-NaCl2-phases.h"
-#include "CO2-H2O-NaCl4-phases.h"
-#include "CO2-H2O-NaCl6-phases.h"
-#include "H2S-H2O-phases.h"
-#include "H2S-H2O-NaCl1-phases.h"
-#include "H2S-H2O-NaCl2-phases.h"
-#include "H2S-H2O-NaCl4-phases.h"
-#include "H2S-H2O-NaCl6-phases.h"
-
 namespace TSR_Tables {
 
 #define LENGTH(x) (sizeof(x)/sizeof(*x))
@@ -48,17 +37,6 @@ TSR_Tables::LookUpDirectory::LookUpDirectory ()
    m_tableData[CO2_H2O_NaCl2m] = TSR_Tables::CO2_H2O_NaCl2;
    m_tableData[CO2_H2O_NaCl4m] = TSR_Tables::CO2_H2O_NaCl4;
    m_tableData[CO2_H2O_NaCl6m] = TSR_Tables::CO2_H2O_NaCl6;
-
-   m_tableDataPhases[H2S_H2Om] = TSR_Tables::H2S_H2O_phases;
-   m_tableDataPhases[H2S_H2O_NaCl1m] = TSR_Tables::H2S_H2O_NaCl1_phases;
-   m_tableDataPhases[H2S_H2O_NaCl2m] = TSR_Tables::H2S_H2O_NaCl2_phases;
-   m_tableDataPhases[H2S_H2O_NaCl4m] = TSR_Tables::H2S_H2O_NaCl4_phases;
-   m_tableDataPhases[H2S_H2O_NaCl6m] = TSR_Tables::H2S_H2O_NaCl6_phases;
-   m_tableDataPhases[CO2_H2Om] = TSR_Tables::CO2_H2O_phases;
-   m_tableDataPhases[CO2_H2O_NaCl1m] = TSR_Tables::CO2_H2O_NaCl1_phases;
-   m_tableDataPhases[CO2_H2O_NaCl2m] = TSR_Tables::CO2_H2O_NaCl2_phases;
-   m_tableDataPhases[CO2_H2O_NaCl4m] = TSR_Tables::CO2_H2O_NaCl4_phases;
-   m_tableDataPhases[CO2_H2O_NaCl6m] = TSR_Tables::CO2_H2O_NaCl6_phases;
    
 }
 
@@ -83,7 +61,7 @@ const TSR_Tables::LookUp * TSR_Tables::LookUpDirectory::getTable( TSR_Table aTab
 
 bool TSR_Tables::LookUpDirectory::getValueForSalinity( const double salinity, pvtFlash::ComponentId id,
                                                        const double pressure, const double temperature, 
-                                                       TSR_Tables::dataValue & tablePair )
+                                                       double & tableValue )
 {
    
    const double molal = convertSalinityToMolal ( salinity );
@@ -98,7 +76,7 @@ bool TSR_Tables::LookUpDirectory::getValueForSalinity( const double salinity, pv
       return false;
    }
    if( maxSalinity - minSalinity < minOffset ) {
-      getTable( minTableName )->get(  pressure, temperature, tablePair );
+      getTable( minTableName )->get(  pressure, temperature, tableValue );
       return true;
    }
  
@@ -108,7 +86,7 @@ bool TSR_Tables::LookUpDirectory::getValueForSalinity( const double salinity, pv
       return false;
    }
 
-   TSR_Tables::dataValue minValue, maxValue;
+   double minValue, maxValue;
 
    getTable( minTableName )->get( pressure, temperature, minValue );
    getTable( maxTableName )->get( pressure, temperature, maxValue );
@@ -117,8 +95,7 @@ bool TSR_Tables::LookUpDirectory::getValueForSalinity( const double salinity, pv
    
    const double scaleValue = ( molal - minSalinity ) / ( maxSalinity - minSalinity );
 
-   tablePair.first  = minValue.first + ( maxValue.first - minValue.first ) * scaleValue;
-   tablePair.second = minValue.second + ( maxValue.second - minValue.second ) * scaleValue;
+   tableValue = minValue + ( maxValue - minValue ) * scaleValue;
 
    return true;
 }
@@ -175,8 +152,7 @@ void TSR_Tables::LookUpDirectory::allocateTable( TSR_Table aTable )
    size_t tableSize = LENGTH(TSR_Tables::press) * LENGTH(TSR_Tables::temp);
    m_lookupTables[aTable] = new LookUp(std::vector<double>(VECTOR(TSR_Tables::press)),
                                        std::vector<double>(VECTOR(TSR_Tables::temp)), 
-                                       std::vector<double>(m_tableData[aTable], m_tableData[aTable] + tableSize ),
-                                       std::vector<float>(m_tableDataPhases[aTable], m_tableDataPhases[aTable] + tableSize ));
+                                       std::vector<double>(m_tableData[aTable], m_tableData[aTable] + tableSize ));
 
 }
 
