@@ -88,6 +88,7 @@ macro(add_gtest )
    set(linkflags)   # The set of linker flags
    set(mpiSize)     # The number of MPI processes
    set(include_dirs)# Additional include directories
+   set(environment_vars)#List of variables in format VAR=VAL
 
    set(parameterName)
    foreach(param ${ARGN})
@@ -105,6 +106,8 @@ macro(add_gtest )
          set(parameterName mpiSize)
       elseif(param STREQUAL INCLUDE_DIRS)
          set(parameterName include_dirs)
+      elseif(param STREQUAL ENV_VARS)
+         set(parameterName environment_vars)        
       else()
          list(APPEND ${parameterName} ${param})
       endif()
@@ -166,5 +169,10 @@ macro(add_gtest )
    else ()
      add_test("UNIT-TEST-${testName}" ${execName}  "--gtest_output=xml:${BM_UNIT_TEST_OUTPUT_DIR}/${execName}-junit.xml")
    endif()
+   
+   if (environment_vars)
+      set_tests_properties(UNIT-TEST-${testName} PROPERTIES  ENVIRONMENT "${environment_vars}")
+   endif(environment_vars)   
+   
 endmacro(add_gtest)
 
