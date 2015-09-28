@@ -14,48 +14,42 @@
 #ifndef CASA_API_VAR_PARAMETER_SOURCE_ROCK_TOC_H
 #define CASA_API_VAR_PARAMETER_SOURCE_ROCK_TOC_H
 
-#include "VarPrmContinuous.h"
+#include "VarPrmSourceRockProp.h"
 
 namespace casa
 {
-   /// @brief Variation for casa::PrmSourceRockTOC parameter
-   class VarPrmSourceRockTOC : public VarPrmContinuous
+   /// @brief Variation for casa::PrmSourceRockTOC parameter. It could be dependent on source rock type
+   /// category parameter (casa::VarPrmSourceRockType). If user defines source rock type variation for
+   /// the layer and TOC variation for the same layer and mixing ID, he must provides TOC for each source rock 
+   /// category value.
+   ///
+   class VarPrmSourceRockTOC : public VarPrmSourceRockProp
    {
    public:
       /// @brief Create a new initial source rock TOC variable parameter
       VarPrmSourceRockTOC( const char * layerName /**< name of the layer for TOC variation. If layer has mix of 
                                                       source rocks litho-types, TOC will be changed for all of them */
-                         , double baseValue      ///< base value of parameter
-                         , double minValue       ///< minimal value for the variable parameter range
-                         , double maxValue       ///< maximal value for the variable parameter range
-                         , PDF pdfType = Block   ///< type of PDF shape for the variable parameter
-                         , const char * name = 0 ///< user specified parameter name
+                         , double baseValue             ///< base value of parameter
+                         , double minValue              ///< minimal value for the variable parameter range
+                         , double maxValue              ///< maximal value for the variable parameter range
+                         , PDF pdfType = Block          ///< type of PDF shape for the variable parameter
+                         , const char * name = 0        ///< user specified parameter name
+                         , const char * srTypeName = 0  ///< source rock type name, to connect with source rock type cat. prm.
+                         , int          mixID = 1       ///< mixing ID. Could be 1 or 2
                          );
 
       /// @brief Destructor
-      virtual ~VarPrmSourceRockTOC();
+      virtual ~VarPrmSourceRockTOC() {;}
      
 	   /// @brief Get name of variable parameter in short form
 	   /// @return array of names for each subparameter
 	   virtual std::vector<std::string> name() const;
 
-      /// @brief Get number of subparameters if it is more than one
-      /// @return dimension of variable parameter
-      virtual size_t dimension() const { return 1; }
-
-      /// @brief Create parameter from set of doubles. This method is used to convert data between CASA and SUMlib
-      /// @param[in,out] vals iterator which points to the first sub-parameter value
-      /// @return new casa::PrmSourceRockTOC parameter
-      virtual SharedParameterPtr newParameterFromDoubles( std::vector<double>::const_iterator & vals ) const;
-
-      /// @brief Get layer name for variation of TOC
-      /// @return layer name
-      std::string layerName() const { return m_layerName; }
-
       /// @{
       /// @brief Defines version of serialized object representation. Must be updated on each change in save()
       /// @return Actual version of serialized object representation
-      virtual unsigned int version() const { return VarPrmContinuous::version() + 0; }
+      // Version 1 - add different TOC ranges, dependend on source rock type category
+      virtual unsigned int version() const { return VarPrmContinuous::version() + 1; }
 
       /// @brief Get type name of the serialaizable object, used in deserialization to create object with correct type
       /// @return object class name
@@ -72,9 +66,9 @@ namespace casa
       /// @param objVer version of object representation in stream
       VarPrmSourceRockTOC( CasaDeserializer & dz, unsigned int objVer );
       /// @}
-
+      
    protected:
-      std::string m_layerName; ///< source rock lithology name
+      virtual PrmSourceRockProp * createNewPrm( double val ) const; // creates PrmSourceRockTOC parameter object instance
    };
 
 }

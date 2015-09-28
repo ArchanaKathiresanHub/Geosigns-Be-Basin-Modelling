@@ -13,7 +13,7 @@
 FILE( GLOB all_headers src/*.h )
 source_group(include FILES ${all_headers})
 
-FILE( GLOB all_srcs src/*.C)
+FILE( GLOB all_srcs src/*.cpp)
 source_group(source FILES ${all_srcs})
 
 add_library(cmbapi
@@ -73,6 +73,6 @@ configure_file( test/Inputs.HDF Inputs.HDF COPYONLY )
 
 
 add_gtest( NAME mbapiModelTest
-   SOURCES test/mbapiModelTest.C
+   SOURCES test/mbapiModelTest.cpp
    LIBRARIES cmbapi TableIO DataAccess SerialDataAccess
 )

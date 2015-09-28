@@ -45,12 +45,14 @@ namespace casa
       /// @param mdl Cauldron model interface object to get from it the value of source rock type name for the 
       ///            given layer.
       /// @param layerName layer name
-      PrmSourceRockType( mbapi::Model & mdl, const std::string & layerName );
+      /// @param mixID     source rock mixing ID, must be 1 or 2
+      PrmSourceRockType( mbapi::Model & mdl, const std::string & layerName, int mixID = 1 );
 
       /// @brief Constructor. Creates the parameter to variate source rock types for the given layer
-      PrmSourceRockType( const VarPrmSourceRockType            * parent             ///< pointer to a variable parameter which created this one
-                       , const std::string                     & layerName          ///< stratigraphy layer name
-                       , const std::string                     & sourceRockTypeName ///< name of the source rock type
+      PrmSourceRockType( const VarPrmSourceRockType            * parent     ///< pointer to a variable parameter which created this one
+                       , const std::string                     & layerName  ///< stratigraphy layer name
+                       , const std::string                     & srTypeName ///< name of the source rock type
+                       , int                                     mixID      ///< 1 or 2 - source rock mixing ID
                       );
 
       /// @brief Destructor
@@ -102,7 +104,8 @@ namespace casa
       /// @{
       /// @brief Defines version of serialized object representation. Must be updated on each change in save()
       /// @return Actual version of serialized object representation
-      virtual unsigned int version() const { return 0; }
+      // 1 - add mixing ID
+      virtual unsigned int version() const { return 1; }
 
       /// @brief Save all object data to the given stream, that object could be later reconstructed from saved data
       /// @param sz Serializer stream
@@ -126,6 +129,7 @@ namespace casa
       
       std::string                            m_layerName; ///< layer name with source rock
       std::string                            m_srtName;   ///< source rock type name
+      int                                    m_mixID;     ///< which source rock in the mix should be affected
    };
 }
 

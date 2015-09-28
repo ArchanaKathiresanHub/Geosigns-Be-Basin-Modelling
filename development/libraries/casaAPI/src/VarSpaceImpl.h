@@ -65,7 +65,12 @@ public:
 
    // Get i-th discrete parameter from the list
    virtual const VarPrmDiscrete * discreteParameter( size_t i ) const { return i < m_disPrms.size() ? m_disPrms[ i ] : NULL; }
-  
+ 
+   // Access to i-th element
+   // i position element in the collection
+   // return pointer to VarParameter object which should not be deleted by the user on success
+   virtual VarParameter * operator[] ( size_t i ) const { return i < m_prms.size() ? m_prms[i] : 0; }
+
    // Serialization / Deserialization
 
    // version of serialized object representation

@@ -38,7 +38,7 @@ void CmdScenarioID::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
 void CmdScenarioID::printHelpPage( const char * cmdName )
 {
    std::cout << "  " << cmdName << " <scenarioID> \n\n";
-   std::cout << "  - defines scenario ID which will be presented in any CASA API genertated file\n";
+   std::cout << "  - defines scenario ID which will be presented in any CASA API generated file\n";
    std::cout << "\n";
    std::cout << "    Examples:\n";
    std::cout << "    " << cmdName << " \"NVG_UA_18328\"\n";

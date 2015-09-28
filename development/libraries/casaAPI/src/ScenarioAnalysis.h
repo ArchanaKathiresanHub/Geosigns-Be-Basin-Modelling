@@ -203,7 +203,8 @@ namespace casa
       // version 5: Changed the way how variable parameters set is serialized to keep the original order of variable parameters
       // version 6: Fixed wrong name for RunManager object (was RunManger)
       // version 7: Added scenario ID
-      int version() { return 7; }
+      // version 8: Added source rock type mixing ID, different TOC ranges for source rock category parameter
+      int version() { return 8; }
 
       /// @brief Save scenario to the file
       /// @param fileName - name of the file for scenario to be saved in

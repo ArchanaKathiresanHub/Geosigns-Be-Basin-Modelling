@@ -36,11 +36,13 @@ namespace sumext
 {
    /// @brief Convert set of parameters value for given casa::RunCase to SUMlib::Case
    /// @param[in]  crc casa::RunCase object reference
+   /// @param[in]  vp  casa::VarSpace object reference 
    /// @param[out] sc  SUMlib::Case object reference
-   void convertCase( const casa::RunCase & crc, SUMlib::Case  & sc );
+   void convertCase( const casa::RunCase & crc, const casa::VarSpace & vp, SUMlib::Case  & sc );
 
    /// @brief Convert set of parameters value for given SUMlib::Case to casa::RunCase
    /// @param[in]  sc  SUMlib::Case object reference
+   /// @param[in]  vp  casa::VarSpace object reference 
    /// @param[out] crc casa::RunCase object reference
    void convertCase( const SUMlib::Case  & sc, const casa::VarSpace & vp, casa::RunCase & crc );
 

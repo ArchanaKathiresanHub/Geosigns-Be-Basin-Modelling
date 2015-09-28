@@ -76,17 +76,19 @@ namespace mbapi {
       // Layer -> lithology type relation methods
 
       /// @brief Get all lithologies associated with the given layer and percentage of each lithology in a mix
-      /// @param[in] id layer ID
-      /// @param[out] lithoList on exit it contains the list of lithologies for the given layer
-      /// @param[out] lithoPercent on exit it contains percentage of each lithology in a mix
       /// @return ErrorHandler::NoError on success, or error code otherwise
-      virtual ErrorHandler::ReturnCode layerLithologiesList( LayerID id, std::vector<std::string> & lithoList, std::vector<double> & lithoPercent ) = 0;
+      virtual ErrorHandler::ReturnCode layerLithologiesList(
+              LayerID id                            ///< [in] id layer ID
+            , std::vector<std::string> & lithoList  ///< [out] lithoList on exit it contains the list of lithologies for the given layer
+            , std::vector<double> & lithoPercent    ///< [out] lithoPercent on exit it contains percentage of each lithology in a mix
+                                                           ) = 0;
       
       /// @brief set lithologies and their percenatges for the given layer
       /// @return ErrorHandler::NoError on success, or error code otherwise
-      virtual ErrorHandler::ReturnCode setLayerLithologiesList( LayerID                          id           ///< layer ID
-                                                              , const std::vector<std::string> & lithoList    ///< lithologies name list (max 3)
-                                                              , const std::vector<double>      & lithoPercent ///< corresponded lithology percentage
+      virtual ErrorHandler::ReturnCode setLayerLithologiesList( 
+            LayerID                          id           ///< layer ID
+          , const std::vector<std::string> & lithoList    ///< lithologies name list (max 3)
+          , const std::vector<double>      & lithoPercent ///< corresponded lithology percentage
                                                               ) = 0;
 
       /// @brief Collect layers where the given lithology is referenced
@@ -131,7 +133,6 @@ namespace mbapi {
       /// @return if source rock mixing is enabled for the given layer, this function returns
       /// HI value for the mix or 0 otherwise.
       virtual double sourceRockMixHC( LayerID lid ) = 0;
-
 
       /// @brief Set source rock types name for the given layer and enable layer to be layer with source rock 
       /// @param lid layer ID

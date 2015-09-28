@@ -79,8 +79,8 @@ protected:
       // version of serialized object representation
       virtual unsigned int version() const = 0;
    
-      std::string  m_name;  ///< user specified parameter name
-   };
+      std::string       m_name;  ///< user specified parameter name
+  };
 }
 #endif // CASA_API_VAR_PARAMETER_H
 

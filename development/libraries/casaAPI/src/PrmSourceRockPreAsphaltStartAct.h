@@ -14,7 +14,7 @@
 #ifndef CASA_API_PARAMETER_SOURCE_ROCK_PRE_ASPH_ACT_ENERGY_H
 #define CASA_API_PARAMETER_SOURCE_ROCK_PRE_ASPH_ACT_ENERGY_H
 
-#include "Parameter.h"
+#include "PrmSourceRockProp.h"
 
 // CMB API
 #include <UndefinedValues.h>
@@ -38,31 +38,32 @@ namespace casa
    class VarPrmSourceRockPreAsphaltStartAct;
 
    /// @brief Source rock initial organic content parameter
-   class PrmSourceRockPreAsphaltStartAct : public Parameter
+   class PrmSourceRockPreAsphaltStartAct : public PrmSourceRockProp 
    {
    public:
       /// @brief Constructor, creates parameter object by reading the parameter value from the given model
       /// @param mdl Cauldron model interface object to get the parameter value for the given layer from
       /// @param layerName layer name
-      PrmSourceRockPreAsphaltStartAct( mbapi::Model & mdl, const char * layerName );
+      /// @param srType    source rock type name
+      /// @param mixID     source rock mixing ID for stratigraphy layer
+      PrmSourceRockPreAsphaltStartAct( mbapi::Model & mdl, const char * layerName, const char * srType = 0, int mixID = 1  );
 
       /// @brief Constructor, creates the parameter object for the given parameter value and layer name
       /// @param parent pointer to a variable parameter which created this one
       /// @param val value of the parameter
       /// @param layerName layer name
-      PrmSourceRockPreAsphaltStartAct( const VarPrmSourceRockPreAsphaltStartAct * parent, double val, const char * layerName );
+      /// @param srType    source rock type name
+      /// @param mixID     source rock mixing ID for stratigraphy layer
+      PrmSourceRockPreAsphaltStartAct( const VarPrmSourceRockPreAsphaltStartAct * parent
+                                     , double val
+                                     , const char * layerName
+                                     , const char * srType = 0
+                                     , int mixID = 1
+                                     );
 
       /// @brief Destructor
       virtual ~PrmSourceRockPreAsphaltStartAct();
      
-      /// @brief Get name of the parameter
-      /// @return parameter name
-      virtual const char * name() const { return m_name.c_str(); }
-
-      /// @brief Get variable parameter object which was used to create this parameter
-      /// @return Pointer to the variable parameter
-      virtual const VarParameter * parent() const { return m_parent; }
-
       /// @brief Set this parameter value in Cauldron model
       /// @param caldModel reference to Cauldron model
       /// @param caseID unique RunCase ID, in some parameters it is used in new map file name generation
@@ -73,20 +74,6 @@ namespace casa
       /// @param caldModel reference to Cauldron model
       /// @return empty string on success or error message with current parameter value
       virtual std::string validate( mbapi::Model & caldModel );
-
-      /// @brief Get value for the parameter as double
-      /// @return parameter value
-      double value() const { return m_value;  }
-
-      // The following methods are used for converting between CASA RunCase and SUMLib::Case objects
-      
-      /// @brief Get parameter value as an array of doubles
-      /// @return parameter value represented as set of doubles
-      virtual std::vector<double> asDoubleArray() const { return std::vector<double>( 1, value() ); }
-
-      /// @brief Get parameter value as integer
-      /// @return parameter value represented as integer
-      virtual int asInteger() const { assert( 0 ); return UndefinedIntegerValue; }
 
       /// @brief Are two parameters equal?
       /// @param prm Parameter object to compare with
@@ -115,12 +102,6 @@ namespace casa
       /// @}
 
    protected:
-      const VarParameter * m_parent;    ///< variable parameter which was used to create this one
-
-      std::string          m_name;      ///< name of the parameter
-      
-      std::string          m_layerName; ///< layer name with source rock
-      double               m_value;     ///< pre-asphaltene activation energy value 
    };
 
 }

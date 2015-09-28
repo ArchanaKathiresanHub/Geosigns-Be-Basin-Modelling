@@ -14,10 +14,15 @@
 #ifndef CASA_API_VAR_PRM_CATEGORICAL_H
 #define CASA_API_VAR_PRM_CATEGORICAL_H
 
+// CASA API
 #include "Parameter.h"
 #include "VarParameter.h"
 #include "CasaDeserializer.h"
 
+// Boost Signals2 library
+#include <boost/signals2/signal.hpp>
+
+// STL/STD C
 #include <memory>
 #include <vector>
 
@@ -33,6 +38,7 @@
 
 namespace casa
 {
+   class VarPrmContinuous;
 
    /// @brief Class to manage categorical variable parameter type
    class VarPrmCategorical : public VarParameter
@@ -74,7 +80,7 @@ namespace casa
       ///        the method will return a zero pointer
       /// @param val new value for parameter
       /// @return the new parameter object which should be deleted by the caller itself
-      virtual SharedParameterPtr createNewParameterFromUnsignedInt( unsigned int val ) const { return m_variation[val]; }
+      virtual SharedParameterPtr createNewParameterFromUnsignedInt( unsigned int val ) const;
 
       /// @brief Save all object data to the given stream, that object could be later reconstructed from saved data
       /// @param sz Serializer stream
@@ -87,6 +93,10 @@ namespace casa
       /// @param objName expected object name
       /// @return new observable instance on susccess, or throw and exception in case of any error
       static VarPrmCategorical * load( CasaDeserializer & dz, const char * objName );
+
+      // signal on category parameter generated and connect as dependent on seraialization
+      // categorical parameters should be added always before dependent on them constinuous parameters!!!
+      void addDependent( VarPrmContinuous * depPrm );
 
    protected:
       VarPrmCategorical() {;}
@@ -103,6 +113,9 @@ namespace casa
       std::vector<SharedParameterPtr> m_variation;
       size_t                          m_baseVal;
       std::vector<double>             m_weights;
+
+      boost::signals2::signal<void ( Parameter* )>                m_catDependentVarPrms; // signals on chosen category
+      boost::signals2::signal<void ( CasaSerializer::ObjRefID )>  m_serDependentVarPrms; // signals on serialization
    };
 }
 

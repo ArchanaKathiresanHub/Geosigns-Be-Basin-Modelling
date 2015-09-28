@@ -65,7 +65,20 @@ public:
    virtual std::string usingExample( const char * cmdName ) const = 0;
 
 protected:
-   PrmType() {;}
+   PrmType( std::string tblColNames = "" )
+   { 
+      if ( tblColNames.empty() ) return;
+
+      const std::vector<std::string> & lst = CfgFileParser::list2array( tblColNames, ':' );
+      if ( lst.size() != 2 )
+      {
+         throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Wrong format for variable parameters name: " << 
+            tblColNames << ", it must be the following format: tblName:colName";
+      }
+   }
+
+   std::string m_tblName;
+   std::string m_colName;
 };
 
 ////////////////////////////////////////////////////////////////
@@ -79,7 +92,7 @@ protected:
 class TopCrustHeatProduction : public PrmType
 {
 public:
-   TopCrustHeatProduction()  {;}
+   TopCrustHeatProduction( const std::string & prmTypeName = "" ) : PrmType( prmTypeName ) {;}
    virtual ~TopCrustHeatProduction() {;}
 
    virtual void addParameterObject( std::auto_ptr<casa::ScenarioAnalysis> & sa
@@ -100,7 +113,7 @@ public:
    size_t expectedParametersNumber() const { return 3; } // min, max, pdf
    size_t optionalParametersNumber() const { return 0; } 
 
-   virtual std::string name() const { return "TopCrustHeatProduction"; }
+   virtual std::string name() const { return "BasementIoTbl:TopCrustHeatProd"; }
 
    virtual std::string description() const { return "surface radiogenic heat production rate of the basement [ uW/m^3]"; }
 
@@ -108,7 +121,7 @@ public:
    {
       std::ostringstream oss;
 
-      oss << "    [varPrmName] TopCrustHeatProduction  <minVal> <maxVal> <prmPDF>\n";
+      oss << "    [varPrmName] \"BasementIoTbl:TopCrustHeatProd\" <minVal> <maxVal> <prmPDF>\n";
       oss << "    Where:\n";
       oss << "       varPrmName - user specified variable parameter name (Optional)\n";
       oss << "       minVal     - the parameter minimal range value\n";
@@ -125,7 +138,7 @@ public:
    {
       std::ostringstream oss;
       oss << "    #                                      type               minVal  maxVal prmPDF\n";
-      oss << "    " << cmdName << " \"Radiogenic heat rate\"  \"TopCrustHeatProduction\"    0.1     4.9  \"Block\"\n";
+      oss << "    " << cmdName << " \"Radiogenic heat rate\"  \"" << name() << "\"    0.1     4.9  \"Block\"\n";
       oss << "\n";
       return oss.str();
    }
@@ -138,7 +151,7 @@ public:
 class SourceRockTOC : public PrmType
 {
 public:
-   SourceRockTOC()  {;}
+   SourceRockTOC( const std::string & prmTypeName = "" ) : PrmType( prmTypeName ) {;}
    virtual ~SourceRockTOC() {;}
 
    virtual void addParameterObject( std::auto_ptr<casa::ScenarioAnalysis> & sa
@@ -146,30 +159,47 @@ public:
                                   , const std::vector<std::string>        & prms
                                   ) const
    {
-      double                      minVal = atof(    prms[2].c_str() );
-      double                      maxVal = atof(    prms[3].c_str() );
-      casa::VarPrmContinuous::PDF ppdf   = Str2pdf( prms[4] );
+      size_t pos = 1;
+      std::string                 srtMix = prms.size() > 5 ? ( prms[pos++] ) : "";
+      std::string                 layerName = prms[pos++];
+      std::string                 srType = prms.size() > 6 ? ( prms[pos++] ) : "";
+      double                      minVal = atof(    prms[pos++].c_str() );
+      double                      maxVal = atof(    prms[pos++].c_str() );
+      casa::VarPrmContinuous::PDF ppdf   = Str2pdf( prms[pos++] );
 
-      if ( ErrorHandler::NoError != casa::BusinessLogicRulesSet::VarySourceRockTOC( *sa.get(), name.c_str(), prms[1].c_str(), minVal, maxVal, ppdf ) )
+      int mixID = srtMix.empty() ? 1 : atoi( srtMix.substr( srtMix.size() - 1 ).c_str() );
+
+      if ( ErrorHandler::NoError != casa::BusinessLogicRulesSet::VarySourceRockTOC( *sa.get()
+                                                                                  , name.c_str()
+                                                                                  , layerName.c_str()
+                                                                                  , mixID
+                                                                                  , ( srType.empty() ? 0 : srType.c_str() )
+                                                                                  , minVal
+                                                                                  , maxVal
+                                                                                  , ppdf ) )
       {
          throw ErrorHandler::Exception( sa->errorCode() ) << sa->errorMessage();
       }
    }
       
    size_t expectedParametersNumber() const { return 4; } // layer_name, min, max, pdf
-   size_t optionalParametersNumber() const { return 0; } 
+   size_t optionalParametersNumber() const { return 2; } // mixID, SR type
 
-   virtual std::string name() const { return "SourceRockTOC"; }
+   virtual std::string name() const { return "SourceRockLithoIoTbl:TocIni"; }
 
    virtual std::string description() const { return "the initial total organic content in source rock [ weight % ]"; }
 
    virtual std::string fullDescription() const
    {
       std::ostringstream oss;
-      oss << "    [varPrmName] SourceRockTOC  <layerName> <minVal> <maxVal> <prmPDF>\n";
+      oss << "    [varPrmName] \"SourceRockLithoIoTbl:TocIni\" [mixID] <layerName> [srTypeName] <minVal> <maxVal> <prmPDF>\n";
       oss << "    Where:\n";
       oss << "       varPrmName - user specified variable parameter name (Optional)\n";
+      oss << "       mixID      - (Optional) \"StratIoTbl:SourceRockType1\" or \"StratIoTbl:SourceRockType2\". This parameter defines\n";
+      oss << "                    which source rock type from the mixing in the layer will be updated. The default value is SourceRockType1\n";
       oss << "       layerName  - source rock layer name\n";
+      oss << "       srType     - (Optional) if source rock type name. If TOC value is dependent on Categorical Source Rock Type parameter\n";
+      oss << "                    this value will be used to connect and establish this dependency.\n";
       oss << "       minVal     - the parameter minimal range value\n";
       oss << "       maxVal     - the parameter maximal range value\n";
       oss << "       prmPDF     - the parameter probability density function type\n";
@@ -182,7 +212,17 @@ public:
    {
       std::ostringstream oss;
       oss << "    #                              type         layerName        minVal  maxVal   prmPDF\n";
-      oss << "    "<< cmdName << " \"Lower Jurasic TOC\" \"SourceRockTOC\" \"Lower Jurassic\"  0.5    1.0  \"Block\"\n";
+      oss << "    "<< cmdName << " \"Lower Jurasic TOC\" \"" << name() << "\" \"Lower Jurassic\"  0.5    1.0  \"Block\"\n";
+      oss << "\n    # Example with source rock mixing, TOC Value is set for the second SR in the mix for the Spekk layer\n";
+
+      oss << "    "<< cmdName << " \"SpekkTOC\" \"" << name() << "\" \"StratIoTbl:SourceRockType2\" \"Spekk\" 0.5 1.0 \"Block\"\n";
+      oss << "\n    # Example with dependency of TOC values range from source rock type\n";
+
+      oss << "    "<< cmdName << " \"SpekkTOC\" \"" << name() << "\" \"StratIoTbl:SourceRockType1\" \n";
+      oss << " \"Spekk\" \"Type_I\" 0.5 1.0 \"Block\"\n";
+
+      oss << "    "<< cmdName << " \"SpekkTOC\" \"" << name() << "\" \"StratIoTbl:SourceRockType1\" \n";
+      oss << " \"Spekk\" \"Type_II\" 5 10 \"Block\"\n";
       return oss.str();
    }
 };
@@ -194,7 +234,7 @@ public:
 class SourceRockHC : public PrmType
 {
 public:
-   SourceRockHC()  {;}
+   SourceRockHC( const std::string & prmTypeName = "" ) : PrmType( prmTypeName ) {;}
    virtual ~SourceRockHC() {;}
 
    virtual void addParameterObject( std::auto_ptr<casa::ScenarioAnalysis> & sa
@@ -202,20 +242,34 @@ public:
                                   , const std::vector<std::string>        & prms
                                   ) const
    {
-      double                      minVal = atof( prms[2].c_str() );
-      double                      maxVal = atof( prms[3].c_str() );
-      casa::VarPrmContinuous::PDF ppdf   = Str2pdf( prms[4] );
+      size_t pos = 1;
+      std::string                 srtMix = prms.size() > 5 ? ( prms[pos++] ) : "";
+      std::string                 layerName = prms[pos++];
+      std::string                 srType = prms.size() > 6 ? ( prms[pos++] ) : "";
+      double                      minVal = atof(    prms[pos++].c_str() );
+      double                      maxVal = atof(    prms[pos++].c_str() );
+      casa::VarPrmContinuous::PDF ppdf   = Str2pdf( prms[pos++] );
 
-      if ( ErrorHandler::NoError != casa::BusinessLogicRulesSet::VarySourceRockHC( *sa.get(), name.c_str(), prms[1].c_str(), minVal, maxVal, ppdf ) )
+      int mixID = srtMix.empty() ? 1 : atoi( srtMix.substr( srtMix.size() - 1 ).c_str() );
+
+      if ( ErrorHandler::NoError != casa::BusinessLogicRulesSet::VarySourceRockHC( *sa.get()
+                                                                                 , name.c_str()
+                                                                                 , layerName.c_str()
+                                                                                 , mixID
+                                                                                 , ( srType.empty() ? 0 : srType.c_str() )
+                                                                                 , minVal
+                                                                                 , maxVal
+                                                                                 , ppdf
+                                                                                 ) )
       {
          throw ErrorHandler::Exception( sa->errorCode() ) << sa->errorMessage();
       }
    }
       
    size_t expectedParametersNumber() const { return 4; } // layer_name, min, max, pdf
-   size_t optionalParametersNumber() const { return 0; } 
+   size_t optionalParametersNumber() const { return 2; } 
 
-   virtual std::string name() const { return "SourceRockHC"; }
+   virtual std::string name() const { return "SourceRockLithoIoTbl:HcIni"; }
 
    virtual std::string groupDescirption() const { return "\n  (Source rock parameters variation:)\n"; }
 
@@ -224,13 +278,20 @@ public:
    virtual std::string fullDescription() const
    {
       std::ostringstream oss;
-      oss << "    [varPrmName] SourceRockHC  <layerName> <minVal> <maxVal> <prmPDF>\n";
+      oss << "    [varPrmName] \"" << name() << "\" [mixID] <layerName> [srTypeName] <minVal> <maxVal> <prmPDF>\n";
       oss << "    Where:\n";
       oss << "       varPrmName - user specified variable parameter name (Optional)\n";
+      oss << "       mixID      - (Optional) \"StratIoTbl:SourceRockType1\" or \"StratIoTbl:SourceRockType2\". This parameter defines\n";
+      oss << "                    which source rock type from the mixing in the layer will be updated. The default value is SourceRockType1\n";
       oss << "       layerName  - source rock layer name\n";
+      oss << "       srType     - (Optional) if source rock type name. If TOC value is dependent on Categorical Source Rock Type parameter\n";
+      oss << "                    this value will be used to connect and establish this dependency.\n";
       oss << "       minVal     - the parameter minimal range value\n";
       oss << "       maxVal     - the parameter maximal range value\n";
       oss << "       prmPDF     - the parameter probability density function type\n";
+
+      oss << "    Note: This parameter can't be defined together with HI for the same source rock lithology\n";
+
       return oss.str();
    }
 
@@ -238,8 +299,18 @@ public:
    {
       std::ostringstream oss;
       oss << "    #          type         layerName        minVal  maxVal   prmPDF\n";
-      oss << "    "<< cmdName << " \"SourceRockHC\" \"Lower Jurassic\"   0.5    1.0  \"Block\"\n";
-      return oss.str();
+      oss << "    "<< cmdName << " \"" << name() << "\" \"Lower Jurassic\"   0.5    1.0  \"Block\"\n";
+
+      oss << "\n    # Example with source rock mixing, H/C Value is set for the second SR in the mix for the Spekk layer\n";
+      oss << "    "<< cmdName << " \"SpekkHC\" \"" << name() << "\" \"StratIoTbl:SourceRockType2\" \"Spekk\" 0.5 1.25 \"Block\"\n";
+
+      oss << "\n    # Example with dependency of TOC values range from source rock type\n";
+      oss << "    "<< cmdName << " \"SpekkHC\" \"" << name() << "\" \"StratIoTbl:SourceRockType1\" \n";
+      oss << " \"Spekk\" \"Type_I\" 0.5 1.1 \"Block\"\n";
+
+      oss << "    "<< cmdName << " \"SpekkHC\" \"" << name() << "\" \"StratIoTbl:SourceRockType1\" \n";
+      oss << " \"Spekk\" \"Type_II\" 1.2 1.4 \"Block\"\n";
+       return oss.str();
    }
 };
 
@@ -250,7 +321,8 @@ public:
 class SourceRockHI : public PrmType
 {
 public:
-   SourceRockHI()  {;}
+   SourceRockHI( const std::string & prmTypeName = "" ) : PrmType( prmTypeName ) {;}
+   
    virtual ~SourceRockHI() {;}
 
    virtual void addParameterObject( std::auto_ptr<casa::ScenarioAnalysis> & sa
@@ -258,33 +330,55 @@ public:
                                   , const std::vector<std::string>        & prms
                                   ) const
    {
-      double                      minVal = atof( prms[2].c_str() );
-      double                      maxVal = atof( prms[3].c_str() );
-      casa::VarPrmContinuous::PDF ppdf = Str2pdf( prms[4] );
+      size_t pos = 1;
+      std::string                 srtMix = prms.size() > 5 ? ( prms[pos++] ) : "";
+      std::string                 layerName = prms[pos++];
+      std::string                 srType = prms.size() > 6 ? ( prms[pos++] ) : "";
+      double                      minVal = atof(    prms[pos++].c_str() );
+      double                      maxVal = atof(    prms[pos++].c_str() );
+      casa::VarPrmContinuous::PDF ppdf   = Str2pdf( prms[pos++] );
 
-      if ( ErrorHandler::NoError != casa::BusinessLogicRulesSet::VarySourceRockHI( *sa.get(), name.c_str(), prms[1].c_str(), minVal, maxVal, ppdf ) )
+      int mixID = srtMix.empty() ? 1 : atoi( srtMix.substr( srtMix.size() - 1 ).c_str() );
+
+      if ( ErrorHandler::NoError != casa::BusinessLogicRulesSet::VarySourceRockHI( *sa.get()
+                                                                                 , name.c_str()
+                                                                                 , layerName.c_str()
+                                                                                 , mixID
+                                                                                 , ( srType.empty() ? 0 : srType.c_str() )
+                                                                                 , minVal
+                                                                                 , maxVal
+                                                                                 , ppdf
+                                                                                 ) )
       {
          throw ErrorHandler::Exception( sa->errorCode() ) << sa->errorMessage();
       }
    }
       
    size_t expectedParametersNumber() const { return 4; } // layer_name, min, max, pdf
-   size_t optionalParametersNumber() const { return 0; } 
+   size_t optionalParametersNumber() const { return 2; } 
 
-   virtual std::string name() const { return "SourceRockHI"; }
+   virtual std::string name() const { return "SourceRockLithoIoTbl:HiIni"; }
 
    virtual std::string description() const { return "the initial hydrogen index (HI) ratio in source rock [ kg/tonne ]"; }
 
    virtual std::string fullDescription() const
    {
       std::ostringstream oss;
-      oss << "    [varPrmName] SourceRockHI  <layerName> <minVal> <maxVal> <prmPDF>\n";
+      oss << "    [varPrmName] \"" << name() << "\" [mixID] <layerName> [srTypeName] <minVal> <maxVal> <prmPDF>\n";
       oss << "    Where:\n";
       oss << "       varPrmName - user specified variable parameter name (Optional)\n";
+      oss << "       mixID      - (Optional) \"StratIoTbl:SourceRockType1\" or \"StratIoTbl:SourceRockType2\". This parameter defines\n";
+      oss << "                    which source rock type from the mixing in the layer will be updated. The default value is SourceRockType1\n";
       oss << "       layerName  - source rock layer name\n";
+      oss << "       srType     - (Optional) if source rock type name. If TOC value is dependent on Categorical Source Rock Type parameter\n";
+      oss << "                    this value will be used to connect and establish this dependency.\n";
       oss << "       minVal     - the parameter minimal range value\n";
       oss << "       maxVal     - the parameter maximal range value\n";
       oss << "       prmPDF     - the parameter probability density function type\n";
+
+      oss << "    Note: This parameter does not variate HI value in source rock lithologies table. Instead it convert HI value to H/C and\n";
+      oss << "          change source rock lithology H/C value. This was done in such way, because the simulator accepts only H/C value,\n";
+      oss << "          ingnores HI value.\n";
 
       return oss.str();
    }
@@ -293,7 +387,98 @@ public:
    {
       std::ostringstream oss;
       oss << "    #           type         layerName        minVal  maxVal   prmPDF\n";
-      oss << "    " << cmdName << " \"SourceRockHI\" \"Lower Jurassic\"    433.5    521.0  \"Block\"\n";
+      oss << "    " << cmdName << " \"" << name() << "SourceRockLithoIoTbl::HiIni\" \"Lower Jurassic\"    433.5    521.0  \"Block\"\n";
+
+      oss << "\n    # Example with source rock mixing, HI Value is set for the second SR in the mix for the Spekk layer\n";
+      oss << "    "<< cmdName << " \"SpekkHI\" \"" << name() << "\" \"StratIoTbl:SourceRockType2\" \"Spekk\" 433.5 521.0 \"Block\"\n";
+
+      oss << "\n    # Example with dependency of TOC values range from source rock type\n";
+      oss << "    "<< cmdName << " \"SpekkHI\" \"" << name() << "\" \"StratIoTbl:SourceRockType1\" \n";
+      oss << " \"Spekk\" \"Type_I\" 433.5 521.0 \"Block\"\n";
+      oss << "    "<< cmdName << " \"SpekkHI\" \"" << name() << "\" \"StratIoTbl:SourceRockType1\" \n";
+      oss << " \"Spekk\" \"Type_II\" 700.0 800.0 \"Block\"\n";
+      return oss.str();
+   }
+};
+
+////////////////////////////////////////////////////////////////
+// SourceRockPreasphActEnergy parameter
+////////////////////////////////////////////////////////////////
+//
+class SourceRockPreasphActEnergy : public PrmType
+{
+public:
+   SourceRockPreasphActEnergy( const std::string & prmTypeName = "" ) : PrmType( prmTypeName ) {;}
+   virtual ~SourceRockPreasphActEnergy() {;}
+
+   virtual void addParameterObject( std::auto_ptr<casa::ScenarioAnalysis> & sa
+                                  , const std::string                     & name
+                                  , const std::vector<std::string>        & prms
+                                  ) const
+   {
+      size_t pos = 1;
+      std::string                 srtMix = prms.size() > 5 ? ( prms[pos++] ) : "";
+      std::string                 layerName = prms[pos++];
+      std::string                 srType = prms.size() > 6 ? ( prms[pos++] ) : "";
+      double                      minVal = atof(    prms[pos++].c_str() );
+      double                      maxVal = atof(    prms[pos++].c_str() );
+      casa::VarPrmContinuous::PDF ppdf   = Str2pdf( prms[pos++] );
+
+      int mixID = srtMix.empty() ? 1 : atoi( srtMix.substr( srtMix.size() - 1 ).c_str() );
+
+      if ( ErrorHandler::NoError != casa::BusinessLogicRulesSet::VarySourceRockPreAsphaltActEnergy( *sa.get()
+                                                                                                  , name.c_str()
+                                                                                                  , layerName.c_str()
+                                                                                                  , mixID
+                                                                                                  , ( srType.empty() ? 0 : srType.c_str() )
+                                                                                                  , minVal
+                                                                                                  , maxVal
+                                                                                                  , ppdf
+                                                                                                  ) )
+      {
+         throw ErrorHandler::Exception( sa->errorCode() ) << sa->errorMessage();
+      }
+    }
+      
+   size_t expectedParametersNumber() const { return 4; } // layer_name, min, max, pdf
+   size_t optionalParametersNumber() const { return 2; } 
+
+   virtual std::string name() const { return "SourceRockLithoIoTbl:PreAsphaltStartAct"; }
+
+   virtual std::string description() const { return "the activation energy limit for which the pre-asphalt cracking starts [ kJ/mol ]"; }
+
+   virtual std::string fullDescription() const
+   {
+      std::ostringstream oss;
+      oss << "    [varPrmName] \"" << name() << "\" [mixID] <layerName> [srTypeName] <minVal> <maxVal> <prmPDF>\n";
+      oss << "    Where:\n";
+      oss << "       varPrmName - user specified variable parameter name (Optional)\n";
+      oss << "       mixID      - (Optional) \"StratIoTbl:SourceRockType1\" or \"StratIoTbl:SourceRockType2\". This parameter defines\n";
+      oss << "                    which source rock type from the mixing in the layer will be updated. The default value is SourceRockType1\n";
+      oss << "       layerName  - source rock layer name\n";
+      oss << "       srType     - (Optional) if source rock type name. If TOC value is dependent on Categorical Source Rock Type parameter\n";
+      oss << "                    this value will be used to connect and establish this dependency.\n";
+      oss << "       minVal     - the parameter minimal range value\n";
+      oss << "       maxVal     - the parameter maximal range value\n";
+      oss << "       prmPDF     - the parameter probability density function type\n";
+      return oss.str();
+   }
+
+   virtual std::string usingExample( const char * cmdName ) const
+   {
+      std::ostringstream oss;
+      oss << "    #             type                   layerName        minVal  maxVal   prmPDF\n";
+      oss << "    " << cmdName << " \"" << name() << "\" \"Lower Jurassic\"    204.0  206.0  \"Block\"\n";
+
+      oss << "\n    # Example with source rock mixing, PreAsphaltStartAct Value is set for the second SR in the mix for the Spekk layer\n";
+      oss << "    "<< cmdName << " \"SpekkHI\" \"" << name() << "\" \"StratIoTbl:SourceRockType2\" \"Spekk\"";
+      oss << " 204.0 206.0 \"Block\"\n";
+
+      oss << "\n    # Example with dependency of PreAsphaltStartAct values range from source rock type\n";
+      oss << "    "<< cmdName << " \"SpekkHI\" \"" << name() << "\" \"StratIoTbl:SourceRockType1\" \n";
+      oss << " \"Spekk\" \"Type_I\" 204.0 206.0 \"Block\"\n";
+      oss << "    "<< cmdName << " \"SpekkHI\" \"" << name() << "\" \"StratIoTbl:SourceRockType1\" \n";
+      oss << " \"Spekk\" \"Type_II\" 205.0 207.0 \"Block\"\n";
       return oss.str();
    }
 };
@@ -306,7 +491,7 @@ public:
 class SourceRockType : public PrmType
 {
 public:
-   SourceRockType()  {;}
+   SourceRockType( const std::string & prmTypeName = "" ) : PrmType( prmTypeName ) {;}
    virtual ~SourceRockType() {;}
 
    virtual void addParameterObject( std::auto_ptr<casa::ScenarioAnalysis> & sa
@@ -314,12 +499,22 @@ public:
                                   , const std::vector<std::string>        & prms
                                   ) const
    {
+
       std::string layerName = prms[1];
       std::vector<std::string> srtList    = CfgFileParser::list2array( prms[2], ',' );
       std::vector<double>      srtWeights = CfgFileParser::set2array(  prms[3], ',' );
+      
+      int mixID = 1;
+      if ( !m_colName.empty() )
+      {
+         const std::string & mixIDStr = m_colName.substr( m_colName.size() - 1 );
+         if ( CfgFileParser::isNumericPrm( mixIDStr ) ) { mixID = atoi( mixIDStr.c_str() ); }
+      }
+
       if (ErrorHandler::NoError != casa::BusinessLogicRulesSet::VarySourceRockType( *sa.get()
                                                                                   , name.c_str()
                                                                                   , layerName.c_str()
+                                                                                  , mixID
                                                                                   , srtList
                                                                                   , srtWeights
                                                                                   ) )
@@ -331,7 +526,7 @@ public:
    size_t expectedParametersNumber() const { return 3; } // layer_name, source rocks list, wheights list
    size_t optionalParametersNumber() const { return 0; } 
 
-   virtual std::string name() const { return "SourceRockType"; }
+   virtual std::string name() const { return "StratIoTbl:SourceRockType"; }
 
    virtual std::string description() const
    { 
@@ -345,7 +540,7 @@ public:
    virtual std::string fullDescription() const
    {
       std::ostringstream oss;
-      oss << "    [varPrmName] SourceRockType  <layerName> \"SRType1,SRType2,SRType3\" [w1,w2,w3 ]\n";
+      oss << "    [varPrmName] \"" << name() << "[1|2]\"  <layerName> \"SRType1,SRType2,SRType3\" [w1,w2,w3 ]\n";
       oss << "    Where:\n";
       oss << "       varPrmName - user specified variable parameter name (Optional)\n";
       oss << "       layerName  - source rock layer name\n";
@@ -358,62 +553,7 @@ public:
    {
       std::ostringstream oss;
       oss << "    #             type         layerName          category list       categories weight\n";
-      oss << "    "<< cmdName << " \"SourceRockType\" \"Lower Jurassic\"  \"Type1,Type2,Type3\" [0.8, 0.1, 0.1]\n";
-      return oss.str();
-   }
-};
-
-////////////////////////////////////////////////////////////////
-// SourceRockPreasphActEnergy parameter
-////////////////////////////////////////////////////////////////
-//
-class SourceRockPreasphActEnergy : public PrmType
-{
-public:
-   SourceRockPreasphActEnergy()  {;}
-   virtual ~SourceRockPreasphActEnergy() {;}
-
-   virtual void addParameterObject( std::auto_ptr<casa::ScenarioAnalysis> & sa
-                                  , const std::string                     & name
-                                  , const std::vector<std::string>        & prms
-                                  ) const
-   {
-      double                      minVal = atof( prms[2].c_str() );
-      double                      maxVal = atof( prms[3].c_str() );
-      casa::VarPrmContinuous::PDF ppdf   = Str2pdf( prms[4] );
-
-      if ( ErrorHandler::NoError != casa::BusinessLogicRulesSet::VarySourceRockPreAsphaltActEnergy( *sa.get(), name.c_str(), prms[1].c_str(),
-                                                                                                    minVal, maxVal, ppdf ) )
-      {
-         throw ErrorHandler::Exception( sa->errorCode() ) << sa->errorMessage();
-      }
-    }
-      
-   size_t expectedParametersNumber() const { return 4; } // layer_name, min, max, pdf
-   size_t optionalParametersNumber() const { return 0; } 
-
-   virtual std::string name() const { return "SourceRockPreasphActEnergy"; }
-
-   virtual std::string description() const { return "the activation energy limit for which the pre-asphalt cracking starts [ kJ/mol ]"; }
-
-   virtual std::string fullDescription() const
-   {
-      std::ostringstream oss;
-      oss << "    [varPrmName] SourceRockPreasphActEnergy  <layerName> <minVal> <maxVal> <prmPDF>\n";
-      oss << "    Where:\n";
-      oss << "       varPrmName - user specified variable parameter name (Optional)\n";
-      oss << "       layerName  - source rock layer name\n";
-      oss << "       minVal     - the parameter minimal range value\n";
-      oss << "       maxVal     - the parameter maximal range value\n";
-      oss << "       prmPDF     - the parameter probability density function type\n";
-      return oss.str();
-   }
-
-   virtual std::string usingExample( const char * cmdName ) const
-   {
-      std::ostringstream oss;
-      oss << "    #             type                   layerName        minVal  maxVal   prmPDF\n";
-      oss << "    " << cmdName << " \"SourceRockPreasphActEnergy\" \"Lower Jurassic\"    204.0  206.0  \"Block\"\n";
+      oss << "    "<< cmdName << " \"" << name() << "1\" \"Lower Jurassic\"  \"Type1,Type2,Type3\" [0.8, 0.1, 0.1]\n";
       return oss.str();
    }
 };
@@ -476,7 +616,7 @@ public:
    virtual std::string fullDescription() const
    {
       std::ostringstream oss;
-      oss << "    [varPrmName] CrustThinningOneEvent <IniCrstThickMn> <IniCrstThickMx> <mnT0> <mxT0> <mndT> <mxdT> <mnFact> <mxFct> <prmPDF>\n";
+      oss << "    [varPrmName] \"" << name() << "\" <IniCrstThickMn> <IniCrstThickMx> <mnT0> <mxT0> <mndT> <mxdT> <mnFact> <mxFct> <prmPDF>\n";
       oss << "    Where:\n";
       oss << "       varPrmName     - user specified variable parameter name (Optional)\n";
       oss << "       IniCrstThickMn - initial crust thickness - minimal range value\n";
@@ -495,7 +635,7 @@ public:
    {
       std::ostringstream oss;
       oss << "    #                                InCrThick   T0      dT    ThinFct  PDF\n";
-      oss << "    " << cmdName << " \"CrustThinningOneEvent\" 15000 40000 120 180 30 45   0.5 0.8 \"Block\"\n";
+      oss << "    " << cmdName << " \"" << name() << "\" 15000 40000 120 180 30 45   0.5 0.8 \"Block\"\n";
       return oss.str();
    }
 };
@@ -583,7 +723,7 @@ public:
    virtual std::string fullDescription() const
    {
       std::ostringstream oss;
-      oss << "    [varPrmName] CrustThinning <IniCrstThickMn> <IniCrstThickMx> <mnT0> <mxT0> <mndT> <mxdT> <mnFact> <mxFct> <mapName>\n";
+      oss << "    [varPrmName] \"" << name() << "\" <IniCrstThickMn> <IniCrstThickMx> <mnT0> <mxT0> <mndT> <mxdT> <mnFact> <mxFct> <mapName>\n";
       oss << "                                                                [<mnT0> <mxT0> <mndT> <mxdT> <mnFact> <mxFct> <mapName>]\n";
       oss << "                                                                ...\n";
       oss << "                                                                <prmPDF>\n";
@@ -606,7 +746,7 @@ public:
    {
       std::ostringstream oss;
       oss << "    #                      InCrThick      T0       dT      ThinFct   MapName\n";
-      oss << "    " << cmdName << " \"CrustThinning\" 20000  40000   200 250  20 30   0.7  0.9   \\ # first tinning event.\n";
+      oss << "    " << cmdName << " \"" << name() << "\" 20000  40000   200 250  20 30   0.7  0.9   \\ # first tinning event.\n";
       oss << "                                          120 120  20 20   0.65 0.65  \\ # second tinnnng event - no variation\n";
       oss << "                                          60  80   10 20   0.4  0.5   \\ # third event\n";
       oss << "                                          \"Block\"                       # PDF\n";
@@ -621,7 +761,7 @@ public:
 class PorosityModel : public PrmType
 {
 public:
-   PorosityModel()  {;}
+   PorosityModel( const std::string & prmTypeName = "" ) : PrmType( prmTypeName ) {;}
    virtual ~PorosityModel() {;}
 
    virtual void addParameterObject( std::auto_ptr<casa::ScenarioAnalysis> & sa
@@ -678,14 +818,15 @@ public:
    size_t expectedParametersNumber() const { return 7; } // lay_name, lit_name, mod_name, surf_por mn/mx, cc mn/mx, min_por mn/mx, cc2 mn/mx, pdf
    size_t optionalParametersNumber() const { return 5; } 
 
-   virtual std::string name() const { return "PorosityModel"; }
+   virtual std::string name() const { return "LithotypeIoTbl:Porosity_Model"; }
 
    virtual std::string description() const { return "a variation of porosity model parameter for the given lithology"; }
 
    virtual std::string fullDescription() const
    {
       std::ostringstream oss;
-      oss << "    [varPrmName] PorosityModel [layName] <litName> <modelName> <mnSurfPr> <mxSurfPr> <mnCmpCf> <mxCmpCf> [<mnMinPr> <mxMinPr> <mnCmpCf1> <mxCmpCf1>] <prmPDF>\n";
+      oss << "    [varPrmName] \"" << name() << "\" [layName] <litName> <modelName> <mnSurfPr> <mxSurfPr> <mnCmpCf> <mxCmpCf> \n";
+      oss << "                                                   [<mnMinPr> <mxMinPr> <mnCmpCf1> <mxCmpCf1>] <prmPDF>\n";
       oss << "    Where:\n";
       oss << "       varPrmName - user specified variable parameter name (Optional)\n";
       oss << "       layName    - layer name (Optional). If it is given, the lithology will be copied and all changes will be done for the copy only\n";
@@ -710,11 +851,11 @@ public:
    {
       std::ostringstream oss;
       oss << "    #       VarPrmName      LithName             PorModel       SurfPor [%]  CompCoeff  Parameter PDF\n";
-      oss << "    " << cmdName << "  \"PorosityModel\" \"SM.Mudstone40%Clay\" \"Exponential\"  15 85        7.27 7.27  \"Block\"\n";
+      oss << "    " << cmdName << "  \"" << name() << "\" \"SM.Mudstone40%Clay\" \"Exponential\"  15 85        7.27 7.27  \"Block\"\n";
       oss << "\n";
       oss << "    Example 2:\n";
       oss << "    #      VarPrmName      LithName              PorModel          SurfPor [%]  CompCoeff      Parameter PDF\n";
-      oss << "    " << cmdName << " \"PorosityModel\" \"SM.Mudstone40%Clay\"  \"Soil_Mechanics\"  15 85        0.1988 0.1988  \"Block\"\n";
+      oss << "    " << cmdName << " \"" << name() << "\" \"SM.Mudstone40%Clay\"  \"Soil_Mechanics\"  15 85        0.1988 0.1988  \"Block\"\n";
       return oss.str();
    }
 };
@@ -726,7 +867,7 @@ public:
 class PermeabilityModel : public PrmType
 {
 public:
-   PermeabilityModel()  {;}
+   PermeabilityModel( const std::string & prmTypeName = "" ) : PrmType( prmTypeName ) {;}
    virtual ~PermeabilityModel() {;}
 
    virtual void addParameterObject( std::auto_ptr<casa::ScenarioAnalysis> & sa
@@ -850,7 +991,7 @@ public:
    size_t expectedParametersNumber() const { return 9; }
    size_t optionalParametersNumber() const { return 1000; }
 
-   virtual std::string name() const { return "PermeabilityModel"; }
+   virtual std::string name() const { return "LithotypeIoTbl:PermMixModel"; }
 
    virtual std::string description() const { return "a variation of permeability model parameter for the given layer/lithology combination"; }
 
@@ -859,7 +1000,7 @@ public:
    virtual std::string fullDescription() const
    {
       std::ostringstream oss;
-      oss << "    [varPrmName] PermeabilityModel [<layName>] <litName> <modelName> <minAnisCf> <maxAnisCf> [other model min/max parameters value] <prmPDF>\n";
+      oss << "    [varPrmName] \"" << name() << "\" [<layName>] <litName> <modelName> <minAnisCf> <maxAnisCf> [other model min/max parameters value] <prmPDF>\n";
       oss << "    Where:\n";
       oss << "       varPrmName    - user specified variable parameter name (Optional)\n";
       oss << "       layName       - layer name (Optional). If it is given, the lithology will be copied and all changes will be done for the copy only\n";
@@ -887,15 +1028,15 @@ public:
    {
       std::ostringstream oss;
       oss << "    #       VarPrmName         LayerName        LitholName   PermModel AnisotCoef DepoPerm [mD] SensCoef RecovCoef Parameter PDF\n";
-      oss << "    " << cmdName << " \"PermeabilityModel\" \"Lower Jurassic\" \"Std. Shale\" \"Shales\"  1.0  1.0   0.005  0.015  1.0 2.0  0.01 0.01 \"Block\"\n";
+      oss << "    " << cmdName << " \"" << name() << "\" \"Lower Jurassic\" \"Std. Shale\" \"Shales\"  1.0  1.0   0.005  0.015  1.0 2.0  0.01 0.01 \"Block\"\n";
       oss << "\n";
       oss << "    Example 2:\n";
       oss << "    #       VarPrmName         LayerName        LitholName       PermModel AnisotCoef DepoPerm [mD] ClayPerc [%] Parameter PDF\n";
-      oss << "    " << cmdName << " \"PermeabilityModel\" \"Upper Jurassic\" \"Std. Sandstone\" \"Sands\"   1.0  1.0   5000  7000    1.0  2.0     \"Block\"\n";
+      oss << "    " << cmdName << " \"" << name() << "\" \"Upper Jurassic\" \"Std. Sandstone\" \"Sands\"   1.0  1.0   5000  7000    1.0  2.0     \"Block\"\n";
       oss << "\n";
       oss << "    Example 3:\n";
       oss << "    #       VarPrmName         LayerName    LitholName               PermModel     AnisotCoef\n";
-      oss << "    " << cmdName << " \"PermeabilityModel\" \"Paleocene\"  \"SM.Mudstone.40%Clay\"    \"Multipoint\"  1.0  1.0 \\ \n";
+      oss << "    " << cmdName << " \"" << name() << "\" \"Paleocene\"  \"SM.Mudstone.40%Clay\"    \"Multipoint\"  1.0  1.0 \\ \n";
       oss << "    #                                                        Min profile           NumPts   Por  Perm   Por Perm\n";
       oss << "                                                                                   2        5    -7     60  -1.0 \\ \n";
       oss << "    #                                                        Max profile           NumPts   Por  Perm   Por Perm\n";
@@ -915,7 +1056,7 @@ public:
 class STPThermalCondCoeff : public PrmType
 {
 public:
-   STPThermalCondCoeff()  {;}
+   STPThermalCondCoeff( const std::string & prmTypeName = "" ) : PrmType( prmTypeName ) {;}
    virtual ~STPThermalCondCoeff() {;}
 
    virtual void addParameterObject( std::auto_ptr<casa::ScenarioAnalysis> & sa
@@ -945,14 +1086,14 @@ public:
    size_t expectedParametersNumber() const { return 4; } // layer_name, min, max, pdf
    size_t optionalParametersNumber() const { return 1; } 
 
-   virtual std::string name() const { return "STPThermalCondCoeff"; }
+   virtual std::string name() const { return "LithotypeIoTbl:StpThCond"; }
 
    virtual std::string description() const { return "a variation of STP (Standart P & T) thermal conductivity coefficient for the given lithology"; }
 
    virtual std::string fullDescription() const
    {
       std::ostringstream oss;
-      oss << "    [varPrmName] STPThermalCondCoeff [layName] <lithologyName> <minValue> <maxValue> <prmPDF>\n";
+      oss << "    [varPrmName] \"" << name() << "\" [layName] <lithologyName> <minValue> <maxValue> <prmPDF>\n";
       oss << "       varPrmName    - user specified variable parameter name (Optional)\n";
       oss << "       layName       - layer name (Optional). If it is given, the lithology will be copied and all changes will be done for the copy only\n";
       oss << "       lithologyName - lithology name\n";
@@ -966,7 +1107,7 @@ public:
    {
       std::ostringstream oss;
       oss << "    #       VarPrmName             LithName           min max  Parameter PDF\n";
-      oss << "    " << cmdName << " \"STPThermalCondCoeff\"  \"SM.Mudstone40%Clay\" 2   4   \"Block\"\n";
+      oss << "    " << cmdName << " \"" << name() << "\"  \"SM.Mudstone40%Clay\" 2   4   \"Block\"\n";
       return oss.str();
    }
 };
@@ -992,9 +1133,26 @@ public:
       m_prmType["PorosityModel"             ] = new PorosityModel();
       m_prmType["PermeabilityModel"         ] = new PermeabilityModel();
       m_prmType["STPThermalCondCoeff"       ] = new STPThermalCondCoeff();
+      
+      m_prmType["LithotypeIoTbl:PermMixModel"   ] = new PermeabilityModel(      "LithotypeIoTbl:PermMixModel"    );
+      m_prmType["LithotypeIoTbl:Porosity_Model" ] = new PorosityModel(          "LithotypeIoTbl:Porosity_Model"  );
+      m_prmType["BasementIoTbl:TopCrustHeatProd"] = new TopCrustHeatProduction( "BasementIoTbl:TopCrustHeatProd" );
+      m_prmType["LithotypeIoTbl:StpThCond"      ] = new STPThermalCondCoeff(    "LithotypeIoTbl:StpThCond"       );
+
+      m_prmType["StratIoTbl:SourceRockType"     ] = new SourceRockType( "StratIoTbl:SourceRockType" );
+      m_prmType["StratIoTbl:SourceRockType1"    ] = new SourceRockType( "StratIoTbl:SourceRockType1" );
+      m_prmType["StratIoTbl:SourceRockType2"    ] = new SourceRockType( "StratIoTbl:SourceRockType2" );
+
+      m_prmType["SourceRockLithoIoTbl:TocIni"   ] = new SourceRockTOC( "SourceRockLithoIoTbl:TocIni" );
+      m_prmType["SourceRockLithoIoTbl:HiIni"    ] = new SourceRockHI(  "SourceRockLithoIoTbl:HiIni" );
+      m_prmType["SourceRockLithoIoTbl:HcIni"    ] = new SourceRockHC(  "SourceRockLithoIoTbl:HcIni" );
+      m_prmType["SourceRockLithoIoTbl:PreAsphaltStartAct"] = new SourceRockPreasphActEnergy( "SourceRockLithoIoTbl:PreAsphaltStartAct" );
    }
 
-   ~PrmTypesFactory() { for ( std::map<std::string, PrmType*>::iterator it = m_prmType.begin(); it != m_prmType.end(); ++it ) { delete it->second; } };
+   ~PrmTypesFactory()
+   { 
+      for ( std::map<std::string, PrmType*>::iterator it = m_prmType.begin(); it != m_prmType.end(); ++it ) { delete it->second; }
+   };
 
    const PrmType * factory( const std::string & name ) const { return m_prmType.count( name ) ? m_prmType.find(name)->second : 0; }
    

@@ -85,6 +85,10 @@ void CmdPlotP10P90::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
    ofs << "   dX = (xMax-xMin) / (curveLength-1);\n";
    ofs << "   xvec = [xMin:dX:xMax];\n";
    ofs << "\n";
+   ofs << "if ( length( xvec ) != curveLength )\n";
+   ofs << "         continue;\n";
+   ofs << "end\n";
+   ofs << "\n";
    ofs << "   pdfVec=zeros( curveLength, 1 );\n";
    ofs << "   cdfVec=zeros( curveLength, 1 );\n";
    ofs << "\n";

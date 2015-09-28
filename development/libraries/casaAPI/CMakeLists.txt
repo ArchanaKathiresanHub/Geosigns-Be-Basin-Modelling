@@ -13,7 +13,7 @@
 FILE( GLOB all_headers src/*.h )
 source_group(include FILES ${all_headers})
 
-FILE( GLOB all_srcs src/*.C)
+FILE( GLOB all_srcs src/*.cpp)
 source_group(source FILES ${all_srcs})
 
 configure_file(src/CauldronEnvConfig.h.in CauldronEnvConfig.h)
@@ -74,49 +74,49 @@ configure_file(test/LithologyTesting.project3d LithologyTesting.project3d COPYON
 
 
 add_gtest( NAME BLRSTest
-   SOURCES test/BLRSTest.C
+   SOURCES test/BLRSTest.cpp
    LIBRARIES casaapi cmbapi DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} ${Boost_LIBRARIES}
 )
 
 add_gtest( NAME DoETest
-   SOURCES test/DoETest.C
+   SOURCES test/DoETest.cpp
    LIBRARIES casaapi cmbapi DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} ${Boost_LIBRARIES}
 )
 
 add_gtest( NAME MutatorTest
-   SOURCES test/MutatorTest.C
+   SOURCES test/MutatorTest.cpp
    LIBRARIES casaapi cmbapi DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} ${Boost_LIBRARIES}
 )
 
 add_gtest( NAME ValidatorTest
-   SOURCES test/ValidatorTest.C
+   SOURCES test/ValidatorTest.cpp
    LIBRARIES casaapi cmbapi DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} ${Boost_LIBRARIES}
 )
 
 if (LSF_HOME)
    add_gtest( NAME RunManagerTest
-      SOURCES test/RunManagerTest.C
+      SOURCES test/RunManagerTest.cpp
       INCLUDE_DIRS ${LSF_INCLUDE_DIR}
       LIBRARIES casaapi cmbapi DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} ${Boost_LIBRARIES} ${LSF_LIBS}
    )
 endif()
 
 add_gtest( NAME DataDiggerTest
-   SOURCES test/DataDiggerTest.C
+   SOURCES test/DataDiggerTest.cpp
    LIBRARIES casaapi cmbapi DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} ${Boost_LIBRARIES}
 )
 
 add_gtest( NAME RSProxyTest
-   SOURCES test/RSProxyTest.C
+   SOURCES test/RSProxyTest.cpp
    LIBRARIES casaapi cmbapi DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} ${Boost_LIBRARIES}
 )
 
 add_gtest( NAME MCTest
-   SOURCES test/MCTest.C
+   SOURCES test/MCTest.cpp
    LIBRARIES casaapi cmbapi DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} ${Boost_LIBRARIES}
 )
 
 add_gtest( NAME SerializationTest
-   SOURCES test/SerializationTest.C
+   SOURCES test/SerializationTest.cpp
    LIBRARIES casaapi cmbapi DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} ${Boost_LIBRARIES}
 )

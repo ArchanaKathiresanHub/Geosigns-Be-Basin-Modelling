@@ -26,7 +26,10 @@ namespace casa
 {
 
 // Constructor
-PrmSourceRockType::PrmSourceRockType( mbapi::Model & mdl, const std::string & layerName ) : m_parent(0), m_layerName( layerName )
+PrmSourceRockType::PrmSourceRockType( mbapi::Model & mdl, const std::string & layerName, int mixID )
+   : m_parent(0)
+   , m_layerName( layerName )
+   , m_mixID( mixID )
 { 
    try
    {
@@ -44,30 +47,25 @@ PrmSourceRockType::PrmSourceRockType( mbapi::Model & mdl, const std::string & la
             "Source Rock Type setting error: source rock is not active for the layer:" << m_layerName;
       }
 
-      // in case of SR mixing throw exception as we can't handle it now
-      if ( stMgr.isSourceRockMixingEnabled( lid ) )
+      const std::vector<std::string> & srtNames = stMgr.sourceRockTypeName( lid );
+      if ( srtNames.empty() )
       {
-         throw ErrorHandler::Exception( ErrorHandler::NotImplementedAPI ) <<
-               "Can not variate source rock type for the layer "<< m_layerName << " which has source rock types mixing enabled";
+         throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Layer " << m_layerName <<
+               " is set as a source rock layer but has no source rock lithology defined";
       }
-      else // otherwise go to source rock lithology table for the source rock type ID
+      if ( mixID < 1 || mixID > srtNames.size() )
       {
-         const std::vector<std::string> & srtNames = stMgr.sourceRockTypeName( lid );
-         if ( srtNames.empty() )
-         {
-            throw ErrorHandler::Exception(ErrorHandler::UndefinedValue) << "Layer " << m_layerName <<
-               " set as source rock layer but has no source rock lithology defined";
-         }
-
-         mbapi::SourceRockManager::SourceRockID sid = srMgr.findID( m_layerName, srtNames[0] );
-         if ( IsValueUndefined( sid ) )
-         {
-            throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Can not find source rock lithology for layer "
-               << m_layerName << " and SR type " << srtNames[0];
-         }
-
-         m_srtName = srtNames[0];
+         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Layer " << m_layerName <<
+            " has not source rock mixing enabled or invalid mixing ID:  " << mixID << " is given";
       }
+
+      mbapi::SourceRockManager::SourceRockID sid = srMgr.findID( m_layerName, srtNames[mixID-1] );
+      if ( IsValueUndefined( sid ) )
+      {
+         throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Can not find source rock lithology for layer "
+                  << m_layerName << " and SR type " << (m_srtName.empty() ? srtNames[mixID-1] : m_srtName);
+      }
+      m_srtName = srtNames[mixID-1];
    }
    catch ( const ErrorHandler::Exception & e) { mdl.reportError( e.errorCode(), e.what() ); }
 
@@ -81,13 +79,15 @@ PrmSourceRockType::PrmSourceRockType( mbapi::Model & mdl, const std::string & la
 PrmSourceRockType::PrmSourceRockType( const VarPrmSourceRockType * parent
                                     , const std::string          & layerName
                                     , const std::string          & sourceRockTypeName
+                                    , int                          mixID
                                     ) : m_parent( parent )
                                       , m_layerName( layerName )
+                                      , m_mixID( mixID )
                                       , m_srtName( sourceRockTypeName )
 {
    // construct parameter name
    std::ostringstream oss;
-   oss << "SourceRockType(" << m_layerName << "," << m_srtName << ")";
+   oss << "SourceRockType(" << m_layerName << "," << m_mixID << "," << m_srtName << ")";
    m_name = oss.str();
 }
 
@@ -110,21 +110,18 @@ ErrorHandler::ReturnCode PrmSourceRockType::setInModel( mbapi::Model & caldModel
             "HI setting error: source rock is not active for the layer:" << m_layerName;
       }
 
-      // check if mixing enabled - throw error as it unsupported yet 
-      if ( stMgr.isSourceRockMixingEnabled( lid ) )
+      std::vector<std::string> srtNames = stMgr.sourceRockTypeName( lid );
+      if ( srtNames.empty() || m_mixID < 1 || m_mixID > srtNames.size() )
       {
-         throw ErrorHandler::Exception( ErrorHandler::NotImplementedAPI ) << 
-            "Changing of source rock type for stratigraphy layer with source rock mis is not implemented yet";
+         throw ErrorHandler::Exception(ErrorHandler::UndefinedValue) << "Layer " << m_layerName <<
+            " set as source rock layer but has no source rock lithology defined for the mixing ID: " << m_mixID;
       }
-      else
+
+      srtNames[m_mixID-1] = m_srtName; 
+      if ( ErrorHandler::NoError != stMgr.setSourceRockTypeName( lid, srtNames ) )
       {
-         std::vector<std::string> srtNames;
-         srtNames.push_back( m_srtName );
-         if ( ErrorHandler::NoError != stMgr.setSourceRockTypeName( lid, srtNames ) )
-         {
-            throw ErrorHandler::Exception( stMgr.errorCode() ) << stMgr.errorMessage();
-         }
-      }      
+         throw ErrorHandler::Exception( stMgr.errorCode() ) << stMgr.errorMessage();
+      }
    }
    catch ( const ErrorHandler::Exception & e ) { return caldModel.reportError( e.errorCode(), e.what() ); }
 
@@ -159,7 +156,7 @@ std::string PrmSourceRockType::validate( mbapi::Model & caldModel )
                " set as source rock layer but has no source rock lithology defined";
       }
 
-      if ( srtNames[0] != m_srtName )
+      if ( srtNames[m_mixID - 1] != m_srtName )
       {
          oss << "Source rock type in the model (" << srtNames[0] << ") is different from the parameter value (" << m_srtName << ")" << std::endl;
       }
@@ -192,6 +189,7 @@ bool PrmSourceRockType::operator == ( const Parameter & prm ) const
    
    if ( m_layerName != pp->m_layerName ) return false;
    if ( m_srtName   != pp->m_srtName   ) return false;
+   if ( m_mixID     != pp->m_mixID     ) return false;
 
    return true;
 }
@@ -211,6 +209,10 @@ bool PrmSourceRockType::save( CasaSerializer & sz, unsigned int version ) const
    ok = ok ? sz.save( m_name,      "name"      ) : ok;
    ok = ok ? sz.save( m_layerName, "layerName" ) : ok;
    ok = ok ? sz.save( m_srtName,   "srtName"   ) : ok;
+   if ( version > 7 )
+   {
+      ok = ok ? sz.save( m_mixID, "mixingID" ) : ok;
+   }
 
    return ok;
 }
@@ -232,6 +234,9 @@ PrmSourceRockType::PrmSourceRockType( CasaDeserializer & dz, unsigned int objVer
    ok = ok ? dz.load( m_name,      "name"      ) : ok;
    ok = ok ? dz.load( m_layerName, "layerName" ) : ok;
    ok = ok ? dz.load( m_srtName,   "srtName"   ) : ok;
+
+   if ( objVer > 0 ) { ok = ok ? dz.load( m_mixID, "mixingID" ) : ok; }
+   else              { m_mixID = 1; }
 
    if ( !ok )
    {

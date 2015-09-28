@@ -25,15 +25,16 @@ namespace casa
    {
    public:
       /// @brief Create a new initial source rock HI variable parameter
-      VarPrmSourceRockType( const char                                                * layerName  ///< name of the layer for source rock type variation
-                           , const std::string                                         & baseVal   ///< base value of parameter
-                           , const std::vector<std::string>                            & variation ///< set of possible values for this parameter 
-                           , const std::vector<double>                                 & weights   ///< parameter values weights
-                           , const char                                                * name      ///< user defined parameter name  
+      VarPrmSourceRockType( const char                        * layerName ///< name of the layer for source rock type variation
+                           , const std::string                & baseVal   ///< base value of parameter
+                           , int                                mixID     ///< 1 or 2 - mixing ID 
+                           , const std::vector<std::string>   & variation ///< set of possible values for this parameter 
+                           , const std::vector<double>        & weights   ///< parameter values weights
+                           , const char                       * name      ///< user defined parameter name  
                            );
 
       /// @brief Destructor
-      virtual ~VarPrmSourceRockType();
+      virtual ~VarPrmSourceRockType() {;}
      
 	   /// @brief Get name of variable parameter in short form
 	   /// @return array of names for each sub-parameter
@@ -47,10 +48,20 @@ namespace casa
       /// @return found parameter position on success or negative value on error
       int index( const PrmSourceRockType * prm ) const;
 
+      /// @{ SourceRockType specific methods
+      /// @brief Get mixing ID
+      /// @return mixing ID
+      int mixID() const { return m_mixID; }
+
+      /// @brief Get layer name
+      /// @return layer name
+      std::string layerName() const { return m_layerName; }
+      /// @}
+
       /// @{
       /// @brief Defines version of serialized object representation. Must be updated on each change in save()
       /// @return Actual version of serialized object representation
-      virtual unsigned int version() const { return VarPrmCategorical::version() + 0; }
+      virtual unsigned int version() const { return VarPrmCategorical::version() + 1; }
 
       /// @brief Get type name of the serialaizable object, used in deserialization to create object with correct type
       /// @return object class name
@@ -69,6 +80,8 @@ namespace casa
       /// @}
 
    protected:
+      int         m_mixID;
+      std::string m_layerName;
    };
 
 }

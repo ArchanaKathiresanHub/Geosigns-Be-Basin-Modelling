@@ -37,6 +37,8 @@
 #include "VarPrmSourceRockType.h"
 #include "VarPrmSourceRockPreAsphaltStartAct.h"
 
+#include "VarSpaceImpl.h"
+
 #include "VarPrmOneCrustThinningEvent.h"
 #include "VarPrmCrustThinning.h"
 
@@ -80,7 +82,10 @@ static std::string CopyLithologyForTheLayer( ScenarioAnalysis & sa, const std::s
          found = static_cast<int>( i );
       }
    }
-   if ( found < 0 ) throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Layer " << layerName << " has no lithology type: " << lithoName;
+   if ( found < 0 )
+   {
+      throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Layer " << layerName << " has no lithology type: " << lithoName;
+   }
 
    // do checking if we need to copy lithology
    const std::vector<mbapi::StratigraphyManager::LayerID> & layersWithSameLith = smgr.findLayersForLithology( lithoName );
@@ -93,7 +98,8 @@ static std::string CopyLithologyForTheLayer( ScenarioAnalysis & sa, const std::s
 
       if ( UndefinedIDValue == lithID ) 
       {
-         throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "No lithology with name: " << lithoName << " in lithologies type table";
+         throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "No lithology with name: " << 
+            lithoName << " in lithologies type table";
       }
 
       // construct new lithology name as oldName_layerName_PorMdl_CASA_copy
@@ -170,6 +176,8 @@ ErrorHandler::ReturnCode VaryTopCrustHeatProduction( ScenarioAnalysis    & sa
 ErrorHandler::ReturnCode VarySourceRockTOC( ScenarioAnalysis    & sa
                                           , const char          * name
                                           , const char          * layerName
+                                          , int                   mixID
+                                          , const char          * srTypeName
                                           , double                minVal
                                           , double                maxVal
                                           , VarPrmContinuous::PDF rangeShape
@@ -177,12 +185,12 @@ ErrorHandler::ReturnCode VarySourceRockTOC( ScenarioAnalysis    & sa
 {
    try
    {
-      VarSpace & varPrmsSet = sa.varSpace();
+      VarSpaceImpl & varPrmsSet = dynamic_cast< VarSpaceImpl & >( sa.varSpace() );
 
       // Get base value of parameter from the Model
       mbapi::Model & mdl = sa.baseCase();
 
-      casa::PrmSourceRockTOC prm( mdl, layerName );
+      casa::PrmSourceRockTOC prm( mdl, layerName, srTypeName, mixID );
       if ( mdl.errorCode() != ErrorHandler::NoError ) return sa.moveError( mdl );
 
       const std::vector<double> & baseValue = prm.asDoubleArray();
@@ -193,16 +201,74 @@ ErrorHandler::ReturnCode VarySourceRockTOC( ScenarioAnalysis    & sa
          throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Value of parameter in base case is outside of the given range";
       }
 
-      if ( ErrorHandler::NoError != varPrmsSet.addParameter( new VarPrmSourceRockTOC( layerName, baseValue[0], minVal, maxVal, rangeShape, name ) ) )
+      bool alreadyAdded = false;
+
+      // check is the variable parameters set already has TOC parameter
+      if ( srTypeName )
       {
-         return sa.moveError( varPrmsSet );
+         for ( size_t i = 0; i < varPrmsSet.size() && !alreadyAdded; ++i )
+         {
+            VarPrmSourceRockTOC * prm = dynamic_cast<VarPrmSourceRockTOC *>( varPrmsSet[ i ] );
+            if ( !prm ) continue;
+            if ( !prm->layerName().compare( layerName ) && prm->mixID() == mixID ) // already exists such TOC object
+            {
+               if ( name && prm->name()[0].compare( name ) ) // if name is given and name is different - error
+               {
+                  throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Different name for the same TOC variable parameter. Given: " 
+                     << name << ", expected : " << prm->name()[0];
+               }
+               alreadyAdded = true;
+               prm->addSourceRockTypeRange( srTypeName, baseValue[0], minVal, maxVal, rangeShape );
+            }
+         }
+      }
+      if ( !alreadyAdded )
+      {
+         std::auto_ptr<VarPrmSourceRockTOC> newPrm( new VarPrmSourceRockTOC( layerName
+                                                                       , baseValue[0]
+                                                                       , minVal
+                                                                       , maxVal
+                                                                       , rangeShape
+                                                                       , name
+                                                                       , srTypeName
+                                                                       , mixID
+                                                                       ) );
+         // check if there is SourceRockType category parameter
+         if ( srTypeName )
+         {
+            for ( size_t i = 0; i < varPrmsSet.size() && !alreadyAdded; ++i )
+            {
+               VarPrmSourceRockType * prm = dynamic_cast<VarPrmSourceRockType *>( varPrmsSet[ i ] );
+               if ( !prm ) continue;
+               if ( prm->mixID() == mixID && !prm->layerName().compare( layerName ) )
+               {
+                  prm->addDependent( newPrm.get() );
+                  alreadyAdded = true;
+               }
+            }
+
+            if ( !alreadyAdded ) // didn't find SourceRockType parameter defined
+            {
+               casa::PrmSourceRockTOC prm( mdl, layerName, 0, mixID );
+               if ( mdl.errorCode() != ErrorHandler::NoError ) return sa.moveError( mdl );
+               if ( prm.sourceRockTypeName().compare( srTypeName ) ) // source rock lithology for this name do assigned to layer in StratIoTbl
+               {
+                  throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "There is no SourceRockType category parameter " <<
+                     "defined and layer : " << layerName << " has different source rock type: " << prm.sourceRockTypeName() <<
+                     " for mixing ID " << mixID << " then provided: " << srTypeName;
+               }
+            }
+         }
+         if ( ErrorHandler::NoError != varPrmsSet.addParameter( newPrm.release() ) )
+         {
+            return sa.moveError( varPrmsSet );
+         }
       }
    }
    catch( const ErrorHandler::Exception & ex )
    {
       return sa.reportError( ex.errorCode(), ex.what() );
    }
-
    return ErrorHandler::NoError;
 }
 
@@ -210,6 +276,8 @@ ErrorHandler::ReturnCode VarySourceRockTOC( ScenarioAnalysis    & sa
 ErrorHandler::ReturnCode VarySourceRockHI( ScenarioAnalysis    & sa
                                          , const char          * name
                                          , const char          * layerName
+                                         , int                   mixID
+                                         , const char          * srTypeName
                                          , double                minVal
                                          , double                maxVal
                                          , VarPrmContinuous::PDF rangeShape
@@ -217,12 +285,12 @@ ErrorHandler::ReturnCode VarySourceRockHI( ScenarioAnalysis    & sa
 {
    try
    {
-      VarSpace & varPrmsSet = sa.varSpace();
+      VarSpaceImpl & varPrmsSet = dynamic_cast< VarSpaceImpl & >( sa.varSpace() );
 
       // Get base value of parameter from the Model
       mbapi::Model & mdl = sa.baseCase();
 
-      casa::PrmSourceRockHI prm( mdl, layerName );
+      casa::PrmSourceRockHI prm( mdl, layerName, srTypeName, mixID );
       if ( mdl.errorCode() != ErrorHandler::NoError ) return sa.moveError( mdl );
 
       const std::vector<double> & baseValue = prm.asDoubleArray();
@@ -233,42 +301,89 @@ ErrorHandler::ReturnCode VarySourceRockHI( ScenarioAnalysis    & sa
          throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Value of parameter in base case is outside of the given range";
       }
 
-      // check if H/C or HI variation for the same level is already in the list
-      for ( size_t i = 0; i < varPrmsSet.numberOfContPrms(); ++i )
-      {
-         const VarPrmContinuous * prm = varPrmsSet.continuousParameter( i );
+      bool alreadyAdded = false;
 
-         const VarPrmSourceRockHC * hcPrm = dynamic_cast<const VarPrmSourceRockHC *>( prm );
-         if ( hcPrm && hcPrm->layerName() == layerName )
+      // check if H/C or HI variation for the same level is already in the list
+      for ( size_t i = 0; i < varPrmsSet.size() && !alreadyAdded; ++i )
+      {
+         const VarPrmSourceRockHC * hcPrm = dynamic_cast<const VarPrmSourceRockHC *>( varPrmsSet[i] );
+
+         if ( hcPrm && hcPrm->layerName() == layerName && hcPrm->mixID() == mixID )
          {
-            throw ErrorHandler::Exception( ErrorHandler::AlreadyDefined ) << "Variation of source rock H/C parameter is already defined for the layer " << layerName <<
-               ", H/C and HI variation can not be defined together";
+            throw ErrorHandler::Exception( ErrorHandler::AlreadyDefined ) << "Variation of source rock H/C parameter is already defined " << 
+               "for the layer " << layerName << " with mixing ID: " << mixID << ", H/C and HI variation can not be defined together";
          }
 
-         const VarPrmSourceRockHI * hiPrm = dynamic_cast<const VarPrmSourceRockHI *>( prm );
-         if ( hiPrm && hiPrm->layerName() == layerName )
+         VarPrmSourceRockHI * hiPrm = dynamic_cast<VarPrmSourceRockHI *>( varPrmsSet[i] );
+         if ( hiPrm && hiPrm->layerName() == layerName && hiPrm->mixID() == mixID )
          {
-            throw ErrorHandler::Exception( ErrorHandler::AlreadyDefined ) << "Variation of source rock HI parameter is already defined for the layer " << layerName;
+            if ( name && hiPrm->name()[0].compare( name ) ) // if name is given and name is different - error
+            {
+               throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Different name for the same HI variable parameter. Given: " 
+                  << name << ", expected : " << hiPrm->name()[0];
+            }
+
+            alreadyAdded = true;
+            hiPrm->addSourceRockTypeRange( srTypeName, baseValue[0], minVal, maxVal, rangeShape );
          }
       }
 
-      if ( ErrorHandler::NoError != varPrmsSet.addParameter( new VarPrmSourceRockHI( layerName, baseValue[0], minVal, maxVal, rangeShape, name ) ) )
+      if ( !alreadyAdded )
       {
-         return sa.moveError( varPrmsSet );
+         std::auto_ptr<VarPrmSourceRockHI> newPrm( new VarPrmSourceRockHI( layerName
+                                                                         , baseValue[0]
+                                                                         , minVal
+                                                                         , maxVal
+                                                                         , rangeShape
+                                                                         , name
+                                                                         , srTypeName
+                                                                         , mixID
+                                                                         ) );
+         // check if there is SourceRockType category parameter
+         if ( srTypeName )
+         {
+            for ( size_t i = 0; i < varPrmsSet.size() && !alreadyAdded; ++i )
+            {
+               VarPrmSourceRockType * prm = dynamic_cast<VarPrmSourceRockType *>( varPrmsSet[ i ] );
+               if ( !prm ) continue;
+               if ( prm->mixID() == mixID && !prm->layerName().compare( layerName ) )
+               {
+                  prm->addDependent( newPrm.get() );
+                  alreadyAdded = true;
+               }
+            }
+
+            if ( !alreadyAdded ) // didn't find SourceRockType parameter defined
+            {
+               casa::PrmSourceRockHI prm( mdl, layerName, 0, mixID );
+               if ( mdl.errorCode() != ErrorHandler::NoError ) return sa.moveError( mdl );
+               if ( prm.sourceRockTypeName().compare( srTypeName ) ) // source rock lithology for this name do assigned to layer in StratIoTbl
+               {
+                  throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "There is no SourceRockType category parameter " <<
+                     "defined and layer : " << layerName << " has different source rock type: " << prm.sourceRockTypeName() <<
+                     " for mixing ID " << mixID << " then provided: " << srTypeName;
+               }
+            }
+         }
+         if ( ErrorHandler::NoError != varPrmsSet.addParameter( newPrm.release() ) )
+         {
+            return sa.moveError( varPrmsSet );
+         }
       }
    }
    catch( const ErrorHandler::Exception & ex )
    {
       return sa.reportError( ex.errorCode(), ex.what() );
    }
-
    return ErrorHandler::NoError;
 }
 
 // Add a parameter to variate source rock lithology HC value [kg/tonne C] in given range
-ErrorHandler::ReturnCode VarySourceRockHC( ScenarioAnalysis & sa
+ErrorHandler::ReturnCode VarySourceRockHC( ScenarioAnalysis    & sa
                                          , const char          * name
                                          , const char          * layerName
+                                         , int                   mixID
+                                         , const char          * srTypeName
                                          , double                minVal
                                          , double                maxVal
                                          , VarPrmContinuous::PDF rangeShape
@@ -276,12 +391,12 @@ ErrorHandler::ReturnCode VarySourceRockHC( ScenarioAnalysis & sa
 {
    try
    {
-      VarSpace & varPrmsSet = sa.varSpace();
+      VarSpaceImpl & varPrmsSet = dynamic_cast< VarSpaceImpl & >( sa.varSpace() );
 
       // Get base value of parameter from the Model
       mbapi::Model & mdl = sa.baseCase();
 
-      casa::PrmSourceRockHC prm( mdl, layerName );
+      casa::PrmSourceRockHC prm( mdl, layerName, srTypeName, mixID  );
       if ( mdl.errorCode() != ErrorHandler::NoError ) return sa.moveError( mdl );
 
       const std::vector<double> & baseValue = prm.asDoubleArray();
@@ -292,29 +407,73 @@ ErrorHandler::ReturnCode VarySourceRockHC( ScenarioAnalysis & sa
          throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Value of parameter in base case is outside of the given range";
       }
 
-      // check if H/C or HI variation for the same level is already in the list
-      for ( size_t i = 0; i < varPrmsSet.numberOfContPrms(); ++i )
-      {
-         const VarPrmContinuous * prm = varPrmsSet.continuousParameter( i );
+      bool alreadyAdded = false;
 
-         const VarPrmSourceRockHC * hcPrm = dynamic_cast<const VarPrmSourceRockHC *>( prm );
-         if ( hcPrm && hcPrm->layerName() == layerName )
+      // check if H/C or HI variation for the same level is already in the list
+      for ( size_t i = 0; i < varPrmsSet.size() && !alreadyAdded; ++i )
+      {
+         const VarPrmSourceRockHI * hiPrm = dynamic_cast<const VarPrmSourceRockHI *>( varPrmsSet[i] );
+         if ( hiPrm && hiPrm->layerName() == layerName && hiPrm->mixID() == mixID )
          {
-            throw ErrorHandler::Exception( ErrorHandler::AlreadyDefined ) << "Variation of source rock H/C parameter is already defined for the layer " << layerName;
+            throw ErrorHandler::Exception( ErrorHandler::AlreadyDefined ) << "Variation of source rock HI parameter is already defined " << 
+               " for the layer " << layerName << " with mixing ID: " << mixID << ", H/C and HI variation can not be defined together";
          }
          
-         const VarPrmSourceRockHI * hiPrm = dynamic_cast<const VarPrmSourceRockHI *>( prm );
-         if ( hiPrm && hiPrm->layerName() == layerName )
+         VarPrmSourceRockHC * hcPrm = dynamic_cast<VarPrmSourceRockHC *>( varPrmsSet[i] );
+         if ( hcPrm && hcPrm->layerName() == layerName && hcPrm->mixID() == mixID )
          {
-            throw ErrorHandler::Exception( ErrorHandler::AlreadyDefined ) << "Variation of source rock HI parameter is already defined for the layer " << layerName <<
-               ", H/C and HI variation can not be defined together";
+            if ( name && hcPrm->name()[0].compare( name ) ) // if name is given and name is different - error
+            {
+               throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Different name for the same H/C variable arameter. Given: " 
+                  << name << ", expected : " << hcPrm->name()[0];
+            }
+
+            alreadyAdded = true;
+            hcPrm->addSourceRockTypeRange( srTypeName, baseValue[0], minVal, maxVal, rangeShape );
          }
       }
-
       // add variable parameter to VarSpace
-      if ( ErrorHandler::NoError != varPrmsSet.addParameter( new VarPrmSourceRockHC( layerName, baseValue[0], minVal, maxVal, rangeShape, name ) ) )
+      if ( !alreadyAdded )
       {
-         return sa.moveError( varPrmsSet );
+         std::auto_ptr<VarPrmSourceRockHC> newPrm( new VarPrmSourceRockHC( layerName
+                                                                         , baseValue[0]
+                                                                         , minVal
+                                                                         , maxVal
+                                                                         , rangeShape
+                                                                         , name
+                                                                         , srTypeName
+                                                                         , mixID
+                                                                         ) );
+         // check if there is SourceRockType category parameter
+         if ( srTypeName )
+         {
+            for ( size_t i = 0; i < varPrmsSet.size() && !alreadyAdded; ++i )
+            {
+               VarPrmSourceRockType * prm = dynamic_cast<VarPrmSourceRockType *>( varPrmsSet[ i ] );
+               if ( !prm ) continue;
+               if ( prm->mixID() == mixID && !prm->layerName().compare( layerName ) )
+               {
+                  prm->addDependent( newPrm.get() );
+                  alreadyAdded = true;
+               }
+            }
+
+            if ( !alreadyAdded ) // didn't find SourceRockType parameter defined
+            {
+               casa::PrmSourceRockHC prm( mdl, layerName, 0, mixID );
+               if ( mdl.errorCode() != ErrorHandler::NoError ) return sa.moveError( mdl );
+               if ( prm.sourceRockTypeName().compare( srTypeName ) ) // source rock lithology for this name do assigned to layer in StratIoTbl
+               {
+                  throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "There is no SourceRockType category parameter " <<
+                     "defined and layer : " << layerName << " has different source rock type: " << prm.sourceRockTypeName() <<
+                     " for mixing ID " << mixID << " then provided: " << srTypeName;
+               }
+            }
+         }
+         if ( ErrorHandler::NoError != varPrmsSet.addParameter( newPrm.release() ) )
+         {
+            return sa.moveError( varPrmsSet );
+         }
       }
    }
    catch( const ErrorHandler::Exception & ex )
@@ -330,6 +489,8 @@ ErrorHandler::ReturnCode VarySourceRockHC( ScenarioAnalysis & sa
 ErrorHandler::ReturnCode VarySourceRockPreAsphaltActEnergy( ScenarioAnalysis    & sa
                                                           , const char          * name
                                                           , const char          * layerName
+                                                          , int                   mixID
+                                                          , const char          * srTypeName
                                                           , double                minVal
                                                           , double                maxVal
                                                           , VarPrmContinuous::PDF rangeShape
@@ -337,12 +498,12 @@ ErrorHandler::ReturnCode VarySourceRockPreAsphaltActEnergy( ScenarioAnalysis    
 {
    try
    {
-      VarSpace & varPrmsSet = sa.varSpace();
+      VarSpaceImpl & varPrmsSet = dynamic_cast< VarSpaceImpl & >( sa.varSpace() );
 
       // Get base value of parameter from the Model
       mbapi::Model & mdl = sa.baseCase();
 
-      casa::PrmSourceRockPreAsphaltStartAct prm( mdl, layerName );
+      casa::PrmSourceRockPreAsphaltStartAct prm( mdl, layerName, srTypeName, mixID );
       if ( mdl.errorCode() != ErrorHandler::NoError ) return sa.moveError( mdl );
 
       const std::vector<double> & baseValue = prm.asDoubleArray();
@@ -353,20 +514,71 @@ ErrorHandler::ReturnCode VarySourceRockPreAsphaltActEnergy( ScenarioAnalysis    
          throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Value of parameter in base case is outside of the given range";
       }
 
-      if ( ErrorHandler::NoError != varPrmsSet.addParameter( new VarPrmSourceRockPreAsphaltStartAct( layerName
-                                                                                                   , baseValue[0]
-                                                                                                   , minVal
-                                                                                                   , maxVal
-                                                                                                   , rangeShape
-                                                                                                   , name
-                                                                                                   )
-                                                           )
-         )
+      bool alreadyAdded = false;
+
+      // check is the variable parameters set already has PreAsphaltenActEnergy parameter
+      if ( srTypeName )
       {
-         return sa.moveError( varPrmsSet );
+         for ( size_t i = 0; i < varPrmsSet.size() && !alreadyAdded; ++i )
+         {
+            VarPrmSourceRockPreAsphaltStartAct * prm = dynamic_cast<VarPrmSourceRockPreAsphaltStartAct *>( varPrmsSet[ i ] );
+            if ( !prm ) continue;
+            if ( !prm->layerName().compare( layerName ) && prm->mixID() == mixID ) // already exists such object
+            {
+               if ( name && prm->name()[0].compare( name ) ) // if name is given and name is different - error
+               {
+                  throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Different name for the same PreAsphaltenActEnergy " <<
+                     "variable parameter. Given: " << name << ", expected : " << prm->name()[0];
+               }
+               alreadyAdded = true;
+               prm->addSourceRockTypeRange( srTypeName, baseValue[0], minVal, maxVal, rangeShape );
+            }
+         }
+      }
+      if ( !alreadyAdded )
+      {
+         std::auto_ptr<VarPrmSourceRockPreAsphaltStartAct> newPrm( new VarPrmSourceRockPreAsphaltStartAct( layerName
+                                                                                                         , baseValue[0]
+                                                                                                         , minVal
+                                                                                                         , maxVal
+                                                                                                         , rangeShape
+                                                                                                         , name
+                                                                                                         , srTypeName
+                                                                                                         , mixID
+                                                                                                         ) );
+         // check if there is SourceRockType category parameter
+         if ( srTypeName )
+         {
+            for ( size_t i = 0; i < varPrmsSet.size() && !alreadyAdded; ++i )
+            {
+               VarPrmSourceRockType * prm = dynamic_cast<VarPrmSourceRockType *>( varPrmsSet[ i ] );
+               if ( !prm ) continue;
+               if ( prm->mixID() == mixID && !prm->layerName().compare( layerName ) )
+               {
+                  prm->addDependent( newPrm.get() );
+                  alreadyAdded = true;
+               }
+            }
+            if ( !alreadyAdded ) // didn't find SourceRockType parameter defined
+            {
+               casa::PrmSourceRockPreAsphaltStartAct prm( mdl, layerName, 0, mixID );
+               if ( mdl.errorCode() != ErrorHandler::NoError ) return sa.moveError( mdl );
+               if ( prm.sourceRockTypeName().compare( srTypeName ) ) // source rock lithology for this name do assigned to layer in StratIoTbl
+               {
+                  throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "There is no SourceRockType category parameter " <<
+                     "defined and layer : " << layerName << " has different source rock type: " << prm.sourceRockTypeName() <<
+                     " for mixing ID " << mixID << " then provided: " << srTypeName;
+               }
+            }
+         }
+
+         if ( ErrorHandler::NoError != varPrmsSet.addParameter( newPrm.release() ) )
+         {
+            return sa.moveError( varPrmsSet );
+         }
       }
    }
-   catch ( const ErrorHandler::Exception & ex )
+   catch( const ErrorHandler::Exception & ex )
    {
       return sa.reportError( ex.errorCode(), ex.what() );
    }
@@ -379,6 +591,7 @@ ErrorHandler::ReturnCode VarySourceRockPreAsphaltActEnergy( ScenarioAnalysis    
 ErrorHandler::ReturnCode VarySourceRockType( ScenarioAnalysis               & sa
                                            , const char                     * name
                                            , const char                     * layerName
+                                           , int                              mixingID
                                            , const std::vector<std::string> & stVariation
                                            , const std::vector<double>      & weights
                                            )
@@ -390,7 +603,7 @@ ErrorHandler::ReturnCode VarySourceRockType( ScenarioAnalysis               & sa
       // Get base value of parameter from the Model
       mbapi::Model & mdl = sa.baseCase();
       
-      PrmSourceRockType prm( mdl, layerName );
+      PrmSourceRockType prm( mdl, layerName, mixingID );
 
       bool found = false;
 
@@ -426,37 +639,38 @@ ErrorHandler::ReturnCode VarySourceRockType( ScenarioAnalysis               & sa
          const VarParameter * prm = varPrmsSet.parameter( i );
 
          const VarPrmSourceRockTOC * tocPrm = dynamic_cast<const VarPrmSourceRockTOC *>( prm );
-         if ( tocPrm && tocPrm->layerName() == layerName )
+         if ( tocPrm && tocPrm->layerName() == layerName && tocPrm->mixID() == mixingID )
          {
             throw ErrorHandler::Exception( ErrorHandler::AlreadyDefined ) << "Variation of TOC for the layer: " << layerName <<
                " is defined before source rock type variation for the same layer";
          }
 
          const VarPrmSourceRockHC * hcPrm = dynamic_cast<const VarPrmSourceRockHC *>( prm );
-         if ( hcPrm && hcPrm->layerName() == layerName )
+         if ( hcPrm && hcPrm->layerName() == layerName && hcPrm->mixID() == mixingID )
          {
             throw ErrorHandler::Exception( ErrorHandler::AlreadyDefined ) << "Variation of H/C for the layer: " << layerName <<
                " is defined before source rock type variation for the same layer";
          }
 
          const VarPrmSourceRockHI * hiPrm = dynamic_cast<const VarPrmSourceRockHI *>( prm );
-         if ( hiPrm && hiPrm->layerName() == layerName )
+         if ( hiPrm && hiPrm->layerName() == layerName && hiPrm->mixID() == mixingID )
          {
             throw ErrorHandler::Exception( ErrorHandler::AlreadyDefined ) << "Variation of HI for the layer: " << layerName <<
                " is defined before source rock type variation for the same layer";
          }
 
          const VarPrmSourceRockPreAsphaltStartAct * aaPrm = dynamic_cast<const VarPrmSourceRockPreAsphaltStartAct *>( prm );
-         if ( aaPrm && aaPrm->layerName() == layerName )
+         if ( aaPrm && aaPrm->layerName() == layerName /*&& hiPrm->mixID() == mixingID*/ )
          {
-            throw ErrorHandler::Exception( ErrorHandler::AlreadyDefined ) << "Variation of pre-asphalt activation energy for the layer: " << layerName <<
-               " is defined before source rock type variation for the same layer";
+            throw ErrorHandler::Exception( ErrorHandler::AlreadyDefined ) << "Variation of pre-asphalt activation energy for the layer: " <<
+               layerName << " is defined before source rock type variation for the same layer";
          }
       }
      
       // add variable parameter to VarSpace
       if ( ErrorHandler::NoError != varPrmsSet.addParameter( new VarPrmSourceRockType( layerName
                                                                                      , prm.sourceRockTypeName()
+                                                                                     , mixingID
                                                                                      , stVariation
                                                                                      , weights
                                                                                      , name

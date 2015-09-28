@@ -14,12 +14,14 @@
 #ifndef CASA_API_VAR_PRM_CONTINOUS_H
 #define CASA_API_VAR_PRM_CONTINOUS_H
 
+// CASA API
 #include "Parameter.h"
 #include "VarParameter.h"
 #include "CasaDeserializer.h"
 
-
+// STL/C
 #include <memory>
+#include <set>
 
 /// @page CASA_VarPrmContinuousPage Continuous variable parameter
 ///
@@ -98,6 +100,11 @@ namespace casa
          return ret;
       }
 
+      /// @brief Convert Cauldron parameter values to SUMlib values for some variable parameters
+      /// @param prm cauldron parameter with to this variable parameter corresponded type
+      /// @return parameter values suitable for SUMlib
+      virtual std::vector<double> asDoubleArray( const SharedParameterPtr prm ) const { return prm->asDoubleArray(); }
+      
       /// @brief Returns mask array where for selected parameters true value set
       ///        Selected parameters means parameters where min/max values are different
       /// @return mask array with true value for selected parameters
@@ -115,12 +122,18 @@ namespace casa
       /// @return new observable instance on susccess, or throw and exception in case of any error
       static VarPrmContinuous * load( CasaDeserializer & dz, const char * objName );
 
+      
+      // Available slots
+      // called from categorical parameter on which this parameter depends on
+      virtual void onCategoryChosen( const Parameter * prm ) {;}
+      virtual void onSerialization( CasaSerializer::ObjRefID objSerID ) { m_dependsOn.insert( objSerID ); }
+
    protected:
       VarPrmContinuous() : m_pdf(Block) {;}
 
       /// @brief Defines version of serialized object representation. Must be updated on each change in save()
       /// @return Actual version of serialized object representation
-      virtual unsigned int version() const { return 1; }
+      virtual unsigned int version() const { return 2; }
 
       /// @brief  Implements common part of deserialization for continuous variable parameters
       /// @param dz input stream
@@ -131,7 +144,8 @@ namespace casa
       SharedParameterPtr m_minValue;    ///< Base parameter value, used also as object factory for concrete parameter value
       SharedParameterPtr m_maxValue;    ///< Base parameter value, used also as object factory for concrete parameter value
       PDF                m_pdf;         ///< Probability density function for parameter. Block is default value
-   
+
+      std::set< CasaSerializer::ObjRefID > m_dependsOn; // list of category parametrs ID on which this parameter is dependent
    private:
    };
 

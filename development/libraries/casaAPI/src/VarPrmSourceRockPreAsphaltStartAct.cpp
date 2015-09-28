@@ -20,28 +20,21 @@
 namespace casa
 {
 
-VarPrmSourceRockPreAsphaltStartAct::VarPrmSourceRockPreAsphaltStartAct( const char * layerName
+VarPrmSourceRockPreAsphaltStartAct::VarPrmSourceRockPreAsphaltStartAct( const char * lrName
                                                                       , double       baseValue
                                                                       , double       minValue
                                                                       , double       maxValue
                                                                       , PDF          pdfType
                                                                       , const char * name
-                                                                      ) : m_layerName( layerName )
+                                                                      , const char * srTypeName
+                                                                      , int          mixID
+                                                                      )
+   : VarPrmSourceRockProp( lrName, baseValue, minValue, maxValue, pdfType, name, srTypeName, mixID )
 {
-   m_pdf = pdfType;
-   m_name = name && strlen( name ) > 0 ? std::string( name ) : std::string( "" );
-
-   assert( minValue <= baseValue && maxValue >= baseValue );
-
-   m_minValue.reset( new PrmSourceRockPreAsphaltStartAct( this, minValue, layerName ) );
-   m_maxValue.reset( new PrmSourceRockPreAsphaltStartAct( this, maxValue, layerName ) );
-   
-   m_baseValue.reset( new PrmSourceRockPreAsphaltStartAct( this, baseValue, layerName ) );
-}
-
-VarPrmSourceRockPreAsphaltStartAct::~VarPrmSourceRockPreAsphaltStartAct()
-{
-   ;
+   m_propName = "PreAsphaltStartAct";
+   m_minValue.reset(  new PrmSourceRockPreAsphaltStartAct( this, minValue,  lrName, srTypeName, m_mixID ) );
+   m_maxValue.reset(  new PrmSourceRockPreAsphaltStartAct( this, maxValue,  lrName, srTypeName, m_mixID ) );
+   m_baseValue.reset( new PrmSourceRockPreAsphaltStartAct( this, baseValue, lrName, srTypeName, m_mixID ) );
 }
 
 std::vector<std::string> VarPrmSourceRockPreAsphaltStartAct::name() const
@@ -52,42 +45,30 @@ std::vector<std::string> VarPrmSourceRockPreAsphaltStartAct::name() const
    return ret;
 }
 
-SharedParameterPtr VarPrmSourceRockPreAsphaltStartAct::newParameterFromDoubles( std::vector<double>::const_iterator & vals ) const
-{
-   double minV = dynamic_cast<PrmSourceRockPreAsphaltStartAct*>( m_minValue.get() )->value();
-   double maxV = dynamic_cast<PrmSourceRockPreAsphaltStartAct*>( m_maxValue.get() )->value();
-   double prmV = *vals++;
-
-   if ( minV > prmV || prmV > maxV )
-   {
-      throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << 
-         "Variation of source rock preasphaltene activation energy parameter for layer " << m_layerName <<
-         ": " << prmV << " falls out of range: [" << minV << ":" << maxV << "]";
-   }
-   SharedParameterPtr prm( new PrmSourceRockPreAsphaltStartAct( this, prmV, m_layerName.c_str() ) );
-
-   return prm;
-}
-
 // Save all object data to the given stream, that object could be later reconstructed from saved data
 bool VarPrmSourceRockPreAsphaltStartAct::save( CasaSerializer & sz, unsigned int version ) const
 {
-   bool ok = VarPrmContinuous::save( sz, version );
-   ok = ok ? sz.save( m_layerName, "layerName" ) : ok;
-
+   bool ok = VarPrmSourceRockProp::serializeCommonPart( sz, version );
    return ok;
 }
 
 // Create a new var.parameter instance by deserializing it from the given stream
 VarPrmSourceRockPreAsphaltStartAct::VarPrmSourceRockPreAsphaltStartAct( CasaDeserializer & dz, unsigned int objVer )
 {
-   bool ok = VarPrmContinuous::deserializeCommonPart( dz, objVer );
-   ok = ok ? dz.load( m_layerName, "layerName" ) : ok;
+   bool ok = VarPrmSourceRockProp::deserializeCommonPart( dz, objVer );
+   
+   if ( m_propName.empty() ) { m_propName = "PreAsphaltStartAct"; }
 
    if ( !ok )
    {
       throw ErrorHandler::Exception( ErrorHandler::DeserializationError ) << "VarPrmSourceRockPreAsphaltStartAct deserialization unknown error";
    }
 }
+
+PrmSourceRockProp * VarPrmSourceRockPreAsphaltStartAct::createNewPrm( double val ) const
+{
+   return new PrmSourceRockPreAsphaltStartAct( this, val, m_layerName.c_str(), (m_srTypeName.empty() ? 0 : m_srTypeName.c_str()), m_mixID ); 
+}
+
 
 }

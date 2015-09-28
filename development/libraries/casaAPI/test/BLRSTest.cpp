@@ -85,7 +85,7 @@ TEST_F( BLRSTest, VaryTopCrustHeatProductionTest )
 
 /////////////////////////////////////////////////////////////////////////////////////////
 // Test how ones can add variable parameter source rock TOC to scenario analysis
-TEST_F( BLRSTest, VarySourceRockTOCTest )
+TEST_F( BLRSTest, VarySourceRockTOCSimpleTest )
 {
    // create new scenario analysis
    ScenarioAnalysis sc;
@@ -94,10 +94,10 @@ TEST_F( BLRSTest, VarySourceRockTOCTest )
    ASSERT_EQ( ErrorHandler::NoError, sc.defineBaseCase( m_testProject ) );
 
    // set the parameter
-   ASSERT_EQ( ErrorHandler::NoError, VarySourceRockTOC( sc, 0, "Lower Jurassic", 10.0, 30.0, VarPrmContinuous::Block ) );
-
+   ASSERT_EQ( ErrorHandler::NoError, VarySourceRockTOC( sc, 0, "Lower Jurassic", 1, 0, 0.0, 30.0, VarPrmContinuous::Block ) );
+     
    // get varspace 
-   casa::VarSpaceImpl & varPrms = dynamic_cast<casa::VarSpaceImpl&>( sc.varSpace( ) );
+   casa::VarSpaceImpl & varPrms = dynamic_cast<casa::VarSpaceImpl&>( sc.varSpace() );
 
    // check how the parameter was set
    ASSERT_EQ( varPrms.size(), 1 );
@@ -108,15 +108,102 @@ TEST_F( BLRSTest, VarySourceRockTOCTest )
    const std::vector<double> & maxV = p1c->maxValue()->asDoubleArray();
    const std::vector<double> & baseV = p1c->baseValue()->asDoubleArray();
 
-   ASSERT_NEAR( minV[0],  10.0, eps );  // does it range have given min value?
-   ASSERT_NEAR( maxV[0],  30.0, eps );  // does it range have given max value?
-   ASSERT_NEAR( baseV[0], 10.0, eps );  // does it range have base value from the project?
+   ASSERT_NEAR( minV[0],  0.0, eps );  // does it range have given min value?
+   ASSERT_NEAR( maxV[0], 30.0, eps );  // does it range have given max value?
+   ASSERT_NEAR( baseV[0],10.0, eps );  // does it range have base value from the project?
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+// Test how ones can add variable parameter source rock TOC to scenario analysis
+TEST_F( BLRSTest, VarySourceRockTOCDepOnSrourceRockTypeTest )
+{
+   // constants for the test
+   std::vector<std::string> srList;
+
+   srList.push_back( "Type_I_CenoMesozoic_Lacustrine_kin" );
+   srList.push_back( "Type_II_Mesozoic_MarineShale_kin"   );
+   srList.push_back( "Type_III_II_Mesozoic_HumicCoal_lit" );
+   
+   std::vector<double> srWeights( 3, 0.33 );
+
+   VarPrmContinuous::PDF pdft = VarPrmContinuous::Block;
+   const char * layerName = "Lower Jurassic";
+ 
+   double valRgs[3][3] = { { 1.0, 10.0, 15.0 },
+                           { 1.0, 4.0,   8.0 },
+                           { 4.0, 6.0,   8.0 } 
+                         };
+   
+   // create new scenario analysis
+   ScenarioAnalysis sc;
+
+   // load base case to scenario
+   ASSERT_EQ( ErrorHandler::NoError, sc.defineBaseCase( m_testProjectCatPrms ) );
+
+   // !!! set the parameter which depends on SourceRockType parameter. Must be en error because categorical parameter wasn't defined before
+   ASSERT_EQ( ErrorHandler::OutOfRangeValue, VarySourceRockTOC( sc, 0, layerName, 1, srList[0].c_str(), 1.0, 15.0, pdft ) );
+
+   // define new categorilcal variable parameter
+   ASSERT_EQ( ErrorHandler::NoError, VarySourceRockType( sc, 0, layerName, 1, srList, srWeights ) );
+
+   // Add variable TOC parameter with 3 different TOC ranges
+   for ( size_t i = 0; i < srList.size(); ++i )
+   {
+      if ( i == 1 )
+      {
+         // !!! check for the different name for the same layer/mixing ID for TOC
+         ASSERT_EQ( ErrorHandler::OutOfRangeValue, VarySourceRockTOC( sc, "lowerJurTOC2", layerName, 1, srList[i].c_str(), 
+                                                                                           valRgs[i][0], valRgs[i][2],  pdft ) );
+      }
+      // set the parameter which depends on SourceRockType parameter
+      ASSERT_EQ( ErrorHandler::NoError, VarySourceRockTOC( sc, "lowerJurTOC", layerName, 1, srList[i].c_str(), valRgs[i][0], valRgs[i][2], pdft ) );
+   }
+
+   // !!! add unexistent category - expecting some error
+   ASSERT_EQ( ErrorHandler::UndefinedValue, VarySourceRockTOC( sc, "lowerJurTOC", layerName, 1, 
+            "Type III MesoPaleozoic Vitrinitic Coals (Kinetics)", 10.0, 90.0, pdft ) );
+
+
+   // get varspace 
+   casa::VarSpaceImpl & varPrms = dynamic_cast<casa::VarSpaceImpl&>( sc.varSpace() );
+
+   // check how the parameter was set
+   ASSERT_EQ( varPrms.size(), 2 );
+   const VarPrmSourceRockType * p1cat = dynamic_cast<const VarPrmSourceRockType*>( varPrms.categoricalParameter( 0 ) );
+   const VarPrmSourceRockTOC  * p1cnt = dynamic_cast<const VarPrmSourceRockTOC*>( varPrms.continuousParameter( 0 ) );
+   ASSERT_TRUE( p1cat != NULL ); // do we have required the parameter in the list?
+   ASSERT_TRUE( p1cnt != NULL ); // do we have required the parameter in the list?
+
+   // loop over all categories and check range of TOC
+   for ( unsigned int i = 0; i < 3; ++i )
+   {
+      SharedParameterPtr pcat = p1cat->createNewParameterFromUnsignedInt( i );
+      const PrmSourceRockType *srtPrm = dynamic_cast<const PrmSourceRockType*>( pcat.get() );
+      ASSERT_TRUE( NULL != srtPrm );
+
+      ASSERT_TRUE( srList[i] == srtPrm->sourceRockTypeName() );
+
+      // check results
+      std::vector<double> inVec;
+      inVec.push_back( -1.0 );
+      inVec.push_back(  0.0 );
+      inVec.push_back(  1.0 );
+      std::vector<double>::const_iterator it = inVec.begin();
+
+      for ( size_t j = 0; j < 3; ++j )
+      {
+         SharedParameterPtr prm = p1cnt->newParameterFromDoubles( it );
+
+         const std::vector<double> res = prm->asDoubleArray();
+         ASSERT_NEAR( res[0], valRgs[i][j], eps );
+      }
+   }
 }
 
 
 /////////////////////////////////////////////////////////////////////////////////////////
 // Test how ones can add variable parameter source rock HI to scenario analysis
-TEST_F( BLRSTest, VarySourceRockHITest )
+TEST_F( BLRSTest, VarySourceRockHISimpleTest )
 {
    // create new scenario analysis
    ScenarioAnalysis sc;
@@ -125,9 +212,9 @@ TEST_F( BLRSTest, VarySourceRockHITest )
    ASSERT_EQ( ErrorHandler::NoError, sc.defineBaseCase( m_testProject ) );
 
    // set the parameter
-   ASSERT_EQ( ErrorHandler::NoError, VarySourceRockHI( sc, 0, "Lower Jurassic", 371.0, 571.0, VarPrmContinuous::Block ) );
+   ASSERT_EQ( ErrorHandler::NoError, VarySourceRockHI( sc, 0, "Lower Jurassic", 1, 0, 371.0, 571.0, VarPrmContinuous::Block ) );
    // expect failure so HI and H/C can't be variated both in the same time
-   ASSERT_EQ( ErrorHandler::AlreadyDefined, VarySourceRockHC( sc, 0, "Lower Jurassic", 0.5,   1.5,   VarPrmContinuous::Block ) );
+   ASSERT_EQ( ErrorHandler::AlreadyDefined, VarySourceRockHC( sc, 0, "Lower Jurassic", 1, 0, 0.5,   1.5,   VarPrmContinuous::Block ) );
 
    // get varspace 
    casa::VarSpaceImpl & varPrms = dynamic_cast<casa::VarSpaceImpl&>( sc.varSpace( ) );
@@ -146,10 +233,96 @@ TEST_F( BLRSTest, VarySourceRockHITest )
    ASSERT_NEAR( baseV[0], 472.068687, eps );  // does it range have base value from the project?
 }
 
+TEST_F( BLRSTest, VarySourceRockHIDepOnSrourceRockTypeTest )
+{
+   // constants for the test
+   std::vector<std::string> srList;
+
+   srList.push_back( "Type_I_CenoMesozoic_Lacustrine_kin" );
+   srList.push_back( "Type_II_Mesozoic_MarineShale_kin"   );
+   srList.push_back( "Type_III_II_Mesozoic_HumicCoal_lit" );
+   
+   std::vector<double> srWeights( 3, 0.33 );
+
+   VarPrmContinuous::PDF pdft = VarPrmContinuous::Block;
+   const char * layerName = "Lower Jurassic";
+ 
+   double valRgs[3][3] = { { 737.10, 747.385814, 757.10 },
+                           { 460.82, 472.068686, 480.82 },
+                           { 200.50, 210.496382, 220.50 } 
+                         };
+   
+   // create new scenario analysis
+   ScenarioAnalysis sc;
+
+   // load base case to scenario
+   ASSERT_EQ( ErrorHandler::NoError, sc.defineBaseCase( m_testProjectCatPrms ) );
+
+   // !!! set the parameter which depends on SourceRockType parameter. Must be en error because categorical parameter wasn't defined before
+   ASSERT_EQ( ErrorHandler::OutOfRangeValue, VarySourceRockHI( sc, 0, layerName, 1, srList[1].c_str(), 460.82, 470.82, pdft ) );
+
+   // define new categorilcal variable parameter
+   ASSERT_EQ( ErrorHandler::NoError, VarySourceRockType( sc, 0, layerName, 1, srList, srWeights ) );
+
+   // Add variable HI parameter with 3 different HI ranges
+   for ( size_t i = 0; i < srList.size(); ++i )
+   {
+      if ( i == 1 )
+      {
+         // !!! check for the different name for the same layer/mixing ID for HI
+         ASSERT_EQ( ErrorHandler::OutOfRangeValue, VarySourceRockHI( sc, "lowerJurHI2", layerName, 1, srList[i].c_str(), 
+                                                                                         valRgs[i][0], valRgs[i][2],  pdft ) );
+      }
+      // set the parameter which depends on SourceRockType parameter
+      ASSERT_EQ( ErrorHandler::NoError, VarySourceRockHI( sc, "lowerJurHI", layerName, 1, srList[i].c_str(), valRgs[i][0],
+                                                                             valRgs[i][2], pdft ) );
+   }
+
+   // !!! add unexistent category - expecting some error
+   ASSERT_EQ( ErrorHandler::UndefinedValue, VarySourceRockHI( sc, "lowerJurHI", layerName, 1, 
+                                                "Type III MesoPaleozoic Vitrinitic Coals (Kinetics)", 84.0, 104.0, pdft ) );
+
+
+   // get varspace 
+   casa::VarSpaceImpl & varPrms = dynamic_cast<casa::VarSpaceImpl&>( sc.varSpace() );
+
+   // check how the parameter was set
+   ASSERT_EQ( varPrms.size(), 2 );
+   const VarPrmSourceRockType * p1cat = dynamic_cast<const VarPrmSourceRockType*>( varPrms.categoricalParameter( 0 ) );
+   const VarPrmSourceRockHI   * p1cnt = dynamic_cast<const VarPrmSourceRockHI*>(   varPrms.continuousParameter(  0 ) );
+   ASSERT_TRUE( p1cat != NULL ); // do we have required the parameter in the list?
+   ASSERT_TRUE( p1cnt != NULL ); // do we have required the parameter in the list?
+
+   // loop over all categories and check range of TOC
+   for ( unsigned int i = 0; i < 3; ++i )
+   {
+      SharedParameterPtr pcat = p1cat->createNewParameterFromUnsignedInt( i );
+      const PrmSourceRockType *srtPrm = dynamic_cast<const PrmSourceRockType*>( pcat.get() );
+      ASSERT_TRUE( NULL != srtPrm );
+
+      ASSERT_TRUE( srList[i] == srtPrm->sourceRockTypeName() );
+
+      // check results
+      std::vector<double> inVec;
+      inVec.push_back( -1.0 );
+      inVec.push_back(  0.0 );
+      inVec.push_back(  1.0 );
+      std::vector<double>::const_iterator it = inVec.begin();
+
+      for ( size_t j = 0; j < 3; ++j )
+      {
+         SharedParameterPtr prm = p1cnt->newParameterFromDoubles( it );
+
+         const std::vector<double> res = prm->asDoubleArray();
+         ASSERT_NEAR( res[0], valRgs[i][j], eps );
+      }
+   }
+}
+
 
 /////////////////////////////////////////////////////////////////////////////////////////
 // Test how ones can add variable parameter source rock H/C to scenario analysis
-TEST_F( BLRSTest, VarySourceRockHCTest )
+TEST_F( BLRSTest, VarySourceRockHCSimpleTest )
 {
    // create new scenario analysis
    ScenarioAnalysis sc;
@@ -158,9 +331,9 @@ TEST_F( BLRSTest, VarySourceRockHCTest )
    ASSERT_EQ( ErrorHandler::NoError, sc.defineBaseCase( m_testProject ) );
 
    // set the parameter
-   ASSERT_EQ( ErrorHandler::NoError, VarySourceRockHC( sc, 0, "Lower Jurassic", 0.5, 1.75,   VarPrmContinuous::Block ) );
+   ASSERT_EQ( ErrorHandler::NoError, VarySourceRockHC( sc, 0, "Lower Jurassic", 1, 0, 0.5, 1.75,   VarPrmContinuous::Block ) );
    // expect failure so HI and H/C can't be variated both in the same time
-   ASSERT_EQ( ErrorHandler::AlreadyDefined, VarySourceRockHI( sc, 0, "Lower Jurassic", 371.0, 571.0, VarPrmContinuous::Block ) );
+   ASSERT_EQ( ErrorHandler::AlreadyDefined, VarySourceRockHI( sc, 0, "Lower Jurassic", 1, 0, 371.0, 571.0, VarPrmContinuous::Block ) );
 
    // get varspace 
    casa::VarSpaceImpl & varPrms = dynamic_cast<casa::VarSpaceImpl&>(sc.varSpace());
@@ -179,10 +352,96 @@ TEST_F( BLRSTest, VarySourceRockHCTest )
    ASSERT_NEAR( baseV[0], 1.25, eps );  // does it range have base value from the project?
 }
 
+TEST_F( BLRSTest, VarySourceRockHCDepOnSrourceRockTypeTest )
+{
+   // constants for the test
+   std::vector<std::string> srList;
+
+   srList.push_back( "Type_I_CenoMesozoic_Lacustrine_kin" );
+   srList.push_back( "Type_II_Mesozoic_MarineShale_kin"   );
+   srList.push_back( "Type_III_II_Mesozoic_HumicCoal_lit" );
+   
+   std::vector<double> srWeights( 3, 0.33 );
+
+   VarPrmContinuous::PDF pdft = VarPrmContinuous::Block;
+   const char * layerName = "Lower Jurassic";
+ 
+   double valRgs[3][3] = { { 1.35, 1.45, 1.55 },
+                           { 1.15, 1.25, 1.35 },
+                           { 0.93, 1.03, 1.13 } 
+                         };
+   
+   // create new scenario analysis
+   ScenarioAnalysis sc;
+
+   // load base case to scenario
+   ASSERT_EQ( ErrorHandler::NoError, sc.defineBaseCase( m_testProjectCatPrms ) );
+
+   // !!! set the parameter which depends on SourceRockType parameter. Must be en error because categorical parameter wasn't defined before
+   ASSERT_EQ( ErrorHandler::OutOfRangeValue, VarySourceRockHC( sc, 0, layerName, 1, srList[1].c_str(), 1.15, 1.35, pdft ) );
+
+   // define new categorilcal variable parameter
+   ASSERT_EQ( ErrorHandler::NoError, VarySourceRockType( sc, 0, layerName, 1, srList, srWeights ) );
+
+   // Add variable H/C parameter with 3 different H/C ranges
+   for ( size_t i = 0; i < srList.size(); ++i )
+   {
+      if ( i == 1 )
+      {
+         // !!! check for the different name for the same layer/mixing ID for H/C
+         ASSERT_EQ( ErrorHandler::OutOfRangeValue, VarySourceRockHC( sc, "lowerJurHC2", layerName, 1, srList[i].c_str(), 
+                                                                                         valRgs[i][0], valRgs[i][2],  pdft ) );
+      }
+      // set the parameter which depends on SourceRockType parameter
+      ASSERT_EQ( ErrorHandler::NoError, VarySourceRockHC( sc, "lowerJurHC", layerName, 1, srList[i].c_str(), valRgs[i][0],
+                                                                             valRgs[i][2], pdft ) );
+   }
+
+   // !!! add unexistent category - expecting some error
+   ASSERT_EQ( ErrorHandler::UndefinedValue, VarySourceRockHC( sc, "lowerJurHC", layerName, 1, 
+                                                "Type III MesoPaleozoic Vitrinitic Coals (Kinetics)", 0.751, 0.851, pdft ) );
+
+
+   // get varspace 
+   casa::VarSpaceImpl & varPrms = dynamic_cast<casa::VarSpaceImpl&>( sc.varSpace() );
+
+   // check how the parameter was set
+   ASSERT_EQ( varPrms.size(), 2 );
+   const VarPrmSourceRockType * p1cat = dynamic_cast<const VarPrmSourceRockType*>( varPrms.categoricalParameter( 0 ) );
+   const VarPrmSourceRockHC   * p1cnt = dynamic_cast<const VarPrmSourceRockHC*>(   varPrms.continuousParameter(  0 ) );
+   ASSERT_TRUE( p1cat != NULL ); // do we have required the parameter in the list?
+   ASSERT_TRUE( p1cnt != NULL ); // do we have required the parameter in the list?
+
+   // loop over all categories and check range of H/C
+   for ( unsigned int i = 0; i < 3; ++i )
+   {
+      SharedParameterPtr pcat = p1cat->createNewParameterFromUnsignedInt( i );
+      const PrmSourceRockType *srtPrm = dynamic_cast<const PrmSourceRockType*>( pcat.get() );
+      ASSERT_TRUE( NULL != srtPrm );
+
+      ASSERT_TRUE( srList[i] == srtPrm->sourceRockTypeName() );
+
+      // check results
+      std::vector<double> inVec;
+      inVec.push_back( -1.0 );
+      inVec.push_back(  0.0 );
+      inVec.push_back(  1.0 );
+      std::vector<double>::const_iterator it = inVec.begin();
+
+      for ( size_t j = 0; j < 3; ++j )
+      {
+         SharedParameterPtr prm = p1cnt->newParameterFromDoubles( it );
+
+         const std::vector<double> res = prm->asDoubleArray();
+         ASSERT_NEAR( res[0], valRgs[i][j], eps );
+      }
+   }
+}
+
 
 /////////////////////////////////////////////////////////////////////////////////////////
 // Test how ones can add variable parameter source rock preasphalten activation energy to scenario analysis
-TEST_F( BLRSTest, VarySourceRockPreasphaltActEnergyTest )
+TEST_F( BLRSTest, VarySourceRockPreasphaltActEnergySimpleTest )
 {
    // create new scenario analysis
    ScenarioAnalysis sc;
@@ -191,7 +450,7 @@ TEST_F( BLRSTest, VarySourceRockPreasphaltActEnergyTest )
    ASSERT_EQ( ErrorHandler::NoError, sc.defineBaseCase( m_testProject ) );
 
    // set the parameter
-   ASSERT_EQ( ErrorHandler::NoError, VarySourceRockPreAsphaltActEnergy( sc, 0, "Lower Jurassic", 208, 212, VarPrmContinuous::Block ) );
+   ASSERT_EQ( ErrorHandler::NoError, VarySourceRockPreAsphaltActEnergy( sc, 0, "Lower Jurassic", 1, 0, 208, 212, VarPrmContinuous::Block ) );
 
    // get varspace 
    casa::VarSpaceImpl & varPrms = dynamic_cast<casa::VarSpaceImpl&>(sc.varSpace());
@@ -211,6 +470,95 @@ TEST_F( BLRSTest, VarySourceRockPreasphaltActEnergyTest )
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
+// Test how ones can add variable parameter source rock PreAsphaltStartAct to scenario analysis
+TEST_F( BLRSTest, VarySourceRockPreAsphaltActEnergyDepOnSrourceRockTypeTest )
+{
+   // constants for the test
+   std::vector<std::string> srList;
+
+   srList.push_back( "Type_I_CenoMesozoic_Lacustrine_kin" );
+   srList.push_back( "Type_II_Mesozoic_MarineShale_kin"   );
+   srList.push_back( "Type_III_II_Mesozoic_HumicCoal_lit" );
+   
+   std::vector<double> srWeights( 3, 0.33 );
+
+   VarPrmContinuous::PDF pdft = VarPrmContinuous::Block;
+   const char * layerName = "Lower Jurassic";
+ 
+   double valRgs[3][3] = { { 213.0, 214.0, 215.0 },
+                           { 209.0, 210.0, 211.0 },
+                           { 207.0, 208.0, 209.0 } 
+                         };
+   
+   // create new scenario analysis
+   ScenarioAnalysis sc;
+
+   // load base case to scenario
+   ASSERT_EQ( ErrorHandler::NoError, sc.defineBaseCase( m_testProjectCatPrms ) );
+
+   // !!! set the parameter which depends on SourceRockType parameter. Must be en error because categorical parameter wasn't defined before
+   ASSERT_EQ( ErrorHandler::OutOfRangeValue, VarySourceRockPreAsphaltActEnergy( sc, 0, layerName, 1, srList[1].c_str(), 209.0, 210.0, pdft ) );
+
+   // define new categorilcal variable parameter
+   ASSERT_EQ( ErrorHandler::NoError, VarySourceRockType( sc, 0, layerName, 1, srList, srWeights ) );
+
+   // Add variable TOC parameter with 3 different TOC ranges
+   for ( size_t i = 0; i < srList.size(); ++i )
+   {
+      if ( i == 1 )
+      {
+         // !!! check for the different name for the same layer/mixing ID for TOC
+         ASSERT_EQ( ErrorHandler::OutOfRangeValue, VarySourceRockPreAsphaltActEnergy( sc, "LowerJurActEn2", layerName, 1, srList[i].c_str(), 
+                                                                                           valRgs[i][0], valRgs[i][2],  pdft ) );
+      }
+      // set the parameter which depends on SourceRockType parameter
+      ASSERT_EQ( ErrorHandler::NoError, VarySourceRockPreAsphaltActEnergy( sc, "LowerJurActEn", layerName, 1, srList[i].c_str(), valRgs[i][0],
+                                                                               valRgs[i][2], pdft ) );
+   }
+
+   // !!! add unexistent category - expecting some error
+   ASSERT_EQ( ErrorHandler::UndefinedValue, VarySourceRockPreAsphaltActEnergy( sc, "LowerJurActEn", layerName, 1, 
+                                                "Type III MesoPaleozoic Vitrinitic Coals (Kinetics)", 205.0, 207.0, pdft ) );
+
+
+   // get varspace 
+   casa::VarSpaceImpl & varPrms = dynamic_cast<casa::VarSpaceImpl&>( sc.varSpace() );
+
+   // check how the parameter was set
+   ASSERT_EQ( varPrms.size(), 2 );
+   const VarPrmSourceRockType               * p1cat = dynamic_cast<const VarPrmSourceRockType*>( varPrms.categoricalParameter( 0 ) );
+   const VarPrmSourceRockPreAsphaltStartAct * p1cnt = dynamic_cast<const VarPrmSourceRockPreAsphaltStartAct*>( varPrms.continuousParameter( 0 ) );
+   ASSERT_TRUE( p1cat != NULL ); // do we have required the parameter in the list?
+   ASSERT_TRUE( p1cnt != NULL ); // do we have required the parameter in the list?
+
+   // loop over all categories and check range of TOC
+   for ( unsigned int i = 0; i < 3; ++i )
+   {
+      SharedParameterPtr pcat = p1cat->createNewParameterFromUnsignedInt( i );
+      const PrmSourceRockType *srtPrm = dynamic_cast<const PrmSourceRockType*>( pcat.get() );
+      ASSERT_TRUE( NULL != srtPrm );
+
+      ASSERT_TRUE( srList[i] == srtPrm->sourceRockTypeName() );
+
+      // check results
+      std::vector<double> inVec;
+      inVec.push_back( -1.0 );
+      inVec.push_back(  0.0 );
+      inVec.push_back(  1.0 );
+      std::vector<double>::const_iterator it = inVec.begin();
+
+      for ( size_t j = 0; j < 3; ++j )
+      {
+         SharedParameterPtr prm = p1cnt->newParameterFromDoubles( it );
+
+         const std::vector<double> res = prm->asDoubleArray();
+         ASSERT_NEAR( res[0], valRgs[i][j], eps );
+      }
+   }
+}
+
+
+/////////////////////////////////////////////////////////////////////////////////////////
 // Test how ones can add variable categorical parameter source rock type to scenario analysis
 TEST_F( BLRSTest, VarySourceRockTypeTest )
 {
@@ -221,6 +569,9 @@ TEST_F( BLRSTest, VarySourceRockTypeTest )
    srList.push_back( "Type_III_II_Mesozoic_HumicCoal_lit" );
    
    std::vector<double> srWeights( 3, 0.33 );
+
+   VarPrmContinuous::PDF pdft = VarPrmContinuous::Block;
+   const char * layerName = "Lower Jurassic";
 
    // check order of variable parameters for Source Rock Type. User can't add any source rock variable parameter before 
    // source rock type categorical parameter
@@ -235,14 +586,14 @@ TEST_F( BLRSTest, VarySourceRockTypeTest )
       // set one of the Source Rock parameter
       switch( i )
       {
-         case 0: ASSERT_EQ( ErrorHandler::NoError, VarySourceRockTOC(                 sc, 0, "Lower Jurassic", 10.0,  30.0,  VarPrmContinuous::Block ) ); break;
-         case 1: ASSERT_EQ( ErrorHandler::NoError, VarySourceRockHI(                  sc, 0, "Lower Jurassic", 371.0, 571.0, VarPrmContinuous::Block ) ); break;
-         case 2: ASSERT_EQ( ErrorHandler::NoError, VarySourceRockHC(                  sc, 0, "Lower Jurassic", 0.5,   1.75,  VarPrmContinuous::Block ) ); break;
-         case 3: ASSERT_EQ( ErrorHandler::NoError, VarySourceRockPreAsphaltActEnergy( sc, 0, "Lower Jurassic", 208.0, 212.0, VarPrmContinuous::Block ) ); break;
+         case 0: ASSERT_EQ( ErrorHandler::NoError, VarySourceRockTOC(                 sc, 0, layerName, 1, 0, 1.0,   15.0,  pdft ) ); break;
+         case 1: ASSERT_EQ( ErrorHandler::NoError, VarySourceRockHI(                  sc, 0, layerName, 1, 0, 371.0, 571.0, pdft ) ); break;
+         case 2: ASSERT_EQ( ErrorHandler::NoError, VarySourceRockHC(                  sc, 0, layerName, 1, 0, 0.5,   1.75,  pdft ) ); break;
+         case 3: ASSERT_EQ( ErrorHandler::NoError, VarySourceRockPreAsphaltActEnergy( sc, 0, layerName, 1, 0, 208.0, 212.0, pdft ) ); break;
          default: break;
       }
       // expect a failure if any of source rock variable parameters are defined before source rock type variation
-      ASSERT_EQ( ErrorHandler::AlreadyDefined, VarySourceRockType( sc, 0, "Lower Jurassic", srList, srWeights ) );
+      ASSERT_EQ( ErrorHandler::AlreadyDefined, VarySourceRockType( sc, 0, layerName, 1, srList, srWeights ) );
    }
 
    // create new scenario analysis
@@ -252,7 +603,7 @@ TEST_F( BLRSTest, VarySourceRockTypeTest )
    ASSERT_EQ( ErrorHandler::NoError, sc.defineBaseCase( m_testProjectCatPrms ) );
 
    // define new variable parameter
-   ASSERT_EQ( ErrorHandler::NoError, VarySourceRockType( sc, 0, "Lower Jurassic", srList, srWeights ) );
+   ASSERT_EQ( ErrorHandler::NoError, VarySourceRockType( sc, 0, layerName, 1, srList, srWeights ) );
 
    // get varspace 
    casa::VarSpaceImpl & varPrms = dynamic_cast<casa::VarSpaceImpl &>( sc.varSpace() );

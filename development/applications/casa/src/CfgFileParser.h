@@ -41,7 +41,7 @@ public:
    // read parameters value from plain data file
    static void readParametersValueFile( const std::string & fileName, std::vector< std::vector<double> > & dataVals );
 
-   static bool isNumericPrm( const std::string prm );
+   static bool isNumericPrm( const std::string & prm );
 protected:
 };
 

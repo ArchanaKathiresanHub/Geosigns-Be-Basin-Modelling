@@ -24,10 +24,13 @@ namespace casa
 
 VarPrmSourceRockType::VarPrmSourceRockType( const char                     * layerName 
                                           , const std::string              & baseVal 
+                                          , int                              mixID
                                           , const std::vector<std::string> & variation 
                                           , const std::vector<double>      & weights
                                           , const char                     * name
                                           )
+                                          : m_mixID ( mixID )
+                                          , m_layerName( layerName )
 {
    assert( variation.size() == weights.size() );
 
@@ -37,7 +40,7 @@ VarPrmSourceRockType::VarPrmSourceRockType( const char                     * lay
 
    for ( size_t i = 0; i < variation.size(); ++i )
    {
-      SharedParameterPtr prm( new PrmSourceRockType( this, layerName, variation[i] ) );
+      SharedParameterPtr prm( new PrmSourceRockType( this, layerName, variation[i], mixID ) );
       m_variation.push_back( prm );
       if ( variation[i] == baseVal )
       {
@@ -49,11 +52,6 @@ VarPrmSourceRockType::VarPrmSourceRockType( const char                     * lay
       throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << 
          "Variation of source rock parameter: Base value is not in the list";
    }
-}
-
-VarPrmSourceRockType::~VarPrmSourceRockType()
-{
-   ;
 }
 
 std::vector<std::string> VarPrmSourceRockType::name() const
@@ -68,7 +66,7 @@ std::vector<std::string> VarPrmSourceRockType::name() const
          if ( prm )
          {
             std::ostringstream oss;
-            oss << prm->layerName() + " Source rock type (" << m_variation.size() << ")";
+            oss << prm->layerName() + " Source rock type [" << m_mixID << "](" << m_variation.size() << ")";
 	         ret.push_back( oss.str() );
          }
       }
@@ -91,6 +89,10 @@ int VarPrmSourceRockType::index( const PrmSourceRockType * prm ) const
 bool VarPrmSourceRockType::save( CasaSerializer & sz, unsigned int version ) const
 {
    bool ok = VarPrmCategorical::save( sz, version );
+   if ( version > 7 )
+   {
+      ok = ok ? sz.save( m_mixID, "mixingID" ) : ok;
+   }
    return ok;
 }
 
@@ -98,6 +100,9 @@ bool VarPrmSourceRockType::save( CasaSerializer & sz, unsigned int version ) con
 VarPrmSourceRockType::VarPrmSourceRockType( CasaDeserializer & dz, unsigned int objVer ) 
 {
    bool ok = VarPrmCategorical::deserializeCommonPart( dz, objVer );
+
+   if ( objVer > VarPrmCategorical::version() + 0 ) { ok = ok ? dz.load( m_mixID, "mixingID" ) : ok; }
+   else                                             { m_mixID = 1; }
 
    if ( !ok )
    {

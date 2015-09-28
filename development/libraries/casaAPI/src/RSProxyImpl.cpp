@@ -64,6 +64,7 @@ ErrorHandler::ReturnCode RSProxyImpl::calculateRSProxy( const std::vector<const 
 {
    if ( caseSet.empty() ) return reportError( RSProxyError, "Can not build response surface approximation for zero size case set" );
 
+
    std::vector< const RunCase*> filteredCaseSet;
    removeDuplicated( caseSet, filteredCaseSet );
 
@@ -76,7 +77,7 @@ ErrorHandler::ReturnCode RSProxyImpl::calculateRSProxy( const std::vector<const 
       assert( filteredCaseSet[i] != 0 );
 
       // convert parameters set from RunCase to SUMLib Case
-      sumext::convertCase( *(filteredCaseSet[i]), sumCaseSet[i] );
+      sumext::convertCase( *(filteredCaseSet[i]), *m_varSpace, sumCaseSet[i] );
    }
 
    ///////////////////////////
@@ -112,8 +113,8 @@ ErrorHandler::ReturnCode RSProxyImpl::calculateRSProxy( const std::vector<const 
    SUMlib::Case pLowest;
    SUMlib::Case pHighest;
 
-   sumext::convertCase( minCase, pLowest );
-   sumext::convertCase( maxCase, pHighest );
+   sumext::convertCase( minCase, *m_varSpace, pLowest );
+   sumext::convertCase( maxCase, *m_varSpace, pHighest );
 
    // will use all parameters as on parameter space
    SUMlib::Partition partition( pLowest.size(), true );
@@ -167,7 +168,7 @@ ErrorHandler::ReturnCode RSProxyImpl::evaluateRSProxy( RunCase & cs )
    SUMlib::Case  sumCase;
 
    // convert parameters set from RunCase to SUMLib Case
-   sumext::convertCase( cs, sumCase );
+   sumext::convertCase( cs, *m_varSpace, sumCase );
 
    const SUMlib::ProxyValueList & obsVals = m_collection->getProxyValueList( sumCase, static_cast<SUMlib::KrigingType>( m_kriging ) );
    sumext::convertObservablesValue( obsVals, *m_obsSpace, cs );

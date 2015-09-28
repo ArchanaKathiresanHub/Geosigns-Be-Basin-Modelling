@@ -30,7 +30,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 // CASA -> SUMlib case conversion
-void sumext::convertCase( const casa::RunCase & crc, SUMlib::Case  & sc )
+void sumext::convertCase( const casa::RunCase & crc, const casa::VarSpace & vp, SUMlib::Case  & sc )
 {
    const casa::RunCaseImpl & rci = dynamic_cast<const casa::RunCaseImpl &>( crc );
 
@@ -48,7 +48,9 @@ void sumext::convertCase( const casa::RunCase & crc, SUMlib::Case  & sc )
       {
          case casa::VarParameter::Continuous:
             {
-               const std::vector<double> & prmVals = prm->asDoubleArray();
+               const casa::VarPrmContinuous * cntPrm = dynamic_cast<const casa::VarPrmContinuous *>( prm->parent() );
+
+               const std::vector<double> & prmVals = cntPrm->asDoubleArray( prm );
                sumCntArray.insert( sumCntArray.end(), prmVals.begin(), prmVals.end() );
             }
             break;
@@ -271,8 +273,8 @@ void sumext::createSUMlibBounds( const casa::VarSpace           & varSp
       }
    }
 
-   sumext::convertCase( lowRCs, lowCs );
-   sumext::convertCase( uprRCs, highCs );
+   sumext::convertCase( lowRCs, varSp, lowCs );
+   sumext::convertCase( uprRCs, varSp, highCs );
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -341,7 +343,7 @@ void sumext::createSUMlibPrior( const casa::VarSpace & varSpace
       }
    }
    // Convert the base case.
-   sumext::convertCase( baseRCs, pBase );
+   sumext::convertCase( baseRCs, varSpace, pBase );
    
    // Convert the standard deviations to a variance matrix.
    for (std::size_t i = 0; i < stdDevs.size(); ++i)

@@ -169,9 +169,11 @@ namespace casa
       /// @brief Add a parameter to variate source rock lithology initial TOC value @f$ [\%] @f$ in given range
       /// @return ErrorHandler::NoError on success or error code otherwise
       ErrorHandler::ReturnCode VarySourceRockTOC(
-            ScenarioAnalysis    & sa          ///< [in,out] casa::ScenarioAnalysis object reference, if any error, this object will keep an error message
+            ScenarioAnalysis    & sa          ///< [in,out] scenario object reference. If any error, it will keep an error message
           , const char          * name        ///< user specified name for variable parameter 
           , const char          * layerName   ///< [in] layer name. If layer has mixing of source rocks, for all of them TOC will be changed
+          , int                   mixID       ///< [in] source rock mixing ID for stratigraphy table
+          , const char          * srTypeName  ///< [in] SR type name, if parameter defines a range variation for the specific SR type category
           , double                minVal      ///< [in] the minimal range value 
           , double                maxVal      ///< [in] the maximal range value 
           , VarPrmContinuous::PDF rangeShape  /**< [in] defines a type of probability function for the parameter. If PDF needs some middle 
@@ -181,9 +183,11 @@ namespace casa
       /// @brief Add a parameter to variate source rock lithology HI initial ratio value @f$ [kg/tonne] @f$ in given range
       /// @return ErrorHandler::NoError on success or error code otherwise
       ErrorHandler::ReturnCode VarySourceRockHI(
-            ScenarioAnalysis    & sa          ///< [in,out] casa::ScenarioAnalysis object reference, if any error, this object will keep an error message
+            ScenarioAnalysis    & sa          ///< [in,out] casa::ScenarioAnalysis object reference, if any error, it will keep an error message
           , const char          * name        ///< user specified name for variable parameter 
           , const char          * layerName   ///< [in] layer name
+          , int                   mixID       ///< [in] source rock mixing ID for stratigraphy table
+          , const char          * srTypeName  ///< [in] SR type name, if parameter defines a range variation for the specific SR type category
           , double                minVal      ///< [in] the minimal range value 
           , double                maxVal      ///< [in] the maximal range value 
           , VarPrmContinuous::PDF rangeShape  /**< [in] defines a type of probability function for the parameter. If PDF needs some middle 
@@ -193,9 +197,11 @@ namespace casa
       /// @brief Add a parameter to variate source rock lithology H/C initial ratio value @f$ [kg/tonne C] @f$ in given range
       /// @return ErrorHandler::NoError on success or error code otherwise
       ErrorHandler::ReturnCode VarySourceRockHC(
-            ScenarioAnalysis    & sa          ///< [in,out] casa::ScenarioAnalysis object reference, if any error, this object will keep an error message
+            ScenarioAnalysis    & sa          ///< [in,out] casa::ScenarioAnalysis object reference, if any error, it will keep an error message
           , const char          * name        ///< user specified name for variable parameter 
           , const char          * layerName   ///< [in] layer name 
+          , int                   mixID       ///< [in] source rock mixing ID for stratigraphy table
+          , const char          * srTypeName  ///< [in] SR type name, if parameter defines a range variation for the specific SR type category
           , double                minVal      ///< [in] the minimal range value 
           , double                maxVal      ///< [in] the maximal range value 
           , VarPrmContinuous::PDF rangeShape  /**< [in] defines a type of probability function for the parameter. If PDF needs some middle 
@@ -208,6 +214,8 @@ namespace casa
            ScenarioAnalysis    & sa          ///< [in,out] casa::ScenarioAnalysis object reference, if any error, this object will keep an error message
          , const char          * name        ///< user specified name for variable parameter 
          , const char          * layerName   ///< [in] layer name
+         , int                   mixID       ///< [in] source rock mixing ID for stratigraphy table
+         , const char          * srTypeName  ///< [in] SR type name, if parameter defines a range variation for the specific SR type category
          , double                minVal      ///< [in] the minimal range value 
          , double                maxVal      ///< [in] the maximal range value 
          , VarPrmContinuous::PDF rangeShape  /**< [in] defines a type of probability function for the parameter. If PDF needs some middle
@@ -217,9 +225,10 @@ namespace casa
       /// @brief Add parameter to variate source rock type for the specified layer
       /// @return ErrorHandler::NoError on success or error code otherwise
       ErrorHandler::ReturnCode VarySourceRockType(
-            ScenarioAnalysis               & sa          ///< [in,out] casa::ScenarioAnalysis object reference, if any error, this object will keep an error message
+            ScenarioAnalysis               & sa          ///< [in,out] scenario object reference. On any error, it will keep an error message
           , const char                     * name        ///< user specified name for variable parameter 
           , const char                     * layerName   ///< [in] layer name
+          , int                              mixID       ///< [in] 1 or 2 - defines which source rock type in mixing
           , const std::vector<std::string> & stVariation ///< [in] list of source rock types to variate them 
           , const std::vector<double>      & weights     ///< [in] weighting coefficient for each parameter value
           );

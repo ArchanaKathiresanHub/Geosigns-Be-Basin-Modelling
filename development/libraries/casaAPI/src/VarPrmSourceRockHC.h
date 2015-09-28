@@ -14,12 +14,12 @@
 #ifndef CASA_API_VAR_PARAMETER_SOURCE_ROCK_HC_H
 #define CASA_API_VAR_PARAMETER_SOURCE_ROCK_HC_H
 
-#include "VarPrmContinuous.h"
+#include "VarPrmSourceRockProp.h"
 
 namespace casa
 {
    /// @brief Variation for casa::PrmSourceRockHC parameter
-   class VarPrmSourceRockHC : public VarPrmContinuous
+   class VarPrmSourceRockHC : public VarPrmSourceRockProp
    {
    public:
       /// @brief Create a new initial source rock HI variable parameter
@@ -29,32 +29,22 @@ namespace casa
                          , double       maxValue        ///< maximal value for the variable parameter range
                          , PDF          pdfType = Block ///< type of PDF shape for the variable parameter
                          , const char * name = 0        ///< user specified parameter name
-                         );
+                         , const char * srTypeName = 0  ///< source rock type name, to connect with source rock type cat. prm.
+                         , int          mixID = 1       ///< mixing ID. Could be 1 or 2
+                          );
 
       /// @brief Destructor
-      virtual ~VarPrmSourceRockHC();
+      virtual ~VarPrmSourceRockHC() {;}
      
 	   /// @brief Get name of variable parameter in short form
 	   /// @return array of names for each sub-parameter
 	   virtual std::vector<std::string> name() const;
 
-      /// @brief Get number of subparameters if it is more than one
-      /// @return dimension of variable parameter
-      virtual size_t dimension() const { return 1; }
-
-      /// @brief Create parameter from set of doubles. This method is used to convert data between CASA and SUMlib
-      /// @param[in,out] vals iterator which points to the first sub-parameter value
-      /// @return new casa::PrmSourceRockHC parameter
-      virtual SharedParameterPtr newParameterFromDoubles( std::vector<double>::const_iterator & vals ) const;
-
-      /// @brief Get layer name for variation of HI
-      /// @return layer name
-      std::string layerName() const { return m_layerName; }
-
       /// @{
       /// @brief Defines version of serialized object representation. Must be updated on each change in save()
       /// @return Actual version of serialized object representation
-      virtual unsigned int version() const { return VarPrmContinuous::version() + 0; }
+      // Version 1 - add different HC ranges, dependend on source rock type category
+      virtual unsigned int version() const { return VarPrmContinuous::version() + 1; }
 
       /// @brief Get type name of the serialaizable object, used in deserialization to create object with correct type
       /// @return object class name
@@ -73,7 +63,7 @@ namespace casa
       /// @}
 
    protected:
-      std::string m_layerName; ///< source rock lithology name
+      virtual PrmSourceRockProp * createNewPrm( double val ) const; // creates PrmSourceRockHC parameter object instance
    };
 
 }

@@ -274,7 +274,7 @@ void CfgFileParser::readParametersValueFile( const std::string & fileName, std::
    }
 }
 
-bool CfgFileParser::isNumericPrm( const std::string prm )
+bool CfgFileParser::isNumericPrm( const std::string & prm )
 {
    std::locale loc;
    return std::isdigit( prm[0], loc );
