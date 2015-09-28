@@ -1,16 +1,3 @@
-#ifdef sgi
-   #ifdef _STANDARD_C_PLUS_PLUS
-      #include<iostream>
-      using namespace std;
-   #else // !_STANDARD_C_PLUS_PLUS
-      #include<iostream.h>
-   #endif // _STANDARD_C_PLUS_PLUS
-#else // !sgi
-   #include <iostream>
-   using namespace std;
-#endif // sgi
-
-
 #include "Trap.h"
 
 #include "PersistentTrap.h"
@@ -24,7 +11,9 @@
 
 #include "generics.h"
 
-#define MAXDOUBLE std::numeric_limits<double>::max()
+#include <limits>
+#include <iostream>
+using namespace std;
 
 using namespace PersistentTraps;
 
@@ -51,7 +40,7 @@ PersistentTrap * Trap::findMatchingPersistentTrap (vector < PersistentTrap * >&p
       const Interface::Snapshot * snapshot, const Interface::Snapshot * previousSnapshot)
 {
    PersistentTrap * closestPersistentTrap = 0;
-   double closestDistance = MAXDOUBLE;
+   double closestDistance = std::numeric_limits<double>::max();
 
    assert (getSnapshot () == snapshot);
 
@@ -80,7 +69,7 @@ PersistentTrap * Trap::findClosestPersistentTrap (vector < PersistentTrap * >&pe
       const Interface::Snapshot * snapshot, const Interface::Snapshot * previousSnapshot)
 {
    PersistentTrap * closestPersistentTrap = 0;
-   double closestDistance = MAXDOUBLE;
+   double closestDistance = std::numeric_limits<double>::max();
 
    assert (getSnapshot () == snapshot);
 
