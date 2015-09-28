@@ -1181,7 +1181,7 @@ double Trap::biodegradeCharges(const double& timeInterval, const Biodegrade& bio
    setHydrocarbonWaterContactDepth(hydrocarbonWaterContactDepth);
 
    double const hydrocarbonWaterContactTemperature = computeHydrocarbonWaterContactTemperature();
-
+   
    double volumeFractionOfGasBiodegraded = 0.0;
    double volumeFractionOfOilBiodegraded = 0.0;
    computePhaseVolumeProportionInBiodegradadedZone(timeInterval, volumeFractionOfGasBiodegraded, volumeFractionOfOilBiodegraded, biodegrade);

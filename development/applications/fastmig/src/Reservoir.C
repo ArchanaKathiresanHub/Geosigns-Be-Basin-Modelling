@@ -2365,8 +2365,11 @@ double Reservoir::biodegradeCharges ()
 
    if (timeInterval >= 30)
    {
-      cerr << "WARNING: The time interval between the two snapshots " << m_start->getTime() << " Ma and " << m_end->getTime() << 
-         " Ma involving biodegradation is bigger than 30 Ma, the biodegradation results can be questionable due to the large time interval" << endl;
+      getProjectHandle()->getMessageHandler().print("WARNING: The time interval between the two snapshots ");
+      getProjectHandle()->getMessageHandler().print(m_start->getTime());
+      getProjectHandle()->getMessageHandler().print(" Ma and ");
+      getProjectHandle()->getMessageHandler().print(m_end->getTime());
+      getProjectHandle()->getMessageHandler().printLine(" Ma involving biodegradation is bigger than 30 Ma, the biodegradation results can be questionable due to the large time interval");
    }
    Biodegrade biodegrade(biodegradationParameters);
 

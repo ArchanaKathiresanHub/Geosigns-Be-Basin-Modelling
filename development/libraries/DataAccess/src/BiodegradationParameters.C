@@ -50,18 +50,15 @@ double BiodegradationParameters::bioRate() const
 {
    double bioRate = database::getBioRate(m_record);
 
-   // The biodegradation rate cannot be outside of the allowed range of values (from 0.1 to 1.5 m/Ma)
-   if (bioRate < 0.1)
+   // The biodegradation rate cannot be less than 0.0 m/Ma)
+   if (bioRate < 0.0)
    {
-      cerr << "Warning: The bioRate coefficient used for biodegradation is too low: " << bioRate << " is outside of the allowed range (0.1 - 1.5 m/Ma)" << endl;
-      bioRate = 0.1;
+      getProjectHandle()->getMessageHandler().print("Warning: The biodegradation rate coefficient must be positive: ");
+      getProjectHandle()->getMessageHandler().print(bioRate);
+      getProjectHandle()->getMessageHandler().printLine(" < 0.0 (in m/Ma)");
+
+      bioRate = 0.0;
    }
-   if (bioRate > 1.5)
-   {
-      cerr << "Warning: The bioRate coefficient used for biodegradation is too high: " << bioRate << " is outside of the allowed range (0.1 - 1.5 m/Ma)" << endl;
-      bioRate = 1.5;
-   }
-   assert(bioRate >= 0.1 || bioRate <= 1.5);
    return bioRate;
 }
 
