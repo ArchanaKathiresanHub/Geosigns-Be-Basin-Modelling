@@ -10,7 +10,7 @@
 #                                                                       #
 #########################################################################
 
-FILE( GLOB all_headers src/*.h )
+FILE( GLOB all_headers src/*.h src/*.hpp)
 source_group("Header Files" FILES ${all_headers})
 
 FILE( GLOB all_srcs src/*.cpp)

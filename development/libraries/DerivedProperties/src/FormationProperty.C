@@ -89,14 +89,14 @@ double DerivedProperties::FormationProperty::interpolate ( double i,
    weight [ 6 ] = (1.0 - fractionI) * (1.0 - fractionJ) * fractionK;
    weight [ 7 ] = (1.0 - fractionI) * (1.0 - fractionJ) * (1.0 - fractionK);
 
-   values [ 0 ] = get ( baseI + 1, baseJ + 1, baseK + 1);
-   values [ 1 ] = get ( baseI + 1, baseJ + 1, baseK    );
-   values [ 2 ] = get ( baseI + 1, baseJ,     baseK + 1);
-   values [ 3 ] = get ( baseI + 1, baseJ,     baseK    );
-   values [ 4 ] = get ( baseI,     baseJ + 1, baseK + 1);
-   values [ 5 ] = get ( baseI,     baseJ + 1, baseK    );
-   values [ 6 ] = get ( baseI,     baseJ,     baseK + 1);
-   values [ 7 ] = get ( baseI,     baseJ,     baseK    );
+   values [ 0 ] = checkedGet ( baseI + 1, baseJ + 1, baseK + 1);
+   values [ 1 ] = checkedGet ( baseI + 1, baseJ + 1, baseK    );
+   values [ 2 ] = checkedGet ( baseI + 1, baseJ,     baseK + 1);
+   values [ 3 ] = checkedGet ( baseI + 1, baseJ,     baseK    );
+   values [ 4 ] = checkedGet ( baseI,     baseJ + 1, baseK + 1);
+   values [ 5 ] = checkedGet ( baseI,     baseJ + 1, baseK    );
+   values [ 6 ] = checkedGet ( baseI,     baseJ,     baseK + 1);
+   values [ 7 ] = checkedGet ( baseI,     baseJ,     baseK    );
 
    if (fractionI < 1 && fractionJ < 1 && fractionK < 1 &&
        undefinedValue == values [ 7 ]) return undefinedValue;

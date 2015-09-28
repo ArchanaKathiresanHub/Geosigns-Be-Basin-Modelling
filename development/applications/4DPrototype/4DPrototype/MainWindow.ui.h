@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'MainWindow.ui'
 **
-** Created: Mon Aug 10 10:59:38 2015
+** Created: Fri Aug 28 12:58:51 2015
 **      by: Qt User Interface Compiler version 4.8.4
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -59,9 +59,12 @@ public:
     QLabel *label_7;
     QSlider *sliderVerticalScale;
     QGroupBox *groupBox_3;
-    QVBoxLayout *verticalLayout_3;
+    QHBoxLayout *horizontalLayout_3;
+    QGridLayout *gridLayout_3;
     QCheckBox *checkBoxDrawFaces;
+    QCheckBox *checkBoxDrawGrid;
     QCheckBox *checkBoxDrawEdges;
+    QCheckBox *checkBox_2;
     QGroupBox *groupBoxROI;
     QGridLayout *gridLayout_2;
     QCheckBox *checkBoxROI;
@@ -187,19 +190,35 @@ public:
 
         groupBox_3 = new QGroupBox(layoutWidget);
         groupBox_3->setObjectName(QString::fromUtf8("groupBox_3"));
-        verticalLayout_3 = new QVBoxLayout(groupBox_3);
-        verticalLayout_3->setObjectName(QString::fromUtf8("verticalLayout_3"));
+        horizontalLayout_3 = new QHBoxLayout(groupBox_3);
+        horizontalLayout_3->setObjectName(QString::fromUtf8("horizontalLayout_3"));
+        gridLayout_3 = new QGridLayout();
+        gridLayout_3->setObjectName(QString::fromUtf8("gridLayout_3"));
         checkBoxDrawFaces = new QCheckBox(groupBox_3);
         checkBoxDrawFaces->setObjectName(QString::fromUtf8("checkBoxDrawFaces"));
         checkBoxDrawFaces->setChecked(true);
 
-        verticalLayout_3->addWidget(checkBoxDrawFaces);
+        gridLayout_3->addWidget(checkBoxDrawFaces, 0, 0, 1, 1);
+
+        checkBoxDrawGrid = new QCheckBox(groupBox_3);
+        checkBoxDrawGrid->setObjectName(QString::fromUtf8("checkBoxDrawGrid"));
+
+        gridLayout_3->addWidget(checkBoxDrawGrid, 0, 1, 1, 1);
 
         checkBoxDrawEdges = new QCheckBox(groupBox_3);
         checkBoxDrawEdges->setObjectName(QString::fromUtf8("checkBoxDrawEdges"));
         checkBoxDrawEdges->setChecked(true);
 
-        verticalLayout_3->addWidget(checkBoxDrawEdges);
+        gridLayout_3->addWidget(checkBoxDrawEdges, 1, 0, 1, 1);
+
+        checkBox_2 = new QCheckBox(groupBox_3);
+        checkBox_2->setObjectName(QString::fromUtf8("checkBox_2"));
+        checkBox_2->setEnabled(false);
+
+        gridLayout_3->addWidget(checkBox_2, 1, 1, 1, 1);
+
+
+        horizontalLayout_3->addLayout(gridLayout_3);
 
 
         verticalLayout_4->addWidget(groupBox_3);
@@ -394,7 +413,9 @@ public:
         label_7->setText(QApplication::translate("MainWindow", "Vertical scale", 0, QApplication::UnicodeUTF8));
         groupBox_3->setTitle(QApplication::translate("MainWindow", "Render style", 0, QApplication::UnicodeUTF8));
         checkBoxDrawFaces->setText(QApplication::translate("MainWindow", "Faces", 0, QApplication::UnicodeUTF8));
+        checkBoxDrawGrid->setText(QApplication::translate("MainWindow", "Coordinate grid", 0, QApplication::UnicodeUTF8));
         checkBoxDrawEdges->setText(QApplication::translate("MainWindow", "Edges", 0, QApplication::UnicodeUTF8));
+        checkBox_2->setText(QApplication::translate("MainWindow", "Reserved", 0, QApplication::UnicodeUTF8));
         groupBoxROI->setTitle(QApplication::translate("MainWindow", "ROI", 0, QApplication::UnicodeUTF8));
         checkBoxROI->setText(QApplication::translate("MainWindow", "Enable", 0, QApplication::UnicodeUTF8));
         label_5->setText(QApplication::translate("MainWindow", "minK", 0, QApplication::UnicodeUTF8));

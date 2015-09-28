@@ -29,15 +29,18 @@ bm_include_libraries(
 	DataAccess
 	TableIO
     VisualizationIO
+    VisualizationIO_projectHandle
 )
 
-target_link_libraries(datamodel_tests
+target_link_libraries(
+    datamodel_tests
 	DataModel
 	DataAccess
 	SerialDataAccess
 	DataAccess
 	TableIO
     VisualizationIO
+    VisualizationIO_projectHandle
 	${HDF5_LIBRARIES}
 	${Boost_LIBRARIES}
 )

@@ -3,13 +3,13 @@
 
  <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">RHEL6.4</Platform>
+    <Platform Condition=" '$(Platform)' == '' ">RHEL6.6</Platform>
   </PropertyGroup>
 
   <Import Project="$(MSBuildProjectDirectory)\BasinModeling.Linux.Props.xml" />
 
   <PropertyGroup>
-     <memcheck>$(ssh_command_alt) "$(build_env_vars) /bin/bash $(run_on_platform) /bin/bash -l -x $(RemoteSourceDirAlt)/development/BuildProjects/Linux-MemCheck.sh $(OtherCMakeParams)"</memcheck>
+     <memcheck>$(ssh_command) "$(build_env_vars) /bin/bash $(run_on_platform) /bin/bash -l -x $(RemoteSourceDirAlt)/development/BuildProjects/Linux-MemCheck.sh $(OtherCMakeParams)"</memcheck>
   </PropertyGroup>
 
   <Target Name="Build">

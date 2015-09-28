@@ -62,7 +62,7 @@ public:
 /**
 * Geometry class for reservoirs, which are defined by the top and bottom properties
 */
-class Geometry2 : public MiGeometryI
+class ReservoirGeometry : public MiGeometryI
 {
   const DataAccess::Interface::GridMap* m_depthMaps[2];
 
@@ -81,7 +81,7 @@ class Geometry2 : public MiGeometryI
 
 public:
 
-  Geometry2(
+  ReservoirGeometry(
     const DataAccess::Interface::GridMap* depthMapTop, 
     const DataAccess::Interface::GridMap* depthMapBottom);
 
@@ -126,7 +126,13 @@ public:
 
   size_t numK() const;
 
+  double deltaX() const;
+
+  double deltaY() const;
+
   bool isUndefined(size_t i, size_t j, size_t k) const;
+
+  double getDepth(unsigned int i, unsigned int j, unsigned int k) const;
 
   MbVec3d getCoord(unsigned int i, unsigned int j, unsigned int k) const;
 
@@ -234,11 +240,11 @@ public:
 
 class ReservoirTopology : public VolumeTopology
 {
-  const Geometry2& m_geometry;
+  const ReservoirGeometry& m_geometry;
 
 public:
 
-  ReservoirTopology(size_t numI, size_t numJ, const Geometry2& geometry);
+  ReservoirTopology(size_t numI, size_t numJ, const ReservoirGeometry& geometry);
 
   virtual bool isDead(size_t i, size_t j, size_t k) const;
 };
@@ -342,7 +348,7 @@ public:
 */
 class ReservoirMesh: public MiVolumeMeshHexahedronIjk
 {
-  std::shared_ptr<Geometry2> m_geometry;
+  std::shared_ptr<ReservoirGeometry> m_geometry;
   std::shared_ptr<ReservoirTopology> m_topology;
 
 public:
@@ -373,4 +379,67 @@ public:
   virtual const MiGeometryI& getGeometry() const;
 };
 
+class FaultGeometry : public MiGeometryI
+{
+  std::vector<MbVec3d> m_coords;
+  size_t m_timeStamp;
+
+public:
+
+  explicit FaultGeometry(const std::vector<MbVec3d> coords);
+
+  virtual MbVec3d getCoord(size_t index) const;
+
+  //virtual MbVec3d getMin() const;
+
+  //virtual MbVec3d getMax() const;
+
+  virtual size_t getTimeStamp() const;
+};
+
+/**
+ *
+ */
+class FaultTopology : public MiSurfaceTopologyExplicitI
+{
+  std::vector<QuadCell> m_cells;
+  size_t m_timeStamp;
+
+public:
+
+  explicit FaultTopology(size_t numCells);
+
+  virtual const MiSurfaceCell* getCell(size_t id) const;
+
+  virtual size_t getBeginNodeId() const;
+
+  virtual size_t getEndNodeId() const;
+
+  virtual size_t getNumCells() const;
+
+  virtual bool isDead(size_t i) const;
+
+  virtual size_t getTimeStamp() const;
+
+  virtual bool hasDeadCells() const;
+};
+
+/**
+*
+*/
+class FaultMesh : public MiSurfaceMeshUnstructured
+{
+  std::shared_ptr<FaultGeometry> m_geometry;
+  std::shared_ptr<FaultTopology> m_topology;
+
+public:
+
+  FaultMesh(
+    std::shared_ptr<FaultGeometry> geometry,
+    std::shared_ptr<FaultTopology> topology);
+
+  virtual const MiSurfaceTopologyExplicitI& getTopology() const;
+
+  virtual const MiGeometryI& getGeometry() const;
+};
 #endif

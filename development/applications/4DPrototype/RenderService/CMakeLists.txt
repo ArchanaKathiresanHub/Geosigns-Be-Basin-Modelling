@@ -13,6 +13,7 @@ add_executable(RenderService
 	BpaRenderAreaListener.cpp
 	BpaServiceListener.cpp
 	main.cpp
+	jsonxx.cpp
 	RenderService.cpp
 	SceneExaminer.cpp
 	SceneInteractor.cpp)
@@ -22,5 +23,9 @@ target_link_libraries(RenderService
 	DataAccess
 	SerialDataAccess
 	RemoteVizServices
-	MeshVizDataMapping)
+	MeshVizDataMapping
+	MeshVizExtractor
+	MeshViz
+	Inventor
+	InventorBase)
 

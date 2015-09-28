@@ -51,8 +51,8 @@ PropertyManager::PropertyManager () {
    m_propertyName2OutputName [ "MassFluxX" ]              = "MassFlux"; 
    m_propertyName2OutputName [ "MassFluxY" ]              = "MassFlux"; 
    m_propertyName2OutputName [ "MassFluxZ" ]              = "MassFlux"; 
-   m_propertyName2OutputName [ "MaxVesHighRes" ]          = "MaxVes"; 
-   m_propertyName2OutputName [ "MaxVes" ]                 = "MaxVes"; 
+   m_propertyName2OutputName [ "MaxVesHighRes" ]          = "MaxVesVec";
+   m_propertyName2OutputName [ "MaxVes" ]                 = "MaxVesVec"; 
    m_propertyName2OutputName [ "Overburden" ]             = s_nullString; 
    m_propertyName2OutputName [ "OverPressure" ]           = "OverPressure"; 
    m_propertyName2OutputName [ "PermeabilityH" ]          = "PermeabilityVec"; 

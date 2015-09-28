@@ -82,6 +82,8 @@ private slots:
 
   void onRenderStyleChanged();
 
+  void onCoordinateGridToggled(bool value);
+
   void onItemDoubleClicked(QTreeWidgetItem* item, int column);
 
   void onShowGLInfo();

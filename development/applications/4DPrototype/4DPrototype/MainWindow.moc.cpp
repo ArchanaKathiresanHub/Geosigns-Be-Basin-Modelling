@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'MainWindow.h'
 **
-** Created: Mon Aug 10 11:11:36 2015
+** Created: Fri Aug 28 13:04:36 2015
 **      by: The Qt Meta Object Compiler version 63 (Qt 4.8.4)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -23,7 +23,7 @@ static const uint qt_meta_data_MainWindow[] = {
        6,       // revision
        0,       // classname
        0,    0, // classinfo
-      15,   14, // methods
+      16,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -43,9 +43,10 @@ static const uint qt_meta_data_MainWindow[] = {
      297,  145,   11,   11, 0x08,
      316,  145,   11,   11, 0x08,
      337,   11,   11,   11, 0x08,
-     372,  360,   11,   11, 0x08,
-     414,   11,   11,   11, 0x08,
-     429,  360,   11,   11, 0x08,
+     360,  145,   11,   11, 0x08,
+     402,  390,   11,   11, 0x08,
+     444,   11,   11,   11, 0x08,
+     459,  390,   11,   11, 0x08,
 
        0        // eod
 };
@@ -61,7 +62,8 @@ static const char qt_meta_stringdata_MainWindow[] = {
     "onVerticalScaleSliderValueChanged(int)\0"
     "onROISliderValueChanged(int)\0"
     "onROIToggled(bool)\0onSliceToggled(bool)\0"
-    "onRenderStyleChanged()\0item,column\0"
+    "onRenderStyleChanged()\0"
+    "onCoordinateGridToggled(bool)\0item,column\0"
     "onItemDoubleClicked(QTreeWidgetItem*,int)\0"
     "onShowGLInfo()\0"
     "onTreeWidgetItemChanged(QTreeWidgetItem*,int)\0"
@@ -85,9 +87,10 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         case 9: _t->onROIToggled((*reinterpret_cast< bool(*)>(_a[1]))); break;
         case 10: _t->onSliceToggled((*reinterpret_cast< bool(*)>(_a[1]))); break;
         case 11: _t->onRenderStyleChanged(); break;
-        case 12: _t->onItemDoubleClicked((*reinterpret_cast< QTreeWidgetItem*(*)>(_a[1])),(*reinterpret_cast< int(*)>(_a[2]))); break;
-        case 13: _t->onShowGLInfo(); break;
-        case 14: _t->onTreeWidgetItemChanged((*reinterpret_cast< QTreeWidgetItem*(*)>(_a[1])),(*reinterpret_cast< int(*)>(_a[2]))); break;
+        case 12: _t->onCoordinateGridToggled((*reinterpret_cast< bool(*)>(_a[1]))); break;
+        case 13: _t->onItemDoubleClicked((*reinterpret_cast< QTreeWidgetItem*(*)>(_a[1])),(*reinterpret_cast< int(*)>(_a[2]))); break;
+        case 14: _t->onShowGLInfo(); break;
+        case 15: _t->onTreeWidgetItemChanged((*reinterpret_cast< QTreeWidgetItem*(*)>(_a[1])),(*reinterpret_cast< int(*)>(_a[2]))); break;
         default: ;
         }
     }
@@ -125,9 +128,9 @@ int MainWindow::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 15)
+        if (_id < 16)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 15;
+        _id -= 16;
     }
     return _id;
 }

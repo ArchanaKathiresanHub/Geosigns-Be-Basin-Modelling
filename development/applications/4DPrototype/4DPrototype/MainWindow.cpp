@@ -29,6 +29,7 @@
 #include <QtCore/QTime>
 
 #include <MeshVizInterface/mapping/MoMeshviz.h>
+#include <MeshViz/PoMeshViz.h>
 
 namespace di = DataAccess::Interface;
 
@@ -39,8 +40,9 @@ namespace
   const int TreeWidgetItem_PropertyType  = QTreeWidgetItem::UserType + 3;
   const int TreeWidgetItem_ReservoirType = QTreeWidgetItem::UserType + 4;
   const int TreeWidgetItem_FaultType     = QTreeWidgetItem::UserType + 5;
-  const int TreeWidgetItem_FormationGroupType = QTreeWidgetItem::UserType + 6;
-  const int TreeWidgetItem_SurfaceGroupType   = QTreeWidgetItem::UserType + 7;
+  const int TreeWidgetItem_FaultCollectionType = QTreeWidgetItem::UserType + 6;
+  const int TreeWidgetItem_FormationGroupType  = QTreeWidgetItem::UserType + 7;
+  const int TreeWidgetItem_SurfaceGroupType    = QTreeWidgetItem::UserType + 8;
 }
 
 void MainWindow::fpsCallback(float fps, void* userData, SoQtViewer* viewer)
@@ -67,6 +69,7 @@ void MainWindow::initOIV()
   if (m_oivLicenseOK)
   {
     MoMeshViz::init();
+    PoMeshViz::init();
   }
 }
 
@@ -147,9 +150,6 @@ void MainWindow::updateUI()
   reservoirsItem->setText(0, "Reservoirs");
   reservoirsItem->setFont(0, font);
 
-  int flags = di::FORMATION;
-  int type = di::VOLUME;
-
   m_ui.treeWidgetProperties->clear();
   QTreeWidgetItem* header = m_ui.treeWidgetProperties->headerItem();
   header->setText(0, "Name");
@@ -161,12 +161,17 @@ void MainWindow::updateUI()
   propertiesItem->setText(0, "Properties");
 
   // Add properties to parent node
-  std::unique_ptr<di::PropertyList> properties(m_projectHandle->getProperties(true, flags));
+  std::unique_ptr<di::PropertyList> properties(m_projectHandle->getProperties(true));
   if (properties && !properties->empty())
   {
     for (size_t i = 0; i < properties->size(); ++i)
     {
       const di::Property* prop = (*properties)[i];
+
+      const int allFlags = di::FORMATION | di::SURFACE | di::RESERVOIR | di::FORMATIONSURFACE;
+      const int allTypes = di::MAP | di::VOLUME;
+      if (!prop->hasPropertyValues(allFlags, 0, 0, 0, 0, allTypes))
+        continue;
 
       QTreeWidgetItem* item = new QTreeWidgetItem(propertiesItem, TreeWidgetItem_PropertyType);
       item->setText(0, prop->getName().c_str());
@@ -233,14 +238,16 @@ void MainWindow::updateUI()
 
         for (size_t j = 0; j < faultCollections->size(); ++j)
         {
-          QTreeWidgetItem* faultCollectionItem = new QTreeWidgetItem(faultRoot);
+          QTreeWidgetItem* faultCollectionItem = new QTreeWidgetItem(faultRoot, TreeWidgetItem_FaultCollectionType);
           faultCollectionItem->setText(0, (*faultCollections)[j]->getName().c_str());
+          faultCollectionItem->setCheckState(0, Qt::Unchecked);
 
           std::unique_ptr<di::FaultList> faults((*faultCollections)[j]->getFaults());
           for (size_t k = 0; k < faults->size(); ++k)
           {
             QTreeWidgetItem* faultItem = new QTreeWidgetItem(faultCollectionItem, TreeWidgetItem_FaultType);
             faultItem->setText(0, (*faults)[k]->getName().c_str());
+            faultItem->setCheckState(0, Qt::Unchecked);
           }
         }
       }
@@ -325,6 +332,7 @@ void MainWindow::connectSignals()
   connect(m_ui.sliderVerticalScale, SIGNAL(valueChanged(int)), this, SLOT(onVerticalScaleSliderValueChanged(int)));
   connect(m_ui.checkBoxDrawFaces, SIGNAL(toggled(bool)), this, SLOT(onRenderStyleChanged()));
   connect(m_ui.checkBoxDrawEdges, SIGNAL(toggled(bool)), this, SLOT(onRenderStyleChanged()));
+  connect(m_ui.checkBoxDrawGrid, SIGNAL(toggled(bool)), this, SLOT(onCoordinateGridToggled(bool)));
 
   // ROI
   connect(m_ui.checkBoxROI, SIGNAL(toggled(bool)), this, SLOT(onROIToggled(bool)));
@@ -471,7 +479,6 @@ void MainWindow::onActionSwitchPropertiesTriggered()
 void MainWindow::onSliderValueChanged(int value)
 {
   //m_timeLabel->setText(QString("Time: %1").arg(m_sceneGraph->getSnapshot(value)->getTime()));
-  //m_sceneGraph->setCurrentSnapshot(value);
   m_sceneGraphManager.setCurrentSnapshot(value);
 }
 
@@ -489,7 +496,6 @@ void MainWindow::onVerticalScaleSliderValueChanged(int value)
 {
   float scale = powf(10.f, .2f * value);
   m_sceneGraphManager.setVerticalScale(scale);
-  //m_sceneGraph->setVerticalScale(scale);
 }
 
 void MainWindow::onROISliderValueChanged(int value)
@@ -513,7 +519,7 @@ void MainWindow::onSliceToggled(bool value)
   if (sender() == m_ui.checkBoxSliceI)
     m_sceneGraphManager.enableSlice(0, value);
   else
-    m_sceneGraphManager.enableSlice(1, value);;
+    m_sceneGraphManager.enableSlice(1, value);
 }
 
 void MainWindow::onRenderStyleChanged()
@@ -522,6 +528,11 @@ void MainWindow::onRenderStyleChanged()
   bool drawEdges = m_ui.checkBoxDrawEdges->isChecked();
 
   m_sceneGraphManager.setRenderStyle(drawFaces, drawEdges);
+}
+
+void MainWindow::onCoordinateGridToggled(bool value)
+{
+  m_sceneGraphManager.showCoordinateGrid(value);
 }
 
 void MainWindow::onItemDoubleClicked(QTreeWidgetItem* item, int column)
@@ -566,6 +577,8 @@ void MainWindow::onShowGLInfo()
 void MainWindow::onTreeWidgetItemChanged(QTreeWidgetItem* item, int column)
 {
   std::string name = item->text(0).toStdString();
+  std::string parentName = item->parent() != 0 ? item->parent()->text(0).toStdString() : "";
+
   bool checked = item->checkState(0) == Qt::Checked;
 
   switch (item->type())
@@ -577,8 +590,12 @@ void MainWindow::onTreeWidgetItemChanged(QTreeWidgetItem* item, int column)
     m_sceneGraphManager.enableSurface(name, checked);
     break;
   case TreeWidgetItem_ReservoirType:
-    //m_sceneGraph->setReservoirVisibility(name, checked);
+    m_sceneGraphManager.enableReservoir(name, checked);
     break;
+  case TreeWidgetItem_FaultType:
+    m_sceneGraphManager.enableFault(parentName, name, checked);
+    break;
+  case TreeWidgetItem_FaultCollectionType:
   case TreeWidgetItem_FormationGroupType:
   case TreeWidgetItem_SurfaceGroupType:
     for (int i = 0; i < item->childCount(); ++i)

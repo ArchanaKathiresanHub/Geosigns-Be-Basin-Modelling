@@ -36,7 +36,7 @@
 res_name[11]="HOUGDC"
 res_jobtype[11]="LSFHPC"
 res_mpiref[11]="INTELMPI"
-res_remote[11]="houic-n-s00113.americas.shell.com"
+res_remote[11]="hougdc-sub.shell.com"
 res_submit[11]="-P cldrn -We 01:00"
 
 #

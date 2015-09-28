@@ -56,8 +56,8 @@ bool Geometry::isUndefined(size_t i, size_t j, size_t k) const
 MbVec3d Geometry::getCoord(unsigned int i, unsigned int j, unsigned int k) const
 {
   return MbVec3d(
-    m_minX + i * m_deltaX,
-    m_minY + j * m_deltaY,
+    /*m_minX + */i * m_deltaX,
+    /*m_minY + */j * m_deltaY,
     -m_depthMap->getValue(i, j, k));
 }
 
@@ -75,14 +75,15 @@ MbVec3d Geometry::getCoord(size_t index) const
 
 MbVec3d Geometry::getMin() const
 {
-  return MbVec3d(m_minX, m_minY, m_minZ);
+  //return MbVec3d(m_minX, m_minY, m_minZ);
+  return MbVec3d(0.0, 0.0, m_minZ);
 }
 
 MbVec3d Geometry::getMax() const
 {
   return MbVec3d(
-    m_minX + (m_numI - 1) * m_deltaX,
-    m_minY + (m_numJ - 1) * m_deltaY,
+    /*m_minX + */(m_numI - 1) * m_deltaX,
+    /*m_minY + */(m_numJ - 1) * m_deltaY,
     m_maxZ);
 }
 
@@ -92,9 +93,9 @@ size_t Geometry::getTimeStamp() const
 }
 
 //--------------------------------------------------------------------------------------------------
-// Geometry2
+// ReservoirGeometry
 //--------------------------------------------------------------------------------------------------
-Geometry2::Geometry2(
+ReservoirGeometry::ReservoirGeometry(
   const DataAccess::Interface::GridMap* depthMapTop,
   const DataAccess::Interface::GridMap* depthMapBottom)
   : m_timeStamp(MxTimeStamp::getTimeStamp())
@@ -120,20 +121,20 @@ Geometry2::Geometry2(
   m_minZ = -maxDepth;
 }
 
-bool Geometry2::isUndefined(size_t i, size_t j, size_t k) const
+bool ReservoirGeometry::isUndefined(size_t i, size_t j, size_t k) const
 {
   return m_depthMaps[k]->getValue((unsigned int)i, (unsigned int)j, 0u) == di::DefaultUndefinedMapValue;
 }
 
-MbVec3d Geometry2::getCoord(unsigned int i, unsigned int j, unsigned int k) const
+MbVec3d ReservoirGeometry::getCoord(unsigned int i, unsigned int j, unsigned int k) const
 {
   return MbVec3d(
-    m_minX + i * m_deltaX,
-    m_minY + j * m_deltaY,
+    /*m_minX + */i * m_deltaX,
+    /*m_minY + */j * m_deltaY,
     -m_depthMaps[k]->getValue(i, j, 0u));
 }
 
-MbVec3d Geometry2::getCoord(size_t index) const
+MbVec3d ReservoirGeometry::getCoord(size_t index) const
 {
   size_t rowStride = m_numI;
   size_t sliceStride = rowStride * m_numJ;
@@ -145,20 +146,20 @@ MbVec3d Geometry2::getCoord(size_t index) const
   return getCoord(i, j, k);
 }
 
-MbVec3d Geometry2::getMin() const
+MbVec3d ReservoirGeometry::getMin() const
 {
-  return MbVec3d(m_minX, m_minY, m_minZ);
+  return MbVec3d(0.0/*m_minX*/, 0.0/*m_minY*/, m_minZ);
 }
 
-MbVec3d Geometry2::getMax() const
+MbVec3d ReservoirGeometry::getMax() const
 {
   return MbVec3d(
-    m_minX + (m_numI - 1) * m_deltaX,
-    m_minY + (m_numJ - 1) * m_deltaY,
+    /*m_minX + */(m_numI - 1) * m_deltaX,
+    /*m_minY + */(m_numJ - 1) * m_deltaY,
     m_maxZ);
 }
 
-size_t Geometry2::getTimeStamp() const
+size_t ReservoirGeometry::getTimeStamp() const
 {
   return m_timeStamp;
 }
@@ -199,16 +200,31 @@ size_t SnapshotGeometry::numK() const
   return m_depthMaps.numK();
 }
 
+double SnapshotGeometry::deltaX() const
+{
+  return m_deltaX;
+}
+
+double SnapshotGeometry::deltaY() const
+{
+  return m_deltaY;
+}
+
 bool SnapshotGeometry::isUndefined(size_t i, size_t j, size_t k) const
 {
   return m_depthMaps.getValue(i, j, k) == di::DefaultUndefinedMapValue;
 }
 
+double SnapshotGeometry::getDepth(unsigned int i, unsigned int j, unsigned int k) const 
+{ 
+  return m_depthMaps.getValue(i, j, k); 
+}
+
 MbVec3d SnapshotGeometry::getCoord(unsigned int i, unsigned int j, unsigned int k) const
 {
   return MbVec3d(
-    m_minX + i * m_deltaX,
-    m_minY + j * m_deltaY,
+    /*m_minX +*/ i * m_deltaX,
+    /*m_minY +*/ j * m_deltaY,
     -m_depthMaps.getValue(i, j, k));
 }
 
@@ -226,14 +242,15 @@ MbVec3d SnapshotGeometry::getCoord(size_t index) const
 
 MbVec3d SnapshotGeometry::getMin() const
 {
-  return MbVec3d(m_minX, m_minY, m_minZ);
+  //return MbVec3d(m_minX, m_minY, m_minZ);
+  return MbVec3d(0.0, 0.0, m_minZ);
 }
 
 MbVec3d SnapshotGeometry::getMax() const
 {
   return MbVec3d(
-    m_minX + (m_depthMaps.numI() - 1) * m_deltaX,
-    m_minY + (m_depthMaps.numJ() - 1) * m_deltaY,
+    /*m_minX + */(m_depthMaps.numI() - 1) * m_deltaX,
+    /*m_minY + */(m_depthMaps.numJ() - 1) * m_deltaY,
     m_maxZ);
 }
 
@@ -289,7 +306,7 @@ size_t SnapshotTopology::getEndNodeId() const
   return (m_numI + 1) * (m_numJ + 1) + (m_numK + 1);
 }
 
-std::string SnapshotTopology::getNodeName(size_t i) const
+std::string SnapshotTopology::getNodeName(size_t /*i*/) const
 {
   return "";
 }
@@ -397,7 +414,7 @@ size_t VolumeTopology::getEndNodeId() const
   return (m_numI + 1) * (m_numJ + 1) * (m_numK + 1);
 }
 
-std::string VolumeTopology::getNodeName(size_t i) const
+std::string VolumeTopology::getNodeName(size_t /*i*/) const
 {
   return "";
 }
@@ -456,7 +473,7 @@ bool FormationTopology::isDead(size_t i, size_t j, size_t k) const
 //--------------------------------------------------------------------------------------------------
 // ReservoirTopology
 //--------------------------------------------------------------------------------------------------
-ReservoirTopology::ReservoirTopology(size_t numI, size_t numJ, const Geometry2& geometry)
+ReservoirTopology::ReservoirTopology(size_t numI, size_t numJ, const ReservoirGeometry& geometry)
   : VolumeTopology(numI, numJ, 1)
   , m_geometry(geometry)
 {
@@ -596,11 +613,11 @@ ReservoirMesh::ReservoirMesh(
   const DataAccess::Interface::GridMap* depthMapTop,
   const DataAccess::Interface::GridMap* depthMapBottom)
 {
-  m_geometry = std::make_shared<Geometry2>(depthMapTop, depthMapBottom);
+  m_geometry = std::make_shared<ReservoirGeometry>(depthMapTop, depthMapBottom);
 
   size_t ni = depthMapTop->numI() - 1;
   size_t nj = depthMapTop->numJ() - 1;
-  size_t nk = 2;
+
   m_topology = std::make_shared<ReservoirTopology>(ni, nj, *m_geometry);
 }
 
@@ -632,6 +649,96 @@ const MiSurfaceTopologyExplicitI& SurfaceMesh::getTopology() const
 }
 
 const MiGeometryI& SurfaceMesh::getGeometry() const
+{
+  return *m_geometry;
+}
+
+//--------------------------------------------------------------------------------------------------
+// FaultGeometry
+//--------------------------------------------------------------------------------------------------
+FaultGeometry::FaultGeometry(const std::vector<MbVec3d> coords)
+  : m_coords(coords)
+  , m_timeStamp(MxTimeStamp::getTimeStamp())
+{
+
+}
+
+MbVec3d FaultGeometry::getCoord(size_t index) const
+{
+  return m_coords[index];
+}
+
+//virtual MbVec3d getMin() const;
+
+//virtual MbVec3d getMax() const;
+
+size_t FaultGeometry::getTimeStamp() const
+{
+  return m_timeStamp;
+}
+
+//--------------------------------------------------------------------------------------------------
+// FaultTopology
+//--------------------------------------------------------------------------------------------------
+FaultTopology::FaultTopology(size_t numCells)
+{
+  for (size_t i = 0; i < numCells; ++i)
+    m_cells.emplace_back(2 * i, 2 * i + 1, 2 * i + 3, 2 * i + 2);
+}
+
+const MiSurfaceCell* FaultTopology::getCell(size_t id) const
+{
+  return &m_cells[id];
+}
+
+size_t FaultTopology::getBeginNodeId() const
+{
+  return 0;
+}
+
+size_t FaultTopology::getEndNodeId() const
+{
+  return 2 * (m_cells.size() + 1);
+}
+
+size_t FaultTopology::getNumCells() const
+{
+  return m_cells.size();
+}
+
+bool FaultTopology::isDead(size_t /*i*/) const
+{
+  return false;
+}
+
+size_t FaultTopology::getTimeStamp() const
+{
+  return m_timeStamp;
+}
+
+bool FaultTopology::hasDeadCells() const
+{
+  return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+// FaultMesh
+//--------------------------------------------------------------------------------------------------
+FaultMesh::FaultMesh(
+  std::shared_ptr<FaultGeometry> geometry,
+  std::shared_ptr<FaultTopology> topology)
+  : m_geometry(geometry)
+  , m_topology(topology)
+{
+
+}
+
+const MiSurfaceTopologyExplicitI& FaultMesh::getTopology() const
+{
+  return *m_topology;
+}
+
+const MiGeometryI& FaultMesh::getGeometry() const
 {
   return *m_geometry;
 }

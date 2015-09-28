@@ -75,9 +75,10 @@ namespace DataAccess
 
 	    string m_mangledName;
 
+       /// The types of map assigned to the surface.
        enum MapType {
           DEPTH,
-          TWOWAYTIME,
+          TWOWAYTIME
        };
 
 	    const Formation * m_top;

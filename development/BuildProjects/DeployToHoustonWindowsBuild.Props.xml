@@ -12,47 +12,51 @@ WARNING:  DO NOT MODIFY this file unless you are knowledgeable about MSBuild and
 
    <!--  INFORMATION OF LINUX HOSTS TO DEPLOY -->			
    <PropertyGroup Label="Identification">
-      <AgentHost Condition="'$(AgentHost)' == ''">houcy1-n-sp030b01.americas.shell.com</AgentHost>
+      <AgentHost    Condition="'$(AgentHost)' == ''">houcy1-n-sp030b01.americas.shell.com</AgentHost>
       <AgentAccount Condition="'$(AgentAccount)' == ''">s_bpac00</AgentAccount>
-      <AgentKey Condition="'$(AgentKey)' == ''">C:\opt\putty\s_bpac00.tfs_build_server.ppk</AgentKey>
+      <AgentKey     Condition="'$(AgentKey)' == ''">C:\opt\putty\s_bpac00.tfs_build_server.ppk</AgentKey>
       <DeployDir>/glb/data/bpa_cauldron/BPA2_TEST/CauldronWinNightly</DeployDir>
    </PropertyGroup>
 
    <!-- LOCATION OF THE ZIP FILE WITH BINARIES -->
    <PropertyGroup Label="Location">
       <solution_root_native Condition="'$(solution_root_native)' == ''">$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)\..\..'))</solution_root_native>
-      <build_dir Condition="'$(build_dir)' == ''">$(solution_root_native)\..\..\Build\$(Configuration)\$(Platform)</build_dir>
+      <build_dir            Condition="'$(build_dir)' == ''">$(solution_root_native)\..\..\Build\$(Configuration)\$(Platform)</build_dir>
       <build_dir_cmake>$(build_dir.Replace('\','/'))</build_dir_cmake>
    </PropertyGroup>
 
    <!-- STANDARD UTILITIES -->
    <PropertyGroup Label="StandardUtilities" >
-      <cygwin_bin_dir  Condition="'$(cygwin_bin_dir)' == '' And Exists('C:\cygwin\bin')" >C:\cygwin\bin\</cygwin_bin_dir>
-      <cygwin_bin_dir  Condition="'$(cygwin_bin_dir)' == '' And Exists('D:\cygwin\bin')" >D:\cygwin\bin\</cygwin_bin_dir>
+      <cygwin_bin_dir  Condition="'$(cygwin_bin_dir)' == '' And Exists('C:\cygwin\bin')"     >C:\cygwin\bin\</cygwin_bin_dir>
+      <cygwin_bin_dir  Condition="'$(cygwin_bin_dir)' == '' And Exists('D:\cygwin\bin')"     >D:\cygwin\bin\</cygwin_bin_dir>
       <cygwin_bin_dir  Condition="'$(cygwin_bin_dir)' == '' And Exists('C:\opt\cygwin\bin')" >C:\opt\cygwin\bin\</cygwin_bin_dir>
 
       <putty_dir Condition="'$(putty_dir)' == '' And Exists('C:\opt\putty')">C:\opt\putty</putty_dir>
 
-      <cpio_exe Condition="'$(cpio_exe)' == ''">"$(cygwin_bin_dir)cpio.exe"</cpio_exe>
-	   <tar_exe Condition="'$(tar_exe)' == ''">"$(cygwin_bin_dir)tar.exe"</tar_exe>
+      <ssh_exe   Condition="'$(ssh_exe)' == ''"  >"$(cygwin_bin_dir)ssh.exe"</ssh_exe>
+      <scp_exe   Condition="'$(scp_exe)' == ''"  >"$(cygwin_bin_dir)scp.exe"</scp_exe>
+      <cpio_exe  Condition="'$(cpio_exe)' == ''" >"$(cygwin_bin_dir)cpio.exe"</cpio_exe>
+      <tar_exe   Condition="'$(tar_exe)' == ''"  >"$(cygwin_bin_dir)tar.exe"</tar_exe>
       <rsync_exe Condition="'$(rsync_exe)' == ''">"$(cygwin_bin_dir)rsync.exe"</rsync_exe>
 
       <!-- Command to start non interactive SSH session -->
-      <ssh_command>$(putty_dir)\PLINK.exe -batch -ssh -i "$(AgentKey)" $(AgentAccount)@$(AgentHost)</ssh_command>
-    
+      <!--- <ssh_command>$(putty_dir)\PLINK.exe -batch -ssh -i "$(AgentKey)" $(AgentAccount)@$(AgentHost)</ssh_command>-->
+      <ssh_command>$(ssh_exe) $(AgentAccount)@$(AgentHost)</ssh_command>
+
       <!-- Command to SCP (SSH copy). Note the 'echo y' which is necessary when copying 
            something to a destination host that has not been connected with before. 
            The 'y' answers yes to the question whether or not to trust the new host
       -->
-      <scp_command>echo y | $(putty_dir)\PSCP.EXE -i "$(AgentKey)"</scp_command>
-
+      <!--- <scp_command>echo y | $(putty_dir)\PSCP.EXE -i "$(AgentKey)"</scp_command>-->
+      <scp_command>echo y | $(scp_exe) -q</scp_command>
    </PropertyGroup>
 
    <PropertyGroup Label="DeployCommands" >
       <!-- Remove old one if exist and create new deploy dir -->
       <make_deploy_dir>$(ssh_command) "rm -Rf $(DeployDir)/$(Configuration); mkdir -p $(DeployDir)/$(Configuration)"</make_deploy_dir>
       <!-- Copy packed binaries to deploy folder -->
-      <copy_zip>$(scp_command) -r "$(build_dir_cmake)/*.zip" "$(AgentAccount)@$(AgentHost):$(DeployDir)/$(Configuration)/"</copy_zip>
+      <deploy_dir_scp_format>/cygdrive/$(build_dir_cmake.Replace('\','/'))</deploy_dir_scp_format>
+      <copy_zip>$(scp_command) -r "$(deploy_dir_scp_format.Replace(':',''))/*.zip" "$(AgentAccount)@$(AgentHost):$(DeployDir)/$(Configuration)/"</copy_zip>
    </PropertyGroup>
 
    <Target Name="DeployBinariesToHouston">

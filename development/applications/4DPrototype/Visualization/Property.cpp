@@ -131,7 +131,7 @@ FormationIdProperty::FormationIdProperty(const std::vector<double>& ids)
 {
 }
 
-double FormationIdProperty::get(size_t i, size_t j, size_t k) const
+double FormationIdProperty::get(size_t /*i*/, size_t /*j*/, size_t k) const
 {
   return m_ids[k];
 }
