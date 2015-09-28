@@ -1,5 +1,3 @@
-#include <values.h>
-
 #include <vector>
 
 #ifdef sgi

@@ -1,5 +1,3 @@
-#include <values.h>
-
 #ifdef sgi
    #ifdef _STANDARD_C_PLUS_PLUS
       #include<iostream>
@@ -25,6 +23,8 @@
 #include "EosPack.h"
 
 #include "generics.h"
+
+#define MAXDOUBLE std::numeric_limits<double>::max()
 
 using namespace PersistentTraps;
 

@@ -1,5 +1,3 @@
-#include <values.h>
-
 #include <assert.h>
 
 #include <iostream>
