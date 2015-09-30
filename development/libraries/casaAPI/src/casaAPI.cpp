@@ -185,6 +185,7 @@ ErrorHandler::ReturnCode VarySourceRockTOC( ScenarioAnalysis    & sa
 {
    try
    {
+      std::string srtName = srTypeName ? srTypeName : "";
       VarSpaceImpl & varPrmsSet = dynamic_cast< VarSpaceImpl & >( sa.varSpace() );
 
       // Get base value of parameter from the Model
@@ -204,7 +205,7 @@ ErrorHandler::ReturnCode VarySourceRockTOC( ScenarioAnalysis    & sa
       bool alreadyAdded = false;
 
       // check is the variable parameters set already has TOC parameter
-      if ( srTypeName )
+      if ( !srtName.empty() )
       {
          for ( size_t i = 0; i < varPrmsSet.size() && !alreadyAdded; ++i )
          {
@@ -234,7 +235,7 @@ ErrorHandler::ReturnCode VarySourceRockTOC( ScenarioAnalysis    & sa
                                                                        , mixID
                                                                        ) );
          // check if there is SourceRockType category parameter
-         if ( srTypeName )
+         if ( !srtName.empty() )
          {
             for ( size_t i = 0; i < varPrmsSet.size() && !alreadyAdded; ++i )
             {
@@ -251,11 +252,11 @@ ErrorHandler::ReturnCode VarySourceRockTOC( ScenarioAnalysis    & sa
             {
                casa::PrmSourceRockTOC prm( mdl, layerName, 0, mixID );
                if ( mdl.errorCode() != ErrorHandler::NoError ) return sa.moveError( mdl );
-               if ( prm.sourceRockTypeName().compare( srTypeName ) ) // source rock lithology for this name do assigned to layer in StratIoTbl
+               if ( prm.sourceRockTypeName() != srtName ) // source rock lithology for this name do assigned to layer in StratIoTbl
                {
                   throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "There is no SourceRockType category parameter " <<
                      "defined and layer : " << layerName << " has different source rock type: " << prm.sourceRockTypeName() <<
-                     " for mixing ID " << mixID << " then provided: " << srTypeName;
+                     " for mixing ID " << mixID << " then provided: " << srtName;
                }
             }
          }
@@ -285,7 +286,8 @@ ErrorHandler::ReturnCode VarySourceRockHI( ScenarioAnalysis    & sa
 {
    try
    {
-      VarSpaceImpl & varPrmsSet = dynamic_cast< VarSpaceImpl & >( sa.varSpace() );
+      std::string srtName = srTypeName ? srTypeName : "";
+      VarSpaceImpl & varPrmsSet = dynamic_cast< VarSpaceImpl & >(sa.varSpace());
 
       // Get base value of parameter from the Model
       mbapi::Model & mdl = sa.baseCase();
@@ -340,7 +342,7 @@ ErrorHandler::ReturnCode VarySourceRockHI( ScenarioAnalysis    & sa
                                                                          , mixID
                                                                          ) );
          // check if there is SourceRockType category parameter
-         if ( srTypeName )
+         if ( !srtName.empty() )
          {
             for ( size_t i = 0; i < varPrmsSet.size() && !alreadyAdded; ++i )
             {
@@ -357,11 +359,11 @@ ErrorHandler::ReturnCode VarySourceRockHI( ScenarioAnalysis    & sa
             {
                casa::PrmSourceRockHI prm( mdl, layerName, 0, mixID );
                if ( mdl.errorCode() != ErrorHandler::NoError ) return sa.moveError( mdl );
-               if ( prm.sourceRockTypeName().compare( srTypeName ) ) // source rock lithology for this name do assigned to layer in StratIoTbl
+               if ( prm.sourceRockTypeName() != srtName ) // source rock lithology for this name do assigned to layer in StratIoTbl
                {
                   throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "There is no SourceRockType category parameter " <<
                      "defined and layer : " << layerName << " has different source rock type: " << prm.sourceRockTypeName() <<
-                     " for mixing ID " << mixID << " then provided: " << srTypeName;
+                     " for mixing ID " << mixID << " then provided: " << srtName;
                }
             }
          }
@@ -391,7 +393,8 @@ ErrorHandler::ReturnCode VarySourceRockHC( ScenarioAnalysis    & sa
 {
    try
    {
-      VarSpaceImpl & varPrmsSet = dynamic_cast< VarSpaceImpl & >( sa.varSpace() );
+      std::string srtName = srTypeName ? srTypeName : "";
+      VarSpaceImpl & varPrmsSet = dynamic_cast< VarSpaceImpl & >(sa.varSpace());
 
       // Get base value of parameter from the Model
       mbapi::Model & mdl = sa.baseCase();
@@ -445,7 +448,7 @@ ErrorHandler::ReturnCode VarySourceRockHC( ScenarioAnalysis    & sa
                                                                          , mixID
                                                                          ) );
          // check if there is SourceRockType category parameter
-         if ( srTypeName )
+         if ( !srtName.empty() )
          {
             for ( size_t i = 0; i < varPrmsSet.size() && !alreadyAdded; ++i )
             {
@@ -462,11 +465,11 @@ ErrorHandler::ReturnCode VarySourceRockHC( ScenarioAnalysis    & sa
             {
                casa::PrmSourceRockHC prm( mdl, layerName, 0, mixID );
                if ( mdl.errorCode() != ErrorHandler::NoError ) return sa.moveError( mdl );
-               if ( prm.sourceRockTypeName().compare( srTypeName ) ) // source rock lithology for this name do assigned to layer in StratIoTbl
+               if ( prm.sourceRockTypeName() != srtName ) // source rock lithology for this name do assigned to layer in StratIoTbl
                {
                   throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "There is no SourceRockType category parameter " <<
                      "defined and layer : " << layerName << " has different source rock type: " << prm.sourceRockTypeName() <<
-                     " for mixing ID " << mixID << " then provided: " << srTypeName;
+                     " for mixing ID " << mixID << " then provided: " << srtName;
                }
             }
          }
@@ -498,6 +501,7 @@ ErrorHandler::ReturnCode VarySourceRockPreAsphaltActEnergy( ScenarioAnalysis    
 {
    try
    {
+      std::string srtName = srTypeName ? srTypeName : "";
       VarSpaceImpl & varPrmsSet = dynamic_cast< VarSpaceImpl & >( sa.varSpace() );
 
       // Get base value of parameter from the Model
@@ -517,7 +521,7 @@ ErrorHandler::ReturnCode VarySourceRockPreAsphaltActEnergy( ScenarioAnalysis    
       bool alreadyAdded = false;
 
       // check is the variable parameters set already has PreAsphaltenActEnergy parameter
-      if ( srTypeName )
+      if ( !srtName.empty() )
       {
          for ( size_t i = 0; i < varPrmsSet.size() && !alreadyAdded; ++i )
          {
@@ -547,7 +551,7 @@ ErrorHandler::ReturnCode VarySourceRockPreAsphaltActEnergy( ScenarioAnalysis    
                                                                                                          , mixID
                                                                                                          ) );
          // check if there is SourceRockType category parameter
-         if ( srTypeName )
+         if ( !srtName.empty() )
          {
             for ( size_t i = 0; i < varPrmsSet.size() && !alreadyAdded; ++i )
             {
@@ -563,11 +567,11 @@ ErrorHandler::ReturnCode VarySourceRockPreAsphaltActEnergy( ScenarioAnalysis    
             {
                casa::PrmSourceRockPreAsphaltStartAct prm( mdl, layerName, 0, mixID );
                if ( mdl.errorCode() != ErrorHandler::NoError ) return sa.moveError( mdl );
-               if ( prm.sourceRockTypeName().compare( srTypeName ) ) // source rock lithology for this name do assigned to layer in StratIoTbl
+               if ( prm.sourceRockTypeName() != srtName ) // source rock lithology for this name do assigned to layer in StratIoTbl
                {
                   throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "There is no SourceRockType category parameter " <<
                      "defined and layer : " << layerName << " has different source rock type: " << prm.sourceRockTypeName() <<
-                     " for mixing ID " << mixID << " then provided: " << srTypeName;
+                     " for mixing ID " << mixID << " then provided: " << srtName;
                }
             }
          }

@@ -1,12 +1,13 @@
 #include "../src/cmbAPI.h"
 #include "../src/casaAPI.h"
-#include "../src/FilePath.h"
-#include "../src/FolderPath.h"
 #include "../src/PrmSourceRockTOC.h"
 #include "../src/PrmTopCrustHeatProduction.h"
 #include "../src/RunCase.h"
 #include "../src/VarPrmSourceRockTOC.h"
 #include "../src/VarPrmTopCrustHeatProduction.h"
+
+#include "FilePath.h"
+#include "FolderPath.h"
 
 #include <memory>
 //#include <cmath>

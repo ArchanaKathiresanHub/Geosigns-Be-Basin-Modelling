@@ -87,7 +87,7 @@ namespace casa
 
       /// @brief Get run time limits for this application [Minutes], a job scheduler is using this number
       /// @return minutes number for the run time limitation
-      int runTimeLimit() { return m_runTimeLim; }
+      size_t runTimeLimit() { return m_runTimeLim; }
 
       /// @brief Add application option
       /// @param opt new option

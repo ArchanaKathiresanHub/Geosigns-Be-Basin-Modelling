@@ -20,14 +20,14 @@
 namespace casa
 {
 
-VarPrmSourceRockTOC::VarPrmSourceRockTOC( const char * lrName
-                                        , double       baseValue
-                                        , double       minValue
-                                        , double       maxValue
-                                        , PDF          pdfType
-                                        , const char * name
-                                        , const char * srTypeName
-                                        , int          mixID
+VarPrmSourceRockTOC::VarPrmSourceRockTOC( const char           * lrName
+                                        , double                 baseValue
+                                        , double                 minValue
+                                        , double                 maxValue
+                                        , VarPrmContinuous::PDF  pdfType
+                                        , const char           * name
+                                        , const char           * srTypeName
+                                        , int                    mixID
                                         ) : VarPrmSourceRockProp( lrName, baseValue, minValue, maxValue, pdfType, name, srTypeName, mixID )
 {
    m_propName = "TOC";

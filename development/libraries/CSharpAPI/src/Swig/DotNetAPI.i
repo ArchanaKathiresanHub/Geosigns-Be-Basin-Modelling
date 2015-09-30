@@ -22,6 +22,7 @@
 %shared_ptr(casa::PrmPorosityModel)
 %shared_ptr(casa::PrmPermeabilityModel)
 %shared_ptr(casa::PrmLithoSTPThermalCond)
+%shared_ptr(casa::PrmSourceRockProp)
 %shared_ptr(casa::PrmSourceRockTOC)
 %shared_ptr(casa::PrmSourceRockHC)
 %shared_ptr(casa::PrmSourceRockHI)
@@ -184,10 +185,10 @@
 #include "../../../casaAPI/src/PrmCrustThinning.h"
 #include "../../../casaAPI/src/PrmOneCrustThinningEvent.h"
 #include "../../../casaAPI/src/PrmTopCrustHeatProduction.h"
+#include "../../../casaAPI/src/PrmSourceRockProp.h"
 #include "../../../casaAPI/src/PrmSourceRockTOC.h"
 #include "../../../casaAPI/src/PrmSourceRockHI.h"
 #include "../../../casaAPI/src/PrmSourceRockHC.h"
-#include "../../../casaAPI/src/PrmSourceRockProp.h"
 #include "../../../casaAPI/src/PrmSourceRockType.h"
 #include "../../../casaAPI/src/PrmSourceRockPreAsphaltStartAct.h"
 #include "../../../casaAPI/src/PrmPorosityModel.h"
@@ -212,9 +213,9 @@
 #include "../../../casaAPI/src/VarPrmContinuous.h"
 #include "../../../casaAPI/src/VarPrmOneCrustThinningEvent.h"
 #include "../../../casaAPI/src/VarPrmTopCrustHeatProduction.h"
+#include "../../../casaAPI/src/VarPrmSourceRockProp.h"
 #include "../../../casaAPI/src/VarPrmSourceRockTOC.h"
 #include "../../../casaAPI/src/VarPrmSourceRockHI.h"
-#include "../../../casaAPI/src/VarPrmSourceRockProp.h"
 #include "../../../casaAPI/src/VarPrmSourceRockHC.h"
 #include "../../../casaAPI/src/VarPrmSourceRockType.h"
 #include "../../../casaAPI/src/VarPrmSourceRockPreAsphaltStartAct.h"
@@ -398,6 +399,7 @@ CSHARP_ARRAYS(char, byte)
 %include "../../../casaAPI/src/PrmCrustThinning.h"
 %include "../../../casaAPI/src/PrmOneCrustThinningEvent.h"
 %include "../../../casaAPI/src/PrmTopCrustHeatProduction.h"
+%include "../../../casaAPI/src/PrmSourceRockProp.h"
 %include "../../../casaAPI/src/PrmSourceRockTOC.h"
 %include "../../../casaAPI/src/PrmSourceRockHI.h"
 %include "../../../casaAPI/src/PrmSourceRockHC.h"
@@ -425,6 +427,7 @@ CSHARP_ARRAYS(char, byte)
 %include "../../../casaAPI/src/VarPrmContinuous.h"
 %include "../../../casaAPI/src/VarPrmOneCrustThinningEvent.h"
 %include "../../../casaAPI/src/VarPrmTopCrustHeatProduction.h"
+%include "../../../casaAPI/src/VarPrmSourceRockProp.h"
 %include "../../../casaAPI/src/VarPrmSourceRockTOC.h"
 %include "../../../casaAPI/src/VarPrmSourceRockHI.h"
 %include "../../../casaAPI/src/VarPrmSourceRockHC.h"

@@ -72,6 +72,12 @@ configure_file(test/OttolandCatPrms.project3d OttolandCatPrms.project3d COPYONLY
 configure_file(test/Ottoland_casa_state.txt Ottoland_casa_state.txt COPYONLY )
 configure_file(test/LithologyTesting.project3d LithologyTesting.project3d COPYONLY )
 
+# Generate best match case test
+configure_file(test/BestMatchCaseGeneration_state.txt BestMatchCaseGeneration_state.txt COPYONLY)
+configure_file(test/NVG_Project.project3d NVG_Project.project3d COPYONLY)
+configure_file(test/MAP-72981789-4.FLT MAP-72981789-4.FLT COPYONLY)
+configure_file(test/Inputs.HDF Inputs.HDF COPYONLY)
+
 
 add_gtest( NAME BLRSTest
    SOURCES test/BLRSTest.cpp
@@ -118,5 +124,15 @@ add_gtest( NAME MCTest
 
 add_gtest( NAME SerializationTest
    SOURCES test/SerializationTest.cpp
+   LIBRARIES casaapi cmbapi DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} ${Boost_LIBRARIES}
+)
+
+add_gtest( NAME BestMatchedCaseGenerationTest
+   SOURCES test/BestMatchedCaseGenerationTest.cpp
+   LIBRARIES casaapi cmbapi DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} ${Boost_LIBRARIES}
+)
+
+add_gtest( NAME SensCalcTest
+   SOURCES test/SensCalcTest.cpp
    LIBRARIES casaapi cmbapi DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} ${Boost_LIBRARIES}
 )

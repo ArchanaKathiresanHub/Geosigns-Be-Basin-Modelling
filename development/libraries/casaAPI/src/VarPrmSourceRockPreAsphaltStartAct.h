@@ -23,14 +23,14 @@ namespace casa
    {
    public:
       /// @brief Create a new source rock preasphaltene activation energy variable parameter
-      VarPrmSourceRockPreAsphaltStartAct( const char * layerName       ///< name of the layer the parameter variation
-                                        , double       baseValue       ///< base value of parameter
-                                        , double       minValue        ///< minimal value for the parameter variation
-                                        , double       maxValue        ///< maximal value for the parameter variation
-                                        , PDF          pdfType = Block ///< type of PDF shape for the variable parameter
-                                        , const char * name = 0        ///< user specified parameter name
-                                        , const char * srTypeName = 0  ///< source rock type name, to connect with source rock type cat. prm.
-                                        , int          mixID = 1       ///< mixing ID. Could be 1 or 2
+      VarPrmSourceRockPreAsphaltStartAct( const char          * layerName       ///< name of the layer the parameter variation
+                                        , double                baseValue       ///< base value of parameter
+                                        , double                minValue        ///< minimal value for the parameter variation
+                                        , double                maxValue        ///< maximal value for the parameter variation
+                                        , VarPrmContinuous::PDF pdfType = Block ///< type of PDF shape for the variable parameter
+                                        , const char          * name = 0        ///< user specified parameter name
+                                        , const char          * srTypeName = 0  ///< source rock type name, to connect with source rock type cat. prm.
+                                        , int                   mixID = 1       ///< mixing ID. Could be 1 or 2
                                         );
 
       /// @brief Destructor

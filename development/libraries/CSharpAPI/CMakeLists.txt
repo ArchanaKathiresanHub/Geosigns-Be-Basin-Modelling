@@ -133,6 +133,12 @@ configure_file(test/OttolandWithGenex.project3d ${CMAKE_BINARY_DIR}/OttolandWith
 configure_file(test/Ottoland_casa_state.txt ${CMAKE_BINARY_DIR}/Ottoland_casa_state.txt)
 configure_file(test/PTDiagCalculatorTest.cfg csharp-test/PTDiagCalculatorTest.cfg COPYONLY)
 
+# Generate best match case test
+configure_file(test/BestMatchCaseGeneration_state.txt ${CMAKE_BINARY_DIR}/BestMatchCaseGeneration_state.txt)
+configure_file(test/NVG_Project.project3d ${CMAKE_BINARY_DIR}/NVG_Project.project3d COPYONLY)
+configure_file(test/MAP-72981789-4.FLT ${CMAKE_BINARY_DIR}/MAP-72981789-4.FLT COPYONLY)
+configure_file(test/Inputs.HDF ${CMAKE_BINARY_DIR}/Inputs.HDF COPYONLY)
+
 add_csharp_unittest( 
   NAME Shell.BasinModeling.Cauldron.Test
   PLATFORM ${BM_WINDOWS_PLATFORM}
