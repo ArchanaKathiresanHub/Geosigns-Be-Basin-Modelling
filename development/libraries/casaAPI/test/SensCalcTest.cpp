@@ -23,8 +23,8 @@ public:
    static const char * m_projectFileName;
    static const char * m_serialisedStateFileName;
 
-   double eps = 1.0e-6;
-   double reps = 1.0e-2;
+   double eps;
+   double reps;
 };
 const char * SensCalcTest::m_projectFileName = "Ottoland.project3d";
 const char * SensCalcTest::m_serialisedStateFileName = "Ottoland_casa_state.txt";
