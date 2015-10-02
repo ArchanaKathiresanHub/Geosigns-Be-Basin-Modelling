@@ -203,6 +203,14 @@ bool VarPrmSourceRockProp::deserializeCommonPart( CasaDeserializer & dz, unsigne
    else
    {
       m_mixID = 1;
+
+      const std::vector<double> & vec = m_name2range.begin()->second;
+
+      // Switch to the new range
+      m_minProp    = vec[0];
+      m_maxProp    = vec[1];
+      m_baseProp   = vec[2];
+      m_srTypeName = m_name2range.begin()->first;
    }
    return ok;
 }
