@@ -168,6 +168,7 @@ bool VarPrmSourceRockProp::serializeCommonPart( CasaSerializer & sz, unsigned in
       } 
    
       ok = ok ? sz.save( m_propName, "propName" ) : ok;
+
    }
 
    return ok;
@@ -203,15 +204,12 @@ bool VarPrmSourceRockProp::deserializeCommonPart( CasaDeserializer & dz, unsigne
    else
    {
       m_mixID = 1;
-
-      const std::vector<double> & vec = m_name2range.begin()->second;
-
-      // Switch to the new range
-      m_minProp    = vec[0];
-      m_maxProp    = vec[1];
-      m_baseProp   = vec[2];
-      m_srTypeName = m_name2range.begin()->first;
    }
+   
+   m_minProp  = dynamic_cast<PrmSourceRockProp*>( m_minValue.get( ) )->value();
+   m_maxProp  = dynamic_cast<PrmSourceRockProp*>( m_maxValue.get( ) )->value();
+   m_baseProp = dynamic_cast<PrmSourceRockProp*>( m_baseValue.get() )->value();
+
    return ok;
 }
 
