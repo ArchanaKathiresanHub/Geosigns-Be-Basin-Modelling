@@ -122,7 +122,7 @@ TEST_F( SensCalcTest, SensitivityCalculatorTornadoTest )
          else
          {
             std::cerr << "{ " << minPrmAbsSens << ", " << maxPrmAbsSens << ", " << minPrmRelSens << ", " << maxPrmRelSens << " } " <<
-              "\"" << name << "\"" << std::endl;
+               "\"" << name << "\", " << subPrmNum << std::endl;
          }
       }
    }
@@ -143,9 +143,7 @@ TEST_F( SensCalcTest, SensitivityCalculatorParetoTest )
 {
    ASSERT_EQ( ErrorHandler::NoError, m_sc->errorCode() );
 
-   const casa::RSProxySet & proxySet = m_sc->rsProxySet();
-
-   const casa::RSProxy * secOrdProx = proxySet.rsProxy( "SecOrdBB" );
+   const casa::RSProxy * secOrdProx = m_sc->rsProxySet().rsProxy( "SecOrdBB" );
    
    ASSERT_TRUE( secOrdProx != NULL );
 
@@ -173,3 +171,104 @@ TEST_F( SensCalcTest, SensitivityCalculatorParetoTest )
    }
 }
 
+
+double paretoCyclicSensValues[5][7] = { { 54.2874, 11.6106, 11.0444, 10.2629, 6.49942, 5.45748, 0.837727 },
+                                        { 54.7406, 11.2622, 11.1563, 10.2754, 6.25168, 5.47749, 0.836298 },
+                                        { 54.974,  11.3719, 10.9227, 10.283,  6.12461, 5.48808, 0.83567  },
+                                        { 55.1154, 11.4371, 10.7814, 10.2883, 6.04796, 5.49463, 0.83534  },
+                                        { 55.2091, 11.4796, 10.6878, 10.292,  5.99726, 5.49905, 0.835148 },
+                                      };
+
+const char * paretoCyclicIPName[5][7] = { 
+   { "TopCrustHeatProdRate [\\mu W/m^3]", "LwJurassicSRTOC",           "CrustThinningFactor [m/m]", "EventStartTime [Ma]", "LwJurassicSRType", "InitialCrustThickness [m]", "EventDuration [Ma]" },
+   { "TopCrustHeatProdRate [\\mu W/m^3]", "CrustThinningFactor [m/m]", "LwJurassicSRTOC",           "EventStartTime [Ma]", "LwJurassicSRType", "InitialCrustThickness [m]", "EventDuration [Ma]" },
+   { "TopCrustHeatProdRate [\\mu W/m^3]", "CrustThinningFactor [m/m]", "LwJurassicSRTOC",           "EventStartTime [Ma]", "LwJurassicSRType", "InitialCrustThickness [m]", "EventDuration [Ma]" },
+   { "TopCrustHeatProdRate [\\mu W/m^3]", "CrustThinningFactor [m/m]", "LwJurassicSRTOC",           "EventStartTime [Ma]", "LwJurassicSRType", "InitialCrustThickness [m]", "EventDuration [Ma]" },
+   { "TopCrustHeatProdRate [\\mu W/m^3]", "CrustThinningFactor [m/m]", "LwJurassicSRTOC",           "EventStartTime [Ma]", "LwJurassicSRType", "InitialCrustThickness [m]", "EventDuration [Ma]" },
+};
+
+TEST_F( SensCalcTest, SensitivityCalculatorCyclicParetoTest )
+{
+   const casa::RSProxy * secOrdProx = m_sc->rsProxySet().rsProxy( "SecOrdBB" );
+
+   ASSERT_TRUE( secOrdProx != NULL );
+
+   casa::SensitivityCalculator & sensCalc = m_sc->sensitivityCalculator();
+
+   //////////////////////////////////////////
+   // Create pareto with weights 1.0
+   casa::ParetoSensitivityInfo paretoDataEQW;
+
+   // set all observable SA weights to 1.0
+   for ( size_t o = 0; o < m_sc->obsSpace().size(); ++o )
+   {
+      const Observable * ob = m_sc->obsSpace().observable( o );
+      const_cast<Observable *>(ob)->setSAWeight( 1.0 );
+   }
+
+   // get pareto data for equal weighting
+   ASSERT_EQ( ErrorHandler::NoError, sensCalc.calculatePareto( secOrdProx, paretoDataEQW ) );
+
+   // list of parameters - can be different various weights value
+   std::vector<std::string> prmNamesEQW;
+   // list of parameters sensitivities
+   std::vector<double> sensDataEQW;
+
+   for ( size_t i = 0; i < paretoDataEQW.m_vprmPtr.size(); ++i )
+   {
+      const VarParameter * prm = paretoDataEQW.m_vprmPtr[i];
+      int prmSubId = paretoDataEQW.m_vprmSubID[i];
+      prmNamesEQW.push_back( prm->name()[prmSubId] );
+      sensDataEQW.push_back( paretoDataEQW.getSensitivity( prm, prmSubId ) );
+   }
+
+   //////////////////////////////////////////
+   // Create set of 5 pareto charts with weights variation
+   for ( size_t p = 0; p < 5; ++p )
+   {
+      // keep results only till the next loop. It will simulate
+      // user interaction and pareto recalculation
+      std::vector<double>  sensDataVW;
+      std::vector<std::string>  prmNamesVW;
+      ParetoSensitivityInfo paretoDataVW;
+
+      // variate in some way SA weights for observables
+      // user updates SA weights
+      for ( size_t o = 0; o < m_sc->obsSpace().size(); ++o )
+      {
+         const Observable * ob = m_sc->obsSpace().observable( o );
+         const_cast<Observable *>(ob)->setSAWeight( 1.0 - 1.0 / (2.0 + o + p) );
+      }
+      // get pareto data for the new weighting
+      ASSERT_EQ( ErrorHandler::NoError, sensCalc.calculatePareto( secOrdProx, paretoDataVW ) );
+      // collect new pareto data
+      for ( size_t i = 0; i < paretoDataVW.m_vprmPtr.size(); ++i )
+      {
+         const VarParameter * prm = paretoDataVW.m_vprmPtr[i];
+         int prmSubId = paretoDataVW.m_vprmSubID[i];
+         prmNamesVW.push_back( prm->name()[prmSubId] );
+         sensDataVW.push_back( paretoDataVW.getSensitivity( prm, prmSubId ) );
+      }
+
+      // use new pareto (plot for example), in test case just check numbers for the
+      // first parameter in the chart
+      if ( !m_validationMode )
+      {
+         for ( size_t i = 0; i < paretoDataVW.m_vprmPtr.size(); ++i )
+         {
+            ASSERT_NEAR( sensDataVW[i], paretoCyclicSensValues[p][i], eps );
+            ASSERT_EQ( prmNamesVW[i], std::string( paretoCyclicIPName[p][i] ) );
+         }
+      }
+      else
+      {
+         std::cerr << "{";
+         for ( size_t i = 0; i < paretoDataVW.m_vprmPtr.size(); ++i ) { std::cerr << (i == 0 ? " " : ", ") << sensDataVW[i]; }
+         std::cerr << " };" << std::endl;
+
+         std::cerr << "{";
+         for ( size_t i = 0; i < paretoDataVW.m_vprmPtr.size(); ++i ) { std::cerr << (i == 0 ? " " : ", ") << "\"" << prmNamesVW[i] << "\""; }
+         std::cerr << " };" << std::endl;
+      }
+   }
+}

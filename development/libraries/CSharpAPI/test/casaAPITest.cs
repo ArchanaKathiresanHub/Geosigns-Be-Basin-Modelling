@@ -1,8 +1,8 @@
-﻿using Shell.BasinModeling.Cauldron;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.IO;
 using System.Runtime.InteropServices;
+using Shell.BasinModeling.Cauldron;
 
 namespace Shell.BasinModeling.Cauldron.Test
 {
@@ -24,10 +24,7 @@ namespace Shell.BasinModeling.Cauldron.Test
          set { testContextInstance = value; }
       }
 
-      public double relativeError(double v1, double v2)
-      {
-         return Math.Abs((v1 - v2)/(v1 + v2));
-      }
+      public double relativeError(double v1, double v2) { return Math.Abs((v1 - v2) / (v1 + v2)); }
 
       private bool m_isDebug = false;
 
@@ -38,28 +35,18 @@ namespace Shell.BasinModeling.Cauldron.Test
          {
             file.WriteLine(msg);
          }
-
       }
 
-      private void prepareScenarioUpToMC(Cauldron.ScenarioAnalysis sa, Cauldron.RSProxy.RSKrigingType krig,
-         int proxyOrder, string proxyName)
+      private void prepareScenarioUpToMC(ScenarioAnalysis sa, Cauldron.RSProxy.RSKrigingType krig, int proxyOrder, string proxyName)
       {
          DoubleVector obsVals = new DoubleVector();
-         // case 1
-         obsVals.Add(65.1536);
-         obsVals.Add(0.479763);
-         // case 2
-         obsVals.Add(49.8126);
-         obsVals.Add(0.386869);
-         // case 3
-         obsVals.Add(80.4947);
-         obsVals.Add(0.572657);
-         // case 4
-         obsVals.Add(65.1536);
-         obsVals.Add(0.479763);
-         // case 5
-         obsVals.Add(65.1536);
-         obsVals.Add(0.479763);
+         for (uint i = 0; i < 5; ++i ) // 5 cases
+         {
+            for ( uint j = 0; j < 2; ++j ) // 2 observables
+            {
+               obsVals.Add(s_mcObservables[i, j]);
+            }
+         }
 
          // define base case for scenario
          Assert.AreEqual(ErrorHandler.ReturnCode.NoError, sa.defineBaseCase(m_projectFileName));
@@ -68,7 +55,7 @@ namespace Shell.BasinModeling.Cauldron.Test
          Cauldron.ObsSpace obs = sa.obsSpace();
 
          // vary 2 parameters
-         Assert.IsTrue(ErrorHandler.ReturnCode.NoError ==
+         Assert.AreEqual(ErrorHandler.ReturnCode.NoError,
             CauldronAPI.VarySourceRockTOC(sa, "", m_layerName, 1, "", m_minTOC, m_maxTOC, VarPrmContinuous.PDF.Block));
          Assert.IsTrue(ErrorHandler.ReturnCode.NoError ==
                        CauldronAPI.VaryTopCrustHeatProduction(sa, "", m_minTCHP, m_maxTCHP, VarPrmContinuous.PDF.Block));
@@ -76,43 +63,38 @@ namespace Shell.BasinModeling.Cauldron.Test
          // add 2 observables for T & VRE
          Observable ob = ObsGridPropertyXYZ.createNewInstance(460001.0, 6750001.0, 2751.0, "Temperature", 0.01);
          ob.setReferenceValue(ObsValueDoubleScalar.createNewInstance(ob, 108.6), 2.0);
-         Assert.IsTrue(ErrorHandler.ReturnCode.NoError == obs.addObservable(ob));
+         Assert.AreEqual(ErrorHandler.ReturnCode.NoError, obs.addObservable(ob));
 
          ob = ObsGridPropertyXYZ.createNewInstance(460001.0, 6750001.0, 2730.0, "Vr", 0.002);
          ob.setReferenceValue(ObsValueDoubleScalar.createNewInstance(ob, 1.1), 0.1);
-         Assert.IsTrue(ErrorHandler.ReturnCode.NoError == obs.addObservable(ob));
+         Assert.AreEqual(ErrorHandler.ReturnCode.NoError, obs.addObservable(ob));
 
          // set Tornado as DoE
-         Assert.IsTrue(ErrorHandler.ReturnCode.NoError == sa.setDoEAlgorithm(DoEGenerator.DoEAlgorithm.Tornado));
+         Assert.AreEqual(ErrorHandler.ReturnCode.NoError, sa.setDoEAlgorithm(DoEGenerator.DoEAlgorithm.Tornado));
 
          // generate DoE
          DoEGenerator doe = sa.doeGenerator();
-         Assert.IsTrue(ErrorHandler.ReturnCode.NoError == doe.generateDoE(sa.varSpace(), sa.doeCaseSet()));
+         Assert.AreEqual(ErrorHandler.ReturnCode.NoError, doe.generateDoE(sa.varSpace(), sa.doeCaseSet()));
 
          RunCaseSet rcs = sa.doeCaseSet();
 
          int off = 0;
          for (uint i = 0; i < rcs.size(); ++i)
          {
-            RunCase rc = rcs.runCase(i);
-
             for (uint j = 0; j < 2; ++j)
             {
                ObsValue obVal = obs.observable(j).newObsValueFromDoubles(obsVals, ref off);
-               rc.addObsValue(obVal);
+               rcs.runCase(i).addObsValue( obVal );
             }
-            rc.setRunStatus(RunCase.CaseStatus.Completed);
+            rcs.runCase(i).setRunStatus(RunCase.CaseStatus.Completed);
          }
-
          // Calculate Response Surface proxy
          StringVector doeList = new StringVector();
-         string doeName = DoEGenerator.DoEName(DoEGenerator.DoEAlgorithm.Tornado);
-         doeList.Add(doeName);
+         doeList.Add(DoEGenerator.DoEName(DoEGenerator.DoEAlgorithm.Tornado));
 
          ErrorHandler.ReturnCode retCode = sa.addRSAlgorithm(proxyName, proxyOrder, RSProxy.RSKrigingType.NoKriging, doeList);
          Assert.IsTrue(ErrorHandler.ReturnCode.NoError == retCode );
       }
-
 
       public double m_minTOC = 5.0;
       public double m_midTOC = 10.0;
@@ -137,12 +119,20 @@ namespace Shell.BasinModeling.Cauldron.Test
       public double eps = 1.0e-6;
       public double reps = 1.0e-2;
 
+      public static double[,] s_mcObservables;
+
       #region Additional test attributes
 
       // Use ClassInitialize to run code before running the first test in the class
       [ClassInitialize()]
       public static void casaAPIInitialize(TestContext testContext)
       {
+         s_mcObservables = new double[,] { { 65.1536, 0.479763 }, // case 1
+                                           { 49.8126, 0.386869 }, // case 2
+                                           { 80.4947, 0.572657 }, // case 3
+                                           { 65.1536, 0.479763 }, // case 4
+                                           { 65.1536, 0.479763 }  // case 5
+                                         };
       }
 
       // Use ClassCleanup to run code after all tests in a class have run
@@ -176,58 +166,49 @@ namespace Shell.BasinModeling.Cauldron.Test
       [TestMethod]
       public void DoE_Tornado_Test() // analog of casaAPI/test/DoeTest.C:Tornado2Prms
       {
-         /////////!!!!!!!!!!!!!!!!!!!!!!! temporary disabled
-         return;
          ScenarioAnalysis sa = new ScenarioAnalysis();
          Assert.AreEqual(ErrorHandler.ReturnCode.NoError, sa.defineBaseCase(m_projectFileName));
-
-         Assert.IsTrue(ErrorHandler.ReturnCode.NoError == sa.setDoEAlgorithm(DoEGenerator.DoEAlgorithm.Tornado));
+         Assert.AreEqual(ErrorHandler.ReturnCode.NoError, sa.setDoEAlgorithm(DoEGenerator.DoEAlgorithm.Tornado));
 
          DoEGenerator doe = sa.doeGenerator();
          VarSpace varPrms = sa.varSpace();
 
-         Assert.IsTrue(ErrorHandler.ReturnCode.NoError ==
-                       CauldronAPI.VarySourceRockTOC(sa, "", m_layerName, 1, "", m_minTOC, m_maxTOC, VarPrmContinuous.PDF.Block));
-         Assert.IsTrue(ErrorHandler.ReturnCode.NoError ==
-                       CauldronAPI.VaryTopCrustHeatProduction(sa, "", m_minTCHP, m_maxTCHP, VarPrmContinuous.PDF.Block));
+         ErrorHandler.ReturnCode ret = CauldronAPI.VarySourceRockTOC(sa, "", m_layerName, 1, "", m_minTOC, m_maxTOC, VarPrmContinuous.PDF.Block);
+         if ( ret != ErrorHandler.ReturnCode.NoError )
+         {
+            m_isDebug = true;
+            logMsg( "DoE_Tornado_Test: Create TOC parameter: " + sa.errorCode().ToString() + ", msg: " + sa.errorMessage() );
+         }
+         Assert.AreEqual(ErrorHandler.ReturnCode.NoError, ret );
 
-         Assert.IsTrue(2 == varPrms.size());
+         ret = CauldronAPI.VaryTopCrustHeatProduction(sa, "", m_minTCHP, m_maxTCHP, VarPrmContinuous.PDF.Block);
+         if (ret != ErrorHandler.ReturnCode.NoError)
+         {
+            m_isDebug = true;
+            logMsg("DoE_Tornado_Test: Create TCHP parameter: " + sa.errorCode().ToString() + ", msg: " + sa.errorMessage());
+         }
+         Assert.AreEqual(ErrorHandler.ReturnCode.NoError, ret );
+
+         Assert.AreEqual(varPrms.size(), 2U);
 
          RunCaseSet expSet = sa.doeCaseSet();
-
          doe.generateDoE(varPrms, expSet);
-         Assert.IsTrue(5 == expSet.size());
+         Assert.AreEqual(expSet.size(), 5U);
 
-         for (uint i = 0; i < 5; ++i)
+         for (uint i = 0; i < expSet.size(); ++i)
          {
-            Assert.IsTrue(2 == expSet.runCase(i).parametersNumber());
+            Assert.AreEqual(expSet.runCase(i).parametersNumber(), 2U);
 
-            double val1 = expSet.runCase(i).parameter(0).asDoubleArray()[0];
-
-            double val2 = expSet.runCase(i).parameter(1).asDoubleArray()[0];
+            double v1 = expSet.runCase(i).parameter(0).asDoubleArray()[0];
+            double v2 = expSet.runCase(i).parameter(1).asDoubleArray()[0];
 
             switch (i)
             {
-               case 0:
-                  Assert.IsTrue(Math.Abs(val1 - m_midTOC) < eps);
-                  Assert.IsTrue(Math.Abs(val2 - m_midTCHP) < eps);
-                  break;
-               case 1:
-                  Assert.IsTrue(Math.Abs(val1 - m_minTOC) < eps);
-                  Assert.IsTrue(Math.Abs(val2 - m_midTCHP) < eps);
-                  break;
-               case 2:
-                  Assert.IsTrue(Math.Abs(val1 - m_maxTOC) < eps);
-                  Assert.IsTrue(Math.Abs(val2 - m_midTCHP) < eps);
-                  break;
-               case 3:
-                  Assert.IsTrue(Math.Abs(val1 - m_midTOC) < eps);
-                  Assert.IsTrue(Math.Abs(val2 - m_minTCHP) < eps);
-                  break;
-               case 4:
-                  Assert.IsTrue(Math.Abs(val1 - m_midTOC) < eps);
-                  Assert.IsTrue(Math.Abs(val2 - m_maxTCHP) < eps);
-                  break;
+               case 0: Assert.AreEqual(v1, m_midTOC, eps); Assert.AreEqual(v2, m_midTCHP, eps); break;
+               case 1: Assert.AreEqual(v1, m_minTOC, eps); Assert.AreEqual(v2, m_midTCHP, eps); break;
+               case 2: Assert.AreEqual(v1, m_maxTOC, eps); Assert.AreEqual(v2, m_midTCHP, eps); break;
+               case 3: Assert.AreEqual(v1, m_midTOC, eps); Assert.AreEqual(v2, m_minTCHP, eps); break;
+               case 4: Assert.AreEqual(v1, m_midTOC, eps); Assert.AreEqual(v2, m_maxTCHP, eps); break;
             }
          }
       }
@@ -235,8 +216,6 @@ namespace Shell.BasinModeling.Cauldron.Test
       [TestMethod]
       public void Mutator_Test() // analog of casaAPIAPI/test/MutatorTest.C
       {
-         /////////!!!!!!!!!!!!!!!!!!!!!!! temporary disabled
-         return;
          // create new scenario analysis
          ScenarioAnalysis sa = new ScenarioAnalysis();
 
@@ -249,20 +228,20 @@ namespace Shell.BasinModeling.Cauldron.Test
                        CauldronAPI.VaryTopCrustHeatProduction(sa, "", m_minTCHP, m_maxTCHP, VarPrmContinuous.PDF.Block));
 
          // set up and generate DoE
-         Assert.IsTrue(ErrorHandler.ReturnCode.NoError == sa.setDoEAlgorithm(DoEGenerator.DoEAlgorithm.Tornado));
+         Assert.AreEqual(ErrorHandler.ReturnCode.NoError, sa.setDoEAlgorithm(DoEGenerator.DoEAlgorithm.Tornado));
 
          VarSpace varPrms = sa.varSpace();
          RunCaseSet expSet = sa.doeCaseSet();
          DoEGenerator doe = sa.doeGenerator();
 
-         Assert.IsTrue(ErrorHandler.ReturnCode.NoError == doe.generateDoE(varPrms, expSet));
+         Assert.AreEqual(ErrorHandler.ReturnCode.NoError, doe.generateDoE(varPrms, expSet));
 
-         Assert.IsTrue(5 == expSet.size());
+         Assert.AreEqual(expSet.size(), 5U);
 
          string pathToCaseSet = @".\CaseSet";
 
-         Assert.IsTrue(ErrorHandler.ReturnCode.NoError == sa.setScenarioLocation(pathToCaseSet));
-         Assert.IsTrue(ErrorHandler.ReturnCode.NoError == sa.applyMutations(sa.doeCaseSet()));
+         Assert.AreEqual(ErrorHandler.ReturnCode.NoError, sa.setScenarioLocation(pathToCaseSet));
+         Assert.AreEqual(ErrorHandler.ReturnCode.NoError, sa.applyMutations(sa.doeCaseSet()));
 
          pathToCaseSet += @"\Iteration_1";
          for (uint i = 0; i < sa.doeCaseSet().size(); ++i)
@@ -282,10 +261,8 @@ namespace Shell.BasinModeling.Cauldron.Test
             PrmSourceRockTOC prm_toc = new PrmSourceRockTOC(caseModel, m_layerName);
 
             // get parameters from case set
-            Assert.IsTrue(
-               Math.Abs(sa.doeCaseSet().runCase(i).parameter(0).asDoubleArray()[0] - prm_toc.asDoubleArray()[0]) < eps);
-            Assert.IsTrue(
-               Math.Abs(sa.doeCaseSet().runCase(i).parameter(1).asDoubleArray()[0] - prm_tchp.asDoubleArray()[0]) < eps);
+            Assert.AreEqual( sa.doeCaseSet().runCase(i).parameter(0).asDoubleArray()[0], prm_toc.asDoubleArray()[0],  eps);
+            Assert.AreEqual( sa.doeCaseSet().runCase(i).parameter(1).asDoubleArray()[0], prm_tchp.asDoubleArray()[0], eps);
          }
 
          // cleaning files/folders
