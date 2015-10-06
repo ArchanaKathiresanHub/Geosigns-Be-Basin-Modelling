@@ -356,15 +356,30 @@ bool TwoWayTimeResidualCalculator::operator ()( const OutputPropertyMap::OutputP
 
          if (FastcauldronSimulator::getInstance().nodeIsDefined( i, j )){
 
-            // if the surface is linked to an intial two way time map
-            if (m_twoWayTimeInitialMap != 0) {
-               value = m_twoWayTimeCauldron->getMapValue( i, j ) - m_twoWayTimeInitialMap->getValue( i, j );
+            // if we don't have cauldron two way time value at this node
+            // info: m_twoWayTimeCauldron and TwoWayTimeResidualMap have the same undefined value 99999
+            if (m_twoWayTimeCauldron->getMapValue( i, j ) == undefinedValue) {
+               value = undefinedValue;
             }
-            // else the surface is linked to an intial two way time scalar
+
             else {
-               assert( ("There must be a two way time map input or a two way time scalar input", m_twoWayTimeInitialScalar != -9999) );
-               value = m_twoWayTimeCauldron->getMapValue( i, j ) - m_twoWayTimeInitialScalar;
+               // if the surface is linked to an intial two way time map
+               if (m_twoWayTimeInitialMap != 0) {
+                  // if we don't have intial two way time value at this node
+                  if (m_twoWayTimeInitialMap->getValue( i, j ) == m_twoWayTimeInitialMap->getUndefinedValue()) {
+                     value = undefinedValue;
+                  }
+                  else {
+                     value = m_twoWayTimeCauldron->getMapValue( i, j ) - m_twoWayTimeInitialMap->getValue( i, j );
+                  }
+               }
+               // else the surface is linked to an intial two way time scalar
+               else {
+                  assert( ("There must be a two way time map input or a two way time scalar input", m_twoWayTimeInitialScalar != -9999) );
+                  value = m_twoWayTimeCauldron->getMapValue( i, j ) - m_twoWayTimeInitialScalar;
+               }
             }
+
             TwoWayTimeResidualMap->setValue( i, j, value );
          }
 
