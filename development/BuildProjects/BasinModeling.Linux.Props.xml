@@ -13,7 +13,8 @@ WARNING:  DO NOT MODIFY this file unless you are knowledgeable about MSBuild and
    <!--  INFORMATION OF LINUX HOSTS TO BUILD ON -->			
    <PropertyGroup Label="Identification">
       <AgentName    Condition="'$(AgentName)' == ''">LinuxBuild</AgentName>
-      <AgentHost    Condition="'$(AgentHost)' == ''">amsd2a-n-b02303</AgentHost>
+      <!-- <AgentHost    Condition="'$(AgentHost)' == ''">amsd2a-n-b02303</AgentHost> -->
+      <AgentHost    Condition="'$(AgentHost)' == ''">amsd2a-n-b03502</AgentHost>
       <AgentAccount Condition="'$(AgentAccount)' == ''">s_bpac00</AgentAccount>
       <AgentKey Condition="'$(AgentKey)' == ''">C:\opt\putty\s_bpac00.tfs_build_server.ppk</AgentKey>
       <SWEast>/nfs/rvl/groups/ept-sg/SWEast/Cauldron</SWEast>
