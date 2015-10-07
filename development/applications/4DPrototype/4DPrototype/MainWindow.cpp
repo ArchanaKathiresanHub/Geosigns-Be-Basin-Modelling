@@ -35,6 +35,8 @@
 
 namespace di = DataAccess::Interface;
 
+void exportData(const di::ProjectHandle* handle);
+
 namespace
 {
   const int TreeWidgetItem_FormationType = QTreeWidgetItem::UserType + 1;
@@ -129,7 +131,6 @@ void MainWindow::closeProject()
 
 void MainWindow::enableUI(bool enabled)
 {
-  m_ui.groupBoxROI->setEnabled(enabled);
   m_ui.groupBox->setEnabled(enabled);
   m_ui.groupBox_3->setEnabled(enabled);
 
@@ -305,20 +306,6 @@ void MainWindow::updateUI()
 
   m_ui.sliderSliceI->setMaximum(m_sceneGraphManager.numI() - 2);
   m_ui.sliderSliceJ->setMaximum(m_sceneGraphManager.numJ() - 2);
-
-  m_ui.sliderMinI->setMaximum(m_sceneGraphManager.numI() - 1);
-  m_ui.sliderMaxI->setMaximum(m_sceneGraphManager.numI() - 1);
-  m_ui.sliderMinJ->setMaximum(m_sceneGraphManager.numJ() - 1);
-  m_ui.sliderMaxJ->setMaximum(m_sceneGraphManager.numJ() - 1);
-  m_ui.sliderMinK->setMaximum(10);
-  m_ui.sliderMaxK->setMaximum(10);
-
-  m_ui.sliderMinI->setValue(0);
-  m_ui.sliderMinJ->setValue(0);
-  m_ui.sliderMinK->setValue(0);
-  m_ui.sliderMaxI->setValue(m_sceneGraphManager.numI() - 1);
-  m_ui.sliderMaxJ->setValue(m_sceneGraphManager.numJ() - 1);
-  m_ui.sliderMaxK->setValue(10); //NOOOOOOO no hardcoded values !!!1!1
 }
 
 void MainWindow::connectSignals()
@@ -351,14 +338,8 @@ void MainWindow::connectSignals()
   connect(m_ui.checkBoxDrawGrid, SIGNAL(toggled(bool)), this, SLOT(onCoordinateGridToggled(bool)));
   connect(m_ui.checkBoxPerspective, SIGNAL(toggled(bool)), this, SLOT(onPerspectiveToggled(bool)));
 
-  // ROI
-  connect(m_ui.checkBoxROI, SIGNAL(toggled(bool)), this, SLOT(onROIToggled(bool)));
-  connect(m_ui.sliderMinI, SIGNAL(valueChanged(int)), this, SLOT(onROISliderValueChanged(int)));
-  connect(m_ui.sliderMaxI, SIGNAL(valueChanged(int)), this, SLOT(onROISliderValueChanged(int)));
-  connect(m_ui.sliderMinJ, SIGNAL(valueChanged(int)), this, SLOT(onROISliderValueChanged(int)));
-  connect(m_ui.sliderMaxJ, SIGNAL(valueChanged(int)), this, SLOT(onROISliderValueChanged(int)));
-  connect(m_ui.sliderMinK, SIGNAL(valueChanged(int)), this, SLOT(onROISliderValueChanged(int)));
-  connect(m_ui.sliderMaxK, SIGNAL(valueChanged(int)), this, SLOT(onROISliderValueChanged(int)));
+  connect(m_ui.checkBoxTraps, SIGNAL(toggled(bool)), this, SLOT(onTrapsToggled(bool)));
+  connect(m_ui.checkBoxMigrations, SIGNAL(toggled(bool)), this, SLOT(onMigrationsToggled(bool)));
 
   connect(m_ui.treeWidget, SIGNAL(itemChanged(QTreeWidgetItem*, int)), this, SLOT(onTreeWidgetItemChanged(QTreeWidgetItem*, int)));
 }
@@ -545,22 +526,6 @@ void MainWindow::onVerticalScaleSliderValueChanged(int value)
   m_sceneGraphManager.setVerticalScale(scale);
 }
 
-void MainWindow::onROISliderValueChanged(int value)
-{
-  //m_sceneGraph->setROI(
-  //  (size_t)m_ui.sliderMinI->value(),
-  //  (size_t)m_ui.sliderMinJ->value(),
-  //  (size_t)m_ui.sliderMinK->value(),
-  //  (size_t)m_ui.sliderMaxI->value(),
-  //  (size_t)m_ui.sliderMaxJ->value(),
-  //  (size_t)m_ui.sliderMaxK->value());
-}
-
-void MainWindow::onROIToggled(bool value)
-{
-  //m_sceneGraph->enableROI(value);
-}
-
 void MainWindow::onSliceToggled(bool value)
 {
   if (sender() == m_ui.checkBoxSliceI)
@@ -589,6 +554,15 @@ void MainWindow::onPerspectiveToggled(bool value)
     : SceneGraphManager::OrthographicProjection);
 
   static_cast<SoQtViewer*>(m_ui.renderWidget->getViewer())->setCamera(m_sceneGraphManager.getCamera());
+}
+
+void MainWindow::onTrapsToggled(bool value)
+{
+  m_sceneGraphManager.showTraps(value);
+}
+
+void MainWindow::onMigrationsToggled(bool value)
+{
 }
 
 void MainWindow::onItemDoubleClicked(QTreeWidgetItem* item, int column)
@@ -626,6 +600,8 @@ void MainWindow::onItemDoubleClicked(QTreeWidgetItem* item, int column)
 
 void MainWindow::onShowGLInfo()
 {
+  exportData(m_projectHandle.get());
+
   GLInfoDialog dlg(this);
   dlg.exec();
 }
@@ -688,7 +664,7 @@ MainWindow::MainWindow()
   SoQtViewer* viewer = dynamic_cast<SoQtViewer*>(m_ui.renderWidget->getViewer());
   if(viewer != 0)
   {
-    viewer->setSceneGraph(0); // avoids annoying 'Qt by Nokia' text in 3D view
+    viewer->setSceneGraph(nullptr); // avoids annoying 'Qt by Nokia' text in 3D view
 
     int labelFrameStyle = QFrame::Panel | QFrame::Sunken;
 

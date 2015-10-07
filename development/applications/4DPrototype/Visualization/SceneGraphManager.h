@@ -13,6 +13,8 @@
 
 #include "defines.h"
 
+#include "Traps.h"
+
 #include <map>
 #include <list>
 #include <vector>
@@ -39,6 +41,9 @@ class SoShapeHints;
 class SoCamera;
 class SoPerspectiveCamera;
 class SoOrthographicCamera;
+class SoMultipleInstance;
+class SoAlgebraicSphere;
+class SoMaterial;
 class PoAutoCubeAxis;
 class MoLegend;
 class SoScale;
@@ -115,13 +120,22 @@ struct SnapshotInfo
     std::shared_ptr<ReservoirMesh> meshData;
     std::shared_ptr<MiDataSetIjk<double> > propertyData;
 
-    Reservoir()
-      : id(0)
-      , root(0)
-      , mesh(0)
-      , scalarSet(0)
-      , skin(0)
+    Traps traps;
+
+    void clear()
     {
+      id = 0;
+      root = 0;
+      mesh = 0;
+      scalarSet = 0;
+      skin = 0;
+
+      traps.clear();
+    }
+
+    Reservoir()
+    {
+      clear();
     }
   };
 
@@ -249,6 +263,8 @@ private:
   size_t m_maxCacheItems;
 
   bool m_showGrid;
+  bool m_showTraps;
+  float m_verticalScale;
   ProjectionType m_projectionType;
 
   size_t m_formationsTimeStamp;
@@ -302,6 +318,7 @@ private:
   void updateSnapshotFormations();
   void updateSnapshotSurfaces();
   void updateSnapshotReservoirs();
+  void updateSnapshotTraps();
   void updateSnapshotFaults();
   void updateSnapshotProperties();
   void updateSnapshotSlices();
@@ -355,6 +372,8 @@ public:
   void setSlicePosition(int slice, int position);
 
   void showCoordinateGrid(bool show);
+
+  void showTraps(bool show);
 
   void setup(const DataAccess::Interface::ProjectHandle* handle);
 };

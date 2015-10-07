@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'MainWindow.h'
 **
-** Created: Tue Sep 8 14:23:25 2015
+** Created: Wed Oct 7 12:47:49 2015
 **      by: The Qt Meta Object Compiler version 63 (Qt 4.8.4)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -42,14 +42,14 @@ static const uint qt_meta_data_MainWindow[] = {
      260,  202,   11,   11, 0x08,
      286,  202,   11,   11, 0x08,
      325,  202,   11,   11, 0x08,
-     354,  202,   11,   11, 0x08,
-     373,  202,   11,   11, 0x08,
-     394,   11,   11,   11, 0x08,
-     417,  202,   11,   11, 0x08,
+     346,   11,   11,   11, 0x08,
+     369,  202,   11,   11, 0x08,
+     399,  202,   11,   11, 0x08,
+     426,  202,   11,   11, 0x08,
      447,  202,   11,   11, 0x08,
-     486,  474,   11,   11, 0x08,
-     528,   11,   11,   11, 0x08,
-     543,  474,   11,   11, 0x08,
+     485,  473,   11,   11, 0x08,
+     527,   11,   11,   11, 0x08,
+     542,  473,   11,   11, 0x08,
 
        0        // eod
 };
@@ -65,12 +65,11 @@ static const char qt_meta_stringdata_MainWindow[] = {
     "onSliceIValueChanged(int)\0"
     "onSliceJValueChanged(int)\0"
     "onVerticalScaleSliderValueChanged(int)\0"
-    "onROISliderValueChanged(int)\0"
-    "onROIToggled(bool)\0onSliceToggled(bool)\0"
-    "onRenderStyleChanged()\0"
+    "onSliceToggled(bool)\0onRenderStyleChanged()\0"
     "onCoordinateGridToggled(bool)\0"
-    "onPerspectiveToggled(bool)\0item,column\0"
-    "onItemDoubleClicked(QTreeWidgetItem*,int)\0"
+    "onPerspectiveToggled(bool)\0"
+    "onTrapsToggled(bool)\0onMigrationsToggled(bool)\0"
+    "item,column\0onItemDoubleClicked(QTreeWidgetItem*,int)\0"
     "onShowGLInfo()\0"
     "onTreeWidgetItemChanged(QTreeWidgetItem*,int)\0"
 };
@@ -91,12 +90,12 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         case 7: _t->onSliceIValueChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
         case 8: _t->onSliceJValueChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
         case 9: _t->onVerticalScaleSliderValueChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 10: _t->onROISliderValueChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 11: _t->onROIToggled((*reinterpret_cast< bool(*)>(_a[1]))); break;
-        case 12: _t->onSliceToggled((*reinterpret_cast< bool(*)>(_a[1]))); break;
-        case 13: _t->onRenderStyleChanged(); break;
-        case 14: _t->onCoordinateGridToggled((*reinterpret_cast< bool(*)>(_a[1]))); break;
-        case 15: _t->onPerspectiveToggled((*reinterpret_cast< bool(*)>(_a[1]))); break;
+        case 10: _t->onSliceToggled((*reinterpret_cast< bool(*)>(_a[1]))); break;
+        case 11: _t->onRenderStyleChanged(); break;
+        case 12: _t->onCoordinateGridToggled((*reinterpret_cast< bool(*)>(_a[1]))); break;
+        case 13: _t->onPerspectiveToggled((*reinterpret_cast< bool(*)>(_a[1]))); break;
+        case 14: _t->onTrapsToggled((*reinterpret_cast< bool(*)>(_a[1]))); break;
+        case 15: _t->onMigrationsToggled((*reinterpret_cast< bool(*)>(_a[1]))); break;
         case 16: _t->onItemDoubleClicked((*reinterpret_cast< QTreeWidgetItem*(*)>(_a[1])),(*reinterpret_cast< int(*)>(_a[2]))); break;
         case 17: _t->onShowGLInfo(); break;
         case 18: _t->onTreeWidgetItemChanged((*reinterpret_cast< QTreeWidgetItem*(*)>(_a[1])),(*reinterpret_cast< int(*)>(_a[2]))); break;

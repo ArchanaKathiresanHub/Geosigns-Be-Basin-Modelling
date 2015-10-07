@@ -79,10 +79,6 @@ private slots:
 
   void onVerticalScaleSliderValueChanged(int value);
 
-  void onROISliderValueChanged(int value);
-
-  void onROIToggled(bool value);
-
   void onSliceToggled(bool value);
 
   void onRenderStyleChanged();
@@ -90,6 +86,10 @@ private slots:
   void onCoordinateGridToggled(bool value);
 
   void onPerspectiveToggled(bool value);
+
+  void onTrapsToggled(bool value);
+
+  void onMigrationsToggled(bool value);
 
   void onItemDoubleClicked(QTreeWidgetItem* item, int column);
 

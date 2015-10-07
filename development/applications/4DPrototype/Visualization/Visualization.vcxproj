@@ -132,6 +132,7 @@
     <ClCompile Include="Property.cpp" />
     <ClCompile Include="ROICellFilter.cpp" />
     <ClCompile Include="SceneGraphManager.cpp" />
+    <ClCompile Include="Traps.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CameraUtil.h" />
@@ -141,6 +142,7 @@
     <ClInclude Include="Property.h" />
     <ClInclude Include="ROICellFilter.h" />
     <ClInclude Include="SceneGraphManager.h" />
+    <ClInclude Include="Traps.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

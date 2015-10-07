@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'MainWindow.ui'
 **
-** Created: Tue Sep 8 14:09:29 2015
+** Created: Wed Oct 7 12:34:03 2015
 **      by: Qt User Interface Compiler version 4.8.4
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -51,10 +51,10 @@ public:
     QAction *action_ViewRight;
     QAction *action_ViewBack;
     QWidget *centralwidget;
-    QVBoxLayout *verticalLayout_5;
+    QHBoxLayout *horizontalLayout_3;
     QSplitter *splitter;
-    QWidget *layoutWidget;
-    QVBoxLayout *verticalLayout_4;
+    QWidget *widget;
+    QVBoxLayout *verticalLayout_3;
     QTabWidget *tabWidget;
     QWidget *tab;
     QVBoxLayout *verticalLayout;
@@ -62,31 +62,19 @@ public:
     QWidget *tab_2;
     QVBoxLayout *verticalLayout_6;
     QTreeWidget *treeWidgetProperties;
+    QGroupBox *groupBoxFeatures;
+    QVBoxLayout *verticalLayout_2;
+    QCheckBox *checkBoxTraps;
+    QCheckBox *checkBoxMigrations;
     QHBoxLayout *horizontalLayout_2;
     QLabel *label_7;
     QSlider *sliderVerticalScale;
     QGroupBox *groupBox_3;
-    QHBoxLayout *horizontalLayout_3;
-    QGridLayout *gridLayout_3;
-    QCheckBox *checkBoxDrawFaces;
+    QVBoxLayout *verticalLayout_4;
     QCheckBox *checkBoxDrawGrid;
+    QCheckBox *checkBoxDrawFaces;
     QCheckBox *checkBoxDrawEdges;
     QCheckBox *checkBoxPerspective;
-    QGroupBox *groupBoxROI;
-    QGridLayout *gridLayout_2;
-    QCheckBox *checkBoxROI;
-    QLabel *label_5;
-    QLabel *label_6;
-    QLabel *label;
-    QSlider *sliderMinI;
-    QSlider *sliderMinK;
-    QSlider *sliderMaxK;
-    QLabel *label_2;
-    QSlider *sliderMaxI;
-    QLabel *label_3;
-    QSlider *sliderMinJ;
-    QLabel *label_4;
-    QSlider *sliderMaxJ;
     QGroupBox *groupBox;
     QHBoxLayout *horizontalLayout;
     QGridLayout *gridLayout;
@@ -137,17 +125,17 @@ public:
         action_ViewBack->setObjectName(QString::fromUtf8("action_ViewBack"));
         centralwidget = new QWidget(MainWindow);
         centralwidget->setObjectName(QString::fromUtf8("centralwidget"));
-        verticalLayout_5 = new QVBoxLayout(centralwidget);
-        verticalLayout_5->setObjectName(QString::fromUtf8("verticalLayout_5"));
+        horizontalLayout_3 = new QHBoxLayout(centralwidget);
+        horizontalLayout_3->setObjectName(QString::fromUtf8("horizontalLayout_3"));
         splitter = new QSplitter(centralwidget);
         splitter->setObjectName(QString::fromUtf8("splitter"));
         splitter->setOrientation(Qt::Horizontal);
-        layoutWidget = new QWidget(splitter);
-        layoutWidget->setObjectName(QString::fromUtf8("layoutWidget"));
-        verticalLayout_4 = new QVBoxLayout(layoutWidget);
-        verticalLayout_4->setObjectName(QString::fromUtf8("verticalLayout_4"));
-        verticalLayout_4->setContentsMargins(0, 0, 0, 0);
-        tabWidget = new QTabWidget(layoutWidget);
+        widget = new QWidget(splitter);
+        widget->setObjectName(QString::fromUtf8("widget"));
+        verticalLayout_3 = new QVBoxLayout(widget);
+        verticalLayout_3->setObjectName(QString::fromUtf8("verticalLayout_3"));
+        verticalLayout_3->setContentsMargins(0, 0, 0, 0);
+        tabWidget = new QTabWidget(widget);
         tabWidget->setObjectName(QString::fromUtf8("tabWidget"));
         tabWidget->setTabPosition(QTabWidget::South);
         tab = new QWidget();
@@ -187,16 +175,33 @@ public:
 
         tabWidget->addTab(tab_2, QString());
 
-        verticalLayout_4->addWidget(tabWidget);
+        verticalLayout_3->addWidget(tabWidget);
+
+        groupBoxFeatures = new QGroupBox(widget);
+        groupBoxFeatures->setObjectName(QString::fromUtf8("groupBoxFeatures"));
+        verticalLayout_2 = new QVBoxLayout(groupBoxFeatures);
+        verticalLayout_2->setObjectName(QString::fromUtf8("verticalLayout_2"));
+        checkBoxTraps = new QCheckBox(groupBoxFeatures);
+        checkBoxTraps->setObjectName(QString::fromUtf8("checkBoxTraps"));
+
+        verticalLayout_2->addWidget(checkBoxTraps);
+
+        checkBoxMigrations = new QCheckBox(groupBoxFeatures);
+        checkBoxMigrations->setObjectName(QString::fromUtf8("checkBoxMigrations"));
+
+        verticalLayout_2->addWidget(checkBoxMigrations);
+
+
+        verticalLayout_3->addWidget(groupBoxFeatures);
 
         horizontalLayout_2 = new QHBoxLayout();
         horizontalLayout_2->setObjectName(QString::fromUtf8("horizontalLayout_2"));
-        label_7 = new QLabel(layoutWidget);
+        label_7 = new QLabel(widget);
         label_7->setObjectName(QString::fromUtf8("label_7"));
 
         horizontalLayout_2->addWidget(label_7);
 
-        sliderVerticalScale = new QSlider(layoutWidget);
+        sliderVerticalScale = new QSlider(widget);
         sliderVerticalScale->setObjectName(QString::fromUtf8("sliderVerticalScale"));
         sliderVerticalScale->setMinimum(0);
         sliderVerticalScale->setMaximum(10);
@@ -208,124 +213,40 @@ public:
         horizontalLayout_2->addWidget(sliderVerticalScale);
 
 
-        verticalLayout_4->addLayout(horizontalLayout_2);
+        verticalLayout_3->addLayout(horizontalLayout_2);
 
-        groupBox_3 = new QGroupBox(layoutWidget);
+        groupBox_3 = new QGroupBox(widget);
         groupBox_3->setObjectName(QString::fromUtf8("groupBox_3"));
-        horizontalLayout_3 = new QHBoxLayout(groupBox_3);
-        horizontalLayout_3->setObjectName(QString::fromUtf8("horizontalLayout_3"));
-        gridLayout_3 = new QGridLayout();
-        gridLayout_3->setObjectName(QString::fromUtf8("gridLayout_3"));
+        verticalLayout_4 = new QVBoxLayout(groupBox_3);
+        verticalLayout_4->setObjectName(QString::fromUtf8("verticalLayout_4"));
+        checkBoxDrawGrid = new QCheckBox(groupBox_3);
+        checkBoxDrawGrid->setObjectName(QString::fromUtf8("checkBoxDrawGrid"));
+
+        verticalLayout_4->addWidget(checkBoxDrawGrid);
+
         checkBoxDrawFaces = new QCheckBox(groupBox_3);
         checkBoxDrawFaces->setObjectName(QString::fromUtf8("checkBoxDrawFaces"));
         checkBoxDrawFaces->setChecked(true);
 
-        gridLayout_3->addWidget(checkBoxDrawFaces, 0, 0, 1, 1);
-
-        checkBoxDrawGrid = new QCheckBox(groupBox_3);
-        checkBoxDrawGrid->setObjectName(QString::fromUtf8("checkBoxDrawGrid"));
-
-        gridLayout_3->addWidget(checkBoxDrawGrid, 0, 1, 1, 1);
+        verticalLayout_4->addWidget(checkBoxDrawFaces);
 
         checkBoxDrawEdges = new QCheckBox(groupBox_3);
         checkBoxDrawEdges->setObjectName(QString::fromUtf8("checkBoxDrawEdges"));
         checkBoxDrawEdges->setChecked(true);
 
-        gridLayout_3->addWidget(checkBoxDrawEdges, 1, 0, 1, 1);
+        verticalLayout_4->addWidget(checkBoxDrawEdges);
 
         checkBoxPerspective = new QCheckBox(groupBox_3);
         checkBoxPerspective->setObjectName(QString::fromUtf8("checkBoxPerspective"));
         checkBoxPerspective->setEnabled(true);
         checkBoxPerspective->setChecked(true);
 
-        gridLayout_3->addWidget(checkBoxPerspective, 1, 1, 1, 1);
+        verticalLayout_4->addWidget(checkBoxPerspective);
 
 
-        horizontalLayout_3->addLayout(gridLayout_3);
+        verticalLayout_3->addWidget(groupBox_3);
 
-
-        verticalLayout_4->addWidget(groupBox_3);
-
-        groupBoxROI = new QGroupBox(layoutWidget);
-        groupBoxROI->setObjectName(QString::fromUtf8("groupBoxROI"));
-        groupBoxROI->setEnabled(true);
-        gridLayout_2 = new QGridLayout(groupBoxROI);
-        gridLayout_2->setObjectName(QString::fromUtf8("gridLayout_2"));
-        checkBoxROI = new QCheckBox(groupBoxROI);
-        checkBoxROI->setObjectName(QString::fromUtf8("checkBoxROI"));
-
-        gridLayout_2->addWidget(checkBoxROI, 0, 0, 1, 2);
-
-        label_5 = new QLabel(groupBoxROI);
-        label_5->setObjectName(QString::fromUtf8("label_5"));
-
-        gridLayout_2->addWidget(label_5, 0, 2, 1, 1);
-
-        label_6 = new QLabel(groupBoxROI);
-        label_6->setObjectName(QString::fromUtf8("label_6"));
-
-        gridLayout_2->addWidget(label_6, 0, 3, 1, 1);
-
-        label = new QLabel(groupBoxROI);
-        label->setObjectName(QString::fromUtf8("label"));
-
-        gridLayout_2->addWidget(label, 1, 0, 1, 1);
-
-        sliderMinI = new QSlider(groupBoxROI);
-        sliderMinI->setObjectName(QString::fromUtf8("sliderMinI"));
-        sliderMinI->setOrientation(Qt::Horizontal);
-
-        gridLayout_2->addWidget(sliderMinI, 1, 1, 1, 1);
-
-        sliderMinK = new QSlider(groupBoxROI);
-        sliderMinK->setObjectName(QString::fromUtf8("sliderMinK"));
-        sliderMinK->setOrientation(Qt::Vertical);
-
-        gridLayout_2->addWidget(sliderMinK, 1, 2, 4, 1);
-
-        sliderMaxK = new QSlider(groupBoxROI);
-        sliderMaxK->setObjectName(QString::fromUtf8("sliderMaxK"));
-        sliderMaxK->setOrientation(Qt::Vertical);
-
-        gridLayout_2->addWidget(sliderMaxK, 1, 3, 4, 1);
-
-        label_2 = new QLabel(groupBoxROI);
-        label_2->setObjectName(QString::fromUtf8("label_2"));
-
-        gridLayout_2->addWidget(label_2, 2, 0, 1, 1);
-
-        sliderMaxI = new QSlider(groupBoxROI);
-        sliderMaxI->setObjectName(QString::fromUtf8("sliderMaxI"));
-        sliderMaxI->setOrientation(Qt::Horizontal);
-
-        gridLayout_2->addWidget(sliderMaxI, 2, 1, 1, 1);
-
-        label_3 = new QLabel(groupBoxROI);
-        label_3->setObjectName(QString::fromUtf8("label_3"));
-
-        gridLayout_2->addWidget(label_3, 3, 0, 1, 1);
-
-        sliderMinJ = new QSlider(groupBoxROI);
-        sliderMinJ->setObjectName(QString::fromUtf8("sliderMinJ"));
-        sliderMinJ->setOrientation(Qt::Horizontal);
-
-        gridLayout_2->addWidget(sliderMinJ, 3, 1, 1, 1);
-
-        label_4 = new QLabel(groupBoxROI);
-        label_4->setObjectName(QString::fromUtf8("label_4"));
-
-        gridLayout_2->addWidget(label_4, 4, 0, 1, 1);
-
-        sliderMaxJ = new QSlider(groupBoxROI);
-        sliderMaxJ->setObjectName(QString::fromUtf8("sliderMaxJ"));
-        sliderMaxJ->setOrientation(Qt::Horizontal);
-
-        gridLayout_2->addWidget(sliderMaxJ, 4, 1, 1, 1);
-
-
-        verticalLayout_4->addWidget(groupBoxROI);
-
-        groupBox = new QGroupBox(layoutWidget);
+        groupBox = new QGroupBox(widget);
         groupBox->setObjectName(QString::fromUtf8("groupBox"));
         horizontalLayout = new QHBoxLayout(groupBox);
         horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
@@ -357,14 +278,14 @@ public:
         horizontalLayout->addLayout(gridLayout);
 
 
-        verticalLayout_4->addWidget(groupBox);
+        verticalLayout_3->addWidget(groupBox);
 
-        label_8 = new QLabel(layoutWidget);
+        label_8 = new QLabel(widget);
         label_8->setObjectName(QString::fromUtf8("label_8"));
 
-        verticalLayout_4->addWidget(label_8);
+        verticalLayout_3->addWidget(label_8);
 
-        snapshotSlider = new QSlider(layoutWidget);
+        snapshotSlider = new QSlider(widget);
         snapshotSlider->setObjectName(QString::fromUtf8("snapshotSlider"));
         QSizePolicy sizePolicy1(QSizePolicy::Preferred, QSizePolicy::Fixed);
         sizePolicy1.setHorizontalStretch(0);
@@ -374,9 +295,9 @@ public:
         snapshotSlider->setOrientation(Qt::Horizontal);
         snapshotSlider->setTickPosition(QSlider::TicksBelow);
 
-        verticalLayout_4->addWidget(snapshotSlider);
+        verticalLayout_3->addWidget(snapshotSlider);
 
-        splitter->addWidget(layoutWidget);
+        splitter->addWidget(widget);
         renderWidget = new SoQtWrapper(splitter);
         renderWidget->setObjectName(QString::fromUtf8("renderWidget"));
         QSizePolicy sizePolicy2(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -386,7 +307,7 @@ public:
         renderWidget->setSizePolicy(sizePolicy2);
         splitter->addWidget(renderWidget);
 
-        verticalLayout_5->addWidget(splitter);
+        horizontalLayout_3->addWidget(splitter);
 
         MainWindow->setCentralWidget(centralwidget);
         menubar = new QMenuBar(MainWindow);
@@ -451,20 +372,15 @@ public:
         action_ViewBack->setText(QApplication::translate("MainWindow", "Bac&k", 0, QApplication::UnicodeUTF8));
         tabWidget->setTabText(tabWidget->indexOf(tab), QApplication::translate("MainWindow", "Structure", 0, QApplication::UnicodeUTF8));
         tabWidget->setTabText(tabWidget->indexOf(tab_2), QApplication::translate("MainWindow", "Properties", 0, QApplication::UnicodeUTF8));
+        groupBoxFeatures->setTitle(QApplication::translate("MainWindow", "Features", 0, QApplication::UnicodeUTF8));
+        checkBoxTraps->setText(QApplication::translate("MainWindow", "Traps", 0, QApplication::UnicodeUTF8));
+        checkBoxMigrations->setText(QApplication::translate("MainWindow", "Migrations", 0, QApplication::UnicodeUTF8));
         label_7->setText(QApplication::translate("MainWindow", "Vertical scale", 0, QApplication::UnicodeUTF8));
         groupBox_3->setTitle(QApplication::translate("MainWindow", "Render style", 0, QApplication::UnicodeUTF8));
-        checkBoxDrawFaces->setText(QApplication::translate("MainWindow", "Faces", 0, QApplication::UnicodeUTF8));
         checkBoxDrawGrid->setText(QApplication::translate("MainWindow", "Coordinate grid", 0, QApplication::UnicodeUTF8));
+        checkBoxDrawFaces->setText(QApplication::translate("MainWindow", "Faces", 0, QApplication::UnicodeUTF8));
         checkBoxDrawEdges->setText(QApplication::translate("MainWindow", "Edges", 0, QApplication::UnicodeUTF8));
         checkBoxPerspective->setText(QApplication::translate("MainWindow", "Perspective", 0, QApplication::UnicodeUTF8));
-        groupBoxROI->setTitle(QApplication::translate("MainWindow", "ROI", 0, QApplication::UnicodeUTF8));
-        checkBoxROI->setText(QApplication::translate("MainWindow", "Enable", 0, QApplication::UnicodeUTF8));
-        label_5->setText(QApplication::translate("MainWindow", "minK", 0, QApplication::UnicodeUTF8));
-        label_6->setText(QApplication::translate("MainWindow", "maxK", 0, QApplication::UnicodeUTF8));
-        label->setText(QApplication::translate("MainWindow", "minI", 0, QApplication::UnicodeUTF8));
-        label_2->setText(QApplication::translate("MainWindow", "maxI", 0, QApplication::UnicodeUTF8));
-        label_3->setText(QApplication::translate("MainWindow", "minJ", 0, QApplication::UnicodeUTF8));
-        label_4->setText(QApplication::translate("MainWindow", "maxJ", 0, QApplication::UnicodeUTF8));
         groupBox->setTitle(QApplication::translate("MainWindow", "Slices", 0, QApplication::UnicodeUTF8));
         checkBoxSliceI->setText(QApplication::translate("MainWindow", "I", 0, QApplication::UnicodeUTF8));
         checkBoxSliceJ->setText(QApplication::translate("MainWindow", "J", 0, QApplication::UnicodeUTF8));

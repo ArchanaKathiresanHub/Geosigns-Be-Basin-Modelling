@@ -14,6 +14,7 @@
 
 #include <Inventor/nodes/SoGroup.h>
 #include <Inventor/nodes/SoSwitch.h>
+#include <Inventor/nodes/SoSphere.h>
 #include <Inventor/nodes/SoScale.h>
 #include <Inventor/nodes/SoShapeHints.h>
 #include <Inventor/nodes/SoAnnotation.h>
@@ -106,8 +107,7 @@ void SceneGraphManager::updateCoordinateGrid()
   float dx = sizeX * margin;
   float dy = sizeY * margin;
 
-  float verticalScale = m_scale->scaleFactor.getValue()[2];
-  SbVec3f start(-dx, -dy, -sizeZ * verticalScale);
+  SbVec3f start(-dx, -dy, -sizeZ * m_verticalScale);
   SbVec3f end(sizeX + dx, sizeY + dy, 0.0f);
   SbVec3f gradStart(start[0], start[1], (float)-snapshot.minZ);
   SbVec3f gradEnd(end[0], end[1], (float)-snapshot.maxZ);
@@ -392,16 +392,44 @@ void SceneGraphManager::updateSnapshotReservoirs()
     else if (!m_reservoirs[id].visible && res.root != 0)
     {
       snapshot.reservoirsGroup->removeChild(res.root);
-      res.root = 0;
-      res.mesh = 0;
-      res.meshData = 0;
-      res.scalarSet = 0;
-      res.propertyData = 0;
-      res.skin = 0;
+      res.clear();
     }
   }
 
   snapshot.reservoirsTimeStamp = m_reservoirsTimeStamp;
+}
+
+void SceneGraphManager::updateSnapshotTraps()
+{
+  assert(!m_snapshotInfoCache.empty());
+
+  SnapshotInfo& snapshot = *m_snapshotInfoCache.begin();
+  for (auto &res : snapshot.reservoirs)
+  {
+    int id = res.id;
+
+    if (m_reservoirs[id].visible)
+    {
+      // See if the vertical scale needs updating for existing traps
+      if (m_showTraps && res.traps.root != 0 && res.traps.verticalScale != m_verticalScale)
+      {
+        res.traps.setVerticalScale(m_verticalScale);
+      }
+      // See if we need to create new traps
+      else if (m_showTraps && res.traps.root == 0)
+      {
+        res.traps = Traps::create(snapshot.snapshot, m_reservoirs[id].object, m_verticalScale);
+        if (res.traps.root != 0)
+          res.root->addChild(res.traps.root);
+      }
+      // See if we need to remove existing traps
+      else if (!m_showTraps && res.traps.root != 0)
+      {
+        res.root->removeChild(res.traps.root);
+        res.traps.clear();
+      }
+    }
+  }
 }
 
 namespace
@@ -703,6 +731,7 @@ void SceneGraphManager::updateSnapshot()
   updateSnapshotFormations();
   updateSnapshotSurfaces();
   updateSnapshotReservoirs();
+  updateSnapshotTraps();
   updateSnapshotFaults();
   updateSnapshotProperties();
   updateSnapshotSlices();
@@ -997,7 +1026,7 @@ void SceneGraphManager::setupSceneGraph()
   setupCoordinateGrid();
 
   m_scale = new SoScale;
-  m_scale->scaleFactor = SbVec3f(1.f, 1.f, 1.f);
+  m_scale->scaleFactor = SbVec3f(1.f, 1.f, m_verticalScale);
 
   m_drawStyle = new MoDrawStyle;
   m_drawStyle->displayFaces = true;
@@ -1089,6 +1118,8 @@ SceneGraphManager::SceneGraphManager()
   , m_maxPersistentTrapId(0)
   , m_maxCacheItems(5)
   , m_showGrid(false)
+  , m_showTraps(false)
+  , m_verticalScale(1.f)
   , m_projectionType(PerspectiveProjection)
   , m_formationsTimeStamp(MxTimeStamp::getTimeStamp())
   , m_surfacesTimeStamp(MxTimeStamp::getTimeStamp())
@@ -1198,8 +1229,10 @@ void SceneGraphManager::setProjection(SceneGraphManager::ProjectionType type)
 
 void SceneGraphManager::setVerticalScale(float scale)
 {
+  m_verticalScale = scale;
   m_scale->scaleFactor = SbVec3f(1.f, 1.f, scale);
-  updateCoordinateGrid();
+
+  updateSnapshot();
 }
 
 void SceneGraphManager::setRenderStyle(bool drawFaces, bool drawEdges)
@@ -1314,6 +1347,16 @@ void SceneGraphManager::showCoordinateGrid(bool show)
       updateCoordinateGrid();
       m_coordinateGridSwitch->whichChild = SO_SWITCH_ALL;
     }
+  }
+}
+
+void SceneGraphManager::showTraps(bool show)
+{
+  if (show != m_showTraps)
+  {
+    m_showTraps = show;
+
+    updateSnapshot();
   }
 }
 
