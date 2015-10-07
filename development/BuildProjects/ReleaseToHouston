@@ -9,7 +9,7 @@ WHOAMI=`/usr/bin/whoami`
 REMOTEUSER=s_bpac00
 REMOTECOMPUTER=houcy1-n-sp030b01.americas.shell.com
 REMOTEACCOUNT=$REMOTEUSER@$REMOTECOMPUTER
-SSHKEYFILE=${HOME}/${REMOTEUSER}-id_dsa
+SSHKEYFILE=${HOME}/.ssh/${REMOTEUSER}-id_dsa
 IBSDIRECTORY=/apps/sssdev/ibs
 
 # Version number
