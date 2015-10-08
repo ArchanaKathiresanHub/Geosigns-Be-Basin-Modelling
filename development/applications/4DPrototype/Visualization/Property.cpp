@@ -12,7 +12,7 @@
 
 #include "Interface/GridMap.h"
 
-#include <MeshVizInterface/MxTimeStamp.h>
+#include <MeshVizXLM/MxTimeStamp.h>
 
 namespace di = DataAccess::Interface;
 

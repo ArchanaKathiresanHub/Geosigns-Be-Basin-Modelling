@@ -11,7 +11,7 @@
 #ifndef ROICELLFILTER_H_INCLUDED
 #define ROICELLFILTER_H_INCLUDED
 
-#include <MeshVizInterface/mesh/cell/MiCellFilterIjk.h>
+#include <MeshVizXLM/mesh/cell/MiCellFilterIjk.h>
 
 /**
  * Defines a 'region of interest' on the mesh, in order to show a grid-aligned subset

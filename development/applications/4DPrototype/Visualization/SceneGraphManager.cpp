@@ -23,19 +23,19 @@
 #include <Inventor/nodes/SoPerspectiveCamera.h>
 #include <Inventor/nodes/SoOrthographicCamera.h>
 
-#include <MeshVizInterface/MxTimeStamp.h>
-#include <MeshVizInterface/mapping/nodes/MoDrawStyle.h>
-#include <MeshVizInterface/mapping/nodes/MoMaterial.h>
-#include <MeshVizInterface/mapping/nodes/MoDataBinding.h>
-#include <MeshVizInterface/mapping/nodes/MoPredefinedColorMapping.h>
-#include <MeshVizInterface/mapping/nodes/MoLevelColorMapping.h>
-#include <MeshVizInterface/mapping/nodes/MoMesh.h>
-#include <MeshVizInterface/mapping/nodes/MoMeshSkin.h>
-#include <MeshVizInterface/mapping/nodes/MoMeshSlab.h>
-#include <MeshVizInterface/mapping/nodes/MoMeshSurface.h>
-#include <MeshVizInterface/mapping/nodes/MoScalarSet.h>
-#include <MeshVizInterface/mapping/nodes/MoScalarSetIjk.h>
-#include <MeshVizInterface/mapping/nodes/MoLegend.h>
+#include <MeshVizXLM/MxTimeStamp.h>
+#include <MeshVizXLM/mapping/nodes/MoDrawStyle.h>
+#include <MeshVizXLM/mapping/nodes/MoMaterial.h>
+#include <MeshVizXLM/mapping/nodes/MoDataBinding.h>
+#include <MeshVizXLM/mapping/nodes/MoPredefinedColorMapping.h>
+#include <MeshVizXLM/mapping/nodes/MoLevelColorMapping.h>
+#include <MeshVizXLM/mapping/nodes/MoMesh.h>
+#include <MeshVizXLM/mapping/nodes/MoMeshSkin.h>
+#include <MeshVizXLM/mapping/nodes/MoMeshSlab.h>
+#include <MeshVizXLM/mapping/nodes/MoMeshSurface.h>
+#include <MeshVizXLM/mapping/nodes/MoScalarSet.h>
+#include <MeshVizXLM/mapping/nodes/MoScalarSetIjk.h>
+#include <MeshVizXLM/mapping/nodes/MoLegend.h>
 
 #include <MeshViz/graph/PoAutoCubeAxis.h>
 #include <MeshViz/graph/PoLinearAxis.h>

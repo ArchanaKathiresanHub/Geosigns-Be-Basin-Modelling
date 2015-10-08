@@ -13,8 +13,8 @@
 
 #include "GridMapCollection.h"
 
-#include <MeshVizInterface/mesh/data/MiDataSetI.h>
-#include <MeshVizInterface/mesh/data/MiDataSetIjk.h>
+#include <MeshVizXLM/mesh/data/MiDataSetI.h>
+#include <MeshVizXLM/mesh/data/MiDataSetIjk.h>
 
 #include <vector>
 

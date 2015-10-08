@@ -37,8 +37,7 @@ namespace
     SoCpuBufferObject* scaleBuffer = new SoCpuBufferObject;
     scaleBuffer->setSize(sizeof(SbVec3f));
     SbVec3f* p = (SbVec3f*)scaleBuffer->map(SoBufferObject::SET);
-    // For some reason we have to compensate for the *squared* value of the vertical scale
-    *p = SbVec3f(1.f, 1.f, 1.f / (scale * scale));
+    *p = SbVec3f(1.f, 1.f, 1.f / scale);
     scaleBuffer->unmap();
 
     return scaleBuffer;

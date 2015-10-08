@@ -17,7 +17,7 @@
 
 #include <signal.h>
 
-#include <MeshVizInterface/mapping/MoMeshViz.h>
+#include <MeshVizXLM/mapping/MoMeshViz.h>
 
 #include <RemoteViz/Rendering/Service.h>
 #include <RemoteViz/Rendering/ServiceSettings.h>
@@ -56,6 +56,7 @@ int main(int /*argc*/, char* /*argv*/[])
 
   ServiceSettings settings;
   settings.setIP("172.28.16.121");
+  //settings.setIP("127.0.0.1");
   settings.setPort(8080);
   settings.setUsedExtensions(ServiceSettings::MESHVIZXLM | ServiceSettings::MESHVIZ);
 

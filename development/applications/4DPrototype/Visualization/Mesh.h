@@ -16,10 +16,10 @@
 #include "Interface/Interface.h"
 #include "Interface/GridMap.h"
 
-#include <MeshVizInterface/mesh/MiVolumeMeshHexahedronIjk.h>
-#include <MeshVizInterface/mesh/MiSurfaceMeshUnstructured.h>
-#include <MeshVizInterface/mesh/topology/MiSurfaceTopologyExplicitI.h>
-#include <MeshVizInterface/mesh/cell/MiSurfaceCell.h>
+#include <MeshVizXLM/mesh/MiVolumeMeshHexahedronIjk.h>
+#include <MeshVizXLM/mesh/MiSurfaceMeshUnstructured.h>
+#include <MeshVizXLM/mesh/topology/MiSurfaceTopologyExplicitI.h>
+#include <MeshVizXLM/mesh/cell/MiSurfaceCell.h>
 
 /**
 * Stores the node coordinates for a mesh

@@ -10,7 +10,7 @@
 
 #include "ROICellFilter.h"
 
-#include <MeshVizInterface/MxTimeStamp.h>
+#include <MeshVizXLM/MxTimeStamp.h>
 
 ROICellFilter::ROICellFilter()
   : m_minI(0)

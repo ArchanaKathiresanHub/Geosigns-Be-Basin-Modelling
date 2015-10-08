@@ -13,7 +13,7 @@
 
 #include <Visualization/SceneGraphManager.h>
 
-#include <MeshVizInterface/mapping/MoMeshViz.h>
+#include <MeshVizXLM/mapping/MoMeshViz.h>
 
 #include <RemoteViz/Rendering/Service.h>
 #include <RemoteViz/Rendering/ServiceSettings.h>

@@ -28,7 +28,7 @@
 #include <QtGui/QLabel>
 #include <QtCore/QTime>
 
-#include <MeshVizInterface/mapping/MoMeshviz.h>
+#include <MeshVizXLM/mapping/MoMeshviz.h>
 #include <MeshViz/PoMeshViz.h>
 
 #include <Visualization/CameraUtil.h>
