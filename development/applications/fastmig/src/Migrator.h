@@ -57,7 +57,7 @@ namespace migration
       void closeMassBalanceFile (void);
 
       /// The GeoPhysics methods used to initialise GeoPhysics::ProjectHandle and set up the grid.
-      void setUpBasinGeometry (void);
+      bool setUpBasinGeometry (void);
 
       bool computeFormationPropertyMaps (const Interface::Snapshot * snapshot, bool isPressureRun);
       bool removeComputedFormationPropertyMaps (void);

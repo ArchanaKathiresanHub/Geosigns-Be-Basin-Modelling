@@ -37,14 +37,14 @@ namespace migration
 
    void RequestHandling::StartRequestHandling (Migrator * requestHandler, const string& functionName)
    {
-      RequestHandling::GetInstance ().startRequestHandling (requestHandler, functionName);
+      RequestHandling::GetInstance ()->startRequestHandling (requestHandler, functionName);
    }
 
    /// Complete a request handling phase.
    /// Will finish after all processors have completed their phase.
    void RequestHandling::FinishRequestHandling ()
    {
-      RequestHandling::GetInstance ().finishRequestHandling ();
+      RequestHandling::GetInstance ()->finishRequestHandling ();
    }
    //-------------------------------------------------------------------------------------------------------------//
    /// 1. send a ColumnValueRequest request to another processor
@@ -504,7 +504,7 @@ namespace migration
 
    bool RequestHandling::ProxyUseAllowed ()
    {
-      return GetInstance ().proxyUseAllowed ();
+      return GetInstance ()->proxyUseAllowed ();
    }
 
    int SumAll (int myValue)
@@ -579,51 +579,54 @@ namespace migration
    {
    }
 
-   RequestHandling & RequestHandling::GetInstance ()
+    RequestHandling * RequestHandling::GetInstance ()
    {
-      if (!s_instance) s_instance = new RequestHandling;
-      return *s_instance;
+		if (!s_instance) 
+		{
+			s_instance = new RequestHandling;
+		}
+      return s_instance;
    }
 
    void RequestHandling::HandleRequests (RequestMode mode)
    {
-      RequestHandling::GetInstance ().handleRequests (mode);
+		RequestHandling::GetInstance ()->handleRequests (mode);
    }
 
    void RequestHandling::HandleRequests (RequestMode mode, ColumnValueRequest * columnValueResponse)
    {
-      RequestHandling::GetInstance ().handleRequests (mode, columnValueResponse, 0, 0, 0, 0, 0);
+      RequestHandling::GetInstance ()->handleRequests (mode, columnValueResponse, 0, 0, 0, 0, 0);
    }
 
    void RequestHandling::HandleRequests (RequestMode mode, ColumnCompositionRequest * columnCompositionResponse)
    {
-      RequestHandling::GetInstance ().handleRequests (mode, 0, 0, columnCompositionResponse, 0, 0, 0);
+      RequestHandling::GetInstance ()->handleRequests (mode, 0, 0, columnCompositionResponse, 0, 0, 0);
    }
 
    void RequestHandling::HandleRequests (RequestMode mode, ColumnValueArrayRequest * columnValueArrayResponse)
    {
-      RequestHandling::GetInstance ().handleRequests (mode, 0, columnValueArrayResponse, 0, 0, 0, 0);
+      RequestHandling::GetInstance ()->handleRequests (mode, 0, columnValueArrayResponse, 0, 0, 0, 0);
    }
 
    void RequestHandling::HandleRequests (RequestMode mode, FormationNodeValueRequest * formationNodeValueResponse)
    {
-      RequestHandling::GetInstance ().handleRequests (mode, 0, 0, 0, formationNodeValueResponse, 0, 0);
+      RequestHandling::GetInstance ()->handleRequests (mode, 0, 0, 0, formationNodeValueResponse, 0, 0);
    }
 
    void RequestHandling::HandleRequests (RequestMode mode, FormationNodeThreeVectorRequest * formationNodeThreeVectorResponse)
    {
-      RequestHandling::GetInstance ().handleRequests (mode, 0, 0, 0, 0, formationNodeThreeVectorResponse, 0);
+      RequestHandling::GetInstance ()->handleRequests (mode, 0, 0, 0, 0, formationNodeThreeVectorResponse, 0);
    }
 
    void RequestHandling::HandleRequests (RequestMode mode, FormationNodeThreeVectorValueRequest * formationNodeThreeVectorValueResponse)
    {
-      RequestHandling::GetInstance ().handleRequests (mode, 0, 0, 0, 0, 0, formationNodeThreeVectorValueResponse);
+      RequestHandling::GetInstance ()->handleRequests (mode, 0, 0, 0, 0, 0, formationNodeThreeVectorValueResponse);
    }
 
    void RequestHandling::HandleRequests (RequestMode mode, ColumnValueRequest * columnValueResponse, ColumnValueArrayRequest * valueArrayResponse, ColumnCompositionRequest * columnCompositionResponse,
                                          FormationNodeValueRequest * formationNodeValueResponse, FormationNodeThreeVectorRequest * formationNodeThreeVectorResponse, FormationNodeThreeVectorValueRequest * formationNodeThreeVectorValueResponse)
    {
-      RequestHandling::GetInstance ().handleRequests (mode, columnValueResponse, valueArrayResponse, columnCompositionResponse, formationNodeValueResponse, formationNodeThreeVectorResponse, formationNodeThreeVectorValueResponse);
+      RequestHandling::GetInstance ()->handleRequests (mode, columnValueResponse, valueArrayResponse, columnCompositionResponse, formationNodeValueResponse, formationNodeThreeVectorResponse, formationNodeThreeVectorValueResponse);
    }
 
    /// initialize a new request handling phase.

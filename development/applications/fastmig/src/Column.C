@@ -197,6 +197,7 @@ namespace migration {
    {
       m_topDepthOffset = 0;
       m_bottomDepthOffset = 0;
+      /// \brief Local column is initially filled with zeros
       std::fill (m_penetrationDistances, m_penetrationDistances + DiffusionComponentSize, (double) 0);
       m_diffusionStartTime = -1;
       clearProperties ();
@@ -369,21 +370,6 @@ namespace migration {
    const double * LocalColumn::getPenetrationDistances ()
    {
       return m_penetrationDistances;
-   }
-
-   void LocalColumn::setPenetrationDistance (ComponentId c, double penetrationDistance)
-   {
-      // #define DIFFUSIONDEBUG
-#ifdef DIFFUSIONDEBUG
-      cerr << this << ": " << m_penetrationDistances[c];
-#endif
-      // #undef DIFFUSIONDEBUG
-      m_penetrationDistances[c] = Max (m_penetrationDistances[c], penetrationDistance);
-      // #define DIFFUSIONDEBUG
-#ifdef DIFFUSIONDEBUG
-      cerr << " => " << m_penetrationDistances[c] << "(" << penetrationDistance << ")" << endl;
-#endif
-      // #undef DIFFUSIONDEBUG
    }
 
    double LocalColumn::getPenetrationDistance (ComponentId c)
@@ -2046,6 +2032,7 @@ namespace migration {
 
       valueArrayRequest.i = getI ();
       valueArrayRequest.j = getJ ();
+	  valueArrayRequest.reservoirIndex = m_reservoir->getIndex();
       valueArrayRequest.valueSpec = SETPENETRATIONDISTANCE;
       std::copy (penetrationDistances, penetrationDistances + DiffusionComponentSize, valueArrayRequest.value);
       RequestHandling::SendRequest (valueArrayRequest, valueArrayResponse);

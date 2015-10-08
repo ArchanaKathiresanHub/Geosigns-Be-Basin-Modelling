@@ -409,7 +409,6 @@ namespace migration
       virtual const double * getPenetrationDistances ();
 
       double getPenetrationDistance (ComponentId c);
-      void setPenetrationDistance (ComponentId c, double penetrationDistance);
 
       virtual void setFillDepth (PhaseId phase, double fillDepth);
       virtual double getFillDepth (PhaseId phase);

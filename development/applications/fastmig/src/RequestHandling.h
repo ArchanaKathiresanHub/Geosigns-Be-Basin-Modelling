@@ -57,7 +57,7 @@ namespace migration {
 
       void finishRequestHandling ();
 
-      static RequestHandling & GetInstance ();
+      static RequestHandling * GetInstance ();
 
       static bool ProxyUseAllowed (void);
 

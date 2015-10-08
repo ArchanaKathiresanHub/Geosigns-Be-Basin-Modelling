@@ -134,8 +134,8 @@ namespace migration
    const int WASTED = 4;
    const int SPILLED = 8;
 
-   const int DiffusionComponentSize = 3;
-
+   /// \brief Diffuse C1 to C5 contained in the gas phase of the trap
+   const int DiffusionComponentSize = 5;
    const int ColumnValueArraySize = 5;
 
    const double Sqrt2 = 1.4142135624;

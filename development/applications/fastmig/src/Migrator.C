@@ -48,6 +48,7 @@ using namespace migration;
 #include "Interface/RunParameters.h"
 #include "MassBalance.h"
 #include "utils.h"
+#include "Interface/SimulationDetails.h"
 
 #include "h5_parallel_file_types.h"
 
@@ -141,75 +142,75 @@ bool Migrator::compute (void)
    if (!started) return false;
 
    ios::fmtflags f (std::cout.flags ());
-      std::cout << std::setfill (' ');
-      std::cout.flags ( f );
+   std::cout << std::setfill (' ');
+   std::cout.flags ( f );
       
-         if (!started) return false;
+   if (!started) return false;
   
-         openMassBalanceFile ();
+   openMassBalanceFile ();
 
-            ComputeRanks (m_projectHandle->getActivityOutputGrid ());
+   ComputeRanks (m_projectHandle->getActivityOutputGrid ());
 
-            setUpBasinGeometry ();
+   if (!setUpBasinGeometry ()) return false;
 
-            m_verticalMigration = m_projectHandle->getRunParameters ()->getVerticalSecondaryMigration ();
-            m_hdynamicAndCapillary = m_projectHandle->getRunParameters ()->getHydrodynamicCapillaryPressure ();
-            m_reservoirDetection = m_projectHandle->getRunParameters ()->getReservoirDetection ();
+   m_verticalMigration = m_projectHandle->getRunParameters ()->getVerticalSecondaryMigration ();
+   m_hdynamicAndCapillary = m_projectHandle->getRunParameters ()->getHydrodynamicCapillaryPressure ();
+   m_reservoirDetection = m_projectHandle->getRunParameters ()->getReservoirDetection ();
 
-            bool pressureRun = isPressureRun ();
+   bool pressureRun = isPressureRun ();
 
-            computeFormationPropertyMaps (m_projectHandle->getSnapshots ()->front (), pressureRun);
+   computeFormationPropertyMaps (m_projectHandle->getSnapshots ()->front (), pressureRun);
 
-            createFormationNodes ();
+   createFormationNodes ();
 
-            // compute the positions of the reservoirs within the formations
-            computeDepthOffsets ();
-            computeNetToGross ();
+   // compute the positions of the reservoirs within the formations
+   computeDepthOffsets ();
+   computeNetToGross ();
 
-            removeComputedFormationPropertyMaps ();
+   removeComputedFormationPropertyMaps ();
 
-            PetscBool minorSnapshots;
+   PetscBool minorSnapshots;
 
-            PetscOptionsHasName (PETSC_NULL, "-minor", &minorSnapshots);
+   PetscOptionsHasName (PETSC_NULL, "-minor", &minorSnapshots);
  
-            Interface::SnapshotList * snapshots = m_projectHandle->getSnapshots (minorSnapshots ? (Interface::MAJOR | Interface::MINOR)
-                                                                                 : Interface::MAJOR);
+   Interface::SnapshotList * snapshots = m_projectHandle->getSnapshots (minorSnapshots ? (Interface::MAJOR | Interface::MINOR)
+                                                                        : Interface::MAJOR);
 
-            Interface::SnapshotList::reverse_iterator snapshotIter;
+   Interface::SnapshotList::reverse_iterator snapshotIter;
 
-            const Interface::Snapshot * start;
-            const Interface::Snapshot * end = 0;
+   const Interface::Snapshot * start;
+   const Interface::Snapshot * end = 0;
 
-            // skip the first as it does not contain meaningful data.
-            for (snapshotIter = snapshots->rbegin (), ++snapshotIter; snapshotIter != snapshots->rend (); ++snapshotIter)
-            {
-               start = end;
-               end = *snapshotIter;
-               if (!start) continue;
+   // skip the first as it does not contain meaningful data.
+   for (snapshotIter = snapshots->rbegin (), ++snapshotIter; snapshotIter != snapshots->rend (); ++snapshotIter)
+   {
+      start = end;
+      end = *snapshotIter;
+      if (!start) continue;
 
-               if (!performSnapshotMigration (start, end, pressureRun))
-                  return false;
-            }
+      if (!performSnapshotMigration (start, end, pressureRun))
+         return false;
+   }
       
-            m_propertyManager->removeProperties (end);
-            m_projectHandle->deletePropertyValueGridMaps (Interface::SURFACE | Interface::FORMATION | Interface::FORMATIONSURFACE | Interface::RESERVOIR,
-                                                          0, end, 0, 0, 0, Interface::MAP | Interface::VOLUME);
+   m_propertyManager->removeProperties (end);
+   m_projectHandle->deletePropertyValueGridMaps (Interface::SURFACE | Interface::FORMATION | Interface::FORMATIONSURFACE | Interface::RESERVOIR,
+                                                 0, end, 0, 0, 0, Interface::MAP | Interface::VOLUME);
 
-            delete snapshots;
+   delete snapshots;
 
-            closeMassBalanceFile ();
+   closeMassBalanceFile ();
 
-            m_projectHandle->finishActivity ();
+   m_projectHandle->finishActivity ();
 
-            m_projectHandle->setSimulationDetails("fastmig", "Default", "");
+   m_projectHandle->setSimulationDetails("fastmig", "Default", "");
 
-            bool status = true;
-            if (!mergeOutputFiles ()) {
-               PetscPrintf (PETSC_COMM_WORLD, "MeSsAgE ERROR Unable to merge output files\n");
-               status = false;
-            }
+   bool status = true;
+   if (!mergeOutputFiles ()) {
+      PetscPrintf (PETSC_COMM_WORLD, "MeSsAgE ERROR Unable to merge output files\n");
+      status = false;
+   }
 
-            return status;
+   return status;
 }
 
 void Migrator::openMassBalanceFile (void)
@@ -234,13 +235,27 @@ void Migrator::closeMassBalanceFile (void)
    }
 }
 
-void Migrator::setUpBasinGeometry (void)
+bool Migrator::setUpBasinGeometry (void)
 {
-   // From GeoPhysics::ProjectHandle
-   m_projectHandle->initialise ();
-   m_projectHandle->setFormationLithologies (true, true);
-   m_projectHandle->initialiseLayerThicknessHistory (true); // Backstripping
-   m_projectHandle->applyFctCorrections ();
+	bool HydrostaticCalculation = false;
+	const DataAccess::Interface::SimulationDetails* lastFastcauldronRun = m_projectHandle->getDetailsOfLastSimulation ("fastcauldron");
+
+	if (lastFastcauldronRun != 0)
+	{
+		HydrostaticCalculation = lastFastcauldronRun->getSimulatorMode () == "HydrostaticTemperature" or
+			lastFastcauldronRun->getSimulatorMode () == "HydrostaticHighResDecompaction" or
+			lastFastcauldronRun->getSimulatorMode () == "HydrostaticTemperature" or
+			lastFastcauldronRun->getSimulatorMode () == "HydrostaticDarcy";
+	}
+
+	// From GeoPhysics::ProjectHandle
+	if (!m_projectHandle->initialise () ||
+		!m_projectHandle->setFormationLithologies (true, true) ||
+		!m_projectHandle->initialiseLayerThicknessHistory (!HydrostaticCalculation) || // Backstripping
+		!m_projectHandle->applyFctCorrections ())
+		return false;
+	else
+		return true;
 }
 
 bool Migrator::computeFormationPropertyMaps (const Interface::Snapshot * snapshot, bool isPressureRun)
@@ -911,9 +926,11 @@ bool Migrator::chargeReservoir (migration::Reservoir * reservoir, migration::Res
    totalLeakedUpward -= totalLeakedOutward;
    if (GetRank () == 0) m_massBalance->subtractFromBalance ("Leaked upward from reservoir", totalLeakedUpward);
 
+	/// \brief For each column in the trap set the diffusion starting time
+	reservoir->broadcastTrapDiffusionStartTimes ();
 
-   reservoir->broadcastTrapDiffusionStartTimes ();
-   reservoir->broadcastTrapPenetrationDistances ();
+	/// \brief For each column in the trap set the new penetration distances
+	reservoir->broadcastTrapPenetrationDistances ();
 
    reservoir->broadcastTrapFillDepthProperties ();
    reservoir->broadcastTrapChargeProperties ();
@@ -1052,9 +1069,9 @@ bool Migrator::collectAndMigrateExpelledCharges (migration::Reservoir * reservoi
       if (barrier && (directionsToCollect & EXPELLEDUPWARD))
          barrier->updateBlocking (formation, end);
 
-      if (reservoirBelow && reservoirBelow->isActive (end) &&
-          formationBelow == reservoirBelow->getFormation () &&
-          !performHDynamicAndCapillary ())
+		if (reservoirBelow && reservoirBelow->isActive (end) &&
+			formationBelow == reservoirBelow->getFormation () &&
+			!performHDynamicAndCapillary ()) //as in sec-mig 
       {
          break;
       }

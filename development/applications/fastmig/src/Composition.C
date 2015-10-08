@@ -221,15 +221,15 @@ void Composition::computeDiffusionLeakages(const double& diffusionStartTime, con
       if (molarFraction == 0.0)
          continue;
 
-// #define DIFFUSIONDEBUG
+      // #define DIFFUSIONDEBUG
 #ifdef DIFFUSIONDEBUG
       cerr << pvtFlash::
-            ComponentIdNames[componentId] << ": Diffusing " << getWeight (componentId) << " kg" << endl;
+         ComponentIdNames[componentId] << ": Diffusing " << getWeight (componentId) << " kg" << endl;
 #endif
-// #undef DIFFUSIONDEBUG
+      // #undef DIFFUSIONDEBUG
 
       diffusionLeaks[index]->compute (diffusionStartTime, intervalStartTime, intervalEndTime, getWeight (componentId), molarFraction,
-                                          solubilities[index], surfaceArea, lost);
+                                      solubilities[index], surfaceArea, lost);
 
       compositionOut->set (componentId, getWeight (componentId) - lost);
       compositionLost->set (componentId, lost);

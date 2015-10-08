@@ -2412,27 +2412,7 @@ namespace migration
 
    bool Reservoir::isDiffusionOn (void)
    {
-      static int diffusionOn = -1;
-
-      bool diffusionTurnedOn = Interface::Reservoir::isDiffusionOn ();
-
-      if (diffusionTurnedOn && diffusionOn < 0)
-      {
-         char *envStr = getenv ("Diffusion_On");
-         if (envStr)
-         {
-            diffusionOn = 1;
-         }
-         else
-         {
-            if (GetRank () == 0)
-            {
-               cerr << "WARNING: Diffusion currently disabled" << endl;
-            }
-            diffusionOn = 0;
-         }
-      }
-      return (diffusionOn && diffusionTurnedOn);
+	return Interface::Reservoir::isDiffusionOn ();
    }
 
    bool Reservoir::diffusionLeakCharges ()
@@ -2661,6 +2641,7 @@ namespace migration
          trap->broadcastPenetrationDistances ();
       }
       RequestHandling::FinishRequestHandling ();
+
    }
 
    void Reservoir::broadcastTrapFillDepthProperties (void)
