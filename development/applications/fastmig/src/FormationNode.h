@@ -209,13 +209,14 @@ namespace migration
       bool computeCapillaryPressure (WaterSaturation waterSaturation, double & pressureGas, double & pressureOil);
       double computeBrooksCoreyCorrection (double Sw, double lamda) const;
 
-      bool detectReservoir (LocalFormationNode * topNode, const double minOilColumnHeight, const double minGasColumnHeight);
+      bool detectReservoir (LocalFormationNode * topNode, const double minOilColumnHeight, const double minGasColumnHeight, const bool pressureRun);
       void identifyAsReservoir (void);
 
       void computeNodeProperties (void);
       void computeAnalogFlowDirection (void);
       void determineThicknessProperties (void);
 
+      void setOverPressure (double);
 
       void computeAdjacentNode (void);
       void computeCosines (void);
@@ -256,6 +257,7 @@ namespace migration
       double getVerticalPermeability ();
       double getPorosity ();
       double getWaterDensity ();
+      double getOverPressure ();
 
       void setReservoirGas (bool flag);
       void setReservoirOil (bool flag);
@@ -310,6 +312,7 @@ namespace migration
       double m_horizontalPermeability;
       double m_verticalPermeability;
       double m_porosity;
+      double m_overPressure;
 
       double m_height_oil;                     // actual height of oil (C6-14) column   (only for uppermost cells!)
       double m_height_gas;                     // actual height of gas (methane) column (only for uppermost cells!)

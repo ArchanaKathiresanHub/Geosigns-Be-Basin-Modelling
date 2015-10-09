@@ -154,8 +154,42 @@ namespace migration
             return false;
          if ((m_gridMaps[HORIZONTALPERMEABILITYPROPERTY] = getVolumePropertyGridMap ("HorizontalPermeability", snapshot)) == 0)
             return false;
+		 //if ((m_gridMaps[OVERPRESSUREPROPERTY] = getVolumePropertyGridMap("OverPressure", snapshot)) == 0)
+			// return false;
 
          return true;
+      }
+
+      // Compute OverPressure if a pressure run.
+      if (isPressureRun)
+      {
+         DerivedProperties::FormationPropertyPtr gridMap = getFormationPropertyPtr ("OverPressure", snapshot);
+
+         if (gridMap == 0)
+         {
+            return false;
+         }
+
+         unsigned int depth = gridMap->lengthK ();
+         assert (depth > 1);
+
+         gridMap->retrieveData ();
+         for (unsigned int i = m_formationNodeArray->firstILocal (); i <= m_formationNodeArray->lastILocal (); ++i)
+         {
+            for (unsigned int j = m_formationNodeArray->firstJLocal (); j <= m_formationNodeArray->lastJLocal (); ++j)
+            {
+               for (unsigned int k = 0; k < depth; ++k)
+               {
+                  LocalFormationNode * formationNode = getLocalFormationNode (i, j, k);
+                  //double index = (depth - 1) - column->getTopDepthOffset () * (depth - 1);
+                  //index = Max ((double)0, index);
+                  //index = Min ((double)depth - 1, index);
+
+                  formationNode->setOverPressure (gridMap->interpolate (i, j, (double) k));
+               }
+            }
+         }
+         gridMap->restoreData ();
       }
 
       SmartGridMapRetrieval    vesPropertyGridMapRetrieval (m_gridMaps[VESPROPERTY], false);
@@ -1005,6 +1039,17 @@ namespace migration
 
       nd->setValue (request);
    }
+
+   DerivedProperties::FormationPropertyPtr Formation::getFormationPropertyPtr (const string & propertyName, const Interface::Snapshot * snapshot) const
+   {
+
+      const DataAccess::Interface::Property* property = m_migrator->getProjectHandle()->findProperty (propertyName);
+
+      DerivedProperties::FormationPropertyPtr theProperty =
+         m_migrator->getPropertyManager ().getFormationProperty (property, snapshot, dynamic_cast<const DataAccess::Interface::Formation *> (this));
+
+      return theProperty;
+   }
  
    // Use this method for getting a formation map of "primary" properties. If the formation map is not available calculate a surface map on-the-fly.
    const GridMap* Formation::getFormationPrimaryPropertyGridMap (const Property* prop, const Interface::Snapshot * snapshot) const {
@@ -1217,7 +1262,7 @@ namespace migration
       return true;
    }
 
-   bool Formation::computeNodeProperties (void)
+   bool Formation::computeNodeProperties ()
    {
       if (m_formationNodeArray) m_formationNodeArray->computeProperties ();
       return true;
@@ -1232,7 +1277,8 @@ namespace migration
    //
    // Loop through the uppermost cells and check capillary pressure across the boundary
    //
-   bool Formation::detectReservoir (Formation * topFormation, const double minOilColumnHeight, const double minGasColumnHeight)
+   bool Formation::detectReservoir (Formation * topFormation,
+      const double minOilColumnHeight, const double minGasColumnHeight, const bool pressureRun)
    {
       int upperIndex = getNodeDepth () - 1;
       int lowerIndex = 0;
@@ -1242,7 +1288,7 @@ namespace migration
          for (int j = (int) m_formationNodeArray->firstJLocal (); j <= (int) m_formationNodeArray->lastJLocal (); ++j)
          {
             getLocalFormationNode (i, j, upperIndex)->detectReservoir (topFormation->getLocalFormationNode (i, j, lowerIndex),
-                                                                       minOilColumnHeight, minGasColumnHeight);
+                                                                       minOilColumnHeight, minGasColumnHeight, pressureRun);
          }
       }
       return false;

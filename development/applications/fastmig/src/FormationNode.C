@@ -746,7 +746,8 @@ namespace migration {
    //
    // Check change of capillary pressure across boundary to determine potential reservoir
    // 
-   bool LocalFormationNode::detectReservoir (LocalFormationNode * topNode, const double minOilColumnHeight, const double minGasColumnHeight)
+   bool LocalFormationNode::detectReservoir (LocalFormationNode * topNode,
+      const double minOilColumnHeight, const double minGasColumnHeight, const bool pressureRun)
    {
 
       if (!IsValid (this)) return true;
@@ -762,8 +763,8 @@ namespace migration {
       {
          if (topNode->isImpermeable ())
          {
-            gasFlag |= true;
-            oilFlag |= true;
+            gasFlag = true;
+            oilFlag = true;
          }
 
          double capillaryPressureGasReservoir;
@@ -787,28 +788,35 @@ namespace migration {
             double gasDensity = m_formation->getGasDensity (i, j, k);
             double oilDensity = m_formation->getOilDensity (i, j, k);
 
+            // calculate overpressure difference
+            double dOverPressure;
+            if (pressureRun)
+               dOverPressure = topNode->getOverPressure () - getOverPressure ();
+            else
+               dOverPressure = 0.0;
+
             // calculate actual capillary pressure sealing for gas
             cp_gas = capillaryPressureGasSeal - capillaryPressureGasReservoir * resCorr;
 
             // calculate maximum height of the hydrocarbons column for gas
-            m_height_gas = cp_gas / ((getWaterDensity () - gasDensity) * CBMGenerics::Gravity);
+            m_height_gas = (cp_gas + dOverPressure) / ((getWaterDensity () - gasDensity) * CBMGenerics::Gravity);
 
             // if actual height is greater than the user-defined minimum - raise potential reservoir flag
             if (m_height_gas > minGasColumnHeight)
             {
-               gasFlag |= true;
+               gasFlag = true;
             }
 
             // calculate actual capillary pressure sealing for oil
             cp_oil = capillaryPressureOilSeal - capillaryPressureOilReservoir * resCorr;
 
             // calculate maximum height of the hydrocarbons column for oil
-            m_height_oil = cp_oil / ((getWaterDensity () - oilDensity) * CBMGenerics::Gravity);
+            m_height_oil = (cp_oil + dOverPressure) / ((getWaterDensity () - oilDensity) * CBMGenerics::Gravity);
 
-            // if actual height is greater than the user-defined minimum - raise potential reservor flag
+            // if actual height is greater than the user-defined minimum - raise potential reservoir flag
             if (m_height_oil > minOilColumnHeight)
             {
-               oilFlag |= true;
+               oilFlag = true;
             }
          }
       }
@@ -826,9 +834,6 @@ namespace migration {
    //
    bool LocalFormationNode::computeCapillaryPressure (WaterSaturation waterSaturation, double & pressureGas, double & pressureOil)
    {
-      // should no be here if waterSaturation == low and no thickness
-      assert (waterSaturation == HIGH || hasThickness ());
-
       if (hasNoThickness ())
       {
          if (m_topFormationNode)
@@ -845,7 +850,7 @@ namespace migration {
       const int j = getJ ();
       const int k = getK ();
 
-      // Use of Capillary-Pressure maps at 100% water saturation as calculated in  Formation::computeCapillaryPressureMaps
+      // Use of Capillary-Pressure maps at 100% water saturation as calculated in Formation::computeCapillaryPressureMaps
       pressureOil = m_formation->getCapillaryPressureOil100 (i, j, k);
       pressureGas = m_formation->getCapillaryPressureGas100 (i, j, k);
 
@@ -1387,6 +1392,16 @@ namespace migration {
          return Interface::DefaultUndefinedMapValue;
    }
 
+   double LocalFormationNode::getOverPressure ()
+   {
+      if (hasThickness ())
+         return m_overPressure;
+      else if (m_topFormationNode)
+         return m_topFormationNode->getOverPressure ();
+      else
+         return Interface::DefaultUndefinedMapValue;
+   }
+
 #ifdef TOBETESTED
    double LocalFormationNode::getValueAtOffset (int offset)
    {
@@ -1408,6 +1423,11 @@ namespace migration {
    void LocalFormationNode::setReservoirOil (bool flag)
    {
       m_isReservoirOil = flag;
+   }
+
+   void LocalFormationNode::setOverPressure (double overPressure)
+   {
+      m_overPressure = overPressure;
    }
 
    bool LocalFormationNode::getReservoirGas (void)

@@ -374,7 +374,7 @@ bool Migrator::performSnapshotMigration (const Interface::Snapshot * start, cons
           !retrieveFormationCapillaryPressureMaps (end) ||
           !retrieveFormationPropertyMaps (end) ||
           !computeFormationNodeProperties (end) ||
-          !detectReservoirs (end) ||
+          !detectReservoirs (end, pressureRun) ||
           !computeSMFlowPaths (start, end) ||
           !restoreFormationPropertyMaps (end) ||
           !loadExpulsionMaps (start, end) ||
@@ -678,7 +678,7 @@ migration::Formation * Migrator::getBottomActiveReservoirFormation (const Interf
   ( difference between 0% saturation capillary pressure at current formation
   and 100% capillary pressure at lowermost cells of formation above ).
 */
-bool Migrator::detectReservoirs (const Interface::Snapshot * end)
+bool Migrator::detectReservoirs (const Interface::Snapshot * end, const bool pressureRun)
 {
    // first, find the bottommost active reservoir formation
    Formation *bottomReservoirFormation = getBottomActiveReservoirFormation (end);
@@ -725,7 +725,7 @@ bool Migrator::detectReservoirs (const Interface::Snapshot * end)
             m_minOilColumnHeight = reservoir->getMinOilColumnHeight ();
             m_minGasColumnHeight = reservoir->getMinGasColumnHeight ();
 
-            reservoirFormation->detectReservoir (sealFormation, m_minOilColumnHeight, m_minGasColumnHeight);
+            reservoirFormation->detectReservoir (sealFormation, m_minOilColumnHeight, m_minGasColumnHeight, pressureRun);
          }
       }
    }

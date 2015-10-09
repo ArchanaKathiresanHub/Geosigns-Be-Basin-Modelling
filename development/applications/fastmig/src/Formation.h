@@ -40,6 +40,7 @@ using namespace DataAccess;
 #include "SurfaceGridMap.h"
 #include "FormationSurfaceGridMaps.h"
 #include "RequestDefs.h"
+#include "FormationProperty.h"
 
 /// Formation Class
 namespace migration
@@ -101,7 +102,7 @@ namespace migration
       int getNodeDepth (void) const;
       int getGridMapDepth (void);
 
-      bool detectReservoir (Formation * topFormation, const double minOilColumnHeight, const double minGasColumnHeight);
+      bool detectReservoir (Formation * topFormation, const double minOilColumnHeight, const double minGasColumnHeight, const bool pressureRun);
       void saveReservoir (const Interface::Snapshot * curSnapshot);
 
       void identifyAsReservoir (void) const;
@@ -159,7 +160,7 @@ namespace migration
 
       bool clearNodeProperties (void);
       bool clearNodeReservoirProperties (void);
-      bool computeNodeProperties (void);
+      bool computeNodeProperties ();
 
       const Interface::Grid * getGrid (void) const;
       double getDeltaI (void);
@@ -235,6 +236,8 @@ namespace migration
 
       // Map of all genex data
       Interface::GridMap* m_genexData;
+
+      DerivedProperties::FormationPropertyPtr getFormationPropertyPtr (const string & propertyName, const Interface::Snapshot * snapshot) const;
 
       bool computeInterpolator (const string & propertyName, const Interface::Snapshot *intervalStart, const Interface::Snapshot *intervalEnd,
                                 Genex6::LinearGridInterpolator& interpolator);
