@@ -866,9 +866,9 @@ namespace migration {
 
 			//set isSealingNeighbourNode as in Reservoir::getAdjacentColumn
 			if (phase == GAS)
-				isSealingNeighbourNode = (neighbourNode->getFaultStatus () == FaultStatus::SEAL);
+				isSealingNeighbourNode = (neighbourNode->getFaultStatus () == SEAL);
 			else
-				isSealingNeighbourNode = (neighbourNode->getFaultStatus() == FaultStatus::SEAL || neighbourNode->getFaultStatus() == FaultStatus::SEALOIL);
+				isSealingNeighbourNode = (neighbourNode->getFaultStatus() == SEAL || neighbourNode->getFaultStatus() == SEALOIL);
 
 			if (isSealingNeighbourNode)
 			{
