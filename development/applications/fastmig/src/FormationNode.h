@@ -212,6 +212,9 @@ namespace migration
       bool detectReservoir (LocalFormationNode * topNode, const double minOilColumnHeight, const double minGasColumnHeight, const bool pressureRun);
       void identifyAsReservoir (void);
 
+		// check if the formation node "belongs" to a column trap crest
+		void isCrestNode (PhaseId phase);
+
       void computeNodeProperties (void);
       void computeAnalogFlowDirection (void);
       void determineThicknessProperties (void);

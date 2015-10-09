@@ -242,6 +242,8 @@ namespace migration
    const double StockTankPressure = 0.101325;	// Stock tank pressure in MPa
    const double StockTankTemperature = 15.0;		// Stock tank temperature in C
 
+   const double MinColumnHeight = 0.5;
+
    // virtual reservoir depth at a waste point, a sufficiently large, negative number
    const double WasteDepth = -199999;
    // virtual reservoir depth at a sealing point, a sufficiently large, positive number

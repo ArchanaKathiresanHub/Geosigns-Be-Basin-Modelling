@@ -95,6 +95,12 @@ namespace migration
       Formation * getBottomActiveReservoirFormation (const Interface::Snapshot * end);
       Formation * getTopActiveReservoirFormation (const Interface::Snapshot * end);
 
+		// If getMinOilColumnHeight and getMinGasColumnHeight get moved to RunOptionsIoTbl these functions can be used
+		/*
+		double getMinOilColumnHeight (void) const;
+		double getMinGasColumnHeight (void) const;
+		*/
+
       GeoPhysics::ProjectHandle * getProjectHandle (void);
 
       void clearFormationNodeProperties ();
@@ -209,9 +215,6 @@ namespace migration
       bool m_isBlockingOn;
       double m_blockingPermeability;
       double m_blockingPorosity;
-
-      double m_minOilColumnHeight;
-      double m_minGasColumnHeight;
 
       vector<database::Record *> * m_migrationRecordLists;
       std::auto_ptr<MigrationPropertyManager> m_propertyManager;

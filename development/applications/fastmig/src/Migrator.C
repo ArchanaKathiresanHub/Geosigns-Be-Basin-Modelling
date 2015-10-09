@@ -77,7 +77,6 @@ Migrator::Migrator (const string & name)//, DataAccess::Interface::ObjectFactory
    m_massBalance = 0;
    m_propertyManager.reset (new MigrationPropertyManager (m_projectHandle.get ()));
 
-
    m_reservoirs = 0;
    m_formations = 0;
    InitializeRequestTypes ();
@@ -671,6 +670,20 @@ migration::Formation * Migrator::getBottomActiveReservoirFormation (const Interf
    return bottomActiveReservoirFormation;
 }
 
+// If getMinOilColumnHeight and getMinGasColumnHeight get moved to RunOptionsIoTbl these functions can be used
+/*
+double Migrator::getMinOilColumnHeight (void) const
+{
+	return m_projectHandle->getRunParameters ()->getMinOilColumnHeight ();
+}
+
+double Migrator::getMinGasColumnHeight (void) const
+{
+
+	return m_projectHandle->getRunParameters ()->getMinGasColumnHeight ();
+}
+*/
+
 /*
   Reservoir definition based on capillary pressure evaluation.
   Begin from bottom most active reservoir. Go up. Looping through
@@ -678,7 +691,8 @@ migration::Formation * Migrator::getBottomActiveReservoirFormation (const Interf
   ( difference between 0% saturation capillary pressure at current formation
   and 100% capillary pressure at lowermost cells of formation above ).
 */
-bool Migrator::detectReservoirs (const Interface::Snapshot * end, const bool pressureRun)
+/*
+bool Migrator::detectReservoirs (const Interface::Snapshot * end)
 {
    // first, find the bottommost active reservoir formation
    Formation *bottomReservoirFormation = getBottomActiveReservoirFormation (end);
@@ -725,13 +739,104 @@ bool Migrator::detectReservoirs (const Interface::Snapshot * end, const bool pre
             m_minOilColumnHeight = reservoir->getMinOilColumnHeight ();
             m_minGasColumnHeight = reservoir->getMinGasColumnHeight ();
 
-            reservoirFormation->detectReservoir (sealFormation, m_minOilColumnHeight, m_minGasColumnHeight, pressureRun);
+            reservoirFormation->detectReservoir (sealFormation, m_minOilColumnHeight, m_minGasColumnHeight);
          }
       }
    }
 
    return true;
 }
+*/
+
+/*
+Reservoir definition based on capillary pressure evaluation.
+Begin from bottom most active reservoir. Go up. Looping through
+the uppermost cells of each formation and check the capillary pressure jump
+( difference between 0% saturation capillary pressure at current formation
+and 100% capillary pressure at lowermost cells of formation above ).
+*/
+bool Migrator::detectReservoirs (const Interface::Snapshot * end, const bool pressureRun)
+{
+
+	// first, find the the bottommost RESERVOIR formation where HC can go
+	Formation *bottomSourceRockFormation = getBottomSourceRockFormation ();
+
+	if (bottomSourceRockFormation == 0)
+		return false;
+
+	Formation * bottomFormation = 0;
+	Formation * belowBelowSourceRockFormation = 0;
+	Formation * belowSourceRockFormation = bottomSourceRockFormation->getBottomFormation ();
+	if (belowSourceRockFormation)
+		belowBelowSourceRockFormation = belowSourceRockFormation->getBottomFormation ();
+
+	if (belowBelowSourceRockFormation != 0)
+		bottomFormation = belowBelowSourceRockFormation; //+2
+	else
+	{
+		if (belowSourceRockFormation != 0)
+			bottomFormation = belowSourceRockFormation;  // +1
+		else
+			bottomFormation = bottomSourceRockFormation; // SR
+	}
+
+	if (bottomFormation == 0) return false;
+
+	//cerr << " bottomFormation ard is "<< bottomFormation->getName () << endl;
+	
+	// Second, find the topmost SEAL formation
+	Formation *topActiveFormation = getTopActiveFormation (end);
+	Formation * topSealFormation = 0;
+
+	if (topActiveFormation)
+	{
+		topSealFormation = topActiveFormation;
+		assert (topActiveFormation);
+	}
+
+	//cerr << " topActiveFormation ard is "<< topActiveFormation->getName () << endl;
+
+	//Loop over the formations, to identify the Reservoirs, with these requirements:
+	// 1. they must be not source rock formations?
+
+	Formation *reservoirFormation;
+	Formation *sealFormation;
+
+	bool topSealFormationReached = false;
+	for (reservoirFormation = bottomFormation, sealFormation = (Formation *) reservoirFormation->getTopFormation ();
+		sealFormation != 0 && !topSealFormationReached;
+		reservoirFormation = sealFormation, sealFormation = (Formation *) sealFormation->getTopFormation ())
+	{
+		//check if top seal formation is reached
+		topSealFormationReached = (sealFormation == topSealFormation);
+
+		//Assigns top-row nodes of user-selected reservoirs as reservoir nodes, no need to identify the Reservoir here 
+		assert (reservoirFormation);
+		if (!getReservoirs (reservoirFormation)->empty ())
+		{
+			reservoirFormation->identifyAsReservoir ();
+			continue;
+      }
+
+		if (m_reservoirDetection)
+		{
+			//if the formation is a source rock this can not be a reservoir? 
+			if (reservoirFormation->isSourceRock ())
+				continue;
+			//In Reservoir formation flag specified nodes as reservoirs for gas or oil
+			reservoirFormation->detectReservoir (sealFormation, MinColumnHeight, MinColumnHeight, pressureRun);
+			//print the flags to check if the crest are correctly identified
+			reservoirFormation->saveReservoir (end);
+		}
+   }
+
+   return true;
+}
+
+// Detect traps (if you have at leas one node where  m_isReservoirOil or m_isReservoirGas is true and is a crest node ) 
+
+// Unflag detected reservoirs 
+
 
 bool Migrator::computeSMFlowPaths (const Interface::Snapshot * start, const Interface::Snapshot * end)
 {

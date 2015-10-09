@@ -1315,11 +1315,12 @@ namespace migration
             fprintf (fres, "%d %d\t", i, j);
             fnode = getLocalFormationNode (i, j, upperIndex);
 
-            //       if( fnode->getReservoirOil() ) {
-            //         fprintf( fres, "%lf\n", fnode->getHeightOil() );
-            fclose (fres);
+				fprintf (fres, "%d(%lf)\t\t%d(%lf)\n", (fnode->getReservoirOil () ? 1 : 0), fnode->getHeightOil (),
+					(fnode->getReservoirGas () ? 1 : 0), fnode->getHeightGas ());
          }
       }
+
+		fclose (fres);
    }
 
    void Formation::identifyAsReservoir (void) const

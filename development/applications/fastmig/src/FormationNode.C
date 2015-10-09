@@ -765,6 +765,9 @@ namespace migration {
          {
             gasFlag = true;
             oilFlag = true;
+				setReservoirGas (gasFlag);
+				setReservoirOil (oilFlag);
+				return true;
          }
 
          double capillaryPressureGasReservoir;
@@ -824,8 +827,76 @@ namespace migration {
       setReservoirGas (gasFlag);
       setReservoirOil (oilFlag);
 
+		// Re-set gas and oil flags if the node is not a crest node
+		isCrestNode (GAS);
+		isCrestNode (OIL);
+
       return (gasFlag || oilFlag);
    }
+
+	// Check if the node is a crest node for the phaseId, similarly to what is done for Reservoir::getAdjacentColumn
+	void LocalFormationNode::isCrestNode (PhaseId phase)
+	{
+		bool isCrest = true;
+		int topInd = m_formation->getGridMapDepth ();
+
+		//is local formation node inizialized with grid vertexses?
+		double depth = m_formation->getPropertyValue ((PropertyIndex) 0, getI (), getJ (), topInd);
+		if (depth == Interface::DefaultUndefinedMapValue)
+		{
+			if (phase == GAS)
+				setReservoirGas (false);
+			else
+				setReservoirOil (false);
+			return;
+		}
+
+		for (int n = 0; n < NumNeighbours; ++n)
+		{
+			double neighbourDepth = m_formation->getPropertyValue ((PropertyIndex) 0, getI () + NeighbourOffsets2D[n][I], getJ () + NeighbourOffsets2D[n][J], topInd);
+			FormationNode * neighbourNode = m_formation->getFormationNode (getI () + NeighbourOffsets2D[n][I], getJ () + NeighbourOffsets2D[n][J], topInd);
+			bool isSealingNeighbourNode = false;
+
+			if (neighbourDepth == Interface::DefaultUndefinedMapValue)
+			{
+				// node lies on the edge, can not be a trap crest
+				isCrest = false;
+				break;
+			}
+
+			//set isSealingNeighbourNode as in Reservoir::getAdjacentColumn
+			if (phase == GAS)
+				isSealingNeighbourNode = (neighbourNode->getFaultStatus () == FaultStatus::SEAL);
+			else
+				isSealingNeighbourNode = (neighbourNode->getFaultStatus() == FaultStatus::SEAL || neighbourNode->getFaultStatus() == FaultStatus::SEALOIL);
+
+			if (isSealingNeighbourNode)
+			{
+				// a SealingNeighbourNode cannot be a trap crest 
+				continue;
+			}
+
+			if (depth < neighbourDepth)
+			{
+				// neighbour is deeper
+				continue;
+			}
+			else if (depth >neighbourDepth)
+			{
+				// neighbour is shallower
+				isCrest = false;
+			}
+		}
+
+		// reset reservoir flag if not a crest column
+		if (!isCrest) 
+		{
+			if (phase == GAS)
+				setReservoirGas (false);
+			else
+				setReservoirOil (false);
+		}
+	};
 
    //
    // Compute capillary pressure across stratigrathic boundary.
