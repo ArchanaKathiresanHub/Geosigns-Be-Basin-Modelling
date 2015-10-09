@@ -261,6 +261,12 @@ void BpaRenderAreaListener::onReceivedMessage(RenderArea* renderArea, Connection
 
     m_sceneGraphManager.showCoordinateGrid(showGrid);
   }
+  else if (cmd == "ShowTraps")
+  {
+    auto showTraps = params.get<bool>("show");
+
+    m_sceneGraphManager.showTraps(showTraps);
+  }
   else if (cmd == "SetProjection")
   {
     auto typeStr = params.get<std::string>("type");

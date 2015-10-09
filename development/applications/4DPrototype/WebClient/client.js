@@ -273,6 +273,20 @@ function onShowGridChanged(elem)
     theRenderArea.sendMessage(JSON.stringify(msg));
 }
 
+function onShowTrapsChanged(elem)
+{
+    var showTraps = elem.checked;
+
+    var msg = {
+        cmd: "ShowTraps",
+        params: {
+            show: showTraps
+        }
+    }
+
+    theRenderArea.sendMessage(JSON.stringify(msg));
+}
+
 function onPerspectiveChanged(elem)
 {
     var projection = elem.checked 
