@@ -411,22 +411,22 @@ void SceneGraphManager::updateSnapshotTraps()
     if (m_reservoirs[id].visible)
     {
       // See if the vertical scale needs updating for existing traps
-      if (m_showTraps && res.traps.root != 0 && res.traps.verticalScale != m_verticalScale)
+      if (m_showTraps && res.traps.root() != 0 && res.traps.verticalScale() != m_verticalScale)
       {
         res.traps.setVerticalScale(m_verticalScale);
       }
       // See if we need to create new traps
-      else if (m_showTraps && res.traps.root == 0)
+      else if (m_showTraps && res.traps.root() == 0)
       {
-        res.traps = Traps::create(snapshot.snapshot, m_reservoirs[id].object, m_verticalScale);
-        if (res.traps.root != 0)
-          res.root->addChild(res.traps.root);
+        res.traps = Traps(snapshot.snapshot, m_reservoirs[id].object, m_verticalScale);
+        if (res.traps.root() != 0)
+          res.root->addChild(res.traps.root());
       }
       // See if we need to remove existing traps
-      else if (!m_showTraps && res.traps.root != 0)
+      else if (!m_showTraps && res.traps.root() != 0)
       {
-        res.root->removeChild(res.traps.root);
-        res.traps.clear();
+        res.root->removeChild(res.traps.root());
+        res.traps = Traps();
       }
     }
   }

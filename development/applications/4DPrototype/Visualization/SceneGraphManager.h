@@ -130,7 +130,7 @@ struct SnapshotInfo
       scalarSet = 0;
       skin = 0;
 
-      traps.clear();
+      traps = Traps();
     }
 
     Reservoir()

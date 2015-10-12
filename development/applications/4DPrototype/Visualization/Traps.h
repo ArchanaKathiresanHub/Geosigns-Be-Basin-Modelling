@@ -1,11 +1,13 @@
 #ifndef TRAPS_H_INCLUDED
 #define TRAPS_H_INCLUDED
 
+class SoNode; 
+class SoGroup; 
 class SoSeparator;
-class SoGroup;
 class SoMaterial;
 class SoMultipleInstance;
 class SoAlgebraicSphere;
+class SoIndexedLineSet;
 
 namespace DataAccess
 {
@@ -13,35 +15,72 @@ namespace DataAccess
   {
     class Snapshot;
     class Reservoir;
+    class GridMap;
+    class Trapper;
   }
 }
 
-struct Traps
+#include <vector>
+
+#include <Inventor/SbVec.h>
+
+class Traps
 {
-  SoSeparator* root;
+  const DataAccess::Interface::Snapshot*  m_snapshot;
+  const DataAccess::Interface::Reservoir* m_reservoir;
+  const DataAccess::Interface::GridMap*   m_topValues;
+
+  double m_minI;
+  double m_minJ;
+  double m_deltaI;
+  double m_deltaJ;
+
+  SoSeparator* m_root;
 
   // Spill points
-  SoGroup* spillpointsGroup;
-  SoMaterial* spillpointsMaterial;
-  SoMultipleInstance* spillpointsMultiInstance;
+  SoGroup* m_spillpointsGroup;
+  SoMaterial* m_spillpointsMaterial;
+  SoMultipleInstance* m_spillpointsMultiInstance;
 
   // Leakage points
-  SoGroup* leakagePointsGroup;
-  SoMaterial* leakagePointsMaterial;
-  SoMultipleInstance* leakagePointsMultiInstance;
+  SoGroup* m_leakagePointsGroup;
+  SoMaterial* m_leakagePointsMaterial;
+  SoMultipleInstance* m_leakagePointsMultiInstance;
 
   // The sphere used for both leakage and spill points
-  SoAlgebraicSphere* sphere;
+  SoAlgebraicSphere* m_sphere;
 
-  float verticalScale;
+  SoIndexedLineSet* m_spillRoutes;
 
-  void clear();
+  float m_verticalScale;
+
+  enum PositionType
+  {
+    SpillPointPosition,
+    LeakagePointPosition
+  };
+
+  SbVec3f getPosition(PositionType type, const DataAccess::Interface::Trapper* trapper) const;
+
+  void initSpheres(
+    const std::vector<SbVec3f>& spillPointPositions,
+    const std::vector<SbVec3f>& leakagePointPositions);
+
+  void initLineSet(const std::vector<SbVec3f>& vertices);
+
+  void init();
+
+public:
+
+  SoSeparator* root() const { return m_root; }
+
+  float verticalScale() const { return m_verticalScale; }
 
   void setVerticalScale(float scale);
 
   Traps();
 
-  static Traps create(
+  Traps(
     const DataAccess::Interface::Snapshot* snapshot,
     const DataAccess::Interface::Reservoir* reservoir,
     float verticalScale);
