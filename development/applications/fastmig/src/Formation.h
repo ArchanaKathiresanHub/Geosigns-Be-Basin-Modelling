@@ -103,6 +103,9 @@ namespace migration
       int getGridMapDepth (void);
 
       bool detectReservoir (Formation * topFormation, const double minOilColumnHeight, const double minGasColumnHeight, const bool pressureRun);
+      void detectReservoirCrests();
+      bool getDetectedReservoir() const;
+
       void saveReservoir (const Interface::Snapshot * curSnapshot);
 
       void identifyAsReservoir (void) const;
@@ -257,6 +260,10 @@ namespace migration
 
       GridMap * m_expulsionGridMaps[NUM_COMPONENTS];
       int m_index;
+
+	  // is a detected reservoir formation
+	  bool m_detectedReservoir;
+
    };
 
    Migrator * Formation::getMigrator (void) const

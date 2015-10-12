@@ -212,8 +212,14 @@ namespace migration
       bool detectReservoir (LocalFormationNode * topNode, const double minOilColumnHeight, const double minGasColumnHeight, const bool pressureRun);
       void identifyAsReservoir (void);
 
-		// check if the formation node "belongs" to a column trap crest
-		void isCrestNode (PhaseId phase);
+      // check if a LocalFormationNode is a crest node
+      bool detectReservoirCrests (PhaseId phase);
+      bool getIsCrest (PhaseId phase);
+
+      //these are functions used to compare depths in the detectReservoirCrests algorithm
+      virtual int compareDepths (FormationNode * node, bool useTieBreaker = true);
+      inline bool isDeeperThan (FormationNode * node, bool useTieBreaker = true);
+      inline bool isShallowerThan (FormationNode * node, bool useTieBreaker = true);
 
       void computeNodeProperties (void);
       void computeAnalogFlowDirection (void);
@@ -335,6 +341,8 @@ namespace migration
 
       bool m_isReservoirGas;                   // true - if node is potential trap
       bool m_isReservoirOil;                   // true - if node is potential trap
+      bool m_isCrestOil;					   // true - if node is a crest for oil
+      bool m_isCrestGas;                       // true - if node is a crest for gas
 
       vector < IntDoublePair > *m_cosines;     // cosines of angles between the analog flow direction and the feasible discretized flow directions
 #ifdef USEDISCRETIZEDFLOWDIRECTIONS
@@ -488,6 +496,16 @@ namespace migration
    unsigned int FormationNodeArray::depth (void)
    {
       return m_depth;
+   }
+
+   bool LocalFormationNode::isDeeperThan (FormationNode * node, bool useTieBreaker)
+   {
+      return compareDepths (node, useTieBreaker) == 1;
+   }
+
+   bool LocalFormationNode::isShallowerThan (FormationNode * node, bool useTieBreaker)
+   {
+      return compareDepths (node, useTieBreaker) == -1;
    }
 
 }

@@ -378,7 +378,7 @@ namespace migration {
 #endif
       m_targetFormationNode (0), m_selectedDirectionIndex (-1),
       m_depth (Interface::DefaultUndefinedMapValue), m_horizontalPermeability (-1), m_verticalPermeability (-1), m_porosity (-1), m_adjacentNodeIndex (0),
-      m_entered (false), m_tried (0), m_hasNoThickness (false), m_cosines (0)
+		m_entered (false), m_tried (0), m_hasNoThickness (false), m_cosines (0), m_isCrestOil (true), m_isCrestGas (true)
 #ifdef USEDISCRETIZEDFLOWDIRECTIONS
       , m_discretizedFlowDirections (0)
 #endif
@@ -827,76 +827,113 @@ namespace migration {
       setReservoirGas (gasFlag);
       setReservoirOil (oilFlag);
 
-		// Re-set gas and oil flags if the node is not a crest node
-		isCrestNode (GAS);
-		isCrestNode (OIL);
-
       return (gasFlag || oilFlag);
    }
 
-	// Check if the node is a crest node for the phaseId, similarly to what is done for Reservoir::getAdjacentColumn
-	void LocalFormationNode::isCrestNode (PhaseId phase)
-	{
-		bool isCrest = true;
-		int topInd = m_formation->getGridMapDepth ();
+   // Check if the node is a crest node for the phaseId, similarly to what is done in Reservoir::getAdjacentColumn
+   bool LocalFormationNode::detectReservoirCrests(PhaseId phase)
+   {
+      //m_isCrestGas and m_isCrestOil are set true in the constructor
 
-		//is local formation node inizialized with grid vertexses?
-		double depth = m_formation->getPropertyValue ((PropertyIndex) 0, getI (), getJ (), topInd);
-		if (depth == Interface::DefaultUndefinedMapValue)
-		{
-			if (phase == GAS)
-				setReservoirGas (false);
-			else
-				setReservoirOil (false);
-			return;
-		}
+      if (!IsValid (this)) 
+      {
+         if (phase == GAS)
+            m_isCrestGas = false;
+         else
+            m_isCrestOil = false;
+         return false;
+      }
 
-		for (int n = 0; n < NumNeighbours; ++n)
-		{
-			double neighbourDepth = m_formation->getPropertyValue ((PropertyIndex) 0, getI () + NeighbourOffsets2D[n][I], getJ () + NeighbourOffsets2D[n][J], topInd);
-			FormationNode * neighbourNode = m_formation->getFormationNode (getI () + NeighbourOffsets2D[n][I], getJ () + NeighbourOffsets2D[n][J], topInd);
-			bool isSealingNeighbourNode = false;
+      int top = m_formation->getGridMapDepth () - 1;
 
-			if (neighbourDepth == Interface::DefaultUndefinedMapValue)
-			{
-				// node lies on the edge, can not be a trap crest
-				isCrest = false;
-				break;
-			}
+      for (int n = 0; n < NumNeighbours; ++n)
+      {
+         FormationNode * neighbourNode = m_formation->getFormationNode (getI () + NeighbourOffsets2D[n][I], getJ () + NeighbourOffsets2D[n][J], top);
 
-			//set isSealingNeighbourNode as in Reservoir::getAdjacentColumn
-			if (phase == GAS)
-				isSealingNeighbourNode = (neighbourNode->getFaultStatus () == SEAL);
-			else
-				isSealingNeighbourNode = (neighbourNode->getFaultStatus() == SEAL || neighbourNode->getFaultStatus() == SEALOIL);
+         bool isSealingNeighbourNode = false;
 
-			if (isSealingNeighbourNode)
-			{
-				// a SealingNeighbourNode cannot be a trap crest 
-				continue;
-			}
+         if (!IsValid (neighbourNode))
+         {
+            // node lies on the edge, can not be a trap crest
+            if (phase == GAS)
+               m_isCrestGas = false;
+            else
+               m_isCrestOil = false;
+            return false;
+         }
 
-			if (depth < neighbourDepth)
-			{
-				// neighbour is deeper
-				continue;
-			}
-			else if (depth >neighbourDepth)
-			{
-				// neighbour is shallower
-				isCrest = false;
-			}
-		}
+         //set isSealingNeighbourNode as in Reservoir::getAdjacentColumn
+         if (phase == GAS)
+            isSealingNeighbourNode = (neighbourNode->getFaultStatus () == SEAL);
+         else
+            isSealingNeighbourNode = (neighbourNode->getFaultStatus() == SEAL || 
+                                      neighbourNode->getFaultStatus() == SEALOIL);
 
-		// reset reservoir flag if not a crest column
-		if (!isCrest) 
-		{
-			if (phase == GAS)
-				setReservoirGas (false);
-			else
-				setReservoirOil (false);
-		}
-	};
+         if (isSealingNeighbourNode)
+         {
+            // a SealingNeighbourNode cannot be a trap crest 
+            continue;
+         }
+
+         if (isShallowerThan (neighbourNode))
+         {
+            // neighbour is deeper
+            continue;
+         }
+         else if (isDeeperThan (neighbourNode))
+         {
+            // neighbour is shallower 
+            if (phase == GAS)
+               m_isCrestGas = false;
+            else
+               m_isCrestOil = false;
+         }
+      }
+
+      // return true if the node is crest column AND can hold gas or oil 
+      if (phase == GAS)
+         return (m_isCrestGas && getReservoirGas());
+      else
+         return (m_isCrestOil && getReservoirOil());
+
+   };
+
+   /// compareDepths returns -1 if this is shallower, 0 if equally deep and 1 if this is deeper
+   /// Also used to break the tie between columns with equal top depth
+   /// Does not take into account whether columns are sealing or wasting
+   int LocalFormationNode::compareDepths(FormationNode * node, bool useTieBreaker)
+   {
+      // top depth of the current node and node 
+      Formation * formation = getFormation();
+      double depth = formation->getPropertyValue(DEPTHPROPERTY, getI(), getJ(), getK());
+      double nodedepth = formation->getPropertyValue(DEPTHPROPERTY, node->getI(), node->getJ(), getK());
+
+      if (depth < nodedepth) return -1;
+      if (depth > nodedepth) return 1;
+
+      if (useTieBreaker)
+      {
+         if (getI() + getJ() > node->getI() + node->getJ()) return -1;
+         if (getI() + getJ() < node->getI() + node->getJ()) return 1;
+
+         if (getI() > node->getI()) return -1;
+         if (getI() < node->getI()) return 1;
+         if (getJ() > node->getJ()) return -1;
+         if (getJ() < node->getJ()) return 1;
+
+         assert(this == node);
+      }
+
+      return 0;
+   }
+
+   bool LocalFormationNode::getIsCrest (PhaseId phase) 
+   {
+      if (phase == GAS)
+         return m_isCrestGas;
+      else
+         return m_isCrestOil ;
+   };
 
    //
    // Compute capillary pressure across stratigrathic boundary.

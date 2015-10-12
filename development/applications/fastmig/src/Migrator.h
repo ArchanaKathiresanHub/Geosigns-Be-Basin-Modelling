@@ -95,11 +95,11 @@ namespace migration
       Formation * getBottomActiveReservoirFormation (const Interface::Snapshot * end);
       Formation * getTopActiveReservoirFormation (const Interface::Snapshot * end);
 
-		// If getMinOilColumnHeight and getMinGasColumnHeight get moved to RunOptionsIoTbl these functions can be used
-		/*
-		double getMinOilColumnHeight (void) const;
-		double getMinGasColumnHeight (void) const;
-		*/
+      // If getMinOilColumnHeight and getMinGasColumnHeight get moved to RunOptionsIoTbl these functions can be used
+      /*
+        double getMinOilColumnHeight (void) const;
+        double getMinGasColumnHeight (void) const;
+      */
 
       GeoPhysics::ProjectHandle * getProjectHandle (void);
 
@@ -194,6 +194,10 @@ namespace migration
 
       mutable DataAccess::Interface::FormationList * m_formations;
       mutable DataAccess::Interface::ReservoirList * m_reservoirs;
+
+      //here you should add a list of detected reservoirs
+      mutable DataAccess::Interface::ReservoirList * m_detectedReservoirs;
+
       ofstream m_massBalanceFile;
 
       std::auto_ptr<GeoPhysics::ProjectHandle> m_projectHandle;
