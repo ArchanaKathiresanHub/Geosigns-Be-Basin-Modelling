@@ -22,6 +22,8 @@
 #include <Inventor/nodes/SoMaterial.h>
 #include <Inventor/nodes/SoPerspectiveCamera.h>
 #include <Inventor/nodes/SoOrthographicCamera.h>
+#include <Inventor/nodes/SoTranslation.h>
+#include <Inventor/nodes/SoText2.h>
 
 #include <MeshVizXLM/MxTimeStamp.h>
 #include <MeshVizXLM/mapping/nodes/MoDrawStyle.h>
@@ -726,6 +728,26 @@ void SceneGraphManager::updateColorMap()
   m_legend->maxValue = maxValue;
 }
 
+void SceneGraphManager::updateText()
+{
+  assert(!m_snapshotInfoCache.empty());
+
+  SnapshotInfo& snapshot = *m_snapshotInfoCache.begin();
+  size_t i = std::distance(
+    m_snapshotList.begin(), 
+    std::find(
+      m_snapshotList.begin(), 
+      m_snapshotList.end(), 
+      snapshot.snapshot));
+
+  SbString str1, str2;
+  str1.sprintf("Snapshot %d/%d (Age %.1f)", (int)(i + 1), (int)m_snapshotList.size(), snapshot.snapshot->getTime());
+  str2.sprintf("Resolution %dx%d (%dx%d)", m_numI, m_numJ, m_numIHiRes, m_numJHiRes);
+
+  m_text->string.set1Value(1, str1);
+  m_text->string.set1Value(2, str2);
+}
+
 void SceneGraphManager::updateSnapshot()
 {
   updateSnapshotFormations();
@@ -735,8 +757,9 @@ void SceneGraphManager::updateSnapshot()
   updateSnapshotFaults();
   updateSnapshotProperties();
   updateSnapshotSlices();
-  updateColorMap();
 
+  updateColorMap();
+  updateText();
   updateCoordinateGrid();
 }
 
@@ -987,6 +1010,7 @@ void SceneGraphManager::setupCoordinateGrid()
 {
   m_coordinateGrid = initCoordinateGrid(m_minX, m_minY, m_maxX, m_maxY);
   m_coordinateGridSwitch = new SoSwitch;
+  m_coordinateGridSwitch->setName("coordinateGrid");
   m_coordinateGridSwitch->addChild(m_coordinateGrid);
   m_coordinateGridSwitch->whichChild = SO_SWITCH_NONE;
 }
@@ -1072,12 +1096,35 @@ void SceneGraphManager::setupSceneGraph()
   m_legend->displayValues = true;
 
   m_legendSwitch = new SoSwitch;
-  m_legendSwitch->addChild(m_legend);
+  m_legendSwitch->setName("legend");
   m_legendSwitch->whichChild = SO_SWITCH_NONE;
+  m_legendSwitch->addChild(m_legend);
 
-  SoAnnotation* annotation = new SoAnnotation;
-  annotation->boundingBoxIgnoring = true;
-  annotation->addChild(m_legendSwitch);
+  m_annotation = new SoAnnotation;
+  m_annotation->setName("annotation");
+  m_annotation->boundingBoxIgnoring = true;
+  m_annotation->addChild(m_legendSwitch);
+
+  // Text area
+  m_text = new SoText2;
+  m_text->string.set1Value(0, "");
+  SoOrthographicCamera* camera = new SoOrthographicCamera;
+  camera->viewportMapping = SoCamera::LEAVE_ALONE;
+  SoTranslation* translation = new SoTranslation;
+  translation->translation.setValue(-.99f, .99f, 0.f);
+  SoFont* font = new SoFont;
+  font->name = "Arial";
+  font->size = 14.f;
+  font->renderStyle = SoFont::TEXTURE;
+  SoSeparator* textSeparator = new SoSeparator;
+  textSeparator->addChild(camera);
+  textSeparator->addChild(translation);
+  textSeparator->addChild(font);
+  textSeparator->addChild(m_text);
+  m_textSwitch = new SoSwitch;
+  m_textSwitch->addChild(textSeparator);
+  m_textSwitch->whichChild = SO_SWITCH_ALL;
+  m_annotation->addChild(m_textSwitch);
 
   m_snapshotsSwitch = new SoSwitch;
   m_snapshotsSwitch->setName("snapshots");
@@ -1090,7 +1137,7 @@ void SceneGraphManager::setupSceneGraph()
   m_root->addChild(m_coordinateGridSwitch);
   m_root->addChild(m_scale);
   m_root->addChild(m_appearanceNode);
-  m_root->addChild(annotation);
+  m_root->addChild(m_annotation);
   m_root->addChild(m_snapshotsSwitch);
   m_root->addChild(createCompass());
 
@@ -1137,8 +1184,11 @@ SceneGraphManager::SceneGraphManager()
   , m_dataBinding(0)
   , m_colorMap(0)
   , m_trapIdColorMap(0)
+  , m_annotation(0)
   , m_legend(0)
   , m_legendSwitch(0)
+  , m_text(0)
+  , m_textSwitch(0)
   , m_snapshotsSwitch(0)
 {
 }

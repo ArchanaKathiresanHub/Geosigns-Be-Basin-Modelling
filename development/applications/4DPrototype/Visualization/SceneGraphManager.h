@@ -37,7 +37,9 @@ class SoSeparator;
 class SoSwitch; 
 class SoGroup;
 class SoNode;
+class SoText2;
 class SoShapeHints;
+class SoAnnotation;
 class SoCamera;
 class SoPerspectiveCamera;
 class SoOrthographicCamera;
@@ -297,8 +299,13 @@ private:
   MoColorMapping* m_trapIdColorMap;
   SoSwitch*       m_colorMapSwitch;
 
+  SoAnnotation*   m_annotation;
+
   MoLegend*       m_legend;
   SoSwitch*       m_legendSwitch;
+
+  SoText2*        m_text;
+  SoSwitch*       m_textSwitch;
 
   SoSwitch*       m_snapshotsSwitch;
 
@@ -323,6 +330,7 @@ private:
   void updateSnapshotProperties();
   void updateSnapshotSlices();
   void updateColorMap();
+  void updateText();
   void updateSnapshot();
 
   SnapshotInfo createSnapshotNode(const DataAccess::Interface::Snapshot* snapshot);
