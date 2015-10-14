@@ -334,15 +334,16 @@ bool MasterTouch::run()
             message( oss.str() );
          }		
       }
-      
+
+      while(MinimumAll(10)<10);	 
+         
       if (!calculated) 
       {
          failure = true;
          break;
       }
    }        
-
-   while(MinimumAll(10)<10);	   
+  
    
    return (!failure);
    
