@@ -313,7 +313,7 @@ bool MasterTouch::run()
          
          if (touchstoneWrapperFailure && GetRank() == atol(touchstoneWrapperFailure)) 
          {
-         calculated = false;
+         calculated = calculate("WrongTCF", burhistFile);
          }
          else
          {
@@ -333,7 +333,7 @@ bool MasterTouch::run()
             oss << "warning: MasterTouch::calculate is restarted on MPI process " << GetRank( ) << " after " << runs <<" runs";
             message( oss.str() );
          }		
-      }	
+      }
       
       if (!calculated) 
       {
@@ -341,8 +341,8 @@ bool MasterTouch::run()
          break;
       }
    }        
-   
-   while (MinimumAll (10) < 10 );
+
+   while(MinimumAll(10)<10);	   
    
    return (!failure);
    
@@ -528,27 +528,33 @@ bool MasterTouch::calculate( const std::string & filename, const char * burhistF
         
       //Read touchstone results for all included layers	
       LayerCategoryMapInfoList::iterator outIt;
+      
       for( outIt = m_layerList.begin( ); outIt != m_layerList.end(); ++outIt )
       {	
-	
-         CategoryMapInfoList currentOutputs = outIt->second;
-         retrieveGridMaps (currentOutputs);
-	
-         for ( int i = firstI; i <= lastI; ++i )
+         //the considered TCF contains the layers in the lists
+         if (m_fileLayerFaciesGridMap[filename].count(outIt->first) > 0) 
          {
-            for( int j = firstJ; j <= lastJ; ++j )
-            {         
-               size_t numTimeSteps = 0;
-               ReadTouchstone.readNumTimeSteps(&numTimeSteps);
          
-               if (numTimeSteps > 0) 
-               { 
-                  for( size_t sn = 0; sn < m_usedSnapshotsIndex.size(); ++sn ) writeResultsToGrids( i, j, currentOutputs, ReadTouchstone, sn);  
+            CategoryMapInfoList currentOutputs = outIt->second;
+            retrieveGridMaps (currentOutputs);
+	
+            for ( int i = firstI; i <= lastI; ++i )
+            {
+               for( int j = firstJ; j <= lastJ; ++j )
+               {         
+                  size_t numTimeSteps = 0;
+                  ReadTouchstone.readNumTimeSteps(&numTimeSteps);
+               
+                  if (numTimeSteps > 0) 
+                  { 
+                     for( size_t sn = 0; sn < m_usedSnapshotsIndex.size(); ++sn ) writeResultsToGrids( i, j, currentOutputs, ReadTouchstone, sn);  
+                  }
                }
             }
-         }
-   		
-         restoreGridMaps (currentOutputs); 	
+         
+            restoreGridMaps (currentOutputs); 	
+         
+         }         
       }
       //catch exceptions
    } 

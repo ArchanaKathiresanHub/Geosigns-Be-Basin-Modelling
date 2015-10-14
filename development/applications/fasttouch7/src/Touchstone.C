@@ -314,7 +314,7 @@ void TouchstoneWrapper::calculateWrite ( ) {
             {	
                size_t numTimeSteps = 0;
             
-               ReadBurial.readNumTimeStepsID(&numTimeSteps, &iD); 
+               ReadBurial.readNumTimeStepsID(&numTimeSteps, &iD);
 
                if (numTimeSteps > 0) 
                {
