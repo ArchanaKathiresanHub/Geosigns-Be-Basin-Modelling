@@ -95,6 +95,7 @@ bool GenexSimulator::run()
                                                           simulationDetails->getSimulatorMode () == "CoupledHighResDecompaction" or
                                                           simulationDetails->getSimulatorMode () == "LooselyCoupledTemperature" or
                                                           simulationDetails->getSimulatorMode () == "CoupledDarcy" );
+   coupledCalculation = coupledCalculation and getModellingMode() == Interface::MODE3D;
 
    started =  GeoPhysics::ProjectHandle::initialise ( coupledCalculation );
    if (!started) return false;
