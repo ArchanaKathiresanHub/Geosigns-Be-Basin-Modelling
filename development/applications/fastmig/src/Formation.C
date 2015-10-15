@@ -159,7 +159,7 @@ namespace migration
 
          return true;
       }
-
+      /*
       // Compute OverPressure if a pressure run.
       if (isPressureRun)
       {
@@ -191,6 +191,7 @@ namespace migration
          }
          gridMap->restoreData ();
       }
+      */
 
       SmartGridMapRetrieval    vesPropertyGridMapRetrieval (m_gridMaps[VESPROPERTY], false);
       SmartGridMapRetrieval maxVesPropertyGridMapRetrieval (m_gridMaps[MAXVESPROPERTY], false);

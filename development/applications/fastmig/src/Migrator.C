@@ -159,7 +159,7 @@ bool Migrator::compute (void)
 
    bool pressureRun = isPressureRun ();
 
-   computeFormationPropertyMaps (m_projectHandle->getSnapshots ()->front (), pressureRun);
+   computeFormationPropertyMaps (m_projectHandle->getSnapshots ()->front (), false);
 
    createFormationNodes ();
 
