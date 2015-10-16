@@ -100,6 +100,13 @@ namespace casa
       /// @return true if RunCases have the same parameters set, false otherwise
       virtual bool operator == ( const RunCase & cs ) const = 0;
 
+      /// @brief Compare cases taking in account application dependency level. Some cases could have equal
+      ///        parameters up to some application in pipeline. To avoid unnecessary runs, same case results could be just copied
+      /// @param cs RunCase for compare with
+      /// @param upTo position of application in pipeline
+      /// @return true if RunCases have the same parameters set up to application dependency level, false otherwise
+      virtual bool isEqual( const RunCase &cs, AppPipelineLevel upTo ) const = 0;
+
       /// @brief Get run case ID - unique case number in the RunCaseSet object
       /// @return run case ID
       virtual size_t id() const = 0;

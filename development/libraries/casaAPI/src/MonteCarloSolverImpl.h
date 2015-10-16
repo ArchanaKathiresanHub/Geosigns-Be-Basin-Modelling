@@ -119,7 +119,7 @@ namespace casa
       // Serialization / Deserialization
 
       // version of serialized object representation
-      virtual unsigned int version() const { return 1; }
+      virtual unsigned int version() const { return 0; }
 
       // Serialize object to the given stream
       virtual bool save( CasaSerializer & sz, unsigned int version ) const;

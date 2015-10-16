@@ -55,60 +55,21 @@ namespace casa
    {
       bool ok = true;
 
-      // initial implementation of serialization, must exist in all future versions of serialization
-      if ( fileVersion >= 0 )
-      { 
-         // register VarSpace object with serializer to allow other objects to keep reference after deserializtion
-         CasaSerializer::ObjRefID vspID = sz.ptr2id( this );
-         ok = ok ? sz.save( vspID, "ID" ) : ok;
-      }
+      // register VarSpace object with serializer to allow other objects to keep reference after deserializtion
+      CasaSerializer::ObjRefID vspID = sz.ptr2id( this );
+      ok = ok ? sz.save( vspID, "ID" ) : ok;
 
-      if ( fileVersion == 0 )
+      // Just all parameters
+      size_t setSize = m_prms.size();
+
+      ok = ok ? sz.save( setSize, "VarPrmsSetSize" ) : ok;
+      for ( size_t i = 0; i < setSize && ok; ++i )
       {
-         // Categorical parameters
-         size_t setSize = m_catPrms.size();
-
-         ok = ok ? sz.save( setSize, "CatPrmsSetSize" ) : ok;
-
-         for ( size_t i = 0; i < setSize && ok; ++i )
-         {
-            ok = ok ? sz.save( *(m_catPrms[i]), "CatVarParameter" ) : ok;
-         }
-
-         // Discrete parameters
-         setSize = m_disPrms.size();
-
-         ok = ok ? sz.save( setSize, "DisPrmsSetSize" ) : ok;
-
-         for ( size_t i = 0; i < setSize && ok; ++i )
-         {
-            ok = ok ? sz.save( *(m_disPrms[i]), "DisVarParameter" ) : ok;
-         }
-
-         // Continuous parameters
-         setSize = m_cntPrms.size();
-
-         ok = ok ? sz.save( setSize, "CntPrmsSetSize" ) : ok;
-
-         for ( size_t i = 0; i < setSize && ok; ++i )
-         {
-            ok = ok ? sz.save( *(m_cntPrms[i]), "CntVarParameter" ) : ok;
-         }
+         int prmType = static_cast<int>( m_prms[i]->variationType() );
+         ok = ok ? sz.save( prmType,      "PrmVariationType" ) : ok;
+         ok = ok ? sz.save( *(m_prms[i]), "VarParameter"     ) : ok;
       }
-      else if ( fileVersion >= 1 )
-      {
-         // Just all parameters
-         size_t setSize = m_prms.size();
 
-         ok = ok ? sz.save( setSize, "VarPrmsSetSize" ) : ok;
-
-         for ( size_t i = 0; i < setSize && ok; ++i )
-         {
-            int prmType = static_cast<int>( m_prms[i]->variationType() );
-            ok = ok ? sz.save( prmType,      "PrmVariationType" ) : ok;
-            ok = ok ? sz.save( *(m_prms[i]), "VarParameter"     ) : ok;
-         }
-      }
       return ok;
    }
 
@@ -129,57 +90,25 @@ namespace casa
 
       size_t setSize;
 
-      if ( objVer == 0 )
+      ok = ok ? dz.load( setSize, "VarPrmsSetSize" ) : ok;
+
+      for ( size_t i = 0; i < setSize && ok; ++i )
       {
-         // Categorical parameters
-         ok = ok ? dz.load( setSize, "CatPrmsSetSize" ) : ok;
-         for ( size_t i = 0; i < setSize && ok; ++i )
+         int prmType;
+         ok = ok ? dz.load( prmType, "PrmVariationType" ) : ok;
+         if ( ok )
          {
-            VarPrmCategorical * newVar = VarPrmCategorical::load( dz, "CatVarParameter" );
-            ok = newVar ? ok : false;
-            ok = ok ? (NoError == addParameter( newVar )) : ok;
-         }
+            VarParameter * newVar = NULL;
 
-         // Discrete parameters
-         ok = ok ? dz.load( setSize, "DisPrmsSetSize" ) : ok;
-         for ( size_t i = 0; i < setSize && ok; ++i )
-         {
-            VarPrmDiscrete * newVar = VarPrmDiscrete::load( dz, "DisVarParameter" );
-            ok = newVar ? ok : false;
-            ok = ok ? (NoError == addParameter( newVar )) : ok;
-         }
-
-         // Continuous parameters
-         ok = ok ? dz.load( setSize, "CntPrmsSetSize" ) : ok;
-         for ( size_t i = 0; i < setSize && ok; ++i )
-         {
-            VarPrmContinuous * newVar = VarPrmContinuous::load( dz, "CntVarParameter" );
-            ok = newVar ? ok : false;
-            ok = ok ? (NoError == addParameter( newVar )) : ok;
-         }
-      }
-      else if ( objVer >= 1 )
-      {
-         ok = ok ? dz.load( setSize, "VarPrmsSetSize" ) : ok;
-
-         for ( size_t i = 0; i < setSize && ok; ++i )
-         {
-            int prmType;
-            ok = ok ? dz.load( prmType, "PrmVariationType" ) : ok;
-            if ( ok )
+            switch( static_cast< VarParameter::Type >( prmType ) )
             {
-               VarParameter * newVar = NULL;
-
-               switch( static_cast< VarParameter::Type >( prmType ) )
-               {
-                  case VarParameter::Continuous:  newVar = VarPrmContinuous::load(  dz, "VarParameter" ); break;
-                  case VarParameter::Categorical: newVar = VarPrmCategorical::load( dz, "VarParameter" ); break;
-                  case VarParameter::Discrete:    newVar = VarPrmDiscrete::load(    dz, "VarParameter" ); break;
-                  default: assert( 0 );
-               }
-               ok = newVar ? ok : false;
-               ok = ok ? (NoError == addParameter( newVar )) : ok;
+               case VarParameter::Continuous:  newVar = VarPrmContinuous::load(  dz, "VarParameter" ); break;
+               case VarParameter::Categorical: newVar = VarPrmCategorical::load( dz, "VarParameter" ); break;
+               case VarParameter::Discrete:    newVar = VarPrmDiscrete::load(    dz, "VarParameter" ); break;
+               default: assert( 0 );
             }
+            ok = newVar ? ok : false;
+            ok = ok ? (NoError == addParameter( newVar )) : ok;
          }
       }
 

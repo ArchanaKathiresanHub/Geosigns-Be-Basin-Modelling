@@ -208,26 +208,15 @@ ObsSourceRockMapProp::ObsSourceRockMapProp( CasaDeserializer & dz, unsigned int 
    ok = ok ? dz.load( m_x, "X" ) : ok;
    ok = ok ? dz.load( m_y, "Y" ) : ok;
 
-   ok = ok ? dz.load( m_layerName, "layerName" ) : ok;
-   ok = ok ? dz.load( m_propName,  "propName"  ) : ok;
-   ok = ok ? dz.load( m_simTime,   "simTime"   ) : ok;
-
-   ok = ok ? dz.load( m_name, "name" ) : ok;
-
-   if ( objVer == 0 )
-   {
-      size_t pos;
-      ok = ok ? dz.load( pos, "posDataMiningTbl" ) : ok;
-      m_posDataMiningTbl = static_cast<int>( pos );
-   }
-   else if ( objVer >= 1 )
-   {
-      ok = ok ? dz.load( m_posDataMiningTbl, "posDataMiningTbl" ) : ok;
-   }
+   ok = ok ? dz.load( m_layerName,        "layerName"        ) : ok;
+   ok = ok ? dz.load( m_propName,         "propName"         ) : ok;
+   ok = ok ? dz.load( m_simTime,          "simTime"          ) : ok;
+   ok = ok ? dz.load( m_name,             "name"             ) : ok;
+   ok = ok ? dz.load( m_posDataMiningTbl, "posDataMiningTbl" ) : ok;
 
 
    bool hasRefVal;
-   ok = ok ? dz.load( hasRefVal, "HasRefValue" ) : ok;
+   ok = ok ? dz.load( hasRefVal,          "HasRefValue" ) : ok;
 
    if ( hasRefVal ) { m_refValue.reset( ObsValue::load( dz, "refValue" ) ); }
 

@@ -19,6 +19,7 @@
 
 #include <vector>
 #include <string>
+#include <map>
 
 namespace casa
 {
@@ -67,10 +68,6 @@ namespace casa
       /// @return ErrorHandler::NoError on success or error code otherwise
       virtual ErrorHandler::ReturnCode stopAllSubmittedJobs();
 
-      ///< Clean scheduled cases list and remove them from the queue
-      ///< Return ErrorHandler::NoError on success or error code if some cases in submitted/running states
-      virtual ErrorHandler::ReturnCode removeAllScheduledCases();
-
       /// @brief Set HPC cluster name
       /// @param clusterName name of the HPC cluster
       virtual ErrorHandler::ReturnCode setClusterName( const char * clusterName );
@@ -87,7 +84,7 @@ namespace casa
       /// @{
       /// @brief Defines version of serialized object representation. Must be updated on each change in save()
       /// @return Actual version of serialized object representation
-      virtual unsigned int version() const { return 1; }
+      virtual unsigned int version() const { return 0; }
 
       /// @brief Get type name of the serialaizable object, used in deserialization to create object with correct type
       /// @return object class name
@@ -114,11 +111,16 @@ namespace casa
 
       std::vector< CauldronApp* >     m_appList;        ///< pipeline of cauldron applications to perform simulation
       std::auto_ptr<JobScheduler>     m_jobSched;       ///< OS dependent wrapper for the job scheduler
+      std::vector< std::vector< JobScheduler::JobID > >   m_jobs;     ///< queue of jobs for each case
+      std::vector< RunCaseImpl * >                        m_cases;    ///< list of run cases
 
-      std::vector< std::vector< JobScheduler::JobID > >   m_jobs;  ///< queue of jobs for each case
-      std::vector< RunCaseImpl * >                        m_cases; ///< list of run cases
+      std::map<JobScheduler::JobID, std::vector<JobScheduler::JobID> > m_depOnJob; ///< keeps jobs dependencies. Job can't start till all dep. are not finished
 
-      void createJobScheduler( const std::string & clusterName );  ///< create job scheduler depending on cluster name and OS
+      void createJobScheduler( const std::string & clusterName );     ///< create job scheduler depending on cluster name and OS
+      bool isAllDone() const;                                         ///< do check are all cases are completed?
+
+      // run over all jobs and collect runs statistics. Also report progress if any change in numbers
+      void collectStatistics( int & pFinished, int & pPending, int & pRunning, int & pToBeSubmitted );
    };
 }
 

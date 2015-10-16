@@ -94,7 +94,7 @@ TEST_F( BLRSTest, VarySourceRockTOCSimpleTest )
    ASSERT_EQ( ErrorHandler::NoError, sc.defineBaseCase( m_testProject ) );
 
    // set the parameter
-   ASSERT_EQ( ErrorHandler::NoError, VarySourceRockTOC( sc, 0, "Lower Jurassic", 1, "", 0.0, 30.0, VarPrmContinuous::Block ) );
+   ASSERT_EQ( ErrorHandler::NoError, VarySourceRockTOC( sc, 0, "Lower Jurassic", 1, 0, 0.0, 30.0, VarPrmContinuous::Block ) );
      
    // get varspace 
    casa::VarSpaceImpl & varPrms = dynamic_cast<casa::VarSpaceImpl&>( sc.varSpace() );

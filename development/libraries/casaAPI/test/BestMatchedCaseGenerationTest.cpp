@@ -23,7 +23,6 @@ public:
 
 TEST_F( BestMatchedCaseGenerationTest, LoadScenarioAndGenerateCalibratedCase )
 {
-   return;
    try
    {
       // create new scenario analysis

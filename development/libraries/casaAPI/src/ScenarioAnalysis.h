@@ -204,7 +204,8 @@ namespace casa
       // version 6: Fixed wrong name for RunManager object (was RunManger)
       // version 7: Added scenario ID
       // version 8: Added source rock type mixing ID, different TOC ranges for source rock category parameter
-      int version() { return 8; }
+      // version 9: Reset all other objects versions to 0 due to backware uncompatibility with curent state
+      int version() { return 9; }
 
       /// @brief Save scenario to the file
       /// @param fileName - name of the file for scenario to be saved in

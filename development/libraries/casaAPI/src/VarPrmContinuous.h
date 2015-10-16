@@ -133,7 +133,7 @@ namespace casa
 
       /// @brief Defines version of serialized object representation. Must be updated on each change in save()
       /// @return Actual version of serialized object representation
-      virtual unsigned int version() const { return 2; }
+      virtual unsigned int version() const { return 0; }
 
       /// @brief  Implements common part of deserialization for continuous variable parameters
       /// @param dz input stream

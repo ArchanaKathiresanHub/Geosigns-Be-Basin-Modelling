@@ -11,21 +11,45 @@
 /// @file CauldronApp.C
 /// @brief This file keeps implementation the generic part of Cauldron Applications set
 
+// CASA API
 #include "FilePath.h"
 #include "CauldronApp.h"
-
 #include "CauldronEnvConfig.h"
+
+// CMB API
+#include "cmbAPI.h"
 
 #ifndef _WIN32
 #include <sys/stat.h>
 #endif
 
+// STL/C lib
 #include <fstream>
 #include <iostream>
 #include <cstring>
+      
+      
+      
+              
+         
 
 namespace casa
 {
+   const char * CauldronApp::s_resFilesList[][6]  = { { "PressureAndTemperature_Results.HDF"             // PTSolve 
+                                                      , "HydrostaticTemperature_Results.HDF"
+                                                      , "HydrostaticDecompaction_Results.HDF"
+                                                      , "AllochthonousModelling_Results.HDF"
+                                                      , "InterpolationResults.HDF"
+                                                      , ""
+                                                      }
+                                                    , { "CrustalThicknessCalculator_Results.HDF", "", "", "", "", "" }     
+                                                    , { "Genex5_Results.HDF"                    , "", "", "", "", "" }  // Genex
+                                                    , { "HighResDecompaction_Results.HDF"       , "", "", "", "", "" }  // HiResDecompaction
+                                                    , { "HighResMigration_Results.HDF"          , "", "", "", "", "" }  // Migration
+                                                    , { "FastTouch_Results.HDF"                 , "", "", "", "", "" }
+                                                    , { "datadriller_Results.HDF"               , "", "", "", "", "" }  // Postprocessing
+                                                    };
+
    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    // CauldronApp methods definition
    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -39,6 +63,7 @@ namespace casa
       , m_inputOpt( "-project" )
       , m_outputOpt( "-save" )
       , m_clearSnapshots( false )
+      , m_appDepLevel( PTSolver )
    {
       std::string miscPath;
 
@@ -49,7 +74,6 @@ namespace casa
          miscPath= "%CAULDRON_MISC_PATH%";
          break;
 
-      case csh:
       case bash:
          miscPath = "${CAULDRON_MISC_PATH}";
          break;
@@ -57,9 +81,9 @@ namespace casa
 
       if ( !env( "SIEPRTS_LICENSE_FILE" ) ) m_env["SIEPRTS_LICENSE_FILE"] = s_LICENSE_SERVER;
 
-      m_version = env( "CAULDRON_VERSION" ) ? env( "CAULDRON_VERSION" ) : "v2014.0710";        // the default version is the latest available release for now
-      m_rootPath = env( "IBS_ROOT" ) ? env( "IBS_ROOT" ) : "/apps/sssdev/ibs";  // path to IBS folder where the different versions are
-      m_mpirunCmd = env( "CAULDRON_MPIRUN_CMD" ) ? env( "CAULDRON_MPIRUN_CMD" ) : "";                  //
+      m_version   = env( "CAULDRON_VERSION" )    ? env( "CAULDRON_VERSION" )    : s_DEFAULT_VERSION;  // default is the ver. of the build itself
+      m_rootPath  = env( "IBS_ROOT" )            ? env( "IBS_ROOT" )            : s_IBS_INSTALL_PATH; // path to IBS folder
+      m_mpirunCmd = env( "CAULDRON_MPIRUN_CMD" ) ? env( "CAULDRON_MPIRUN_CMD" ) : "";                 //
 
       if ( m_mpirunCmd.empty() )
       {
@@ -73,7 +97,7 @@ namespace casa
       }
 
       // do some tunning depends on application name
-      if ( appName == "fastcauldron" )
+      if ( m_appName == "fastcauldron" )
       {
          pushDefaultEnv( "EOSPACKDIR", (ibs::FolderPath( miscPath ) << "eospack").path() );
          pushDefaultEnv( "GENEXDIR",   (ibs::FolderPath( miscPath ) << "genex40").path() );
@@ -82,7 +106,7 @@ namespace casa
          pushDefaultEnv( "OTGCDIR",    (ibs::FolderPath( miscPath ) << "OTGC"   ).path() );
          pushDefaultEnv( "CTCDIR",     (ibs::FolderPath( miscPath )             ).path() );
       }
-      else if ( appName == "fastgenex6" )
+      else if ( m_appName == "fastgenex6" )
       {
          pushDefaultEnv( "EOSPACKDIR", (ibs::FolderPath( miscPath ) << "eospack").path() );
          pushDefaultEnv( "OTGCDIR",    (ibs::FolderPath( miscPath ) << "OTGC"   ).path() );
@@ -90,8 +114,9 @@ namespace casa
          pushDefaultEnv( "GENEX5DIR",  (ibs::FolderPath( miscPath ) << "genex50").path() );
          pushDefaultEnv( "GENEX6DIR",  (ibs::FolderPath( miscPath ) << "genex60").path() );
          pushDefaultEnv( "CTCDIR",     (ibs::FolderPath( miscPath )             ).path() );
+         m_appDepLevel = Genex;
       }
-      else if ( appName == "fastmig" )
+      else if ( m_appName == "fastmig" )
       {
          // set up environment vars
          pushDefaultEnv( "EOSPACKDIR", (ibs::FolderPath( miscPath ) << "eospack").path() );
@@ -99,12 +124,13 @@ namespace casa
          pushDefaultEnv( "GENEXDIR",   (ibs::FolderPath( miscPath ) << "genex40").path() );
          pushDefaultEnv( "GENEX5DIR",  (ibs::FolderPath( miscPath ) << "genex50").path() );
          pushDefaultEnv( "CTCDIR",     (ibs::FolderPath( miscPath )             ).path() );
+         m_appDepLevel = Migration;
       }
-      else if ( appName == "fastctc" )
+      else if ( m_appName == "fastctc" )
       {
          pushDefaultEnv( "CTCDIR",     (ibs::FolderPath( miscPath )             ).path() );
       }
-      else if ( appName == "datadriller" )
+      else if ( m_appName == "datadriller" )
       {
          pushDefaultEnv( "EOSPACKDIR", (ibs::FolderPath( miscPath ) << "eospack").path() );
          pushDefaultEnv( "OTGCDIR",    (ibs::FolderPath( miscPath ) << "OTGC"   ).path() );
@@ -112,17 +138,20 @@ namespace casa
          pushDefaultEnv( "CTCDIR",     (ibs::FolderPath( miscPath )             ).path() );
          m_inputOpt = "-input";
          m_outputOpt = "-output";
+         m_appDepLevel = Postprocessing;
       }
-      else if ( appName == "tracktraps" )
+      else if ( m_appName == "tracktraps" )
       {
          pushDefaultEnv( "EOSPACKDIR", (ibs::FolderPath( miscPath ) << "eospack").path() );
          m_outputOpt = "-output";
+         m_appDepLevel = Postprocessing;
       }
-      else if ( appName == "track1d" )
+      else if ( m_appName == "track1d" )
       {
          pushDefaultEnv( "CTCDIR",     (ibs::FolderPath( miscPath )             ).path() );
          pushDefaultEnv( "EOSPACKDIR", (ibs::FolderPath( miscPath ) << "eospack").path() );
          m_outputOpt = "| sed '1,4d' > track1d_results.csv";
+         m_appDepLevel = Postprocessing;
       }
    }
 
@@ -156,20 +185,8 @@ namespace casa
 
       switch ( m_sh )
       {
-      case bash: 
-         oss << "#!/bin/bash\n\n";
-         oss << "export CASA_SCENARIO_ID='" << scenarioID << "'\n\n";
-         break;
-
-      case csh:
-         oss << "#!/bin/csh\n\n";
-         oss << "setenv CASA_SCENARIO_ID '" << scenarioID << "'\n\n";
-         break;
-
-      case cmd:
-         oss << "@echo off\n\n";
-         oss << "set CASA_SCENARIO_ID=\"" << scenarioID << "\"\n\n";
-         break;
+      case bash: oss << "#!/bin/bash\n\n"; oss << "export CASA_SCENARIO_ID='"  << scenarioID << "'\n\n";  break;
+      case cmd:  oss << "@echo off\n\n";   oss << "set    CASA_SCENARIO_ID=\"" << scenarioID << "\"\n\n"; break;
       }
 
       // dump all necessary predefined environment variables to the script
@@ -179,7 +196,7 @@ namespace casa
 
       if ( m_clearSnapshots )
       {
-         oss << "\nrm -rf " << ibs::FilePath( inProjectFile ).fileNameNoExtension() << "_CauldronOutputDir/Time*.h5\n\n";
+         oss << "\nrm -rf " << ibs::FilePath( inProjectFile ).fileNameNoExtension() << mbapi::Model::s_ResultsFolderSuffix << "/Time*.h5\n\n";
       }
 
       // if application is parallel, add mpirun dirrective with options
@@ -195,7 +212,6 @@ namespace casa
       // dump application name with full path
       switch ( m_sh )
       {
-      case csh:
       case bash: oss << "${APP}"; break;
       case cmd:  oss << "\"%APP%\""; break;
       }
@@ -215,7 +231,6 @@ namespace casa
       // redirect stdout & stderr
       switch ( m_sh )
       {
-      case csh:
       case bash: break;
       case cmd:  oss << " > " << m_appName << ".log" << " 2> " << m_appName << ".err"; break;
       }
@@ -226,7 +241,6 @@ namespace casa
       switch ( m_sh )
       {
       case bash: oss << "if [ $? -eq 0 ];    then\n   touch $(basename $BASH_SOURCE).success\n   exit 0\nelse\n   touch $(basename $BASH_SOURCE).failed\n   exit 1\nfi\n";    break;
-      case csh:  oss << "if ( $status != 0 ) then\n   touch             `basename $0`.failed\n   exit 1\nelse\n   touch           `basename $0`.success\n   exit 0\nendif\n"; break;
       case cmd:  oss << "if errorlevel 1 (\n   type NUL > %~n0.bat.failed\n) else (\n   type NUL > %~n0.bat.success\n)\n"; break;
       }
       return oss.str();
@@ -237,10 +251,131 @@ namespace casa
       switch ( m_sh )
       {
       case bash: return ".sh";
-      case csh:  return ".csh";
       case cmd:  return ".bat";
       }
       return "";
+   }
+
+   // Generate script which will create links for files with simulation results
+   std::string CauldronApp::generateCopyResultsScript( const std::string & fromProj, const std::string & toProj, const std::string & scenarioID )
+   {
+      std::ostringstream oss;
+
+      // create path to projdiff
+      ibs::Path appPath( m_version );  // version could be set as a full path to the application executable
+      ibs::Path miscPath( appPath );
+
+      appPath << "projdiff";
+
+      switch ( m_sh )
+      {
+      case bash: 
+         oss << "#!/bin/bash\n\n"; oss << "export CASA_SCENARIO_ID='"  << scenarioID << "'\n\n";
+         oss << "CAULDRON_VERSION=" << m_version << "\nIBS_ROOT=" << m_rootPath << "\n\n";
+
+            // compute path to the projdiff utility
+         oss << "os1=`/apps/sss/share/getos2` || { echo 'Warning: Could not determine OS version. Are we in Shell Linux?'; os1='.'; }\n"
+             << "os2=`/apps/sss/share/getos2 --os --ver` || { echo 'Warning: Could not determine OS version. Are we in Shell Linux?'; os2='.'; }\n"
+             << "APP=" << m_rootPath << '/' << m_version << "/${os1}/bin/projdiff\n"
+             << "if [ ! -e $APP ]; then\n"
+             << "   APP=" << ( ibs::Path::applicationFullPath() << "projdiff" ).path() << "\n"
+             << "fi\n"
+             << "if [ ! -e $APP ]; then\n   echo Could not find application executable: ${APP}\n   exit 1\nfi\n";
+         break;
+
+      case cmd:
+         oss << "@echo off\n\nset    CASA_SCENARIO_ID=\"" << scenarioID << "\"\n\n";     
+         oss << "set CAULDRON_VERSION=" << m_version << "\nset IBS_ROOT=" << m_rootPath << "\n\n";
+
+         if ( !appPath.exists() ) { oss << "set APP=" << ( ibs::Path::applicationFullPath() << "projdiff").path(); }
+         else                     { oss << "set APP=" << appPath.path() << '\n'; }
+         break;
+      }
+
+      ibs::FilePath fromPath( fromProj );
+      ibs::FilePath toPath( toProj );
+
+      // construct full paths to the results files
+      const std::string & fromProjectName = fromPath.fileNameNoExtension();
+      fromPath.cutLast(); // cut project file name
+      fromPath << fromProjectName + mbapi::Model::s_ResultsFolderSuffix;
+      
+      const std::string & newProjectName  = toPath.fileNameNoExtension();
+      toPath.cutLast(); // cut project file name
+      toPath << newProjectName + mbapi::Model::s_ResultsFolderSuffix;
+
+      // create new folder for results files if it doesn't exist
+      if ( !toPath.exists() ) ibs::FolderPath( toPath.path() ).create();
+
+      const char ** flLst = NULL;
+      size_t        numFiles;
+
+      switch( m_appDepLevel ) 
+      {
+         case PTSolver:
+            switch( m_sh )
+            {
+               case bash: 
+                  oss << "allOk=0;\n\n# Linking time stamp 3d prop files:\n"; 
+                  oss << "ln -s " << fromPath.path() << "/Time_*.h5 " << toPath.path() << "\nif [ $? -ne 0 ]; then allOk=1; fi\n\n";
+                  oss << "${APP} -merge -table SnapshotIoTbl,3DTimeIoTbl " << fromProj << " " << toProj << "\n"; 
+                  break;
+               case cmd:
+                  oss << "set allOK=0\n\nREM Linking time stamp 3d prop files:\n"; 
+                  oss << "FOR %%c in (" << fromPath.path() << "\\Time_*.h5) DO (mklink /h .\\%%~nxc \\%%c)\nif errorlevel 1 (\n set allOk=1  \n)\n";
+                  oss << "%APP% -merge -table SnapshotIoTbl,3DTimeIoTbl " << fromProj << " " << toProj;
+                  break;
+            }
+            break;
+
+         case Genex:             break;
+         case HiResDecompaction: break;
+         case Migration:         break;
+         case Postprocessing:    break;
+         default:                break;
+      }
+
+      for ( int i = 0; strlen( s_resFilesList[m_appDepLevel][i] ) > 0; ++i )
+      {
+         ibs::FilePath rfp( fromPath );
+         ibs::FilePath tfp( toPath );
+         rfp << s_resFilesList[m_appDepLevel][i];
+         tfp << s_resFilesList[m_appDepLevel][i];
+         switch( m_sh )
+         {
+            case bash: 
+               oss << "if [ -e " << rfp.path() << " ]\nthen\n   ln -s " << rfp.path() << " " << tfp.path() << "\n";
+               oss << "   ${APP} -merge -table TimeIoTbl -filter TimeIoTbl:MapFileName:" << s_resFilesList[m_appDepLevel][i] << " ";
+               oss << fromProj << " " << toProj << "\nfi\nif [ $? -ne 0 ]; then allOk=1; fi\n\n";
+               break;
+
+            case cmd:
+               oss << "if exist " << rfp.path() << " mklink /h " << tfp.path() << " " << rfp.path() << "\n";
+               oss << "if exist " << tfp.path() << " %APP% -merge -table TimeIoTbl -filter TimeIoTbl:MapFileName:" << 
+                       s_resFilesList[m_appDepLevel][i] << " " << fromProj << " " << toProj << "\n";
+               oss << "if errorlevel 1 (\n set allOk=1  \n)\n";
+               break;
+         }
+      }
+      // add to scrip checking of the return code of the mpirun. If it is 0 - create file Stage_X.sh.success, or Stage_X.ch.failed otherwise
+      switch ( m_sh )
+      {
+      case bash:
+         oss << "if [ $allOk -eq 0 ];    then\n   touch $(basename $BASH_SOURCE).success\n   exit 0\nelse\n";
+         oss << "touch $(basename $BASH_SOURCE).failed\n   exit 1\nfi\n";
+         break;
+
+      case cmd:  oss << "if allOk 1 (\n   type NUL > %~n0.bat.failed\n) else (\n   type NUL > %~n0.bat.success\n)\n"; break;
+      }
+
+      return oss.str();
+   }
+
+
+   void CauldronApp::addOption( const std::string & opt )
+   {
+      m_optionsList.push_back( opt );
+      if ( m_appName == "fastcauldron" && opt == "-hrdecompaction" ) { m_appDepLevel = HiResDecompaction; }
    }
 
    // get environment variable
@@ -300,39 +435,6 @@ namespace casa
             << "fi\n";
          break;
 
-      case csh:
-         oss << "set CAULDRON_VERSION=" << m_version << "\n";
-         oss << "set IBS_ROOT=" << m_rootPath << "\n\n";
-         // compute path to the application
-         oss << "set os1=`/apps/sss/share/getos2` || { echo 'Warning: Could not determine OS version. Are we in Shell Linux?'; os1='.'; }\n"
-             << "set os2=`/apps/sss/share/getos2 --os --ver` || { echo 'Warning: Could not determine OS version. Are we in Shell Linux?'; os2='.'; }\n";
-
-         if ( !appPath.exists() )
-         {
-            oss << "set APP=" << m_rootPath << '/' << m_version << "/${os1}/bin/" << m_appName << '\n'
-                << "if ( ! -l $APP ) then\n"
-                << "   APP=" << m_rootPath << '/' << m_version << "/${os2}/bin/" << m_appName << '\n'
-                << "endif\n";
-         }
-         else
-         {
-            miscPath << ".." << "misc";
-            if ( !miscPath.exists() )
-            {
-               miscPath = appPath;
-               miscPath << ".." << ".." << "misc";
-            }
-            oss << "CAULDRON_MISC_PATH=" << miscPath.path() << "\n";
-            oss << "APP=" << appPath.path() << '\n';
-         }
-
-
-         oss << "if ( ! -l $APP ) then\n"
-             << "   echo Could not find application executable\n"
-             << "   exit 1\n"
-             << "endif\n";
-         break;
-
       case cmd:
          oss << "set CAULDRON_VERSION=" << m_version << "\n";
          oss << "set IBS_ROOT=" << m_rootPath << "\n\n";
@@ -363,7 +465,6 @@ namespace casa
          switch ( m_sh )
          {
          case bash:  oss << "export " << it->first << "=" << it->second << "\n"; break;
-         case csh:   oss << "setenv " << it->first << " " << it->second << "\n"; break;
          case cmd:   oss << "set "    << it->first << "=" << it->second << "\n"; break;
          }
       }
@@ -384,21 +485,19 @@ namespace casa
             ok = ok ? sz.save( it->second, "EnvVarVal" ) : ok;
          }
 
-         ok = ok ? sz.save( m_appName,                "AppName"         ) : ok;
-         ok = ok ? sz.save( m_scriptBody,             "ScriptBody"      ) : ok;
-         ok = ok ? sz.save( m_parallel,               "IsAppParallel"   ) : ok;
-         ok = ok ? sz.save( m_cpus,                   "CPUsNum"         ) : ok;
-         ok = ok ? sz.save( static_cast<int>( m_sh ), "ShellType"       ) : ok;
-         ok = ok ? sz.save( m_version,                "CldVersion"      ) : ok;
-         ok = ok ? sz.save( m_rootPath,               "IBSROOT"         ) : ok;
-         ok = ok ? sz.save( m_mpirunCmd,              "MPIRunCmd"       ) : ok;
-         ok = ok ? sz.save( m_inputOpt,               "InputOpt"        ) : ok;
-         ok = ok ? sz.save( m_outputOpt,              "OutputOpt"       ) : ok;
-         ok = ok ? sz.save( m_optionsList,            "AppOptionsList"  ) : ok;
-         if ( fileVersion > 0 )
-         {
-            ok = ok ? sz.save( m_runTimeLim,          "AppRunTimeLimit" ) : ok;
-         }
+         ok = ok ? sz.save( m_appName,                       "AppName"         ) : ok;
+         ok = ok ? sz.save( m_scriptBody,                    "ScriptBody"      ) : ok;
+         ok = ok ? sz.save( m_parallel,                      "IsAppParallel"   ) : ok;
+         ok = ok ? sz.save( m_cpus,                          "CPUsNum"         ) : ok;
+         ok = ok ? sz.save( static_cast<int>( m_sh ),        "ShellType"       ) : ok;
+         ok = ok ? sz.save( m_version,                       "CldVersion"      ) : ok;
+         ok = ok ? sz.save( m_rootPath,                      "IBSROOT"         ) : ok;
+         ok = ok ? sz.save( m_mpirunCmd,                     "MPIRunCmd"       ) : ok;
+         ok = ok ? sz.save( m_inputOpt,                      "InputOpt"        ) : ok;
+         ok = ok ? sz.save( m_outputOpt,                     "OutputOpt"       ) : ok;
+         ok = ok ? sz.save( m_optionsList,                   "AppOptionsList"  ) : ok;
+         ok = ok ? sz.save( m_runTimeLim,                    "AppRunTimeLimit" ) : ok;
+         ok = ok ? sz.save( static_cast<int>(m_appDepLevel), "AppDepLevel"     ) : ok;
       }
       return ok;
    }
@@ -434,12 +533,14 @@ namespace casa
       ok = ok ? dz.load( m_inputOpt,      "InputOpt"        ) : ok;
       ok = ok ? dz.load( m_outputOpt,     "OutputOpt"       ) : ok;
       ok = ok ? dz.load( m_optionsList,   "AppOptionsList"  ) : ok;
+      ok = ok ? dz.load( m_runTimeLim,    "AppRunTimeLimit" ) : ok;
 
       if ( objVer > 0 )
       {
-         ok = ok ? dz.load( m_runTimeLim, "AppRunTimeLimit" ) : ok;
+         ok = ok ? dz.load( sht,          "AppDepLevel"     ) : ok;
+         m_appDepLevel = static_cast<AppPipelineLevel>( sht );
       }
-      else { m_runTimeLim = 0; }
+      else { m_appDepLevel = PTSolver; }
  
       if ( !ok )
       {

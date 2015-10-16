@@ -85,7 +85,12 @@ namespace mbapi {
       /// @{
       /// Types definitions
       /// @}
-
+ 
+      /// @{
+      /// Global constants definition
+      static const char * s_ResultsFolderSuffix; ///< defines Cauldron results folder name suffix
+      /// @}
+ 
       /// @{
       /// Constructors/destructor
 
@@ -109,6 +114,16 @@ namespace mbapi {
                                 , const std::set<std::string> & ignoreTblsList  ///< list of tables to ignore them during comparison
                                 , double relTol                                 ///< relative tolerance value to compare float point values
                                 );
+
+      /// @brief Copy matched given filter records from the given project to the current, all similar records in 
+      ///        the currenct projects will be deleted and replaced
+      /// @return empty string on success or error message
+      std::string mergeProject( Model & mdl1                                               ///< the model to merge from
+                              , const std::set<std::string> & procesTblsList               ///< list of tables to process, must not be empty
+                              , const std::vector< std::vector< std::string > > & flitList ///< filter list (process matched to filter records only)
+                              , size_t                                          & dlRecNum ///< deleted records num in the current project
+                              , size_t                                          & cpRecNum ///< copied recrords num from the given project
+                              );
 
       /// @brief Copy model, creates a deep copy of the model
       /// @param[in] otherModel - model to copy

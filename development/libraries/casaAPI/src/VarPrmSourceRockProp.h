@@ -94,11 +94,7 @@ namespace casa
       std::string m_layerName;  ///< active source rock lithology name
       int         m_mixID;      ///< mixing ID
       std::string m_srTypeName; ///< active source rock type name
-
-      double      m_minProp;     ///< minimal range value
-      double      m_baseProp;    ///< base value
-      double      m_maxProp;     ///< maximal range value
-      
+     
       std::map<std::string, std::vector<double> > m_name2range; ///< Keeps range and base property values for each category
    };
 }

@@ -85,6 +85,10 @@ namespace casa
       /// @return Pointer to the variable parameter
       virtual const VarParameter * parent() const { return m_parent; }
 
+      /// @brief Get the level of influence to cauldron applications pipeline for this parametr
+      /// @return number which indicates which solver influence this parameter
+      virtual AppPipelineLevel appSolverDependencyLevel() const  { return PTSolver; }
+                  
       /// @brief Get list of maps for the event sequense
       /// @return maps list
       std::vector<std::string> getMapsList() const { return m_maps; }

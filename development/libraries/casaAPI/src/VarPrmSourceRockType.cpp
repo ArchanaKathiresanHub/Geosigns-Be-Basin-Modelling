@@ -89,10 +89,8 @@ int VarPrmSourceRockType::index( const PrmSourceRockType * prm ) const
 bool VarPrmSourceRockType::save( CasaSerializer & sz, unsigned int version ) const
 {
    bool ok = VarPrmCategorical::save( sz, version );
-   if ( version > 7 )
-   {
-      ok = ok ? sz.save( m_mixID, "mixingID" ) : ok;
-   }
+   ok = ok ? sz.save( m_mixID, "mixingID" ) : ok;
+
    return ok;
 }
 
@@ -101,8 +99,7 @@ VarPrmSourceRockType::VarPrmSourceRockType( CasaDeserializer & dz, unsigned int 
 {
    bool ok = VarPrmCategorical::deserializeCommonPart( dz, objVer );
 
-   if ( objVer > VarPrmCategorical::version() + 0 ) { ok = ok ? dz.load( m_mixID, "mixingID" ) : ok; }
-   else                                             { m_mixID = 1; }
+   ok = ok ? dz.load( m_mixID, "mixingID" ) : ok;
 
    if ( !ok )
    {

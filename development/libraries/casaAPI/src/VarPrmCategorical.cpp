@@ -61,11 +61,7 @@ namespace casa
          ok = sz.save( *(m_variation[i].get()), "enumValue" );
       }
      
-      if ( version >= 6 ) // version of ScenarioAnalysis object
-      {
-         ok = ok ? sz.save( m_name, "userGivenName" ) : ok;
-      }
-
+      ok = ok ? sz.save( m_name, "userGivenName" ) : ok;
       return ok;
    }
 
@@ -85,7 +81,6 @@ namespace casa
 
       // create new variabale parameter object depending on object type name from file
       if ( ot == "VarPrmSourceRockType"  ) { return new VarPrmSourceRockType(  dz, vr ); }
-      //else if ( ot == "" ) { return 0; }
       else
       {
          throw ErrorHandler::Exception( ErrorHandler::DeserializationError )
@@ -123,10 +118,7 @@ namespace casa
          m_variation.push_back( prm );
       }
 
-      if ( objVer > 0 )
-      {
-         ok = ok ? dz.load( m_name, "userGivenName" ) : ok;
-      }
+      ok = ok ? dz.load( m_name, "userGivenName" ) : ok;
 
       return ok;
    }

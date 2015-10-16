@@ -69,6 +69,10 @@ namespace casa
       /// @return Pointer to the variable parameter
       virtual const VarParameter * parent() const { return m_parent; }
 
+      /// @brief Get the level of influence to cauldron applications pipeline for this parametr
+      /// @return number which indicates which solver influence this parameter
+      virtual AppPipelineLevel appSolverDependencyLevel() const  { return PTSolver; }
+                  
       /// @brief Set this parameter value in Cauldron model
       /// @param caldModel reference to Cauldron model
       /// @param caseID unique RunCase ID, in some parameters it is used in new map file name generation

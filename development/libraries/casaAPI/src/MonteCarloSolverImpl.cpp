@@ -388,16 +388,13 @@ bool MonteCarloSolverImpl::save( CasaSerializer & sz, unsigned int fileVersion )
       }
    }
 
-   if ( fileVersion >= 1 )
-   {
-      ok = sz.save( m_GOF, "GOF" );
+   ok = sz.save( m_GOF, "GOF" );
 
-      // save P10-P90 CDF per observable
-      ok = ok ? sz.save( m_cdf.size(), "CDFSetSize" ) : ok;
-      for ( size_t i = 0; i < m_cdf.size() && ok; ++i )
-      {
-         ok = sz.save( m_cdf[i], "ObsCDF" );
-      }
+   // save P10-P90 CDF per observable
+   ok = ok ? sz.save( m_cdf.size(), "CDFSetSize" ) : ok;
+   for ( size_t i = 0; i < m_cdf.size() && ok; ++i )
+   {
+      ok = sz.save( m_cdf[i], "ObsCDF" );
    }
 
    // save SUMlib needed data structures
@@ -467,18 +464,15 @@ MonteCarloSolverImpl::MonteCarloSolverImpl( CasaDeserializer & dz, const char * 
       if ( ok ) m_results.push_back( std::pair<double, RunCase*>( val, rco ) );
    }
 
-   if ( objVer > 0 )
-   {
-      ok = ok ? dz.load( m_GOF, "GOF" ) : ok;
+   ok = ok ? dz.load( m_GOF, "GOF" ) : ok;
 
-      // load P10-P90 CDF per observable
-      ok = ok ? dz.load( setSize, "CDFSetSize" ) : ok;
-      for ( size_t i = 0; i < setSize && ok; ++i )
-      {
-         std::vector<double> cdf;
-         ok = dz.load( cdf, "ObsCDF" );
-         m_cdf.push_back( cdf );
-      }
+   // load P10-P90 CDF per observable
+   ok = ok ? dz.load( setSize, "CDFSetSize" ) : ok;
+   for ( size_t i = 0; i < setSize && ok; ++i )
+   {
+     std::vector<double> cdf;
+     ok = dz.load( cdf, "ObsCDF" );
+     m_cdf.push_back( cdf );
    }
 
    // TODO implement loading of SUMlib data structures

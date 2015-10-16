@@ -14,6 +14,7 @@
 // CASA
 #include "CasaDeserializer.h"
 #include "JobSchedulerLocal.h"
+#include "RunManager.h"
 
 // FileSystem
 #include "FilePath.h"
@@ -23,6 +24,7 @@
 #include <iterator>
 #include <memory>
 #include <sstream>
+#include <fstream>
 
 // STD C lib
 #ifndef _WIN32
@@ -59,6 +61,7 @@ static size_t NumCPUS() { SYSTEM_INFO sysinfo; GetSystemInfo( &sysinfo ); return
 
 namespace casa
 {
+
 class JSTimer
 {
 public:
@@ -77,7 +80,7 @@ public:
       return get_time() - m_begin;
    }
 
-   void   start()      { m_begin = get_time();        } // Start timer
+   void start() { m_begin = get_time();  } // Start timer
 
 protected:
    double m_begin;    // start time
@@ -218,6 +221,10 @@ SystemProcess::SystemProcess( const std::string & cwd
 
       m_isOk = true;
       delete [] args;
+
+      // log job ID
+      std::ofstream ofs( RunManager::s_jobsIDListFileName, std::ios_base::out | std::ios_base::app );
+      if ( ofs.is_open() ) { ofs << m_pid << std::endl; }
    }
 #else // Windows implementation
 
@@ -256,6 +263,10 @@ SystemProcess::SystemProcess( const std::string & cwd
 
       DEBUG( 1, "CreatedProcess\n" );
       m_isOk = true;
+
+      // log job ID
+      std::ofstream ofs( RunManager::s_jobsIDListFileName, ios_base::out | ios_base::app );
+      if ( ofs.is_open() ) { ofs << GetProcessId( hProcess ) << std::endl; }
    }
    else
    {
@@ -276,23 +287,19 @@ void SystemProcess::updateProcessStatus()
    pid_t result = waitpid( m_pid, &status, WNOHANG );
    switch ( result )
    {
-   case 0:  m_isOk = true;  break; // Child is still running
+   case  0:  m_isOk = true;  break; // Child is still running
    case -1:
       DEBUG( 0, "Error getting status of the child process!\n" );
       m_isOk = false;
       break;
-   default:
-      m_isOk = false;
-      break; // Child has exited
+   default:  m_isOk = false; break; // Child has exited
    }
 #else // Windows implementation
    DWORD exitCode = 0;
    bool result = GetExitCodeProcess( hProcess, &exitCode ) == TRUE ? true : false;
-
    m_isOk = ( result == true && exitCode == STILL_ACTIVE );
 #endif
 }
-
 
 class JobSchedulerLocal::Job : public CasaSerializable
 {
@@ -350,8 +357,6 @@ public:
          case JobScheduler::JobFailed:
             break;
 
-         case JobScheduler::JobSucceeded: m_jobState = JobScheduler::JobFinished;  break; // on second request convert succeeded to finished
-
          case JobScheduler::JobRunning:
             m_proc->updateProcessStatus();
 
@@ -362,9 +367,9 @@ public:
             }
             else
             {
-               if (      ibs::FilePath ( m_command + ".success" ).exists() ) { m_jobState = JobScheduler::JobSucceeded; }
-               else if ( ibs::FilePath ( m_command + ".failed"  ).exists() ) { m_jobState = JobScheduler::JobFailed;    }
-               else                                                          { m_jobState = JobScheduler::Unknown;      }
+               if (      ibs::FilePath ( m_command + ".success" ).exists() ) { m_jobState = JobScheduler::JobFinished; }
+               else if ( ibs::FilePath ( m_command + ".failed"  ).exists() ) { m_jobState = JobScheduler::JobFailed;   }
+               else                                                          { m_jobState = JobScheduler::JobFailed;   }
             }
             break;
 

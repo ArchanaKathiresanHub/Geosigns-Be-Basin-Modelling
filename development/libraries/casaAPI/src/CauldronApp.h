@@ -33,6 +33,16 @@
 
 namespace casa
 {
+   typedef enum
+   {
+      PTSolver          = 0, ///< fastcauldron option -temperature/-overpressure/-itcoupled
+      Genex             = 2, ///< fastgenex4/5/6
+      HiResDecompaction = 3, ///< fastcauldron option -hrdecompaction [-coupled]
+      Migration         = 4, ///< fastmig
+      Postprocessing    = 6  ///< tracktraps/track1d and any other
+   } AppPipelineLevel;
+
+
    /// @brief Class for creating command line for cauldron application
    class CauldronApp : public CasaSerializable
    {
@@ -41,7 +51,6 @@ namespace casa
       typedef enum
       {
          bash = 0,
-         csh,
          cmd
       } ShellType;
 
@@ -53,6 +62,10 @@ namespace casa
 
       /// @brief Destructor
       virtual ~CauldronApp() {;}
+
+      /// @brief Get position of this application in cauldron applications pipeline
+      /// @return position of this applicaiton in apps pipepline
+      AppPipelineLevel appSolverDependencyLevel() const { return m_appDepLevel; }
 
       /// @brief  In case of general app defines script body.
       /// @param  cmdLine  full script body
@@ -68,6 +81,13 @@ namespace casa
       /// @param scenarioID uniquie scenario ID to allow set reference between GUI and engine
       /// @return generated script as a string
       virtual std::string generateScript( const std::string & inProjectFile, const std::string & outProjectFile, const std::string & scenarioID );
+
+      /// @brief Generate script which will create links for files with simulation results
+      /// @param fromProj source project for results files
+      /// @param toProj destination project for results files
+      /// @param scenarioID uniquie scenario ID to allow set reference between GUI and engine
+      /// @return generated script as a string
+      virtual std::string generateCopyResultsScript( const std::string & fromProj, const std::string & toProj, const std::string & scenarioID );
 
       /// @brief Set path where applications with different versions are. Could be also set through IBS_ROOT environment variable
       /// @param rootPath path to IBS folder with different versions of cauldron
@@ -89,9 +109,9 @@ namespace casa
       /// @return minutes number for the run time limitation
       size_t runTimeLimit() { return m_runTimeLim; }
 
-      /// @brief Add application option
-      /// @param opt new option
-      void addOption( const std::string & opt ) { m_optionsList.push_back( opt ); }
+      /// @brief Add application command line option
+      /// @param opt new option to be added
+      void addOption( const std::string & opt );
 
       /// @brief  Return scirpt suffix which depends on the chosen shell - for example .sh for bash and .bat for cmd
       /// @return commands script suffix
@@ -101,6 +121,7 @@ namespace casa
       /// @{
       /// @brief Defines version of serialized object representation. Must be updated on each change in save()
       /// @return Actual version of serialized object representation
+      /// Version 1. Added dependecy level of the application in cauldron applications pipeline
       virtual unsigned int version() const { return 1; }
 
       /// @brief Save all object data to the given stream, that object could be later reconstructed from saved data
@@ -122,24 +143,28 @@ namespace casa
 
    protected:
 
-      std::map< std::string, std::string >   m_env;            ///< keeps environment variables in map: [variable] -> value
-      std::string                            m_appName;        ///< name of application like fastcauldron/genex6/...
-      std::string                            m_scriptBody;     ///< in case of general app keeps script body
-      bool                                   m_parallel;       ///< is this application parallel?
-      int                                    m_cpus;           ///< how many cpus should use application
-      size_t                                 m_runTimeLim;     ///< hard limit for applictaion run time
+      std::map< std::string, std::string >   m_env;               ///< keeps environment variables in map: [variable] -> value
+      std::string                            m_appName;           ///< name of application like fastcauldron/genex6/...
+      std::string                            m_scriptBody;        ///< in case of general app keeps script body
+      bool                                   m_parallel;          ///< is this application parallel?
+      int                                    m_cpus;              ///< how many cpus should use application
+      size_t                                 m_runTimeLim;        ///< hard limit for applictaion run time
 
-      ShellType                              m_sh;             ///< type of shell (setting environment variables differ in different shell scripts
+      ShellType                              m_sh;                ///< type of shell (setting environment variables differ in different shell scripts
 
-      std::string                            m_version;        ///< Cauldron version which will be used
-      std::string                            m_rootPath;       ///< path prefix to applications root like /apps/sssdev/ibs
-      std::string                            m_mpirunCmd;      ///< mpirun command with parameters
+      std::string                            m_version;           ///< Cauldron version which will be used
+      std::string                            m_rootPath;          ///< path prefix to applications root like /apps/sssdev/ibs
+      std::string                            m_mpirunCmd;         ///< mpirun command with parameters
 
-      std::string                            m_inputOpt;       ///< command line option for app to load input project file
-      std::string                            m_outputOpt;      ///< command line option for app to save output project file
+      std::string                            m_inputOpt;          ///< command line option for app to load input project file
+      std::string                            m_outputOpt;         ///< command line option for app to save output project file
 
-      std::vector< std::string >             m_optionsList;    ///< List of options for the application
-      bool                                   m_clearSnapshots; ///< Add or not to script file cleaning results call
+      std::vector< std::string >             m_optionsList;       ///< List of options for the application
+      bool                                   m_clearSnapshots;    ///< Add or not to script file cleaning results call
+      
+      AppPipelineLevel                       m_appDepLevel;       ///< Define where this application is located in apps pipeline
+
+      static const char *                    s_resFilesList[][6]; ///< List of HDF files names with simulation results
 
       /// @brief get environment variable
       const char * env( const char * varName );
@@ -161,4 +186,5 @@ namespace casa
 }
 
 #endif // CASA_API_CAULDRON_APP_H
+
 

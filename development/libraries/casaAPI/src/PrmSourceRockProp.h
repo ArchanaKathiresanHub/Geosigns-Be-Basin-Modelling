@@ -46,6 +46,10 @@ namespace casa
       /// @return Pointer to the variable parameter
       virtual const VarParameter * parent() const { return m_parent; }
 
+      /// @brief Get the level of influence to cauldron applications pipeline for this parametr
+      /// @return number which indicates which solver influence this parameter
+      virtual AppPipelineLevel appSolverDependencyLevel() const  { return Genex; }
+                  
       // The following methods are used for converting between CASA RunCase and SUMLib::Case objects
       
       /// @brief Get parameter value as an array of doubles

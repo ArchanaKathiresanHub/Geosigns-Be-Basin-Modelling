@@ -23,9 +23,6 @@ namespace casa
 
 VarPrmSourceRockProp::VarPrmSourceRockProp()
 {
-   m_minProp = 0.0;
-   m_maxProp = 0.0;
-   m_baseProp = 0.0;
    m_mixID = 1;
    m_pdf = Block;
 }
@@ -42,9 +39,6 @@ VarPrmSourceRockProp::VarPrmSourceRockProp( const char * layerName
                                           : m_layerName( layerName )
                                           , m_mixID( mixID )
                                           , m_srTypeName( srTypeName ? srTypeName : "" )
-                                          , m_minProp( minValue )
-                                          , m_baseProp( baseValue )
-                                          , m_maxProp( maxValue )
 {
    m_pdf = pdfType;
    m_name = name && strlen( name ) > 0 ? std::string( name ) : std::string( "" );
@@ -55,9 +49,9 @@ VarPrmSourceRockProp::VarPrmSourceRockProp( const char * layerName
    if ( !m_srTypeName.empty() )
    {
       std::vector<double> vec;
-      vec.push_back( m_minProp );
-      vec.push_back( m_maxProp );
-      vec.push_back( m_baseProp );
+      vec.push_back( minValue );
+      vec.push_back( maxValue );
+      vec.push_back( baseValue );
       m_name2range[ m_srTypeName ] = vec;
    }
 }
@@ -65,18 +59,22 @@ VarPrmSourceRockProp::VarPrmSourceRockProp( const char * layerName
 
 SharedParameterPtr VarPrmSourceRockProp::newParameterFromDoubles( std::vector<double>::const_iterator & vals ) const
 {
+   double minProp  = dynamic_cast<PrmSourceRockProp*>( m_minValue.get( ) )->value();
+   double maxProp  = dynamic_cast<PrmSourceRockProp*>( m_maxValue.get( ) )->value();
+   double baseProp = dynamic_cast<PrmSourceRockProp*>( m_baseValue.get() )->value();
+
    double prmV = *vals++; // in [-1:0:1] range
 
    // 0.0 is the base value for [-1:1] range
-   prmV = prmV < 0.0 ? m_minProp  + (prmV + 1.0) * (m_baseProp - m_minProp) : // [minV, baseV] range
-                       m_baseProp + prmV * ( m_maxProp  - m_baseProp);  // [baseV, maxV] range
+   prmV = prmV < 0.0 ? minProp  + (prmV + 1.0) * (baseProp - minProp) : // [minV, baseV] range
+                       baseProp + prmV * ( maxProp  - baseProp);  // [baseV, maxV] range
 
    // scale prmV from [-1:1] to the current Prop range - [minProp:maxProp]
 
-   if ( m_minProp > prmV || prmV > m_maxProp )
+   if ( minProp > prmV || prmV > maxProp )
    {
       throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Variation of source rock " << m_propName << " parameter for layer " <<
-         m_layerName << ": " << prmV << " falls out of range: [" << m_minProp << ":" << m_maxProp << "]";
+         m_layerName << ": " << prmV << " falls out of range: [" << minProp << ":" << maxProp << "]";
    }
 
    SharedParameterPtr prm( createNewPrm( prmV ) );
@@ -91,9 +89,9 @@ std::vector<double> VarPrmSourceRockProp::asDoubleArray( const SharedParameterPt
 
    double tocVal = tocPrm->value();
 
-   double minV = m_minProp;
-   double maxV = m_maxProp;
-   double basV = m_baseProp;
+   double minV = dynamic_cast<PrmSourceRockProp*>( m_minValue.get( ) )->value();
+   double maxV = dynamic_cast<PrmSourceRockProp*>( m_maxValue.get( ) )->value();
+   double basV = dynamic_cast<PrmSourceRockProp*>( m_baseValue.get() )->value();
 
    if ( !m_name.empty() && !tocPrm->sourceRockTypeName().empty() && m_name2range.count( tocPrm->sourceRockTypeName() ) > 0 )
    {  
@@ -152,25 +150,20 @@ bool VarPrmSourceRockProp::serializeCommonPart( CasaSerializer & sz, unsigned in
    bool ok = VarPrmContinuous::save( sz, version );
    ok = ok ? sz.save( m_layerName, "layerName" ) : ok;
 
-   if ( version > 7 ) // ScenarioAnalysis version 
+   ok = ok ? sz.save( m_mixID,      "mixingID"   ) : ok;
+   ok = ok ? sz.save( m_srTypeName, "srTypeName" ) : ok;
+
+   size_t numRanges = m_name2range.size();
+   ok = ok ? sz.save( numRanges, "numPropRanges" ) : ok;
+   for ( std::map<std::string, std::vector<double> >::const_iterator it = m_name2range.begin(); it != m_name2range.end(); ++it )
    {
-      ok = ok ? sz.save( m_mixID,      "mixingID"   ) : ok;
-      ok = ok ? sz.save( m_srTypeName, "srTypeName" ) : ok;
-
-      size_t numRanges = m_name2range.size();
-      ok = ok ? sz.save( numRanges, "numPropRanges" ) : ok;
-      for ( std::map<std::string, std::vector<double> >::const_iterator it = m_name2range.begin(); it != m_name2range.end(); ++it )
-      {
-         const std::string & key = it->first;
-         const std::vector<double> & vec = it->second;
-         ok = ok ? sz.save( key, "srTypeNameKey" ) : ok;
-         ok = ok ? sz.save( vec, "valPropRange"   ) : ok;
-      } 
+      const std::string & key = it->first;
+      const std::vector<double> & vec = it->second;
+      ok = ok ? sz.save( key, "srTypeNameKey"    ) : ok;
+      ok = ok ? sz.save( vec, "valPropRange"     ) : ok;
+   } 
    
-      ok = ok ? sz.save( m_propName, "propName" ) : ok;
-
-   }
-
+   ok = ok ? sz.save( m_propName, "propName"     ) : ok;
    return ok;
 }
 
@@ -180,36 +173,23 @@ bool VarPrmSourceRockProp::deserializeCommonPart( CasaDeserializer & dz, unsigne
    bool ok = VarPrmContinuous::deserializeCommonPart( dz, objVer );
    ok = ok ? dz.load( m_layerName, "layerName" ) : ok;
 
-   if ( objVer > VarPrmContinuous::version() + 0 ) // since the 1st version different rop ranges are here
+   ok = ok ? dz.load( m_mixID,        "mixingID" ) : ok;
+   ok = ok ? dz.load( m_srTypeName, "srTypeName" ) : ok;
+
+   size_t numRanges = 0;
+   ok = ok ? dz.load( numRanges, "numPropRanges" ) : ok;
+
+   for ( size_t i = 0; ok && i < numRanges; ++i )
    {
-      ok = ok ? dz.load( m_mixID,        "mixingID" ) : ok;
-      ok = ok ? dz.load( m_srTypeName, "srTypeName" ) : ok;
+      std::string         key;
+      std::vector<double> vec;   // load min, max & base range values
 
-      size_t numRanges = 0;
-      ok = ok ? dz.load( numRanges, "numPropRanges" ) : ok;
+      ok = ok ? dz.load( key, "srTypeNameKey" ) : ok;
+      ok = ok ? dz.load( vec, "valPropRange"  ) : ok;
 
-      for ( size_t i = 0; ok && i < numRanges; ++i )
-      {
-         std::string         key;
-         std::vector<double> vec;   // load min, max & base range values
-
-         ok = ok ? dz.load( key, "srTypeNameKey" ) : ok;
-         ok = ok ? dz.load( vec, "valPropRange"  ) : ok;
-
-         if ( ok ) { m_name2range[key] = vec; } // add property range
-      }
-      
-      ok = ok ? dz.load( m_propName, "propName" ) : ok;
-   } 
-   else
-   {
-      m_mixID = 1;
+      if ( ok ) { m_name2range[key] = vec; } // add property range
    }
-   
-   m_minProp  = dynamic_cast<PrmSourceRockProp*>( m_minValue.get( ) )->value();
-   m_maxProp  = dynamic_cast<PrmSourceRockProp*>( m_maxValue.get( ) )->value();
-   m_baseProp = dynamic_cast<PrmSourceRockProp*>( m_baseValue.get() )->value();
-
+   ok = ok ? dz.load( m_propName, "propName"    ) : ok;
    return ok;
 }
 
@@ -231,14 +211,11 @@ void VarPrmSourceRockProp::onCategoryChosen( const Parameter * prm )
    const std::vector<double> & vec = m_name2range[srName];
 
    // Switch to the new range
-   m_minProp    = vec[0];
-   m_maxProp    = vec[1];
-   m_baseProp   = vec[2];
    m_srTypeName = srName;
 
-   dynamic_cast<PrmSourceRockProp*>( m_minValue.get( ) )->update( m_minProp,  srName );
-   dynamic_cast<PrmSourceRockProp*>( m_maxValue.get( ) )->update( m_maxProp,  srName );
-   dynamic_cast<PrmSourceRockProp*>( m_baseValue.get() )->update( m_baseProp, srName );
+   dynamic_cast<PrmSourceRockProp*>( m_minValue.get( ) )->update( vec[0], srName );
+   dynamic_cast<PrmSourceRockProp*>( m_maxValue.get( ) )->update( vec[1], srName );
+   dynamic_cast<PrmSourceRockProp*>( m_baseValue.get() )->update( vec[2], srName );
 }
 
 

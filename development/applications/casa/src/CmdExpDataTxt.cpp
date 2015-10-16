@@ -20,6 +20,8 @@
 #include <fstream>
 #include <iomanip>
 
+using namespace casa;
+
 CmdExpDataTxt::CmdExpDataTxt( CasaCommander & parent, const std::vector< std::string > & cmdPrms ) : CasaCmd( parent, cmdPrms )
 {
    if ( m_prms.size() < 2 )
@@ -54,6 +56,10 @@ CmdExpDataTxt::CmdExpDataTxt( CasaCommander & parent, const std::vector< std::st
 
       if ( m_proxyName.empty() ) throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "No proxy name was given";
    }
+   else if ( m_whatToSave == "MCResults" )
+   {
+      ;
+   }
    else { throw ErrorHandler::Exception( ErrorHandler::RSProxyError ) << "Unknown command parameter: " <<  m_whatToSave; }
 }
 
@@ -68,6 +74,7 @@ void CmdExpDataTxt::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
    else if ( m_whatToSave == "RunCasesObservables"  ) { exportRunCaseObs( sa ); } 
    else if ( m_whatToSave == "ProxyEvalObservables" ) { exportEvalObserv( sa ); }
    else if ( m_whatToSave == "ProxyQC"              ) { exportProxyQC(    sa ); }
+   else if ( m_whatToSave == "MCResults"            ) { exportMCResults(  sa ); }
 }
 
 void CmdExpDataTxt::printHelpPage( const char * cmdName )
@@ -79,6 +86,7 @@ void CmdExpDataTxt::printHelpPage( const char * cmdName )
    std::cout << "       RunCasesObservables : extracted from simulations observables value\n";
    std::cout << "       ProxyEvalObservables: evaluated from the given response surface observables value\n";
    std::cout << "       ProxyQC:              relation of simulated to evaluated observables value\n";
+   std::cout << "       MCResults:            variable parameters and observables value from MC/MCMC simulation\n";
 
    std::cout << "  Where:\n";
    std::cout << "       what     - DoEParameters/RunCasesObservables/ProxyEvalObservables/ProxyQC\n";
@@ -314,4 +322,55 @@ void CmdExpDataTxt::exportProxyQC( std::auto_ptr<casa::ScenarioAnalysis> & sa )
    saveResults( results );
 }
          
+void CmdExpDataTxt::exportMCResults( std::auto_ptr<casa::ScenarioAnalysis> & sa )
+{
+   if ( m_commander.verboseLevel() > CasaCommander::Quiet )
+   {
+      std::cout << "Export MC/MCMC to " << m_dataFileName << std::endl;
+   }
 
+   std::vector< std::vector<double> > results;
+   // export MC samples
+   const MonteCarloSolver::MCResults & mcSamples = sa->mcSolver().getSimulationResults();
+
+   for ( size_t i = 0; i < mcSamples.size(); ++i )
+   {
+      results.push_back( std::vector<double>() );
+      
+      std::vector<double> & rsmpl = results.back();
+      rsmpl.push_back( i );                //sample num
+      rsmpl.push_back(mcSamples[i].first); //sample RMSE
+
+      // sample parameters set
+      for ( size_t j = 0; j < mcSamples[i].second->parametersNumber(); ++j )
+      {
+         SharedParameterPtr prm = mcSamples[i].second->parameter( j );
+
+         switch( prm->parent()->variationType() )
+         {
+            case VarParameter::Continuous:
+            case VarParameter::Discrete:
+               {
+                  const std::vector<double> & prmVals = prm->asDoubleArray();
+                  for ( size_t k = 0; k < prmVals.size(); ++k ) { rsmpl.push_back( prmVals[k] ); }
+               }
+               break;
+
+            case VarParameter::Categorical:  rsmpl.push_back( static_cast<double>( prm->asInteger() ) );  break;
+            default: assert( false ); break;
+         }
+      }
+      // observables values set
+      for ( size_t j = 0; j < mcSamples[i].second->observablesNumber(); ++j )
+      {
+         ObsValue * obv = mcSamples[i].second->obsValue( j );
+
+         if ( obv && obv->isDouble() )
+         {
+            const std::vector<double> & vals = obv->asDoubleArray();
+            for ( size_t k = 0; k < vals.size(); ++k ) rsmpl.push_back( vals[k] );
+         }
+      }
+   }
+   saveResults( results );
+}

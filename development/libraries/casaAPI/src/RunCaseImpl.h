@@ -91,13 +91,15 @@ namespace casa
       // Compare cases. It is neccessary because DoE generator could return the same cases for different DoE
       virtual bool operator == ( const RunCase & cs ) const;
 
+      // Compare cases taking in account application dependency level. Some cases could have equal
+      // parameters up to some application in pipeline. To avoid unnecessary runs, same case results could be just copied
+      virtual bool isEqual( const RunCase &cs, AppPipelineLevel upTo ) const;
+
+
       // Serialization / Deserialization
 
       // version of serialized object representation
-      // version 0 - initial impelementation
-      // version 1 - added run state of the case
-      // version 2 - added run case ID
-      virtual unsigned int version() const { return 2; }
+      virtual unsigned int version() const { return 0; }
 
       // Get type name of the serialaizable object, used in deserialization to create object with correct type
       virtual const char * typeName() const { return "RunCaseImpl"; }

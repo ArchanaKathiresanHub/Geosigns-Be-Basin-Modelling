@@ -71,11 +71,11 @@ PrmSourceRockProp::PrmSourceRockProp( mbapi::Model & mdl
          " set as source rock layer but has no source rock lithology defined for the mixing ID: " << m_mixID;
    }
    
-   mbapi::SourceRockManager::SourceRockID sid = srMgr.findID( m_layerName, (!m_srTypeName.empty() ? m_srTypeName : srtNames[m_mixID - 1]) );
+   mbapi::SourceRockManager::SourceRockID sid = srMgr.findID( m_layerName, (srType ? std::string( srType ) : srtNames[m_mixID-1]) );
    if ( IsValueUndefined( sid ) )
    {
       throw ErrorHandler::Exception(ErrorHandler::UndefinedValue) << "Can not find source rock lithology for layer "
-         << m_layerName << " and SR type " << (!m_srTypeName.empty() ? m_srTypeName : srtNames[m_mixID - 1]);
+         << m_layerName << " and SR type " << (srType ? std::string( srType ) : srtNames[m_mixID-1]);
    }
 }
 
@@ -104,16 +104,12 @@ bool PrmSourceRockProp::serializeCommonPart( CasaSerializer & sz, unsigned int v
       CasaSerializer::ObjRefID parentID = sz.ptr2id( m_parent );
       ok = ok ? sz.save( parentID, "VarParameterID" ) : ok;
    }
-   ok = ok ? sz.save( m_name,      "name"      ) : ok;
-   ok = ok ? sz.save( m_layerName, "layerName" ) : ok;
-   ok = ok ? sz.save( m_val,       "val"       ) : ok;
-
-   if ( version > 7 ) // ScenarioAnalysis version
-   {
-      ok = ok ? sz.save( m_mixID,      "mixID"      ) : ok;
-      ok = ok ? sz.save( m_srTypeName, "srTypeName" ) : ok;
-      ok = ok ? sz.save( m_propName,   "propName" ) : ok;
-   }
+   ok = ok ? sz.save( m_name,       "name"       ) : ok;
+   ok = ok ? sz.save( m_layerName,  "layerName"  ) : ok;
+   ok = ok ? sz.save( m_val,        "val"        ) : ok;
+   ok = ok ? sz.save( m_mixID,      "mixID"      ) : ok;
+   ok = ok ? sz.save( m_srTypeName, "srTypeName" ) : ok;
+   ok = ok ? sz.save( m_propName,   "propName"   ) : ok;
 
    return ok;
 }
@@ -132,24 +128,14 @@ bool PrmSourceRockProp::deserializeCommonPart( CasaDeserializer & dz, unsigned i
       m_parent = ok ? dz.id2ptr<VarParameter>( parentID ) : 0;
    }
 
-   ok = ok ? dz.load( m_name,      "name"      ) : ok;
-   ok = ok ? dz.load( m_layerName, "layerName" ) : ok;
-   ok = ok ? dz.load( m_val,       "val"       ) : ok;
-
-   if ( objVer > 0 )
-   {
-      ok = ok ? dz.load( m_mixID,      "mixID"      ) : ok;
-      ok = ok ? dz.load( m_srTypeName, "srTypeName" ) : ok;
-      ok = ok ? dz.load( m_propName,   "propName"   ) : ok;
-   }
-   else
-   {
-      m_mixID = 1;
-      m_srTypeName = "";
-      m_propName = "";
-   }
+   ok = ok ? dz.load( m_name,       "name"       ) : ok;
+   ok = ok ? dz.load( m_layerName,  "layerName"  ) : ok;
+   ok = ok ? dz.load( m_val,        "val"        ) : ok;
+   ok = ok ? dz.load( m_mixID,      "mixID"      ) : ok;
+   ok = ok ? dz.load( m_srTypeName, "srTypeName" ) : ok;
+   ok = ok ? dz.load( m_propName,   "propName"   ) : ok;
 
    return ok;
 }
 
-} // namespace casa
+} // namespace cas

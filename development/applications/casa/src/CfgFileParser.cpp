@@ -21,6 +21,8 @@
 #include <cassert>
 #include <cmath>
 
+// this function delete spaces from the beginning and at the end of the givng string:
+// " asdf   " -> "asdf"
 static std::string trim( const std::string & s )
 {
    std::string::const_iterator it = s.begin();
@@ -29,7 +31,7 @@ static std::string trim( const std::string & s )
    std::string::const_reverse_iterator rit = s.rbegin();
    while ( rit.base() != it && isspace(*rit) ) rit++;
 
-   // remove "" around string if so
+   // remove "" around the giving string if so
    if ( *it  == '"' ) { it++; }
    if ( *rit == '"' ) { rit++; }
 

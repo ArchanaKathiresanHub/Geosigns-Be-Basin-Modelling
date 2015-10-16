@@ -34,16 +34,17 @@ public:
 };
 
 double tornadoSensVals[9][4] = { 
-   { 71.2261,  86.8823,  -34.2862,  32.6302 },
-   { 105.925,  130.491,  -34.2572,  32.6538 },
-   { 115.647,  142.738,  -34.2513,  32.6542 },
-   { 130.91,   162.055,  -34.2464,  32.6557 },
-   { 147.502,  183.167,  -34.2418,  32.6658 },
-   { 0.523384, 0.644557, -35.1909,  35.7262 },
-   { 1.01984,  1.55975,  -31.6728,  36.8529 },
-   { -21.5211, 261.72,    -8.27071, 27.5288 },
-   { 22.9862,  150.407,  -10.8376,  12.4701 }
+   { 55.6078,     81.0514,  -42.0209, 41.7564 },
+   { 81.258,      121.177,  -42.0117, 41.7914 },
+   { 88.4597,     132.449,  -42.0283, 41.7914 },
+   { 99.6968,     150.208,  -42.0177, 41.8049 },
+   { 111.823,     169.604,  -41.9781, 41.8438 },
+   { 0.431208,    0.599471, -34.0939, 41.1183 },
+   { 0.711283,    1.32084,  -26.7844, 43.1506 },
+   { 6.81877e-06, 161.83,   -2.03658, 89.2981 },
+   { 0.0623489,   221.102,  -8.02639, 64.1602 }
 };
+
 
 const char * observablesName[] = { "Temperature(460001,6.75e+06,1293,0)"
                                  , "Temperature(460001,6.75e+06,2129,0)"
@@ -72,8 +73,8 @@ TEST_F( SensCalcTest, SensitivityCalculatorTornadoTest )
 
    casa::SensitivityCalculator & sensCalc = m_sc->sensitivityCalculator();
    std::vector<std::string> doeNames;
-   doeNames.push_back( "BoxBehnken" );
-   doeNames.push_back( "SpaceFilling" );
+   doeNames.push_back( "Tornado" );
+   doeNames.push_back( "FullFactorila" );
 
    const casa::RunCaseSet & cs = m_sc->doeCaseSet();
    size_t csNum = cs.size();
@@ -128,14 +129,14 @@ TEST_F( SensCalcTest, SensitivityCalculatorTornadoTest )
    }
 }
 
-double paretoSensValues[] = { 46.4735, 19.526, 10.8667, 10.2828, 6.81904, 5.16092, 0.871128 };
+
+double paretoSensValues[] = { 79.6204, 7.57774, 7.11666, 3.78362, 1.46877, 0.43279  };
 
 const char * paretoIPNames[] = { "TopCrustHeatProdRate [\\mu W/m^3]"
-                               , "LwJurassicSRTOC"
-                               , "LwJurassicSRType"
                                , "EventStartTime [Ma]"
-                               , "CrustThinningFactor [m/m]"
                                , "InitialCrustThickness [m]"
+                               , "CrustThinningFactor [m/m]"
+                               , "Lower Jurassic TOC [%]"
                                , "EventDuration [Ma]"
                               };
 
@@ -143,7 +144,7 @@ TEST_F( SensCalcTest, SensitivityCalculatorParetoTest )
 {
    ASSERT_EQ( ErrorHandler::NoError, m_sc->errorCode() );
 
-   const casa::RSProxy * secOrdProx = m_sc->rsProxySet().rsProxy( "SecOrdBB" );
+   const casa::RSProxy * secOrdProx = m_sc->rsProxySet().rsProxy( "SecondOrder" );
    
    ASSERT_TRUE( secOrdProx != NULL );
 
@@ -172,24 +173,25 @@ TEST_F( SensCalcTest, SensitivityCalculatorParetoTest )
 }
 
 
-double paretoCyclicSensValues[5][7] = { { 54.2874, 11.6106, 11.0444, 10.2629, 6.49942, 5.45748, 0.837727 },
-                                        { 54.7406, 11.2622, 11.1563, 10.2754, 6.25168, 5.47749, 0.836298 },
-                                        { 54.974,  11.3719, 10.9227, 10.283,  6.12461, 5.48808, 0.83567  },
-                                        { 55.1154, 11.4371, 10.7814, 10.2883, 6.04796, 5.49463, 0.83534  },
-                                        { 55.2091, 11.4796, 10.6878, 10.292,  5.99726, 5.49905, 0.835148 },
+double paretoCyclicSensValues[5][6] = { { 79.1661, 7.54919, 7.03656, 4.15736, 1.66057, 0.430239 },
+                                        { 79.3384, 7.55971, 7.06475, 4.01406, 1.59182, 0.431209 },
+                                        { 79.424,  7.56502, 7.07935, 3.94333, 1.55661, 0.431702 },
+                                        { 79.4743, 7.56819, 7.08822, 3.90195, 1.53538, 0.431993 },
+                                        { 79.5068, 7.57026, 7.09414, 3.87525, 1.52133, 0.43218  },
                                       };
 
-const char * paretoCyclicIPName[5][7] = { 
-   { "TopCrustHeatProdRate [\\mu W/m^3]", "LwJurassicSRTOC",           "CrustThinningFactor [m/m]", "EventStartTime [Ma]", "LwJurassicSRType", "InitialCrustThickness [m]", "EventDuration [Ma]" },
-   { "TopCrustHeatProdRate [\\mu W/m^3]", "CrustThinningFactor [m/m]", "LwJurassicSRTOC",           "EventStartTime [Ma]", "LwJurassicSRType", "InitialCrustThickness [m]", "EventDuration [Ma]" },
-   { "TopCrustHeatProdRate [\\mu W/m^3]", "CrustThinningFactor [m/m]", "LwJurassicSRTOC",           "EventStartTime [Ma]", "LwJurassicSRType", "InitialCrustThickness [m]", "EventDuration [Ma]" },
-   { "TopCrustHeatProdRate [\\mu W/m^3]", "CrustThinningFactor [m/m]", "LwJurassicSRTOC",           "EventStartTime [Ma]", "LwJurassicSRType", "InitialCrustThickness [m]", "EventDuration [Ma]" },
-   { "TopCrustHeatProdRate [\\mu W/m^3]", "CrustThinningFactor [m/m]", "LwJurassicSRTOC",           "EventStartTime [Ma]", "LwJurassicSRType", "InitialCrustThickness [m]", "EventDuration [Ma]" },
+const char * paretoCyclicIPName[5][6] = { 
+ { "TopCrustHeatProdRate [\\mu W/m^3]", "EventStartTime [Ma]", "InitialCrustThickness [m]", "CrustThinningFactor [m/m]", "Lower Jurassic TOC [%]", "EventDuration [Ma]" },
+ { "TopCrustHeatProdRate [\\mu W/m^3]", "EventStartTime [Ma]", "InitialCrustThickness [m]", "CrustThinningFactor [m/m]", "Lower Jurassic TOC [%]", "EventDuration [Ma]" },
+ { "TopCrustHeatProdRate [\\mu W/m^3]", "EventStartTime [Ma]", "InitialCrustThickness [m]", "CrustThinningFactor [m/m]", "Lower Jurassic TOC [%]", "EventDuration [Ma]" },
+ { "TopCrustHeatProdRate [\\mu W/m^3]", "EventStartTime [Ma]", "InitialCrustThickness [m]", "CrustThinningFactor [m/m]", "Lower Jurassic TOC [%]", "EventDuration [Ma]" },
+ { "TopCrustHeatProdRate [\\mu W/m^3]", "EventStartTime [Ma]", "InitialCrustThickness [m]", "CrustThinningFactor [m/m]", "Lower Jurassic TOC [%]", "EventDuration [Ma]" },
 };
+
 
 TEST_F( SensCalcTest, SensitivityCalculatorCyclicParetoTest )
 {
-   const casa::RSProxy * secOrdProx = m_sc->rsProxySet().rsProxy( "SecOrdBB" );
+   const casa::RSProxy * secOrdProx = m_sc->rsProxySet().rsProxy( "SecondOrder" );
 
    ASSERT_TRUE( secOrdProx != NULL );
 

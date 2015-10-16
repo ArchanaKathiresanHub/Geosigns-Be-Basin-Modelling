@@ -148,17 +148,20 @@ ErrorHandler::ReturnCode PropertyManagerImpl::copyResultsFiles( const std::strin
       ibs::FilePath oldProjectPath( oldProject );
       const std::string & oldProjectName = oldProjectPath.fileNameNoExtension();
       oldProjectPath.cutLast(); // cut project file name
-      oldProjectPath << oldProjectName + "_CauldronOutputDir";
+      oldProjectPath << oldProjectName + Model::s_ResultsFolderSuffix;
       
       ibs::FilePath newProjectPath( newProject );
       const std::string & newProjectName  = newProjectPath.fileNameNoExtension();
       newProjectPath.cutLast(); // cut project file name
-      newProjectPath << newProjectName + "_CauldronOutputDir";
+      newProjectPath << newProjectName + Model::s_ResultsFolderSuffix;
 
       // create new folder for results files if it doesn't exist
       if ( !newProjectPath.exists() ) ibs::FolderPath( newProjectPath.path() ).create(); 
 
-      if ( !oldProjectPath.exists() && !fileList.empty() ) throw Exception( IoError ) << "Copy results files failed: no such folder: " << oldProjectPath.path();
+      if ( !oldProjectPath.exists() && !fileList.empty() ) 
+      {
+         throw Exception( IoError ) << "Copy results files failed: no such folder: " << oldProjectPath.path();
+      }
 
       for ( std::set<std::string>::const_iterator it = fileList.begin(); it != fileList.end(); ++it )
       {

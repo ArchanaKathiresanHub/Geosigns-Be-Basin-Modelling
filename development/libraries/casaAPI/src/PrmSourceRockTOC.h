@@ -78,7 +78,7 @@ namespace casa
       /// @brief Defines version of serialized object representation. Must be updated on each change in save()
       /// @return Actual version of serialized object representation
       //  Version 1: - added mixing ID and source rock type name
-      virtual unsigned int version() const { return 1; }
+      virtual unsigned int version() const { return 0; }
 
       /// @brief Save all object data to the given stream, that object could be later reconstructed from saved data
       /// @param sz Serializer stream

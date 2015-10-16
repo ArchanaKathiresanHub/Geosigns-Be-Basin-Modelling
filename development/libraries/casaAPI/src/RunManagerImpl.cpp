@@ -61,10 +61,8 @@ CauldronApp * RunManager::createApplication( ApplicationType        appType
       case datadriller:  app.reset( new CauldronApp( sh, "datadriller",  false ) ); break;
       case tracktraps:   app.reset( new CauldronApp( sh, "tracktraps",   false ) ); break;
       case track1d:      app.reset( new CauldronApp( sh, "track1d",      false ) ); break;
-      case generic:      app.reset( new CauldronApp( sh, "unknown",      false ) );
-         app->setScriptBody( cmdLine );
-         break;
-      default: break;
+      case generic:      app.reset( new CauldronApp( sh, "unknown",      false ) ); app->setScriptBody( cmdLine ); break;
+      default:                                                                      break;
    }
    if ( app.get() )
    {
@@ -148,8 +146,25 @@ ErrorHandler::ReturnCode RunManagerImpl::scheduleCase( RunCase & newRun, const s
 
       if ( !m_cldVersion.empty() ) m_appList[i]->setCauldronVersion( m_cldVersion ); // if another version is defined by user, set up it
 
-      const std::string appScript = m_appList[i]->generateScript( pfp.fileName(), "", scenarioID );
-      
+      size_t depOnID = m_cases.size() + 1; // define dependency ID outside of scheduled cases to use it as a flag also (size_t can't be negative)
+
+      // run over previously added jobs to detect runs with the same parameters
+      for ( size_t cs = 0; (cs < m_cases.size() - 1) && depOnID > m_cases.size(); ++cs )
+      {
+         if( newRun.isEqual( *(m_cases[cs]), m_appList[i]->appSolverDependencyLevel() ) ) // compare parameters value taking in account dep. level
+         {
+            depOnID = cs; // this case, up to this application, is the same as cs, results could be just copied
+         }
+      }
+
+      // create script body for application run or results copy
+      const std::string appScript = depOnID > m_cases.size() 
+                    ? m_appList[i]->generateScript( pfp.fileName(), "", scenarioID ) 
+                    : m_appList[i]->generateCopyResultsScript( std::string( m_cases[depOnID]->projectPath() )
+                                                             , std::string( m_cases.back()->projectPath() )
+                                                             , scenarioID
+                                                             );
+
       if ( m_jobSched->cpusNumberByScheduler() )
       {
          m_appList[ i ]->setCPUs( cpus ); // restore number of cpus back
@@ -173,16 +188,29 @@ ErrorHandler::ReturnCode RunManagerImpl::scheduleCase( RunCase & newRun, const s
       oss << caseName << "_stage_" << ibs::to_string( i );
 
       ////////////////////////////////////////
-      /// put job to the queue through job scheduler
+      /// put the job to the queue through a job scheduler
       JobScheduler::JobID id = m_jobSched->addJob( pfp.filePath().c_str()       // cwd
-                                                 , scriptFile.path()            // script name
-                                                 , oss.str()                    // job name
-                                                 , m_appList[i]->cpus()         // number of CPUs for this job
-                                                 , m_appList[i]->runTimeLimit() // run time limit
-                                                 );
+                                                   , scriptFile.path()            // script name
+                                                   , oss.str()                    // job name
+                                                   , m_appList[i]->cpus()         // number of CPUs for this job
+                                                   , m_appList[i]->runTimeLimit() // run time limit
+                                                   );
 
       // put job to the queue for the current case
       m_jobs.back().push_back( id );
+
+      // if such exists - add jobs dependency
+      if ( depOnID < m_cases.size() )
+      {
+         if ( m_depOnJob.count( id ) > 0 ) { m_depOnJob[ id ].push_back( m_jobs[depOnID][i] );  }
+         else                              { m_depOnJob[ id ] = std::vector<JobScheduler::JobID>( 1, m_jobs[depOnID][i] ); }
+
+         if ( i + 1 < m_appList.size() ) // also add dependency for the next job, to allow copy results before go further
+         {
+            if ( m_depOnJob.count( m_jobs[depOnID][i+1] ) > 0 ) { m_depOnJob[ m_jobs[depOnID][i+1] ].push_back( id ); }
+            else                                                { m_depOnJob[ m_jobs[depOnID][i+1] ] = std::vector<JobScheduler::JobID>( 1, id ); }
+         }
+      }
    }
 
    m_cases.back()->setRunStatus( RunCase::Scheduled );
@@ -199,6 +227,80 @@ ErrorHandler::ReturnCode RunManagerImpl::setMaxNumberOfPendingJobs( size_t pendJ
    return NoError;
 }
 
+
+///////////////////////////////////////////////////////////////////////////////
+// run over all jobs and collect runs statistics. Also report progress if any change in numbers
+void RunManagerImpl::collectStatistics( int & pFinished, int & pPending, int & pRunning, int & pToBeSubmitted )
+{
+   int total         = 0;
+   int finished      = 0;
+   int failed        = 0; 
+   int pending       = 0;
+   int running       = 0; 
+   int toBeSubmitted = 0;
+
+   for ( size_t i = 0; i < m_jobs.size(); ++i )
+   {
+      for ( size_t j = 0; j < m_jobs[i].size(); ++j )
+      {
+         total++;
+         switch( m_jobSched->jobState( m_jobs[i][j] ) )
+         {
+            case JobScheduler::NotSubmittedYet: toBeSubmitted++;             break;
+            case JobScheduler::JobFailed:       failed++;        finished++; break;
+            case JobScheduler::JobPending:      pending++;                   break;
+            case JobScheduler::JobRunning:      running++;                   break;
+            case JobScheduler::JobFinished:     finished++;                  break;
+
+            case JobScheduler::Unknown:         
+            default:                            assert(0);                   break;
+         }
+      }
+   }
+
+   // check if it was a change in any state of jobs, report it
+   if ( pToBeSubmitted != toBeSubmitted || pFinished != finished || pPending != pending || pRunning != running )
+   {
+      time_t curTm = time( 0 );
+      std::string curStrTime( ctime( &curTm ) );
+      curStrTime.resize( curStrTime.size() - 1 ); // "remove ending \n"
+
+      std::cout << curStrTime << ": ";
+      // run over all cases, make a pause, get a Twix
+      std::cout << "total: "       << total     << 
+                   ", finished: "  << finished  << 
+                   ", failed: "    << failed    << 
+                   ", pending: "   << pending   << 
+                   ", running: "   << running   << 
+                   ", not submitted yet: " << toBeSubmitted << std::endl;
+   }
+
+   pToBeSubmitted = toBeSubmitted;
+   pFinished      = finished;
+   pPending       = pending;
+   pRunning       = running;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// do check are all cases are completed?
+bool RunManagerImpl::isAllDone() const
+{
+   // Check are all cases were processed
+   bool allDone = true;
+   for ( size_t i = 0; i < m_cases.size() && allDone; ++i )
+   {
+      switch( m_cases[i]->runStatus() )
+      {
+         case RunCase::NotSubmitted: allDone = false; break;
+         case RunCase::Scheduled:    allDone = false; break;
+         case RunCase::Completed:                     break;
+         case RunCase::Failed:                        break;
+         default:                    assert( 0 );     break;
+      }
+   }
+   return allDone;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // Execute all scheduled cases. Very loooong cycle
 ErrorHandler::ReturnCode RunManagerImpl::runScheduledCases( bool asyncRun )
@@ -207,30 +309,15 @@ ErrorHandler::ReturnCode RunManagerImpl::runScheduledCases( bool asyncRun )
   
    try 
    {
-      int prevFinished  = 0;
-      int prevSubmitted = 0;
-      int prevCrashed   = 0;
-      int prevRunning   = 0;
-      int prevPending   = 0;
+      int prevFinished      = 0;
+      int prevToBeSubmitted = 0;
+      int prevRunning       = 0;
+      int prevPending       = 0;
 
-      while ( !allFinished ) // loop till all will be finished
+      do
       {
-
-         if ( ibs::FilePath( std::string( "./" ) + RunManager::s_scenarioExecStopFileName ).exists() )
-         {
-            stopAllSubmittedJobs();
-            return NoError;
-         }
-
-         // counters for jobs states
-         int finished  = 0;
-         int submitted = 0;
-         int crashed   = 0;
-         int running   = 0;
-         int pending   = 0;
-         int totJobs   = 0;
-         int notSubm   = 0;
-         
+         if ( ibs::FilePath( std::string( "./" ) + RunManager::s_scenarioExecStopFileName ).exists() ) { return stopAllSubmittedJobs(); }
+        
          // loop over all cases
          for ( size_t i = 0; i < m_jobs.size(); ++i )
          {
@@ -239,58 +326,56 @@ ErrorHandler::ReturnCode RunManagerImpl::runScheduledCases( bool asyncRun )
             for ( size_t j = 0; j < m_jobs[i].size() && contAppPipeline; ++j )
             {
                JobScheduler::JobID job = m_jobs[i][j];
-
                JobScheduler::JobState jobState = m_jobSched->jobState( job );
-               ++totJobs;
 
-               if ( (m_maxPendingJobs < 1 || pending < m_maxPendingJobs) && JobScheduler::NotSubmittedYet == jobState )
+               // if job is not submited yet - run it
+               if ( (m_maxPendingJobs < 1 || prevPending < m_maxPendingJobs) && JobScheduler::NotSubmittedYet == jobState )
                {
-                  jobState = m_jobSched->runJob( job ); // submit the job
-
-                  // log job ID
-                  std::ofstream ofs( s_jobsIDListFileName, ios_base::out | ios_base::app );
-                  if ( ofs.is_open() )
-                  {
-                     ofs << m_jobSched->schedulerJobID( job ) << std::endl;
+                  if ( m_depOnJob.count( job ) > 0 )
+                  {  // job is dependent on the job from anothe case, check it status
+                     const std::vector<JobScheduler::JobID> & jbs = m_depOnJob[job];
+                     bool allJobFinished = true;
+                     for ( size_t k = 0; k < jbs.size() && allJobFinished; ++k )
+                     {
+                        switch( m_jobSched->jobState( jbs[k] ) )
+                        {
+                           case JobScheduler::NotSubmittedYet: jobState = JobScheduler::NotSubmittedYet; allJobFinished = false; break; 
+                           case JobScheduler::JobFailed:       jobState = JobScheduler::JobFailed;       allJobFinished = false; break;
+                           case JobScheduler::JobPending:
+                           case JobScheduler::JobRunning:      jobState = JobScheduler::JobPending;      allJobFinished = false; break;
+                           // submit the job if other job is succeeded
+                           case JobScheduler::JobFinished:                                                                       break;
+                           default: assert( 0 );
+                        }
+                        if ( allJobFinished ) { jobState = m_jobSched->runJob( job ); }
+                     }
                   }
- 
-                  ++submitted;
-               }
-
-               switch ( jobState )
-               {
-                  case JobScheduler::JobFailed: // job failed!!! shouldn't run others in a pipeline! Count them as failed
-                     ++crashed;
-                     prevCrashed += (m_jobs[i].size() - j - 1);
-                     m_jobs[i].resize( j+1 ); // drop all other jobs for this case
-                     m_cases[i]->setRunStatus( RunCase::Failed );
-                     break;
-
-                  case JobScheduler::JobFinished:  ++finished; break; // skip finished jobs
-                  case JobScheduler::JobSucceeded: ++finished; break; // job succeeded
-                  case JobScheduler::JobPending:   ++pending;  break; // job pending
-                  case JobScheduler::JobRunning:   ++running;  break; // job is running
-
-                  default: break;
+                  else
+                  {
+                     jobState = m_jobSched->runJob( job ); // submit the job if it not dependent on any other job
+                  }
                }
 
                // analyse job state from point of view further pipeline processing
                switch ( jobState )
                {
+                  case JobScheduler::JobFailed: // job failed!!! shouldn't run others in a pipeline!
+                     m_jobs[i].resize( j+1 ); // drop all other jobs for this case
+                     m_cases[i]->setRunStatus( RunCase::Failed );
+                     contAppPipeline = false; 
+                     break;
+
                   case JobScheduler::NotSubmittedYet:
-                  case JobScheduler::JobFailed: 
                   case JobScheduler::JobPending:
                   case JobScheduler::JobRunning:
                      contAppPipeline = false; // stop going further in applications pipeline for this case
                      break;
 
-                  case JobScheduler::JobFinished: 
-                  case JobScheduler::JobSucceeded:
-                     continue; // continue pipeline processing
+                  case JobScheduler::JobFinished: // continue pipeline processing
                      break;
+
+                  default: assert(0); break; // unknown state, must not happen
                }
-               // keep counting how many substages are going to run
-               if ( !contAppPipeline ) { notSubm += m_jobs[i].size() - j - 1; }
             }
 
             // If pipeline was successfully completed and case marked as scheduled - move it to completed state
@@ -300,39 +385,10 @@ ErrorHandler::ReturnCode RunManagerImpl::runScheduledCases( bool asyncRun )
             }
          }
 
-         // check if it was a change in any state of jobs, report it
-         if ( prevSubmitted != submitted || prevFinished != finished || prevPending != pending || prevRunning != running )
-         {
-            time_t curTm = time( 0 );
-            std::string curStrTime( ctime( &curTm ) );
-            curStrTime.resize( curStrTime.size() - 1 ); // "remove ending \n"
+         collectStatistics( prevFinished, prevPending, prevRunning, prevToBeSubmitted );
+         m_jobSched->sleep(); // wait a bit till go to the next loop
 
-            std::cout << curStrTime << ": ";
-            // run over all cases, make a pause, get a Twix
-            std::cout << "total: "       << totJobs   << 
-                         ", submitted: " << submitted <<
-                         ", finished: "  << finished  << 
-                         ", failed: "    << prevCrashed + crashed   << 
-                         ", pending: "   << pending   << 
-                         ", running: "   << running   << 
-                         ", not submitted yet: " << notSubm << std::endl;
-
-            prevSubmitted = submitted;
-            prevFinished  = finished;
-            prevCrashed   += crashed;
-            prevPending   = pending;
-            prevRunning   = running;
-         }
-         
-         if ( totJobs == (finished+crashed) )
-         {
-            allFinished = true;
-         }
-         else
-         {
-            m_jobSched->sleep(); // wait a bit till go to the next loop
-         }
-      }
+      } while ( !isAllDone() ); // loop till all will be finished
    }
    catch ( Exception & ex ) { return reportError( ex.errorCode(), ex.what() ); }
    
@@ -364,42 +420,12 @@ ErrorHandler::ReturnCode RunManagerImpl::setClusterName( const char * clusterNam
 }
 
 
-///////////////////////////////////////////////////////////////////////////////
-// Delete all cases in queue
-ErrorHandler::ReturnCode RunManagerImpl::removeAllScheduledCases()
-{
-   try
-   {
-      // loop over all cases and check that all jobs are stopped
-      for (    size_t i = 0; i < m_jobs.size(); ++i )
-      {  
-         for ( size_t j = 0; j < m_jobs[i].size(); ++j )
-         {
-            JobScheduler::JobState jobState = m_jobSched->jobState( m_jobs[i][j] );
-            if ( JobScheduler::JobPending == jobState ||
-                 JobScheduler::JobRunning == jobState ) 
-            {
-                  throw Exception( RunManagerError ) << "Job " << m_cases[i]->projectPath() << " stage " <<
-                                                   j << " is still in Pending/Running state";
-            }
-         }
-      }
-
-      // recreate instance of job scheduler
-      createJobScheduler( clusterName() );
-
-      // clear queue arrays
-      m_cases.clear();
-      m_jobs.clear();     
-   }
-   catch ( Exception & ex ) { return reportError( ex.errorCode(), ex.what() ); }
-
-   return NoError;
-}
 
 // in case of scenario execution aborted - kill all submitted not finished jobs
 ErrorHandler::ReturnCode RunManagerImpl::stopAllSubmittedJobs()
 {
+   ReturnCode ret = NoError;
+
    // loop over all cases
    for (    size_t i = 0; i < m_jobs.size(); ++i )
    {
@@ -412,20 +438,20 @@ ErrorHandler::ReturnCode RunManagerImpl::stopAllSubmittedJobs()
             case JobScheduler::NotSubmittedYet:
             case JobScheduler::JobFailed: 
             case JobScheduler::JobFinished:
-            case JobScheduler::JobSucceeded:
                break; // job is not in queue - do nothing
 
             case JobScheduler::JobPending:
             case JobScheduler::JobRunning:
                m_jobSched->stopJob( m_jobs[i][j] );         // kill the job
                m_cases[i]->setRunStatus( RunCase::Failed ); // invalidate case
+               ret = RunManagerAborted;
                break;
 
             default: break;
          }
       }
    }
-   return NoError;
+   return ret;
 }
 
 
@@ -491,14 +517,14 @@ void RunManagerImpl::restoreCaseStatus( RunCase * cs )
       }
 
       if (      stageState.front() == JobScheduler::NotSubmittedYet ) { rcs->setRunStatus( RunCase::NotSubmitted ); }
-      else if ( stageState.back()  == JobScheduler::JobSucceeded ) { rcs->setRunStatus( RunCase::Completed       ); }
-      else                                                         { rcs->setRunStatus( RunCase::Failed          ); }
+      else if ( stageState.back()  == JobScheduler::JobFinished     ) { rcs->setRunStatus( RunCase::Completed       ); }
+      else                                                            { rcs->setRunStatus( RunCase::Failed          ); }
 
       if ( rcs->runStatus() != RunCase::Completed )
       {
          for ( size_t i = 0; i < stageState.size(); ++i )
          {
-            if ( stageState[i] == JobScheduler::JobSucceeded ) continue;
+            if ( stageState[i] == JobScheduler::JobFinished ) continue;
 
             // construct job name 
             std::ostringstream oss;
@@ -524,41 +550,34 @@ void RunManagerImpl::restoreCaseStatus( RunCase * cs )
 bool RunManagerImpl::save( CasaSerializer & sz, unsigned int fileVersion ) const
 {
    bool ok = true;
-   if ( fileVersion >= 0 ) // initial version implementation
+
+   ok = ok ? sz.save( m_cldVersion, "CauldronVersion" ) : ok;
+   ok = ok ? sz.save( m_ibsRoot,    "IBSRoot"         ) : ok;
+
+   ok = ok ? sz.save( m_appList.size(), "AppListSize" ) : ok;
+   for ( size_t i = 0; i < m_appList.size() && ok; ++i )
    {
-      ok = ok ? sz.save( m_cldVersion, "CauldronVersion" ) : ok;
-      ok = ok ? sz.save( m_ibsRoot,    "IBSRoot"         ) : ok;
-
-      ok = ok ? sz.save( m_appList.size(), "AppListSize" ) : ok;
-      for ( size_t i = 0; i < m_appList.size() && ok; ++i )
-      {
-         ok = sz.save( *m_appList[i], "CldApp" );
-      }
-
-      ok = ok ? sz.save( *m_jobSched.get(), "JobScheduler" ) : ok;
-
-      ok = ok ? sz.save( m_jobs.size(), "NumberOfCases" ) : ok;
-      for ( size_t i = 0; i < m_jobs.size() && ok; ++i )
-      {
-         ok = ok ? sz.save( m_jobs[i], "CaseJobsQueueIDs" ) : ok;
-      }
+      ok = sz.save( *m_appList[i], "CldApp" );
    }
 
-   if ( fileVersion >= 3 )
+   ok = ok ? sz.save( *m_jobSched.get(), "JobScheduler"  ) : ok;
+   ok = ok ? sz.save( m_jobs.size(),     "NumberOfCases" ) : ok;
+
+   for ( size_t i = 0; i < m_jobs.size() && ok; ++i )
    {
-      // save array of run case object ids, the size of array exactly the same as m_jobs size
-      assert( m_jobs.size() == m_cases.size() );
-      for ( size_t i = 0; i < m_cases.size(); ++i )
-      {
-         CasaSerializer::ObjRefID rcID = sz.ptr2id( m_cases[i] );
-         ok = ok ? sz.save( rcID, "RunCaseID" ) : ok;
-      }
+      ok = ok ? sz.save( m_jobs[i], "CaseJobsQueueIDs" ) : ok;
    }
 
-   if ( fileVersion >= 4 )
+   // save array of run case object ids, the size of array exactly the same as m_jobs size
+   assert( m_jobs.size() == m_cases.size() );
+   for ( size_t i = 0; i < m_cases.size(); ++i )
    {
-      ok = ok & sz.save( m_maxPendingJobs, "maxPendingJobs" );
+      CasaSerializer::ObjRefID rcID = sz.ptr2id( m_cases[i] );
+      ok = ok ? sz.save( rcID, "RunCaseID" ) : ok;
    }
+
+   ok = ok & sz.save( m_maxPendingJobs, "maxPendingJobs" );
+
    return ok;
 }
 
@@ -604,10 +623,7 @@ RunManagerImpl::RunManagerImpl( CasaDeserializer & dz, const char * objName )
       else ok = false;
    }
 
-   if ( objVer >= 1 )
-   {
-      ok = ok ? dz.load( m_maxPendingJobs, "maxPendingJobs" ) : ok;
-   }
+   ok = ok ? dz.load( m_maxPendingJobs, "maxPendingJobs" ) : ok;
 
    if ( !ok ) throw Exception( DeserializationError ) << "RunManagerImpl deserialization error";
 }

@@ -256,20 +256,8 @@ ObsGridPropertyWell::ObsGridPropertyWell( CasaDeserializer & dz, unsigned int ob
 
 
    // load the rest of the object data
-   ok = ok ? dz.load( m_name,     "name"     ) : ok;
-
-   if ( objVer == 0 )
-   {
-      std::vector<size_t> pos;
-      ok = ok ? dz.load( pos, "posDataMiningTbl" ) : ok;
-
-      m_posDataMiningTbl.clear();
-      for ( size_t i = 0; i < pos.size(); ++i ) m_posDataMiningTbl.push_back( static_cast<int>( pos[i] ) );
-   }
-   else if ( objVer >= 1 )
-   {
-      ok = ok ? dz.load( m_posDataMiningTbl, "posDataMiningTbl" ) : ok;
-   }
+   ok = ok ? dz.load( m_name,             "name"             ) : ok;
+   ok = ok ? dz.load( m_posDataMiningTbl, "posDataMiningTbl" ) : ok;
 
    bool hasRefVal;
    ok = ok ? dz.load( hasRefVal, "HasRefValue" ) : ok;

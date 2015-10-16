@@ -36,6 +36,7 @@ protected:
    void exportRunCaseObs( std::auto_ptr<casa::ScenarioAnalysis> & sa );
    void exportEvalObserv( std::auto_ptr<casa::ScenarioAnalysis> & sa );
    void exportProxyQC(    std::auto_ptr<casa::ScenarioAnalysis> & sa );
+   void exportMCResults(  std::auto_ptr<casa::ScenarioAnalysis> & sa );
  
    std::string                  m_whatToSave;   ///< DoEParameters/RunCasesObservables/ProxyEvalObservables
    std::string                  m_proxyName;    ///< Name of Response Surface proxy

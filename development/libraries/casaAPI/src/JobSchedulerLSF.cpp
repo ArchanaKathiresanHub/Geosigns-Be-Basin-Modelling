@@ -17,6 +17,7 @@
 // CASA
 #include "CasaDeserializer.h"
 #include "JobSchedulerLSF.h"
+#include "RunManager.h"
 
 #include "CauldronEnvConfig.h"
 
@@ -36,7 +37,6 @@ typedef int64_t LS_LONG_INT;
 #else
 typedef __int64 LS_LONG_INT;
 #endif
-
 
 struct submit {
    char   * projectName;
@@ -84,18 +84,19 @@ static void Wait( int milsec ) { Sleep( milsec * 1000 ); }
 #define strdup _strdup
 #endif
 
-
 namespace casa
 {
 
 class JobSchedulerLSF::Job : public CasaSerializable
 {
 public:
-   Job( const std::string & cwd, const std::string & scriptName, const std::string & jobName, int cpus, size_t runtTimeLim )
+   Job( const std::string & cwd, const std::string & scriptName, const std::string & jobName, int cpus, size_t runTimeLim )
    {
       m_lsfJobID   = -1;
       m_isFinished = false;
-      m_runTimeLim = runtTimeLim;
+      m_isFailed   = false;
+      m_runTimeLim = runTimeLim;
+      m_runAttmeptsNum = 0;
 
       // clean LSF structures
       memset( &m_submit,     0, sizeof( m_submit ) );
@@ -109,16 +110,11 @@ public:
       m_submit.projectName      = strdup( s_LSF_CAULDRON_PROJECT_NAME ); // add project name (must be the same for all cauldron app)
       m_submit.command          = strdup( scriptName.c_str() );
       m_submit.jobName          = strdup( jobName.c_str() );
-
-      // stdout/stderr
-      m_submit.outFile          = strdup( (jobName + ".out" ).c_str() );
-      m_submit.errFile          = strdup( (jobName + ".err" ).c_str() );
-
+      m_submit.outFile          = strdup( (jobName + ".out" ).c_str() ); // redirect stdout to file
+      m_submit.errFile          = strdup( (jobName + ".err" ).c_str() ); // redirect stderr to file
       m_submit.options          = SUB_PROJECT_NAME | SUB_JOB_NAME | SUB_OUT_FILE | SUB_ERR_FILE;
-
-      m_submit.cwd              = strdup( cwd.c_str() );
+      m_submit.cwd              = strdup( cwd.c_str() );                 // define current working directory
       m_submit.options3         = SUB3_CWD;
-
       m_submit.numProcessors    = cpus; // initial number of processors needed by a (parallel) job
       m_submit.maxNumProcessors = cpus; // max num of processors required to run the (parallel) job
    }
@@ -133,10 +129,7 @@ public:
       if ( m_submit.errFile )     free( m_submit.errFile );
    }
 
-   const char * command() const
-   {
-      return m_submit.command;
-   }
+   const char * command() const  { return m_submit.command; }
 
    // check is job was submitted already
    bool isSubmitted( ) const
@@ -147,25 +140,40 @@ public:
       return true;
 #endif
    }
-
-   // check is job finished?
-   bool isFinished() const { return m_isFinished; }
+   
+   bool isFinished() const { return m_isFinished; } // check is job finished?
+   bool isFailed()   const { return m_isFailed;   } // check is job failed?
 
    bool submit()
    {
 #ifdef WITH_LSF_SCHEDULER
       m_lsfJobID = lsb_submit( &m_submit, &m_submitRepl );
 #endif
+      ++m_runAttmeptsNum;
       return isSubmitted();
+   }
+
+   // sometimes due to infrastructure problems job can't be submitted, in this case
+   // we will try to submit ~30 times with 10 sec interval, and fail only after that
+   bool shouldRetryFailedToSubmitJob()
+   {
+      if ( m_runAttmeptsNum > 30 ) return false;
+#ifdef WITH_LSF_SCHEDULER
+      // External authentication failed, something wrong with LSF, retry later
+      if ( lsberrno == LSBE_LSBLIB && 
+           !std::string( "External authentication failed" ).compare( lsb_sysmsg() ) 
+         )
+      {
+         return true;
+      }
+#endif
+      return false;
    }
 
    bool stop()
    {
 #ifdef WITH_LSF_SCHEDULER
-      if ( isSubmitted() )
-      {
-         return lsb_forcekilljob( m_lsfJobID ) < 0 ? false : true;
-      }
+      if ( isSubmitted() ) { return lsb_forcekilljob( m_lsfJobID ) < 0 ? false : true; }
 #endif
       return true;
    }
@@ -179,7 +187,8 @@ public:
       // something still on the cluster, check status
       if ( lsb_openjobinfo( m_lsfJobID, NULL, NULL, NULL, NULL, ALL_JOB ) < 0 )
       {
-         throw ErrorHandler::Exception( ErrorHandler::LSFLibError ) << "Reading job status error code: " << lsberrno << ", message: " << lsb_sysmsg();
+         throw ErrorHandler::Exception( ErrorHandler::LSFLibError ) << "Reading job status error code: " << lsberrno <<
+            ", message: " << lsb_sysmsg();
       }
 
       int more;                   /* number of remaining jobs unread */
@@ -187,7 +196,8 @@ public:
 
       if ( !jobInfo )
       {
-         throw ErrorHandler::Exception( ErrorHandler::LSFLibError ) << "Reading job status error code: " << lsberrno << ", message: " << lsb_sysmsg();
+         throw ErrorHandler::Exception( ErrorHandler::LSFLibError ) << "Reading job status error code: " << lsberrno <<
+            ", message: " << lsb_sysmsg();
       }
 
       lsb_closejobinfo();
@@ -195,7 +205,8 @@ public:
       if ( jobInfo->status & JOB_STAT_DONE )
       {
          m_isFinished = true;
-         return JobSucceeded;   // job is completed successfully
+         m_isFailed   = false;
+         return JobFinished;   // job is completed successfully
       }
 
       if ( jobInfo->status & JOB_STAT_RUN ) return JobRunning;     // job is running
@@ -205,14 +216,12 @@ public:
            jobInfo->status & JOB_STAT_PSUSP || // job is held
            jobInfo->status & JOB_STAT_SSUSP || // job is suspended by LSF batch system
            jobInfo->status & JOB_STAT_USUSP    // job is suspended by user
-         )
-      {
-         return JobPending;
-      }
+         ) { return JobPending; }
 
       if ( jobInfo->status & JOB_STAT_EXIT )
       {
          m_isFinished = true;
+         m_isFailed = true;
          return JobFailed; // job exited
       }
 #endif
@@ -221,7 +230,7 @@ public:
 
    // Serialization / Deserialization
    // version of serialized object representation
-   virtual unsigned int version() const { return 1; }
+   virtual unsigned int version() const { return 2; }
 
    // Get type name of the serialaizable object, used in deserialization to create object with correct type
    virtual const char * typeName() const { return "JobSchedulerLSF::Job"; }
@@ -229,30 +238,24 @@ public:
    // Serialize object to the given stream
    virtual bool save( CasaSerializer & sz, unsigned int version ) const
    {
-      bool ok = sz.save( m_isFinished, "IsFinished" );
-
-      ok = ok ? sz.save( std::string( m_submit.projectName ),      "CldProjectName" ) : ok;
-      ok = ok ? sz.save( std::string( m_submit.command ),          "ScriptName"     ) : ok;
-      ok = ok ? sz.save( std::string( m_submit.jobName ),          "JobName"        ) : ok;
-      ok = ok ? sz.save( std::string( m_submit.outFile ),          "StdOutLogFile"  ) : ok;
-      ok = ok ? sz.save( std::string( m_submit.errFile ),          "StdErrLogFile"  ) : ok;
-      ok = ok ? sz.save(              m_submit.options,            "OptionsFlags"   ) : ok;
-      ok = ok ? sz.save( std::string( m_submit.cwd ),              "CWD"            ) : ok;
-      ok = ok ? sz.save(              m_submit.options3,           "Options3Flags"  ) : ok;
-      ok = ok ? sz.save(              m_submit.numProcessors,      "CPUsNum"        ) : ok;
-      ok = ok ? sz.save(              m_submit.maxNumProcessors,   "MaxCPUsNum"     ) : ok;
+      bool ok = sz.save(              m_isFinished,                "IsFinished"      );
+      ok = ok ? sz.save(              m_isFailed,                  "IsFailed"        ) : ok;
+      ok = ok ? sz.save( std::string( m_submit.projectName ),      "CldProjectName"  ) : ok;
+      ok = ok ? sz.save( std::string( m_submit.command ),          "ScriptName"      ) : ok;
+      ok = ok ? sz.save( std::string( m_submit.jobName ),          "JobName"         ) : ok;
+      ok = ok ? sz.save( std::string( m_submit.outFile ),          "StdOutLogFile"   ) : ok;
+      ok = ok ? sz.save( std::string( m_submit.errFile ),          "StdErrLogFile"   ) : ok;
+      ok = ok ? sz.save(              m_submit.options,            "OptionsFlags"    ) : ok;
+      ok = ok ? sz.save( std::string( m_submit.cwd ),              "CWD"             ) : ok;
+      ok = ok ? sz.save(              m_submit.options3,           "Options3Flags"   ) : ok;
+      ok = ok ? sz.save(              m_submit.numProcessors,      "CPUsNum"         ) : ok;
+      ok = ok ? sz.save(              m_submit.maxNumProcessors,   "MaxCPUsNum"      ) : ok;
+      ok = ok ? sz.save( static_cast<long long>( m_lsfJobID ),     "LSFJobID"        ) : ok;
+      ok = ok ? sz.save(              m_runTimeLim,                "JobRunTimeLimit" ) : ok;
 
       // TODO save necessary fields for submitRepl
       //struct submitReply m_submitRepl; // lsf_submit returns here some info in case of error
-
-      ok = ok ? sz.save( static_cast<long long>( m_lsfJobID ), "LSFJobID" ) : ok;
-
-      if ( version > 0 )
-      {
-         ok = ok ? sz.save( m_runTimeLim, "JobRunTimeLimit" ) : ok;
-      }
-      return ok;
-        
+      return ok;        
    }
 
    // Create a new instance and deserialize it from the given stream
@@ -262,7 +265,11 @@ public:
       unsigned int objVer = version();
       bool ok = dz.checkObjectDescription( typeName(), objName, objVer );
 
-      ok = ok ? dz.load( m_isFinished, "IsFinished" ) : ok;
+      if ( objVer > 0 ) { ok = ok ? dz.load( m_isFinished, "IsFinished" ) : ok; }
+      else              { m_isFinished = true; }
+
+      if ( objVer > 1 ) { ok = ok ? dz.load( m_isFailed,   "IsFailed" ) : ok; }
+      else              { m_isFailed = false; }
 
       // clean LSF structures
       memset( &m_submit,     0, sizeof( m_submit ) );
@@ -272,40 +279,19 @@ public:
       for ( int i = 0; i < LSF_RLIM_NLIMITS; ++i ) { m_submit.rLimits[i] = DEFAULT_RLIMIT; }
 
       std::string buf;
-
-      ok = ok ? dz.load( buf, "CldProjectName" ) : ok;
-      m_submit.projectName = strdup( buf.c_str() );
-
-      ok = ok ? dz.load( buf, "ScriptName" ) : ok;
-      m_submit.command = strdup( buf.c_str() );
-
-      ok = ok ? dz.load( buf, "JobName" ) : ok;
-      m_submit.jobName = strdup( buf.c_str() );
-
-      ok = ok ? dz.load( buf, "StdOutLogFile" ) : ok;
-      m_submit.outFile = strdup( buf.c_str() );
-
-      ok = ok ? dz.load( buf, "StdErrLogFile" ) : ok;
-      m_submit.errFile = strdup( buf.c_str() );
-
-      ok = ok ? dz.load( m_submit.options, "OptionsFlags" ) : ok;
-
-      ok = ok ? dz.load( buf, "CWD" ) : ok;
-      m_submit.cwd = strdup( buf.c_str() );
-
-      ok = ok ? dz.load( m_submit.options3,         "Options3Flags"  ) : ok;
-      ok = ok ? dz.load( m_submit.numProcessors,    "CPUsNum"        ) : ok;
-      ok = ok ? dz.load( m_submit.maxNumProcessors, "MaxCPUsNum"     ) : ok;
-
       long long rjid;
-      ok = ok ? dz.load( rjid,                      "LSFJobID" ) : ok;
-      m_lsfJobID = static_cast<LS_LONG_INT>( rjid );
-
-      if ( objVer > 0 )
-      {
-         ok = ok ? dz.load( m_runTimeLim, "JobRunTimeLimit" ) : ok;
-      }
-      else { m_runTimeLim = 0; }
+      ok = ok ? dz.load( buf,                       "CldProjectName"  ) : ok; m_submit.projectName = strdup( buf.c_str() );
+      ok = ok ? dz.load( buf,                       "ScriptName"      ) : ok; m_submit.command     = strdup( buf.c_str() );
+      ok = ok ? dz.load( buf,                       "JobName"         ) : ok; m_submit.jobName     = strdup( buf.c_str() );
+      ok = ok ? dz.load( buf,                       "StdOutLogFile"   ) : ok; m_submit.outFile     = strdup( buf.c_str() );
+      ok = ok ? dz.load( buf,                       "StdErrLogFile"   ) : ok; m_submit.errFile     = strdup( buf.c_str() );
+      ok = ok ? dz.load( m_submit.options,          "OptionsFlags"    ) : ok;
+      ok = ok ? dz.load( buf,                       "CWD"             ) : ok; m_submit.cwd         = strdup( buf.c_str() );
+      ok = ok ? dz.load( m_submit.options3,         "Options3Flags"   ) : ok;
+      ok = ok ? dz.load( m_submit.numProcessors,    "CPUsNum"         ) : ok;
+      ok = ok ? dz.load( m_submit.maxNumProcessors, "MaxCPUsNum"      ) : ok;
+      ok = ok ? dz.load( rjid,                      "LSFJobID"        ) : ok; m_lsfJobID = static_cast<LS_LONG_INT>( rjid );
+      ok = ok ? dz.load( m_runTimeLim,              "JobRunTimeLimit" ) : ok;
 
       if ( !ok )
       {
@@ -316,6 +302,7 @@ public:
 
  private:
    bool               m_isFinished; // was this job finished?
+   bool               m_isFailed;   // was this job failed?
 
    // fields related to interaction with LSF
    struct submit      m_submit;     // lsf_submit use values from this structure to submit job
@@ -324,11 +311,11 @@ public:
    LS_LONG_INT        m_lsfJobID;   // job ID in LSF
    size_t             m_runTimeLim; // runt time job limitation [Minutes]
 
+   size_t             m_runAttmeptsNum; // number of attemts to run job
    // disable copy constructor/operator
    Job( const Job & jb );
    Job & operator = ( const Job & jb );
 };
-
 
 
 JobSchedulerLSF::JobSchedulerLSF( const std::string & clusterName )
@@ -341,32 +328,22 @@ JobSchedulerLSF::JobSchedulerLSF( const std::string & clusterName )
    }
 #endif
 
-   if ( !clusterName.empty() )
-   {
-      m_clusterName = clusterName;
-   }
+   if ( !clusterName.empty() ) { m_clusterName = clusterName; }
 #ifdef WITH_LSF_SCHEDULER
    else
    {
       // get cluster name
-      char * clusterName = ls_getclustername();
-      m_clusterName = clusterName ? clusterName : "Undefined";
+      char * clName = ls_getclustername();
+      m_clusterName = clName != NULL ? clName : "Undefined";
    }
 
    // TODO make usage of cluster name
-
    // initialize LSFBat library
-   if ( lsb_init( NULL ) < 0 ) throw ErrorHandler::Exception( ErrorHandler::LSFLibError ) << "LSF Bat library initialization failed: " << ls_sysmsg();
+   if ( lsb_init( NULL ) < 0 ) throw ErrorHandler::Exception( ErrorHandler::LSFLibError ) << "LSFBat library initialization failed: " << ls_sysmsg();
 #endif
 }
 
-JobSchedulerLSF::~JobSchedulerLSF()
-{
-   for ( size_t i = 0; i < m_jobs.size(); ++i )
-   {
-      delete m_jobs[i];     // clean array of scheduled jobs
-   }
-}
+JobSchedulerLSF::~JobSchedulerLSF() { for ( size_t i = 0; i < m_jobs.size(); ++i ) { delete m_jobs[i]; } } // clean array of scheduled jobs
 
 // Add job to the list
 JobScheduler::JobID JobSchedulerLSF::addJob( const std::string & cwd
@@ -386,20 +363,31 @@ JobScheduler::JobID JobSchedulerLSF::addJob( const std::string & cwd
 // run job
 JobScheduler::JobState JobSchedulerLSF::runJob( JobID job )
 {
-   if ( job >= m_jobs.size() ) throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "runJob(): no job with ID: "  << job << " in the queue";
+   if ( job >= m_jobs.size() )
+   {
+      throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "runJob(): no job with ID: "  << job << " in the queue"; 
+   }
 
    if ( !m_jobs[job]->isSubmitted() )
    {
       // spawn job to the cluster
       if ( !m_jobs[job]->submit() )
       {
-         throw ErrorHandler::Exception( ErrorHandler::LSFLibError ) << "Submitting job " << m_jobs[ job ]->command() << " to the cluster failed"
+         if ( !m_jobs[job]->shouldRetryFailedToSubmitJob() )
+         {
+            throw ErrorHandler::Exception( ErrorHandler::LSFLibError ) << "Submitting job " << m_jobs[ job ]->command() << " to the cluster failed"
 #ifdef WITH_LSF_SCHEDULER
-            << ", LSF error: " << lsberrno << ", message: " << lsb_sysmsg()
+               << ", LSF error: " << lsberrno << ", message: " << lsb_sysmsg()
 #endif
-         ;
+            ;
+         }
+         else { return NotSubmittedYet; }
       }
    }
+   // log job ID
+   std::ofstream ofs( RunManager::s_jobsIDListFileName, std::ios_base::out | std::ios_base::app );
+   if ( ofs.is_open() ) { ofs << schedulerJobID( job ) << std::endl; }
+ 
    return jobState( job );
 }
 
@@ -433,10 +421,10 @@ JobScheduler::JobState JobSchedulerLSF::jobState( JobID id )
    if ( id >= m_jobs.size() ) throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "jobState(): no such job in the queue";
 
    Job * job = m_jobs[id];
-   if ( job->isFinished()   ) return JobFinished;      // if job was finished already for some reason, do not check again
-   if ( !job->isSubmitted() ) return NotSubmittedYet;  // job wasn't submitted yet
+   if (  job->isFinished()  ) return job->isFailed() ? JobFailed : JobFinished;  // if job was finished already for some reason, do not check again
+   if ( !job->isSubmitted() ) return NotSubmittedYet;                            // job wasn't submitted yet
 
-   return job->status();   // unknown status
+   return job->status();                                                         // unknown status
 }
 
 std::string JobSchedulerLSF::schedulerJobID( JobID id )
@@ -472,8 +460,7 @@ JobSchedulerLSF::JobSchedulerLSF( CasaDeserializer & dz, unsigned int objVer )
 {
    if ( version() < objVer )
    {
-      throw ErrorHandler::Exception( ErrorHandler::DeserializationError )
-         << "Version of object in file is newer. No forward compatibility!";
+      throw ErrorHandler::Exception( ErrorHandler::DeserializationError ) << "Version of object in file is newer. No forward compatibility!";
    }
 
    bool ok = dz.load( m_clusterName, "ClusterName" );
@@ -487,8 +474,7 @@ JobSchedulerLSF::JobSchedulerLSF( CasaDeserializer & dz, unsigned int objVer )
 
    if ( !ok )
    {
-      throw ErrorHandler::Exception( ErrorHandler::DeserializationError )
-         << "JobSchedulerLSF deserialization error";
+      throw ErrorHandler::Exception( ErrorHandler::DeserializationError ) << "JobSchedulerLSF deserialization error";
    }
 }
 
@@ -497,10 +483,7 @@ void JobSchedulerLSF::printLSFBParametersInfo()
 {
 #ifdef WITH_LSF_SCHEDULER
    struct parameterInfo * lsfbPrms = lsb_parameterinfo( NULL, NULL, 0 );
-   if ( !lsfbPrms )
-   {
-      return throw ErrorHandler::Exception( ErrorHandler::LSFLibError ) << ls_sysmsg();
-   }
+   if ( !lsfbPrms ) { return throw ErrorHandler::Exception( ErrorHandler::LSFLibError ) << ls_sysmsg(); }
 
    std::cout << lsfbPrms->defaultQueues                << ": DEFAULT_QUEUE: A blank_separated list of queue names for automatic queue selection. " << std::endl;
    std::cout << lsfbPrms->defaultHostSpec              << ": DEFAULT_HOST_SPEC: The host name or host model name used as the system default for scaling CPULIMIT and RUNLIMIT. " << std::endl;

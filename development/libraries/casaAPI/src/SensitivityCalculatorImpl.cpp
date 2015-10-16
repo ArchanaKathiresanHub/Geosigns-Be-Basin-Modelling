@@ -319,7 +319,7 @@ namespace casa
       }
       
       // get SUMlib proxies list
-      const std::vector<const SUMlib::CompoundProxy *> & tornadoProxiesLst = sensProxy.getProxyCollection()->getProxyList();
+      const SUMlib::CompoundProxyCollection::CompoundProxyList & tornadoProxiesLst = sensProxy.getProxyCollection()->getProxyList();
 
       // prepare parameters bounds and PDFs
       const SUMlib::ParameterSpace & parSpace     = sensProxy.getProxyCollection()->getParameterSpace();

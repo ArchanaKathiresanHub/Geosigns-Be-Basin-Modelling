@@ -114,13 +114,13 @@ public:
    virtual std::string fullDescription() const
    {
       std::ostringstream oss;
-      oss << "    XYZPoint <PropName> <X> <Y> <Z> <Age> <ReferenceValue> <StandardDeviationValue> <SA weight> <UA weight>\n";
+      oss << "    XYZPoint <PropName> <X> <Y> <Z> <Age> [<ReferenceValue>] [<StandardDeviationValue>] <SA weight> <UA weight>\n";
       oss << "    Where:\n";
       oss << "       PropName               - property name as it was defined in Cauldron project file\n";
       oss  << "       X,Y,Z                  - are the target point coordinates in 3D simulation grid\n";
       oss << "       Age                    - simulation age in [Ma]\n";
-      oss << "       ReferenceValue         - reference value (measurements) for this target\n";
-      oss << "       StandardDeviationValue - std. deviation for reference value\n";
+      oss << "       ReferenceValue         - (Optional) reference value (measurements) for this target\n";
+      oss << "       StandardDeviationValue - (Optional) std. deviation for reference value\n";
       oss << "       SA weight              - weight [0:1] for this target for Sensitivity Analysis (it will used for Pareto diagram)\n";
       oss << "       UA weight              - weight [0:1] for this target for Uncertainty Analysis (it will be used in RMSE calculation)\n";
       return oss.str();

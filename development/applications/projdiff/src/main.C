@@ -10,6 +10,7 @@
 // This utility allow to load and then compare table by table 2 .project3d files
 
 #include "cmbAPI.h"
+#include "Path.h"
 
 #include <iostream>
 #include <fstream>
@@ -47,9 +48,12 @@ void Message( const std::string & msg, int level, bool newLine = true )
 
 int Usage( const char * pName )
 {
-   std::cout << "Utility for compare two Cauldron project3d files" << std::endl;
+   std::cout << "Utility for compare or merge two Cauldron project3d files" << std::endl;
    std::cout << "Usage: " << std::endl;
-   std::cout << "   " << pName << " [-ignore <com sep. tables list>]  [-table <com.sep.tables list>] [-tol eps] [-project1] in1.project3d [-project2] in2.project3d" << std::endl;
+   std::cout << "To compare:\n   " << pName << " [-ignore <com sep. tables list>]  [-table <com.sep.tables list>] [-tol eps] [-project1]";
+   std::cout <<                                " in1.project3d [-project2] in2.project3d" << std::endl;
+   std::cout << "To merge:\n     " << pName << " -merge -table <com. sep. tables list> [-filter \"Table1:ColName1:Value1,...\"] -[project1]";
+   std::cout <<                                " source.projcet3d [-project2] dest.project3d" << std::endl;
    return 0;
 }
 
@@ -79,8 +83,14 @@ int main( int argc, char ** argv )
 {
    double eps = 1.e-5;
 
+   bool compareFiles = true;
+   bool mergeFiles = false;
+
+   const std::string mergeFilter; // filter like "Table1:Column1:Value1,Table2:Column2:Value2"
+
    std::set<std::string> ignoreList; // list of tables which will be skipped
    std::set<std::string> procesList; // list of tables which will be processed
+   std::vector< std::vector<std::string> > filterList; // list of filters which should be applied during tables merge
 
    if ( argc < 3 ) return Usage( argv[0] );
 
@@ -97,6 +107,26 @@ int main( int argc, char ** argv )
          else if ( !strcmp( argv[i], "-tol"      ) && argc > i+1 && argv[i+1][0] != '-' ) { eps            = atof( argv[++i] ); }
          else if ( !strcmp( argv[i], "-project1" ) && argc > i+1 && argv[i+1][0] != '-' ) { in1File        =       argv[++i];   }
          else if ( !strcmp( argv[i], "-project2" ) && argc > i+1 && argv[i+1][0] != '-' ) { in2File        =       argv[++i];   }
+         else if ( !strcmp( argv[i], "-merge"    )                                      ) { compareFiles = false; mergeFiles = true; }
+         else if ( !strcmp( argv[i], "-filter"   ) && argc > i+1 && argv[i+1][0] != '-' ) 
+         {
+            const std::vector<std::string> & flist = list2array( argv[++i], ',' );
+            if ( !flist.empty() ) 
+            {
+               for ( size_t j = 0; j < flist.size(); ++j )
+               {
+                  const std::vector<std::string> & flt = list2array( flist[j].c_str(), ':' );
+                  if ( !flt.empty() )
+                  {
+                     filterList.push_back( std::vector<std::string>( flt.begin(), flt.end() ) );
+                     if ( filterList.back().size() != 3 )
+                     {
+                        Message( std::string( "Wrong filter is given, must be in format Table:ColName:Value, but given: " ) + flist[j], ERROR );
+                     }
+                  }
+               }
+            }
+         }
          else if ( !strcmp( argv[i], "-ignore"   ) && argc > i+1 && argv[i+1][0] != '-' )
          {
             const std::vector<std::string> & tlist = list2array( argv[++i], ',' );
@@ -154,24 +184,48 @@ int main( int argc, char ** argv )
    Message( std::string( " done in " ) + to_string( (WallTime::clock() - timer).floatValue() ) + " sec.", PROGRESSMSG );
    timer = WallTime::clock();
 
+   if ( compareFiles )
+   {
+      Message( std::string( "### Comparing tables..." ), PROGRESSMSG, false );
+      const std::string & diffs = cldProject1.compareProject( cldProject2, procesList, ignoreList, eps );
 
-   Message( std::string( "### Comparing tables..." ), PROGRESSMSG, false );
-   const std::string & diffs = cldProject1.compareProject( cldProject2, procesList, ignoreList, eps );
-
-   g_totalDiffNumber += std::count( diffs.begin(), diffs.end(), '\n' );
+      g_totalDiffNumber += std::count( diffs.begin(), diffs.end(), '\n' );
    
-   Message( std::string( " done in " ) + to_string( (WallTime::clock() - timer).floatValue() ) + " sec.", PROGRESSMSG );
-   if ( !diffs.empty() ) { Message( std::string( "Found differences: \n" ) + diffs, WARNING ); }
+      Message( std::string( " done in " ) + to_string( (WallTime::clock() - timer).floatValue() ) + " sec.", PROGRESSMSG );
+      if ( !diffs.empty() ) { Message( std::string( "Found differences: \n" ) + diffs, WARNING ); }
 
-   timer = WallTime::clock();
+      timer = WallTime::clock();
    
-   Message( "###### All done!", PROGRESSMSG );
+      Message( "###### All done!", PROGRESSMSG );
    
-   std::ostringstream oss;
-   oss << "Found " <<  g_totalDiffNumber << " differences";
-   Message( oss.str(), g_totalDiffNumber > 0 ? 0 : 1 );
+      std::ostringstream oss;
+      oss << "Found " <<  g_totalDiffNumber << " differences";
+      Message( oss.str(), g_totalDiffNumber > 0 ? 0 : 1 );
 
-   return g_totalDiffNumber > 0 ? -1 : 0;
+      return g_totalDiffNumber > 0 ? -1 : 0;
+   }
+
+   if ( mergeFiles )
+   {
+      Message( std::string( "### Merging tables..." ), PROGRESSMSG, false );
+      
+      size_t dlRecNum;
+      size_t cpRecNum;
+
+      const std::string ret = cldProject2.mergeProject( cldProject1, procesList, filterList, dlRecNum, cpRecNum );
+      
+      if ( !ret.empty() ) Message( ret, ERROR );
+
+      Message( std::string( "#### Deleted records number: \n" ) + ibs::to_string( dlRecNum ), WARNING ); 
+      Message( std::string( "#### Copied records number: \n"  ) + ibs::to_string( cpRecNum ), WARNING );
+
+      Message( std::string( " done in " ) + to_string( (WallTime::clock() - timer).floatValue() ) + " sec.", PROGRESSMSG );
+      Message( "###### All done!", PROGRESSMSG );
+
+      return ret.empty() ? 0 : -1;
+   }
+
+   return 0;
 }
 
 

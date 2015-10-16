@@ -209,10 +209,7 @@ bool PrmSourceRockType::save( CasaSerializer & sz, unsigned int version ) const
    ok = ok ? sz.save( m_name,      "name"      ) : ok;
    ok = ok ? sz.save( m_layerName, "layerName" ) : ok;
    ok = ok ? sz.save( m_srtName,   "srtName"   ) : ok;
-   if ( version > 7 )
-   {
-      ok = ok ? sz.save( m_mixID, "mixingID" ) : ok;
-   }
+   ok = ok ? sz.save( m_mixID,     "mixingID"  ) : ok;
 
    return ok;
 }
@@ -234,14 +231,11 @@ PrmSourceRockType::PrmSourceRockType( CasaDeserializer & dz, unsigned int objVer
    ok = ok ? dz.load( m_name,      "name"      ) : ok;
    ok = ok ? dz.load( m_layerName, "layerName" ) : ok;
    ok = ok ? dz.load( m_srtName,   "srtName"   ) : ok;
-
-   if ( objVer > 0 ) { ok = ok ? dz.load( m_mixID, "mixingID" ) : ok; }
-   else              { m_mixID = 1; }
+   ok = ok ? dz.load( m_mixID,     "mixingID"  ) : ok;
 
    if ( !ok )
    {
-      throw ErrorHandler::Exception( ErrorHandler::DeserializationError )
-         << "PrmSourceRockType deserialization unknown error";
+      throw ErrorHandler::Exception( ErrorHandler::DeserializationError ) << "PrmSourceRockType deserialization unknown error";
    }
 }
 

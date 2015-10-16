@@ -94,8 +94,8 @@ namespace casa
       /// @return new observable instance on susccess, or throw and exception in case of any error
       static VarPrmCategorical * load( CasaDeserializer & dz, const char * objName );
 
-      // signal on category parameter generated and connect as dependent on seraialization
-      // categorical parameters should be added always before dependent on them constinuous parameters!!!
+      // signal on category parameter generated and connect as dependent on serialization
+      // categorical parameters should be added always before dependent on them continuous parameters!!!
       void addDependent( VarPrmContinuous * depPrm );
 
    protected:
@@ -103,7 +103,7 @@ namespace casa
 
       /// @brief Defines version of serialized object representation. Must be updated on each change in save()
       /// @return Actual version of serialized object representation
-      virtual unsigned int version() const { return 1; }
+      virtual unsigned int version() const { return 0; }
 
       /// @brief Implements common part of deserialization for continuous variable parameters
       /// @param dz input stream

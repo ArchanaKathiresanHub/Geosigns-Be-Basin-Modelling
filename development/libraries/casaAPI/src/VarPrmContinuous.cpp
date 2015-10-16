@@ -160,32 +160,25 @@ namespace casa
          m_maxValue.reset(  Parameter::load( dz, "maxValue"  ) );
       }
 
-      if ( objVer > 0 )
-      {  
-         ok = ok ? dz.load( m_name, "userGivenName" ) : ok;
-      }
+      ok = ok ? dz.load( m_name, "userGivenName" ) : ok;
 
       // after restoring connections we do not need to keep connected ojbects ID any more, on 
       // another serialization call m_dependsOn set will be updated
-      if ( objVer > 1 )
+      std::vector<CasaDeserializer::ObjRefID> vecToLoad( m_dependsOn.begin(), m_dependsOn.end() );
+      ok = ok ? dz.load( vecToLoad, "connectedTo" ) : ok;
+      for ( size_t i = 0; ok && i < vecToLoad.size(); ++i ) 
       {
-         std::vector<CasaDeserializer::ObjRefID> vecToLoad( m_dependsOn.begin(), m_dependsOn.end() );
-         ok = ok ? dz.load( vecToLoad, "connectedTo" ) : ok;
-         for ( size_t i = 0; ok && i < vecToLoad.size(); ++i ) 
+         const VarPrmCategorical * prm = dz.id2ptr<VarPrmCategorical>( vecToLoad[i] );
+         if ( prm )
          {
-            const VarPrmCategorical * prm = dz.id2ptr<VarPrmCategorical>( vecToLoad[i] );
-            if ( prm )
-            {
-               (const_cast<VarPrmCategorical*>(prm))->addDependent( this );
-            }
-            else 
-            {
-               throw ErrorHandler::Exception( ErrorHandler::DeserializationError ) << "Can't restore connection for " <<
+            (const_cast<VarPrmCategorical*>(prm))->addDependent( this );
+         }
+         else 
+         {
+            throw ErrorHandler::Exception( ErrorHandler::DeserializationError ) << "Can't restore connection for " <<
                   " parameter: " << name()[0];
-            }
          }
       }
       return ok;
    }
 }
-

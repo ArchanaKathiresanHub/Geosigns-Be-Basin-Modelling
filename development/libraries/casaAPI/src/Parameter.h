@@ -18,6 +18,7 @@
 #include "ErrorHandler.h"
 #include "CasaSerializer.h"
 #include "CasaDeserializer.h"
+#include "CauldronApp.h"
 
 // STL
 #include <vector>
@@ -53,6 +54,10 @@ namespace casa
       /// @brief Get variable parameter which was used to create this parameter
       /// @return Pointer to the variable parameter
       virtual const VarParameter * parent() const = 0;
+
+      /// @brief Get the level of influence to cauldron applications pipeline for this parametr
+      /// @return number which indicates which solver influence this parameter
+      virtual AppPipelineLevel appSolverDependencyLevel() const  = 0;
 
       /// @brief Set this parameter value in Cauldron model
       /// @param caldModel reference to Cauldron model

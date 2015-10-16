@@ -845,13 +845,8 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::serialize( CasaSerializer & outStre
    ok = ok ? outStream.save( runManager(),          "RunManager"   ) : ok; // run manager
 
    ok = ok ? outStream.save( mcSolver(),            "MCSolver"     ) : ok;
-
-   if ( outStream.version() > 1 )
-   {
-      ok = ok ? outStream.save( *m_sensCalc.get(),     "SensitivityCalculator" ) : ok;
-   }
-
-   if ( outStream.version() > 6 ) { ok = ok ? outStream.save( m_scenarioID, "scenarioID" ) : ok; }
+   ok = ok ? outStream.save( *m_sensCalc.get(),     "SensitivityCalculator" ) : ok;
+   ok = ok ? outStream.save( m_scenarioID,          "scenarioID"   ) : ok;
 
    if ( !ok ) throw ErrorHandler::Exception( SerializationError ) << "Serialization error in ScenarioAnalysis";
 }
@@ -859,6 +854,12 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::serialize( CasaSerializer & outStre
 // Load ScenarioAnalysis object from file
 void ScenarioAnalysis::ScenarioAnalysisImpl::deserialize( CasaDeserializer & inStream )
 {
+   if ( inStream.version() < 9 )
+   {
+      throw Exception( DeserializationError ) << "Incompatible casa state file version. Versions 9 and later are incompatible with " <<
+         " the given state file version: " <<  inStream.version();
+   }
+
    bool ok = inStream.load( m_caseSetPath,         "caseSetPath" );
 
    // read base case name and load it as a model
@@ -870,7 +871,7 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::deserialize( CasaDeserializer & inS
    ok = ok ? inStream.load( m_iterationNum,        "iterationNum" ) : ok;
    ok = ok ? inStream.load( m_caseNum,             "caseNum" ) : ok;
 
-   if ( !ok ) throw ErrorHandler::Exception( DeserializationError ) << "Deserialization error in ScenarioAnalysis";
+   if ( !ok ) throw Exception( DeserializationError ) << "Deserialization error in ScenarioAnalysis";
 
    m_obsSpace.reset(   new ObsSpaceImpl(              inStream, "ObsSpace"              ) );
    m_varSpace.reset(   new VarSpaceImpl(              inStream, "VarSpace"              ) );
@@ -881,18 +882,11 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::deserialize( CasaDeserializer & inS
 
    m_doe.reset(        new DoEGeneratorImpl(          inStream, "DoE"                   ) );
    m_dataDigger.reset( new DataDiggerImpl(            inStream, "DataDigger"            ) );
-   
-   // before version 6 it was an error in RunManager object name
-   if ( inStream.version() >= 6 ) { m_runManager.reset( new RunManagerImpl( inStream, "RunManager" ) ); }
-   else                           { m_runManager.reset( new RunManagerImpl( inStream, "RunManger" ) ); }
-
+   m_runManager.reset( new RunManagerImpl(            inStream, "RunManager"            ) );
    m_mcSolver.reset(   new MonteCarloSolverImpl(      inStream, "MCSolver"              ) );
-
-   m_sensCalc.reset(  inStream.version() > 1 ? new SensitivityCalculatorImpl( inStream, "SensitivityCalculator" ) : 
-                                               new SensitivityCalculatorImpl( m_varSpace.get(), m_obsSpace.get() ) 
-                   );
-
-   if ( inStream.version() >= 7 ) { inStream.load( m_scenarioID, "scenarioID" ); }
+   m_sensCalc.reset(  new SensitivityCalculatorImpl(  inStream, "SensitivityCalculator" ) );
+   
+   inStream.load( m_scenarioID, "scenarioID" );
 }
 
 }

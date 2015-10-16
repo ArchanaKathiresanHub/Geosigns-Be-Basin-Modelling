@@ -43,8 +43,7 @@ namespace casa
       /// @{
       /// @brief Defines version of serialized object representation. Must be updated on each change in save()
       /// @return Actual version of serialized object representation
-      // Version 1 - add different HC ranges, dependend on source rock type category
-      virtual unsigned int version() const { return VarPrmContinuous::version() + 1; }
+      virtual unsigned int version() const { return VarPrmContinuous::version() + 0; }
 
       /// @brief Get type name of the serialaizable object, used in deserialization to create object with correct type
       /// @return object class name

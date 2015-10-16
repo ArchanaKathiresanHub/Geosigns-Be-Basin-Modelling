@@ -46,6 +46,8 @@
 
 namespace mbapi {
 
+const char * Model::s_ResultsFolderSuffix = "_CauldronOutputDir"; // defines Cauldron results folder name suffix
+
 ///////////////////////////////////////////////////////////////////////////////
 // Class which hides all CMB API implementation
 class Model::ModelImpl
@@ -62,6 +64,15 @@ public:
 
    // compare tables in project file
    std::string compareProject( Model::ModelImpl * mdl, const std::set<std::string> & procesList, const std::set<std::string> & ignoreList, double relTol );
+
+   // Copy matched given filter records from the given project to the current, all similar records in 
+   // the currenct projects will be deleted and replaced
+   std::string mergeProject( Model::ModelImpl                             * mdl
+                           , const std::set<std::string>                  & tblsList
+                           , const std::vector<std::vector<std::string> > & fltList
+                           , size_t                                       & dlRecNum
+                           , size_t                                       & cpRecNum
+                           );
 
    // Set of universal access interfaces. Project file level
    std::vector<std::string> tablesList();
@@ -236,7 +247,11 @@ ErrorHandler::ReturnCode Model::setTableValue( const std::string & tableName, si
 }
 
 // Set value in the table
-ErrorHandler::ReturnCode Model::setTableValue( const std::string & tableName, size_t rowNumber, const std::string & propName, const std::string & propValue )
+ErrorHandler::ReturnCode Model::setTableValue( const std::string & tableName
+                                             , size_t              rowNumber
+                                             , const std::string & propName
+                                             , const std::string & propValue
+                                             )
 {
    if ( errorCode() != NoError ) resetError(); // clean any previous error
 
@@ -247,7 +262,11 @@ ErrorHandler::ReturnCode Model::setTableValue( const std::string & tableName, si
    return NoError;
 }
 
-std::string Model::compareProject( Model & mdl1, const std::set<std::string> & compareTblsList, const std::set<std::string> & ignoreTblsList, double relTol )
+std::string Model::compareProject( Model                       & mdl1
+                                 , const std::set<std::string> & compareTblsList
+                                 , const std::set<std::string> & ignoreTblsList
+                                 , double                        relTol
+                                 )
 {
    if ( errorCode() != NoError ) resetError(); // clean any previous error
 
@@ -257,6 +276,24 @@ std::string Model::compareProject( Model & mdl1, const std::set<std::string> & c
    catch ( ... ) { return "Unknown error"; }
   
    return "Can not perform comparison for unknown reason";
+}
+
+
+std::string Model::mergeProject( Model                                   & mdl1
+                          , const std::set<std::string>                  & tblsList
+                          , const std::vector<std::vector<std::string> > & fltList
+                          , size_t                                       & dlRecNum
+                          , size_t                                       & cpRecNum
+                       )
+{
+   if ( errorCode() != NoError ) resetError(); // clean any previous error
+
+   try { return m_pimpl->mergeProject( mdl1.m_pimpl.get(), tblsList, fltList, dlRecNum, cpRecNum ); }
+   catch ( const ErrorHandler::Exception & ex ) { return std::string( "Exception during project merge. Error code: " + 
+                                                         ibs::to_string( ex.errorCode() ) + ", error message " + ex.what() ); }
+   catch ( ... ) { return "Unknown error"; }
+
+   return "Can not perform merge for unknown reason";
 }
 
 
@@ -586,6 +623,91 @@ std::string Model::ModelImpl::compareProject( Model::ModelImpl * mdl
    return oss.str();
 }
 
+std::string Model::ModelImpl::mergeProject( Model::ModelImpl                             * mdl
+                                          , const std::set<std::string>                  & tblsList
+                                          , const std::vector<std::vector<std::string> > & fltList
+                                          , size_t                                       & dlRecNum
+                                          , size_t                                       & cpRecNum
+                                          )
+{
+   dlRecNum = 0;
+   cpRecNum = 0;
+
+   for ( std::set<std::string>::const_iterator it = tblsList.begin(); it != tblsList.end(); ++it )
+   {
+      database::Table * tblFrom = mdl->m_projHandle->getDataBase()->getTable( *it );
+      database::Table * tblTo   =      m_projHandle->getDataBase()->getTable( *it );
+
+      if ( tblFrom == NULL || tblTo == NULL ) continue; // skip empty tables 
+     
+      //
+      bool tableHasFilter = false;
+      for ( size_t i = 0; i < fltList.size() && !tableHasFilter; ++i )
+      {
+         if ( fltList[i][0] == *it ) { tableHasFilter = true; }
+      }
+
+      // clean records in current project which matched filter
+      if ( !tableHasFilter ) // if no filter given - delete all records
+      {
+         dlRecNum += tblTo->size();
+         clearTable( *it );
+         // copy all records
+         for ( database::Table::iterator tit = tblFrom->begin(); tit != tblFrom->end(); ++tit )
+         {
+            tblTo->addRecord( new database::Record( *(*tit) ) );
+            ++cpRecNum;
+         }
+      }
+      else
+      {
+         for ( size_t f = 0; f < fltList.size(); ++f )
+         {
+            if ( fltList[f][0] != *it ) continue; // skip filters not related to current table
+
+            int index = tblFrom->getIndex( fltList[f][1] );
+            if ( index < 0 )
+            { 
+               throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Wrong column name: " << fltList[f][1]  <<
+                  " for the table: " << fltList[f][0];
+            }
+            // clean the current table records which matched filter
+            database::Table::iterator tit = tblTo->begin();
+            while ( tit != tblTo->end() )
+            {
+               if ( fltList[f][2] == (*tit)->getValue<std::string>( index ) )
+               {
+                  tit = tblTo->removeRecord( tit );
+                  ++dlRecNum;
+               }
+               else { tit++; }
+            }
+           
+            // copy records from table tblFrom to the table tblTo which matched filter
+            for ( database::Table::iterator tit = tblFrom->begin(); tit != tblFrom->end(); ++tit )
+            {
+               database::Record * rec = *tit;
+               const std::string & tblVal = rec->getValue<std::string>( index );
+               if ( fltList[f][2] == tblVal )
+               {
+                  tblTo->addRecord( new database::Record( *(*tit) ) );
+                  ++cpRecNum;
+               }
+            }
+         }
+      }
+   }
+
+   if ( dlRecNum > 0 || cpRecNum > 0 )
+   {
+      database::Database * db = m_projHandle->getDataBase();
+      if ( !db->saveToFile( db->getFileName() ) )
+      {
+         throw ErrorHandler::Exception( ErrorHandler::IoError ) << "Failed to write updated tables to file: " << db->getFileName();
+      }
+   }
+   return "";
+}
 
 std::vector<std::string> Model::ModelImpl::tablesList()
 {

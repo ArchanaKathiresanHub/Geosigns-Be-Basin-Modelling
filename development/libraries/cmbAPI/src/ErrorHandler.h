@@ -41,6 +41,7 @@ public:
       RSProxyError,          ///< Error happened in response surface builder
       SUMLibException,       ///< Exception was caught during SUMLib call
       RunManagerError,       ///< Error happened in RunManager
+      RunManagerAborted,     ///< Execution of run manager was aborted by user
       LSFLibError,           ///< Error happened in RunManager when it interracts with LSF
       WrongPath,             ///< Wrong path given
       SerializationError,    ///< Error happens during serialization process

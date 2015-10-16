@@ -171,6 +171,21 @@ namespace casa
       return true;
    }
 
+   bool RunCaseImpl::isEqual( const RunCase &cs, AppPipelineLevel upTo ) const
+   {
+      const RunCaseImpl & rci = dynamic_cast<const RunCaseImpl &>( cs );
+
+      if ( m_prmsSet.size() != rci.m_prmsSet.size() ) return false;
+
+      for ( size_t i = 0; i < m_prmsSet.size(); ++i )
+      {
+         if ( m_prmsSet[i]->appSolverDependencyLevel() > upTo ) continue; // skip parameters which not influence the given dependency level
+
+         if ( *(m_prmsSet[i].get()) != *(rci.m_prmsSet[i].get()) ) return false;
+      }
+      return true;
+   }
+
    // Serialize object to the given stream
    bool RunCaseImpl::save( CasaSerializer & sz, unsigned int fileVersion ) const
    {
@@ -185,27 +200,25 @@ namespace casa
          bool ok = sz.save( rcID, "ID" );
       }
 
-      if ( fileVersion >= 0 )
+      // std::auto_ptr<mbapi::Model> m_model;
+      ok = ok ? sz.save( m_modelProjectFileName, "PathToModel" ) : ok;
+
+      // save parameters value for this case
+      ok = ok ? sz.save( m_prmsSet.size(), "PrmsSetSize" ) : ok;
+      for ( size_t i = 0; i < m_prmsSet.size() && ok; ++i )
       {
-         // std::auto_ptr<mbapi::Model> m_model;
-         ok = ok ? sz.save( m_modelProjectFileName, "PathToModel" ) : ok;
-
-         // save parameters value for this case
-         ok = ok ? sz.save( m_prmsSet.size(), "PrmsSetSize" ) : ok;
-         for ( size_t i = 0; i < m_prmsSet.size() && ok; ++i )
-         {
-            ok = sz.save( *(m_prmsSet[i].get()), "CasePrm" );
-         }
-
-         // save observables value for this case
-         ok = ok ? sz.save( m_results.size(), "ObsSetSize" ) : ok;
-         for ( size_t i = 0; i < m_results.size() && ok; ++i )
-         {
-            ok = sz.save( *m_results[i], "CaseObsVal" );
-         }
+         ok = sz.save( *(m_prmsSet[i].get()), "CasePrm" );
       }
-      if ( fileVersion >= 3 ) { ok = ok ? sz.save( static_cast<int>( m_runState ), "RunCaseState" ) : ok; }
-      if ( fileVersion >= 5 ) { ok = ok ? sz.save( m_id,                           "RunCaseID"    ) : ok; }
+
+      // save observables value for this case
+      ok = ok ? sz.save( m_results.size(), "ObsSetSize" ) : ok;
+      for ( size_t i = 0; i < m_results.size() && ok; ++i )
+      {
+         ok = sz.save( *m_results[i], "CaseObsVal" );
+      }
+
+      ok = ok ? sz.save( static_cast<int>( m_runState ), "RunCaseState" ) : ok;
+      ok = ok ? sz.save( m_id,                           "RunCaseID"    ) : ok;
 
       return ok;
    }
@@ -246,21 +259,15 @@ namespace casa
          m_results.push_back( ov );
       }
 
-      if ( objVer >= 1 )
-      {
-         int st;
-         ok = ok ? dz.load( st, "RunCaseState" ) : ok;
-         m_runState = ok ? static_cast<CaseStatus>(st) : NotSubmitted;
-      }
-      else { m_runState = NotSubmitted; }
+      int st;
+      ok = ok ? dz.load( st, "RunCaseState" ) : ok;
+      m_runState = ok ? static_cast<CaseStatus>(st) : NotSubmitted;
       
-      if ( objVer >= 2 ) { ok = ok ? dz.load( m_id, "RunCaseID" ) : ok; }
-      else               { m_id = 0; }
+      ok = ok ? dz.load( m_id, "RunCaseID" ) : ok;
 
       if ( !ok )
       {
-         throw ErrorHandler::Exception( ErrorHandler::DeserializationError )
-            << "RunCaseImpl deserialization error";
+         throw ErrorHandler::Exception( ErrorHandler::DeserializationError ) << "RunCaseImpl deserialization error";
       }
    }
 }

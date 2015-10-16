@@ -11,8 +11,10 @@
 #ifndef CAULDRON_CONFIG_ENV_H
 #define CAULDRON_CONFIG_ENV_H
 
-static const char * s_LICENSE_SERVER = "${BM_ENV_SIEPRTS_LICENSE_FILE}";
-static const char * s_MPIRUN_CMD     = "mpirun_wrap.sh";
+static const char * s_LICENSE_SERVER            = "${BM_ENV_SIEPRTS_LICENSE_FILE}";
+static const char * s_MPIRUN_CMD                = "mpirun_wrap.sh";
 static const char * s_LSF_CAULDRON_PROJECT_NAME = "${LSF_CAULDRON_PROJECT_NAME}";
-static const char * s_LSF_CONFIG_DIR = "${LSF_ENVDIR}";
+static const char * s_LSF_CONFIG_DIR            = "${LSF_ENVDIR}";
+static const char * s_DEFAULT_VERSION           = "v${BM_VERSION_NUMBER_MAJOR}.${BM_VERSION_NUMBER_MINOR}${BM_VERSION_TAG}";
+static const char * s_IBS_INSTALL_PATH          = "/apps/sssdev/ibs";
 #endif

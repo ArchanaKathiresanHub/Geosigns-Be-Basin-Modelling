@@ -66,6 +66,10 @@ namespace casa
       /// @return Pointer to the variable parameter
       virtual const VarParameter * parent() const { return m_parent; }
 
+      /// @brief Get the level of influence to cauldron applications pipeline for this parametr
+      /// @return number which indicates which solver influence this parameter
+      virtual AppPipelineLevel appSolverDependencyLevel() const  { return Genex; }
+                  
       /// @brief Set this parameter value in Cauldron model
       /// @param caldModel reference to Cauldron model
       /// @param caseID unique RunCase ID, in some parameters it is used in new map file name generation
@@ -104,8 +108,7 @@ namespace casa
       /// @{
       /// @brief Defines version of serialized object representation. Must be updated on each change in save()
       /// @return Actual version of serialized object representation
-      // 1 - add mixing ID
-      virtual unsigned int version() const { return 1; }
+      virtual unsigned int version() const { return 0; }
 
       /// @brief Save all object data to the given stream, that object could be later reconstructed from saved data
       /// @param sz Serializer stream

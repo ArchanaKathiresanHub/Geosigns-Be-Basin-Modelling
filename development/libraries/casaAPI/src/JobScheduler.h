@@ -32,11 +32,10 @@ namespace casa
       enum JobState
       {
          NotSubmittedYet, // job wasn't submitted yet
-         JobSucceeded,    // job finished OK
          JobFailed,       // job crashed
          JobPending,      // job is waiting to run on cluster
          JobRunning,      // job is running on cluster
-         JobFinished,     // job is finished or crashed
+         JobFinished,     // job is successfully finished or crashed
          Unknown          // job status is unknown
       };
 
