@@ -11,6 +11,7 @@
 
 namespace SUMlib {
 
+class EliminationCriterion;
 class Proxy;
 class ProxyBuilder;
 class CubicProxy;
@@ -56,6 +57,10 @@ class INTERFACE_SUMLIB ProxyCases
       /// @param [in] vars      list of variables to create m_builder with
       void createProxyBuilder( VarList const& vars );
 
+      /// Progressively reduce the variables indicated by the repeated application of the criterion.
+      /// @param [in] criterion  used to decide the next variable to reduce next (if any)
+      unsigned int eliminate( EliminationCriterion& criterion );
+
       /// Create a proxy for the specified vars in m_builder
       /// @returns the new CubicProxy
       CubicProxy *createProxy( ) const;
@@ -86,12 +91,11 @@ class INTERFACE_SUMLIB ProxyCases
       /// Determine the quality of the proxy by evaluating the
       /// proxy against the test set of inactive cases
       /// @param [in]  proxy        the proxy model to test
-      /// @param [in]  nrOfUsedVars number of active monomials, used as penalty in (adjusted) totalRMSE
       /// @param [out] tuneRMSE     the RMSE of the tune set
       /// @param [out] testRMSE     the RMSE of the test set
       /// @param [out] totalRMSE    the RMSE of the full set
       /// @param [out] adjustedR2   the adjusted R^2 of the full set
-      void test( CubicProxy const * proxy, unsigned int nrOfUsedVars, double & tuneRMSE,
+      void test( CubicProxy const * proxy, double & tuneRMSE,
                  double & testRMSE, double & totalRMSE, double & adjustedR2 ) const;
 
       /// Get the total number of cases

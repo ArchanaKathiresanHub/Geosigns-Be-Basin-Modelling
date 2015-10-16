@@ -25,7 +25,7 @@ namespace SUMlib {
 namespace
 {
 
-unsigned int g_version( 2 );
+unsigned int g_version( 1 );
 
 struct AbsoluteLessThan
 {
@@ -40,6 +40,18 @@ struct AbsoluteLessThan
    }
    double value;
 };
+
+bool Intersect( const IndexList& list1, const IndexList& list2 )
+{
+   for ( IndexList::const_iterator it1 = list1.begin(); it1 != list1.end(); ++it1 )
+   {
+      if ( std::find( list2.begin(), list2.end(), *it1 ) != list2.end() )
+      {
+         return true;
+      }
+   }
+   return false;
+}
 
 }
 
@@ -256,6 +268,54 @@ void CubicProxy::initialise(
    m_designMatrixRank = 0;
 }
 
+void CubicProxy::initialise(
+      unsigned int                  size,
+      VarList                       vars,
+      std::vector<IndexList>        code,
+      RealVector                    proxyMean,
+      double                        targetMean,
+      RealVector                    coefficients,
+      RealVector                    stdErrors,
+      unsigned int                  designMatrixRank
+      )
+{
+   assert( vars.size() <= CubicProxy::numVars( size ) );
+   assert( vars.empty() || vars.back() < CubicProxy::numVars( size ) );
+   assert( vars.size() == code.size() );
+   assert( vars.size() == coefficients.size() );
+   assert( vars.size() == proxyMean.size() );
+
+   using std::swap;
+
+   m_size = size;
+   swap( m_vars, vars );
+   swap( m_code, code );
+   swap( m_proxyMean, proxyMean );
+   m_targetMean = targetMean;
+   swap( m_coefficients, coefficients );
+   swap( m_stdErrors, stdErrors );
+   m_designMatrixRank = designMatrixRank;
+}
+
+void CubicProxy::removeConstTransformedParameters( const IndexList& indices )
+{
+   for ( size_t i = 0; i < m_code.size(); /* increment inside for-loop */ )
+   {
+      if ( Intersect( m_code[i], indices ) )
+      {
+         // Remove this term because it contains a constant-transformed parameter.
+         m_code.erase( m_code.begin() + i );
+         m_coefficients.erase( m_coefficients.begin() + i );
+         m_stdErrors.erase( m_stdErrors.begin() + 1 + i );
+         m_proxyMean.erase( m_proxyMean.begin() + i );
+      }
+      else
+      {
+         ++i;
+      }
+   }
+}
+
 unsigned int CubicProxy::size() const
 {
    return m_size;
@@ -264,6 +324,11 @@ unsigned int CubicProxy::size() const
 void CubicProxy::getVarList( IndexList &vars ) const
 {
    vars = m_vars;
+}
+
+IndexList const& CubicProxy::variables() const
+{
+   return m_vars;
 }
 
 void CubicProxy::getCoefficientsMap( CoefficientsMap& map ) const
@@ -627,7 +692,7 @@ bool CubicProxy::load( IDeserializer* deserializer, unsigned int version )
       m_stdErrors.assign( m_coefficients.size() + 1, -1.0 );
    }
    ok = ok && deserialize(deserializer,m_size);
-   if ( version >= 2 )
+   if ( version >= 1 )
    {
       ok = ok && deserialize(deserializer,m_designMatrixRank);
    }

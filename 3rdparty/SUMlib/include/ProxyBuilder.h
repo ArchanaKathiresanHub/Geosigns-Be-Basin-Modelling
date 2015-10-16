@@ -7,15 +7,18 @@
 #define SUMLIB_PROXYBUILDER_H
 
 #include "BaseTypes.h"
+#include "SUMlib.h"
 
 namespace SUMlib
 {
+class CubicProxy;
+class EliminationCriterion;
 
 /// @class ProxyBuilder collects the results of SVD computations for a proxy, given
 /// a parameter set, a target set and a list of active variables.
 ///
 /// Generated Copy constructor and copy assignment are safe
-class ProxyBuilder
+class INTERFACE_SUMLIB ProxyBuilder
 {
    public:
       /// Constructor
@@ -25,6 +28,10 @@ class ProxyBuilder
 
       /// Destructor
       virtual                      ~ProxyBuilder();
+
+      /// Progressively eliminates items from the list of active monomial variables.
+      /// @param [in] criterion  used to decide which monomial variable to eliminate next and when to stop the elimination process.
+      unsigned int eliminate( EliminationCriterion& criterion );
 
       /// Create a proxy for the base variables
       ///
@@ -82,7 +89,18 @@ class ProxyBuilder
       /// @returns the vector
       RealVector const&             coefficients() const { return m_coefficients; }
 
+      /// The mean squared error with respect to the target set
+      /// @returns the mean squared error
+      double mse() const;
+
+      /// Calculates the standard errors on the coefficients.
+      /// @returns the vector  of standard errors
+      RealVector calcStdErrors() const;
+
+      unsigned int calcDesignMatrixRank() const;
+
    private:
+      void fit();
 
       void setMonomialCode( VarList const& vars, std::vector<IndexList> &code ) const;
 

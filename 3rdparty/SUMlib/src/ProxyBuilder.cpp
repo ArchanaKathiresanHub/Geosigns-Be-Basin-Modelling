@@ -10,6 +10,7 @@
 
 #include "BaseTypes.h"
 #include "CubicProxy.h"
+#include "EliminationCriteria.h"
 #include "DataStructureUtils.h"
 #include "NumericUtils.h"
 #include "ProxyBuilder.h"
@@ -23,42 +24,38 @@ ProxyBuilder::ProxyBuilder(
       TargetSet const&     targetSet,
       IndexList const&     vars
       )
+   : m_size( parSet.size() ? parSet.front().size() : 0 ),
+     m_parSet( parSet ),
+     m_scaledTargets( targetSet ),
+     m_vars( vars )
 {
-   m_size = parSet.size() ? parSet.front().size() : 0;
-
-   m_parSet = parSet;
-   m_scaledTargets = targetSet;
-   m_vars  = vars;
-
-   //TargetSet targets( targetSet );
-
-   setMonomialCode( m_vars, m_code );
-
-   calculateProxyData( m_parSet, m_proxyData, m_proxyMean );
-   m_orthonormalU = m_proxyData;
-
-   // Calculate the monomial coefficients by applying SVD
-   int stat = calculateSVD( m_orthonormalU, m_singularValues, m_orthonormalV );
-
    // Statistical scaling of estimation data (allProxyData is assumed to be scaled to [-1:1])
    VectorScaleToMean( m_scaledTargets, m_targetMean );
-
-   // Calculate the coefficients for the specified target set
-   CubicProxy::calculateCoefficients( stat, m_orthonormalU, m_singularValues, m_orthonormalV, m_scaledTargets, m_coefficients );
+   fit();
 }
-
 
 ProxyBuilder::~ProxyBuilder()
 {
    // empty
 }
 
+unsigned int ProxyBuilder::eliminate( EliminationCriterion& criterion )
+{
+   unsigned int eliminated = 0;
+
+   while ( boost::optional<unsigned int> idx = criterion( *this ) ) {
+      m_vars.erase(m_vars.begin() + *idx);
+      fit();
+      ++eliminated;
+   }
+   return eliminated;
+}
 
 CubicProxy *ProxyBuilder::create() const
 {
    CubicProxy *proxy = new CubicProxy;
 
-   proxy->initialise( m_size, m_vars, m_code, m_proxyMean, m_targetMean, m_coefficients );
+   proxy->initialise( m_size, m_vars, m_code, m_proxyMean, m_targetMean, m_coefficients, calcStdErrors(), calcDesignMatrixRank() );
 
    return proxy;
 }
@@ -139,6 +136,26 @@ CubicProxy *ProxyBuilder::create( unsigned int varIndx ) const
 
    proxy->initialise( size(), vars, code, proxyMean, targetMean(), coefficients );
    return proxy;
+}
+
+void ProxyBuilder::fit()
+{
+   m_code.clear();
+   m_proxyMean.clear();
+   m_proxyData.clear();
+   m_singularValues.clear();
+   m_orthonormalV.clear();
+
+   setMonomialCode( m_vars, m_code );
+
+   calculateProxyData( m_parSet, m_proxyData, m_proxyMean );
+   m_orthonormalU = m_proxyData;
+
+   // Calculate the monomial coefficients by applying SVD
+   int stat = calculateSVD( m_orthonormalU, m_singularValues, m_orthonormalV );
+
+   // Calculate the coefficients for the specified target set
+   CubicProxy::calculateCoefficients( stat, m_orthonormalU, m_singularValues, m_orthonormalV, m_scaledTargets, m_coefficients );
 }
 
 void ProxyBuilder::setMonomialCode( VarList const& vars, std::vector<IndexList> &code ) const
@@ -281,6 +298,122 @@ RealVector ProxyBuilder::calcReducedCoeff( unsigned int nVars, unsigned int pos 
    }
 
    return coef;
+}
+
+double ProxyBuilder::mse() const
+{
+   const size_t N = m_parSet.size();
+
+   if (!N) return 0.0;
+
+   double s = 0.0;
+   for ( size_t i=0; i < N; ++i )
+   {
+      double value = 0;
+      for ( size_t j = 0; j < m_code.size(); ++j )
+      {
+         value += m_coefficients[j] * ( CubicProxy::monomial( m_code[j], m_parSet[i] ) - m_proxyMean[j] );
+      }
+      double error = value - m_scaledTargets[i];
+      s += error * error;
+   }
+   return s / N;
+}
+
+std::vector<double> ProxyBuilder::calcStdErrors() const
+{
+   // n = number of cases
+   // p = number of polynomial terms excluding intercept
+   const std::size_t n = proxyData().size();
+   const std::size_t p = baseVars().size();
+
+   // rss = residual sum of squares
+   const double rss = mse() * n;
+
+   // var = unbiased estimation of variance of the error
+   // Prevent division by zero.
+   const double var = rss / std::max< std::size_t >( n - p - 1, 1 );
+
+   // a = ( Xs' * Xs )^-1 = V * ( S' * S )^-1 * V', where Xs is SUMlib's design matrix
+   RealMatrix a( p, RealVector( p, 0.0 ) );
+   const RealVector& s = singularValues();
+   const RealMatrix& v = orthonormalV();
+   assert( s.size() == p ); // check #rows of S
+   assert( v.size() == p ); // check #rows of V
+   assert( v.empty() && p == 0 || v.front().size() == p ); // check #columns of V
+   const double sTiny = ! s.empty() ? s.size() * *std::max_element( s.begin(), s.end() ) * MachineEpsilon() : 0.0;
+   for ( std::size_t i = 0; i < p; ++i )
+   {
+      for ( std::size_t j = 0; j < p; ++j )
+      {
+         for ( std::size_t k = 0; k < p; ++k )
+         {
+            const double sTrunc = std::max( s[k], sTiny );
+            a[i][j] += v[i][k] * v[j][k] / ( sTrunc * sTrunc );
+         }
+      }
+   }
+
+   // b(i) = X1(1,i) + ... + X1(p,i), where X1 is the original design matrix without the first column
+   RealVector b( p, 0.0 );
+   assert( proxyData().empty() && n == 0 || proxyData().front().size() == p ); // check #columns
+   assert( proxyMean().size() == p ); // check #rows of mean vector
+   for ( std::size_t i = 0; i < p; ++i )
+   {
+      for ( std::size_t j = 0; j < n; ++j )
+      {
+         b[i] += proxyData()[j][i] + proxyMean()[i];
+      }
+   }
+
+   // c = i' * X1 * ( Xs' * Xs )^-1 * X1' * i = b(i) * b(j) * a(i,j)
+   double c = 0;
+   for ( std::size_t i = 0; i < p; ++i )
+   {
+      for ( std::size_t j = 0; j < p; ++j )
+      {
+         c += b[i] * b[j] * a[i][j];
+      }
+   }
+
+   // Allocate memory for standard errors. First element is for intercept, rest is for other coefficients.
+   std::vector<double> stdErrors( p + 1 );
+
+   // Calculate standard error of intercept:
+   // standard_error = sqrt( var / n^2 * ( n + i' * X1 * ( Xs' * Xs )^-1 * X1' i ) ) = sqrt( var / n^2 * ( n + c ) )
+   stdErrors[ 0 ] = std::sqrt( var / ( n * n ) * ( n + c ) );
+
+   // Calculate standard errors of coefficients other than intercept:
+   // standard_error(i) = sqrt( var * ( ( Xs' * Xs )^-1 )(i,i) = sqrt( var * a(i,i) )
+   for ( std::size_t i = 0; i < p; ++i )
+   {
+      stdErrors[i + 1] = std::sqrt( var * a[i][i] );
+   }
+
+   return stdErrors;
+}
+
+unsigned int ProxyBuilder::calcDesignMatrixRank() const
+{
+   unsigned int rank = 0;
+   const RealVector& s = singularValues();
+   if ( ! s.empty() )
+   {
+      const double sTiny = s.size() * *std::max_element( s.begin(), s.end() ) * MachineEpsilon();
+      for ( RealVector::const_iterator it = s.begin(); it != s.end(); ++it )
+      {
+         if ( *it > sTiny )
+         {
+            ++rank;
+         }
+      }
+   }
+
+   // We've now calculated the rank of SUMlib's design matrix (without the intercept column, and with the column means
+   // subtracted from the other columns). We want to return the rank of the original design matrix, so we have to add 1.
+   ++rank;
+
+   return rank;
 }
 
 unsigned int ProxyBuilder::size() const

@@ -12,6 +12,7 @@
 #include "BaseTypes.h"
 #include "CubicProxy.h"
 #include "DataStructureUtils.h"
+#include "EliminationCriteria.h"
 #include "Exception.h"
 #include "Proxy.h"
 #include "NumericUtils.h"
@@ -276,11 +277,11 @@ void ProxyEstimator::updateCandidates( ProxyCases const& proxycases, VarList con
       // Update the candidate
       if ( remove )
       {
-         candidates[i].update( proxycases, i, nrBaseVars - 1 );
+         candidates[i].update( proxycases, i );
       }
       else if ( insert && approveCandidate( N, nrPars, nrOrdPars, Nord2, Ncrit, code, order, threeWayX, i ) )
       {
-         candidates[i].update( proxycases, i, nrBaseVars + 1 );
+         candidates[i].update( proxycases, i );
       }
    }
 }
@@ -332,6 +333,14 @@ bool ProxyEstimator::exhausted( unsigned int nActiveVars, unsigned int nVars ) c
 
 bool ProxyEstimator::autoEstimate( ProxyCandidate &best, unsigned int nbOrdPars, unsigned int userOrder,
                                    VarList const& vars, bool search, double targetR2, double confLevel )
+{
+   NoElimination nElim;
+   return autoEstimate( best, nbOrdPars, userOrder, vars, search, targetR2, confLevel, nElim );
+}
+
+bool ProxyEstimator::autoEstimate( ProxyCandidate &best, unsigned int nbOrdPars, unsigned int userOrder,
+                                   VarList const& vars, bool search, double targetR2, double confLevel,
+                                   EliminationCriterion& criterion )
 {
    bool converged = false;
    int order = userOrder;
@@ -469,7 +478,7 @@ bool ProxyEstimator::autoEstimate( ProxyCandidate &best, unsigned int nbOrdPars,
    // The supplied vars serve as starting point for the search algorithm
    // So the proxy candidate is initialised to a proxy with the supplied vars.
    proxycases.createProxyBuilder( activeVars ); //create proxy builder first based on supplied vars
-   best.setProxy( proxycases, activeVars.size() ); //set proxy candidate cheaply with help of proxy builder
+   best.setProxy( proxycases ); //set proxy candidate cheaply with help of proxy builder
    const double eps = 1e-9;
    if ( best.adjustedR2 >= ( targetR2 - eps ) ) converged = true; //initial proxy already fits well.
 
@@ -596,7 +605,13 @@ bool ProxyEstimator::autoEstimate( ProxyCandidate &best, unsigned int nbOrdPars,
       proxycases.setCaseList( allCasesActive );
       best.proxy->getVarList( activeVars );
       proxycases.createProxyBuilder( activeVars );
-      best.setProxy( proxycases, activeVars.size() );
+   }
+
+   unsigned int eliminated = proxycases.eliminate( criterion );
+
+   if ( betterProxyFound || eliminated )
+   {
+      best.setProxy( proxycases );
    }
 
    // Restore old flags
@@ -657,17 +672,15 @@ ProxyCandidate::ProxyCandidate() :
    // empty
 }
 
-void ProxyCandidate::setProxy( ProxyCases const& proxycases, unsigned int nActualVars )
+void ProxyCandidate::setProxy( ProxyCases const& proxycases )
 {
    delete this->proxy;
-   proxy = proxycases.createProxy( );
-   proxycases.test( proxy, nActualVars, rmseTune, rmseTest, rmseTotal, adjustedR2 );
+   proxy = proxycases.createProxy();
+   proxycases.test( proxy, rmseTune, rmseTest, rmseTotal, adjustedR2 );
    leverages = proxycases.calcLeverages();
-   proxy->setDesignMatrixRank( proxycases.getDesignMatrixRank() );
-   proxy->setStdErrors( proxycases.calcStdErrors() );
 }
 
-bool ProxyCandidate::update( ProxyCases const& proxycases, unsigned int var, unsigned int nActualVars )
+bool ProxyCandidate::update( ProxyCases const& proxycases, unsigned int var )
 {
    bool updated(false);
 
@@ -676,7 +689,7 @@ bool ProxyCandidate::update( ProxyCases const& proxycases, unsigned int var, uns
 
    // Test the proxy (RMSE of the tune/test sample, adjusted RMSE of the total sample)
    double rmseEst, rmseTst, rmseTot, adjR2;
-   proxycases.test( p, nActualVars, rmseEst, rmseTst, rmseTot, adjR2 );
+   proxycases.test( p, rmseEst, rmseTst, rmseTot, adjR2 );
 
    if ( rmseTot < rmseTotal )
    {

@@ -6,6 +6,7 @@
 #include <assert.h>
 
 #include "CompoundProxyCollection.h"
+#include "EliminationCriteria.h"
 #include "Exception.h"
 #include "KrigingData.h"
 #include "SerializerUtils.h"
@@ -80,6 +81,15 @@ std::vector< ParameterTransforms* > initialiseParameterTransforms( std::vector< 
 
 } /// Anonymous namespace.
 
+void CompoundProxyCollection::setValidityAndTargets( std::vector< std::pair< std::vector<bool>, std::vector<double> > > validityAndTargets )
+{
+   assert( m_proxies.size() == validityAndTargets.size() );
+
+   for ( size_t i = 0; i < m_proxies.size(); ++i )
+   {
+      m_proxies[i]->setValidityAndTragets( validityAndTargets[i].first, validityAndTargets[i].second );
+   }
+}
 
 CompoundProxyCollection::CompoundProxyCollection()
 {
@@ -115,6 +125,22 @@ void CompoundProxyCollection::calculate(
                const std::vector< ParameterTransformTypeVector >&    parTransformsDef
                )
 {
+   NoElimination noElim;
+   calculate( targets, case2Obs2Valid, order, modelSearch, targetR2, confLevel, partition, noElim, parTransformsDef );
+}
+
+void CompoundProxyCollection::calculate(
+               TargetCollection const&                               targets,
+               std::vector< std::vector< bool > > const&             case2Obs2Valid,
+               unsigned int                                          order,
+               bool                                                  modelSearch,
+               double                                                targetR2,
+               double                                                confLevel,
+               Partition const&                                      partition,
+               EliminationCriterion&                                 criterion,
+               const std::vector< ParameterTransformTypeVector >&    parTransformsDef
+               )
+{
    assert( case2Obs2Valid.size() == m_preparedCaseSet.size() );
    for ( unsigned int i = 0; i < m_preparedCaseSet.size(); ++i )
    {
@@ -138,7 +164,16 @@ void CompoundProxyCollection::calculate(
 
       ParameterTransforms::ptr parTransforms( obsDependentParTransforms[ iObs ] );
 
-      m_proxies.push_back( new CompoundProxy( m_preparedCaseSet, caseValid, m_krigingData.get(), targets[ iObs ], n, order, modelSearch, targetR2, confLevel, part,  parTransforms ) );
+      m_proxies.push_back( new CompoundProxy( m_preparedCaseSet, caseValid, m_krigingData.get(), targets[ iObs ], n, order, modelSearch, targetR2, confLevel, part,  parTransforms, criterion ) );
+   }
+}
+
+void CompoundProxyCollection::recalculate( EliminationCriterion& criterion )
+{
+   const CompoundProxyList::iterator end = m_proxies.end();
+   for ( CompoundProxyList::iterator proxy = m_proxies.begin(); proxy != end; ++proxy )
+   {
+      (*proxy)->update( criterion );
    }
 }
 
@@ -241,7 +276,7 @@ bool CompoundProxyCollection::load( IDeserializer* deserializer, unsigned int )
       // for all proxies
       for (size_t i(0); ok && i < m_proxies.size(); ++i)
       {
-         CompoundProxy* compoundProxy(new CompoundProxy(m_krigingData.get()));
+         CompoundProxy* compoundProxy(new CompoundProxy(m_krigingData.get(), m_preparedCaseSet));
          ok = ok && deserialize( deserializer, *compoundProxy );
          m_proxies[i] = compoundProxy;
       } // for all proxies
@@ -275,9 +310,14 @@ bool CompoundProxyCollection::save( ISerializer* serializer, unsigned int ) cons
 } // CompoundProxyCollection::save()
 
 /// Fetch the krigingData
-const KrigingData& CompoundProxyCollection::getKrigingData() const
+KrigingData const& CompoundProxyCollection::getKrigingData() const
 {
    return *m_krigingData;
+}
+
+ParameterSet const& CompoundProxyCollection::getPreparedCaseSet() const
+{
+   return m_preparedCaseSet;
 }
 
 } // namespace SUMlib

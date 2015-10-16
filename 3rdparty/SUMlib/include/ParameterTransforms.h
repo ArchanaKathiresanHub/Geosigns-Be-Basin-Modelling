@@ -80,6 +80,10 @@ class INTERFACE_SUMLIB ParameterTransforms : public ISerializable
       /// @return true iff the transform type with the attributes is a valid transform.
       static bool isValidTransform( TransformType transformType, double min, double max, std::string* reason = 0 );
 
+      /// Get the parameter indices that have a constant transform.
+      /// @return the parameter indices
+      IndexList getConstTransformedParameters() const;
+
       /// ISerializable interface implementation. @see ISerializable.
       bool load( IDeserializer* deserializer, unsigned int version );
       bool save( ISerializer* serializer, unsigned int version ) const;

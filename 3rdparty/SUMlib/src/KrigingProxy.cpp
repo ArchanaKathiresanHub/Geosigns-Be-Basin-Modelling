@@ -18,11 +18,17 @@ using std::vector;
 
 namespace SUMlib {
 
+namespace {
+   unsigned int g_version(1);
+}
 
-KrigingProxy::KrigingProxy( KrigingData *kr )
+KrigingProxy::KrigingProxy( ParameterSet const& par, KrigingData *kr, std::vector<bool> const& caseValid, TargetSet const& tar, ParameterTransforms const& trans )
 :
-   m_krigingData(kr),
-   m_parSize(0)
+   m_parSet( &par ),
+   m_krigingData( kr ),
+   m_caseValid( &caseValid ),
+   m_targetSet( &tar ),
+   m_parTrans( &trans )
 {
 }
 
@@ -35,8 +41,11 @@ KrigingProxy::KrigingProxy( CubicProxy *proxyModel, const ParameterTransforms& p
 void KrigingProxy::initialise( CubicProxy *proxyModel, const ParameterTransforms& parameterTransforms, KrigingData *kr, ParameterSet const& parSet,
                                std::vector<bool> const& caseValid, TargetSet const& target, unsigned int nbOfOrdPars )
 {
-   m_parSize = parSet.front().size();
-   m_parSet = parSet;
+   m_parSet = &parSet;
+   m_caseValid = &caseValid;
+   m_targetSet = &target;
+   m_parTrans = &parameterTransforms;
+
    if ( kr == NULL )
    {
       THROW2( InvalidState, "Pointer to Kriging data model is NULL" );
@@ -49,30 +58,35 @@ void KrigingProxy::initialise( CubicProxy *proxyModel, const ParameterTransforms
       m_krigingData->initialise( parSet, nbOfOrdPars );
    }
 
-   // function calls to calculate proxy model response values
-   m_proxyError.reserve( parSet.size() );
-   for ( ParameterSet::const_iterator it = parSet.begin(); it != parSet.end(); ++it )
+   calcProxyError( *proxyModel );
+}
+
+void KrigingProxy::calcProxyError( CubicProxy const& proxy )
+{
+   m_proxyError.clear();
+   m_proxyError.reserve( m_parSet->size() );
+   for ( ParameterSet::const_iterator it = m_parSet->begin(); it != m_parSet->end(); ++it )
    {
       double proxyValue;
-      if ( parameterTransforms.isTrivial() )
+      if ( m_parTrans->isTrivial() )
       {
-         proxyValue = proxyModel->getValue( *it );
+         proxyValue = proxy.getValue( *it );
       }
       else
       {
-         const Parameter& p = parameterTransforms.apply( *it );
-         proxyValue = proxyModel->getValue( p );
+         const Parameter& p = m_parTrans->apply( *it );
+         proxyValue = proxy.getValue( p );
       }
       m_proxyError.push_back( proxyValue );
    }
-   assert( m_proxyError.size() == caseValid.size() );
+   assert( m_proxyError.size() == m_caseValid->size() );
 
    unsigned int iObs = 0;
-   for ( unsigned i = 0; i < caseValid.size(); ++i )
+   for ( unsigned i = 0; i < m_caseValid->size(); ++i )
    {
-      if ( caseValid[i] )
+      if ( (*m_caseValid)[i] )
       {
-         m_proxyError[i] = target[iObs] - m_proxyError[i];
+         m_proxyError[i] = (*m_targetSet)[iObs] - m_proxyError[i];
          iObs++;
       }
       else
@@ -80,12 +94,12 @@ void KrigingProxy::initialise( CubicProxy *proxyModel, const ParameterTransforms
          m_proxyError[i] = 0.0;
       }
    }
-   assert( iObs == target.size() );
+   assert( iObs == m_targetSet->size() );
 }
 
 unsigned int KrigingProxy::size() const
 {
-   return m_parSize;
+   return m_parSet->front().size();
 }
 
 double KrigingProxy::getValue( Parameter const& p, KrigingType krigingType ) const
@@ -98,7 +112,7 @@ double KrigingProxy::getValue( Parameter const& p, KrigingType krigingType ) con
 double KrigingProxy::getValue( KrigingWeights const& krigingWeights, Parameter const& p, KrigingType ) const
 {
    assert( size() == p.size() );
-   assert( m_parSet.size() == krigingWeights.weights().size() );
+   assert( m_parSet->size() == krigingWeights.weights().size() );
    const double interpolatedError = calcKrigingError( krigingWeights );
 
    // Be conservative: sum of weights should not exceed 1.
@@ -112,13 +126,13 @@ void KrigingProxy::calcKrigingWeights( Parameter const& p, KrigingType kriging, 
    switch( kriging )
    {
       case GlobalKriging:
-         krigingWeights.calcGlobalWeights( m_parSet, *m_krigingData, p );
+         krigingWeights.calcGlobalWeights( *m_parSet, *m_krigingData, p );
          break;
       case LocalKriging:
-         krigingWeights.calcLocalWeights( m_parSet, *m_krigingData, p );
+         krigingWeights.calcLocalWeights( *m_parSet, *m_krigingData, p );
          break;
       default:
-         krigingWeights.zeroWeights( m_parSet.size() );
+         krigingWeights.zeroWeights( m_parSet->size() );
          break;
    }
 }
@@ -137,28 +151,40 @@ double KrigingProxy::calcKrigingError( KrigingWeights const& weights ) const
 }
 
 
-bool KrigingProxy::load( IDeserializer* deserializer, unsigned int )
+bool KrigingProxy::load( IDeserializer* deserializer, unsigned int version )
 {
    bool  ok(true);
 
-   ok = ok && deserialize(deserializer, m_parSet);
+   if ( version < 1 )
+   {
+      ParameterSet parSet;
+      ok = ok && deserialize(deserializer, parSet);
+   }
    ok = ok && deserialize(deserializer, m_proxyError);
-   ok = ok && deserialize(deserializer, m_parSize);
+   if ( version < 1 )
+   {
+      unsigned int parSize;
+      ok = ok && deserialize(deserializer, parSize);
+   }
 
    return ok;
 } // KrigingProxy::load()
 
 
-bool KrigingProxy::save( ISerializer* serializer, unsigned int ) const
+bool KrigingProxy::save( ISerializer* serializer, unsigned int version ) const
 {
    bool  ok(true);
+   assert( version == getSerializationVersion() );
 
-   ok = ok && serialize(serializer, m_parSet);
    ok = ok && serialize(serializer, m_proxyError);
-   ok = ok && serialize(serializer, m_parSize);
 
    return ok;
 } // KrigingProxy::save()
+
+unsigned int KrigingProxy::getSerializationVersion() const
+{
+   return g_version;
+}
 
 } // namespace SUMlib
 

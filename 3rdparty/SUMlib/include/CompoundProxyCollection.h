@@ -45,7 +45,9 @@ class KrigingData;
 class INTERFACE_SUMLIB CompoundProxyCollection : public ISerializable
 {
    public:
-      typedef std::vector<const CompoundProxy *> CompoundProxyList;
+      void setValidityAndTargets( std::vector< std::pair< std::vector<bool>, std::vector<double> > > validityAndTargets );
+
+      typedef std::vector<CompoundProxy *> CompoundProxyList;
 
       /// Default constructor.
       CompoundProxyCollection();
@@ -73,6 +75,34 @@ class INTERFACE_SUMLIB CompoundProxyCollection : public ISerializable
       /// @param [in] confLevel        needed for significance test of model increments
       /// @param [in] partition        list of flags, one for each parameter, to indicate
       ///                              whether the element should be included.
+      /// @param [in] criterion        used to eliminate statistically insignificant coefficients
+      /// @param [in] parTransformsDef definition of observable dependent parameter transforms.
+      ///                              first index is observable index, second index is the SUMlib
+      ///                              parameter index. Vector can be empty, in that case no
+      ///                              transforms will be applied. Transforms are only applied on the
+      ///                              continuous, unfrozen, scalar parameters. @see SUMlib::ParameterTransforms.
+      void calculate(
+            TargetCollection const&                              targets,
+            std::vector<std::vector<bool> > const&               case2Obs2Valid,
+            unsigned int                                         order,
+            bool                                                 modelSearch,
+            double                                               targetR2,
+            double                                               confLevel,
+            Partition const&                                     partition,
+            EliminationCriterion&                                criterion,
+            const std::vector< ParameterTransformTypeVector >&   parTransformsDef = std::vector< ParameterTransformTypeVector >()
+            );
+
+      /// Calculate the proxies for a collection of specified targets with optional
+      /// proxy calculation settings.
+      /// @param [in] targets          collection of targets, of same size as parameter set
+      /// @param [in] case2Obs2Valid   indicates (in)valid "case(row)-obs(column)" combinations
+      /// @param [in] order            maximum order of monomials to include in the proxy
+      /// @param [in] modelSearch      flag indicating whether to search for optimal proxies
+      /// @param [in] targetR2         adjusted R^2 value above which we accept the model
+      /// @param [in] confLevel        needed for significance test of model increments
+      /// @param [in] partition        list of flags, one for each parameter, to indicate
+      ///                              whether the element should be included.
       /// @param [in] parTransformsDef definition of observable dependent parameter transforms.
       ///                              first index is observable index, second index is the SUMlib
       ///                              parameter index. Vector can be empty, in that case no
@@ -89,13 +119,17 @@ class INTERFACE_SUMLIB CompoundProxyCollection : public ISerializable
             const std::vector< ParameterTransformTypeVector >&   parTransformsDef = std::vector< ParameterTransformTypeVector >()
             );
 
+      void recalculate( EliminationCriterion& criterion );
+
       /// Getter for the list of proxies
       /// @returns a list of pointers to the calculated proxies
       CompoundProxyList const&   getProxyList() const;
 
       /// Getter for the kriging data
       /// @returns a kriging data object
-      const KrigingData&  getKrigingData() const;
+      KrigingData const&  getKrigingData() const;
+
+      ParameterSet const& getPreparedCaseSet() const;
 
       /// Getter for the ParameterSpace calculated from the ParameterSet
       /// @returns the parameter space

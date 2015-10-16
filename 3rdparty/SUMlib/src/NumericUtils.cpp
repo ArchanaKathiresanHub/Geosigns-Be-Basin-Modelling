@@ -1396,4 +1396,17 @@ int calculateSVD( vector<vector<double> >& a, vector<double>& w, vector<vector<d
    return stat;
 }
 
+double calculateTStatistic( double estimator, double hypothesis, double standardError )
+{
+   const double numerator = estimator - hypothesis;
+
+   // Prevent zero divided by zero resulting in not-a-number. In that case set the t-statistic to zero.
+   return numerator != 0 ? numerator / standardError : 0;
+}
+
+double calculateTStatistic( double estimator, double standardError )
+{
+   return calculateTStatistic( estimator, 0, standardError );
+}
+
 } // namespace SUMlib

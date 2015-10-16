@@ -31,10 +31,15 @@ class KrigingData;
 class KrigingWeights;
 class ParameterTransforms;
 
-class KrigingProxy : public ISerializable
+class KrigingProxy : public ISerializable, public ISerializationVersion
 {
    public:
-      KrigingProxy(KrigingData *kr = 0);
+      KrigingProxy(
+            ParameterSet const&        par,
+            KrigingData*               kr,
+            std::vector<bool> const&   caseValid,
+            TargetSet const&           tar,
+            ParameterTransforms const& trans );
 
       /// Constructor.
       /// @param [in] *proxyModel         pointer to polynomial proxy model
@@ -69,6 +74,8 @@ class KrigingProxy : public ISerializable
             std::vector<bool> const&   caseValid,
             TargetSet const&           target,
             unsigned int               nbOfOrdPars );
+
+      void calcProxyError( CubicProxy const& proxy );
 
       /// @returns the number of parameter elements
       /// Implements Proxy
@@ -114,6 +121,10 @@ class KrigingProxy : public ISerializable
       virtual bool load( IDeserializer*, unsigned int version );
       virtual bool save( ISerializer*, unsigned int version ) const;
 
+      // ISerializationVersion
+      virtual unsigned int getSerializationVersion() const;
+
+
    private:
 
       /// Calculates the interpolated error.
@@ -122,7 +133,7 @@ class KrigingProxy : public ISerializable
       double calcKrigingError( KrigingWeights const& ) const;
 
       /// the parameter set is also needed for a function call (getValue)
-      ParameterSet m_parSet;
+      ParameterSet const* m_parSet;
 
       /// Contains all Kriging specific data like inverses of covariance matrices
       /// and correlation lengths, all a function of the scaled parameter set only.
@@ -131,8 +142,12 @@ class KrigingProxy : public ISerializable
       /// predefined polynomial proxy errors
       std::vector<double> m_proxyError;
 
-      /// the number of parameter elements
-      unsigned int   m_parSize;
+      /// case validity indicator
+      std::vector<bool> const* m_caseValid;
+
+      TargetSet const* m_targetSet;
+
+      ParameterTransforms const* m_parTrans;
 };
 
 } // namespace SUMlib

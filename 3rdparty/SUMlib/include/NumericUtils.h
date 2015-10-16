@@ -377,6 +377,14 @@ int calculateSVD( std::vector<std::vector<double> >& a,
                   std::vector<double>& w,
                   std::vector<std::vector<double> >& v );
 
+/// Calculates a t-statistic: t-statistic = ( estimator - hypothesis ) / standardError
+INTERFACE_SUMLIB_DEBUG
+double calculateTStatistic( double estimator, double hypothesis, double standardError );
+
+/// Calculates a t-statistic where the hypothesis is set to zero.
+INTERFACE_SUMLIB_DEBUG
+double calculateTStatistic( double estimator, double standardError );
+
 } // namespace SUMlib
 
 #endif // SUMLIB_NUMERICUTILS_H

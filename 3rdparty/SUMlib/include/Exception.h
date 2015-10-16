@@ -164,6 +164,8 @@ EXCEPTION( DuplicateItem, "Duplicate items are not allowed" );
 EXCEPTION( UnequalSize, "The sizes do not match." );
 EXCEPTION( CalculationError, "Calculation error." );
 EXCEPTION( ProxyEvaluateError, "Attempt to evaluate the proxy in an invalid region" );
+EXCEPTION( CommunicationError, "Communication problem between dynamo and sumparallel" );
+EXCEPTION( SUMLibRuntimeError, "Runtime error" );
 
 } /// namespace SUMlib
 

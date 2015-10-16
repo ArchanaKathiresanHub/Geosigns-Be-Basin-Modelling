@@ -170,6 +170,39 @@ class CubicProxy : public ISerializable, public ISerializationVersion
             RealVector const&             coefficients
             );
 
+      /// Initialise all internal data structures
+      /// @param [in] size         number of parameters
+      /// @param [in] vars         list of active variables
+      /// @param [in] code         monomial code of each active variables
+      /// @param [in] proxyMean    statistical mean of proxy data
+      /// @param [in] targetMean   statistical mean of target values
+      /// @param [in] coefficients proxy coefficients
+      void initialise(
+            unsigned int                  size,
+            VarList                       vars,
+            std::vector<IndexList>        code,
+            RealVector                    proxyMean,
+            double                        targetMean,
+            RealVector                    coefficients,
+            RealVector                    stdErrors,
+            unsigned int                  designMatrixRank
+            );
+
+      /// Remove the terms that contain a constant-transformed parameter.
+      /// The proxy polynomial can include terms that contain a constant-transformed parameter. That is undesirable
+      /// because those terms do not affect the proxy evaluations but they do increase the maximum rank in
+      /// CubicProxy::isRegressionIllPosed() causing the regression to be unjustly considered ill-posed. All terms that
+      /// include a constant-transformed parameter must therefore be removed from the proxy polynomial. The CubicProxy
+      /// doesn't know about transforms. The parameter transforms are applied by the CompoundProxy, and only the
+      /// resulting values are propagated without the information about the transforms themselves. We therefore request
+      /// the indices of the constant-transformed parameters in CompoundProxy and pass those on to the CubicProxy.
+      /// Preventing the constant-transformed parameters from being included in the proxy in the first place is not
+      /// achievable, because its size (see Proxy::size()) and therefore its proxy calls (see e.g.
+      /// Proxy::getProxyValue()) currently include those parameters. So it is not just an internal affair, but also
+      /// affects code that uses the proxy.
+      /// @param [in] the parameter indices that have a constant transform
+      void removeConstTransformedParameters( const IndexList& indices );
+
       /// The size of the cases of this proxy model
       /// Implements the Proxy abstract base class
       /// @returns the size (number of elements of the cases)
@@ -188,6 +221,10 @@ class CubicProxy : public ISerializable, public ISerializationVersion
       /// Get the active variables
       /// @param [out] p_varList a copy of the internal active variables list
       void getVarList( IndexList & p_varList ) const;
+
+      /// Get the active variables
+      /// @returns the list of active variables
+      IndexList const& variables() const;
 
       /// Set the standard errors of the proxy coefficients
       /// @param [in] stdErrors standard errors

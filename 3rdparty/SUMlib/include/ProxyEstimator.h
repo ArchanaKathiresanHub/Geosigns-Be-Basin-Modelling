@@ -15,6 +15,7 @@ namespace SUMlib {
 
 /// Collects all data related to the sum of squares evaluation of a single candidate variable
 struct ProxyCandidate;
+class EliminationCriterion;
 
 /// The list of candidate variables
 typedef std::vector<ProxyCandidate> CandidateList;
@@ -204,6 +205,21 @@ class INTERFACE_SUMLIB ProxyEstimator
       /// @param [in]   search      cubic polynomial model search
       /// @param [in]   targetR2    adjusted R^2 value above which we accept the model
       /// @param [in]   confLevel   needed for significance test of model increments
+      /// @param [in]   criterion   used to eliminate statistically insignificant coefficients
+      /// @returns whether the estimation loop has converged
+      bool autoEstimate( ProxyCandidate &best, unsigned int nbOrdPars, unsigned int userOrder,
+                         VarList const& vars, bool search, double targetR2, double confLevel,
+                         EliminationCriterion& criterion );
+
+      /// Automatic proxy estimation routine
+      /// Performs the main while loop with m_nrCV cross-validation trials
+      /// @param [out]  best        the best proxy candidate
+      /// @param [in]   nbOrdPars   number of ordinal parameters
+      /// @param [in]   userOrder   order of polynomial (0, 1, or 2) as set by the user
+      /// @param [in]   vars        initial set of variables to take into account
+      /// @param [in]   search      cubic polynomial model search
+      /// @param [in]   targetR2    adjusted R^2 value above which we accept the model
+      /// @param [in]   confLevel   needed for significance test of model increments
       /// @returns whether the estimation loop has converged
       bool autoEstimate( ProxyCandidate &best, unsigned int nbOrdPars, unsigned int userOrder,
                          VarList const& vars, bool search, double targetR2, double confLevel );
@@ -263,14 +279,12 @@ struct INTERFACE_SUMLIB ProxyCandidate
 
    /// set proxy based on proxy builder that is a data member of proxycases
    /// @param [in]  proxycases   provides the cases and calculates the RMSE
-   /// @param [in]  nActualVars  number of monomial that are currently used
-   void setProxy( ProxyCases const& proxycases, unsigned int nActualVars );
+   void setProxy( ProxyCases const& proxycases );
 
    /// update a proxy candidate with a new proxy if the new proxy has a better RMSE
    /// @param [in]  proxycases   provides the cases and calculates the RMSE
    /// @param [in]  var          monomial to be added or to be removed
-   /// @param [in]  nActualVars  number of monomial that are currently used
-   bool update ( ProxyCases const& proxycases, unsigned int var, unsigned int nActualVars );
+   bool update ( ProxyCases const& proxycases, unsigned int var);
 
    /// Model error indicators
    CubicProxy *proxy;

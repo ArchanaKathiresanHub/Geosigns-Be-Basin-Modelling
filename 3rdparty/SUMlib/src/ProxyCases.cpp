@@ -234,6 +234,12 @@ void ProxyCases::createProxyBuilder( VarList const& vars )
    m_builder = new ProxyBuilder( m_tunePars, m_tuneTargets, vars );
 }
 
+unsigned int ProxyCases::eliminate( EliminationCriterion& criterion )
+{
+   return m_builder->eliminate( criterion );
+}
+
+
 CubicProxy *ProxyCases::createProxy( ) const
 {
    if ( ! m_builder )
@@ -281,9 +287,11 @@ double ProxyCases::tuneMSE( CubicProxy const * proxy ) const
    return calculateMSE( proxy, m_tunePars, m_tuneTargets );
 }
 
-void ProxyCases::test( CubicProxy const * proxy, unsigned int nrOfUsedVars, double& tuneRMSE,
+void ProxyCases::test( CubicProxy const * proxy, double& tuneRMSE,
                        double& testRMSE, double& totalRMSE, double& adjustedR2 ) const
 {
+   unsigned int nrOfUsedVars = proxy->variables().size();
+
    if ( proxy == NULL )
    {
       THROW2( InvalidValue, "No proxy supplied" );
@@ -324,25 +332,7 @@ void ProxyCases::test( CubicProxy const * proxy, unsigned int nrOfUsedVars, doub
 
 unsigned int ProxyCases::getDesignMatrixRank() const
 {
-   unsigned int rank = 0;
-   const RealVector& s = m_builder->singularValues();
-   if ( ! s.empty() )
-   {
-      const double sTiny = s.size() * *std::max_element( s.begin(), s.end() ) * MachineEpsilon();
-      for ( RealVector::const_iterator it = s.begin(); it != s.end(); ++it )
-      {
-         if ( *it > sTiny )
-         {
-            ++rank;
-         }
-      }
-   }
-
-   // We've now calculated the rank of SUMlib's design matrix (without the intercept column, and with the column means
-   // subtracted from the other columns). We want to return the rank of the original design matrix, so we have to add 1.
-   ++rank;
-
-   return rank;
+   return m_builder->calcDesignMatrixRank();
 }
 
 std::vector<double> ProxyCases::calcLeverages() const
@@ -370,78 +360,7 @@ std::vector<double> ProxyCases::calcLeverages() const
 
 std::vector<double> ProxyCases::calcStdErrors() const
 {
-   // n = number of cases
-   // p = number of polynomial terms excluding intercept
-   const std::size_t n = m_tunePars.size() + m_testPars.size();
-   const std::size_t p = m_builder->baseVars().size();
-
-   // rss = residual sum of squares
-   CubicProxy* proxy = createProxy();
-   const double rss = tuneMSE( proxy ) * m_tunePars.size() + testMSE( proxy ) * m_testPars.size();
-   delete proxy;
-
-   // var = unbiased estimation of variance of the error
-   // Prevent division by zero.
-   const double var = rss / std::max< std::size_t >( n - p - 1, 1 );
-
-   // a = ( Xs' * Xs )^-1 = V * ( S' * S )^-1 * V', where Xs is SUMlib's design matrix
-   RealMatrix a( p, RealVector( p, 0.0 ) );
-   const RealVector& s = m_builder->singularValues();
-   const RealMatrix& v = m_builder->orthonormalV();
-   assert( s.size() == p ); // check #rows of S
-   assert( v.size() == p ); // check #rows of V
-   assert( v.empty() && p == 0 || v.front().size() == p ); // check #columns of V
-   const double sTiny = ! s.empty() ? s.size() * *std::max_element( s.begin(), s.end() ) * MachineEpsilon() : 0.0;
-   for ( std::size_t i = 0; i < p; ++i )
-   {
-      for ( std::size_t j = 0; j < p; ++j )
-      {
-         for ( std::size_t k = 0; k < p; ++k )
-         {
-            const double sTrunc = std::max( s[k], sTiny );
-            a[i][j] += v[i][k] * v[j][k] / ( sTrunc * sTrunc );
-         }
-      }
-   }
-
-   // b(i) = X1(1,i) + ... + X1(p,i), where X1 is the original design matrix without the first column
-   RealVector b( p, 0.0 );
-   assert( m_builder->proxyData().size() == n ); // check #rows of design matrix
-   assert( m_builder->proxyData().empty() && n == 0 || m_builder->proxyData().front().size() == p ); // check #columns
-   assert( m_builder->proxyMean().size() == p ); // check #rows of mean vector
-   for ( std::size_t i = 0; i < p; ++i )
-   {
-      for ( std::size_t j = 0; j < n; ++j )
-      {
-         b[i] += m_builder->proxyData()[j][i] + m_builder->proxyMean()[i];
-      }
-   }
-
-   // c = i' * X1 * ( Xs' * Xs )^-1 * X1' * i = b(i) * b(j) * a(i,j)
-   double c = 0;
-   for ( std::size_t i = 0; i < p; ++i )
-   {
-      for ( std::size_t j = 0; j < p; ++j )
-      {
-         c += b[i] * b[j] * a[i][j];
-      }
-   }
-
-   // Allocate memory for standard errors. First element is for intercept, rest is for other coefficients.
-   std::vector<double> stdErrors( p + 1 );
-
-   // Calculate standard error of intercept:
-   // standard_error = sqrt( var / n^2 * ( n + i' * X1 * ( Xs' * Xs )^-1 * X1' i ) ) = sqrt( var / n^2 * ( n + c ) )
-   stdErrors[ 0 ] = std::sqrt( var / ( n * n ) * ( n + c ) );
-
-   // Calculate standard errors of coefficients other than intercept:
-   // standard_error(i) = sqrt( var * ( ( Xs' * Xs )^-1 )(i,i) = sqrt( var * a(i,i) )
-   for ( std::size_t i = 0; i < p; ++i )
-   {
-      stdErrors[i + 1] = std::sqrt( var * a[i][i] );
-   }
-
-   return stdErrors;
+   return m_builder->calcStdErrors();
 }
 
 
