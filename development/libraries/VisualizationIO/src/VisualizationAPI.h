@@ -60,13 +60,13 @@ namespace CauldronIO
     class Surface;
     class DiscontinuousVolume;
     /// type definitions
-    typedef std::pair<boost::shared_ptr<const Formation>, boost::shared_ptr<Volume> > FormationVolume;
+    typedef std::pair<boost::shared_ptr<Formation>, boost::shared_ptr<Volume> > FormationVolume;
     typedef std::vector<boost::shared_ptr<FormationVolume > > FormationVolumeList;
     typedef std::vector<boost::shared_ptr<SnapShot > > SnapShotList;
     typedef std::vector<boost::shared_ptr<Surface > > SurfaceList;
     typedef std::vector<boost::shared_ptr<Volume > > VolumeList;
     typedef std::vector<boost::shared_ptr<DiscontinuousVolume > > DiscontinuousVolumeList;
-    
+
     /// \class Project
     /// \brief Highest level class containing all surface and volume data within a Cauldron project
     class Project

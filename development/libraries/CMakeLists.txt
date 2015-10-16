@@ -48,4 +48,5 @@ endif(UNIX)
 
 if (BM_CSHARP_API)
 	add_subdirectory(CSharpAPI)
+    add_subdirectory(VisualizationIO_wrapper)
 endif()
