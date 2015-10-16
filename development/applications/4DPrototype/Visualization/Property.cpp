@@ -247,10 +247,6 @@ VectorProperty::VectorProperty(const std::string& name, const DataAccess::Interf
 {
   for (int i = 0; i < 3; ++i)
     m_values[i] = values[i];
-
-  //m_numI = values[0]->numI();
-  //m_numJ = values[0]->numJ();
-  //m_numK = values[0]->getDepth();
 }
 
 VectorProperty::~VectorProperty()
@@ -261,13 +257,6 @@ VectorProperty::~VectorProperty()
 
 MbVec3d VectorProperty::get(size_t i, size_t j, size_t k) const
 {
-  //size_t rowStride = m_numI;
-  //size_t sliceStride = m_numI * m_numJ;
-
-  //unsigned int k = (unsigned int)(index / sliceStride);
-  //unsigned int j = (unsigned int)((index - k * sliceStride) / rowStride);
-  //unsigned int i = (unsigned int)(index - k * sliceStride - j * rowStride);
-
   MbVec3d v(
     m_values[0]->getValue((unsigned int)i, (unsigned int)j, (unsigned int)k),
     m_values[1]->getValue((unsigned int)i, (unsigned int)j, (unsigned int)k),
@@ -420,6 +409,69 @@ size_t PersistentTrapIdProperty::getTimeStamp() const
 }
 
 MiMeshIjk::StorageLayout PersistentTrapIdProperty::getStorageLayout() const
+{
+  return MiMeshIjk::LAYOUT_IJK;
+}
+
+//---------------------------------------------------------------------------------------
+// FlowDirectionProperty
+//---------------------------------------------------------------------------------------
+MbVec3d decodeVector(int code)
+{
+  if (code == 99999)
+    return MbVec3d();
+
+  code += 111;
+  int k = code / 100 - 1;
+  int j = (code % 100) / 10 - 1;
+  int i = (code % 10) - 1;
+
+  return MbVec3d(i, j, k);
+}
+
+FlowDirectionProperty::FlowDirectionProperty(const std::vector<const DataAccess::Interface::GridMap*>& values)
+  : m_values(values)
+  , m_binding(MiDataSet::PER_CELL)
+  , m_timestamp(MxTimeStamp::getTimeStamp())
+{
+}
+
+FlowDirectionProperty::~FlowDirectionProperty()
+{
+}
+
+MbVec3d FlowDirectionProperty::get(size_t i, size_t j, size_t k) const
+{
+  int code = (int)m_values.getValue(i, j, k);
+  return decodeVector(code);
+}
+
+MiDataSet::DataBinding FlowDirectionProperty::getBinding() const
+{
+  return m_binding;
+}
+
+MbVec3d FlowDirectionProperty::getMin() const
+{
+  return MbVec3d();
+}
+
+MbVec3d FlowDirectionProperty::getMax() const
+{
+  return MbVec3d();
+}
+
+std::string FlowDirectionProperty::getName() const
+{
+  return "FlowDirectionIJK";
+}
+
+size_t FlowDirectionProperty::getTimeStamp() const
+{
+  return m_timestamp;
+}
+
+MiMeshIjk::StorageLayout FlowDirectionProperty::getStorageLayout() const
 {
   return MiMeshIjk::LAYOUT_IJK;
 }

@@ -140,7 +140,7 @@ Traps::Traps(const di::Snapshot* snapshot, const di::Reservoir* reservoir, float
 
   const di::Property* top = handle->findProperty("ResRockTop");
   std::unique_ptr<di::PropertyValueList> topValues(top->getPropertyValues(di::RESERVOIR, snapshot, reservoir, 0, 0));
-  if (topValues || !topValues->empty())
+  if (topValues && !topValues->empty())
   {
     m_topValues = (*topValues)[0]->getGridMap();
 

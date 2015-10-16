@@ -235,6 +235,7 @@ private:
   const DataAccess::Interface::Property* m_resRockTopProperty;
   const DataAccess::Interface::Property* m_resRockBottomProperty;
   const DataAccess::Interface::Property* m_resRockTrapIdProperty;
+  const DataAccess::Interface::Property* m_flowDirectionProperty;
   const DataAccess::Interface::Property* m_currentProperty;
 
   int m_numI;

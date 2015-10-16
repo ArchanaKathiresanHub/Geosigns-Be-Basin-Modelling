@@ -575,9 +575,25 @@ std::shared_ptr<MiDataSetIjk<double> > SceneGraphManager::createFormation3DPrope
   const di::PropertyValueList& values, 
   const SnapshotInfo& snapshot)
 {
+  size_t i = 0;
   std::vector<const di::GridMap*> gridMaps;
-  for (auto value : values)
-    gridMaps.push_back(value->getGridMap());
+  for (auto fmt : snapshot.formations)
+  {
+    const di::Formation* formation = m_formations[fmt.id].object;
+    const di::GridMap* gridMap = nullptr;
+    if (i < values.size() && formation == values[i]->getFormation())
+      gridMap = values[i++]->getGridMap();
+
+    if (gridMap)
+    {
+      gridMaps.push_back(gridMap);
+    }
+    else
+    {
+      for (int k = fmt.minK; k < fmt.maxK; ++k)
+        gridMaps.push_back(nullptr);
+    }
+  }
 
   if (gridMaps.empty())
     return nullptr;
@@ -1153,6 +1169,7 @@ SceneGraphManager::SceneGraphManager()
   , m_resRockTopProperty(0)
   , m_resRockBottomProperty(0)
   , m_resRockTrapIdProperty(0)
+  , m_flowDirectionProperty(0)
   , m_currentProperty(0)
   , m_numI(0)
   , m_numJ(0)
@@ -1418,11 +1435,13 @@ void SceneGraphManager::setup(const di::ProjectHandle* handle)
   const std::string resRockTopKey = "ResRockTop";
   const std::string resRockBottomKey = "ResRockBottom";
   const std::string resRockTrapIdKey = "ResRockTrapId";
+  const std::string flowDirectionKey = "FlowDirectionIJK";
 
   m_depthProperty = handle->findProperty(depthKey);
   m_resRockTopProperty = handle->findProperty(resRockTopKey);
   m_resRockBottomProperty = handle->findProperty(resRockBottomKey);
   m_resRockTrapIdProperty = handle->findProperty(resRockTrapIdKey);
+  m_flowDirectionProperty = handle->findProperty(flowDirectionKey);
 
   const di::Grid* loresGrid = handle->getLowResolutionOutputGrid();
   const di::Grid* hiresGrid = handle->getHighResolutionOutputGrid();

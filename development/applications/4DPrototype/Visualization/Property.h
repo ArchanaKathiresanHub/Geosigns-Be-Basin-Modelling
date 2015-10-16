@@ -300,4 +300,40 @@ public:
   virtual MiMeshIjk::StorageLayout getStorageLayout() const;
 };
 
+/**
+*
+*/
+class FlowDirectionProperty : public MiDataSetIjk<MbVec3d>
+{
+  GridMapCollection m_values;
+
+  MiDataSet::DataBinding m_binding;
+
+  size_t m_timestamp;
+
+public:
+
+  explicit FlowDirectionProperty(const std::vector<const DataAccess::Interface::GridMap*>& values);
+
+  virtual ~FlowDirectionProperty();
+
+  FlowDirectionProperty(const FlowDirectionProperty&) = delete;
+
+  FlowDirectionProperty& operator=(const FlowDirectionProperty&) = delete;
+
+  virtual MbVec3d get(size_t i, size_t j, size_t k) const;
+
+  virtual MiDataSet::DataBinding getBinding() const;
+
+  virtual MbVec3d getMin() const;
+
+  virtual MbVec3d getMax() const;
+
+  virtual std::string getName() const;
+
+  virtual size_t getTimeStamp() const;
+
+  virtual MiMeshIjk::StorageLayout getStorageLayout() const;
+};
+
 #endif

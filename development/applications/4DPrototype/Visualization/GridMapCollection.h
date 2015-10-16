@@ -21,6 +21,10 @@
 */
 class GridMapCollection
 {
+  /**
+   * Maps a single k-index to an index in the list of gridmaps, and
+   * a local k-index in that particular gridmap
+   */
   struct IndexPair
   {
     size_t gridMapIndex;
@@ -42,11 +46,14 @@ class GridMapCollection
   {
     for (size_t i = 0; i < m_gridMaps.size(); ++i)
     {
-      double minval, maxval;
-      m_gridMaps[i]->getMinMaxValue(minval, maxval);
+      if (m_gridMaps[i])
+      {
+        double minval, maxval;
+        m_gridMaps[i]->getMinMaxValue(minval, maxval);
 
-      m_minValue = std::min(m_minValue, minval);
-      m_maxValue = std::max(m_maxValue, maxval);
+        m_minValue = std::min(m_minValue, minval);
+        m_maxValue = std::max(m_maxValue, maxval);
+      }
     }
 
     m_minMaxValid = true;
@@ -54,8 +61,16 @@ class GridMapCollection
 
 public:
 
+  /**
+   * Build the collection from a vector of gridmaps. The gridMaps vector may contain
+   * nullptrs, which represent a layer of undefined values. This is done to accomodate 
+   * properties that are not available for every formation
+   */
   GridMapCollection(const std::vector<const DataAccess::Interface::GridMap*>& gridMaps)
     : m_gridMaps(gridMaps)
+    , m_numI(0)
+    , m_numJ(0)
+    , m_numK(0)
     , m_minValue(std::numeric_limits<double>::max())
     , m_maxValue(-std::numeric_limits<double>::max())
     , m_minMaxValid(false)
@@ -65,22 +80,28 @@ public:
     // Build a mapping from global k-indices to a gridmap index, and a local k
     for (size_t i = 0; i < gridMaps.size(); ++i)
     {
+      unsigned int n = 1;
+      if (gridMaps[i])
+      {
+        n = gridMaps[i]->getDepth() - 1;
+        m_numI = gridMaps[i]->numI();
+        m_numJ = gridMaps[i]->numJ();
+      }
+
       // Skip last k for each gridmap to avoid duplication with the next layer
-      for (unsigned int j = 0; j < gridMaps[i]->getDepth() - 1; ++j)
+      for (unsigned int j = 0; j < n; ++j)
       {
         IndexPair p = { i, j };
         m_indexMap.push_back(p);
       }
     }
 
-    const DataAccess::Interface::GridMap* last = gridMaps[gridMaps.size() - 1];
-
     // ... still need to include the last one though
-    IndexPair p = { gridMaps.size() - 1, last->getDepth() - 1 };
+    const DataAccess::Interface::GridMap* last = gridMaps[gridMaps.size() - 1];
+    unsigned int n = (last == nullptr) ? 1 : last->getDepth() - 1;
+    IndexPair p = { gridMaps.size() - 1, n };
     m_indexMap.push_back(p);
 
-    m_numI = last->numI();
-    m_numJ = last->numJ();
     m_numK = m_indexMap.size();
   }
 
@@ -100,7 +121,10 @@ public:
   double getValue(size_t i, size_t j, size_t k) const
   {
     IndexPair p = m_indexMap[k];
-    return m_gridMaps[p.gridMapIndex]->getValue((unsigned int)i, (unsigned int)j, p.kIndex);
+    auto gridMap = m_gridMaps[p.gridMapIndex];
+    return (gridMap != nullptr)
+      ? gridMap->getValue((unsigned int)i, (unsigned int)j, p.kIndex)
+      : 99999.0;
   }
 
   size_t numI() const { return m_numI; }
