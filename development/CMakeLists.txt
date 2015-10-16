@@ -211,6 +211,7 @@ find_package(Eigen REQUIRED CONFIG)
 find_package(Boost REQUIRED CONFIG)
 find_package(BLAS REQUIRED CONFIG)
 find_package(PETSC REQUIRED CONFIG)
+find_package(Touchstone REQUIRED CONFIG)
 find_package(SUMlib REQUIRED CONFIG)
 
 if (UNIX)
