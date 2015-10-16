@@ -20,6 +20,7 @@ add_definitions(-DSUMLIB_EXPORT)
 
 include_directories(
       ${SUMPP_INCLUDE_DIR}
+      ${Boost_INCLUDE_DIRS}
 )
 
 add_library( SUMlib

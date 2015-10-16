@@ -71,7 +71,7 @@ PrmSourceRockProp::PrmSourceRockProp( mbapi::Model & mdl
          " set as source rock layer but has no source rock lithology defined for the mixing ID: " << m_mixID;
    }
    
-   mbapi::SourceRockManager::SourceRockID sid = srMgr.findID( m_layerName, (srType ? std::string( srType ) : srtNames[m_mixID-1]) );
+   mbapi::SourceRockManager::SourceRockID sid = srMgr.findID( m_layerName, (m_srTypeName.empty() ? srtNames[m_mixID-1] : m_srTypeName) );
    if ( IsValueUndefined( sid ) )
    {
       throw ErrorHandler::Exception(ErrorHandler::UndefinedValue) << "Can not find source rock lithology for layer "

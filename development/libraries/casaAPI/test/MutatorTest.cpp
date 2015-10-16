@@ -120,8 +120,8 @@ TEST_F( MutatorTest, TornadoBB2PrmsMutations )
    ASSERT_EQ( ErrorHandler::NoError, sc.defineBaseCase( m_projectFileName ) );
 
    // vary 2 parameters
-   ASSERT_EQ( ErrorHandler::NoError, VarySourceRockTOC(          sc, 0, m_layerName, 1, 0, m_minTOC, m_maxTOC,   VarPrmContinuous::Block ) );
-   ASSERT_EQ( ErrorHandler::NoError, VaryTopCrustHeatProduction( sc, 0,                    m_minTCHP, m_maxTCHP, VarPrmContinuous::Block ) );
+   ASSERT_EQ( ErrorHandler::NoError, VarySourceRockTOC(          sc, 0, m_layerName, 1, "", m_minTOC, m_maxTOC,   VarPrmContinuous::Block ) );
+   ASSERT_EQ( ErrorHandler::NoError, VaryTopCrustHeatProduction( sc, 0,                     m_minTCHP, m_maxTCHP, VarPrmContinuous::Block ) );
 
    // set root folder for the experiments
    ibs::FolderPath pathToCaseSet = ibs::FolderPath( "." );

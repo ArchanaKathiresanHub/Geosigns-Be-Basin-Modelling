@@ -265,7 +265,7 @@ SystemProcess::SystemProcess( const std::string & cwd
       m_isOk = true;
 
       // log job ID
-      std::ofstream ofs( RunManager::s_jobsIDListFileName, ios_base::out | ios_base::app );
+      std::ofstream ofs( RunManager::s_jobsIDListFileName, std::ios_base::out | std::ios_base::app );
       if ( ofs.is_open() ) { ofs << GetProcessId( hProcess ) << std::endl; }
    }
    else
