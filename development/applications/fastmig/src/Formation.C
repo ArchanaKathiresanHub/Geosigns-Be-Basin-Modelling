@@ -156,12 +156,12 @@ namespace migration
             return false;
          if ((m_gridMaps[HORIZONTALPERMEABILITYPROPERTY] = getVolumePropertyGridMap ("HorizontalPermeability", snapshot)) == 0)
             return false;
-		 //if ((m_gridMaps[OVERPRESSUREPROPERTY] = getVolumePropertyGridMap("OverPressure", snapshot)) == 0)
-			// return false;
+	 if ((m_gridMaps[OVERPRESSUREPROPERTY] = getVolumePropertyGridMap("OverPressure", snapshot)) == 0)
+	    return false;
 
          return true;
       }
-      /*
+
       // Compute OverPressure if a pressure run.
       if (isPressureRun)
       {
@@ -175,6 +175,10 @@ namespace migration
          unsigned int depth = gridMap->lengthK ();
          assert (depth > 1);
 
+         // Top series of domain nodes absent in fastmig so make sure they are not used
+         if (!getTopFormation ())
+            --depth;
+
          gridMap->retrieveData ();
          for (unsigned int i = m_formationNodeArray->firstILocal (); i <= m_formationNodeArray->lastILocal (); ++i)
          {
@@ -183,9 +187,6 @@ namespace migration
                for (unsigned int k = 0; k < depth; ++k)
                {
                   LocalFormationNode * formationNode = getLocalFormationNode (i, j, k);
-                  //double index = (depth - 1) - column->getTopDepthOffset () * (depth - 1);
-                  //index = Max ((double)0, index);
-                  //index = Min ((double)depth - 1, index);
 
                   formationNode->setOverPressure (gridMap->interpolate (i, j, (double) k));
                }
@@ -193,7 +194,6 @@ namespace migration
          }
          gridMap->restoreData ();
       }
-      */
 
       SmartGridMapRetrieval    vesPropertyGridMapRetrieval (m_gridMaps[VESPROPERTY], false);
       SmartGridMapRetrieval maxVesPropertyGridMapRetrieval (m_gridMaps[MAXVESPROPERTY], false);

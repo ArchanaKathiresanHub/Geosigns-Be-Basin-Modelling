@@ -159,6 +159,7 @@ bool Migrator::compute (void)
 
    bool pressureRun = isPressureRun ();
 
+   // pressureRun set to false only here to avoid calculating overpressure before formation nodes are created.
    computeFormationPropertyMaps (m_projectHandle->getSnapshots ()->front (), false);
 
    createFormationNodes ();
