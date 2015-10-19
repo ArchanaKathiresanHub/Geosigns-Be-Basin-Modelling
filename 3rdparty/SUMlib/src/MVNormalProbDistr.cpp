@@ -250,7 +250,7 @@ int MVNormalProbDistr::noPriorSample( RandomGenerator& rg, std::vector<double>& 
       p[i] = uniformSample( rg, i );
    }
 
-   return p.size();
+   return static_cast<unsigned int>(p.size());
 }
 
 double MVNormalProbDistr::uniformSample( RandomGenerator& rg, size_t k ) const

@@ -43,7 +43,7 @@ static std::vector<double> ReinterpolatePermProf( const std::set<double> & commo
       por_perm[i]             = vals[PrmPermeabilityModel::MPProfileNumPoints + 1 + i*2];
       por_perm[numPoints + i] = vals[PrmPermeabilityModel::MPProfileNumPoints + 1 + i*2 + 1];
    }
-   pwInterp.setInterpolation( ibs::PiecewiseInterpolator::PIECEWISE_LINEAR, numPoints, por_perm, por_perm + numPoints ); 
+   pwInterp.setInterpolation( ibs::PiecewiseInterpolator::PIECEWISE_LINEAR, static_cast<int>( numPoints ), por_perm, por_perm + numPoints ); 
    pwInterp.computeCoefficients();
 
    std::vector<double> reintVals;
@@ -70,13 +70,13 @@ std::vector<double> VarPrmPermeabilityModel::createBaseCaseMPModelPrms( const st
    // interpolate min values to the common grid
    const std::vector<double> & minReinterp = ReinterpolatePermProf( sortedPorosityValsSet, minModelPrms );
    std::vector<double> mnmp( minModelPrms.begin(), ( minModelPrms.begin() + PrmPermeabilityModel::MPProfileNumPoints + 1 ) );
-   mnmp[PrmPermeabilityModel::MPProfileNumPoints] = minReinterp.size() / 2;
+   mnmp[PrmPermeabilityModel::MPProfileNumPoints] = minReinterp.size() / 2.0;
    mnmp.insert( mnmp.end(), minReinterp.begin(), minReinterp.end() );
 
    // interpolate max values to the common grid
    const std::vector<double> & maxReinterp = ReinterpolatePermProf( sortedPorosityValsSet, maxModelPrms );
    std::vector<double> mxmp( maxModelPrms.begin(), ( maxModelPrms.begin() + PrmPermeabilityModel::MPProfileNumPoints + 1 ) );
-   mxmp[PrmPermeabilityModel::MPProfileNumPoints] = maxReinterp.size() / 2;
+   mxmp[PrmPermeabilityModel::MPProfileNumPoints] = maxReinterp.size() / 2.0;
    mxmp.insert( mxmp.end(), maxReinterp.begin(), maxReinterp.end() );
 
    // create base case for common porosity grid
@@ -87,7 +87,7 @@ std::vector<double> VarPrmPermeabilityModel::createBaseCaseMPModelPrms( const st
       baseCasePrms.push_back( ( minModelPrms[i] + maxModelPrms[i] ) * 0.5 );
    }
    // put number of por/perm points in curve
-   baseCasePrms.push_back( sortedPorosityValsSet.size() );
+   baseCasePrms.push_back( static_cast<double>( sortedPorosityValsSet.size() ) );
    for ( size_t i = 0; i < minReinterp.size(); i += 2 )
    {
       baseCasePrms.push_back( minReinterp[i] );
@@ -135,19 +135,19 @@ VarPrmPermeabilityModel::VarPrmPermeabilityModel( const char                    
       // interpolate base values to the common grid
       const std::vector<double> & bsReinterp = ReinterpolatePermProf( sortedPorosityValsSet, baseModelPrms );
       std::vector<double> bsmp( baseModelPrms.begin(), ( baseModelPrms.begin() + PrmPermeabilityModel::MPProfileNumPoints + 1 ) );
-      bsmp[ PrmPermeabilityModel::MPProfileNumPoints] = bsReinterp.size() / 2;
+      bsmp[ PrmPermeabilityModel::MPProfileNumPoints] = bsReinterp.size() / 2.0;
       bsmp.insert( bsmp.end(), bsReinterp.begin(), bsReinterp.end() );
 
       // interpolate min values to the common grid
       const std::vector<double> & minReinterp = ReinterpolatePermProf( sortedPorosityValsSet, minModelPrms );
       std::vector<double> mnmp( minModelPrms.begin(), ( minModelPrms.begin() + PrmPermeabilityModel::MPProfileNumPoints + 1 ) );
-      mnmp[PrmPermeabilityModel::MPProfileNumPoints] = minReinterp.size() / 2;
+      mnmp[PrmPermeabilityModel::MPProfileNumPoints] = minReinterp.size() / 2.0;
       mnmp.insert( mnmp.end(), minReinterp.begin(), minReinterp.end() );
 
       // interpolate max values to the common grid
       const std::vector<double> & maxReinterp = ReinterpolatePermProf( sortedPorosityValsSet, maxModelPrms );
       std::vector<double> mxmp( maxModelPrms.begin(), ( maxModelPrms.begin() + PrmPermeabilityModel::MPProfileNumPoints + 1 ) );
-      mxmp[PrmPermeabilityModel::MPProfileNumPoints] = maxReinterp.size() / 2;
+      mxmp[PrmPermeabilityModel::MPProfileNumPoints] = maxReinterp.size() / 2.0;
       mxmp.insert( mxmp.end(), maxReinterp.begin(), maxReinterp.end() );
 
       minPrm.reset( new PrmPermeabilityModel( this, lithoName, mdlType, mnmp ) );
@@ -290,7 +290,7 @@ SharedParameterPtr VarPrmPermeabilityModel::newParameterFromDoubles( std::vector
 
       // create new profile by interpolating between min/max values
       valsP.resize( PrmPermeabilityModel::MPProfileNumPoints + 1 );
-      valsP[PrmPermeabilityModel::MPProfileNumPoints] = minPrm->multipointPorosity().size();
+      valsP[PrmPermeabilityModel::MPProfileNumPoints] = static_cast<double>( minPrm->multipointPorosity().size() );
       for ( size_t i = 0; i < minPrm->multipointPorosity().size(); ++i )
       {
          valsP.push_back( minPrm->multipointPorosity()[i] );

@@ -39,7 +39,7 @@ ParameterBounds::ParameterBounds( vector<Case> const& caseSet )
    {
       unsigned int nbOfPars = caseSet[0].size(); //total number of parameters
       unsigned int nbOfCatPars = caseSet[0].sizeCat(); //number of categorical parameters
-      unsigned int nbOfCases = caseSet.size(); //total number of cases
+      unsigned int nbOfCases = static_cast<unsigned int>( caseSet.size() ); //total number of cases
 
       // Initialise bounds to the values of the first case in caseSet.
       m_low = caseSet[0];
@@ -72,7 +72,7 @@ ParameterBounds::ParameterBounds( vector<Case> const& caseSet )
          }
          catVal.sort(); //sort list from low to high
          catVal.unique(); //remove duplicates
-         unsigned int nbOfCatValues = catVal.size();
+         size_t nbOfCatValues = catVal.size();
          m_catValues[i].resize( nbOfCatValues );
          for ( unsigned int j = 0; j < nbOfCatValues; ++j )
          {
@@ -126,7 +126,7 @@ bool ParameterBounds::validCatValues( vector<IndexList> const& catValues ) const
    {
       if ( catValues[i].empty() ) return false; //a parameter must have a value
       if ( catValues[i][0] < low().categoricalPar( i ) ) return false;
-      unsigned int lastIdx = catValues[i].size() - 1;
+      unsigned int lastIdx = static_cast<unsigned int>( catValues[i].size() ) - 1;
       if ( catValues[i][lastIdx] > high().categoricalPar( i ) ) return false;
       for ( unsigned int j = 1; j <= lastIdx; ++j )
       {

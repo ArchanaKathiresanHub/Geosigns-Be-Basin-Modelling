@@ -130,7 +130,7 @@ ObsValue * ObsTrapProp::getFromModel( mbapi::Model & caldModel )
                         {
                            found = true;
                            val = caldModel.tableValueAsDouble( Observable::s_dataMinerTable, i, "Value" );
-                           m_posDataMiningTbl = i;
+                           m_posDataMiningTbl = static_cast<int>( i );
                         }
                      }
                   }

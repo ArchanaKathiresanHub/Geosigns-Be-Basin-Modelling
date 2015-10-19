@@ -54,7 +54,7 @@ boost::optional<unsigned int> BonferroniElimination::operator()( ProxyBuilder co
 
    std::vector<double>::iterator m = std::min_element(t.begin(), t.end());
 
-   return ( (*m) * (*m) < m_multiplier * 2 * std::log(t.size() + 1.) ) ? boost::optional<unsigned int>(std::distance(t.begin(), m)) : boost::none;
+   return ((*m) * (*m) < m_multiplier * 2 * std::log( t.size() + 1. )) ? boost::optional<unsigned int>( static_cast<unsigned int>(std::distance( t.begin(), m ))) : boost::none;
 }
 
 }

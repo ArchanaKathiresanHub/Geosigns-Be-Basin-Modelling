@@ -162,8 +162,8 @@ int ibs::Interpolator2d::pointExists(double x, double y, double &f)
 
 int ibs::Interpolator2d::convertTo2d (void)
 {
-   unsigned int k;
-   unsigned int dimX, dimY;
+   size_t k;
+   size_t dimX, dimY;
 
    vectorXYF::iterator iterXYF;
 
@@ -183,7 +183,7 @@ int ibs::Interpolator2d::convertTo2d (void)
 
    if (dimX * dimY != d_vectorXYF -> size ()) return -1;
 
-   Init2d (dimX, dimY);
+   Init2d (static_cast<int>( dimX ), static_cast<int>( dimY ) );
 
    for (iterXYF = d_vectorXYF -> begin (); iterXYF != d_vectorXYF -> end (); ++iterXYF)
    {

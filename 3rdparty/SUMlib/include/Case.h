@@ -51,23 +51,23 @@ public:
 
    /// Getter for the number of continuous parameters
    /// @returns the number of continuous parameters
-   unsigned int sizeCon() const { return m_continuous.size(); }
+   unsigned int sizeCon() const { return static_cast<unsigned int>( m_continuous.size() ); }
 
    /// Getter for the number of discrete parameters
    /// @returns the number of discrete parameters
-   unsigned int sizeDis() const { return m_discrete.size(); }
+   unsigned int sizeDis() const { return static_cast<unsigned int>( m_discrete.size() ); }
 
    /// Get number of ordinal parameters (i.e. combined continuous and discrete parameters)
    /// @returns the number of ordinal parameters
-   unsigned int sizeOrd() const { return ( m_continuous.size() + m_discrete.size() ); }
+   unsigned int sizeOrd() const { return static_cast<unsigned int>(m_continuous.size() + m_discrete.size()); }
 
    /// Getter for the number of categorical parameters
    /// @returns the number of categorical parameters
-   unsigned int sizeCat() const { return m_categorical.size(); }
+   unsigned int sizeCat() const { return static_cast<unsigned int>( m_categorical.size() ); }
 
    /// Getter for the total number of parameters
    /// @returns the total number of parameters
-   unsigned int size() const { return ( sizeOrd() + m_categorical.size() ); }
+   unsigned int size() const { return static_cast<unsigned int>(sizeOrd() + m_categorical.size()); }
 
    /// Getter for the vector of continuous parameters
    /// @returns the vector of continuous parameter values

@@ -19,7 +19,7 @@
 CmdGenerateBestMatchedCase::CmdGenerateBestMatchedCase( CasaCommander & parent, const std::vector< std::string > & cmdPrms ) : CasaCmd( parent, cmdPrms )
 {
    m_bmcName   = m_prms.size() > 0 ? m_prms[0]                 : "";
-   m_sampleNum = m_prms.size() > 1 ? atof( m_prms[1].c_str() ) : 1;
+   m_sampleNum = m_prms.size() > 1 ? atol( m_prms[1].c_str() ) : 1;
 
    if ( m_bmcName.empty() ) throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Empty project name for Best Matched Case generation";
    if ( m_sampleNum < 1 )

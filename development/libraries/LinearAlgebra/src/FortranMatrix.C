@@ -30,7 +30,6 @@ Numerics::FortranMatrix::FortranMatrix () {
 Numerics::FortranMatrix::FortranMatrix ( const FortranMatrix& mat ) {
 
   int i;
-  int j;
 
   initialise ( mat.numberOfRows (), mat.numberOfColumns ());
 

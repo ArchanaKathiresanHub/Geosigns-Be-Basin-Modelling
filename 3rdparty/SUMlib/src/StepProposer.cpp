@@ -93,7 +93,7 @@ void StepProposer::proposeStep(
    // and return log( tr ) = 0.
    for ( size_t i = 0; i < p.size(); ++i )
    {
-      proposeRandomStep( m_rg, p[i], tr[i], i );
+      proposeRandomStep( m_rg, p[i], tr[i], static_cast<unsigned int>(i));
    }
 }
 

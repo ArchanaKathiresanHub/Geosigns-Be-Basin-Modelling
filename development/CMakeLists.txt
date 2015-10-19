@@ -130,7 +130,7 @@ if(MSVC)
 
    message(STATUS "BM_WINDOWS_PLATFORM = ${BM_WINDOWS_PLATFORM}")
 
-   add_definitions( "-Dand=&&" "-Dor=||" "-Dnot=!" )
+   add_definitions( "-Dand=&&" "-Dor=||" "-Dnot=!" "-D_SCL_SECURE_NO_WARNINGS" "-D_CRT_SECURE_NO_WARNINGS" )
 #if (BUILD_SHARED_LIBS)
 #     configure_msvc_runtime("dynamic")
 #   else()

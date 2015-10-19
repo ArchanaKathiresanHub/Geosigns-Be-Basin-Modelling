@@ -61,7 +61,7 @@ int svdcmp( vector<vector<double> > &a,
 
       for ( size_t i=0; i < np; i++ )
       {
-         l = i + 1;
+         l = static_cast<int>(i + 1);
          rv1[i] = scale * g;
          g=0.0;
          double s = 0.0;
@@ -152,7 +152,7 @@ int svdcmp( vector<vector<double> > &a,
          anorm = ( anorm > value ) ? anorm : value;
       }
 
-      for ( int i = np-1; i >= 0; i-- )
+      for ( int i = static_cast<int>(np) - 1; i >= 0; i--)
       {
          if ( i < static_cast<int>(np)-1 )
          {
@@ -183,8 +183,8 @@ int svdcmp( vector<vector<double> > &a,
       }
 
       // Accumulation of left hand transformations
-      int nm = ( np < mp ) ? np : mp;
-      for ( int i = np-1; i >= 0; i-- )
+      int nm = static_cast<int>( (np < mp) ? np : mp );
+      for ( int i = static_cast<int>(np) - 1; i >= 0; i--)
       {
          l=i+1;
          g=w[i];
@@ -224,7 +224,7 @@ int svdcmp( vector<vector<double> > &a,
       // Diagonalization of bi-diagonal form
 
       // Loop over singular values
-      for ( int k=np-1; k >= 0; k-- )
+      for ( int k = static_cast<unsigned int>(np) - 1; k >= 0; k--)
       {
          // Iterations
          for ( int its=1; its <= maxit; its++ )
@@ -472,7 +472,7 @@ void svcovar( const vector<double>& w,
 // the context of Kriging.
 void svinv( vector<vector<double> > &a )
 {
-   const unsigned int aSize = a.size();
+   const unsigned int aSize = static_cast<unsigned int>(a.size());
    assert( a.front().size() == aSize );
    RealMatrix v;
    RealVector w;
@@ -897,7 +897,7 @@ int ludcmp( vector<vector<double> >& a, vector<int>& indx )
          }
          vv[imax] = vv[j];
       }
-      indx[j] = imax;
+      indx[j] = static_cast<int>(imax);
       if (j != ne-1 )
       {
          if ( a[j][j] == 0.0 )
@@ -948,7 +948,7 @@ void lubksb( const vector<vector<double> >& a,
       }
       else if ( sum != 0.0 )
       {
-         ii=i;
+         ii = static_cast<int>(i);
       }
       b[i] = sum;
    }
@@ -1260,7 +1260,7 @@ void CalcMinStdDev(
       double            eps /* MinStdDevEpsilon */
       )
 {
-   const unsigned int size( min.size() );
+   const size_t size( min.size() );
    minStdDev.resize( size );
 
    for ( unsigned int i = 0; i < size; ++i)
@@ -1300,10 +1300,10 @@ void CalcCovariances( vector<RealVector> const& m, RealVector const& avg, RealMa
    }
 
    // The number of parameters in the sample m
-   const unsigned int num( m.size() );
+   const size_t num( m.size() );
 
    // The number of elements in the parameters
-   const unsigned int size( m.front().size() );
+   const size_t size( m.front().size() );
 
    assert( avg.size() == size );
 

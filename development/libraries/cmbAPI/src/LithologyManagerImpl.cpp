@@ -161,7 +161,7 @@ LithologyManager::LithologyID LithologyManagerImpl::copyLithology( LithologyID i
       if ( !table ) { throw Exception( NonexistingID ) <<  s_lithoTypesTableName << " table could not be found in project"; }
 
       // get record for copy
-      database::Record * origRec = table->getRecord( id );
+      database::Record * origRec = table->getRecord( static_cast<int>( id ) );
       if ( !origRec ) { throw Exception( NonexistingID ) << "No lithology type with such ID: " << id; }
 
       // create a copy of lithology
@@ -254,10 +254,10 @@ LithologyManager::LithologyID LithologyManagerImpl::findID( const std::string & 
       // if table does not exist - report error
       if ( !table ) { throw Exception( NonexistingID ) << s_lithoTypesTableName << " table could not be found in project"; }
 
-      int tblSize = table->size();
-      for ( int i = 0; i < tblSize; ++i )
+      size_t tblSize = table->size();
+      for ( size_t i = 0; i < tblSize; ++i )
       {
-         database::Record * rec = table->getRecord( i );
+         database::Record * rec = table->getRecord( static_cast<unsigned int>( i ) );
          if ( !rec ) { throw Exception( NonexistingID ) << "No lithology type with such ID: " << i; }
 
          if ( lName == rec->getValue<std::string>( s_lithoTypeNameFieldName ) )

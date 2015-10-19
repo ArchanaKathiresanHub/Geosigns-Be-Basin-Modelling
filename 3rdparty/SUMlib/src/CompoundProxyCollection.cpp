@@ -160,7 +160,7 @@ void CompoundProxyCollection::calculate(
    for ( size_t iObs = 0; iObs < targets.size(); ++iObs )
    {
       std::vector<bool> caseValid;
-      provideCaseValidity( case2Obs2Valid, targets[ iObs ].size(), iObs, caseValid );
+      provideCaseValidity( case2Obs2Valid, static_cast<unsigned int>(targets[iObs].size()), static_cast<unsigned int>(iObs), caseValid);
 
       ParameterTransforms::ptr parTransforms( obsDependentParTransforms[ iObs ] );
 

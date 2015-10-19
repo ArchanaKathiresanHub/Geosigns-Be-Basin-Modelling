@@ -104,7 +104,7 @@ public:
 
       // resource limits are initialized to default
       for ( int i = 0; i < LSF_RLIM_NLIMITS; ++i ) { m_submit.rLimits[i] = DEFAULT_RLIMIT; }
-      if ( m_runTimeLim > 0 ) { m_submit.rLimits[LSF_RLIMIT_RUN] = m_runTimeLim * 60; } // convert to sec.
+      if ( m_runTimeLim > 0 ) { m_submit.rLimits[LSF_RLIMIT_RUN] = static_cast<int>( m_runTimeLim ) * 60; } // convert to sec.
  
       /// Prepare job to submit through LSF
       m_submit.projectName      = strdup( s_LSF_CAULDRON_PROJECT_NAME ); // add project name (must be the same for all cauldron app)

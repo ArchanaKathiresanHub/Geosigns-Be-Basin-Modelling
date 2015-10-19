@@ -34,8 +34,7 @@ void Numerics::BiCG::operator ()
   FloatingPoint NormB = vectorLength ( RHS );
   Vector        R ( dimension );
   Vector        RTilde ( dimension );
-  int i;
-
+  
   //
   // Begin
   //

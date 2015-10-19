@@ -369,7 +369,7 @@ bool StreamSerializer::save( double p_double )
 ////////////////////////////////////////////////////////////////////////////////
 bool StreamSerializer::save( const std::string& p_string )
 {
-   unsigned int siz = p_string.size();
+   unsigned int siz = static_cast<unsigned int>( p_string.size() );
    bool ok = saveArray( siz );
    ok = ok && saveBytes( p_string.c_str(), siz * sizeof( char ) );
    return ok;
@@ -384,7 +384,7 @@ bool StreamSerializer::save( const std::string& p_string )
 ////////////////////////////////////////////////////////////////////////////////
 bool StreamSerializer::save( const std::vector< std::string >& p_stringVec )
 {
-   return saveVec( p_stringVec );
+   return saveVec< std::string >( p_stringVec );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

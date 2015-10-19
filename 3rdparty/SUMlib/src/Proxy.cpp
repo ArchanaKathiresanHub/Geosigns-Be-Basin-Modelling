@@ -36,7 +36,7 @@ double Proxy::getProxyValue( KrigingWeights const&, Parameter const& p, KrigingT
 
 void Proxy::calcKrigingWeights( Parameter const& p, KrigingType, KrigingWeights& krigingWeights ) const
 {
-   krigingWeights.zeroWeights( p.size() );
+   krigingWeights.zeroWeights( static_cast<unsigned int>(p.size()));
 }
 
 } // namespace SUMlib

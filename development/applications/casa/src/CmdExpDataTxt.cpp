@@ -338,7 +338,7 @@ void CmdExpDataTxt::exportMCResults( std::auto_ptr<casa::ScenarioAnalysis> & sa 
       results.push_back( std::vector<double>() );
       
       std::vector<double> & rsmpl = results.back();
-      rsmpl.push_back( i );                //sample num
+      rsmpl.push_back( static_cast<double>( i ) );                //sample num
       rsmpl.push_back(mcSamples[i].first); //sample RMSE
 
       // sample parameters set

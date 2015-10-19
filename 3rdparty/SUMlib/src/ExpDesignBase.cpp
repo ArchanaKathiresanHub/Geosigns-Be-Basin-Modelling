@@ -17,7 +17,7 @@ using std::vector;
 namespace SUMlib {
 
 ExpDesignBase::ExpDesignBase( vector<bool> const& selectedFactors, unsigned int numOrdinalFactors ) :
-   m_numFactors( selectedFactors.size() ),
+   m_numFactors( static_cast<unsigned int>( selectedFactors.size()) ),
    m_numOrdFactors( numOrdinalFactors ),
    m_selFactors( selectedFactors ),
    m_numSelFactors( unsigned( std::count( selectedFactors.begin(), selectedFactors.end(), true )) ),
@@ -101,13 +101,13 @@ unsigned int ExpDesignBase::getNbOfCases( ParameterBounds const& bounds, bool re
    {
       if ( selFactors()[i + numOrdFactors()] )
       {
-         nbOfCases *= bounds.catValues( i ).size();
+         nbOfCases *= static_cast<unsigned int>( bounds.catValues( i ).size() );
       }
    }
 
    // Return total number of cases
-   if ( replicate ) nbOfCases *= m_design.size();
-   else nbOfCases += m_design.size() - 1;
+   if ( replicate ) nbOfCases *= static_cast<unsigned int>( m_design.size() );
+   else nbOfCases += static_cast<unsigned int>( m_design.size() - 1 );
    return nbOfCases;
 }
 
@@ -302,7 +302,7 @@ void ExpDesignBase::calcCatCombinations( ParameterBounds const& bounds,
    {
       if ( selFactors()[i + numOrdFactors()] )
       {
-         maxIndex[i] = catValues[i].size() - 1;
+         maxIndex[i] = static_cast<unsigned int>( catValues[i].size() ) - 1;
       }
       //else 0 because ith categorical par has been frozen at first value (i.e. base value)
    }
@@ -385,7 +385,7 @@ void ExpDesignBase::createCatDesign( ParameterBounds const& bounds,
    {
       if ( selFactors()[i + numOrdFactors()] )
       {
-         maxIdx[i] = catValues[i].size() - 1;
+         maxIdx[i] = static_cast<unsigned int>( catValues[i].size() ) - 1;
       }
    }
 

@@ -4539,7 +4539,7 @@ bool ProjectHandle::loadFracturePressureFunctionParameters()
    Record* pressureFuncIoTblRecord = pressureFuncIoTbl->getRecord( 0 );
    for ( size_t r = 0; r < pressureFuncIoTbl->size(); ++r )
    {
-      Record* curPressureFuncIoTblRecord = pressureFuncIoTbl->getRecord( r );
+      Record* curPressureFuncIoTblRecord = pressureFuncIoTbl->getRecord( static_cast<int>( r ) );
       if ( database::getSelected( curPressureFuncIoTblRecord ) == 1 )
       {
          pressureFuncIoTblRecord = curPressureFuncIoTblRecord;
@@ -5582,7 +5582,7 @@ void ProjectHandle::resetSnapshotIoTbl(  ) const
 
    for ( size_t i = 0; i < table->size(); ++i )
    {
-      Record * record = table->getRecord( i );
+      Record * record = table->getRecord( static_cast<int>( i ) );
       setSnapshotFileName( record, "" );
    }
 }

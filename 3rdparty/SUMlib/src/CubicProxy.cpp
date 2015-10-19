@@ -129,7 +129,7 @@ unsigned int CubicProxy::numVars( unsigned int nPar, unsigned int maxOrder /* 3 
 void CubicProxy::monomials( Parameter const& Par, RealVector & r )
 {
    const size_t nPars(Par.size());
-   const size_t nVars(CubicProxy::numVars(nPars));
+   const size_t nVars( CubicProxy::numVars( static_cast<unsigned int>(nPars)) );
 
    size_t j, k, l;
 
@@ -218,7 +218,7 @@ void CubicProxy::initialise(
       IndexList const&     vars
       )
 {
-   m_size = parSet.size() ? parSet.front().size() : 0;
+   m_size = static_cast<unsigned int>( parSet.size() ? parSet.front().size() : 0 );
    if ( ! size() )
    {
       THROW2( DimensionOutOfBounds, "Parameter must have at least one element" );
@@ -384,7 +384,7 @@ void CubicProxy::monomial_code( unsigned int nPars, MonomialKeyList& code )
    for ( j = 0; j < nPars; ++j )
    {
       code[i].resize(1);
-      code[i][0] = j;
+      code[i][0] = static_cast<unsigned int>( j );
       ++i;
    }
    assert( i == nPars );
@@ -395,8 +395,8 @@ void CubicProxy::monomial_code( unsigned int nPars, MonomialKeyList& code )
       for ( k = j; k < nPars; ++k )
       {
          code[i].resize(2);
-         code[i][0] = j;
-         code[i][1] = k;
+         code[i][0] = static_cast<unsigned int>( j );
+         code[i][1] = static_cast<unsigned int>( k );
          ++i;
       }
    }
@@ -410,9 +410,9 @@ void CubicProxy::monomial_code( unsigned int nPars, MonomialKeyList& code )
          for ( l = k; l < nPars; ++l )
          {
             code[i].resize(3);
-            code[i][0] = j;
-            code[i][1] = k;
-            code[i][2] = l;
+            code[i][0] = static_cast<unsigned int>( j );
+            code[i][1] = static_cast<unsigned int>( k );
+            code[i][2] = static_cast<unsigned int>( l );
             ++i;
          }
       }
@@ -448,7 +448,7 @@ void CubicProxy::monomial_code( unsigned int nPars, IndexList const& active, Mon
       if ( p == active[i] )
       {
          code[i].resize(1);
-         code[i][0] = j;
+         code[i][0] = static_cast<unsigned int>( j );
          ++i;
       }
       ++p;
@@ -463,8 +463,8 @@ void CubicProxy::monomial_code( unsigned int nPars, IndexList const& active, Mon
          if ( p == active[i] )
          {
             code[i].resize(2);
-            code[i][0] = j;
-            code[i][1] = k;
+            code[i][0] = static_cast<unsigned int>( j );
+            code[i][1] = static_cast<unsigned int>( k );
             ++i;
          }
          ++p;
@@ -482,9 +482,9 @@ void CubicProxy::monomial_code( unsigned int nPars, IndexList const& active, Mon
             if ( p == active[i] )
             {
                code[i].resize(3);
-               code[i][0] = j;
-               code[i][1] = k;
-               code[i][2] = l;
+               code[i][0] = static_cast<unsigned int>( j );
+               code[i][1] = static_cast<unsigned int>( k );
+               code[i][2] = static_cast<unsigned int>( l );
                ++i;
             }
             ++p;
@@ -515,7 +515,7 @@ IndexList CubicProxy::initialVarList(
       {
          if ( partition[j] )
          {
-            vars.push_back( i );
+            vars.push_back( static_cast<unsigned int>(i) );
          }
          ++i;
       }
@@ -532,7 +532,7 @@ IndexList CubicProxy::initialVarList(
             {
                if ( order == 2 || k == j ) //no interaction terms if order = 9
                {
-                  vars.push_back( i );
+                  vars.push_back( static_cast<unsigned int>(i) );
                }
             }
             ++i;
@@ -655,7 +655,7 @@ bool CubicProxy::isRegressionIllPosed() const
 {
    // The number of polynomial terms is less than or equal to the number of cases, so for the maximum rank it suffices
    // to look only at the number of terms.
-   const unsigned int maxRank = m_coefficients.size() + 1;
+   const unsigned int maxRank = static_cast<unsigned int>(m_coefficients.size() + 1);
    return m_designMatrixRank < maxRank;
 }
 

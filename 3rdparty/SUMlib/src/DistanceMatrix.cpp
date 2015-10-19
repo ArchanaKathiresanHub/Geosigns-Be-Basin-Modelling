@@ -33,7 +33,7 @@ DistanceMatrix::DistanceMatrix(const std::vector<RealVector>& dataSet) :
 ///////////////////////////////////////////////////////////////////////////////
 Index DistanceMatrix::getNumRows() const
 {
-   return m_distances.size();
+   return static_cast<Index>(m_distances.size());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -41,7 +41,7 @@ Index DistanceMatrix::getNumRows() const
 ///////////////////////////////////////////////////////////////////////////////
 Index DistanceMatrix::getNumCols() const
 {
-   return m_distances.size();
+   return static_cast<Index>(m_distances.size());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -49,7 +49,7 @@ Index DistanceMatrix::getNumCols() const
 ///////////////////////////////////////////////////////////////////////////////
 std::pair<double, Index> DistanceMatrix::getMinOfRow(Index rowIndex) const
 {
-   Index minIndex = m_distances.size();
+   Index minIndex = static_cast<Index>(m_distances.size());
    double    minVal   = getMaxDistance();
    for ( Index colIndex = 0; colIndex < m_distances.size(); colIndex++ )
    {

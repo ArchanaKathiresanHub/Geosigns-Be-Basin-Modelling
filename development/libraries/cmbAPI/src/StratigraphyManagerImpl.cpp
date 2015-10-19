@@ -192,11 +192,11 @@ double StratigraphyManagerImpl::eldestLayerAge()
          throw Exception( NonexistingID ) << s_stratigraphyTableName << " table could not be found in project";
       }
 
-      int tblSize = m_stratIoTbl->size();
+      size_t tblSize = m_stratIoTbl->size();
 
-      for ( int i = 0; i < tblSize; ++i )
+      for ( size_t i = 0; i < tblSize; ++i )
       {
-         database::Record * rec = m_stratIoTbl->getRecord( i );
+         database::Record * rec = m_stratIoTbl->getRecord( static_cast<int>( i ) );
          if ( !rec ) { throw Exception( NonexistingID ) << "No layer with ID: " << i << " in stratigraphy table"; }
 
          double age = rec->getValue<double>( s_depoAgeFieldName );

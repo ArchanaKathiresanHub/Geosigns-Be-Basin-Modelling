@@ -77,7 +77,7 @@ void HybridMC::generate()
 
       vector<size_t> a( nbTerms );
       size_t n_red = nSeq;
-      for ( int j = nbTerms - 1; j >= 0; --j )
+      for ( int j = static_cast<int>(nbTerms) - 1; j >= 0; --j)
       {
          a[j] = n_red/int( pow( base, double( j ) ) );
          n_red -= a[j]*int( pow( base, double( j ) ) );
@@ -130,7 +130,7 @@ void HybridMC::getCaseSetImpl( ParameterBounds const& bounds, Case const& center
 
 unsigned int HybridMC::getNbOfCases( ParameterBounds const&, bool ) const
 {
-   return m_design.size();
+   return static_cast<unsigned int>( m_design.size() );
 }
 
 std::string HybridMC::toString() const

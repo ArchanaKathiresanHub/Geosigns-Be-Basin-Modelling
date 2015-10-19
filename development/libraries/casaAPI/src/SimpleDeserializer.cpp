@@ -65,8 +65,8 @@ namespace casa
 
    inline bool loadBinValue( std::istream & fp, std::string & val )
    {
-      uint16_t len;
-      fp.read( reinterpret_cast<char*>(&len), sizeof( int16_t ) );
+      uint64_t len;
+      fp.read( reinterpret_cast<char*>(&len), sizeof( int64_t ) );
 
       if ( len < 1000 )
       {

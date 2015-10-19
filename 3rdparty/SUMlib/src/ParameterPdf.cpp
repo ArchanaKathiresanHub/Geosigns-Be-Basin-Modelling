@@ -320,9 +320,9 @@ void ParameterPdf::removeFixedElements()
          m_catVars.push_back( m_varParIdx[i] - sizeOrd() );
       }
    }
-   unsigned int nbOfConVars = m_conVars.size();
-   unsigned int nbOfDisVars = m_disVars.size();
-   unsigned int nbOfCatVars = m_catVars.size();
+   unsigned int nbOfConVars = static_cast<unsigned int>( m_conVars.size() );
+   unsigned int nbOfDisVars = static_cast<unsigned int>( m_disVars.size() );
+   unsigned int nbOfCatVars = static_cast<unsigned int>( m_catVars.size() );
    vector<double> conLow( nbOfConVars ), conHigh( nbOfConVars );
    vector<int> disLow( nbOfDisVars ), disHigh( nbOfDisVars );
    vector<unsigned int> catLow( nbOfCatVars ), catHigh( nbOfCatVars );
@@ -560,13 +560,13 @@ void ParameterPdf::scaleDis( std::vector<int> const& p_min, std::vector<int> con
 
 void ParameterPdf::extendToProxyCase( IndexList const& c, vector<double> &v ) const
 {
-   unsigned int vIdx = v.size();
+   unsigned int vIdx = static_cast<unsigned int>( v.size() );
    assert( c.size() == sizeCat() );
    assert( vIdx == sizeOrd() );
    unsigned int nbOfDummyPars = 0;
    for ( unsigned int i = 0; i < sizeCat(); ++i )
    {
-      nbOfDummyPars += ( catValues()[i].size() - 1 );
+      nbOfDummyPars += static_cast<unsigned int>( catValues()[i].size() - 1 );
    }
    unsigned int newSize = sizeOrd() + nbOfDummyPars;
    v.resize( newSize, 0.0 );
@@ -584,7 +584,7 @@ void ParameterPdf::extendToProxyCase( IndexList const& c, vector<double> &v ) co
       {
          v[vIdx + valIdx - 1] = 1.0;
       }
-      vIdx += ( catValues()[i].size() - 1 );
+      vIdx += static_cast<unsigned int>(catValues()[i].size() - 1);
    }
    assert( vIdx == newSize );
 }

@@ -62,16 +62,16 @@ namespace casa
 
    inline bool saveBinValue( std::ofstream & fp, const char * val )
    {
-      int16_t len = strlen( val );
-      fp.write( reinterpret_cast<const char*>(&len), sizeof( int16_t ) );
+      int64_t len = strlen( val );
+      fp.write( reinterpret_cast<const char*>(&len), sizeof( int64_t ) );
       fp.write( val, len + 1 );
       return fp.good();
    }
 
    inline bool saveBinValue( std::ofstream & fp, const std::string & val )
    {
-      int16_t len = val.size();
-      fp.write( reinterpret_cast<const char*>(&len), sizeof( int16_t ) );
+      int64_t len = val.size();
+      fp.write( reinterpret_cast<const char*>(&len), sizeof( int64_t ) );
       fp.write( val.c_str(), len + 1 );
       return fp.good();
    }

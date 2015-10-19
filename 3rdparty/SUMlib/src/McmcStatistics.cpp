@@ -122,7 +122,7 @@ void McmcStatistics::calcChi2Distribution(
 
 ostream& McmcStatistics::print( ostream& out, double stdDevFactor, vector<McmcProxy*> const& proxies ) const
 {
-   const unsigned int size( m_pSampleAvg.size());
+   const size_t size( m_pSampleAvg.size());
    for ( size_t i = 0; i < size; ++i )
    {
       out << "avg_p[" << i << "]" << m_pSampleAvg[i] << " ~ " << sqrt(m_pSampleCovMat[i][i]) << endl;
@@ -143,7 +143,7 @@ ostream& McmcStatistics::print( ostream& out, double stdDevFactor, vector<McmcPr
       out << "lik[" << i <<"]"<< m_pSampleAvg[i] << " " << sqrt(m_pSampleCovMat[i][i]) << endl;
    }
 
-   const unsigned int num ( m_ySampleAvg.size() );
+   const size_t num ( m_ySampleAvg.size() );
    const double sd( 1/sqrt(1.0*num) );
    for ( size_t i = 0; i < num; ++i )
    {
@@ -219,7 +219,7 @@ void McmcStatistics::getTruncatedDistributionMaximumLikelihoodParameter( Paramet
 
 void McmcStatistics::getTruncatedDistributionMaximumLikelihoodVariance( Parameter &mlSd ) const
 {
-   const unsigned int size ( m_pSampleCovMat.size() );
+   const size_t size ( m_pSampleCovMat.size() );
    mlSd.resize( size );
    for ( unsigned int i = 0; i < size; ++i )
    {

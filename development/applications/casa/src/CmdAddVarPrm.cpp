@@ -951,7 +951,7 @@ public:
                << layerName << " not given";
          }
          numPts = atol( prms[pos++].c_str() ); // number of points for maximum multipoint perm. profile
-         maxModelPrms.push_back( numPts );
+         maxModelPrms.push_back( static_cast<double>( numPts ) );
 
          if ( pos + numPts * 2 >= prms.size() )
          {

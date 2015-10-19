@@ -135,7 +135,7 @@ ErrorHandler::ReturnCode PropertyManagerImpl::copyResultsFiles( const std::strin
          size_t tblSize = m_snapshotIoTable->size();
          for ( size_t i = 0; i < tblSize; ++i )
          {
-            database::Record * rec = tbl->getRecord( i );
+            database::Record * rec = tbl->getRecord( static_cast<int>( i ) );
             if ( !rec ) continue;
 
             const std::string & fileName = rec->getValue<std::string>( colName );

@@ -61,7 +61,7 @@ void McmcBase::CopySampleAndResponse( ParameterSet const& sample, vector<RealVec
    vector<std::pair<Parameter, RealVector> > &out )
 {
    // Store the pairs {p[i], y[i]}
-   unsigned int size( sample.size() );
+   unsigned int size( static_cast<unsigned int>( sample.size() ) );
    out.resize( size );
    for ( unsigned int i = 0; i < size; ++i )
    {
@@ -133,7 +133,7 @@ void McmcBase::doCatInit()
    // Prepare the initializion of the sample size if categorical parameters are involved
    m_CatIndexOfSample.clear();
    m_CatIndexOfSubSample.clear();
-   const unsigned int maxNbOfSamples = m_userSampleSize * 1.1; // Maximum number of samples when autoscaled for CAT values
+   const unsigned int maxNbOfSamples = static_cast<unsigned int>( m_userSampleSize * 1.1 ); // Maximum number of samples when autoscaled for CAT values
    unsigned int tmpSubSampleSize = std::max( int(m_userSampleSize/nbOfCycles), 1 );
    unsigned int maxNrOfSubSamples = std::max( int(maxNbOfSamples/nbOfCycles), 1 );
    unsigned int newNrSubSample = 0;
@@ -170,8 +170,8 @@ void McmcBase::doCatInit()
       {
          // Set the value (make sure that each CAT case corresponds to at least 1 chain)
          unsigned int nrOfChainsPerCAT = std::max< unsigned int >(1, int( ( tmpSubSampleSize * weights[ i ] / weightsSum ) + .5 ) );
-         m_CatIndexOfSample.insert( m_CatIndexOfSample.end(), nrOfChainsPerCAT * nbOfCycles, i );
-         m_CatIndexOfSubSample.insert( m_CatIndexOfSubSample.end(), nrOfChainsPerCAT, i );
+         m_CatIndexOfSample.insert( m_CatIndexOfSample.end(), nrOfChainsPerCAT * nbOfCycles, static_cast<unsigned int>(i));
+         m_CatIndexOfSubSample.insert( m_CatIndexOfSubSample.end(), nrOfChainsPerCAT, static_cast<unsigned int>(i));
          newNrSubSample += nrOfChainsPerCAT;
       }
    }
@@ -306,7 +306,7 @@ ParameterSet McmcBase::extendSampleToProxyCase( ParameterSet const& parset ) con
       ParameterSet newParSet;
       for ( size_t i = 0; i < parset.size(); ++i )
       {
-         newParSet.push_back( extendSampleToProxyCase( parset[i], i ) );
+         newParSet.push_back( extendSampleToProxyCase( parset[i], static_cast<unsigned int>(i)) );
       }
       return newParSet;
    }
@@ -326,7 +326,7 @@ ParameterSet McmcBase::extendSubSampleToProxyCase( ParameterSet const& parset ) 
       ParameterSet newParSet;
       for ( size_t i = 0; i < parset.size(); ++i )
       {
-         newParSet.push_back( extendSubSampleToProxyCase( parset[i], i ) );
+         newParSet.push_back( extendSubSampleToProxyCase( parset[i], static_cast<unsigned int>(i)) );
       }
       return newParSet;
    }
@@ -585,7 +585,7 @@ void McmcBase::normalPriorSample( )
    // Initialise the random number generators
    for ( unsigned int i = 0; i < m_subSampleSize; ++i )
    {
-      int seed = INT_MAX * m_rg.uniformRandom();
+      int seed = static_cast<int>( INT_MAX * m_rg.uniformRandom() );
       RandomGenerator* rng = new RandomGenerator( seed );
       m_rngs.push_back( *rng );
    }
@@ -900,9 +900,8 @@ void McmcBase::proposeStep( unsigned int iChain, vector<double>& accRatios, bool
 
 RealVector McmcBase::calcPriorProb( ParameterSet const& parSet ) const
 {
-   const unsigned int size( parSet.size() );
-   RealVector priorProbVect( size );
-   for ( unsigned int i = 0; i < size; ++i )
+   RealVector priorProbVect( parSet.size() );
+   for ( size_t i = 0; i < parSet.size(); ++i )
    {
       priorProbVect[i] = calcPriorProb( parSet[i] );
    }
@@ -993,7 +992,7 @@ void McmcBase::getP10toP90( P10ToP90Values &values, P10ToP90Parameters &paramete
          size_t   key( std::min( numSamples, static_cast<size_t>((j + 1) * numSamples / 10.0)) );
 
          value[j]     = proxyValues[key].first;
-         parameter[j] = extendSampleToProxyCase( m_sample_copy[ proxyValues[key].second ].first, key );
+         parameter[j] = extendSampleToProxyCase( m_sample_copy[ proxyValues[key].second ].first, static_cast<unsigned int>( key ) );
       } // for all P
    } // for all mcmcProxy
 }
@@ -1068,7 +1067,7 @@ struct ParameterIsClose
    /// compared to the parameter element ranges defined by the ParameterPdf
    bool operator()( Parameter const& p1, Parameter const& p2 ) const
    {
-      const unsigned int size = p1.size();
+      const unsigned int size = static_cast<unsigned int>(p1.size());
       bool ok( p2.size() == size );
       for ( size_t i = 0; ok && i < size; ++i )
       {

@@ -75,7 +75,7 @@ void ProxyEstimator::setNrCasesForTest( unsigned int num )
 
 unsigned int ProxyEstimator::getNrCases() const
 {
-   return m_parSet.size();
+   return static_cast<unsigned int>( m_parSet.size() );
 }
 
 unsigned int ProxyEstimator::getNrCasesForTest() const
@@ -100,7 +100,7 @@ unsigned int ProxyEstimator::getMinNrCasesForEstimation() const
    // twice the number of parameters, and at most all cases
    if ( ! m_parSet.empty() )
    {
-      return std::min( 2*m_parSet.front().size() + 1, m_parSet.size() );
+      return static_cast<unsigned int>( std::min( 2 * m_parSet.front().size() + 1, m_parSet.size() ) );
    }
    else
    {
@@ -255,7 +255,7 @@ bool ProxyEstimator::approveCandidate( unsigned int N, unsigned int nrPars, unsi
 void ProxyEstimator::updateCandidates( ProxyCases const& proxycases, VarList const& baseVars, MonomialKeyList const& code,
                      unsigned int nrOrdPars, int order, bool threeWayX, CandidateList & candidates ) const
 {
-   const unsigned int nrBaseVars = baseVars.size();
+   const unsigned int nrBaseVars = static_cast<unsigned int>(baseVars.size());
    const unsigned int nrTuneCases = proxycases.numTuneCases();
    const unsigned int nrPars = proxycases.caseSize();
    const unsigned int N = getNrCases();
@@ -303,8 +303,8 @@ unsigned int GetIndex( std::pair<double,unsigned int> const& p ) { return p.seco
 
 bool ProxyEstimator::isWinnerStable( CandidateRanking const& ranking, unsigned int& winner )
 {
-   unsigned int currentWinner = ranking[0].second;
-   unsigned int initialIndex = ranking.size(); //deliberately chosen initial winner index
+   unsigned int currentWinner = static_cast<unsigned int>(ranking[0].second);
+   unsigned int initialIndex = static_cast<unsigned int>(ranking.size()); //deliberately chosen initial winner index
 
    // Determine whether current winner and last saved winner are the same
    bool stableCycle = currentWinner == winner;
@@ -356,7 +356,7 @@ bool ProxyEstimator::autoEstimate( ProxyCandidate &best, unsigned int nbOrdPars,
    }
 
    // The number of parameters = the number of entries in each case
-   const unsigned int numPar = m_parSet.front().size();
+   const unsigned int numPar = static_cast<unsigned int>(m_parSet.front().size());
 
    // The code containing all potential monomials/variables up to 3rd order
    MonomialKeyList code;
@@ -489,7 +489,7 @@ bool ProxyEstimator::autoEstimate( ProxyCandidate &best, unsigned int nbOrdPars,
    const unsigned int maxNbOfIters = std::max<unsigned int>( 2*numPar + getNrCases()/3, 50 );
    bool allow3WayCrossTerms = false;
 
-   while ( ! converged && ! exhausted( activeVars.size(), maxNumVars ) )
+   while ( !converged && !exhausted( static_cast<unsigned int>(activeVars.size()), maxNumVars) )
    {
       whileIterCount++;
 
@@ -540,7 +540,7 @@ bool ProxyEstimator::autoEstimate( ProxyCandidate &best, unsigned int nbOrdPars,
       } // cross-validation loop
 
       // The index of the best of the candidate variables
-      const unsigned int best_index = ranking[0].second;
+      const size_t best_index = ranking[0].second;
 
       // Does the best candidate outperform the best model so far?
       const bool improved = betterProxyExists( candidates[ best_index ], best, confLevel, eps );
@@ -633,10 +633,10 @@ bool ProxyEstimator::betterProxyExists( ProxyCandidate const& candidate, ProxyCa
 
    std::vector<unsigned int> vars;
    candidate.proxy->getVarList( vars );
-   int nAddedVars = vars.size();
+   int nAddedVars = static_cast<int>(vars.size());
    best.proxy->getVarList( vars );
-   nAddedVars -= vars.size();
-   const unsigned int usedDegrees = vars.size() + nAddedVars + 1;
+   nAddedVars -= static_cast<unsigned int>( vars.size() );
+   const unsigned int usedDegrees = static_cast<unsigned int>( vars.size() + nAddedVars + 1 );
    assert( getNrCases() >= usedDegrees );
    const unsigned int degreesOfFreedom = getNrCases() - usedDegrees;
    if ( degreesOfFreedom == 0 ) //not supposed to happen, but just in case...

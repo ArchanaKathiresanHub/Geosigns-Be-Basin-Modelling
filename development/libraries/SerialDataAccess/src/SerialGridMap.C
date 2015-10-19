@@ -25,7 +25,7 @@ using namespace Interface;
 SerialGridMap::SerialGridMap (const Parent * owner, unsigned int childIndex, const Grid * grid, double undefinedValue, unsigned int depth, float *** values) :
 	    GridMap (owner, childIndex), m_grid (grid),	m_undefinedValue (undefinedValue), m_averageValue (m_undefinedValue), m_depth (depth)
 {
-   m_values = Array < double >::create3d (grid->numI (), grid->numJ (), m_depth, m_undefinedValue);
+   m_values = Array < double >::create3d( static_cast<size_t>(grid->numI()), static_cast<size_t>(grid->numJ()), static_cast<size_t>( m_depth ), m_undefinedValue);
    m_singleValue = m_undefinedValue;
 
    unsigned int numI = grid->numI ();
@@ -579,8 +579,8 @@ bool SerialGridMap::saveHDF5 (const string & fileName) const
    HDF5::writeData1D (fileHandle, 1, "/number in I dimension", H5T_NATIVE_INT, &numI);
    HDF5::writeData1D (fileHandle, 1, "/number in J dimension", H5T_NATIVE_INT, &numJ);
 
-   float origI = getGrid ()->minI ();
-   float origJ = getGrid ()->minJ ();
+   float origI = static_cast<float>( getGrid()->minI() );
+   float origJ = static_cast<float>( getGrid()->minJ() );
    HDF5::writeData1D (fileHandle, 1, "/origin in I dimension", H5T_NATIVE_FLOAT, &origI);
    HDF5::writeData1D (fileHandle, 1, "/origin in J dimension", H5T_NATIVE_FLOAT, &origJ);
 

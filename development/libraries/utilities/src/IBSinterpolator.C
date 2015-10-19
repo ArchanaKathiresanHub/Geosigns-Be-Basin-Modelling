@@ -171,7 +171,7 @@ double ibs::Interpolator::compute (double x, Extrapolation type)
       }
       else
       {
-	 int size = d_vectorXF.size ();
+	 size_t size = d_vectorXF.size ();
 
 	 pointLeft = &d_vectorXF[size - 2];
 	 pointRight = &d_vectorXF[size - 1];

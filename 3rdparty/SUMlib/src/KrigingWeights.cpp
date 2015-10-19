@@ -26,7 +26,7 @@ void KrigingWeights::sumPositiveWeights( )
 
    m_sumOfWeights = 0.0;
    m_indexes.clear();
-   const unsigned int size = m_weights.size();
+   const unsigned int size = static_cast<unsigned int>( m_weights.size() );
    for ( unsigned int i = 0; i < size; ++i )
    {
       if ( m_weights[i] > eps )
@@ -62,7 +62,7 @@ void KrigingWeights::zeroWeights( unsigned int size )
 void KrigingWeights::calcGlobalWeights( ParameterSet const& parSet, KrigingData const& kr, Parameter const& p )
 {
    m_weights.resize( parSet.size(), 0.0 );
-   const unsigned int m = m_weights.size();
+   const unsigned int m = static_cast<unsigned int>( m_weights.size() );
    RealVector cov_p( m, 0.0 );
    if ( m > 0 )
    {
@@ -84,7 +84,7 @@ void KrigingWeights::calcGlobalWeights( ParameterSet const& parSet, KrigingData 
 void KrigingWeights::calcLocalWeights( ParameterSet const& parSet, KrigingData const& kr, Parameter const& p )
 {
    m_weights.resize( parSet.size(), 0.0 );
-   const unsigned int m = m_weights.size();
+   const unsigned int m = static_cast<unsigned int>( m_weights.size() );
    const unsigned int refIndex = kr.refIndex();
    const double eps = 1e-6;
    const double localCorLength = kr.localCorLength();

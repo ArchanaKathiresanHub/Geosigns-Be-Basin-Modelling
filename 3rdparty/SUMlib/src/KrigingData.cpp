@@ -51,7 +51,7 @@ void KrigingData::defineCorrelationLengths( unsigned int dim )
 
 void KrigingData::calcDistances( ParameterSet const& parSet )
 {
-   const unsigned int m = parSet.size();
+   const unsigned int m = static_cast<unsigned int>( parSet.size() );
    m_distances.resize( m );
    for ( unsigned i = 0; i < m; ++i )
    {
@@ -81,7 +81,7 @@ void KrigingData::calcDistances( ParameterSet const& parSet )
 
 void KrigingData::calcInvCov()
 {
-   const unsigned int m = m_distances.size();
+   const unsigned int m = static_cast<unsigned int>( m_distances.size() );
    m_globalInvCov.resize( m );
    m_localInvCov.resize( m );
    for ( unsigned i = 0; i < m; ++i )

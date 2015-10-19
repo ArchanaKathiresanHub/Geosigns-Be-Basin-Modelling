@@ -308,7 +308,6 @@ namespace casa
       if ( !toPath.exists() ) ibs::FolderPath( toPath.path() ).create();
 
       const char ** flLst = NULL;
-      size_t        numFiles;
 
       switch( m_appDepLevel ) 
       {

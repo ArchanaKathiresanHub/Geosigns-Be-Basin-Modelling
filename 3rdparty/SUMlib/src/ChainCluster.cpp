@@ -121,7 +121,7 @@ double ChainCluster::calcDensity(double distance) const
 ///////////////////////////////////////////////////////////////////////////////
 void ChainCluster::calcCentreOfMass()
 {
-   unsigned int nDimensions = m_dataSet[0].size();
+   unsigned int nDimensions = static_cast<unsigned int>( m_dataSet[0].size() );
    for ( Index iCoord = 0; iCoord < nDimensions; iCoord++ )
    {
       double xCm = 0;
@@ -166,7 +166,7 @@ const IndexList& ChainCluster::getContent() const
 ///////////////////////////////////////////////////////////////////////////////
 unsigned int ChainCluster::getNumPoints() const
 {
-   return m_clusterContent.size();
+   return static_cast<unsigned int>( m_clusterContent.size() );
 }
 
 ///////////////////////////////////////////////////////////////////////////////

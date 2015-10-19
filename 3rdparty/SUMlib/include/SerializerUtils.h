@@ -23,7 +23,7 @@ namespace SUMlib
 template < typename T >
 inline bool serialize( ISerializer* p_serializer, const std::vector<T>& p_vec )
 {
-   unsigned int nrOfRows = p_vec.size();
+   unsigned int nrOfRows = static_cast<unsigned int>( p_vec.size() );
    bool         ok(p_serializer->save(nrOfRows));
 
    // for all rows
@@ -45,7 +45,7 @@ bool serialize( ISerializer* p_serializer, const T& t )
 // template for serialize RealMatrix
 inline bool serialize( ISerializer* p_serializer, const RealMatrix& p_realMatrix )
 {
-   unsigned int nrOfRows = p_realMatrix.size();
+   unsigned int nrOfRows = static_cast<unsigned int>( p_realMatrix.size() );
    bool         ok(p_serializer->save(nrOfRows));
 
    if (ok)

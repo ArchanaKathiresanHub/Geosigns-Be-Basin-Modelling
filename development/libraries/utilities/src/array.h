@@ -74,9 +74,9 @@ class Array {
       Type ** array = Array<Type *>::create1d (n1);
       CheckArray (array);
 
-      for (int j = n1 - 1; j >= 0; j--)
+      for (int j = static_cast<int>( n1 ) - 1; j >= 0; j--)
       {
-	 array[j] = array1d + j * n2;
+         array[j] = array1d + j * n2;
       }
 
       return array;

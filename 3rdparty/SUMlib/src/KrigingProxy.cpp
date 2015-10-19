@@ -99,7 +99,7 @@ void KrigingProxy::calcProxyError( CubicProxy const& proxy )
 
 unsigned int KrigingProxy::size() const
 {
-   return m_parSet->front().size();
+   return static_cast<unsigned int>( m_parSet->front().size() );
 }
 
 double KrigingProxy::getValue( Parameter const& p, KrigingType krigingType ) const
@@ -132,7 +132,7 @@ void KrigingProxy::calcKrigingWeights( Parameter const& p, KrigingType kriging, 
          krigingWeights.calcLocalWeights( *m_parSet, *m_krigingData, p );
          break;
       default:
-         krigingWeights.zeroWeights( m_parSet->size() );
+         krigingWeights.zeroWeights( static_cast<unsigned int>( m_parSet->size() ) );
          break;
    }
 }

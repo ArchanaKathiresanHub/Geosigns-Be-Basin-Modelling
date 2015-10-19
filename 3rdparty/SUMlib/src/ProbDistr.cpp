@@ -18,9 +18,9 @@ const double ProbDistr::CloseToZero = 1e-200;
 
 void ProbDistr::calcLogPriorProb( ParameterSet const& parSet, RealVector &priorProb ) const
 {
-   const unsigned int size( parSet.size() );
+   const size_t size( parSet.size() );
    priorProb.resize( size );
-   for ( unsigned int i = 0; i < size; ++i )
+   for ( size_t i = 0; i < size; ++i )
    {
       priorProb[i] = calcLogPriorProb( parSet[i] );
    }

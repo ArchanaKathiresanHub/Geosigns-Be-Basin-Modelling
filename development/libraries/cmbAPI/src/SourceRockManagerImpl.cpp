@@ -95,10 +95,10 @@ SourceRockManager::SourceRockID SourceRockManagerImpl::findID( const std::string
          throw Exception( NonexistingID ) << s_sourceRockTableName << " table could not be found in project";
       }
 
-      int tblSize = table->size();
-      for ( int i = 0; i < tblSize; ++i )
+      size_t tblSize = table->size();
+      for ( size_t i = 0; i < tblSize; ++i )
       {
-         database::Record * rec = table->getRecord( i );
+         database::Record * rec = table->getRecord( static_cast<int>( i ) );
          if ( !rec )
          {
             throw Exception( NonexistingID ) << "No source rock lithology with such ID: " << i;

@@ -49,8 +49,8 @@ public:
    void initialise( const std::vector<double>& base,
                     const std::vector<std::vector<double> >& covmat );
 
-   unsigned int size() const { return m_base.size(); }
-   unsigned int sizeCon() const { return m_mean.size(); }
+   unsigned int size() const { return static_cast<unsigned int>( m_base.size() ); }
+   unsigned int sizeCon() const { return static_cast<unsigned int>( m_mean.size() ); }
 
    /// Set ordinal parameter bounds between which samples are accepted
    /// @param [in] min  lower ordinal sampling bounds

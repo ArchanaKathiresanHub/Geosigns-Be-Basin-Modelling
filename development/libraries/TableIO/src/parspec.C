@@ -305,7 +305,7 @@ int main (int argc, char **argv)
    string schemaSourceFile = schemaName;
    string schemaHeaderFile = schemaName;
 
-   for (i = schemaName.length () - 1; i >= 0; i--)
+   for (i = static_cast<int>(schemaName.length ()) - 1; i >= 0; i--)
    {
       schemaSourceFile[i] = tolower (schemaSourceFile[i]);
       schemaHeaderFile[i] = tolower (schemaHeaderFile[i]);
@@ -505,7 +505,7 @@ int main (int argc, char **argv)
    {
       const string & tableName = *tblIter;
 
-      int tableSize = TableFields[tableName].size ();
+      size_t tableSize = TableFields[tableName].size();
 
       for (i = 0; i < tableSize; i++)
       {

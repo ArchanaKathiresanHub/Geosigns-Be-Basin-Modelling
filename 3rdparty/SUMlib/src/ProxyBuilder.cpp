@@ -24,7 +24,7 @@ ProxyBuilder::ProxyBuilder(
       TargetSet const&     targetSet,
       IndexList const&     vars
       )
-   : m_size( parSet.size() ? parSet.front().size() : 0 ),
+      : m_size( static_cast<unsigned int>( parSet.size() ? parSet.front().size() : 0 ) ),
      m_parSet( parSet ),
      m_scaledTargets( targetSet ),
      m_vars( vars )
@@ -73,16 +73,16 @@ CubicProxy *ProxyBuilder::create( unsigned int varIndx ) const
 
    if ( varIt != vars.end() )
    {
-      const unsigned int varPos = std::distance( vars.begin(), varIt );
+      const size_t varPos = std::distance( vars.begin(), varIt );
       // Reduce model by removing column that corresponds to the supplied var
       vars.erase( varIt );
-      const unsigned int nrOfVars = vars.size();
+      const size_t nrOfVars = vars.size();
 
       // Construct coefficients corresponding to the new vars
-      coefficients = calcReducedCoeff( nrOfVars, varPos );
+      coefficients = calcReducedCoeff( static_cast<unsigned int>(nrOfVars), static_cast<unsigned int>(varPos));
 
       // Update proxy members: code and proxyMean
-      for ( unsigned int i = 0; i <= nrOfVars; ++i )
+      for ( size_t i = 0; i <= nrOfVars; ++i )
       {
          if ( i > varPos )
          {
@@ -97,7 +97,7 @@ CubicProxy *ProxyBuilder::create( unsigned int varIndx ) const
    {
       // Augment model by adding column that corresponds to the supplied var
       IndexListInsert( vars, varIndx );
-      const unsigned int nrOfVars = vars.size();
+      const unsigned int nrOfVars = static_cast<unsigned int>(vars.size());
       IndexList parIndx;
       RealVector col; //column to be added to the model
       double colMean = addVarColumn( varIndx, parIndx, col );
@@ -112,7 +112,7 @@ CubicProxy *ProxyBuilder::create( unsigned int varIndx ) const
       proxyMean.resize( nrOfVars );
       coefficients.resize( nrOfVars );
       varIt = std::find( vars.begin(), vars.end(), varIndx );
-      const int varPos = std::distance( vars.begin(), varIt );
+      const int varPos = static_cast<int>(std::distance( vars.begin(), varIt ));
       for ( int i = nrOfVars - 1; i >= 0 ; --i )
       {
          if ( i > varPos )
@@ -198,8 +198,8 @@ double ProxyBuilder::addVarColumn( unsigned int varIndx, IndexList& parIndx, Rea
 
 void ProxyBuilder::calcAugmentedCoeff( RealVector const& c, RealVector& r, double& s ) const
 {
-   const unsigned int nPar = c.size();
-   const unsigned int nVar = proxyData().front().size();
+   const unsigned int nPar = static_cast<unsigned int>(c.size());
+   const unsigned int nVar = static_cast<unsigned int>(proxyData().front().size());
    r = coefficients();
    s = 0.0;
 
@@ -253,7 +253,7 @@ RealVector ProxyBuilder::calcReducedCoeff( unsigned int nVars, unsigned int pos 
    {
       RealMatrix orthU = proxyData();
       assert( orthU.front().size() == nVars + 1 );
-      const unsigned int nRows = orthU.size();
+      const size_t nRows = orthU.size();
       for ( i = 0; i < nRows; ++i )
       {
          for ( j = pos; j < nVars; ++j )

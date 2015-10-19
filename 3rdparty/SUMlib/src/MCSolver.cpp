@@ -19,7 +19,7 @@ void MCSolver::stepImpl( vector<double>& yNew, double& logLhNew, const size_t i 
 {
    if ( m_krigingUsage == SmartMcmcKriging )
    {
-      calcModel( extendSubSampleToProxyCase( m_pSubSample[i], i) , yNew, m_krigingType ); //calculate expensive yNew
+      calcModel( extendSubSampleToProxyCase( m_pSubSample[i], static_cast<unsigned int>(i)), yNew, m_krigingType ); //calculate expensive yNew
       logLhNew = calcLh( yNew ); //calculate corresponding log likelihood
    }
    else

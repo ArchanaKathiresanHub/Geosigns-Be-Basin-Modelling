@@ -74,7 +74,7 @@ void ProxyCases::initialise( ParameterSet const&parSet, TargetSet const& targetS
       double targetDev = targetSet[i] - targetAvg;
       sumOfSquares += ( targetDev * targetDev );
    }
-   int degreesOfFreedom = targetSet.size() - 1;
+   int degreesOfFreedom = static_cast<int>(targetSet.size()) - 1;
    m_targetVariance = sumOfSquares / std::max<int>( degreesOfFreedom, 1 );
    double targetStdDev = sqrt( m_targetVariance );
    if ( targetStdDev < Tiny || targetStdDev < 1e-6*fabs( targetAvg ) )
@@ -149,7 +149,7 @@ unsigned int ProxyCases::setCaseList( CaseList const& cases )
    delete m_builder;
    m_builder = NULL;
 
-   const unsigned int nCases( m_cases.size() );
+   const size_t nCases( m_cases.size() );
 
    // Construct the original parameter set and target set
    ParameterSet parSet;
@@ -208,12 +208,12 @@ unsigned int ProxyCases::setCaseList( CaseList const& cases )
 
 unsigned int ProxyCases::numTotalCases() const
 {
-   return m_tunePars.size() + m_testPars.size();
+   return static_cast<unsigned int>( m_tunePars.size() + m_testPars.size() );
 }
 
 unsigned int ProxyCases::numTuneCases() const
 {
-   return m_tunePars.size();
+   return static_cast<unsigned int>( m_tunePars.size() );
 }
 
 unsigned int ProxyCases::caseSize() const
@@ -222,7 +222,7 @@ unsigned int ProxyCases::caseSize() const
    {
       THROW2( InvalidState, "Case set cannot be empty" );
    }
-   return m_tunePars.front().size();
+   return static_cast<unsigned int>( m_tunePars.front().size() );
 }
 
 void ProxyCases::createProxyBuilder( VarList const& vars )
@@ -265,12 +265,12 @@ double ProxyCases::calculateMSE( CubicProxy const *proxy, ParameterSet const& pa
       return 0.0;
    }
 
-   const unsigned int N = par.size();
+   const size_t N = par.size();
 
    // Calculate mean-squared-error of proxy response w.r.t. supplied targets
    RealVector response;
    response.reserve( par.size() );
-   for ( unsigned i = 0; i < N; ++i )
+   for ( size_t i = 0; i < N; ++i )
    {
       response.push_back( proxy->getValue( par[i] ) );
    }
@@ -290,7 +290,7 @@ double ProxyCases::tuneMSE( CubicProxy const * proxy ) const
 void ProxyCases::test( CubicProxy const * proxy, double& tuneRMSE,
                        double& testRMSE, double& totalRMSE, double& adjustedR2 ) const
 {
-   unsigned int nrOfUsedVars = proxy->variables().size();
+   size_t nrOfUsedVars = proxy->variables().size();
 
    if ( proxy == NULL )
    {
@@ -306,10 +306,10 @@ void ProxyCases::test( CubicProxy const * proxy, double& tuneRMSE,
    testRMSE = sqrt( mseTest );
 
    // Calculate adjusted RMSE value for total set
-   const unsigned int nTune = m_tunePars.size();
-   const unsigned int nTest = m_testPars.size();
+   const size_t nTune = m_tunePars.size();
+   const size_t nTest = m_testPars.size();
    assert( nTune > nrOfUsedVars ); //underdetermined systems of equations are not supported
-   const unsigned int degreesOfFreedom = nTune + nTest - nrOfUsedVars - 1;
+   const size_t degreesOfFreedom = nTune + nTest - nrOfUsedVars - 1;
    if ( degreesOfFreedom > 0 )
    {
       const double totalMSE = ( mseTune * nTune + mseTest * nTest ) / degreesOfFreedom;

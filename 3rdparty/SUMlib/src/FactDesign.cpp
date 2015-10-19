@@ -66,7 +66,7 @@ void FactDesign::generate()
    // Now generate the non-confounded (= not aliased) columns
    if ( numSelOrdFactors() > 0 )
    {
-      generateRuns( numSelOrdFactors() - m_designGenerators.size() - 1, des );
+      generateRuns( numSelOrdFactors() - static_cast<unsigned int>( m_designGenerators.size() ) - 1, des);
    }
 
    // Add confounded/aliased columns using the design generators
@@ -101,7 +101,7 @@ void FactDesign::generate()
 
       if ( m_type == INSCRIBED || m_type == CIRCUMSCRIBED )
       {
-         int n = numSelOrdFactors() - m_designGenerators.size();
+         int n = numSelOrdFactors() - static_cast<unsigned int>( m_designGenerators.size() );
          alfa = pow( 2.0, 1.0*n );
          alfa = pow(alfa, 0.25 );
       }

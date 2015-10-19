@@ -124,7 +124,7 @@ MapsManager::MapID MapsManagerImpl::copyMap( MapID id, const std::string & newMa
       if ( !table ) { throw Exception( NonexistingID ) <<  s_mapsTableName << " table could not be found in project " << m_projectFileName; }
 
       // get record for copy
-      database::Record * origRec = table->getRecord( id );
+      database::Record * origRec = table->getRecord( static_cast<int>( id ) );
       if ( !origRec ) { throw Exception( NonexistingID ) << "No input map with such ID: " << id; }
 
       // create map copy
@@ -165,7 +165,7 @@ ErrorHandler::ReturnCode MapsManagerImpl::saveMapToHDF( MapID id, const std::str
       if ( !m_mapObj[id] ) { throw Exception( UndefinedValue ) << "MapManager::saveMapToHDF(): Map " << m_mapName[id] << " wasn't modified. Nothing to save"; }
       
       // get record from table for the given map 
-      database::Record * rec = table->getRecord( id );
+      database::Record * rec = table->getRecord( static_cast<int>( id ) );
       if ( !rec ) { throw Exception( NonexistingID ) << "No input map with such ID: " << id; }
       
       // get only the file name from the file path (if given)

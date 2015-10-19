@@ -42,7 +42,7 @@ namespace mbapi
 
       /// @brief Get number of snapshots in project
       /// @return number of snapshots 
-      virtual int snapshotsNumber();
+      virtual size_t snapshotsNumber();
 
       /// @brief Get time for the i-th snapshot
       /// @param i snapshot number

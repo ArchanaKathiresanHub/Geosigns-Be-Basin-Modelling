@@ -213,7 +213,7 @@ private:
          {
             int val;
             ok = load( val );
-            t[i] = val;
+            t[i] = val ? true : false;
          }
       }
       return ok;
@@ -363,7 +363,7 @@ private:
    template< typename T >
    bool saveArray( const T& t, size_t nElem=1 )
    {
-      return saveBytes( &t, sizeof( t ) * nElem );
+      return saveBytes( &t, sizeof( t ) * static_cast<unsigned int>( nElem ) );
    }
 
    /// Save a vector of T
@@ -371,7 +371,7 @@ private:
    bool saveVec( const std::vector< T >& t )
    {
       bool ok = true;
-      unsigned int vecSize = t.size();
+      unsigned int vecSize = static_cast<unsigned int>( t.size() );
       ok = ok && saveArray( vecSize );
 
       if ( ok && vecSize > 0 )
@@ -385,7 +385,7 @@ private:
    bool saveVec( const std::vector< bool >& t )
    {
       bool ok = true;
-      unsigned int vecSize = t.size();
+      unsigned int vecSize = static_cast<unsigned int>( t.size() );
       ok = ok && saveArray( vecSize );
 
       if ( ok )

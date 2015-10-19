@@ -60,14 +60,14 @@ bool Buffer_ReadWrite::readDataset (H5_ReadOnly_File *h5File, hid_t locId, const
    if ( dims[0] > 0 )
    {    
       // get size and type of data
-      int linearSize = 1;
+      hsize_t linearSize = 1;
       for ( int i=0; i < dims.numDimensions(); ++i )
       {
          linearSize *= dims[i];
       }
 
       hid_t typeId = H5Dget_type (dataId);
-      int sizeType = H5Tget_size (typeId);
+      size_t sizeType = H5Tget_size (typeId);
       H5Tclose (typeId);
  
       *data = new char [linearSize * sizeType];
@@ -95,7 +95,7 @@ bool Buffer_ReadWrite::readDataset (H5_ReadOnly_File *h5File, hid_t locId, const
      ++dims[0];
   }
 
-  return ret;
+  return ret ? true : false;
 }
   
 bool Buffer_ReadWrite::writeAttribute (H5_Write_File *h5File, hid_t locId, const char *attribute, 
@@ -145,13 +145,13 @@ bool Buffer_ReadWrite::readAttribute (H5_ReadOnly_File *h5File, hid_t locId, con
    if ( dims[0] > 0 )
    {
       // get the attribute size and type
-      int linearSize = 1;
+      hsize_t linearSize = 1;
       for ( int i=0; i < dims.numDimensions(); ++i )
       {
          linearSize *= dims[i];
       }
    
-      int sizeType = H5Tget_size (H5Aget_type (attributeId));
+      size_t sizeType = H5Tget_size (H5Aget_type (attributeId));
 
       *data = new char [linearSize * sizeType];
 

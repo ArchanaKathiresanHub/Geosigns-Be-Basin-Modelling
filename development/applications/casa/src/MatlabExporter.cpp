@@ -354,7 +354,7 @@ void MatlabExporter::exportRSAProxies( ScenarioAnalysis & sc )
          std::vector<int> numCoefPerOrd;
 
          // get polynomial order 
-         int ord = 0;
+         size_t ord = 0;
          for ( RSProxy::CoefficientsMap::const_iterator it = cmap.begin(); it != cmap.end(); ++it )
          {
             const std::vector< unsigned int > & prmsLst = it->first;

@@ -120,7 +120,7 @@ void OptimisedLHD::getCaseSetImpl( ParameterBounds const& bounds, Case const& ce
 
 unsigned int OptimisedLHD::getNbOfCases( ParameterBounds const&, bool ) const
 {
-   return m_design.size();
+   return static_cast<unsigned int>( m_design.size() );
 }
 
 void OptimisedLHD::createRandomLHD( vector<size_t>& coordinates,
@@ -133,7 +133,7 @@ void OptimisedLHD::createRandomLHD( vector<size_t>& coordinates,
       {
          double r = rg->uniformRandom();
          int randomIndex = int( r*last ); //random index in {0, 1, ..., last-1}
-         int temp = coordinates[randomIndex];
+         size_t temp = coordinates[randomIndex];
          coordinates[randomIndex] = coordinates[last-1];
          coordinates[last-1] = temp;
          design[last-1][k] = coordinates[last-1];

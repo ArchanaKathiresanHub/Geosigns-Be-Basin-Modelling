@@ -267,7 +267,7 @@ void CompoundProxy::calculateProxyPair(
 
 unsigned int CompoundProxy::size( ) const
 {
-   return m_parSet->front().size();
+   return static_cast<unsigned int>( m_parSet->front().size() );
 }
 
 void CompoundProxy::calcKrigingWeights( Parameter const& p, KrigingType krigingType, KrigingWeights& krigingWeights ) const

@@ -31,7 +31,7 @@ Numerics::ApproximateCardinalFunction::~ApproximateCardinalFunction () {
 Numerics::FloatingPoint Numerics::ApproximateCardinalFunction::innerProduct ( const Vector& theVector ) const {
 
   FloatingPoint result = 0.0;
-  int           I;
+  long          I;
 
   // Do the loop in reverse, because the smaller numbers (in magnitude) are at 
   // the end of the vector and this should help in ill-conditioned systems.

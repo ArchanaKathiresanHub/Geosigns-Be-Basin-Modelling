@@ -38,7 +38,9 @@ void Numerics::details::matMatProd ( const double              alpha,
       if ( beta == 0.0 ) {
 
          // Zero column in result matrix before adding to it.
+#ifdef __INTEL_COMPILER
 #pragma ivdep
+#endif
          for ( i = 0; i < cColStride; i += 1 ) {
             cd128 [ i ] = zero;
          }
@@ -49,7 +51,9 @@ void Numerics::details::matMatProd ( const double              alpha,
 
       } else {
 
+#ifdef __INTEL_COMPILER
 #pragma ivdep
+#endif
          for ( i = 0; i < cColStride; i += 1 ) {
             cd128 [ i ] = SimdInstr::mul ( cd128 [ i ], beta128 );
          }
@@ -63,7 +67,9 @@ void Numerics::details::matMatProd ( const double              alpha,
       for ( k = 0; k < a.cols (); ++k, ad128 += aColStride ) {
          SimdInstr::PackedDouble bVal128 = SimdInstr::mul ( alpha128, SimdInstr::set1 ( bd [ k ]));
 
+#ifdef __INTEL_COMPILER
 #pragma ivdep
+#endif
          for ( i = 0; i < asize; ++i ) {
             cd128 [ i ] = SimdInstr::mulAdd ( ad128 [ i ], bVal128, cd128 [ i ]);
          }
@@ -97,8 +103,10 @@ void Numerics::details::matTransMatProd ( const double              alpha,
          ip1 = 0.0;
          ip2 = 0.0;
 
+#ifdef __INTEL_COMPILER
 #pragma ivdep
-         for ( k = 0; k < a.rows (); ++k ) {
+#endif
+         for ( k = 0; k < a.rows(); ++k ) {
             ip1 += a ( k, i ) * b ( k, j );
             ip2 += a ( k, i ) * b ( k, j + 1 );
          }
@@ -110,8 +118,10 @@ void Numerics::details::matTransMatProd ( const double              alpha,
       if ( colsMod2 == 1 ) {
          ip1 = 0.0;
 
+#ifdef __INTEL_COMPILER
 #pragma ivdep
-         for ( k = 0; k < a.rows (); ++k ) {
+#endif
+         for ( k = 0; k < a.rows(); ++k ) {
             ip1 += a ( k, i ) * b ( k, c.cols () - 1 );
          }
 
@@ -160,7 +170,9 @@ void Numerics::details::matMatTransProd ( const double              alpha,
 
       if ( beta == 0 ) {
 
+#ifdef __INTEL_COMPILER
 #pragma ivdep
+#endif
          // Zero column in result matrix before adding to it.
          for ( i = 0; i < cColStride; ++i ) {
             cd128 [ i ] = zero;
@@ -168,7 +180,9 @@ void Numerics::details::matMatTransProd ( const double              alpha,
 
       } else {
 
+#ifdef __INTEL_COMPILER
 #pragma ivdep
+#endif
          for ( i = 0; i < cColStride; ++i ) {
             cd128 [ i ] = SimdInstr::mul ( cd128 [ i ], beta128 );
          }
@@ -178,7 +192,9 @@ void Numerics::details::matMatTransProd ( const double              alpha,
       for ( k = 0, bPos = 0; k < a.cols (); ++k, ad128 += aColStride, bPos += bColStride ) {
          SimdInstr::PackedDouble bVal128 = SimdInstr::mul ( alpha128, SimdInstr::set1 ( bd [ bPos ]));
 
+#ifdef __INTEL_COMPILER
 #pragma ivdep
+#endif
          for ( i = 0; i < asize; ++i ) {
             cd128 [ i ] = SimdInstr::mulAdd ( ad128 [ i ], bVal128, cd128 [ i ]);
          }
@@ -200,7 +216,6 @@ void Numerics::details::matTransMatTransProd ( const double              alpha,
                                                const double              beta,
                                                      AlignedDenseMatrix& c ) {
 
-   double ip;
    int i;
    int j;
    int k;
@@ -212,15 +227,19 @@ void Numerics::details::matTransMatTransProd ( const double              alpha,
 
       if ( beta == 0 ) {
 
+#ifdef __INTEL_COMPILER
 #pragma ivdep
-         for ( i = 0; i < c.rows (); ++i ) {
+#endif
+         for ( i = 0; i < c.rows(); ++i ) {
             cd [ i ] = 0.0;
          }
 
       } else {
 
+#ifdef __INTEL_COMPILER
 #pragma ivdep
-         for ( i = 0; i < c.rows (); ++i ) {
+#endif
+         for ( i = 0; i < c.rows(); ++i ) {
             cd [ i ] *= beta;
          }
          
@@ -229,8 +248,10 @@ void Numerics::details::matTransMatTransProd ( const double              alpha,
       for ( k = 0; k < a.rows (); ++k ) {
          double bjk = alpha * b ( j, k );
 
+#ifdef __INTEL_COMPILER
 #pragma ivdep
-         for ( i = 0; i < a.cols (); ++i ) {
+#endif
+         for ( i = 0; i < a.cols(); ++i ) {
             cd [ i ] += a ( k, i ) * bjk;
          }
 

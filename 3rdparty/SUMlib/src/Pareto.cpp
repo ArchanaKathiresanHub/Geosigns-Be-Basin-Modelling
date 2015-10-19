@@ -101,7 +101,7 @@ void Pareto::calcSensitivities(
 
    vector<vector<double> > propSensitivities;
    static const double minScale = MachineEpsilon(); //minimal response scale in SI units
-   const unsigned int nbProp = inputs.size();
+   const unsigned int nbProp = static_cast<unsigned int>( inputs.size() );
    vector<double> rangeOfPropertyResponse( nbProp, minScale );
    getPropertySensitivities( inputs, priorPar, propSensitivities, rangeOfPropertyResponse );
 
@@ -126,7 +126,7 @@ void Pareto::getPropertySensitivities(
    {
       THROW2( DimensionMismatch, "scaleOfResponse array not initialised to the same size as inputs array" );
    }
-   const unsigned int size_k = inputs.size(); //number of properties
+   const unsigned int size_k = static_cast<unsigned int>(inputs.size()); //number of properties
 
    const unsigned int nbPar = priorPar.size();
    const unsigned int nbOrdPar = priorPar.sizeOrd();
@@ -171,7 +171,7 @@ void Pareto::getPropertySensitivities(
       propSensitivities[i].assign( size_k, 0.0 );
       for ( unsigned int k = 0; k < size_k; ++k ) //loop over the selected properties.
       {
-         const unsigned int size_j = inputs[k].size();
+         const unsigned int size_j = static_cast<unsigned int>(inputs[k].size());
          for ( unsigned int j = 0; j < size_j; ++j ) //loop over the wells.
          {
             Proxy const& px = *( inputs[k][j].first );
@@ -206,7 +206,7 @@ void Pareto::getPropertySensitivities(
    {
       // Define sensitivity cases; one for each categorical value
       const unsigned int catParIdx = i - nbOrdPar;
-      const unsigned int nbProxyCases = priorPar.catValues()[catParIdx].size(); //number of categorical values
+      const unsigned int nbProxyCases = static_cast<unsigned int>(priorPar.catValues()[catParIdx].size()); //number of categorical values
       assert( nbProxyCases > 1 );
       proxyCases.assign( nbProxyCases, cp ); //step 1: set all proxy cases equal to ordinal base case
       unsigned int baseCatValue = catCase[catParIdx];
@@ -222,7 +222,7 @@ void Pareto::getPropertySensitivities(
       propSensitivities[i].assign( size_k, 0.0 );
       for ( unsigned int k = 0; k < size_k; ++k ) //loop over the selected properties.
       {
-         const unsigned int size_j = inputs[k].size();
+         const unsigned int size_j = static_cast<unsigned int>( inputs[k].size() );
          for ( unsigned int j = 0; j < size_j; ++j ) //loop over the wells.
          {
             Proxy const& px = *( inputs[k][j].first );
@@ -282,23 +282,23 @@ namespace {
 void MapSensitivityInput( vector<Pareto::SensitivityInput> const& input3D, Pareto::SensitivityInput& input2D )
 {
    // total number of time steps.
-   const unsigned int nbTimes = input3D.size();
+   const size_t nbTimes = input3D.size();
 
    // total number of properties
-   unsigned int nbProp(0);
-   for ( unsigned t = 0; t < nbTimes; ++t )
+   size_t nbProp(0);
+   for ( size_t t = 0; t < nbTimes; ++t )
    {
-      nbProp = std::max<unsigned int>( input3D[t].size(), nbProp );
+      nbProp = std::max<size_t>( input3D[t].size(), nbProp );
    }
 
    input2D.clear();
    input2D.resize( nbProp );
 
-   for ( unsigned t = 0; t < nbTimes; ++t )
+   for ( size_t t = 0; t < nbTimes; ++t )
    {
-      for ( unsigned int p = 0; p < input3D[t].size(); ++p )
+      for ( size_t p = 0; p < input3D[t].size(); ++p )
       {
-         for ( unsigned int w = 0; w < input3D[t][p].size(); ++w )
+         for ( size_t w = 0; w < input3D[t][p].size(); ++w )
          {
             input2D[p].push_back( input3D[t][p][w] );
          }

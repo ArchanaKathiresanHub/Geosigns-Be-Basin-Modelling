@@ -41,7 +41,7 @@ void SnapshotManagerImpl::setDatabase( database::Database * db, const std::strin
 
 
 // Get number of snapshots in project
-int SnapshotManagerImpl::snapshotsNumber()
+size_t SnapshotManagerImpl::snapshotsNumber()
 {
    if ( !m_snpTable ) return 0;
    return m_snpTable->end() - m_snpTable->begin();
@@ -56,7 +56,7 @@ double SnapshotManagerImpl::time( size_t i )
 // Ask, is i-th snapshot minor?
 bool SnapshotManagerImpl::isMinor( size_t i )
 {
-   return database::getIsMinorSnapshot( (*m_snpTable)[static_cast<int>(i)] );
+   return database::getIsMinorSnapshot( (*m_snpTable)[static_cast<int>(i)] ) ? true : false;
 }
 
 

@@ -45,7 +45,7 @@ ChainClusterAlg::~ChainClusterAlg()
 void ChainClusterAlg::generate()
 {
    /// Define parameters
-   const unsigned int nMaxCluster = m_dataSet.size() / 2;
+   const unsigned int nMaxCluster = static_cast<unsigned int>( m_dataSet.size() ) / 2;
    const unsigned int minPointsPerCluster = m_numSeedPoints;
    const double linkDensityCutoff = exp(-m_linkingStrength);
 
@@ -71,7 +71,7 @@ void ChainClusterAlg::generate()
    {
 
       /// Initialize with an invalid seedIndex
-      Index seedIndex = m_dataSet.size();
+      Index seedIndex = static_cast<unsigned int>( m_dataSet.size() );
       double    seedAvgNnDist = DistanceMatrix::getMaxDistance();
 
       /// The searchRadius is defined as the maximum distance in the list of 'minPointsPerCluster' nearest neighbour distances

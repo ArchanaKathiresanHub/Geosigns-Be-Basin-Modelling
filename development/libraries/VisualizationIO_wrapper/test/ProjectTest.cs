@@ -28,7 +28,7 @@ namespace Shell.BasinModeling.CauldronIO.Test
         [TestMethod]
         public void CreateProject()
         {
-            Project project = ImportExport.importFromXML("../../cauldron_outputs.xml");
+            Project project = ImportExport.importFromXML("../../../csharp-test/cauldron_outputs.xml");
             int count = project.getSnapShots().Count;
             Assert.IsTrue(count == 3);
         }

@@ -247,7 +247,7 @@ void ParameterSpace::unprepare( RealVector const& v, Case &c ) const
    for ( unsigned int k = 0; k < sizeDis(); ++k )
    {
       double d = conPars[k + sizeCon()];
-      disPars[k] = floor( d + 0.5 ); //round off to nearest discrete value
+      disPars[k] = static_cast<int>( floor( d + 0.5 ) ); //round off to nearest discrete value
    }
    c.setDiscretePart( disPars ); //copy the converted values to the discrete part of c
    conPars.resize( sizeCon() ); //strip continuous parameters that have just been converted
@@ -410,9 +410,9 @@ unsigned int ParameterSpace::getPreparedCaseSize() const
    size_t preparedCaseSize = nbOfNonFixedOrdinalPars();
    for ( size_t iCat = 0; iCat < m_nbOfOrigDummyPars.size(); ++iCat )
    {
-      preparedCaseSize += isFixed( sizeOrd() + iCat ) ? 0 : m_nbOfOrigDummyPars[ iCat ];
+      preparedCaseSize += isFixed( sizeOrd() + static_cast<unsigned int>(iCat) ) ? 0 : m_nbOfOrigDummyPars[iCat];
    }
-   return preparedCaseSize;
+   return static_cast<unsigned int>( preparedCaseSize );
 }
 
 unsigned int ParameterSpace::nbOfDummyParsForCat( size_t catIndex ) const
@@ -478,7 +478,7 @@ void ParameterSpace::prepare( Partition& partition ) const
    for ( unsigned int i = 0; i < sizeCat(); ++i )
    {
       unsigned int parIdx = sizeOrd() + i;
-      unsigned int nbOfDummyPars = catValues( i ).size() - 1;
+      unsigned int nbOfDummyPars = static_cast<unsigned int>( catValues( i ).size() ) - 1;
       if ( ! isFixed( parIdx ) )
       {
          assert( nbOfDummyPars > 0 );
@@ -494,7 +494,7 @@ void ParameterSpace::prepare( Partition& partition ) const
 
 void ParameterSpace::addBinaryValues( Case const& c, RealVector &v ) const
 {
-   unsigned int vIdx = v.size();
+   unsigned int vIdx = static_cast<unsigned int>(v.size());
    unsigned int newSize = vIdx + nbOfDummyPars();
    v.resize( newSize, 0.0 );
    unsigned int catParIdx = 0;
@@ -516,7 +516,7 @@ void ParameterSpace::addBinaryValues( Case const& c, RealVector &v ) const
          {
             v[vIdx + valIdx - 1] = 1.0;
          }
-         vIdx += ( catVals.size() - 1 );
+         vIdx += static_cast<unsigned int>(catVals.size() - 1);
       }
    }
    assert( vIdx == newSize );
@@ -537,7 +537,7 @@ vector<unsigned int> ParameterSpace::getCatParValues( RealVector const& v ) cons
 {
    vector<unsigned int> catPars;
    catPars.reserve( sizeCat() );
-   unsigned int vIdx = v.size() - nbOfDummyPars();
+   unsigned int vIdx = static_cast<unsigned int>(v.size()) - nbOfDummyPars();
    for ( unsigned int i = 0; i < sizeCat(); ++i )
    {
       IndexList catVals = catValues( i );
@@ -556,7 +556,7 @@ vector<unsigned int> ParameterSpace::getCatParValues( RealVector const& v ) cons
          {
             catPars.push_back( catVals[dummyIdx + 1] );
          }
-         vIdx += ( catVals.size() - 1 );
+         vIdx += static_cast<unsigned int>(catVals.size() - 1);
       }
    }
    assert( vIdx == v.size() );
@@ -568,7 +568,7 @@ unsigned int ParameterSpace::nbOfDummyPars() const
    unsigned int nDummyPars = 0;
    for ( unsigned int i = 0; i < sizeCat(); ++i )
    {
-      nDummyPars += ( catValues(i).size() - 1 );
+      nDummyPars += static_cast<unsigned int>(catValues( i ).size() - 1);
    }
    return nDummyPars;
 }

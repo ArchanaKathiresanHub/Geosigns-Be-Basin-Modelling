@@ -271,7 +271,7 @@ intMatrix ScreenDesign::PBconstr( vector<int>& row )
    for ( unsigned int i = 1; i < row.size(); i++ )
    {
       int tmp = row.back();
-      for ( unsigned int j = row.size()-1; j > 0; j-- )
+      for ( size_t j = row.size()-1; j > 0; j-- )
          row[j] = row[j-1];
       row[0] = tmp;
       PB.push_back( row );

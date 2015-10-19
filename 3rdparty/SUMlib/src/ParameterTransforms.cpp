@@ -99,7 +99,7 @@ void ParameterTransforms::initialise()
    for ( size_t iPar = 0; iPar < m_parSpace.size(); ++iPar )
    {
       /// Skip fixed parameters
-      if ( m_parSpace.isFixed( iPar ) )
+      if ( m_parSpace.isFixed( static_cast<unsigned int>(iPar)) )
       {
          continue;
       }
@@ -110,8 +110,8 @@ void ParameterTransforms::initialise()
          double parameterBoundMax = 0;
          if ( iPar < m_parSpace.sizeCon() )
          {
-            parameterBoundMin = caseLow.continuousPar( iPar );
-            parameterBoundMax = caseHigh.continuousPar( iPar );
+            parameterBoundMin = caseLow.continuousPar(  static_cast<unsigned int>( iPar ) );
+            parameterBoundMax = caseHigh.continuousPar( static_cast<unsigned int>( iPar ) );
          }
          else
          {
@@ -256,7 +256,7 @@ IndexList ParameterTransforms::getConstTransformedParameters() const
    {
       if ( dynamic_cast< ConstantParameterTransform* >( m_transforms[ i ] ) )
       {
-         indices.push_back( i );
+         indices.push_back( static_cast<unsigned int>(i));
       }
    }
    return indices;

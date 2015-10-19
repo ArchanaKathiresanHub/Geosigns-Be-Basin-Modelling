@@ -98,7 +98,7 @@ ErrorHandler::ReturnCode ObsGridPropertyWell::requestObservableInModel( mbapi::M
    {
       if ( ErrorHandler::NoError != caldModel.addRowToTable( Observable::s_dataMinerTable ) ) return caldModel.errorCode();
 
-      m_posDataMiningTbl[i] = tblSize + i;
+      m_posDataMiningTbl[i] = static_cast<int>( tblSize + i );
 
       if ( ErrorHandler::NoError != caldModel.setTableValue( Observable::s_dataMinerTable, m_posDataMiningTbl[i], "Time",         m_simTime            ) || 
            ErrorHandler::NoError != caldModel.setTableValue( Observable::s_dataMinerTable, m_posDataMiningTbl[i], "XCoord",       m_x[i]               ) ||
@@ -144,7 +144,7 @@ ObsValue * ObsGridPropertyWell::getFromModel( mbapi::Model & caldModel )
                            found = true;
                            vals[i] = caldModel.tableValueAsDouble( Observable::s_dataMinerTable, j, "Value" );
 
-                           m_posDataMiningTbl[i] = j; // fill the rest of the table as well data must be continuous
+                           m_posDataMiningTbl[i] = static_cast<int>( j ); // fill the rest of the table as well data must be continuous
                            for ( size_t k = i+1; k < m_posDataMiningTbl.size(); ++k )
                            {
                               m_posDataMiningTbl[k] = m_posDataMiningTbl[k-1]+1;
