@@ -68,6 +68,8 @@ namespace migration
       m_migrator (migrator), m_index (-1)
    {
       m_isInitialised = false;
+      m_detectedReservoirRecord = false;
+      m_detectedReservoir = false;
 
       m_genexData = 0;
 
@@ -1299,15 +1301,15 @@ namespace migration
 
    //
    // Loop through the uppermost cells and check if a trap crests exist with m_height_oil > minOilColumnHeight OR m_height_gas > minGasColumnHeight 
-   // Stop as soon as a trap crest is found
+   // Stop as soon as a trap crest is found. 
 
-   void Formation::detectReservoirCrests()
+   bool Formation::detectReservoirCrests()
    {
+      //cout << " Rank, Formation, m_detectedReservoir " << GetRank () << " " << getName () << " " << m_detectedReservoir << endl;
 
       RequestHandling::StartRequestHandling(getMigrator(), "detectReservoirCrests");
 
       int upperIndex = getNodeDepth() - 1;
-      int lowerIndex = 0;
       bool reservoirCrestDetected = false;
 
       // First  oil 
@@ -1322,7 +1324,8 @@ namespace migration
       }
 
       // Then gas 
-      if (!reservoirCrestDetected)
+      if (!reservoirCrestDetected) 
+      {
          for (int i = (int)m_formationNodeArray->firstILocal(); i <= (int)m_formationNodeArray->lastILocal(); ++i)
          {
             for (int j = (int)m_formationNodeArray->firstJLocal(); j <= (int)m_formationNodeArray->lastJLocal(); ++j)
@@ -1332,18 +1335,34 @@ namespace migration
             }
             if (reservoirCrestDetected) break;
          }
+      }
+
+      m_detectedReservoir = MaximumAll ((int) reservoirCrestDetected);
+      //cerr << " Rank, Formation, m_detectedReservoir " << GetRank () << " " << getName () << " " << m_detectedReservoir << endl;
 
       RequestHandling::FinishRequestHandling ();
 
-      //set m_detectedReservoir
-      m_detectedReservoir = MaximumAll ((int) m_detectedReservoir);
-      //cerr << " Rank, m_detectedReservoir " << GetRank() << " " << m_detectedReservoir << endl;
+      return m_detectedReservoir;
+
    }
 
-   bool Formation::getDetectedReservoir() const
+   bool Formation::getDetectedReservoir () const
    {
-	   return m_detectedReservoir;
-   } 
+      return m_detectedReservoir;
+   }
+
+   // add the detected reservoir to the reservoir vector
+   void Formation::addDetectedReservoir ()
+   {
+      if (!m_detectedReservoirRecord)
+      {
+         //add a record to the reservoir list
+         Migrator * migrator = getMigrator ();
+         database::Record * record = migrator->addDetectedReservoirRecord (this);
+         migrator->getProjectHandle ()->addDetectedReservoirs (record);
+         m_detectedReservoirRecord = true;
+      }
+   }
 
    void Formation::saveReservoir (const Interface::Snapshot * curSnapshot)
    {
@@ -1367,8 +1386,8 @@ namespace migration
             fnode = getLocalFormationNode (i, j, upperIndex);
 
             double depth = 0;
-            //int top = fnode->getFormation ()->getGridMapDepth ()-1;
-            //double depth = fnode->getFormation ()->getPropertyValue (DEPTHPROPERTY, fnode->getI (), fnode->getJ (), top);
+            int top = fnode->getFormation ()->getGridMapDepth ()-1;
+            depth = fnode->getFormation ()->getPropertyValue (DEPTHPROPERTY, fnode->getI (), fnode->getJ (), top);
 
             fprintf (fres, "%d(%lf)\t\t%d(%lf) \t\t %d \t\t %d \t\t %lf\n", (fnode->getReservoirOil () ? 1 : 0), fnode->getHeightOil (),
                      (fnode->getReservoirGas () ? 1 : 0), fnode->getHeightGas (), (fnode->getIsCrest (OIL) ? 1 : 0), (fnode->getIsCrest (GAS) ? 1 : 0), depth);

@@ -136,7 +136,7 @@ namespace migration {
       m_volumeBalance = new MassBalance<ofstream>(m_volumeBalanceFile);
 #endif
 
-      /// \brief Set penetration distances to 0
+      /// Set penetration distances to 0
       for (size_t i = 0; i != DiffusionComponentSize; ++i) m_penetrationDistances[i] = 0;
 
    }
@@ -1458,20 +1458,14 @@ namespace migration {
 
       for (c = 0; c < size; ++c)
       {
-		 totalWeight += getWeight(GAS, (ComponentId) (pvtFlash::C1 - c));
-	   }
+         totalWeight += getWeight(GAS, (ComponentId) (pvtFlash::C1 - c));
+      }
 
       if (totalWeight < 1)
       {
          setDiffusionStartTime (-1);
          return;
       }
-
-      // #define DIFFUSIONDEBUG
-#ifdef DIFFUSIONDEBUG
-      cerr << "Diffusing " << * this << endl;
-#endif
-      // #undef DIFFUSIONDEBUG
 
       double diffusionStartTime = getCrestColumn ()->getDiffusionStartTime ();
       if (diffusionStartTime < 0)
@@ -1480,8 +1474,8 @@ namespace migration {
       }
       setDiffusionStartTime (diffusionStartTime);
 
-     // Calculate the solubility of methane, i.e. C1:
-	  double methaneSolubilityPerKgH2O = CBMGenerics::methaneSolubility::compute(parameters->salinity(), getTemperature(), getPressure());
+      // Calculate the solubility of methane, i.e. C1:
+      double methaneSolubilityPerKgH2O = CBMGenerics::methaneSolubility::compute(parameters->salinity(), getTemperature(), getPressure());
 
       assert(methaneSolubilityPerKgH2O >= 0.0);
 
@@ -1494,68 +1488,62 @@ namespace migration {
       double methaneSolubilityPerM3 = methaneSolubilityPerKgH2O * m_diffusionOverburdenProps->
          sealFluidDensity(); 
 
-	  vector<double> solubilities(parameters->concentrationConsts());
+      vector<double> solubilities(parameters->concentrationConsts());
 
-	  for (c = 0; c < size; ++c) {
-		  solubilities[c] *= methaneSolubilityPerM3;
-	  }
+      for (c = 0; c < size; ++c) {
+         solubilities[c] *= methaneSolubilityPerM3;
+      }
 
-	  vector<DiffusionLeak*> diffusionLeaks;
-	  diffusionLeaks.reserve(size);
+      vector<DiffusionLeak*> diffusionLeaks;
+      diffusionLeaks.reserve(size);
 
-	  /// \brief Retrive a pointer to the m_penetrationDistances vector from the previous snapshot
-	  const double * oldPenetrationDistance = getCrestColumn ()->getPenetrationDistances ();
+      /// \brief Retrive a pointer to the m_penetrationDistances vector from the previous snapshot
+      const double * oldPenetrationDistance = getCrestColumn ()->getPenetrationDistances ();
 
-	  setDiffusionStartTime (diffusionStartTime);
+      setDiffusionStartTime (diffusionStartTime);
 
-	  for (c = 0; c < size; ++c)
-	  {
-		  DiffusionCoefficient coefficient (parameters->diffusionConsts ()[c], parameters->activationEnergy ());
+      for (c = 0; c < size; ++c)
+      {
+         DiffusionCoefficient coefficient (parameters->diffusionConsts ()[c], parameters->activationEnergy ());
 
-		  double penetrationDistance (0.0);
+         double penetrationDistance (0.0);
 
-		  if (parameters->transientModel () == Interface::Transient)
-		  {
-			  if (oldPenetrationDistance[c] < 0)
-			  {
-				  penetrationDistance = 0;
-			  }
-			  else
-			  {
-				  penetrationDistance = oldPenetrationDistance[c];
-			  }
-		  }
-		  else {
+         if (parameters->transientModel () == Interface::Transient)
+         {
+            if (oldPenetrationDistance[c] < 0)
+            {
+               penetrationDistance = 0;
+            }
+            else
+            {
+               penetrationDistance = oldPenetrationDistance[c];
+            }
+         }
+         else {
 
-			  penetrationDistance = parameters->maximumSealThickness ();
-		  }
+            penetrationDistance = parameters->maximumSealThickness ();
+         }
 
-		  DiffusionLeak*  diffusionLeak = new DiffusionLeak (m_diffusionOverburdenProps->properties (),
-			  m_diffusionOverburdenProps->sealFluidDensity (), penetrationDistance,
-			  parameters->maximumSealThickness (), coefficient, maxTimeStep, maxFluxError);
+         DiffusionLeak*  diffusionLeak = new DiffusionLeak (m_diffusionOverburdenProps->properties (),
+                                                            m_diffusionOverburdenProps->sealFluidDensity (), penetrationDistance,
+                                                            parameters->maximumSealThickness (), coefficient, maxTimeStep, maxFluxError);
 
-		  /// debugging!!!
-		  /*if (c == 0 && penetrationDistance > diffusionLeak->penetrationDistance ())
-		  {
-			  cerr << this << ":limiting " << penetrationDistance << " => " << diffusionLeak->penetrationDistance () << endl;
-		  }*/
+         diffusionLeaks.push_back (diffusionLeak);
+      }
 
-		  diffusionLeaks.push_back (diffusionLeak);
-	  }
+      assert(diffusionLeaks.size() <= solubilities.size());
 
-	  assert(diffusionLeaks.size() <= solubilities.size());
+      m_distributed[GAS].computeDiffusionLeakages(diffusionStartTime, intervalStartTime, intervalEndTime, solubilities, getSurface(GAS), diffusionLeaks,
+                                                  computeGorm(m_distributed[GAS], m_distributed[OIL]), &m_distributed[GAS], &m_diffusionLeaked[GAS]);
 
-	  m_distributed[GAS].computeDiffusionLeakages(diffusionStartTime, intervalStartTime, intervalEndTime, solubilities, getSurface(GAS), diffusionLeaks,
-		  computeGorm(m_distributed[GAS], m_distributed[OIL]), &m_distributed[GAS], &m_diffusionLeaked[GAS]);
-
-	  /// \brief set the penetration distance of the trap for the next snapshot 
-	  if (parameters->transientModel() == Interface::Transient)
-	  {
-		  for (c = 0; c < size; ++c)
-		  {
-			  setPenetrationDistance((ComponentId)c, diffusionLeaks[c]->penetrationDistance());
-		  }
-	  }
+      /// \brief set the penetration distance of the trap for the next snapshot 
+      if (parameters->transientModel() == Interface::Transient)
+      {
+         for (c = 0; c < size; ++c)
+         {
+            setPenetrationDistance((ComponentId)c, diffusionLeaks[c]->penetrationDistance());
+         }
+      }
 
       m_reservoir->reportDiffusionLoss (this, m_diffusionLeaked[GAS]);
 
@@ -1566,6 +1554,8 @@ namespace migration {
 #ifdef DETAILED_MASS_BALANCE
       m_volumeBalance->subtractFromBalance("diffusion leaked", m_diffusionLeaked[GAS].getVolume());
 #endif
+      // delete diffusionLeak objects pointed in diffusionLeaks vector
+      for (int i = 0; i != diffusionLeaks.size (); ++i) delete diffusionLeaks[i];
    }
 
    bool Trap::computeDistributionParameters(const Interface::FracturePressureFunctionParameters* 

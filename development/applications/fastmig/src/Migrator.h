@@ -66,7 +66,7 @@ namespace migration
       bool createFormationNodes (void);
 
       /// Compute the offsets of each reservoir from the top and bottom of its formation
-      bool computeDepthOffsets (void);
+      bool computeDepthOffsets ();
 
       /// Compute the net/gross fractions
       bool computeNetToGross (void);
@@ -129,6 +129,8 @@ namespace migration
       virtual DataAccess::Interface::ReservoirList * getReservoirs (const Interface::Formation * formation = 0) const;
 
       void addTrapRecord (Reservoir * reservoir, TrapPropertiesRequest & tpRequest);
+		// add a detected reservoir to ResIoTbl and return the record itself
+		database::Record * addDetectedReservoirRecord (Formation * formation);
 
       database::Record * copyMigrationRecord (database::Record * oldRecord, const std::string & newMigrationProcess);
 
@@ -195,9 +197,6 @@ namespace migration
       mutable DataAccess::Interface::FormationList * m_formations;
       mutable DataAccess::Interface::ReservoirList * m_reservoirs;
 
-      //here you should add a list of detected reservoirs
-      mutable DataAccess::Interface::ReservoirList * m_detectedReservoirs;
-
       ofstream m_massBalanceFile;
 
       std::auto_ptr<GeoPhysics::ProjectHandle> m_projectHandle;
@@ -206,6 +205,7 @@ namespace migration
 
       database::Table * m_trapIoTbl;
       database::Table * m_migrationIoTbl;
+      database::Table * m_ReservoirIoTbl;
 
       bool mergeOutputFiles ();
 
@@ -256,6 +256,5 @@ double migration::Migrator::getBlockingPorosity (void)
 {
    return (m_isBlockingOn ? m_blockingPorosity : 0);
 }
-
 
 #endif // _MIGRATION_MIGRATOR_H

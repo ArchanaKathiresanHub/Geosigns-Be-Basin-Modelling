@@ -28,11 +28,6 @@ namespace migration {
       double dc1 = m_diffusionFactor * exp(- m_activationTemperature / temperatureK);
       double coef = dc1 * pow(porosity, 2.2);
 
-#ifdef DIFFUSIONDEBUG
-      std::cerr << "Diffusion coefficient for temperature " << temperatureK << " and porosity " << porosity << " = " << coef << std::endl;
-      std::cerr << "using activation energy " << m_activationTemperature * R_GAS << endl;
-#endif
-
       return coef;
    }
 

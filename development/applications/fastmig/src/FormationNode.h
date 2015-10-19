@@ -341,7 +341,7 @@ namespace migration
 
       bool m_isReservoirGas;                   // true - if node is potential trap
       bool m_isReservoirOil;                   // true - if node is potential trap
-      bool m_isCrestOil;					   // true - if node is a crest for oil
+      bool m_isCrestOil;		       // true - if node is a crest for oil
       bool m_isCrestGas;                       // true - if node is a crest for gas
 
       vector < IntDoublePair > *m_cosines;     // cosines of angles between the analog flow direction and the feasible discretized flow directions

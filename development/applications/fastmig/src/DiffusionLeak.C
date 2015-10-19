@@ -62,7 +62,7 @@ namespace migration {
    {
       assert(intervalStartTime - intervalEndTime > 0.0);
 
-      /// \brief maxError in m s-1
+      /// maxError in m s-1
       double maxError = m_maxFluxError / (MA_TO_S * solubility * molarFraction);
 
       double stepStartTime = intervalStartTime;
@@ -79,29 +79,20 @@ namespace migration {
             break;
 
          assert(m_penetrationDistance <= m_maxPenetrationDistance);
-#ifdef DIFFUSIONDEBUG
-         std::cerr << "maximum penetration distance: " << m_maxPenetrationDistance << std::endl;
-#endif
+
          if (m_penetrationDistance == m_maxPenetrationDistance)
          {
-            /// \brief Steady state or when m_penetration distance in transient mode has reached m_maxPenetrationDistance
+            /// Steady state or when m_penetration distance in transient mode has reached m_maxPenetrationDistance
             stepEndTime = intervalEndTime;
 
-#ifdef DIFFUSIONDEBUG
-            std::cerr << "steady state penetration distance: " << m_penetrationDistance << std::endl;
-            std::cerr << "steady state stepStartTime: " << stepStartTime << std::endl;
-            std::cerr << "steady state stepEndTime: " << stepEndTime << std::endl;
-#endif
-            //the mass lost by diffusion is updated only once
+				//the mass lost by diffusion is updated only once
             performDiffusionTimeStep (diffusionStartTime, stepStartTime, stepEndTime, decreasingComponentWeight,
                                       molarFraction, solubility, surfaceArea, lost);
          }
          else
          {
-            /// \brief This is the transient case			 
-#ifdef DIFFUSIONDEBUG
-            std::cerr << "transient state penetration distance: " << m_penetrationDistance << std::endl;
-#endif 
+            /// This is the transient case			 
+
             stepEndTime = stepStartTime - stepSize; // Initial timestep
             stepEndTime = max (stepEndTime, intervalEndTime);
             stepSize = stepStartTime - stepEndTime; 
@@ -125,11 +116,6 @@ namespace migration {
 
             decreasingComponentWeight = componentWeight - lost;
 
-#ifdef DIFFUSIONDEBUG
-            std::cerr << "Lost " << lost << " kg" << std::endl;
-            std::cerr << "Remaining " << decreasingComponentWeight << " kg" << std::endl;
-#endif
-
             // Increase the stepSize for the penetrationDistance front may have passed 
             // a formation surface:
             stepSize *= 16;
@@ -148,6 +134,7 @@ namespace migration {
    {
       assert(stepStartTime > stepEndTime);
 
+		// Deff is the effective diffusion coefficent and effPenetrationDistance is the penetration distance
       double Deff, effPenetrationDistance;
 
       // compute Deff and penetrationDistance to use for this time step
@@ -155,47 +142,21 @@ namespace migration {
                                      maxError))
          // The error is too large. Let the calling routine reduce its timestep:
       {
-         // #define DIFFUSIONDEBUG
-#ifdef DIFFUSIONDEBUG
-         std::cerr << "Aborted DiffusionLeak::performDiffusionTimeStep" << std::endl;
-#endif
-         // #undef DIFFUSIONDEBUG
          return false;
       }
-
-#ifdef DIFFUSIONDEBUG
-      std::cerr << "effective penetration distance: " << effPenetrationDistance << std::endl;
-      std::cerr << "max. penetration distance: " << m_maxPenetrationDistance << std::endl;
-      std::cerr << "diffusion step penetration distance: " << m_penetrationDistance << std::endl;
-      std::cerr << "diffusion step stepStartTime: " << stepStartTime << std::endl;
-      std::cerr << "diffusion step stepEndTime: " << stepEndTime << std::endl;
-      std::cerr << "Deff: " << Deff << "(" << NEARZERO << ")" << std::endl;
-#endif
 
       // Calculate the flux in weight per second square meter:
       double weight_flux = 0;
 
-
       if (Deff > NEARZERO && effPenetrationDistance > NEARZERO)
          // compute the 'steady state' weight_flux
       {
-         /// \ brief Diffusion flux: solubility here is already in kg m-3 water
+         /// Diffusion flux: solubility here is already in kg m-3 water
          weight_flux = MA_TO_S * solubility * molarFraction * Deff / effPenetrationDistance;
-
-#ifdef DIFFUSIONDEBUG
-         std::cerr << "m_sealFluidDensity: " << m_sealFluidDensity << std::endl;
-#endif
       }
 
       // Compute the maximal charge reduction given weight_flux:
       double diffused_weight = weight_flux * (stepStartTime - stepEndTime) * surfaceArea;
-
-#ifdef DIFFUSIONDEBUG
-      std::cerr << "Weight_flux: " << weight_flux << std::endl;
-      std::cerr << "stepStartTime - stepEndTime: " << stepStartTime - stepEndTime << std::endl;
-      std::cerr << "surfaceArea: " << surfaceArea << std::endl;
-      std::cerr << "diffused_weight: " << diffused_weight << std::endl;
-#endif
 
       lost += (diffused_weight > componentWeight) ? componentWeight : diffused_weight;
 
@@ -221,7 +182,7 @@ namespace migration {
             // compute what the diffusion coefficient would be given the computed penetrationDistance
             double newDeff = computeDeff (newPenetrationDistance);
 
-            /// \ brief m_penetrationDistance can be zero, resulting in an incorrect effPenetrationDistance
+            /// m_penetrationDistance can be zero, resulting in an incorrect effPenetrationDistance
             if (m_penetrationDistance != 0)
                effPenetrationDistance = 0.5 * (m_penetrationDistance + newPenetrationDistance);
             else
@@ -230,11 +191,6 @@ namespace migration {
             double approxError = fabs (Deff - newDeff) / effPenetrationDistance;
 
             // if the error was too large, we need a smaller timestep.
-            // #define DIFFUSIONDEBUG
-#ifdef DIFFUSIONDEBUG
-            std::cerr << "approxError: " << approxError << " (" << *maxError << ")" << std::endl;
-#endif
-            // #undef DIFFUSIONDEBUG
             if (approxError > *maxError)
                return false;
          }
@@ -246,7 +202,7 @@ namespace migration {
             // We use in the calculation for the diffusion leakage the average of m_penetrationDistance 
             // and newPenetrationDistance:
 
-            /// \brief m_penetrationDistance can be zero, resulting in an incorrect effPenetrationDistance
+            /// m_penetrationDistance can be zero, resulting in an incorrect effPenetrationDistance
             if (m_penetrationDistance != 0)
                effPenetrationDistance = 0.5 * (m_penetrationDistance + newPenetrationDistance);
             else
@@ -270,10 +226,6 @@ namespace migration {
    double DiffusionLeak::computeDeff(const double& penetrationDistance) const
    {
       assert(penetrationDistance >= 0.0);
-
-#ifdef DIFFUSIONDEBUG
-      std::cerr << "Computing Deff for penetration distance " << penetrationDistance << std::endl;
-#endif
 
       if (penetrationDistance <= m_maxPenetrationDistanceForDeff)
          return m_Deff;
@@ -317,12 +269,6 @@ namespace migration {
          // Calculate the diffusion coefficient dcEff for this formation:
          double diffusionCoef = m_coefficient.coefficient(formTemperature, formPorosity);
 
-         // #define DIFFUSIONDEBUG
-#ifdef DIFFUSIONDEBUG
-         std::cerr << "DC (" << z_i << ", " << formPorosity << ", " << formTemperature << ") = " << diffusionCoef << std::endl;
-#endif
-         // #undef DIFFUSIONDEBUG
-
          // Keep track of the z_tot and Needed to calculate the overall effective diffusion coefficient Deff:
          sum += z_i / diffusionCoef;
 
@@ -334,12 +280,6 @@ namespace migration {
       }
 
       m_Deff = z_tot / sum;
-
-      // #define DIFFUSIONDEBUG
-#ifdef DIFFUSIONDEBUG
-      std::cerr << "Deff (" << penetrationDistance << ") = " << m_Deff << std::endl;
-#endif
-      // #undef DIFFUSIONDEBUG
 
       return m_Deff;
    }
@@ -360,17 +300,8 @@ namespace migration {
    double DiffusionLeak::propagatePenetrationDistance (const double& Deff, const double & diffusionStartTime, const double& stepStartTime, 
                                                        const double& stepEndTime)
    {
-      /// \brief Distance increment: travelled until stepEndTime minus travelled until stepStartTime
+      /// Distance increment: travelled until stepEndTime minus travelled until stepStartTime
       double increment = sqrt (Deff * M_PI * MA_TO_S) *(sqrt (diffusionStartTime - stepEndTime) - sqrt (diffusionStartTime - stepStartTime));
-
-      // #define DIFFUSIONDEBUG
-#ifdef DIFFUSIONDEBUG
-      std::cerr << "diffusion start time " << diffusionStartTime << std::endl;
-      std::cerr << "step start time " << stepStartTime << std::endl;
-      std::cerr << "step end time " << stepEndTime << std::endl;
-      std::cerr << "Penetration increment " << increment << std::endl;
-#endif
-      // #undef DIFFUSIONDEBUG
 
       double newPenetrationDistance = m_penetrationDistance + increment;
       return newPenetrationDistance;

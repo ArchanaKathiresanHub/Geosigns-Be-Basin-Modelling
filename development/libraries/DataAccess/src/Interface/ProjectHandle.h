@@ -187,6 +187,8 @@ namespace DataAccess
          virtual TouchstoneMapList * getTouchstoneMaps( void ) const;
          /// return the list of reservoirs
          virtual ReservoirList * getReservoirs( const Formation * formation = 0 ) const;
+         /// add a detected reservoir to the list of reservoirs
+         virtual void addDetectedReservoirs (database::Record * record);
          /// return the list of MobileLayers
          virtual MobileLayerList * getMobileLayers( const Formation * formation ) const;
 
@@ -494,6 +496,9 @@ namespace DataAccess
          
          /// Return whether or not it is the beginning of an igneous intrusion
          double getPreviousIgneousIntrusionTime( const double Current_Time );
+
+			/// connect Reservoirs to Formations
+			bool connectReservoirs (void);
          
       protected:
 		  friend ProjectHandle * OpenCauldronProject( const string & name, const string & accessMode, DataAccess::Interface::ObjectFactory* objectFactory );
@@ -726,9 +731,6 @@ namespace DataAccess
 
          /// connect Surfaces to Formations
          bool connectSurfaces( void );
-
-         /// connect Reservoirs to Formations
-         bool connectReservoirs( void );
 
          /// check of the m_trappers is not empty
          bool trappersAreAvailable();

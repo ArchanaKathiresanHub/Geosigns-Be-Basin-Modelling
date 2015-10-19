@@ -192,10 +192,6 @@ void Composition::computeDiffusionLeakages(const double& diffusionStartTime, con
 #endif
    assert (NumComponents >= diffusionLeaks.size ());
 
-#ifdef DIFFUSIONDEBUG
-   cerr << "Trying to diffuse " << getWeight () << " kg" << endl;
-#endif
-
    double totalMoles = 0.0;
 
    unsigned int component;
@@ -221,25 +217,11 @@ void Composition::computeDiffusionLeakages(const double& diffusionStartTime, con
       if (molarFraction == 0.0)
          continue;
 
-      // #define DIFFUSIONDEBUG
-#ifdef DIFFUSIONDEBUG
-      cerr << pvtFlash::
-         ComponentIdNames[componentId] << ": Diffusing " << getWeight (componentId) << " kg" << endl;
-#endif
-      // #undef DIFFUSIONDEBUG
-
       diffusionLeaks[index]->compute (diffusionStartTime, intervalStartTime, intervalEndTime, getWeight (componentId), molarFraction,
                                       solubilities[index], surfaceArea, lost);
 
       compositionOut->set (componentId, getWeight (componentId) - lost);
       compositionLost->set (componentId, lost);
-
-#ifdef DIFFUSIONDEBUG
-      cerr << pvtFlash::ComponentIdNames[componentId] << ": Retained " << compositionOut->
-            getWeight (componentId) << " kg" << endl;
-      cerr << pvtFlash::ComponentIdNames[componentId] << ": Lost " << compositionLost->
-            getWeight (componentId) << " kg" << endl;
-#endif
 
    }
 }

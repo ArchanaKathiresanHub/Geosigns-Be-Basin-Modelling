@@ -401,6 +401,8 @@ namespace migration {
    {
       m_isReservoirGas = false;
       m_isReservoirOil = false;
+      m_isCrestGas = true;
+      m_isCrestOil = true;
 
       m_height_oil = m_height_gas = 0;
    }
@@ -765,9 +767,9 @@ namespace migration {
          {
             gasFlag = true;
             oilFlag = true;
-				setReservoirGas (gasFlag);
-				setReservoirOil (oilFlag);
-				return true;
+            setReservoirGas (gasFlag);
+            setReservoirOil (oilFlag);
+            return true;
          }
 
          double capillaryPressureGasReservoir;
@@ -833,8 +835,20 @@ namespace migration {
    // Check if the node is a crest node for the phaseId, similarly to what is done in Reservoir::getAdjacentColumn
    bool LocalFormationNode::detectReservoirCrests(PhaseId phase)
    {
-      //m_isCrestGas and m_isCrestOil are set true in the constructor
 
+      // if the node can not gas or oil, skip the calculations
+      if (phase == GAS && !getReservoirGas())
+      {
+         m_isCrestGas = false;
+         return false;
+      }
+      if (phase == OIL && !getReservoirOil ())
+      {
+         m_isCrestOil = false;
+         return false;
+      }
+
+      // if node is not valid, skip the calculations
       if (!IsValid (this)) 
       {
          if (phase == GAS)
@@ -844,13 +858,13 @@ namespace migration {
          return false;
       }
 
+      //Calculations performed as in Reservoir::getAdjacentColumn. m_isCrestGas and m_isCrestOil are set true in the constructor. 
+
       int top = m_formation->getGridMapDepth () - 1;
 
       for (int n = 0; n < NumNeighbours; ++n)
       {
          FormationNode * neighbourNode = m_formation->getFormationNode (getI () + NeighbourOffsets2D[n][I], getJ () + NeighbourOffsets2D[n][J], top);
-
-         bool isSealingNeighbourNode = false;
 
          if (!IsValid (neighbourNode))
          {
@@ -862,12 +876,12 @@ namespace migration {
             return false;
          }
 
-         //set isSealingNeighbourNode as in Reservoir::getAdjacentColumn
+         bool isSealingNeighbourNode = false;
+      
          if (phase == GAS)
             isSealingNeighbourNode = (neighbourNode->getFaultStatus () == SEAL);
          else
-            isSealingNeighbourNode = (neighbourNode->getFaultStatus() == SEAL || 
-                                      neighbourNode->getFaultStatus() == SEALOIL);
+            isSealingNeighbourNode = (neighbourNode->getFaultStatus() == SEAL ||  neighbourNode->getFaultStatus() == SEALOIL);
 
          if (isSealingNeighbourNode)
          {
@@ -887,6 +901,7 @@ namespace migration {
                m_isCrestGas = false;
             else
                m_isCrestOil = false;
+            return false;
          }
       }
 

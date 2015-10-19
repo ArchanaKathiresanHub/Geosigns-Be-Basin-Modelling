@@ -3289,6 +3289,16 @@ Interface::ReservoirList * ProjectHandle::getReservoirs( const Interface::Format
    return reservoirList;
 }
 
+
+void ProjectHandle::addDetectedReservoirs (database::Record * record) 
+{
+	DataAccess::Interface::Reservoir * detectedReservoir = getFactory ()->produceReservoir (this, record);
+
+	// add the detected reservoir to the list of reservoirs
+	m_reservoirs.push_back (detectedReservoir);
+}
+
+
 Interface::MobileLayerList * ProjectHandle::getMobileLayers( const Interface::Formation * formation ) const
 {
    Interface::MobileLayerList * mobileLayerList = new Interface::MobileLayerList;
