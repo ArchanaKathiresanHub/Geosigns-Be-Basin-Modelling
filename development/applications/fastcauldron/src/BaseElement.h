@@ -10,15 +10,15 @@
 #ifndef FASTCAULDRON__BASE_ELEMENT__H
 #define FASTCAULDRON__BASE_ELEMENT__H
 
-#include "LayerElement.h"
 #include "BoundaryId.h"
-
+#include "LayerElement.h"
 
 
 /// \brief An element that is a part of a subdomain.
 ///
 /// These exist mainly because the dof-, node- and element numbering
 /// can be different for each subdomain, so we need to keep account of this.
+/// This is intended to be instantiated with 
 template<class ParentElement>
 class BaseElement : public ParentElement {
 
@@ -34,6 +34,8 @@ public :
 
    virtual ~BaseElement () {}
 
+   /// \name Element position.
+   //@{
 
    /// Get the I position of the element within the subdomain.
    int getI () const;
@@ -46,6 +48,8 @@ public :
 
    /// \brief Get K position of the element within subdomain.
    int getK () const;
+
+   //@}
 
    /// \name Node position.
    //@{
@@ -76,12 +80,6 @@ public :
    /// \pre node in range [ 0 .. 7 ]
    int getNodeK ( const int node ) const;
 
-   /// \brief Get the positions of all nodes relative to the subdomain numbering system.
-   void getNodePositions ( Nodal3DIndexArray& positions ) const;
-
-   /// \brief Get the position of a single node relative to the subdomain numbering system.
-   void getNode ( const int node, Mesh3DIndex& position ) const;
-
    //@}
 
    /// \name Boundary information.
@@ -90,10 +88,10 @@ public :
    /// \brief Indicate whether or not the element-boundary is on the domain-boundary.
    bool isOnDomainBoundary ( const VolumeData::BoundaryId id ) const;
 
-   /// \brief Set whether or not GAMMA_1 is on the domain-boundary.
+   /// \brief Set whether or not the top-most face of the element is on the domain-boundary.
    void setShallowIsOnDomainBoundary ( const bool value );
 
-   /// \brief Set whether or not GAMMA_6 is on the domain-boundary.
+   /// \brief Set whether or not the bottom-most face of the element is on the domain-boundary.
    void setDeepIsOnDomainBoundary ( const bool value );
 
    //@}
@@ -102,19 +100,20 @@ public :
    bool isActive () const;
 
 
-   /// \brief Set the layer element.
+   /// \brief Assign the associated LayerElement.
    ///
-   /// This value cannot be null.
+   /// Each GeneralElement and SubdomainElement has an associated LayerElement which 
+   /// is used to access the property arrays that are contained wihtin each layer.
    void setLayerElement ( const LayerElement& le );
 
-   /// \brief Get the layer element.
+   /// \brief Get the layer element that is associated with this base-element.
    const LayerElement& getLayerElement () const;
 
 
    /// \name Neighbour information.
    //@{
 
-   /// \brief Set all neighbours to null.
+   /// \brief Remove connections with neighbour elements.
    void clearNeighbours ();
 
    /// \brief Return the neighbouring element.
@@ -125,10 +124,10 @@ public :
    /// \brief Return the neighbouring element.
    ///
    /// May return null if element does not exist.
-   /// If lateral face has measure zero then a null will be returned.
-   /// For vertical faces (i.e. shallow and deep) then some iteration 
-   /// may be required to find an active element, if none is found then
-   /// null will be returned.
+   /// If both vertical segments that border the face are zero-thickness then a 
+   /// null element will be returned. For vertical faces (i.e. shallow and deep) 
+   /// then some iteration may be required to find an active element, if none is 
+   /// found then null will be returned.
    const BaseElement* getActiveNeighbour ( const VolumeData::BoundaryId id ) const;
 
    /// \brief Set the neighbour element on the boundary.
@@ -167,7 +166,7 @@ private :
    /// \brief The k-index for the subdomain to which this element belongs.
    int                 m_k;
 
-   /// \brief The k-indicess of the nodes.
+   /// \brief The k-indices for each of the 8 corner nodes.
    int                 m_nodeKValues [ 8 ];
 
    /// \brief indicate whether or not on the top subdomain-boundary.
@@ -178,10 +177,6 @@ private :
 
 
 }; 
-
-// /// \typedef BaseElementArray
-// /// \brief A three-d array of subdomain-elements.
-// typedef PETSc_Local_3D_Array<BaseElement> BaseElementArray;
 
 //------------------------------------------------------------//
 // Inline functions.
@@ -223,6 +218,12 @@ inline int BaseElement<ParentElement>::getNodeK ( const int node ) const {
 }
 
 template<class ParentElement>
+void BaseElement<ParentElement>::setNodeK ( const int node,
+                             const int k ) {
+   m_nodeKValues [ node ] = k;
+}
+
+template<class ParentElement>
 inline const BaseElement<ParentElement>* BaseElement<ParentElement>::getNeighbour ( const VolumeData::BoundaryId id ) const {
    return m_neighbours [ id ];
 }
@@ -235,9 +236,9 @@ inline const LayerElement& BaseElement<ParentElement>::getLayerElement () const 
 template<class ParentElement>
 inline bool BaseElement<ParentElement>::isOnDomainBoundary ( const VolumeData::BoundaryId id ) const {
 
-   if ( id == VolumeData::GAMMA_1 ) {
+   if ( id == VolumeData::ShallowFace ) {
       return m_onShallowBoundary;
-   } else if ( id == VolumeData::GAMMA_6 ) {
+   } else if ( id == VolumeData::DeepFace ) {
       return m_onDeepBoundary;
    } else {
       return getLayerElement ().isOnDomainBoundary ( id );
@@ -250,12 +251,10 @@ inline bool BaseElement<ParentElement>::isOnDomainBoundary ( const VolumeData::B
 template<class ParentElement>
 BaseElement<ParentElement>::BaseElement () {
 
-   int i;
-
    m_layerElement = 0;
    m_k = 0;
 
-   for ( i = 0; i < NumberOfBoundaries; ++i ) {
+   for ( int i = 0; i < NumberOfBoundaries; ++i ) {
       m_onSubDomainBoundary [ i ] = false;
       m_activeBoundary [ i ] = false;
       m_neighbours [ i ] = 0;
@@ -298,7 +297,7 @@ void BaseElement<ParentElement>::setDeepIsOnDomainBoundary ( const bool value ) 
 
 template<class ParentElement>
 void BaseElement<ParentElement>::setNeighbour ( const VolumeData::BoundaryId id,
-                                      const BaseElement*      neighbour ) {
+                                                const BaseElement*      neighbour ) {
    m_neighbours [ id ] = neighbour;
 }
 
@@ -306,12 +305,11 @@ void BaseElement<ParentElement>::setNeighbour ( const VolumeData::BoundaryId id,
 
 template<class ParentElement>
 void BaseElement<ParentElement>::clearNeighbours () {
-   m_neighbours [ 0 ] = 0;
-   m_neighbours [ 1 ] = 0;
-   m_neighbours [ 2 ] = 0;
-   m_neighbours [ 3 ] = 0;
-   m_neighbours [ 4 ] = 0;
-   m_neighbours [ 5 ] = 0;
+
+   for ( int i = 0; i < 6; ++i ) {
+      m_neighbours [ i ] = 0;
+   }
+
 }
 
 //------------------------------------------------------------//
@@ -321,9 +319,9 @@ const BaseElement<ParentElement>* BaseElement<ParentElement>::getActiveNeighbour
 
    const BaseElement* neighbour;
 
-   if ( id == VolumeData::GAMMA_1 ) {
+   if ( id == VolumeData::ShallowFace ) {
       neighbour = getShallowerActiveNeighbour ();
-   } else if ( id == VolumeData::GAMMA_6 ) {
+   } else if ( id == VolumeData::DeepFace ) {
       neighbour = getDeeperActiveNeighbour ();
    } else {
       // Otherwise get the neighbour and do not recursivly seek for an element.
@@ -367,14 +365,6 @@ const BaseElement<ParentElement>* BaseElement<ParentElement>::getDeeperActiveNei
 
    // neighbour is either null-pointer or active-element.
    return neighbour;
-}
-
-//------------------------------------------------------------//
-
-template<class ParentElement>
-void BaseElement<ParentElement>::setNodeK ( const int node,
-                             const int k ) {
-   m_nodeKValues [ node ] = k;
 }
 
 //------------------------------------------------------------//

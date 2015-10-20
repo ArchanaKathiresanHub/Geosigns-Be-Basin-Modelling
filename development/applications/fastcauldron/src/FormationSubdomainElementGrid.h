@@ -2,12 +2,11 @@
 #define _FASTCAULDRON__FORMATION_SUBDOMAIN_ELEMENT_GRID__H_
 
 #include "ghost_array.h"
+#include "layer.h"
 #include "LayerElement.h"
 #include "SubdomainElement.h"
 #include "BoundaryId.h"
 #include "FormationElementGrid.h"
-
-#include "layer.h"
 
 
 /// \brief Class containing subdomain-elements for a formation.

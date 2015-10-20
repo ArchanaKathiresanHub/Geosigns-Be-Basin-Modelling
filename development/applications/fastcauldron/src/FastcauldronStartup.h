@@ -6,6 +6,7 @@
 #include "propinterface.h"
 #include "FastcauldronFactory.h"
 
+/// \brief Contains the sequence of operations that are required to initialise the fastcauldron data structures.
 class FastcauldronStartup {
 
 public :

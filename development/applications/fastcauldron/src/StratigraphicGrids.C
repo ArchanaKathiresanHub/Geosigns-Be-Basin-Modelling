@@ -104,7 +104,7 @@ void StratigraphicGrids::allocateNodeGrid ( const int numberOfDofs ) const {
       return;
    }
 
-   // If the element-grid does not exist then create one.
+   // If the node-grid does not exist then create one.
    if ( m_nodalGrids [ numberOfDofs - 1 ] == 0 ) {
       m_nodalGrids [ numberOfDofs - 1 ] = new NodalVolumeGrid ( FastcauldronSimulator::getInstance ().getNodalGrid (),
                                                                 m_numberOfNodes,

@@ -25,6 +25,6 @@ void ElementDofsMixin::setDof ( const int node,
 
 void ElementDofsMixin::setBoundaryCondition ( const int                 node,
                                               const Boundary_Conditions bcs ) {
-   m_bcs [ node ] = bcs;
+   m_boundaryConditions [ node ] = bcs;
 }
 

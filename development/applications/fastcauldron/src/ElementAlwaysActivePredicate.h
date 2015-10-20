@@ -12,6 +12,9 @@
 
 #include "LayerElement.h"
 
+/// \brief Indicate that the element is always active.
+///
+/// This is of little use in the real simulation, but is a useful aid in debugging.
 class ElementAlwaysActivePredicate : public ElementActivityPredicate {
 
 public :

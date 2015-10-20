@@ -1,21 +1,20 @@
 #ifndef _FASTCAULDRON__SUBDOMAIN__H_
 #define _FASTCAULDRON__SUBDOMAIN__H_
 
+// STL library.
 #include <map>
 #include <vector>
 
+// Access to fastcauldron application code.
+#include "ElementVolumeGrid.h"
 #include "FormationMapping.h"
-
-
+#include "FormationSubdomainElementGrid.h"
 #include "globaldefs.h"
 #include "layer.h"
-#include "SubdomainElement.h"
-#include "ElementVolumeGrid.h"
 #include "NodalVolumeGrid.h"
 #include "StratigraphicColumn.h"
 #include "StratigraphicGrids.h"
-
-#include "FormationSubdomainElementGrid.h"
+#include "SubdomainElement.h"
 
 
 /// \brief Class containing a contiguous subset of the layers in a basin model.

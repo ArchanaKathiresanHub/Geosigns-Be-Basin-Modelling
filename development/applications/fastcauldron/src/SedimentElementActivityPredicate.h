@@ -17,7 +17,7 @@
 ///
 /// If this class is used in the composite element activity predicte then elements
 /// that are a part of the sediments only. Elements in the basement (crust and mantle)
-/// will designated as being in-active.
+/// will designated as being inactive.
 class SedimentElementActivityPredicate : public ElementActivityPredicate {
 
 public :

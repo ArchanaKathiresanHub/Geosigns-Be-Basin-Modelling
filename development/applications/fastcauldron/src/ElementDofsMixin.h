@@ -79,7 +79,7 @@ private :
    DofArray m_dofNumbers;
 
    /// \brief The boundary conditions values for each node.
-   BoundaryConditionArray m_bcs;
+   BoundaryConditionArray m_boundaryConditions;
 
 
 };
@@ -97,7 +97,7 @@ inline int ElementDofsMixin::getDof ( const int node ) const {
 }
 
 inline Boundary_Conditions ElementDofsMixin::getBoundaryConditions ( const int node ) const {
-   return m_bcs [ node ];
+   return m_boundaryConditions [ node ];
 }
 
 

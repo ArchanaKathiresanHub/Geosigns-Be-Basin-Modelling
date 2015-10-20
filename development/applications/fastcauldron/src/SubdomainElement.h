@@ -13,6 +13,9 @@ public :
    virtual ~NullElement () {}
 };
 
+/// \brief A subdomain-element is an element that is part of a subdomain.
+///
+/// They have basic dof-, node- and element numbering for each subdomain.
 typedef BaseElement<NullElement> SubdomainElement;
 
 

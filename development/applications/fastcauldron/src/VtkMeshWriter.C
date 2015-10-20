@@ -14,6 +14,7 @@
 #include <numeric>
 
 #include "FastcauldronSimulator.h"
+#include "globaldefs.h"
 
 VtkMeshWriter::VtkMeshWriter () :
    m_size ( FastcauldronSimulator::getInstance ().getSize ()),
@@ -37,7 +38,7 @@ void VtkMeshWriter::save ( const ComputationalDomain& domain,
    int offset = 0;
 
    DoubleArray  localNodes ( ValuesPerNode * numberOfActiveNodes [ m_rank ]);
-   IntegerArray localElementDofs ( NodesPerElement * numberOfActiveElements [ m_rank ]);
+   IntegerArray localElementDofs ( NumberOfElementNodes * numberOfActiveElements [ m_rank ]);
    IntegerArray localElementLayerIds ( numberOfActiveElements [ m_rank ]);
 
    DoubleArray  allNodes;
@@ -46,7 +47,7 @@ void VtkMeshWriter::save ( const ComputationalDomain& domain,
 
    if ( m_rank == 0 ) {
       allNodes.resize ( ValuesPerNode * totalNumberOfNodes );
-      allElementDofs.resize ( NodesPerElement * totalNumberOfElements );
+      allElementDofs.resize ( NumberOfElementNodes * totalNumberOfElements );
       allElementLayerIds.resize ( totalNumberOfElements );
    }
 
@@ -90,14 +91,14 @@ void VtkMeshWriter::writeFile ( const std::string&  fileName,
       file << std::endl;
 
       // now element data
-      file << "CELLS " << numberOfElements << "  " << numberOfElements * ( NodesPerElement + 1 ) << std::endl;
+      file << "CELLS " << numberOfElements << "  " << numberOfElements * ( NumberOfElementNodes + 1 ) << std::endl;
 
       count = 0;
 
       for ( int i = 0; i < numberOfElements; ++i ) {
-         file << " " << NodesPerElement;
+         file << " " << NumberOfElementNodes;
 
-         for ( int j = 0; j < NodesPerElement; ++j, ++count ) {
+         for ( int j = 0; j < NumberOfElementNodes; ++j, ++count ) {
             file  << "  " << allElementDofs [ count ];
          }
 
@@ -241,9 +242,9 @@ void VtkMeshWriter::getLocalElementDofs ( const ComputationalDomain& domain,
    int count = 0;
 
    for ( int i = 0; i < domain.getLocalNumberOfActiveElements (); ++i ) {
-      const GeneralElement& element = domain.getElement ( i );
+      const GeneralElement& element = domain.getActiveElement ( i );
 
-      for ( int j = 0; j < NodesPerElement; ++j, ++count ) {
+      for ( int j = 0; j < NumberOfElementNodes; ++j, ++count ) {
          elementDofs [ count ] = element.getDof ( j );
       }
 
@@ -255,12 +256,12 @@ void VtkMeshWriter::getLocalElementLayerIds ( const ComputationalDomain& domain,
                                               IntegerArray&              localElementLayerIds ) const {
 
    const StratigraphicColumn& stratigraphicColumn = domain.getStratigraphicColumn ();
-   size_t nullValue = stratigraphicColumn.getNumberOfLayers () + 1;
+   size_t nullValue = StratigraphicColumn::NullIndexValue;
 
    int count = 0;
 
    for ( int i = 0; i < domain.getLocalNumberOfActiveElements (); ++i ) {
-      const GeneralElement& element = domain.getElement ( i );
+      const GeneralElement& element = domain.getActiveElement ( i );
       size_t value = stratigraphicColumn.getLayerIndex ( element.getLayerElement ().getFormation ());
 
       if ( value != nullValue ) {
@@ -304,13 +305,13 @@ void VtkMeshWriter::gatherAllElementDofs ( const IntegerArray& localElementDofs,
    int offset = 0;
 
    for ( size_t i = 0; i < numberOfActiveElements.size (); ++i ) {
-      numberOfActiveElementDofValues [ i ] = NodesPerElement * numberOfActiveElements [ i ];
+      numberOfActiveElementDofValues [ i ] = NumberOfElementNodes * numberOfActiveElements [ i ];
       elementDofOffset [ i ] = offset;
       offset += numberOfActiveElementDofValues [ i ];
    }
 
    // The const_cast is okay here because MPI_Gatherv does not modify the array.
-   MPI_Gatherv ( const_cast<int*>(localElementDofs.data ()), NodesPerElement * numberOfActiveElements [ m_rank ], MPI_INT, 
+   MPI_Gatherv ( const_cast<int*>(localElementDofs.data ()), NumberOfElementNodes * numberOfActiveElements [ m_rank ], MPI_INT, 
                  globalElementDofs.data (), numberOfActiveElementDofValues.data (), elementDofOffset.data (), MPI_INT, 0, PETSC_COMM_WORLD );
 
 }

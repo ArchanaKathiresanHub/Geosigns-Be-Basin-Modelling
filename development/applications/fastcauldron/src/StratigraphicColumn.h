@@ -34,6 +34,9 @@ class StratigraphicColumn {
 
 public :
 
+   /// \brief Used to indicate that the index of the layer cannot be determined.
+   static const size_t NullIndexValue;
+
    /// \brief Constructor with top and bottom layers.
    ///
    /// The top and bottom layers or the StratigraphicColumn.
@@ -56,13 +59,15 @@ public :
    /// \brief Get the layer at the position i.
    const LayerProps* getLayer ( const size_t i ) const;
 
+   /// \brief Get the layer at the position i.
+   LayerProps* getLayer ( const size_t i );
+
    /// \brief Get the layer with the name.
    const LayerProps* getLayer ( const std::string& layerName ) const;
 
    /// \brief Get the layer at the position i.
-   LayerProps* getLayer ( const size_t i );
-
-   /// \brief Get the layer at the position i.
+   ///
+   /// If the layer cannot be found in the stratigraphic column then a NullIndexValue will be returned.
    size_t getLayerIndex ( const LayerProps* layer ) const;
 
    /// \brief Determine whether or not a formation is a part of this stratigraphic column.
@@ -74,7 +79,7 @@ public :
    /// \brief Get the index of the top most layer at the particular age.
    ///
    /// If the age is earlier than the bottom most surface then the number to
-   /// be returned  will be 1 greater than the number of layers in the column.
+   /// be returned will be NullIndexValue.
    size_t getTopLayerIndex ( const double age ) const;
 
    //@}

@@ -203,9 +203,6 @@ void MantleFormation::setLayerElementActivity ( const double age ) {
    bool activeSegment3;
    bool activeSegment4;
 
-   // Should we also include hydrostatic mode here?
-   bool geometricLoop = fastcauldron.getCauldron ()->isGeometricLoop ();
-
    PETSC_3D_Array depth ( layerDA, Current_Properties ( Basin_Modelling::Depth ), INSERT_VALUES, true );
 
    for ( i = mapElements.firstI ( true ); i <= mapElements.lastI ( true ); ++i ) {

@@ -9,9 +9,16 @@
 // 
 #include "StratigraphicColumn.h"
 
+// Access to STL library.
+#include <limits.h>
+
 // Access to fastcauldron application code.
 #include "FastcauldronSimulator.h"
 #include "propinterface.h"
+
+//------------------------------------------------------------//
+
+const size_t StratigraphicColumn::NullIndexValue = std::numeric_limits<std::size_t>::max();
 
 //------------------------------------------------------------//
 
@@ -31,7 +38,6 @@ StratigraphicColumn::StratigraphicColumn ( const LayerProps& topLayer,
                 << "' is deeper than the bottom layer '"
                 << bottomLayer.getName () << "'"
                 << std::endl;
-      // Should throw exception here.
    }
 
    m_maximumNumberOfElements = 0;
@@ -82,7 +88,7 @@ size_t StratigraphicColumn::getLayerIndex ( const LayerProps* layer ) const {
 
    }
 
-   return m_layers.size () + 1;
+   return NullIndexValue;
 }
 
 //------------------------------------------------------------//
@@ -90,7 +96,6 @@ size_t StratigraphicColumn::getLayerIndex ( const LayerProps* layer ) const {
 int StratigraphicColumn::getNumberOfLogicalElementsInDepth ( const double age ) const {
 
    if ( age < 0.0 ) {
-      // Is this an error case?
       return 0;
    }
 
@@ -145,7 +150,7 @@ size_t StratigraphicColumn::getTopLayerIndex ( const double age ) const {
 
    }
 
-   return m_layers.size () + 1;
+   return NullIndexValue;
 }
 
 //------------------------------------------------------------//

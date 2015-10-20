@@ -13,9 +13,10 @@ class ElementVolumeGrid {
 
 public :
 
+   /// \brief Default constructor.
    ElementVolumeGrid ();
 
-   /// Construct the element volume grid.
+   /// \brief Constructor for element volume grid.
    ElementVolumeGrid ( const ElementGrid& grid,
                        const int          numberOfZElements,
                        const int          numberOfDofs );
@@ -23,7 +24,7 @@ public :
    ~ElementVolumeGrid ();
 
 
-   /// Construct the element volume grid.
+   /// \brief Construct the element volume grid.
    void construct ( const ElementGrid& grid,
                     const int          numberOfZElements,
                     const int          numberOfDofs );

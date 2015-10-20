@@ -192,7 +192,6 @@ void ComputationalDomain::numberNodeDofs ( const bool verbose ) {
 
    int i;
    int j;
-   int k;
    int maximumDegenerateSegments = 0;
 
    // One less because the first index is zero.
@@ -205,6 +204,7 @@ void ComputationalDomain::numberNodeDofs ( const bool verbose ) {
    PETSC_3D_Array mantleDepth;
 
    if ( m_column.getLayer ( m_column.getNumberOfLayers () - 1 )->isMantle ()) {
+      // If the stratigraphic column contains the mantle then it will the bottommost layer.
       // The mantle has neither solid nor real thickness history functions for the segments.
       // So the segment thickness is determined from the node depth.
       mantleLayer = m_column.getLayer ( m_column.getNumberOfLayers () - 1 );
@@ -330,11 +330,11 @@ void ComputationalDomain::numberGlobalDofs ( const bool verbose ) {
 
    dof.restoreVector ( UPDATE_EXCLUDING_GHOSTS );
 
-#if 0
+#if PETSC_VIEWER_CREATE
    PetscViewer viewer;
    PetscViewerCreate ( PETSC_COMM_WORLD, &viewer);
    PetscViewerSetType(viewer, PETSCVIEWERASCII );
-#if 1
+#if PETSC_VIEWER_FORMAT_MATLAB
    PetscViewerSetFormat( viewer, PETSC_VIEWER_ASCII_MATLAB );
 #endif
    VecView ( m_globalDofNumbers, viewer );
@@ -345,7 +345,7 @@ void ComputationalDomain::numberGlobalDofs ( const bool verbose ) {
 
 //------------------------------------------------------------//
 
-void ComputationalDomain::getElementGobalDofNumbers () {
+void ComputationalDomain::assignElementGobalDofNumbers () {
 
    const FastcauldronSimulator& fc = FastcauldronSimulator::getInstance ();
 
@@ -404,7 +404,7 @@ void ComputationalDomain::resetAge ( const double age,
    // Now that the active/inactive nodes have been determined and counted the active nodes can be numbered.
    numberGlobalDofs ( verbose );
    // Now for each active element assign the global dof numbers.
-   getElementGobalDofNumbers ();
+   assignElementGobalDofNumbers ();
 }
 
 //------------------------------------------------------------//
@@ -433,9 +433,9 @@ void ComputationalDomain::setElementNodeKValues ( const bool verbose ) {
          grid->setElementNodeKValues ( m_depthIndexNumbers, topValue, globalKValue );
          globalKValue -= grid->lengthK ();
 
-         const IntegerArray& kIndices = grid->getSubdomainNodeKIndices ();
-
          if ( verbose ) {
+            const IntegerArray& kIndices = grid->getSubdomainNodeKIndices ();
+
             PetscPrintf ( PETSC_COMM_WORLD, " k-indices for layer: " );
 
             for ( size_t k = 0; k < kIndices.size (); ++k ) {
@@ -456,7 +456,7 @@ void ComputationalDomain::determineActiveElements ( const bool verbose ) {
 
    m_activeElements.clear ();
    // Allocate sufficient memory to contain all active elements.
-   // Is it worth counting the number of elements that are active to allocate the exact sze of the list required?
+   // Is it worth counting the number of elements that are active to allocate the exact size of the list required?
    m_activeElements.reserve ( m_maximumNumberOfElements );
    int activeElementCount;
 

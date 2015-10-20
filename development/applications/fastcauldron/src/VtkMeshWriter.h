@@ -21,6 +21,7 @@
 /// \brief Writes the domain to a file in VTK format.
 ///
 /// The legacy VTK file format is used due to its simplicity.
+/// The VTK file can be read with paraview.
 class VtkMeshWriter {
 
 public :
@@ -46,9 +47,6 @@ private :
 
    /// \brief The number of coordinates per point.
    static const int ValuesPerNode = 3;
-
-   /// \brief The number of nodes per element.
-   static const int NodesPerElement = 8;
 
    typedef std::vector<double> DoubleArray;
 

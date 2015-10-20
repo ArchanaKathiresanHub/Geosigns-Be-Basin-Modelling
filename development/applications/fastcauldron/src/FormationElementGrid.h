@@ -11,11 +11,11 @@
 #define FASTCAULDRON__FORMATION_ELEMENT_GRID__H
 
 // Access to fastcauldron application classes
-#include "ghost_array.h"
-#include "LayerElement.h"
 #include "BoundaryId.h"
-#include "layer.h"
+#include "ghost_array.h"
 #include "globaldefs.h"
+#include "layer.h"
+#include "LayerElement.h"
 
 /// \brief A three dimensional array of element-types.
 ///
@@ -114,10 +114,10 @@ protected :
 
 
    /// \brief Set the general-elements with the layer-element.
-   void copyLayerElements ();
+   void assignLayerElements ();
 
-   /// \brief Set the general-element neighbours.
-   void linkElements ();
+   /// \brief Link together all elements of the layer.
+   void linkLayerElements ();
 
 
    /// \brief The formation associated with an object.
@@ -134,19 +134,18 @@ protected :
 //------------------------------------------------------------//
 
 template<class ElementType>
-inline ElementType& FormationElementGrid<ElementType>::getElement ( const int i,
-                                                                    const int j,
-                                                                    const int k ) {
-   return m_elements ( i, j, k );
+FormationElementGrid<ElementType>::FormationElementGrid ( LayerProps& layer ) : m_formation ( layer ) {
+
+   m_elements.create ( m_formation.getVolumeGrid ().getDa ());
+   assignLayerElements ();
+   linkLayerElements ();
+
 }
 
 //------------------------------------------------------------//
 
 template<class ElementType>
-inline const ElementType& FormationElementGrid<ElementType>::getElement ( const int i,
-                                                                          const int j,
-                                                                          const int k ) const {
-   return m_elements ( i, j, k );
+FormationElementGrid<ElementType>::~FormationElementGrid () {
 }
 
 //------------------------------------------------------------//
@@ -215,6 +214,24 @@ inline int FormationElementGrid<ElementType>::lengthK () const {
 //------------------------------------------------------------//
 
 template<class ElementType>
+inline ElementType& FormationElementGrid<ElementType>::getElement ( const int i,
+                                                                    const int j,
+                                                                    const int k ) {
+   return m_elements ( i, j, k );
+}
+
+//------------------------------------------------------------//
+
+template<class ElementType>
+inline const ElementType& FormationElementGrid<ElementType>::getElement ( const int i,
+                                                                          const int j,
+                                                                          const int k ) const {
+   return m_elements ( i, j, k );
+}
+
+//------------------------------------------------------------//
+
+template<class ElementType>
 inline const LayerProps& FormationElementGrid<ElementType>::getFormation () const {
    return m_formation;
 }
@@ -229,24 +246,14 @@ inline LayerProps& FormationElementGrid<ElementType>::getFormation () {
 //------------------------------------------------------------//
 
 template<class ElementType>
-FormationElementGrid<ElementType>::FormationElementGrid ( LayerProps& layer ) : m_formation ( layer ) {
-
-   m_elements.create ( m_formation.getVolumeGrid ().getDa ());
-   copyLayerElements ();
-   linkElements ();
-
+const IntegerArray& FormationElementGrid<ElementType>::getSubdomainNodeKIndices () const {
+   return m_subdomainNodeKIndices;
 }
 
 //------------------------------------------------------------//
 
 template<class ElementType>
-FormationElementGrid<ElementType>::~FormationElementGrid () {
-}
-
-//------------------------------------------------------------//
-
-template<class ElementType>
-void FormationElementGrid<ElementType>::copyLayerElements () {
+void FormationElementGrid<ElementType>::assignLayerElements () {
 
    const LayerElementArray& layerElements = m_formation.getLayerElements ();
 
@@ -271,7 +278,7 @@ void FormationElementGrid<ElementType>::copyLayerElements () {
 //------------------------------------------------------------//
 
 template<class ElementType>
-void FormationElementGrid<ElementType>::linkElements () {
+void FormationElementGrid<ElementType>::linkLayerElements () {
 
    const MapElementArray& mapElements = FastcauldronSimulator::getInstance ().getMapElementArray ();
 
@@ -352,49 +359,35 @@ void FormationElementGrid<ElementType>::setElementNodeKValues ( const LocalInteg
 
             ElementType& element = getElement ( i, j, k );
 
-#if 0
-            if ( element.getLayerElement ().isActive ())
-#endif
-            {
-               int n1 = static_cast<int>( kValues ( i,     j,     globalK - 1 ));
-               int n2 = static_cast<int>( kValues ( i + 1, j,     globalK - 1 ));
-               int n3 = static_cast<int>( kValues ( i + 1, j + 1, globalK - 1 ));
-               int n4 = static_cast<int>( kValues ( i,     j + 1, globalK - 1 ));
+            int n1 = static_cast<int>( kValues ( i,     j,     globalK - 1 ));
+            int n2 = static_cast<int>( kValues ( i + 1, j,     globalK - 1 ));
+            int n3 = static_cast<int>( kValues ( i + 1, j + 1, globalK - 1 ));
+            int n4 = static_cast<int>( kValues ( i,     j + 1, globalK - 1 ));
 
-               int n5 = static_cast<int>( kValues ( i,     j,     globalK ));
-               int n6 = static_cast<int>( kValues ( i + 1, j,     globalK ));
-               int n7 = static_cast<int>( kValues ( i + 1, j + 1, globalK ));
-               int n8 = static_cast<int>( kValues ( i,     j + 1, globalK ));
+            int n5 = static_cast<int>( kValues ( i,     j,     globalK ));
+            int n6 = static_cast<int>( kValues ( i + 1, j,     globalK ));
+            int n7 = static_cast<int>( kValues ( i + 1, j + 1, globalK ));
+            int n8 = static_cast<int>( kValues ( i,     j + 1, globalK ));
 
-               // Set node numbers.
-               element.setNodeK ( 0, n1 );
-               element.setNodeK ( 1, n2 );
-               element.setNodeK ( 2, n3 );
-               element.setNodeK ( 3, n4 );
+            // Set node numbers.
+            element.setNodeK ( 0, n1 );
+            element.setNodeK ( 1, n2 );
+            element.setNodeK ( 2, n3 );
+            element.setNodeK ( 3, n4 );
 
-               element.setNodeK ( 4, n5 );
-               element.setNodeK ( 5, n6 );
-               element.setNodeK ( 6, n7 );
-               element.setNodeK ( 7, n8 );
+            element.setNodeK ( 4, n5 );
+            element.setNodeK ( 5, n6 );
+            element.setNodeK ( 6, n7 );
+            element.setNodeK ( 7, n8 );
 
-               element.setShallowIsOnDomainBoundary ( n1 == topKValue and n2 == topKValue and n3 == topKValue and n4 == topKValue );
-               element.setDeepIsOnDomainBoundary ( n5 == 0 and n6 == 0 and n7 == 0 and n8 == 0 );
-            }
-
+            element.setShallowIsOnDomainBoundary ( n1 == topKValue and n2 == topKValue and n3 == topKValue and n4 == topKValue );
+            element.setDeepIsOnDomainBoundary ( n5 == 0 and n6 == 0 and n7 == 0 and n8 == 0 );
          }
 
       }
 
    }
 
-
-}
-
-//------------------------------------------------------------//
-
-template<class ElementType>
-const IntegerArray& FormationElementGrid<ElementType>::getSubdomainNodeKIndices () const {
-   return m_subdomainNodeKIndices;
 }
 
 //------------------------------------------------------------//

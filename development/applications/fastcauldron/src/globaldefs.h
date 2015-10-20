@@ -6,11 +6,11 @@
 #include <vector>
 #include <string>
 using std::string;
+#include <assert.h>
 
+#include "array.h"
 #include "ghost_array.h"
 #include "Local3DArray.h"
-#include <assert.h>
-#include "array.h"
 
 #ifndef WIN32
 const bool   NO_ERROR              = true;
@@ -527,8 +527,6 @@ typedef PETSc_Local_2D_Array <bool> Boolean2DArray;
 
 typedef PETSc_Local_3D_Array <bool> Boolean3DArray;
 
-// Think about change this to the PETSc_Local_3D_Array?
-// Consider tidying up all the array types.
 typedef GeoPhysics::Local3DArray<bool> LocalBooleanArray3D;
 
 typedef GeoPhysics::Local3DArray<int> LocalIntegerArray3D;

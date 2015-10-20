@@ -25,24 +25,26 @@
 #include "FormationElementGrid.h"
 #include "FormationMapping.h"
 #include "GeneralElement.h"
+#include "globaldefs.h"
+#include "layer.h"
 #include "NodalVolumeGrid.h"
 #include "StratigraphicColumn.h"
 #include "StratigraphicGrids.h"
-#include "globaldefs.h"
-#include "layer.h"
 
 /// \brief The domain on which the coupled, pressure or temperature equations will be solved.
 ///
 /// For the age that has been assigned a computational domain object will contain:
-///    1. The number of active nodes for this rank;
-///    2. The number of active nodes for all ranks;
-///    3. The number of active elements for this rank;
-///    4. A list containing the active elements for this rank;
-///    5. An array containing the k-index values on this rank which includes the ghost nodes.
+///    1. The number of active nodes for this MPI rank;
+///    2. The number of active nodes for all MPI ranks;
+///    3. The number of active elements for this MPI rank;
+///    4. A list containing the active elements for this MPI rank;
+///    5. An array containing the k-index values on this MPI rank which includes the ghost nodes.
 ///
 /// Each active node will have a unique global dof number.
 ///
-/// What is a k-index? A k-index is ...
+/// K-indicies are the values of the index value for the node in the depth direction.
+/// If there are zero thickness segments then the nodes connecting these segments will
+/// have the same k-index value.
 ///
 /// For PETSc DM objects the counting starts with 0 at the bottom of each needle and counts upwards.
 class ComputationalDomain {
@@ -52,7 +54,6 @@ class ComputationalDomain {
 
    /// \typedef FormationToElementGridMap
    /// \brief Mapping from a formation to formation-subdomain-element-grid.
-   // Should re-do the subdomain class to use the vector directly.
    typedef FormationMapping< FormationGeneralElementGrid > FormationToElementGridMap;
 
    /// \brief Array of pointers to GeneralElement.
@@ -69,11 +70,11 @@ public :
 
    /// \brief Constructor with top and bottom layers.
    ///
-   /// The top and bottom layers or the computational domain.
-   /// The domain will consists of all layer in between and including these layers.
+   /// The domain will consists of all layer in between and including the top and bottom layers.
    /// \param [in] topLayer The top layer of the computational domain.
    /// \param [in] bottomLayer The bottom layer of the computational domain.
-   /// \pre topLayer should be at the same depth or shallower that bottomLayer.
+   /// \param [in] activityPredicate The predicate used to determine if an element is to be included in the computational domain.
+   /// \pre topLayer should be at the same depth or shallower than the bottomLayer.
    ComputationalDomain ( const LayerProps& topLayer,
                          const LayerProps& bottomLayer,
                          const CompositeElementActivityPredicate& activityPredicate );
@@ -96,37 +97,37 @@ public :
    /// \brief Return the first dof number for this process.
    int getLocalStartDof () const;
 
-   /// \brief Return the number of active nodes for the rank.
+   /// \brief Return the number of active nodes for the process.
    int getLocalNumberOfActiveNodes () const;
 
    /// \brief Determine if the dof number is from the dofs that are local to the process or not.
    bool isLocalDof ( const int dof ) const;
 
-   /// \brief Return the number of active nodes for all ranks.
+   /// \brief Return the number of active nodes for all processes.
    int getGlobalNumberOfActiveNodes () const;
 
-   /// \brief Get the maximum number of zero thickness segments for the rank.
+   /// \brief Get the maximum number of zero thickness segments for the process.
    ///
    /// This number will include zero thickness segments that are local to
-   /// the rank and for the ghost nodes.
+   /// the process and for the ghost nodes.
    int getMaximumNumberDegenerateSegments () const;
 
-   /// \brief Return the number of active elements for the rank.
+   /// \brief Return the number of active elements for the process.
    int getLocalNumberOfActiveElements () const;
 
    /// \brief Get a const reference to element at position i.
    ///
-   /// Only active elements that are local to the rank will be returned here.
+   /// Only active elements that are local to the process will be returned here.
    /// \param [in] i The index of the element required.
    /// \pre i should be in the half open interval [0,getLocalNumberOfActiveElements ())
-   const GeneralElement& getElement ( const size_t i ) const;
+   const GeneralElement& getActiveElement ( const size_t i ) const;
 
    /// \brief Get a reference to element at position i.
    ///
-   /// Only active elements that are local to the rank will be returned here.
+   /// Only active elements that are local to the process will be returned here.
    /// \param [in] i The index of the element required.
    /// \pre i should be in the half open interval [0,getLocalNumberOfActiveElements ())
-   GeneralElement& getElement ( const size_t i );
+   GeneralElement& getActiveElement ( const size_t i );
 
 
    /// \brief Get the stratigraphic column for the computational domain.
@@ -138,16 +139,16 @@ public :
 
    /// \brief Get 3 dimensional array of node activity.
    ///
-   /// A node is active it it takes active part the computation for the computational-domain.
+   /// A node is active if it takes part the calculation for the computational-domain.
    /// If n nodes are at the same location, due to a series of zero thickness segments, then 
    /// only 1 of them will be active.
-   /// The active nodes array is valid only for the nodes that are local to the rank, it 
+   /// The active nodes array is valid only for the nodes that are local to the process, it 
    /// does not include the ghost nodes.
    const LocalBooleanArray3D& getActiveNodes () const;
 
    /// \brief Get the 3 dimensional array containing the k-index values.
    ///
-   /// The index values are for both local and ghost nodes of the rank.
+   /// The index values are for both local and ghost nodes of the process.
    const LocalIntegerArray3D& getDepthIndices () const;
 
    /// \brief Get the PETSc vector that contains the global dof numbers.
@@ -179,7 +180,7 @@ private :
    ComputationalDomain& operator=( const ComputationalDomain& copy ); // = delete;
 
 
-   /// \brief Add element pointers to neighbouring elements across a formation surface.
+   /// \brief Add element pointers to neighbouring elements between two adjacent layers across their connecting surface.
    void linkElementsVertically ();
 
    /// \brief Number the k-values for all the nodes.
@@ -197,24 +198,25 @@ private :
    /// \brief Set the k-values for the nodes of each of the elements.
    void setElementNodeKValues ( const bool verbose );
 
-   /// \brief Determines all active elements that are local to the mpi rank.
+   /// \brief Determines all active elements that are local to the mpi process.
    ///
    /// This is achieved by looping over all element in the domain and using the activity
    /// predicate to determine if the element is considered active.
    void determineActiveElements ( const bool verbose );
 
-   /// \brief Determines all active nodes that are both local to the mpi rank and its ghost nodes.
+   /// \brief Determines all active nodes that are both local to the mpi process and its ghost nodes.
    ///
    /// Once all the active element has been determined: for each active element loop over all
    /// nodes to find the set of active nodes. The node may be owned by another process.
    void determineActiveNodes ( const bool verbose );
 
    /// \brief Assign the global dof number to the nodes of every active element.
-   void getElementGobalDofNumbers ();
+   void assignElementGobalDofNumbers ();
 
    /// \brief Assign the depth index numbers based on depth values.
    ///
    /// This function updates the member m_depthIndexNumbers.
+   /// Currently this is only necessary for the mantle layer.
    void assignDofNumbersUsingDepth ( const FormationGeneralElementGrid& layerGrid,
                                      const PETSC_3D_Array&              layerDepth,
                                      const int                          i,
@@ -244,6 +246,9 @@ private :
    /// \brief Mapping from layer to formation-element-grid.
    FormationToElementGridMap         m_layerMap;
 
+   /// \brief Used to indicate if an element is considered active or not.
+   ///
+   /// Only active elements will be used in the calculation of pressure or temperature.
    CompositeElementActivityPredicate m_activityPredicate;
 
    /// \brief Is any layer active.
@@ -264,7 +269,7 @@ private :
    /// \brief The current age for the computational domain.
    double                            m_currentAge;
 
-   /// \brief The maximum number of elements that can be active in the part of the domain that lies on this rank.
+   /// \brief The maximum number of elements that can be active in the part of the domain that lies on this process.
    int                               m_maximumNumberOfElements;
 
    /// \brief Array of number of active nodes on al processes.
@@ -275,7 +280,7 @@ private :
    /// This will include local and ghost segments.
    int                               m_localMaximumNumberDegenerateSegments;
 
-   /// \brief The rank on which this part of the computational domain lies.
+   /// \brief The process on which this part of the computational domain lies.
    int                               m_rank;
 
    /// \brief The number of the first degree of freedom on this process.
@@ -327,11 +332,11 @@ inline const LocalBooleanArray3D& ComputationalDomain::getActiveNodes () const {
    return m_activeNodes;
 }
 
-inline const GeneralElement& ComputationalDomain::getElement ( const size_t i ) const {
+inline const GeneralElement& ComputationalDomain::getActiveElement ( const size_t i ) const {
    return *m_activeElements [ i ];
 }
 
-inline GeneralElement& ComputationalDomain::getElement ( const size_t i ) {
+inline GeneralElement& ComputationalDomain::getActiveElement ( const size_t i ) {
    return *m_activeElements [ i ];
 }
 

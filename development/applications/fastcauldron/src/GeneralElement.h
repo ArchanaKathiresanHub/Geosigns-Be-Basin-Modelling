@@ -15,10 +15,10 @@
 #include "petsc.h"
 
 // Access to fastcauldron application code.
-#include "BoundaryId.h"
-#include "globaldefs.h"
 #include "BaseElement.h"
+#include "BoundaryId.h"
 #include "ElementDofsMixin.h"
+#include "globaldefs.h"
 
 
 /// \brief An element that is a part of a ComputationalDomain.
