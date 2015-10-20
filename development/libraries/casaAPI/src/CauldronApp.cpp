@@ -28,11 +28,6 @@
 #include <iostream>
 #include <cstring>
       
-      
-      
-              
-         
-
 namespace casa
 {
    const char * CauldronApp::s_resFilesList[][6]  = { { "PressureAndTemperature_Results.HDF"             // PTSolve 
@@ -280,7 +275,7 @@ namespace casa
              << "if [ ! -e $APP ]; then\n"
              << "   APP=" << ( ibs::Path::applicationFullPath() << "projdiff" ).path() << "\n"
              << "fi\n"
-             << "if [ ! -e $APP ]; then\n   echo Could not find application executable: ${APP}\n   exit 1\nfi\n";
+             << "if [ ! -e $APP ]; then\n   echo Could not find application executable: ${APP}\n   exit 1\nfi\n\nallOk=0;\n\n";
          break;
 
       case cmd:
@@ -289,6 +284,7 @@ namespace casa
 
          if ( !appPath.exists() ) { oss << "set APP=" << ( ibs::Path::applicationFullPath() << "projdiff").path(); }
          else                     { oss << "set APP=" << appPath.path() << '\n'; }
+         oss << "\nset allOK=0\n\n";
          break;
       }
 
@@ -315,12 +311,12 @@ namespace casa
             switch( m_sh )
             {
                case bash: 
-                  oss << "allOk=0;\n\n# Linking time stamp 3d prop files:\n"; 
+                  oss << "# Linking time stamp 3d prop files:\n"; 
                   oss << "ln -s " << fromPath.path() << "/Time_*.h5 " << toPath.path() << "\nif [ $? -ne 0 ]; then allOk=1; fi\n\n";
                   oss << "${APP} -merge -table SnapshotIoTbl,3DTimeIoTbl " << fromProj << " " << toProj << "\n"; 
                   break;
                case cmd:
-                  oss << "set allOK=0\n\nREM Linking time stamp 3d prop files:\n"; 
+                  oss << "REM Linking time stamp 3d prop files:\n"; 
                   oss << "FOR %%c in (" << fromPath.path() << "\\Time_*.h5) DO (mklink /h .\\%%~nxc \\%%c)\nif errorlevel 1 (\n set allOk=1  \n)\n";
                   oss << "%APP% -merge -table SnapshotIoTbl,3DTimeIoTbl " << fromProj << " " << toProj;
                   break;
