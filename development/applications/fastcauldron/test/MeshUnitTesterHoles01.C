@@ -93,6 +93,7 @@ TEST ( DofCountingUnitTest, HoleySedimentMesh01 ) {
    }
 
    PetscFinalize ();
+   delete [] argv;
 }
 
 

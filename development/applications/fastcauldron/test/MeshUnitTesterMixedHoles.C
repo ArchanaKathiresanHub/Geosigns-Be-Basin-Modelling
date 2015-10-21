@@ -95,4 +95,5 @@ TEST ( DofCountingUnitTest, MixedHoles ) {
    }
 
    PetscFinalize ();
+   delete [] argv;
 }

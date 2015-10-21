@@ -103,4 +103,5 @@ TEST ( DofCountingUnitTest, FullMesh ) {
    }
 
    PetscFinalize ();
+   delete [] argv;
 }

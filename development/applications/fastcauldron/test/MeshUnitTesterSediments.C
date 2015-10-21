@@ -104,4 +104,5 @@ TEST ( DofCountingUnitTest, SedimentMesh ) {
    }
 
    PetscFinalize ();
+   delete [] argv;
 }
