@@ -54,8 +54,6 @@
 using std::ostringstream;
 extern ostringstream cerrstrstr;
 
-//#define DEBUG 1
-
 using namespace std;
 using namespace CBMGenerics;
 

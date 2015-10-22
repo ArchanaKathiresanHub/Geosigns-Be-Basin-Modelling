@@ -188,7 +188,7 @@ namespace migration
                {
                   LocalFormationNode * formationNode = getLocalFormationNode (i, j, k);
 
-                  formationNode->setOverPressure (gridMap->interpolate (i, j, (double) k));
+                  formationNode->setOverPressure (gridMap->get (i, j, k));
                }
             }
          }
@@ -971,7 +971,7 @@ namespace migration
       }
 
       return FormationSurfaceGridMaps (SurfaceGridMap (top, index), SurfaceGridMap (base, (unsigned int) 0), this);
-         }
+   }    
 
 
    SurfaceGridMap Formation::getTopSurfaceGridMap (const Property* prop, const Snapshot* snapshot) const
@@ -1049,7 +1049,7 @@ namespace migration
       const DataAccess::Interface::Property* property = m_migrator->getProjectHandle()->findProperty (propertyName);
 
       DerivedProperties::FormationPropertyPtr theProperty =
-         m_migrator->getPropertyManager ().getFormationProperty (property, snapshot, dynamic_cast<const DataAccess::Interface::Formation *> (this));
+         m_migrator->getPropertyManager ().getFormationProperty (property, snapshot, this);
 
       return theProperty;
    }
@@ -1585,7 +1585,7 @@ namespace migration
    }
 
    /// migrate the contents of the charge grid maps to their appropriate columns in the target reservoir
-   void Formation::migrateChargesToReservoir (unsigned int direction, Reservoir * targetReservoir) const
+   void Formation::migrateExpelledChargesToReservoir (unsigned int direction, Reservoir * targetReservoir) const
    {
       if (direction == EXPELLEDNONE)
          return;
@@ -1597,7 +1597,7 @@ namespace migration
       unsigned int offsets[4][2] = { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } };
       int depthIndex = m_formationNodeArray->depth () - 1;
 
-      RequestHandling::StartRequestHandling (getMigrator (), "migrateChargesToReservoir");
+      RequestHandling::StartRequestHandling (getMigrator (), "migrateExpelledChargesToReservoir");
 
       for (unsigned int i = m_formationNodeArray->firstILocal (); i <= m_formationNodeArray->lastILocal (); ++i)
       {
@@ -1613,7 +1613,7 @@ namespace migration
                 !targetFormationNode->goesOutOfBounds () &&
                 targetFormationNode->getFormation () == targetReservoir->getFormation ())
             {
-               assert (targetFormationNode->getK () == targetFormationNode->getFormation ()->getNodeDepth () - 1);
+               assert (targetFormationNode->getK () == targetFormationNode->getFormation ()->getNodeDepth () - 1); // will fail for reservoir offsets
 
                // calculate the composition to migrate
                Composition composition;
@@ -1646,6 +1646,112 @@ namespace migration
 
                   composition.add ((ComponentId) componentId, weight);
 
+               }
+
+               int offsetIndex;
+
+               Column *shallowestColumn = 0;
+               double shallowestDepth = Interface::DefaultUndefinedScalarValue;
+
+               for (offsetIndex = 0; offsetIndex < 4; ++offsetIndex)
+               {
+                  Column *targetColumn = targetReservoir->getColumn (targetFormationNode->getI () + offsets[offsetIndex][0],
+                                                                     targetFormationNode->getJ () + offsets[offsetIndex][1]);
+
+                  if (IsValid (targetColumn) && !targetColumn->isSealing () && (shallowestColumn == 0 || targetColumn->getTopDepth () < shallowestDepth))
+                  {
+                     shallowestColumn = targetColumn;
+                     shallowestDepth = targetColumn->getTopDepth ();
+                  }
+               }
+
+               if (shallowestColumn)
+               {
+                  shallowestColumn->addCompositionToBeMigrated (composition);
+               }
+               else
+               {
+                  targetReservoir->addBlocked (composition);
+               }
+            }
+         }
+      }
+ 
+      RequestHandling::FinishRequestHandling ();
+   }
+
+
+   void Formation::migrateLeakedChargesToReservoir (Reservoir * targetReservoir) const
+   {
+      // LeakingReservoirList should contain only the reservoir corresponding
+      // to the formation whose member function is being executed
+      DataAccess::Interface::ReservoirList * leakingReservoirList = m_migrator->getReservoirs(this);
+      assert (!leakingReservoirList->empty());
+
+      // leakingReservoir is the reservoir hosted in "this" formation
+      const DataAccess::Interface::Reservoir * dataAccessReservoir = * leakingReservoirList->begin();
+      
+      const Reservoir * leakingReservoir = dynamic_cast<const migration::Reservoir *> (dataAccessReservoir);
+
+      const double surfaceFraction = 0.25;
+
+      unsigned int offsets[4][2] = { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } };
+
+      int depthIndex = m_formationNodeArray->depth () - 1;
+
+      RequestHandling::StartRequestHandling (getMigrator (), "migrateLeakedChargesToReservoir");
+
+      for (unsigned int i = m_formationNodeArray->firstILocal (); i <= m_formationNodeArray->lastILocal (); ++i)
+      {
+         for (unsigned int j = m_formationNodeArray->firstJLocal (); j <= m_formationNodeArray->lastJLocal (); ++j)
+         {
+            LocalColumn * leakingColumn = leakingReservoir->getLocalColumn (i, j);
+            if (!IsValid (leakingColumn)) continue;
+
+            LocalFormationNode * formationNode = getLocalFormationNode (i, j, depthIndex);
+            if (!IsValid (formationNode)) continue;
+
+            // If the "leaking" node has a reservoir flag (e.g. because it's a trap crest) then the HC path will be forced to be lateral.
+            // But we know it should leak so we force it to do so by probing the node right above it.
+            // If no reservoir offsets then this node will belong to the seal.
+            if (formationNode->getReservoirGas () or formationNode->getReservoirOil ())
+            {
+               formationNode = getLocalFormationNode (i, j, depthIndex + 1);
+            }
+
+            FormationNode *targetFormationNode = formationNode->getTargetFormationNode ();
+
+            // check if targetReservoir is the reservoir to migrate to for given i, j
+            if (targetFormationNode && (targetFormationNode->getReservoirGas () || targetFormationNode->getReservoirOil ()) &&
+                !targetFormationNode->goesOutOfBounds () &&
+                targetFormationNode->getFormation () == targetReservoir->getFormation ())
+            {
+               assert (targetFormationNode->getK () == targetFormationNode->getFormation ()->getNodeDepth () - 1); // will fail for reservoir offsets
+
+               // calculate the composition to migrate
+               Composition composition;
+               for (int componentId = FIRST_COMPONENT; componentId < NUM_COMPONENTS; ++componentId)
+               {
+                  if (!ComponentsUsed[componentId])
+                     continue;
+
+                  double sum = 0;
+                  int offsetIndex = 0;
+
+                  for (offsetIndex = 0; offsetIndex < 4; ++offsetIndex)
+                  {
+                     LocalColumn * leakingColumn = leakingReservoir->getLocalColumn (i + offsets[offsetIndex][0], j + offsets[offsetIndex][1]);
+                     if (!IsValid (leakingColumn)) continue;
+
+                     if (leakingColumn->containsComponent ((ComponentId) componentId))
+                     {
+                        sum += leakingColumn->getComponent ((ComponentId) componentId);
+                     }
+                  }
+
+                  double weight = sum * surfaceFraction;
+
+                  composition.add ((ComponentId) componentId, weight);
                }
 
                int offsetIndex;

@@ -197,7 +197,8 @@ namespace migration
       bool computeAdjacentNodes (Formation * targetFormation, const Interface::Snapshot * begin, const Interface::Snapshot * end);
       bool computeAdjacentNodes (int depthIndex, const Interface::Snapshot * begin, const Interface::Snapshot * end);
 
-      void migrateChargesToReservoir (unsigned int direction, Reservoir * targetReservoir) const;
+      void migrateExpelledChargesToReservoir (unsigned int direction, Reservoir * targetReservoir) const;
+      void migrateLeakedChargesToReservoir (Reservoir * targetReservoir) const;
 
       void getValue (FormationNodeValueRequest & request, FormationNodeValueRequest & response);
       void setValue (FormationNodeValueRequest & request);

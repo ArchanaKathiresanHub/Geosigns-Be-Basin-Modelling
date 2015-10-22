@@ -62,7 +62,7 @@ static bool reservoirSorter (const Interface::Reservoir * reservoir1, const Inte
 
 extern string NumProcessorsArg;
 
-Migrator::Migrator (const string & name)//, DataAccess::Interface::ObjectFactory* objectFactory)
+Migrator::Migrator (const string & name)
 {
    ObjectFactory * objectFactory = new ObjectFactory(this);
 
@@ -367,7 +367,7 @@ bool Migrator::createFormationNodes (void)
 
 bool Migrator::performSnapshotMigration (const Interface::Snapshot * start, const Interface::Snapshot * end, const bool pressureRun)
 {
-   if (activeReservoirs (end)||m_reservoirDetection)
+   if ((activeReservoirs (end)|| m_reservoirDetection) and getBottomSourceRockFormation ()->isActive (end))
    {
       clearFormationNodeProperties ();
 
@@ -943,14 +943,13 @@ bool Migrator::chargeReservoir (migration::Reservoir * reservoir, migration::Res
 #ifdef USEOTGC
    reservoir->crackChargesToBeMigrated (*m_otgc);
 
-
    // trap capacities will have changed
    reservoir->recomputeTrapDepthToVolumeFunctions ();
 #endif
 
    double totalRetainedAfterCracking = reservoir->getTotalChargesToBeMigrated ();
 
-   reservoir->migrateChargesToBeMigrated (0, reservoir);
+   reservoir->migrateChargesToBeMigrated (0, reservoir); // Lateral Migration
    reservoir->clearPreviousProperties ();
 
    collectAndMigrateExpelledCharges (reservoir, reservoirAbove, reservoirBelow, start, end, barrier);
@@ -959,10 +958,20 @@ bool Migrator::chargeReservoir (migration::Reservoir * reservoir, migration::Res
 
    double expelledBlocked = reservoir->getTotalBlocked ();
 
-   if (reservoirBelow)
+   if (reservoirBelow) // Collect the leaked HCs from the reservoir below
    {
-      reservoir->collectLeakedCharges (reservoirBelow, barrier);
-      reservoir->migrateChargesToBeMigrated (0, reservoirBelow);
+      // Non-Vertical Migration: collectLeakedCharges () assumes vertical. We want something like 
+      // migrateChargesToReservoir () as in the case of expulsion. If vertical then collectLeakedCHarges () is OK.
+      if (m_verticalMigration)
+      {
+         reservoir->collectLeakedCharges (reservoirBelow, barrier);
+      }
+      else
+      {
+         migration::Formation * leakingReservoir = Formation::CastToFormation (reservoirBelow->getFormation ());
+         leakingReservoir->migrateLeakedChargesToReservoir (reservoir);
+      }
+      reservoir->migrateChargesToBeMigrated (0, reservoirBelow); // Lateral Migration
    }
 
    if (barrier) delete barrier;
@@ -1091,7 +1100,7 @@ bool Migrator::collectAndMigrateExpelledCharges (migration::Reservoir * reservoi
 
       if (formationBelow == reservoir->getFormation () || formationBelowBelow == reservoir->getFormation ())
       {
-         // source rock atmost 2 formations above reservoir
+         // source rock at most 2 formations above reservoir
 
          // check if reservoirAbove is in the way of reservoir with respect to downward migration
          if (!reservoirAbove ||
@@ -1142,14 +1151,14 @@ bool Migrator::collectAndMigrateExpelledCharges (migration::Reservoir * reservoi
       {
          if ((directionsToCollect & EXPELLEDUPWARD) && !m_verticalMigration)
          {
-            formation->migrateChargesToReservoir (directionsToCollect, reservoir);
+            formation->migrateExpelledChargesToReservoir (directionsToCollect, reservoir);
          }
          else
          {
             reservoir->collectExpelledCharges (formation, directionsToCollect, barrier);
          }
 
-         reservoir->migrateChargesToBeMigrated (formation, 0);
+         reservoir->migrateChargesToBeMigrated (formation, 0); // Lateral Migration
       }
 
       if (barrier && (directionsToCollect & EXPELLEDUPWARD))
