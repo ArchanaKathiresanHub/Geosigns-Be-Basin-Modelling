@@ -18,7 +18,6 @@
 #include "petsc.h"
 
 // Access to fastcauldron application code.
-#include "ElementDofsMixin.h"
 #include "FastcauldronSimulator.h"
 #include "NodalGrid.h"
 #include "NodalVolumeGrid.h"
