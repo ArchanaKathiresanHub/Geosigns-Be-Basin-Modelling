@@ -64,7 +64,8 @@ SoLineSet* generateFlowLines(const std::vector<const DataAccess::Interface::Grid
           if (
             ii < 0 || ii >= numI ||
             jj < 0 || jj >= numJ ||
-            kk < 0 || ii >= numK)
+            kk < 0 || ii >= numK ||
+            topology.isDead(ii, jj, kk))
           {
             break;
           }
