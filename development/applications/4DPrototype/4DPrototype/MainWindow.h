@@ -89,7 +89,7 @@ private slots:
 
   void onTrapsToggled(bool value);
 
-  void onMigrationsToggled(bool value);
+  void onFlowLinesToggled(bool value);
 
   void onItemDoubleClicked(QTreeWidgetItem* item, int column);
 

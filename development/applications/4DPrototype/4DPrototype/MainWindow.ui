@@ -20,7 +20,7 @@
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
       </property>
-      <widget class="QWidget" name="">
+      <widget class="QWidget" name="layoutWidget">
        <layout class="QVBoxLayout" name="verticalLayout_3">
         <item>
          <widget class="QTabWidget" name="tabWidget">
@@ -105,9 +105,9 @@
             </widget>
            </item>
            <item>
-            <widget class="QCheckBox" name="checkBoxMigrations">
+            <widget class="QCheckBox" name="checkBoxFlowLines">
              <property name="text">
-              <string>Migrations</string>
+              <string>Flow lines</string>
              </property>
             </widget>
            </item>

@@ -301,6 +301,19 @@ SnapshotTopology::~SnapshotTopology()
   delete[] m_deadMap;
 }
 
+MbVec3d SnapshotTopology::getCellCenter(size_t i, size_t j, size_t k) const
+{
+  return .125 * (
+    m_geometry->getCoord((unsigned int)i, (unsigned int)j, (unsigned int)k) +
+    m_geometry->getCoord((unsigned int)(i + 1), (unsigned int)j, (unsigned int)k) +
+    m_geometry->getCoord((unsigned int)i, (unsigned int)(j + 1), (unsigned int)k) +
+    m_geometry->getCoord((unsigned int)(i + 1), (unsigned int)(j + 1), (unsigned int)k) +
+    m_geometry->getCoord((unsigned int)i, (unsigned int)j, (unsigned int)(k + 1)) +
+    m_geometry->getCoord((unsigned int)(i + 1), (unsigned int)j, (unsigned int)(k + 1)) +
+    m_geometry->getCoord((unsigned int)i, (unsigned int)(j + 1), (unsigned int)(k + 1)) +
+    m_geometry->getCoord((unsigned int)(i + 1), (unsigned int)(j + 1), (unsigned int)(k + 1)));
+}
+
 void SnapshotTopology::getCellNodeIndices(
   size_t i, size_t j, size_t k,
   size_t& n0, size_t& n1, size_t& n2, size_t& n3,

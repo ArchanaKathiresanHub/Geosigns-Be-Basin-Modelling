@@ -9,6 +9,7 @@
 //
 
 #include "Property.h"
+#include "Mesh.h"
 
 #include "Interface/GridMap.h"
 
@@ -413,65 +414,3 @@ MiMeshIjk::StorageLayout PersistentTrapIdProperty::getStorageLayout() const
   return MiMeshIjk::LAYOUT_IJK;
 }
 
-//---------------------------------------------------------------------------------------
-// FlowDirectionProperty
-//---------------------------------------------------------------------------------------
-MbVec3d decodeVector(int code)
-{
-  if (code == 99999)
-    return MbVec3d();
-
-  code += 111;
-  int k = code / 100 - 1;
-  int j = (code % 100) / 10 - 1;
-  int i = (code % 10) - 1;
-
-  return MbVec3d(i, j, k);
-}
-
-FlowDirectionProperty::FlowDirectionProperty(const std::vector<const DataAccess::Interface::GridMap*>& values)
-  : m_values(values)
-  , m_binding(MiDataSet::PER_CELL)
-  , m_timestamp(MxTimeStamp::getTimeStamp())
-{
-}
-
-FlowDirectionProperty::~FlowDirectionProperty()
-{
-}
-
-MbVec3d FlowDirectionProperty::get(size_t i, size_t j, size_t k) const
-{
-  int code = (int)m_values.getValue(i, j, k);
-  return decodeVector(code);
-}
-
-MiDataSet::DataBinding FlowDirectionProperty::getBinding() const
-{
-  return m_binding;
-}
-
-MbVec3d FlowDirectionProperty::getMin() const
-{
-  return MbVec3d();
-}
-
-MbVec3d FlowDirectionProperty::getMax() const
-{
-  return MbVec3d();
-}
-
-std::string FlowDirectionProperty::getName() const
-{
-  return "FlowDirectionIJK";
-}
-
-size_t FlowDirectionProperty::getTimeStamp() const
-{
-  return m_timestamp;
-}
-
-MiMeshIjk::StorageLayout FlowDirectionProperty::getStorageLayout() const
-{
-  return MiMeshIjk::LAYOUT_IJK;
-}

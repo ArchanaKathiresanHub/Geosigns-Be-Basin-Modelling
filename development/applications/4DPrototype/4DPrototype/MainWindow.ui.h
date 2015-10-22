@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'MainWindow.ui'
 **
-** Created: Wed Oct 7 12:34:03 2015
+** Created: Mon Oct 19 12:20:26 2015
 **      by: Qt User Interface Compiler version 4.8.4
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -53,7 +53,7 @@ public:
     QWidget *centralwidget;
     QHBoxLayout *horizontalLayout_3;
     QSplitter *splitter;
-    QWidget *widget;
+    QWidget *layoutWidget;
     QVBoxLayout *verticalLayout_3;
     QTabWidget *tabWidget;
     QWidget *tab;
@@ -65,7 +65,7 @@ public:
     QGroupBox *groupBoxFeatures;
     QVBoxLayout *verticalLayout_2;
     QCheckBox *checkBoxTraps;
-    QCheckBox *checkBoxMigrations;
+    QCheckBox *checkBoxFlowLines;
     QHBoxLayout *horizontalLayout_2;
     QLabel *label_7;
     QSlider *sliderVerticalScale;
@@ -130,12 +130,12 @@ public:
         splitter = new QSplitter(centralwidget);
         splitter->setObjectName(QString::fromUtf8("splitter"));
         splitter->setOrientation(Qt::Horizontal);
-        widget = new QWidget(splitter);
-        widget->setObjectName(QString::fromUtf8("widget"));
-        verticalLayout_3 = new QVBoxLayout(widget);
+        layoutWidget = new QWidget(splitter);
+        layoutWidget->setObjectName(QString::fromUtf8("layoutWidget"));
+        verticalLayout_3 = new QVBoxLayout(layoutWidget);
         verticalLayout_3->setObjectName(QString::fromUtf8("verticalLayout_3"));
         verticalLayout_3->setContentsMargins(0, 0, 0, 0);
-        tabWidget = new QTabWidget(widget);
+        tabWidget = new QTabWidget(layoutWidget);
         tabWidget->setObjectName(QString::fromUtf8("tabWidget"));
         tabWidget->setTabPosition(QTabWidget::South);
         tab = new QWidget();
@@ -177,7 +177,7 @@ public:
 
         verticalLayout_3->addWidget(tabWidget);
 
-        groupBoxFeatures = new QGroupBox(widget);
+        groupBoxFeatures = new QGroupBox(layoutWidget);
         groupBoxFeatures->setObjectName(QString::fromUtf8("groupBoxFeatures"));
         verticalLayout_2 = new QVBoxLayout(groupBoxFeatures);
         verticalLayout_2->setObjectName(QString::fromUtf8("verticalLayout_2"));
@@ -186,22 +186,22 @@ public:
 
         verticalLayout_2->addWidget(checkBoxTraps);
 
-        checkBoxMigrations = new QCheckBox(groupBoxFeatures);
-        checkBoxMigrations->setObjectName(QString::fromUtf8("checkBoxMigrations"));
+        checkBoxFlowLines = new QCheckBox(groupBoxFeatures);
+        checkBoxFlowLines->setObjectName(QString::fromUtf8("checkBoxFlowLines"));
 
-        verticalLayout_2->addWidget(checkBoxMigrations);
+        verticalLayout_2->addWidget(checkBoxFlowLines);
 
 
         verticalLayout_3->addWidget(groupBoxFeatures);
 
         horizontalLayout_2 = new QHBoxLayout();
         horizontalLayout_2->setObjectName(QString::fromUtf8("horizontalLayout_2"));
-        label_7 = new QLabel(widget);
+        label_7 = new QLabel(layoutWidget);
         label_7->setObjectName(QString::fromUtf8("label_7"));
 
         horizontalLayout_2->addWidget(label_7);
 
-        sliderVerticalScale = new QSlider(widget);
+        sliderVerticalScale = new QSlider(layoutWidget);
         sliderVerticalScale->setObjectName(QString::fromUtf8("sliderVerticalScale"));
         sliderVerticalScale->setMinimum(0);
         sliderVerticalScale->setMaximum(10);
@@ -215,7 +215,7 @@ public:
 
         verticalLayout_3->addLayout(horizontalLayout_2);
 
-        groupBox_3 = new QGroupBox(widget);
+        groupBox_3 = new QGroupBox(layoutWidget);
         groupBox_3->setObjectName(QString::fromUtf8("groupBox_3"));
         verticalLayout_4 = new QVBoxLayout(groupBox_3);
         verticalLayout_4->setObjectName(QString::fromUtf8("verticalLayout_4"));
@@ -246,7 +246,7 @@ public:
 
         verticalLayout_3->addWidget(groupBox_3);
 
-        groupBox = new QGroupBox(widget);
+        groupBox = new QGroupBox(layoutWidget);
         groupBox->setObjectName(QString::fromUtf8("groupBox"));
         horizontalLayout = new QHBoxLayout(groupBox);
         horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
@@ -280,12 +280,12 @@ public:
 
         verticalLayout_3->addWidget(groupBox);
 
-        label_8 = new QLabel(widget);
+        label_8 = new QLabel(layoutWidget);
         label_8->setObjectName(QString::fromUtf8("label_8"));
 
         verticalLayout_3->addWidget(label_8);
 
-        snapshotSlider = new QSlider(widget);
+        snapshotSlider = new QSlider(layoutWidget);
         snapshotSlider->setObjectName(QString::fromUtf8("snapshotSlider"));
         QSizePolicy sizePolicy1(QSizePolicy::Preferred, QSizePolicy::Fixed);
         sizePolicy1.setHorizontalStretch(0);
@@ -297,7 +297,7 @@ public:
 
         verticalLayout_3->addWidget(snapshotSlider);
 
-        splitter->addWidget(widget);
+        splitter->addWidget(layoutWidget);
         renderWidget = new SoQtWrapper(splitter);
         renderWidget->setObjectName(QString::fromUtf8("renderWidget"));
         QSizePolicy sizePolicy2(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -374,7 +374,7 @@ public:
         tabWidget->setTabText(tabWidget->indexOf(tab_2), QApplication::translate("MainWindow", "Properties", 0, QApplication::UnicodeUTF8));
         groupBoxFeatures->setTitle(QApplication::translate("MainWindow", "Features", 0, QApplication::UnicodeUTF8));
         checkBoxTraps->setText(QApplication::translate("MainWindow", "Traps", 0, QApplication::UnicodeUTF8));
-        checkBoxMigrations->setText(QApplication::translate("MainWindow", "Migrations", 0, QApplication::UnicodeUTF8));
+        checkBoxFlowLines->setText(QApplication::translate("MainWindow", "Flow lines", 0, QApplication::UnicodeUTF8));
         label_7->setText(QApplication::translate("MainWindow", "Vertical scale", 0, QApplication::UnicodeUTF8));
         groupBox_3->setTitle(QApplication::translate("MainWindow", "Render style", 0, QApplication::UnicodeUTF8));
         checkBoxDrawGrid->setText(QApplication::translate("MainWindow", "Coordinate grid", 0, QApplication::UnicodeUTF8));

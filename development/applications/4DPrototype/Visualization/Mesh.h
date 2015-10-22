@@ -171,6 +171,8 @@ public:
   SnapshotTopology(const SnapshotTopology&) = delete;
   SnapshotTopology& operator=(const SnapshotTopology&) = delete;
 
+  MbVec3d getCellCenter(size_t i, size_t j, size_t k) const;
+
   virtual void getCellNodeIndices(
     size_t i, size_t j, size_t k,
     size_t& n0, size_t& n1, size_t& n2, size_t& n3,

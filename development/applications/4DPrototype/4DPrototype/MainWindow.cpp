@@ -339,7 +339,7 @@ void MainWindow::connectSignals()
   connect(m_ui.checkBoxPerspective, SIGNAL(toggled(bool)), this, SLOT(onPerspectiveToggled(bool)));
 
   connect(m_ui.checkBoxTraps, SIGNAL(toggled(bool)), this, SLOT(onTrapsToggled(bool)));
-  connect(m_ui.checkBoxMigrations, SIGNAL(toggled(bool)), this, SLOT(onMigrationsToggled(bool)));
+  connect(m_ui.checkBoxFlowLines, SIGNAL(toggled(bool)), this, SLOT(onFlowLinesToggled(bool)));
 
   connect(m_ui.treeWidget, SIGNAL(itemChanged(QTreeWidgetItem*, int)), this, SLOT(onTreeWidgetItemChanged(QTreeWidgetItem*, int)));
 }
@@ -561,8 +561,9 @@ void MainWindow::onTrapsToggled(bool value)
   m_sceneGraphManager.showTraps(value);
 }
 
-void MainWindow::onMigrationsToggled(bool value)
+void MainWindow::onFlowLinesToggled(bool value)
 {
+  m_sceneGraphManager.showFlowLines(value);
 }
 
 void MainWindow::onItemDoubleClicked(QTreeWidgetItem* item, int column)

@@ -22,6 +22,7 @@
 #include <memory>
 
 #include <Inventor/SbColor.h>
+#include <MeshVizXLM/MbVec3.h>
 
 #include <Interface/Interface.h>
 
@@ -56,6 +57,7 @@ class MoColorMapping;
 class MoMesh;
 class MoScalarSet;
 class MoScalarSetIjk;
+class MoVec3SetIjk;
 class MoMeshSkin;
 class MoMeshSlab;
 class MoMeshSurface;
@@ -180,10 +182,14 @@ struct SnapshotInfo
   MoScalarSetIjk* scalarSet;
   std::shared_ptr<MiDataSetIjk<double> > scalarDataSet;
 
+  MoVec3SetIjk* flowDirSet;
+  std::shared_ptr<MiDataSetIjk<MbVec3d> > flowDirDataSet;
+
   SoSwitch* sliceSwitch[3];
   MoMeshSlab* slice[3];
 
   SoGroup* chunksGroup;
+  SoGroup* flowLinesGroup;
   SoGroup* surfacesGroup;
   SoGroup* reservoirsGroup;
   SoGroup* faultsGroup;
@@ -243,6 +249,9 @@ private:
   int m_numIHiRes;
   int m_numJHiRes;
 
+  double m_deltaI;
+  double m_deltaJ;
+
   double m_minX;
   double m_minY;
   double m_maxX;
@@ -267,6 +276,8 @@ private:
 
   bool m_showGrid;
   bool m_showTraps;
+  bool m_showFlowLines;
+
   float m_verticalScale;
   ProjectionType m_projectionType;
 
@@ -310,17 +321,21 @@ private:
 
   SoSwitch*       m_snapshotsSwitch;
 
+  std::vector<const DataAccess::Interface::GridMap*> getFormationPropertyGridMaps(
+    const SnapshotInfo& snapshot,
+    const DataAccess::Interface::Property* prop,
+    bool formation3D) const;
   std::shared_ptr<MiDataSetIjk<double> > createFormation2DProperty(
-    const std::string& name, 
-    const DataAccess::Interface::PropertyValueList& values, 
-    const SnapshotInfo& snapshot);
+    const std::string& name,
+    const SnapshotInfo& snapshot,
+    const DataAccess::Interface::Property* prop) const;
   std::shared_ptr<MiDataSetIjk<double> > createFormation3DProperty(
-    const std::string& name, 
-    const DataAccess::Interface::PropertyValueList& values, 
-    const SnapshotInfo& snapshot);
+    const std::string& name,
+    const SnapshotInfo& snapshot,
+    const DataAccess::Interface::Property* prop) const;
   std::shared_ptr<MiDataSetIjk<double> > createFormationProperty(
-    const DataAccess::Interface::Property* prop, 
-    const SnapshotInfo& snapshot);
+    const SnapshotInfo& snapshot,
+    const DataAccess::Interface::Property* prop) const;
 
   void updateCoordinateGrid();
   void updateSnapshotFormations();
@@ -330,6 +345,7 @@ private:
   void updateSnapshotFaults();
   void updateSnapshotProperties();
   void updateSnapshotSlices();
+  void updateSnapshotFlowLines();
   void updateColorMap();
   void updateText();
   void updateSnapshot();
@@ -383,6 +399,8 @@ public:
   void showCoordinateGrid(bool show);
 
   void showTraps(bool show);
+
+  void showFlowLines(bool show);
 
   void setup(const DataAccess::Interface::ProjectHandle* handle);
 };

@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'MainWindow.h'
 **
-** Created: Wed Oct 7 12:47:49 2015
+** Created: Mon Oct 19 12:21:52 2015
 **      by: The Qt Meta Object Compiler version 63 (Qt 4.8.4)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -47,9 +47,9 @@ static const uint qt_meta_data_MainWindow[] = {
      399,  202,   11,   11, 0x08,
      426,  202,   11,   11, 0x08,
      447,  202,   11,   11, 0x08,
-     485,  473,   11,   11, 0x08,
-     527,   11,   11,   11, 0x08,
-     542,  473,   11,   11, 0x08,
+     484,  472,   11,   11, 0x08,
+     526,   11,   11,   11, 0x08,
+     541,  472,   11,   11, 0x08,
 
        0        // eod
 };
@@ -68,7 +68,7 @@ static const char qt_meta_stringdata_MainWindow[] = {
     "onSliceToggled(bool)\0onRenderStyleChanged()\0"
     "onCoordinateGridToggled(bool)\0"
     "onPerspectiveToggled(bool)\0"
-    "onTrapsToggled(bool)\0onMigrationsToggled(bool)\0"
+    "onTrapsToggled(bool)\0onFlowLinesToggled(bool)\0"
     "item,column\0onItemDoubleClicked(QTreeWidgetItem*,int)\0"
     "onShowGLInfo()\0"
     "onTreeWidgetItemChanged(QTreeWidgetItem*,int)\0"
@@ -95,7 +95,7 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         case 12: _t->onCoordinateGridToggled((*reinterpret_cast< bool(*)>(_a[1]))); break;
         case 13: _t->onPerspectiveToggled((*reinterpret_cast< bool(*)>(_a[1]))); break;
         case 14: _t->onTrapsToggled((*reinterpret_cast< bool(*)>(_a[1]))); break;
-        case 15: _t->onMigrationsToggled((*reinterpret_cast< bool(*)>(_a[1]))); break;
+        case 15: _t->onFlowLinesToggled((*reinterpret_cast< bool(*)>(_a[1]))); break;
         case 16: _t->onItemDoubleClicked((*reinterpret_cast< QTreeWidgetItem*(*)>(_a[1])),(*reinterpret_cast< int(*)>(_a[2]))); break;
         case 17: _t->onShowGLInfo(); break;
         case 18: _t->onTreeWidgetItemChanged((*reinterpret_cast< QTreeWidgetItem*(*)>(_a[1])),(*reinterpret_cast< int(*)>(_a[2]))); break;

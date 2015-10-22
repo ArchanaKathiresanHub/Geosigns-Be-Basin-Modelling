@@ -11,6 +11,7 @@
 #include "SceneGraphManager.h"
 #include "Mesh.h"
 #include "Property.h"
+#include "FlowLines.h"
 
 #include <Inventor/nodes/SoGroup.h>
 #include <Inventor/nodes/SoSwitch.h>
@@ -24,6 +25,8 @@
 #include <Inventor/nodes/SoOrthographicCamera.h>
 #include <Inventor/nodes/SoTranslation.h>
 #include <Inventor/nodes/SoText2.h>
+#include <Inventor/nodes/SoLineSet.h>
+#include <Inventor/nodes/SoBaseColor.h>
 
 #include <MeshVizXLM/MxTimeStamp.h>
 #include <MeshVizXLM/mapping/nodes/MoDrawStyle.h>
@@ -73,7 +76,9 @@ SnapshotInfo::SnapshotInfo()
   , mesh(0)
   , meshData(0)
   , scalarSet(0)
+  , flowDirSet(0)
   , chunksGroup(0)
+  , flowLinesGroup(0)
   , surfacesGroup(0)
   , reservoirsGroup(0)
   , faultsGroup(0)
@@ -546,23 +551,40 @@ void SceneGraphManager::updateSnapshotFaults()
   snapshot.faultsTimeStamp = m_faultsTimeStamp;
 }
 
-std::shared_ptr<MiDataSetIjk<double> > SceneGraphManager::createFormation2DProperty(
-  const std::string& name, 
-  const di::PropertyValueList& values, 
-  const SnapshotInfo& snapshot)
+std::vector<const di::GridMap*> SceneGraphManager::getFormationPropertyGridMaps(const SnapshotInfo& snapshot, const di::Property* prop, bool formation3D) const
 {
-  size_t i = 0;
   std::vector<const di::GridMap*> gridMaps;
+
+  std::unique_ptr<di::PropertyValueList> values(prop->getPropertyValues(di::FORMATION, snapshot.snapshot, 0, 0, 0));
+
+  size_t i = 0;
   for (auto fmt : snapshot.formations)
   {
     const di::Formation* formation = m_formations[fmt.id].object;
     const di::GridMap* gridMap = nullptr;
-    if (i < values.size() && formation == values[i]->getFormation())
-      gridMap = values[i++]->getGridMap();
+    if (i < values->size() && formation == (*values)[i]->getFormation())
+      gridMap = (*values)[i++]->getGridMap();
 
-    for (int k = fmt.minK; k < fmt.maxK; ++k)
+    if (formation3D && gridMap)
+    {
       gridMaps.push_back(gridMap);
+    }
+    else
+    {
+      for (int k = fmt.minK; k < fmt.maxK; ++k)
+        gridMaps.push_back(gridMap);
+    }
   }
+
+  return gridMaps;
+}
+
+std::shared_ptr<MiDataSetIjk<double> > SceneGraphManager::createFormation2DProperty(
+  const std::string& name, 
+  const SnapshotInfo& snapshot,
+  const di::Property* prop) const
+{
+  std::vector<const di::GridMap*> gridMaps = getFormationPropertyGridMaps(snapshot, prop, false);
 
   if (gridMaps.empty())
     return nullptr;
@@ -572,28 +594,10 @@ std::shared_ptr<MiDataSetIjk<double> > SceneGraphManager::createFormation2DPrope
 
 std::shared_ptr<MiDataSetIjk<double> > SceneGraphManager::createFormation3DProperty(
   const std::string& name, 
-  const di::PropertyValueList& values, 
-  const SnapshotInfo& snapshot)
+  const SnapshotInfo& snapshot,
+  const di::Property* prop) const
 {
-  size_t i = 0;
-  std::vector<const di::GridMap*> gridMaps;
-  for (auto fmt : snapshot.formations)
-  {
-    const di::Formation* formation = m_formations[fmt.id].object;
-    const di::GridMap* gridMap = nullptr;
-    if (i < values.size() && formation == values[i]->getFormation())
-      gridMap = values[i++]->getGridMap();
-
-    if (gridMap)
-    {
-      gridMaps.push_back(gridMap);
-    }
-    else
-    {
-      for (int k = fmt.minK; k < fmt.maxK; ++k)
-        gridMaps.push_back(nullptr);
-    }
-  }
+  std::vector<const di::GridMap*> gridMaps = getFormationPropertyGridMaps(snapshot, prop, true);
 
   if (gridMaps.empty())
     return nullptr;
@@ -601,20 +605,17 @@ std::shared_ptr<MiDataSetIjk<double> > SceneGraphManager::createFormation3DPrope
   return std::make_shared<FormationProperty>(name, gridMaps);
 }
 
-std::shared_ptr<MiDataSetIjk<double> > SceneGraphManager::createFormationProperty(const di::Property* prop, const SnapshotInfo& snapshot)
+std::shared_ptr<MiDataSetIjk<double> > SceneGraphManager::createFormationProperty(const SnapshotInfo& snapshot, const di::Property* prop) const
 {
   if (!prop || prop->getType() != di::FORMATIONPROPERTY)
     return nullptr;
 
-  std::unique_ptr<di::PropertyValueList> values(
-    prop->getPropertyValues(di::FORMATION, snapshot.snapshot, 0, 0, 0));
-
   std::string name = prop->getName();
 
   if (prop->getPropertyAttribute() == DataModel::FORMATION_2D_PROPERTY)
-    return createFormation2DProperty(name, *values, snapshot);
+    return createFormation2DProperty(name, snapshot, prop);
   else
-    return createFormation3DProperty(name, *values, snapshot);
+    return createFormation3DProperty(name, snapshot, prop);
 }
 
 void SceneGraphManager::updateSnapshotProperties()
@@ -627,7 +628,7 @@ void SceneGraphManager::updateSnapshotProperties()
   if (snapshot.currentProperty == m_currentProperty)
     return;
 
-  snapshot.scalarDataSet = createFormationProperty(m_currentProperty, snapshot);
+  snapshot.scalarDataSet = createFormationProperty(snapshot, m_currentProperty);
   snapshot.scalarSet->setScalarSet(snapshot.scalarDataSet.get());
 
   for (auto &surf : snapshot.surfaces)
@@ -686,6 +687,56 @@ void SceneGraphManager::updateSnapshotSlices()
         ? SO_SWITCH_ALL
         : SO_SWITCH_NONE;
     }
+  }
+}
+
+void SceneGraphManager::updateSnapshotFlowLines()
+{
+  assert(!m_snapshotInfoCache.empty());
+
+  SnapshotInfo& snapshot = *m_snapshotInfoCache.begin();
+
+  if (m_showFlowLines && snapshot.flowLinesGroup->getNumChildren() == 0)
+  {
+    // Add color node
+    SoBaseColor* color = new SoBaseColor;
+    color->rgb.setValue(1.f, .5f, 1.f);
+    snapshot.flowLinesGroup->addChild(color);
+
+    std::unique_ptr<di::PropertyValueList> values(m_flowDirectionProperty->getPropertyValues(di::FORMATION, snapshot.snapshot, 0, 0, 0));
+
+    int startK = 0;
+    size_t i = 0;
+    std::vector<const di::GridMap*> gridMaps;
+    for (auto& fmt : snapshot.formations)
+    {
+      const di::Formation* formation = m_formations[fmt.id].object;
+      const di::GridMap* gridMap = nullptr;
+      if (i < values->size() && formation == (*values)[i]->getFormation())
+        gridMap = (*values)[i++]->getGridMap();
+
+      if (gridMap)
+      {
+        gridMaps.push_back(gridMap);
+        startK = fmt.minK;
+      }
+
+      bool isLast = (&fmt == &snapshot.formations.back());
+      if ((isLast || !gridMap) && !gridMaps.empty())
+      {
+        SoLineSet* flowLines = generateFlowLines(gridMaps, startK, *snapshot.topology);
+        snapshot.flowLinesGroup->addChild(flowLines);
+
+        for (auto map : gridMaps)
+          map->release();
+        gridMaps.clear();
+      }
+    }
+  }
+  else if (!m_showFlowLines && snapshot.flowLinesGroup->getNumChildren() != 0)
+  {
+    snapshot.flowLinesGroup->removeAllChildren();
+    snapshot.flowDirDataSet.reset();
   }
 }
 
@@ -773,6 +824,7 @@ void SceneGraphManager::updateSnapshot()
   updateSnapshotFaults();
   updateSnapshotProperties();
   updateSnapshotSlices();
+  updateSnapshotFlowLines();
 
   updateColorMap();
   updateText();
@@ -988,6 +1040,8 @@ SnapshotInfo SceneGraphManager::createSnapshotNode(const di::Snapshot* snapshot)
 
   info.chunksGroup = new SoGroup;
   info.chunksGroup->setName("chunks");
+  info.flowLinesGroup = new SoGroup;
+  info.flowLinesGroup->setName("flowlines");
   info.surfacesGroup = new SoGroup;
   info.surfacesGroup->setName("surfaces");
   info.reservoirsGroup = new SoGroup;
@@ -1000,6 +1054,7 @@ SnapshotInfo SceneGraphManager::createSnapshotNode(const di::Snapshot* snapshot)
   info.formationsRoot->addChild(info.mesh);
   info.formationsRoot->addChild(info.scalarSet);
   info.formationsRoot->addChild(info.chunksGroup);
+  info.formationsRoot->addChild(info.flowLinesGroup);
   info.formationsRoot->addChild(info.slicesGroup);
 
   info.root->addChild(info.formationsRoot);
@@ -1175,6 +1230,8 @@ SceneGraphManager::SceneGraphManager()
   , m_numJ(0)
   , m_numIHiRes(0)
   , m_numJHiRes(0)
+  , m_deltaI(0.0)
+  , m_deltaJ(0.0)
   , m_minX(0.0)
   , m_minY(0.0)
   , m_maxX(0.0)
@@ -1183,6 +1240,7 @@ SceneGraphManager::SceneGraphManager()
   , m_maxCacheItems(5)
   , m_showGrid(false)
   , m_showTraps(false)
+  , m_showFlowLines(false)
   , m_verticalScale(1.f)
   , m_projectionType(PerspectiveProjection)
   , m_formationsTimeStamp(MxTimeStamp::getTimeStamp())
@@ -1427,6 +1485,16 @@ void SceneGraphManager::showTraps(bool show)
   }
 }
 
+void SceneGraphManager::showFlowLines(bool show)
+{
+  if (show != m_showFlowLines)
+  {
+    m_showFlowLines = show;
+
+    updateSnapshot();
+  }
+}
+
 void SceneGraphManager::setup(const di::ProjectHandle* handle)
 {
   m_projectHandle = handle;
@@ -1450,6 +1518,8 @@ void SceneGraphManager::setup(const di::ProjectHandle* handle)
   m_numJ = loresGrid->numJ();
   m_numIHiRes = hiresGrid->numI();
   m_numJHiRes = hiresGrid->numJ();
+  m_deltaI = loresGrid->deltaI();
+  m_deltaJ = loresGrid->deltaJ();
   m_minX = loresGrid->minI();
   m_minY = loresGrid->minJ();
   m_maxX = loresGrid->maxI();
