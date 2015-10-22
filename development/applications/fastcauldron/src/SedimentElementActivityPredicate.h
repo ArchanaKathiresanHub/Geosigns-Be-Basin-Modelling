@@ -23,11 +23,11 @@ class SedimentElementActivityPredicate : public ElementActivityPredicate {
 public :
 
    /// \brief Active only if element forms a part of the sediments and not the basement.
-   virtual isActive ( const LayerElement& element ) const;
+   virtual bool isActive ( const LayerElement& element ) const;
 
 };
 
-inline SedimentElementActivityPredicate::isActive ( const LayerElement& element ) const {
+inline bool SedimentElementActivityPredicate::isActive ( const LayerElement& element ) const {
    return element.getFormation () != 0 and element.getFormation ()->isSediment ();
 }
 
