@@ -270,11 +270,6 @@ void BpaRenderAreaListener::onReceivedMessage(RenderArea* renderArea, Connection
   else if (cmd == "SetProjection")
   {
     auto typeStr = params.get<std::string>("type");
-    //auto type = (typeStr == "Perspective")
-    //  ? SceneGraphManager::PerspectiveProjection
-    //  : SceneGraphManager::OrthographicProjection;
-    //m_sceneGraphManager.setProjection(type);
-
     auto mode = (typeStr == "Perspective")
       ? SceneInteractor::PERSPECTIVE
       : SceneInteractor::ORTHOGRAPHIC;

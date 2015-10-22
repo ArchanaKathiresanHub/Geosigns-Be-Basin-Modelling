@@ -1171,9 +1171,13 @@ void SceneGraphManager::setupSceneGraph()
   m_legendSwitch->whichChild = SO_SWITCH_NONE;
   m_legendSwitch->addChild(m_legend);
 
+  MoDrawStyle* legendDrawStyle = new MoDrawStyle;
+  legendDrawStyle->displayEdges = false;
+
   m_annotation = new SoAnnotation;
   m_annotation->setName("annotation");
   m_annotation->boundingBoxIgnoring = true;
+  m_annotation->addChild(legendDrawStyle);
   m_annotation->addChild(m_legendSwitch);
 
   // Text area
@@ -1208,8 +1212,8 @@ void SceneGraphManager::setupSceneGraph()
   m_root->addChild(m_coordinateGridSwitch);
   m_root->addChild(m_scale);
   m_root->addChild(m_appearanceNode);
-  m_root->addChild(m_annotation);
   m_root->addChild(m_snapshotsSwitch);
+  m_root->addChild(m_annotation);
   m_root->addChild(createCompass());
 
   setupSnapshots();
