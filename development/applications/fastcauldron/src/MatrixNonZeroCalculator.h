@@ -120,7 +120,9 @@ private :
                                   IntegerArray&              localNumberOfNonZerosPerRow,
                                   IntegerArray&              ghostNumberOfNonZerosPerRow ) const;
 
-   /// \brief Count the number of dofs that are ...
+   /// \brief Count the number of dofs that are contained in a section of the column.
+   ///
+   /// The column section is located at some i,j position and is bounded by the activeAbove and activeBelow indices.
    void countNumberOfActiveDofsForColumn ( const LocalIntegerArray3D& depthIndex,
                                            const int                  localDofNumber,
                                            const unsigned int         columnI,
