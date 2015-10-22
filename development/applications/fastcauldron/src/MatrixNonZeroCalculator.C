@@ -57,6 +57,7 @@ void MatrixNonZeroCalculator::compute ( const ComputationalDomain& domain,
             for ( unsigned int k = depthIndex.first ( 2 ); k <= depthIndex.last ( 2 ); ++k ) {
 
                // For each active node compute the number of connecting nodes.
+               // These connecting nodes may be local or non-local (i.e. ghost).
                if ( nodeIsActive ( i, j, k )) {
                   findColumnActivityRange ( depthIndex, i, j, k, activeAbove, activeBelow  );
                   localDofNumber = static_cast<int>(dof ( k, j, i )) - domain.getLocalStartDof ();

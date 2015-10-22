@@ -60,24 +60,23 @@
 /// [G][H][J]
 ///
 /// Block A, E and J are the diagonal blocks, the remaining blocks are off-diagonal.
+/// PETSc stores the matrix so that values for blocks A, B and C are all stored on
+/// process 1. The values for D, E and F are on process 2, and values for G, H and J
+/// are on process 3.
+///
+/// So the number of non-zeros for this matrix are:
 ///
 /// On process 0
 ///   localNonZerosPerRow = {2, 3, 1, 2}
 ///   ghostNonZerosPerRow = {3, 3, 3, 1}
-///   maxLocalNonZerosPerRow = 3
-///   maxGhostNonZerosPerRow = 3
 ///
 /// On process 1
 ///   localNonZerosPerRow = {2, 1, 2}
 ///   ghostNonZerosPerRow = {3, 4, 2}
-///   maxLocalNonZerosPerRow = 2
-///   maxGhostNonZerosPerRow = 4
 ///
 /// On process 2
 ///   localNonZerosPerRow = {1, 2, 2, 1}
 ///   ghostNonZerosPerRow = {3, 4, 2, 3}
-///   maxLocalNonZerosPerRow = 2
-///   maxGhostNonZerosPerRow = 4
 ///
 class MatrixNonZeroCalculator {
 
