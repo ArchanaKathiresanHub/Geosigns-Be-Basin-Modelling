@@ -132,6 +132,7 @@ namespace migration
       int m_jGlobal;
 
       BitField m_bitField;
+
    };
 
    bool IsValid (const Column * column);
@@ -505,6 +506,7 @@ namespace migration
       int m_drainageAreaId;
 
       vector<int> m_proxies;
+
    };
 
    class ColumnArray

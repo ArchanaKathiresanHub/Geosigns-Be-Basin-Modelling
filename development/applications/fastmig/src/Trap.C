@@ -868,7 +868,7 @@ namespace migration {
 
          for (iter = m_interior.begin (); iter != m_interior.end (); ++iter)
          {
-            Column * interiorColumn = * iter;
+            Column * interiorColumn = * iter;				
             if (interiorColumn->isWasting ((PhaseId) phase))
             {
 #ifdef USEADJACENTCOLUMN

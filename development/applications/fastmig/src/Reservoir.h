@@ -420,14 +420,15 @@ namespace migration
 
 	 double m_undefinedValue;
 
-         SurfaceGridMapContainer m_diffusionOverburdenGridMaps;
-         SurfaceGridMapContainer m_sealPressureLeakageGridMaps;
+    SurfaceGridMapContainer m_diffusionOverburdenGridMaps;
+    SurfaceGridMapContainer m_sealPressureLeakageGridMaps;
 
 	 MigrationRequestVector m_migrationRequests;
 
 	 bool m_computeFluxesHasFinished;
 
-         int m_index;
+    int m_index;
+
    };
 }
 

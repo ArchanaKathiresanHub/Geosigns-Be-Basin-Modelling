@@ -755,7 +755,7 @@ bool Migrator::detectReservoirs (const Interface::Snapshot * end, const bool pre
       assert (reservoirFormation);
 
       //Assigns top-row nodes of user-selected reservoirs as reservoir nodes, no need to identify the Reservoir here. Do this only for user-defined reservoirs
-      if (!getReservoirs (reservoirFormation)->empty ())
+		if (!getReservoirs (reservoirFormation)->empty () && !reservoirFormation->getDetectedReservoir ())
       {
          reservoirFormation->identifyAsReservoir ();
          continue;
@@ -765,7 +765,7 @@ bool Migrator::detectReservoirs (const Interface::Snapshot * end, const bool pre
 
       if (m_reservoirDetection)
       {
-         // In Reservoir formation flag specified nodes as reservoirs for oil or gas
+         // In Reservoir formation flag specified nodes as reservoirs for oil or gas. Update the flag also for already detected reservoirs
          reservoirFormation->detectReservoir (sealFormation, MinColumnHeight, MinColumnHeight, pressureRun);
 
          // If the formation is already detected skip calculations otherwise detect crests that can hold hc

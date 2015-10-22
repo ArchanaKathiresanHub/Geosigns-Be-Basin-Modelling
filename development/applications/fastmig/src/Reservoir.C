@@ -113,11 +113,12 @@ namespace migration
                                        getGrid ()->numIGlobal (), getGrid ()->numJGlobal (),
                                        getGrid ()->firstI (), getGrid ()->lastI (),
                                        getGrid ()->firstJ (), getGrid ()->lastJ ());
-   }
+	}
 
-   void Reservoir::destroyColumns (void)
-   {
-      if (m_columnArray)
+
+	void Reservoir::destroyColumns (void)
+	{
+		if (m_columnArray)
       {
          delete m_columnArray;
          m_columnArray = 0;
@@ -389,28 +390,28 @@ namespace migration
 
    // find the column to which column (i,j) spillls to and that is not in the trap
    Column *  Reservoir::getAdjacentColumn (PhaseId phase, Column * column, Trap * trap)
-   {
-      assert (IsValid (column));
+	{
+		assert (IsValid (column));
 
-      double depth = column->getTopDepth ();
+		double depth = column->getTopDepth ();
 
-      assert (depth != getUndefinedValue ());
+		assert (depth != getUndefinedValue ());
 
-      double minGradient = SealDepth;
+		double minGradient = SealDepth;
 
 #if 0
-      if (column->isWasting(phase)) // charge will go upward
-      {
-         return column;
-      }
+		if (column->isWasting(phase)) // charge will go upward
+		{
+			return column;
+		}
 #endif
 
-      Column * adjacentColumn = column;
+		Column * adjacentColumn = column;
 
-      // try to find a higher lying column
-      for (int n = 0; n < NumNeighbours; ++n)
-      {
-         Column *neighbourColumn = getColumn (column->getI () + NeighbourOffsets2D[n][I], column->getJ () + NeighbourOffsets2D[n][J]);
+		// try to find a higher lying column
+		for (int n = 0; n < NumNeighbours; ++n)
+		{
+			Column *neighbourColumn = getColumn (column->getI () + NeighbourOffsets2D[n][I], column->getJ () + NeighbourOffsets2D[n][J]);
 
          if (!IsValid (neighbourColumn))
          {
@@ -1408,6 +1409,12 @@ namespace migration
    bool Reservoir::refineGeometry (void)
    {
       RequestHandling::StartRequestHandling (m_migrator, "refineGeometry");
+
+      const Formation * formation = dynamic_cast<const Formation *>(getFormation ());
+      assert (formation);
+      int depthIndex = formation->getNodeDepth () - 1;
+
+
       for (unsigned int i = m_columnArray->firstILocal (); i <= m_columnArray->lastILocal (); ++i)
       {
          for (unsigned int j = m_columnArray->firstJLocal (); j <= m_columnArray->lastJLocal (); ++j)
@@ -1415,6 +1422,7 @@ namespace migration
             LocalColumn * column = getLocalColumn (i, j);
             if (IsValid (column))
             {
+               //set zero thickness areas to wasting
                if (column->getThickness () < MinimumThickness)
                {
                   column->setWasting (GAS);
@@ -1432,31 +1440,45 @@ namespace migration
                   }
                   column->resetProxies ();
                }
+
+               //set fault status
                if (column->getFaultStatus () != NOFAULT)
                {
                   switch (column->getFaultStatus ())
                   {
-		  case SEAL:
-		     column->setSealing (GAS);
-		     column->setSealing (OIL);
-		     break;
-		  case PASS:
-		     break;
-		  case WASTE:
-		     column->setWasting (GAS);
-		     column->setWasting (OIL);
-		     break;
-		  case SEALOIL:
-		     column->setWasting (GAS);
-		     column->setSealing (OIL);
-		     break;
-		  case PASSOIL:
-		     column->setWasting (GAS);
-		     break;
-		  default:
-		     assert (false);
+                  case SEAL:
+                     column->setSealing (GAS);
+                     column->setSealing (OIL);
+                     break;
+                  case PASS:
+                     break;
+                  case WASTE:
+                     column->setWasting (GAS);
+                     column->setWasting (OIL);
+                     break;
+                  case SEALOIL:
+                     column->setWasting (GAS);
+                     column->setSealing (OIL);
+                     break;
+                  case PASSOIL:
+                     column->setWasting (GAS);
+                     break;
+                  default:
+                     assert (false);
                   }
                   column->resetProxies ();
+               }
+
+               /// set the column to wasting if can not hold hc
+               if (column->getI () < m_columnArray->lastILocal () && column->getJ () < m_columnArray->lastJLocal ())
+               {
+                  LocalFormationNode * localFormationNode = formation->getLocalFormationNode (column->getI (), column->getJ (), depthIndex);
+                  assert (localFormationNode);
+                  bool flagGas = localFormationNode->getReservoirGas ();
+                  bool flagOil = localFormationNode->getReservoirOil ();
+
+                  if (!flagGas) column->setWasting (GAS);
+                  if (!flagOil) column->setWasting (OIL);
                }
             }
          }

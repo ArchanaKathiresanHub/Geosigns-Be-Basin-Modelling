@@ -197,7 +197,7 @@ namespace migration {
    {
       m_topDepthOffset = 0;
       m_bottomDepthOffset = 0;
-      /// \brief Local column is initially filled with zeros
+      /// Local column penetration distance is initially zero
       std::fill (m_penetrationDistances, m_penetrationDistances + DiffusionComponentSize, (double) 0);
       m_diffusionStartTime = -1;
       clearProperties ();
