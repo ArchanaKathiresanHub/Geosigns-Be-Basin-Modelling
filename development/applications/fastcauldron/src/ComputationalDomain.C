@@ -121,14 +121,14 @@ void ComputationalDomain::linkElementsVertically () {
 
 //------------------------------------------------------------//
 
-void ComputationalDomain::assignDofNumbersUsingDepth ( const FormationGeneralElementGrid& layerGrid,
-                                                       const PETSC_3D_Array&              layerDepth,
-                                                       const int                          i,
-                                                       const int                          j,
-                                                       int&                               globalK,
-                                                       int&                               activeSegments,
-                                                       int&                               inactiveSegments,
-                                                       int&                               maximumDegenerateSegments ) {
+void ComputationalDomain::assignDepthIndicesUsingDepth ( const FormationGeneralElementGrid& layerGrid,
+                                                         const PETSC_3D_Array&              layerDepth,
+                                                         const int                          i,
+                                                         const int                          j,
+                                                         int&                               globalK,
+                                                         int&                               activeSegments,
+                                                         int&                               inactiveSegments,
+                                                         int&                               maximumDegenerateSegments ) {
 
    for ( int k = layerGrid.lastK (); k >= layerGrid.firstK (); --k, --globalK ) {
       double segmentThickness = layerDepth ( k, j, i ) - layerDepth ( k + 1, j, i );
@@ -149,13 +149,13 @@ void ComputationalDomain::assignDofNumbersUsingDepth ( const FormationGeneralEle
 
 //------------------------------------------------------------//
 
-void ComputationalDomain::assignDofNumbersUsingThickness ( const FormationGeneralElementGrid& layerGrid,
-                                                           const int                          i,
-                                                           const int                          j,
-                                                           int&                               globalK,
-                                                           int&                               activeSegments,
-                                                           int&                               inactiveSegments,
-                                                           int&                               maximumDegenerateSegments ) {
+void ComputationalDomain::assignDepthIndicesUsingThickness ( const FormationGeneralElementGrid& layerGrid,
+                                                             const int                          i,
+                                                             const int                          j,
+                                                             int&                               globalK,
+                                                             int&                               activeSegments,
+                                                             int&                               inactiveSegments,
+                                                             int&                               maximumDegenerateSegments ) {
 
    for ( int k = layerGrid.lastK (); k >= layerGrid.firstK (); --k, --globalK ) {
 
@@ -175,7 +175,7 @@ void ComputationalDomain::assignDofNumbersUsingThickness ( const FormationGenera
 
 //------------------------------------------------------------//
 
-void ComputationalDomain::numberNodeDofs ( const bool verbose ) {
+void ComputationalDomain::numberDepthIndices ( const bool verbose ) {
 
    if ( not m_isActive ) {
       // There is nothing to number.
@@ -231,9 +231,9 @@ void ComputationalDomain::numberNodeDofs ( const bool verbose ) {
                const FormationElementGrid<GeneralElement>& grid = *getFormationGrid ( m_column.getLayer ( l ));
 
                if ( grid.getFormation ().isMantle ()) {
-                  assignDofNumbersUsingDepth ( grid, mantleDepth, i, j, globalK, activeSegments, inactiveSegments, maximumDegenerateSegments );
+                  assignDepthIndicesUsingDepth ( grid, mantleDepth, i, j, globalK, activeSegments, inactiveSegments, maximumDegenerateSegments );
                } else {
-                  assignDofNumbersUsingThickness ( grid, i, j, globalK, activeSegments, inactiveSegments, maximumDegenerateSegments );
+                  assignDepthIndicesUsingThickness ( grid, i, j, globalK, activeSegments, inactiveSegments, maximumDegenerateSegments );
                }
 
             }
@@ -253,7 +253,7 @@ void ComputationalDomain::numberNodeDofs ( const bool verbose ) {
    if ( verbose ) {
       std::stringstream buffer;
 
-      buffer << " numberNodeDofs " << activeSegments << "  " << inactiveSegments << std::endl;
+      buffer << " numberDepthIndices " << activeSegments << "  " << inactiveSegments << std::endl;
       PetscSynchronizedPrintf ( PETSC_COMM_WORLD, buffer.str ().c_str ());
       PetscSynchronizedFlush ( PETSC_COMM_WORLD );
 
@@ -299,6 +299,32 @@ void ComputationalDomain::numberGlobalDofs ( const bool verbose ) {
 
    dof.setVector ( scalarNodeGrid, m_globalDofNumbers, INSERT_VALUES );
 
+#ifdef PLANE_FIRST_DOF_COUNTING
+   for ( k = numberOfNodesInDepth; k >= 0; --k ) {
+
+      for ( j = fc.firstJ (); j <= fc.lastJ (); ++j ) {
+
+         for ( i = fc.firstI (); i <= fc.lastI (); ++i ) {
+
+            if ( fc.nodeIsDefined ( i, j )) {
+
+               if ( m_activeNodes ( i, j, k )) {
+                  dof ( k, j, i ) = globalDofNumber++;
+               } else {
+                  // Could the number of the dof that lies directly above this in-active dof be 
+                  // used to number this one. This may make it easier when extracting the vector
+                  // of values and copying them back to the layer 3d array of values.
+                  dof ( k, j, i ) = NullDofNumberReal; // Is this the best value?
+               }
+
+            }
+
+         }
+
+      }
+
+   }
+#else
    for ( i = fc.firstI (); i <= fc.lastI (); ++i ) {
 
       for ( j = fc.firstJ (); j <= fc.lastJ (); ++j ) {
@@ -323,6 +349,7 @@ void ComputationalDomain::numberGlobalDofs ( const bool verbose ) {
       }
 
    }
+#endif
 
    if ( verbose and m_rank + 1 == FastcauldronSimulator::getInstance ().getSize ()) {
       std::cout << " Total number of dofs : " << globalDofNumber << std::endl;
@@ -397,8 +424,8 @@ void ComputationalDomain::resetAge ( const double age,
 
    m_grids.resizeGrids ( elementCount, newNodeCount );
    resizeGrids ( previousNodeCount, newNodeCount );
-   numberNodeDofs ( verbose );
-   setElementNodeKValues ( verbose );
+   numberDepthIndices ( verbose );
+   setElementNodeDepthIndices ( verbose );
    determineActiveElements ( verbose );
    determineActiveNodes ( verbose );
    // Now that the active/inactive nodes have been determined and counted the active nodes can be numbered.
@@ -409,7 +436,7 @@ void ComputationalDomain::resetAge ( const double age,
 
 //------------------------------------------------------------//
 
-void ComputationalDomain::setElementNodeKValues ( const bool verbose ) {
+void ComputationalDomain::setElementNodeDepthIndices ( const bool verbose ) {
 
    const NodalVolumeGrid& scalarNodeGrid = m_grids.getNodeGrid ();
 
@@ -425,7 +452,7 @@ void ComputationalDomain::setElementNodeKValues ( const bool verbose ) {
 
          if ( verbose ) {
             PetscPrintf ( PETSC_COMM_WORLD,
-                          " Renumber general elements: layer top k-value - %d, layer name - %s\n",
+                          " Renumber general elements: layer top depth-index value - %d, layer name - %s\n",
                           globalKValue,
                           m_column.getLayer ( l )->getName ().c_str ());
          }
@@ -436,7 +463,7 @@ void ComputationalDomain::setElementNodeKValues ( const bool verbose ) {
          if ( verbose ) {
             const IntegerArray& kIndices = grid->getSubdomainNodeKIndices ();
 
-            PetscPrintf ( PETSC_COMM_WORLD, " k-indices for layer: " );
+            PetscPrintf ( PETSC_COMM_WORLD, " depth-indices for layer: " );
 
             for ( size_t k = 0; k < kIndices.size (); ++k ) {
                PetscPrintf ( PETSC_COMM_WORLD, "%d  ", kIndices [ k ]);

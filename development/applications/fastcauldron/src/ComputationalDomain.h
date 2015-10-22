@@ -38,13 +38,13 @@
 ///    2. The number of active nodes for all MPI ranks;
 ///    3. The number of active elements for this MPI rank;
 ///    4. A list containing the active elements for this MPI rank;
-///    5. An array containing the k-index values on this MPI rank which includes the ghost nodes.
+///    5. An array containing the depth index values on this MPI rank which includes the ghost nodes.
 ///
 /// Each active node will have a unique global dof number.
 ///
-/// K-indicies are the values of the index value for the node in the depth direction.
-/// If there are zero thickness segments then the nodes connecting these segments will
-/// have the same k-index value.
+/// Depth indicies are the values of the k-index value for the node in the depth direction.
+/// If there are zero thickness segments then the nodes connecting these nodes will
+/// have the same depth index value.
 ///
 /// For PETSc DM objects the counting starts with 0 at the bottom of each needle and counts upwards.
 class ComputationalDomain {
@@ -146,7 +146,7 @@ public :
    /// does not include the ghost nodes.
    const LocalBooleanArray3D& getActiveNodes () const;
 
-   /// \brief Get the 3 dimensional array containing the k-index values.
+   /// \brief Get the 3 dimensional array containing the depth index values.
    ///
    /// The index values are for both local and ghost nodes of the process.
    const LocalIntegerArray3D& getDepthIndices () const;
@@ -154,21 +154,8 @@ public :
    /// \brief Get the PETSc vector that contains the global dof numbers.
    Vec getDofVector () const;
 
-   //
-   // New Dof2DMDAMapping (or something like that)
-   // is able to map from new dofs numbering to layer solution vectors and vice-versa.
-   // Could be 3d array, like getDepthIndices, with dof numbers instead of depth-k-indices.
-   // 
-   //
-   //
-   //
-   //
-   //
-
-
    /// \brief Get the formation-grid associated with the formation.
    const FormationGeneralElementGrid* getFormationGrid ( const LayerProps* layer ) const;
-
 
 private :
 
@@ -183,10 +170,8 @@ private :
    /// \brief Add element pointers to neighbouring elements between two adjacent layers across their connecting surface.
    void linkElementsVertically ();
 
-   /// \brief Number the k-values for all the nodes.
-   ///
-   /// Describe k-values (perhaps change name)
-   void numberNodeDofs ( const bool verbose );
+   /// \brief Number the depth values for all the nodes.
+   void numberDepthIndices ( const bool verbose );
 
    /// \brief Number the dofs on the local process with the correct global dof number.
    void numberGlobalDofs ( const bool verbose );
@@ -195,8 +180,8 @@ private :
    void resizeGrids ( const int previousNodeCount,
                       const int newNodeCount );
 
-   /// \brief Set the k-values for the nodes of each of the elements.
-   void setElementNodeKValues ( const bool verbose );
+   /// \brief Set the depth values for the nodes of each of the elements.
+   void setElementNodeDepthIndices ( const bool verbose );
 
    /// \brief Determines all active elements that are local to the mpi process.
    ///
@@ -217,25 +202,25 @@ private :
    ///
    /// This function updates the member m_depthIndexNumbers.
    /// Currently this is only necessary for the mantle layer.
-   void assignDofNumbersUsingDepth ( const FormationGeneralElementGrid& layerGrid,
-                                     const PETSC_3D_Array&              layerDepth,
-                                     const int                          i,
-                                     const int                          j,
-                                     int&                               globalK,
-                                     int&                               activeSegments,
-                                     int&                               inactiveSegments,
-                                     int&                               maximumDegenerateSegments );
+   void assignDepthIndicesUsingDepth ( const FormationGeneralElementGrid& layerGrid,
+                                       const PETSC_3D_Array&              layerDepth,
+                                       const int                          i,
+                                       const int                          j,
+                                       int&                               globalK,
+                                       int&                               activeSegments,
+                                       int&                               inactiveSegments,
+                                       int&                               maximumDegenerateSegments );
 
    /// \brief Assign the depth index numbers based on segments thicknesses.
    ///
    /// This function updates the member m_depthIndexNumbers.
-   void assignDofNumbersUsingThickness ( const FormationGeneralElementGrid& layerGrid,
-                                         const int                          i,
-                                         const int                          j,
-                                         int&                               globalK,
-                                         int&                               activeSegments,
-                                         int&                               inactiveSegments,
-                                         int&                               maximumDegenerateSegments );
+   void assignDepthIndicesUsingThickness ( const FormationGeneralElementGrid& layerGrid,
+                                           const int                          i,
+                                           const int                          j,
+                                           int&                               globalK,
+                                           int&                               activeSegments,
+                                           int&                               inactiveSegments,
+                                           int&                               maximumDegenerateSegments );
 
    /// \brief The stratigraphic column for this computational domain.
    StratigraphicColumn               m_column;
@@ -257,7 +242,7 @@ private :
    /// \brief All the active elements in the computational domain.
    GeneralElementArray               m_activeElements;
 
-   /// \brief Array containing the k-index numbers for the computational domain.
+   /// \brief Array containing the depth index numbers for the computational domain.
    LocalIntegerArray3D               m_depthIndexNumbers;
 
    /// \brief Vector containing the dof numbers for the computational domain.
