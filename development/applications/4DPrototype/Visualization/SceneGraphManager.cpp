@@ -705,31 +705,32 @@ void SceneGraphManager::updateSnapshotFlowLines()
 
     std::unique_ptr<di::PropertyValueList> values(m_flowDirectionProperty->getPropertyValues(di::FORMATION, snapshot.snapshot, 0, 0, 0));
 
-    int startK = 0;
     size_t i = 0;
     std::vector<const di::GridMap*> gridMaps;
     for (auto& fmt : snapshot.formations)
     {
       const di::Formation* formation = m_formations[fmt.id].object;
-      const di::GridMap* gridMap = nullptr;
+
       if (i < values->size() && formation == (*values)[i]->getFormation())
-        gridMap = (*values)[i++]->getGridMap();
-
-      if (gridMap)
       {
-        gridMaps.push_back(gridMap);
-        startK = fmt.minK;
-      }
+        const di::GridMap* gridMap = (*values)[i++]->getGridMap();
 
-      bool isLast = (&fmt == &snapshot.formations.back());
-      if ((isLast || !gridMap) && !gridMaps.empty())
-      {
-        SoLineSet* flowLines = generateFlowLines(gridMaps, startK, *snapshot.topology);
-        snapshot.flowLinesGroup->addChild(flowLines);
+        if (!gridMap && !gridMaps.empty())
+        {
+          gridMaps.clear();
+        }
+        else
+        {
+          gridMaps.push_back(gridMap);
 
-        for (auto map : gridMaps)
-          map->release();
-        gridMaps.clear();
+          if (formation->isSourceRock())
+          {
+            SoLineSet* flowLines = generateFlowLines(gridMaps, fmt.minK, *snapshot.topology);
+            snapshot.flowLinesGroup->addChild(flowLines);
+
+            gridMaps.clear();
+          }
+        }
       }
     }
   }
