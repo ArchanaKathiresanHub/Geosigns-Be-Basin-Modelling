@@ -1468,7 +1468,8 @@ namespace migration
                }
 
                /// set the column to wasting if can not hold hc
-               if (column->getI () < m_columnArray->lastILocal () && column->getJ () < m_columnArray->lastJLocal ())
+               if (column->getI () < m_columnArray->lastILocal () && column->getJ () < m_columnArray->lastJLocal () and
+                  (column->getFaultStatus () == NOFAULT or column->getFaultStatus () == PASS))
                {
                   LocalFormationNode * localFormationNode = formation->getLocalFormationNode (column->getI (), column->getJ (), depthIndex);
                   assert (localFormationNode);
