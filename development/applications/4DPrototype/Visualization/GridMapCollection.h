@@ -21,6 +21,18 @@
 */
 class GridMapCollection
 {
+public:
+
+  enum Mapping
+  {
+    Complete,
+    EliminateBoundaries,
+    SkipFirstK,
+    SkipLastK
+  };
+
+private:
+
   /**
    * Maps a single k-index to an index in the list of gridmaps, and
    * a local k-index in that particular gridmap
@@ -66,7 +78,7 @@ public:
    * nullptrs, which represent a layer of undefined values. This is done to accomodate 
    * properties that are not available for every formation
    */
-  GridMapCollection(const std::vector<const DataAccess::Interface::GridMap*>& gridMaps)
+  GridMapCollection(const std::vector<const DataAccess::Interface::GridMap*>& gridMaps, Mapping mapping)
     : m_gridMaps(gridMaps)
     , m_numI(0)
     , m_numJ(0)
@@ -83,24 +95,30 @@ public:
       unsigned int n = 1;
       if (gridMaps[i])
       {
-        n = gridMaps[i]->getDepth() - 1;
+        n = gridMaps[i]->getDepth();
+        if (mapping != Complete)
+          n -= 1;
+
         m_numI = gridMaps[i]->numI();
         m_numJ = gridMaps[i]->numJ();
       }
 
-      // Skip last k for each gridmap to avoid duplication with the next layer
+      unsigned int first = (mapping == SkipFirstK) ? 1 : 0;
       for (unsigned int j = 0; j < n; ++j)
       {
-        IndexPair p = { i, j };
+        IndexPair p = { i, first + j };
         m_indexMap.push_back(p);
       }
     }
 
-    // ... still need to include the last one though
-    const DataAccess::Interface::GridMap* last = gridMaps[gridMaps.size() - 1];
-    unsigned int n = (last == nullptr) ? 1 : last->getDepth() - 1;
-    IndexPair p = { gridMaps.size() - 1, n };
-    m_indexMap.push_back(p);
+    if (mapping == EliminateBoundaries)
+    {
+      // ... still need to include the last one though
+      const DataAccess::Interface::GridMap* last = gridMaps[gridMaps.size() - 1];
+      unsigned int n = (last == nullptr) ? 1 : last->getDepth() - 1;
+      IndexPair p = { gridMaps.size() - 1, n };
+      m_indexMap.push_back(p);
+    }
 
     m_numK = m_indexMap.size();
   }

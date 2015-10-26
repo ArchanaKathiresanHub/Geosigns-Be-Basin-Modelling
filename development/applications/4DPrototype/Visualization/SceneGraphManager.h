@@ -29,6 +29,7 @@
 class SnapshotGeometry;
 class SnapshotTopology;
 class FormationIdProperty;
+class FlowDirectionProperty;
 class HexahedronMesh;
 class SurfaceMesh;
 class ReservoirMesh;
@@ -183,13 +184,14 @@ struct SnapshotInfo
   std::shared_ptr<MiDataSetIjk<double> > scalarDataSet;
 
   MoVec3SetIjk* flowDirSet;
-  std::shared_ptr<MiDataSetIjk<MbVec3d> > flowDirDataSet;
+  std::shared_ptr<FlowDirectionProperty> flowDirDataSet;
 
   SoSwitch* sliceSwitch[3];
   MoMeshSlab* slice[3];
 
   SoGroup* chunksGroup;
   SoGroup* flowLinesGroup;
+  SoGroup* flowVectorsGroup;
   SoGroup* surfacesGroup;
   SoGroup* reservoirsGroup;
   SoGroup* faultsGroup;
@@ -218,6 +220,13 @@ public:
   {
     PerspectiveProjection,
     OrthographicProjection
+  };
+
+  enum FlowVizType
+  {
+    FlowVizNone,
+    FlowVizLines,
+    FlowVizVectors
   };
 
 private:
@@ -276,7 +285,7 @@ private:
 
   bool m_showGrid;
   bool m_showTraps;
-  bool m_showFlowLines;
+  FlowVizType m_flowVizType;
 
   float m_verticalScale;
   ProjectionType m_projectionType;
@@ -400,7 +409,7 @@ public:
 
   void showTraps(bool show);
 
-  void showFlowLines(bool show);
+  void showFlowDirection(FlowVizType type);
 
   void setup(const DataAccess::Interface::ProjectHandle* handle);
 };

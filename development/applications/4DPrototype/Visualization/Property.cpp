@@ -18,7 +18,7 @@
 namespace di = DataAccess::Interface;
 
 FormationProperty::FormationProperty(const std::string& name, const std::vector<const di::GridMap*>& values)
-  : m_values(values)
+  : m_values(values, GridMapCollection::SkipLastK)
   , m_name(name)
   , m_binding(MiDataSet::PER_CELL)
   , m_timestamp(MxTimeStamp::getTimeStamp())
@@ -414,3 +414,105 @@ MiMeshIjk::StorageLayout PersistentTrapIdProperty::getStorageLayout() const
   return MiMeshIjk::LAYOUT_IJK;
 }
 
+//---------------------------------------------------------------------------------------
+// FlowDirectionProperty
+//---------------------------------------------------------------------------------------
+FlowDirectionProperty::FlowDirectionProperty(
+  const std::vector<const DataAccess::Interface::GridMap*>& values,
+  const SnapshotTopology& topology)
+: m_values(values, GridMapCollection::SkipFirstK)
+, m_topology(topology)
+, m_binding(MiDataSet::PER_CELL)
+, m_numI(topology.getNumCellsI())
+, m_numJ(topology.getNumCellsJ())
+, m_numK(topology.getNumCellsK())
+, m_timestamp(MxTimeStamp::getTimeStamp())
+{
+}
+
+FlowDirectionProperty::~FlowDirectionProperty()
+{
+}
+
+MbVec3<int32_t> FlowDirectionProperty::getDeltas(size_t i, size_t j, size_t k) const
+{
+  int code = (int)m_values.getValue(i, j, k);
+
+  if (code == 0 || code == 99999)
+    return MbVec3<int32_t>();
+
+  code += 111;
+  int dk = code / 100 - 1;
+  int dj = (code % 100) / 10 - 1;
+  int di = (code % 10) - 1;
+
+  if (
+    dk <  0 || dk > 1 ||
+    dj < -1 || dj > 1 ||
+    di < -1 || di > 1)
+  {
+    return MbVec3<int32_t>();
+  }
+
+  return MbVec3<int32_t>(di, dj, dk);
+}
+
+MbVec3d FlowDirectionProperty::get(size_t i0, size_t j0, size_t k0) const
+{
+  MbVec3<int32_t> deltas = getDeltas(i0, j0, k0);
+  if (
+    deltas[0] == 0 &&
+    deltas[1] == 0 &&
+    deltas[2] == 0)
+  {
+    return MbVec3d();
+  }
+
+  int i1 = (int)i0 + deltas[0];
+  int j1 = (int)j0 + deltas[1];
+  int k1 = (int)k0 - deltas[2];
+
+  if (
+    i1 < 0 || i1 >= m_numI ||
+    j1 < 0 || j1 >= m_numJ ||
+    k1 < 0 || k1 >= m_numK ||
+    m_topology.isDead((size_t)i1, (size_t)j1, (size_t)k1))
+  {
+    return MbVec3d();
+  }
+
+  MbVec3d p0 = m_topology.getCellCenter(i0, j0, k0);
+  MbVec3d p1 = m_topology.getCellCenter((size_t)i1, (size_t)j1, (size_t)k1);
+
+  return p1 - p0;
+}
+
+MiDataSet::DataBinding FlowDirectionProperty::getBinding() const
+{
+  return m_binding;
+}
+
+MbVec3d FlowDirectionProperty::getMin() const
+{
+  return MbVec3d();
+}
+
+MbVec3d FlowDirectionProperty::getMax() const
+{
+  return MbVec3d();
+}
+
+std::string FlowDirectionProperty::getName() const
+{
+  return "FlowDirectionIJK";
+}
+
+size_t FlowDirectionProperty::getTimeStamp() const
+{
+  return m_timestamp;
+}
+
+MiMeshIjk::StorageLayout FlowDirectionProperty::getStorageLayout() const
+{
+  return MiMeshIjk::LAYOUT_IJK;
+}

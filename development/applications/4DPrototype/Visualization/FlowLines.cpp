@@ -1,5 +1,5 @@
 #include "FlowLines.h"
-#include "GridMapCollection.h"
+#include "Property.h"
 #include "Mesh.h"
 
 #include <Interface/GridMap.h>
@@ -8,11 +8,8 @@
 #include <Inventor/nodes/SoLineSet.h>
 #include <MeshVizXLM/MbVec3.h>
 
-SoLineSet* generateFlowLines(const std::vector<const DataAccess::Interface::GridMap*>& values, int startK, const SnapshotTopology& topology)
+SoLineSet* generateFlowLines(const FlowDirectionProperty& values, int startK, const SnapshotTopology& topology)
 {
-  if (values.empty())
-    return nullptr;
-
   std::vector<SbVec3f> vertices;
   std::vector<int32_t> numVertices;
 
@@ -31,35 +28,20 @@ SoLineSet* generateFlowLines(const std::vector<const DataAccess::Interface::Grid
         int kk = (int)startK;
 
         int nverts = 0;
-        unsigned int localK = 1;
 
-        auto iter = values.rbegin();
-        while (iter != values.rend())
+        while (true)
         {
           MbVec3d center = topology.getCellCenter(ii, jj, kk);
           vertices.emplace_back((float)center[0], (float)center[1], (float)center[2]);
           nverts++;
 
-          int code = (int)(*iter)->getValue(ii, jj, localK);
-          if (code == 0 || code == 99999)
+          MbVec3<int32_t> deltas = values.getDeltas(ii, jj, kk);
+          if (deltas[0] == 0 && deltas[1] == 0 && deltas[2] == 0)
             break;
 
-          code += 111;
-          int dk = code / 100 - 1;
-          int dj = (code % 100) / 10 - 1;
-          int di = (code % 10) - 1;
-
-          if (
-            di < -1 || di > 1 ||
-            dj < -1 || dj > 1 ||
-            dk <  0 || dk > 1)
-          {
-            break;
-          }
-
-          ii += di;
-          jj += dj;
-          kk -= dk;
+          ii += deltas[0];
+          jj += deltas[1];
+          kk -= deltas[2];
 
           if (
             ii < 0 || ii >= numI ||
@@ -69,9 +51,6 @@ SoLineSet* generateFlowLines(const std::vector<const DataAccess::Interface::Grid
           {
             break;
           }
-
-          if (dk == 1 && --localK == 0 && ++iter != values.rend())
-            localK = (*iter)->getDepth() - 1;
         }
 
         if (nverts > 0)

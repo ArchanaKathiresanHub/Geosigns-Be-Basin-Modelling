@@ -168,7 +168,7 @@ size_t ReservoirGeometry::getTimeStamp() const
 // SnapshotGeometry
 //--------------------------------------------------------------------------------------------------
 SnapshotGeometry::SnapshotGeometry(const std::vector<const DataAccess::Interface::GridMap*>& depthMaps)
-: m_depthMaps(depthMaps)
+: m_depthMaps(depthMaps, GridMapCollection::EliminateBoundaries)
 , m_timeStamp(MxTimeStamp::getTimeStamp())
 {
   assert(!depthMaps.empty());

@@ -37,9 +37,11 @@
 #include <MeshVizXLM/mapping/nodes/MoMesh.h>
 #include <MeshVizXLM/mapping/nodes/MoMeshSkin.h>
 #include <MeshVizXLM/mapping/nodes/MoMeshSlab.h>
+#include <MeshVizXLM/mapping/nodes/MoMeshVector.h>
 #include <MeshVizXLM/mapping/nodes/MoMeshSurface.h>
 #include <MeshVizXLM/mapping/nodes/MoScalarSet.h>
 #include <MeshVizXLM/mapping/nodes/MoScalarSetIjk.h>
+#include <MeshVizXLM/mapping/nodes/MoVec3SetIjk.h>
 #include <MeshVizXLM/mapping/nodes/MoLegend.h>
 
 #include <MeshViz/graph/PoAutoCubeAxis.h>
@@ -79,6 +81,7 @@ SnapshotInfo::SnapshotInfo()
   , flowDirSet(0)
   , chunksGroup(0)
   , flowLinesGroup(0)
+  , flowVectorsGroup(0)
   , surfacesGroup(0)
   , reservoirsGroup(0)
   , faultsGroup(0)
@@ -696,48 +699,60 @@ void SceneGraphManager::updateSnapshotFlowLines()
 
   SnapshotInfo& snapshot = *m_snapshotInfoCache.begin();
 
-  if (m_showFlowLines && snapshot.flowLinesGroup->getNumChildren() == 0)
+  if (m_flowVizType == FlowVizNone)
   {
-    // Add color node
-    SoBaseColor* color = new SoBaseColor;
-    color->rgb.setValue(1.f, .5f, 1.f);
-    snapshot.flowLinesGroup->addChild(color);
-
-    std::unique_ptr<di::PropertyValueList> values(m_flowDirectionProperty->getPropertyValues(di::FORMATION, snapshot.snapshot, 0, 0, 0));
-
-    size_t i = 0;
-    std::vector<const di::GridMap*> gridMaps;
-    for (auto& fmt : snapshot.formations)
+    snapshot.flowDirDataSet.reset();
+    snapshot.flowLinesGroup->removeAllChildren();
+    snapshot.flowVectorsGroup->removeAllChildren();
+  }
+  else
+  {
+    if (!snapshot.flowDirDataSet)
     {
-      const di::Formation* formation = m_formations[fmt.id].object;
+      std::vector<const di::GridMap*> gridMaps = getFormationPropertyGridMaps(snapshot, m_flowDirectionProperty, true);
+      if (gridMaps.empty())
+        return;
+      else
+        snapshot.flowDirDataSet = std::make_shared<FlowDirectionProperty>(gridMaps, *snapshot.topology);
+    }
 
-      if (i < values->size() && formation == (*values)[i]->getFormation())
+    if (m_flowVizType == FlowVizLines && snapshot.flowLinesGroup->getNumChildren() == 0)
+    {
+      // Add color node
+      SoBaseColor* color = new SoBaseColor;
+      color->rgb.setValue(1.f, .5f, 1.f);
+      snapshot.flowLinesGroup->addChild(color);
+
+      for (auto& fmt : snapshot.formations)
       {
-        const di::GridMap* gridMap = (*values)[i++]->getGridMap();
-
-        if (!gridMap && !gridMaps.empty())
+        const di::Formation* formation = m_formations[fmt.id].object;
+        if (formation->isSourceRock())
         {
-          gridMaps.clear();
-        }
-        else
-        {
-          gridMaps.push_back(gridMap);
-
-          if (formation->isSourceRock())
-          {
-            SoLineSet* flowLines = generateFlowLines(gridMaps, fmt.minK, *snapshot.topology);
-            snapshot.flowLinesGroup->addChild(flowLines);
-
-            gridMaps.clear();
-          }
+          SoLineSet* flowLines = generateFlowLines(*snapshot.flowDirDataSet, fmt.minK, *snapshot.topology);
+          snapshot.flowLinesGroup->addChild(flowLines);
         }
       }
+
+      snapshot.flowVectorsGroup->removeAllChildren();
     }
-  }
-  else if (!m_showFlowLines && snapshot.flowLinesGroup->getNumChildren() != 0)
-  {
-    snapshot.flowLinesGroup->removeAllChildren();
-    snapshot.flowDirDataSet.reset();
+    else if (m_flowVizType == FlowVizVectors && snapshot.flowVectorsGroup->getNumChildren() == 0)
+    {
+      // Add color node
+      SoBaseColor* color = new SoBaseColor;
+      color->rgb.setValue(1.f, 1.f, .5f);
+      snapshot.flowVectorsGroup->addChild(color);
+
+      snapshot.flowDirSet = new MoVec3SetIjk;
+      snapshot.flowDirSet->setVec3Set(snapshot.flowDirDataSet.get());
+      snapshot.flowVectorsGroup->addChild(snapshot.flowDirSet);
+
+      MoMeshVector* meshVector = new MoMeshVector;
+      meshVector->colorScalarSetId = -1;
+      meshVector->scaleFactor = .5f;
+      snapshot.flowVectorsGroup->addChild(meshVector);
+
+      snapshot.flowLinesGroup->removeAllChildren();
+    }
   }
 }
 
@@ -1041,8 +1056,10 @@ SnapshotInfo SceneGraphManager::createSnapshotNode(const di::Snapshot* snapshot)
 
   info.chunksGroup = new SoGroup;
   info.chunksGroup->setName("chunks");
-  info.flowLinesGroup = new SoGroup;
+  info.flowLinesGroup = new SoSeparator;
   info.flowLinesGroup->setName("flowlines");
+  info.flowVectorsGroup = new SoSeparator;
+  info.flowVectorsGroup->setName("flowvectors");
   info.surfacesGroup = new SoGroup;
   info.surfacesGroup->setName("surfaces");
   info.reservoirsGroup = new SoGroup;
@@ -1056,6 +1073,7 @@ SnapshotInfo SceneGraphManager::createSnapshotNode(const di::Snapshot* snapshot)
   info.formationsRoot->addChild(info.scalarSet);
   info.formationsRoot->addChild(info.chunksGroup);
   info.formationsRoot->addChild(info.flowLinesGroup);
+  info.formationsRoot->addChild(info.flowVectorsGroup);
   info.formationsRoot->addChild(info.slicesGroup);
 
   info.root->addChild(info.formationsRoot);
@@ -1245,7 +1263,7 @@ SceneGraphManager::SceneGraphManager()
   , m_maxCacheItems(5)
   , m_showGrid(false)
   , m_showTraps(false)
-  , m_showFlowLines(false)
+  , m_flowVizType(FlowVizNone)
   , m_verticalScale(1.f)
   , m_projectionType(PerspectiveProjection)
   , m_formationsTimeStamp(MxTimeStamp::getTimeStamp())
@@ -1490,11 +1508,11 @@ void SceneGraphManager::showTraps(bool show)
   }
 }
 
-void SceneGraphManager::showFlowLines(bool show)
+void SceneGraphManager::showFlowDirection(FlowVizType type)
 {
-  if (show != m_showFlowLines)
+  if (type != m_flowVizType)
   {
-    m_showFlowLines = show;
+    m_flowVizType = type;
 
     updateSnapshot();
   }

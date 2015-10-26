@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'MainWindow.ui'
 **
-** Created: Mon Oct 19 12:20:26 2015
+** Created: Mon Oct 26 14:40:48 2015
 **      by: Qt User Interface Compiler version 4.8.4
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -24,6 +24,7 @@
 #include <QtGui/QMainWindow>
 #include <QtGui/QMenu>
 #include <QtGui/QMenuBar>
+#include <QtGui/QRadioButton>
 #include <QtGui/QSlider>
 #include <QtGui/QSplitter>
 #include <QtGui/QStatusBar>
@@ -65,7 +66,10 @@ public:
     QGroupBox *groupBoxFeatures;
     QVBoxLayout *verticalLayout_2;
     QCheckBox *checkBoxTraps;
-    QCheckBox *checkBoxFlowLines;
+    QLabel *label;
+    QRadioButton *radioButtonFlowVizNone;
+    QRadioButton *radioButtonFlowVizLines;
+    QRadioButton *radioButtonFlowVizVectors;
     QHBoxLayout *horizontalLayout_2;
     QLabel *label_7;
     QSlider *sliderVerticalScale;
@@ -91,6 +95,7 @@ public:
     QMenu *menuHelp;
     QMenu *menu_View;
     QStatusBar *statusbar;
+    QButtonGroup *buttonGroup;
 
     void setupUi(QMainWindow *MainWindow)
     {
@@ -186,10 +191,31 @@ public:
 
         verticalLayout_2->addWidget(checkBoxTraps);
 
-        checkBoxFlowLines = new QCheckBox(groupBoxFeatures);
-        checkBoxFlowLines->setObjectName(QString::fromUtf8("checkBoxFlowLines"));
+        label = new QLabel(groupBoxFeatures);
+        label->setObjectName(QString::fromUtf8("label"));
 
-        verticalLayout_2->addWidget(checkBoxFlowLines);
+        verticalLayout_2->addWidget(label);
+
+        radioButtonFlowVizNone = new QRadioButton(groupBoxFeatures);
+        buttonGroup = new QButtonGroup(MainWindow);
+        buttonGroup->setObjectName(QString::fromUtf8("buttonGroup"));
+        buttonGroup->addButton(radioButtonFlowVizNone);
+        radioButtonFlowVizNone->setObjectName(QString::fromUtf8("radioButtonFlowVizNone"));
+        radioButtonFlowVizNone->setChecked(true);
+
+        verticalLayout_2->addWidget(radioButtonFlowVizNone);
+
+        radioButtonFlowVizLines = new QRadioButton(groupBoxFeatures);
+        buttonGroup->addButton(radioButtonFlowVizLines);
+        radioButtonFlowVizLines->setObjectName(QString::fromUtf8("radioButtonFlowVizLines"));
+
+        verticalLayout_2->addWidget(radioButtonFlowVizLines);
+
+        radioButtonFlowVizVectors = new QRadioButton(groupBoxFeatures);
+        buttonGroup->addButton(radioButtonFlowVizVectors);
+        radioButtonFlowVizVectors->setObjectName(QString::fromUtf8("radioButtonFlowVizVectors"));
+
+        verticalLayout_2->addWidget(radioButtonFlowVizVectors);
 
 
         verticalLayout_3->addWidget(groupBoxFeatures);
@@ -374,7 +400,10 @@ public:
         tabWidget->setTabText(tabWidget->indexOf(tab_2), QApplication::translate("MainWindow", "Properties", 0, QApplication::UnicodeUTF8));
         groupBoxFeatures->setTitle(QApplication::translate("MainWindow", "Features", 0, QApplication::UnicodeUTF8));
         checkBoxTraps->setText(QApplication::translate("MainWindow", "Traps", 0, QApplication::UnicodeUTF8));
-        checkBoxFlowLines->setText(QApplication::translate("MainWindow", "Flow lines", 0, QApplication::UnicodeUTF8));
+        label->setText(QApplication::translate("MainWindow", "Flow direction", 0, QApplication::UnicodeUTF8));
+        radioButtonFlowVizNone->setText(QApplication::translate("MainWindow", "None", 0, QApplication::UnicodeUTF8));
+        radioButtonFlowVizLines->setText(QApplication::translate("MainWindow", "Flow lines", 0, QApplication::UnicodeUTF8));
+        radioButtonFlowVizVectors->setText(QApplication::translate("MainWindow", "Flow vectors", 0, QApplication::UnicodeUTF8));
         label_7->setText(QApplication::translate("MainWindow", "Vertical scale", 0, QApplication::UnicodeUTF8));
         groupBox_3->setTitle(QApplication::translate("MainWindow", "Render style", 0, QApplication::UnicodeUTF8));
         checkBoxDrawGrid->setText(QApplication::translate("MainWindow", "Coordinate grid", 0, QApplication::UnicodeUTF8));

@@ -2,18 +2,8 @@
 #define FLOWLINES_H_INCLUDED
 
 class SoLineSet;
-class GridMapCollection;
 class SnapshotTopology;
-
-namespace DataAccess
-{
-  namespace Interface
-  {
-    class GridMap;
-  }
-}
-
-#include <vector>
+class FlowDirectionProperty;
 
 /**
  * Generate a SoLineSet for a set of flowlines
@@ -24,7 +14,7 @@ namespace DataAccess
  *           of the cell centers, and the overall dimensions of the mesh
  */
 SoLineSet* generateFlowLines(
-  const std::vector<const DataAccess::Interface::GridMap*>& values, 
+  const FlowDirectionProperty& values,
   int startK, 
   const SnapshotTopology& topology);
 
