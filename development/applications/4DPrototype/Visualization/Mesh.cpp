@@ -121,6 +121,12 @@ ReservoirGeometry::ReservoirGeometry(
   m_minZ = -maxDepth;
 }
 
+ReservoirGeometry::~ReservoirGeometry()
+{
+  m_depthMaps[0]->release();
+  m_depthMaps[1]->release();
+}
+
 bool ReservoirGeometry::isUndefined(size_t i, size_t j, size_t k) const
 {
   return m_depthMaps[k]->getValue((unsigned int)i, (unsigned int)j, 0u) == di::DefaultUndefinedMapValue;
@@ -624,7 +630,7 @@ const MiGeometryI& FormationMesh::getGeometry() const
 }
 
 //--------------------------------------------------------------------------------------------------
-// ReservoirMesh
+// HexahedronMesh
 //--------------------------------------------------------------------------------------------------
 HexahedronMesh::HexahedronMesh(
   std::shared_ptr<MiGeometryI> geometry,

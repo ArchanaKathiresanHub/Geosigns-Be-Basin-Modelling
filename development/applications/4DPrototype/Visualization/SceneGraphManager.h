@@ -129,16 +129,19 @@ struct SnapshotInfo
 
     void clear()
     {
-      id = 0;
       root = 0;
       mesh = 0;
       scalarSet = 0;
       skin = 0;
 
+      meshData.reset();
+      propertyData.reset();
+
       traps = Traps();
     }
 
     Reservoir()
+      : id(0)
     {
       clear();
     }

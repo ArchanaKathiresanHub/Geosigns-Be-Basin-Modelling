@@ -85,6 +85,8 @@ public:
     const DataAccess::Interface::GridMap* depthMapTop, 
     const DataAccess::Interface::GridMap* depthMapBottom);
 
+  virtual ~ReservoirGeometry();
+
   bool isUndefined(size_t i, size_t j, size_t k) const;
 
   MbVec3d getCoord(unsigned int i, unsigned int j, unsigned int k) const;
