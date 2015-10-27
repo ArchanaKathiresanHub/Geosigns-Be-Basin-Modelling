@@ -47,10 +47,10 @@ void BpaRenderAreaListener::createSceneGraph(const std::string& /*id*/)
 
   const std::string rootdir = "V:/data/";
   //const std::string rootdir = "/home/ree/";
-  const std::string project = "CauldronSmall";
-  const std::string filename = "/Project.project3d";
-
-  std::string path = rootdir + project + filename;
+  
+  //const std::string path = rootdir + "CauldronSmall/Project.project3d";
+  //const std::string path = rootdir + "Niger2DInclinedStratigraphy/Niger2D.project3d";
+  const std::string path = rootdir + "Marmul_inclined/Marmul.project3d";
 
   m_handle.reset(di::OpenCauldronProject(path, "r", m_factory.get()));
 
@@ -266,6 +266,19 @@ void BpaRenderAreaListener::onReceivedMessage(RenderArea* renderArea, Connection
     auto showTraps = params.get<bool>("show");
 
     m_sceneGraphManager.showTraps(showTraps);
+  }
+  else if (cmd == "ShowFlowDirection")
+  {
+    auto typeStr = params.get<std::string>("type");
+
+    SceneGraphManager::FlowVizType type = SceneGraphManager::FlowVizNone;
+
+    if (typeStr == "FlowVizLines")
+      type = SceneGraphManager::FlowVizLines;
+    else if (typeStr == "FlowVizVectors")
+      type = SceneGraphManager::FlowVizVectors;
+
+    m_sceneGraphManager.showFlowDirection(type);
   }
   else if (cmd == "SetProjection")
   {

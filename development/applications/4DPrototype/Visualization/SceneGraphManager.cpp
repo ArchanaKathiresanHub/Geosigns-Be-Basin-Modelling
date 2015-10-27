@@ -1237,7 +1237,6 @@ void SceneGraphManager::setupSceneGraph()
 
   setupSnapshots();
 
-
   static_cast<MoPredefinedColorMapping*>(m_colorMap)->maxValue = (float)(m_formationIdMap.size() - 1);
 }
 
@@ -1623,4 +1622,5 @@ void SceneGraphManager::setup(const di::ProjectHandle* handle)
   m_maxPersistentTrapId = getMaxPersistentTrapId(handle);
 
   setupSceneGraph();
+  setCurrentSnapshot(0);
 }

@@ -39,6 +39,15 @@
 			</div>
 
 			<div>
+				<div class="header">Flow direction</div>
+				<div class="section">
+					<input type="radio" name="flowviz" id="radioButtonFlowVizNone" value="FlowVizNone" checked onchange="onFlowVizRadioClicked(this)">None</input><br>
+					<input type="radio" name="flowviz" id="radioButtonFlowVizLines" value="FlowVizLines" onchange="onFlowVizRadioClicked(this)">Flow lines</input><br>
+					<input type="radio" name="flowviz" id="radioButtonFlowVizVectors" value="FlowVizVectors" onchange="onFlowVizRadioClicked(this)">Flow vectors</input><br>
+				</div>
+			</div>
+
+			<div>
 				<div class="header">Viewing options</div>
 				<div class="section">
 					<input id="verticalScaleSlider" type="range" min="0" max="10" value="1" oninput="onVerticalScaleSliderChanged(this)">Vert. scale</input><br>

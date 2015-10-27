@@ -199,6 +199,20 @@ function onPropertyRadioButtonClicked(elem)
     theRenderArea.sendMessage(JSON.stringify(msg));
 }
 
+function onFlowVizRadioClicked(elem)
+{
+    console.log("radiobutton " + elem.value + " clicked");
+
+    var msg = {
+        cmd: "ShowFlowDirection",
+        params: {
+            type: elem.value
+        }
+    }
+
+    theRenderArea.sendMessage(JSON.stringify(msg));
+}
+
 function onSlicePositionChanged(index, elem)
 {
     console.log("sliceI position = " + elem.value);
