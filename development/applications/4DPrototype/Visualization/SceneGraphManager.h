@@ -56,15 +56,18 @@ class MoMaterial;
 class MoDataBinding;
 class MoColorMapping;
 class MoMesh;
-class MoScalarSet;
+class MoScalarSetIj;
 class MoScalarSetIjk;
 class MoVec3SetIjk;
 class MoMeshSkin;
 class MoMeshSlab;
 class MoMeshSurface;
 class MoMeshFenceSlice;
+
 template<class T>
 class MiDataSetIjk;
+template<class T>
+class MiDataSetIj;
 template<class T>
 class MiDataSetI;
 
@@ -98,10 +101,10 @@ struct SnapshotInfo
 
     SoSeparator* root;
     MoMesh* mesh;
-    MoScalarSet* scalarSet;
+    MoScalarSetIj* scalarSet;
     MoMeshSurface* surfaceMesh;
     std::shared_ptr<SurfaceMesh> meshData;
-    std::shared_ptr<MiDataSetI<double> > propertyData;
+    std::shared_ptr<MiDataSetIj<double> > propertyData;
 
     Surface()
       : id(0)
@@ -119,7 +122,7 @@ struct SnapshotInfo
 
     SoSeparator* root;
     MoMesh* mesh;
-    MoScalarSet* scalarSet;
+    MoScalarSetIjk* scalarSet;
     MoMeshSkin* skin;
 
     std::shared_ptr<ReservoirMesh> meshData;
@@ -253,6 +256,8 @@ private:
   const DataAccess::Interface::Property* m_resRockTopProperty;
   const DataAccess::Interface::Property* m_resRockBottomProperty;
   const DataAccess::Interface::Property* m_resRockTrapIdProperty;
+  const DataAccess::Interface::Property* m_resRockDrainageIdGasPhaseProperty;
+  const DataAccess::Interface::Property* m_resRockDrainageIdFluidPhaseProperty;
   const DataAccess::Interface::Property* m_flowDirectionProperty;
   const DataAccess::Interface::Property* m_currentProperty;
 
@@ -308,6 +313,7 @@ private:
   SoGroup*        m_root;
   SoShapeHints*   m_formationShapeHints;
   SoShapeHints*   m_surfaceShapeHints;
+  SoShapeHints*   m_decorationShapeHints;
 
   PoAutoCubeAxis* m_coordinateGrid;
   SoSwitch*       m_coordinateGridSwitch;

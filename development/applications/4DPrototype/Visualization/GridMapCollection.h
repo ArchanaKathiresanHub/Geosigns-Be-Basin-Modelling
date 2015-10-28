@@ -142,7 +142,7 @@ public:
     auto gridMap = m_gridMaps[p.gridMapIndex];
     return (gridMap != nullptr)
       ? gridMap->getValue((unsigned int)i, (unsigned int)j, p.kIndex)
-      : 99999.0;
+      : DataAccess::Interface::DefaultUndefinedMapValue;
   }
 
   size_t numI() const { return m_numI; }

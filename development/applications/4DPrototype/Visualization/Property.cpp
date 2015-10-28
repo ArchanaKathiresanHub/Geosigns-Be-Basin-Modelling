@@ -154,11 +154,9 @@ SurfaceProperty::~SurfaceProperty()
   m_values->release();
 }
 
-double SurfaceProperty::get(size_t index) const
+double SurfaceProperty::get(size_t i, size_t j) const
 {
-  unsigned int i = (unsigned int)index % (m_numI - 1);
-  unsigned int j = (unsigned int)index / (m_numI - 1);
-  return m_values->getValue(i, j);
+  return m_values->getValue((unsigned int)i, (unsigned int)j);
 }
 
 MiDataSet::DataBinding SurfaceProperty::getBinding() const
@@ -189,15 +187,21 @@ size_t SurfaceProperty::getTimeStamp() const
 //---------------------------------------------------------------------------------------
 // VectorProperty
 //---------------------------------------------------------------------------------------
-ReservoirProperty::ReservoirProperty(const std::string& name, const DataAccess::Interface::GridMap* values)
+void ReservoirProperty::updateMinMax() const
+{
+  m_values->getMinMaxValue(m_minVal, m_maxVal);
+  m_minMaxValid = true;
+}
+
+ReservoirProperty::ReservoirProperty(const std::string& name, const DataAccess::Interface::GridMap* values, MiDataSet::DataBinding binding)
   : m_values(values)
+  , m_binding(binding)
   , m_name(name)
-  , m_binding(MiDataSet::PER_CELL)
   , m_timestamp(MxTimeStamp::getTimeStamp())
+  , m_minMaxValid(false)
   , m_minVal(0.0)
   , m_maxVal(0.0)
 {
-  values->getMinMaxValue(m_minVal, m_maxVal);
 }
 
 ReservoirProperty::~ReservoirProperty()
@@ -220,11 +224,17 @@ MiDataSet::DataBinding ReservoirProperty::getBinding() const
 
 double ReservoirProperty::getMin() const
 {
+  if (!m_minMaxValid)
+    updateMinMax();
+
   return m_minVal;
 }
 
 double ReservoirProperty::getMax() const
 {
+  if (!m_minMaxValid)
+    updateMinMax();
+
   return m_maxVal;
 }
 
@@ -362,56 +372,25 @@ PersistentTrapIdProperty::PersistentTrapIdProperty(
   const DataAccess::Interface::GridMap* trapIds,
   const std::vector<unsigned int>& translationTable,
   unsigned int minId)
-  : m_trapIds(trapIds)
+  : ReservoirProperty("PersistentTrapId", trapIds)
   , m_translationTable(translationTable)
   , m_minId(minId)
-  , m_timeStamp(MxTimeStamp::getTimeStamp())
 {
-  double minTrapId, maxTrapId;
-  m_trapIds->getMinMaxValue(minTrapId, maxTrapId);
-
-  m_minVal = translateId(minTrapId);
-  m_maxVal = translateId(maxTrapId);
 }
 
-PersistentTrapIdProperty::~PersistentTrapIdProperty()
+double PersistentTrapIdProperty::get(size_t i, size_t j, size_t k) const
 {
-  m_trapIds->release();
-}
-
-double PersistentTrapIdProperty::get(size_t i, size_t j, size_t /*k*/) const
-{
-  return translateId(m_trapIds->getValue((unsigned int)i, (unsigned int)j));
-}
-
-MiDataSet::DataBinding PersistentTrapIdProperty::getBinding() const
-{
-  return MiDataSet::PER_CELL;
+  return translateId(ReservoirProperty::get(i, j, k));
 }
 
 double PersistentTrapIdProperty::getMin() const
 {
-  return m_minVal;
+  return translateId(ReservoirProperty::getMin());
 }
 
 double PersistentTrapIdProperty::getMax() const
 {
-  return m_maxVal;
-}
-
-std::string PersistentTrapIdProperty::getName() const
-{
-  return "PersistentTrapId";
-}
-
-size_t PersistentTrapIdProperty::getTimeStamp() const
-{
-  return m_timeStamp;
-}
-
-MiMeshIjk::StorageLayout PersistentTrapIdProperty::getStorageLayout() const
-{
-  return MiMeshIjk::LAYOUT_IJK;
+  return translateId(ReservoirProperty::getMax());
 }
 
 //---------------------------------------------------------------------------------------
@@ -430,15 +409,11 @@ FlowDirectionProperty::FlowDirectionProperty(
 {
 }
 
-FlowDirectionProperty::~FlowDirectionProperty()
-{
-}
-
 MbVec3<int32_t> FlowDirectionProperty::getDeltas(size_t i, size_t j, size_t k) const
 {
   int code = (int)m_values.getValue(i, j, k);
 
-  if (code == 0 || code == 99999)
+  if (code == 0 || code == (int)di::DefaultUndefinedMapValue)
     return MbVec3<int32_t>();
 
   code += 111;
@@ -490,16 +465,6 @@ MbVec3d FlowDirectionProperty::get(size_t i0, size_t j0, size_t k0) const
 MiDataSet::DataBinding FlowDirectionProperty::getBinding() const
 {
   return m_binding;
-}
-
-MbVec3d FlowDirectionProperty::getMin() const
-{
-  return MbVec3d();
-}
-
-MbVec3d FlowDirectionProperty::getMax() const
-{
-  return MbVec3d();
 }
 
 std::string FlowDirectionProperty::getName() const

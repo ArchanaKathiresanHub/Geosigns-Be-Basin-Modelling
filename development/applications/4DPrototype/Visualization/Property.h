@@ -15,6 +15,7 @@
 
 #include <Inventor/SbVec.h>
 #include <MeshVizXLM/mesh/data/MiDataSetI.h>
+#include <MeshVizXLM/mesh/data/MiDataSetIj.h>
 #include <MeshVizXLM/mesh/data/MiDataSetIjk.h>
 
 #include <vector>
@@ -109,7 +110,7 @@ public:
 /**
 *
 */
-class SurfaceProperty: public MiDataSetI<double>
+class SurfaceProperty: public MiDataSetIj<double>
 {
   const DataAccess::Interface::GridMap* m_values;
   unsigned int m_numI;
@@ -134,7 +135,7 @@ public:
 
   SurfaceProperty& operator=(const SurfaceProperty&) = delete;
 
-  virtual double get(size_t i) const;
+  virtual double get(size_t i, size_t j) const;
 
   virtual MiDataSet::DataBinding getBinding() const;
 
@@ -150,22 +151,28 @@ public:
 /**
 *
 */
-class ReservoirProperty: public MiDataSetIjk<double>
+class ReservoirProperty : public MiDataSetIjk<double>
 {
   const DataAccess::Interface::GridMap* m_values;
 
-  std::string m_name;
-
   MiDataSet::DataBinding m_binding;
+
+  std::string m_name;
 
   size_t m_timestamp;
 
-  double m_minVal;
-  double m_maxVal;
+  mutable bool   m_minMaxValid;
+  mutable double m_minVal;
+  mutable double m_maxVal;
+
+  void updateMinMax() const;
 
 public:
 
-  ReservoirProperty(const std::string& name, const DataAccess::Interface::GridMap* values);
+  ReservoirProperty(
+    const std::string& name, 
+    const DataAccess::Interface::GridMap* values, 
+    MiDataSet::DataBinding=MiDataSet::PER_CELL);
 
   virtual ~ReservoirProperty();
 
@@ -234,7 +241,7 @@ public:
 class FormationIdProperty : public MiDataSetIjk<double>
 {
   std::vector<double> m_ids;
-
+  
   double m_minVal;
   double m_maxVal;
 
@@ -262,16 +269,10 @@ public:
 /**
  *
  */
-class PersistentTrapIdProperty : public MiDataSetIjk<double>
+class PersistentTrapIdProperty : public ReservoirProperty
 {
-  const DataAccess::Interface::GridMap* m_trapIds;
   std::vector<unsigned int> m_translationTable;
   unsigned int m_minId;
-
-  size_t m_timeStamp;
-
-  double m_minVal;
-  double m_maxVal;
 
   double translateId(double id) const;
 
@@ -282,25 +283,15 @@ public:
     const std::vector<unsigned int>& translationTable, 
     unsigned int minId);
 
-  virtual ~PersistentTrapIdProperty();
-
   PersistentTrapIdProperty(const PersistentTrapIdProperty&) = delete;
 
   PersistentTrapIdProperty& operator=(const PersistentTrapIdProperty&) = delete;
 
   virtual double get(size_t i, size_t j, size_t k) const;
 
-  virtual MiDataSet::DataBinding getBinding() const;
-
   virtual double getMin() const;
 
   virtual double getMax() const;
-
-  virtual std::string getName() const;
-
-  virtual size_t getTimeStamp() const;
-
-  virtual MiMeshIjk::StorageLayout getStorageLayout() const;
 };
 
 /**
@@ -325,8 +316,6 @@ public:
     const std::vector<const DataAccess::Interface::GridMap*>& values,
     const SnapshotTopology& topology);
 
-  virtual ~FlowDirectionProperty();
-
   FlowDirectionProperty(const FlowDirectionProperty&) = delete;
 
   FlowDirectionProperty& operator=(const FlowDirectionProperty&) = delete;
@@ -336,10 +325,6 @@ public:
   virtual MbVec3d get(size_t i, size_t j, size_t k) const;
 
   virtual MiDataSet::DataBinding getBinding() const;
-
-  virtual MbVec3d getMin() const;
-
-  virtual MbVec3d getMax() const;
 
   virtual std::string getName() const;
 

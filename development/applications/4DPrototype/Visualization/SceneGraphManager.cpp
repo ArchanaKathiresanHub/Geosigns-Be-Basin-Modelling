@@ -39,7 +39,8 @@
 #include <MeshVizXLM/mapping/nodes/MoMeshSlab.h>
 #include <MeshVizXLM/mapping/nodes/MoMeshVector.h>
 #include <MeshVizXLM/mapping/nodes/MoMeshSurface.h>
-#include <MeshVizXLM/mapping/nodes/MoScalarSet.h>
+#include <MeshVizXLM/mapping/nodes/MoMeshIsoline.h>
+#include <MeshVizXLM/mapping/nodes/MoScalarSetIj.h>
 #include <MeshVizXLM/mapping/nodes/MoScalarSetIjk.h>
 #include <MeshVizXLM/mapping/nodes/MoVec3SetIjk.h>
 #include <MeshVizXLM/mapping/nodes/MoLegend.h>
@@ -263,7 +264,7 @@ namespace
     return maxPersistentId;
   }
 
-  std::shared_ptr<MiDataSetI<double> > createSurfaceProperty(const di::Property* prop, const di::Surface* surface, const di::Snapshot* snapshot)
+  std::shared_ptr<MiDataSetIj<double> > createSurfaceProperty(const di::Property* prop, const di::Surface* surface, const di::Snapshot* snapshot)
   {
     if (!prop || prop->getPropertyAttribute() != DataModel::CONTINUOUS_3D_PROPERTY)
       return nullptr;
@@ -282,7 +283,7 @@ namespace
     return nullptr;
   }
 
-  std::shared_ptr<MiDataSetIjk<double> > createReservoirProperty(const di::Property* prop, const di::Reservoir* reservoir, const di::Snapshot* snapshot)
+  std::shared_ptr<ReservoirProperty> createReservoirProperty(const di::Property* prop, const di::Reservoir* reservoir, const di::Snapshot* snapshot)
   {
     if (!prop)
       return nullptr;
@@ -332,7 +333,7 @@ void SceneGraphManager::updateSnapshotSurfaces()
       surf.meshData = std::make_shared<SurfaceMesh>((*values)[0]->getGridMap());
       surf.mesh = new MoMesh;
       surf.mesh->setMesh(surf.meshData.get());
-      surf.scalarSet = new MoScalarSet;
+      surf.scalarSet = new MoScalarSetIj;
       surf.propertyData = createSurfaceProperty(snapshot.currentProperty, surface, snapshot.snapshot);
       surf.scalarSet->setScalarSet(surf.propertyData.get());
       surf.surfaceMesh = new MoMeshSurface;
@@ -387,9 +388,11 @@ void SceneGraphManager::updateSnapshotReservoirs()
         res.mesh = new MoMesh;
         res.meshData = std::make_shared<ReservoirMesh>((*topValues)[0]->getGridMap(), (*bottomValues)[0]->getGridMap());
         res.mesh->setMesh(res.meshData.get());
-        res.scalarSet = new MoScalarSet;
+
         res.propertyData = createReservoirProperty(snapshot.currentProperty, reservoir, snapshot.snapshot);
+        res.scalarSet = new MoScalarSetIjk;
         res.scalarSet->setScalarSet(res.propertyData.get());
+
         res.skin = new MoMeshSkin;
 
         res.root->addChild(res.mesh);
@@ -1129,13 +1132,18 @@ void SceneGraphManager::setupSceneGraph()
   m_formationShapeHints = new SoShapeHints;
   m_formationShapeHints->setName("formationShapeHints");
   m_formationShapeHints->shapeType = SoShapeHints::SOLID;
-  m_formationShapeHints->vertexOrdering = SoShapeHints::COUNTERCLOCKWISE;
+  m_formationShapeHints->vertexOrdering = SoShapeHints::CLOCKWISE;
 
   // Double sided lighting is enabled for surfaces with ordered vertices
   m_surfaceShapeHints = new SoShapeHints;
   m_surfaceShapeHints->setName("surfaceShapeHints");
   m_surfaceShapeHints->shapeType = SoShapeHints::UNKNOWN_SHAPE_TYPE;
   m_surfaceShapeHints->vertexOrdering = SoShapeHints::COUNTERCLOCKWISE;
+
+  m_decorationShapeHints = new SoShapeHints;
+  m_decorationShapeHints->setName("decorationShapeHints");
+  m_decorationShapeHints->shapeType = SoShapeHints::SOLID;
+  m_decorationShapeHints->vertexOrdering = SoShapeHints::COUNTERCLOCKWISE;
 
   setupCoordinateGrid();
 
@@ -1232,6 +1240,7 @@ void SceneGraphManager::setupSceneGraph()
   m_root->addChild(m_scale);
   m_root->addChild(m_appearanceNode);
   m_root->addChild(m_snapshotsSwitch);
+  m_root->addChild(m_decorationShapeHints);
   m_root->addChild(m_annotation);
   m_root->addChild(createCompass());
 
@@ -1246,6 +1255,7 @@ SceneGraphManager::SceneGraphManager()
   , m_resRockTopProperty(0)
   , m_resRockBottomProperty(0)
   , m_resRockTrapIdProperty(0)
+  , m_resRockDrainageIdGasPhaseProperty(0)
   , m_flowDirectionProperty(0)
   , m_currentProperty(0)
   , m_numI(0)
@@ -1525,12 +1535,15 @@ void SceneGraphManager::setup(const di::ProjectHandle* handle)
   const std::string resRockTopKey = "ResRockTop";
   const std::string resRockBottomKey = "ResRockBottom";
   const std::string resRockTrapIdKey = "ResRockTrapId";
+  const std::string resRockDrainageIdGasPhasePropertyKey = "ResRockDrainageIdGasPhase"; 
+  const std::string resRockDrainageIdFluidPhasePropertyKey = "ResRockDrainageIdFluidPhase";
   const std::string flowDirectionKey = "FlowDirectionIJK";
 
   m_depthProperty = handle->findProperty(depthKey);
   m_resRockTopProperty = handle->findProperty(resRockTopKey);
   m_resRockBottomProperty = handle->findProperty(resRockBottomKey);
   m_resRockTrapIdProperty = handle->findProperty(resRockTrapIdKey);
+  m_resRockDrainageIdGasPhaseProperty = handle->findProperty(resRockDrainageIdGasPhasePropertyKey);
   m_flowDirectionProperty = handle->findProperty(flowDirectionKey);
 
   const di::Grid* loresGrid = handle->getLowResolutionOutputGrid();

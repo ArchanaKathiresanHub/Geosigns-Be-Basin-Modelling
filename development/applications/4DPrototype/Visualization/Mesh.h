@@ -17,62 +17,18 @@
 #include "Interface/GridMap.h"
 
 #include <MeshVizXLM/mesh/MiVolumeMeshHexahedronIjk.h>
+#include <MeshVizXLM/mesh/MiVolumeMeshCurvilinear.h>
+#include <MeshVizXLM/mesh/MiSurfaceMeshCurvilinear.h>
 #include <MeshVizXLM/mesh/MiSurfaceMeshUnstructured.h>
 #include <MeshVizXLM/mesh/topology/MiSurfaceTopologyExplicitI.h>
 #include <MeshVizXLM/mesh/cell/MiSurfaceCell.h>
 
 /**
-* Stores the node coordinates for a mesh
-*/
-class Geometry : public MiGeometryI
-{
-  const DataAccess::Interface::GridMap* m_depthMap;
-
-  size_t m_numI;
-  size_t m_numJ;
-  size_t m_numK;
-
-  double m_minX;
-  double m_minY;
-  double m_minZ;
-  double m_maxZ;
-
-  double m_deltaX;
-  double m_deltaY;
-
-  size_t m_timeStamp;
-
-public:
-
-  explicit Geometry(const DataAccess::Interface::GridMap* depthMap);
-
-  bool isUndefined(size_t i, size_t j, size_t k) const;
-
-  MbVec3d getCoord(unsigned int i, unsigned int j, unsigned int k) const;
-
-  virtual MbVec3d getCoord(size_t index) const;
-
-  virtual MbVec3d getMin() const;
-
-  virtual MbVec3d getMax() const;
-
-  virtual size_t getTimeStamp() const;
-};
-
-/**
 * Geometry class for reservoirs, which are defined by the top and bottom properties
 */
-class ReservoirGeometry : public MiGeometryI
+class ReservoirGeometry : public MiGeometryIjk
 {
   const DataAccess::Interface::GridMap* m_depthMaps[2];
-
-  size_t m_numI;
-  size_t m_numJ;
-
-  double m_minX;
-  double m_minY;
-  double m_minZ;
-  double m_maxZ;
 
   double m_deltaX;
   double m_deltaY;
@@ -85,17 +41,20 @@ public:
     const DataAccess::Interface::GridMap* depthMapTop, 
     const DataAccess::Interface::GridMap* depthMapBottom);
 
+  ReservoirGeometry(const ReservoirGeometry&) = delete;
+  ReservoirGeometry& operator=(const ReservoirGeometry&) = delete;
+
   virtual ~ReservoirGeometry();
+
+  size_t numI() const;
+
+  size_t numJ() const;
+
+  size_t numK() const;
 
   bool isUndefined(size_t i, size_t j, size_t k) const;
 
-  MbVec3d getCoord(unsigned int i, unsigned int j, unsigned int k) const;
-
-  virtual MbVec3d getCoord(size_t index) const;
-
-  virtual MbVec3d getMin() const;
-
-  virtual MbVec3d getMax() const;
+  virtual MbVec3d getCoord(size_t i, size_t j, size_t k) const;
 
   virtual size_t getTimeStamp() const;
 };
@@ -104,12 +63,9 @@ public:
 /**
  * Contains the geometry for an entire snapshot
  */
-class SnapshotGeometry : public MiGeometryI
+class SnapshotGeometry : public MiGeometryIjk
 {
   GridMapCollection m_depthMaps;
-
-  double m_minX;
-  double m_minY;
 
   double m_deltaX;
   double m_deltaY;
@@ -119,8 +75,6 @@ class SnapshotGeometry : public MiGeometryI
 public:
 
   explicit SnapshotGeometry(const std::vector<const DataAccess::Interface::GridMap*>& depthMaps);
-
-  virtual ~SnapshotGeometry();
 
   size_t numI() const;
 
@@ -134,15 +88,9 @@ public:
 
   bool isUndefined(size_t i, size_t j, size_t k) const;
 
-  double getDepth(unsigned int i, unsigned int j, unsigned int k) const;
+  double getDepth(size_t i, size_t j, size_t k) const;
 
-  MbVec3d getCoord(unsigned int i, unsigned int j, unsigned int k) const;
-
-  virtual MbVec3d getCoord(size_t index) const;
-
-  virtual MbVec3d getMin() const;
-
-  virtual MbVec3d getMax() const;
+  virtual MbVec3d getCoord(size_t i, size_t j, size_t k) const;
 
   virtual size_t getTimeStamp() const;
 };
@@ -150,7 +98,7 @@ public:
 /**
 * Defines the cell topology for a 'chunk' of a snapshot
 */
-class SnapshotTopology : public MiHexahedronTopologyExplicitIjk
+class SnapshotTopology : public MiTopologyIjk
 {
   size_t m_numI; // num cells in I direction
   size_t m_numJ; // num cells in J direction
@@ -175,18 +123,7 @@ public:
 
   MbVec3d getCellCenter(size_t i, size_t j, size_t k) const;
 
-  virtual void getCellNodeIndices(
-    size_t i, size_t j, size_t k,
-    size_t& n0, size_t& n1, size_t& n2, size_t& n3,
-    size_t& n4, size_t& n5, size_t& n6, size_t& n7) const;
-
   virtual MiMeshIjk::StorageLayout getStorageLayout() const;
-
-  virtual size_t getBeginNodeId() const;
-
-  virtual size_t getEndNodeId() const;
-
-  virtual std::string getNodeName(size_t i) const;
 
   virtual size_t getNumCellsI() const;
 
@@ -202,32 +139,16 @@ public:
 };
 
 /**
-* Defines the cell topology for a volume mesh
-*/
-class VolumeTopology : public MiHexahedronTopologyExplicitIjk
+ *
+ */
+class ReservoirTopology : public MiTopologyIjk
 {
-  size_t m_numI;
-  size_t m_numJ;
-  size_t m_numK;
-
-  size_t m_timeStamp;
+  const ReservoirGeometry& m_geometry;
+  size_t m_timestamp;
 
 public:
 
-  VolumeTopology(size_t numI, size_t numJ, size_t numK);
-
-  virtual void getCellNodeIndices(
-    size_t i, size_t j, size_t k,
-    size_t& n0, size_t& n1, size_t& n2, size_t& n3,
-    size_t& n4, size_t& n5, size_t& n6, size_t& n7) const;
-
-  virtual MiMeshIjk::StorageLayout getStorageLayout() const;
-
-  virtual size_t getBeginNodeId() const;
-
-  virtual size_t getEndNodeId() const;
-
-  virtual std::string getNodeName(size_t i) const;
+  explicit ReservoirTopology(const ReservoirGeometry& geometry);
 
   virtual size_t getNumCellsI() const;
 
@@ -235,31 +156,11 @@ public:
 
   virtual size_t getNumCellsK() const;
 
-  virtual size_t getTimeStamp() const;
+  virtual bool isDead(size_t i, size_t j, size_t k) const;
 
   virtual bool hasDeadCells() const;
-};
 
-class FormationTopology : public VolumeTopology
-{
-  const Geometry& m_geometry;
-
-public:
-
-  FormationTopology(size_t numI, size_t numJ, size_t numK, const Geometry& geometry);
-
-  virtual bool isDead(size_t i, size_t j, size_t k) const;
-};
-
-class ReservoirTopology : public VolumeTopology
-{
-  const ReservoirGeometry& m_geometry;
-
-public:
-
-  ReservoirTopology(size_t numI, size_t numJ, const ReservoirGeometry& geometry);
-
-  virtual bool isDead(size_t i, size_t j, size_t k) const;
+  virtual size_t getTimeStamp() const;
 };
 
 class QuadCell : public MiSurfaceCell
@@ -287,33 +188,48 @@ public:
   }
 };
 
+class SurfaceGeometry : public MiGeometryIj
+{
+  const DataAccess::Interface::GridMap* m_values;
+  size_t m_timestamp;
+
+  double m_deltaX;
+  double m_deltaY;
+
+public:
+
+  explicit SurfaceGeometry(const DataAccess::Interface::GridMap* values);
+
+  virtual ~SurfaceGeometry();
+
+  virtual MbVec3d getCoord(size_t i, size_t j) const;
+
+  virtual size_t getTimeStamp() const;
+
+  bool isUndefined(size_t i, size_t j) const;
+};
+
 /**
 * Defines the cell topology for a surface mesh
 */
-class SurfaceTopology : public MiSurfaceTopologyExplicitI
+class SurfaceTopology : public MiTopologyIj
 {
   size_t m_numI;
   size_t m_numJ;
 
   size_t m_timeStamp;
 
-  Geometry& m_geometry;
-
-  std::vector<QuadCell> m_cells;
+  const SurfaceGeometry& m_geometry;
 
 public:
 
-  SurfaceTopology(size_t numI, size_t numJ, Geometry& geometry);
+  SurfaceTopology(size_t numI, size_t numJ, const SurfaceGeometry& geometry);
 
-  virtual const MiSurfaceCell* getCell(size_t id) const;
+  virtual size_t getNumCellsI() const;
 
-  virtual size_t getBeginNodeId() const;
+  virtual size_t getNumCellsJ() const;
 
-  virtual size_t getEndNodeId() const;
-
-  virtual size_t getNumCells() const;
-
-  virtual bool isDead(size_t i) const;
+  virtual bool isDead(size_t i, size_t j) const;
 
   virtual size_t getTimeStamp() const;
 
@@ -323,43 +239,26 @@ public:
 /**
 * Represents the mesh for a single formation
 */
-class FormationMesh : public MiVolumeMeshHexahedronIjk
+class HexahedronMesh : public MiVolumeMeshCurvilinear
 {
-  std::shared_ptr<Geometry> m_geometry;
-  std::shared_ptr<FormationTopology> m_topology;
-
-public:
-
-  explicit FormationMesh(const DataAccess::Interface::GridMap* depthMap);
-
-  const MiHexahedronTopologyExplicitIjk& getTopology() const;
-
-  const MiGeometryI& getGeometry() const;
-};
-
-/**
-* Represents the mesh for a single formation
-*/
-class HexahedronMesh : public MiVolumeMeshHexahedronIjk
-{
-  std::shared_ptr<MiGeometryI> m_geometry;
-  std::shared_ptr<MiHexahedronTopologyExplicitIjk> m_topology;
+  std::shared_ptr<MiGeometryIjk> m_geometry;
+  std::shared_ptr<MiTopologyIjk> m_topology;
 
 public:
 
   HexahedronMesh(
-    std::shared_ptr<MiGeometryI> geometry,
-    std::shared_ptr<MiHexahedronTopologyExplicitIjk> topology);
+    std::shared_ptr<MiGeometryIjk> geometry,
+    std::shared_ptr<MiTopologyIjk> topology);
 
-  const MiHexahedronTopologyExplicitIjk& getTopology() const;
+  const MiTopologyIjk& getTopology() const;
 
-  const MiGeometryI& getGeometry() const;
+  const MiGeometryIjk& getGeometry() const;
 };
 
 /**
 * Represents the mesh for a single reservoir
 */
-class ReservoirMesh: public MiVolumeMeshHexahedronIjk
+class ReservoirMesh: public MiVolumeMeshCurvilinear
 {
   std::shared_ptr<ReservoirGeometry> m_geometry;
   std::shared_ptr<ReservoirTopology> m_topology;
@@ -370,26 +269,26 @@ public:
     const DataAccess::Interface::GridMap* depthMapTop,
     const DataAccess::Interface::GridMap* depthMapBottom);
 
-  const MiHexahedronTopologyExplicitIjk& getTopology() const;
+  const MiTopologyIjk& getTopology() const;
 
-  const MiGeometryI& getGeometry() const;
+  const MiGeometryIjk& getGeometry() const;
 };
 
 /**
 *
 */
-class SurfaceMesh : public MiSurfaceMeshUnstructured
+class SurfaceMesh : public MiSurfaceMeshCurvilinear
 {
-  std::shared_ptr<Geometry> m_geometry;
+  std::shared_ptr<SurfaceGeometry> m_geometry;
   std::shared_ptr<SurfaceTopology> m_topology;
 
 public:
 
   explicit SurfaceMesh(const DataAccess::Interface::GridMap* depthMap);
 
-  virtual const MiSurfaceTopologyExplicitI& getTopology() const;
+  virtual const MiTopologyIj& getTopology() const;
 
-  virtual const MiGeometryI& getGeometry() const;
+  virtual const MiGeometryIj& getGeometry() const;
 };
 
 class FaultGeometry : public MiGeometryI
@@ -402,10 +301,6 @@ public:
   explicit FaultGeometry(const std::vector<MbVec3d> coords);
 
   virtual MbVec3d getCoord(size_t index) const;
-
-  //virtual MbVec3d getMin() const;
-
-  //virtual MbVec3d getMax() const;
 
   virtual size_t getTimeStamp() const;
 };
