@@ -1234,7 +1234,7 @@ namespace migration {
          else
          {
             // Neighbour is invalid, we move to the vertex/edge or face of the current element,
-            // depending on whether 3/2, or 1 of i,j,k have an offset, respectively.
+            // depending on whether all 3, 2, or 1 of i, j and k have an offset.
             // Delta x and Delta y will be half of what they would be if moving by a full element.
             discretizedFlowDirection (1) /= 2;
             discretizedFlowDirection (2) /= 2;

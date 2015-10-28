@@ -100,7 +100,7 @@ namespace migration
       double getFormationNodeDepth (int i, int j, int k);
 
       int getNodeDepth (void) const;
-      int getGridMapDepth (void);
+      int getGridMapDepth (void) const;
 
       bool detectReservoir (Formation * topFormation, const double minOilColumnHeight, const double minGasColumnHeight, const bool pressureRun);
       bool detectReservoirCrests();
@@ -111,12 +111,12 @@ namespace migration
 
       void identifyAsReservoir (void) const;
 
-      double getPropertyValue (PropertyIndex propertyIndex, int i, int j, int k);
+      double getPropertyValue (PropertyIndex propertyIndex, int i, int j, int k) const;
 
       double getMinOilColumnHeight (void) const;
       double getMinGasColumnHeight (void) const;
 
-      inline double getDepth (int i, int j, int k);
+      inline double getDepth (int i, int j, int k) const;
       inline double getHorizontalPermeability (int i, int j, int k);
       inline double getVerticalPermeability (int i, int j, int k);
       inline double getPorosity (int i, int j, int k);
@@ -284,7 +284,7 @@ namespace migration
       return m_isInitialised;
    }
 
-   double Formation::getDepth (int i, int j, int k)
+   double Formation::getDepth (int i, int j, int k) const
    {
       return getPropertyValue (DEPTHPROPERTY, i, j, k);
    }

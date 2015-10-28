@@ -73,7 +73,6 @@ namespace migration
       /// retain properties calculated during the previous snapshot interval that
       /// are required during the current snapshot interval.
       void retainPreviousProperties (void);
-
       /// reset all computed property values
       bool clearProperties (void);
       /// compute new input-based property values.

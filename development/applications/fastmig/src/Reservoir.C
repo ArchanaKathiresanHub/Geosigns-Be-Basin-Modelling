@@ -1412,7 +1412,6 @@ namespace migration
       assert (formation);
       int depthIndex = formation->getNodeDepth () - 1;
 
-
       for (unsigned int i = m_columnArray->firstILocal (); i <= m_columnArray->lastILocal (); ++i)
       {
          for (unsigned int j = m_columnArray->firstJLocal (); j <= m_columnArray->lastJLocal (); ++j)
@@ -1469,12 +1468,18 @@ namespace migration
 
                /// set the column to wasting if can not hold hc
                if (column->getI () < m_columnArray->lastILocal () && column->getJ () < m_columnArray->lastJLocal () and
-                  !column->isSealing (GAS) and  !column->isSealing (OIL))
+                  !column->isSealing (GAS) and !column->isSealing (OIL))
                {
-                  LocalFormationNode * localFormationNode = formation->getLocalFormationNode (column->getI (), column->getJ (), depthIndex);
-                  assert (localFormationNode);
-                  bool flagGas = localFormationNode->getReservoirGas ();
-                  bool flagOil = localFormationNode->getReservoirOil ();
+                  bool flagGas, flagOil;
+                  for (int depth = depthIndex; depth>=0; --depth)
+                  {
+                     LocalFormationNode * localFormationNode = formation->getLocalFormationNode (column->getI (), column->getJ (), depth);
+                     assert (localFormationNode);
+                     flagGas = localFormationNode->getReservoirGas ();
+                     flagOil = localFormationNode->getReservoirOil ();
+
+                     if (flagGas or flagOil) break;
+                  }
 
                   if (!flagGas) column->setWasting (GAS);
                   if (!flagOil) column->setWasting (OIL);

@@ -679,14 +679,14 @@ namespace migration
       return m_formationNodeArray->depth ();
    }
 
-   int Formation::getGridMapDepth (void)
+   int Formation::getGridMapDepth (void) const
    {
       return getMaximumNumberOfElements () + 1;
    }
 
    /// Get the value of a property at specified indices.
    /// Will look in adjacent formation if k is out of range
-   double Formation::getPropertyValue (PropertyIndex propertyIndex, int i, int j, int k)
+   double Formation::getPropertyValue (PropertyIndex propertyIndex, int i, int j, int k) const
    {
       double value;
       if (k >= getGridMapDepth ())
@@ -1397,15 +1397,42 @@ namespace migration
       fclose (fres);
    }
 
+   // In the case of reservoir offsets the node to be flagged is the first one 'under' the top reservoir surface for each column
    void Formation::identifyAsReservoir (void) const
    {
       int depthIndex = getNodeDepth () - 1;
+      assert (depthIndex >= 0);
 
       for (int i = (int) m_formationNodeArray->firstILocal (); i <= (int) m_formationNodeArray->lastILocal (); ++i)
       {
          for (int j = (int) m_formationNodeArray->firstJLocal (); j <= (int) m_formationNodeArray->lastJLocal (); ++j)
          {
-            getLocalFormationNode (i, j, depthIndex)->identifyAsReservoir ();
+            const Interface::Formation * formation = dynamic_cast<const Interface::Formation *> (this);
+            assert (formation);
+
+            Interface::ReservoirList * reservoirs = m_projectHandle->getReservoirs (formation);
+
+            const Reservoir * reservoir = dynamic_cast<const migration::Reservoir *> (*reservoirs->begin ());
+            assert (reservoir);
+            
+            if (getLocalFormationNode (i, j, depthIndex)->hasThickness () and
+                ((reservoir->getLocalColumn (i, j)->getTopDepthOffset () + getDepth (i,j,depthIndex+1)) < getDepth (i,j,depthIndex) or depthIndex == 0)) // Top node is flagged
+            {
+               getLocalFormationNode (i, j, depthIndex)->identifyAsReservoir ();
+            }
+            else // There is top offset or zero-thickness elements, so the correct node needs to be found
+            { 
+               int depth = depthIndex;
+               while (depth > 0 and
+                      (getDepth (i,j,depth) < (reservoir->getLocalColumn (i, j)->getTopDepthOffset ()+ getDepth (i,j,depthIndex+1)) or !getLocalFormationNode (i,j,depth)->hasThickness ()))
+               {
+                  --depth;
+                  if (depth == 0)
+                     break;
+               }
+
+               getLocalFormationNode (i, j, depth)->identifyAsReservoir ();
+            }
          }
       }
    }
@@ -1613,7 +1640,12 @@ namespace migration
                 !targetFormationNode->goesOutOfBounds () &&
                 targetFormationNode->getFormation () == targetReservoir->getFormation ())
             {
-               assert (targetFormationNode->getK () == targetFormationNode->getFormation ()->getNodeDepth () - 1); // will fail for reservoir offsets
+               unsigned int iTarget = targetFormationNode->getI ();
+               unsigned int jTarget = targetFormationNode->getJ ();
+               unsigned int kTarget = targetFormationNode->getK ();
+
+               assert (targetFormationNode->hasThickness () and
+                       getDepth (iTarget, jTarget, kTarget) >= targetReservoir->getColumn (iTarget, jTarget)->getTopDepth ());
 
                // calculate the composition to migrate
                Composition composition;
@@ -1655,8 +1687,8 @@ namespace migration
 
                for (offsetIndex = 0; offsetIndex < 4; ++offsetIndex)
                {
-                  Column *targetColumn = targetReservoir->getColumn (targetFormationNode->getI () + offsets[offsetIndex][0],
-                                                                     targetFormationNode->getJ () + offsets[offsetIndex][1]);
+                  Column *targetColumn = targetReservoir->getColumn (iTarget + offsets[offsetIndex][0],
+                                                                     jTarget + offsets[offsetIndex][1]);
 
                   if (IsValid (targetColumn) && !targetColumn->isSealing () && (shallowestColumn == 0 || targetColumn->getTopDepth () < shallowestDepth))
                   {
@@ -1726,7 +1758,23 @@ namespace migration
                 !targetFormationNode->goesOutOfBounds () &&
                 targetFormationNode->getFormation () == targetReservoir->getFormation ())
             {
-               assert (targetFormationNode->getK () == targetFormationNode->getFormation ()->getNodeDepth () - 1); // will fail for reservoir offsets
+               unsigned int iTarget = targetFormationNode->getI ();
+               unsigned int jTarget = targetFormationNode->getJ ();
+               unsigned int kTarget = targetFormationNode->getK ();
+
+               assert (targetFormationNode->hasThickness () and
+                       getDepth (iTarget, jTarget, kTarget) >= targetReservoir->getColumn (iTarget, jTarget)->getTopDepth ());
+
+               Composition leakingCompositions[2][2];
+
+               for(int offsetIndex = 0; offsetIndex < 4; ++offsetIndex)
+               {
+                  if ( IsValid (leakingReservoir->getColumn (i + offsets[offsetIndex][0], j + offsets[offsetIndex][1])))
+                  {
+                     leakingCompositions [offsets[offsetIndex][0]][offsets[offsetIndex][1]] =
+                        leakingReservoir->getColumn (i + offsets[offsetIndex][0], j + offsets[offsetIndex][1])->getComposition ();
+                  }
+               }
 
                // calculate the composition to migrate
                Composition composition;
@@ -1736,24 +1784,17 @@ namespace migration
                      continue;
 
                   double sum = 0;
-                  int offsetIndex = 0;
 
-                  for (offsetIndex = 0; offsetIndex < 4; ++offsetIndex)
+                  for (int offsetIndex = 0; offsetIndex < 4; ++offsetIndex)
                   {
-                     LocalColumn * leakingColumn = leakingReservoir->getLocalColumn (i + offsets[offsetIndex][0], j + offsets[offsetIndex][1]);
-                     if (!IsValid (leakingColumn)) continue;
-
-                     if (leakingColumn->containsComponent ((ComponentId) componentId))
-                     {
-                        sum += leakingColumn->getComponent ((ComponentId) componentId);
-                     }
+                     sum += leakingCompositions[offsets[offsetIndex][0]][offsets[offsetIndex][1]].getWeight ((ComponentId) componentId);
                   }
 
                   double weight = sum * surfaceFraction;
 
                   composition.add ((ComponentId) componentId, weight);
-               }
-
+               }               
+               
                int offsetIndex;
 
                Column *shallowestColumn = 0;
@@ -1761,8 +1802,8 @@ namespace migration
 
                for (offsetIndex = 0; offsetIndex < 4; ++offsetIndex)
                {
-                  Column *targetColumn = targetReservoir->getColumn (targetFormationNode->getI () + offsets[offsetIndex][0],
-                                                                     targetFormationNode->getJ () + offsets[offsetIndex][1]);
+                  Column *targetColumn = targetReservoir->getColumn (iTarget + offsets[offsetIndex][0],
+                                                                     jTarget + offsets[offsetIndex][1]);
 
                   if (IsValid (targetColumn) && !targetColumn->isSealing () && (shallowestColumn == 0 || targetColumn->getTopDepth () < shallowestDepth))
                   {
