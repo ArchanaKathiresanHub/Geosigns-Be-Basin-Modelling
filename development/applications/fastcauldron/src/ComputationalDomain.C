@@ -283,15 +283,12 @@ void ComputationalDomain::numberGlobalDofs ( const bool verbose ) {
    const FastcauldronSimulator& fc = FastcauldronSimulator::getInstance ();
 
    const NodalVolumeGrid& scalarNodeGrid = m_grids.getNodeGrid ( 1 );
-   const double NullDofNumberReal = static_cast<int>( NullDofNumber );
+   const double NullDofNumberReal = static_cast<double>( NullDofNumber );
 
-   VecZeroEntries ( m_globalDofNumbers );
+   VecSet ( m_globalDofNumbers, NullDofNumberReal );
+   // VecZeroEntries ( m_globalDofNumbers );
 
    PetscBlockVector<double> dof;
-
-   int i;
-   int j;
-   int k;
 
    // One less because the first index is zero.
    int numberOfNodesInDepth = m_column.getNumberOfLogicalNodesInDepth ( m_currentAge ) - 1;
@@ -300,11 +297,11 @@ void ComputationalDomain::numberGlobalDofs ( const bool verbose ) {
    dof.setVector ( scalarNodeGrid, m_globalDofNumbers, INSERT_VALUES );
 
 #ifdef PLANE_FIRST_DOF_COUNTING
-   for ( k = numberOfNodesInDepth; k >= 0; --k ) {
+   for ( int k = numberOfNodesInDepth; k >= 0; --k ) {
 
-      for ( j = fc.firstJ (); j <= fc.lastJ (); ++j ) {
+      for ( int j = fc.firstJ (); j <= fc.lastJ (); ++j ) {
 
-         for ( i = fc.firstI (); i <= fc.lastI (); ++i ) {
+         for ( int i = fc.firstI (); i <= fc.lastI (); ++i ) {
 
             if ( fc.nodeIsDefined ( i, j )) {
 
@@ -325,13 +322,13 @@ void ComputationalDomain::numberGlobalDofs ( const bool verbose ) {
 
    }
 #else
-   for ( i = fc.firstI (); i <= fc.lastI (); ++i ) {
+   for ( int i = fc.firstI (); i <= fc.lastI (); ++i ) {
 
-      for ( j = fc.firstJ (); j <= fc.lastJ (); ++j ) {
+      for ( int j = fc.firstJ (); j <= fc.lastJ (); ++j ) {
 
          if ( fc.nodeIsDefined ( i, j )) {
 
-            for ( k = numberOfNodesInDepth; k >= 0; --k ) {
+            for ( int k = numberOfNodesInDepth; k >= 0; --k ) {
 
                if ( m_activeNodes ( i, j, k )) {
                   dof ( k, j, i ) = globalDofNumber++;
@@ -354,6 +351,8 @@ void ComputationalDomain::numberGlobalDofs ( const bool verbose ) {
    if ( verbose and m_rank + 1 == FastcauldronSimulator::getInstance ().getSize ()) {
       std::cout << " Total number of dofs : " << globalDofNumber << std::endl;
    }
+
+   assert (( "Incorrect counting of dofs.", ( globalDofNumber - m_localStartDofNumber ) == getLocalNumberOfActiveNodes ()));
 
    dof.restoreVector ( UPDATE_EXCLUDING_GHOSTS );
 
@@ -396,9 +395,14 @@ void ComputationalDomain::assignElementGobalDofNumbers () {
       // Loop over the nodes of each element collecting the global dof number.
       for ( int n = 0; n < 8; ++n ) {
          element->setDof ( n, dof ( element->getNodeK ( n ), element->getNodeJ ( n ), element->getNodeI ( n )));
+
+#ifdef VERBOSE_ELEMENT_DOF_ASSIGNMENT
+         // What are the performance implications of the following assertion?
+         assert (( "Dof number should not be the null value.", element->getDof ( n ) != NullDofNumber ));
+#else
          assert ( element->getDof ( n ) != NullDofNumber );
-         // What are the performance implications for the following assertion?
-         // assert (( "Dof number should not be the null value.", element->getDof ( n ) != NullDofNumber ));
+#endif
+
       }
 
    }

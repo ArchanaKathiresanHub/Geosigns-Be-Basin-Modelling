@@ -28,7 +28,6 @@ void MatrixNonZeroCalculator::compute ( const ComputationalDomain& domain,
                                         IntegerArray&              ghostNumberOfNonZerosPerRow,
                                         const bool                 verbose ) const {
 
-
    const FastcauldronSimulator& fc = FastcauldronSimulator::getInstance ();
    const LocalIntegerArray3D& depthIndex = domain.getDepthIndices ();
    const LocalBooleanArray3D& nodeIsActive = domain.getActiveNodes ();
