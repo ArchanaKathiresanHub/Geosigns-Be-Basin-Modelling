@@ -42,7 +42,13 @@ const char * StratigraphyManagerImpl::s_sourceRockType1FieldName        = "Sourc
 const char * StratigraphyManagerImpl::s_sourceRockType2FieldName        = "SourceRockType2";
 const char * StratigraphyManagerImpl::s_sourceRockHIFieldName           = "SourceRockMixingHI";
 const char * StratigraphyManagerImpl::s_sourceRockEnableMixintFieldName = "EnableSourceRockMixing";
+const char * StratigraphyManagerImpl::s_isAllochtonLithology            = "HasAllochthonLitho";
 
+const char * StratigraphyManagerImpl::s_pressureFaultCutTableName       = "PressureFaultcutIoTbl";
+const char * StratigraphyManagerImpl::s_FaultcutsMapFieldName           = "FaultcutsMap";
+const char * StratigraphyManagerImpl::s_FaultNameFieldName              = "FaultName";
+const char * StratigraphyManagerImpl::s_FaultLithologyFieldName         = "FaultLithology";
+ 
 // Constructor
 StratigraphyManagerImpl::StratigraphyManagerImpl()
 {
@@ -233,29 +239,20 @@ ErrorHandler::ReturnCode StratigraphyManagerImpl::layerLithologiesList( LayerID 
       // get 1st lithology
       std::string lithoName = rec->getValue<std::string>( s_lithoType1FiledName        );
       double      perc      = rec->getValue<double>(      s_lithoTypePercent1FiledName );
-      if ( !lithoName.empty() && perc > 0.0 )
-      {
-         lithoList.push_back( lithoName );
-         lithoPercent.push_back( perc );
-      }
+      lithoList.push_back( lithoName );
+      lithoPercent.push_back( perc );
 
       // get 2nd lithology
       lithoName = rec->getValue<std::string>( s_lithoType2FiledName        );
       perc      = rec->getValue<double>(      s_lithoTypePercent2FiledName );
-      if ( !lithoName.empty() && perc > 0.0 )
-      {
-         lithoList.push_back( lithoName );
-         lithoPercent.push_back( perc );
-      }
+      lithoList.push_back( lithoName );
+      lithoPercent.push_back( perc );
 
       // get 3d lithology
       lithoName = rec->getValue<std::string>( s_lithoType3FiledName        );
       perc      = rec->getValue<double>(      s_lithoTypePercent3FiledName );
-      if ( !lithoName.empty() && perc > 0.0 )
-      {
-         lithoList.push_back( lithoName );
-         lithoPercent.push_back( perc );
-      }
+      lithoList.push_back( lithoName );
+      lithoPercent.push_back( perc );
    }
    catch ( const Exception & e ) { return reportError( e.errorCode(), e.what() ); }
 
@@ -365,27 +362,21 @@ bool StratigraphyManagerImpl::isSourceRockActive( LayerID id )
 {
    if ( errorCode() != NoError ) resetError();
 
-   bool isLayerSR = false;
+   bool flag = false;
 
    try
    {
       // if table does not exist - report error
-      if ( !m_stratIoTbl )
-      {
-         throw Exception( NonexistingID ) << s_stratigraphyTableName << " table could not be found in project";
-      }
+      if ( !m_stratIoTbl ) { throw Exception( NonexistingID ) << s_stratigraphyTableName << " table could not be found in project"; }
 
       database::Record * rec = m_stratIoTbl->getRecord( static_cast<int>(id) );
-      if ( !rec )
-      {
-         throw Exception( NonexistingID ) << "No layer with ID: " << id << " in stratigraphy table";
-      }
+      if ( !rec ) { throw Exception( NonexistingID ) << "No layer with ID: " << id << " in stratigraphy table"; }
 
-      isLayerSR = rec->getValue<int>( s_isSourceRockFieldName ) == 1 ? true : false;
+      flag = rec->getValue<int>( s_isSourceRockFieldName ) == 1 ? true : false;
    }
    catch ( const Exception & e ) { reportError( e.errorCode(), e.what() ); }
 
-   return isLayerSR;
+   return flag;
 }
 
 // Check if for the given layer source rock mixing is enabled
@@ -393,28 +384,44 @@ bool StratigraphyManagerImpl::isSourceRockMixingEnabled( LayerID id )
 {
    if ( errorCode() != NoError ) resetError();
 
-   bool isLayerSRM = false;
+   bool flag = false;
 
    try
    {
       // if table does not exist - report error
-      if ( !m_stratIoTbl )
-      {
-         throw Exception( NonexistingID ) << s_stratigraphyTableName << " table could not be found in project";
-      }
+      if ( !m_stratIoTbl ) { throw Exception( NonexistingID ) << s_stratigraphyTableName << " table could not be found in project"; }
 
       database::Record * rec = m_stratIoTbl->getRecord( static_cast<int>(id) );
-      if ( !rec )
-      {
-         throw Exception( NonexistingID ) << "No layer with ID: " << id << " in stratigraphy table";
-      }
+      if ( !rec ) { throw Exception( NonexistingID ) << "No layer with ID: " << id << " in stratigraphy table"; }
 
-      isLayerSRM = rec->getValue<int>( s_sourceRockEnableMixintFieldName ) == 1 ? true : false;
+      flag = rec->getValue<int>( s_sourceRockEnableMixintFieldName ) == 1 ? true : false;
    }
    catch ( const Exception & e ) { reportError( e.errorCode(), e.what() ); }
 
-   return isLayerSRM;
+   return flag;
 }
+
+// Check if layer has active allochton lithology
+bool StratigraphyManagerImpl::isAllochtonLithology( LayerID id )
+{
+   if ( errorCode() != NoError ) resetError();
+
+   bool flag = false;
+   try
+   {
+      // if table does not exist - report error
+      if ( !m_stratIoTbl ) { throw Exception( NonexistingID ) << s_stratigraphyTableName << " table could not be found in project"; }
+
+      database::Record * rec = m_stratIoTbl->getRecord( static_cast<int>(id) );
+      if ( !rec ) { throw Exception( NonexistingID ) << "No layer with ID: " << id << " in stratigraphy table"; }
+
+      flag = rec->getValue<int>( s_isAllochtonLithology ) == 1 ? true : false;
+   }
+   catch ( const Exception & e ) { reportError( e.errorCode(), e.what() ); }
+
+   return flag;
+}
+
 
 // Get source rock types associated with given layer ID
 std::vector<std::string> StratigraphyManagerImpl::sourceRockTypeName( LayerID lid )
@@ -598,6 +605,82 @@ ErrorHandler::ReturnCode StratigraphyManagerImpl::setSourceRockMixHC( LayerID li
    return setSourceRockMixHI( lid, srmHC );
 }
 
+// Search in PressureFaultcutIoTbl table for the given combination of map name/fault name
+StratigraphyManager::PrFaultCutID StratigraphyManagerImpl::findFaultCut( const std::string & mapName, const std::string & fltName )
+{
+   if ( errorCode() != NoError ) resetError();
+   try
+   {
+      // get pointer to the table
+      database::Table * table = m_db->getTable( s_pressureFaultCutTableName );
 
+      // if table does not exist - report error
+      if ( !table ) { throw Exception( NonexistingID ) << s_pressureFaultCutTableName << " table could not be found in project"; }
+
+      size_t tblSize = table->size();
+      for ( size_t i = 0; i < tblSize; ++i )
+      {
+         database::Record * rec = table->getRecord( static_cast<unsigned int>( i ) );
+         if ( !rec ) { throw Exception( NonexistingID ) << "No fault cat type with such ID: " << i; }
+
+         if ( mapName == rec->getValue<std::string>( s_FaultcutsMapFieldName ) &&
+              fltName == rec->getValue<std::string>( s_FaultNameFieldName )
+            )
+         {
+            return static_cast<PrFaultCutID>( i );
+         }
+      }
+   }
+   catch ( const Exception & e ) { reportError( e.errorCode(), e.what() ); }
+
+   return UndefinedIDValue;
+}
+
+// Get lithlogy name for the given fault cut ID
+std::string StratigraphyManagerImpl::faultCutLithology( PrFaultCutID flID )
+{
+   if ( errorCode() != NoError ) resetError();
+
+   try
+   {
+      // get pointer to the table
+      database::Table * table = m_db->getTable( s_pressureFaultCutTableName );
+
+      // if table does not exist - report error
+      if ( !table ) { throw Exception( NonexistingID ) << s_pressureFaultCutTableName << " table could not be found in project"; }
+
+      database::Record * rec = table->getRecord( static_cast<int>( flID ) );
+      if ( !rec ) { throw Exception( NonexistingID ) << "No fault cut lithology type with such ID: " << flID; }
+
+      return rec->getValue<std::string>( s_FaultLithologyFieldName );
+   }
+   catch ( const Exception & e ) { reportError( e.errorCode(), e.what() ); }
+
+   return "";
+}
+
+// Set new lithology for the fault cut
+ErrorHandler::ReturnCode StratigraphyManagerImpl::setFaultCutLithology( PrFaultCutID flID, const std::string & newLithoName )
+{
+   if ( errorCode() != NoError ) resetError();
+
+   try
+   {
+      // get pointer to the table
+      database::Table * table = m_db->getTable( s_pressureFaultCutTableName );
+
+      // if table does not exist - report error
+      if ( !table ) { throw Exception( NonexistingID ) << s_pressureFaultCutTableName << " table could not be found in project"; }
+
+      database::Record * rec = table->getRecord( static_cast<int>( flID ) );
+      if ( !rec ) { throw Exception( NonexistingID ) << "No fault cut lithology type with such ID: " << flID; }
+
+      rec->setValue( s_FaultLithologyFieldName, newLithoName );
+   }
+   catch ( const Exception & e ) { reportError( e.errorCode(), e.what() ); }
+
+   return NoError;
+}
+    
 }
 

@@ -20,6 +20,7 @@
 %shared_ptr(casa::PrmCrustThinning)
 %shared_ptr(casa::PrmTopCrustHeatProduction)
 %shared_ptr(casa::PrmPorosityModel)
+%shared_ptr(casa::PrmSurfacePorosity)
 %shared_ptr(casa::PrmPermeabilityModel)
 %shared_ptr(casa::PrmLithoSTPThermalCond)
 %shared_ptr(casa::PrmSourceRockProp)
@@ -192,6 +193,7 @@
 #include "../../../casaAPI/src/PrmSourceRockType.h"
 #include "../../../casaAPI/src/PrmSourceRockPreAsphaltStartAct.h"
 #include "../../../casaAPI/src/PrmPorosityModel.h"
+#include "../../../casaAPI/src/PrmSurfacePorosity.h"
 #include "../../../casaAPI/src/PrmPermeabilityModel.h"
 #include "../../../casaAPI/src/PrmLithoSTPThermalCond.h"
 #include "../../../casaAPI/src/RSProxy.h"
@@ -220,6 +222,7 @@
 #include "../../../casaAPI/src/VarPrmSourceRockType.h"
 #include "../../../casaAPI/src/VarPrmSourceRockPreAsphaltStartAct.h"
 #include "../../../casaAPI/src/VarPrmPorosityModel.h"
+#include "../../../casaAPI/src/VarPrmSurfacePorosity.h"
 #include "../../../casaAPI/src/VarPrmPermeabilityModel.h"
 #include "../../../casaAPI/src/VarPrmLithoSTPThermalCond.h"
 
@@ -406,6 +409,7 @@ CSHARP_ARRAYS(char, byte)
 %include "../../../casaAPI/src/PrmSourceRockType.h"
 %include "../../../casaAPI/src/PrmSourceRockPreAsphaltStartAct.h"
 %include "../../../casaAPI/src/PrmPorosityModel.h"
+%include "../../../casaAPI/src/PrmSurfacePorosity.h"
 %include "../../../casaAPI/src/PrmPermeabilityModel.h"
 %include "../../../casaAPI/src/PrmLithoSTPThermalCond.h"
 %include "../../../casaAPI/src/RSProxy.h"
@@ -434,6 +438,7 @@ CSHARP_ARRAYS(char, byte)
 %include "../../../casaAPI/src/VarPrmSourceRockType.h"
 %include "../../../casaAPI/src/VarPrmSourceRockPreAsphaltStartAct.h"
 %include "../../../casaAPI/src/VarPrmPorosityModel.h"
+%include "../../../casaAPI/src/VarPrmSurfacePorosity.h"
 %include "../../../casaAPI/src/VarPrmPermeabilityModel.h"
 %include "../../../casaAPI/src/VarPrmLithoSTPThermalCond.h"
 

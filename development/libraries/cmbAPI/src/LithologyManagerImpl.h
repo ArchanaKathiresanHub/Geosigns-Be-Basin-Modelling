@@ -61,6 +61,19 @@ namespace mbapi {
       // return new lithology ID on success or UndefinedIDValue on error
       virtual LithologyID copyLithology( LithologyID id, const std::string & newLithoName );
 
+      // Allochton lithology methods
+      // Search in AllochthonLithoIoTbl table for the given layer name
+      // AllochthonLithologyID for the found lithology on success, UndefinedIDValue otherwise
+      virtual AllochtLithologyID findAllochtID( const std::string & layerName );
+
+      // Get lithlogy name for the allochton lithology
+      // return Name of the allochton lithology
+      virtual std::string allochtonLithology( AllochtLithologyID alID );
+
+      // Set new allochton lithology for the layer
+      // return ErrorHandler::NoError on success, error code otherwise
+      virtual ReturnCode setAllochtonLithology( AllochtLithologyID alID, const std::string & newLithoName );
+ 
     
       /////////////////////////////////////////////////////////////////////////
       // Porosity models
@@ -164,9 +177,11 @@ namespace mbapi {
       static const char * s_ThCondFieldName;            // column name for thermal conductivity value
       static const char * s_HeatCapacityFieldName;      // column name for heat capacity value
 
+      static const char * s_allochtLithTableName;       // table name for the list of allochtonous lithologies
+      static const char * s_allochtLayerNameFieldName;  // column name for layer name 
+      static const char * s_allochtLithotypeFieldName;  // column name for lithology name
 
       database::Database * m_db; // cauldron project database
-   };
-}
+   };                                                        }
 
 #endif // CMB_LITHOLOGY_MANAGER_IMPL_API

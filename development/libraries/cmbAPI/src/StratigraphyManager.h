@@ -31,8 +31,9 @@ namespace mbapi {
    public:
       ///@{
       /// Types definition
-      typedef size_t LayerID;    //< unique ID for layer
-      typedef size_t SurfaceID;  //< unique ID for surface
+      typedef size_t LayerID;      //< unique ID for layer
+      typedef size_t SurfaceID;    //< unique ID for surface
+      typedef size_t PrFaultCutID; //< uinque ID for fault cut for P/T solver
       ///@}
 
       /// @{
@@ -115,6 +116,11 @@ namespace mbapi {
       /// @return true if source rock mixing is enabled, false otherwise
       virtual bool isSourceRockMixingEnabled( LayerID id ) = 0;
 
+      /// @brief Check if layer has active allochton lithology
+      /// @param id layer ID
+      /// @return true if yes, false otherwise
+      virtual bool isAllochtonLithology( LayerID id ) = 0;
+
       /// @brief Get source rock types associated with given layer ID
       /// @param lid layer ID
       /// @return if layer is not a source rock layer function returns an empty array,
@@ -154,6 +160,25 @@ namespace mbapi {
 
       /// @}
 
+      /// @{ Fault cuts methods
+
+      /// @brief Search in PressureFaultcutIoTbl table for the given combination of map name/fault name
+      /// @param mapName map name
+      /// @param fltName fault cut name 
+      /// @return PrFaultCutID for the found fault / map combination on success, UndefinedIDValue otherwise
+      virtual PrFaultCutID findFaultCut( const std::string & mapName, const std::string & fltName ) = 0;
+
+      /// @brief Get lithlogy name for the given fault cut ID
+      /// @return Name of the fault cut lithology
+      virtual std::string faultCutLithology( PrFaultCutID flID ) = 0;
+
+      /// @brief Set new lithology for the fault cut
+      /// @param flID fault cut id in PressureFaultcutIoTbl
+      /// @param newLithoName new lithology name
+      /// @return ErrorHandler::NoError on success, error code otherwise
+      virtual ReturnCode setFaultCutLithology( PrFaultCutID flID, const std::string & newLithoName ) = 0;
+      /// @}
+ 
    protected:
       /// @{
       /// Constructors/destructor

@@ -1,4 +1,4 @@
-///                                                                      
+//                                                                      
 // Copyright (C) 2012-2015 Shell International Exploration & Production.
 // All rights reserved.
 // 
@@ -755,6 +755,123 @@ public:
 };
 
 ////////////////////////////////////////////////////////////////
+// Surface Porosity parameter
+////////////////////////////////////////////////////////////////
+//
+class SurfacePorosity : public PrmType
+{
+public:
+   SurfacePorosity( const std::string & prmTypeName = "" ) : PrmType( prmTypeName ) {;}
+   virtual ~SurfacePorosity() {;}
+
+   virtual void addParameterObject( std::auto_ptr<casa::ScenarioAnalysis> & sa
+                                  , const std::string                     & name
+                                  , const std::vector<std::string>        & prms
+                                  ) const
+   {
+      size_t pos = 1;
+ 
+      const std::vector<std::string>            & layersName  = CfgFileParser::list2array( prms[pos++], ',' );
+      std::vector<std::pair<std::string,size_t> > layersList;
+      if ( !layersName.empty() )
+      {
+         for ( size_t i = 0; i < layersName.size(); ++i )
+         {
+            const std::vector<std::string> & curLay = CfgFileParser::list2array( layersName[i], ':' );
+            if ( curLay.size() != 2 )
+            {
+               throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Layer name must be defined as \"LayerName\":\"Lithotype1\"" <<
+                  ", but it is defined as: " << layersName[i];
+            }
+
+            size_t mixID = atoi( curLay[1].substr( curLay[1].size() - 1 ).c_str() );
+            if ( mixID > 3 )
+            {
+               throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Lithotype could be only 1,2 or 3, but given:" << curLay[1];
+            }
+            layersList.push_back( std::pair<std::string, size_t>( curLay[0], mixID-1 ) );
+         }
+      }
+
+      const std::vector<std::string> & allochtonLithologiesName = CfgFileParser::list2array( prms[pos++], ',' );
+      const std::vector<std::string> & faultsMapList            = CfgFileParser::list2array( prms[pos++], ',' );
+      std::vector<std::pair< std::string,std::string> >           faultsName;
+
+      if( !faultsMapList.empty() )
+      {
+         for ( size_t i = 0; i < faultsMapList.size(); ++i )
+         {
+            const std::vector<std::string> & vec = CfgFileParser::list2array( faultsMapList[i], ':' );
+            if ( vec.size() != 2 )
+            {
+               throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Fault name must be defined as \"MapName\":\"FaultCutName\"" <<
+                  ", but it is defined as: " << faultsMapList[i];
+            }
+            faultsName.push_back( std::pair<std::string,std::string>( vec[0], vec[1] ) );
+         }
+      }
+
+      const std::string & lithoName  = prms[pos++];
+
+      double       minSurfPor  = atof( prms[pos++].c_str() );
+      double       maxSurfPor  = atof( prms[pos++].c_str() );
+
+      casa::VarPrmContinuous::PDF pdfType = Str2pdf( prms.back() );
+
+      if ( ErrorHandler::NoError != casa::BusinessLogicRulesSet::VarySurfacePorosity( *sa.get()
+                                                                                    , name
+                                                                                    , layersList
+                                                                                    , allochtonLithologiesName
+                                                                                    , faultsName
+                                                                                    , lithoName
+                                                                                    , minSurfPor
+                                                                                    , maxSurfPor
+                                                                                    , pdfType
+                                                                                    )
+         ) { throw ErrorHandler::Exception( sa->errorCode() ) << sa->errorMessage(); }
+   }
+      
+   size_t expectedParametersNumber() const { return 7; } // lay_names, aloch_names, fault_names, lit_name, surf_por mn/mx, pdf
+   size_t optionalParametersNumber() const { return 0; } 
+
+   virtual std::string name() const { return "LithotypeIoTbl:SurfacePorosity"; }
+
+   virtual std::string description() const
+   {
+      return "a variation of surface porosity parameter for the given formation, alochton litholog or fault lithologies";
+   }
+
+   virtual std::string fullDescription() const
+   {
+      std::ostringstream oss;
+      oss << "    [varPrmName] \"" << name() << "\" <layName> <alochtLithName> <faultName>  <minSurfPor> <maxSurfPor> <prmPDF>\n";
+      oss << "    Where:\n";
+      oss << "       varPrmName     - user specified variable parameter name (Optional)\n";
+      oss << "       layName        - array of layers name\n";
+      oss << "       alochtLithName - array of alochton lithologies name\n"; 
+      oss << "       faultName      - array of faults name\n";
+      oss << "       litName        - lithology name\n";
+      oss << "       minSurfPor     - surface porosity - minimal range value\n";
+      oss << "       maxSurfPor     - surface porosity - maximal range value\n";
+      oss << "       prmPDF         - the parameter probability density function type\n";
+      oss << "\n";
+      return oss.str();
+   }
+
+   virtual std::string usingExample( const char * cmdName ) const
+   {
+      std::ostringstream oss;
+      oss << "    #       VarPrmName      LayLst      AlochtLithLst          FaultsLst      LithName       SurfPor [%]   Parameter PDF\n";
+      oss << "    " << cmdName << "  \"" << name() << "\"   [\"Permian\",\"Tertiary\"] [\"Permian\"]   [\"MAP-1234\":\"Faultcut1\",\"MAP-234\":\"Faultcut1\"] \"Std. Sandstone\"  \"Soil_Mechanics\"   38     58   \"Normal\"\n";
+      oss << "    Example 2:\n";
+      oss << "    #       VarPrmName                LayLst  AlochtLithLst  FaultsLst  LithName SurfPor [%]   Parameter PDF\n";
+      oss << "    " << cmdName << " \"" << name() << "\" []     []      []  \"SM.Mudstone40%Clay\"  15 85  \"Block\"\n";
+      return oss.str();
+   }
+};
+
+
+////////////////////////////////////////////////////////////////
 // PorosityModel parameter
 ////////////////////////////////////////////////////////////////
 //
@@ -1134,10 +1251,12 @@ public:
       m_prmType["PermeabilityModel"         ] = new PermeabilityModel();
       m_prmType["STPThermalCondCoeff"       ] = new STPThermalCondCoeff();
       
-      m_prmType["LithotypeIoTbl:PermMixModel"   ] = new PermeabilityModel(      "LithotypeIoTbl:PermMixModel"    );
-      m_prmType["LithotypeIoTbl:Porosity_Model" ] = new PorosityModel(          "LithotypeIoTbl:Porosity_Model"  );
-      m_prmType["BasementIoTbl:TopCrustHeatProd"] = new TopCrustHeatProduction( "BasementIoTbl:TopCrustHeatProd" );
-      m_prmType["LithotypeIoTbl:StpThCond"      ] = new STPThermalCondCoeff(    "LithotypeIoTbl:StpThCond"       );
+      m_prmType["LithotypeIoTbl:PermMixModel"   ] = new PermeabilityModel(      "LithotypeIoTbl:PermMixModel"     );
+      m_prmType["LithotypeIoTbl:Porosity_Model" ] = new PorosityModel(          "LithotypeIoTbl:Porosity_Model"   );
+      m_prmType["LithotypeIoTbl:SurfacePorosity"] = new SurfacePorosity(        "LithotypeIoTbl::SurfacePorosity" );
+
+      m_prmType["BasementIoTbl:TopCrustHeatProd"] = new TopCrustHeatProduction( "BasementIoTbl:TopCrustHeatProd"  );
+      m_prmType["LithotypeIoTbl:StpThCond"      ] = new STPThermalCondCoeff(    "LithotypeIoTbl:StpThCond"        );
 
       m_prmType["StratIoTbl:SourceRockType"     ] = new SourceRockType( "StratIoTbl:SourceRockType" );
       m_prmType["StratIoTbl:SourceRockType1"    ] = new SourceRockType( "StratIoTbl:SourceRockType1" );

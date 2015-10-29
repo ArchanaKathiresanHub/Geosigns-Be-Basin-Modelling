@@ -23,6 +23,7 @@
 #include "../src/VarPrmCrustThinning.h"
 #include "../src/VarPrmOneCrustThinningEvent.h"
 #include "../src/VarPrmPorosityModel.h"
+#include "../src/VarPrmSurfacePorosity.h"
 #include "../src/VarPrmPermeabilityModel.h"
 #include "../src/VarPrmLithoSTPThermalCond.h"
 
@@ -667,6 +668,112 @@ TEST_F( BLRSTest, VaryOneCrustThinningEvent )
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
+// Surface porosity for all porosity models tests
+TEST_F( BLRSTest, VarySurfacePorosity )
+{
+   ScenarioAnalysis sc;
+   ASSERT_EQ( ErrorHandler::NoError, sc.defineBaseCase( m_testProject ) );
+
+   size_t numLithologies = sc.baseCase().lithologyManager().lithologiesIDs().size();
+
+   std::vector<std::pair<std::string, size_t> >  layLst;
+
+   layLst.push_back( std::pair<std::string, size_t>( "Triassic", 1 ) );
+   layLst.push_back( std::pair<std::string, size_t>( "Permian",  0 ) );
+   layLst.push_back( std::pair<std::string, size_t>( "Upper Carboniferous", 1 ) );
+
+   // the first one - try to give range where base value is outside
+   ASSERT_EQ( ErrorHandler::OutOfRangeValue, casa::BusinessLogicRulesSet::VarySurfacePorosity( sc, "SufrPorTest", layLst 
+                                                                                    , std::vector<std::string>()
+                                                                                    , std::vector<std::pair<std::string,std::string> >()
+                                                                                    , "Std. Sandstone"
+                                                                                    , 50.0, 70.0
+                                                                                    , VarPrmContinuous::Block ) );
+   layLst[0].first = "Triassics"; //define wrong name for the layer
+   // and expect another error
+   ASSERT_EQ( ErrorHandler::NonexistingID, casa::BusinessLogicRulesSet::VarySurfacePorosity( sc, "SufrPorTest", layLst 
+                                                                                 , std::vector<std::string>()
+                                                                                 , std::vector<std::pair<std::string,std::string> >()
+                                                                                 , "Std. Sandstone"
+                                                                                 , 40.0, 60.0
+                                                                                 , VarPrmContinuous::Block ) );
+   // define wrong mixing id
+   layLst[0].first = "Triassic";
+   layLst[0].second = 0;
+   // and expect another error
+   ASSERT_EQ( ErrorHandler::NonexistingID, casa::BusinessLogicRulesSet::VarySurfacePorosity( sc, "SufrPorTest", layLst 
+                                                                                 , std::vector<std::string>()
+                                                                                 , std::vector<std::pair<std::string,std::string> >()
+                                                                                 , "Std. Sandstone"
+                                                                                 , 40.0, 60.0
+                                                                                 , VarPrmContinuous::Block ) );
+
+   layLst[0].second = 1;
+   ASSERT_EQ( ErrorHandler::NoError, casa::BusinessLogicRulesSet::VarySurfacePorosity( sc, "SufrPorTest", layLst 
+                                                                                     , std::vector<std::string>()
+                                                                                     , std::vector<std::pair<std::string,std::string> >()
+                                                                                     , "Std. Sandstone"
+                                                                                     , 40.0, 60.0
+                                                                                     , VarPrmContinuous::Block ) );
+
+   ASSERT_EQ( sc.baseCase().lithologyManager().lithologiesIDs().size() - numLithologies, 3 ); //one new lithology 
+ 
+   // get varspace 
+   casa::VarSpaceImpl & varPrms = dynamic_cast<casa::VarSpaceImpl&>( sc.varSpace( ) );
+
+   // check how the parameter was set
+   ASSERT_EQ( varPrms.size(), 1 );
+
+   const VarPrmSurfacePorosity * p1c = dynamic_cast<const VarPrmSurfacePorosity*>( varPrms.continuousParameter( 0 ) );
+   ASSERT_TRUE( p1c != NULL ); // do we have required the parameter in the list?
+  
+   const std::vector<double> & minV  = p1c->minValue()->asDoubleArray();
+   const std::vector<double> & maxV  = p1c->maxValue()->asDoubleArray();
+   const std::vector<double> & baseV = p1c->baseValue()->asDoubleArray();
+
+   ASSERT_EQ( minV.size(),  1 );
+   ASSERT_EQ( maxV.size(),  1 );
+   ASSERT_EQ( baseV.size(), 1 );
+
+   // does it range have given min value
+   ASSERT_NEAR( minV[0], 40.0, eps );
+
+   // does it range have given max value
+   ASSERT_NEAR( maxV[0], 60.0, eps );
+
+   // does it have base values from project?
+   ASSERT_NEAR( baseV[0], 48.0, eps );  
+
+   // do we have copy of lithology for the given layers?
+   mbapi::Model & mdl = sc.baseCase();
+   mbapi::StratigraphyManager & strMgr = mdl.stratigraphyManager();
+
+   std::vector<std::string> newLitList;
+
+   for ( size_t i = 0; i < layLst.size(); ++i )
+   {
+      mbapi::StratigraphyManager::LayerID lid = strMgr.layerID( layLst[i].first );
+      ASSERT_NE( UndefinedIDValue, lid );
+
+      std::vector<std::string> lithoList;
+      std::vector<double>      lithoPercent;
+
+      ASSERT_EQ( ErrorHandler::NoError, strMgr.layerLithologiesList( lid, lithoList, lithoPercent ) );
+      newLitList.push_back( lithoList[layLst[i].second] );
+   }            
+
+   // check that all lithology names are unique
+   for ( size_t i = 0; i < newLitList.size(); ++i )
+   {
+      for ( size_t j = i+1; j < newLitList.size(); ++j )
+      {
+         ASSERT_NE( newLitList[i], newLitList[j] );
+      }
+   }
+}
+
+
+/////////////////////////////////////////////////////////////////////////////////////////
 // Test how ones can add variate one crust thinning event parameters
 TEST_F( BLRSTest, VaryCrustThinningNoMaps )
 {
@@ -736,10 +843,11 @@ TEST_F( BLRSTest, VaryCrustThinningNoMaps )
 TEST_F( BLRSTest, VaryPorosityExponentialModelParameters )
 {
    ScenarioAnalysis sc;
+   const char * sandLithology = "Std. Sandstone";
    ASSERT_EQ( ErrorHandler::NoError, sc.defineBaseCase( m_testProject ) );
 
    // the first one - try to give wrong porosity model name
-   ASSERT_EQ( ErrorHandler::OutOfRangeValue, casa::BusinessLogicRulesSet::VaryPorosityModelParameters( sc, 0, "Permian", "Std. Sandstone"
+   ASSERT_EQ( ErrorHandler::OutOfRangeValue, casa::BusinessLogicRulesSet::VaryPorosityModelParameters( sc, 0, "Permian", sandLithology 
                , "Eponential"
                , 30.0, 60.0, 2.0, 4.0, UndefinedDoubleValue, UndefinedDoubleValue, UndefinedDoubleValue, UndefinedDoubleValue, VarPrmContinuous::Block 
                ) );
@@ -749,7 +857,7 @@ TEST_F( BLRSTest, VaryPorosityExponentialModelParameters )
               sc
             , 0
             , "Permian"
-            , "Std. Sandstone"
+            , sandLithology
             , "Exponential"
             , 30.0, 60.0
             , 2.0, 4.0
@@ -798,10 +906,12 @@ TEST_F( BLRSTest, VaryPorosityExponentialModelParameters )
    std::vector<double>      lithoPercent;
 
    ASSERT_EQ( ErrorHandler::NoError, strMgr.layerLithologiesList( lid, lithoList, lithoPercent ) );
-   ASSERT_EQ( lithoList[0], std::string( "Std. Sandstone_Permian_PorMdl_CASA_copy" ) );
+   // check that lithology was copied
+   ASSERT_NE( lithoList[0].rfind( "_CASA" ), std::string::npos );
+   ASSERT_EQ( lithoList[0].find( sandLithology ), 0 );
 
    mbapi::LithologyManager & lthMgr = mdl.lithologyManager();
-   ASSERT_NE( UndefinedIDValue, lthMgr.findID( "Std. Sandstone_Permian_PorMdl_CASA_copy" ) );
+   ASSERT_NE( UndefinedIDValue, lthMgr.findID( lithoList[0] ) );
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -1228,13 +1338,13 @@ TEST_F( BLRSTest, VaryPermeabilityMultipointModelParameters )
                                                                                                  , VarPrmContinuous::Block ) );
    // no it should be smooth
    ASSERT_EQ( ErrorHandler::NoError, casa::BusinessLogicRulesSet::VaryPermeabilityModelParameters( sc
-                                                                                                       , 0
-                                                                                                       , "Permian"
-                                                                                                       , "Std. Sandstone"
-                                                                                                       , "Multipoint"
-                                                                                                       , minMdlPrms
-                                                                                                       , maxMdlPrms
-                                                                                                       , VarPrmContinuous::Block ) );
+                                                                                                 , 0
+                                                                                                 , "Permian"
+                                                                                                 , "Std. Sandstone"
+                                                                                                 , "Multipoint"
+                                                                                                 , minMdlPrms
+                                                                                                 , maxMdlPrms
+                                                                                                 , VarPrmContinuous::Block ) );
    // get varspace 
    VarSpaceImpl & varPrms = dynamic_cast< VarSpaceImpl & >( sc.varSpace() );
 

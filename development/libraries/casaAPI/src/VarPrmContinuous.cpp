@@ -21,6 +21,7 @@
 #include "VarPrmSourceRockHI.h"
 #include "VarPrmSourceRockPreAsphaltStartAct.h"
 #include "VarPrmPorosityModel.h"
+#include "VarPrmSurfacePorosity.h"
 #include "VarPrmPermeabilityModel.h"
 #include "VarPrmLithoSTPThermalCond.h"
 
@@ -121,6 +122,7 @@ namespace casa
       else if ( ot == "VarPrmSourceRockHI"                 ) { return new VarPrmSourceRockHI(                 dz, vr ); }
       else if ( ot == "VarPrmSourceRockPreAsphaltStartAct" ) { return new VarPrmSourceRockPreAsphaltStartAct( dz, vr ); }
       else if ( ot == "VarPrmPorosityModel"                ) { return new VarPrmPorosityModel(                dz, vr ); }
+      else if ( ot == "VarPrmSurfacePorosity"              ) { return new VarPrmSurfacePorosity(              dz, vr ); }
       else if ( ot == "VarPrmPermeabilityModel"            ) { return new VarPrmPermeabilityModel(            dz, vr ); }
       else if ( ot == "VarPrmLithoSTPThermalCond"          ) { return new VarPrmLithoSTPThermalCond(          dz, vr ); }
       else

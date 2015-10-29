@@ -1,12 +1,12 @@
 ;
-; START - (P3dmod modification) /scratch/nlskon/cld-dev/Trunk/development/libraries/casaAPI/test/LithologyTesting.project3d Fri May  1 11:43:41 2015
+; START - prograde_out_LithologyTesting.project3d Mon Oct 26 14:12:10 2015
 ;
 ;
 ; ProjectIoTbl
 ;
 [ProjectIoTbl]
 ;
-ProjectName ProjectSize Description ProjectTeam ProjectStartDate ProjectEndDate ProgramVersion ModellingMode XCoord YCoord NumberX NumberY DeltaX DeltaY ScaleX ScaleY OffsetX OffsetY WindowXMin WindowXMax WindowYMin WindowYMax WktGeometryOutline
+             ProjectName              ProjectSize              Description              ProjectTeam         ProjectStartDate           ProjectEndDate           ProgramVersion            ModellingMode                   XCoord                   YCoord                  NumberX                  NumberY                   DeltaX                   DeltaY                   ScaleX                   ScaleY                  OffsetX                  OffsetY               WindowXMin               WindowXMax               WindowYMin               WindowYMax       WktGeometryOutline
                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                      (m)                      (m)                       ()                       ()                      (m)                      (m)                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()
             "Ottoland3D"                    "Big"                       ""                       ""                       ""                       ""               "v2012.07"                     "3d"                   460001                  6750001                        2                        2                        2                        2                        1                        1                        0                        0                        0                        1                        0                        1 "<WktGeometryOutline><CoordinateOperationName></CoordinateOperationName><SrsName>urn:ogc:def:crs:EPSG::3395</SrsName><Wkt>POLYGON  (( 459999.96583 6749999.92912, 460003.97333 6749999.92912, 460003.97333 6750004.06875, 459999.96583 6750004.06875, 459999.96583 6749999.92912))</Wkt></WktGeometryOutline>"
 [End]
@@ -16,7 +16,7 @@ ProjectName ProjectSize Description ProjectTeam ProjectStartDate ProjectEndDate 
 ;
 [ProjectNotesIoTbl]
 ;
-ProjectNotes
+            ProjectNotes
                       ()
 [End]
 ;
@@ -25,7 +25,7 @@ ProjectNotes
 ;
 [RelatedProjectsIoTbl]
 ;
-Filename
+                Filename
                       ()
 [End]
 ;
@@ -34,7 +34,7 @@ Filename
 ;
 [BPANameMapping]
 ;
-TblIoMappingEncode BPAColumnName BPAColumnValue
+      TblIoMappingEncode            BPAColumnName           BPAColumnValue
                       ()                       ()                       ()
   "CAULDRON_ALTERNATIVE"                   "NAME"            "Scenario #1"
               "CAULDRON"                   "NAME"             "Ottoland3D"
@@ -59,7 +59,7 @@ TblIoMappingEncode BPAColumnName BPAColumnValue
 ;
 [IoOptionsIoTbl]
 ;
-MapType FileVersioning AutoSaving SaveBeforeEachRun MaxFileWidth ConsoleLevel PopupLevel LogfileLevel
+                 MapType           FileVersioning               AutoSaving        SaveBeforeEachRun             MaxFileWidth             ConsoleLevel               PopupLevel             LogfileLevel
                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()
                   "HDF5"                        3                        0                        0                        0                       -5                       -5                       -5
 [End]
@@ -69,9 +69,9 @@ MapType FileVersioning AutoSaving SaveBeforeEachRun MaxFileWidth ConsoleLevel Po
 ;
 [RunOptionsIoTbl]
 ;
-CompactionAlgorithm VreAlgorithm VelAlgorithm Optimisation_Level Temperature_Gradient Constrain_VES HeatFlowSolution PrefSnapstep StepsPerSegment TempDiffBasedStepping PrefReconstep OptimalTotalPresDiff OptimalTotalTempDiff OptimalSourceRockTempDiff MaxTimeStepIncreaseFactor MinTimeStepDecreaseFactor BricksizeEast BricksizeNorth BrickHeightSediment BrickHeightCrust BrickHeightMantle MaxNumberOfRunOverpressure FracturePressureFunction FractureType FractureModel CalcAllDepthIoProps UncertaintyAnalysis SensitivityAnalysis ResponseSurfaceModeling NrMCLoops NrMCSaveEvery NrSensSaveEvery Optimization OptimTopCrustHeatProd OptimCrustalThickness OptimMantleThickness OptimUnconfThickness FormTempOptimWeight VrmOptimWeight BiomOptimWeight FtOptimWeight SmiOptimWeight OptimTolerance Hims Him NumEstimates WorkflowType PTCouplingMode CoupledMode ChemicalCompaction ChemicalCompactionAlgorithm ConvectiveTerm NonGeometricLoop AllochthonousModelling McHistOutput RSMxmlOutput ApplyOtgcToDarcy DarcyMaxTimeStep
-                      ()                       ()                       ()                       ()                       ()                       ()                       ()                     (Ma)                       ()                       ()                     (Ma)                    (MPa)         (DegreesCelcius)         (DegreesCelcius)                       ()                     (Ma)                      (m)                      (m)                      (m)                      (m)                      (m)                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                     (Ma)
-      "Effective Stress"      "Burnham & Sweeney" "Gardner's Velocity-Density"  "Level 4 (default)"                       30                        0              "Transient"                       10                        1                        0                      0.1                      0.1                        4                        2                      1.5                      0.5                      100                      100                      400                     4000                    20000                       10                   "None"                   "None"                        1                        0                        0                        0                        0                        1                      100                      100                        0                        0                        0                        0                        0                       10                       10                       10                       10                       10                    0.001       "Single Variables"    "1st and Total Order"    "2 SClosed, 2 STotal"       "StandardCauldron"              "ItCoupled"                        1                        0              "Schneider"                        0                        1                        0                        0                        0                        0                     0.01
+     CompactionAlgorithm             VreAlgorithm             VelAlgorithm       Optimisation_Level     Temperature_Gradient            Constrain_VES VerticalSecondaryMigration HydrodynamicCapillaryPressure ReservoirDetection        HeatFlowSolution             PrefSnapstep          StepsPerSegment    TempDiffBasedStepping            PrefReconstep     OptimalTotalPresDiff     OptimalTotalTempDiff OptimalSourceRockTempDiff MaxTimeStepIncreaseFactor MinTimeStepDecreaseFactor         BricksizeEast           BricksizeNorth      BrickHeightSediment         BrickHeightCrust        BrickHeightMantle MaxNumberOfRunOverpressure FracturePressureFunction           FractureType            FractureModel      CalcAllDepthIoProps      UncertaintyAnalysis      SensitivityAnalysis  ResponseSurfaceModeling                NrMCLoops            NrMCSaveEvery          NrSensSaveEvery             Optimization    OptimTopCrustHeatProd    OptimCrustalThickness     OptimMantleThickness     OptimUnconfThickness      FormTempOptimWeight           VrmOptimWeight          BiomOptimWeight            FtOptimWeight           SmiOptimWeight           OptimTolerance                     Hims                      Him             NumEstimates             WorkflowType           PTCouplingMode              CoupledMode       ChemicalCompaction ChemicalCompactionAlgorithm        ConvectiveTerm         NonGeometricLoop   AllochthonousModelling             McHistOutput             RSMxmlOutput         ApplyOtgcToDarcy         DarcyMaxTimeStep
+                      ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                     (Ma)                       ()                       ()                     (Ma)                    (MPa)         (DegreesCelcius)         (DegreesCelcius)                       ()                     (Ma)                      (m)                      (m)                      (m)                      (m)                      (m)                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                     (Ma)
+      "Effective Stress"      "Burnham & Sweeney" "Gardner's Velocity-Density"  "Level 4 (default)"                       30                        0                        1                        0                        0              "Transient"                       10                        1                        0                      0.1                      0.1                        4                        2                      1.5                      0.5                      100                      100                      400                     4000                    20000                       10                   "None"                   "None"                        1                        0                        0                        0                        0                        1                      100                      100                        0                        0                        0                        0                        0                       10                       10                       10                       10                       10                    0.001       "Single Variables"    "1st and Total Order"    "2 SClosed, 2 STotal"       "StandardCauldron"              "ItCoupled"                        1                        0              "Schneider"                        0                        1                        0                        0                        0                        0                     0.01
 [End]
 ;
 ;
@@ -79,8 +79,23 @@ CompactionAlgorithm VreAlgorithm VelAlgorithm Optimisation_Level Temperature_Gra
 ;
 [SnapshotIoTbl]
 ;
-Time IsMinorSnapshot UseInResQ TypeOfSnapshot SnapshotFileName
+                    Time          IsMinorSnapshot                UseInResQ           TypeOfSnapshot         SnapshotFileName
                     (Ma)                       ()                       ()                       ()                       ()
+                       0                        0                        0       "System Generated"                       ""
+                      55                        0                        0       "System Generated"                       ""
+                      65                        0                        0       "System Generated"                       ""
+                      97                        0                        0       "System Generated"                       ""
+                     100                        0                        0       "System Generated"                       ""
+                     144                        0                        0       "System Generated"                       ""
+                     185                        0                        0       "System Generated"                       ""
+                     187                        0                        0       "System Generated"                       ""
+                     220                        0                        0       "System Generated"                       ""
+                     270                        0                        0       "System Generated"                       ""
+                     290                        0                        0       "System Generated"                       ""
+                     300                        0                        0       "System Generated"                       ""
+                     310                        0                        0       "System Generated"                       ""
+                     311                        0                        0       "System Generated"                       ""
+                     315                        0                        0       "System Generated"                       ""
 [End]
 ;
 ;
@@ -88,7 +103,7 @@ Time IsMinorSnapshot UseInResQ TypeOfSnapshot SnapshotFileName
 ;
 [SensAnalysisIoTbl]
 ;
-AnalysisIdentification AnalysisIndicator PropertyDescription TypeOfDistribution ModellingMode
+  AnalysisIdentification        AnalysisIndicator      PropertyDescription       TypeOfDistribution            ModellingMode
                       ()                       ()                       ()                       ()                       ()
                        0                        0 "Age in stratigraphic data"          "Normal_3SD"                     "1d"
                        1                        0 "Depth in stratigraphic data"        "Normal_3SD"                     "1d"
@@ -113,7 +128,7 @@ AnalysisIdentification AnalysisIndicator PropertyDescription TypeOfDistribution 
 ;
 [FilterDepthIoTbl]
 ;
-PropertyName ModellingMode OutputOption ResultOption
+            PropertyName            ModellingMode             OutputOption             ResultOption
                       ()                       ()                       ()                       ()
               "Massflux"                     "1d"  "SedimentsPlusBasement"                 "Simple"
              "Massflux_"                     "1d"                   "None"                 "Simple"
@@ -146,7 +161,7 @@ PropertyName ModellingMode OutputOption ResultOption
 ;
 [FilterTimeIoTbl]
 ;
-PropertyName ModellingMode OutputOption ResultOption
+            PropertyName            ModellingMode             OutputOption             ResultOption
                       ()                       ()                       ()                       ()
 "HcLiquidRelativePermeability "              "3d"          "SedimentsOnly"                 "Simple"
 "HcLiquidRelativePermeability "              "1d"          "SedimentsOnly"                 "Simple"
@@ -350,7 +365,7 @@ PropertyName ModellingMode OutputOption ResultOption
 ;
 [FilterTimeDepthIoTbl]
 ;
-PropertyName PropertyClass SurfaceName FormationName Time ResultOption NumberOfBins
+            PropertyName            PropertyClass              SurfaceName            FormationName                     Time             ResultOption             NumberOfBins
                       ()                       ()                       ()                       ()                     (Ma)                       ()                       ()
               "Massflux"               "Physical"                       ""                       ""                    -9999                   "None"                    -9999
              "Massflux_"               "Physical"                       ""                       ""                    -9999                   "None"                    -9999
@@ -418,7 +433,7 @@ PropertyName PropertyClass SurfaceName FormationName Time ResultOption NumberOfB
 ;
 [WellLocIoTbl]
 ;
-WellName XCoord YCoord Longitude Latitude Datum WellElevation DerFloorElev Waterdepth
+                WellName                   XCoord                   YCoord                Longitude                 Latitude                    Datum            WellElevation             DerFloorElev               Waterdepth
                       ()                      (m)                      (m)           (degs,minutes)           (degs,minutes)                       ()                      (m)                      (m)                      (m)
                 "MyWell"                        0                        0                        0                        0 "Sea Bottom (OFF shore)"                        0                        0                        0
 [End]
@@ -428,7 +443,7 @@ WellName XCoord YCoord Longitude Latitude Datum WellElevation DerFloorElev Water
 ;
 [TouchstoneWellIoTbl]
 ;
-WellName XCoord YCoord BHFName
+                WellName                   XCoord                   YCoord                  BHFName
                       ()                      (m)                      (m)                       ()
 [End]
 ;
@@ -437,7 +452,7 @@ WellName XCoord YCoord BHFName
 ;
 [GridMapIoTbl]
 ;
-ReferredBy MapName MapType MapFileName FileId MD5Checksum MapSeqNbr HDF5FileName
+              ReferredBy                  MapName                  MapType              MapFileName                   FileId              MD5Checksum                MapSeqNbr             HDF5FileName
                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()
 [End]
 ;
@@ -446,20 +461,20 @@ ReferredBy MapName MapType MapFileName FileId MD5Checksum MapSeqNbr HDF5FileName
 ;
 [StratIoTbl]
 ;
-SurfaceName DepoAge Depth ErrDepth DepthGrid TwoWayTtime LayerName DepoSequence Thickness CalibThickness OptimThickness ThicknessGrid Lithotype1 Percent1 Percent1Grid Lithotype2 Percent2 Percent2Grid Lithotype3 Percent3 MixModel SeisVelocity Fluidtype TempGradient SourceRock MobileLayer HasAllochthonLitho HydroSand ChemicalCompaction EnableSourceRockMixing SourceRockType1 SourceRockType2 SourceRockMixingHI SourceRockMixingHIGrid ElementRefinementZ IncludeInDarcy IsIgneousIntrusion IgneousIntrusionAge IgneousIntrusionTemperature ErrDepoAge ErrTwoWayTtime ErrThickness ErrSeisVelocity
-                      ()                     (Ma)                      (m)                      (m)                      (m)                      (s)                       ()                       ()                      (m)                      (m)                       ()                      (m)                       ()                (volume%)                (volume%)                       ()                (volume%)                (volume%)                       ()                (volume%)                       ()                    (m/s)                       ()                    (C/m)                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()               (kg/tonne)                       ()                       ()                       ()                       ()                       ()                       ()                     (Ma)                      (s)                      (m)                    (m/s)
-          "Water bottom"                        0                        0                        0                       ""                        0             "Quaternary"                       11                    -9999                    -9999                        0                       ""             "Std. Shale"                       50                       ""         "Std. Sandstone"                       50                       ""                       ""                        0                "Layered"                    -9999      "Std. Marine Water"                    -9999                        0                        0                        0                        0                        0                        0                       ""                       ""                        0                       ""                        1                        0                        0                    -9999                    -9999                        0                        0                        0                        0
-      "Tertiary erosion"                       55                      628                        0                       ""                        0               "Tertiary"                       10                    -9999                    -9999                        0                       ""             "Std. Shale"                       50                       ""         "Std. Sandstone"                       50                       ""                       ""                        0                "Layered"                    -9999      "Std. Marine Water"                    -9999                        0                        0                        0                        0                        0                        0                       ""                       ""                        0                       ""                        1                        0                        0                    -9999                    -9999                        0                        0                        0                        0
-"Upper Cretaceous missing"                     65                    -9999                        0                       ""                        0       "Upper Cretaceous"                        9                      300                    -9999                        0                       ""             "Std. Chalk"                      100                       ""                       ""                        0                       ""                       ""                        0                "Layered"                    -9999      "Std. Marine Water"                    -9999                        0                        0                        0                        0                        0                        0                       ""                       ""                        0                       ""                        1                        0                        0                    -9999                    -9999                        0                        0                        0                        0
-    "Mid Cretaceous top"                      100                      628                        0                       ""                        0         "Mid Cretaceous"                        8                    -9999                    -9999                        0                       ""             "Std. Chalk"                      100                       ""                       ""                        0                       ""                       ""                        0            "Homogeneous"                    -9999      "Std. Marine Water"                    -9999                        0                        0                        0                        0                        0                        0                       ""                       ""                        0                       ""                        1                        0                        0                    -9999                    -9999                        0                        0                        0                        0
-    "Upper Jurassic top"                      144                      792                        0                       ""                        0         "Upper Jurassic"                        7                    -9999                    -9999                        0                       ""         "Std. Sandstone"                       80                       ""             "Std. Shale"                       20                       ""                       ""                        0            "Homogeneous"                    -9999      "Std. Marine Water"                    -9999                        0                        0                        0                        0                        0                        0                       ""                       ""                        0                       ""                        1                        0                        0                    -9999                    -9999                        0                        0                        0                        0
-    "Lower Jurassic top"                      187                     1560                        0                       ""                        0         "Lower Jurassic"                        6                    -9999                    -9999                        0                       ""             "Std. Shale"                       75                       ""      "Std.Lime Mudstone"                       25                       ""                       ""                        0            "Homogeneous"                    -9999      "Std. Marine Water"                    -9999                        1                        0                        0                        0                        0                        0 "Type II Mesozoic Marine Shale (Kinetics)"     ""                    -9999                       ""                        1                        0                        0                    -9999                    -9999                        0                        0                        0                        0
-          "Triassic top"                      220                     2022                        0                       ""                        0               "Triassic"                        5                    -9999                    -9999                        0                       ""             "Std. Shale"                       80                       ""         "Std. Sandstone"                       20                       ""                       ""                        0            "Homogeneous"                    -9999      "Std. Marine Water"                    -9999                        0                        0                        0                        0                        0                        0                       ""                       ""                        0                       ""                        1                        0                        0                    -9999                    -9999                        0                        0                        0                        0
-       "Permian erosion"                      270                     2579                        0                       ""                        0                "Permian"                        4                    -9999                    -9999                        0                       ""         "Std. Sandstone"                      100                       ""                       ""                        0                       ""                       ""                        0            "Homogeneous"                    -9999      "Std. Marine Water"                    -9999                        0                        0                        0                        0                        0                        0                       ""                       ""                        0                       ""                        1                        0                        0                    -9999                    -9999                        0                        0                        0                        0
-"Upper Carboniferous missing"                 290                    -9999                        0                       ""                        0    "Upper Carboniferous"                        3                      400                    -9999                        0                       ""             "Std. Shale"                       80                       ""         "Std. Sandstone"                       20                       ""                       ""                        0            "Homogeneous"                    -9999      "Std. Marine Water"                    -9999                        0                        0                        0                        0                        0                        0                       ""                       ""                        0                       ""                        1                        0                        0                    -9999                    -9999                        0                        0                        0                        0
- "Mid Carboniferous top"                      300                     2579                        0                       ""                        0     "Mid Carboiniferous"                        2                    -9999                    -9999                        0                       ""             "Std. Shale"                       75                       ""         "Std. Sandstone"                       25                       ""                       ""                        0            "Homogeneous"                    -9999      "Std. Marine Water"                    -9999                        0                        0                        0                        0                        0                        0                       ""                       ""                        0                       ""                        1                        0                        0                    -9999                    -9999                        0                        0                        0                        0
-       "Westphalian top"                      311                     4500                        0                       ""                        0            "Westphalian"                        1                    -9999                    -9999                        0                       ""             "Std. Shale"                       75                       ""         "Std. Sandstone"                       25                       ""                       ""                        0            "Homogeneous"                    -9999      "Std. Marine Water"                    -9999                        1                        0                        0                        0                        0                        1 "Type III MesoPaleozoic Vitrinitic Coals (Kinetics)" "Type II Mesozoic Marine Shale (Kinetics)" 700 ""                     1                        0                        0                    -9999                    -9999                        0                        0                        0                        0
-              "Basement"                      315                     5200                        0                       ""                        0                       ""                    -9999                    -9999                    -9999                        0                       ""                       ""                    -9999                       ""                       ""                    -9999                       ""                       ""                    -9999                       ""                    -9999                       ""                    -9999                        0                    -9999                        0                    -9999                    -9999                        0                       ""                       ""                        0                       ""                        1                        0                        0                    -9999                    -9999                        0                        0                        0                        0
+             SurfaceName                  DepoAge                    Depth                 ErrDepth                DepthGrid                LayerName             DepoSequence                Thickness           CalibThickness           OptimThickness            ThicknessGrid               Lithotype1                 Percent1             Percent1Grid               Lithotype2                 Percent2             Percent2Grid               Lithotype3                 Percent3                 MixModel                Fluidtype             TempGradient               SourceRock              MobileLayer       HasAllochthonLitho                HydroSand       ChemicalCompaction   EnableSourceRockMixing          SourceRockType1          SourceRockType2       SourceRockMixingHI   SourceRockMixingHIGrid       ElementRefinementZ           IncludeInDarcy       IsIgneousIntrusion      IgneousIntrusionAge IgneousIntrusionTemperature            ErrDepoAge             ErrThickness
+                      ()                     (Ma)                      (m)                      (m)                      (m)                       ()                       ()                      (m)                      (m)                       ()                      (m)                       ()                (volume%)                (volume%)                       ()                (volume%)                (volume%)                       ()                (volume%)                       ()                       ()                    (C/m)                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()               (kg/tonne)                       ()                       ()                       ()                       ()                       ()                       ()                     (Ma)                      (m)
+          "Water bottom"                        0                        0                        0                       ""             "Quaternary"                       11                    -9999                    -9999                        0                       ""             "Std. Shale"                       50                       ""         "Std. Sandstone"                       50                       ""                       ""                        0                "Layered"      "Std. Marine Water"                    -9999                        0                        0                        0                        0                        0                        0                       ""                       ""                        0                       ""                        1                        0                        0                    -9999                    -9999                        0                        0
+      "Tertiary erosion"                       55                      628                        0                       ""               "Tertiary"                       10                    -9999                    -9999                        0                       ""             "Std. Shale"                       50                       ""         "Std. Sandstone"                       50                       ""                       ""                        0                "Layered"      "Std. Marine Water"                    -9999                        0                        0                        0                        0                        0                        0                       ""                       ""                        0                       ""                        1                        0                        0                    -9999                    -9999                        0                        0
+"Upper Cretaceous missing"                     65                    -9999                        0                       ""       "Upper Cretaceous"                        9                      300                    -9999                        0                       ""             "Std. Chalk"                      100                       ""                       ""                        0                       ""                       ""                        0                "Layered"      "Std. Marine Water"                    -9999                        0                        0                        0                        0                        0                        0                       ""                       ""                        0                       ""                        1                        0                        0                    -9999                    -9999                        0                        0
+    "Mid Cretaceous top"                      100                      628                        0                       ""         "Mid Cretaceous"                        8                    -9999                    -9999                        0                       ""             "Std. Chalk"                      100                       ""                       ""                        0                       ""                       ""                        0            "Homogeneous"      "Std. Marine Water"                    -9999                        0                        0                        0                        0                        0                        0                       ""                       ""                        0                       ""                        1                        0                        0                    -9999                    -9999                        0                        0
+    "Upper Jurassic top"                      144                      792                        0                       ""         "Upper Jurassic"                        7                    -9999                    -9999                        0                       ""         "Std. Sandstone"                       80                       ""             "Std. Shale"                       20                       ""                       ""                        0            "Homogeneous"      "Std. Marine Water"                    -9999                        0                        0                        0                        0                        0                        0                       ""                       ""                        0                       ""                        1                        0                        0                    -9999                    -9999                        0                        0
+    "Lower Jurassic top"                      187                     1560                        0                       ""         "Lower Jurassic"                        6                    -9999                    -9999                        0                       ""             "Std. Shale"                       75                       ""      "Std.Lime Mudstone"                       25                       ""                       ""                        0            "Homogeneous"      "Std. Marine Water"                    -9999                        1                        0                        0                        0                        0                        0 "Type II Mesozoic Marine Shale (Kinetics)"     ""                    -9999                       ""                        1                        0                        0                    -9999                    -9999                        0                        0
+          "Triassic top"                      220                     2022                        0                       ""               "Triassic"                        5                    -9999                    -9999                        0                       ""             "Std. Shale"                       80                       ""         "Std. Sandstone"                       20                       ""                       ""                        0            "Homogeneous"      "Std. Marine Water"                    -9999                        0                        0                        0                        0                        0                        0                       ""                       ""                        0                       ""                        1                        0                        0                    -9999                    -9999                        0                        0
+       "Permian erosion"                      270                     2579                        0                       ""                "Permian"                        4                    -9999                    -9999                        0                       ""         "Std. Sandstone"                      100                       ""                       ""                        0                       ""                       ""                        0            "Homogeneous"      "Std. Marine Water"                    -9999                        0                        0                        0                        0                        0                        0                       ""                       ""                        0                       ""                        1                        0                        0                    -9999                    -9999                        0                        0
+"Upper Carboniferous missing"                 290                    -9999                        0                       ""    "Upper Carboniferous"                        3                      400                    -9999                        0                       ""             "Std. Shale"                       80                       ""         "Std. Sandstone"                       20                       ""                       ""                        0            "Homogeneous"      "Std. Marine Water"                    -9999                        0                        0                        0                        0                        0                        0                       ""                       ""                        0                       ""                        1                        0                        0                    -9999                    -9999                        0                        0
+ "Mid Carboniferous top"                      300                     2579                        0                       ""     "Mid Carboiniferous"                        2                    -9999                    -9999                        0                       ""             "Std. Shale"                       75                       ""         "Std. Sandstone"                       25                       ""                       ""                        0            "Homogeneous"      "Std. Marine Water"                    -9999                        0                        0                        0                        0                        0                        0                       ""                       ""                        0                       ""                        1                        0                        0                    -9999                    -9999                        0                        0
+       "Westphalian top"                      311                     4500                        0                       ""            "Westphalian"                        1                    -9999                    -9999                        0                       ""             "Std. Shale"                       75                       ""         "Std. Sandstone"                       25                       ""                       ""                        0            "Homogeneous"      "Std. Marine Water"                    -9999                        1                        0                        0                        0                        0                        1 "Type III MesoPaleozoic Vitrinitic Coals (Kinetics)" "Type II Mesozoic Marine Shale (Kinetics)" 700 ""                     1                        0                        0                    -9999                    -9999                        0                        0
+              "Basement"                      315                     5200                        0                       ""                       ""                    -9999                    -9999                    -9999                        0                       ""                       ""                    -9999                       ""                       ""                    -9999                       ""                       ""                    -9999                       ""                       ""                    -9999                        0                    -9999                        0                    -9999                    -9999                        0                       ""                       ""                        0                       ""                        1                        0                        0                    -9999                    -9999                        0                        0
 [End]
 ;
 ;
@@ -467,7 +482,7 @@ SurfaceName DepoAge Depth ErrDepth DepthGrid TwoWayTtime LayerName DepoSequence 
 ;
 [MobLayThicknIoTbl]
 ;
-LayerName Age Thickness ThicknessGrid ErrThickness
+               LayerName                      Age                Thickness            ThicknessGrid             ErrThickness
                       ()                     (Ma)                      (m)                      (m)                      (m)
 [End]
 ;
@@ -476,7 +491,7 @@ LayerName Age Thickness ThicknessGrid ErrThickness
 ;
 [AllochthonLithoIoTbl]
 ;
-LayerName Lithotype
+               LayerName                Lithotype
                       ()                       ()
 [End]
 ;
@@ -485,7 +500,7 @@ LayerName Lithotype
 ;
 [AllochthonLithoDistribIoTbl]
 ;
-LayerName DistributionGrid Age
+               LayerName         DistributionGrid                      Age
                       ()                       ()                     (Ma)
 [End]
 ;
@@ -494,7 +509,7 @@ LayerName DistributionGrid Age
 ;
 [AllochthonLithoInterpIoTbl]
 ;
-LayerName InterpFileName NumberOfPoints PolynomialDegree InterpGroupName StartAge EndAge
+               LayerName           InterpFileName           NumberOfPoints         PolynomialDegree          InterpGroupName                 StartAge                   EndAge
                       ()                       ()                       ()                       ()                       ()                     (Ma)                     (Ma)
 [End]
 ;
@@ -503,7 +518,7 @@ LayerName InterpFileName NumberOfPoints PolynomialDegree InterpGroupName StartAg
 ;
 [CrustIoTbl]
 ;
-Age Thickness ThicknessGrid CalibThickness OptimThickness ErrThickness
+                     Age                Thickness            ThicknessGrid           CalibThickness           OptimThickness             ErrThickness
                     (Ma)                      (m)                      (m)                      (m)                       ()                      (m)
                        0                    13750                       ""                    -9999                    -9999                    -9999
                      185                    13750                       ""                    -9999                    -9999                    -9999
@@ -516,7 +531,7 @@ Age Thickness ThicknessGrid CalibThickness OptimThickness ErrThickness
 ;
 [ContCrustalThicknessIoTbl]
 ;
-Age Thickness ThicknessGrid CalibThickness OptimThickness ErrThickness
+                     Age                Thickness            ThicknessGrid           CalibThickness           OptimThickness             ErrThickness
                     (Ma)                      (m)                      (m)                      (m)                       ()                      (m)
 [End]
 ;
@@ -525,7 +540,7 @@ Age Thickness ThicknessGrid CalibThickness OptimThickness ErrThickness
 ;
 [BasaltThicknessIoTbl]
 ;
-BasaltThickness BasaltThicknessGrid CrustThicknessMeltOnset CrustThicknessMeltOnsetGrid
+         BasaltThickness      BasaltThicknessGrid  CrustThicknessMeltOnset CrustThicknessMeltOnsetGrid
                      (m)                       ()                      (m)                       ()
 [End]
 ;
@@ -534,7 +549,7 @@ BasaltThickness BasaltThicknessGrid CrustThicknessMeltOnset CrustThicknessMeltOn
 ;
 [SourceRockLithoIoTbl]
 ;
-LayerName SourceRockType BaseSourceRockType TocIni TocIniGrid HCInputMode S1Ini S1IniGrid S2Ini S2IniGrid S3Ini S3IniGrid HcVRe05 ScVRe05 HcIni HcIniGrid HiIni OcIni OcIniGrid NcIni NcIniGrid CharLength CharLengthGrid UpperBiot UpperBiotGrid LowerBiot LowerBiotGrid KerogenStartAct KerogenStartActGrid KerogenEndAct KerogenEndActGrid PreAsphaltStartAct PreAsphaltStartActGrid PreAsphaltEndAct PreAsphaltEndActGrid NettThickIni NettThickIniGrid NGenexTimeSteps NGenexTimeStepsGrid NGenexSlices NGenexSlicesGrid VREini AsphalteneDiffusionEnergy ResinDiffusionEnergy C15AroDiffusionEnergy C15SatDiffusionEnergy VREoptimization VREthreshold VESLimitIndicator VESLimit ApplyAdsorption AdsorptionTOCDependent ComputeOTGC AdsorptionCapacityFunctionName WhichAdsorptionSimulator ErrTocIni ErrS1Ini ErrS2Ini ErrS3Ini ErrHcIni ErrHiIni ErrOcIni ErrNcIni ErrCharLength ErrUpperBiot ErrLowerBiot ErrKerogenStartAct ErrKerogenEndAct ErrPreAsphaltStartAct ErrPreAsphaltEndAct ErrNettThickIni
+               LayerName           SourceRockType       BaseSourceRockType                   TocIni               TocIniGrid              HCInputMode                    S1Ini                S1IniGrid                    S2Ini                S2IniGrid                    S3Ini                S3IniGrid                  HcVRe05                  ScVRe05                    HcIni                HcIniGrid                    HiIni                    OcIni                OcIniGrid                    NcIni                NcIniGrid               CharLength           CharLengthGrid                UpperBiot            UpperBiotGrid                LowerBiot            LowerBiotGrid          KerogenStartAct      KerogenStartActGrid            KerogenEndAct        KerogenEndActGrid       PreAsphaltStartAct   PreAsphaltStartActGrid         PreAsphaltEndAct     PreAsphaltEndActGrid             NettThickIni         NettThickIniGrid          NGenexTimeSteps      NGenexTimeStepsGrid             NGenexSlices         NGenexSlicesGrid                   VREini AsphalteneDiffusionEnergy    ResinDiffusionEnergy    C15AroDiffusionEnergy    C15SatDiffusionEnergy          VREoptimization             VREthreshold        VESLimitIndicator                 VESLimit          ApplyAdsorption   AdsorptionTOCDependent              ComputeOTGC AdsorptionCapacityFunctionName WhichAdsorptionSimulator          ErrTocIni                 ErrS1Ini                 ErrS2Ini                 ErrS3Ini                 ErrHcIni                 ErrHiIni                 ErrOcIni                 ErrNcIni            ErrCharLength             ErrUpperBiot             ErrLowerBiot       ErrKerogenStartAct         ErrKerogenEndAct    ErrPreAsphaltStartAct      ErrPreAsphaltEndAct          ErrNettThickIni
                       ()                       ()                       ()                 (weight)                       ()                       ()               (kg/tonne)                       ()               (kg/tonne)                       ()               (kg/tonne)                       ()               (kg/tonne)               (kg/tonne)               (kg/tonne)                       ()               (kg/tonne)               (kg/tonne)                       ()               (kg/tonne)                       ()                      (m)                       ()                       ()                       ()                       ()                       ()                 (kJ/mol)                       ()                 (kJ/mol)                       ()                 (kJ/mol)                       ()                 (kJ/mol)                       ()                      (m)                       ()                       ()                       ()                       ()                       ()                       ()                     (kJ)                     (kJ)                     (kJ)                     (kJ)                       ()                       ()                       ()                    (MPa)                       ()                       ()                       ()                       ()                       ()                 (weight)               (kg/tonne)               (kg/tonne)               (kg/tonne)               (kg/tonne)               (kg/tonne)               (kg/tonne)               (kg/tonne)                      (m)                       ()                       ()                 (kJ/mol)                 (kJ/mol)                 (kJ/mol)                 (kJ/mol)                      (m)
            "Westphalian" "Type III MesoPaleozoic Vitrinitic Coals (Kinetics)" "Type_III_MesoPaleozoic_VitriniticCoal_kin" 70.2 ""                "HC"                        5                       ""                   65.988                       ""                   2.8889                       ""                    0.801                        0                    0.801                       ""                       94           0.159763866133                       ""       0.0286467163299302                       ""                      0.7                       ""                      100                       ""                      100                       ""                      214                       ""                      235                       ""                      206                       ""                      233                       ""                       10                       ""                      400                       ""                       10                       ""                      0.5                       90                       87                       84                       81                     "No"                      0.5                     "No"                       50                        0                        0                        0                       ""                       ""                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0
            "Westphalian" "Type II Mesozoic Marine Shale (Kinetics)" "Type_II_Mesozoic_MarineShale_kin" 10                 ""                     "HC"                        5                       ""                     47.1                       ""                   2.8889                       ""                     1.25                        0                     1.25                       ""                      471             0.0718703125                       ""              0.014471244                       ""                      0.7                       ""                      100                       ""                      100                       ""                      214                       ""                      235                       ""                      210                       ""                      233                       ""                       10                       ""                      400                       ""                       10                       ""                      0.5                       88                       85                       80                       75                     "No"                      0.5                     "No"                       50                        0                        0                        0                       ""                       ""                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0
@@ -546,7 +561,7 @@ LayerName SourceRockType BaseSourceRockType TocIni TocIniGrid HCInputMode S1Ini 
 ;
 [CTCIoTbl]
 ;
-SurfaceName T0Ini T0IniGrid TRIni TRIniGrid HCuIni HCuIniGrid HLMuIni HLMuIniGrid HBu HBuGrid DeltaSL DeltaSLGrid
+             SurfaceName                    T0Ini                T0IniGrid                    TRIni                TRIniGrid                   HCuIni               HCuIniGrid                  HLMuIni              HLMuIniGrid                      HBu                  HBuGrid                  DeltaSL              DeltaSLGrid
                       ()                     (Ma)                       ()                     (Ma)                       ()                      (m)                       ()                      (m)                       ()                      (m)                       ()                      (m)                       ()
 [End]
 ;
@@ -555,7 +570,7 @@ SurfaceName T0Ini T0IniGrid TRIni TRIniGrid HCuIni HCuIniGrid HLMuIni HLMuIniGri
 ;
 [GeologicalBoundaryIoTbl]
 ;
-GeologicalObjectName GeologicalObjectType TypeOfProperty FirstIndexInPropertyIoTbl NumberOfProperties
+    GeologicalObjectName     GeologicalObjectType           TypeOfProperty FirstIndexInPropertyIoTbl      NumberOfProperties
                       ()                       ()                       ()                       ()                       ()
 [End]
 ;
@@ -564,7 +579,7 @@ GeologicalObjectName GeologicalObjectType TypeOfProperty FirstIndexInPropertyIoT
 ;
 [PropertyBoundaryIoTbl]
 ;
-NameOfProperty FirstIndexInPropertyBoundaryValuesIoTbl NumberOfTimeIntervals
+          NameOfProperty FirstIndexInPropertyBoundaryValuesIoTbl NumberOfTimeIntervals
                       ()                       ()                       ()
 [End]
 ;
@@ -573,7 +588,7 @@ NameOfProperty FirstIndexInPropertyBoundaryValuesIoTbl NumberOfTimeIntervals
 ;
 [BoundaryValuesIoTbl]
 ;
-BeginTimeValues EndTimeValues PropertyValueGrid PropertyValue
+         BeginTimeValues            EndTimeValues        PropertyValueGrid            PropertyValue
                       ()                       ()                       ()                       ()
 [End]
 ;
@@ -582,7 +597,7 @@ BeginTimeValues EndTimeValues PropertyValueGrid PropertyValue
 ;
 [SurfaceTempIoTbl]
 ;
-Age Temperature ErrTemperature TemperatureGrid
+                     Age              Temperature           ErrTemperature          TemperatureGrid
                     (Ma)                      (C)                      (C)                      (C)
                        0                       10                        0                       ""
                       97                       20                        0                       ""
@@ -593,7 +608,7 @@ Age Temperature ErrTemperature TemperatureGrid
 ;
 [PermafrostIoTbl]
 ;
-PermafrostInd PressureTerm SalinityTerm
+           PermafrostInd             PressureTerm             SalinityTerm
                       ()                       ()                       ()
 [End]
 ;
@@ -602,7 +617,7 @@ PermafrostInd PressureTerm SalinityTerm
 ;
 [SurfaceDepthIoTbl]
 ;
-Age Depth DepthGrid
+                     Age                    Depth                DepthGrid
                     (Ma)                      (m)                      (m)
                        0                    -9999                       ""
 [End]
@@ -612,7 +627,7 @@ Age Depth DepthGrid
 ;
 [MntlHeatFlowIoTbl]
 ;
-Age HeatFlow HeatFlowGrid ErrHeatFlow
+                     Age                 HeatFlow             HeatFlowGrid              ErrHeatFlow
                     (Ma)                  (mW/m2)                  (mW/m2)                  (mW/m2)
                        0                       30                       ""                        0
 [End]
@@ -622,7 +637,7 @@ Age HeatFlow HeatFlowGrid ErrHeatFlow
 ;
 [BasementIoTbl]
 ;
-BottomBoundaryModel TopAsthenoTemp TopCrustHeatProd TopCrustHeatProdGrid CalibTopCrustHeatProd CrustHeatPDecayConst LithoMantleThickness CalibLithoMantleThickness InitialLthMntThickns CalibInitialLthMntThickns FixedCrustThickness CalibFixedCrustThickness InitialLithosphericMantleThickness CrustPropertyModel MantlePropertyModel ErrTopCrustHeatProd ErrCrustHeatPDecayConst ErrLithoMantleThickness ErrInitialLthMntThickns ErrFixedCrustThickness
+     BottomBoundaryModel           TopAsthenoTemp         TopCrustHeatProd     TopCrustHeatProdGrid    CalibTopCrustHeatProd     CrustHeatPDecayConst     LithoMantleThickness CalibLithoMantleThickness    InitialLthMntThickns CalibInitialLthMntThickns     FixedCrustThickness CalibFixedCrustThickness InitialLithosphericMantleThickness CrustPropertyModel  MantlePropertyModel      ErrTopCrustHeatProd  ErrCrustHeatPDecayConst  ErrLithoMantleThickness  ErrInitialLthMntThickns   ErrFixedCrustThickness
                       ()                      (C)                  (uW/m3)                  (uW/m3)                  (uW/m3)                      (m)                      (m)                      (m)                      (m)                      (m)                      (m)                      (m)                      (m)                       ()                       ()                  (uW/m3)                      (m)                      (m)                      (m)                      (m)
      "Fixed Temperature"                     1333                      2.5                       ""                    -9999                    10000                    90000                    -9999                    90000                    -9999                    30000                    -9999                   115000 "Low Conductivity Crust" "Standard Conductivity Mantle"                  0                        0                        0                        0                        0
 [End]
@@ -632,7 +647,7 @@ BottomBoundaryModel TopAsthenoTemp TopCrustHeatProd TopCrustHeatProdGrid CalibTo
 ;
 [FormPressIoTbl]
 ;
-DepthIndex MPressure FormPressureType Label ErrMPressure
+              DepthIndex                MPressure         FormPressureType                    Label             ErrMPressure
                      (m)                    (MPa)                       ()                       ()                    (MPa)
 [End]
 ;
@@ -641,7 +656,7 @@ DepthIndex MPressure FormPressureType Label ErrMPressure
 ;
 [FormTempIoTbl]
 ;
-DepthIndex Temperature ErrTemperature FormTempType Label Optimization
+              DepthIndex              Temperature           ErrTemperature             FormTempType                    Label             Optimization
                      (m)                      (C)                      (C)                       ()                       ()                       ()
 [End]
 ;
@@ -650,7 +665,7 @@ DepthIndex Temperature ErrTemperature FormTempType Label Optimization
 ;
 [RawBhtIoTbl]
 ;
-DepthIndex TimeSinceCirStopped Temperature ErrTemperature Theta
+              DepthIndex      TimeSinceCirStopped              Temperature           ErrTemperature                    Theta
                      (m)                    (min)                      (C)                      (C)                       ()
 [End]
 ;
@@ -659,7 +674,7 @@ DepthIndex TimeSinceCirStopped Temperature ErrTemperature Theta
 ;
 [RawBhtBitsizeIoTbl]
 ;
-DepthIndex CirculationTime BitDiameter FormTempType
+              DepthIndex          CirculationTime              BitDiameter             FormTempType
                      (m)                    (min)                   (inch)                       ()
 [End]
 ;
@@ -668,7 +683,7 @@ DepthIndex CirculationTime BitDiameter FormTempType
 ;
 [MarsdenCoefIoTbl]
 ;
-MarsdenAcoef MarsdenBcoef MarsdenCcoef
+            MarsdenAcoef             MarsdenBcoef             MarsdenCcoef
                       ()                       ()                       ()
                     -3.8                     22.8                    -8.06
 [End]
@@ -678,7 +693,7 @@ MarsdenAcoef MarsdenBcoef MarsdenCcoef
 ;
 [VrmIoTbl]
 ;
-DepthIndex Vr VrmType Label Optimization ErrVr
+              DepthIndex                       Vr                  VrmType                    Label             Optimization                    ErrVr
                      (m)                      (%)                       ()                       ()                       ()                      (%)
 [End]
 ;
@@ -687,7 +702,7 @@ DepthIndex Vr VrmType Label Optimization ErrVr
 ;
 [SonicIoTbl]
 ;
-Depth Dt
+                   Depth                       Dt
                      (m)                   (us/m)
 [End]
 ;
@@ -696,7 +711,7 @@ Depth Dt
 ;
 [BulkDensityIoTbl]
 ;
-Depth BDensity
+                   Depth                 BDensity
                      (m)                 (kg/m^3)
 [End]
 ;
@@ -705,7 +720,7 @@ Depth BDensity
 ;
 [BiomarkerKinIoTbl]
 ;
-HopIsoActEnergy SteIsoActEnergy SteAroActEnergy HopIsoFreqFactor SteIsoFreqFactor SteAroFreqFactor HopIsoGamma SteIsoGamma
+         HopIsoActEnergy          SteIsoActEnergy          SteAroActEnergy         HopIsoFreqFactor         SteIsoFreqFactor         SteAroFreqFactor              HopIsoGamma              SteIsoGamma
                  (J/mol)                  (J/mol)                  (J/mol)                  (sec-1)                  (sec-1)                  (sec-1)                       ()                       ()
                   168000                   169000                   181400                810000000                486000000              48500000000                    1.564                    1.174
 [End]
@@ -715,7 +730,7 @@ HopIsoActEnergy SteIsoActEnergy SteAroActEnergy HopIsoFreqFactor SteIsoFreqFacto
 ;
 [BiomarkermIoTbl]
 ;
-DepthIndex HopaneIsomerisation SteraneIsomerisation SteraneAromatisation Optimization ErrHopaneIsomerisation ErrSteraneIsomerisation ErrSteraneAromatisation
+              DepthIndex      HopaneIsomerisation     SteraneIsomerisation     SteraneAromatisation             Optimization   ErrHopaneIsomerisation  ErrSteraneIsomerisation  ErrSteraneAromatisation
                      (m)                       ()                       ()                       ()                       ()                       ()                       ()                       ()
 [End]
 ;
@@ -724,7 +739,7 @@ DepthIndex HopaneIsomerisation SteraneIsomerisation SteraneAromatisation Optimiz
 ;
 [SmectiteIlliteKinIoTbl]
 ;
-ActEnergy1 FreqFactor1 ActEnergy2 FreqFactor2 InitIlliteFraction
+              ActEnergy1              FreqFactor1               ActEnergy2              FreqFactor2       InitIlliteFraction
                       ()                       ()                       ()                       ()                       ()
                    55800                  3422900                    13700                        1                        0
 [End]
@@ -734,7 +749,7 @@ ActEnergy1 FreqFactor1 ActEnergy2 FreqFactor2 InitIlliteFraction
 ;
 [SmectiteIlliteIoTbl]
 ;
-DepthIndex IlliteFraction Label Optimization ErrIlliteFraction
+              DepthIndex           IlliteFraction                    Label             Optimization        ErrIlliteFraction
                      (m)                       ()                       ()                       ()                       ()
 [End]
 ;
@@ -743,7 +758,7 @@ DepthIndex IlliteFraction Label Optimization ErrIlliteFraction
 ;
 [FtGrainIoTbl]
 ;
-FtSampleId FtGrainId FtSpontTrackNo FtInducedTrackNo FtClWeightPerc FtGrainAge FtGrainAgeErr
+              FtSampleId                FtGrainId           FtSpontTrackNo         FtInducedTrackNo           FtClWeightPerc               FtGrainAge            FtGrainAgeErr
                       ()                       ()                       ()                       ()                      (%)                     (Ma)                     (Ma)
 [End]
 ;
@@ -752,7 +767,7 @@ FtSampleId FtGrainId FtSpontTrackNo FtInducedTrackNo FtClWeightPerc FtGrainAge F
 ;
 [FtLengthIoTbl]
 ;
-FtSampleId FtGrainId FtLength
+              FtSampleId                FtGrainId                 FtLength
                       ()                       ()                (microns)
 [End]
 ;
@@ -761,7 +776,7 @@ FtSampleId FtGrainId FtLength
 ;
 [FtSampleIoTbl]
 ;
-FtSampleId DepthIndex FtZeta FtUstglTrackDensity FtPredictedAge FtPooledAge FtPooledAgeErr FtAgeChi2 FtDegreeOfFreedom FtPAgeChi2 FtCorrCoeff FtVarianceSqrtNs FtVarianceSqrtNi FtNsDivNi FtNsDivNiErr FtMeanRatio FtMeanRatioErr FtCentralAge FtCentralAgeErr FtMeanAge FtMeanAgeErr FtLengthChi2 FtApatiteYield Optimization
+              FtSampleId               DepthIndex                   FtZeta      FtUstglTrackDensity           FtPredictedAge              FtPooledAge           FtPooledAgeErr                FtAgeChi2        FtDegreeOfFreedom               FtPAgeChi2              FtCorrCoeff         FtVarianceSqrtNs         FtVarianceSqrtNi                FtNsDivNi             FtNsDivNiErr              FtMeanRatio           FtMeanRatioErr             FtCentralAge          FtCentralAgeErr                FtMeanAge             FtMeanAgeErr             FtLengthChi2           FtApatiteYield             Optimization
                       ()                      (m)                       ()                   (cm-2)                     (Ma)                     (Ma)                     (Ma)                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()
 [End]
 ;
@@ -770,7 +785,7 @@ FtSampleId DepthIndex FtZeta FtUstglTrackDensity FtPredictedAge FtPooledAge FtPo
 ;
 [FtPredLengthCountsHistIoTbl]
 ;
-FtPredLengthHistId FtSampleId FtClWeightPerc FtPredLengthBinStart FtPredLengthBinWidth FtPredLengthBinNum
+      FtPredLengthHistId               FtSampleId           FtClWeightPerc     FtPredLengthBinStart     FtPredLengthBinWidth       FtPredLengthBinNum
                       ()                       ()                      (%)                       ()                       ()                       ()
 [End]
 ;
@@ -779,7 +794,7 @@ FtPredLengthHistId FtSampleId FtClWeightPerc FtPredLengthBinStart FtPredLengthBi
 ;
 [FtPredLengthCountsHistDataIoTbl]
 ;
-FtPredLengthHistId FtPredLengthBinIndex FtPredLengthBinCount
+      FtPredLengthHistId     FtPredLengthBinIndex     FtPredLengthBinCount
                       ()                       ()                       ()
 [End]
 ;
@@ -788,7 +803,7 @@ FtPredLengthHistId FtPredLengthBinIndex FtPredLengthBinCount
 ;
 [FtClWeightPercBinsIoTbl]
 ;
-FtClWeightBinStart FtClWeightBinWidth
+      FtClWeightBinStart       FtClWeightBinWidth
                       ()                       ()
 [End]
 ;
@@ -797,8 +812,8 @@ FtClWeightBinStart FtClWeightBinWidth
 ;
 [ReservoirIoTbl]
 ;
-ReservoirName FormationName TrapCapacity ActivityMode ActivityStart DepthOffset DepthOffsetGrid Thickness ThicknessGrid NetToGross NetToGrossGrid MicroTraps LeakProperty LeakRate Lithotype1 Percent1 Percent1Grid Lithotype2 Percent2 Percent2Grid Lithotype3 LayerFrequency LayerFrequencyGrid BioDegradInd OilToGasCrackingInd DiffusionInd BlockingInd BlockingPermeability ErrDepthOffset ErrThickness ErrMicroTraps ErrLayerFrequency
-                      ()                       ()                     (m3)                       ()                     (Ma)                      (m)                      (m)                      (m)                      (m)                (percent)                (percent)                  (m3/m2)                       ()               (kg/m2/ma)                       ()                (volume%)                (volume%)                       ()                (volume%)                (volume%)                       ()                     (km)                       ()                       ()                       ()                       ()                       ()                     (mD)                      (m)                      (m)                  (m3/m2)                     (km)
+           ReservoirName            FormationName             TrapCapacity             ActivityMode            ActivityStart              DepthOffset          DepthOffsetGrid                Thickness            ThicknessGrid               NetToGross           NetToGrossGrid               MicroTraps             LeakProperty                 LeakRate               Lithotype1                 Percent1             Percent1Grid               Lithotype2                 Percent2             Percent2Grid               Lithotype3           LayerFrequency       LayerFrequencyGrid             BioDegradInd      OilToGasCrackingInd             DiffusionInd       MinOilColumnHeight       MinGasColumnHeight              BlockingInd     BlockingPermeability         BlockingPorosity           ErrDepthOffset             ErrThickness            ErrMicroTraps        ErrLayerFrequency
+                      ()                       ()                     (m3)                       ()                     (Ma)                      (m)                      (m)                      (m)                      (m)                (percent)                (percent)                  (m3/m2)                       ()               (kg/m2/ma)                       ()                (volume%)                (volume%)                       ()                (volume%)                (volume%)                       ()                     (km)                       ()                       ()                       ()                       ()                      (m)                      (m)                       ()                     (mD)                      (%)                      (m)                      (m)                  (m3/m2)                     (km)
 [End]
 ;
 ;
@@ -806,7 +821,7 @@ ReservoirName FormationName TrapCapacity ActivityMode ActivityStart DepthOffset 
 ;
 [BioDegradIoTbl]
 ;
-MaxBioTemp TempConstant TimeConstant C1_BioFactor C2_BioFactor C3_BioFactor C4_BioFactor C5_BioFactor N2_BioFactor COx_BioFactor C6_14Aro_BioFactor C6_14Sat_BioFactor C15Aro_BioFactor C15Sat_BioFactor resins_BioFactor asphaltenes_BioFactor ErrMaxBioTemp ErrTempConstant ErrTimeConstant ErrC1_BioFactor ErrC2_BioFactor ErrC3_BioFactor ErrC4_BioFactor ErrC5_BioFactor ErrN2_BioFactor ErrCOx_BioFactor ErrC6_14Aro_BioFactor ErrC6_14Sat_BioFactor ErrC15Aro_BioFactor ErrC15Sat_BioFactor Errresins_BioFactor Errasphaltenes_BioFactor
+              MaxBioTemp             TempConstant             TimeConstant             C1_BioFactor             C2_BioFactor             C3_BioFactor             C4_BioFactor             C5_BioFactor             N2_BioFactor            COx_BioFactor       C6_14Aro_BioFactor       C6_14Sat_BioFactor         C15Aro_BioFactor         C15Sat_BioFactor         resins_BioFactor    asphaltenes_BioFactor            ErrMaxBioTemp          ErrTempConstant          ErrTimeConstant          ErrC1_BioFactor          ErrC2_BioFactor          ErrC3_BioFactor          ErrC4_BioFactor          ErrC5_BioFactor          ErrN2_BioFactor         ErrCOx_BioFactor    ErrC6_14Aro_BioFactor    ErrC6_14Sat_BioFactor      ErrC15Aro_BioFactor      ErrC15Sat_BioFactor      Errresins_BioFactor Errasphaltenes_BioFactor
                      (C)                    (1/C)                   (1/Ma)                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                      (C)                    (1/C)                   (1/Ma)                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()
                       65                       70                      0.2                   0.0008                   0.0005                   0.0003                   0.0008                    0.001                    0.001                        0                   0.0015                    0.001                     0.03                   0.0009                     0.05                      0.1                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0
 [End]
@@ -816,7 +831,7 @@ MaxBioTemp TempConstant TimeConstant C1_BioFactor C2_BioFactor C3_BioFactor C4_B
 ;
 [DiffusionIoTbl]
 ;
-DiffusionModel SealThicknessModel MaximumSealThickness DiffSalinity ActEnergy GasRatio C1_DiffFactor C2_DiffFactor C3_DiffFactor C4_DiffFactor C5_DiffFactor C1_ConcFactor C2_ConcFactor C3_ConcFactor C4_ConcFactor C5_ConcFactor ErrDiffSalinity ErrActEnergy ErrGasRatio ErrC1_DiffFactor ErrC2_DiffFactor ErrC3_DiffFactor ErrC4_DiffFactor ErrC5_DiffFactor ErrC1_ConcFactor ErrC2_ConcFactor ErrC3_ConcFactor ErrC4_ConcFactor ErrC5_ConcFactor
+          DiffusionModel       SealThicknessModel     MaximumSealThickness             DiffSalinity                ActEnergy                 GasRatio            C1_DiffFactor            C2_DiffFactor            C3_DiffFactor            C4_DiffFactor            C5_DiffFactor            C1_ConcFactor            C2_ConcFactor            C3_ConcFactor            C4_ConcFactor            C5_ConcFactor          ErrDiffSalinity             ErrActEnergy              ErrGasRatio         ErrC1_DiffFactor         ErrC2_DiffFactor         ErrC3_DiffFactor         ErrC4_DiffFactor         ErrC5_DiffFactor         ErrC1_ConcFactor         ErrC2_ConcFactor         ErrC3_ConcFactor         ErrC4_ConcFactor         ErrC5_ConcFactor
                       ()                       ()                      (m)                  (kg/kg)                      (J)                   (????)                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                  (kg/kg)                      (J)                   (????)                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()
              "Transient"         "FullOverburden"                        0                      0.2                    18360                  8.31451                3.047e-06                2.484e-06                2.266e-06                2.036e-06                1.908e-06                        1                    0.222                    0.089                     0.02                   0.0067                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0
 [End]
@@ -826,7 +841,7 @@ DiffusionModel SealThicknessModel MaximumSealThickness DiffSalinity ActEnergy Ga
 ;
 [PalinspasticIoTbl]
 ;
-DepthGrid FaultcutsMap SurfaceName BottomFormationName Age Depth MapSeqNbr OilSlope GasSlope MinimumSGR SGRIndicator ErrOilSlope ErrGasSlope ErrMinimumSGR
+               DepthGrid             FaultcutsMap              SurfaceName      BottomFormationName                      Age                    Depth                MapSeqNbr                 OilSlope                 GasSlope               MinimumSGR             SGRIndicator              ErrOilSlope              ErrGasSlope            ErrMinimumSGR
                      (m)                      (m)                       ()                       ()                     (Ma)                      (m)                       ()                     (km)                       ()                       ()                       ()                     (km)                       ()                       ()
 [End]
 ;
@@ -835,7 +850,7 @@ DepthGrid FaultcutsMap SurfaceName BottomFormationName Age Depth MapSeqNbr OilSl
 ;
 [FaultcutIoTbl]
 ;
-SurfaceName FaultName FaultcutStatus Age
+             SurfaceName                FaultName           FaultcutStatus                      Age
                       ()                       ()                       ()                     (Ma)
 [End]
 ;
@@ -844,7 +859,7 @@ SurfaceName FaultName FaultcutStatus Age
 ;
 [PressureFaultcutIoTbl]
 ;
-FaultcutsMap FaultName StartAge FaultLithology UsedInOverpressure
+            FaultcutsMap                FaultName                 StartAge           FaultLithology       UsedInOverpressure
                      (m)                       ()                     (Ma)                       ()                       ()
 [End]
 ;
@@ -853,7 +868,7 @@ FaultcutsMap FaultName StartAge FaultLithology UsedInOverpressure
 ;
 [PressureFuncIoTbl]
 ;
-PresFuncName CoefA CoefB CoefC CoefD Selected UserDefined
+            PresFuncName                    CoefA                    CoefB                    CoefC                    CoefD                 Selected              UserDefined
                       ()                    (MPa)                  (MPa/m)                (MPa/m^2)                (MPa/m^3)                       ()                       ()
                   "None"               1000000000                        0                        0                        0                        1                        0
 [End]
@@ -863,7 +878,7 @@ PresFuncName CoefA CoefB CoefC CoefD Selected UserDefined
 ;
 [TrapIoTbl]
 ;
-ReservoirName Age TrapID XCoord YCoord TrapCapacity Depth SpillDepth SpillPointXCoord SpillPointYCoord WCSurface Temperature Pressure Permeability SealPermeability NetToGross CEPGas CEPOil CriticalTemperatureGas CriticalTemperatureOil InterfacialTensionGas InterfacialTensionOil FractSealStrength FracturePressure GOC OWC VolumeGas VolumeOil MassC1 MassC2 MassC3 MassC4 MassC5 MassN2 MassCOx MassH2S MassC6_14Aro MassC6_14Sat MassC15Aro MassC15Sat MassLSC MassC15AT MassC15AroS MassC15SatS MassC6_14BT MassC6_14DBT MassC6_14BP MassC6_14SatS MassC6_14AroS Massresins Massasphaltenes
+           ReservoirName                      Age                   TrapID                   XCoord                   YCoord             TrapCapacity                    Depth               SpillDepth         SpillPointXCoord         SpillPointYCoord                WCSurface              Temperature                 Pressure             Permeability         SealPermeability               NetToGross                   CEPGas                   CEPOil   CriticalTemperatureGas   CriticalTemperatureOil    InterfacialTensionGas    InterfacialTensionOil        FractSealStrength         FracturePressure                      GOC                      OWC                VolumeGas                VolumeOil                   MassC1                   MassC2                   MassC3                   MassC4                   MassC5                   MassN2                  MassCOx                  MassH2S             MassC6_14Aro             MassC6_14Sat               MassC15Aro               MassC15Sat                  MassLSC                MassC15AT              MassC15AroS              MassC15SatS              MassC6_14BT             MassC6_14DBT              MassC6_14BP            MassC6_14SatS            MassC6_14AroS               Massresins          Massasphaltenes
                       ()                     (Ma)                       ()                      (m)                      (m)                     (m3)                      (m)                      (m)                      (m)                      (m)                     (m2)                      (C)                    (MPa)                     (mD)                     (mD)                (percent)                    (MPa)                    (MPa)                      (C)                      (C)                    (N/m)                    (N/m)                    (MPa)                    (MPa)                      (m)                      (m)                     (m3)                     (m3)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)
 [End]
 ;
@@ -872,7 +887,7 @@ ReservoirName Age TrapID XCoord YCoord TrapCapacity Depth SpillDepth SpillPointX
 ;
 [TrapperIoTbl]
 ;
-PersistentTrapID ReservoirName Age TrapID XCoord YCoord TrapCapacity Depth SpillDepth SpillPointXCoord SpillPointYCoord Pressure Temperature Permeability SealPermeability Porosity NetToGross InterfacialTensionVapour CriticalTemperatureVapour CEPVapour MassVapour VolumeVapour ViscosityVapour DensityVapour InterfacialTensionLiquid CriticalTemperatureLiquid CEPLiquid MassLiquid VolumeLiquid ViscosityLiquid DensityLiquid OilAPI CGR GOR FracturePressure Buoyancy WCSurface GOC OWC FreeGasMass FreeGasVolume FreeGasDensity FreeGasViscosity FreeGasMassC1 FreeGasMassC2 FreeGasMassC3 FreeGasMassC4 FreeGasMassC5 FreeGasMassN2 FreeGasMassCOx FreeGasMassH2S FreeGasMassC6_14Aro FreeGasMassC6_14Sat FreeGasMassC15Aro FreeGasMassC15Sat FreeGasMassLSC FreeGasMassC15AT FreeGasMassC15AroS FreeGasMassC15SatS FreeGasMassC6_14BT FreeGasMassC6_14DBT FreeGasMassC6_14BP FreeGasMassC6_14SatS FreeGasMassC6_14AroS FreeGasMassresins FreeGasMassasphaltenes CondensateMass CondensateVolume CondensateDensity CondensateViscosity CondensateMassC1 CondensateMassC2 CondensateMassC3 CondensateMassC4 CondensateMassC5 CondensateMassN2 CondensateMassCOx CondensateMassH2S CondensateMassC6_14Aro CondensateMassC6_14Sat CondensateMassC15Aro CondensateMassC15Sat CondensateMassresins CondensateMassasphaltenes CondensateMassLSC CondensateMassC15AT CondensateMassC15AroS CondensateMassC15SatS CondensateMassC6_14BT CondensateMassC6_14DBT CondensateMassC6_14BP CondensateMassC6_14SatS CondensateMassC6_14AroS SolutionGasMass SolutionGasVolume SolutionGasDensity SolutionGasViscosity SolutionGasMassC1 SolutionGasMassC2 SolutionGasMassC3 SolutionGasMassC4 SolutionGasMassC5 SolutionGasMassN2 SolutionGasMassCOx SolutionGasMassH2S SolutionGasMassC6_14Aro SolutionGasMassC6_14Sat SolutionGasMassC15Aro SolutionGasMassC15Sat SolutionGasMassresins SolutionGasMassasphaltenes SolutionGasMassLSC SolutionGasMassC15AT SolutionGasMassC15AroS SolutionGasMassC15SatS SolutionGasMassC6_14BT SolutionGasMassC6_14DBT SolutionGasMassC6_14BP SolutionGasMassC6_14SatS SolutionGasMassC6_14AroS StockTankOilMass StockTankOilVolume StockTankOilDensity StockTankOilViscosity StockTankOilMassC1 StockTankOilMassC2 StockTankOilMassC3 StockTankOilMassC4 StockTankOilMassC5 StockTankOilMassN2 StockTankOilMassCOx StockTankOilMassH2S StockTankOilMassC6_14Aro StockTankOilMassC6_14Sat StockTankOilMassC15Aro StockTankOilMassC15Sat StockTankOilMassresins StockTankOilMassasphaltenes StockTankOilMassLSC StockTankOilMassC15AT StockTankOilMassC15AroS StockTankOilMassC15SatS StockTankOilMassC6_14BT StockTankOilMassC6_14DBT StockTankOilMassC6_14BP StockTankOilMassC6_14SatS StockTankOilMassC6_14AroS
+        PersistentTrapID            ReservoirName                      Age                   TrapID                   XCoord                   YCoord             TrapCapacity                    Depth               SpillDepth         SpillPointXCoord         SpillPointYCoord                 Pressure              Temperature             Permeability         SealPermeability                 Porosity               NetToGross InterfacialTensionVapour CriticalTemperatureVapour               CEPVapour               MassVapour             VolumeVapour          ViscosityVapour            DensityVapour InterfacialTensionLiquid CriticalTemperatureLiquid               CEPLiquid               MassLiquid             VolumeLiquid          ViscosityLiquid            DensityLiquid                   OilAPI                      CGR                      GOR         FracturePressure                 Buoyancy                WCSurface                      GOC                      OWC              FreeGasMass            FreeGasVolume           FreeGasDensity         FreeGasViscosity            FreeGasMassC1            FreeGasMassC2            FreeGasMassC3            FreeGasMassC4            FreeGasMassC5            FreeGasMassN2           FreeGasMassCOx           FreeGasMassH2S      FreeGasMassC6_14Aro      FreeGasMassC6_14Sat        FreeGasMassC15Aro        FreeGasMassC15Sat           FreeGasMassLSC         FreeGasMassC15AT       FreeGasMassC15AroS       FreeGasMassC15SatS       FreeGasMassC6_14BT      FreeGasMassC6_14DBT       FreeGasMassC6_14BP     FreeGasMassC6_14SatS     FreeGasMassC6_14AroS        FreeGasMassresins   FreeGasMassasphaltenes           CondensateMass         CondensateVolume        CondensateDensity      CondensateViscosity         CondensateMassC1         CondensateMassC2         CondensateMassC3         CondensateMassC4         CondensateMassC5         CondensateMassN2        CondensateMassCOx        CondensateMassH2S   CondensateMassC6_14Aro   CondensateMassC6_14Sat     CondensateMassC15Aro     CondensateMassC15Sat     CondensateMassresins CondensateMassasphaltenes       CondensateMassLSC      CondensateMassC15AT    CondensateMassC15AroS    CondensateMassC15SatS    CondensateMassC6_14BT   CondensateMassC6_14DBT    CondensateMassC6_14BP  CondensateMassC6_14SatS  CondensateMassC6_14AroS          SolutionGasMass        SolutionGasVolume       SolutionGasDensity     SolutionGasViscosity        SolutionGasMassC1        SolutionGasMassC2        SolutionGasMassC3        SolutionGasMassC4        SolutionGasMassC5        SolutionGasMassN2       SolutionGasMassCOx       SolutionGasMassH2S  SolutionGasMassC6_14Aro  SolutionGasMassC6_14Sat    SolutionGasMassC15Aro    SolutionGasMassC15Sat    SolutionGasMassresins SolutionGasMassasphaltenes     SolutionGasMassLSC     SolutionGasMassC15AT   SolutionGasMassC15AroS   SolutionGasMassC15SatS   SolutionGasMassC6_14BT  SolutionGasMassC6_14DBT   SolutionGasMassC6_14BP SolutionGasMassC6_14SatS SolutionGasMassC6_14AroS         StockTankOilMass       StockTankOilVolume      StockTankOilDensity    StockTankOilViscosity       StockTankOilMassC1       StockTankOilMassC2       StockTankOilMassC3       StockTankOilMassC4       StockTankOilMassC5       StockTankOilMassN2      StockTankOilMassCOx      StockTankOilMassH2S StockTankOilMassC6_14Aro StockTankOilMassC6_14Sat   StockTankOilMassC15Aro   StockTankOilMassC15Sat   StockTankOilMassresins StockTankOilMassasphaltenes   StockTankOilMassLSC    StockTankOilMassC15AT  StockTankOilMassC15AroS  StockTankOilMassC15SatS  StockTankOilMassC6_14BT StockTankOilMassC6_14DBT  StockTankOilMassC6_14BP StockTankOilMassC6_14SatS StockTankOilMassC6_14AroS
                       ()                       ()                     (Ma)                       ()                      (m)                      (m)                     (m3)                      (m)                      (m)                      (m)                      (m)                    (MPa)                      (C)                     (mD)                     (mD)                (volume%)                (percent)                    (N/m)                      (C)                    (MPa)                     (kg)                    (m^3)                   (Pa*s)                 (kg/m^3)                    (N/m)                      (C)                    (MPa)                     (kg)                    (m^3)                   (Pa*s)                 (kg/m^3)             (degreesAPI)                (m^3/m^3)                (m^3/m^3)                    (MPa)                    (MPa)                     (m2)                      (m)                      (m)                     (kg)                    (m^3)                 (kg/m^3)                   (Pa*s)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                    (m^3)                 (kg/m^3)                   (Pa*s)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                    (m^3)                 (kg/m^3)                   (Pa*s)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                    (m^3)                 (kg/m^3)                   (Pa*s)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)
 [End]
 ;
@@ -881,7 +896,7 @@ PersistentTrapID ReservoirName Age TrapID XCoord YCoord TrapCapacity Depth Spill
 ;
 [DataMiningIoTbl]
 ;
-BPAKey Time XCoord YCoord ZCoord ReservoirName FormationName SurfaceName PropertyName PropertyUnit Value
+                  BPAKey                     Time                   XCoord                   YCoord                   ZCoord            ReservoirName            FormationName              SurfaceName             PropertyName             PropertyUnit                    Value
                       ()                     (Ma)                      (m)                      (m)                      (m)                       ()                       ()                       ()                       ()                       ()                       ()
 [End]
 ;
@@ -890,7 +905,7 @@ BPAKey Time XCoord YCoord ZCoord ReservoirName FormationName SurfaceName Propert
 ;
 [SourceRockPropIoTbl]
 ;
-LayerName PropertyName PropertyUnit MapFileName MapType
+               LayerName             PropertyName             PropertyUnit              MapFileName                  MapType
                       ()                       ()                       ()                       ()                       ()
 [End]
 ;
@@ -899,7 +914,7 @@ LayerName PropertyName PropertyUnit MapFileName MapType
 ;
 [ReservoirPropIoTbl]
 ;
-ReservoirName PropertyName PropertyUnit MapFileName MapType
+           ReservoirName             PropertyName             PropertyUnit              MapFileName                  MapType
                       ()                       ()                       ()                       ()                       ()
 [End]
 ;
@@ -908,7 +923,7 @@ ReservoirName PropertyName PropertyUnit MapFileName MapType
 ;
 [GridIoTbl]
 ;
-GridName XLeft YBottom NumberX NumberY DeltaX DeltaY
+                GridName                    XLeft                  YBottom                  NumberX                  NumberY                   DeltaX                   DeltaY
                       ()                      (m)                      (m)                       ()                       ()                      (m)                      (m)
 [End]
 ;
@@ -917,7 +932,7 @@ GridName XLeft YBottom NumberX NumberY DeltaX DeltaY
 ;
 [MigrationIoTbl]
 ;
-MigrationProcess SourceAge SourceRockName SourceReservoirName SourceTrapID SourcePointX SourcePointY DestinationAge DestinationReservoirName DestinationTrapID DestinationPointX DestinationPointY MassC1 MassC2 MassC3 MassC4 MassC5 MassN2 MassCOx MassH2S MassC6_14Aro MassC6_14Sat MassC15Aro MassC15Sat MassLSC MassC15AT MassC15AroS MassC15SatS MassC6_14BT MassC6_14DBT MassC6_14BP MassC6_14SatS MassC6_14AroS Massresins Massasphaltenes
+        MigrationProcess                SourceAge           SourceRockName      SourceReservoirName             SourceTrapID             SourcePointX             SourcePointY           DestinationAge DestinationReservoirName        DestinationTrapID        DestinationPointX        DestinationPointY                   MassC1                   MassC2                   MassC3                   MassC4                   MassC5                   MassN2                  MassCOx                  MassH2S             MassC6_14Aro             MassC6_14Sat               MassC15Aro               MassC15Sat                  MassLSC                MassC15AT              MassC15AroS              MassC15SatS              MassC6_14BT             MassC6_14DBT              MassC6_14BP            MassC6_14SatS            MassC6_14AroS               Massresins          Massasphaltenes
                       ()                     (Ma)                       ()                       ()                       ()                       ()                       ()                     (Ma)                       ()                       ()                       ()                       ()                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)                     (kg)
 [End]
 ;
@@ -926,18 +941,18 @@ MigrationProcess SourceAge SourceRockName SourceReservoirName SourceTrapID Sourc
 ;
 [LithotypeIoTbl]
 ;
-Lithotype Description DefinedBy UserDefined DefinitionDate LastChangedBy LastChangedDate FgColour BgColour Pixmap Density HeatProd SurfacePorosity CompacCoefES CompacCoefESA CompacCoefESB CompacCoefSC CompacCoefFM StpThCond ThCondAnisotropy DepoPerm PermDecrStressCoef PermIncrRelaxCoef PermAnisotropy PermMixModel SeisVelocity CapC1 CapC2 PcKrModel LambdaPc LambdaKr LambdaPc_LW LambdaPc_VL N_W N_V N_L KrwMax KrvMax KrlMax Swi Svr Slr Porosity_Model Compaction_Coefficient_SM Number_Of_Data_Points Multipoint_Porosity Multipoint_Permeability HydraulicFracturingPercent ReferenceSolidViscosity ActivationEnergy MinimumPorosity SpecSurfArea GeoVariance QuartzGrainSize QuartzFraction ClayCoatingFactor ErrDensity ErrHeatProd ErrSurfacePorosity ErrCompacCoefES ErrCompacCoefSC ErrCompacCoefFM ErrStpThCond ErrThCondAnisotropy ErrDepoPerm ErrPermAnisotropy ErrSeisVelocity
-                      ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                  (kg/m3)                  (uW/m3)                      (%)               (10-8Pa-1)               (10-8Pa-1)               (10-8Pa-1)                   (km-1)                   (km-1)                   (W/mK)                ((ratio))                     (mD)                       ()                       ()                ((ratio))                       ()                    (m/s)              ((unknown))              ((unknown))              ((unknown))              ((unknown))              ((unknown))              ((unknown))              ((unknown))              ((unknown))              ((unknown))              ((unknown))                   (frac)                   (frac)                   (frac)                   (frac)                   (frac)                   (frac)                       ()                       ()                       ()                       ()                       ()                      (%)                       ()                       ()                       ()                   (m2/g)                       ()                     (cm)               (fraction)               (fraction)                  (kg/m3)                  (uW/m3)                      (%)               (10-8Pa-1)                   (km-1)                   (km-1)                   (W/mK)                ((ratio))                     (mD)                ((ratio))                    (m/s)
-                 "Crust"         "Standard Crust" "BPA REF INFO|Crust|Crust"                      0 "September 04 2012 09:56"                      "" "September 04 2012 09:56"               "#808080"                "#d5638e"               "Basement"                     2800                        0                        0                        0                        0                        0                        0                        0                     4.09                        1                        0                        0                        0                        0                   "None"                        0                     0.33                   0.2611           "Brooks_Corey"                    -9999                    -9999                        1                    -9999                        1                    -9999                    -9999                        1                        1                        1                    -9999                    -9999                    -9999            "Exponential"                        0                        0                       ""                       ""                      100                    1e+17                        0                        0                     0.06                      1.7                     0.03                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0
-         "Litho. Mantle"    "Lithospheric Mantle" "BPA REF INFO|Litho. Mantle|Litho. Mantle"      0 "September 04 2012 09:56"                      "" "September 04 2012 09:56"               "#808080"                "#da90da"               "Basement"                     3300                        0                        0                        0                        0                        0                        0                        0                      3.2                        1                        0                        0                        0                        0                   "None"                        0                     0.33                   0.2611           "Brooks_Corey"                    -9999                    -9999                        1                    -9999                        1                    -9999                    -9999                        1                        1                        1                    -9999                    -9999                    -9999            "Exponential"                        0                        0                       ""                       ""                      100                    1e+17                        0                        0                     0.06                      1.7                     0.03                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0
-       "Astheno. Mantle"  "Asthenospheric Mantle" "BPA REF INFO|Astheno. Mantle|Astheno. Mantle"  0 "September 04 2012 09:56"                      "" "September 04 2012 09:56"               "#808080"                "#c83232"               "Basement"                     3200                        0                        0                        0                        0                        0                        0                        0                      3.8                        1                        0                        0                        0                        0                   "None"                        0                     0.33                   0.2611           "Brooks_Corey"                    -9999                    -9999                        1                    -9999                        1                    -9999                    -9999                        1                        1                        1                    -9999                    -9999                    -9999            "Exponential"                        0                        0                       ""                       ""                      100                    1e+17                        0                        0                     0.06                      1.7                     0.03                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0
-            "Std. Shale"         "Standard Shale" "BPA REF INFO|Std. Shale|Std. Shale"            0 "September 04 2012 09:56"                      "" "September 04 2012 09:56"               "#808080"                "#7f7f7f"                  "Shale"                     2710                      1.8                       70                     7.27                        0                        0                     0.87                     3.69                      1.4                      1.6                     0.01                     0.01                      1.5                        1                 "Shales"                     5000                     0.33                   0.2611           "Brooks_Corey"                        2                        2                        1                    -9999                        1                    -9999                    -9999                        1                        1                        1                    -9999                    -9999                    -9999            "Exponential"                        0                        0                       ""                       ""                      100                    1e+17                        0                        0                     0.06                      1.7                     0.03                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0
-        "Std. Sandstone"     "Standard Sandstone" "BPA REF INFO|Std. Sandstone|Std. Sandstone"    0 "September 04 2012 09:56"                      "" "September 04 2012 09:56"               "#808080"                "#e3e01c"              "Sandstone"                     2650                      0.8                       48                     3.22                        0                        0                     0.39                     1.53                      3.4                        1                     6000                        0                      1.5                        1                  "Sands"                     6097                     0.33                   0.2611           "Brooks_Corey"                      0.5                       10                        1                    -9999                        1                    -9999                    -9999                        1                        1                        1                    -9999                    -9999                    -9999            "Exponential"                        0                        0                       ""                       ""                      100                    1e+17                        0                        0                     0.06                      1.7                     0.03                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0
-            "Std. Chalk"         "Standard Chalk" "BPA REF INFO|Std. Chalk|Std. Chalk"            0 "September 04 2012 09:56"                      "" "September 04 2012 09:56"               "#808080"                "#95cce5"              "Limestone"                     2655                     0.45                       70                     4.83                        0                        0                     0.71                      2.5                      2.9                        1                      0.1                     0.01                      1.5                        1                 "Shales"                     5988                     0.33                   0.2611           "Brooks_Corey"                        1                        5                        1                    -9999                        1                    -9999                    -9999                        1                        1                        1                    -9999                    -9999                    -9999            "Exponential"                        0                        0                       ""                       ""                      100                    1e+17                        0                        0                     0.06                      1.7                     0.03                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0
-     "Std.Lime Mudstone" "Standard Calcareous Mudstone (Limestone)" "BPA REF INFO|Std.Lime Mudstone|Std.Lime Mudstone" 0 "September 04 2012 09:56" "" "September 04 2012 09:56"               "#808080"                "#4ea7a7"              "Limestone"                     2710                     0.45                       70                     7.27                        0                        0                     0.51                      1.8                      2.5                      1.5                     0.01                     0.01                      1.5                        1                 "Shales"                     6410                     0.33                   0.2611           "Brooks_Corey"                        2                        2                        1                    -9999                        1                    -9999                    -9999                        1                        1                        1                    -9999                    -9999                    -9999            "Exponential"                        0                        0                       ""                       ""                      100                    1e+17                        0                        0                     0.06                      1.7                     0.03                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0
-          "Standard Ice" "Standard Ice - Cavanagh, 2006" "BPA REF INFO|Standard Ice|Standard Ice" 0    "March 28 2014 15:02"                       ""    "March 28 2014 15:02"                "#121212"                "#f1faff"               "Parquet1"                      917                        0                        1                        4                        0                        0                        0                        0                      2.4                        1                        0                        0                        0                        1            "Impermeable"                     5263                     0.33                   0.2611           "Brooks_Corey"                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999            "Exponential"                        0                        0                       ""                       ""                      100                    1e+17                        0                        0                     0.06                      1.7                     0.03                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0
-      "SM.Mudst.40%Clay" "Soil Mechanics Mudstone 40% Clay" "BPA REF INFO|SM.Mudst.40%Clay|SM.Mudst.40%Clay" 0 "March 28 2014 15:02"               ""    "March 28 2014 15:02"                "#808080"                "#90ee90"                  "Shale"                     2710                      1.8                    56.32                     7.27                        0                        0                     0.87                     3.69                      1.4                      1.6                     0.01                     0.01                      1.5                        1             "Multipoint"                     5000                     0.33                   0.2611           "Brooks_Corey"                        1                        6                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999         "Soil_Mechanics"                   0.1988                        2                   "5 60"                "-6 -0.5"                      100                    1e+17                        0                        0                     0.06                      1.7                     0.03                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0
-         "SM. Sandstone" "Soil Mechanics Sandstone" "BPA REF INFO|SM. Sandstone|SM. Sandstone"    0    "March 28 2014 15:02"                       ""    "March 28 2014 15:02"                "#808080"                "#e3e09c"              "Sandstone"                     2650                      0.8                       60                     3.22                        0                        0                     0.39                     1.53                      3.4                        1                     6000                        0                      1.5                        1             "Multipoint"                     6097                     0.33                   0.2611           "Brooks_Corey"                      0.5                       10                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999         "Soil_Mechanics"                    0.222                        2                   "5 60"                "0.3 8.6"                      100                    1e+17                        0                        0                     0.06                      1.7                     0.03                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0
+               Lithotype              Description                DefinedBy              UserDefined           DefinitionDate            LastChangedBy          LastChangedDate                 FgColour                 BgColour                   Pixmap                  Density                 HeatProd          SurfacePorosity             CompacCoefES            CompacCoefESA            CompacCoefESB             CompacCoefSC             CompacCoefFM                StpThCond         ThCondAnisotropy                 DepoPerm       PermDecrStressCoef        PermIncrRelaxCoef           PermAnisotropy             PermMixModel             SeisVelocity     SeisVelocityExponent                    CapC1                    CapC2                PcKrModel                 LambdaPc                 LambdaKr              LambdaPc_LW              LambdaPc_VL                      N_W                      N_V                      N_L                   KrwMax                   KrvMax                   KrlMax                      Swi                      Svr                      Slr           Porosity_Model Compaction_Coefficient_SM   Number_Of_Data_Points      Multipoint_Porosity  Multipoint_Permeability HydraulicFracturingPercent ReferenceSolidViscosity        ActivationEnergy          MinimumPorosity             SpecSurfArea              GeoVariance          QuartzGrainSize           QuartzFraction        ClayCoatingFactor               ErrDensity              ErrHeatProd       ErrSurfacePorosity          ErrCompacCoefES          ErrCompacCoefSC          ErrCompacCoefFM             ErrStpThCond      ErrThCondAnisotropy              ErrDepoPerm        ErrPermAnisotropy          ErrSeisVelocity
+                      ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                  (kg/m3)                  (uW/m3)                      (%)               (10-8Pa-1)               (10-8Pa-1)               (10-8Pa-1)                   (km-1)                   (km-1)                   (W/mK)                ((ratio))                     (mD)                       ()                       ()                ((ratio))                       ()                    (m/s)                       ()              ((unknown))              ((unknown))              ((unknown))              ((unknown))              ((unknown))              ((unknown))              ((unknown))              ((unknown))              ((unknown))              ((unknown))                   (frac)                   (frac)                   (frac)                   (frac)                   (frac)                   (frac)                       ()                       ()                       ()                       ()                       ()                      (%)                       ()                       ()                       ()                   (m2/g)                       ()                     (cm)               (fraction)               (fraction)                  (kg/m3)                  (uW/m3)                      (%)               (10-8Pa-1)                   (km-1)                   (km-1)                   (W/mK)                ((ratio))                     (mD)                ((ratio))                    (m/s)
+                 "Crust"         "Standard Crust" "BPA REF INFO|Crust|Crust"                      0 "September 04 2012 09:56"                      "" "September 04 2012 09:56"               "#808080"                "#d5638e"               "Basement"                     2800                        0                        0                        0                        0                        0                        0                        0                     4.09                        1                        0                        0                        0                        0                   "None"                        0                        0                     0.33                   0.2611           "Brooks_Corey"                    -9999                    -9999                        1                    -9999                        1                    -9999                    -9999                        1                        1                        1                    -9999                    -9999                    -9999            "Exponential"                        0                        0                       ""                       ""                      100                    1e+17                        0                        0                     0.06                      1.7                     0.03                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0
+         "Litho. Mantle"    "Lithospheric Mantle" "BPA REF INFO|Litho. Mantle|Litho. Mantle"      0 "September 04 2012 09:56"                      "" "September 04 2012 09:56"               "#808080"                "#da90da"               "Basement"                     3300                        0                        0                        0                        0                        0                        0                        0                      3.2                        1                        0                        0                        0                        0                   "None"                        0                        0                     0.33                   0.2611           "Brooks_Corey"                    -9999                    -9999                        1                    -9999                        1                    -9999                    -9999                        1                        1                        1                    -9999                    -9999                    -9999            "Exponential"                        0                        0                       ""                       ""                      100                    1e+17                        0                        0                     0.06                      1.7                     0.03                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0
+       "Astheno. Mantle"  "Asthenospheric Mantle" "BPA REF INFO|Astheno. Mantle|Astheno. Mantle"  0 "September 04 2012 09:56"                      "" "September 04 2012 09:56"               "#808080"                "#c83232"               "Basement"                     3200                        0                        0                        0                        0                        0                        0                        0                      3.8                        1                        0                        0                        0                        0                   "None"                        0                        0                     0.33                   0.2611           "Brooks_Corey"                    -9999                    -9999                        1                    -9999                        1                    -9999                    -9999                        1                        1                        1                    -9999                    -9999                    -9999            "Exponential"                        0                        0                       ""                       ""                      100                    1e+17                        0                        0                     0.06                      1.7                     0.03                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0
+            "Std. Shale"         "Standard Shale" "BPA REF INFO|Std. Shale|Std. Shale"            0 "September 04 2012 09:56"                      "" "September 04 2012 09:56"               "#808080"                "#7f7f7f"                  "Shale"                     2710                      1.8                       70                     7.27                        0                        0                     0.87                     3.69                      1.4                      1.6                     0.01                     0.01                      1.5                        1                 "Shales"                     5000                        0                     0.33                   0.2611           "Brooks_Corey"                        2                        2                        1                    -9999                        1                    -9999                    -9999                        1                        1                        1                    -9999                    -9999                    -9999            "Exponential"                        0                        0                       ""                       ""                      100                    1e+17                        0                        0                     0.06                      1.7                     0.03                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0
+        "Std. Sandstone"     "Standard Sandstone" "BPA REF INFO|Std. Sandstone|Std. Sandstone"    0 "September 04 2012 09:56"                      "" "September 04 2012 09:56"               "#808080"                "#e3e01c"              "Sandstone"                     2650                      0.8                       48                     3.22                        0                        0                     0.39                     1.53                      3.4                        1                     6000                        0                      1.5                        1                  "Sands"                     6097                        0                     0.33                   0.2611           "Brooks_Corey"                      0.5                       10                        1                    -9999                        1                    -9999                    -9999                        1                        1                        1                    -9999                    -9999                    -9999            "Exponential"                        0                        0                       ""                       ""                      100                    1e+17                        0                        0                     0.06                      1.7                     0.03                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0
+            "Std. Chalk"         "Standard Chalk" "BPA REF INFO|Std. Chalk|Std. Chalk"            0 "September 04 2012 09:56"                      "" "September 04 2012 09:56"               "#808080"                "#95cce5"              "Limestone"                     2655                     0.45                       70                     4.83                        0                        0                     0.71                      2.5                      2.9                        1                      0.1                     0.01                      1.5                        1                 "Shales"                     5988                        0                     0.33                   0.2611           "Brooks_Corey"                        1                        5                        1                    -9999                        1                    -9999                    -9999                        1                        1                        1                    -9999                    -9999                    -9999            "Exponential"                        0                        0                       ""                       ""                      100                    1e+17                        0                        0                     0.06                      1.7                     0.03                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0
+     "Std.Lime Mudstone" "Standard Calcareous Mudstone (Limestone)" "BPA REF INFO|Std.Lime Mudstone|Std.Lime Mudstone" 0 "September 04 2012 09:56" "" "September 04 2012 09:56"               "#808080"                "#4ea7a7"              "Limestone"                     2710                     0.45                       70                     7.27                        0                        0                     0.51                      1.8                      2.5                      1.5                     0.01                     0.01                      1.5                        1                 "Shales"                     6410                        0                     0.33                   0.2611           "Brooks_Corey"                        2                        2                        1                    -9999                        1                    -9999                    -9999                        1                        1                        1                    -9999                    -9999                    -9999            "Exponential"                        0                        0                       ""                       ""                      100                    1e+17                        0                        0                     0.06                      1.7                     0.03                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0
+          "Standard Ice" "Standard Ice - Cavanagh, 2006" "BPA REF INFO|Standard Ice|Standard Ice" 0    "March 28 2014 15:02"                       ""    "March 28 2014 15:02"                "#121212"                "#f1faff"               "Parquet1"                      917                        0                        1                        4                        0                        0                        0                        0                      2.4                        1                        0                        0                        0                        1            "Impermeable"                     5263                        0                     0.33                   0.2611           "Brooks_Corey"                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999            "Exponential"                        0                        0                       ""                       ""                      100                    1e+17                        0                        0                     0.06                      1.7                     0.03                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0
+      "SM.Mudst.40%Clay" "Soil Mechanics Mudstone 40% Clay" "BPA REF INFO|SM.Mudst.40%Clay|SM.Mudst.40%Clay" 0 "March 28 2014 15:02"               ""    "March 28 2014 15:02"                "#808080"                "#90ee90"                  "Shale"                     2710                      1.8                    56.32                     7.27                        0                        0                     0.87                     3.69                      1.4                      1.6                     0.01                     0.01                      1.5                        1             "Multipoint"                     5000                        0                     0.33                   0.2611           "Brooks_Corey"                        1                        6                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999         "Soil_Mechanics"                   0.1988                        2                   "5 60"                "-6 -0.5"                      100                    1e+17                        0                        0                     0.06                      1.7                     0.03                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0
+         "SM. Sandstone" "Soil Mechanics Sandstone" "BPA REF INFO|SM. Sandstone|SM. Sandstone"    0    "March 28 2014 15:02"                       ""    "March 28 2014 15:02"                "#808080"                "#e3e09c"              "Sandstone"                     2650                      0.8                       60                     3.22                        0                        0                     0.39                     1.53                      3.4                        1                     6000                        0                      1.5                        1             "Multipoint"                     6097                        0                     0.33                   0.2611           "Brooks_Corey"                      0.5                       10                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999         "Soil_Mechanics"                    0.222                        2                   "5 60"                "0.3 8.6"                      100                    1e+17                        0                        0                     0.06                      1.7                     0.03                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0                        0
 [End]
 ;
 ;
@@ -945,7 +960,7 @@ Lithotype Description DefinedBy UserDefined DefinitionDate LastChangedBy LastCha
 ;
 [LitThCondIoTbl]
 ;
-Lithotype TempIndex ThCond
+               Lithotype                TempIndex                   ThCond
                       ()                      (C)                   (W/mK)
                  "Crust"                        0                      4.2
                  "Crust"                       20                     4.09
@@ -1031,7 +1046,7 @@ Lithotype TempIndex ThCond
 ;
 [LitHeatCapIoTbl]
 ;
-Lithotype TempIndex HeatCapacity
+               Lithotype                TempIndex             HeatCapacity
                       ()                      (C)                  (J/kgK)
                  "Crust"                        0                    708.6
                  "Crust"                      100                    848.4
@@ -1110,7 +1125,7 @@ Lithotype TempIndex HeatCapacity
 ;
 [FluidtypeIoTbl]
 ;
-Fluidtype Description DefinedBy UserDefined DefinitionDate LastChangedDate LastChangedBy Density DensModel SeisVelocity SeisVelocityModel Salinity HeatCaptype ThermCondtype Denstype Viscotype ErrDensity ErrSeisVelocity
+               Fluidtype              Description                DefinedBy              UserDefined           DefinitionDate          LastChangedDate            LastChangedBy                  Density                DensModel             SeisVelocity        SeisVelocityModel                 Salinity              HeatCaptype            ThermCondtype                 Denstype                Viscotype               ErrDensity          ErrSeisVelocity
                       ()                       ()                       ()                       ()                       ()                       ()                       ()                  (kg/m3)                       ()                    (m/s)                       ()                    (ppm)                       ()                       ()                       ()                       ()                  (kg/m3)                    (m/s)
             "Std. Water" "KSEPL's Standard Water"                    "BPA"                        0    "09/04/2012 09:56:03"                       ""                       ""                     1000             "Calculated"                     1500             "Calculated"                        0             "Std. Water"             "Std. Water"             "Std. Water"             "Std. Water"                        0                        0
      "Std. Marine Water" "KSEPL's Standard Marine Water"             "BPA"                        0    "09/04/2012 09:56:03"                       ""                       ""                     1000             "Calculated"                     1500             "Calculated"                     0.13             "Std. Water"             "Std. Water"             "Std. Water"             "Std. Water"                        0                        0
@@ -1122,7 +1137,7 @@ Fluidtype Description DefinedBy UserDefined DefinitionDate LastChangedDate LastC
 ;
 [FltThCondIoTbl]
 ;
-Fluidtype TempIndex ThCond
+               Fluidtype                TempIndex                   ThCond
                       ()                      (C)                   (W/mK)
             "Std. Water"                        0                     0.57
             "Std. Water"                       20                      0.6
@@ -1137,7 +1152,7 @@ Fluidtype TempIndex ThCond
 ;
 [FltHeatCapIoTbl]
 ;
-Fluidtype TempIndex Pressure HeatCapacity
+               Fluidtype                TempIndex                 Pressure             HeatCapacity
                       ()                      (C)                    (MPa)                  (J/kgK)
             "Std. Water"                        0                      0.1                     4250
             "Std. Water"                       50                      0.1                     4190
@@ -1302,7 +1317,7 @@ Fluidtype TempIndex Pressure HeatCapacity
 ;
 [FltDensityIoTbl]
 ;
-Fluidtype TempIndex Pressure Density ErrDensity
+               Fluidtype                TempIndex                 Pressure                  Density               ErrDensity
                       ()                      (C)                    (MPa)                  (kg/m3)                  (kg/m3)
             "Std. Water"                        0                      0.1                    999.8                    -9999
             "Std. Water"                       50                      0.1                      988                    -9999
@@ -1467,7 +1482,7 @@ Fluidtype TempIndex Pressure Density ErrDensity
 ;
 [FltViscoIoTbl]
 ;
-Fluidtype TempIndex Viscosity
+               Fluidtype                TempIndex                Viscosity
                       ()                      (C)                    (PaS)
             "Std. Water"                        0                0.0017715
             "Std. Water"                        5                0.0015088
@@ -1513,7 +1528,7 @@ Fluidtype TempIndex Viscosity
 ;
 [DisplayContourIoTbl]
 ;
-PropertyName ContourValue ContourColour
+            PropertyName             ContourValue            ContourColour
                       ()                       ()                       ()
                     "Vr"                      0.6                       ""
                     "Vr"                      1.2                       ""
@@ -1539,7 +1554,7 @@ PropertyName ContourValue ContourColour
 ;
 [DepthIoTbl]
 ;
-PropertyName Time Depth_ Average StandardDev Minimum Maximum Sum Sum2 NP P15 P50 P85 SumFirstPower SumSecondPower SumThirdPower SumFourthPower Skewness Kurtosis
+            PropertyName                     Time                   Depth_                  Average              StandardDev                  Minimum                  Maximum                      Sum                     Sum2                       NP                      P15                      P50                      P85            SumFirstPower           SumSecondPower            SumThirdPower           SumFourthPower                 Skewness                 Kurtosis
                       ()                     (Ma)                      (m)                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()
 [End]
 ;
@@ -1548,7 +1563,7 @@ PropertyName Time Depth_ Average StandardDev Minimum Maximum Sum Sum2 NP P15 P50
 ;
 [TimeIoTbl]
 ;
-PropertyName Time SurfaceName FormationName MapFileName BPAPresence MD5Checksum Average StandardDev Minimum Maximum Sum Sum2 NP PropertyGrid DepoSequence P15 P50 P85 SumFirstPower SumSecondPower SumThirdPower SumFourthPower Skewness Kurtosis
+            PropertyName                     Time              SurfaceName            FormationName              MapFileName              BPAPresence              MD5Checksum                  Average              StandardDev                  Minimum                  Maximum                      Sum                     Sum2                       NP             PropertyGrid             DepoSequence                      P15                      P50                      P85            SumFirstPower           SumSecondPower            SumThirdPower           SumFourthPower                 Skewness                 Kurtosis
                       ()                     (Ma)                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()
 [End]
 ;
@@ -1557,7 +1572,7 @@ PropertyName Time SurfaceName FormationName MapFileName BPAPresence MD5Checksum 
 ;
 [3DTimeIoTbl]
 ;
-Time PropertyName FormationName MapFileName GroupName DataSetName NumberX NumberY NumberZ Average Minimum Maximum Sum Sum2 NP
+                    Time             PropertyName            FormationName              MapFileName                GroupName              DataSetName                  NumberX                  NumberY                  NumberZ                  Average                  Minimum                  Maximum                      Sum                     Sum2                       NP
                     (Ma)                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()
 [End]
 ;
@@ -1566,7 +1581,7 @@ Time PropertyName FormationName MapFileName GroupName DataSetName NumberX Number
 ;
 [1DTimeIoTbl]
 ;
-Time PropertyName FormationName NodeIndex SurfaceName Value
+                    Time             PropertyName            FormationName                NodeIndex              SurfaceName                    Value
                     (Ma)                       ()                       ()                       ()                       ()                       ()
 [End]
 ;
@@ -1575,7 +1590,7 @@ Time PropertyName FormationName NodeIndex SurfaceName Value
 ;
 [TemperatureIsoIoTbl]
 ;
-Age ContourValue Sum NP
+                     Age             ContourValue                      Sum                       NP
                     (Ma)                       ()                       ()                       ()
 [End]
 ;
@@ -1584,8 +1599,17 @@ Age ContourValue Sum NP
 ;
 [VrIsoIoTbl]
 ;
-Age ContourValue Sum NP
+                     Age             ContourValue                      Sum                       NP
                     (Ma)                       ()                       ()                       ()
+[End]
+;
+;
+; TwoWayTimeIoTbl
+;
+[TwoWayTimeIoTbl]
+;
+             SurfaceName           TwoWayTimeGrid               TwoWayTime
+                      ()                     (ms)                     (ms)
 [End]
 ;
 ;
@@ -1593,7 +1617,7 @@ Age ContourValue Sum NP
 ;
 [TouchstoneMapIoTbl]
 ;
-TcfName FaciesNumber SurfaceName FormationName Category Format Percentile FaciesMap
+                 TcfName             FaciesNumber              SurfaceName            FormationName                 Category                   Format               Percentile                FaciesMap
                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()
 [End]
 ;
@@ -1602,7 +1626,7 @@ TcfName FaciesNumber SurfaceName FormationName Category Format Percentile Facies
 ;
 [GenexHistoryLocationIoTbl]
 ;
-FormationName WellName XPlanePosition YPlanePosition Filename
+           FormationName                 WellName           XPlanePosition           YPlanePosition                 Filename
                       ()                       ()                      (m)                      (m)                       ()
 [End]
 ;
@@ -1611,7 +1635,7 @@ FormationName WellName XPlanePosition YPlanePosition Filename
 ;
 [LangmuirAdsorptionCapacityIsothermSetIoTbl]
 ;
-LangmuirName LangmuirTemperature LangmuirPressure LangmuirVolume
+            LangmuirName      LangmuirTemperature         LangmuirPressure           LangmuirVolume
                       ()                      (C)                    (MPa)                     (cc)
 [End]
 ;
@@ -1620,7 +1644,7 @@ LangmuirName LangmuirTemperature LangmuirPressure LangmuirVolume
 ;
 [LangmuirAdsorptionCapacityTOCFunctionIoTbl]
 ;
-LangmuirName ReferenceTemperature VLCoeffA VLCoeffB VLTemperatureGradient LangmuirPressure
+            LangmuirName     ReferenceTemperature                 VLCoeffA                 VLCoeffB    VLTemperatureGradient         LangmuirPressure
                       ()                      (C)                       ()                       ()                 (cc/g/C)                    (MPa)
 [End]
 ;
@@ -1629,7 +1653,7 @@ LangmuirName ReferenceTemperature VLCoeffA VLCoeffB VLTemperatureGradient Langmu
 ;
 [AdsorptionHistoryIoTbl]
 ;
-AdsorptionFormationName XPlanePosition YPlanePosition
+ AdsorptionFormationName           XPlanePosition           YPlanePosition
                       ()                      (m)                      (m)
 [End]
 ;
@@ -1638,7 +1662,7 @@ AdsorptionFormationName XPlanePosition YPlanePosition
 ;
 [IrreducibleWaterSaturationIoTbl]
 ;
-CoefficientA CoefficientB
+            CoefficientA             CoefficientB
                       ()                       ()
                    -0.13                      0.7
 [End]
@@ -1648,8 +1672,17 @@ CoefficientA CoefficientB
 ;
 [SGDensityIoTbl]
 ;
-SGMeanBulkDensity
+       SGMeanBulkDensity
                       ()
                     2300
+[End]
+;
+;
+; SimulationDetailsIoTbl
+;
+[SimulationDetailsIoTbl]
+;
+SimulationSequenceNumber            SimulatorName            SimulatorMode            NumberOfCores SimulatorCommandLineParameters
+                      ()                       ()                       ()                       ()                       ()
 [End]
 ;

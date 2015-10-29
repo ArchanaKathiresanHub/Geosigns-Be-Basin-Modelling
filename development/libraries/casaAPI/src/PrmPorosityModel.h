@@ -72,7 +72,7 @@ namespace mbapi
 /// -# Minimal porosity @f$ \phi_m @f$
 /// -# Compaction coefficient for the first exponent  @f$ c_a @f$
 /// -# Compaction coefficient for the second exponent @f$ c_b @f$
-
+///
 namespace casa
 {
    class VarPrmPorosityModel;

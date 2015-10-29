@@ -26,6 +26,7 @@
 #include "PrmCrustThinning.h"
 
 #include "PrmPorosityModel.h"
+#include "PrmSurfacePorosity.h"
 #include "PrmPermeabilityModel.h"
 #include "PrmLithoSTPThermalCond.h"
 
@@ -43,79 +44,18 @@
 #include "VarPrmCrustThinning.h"
 
 #include "VarPrmPorosityModel.h"
+#include "VarPrmSurfacePorosity.h"
 #include "VarPrmPermeabilityModel.h"
 #include "VarPrmLithoSTPThermalCond.h"
 
 // Standard C lib
 #include <cmath>
 #include <sstream>
+#include <utility>
+
 
 namespace casa {
 
-static std::string CopyLithologyForTheLayer( ScenarioAnalysis & sa, const std::string & layerName, const std::string & litName, const std::string & suffix )
-{
-   std::string lithoName = litName;
-
-   mbapi::StratigraphyManager & smgr = sa.baseCase().stratigraphyManager();
-   mbapi::LithologyManager    & lmgr = sa.baseCase().lithologyManager();
-
-   mbapi::StratigraphyManager::LayerID lid = smgr.layerID( layerName );
-
-   if ( UndefinedIDValue == lid )
-   {
-      throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "No layer with name: " << layerName << " in stratigraphy table";
-   }
-   
-   // get list lithologies associated with the layer
-   std::vector<std::string> lithNames;
-   std::vector<double>      lithPerc;
-
-   smgr.layerLithologiesList( lid, lithNames, lithPerc );
-
-   int found = -1;
-   for ( size_t i = 0; i < lithNames.size() && found < 0; ++i )
-   {
-      if ( lithNames[i] == lithoName ||
-           lithNames[i].rfind( "_CASA_copy" ) != std::string::npos && lithNames[i].find( lithoName ) == 0 
-         )
-      {
-         found = static_cast<int>( i );
-      }
-   }
-   if ( found < 0 )
-   {
-      throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Layer " << layerName << " has no lithology type: " << lithoName;
-   }
-
-   // do checking if we need to copy lithology
-   const std::vector<mbapi::StratigraphyManager::LayerID> & layersWithSameLith = smgr.findLayersForLithology( lithoName );
-   bool copyLithology = layersWithSameLith.size() > 1 ? true : false;
-
-   // create lithology copy if needed
-   if ( copyLithology )
-   {
-      mbapi::LithologyManager::LithologyID lithID = lmgr.findID( lithoName );
-
-      if ( UndefinedIDValue == lithID ) 
-      {
-         throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "No lithology with name: " << 
-            lithoName << " in lithologies type table";
-      }
-
-      // construct new lithology name as oldName_layerName_PorMdl_CASA_copy
-      std::ostringstream oss;
-      oss << lithoName << "_" << layerName << "_" << suffix << "_CASA_copy";
-
-      mbapi::LithologyManager::LithologyID newLithID = lmgr.copyLithology( lithID, oss.str() );
-      if ( UndefinedIDValue == newLithID ) throw ErrorHandler::Exception( lmgr.errorCode() ) << lmgr.errorMessage(); 
-
-      lithNames[found] = lmgr.lithologyName( newLithID );
-      smgr.setLayerLithologiesList( lid, lithNames, lithPerc );
-      lithoName = oss.str();
-   }
-
-   return lithoName;
-}
 
 ///////////////////////////////////////////////////////////////////////////////
 // Set of business logic rules functions to convert one request to set of parameters
@@ -882,6 +822,56 @@ ErrorHandler::ReturnCode VaryCrustThinning( casa::ScenarioAnalysis & sa
    return ErrorHandler::NoError;
 }
 
+// Add variation of porosity model parameters 
+ErrorHandler::ReturnCode VarySurfacePorosity( ScenarioAnalysis & sa
+                                            , const std::string                                      & name         
+                                            , const std::vector<std::pair<std::string, size_t> >     & layersName   
+                                            , const std::vector<std::string>                         & allochtLitName
+                                            , const std::vector<std::pair<std::string,std::string> > & faultsName   
+                                            , const std::string                                      & litName      
+                                            , double                                                   minSurfPor   
+                                            , double                                                   maxSurfPor   
+                                            , VarPrmContinuous::PDF                                    pdfType
+                                            )
+{
+   try
+   {
+      VarSpace & varPrmsSet = sa.varSpace();
+
+      // calculate base value as middle of range first
+
+      double baseSurfPor = 0.5 * ( minSurfPor + maxSurfPor );
+
+      // Get base value of parameter from the Model
+      mbapi::Model & mdl = sa.baseCase();
+
+      casa::PrmSurfacePorosity prm( mdl, litName );
+      baseSurfPor = prm.asDoubleArray()[0];
+
+      // check ranges and base value
+      ErrorHandler::Exception ex( ErrorHandler::OutOfRangeValue );
+      if ( baseSurfPor < minSurfPor || baseSurfPor > maxSurfPor ) { throw ex << "Surface porosity in the base case is outside of the given range"; }
+
+      // check - if not only lithology was specified, create a copy of corresponded lithology and update all refernces to it
+      if ( !layersName.empty() || !allochtLitName.empty() || !faultsName.empty() )
+      {
+         const std::vector<std::string> & newLitNames = mdl.copyLithology( litName, layersName, allochtLitName, faultsName );
+
+         if ( newLitNames.empty() ) { throw ErrorHandler::Exception( mdl.errorCode() ) << mdl.errorMessage(); }
+
+         if ( ErrorHandler::NoError != varPrmsSet.addParameter( new VarPrmSurfacePorosity( newLitNames, baseSurfPor, minSurfPor, maxSurfPor, pdfType, name ) ) )
+         {
+            throw ErrorHandler::Exception( varPrmsSet.errorCode() ) << varPrmsSet.errorMessage();
+         }
+      }
+   }
+   catch( const ErrorHandler::Exception & ex )
+   {
+      return sa.reportError( ex.errorCode(), ex.what() );
+   }
+
+   return ErrorHandler::NoError;
+}
 
 // Add variation of porosity model parameters 
 ErrorHandler::ReturnCode VaryPorosityModelParameters( ScenarioAnalysis    & sa
@@ -991,10 +981,18 @@ ErrorHandler::ReturnCode VaryPorosityModelParameters( ScenarioAnalysis    & sa
 
       // check - if layer was specified, create a copy of corresponded lithology for the given 
       // layer and change Porosity Model parameters only for this lithology
-      std::string newLithoName = ( layerName != NULL && strlen( layerName ) > 0 ) ? 
-                                      CopyLithologyForTheLayer( sa, layerName, litName, "PorMdl" ) : std::string( litName );
+      const std::vector<std::string> & newLithoNames = mdl.copyLithology(
+                                                    litName
+                                                  , (layerName != NULL && strlen(layerName) > 0) ?
+                                                    std::vector<std::pair<std::string, size_t> >(1, std::pair<std::string,size_t>(layerName, 0)) :
+                                                    std::vector<std::pair<std::string, size_t> >()
+                                                  , std::vector<std::string>()
+                                                  , std::vector<std::pair<std::string, std::string> >()
+                                                                    );
 
-      if ( ErrorHandler::NoError != varPrmsSet.addParameter( new VarPrmPorosityModel( newLithoName.c_str(), mdlType, 
+      if ( newLithoNames.empty() ) { throw ErrorHandler::Exception( mdl.errorCode() ) << mdl.errorMessage(); }
+
+      if ( ErrorHandler::NoError != varPrmsSet.addParameter( new VarPrmPorosityModel( newLithoNames.front().c_str(), mdlType, 
                                                                                       baseSurfPor,   minSurfPor,   maxSurfPor, 
                                                                                       baseMinPor,    minMinPor,    maxMinPor,
                                                                                       baseCompCoef,  minCompCoef,  maxCompCoef,
@@ -1105,11 +1103,18 @@ ErrorHandler::ReturnCode VaryPermeabilityModelParameters( ScenarioAnalysis      
 
       // check - if layer was specified, create a copy of corresponded lithology for the given 
       // layer and change Porosity Model parameters only for this lithology
-      const std::string & newLithoName = ( layerName != NULL && strlen( layerName ) > 0 ) ? 
-                                              CopyLithologyForTheLayer( sa, layerName, lithoName, "PrmMdl" ) : std::string( lithoName );
- 
+      const std::vector<std::string> & newLithoNames = sa.baseCase().copyLithology(
+                                                                      lithoName
+                                                                    , (layerName != NULL && strlen( layerName ) > 0 ) ? 
+                                                                      std::vector<std::pair<std::string, size_t> >( 1, std::pair<std::string,size_t>( layerName, 0 ) ) :
+                                                                      std::vector<std::pair<std::string, size_t> >()
+                                                                    , std::vector<std::string>()
+                                                                    , std::vector<std::pair<std::string, std::string> >()
+                                                                    );
+      if ( newLithoNames.empty() ) { throw ErrorHandler::Exception( sa.baseCase().errorCode() ) << sa.baseCase().errorMessage(); }
+
       VarSpace & varPrmsSet = sa.varSpace();
-      if ( ErrorHandler::NoError != varPrmsSet.addParameter( new VarPrmPermeabilityModel( newLithoName.c_str()
+      if ( ErrorHandler::NoError != varPrmsSet.addParameter( new VarPrmPermeabilityModel( newLithoNames.front().c_str()
                                                                                         , mdlType
                                                                                         , basModelPrms
                                                                                         , minModelPrms
@@ -1163,10 +1168,17 @@ ErrorHandler::ReturnCode VaryLithoSTPThermalCondCoeffParameter( ScenarioAnalysis
 
       // check - if layer was specified, create a copy of corresponded lithology for the given 
       // layer and change Porosity Model parameters only for this lithology
-      const std::string & newLithoName = ( layerName != NULL && strlen( layerName ) > 0 ) ? 
-                                            CopyLithologyForTheLayer( sa, layerName, litName, "STPCoeff" ) : std::string( litName );
+     const std::vector<std::string> & newLithoNames = mdl.copyLithology(
+                                                                     litName
+                                                                   , (layerName != NULL && strlen( layerName ) > 0 ) ? 
+                                                                     std::vector<std::pair<std::string, size_t> >( 1, std::pair<std::string,size_t>( layerName, 0 ) ) :
+                                                                     std::vector<std::pair<std::string, size_t> >()
+                                                                   , std::vector<std::string>()
+                                                                   , std::vector<std::pair<std::string, std::string> >()
+                                                                   );
+      if ( newLithoNames.empty() ) { throw ErrorHandler::Exception( sa.baseCase().errorCode() ) << sa.baseCase().errorMessage(); }
 
-      if ( ErrorHandler::NoError != varPrmsSet.addParameter( new VarPrmLithoSTPThermalCond( newLithoName.c_str()
+      if ( ErrorHandler::NoError != varPrmsSet.addParameter( new VarPrmLithoSTPThermalCond( newLithoNames.front().c_str()
                                                                                           , baseVal
                                                                                           , minVal
                                                                                           , maxVal

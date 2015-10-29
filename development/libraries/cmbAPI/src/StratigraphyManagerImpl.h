@@ -118,6 +118,11 @@ namespace mbapi {
       // return true if source rock mixing is enabled, false otherwise
       virtual bool isSourceRockMixingEnabled( LayerID id );
 
+      // Check if layer has active allochton lithology
+      // id layer ID
+      // return true if yes, false otherwise
+      virtual bool isAllochtonLithology( LayerID id );
+
       // Get source rock types associated with given layer ID
       // lid layer ID
       // return if layer is not a source rock layer function returns an empty array,
@@ -155,7 +160,23 @@ namespace mbapi {
       // return ErrorHandler::NoError on success or error code if mixing is not turned off or other error happened
       virtual ReturnCode setSourceRockMixHC( LayerID lid, double srmHC );
 
+      // Search in PressureFaultcutIoTbl table for the given combination of map name/fault name
+      // mapName map name
+      // fltName fault cut name 
+      // return PrFaultCutID for the found fault / map combination on success, UndefinedIDValue otherwise
+      virtual PrFaultCutID findFaultCut( const std::string & mapName, const std::string & fltName );
 
+      // Get lithlogy name for the given fault cut ID
+      // flID fault cut id in PressureFaultcutIoTbl
+      // return Name of the fault cut lithology
+      virtual std::string faultCutLithology( PrFaultCutID flID );
+
+      // Set new lithology for the fault cut
+      // flID fault cut id in PressureFaultcutIoTbl
+      // newLithoName new lithology name
+      // return ErrorHandler::NoError on success, error code otherwise
+      virtual ReturnCode setFaultCutLithology( PrFaultCutID flID, const std::string & newLithoName );
+ 
    private:
       static const char * s_stratigraphyTableName;
       static const char * s_layerNameFieldName;
@@ -171,6 +192,13 @@ namespace mbapi {
       static const char * s_sourceRockType2FieldName;
       static const char * s_sourceRockHIFieldName;
       static const char * s_sourceRockEnableMixintFieldName;
+      static const char * s_isAllochtonLithology;
+
+      static const char * s_pressureFaultCutTableName;
+      static const char * s_FaultcutsMapFieldName;
+      static const char * s_FaultNameFieldName;
+      static const char * s_FaultLithologyFieldName;
+                                
 
       database::Database * m_db;         // cauldron project database
       database::Table    * m_stratIoTbl; // stratigraphy table

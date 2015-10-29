@@ -44,6 +44,26 @@
 #include <algorithm>
 #include <sstream>
 
+// generates pseudo random string from alphanumeric characters with given length
+static std::string GetRandomString( size_t len )
+{
+   static unsigned long next = 1970;
+   static const char alphanum[] = "0123456789"
+                                  "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                                  "abcdefghijklmnopqrstuvwxyz";
+   std::ostringstream oss;
+   for ( size_t i = 0; i < len; ++i )
+   {
+      /* RAND_MAX assumed to be 32767 */
+      next = next * 1103515245 + 12345;
+      int rnd = ((unsigned)(next/65536) % 32768) / (32767 / sizeof(alphanum) + 1);
+
+      oss << alphanum[rnd];
+   }
+   return oss.str();
+} 
+
+
 namespace mbapi {
 
 const char * Model::s_ResultsFolderSuffix = "_CauldronOutputDir"; // defines Cauldron results folder name suffix
@@ -97,6 +117,13 @@ public:
    void saveModelToProjectFile(   const char * projectFileName );
    std::string projectFileName() { return m_projFileName; }
 
+   // Create the unique copies of lithology for each given layer, alochtonous lithology and fault cut from the given lists
+   // returns array of newly created lithologies name in order of layers->alochtonous lithologies->fault cuts
+   std::vector<std::string> copyLithology( const std::string                                       & litName      
+                                         , const std::vector< std::pair<std::string, size_t> >     & layersName   
+                                         , const std::vector<std::string>                          & alochtLitName
+                                         , const std::vector<std::pair<std::string, std::string> > & faultsName
+                                         );
    // Lithology
    LithologyManager    & lithologyManager() { return m_lithMgr; }
    // Stratigraphy
@@ -387,6 +414,22 @@ Model::ReturnCode Model::arealSize( double & dimX, double & dimY )
    return NoError;
 }
 
+std::vector<std::string> Model::copyLithology( const std::string                                       & litName      
+                                             , const std::vector< std::pair<std::string, size_t> >     & layersName   
+                                             , const std::vector<std::string>                          & alochtLitName
+                                             , const std::vector<std::pair<std::string, std::string> > & faultsName
+                                             )
+{
+   if ( errorCode() != NoError ) resetError(); // clean any previous error
+
+   try { return m_pimpl->copyLithology( litName, layersName, alochtLitName, faultsName ); }
+
+   catch ( const ErrorHandler::Exception & ex ) { this->ErrorHandler::reportError( ex.errorCode(), ex.what() ); }
+   catch ( ... ) { this->ErrorHandler::reportError( UnknownError, "Unknown error" ); }
+
+   return std::vector<std::string>();
+}
+ 
 
 ///////////////////////////////////////////////////////////////////////////////
 // Actual implementation of CMB API
@@ -1037,5 +1080,165 @@ void Model::ModelImpl::arealSize( double & dimX, double & dimY )
    dimY = ( pd->getWindowYMax() - pd->getWindowYMin() ) * pd->getDeltaY();
 }
 
+// Create the unique copies of lithology for each given layer, alochtonous lithology and fault cut from the given lists
+// returns array of newly created lithologies name in order of layers->alochtonous lithologies->fault cuts
+std::vector<std::string> Model::ModelImpl::copyLithology( const std::string                                       & litName      
+                                                        , const std::vector< std::pair<std::string, size_t> >     & layersName   
+                                                        , const std::vector<std::string>                          & allochtLitName
+                                                        , const std::vector<std::pair<std::string, std::string> > & faultsName
+                                                        )
+{
+   const size_t randStringSize = 3; // how long should be random part in copied lithology
+   std::vector<std::string> copiedLithologiesName;
+
+   // get lithology ID
+   mbapi::LithologyManager::LithologyID lithID = m_lithMgr.findID( litName );
+
+   if ( UndefinedIDValue == lithID ) 
+   {
+      throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "No lithology with name: " <<  litName << " in lithologies type table";
+   }
+
+   // go over the given layers list for stratigraphy
+   for ( size_t i = 0; i < layersName.size(); ++i )
+   {
+      // get layer ID from stratigraphy manager
+      mbapi::StratigraphyManager::LayerID lyd = m_stratMgr.layerID( layersName[i].first );
+      if ( UndefinedIDValue == lyd )
+      {
+         throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "No such layer: " << layersName[i].first << " in stratigraphy table";
+      }
+
+      std::vector<std::string> mixList;
+
+      // get list of lithologies for the layer
+      std::vector<double> lithPerc;
+      if ( ErrorHandler::NoError != m_stratMgr.layerLithologiesList( lyd, mixList, lithPerc ) )
+      {
+         throw ErrorHandler::Exception( m_stratMgr.errorCode() ) << m_stratMgr.errorMessage();
+      }
+
+      // check if lithology is already copied
+      if ( mixList.size() - 1 >= layersName[i].second && 
+           mixList[layersName[i].second].rfind( "_CASA" ) != std::string::npos &&
+           mixList[layersName[i].second].find( litName ) == 0
+         )
+      {
+         copiedLithologiesName.push_back( mixList[layersName[i].second] );
+         continue; // go to the next layer in the list
+      }
+
+      // check that mixing id is in the list and layer has the same lithology for the given mixing id
+      if ( mixList.size() - 1 < layersName[i].second || mixList[layersName[i].second] != litName )
+      {
+         throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Layer " << layersName[i].first << " has no lithology " << litName;
+      }
+
+      if ( NumericFunctions::isEqual( lithPerc[layersName[i].second], 0.0, 1e-3 ) )
+      {
+         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Layer " << layersName[i].first << " has zero percent of lithology: "
+                                                                        << litName;
+      }
+
+      // create new lithology name, copy it and assign the new lithology name for the corresponded mixing position to the layer
+      std::string newLithoName = litName + "_" + GetRandomString( 3 ) + "_CASA";
+
+      mbapi::LithologyManager::LithologyID newLithID = m_lithMgr.copyLithology( lithID, newLithoName );
+      if ( UndefinedIDValue == newLithID ) throw ErrorHandler::Exception( m_lithMgr.errorCode() ) << m_lithMgr.errorMessage();
+      mixList[layersName[i].second] = newLithoName;
+      
+      // set updated lithologies list back to the layer
+      if ( ErrorHandler::NoError != m_stratMgr.setLayerLithologiesList( lyd, mixList, lithPerc ) )
+      {
+         throw ErrorHandler::Exception( m_stratMgr.errorCode() ) << m_stratMgr.errorMessage();
+      }
+      copiedLithologiesName.push_back( newLithoName );
+   }
+
+   // go over allochtonous lithologies list
+   for ( size_t i = 0; i < allochtLitName.size(); ++i )
+   {
+      mbapi::LithologyManager::AllochtLithologyID alID = m_lithMgr.findAllochtID( allochtLitName[i] );
+      if ( UndefinedIDValue == alID )
+      {
+         throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "No allochtonous lithology for the layer: " <<  allochtLitName[i];
+      }
+
+      const std::string & alLitNm = m_lithMgr.allochtonLithology( alID );
+      if ( alLitNm.empty() ) { throw ErrorHandler::Exception( m_lithMgr.errorCode() ) << m_lithMgr.errorMessage(); }
+
+      // check if lithology is already copied
+      if ( alLitNm.rfind( "_CASA" ) != std::string::npos &&  alLitNm.find( litName ) == 0 )
+      {
+         copiedLithologiesName.push_back( alLitNm );
+         continue; // go to the next allochtonous lithology in the list
+      }
+
+      if ( alLitNm != litName )
+      {
+         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Layer " << allochtLitName[i] << " has no allochtonous lithology " 
+            << litName;
+      }
+
+      // create new lithology name, copy it and assign the new lithology name for the corresponded layer
+      std::string newLithoName = litName + "_" + GetRandomString( 3 ) + "_CASA";
+
+      mbapi::LithologyManager::LithologyID newLithID = m_lithMgr.copyLithology( lithID, newLithoName );
+      if ( UndefinedIDValue == newLithID ) throw ErrorHandler::Exception( m_lithMgr.errorCode() ) << m_lithMgr.errorMessage();
+      
+      // set copied lithology back to the layer
+      if ( ErrorHandler::NoError != m_lithMgr.setAllochtonLithology( alID, newLithoName ) )
+      {
+         throw ErrorHandler::Exception( m_lithMgr.errorCode() ) << m_lithMgr.errorMessage();
+      }
+
+      copiedLithologiesName.push_back( newLithoName );
+   }
+
+   // loop over fault table
+   for ( size_t i = 0; i < faultsName.size(); ++i )
+   {
+      mbapi::StratigraphyManager::PrFaultCutID flID = m_stratMgr.findFaultCut( faultsName[i].first, faultsName[i].second );
+      if ( UndefinedIDValue == flID )
+      {
+         throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "No lithology for the fault cut: " <<  faultsName[i].first <<
+            ":" << faultsName[i].second;
+      }
+
+      const std::string & flLitNm = m_stratMgr.faultCutLithology( flID );
+      if ( flLitNm.empty() ) { throw ErrorHandler::Exception( m_stratMgr.errorCode() ) << m_stratMgr.errorMessage(); }
+
+      // check if lithology is already copied
+      if ( flLitNm.rfind( "_CASA" ) != std::string::npos &&  flLitNm.find( litName ) == 0 )
+      {
+         copiedLithologiesName.push_back( flLitNm );
+         continue; // go to the next allochtonous lithology in the list
+      }
+
+      if ( flLitNm != litName )
+      {
+         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Fault cut " << faultsName[i].first << ":" << faultsName[i].second
+            << " has different lithology: " << flLitNm << " than excpected: " <<  litName;
+      }
+
+      // create new lithology name, copy it and assign the new lithology name for the corresponded fault cut
+      std::string newLithoName = litName + "_" + GetRandomString( 3 ) + "_CASA";
+
+      mbapi::LithologyManager::LithologyID newLithID = m_lithMgr.copyLithology( lithID, newLithoName );
+      if ( UndefinedIDValue == newLithID ) throw ErrorHandler::Exception( m_lithMgr.errorCode() ) << m_lithMgr.errorMessage();
+      
+      // set copied lithology back to the layer
+      if ( ErrorHandler::NoError != m_stratMgr.setFaultCutLithology( flID, newLithoName ) )
+      {
+         throw ErrorHandler::Exception( m_stratMgr.errorCode() ) << m_stratMgr.errorMessage();
+      }
+
+      copiedLithologiesName.push_back( newLithoName );
+   }
+
+   if ( copiedLithologiesName.empty() ) { copiedLithologiesName.push_back( litName ); }
+   return copiedLithologiesName;
+}
+ 
 }
 

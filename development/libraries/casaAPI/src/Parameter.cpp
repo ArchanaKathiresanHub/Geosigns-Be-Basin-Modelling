@@ -22,6 +22,7 @@
 #include "PrmSourceRockPreAsphaltStartAct.h"
 #include "PrmTopCrustHeatProduction.h"
 #include "PrmPorosityModel.h"
+#include "PrmSurfacePorosity.h"
 #include "PrmPermeabilityModel.h"
 #include "PrmLithoSTPThermalCond.h"
 
@@ -47,6 +48,7 @@ casa::Parameter * casa::Parameter::load( CasaDeserializer & dz, const char * obj
    else if ( ot == "PrmSourceRockType"               ) { return new PrmSourceRockType(               dz, vr ); }
    else if ( ot == "PrmTopCrustHeatProduction"       ) { return new PrmTopCrustHeatProduction(       dz, vr ); }
    else if ( ot == "PrmPorosityModel"                ) { return new PrmPorosityModel(                dz, vr ); }
+   else if ( ot == "PrmSrufacePorosity"              ) { return new PrmSurfacePorosity(              dz, vr ); }
    else if ( ot == "PrmPermeabilityModel"            ) { return new PrmPermeabilityModel(            dz, vr ); }
    else if ( ot == "PrmLithoSTPThermalCond"          ) { return new PrmLithoSTPThermalCond(          dz, vr ); }
    else

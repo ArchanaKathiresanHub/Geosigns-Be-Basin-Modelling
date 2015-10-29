@@ -272,6 +272,15 @@ namespace mbapi {
 
       ///@}
 
+      // Modify project methods
+      /// @brief Create the unique copies of lithology for each given layer, alochtonous lithology and fault cut from the given lists
+      /// @return array of newly created lithologies name in order of layers->alochtonous lithologies->fault cuts
+      std::vector<std::string> copyLithology(
+              const std::string                                       & litName       ///< the original lithology name
+            , const std::vector< std::pair<std::string, size_t> >     & layersName    ///< list of layers name with lithology mixing ids
+            , const std::vector<std::string>                          & alochtLitName ///< list of layers with alochtonous lithologies
+            , const std::vector<std::pair<std::string, std::string> > & faultsName    ///< list of pairs map name - fault cut name
+                                            );
    private:
       /// @{
       /// Implementation part

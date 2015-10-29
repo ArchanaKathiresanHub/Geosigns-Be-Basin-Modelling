@@ -102,7 +102,8 @@ namespace mbapi {
       
       /// @{
       /// Set of interfaces for interacting with a Cauldron model
-      typedef size_t LithologyID;  ///< unique ID for lithology
+      typedef size_t LithologyID;         ///< unique ID for lithology
+      typedef size_t AllochtLithologyID;  ///< unique ID for allochton lithology
 
       typedef enum
       {
@@ -149,6 +150,25 @@ namespace mbapi {
       /// @return new lithology ID on success or UndefinedIDValue on error
       virtual LithologyID copyLithology( LithologyID id, const std::string & newLithoName ) = 0;
 
+      // Alochton lithology methods
+      /// @{ 
+
+      /// @brief Search in AllochthonLithoIoTbl table for the given layer name
+      /// @param layerName layer name for allochton lithology
+      /// @return AllochthonLithologyID for the found lithology on success, UndefinedIDValue otherwise
+      virtual AllochtLithologyID findAllochtID( const std::string & layerName ) = 0;
+
+      /// @brief Get lithlogy name for the allochton lithology
+      /// @return Name of the allochton lithology
+      virtual std::string allochtonLithology( AllochtLithologyID alID ) = 0;
+
+      /// @brief Set new allochton lithology for the layer
+      /// @param alID layer id in AllochthonLithoIoTbl
+      /// @param newLithoName new lithology name
+      /// @return ErrorHandler::NoError on success, error code otherwise
+      virtual ReturnCode setAllochtonLithology( AllochtLithologyID alID, const std::string & newLithoName ) = 0;
+      /// @}
+      
       // Porosity model definition
       /// @{
 
@@ -184,11 +204,11 @@ namespace mbapi {
 
       /// @brief Set lithology permeability model with parameters
       /// @return NoError on success or error code otherwise
-      virtual ReturnCode setPermeabilityModel( LithologyID                 id         ///< lithology ID
-                                             , PermeabilityModel           prmModel   ///< permeability calculation model
-                                             , const std::vector<double> & modelPrms  ///< model parameters, depends on the given model
-                                             , const std::vector<double> & mpPor      ///< for multi-point perm. model the porosity values vector. Empty for other models
-                                             , const std::vector<double> & mpPerm     ///< for multi-point perm. model the log. of perm values vector. Empty for other models.
+      virtual ReturnCode setPermeabilityModel( LithologyID                 id       ///< lithology ID
+                                             , PermeabilityModel           prmModel ///< permeability calculation model
+                                             , const std::vector<double> & modelPrms///< model parameters, depends on the given model
+                                             , const std::vector<double> & mpPor    ///< for multi-point perm. model the porosity values vector. Empty for other models
+                                             , const std::vector<double> & mpPerm   ///< for multi-point perm. model the log. of perm values vector. Empty for other models.
                                              ) = 0;
       /// @}
 

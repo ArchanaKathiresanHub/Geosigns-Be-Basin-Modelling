@@ -71,6 +71,12 @@ const char * LithologyManagerImpl::s_TempIndexFieldName    = "TempIndex";
 const char * LithologyManagerImpl::s_ThCondFieldName       = "ThCond";
 const char * LithologyManagerImpl::s_HeatCapacityFieldName = "HeatCapacity";
 
+// Allochtonous lithology
+const char * LithologyManagerImpl::s_allochtLithTableName       = "AllochthonLithoIoTbl";
+const char * LithologyManagerImpl::s_allochtLayerNameFieldName  = "LayerName";
+const char * LithologyManagerImpl::s_allochtLithotypeFieldName  = "Lithotype";
+
+
 
 static void ParseCoefficientsFromString( const std::string & str, std::vector<double> & result )
 {
@@ -271,7 +277,85 @@ LithologyManager::LithologyID LithologyManagerImpl::findID( const std::string & 
    return UndefinedIDValue;
 }
 
+// Allochton lithology methods
+// Search in AllochthonLithoIoTbl table for the given layer name
+// AllochthonLithologyID for the found lithology on success, UndefinedIDValue otherwise
+LithologyManager::AllochtLithologyID LithologyManagerImpl::findAllochtID( const std::string & layerName )
+{
+   if ( errorCode() != NoError ) resetError();
+   try
+   {
+      // get pointer to the table
+      database::Table * table = m_db->getTable( s_allochtLithTableName );
 
+      // if table does not exist - report error
+      if ( !table ) { throw Exception( NonexistingID ) << s_allochtLithTableName << " table could not be found in project"; }
+
+      size_t tblSize = table->size();
+      for ( size_t i = 0; i < tblSize; ++i )
+      {
+         database::Record * rec = table->getRecord( static_cast<unsigned int>( i ) );
+         if ( !rec ) { throw Exception( NonexistingID ) << "No allochton lithology type with such ID: " << i; }
+
+         if ( layerName == rec->getValue<std::string>( s_allochtLayerNameFieldName ) )
+         {
+            return static_cast<LithologyManager::AllochtLithologyID>( i );
+         }
+      }
+   }
+   catch ( const Exception & e ) { reportError( e.errorCode(), e.what() ); }
+
+   return UndefinedIDValue;
+}
+
+// Get lithlogy name for the allochton lithology
+// return Name of the allochton lithology
+std::string LithologyManagerImpl::allochtonLithology( AllochtLithologyID alID )
+{
+   if ( errorCode() != NoError ) resetError();
+
+   try
+   {
+      // get pointer to the table
+      database::Table * table = m_db->getTable( s_allochtLithTableName );
+
+      // if table does not exist - report error
+      if ( !table ) { throw Exception( NonexistingID ) << s_allochtLithTableName << " table could not be found in project"; }
+
+      database::Record * rec = table->getRecord( static_cast<int>( alID ) );
+      if ( !rec ) { throw Exception( NonexistingID ) << "No allochtonous lithology type with such ID: " << alID; }
+
+      return rec->getValue<std::string>( s_allochtLithotypeFieldName );
+   }
+   catch ( const Exception & e ) { reportError( e.errorCode(), e.what() ); }
+
+   return "";
+}
+
+// Set new allochton lithology for the layer
+// return ErrorHandler::NoError on success, error code otherwise
+ErrorHandler::ReturnCode LithologyManagerImpl::setAllochtonLithology( AllochtLithologyID alID, const std::string & newLithoName )
+{
+   if ( errorCode() != NoError ) resetError();
+
+   try
+   {
+      // get pointer to the table
+      database::Table * table = m_db->getTable( s_allochtLithTableName );
+
+      // if table does not exist - report error
+      if ( !table ) { throw Exception( NonexistingID ) << s_allochtLithTableName << " table could not be found in project"; }
+
+      database::Record * rec = table->getRecord( static_cast<int>( alID ) );
+      if ( !rec ) { throw Exception( NonexistingID ) << "No allochtonous lithology type with such ID: " << alID; }
+
+      rec->setValue( s_allochtLithotypeFieldName, newLithoName );
+   }
+   catch ( const Exception & e ) { reportError( e.errorCode(), e.what() ); }
+
+   return NoError;
+}
+ 
 
 // Get lithology porosity model
 ErrorHandler::ReturnCode LithologyManagerImpl::porosityModel( LithologyID         id              // [in] lithology ID

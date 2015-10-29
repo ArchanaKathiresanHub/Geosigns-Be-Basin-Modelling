@@ -73,6 +73,7 @@
 ///     -# casa::PrmOneCrustThinningEvent - @link CASA_OneCrustThinningEventPage Crust thinning parameter based on one thinning event @endlink
 ///     -# casa::PrmCrustThinning - @link CASA_CrustThinningPage Crust thinning parameter based on a sequence of arbitrary number of thinning events @endlink
 ///     -# casa::PrmPorosityModel - @link CASA_PorosityModelPage lithology porosity model parameters @endlink
+///     -# casa::PrmSurfacePorosity - @link CASA_SurfacePorosityPage surface porosity of the lithology porosity model parameter @endlink
 ///     -# casa::PrmLithoSTPThermalCond - @link CASA_LithoSTPThermalCondPage lithology STP (Standart Pressure Temperature) thermal conductivity coefficient parameter @endlink
 ///   - casa::Observable - base class which keeps a describtion of target value from simulation results. It also could include reference 
 ///                        value from measurements. casa::ScenarioAnalysis keeps one set of Observables in casa::ObsSpace container.
@@ -290,7 +291,7 @@ namespace casa
       /// @brief Add porosity model parameters variation
       /// @return ErrorHandler::NoError on success or error code otherwise
       ErrorHandler::ReturnCode VaryPorosityModelParameters( 
-            ScenarioAnalysis    & sa            ///< [in,out] casa::ScenarioAnalysis object reference, if any error, this object will keep an error message
+            ScenarioAnalysis    & sa            ///< [in,out] casa::ScenarioAnalysis object, if any error, this object will keep an error message
           , const char          * name          ///< user specified name for variable parameter 
           , const char *          layerName     ///< [in] stratigraphy layer name, if layerName is not NULL, it will copy lithology record before making changes
           , const char *          litName       ///< [in] lithology name
@@ -303,6 +304,21 @@ namespace casa
           , double                maxMinPor     ///< [in] max range value for the minimal porosity value (Double_Exponential model only)
           , double                minCompCoef1  ///< [in] min range value for the compaction coefficient for the second exponent (Double_Exponential model only)
           , double                maxCompCoef1  ///< [in] max range value for the compaction coefficient for the second exponent (Double_Exponential model only)
+          , VarPrmContinuous::PDF pdfType          /**< [in] probability function type for the variable parameter. If PDF needs 
+                                                        some middle parameter value it will be taken from the base case model */
+          );
+
+      /// @brief Add variation of surface porosity 
+      /// @return ErrorHandler::NoError on success or error code otherwise
+      ErrorHandler::ReturnCode VarySurfacePorosity( 
+            ScenarioAnalysis & sa ///< [in,out] casa::ScenarioAnalysis object, if any error, this object will keep an error message
+          , const std::string                                      & name          ///< user specified name for variable parameter 
+          , const std::vector<std::pair<std::string,size_t> >      & layersName    ///< [in] stratigraphy layers name list
+          , const std::vector<std::string>                         & alochtLitName ///< [in] alochton lithologies name list
+          , const std::vector<std::pair<std::string,std::string> > & faultsName    ///< [in] (mapfile,fault) names list
+          , const std::string                                      & litName       ///< [in] lithology name
+          , double                                                   minSurfPor    ///< [in] min range value for the surface porosity 
+          , double                                                   maxSurfPor    ///< [in] max range value for the surface porosity
           , VarPrmContinuous::PDF pdfType          /**< [in] probability function type for the variable parameter. If PDF needs 
                                                         some middle parameter value it will be taken from the base case model */
           );
