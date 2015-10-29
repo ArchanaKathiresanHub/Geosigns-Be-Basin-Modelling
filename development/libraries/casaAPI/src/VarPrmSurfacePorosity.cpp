@@ -29,7 +29,7 @@ VarPrmSurfacePorosity::VarPrmSurfacePorosity( const std::vector<std::string> & l
                                         , double                               baseSurfPor    
                                         , double                               minSurfPor    
                                         , double                               maxSurfPor    
-                                        , PDF                                  prmPDF
+                                        , VarPrmContinuous::PDF                prmPDF
                                         , const std::string                  & name
                                         )
                                         : VarPrmLithologyProp( lithosName, prmPDF, name )

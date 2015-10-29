@@ -28,7 +28,7 @@ namespace casa
                            , double                           baseSurfPor ///< base value for surface porosity
                            , double                           minSurfPor  ///< minimal value for surface porosity
                            , double                           maxSurfPor  ///< maximal value for surface porosity
-                           , PDF                              prmPDF      ///< probability density function 
+                           , VarPrmContinuous::PDF            prmPDF      ///< probability density function 
                            , const std::string              & name = 0    ///< user specified parameter name
                            );
 

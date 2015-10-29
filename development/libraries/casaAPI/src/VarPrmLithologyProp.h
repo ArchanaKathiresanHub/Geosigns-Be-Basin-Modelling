@@ -68,7 +68,7 @@ namespace casa
 
       /// @brief Construct variable parameter for variation of some lithology property 
       VarPrmLithologyProp( const std::vector<std::string> & lithosName ///< list of names of the lithology type
-                         , PDF                              prmPDF     ///< probability density function 
+                         , VarPrmContinuous::PDF            prmPDF     ///< probability density function 
                          , const std::string              & name       ///< user specified parameter name
                          );
       
