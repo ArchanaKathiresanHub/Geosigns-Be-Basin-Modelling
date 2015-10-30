@@ -228,6 +228,32 @@ ErrorHandler::ReturnCode RunManagerImpl::setMaxNumberOfPendingJobs( size_t pendJ
 }
 
 
+ErrorHandler::ReturnCode RunManagerImpl::setResourceRequirements( const std::string & resReqStr )
+{
+   try
+   {
+      if ( !m_jobSched.get() )
+      {
+         throw Exception( ErrorHandler::UndefinedValue ) << "Cluster name is not defined, can not request cluster specific resources: " << resReqStr;
+      }
+
+      JobSchedulerLSF * jsc = dynamic_cast<JobSchedulerLSF*>( m_jobSched.get() );
+      if ( ! jsc )
+      {
+         throw Exception( ErrorHandler::OutOfRangeValue ) << "Cluster " << m_jobSched->clusterName() <<
+            " does not support such resource request: " << resReqStr;
+      }
+      jsc->setResourceRequirements( resReqStr );
+
+   }
+   catch ( const Exception & ex )
+   {
+      return reportError( ex.errorCode(), ex.what() );
+   }
+
+   return NoError;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // run over all jobs and collect runs statistics. Also report progress if any change in numbers
 void RunManagerImpl::collectStatistics( int & pFinished, int & pPending, int & pRunning, int & pToBeSubmitted )

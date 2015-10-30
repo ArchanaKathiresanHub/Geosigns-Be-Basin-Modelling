@@ -90,13 +90,19 @@ namespace casa
 class JobSchedulerLSF::Job : public CasaSerializable
 {
 public:
-   Job( const std::string & cwd, const std::string & scriptName, const std::string & jobName, int cpus, size_t runTimeLim )
+   Job( const std::string & cwd
+      , const std::string & scriptName
+      , const std::string & jobName
+      , int                 cpus
+      , size_t              runTimeLim
+      , const std::string & resReq
+      )
    {
       m_lsfJobID   = -1;
       m_isFinished = false;
       m_isFailed   = false;
       m_runTimeLim = runTimeLim;
-      m_runAttmeptsNum = 0;
+      m_runAttemptsNum = 0;
 
       // clean LSF structures
       memset( &m_submit,     0, sizeof( m_submit ) );
@@ -117,16 +123,18 @@ public:
       m_submit.options3         = SUB3_CWD;
       m_submit.numProcessors    = cpus; // initial number of processors needed by a (parallel) job
       m_submit.maxNumProcessors = cpus; // max num of processors required to run the (parallel) job
+      if ( !resReq.empty() ) m_submit.resReq = strdup( resReq.c_str() );
    }
 
    ~Job()
    {  // allocated by strdup
       if ( m_submit.projectName ) free( m_submit.projectName );
-      if ( m_submit.command )     free( m_submit.command );
-      if ( m_submit.jobName )     free( m_submit.jobName );
-      if ( m_submit.cwd )         free( m_submit.cwd     );
-      if ( m_submit.outFile )     free( m_submit.outFile );
-      if ( m_submit.errFile )     free( m_submit.errFile );
+      if ( m_submit.command     ) free( m_submit.command     );
+      if ( m_submit.jobName     ) free( m_submit.jobName     );
+      if ( m_submit.cwd         ) free( m_submit.cwd         );
+      if ( m_submit.outFile     ) free( m_submit.outFile     );
+      if ( m_submit.errFile     ) free( m_submit.errFile     );
+      if ( m_submit.resReq      ) free( m_submit.resReq      );
    }
 
    const char * command() const  { return m_submit.command; }
@@ -149,7 +157,7 @@ public:
 #ifdef WITH_LSF_SCHEDULER
       m_lsfJobID = lsb_submit( &m_submit, &m_submitRepl );
 #endif
-      ++m_runAttmeptsNum;
+      ++m_runAttemptsNum;
       return isSubmitted();
    }
 
@@ -157,7 +165,7 @@ public:
    // we will try to submit ~30 times with 10 sec interval, and fail only after that
    bool shouldRetryFailedToSubmitJob()
    {
-      if ( m_runAttmeptsNum > 30 ) return false;
+      if ( m_runAttemptsNum > 30 ) return false;
 #ifdef WITH_LSF_SCHEDULER
       // External authentication failed, something wrong with LSF, retry later
       if ( lsberrno == LSBE_LSBLIB && 
@@ -230,7 +238,7 @@ public:
 
    // Serialization / Deserialization
    // version of serialized object representation
-   virtual unsigned int version() const { return 2; }
+   virtual unsigned int version() const { return 3; }
 
    // Get type name of the serialaizable object, used in deserialization to create object with correct type
    virtual const char * typeName() const { return "JobSchedulerLSF::Job"; }
@@ -252,6 +260,7 @@ public:
       ok = ok ? sz.save(              m_submit.maxNumProcessors,   "MaxCPUsNum"      ) : ok;
       ok = ok ? sz.save( static_cast<long long>( m_lsfJobID ),     "LSFJobID"        ) : ok;
       ok = ok ? sz.save(              m_runTimeLim,                "JobRunTimeLimit" ) : ok;
+      ok = ok ? sz.save( std::string( m_submit.resReq ? m_submit.resReq : "" ), "ResReq" ) : ok;
 
       // TODO save necessary fields for submitRepl
       //struct submitReply m_submitRepl; // lsf_submit returns here some info in case of error
@@ -293,6 +302,8 @@ public:
       ok = ok ? dz.load( rjid,                      "LSFJobID"        ) : ok; m_lsfJobID = static_cast<LS_LONG_INT>( rjid );
       ok = ok ? dz.load( m_runTimeLim,              "JobRunTimeLimit" ) : ok;
 
+      if ( objVer > 2 ) { ok = ok ? dz.load( buf, "ResReq" ) : ok; m_submit.resReq = buf.empty() ? NULL : strdup( buf.c_str() ); }
+
       if ( !ok )
       {
          throw ErrorHandler::Exception( ErrorHandler::DeserializationError )
@@ -311,7 +322,7 @@ public:
    LS_LONG_INT        m_lsfJobID;   // job ID in LSF
    size_t             m_runTimeLim; // runt time job limitation [Minutes]
 
-   size_t             m_runAttmeptsNum; // number of attemts to run job
+   size_t             m_runAttemptsNum; // number of attemts to run job
    // disable copy constructor/operator
    Job( const Job & jb );
    Job & operator = ( const Job & jb );
@@ -356,7 +367,7 @@ JobScheduler::JobID JobSchedulerLSF::addJob( const std::string & cwd
    ibs::FilePath scriptStatFile( scriptName + ".failed" );
    if ( scriptStatFile.exists() ) scriptStatFile.remove();
 
-   m_jobs.push_back( new Job( cwd, scriptName, jobName, cpus, runTimeLim ) );
+   m_jobs.push_back( new Job( cwd, scriptName, jobName, cpus, runTimeLim, m_resReqStr ) );
    return m_jobs.size() - 1; // the position of the new job in the list is it JobID
 }
 
@@ -446,7 +457,8 @@ void JobSchedulerLSF::sleep()
 bool JobSchedulerLSF::save( CasaSerializer & sz, unsigned int fileVersion ) const
 {
    bool ok = sz.save( m_clusterName, "ClusterName" );
-
+   
+   ok = ok ? sz.save( m_resReqStr,   "LSFResRequest" ) : ok;
    ok = ok ? sz.save( m_jobs.size(), "JobsQueueSize" ) : ok;
    for ( size_t i = 0; i < m_jobs.size() && ok; ++i )
    {
@@ -464,6 +476,8 @@ JobSchedulerLSF::JobSchedulerLSF( CasaDeserializer & dz, unsigned int objVer )
    }
 
    bool ok = dz.load( m_clusterName, "ClusterName" );
+  
+   if ( objVer > 0 ) { ok = ok ? dz.load( m_resReqStr,   "LSFResRequest" ) : ok; }
 
    size_t setSize;
    ok = ok ? dz.load( setSize, "JobsQueueSize" ) : ok;

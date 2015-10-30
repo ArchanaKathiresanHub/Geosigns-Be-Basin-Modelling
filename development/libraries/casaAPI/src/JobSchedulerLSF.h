@@ -59,10 +59,13 @@ namespace casa
       // Print all parameters of LSF batch system
       void printLSFBParametersInfo();
 
+      // Defines resource request string for LSF job scheduler in the same format as bsub -R option
+      void setResourceRequirements( const std::string & resReqStr ) { m_resReqStr = resReqStr; }
+
       // Serialization / Deserialization
 
       // version of serialized object representation
-      virtual unsigned int version() const { return 0; }
+      virtual unsigned int version() const { return 1; }
 
       // Serialize object to the given stream
       virtual bool save( CasaSerializer & sz, unsigned int version ) const;
@@ -76,6 +79,7 @@ namespace casa
    private:
       class Job;                       // job OS dependent description
       std::vector<Job*> m_jobs;        // array of scheduled jobs
+      std::string       m_resReqStr;   // resource request string in format bsusb -R option
 
       JobSchedulerLSF( const JobSchedulerLSF & jbS );
       JobSchedulerLSF & operator = ( const JobSchedulerLSF & jbS );

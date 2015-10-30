@@ -981,14 +981,38 @@ ErrorHandler::ReturnCode VaryPorosityModelParameters( ScenarioAnalysis    & sa
 
       // check - if layer was specified, create a copy of corresponded lithology for the given 
       // layer and change Porosity Model parameters only for this lithology
+      size_t mixID = 0;
+      if ( layerName )
+      {
+         mbapi::StratigraphyManager & smgr = mdl.stratigraphyManager();
+         mbapi::StratigraphyManager::LayerID lyd = smgr.layerID( layerName );
+         if ( UndefinedIDValue == lyd )
+         {
+            throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "No such layer: " << layerName << " in stratigraphy table";
+         }
+         std::vector<std::string> lithLst;
+         std::vector<double>      percLst;
+         if ( ErrorHandler::NoError != smgr.layerLithologiesList( lyd, lithLst, percLst ) )
+         {
+            throw ErrorHandler::Exception( smgr.errorCode() ) << smgr.errorMessage();
+         }
+         for ( size_t i = 0; i < lithLst.size(); ++i )
+         {
+            if ( lithLst[i] == litName )
+            {
+               mixID = i;
+               break;
+            }
+         }
+      }
       const std::vector<std::string> & newLithoNames = mdl.copyLithology(
-                                                    litName
-                                                  , (layerName != NULL && strlen(layerName) > 0) ?
-                                                    std::vector<std::pair<std::string, size_t> >(1, std::pair<std::string,size_t>(layerName, 0)) :
-                                                    std::vector<std::pair<std::string, size_t> >()
-                                                  , std::vector<std::string>()
-                                                  , std::vector<std::pair<std::string, std::string> >()
-                                                                    );
+                                                 litName
+                                               , (layerName != NULL && strlen(layerName) > 0) ?
+                                                  std::vector<std::pair<std::string, size_t> >(1, std::pair<std::string,size_t>(layerName, mixID)) :
+                                                  std::vector<std::pair<std::string, size_t> >()
+                                               , std::vector<std::string>()
+                                               , std::vector<std::pair<std::string, std::string> >()
+                                                                        );
 
       if ( newLithoNames.empty() ) { throw ErrorHandler::Exception( mdl.errorCode() ) << mdl.errorMessage(); }
 
@@ -1094,23 +1118,47 @@ ErrorHandler::ReturnCode VaryPermeabilityModelParameters( ScenarioAnalysis      
                else if ( !IsValueUndefined( maxModelPrms[i] ) ) minModelPrms[i] = basModelPrms[i] = maxModelPrms[i];
                else
                {
-                  throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Type of permeability model is changed for lithology: " << lithoName <<
-                     ", but not all model parameters are defined";
+                  throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Type of permeability model is changed for lithology: " 
+                                                                                << lithoName << ", but not all model parameters are defined";
                }
             }
          }
       }
 
       // check - if layer was specified, create a copy of corresponded lithology for the given 
-      // layer and change Porosity Model parameters only for this lithology
+      // layer and change Porosity Model parameters only for this lithology      size_t mixID = 0;
+      size_t mixID = 0;
+      if ( layerName )
+      {
+         mbapi::StratigraphyManager & smgr = sa.baseCase().stratigraphyManager();
+         mbapi::StratigraphyManager::LayerID lyd = smgr.layerID( layerName );
+         if ( UndefinedIDValue == lyd )
+         {
+            throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "No such layer: " << layerName << " in stratigraphy table";
+         }
+         std::vector<std::string> lithLst;
+         std::vector<double>      percLst;
+         if ( ErrorHandler::NoError != smgr.layerLithologiesList( lyd, lithLst, percLst ) )
+         {
+            throw ErrorHandler::Exception( smgr.errorCode() ) << smgr.errorMessage();
+         }
+         for ( size_t i = 0; i < lithLst.size(); ++i )
+         {
+            if ( lithLst[i] == lithoName )
+            {
+               mixID = i;
+               break;
+            }
+         }
+      }
       const std::vector<std::string> & newLithoNames = sa.baseCase().copyLithology(
-                                                                      lithoName
-                                                                    , (layerName != NULL && strlen( layerName ) > 0 ) ? 
-                                                                      std::vector<std::pair<std::string, size_t> >( 1, std::pair<std::string,size_t>( layerName, 0 ) ) :
-                                                                      std::vector<std::pair<std::string, size_t> >()
-                                                                    , std::vector<std::string>()
-                                                                    , std::vector<std::pair<std::string, std::string> >()
-                                                                    );
+                                            lithoName
+                                          , (layerName != NULL && strlen( layerName ) > 0 ) ? 
+                                             std::vector<std::pair<std::string, size_t> >( 1, std::pair<std::string,size_t>( layerName, mixID ) ) :
+                                             std::vector<std::pair<std::string, size_t> >()
+                                          , std::vector<std::string>()
+                                          , std::vector<std::pair<std::string, std::string> >() );
+
       if ( newLithoNames.empty() ) { throw ErrorHandler::Exception( sa.baseCase().errorCode() ) << sa.baseCase().errorMessage(); }
 
       VarSpace & varPrmsSet = sa.varSpace();
@@ -1168,14 +1216,38 @@ ErrorHandler::ReturnCode VaryLithoSTPThermalCondCoeffParameter( ScenarioAnalysis
 
       // check - if layer was specified, create a copy of corresponded lithology for the given 
       // layer and change Porosity Model parameters only for this lithology
-     const std::vector<std::string> & newLithoNames = mdl.copyLithology(
-                                                                     litName
-                                                                   , (layerName != NULL && strlen( layerName ) > 0 ) ? 
-                                                                     std::vector<std::pair<std::string, size_t> >( 1, std::pair<std::string,size_t>( layerName, 0 ) ) :
-                                                                     std::vector<std::pair<std::string, size_t> >()
-                                                                   , std::vector<std::string>()
-                                                                   , std::vector<std::pair<std::string, std::string> >()
-                                                                   );
+      size_t mixID = 0;
+      if ( layerName )
+      {
+         mbapi::StratigraphyManager & smgr = mdl.stratigraphyManager();
+         mbapi::StratigraphyManager::LayerID lyd = smgr.layerID( layerName );
+         if ( UndefinedIDValue == lyd )
+         {
+            throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "No such layer: " << layerName << " in stratigraphy table";
+         }
+         std::vector<std::string> lithLst;
+         std::vector<double>      percLst;
+         if ( ErrorHandler::NoError != smgr.layerLithologiesList( lyd, lithLst, percLst ) )
+         {
+            throw ErrorHandler::Exception( smgr.errorCode() ) << smgr.errorMessage();
+         }
+         for ( size_t i = 0; i < lithLst.size(); ++i )
+         {
+            if ( lithLst[i] == litName )
+            {
+               mixID = i;
+               break;
+            }
+         }
+      }
+      const std::vector<std::string> & newLithoNames = mdl.copyLithology(
+                                              litName
+                                            , (layerName != NULL && strlen( layerName ) > 0 ) ? 
+                                              std::vector<std::pair<std::string, size_t> >( 1, std::pair<std::string,size_t>( layerName, mixID ) ) :
+                                              std::vector<std::pair<std::string, size_t> >()
+                                            , std::vector<std::string>()
+                                            , std::vector<std::pair<std::string, std::string> >() );
+
       if ( newLithoNames.empty() ) { throw ErrorHandler::Exception( sa.baseCase().errorCode() ) << sa.baseCase().errorMessage(); }
 
       if ( ErrorHandler::NoError != varPrmsSet.addParameter( new VarPrmLithoSTPThermalCond( newLithoNames.front().c_str()
