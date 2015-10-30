@@ -1414,9 +1414,11 @@ namespace migration
 
             const Reservoir * reservoir = dynamic_cast<const migration::Reservoir *> (*reservoirs->begin ());
             assert (reservoir);
-            
+                        
+            double formationThickness = getDepth (i,j,0) - getDepth (i,j,depthIndex+1);
+
             if (getLocalFormationNode (i, j, depthIndex)->hasThickness () and
-                ((reservoir->getLocalColumn (i, j)->getTopDepthOffset () + getDepth (i,j,depthIndex+1)) < getDepth (i,j,depthIndex) or depthIndex == 0)) // Top node is flagged
+                ((reservoir->getLocalColumn (i, j)->getTopDepthOffset () * formationThickness + getDepth (i,j,depthIndex+1)) < getDepth (i,j,depthIndex) or depthIndex == 0)) // Top node is flagged
             {
                getLocalFormationNode (i, j, depthIndex)->identifyAsReservoir ();
             }
@@ -1424,7 +1426,8 @@ namespace migration
             { 
                int depth = depthIndex;
                while (depth > 0 and
-                      (getDepth (i,j,depth) < (reservoir->getLocalColumn (i, j)->getTopDepthOffset ()+ getDepth (i,j,depthIndex+1)) or !getLocalFormationNode (i,j,depth)->hasThickness ()))
+                      (getDepth (i,j,depth) < (reservoir->getLocalColumn (i, j)->getTopDepthOffset () * formationThickness + getDepth (i,j,depthIndex+1))
+                       or !getLocalFormationNode (i,j,depth)->hasThickness ()))
                {
                   --depth;
                   if (depth == 0)
