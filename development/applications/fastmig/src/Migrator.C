@@ -130,6 +130,7 @@ bool Migrator::compute (void)
    if (GetRank () == 0)
    {
       m_projectHandle->deletePropertyValues (DataAccess::Interface::RESERVOIR);
+      m_projectHandle->deletePropertyValues (DataAccess::Interface::FORMATION, m_projectHandle->findProperty("FlowDirectionIJK"), 0, 0, 0, 0, DataAccess::Interface::VOLUME);
 
       if (!m_trapIoTbl) m_trapIoTbl = m_projectHandle->getTable ("TrapIoTbl");
       m_trapIoTbl->clear ();
