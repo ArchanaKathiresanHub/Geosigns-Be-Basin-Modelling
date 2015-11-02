@@ -45,6 +45,7 @@ struct submit {
    char   * outFile;
    char   * errFile;
    char   * cwd;
+   char   * resReq;
    int      rLimits[LSF_RLIM_NLIMITS];
    int      options; 
    int      options2;
