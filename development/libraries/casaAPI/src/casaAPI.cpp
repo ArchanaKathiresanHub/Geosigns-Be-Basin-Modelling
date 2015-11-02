@@ -982,7 +982,7 @@ ErrorHandler::ReturnCode VaryPorosityModelParameters( ScenarioAnalysis    & sa
       // check - if layer was specified, create a copy of corresponded lithology for the given 
       // layer and change Porosity Model parameters only for this lithology
       size_t mixID = 0;
-      if ( layerName )
+      if ( layerName  && strlen( layerName ) > 0 )
       {
          mbapi::StratigraphyManager & smgr = mdl.stratigraphyManager();
          mbapi::StratigraphyManager::LayerID lyd = smgr.layerID( layerName );
@@ -1128,7 +1128,7 @@ ErrorHandler::ReturnCode VaryPermeabilityModelParameters( ScenarioAnalysis      
       // check - if layer was specified, create a copy of corresponded lithology for the given 
       // layer and change Porosity Model parameters only for this lithology      size_t mixID = 0;
       size_t mixID = 0;
-      if ( layerName )
+      if ( layerName && strlen( layerName ) > 0 )
       {
          mbapi::StratigraphyManager & smgr = sa.baseCase().stratigraphyManager();
          mbapi::StratigraphyManager::LayerID lyd = smgr.layerID( layerName );
@@ -1217,7 +1217,7 @@ ErrorHandler::ReturnCode VaryLithoSTPThermalCondCoeffParameter( ScenarioAnalysis
       // check - if layer was specified, create a copy of corresponded lithology for the given 
       // layer and change Porosity Model parameters only for this lithology
       size_t mixID = 0;
-      if ( layerName )
+      if ( layerName && strlen( layerName ) > 0 )
       {
          mbapi::StratigraphyManager & smgr = mdl.stratigraphyManager();
          mbapi::StratigraphyManager::LayerID lyd = smgr.layerID( layerName );
