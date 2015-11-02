@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'MainWindow.ui'
 **
-** Created: Mon Oct 26 14:40:48 2015
+** Created: Mon Nov 2 11:39:07 2015
 **      by: Qt User Interface Compiler version 4.8.4
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -63,10 +63,13 @@ public:
     QWidget *tab_2;
     QVBoxLayout *verticalLayout_6;
     QTreeWidget *treeWidgetProperties;
-    QGroupBox *groupBoxFeatures;
-    QVBoxLayout *verticalLayout_2;
+    QGroupBox *groupBoxTraps;
+    QVBoxLayout *verticalLayout_5;
     QCheckBox *checkBoxTraps;
-    QLabel *label;
+    QCheckBox *checkBoxTrapOutline;
+    QCheckBox *checkBoxDrainageOutline;
+    QGroupBox *groupBoxFlowDir;
+    QVBoxLayout *verticalLayout_2;
     QRadioButton *radioButtonFlowVizNone;
     QRadioButton *radioButtonFlowVizLines;
     QRadioButton *radioButtonFlowVizVectors;
@@ -182,21 +185,33 @@ public:
 
         verticalLayout_3->addWidget(tabWidget);
 
-        groupBoxFeatures = new QGroupBox(layoutWidget);
-        groupBoxFeatures->setObjectName(QString::fromUtf8("groupBoxFeatures"));
-        verticalLayout_2 = new QVBoxLayout(groupBoxFeatures);
-        verticalLayout_2->setObjectName(QString::fromUtf8("verticalLayout_2"));
-        checkBoxTraps = new QCheckBox(groupBoxFeatures);
+        groupBoxTraps = new QGroupBox(layoutWidget);
+        groupBoxTraps->setObjectName(QString::fromUtf8("groupBoxTraps"));
+        verticalLayout_5 = new QVBoxLayout(groupBoxTraps);
+        verticalLayout_5->setObjectName(QString::fromUtf8("verticalLayout_5"));
+        checkBoxTraps = new QCheckBox(groupBoxTraps);
         checkBoxTraps->setObjectName(QString::fromUtf8("checkBoxTraps"));
 
-        verticalLayout_2->addWidget(checkBoxTraps);
+        verticalLayout_5->addWidget(checkBoxTraps);
 
-        label = new QLabel(groupBoxFeatures);
-        label->setObjectName(QString::fromUtf8("label"));
+        checkBoxTrapOutline = new QCheckBox(groupBoxTraps);
+        checkBoxTrapOutline->setObjectName(QString::fromUtf8("checkBoxTrapOutline"));
 
-        verticalLayout_2->addWidget(label);
+        verticalLayout_5->addWidget(checkBoxTrapOutline);
 
-        radioButtonFlowVizNone = new QRadioButton(groupBoxFeatures);
+        checkBoxDrainageOutline = new QCheckBox(groupBoxTraps);
+        checkBoxDrainageOutline->setObjectName(QString::fromUtf8("checkBoxDrainageOutline"));
+
+        verticalLayout_5->addWidget(checkBoxDrainageOutline);
+
+
+        verticalLayout_3->addWidget(groupBoxTraps);
+
+        groupBoxFlowDir = new QGroupBox(layoutWidget);
+        groupBoxFlowDir->setObjectName(QString::fromUtf8("groupBoxFlowDir"));
+        verticalLayout_2 = new QVBoxLayout(groupBoxFlowDir);
+        verticalLayout_2->setObjectName(QString::fromUtf8("verticalLayout_2"));
+        radioButtonFlowVizNone = new QRadioButton(groupBoxFlowDir);
         buttonGroup = new QButtonGroup(MainWindow);
         buttonGroup->setObjectName(QString::fromUtf8("buttonGroup"));
         buttonGroup->addButton(radioButtonFlowVizNone);
@@ -205,20 +220,20 @@ public:
 
         verticalLayout_2->addWidget(radioButtonFlowVizNone);
 
-        radioButtonFlowVizLines = new QRadioButton(groupBoxFeatures);
+        radioButtonFlowVizLines = new QRadioButton(groupBoxFlowDir);
         buttonGroup->addButton(radioButtonFlowVizLines);
         radioButtonFlowVizLines->setObjectName(QString::fromUtf8("radioButtonFlowVizLines"));
 
         verticalLayout_2->addWidget(radioButtonFlowVizLines);
 
-        radioButtonFlowVizVectors = new QRadioButton(groupBoxFeatures);
+        radioButtonFlowVizVectors = new QRadioButton(groupBoxFlowDir);
         buttonGroup->addButton(radioButtonFlowVizVectors);
         radioButtonFlowVizVectors->setObjectName(QString::fromUtf8("radioButtonFlowVizVectors"));
 
         verticalLayout_2->addWidget(radioButtonFlowVizVectors);
 
 
-        verticalLayout_3->addWidget(groupBoxFeatures);
+        verticalLayout_3->addWidget(groupBoxFlowDir);
 
         horizontalLayout_2 = new QHBoxLayout();
         horizontalLayout_2->setObjectName(QString::fromUtf8("horizontalLayout_2"));
@@ -398,9 +413,11 @@ public:
         action_ViewBack->setText(QApplication::translate("MainWindow", "Bac&k", 0, QApplication::UnicodeUTF8));
         tabWidget->setTabText(tabWidget->indexOf(tab), QApplication::translate("MainWindow", "Structure", 0, QApplication::UnicodeUTF8));
         tabWidget->setTabText(tabWidget->indexOf(tab_2), QApplication::translate("MainWindow", "Properties", 0, QApplication::UnicodeUTF8));
-        groupBoxFeatures->setTitle(QApplication::translate("MainWindow", "Features", 0, QApplication::UnicodeUTF8));
-        checkBoxTraps->setText(QApplication::translate("MainWindow", "Traps", 0, QApplication::UnicodeUTF8));
-        label->setText(QApplication::translate("MainWindow", "Flow direction", 0, QApplication::UnicodeUTF8));
+        groupBoxTraps->setTitle(QApplication::translate("MainWindow", "Traps", 0, QApplication::UnicodeUTF8));
+        checkBoxTraps->setText(QApplication::translate("MainWindow", "Locations", 0, QApplication::UnicodeUTF8));
+        checkBoxTrapOutline->setText(QApplication::translate("MainWindow", "Trap outline", 0, QApplication::UnicodeUTF8));
+        checkBoxDrainageOutline->setText(QApplication::translate("MainWindow", "Drainage area outline", 0, QApplication::UnicodeUTF8));
+        groupBoxFlowDir->setTitle(QApplication::translate("MainWindow", "Flow direction", 0, QApplication::UnicodeUTF8));
         radioButtonFlowVizNone->setText(QApplication::translate("MainWindow", "None", 0, QApplication::UnicodeUTF8));
         radioButtonFlowVizLines->setText(QApplication::translate("MainWindow", "Flow lines", 0, QApplication::UnicodeUTF8));
         radioButtonFlowVizVectors->setText(QApplication::translate("MainWindow", "Flow vectors", 0, QApplication::UnicodeUTF8));

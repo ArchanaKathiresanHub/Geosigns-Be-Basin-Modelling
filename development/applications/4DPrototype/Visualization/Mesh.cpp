@@ -224,19 +224,19 @@ bool SnapshotTopology::isDead(size_t i, size_t j, size_t k) const
 //--------------------------------------------------------------------------------------------------
 // ReservoirTopology
 //--------------------------------------------------------------------------------------------------
-ReservoirTopology::ReservoirTopology(const ReservoirGeometry& geometry)
+ReservoirTopology::ReservoirTopology(std::shared_ptr<ReservoirGeometry> geometry)
   : m_geometry(geometry)
 {
 }
 
 size_t ReservoirTopology::getNumCellsI() const
 {
-  return m_geometry.numI() - 1;
+  return m_geometry->numI() - 1;
 }
 
 size_t ReservoirTopology::getNumCellsJ() const
 {
-  return m_geometry.numJ() - 1;
+  return m_geometry->numJ() - 1;
 }
 
 size_t ReservoirTopology::getNumCellsK() const
@@ -247,10 +247,10 @@ size_t ReservoirTopology::getNumCellsK() const
 bool ReservoirTopology::isDead(size_t i, size_t j, size_t k) const
 {
   return
-    m_geometry.isUndefined(i, j, k) ||
-    m_geometry.isUndefined(i, j + 1, k) ||
-    m_geometry.isUndefined(i + 1, j, k) ||
-    m_geometry.isUndefined(i + 1, j + 1, k);
+    m_geometry->isUndefined(i, j, k) ||
+    m_geometry->isUndefined(i, j + 1, k) ||
+    m_geometry->isUndefined(i + 1, j, k) ||
+    m_geometry->isUndefined(i + 1, j + 1, k);
 }
 
 bool ReservoirTopology::hasDeadCells() const
@@ -370,11 +370,15 @@ ReservoirMesh::ReservoirMesh(
   const DataAccess::Interface::GridMap* depthMapBottom)
 {
   m_geometry = std::make_shared<ReservoirGeometry>(depthMapTop, depthMapBottom);
+  m_topology = std::make_shared<ReservoirTopology>(m_geometry);
+}
 
-  size_t ni = depthMapTop->numI() - 1;
-  size_t nj = depthMapTop->numJ() - 1;
-
-  m_topology = std::make_shared<ReservoirTopology>(*m_geometry);
+ReservoirMesh::ReservoirMesh(
+  std::shared_ptr<ReservoirGeometry> geometry,
+  std::shared_ptr<ReservoirTopology> topology)
+  : m_geometry(geometry)
+  , m_topology(topology)
+{
 }
 
 const MiTopologyIjk& ReservoirMesh::getTopology() const

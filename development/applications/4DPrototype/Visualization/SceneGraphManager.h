@@ -33,6 +33,7 @@ class FlowDirectionProperty;
 class HexahedronMesh;
 class SurfaceMesh;
 class ReservoirMesh;
+class ReservoirTopology;
 class FaultMesh;
 
 class SoSeparator;
@@ -215,7 +216,6 @@ struct SnapshotInfo
   size_t faultsTimeStamp;
 
   SnapshotInfo();
-  ~SnapshotInfo();
 };
 
 class VISUALIZATIONDLL_API SceneGraphManager
@@ -293,6 +293,8 @@ private:
 
   bool m_showGrid;
   bool m_showTraps;
+  bool m_showTrapOutlines;
+
   FlowVizType m_flowVizType;
 
   float m_verticalScale;
@@ -417,6 +419,8 @@ public:
   void showCoordinateGrid(bool show);
 
   void showTraps(bool show);
+
+  void showTrapOutlines(bool show);
 
   void showFlowDirection(FlowVizType type);
 

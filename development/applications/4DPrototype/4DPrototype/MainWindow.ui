@@ -92,25 +92,41 @@
          </widget>
         </item>
         <item>
-         <widget class="QGroupBox" name="groupBoxFeatures">
+         <widget class="QGroupBox" name="groupBoxTraps">
           <property name="title">
-           <string>Features</string>
+           <string>Traps</string>
           </property>
-          <layout class="QVBoxLayout" name="verticalLayout_2">
+          <layout class="QVBoxLayout" name="verticalLayout_5">
            <item>
             <widget class="QCheckBox" name="checkBoxTraps">
              <property name="text">
-              <string>Traps</string>
+              <string>Locations</string>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QLabel" name="label">
+            <widget class="QCheckBox" name="checkBoxTrapOutline">
              <property name="text">
-              <string>Flow direction</string>
+              <string>Trap outline</string>
              </property>
             </widget>
            </item>
+           <item>
+            <widget class="QCheckBox" name="checkBoxDrainageOutline">
+             <property name="text">
+              <string>Drainage area outline</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="groupBoxFlowDir">
+          <property name="title">
+           <string>Flow direction</string>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_2">
            <item>
             <widget class="QRadioButton" name="radioButtonFlowVizNone">
              <property name="text">

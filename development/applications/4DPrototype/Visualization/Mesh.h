@@ -143,12 +143,12 @@ public:
  */
 class ReservoirTopology : public MiTopologyIjk
 {
-  const ReservoirGeometry& m_geometry;
+  std::shared_ptr<ReservoirGeometry> m_geometry;
   size_t m_timestamp;
 
 public:
 
-  explicit ReservoirTopology(const ReservoirGeometry& geometry);
+  explicit ReservoirTopology(std::shared_ptr<ReservoirGeometry> geometry);
 
   virtual size_t getNumCellsI() const;
 
@@ -265,9 +265,13 @@ class ReservoirMesh: public MiVolumeMeshCurvilinear
 
 public:
 
-  explicit ReservoirMesh(
+  ReservoirMesh(
     const DataAccess::Interface::GridMap* depthMapTop,
     const DataAccess::Interface::GridMap* depthMapBottom);
+
+  ReservoirMesh(
+    std::shared_ptr<ReservoirGeometry> geometry,
+    std::shared_ptr<ReservoirTopology> topology);
 
   const MiTopologyIjk& getTopology() const;
 

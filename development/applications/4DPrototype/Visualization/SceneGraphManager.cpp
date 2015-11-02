@@ -12,6 +12,7 @@
 #include "Mesh.h"
 #include "Property.h"
 #include "FlowLines.h"
+#include "OutlineBuilder.h"
 
 #include <Inventor/nodes/SoGroup.h>
 #include <Inventor/nodes/SoSwitch.h>
@@ -27,6 +28,7 @@
 #include <Inventor/nodes/SoText2.h>
 #include <Inventor/nodes/SoLineSet.h>
 #include <Inventor/nodes/SoBaseColor.h>
+#include <Inventor/nodes/SoIndexedLineSet.h>
 
 #include <MeshVizXLM/MxTimeStamp.h>
 #include <MeshVizXLM/mapping/nodes/MoDrawStyle.h>
@@ -97,11 +99,6 @@ SnapshotInfo::SnapshotInfo()
     sliceSwitch[i] = 0;
     slice[i] = 0;
   }
-}
-
-SnapshotInfo::~SnapshotInfo()
-{
-
 }
 
 void SceneGraphManager::updateCoordinateGrid()
@@ -386,6 +383,7 @@ void SceneGraphManager::updateSnapshotReservoirs()
       {
         res.root = new SoSeparator;
         res.mesh = new MoMesh;
+
         res.meshData = std::make_shared<ReservoirMesh>((*topValues)[0]->getGridMap(), (*bottomValues)[0]->getGridMap());
         res.mesh->setMesh(res.meshData.get());
 
@@ -398,6 +396,16 @@ void SceneGraphManager::updateSnapshotReservoirs()
         res.root->addChild(res.mesh);
         res.root->addChild(res.scalarSet);
         res.root->addChild(res.skin);
+
+        //------------------------------------
+        std::unique_ptr<di::PropertyValueList> isoValues(m_resRockDrainageIdGasPhaseProperty->getPropertyValues(di::RESERVOIR, snapshot.snapshot, reservoir, 0, 0));
+        if (isoValues && !isoValues->empty())
+        {
+          OutlineBuilder builder;
+          SoIndexedLineSet* lineSet = builder.createOutline((*isoValues)[0]->getGridMap(), (*topValues)[0]->getGridMap());
+          res.root->addChild(lineSet);
+        }
+        //------------------------------------
 
         snapshot.reservoirsGroup->addChild(res.root);
       }
@@ -563,12 +571,26 @@ std::vector<const di::GridMap*> SceneGraphManager::getFormationPropertyGridMaps(
 
   std::unique_ptr<di::PropertyValueList> values(prop->getPropertyValues(di::FORMATION, snapshot.snapshot, 0, 0, 0));
 
+  // This is necessary to filter out duplicate entries in the property value list. For some reason the project3D file
+  // can contain multiple entries for the same property value, corresponding to multiple simulation runs. The HDF5 files
+  // get overwritten each time, so there's only one actual property value available anyway. Since the list is already 
+  // sorted by depo age, we can filter duplicates by checking the associated formations.
+  size_t n = std::distance(
+    values->begin(), 
+    std::unique(
+      values->begin(), 
+      values->end(), 
+      [](const di::PropertyValue* v0, const di::PropertyValue* v1) 
+        { 
+          return v0->getFormation() == v1->getFormation(); 
+        }));
+
   size_t i = 0;
   for (auto fmt : snapshot.formations)
   {
     const di::Formation* formation = m_formations[fmt.id].object;
     const di::GridMap* gridMap = nullptr;
-    if (i < values->size() && formation == (*values)[i]->getFormation())
+    if (i < n && formation == (*values)[i]->getFormation())
       gridMap = (*values)[i++]->getGridMap();
 
     if (formation3D && gridMap)
@@ -1272,6 +1294,7 @@ SceneGraphManager::SceneGraphManager()
   , m_maxCacheItems(5)
   , m_showGrid(false)
   , m_showTraps(false)
+  , m_showTrapOutlines(false)
   , m_flowVizType(FlowVizNone)
   , m_verticalScale(1.f)
   , m_projectionType(PerspectiveProjection)
@@ -1512,6 +1535,16 @@ void SceneGraphManager::showTraps(bool show)
   if (show != m_showTraps)
   {
     m_showTraps = show;
+
+    updateSnapshot();
+  }
+}
+
+void SceneGraphManager::showTrapOutlines(bool show)
+{
+  if (show != m_showTrapOutlines)
+  {
+    m_showTrapOutlines = show;
 
     updateSnapshot();
   }

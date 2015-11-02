@@ -339,7 +339,8 @@ void MainWindow::connectSignals()
   connect(m_ui.checkBoxPerspective, SIGNAL(toggled(bool)), this, SLOT(onPerspectiveToggled(bool)));
 
   connect(m_ui.checkBoxTraps, SIGNAL(toggled(bool)), this, SLOT(onTrapsToggled(bool)));
-  
+  connect(m_ui.checkBoxTrapOutline, SIGNAL(toggled(bool)), this, SLOT(onTrapOutlinesToggled(bool)));
+
   connect(m_ui.radioButtonFlowVizNone, SIGNAL(toggled(bool)), this, SLOT(onFlowVizTypeChanged(bool)));
   connect(m_ui.radioButtonFlowVizLines, SIGNAL(toggled(bool)), this, SLOT(onFlowVizTypeChanged(bool)));
   connect(m_ui.radioButtonFlowVizVectors, SIGNAL(toggled(bool)), this, SLOT(onFlowVizTypeChanged(bool)));
@@ -562,6 +563,16 @@ void MainWindow::onPerspectiveToggled(bool value)
 void MainWindow::onTrapsToggled(bool value)
 {
   m_sceneGraphManager.showTraps(value);
+}
+
+void MainWindow::onTrapOutlinesToggled(bool value)
+{
+  m_sceneGraphManager.showTrapOutlines(value);
+}
+
+void MainWindow::onDrainageAreaOutlineToggled(bool value)
+{
+
 }
 
 void MainWindow::onFlowVizTypeChanged(bool value)
