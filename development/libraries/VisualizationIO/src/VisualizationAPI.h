@@ -245,6 +245,10 @@ namespace CauldronIO
         void retrieve();
         /// \returns true if data is available
         bool isRetrieved() const;
+        /// \brief Get the name of this surface
+        const std::string& getReservoirName() const;
+        /// \brief Set the reservoirname of this surface
+        void setReservoirName(const std::string& reservoirName);
 
     private:
         SubsurfaceKind m_subSurfaceKind;
@@ -253,6 +257,7 @@ namespace CauldronIO
         boost::shared_ptr<const Surface> m_depthSurface;
         boost::shared_ptr<Map> m_valueMap;
         std::string m_name;
+        std::string m_reservoirName;
     };
 
     /// \class Map 

@@ -13,6 +13,7 @@
 #include "Interface/ObjectFactory.h"
 #include "Interface/Property.h"
 #include "Interface/PropertyValue.h"
+#include "Interface/Reservoir.h"
 #include "Interface/Surface.h"
 #include "Interface/GridMap.h"
 #include "Interface/ProjectData.h"
@@ -165,9 +166,15 @@ boost::shared_ptr<vector<boost::shared_ptr<CauldronIO::Surface> > >  ImportProje
         CauldronIO::PropertyType propType = getPropertyType(prop);
         CauldronIO::PropertyAttribute propAttrib = getPropertyAttribute(prop);
         const Surface* surface = propValue->getSurface();
+        const Reservoir* reservoir = propValue->getReservoir();
 
         // A map needs a surface or a formation
-        if (!surface && !formation) throw CauldronIO::CauldronIOException("Found map without a surface");
+        if (!formation && reservoir)
+        {
+            formation = reservoir->getFormation();
+            if (!formation)
+                throw new CauldronIO::CauldronIOException("Found map without formation, surface or reservoir");
+        }
         string surfaceName;
 
         if (surface)
@@ -176,9 +183,12 @@ boost::shared_ptr<vector<boost::shared_ptr<CauldronIO::Surface> > >  ImportProje
             if (m_verbose)
                 cout << " - Adding surface: " << surface->getName() << " with property " << prop->getName() << endl;
         }
-        else
-            if (m_verbose)
-                cout << " - Adding map for formation: " << formation->getName() << " with property " << prop->getName() << endl;
+        else if (m_verbose)
+        {
+            cout << " - Adding map for formation: " << formation->getName() << " with property " << prop->getName() << endl;
+            if (reservoir)
+                cout << " -- from reservoir: " << reservoir->getName() << endl;
+        }
 
         // Create a property
         boost::shared_ptr<const CauldronIO::Property> propertyIO(new CauldronIO::Property(prop->getName(), prop->getUserName(), prop->getCauldronName(),
@@ -195,6 +205,9 @@ boost::shared_ptr<vector<boost::shared_ptr<CauldronIO::Surface> > >  ImportProje
         
         // Set the formation
         if (formationIO) surfaceIO->setFormation(formationIO);
+
+        // Set reservoirname
+        if (reservoir) surfaceIO->setReservoirName(reservoir->getName());
 
         surfaces->push_back(surfaceIO);
     }

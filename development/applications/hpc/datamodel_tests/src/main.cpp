@@ -74,7 +74,7 @@ int main(int argc, char ** argv)
 
         // Import from ProjectHandle
         cout << "Importing from project handle (requires reading depth formations)" << endl;
-        boost::shared_ptr<CauldronIO::Project> project = ImportProjectHandle::createFromProjectHandle(projectHandle, false);
+        boost::shared_ptr<CauldronIO::Project> project = ImportProjectHandle::createFromProjectHandle(projectHandle, true);
         timeInSeconds = (float)(clock() - start) / CLOCKS_PER_SEC;
         cout << "Finished import in " << timeInSeconds << " seconds " << endl;
 

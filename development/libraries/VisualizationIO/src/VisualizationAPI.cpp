@@ -301,6 +301,17 @@ bool CauldronIO::Surface::isRetrieved() const
     return m_valueMap->isRetrieved();
 }
 
+
+const std::string& CauldronIO::Surface::getReservoirName() const
+{
+    return m_reservoirName;
+}
+
+void CauldronIO::Surface::setReservoirName(const std::string& reservoirName)
+{
+    m_reservoirName = reservoirName;
+}
+
 /// Map implementation
 //////////////////////////////////////////////////////////////////////////
 
