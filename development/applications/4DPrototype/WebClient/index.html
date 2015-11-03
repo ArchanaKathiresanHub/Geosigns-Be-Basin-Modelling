@@ -10,7 +10,7 @@
 
 <body onload="init()">
 	<div style="height: 100%">
-		<div style="width:250px; float: left;">
+		<div style="width:250px; height:100%; overflow: auto; float: left">
 			<div class="header">Data set</div>
 			<div>
 				<div id="structureTab" class="activeTab" style="float:left;" onclick="showTab(0)">Structure</div>
@@ -35,7 +35,18 @@
 			</div>
 
 			<div>
-				<input type="checkbox" id="checkBoxDrawTraps" onchange="onShowTrapsChanged(this)">Traps</input><br>
+				<div class="header">Traps</div>
+				<div class="section">
+					<input type="checkbox" id="checkBoxDrawTraps" onchange="onShowTrapsChanged(this)">Locations</input><br>
+					<input type="checkbox" id="checkBoxDrawTrapOutlines" onchange="onShowTrapOutlinesChanged(this)">Trap outlines</input><br>
+				</div>
+
+				<div class="header">Drainage areas</div>
+				<div class="section">
+					<input type="radio" name="drainagearea" id="radioButtonDrainageAreaNone" value="DrainageAreaNone" checked onchange="onDrainageAreaRadioClicked(this)">None</input><br>
+					<input type="radio" name="drainagearea" id="radioButtonDrainageAreaFluid" value="DrainageAreaFluid" onchange="onDrainageAreaRadioClicked(this)">Fluid</input><br>
+					<input type="radio" name="drainagearea" id="radioButtonDrainageAreaGas" value="DrainageAreaGas" onchange="onDrainageAreaRadioClicked(this)">Gas</input><br>
+				</div>
 			</div>
 
 			<div>

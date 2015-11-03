@@ -272,6 +272,9 @@ void Traps::init()
   m_root = new SoSeparator;
   m_root->setName("traps");
 
-  initSpheres(spillPointPositions, trapPositions);
-  initLineSet(vertices);
+  if (!spillPointPositions.empty() || !trapPositions.empty())
+    initSpheres(spillPointPositions, trapPositions);
+
+  if (!vertices.empty())
+    initLineSet(vertices);
 }

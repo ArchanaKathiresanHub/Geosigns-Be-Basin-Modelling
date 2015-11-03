@@ -213,6 +213,20 @@ function onFlowVizRadioClicked(elem)
     theRenderArea.sendMessage(JSON.stringify(msg));
 }
 
+function onDrainageAreaRadioClicked(elem)
+{
+    console.log("radiobutton " + elem.value + " clicked");
+
+    var msg = {
+        cmd: "ShowDrainageAreaOutline",
+        params: {
+            type: elem.value
+        }
+    }
+
+    theRenderArea.sendMessage(JSON.stringify(msg));
+}
+
 function onSlicePositionChanged(index, elem)
 {
     console.log("sliceI position = " + elem.value);
@@ -295,6 +309,20 @@ function onShowTrapsChanged(elem)
         cmd: "ShowTraps",
         params: {
             show: showTraps
+        }
+    }
+
+    theRenderArea.sendMessage(JSON.stringify(msg));
+}
+
+function onShowTrapOutlinesChanged(elem)
+{
+    var showTrapOutlines = elem.checked;
+
+    var msg = {
+        cmd: "ShowTrapOutlines",
+        params: {
+            show: showTrapOutlines
         }
     }
 

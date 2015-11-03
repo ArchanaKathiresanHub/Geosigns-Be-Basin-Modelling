@@ -267,6 +267,12 @@ void BpaRenderAreaListener::onReceivedMessage(RenderArea* renderArea, Connection
 
     m_sceneGraphManager.showTraps(showTraps);
   }
+  else if (cmd == "ShowTrapOutlines")
+  {
+    auto showOutlines = params.get<bool>("show");
+
+    m_sceneGraphManager.showTrapOutlines(showOutlines);
+  }
   else if (cmd == "ShowFlowDirection")
   {
     auto typeStr = params.get<std::string>("type");
@@ -279,6 +285,19 @@ void BpaRenderAreaListener::onReceivedMessage(RenderArea* renderArea, Connection
       type = SceneGraphManager::FlowVizVectors;
 
     m_sceneGraphManager.showFlowDirection(type);
+  }
+  else if (cmd == "ShowDrainageAreaOutline")
+  {
+    auto typeStr = params.get<std::string>("type");
+
+    SceneGraphManager::DrainageAreaType type = SceneGraphManager::DrainageAreaNone;
+
+    if (typeStr == "DrainageAreaFluid")
+      type = SceneGraphManager::DrainageAreaFluid;
+    else if (typeStr == "DrainageAreaGas")
+      type = SceneGraphManager::DrainageAreaGas;
+
+    m_sceneGraphManager.showDrainageAreaOutlines(type);
   }
   else if (cmd == "SetProjection")
   {
