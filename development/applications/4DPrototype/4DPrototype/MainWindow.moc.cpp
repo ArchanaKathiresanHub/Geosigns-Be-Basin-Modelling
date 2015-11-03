@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'MainWindow.h'
 **
-** Created: Mon Nov 2 11:57:06 2015
+** Created: Tue Nov 3 12:01:22 2015
 **      by: The Qt Meta Object Compiler version 63 (Qt 4.8.4)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -23,7 +23,7 @@ static const uint qt_meta_data_MainWindow[] = {
        6,       // revision
        0,       // classname
        0,    0, // classinfo
-      21,   14, // methods
+      22,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -49,9 +49,10 @@ static const uint qt_meta_data_MainWindow[] = {
      447,  202,   11,   11, 0x08,
      475,  202,   11,   11, 0x08,
      510,  202,   11,   11, 0x08,
-     549,  537,   11,   11, 0x08,
-     591,   11,   11,   11, 0x08,
-     606,  537,   11,   11, 0x08,
+     542,  202,   11,   11, 0x08,
+     581,  569,   11,   11, 0x08,
+     623,   11,   11,   11, 0x08,
+     638,  569,   11,   11, 0x08,
 
        0        // eod
 };
@@ -72,6 +73,7 @@ static const char qt_meta_stringdata_MainWindow[] = {
     "onPerspectiveToggled(bool)\0"
     "onTrapsToggled(bool)\0onTrapOutlinesToggled(bool)\0"
     "onDrainageAreaOutlineToggled(bool)\0"
+    "onDrainageAreaTypeChanged(bool)\0"
     "onFlowVizTypeChanged(bool)\0item,column\0"
     "onItemDoubleClicked(QTreeWidgetItem*,int)\0"
     "onShowGLInfo()\0"
@@ -101,10 +103,11 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         case 14: _t->onTrapsToggled((*reinterpret_cast< bool(*)>(_a[1]))); break;
         case 15: _t->onTrapOutlinesToggled((*reinterpret_cast< bool(*)>(_a[1]))); break;
         case 16: _t->onDrainageAreaOutlineToggled((*reinterpret_cast< bool(*)>(_a[1]))); break;
-        case 17: _t->onFlowVizTypeChanged((*reinterpret_cast< bool(*)>(_a[1]))); break;
-        case 18: _t->onItemDoubleClicked((*reinterpret_cast< QTreeWidgetItem*(*)>(_a[1])),(*reinterpret_cast< int(*)>(_a[2]))); break;
-        case 19: _t->onShowGLInfo(); break;
-        case 20: _t->onTreeWidgetItemChanged((*reinterpret_cast< QTreeWidgetItem*(*)>(_a[1])),(*reinterpret_cast< int(*)>(_a[2]))); break;
+        case 17: _t->onDrainageAreaTypeChanged((*reinterpret_cast< bool(*)>(_a[1]))); break;
+        case 18: _t->onFlowVizTypeChanged((*reinterpret_cast< bool(*)>(_a[1]))); break;
+        case 19: _t->onItemDoubleClicked((*reinterpret_cast< QTreeWidgetItem*(*)>(_a[1])),(*reinterpret_cast< int(*)>(_a[2]))); break;
+        case 20: _t->onShowGLInfo(); break;
+        case 21: _t->onTreeWidgetItemChanged((*reinterpret_cast< QTreeWidgetItem*(*)>(_a[1])),(*reinterpret_cast< int(*)>(_a[2]))); break;
         default: ;
         }
     }
@@ -142,9 +145,9 @@ int MainWindow::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 21)
+        if (_id < 22)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 21;
+        _id -= 22;
     }
     return _id;
 }

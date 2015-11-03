@@ -35,6 +35,7 @@ class SurfaceMesh;
 class ReservoirMesh;
 class ReservoirTopology;
 class FaultMesh;
+class OutlineBuilder;
 
 class SoSeparator;
 class SoSwitch; 
@@ -126,9 +127,13 @@ struct SnapshotInfo
     MoScalarSetIjk* scalarSet;
     MoMeshSkin* skin;
 
+    SoIndexedLineSet* trapOutlines;
+    SoIndexedLineSet* drainageAreaOutlinesFluid;
+    SoIndexedLineSet* drainageAreaOutlinesGas;
+
     std::shared_ptr<ReservoirMesh> meshData;
     std::shared_ptr<MiDataSetIjk<double> > propertyData;
-
+    
     Traps traps;
 
     void clear()
@@ -137,6 +142,9 @@ struct SnapshotInfo
       mesh = 0;
       scalarSet = 0;
       skin = 0;
+      trapOutlines = 0;
+      drainageAreaOutlinesFluid = 0;
+      drainageAreaOutlinesGas = 0;
 
       meshData.reset();
       propertyData.reset();
@@ -235,6 +243,13 @@ public:
     FlowVizVectors
   };
 
+  enum DrainageAreaType
+  {
+    DrainageAreaNone,
+    DrainageAreaFluid,
+    DrainageAreaGas
+  };
+
 private:
 
   template<class T>
@@ -291,10 +306,13 @@ private:
   std::list<SnapshotInfo> m_snapshotInfoCache;
   size_t m_maxCacheItems;
 
+  std::shared_ptr<OutlineBuilder> m_outlineBuilder;
+
   bool m_showGrid;
   bool m_showTraps;
   bool m_showTrapOutlines;
 
+  DrainageAreaType m_drainageAreaType;
   FlowVizType m_flowVizType;
 
   float m_verticalScale;
@@ -421,6 +439,8 @@ public:
   void showTraps(bool show);
 
   void showTrapOutlines(bool show);
+
+  void showDrainageAreaOutlines(DrainageAreaType type);
 
   void showFlowDirection(FlowVizType type);
 

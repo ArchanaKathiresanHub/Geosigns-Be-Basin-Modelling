@@ -11,6 +11,8 @@
 #include "OutlineBuilder.h"
 
 #include <Interface/GridMap.h>
+#include <Interface/Property.h>
+#include <Interface/PropertyValue.h>
 
 #include <Inventor/nodes/SoIndexedLineSet.h>
 
@@ -157,4 +159,25 @@ SoIndexedLineSet* OutlineBuilder::createOutline(const di::GridMap* values, const
   lineSet->vertexProperty = vertexProperty;
 
   return lineSet;
+}
+
+SoIndexedLineSet* OutlineBuilder::createOutline(
+  const DataAccess::Interface::Snapshot* snapshot,
+  const DataAccess::Interface::Reservoir* reservoir,
+  const DataAccess::Interface::Property* valuesProperty,
+  const DataAccess::Interface::Property* depthProperty)
+{
+  std::unique_ptr<const di::PropertyValueList> values(
+    valuesProperty->getPropertyValues(di::RESERVOIR, snapshot, reservoir, 0, 0));
+
+  std::unique_ptr<const di::PropertyValueList> depth(
+    depthProperty->getPropertyValues(di::RESERVOIR, snapshot, reservoir, 0, 0));
+
+  if (!values || values->empty() || !depth || depth->empty())
+    return nullptr;
+
+  const di::GridMap* valuesGridMap = (*values)[0]->getGridMap();
+  const di::GridMap* depthGridMap = (*depth)[0]->getGridMap();
+
+  return createOutline(valuesGridMap, depthGridMap);
 }

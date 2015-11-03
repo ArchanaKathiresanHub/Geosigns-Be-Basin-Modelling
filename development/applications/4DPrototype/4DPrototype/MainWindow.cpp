@@ -340,6 +340,9 @@ void MainWindow::connectSignals()
 
   connect(m_ui.checkBoxTraps, SIGNAL(toggled(bool)), this, SLOT(onTrapsToggled(bool)));
   connect(m_ui.checkBoxTrapOutline, SIGNAL(toggled(bool)), this, SLOT(onTrapOutlinesToggled(bool)));
+  connect(m_ui.checkBoxDrainageOutline, SIGNAL(toggled(bool)), this, SLOT(onDrainageAreaOutlineToggled(bool)));
+  connect(m_ui.radioButtonDrainageAreaFluid, SIGNAL(toggled(bool)), this, SLOT(onDrainageAreaTypeChanged(bool)));
+  connect(m_ui.radioButtonDrainageAreaGas, SIGNAL(toggled(bool)), this, SLOT(onDrainageAreaTypeChanged(bool)));
 
   connect(m_ui.radioButtonFlowVizNone, SIGNAL(toggled(bool)), this, SLOT(onFlowVizTypeChanged(bool)));
   connect(m_ui.radioButtonFlowVizLines, SIGNAL(toggled(bool)), this, SLOT(onFlowVizTypeChanged(bool)));
@@ -572,7 +575,34 @@ void MainWindow::onTrapOutlinesToggled(bool value)
 
 void MainWindow::onDrainageAreaOutlineToggled(bool value)
 {
+  bool checked = m_ui.checkBoxDrainageOutline->isChecked();
+  m_ui.radioButtonDrainageAreaFluid->setEnabled(checked);
+  m_ui.radioButtonDrainageAreaGas->setEnabled(checked);
 
+  SceneGraphManager::DrainageAreaType type = SceneGraphManager::DrainageAreaNone;
+  if (checked)
+  {
+    if (m_ui.radioButtonDrainageAreaFluid->isChecked())
+      type = SceneGraphManager::DrainageAreaFluid;
+    else
+      type = SceneGraphManager::DrainageAreaGas;
+  }
+
+  m_sceneGraphManager.showDrainageAreaOutlines(type);
+}
+
+void MainWindow::onDrainageAreaTypeChanged(bool value)
+{
+  if (value)
+  {
+    SceneGraphManager::DrainageAreaType type = SceneGraphManager::DrainageAreaNone;
+    if (m_ui.radioButtonDrainageAreaFluid->isChecked())
+      type = SceneGraphManager::DrainageAreaFluid;
+    else
+      type = SceneGraphManager::DrainageAreaGas;
+
+    m_sceneGraphManager.showDrainageAreaOutlines(type);
+  }
 }
 
 void MainWindow::onFlowVizTypeChanged(bool value)

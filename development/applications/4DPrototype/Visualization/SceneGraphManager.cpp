@@ -397,16 +397,6 @@ void SceneGraphManager::updateSnapshotReservoirs()
         res.root->addChild(res.scalarSet);
         res.root->addChild(res.skin);
 
-        //------------------------------------
-        std::unique_ptr<di::PropertyValueList> isoValues(m_resRockDrainageIdGasPhaseProperty->getPropertyValues(di::RESERVOIR, snapshot.snapshot, reservoir, 0, 0));
-        if (isoValues && !isoValues->empty())
-        {
-          OutlineBuilder builder;
-          SoIndexedLineSet* lineSet = builder.createOutline((*isoValues)[0]->getGridMap(), (*topValues)[0]->getGridMap());
-          res.root->addChild(lineSet);
-        }
-        //------------------------------------
-
         snapshot.reservoirsGroup->addChild(res.root);
       }
     }
@@ -448,6 +438,48 @@ void SceneGraphManager::updateSnapshotTraps()
       {
         res.root->removeChild(res.traps.root());
         res.traps = Traps();
+      }
+
+      // Trap outlines
+      if (m_showTrapOutlines && !res.trapOutlines)
+      {
+          res.trapOutlines = m_outlineBuilder->createOutline(
+            snapshot.snapshot, m_reservoirs[id].object, m_resRockTrapIdProperty, m_resRockTopProperty);
+
+          res.root->addChild(res.trapOutlines);
+      }
+      else if (!m_showTrapOutlines && res.trapOutlines)
+      {
+        res.root->removeChild(res.trapOutlines);
+        res.trapOutlines = 0;
+      }
+
+      // Drainage area outlines
+      if (m_drainageAreaType != DrainageAreaFluid && res.drainageAreaOutlinesFluid)
+      {
+        res.root->removeChild(res.drainageAreaOutlinesFluid);
+        res.drainageAreaOutlinesFluid = 0;
+      }
+
+      if (m_drainageAreaType != DrainageAreaGas && res.drainageAreaOutlinesGas)
+      {
+        res.root->removeChild(res.drainageAreaOutlinesGas);
+        res.drainageAreaOutlinesGas = 0;
+      }
+
+      if (m_drainageAreaType == DrainageAreaFluid && !res.drainageAreaOutlinesFluid && m_resRockDrainageIdFluidPhaseProperty)
+      {
+        res.drainageAreaOutlinesFluid = m_outlineBuilder->createOutline(
+          snapshot.snapshot, m_reservoirs[id].object, m_resRockDrainageIdFluidPhaseProperty, m_resRockTopProperty);
+
+        res.root->addChild(res.drainageAreaOutlinesFluid);
+      }
+      else if (m_drainageAreaType == DrainageAreaGas && !res.drainageAreaOutlinesGas && m_resRockDrainageIdGasPhaseProperty)
+      {
+        res.drainageAreaOutlinesGas = m_outlineBuilder->createOutline(
+          snapshot.snapshot, m_reservoirs[id].object, m_resRockDrainageIdGasPhaseProperty, m_resRockTopProperty);
+
+        res.root->addChild(res.drainageAreaOutlinesGas);
       }
     }
   }
@@ -1278,6 +1310,7 @@ SceneGraphManager::SceneGraphManager()
   , m_resRockBottomProperty(0)
   , m_resRockTrapIdProperty(0)
   , m_resRockDrainageIdGasPhaseProperty(0)
+  , m_resRockDrainageIdFluidPhaseProperty(0)
   , m_flowDirectionProperty(0)
   , m_currentProperty(0)
   , m_numI(0)
@@ -1292,9 +1325,11 @@ SceneGraphManager::SceneGraphManager()
   , m_maxY(0.0)
   , m_maxPersistentTrapId(0)
   , m_maxCacheItems(5)
+  , m_outlineBuilder(std::make_shared<OutlineBuilder>())
   , m_showGrid(false)
   , m_showTraps(false)
   , m_showTrapOutlines(false)
+  , m_drainageAreaType(DrainageAreaNone)
   , m_flowVizType(FlowVizNone)
   , m_verticalScale(1.f)
   , m_projectionType(PerspectiveProjection)
@@ -1550,6 +1585,16 @@ void SceneGraphManager::showTrapOutlines(bool show)
   }
 }
 
+void SceneGraphManager::showDrainageAreaOutlines(DrainageAreaType type)
+{
+  if (type != m_drainageAreaType)
+  {
+    m_drainageAreaType = type;
+
+    updateSnapshot();
+  }
+}
+
 void SceneGraphManager::showFlowDirection(FlowVizType type)
 {
   if (type != m_flowVizType)
@@ -1577,6 +1622,7 @@ void SceneGraphManager::setup(const di::ProjectHandle* handle)
   m_resRockBottomProperty = handle->findProperty(resRockBottomKey);
   m_resRockTrapIdProperty = handle->findProperty(resRockTrapIdKey);
   m_resRockDrainageIdGasPhaseProperty = handle->findProperty(resRockDrainageIdGasPhasePropertyKey);
+  m_resRockDrainageIdFluidPhaseProperty = handle->findProperty(resRockDrainageIdFluidPhasePropertyKey);
   m_flowDirectionProperty = handle->findProperty(flowDirectionKey);
 
   const di::Grid* loresGrid = handle->getLowResolutionOutputGrid();

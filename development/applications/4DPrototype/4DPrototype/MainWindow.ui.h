@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'MainWindow.ui'
 **
-** Created: Mon Nov 2 11:39:07 2015
+** Created: Tue Nov 3 10:38:59 2015
 **      by: Qt User Interface Compiler version 4.8.4
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -26,6 +26,7 @@
 #include <QtGui/QMenuBar>
 #include <QtGui/QRadioButton>
 #include <QtGui/QSlider>
+#include <QtGui/QSpacerItem>
 #include <QtGui/QSplitter>
 #include <QtGui/QStatusBar>
 #include <QtGui/QTabWidget>
@@ -64,10 +65,15 @@ public:
     QVBoxLayout *verticalLayout_6;
     QTreeWidget *treeWidgetProperties;
     QGroupBox *groupBoxTraps;
-    QVBoxLayout *verticalLayout_5;
+    QVBoxLayout *verticalLayout_7;
     QCheckBox *checkBoxTraps;
     QCheckBox *checkBoxTrapOutline;
     QCheckBox *checkBoxDrainageOutline;
+    QHBoxLayout *horizontalLayout_4;
+    QSpacerItem *horizontalSpacer;
+    QVBoxLayout *verticalLayout_5;
+    QRadioButton *radioButtonDrainageAreaFluid;
+    QRadioButton *radioButtonDrainageAreaGas;
     QGroupBox *groupBoxFlowDir;
     QVBoxLayout *verticalLayout_2;
     QRadioButton *radioButtonFlowVizNone;
@@ -187,22 +193,49 @@ public:
 
         groupBoxTraps = new QGroupBox(layoutWidget);
         groupBoxTraps->setObjectName(QString::fromUtf8("groupBoxTraps"));
-        verticalLayout_5 = new QVBoxLayout(groupBoxTraps);
-        verticalLayout_5->setObjectName(QString::fromUtf8("verticalLayout_5"));
+        verticalLayout_7 = new QVBoxLayout(groupBoxTraps);
+        verticalLayout_7->setObjectName(QString::fromUtf8("verticalLayout_7"));
         checkBoxTraps = new QCheckBox(groupBoxTraps);
         checkBoxTraps->setObjectName(QString::fromUtf8("checkBoxTraps"));
 
-        verticalLayout_5->addWidget(checkBoxTraps);
+        verticalLayout_7->addWidget(checkBoxTraps);
 
         checkBoxTrapOutline = new QCheckBox(groupBoxTraps);
         checkBoxTrapOutline->setObjectName(QString::fromUtf8("checkBoxTrapOutline"));
 
-        verticalLayout_5->addWidget(checkBoxTrapOutline);
+        verticalLayout_7->addWidget(checkBoxTrapOutline);
 
         checkBoxDrainageOutline = new QCheckBox(groupBoxTraps);
         checkBoxDrainageOutline->setObjectName(QString::fromUtf8("checkBoxDrainageOutline"));
 
-        verticalLayout_5->addWidget(checkBoxDrainageOutline);
+        verticalLayout_7->addWidget(checkBoxDrainageOutline);
+
+        horizontalLayout_4 = new QHBoxLayout();
+        horizontalLayout_4->setObjectName(QString::fromUtf8("horizontalLayout_4"));
+        horizontalSpacer = new QSpacerItem(20, 20, QSizePolicy::Fixed, QSizePolicy::Minimum);
+
+        horizontalLayout_4->addItem(horizontalSpacer);
+
+        verticalLayout_5 = new QVBoxLayout();
+        verticalLayout_5->setObjectName(QString::fromUtf8("verticalLayout_5"));
+        radioButtonDrainageAreaFluid = new QRadioButton(groupBoxTraps);
+        radioButtonDrainageAreaFluid->setObjectName(QString::fromUtf8("radioButtonDrainageAreaFluid"));
+        radioButtonDrainageAreaFluid->setEnabled(false);
+        radioButtonDrainageAreaFluid->setChecked(true);
+
+        verticalLayout_5->addWidget(radioButtonDrainageAreaFluid);
+
+        radioButtonDrainageAreaGas = new QRadioButton(groupBoxTraps);
+        radioButtonDrainageAreaGas->setObjectName(QString::fromUtf8("radioButtonDrainageAreaGas"));
+        radioButtonDrainageAreaGas->setEnabled(false);
+
+        verticalLayout_5->addWidget(radioButtonDrainageAreaGas);
+
+
+        horizontalLayout_4->addLayout(verticalLayout_5);
+
+
+        verticalLayout_7->addLayout(horizontalLayout_4);
 
 
         verticalLayout_3->addWidget(groupBoxTraps);
@@ -417,6 +450,8 @@ public:
         checkBoxTraps->setText(QApplication::translate("MainWindow", "Locations", 0, QApplication::UnicodeUTF8));
         checkBoxTrapOutline->setText(QApplication::translate("MainWindow", "Trap outline", 0, QApplication::UnicodeUTF8));
         checkBoxDrainageOutline->setText(QApplication::translate("MainWindow", "Drainage area outline", 0, QApplication::UnicodeUTF8));
+        radioButtonDrainageAreaFluid->setText(QApplication::translate("MainWindow", "Fluid", 0, QApplication::UnicodeUTF8));
+        radioButtonDrainageAreaGas->setText(QApplication::translate("MainWindow", "Gas", 0, QApplication::UnicodeUTF8));
         groupBoxFlowDir->setTitle(QApplication::translate("MainWindow", "Flow direction", 0, QApplication::UnicodeUTF8));
         radioButtonFlowVizNone->setText(QApplication::translate("MainWindow", "None", 0, QApplication::UnicodeUTF8));
         radioButtonFlowVizLines->setText(QApplication::translate("MainWindow", "Flow lines", 0, QApplication::UnicodeUTF8));

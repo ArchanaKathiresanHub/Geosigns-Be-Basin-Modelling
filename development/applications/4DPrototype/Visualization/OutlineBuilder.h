@@ -22,6 +22,9 @@ namespace DataAccess
   namespace Interface
   {
     class GridMap;
+    class Reservoir;
+    class Snapshot;
+    class Property;
   }
 }
 
@@ -52,6 +55,12 @@ public:
   SoIndexedLineSet* createOutline(
     const DataAccess::Interface::GridMap* values,
     const DataAccess::Interface::GridMap* depth);
+
+  SoIndexedLineSet* createOutline(
+    const DataAccess::Interface::Snapshot* snapshot,
+    const DataAccess::Interface::Reservoir* reservoir,
+    const DataAccess::Interface::Property* valuesProperty,
+    const DataAccess::Interface::Property* depthProperty);
 };
 
 #endif
