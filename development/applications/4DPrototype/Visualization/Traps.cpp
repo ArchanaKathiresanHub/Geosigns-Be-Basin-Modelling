@@ -206,34 +206,32 @@ void Traps::initSpheres(
 void Traps::initLineSet(const std::vector<SbVec3f>& vertices)
 {
   SoVertexProperty* vertexProp = new SoVertexProperty;
-  //vertexProp->vertex.setValues(0, (int)vertices.size(), &vertices[0]);
-
   SoIndexedLineSet* lineSet = new SoIndexedLineSet;
 
-  SbVec3f p[4];
+  SbVec3f p[5];
   for (int i = 0; i < vertices.size() / 2; ++i)
   {
     p[0] = vertices[2 * i];
-    p[1] = vertices[2 * i + 1];
+    p[3] = vertices[2 * i + 1];
 
     float radius = (float)std::min(m_deltaI, m_deltaJ);
     float len = 2 * radius;
     float width = .5f * radius;
 
-    SbVec3f v = p[1] - p[0];
+    SbVec3f v = p[3] - p[0];
     v.normalize();
 
-    // Move p1 back so the arrow doesn't penetrate into the sphere
-    p[1] = p[1] - radius * v;
-    SbVec3f q = p[1] - len * v;
+    // Move head back so the arrow doesn't penetrate into the sphere
+    p[3] = p[3] - radius * v;
+    p[1] = p[3] - len * v;
     SbVec3f vt(-v[1], v[0], 0.f);
-    p[2] = q - width * vt;
-    p[3] = q + width * vt;
+    p[2] = p[1] - width * vt;
+    p[4] = p[1] + width * vt;
 
-    vertexProp->vertex.setValues(4 * i, 4, p);
+    vertexProp->vertex.setValues(5 * i, 5, p);
 
-    int32_t indices[6] = { 4 * i, 4 * i + 1, 4 * i + 2, 4 * i + 3, 4 * i + 1, -1 };
-    lineSet->coordIndex.setValues(6 * i, 6, indices);
+    int32_t indices[7] = { 5 * i, 5 * i + 1, 5 * i + 2, 5 * i + 3, 5 * i + 4, 5 * i + 1, -1 };
+    lineSet->coordIndex.setValues(7 * i, 7, indices);
   }
 
   lineSet->vertexProperty = vertexProp;
@@ -264,8 +262,8 @@ void Traps::init()
     {
       SbVec3f downStreamPoint = getPosition(LeakagePointPosition, dsTrapper);
 
+      vertices.push_back(spillPoint);
       vertices.push_back(downStreamPoint);
-      vertices.push_back(leakagePoint);
     }
   }
 

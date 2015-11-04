@@ -37,9 +37,7 @@ class MainWindow : public QMainWindow
 
   std::unique_ptr<DataAccess::Interface::ObjectFactory> m_factory;
   std::unique_ptr<DataAccess::Interface::ProjectHandle> m_projectHandle;
-  
-  SceneGraph* m_sceneGraph;
-  SceneGraphManager m_sceneGraphManager;
+  std::unique_ptr<SceneGraphManager> m_sceneGraphManager;
 
   static void fpsCallback(float fps, void* userData, SoQtViewer* viewer);
 
@@ -86,6 +84,8 @@ private slots:
   void onCoordinateGridToggled(bool value);
 
   void onPerspectiveToggled(bool value);
+
+  void onTransparencyChanged(int value);
 
   void onTrapsToggled(bool value);
 

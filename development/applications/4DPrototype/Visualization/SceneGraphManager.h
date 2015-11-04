@@ -53,6 +53,7 @@ class SoMaterial;
 class PoAutoCubeAxis;
 class MoLegend;
 class SoScale;
+class SoTransparencyType;
 class MoDrawStyle;
 class MoMaterial;
 class MoDataBinding;
@@ -342,6 +343,7 @@ private:
 
   // Appearance group
   SoGroup*        m_appearanceNode;
+  SoTransparencyType* m_transparencyType;
   MoDrawStyle*    m_drawStyle;
   MoMaterial*     m_material;
   MoDataBinding*  m_dataBinding;
@@ -417,6 +419,8 @@ public:
   void setProjection(ProjectionType type);
 
   void setVerticalScale(float scale);
+
+  void setTransparency(float transparency);
 
   void setRenderStyle(bool drawFaces, bool drawEdges);
 

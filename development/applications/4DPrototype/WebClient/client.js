@@ -271,6 +271,21 @@ function onVerticalScaleSliderChanged(elem)
     theRenderArea.sendMessage(JSON.stringify(msg));
 }
 
+function onTransparencySliderChanged(elem)
+{
+    var transparency = elem.valueAsNumber / elem.max;
+    console.log("transparency = " + transparency);
+
+    var msg = {
+        cmd: "SetTransparency",
+        params: {
+            transparency: transparency
+        }
+    }
+
+    theRenderArea.sendMessage(JSON.stringify(msg));
+}
+
 function onRenderStyleChanged()
 {
     var drawFaces = document.getElementById("checkBoxDrawFaces").checked;

@@ -84,6 +84,7 @@ void MainWindow::onFps(float fps)
 
 void MainWindow::loadProject(const QString& filename)
 {
+  m_sceneGraphManager.reset();
   closeProject();
 
   {
@@ -99,13 +100,14 @@ void MainWindow::loadProject(const QString& filename)
 
   if (m_oivLicenseOK)
   {
-    m_sceneGraphManager.setup(m_projectHandle.get());
-    m_sceneGraphManager.setProjection(SceneGraphManager::PerspectiveProjection);
+    m_sceneGraphManager = std::make_unique<SceneGraphManager>();
+    m_sceneGraphManager->setup(m_projectHandle.get());
+    m_sceneGraphManager->setProjection(SceneGraphManager::PerspectiveProjection);
 
-    m_ui.renderWidget->getViewer()->setSceneGraph(m_sceneGraphManager.getRoot());
+    m_ui.renderWidget->getViewer()->setSceneGraph(m_sceneGraphManager->getRoot());
 
     m_ui.snapshotSlider->setMinimum(0);
-    m_ui.snapshotSlider->setMaximum((int)m_sceneGraphManager.getSnapshotCount() - 1);
+    m_ui.snapshotSlider->setMaximum((int)m_sceneGraphManager->getSnapshotCount() - 1);
     m_ui.snapshotSlider->setValue(m_ui.snapshotSlider->maximum());
 
     m_ui.renderWidget->getViewer()->getGuiAlgoViewers()->viewAll();
@@ -120,8 +122,6 @@ void MainWindow::closeProject()
   {
     //di::CloseCauldronProject(m_projectHandle.get());
     //m_projectHandle = nullptr;
-
-    m_sceneGraph = nullptr;
 
     m_ui.renderWidget->getViewer()->setSceneGraph(nullptr);
     m_ui.treeWidget->clear();
@@ -294,18 +294,39 @@ void MainWindow::updateUI()
   surfacesItem->setExpanded(true);
   reservoirsItem->setExpanded(true);
 
-  enableUI(true);// m_sceneGraph != nullptr);
+  enableUI(true);
 
   m_snapshotCountLabel->setText(QString("%1 snapshots")
-    .arg(m_sceneGraphManager.getSnapshotCount()));
+    .arg(m_sceneGraphManager->getSnapshotCount()));
   m_dimensionsLabel->setText(QString("Dimensions: %1x%2 / %3x%4")
-    .arg(m_sceneGraphManager.numI())
-    .arg(m_sceneGraphManager.numJ())
-    .arg(m_sceneGraphManager.numIHiRes())
-    .arg(m_sceneGraphManager.numJHiRes()));
+    .arg(m_sceneGraphManager->numI())
+    .arg(m_sceneGraphManager->numJ())
+    .arg(m_sceneGraphManager->numIHiRes())
+    .arg(m_sceneGraphManager->numJHiRes()));
 
-  m_ui.sliderSliceI->setMaximum(m_sceneGraphManager.numI() - 2);
-  m_ui.sliderSliceJ->setMaximum(m_sceneGraphManager.numJ() - 2);
+  m_ui.sliderSliceI->setMaximum(m_sceneGraphManager->numI() - 2);
+  m_ui.sliderSliceJ->setMaximum(m_sceneGraphManager->numJ() - 2);
+
+  m_ui.checkBoxTraps->setChecked(false);
+  m_ui.checkBoxTrapOutline->setChecked(false);
+  m_ui.checkBoxDrainageOutline->setChecked(false);
+
+  m_ui.radioButtonDrainageAreaFluid->setChecked(true);
+  m_ui.radioButtonFlowVizNone->setChecked(true);
+  
+  m_ui.sliderVerticalScale->setValue(0);
+  
+  m_ui.checkBoxDrawGrid->setChecked(false);
+  m_ui.checkBoxDrawFaces->setChecked(true);
+  m_ui.checkBoxDrawEdges->setChecked(true);
+  m_ui.checkBoxPerspective->setChecked(true);
+  m_ui.sliderTransparency->setValue(0);
+
+  m_ui.checkBoxSliceI->setChecked(false);
+  m_ui.checkBoxSliceJ->setChecked(false);
+
+  m_ui.sliderSliceI->setValue(0);
+  m_ui.sliderSliceJ->setValue(0);
 }
 
 void MainWindow::connectSignals()
@@ -337,6 +358,7 @@ void MainWindow::connectSignals()
   connect(m_ui.checkBoxDrawEdges, SIGNAL(toggled(bool)), this, SLOT(onRenderStyleChanged()));
   connect(m_ui.checkBoxDrawGrid, SIGNAL(toggled(bool)), this, SLOT(onCoordinateGridToggled(bool)));
   connect(m_ui.checkBoxPerspective, SIGNAL(toggled(bool)), this, SLOT(onPerspectiveToggled(bool)));
+  connect(m_ui.sliderTransparency, SIGNAL(valueChanged(int)), this, SLOT(onTransparencyChanged(int)));
 
   connect(m_ui.checkBoxTraps, SIGNAL(toggled(bool)), this, SLOT(onTrapsToggled(bool)));
   connect(m_ui.checkBoxTrapOutline, SIGNAL(toggled(bool)), this, SLOT(onTrapOutlinesToggled(bool)));
@@ -387,7 +409,7 @@ void MainWindow::onActionViewPresetTriggered()
   {
     if (sender() == actions[i])
     {
-      SoCamera* camera = m_sceneGraphManager.getCamera();
+      SoCamera* camera = m_sceneGraphManager->getCamera();
       setViewPreset(camera, presets[i]);
       break;
     }
@@ -497,7 +519,7 @@ void MainWindow::onActionSwitchPropertiesTriggered()
   for(int i=0; i < n; ++i)
   {
     const di::Property* prop = m_projectHandle->findProperty(propertyNames[i]);
-    m_sceneGraphManager.setProperty(propertyNames[i]);
+    m_sceneGraphManager->setProperty(propertyNames[i]);
     qApp->processEvents();
     m_ui.renderWidget->getViewer()->render();
   }
@@ -514,31 +536,31 @@ void MainWindow::onActionSwitchPropertiesTriggered()
 void MainWindow::onSliderValueChanged(int value)
 {
   //m_timeLabel->setText(QString("Time: %1").arg(m_sceneGraph->getSnapshot(value)->getTime()));
-  m_sceneGraphManager.setCurrentSnapshot(value);
+  m_sceneGraphManager->setCurrentSnapshot(value);
 }
 
 void MainWindow::onSliceIValueChanged(int value)
 {
-  m_sceneGraphManager.setSlicePosition(0, value);
+  m_sceneGraphManager->setSlicePosition(0, value);
 }
 
 void MainWindow::onSliceJValueChanged(int value)
 {
-  m_sceneGraphManager.setSlicePosition(1, value);
+  m_sceneGraphManager->setSlicePosition(1, value);
 }
 
 void MainWindow::onVerticalScaleSliderValueChanged(int value)
 {
   float scale = powf(10.f, .2f * value);
-  m_sceneGraphManager.setVerticalScale(scale);
+  m_sceneGraphManager->setVerticalScale(scale);
 }
 
 void MainWindow::onSliceToggled(bool value)
 {
   if (sender() == m_ui.checkBoxSliceI)
-    m_sceneGraphManager.enableSlice(0, value);
+    m_sceneGraphManager->enableSlice(0, value);
   else
-    m_sceneGraphManager.enableSlice(1, value);
+    m_sceneGraphManager->enableSlice(1, value);
 }
 
 void MainWindow::onRenderStyleChanged()
@@ -546,31 +568,40 @@ void MainWindow::onRenderStyleChanged()
   bool drawFaces = m_ui.checkBoxDrawFaces->isChecked();
   bool drawEdges = m_ui.checkBoxDrawEdges->isChecked();
 
-  m_sceneGraphManager.setRenderStyle(drawFaces, drawEdges);
+  m_sceneGraphManager->setRenderStyle(drawFaces, drawEdges);
 }
 
 void MainWindow::onCoordinateGridToggled(bool value)
 {
-  m_sceneGraphManager.showCoordinateGrid(value);
+  m_sceneGraphManager->showCoordinateGrid(value);
 }
 
 void MainWindow::onPerspectiveToggled(bool value)
 {
-  m_sceneGraphManager.setProjection(value 
+  m_sceneGraphManager->setProjection(value 
     ? SceneGraphManager::PerspectiveProjection 
     : SceneGraphManager::OrthographicProjection);
 
-  static_cast<SoQtViewer*>(m_ui.renderWidget->getViewer())->setCamera(m_sceneGraphManager.getCamera());
+  static_cast<SoQtViewer*>(m_ui.renderWidget->getViewer())->setCamera(m_sceneGraphManager->getCamera());
+}
+
+void MainWindow::onTransparencyChanged(int value)
+{
+  int minVal = m_ui.sliderTransparency->minimum();
+  int maxVal = m_ui.sliderTransparency->maximum();
+
+  float transparency = (float)(value - minVal) / (float)(maxVal - minVal);
+  m_sceneGraphManager->setTransparency(transparency);
 }
 
 void MainWindow::onTrapsToggled(bool value)
 {
-  m_sceneGraphManager.showTraps(value);
+  m_sceneGraphManager->showTraps(value);
 }
 
 void MainWindow::onTrapOutlinesToggled(bool value)
 {
-  m_sceneGraphManager.showTrapOutlines(value);
+  m_sceneGraphManager->showTrapOutlines(value);
 }
 
 void MainWindow::onDrainageAreaOutlineToggled(bool value)
@@ -588,7 +619,7 @@ void MainWindow::onDrainageAreaOutlineToggled(bool value)
       type = SceneGraphManager::DrainageAreaGas;
   }
 
-  m_sceneGraphManager.showDrainageAreaOutlines(type);
+  m_sceneGraphManager->showDrainageAreaOutlines(type);
 }
 
 void MainWindow::onDrainageAreaTypeChanged(bool value)
@@ -601,7 +632,7 @@ void MainWindow::onDrainageAreaTypeChanged(bool value)
     else
       type = SceneGraphManager::DrainageAreaGas;
 
-    m_sceneGraphManager.showDrainageAreaOutlines(type);
+    m_sceneGraphManager->showDrainageAreaOutlines(type);
   }
 }
 
@@ -615,7 +646,7 @@ void MainWindow::onFlowVizTypeChanged(bool value)
     else if (m_ui.radioButtonFlowVizVectors->isChecked())
       type = SceneGraphManager::FlowVizVectors;
 
-    m_sceneGraphManager.showFlowDirection(type);
+    m_sceneGraphManager->showFlowDirection(type);
   }
 }
 
@@ -640,14 +671,14 @@ void MainWindow::onItemDoubleClicked(QTreeWidgetItem* item, int column)
       }
 
       if (ok)
-        ;// m_sceneGraphManager.setProperty(props);
+        ;// m_sceneGraphManager->setProperty(props);
       else
         std::cout << "No vector property values found for " << name << std::endl;
 
     }
     else
     {
-      m_sceneGraphManager.setProperty(name);
+      m_sceneGraphManager->setProperty(name);
     }
   }
 }
@@ -670,16 +701,16 @@ void MainWindow::onTreeWidgetItemChanged(QTreeWidgetItem* item, int column)
   switch (item->type())
   {
   case TreeWidgetItem_FormationType:
-    m_sceneGraphManager.enableFormation(name, checked);
+    m_sceneGraphManager->enableFormation(name, checked);
     break;
   case TreeWidgetItem_SurfaceType:
-    m_sceneGraphManager.enableSurface(name, checked);
+    m_sceneGraphManager->enableSurface(name, checked);
     break;
   case TreeWidgetItem_ReservoirType:
-    m_sceneGraphManager.enableReservoir(name, checked);
+    m_sceneGraphManager->enableReservoir(name, checked);
     break;
   case TreeWidgetItem_FaultType:
-    m_sceneGraphManager.enableFault(parentName, name, checked);
+    m_sceneGraphManager->enableFault(parentName, name, checked);
     break;
   case TreeWidgetItem_FaultCollectionType:
   case TreeWidgetItem_FormationGroupType:
@@ -698,7 +729,6 @@ MainWindow::MainWindow()
   , m_fpsLabel(nullptr)
   , m_factory(new di::ObjectFactory)
   , m_projectHandle(nullptr)
-  , m_sceneGraph(nullptr)
 {
   initOIV();
 

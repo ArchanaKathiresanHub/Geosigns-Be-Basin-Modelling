@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'MainWindow.ui'
 **
-** Created: Tue Nov 3 10:38:59 2015
+** Created: Wed Nov 4 13:58:28 2015
 **      by: Qt User Interface Compiler version 4.8.4
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -84,10 +84,13 @@ public:
     QSlider *sliderVerticalScale;
     QGroupBox *groupBox_3;
     QVBoxLayout *verticalLayout_4;
-    QCheckBox *checkBoxDrawGrid;
+    QGridLayout *gridLayout_2;
     QCheckBox *checkBoxDrawFaces;
+    QCheckBox *checkBoxDrawGrid;
     QCheckBox *checkBoxDrawEdges;
     QCheckBox *checkBoxPerspective;
+    QLabel *label;
+    QSlider *sliderTransparency;
     QGroupBox *groupBox;
     QHBoxLayout *horizontalLayout;
     QGridLayout *gridLayout;
@@ -293,29 +296,46 @@ public:
         groupBox_3->setObjectName(QString::fromUtf8("groupBox_3"));
         verticalLayout_4 = new QVBoxLayout(groupBox_3);
         verticalLayout_4->setObjectName(QString::fromUtf8("verticalLayout_4"));
-        checkBoxDrawGrid = new QCheckBox(groupBox_3);
-        checkBoxDrawGrid->setObjectName(QString::fromUtf8("checkBoxDrawGrid"));
-
-        verticalLayout_4->addWidget(checkBoxDrawGrid);
-
+        gridLayout_2 = new QGridLayout();
+        gridLayout_2->setObjectName(QString::fromUtf8("gridLayout_2"));
         checkBoxDrawFaces = new QCheckBox(groupBox_3);
         checkBoxDrawFaces->setObjectName(QString::fromUtf8("checkBoxDrawFaces"));
         checkBoxDrawFaces->setChecked(true);
 
-        verticalLayout_4->addWidget(checkBoxDrawFaces);
+        gridLayout_2->addWidget(checkBoxDrawFaces, 0, 0, 1, 1);
+
+        checkBoxDrawGrid = new QCheckBox(groupBox_3);
+        checkBoxDrawGrid->setObjectName(QString::fromUtf8("checkBoxDrawGrid"));
+
+        gridLayout_2->addWidget(checkBoxDrawGrid, 0, 1, 1, 1);
 
         checkBoxDrawEdges = new QCheckBox(groupBox_3);
         checkBoxDrawEdges->setObjectName(QString::fromUtf8("checkBoxDrawEdges"));
         checkBoxDrawEdges->setChecked(true);
 
-        verticalLayout_4->addWidget(checkBoxDrawEdges);
+        gridLayout_2->addWidget(checkBoxDrawEdges, 1, 0, 1, 1);
 
         checkBoxPerspective = new QCheckBox(groupBox_3);
         checkBoxPerspective->setObjectName(QString::fromUtf8("checkBoxPerspective"));
         checkBoxPerspective->setEnabled(true);
         checkBoxPerspective->setChecked(true);
 
-        verticalLayout_4->addWidget(checkBoxPerspective);
+        gridLayout_2->addWidget(checkBoxPerspective, 1, 1, 1, 1);
+
+
+        verticalLayout_4->addLayout(gridLayout_2);
+
+        label = new QLabel(groupBox_3);
+        label->setObjectName(QString::fromUtf8("label"));
+
+        verticalLayout_4->addWidget(label);
+
+        sliderTransparency = new QSlider(groupBox_3);
+        sliderTransparency->setObjectName(QString::fromUtf8("sliderTransparency"));
+        sliderTransparency->setMaximum(20);
+        sliderTransparency->setOrientation(Qt::Horizontal);
+
+        verticalLayout_4->addWidget(sliderTransparency);
 
 
         verticalLayout_3->addWidget(groupBox_3);
@@ -458,10 +478,11 @@ public:
         radioButtonFlowVizVectors->setText(QApplication::translate("MainWindow", "Flow vectors", 0, QApplication::UnicodeUTF8));
         label_7->setText(QApplication::translate("MainWindow", "Vertical scale", 0, QApplication::UnicodeUTF8));
         groupBox_3->setTitle(QApplication::translate("MainWindow", "Render style", 0, QApplication::UnicodeUTF8));
-        checkBoxDrawGrid->setText(QApplication::translate("MainWindow", "Coordinate grid", 0, QApplication::UnicodeUTF8));
         checkBoxDrawFaces->setText(QApplication::translate("MainWindow", "Faces", 0, QApplication::UnicodeUTF8));
+        checkBoxDrawGrid->setText(QApplication::translate("MainWindow", "Coordinate grid", 0, QApplication::UnicodeUTF8));
         checkBoxDrawEdges->setText(QApplication::translate("MainWindow", "Edges", 0, QApplication::UnicodeUTF8));
         checkBoxPerspective->setText(QApplication::translate("MainWindow", "Perspective", 0, QApplication::UnicodeUTF8));
+        label->setText(QApplication::translate("MainWindow", "Transparency", 0, QApplication::UnicodeUTF8));
         groupBox->setTitle(QApplication::translate("MainWindow", "Slices", 0, QApplication::UnicodeUTF8));
         checkBoxSliceI->setText(QApplication::translate("MainWindow", "I", 0, QApplication::UnicodeUTF8));
         checkBoxSliceJ->setText(QApplication::translate("MainWindow", "J", 0, QApplication::UnicodeUTF8));

@@ -10,7 +10,7 @@
 
 <body onload="init()">
 	<div style="height: 100%">
-		<div style="width:250px; height:100%; overflow: auto; float: left">
+		<div style="width:280px; height:100%; overflow: auto; float: left">
 			<div class="header">Data set</div>
 			<div>
 				<div id="structureTab" class="activeTab" style="float:left;" onclick="showTab(0)">Structure</div>
@@ -61,11 +61,13 @@
 			<div>
 				<div class="header">Viewing options</div>
 				<div class="section">
-					<input id="verticalScaleSlider" type="range" min="0" max="10" value="1" oninput="onVerticalScaleSliderChanged(this)">Vert. scale</input><br>
+					<input id="verticalScaleSlider" type="range" min="1" max="10" value="1" oninput="onVerticalScaleSliderChanged(this)">Vert. scale</input><br>
+					<input type="range" id="sliderTransparency" min="0" max="20" value="0" oninput="onTransparencySliderChanged(this)">Transparency</input><br>
 					<input type="checkbox" id="checkBoxDrawFaces" checked onchange="onRenderStyleChanged()">Faces</input><br>
 					<input type="checkbox" id="checkBoxDrawEdges" checked onchange="onRenderStyleChanged()">Edges</input><br>
 					<input type="checkbox" id="checkBoxDrawGrid" onchange="onShowGridChanged(this)">Coordinate grid</input><br>
 					<input type="checkbox" id="checkBoxPerspective" checked onchange="onPerspectiveChanged(this)">Perspective</input><br>
+
 					<button onclick="onButtonViewAllClicked()">View all</button>
 					<table>
 						<tr>
@@ -117,7 +119,7 @@
 		</div>
 
 
-		<div id="CanvasDiv" style="margin-left: 260px; width: 100%; height:100%; background-color: #aaaaff">
+		<div id="CanvasDiv" style="margin-left: 290px; width: 100%; height:100%; background-color: #aaaaff">
 		    <canvas id="TheCanvas"> <!-- style="width: 100%; height: 100%" > <!-- canvas displaying the renderArea -->
 	    	    Your browser does not support the canvas element.
 	    	</canvas>

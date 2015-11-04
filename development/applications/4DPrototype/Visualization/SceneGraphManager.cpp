@@ -431,7 +431,7 @@ void SceneGraphManager::updateSnapshotTraps()
       {
         res.traps = Traps(snapshot.snapshot, m_reservoirs[id].object, m_verticalScale);
         if (res.traps.root() != 0)
-          res.root->addChild(res.traps.root());
+          res.root->insertChild(res.traps.root(), 0); // 1st because of blending
       }
       // See if we need to remove existing traps
       else if (!m_showTraps && res.traps.root() != 0)
@@ -501,14 +501,14 @@ namespace
    */
   double getZ(const SnapshotGeometry& geometry, double x, double y, int k)
   {
-    MbVec3d minVec = geometry.getMin();
-    MbVec3d maxVec = geometry.getMax();
+    double maxX = (geometry.numI() - 1) * geometry.deltaX();
+    double maxY = (geometry.numJ() - 1) * geometry.deltaY();
 
-    x = std::max(std::min(x, maxVec[0]), minVec[0]);
-    y = std::max(std::min(y, maxVec[1]), minVec[1]);
+    x = std::max(std::min(x, maxX), 0.0);
+    y = std::max(std::min(y, maxY), 0.0);
 
-    double normX = (x - minVec[0]) / geometry.deltaX();
-    double normY = (y - minVec[1]) / geometry.deltaY();
+    double normX = x / geometry.deltaX();
+    double normY = y / geometry.deltaY();
 
     int i0 = (int)floor(normX);
     int j0 = (int)floor(normY);
@@ -1127,17 +1127,17 @@ SnapshotInfo SceneGraphManager::createSnapshotNode(const di::Snapshot* snapshot)
   info.slicesGroup->setName("slices");
 
   info.formationsRoot->addChild(info.mesh);
-  info.formationsRoot->addChild(info.scalarSet);
-  info.formationsRoot->addChild(info.chunksGroup);
   info.formationsRoot->addChild(info.flowLinesGroup);
   info.formationsRoot->addChild(info.flowVectorsGroup);
+  info.formationsRoot->addChild(info.scalarSet);
+  info.formationsRoot->addChild(info.chunksGroup);
   info.formationsRoot->addChild(info.slicesGroup);
 
   info.root->addChild(info.formationsRoot);
   // Add surfaceShapeHints to prevent backface culling, and enable double-sided lighting
+  info.root->addChild(info.reservoirsGroup);
   info.root->addChild(m_surfaceShapeHints);
   info.root->addChild(info.surfacesGroup);
-  info.root->addChild(info.reservoirsGroup);
   info.root->addChild(info.faultsGroup);
 
   return info;
@@ -1204,11 +1204,14 @@ void SceneGraphManager::setupSceneGraph()
   m_scale = new SoScale;
   m_scale->scaleFactor = SbVec3f(1.f, 1.f, m_verticalScale);
 
+  m_transparencyType = new SoTransparencyType;
+  m_transparencyType->type = SoTransparencyType::BLEND;
+
   m_drawStyle = new MoDrawStyle;
   m_drawStyle->displayFaces = true;
   m_drawStyle->displayEdges = true;
   m_drawStyle->displayPoints = false;
-  m_drawStyle->fadingThreshold = 20.0f; // does this actually work???
+  m_drawStyle->fadingThreshold = 10.0f;
 
   m_material = new MoMaterial;
   m_material->faceColoring = MoMaterial::CONTOURING;
@@ -1230,6 +1233,7 @@ void SceneGraphManager::setupSceneGraph()
 
   m_appearanceNode = new SoGroup;
   m_appearanceNode->setName("appearance");
+  m_appearanceNode->addChild(m_transparencyType);
   m_appearanceNode->addChild(m_drawStyle);
   m_appearanceNode->addChild(m_material);
   m_appearanceNode->addChild(m_dataBinding);
@@ -1344,6 +1348,7 @@ SceneGraphManager::SceneGraphManager()
   , m_coordinateGridSwitch(0)
   , m_scale(0)
   , m_appearanceNode(0)
+  , m_transparencyType(0)
   , m_drawStyle(0)
   , m_material(0)
   , m_dataBinding(0)
@@ -1448,6 +1453,11 @@ void SceneGraphManager::setVerticalScale(float scale)
   m_scale->scaleFactor = SbVec3f(1.f, 1.f, scale);
 
   updateSnapshot();
+}
+
+void SceneGraphManager::setTransparency(float transparency)
+{
+  m_material->transparency = transparency;
 }
 
 void SceneGraphManager::setRenderStyle(bool drawFaces, bool drawEdges)

@@ -248,6 +248,12 @@ void BpaRenderAreaListener::onReceivedMessage(RenderArea* renderArea, Connection
 
     m_sceneGraphManager.setVerticalScale((float)scale);
   }
+  else if (cmd == "SetTransparency")
+  {
+    auto transparency = params.get<jsonxx::Number>("transparency");
+
+    m_sceneGraphManager.setTransparency((float)transparency);
+  }
   else if (cmd == "SetRenderStyle")
   {
     auto drawFaces = params.get<bool>("drawFaces");
