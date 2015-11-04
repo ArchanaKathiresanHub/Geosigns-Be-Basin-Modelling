@@ -59,6 +59,7 @@ namespace CauldronIO
     class Volume;
     class Surface;
     class DiscontinuousVolume;
+    class Trapper;
     /// type definitions
     typedef std::pair<boost::shared_ptr<Formation>, boost::shared_ptr<Volume> > FormationVolume;
     typedef std::vector<boost::shared_ptr<FormationVolume > > FormationVolumeList;
@@ -66,6 +67,7 @@ namespace CauldronIO
     typedef std::vector<boost::shared_ptr<Surface > > SurfaceList;
     typedef std::vector<boost::shared_ptr<Volume > > VolumeList;
     typedef std::vector<boost::shared_ptr<DiscontinuousVolume > > DiscontinuousVolumeList;
+    typedef std::vector<boost::shared_ptr<Trapper > > TrapperList;
 
     /// \class Project
     /// \brief Highest level class containing all surface and volume data within a Cauldron project
@@ -131,6 +133,8 @@ namespace CauldronIO
         void addVolume(boost::shared_ptr<Volume>& volume);
         /// \brief Add a discontinuous volume to the snapshot; ownership is transfered
         void addDiscontinuousVolume(boost::shared_ptr<DiscontinuousVolume>& discVolume);
+        /// \brief Add a trapper to the snapshot; ownership is transfered
+        void addTrapper(boost::shared_ptr<Trapper>& trapper);
 
 	    /// \returns Age of snapshot
         double getAge () const;
@@ -145,15 +149,62 @@ namespace CauldronIO
         const VolumeList& getVolumeList() const;
         /// \returns the list of discontinuous volumes
         const DiscontinuousVolumeList& getDiscontinuousVolumeList() const;
+        /// \returns the list of trappers
+        const TrapperList& getTrapperList() const;
 		
     private:
 	    SurfaceList m_surfaceList;
         VolumeList m_volumeList;
         DiscontinuousVolumeList m_discVolumeList;
+        TrapperList m_trapperList;
         SnapShotKind m_kind;
         bool m_isMinor;
         double m_age;
 	};
+
+    /// \class Trapper 
+    /// \brief container class holding all surfaces and volumes for a snapshot
+    class Trapper
+    {
+    public:
+        /// \brief Property constructor
+        /// \param [in] ID the ID of the trapper
+        /// \param [in] persistentID the persistent ID of the trapper
+        Trapper(int ID, int persistentID);
+        /// \returns the reservoir name
+        const std::string& getReservoirName() const;
+        /// \param [in] reservoirName the name of the reservoir
+        void setReservoirName(const std::string& reservoirName);
+        /// \returns the spillpoint depth
+        float getSpillDepth() const;
+        /// \param [in] depth the spill depth to assign to this trapper
+        void setSpillDepth(float depth);
+        /// \param [out] posX the spillpoint X position
+        /// \param [out] posY the spillpoint X position
+        void getSpillPointPosition(float& posX, float& posY) const;
+        /// \param [in] posX the spillpoint X position
+        /// \param [in] posY the spillpoint X position
+        void setSpillPointPosition(float posX, float posY);
+        /// \returns the ID
+        int getID() const;
+        /// \returns the persistent ID
+        int getPersistentID() const;
+        /// \brief Assign a downstream trapper for this trapper
+        /// \returns the downstream trapper (if any)
+        boost::shared_ptr<const Trapper> getDownStreamTrapper() const;
+        /// \param [in] trapper the downstreamtrapper for this trapper
+        void setDownStreamTrapper(boost::shared_ptr<const Trapper> trapper);
+        /// \param [in] trapper the downstreamtrapper persistent ID for this trapper
+        void setDownStreamTrapperID(int persistentID);
+        /// \returns the downstream trapper ID
+        int getDownStreamTrapperID() const;
+
+    private:
+        int m_ID, m_persistentID, m_downstreamTrapperID;
+        float m_spillDepth, m_spillPositionX, m_spillPositionY;
+        boost::shared_ptr<const Trapper> m_downstreamTrapper;
+        std::string m_reservoir;
+    };
     
 	/// \class Property 
     /// \brief Little information class holding information about a Cauldron property
@@ -232,7 +283,7 @@ namespace CauldronIO
         /// \returns the associate property with this grid
         const boost::shared_ptr<const Property> getProperty() const;
         /// \brief Associate a formation with this map
-        /// \param [in] formation the formation to be associated with this map. Optional
+        /// \param [in] formation the formation to be associated with this map. Optional.
         void setFormation(boost::shared_ptr<const Formation> formation);
         /// \returns the associated formation for this map. Can be null
         const boost::shared_ptr<const Formation> getFormation() const;
@@ -245,7 +296,7 @@ namespace CauldronIO
         void retrieve();
         /// \returns true if data is available
         bool isRetrieved() const;
-        /// \brief Get the name of this surface
+        /// \brief Get the name of the reservoir associated with the surface. Optional.
         const std::string& getReservoirName() const;
         /// \brief Set the reservoirname of this surface
         void setReservoirName(const std::string& reservoirName);

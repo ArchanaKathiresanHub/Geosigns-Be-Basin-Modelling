@@ -99,6 +99,7 @@ CauldronIO::SnapShot::~SnapShot()
     m_volumeList.clear();
     m_discVolumeList.clear();
     m_surfaceList.clear();
+    m_trapperList.clear();
 }
 
 void CauldronIO::SnapShot::addSurface(boost::shared_ptr<Surface>& newSurface)
@@ -116,9 +117,9 @@ void CauldronIO::SnapShot::addVolume(boost::shared_ptr<Volume>& newVolume)
 {
     if (!newVolume) throw CauldronIOException("Cannot add empty volume");
 
-    // Check if snapshot exists
+    // Check if volume exists
     BOOST_FOREACH(boost::shared_ptr<Volume>& volume, m_volumeList)
-        if (volume == newVolume) throw CauldronIOException("Cannot add surface twice");
+        if (volume == newVolume) throw CauldronIOException("Cannot add volume twice");
 
     m_volumeList.push_back(newVolume);
 }
@@ -127,11 +128,22 @@ void CauldronIO::SnapShot::addDiscontinuousVolume(boost::shared_ptr<Discontinuou
 {
     if (!newDiscVolume) throw CauldronIOException("Cannot add empty volume");
 
-    // Check if snapshot exists
+    // Check if volume exists
     BOOST_FOREACH(boost::shared_ptr<DiscontinuousVolume>& volume, m_discVolumeList)
-        if (volume == newDiscVolume) throw CauldronIOException("Cannot add surface twice");
+        if (volume == newDiscVolume) throw CauldronIOException("Cannot add volume twice");
 
     m_discVolumeList.push_back(newDiscVolume);
+}
+
+
+void CauldronIO::SnapShot::addTrapper(boost::shared_ptr<Trapper>& newTrapper)
+{
+    if (!newTrapper) throw CauldronIOException("Cannot add empty trapper");
+
+    BOOST_FOREACH(boost::shared_ptr<Trapper>& trapper, m_trapperList)
+        if (trapper == newTrapper) throw CauldronIOException("Cannot add trapper twice");
+
+    m_trapperList.push_back(newTrapper);
 }
 
 double CauldronIO::SnapShot::getAge() const
@@ -162,6 +174,12 @@ const VolumeList& CauldronIO::SnapShot::getVolumeList() const
 const DiscontinuousVolumeList& CauldronIO::SnapShot::getDiscontinuousVolumeList() const
 {
     return m_discVolumeList;
+}
+
+
+const TrapperList& CauldronIO::SnapShot::getTrapperList() const
+{
+    return m_trapperList;
 }
 
 void CauldronIO::SnapShot::retrieve()
@@ -919,4 +937,79 @@ void CauldronIO::DiscontinuousVolume::retrieve()
 {   
     BOOST_FOREACH(boost::shared_ptr<FormationVolume>& pair, m_volumeList)
         pair->second->retrieve();
+}
+
+//////////////////////////////////////////////////////////////////////////
+/// Trapper implementation
+//////////////////////////////////////////////////////////////////////////
+
+CauldronIO::Trapper::Trapper(int ID, int persistentID)
+{
+    m_ID = ID;
+    m_persistentID = persistentID;
+    m_downstreamTrapperID = -1;
+}
+
+const std::string& CauldronIO::Trapper::getReservoirName() const
+{
+    return m_reservoir;
+}
+
+void CauldronIO::Trapper::setReservoirName(const std::string& reservoirName)
+{
+    m_reservoir = reservoirName;
+}
+
+float CauldronIO::Trapper::getSpillDepth() const
+{
+    return m_spillDepth;
+}
+
+
+void CauldronIO::Trapper::setSpillDepth(float depth)
+{
+    m_spillDepth = depth;
+}
+
+void CauldronIO::Trapper::getSpillPointPosition(float& posX, float& posY) const
+{
+    posX = m_spillPositionX;
+    posY = m_spillPositionY;
+}
+
+
+void CauldronIO::Trapper::setSpillPointPosition(float posX, float posY)
+{
+    m_spillPositionX = posX;
+    m_spillPositionY = posY;
+}
+
+int CauldronIO::Trapper::getID() const
+{
+    return m_ID;
+}
+
+int CauldronIO::Trapper::getPersistentID() const
+{
+    return m_persistentID;
+}
+
+boost::shared_ptr<const Trapper> CauldronIO::Trapper::getDownStreamTrapper() const
+{
+    return m_downstreamTrapper;
+}
+
+void CauldronIO::Trapper::setDownStreamTrapper(boost::shared_ptr<const Trapper> trapper)
+{
+    m_downstreamTrapper = trapper;
+}
+
+void CauldronIO::Trapper::setDownStreamTrapperID(int persistentID)
+{
+    m_downstreamTrapperID = persistentID;
+}
+
+int CauldronIO::Trapper::getDownStreamTrapperID() const
+{
+    return m_downstreamTrapperID;
 }

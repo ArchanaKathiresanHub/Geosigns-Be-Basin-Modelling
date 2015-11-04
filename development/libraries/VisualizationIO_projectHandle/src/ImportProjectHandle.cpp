@@ -15,6 +15,7 @@
 #include "Interface/PropertyValue.h"
 #include "Interface/Reservoir.h"
 #include "Interface/Surface.h"
+#include "Interface/Trapper.h"
 #include "Interface/GridMap.h"
 #include "Interface/ProjectData.h"
 #include "VisualizationIO_projectHandle.h"
@@ -145,6 +146,35 @@ boost::shared_ptr<CauldronIO::SnapShot> ImportProjectHandle::createSnapShotIO(bo
         }
     }
 
+    // Find trappers
+    boost::shared_ptr<TrapperList> trapperList(projectHandle->getTrappers(0, snapShot, 0, 0));
+    for (size_t i = 0; i < trapperList->size(); ++i)
+    {
+        const Trapper* trapper = trapperList->at(i);
+        
+        // Get some info
+        int downstreamTrapperID = -1;
+        if (trapper->getDownstreamTrapper())
+            downstreamTrapperID = trapper->getDownstreamTrapper()->getPersistentId();
+        int persistentID = trapper->getPersistentId();
+        int ID = trapper->getId();
+        double spillPointDepth = trapper->getSpillDepth();
+        double spillPointX, spillPointY;
+        trapper->getSpillPointPosition(spillPointX, spillPointY);
+
+        const Reservoir* reservoir = trapper->getReservoir();
+        assert(reservoir);
+
+        // Create a new Trapper and assign some values
+        boost::shared_ptr<CauldronIO::Trapper> trapperIO(new CauldronIO::Trapper(ID, persistentID));
+        trapperIO->setReservoirName(reservoir->getName());
+        trapperIO->setSpillDepth((float)spillPointDepth);
+        trapperIO->setSpillPointPosition((float)spillPointX, (float)spillPointY);
+        trapperIO->setDownStreamTrapperID(downstreamTrapperID);
+
+        snapShotIO->addTrapper(trapperIO);
+    }
+
     return snapShotIO;
 }
 
@@ -170,13 +200,12 @@ boost::shared_ptr<vector<boost::shared_ptr<CauldronIO::Surface> > >  ImportProje
 
         // A map needs a surface or a formation
         if (!formation && reservoir)
-        {
             formation = reservoir->getFormation();
-            if (!formation)
-                throw new CauldronIO::CauldronIOException("Found map without formation, surface or reservoir");
-        }
-        string surfaceName;
 
+        if (!formation && !surface)
+                throw new CauldronIO::CauldronIOException("Found map without formation, surface or reservoir");
+
+        string surfaceName;
         if (surface)
         {
             surfaceName = surface->getName();

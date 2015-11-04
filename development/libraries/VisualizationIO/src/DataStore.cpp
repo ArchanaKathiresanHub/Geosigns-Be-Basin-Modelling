@@ -161,7 +161,7 @@ boost::shared_ptr<Volume> CauldronIO::DataStoreLoad::getVolume(const boost::prop
 boost::shared_ptr<Surface> CauldronIO::DataStoreLoad::getSurface(const boost::property_tree::ptree& ptree, boost::shared_ptr<Property> property)
 {
     std::string surfaceName = ptree.get<std::string>("<xmlattr>.name");
-    std::string reservoirName = ptree.get<std::string>("<xmlattr>.reservoirName");
+    boost::optional<std::string> reservoirName = ptree.get_optional<std::string>("<xmlattr>.reservoirName");
 
     SubsurfaceKind surfaceKind = (SubsurfaceKind)ptree.get<int>("<xmlattr>.subsurfacekind");
     boost::uuids::uuid uuid = ptree.get<boost::uuids::uuid>("<xmlattr>.uuid");
@@ -223,7 +223,10 @@ boost::shared_ptr<Surface> CauldronIO::DataStoreLoad::getSurface(const boost::pr
 
     // Create the surface
     boost::shared_ptr<Surface> surface(new Surface(surfaceName, surfaceKind, property, valueMap));
-    surface->setReservoirName(reservoirName);
+
+    // Set reservoirname if present
+    if (reservoirName)
+        surface->setReservoirName(*reservoirName);
 
     return surface;
 }
@@ -294,7 +297,8 @@ void CauldronIO::DataStoreSave::addSurface(const boost::shared_ptr<Surface>& sur
         surfaceIO->retrieve();
 
     ptree.put("<xmlattr>.name", surfaceIO->getName());
-    ptree.put("<xmlattr>.reservoirName", surfaceIO->getReservoirName());
+    if (surfaceIO->getReservoirName().length() > 0)
+        ptree.put("<xmlattr>.reservoirName", surfaceIO->getReservoirName());
     ptree.put("<xmlattr>.subsurfacekind", surfaceIO->getSubSurfaceKind());
     ptree.put("<xmlattr>.uuid", surfaceIO->getValueMap()->getUUID());
     ptree.put("<xmlattr>.cell-centered", surfaceIO->getValueMap()->isCellCentered());

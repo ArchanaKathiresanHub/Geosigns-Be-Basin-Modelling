@@ -17,6 +17,7 @@
 %shared_ptr(CauldronIO::Property)
 %shared_ptr(CauldronIO::FormationVolume)
 %shared_ptr(CauldronIO::Project)
+%shared_ptr(CauldronIO::Trapper)
 
 %{
 /* Includes the header in the wrapper code */
@@ -34,5 +35,6 @@
 %template(SurfaceList) std::vector<boost::shared_ptr<CauldronIO::Surface > > ;
 %template(VolumeList) std::vector<boost::shared_ptr<CauldronIO::Volume > > ;
 %template(DiscontinuousVolumeList) std::vector<boost::shared_ptr<CauldronIO::DiscontinuousVolume > > ;
+%template(TrapperList) std::vector<boost::shared_ptr<CauldronIO::Trapper > > ;
 
 

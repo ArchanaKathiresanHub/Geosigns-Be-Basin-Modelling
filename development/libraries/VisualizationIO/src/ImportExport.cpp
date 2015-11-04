@@ -136,6 +136,31 @@ void ImportExport::addProject(boost::property_tree::ptree& pt, boost::shared_ptr
                 addProperty(subvolNode, subVolume->getProperty());
             }
         }
+
+        const TrapperList trappers = snapShot->getTrapperList();
+        int maxPersistentTrapperID = -1;
+        BOOST_FOREACH(const boost::shared_ptr<const Trapper>& trapper, trappers)
+        {
+            // General properties
+            ptree& trapperNode = node.add("trappers.trapper", "");
+
+            trapperNode.put("<xmlattr>.id", trapper->getID());
+            trapperNode.put("<xmlattr>.persistentID", trapper->getPersistentID());
+            trapperNode.put("<xmlattr>.reservoirname", trapper->getReservoirName());
+            trapperNode.put("<xmlattr>.depth", trapper->getSpillDepth());
+            
+            float x, y;
+            trapper->getSpillPointPosition(x, y);
+            trapperNode.put("<xmlattr>.posX", x);
+            trapperNode.put("<xmlattr>.posY", y);
+
+            int downstreamTrapperID = trapper->getDownStreamTrapperID();
+            trapperNode.put("<xmlattr>.downstreamtrapper", downstreamTrapperID);
+            maxPersistentTrapperID = std::max(maxPersistentTrapperID, trapper->getPersistentID());
+        }
+        
+        if (maxPersistentTrapperID != -1)
+            node.add("trappers.maxPersistentTrapperID", maxPersistentTrapperID);
     }
 }
 
@@ -383,6 +408,57 @@ boost::shared_ptr<Project> CauldronIO::ImportExport::getProject(const boost::pro
                                 break;
                             }
                         }
+                    }
+                }
+            }
+
+            boost::optional<boost::property_tree::ptree const&> hasTrappers = snapShotNode.get_child_optional("trappers");
+            if (hasTrappers)
+            {
+                int maxPersistentTrapperID = snapShotNode.get<int>("trappers.maxPersistentTrapperID");
+                assert(maxPersistentTrapperID > -1);
+                
+                std::vector<boost::shared_ptr<Trapper>* > persistentIDs(maxPersistentTrapperID + 1);
+
+                BOOST_FOREACH(boost::property_tree::ptree::value_type const& trapperNodes, snapShotNode.get_child("trappers"))
+                {
+                    if (trapperNodes.first == "trapper")
+                    {
+                        const boost::property_tree::ptree& trapperNode = trapperNodes.second;
+                        int ID = trapperNode.get<int>("<xmlattr>.id");
+                        int persistentID = trapperNode.get<int>("<xmlattr>.persistentID");
+                        int downstreamTrapperID = trapperNode.get<int>("<xmlattr>.downstreamtrapper");
+                        float depth = trapperNode.get<float>("<xmlattr>.depth");
+                        std::string reservoirname = trapperNode.get<std::string>("<xmlattr>.reservoirname");
+                        
+                        float x = trapperNode.get<float>("<xmlattr>.posX");
+                        float y = trapperNode.get<float>("<xmlattr>.posY");
+
+                        boost::shared_ptr<Trapper> trapperIO(new Trapper(ID, persistentID));
+                        trapperIO->setDownStreamTrapperID(downstreamTrapperID);
+                        trapperIO->setReservoirName(reservoirname);
+                        trapperIO->setSpillDepth(depth);
+                        trapperIO->setSpillPointPosition(x, y);
+
+                        snapShot->addTrapper(trapperIO);
+
+                        assert(persistentID <= maxPersistentTrapperID);
+                        persistentIDs[persistentID] = &trapperIO;
+                    }
+                }
+
+                // Assign downstream trappers
+                const TrapperList trappers = snapShot->getTrapperList();
+                BOOST_FOREACH(const boost::shared_ptr<const Trapper>& trapper, trappers)
+                {
+                    int downstreamTrapperID = trapper->getDownStreamTrapperID();
+                    if (downstreamTrapperID > -1)
+                    {
+                        boost::shared_ptr<Trapper> downstreamTrapper = *persistentIDs[downstreamTrapperID];
+
+                        // Unfortunate hack
+                        Trapper* thisTrapper = const_cast<Trapper*>(trapper.get());
+                        thisTrapper->setDownStreamTrapper(downstreamTrapper);
                     }
                 }
             }
