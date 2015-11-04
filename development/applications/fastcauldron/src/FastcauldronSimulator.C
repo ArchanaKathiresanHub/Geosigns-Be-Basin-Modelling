@@ -1506,7 +1506,7 @@ void FastcauldronSimulator::deleteMinorSnapshots () {
 
       }
 
-      if( ! H5_Parallel_PropertyList::isOneFilePerProcessEnabled() ) {
+      if( ! H5_Parallel_PropertyList::isOneFilePerProcessEnabled() and not m_primary ) {
          if ( getRank () == 0 ) {
             const std::string fileName = getFullOutputDir () + "/" + (*snapshotIter)->getFileName ();
             int status = std::remove( fileName.c_str ());
