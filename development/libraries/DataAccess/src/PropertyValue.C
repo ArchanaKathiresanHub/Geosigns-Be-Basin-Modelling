@@ -493,6 +493,15 @@ bool PropertyValue::saveMapToFile (MapWriter & mapWriter)
    return true;
 }
 
+bool PropertyValue::savePrimaryVolumeToFile (MapWriter & mapWriter)
+{
+   GridMap * gridMap = getGridMap ();
+   double time = getSnapshot ()->getTime ();
+
+   mapWriter.writePrimaryVolumeToHDF (gridMap, getName (), time, getFormation ()->getMangledName ());
+   return true;
+}
+
 bool PropertyValue::saveVolumeToFile (MapWriter & mapWriter)
 {
    database::setMapFileName (m_record, mapWriter.getFileName ());

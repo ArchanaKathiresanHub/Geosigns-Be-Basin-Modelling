@@ -83,6 +83,8 @@ public:
    SizeType&       operator [] (int index) { return hDimensions[index]; }
    const SizeType& operator [] (int index) const { return hDimensions[index]; }
 
+   int numDims () const { return hNumDimensions; }
+
 private:
    int      hNumDimensions;
    SizeType *hDimensions;
@@ -117,7 +119,7 @@ public:
    H5_FixedSpace  (hid_t space);
    H5_FixedSpace  (const Dimensions& dims);
    H5_FixedSpace  (const H5_FixedSpace& rhs);
-   ~H5_FixedSpace () { delete hDims; } 
+   ~H5_FixedSpace ();
 
    // public methods
    H5_FixedSpace&    operator=     (const H5_FixedSpace& rhs);
@@ -128,13 +130,18 @@ public:
    int               numDimensions (void)      const { return hDims->numDimensions(); }
 
    hid_t setHyperslab (Dimensions &size, OffsetSize &offset);
+   hid_t setChunkedHyperslab (Dimensions &size, OffsetSize &offset);
    bool  sizeEqual    (const H5_FixedSpace& rhs) const;
 
-   void close (void) { H5Sclose (hSpace); }
+   void close (void) { H5Sclose (hSpace); } 
+
+   void initHyperslabBuffers( const int dims );
    
 private:
    hid_t      hSpace;
    Dimensions *hDims;
+   hsize_t * m_count;
+   hsize_t * m_stride;
 
    H5_FixedSpace& deepCopy      (const H5_FixedSpace &rhs);
    hid_t          createSpaceId (const Dimensions *dims);

@@ -129,10 +129,10 @@ public:
       bool status = false;
 
       // create file space
-      DataSpace dataSpace = createHyperslabFilespace (localVecInfo);
+      DataSpace dataSpace = createHyperslabFilespace (localVecInfo, h5File->chunks() );
 
       // create dataset
-      hid_t dataId = h5File->addDataset (dataset, locId, dataType, *(dataSpace.first));
+      hid_t dataId = h5File->addDataset (dataset, locId, dataType, *(dataSpace.first), dataSpace.second);
 
       if ( dataId > -1 )
       {
@@ -163,7 +163,7 @@ public:
       {
 
         // create file space
-        DataSpace dataSpace = createHyperslabFilespace (localVecInfo);
+        DataSpace dataSpace = createHyperslabFilespace (localVecInfo, h5File->chunks());
 
         // write to the dataset
         status = h5File->writeDataset (dataId, buffer, pList, 
@@ -180,7 +180,7 @@ public:
       return status;
    } 
 
-   static DataSpace createHyperslabFilespace (DMDALocalInfo &localVecInfo)
+   static DataSpace createHyperslabFilespace (DMDALocalInfo &localVecInfo, const bool useChunks = false )
    {
      // create size and offset from Local Vec Info
      H5_VectorBoundaries dataBounds (localVecInfo);
@@ -192,7 +192,11 @@ public:
      H5_FixedSpace *fileSpace = new H5_FixedSpace (dataBounds.globalBounds());
 
      // set hyperslab
-     fileSpace->setHyperslab (dataBounds.localBounds(), dataBounds.offsetBounds());
+     if( useChunks ) {
+        fileSpace->setChunkedHyperslab (dataBounds.localBounds(), dataBounds.offsetBounds());
+     } else {
+        fileSpace->setHyperslab (dataBounds.localBounds(), dataBounds.offsetBounds());
+     }
 
      return DataSpace (fileSpace, memSpace);
    }

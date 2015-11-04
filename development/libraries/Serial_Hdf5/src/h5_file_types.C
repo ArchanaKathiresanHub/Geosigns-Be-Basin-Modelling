@@ -48,6 +48,11 @@ void H5_Base_File::close (void)
    }
 }
 
+void H5_Base_File::setChunking( const bool useChunks )
+{
+   m_useChunks = useChunks;
+}
+
 hid_t H5_Base_File::createPropertyList (H5_PropertyList *userPropertyType)
 {
    // use user-specified property type or default (serial)
@@ -128,6 +133,69 @@ hid_t H5_Write_File::addDataset (const char *dataname, hid_t type,
 {
    return H5Dcreate (hFileId, dataname, type, space.space_id(), propertyList, H5P_DEFAULT, H5P_DEFAULT);
 }
+
+hid_t H5_Write_File::addDataset (const char *dataname, hid_t locId, hid_t type, 
+                                 H5_FixedSpace& space, H5_FixedSpace * memspace, hid_t propertyList)
+{
+   int numDimensions = space.numDimensions();
+
+   if( not m_useChunks or numDimensions < 3 or memspace == NULL ) {
+      return addDataset (dataname, locId, type, space, propertyList);
+   }
+   
+   hid_t datasetId = H5Dopen (locId, dataname, H5P_DEFAULT);
+   if (datasetId >= 0)
+   {
+      H5Dclose (datasetId);
+      H5Gunlink (locId, dataname);
+   }
+   hid_t dcpl = H5Pcreate(H5P_DATASET_CREATE);
+ 
+   int rank = 0;
+   MPI_Comm_rank ( MPI_COMM_WORLD, &rank );
+
+   const hsize_t  * dims =  memspace->dims();
+            
+   hsize_t * chunk= new hsize_t[numDimensions];
+
+   for( int i = 0; i < numDimensions; ++ i ) {
+      chunk[i] =  dims[i];
+   }
+
+   // chunk size must be the same for all ranks
+   MPI_Allreduce ( (void *)dims, chunk, numDimensions, MPI_UNSIGNED_LONG_LONG, MPI_MIN, MPI_COMM_WORLD);
+
+   // H5Pset_cache //chunking cache size
+
+   // H5Pset_layout(dcpl, H5D_CHUNKED);
+   
+   // hsize_t totsize = 1;
+   // for( int i = 0; i < numDimensions; ++ i ) {
+   //    totsize *= chunk[i];
+   // }
+   // hsize_t cachesize = totsize * sizeof( int );
+   // H5Pset_chunk_cache (dcpl, totsize, cachesize, 1 );
+   
+   H5Pset_chunk(dcpl, numDimensions, chunk);
+
+   delete []chunk;
+
+
+   datasetId = H5Dcreate (locId, dataname, type, space.space_id(), propertyList, dcpl, H5P_DEFAULT);
+
+   H5Pclose(dcpl);
+
+   if (datasetId < 0)
+   {
+      
+      H5Eprint ( H5E_DEFAULT, 0 );
+      
+      cerr << "creating dataset " << dataname <<  " failed, with error code: " << datasetId << endl;
+   }
+   
+   return datasetId;
+}
+
 
 hid_t H5_Write_File::addDataset (const char *dataname, hid_t locId, hid_t type, 
                                  H5_FixedSpace& space, hid_t propertyList)

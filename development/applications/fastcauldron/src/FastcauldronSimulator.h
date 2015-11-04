@@ -277,6 +277,12 @@ public :
    /// By default the constant 1.0e6 Pa is the capillary entry pressure.
    bool useCalculatedCapillaryPressure () const;
 
+   /// \brief Set primary properties output flag
+   void setPrimaryPropertiesFlag( const bool outputPrimaryProperties );
+        
+   /// \brief Get primary properties output flag
+   bool getPrimaryPropertiesFlag() const;
+        
 private :
 
 
@@ -449,6 +455,16 @@ inline bool FastcauldronSimulator::useCalculatedCapillaryPressure () const {
 }
 
 //------------------------------------------------------------//
+
+inline void FastcauldronSimulator::setPrimaryPropertiesFlag ( const bool flag )  {
+   m_primary = flag;
+}
+
+//------------------------------------------------------------//
+
+inline bool FastcauldronSimulator::getPrimaryPropertiesFlag ( ) const  {
+   return m_primary;
+}
 
 
 #endif // __FASTCAULDRON_SIMULATOR_HH__

@@ -41,7 +41,7 @@ class H5_Base_File
 {
 public:
    // ctor / dtor
-   H5_Base_File () : hFileId ((hid_t)0) {}
+   H5_Base_File () : hFileId ((hid_t)0) { m_useChunks = false; }
    virtual ~H5_Base_File () {} 
    
    // public methods
@@ -59,8 +59,12 @@ public:
    void  closeDataset   (hid_t dset);
    void  closeDataspace (hid_t space) { H5Sclose (space); }
    bool  getDimensions  (hid_t datasetId, SpaceDimensions &dims);
-
+   void  setChunking( const bool useChunks );
+   bool  chunks() const { return m_useChunks; }
+ 
 protected:
+   bool m_useChunks;
+
    virtual void  openInMode (const char *filename) = 0;
    
    hid_t createPropertyList        (H5_PropertyList *propertyType);
@@ -91,7 +95,10 @@ public:
    // public methods
    hid_t addDataset    (const char *dataname, hid_t type, H5_FixedSpace &space, 
                         hid_t propertyList = H5P_DEFAULT);
-   hid_t addDataset    (const char *dataname, hid_t locId, hid_t type, H5_FixedSpace &space, 
+   hid_t addDataset    (const char *dataname, hid_t locId, hid_t type, H5_FixedSpace &space, H5_FixedSpace * memspace, 
+                        hid_t propertyList = H5P_DEFAULT);
+
+  hid_t addDataset    (const char *dataname, hid_t locId, hid_t type, H5_FixedSpace &space, 
                         hid_t propertyList = H5P_DEFAULT);
 
    hid_t addGroup      (const char *groupname);

@@ -213,12 +213,77 @@ bool DistributedMapWriter::writeVolumeToHDF (DM & da, Vec & vec, const string & 
    PetscVector_ReadWrite<float> writeObj;
    bool status = writeObj.write (m_outFile, propertyGroupId, layerName.c_str (), da, vec, petscD, H5T_NATIVE_FLOAT);
    assert (status);
-
+   
    H5Gclose (propertyGroupId);
    delete petscD;
 
    return status;
 }
+
+bool DistributedMapWriter::writePrimaryVolumeToHDF (GridMap * gridMap, const string & propertyName, double time, const string & layerName)
+{
+   bool status = writePrimaryVolumeToHDF (dynamic_cast<DistributedGridMap*> (gridMap)->getDA(), dynamic_cast<DistributedGridMap*> (gridMap)->getVec(), propertyName, time, layerName);
+    return status;
+}
+
+bool DistributedMapWriter::writePrimaryVolumeToHDF (DM & da, Vec & vec,  const string & propertyName, double time, const string & layerName)
+{
+   if (!m_outFile) return false;
+
+   PetscDimensions *petscD = new Petsc_3D;
+   if (!petscD) return false;
+
+   MPI_Barrier (PETSC_COMM_WORLD);
+
+   std::ostringstream snapshotGroupName;
+   snapshotGroupName << "Snapshot_" << time;
+
+   hid_t snapshotGroupId = m_outFile->openGroup (snapshotGroupName.str ().c_str ());
+
+   if (snapshotGroupId < 0)
+   {
+      snapshotGroupId = m_outFile->addGroup (snapshotGroupName.str ().c_str ());
+   }
+
+   if (snapshotGroupId < 0)
+   {
+      delete petscD;
+      return false;
+   }
+
+   std::ostringstream propertyGroupName;
+   propertyGroupName << snapshotGroupName.str() << "/" << propertyName.c_str ();
+
+   hid_t propertyGroupId = m_outFile->openGroup (propertyGroupName.str().c_str ());
+
+   if (propertyGroupId < 0)
+   {
+      propertyGroupId = m_outFile->addGroup (propertyGroupName.str().c_str ());
+   }
+
+   if (propertyGroupId < 0)
+   {
+      delete petscD;
+      return false;
+   }
+
+   // write data 
+
+   hid_t dataType = H5T_NATIVE_DOUBLE;
+   PetscVector_ReadWrite<double> writeObj;
+   
+   m_outFile->setChunking( true );
+   bool status = writeObj.write (m_outFile, propertyGroupId, layerName.c_str (), da, vec, petscD, dataType );
+
+   assert (status);
+
+   H5Gclose (propertyGroupId);
+   H5Gclose (snapshotGroupId);
+   delete petscD;
+
+   return status;
+}
+
 
 bool DistributedMapWriter::Write1DDataSet (const long size, const string & dataSetName, const hid_t dataType, const void *data)
 {

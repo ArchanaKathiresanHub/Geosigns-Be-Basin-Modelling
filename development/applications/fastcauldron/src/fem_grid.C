@@ -464,6 +464,10 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
 
   PetscBool onlyPrimaryProperties = PETSC_FALSE;
   PetscOptionsHasName( PETSC_NULL, "-primary", &onlyPrimaryProperties );
+  if( not onlyPrimaryProperties and FastcauldronSimulator::getInstance().getPrimaryPropertiesFlag() ) {
+     onlyPrimaryProperties = PETSC_TRUE;
+  }
+
   if( !onlyPrimaryProperties ) {
      m_volumeOutputProperties.push_back ( BRINE_PROPERTIES );  
      m_volumeOutputProperties.push_back ( BULKDENSITYVEC );

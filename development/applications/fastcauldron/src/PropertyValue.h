@@ -45,6 +45,9 @@ public :
    /// save a 3D PropertyValue to file
    bool saveVolumeToFile ( Interface::MapWriter & mapWriter );
 
+   /// save a primary 3D PropertyValue to file
+   bool savePrimaryVolumeToFile ( Interface::MapWriter & mapWriter );
+
    database::Record * createTimeIoRecord (database::Table * timeIoTbl, Interface::ModellingMode theMode);
 
 

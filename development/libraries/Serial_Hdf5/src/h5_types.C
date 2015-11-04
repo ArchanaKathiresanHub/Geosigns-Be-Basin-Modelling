@@ -13,6 +13,8 @@ H5_FixedSpace::H5_FixedSpace (int numDims, hsize_t d1, hsize_t d2, hsize_t d3, h
 {
    hDims  = new Dimensions (numDims, d1, d2, d3, d4);
    hSpace = createSpaceId (hDims);
+   
+   initHyperslabBuffers ( numDims );
 }
 
 H5_FixedSpace::H5_FixedSpace (hid_t space)
@@ -27,6 +29,8 @@ H5_FixedSpace::H5_FixedSpace (hid_t space)
    // copy space id
    hSpace = space;
    //hSpace = createSpaceId (hDims);
+
+   initHyperslabBuffers ( numDimensions );
 }
 
 H5_FixedSpace::H5_FixedSpace (const Dimensions& dims)
@@ -34,12 +38,22 @@ H5_FixedSpace::H5_FixedSpace (const Dimensions& dims)
    // create class on Dimensions values
    hDims  = new Dimensions (dims);
    hSpace = createSpaceId  (hDims);
+
+   initHyperslabBuffers ( dims.numDims() );
 }
 
 H5_FixedSpace::H5_FixedSpace (const H5_FixedSpace& rhs)
 {
    deepCopy (rhs); 
+   
 }
+
+H5_FixedSpace:: ~H5_FixedSpace () { 
+
+   delete hDims; 
+   if( m_count != 0 ) delete [] m_count;
+   if( m_stride != 0 ) delete [] m_stride;
+} 
 
 H5_FixedSpace& H5_FixedSpace::operator= (const H5_FixedSpace& rhs)
 {
@@ -55,8 +69,16 @@ H5_FixedSpace& H5_FixedSpace::operator= (const H5_FixedSpace& rhs)
 	 
 hid_t H5_FixedSpace::setHyperslab (Dimensions &size, OffsetSize &offset)
 {
+   
    return H5Sselect_hyperslab (hSpace, H5S_SELECT_SET, offset.dimensions(), NULL, 
-	                                                 size.dimensions(), NULL);
+                               size.dimensions(), NULL);
+}
+
+hid_t H5_FixedSpace::setChunkedHyperslab (Dimensions &size, OffsetSize &offset)
+{
+   return H5Sselect_hyperslab (hSpace, H5S_SELECT_SET, offset.dimensions(), m_stride, 
+                               m_count , size.dimensions() );
+ 
 }
 
 bool H5_FixedSpace::sizeEqual (const H5_FixedSpace& rhs) const
@@ -69,7 +91,21 @@ H5_FixedSpace& H5_FixedSpace::deepCopy (const H5_FixedSpace& rhs)
    hDims  = new Dimensions (*(rhs.hDims));
    hSpace = createSpaceId  (hDims);
 
+   initHyperslabBuffers(rhs.numDimensions());
+ 
    return *this;
+}
+
+void H5_FixedSpace::initHyperslabBuffers ( const int dims )
+{
+   m_stride = new hsize_t[dims];
+   m_count  = new hsize_t[dims];
+
+   for( int i = 0; i < dims; ++ i ) {
+      m_stride[i] = 1;
+      m_count[i]  = 1;
+   }
+
 }
 
 hid_t H5_FixedSpace::createSpaceId (const Dimensions *dims)

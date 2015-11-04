@@ -142,6 +142,12 @@ bool SerialMapWriter::writeVolumeToHDF (GridMap * gridMap, const string & proper
    return false;
 }
 
+bool SerialMapWriter::writePrimaryVolumeToHDF (GridMap * gridMap, const string & propertyName, double time, const string & layerName)
+{
+   // not yet implemented
+   return false;
+}
+
 bool SerialMapWriter::Write1DDataSet (const long size, const string & dataSetName, const hid_t dataType, const void *data)
 {
    return HDF5::writeData1D (m_fileHandle, size, dataSetName.c_str (), dataType, data);

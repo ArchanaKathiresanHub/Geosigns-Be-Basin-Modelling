@@ -74,6 +74,8 @@ FastcauldronSimulator::FastcauldronSimulator (database::Database * database, con
    m_computeCapillaryPressure = false;
 
    m_fctCorrectionScalingWeight = 1.0;
+
+   m_primary = false;
 }
 
 //------------------------------------------------------------//
@@ -582,6 +584,10 @@ bool FastcauldronSimulator::setCalculationMode ( const CalculationMode mode)
       default :
          started = false;
 
+   }
+
+   if( m_primary ) {
+      initializePrimaryPropertyValuesWriter();
    }
 
    if( not started ) {
@@ -1886,10 +1892,17 @@ void FastcauldronSimulator::readCommandLineParametersEarlyStage( const int argc,
    double    fctScaling;
    PetscBool hasPrintCommandLine; 
    PetscBool computeCapillaryPressure;
+   PetscBool onlyPrimary = PETSC_FALSE;
 
    PetscOptionsHasName ( PETSC_NULL, "-printcl", &hasPrintCommandLine );
    PetscOptionsGetReal  ( PETSC_NULL, "-glfctweight", &fctScaling, &fctScalingChanged );
    PetscOptionsHasName ( PETSC_NULL, "-fcpce", &computeCapillaryPressure );
+
+   PetscOptionsHasName( PETSC_NULL, "-primaryOnly", &onlyPrimary );
+
+   if( onlyPrimary ) {
+      setPrimaryPropertiesFlag( true );
+   }
 
    if ( fctScalingChanged ) {
       m_fctCorrectionScalingWeight = NumericFunctions::clipValueToRange ( fctScaling, 0.0, 1.0 );

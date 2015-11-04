@@ -172,7 +172,7 @@ const DataAccess::Interface::ApplicationGlobalOperations& ProjectHandle::getGlob
 }
 
 ProjectHandle::ProjectHandle( Database * tables, const string & name, const string & accessMode, ObjectFactory* objectFactory ) :
-m_database( tables ), m_name( name ), m_accessMode( READWRITE ), m_activityOutputGrid( 0 ), m_mapPropertyValuesWriter( 0 )
+   m_database( tables ), m_name( name ), m_accessMode( READWRITE ), m_activityOutputGrid( 0 ), m_mapPropertyValuesWriter( 0 ), m_mapPrimaryPropertyValuesWriter( 0 )
 {
    (void) accessMode; // ignore warning about unused parameter
 
@@ -204,6 +204,8 @@ m_database( tables ), m_name( name ), m_accessMode( READWRITE ), m_activityOutpu
 
    m_sgDensitySample = 0;
    m_irreducibleWaterSample = 0;
+
+   m_primary = false;
 
    //1DComponent
    loadModellingMode();
@@ -558,6 +560,14 @@ bool ProjectHandle::restartActivity( void )
       m_mapPropertyValuesWriter->close();
       m_mapPropertyValuesWriter->open( filePathName, false );
       m_mapPropertyValuesWriter->saveDescription( getActivityOutputGrid() );
+
+      if( m_primary ) {
+         fileName = "PrimaryProperties_Results.HDF";
+         filePathName = getProjectPath() + "/" + directoryName + "/" + fileName;
+         
+         m_mapPrimaryPropertyValuesWriter->close();
+         m_mapPrimaryPropertyValuesWriter->open( filePathName, false );
+      }
 
       saveCreatedMapPropertyValues();		/// creates new TimeIoRecords
 
@@ -2374,6 +2384,26 @@ bool ProjectHandle::initializeMapPropertyValuesWriter( const bool append )
    return status;
 }
 
+bool ProjectHandle::initializePrimaryPropertyValuesWriter( )
+{
+    if ( Interface::MODE3D != getModellingMode() ) return true;
+   if( m_primary ) {
+      if ( m_mapPrimaryPropertyValuesWriter ) return false;
+
+      const bool append = false;
+    
+     // create hdf file
+      string fileName = "PrimaryProperties_Results.HDF";
+      string filePathName = getFullOutputDir() + "/" + fileName;
+      
+      if ( !makeOutputDir() ) return false;
+      
+      m_mapPrimaryPropertyValuesWriter = getFactory()->produceMapWriter();
+      return m_mapPrimaryPropertyValuesWriter->open( filePathName, append );
+   }
+   return true;
+}
+
 bool TimeIoTblSorter( database::Record * recordL, database::Record * recordR );
 
 bool ProjectHandle::finalizeMapPropertyValuesWriter( void )
@@ -2393,6 +2423,11 @@ bool ProjectHandle::finalizeMapPropertyValuesWriter( void )
 
       m_mapPropertyValuesWriter->close();
       delete m_mapPropertyValuesWriter;
+
+      if ( m_mapPrimaryPropertyValuesWriter ) {
+         m_mapPrimaryPropertyValuesWriter->close();
+         delete m_mapPrimaryPropertyValuesWriter;
+      }
 
       return true;
    }
@@ -2531,7 +2566,7 @@ bool ProjectHandle::saveCreatedVolumePropertyValuesMode3D( void )
             continue;
          }
 
-         if ( !snapshotUsed )
+         if ( !snapshotUsed and not m_primary )
          {
             // let's use this propertyValue's snapshot during this iteration
             // and open a (new, empty) snapshot file for it.
@@ -2549,13 +2584,20 @@ bool ProjectHandle::saveCreatedVolumePropertyValuesMode3D( void )
 
             mapWriter->open( filePathName, snapshotUsed->getAppendFile() );
          }
-
-         propertyValue->create3DTimeIoRecord( timeIoTbl, Interface::MODE3D );
+         if ( not m_primary ) {
+            propertyValue->create3DTimeIoRecord( timeIoTbl, Interface::MODE3D );
+         }
          m_propertyValues.push_back( propertyValue );
          propertyValueIter = m_recordLessVolumePropertyValues.erase( propertyValueIter );
          increment = 0;
 
-         status &= propertyValue->saveVolumeToFile( *mapWriter );
+         if( not m_primary ) {
+            status &= propertyValue->saveVolumeToFile( *mapWriter );
+         } else {
+
+            status &= propertyValue->savePrimaryVolumeToFile( *m_mapPrimaryPropertyValuesWriter );
+         }
+         
       }
 
       if ( !snapshotUsed ) break; // nothing was written
@@ -5756,3 +5798,7 @@ double ProjectHandle::getPreviousIgneousIntrusionTime( const double Current_Time
    return m_previousIgneousIntrusionTime;
 }
 
+MapWriter * ProjectHandle::getPrimaryPropertyValuesWriter() {
+
+   return m_mapPrimaryPropertyValuesWriter;
+}

@@ -94,7 +94,16 @@ bool PropertyValue::saveVolumeToFile ( Interface::MapWriter & mapWriter ) {
    } else {
       return true;
    } 
+}
 
+bool PropertyValue::savePrimaryVolumeToFile ( Interface::MapWriter & mapWriter ) {
+
+   bool status = true;
+
+   if ( FastcauldronSimulator::getInstance ().getPrimaryPropertiesFlag() and outputIsRequested ()) { 
+      status = Interface::PropertyValue::savePrimaryVolumeToFile ( mapWriter );
+   }
+   return status;
 }
 
 database::Record * PropertyValue::createTimeIoRecord (database::Table * timeIoTbl, Interface::ModellingMode theMode) {

@@ -447,6 +447,9 @@ public:
    // return true if no 2D output is required
    bool no2Doutput() const;
 
+   // set flag to determine 2D properties output
+   void setNo2Doutput( const bool flag );
+
    // ModelArea Grid_Window;
    bool useTemisRelPerm () const;
 
@@ -637,6 +640,10 @@ inline bool AppCtx::isALC () const {
 
 inline bool AppCtx::no2Doutput () const {
    return m_no2Doutput;
+}
+
+inline void AppCtx::setNo2Doutput ( const bool flag ) {
+   m_no2Doutput = flag;
 }
 
 #endif /* _PROPInterface_H_ */

@@ -497,8 +497,11 @@ namespace DataAccess
          /// Return whether or not it is the beginning of an igneous intrusion
          double getPreviousIgneousIntrusionTime( const double Current_Time );
 
-			/// connect Reservoirs to Formations
-			bool connectReservoirs (void);
+         /// connect Reservoirs to Formations
+         bool connectReservoirs (void);
+
+         /// get primary properties map writer
+         MapWriter * getPrimaryPropertyValuesWriter();
          
       protected:
 		  friend ProjectHandle * OpenCauldronProject( const string & name, const string & accessMode, DataAccess::Interface::ObjectFactory* objectFactory );
@@ -618,6 +621,9 @@ namespace DataAccess
          bool m_permafrost;
 
          MapWriter * m_mapPropertyValuesWriter;
+         MapWriter * m_mapPrimaryPropertyValuesWriter;
+         // flag to output primary properties in a new format
+         bool m_primary;
 
          int m_rank;
          int m_size;
@@ -714,6 +720,8 @@ namespace DataAccess
 
          bool initializeMapPropertyValuesWriter( const bool append = false );
          bool finalizeMapPropertyValuesWriter( void );
+
+         bool initializePrimaryPropertyValuesWriter();
 
          bool saveCreatedMapPropertyValues( void );
 

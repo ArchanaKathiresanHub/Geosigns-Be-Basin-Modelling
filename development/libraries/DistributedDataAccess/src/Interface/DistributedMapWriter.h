@@ -46,6 +46,12 @@ namespace DataAccess
 		/// write a 3D gridmap to a file; originally implemented.
 	    bool writeVolumeToHDF (DM & da, Vec & vec, const std::string & propertyName, const std::string & layerName);
 
+	    /// write a 3D gridmap to a primary properties file; generic implementation 
+         bool writePrimaryVolumeToHDF (GridMap * gridMap, const std::string & propertyName, double time, const std::string & layerName);
+	    
+		/// write a 3D gridmap to a primary properties file; originally implemented.
+         bool writePrimaryVolumeToHDF (DM & da, Vec & vec, const std::string & propertyName, double time, const std::string & layerName);
+
 	    bool write2DDataSet (const std::string & dataSetName, float *data, int *start, int *count, int *size);
 
 	    bool Write1DDataSet (const long size, const std::string & dataSetName, const hid_t dataType, const void *data);
