@@ -5,6 +5,8 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <ctime>
+#include <sstream>
+#include <iomanip>
 
 #include "database.h"
 #include "cauldronschema.h"
@@ -235,8 +237,11 @@ bool DistributedMapWriter::writePrimaryVolumeToHDF (DM & da, Vec & vec,  const s
 
    MPI_Barrier (PETSC_COMM_WORLD);
 
-   std::ostringstream snapshotGroupName;
-   snapshotGroupName << "Snapshot_" << time;
+   std::stringstream snapshotGroupName;
+   snapshotGroupName.setf (ios::fixed);
+   snapshotGroupName.precision (6);
+
+   snapshotGroupName << "Time_" << time;
 
    hid_t snapshotGroupId = m_outFile->openGroup (snapshotGroupName.str ().c_str ());
 
