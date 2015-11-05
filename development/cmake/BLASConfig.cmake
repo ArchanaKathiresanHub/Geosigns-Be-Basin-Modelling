@@ -18,8 +18,6 @@ include(cmake/AddPackage.cmake)
 
 message(STATUS "BLAS vendor is set to ${BLA_VENDOR}" )
 
-set( BLAS_FOUND OFF )
-set( MKL_LIBRARIES "BLAS_LIBRARIES-NOTFOUND")
 set( INTEL_MKL_ROOT "INTEL_MKL_ROOT-NOTFOUND" CACHE PATH "Path to Intel MKL" )
 
 if (UNIX)
@@ -36,6 +34,9 @@ if (UNIX)
          )
          set( BLAS_FOUND ON )
          set( BLAS_ROOT "${INTEL_MKL_ROOT}" CACHE PATH "Path to BLAS library" )
+      else()
+         set( MKL_LIBRARIES "BLAS_LIBRARIES-NOTFOUND")
+         set( BLAS_FOUND OFF )
       endif()
 
    elseif( BLA_VENDOR STREQUAL "ATLAS" )
@@ -44,6 +45,10 @@ if (UNIX)
          set( MKL_LIBRARIES "-L${BLAS_ROOT} -llapack -latlas" )
          set( BLAS_FOUND ON )
       endif()
+
+   else()
+      set( MKL_LIBRARIES "BLAS_LIBRARIES-NOTFOUND")
+      set( BLAS_FOUND OFF )
    endif()
 
 elseif(WIN32)
@@ -59,6 +64,7 @@ elseif(WIN32)
           "${INTEL_MKL_ROOT}/mkl_intel_thread.lib"
           "${INTEL_MKL_ROOT}/mkl_scalapack_lp64.lib"
       )
+   set( BLAS_FOUND ON )
 endif()
 
 set ( BLAS_LIBRARIES "${MKL_LIBRARIES}" CACHE STRING "List of libraries that have to be linked to use BLAS" )
