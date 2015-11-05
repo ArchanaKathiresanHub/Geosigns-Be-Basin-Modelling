@@ -485,6 +485,21 @@ function generateGUID()
     return guid;
 }
 
+function getSearchParameters() {
+      var prmstr = window.location.search.substr(1);
+      return prmstr != null && prmstr != "" ? transformToAssocArray(prmstr) : {};
+}
+
+function transformToAssocArray( prmstr ) {
+    var params = {};
+    var prmarr = prmstr.split("&");
+    for ( var i = 0; i < prmarr.length; i++) {
+        var tmparr = prmarr[i].split("=");
+        params[tmparr[0]] = tmparr[1];
+    }
+    return params;
+}
+
 /**
  * Construct the url for the websocket to connect to. Use localhost if the current
  * page was loaded from file, otherwise connect to the same host that served the page
@@ -501,6 +516,9 @@ function websocketURL()
     // add port
     url += ":8081/";
 
+    var params = getSearchParameters();
+    url += params.project;
+
     return url;
 }
 
@@ -509,8 +527,6 @@ function init()
     window.canvas = document.getElementById("TheCanvas");
     //$(window).resize(onWindowResize);
 
-    //var defaultWidth  = 2560;
-    //var defaultHeight = 1440;
     // This function is called immediately after the page is loaded. Initialization of 
     // the renderArea. "TheCanvas" refers to the id of the canvas. 
     theRenderArea = new RemoteVizRenderArea("TheCanvas", //defaultWidth, defaultHeight);
@@ -522,7 +538,7 @@ function init()
 
     // Connects to the service. The IP address and the port refer to those of the service 
     // (see main.cpp). "Model" refers to the name of the requested renderArea.
-    var url = websocketURL() + generateGUID();
+    var url = websocketURL();// + generateGUID();
     theRenderArea.connectTo(url);
 
     // Calls a function or executes a code snippet repeatedly to refresh the bandwidth and the fps

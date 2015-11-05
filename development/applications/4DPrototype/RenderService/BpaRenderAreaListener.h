@@ -25,12 +25,12 @@ class SceneExaminer;
 
 class BpaRenderAreaListener : public RenderAreaListener
 {
+  std::unique_ptr<DataAccess::Interface::ObjectFactory> m_factory;
+  std::unique_ptr<DataAccess::Interface::ProjectHandle> m_handle;
+
   SceneGraphManager m_sceneGraphManager;
   RenderArea*       m_renderArea;
   SceneExaminer*    m_examiner;
-
-  std::unique_ptr<DataAccess::Interface::ObjectFactory> m_factory;
-  std::unique_ptr<DataAccess::Interface::ProjectHandle> m_handle;
 
   bool m_drawFaces;
   bool m_drawEdges;
