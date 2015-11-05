@@ -24,7 +24,8 @@ namespace migration {
       enum DiscontinuousPropertyEnum{
          DISCONTINUOUS_DEPTH,
          DISCONTINUOUS_POROSITY,
-         DISCONTINUOUS_PERMEABILITY
+         DISCONTINUOUS_PERMEABILITY,
+         DISCONTINUOUS_BRINEVISCOSITY
       };
 
       enum ConstantPropertyEnum {

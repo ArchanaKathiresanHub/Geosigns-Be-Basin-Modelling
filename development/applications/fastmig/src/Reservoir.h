@@ -105,6 +105,8 @@ namespace migration
       bool computePermeabilities (void);
       /// compute the temperatures at the top of the reservoir
       bool computeTemperatures (void);
+      /// compute brine viscosity at the top of the reservoir
+      bool computeViscosities(void);
       /// compute the pressures at the top of the reservoir
       bool computePressures (void);
       /// Sometimes we also need the hydrostatic pressure at the top of a trap:
@@ -132,6 +134,7 @@ namespace migration
       bool saveComputedOutputProperties (const bool saveSnapshot);
       /// save HCpathways along the reservoir seal
       bool saveComputedPathways (const Interface::Snapshot *) const;
+
    private:
       /// save the property specified by valueSpec under the given name for the given phase (if applicable).
       bool saveComputedProperty (const string & name, ValueSpec valueSpec, PhaseId phase = NO_PHASE);
@@ -203,7 +206,7 @@ namespace migration
       bool fillAndSpill (void);
    private:
       bool distributionHasFinished (void);
-      bool distributeCharges (void);
+      bool distributeCharges (bool always = false);
    public:
       void incrementChargeDistributionCount (void);
       void reportChargeDistributionCount (void);

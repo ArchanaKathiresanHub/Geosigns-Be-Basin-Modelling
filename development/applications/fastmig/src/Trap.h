@@ -163,6 +163,7 @@ namespace migration
       int getDrainageAreaId (void);
 
       void collectAndSplitCharges (bool always = false);
+      bool diffusionLeakageOccoured () const;
 
       void decomposeCharges (void);
 
@@ -220,6 +221,8 @@ namespace migration
       void moveBackToToBeDistributed (PhaseId lighterPhase);
       void moveBackToCrestColumn (void);
       void moveBackToCrestColumn (PhaseId phase);
+      // after diffusion put in the crest column only the trap content 
+      void moveDistributedToCrestColumn (void);
 
       void moveBackToBeMigrated (void);
       void moveBackToBeMigrated (PhaseId phase);
@@ -287,6 +290,9 @@ namespace migration
       Composition m_diffusionLeaked[NUM_PHASES];
       Composition m_sealPressureLeaked[NUM_PHASES];
 
+      //store what was already leaked before diffusion
+      Composition m_leakedBeforeDiffusion;
+		
       double m_diffusionStartTime;
       double m_penetrationDistances[DiffusionComponentSize];
 

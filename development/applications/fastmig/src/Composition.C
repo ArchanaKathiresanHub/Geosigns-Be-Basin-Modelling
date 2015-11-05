@@ -217,8 +217,10 @@ void Composition::computeDiffusionLeakages(const double& diffusionStartTime, con
       if (molarFraction == 0.0)
          continue;
 
+      double gasRadius = CBMGenerics::gasRadii[index];
+
       diffusionLeaks[index]->compute (diffusionStartTime, intervalStartTime, intervalEndTime, getWeight (componentId), molarFraction,
-                                      solubilities[index], surfaceArea, lost);
+                                      solubilities[index], surfaceArea, lost, gasRadius);
 
       compositionOut->set (componentId, getWeight (componentId) - lost);
       compositionLost->set (componentId, lost);

@@ -58,7 +58,7 @@ namespace migration {
    /// stepStartTime in the implementation) is not provided.
 
    void DiffusionLeak::compute(const double& diffusionStartTime, const double & intervalStartTime, const double & intervalEndTime,
-                               const double& componentWeight, const double& molarFraction, const double& solubility, const double& surfaceArea, double& lost)
+                               const double& componentWeight, const double& molarFraction, const double& solubility, const double& surfaceArea, double& lost, const double& gasRadius)
    {
       assert(intervalStartTime - intervalEndTime > 0.0);
 
@@ -85,9 +85,9 @@ namespace migration {
             /// Steady state or when m_penetration distance in transient mode has reached m_maxPenetrationDistance
             stepEndTime = intervalEndTime;
 
-				//the mass lost by diffusion is updated only once
+            //the mass lost by diffusion is updated only once
             performDiffusionTimeStep (diffusionStartTime, stepStartTime, stepEndTime, decreasingComponentWeight,
-                                      molarFraction, solubility, surfaceArea, lost);
+                                      molarFraction, solubility, surfaceArea, lost, gasRadius);
          }
          else
          {
@@ -104,7 +104,7 @@ namespace migration {
             // within m_maxError:
             double tmpLost = lost;
             while (!performDiffusionTimeStep(diffusionStartTime, stepStartTime, stepEndTime, decreasingComponentWeight, 
-                                             molarFraction, solubility, surfaceArea, lost, &maxError))
+                                             molarFraction, solubility, surfaceArea, lost, gasRadius, &maxError))
             {
                // The error was too large, so reduce the stepSize:
                stepSize /= 2;
@@ -130,15 +130,15 @@ namespace migration {
 
    bool DiffusionLeak::performDiffusionTimeStep(const double & diffusionStartTime, const double& stepStartTime, const double& stepEndTime, 
                                                 const double& componentWeight, const double& molarFraction, const double& solubility, 
-                                                const double& surfaceArea, double& lost, const double* maxError)
+                                                const double& surfaceArea, double& lost, const double& gasRadius,const double* maxError)
    {
       assert(stepStartTime > stepEndTime);
 
-		// Deff is the effective diffusion coefficent and effPenetrationDistance is the penetration distance
+      // Deff is the effective diffusion coefficent and effPenetrationDistance is the penetration distance
       double Deff, effPenetrationDistance;
 
       // compute Deff and penetrationDistance to use for this time step
-      if (!updatePenetrationDistance(diffusionStartTime, stepStartTime, stepEndTime, Deff, effPenetrationDistance, 
+      if (!updatePenetrationDistance(diffusionStartTime, stepStartTime, stepEndTime, Deff, effPenetrationDistance, gasRadius,
                                      maxError))
          // The error is too large. Let the calling routine reduce its timestep:
       {
@@ -157,6 +157,8 @@ namespace migration {
 
       // Compute the maximal charge reduction given weight_flux:
       double diffused_weight = weight_flux * (stepStartTime - stepEndTime) * surfaceArea;
+      
+      assert (diffused_weight > 0);
 
       lost += (diffused_weight > componentWeight) ? componentWeight : diffused_weight;
 
@@ -166,10 +168,10 @@ namespace migration {
    // Compute the diffusion coefficient and resulting penetrationDistance.
    // Return false if the error is too large
    bool DiffusionLeak::updatePenetrationDistance(const double & diffusionStartTime, const double& stepStartTime, const double& stepEndTime, 
-                                                 double& Deff, double& effPenetrationDistance, const double* maxError)
+                                                 double& Deff, double& effPenetrationDistance, const double& gasRadius, const double* maxError)
    {
       // use the initial penetrationDistance to compute an initial diffusion coefficient
-      Deff = computeDeff(m_penetrationDistance);
+      Deff = computeDeff(m_penetrationDistance, gasRadius);
 
       if (m_penetrationDistance < m_maxPenetrationDistance)
       {
@@ -180,7 +182,7 @@ namespace migration {
          if (maxError)
          {
             // compute what the diffusion coefficient would be given the computed penetrationDistance
-            double newDeff = computeDeff (newPenetrationDistance);
+            double newDeff = computeDeff(newPenetrationDistance, gasRadius);
 
             /// m_penetrationDistance can be zero, resulting in an incorrect effPenetrationDistance
             if (m_penetrationDistance != 0)
@@ -223,7 +225,7 @@ namespace migration {
 
    // Using penetrationDistance as the overburden thickness, compute the effective steady state 
    // diffusion coefficient Deff:
-   double DiffusionLeak::computeDeff(const double& penetrationDistance) const
+   double DiffusionLeak::computeDeff(const double& penetrationDistance, const double& gasRadius) const
    {
       assert(penetrationDistance >= 0.0);
 
@@ -265,9 +267,15 @@ namespace migration {
 
          // Calculate the average formation temperature:
          double formTemperature = ((*i).m_topTemperature + (*i).m_baseTemperature) / 2.0;
+         
+         // Calculate the average formation viscosity
+         double formViscosity = ((*i).m_topViscosity + (*i).m_baseViscosity) / 2.0;
 
          // Calculate the diffusion coefficient dcEff for this formation:
-         double diffusionCoef = m_coefficient.coefficient(formTemperature, formPorosity);
+         //double diffusionCoef = m_coefficient.coefficient(formTemperature, formPorosity);
+ 
+         // Calculate diff coefficent with Stokes-Einstein equation
+         double diffusionCoef = m_coefficient.coefficient(formTemperature, formPorosity, formViscosity, gasRadius);
 
          // Keep track of the z_tot and Needed to calculate the overall effective diffusion coefficient Deff:
          sum += z_i / diffusionCoef;
@@ -300,9 +308,8 @@ namespace migration {
    double DiffusionLeak::propagatePenetrationDistance (const double& Deff, const double & diffusionStartTime, const double& stepStartTime, 
                                                        const double& stepEndTime)
    {
-      /// Distance increment: travelled until stepEndTime minus travelled until stepStartTime
       double increment = sqrt (Deff * M_PI * MA_TO_S) *(sqrt (diffusionStartTime - stepEndTime) - sqrt (diffusionStartTime - stepStartTime));
-
+      
       double newPenetrationDistance = m_penetrationDistance + increment;
       return newPenetrationDistance;
    }

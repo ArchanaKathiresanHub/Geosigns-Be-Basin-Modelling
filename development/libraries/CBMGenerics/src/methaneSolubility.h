@@ -7,7 +7,7 @@ namespace CBMGenerics {
 
 namespace methaneSolubility {
 
-double compute(const double& salinity, const double& temperatureC, const double& pressurePa);
+double compute(const double& salinity, const double& temperatureC, const double& pressure);
 
 } // namespace methaneSolubility
 

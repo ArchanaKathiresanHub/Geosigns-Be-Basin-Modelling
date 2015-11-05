@@ -30,5 +30,18 @@ namespace migration {
 
       return coef;
    }
+   
+   double DiffusionCoefficient::coefficient(const double& temperatureC, const double& porosityFrac, const double& viscosity, const double& gasRadius) const
+   {
+      // FIXME: Probably this is used in order to prevent underflows in pow(porosity, 2.2): 
+      double porosity = max(0.0001, porosityFrac);
+
+      // Calculate the diffusion coefficient coef for this formation:
+      double temperatureK = temperatureC + C2K;
+      double dc1 = CBMGenerics::BoltzmannConstant*temperatureK / (6 * M_PI * gasRadius * viscosity);
+      double coef = dc1 * pow(porosity, 2.2);
+	   
+      return coef;
+   }
 
 } // namespace migration

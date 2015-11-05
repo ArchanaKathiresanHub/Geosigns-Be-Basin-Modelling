@@ -15,6 +15,10 @@ namespace migration {
       DiffusionCoefficient(const double& diffusionFactor, const double& ActivationEnergy);
 
       double coefficient(const double& temperatureC, const double& porosityFrac) const; 
+      
+      //Stokes-Einstein equation: applied to diffuse molecules in water!
+      double coefficient(const double& temperatureC, const double& porosityFrac, const double& viscosity, const double& gasRadius) const;
+   
    };
 
 } // namespace migration

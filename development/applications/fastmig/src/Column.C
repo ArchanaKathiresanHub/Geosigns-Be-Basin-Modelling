@@ -224,6 +224,7 @@ namespace migration {
       m_porosity = m_reservoir->getUndefinedValue ();
       m_permeability = m_reservoir->getUndefinedValue ();
       m_temperature = m_reservoir->getUndefinedValue ();
+      m_viscosity = m_reservoir->getUndefinedValue ();
       m_pressure = m_reservoir->getUndefinedValue ();
       m_hydrostaticPressure = m_reservoir->getUndefinedValue ();
       m_lithostaticPressure = m_reservoir->getUndefinedValue ();
@@ -531,9 +532,12 @@ namespace migration {
    double LocalColumn::getLateralChargeDensity (PhaseId phase)
    {
 #if 0
-      cerr << GetRankString() << ": " << this << "->getLateralChargeDensity (" << phase << ") = "
-           << getChargeDensity(phase) << " * " << getFillHeight(phase)
-           << " = " << getChargeDensity(phase) * getFillHeight(phase) << endl;
+      if (getChargeDensity (phase) > 0)
+      {
+         cerr << GetRankString() << ": " << this << "->getLateralChargeDensity (" << phase << ") = "
+              << getChargeDensity(phase) << " * " << getFillHeight(phase)
+              << " = " << getChargeDensity (phase) * getFillHeight (phase) << " "<<getTopDepth()<< endl;
+      }
 #endif
       if (IsValid (this))
       {
@@ -776,6 +780,16 @@ namespace migration {
    double LocalColumn::getTemperature (void) const
    {
       return m_temperature;
+   }
+   
+   void LocalColumn::setViscosity(double viscosity)
+   {
+      m_viscosity = viscosity;
+   }
+
+   double LocalColumn::getViscosity(void) const
+   {
+      return m_viscosity;
    }
 
    double LocalColumn::getPreviousTemperature (void) const
@@ -1498,8 +1512,10 @@ namespace migration {
       }
 
       m_reservoir->accumulateErrorInPVT (-pvtError);
-
+      
+      // here the crest column composition is re-set to 0
       m_composition.reset ();
+		
    }
 
    void LocalColumn::manipulateColumn (ValueSpec valueSpec, unsigned int i, unsigned int j)

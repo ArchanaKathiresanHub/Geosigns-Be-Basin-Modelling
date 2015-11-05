@@ -630,6 +630,14 @@ namespace migration
       }
 #endif
 
+      if (!computeViscosities())
+         return false;
+#if DEBUG
+      if( GetRank() == 0 ) {
+         cout << "computeViscosities done" << endl;
+      }
+#endif
+
       if (!computePressures ())
          return false;
 #if DEBUG
@@ -987,10 +995,14 @@ namespace migration
                                                                                                                      overburden, "Temperature", getEnd ());
          vector<FormationSurfaceGridMaps> porosityGridMaps = overburden_MPI::getFormationSurfaceGridMaps (
                                                                                                           overburden.formations (), "Porosity", getEnd ());
+                                                                                                          
+         vector<FormationSurfaceGridMaps> brineViscosityGridMaps = overburden_MPI::getFormationSurfaceGridMaps(
+                                                                                                               overburden.formations(), "BrineViscosity", getEnd());
 
          m_diffusionOverburdenGridMaps.setDiscontinuous (SurfaceGridMapContainer::DISCONTINUOUS_DEPTH, depthGridMaps);
          m_diffusionOverburdenGridMaps.setContinuous (SurfaceGridMapContainer::CONTINUOUS_TEMPERATURE, temperatureGridMaps);
          m_diffusionOverburdenGridMaps.setDiscontinuous (SurfaceGridMapContainer::DISCONTINUOUS_POROSITY, porosityGridMaps);
+         m_diffusionOverburdenGridMaps.setDiscontinuous(SurfaceGridMapContainer::DISCONTINUOUS_BRINEVISCOSITY, brineViscosityGridMaps); 
       }
 
       // Include the grid maps for seal failure. Seal failure is always on.  We need the grid maps 
@@ -1291,6 +1303,35 @@ namespace migration
       gridMap->restoreData ();
 
       return true;
+   }
+   
+   bool Reservoir::computeViscosities(void) 
+   {
+      DerivedProperties::FormationPropertyPtr gridMap = getFormationPropertyPtr("BrineViscosity", getEnd());
+      if (gridMap == 0) {
+         return false;
+      }
+
+      unsigned int depth = gridMap->lengthK();
+      assert(depth > 1);
+
+      gridMap->retrieveData();
+      for (unsigned int i = m_columnArray->firstILocal(); i <= m_columnArray->lastILocal(); ++i)
+      {
+         for (unsigned int j = m_columnArray->firstJLocal(); j <= m_columnArray->lastJLocal(); ++j)
+         {
+            LocalColumn * column = getLocalColumn(i, j);
+            double index = (depth - 1) - column->getTopDepthOffset() * (depth - 1);
+            index = Max((double)0, index);
+            index = Min((double)depth - 1, index);
+
+            column->setViscosity(gridMap->interpolate(i, j, index));
+         }
+      }
+      gridMap->restoreData();
+
+      return true;
+
    }
 
    bool Reservoir::computePressures (void)
@@ -2353,7 +2394,7 @@ namespace migration
 
          // To get the fill heights, etc. correct again!
          collectAndSplitCharges (true);
-         distributeCharges ();
+         distributeCharges (true);
       }
 
       reportLeakages ();
@@ -2481,7 +2522,7 @@ namespace migration
       return true;
    }
 
-   bool Reservoir::distributeCharges ()
+   bool Reservoir::distributeCharges (bool always)
    {
       bool distributionFinished = true;
       RequestHandling::StartRequestHandling (m_migrator, "distributeCharges");
@@ -2490,7 +2531,10 @@ namespace migration
 
       for (trapIter = m_traps.begin (); trapIter != m_traps.end (); ++trapIter)
       {
-         distributionFinished &= (*trapIter)->distributeCharges ();
+         if (always && !(*trapIter)->diffusionLeakageOccoured ())
+            continue;
+         else
+            distributionFinished &= (*trapIter)->distributeCharges ();
       }
 
       RequestHandling::FinishRequestHandling ();
@@ -2703,7 +2747,10 @@ namespace migration
 
       for (trapIter = m_traps.begin (); trapIter != m_traps.end (); ++trapIter)
       {
-         (*trapIter)->collectAndSplitCharges (always);
+         if (always && !(*trapIter)->diffusionLeakageOccoured())
+            continue;
+         else
+            (*trapIter)->collectAndSplitCharges (always);
       }
       RequestHandling::FinishRequestHandling ();
    }

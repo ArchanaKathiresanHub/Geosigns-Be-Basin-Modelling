@@ -97,8 +97,14 @@ namespace migration {
          m_toBeDistributed[phase].setDensity (0);
 
          m_fillDepth[phase] = column->getTopDepth ();
+         
+         m_diffusionLeaked[phase].reset ();
+         m_diffusionLeaked[phase].setDensity (0);
       }
 
+      m_leakedBeforeDiffusion.reset ();
+      m_leakedBeforeDiffusion.setDensity (0);
+		
       m_sealPermeability = -1;
       m_fracturePressure = -1;
 
@@ -1144,7 +1150,25 @@ namespace migration {
             surface += column->getSurface ();
          }
       }
+      
       return surface;
+   }
+   
+   bool Trap::diffusionLeakageOccoured () const 
+   {
+	
+	   
+      double diffusedWeight = 0;
+      
+      diffusedWeight = m_diffusionLeaked[GAS].getWeight (C1) +
+         m_diffusionLeaked[GAS].getWeight (C2) +
+         m_diffusionLeaked[GAS].getWeight (C3) +
+         m_diffusionLeaked[GAS].getWeight (C4) +
+         m_diffusionLeaked[GAS].getWeight (C5);
+			
+      if (diffusedWeight > 0) return true;
+      else
+         return false;
    }
 
    /// if charge got spilled here, collect all charge at the crest column for re-distribution and perform PVT.
@@ -1152,7 +1176,13 @@ namespace migration {
    {
       if (always || requiresDistribution ())
       {
-         moveBackToCrestColumn ();
+         // diffusion occured, only the trap content will be flashed and re-distributed
+         if (diffusionLeakageOccoured ())
+         {
+            moveDistributedToCrestColumn ();
+         }
+         else
+            moveBackToCrestColumn ();
          m_computedPVT = false;
       }
 
@@ -1288,6 +1318,8 @@ namespace migration {
                                                                                                      SurfaceGridMapContainer::CONTINUOUS_TEMPERATURE);
       const SurfaceGridMapContainer::discontinuous_properties& porosities = fullOverburden.discontinuous(
                                                                                                          SurfaceGridMapContainer::DISCONTINUOUS_POROSITY);
+                                                                                                         
+      const SurfaceGridMapContainer::discontinuous_properties& brineViscosity = fullOverburden.discontinuous(SurfaceGridMapContainer::DISCONTINUOUS_BRINEVISCOSITY);
 
       // There must be one extra element in temperatures in comparison to depths and porosities:
       assert(temperatures.size() == porosities.size()+1);
@@ -1314,11 +1346,13 @@ namespace migration {
       double baseDepth = getTopDepth();
       double basePorosity = getCrestColumn()->getPorosity();
       double baseTemperature = getTemperature();
+      double baseBrineViscosity = getCrestColumn()->getViscosity();	
 
       vector<const Formation*>::const_iterator f = formations.begin();   
       SurfaceGridMapContainer::discontinuous_properties::const_iterator d = depths.begin();
       SurfaceGridMapContainer::continuous_properties::const_iterator t = temperatures.begin();
       SurfaceGridMapContainer::discontinuous_properties::const_iterator p =  porosities.begin();
+      SurfaceGridMapContainer::discontinuous_properties::const_iterator bv = brineViscosity.begin();
 
       // There must be a minimum of 2 entries in fullOverburden.continuous(CONTINUOUS_TEMPERATURE):
       assert(t != temperatures.end());
@@ -1331,6 +1365,7 @@ namespace migration {
          assert(d != depths.end());
          assert(t != temperatures.end());
          assert(p != porosities.end());
+         assert(bv != brineViscosity.end());
 
          // The formations of d, p and t should match:
          assert((*d).formation() == (*t).base());
@@ -1391,9 +1426,18 @@ namespace migration {
                return false;
             }
             double topPorosity = (*p).top()[functions::tuple(i,j)];
+            
+            if (!(*bv).top().valid()) {
+               cerr << "Exiting as no valid brine viscosity property found for base of overburden formation: '" <<
+                  (*f)->getName() << "' at time: " << snapshot->getTime() << "." << endl;
+               cerr.flush();
+
+               return false;
+            }
+            double topBrineViscosity = (*bv).top()[functions::tuple(i, j)];
 
             diffusionOverburdenProps.push_back( DiffusionLeak::OverburdenProp(thickness, 
-                                                                              topPorosity, basePorosity, topTemperature, baseTemperature) );
+                                                                              topPorosity, basePorosity, topTemperature, baseTemperature,  topBrineViscosity, baseBrineViscosity) );
 
             // Goto the next included formation:
             ++f;
@@ -1426,6 +1470,16 @@ namespace migration {
             return false;
          }
          baseTemperature = (*t)[functions::tuple(i,j)];
+         
+         if (!(*bv).top().valid()) {
+            cerr << "Exiting as no valid brine viscosity property found for top of overburden formation: '" <<
+               (*f)->getName() << "' at time: " << snapshot->getTime() << "." << endl;
+            cerr.flush();
+
+            return false;
+         }
+
+         baseBrineViscosity = (*bv).top()[functions::tuple(i, j)];
 
          ++d; ++p; ++t;
       }
@@ -1485,6 +1539,7 @@ namespace migration {
       // The number of concentrationConsts should be the same as the number of diffusionConsts:
       assert((int)parameters->diffusionConsts().size() >= size);
 
+		// kg C1/ m3 water
       double methaneSolubilityPerM3 = methaneSolubilityPerKgH2O * m_diffusionOverburdenProps->
          sealFluidDensity(); 
 
@@ -1519,10 +1574,12 @@ namespace migration {
                penetrationDistance = oldPenetrationDistance[c];
             }
          }
-         else {
-
+         else 
+         {
             penetrationDistance = parameters->maximumSealThickness ();
          }
+
+         assert (penetrationDistance >= 0);
 
          DiffusionLeak*  diffusionLeak = new DiffusionLeak (m_diffusionOverburdenProps->properties (),
                                                             m_diffusionOverburdenProps->sealFluidDensity (), penetrationDistance,
@@ -1535,7 +1592,7 @@ namespace migration {
 
       m_distributed[GAS].computeDiffusionLeakages(diffusionStartTime, intervalStartTime, intervalEndTime, solubilities, getSurface(GAS), diffusionLeaks,
                                                   computeGorm(m_distributed[GAS], m_distributed[OIL]), &m_distributed[GAS], &m_diffusionLeaked[GAS]);
-
+                                                  
       /// \brief set the penetration distance of the trap for the next snapshot 
       if (parameters->transientModel() == Interface::Transient)
       {
@@ -1544,7 +1601,7 @@ namespace migration {
             setPenetrationDistance((ComponentId)c, diffusionLeaks[c]->penetrationDistance());
          }
       }
-
+      
       m_reservoir->reportDiffusionLoss (this, m_diffusionLeaked[GAS]);
 
 #ifdef DETAILED_MASS_BALANCE
@@ -1555,7 +1612,7 @@ namespace migration {
       m_volumeBalance->subtractFromBalance("diffusion leaked", m_diffusionLeaked[GAS].getVolume());
 #endif
       // delete diffusionLeak objects pointed in diffusionLeaks vector
-      for (int i = 0; i != diffusionLeaks.size (); ++i) delete diffusionLeaks[i];
+      for (int i = 0; i != diffusionLeaks.size (); ++i) delete diffusionLeaks[i];		
    }
 
    bool Trap::computeDistributionParameters(const Interface::FracturePressureFunctionParameters* 
@@ -1919,6 +1976,9 @@ namespace migration {
       Composition oilLeaked;
       Composition oilSpilledOrWasted;
 
+      //add what was leaked before the diffusion event, do not update m_compositionState
+      getCrestColumn ()->getComposition().add(m_leakedBeforeDiffusion);
+
       double finalGasLevel;
       double finalHCLevel;
 
@@ -1953,13 +2013,12 @@ namespace migration {
 
       assert(fabs(m_volumeBalance->balance()) < 10.0);
 #endif
-
     
       if (!gasLeaked.isEmpty() || !oilLeaked.isEmpty()) {
          gasLeaked.add(oilLeaked);
          getCrestColumn()->addLeakComposition (gasLeaked);
       }
-      
+      		
       if (!gasWasted.isEmpty())
       {
          getWasteColumn(GAS)->addWasteComposition(gasWasted);
@@ -1995,7 +2054,7 @@ namespace migration {
       // can be removed???
       // negotiateDensity(GAS);
       // negotiateDensity(OIL);
-
+      
       m_toBeDistributed[GAS].reset();
       m_toBeDistributed[OIL].reset();
 
@@ -2009,7 +2068,7 @@ namespace migration {
 
       setFillDepth(GAS, finalGasLevel + getTopDepth());
       setFillDepth(OIL, finalHCLevel + getTopDepth());
-
+ 
       return true;
    }
 
@@ -2352,6 +2411,27 @@ namespace migration {
       {
          moveBackToCrestColumn (PhaseId (phase));
       }
+   }
+
+   // move only the trap content (m_distributed) to the crest column
+   void Trap::moveDistributedToCrestColumn (void)
+   {
+      // store what was leaked before diffusion
+      LocalColumn * crestColumn = getCrestColumn ();
+      m_leakedBeforeDiffusion.add(crestColumn->getComposition ());
+		
+      // reset crest column composition
+      crestColumn->getComposition ().reset ();
+
+      // move only m_distributed to crest
+      crestColumn->addComposition (m_distributed[GAS]);
+      m_distributed[GAS].reset ();
+      crestColumn->addComposition (m_distributed[OIL]);
+      m_distributed[OIL].reset ();
+		      
+      setFillDepth (GAS, getTopDepth ());
+      setFillDepth (OIL, getTopDepth ());
+      
    }
 
    /// move all the stuff already in the trap back to the trap's crest column.

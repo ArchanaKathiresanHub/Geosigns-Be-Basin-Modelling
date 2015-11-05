@@ -307,6 +307,9 @@ namespace migration
       virtual double getPressure (void) const;
       virtual double getPreviousPressure (void) const;
       virtual void setPressure (double newPressure);
+      
+      virtual double getViscosity(void) const;
+      virtual void setViscosity(double viscosity);
 
       virtual double getHydrostaticPressure (void) const;
       virtual void setHydrostaticPressure (double newHydrostaticpressure);
@@ -469,6 +472,7 @@ namespace migration
       double m_pressure;
       double m_hydrostaticPressure;
       double m_lithostaticPressure;
+      double m_viscosity;
 
       FaultStatus m_faultStatus;
 

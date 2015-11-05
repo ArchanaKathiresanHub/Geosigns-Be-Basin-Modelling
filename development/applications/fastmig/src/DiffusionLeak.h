@@ -22,23 +22,30 @@ namespace migration {
 
          double m_topTemperature;
          double m_baseTemperature;
+         
+         double m_topViscosity;
+         double m_baseViscosity;
 
-         OverburdenProp(const double& thickness, const double& topPorosity, 
-                        const double& basePorosity, const double& topTemperature, 
-                        const double& baseTemperature):
-            m_thickness(thickness),
+      OverburdenProp(const double& thickness, const double& topPorosity, 
+                     const double& basePorosity, const double& topTemperature, 
+                     const double& baseTemperature, const double& topViscosity, const double& baseViscosity):
+         m_thickness(thickness),
             m_topPorosity(topPorosity),
             m_basePorosity(basePorosity),
             m_topTemperature(topTemperature),
-            m_baseTemperature(baseTemperature)
+            m_baseTemperature(baseTemperature),
+            m_topViscosity(topViscosity),
+            m_baseViscosity(baseViscosity)
          {}
 
-         OverburdenProp(const OverburdenProp& other):
-            m_thickness(other.m_thickness),
+      OverburdenProp(const OverburdenProp& other):
+         m_thickness(other.m_thickness),
             m_topPorosity(other.m_topPorosity),
             m_basePorosity(other.m_basePorosity),
             m_topTemperature(other.m_topTemperature),
-            m_baseTemperature(other.m_baseTemperature)
+            m_baseTemperature(other.m_baseTemperature),
+            m_topViscosity(other.m_topViscosity),
+            m_baseViscosity(other.m_baseViscosity)
          {}
       };
 
@@ -63,12 +70,12 @@ namespace migration {
 
       bool performDiffusionTimeStep(const double & diffusionStartTime, const double& stepStartTime, const double& stepEndTime, 
                                     const double& componentWeight, const double& molarFraction, const double& solubility, 
-                                    const double& surfaceArea, double& lost, const double* maxError = 0);
+                                    const double& surfaceArea, double& lost, const double& gasRadius, const double* maxError = 0);
 
       bool updatePenetrationDistance(const double & diffusionStartTime, const double& stepStartTime, const double& stepEndTime, 
-                                     double& Deff, double& effPenetrationDistance, const double* maxError = 0);
+                                     double& Deff, double& effPenetrationDistance, const double& gasRadius, const double* maxError = 0);
 
-      double computeDeff(const double& penetrationDistance) const;
+      double computeDeff(const double& penetrationDistance, const double& gasRadius) const;
 
       double getOverburdenThickness ();
 
@@ -84,7 +91,7 @@ namespace migration {
                     const double& maxTimeStep, const double& maxFluxError);
 
       void compute(const double& diffusionStartTime, const double & intervalStartTime, const double & intervalEndTime,
-                   const double& componentWeight, const double& molarFraction, const double& solubility, const double& surfaceArea, double& lost);
+                   const double& componentWeight, const double& molarFraction, const double& solubility, const double& surfaceArea, double& lost, const double& gasRadius);
   
       const double& penetrationDistance() const { return m_penetrationDistance; }
    };
