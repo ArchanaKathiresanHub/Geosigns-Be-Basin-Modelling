@@ -218,8 +218,9 @@ namespace migration
       const Interface::GridMap * getPropertyGridMap (const string & propertyName,
                                                      const Interface::Snapshot * snapshot) const;
 
-      inline bool performVerticalMigration (void);
+      inline bool performVerticalMigration (void) const;
       inline bool performHDynamicAndCapillary (void) const;
+      inline bool performReservoirDetection (void) const;
       inline double getBlockingPermeability (void);
       inline double getBlockingPorosity (void);
 
@@ -404,7 +405,7 @@ namespace migration
       return getGridMap (CAPILLARYPRESSUREOIL0PROPERTY);
    }
 
-   bool Formation::performVerticalMigration (void)
+   bool Formation::performVerticalMigration (void) const
    {
       return m_migrator->performVerticalMigration ();
    }
@@ -412,6 +413,11 @@ namespace migration
    bool Formation::performHDynamicAndCapillary (void) const
    {
       return m_migrator->performHDynamicAndCapillary ();
+   }
+
+   bool Formation::performReservoirDetection (void) const
+   {
+      return m_migrator->performReservoirDetection ();
    }
 
    double Formation::getBlockingPermeability (void)

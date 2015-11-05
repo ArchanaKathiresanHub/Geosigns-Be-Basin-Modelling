@@ -180,8 +180,9 @@ namespace migration
 
       MigrationPropertyManager& getPropertyManager ();
 
-      inline bool performVerticalMigration (void);
+      inline bool performVerticalMigration (void) const;
       inline bool performHDynamicAndCapillary (void) const;
+      inline bool performReservoirDetection (void) const;
       inline bool isBlockingOn (void);
       inline double getBlockingPermeability (void);
       inline double getBlockingPorosity (void);
@@ -232,7 +233,7 @@ inline migration::MigrationPropertyManager& migration::Migrator::getPropertyMana
    return *(m_propertyManager.get ());
 }
 
-bool migration::Migrator::performVerticalMigration (void)
+bool migration::Migrator::performVerticalMigration (void) const
 {
    return m_verticalMigration;
 }
@@ -240,6 +241,11 @@ bool migration::Migrator::performVerticalMigration (void)
 bool migration::Migrator::performHDynamicAndCapillary (void) const
 {
    return m_hdynamicAndCapillary;
+}
+
+bool migration::Migrator::performReservoirDetection (void) const
+{
+   return m_reservoirDetection;
 }
 
 bool migration::Migrator::isBlockingOn (void)

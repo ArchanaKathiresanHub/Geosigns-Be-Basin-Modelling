@@ -155,10 +155,9 @@ bool Migrator::compute (void)
    if (!setUpBasinGeometry ()) return false;
 
    m_verticalMigration = m_projectHandle->getRunParameters ()->getVerticalSecondaryMigration ();
+   m_hdynamicAndCapillary = m_projectHandle->getRunParameters ()->getHydrodynamicCapillaryPressure ();
    if (m_verticalMigration)
       m_hdynamicAndCapillary = 0;
-   else
-      m_hdynamicAndCapillary = m_projectHandle->getRunParameters ()->getHydrodynamicCapillaryPressure ();
    m_reservoirDetection = m_projectHandle->getRunParameters ()->getReservoirDetection ();
 
    bool pressureRun = isPressureRun ();
@@ -700,7 +699,6 @@ migration::Formation * Migrator::getBottomActiveReservoirFormation (const Interf
 */
 bool Migrator::detectReservoirs (const Interface::Snapshot * end, const bool pressureRun)
 {
-
    // first, find the the bottommost RESERVOIR formation where HC can go
    Formation *bottomSourceRockFormation = getBottomSourceRockFormation ();
 

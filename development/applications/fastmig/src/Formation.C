@@ -1200,7 +1200,7 @@ namespace migration
 
    bool Formation::retrieveCapillaryPressureMaps ()
    {
-      if (performHDynamicAndCapillary ())
+      if (performHDynamicAndCapillary () or performReservoirDetection ())
       {
          assert (m_gridMaps[CAPILLARYPRESSUREGAS100PROPERTY]);
          m_gridMaps[CAPILLARYPRESSUREGAS100PROPERTY]->retrieveData (true);
