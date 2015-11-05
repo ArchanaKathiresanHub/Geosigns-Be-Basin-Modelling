@@ -1497,6 +1497,16 @@ void SceneGraphManager::enableFormation(const std::string& name, bool enabled)
   updateSnapshot();
 }
 
+void SceneGraphManager::enableAllFormations(bool enabled)
+{
+  for (size_t i = 0; i < m_formations.size(); ++i)
+      m_formations[i].visible = enabled;
+
+  m_formationsTimeStamp = MxTimeStamp::getTimeStamp();
+
+  updateSnapshot();
+}
+
 void SceneGraphManager::enableSurface(const std::string& name, bool enabled)
 {
   auto iter = m_surfaceIdMap.find(name);
@@ -1508,6 +1518,16 @@ void SceneGraphManager::enableSurface(const std::string& name, bool enabled)
     return;
 
   m_surfaces[id].visible = enabled;
+  m_surfacesTimeStamp = MxTimeStamp::getTimeStamp();
+
+  updateSnapshot();
+}
+
+void SceneGraphManager::enableAllSurfaces(bool enabled)
+{
+  for (size_t i = 0; i < m_surfaces.size(); ++i)
+    m_surfaces[i].visible = enabled;
+
   m_surfacesTimeStamp = MxTimeStamp::getTimeStamp();
 
   updateSnapshot();
@@ -1529,6 +1549,16 @@ void SceneGraphManager::enableReservoir(const std::string& name, bool enabled)
   updateSnapshot();
 }
 
+void SceneGraphManager::enableAllReservoirs(bool enabled)
+{
+  for (size_t i = 0; i < m_reservoirs.size(); ++i)
+    m_reservoirs[i].visible = enabled;
+
+  m_reservoirsTimeStamp = MxTimeStamp::getTimeStamp();
+
+  updateSnapshot();
+}
+
 void SceneGraphManager::enableFault(const std::string& collectionName, const std::string& name, bool enabled)
 {
   auto iter = m_faultIdMap.find(std::make_tuple(collectionName, name));
@@ -1540,6 +1570,16 @@ void SceneGraphManager::enableFault(const std::string& collectionName, const std
     return;
 
   m_faults[id].visible = enabled;
+  m_faultsTimeStamp = MxTimeStamp::getTimeStamp();
+
+  updateSnapshot();
+}
+
+void SceneGraphManager::enableAllFaults(bool enabled)
+{
+  for (size_t i = 0; i < m_faults.size(); ++i)
+    m_faults[i].visible = enabled;
+
   m_faultsTimeStamp = MxTimeStamp::getTimeStamp();
 
   updateSnapshot();
@@ -1724,5 +1764,5 @@ void SceneGraphManager::setup(const di::ProjectHandle* handle)
   m_maxPersistentTrapId = getMaxPersistentTrapId(handle);
 
   setupSceneGraph();
-  setCurrentSnapshot(0);
+  setCurrentSnapshot(m_snapshotList.size() - 1);
 }

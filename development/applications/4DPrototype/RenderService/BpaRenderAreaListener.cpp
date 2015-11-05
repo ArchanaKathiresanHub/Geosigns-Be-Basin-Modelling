@@ -200,6 +200,12 @@ void BpaRenderAreaListener::onReceivedMessage(RenderArea* renderArea, Connection
 
     m_sceneGraphManager.enableFormation(name, enabled);
   }
+  if (cmd == "EnableAllFormations")
+  {
+    auto enabled = params.get<bool>("enabled");
+
+    m_sceneGraphManager.enableAllFormations(enabled);
+  }
   else if (cmd == "EnableSurface")
   {
     auto name = params.get<std::string>("name");
@@ -207,12 +213,24 @@ void BpaRenderAreaListener::onReceivedMessage(RenderArea* renderArea, Connection
 
     m_sceneGraphManager.enableSurface(name, enabled);
   }
+  else if (cmd == "EnableAllSurfaces")
+  {
+    auto enabled = params.get<bool>("enabled");
+
+    m_sceneGraphManager.enableAllSurfaces(enabled);
+  }
   else if (cmd == "EnableReservoir")
   {
     auto name = params.get<std::string>("name");
     auto enabled = params.get<bool>("enabled");
 
     m_sceneGraphManager.enableReservoir(name, enabled);
+  }
+  else if (cmd == "EnableAllReservoirs")
+  {
+    auto enabled = params.get<bool>("enabled");
+
+    m_sceneGraphManager.enableAllReservoirs(enabled);
   }
   else if (cmd == "EnableSlice")
   {
@@ -235,6 +253,12 @@ void BpaRenderAreaListener::onReceivedMessage(RenderArea* renderArea, Connection
     auto enabled = params.get<bool>("enabled");
 
     m_sceneGraphManager.enableFault(collection, name, enabled);
+  }
+  else if (cmd == "EnableAllFaults")
+  {
+    auto enabled = params.get<bool>("enabled");
+
+    m_sceneGraphManager.enableAllFaults(enabled);
   }
   else if (cmd == "SetProperty")
   {

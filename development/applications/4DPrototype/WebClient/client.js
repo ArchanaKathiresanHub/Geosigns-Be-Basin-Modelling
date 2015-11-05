@@ -33,7 +33,7 @@ function createCheckBoxDiv(name, checked, changedHandler)
     cb.type="checkbox";
     cb.name=name;
     cb.checked=checked;
-    cb.style.marginLeft="10px";
+    cb.style.marginLeft="20px";
     cb.onchange=function(){ changedHandler(cb); };
 
     var label = document.createElement("label");
@@ -122,6 +122,78 @@ function initUI(projectInfo)
     timeSlider.min = 0;
     timeSlider.max = projectInfo.snapshotCount - 1;
     timeSlider.step = 1;
+    timeSlider.value = timeSlider.max;
+
+    onQualitySliderChanged(document.getElementById("qualitySlider").valueAsNumber);
+    onInteractiveQualitySliderChanged(document.getElementById("iqualitySlider").valueAsNumber);
+}
+
+function onCheckBoxAllFormationsChanged(elem)
+{
+    var msg = {
+        cmd: "EnableAllFormations",
+        params: {
+            enabled: elem.checked
+        }
+    }
+
+    theRenderArea.sendMessage(JSON.stringify(msg));
+
+    var formationsDiv = document.getElementById("formationsList");
+    var checkBoxes = formationsDiv.getElementsByTagName("input");
+    for(var i=0; i < checkBoxes.length; ++i)
+        checkBoxes[i].checked = elem.checked;
+}
+
+function onCheckBoxAllSurfacesChanged(elem)
+{
+    var msg = {
+        cmd: "EnableAllSurfaces",
+        params: {
+            enabled: elem.checked
+        }
+    }
+
+    theRenderArea.sendMessage(JSON.stringify(msg));
+
+    var surfacesDiv = document.getElementById("surfacesList");
+    var checkBoxes = surfacesDiv.getElementsByTagName("input");
+    for(var i=0; i < checkBoxes.length; ++i)
+        checkBoxes[i].checked = elem.checked;
+}
+
+function onCheckBoxAllReservoirsChanged(elem)
+{
+    var msg = {
+        cmd: "EnableAllReservoirs",
+        params: {
+            enabled: elem.checked
+        }
+    }
+
+    theRenderArea.sendMessage(JSON.stringify(msg));
+
+    var reservoirsDiv = document.getElementById("reservoirsList");
+    var checkBoxes = reservoirsDiv.getElementsByTagName("input");
+    for(var i=0; i < checkBoxes.length; ++i)
+        checkBoxes[i].checked = elem.checked;
+}
+
+function onCheckBoxAllFaultsChanged(elem)
+{
+    var msg = {
+        cmd: "EnableAllFaults",
+        params: {
+            enabled: elem.checked
+        }
+    }
+
+    theRenderArea.sendMessage(JSON.stringify(msg));
+
+    var faultsDiv = document.getElementById("faultsList");
+    var checkBoxes = faultsDiv.getElementsByTagName("input");
+    for(var i=0; i < checkBoxes.length; ++i)
+        checkBoxes[i].checked = elem.checked;
 }
 
 function onFormationCheckBoxChanged(elem)

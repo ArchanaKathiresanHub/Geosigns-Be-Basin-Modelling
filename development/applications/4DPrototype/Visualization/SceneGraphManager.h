@@ -428,11 +428,19 @@ public:
 
   void enableFormation(const std::string& name, bool enabled);
 
+  void enableAllFormations(bool enabled);
+
   void enableSurface(const std::string& name, bool enabled);
+
+  void enableAllSurfaces(bool enabled);
 
   void enableReservoir(const std::string& name, bool enabled);
 
+  void enableAllReservoirs(bool enabled);
+
   void enableFault(const std::string& collectionName, const std::string& name, bool enabled);
+
+  void enableAllFaults(bool enabled);
 
   void enableSlice(int slice, bool enabled);
 
