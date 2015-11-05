@@ -72,6 +72,7 @@ target_link_libraries(fastmig
 	${PETSC_LIBRARIES}
 	${HDF5_LIBRARIES}
 	${MPI_LIBRARIES}
+     ${BM_CLOCK_GETTIME_LIB}
 )
 
 set_target_properties(fastmig

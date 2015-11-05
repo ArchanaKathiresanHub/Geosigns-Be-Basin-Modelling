@@ -13,12 +13,11 @@
 include(cmake/AddPackage.cmake)
 
 if (UNIX)
-	set( FLEXLM_ROOT "FLEXLM-NOTFOUND" CACHE PATH "Path to FlexLM directory" )
-	set( FLEXLM_LIBRARY "FLEXLM_LIBRARY-NOTFOUND" CACHE FILEPATH "Path of FlexLM library" )
-	set( FLEXLM_INCLUDE_DIR "${FLEXLM_ROOT}/include" CACHE PATH "Path to FlexLM include files" )
-
-        set( FLEXLM_LIBRARIES "${FLEXLM_LIBRARY}")
-	set( FLEXLM_INCLUDE_DIRS "${FLEXLM_INCLUDE_DIR}")
+   set( FLEXLM_ROOT "FLEXLM-NOTFOUND" CACHE PATH "Path to FlexLM directory" )
+   set( FLEXLM_LIBRARY "FLEXLM_LIBRARY-NOTFOUND" CACHE FILEPATH "Path of FlexLM library" )
+   set( FLEXLM_INCLUDE_DIR "${FLEXLM_ROOT}/include" CACHE PATH "Path to FlexLM include files" )
+   set( FLEXLM_LIBRARIES "${FLEXLM_LIBRARY}")
+   set( FLEXLM_INCLUDE_DIRS "${FLEXLM_INCLUDE_DIR}")
 endif (UNIX)
 
 # EPTFlexLM is an API to FlexLM for SSS applications. It is supplied by the Global

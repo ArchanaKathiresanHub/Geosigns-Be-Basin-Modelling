@@ -18,8 +18,13 @@ cmake_policy(SET CMP0054 NEW)
 #
 if (UNIX AND EXISTS /apps/sss/share/getos2 )
    set(defaultPreset "ShellLinux")
+
+elseif (UNIX AND EXISTS /opt/cauldron )
+   set(defaultPreset "OpenSource")
+
 elseif(WIN32)
    set(defaultPreset "Windows")
+
 else()
    set(defaultPreset OFF)
 endif()
@@ -52,7 +57,7 @@ option( BM_USE_FLEXLM "Whether to require a license via FlexLM" OFF)
 # Variables concerning version numbers
 #
 set(BM_VERSION_NUMBER_MAJOR "2016" CACHE STRING "Numerical version major string. Anything like 2014")
-set(BM_VERSION_NUMBER_MINOR "01" CACHE STRING "Numerical version minor string. Anything like 01")
+set(BM_VERSION_NUMBER_MINOR "05" CACHE STRING "Numerical version minor string. Anything like 01")
 set(BM_VERSION_NUMBER ${BM_VERSION_NUMBER_MAJOR}.${BM_VERSION_NUMBER_MINOR})
 set(BM_VERSION_TAG "nightly" CACHE STRING "Version tag. E.g. nightly, cmake, etc")
 set(BM_VERSION_STRING "v${BM_VERSION_NUMBER}${BM_VERSION_TAG}")
@@ -115,6 +120,7 @@ configure_external_projects()
 #
 
 if (NOT BM_USE_FLEXLM)
+   message( CONFIG "Disable FLEXLM in code by adding -DDISABLE_FLEXLM")
    add_definitions(-DDISABLE_FLEXLM=1)
 endif()
 

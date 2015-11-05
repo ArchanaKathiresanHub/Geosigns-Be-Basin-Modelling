@@ -61,8 +61,12 @@ endif
 rm -rf CMakeCache.txt CMakeFiles
 
 ### Run CMake
-set cauldron_tools = /nfs/rvl/groups/ept-sg/SWEast/Cauldron/Tools
-set cmake = $cauldron_tools/bin/cmake
+if ( -d /nfs/rvl/groups/ept-sg/SWEast/Cauldron/Tools ) then
+   set cauldron_tools = /nfs/rvl/groups/ept-sg/SWEast/Cauldron/Tools
+   set cmake = $cauldron_tools/bin/cmake
+else
+   set cmake = `which cmake`
+endif
 $cmake $extra_cmake_params $argv $source_directory || exit 1
 
 #

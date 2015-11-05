@@ -45,22 +45,22 @@ namespace
   using OneFilePerProcess::rewriteFileName;
 }
 
-struct MPI
+struct MPIHelper
 {
-   MPI()
+   MPIHelper()
    {
       MPI_Init(NULL, NULL);
       H5Eset_auto( H5E_DEFAULT, NULL, NULL);
    }
 
-   ~MPI()
+   ~MPIHelper()
    {
       MPI_Finalize();
    }
 
-   static MPI & instance()
+   static MPIHelper & instance()
    {
-      static MPI object;
+      static MPIHelper object;
       return object;
    }
 
@@ -106,8 +106,8 @@ public:
       , m_extendedName( extendedName)
    {
 
-      int mpiRank = MPI::rank();
-      int mpiSize = MPI::size();
+      int mpiRank = MPIHelper::rank();
+      int mpiSize = MPIHelper::size();
 
       if (extendedName)
       {
@@ -125,7 +125,7 @@ public:
    // return one of the ErrorCodes (all negative values) in case the operation fails.
    int open( Access access, bool useOFPP, int data)
    {
-      const int rank = MPI::rank();
+      const int rank = MPIHelper::rank();
 
       herr_t status = 0;
       hsize_t dims[]  = { 1 };
@@ -241,7 +241,7 @@ public:
 
    static std::string tempName() 
    {
-      int rank =  MPI::rank();
+      int rank =  MPIHelper::rank();
       char * name = 0;
       std::vector<char> buffer(8);
       if ( rank == 0)
@@ -290,7 +290,7 @@ TEST( HDF5VirtualFileDriverTest, OpenExistingFile1 )
    File b( name, false);
 
    a.open( File::Create, false, 1);
-   MPI::barrier();
+   MPIHelper::barrier();
 
    File c( name, false );
    EXPECT_EQ( File::CannotOpenFile, c.open( File::Open, false, -1));
@@ -304,11 +304,11 @@ TEST( HDF5VirtualFileDriverTest, OpenExistingFile2 )
    File b( name, false);
 
    a.open( File::Create, false, 2);
-   if (MPI::rank() == 0)
+   if (MPIHelper::rank() == 0)
    {
       b.open( File::Create, false, 3);
    }
-   MPI::barrier();
+   MPIHelper::barrier();
 
    File c( name, false );
    EXPECT_EQ( 3, c.open( File::Open, false, -1));
@@ -321,10 +321,10 @@ TEST( HDF5VirtualFileDriverTest, OpenExistingFile3 )
    File a( name, true);
    File b( name, false);
 
-   if (MPI::rank() == 0)
+   if (MPIHelper::rank() == 0)
       b.open( File::Create, false, 4);
 
-   MPI::barrier();
+   MPIHelper::barrier();
 
    File c( name, false );
    EXPECT_EQ( 4, c.open( File::Open, false, -1));
@@ -345,19 +345,19 @@ TEST( HDF5VirtualFileDriverTest, OpenExistingFile4 )
 
 TEST( HDF5VirtualFileDriverTest, OpenExistingFile5 )
 {
-   if (MPI::size() > 1)
+   if (MPIHelper::size() > 1)
    {
       std::string name  = File::tempName();
       File a( name, true);
       File b( name, false);
 
-      if (MPI::rank() == 0)
+      if (MPIHelper::rank() == 0)
       {
          a.open( File::Create, false, 5);
          b.open( File::Create, false, 6);
       }
 
-      MPI::barrier();
+      MPIHelper::barrier();
 
       File c( name, false );
 
@@ -369,13 +369,13 @@ TEST( HDF5VirtualFileDriverTest, OpenExistingFile5 )
 
 TEST( HDF5VirtualFileDriverTest, OpenExistingFile6 )
 {
-   if (MPI::size() > 1)
+   if (MPIHelper::size() > 1)
    {
       std::string name  = File::tempName();
       File a( name, true);
       File b( name, false);
 
-      if (MPI::rank() == 1)
+      if (MPIHelper::rank() == 1)
       {
          a.open( File::Create, false, 5);
       }
@@ -394,9 +394,9 @@ TEST( HDF5VirtualFileDriverTest, CreateFile1 )
    File b( name, false);
 
    a.open( File::Create, false, 1);
-   MPI::barrier();
+   MPIHelper::barrier();
 
-   if (MPI::rank() == 0)
+   if (MPIHelper::rank() == 0)
       EXPECT_EQ( 10, File( name, false).open( File::Create, false, 10));
 
    EXPECT_EQ( File::CannotCreateFile, File(name, false).open( File::Create, true, 11) );
@@ -409,11 +409,11 @@ TEST( HDF5VirtualFileDriverTest, CreateFile2 )
    File b( name, false);
 
    a.open( File::Create, false, 2);
-   if (MPI::rank() == 0)
+   if (MPIHelper::rank() == 0)
       b.open( File::Create, false, 3);
-   MPI::barrier();
+   MPIHelper::barrier();
 
-   if (MPI::rank() == 0)
+   if (MPIHelper::rank() == 0)
       EXPECT_EQ( File::CannotCreateFile, File(name, false).open( File::Create, false, 12));
 
    EXPECT_EQ( File::CannotCreateFile, File(name, false).open( File::Create, true, 13) );
@@ -425,11 +425,11 @@ TEST( HDF5VirtualFileDriverTest, CreateFile3 )
    File a( name, true);
    File b( name, false);
 
-   if (MPI::rank() == 0)
+   if (MPIHelper::rank() == 0)
       b.open( File::Create, false, 4);
-   MPI::barrier();
+   MPIHelper::barrier();
 
-   if (MPI::rank() == 0)
+   if (MPIHelper::rank() == 0)
       EXPECT_EQ( File::CannotCreateFile, File(name, false).open( File::Create, false, 14));
 
    EXPECT_EQ( 15, File(name, false).open( File::Create, true, 15) );
@@ -441,7 +441,7 @@ TEST( HDF5VirtualFileDriverTest, CreateFile4 )
    File a( name, true);
    File b( name, false);
 
-   if (MPI::rank() == 0)
+   if (MPIHelper::rank() == 0)
       EXPECT_EQ( 16, File(name, false).open( File::Create, false, 16));
 
    EXPECT_EQ( 17, File(name, false).open( File::Create, true, 17) );
@@ -449,20 +449,20 @@ TEST( HDF5VirtualFileDriverTest, CreateFile4 )
 
 TEST( HDF5VirtualFileDriverTest, CreateFile5 )
 {
-   if (MPI::size() > 1)
+   if (MPIHelper::size() > 1)
    {
       std::string name  = File::tempName();
       File a( name, true);
       File b( name, false);
 
-      if (MPI::rank() == 0)
+      if (MPIHelper::rank() == 0)
       {
          a.open( File::Create, false, 5);
          b.open( File::Create, false, 6);
       }
-      MPI::barrier();
+      MPIHelper::barrier();
 
-      if (MPI::rank() == 0)
+      if (MPIHelper::rank() == 0)
          EXPECT_EQ( File::CannotCreateFile, File(name, false).open( File::Create, false, 18));
 
       EXPECT_EQ( File::CannotCreateFile, File(name, false).open( File::Create, true, 19) );
@@ -471,19 +471,19 @@ TEST( HDF5VirtualFileDriverTest, CreateFile5 )
 
 TEST( HDF5VirtualFileDriverTest, CreateFile6 )
 {
-   if (MPI::size() > 1 )
+   if (MPIHelper::size() > 1 )
    {
       std::string name  = File::tempName();
       File a( name, true);
       File b( name, false);
 
-      if (MPI::rank() == 1)
+      if (MPIHelper::rank() == 1)
       {
          a.open( File::Create, false, 5);
       }
-      MPI::barrier();
+      MPIHelper::barrier();
 
-      if (MPI::rank() == 0)
+      if (MPIHelper::rank() == 0)
          EXPECT_EQ( 20, File(name, false).open( File::Create, false, 20));
       EXPECT_EQ( File::CannotCreateFile, File(name, false).open( File::Create, true, 21) );
    }
@@ -497,9 +497,9 @@ TEST( HDF5VirtualFileDriverTest, TruncateFile1 )
    File b( name, false);
 
    a.open( File::Create, false, 1);
-   MPI::barrier();
+   MPIHelper::barrier();
 
-   if (MPI::rank() == 0)
+   if (MPIHelper::rank() == 0)
       EXPECT_EQ( 18, File( name, false).open( File::Truncate, false, 18));
 
    EXPECT_EQ( 19, File(name, false).open( File::Truncate, true, 19) );
@@ -514,11 +514,11 @@ TEST( HDF5VirtualFileDriverTest, TruncateFile2 )
    File b( name, false);
 
    a.open( File::Create, false, 2);
-   if ( MPI::rank() == 0)
+   if ( MPIHelper::rank() == 0)
       b.open( File::Create, false, 3);
-   MPI::barrier();
+   MPIHelper::barrier();
 
-   if (MPI::rank() == 0)
+   if (MPIHelper::rank() == 0)
       EXPECT_EQ( 20, File(name, false).open( File::Truncate, false, 20));
    EXPECT_EQ( 21, File(name, false).open( File::Truncate, true, 21) );
 
@@ -532,11 +532,11 @@ TEST( HDF5VirtualFileDriverTest, TruncateFile3 )
    File a( name, true);
    File b( name, false);
 
-   if ( MPI::rank() == 0)
+   if ( MPIHelper::rank() == 0)
       b.open( File::Create, false, 4);
-   MPI::barrier();
+   MPIHelper::barrier();
 
-   if (MPI::rank() == 0)
+   if (MPIHelper::rank() == 0)
       EXPECT_EQ( 22, File(name, false).open( File::Truncate, false, 22));
    EXPECT_EQ( 23, File(name, false).open( File::Truncate, true, 23) );
 
@@ -549,7 +549,7 @@ TEST( HDF5VirtualFileDriverTest, TruncateFile4 )
    File a( name, true);
    File b( name, false);
 
-   if (MPI::rank() == 0)
+   if (MPIHelper::rank() == 0)
       EXPECT_EQ( 24, File(name, false).open( File::Truncate, false, 24));
    EXPECT_EQ( 25, File(name, false).open( File::Truncate, true, 25) );
 }

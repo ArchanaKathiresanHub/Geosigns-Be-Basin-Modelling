@@ -38,22 +38,22 @@ namespace
   using OneFilePerProcess::rewriteFileName;
 }
 
-struct MPI
+struct MPIHelper
 {
-   MPI()
+   MPIHelper()
    {
       MPI_Init(NULL, NULL);
       H5Eset_auto( H5E_DEFAULT, NULL, NULL);
    }
 
-   ~MPI()
+   ~MPIHelper()
    {
       MPI_Finalize();
    }
 
-   static MPI & instance()
+   static MPIHelper & instance()
    {
-      static MPI object;
+      static MPIHelper object;
       return object;
    }
 
@@ -98,8 +98,8 @@ public:
       , m_saveOnDisk( false )
   {
       
-      int mpiRank = MPI::rank();
-      int mpiSize = MPI::size();
+      int mpiRank = MPIHelper::rank();
+      int mpiSize = MPIHelper::size();
       
       if (extendedName)
       {
@@ -111,7 +111,7 @@ public:
    }
    int open( Access access, int data, bool saveOnDisk )
    {
-      const int rank = MPI::rank();
+      const int rank = MPIHelper::rank();
 
       herr_t status = 0;
       hsize_t dims[2]  = { 1, 1 };
@@ -278,7 +278,7 @@ public:
 
    static std::string tempName() 
    {
-      int rank =  MPI::rank();
+      int rank =  MPIHelper::rank();
       char * name = 0;
       std::vector<char> buffer(8);
       if ( rank == 0)
@@ -312,7 +312,7 @@ private:
 
 TEST( h5mergeTest, MergeExistingFiles1 )
 {
-   if (MPI::size() > 1)
+   if (MPIHelper::size() > 1)
    {
       std::string name   = File::tempName();
       File a( name, true );
@@ -325,7 +325,7 @@ TEST( h5mergeTest, MergeExistingFiles1 )
       EXPECT_EQ( 5, status );
 
       File b( name, false );
-      if (MPI::rank() == 0)
+      if (MPIHelper::rank() == 0)
       {
          status = b.open( File::Create, 0, true );
          ASSERT_FALSE( File::CannotCreateFile == status ) << "Global file can't be created." << std::endl;
@@ -337,7 +337,7 @@ TEST( h5mergeTest, MergeExistingFiles1 )
 
       EXPECT_EQ( 0, readDataset( a.fileId(), StdDataSetName, &reader ));
 
-      if (MPI::rank() == 0)
+      if (MPIHelper::rank() == 0)
       {      
          b.close();
          EXPECT_EQ( 5, b.open( File::Open, -1, true ));
@@ -348,7 +348,7 @@ TEST( h5mergeTest, MergeExistingFiles1 )
 
 TEST( h5mergeTest, MergeExistingFiles2 )
 {
-   if (MPI::size() > 1)
+   if (MPIHelper::size() > 1)
    {
 
       std::string name  = File::tempName();
@@ -362,7 +362,7 @@ TEST( h5mergeTest, MergeExistingFiles2 )
       EXPECT_EQ( 5, status );
 
       File b( name, false );
-      if (MPI::rank() == 0)
+      if (MPIHelper::rank() == 0)
       {
          status = b.open( File::CreateWithAttr, 0, true );
          ASSERT_FALSE( File::CannotCreateFile == status ) << "Global file can't be created." << std::endl;
@@ -374,7 +374,7 @@ TEST( h5mergeTest, MergeExistingFiles2 )
 
       EXPECT_EQ( 0, readDataset( a.fileId(), StdDataSetName, &reader ));
 
-      if (MPI::rank() == 0)
+      if (MPIHelper::rank() == 0)
       {      
          b.close();
          EXPECT_EQ( 5, b.open( File::OpenWithAttr, -1, true ));
@@ -385,7 +385,7 @@ TEST( h5mergeTest, MergeExistingFiles2 )
 
 TEST( h5mergeTest, MergeExistingFiles3 )
 {
-   if (MPI::size() > 1)
+   if (MPIHelper::size() > 1)
    {
       std::string name  = File::tempName();
       FileHandler reader(  MPI_COMM_WORLD, name, "." );
@@ -397,7 +397,7 @@ TEST( h5mergeTest, MergeExistingFiles3 )
 
 TEST( h5mergeTest, MergeExistingFiles4 )
 {
-   if (MPI::size() > 1)
+   if (MPIHelper::size() > 1)
    {
       std::string name  = File::tempName();
       FileHandler reader(  MPI_COMM_WORLD, name, "." );
@@ -410,7 +410,7 @@ TEST( h5mergeTest, MergeExistingFiles4 )
       EXPECT_EQ( 5, status );
 
       File b( name, false );
-      if (MPI::rank() == 0)
+      if (MPIHelper::rank() == 0)
       {
          status = b.open( File::Create, 0, true );
          ASSERT_FALSE( File::CannotCreateFile == status ) << "Global file can't be created." << std::endl;
@@ -439,9 +439,9 @@ TEST( h5mergeTest, MergeExistingFiles6 )
 {
    FileHandler reader(  MPI_COMM_WORLD, "", "." );
 
-   if (MPI::size() > 1)
+   if (MPIHelper::size() > 1)
    {
-      hid_t value = ( MPI::rank() == 0 ? -1 : 0 );
+      hid_t value = ( MPIHelper::rank() == 0 ? -1 : 0 );
       EXPECT_EQ( -1, reader.checkError ( value ));
 
       EXPECT_EQ( 0, reader.checkError ( 0 ));
@@ -452,7 +452,7 @@ TEST( h5mergeTest, MergeExistingFiles6 )
 
 TEST( h5mergeTest, ReuseExistingFiles7 )
 {
-   if (MPI::size() > 1)
+   if (MPIHelper::size() > 1)
    {
       std::string name  = File::tempName();
       FileHandlerReuse reader(  MPI_COMM_WORLD, name, "." );
@@ -469,7 +469,7 @@ TEST( h5mergeTest, ReuseExistingFiles7 )
 
       EXPECT_EQ( 0, readDataset( a.fileId(), StdDataSetName, &reader ));
 
-      if (MPI::rank() == 0)
+      if (MPIHelper::rank() == 0)
       {      
          a.close();
          EXPECT_EQ( 5, a.open( File::OpenWithAttr, -1, true ));
@@ -480,7 +480,7 @@ TEST( h5mergeTest, ReuseExistingFiles7 )
 
 TEST( h5mergeTest, AppendExistingFiles8 )
 {
-   if (MPI::size() > 1)
+   if (MPIHelper::size() > 1)
    {
       std::string name  = File::tempName();
       FileHandlerAppend reader(  MPI_COMM_WORLD, name, "." );
@@ -497,7 +497,7 @@ TEST( h5mergeTest, AppendExistingFiles8 )
  
       EXPECT_EQ( 0, readDataset( a.fileId(), StdDataSetName, &reader ));
 
-      if (MPI::rank() == 0)
+      if (MPIHelper::rank() == 0)
       {      
          a.close();
          EXPECT_EQ( 5, a.open( File::OpenWithAttr, -1, true ));

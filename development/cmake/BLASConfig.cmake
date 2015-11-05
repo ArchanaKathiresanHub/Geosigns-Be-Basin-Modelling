@@ -16,22 +16,36 @@ include(cmake/AddPackage.cmake)
 # Use Intel MKL as BLAS library
 #
 
-set( BLAS_FOUND ON )
-set( INTEL_MKL_ROOT "INTEL_MKL_ROOT-NOTFOUND" CACHE PATH "Path to Intel MKL" )
-set( BLAS_ROOT "${INTEL_MKL_ROOT}" CACHE PATH "Path to BLAS library" )
+message(STATUS "BLAS vendor is set to ${BLA_VENDOR}" )
+
+set( BLAS_FOUND OFF )
 set( MKL_LIBRARIES "BLAS_LIBRARIES-NOTFOUND")
+set( INTEL_MKL_ROOT "INTEL_MKL_ROOT-NOTFOUND" CACHE PATH "Path to Intel MKL" )
 
 if (UNIX)
-   set( BLAS_INCLUDE_DIRS "${BLAS_ROOT}/include" )
-   if ( INTEL_MKL_ROOT )
-      set( MKL_LIBRARIES
-         "-Wl,--start-group"
-         "-Wl,${INTEL_MKL_ROOT}/lib/intel64/libmkl_intel_lp64.a"
-         "-Wl,${INTEL_MKL_ROOT}/lib/intel64/libmkl_sequential.a"
-         "-Wl,${INTEL_MKL_ROOT}/lib/intel64/libmkl_core.a"
-         "-Wl,--end-group" 
-      ) 
+   if ( BLA_VENDOR STREQUAL "MKL" )
+      set( BLAS_INCLUDE_DIRS "${BLAS_ROOT}/include" )
+      set( BLAS_ROOT "${INTEL_MKL_ROOT}" CACHE PATH "Path to BLAS library" )
+      if ( INTEL_MKL_ROOT )
+         set( MKL_LIBRARIES
+            "-Wl,--start-group"
+            "-Wl,${INTEL_MKL_ROOT}/lib/intel64/libmkl_intel_lp64.a"
+            "-Wl,${INTEL_MKL_ROOT}/lib/intel64/libmkl_sequential.a"
+            "-Wl,${INTEL_MKL_ROOT}/lib/intel64/libmkl_core.a"
+           "-Wl,--end-group" 
+         )
+         set( BLAS_FOUND ON )
+         set( BLAS_ROOT "${INTEL_MKL_ROOT}" CACHE PATH "Path to BLAS library" )
+      endif()
+
+   elseif( BLA_VENDOR STREQUAL "ATLAS" )
+      if ( EXISTS "/usr/include/atlas" )
+         set( BLAS_ROOT "/usr/lib64/atlas-sse3" CACHE PATH "Path to BLAS library" )
+         set( MKL_LIBRARIES "-L${BLAS_ROOT} -llapack -latlas" )
+         set( BLAS_FOUND ON )
+      endif()
    endif()
+
 elseif(WIN32)
    set( BLAS_INCLUDE_DIRS )
    set( MKL_LIBRARIES

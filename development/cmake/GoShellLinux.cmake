@@ -40,6 +40,10 @@ set(INTEL_MKL_ROOT "${INTEL_CXX_ROOT}/mkl" CACHE PATH "Path to Intel MKL" )
 option(BM_USE_INTEL_COMPILER "Whether to use the Intel compiler (UNIX only)" ON)
 option(BM_USE_INTEL_MPI "Whether to use the Intel MPI (UNIX only)" ON)
 
+set(BM_CLOCK_GETTIME_LIB "")
+
+set(BLA_VENDOR "MKL")
+
 set(DOXYGEN_EXECUTABLE "${CBM_HOME}/Tools/bin/doxygen" CACHE PATH "Path to doxygen executable")
 set(DOT_EXECUTABLE "${CBM_HOME}/Tools/bin/dot" CACHE PATH "Path to dot executable")
 
@@ -50,8 +54,8 @@ set( LSF_HOME "/glb/apps/hpc/lsfprod/9.1/linux2.6-glibc2.3-x86_64" CACHE PATH "H
 
 set(PARAVIEW_CONFIG_ROOT "${CBM_HOME}/Tools/paraview/Paraview-4.1.0-Release/Linux64x_26/lib/cmake/paraview-4.1"
       CACHE PATH "Path where ParaViewConfig.cmake can be found")
-	
-set( TSLIB_VERSION "7.4")	
+
+set( TSLIB_VERSION "7.4")
 set( TSLIB_ROOT "/nfs/rvl/groups/ept-sg/SWEast/Cauldron/hpc/tslib/tslib-7.4.2" CACHE PATH "Path to Geocosm's TsLib" )
 set( TSLIB_LIBRARY_DIR "${TSLIB_ROOT}/bin/x86_64_linux/Release" CACHE PATH "Path to Geocosm's TsLib library directory")
 
