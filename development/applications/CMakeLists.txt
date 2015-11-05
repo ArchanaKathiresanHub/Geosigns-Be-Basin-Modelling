@@ -10,7 +10,8 @@
 #                                                                       #
 #########################################################################
 
-add_subdirectory(4DPrototype)
+#!Commented as it broke Linux builds
+#add_subdirectory(4DPrototype)
 
 if (BM_BUILD_SERIAL_APPS)
 	add_subdirectory(eosptdiag)
