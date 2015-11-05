@@ -499,7 +499,7 @@ function websocketURL()
 	   url = "ws://" + loc.hostname;
 
     // add port
-    url += ":8080/";
+    url += ":8081/";
 
     return url;
 }

@@ -45,12 +45,13 @@ void BpaRenderAreaListener::createSceneGraph(const std::string& /*id*/)
 {
   std::cout << "Loading scenegraph..."<< std::endl;
 
-  const std::string rootdir = "V:/data/";
-  //const std::string rootdir = "/home/ree/";
+  //const std::string rootdir = "V:/data/";
+  const std::string rootdir = "/home/ree/data/";
   
   //const std::string path = rootdir + "CauldronSmall/Project.project3d";
   //const std::string path = rootdir + "Niger2DInclinedStratigraphy/Niger2D.project3d";
-  const std::string path = rootdir + "Marmul_inclined/Marmul.project3d";
+  //const std::string path = rootdir + "Marmul_inclined/Marmul.project3d";
+  const std::string path = rootdir + "NVG/Project.project3d";
 
   m_handle.reset(di::OpenCauldronProject(path, "r", m_factory.get()));
 

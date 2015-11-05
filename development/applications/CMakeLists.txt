@@ -10,6 +10,8 @@
 #                                                                       #
 #########################################################################
 
+add_subdirectory(4DPrototype)
+
 if (BM_BUILD_SERIAL_APPS)
 	add_subdirectory(eosptdiag)
 	add_subdirectory(EosPackDemo)

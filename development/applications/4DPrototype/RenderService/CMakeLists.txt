@@ -27,5 +27,6 @@ target_link_libraries(RenderService
 	MeshVizExtractor
 	MeshViz
 	Inventor
+	InventorGL
 	InventorBase)
 
