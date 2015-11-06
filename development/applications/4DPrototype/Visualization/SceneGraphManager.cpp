@@ -417,6 +417,9 @@ void SceneGraphManager::updateSnapshotTraps()
   SnapshotInfo& snapshot = *m_snapshotInfoCache.begin();
   for (auto &res : snapshot.reservoirs)
   {
+    if (!res.root)
+      continue;
+
     int id = res.id;
 
     if (m_reservoirs[id].visible)
@@ -1476,7 +1479,9 @@ void SceneGraphManager::setProperty(const std::string& name)
 
   std::string title = name + " [" + prop->getUnit() + "]";
   m_legend->title = title.c_str();
-  m_legendSwitch->whichChild = SO_SWITCH_ALL;
+  m_legendSwitch->whichChild = (m_currentProperty == m_resRockTrapIdProperty)
+    ? SO_SWITCH_NONE
+    : SO_SWITCH_ALL;
 
   updateSnapshot();
 }

@@ -294,11 +294,7 @@ size_t SurfaceGeometry::getTimeStamp() const
 
 bool SurfaceGeometry::isUndefined(size_t i, size_t j) const
 {
-  return
-    m_values->getValue((unsigned int)i, (unsigned int)j) == di::DefaultUndefinedMapValue ||
-    m_values->getValue((unsigned int)(i+1), (unsigned int)j) == di::DefaultUndefinedMapValue ||
-    m_values->getValue((unsigned int)i, (unsigned int)(j+1)) == di::DefaultUndefinedMapValue ||
-    m_values->getValue((unsigned int)(i+1), (unsigned int)(j+1)) == di::DefaultUndefinedMapValue;
+  return m_values->getValue((unsigned int)i, (unsigned int)j) == di::DefaultUndefinedMapValue;
 }
 
 //--------------------------------------------------------------------------------------------------
