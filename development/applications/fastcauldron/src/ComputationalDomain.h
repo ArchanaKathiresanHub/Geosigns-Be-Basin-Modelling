@@ -64,7 +64,6 @@ class ComputationalDomain {
 
 public :
 
-
    /// \brief The value given to inactive degrees of freedom.
    static const int NullDofNumber;
 

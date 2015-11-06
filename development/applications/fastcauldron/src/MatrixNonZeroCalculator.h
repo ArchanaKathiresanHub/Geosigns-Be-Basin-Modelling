@@ -68,15 +68,21 @@
 ///
 /// On process 0
 ///   localNonZerosPerRow = {2, 3, 1, 2}
+///   corresponds to block [A]
 ///   ghostNonZerosPerRow = {3, 3, 3, 1}
+///   corresponds to block [B,C]
 ///
 /// On process 1
 ///   localNonZerosPerRow = {2, 1, 2}
+///   corresponds to block [E]
 ///   ghostNonZerosPerRow = {3, 4, 2}
+///   corresponds to block [D,F]
 ///
 /// On process 2
 ///   localNonZerosPerRow = {1, 2, 2, 1}
+///   corresponds to block [J]
 ///   ghostNonZerosPerRow = {3, 4, 2, 3}
+///   corresponds to block [G,H]
 ///
 class MatrixNonZeroCalculator {
 

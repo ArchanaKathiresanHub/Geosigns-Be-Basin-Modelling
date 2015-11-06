@@ -286,7 +286,6 @@ void ComputationalDomain::numberGlobalDofs ( const bool verbose ) {
    const double NullDofNumberReal = static_cast<double>( NullDofNumber );
 
    VecSet ( m_globalDofNumbers, NullDofNumberReal );
-   // VecZeroEntries ( m_globalDofNumbers );
 
    PetscBlockVector<double> dof;
 

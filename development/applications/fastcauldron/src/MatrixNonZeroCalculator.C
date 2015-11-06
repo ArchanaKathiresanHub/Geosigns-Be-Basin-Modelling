@@ -70,6 +70,8 @@ void MatrixNonZeroCalculator::compute ( const ComputationalDomain& domain,
 
    }
 
+   // Restore PETSc vector of dof numbers to original state,
+   // indicating that no changes were made to the vector.
    dof.restoreVector ( NO_UPDATE );
 
    if ( verbose ) {
@@ -105,7 +107,7 @@ void MatrixNonZeroCalculator::findColumnActivityRange ( const LocalIntegerArray3
 
    activeAbove = localK;
 
-   for ( unsigned int k = localK; k <= depthIndex.last ( 2 ); ++k ) {
+   for ( unsigned int k = localK + 1; k <= depthIndex.last ( 2 ); ++k ) {
 
       if ( depthIndex ( localI, localJ, k ) != depthIndex ( localI, localJ, localK )) {
          activeAbove = k;
@@ -116,7 +118,7 @@ void MatrixNonZeroCalculator::findColumnActivityRange ( const LocalIntegerArray3
 
    activeBelow = localK;
 
-   for ( int k = localK; k >= static_cast<int>(depthIndex.first ( 2 )); --k ) { 
+   for ( int k = localK - 1; k >= static_cast<int>(depthIndex.first ( 2 )); --k ) { 
 
       if ( depthIndex ( localI, localJ, k ) != depthIndex ( localI, localJ, localK )) {
          activeBelow = k;
