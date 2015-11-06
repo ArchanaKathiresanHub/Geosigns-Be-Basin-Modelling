@@ -207,13 +207,19 @@ if (UNIX)
          set(C_Compiler "${MPI_C_COMPILER}")
          set(CXX_Compiler "${MPI_CXX_COMPILER}")
 
+         finish_wrapper( mpiexec "mpiexec ${args}" MpiExec ADDITIVE)
+         finish_wrapper( mpirun "mpirun ${args}" MpiRun ADDITIVE)
+
+         set(MPIEXEC "${MpiExec}" CACHE FILEPATH "Path to mpiexec script")
+         set(MPIRUN "${MpiRun}" CACHE FILEPATH "Path to mpirun script")
+
          # Unset variables, so that compiler can be redetected
          unset(CMAKE_C_COMPILER CACHE)
          unset(CMAKE_CXX_COMPILER CACHE)
 
          finish_wrapper( mpiexec "mpiexec ${args}" MpiExec ADDITIVE)
          finish_wrapper( mpirun "mpirun ${args}" MpiRun ADDITIVE)
-         
+
        endif(BM_USE_INTEL_MPI)
 
    endif(NOT BM_PARALLEL)
