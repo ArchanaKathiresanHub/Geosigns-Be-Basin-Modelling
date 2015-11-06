@@ -1,10 +1,11 @@
+#define _USE_MATH_DEFINES
+#include <cmath>
 #include "DiffusionCoefficient.h"
 #include "migration.h"
 #include "consts.h"
 
 #include <iostream>
 #include <algorithm>
-#include <math.h>
 
 using CBMGenerics::C2K;
 
@@ -38,7 +39,7 @@ namespace migration {
 
       // Calculate the diffusion coefficient coef for this formation:
       double temperatureK = temperatureC + C2K;
-      double dc1 = CBMGenerics::BoltzmannConstant*temperatureK / (6 * M_PI * gasRadius * viscosity);
+      double dc1 = CBMGenerics::BoltzmannConstant*temperatureK / (6.0 * M_PI * gasRadius * viscosity);
       double coef = dc1 * pow(porosity, 2.2);
 	   
       return coef;
