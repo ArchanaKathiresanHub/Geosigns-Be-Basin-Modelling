@@ -130,11 +130,25 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GLInfoDialog.h" />
-    <ClInclude Include="MainWindow.h" />
-    <ClInclude Include="MainWindow.ui.h" />
+    <CustomBuild Include="MainWindow.h">
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">moc %(Filename).h -o %(Filename).moc.cpp</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(Filename).moc.cpp</Outputs>
+      <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</TreatOutputAsContent>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">moc %(Filename).h -o %(Filename).moc.cpp</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(Filename).moc.cpp</Outputs>
+      <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</TreatOutputAsContent>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compiling %(Filename).%(Extension) using moc</Message>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
-    <None Include="MainWindow.ui" />
+    <CustomBuild Include="MainWindow.ui">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">uic %(Filename).ui -o %(Filename).ui.h</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Generating %(Filename).ui.h</Message>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</LinkObjects>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(Filename).ui.h</Outputs>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Visualization\Visualization.vcxproj">
