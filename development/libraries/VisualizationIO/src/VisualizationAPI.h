@@ -163,7 +163,7 @@ namespace CauldronIO
 	};
 
     /// \class Trapper 
-    /// \brief container class holding all surfaces and volumes for a snapshot
+    /// \brief container class holding all some information related to a Trapper
     class Trapper
     {
     public:

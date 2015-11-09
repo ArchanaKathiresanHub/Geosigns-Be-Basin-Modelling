@@ -448,16 +448,14 @@ boost::shared_ptr<Project> CauldronIO::ImportExport::getProject(const boost::pro
                 }
 
                 // Assign downstream trappers
-                const TrapperList trappers = snapShot->getTrapperList();
+                const TrapperList& trappers = snapShot->getTrapperList();
                 BOOST_FOREACH(const boost::shared_ptr<const Trapper>& trapper, trappers)
                 {
                     int downstreamTrapperID = trapper->getDownStreamTrapperID();
                     if (downstreamTrapperID > -1)
                     {
                         boost::shared_ptr<Trapper> downstreamTrapper = *persistentIDs[downstreamTrapperID];
-
-                        // Unfortunate hack
-                        Trapper* thisTrapper = const_cast<Trapper*>(trapper.get());
+                        boost::shared_ptr<Trapper> thisTrapper = *persistentIDs[trapper->getPersistentID()];
                         thisTrapper->setDownStreamTrapper(downstreamTrapper);
                     }
                 }
