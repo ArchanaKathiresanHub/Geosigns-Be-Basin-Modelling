@@ -1537,6 +1537,10 @@ namespace migration {
    }
 #endif
 
+   void LocalFormationNode::setDirectionIndex (int index)
+   {
+      m_selectedDirectionIndex = index;
+   }
 
    void LocalFormationNode::setReservoirGas (bool flag)
    {

@@ -1507,14 +1507,14 @@ namespace migration
                   column->resetProxies ();
                }
 
-               /// set the column to wasting if can not hold hc
-               if (column->getI () < m_columnArray->lastILocal () && column->getJ () < m_columnArray->lastJLocal () and
+               /// set the column to wasting if it cannot hold hc
+               if (i < m_columnArray->lastILocal () && j < m_columnArray->lastJLocal () and
                   !column->isSealing (GAS) and !column->isSealing (OIL))
                {
                   bool flagGas, flagOil;
                   for (int depth = depthIndex; depth>=0; --depth)
                   {
-                     LocalFormationNode * localFormationNode = formation->getLocalFormationNode (column->getI (), column->getJ (), depth);
+                     LocalFormationNode * localFormationNode = formation->getLocalFormationNode (i, j, depth);
                      assert (localFormationNode);
                      flagGas = localFormationNode->getReservoirGas ();
                      flagOil = localFormationNode->getReservoirOil ();
@@ -1522,8 +1522,26 @@ namespace migration
                      if (flagGas or flagOil) break;
                   }
 
-                  if (!flagGas) column->setWasting (GAS);
-                  if (!flagOil) column->setWasting (OIL);
+                  LocalFormationNode * localFormationNode = formation->getLocalFormationNode (i, j, depthIndex);
+
+                  if (!flagGas)
+                  {
+                     column->setWasting (GAS);
+                     if (localFormationNode->getAdjacentFormationNodeGridOffset (2) > 0)
+                     {
+                        localFormationNode->setReservoirGas (true);
+                        localFormationNode->setDirectionIndex (-1);
+                     }
+                  }
+                  if (!flagOil)
+                  {
+                     column->setWasting (OIL);
+                     if (localFormationNode->getAdjacentFormationNodeGridOffset (2) > 0)
+                     {
+                        localFormationNode->setReservoirOil (true);
+                        localFormationNode->setDirectionIndex (-1);
+                     }
+                  }
                }
             }
          }

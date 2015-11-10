@@ -234,6 +234,8 @@ namespace migration
       void prescribeTargetFormationNode (void);
       void cleanTargetFormationNode (void);
 
+      void setDirectionIndex (int);
+
       FormationNode *getAdjacentFormationNode (int directionIndex = -1);
       int getAdjacentFormationNodeGridOffset (int dimension);
 

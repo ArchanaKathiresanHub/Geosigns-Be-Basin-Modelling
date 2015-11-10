@@ -1693,6 +1693,15 @@ namespace migration
                   Column *targetColumn = targetReservoir->getColumn (iTarget + offsets[offsetIndex][0],
                                                                      jTarget + offsets[offsetIndex][1]);
 
+                  // If the primary column (same i,j as the targetFormationNode) of the element
+                  // is wasting then put all the HCs there. Gas phase dictates path for all HCs.
+                  // Phase-dependent correction needed.
+                  if (offsetIndex == 0 and targetColumn->isWasting (GAS))
+                  {
+                     shallowestColumn = targetColumn;
+                     break;
+                  }
+
                   if (IsValid (targetColumn) && !targetColumn->isSealing () && (shallowestColumn == 0 || targetColumn->getTopDepth () < shallowestDepth))
                   {
                      shallowestColumn = targetColumn;

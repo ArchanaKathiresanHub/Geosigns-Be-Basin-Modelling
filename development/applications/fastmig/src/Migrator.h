@@ -107,6 +107,8 @@ namespace migration
       bool computeFormationNodeProperties (const Interface::Snapshot * end);
       bool computeTargetFormationNodes (Formation * targetFormation, Formation * sourceFormation);
 
+      bool computeTargetFormationNodes (const Interface::Snapshot *);
+
       /// Check if there are any active reservoirs at given snapshot
       bool activeReservoirs (const Interface::Snapshot * snapshot);
 
