@@ -48,7 +48,7 @@ TEST ( DofCountingUnitTest, HoleySedimentMesh01 ) {
    argv [ 1 ] = "-project";
    argv [ 2 ] = projectName;
    argv [ 3 ] = "-decompaction";
-   argv [ 4 ] = "";
+   argv [ 4 ] = NULL;
 
    PetscInitialize (&argc, &argv, (char *) 0, PETSC_NULL);
 

@@ -28,6 +28,8 @@ add_library( SUMlib
    ${all_headers}
 )
 
+add_dependencies(SUMlib Boost)
+
 install(TARGETS SUMlib
    RUNTIME DESTINATION bin
    LIBRARY DESTINATION lib

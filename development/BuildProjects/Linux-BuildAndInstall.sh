@@ -11,9 +11,20 @@ configuration=${CONFIGURATION:-Release}
 nprocs=${NUMBER_OF_CORES:-20}
 deploy=${DEPLOY:-True}
 geocase=${GEOCASE:-False}
-version_number_major=${VERSION_NUMBER_MAJOR:-`date +%Y`}  
-version_number_minor=${VERSION_NUMBER_MINOR:-`date +%m`}  
+version_number_major=${VERSION_NUMBER_MAJOR:-`date +%Y`}
+version_number_minor=${VERSION_NUMBER_MINOR:-`date +%m`}
 version_tag=${VERSION_TAG:-`whoami`}
+
+cldgrp=`groups`
+if [[ "$cldgrp" =~ "g_psaz00" ]];then
+    cldgrp="g_psaz00"
+else
+    if [[ "$cldgrp" =~ "cauldron" ]];then
+        cldgrp="cauldron"
+    else
+        cldgrp=""
+    fi
+fi
 
 # Set some code to execute when shell script exits
 function onExit()
@@ -44,10 +55,28 @@ pushd $build
 build="`pwd -P`"
 popd
 
+######################
 # Standard applications
-SVN=/glb/home/ksaho3/bin.Linux/svn
-CMAKE=/nfs/rvl/groups/ept-sg/SWEast/Cauldron/Tools/bin/cmake
-CTEST=/nfs/rvl/groups/ept-sg/SWEast/Cauldron/Tools/bin/ctest
+if [ -e /glb/home/ksaho3/bin.Linux/svn ];
+then
+    SVN=/glb/home/ksaho3/bin.Linux/svn
+else
+    SVN=`which svn`
+fi
+
+if [ -e /nfs/rvl/groups/ept-sg/SWEast/Cauldron/Tools/bin/cmake ];
+then
+    CMAKE=/nfs/rvl/groups/ept-sg/SWEast/Cauldron/Tools/bin/cmake
+else
+    CMAKE=`which cmake`
+fi
+if [ -e /nfs/rvl/groups/ept-sg/SWEast/Cauldron/Tools/bin/ctest ];
+then
+    CTEST=/nfs/rvl/groups/ept-sg/SWEast/Cauldron/Tools/bin/ctest
+else
+    CTEST=`which ctest`
+fi
+
 
 # Set the simplest locale so that there won't be any text conversion problems
 # for the logged output between Linux and Windows
@@ -63,7 +92,7 @@ ${src}/development/bootstrap.csh \
       -DBM_VERSION_TAG=${version_tag} \
       -DBM_UNIT_TEST_OUTPUT_DIR=${unit_test_output} \
       -DCMAKE_INSTALL_PREFIX=${installdir} \
-	  "$@" \
+      "$@" \
   || { echo "CMake : error : Configuration has failed"; exit 1; } 
 
 source envsetup.sh
@@ -102,7 +131,9 @@ if [ x$deploy = xTrue ]; then
 fi
 
 #Give access for the group g_psaz00 to build folder
-chgrp -R g_psaz00 $build
+if [ "$cldgrp" ]; then
+  chgrp -R $cldgrp $build
+fi
 chmod -R g+rw $build
 find $build -type d -print0 | xargs -0 chmod g+x
 
@@ -157,4 +188,3 @@ fi
 ${CTEST} || { echo "CTest : error: One or more unit tests have failed"; exit 1 ; } 
 
 popd
-

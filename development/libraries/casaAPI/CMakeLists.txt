@@ -23,6 +23,10 @@ add_library(casaapi
    ${all_headers}
 )
 
+if (UNIX)
+add_dependencies(casaapi Boost)
+endif (UNIX)
+
 bm_include_libraries(
    CBMGenerics
    TableIO

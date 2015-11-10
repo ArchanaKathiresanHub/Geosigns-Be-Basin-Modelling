@@ -22,7 +22,9 @@ if (BM_PARALLEL)
 	   ${all_srcs}
 	   ${all_headers}
 	)
-
+	if (UNIX)
+	    add_dependencies(Parallel_Hdf5 PETSC HDF5)
+	endif (UNIX)
 	set (OFPP "")
 	if (UNIX)
 		set (OFPP OneFilePerProcess)

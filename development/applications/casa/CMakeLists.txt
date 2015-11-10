@@ -20,6 +20,10 @@ add_executable( casa
   ${all_headers}
 )
 
+if (UNIX)
+add_dependencies(casa Boost)
+endif (UNIX)
+
 bm_include_libraries(
    TableIO
    casaAPI

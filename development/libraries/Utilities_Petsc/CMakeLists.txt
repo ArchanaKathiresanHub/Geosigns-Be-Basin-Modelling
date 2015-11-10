@@ -23,6 +23,9 @@ if (BM_PARALLEL)
 		${all_srcs}
 		${all_headers}
 	)
+	if (UNIX)
+	    add_dependencies(Utilities_Petsc PETSC)
+	endif (UNIX)
 
 	include_directories(
 		${PETSC_INCLUDE_DIRS}

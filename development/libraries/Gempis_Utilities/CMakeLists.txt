@@ -14,6 +14,10 @@ add_library(Gempis_Utilities
 	src/Gempis.C
 )
 
+if (UNIX)
+add_dependencies(Gempis_Utilities PETSC)
+endif (UNIX)
+
 install(TARGETS Gempis_Utilities
 	RUNTIME DESTINATION bin
 	LIBRARY DESTINATION lib

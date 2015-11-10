@@ -12,6 +12,18 @@
 # Exit immediately when any command exits with non-zero exit status
 set -e
 
+# search for the correct group
+cldgrp=`groups`
+  if [[ "$cldgrp" =~ "g_psaz00" ]];then
+    cldgrp="g_psaz00"
+  else
+    if [[ "$cldgrp" =~ "cauldron" ]];then
+      cldgrp="cauldron"
+    else
+      cldgrp=""
+    fi
+fi
+
 # Check whether we don't add too many versions. 
 # The SSSLauncher (which many people still use) has a problem when the sum of
 # all version string lengths is more than a 1000.
@@ -50,10 +62,12 @@ install -d $mainBinaryDirectory
 install @CMAKE_INSTALL_PREFIX@/bin/* $mainBinaryDirectory
 
 # BPA expects the binaries to be in the LinuxRHEL64 folder. For BPA we pick the RHEL64 binaries
-if /apps/sss/share/getos2 | grep -q LinuxRHEL64_x86_64_64 ; then
-  pushd $targetDirectory > /dev/null
-  ln -s @CSCE_PLATFORM@ LinuxRHEL64
-  popd > /dev/null
+if [-e /apps/sss/share/getos2 ]; then
+  if /apps/sss/share/getos2 | grep -q LinuxRHEL64_x86_64_64 ; then
+    pushd $targetDirectory > /dev/null
+    ln -s @CSCE_PLATFORM@ LinuxRHEL64
+    popd > /dev/null
+  fi
 fi
 
 # Install platform independent files
@@ -85,8 +99,11 @@ echo "Configuring installation"
 echo " - Marking installation as successful"
 touch $miscDirectory/successfully_installed
 
-echo " - Changing group to g_psaz00"
-chgrp -R g_psaz00 $targetDirectory
+if [ "$cldgrp" ];then
+  echo " - Changing group to $cldgrp"
+  chgrp -R $cldgrp $targetDirectory
+fi
+
 echo " - Changing mode to g+w"
 chmod -R g+w $targetDirectory
 

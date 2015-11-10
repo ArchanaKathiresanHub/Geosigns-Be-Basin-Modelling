@@ -44,6 +44,10 @@ target_link_libraries(DataAccess
 	TableIO
 )
 
+if (UNIX)
+add_dependencies(DataAccess HDF5)
+endif (UNIX)
+
 generate_dox( src/DataAccess.cfg )
 
 # Local Variables:

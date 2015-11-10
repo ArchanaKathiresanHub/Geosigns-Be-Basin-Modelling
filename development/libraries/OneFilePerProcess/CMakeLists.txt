@@ -34,6 +34,10 @@ target_link_libraries(OneFilePerProcess
       ${MPI_LIBRARIES}
 )
 
+if (UNIX)
+add_dependencies(OneFilePerProcess HDF5)
+endif (UNIX)
+
 add_gtest( NAME OneFilePerProcess::rewriteFileName
            SOURCES test/RewriteFileName.C
            LIBRARIES OneFilePerProcess

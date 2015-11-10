@@ -20,7 +20,10 @@ add_library(FiniteElements
 	${all_headers}
 )
 
+if (UNIX)
 add_dependencies(FiniteElements Eigen)
+endif (UNIX)
+
 include_directories (${EIGEN_INCLUDE_DIRS} )
 
 bm_include_libraries(DataModel utilities FiniteElements)

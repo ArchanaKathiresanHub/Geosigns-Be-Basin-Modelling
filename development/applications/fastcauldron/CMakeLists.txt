@@ -316,6 +316,11 @@ add_library( FastcauldronApplication
 
 add_executable(fastcauldron src/main.C ${all_headers})
 
+if (UNIX)
+add_dependencies(fastcauldron Boost PETSC)
+endif (UNIX)
+
+
 include_directories(
         src
         ${PROJECT_SOURCE_DIR}/libraries
