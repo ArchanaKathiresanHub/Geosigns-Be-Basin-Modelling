@@ -62,7 +62,7 @@ install -d $mainBinaryDirectory
 install @CMAKE_INSTALL_PREFIX@/bin/* $mainBinaryDirectory
 
 # BPA expects the binaries to be in the LinuxRHEL64 folder. For BPA we pick the RHEL64 binaries
-if [-e /apps/sss/share/getos2 ]; then
+if [ -e /apps/sss/share/getos2 ]; then
   if /apps/sss/share/getos2 | grep -q LinuxRHEL64_x86_64_64 ; then
     pushd $targetDirectory > /dev/null
     ln -s @CSCE_PLATFORM@ LinuxRHEL64
