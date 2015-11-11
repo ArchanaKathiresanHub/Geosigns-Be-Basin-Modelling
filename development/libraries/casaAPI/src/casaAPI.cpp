@@ -56,6 +56,35 @@
 
 namespace casa {
 
+// Auxillary function to search for the position of lithology in layer lithologies list
+static size_t findMixingIDForLithologyInLayer( const char * layerName, const std::string & lithoName, ScenarioAnalysis & sa )
+{
+   size_t mixID = 0;
+   if ( layerName && strlen( layerName ) > 0 )
+   {
+      mbapi::StratigraphyManager & smgr = sa.baseCase().stratigraphyManager();
+      mbapi::StratigraphyManager::LayerID lyd = smgr.layerID( layerName );
+      if ( UndefinedIDValue == lyd )
+      {
+         throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "No such layer: " << layerName << " in stratigraphy table";
+      }
+      std::vector<std::string> lithLst;
+      std::vector<double>      percLst;
+      if ( ErrorHandler::NoError != smgr.layerLithologiesList( lyd, lithLst, percLst ) )
+      {
+         throw ErrorHandler::Exception( smgr.errorCode() ) << smgr.errorMessage();
+      }
+      for ( size_t i = 0; i < lithLst.size(); ++i )
+      {
+         if ( lithLst[i] == lithoName )
+         {
+            mixID = i;
+            break;
+         }
+      }
+   }
+   return mixID;
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 // Set of business logic rules functions to convert one request to set of parameters
@@ -981,30 +1010,7 @@ ErrorHandler::ReturnCode VaryPorosityModelParameters( ScenarioAnalysis    & sa
 
       // check - if layer was specified, create a copy of corresponded lithology for the given 
       // layer and change Porosity Model parameters only for this lithology
-      size_t mixID = 0;
-      if ( layerName  && strlen( layerName ) > 0 )
-      {
-         mbapi::StratigraphyManager & smgr = mdl.stratigraphyManager();
-         mbapi::StratigraphyManager::LayerID lyd = smgr.layerID( layerName );
-         if ( UndefinedIDValue == lyd )
-         {
-            throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "No such layer: " << layerName << " in stratigraphy table";
-         }
-         std::vector<std::string> lithLst;
-         std::vector<double>      percLst;
-         if ( ErrorHandler::NoError != smgr.layerLithologiesList( lyd, lithLst, percLst ) )
-         {
-            throw ErrorHandler::Exception( smgr.errorCode() ) << smgr.errorMessage();
-         }
-         for ( size_t i = 0; i < lithLst.size(); ++i )
-         {
-            if ( lithLst[i] == litName )
-            {
-               mixID = i;
-               break;
-            }
-         }
-      }
+      size_t mixID = findMixingIDForLithologyInLayer( layerName, litName, sa );
       const std::vector<std::string> & newLithoNames = mdl.copyLithology(
                                                  litName
                                                , (layerName != NULL && strlen(layerName) > 0) ?
@@ -1126,31 +1132,8 @@ ErrorHandler::ReturnCode VaryPermeabilityModelParameters( ScenarioAnalysis      
       }
 
       // check - if layer was specified, create a copy of corresponded lithology for the given 
-      // layer and change Porosity Model parameters only for this lithology      size_t mixID = 0;
-      size_t mixID = 0;
-      if ( layerName && strlen( layerName ) > 0 )
-      {
-         mbapi::StratigraphyManager & smgr = sa.baseCase().stratigraphyManager();
-         mbapi::StratigraphyManager::LayerID lyd = smgr.layerID( layerName );
-         if ( UndefinedIDValue == lyd )
-         {
-            throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "No such layer: " << layerName << " in stratigraphy table";
-         }
-         std::vector<std::string> lithLst;
-         std::vector<double>      percLst;
-         if ( ErrorHandler::NoError != smgr.layerLithologiesList( lyd, lithLst, percLst ) )
-         {
-            throw ErrorHandler::Exception( smgr.errorCode() ) << smgr.errorMessage();
-         }
-         for ( size_t i = 0; i < lithLst.size(); ++i )
-         {
-            if ( lithLst[i] == lithoName )
-            {
-               mixID = i;
-               break;
-            }
-         }
-      }
+      // layer and change Permeability Model parameters only for this lithology
+      size_t mixID = findMixingIDForLithologyInLayer( layerName, lithoName, sa );
       const std::vector<std::string> & newLithoNames = sa.baseCase().copyLithology(
                                             lithoName
                                           , (layerName != NULL && strlen( layerName ) > 0 ) ? 
@@ -1215,31 +1198,8 @@ ErrorHandler::ReturnCode VaryLithoSTPThermalCondCoeffParameter( ScenarioAnalysis
       }
 
       // check - if layer was specified, create a copy of corresponded lithology for the given 
-      // layer and change Porosity Model parameters only for this lithology
-      size_t mixID = 0;
-      if ( layerName && strlen( layerName ) > 0 )
-      {
-         mbapi::StratigraphyManager & smgr = mdl.stratigraphyManager();
-         mbapi::StratigraphyManager::LayerID lyd = smgr.layerID( layerName );
-         if ( UndefinedIDValue == lyd )
-         {
-            throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "No such layer: " << layerName << " in stratigraphy table";
-         }
-         std::vector<std::string> lithLst;
-         std::vector<double>      percLst;
-         if ( ErrorHandler::NoError != smgr.layerLithologiesList( lyd, lithLst, percLst ) )
-         {
-            throw ErrorHandler::Exception( smgr.errorCode() ) << smgr.errorMessage();
-         }
-         for ( size_t i = 0; i < lithLst.size(); ++i )
-         {
-            if ( lithLst[i] == litName )
-            {
-               mixID = i;
-               break;
-            }
-         }
-      }
+      // layer and change STP thermal cond. parameter only for this lithology
+      size_t mixID = findMixingIDForLithologyInLayer( layerName, litName, sa );
       const std::vector<std::string> & newLithoNames = mdl.copyLithology(
                                               litName
                                             , (layerName != NULL && strlen( layerName ) > 0 ) ? 

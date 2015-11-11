@@ -124,7 +124,11 @@ public:
       m_submit.options3         = SUB3_CWD;
       m_submit.numProcessors    = cpus; // initial number of processors needed by a (parallel) job
       m_submit.maxNumProcessors = cpus; // max num of processors required to run the (parallel) job
-      if ( !resReq.empty() ) m_submit.resReq = strdup( resReq.c_str() );
+      if ( !resReq.empty() )
+      {
+         m_submit.resReq = strdup( resReq.c_str() );
+         m_submit.options = m_submit.options | SUB_RES_REQ;
+      }
    }
 
    ~Job()
