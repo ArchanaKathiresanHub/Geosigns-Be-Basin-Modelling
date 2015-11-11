@@ -1337,10 +1337,9 @@ namespace migration
          }
       }
 
-      m_detectedReservoir = MaximumAll ((int) reservoirCrestDetected);
-      //cerr << " Rank, Formation, m_detectedReservoir " << GetRank () << " " << getName () << " " << m_detectedReservoir << endl;
-
       RequestHandling::FinishRequestHandling ();
+      
+      m_detectedReservoir = MaximumAll ((int) reservoirCrestDetected);
 
       return m_detectedReservoir;
 
