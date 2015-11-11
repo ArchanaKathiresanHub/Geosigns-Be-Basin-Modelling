@@ -22,7 +22,9 @@ if (BM_PARALLEL)
 	   ${all_srcs}
 	   ${all_headers}
 	)
-	add_dependencies(DistributedDataAccess PETSC)
+	if (UNIX)
+		add_dependencies(DistributedDataAccess PETSC)
+   endif (UNIX)
 
 	set (OFPP "")
 	if (UNIX)
