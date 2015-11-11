@@ -33,30 +33,18 @@ namespace DataAccess
 
 		ObjectFactory() {}
 
-		virtual ~ObjectFactory () {}
+virtual ~ObjectFactory () {}
 	    virtual ProjectHandle * produceProjectHandle (database::Database * database, const string & name, const string & accessMode);
 
 	    virtual Snapshot * produceSnapshot (ProjectHandle * projectHandle, database::Record * record);
 	    virtual Snapshot * produceSnapshot (ProjectHandle * projectHandle, double time);
 
-	    virtual GridMap * produceGridMap (const Parent * owner, unsigned int childIndex,
-		  const Grid * grid, double undefinedValue, unsigned int depth, float *** values);
-	    virtual GridMap * produceGridMap (const Parent * owner, unsigned int childIndex,
-		  const Grid * grid, double value, unsigned int depth = 1);
-            virtual GridMap * produceGridMap (const Parent * owner, unsigned int childIndex,
-		  const GridMap * operand1, const GridMap * operand2, BinaryOperator binaryOperator);
-
-            virtual GridMap * produceGridMap ( const Parent * owner, unsigned int childIndex,
-                                               const GridMap * operand,
-                                               UnaryOperator unaryOperator);
-
-            virtual GridMap * produceGridMap ( const Parent * owner, unsigned int childIndex,
-                                               const GridMap * operand1, 
-                                               const GridMap * operand2,
-                                               BinaryFunctor& binaryFunctor );
-
-            virtual GridMap * produceGridMap (const Parent * owner, unsigned int childIndex,
-		  const GridMap * operand1, UnaryFunctor& unaryFunctor );
+         virtual GridMap * produceGridMap (const Parent * owner, unsigned int childIndex, const Grid * grid, double undefinedValue, unsigned int depth, float *** values);
+         virtual GridMap * produceGridMap (const Parent * owner, unsigned int childIndex, const Grid * grid, double value, unsigned int depth = 1);
+         virtual GridMap * produceGridMap (const Parent * owner, unsigned int childIndex, const GridMap * operand1, const GridMap * operand2, BinaryOperator binaryOperator);
+         virtual GridMap * produceGridMap ( const Parent * owner, unsigned int childIndex, const GridMap * operand, UnaryOperator unaryOperator);
+         virtual GridMap * produceGridMap ( const Parent * owner, unsigned int childIndex, const GridMap * operand1, const GridMap * operand2, BinaryFunctor& binaryFunctor );
+         virtual GridMap * produceGridMap (const Parent * owner, unsigned int childIndex, const GridMap * operand1, UnaryFunctor& unaryFunctor );
 
 	    virtual Grid * produceGrid (double minI, double minJ, double maxI, double maxJ, unsigned int numI, unsigned int numJ, unsigned int lowResNumI, unsigned int lowResNumJ);
 	    virtual Grid * produceGrid (const Grid * referenceGrid, double minI, double minJ, double maxI, double maxJ, unsigned int numI, unsigned int numJ);

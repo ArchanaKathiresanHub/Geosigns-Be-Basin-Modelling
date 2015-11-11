@@ -58,18 +58,17 @@ include_directories(
 )
 
 target_link_libraries(track1d
+	DerivedProperties
 	DataMining
+	GeoPhysics
 	DataAccess
 	SerialDataAccess
 	Interpolation
 	LinearAlgebra
-	GeoPhysics
-	DerivedProperties
-	DataAccess	
 	TableIO
+	EosPack
 	CBMGenerics
 	Serial_Hdf5
-	EosPack
 	utilities
 	${HDF5_LIBRARIES}
 )

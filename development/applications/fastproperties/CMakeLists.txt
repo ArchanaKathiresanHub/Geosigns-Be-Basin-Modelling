@@ -61,19 +61,18 @@ include_directories(
 )
 
 target_link_libraries(fastproperties
+	DerivedProperties
 	DataMining
+	GeoPhysics
 	DataAccess
 	DistributedDataAccess
 	Interpolation
 	LinearAlgebra
-	GeoPhysics
-	DerivedProperties
-	DataAccess	
 	TableIO
+	EosPack
 	CBMGenerics
 	Serial_Hdf5
 	Parallel_Hdf5
-	EosPack
 	utilities
 	${HDF5_LIBRARIES}
 	${PETSC_LIBRARIES}

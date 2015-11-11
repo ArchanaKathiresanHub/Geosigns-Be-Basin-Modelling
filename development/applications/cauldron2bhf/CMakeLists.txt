@@ -34,14 +34,13 @@ bm_include_libraries(
 )
 
 target_link_libraries(cauldron2bhf
+	DerivedProperties
 	DataMining
+	GeoPhysics
 	DataAccess
 	SerialDataAccess
 	Interpolation
 	LinearAlgebra
-	GeoPhysics
-	DerivedProperties
-	DataAccess	
 	TableIO
 	EosPack
 	utilities
