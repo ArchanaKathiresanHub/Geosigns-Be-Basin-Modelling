@@ -64,7 +64,7 @@ struct submitReply
 #define  SUB_ERR_FILE       0x20
 #define  SUB_PROJECT_NAME   0x2000000
 #define  SUB3_CWD           0x40
-
+#define  SUB_RES_REQ        0x40000
 #endif
 
 // STL
