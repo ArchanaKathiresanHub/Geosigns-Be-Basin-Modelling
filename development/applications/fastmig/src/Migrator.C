@@ -771,12 +771,16 @@ bool Migrator::detectReservoirs (const Interface::Snapshot * end, const bool pre
          reservoirFormation->detectReservoir (sealFormation, MinColumnHeight, MinColumnHeight, pressureRun);
 
          // If the formation is already detected skip calculations otherwise detect crests that can hold hc
-         if (!reservoirFormation->getDetectedReservoir () && reservoirFormation->detectReservoirCrests ())
+         if (reservoirFormation->detectReservoirCrests ())
          {
-            // cerr << "Formation " << reservoirFormation->getName() << " detected" << endl;
-            // if the formation is detected as reservoir, add it in the reservoir list 
-            reservoirFormation->addDetectedReservoir ();
-            numDetectedReservoirs += 1;
+            if (!reservoirFormation->getDetectedReservoir ())
+            {
+               // cerr << "Formation " << reservoirFormation->getName() << " detected" << endl;
+               // if the formation is detected as reservoir, add it in the reservoir list 
+               reservoirFormation->addDetectedReservoir ();
+               numDetectedReservoirs += 1;
+               reservoirFormation->setDetectedReservoir (true);
+            }
          }
          // print to file information about the reservoirs 
          // reservoirFormation->saveReservoir (end);

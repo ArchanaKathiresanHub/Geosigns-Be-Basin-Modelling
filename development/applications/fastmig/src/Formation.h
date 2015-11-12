@@ -105,6 +105,7 @@ namespace migration
       bool detectReservoir (Formation * topFormation, const double minOilColumnHeight, const double minGasColumnHeight, const bool pressureRun);
       bool detectReservoirCrests();
       bool getDetectedReservoir() const;
+      void setDetectedReservoir (bool detectedReservoir);
       void addDetectedReservoir ();
 
       void saveReservoir (const Interface::Snapshot * curSnapshot);

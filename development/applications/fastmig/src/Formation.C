@@ -1306,48 +1306,57 @@ namespace migration
    bool Formation::detectReservoirCrests()
    {
       //cout << " Rank, Formation, m_detectedReservoir " << GetRank () << " " << getName () << " " << m_detectedReservoir << endl;
-
-      RequestHandling::StartRequestHandling(getMigrator(), "detectReservoirCrests");
-
-      int upperIndex = getNodeDepth() - 1;
       bool reservoirCrestDetected = false;
-
-      // First  oil 
-      for (int i = (int)m_formationNodeArray->firstILocal(); i <= (int)m_formationNodeArray->lastILocal(); ++i)
-      {
-         for (int j = (int)m_formationNodeArray->firstJLocal(); j <= (int)m_formationNodeArray->lastJLocal(); ++j)
-         {
-            reservoirCrestDetected = getLocalFormationNode(i, j, upperIndex)->detectReservoirCrests(OIL);
-            if (reservoirCrestDetected) break;
-         }
-         if (reservoirCrestDetected) break;
-      }
-
-      // Then gas 
-      if (!reservoirCrestDetected) 
-      {
+      
+      if (!m_detectedReservoir)
+      {     
+      
+         RequestHandling::StartRequestHandling(getMigrator(), "detectReservoirCrests");
+      
+         int upperIndex = getNodeDepth() - 1;
+         // First  oil 
          for (int i = (int)m_formationNodeArray->firstILocal(); i <= (int)m_formationNodeArray->lastILocal(); ++i)
          {
             for (int j = (int)m_formationNodeArray->firstJLocal(); j <= (int)m_formationNodeArray->lastJLocal(); ++j)
             {
-               reservoirCrestDetected = getLocalFormationNode(i, j, upperIndex)->detectReservoirCrests(GAS);
+               reservoirCrestDetected = getLocalFormationNode(i, j, upperIndex)->detectReservoirCrests(OIL);
                if (reservoirCrestDetected) break;
             }
             if (reservoirCrestDetected) break;
          }
+
+         // Then gas 
+         if (!reservoirCrestDetected) 
+         {
+            for (int i = (int)m_formationNodeArray->firstILocal(); i <= (int)m_formationNodeArray->lastILocal(); ++i)
+            {
+               for (int j = (int)m_formationNodeArray->firstJLocal(); j <= (int)m_formationNodeArray->lastJLocal(); ++j)
+               {
+                  reservoirCrestDetected = getLocalFormationNode(i, j, upperIndex)->detectReservoirCrests(GAS);
+                  if (reservoirCrestDetected) break;
+               }
+               if (reservoirCrestDetected) break;
+            }       
+         }
+         RequestHandling::FinishRequestHandling ();
+      }
+      else
+      {
+         reservoirCrestDetected = m_detectedReservoir;
       }
 
-      RequestHandling::FinishRequestHandling ();
-      
-      m_detectedReservoir = MaximumAll ((int) reservoirCrestDetected);
-
-      return m_detectedReservoir;
+      return MaximumAll ((int) reservoirCrestDetected);
 
    }
 
    bool Formation::getDetectedReservoir () const
    {
       return m_detectedReservoir;
+   }
+   
+   void Formation::setDetectedReservoir (bool detectedReservoir)
+   {
+      m_detectedReservoir = detectedReservoir;
    }
 
    // add the detected reservoir to the reservoir vector
