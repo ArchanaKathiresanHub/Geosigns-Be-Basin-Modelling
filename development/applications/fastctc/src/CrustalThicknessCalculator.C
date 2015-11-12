@@ -146,7 +146,7 @@ void CrustalThicknessCalculator::deleteCTCPropertyValues()
 //------------------------------------------------------------//
 void CrustalThicknessCalculator::run() {
 
-   bool started = DataAccess::Interface::ProjectHandle::startActivity ( CrustalThicknessCalculatorActivityName, getHighResolutionOutputGrid (), true );
+   bool started = startActivity ( CrustalThicknessCalculatorActivityName, getHighResolutionOutputGrid (), true );
 
    if( !started ) {
       string s = "Can not start CrustalThicknessCalculator";
@@ -645,10 +645,16 @@ bool CrustalThicknessCalculator::movingAverageSmoothing( GridMap * aMap) {
   numberMap->restoreData();
   // aMap->restoreData(); will be restored at the end
 
-  delete columnMap;
+  delete [] columnMap[0];
+  delete [] columnMap[1];
+  delete [] columnMap;
+
+  delete [] numberMapCollect[0];
+  delete [] numberMapCollect[1];
+  delete [] numberMapCollect;
+
   delete sumMap;
   delete numberMap;
-  delete numberMapCollect;
 
   return status;
 }
