@@ -2267,6 +2267,18 @@ bool ProjectHandle::loadTrappers( void )
       Record * trapperRecord = *tblIter;
       m_trappers.push_back( getFactory()->produceTrapper( this, trapperRecord ) );
    }
+
+   // Sort trappers on id, so we can retrieve them more efficiently
+   struct CmpTrapId
+   {
+     bool operator()(const Trapper* lhs, const Trapper* rhs) const
+     {
+       return lhs->getId() < rhs->getId();
+     }
+   };
+
+   std::sort(m_trappers.begin(), m_trappers.end(), CmpTrapId());
+
    return true;
 }
 
@@ -4978,22 +4990,53 @@ bool ProjectHandle::connectUpAndDownstreamTrappers( void ) const
 Interface::Trapper * ProjectHandle::findTrapper( const Interface::MutableTrapperList & trappers, const Interface::Reservoir * reservoir,
    const Interface::Snapshot * snapshot, unsigned int id, unsigned int persistentId ) const
 {
-   Interface::MutableTrapperList::const_iterator trapperIter;
+  // Trappers are sorted on id, so when findTrapper() is called with an id != 0, we can use
+  // bisection to quickly find the location of the first trapper with that id. If id == 0,
+  // a (slow) linear search is performed.
+  struct CmpTrapId
+  {
+    bool operator()(const Trapper* trapper, unsigned int trapperId) const
+    {
+      return trapper->getId() < trapperId;
+    }
+  };
 
-   for ( trapperIter = trappers.begin(); trapperIter != trappers.end(); ++trapperIter )
-   {
-      Trapper * trapper = * trapperIter;
+  if (id != 0)
+  {
+    Interface::MutableTrapperList::const_iterator lower = std::lower_bound(
+      trappers.begin(),
+      trappers.end(),
+      id,
+      CmpTrapId());
 
-      if ( trapper->matchesConditions( (Reservoir *)reservoir, (Snapshot *)snapshot, id, persistentId ) )
-         return trapper;
-   }
-   return 0;
+    Interface::MutableTrapperList::const_iterator iter = lower;
+    for (; iter != trappers.end() && (*iter)->getId() == id; ++iter)
+    {
+      if ((*iter)->matchesConditions(reservoir, snapshot, id, persistentId))
+        return (*iter);
+    }
+
+    return 0;
+  }
+  else
+  {
+    Interface::MutableTrapperList::const_iterator trapperIter;
+
+    for (trapperIter = trappers.begin(); trapperIter != trappers.end(); ++trapperIter)
+    {
+      Trapper * trapper = *trapperIter;
+
+      if (trapper->matchesConditions((Reservoir *)reservoir, (Snapshot *)snapshot, id, persistentId))
+        return trapper;
+    }
+    return 0;
+  }
 }
 
 Interface::Trapper * ProjectHandle::findTrapper( const Interface::Reservoir * reservoir,
    const Interface::Snapshot * snapshot, unsigned int id, unsigned int persistentId ) const
 {
-   return findTrapper( m_trappers, reservoir, snapshot, id, persistentId );
+  return findTrapper( m_trappers, reservoir, snapshot, id, persistentId );
 }
 
 Interface::TrapperList* ProjectHandle::getTrappers(const Interface::Reservoir* reservoir, 
