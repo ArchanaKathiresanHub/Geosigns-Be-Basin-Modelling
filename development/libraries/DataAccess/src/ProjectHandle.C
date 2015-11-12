@@ -2258,6 +2258,14 @@ bool ProjectHandle::loadTraps( void )
    return true;
 }
 
+struct CmpTrapId
+{
+  bool operator()(const Trapper* lhs, const Trapper* rhs) const
+  {
+    return lhs->getId() < rhs->getId();
+  }
+};
+
 bool ProjectHandle::loadTrappers( void )
 {
    database::Table* trapperTbl = getTable( "TrapperIoTbl" );
@@ -2269,13 +2277,6 @@ bool ProjectHandle::loadTrappers( void )
    }
 
    // Sort trappers on id, so we can retrieve them more efficiently
-   struct CmpTrapId
-   {
-     bool operator()(const Trapper* lhs, const Trapper* rhs) const
-     {
-       return lhs->getId() < rhs->getId();
-     }
-   };
 
    std::sort(m_trappers.begin(), m_trappers.end(), CmpTrapId());
 
@@ -4986,6 +4987,13 @@ bool ProjectHandle::connectUpAndDownstreamTrappers( void ) const
    return true;
 }
 
+struct CmpTrapIdToValue
+{
+  bool operator()(const Trapper* trapper, unsigned int trapperId) const
+  {
+    return trapper->getId() < trapperId;
+  }
+};
 
 Interface::Trapper * ProjectHandle::findTrapper( const Interface::MutableTrapperList & trappers, const Interface::Reservoir * reservoir,
    const Interface::Snapshot * snapshot, unsigned int id, unsigned int persistentId ) const
@@ -4993,13 +5001,6 @@ Interface::Trapper * ProjectHandle::findTrapper( const Interface::MutableTrapper
   // Trappers are sorted on id, so when findTrapper() is called with an id != 0, we can use
   // bisection to quickly find the location of the first trapper with that id. If id == 0,
   // a (slow) linear search is performed.
-  struct CmpTrapId
-  {
-    bool operator()(const Trapper* trapper, unsigned int trapperId) const
-    {
-      return trapper->getId() < trapperId;
-    }
-  };
 
   if (id != 0)
   {
@@ -5007,7 +5008,7 @@ Interface::Trapper * ProjectHandle::findTrapper( const Interface::MutableTrapper
       trappers.begin(),
       trappers.end(),
       id,
-      CmpTrapId());
+      CmpTrapIdToValue());
 
     Interface::MutableTrapperList::const_iterator iter = lower;
     for (; iter != trappers.end() && (*iter)->getId() == id; ++iter)
