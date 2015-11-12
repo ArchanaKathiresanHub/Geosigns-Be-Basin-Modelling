@@ -20,6 +20,8 @@ message(STATUS "BLAS vendor is set to ${BLA_VENDOR}" )
 
 set( INTEL_MKL_ROOT "INTEL_MKL_ROOT-NOTFOUND" CACHE PATH "Path to Intel MKL" )
 
+message(STATUS "Intel MKL root is set to ${INTEL_MKL_ROOT}" )
+
 if (UNIX)
    if ( BLA_VENDOR STREQUAL "MKL" )
       set( BLAS_INCLUDE_DIRS "${BLAS_ROOT}/include" )
