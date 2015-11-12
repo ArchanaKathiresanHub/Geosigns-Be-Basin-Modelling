@@ -51,11 +51,12 @@ bool PrmLithologyProp::operator == ( const Parameter & prm ) const
    
    const double eps = 1.e-6;
 
+   if ( m_name != pp->m_name ) return false;
+   if ( m_propName != pp->m_propName ) return false;
+   if ( !NumericFunctions::isEqual( m_val,  pp->m_val,  eps ) ) return false;
+
    if ( m_lithosName.size() != pp->m_lithosName.size() ) return false;
    for ( size_t i = 0; i < m_lithosName.size(); ++i ) { if ( m_lithosName[i] != pp->m_lithosName[i] ) { return false; } }
-   
-   if ( m_propName  != pp->m_propName  ) return false;
-   if ( !NumericFunctions::isEqual( m_val,  pp->m_val,  eps ) ) return false;
 
    return true;
 }

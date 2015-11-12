@@ -40,7 +40,7 @@ namespace casa
 {
    class VarPrmSurfacePorosity;
 
-   /// @brief Source rock initial organic content parameter
+   /// @brief Lithology surface porosity parameter
    class PrmSurfacePorosity : public PrmLithologyProp
    {
    public:
@@ -50,7 +50,7 @@ namespace casa
       /// @param lithoName lithology name
       PrmSurfacePorosity( mbapi::Model & mdl, const std::string & lithoName );
 
-      /// @brief Constructor. Create parameter from variation of variable parameter
+      /// @brief Constructor. Create parameter object from the given parameter value
       /// @param parent pointer to a variable parameter which created this one
       /// @param lithoName lithology name
       /// @param surfPor value for surface porosity

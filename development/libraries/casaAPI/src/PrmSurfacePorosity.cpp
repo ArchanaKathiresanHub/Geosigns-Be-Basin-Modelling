@@ -114,7 +114,7 @@ ErrorHandler::ReturnCode PrmSurfacePorosity::setInModel( mbapi::Model & caldMode
 
          case mbapi::LithologyManager::PorSoilMechanics:
             porModelPrms[0] = m_val;
-            porModelPrms[1] = SMsp2cc( m_val ); // fill dependen parameter also
+            porModelPrms[1] = SMsp2cc( m_val ); // fill dependent parameter also
             break;
 
          default: return caldModel.reportError( ErrorHandler::OutOfRangeValue, "Unsupported porosity model" );
@@ -162,7 +162,8 @@ std::string PrmSurfacePorosity::validate( mbapi::Model & caldModel )
             if ( ! NumericFunctions::isEqual( SMsp2cc( m_val ), porModelPrms[1], 1e-3 ) )
             {
                oss << "Compaction coefficient for Soil Mechanics model for the lithology " << m_lithosName[i] << " in project: " << porModelPrms[1] << 
-                      " is differ from the parameter value: "  << SMsp2cc( m_val ) << std::endl;
+                      " is different from the parameter value: "  << SMsp2cc( m_val ) << ", they are related through a clay fraction and can't be defined" 
+                      << " independently." << std::endl;
             }
 
          case mbapi::LithologyManager::PorExponential:
@@ -170,7 +171,7 @@ std::string PrmSurfacePorosity::validate( mbapi::Model & caldModel )
             if ( ! NumericFunctions::isEqual( m_val, porModelPrms[0], 1.e-4 ) )
             {
                oss << "Surface porosity for lithology " << m_lithosName[i] << " in project: " << porModelPrms[0] << 
-                      " is differ from the parameter value: "  << m_val << std::endl;
+                      " is different from the parameter value: "  << m_val << std::endl;
             }
             break;
 

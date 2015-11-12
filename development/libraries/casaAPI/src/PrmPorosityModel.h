@@ -77,7 +77,7 @@ namespace casa
 {
    class VarPrmPorosityModel;
 
-   /// @brief Source rock initial organic content parameter
+   /// @brief Various parameters of lithology porosity model
    class PrmPorosityModel : public Parameter
    {
    public:

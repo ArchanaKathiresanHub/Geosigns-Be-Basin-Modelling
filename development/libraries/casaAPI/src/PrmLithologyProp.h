@@ -33,7 +33,7 @@ namespace casa
 {
    class VarPrmLithologyProp;
 
-   /// @brief Source rock initial organic content parameter
+   /// @brief Base class for lithology property parameter which can be represented as one double value
    class PrmLithologyProp : public Parameter
    {
    public:
