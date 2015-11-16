@@ -119,7 +119,7 @@ echo "Copying the source package to the remote host"
 scp -q -o StrictHostKeyChecking=no -o CheckHostIP=no ${local_host}:${tarfile} . || { echo "scp : error : Could not copy source archive"; exit 1; }
 
 echo "Untarring the source package"
-tar xzvf $tar || { echo "tar : error : Could not uncompress tarfile"; exit 1 ; }
+tar xzf $tar || { echo "tar : error : Could not uncompress tarfile"; exit 1 ; }
 
 echo "Configuring the package"
 ${CMAKE} \
@@ -128,6 +128,7 @@ ${CMAKE} \
    -DINTEL_MPI_ROOT=$MPIROOT \
    -DINTEL_MKL_ROOT=$MKLROOT \
    -DBM_UNIT_TEST_OUTPUT_DIR=. \
+   -DBLA_VENDOR=MKL \
    -DBM_CONFIG_PRESET=OFF \
    ${srcdir}/development \
    || { echo "CMake : error : Configuration of standalone package has failed" ; exit 1; }
