@@ -317,7 +317,7 @@ add_library( FastcauldronApplication
 add_executable(fastcauldron src/main.C ${all_headers})
 
 if (UNIX)
-add_dependencies(fastcauldron Boost PETSC)
+add_dependencies(FastcauldronApplication Boost PETSC)
 endif (UNIX)
 
 
