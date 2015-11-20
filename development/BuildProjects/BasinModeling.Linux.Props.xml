@@ -30,12 +30,12 @@ WARNING:  DO NOT MODIFY this file unless you are knowledgeable about MSBuild and
    </PropertyGroup>
 
    <!-- STANDARD UTILITIES -->
-   <PropertyGroup Label="StandardUtilities" >
+   <PropertyGroup Label="StandardUtilities">
       <!-- Look where is cygwin installed -->
       <cygwin_bin_dir  Condition="'$(cygwin_bin_dir)' == '' And Exists('C:\cygwin\bin')"     >C:\cygwin\bin\</cygwin_bin_dir>
       <cygwin_bin_dir  Condition="'$(cygwin_bin_dir)' == '' And Exists('D:\cygwin\bin')"     >D:\cygwin\bin\</cygwin_bin_dir>
       <cygwin_bin_dir  Condition="'$(cygwin_bin_dir)' == '' And Exists('C:\opt\cygwin\bin')" >C:\opt\cygwin\bin\</cygwin_bin_dir>
-      <cygwin_bin_dir  Condition="'$(cygwin_bin_dir)' == '' And Exists('C:\opt\cygwin64\bin')" >C:\opt\cygwin64\bin\</cygwin_bin_dir>^M
+      <cygwin_bin_dir  Condition="'$(cygwin_bin_dir)' == '' And Exists('C:\opt\cygwin64\bin')" >C:\opt\cygwin64\bin\</cygwin_bin_dir>
 
       <putty_dir Condition="'$(putty_dir)' == '' And Exists('C:\opt\putty')">C:\opt\putty</putty_dir>
 
