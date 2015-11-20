@@ -1,0 +1,580 @@
+//
+// Copyright (C) 2012-2015 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
+#include "DataAccessProject.h"
+
+#include <Interface/ProjectHandle.h>
+#include <Interface/ObjectFactory.h>
+#include <Interface/Grid.h>
+#include <Interface/Formation.h>
+#include <Interface/Surface.h>
+#include <Interface/Reservoir.h>
+#include <Interface/FaultCollection.h>
+#include <Interface/Faulting.h>
+#include <Interface/Trapper.h>
+#include <Interface/Property.h>
+#include <Interface/PropertyValue.h>
+
+#include <MeshVizXLM/mesh/data/MiDataSetIj.h>
+#include <MeshVizXLM/mesh/data/MiDataSetIjk.h>
+
+#include "Mesh.h"
+#include "Property.h"
+
+
+namespace di = DataAccess::Interface;
+
+int DataAccessProject::numCellsI() const
+{
+  return m_numCellsI;
+}
+
+int DataAccessProject::numCellsJ() const
+{
+  return m_numCellsJ;
+}
+
+int DataAccessProject::numCellsIHiRes() const
+{
+  return m_numCellsIHiRes;
+}
+
+int DataAccessProject::numCellsJHiRes() const
+{
+  return m_numCellsJHiRes;
+}
+
+double DataAccessProject::deltaX() const
+{
+  return m_deltaI;
+}
+
+double DataAccessProject::deltaY() const
+{
+  return m_deltaJ;
+}
+
+double DataAccessProject::deltaXHiRes() const
+{
+  return m_deltaIHiRes;
+}
+
+double DataAccessProject::deltaYHiRes() const
+{
+  return m_deltaJHiRes;
+}
+
+double DataAccessProject::minX() const
+{
+  return m_minX;
+}
+
+double DataAccessProject::minY() const
+{
+  return m_minY;
+}
+
+int DataAccessProject::getPropertyId(const std::string& name) const
+{
+  return m_propertyIdMap.at(name);
+}
+
+size_t DataAccessProject::getSnapshotCount() const
+{
+  return m_snapshotList.size();
+}
+
+Project::SnapshotContents DataAccessProject::getSnapshotContents(size_t snapshotIndex) const
+{
+  const di::Snapshot* snapshot = m_snapshotList[snapshotIndex];
+
+  SnapshotContents contents;
+
+  // Instead of looping over the formation list, we get all the formation depth values. This 
+  // allows us to also compute the minK and maxK values for each formation.
+  std::unique_ptr<di::PropertyValueList> depthValues(
+    m_depthProperty->getPropertyValues(
+      di::FORMATION, 
+      snapshot, 
+      nullptr, 
+      nullptr, 
+      nullptr));
+
+  int k = 0;
+  for (auto item : *depthValues)
+  {
+    const di::Formation* fmt = item->getFormation();
+    const di::GridMap* gridMap = item->getGridMap();
+
+    DataAccessProject::SnapshotFormation ssf;
+    auto iter = m_formationIdMap.find(fmt->getName());
+    if (iter == m_formationIdMap.end())
+      continue; // e.g. for basement formation
+
+    ssf.id = iter->second;
+    ssf.minK = k;
+    ssf.maxK = k + gridMap->getDepth() - 1;
+    contents.formations.push_back(ssf);
+
+    k = ssf.maxK;
+
+    // See if this formation has any reservoirs
+    std::unique_ptr<di::ReservoirList> reservoirList(m_projectHandle->getReservoirs(fmt));
+    for (auto res : *reservoirList)
+      contents.reservoirs.push_back(m_reservoirIdMap.at(res->getName()));
+  }
+
+  std::unique_ptr<di::SurfaceList> surfaceList(m_projectHandle->getSurfaces(snapshot));
+  for (auto item : *surfaceList)
+    contents.surfaces.push_back(m_surfaceIdMap.at(item->getName()));
+
+  return contents;
+}
+
+std::vector<const di::GridMap*> DataAccessProject::getFormationPropertyGridMaps(
+  size_t snapshotIndex,
+  const di::Property* prop,
+  bool formation3D) const
+{
+  const di::Snapshot* snapshot = m_snapshotList[snapshotIndex];
+
+  std::unique_ptr<di::PropertyValueList> values(prop->getPropertyValues(di::FORMATION, snapshot, 0, 0, 0));
+
+  // This is necessary to filter out duplicate entries in the property value list. For some reason the project3D file
+  // can contain multiple entries for the same property value, corresponding to multiple simulation runs. The HDF5 files
+  // get overwritten each time, so there's only one actual property value available anyway. Since the list is already 
+  // sorted by depo age, we can filter duplicates by checking the associated formations.
+  size_t n = std::distance(
+    values->begin(),
+    std::unique(
+      values->begin(),
+      values->end(),
+      [](const di::PropertyValue* v0, const di::PropertyValue* v1)
+        {
+          return v0->getFormation() == v1->getFormation();
+        }));
+
+  std::vector<const di::GridMap*> gridMaps;
+  for (auto value : *values)
+    gridMaps.push_back(value->getGridMap());
+
+  //size_t i = 0;
+  //for (auto fmt : snapshot.formations)
+  //{
+  //  const di::Formation* formation = m_formations[fmt.id].object;
+  //  const di::GridMap* gridMap = nullptr;
+  //  if (i < n && formation == (*values)[i]->getFormation())
+  //    gridMap = (*values)[i++]->getGridMap();
+
+  //  if (formation3D && gridMap)
+  //  {
+  //    gridMaps.push_back(gridMap);
+  //  }
+  //  else
+  //  {
+  //    for (int k = fmt.minK; k < fmt.maxK; ++k)
+  //      gridMaps.push_back(gridMap);
+  //  }
+  //}
+
+  return gridMaps;
+}
+
+void DataAccessProject::init()
+{
+  const std::string depthKey = "Depth";
+  const std::string resRockTopKey = "ResRockTop";
+  const std::string resRockBottomKey = "ResRockBottom";
+  const std::string resRockTrapIdKey = "ResRockTrapId";
+  const std::string resRockDrainageIdGasPhasePropertyKey = "ResRockDrainageIdGasPhase";
+  const std::string resRockDrainageIdFluidPhasePropertyKey = "ResRockDrainageIdFluidPhase";
+  const std::string flowDirectionKey = "FlowDirectionIJK";
+
+  m_depthProperty = m_projectHandle->findProperty(depthKey);
+  m_resRockTopProperty = m_projectHandle->findProperty(resRockTopKey);
+  m_resRockBottomProperty = m_projectHandle->findProperty(resRockBottomKey);
+  m_resRockTrapIdProperty = m_projectHandle->findProperty(resRockTrapIdKey);
+  m_resRockDrainageIdGasPhaseProperty = m_projectHandle->findProperty(resRockDrainageIdGasPhasePropertyKey);
+  m_resRockDrainageIdFluidPhaseProperty = m_projectHandle->findProperty(resRockDrainageIdFluidPhasePropertyKey);
+  m_flowDirectionProperty = m_projectHandle->findProperty(flowDirectionKey);
+
+  const di::Grid* loresGrid = m_projectHandle->getLowResolutionOutputGrid();
+  const di::Grid* hiresGrid = m_projectHandle->getHighResolutionOutputGrid();
+
+  m_numCellsI = loresGrid->numI() - 1;
+  m_numCellsJ = loresGrid->numJ() - 1;
+  m_numCellsIHiRes = hiresGrid->numI() - 1;
+  m_numCellsJHiRes = hiresGrid->numJ() - 1;
+  m_deltaI = loresGrid->deltaI();
+  m_deltaJ = loresGrid->deltaJ();
+  m_deltaIHiRes = hiresGrid->deltaI();
+  m_deltaJHiRes = hiresGrid->deltaJ();
+  m_minX = loresGrid->minI();
+  m_minY = loresGrid->minJ();
+
+  // Get snapshots
+  std::unique_ptr<di::SnapshotList> snapshots(m_projectHandle->getSnapshots());
+  m_snapshotList = *snapshots;
+
+  // Get all available formations
+  std::unique_ptr<di::FormationList> formations(m_projectHandle->getFormations());
+  m_formations = *formations;
+  int id = 0;
+  for (auto item : m_formations)
+  {
+    m_formationIdMap[item->getName()] = id++;
+
+    Formation fmt;
+    fmt.name = item->getName();
+    fmt.isSourceRock = item->isSourceRock();
+
+    m_projectInfo.formations.push_back(fmt);
+  }
+
+  // Get all available surfaces
+  std::unique_ptr<di::SurfaceList> surfaces(m_projectHandle->getSurfaces());
+  m_surfaces = *surfaces;
+  id = 0;
+  for (auto item : m_surfaces)
+  {
+    m_surfaceIdMap[item->getName()] = id++;
+
+    Surface surface;
+    surface.name = item->getName();
+    m_projectInfo.surfaces.push_back(surface);
+  }
+
+  // Get reservoirs
+  std::unique_ptr<di::ReservoirList> reservoirs(m_projectHandle->getReservoirs());
+  m_reservoirs = *reservoirs;
+  id = 0;
+  for (auto item : *reservoirs)
+  {
+    m_reservoirIdMap[item->getName()] = id++;
+
+    Reservoir reservoir;
+    reservoir.name = item->getName();
+    m_projectInfo.reservoirs.push_back(reservoir);
+  }
+
+  // Get faults
+  //std::unique_ptr<di::FaultCollectionList> faultCollections(m_projectHandle->getFaultCollections(0));
+  //for (auto coll : *faultCollections)
+  //{
+  //  std::unique_ptr<di::FaultList> faults(coll->getFaults());
+  //  for (auto item : *faults)
+  //  {
+  //    m_faultMap[
+  //      std::make_tuple(
+  //        coll->getName(),
+  //        item->getName())] = item;
+  //  }
+  //}
+
+  // Get properties
+  std::unique_ptr<di::PropertyList> properties(m_projectHandle->getProperties(true));
+  id = 0;
+  for (auto item : *properties)
+  {
+    const int allFlags = di::FORMATION | di::SURFACE | di::RESERVOIR | di::FORMATIONSURFACE;
+    const int allTypes = di::MAP | di::VOLUME;
+    if (item->hasPropertyValues(allFlags, 0, 0, 0, 0, allTypes))
+    {
+      Property prop = { item->getName(), item->getUnit() };
+      m_projectInfo.properties.push_back(prop);
+
+      m_properties.push_back(item);
+      m_propertyIdMap[item->getName()] = id++;
+    }
+  }
+}
+
+DataAccessProject::DataAccessProject(const std::string& path)
+{
+  m_objectFactory = std::make_shared<di::ObjectFactory>();
+  m_projectHandle.reset(di::OpenCauldronProject(path, "r", m_objectFactory.get()));
+
+  if (!m_projectHandle)
+    throw std::runtime_error("Could not open project");
+
+  init();
+}
+
+Project::ProjectInfo DataAccessProject::getProjectInfo() const
+{
+  return m_projectInfo;
+}
+
+// Utility function to get the maximum persistent trap id. This is useful for constructing
+// a colormap for the trap id property.
+unsigned int DataAccessProject::getMaxPersistentTrapId() const
+{
+  unsigned int maxPersistentId = 0;
+
+  std::unique_ptr<di::TrapperList> trappers(m_projectHandle->getTrappers(nullptr, nullptr, 0, 0));
+  for (auto trapper : *trappers)
+    maxPersistentId = std::max(maxPersistentId, trapper->getPersistentId());
+
+  return maxPersistentId;
+}
+
+std::shared_ptr<MiVolumeMeshCurvilinear> DataAccessProject::createSnapshotMesh(size_t snapshotIndex) const
+{
+  const di::Snapshot* snapshot = m_snapshotList[snapshotIndex];
+
+  std::vector<const di::GridMap*> depthMaps;
+
+  // Get a list of all the formation depth values in this snapshot. This list is already 
+  // sorted from top to bottom when we get it from DataAccess lib
+  std::unique_ptr<di::PropertyValueList> depthValues(
+    m_depthProperty->getPropertyValues(
+      di::FORMATION,
+      snapshot,
+      nullptr,
+      nullptr,
+      nullptr));
+
+  for (auto depthValue : *depthValues)
+  {
+    auto formation = depthValue->getFormation();
+    if (formation->kind() == di::BASEMENT_FORMATION)
+      continue;
+
+    depthMaps.push_back(depthValue->getGridMap());
+  }
+
+  if (depthMaps.empty())
+    return nullptr;
+
+  auto geometry = std::make_shared<SnapshotGeometry>(depthMaps);
+  auto topology = std::make_shared<SnapshotTopology>(geometry);
+  return std::make_shared<SnapshotMesh>(geometry, topology);
+}
+
+std::shared_ptr<MiVolumeMeshCurvilinear> DataAccessProject::createReservoirMesh(
+  size_t snapshotIndex, 
+  int reservoirId) const
+{
+  const di::Snapshot* snapshot = m_snapshotList[snapshotIndex];
+  const di::Reservoir* reservoir = m_reservoirs[reservoirId];
+
+  std::unique_ptr<di::PropertyValueList> topValues(m_projectHandle->getPropertyValues(
+    di::RESERVOIR, m_resRockTopProperty, snapshot, reservoir, 0, 0, di::MAP));
+  std::unique_ptr<di::PropertyValueList> bottomValues(m_projectHandle->getPropertyValues(
+    di::RESERVOIR, m_resRockBottomProperty, snapshot, reservoir, 0, 0, di::MAP));
+
+  //if (topValues && !topValues->empty() && bottomValues && !bottomValues->empty())
+  //  ; // TODO: throw exception
+
+  return std::make_shared<ReservoirMesh>(
+    (*topValues)[0]->getGridMap(), 
+    (*bottomValues)[0]->getGridMap());
+}
+
+std::shared_ptr<MiSurfaceMeshCurvilinear> DataAccessProject::createSurfaceMesh(
+  size_t snapshotIndex, 
+  int surfaceId) const
+{
+  const di::Snapshot* snapshot = m_snapshotList[snapshotIndex];
+  const di::Surface* surface = m_surfaces[surfaceId];
+
+  std::unique_ptr<di::PropertyValueList> values(m_projectHandle->getPropertyValues(
+    di::SURFACE, m_depthProperty, snapshot, 0, 0, surface, di::MAP));
+
+  assert(values->size() == 1); //TODO: should not be an assert
+
+  return std::make_shared<SurfaceMesh>((*values)[0]->getGridMap());
+}
+
+std::shared_ptr<MiDataSetIjk<double> > DataAccessProject::createFormationProperty(
+  size_t snapshotIndex, 
+  int propertyId) const
+{
+  if (propertyId < 0 || propertyId >= (int)m_projectInfo.properties.size())
+    return nullptr;
+
+  const di::Property* prop = m_properties[propertyId];
+  if (prop->getType() != di::FORMATIONPROPERTY)
+    return nullptr;
+
+  std::vector<const di::GridMap*> gridMaps = getFormationPropertyGridMaps(
+    snapshotIndex, prop, true);
+
+  if (gridMaps.empty())
+    return nullptr;
+
+  std::string name = prop->getName();
+  if (prop->getPropertyAttribute() == DataModel::FORMATION_2D_PROPERTY)
+    return std::make_shared<Formation2DProperty>(name, gridMaps);
+  else
+    return std::make_shared<FormationProperty>(name, gridMaps);
+}
+
+std::shared_ptr<MiDataSetIj<double> > DataAccessProject::createSurfaceProperty(
+  size_t snapshotIndex, 
+  int surfaceId,
+  int propertyId) const
+{
+  if (propertyId < 0 || propertyId >= (int)m_properties.size())
+    return nullptr;
+
+  const di::Property* prop = m_properties[propertyId];
+
+  if (!prop || prop->getPropertyAttribute() != DataModel::CONTINUOUS_3D_PROPERTY)
+    return nullptr;
+
+  const di::Snapshot* snapshot = m_snapshotList[snapshotIndex];
+  const di::Surface* surface = m_surfaces[surfaceId];
+
+  std::unique_ptr<di::PropertyValueList> values(
+    prop->getPropertyValues(di::SURFACE, snapshot, nullptr, nullptr, surface));
+
+  if (!values || values->empty())
+    return nullptr;
+
+  return std::make_shared<SurfaceProperty>(prop->getName(), (*values)[0]->getGridMap());
+}
+
+std::shared_ptr<MiDataSetIjk<double> > DataAccessProject::createReservoirProperty(
+  size_t snapshotIndex, 
+  int reservoirId,
+  int propertyId) const
+{
+  if (propertyId < 0 || propertyId >= (int)m_properties.size())
+    return nullptr;
+
+  const di::Property* prop = m_properties[propertyId];
+  //if (prop == m_resRockTrapIdProperty)
+  //  return createPersistentTrapIdProperty(snapshotIndex, reservoirId);
+
+  DataModel::PropertyAttribute attr = prop->getPropertyAttribute();
+  DataAccess::Interface::PropertyType type = prop->getType();
+
+  if (attr != DataModel::FORMATION_2D_PROPERTY || type != di::RESERVOIRPROPERTY)
+    return nullptr;
+
+  const di::Snapshot* snapshot = m_snapshotList[snapshotIndex];
+  const di::Reservoir* reservoir = m_reservoirs[reservoirId];
+
+  std::unique_ptr<di::PropertyValueList> values(
+    prop->getPropertyValues(di::RESERVOIR, snapshot, reservoir, nullptr, nullptr));
+
+  if (!values || values->empty())
+    return nullptr;
+
+  return std::make_shared<ReservoirProperty>(prop->getName(), (*values)[0]->getGridMap());
+
+}
+
+// A PersistentTrapIdProperty consists of the values of the ResRockTrapId property, combined with
+// a translation table to convert the regular trap ids to persistent trap ids. This function builds
+// the translation table, gets the ResRockTrapId values, and creates the PersistentTrapIdProperty.
+std::shared_ptr<MiDataSetIjk<double> > DataAccessProject::createPersistentTrapIdProperty(
+  size_t snapshotIndex,
+  int reservoirId) const
+{
+  const di::Snapshot* snapshot = m_snapshotList[snapshotIndex];
+  const di::Reservoir* reservoir = m_reservoirs[reservoirId];
+
+  // Create a mapping from id -> persistentId for all traps in this snapshot
+  std::unique_ptr<di::TrapperList> trappers(m_projectHandle->getTrappers(reservoir, snapshot, 0, 0));
+  if (trappers->empty())
+    return nullptr;
+
+  // Sort on id
+  std::sort(
+    trappers->begin(), 
+    trappers->end(),
+    [](const di::Trapper* t1, const di::Trapper* t2) 
+      { 
+        return t1->getId() < t2->getId(); 
+      });
+
+  // Create translation table
+  unsigned int minId = (*trappers)[0]->getId();
+  unsigned int maxId = (*trappers)[trappers->size() - 1]->getId();
+  unsigned int index = 0;
+  std::vector<unsigned int> table;
+  for (unsigned int id = minId; id <= maxId; ++id)
+  {
+    if (id == (*trappers)[index]->getId())
+      table.push_back((*trappers)[index++]->getPersistentId());
+    else
+      table.push_back(0); // add 0 if there is no trapper with this id
+  }
+
+  // Get the property values
+  std::unique_ptr<di::PropertyValueList> trapIdValues(
+    m_resRockTrapIdProperty->getPropertyValues(di::RESERVOIR, snapshot, reservoir, 0, 0));
+  if (trapIdValues->empty())
+    return nullptr;
+
+  const di::GridMap* trapIds = (*trapIdValues)[0]->getGridMap();
+  return std::make_shared<PersistentTrapIdProperty>(trapIds, table, minId);
+}
+
+std::shared_ptr<MiDataSetIjk<double> > DataAccessProject::createFlowDirectionProperty(size_t snapshotIndex) const
+{
+  if (!m_flowDirectionProperty)
+    return nullptr;
+
+  std::vector<const di::GridMap*> gridMaps = getFormationPropertyGridMaps(snapshotIndex, m_flowDirectionProperty, true);
+  if (gridMaps.empty())
+    return nullptr;
+
+  return std::make_shared<FormationProperty>("FlowDirectionIJK", gridMaps, GridMapCollection::SkipFirstK);
+}
+
+std::vector<Project::Trap> DataAccessProject::getTraps(size_t snapshotIndex, int reservoirId) const
+{
+  std::vector<Trap> traps;
+
+  auto snapshot = m_snapshotList[snapshotIndex];
+  auto reservoir = m_reservoirs[reservoirId];
+  std::unique_ptr<di::TrapperList> trapperList(m_projectHandle->getTrappers(reservoir, snapshot, 0, 0));
+  for (auto trapper : *trapperList)
+  {
+    Trap trap;
+
+    double x, y, z;
+    trapper->getSpillPointPosition(x, y);
+    z = -trapper->getSpillDepth();
+    trap.spillPoint = SbVec3f((float)(x - m_minX), (float)(y - m_minY), (float)z);
+
+    trapper->getPosition(x, y);
+    z = -trapper->getDepth();
+    trap.leakagePoint = SbVec3f((float)(x - m_minX), (float)(y - m_minY), (float)z);
+
+    trap.id = (int)trapper->getId();
+
+    const di::Trapper* dsTrapper = trapper->getDownstreamTrapper();
+    trap.downStreamId = (dsTrapper != 0) ? (int)dsTrapper->getId() : -1;
+
+    traps.push_back(trap);
+  }
+
+  std::sort(traps.begin(), traps.end(), [](const Trap& t0, const Trap& t1) { return t0.id < t1.id; });
+
+  return traps;
+}
+
+std::vector<SbVec2d> DataAccessProject::getFaultLine(int faultId) const
+{
+  const di::PointSequence& points = m_faults[faultId]->getFaultLine();
+
+  std::vector<SbVec2d> oivpoints;
+  oivpoints.reserve(points.size());
+  for (auto p : points)
+    oivpoints.emplace_back(
+    p(di::X_COORD) - m_minX,
+    p(di::Y_COORD) - m_minY);
+
+  return oivpoints;
+}

@@ -13,9 +13,8 @@
 
 #include "MainWindow.ui.h"
 
+#include <Visualization/Project.h>
 #include <Visualization/SceneGraphManager.h>
-
-#include <Interface/Interface.h>
 
 #include <QtGui/QMainWindow>
 
@@ -35,9 +34,8 @@ class MainWindow : public QMainWindow
   QLabel* m_timeLabel;
   QLabel* m_fpsLabel;
 
-  std::unique_ptr<DataAccess::Interface::ObjectFactory> m_factory;
-  std::unique_ptr<DataAccess::Interface::ProjectHandle> m_projectHandle;
-  std::unique_ptr<SceneGraphManager> m_sceneGraphManager;
+  std::shared_ptr<Project> m_project;
+  std::shared_ptr<SceneGraphManager> m_sceneGraphManager;
 
   static void fpsCallback(float fps, void* userData, SoQtViewer* viewer);
 

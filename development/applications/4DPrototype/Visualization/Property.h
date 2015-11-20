@@ -20,7 +20,9 @@
 
 #include <vector>
 
-class SnapshotTopology;
+class MiGeometryIjk;
+class MiTopologyIjk;
+class MiVolumeMeshCurvilinear;
 
 namespace DataAccess
 {
@@ -45,7 +47,10 @@ class FormationProperty : public MiDataSetIjk<double>
 
 public:
 
-  FormationProperty(const std::string& name, const std::vector<const DataAccess::Interface::GridMap*>& values);
+  FormationProperty(
+    const std::string& name, 
+    const std::vector<const DataAccess::Interface::GridMap*>& values,
+    GridMapCollection::Mapping mapping = GridMapCollection::SkipLastK);
 
   FormationProperty(const FormationProperty&) = delete;
 
@@ -299,8 +304,9 @@ public:
 */
 class FlowDirectionProperty : public MiDataSetIjk<MbVec3d>
 {
-  GridMapCollection m_values;
-  const SnapshotTopology& m_topology;
+  const MiDataSetIjk<double>& m_values;
+  const MiGeometryIjk& m_geometry;
+  const MiTopologyIjk& m_topology;
 
   MiDataSet::DataBinding m_binding;
 
@@ -313,8 +319,8 @@ class FlowDirectionProperty : public MiDataSetIjk<MbVec3d>
 public:
 
   FlowDirectionProperty(
-    const std::vector<const DataAccess::Interface::GridMap*>& values,
-    const SnapshotTopology& topology);
+    const MiDataSetIjk<double>& values,
+    const MiVolumeMeshCurvilinear& mesh);
 
   FlowDirectionProperty(const FlowDirectionProperty&) = delete;
 

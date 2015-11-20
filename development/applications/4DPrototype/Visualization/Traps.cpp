@@ -90,14 +90,7 @@ void Traps::setVerticalScale(float scale)
 }
 
 Traps::Traps()
-  : m_snapshot(0)
-  , m_reservoir(0)
-  , m_topValues(0)
-  , m_minI(0.0)
-  , m_minJ(0.0)
-  , m_deltaI(0.0)
-  , m_deltaJ(0.0)
-  , m_root(0)
+  : m_root(0)
   , m_spillpointsGroup(0)
   , m_spillpointsMaterial(0)
   , m_spillpointsMultiInstance(0)
@@ -107,18 +100,13 @@ Traps::Traps()
   , m_sphere(0)
   , m_spillRoutes(0)
   , m_verticalScale(1.f)
+  , m_radius(1.f)
 {
 
 }
 
-Traps::Traps(const di::Snapshot* snapshot, const di::Reservoir* reservoir, float verticalScale)
-  : m_snapshot(snapshot)
-  , m_reservoir(reservoir)
-  , m_topValues(0)
-  , m_minI(0.0)
-  , m_minJ(0.0)
-  , m_deltaI(0.0)
-  , m_deltaJ(0.0)
+Traps::Traps(const std::vector<Project::Trap>& traps, float radius, float verticalScale)
+  : m_traps(traps)
   , m_root(0)
   , m_spillpointsGroup(0)
   , m_spillpointsMaterial(0)
@@ -129,50 +117,16 @@ Traps::Traps(const di::Snapshot* snapshot, const di::Reservoir* reservoir, float
   , m_sphere(0)
   , m_spillRoutes(0)
   , m_verticalScale(verticalScale)
+  , m_radius(radius)
 {
-  const di::ProjectHandle* handle = snapshot->getProjectHandle();
-
-  const di::Grid* grid = handle->getHighResolutionOutputGrid();
-  m_deltaI = grid->deltaI();
-  m_deltaJ = grid->deltaJ();
-  m_minI = grid->minI();
-  m_minJ = grid->minJ();
-
-  const di::Property* top = handle->findProperty("ResRockTop");
-  std::unique_ptr<di::PropertyValueList> topValues(top->getPropertyValues(di::RESERVOIR, snapshot, reservoir, 0, 0));
-  if (topValues && !topValues->empty())
-  {
-    m_topValues = (*topValues)[0]->getGridMap();
-
-    init();
-  }
+  init();
 }
 
-SbVec3f Traps::getPosition(PositionType type, const DataAccess::Interface::Trapper* trapper) const
-{
-  double x, y;
-  if (type == SpillPointPosition)
-    trapper->getSpillPointPosition(x, y);
-  else
-    trapper->getPosition(x, y);
-
-  x -= m_minI;
-  y -= m_minJ;
-
-  double i = x / m_deltaI;
-  double j = y / m_deltaJ;
-  double z = -m_topValues->getValue(i, j, 0.0);
-
-  return SbVec3f((float)x, (float)y, (float)z);
-}
-
-void Traps::initSpheres(
-  const std::vector<SbVec3f>& spillPointPositions,
-  const std::vector<SbVec3f>& trapPositions)
+void Traps::initSpheres(const std::vector<SbVec3f>& spillPointPositions, const std::vector<SbVec3f>& trapPositions)
 {
   // Geometry to be instanced, shared between spillpoints and leakage points
   m_sphere = new SoAlgebraicSphere;
-  m_sphere->radius = (float)std::min(m_deltaI, m_deltaJ);
+  m_sphere->radius = m_radius;
 
   // Spill points
   m_spillpointsMaterial = new SoMaterial;
@@ -214,15 +168,14 @@ void Traps::initLineSet(const std::vector<SbVec3f>& vertices)
     p[0] = vertices[2 * i];
     p[3] = vertices[2 * i + 1];
 
-    float radius = (float)std::min(m_deltaI, m_deltaJ);
-    float len = 2 * radius;
-    float width = .5f * radius;
+    float len = 2 * m_radius;
+    float width = .5f * m_radius;
 
     SbVec3f v = p[3] - p[0];
     v.normalize();
 
     // Move head back so the arrow doesn't penetrate into the sphere
-    p[3] = p[3] - radius * v;
+    p[3] = p[3] - m_radius * v;
     p[1] = p[3] - len * v;
     SbVec3f vt(-v[1], v[0], 0.f);
     p[2] = p[1] - width * vt;
@@ -246,32 +199,37 @@ void Traps::init()
   std::vector<SbVec3f> trapPositions;
   std::vector<SbVec3f> vertices;
 
-  const di::ProjectHandle* handle = m_snapshot->getProjectHandle();
-
-  std::unique_ptr<di::TrapperList> trapperList(handle->getTrappers(m_reservoir, m_snapshot, 0, 0));
-  for (auto trapper : *trapperList)
-  {
-    SbVec3f spillPoint = getPosition(SpillPointPosition, trapper);
-    SbVec3f leakagePoint = getPosition(LeakagePointPosition, trapper);
-
-    spillPointPositions.push_back(spillPoint);
-    trapPositions.push_back(leakagePoint);
-
-    const di::Trapper* dsTrapper = trapper->getDownstreamTrapper();
-    if (dsTrapper != 0)
-    {
-      SbVec3f downStreamPoint = getPosition(LeakagePointPosition, dsTrapper);
-
-      vertices.push_back(spillPoint);
-      vertices.push_back(downStreamPoint);
-    }
-  }
-
   m_root = new SoSeparator;
   m_root->setName("traps");
 
-  if (!spillPointPositions.empty() || !trapPositions.empty())
-    initSpheres(spillPointPositions, trapPositions);
+  for (auto const& trap : m_traps)
+  {
+    spillPointPositions.push_back(trap.spillPoint);
+    trapPositions.push_back(trap.leakagePoint);
+  }
+
+  initSpheres(spillPointPositions, trapPositions);
+
+  for (auto const& trap : m_traps)
+  {
+    if (trap.downStreamId == -1)
+      continue;
+
+    auto iter = std::lower_bound(
+      m_traps.begin(),
+      m_traps.end(),
+      trap.downStreamId,
+      [](const Project::Trap& trap, int id)
+        {
+          return trap.id < id;
+        });
+
+    if (iter->id == trap.downStreamId)
+    {
+      vertices.push_back(trap.spillPoint);
+      vertices.push_back(iter->leakagePoint);
+    }
+  }
 
   if (!vertices.empty())
     initLineSet(vertices);

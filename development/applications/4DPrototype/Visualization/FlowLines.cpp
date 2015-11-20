@@ -2,14 +2,50 @@
 #include "Property.h"
 #include "Mesh.h"
 
-#include <Interface/GridMap.h>
-
 #include <Inventor/SbVec.h>
 #include <Inventor/nodes/SoLineSet.h>
 #include <MeshVizXLM/MbVec3.h>
 
-SoLineSet* generateFlowLines(const FlowDirectionProperty& values, int startK, const SnapshotTopology& topology)
+MbVec3d getCellCenter(const MiGeometryIjk& geometry, size_t i, size_t j, size_t k)
 {
+  return .125 * (
+    geometry.getCoord(i, j, k) +
+    geometry.getCoord(i + 1, j, k) +
+    geometry.getCoord(i, j + 1, k) +
+    geometry.getCoord(i + 1, j + 1, k) +
+    geometry.getCoord(i, j, k + 1) +
+    geometry.getCoord(i + 1, j, k + 1) +
+    geometry.getCoord(i, j + 1, k + 1) +
+    geometry.getCoord(i + 1, j + 1, k + 1));
+}
+
+MbVec3<int32_t> decodeFlowDirection(int code)
+{
+  if (code == 0 || code == (int)DataAccess::Interface::DefaultUndefinedMapValue)
+    return MbVec3<int32_t>();
+
+  code += 111;
+  int dk = code / 100 - 1;
+  int dj = (code % 100) / 10 - 1;
+  int di = (code % 10) - 1;
+
+  if (
+    dk <  0 || dk > 1 ||
+    dj < -1 || dj > 1 ||
+    di < -1 || di > 1)
+  {
+    return MbVec3<int32_t>();
+  }
+
+  return MbVec3<int32_t>(di, dj, dk);
+}
+
+
+SoLineSet* generateFlowLines(const MiDataSetIjk<double>& values, int startK, const MiVolumeMeshCurvilinear& mesh)
+{
+  const MiGeometryIjk& geometry = mesh.getGeometry();
+  const MiTopologyIjk& topology = mesh.getTopology();
+
   std::vector<SbVec3f> vertices;
   std::vector<int32_t> numVertices;
 
@@ -31,11 +67,12 @@ SoLineSet* generateFlowLines(const FlowDirectionProperty& values, int startK, co
 
         while (true)
         {
-          MbVec3d center = topology.getCellCenter(ii, jj, kk);
+          MbVec3d center = getCellCenter(geometry, ii, jj, kk);
           vertices.emplace_back((float)center[0], (float)center[1], (float)center[2]);
           nverts++;
 
-          MbVec3<int32_t> deltas = values.getDeltas(ii, jj, kk);
+          int code = (int)values.get(i, jj, kk);
+          MbVec3<int32_t> deltas = decodeFlowDirection(code);
           if (deltas[0] == 0 && deltas[1] == 0 && deltas[2] == 0)
             break;
 

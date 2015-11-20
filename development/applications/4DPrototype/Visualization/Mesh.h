@@ -239,20 +239,20 @@ public:
 /**
 * Represents the mesh for a single formation
 */
-class HexahedronMesh : public MiVolumeMeshCurvilinear
+class SnapshotMesh: public MiVolumeMeshCurvilinear
 {
-  std::shared_ptr<MiGeometryIjk> m_geometry;
-  std::shared_ptr<MiTopologyIjk> m_topology;
+  std::shared_ptr<SnapshotGeometry> m_geometry;
+  std::shared_ptr<SnapshotTopology> m_topology;
 
 public:
 
-  HexahedronMesh(
-    std::shared_ptr<MiGeometryIjk> geometry,
-    std::shared_ptr<MiTopologyIjk> topology);
+  SnapshotMesh(
+    std::shared_ptr<SnapshotGeometry> geometry,
+    std::shared_ptr<SnapshotTopology> topology);
 
-  const MiTopologyIjk& getTopology() const;
+  const SnapshotTopology& getTopology() const;
 
-  const MiGeometryIjk& getGeometry() const;
+  const SnapshotGeometry& getGeometry() const;
 };
 
 /**

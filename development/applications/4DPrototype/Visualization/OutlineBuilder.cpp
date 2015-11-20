@@ -10,11 +10,9 @@
 
 #include "OutlineBuilder.h"
 
-#include <Interface/GridMap.h>
-#include <Interface/Property.h>
-#include <Interface/PropertyValue.h>
-
 #include <Inventor/nodes/SoIndexedLineSet.h>
+#include <MeshVizXLM/mesh/geometry/MiGeometryIjk.h>
+#include <MeshVizXLM/mesh/data/MiDataSetIjk.h>
 
 namespace
 {
@@ -29,8 +27,6 @@ namespace
   }
 }
 
-namespace di = DataAccess::Interface;
-
 void OutlineBuilder::addVertex(unsigned int i, unsigned int j)
 {
   int32_t index = m_indexGrid[i + j * m_numI];
@@ -40,11 +36,9 @@ void OutlineBuilder::addVertex(unsigned int i, unsigned int j)
     index = (int)m_vertices.size();
     m_indexGrid[i + j * m_numI] = index;
 
-    double x = i * m_deltaX;
-    double y = j * m_deltaY;
-    double z = -m_depth->getValue(i, j);
+    MbVec3d p = m_geometry->getCoord(i, j, 0);
 
-    m_vertices.emplace_back((float)x, (float)y, (float)z);
+    m_vertices.emplace_back((float)p[0], (float)p[1], (float)p[2]);
   }
 
   m_indices.push_back(index);
@@ -58,45 +52,35 @@ void OutlineBuilder::addLine(unsigned int i0, unsigned int j0, unsigned int i1, 
   m_indices.push_back(-1);
 }
 
-OutlineBuilder::OutlineBuilder()
+OutlineBuilder::OutlineBuilder(unsigned int numI, unsigned int numJ)
   : m_indexGrid(0)
-  , m_values(0)
-  , m_depth(0)
-  , m_deltaX(.0f)
-  , m_deltaY(.0f)
-  , m_numI(0)
-  , m_numJ(0)
+  , m_geometry(0)
+  , m_data(0)
+  , m_numI(numI)
+  , m_numJ(numJ)
 {
-
+  m_indexGrid = new int32_t[m_numI * m_numJ];
 }
 
-SoIndexedLineSet* OutlineBuilder::createOutline(const di::GridMap* values, const di::GridMap* depth)
+OutlineBuilder::~OutlineBuilder()
 {
-  // Initialization
-  if (m_numI != values->numI() || m_numJ != values->numJ())
-  {
-    m_numI = values->numI();
-    m_numJ = values->numJ();
+  delete[] m_indexGrid;
+}
 
-    m_deltaX = values->deltaI();
-    m_deltaY = values->deltaJ();
-
-    delete[] m_indexGrid;
-    m_indexGrid = new int32_t[m_numI * m_numJ];
-  }
-
+SoIndexedLineSet* OutlineBuilder::createOutline(const MiDataSetIjk<double>* data, const MiGeometryIjk* geometry)
+{
   m_vertices.clear();
   m_indices.clear();
 
-  m_values = values;
-  m_depth = depth;
+  m_data = data;
+  m_geometry = geometry;
 
   // Clear grid
   for (size_t i = 0; i < m_numI * m_numJ; ++i)
     m_indexGrid[i] = -1;
 
   // First row
-  int id = (int)values->getValue(0u, 0u);
+  int id = (int)data->get(0u, 0u, 0u);
   if (isValid(id))
   {
     addLine(0, 1, 0, 0); // left
@@ -106,39 +90,39 @@ SoIndexedLineSet* OutlineBuilder::createOutline(const di::GridMap* values, const
   for (unsigned int i = 1; i < m_numI - 1; ++i)
   {
     int prevId = id;
-    id = (int)values->getValue(i, 0u);
+    id = (int)data->get(i, 0u, 0u);
     if (needLine(id, prevId))
       addLine(i, 1, i, 0); // left
     if (isValid(id))
       addLine(i, 0, i + 1, 0); // bottom
   }
 
-  id = (int)values->getValue(m_numI - 2, 0u);
+  id = (int)data->get(m_numI - 2, 0u, 0u);
   if (isValid(id))
     addLine(m_numI - 1, 1, m_numI - 1, 0);// add right
 
   // Middle rows
   for (unsigned int j = 1; j < m_numJ - 1; ++j)
   {
-    id = (int)values->getValue(0u, j);
+    id = (int)data->get(0u, j, 0u);
     if (isValid(id))
       addLine(0, j + 1, 0, j); // add left
-    int bottomId = (int)values->getValue(0u, j - 1);
+    int bottomId = (int)data->get(0u, j - 1, 0u);
     if (needLine(id, bottomId))
       addLine(0, j, 1, j); // add bottom
 
     for (unsigned int i = 1; i < m_numI - 1; ++i)
     {
       int prevId = id;
-      id = (int)values->getValue(i, j);
-      bottomId = (int)values->getValue(i, j - 1);
+      id = (int)data->get(i, j, 0u);
+      bottomId = (int)data->get(i, j - 1, 0u);
       if (needLine(prevId, id))
         addLine(i, j + 1, i, j); // add left
       if (needLine(bottomId, id))
         addLine(i, j, i + 1, j); // add bottom
     }
 
-    id = (int)values->getValue(m_numI - 2, j);
+    id = (int)data->get(m_numI - 2, j, 0u);
     if (isValid(id))
       addLine(m_numI - 1, j + 1, m_numI - 1, j); //add right
   }
@@ -146,7 +130,7 @@ SoIndexedLineSet* OutlineBuilder::createOutline(const di::GridMap* values, const
   // Last row
   for (unsigned int i = 0; i < m_numI - 1; ++i)
   {
-    id = (int)values->getValue(i, m_numJ - 2);
+    id = (int)data->get(i, m_numJ - 2, 0u);
     if (isValid(id))
       addLine(i, m_numJ - 1, i + 1, m_numJ - 1); //add top
   }
@@ -161,23 +145,3 @@ SoIndexedLineSet* OutlineBuilder::createOutline(const di::GridMap* values, const
   return lineSet;
 }
 
-SoIndexedLineSet* OutlineBuilder::createOutline(
-  const DataAccess::Interface::Snapshot* snapshot,
-  const DataAccess::Interface::Reservoir* reservoir,
-  const DataAccess::Interface::Property* valuesProperty,
-  const DataAccess::Interface::Property* depthProperty)
-{
-  std::unique_ptr<const di::PropertyValueList> values(
-    valuesProperty->getPropertyValues(di::RESERVOIR, snapshot, reservoir, 0, 0));
-
-  std::unique_ptr<const di::PropertyValueList> depth(
-    depthProperty->getPropertyValues(di::RESERVOIR, snapshot, reservoir, 0, 0));
-
-  if (!values || values->empty() || !depth || depth->empty())
-    return nullptr;
-
-  const di::GridMap* valuesGridMap = (*values)[0]->getGridMap();
-  const di::GridMap* depthGridMap = (*depth)[0]->getGridMap();
-
-  return createOutline(valuesGridMap, depthGridMap);
-}

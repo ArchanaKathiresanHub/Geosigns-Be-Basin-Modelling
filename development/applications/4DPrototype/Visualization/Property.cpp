@@ -9,6 +9,7 @@
 //
 
 #include "Property.h"
+#include "FlowLines.h"
 #include "Mesh.h"
 
 #include "Interface/GridMap.h"
@@ -17,8 +18,11 @@
 
 namespace di = DataAccess::Interface;
 
-FormationProperty::FormationProperty(const std::string& name, const std::vector<const di::GridMap*>& values)
-  : m_values(values, GridMapCollection::SkipLastK)
+FormationProperty::FormationProperty(
+  const std::string& name, 
+  const std::vector<const di::GridMap*>& values,
+  GridMapCollection::Mapping mapping)
+  : m_values(values, mapping)
   , m_name(name)
   , m_binding(MiDataSet::PER_CELL)
   , m_timestamp(MxTimeStamp::getTimeStamp())
@@ -397,44 +401,24 @@ double PersistentTrapIdProperty::getMax() const
 // FlowDirectionProperty
 //---------------------------------------------------------------------------------------
 FlowDirectionProperty::FlowDirectionProperty(
-  const std::vector<const DataAccess::Interface::GridMap*>& values,
-  const SnapshotTopology& topology)
-: m_values(values, GridMapCollection::SkipFirstK)
-, m_topology(topology)
-, m_binding(MiDataSet::PER_CELL)
-, m_numI(topology.getNumCellsI())
-, m_numJ(topology.getNumCellsJ())
-, m_numK(topology.getNumCellsK())
-, m_timestamp(MxTimeStamp::getTimeStamp())
+  const MiDataSetIjk<double>& values,
+  const MiVolumeMeshCurvilinear& mesh)
+  : m_values(values)
+  , m_geometry(mesh.getGeometry())
+  , m_topology(mesh.getTopology())
+  , m_binding(MiDataSet::PER_CELL)
+  , m_timestamp(MxTimeStamp::getTimeStamp())
 {
-}
-
-MbVec3<int32_t> FlowDirectionProperty::getDeltas(size_t i, size_t j, size_t k) const
-{
-  int code = (int)m_values.getValue(i, j, k);
-
-  if (code == 0 || code == (int)di::DefaultUndefinedMapValue)
-    return MbVec3<int32_t>();
-
-  code += 111;
-  int dk = code / 100 - 1;
-  int dj = (code % 100) / 10 - 1;
-  int di = (code % 10) - 1;
-
-  if (
-    dk <  0 || dk > 1 ||
-    dj < -1 || dj > 1 ||
-    di < -1 || di > 1)
-  {
-    return MbVec3<int32_t>();
-  }
-
-  return MbVec3<int32_t>(di, dj, dk);
+  m_numI = m_topology.getNumCellsI();
+  m_numJ = m_topology.getNumCellsJ();
+  m_numK = m_topology.getNumCellsK();
 }
 
 MbVec3d FlowDirectionProperty::get(size_t i0, size_t j0, size_t k0) const
 {
-  MbVec3<int32_t> deltas = getDeltas(i0, j0, k0);
+  int code = (int)m_values.get(i0, j0, k0);
+
+  MbVec3<int32_t> deltas = decodeFlowDirection(code);
   if (
     deltas[0] == 0 &&
     deltas[1] == 0 &&
@@ -456,8 +440,8 @@ MbVec3d FlowDirectionProperty::get(size_t i0, size_t j0, size_t k0) const
     return MbVec3d();
   }
 
-  MbVec3d p0 = m_topology.getCellCenter(i0, j0, k0);
-  MbVec3d p1 = m_topology.getCellCenter((size_t)i1, (size_t)j1, (size_t)k1);
+  MbVec3d p0 = getCellCenter(m_geometry, i0, j0, k0);
+  MbVec3d p1 = getCellCenter(m_geometry, (size_t)i1, (size_t)j1, (size_t)k1);
 
   return p1 - p0;
 }

@@ -338,22 +338,22 @@ bool SurfaceTopology::hasDeadCells() const
 }
 
 //--------------------------------------------------------------------------------------------------
-// HexahedronMesh
+// SnapshotMesh
 //--------------------------------------------------------------------------------------------------
-HexahedronMesh::HexahedronMesh(
-  std::shared_ptr<MiGeometryIjk> geometry,
-  std::shared_ptr<MiTopologyIjk> topology)
+SnapshotMesh::SnapshotMesh(
+  std::shared_ptr<SnapshotGeometry> geometry,
+  std::shared_ptr<SnapshotTopology> topology)
   : m_geometry(geometry)
   , m_topology(topology)
 {
 }
 
-const MiTopologyIjk& HexahedronMesh::getTopology() const
+const SnapshotTopology& SnapshotMesh::getTopology() const
 {
   return *m_topology;
 }
 
-const MiGeometryIjk& HexahedronMesh::getGeometry() const
+const SnapshotGeometry& SnapshotMesh::getGeometry() const
 {
   return *m_geometry;
 }

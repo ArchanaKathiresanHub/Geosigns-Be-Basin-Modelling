@@ -9,16 +9,7 @@ class SoMultipleInstance;
 class SoAlgebraicSphere;
 class SoIndexedLineSet;
 
-namespace DataAccess
-{
-  namespace Interface
-  {
-    class Snapshot;
-    class Reservoir;
-    class GridMap;
-    class Trapper;
-  }
-}
+#include "Project.h"
 
 #include <vector>
 
@@ -26,14 +17,7 @@ namespace DataAccess
 
 class Traps
 {
-  const DataAccess::Interface::Snapshot*  m_snapshot;
-  const DataAccess::Interface::Reservoir* m_reservoir;
-  const DataAccess::Interface::GridMap*   m_topValues;
-
-  double m_minI;
-  double m_minJ;
-  double m_deltaI;
-  double m_deltaJ;
+  std::vector<Project::Trap> m_traps;
 
   SoSeparator* m_root;
 
@@ -53,18 +37,9 @@ class Traps
   SoIndexedLineSet* m_spillRoutes;
 
   float m_verticalScale;
+  float m_radius;
 
-  enum PositionType
-  {
-    SpillPointPosition,
-    LeakagePointPosition
-  };
-
-  SbVec3f getPosition(PositionType type, const DataAccess::Interface::Trapper* trapper) const;
-
-  void initSpheres(
-    const std::vector<SbVec3f>& spillPointPositions,
-    const std::vector<SbVec3f>& leakagePointPositions);
+  void initSpheres(const std::vector<SbVec3f>& spillPointPositions, const std::vector<SbVec3f>& trapPositions);
 
   void initLineSet(const std::vector<SbVec3f>& vertices);
 
@@ -80,10 +55,7 @@ public:
 
   Traps();
 
-  Traps(
-    const DataAccess::Interface::Snapshot* snapshot,
-    const DataAccess::Interface::Reservoir* reservoir,
-    float verticalScale);
+  Traps(const std::vector<Project::Trap>& traps, float radius, float verticalScale);
 };
 
 #endif

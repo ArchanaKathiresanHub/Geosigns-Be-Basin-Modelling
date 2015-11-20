@@ -11,6 +11,7 @@
 #ifndef BPARENDERAREALISTENER_H_INCLUDED
 #define BPARENDERAREALISTENER_H_INCLUDED
 
+#include <Visualization/Project.h>
 #include <Visualization/SceneGraphManager.h>
 
 #include <RemoteViz/Rendering/RenderAreaListener.h>
@@ -25,8 +26,11 @@ class SceneExaminer;
 
 class BpaRenderAreaListener : public RenderAreaListener
 {
-  std::unique_ptr<DataAccess::Interface::ObjectFactory> m_factory;
-  std::unique_ptr<DataAccess::Interface::ProjectHandle> m_handle;
+  std::shared_ptr<DataAccess::Interface::ObjectFactory> m_factory;
+  std::shared_ptr<DataAccess::Interface::ProjectHandle> m_handle;
+
+  std::shared_ptr<Project> m_project;
+  Project::ProjectInfo m_projectInfo;
 
   SceneGraphManager m_sceneGraphManager;
   RenderArea*       m_renderArea;

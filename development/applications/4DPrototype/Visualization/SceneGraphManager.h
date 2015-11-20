@@ -12,7 +12,7 @@
 #define SCENEGRAPHMANAGER_H_INCLUDED
 
 #include "defines.h"
-
+#include "Project.h"
 #include "Traps.h"
 
 #include <map>
@@ -24,13 +24,11 @@
 #include <Inventor/SbColor.h>
 #include <MeshVizXLM/MbVec3.h>
 
-#include <Interface/Interface.h>
-
 class SnapshotGeometry;
 class SnapshotTopology;
 class FormationIdProperty;
 class FlowDirectionProperty;
-class HexahedronMesh;
+class SnapshotMesh;
 class SurfaceMesh;
 class ReservoirMesh;
 class ReservoirTopology;
@@ -76,13 +74,6 @@ class MiDataSetI;
 
 struct SnapshotInfo
 {
-  struct Formation
-  {
-    int id;
-    int minK;
-    int maxK;
-  };
-
   struct Chunk
   {
     int minK;
@@ -106,7 +97,7 @@ struct SnapshotInfo
     MoMesh* mesh;
     MoScalarSetIj* scalarSet;
     MoMeshSurface* surfaceMesh;
-    std::shared_ptr<SurfaceMesh> meshData;
+    std::shared_ptr<MiSurfaceMeshCurvilinear> meshData;
     std::shared_ptr<MiDataSetIj<double> > propertyData;
 
     Surface()
@@ -132,7 +123,7 @@ struct SnapshotInfo
     SoIndexedLineSet* drainageAreaOutlinesFluid;
     SoIndexedLineSet* drainageAreaOutlinesGas;
 
-    std::shared_ptr<ReservoirMesh> meshData;
+    std::shared_ptr<MiVolumeMeshCurvilinear> meshData;
     std::shared_ptr<MiDataSetIjk<double> > propertyData;
     
     Traps traps;
@@ -181,26 +172,25 @@ struct SnapshotInfo
     }
   };
 
+  size_t index; // index in snapshot list
+
+  int currentPropertyId;
+
   double minZ; // = max depth (negative)
   double maxZ;
-
-  const DataAccess::Interface::Snapshot* snapshot;
-  const DataAccess::Interface::Property* currentProperty;
-
-  std::shared_ptr<SnapshotGeometry> geometry;
-  std::shared_ptr<SnapshotTopology> topology;
 
   SoSeparator* root;
   SoSeparator* formationsRoot;
 
   MoMesh* mesh;
-  std::shared_ptr<HexahedronMesh> meshData;
+  std::shared_ptr<MiVolumeMeshCurvilinear> meshData;
 
   MoScalarSetIjk* scalarSet;
   std::shared_ptr<MiDataSetIjk<double> > scalarDataSet;
 
   MoVec3SetIjk* flowDirSet;
-  std::shared_ptr<FlowDirectionProperty> flowDirDataSet;
+  std::shared_ptr<MiDataSetIjk<double> > flowDirScalarSet;
+  std::shared_ptr<MiDataSetIjk<MbVec3<double> > > flowDirVectorSet;
 
   SoSwitch* sliceSwitch[3];
   MoMeshSlab* slice[3];
@@ -213,7 +203,8 @@ struct SnapshotInfo
   SoGroup* faultsGroup;
   SoGroup* slicesGroup;
 
-  std::vector<Formation> formations; 
+  std::vector<Project::SnapshotFormation> formations; 
+
   std::vector<Chunk> chunks;
   std::vector<Surface> surfaces;
   std::vector<Reservoir> reservoirs;
@@ -253,61 +244,15 @@ public:
 
 private:
 
-  template<class T>
-  struct ObjectInfo
-  {
-    const T* object;
-
-    int id;
-    bool visible;
-  };
-
-  typedef ObjectInfo<DataAccess::Interface::Formation> FormationInfo;
-  typedef ObjectInfo<DataAccess::Interface::Surface> SurfaceInfo;
-  typedef ObjectInfo<DataAccess::Interface::Reservoir> ReservoirInfo;
-  typedef ObjectInfo<DataAccess::Interface::Fault> FaultInfo;
-
-  const DataAccess::Interface::ProjectHandle* m_projectHandle;
-  const DataAccess::Interface::Property* m_depthProperty;
-  const DataAccess::Interface::Property* m_resRockTopProperty;
-  const DataAccess::Interface::Property* m_resRockBottomProperty;
-  const DataAccess::Interface::Property* m_resRockTrapIdProperty;
-  const DataAccess::Interface::Property* m_resRockDrainageIdGasPhaseProperty;
-  const DataAccess::Interface::Property* m_resRockDrainageIdFluidPhaseProperty;
-  const DataAccess::Interface::Property* m_flowDirectionProperty;
-  const DataAccess::Interface::Property* m_currentProperty;
-
-  int m_numI;
-  int m_numJ;
-  int m_numIHiRes;
-  int m_numJHiRes;
-
-  double m_deltaI;
-  double m_deltaJ;
-
-  double m_minX;
-  double m_minY;
-  double m_maxX;
-  double m_maxY;
-
-  unsigned int m_maxPersistentTrapId;
-
-  std::vector<const DataAccess::Interface::Snapshot*> m_snapshotList;
-
-  std::map<std::string, int> m_formationIdMap;
-  std::map<std::string, int> m_surfaceIdMap;
-  std::map<std::string, int> m_reservoirIdMap;
-  std::map<std::tuple<std::string, std::string>, int> m_faultIdMap;
-
-  std::vector<FormationInfo> m_formations;
-  std::vector<SurfaceInfo>   m_surfaces;
-  std::vector<ReservoirInfo> m_reservoirs;
-  std::vector<FaultInfo>     m_faults;
+  std::shared_ptr<Project> m_project;
+  Project::ProjectInfo m_projectInfo;
 
   std::list<SnapshotInfo> m_snapshotInfoCache;
   size_t m_maxCacheItems;
 
   std::shared_ptr<OutlineBuilder> m_outlineBuilder;
+
+  int m_currentPropertyId;
 
   bool m_showGrid;
   bool m_showTraps;
@@ -361,21 +306,10 @@ private:
 
   SoSwitch*       m_snapshotsSwitch;
 
-  std::vector<const DataAccess::Interface::GridMap*> getFormationPropertyGridMaps(
-    const SnapshotInfo& snapshot,
-    const DataAccess::Interface::Property* prop,
-    bool formation3D) const;
-  std::shared_ptr<MiDataSetIjk<double> > createFormation2DProperty(
-    const std::string& name,
-    const SnapshotInfo& snapshot,
-    const DataAccess::Interface::Property* prop) const;
-  std::shared_ptr<MiDataSetIjk<double> > createFormation3DProperty(
-    const std::string& name,
-    const SnapshotInfo& snapshot,
-    const DataAccess::Interface::Property* prop) const;
-  std::shared_ptr<MiDataSetIjk<double> > createFormationProperty(
-    const SnapshotInfo& snapshot,
-    const DataAccess::Interface::Property* prop) const;
+  std::vector<bool> m_formationVisibility;
+  std::vector<bool> m_surfaceVisibility;
+  std::vector<bool> m_reservoirVisibility;
+  std::vector<bool> m_faultVisibility;
 
   void updateCoordinateGrid();
   void updateSnapshotFormations();
@@ -390,11 +324,16 @@ private:
   void updateText();
   void updateSnapshot();
 
-  SnapshotInfo createSnapshotNode(const DataAccess::Interface::Snapshot* snapshot);
+  SnapshotInfo createSnapshotNode(size_t index);
     
-  void setupSnapshots();
   void setupCoordinateGrid();
   void setupSceneGraph();
+
+  std::shared_ptr<FaultMesh> generateFaultMesh(
+    const std::vector<SbVec2d>& points,
+    const MiVolumeMeshCurvilinear& mesh,
+    int k0,
+    int k1);
 
 public:
 
@@ -403,16 +342,6 @@ public:
   SoNode* getRoot() const;
 
   void setCurrentSnapshot(size_t index);
-
-  size_t getSnapshotCount() const;
-
-  int numI() const;
-
-  int numJ() const;
-
-  int numIHiRes() const;
-
-  int numJHiRes() const;
 
   SoCamera* getCamera() const;
 
@@ -424,17 +353,17 @@ public:
 
   void setRenderStyle(bool drawFaces, bool drawEdges);
 
-  void setProperty(const std::string& name);
+  void setProperty(int propertyId);
 
-  void enableFormation(const std::string& name, bool enabled);
+  void enableFormation(int formationId, bool enabled);
 
   void enableAllFormations(bool enabled);
 
-  void enableSurface(const std::string& name, bool enabled);
+  void enableSurface(int surfaceId, bool enabled);
 
   void enableAllSurfaces(bool enabled);
 
-  void enableReservoir(const std::string& name, bool enabled);
+  void enableReservoir(int reservoirId, bool enabled);
 
   void enableAllReservoirs(bool enabled);
 
@@ -456,7 +385,7 @@ public:
 
   void showFlowDirection(FlowVizType type);
 
-  void setup(const DataAccess::Interface::ProjectHandle* handle);
+  void setup(std::shared_ptr<Project> project);
 };
 
 #endif

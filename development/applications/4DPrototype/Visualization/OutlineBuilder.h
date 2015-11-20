@@ -16,17 +16,9 @@
 #include <Inventor/SbVec.h>
 
 class SoIndexedLineSet;
-
-namespace DataAccess
-{
-  namespace Interface
-  {
-    class GridMap;
-    class Reservoir;
-    class Snapshot;
-    class Property;
-  }
-}
+class MiGeometryIjk;
+template<class T>
+class MiDataSetIjk;
 
 class OutlineBuilder
 {
@@ -35,11 +27,8 @@ class OutlineBuilder
   std::vector<SbVec3f> m_vertices;
   std::vector<int32_t> m_indices;
 
-  const DataAccess::Interface::GridMap* m_values;
-  const DataAccess::Interface::GridMap* m_depth;
-
-  double m_deltaX;
-  double m_deltaY;
+  const MiGeometryIjk* m_geometry;
+  const MiDataSetIjk<double>* m_data;
 
   unsigned int m_numI;
   unsigned int m_numJ;
@@ -50,17 +39,16 @@ class OutlineBuilder
 
 public:
 
-  OutlineBuilder();
+  OutlineBuilder(unsigned int numI, unsigned int numJ);
+
+  ~OutlineBuilder();
+
+  OutlineBuilder(const OutlineBuilder&) = delete;
+  OutlineBuilder& operator=(const OutlineBuilder&) = delete;
 
   SoIndexedLineSet* createOutline(
-    const DataAccess::Interface::GridMap* values,
-    const DataAccess::Interface::GridMap* depth);
-
-  SoIndexedLineSet* createOutline(
-    const DataAccess::Interface::Snapshot* snapshot,
-    const DataAccess::Interface::Reservoir* reservoir,
-    const DataAccess::Interface::Property* valuesProperty,
-    const DataAccess::Interface::Property* depthProperty);
+    const MiDataSetIjk<double>* data,
+    const MiGeometryIjk* geometry);
 };
 
 #endif

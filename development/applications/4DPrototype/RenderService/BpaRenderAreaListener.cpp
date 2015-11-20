@@ -50,17 +50,12 @@ void BpaRenderAreaListener::createSceneGraph(const std::string& id)
   
   const std::string path = rootdir + id;
 
-  m_handle.reset(di::OpenCauldronProject(path, "r", m_factory.get()));
-
-  if (!m_handle)
-  {
-    std::cout << "Failed to load project!" << std::endl;
-    return;
-  }
+  m_project = Project::load(path);
+  m_projectInfo = m_project->getProjectInfo();
 
   std::cout << "Project loaded!" << std::endl;
 
-  m_sceneGraphManager.setup(m_handle.get());
+  m_sceneGraphManager.setup(m_project);
 
   SoGradientBackground* background = new SoGradientBackground;
   background->color0 = SbColor(.2f, .2f, .2f);
@@ -143,11 +138,11 @@ void BpaRenderAreaListener::sendProjectInfo() const
   // Assemble complete projectInfo structure
   jsonxx::Object projectInfo;
   projectInfo
-    << "snapshotCount" << (int)m_sceneGraphManager.getSnapshotCount()
-    << "numI" << m_sceneGraphManager.numI()
-    << "numJ" << m_sceneGraphManager.numJ()
-    << "numIHiRes" << m_sceneGraphManager.numIHiRes()
-    << "numJHiRes" << m_sceneGraphManager.numJHiRes()
+    << "snapshotCount" << (int)m_project->getSnapshotCount()
+    << "numI" << m_project->numCellsI()
+    << "numJ" << m_project->numCellsJ()
+    << "numIHiRes" << m_project->numCellsIHiRes()
+    << "numJHiRes" << m_project->numCellsJHiRes()
     << "formations" << formations
     << "surfaces" << surfaces
     << "reservoirs" << reservoirs
@@ -195,10 +190,10 @@ void BpaRenderAreaListener::onReceivedMessage(RenderArea* renderArea, Connection
 
   if (cmd == "EnableFormation")
   {
-    auto name = params.get<std::string>("name");
+    auto formationId = (int)params.get<jsonxx::Number>("formationId");
     auto enabled = params.get<bool>("enabled");
 
-    m_sceneGraphManager.enableFormation(name, enabled);
+    m_sceneGraphManager.enableFormation(formationId, enabled);
   }
   if (cmd == "EnableAllFormations")
   {
@@ -208,10 +203,10 @@ void BpaRenderAreaListener::onReceivedMessage(RenderArea* renderArea, Connection
   }
   else if (cmd == "EnableSurface")
   {
-    auto name = params.get<std::string>("name");
+    auto surfaceId = (int)params.get<jsonxx::Number>("surfaceId");
     auto enabled = params.get<bool>("enabled");
 
-    m_sceneGraphManager.enableSurface(name, enabled);
+    m_sceneGraphManager.enableSurface(surfaceId, enabled);
   }
   else if (cmd == "EnableAllSurfaces")
   {
@@ -221,10 +216,10 @@ void BpaRenderAreaListener::onReceivedMessage(RenderArea* renderArea, Connection
   }
   else if (cmd == "EnableReservoir")
   {
-    auto name = params.get<std::string>("name");
+    auto reservoirId = (int)params.get<jsonxx::Number>("reservoirId");
     auto enabled = params.get<bool>("enabled");
 
-    m_sceneGraphManager.enableReservoir(name, enabled);
+    m_sceneGraphManager.enableReservoir(reservoirId, enabled);
   }
   else if (cmd == "EnableAllReservoirs")
   {
@@ -262,9 +257,9 @@ void BpaRenderAreaListener::onReceivedMessage(RenderArea* renderArea, Connection
   }
   else if (cmd == "SetProperty")
   {
-    auto name = params.get<std::string>("name");
+    auto propertyId = (int)params.get<jsonxx::Number>("propertyId");
 
-    m_sceneGraphManager.setProperty(name);
+    m_sceneGraphManager.setProperty(propertyId);
   }
   else if (cmd == "SetVerticalScale")
   {

@@ -11,17 +11,6 @@
 #include "MainWindow.h"
 #include "GLInfoDialog.h"
   
-#include <Interface/ProjectHandle.h>
-#include <Interface/ObjectFactory.h>
-#include "Interface/Property.h"
-#include "Interface/Formation.h"
-#include "Interface/Reservoir.h"
-#include "Interface/Surface.h"
-#include "Interface/Snapshot.h"
-#include "Interface/Grid.h"
-#include "Interface/FaultCollection.h"
-#include "Interface/Faulting.h"
-
 #include <QtGui/QFileDialog>
 #include <QtGui/QMessageBox>
 #include <QtGui/QTreeWidget>
@@ -32,10 +21,6 @@
 #include <MeshViz/PoMeshViz.h>
 
 #include <Visualization/CameraUtil.h>
-
-namespace di = DataAccess::Interface;
-
-void exportData(const di::ProjectHandle* handle);
 
 namespace
 {
@@ -87,45 +72,46 @@ void MainWindow::loadProject(const QString& filename)
   m_sceneGraphManager.reset();
   closeProject();
 
+  std::string str = filename.toStdString();
+  std::cout << "Loading project " << str << std::endl;
+
+  if (filename.endsWith(".xml"))
   {
-    //std::string file = filename.toStdString();
-    QByteArray barray = filename.toLatin1();
-    const char* str = barray.data();
-    std::cout << "Loading project..." << std::endl;
-    m_projectHandle.reset(di::OpenCauldronProject(str, "r", m_factory.get()));
-    std::cout << "...done" << std::endl;
+    QFileInfo fileInfo(filename);
+    QDir::setCurrent(fileInfo.absoluteDir().absolutePath());
   }
+
+  m_project = Project::load(filename.toStdString());
 
   setWindowFilePath(filename);
 
   if (m_oivLicenseOK)
   {
     m_sceneGraphManager = std::make_unique<SceneGraphManager>();
-    m_sceneGraphManager->setup(m_projectHandle.get());
+    m_sceneGraphManager->setup(m_project);
     m_sceneGraphManager->setProjection(SceneGraphManager::PerspectiveProjection);
 
     m_ui.renderWidget->getViewer()->setSceneGraph(m_sceneGraphManager->getRoot());
 
     m_ui.snapshotSlider->setMinimum(0);
-    m_ui.snapshotSlider->setMaximum((int)m_sceneGraphManager->getSnapshotCount() - 1);
-    m_ui.snapshotSlider->setValue(m_ui.snapshotSlider->maximum());
+    m_ui.snapshotSlider->setMaximum((int)m_project->getSnapshotCount() - 1);
+    m_ui.snapshotSlider->setValue(0);
 
     m_ui.renderWidget->getViewer()->getGuiAlgoViewers()->viewAll();
-  }
 
-  updateUI();
+    updateUI();
+  }
 }
 
 void MainWindow::closeProject()
 {
-  if(m_projectHandle != 0)
+  if(m_project)
   {
-    //di::CloseCauldronProject(m_projectHandle.get());
-    //m_projectHandle = nullptr;
-
     m_ui.renderWidget->getViewer()->setSceneGraph(nullptr);
     m_ui.treeWidget->clear();
     m_ui.treeWidgetProperties->clear();
+
+    m_project.reset();
   }
 }
 
@@ -169,143 +155,82 @@ void MainWindow::updateUI()
   propertiesItem->setText(0, "Properties");
 
   // Add properties to parent node
-  std::unique_ptr<di::PropertyList> properties(m_projectHandle->getProperties(true));
-  if (properties && !properties->empty())
+  Project::ProjectInfo projectInfo = m_project->getProjectInfo();
+  for (auto prop : projectInfo.properties)
   {
-    for (size_t i = 0; i < properties->size(); ++i)
-    {
-      const di::Property* prop = (*properties)[i];
+    QTreeWidgetItem* item = new QTreeWidgetItem(propertiesItem, TreeWidgetItem_PropertyType);
+    item->setText(0, prop.name.c_str());
+    item->setText(1, prop.unit.c_str());
 
-      const int allFlags = di::FORMATION | di::SURFACE | di::RESERVOIR | di::FORMATIONSURFACE;
-      const int allTypes = di::MAP | di::VOLUME;
-      if (!prop->hasPropertyValues(allFlags, 0, 0, 0, 0, allTypes))
-        continue;
+    //  di::PropertyType type = prop->getType();
+    //  QString typeStr = "";
+    //  switch (type)
+    //  {
+    //  case di::FORMATIONPROPERTY: typeStr = "Formation"; break;
+    //  case di::RESERVOIRPROPERTY: typeStr = "Reservoir"; break;
+    //  case di::TRAPPROPERTY: typeStr = "Trap"; break;
+    //  }
+    //  item->setText(2, typeStr);
 
-      QTreeWidgetItem* item = new QTreeWidgetItem(propertiesItem, TreeWidgetItem_PropertyType);
-      item->setText(0, prop->getName().c_str());
-      item->setText(1, prop->getUnit().c_str());
-
-      di::PropertyType type = prop->getType();
-      QString typeStr = "";
-      switch (type)
-      {
-      case di::FORMATIONPROPERTY: typeStr = "Formation"; break;
-      case di::RESERVOIRPROPERTY: typeStr = "Reservoir"; break;
-      case di::TRAPPROPERTY: typeStr = "Trap"; break;
-      }
-      item->setText(2, typeStr);
-
-      DataModel::PropertyAttribute attr = prop->getPropertyAttribute();
-      QString attrStr = "";
-      switch (attr)
-      {
-      case DataModel::CONTINUOUS_3D_PROPERTY:     attrStr = "Continuous 3D"; break;
-      case DataModel::DISCONTINUOUS_3D_PROPERTY:  attrStr = "Discontinuous 3D"; break;
-      case DataModel::SURFACE_2D_PROPERTY:        attrStr = "Surface 2D"; break;
-      case DataModel::FORMATION_2D_PROPERTY:      attrStr = "Formation 2D"; break;
-      case DataModel::TRAP_PROPERTY:              attrStr = "Trap"; break;
-      case DataModel::UNKNOWN_PROPERTY_ATTRIBUTE: attrStr = "Unknown"; break;
-      }
-      item->setText(3, attrStr);
-    }
+    //  DataModel::PropertyAttribute attr = prop->getPropertyAttribute();
+    //  QString attrStr = "";
+    //  switch (attr)
+    //  {
+    //  case DataModel::CONTINUOUS_3D_PROPERTY:     attrStr = "Continuous 3D"; break;
+    //  case DataModel::DISCONTINUOUS_3D_PROPERTY:  attrStr = "Discontinuous 3D"; break;
+    //  case DataModel::SURFACE_2D_PROPERTY:        attrStr = "Surface 2D"; break;
+    //  case DataModel::FORMATION_2D_PROPERTY:      attrStr = "Formation 2D"; break;
+    //  case DataModel::TRAP_PROPERTY:              attrStr = "Trap"; break;
+    //  case DataModel::UNKNOWN_PROPERTY_ATTRIBUTE: attrStr = "Unknown"; break;
+    //  }
+    //  item->setText(3, attrStr);
+    //}
   }
-
-  m_ui.treeWidgetProperties->addTopLevelItem(propertiesItem);
-  propertiesItem->setExpanded(true);
 
   // Add formations to parent node
-  std::unique_ptr<di::FormationList> formations(m_projectHandle->getFormations(nullptr, false));
-  if (formations && !formations->empty())
+  for (auto formation : projectInfo.formations)
   {
-    for (size_t i = 0; i < formations->size(); ++i)
-    {
-      QTreeWidgetItem* item = new QTreeWidgetItem(formationsItem, TreeWidgetItem_FormationType);
-      item->setText(0, (*formations)[i]->getName().c_str());
-      item->setCheckState(0, Qt::Checked);
-
-      // Add reservoirs to parent formation
-      std::unique_ptr<di::ReservoirList> reservoirs((*formations)[i]->getReservoirs());
-      if (reservoirs && !reservoirs->empty())
-      {
-        QTreeWidgetItem* reservoirRoot = new QTreeWidgetItem(item);
-        reservoirRoot->setText(0, "Reservoirs");
-
-        for (size_t j = 0; j < reservoirs->size(); ++j)
-        {
-          QTreeWidgetItem* resItem = new QTreeWidgetItem(reservoirRoot, TreeWidgetItem_ReservoirType);
-          resItem->setText(0, (*reservoirs)[j]->getName().c_str());
-        }
-      }
-
-      // Add faults to parent formation
-      std::unique_ptr<di::FaultCollectionList> faultCollections((*formations)[i]->getFaultCollections());
-      if (faultCollections && !faultCollections->empty())
-      {
-        QTreeWidgetItem* faultRoot = new QTreeWidgetItem(item);
-        faultRoot->setText(0, "Faults");
-
-        for (size_t j = 0; j < faultCollections->size(); ++j)
-        {
-          QTreeWidgetItem* faultCollectionItem = new QTreeWidgetItem(faultRoot, TreeWidgetItem_FaultCollectionType);
-          faultCollectionItem->setText(0, (*faultCollections)[j]->getName().c_str());
-          faultCollectionItem->setCheckState(0, Qt::Unchecked);
-
-          std::unique_ptr<di::FaultList> faults((*faultCollections)[j]->getFaults());
-          for (size_t k = 0; k < faults->size(); ++k)
-          {
-            QTreeWidgetItem* faultItem = new QTreeWidgetItem(faultCollectionItem, TreeWidgetItem_FaultType);
-            faultItem->setText(0, (*faults)[k]->getName().c_str());
-            faultItem->setCheckState(0, Qt::Unchecked);
-          }
-        }
-      }
-    }
+    QTreeWidgetItem* item = new QTreeWidgetItem(formationsItem, TreeWidgetItem_FormationType);
+    item->setText(0, formation.name.c_str());
+    item->setCheckState(0, Qt::Checked);
   }
 
-  // Add surfaces to parent node
-  std::unique_ptr<di::SurfaceList> surfaces(m_projectHandle->getSurfaces());
-  if (surfaces && !surfaces->empty())
+  for (auto surface : projectInfo.surfaces)
   {
-    for (size_t i = 0; i < surfaces->size(); ++i)
-    {
-      QTreeWidgetItem* item = new QTreeWidgetItem(surfacesItem, TreeWidgetItem_SurfaceType);
-      item->setText(0, (*surfaces)[i]->getName().c_str());
-      item->setCheckState(0, Qt::Unchecked);
-    }
+    QTreeWidgetItem* item = new QTreeWidgetItem(surfacesItem, TreeWidgetItem_SurfaceType);
+    item->setText(0, surface.name.c_str());
+    item->setCheckState(0, Qt::Unchecked);
   }
 
-  // Add reservoirs to parent node
-  std::unique_ptr<di::ReservoirList> reservoirs(m_projectHandle->getReservoirs());
-  if (reservoirs && !reservoirs->empty())
+  for (auto reservoir : projectInfo.reservoirs)
   {
-    for (auto reservoir : *reservoirs)
-    {
-      QTreeWidgetItem* item = new QTreeWidgetItem(reservoirsItem, TreeWidgetItem_ReservoirType);
-      item->setText(0, reservoir->getName().c_str());
-      item->setCheckState(0, Qt::Unchecked);
-    }
+    QTreeWidgetItem* item = new QTreeWidgetItem(reservoirsItem, TreeWidgetItem_ReservoirType);
+    item->setText(0, reservoir.name.c_str());
+    item->setCheckState(0, Qt::Unchecked);
   }
 
   m_ui.treeWidget->addTopLevelItem(formationsItem);
   m_ui.treeWidget->addTopLevelItem(surfacesItem);
   m_ui.treeWidget->addTopLevelItem(reservoirsItem);
+  m_ui.treeWidgetProperties->addTopLevelItem(propertiesItem);
 
   formationsItem->setExpanded(true);
   surfacesItem->setExpanded(true);
   reservoirsItem->setExpanded(true);
+  propertiesItem->setExpanded(true);
 
   enableUI(true);
 
   m_snapshotCountLabel->setText(QString("%1 snapshots")
-    .arg(m_sceneGraphManager->getSnapshotCount()));
+    .arg(m_project->getSnapshotCount()));
   m_dimensionsLabel->setText(QString("Dimensions: %1x%2 / %3x%4")
-    .arg(m_sceneGraphManager->numI())
-    .arg(m_sceneGraphManager->numJ())
-    .arg(m_sceneGraphManager->numIHiRes())
-    .arg(m_sceneGraphManager->numJHiRes()));
+    .arg(m_project->numCellsI())
+    .arg(m_project->numCellsJ())
+    .arg(m_project->numCellsIHiRes())
+    .arg(m_project->numCellsJHiRes()));
 
-  m_ui.sliderSliceI->setMaximum(m_sceneGraphManager->numI() - 2);
-  m_ui.sliderSliceJ->setMaximum(m_sceneGraphManager->numJ() - 2);
+  m_ui.sliderSliceI->setMaximum(m_project->numCellsI() - 1);
+  m_ui.sliderSliceJ->setMaximum(m_project->numCellsJ() - 1);
 
   m_ui.checkBoxTraps->setChecked(false);
   m_ui.checkBoxTrapOutline->setChecked(false);
@@ -313,9 +238,9 @@ void MainWindow::updateUI()
 
   m_ui.radioButtonDrainageAreaFluid->setChecked(true);
   m_ui.radioButtonFlowVizNone->setChecked(true);
-  
+
   m_ui.sliderVerticalScale->setValue(0);
-  
+
   m_ui.checkBoxDrawGrid->setChecked(false);
   m_ui.checkBoxDrawFaces->setChecked(true);
   m_ui.checkBoxDrawEdges->setChecked(true);
@@ -377,7 +302,7 @@ void MainWindow::onActionOpenTriggered()
 {
   QString caption = "Open file";
   QString dir;
-  QString filter = "Cauldron project (*.project3d)";
+  QString filter = "Cauldron project (*.project3d *.xml)";
   QString filename = QFileDialog::getOpenFileName(this, "Open file", dir, filter);
 
   if(!filename.isNull())
@@ -518,8 +443,8 @@ void MainWindow::onActionSwitchPropertiesTriggered()
   int n = sizeof(propertyNames) / sizeof(const char*);
   for(int i=0; i < n; ++i)
   {
-    const di::Property* prop = m_projectHandle->findProperty(propertyNames[i]);
-    m_sceneGraphManager->setProperty(propertyNames[i]);
+    int id = m_project->getPropertyId(propertyNames[i]);
+    m_sceneGraphManager->setProperty(id);
     qApp->processEvents();
     m_ui.renderWidget->getViewer()->render();
   }
@@ -657,35 +582,35 @@ void MainWindow::onItemDoubleClicked(QTreeWidgetItem* item, int column)
     std::string name = item->text(0).toStdString();
     if (name == "HeatFlow")
     {
-      std::string suffix[] = { "X", "Y", "Z" };
-      const di::Property* props[3];
-      props[0] = m_projectHandle->findProperty(name + "X");
-      props[1] = m_projectHandle->findProperty(name + "Y");
-      props[2] = m_projectHandle->findProperty(name + "Z");
+      //std::string suffix[] = { "X", "Y", "Z" };
+      //const di::Property* props[3];
+      //props[0] = m_projectHandle->findProperty(name + "X");
+      //props[1] = m_projectHandle->findProperty(name + "Y");
+      //props[2] = m_projectHandle->findProperty(name + "Z");
 
-      bool ok = true;
-      for (int i = 0; i < 3; ++i)
-      {
-        props[i] = m_projectHandle->findProperty(name + suffix[i]);
-        ok = ok && (props[i] != 0 && props[i]->hasPropertyValues(di::FORMATION, 0, 0, 0, 0, di::VOLUME));
-      }
+      //bool ok = true;
+      //for (int i = 0; i < 3; ++i)
+      //{
+      //  props[i] = m_projectHandle->findProperty(name + suffix[i]);
+      //  ok = ok && (props[i] != 0 && props[i]->hasPropertyValues(di::FORMATION, 0, 0, 0, 0, di::VOLUME));
+      //}
 
-      if (ok)
-        ;// m_sceneGraphManager->setProperty(props);
-      else
-        std::cout << "No vector property values found for " << name << std::endl;
+      //if (ok)
+      //  ;// m_sceneGraphManager->setProperty(props);
+      //else
+      //  std::cout << "No vector property values found for " << name << std::endl;
 
     }
     else
     {
-      m_sceneGraphManager->setProperty(name);
+      m_sceneGraphManager->setProperty(item->parent()->indexOfChild(item));
     }
   }
 }
 
 void MainWindow::onShowGLInfo()
 {
-  exportData(m_projectHandle.get());
+  //exportData(m_projectHandle.get());
 
   GLInfoDialog dlg(this);
   dlg.exec();
@@ -698,16 +623,19 @@ void MainWindow::onTreeWidgetItemChanged(QTreeWidgetItem* item, int column)
 
   bool checked = item->checkState(0) == Qt::Checked;
 
+  QTreeWidgetItem* parent = item->parent();
+  int index = parent ? parent->indexOfChild(item) : 0;
+
   switch (item->type())
   {
   case TreeWidgetItem_FormationType:
-    m_sceneGraphManager->enableFormation(name, checked);
+    m_sceneGraphManager->enableFormation(index, checked);
     break;
   case TreeWidgetItem_SurfaceType:
-    m_sceneGraphManager->enableSurface(name, checked);
+    m_sceneGraphManager->enableSurface(index, checked);
     break;
   case TreeWidgetItem_ReservoirType:
-    m_sceneGraphManager->enableReservoir(name, checked);
+    m_sceneGraphManager->enableReservoir(index, checked);
     break;
   case TreeWidgetItem_FaultType:
     m_sceneGraphManager->enableFault(parentName, name, checked);
@@ -727,8 +655,6 @@ MainWindow::MainWindow()
   , m_dimensionsLabel(nullptr)
   , m_timeLabel(nullptr)
   , m_fpsLabel(nullptr)
-  , m_factory(new di::ObjectFactory)
-  , m_projectHandle(nullptr)
 {
   initOIV();
 

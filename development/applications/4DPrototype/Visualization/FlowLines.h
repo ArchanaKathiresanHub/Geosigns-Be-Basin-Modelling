@@ -2,8 +2,18 @@
 #define FLOWLINES_H_INCLUDED
 
 class SoLineSet;
-class SnapshotTopology;
-class FlowDirectionProperty;
+class MiVolumeMeshCurvilinear;
+class MiGeometryIjk;
+template<class T>
+class MiDataSetIjk;
+template<class T>
+class MbVec3;
+
+#include <cstdint>
+
+MbVec3<double> getCellCenter(const MiGeometryIjk& geometry, size_t i, size_t j, size_t k);
+
+MbVec3<int32_t> decodeFlowDirection(int code);
 
 /**
  * Generate a SoLineSet for a set of flowlines
@@ -14,8 +24,8 @@ class FlowDirectionProperty;
  *           of the cell centers, and the overall dimensions of the mesh
  */
 SoLineSet* generateFlowLines(
-  const FlowDirectionProperty& values,
-  int startK, 
-  const SnapshotTopology& topology);
+  const MiDataSetIjk<double>& values,
+  int startK,
+  const MiVolumeMeshCurvilinear& mesh);
 
 #endif
