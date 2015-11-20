@@ -20,8 +20,6 @@ message(STATUS "BLAS vendor is set to ${BLA_VENDOR}" )
 
 set( INTEL_MKL_ROOT "INTEL_MKL_ROOT-NOTFOUND" CACHE PATH "Path to Intel MKL" )
 
-message(STATUS "Intel MKL root is set to ${INTEL_MKL_ROOT}" )
-
 if (UNIX)
    if ( BLA_VENDOR STREQUAL "MKL" )
       set( BLAS_INCLUDE_DIRS "${BLAS_ROOT}/include" )
@@ -42,11 +40,20 @@ if (UNIX)
       endif()
 
    elseif( BLA_VENDOR STREQUAL "ATLAS" )
-      if ( EXISTS "/usr/include/atlas" )
+      if ( EXISTS "/usr/lib64/atlas-sse3" )
          set( BLAS_ROOT "/usr/lib64/atlas-sse3" CACHE PATH "Path to BLAS library" )
-         set( MKL_LIBRARIES "-L${BLAS_ROOT} -llapack -latlas" )
-         set( BLAS_FOUND ON )
+      elseif ( EXISTS "/usr/lib64/atals" )
+         set( BLAS_ROOT "/usr/lib64/atlas" CACHE PATH "Path to BLAS library" )
+      else ()
+         message( FATAL_ERROR "Can't find ATLAS library" )
       endif()
+      set( MKL_LIBRARIES "-L${BLAS_ROOT} -llapack -latlas" )
+      set( BLAS_FOUND ON )
+
+   elseif( BLA_VENDOR STREQUAL "OPENBLAS" )
+      set( BLAS_ROOT "/usr/lib64" CACHE PATH "Path to BLAS library" )
+      set( MKL_LIBRARIES "-L${BLAS_ROOT} -llapack -lblas" )
+      set( BLAS_FOUND ON )
 
    else()
       set( MKL_LIBRARIES "BLAS_LIBRARIES-NOTFOUND")

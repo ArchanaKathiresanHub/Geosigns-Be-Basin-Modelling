@@ -24,12 +24,19 @@ set(INTEL_CXX_ROOT "INTEL_CXX_ROOT-NOTFOUND" CACHE PATH "Path to Intel's compile
 set(INTEL_MPI_ROOT "INTEL_MPI_ROOT-NOTFOUND" CACHE PATH "Path to Intel MPI library" )
 set(INTEL_MKL_ROOT "INTEL_MKL_ROOT-NOTFOUND" CACHE PATH "Path to Intel MKL" )
 
-set(BLA_VENDOR "ATLAS")
+if ( EXISTS "/usr/include/atlas" )
+   set(BLA_VENDOR "ATLAS")
+elseif ( EXISTS "/usr/lib64/libblas.a" AND EXISTS "/usr/lib64/liblapack.a" )
+   set(BLA_VENDOR "OPENBLAS")
+else ()
+   message( FATA_ERROR "Could not find BLAS librar" )
+endif ()
 
 option(BM_USE_INTEL_COMPILER "Whether to use the Intel compiler (UNIX only)" OFF)
 option(BM_USE_INTEL_MPI "Whether to use the Intel MPI (UNIX only)" OFF)
 
 set(BM_CLOCK_GETTIME_LIB "-lrt")
+set(BM_DL_LIB "dl" )
 
 if (EXISTS "/opt/cauldron/hpc-library/flexlm/EPTFlexLm_v11.11.1" )
    set( FLEXLM_ROOT "/opt/cauldron/hpc-library/flexlm/EPTFlexLm_v11.11.1" CACHE PATH "Path to FlexLM directory" )

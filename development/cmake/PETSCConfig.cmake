@@ -45,7 +45,7 @@ add_external_project_to_repository(
 
 # Set the path to the include directory
 set(PETSC_INCLUDE_DIRS "${PETSC_ROOT}/include")
-set(PETSC_LIBRARIES "petsc" ${BLAS_LIBRARIES})
+set(PETSC_LIBRARIES "petsc" ${BLAS_LIBRARIES} ${BM_DL_LIB})
 
 
 add_external_package_info( 

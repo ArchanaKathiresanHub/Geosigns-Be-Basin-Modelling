@@ -96,9 +96,9 @@ namespace fasttouch
          const DataAccess::Interface::GridMap * GridMap;
          int faciesNumber;
       };
-                  
+
       typedef std::map < LayerInfo, faciesGridMap > LayerFaciesGridMap;
-			
+
       typedef std::map < std::string, LayerFaciesGridMap >  FileLayerFaciesGridMap;
 
    private:
@@ -135,7 +135,7 @@ namespace fasttouch
           
       /** save ts results to ts output directory */
 
-      void writeBurialHistory(const DataAccess::Interface::Surface * surface, WriteBurial::WriteBurial & WriteBurial, const faciesGridMap * faciesGridMap);
+      void writeBurialHistory(const DataAccess::Interface::Surface * surface, WriteBurial & writeBurial, const faciesGridMap * faciesGridMap);
          
       void writeResultsToGrids( int i, int j, const CategoryMapInfoList & currentOutputs, TouchstoneFiles & ReadTouchstone, size_t sn);
          

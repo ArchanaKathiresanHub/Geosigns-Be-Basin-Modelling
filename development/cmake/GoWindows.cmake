@@ -20,6 +20,7 @@ option( BM_USE_FLEXLM "Whether to require a license via FlexLM" OFF)
 set( INTEL_MKL_ROOT "${CMAKE_SOURCE_DIR}/../3rdparty/PETSc_Windows-3.4.4/lib/intel64" CACHE PATH "Location of Intel MKL")
 
 set(BM_CLOCK_GETTIME_LIB "")
+set(BM_DL_LIB "" )
 
 set( TSLIB_VERSION "7.4.2" CACHE STRING "Tslib version")
 set( TSLIB_ROOT "${buildToolDirectory}/geocosm" CACHE PATH "Path to Geocosm's TsLib" )

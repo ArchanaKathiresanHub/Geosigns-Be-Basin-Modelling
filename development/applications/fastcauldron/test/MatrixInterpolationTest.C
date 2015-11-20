@@ -35,7 +35,7 @@ void doTest ( const Interpolator& interp,
 
 TEST( MatrixInterpolationTest, InterpolatorDegree )
 {
-   ASSERT_EQ( 2, Interpolator::Degree );
+   ASSERT_EQ( 2U, Interpolator::Degree );
 
    Interpolator interp;
    Interpolator::CoefficientArray xs;
@@ -58,11 +58,11 @@ TEST( MatrixInterpolationTest, InterpolatorDegree )
 
 
 
-double zeroFunction ( const double x ) {
+double zeroFunction ( const double /*x*/ ) {
    return 0.0;
 }
 
-double constantFunction ( const double x ) {
+double constantFunction ( const double /*x*/ ) {
    return 2.0;
 }
 

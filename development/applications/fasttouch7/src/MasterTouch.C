@@ -284,7 +284,7 @@ bool MasterTouch::run()
       mkstemp(burhistFile);
    	
       {
-         WriteBurial WriteBurial(burhistFile);
+         WriteBurial writeBurial(burhistFile);
 	   	
          // for each defined node on reservoir surface  
          int firstI = m_projectHandle.getActivityOutputGrid()->firstI();
@@ -292,14 +292,14 @@ bool MasterTouch::run()
          int lastI  = m_projectHandle.getActivityOutputGrid()->lastI();
          int lastJ  = m_projectHandle.getActivityOutputGrid()->lastJ();
 	   	
-         WriteBurial.writeIndexes(firstI, lastI, firstJ, lastJ, layerFaciesGridMap->size( ));
-         WriteBurial.writeSnapshotsIndexes(m_usedSnapshotsIndex);
+         writeBurial.writeIndexes(firstI, lastI, firstJ, lastJ, layerFaciesGridMap->size( ));
+         writeBurial.writeSnapshotsIndexes(m_usedSnapshotsIndex);
 			
          //for each Layer			
          LayerFaciesGridMap::iterator outIt;
          for( outIt = layerFaciesGridMap->begin(); outIt != layerFaciesGridMap->end(); ++outIt )
          {			
-	    writeBurialHistory( (outIt->first).surface, WriteBurial, &m_fileLayerFaciesGridMap[filename][outIt->first]);
+	    writeBurialHistory( (outIt->first).surface, writeBurial, &m_fileLayerFaciesGridMap[filename][outIt->first]);
          }
       }
       
@@ -438,7 +438,7 @@ bool MasterTouch::addOutputFormat( const string & filename,
 
 /** This function writes burial histories to file for a formation **/
 
-void MasterTouch::writeBurialHistory( const Surface * surface, WriteBurial & WriteBurial, const faciesGridMap * faciesGridMap)
+void MasterTouch::writeBurialHistory( const Surface * surface, WriteBurial & writeBurial, const faciesGridMap * faciesGridMap)
 {
 
    // for each defined node on reservoir surface  
@@ -484,7 +484,7 @@ void MasterTouch::writeBurialHistory( const Surface * surface, WriteBurial & Wri
 		 	
          int iD = ( i - firstI )  * ( lastJ - firstJ + 1 ) + j;  
                   
-         WriteBurial.writeBurialHistory(burHistTimesteps, iD, writeFlag) ;
+         writeBurial.writeBurialHistory(burHistTimesteps, iD, writeFlag) ;
       }
    }
 	

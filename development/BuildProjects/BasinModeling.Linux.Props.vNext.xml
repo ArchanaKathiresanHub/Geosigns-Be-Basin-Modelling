@@ -8,7 +8,7 @@ WARNING:  DO NOT MODIFY this file unless you are knowledgeable about MSBuild and
 ***********************************************************************************************
 -->
 
-<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
    <!--  INFORMATION OF LINUX HOSTS TO BUILD ON -->			
    <PropertyGroup Label="Identification">
@@ -18,14 +18,14 @@ WARNING:  DO NOT MODIFY this file unless you are knowledgeable about MSBuild and
       <AgentAccount Condition="'$(AgentAccount)' == ''">s_bpac00</AgentAccount>
       <AgentKey Condition="'$(AgentKey)' == ''">C:\opt\putty\s_bpac00.tfs_build_server.ppk</AgentKey>
       <SWEast>/nfs/rvl/groups/ept-sg/SWEast/Cauldron</SWEast>
-      <RemoteSourceDir Condition="'$(RemoteSourceDir)' == ''">$(SWEast)/$(AgentAccount)/$(AgentName)/src</RemoteSourceDir>
-      <RemoteBuildDir  Condition="'$(RemoteBuildDir)' == ''">$(SWEast)/$(AgentAccount)/builds/$(BuildNumber)</RemoteBuildDir>
+      <RemoteSourceDir Condition="'$(RemoteSourceDir)' == ''">$(SWEast)/$(AgentAccount)/$(AgentName)/vso/src</RemoteSourceDir>
+      <RemoteBuildDir  Condition="'$(RemoteBuildDir)' == ''">$(SWEast)/$(AgentAccount)/builds/vso/$(BuildNumber)</RemoteBuildDir>
 
       <!-- Same variables based on alternative credentials -->
       <AgentAccountAlt    Condition="'$(AgentAccountAlt)' == ''">s_bpac00</AgentAccountAlt>
       <AgentKeyAlt        Condition="'$(AgentKeyAlt)' == ''">C:\opt\putty\s_bpac00.tfs_build_server.ppk</AgentKeyAlt>
-      <RemoteSourceDirAlt Condition="'$(RemoteSourceDirAlt)' == ''">$(SWEast)/$(AgentAccountAlt)/$(AgentName)/src</RemoteSourceDirAlt>
-      <RemoteBuildDirAlt  Condition="'$(RemoteBuildDirAlt)' == ''">$(SWEast)/$(AgentAccountAlt)/builds/$(BuildNumber)</RemoteBuildDirAlt>
+      <RemoteSourceDirAlt Condition="'$(RemoteSourceDirAlt)' == ''">$(SWEast)/$(AgentAccountAlt)/$(AgentName)/vso/src</RemoteSourceDirAlt>
+      <RemoteBuildDirAlt  Condition="'$(RemoteBuildDirAlt)' == ''">$(SWEast)/$(AgentAccountAlt)/builds/vso/$(BuildNumber)</RemoteBuildDirAlt>
       <RemoteTestResults  Condition="'$(RemoteTestResults)' == ''">$(RemoteBuildDirAlt)/share/UnitTestResults</RemoteTestResults>
    </PropertyGroup>
 
@@ -35,7 +35,7 @@ WARNING:  DO NOT MODIFY this file unless you are knowledgeable about MSBuild and
       <cygwin_bin_dir  Condition="'$(cygwin_bin_dir)' == '' And Exists('C:\cygwin\bin')"     >C:\cygwin\bin\</cygwin_bin_dir>
       <cygwin_bin_dir  Condition="'$(cygwin_bin_dir)' == '' And Exists('D:\cygwin\bin')"     >D:\cygwin\bin\</cygwin_bin_dir>
       <cygwin_bin_dir  Condition="'$(cygwin_bin_dir)' == '' And Exists('C:\opt\cygwin\bin')" >C:\opt\cygwin\bin\</cygwin_bin_dir>
-      <cygwin_bin_dir  Condition="'$(cygwin_bin_dir)' == '' And Exists('C:\opt\cygwin64\bin')" >C:\opt\cygwin64\bin\</cygwin_bin_dir>^M
+      <cygwin_bin_dir  Condition="'$(cygwin_bin_dir)' == '' And Exists('C:\opt\cygwin64\bin')" >C:\opt\cygwin\bin\</cygwin_bin_dir>
 
       <putty_dir Condition="'$(putty_dir)' == '' And Exists('C:\opt\putty')">C:\opt\putty</putty_dir>
 
@@ -160,7 +160,7 @@ WARNING:  DO NOT MODIFY this file unless you are knowledgeable about MSBuild and
                     Flavor="$(Configuration)"
                     Platform="$(Platform)"
                     Style="$(JUnitTrxConversionStyle)"
-                    TeamProjectCollectionUrl="$(TeamFoundationServerUrl)"
+                    TeamProjectCollectionUrl="$(SYSTEM_TEAMFOUNDATIONCOLLECTIONURI)"
                     TestResultsRoot="$(TestResultsRoot)">
 	      <!-- This Task comes from the Visual Studio Team Foundation Server 2012 Update 2 Build Extensions 
 	           (see http://visualstudiogallery.msdn.microsoft.com/45b4e378-5b81-4186-9b7f-21cc5c2f743d)

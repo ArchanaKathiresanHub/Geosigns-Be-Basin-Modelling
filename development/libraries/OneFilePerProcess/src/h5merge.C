@@ -9,6 +9,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <unistd.h>
 
 bool copyFile( const std::string & dstPath, const std::string & curPath )    
 {

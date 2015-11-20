@@ -44,7 +44,7 @@ if(UNIX)
    set(HDF5_INCLUDE_DIR ${HDF5_ROOT}/include)
    set(HDF5_INCLUDE_DIRS)
    list(APPEND HDF5_INCLUDE_DIRS ${HDF5_INCLUDE_DIR} ${MPI_INCLUDE_DIRS})
-   set(HDF5_LIBRARIES "hdf5" "hdf5_hl" "z")
+   set(HDF5_LIBRARIES "hdf5" "hdf5_hl" "z" ${BM_DL_LIB} )
   
 else() # WIN32
 

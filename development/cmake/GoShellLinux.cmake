@@ -41,6 +41,7 @@ option(BM_USE_INTEL_COMPILER "Whether to use the Intel compiler (UNIX only)" ON)
 option(BM_USE_INTEL_MPI "Whether to use the Intel MPI (UNIX only)" ON)
 
 set(BM_CLOCK_GETTIME_LIB "")
+set(BM_DL_LIB "" )
 
 set(BLA_VENDOR "MKL")
 

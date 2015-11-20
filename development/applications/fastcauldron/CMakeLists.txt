@@ -317,7 +317,9 @@ add_library( FastcauldronApplication
 add_executable(fastcauldron src/main.C ${all_headers})
 
 if (UNIX)
-add_dependencies(FastcauldronApplication Boost PETSC)
+add_dependencies(FastcauldronApplication TableIO Boost PETSC)
+else (WIN32)
+add_dependencies(FastcauldronApplication TableIO)
 endif (UNIX)
 
 
@@ -369,7 +371,7 @@ target_link_libraries(fastcauldron
 	genex6
 	genex6_kernel	
 	GeoPhysics
-	calibration_kernel	
+	calibration_kernel
 	OTGC_kernel6
 	${HDF5_LIBRARIES}
 	${PETSC_LIBRARIES}

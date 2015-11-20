@@ -26,7 +26,7 @@ include_directories(
    ${HDF5_INCLUDE_DIRS}
 )
 
-bm_include_libraries( 
+bm_include_libraries(
    DataModel
    CBMGenerics
    Serial_Hdf5
@@ -37,6 +37,8 @@ bm_include_libraries(
    FileSystem
    utilities
 )
+
+add_dependencies(Cauldron DataModel CBMGenerics Serial_Hdf5 TableIO DataAccess cmbAPI casaAPI FileSystem utilities)
 
 set(CMAKE_SWIG_OUTDIR ${CMAKE_CURRENT_BINARY_DIR}/csharp)
 

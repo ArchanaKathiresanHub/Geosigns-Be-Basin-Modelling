@@ -100,6 +100,7 @@ target_link_libraries(touchstoneWrapper
 	${TSLIB_LIBRARIES}
 	${XERCES_LIBRARIES}
 	utilities
+	${BM_DL_LIB}
 )
 
 install(TARGETS touchstoneWrapper
