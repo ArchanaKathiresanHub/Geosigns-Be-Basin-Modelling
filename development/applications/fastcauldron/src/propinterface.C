@@ -308,7 +308,7 @@ void AppCtx::CheckForStartInDebugger(int *argc, char ***args)
      else if ( Start_In_DDD )
      {
        cout << "Attaching ddd to " << *args[ 0 ] << " (pid: " << Process_Id << ") Please wait..." << endl;
-       Debug_Command = "/glb/home/ksaho3/bin/myddd " + string( *args[ 0 ] ) + " " + Process_Id + "&";
+       Debug_Command = "/apps/3rdparty/share/ddd " + string( *args[ 0 ] ) + " " + Process_Id + "&";
        
        system( Debug_Command.c_str() );
        sleep(10);
