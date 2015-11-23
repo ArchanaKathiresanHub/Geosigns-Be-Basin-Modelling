@@ -162,27 +162,26 @@ std::vector<const di::GridMap*> DataAccessProject::getFormationPropertyGridMaps(
         }));
 
   std::vector<const di::GridMap*> gridMaps;
-  for (auto value : *values)
-    gridMaps.push_back(value->getGridMap());
+  std::unique_ptr<di::FormationList> formationList(m_projectHandle->getFormations(snapshot));
+  size_t i = 0;
+  for (auto formation : *formationList)
+  {
+    const di::GridMap* gridMap = nullptr;
+    if (i < n && formation == (*values)[i]->getFormation())
+      gridMap = (*values)[i++]->getGridMap();
 
-  //size_t i = 0;
-  //for (auto fmt : snapshot.formations)
-  //{
-  //  const di::Formation* formation = m_formations[fmt.id].object;
-  //  const di::GridMap* gridMap = nullptr;
-  //  if (i < n && formation == (*values)[i]->getFormation())
-  //    gridMap = (*values)[i++]->getGridMap();
-
-  //  if (formation3D && gridMap)
-  //  {
-  //    gridMaps.push_back(gridMap);
-  //  }
-  //  else
-  //  {
-  //    for (int k = fmt.minK; k < fmt.maxK; ++k)
-  //      gridMaps.push_back(gridMap);
-  //  }
-  //}
+    if (formation3D && gridMap)
+    {
+      gridMaps.push_back(gridMap);
+    }
+    else
+    {
+      int id = m_formationIdMap.at(formation->getName());
+      int n = m_projectInfo.formations[id].numCellsK;
+      for (int k = 0; k < n; ++k)
+        gridMaps.push_back(gridMap);
+    }
+  }
 
   return gridMaps;
 }
@@ -224,16 +223,22 @@ void DataAccessProject::init()
   m_snapshotList = *snapshots;
 
   // Get all available formations
-  std::unique_ptr<di::FormationList> formations(m_projectHandle->getFormations());
-  m_formations = *formations;
+  std::unique_ptr<di::PropertyValueList> formationDepthValues(
+    m_depthProperty->getPropertyValues(di::FORMATION, m_snapshotList[0], 0, 0, 0));
   int id = 0;
-  for (auto item : m_formations)
+  for (auto depthValue : *formationDepthValues)
   {
-    m_formationIdMap[item->getName()] = id++;
+    auto formation = depthValue->getFormation();
+    if (formation->kind() == di::BASEMENT_FORMATION)
+      continue;
+
+    m_formations.push_back(formation);
+    m_formationIdMap[formation->getName()] = id++;
 
     Formation fmt;
-    fmt.name = item->getName();
-    fmt.isSourceRock = item->isSourceRock();
+    fmt.name = formation->getName();
+    fmt.numCellsK = depthValue->getGridMap()->getDepth() - 1;
+    fmt.isSourceRock = formation->isSourceRock();
 
     m_projectInfo.formations.push_back(fmt);
   }
@@ -404,14 +409,15 @@ std::shared_ptr<MiDataSetIjk<double> > DataAccessProject::createFormationPropert
   if (prop->getType() != di::FORMATIONPROPERTY)
     return nullptr;
 
+  bool formation2D = prop->getPropertyAttribute() == DataModel::FORMATION_2D_PROPERTY;
   std::vector<const di::GridMap*> gridMaps = getFormationPropertyGridMaps(
-    snapshotIndex, prop, true);
+    snapshotIndex, prop, !formation2D);
 
   if (gridMaps.empty())
     return nullptr;
 
   std::string name = prop->getName();
-  if (prop->getPropertyAttribute() == DataModel::FORMATION_2D_PROPERTY)
+  if (formation2D)
     return std::make_shared<Formation2DProperty>(name, gridMaps);
   else
     return std::make_shared<FormationProperty>(name, gridMaps);

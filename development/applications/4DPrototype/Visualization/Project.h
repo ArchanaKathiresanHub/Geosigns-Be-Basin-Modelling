@@ -35,6 +35,7 @@ public:
   struct Formation
   {
     std::string name;
+    int numCellsK;
     bool isSourceRock;
   };
 

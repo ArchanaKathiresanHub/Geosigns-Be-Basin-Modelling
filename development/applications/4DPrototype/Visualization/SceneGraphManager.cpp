@@ -53,8 +53,6 @@
 
 #include <memory>
 
-namespace di = DataAccess::Interface;
-
 SoSwitch* createCompass();
 
 SnapshotInfo::SnapshotInfo()
@@ -483,87 +481,6 @@ void SceneGraphManager::updateSnapshotFaults()
 
   snapshot.faultsTimeStamp = m_faultsTimeStamp;
 }
-
-//std::vector<const di::GridMap*> SceneGraphManager::getFormationPropertyGridMaps(const SnapshotInfo& snapshot, const di::Property* prop, bool formation3D) const
-//{
-//  std::vector<const di::GridMap*> gridMaps;
-//
-//  std::unique_ptr<di::PropertyValueList> values(prop->getPropertyValues(di::FORMATION, snapshot.snapshot, 0, 0, 0));
-//
-//  // This is necessary to filter out duplicate entries in the property value list. For some reason the project3D file
-//  // can contain multiple entries for the same property value, corresponding to multiple simulation runs. The HDF5 files
-//  // get overwritten each time, so there's only one actual property value available anyway. Since the list is already 
-//  // sorted by depo age, we can filter duplicates by checking the associated formations.
-//  size_t n = std::distance(
-//    values->begin(), 
-//    std::unique(
-//      values->begin(), 
-//      values->end(), 
-//      [](const di::PropertyValue* v0, const di::PropertyValue* v1) 
-//        { 
-//          return v0->getFormation() == v1->getFormation(); 
-//        }));
-//
-//  size_t i = 0;
-//  for (auto fmt : snapshot.formations)
-//  {
-//    const di::Formation* formation = m_formations[fmt.id].object;
-//    const di::GridMap* gridMap = nullptr;
-//    if (i < n && formation == (*values)[i]->getFormation())
-//      gridMap = (*values)[i++]->getGridMap();
-//
-//    if (formation3D && gridMap)
-//    {
-//      gridMaps.push_back(gridMap);
-//    }
-//    else
-//    {
-//      for (int k = fmt.minK; k < fmt.maxK; ++k)
-//        gridMaps.push_back(gridMap);
-//    }
-//  }
-//
-//  return gridMaps;
-//}
-//
-//std::shared_ptr<MiDataSetIjk<double> > SceneGraphManager::createFormation2DProperty(
-//  const std::string& name, 
-//  const SnapshotInfo& snapshot,
-//  const di::Property* prop) const
-//{
-//  std::vector<const di::GridMap*> gridMaps = getFormationPropertyGridMaps(snapshot, prop, false);
-//
-//  if (gridMaps.empty())
-//    return nullptr;
-//
-//  return std::make_shared<Formation2DProperty>(name, gridMaps);
-//}
-//
-//std::shared_ptr<MiDataSetIjk<double> > SceneGraphManager::createFormation3DProperty(
-//  const std::string& name, 
-//  const SnapshotInfo& snapshot,
-//  const di::Property* prop) const
-//{
-//  std::vector<const di::GridMap*> gridMaps = getFormationPropertyGridMaps(snapshot, prop, true);
-//
-//  if (gridMaps.empty())
-//    return nullptr;
-//
-//  return std::make_shared<FormationProperty>(name, gridMaps);
-//}
-//
-//std::shared_ptr<MiDataSetIjk<double> > SceneGraphManager::createFormationProperty(const SnapshotInfo& snapshot, const di::Property* prop) const
-//{
-//  if (!prop || prop->getType() != di::FORMATIONPROPERTY)
-//    return nullptr;
-//
-//  std::string name = prop->getName();
-//
-//  if (prop->getPropertyAttribute() == DataModel::FORMATION_2D_PROPERTY)
-//    return createFormation2DProperty(name, snapshot, prop);
-//  else
-//    return createFormation3DProperty(name, snapshot, prop);
-//}
 
 void SceneGraphManager::updateSnapshotProperties()
 {
