@@ -5,6 +5,7 @@
 #include "Interface/ProjectHandle.h"
 
 
+
 #include "database.h"
 #include "cauldronschemafuncs.h"
 
@@ -31,8 +32,6 @@ DataAccess::Interface::IgneousIntrusionEvent::IgneousIntrusionEvent ( ProjectHan
    // Intrusion event and snapshot must have the same age.
    assert (("The intrusion age must have the same age than his snapshot", intrusionAge == m_snapshot->getTime ()));
    
-   m_intrusionTemperature = database::getIgneousIntrusionTemperature ( m_record );
-   assert (("The temperature of igneous intrsuion cannot be no data value", m_intrusionTemperature != DefaultUndefinedScalarValue ));
 }
 
 DataAccess::Interface::IgneousIntrusionEvent::~IgneousIntrusionEvent () {
@@ -51,9 +50,6 @@ const DataAccess::Interface::Snapshot* DataAccess::Interface::IgneousIntrusionEv
    return m_snapshot;
 }
 
-double DataAccess::Interface::IgneousIntrusionEvent::getIntrusionTemperature () const {
-   return m_intrusionTemperature;
-}
 
 std::string DataAccess::Interface::IgneousIntrusionEvent::image () const {
 
@@ -63,7 +59,6 @@ std::string DataAccess::Interface::IgneousIntrusionEvent::image () const {
    buffer << "  associated formation  : " << m_formation->getName () << std::endl;
    buffer << "  intrusion start age   : " << getStartOfIntrusion () << std::endl;
    buffer << "  intrusion end age     : " << getEndOfIntrusion ()->getTime () << std::endl;
-   buffer << "  intrusion temperature : " << getIntrusionTemperature () << std::endl;
 
    return buffer.str ();
 }

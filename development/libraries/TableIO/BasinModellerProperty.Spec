@@ -952,16 +952,9 @@ START-properties
     Identification      : IgneousIntrusionAge
     Description         : The age at which the intrusion is inflated
     Type                : double
-    Unit of measurement : 
+    Unit of measurement : Ma
     Error Field         : No
-    Default             : -9999.0
 
-    Identification      : IgneousIntrusionTemperature
-    Description         : The initial temperature of the intruted material,
-    Type                : double
-    Unit of measurement : 
-    Error Field         : No
-    Default             : -9999.0
 
 #### Source Rock properties -------------------------------------------------
 
@@ -2067,6 +2060,13 @@ START-properties
     Type                : float
     Error Field         : No
     Default             : 0
+
+    Identification      : IgneousIntrusionTemperature
+    Description         : The initial temperature of the intruted material    
+    Unit of measurement : DegreesCelcius
+    Type                : double
+    Error Field         : No
+    Default             : -9999
 
     Identification      : SpecSurfArea
     Description         : Specific surface area, factor in a formula to determine
@@ -6677,6 +6677,8 @@ START-property-tables
     Column         : SourceRock
     Column         : MobileLayer
     Column         : HasAllochthonLitho
+    Column         : IsIgneousIntrusion
+    Column         : IgneousIntrusionAge
     Column         : HydroSand
     Column         : ChemicalCompaction
 #  SourceRock Properties:
@@ -6687,9 +6689,7 @@ START-property-tables
     Column         : SourceRockMixingHIGrid
     Column         : ElementRefinementZ
     Column         : IncludeInDarcy
-    Column         : IsIgneousIntrusion
-    Column         : IgneousIntrusionAge
-    Column         : IgneousIntrusionTemperature
+
 
     Header         : Stratigraphic Data  
 
@@ -7578,6 +7578,7 @@ START-property-tables
     Column         : ReferenceSolidViscosity
     Column         : ActivationEnergy
     Column         : MinimumPorosity
+    Column         : IgneousIntrusionTemperature
     Column         : SpecSurfArea
     Column         : GeoVariance
     Column         : QuartzGrainSize

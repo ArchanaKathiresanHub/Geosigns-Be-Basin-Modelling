@@ -198,17 +198,17 @@ void Temperature_Solver::computeHeatProduction ( const double previousTime,
 
          
          #ifdef DEBUG_HEATPRODUCTIONFORINTRUSION
-         if ( FastcauldronSimulator::getInstance ().getRank () == 0 ) {
-            cout << " Setting igneous intrusion "  << previousTime << "  " << currentLayer->getIgneousIntrusionTemperature () << endl;
+         if ( FastcauldronSimulator::getInstance ().getRank () == 0 ) 
+         { //Display the intrusion temperature for the node 5, 5
+           cout << " Setting igneous intrusion "  << previousTime << "  " << currentLayer -> getLithology ( 5, 5 ) -> igneousIntrusionTemperature () << endl;
          }
          #endif
 
          const bool   temperatureIsActive = currentLayer->Current_Properties.propertyIsActivated ( Basin_Modelling::Temperature );
          const bool   depthIsActive = currentLayer->Current_Properties.propertyIsActivated ( Basin_Modelling::Depth );
          const double timeStep = ( previousTime - currentTime ) * Secs_IN_MA;
-         double heatProductionRateForIntrusion;
-         const double intrusionTemperature = currentLayer->getIgneousIntrusionTemperature ();
-         double heatCapacity;
+         double       heatProductionRateForIntrusion;
+         double       heatCapacity;
 
          if ( not temperatureIsActive ) {
             currentLayer->Current_Properties.Activate_Property ( Basin_Modelling::Temperature );
@@ -227,7 +227,8 @@ void Temperature_Solver::computeHeatProduction ( const double previousTime,
                   if (thickness <= 1 ) {
                      continue;
                   }
-		     
+                  const double intrusionTemperature = currentLayer -> getLithology ( i, j ) -> igneousIntrusionTemperature ();
+                  assert (("The temperature of intrusion cannot be no data value", intrusionTemperature != DataAccess::Interface::DefaultUndefinedScalarValue));
                   currentLithology = currentLayer->getLithology ( i, j );
 
                   heatCapacity = currentLithology->densityXheatcapacity ( intrusionTemperature, 0.0 );

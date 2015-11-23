@@ -493,10 +493,6 @@ double Formation::getIgneousIntrusionAge () const {
    return database::getIgneousIntrusionAge ( m_record );
 }
 
-double Formation::getIgneousIntrusionTemperature () const {
-   return database::getIgneousIntrusionTemperature ( m_record );
-}
-
 void Formation::setIgneousIntrusionEvent ( IgneousIntrusionEvent* igneousIntrusion ) {
    m_igneousIntrusion = igneousIntrusion;
 }

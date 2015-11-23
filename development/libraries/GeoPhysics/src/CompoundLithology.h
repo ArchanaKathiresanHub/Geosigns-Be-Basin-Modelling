@@ -279,6 +279,12 @@ namespace GeoPhysics {
       ///
       ///Used for the chemical compaction computation with Walderhaug algorithm
       double coatingClayFactor() const;
+
+      ///Return the temperature of intrusion for a sill
+      ///
+      ///Used for the sill intrusion tool
+      double igneousIntrusionTemperature() const;
+
       /// Return the fracture-pressure scaling-value.
       double fracturedPermeabilityScaling() const;
 
@@ -406,10 +412,12 @@ namespace GeoPhysics {
 
       double m_referenceSolidViscosity;
       double m_lithologyActivationEnergy;
-      //For chemical compaction with Walderhaug model
+      // For chemical compaction with Walderhaug model
       double m_quartzGrainSize;
       double m_quartzFraction;
       double m_coatingClayFactor;
+      // For sill intrusion 
+      double m_igneousIntrusionTemperature;
 
       typedef enum { UNDEFINED, HOMOGENEOUS, LAYERED } MixModelType;
       MixModelType m_mixmodeltype;
@@ -582,5 +590,9 @@ inline double GeoPhysics::CompoundLithology::coatingClayFactor() const{
 
 inline double GeoPhysics::CompoundLithology::quartzFraction() const{
    return m_quartzFraction;
+}
+
+inline double GeoPhysics::CompoundLithology::igneousIntrusionTemperature() const{
+   return m_igneousIntrusionTemperature;
 }
 #endif // _GEOPHYSICS__COMPOUND_LITHOLOGY_H_

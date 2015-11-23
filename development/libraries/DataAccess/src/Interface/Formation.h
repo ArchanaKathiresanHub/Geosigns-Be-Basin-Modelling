@@ -110,9 +110,6 @@ namespace DataAccess
             /// \brief The age at which the igneous intrusion event occurs.
             virtual double getIgneousIntrusionAge () const;
 
-            /// \brief The initial temperature of the igneous intrusion.
-            virtual double getIgneousIntrusionTemperature () const;
-
             /// \brief Set the igneous-intrusion event.
             ///
             ///  This is only so that there is no lookup when getting the event object.

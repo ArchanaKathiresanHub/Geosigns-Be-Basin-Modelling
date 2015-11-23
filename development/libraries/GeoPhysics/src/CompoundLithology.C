@@ -522,11 +522,19 @@ bool  GeoPhysics::CompoundLithology::reCalcProperties(){
    m_quartzGrainSize                = 0.0;
    m_quartzFraction                 = 0.0;
    m_coatingClayFactor              = 0.0;
+   m_igneousIntrusionTemperature    = Interface::RecordValueUndefined;
+
+   //1. Sill intrusion - temperature of intrusion
+   // defined only if an igneous intrusion lithology is used and if there is only one component
+   if ( (double)(*percentIter) == 100 )
+   {
+      m_igneousIntrusionTemperature =(*componentIter)->getIgneousIntrusionTemperature();
+   }
 
    while (m_lithoComponents.end() != componentIter) {
       double pcMult = (double)(*percentIter) / 100;
 
-      //1. Matrix Property calculated using the arithmetic mean
+      //2. Matrix Property calculated using the arithmetic mean
       m_density                     += (*componentIter)->getDensity()  * pcMult;
       m_seismicVelocitySolid        += (*componentIter)->getSeismicVelocity() * pcMult;
       m_nExponentVelocity           += (*componentIter)->getSeismicVelocityExponent( ) * pcMult;
@@ -540,21 +548,21 @@ bool  GeoPhysics::CompoundLithology::reCalcProperties(){
       m_quartzFraction              += (*componentIter)->getQuartzFraction() * pcMult;
       m_coatingClayFactor           += (*componentIter)->getClayCoatingFactor() * pcMult;
 
-      //2. Matrix Property calculated using the geometric mean
+      //3. Matrix Property calculated using the geometric mean
       m_thermalConductivityAnisotropy *= pow((*componentIter)->getThCondAn(), pcMult);
 
       m_specificSurfaceArea *= pow((*componentIter)->getSpecificSurfArea(), pcMult);
       m_geometricVariance *= pow((*componentIter)->getGeometricVariance(), pcMult);
 
-      //3. Matrix Property calculated using the algebraic mean
-      m_quartzGrainSize += pcMult * pow((*componentIter)->getQuartzGrainSize(), 3.0);
+      //4. Matrix Property calculated using the algebraic mean
+      m_quartzGrainSize += pcMult * pow((*componentIter)->getQuartzGrainSize(), 3.0); 
 
       ++componentIter;
       ++percentIter;
    }
    m_quartzGrainSize = pow(m_quartzGrainSize, 1.0 / 3.0);
 
-   //4. Porosity
+   //5. Porosity
    // temporary values before mixing
    DataAccess::Interface::PorosityModel porosityModel;
    double surfacePorosity;
@@ -590,7 +598,7 @@ bool  GeoPhysics::CompoundLithology::reCalcProperties(){
 
    setMinimumPorosity(porosityModel, surfaceVoidRatio, soilMechanicsCompactionCoefficient);
 
-   //5. Permeability
+   //6. Permeability
    if (surfacePorosity < 0.0299) {
       // Really less than 0.03 but some rounding may occur if user set a litho with 0.03 surface porosity
       m_fracturedPermeabilityScalingValue = 100.0;
@@ -599,7 +607,7 @@ bool  GeoPhysics::CompoundLithology::reCalcProperties(){
       m_fracturedPermeabilityScalingValue = 10.0; // What to set this to?  10, 50 or whatever.
    }
 
-   //6. Seismic velocity
+   //7. Seismic velocity
    DataAccess::Interface::SeismicVelocityModel seismicVelocityModel = m_projectHandle->getRunParameters()->getSeismicVelocityAlgorithm();
    double mixedModulusSolid = this->mixModulusSolid();
    m_seismicVelocity = m_seismicVelocity.create(seismicVelocityModel,

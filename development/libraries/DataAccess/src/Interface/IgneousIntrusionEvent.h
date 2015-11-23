@@ -36,8 +36,6 @@ namespace DataAccess
          /// \brief Get the age at which the intrusion finishes to inflate.
          virtual const Snapshot* getEndOfIntrusion () const;
 
-         /// \brief Get the temperature at which the material is intruded.
-         virtual double getIntrusionTemperature () const;
 
          /// \brief Return the strnig representation of the intrusion event object.
          virtual std::string image () const;
@@ -46,7 +44,6 @@ namespace DataAccess
 
          const Formation* m_formation;
          const Snapshot*  m_snapshot;
-         double m_intrusionTemperature;
 
       };
 

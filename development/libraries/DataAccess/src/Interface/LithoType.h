@@ -175,6 +175,8 @@ namespace DataAccess
          /// Return the pixmap.
          virtual const std::string& getPixmap () const;
 
+         /// Return the temperature of the sill intrusion when intruded
+         virtual double getIgneousIntrusionTemperature () const;
 
          /// Print the attributes of this LithoType
          // May not work if user application is compiled under IRIX with CC -lang:std

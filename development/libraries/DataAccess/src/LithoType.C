@@ -89,7 +89,7 @@ const string LithoType::s_attributeNames[] =
    "Density", "HeatProd", "SurfacePorosity", "CompacCoefES", "CompacCoefESA","CompacCoefESB", "CompacCoefSC", "CompacCoefFM", "StpThCond",
    "ThCondAnisotropy", "DepoPerm", "PermDecrStressCoef", "PermIncrRelaxCoef", "PermAnisotropy",
    "SeisVelocity", "NExponentVelocity", "CapC1", "CapC2", "Compaction_Coefficient_SM", "HydraulicFracturingPercent",
-   "ReferenceSolidViscosity", "ActivationEnergy", "MinimumPorosity", "SpecSurfArea", "GeoVariance",
+   "ReferenceSolidViscosity", "ActivationEnergy", "MinimumPorosity", "SpecSurfArea", "GeoVariance", "IgneousIntrusionTemperature",
    // Ints
    "UserDefined", "Number_Of_Data_Points"
 };
@@ -126,6 +126,10 @@ double LithoType::getViscosityActivationEnergy () const {
 
 double LithoType::getMinimumMechanicalPorosity () const {
    return database::getMinimumPorosity ( m_record );
+}
+
+double LithoType::getIgneousIntrusionTemperature () const {
+   return database::getIgneousIntrusionTemperature ( m_record );
 }
 
 double LithoType::getDensity () const {
