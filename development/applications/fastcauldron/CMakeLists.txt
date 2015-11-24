@@ -19,6 +19,7 @@ set( all_headers,
      src/BasementPropertyCalculator.h
      src/BiomarkersAdapter.h
      src/BiomarkersCalculator.h
+     src/BoundaryConditions.h
      src/BoundaryId.h
      src/BrineProperties.h
      src/BrooksCorey.h
@@ -136,6 +137,7 @@ set( all_headers,
      src/SmectiteIlliteCalculator.h
      src/snapshotdata.h
      src/snapshotinterpolator.h
+     src/SolutionVectorMapping.h
      src/SonicCalculator.h
      src/SourceRocksTemporalInterpolator.h
      src/SourceTermInterpolatorCalculator.h
@@ -176,6 +178,7 @@ set( all_srcs_except_main
      src/BasementPropertyCalculator.C
      src/BiomarkersAdapter.C
      src/BiomarkersCalculator.C
+     src/BoundaryConditions.C
      src/BoundaryId.C
      src/BrineProperties.C
      src/BrooksCorey.C
@@ -276,6 +279,7 @@ set( all_srcs_except_main
      src/SmectiteIlliteCalculator.C
      src/snapshotdata.C
      src/snapshotinterpolator.C
+     src/SolutionVectorMapping.C
      src/SonicCalculator.C
      src/SourceRocksTemporalInterpolator.C
      src/SourceTermInterpolatorCalculator.C
