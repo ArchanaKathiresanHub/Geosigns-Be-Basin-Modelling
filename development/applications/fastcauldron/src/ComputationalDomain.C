@@ -13,6 +13,7 @@
 #include <algorithm>
 #include <numeric>
 #include <iostream>
+#include <iomanip>
 #include <sstream>
 
 // Access utilities library.
@@ -41,9 +42,9 @@ ComputationalDomain::ComputationalDomain ( const LayerProps& topLayer,
    m_isActive ( false ),
    m_globalDofNumbers ( PETSC_NULL ),
    m_currentAge ( -1.0 ),
-   m_localStartDofNumber ( 0 ),
    m_localMaximumNumberDegenerateSegments ( 0 ),
-   m_rank ( FastcauldronSimulator::getInstance ().getRank ())
+   m_rank ( FastcauldronSimulator::getInstance ().getRank ()),
+   m_localStartDofNumber ( 0 )
 {
 
    const ElementGrid& elementMap = FastcauldronSimulator::getInstance ().getElementGrid ();
@@ -54,7 +55,6 @@ ComputationalDomain::ComputationalDomain ( const LayerProps& topLayer,
 
    // The number of elements will never be greater than this, it may well be less.
    m_maximumNumberOfElements = m_column.getMaximumNumberOfElementsInDepth () * elementMap.lengthI () * elementMap.lengthJ ();
-
    linkElementsVertically ();
 
    // Resize the array of number of active nodes to the size of the number of processors.
@@ -183,15 +183,12 @@ void ComputationalDomain::numberDepthIndices ( const bool verbose ) {
    }
 
    const FastcauldronSimulator& fc = FastcauldronSimulator::getInstance ();
-   const NodalVolumeGrid& scalarNodeGrid = m_grids.getNodeGrid ( 1 );
 
    m_depthIndexNumbers.fill ( 0 );
 
    int activeSegments = 0;
    int inactiveSegments = 0;
 
-   int i;
-   int j;
    int maximumDegenerateSegments = 0;
 
    // One less because the first index is zero.
@@ -216,9 +213,9 @@ void ComputationalDomain::numberDepthIndices ( const bool verbose ) {
 
    }
 
-   for ( i = fc.firstI ( true ); i <= fc.lastI ( true ); ++i ) {
+   for ( size_t i = fc.firstI ( true ); i <= fc.lastI ( true ); ++i ) {
 
-      for ( j = fc.firstJ ( true ); j <= fc.lastJ ( true ); ++j ) {
+      for ( size_t j = fc.firstJ ( true ); j <= fc.lastJ ( true ); ++j ) {
 
          if ( fc.nodeIsDefined ( i, j )) {
 
@@ -321,9 +318,9 @@ void ComputationalDomain::numberGlobalDofs ( const bool verbose ) {
 
    }
 #else
-   for ( int i = fc.firstI (); i <= fc.lastI (); ++i ) {
+   for ( size_t i = fc.firstI (); i <= fc.lastI (); ++i ) {
 
-      for ( int j = fc.firstJ (); j <= fc.lastJ (); ++j ) {
+      for ( size_t j = fc.firstJ (); j <= fc.lastJ (); ++j ) {
 
          if ( fc.nodeIsDefined ( i, j )) {
 
@@ -372,20 +369,9 @@ void ComputationalDomain::numberGlobalDofs ( const bool verbose ) {
 
 void ComputationalDomain::assignElementGobalDofNumbers () {
 
-   const FastcauldronSimulator& fc = FastcauldronSimulator::getInstance ();
-
    const NodalVolumeGrid& scalarNodeGrid = m_grids.getNodeGrid ( 1 );
 
    PetscBlockVector<double> dof;
-
-   int i;
-   int j;
-   int k;
-
-   // One less because the first index is zero.
-   int numberOfNodesInDepth = m_column.getNumberOfLogicalNodesInDepth ( m_currentAge ) - 1;
-   int globalDofNumber = m_localStartDofNumber;
-
    dof.setVector ( scalarNodeGrid, m_globalDofNumbers, INSERT_VALUES, true );
 
    for ( size_t i = 0; i < m_activeElements.size (); ++i ) {
@@ -393,7 +379,7 @@ void ComputationalDomain::assignElementGobalDofNumbers () {
 
       // Loop over the nodes of each element collecting the global dof number.
       for ( int n = 0; n < 8; ++n ) {
-         element->setDof ( n, dof ( element->getNodeK ( n ), element->getNodeJ ( n ), element->getNodeI ( n )));
+         element->setDof ( n, static_cast<int>(dof ( element->getNodeK ( n ), element->getNodeJ ( n ), element->getNodeI ( n ))));
 
 #ifdef VERBOSE_ELEMENT_DOF_ASSIGNMENT
          // What are the performance implications of the following assertion?
@@ -414,7 +400,6 @@ void ComputationalDomain::assignElementGobalDofNumbers () {
 void ComputationalDomain::resetAge ( const double age,
                                      const bool   verbose ) {
 
-   const int previousNodeCount = m_column.getNumberOfLogicalNodesInDepth ( m_currentAge );
    const int newNodeCount = m_column.getNumberOfLogicalNodesInDepth ( age );
    const int elementCount = m_column.getNumberOfLogicalElementsInDepth ( age );
 
@@ -426,7 +411,7 @@ void ComputationalDomain::resetAge ( const double age,
    }
 
    m_grids.resizeGrids ( elementCount, newNodeCount );
-   resizeGrids ( previousNodeCount, newNodeCount );
+   resizeGrids ( newNodeCount );
    numberDepthIndices ( verbose );
    setElementNodeDepthIndices ( verbose );
    determineActiveElements ( verbose );
@@ -441,12 +426,9 @@ void ComputationalDomain::resetAge ( const double age,
 
 void ComputationalDomain::setElementNodeDepthIndices ( const bool verbose ) {
 
-   const NodalVolumeGrid& scalarNodeGrid = m_grids.getNodeGrid ();
-
    int nodeCount = m_column.getNumberOfLogicalNodesInDepth ( m_currentAge );
    int globalKValue = nodeCount - 1;
    int topValue = nodeCount - 1;
-   int globalK;
 
    for ( size_t l = 0; l < m_column.getNumberOfLayers (); ++l ) {
 
@@ -539,7 +521,6 @@ void ComputationalDomain::determineActiveElements ( const bool verbose ) {
 
 void ComputationalDomain::determineActiveNodes ( const bool verbose ) {
 
-   const FastcauldronSimulator& fc = FastcauldronSimulator::getInstance ();
    const NodalGrid& nodeGrid = FastcauldronSimulator::getInstance ().getNodalGrid ();
 
    Vec activeNodesVec;
@@ -575,8 +556,8 @@ void ComputationalDomain::determineActiveNodes ( const bool verbose ) {
    for ( unsigned int i = nodeGrid.firstI (); i <= nodeGrid.lastI (); ++i ) {
 
       for ( unsigned int j = nodeGrid.firstJ (); j <= nodeGrid.lastJ (); ++j ) {
-         bool localNode = NumericFunctions::inRange<unsigned int> ( i, nodeGrid.firstI (), nodeGrid.lastI ()) and
-                          NumericFunctions::inRange<unsigned int> ( j, nodeGrid.firstJ (), nodeGrid.lastJ ());
+         bool localNode = NumericFunctions::inRange<int> ( static_cast<int>(i), nodeGrid.firstI (), nodeGrid.lastI ()) and
+                          NumericFunctions::inRange<int> ( static_cast<int>(j), nodeGrid.firstJ (), nodeGrid.lastJ ());
 
          for ( unsigned int k = m_activeNodes.first ( 2 ); k <= m_activeNodes.last ( 2 ); ++k ) {
 
@@ -642,28 +623,21 @@ void ComputationalDomain::determineActiveNodes ( const bool verbose ) {
 
 //------------------------------------------------------------//
 
-void ComputationalDomain::resizeGrids ( const int previousNodeCount,
-                                        const int newNodeCount ) {
+void ComputationalDomain::resizeGrids ( const int newNodeCount ) {
 
    if ( newNodeCount <= 1 ) {
       return;
    }
 
-   bool resizeDofVector = previousNodeCount != newNodeCount;
    PetscBool isValid;
 
    VecValid ( m_globalDofNumbers, &isValid );
 
-   // This is used for the node dof vector.
-   if ( newNodeCount > 1 and ( resizeDofVector or not isValid )) {
-
-      if ( isValid ) {
-         VecDestroy ( &m_globalDofNumbers );
-      }
-
-      DMCreateGlobalVector ( m_grids.getNodeGrid ( 1 ).getDa (), &m_globalDofNumbers );
+   if ( isValid ) {
+      VecDestroy ( &m_globalDofNumbers );
    }
 
+   DMCreateGlobalVector ( m_grids.getNodeGrid ( 1 ).getDa (), &m_globalDofNumbers );
    m_depthIndexNumbers.reallocate ( FastcauldronSimulator::getInstance ().getActivityOutputGrid (), newNodeCount );
    m_activeNodes.reallocate ( FastcauldronSimulator::getInstance ().getActivityOutputGrid (), newNodeCount );
 }

@@ -49,20 +49,11 @@
 /// For PETSc DM objects the counting starts with 0 at the bottom of each needle and counts upwards.
 class ComputationalDomain {
 
+public :
+
    /// \typedef FormationGeneralElementGrid
    typedef FormationElementGrid<GeneralElement> FormationGeneralElementGrid;
 
-   /// \typedef FormationToElementGridMap
-   /// \brief Mapping from a formation to formation-subdomain-element-grid.
-   typedef FormationMapping< FormationGeneralElementGrid > FormationToElementGridMap;
-
-   /// \brief Array of pointers to GeneralElement.
-   ///
-   /// The raw pointer is used here because we take a reference of the element from the 
-   /// 3d array of elements. It will be used to hold a list of elements that are active.
-   typedef std::vector<GeneralElement*> GeneralElementArray;
-
-public :
 
    /// \brief The value given to inactive degrees of freedom.
    static const int NullDofNumber;
@@ -128,6 +119,9 @@ public :
    /// \pre i should be in the half open interval [0,getLocalNumberOfActiveElements ())
    GeneralElement& getActiveElement ( const size_t i );
 
+   /// \brief Get a reference to the element activity predicate.
+   const CompositeElementActivityPredicate& getActivityPredicate () const;
+
 
    /// \brief Get the stratigraphic column for the computational domain.
    const StratigraphicColumn& getStratigraphicColumn () const;
@@ -156,7 +150,21 @@ public :
    /// \brief Get the formation-grid associated with the formation.
    const FormationGeneralElementGrid* getFormationGrid ( const LayerProps* layer ) const;
 
+   /// \brief Get the formation-grid associated with the formation.
+   FormationGeneralElementGrid* getFormationGrid ( const LayerProps* layer );
+
 private :
+
+   /// \typedef FormationToElementGridMap
+   /// \brief Mapping from a formation to formation-subdomain-element-grid.
+   typedef FormationMapping< FormationGeneralElementGrid > FormationToElementGridMap;
+
+   /// \brief Array of pointers to GeneralElement.
+   ///
+   /// The raw pointer is used here because we take a reference of the element from the 
+   /// 3d array of elements. It will be used to hold a list of elements that are active.
+   typedef std::vector<GeneralElement*> GeneralElementArray;
+
 
    // Disallow default construction and copying.
    ComputationalDomain (); // = delete;
@@ -176,8 +184,7 @@ private :
    void numberGlobalDofs ( const bool verbose );
 
    /// \brief Resize all arrays and vectors to the new size.
-   void resizeGrids ( const int previousNodeCount,
-                      const int newNodeCount );
+   void resizeGrids ( const int newNodeCount );
 
    /// \brief Set the depth values for the nodes of each of the elements.
    void setElementNodeDepthIndices ( const bool verbose );
@@ -324,10 +331,27 @@ inline GeneralElement& ComputationalDomain::getActiveElement ( const size_t i ) 
    return *m_activeElements [ i ];
 }
 
+inline const CompositeElementActivityPredicate& ComputationalDomain::getActivityPredicate () const {
+   return m_activityPredicate;
+}
+
 inline const ComputationalDomain::FormationGeneralElementGrid*
 ComputationalDomain::getFormationGrid ( const LayerProps* layer ) const {
 
    FormationToElementGridMap::const_iterator iter = m_layerMap.find ( layer );
+
+   if ( iter != m_layerMap.end ()) {
+      return iter->m_formationGrid;
+   } else {
+      return 0;
+   }
+
+}
+
+inline ComputationalDomain::FormationGeneralElementGrid*
+ComputationalDomain::getFormationGrid ( const LayerProps* layer ) {
+
+   FormationToElementGridMap::iterator iter = m_layerMap.find ( layer );
 
    if ( iter != m_layerMap.end ()) {
       return iter->m_formationGrid;
