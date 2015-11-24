@@ -26,7 +26,7 @@ namespace CauldronIO
         
         /// \brief Override the retrieve method to load data from datastore
         virtual void retrieve();
-        /// \brief Set all variables needed to retrieve the data; consider actually adding a reference to a datastore object that can do the logic
+        /// \brief Set all variables needed to retrieve the data
         void setDataStore(DataStoreParams* params);
         /// \brief Assign an associated depth surface by UUID
         void setDepthSurfaceUUID(const boost::uuids::uuid& uuid);
@@ -34,6 +34,8 @@ namespace CauldronIO
         bool hasDepthMap() const;
         /// \brief Returns the depthmap UUID
         const boost::uuids::uuid& getDepthSurfaceUUID() const;
+        /// \brief Returns the parameters needed for loading this data
+        const DataStoreParams* getDataStoreParams() const;
 
     private:
         DataStoreParams* m_params;
@@ -49,7 +51,7 @@ namespace CauldronIO
 
         /// \brief Override the retrieve method to load data from datastore
         virtual void retrieve();
-        /// \brief Set all variables needed to retrieve the data; consider actually adding a reference to a datastore object that can do the logic
+        /// \brief Set all variables needed to retrieve the data
         void setDataStore(DataStoreParams* params, bool dataIJK);
         /// \brief Assign an associated depth surface by UUID
         void setDepthSurfaceUUID(const boost::uuids::uuid& uuid);
@@ -57,6 +59,10 @@ namespace CauldronIO
         bool hasDepthMap() const;
         /// \brief Returns the depthmap UUID
         const boost::uuids::uuid& getDepthSurfaceUUID() const;
+        /// \brief Returns the parameters needed for loading this data, IJK
+        const DataStoreParams* getDataStoreParamsIJK() const;
+        /// \brief Returns the parameters needed for loading this data, KIJ
+        const DataStoreParams* getDataStoreParamsKIJ() const;
 
     private:
         bool m_hasDepthMap_uuid, m_dataIJK, m_dataKIJ;

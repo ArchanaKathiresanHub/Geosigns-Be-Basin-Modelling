@@ -16,6 +16,7 @@ using namespace CauldronIO;
 CauldronIO::MapNative::MapNative(bool cellCentered) : Map(cellCentered)
 {
     m_hasDepthMap_uuid = false;
+    m_params = NULL;
 }
 
 void CauldronIO::MapNative::retrieve()
@@ -36,8 +37,6 @@ void CauldronIO::MapNative::retrieve()
     delete[] data;
 }
 
-// TODO: datastore should prepare a little struct with data that MapNative can consume,
-// the actual parameters needed to load data later should be hidden from this client
 void CauldronIO::MapNative::setDataStore(DataStoreParams* params)
 {
     m_params = params;
@@ -59,6 +58,12 @@ const boost::uuids::uuid& CauldronIO::MapNative::getDepthSurfaceUUID() const
     return m_uuid_depth;
 }
 
+
+const DataStoreParams* CauldronIO::MapNative::getDataStoreParams() const
+{
+    return m_params;
+}
+
 /// VolumeNative implementation
 //////////////////////////////////////////////////////////////////////////
 
@@ -68,6 +73,8 @@ CauldronIO::VolumeNative::VolumeNative(bool cellCentered, SubsurfaceKind kind, b
     m_hasDepthMap_uuid = false;
     m_dataIJK = false;
     m_dataKIJ = false;
+    m_paramsIJK = NULL;
+    m_paramsKIJ = NULL;
 }
 
 void CauldronIO::VolumeNative::retrieve()
@@ -135,6 +142,16 @@ bool CauldronIO::VolumeNative::hasDepthMap() const
 const boost::uuids::uuid& CauldronIO::VolumeNative::getDepthSurfaceUUID() const
 {
     return m_uuid_depth;
+}
+
+const DataStoreParams* CauldronIO::VolumeNative::getDataStoreParamsIJK() const
+{
+    return m_paramsIJK;
+}
+
+const DataStoreParams* CauldronIO::VolumeNative::getDataStoreParamsKIJ() const
+{
+    return m_paramsKIJ;
 }
 
 CauldronIO::DiscontinuousVolumeNative::DiscontinuousVolumeNative()

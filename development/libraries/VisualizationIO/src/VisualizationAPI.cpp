@@ -77,6 +77,46 @@ const SnapShotList& CauldronIO::Project::getSnapShots() const
     return m_snapShotList;
 }
 
+
+const PropertyList& CauldronIO::Project::getAllUniqueProperties()
+{
+    if (_allProperties.size() == 0)
+    {
+        BOOST_FOREACH(boost::shared_ptr<SnapShot>& snapShot, m_snapShotList)
+        {
+            const SurfaceList& surfaces = snapShot->getSurfaceList();
+            BOOST_FOREACH(const boost::shared_ptr<Surface>& surface, surfaces)
+            {
+                addUniqueProperty(surface->getProperty());
+            }
+            const VolumeList& volumes = snapShot->getVolumeList();
+            BOOST_FOREACH(const boost::shared_ptr<Volume>& volume, volumes)
+            {
+                addUniqueProperty(volume->getProperty());
+            }
+            const DiscontinuousVolumeList& discontinuousvolumes = snapShot->getDiscontinuousVolumeList();
+            BOOST_FOREACH(const boost::shared_ptr<DiscontinuousVolume>& dVolume, discontinuousvolumes)
+            {
+                boost::shared_ptr<const FormationVolume> formationVolume = dVolume->getVolumeList()[0];
+                addUniqueProperty(formationVolume->second->getProperty());
+            }
+        }
+    }
+
+    return _allProperties;
+}
+
+
+void CauldronIO::Project::addUniqueProperty(const boost::shared_ptr<const Property> newProperty)
+{
+    BOOST_FOREACH(boost::shared_ptr<const Property>& property, _allProperties)
+    {
+        if (*property == *newProperty) return;
+    }
+
+    _allProperties.push_back(newProperty);
+}
+
 void CauldronIO::Project::retrieve()
 {
     BOOST_FOREACH(boost::shared_ptr<SnapShot>& snapShot, m_snapShotList)
@@ -235,17 +275,29 @@ CauldronIO::PropertyAttribute CauldronIO::Property::getAttribute() const
     return m_attrib;
 }
 
+
+bool CauldronIO::Property::operator==(const Property& other) const
+{
+    if (this->m_name != other.m_name) return false;
+    if (this->m_username != other.m_username) return false;
+    if (this->m_attrib != other.m_attrib) return false;
+    if (this->m_cauldronName != other.m_cauldronName) return false;
+    if (this->m_type != other.m_type) return false;
+
+    return true;
+}
+
 /// Formation
 //////////////////////////////////////////////////////////////////////////
 
-CauldronIO::Formation::Formation(size_t kStart, size_t kEnd, const string& name)
+CauldronIO::Formation::Formation(unsigned int kStart, unsigned int kEnd, const string& name)
 {
     m_kstart = kStart;
     m_kend = kEnd;
     m_name = name;
 }
 
-void CauldronIO::Formation::getDepthRange(size_t &start, size_t &end) const
+void CauldronIO::Formation::getK_Range(unsigned int &start, unsigned int &end) const
 {
     start = m_kstart;
     end = m_kend;
@@ -319,7 +371,6 @@ bool CauldronIO::Surface::isRetrieved() const
     return m_valueMap->isRetrieved();
 }
 
-
 const std::string& CauldronIO::Surface::getReservoirName() const
 {
     return m_reservoirName;
@@ -340,6 +391,7 @@ CauldronIO::Map::Map(bool cellCentered)
     m_isCellCentered = cellCentered;
     m_isConstant = false;
     m_retrieved = false;
+    m_uuid = m_uuidGenerator();
 }
 
 size_t CauldronIO::Map::getNumI() const
@@ -580,6 +632,7 @@ CauldronIO::Volume::Volume(bool cellCentered, SubsurfaceKind kind, boost::shared
     m_property = property;
     m_retrieved = false;
     m_geometryAssigned = false;
+    m_uuid = m_uuidGenerator();
 }
 
 CauldronIO::Volume::~Volume()

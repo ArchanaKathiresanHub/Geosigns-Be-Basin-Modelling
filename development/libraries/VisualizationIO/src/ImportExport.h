@@ -39,7 +39,8 @@ namespace CauldronIO
         boost::shared_ptr<Property> getProperty(const boost::property_tree::ptree& surfaceNode) const;
         boost::shared_ptr<Formation> getFormation(const boost::property_tree::ptree& surfaceNode) const;
         boost::shared_ptr<Project> getProject(const boost::property_tree::ptree& pt) const;
-        
+        bool detectAppend(boost::shared_ptr<Project>& project);
+
         boost::filesystem::path m_outputPath;
     };
 }

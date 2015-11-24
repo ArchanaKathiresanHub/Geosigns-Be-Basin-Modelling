@@ -9,6 +9,8 @@
 //
 
 #include "ImportProjectHandle.h"
+#include "VisualizationIO_projectHandle.h"
+#include "VisualizationAPI.h"
 #include "Interface/ProjectHandle.h"
 #include "Interface/ObjectFactory.h"
 #include "Interface/Property.h"
@@ -16,9 +18,9 @@
 #include "Interface/Reservoir.h"
 #include "Interface/Surface.h"
 #include "Interface/Trapper.h"
+#include "Interface/Snapshot.h"
 #include "Interface/GridMap.h"
 #include "Interface/ProjectData.h"
-#include "VisualizationIO_projectHandle.h"
 #include <string>
 #include <iostream>
 
@@ -288,9 +290,6 @@ boost::shared_ptr<CauldronIO::Volume> ImportProjectHandle::createVolume(const Da
     // Retrieve later
     CauldronIO::VolumeProjectHandle* volumeProjectHandle = dynamic_cast<CauldronIO::VolumeProjectHandle*>(volume.get());
     volumeProjectHandle->setDataStore(propValue, depthInfo);
-
-    // Assign a UUID
-    volume->setUUID(m_uuidGenerator());
     return volume;
 }
 
@@ -323,8 +322,6 @@ boost::shared_ptr<CauldronIO::Volume> ImportProjectHandle::createContinuousVolum
     CauldronIO::VolumeProjectHandle* volumeProjectHandle = dynamic_cast<CauldronIO::VolumeProjectHandle*>(volume.get());
     volumeProjectHandle->setDataStore(propValues, depthFormations);
 
-    volume->setUUID(m_uuidGenerator());
-
     return volume;
 }
 
@@ -337,7 +334,6 @@ boost::shared_ptr<CauldronIO::Map> ImportProjectHandle::createMapIO(const DataAc
     // Set data to be retrieved later
     mapInternal->setDataStore(propVal);
 
-    map->setUUID(m_uuidGenerator());
     return map;
 }
 

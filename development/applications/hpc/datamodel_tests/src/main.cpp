@@ -8,8 +8,9 @@
 // Do not distribute without written permission from Shell.
 //
 #include "VisualizationAPI.h"
-#include "ImportProjectHandle.h"
 #include "ImportExport.h"
+#include "ImportProjectHandle.h"
+#include "VisualizationIO_native.h"
 #include "Interface/ProjectHandle.h"
 #include "Interface/ObjectFactory.h"
 #include <ctime>
@@ -34,6 +35,7 @@ int main(int argc, char ** argv)
         clock_t start = clock();
         float timeInSeconds;
 
+        cout << "Starting import from XML" << endl;
         boost::shared_ptr<CauldronIO::Project> project = CauldronIO::ImportExport::importFromXML(CauldronIO::ImportExport::getXMLIndexingFileName());
 
         timeInSeconds = (float)(clock() - start) / CLOCKS_PER_SEC;

@@ -66,14 +66,13 @@ namespace CauldronIO
     {
     public:
         /// \brief Creates a new instance, to store binary data to the given filename
-        DataStoreSave(const std::string& filename);
+        DataStoreSave(const std::string& filename, bool append);
         ~DataStoreSave();
 
         /// \brief Adds a surface to the XML node, and writes the binary data
         void addSurface(const boost::shared_ptr<Surface>& surfaceIO, boost::property_tree::ptree& ptree);
         /// \brief Adds a volume to the XML node, and writes the binary data
         void addVolume(const boost::shared_ptr<Volume>& volume, boost::property_tree::ptree& ptree);
-        
         // Returns a compressed char* with size "size", for given input data char* and size
         static char* compress(const char* data, size_t& size);
 
@@ -82,11 +81,13 @@ namespace CauldronIO
         void addGeometryInfo(boost::property_tree::ptree& tree, const boost::shared_ptr<const Volume>& volume) const;
         void addData(const float* data, size_t size, bool compressData);
         void writeVolume(const boost::shared_ptr<Volume>& volume, bool dataIJK, bool compress);
+        void writeVolumePart(boost::property_tree::ptree &volNode, bool compress, bool IJK, const boost::shared_ptr<Volume>& volume);
 
         std::ofstream m_file_out;
         size_t m_offset, m_lastSize;
         std::string m_fileName;
         bool m_compress;
+        bool m_append;
     };
 }
 

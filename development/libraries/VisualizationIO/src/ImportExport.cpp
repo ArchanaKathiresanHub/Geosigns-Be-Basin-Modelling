@@ -67,15 +67,17 @@ void ImportExport::addProject(boost::property_tree::ptree& pt, boost::shared_ptr
 
     const SnapShotList snapShotList = project->getSnapShots();
 
+    bool append = detectAppend(project);
+
     BOOST_FOREACH(boost::shared_ptr<const SnapShot> snapShot, snapShotList)
     {
         boost::filesystem::path volumeStorePath(m_outputPath);
         volumeStorePath /= "Snapshot_" + boost::lexical_cast<std::string>(snapShot->getAge()) + "_volumes.cldrn";
-        DataStoreSave volumeStore(volumeStorePath.string());
+        DataStoreSave volumeStore(volumeStorePath.string(), append);
 
         boost::filesystem::path surfaceStorePath(m_outputPath);
         surfaceStorePath /= "Snapshot_" + boost::lexical_cast<std::string>(snapShot->getAge()) + "_surfaces.cldrn";
-        DataStoreSave surfaceDataStore(surfaceStorePath.string());
+        DataStoreSave surfaceDataStore(surfaceStorePath.string(), append);
 
         ptree & node = pt.add("project.snapshots.snapshot", "");
         node.put("<xmlattr>.age", snapShot->getAge());
@@ -189,8 +191,8 @@ void CauldronIO::ImportExport::addFormation(boost::property_tree::ptree& node, c
 {
     boost::property_tree::ptree& subNode = node.add("formation", "");
     subNode.put("<xmlattr>.name", formation->getName());
-    size_t start, end;
-    formation->getDepthRange(start, end);
+    unsigned int start, end;
+    formation->getK_Range(start, end);
     subNode.put("<xmlattr>.kstart", start);
     subNode.put("<xmlattr>.kend", end);
 }
@@ -468,6 +470,32 @@ boost::shared_ptr<Project> CauldronIO::ImportExport::getProject(const boost::pro
     return project;
 }
 
+// If the objects are 'native' implementation, we should append the output files, otherwise
+// we should start from scratch
+bool CauldronIO::ImportExport::detectAppend(boost::shared_ptr<Project>& project)
+{
+    const SnapShotList snapShotList = project->getSnapShots();
+    BOOST_FOREACH(boost::shared_ptr<const SnapShot> snapShot, snapShotList)
+    {
+        const SurfaceList surfaces = snapShot->getSurfaceList();
+        BOOST_FOREACH(const boost::shared_ptr<Surface>& surfaceIO, surfaces)
+        {
+            if (dynamic_cast<MapNative*>(surfaceIO->getValueMap().get()) != NULL) return true;
+            return false;
+        }
+
+        const VolumeList volumes = snapShot->getVolumeList();
+        BOOST_FOREACH(const boost::shared_ptr<Volume>& volume, volumes)
+        {
+            if (dynamic_cast<VolumeNative*>(volume.get()) != NULL) return true;
+            return false;
+        }
+    }
+
+    // This should not happen
+    return false;
+}
+
 boost::shared_ptr<Property> CauldronIO::ImportExport::getProperty(const boost::property_tree::ptree& surfaceNode) const
 {
     boost::shared_ptr<Property> property;
@@ -500,10 +528,10 @@ boost::shared_ptr<Formation> CauldronIO::ImportExport::getFormation(const boost:
         if (nodes.first == "formation")
         {
             const boost::property_tree::ptree& formationNode = nodes.second;
-            size_t start, end;
+            unsigned int start, end;
             std::string name = formationNode.get<std::string>("<xmlattr>.name");
-            start = formationNode.get<size_t>("<xmlattr>.kstart");
-            end = formationNode.get<size_t>("<xmlattr>.kend");
+            start = formationNode.get<unsigned int>("<xmlattr>.kstart");
+            end = formationNode.get<unsigned int>("<xmlattr>.kend");
 
             formation.reset(new Formation(start, end, name));
             return formation;

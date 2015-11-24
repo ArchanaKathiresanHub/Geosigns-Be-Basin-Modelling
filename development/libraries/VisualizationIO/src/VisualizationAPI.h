@@ -17,6 +17,7 @@
 #include <stdexcept>
 #include <boost/shared_ptr.hpp>
 #include <boost/uuid/uuid.hpp>         
+#include <boost/uuid/uuid_generators.hpp> // generators
 
 /// \namespace CauldronIO
 /// \brief The namespace for the visualization IO library related classes
@@ -68,6 +69,7 @@ namespace CauldronIO
     typedef std::vector<boost::shared_ptr<Volume > > VolumeList;
     typedef std::vector<boost::shared_ptr<DiscontinuousVolume > > DiscontinuousVolumeList;
     typedef std::vector<boost::shared_ptr<Trapper > > TrapperList;
+    typedef std::vector<boost::shared_ptr<const Property > > PropertyList;
 
     /// \class Project
     /// \brief Highest level class containing all surface and volume data within a Cauldron project
@@ -104,11 +106,15 @@ namespace CauldronIO
         ModellingMode getModelingMode() const;
         /// \returns The list of snapshots
         const SnapShotList& getSnapShots() const;
-
+        /// \returns A list of all unique properties
+        const PropertyList& getAllUniqueProperties();
+    
     private:
+        void addUniqueProperty(const boost::shared_ptr<const Property> param1);
         SnapShotList m_snapShotList;
         std::string m_name, m_description, m_team, m_version;
         ModellingMode m_mode;
+        PropertyList _allProperties;
     };
 
     /// \class SnapShot 
@@ -181,7 +187,7 @@ namespace CauldronIO
         void setSpillDepth(float depth);
         /// \param [out] posX the spillpoint X position
         /// \param [out] posY the spillpoint X position
-        void getSpillPointPosition(float& posX, float& posY) const;
+        void getSpillPointPosition(float& spillPointPosX, float& spillPointPosY) const;
         /// \param [in] posX the spillpoint X position
         /// \param [in] posY the spillpoint X position
         void setSpillPointPosition(float posX, float posY);
@@ -232,6 +238,8 @@ namespace CauldronIO
         PropertyType getType() const;
 	    /// \returns the PropertyAttribute
         PropertyAttribute getAttribute() const;
+        /// \returns true if two properties are equal
+        bool operator==(const Property& other) const;
 
     private:
 	    std::string m_name, m_username, m_cauldronName, m_unit;
@@ -248,15 +256,15 @@ namespace CauldronIO
         /// \param [in] kStart start depth index into the bigger volume (if relevant)
         /// \param [in] kEnd end depth index (inclusive) into bigger volume
         /// \param [in] name name of the formation
-        Formation(size_t kStart, size_t kEnd, const std::string& name);
+        Formation(unsigned int kStart, unsigned int kEnd, const std::string& name);
         /// \returns the depth range
-        void getDepthRange(size_t &start, size_t &end) const;
+        void getK_Range(unsigned int & k_range_start, unsigned int& k_range_end) const;
         /// \returns the formation name
         const std::string& getName() const;
 
     private:
         std::string m_name;
-        size_t m_kstart, m_kend;
+        unsigned int m_kstart, m_kend;
     };
 
     /// \class Surface
@@ -410,6 +418,7 @@ namespace CauldronIO
         void setData(float* data, bool setValue = false, float value = 0);
         float* m_internalData;
         boost::uuids::uuid m_uuid;
+        boost::uuids::random_generator m_uuidGenerator;
 
     protected:
         bool m_retrieved;
@@ -424,6 +433,7 @@ namespace CauldronIO
     class Volume
     {
     public:
+        
         /// \brief Constructor
         /// \param [in] cellCentered if true, this volume is cell centered: its associated depth volume will be one larger in each dimension
         /// \param [in] kind the SubsurfaceKind of this volume
@@ -572,6 +582,7 @@ namespace CauldronIO
         boost::shared_ptr<const Property> m_property;
         boost::shared_ptr<const Volume> m_depthVolume;
         boost::uuids::uuid m_uuid;
+        boost::uuids::random_generator m_uuidGenerator;
 
     protected:
         bool m_retrieved, m_geometryAssigned;

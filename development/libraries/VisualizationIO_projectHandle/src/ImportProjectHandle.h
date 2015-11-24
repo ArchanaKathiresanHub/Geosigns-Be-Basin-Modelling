@@ -11,14 +11,43 @@
 #ifndef __ImportProjectHandle_h__
 #define __ImportProjectHandle_h__
 
-#include "VisualizationAPI.h"
-#include "VisualizationIO_projectHandle.h"
 #include <string>
+#include <vector>
 #include <boost/shared_ptr.hpp>
 #include <boost/uuid/uuid.hpp>         
-#include <boost/uuid/uuid_generators.hpp> // generators
-#include "Interface/Formation.h"
-#include "Interface/Snapshot.h"
+
+// Forward declarations
+namespace DataAccess
+{
+    namespace Interface
+    {
+        class Formation;
+        class Snapshot;
+        class ProjectHandle;
+        class PropertyValue;
+        class Surface;
+        class Formation;
+        typedef std::vector<const PropertyValue *> PropertyValueList; 
+        class Property;
+    }
+}
+namespace CauldronIO
+{
+    enum SnapShotKind;
+    enum PropertyType;
+    enum PropertyAttribute;
+    enum SubsurfaceKind;
+    class SnapShot;
+    class Project;
+    class Surface;
+    class Map;
+    class Formation;
+    class Property;
+    class Volume;
+    class DiscontinuousVolume;
+    struct FormationInfo;
+    typedef std::vector<FormationInfo*> FormationInfoList;
+}
 
 /// \class Little class to import a projecthandle into the VisualizationIO library datamodel
 class ImportProjectHandle
@@ -41,46 +70,45 @@ private:
     ImportProjectHandle(bool verbose);
 
     bool m_verbose;
-    boost::uuids::random_generator m_uuidGenerator;
 
     /// Private helper methods
     CauldronIO::SnapShotKind getSnapShotKind(const DataAccess::Interface::Snapshot* snapShot) const;
-    
+
     CauldronIO::PropertyType getPropertyType(const DataAccess::Interface::Property* prop) const;
-    
+
     CauldronIO::PropertyAttribute getPropertyAttribute(const DataAccess::Interface::Property* prop) const;
-    
-    boost::shared_ptr<CauldronIO::SnapShot> createSnapShotIO(boost::shared_ptr<DataAccess::Interface::ProjectHandle> projectHandle, 
+
+    boost::shared_ptr<CauldronIO::SnapShot> createSnapShotIO(boost::shared_ptr<DataAccess::Interface::ProjectHandle> projectHandle,
         const DataAccess::Interface::Snapshot* snapShot);
-    
-    boost::shared_ptr<vector<boost::shared_ptr<CauldronIO::Surface> > > createSurfaces(boost::shared_ptr<DataAccess::Interface::ProjectHandle> projectHandle,
+
+    boost::shared_ptr<std::vector<boost::shared_ptr<CauldronIO::Surface> > > createSurfaces(boost::shared_ptr<DataAccess::Interface::ProjectHandle> projectHandle,
         boost::shared_ptr<CauldronIO::FormationInfoList> depthFormations, const DataAccess::Interface::Snapshot* snapShot);
-    
+
     boost::shared_ptr<CauldronIO::Formation> createFormation(const DataAccess::Interface::Formation* formation, boost::shared_ptr<CauldronIO::FormationInfoList> depthFormations) const;
-    
+
     boost::shared_ptr<CauldronIO::FormationInfoList> getDepthFormations(boost::shared_ptr<DataAccess::Interface::ProjectHandle> projectHandle,
         const DataAccess::Interface::Snapshot* snapShot) const;
-    
+
     boost::shared_ptr<CauldronIO::Map> createMapIO(const DataAccess::Interface::PropertyValue* propVal);
-    
+
     void addSnapShots(boost::shared_ptr<DataAccess::Interface::ProjectHandle> projectHandle, boost::shared_ptr<CauldronIO::Project> project);
-    
+
     CauldronIO::SubsurfaceKind getSubSurfaceKind(const DataAccess::Interface::Surface* surface) const;
-    
+
     CauldronIO::SubsurfaceKind getSubSurfaceKind(const DataAccess::Interface::Formation* formation) const;
-    
+
     boost::shared_ptr<CauldronIO::DiscontinuousVolume> createDiscontinuousVolume(boost::shared_ptr<DataAccess::Interface::PropertyValueList> propValueList,
         boost::shared_ptr<CauldronIO::FormationInfoList> depthFormations);
-    
+
     boost::shared_ptr<CauldronIO::Volume> createVolume(const DataAccess::Interface::PropertyValue* propValue,
         boost::shared_ptr<CauldronIO::FormationInfoList> depthFormations);
-    
+
     boost::shared_ptr<CauldronIO::Volume> createContinuousVolume(boost::shared_ptr<DataAccess::Interface::PropertyValueList> depthPropValue,
         boost::shared_ptr<CauldronIO::FormationInfoList> depthFormations);
-    
+
     boost::shared_ptr<CauldronIO::Volume> createEmptyVolume(const DataAccess::Interface::PropertyValue* propVal) const;
-    
-    boost::shared_ptr<const CauldronIO::Surface> findDepthSurface(boost::shared_ptr<CauldronIO::Surface> surface, boost::shared_ptr< vector<boost::shared_ptr<CauldronIO::Surface> > > surfaces) const;
+
+    boost::shared_ptr<const CauldronIO::Surface> findDepthSurface(boost::shared_ptr<CauldronIO::Surface> surface, boost::shared_ptr<std::vector<boost::shared_ptr<CauldronIO::Surface> > > surfaces) const;
 };
 
 #endif
