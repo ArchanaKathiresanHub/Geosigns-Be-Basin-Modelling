@@ -38,8 +38,6 @@ bm_include_libraries(
    utilities
 )
 
-add_dependencies(Cauldron DataModel CBMGenerics Serial_Hdf5 TableIO DataAccess cmbAPI casaAPI FileSystem utilities)
-
 set(CMAKE_SWIG_OUTDIR ${CMAKE_CURRENT_BINARY_DIR}/csharp)
 
 
