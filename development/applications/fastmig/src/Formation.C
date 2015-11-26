@@ -749,6 +749,8 @@ namespace migration
          allComputed = true;
          for (Formation * formation = targetFormation; formation != getBottomFormation (); formation = (Formation *) formation->getBottomFormation ())
          {
+            if (formation->m_detectedReservoir)
+               formation->setEndOfPath ();
             int minDepthIndex = (formation == this ? formation->getNodeDepth () - 1 : 0);
             int maxDepthIndex = (formation == targetFormation ? formation->getNodeDepth () - 2 : formation->getNodeDepth () - 1);
 
@@ -812,6 +814,19 @@ namespace migration
          for (unsigned int j = m_formationNodeArray->firstJLocal (); j <= m_formationNodeArray->lastJLocal (); ++j)
          {
             getLocalFormationNode (i, j, depthIndex)->prescribeTargetFormationNode ();
+         }
+      }
+   }
+
+   void Formation::setEndOfPath (void)
+   {
+      int depthIndex = m_formationNodeArray->depth () - 1;
+      
+      for (unsigned int i = m_formationNodeArray->firstILocal (); i <= m_formationNodeArray->lastILocal (); ++i)
+      {
+         for (unsigned int j = m_formationNodeArray->firstJLocal (); j <= m_formationNodeArray->lastJLocal (); ++j)
+         {
+            getLocalFormationNode (i, j, depthIndex)->setEndOfPath ();
          }
       }
    }
@@ -1280,6 +1295,8 @@ namespace migration
    //
    // Loop through the uppermost cells and check capillary pressure across the boundary
    //
+
+   // TO DO: if top element has no thickness look at the one below etc.
    bool Formation::detectReservoir (Formation * topFormation,
                                     const double minOilColumnHeight, const double minGasColumnHeight, const bool pressureRun)
    {
@@ -1303,6 +1320,8 @@ namespace migration
    // Loop through the uppermost cells and check if a trap crests exist with m_height_oil > minOilColumnHeight OR m_height_gas > minGasColumnHeight 
    // Stop as soon as a trap crest is found. 
 
+
+   // TO DO: Same as above. Take care of the case where the topmost elements have 0 thickness
    bool Formation::detectReservoirCrests()
    {
       //cout << " Rank, Formation, m_detectedReservoir " << GetRank () << " " << getName () << " " << m_detectedReservoir << endl;
@@ -1647,16 +1666,15 @@ namespace migration
             FormationNode *targetFormationNode = formationNode->getTargetFormationNode ();
 
             // check if targetReservoir is the reservoir to migrate to for given i, j
-            if (targetFormationNode && (targetFormationNode->getReservoirGas () || targetFormationNode->getReservoirOil ()) &&
-                !targetFormationNode->goesOutOfBounds () &&
+            if (targetFormationNode and targetFormationNode->isEndOfPath () and
+                !targetFormationNode->goesOutOfBounds () and
                 targetFormationNode->getFormation () == targetReservoir->getFormation ())
             {
                unsigned int iTarget = targetFormationNode->getI ();
                unsigned int jTarget = targetFormationNode->getJ ();
                unsigned int kTarget = targetFormationNode->getK ();
 
-               assert (targetFormationNode->hasThickness () and
-                       getDepth (iTarget, jTarget, kTarget) >= targetReservoir->getColumn (iTarget, jTarget)->getTopDepth ());
+               assert (getDepth (iTarget, jTarget, kTarget) >= targetReservoir->getColumn (iTarget, jTarget)->getTopDepth ());
 
                // calculate the composition to migrate
                Composition composition;
@@ -1757,33 +1775,37 @@ namespace migration
       {
          for (unsigned int j = m_formationNodeArray->firstJLocal (); j <= m_formationNodeArray->lastJLocal (); ++j)
          {
+
+            // Debugging
+            if (i==11 and (j==9 or j==10))
+            {
+               int justWannaPutABreakPointHere = 10;
+            }
+
             LocalColumn * leakingColumn = leakingReservoir->getLocalColumn (i, j);
             if (!IsValid (leakingColumn)) continue;
 
             LocalFormationNode * formationNode = getLocalFormationNode (i, j, depthIndex);
             if (!IsValid (formationNode)) continue;
 
-            // If the "leaking" node has a reservoir flag (e.g. because it's a trap crest) then the HC path will be forced to be lateral.
+            // The "leaking" node probably has a reservoir flag (e.g. because it's a trap crest) or isEndOfPath.
+            // Then the HC path will be forced to be lateral.
             // But we know it should leak so we force it to do so by probing the node right above it.
             // If no reservoir offsets then this node will belong to the seal.
-            if (formationNode->getReservoirGas () or formationNode->getReservoirOil ())
-            {
-               formationNode = getLocalFormationNode (i, j, depthIndex + 1);
-            }
-
+            formationNode = getLocalFormationNode (i, j, depthIndex + 1);
+            
             FormationNode *targetFormationNode = formationNode->getTargetFormationNode ();
 
             // check if targetReservoir is the reservoir to migrate to for given i, j
-            if (targetFormationNode && (targetFormationNode->getReservoirGas () || targetFormationNode->getReservoirOil ()) &&
-                !targetFormationNode->goesOutOfBounds () &&
+            if (targetFormationNode and targetFormationNode->isEndOfPath () and
+                !targetFormationNode->goesOutOfBounds () and
                 targetFormationNode->getFormation () == targetReservoir->getFormation ())
             {
                unsigned int iTarget = targetFormationNode->getI ();
                unsigned int jTarget = targetFormationNode->getJ ();
                unsigned int kTarget = targetFormationNode->getK ();
 
-               assert (targetFormationNode->hasThickness () and
-                       getDepth (iTarget, jTarget, kTarget) >= targetReservoir->getColumn (iTarget, jTarget)->getTopDepth ());
+               assert (getDepth (iTarget, jTarget, kTarget) >= targetReservoir->getColumn (iTarget, jTarget)->getTopDepth ());
 
                Composition leakingCompositions[2][2];
 
@@ -1809,36 +1831,40 @@ namespace migration
                   {
                      sum += leakingCompositions[offsets[offsetIndex][0]][offsets[offsetIndex][1]].getWeight ((ComponentId) componentId);
                   }
-
-                  double weight = sum * surfaceFraction;
-
-                  composition.add ((ComponentId) componentId, weight);
+                  if (sum)
+                  {
+                     double weight = sum * surfaceFraction;
+                     composition.add ((ComponentId) componentId, weight);
+                  }
                }               
                
-               int offsetIndex;
-
-               Column *shallowestColumn = 0;
-               double shallowestDepth = Interface::DefaultUndefinedScalarValue;
-
-               for (offsetIndex = 0; offsetIndex < 4; ++offsetIndex)
+               if (!composition.isEmpty ())
                {
-                  Column *targetColumn = targetReservoir->getColumn (iTarget + offsets[offsetIndex][0],
-                                                                     jTarget + offsets[offsetIndex][1]);
+                  int offsetIndex;
 
-                  if (IsValid (targetColumn) && !targetColumn->isSealing () && (shallowestColumn == 0 || targetColumn->getTopDepth () < shallowestDepth))
+                  Column *shallowestColumn = 0;
+                  double shallowestDepth = Interface::DefaultUndefinedScalarValue;
+
+                  for (offsetIndex = 0; offsetIndex < 4; ++offsetIndex)
                   {
-                     shallowestColumn = targetColumn;
-                     shallowestDepth = targetColumn->getTopDepth ();
-                  }
-               }
+                     Column *targetColumn = targetReservoir->getColumn (iTarget + offsets[offsetIndex][0],
+                                                                        jTarget + offsets[offsetIndex][1]);
 
-               if (shallowestColumn)
-               {
-                  shallowestColumn->addCompositionToBeMigrated (composition);
-               }
-               else
-               {
-                  targetReservoir->addBlocked (composition);
+                     if (IsValid (targetColumn) && !targetColumn->isSealing () && (shallowestColumn == 0 || targetColumn->getTopDepth () < shallowestDepth))
+                     {
+                        shallowestColumn = targetColumn;
+                        shallowestDepth = targetColumn->getTopDepth ();
+                     }
+                  }
+
+                  if (shallowestColumn)
+                  {
+                     shallowestColumn->addCompositionToBeMigrated (composition);
+                  }
+                  else
+                  {
+                     targetReservoir->addBlocked (composition);
+                  }
                }
             }
          }

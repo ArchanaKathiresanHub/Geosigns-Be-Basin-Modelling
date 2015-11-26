@@ -1506,49 +1506,67 @@ namespace migration
                   }
                   column->resetProxies ();
                }
-
-               /// set the column to wasting if it cannot hold hc
-               if (i < m_columnArray->lastILocal () && j < m_columnArray->lastJLocal () and
-                  !column->isSealing (GAS) and !column->isSealing (OIL))
-               {
-                  bool flagGas, flagOil;
-                  for (int depth = depthIndex; depth>=0; --depth)
-                  {
-                     LocalFormationNode * localFormationNode = formation->getLocalFormationNode (i, j, depth);
-                     assert (localFormationNode);
-                     flagGas = localFormationNode->getReservoirGas ();
-                     flagOil = localFormationNode->getReservoirOil ();
-
-                     if (flagGas or flagOil) break;
-                  }
-
-                  LocalFormationNode * localFormationNode = formation->getLocalFormationNode (i, j, depthIndex);
-
-                  if (!flagGas)
-                  {
-                     column->setWasting (GAS);
-                     if (localFormationNode->getAdjacentFormationNodeGridOffset (2) > 0)
-                     {
-                        localFormationNode->setReservoirGas (true);
-                        localFormationNode->setDirectionIndex (-1);
-                     }
-                  }
-                  if (!flagOil)
-                  {
-                     column->setWasting (OIL);
-                     if (localFormationNode->getAdjacentFormationNodeGridOffset (2) > 0)
-                     {
-                        localFormationNode->setReservoirOil (true);
-                        localFormationNode->setDirectionIndex (-1);
-                     }
-                  }
-               }
             }
          }
       }
 
       RequestHandling::FinishRequestHandling ();
       return true;
+   }
+   // Only for detected reservoirs! Sets columns corresponding to top nodes
+   // without the reservoir flag to wasting.
+
+   // TO DO: Account for zero-thickness elements
+   void Reservoir::wasteNonReservoirColumns (const Snapshot * snapshot)
+   {
+      RequestHandling::StartRequestHandling (m_migrator, "wasteNonReservoirCOlumns");
+
+      const Formation * formation = dynamic_cast<const Formation *>(getFormation ());
+      assert (formation);
+      int depthIndex = formation->getNodeDepth () - 1;
+
+      DerivedProperties::FormationPropertyPtr gridMap = formation->getFormationPropertyPtr ("Depth", snapshot);
+      assert (gridMap);
+
+      gridMap->retrieveData ();
+
+      // Grid is different for nodes and columns: one more column in the x and y direction.
+      for (unsigned int i = m_columnArray->firstILocal (); i <= Min((int) m_columnArray->lastILocal (), getGrid ()->numIGlobal () - 2); ++i)
+      {
+         for (unsigned int j = m_columnArray->firstJLocal (); j <= Min((int) m_columnArray->lastJLocal (), getGrid ()->numJGlobal () - 2) ; ++j)
+         {
+            LocalColumn * column = getLocalColumn (i, j);
+            if (IsValid (column) and !column->isSealing (GAS) and !column->isSealing (OIL))
+            {
+               int depth = depthIndex + 1;
+               double formationThickness = formation->getDepth (i,j,0) - formation->getDepth (i,j,depth);
+               int topDepth = formation->getDepth (i,j,depth); // Node at horizon
+
+               LocalFormationNode * formationNode = 0;
+
+               do
+               {
+                  --depth;
+               formationNode = formation->getLocalFormationNode (i, j, depth);
+               }
+               while ((column->getTopDepthOffset () * formationThickness + topDepth > formation->getDepth (i,j,depth)));
+               
+               if (IsValid (formationNode))
+               {
+                  if (!formationNode->getReservoirGas ())
+                     column->setWasting(GAS);
+
+                  if (!formationNode->getReservoirOil ())
+                     column->setWasting(OIL);
+               }
+            }
+         }
+      }
+
+      gridMap->restoreData ();
+
+      RequestHandling::FinishRequestHandling ();
+      return;
    }
 
    void Reservoir::setSourceFormation (const Formation * formation)

@@ -218,6 +218,11 @@ namespace migration {
       return getScalarValue<bool> (ISRESERVOIROIL);
    }
 
+   bool ProxyFormationNode::isEndOfPath ()
+   {
+      return getScalarValue<bool> (ISENDOFPATH);
+   }
+
    //use getCachedDoubleValue for doubles 
    double ProxyFormationNode::getDepth ()
    {
@@ -378,7 +383,7 @@ namespace migration {
 #endif
       m_targetFormationNode (0), m_selectedDirectionIndex (-1),
       m_depth (Interface::DefaultUndefinedMapValue), m_horizontalPermeability (-1), m_verticalPermeability (-1), m_porosity (-1), m_adjacentNodeIndex (0),
-		m_entered (false), m_tried (0), m_hasNoThickness (false), m_cosines (0), m_isCrestOil (true), m_isCrestGas (true)
+      m_entered (false), m_tried (0), m_hasNoThickness (false), m_cosines (0), m_isCrestOil (true), m_isCrestGas (true), m_isEndOfPath (false)
 #ifdef USEDISCRETIZEDFLOWDIRECTIONS
       , m_discretizedFlowDirections (0)
 #endif
@@ -615,6 +620,13 @@ namespace migration {
          response.formationIndex = getFormation ()->getIndex ();
          response.value = getReservoirOil ();
          break;
+      case ISENDOFPATH:
+         response.i = getI ();
+         response.j = getJ ();
+         response.k = getK ();
+         response.formationIndex = getFormation ()->getIndex ();
+         response.value = isEndOfPath ();
+         break;
       case HEIGHTGAS:
          response.i = getI ();
          response.j = getJ ();
@@ -747,11 +759,12 @@ namespace migration {
 
    //
    // Check change of capillary pressure across boundary to determine potential reservoir
-   // 
+   //
+
+   // TO DO: Take care of zero-thickness elements
    bool LocalFormationNode::detectReservoir (LocalFormationNode * topNode,
       const double minOilColumnHeight, const double minGasColumnHeight, const bool pressureRun)
    {
-
       if (!IsValid (this)) return true;
 
       double cp_oil, cp_gas;
@@ -1006,6 +1019,10 @@ namespace migration {
    {
       setReservoirGas (true);
       setReservoirOil (true);
+
+      setEndOfPath ();
+
+      return;
    }
 
 
@@ -1339,6 +1356,12 @@ namespace migration {
    {
       if (!IsValid (this)) return true;
 
+      if (m_isEndOfPath)
+      {
+         m_targetFormationNode = this;
+         return true;
+      }
+
       static int MaxTries = -1;
 
       if (hasNoThickness ())       // we are not interested
@@ -1421,6 +1444,12 @@ namespace migration {
    {
       m_targetFormationNode = this;
       m_selectedDirectionIndex = -1; // set m_selectedDirectionIndex to match the target formation node
+   }
+
+   void LocalFormationNode::setEndOfPath (void)
+   {
+      m_isEndOfPath = true;
+      prescribeTargetFormationNode ();
    }
 
    void LocalFormationNode::cleanTargetFormationNode ()
@@ -1567,6 +1596,11 @@ namespace migration {
    {
       // a node can only be a reservoir node if it has thickness
       return m_isReservoirOil && hasThickness ();
+   }
+
+   bool LocalFormationNode::isEndOfPath (void)
+   {
+      return m_isEndOfPath;
    }
 
    double LocalFormationNode::getHeightGas (void)

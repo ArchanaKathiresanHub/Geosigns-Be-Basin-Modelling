@@ -68,6 +68,8 @@ namespace migration
       virtual bool getReservoirGas (void) = 0;
       virtual bool getReservoirOil (void) = 0;
 
+      virtual bool isEndOfPath (void) = 0;
+
       virtual double getHeightGas (void) = 0;
       virtual double getHeightOil (void) = 0;
 
@@ -136,6 +138,8 @@ namespace migration
 
       virtual bool getReservoirGas (void);
       virtual bool getReservoirOil (void);
+
+      virtual bool isEndOfPath (void);
 
       virtual double getHeightGas (void);
       virtual double getHeightOil (void);
@@ -234,6 +238,8 @@ namespace migration
       void prescribeTargetFormationNode (void);
       void cleanTargetFormationNode (void);
 
+      void setEndOfPath (void);
+
       void setDirectionIndex (int);
 
       FormationNode *getAdjacentFormationNode (int directionIndex = -1);
@@ -275,6 +281,8 @@ namespace migration
 
       virtual bool getReservoirGas (void);
       virtual bool getReservoirOil (void);
+
+      virtual bool isEndOfPath (void);
 
       virtual double getHeightGas (void);
       virtual double getHeightOil (void);
@@ -345,6 +353,9 @@ namespace migration
       bool m_isReservoirOil;                   // true - if node is potential trap
       bool m_isCrestOil;		       // true - if node is a crest for oil
       bool m_isCrestGas;                       // true - if node is a crest for gas
+
+      bool m_isEndOfPath;                      // true - if node is end of path. May even be a leaking (or zero-thickness) node
+                                               // but it needs to be the end of the path to register it in the leaking reservoir.
 
       vector < IntDoublePair > *m_cosines;     // cosines of angles between the analog flow direction and the feasible discretized flow directions
 #ifdef USEDISCRETIZEDFLOWDIRECTIONS

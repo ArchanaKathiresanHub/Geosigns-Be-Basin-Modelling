@@ -834,12 +834,10 @@ bool Migrator::computeSMFlowPaths (const Interface::Snapshot * start, const Inte
 
    if (!computeSMFlowPaths (topActiveFormation, bottomSourceRockFormation, start, end)) return false;
 
-   // Computation of target formation nodes delayed until after refineGeometry () inside chargeReservoir ().
-
-   //if (!m_verticalMigration)
-   //{
-   //   if (!computeTargetFormationNodes (topActiveFormation, bottomSourceRockFormation)) return false;
-   //}
+   if (!m_verticalMigration)
+   {
+      if (!computeTargetFormationNodes (topActiveFormation, bottomSourceRockFormation)) return false;
+   }
    return true;
 }
 
@@ -942,10 +940,10 @@ bool Migrator::chargeReservoir (migration::Reservoir * reservoir, migration::Res
 
    reservoir->refineGeometry ();
 
-   // refineGeometry () may have changed the reservoir flags of some nodes, so it's 
-   // only now safe to compute the targetformationNodes
-   if (!m_verticalMigration)
-      computeTargetFormationNodes (end);
+   //We need to tell if it is a detected reservoir or not
+   migration::Formation * reservoirFormation = Formation::CastToFormation (reservoir->getFormation ());
+   if (reservoirFormation->getDetectedReservoir ())
+      reservoir->wasteNonReservoirColumns (end);
 
    // save only major snapshots results
    const bool saveSnapshot = end->getType () == Interface::MAJOR;
@@ -985,7 +983,7 @@ bool Migrator::chargeReservoir (migration::Reservoir * reservoir, migration::Res
    if (reservoirBelow) // Collect the leaked HCs from the reservoir below
    {
       // Non-Vertical Migration: collectLeakedCharges () assumes vertical. We want something like 
-      // migrateChargesToReservoir () as in the case of expulsion. If vertical then collectLeakedCHarges () is OK.
+      // migrateExpelledChargesToReservoir () as in the case of expulsion. If vertical then collectLeakedCHarges () is OK.
       if (m_verticalMigration)
       {
          reservoir->collectLeakedCharges (reservoirBelow, barrier);

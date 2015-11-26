@@ -120,6 +120,8 @@ namespace migration
       /// refine geometry, to take into account zero thicknesses
       bool refineGeometry (void);
 
+      void wasteNonReservoirColumns (const Snapshot * snapshot);
+
       void setSourceFormation (const Formation * formation);
       void setSourceReservoir (const Reservoir * reservoir);
 
