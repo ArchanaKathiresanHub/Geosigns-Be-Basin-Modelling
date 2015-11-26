@@ -221,10 +221,6 @@ public:
 
    void setParametersFromEnvironment ();
 
-   void selectLayers ( const PropertyList currentProperty,
-                       const OutputOption range,
-                             LayerStack&  selectedLayers );
-
    void selectSourceRockLayers ( LayerStack& selectedLayers );
 
    void setLayerBottSurfaceName ();

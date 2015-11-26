@@ -52,25 +52,13 @@ GeoPhysics::Formation::~Formation () {
 
 bool GeoPhysics::Formation::setLithologiesFromStratTable () {
 
-
    const double LithologyTolerance = 1.0e-4;
-
-   double formationStartDepositionAge;
 
    m_compoundLithologies.allocate ( m_projectHandle->getActivityOutputGrid ());
 
    const Interface::GridMap* lithoMap1 = dynamic_cast<const Interface::GridMap*>(getLithoType1PercentageMap ());
    const Interface::GridMap* lithoMap2 = dynamic_cast<const Interface::GridMap*>(getLithoType2PercentageMap ());
    const Interface::GridMap* lithoMap3 = dynamic_cast<const Interface::GridMap*>(getLithoType3PercentageMap ());
-
-   if ( getBottomSurface ()->getSnapshot () == 0 ) {
-      // What other age should I put here? Perhaps a null value.
-      // All formations will have a snapshot defined for their bottom surfaces except
-      // those in the basement.
-      formationStartDepositionAge = GeoPhysics::AgeOfEarth;
-   } else {
-      formationStartDepositionAge = getBottomSurface ()->getSnapshot ()->getTime ();
-   }
 
    string lithoName1;
    string lithoName2;
@@ -179,7 +167,7 @@ bool GeoPhysics::Formation::setLithologiesFromStratTable () {
             }
 
             if ( noDefinedLithologyValue ) {
-               m_compoundLithologies.addStratigraphyTableLithology ( i, j, formationStartDepositionAge, 0 );
+               m_compoundLithologies.addStratigraphyTableLithology ( i, j, 0 );
             } else {
 
                minimumPercentage = NumericFunctions::Minimum3 ( lithologyPercentage1, lithologyPercentage2, lithologyPercentage3 );
@@ -218,7 +206,7 @@ bool GeoPhysics::Formation::setLithologiesFromStratTable () {
                   pMixedLitho = ((GeoPhysics::ProjectHandle*)(m_projectHandle))->getLithologyManager ().getCompoundLithology ( lc );
 
                   if ( pMixedLitho != 0 ) {
-                     m_compoundLithologies.addStratigraphyTableLithology ( i, j, formationStartDepositionAge, pMixedLitho );
+                     m_compoundLithologies.addStratigraphyTableLithology ( i, j, pMixedLitho );
                   } else {
                      createdLithologies = false;
                      break;
@@ -326,7 +314,7 @@ bool GeoPhysics::Formation::setLithologiesFromStratTable () {
       }
 
       if ( createdLithologies ) {
-         m_compoundLithologies.fillWithLithology ( formationStartDepositionAge, pMixedLitho );
+         m_compoundLithologies.fillWithLithology ( pMixedLitho );
       }
 
    }

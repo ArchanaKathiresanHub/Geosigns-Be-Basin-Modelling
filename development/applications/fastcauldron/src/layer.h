@@ -101,26 +101,24 @@ public:
 
    const GeoPhysics::FluidType* getFluid () const;
 
-  int  getNrOfActiveElements () const;
+   int  getNrOfActiveElements () const;
 
-  void setNrOfActiveElements ( const int a_nrActElem );
+   void setNrOfActiveElements ( const int a_nrActElem );
 
-  int  Get_TimeIo_DepoSeq ( const SurfacePosition Position,
-			    const bool            Property_Is_A_Vector );
+   int  Get_TimeIo_DepoSeq ( const SurfacePosition Position,
+                             const bool Property_Is_A_Vector );
 
-  bool isActive () const;
+   bool isActive () const;
 
-  bool isSediment () const;
+   bool isSediment () const;
 
-  bool isBasement () const;
+   bool isBasement () const;
 
-  bool isSourceRock () const;
+   bool isSourceRock () const;
 
-  bool isMobile () const;
+   bool isMobile () const;
 
-  bool Is_Overpressure_Constrained () const;
-
-  bool isAllochthonous () const;
+   bool Is_Overpressure_Constrained () const;
 
    virtual bool isBasalt() const { return false; };
 
@@ -251,7 +249,6 @@ public:
   // Set the ves value that is to be used in chemical compaction instead of the computed ves value.
   void setChemicalCompactionVesValue ( const double newVesValue );
 
-  bool outputValid ( const PropertyList currentProperty ) const;
   virtual void allocateBasementVecs() {};
   virtual void reInitialiseBasementVecs() {};
   virtual void initialiseBasementVecs() {};

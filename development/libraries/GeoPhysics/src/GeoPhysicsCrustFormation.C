@@ -42,10 +42,7 @@ GeoPhysics::GeoPhysicsCrustFormation::~GeoPhysicsCrustFormation () {
 
 bool GeoPhysics::GeoPhysicsCrustFormation::setLithologiesFromStratTable () {
 
-   double formationStartDepositionAge;
-
    m_compoundLithologies.allocate ( GeoPhysics::Formation::m_projectHandle->getActivityOutputGrid ());
-   formationStartDepositionAge = GeoPhysics::AgeOfEarth;
 
    std::string lithoName1;
 
@@ -66,7 +63,7 @@ bool GeoPhysics::GeoPhysicsCrustFormation::setLithologiesFromStratTable () {
    }
    pMixedLitho = ((GeoPhysics::ProjectHandle*)(GeoPhysics::Formation::m_projectHandle))->getLithologyManager ().getCompoundLithology ( lc );
    createdLithologies = pMixedLitho != 0;
-   m_compoundLithologies.fillWithLithology ( formationStartDepositionAge, pMixedLitho );
+   m_compoundLithologies.fillWithLithology ( pMixedLitho );
 
    if( dynamic_cast<GeoPhysics::ProjectHandle*>(m_projectHandle)->isALC() && m_projectHandle->getRank() == 0 ) {
       cout << "Crust property model = " << pMixedLitho->getThermalModel() << endl;

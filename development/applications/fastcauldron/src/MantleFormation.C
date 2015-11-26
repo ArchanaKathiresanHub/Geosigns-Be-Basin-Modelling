@@ -95,7 +95,6 @@ bool MantleFormation::setLithologiesFromStratTable () {
       return false;
    }
    if(((GeoPhysics::ProjectHandle*)(GeoPhysics::Formation::m_projectHandle))->isALC() ) {
-      double formationStartDepositionAge = GeoPhysics::AgeOfEarth;
 
       m_basaltLithology.allocate ( GeoPhysics::Formation::m_projectHandle->getActivityOutputGrid ());
                 
@@ -107,7 +106,7 @@ bool MantleFormation::setLithologiesFromStratTable () {
       
       CompoundLithology* pMixedLitho = ((GeoPhysics::ProjectHandle*)(GeoPhysics::Formation::m_projectHandle))->getLithologyManager ().getCompoundLithology ( lc );
       createdLithologies = pMixedLitho != 0;
-      m_basaltLithology.fillWithLithology ( formationStartDepositionAge, pMixedLitho );
+      m_basaltLithology.fillWithLithology ( pMixedLitho );
       // if( dynamic_cast<GeoPhysics::ProjectHandle*>(m_projectHandle)->isALC() && m_projectHandle->getRank() == 0 ) {
       //    cout << "Mantle basalt property model = " << pMixedLitho->getThermalModel() << endl;
       // }

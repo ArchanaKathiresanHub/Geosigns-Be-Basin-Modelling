@@ -24,11 +24,11 @@ bool GeoPhysics::LithologyAgeFindAge::operator ()( const LithologyAgePtr l1 ) co
 
 GeoPhysics::TimeDependentLithology::TimeDependentLithology () {
 
-   currentLithology = 0;
-   previousLithology = 0;
-   currentLithologyStartAge = MaximumBasinAge;
-   stratigraphyTableLithologyStartAge = MaximumBasinAge;
-   isAllochthonous = false;
+   m_currentLithology = 0;
+   m_previousLithology = 0;
+   m_currentLithologyStartAge = MaximumBasinAge;
+   m_stratigraphyTableLithologyStartAge = MaximumBasinAge;
+   m_isAllochthonous = false;
 
 }
 
@@ -48,18 +48,17 @@ GeoPhysics::TimeDependentLithology::~TimeDependentLithology () {
 
 //------------------------------------------------------------//
 
-void GeoPhysics::TimeDependentLithology::addStratigraphyTableLithology ( const double             age,
-                                                                               CompoundLithology* newLithology ) {
+void GeoPhysics::TimeDependentLithology::addStratigraphyTableLithology ( CompoundLithology* newLithology ) {
 
-   stratigraphyTableLithology = newLithology;
-   stratigraphyTableLithologyStartAge = MaximumBasinAge;
+   m_stratigraphyTableLithology = newLithology;
+   m_stratigraphyTableLithologyStartAge = MaximumBasinAge;
    addLithology ( MaximumBasinAge, newLithology, PREFER_LAST_ON_LIST );
 
    // Set the current active lithology to that defined in the strat table.
-   currentLithology = stratigraphyTableLithology;
-   currentLithologyStartAge = stratigraphyTableLithologyStartAge;
+   m_currentLithology = m_stratigraphyTableLithology;
+   m_currentLithologyStartAge = m_stratigraphyTableLithologyStartAge;
 
-   previousLithology = stratigraphyTableLithology;
+   m_previousLithology = m_stratigraphyTableLithology;
 }
 
 //------------------------------------------------------------//
@@ -73,7 +72,7 @@ void GeoPhysics::TimeDependentLithology::addLithology ( const double            
 
    // If the lithology is null, then there is nothing to do.
    if ( newLithology == 0 ) {
-      addedLithology = stratigraphyTableLithology;
+      addedLithology = m_stratigraphyTableLithology;
    } else {
       addedLithology = newLithology;
    }
@@ -85,7 +84,7 @@ void GeoPhysics::TimeDependentLithology::addLithology ( const double            
 
    LithologyAgeVector::iterator result = find_if ( m_lithologies.begin (), m_lithologies.end (), findAge );
 
-   if ( result == m_lithologies.end () || age == stratigraphyTableLithologyStartAge ) {
+   if ( result == m_lithologies.end () || age == m_stratigraphyTableLithologyStartAge ) {
 
       LithologyAgePtr Litho = new LithologyAge;
 
@@ -150,16 +149,16 @@ void GeoPhysics::TimeDependentLithology::setCurrentLithology ( const double age 
 
    size_t I;
 
-   previousLithology = currentLithology;
+   m_previousLithology = m_currentLithology;
 
    // Must be false here, since we do not know what the allochthonous lithology is!
-   isAllochthonous = false;
+   m_isAllochthonous = false;
 
-   if ( age >= stratigraphyTableLithologyStartAge ) {
-      currentLithology = stratigraphyTableLithology;
-      currentLithologyStartAge = stratigraphyTableLithologyStartAge;
+   if ( age >= m_stratigraphyTableLithologyStartAge ) {
+      m_currentLithology = m_stratigraphyTableLithology;
+      m_currentLithologyStartAge = m_stratigraphyTableLithologyStartAge;
    } else {
-      currentLithology = 0;
+      m_currentLithology = 0;
 
       // It is possible to keep an iterator here then we only need check the
       // lithologies from the iterator position to the end of the array
@@ -167,10 +166,10 @@ void GeoPhysics::TimeDependentLithology::setCurrentLithology ( const double age 
       for ( I = 0; I < m_lithologies.size (); I++ ) {
 
          if ( m_lithologies [ I ]->startAge >= age ) {
-            currentLithology  = m_lithologies [ I ]->theLithology;
-            currentLithologyStartAge = m_lithologies [ I ]->startAge;
+            m_currentLithology  = m_lithologies [ I ]->theLithology;
+            m_currentLithologyStartAge = m_lithologies [ I ]->startAge;
          } else {
-            assert ( currentLithology != 0 );
+            assert ( m_currentLithology != 0 );
             break;
          }
 
@@ -178,14 +177,14 @@ void GeoPhysics::TimeDependentLithology::setCurrentLithology ( const double age 
 
    }
 
-  isAllochthonous = ( currentLithology != stratigraphyTableLithology and not currentLithology->isFault ());
+   m_isAllochthonous = ( m_currentLithology != m_stratigraphyTableLithology and not m_currentLithology->isFault ());
 
 }
 
 //------------------------------------------------------------//
 
 bool GeoPhysics::TimeDependentLithology::currentIsAllochthonous () const {
-   return isAllochthonous;
+   return m_isAllochthonous;
 }
 
 //------------------------------------------------------------//
@@ -196,7 +195,7 @@ bool GeoPhysics::TimeDependentLithology::isAllochthonousAtAge ( const double age
 
    bool isAllochthonous;
 
-   if ( age >= stratigraphyTableLithologyStartAge ) {
+   if ( age >= m_stratigraphyTableLithologyStartAge ) {
       isAllochthonous = false;
    } else {
       CompoundLithology* lithology = 0;
@@ -215,7 +214,7 @@ bool GeoPhysics::TimeDependentLithology::isAllochthonousAtAge ( const double age
 
       }
 
-      isAllochthonous = ( lithology != 0 and lithology != stratigraphyTableLithology and not lithology->isFault ());
+      isAllochthonous = ( lithology != 0 and lithology != m_stratigraphyTableLithology and not lithology->isFault ());
    }
 
    return isAllochthonous;
@@ -224,7 +223,7 @@ bool GeoPhysics::TimeDependentLithology::isAllochthonousAtAge ( const double age
 //------------------------------------------------------------//
 
 bool GeoPhysics::TimeDependentLithology::lithologyHasSwitched () const {
-   return currentLithology != previousLithology;
+   return m_currentLithology != m_previousLithology;
 }
 
 //------------------------------------------------------------//
@@ -234,8 +233,8 @@ GeoPhysics::CompoundLithology* GeoPhysics::TimeDependentLithology::activeAt ( co
    size_t I;
    CompoundLithology* lithology = 0;
 
-   if ( age >= stratigraphyTableLithologyStartAge ) {
-      lithology = stratigraphyTableLithology;
+   if ( age >= m_stratigraphyTableLithologyStartAge ) {
+      lithology = m_stratigraphyTableLithology;
    } else {
 
       for ( I = 0; I < m_lithologies.size (); I++ ) {
@@ -256,11 +255,11 @@ GeoPhysics::CompoundLithology* GeoPhysics::TimeDependentLithology::activeAt ( co
 
 //------------------------------------------------------------//
 
-void GeoPhysics::TimeDependentLithology::Print () const {
+void GeoPhysics::TimeDependentLithology::print () const {
 
    size_t I;
 
-   cout << "  GeoPhysics::TimeDependentLithology::Print ages " << currentLithologyStartAge << ":  ";
+   cout << "  GeoPhysics::TimeDependentLithology::Print ages " << m_currentLithologyStartAge << ":  ";
 
    for ( I = 0; I < m_lithologies.size (); I++ ){
       cout << m_lithologies [ I ]->startAge << "  ";

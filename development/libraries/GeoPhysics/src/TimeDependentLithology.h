@@ -23,7 +23,6 @@ namespace GeoPhysics {
 
    /// Functor class enabling sorting of LithologyAge-pair objects w.r.t age.
    class LithologyAgeOlderThan {
-
    public :
       bool operator ()( const LithologyAgePtr L1, const LithologyAgePtr L2 );
    };
@@ -74,8 +73,7 @@ namespace GeoPhysics {
       ~TimeDependentLithology ();
 
       /// Add the lithology that is defined in the stratigraphy table to the sequence.
-      void addStratigraphyTableLithology ( const double             age,
-                                                 CompoundLithology* newLithology );
+      void addStratigraphyTableLithology ( CompoundLithology* newLithology );
 
       /// Add a lithology change to the sequence.
       ///
@@ -106,21 +104,21 @@ namespace GeoPhysics {
       /// Returns the lithology that is active at the age.
       CompoundLithology* activeAt ( const double age ) const;
 
-      void Print () const;
+      void print () const;
 
    private :
 
       /// Change to LithologyAge class!!!!!
-      CompoundLithology* stratigraphyTableLithology;
-      double             stratigraphyTableLithologyStartAge;
+      CompoundLithology* m_stratigraphyTableLithology;
+      double             m_stratigraphyTableLithologyStartAge;
 
-      CompoundLithology* previousLithology;
-      CompoundLithology* currentLithology;
-      double             currentLithologyStartAge;
+      CompoundLithology* m_previousLithology;
+      CompoundLithology* m_currentLithology;
+      double             m_currentLithologyStartAge;
 
       LithologyAgeVector m_lithologies;
 
-      bool               isAllochthonous;
+      bool               m_isAllochthonous;
 
    };
 
@@ -131,7 +129,7 @@ namespace GeoPhysics {
 //------------------------------------------------------------//
 
 inline GeoPhysics::CompoundLithology* GeoPhysics::TimeDependentLithology::currentActiveLithology () const {
-  return currentLithology;
+  return m_currentLithology;
 }
 
 #endif // _GEOPHYSICS__TIME_DEPENDANT_LITHOLOGY_H_

@@ -33,11 +33,7 @@ GeoPhysics::GeoPhysicsMantleFormation::GeoPhysicsMantleFormation ( DataAccess::I
 
 bool GeoPhysics::GeoPhysicsMantleFormation::setLithologiesFromStratTable () {
 
-   double formationStartDepositionAge;
-
    m_compoundLithologies.allocate ( DataAccess::Interface::MantleFormation::m_projectHandle->getActivityOutputGrid ());
-
-   formationStartDepositionAge = GeoPhysics::AgeOfEarth;
 
    string lithoName1;
 
@@ -59,7 +55,7 @@ bool GeoPhysics::GeoPhysicsMantleFormation::setLithologiesFromStratTable () {
 
    pMixedLitho = ((GeoPhysics::ProjectHandle*)(GeoPhysics::Formation::m_projectHandle))->getLithologyManager ().getCompoundLithology ( lc );
    createdLithologies = pMixedLitho != 0;
-   m_compoundLithologies.fillWithLithology ( formationStartDepositionAge, pMixedLitho );
+   m_compoundLithologies.fillWithLithology ( pMixedLitho );
 
    if( dynamic_cast<GeoPhysics::ProjectHandle*>(m_projectHandle)->isALC() && m_projectHandle->getRank() == 0 ) {
       cout << "Mantle property model = " << pMixedLitho->getThermalModel() << endl;

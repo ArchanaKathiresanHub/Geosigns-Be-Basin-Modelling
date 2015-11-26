@@ -2217,50 +2217,10 @@ double LayerProps::estimateStandardPermeability () const {
 
 //------------------------------------------------------------//
 
-bool LayerProps::isAllochthonous () const {
-  return m_compoundLithologies.hasAllochthonousLithologyInterpolator ();
-}
-
-//------------------------------------------------------------//
-
 void LayerProps::setChemicalCompactionVesValue ( const double newVesValue ) {
 
   chemicalCompactionVesValueIsDefined = true;
   chemicalCompactionVesValue = newVesValue;
-
-}
-
-//------------------------------------------------------------//
-
-bool LayerProps::outputValid ( const PropertyList currentProperty ) const {
-
-  switch ( currentProperty ) {
-
-    // The layer should output the allochthonous lithology distribution iff
-    // the layer is an allochthonous layer. Otherwise a maps consisting of
-    // only zeros would be output.
-    case ALLOCHTHONOUS_LITHOLOGY : return isAllochthonous ();
-
-//     // The layer should output the faulted element map iff
-//     // the layer has a fault defined. Otherwise a maps consisting of
-//     // only zeros would be output.
-//     case FAULTELEMENTS : return isFaulted ();
-
-    // The pressure output is only valid in the sediments.
-    case PRESSURE : return isSediment ();
-
-    // The hydrostatic pressure output is only valid in the sediments.
-    case HYDROSTATICPRESSURE : return isSediment ();
-
-    // The overpressure output is only valid in the sediments.
-    case OVERPRESSURE : return isSediment ();
-
-    // The Vr output is only valid in the sediments.
-    case VR : return isSediment ();
-
-    // Always assume that a property can be output
-    default : return true;
-  }
 
 }
 

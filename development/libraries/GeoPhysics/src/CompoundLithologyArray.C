@@ -4,8 +4,8 @@
 #include "NumericFunctions.h"
 
 GeoPhysics::CompoundLithologyArray::CompoundLithologyArray () {
-   duplicatePreference = GeoPhysics::PREFER_LAST_ON_LIST;
-   interpolator = 0;
+   m_duplicatePreference = GeoPhysics::PREFER_LAST_ON_LIST;
+   m_interpolator = 0;
    m_lithologies = 0;
 }
 
@@ -37,7 +37,7 @@ GeoPhysics::CompoundLithologyArray::~CompoundLithologyArray () {
 //------------------------------------------------------------//
 
 void GeoPhysics::CompoundLithologyArray::setDuplicateLithologyAgePreference ( const DuplicateLithologyAgePreference newPreference ) {
-   duplicatePreference = newPreference;
+   m_duplicatePreference = newPreference;
 }
 
 //------------------------------------------------------------//
@@ -68,13 +68,11 @@ void GeoPhysics::CompoundLithologyArray::allocate ( const DataAccess::Interface:
 
 }
 
-
 //------------------------------------------------------------//
-
 
 void GeoPhysics::CompoundLithologyArray::print ( const unsigned int i, const unsigned int j ) const {
 
-  m_lithologies [ i - first ( 0 )][ j - first ( 1 )]->Print ();
+  m_lithologies [ i - first ( 0 )][ j - first ( 1 )]->print ();
 
 }
 
@@ -104,7 +102,6 @@ GeoPhysics::CompoundLithology* GeoPhysics::CompoundLithologyArray::operator ()( 
 
 //------------------------------------------------------------//
 
-
 GeoPhysics::CompoundLithology* GeoPhysics::CompoundLithologyArray::operator ()( const unsigned int subscriptI, const unsigned int subscriptJ, const double Age ) const {
    return m_lithologies [ subscriptI - first ( 0 )][ subscriptJ - first ( 1 )]->activeAt ( Age );
 }
@@ -126,50 +123,44 @@ bool GeoPhysics::CompoundLithologyArray::validIndex ( const unsigned int subscri
 void GeoPhysics::CompoundLithologyArray::addLithology ( const unsigned int       subscriptI,
                                                         const unsigned int       subscriptJ,
                                                         const double             Age,
-                                                              CompoundLithology* newLithology ) {
+                                                        CompoundLithology* newLithology ) {
 
-   m_lithologies [ subscriptI - first ( 0 )][ subscriptJ - first ( 1 )]->addLithology ( Age, newLithology, duplicatePreference );
+   m_lithologies [ subscriptI - first ( 0 )][ subscriptJ - first ( 1 )]->addLithology ( Age, newLithology, m_duplicatePreference );
 
 }
 
-
 //------------------------------------------------------------//
-
 
 void GeoPhysics::CompoundLithologyArray::addStratigraphyTableLithology ( const unsigned int       subscriptI,
                                                                          const unsigned int       subscriptJ,
-                                                                         const double             Age,
-                                                                               CompoundLithology* newLithology ) {
+                                                                         CompoundLithology* newLithology ) {
 
-  m_lithologies [ subscriptI - first ( 0 )][ subscriptJ - first ( 1 )]->addStratigraphyTableLithology ( Age, newLithology );
+  m_lithologies [ subscriptI - first ( 0 )][ subscriptJ - first ( 1 )]->addStratigraphyTableLithology ( newLithology );
 
 }
 
-
 //------------------------------------------------------------//
 
-
-void GeoPhysics::CompoundLithologyArray::fillWithLithology ( const double             Age,
-                                                                   CompoundLithology* newLithology ) {
+void GeoPhysics::CompoundLithologyArray::fillWithLithology ( CompoundLithology* newLithology ) {
 
   unsigned int i;
   unsigned int j;
 
    for ( i = 0; i < length ( 0 ); ++i ) {
 
-      for ( j = 0; j < length ( 1 ); ++j ) {
-         m_lithologies [ i ][ j ]->addStratigraphyTableLithology ( Age, newLithology );
+      for ( j = 0; j < length ( 1 ); ++j )
+      {
+            m_lithologies [ i ][ j ]->addStratigraphyTableLithology ( newLithology );
       }
 
    }
 
 }
 
-
 //------------------------------------------------------------//
 
 void GeoPhysics::CompoundLithologyArray::setAllochthonousInterpolator ( AllochthonousLithologyInterpolator* newInterpolator ) {
-  interpolator = newInterpolator;
+  m_interpolator = newInterpolator;
 }
 
 //------------------------------------------------------------//
@@ -194,29 +185,23 @@ bool GeoPhysics::CompoundLithologyArray::hasSwitched ( const unsigned int subscr
 
 //------------------------------------------------------------//
 
-bool GeoPhysics::CompoundLithologyArray::hasAllochthonousLithologyInterpolator () const {
-   return false;
-//   return interpolator != 0;
-}
-
-//------------------------------------------------------------//
-
-
 bool GeoPhysics::CompoundLithologyArray::setCurrentLithologies ( const double Age ) {
 
   unsigned int i;
   unsigned int j;
   bool switchHasOccurred = false;
 
-  if ( interpolator != 0 ) {
-    interpolator->setInterpolator ( Age );
+  if ( m_interpolator != 0 ) {
+    m_interpolator->setInterpolator ( Age );
   }
 
    for ( i = 0; i < length ( 0 ); ++i ) {
-
       for ( j = 0; j < length ( 1 ); ++j ) {
-        m_lithologies [ i ][ j ]->setCurrentLithology ( Age );
-        switchHasOccurred = switchHasOccurred or m_lithologies [ i ][ j ]->lithologyHasSwitched ();
+         if( m_lithologies [ i ][ j ]->currentActiveLithology () != 0 )
+         {
+            m_lithologies [ i ][ j ]->setCurrentLithology ( Age );
+            switchHasOccurred = switchHasOccurred or m_lithologies [ i ][ j ]->lithologyHasSwitched ();
+         }
      }
 
   }

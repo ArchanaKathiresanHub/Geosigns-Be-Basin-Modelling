@@ -4041,59 +4041,6 @@ int AppCtx::findFormationPosition ( const string& formationName ) const {
   return -1;
 }
 
-
-void AppCtx::selectLayers ( const PropertyList currentProperty,
-                            const OutputOption range,
-                                  LayerStack&  selectedLayers ) {
-
-  size_t nr = 0;
-
-  selectedLayers.clear ();
-
-  for (nr = 0; nr < layers.size(); nr++) {
-
-    if ( not layers[nr]->isActive()) continue;
-
-    switch (range) {
-
-      case NOOUTPUT:
-         break;
-
-      case SEDIMENTSPLUSBASEMENT:
-
-         if (layers[nr]->outputValid ( currentProperty )) {
-            selectedLayers.push_back(nr);
-         }
-
-         break;
-
-      case SEDIMENTSONLY:
-
-         if (layers[nr]->isSediment() && layers[nr]->outputValid ( currentProperty )) {
-            selectedLayers.push_back(nr);
-         }
-
-         break;
-
-      case SOURCEROCKONLY:
-
-         if (layers[nr]->isSourceRock()) {
-            selectedLayers.push_back(nr);
-         }
-
-	break;
-
-    default:
-      {
-	cout << "Unknown RANGE [ " << range 
-	     << "] detected in AppCtx::selectLayers for " 
-	     << layers[nr]->layername << endl;
-      }
-    }
-  }
-
-}
-
 //------------------------------------------------------------//
 
 void AppCtx::selectSourceRockLayers ( LayerStack& selectedLayers  ) {

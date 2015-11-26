@@ -34,12 +34,10 @@ namespace GeoPhysics {
 
       void addStratigraphyTableLithology ( const unsigned int       subscriptI,
                                            const unsigned int       subscriptJ,
-                                           const double             Age,
-                                                 CompoundLithology* newLithology );
+                                           CompoundLithology* newLithology );
 
       /// Fills array with same lithology.
-      void fillWithLithology ( const double             Age,
-                                     CompoundLithology* newLithology );
+      void fillWithLithology ( CompoundLithology* newLithology );
 
       /// Set the 'cached' lithology, this saves searching for the required lithology each time it's accessed.
       bool setCurrentLithologies ( const double Age );
@@ -65,8 +63,6 @@ namespace GeoPhysics {
       bool validIndex ( const unsigned int subscriptI,
                         const unsigned int subscriptJ ) const;
 
-      bool hasAllochthonousLithologyInterpolator () const;
-
       void print ( const unsigned int i,
                    const unsigned int j ) const;
 
@@ -86,8 +82,8 @@ namespace GeoPhysics {
       unsigned int m_last  [ 2 ];
       unsigned int m_size  [ 2 ];
 
-      AllochthonousLithologyInterpolator* interpolator;
-      DuplicateLithologyAgePreference duplicatePreference;
+      AllochthonousLithologyInterpolator* m_interpolator;
+      DuplicateLithologyAgePreference m_duplicatePreference;
 
    };
 
