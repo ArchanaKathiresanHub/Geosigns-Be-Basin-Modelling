@@ -12,6 +12,7 @@
 
 #include <Interface/ProjectHandle.h>
 #include <Interface/ObjectFactory.h>
+#include <Interface/Snapshot.h>
 #include <Interface/Grid.h>
 #include <Interface/Formation.h>
 #include <Interface/Surface.h>
@@ -134,6 +135,8 @@ Project::SnapshotContents DataAccessProject::getSnapshotContents(size_t snapshot
   std::unique_ptr<di::SurfaceList> surfaceList(m_projectHandle->getSurfaces(snapshot));
   for (auto item : *surfaceList)
     contents.surfaces.push_back(m_surfaceIdMap.at(item->getName()));
+
+  contents.age = snapshot->getTime();
 
   return contents;
 }
@@ -270,18 +273,38 @@ void DataAccessProject::init()
   }
 
   // Get faults
-  //std::unique_ptr<di::FaultCollectionList> faultCollections(m_projectHandle->getFaultCollections(0));
-  //for (auto coll : *faultCollections)
-  //{
-  //  std::unique_ptr<di::FaultList> faults(coll->getFaults());
-  //  for (auto item : *faults)
-  //  {
-  //    m_faultMap[
-  //      std::make_tuple(
-  //        coll->getName(),
-  //        item->getName())] = item;
-  //  }
-  //}
+  id = 0;
+  std::unique_ptr<di::FaultCollectionList> faultCollections(m_projectHandle->getFaultCollections(0));
+  for (int i = 0; i < (int)faultCollections->size(); ++i)
+  {
+    auto coll = (*faultCollections)[i];
+
+    FaultCollection collection;
+    collection.name = coll->getName();
+    for (int j = 0; j < (int)m_formations.size(); ++j)
+    {
+      if (coll->appliesToFormation(m_formations[j]))
+        collection.formations.push_back(j);
+    }
+    m_projectInfo.faultCollections.push_back(collection);
+
+    std::unique_ptr<di::FaultList> faults(coll->getFaults());
+    for (auto item : *faults)
+    {
+      m_faults.push_back(item);
+
+      m_faultMap[
+        std::make_tuple(
+          coll->getName(),
+          item->getName())] = id++;
+
+      Fault fault;
+      fault.collectionId = i;
+      fault.name = item->getName();
+
+      m_projectInfo.faults.push_back(fault);
+    }
+  }
 
   // Get properties
   std::unique_ptr<di::PropertyList> properties(m_projectHandle->getProperties(true));

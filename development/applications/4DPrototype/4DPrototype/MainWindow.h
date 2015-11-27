@@ -36,6 +36,8 @@ class MainWindow : public QMainWindow
 
   std::shared_ptr<Project> m_project;
   std::shared_ptr<SceneGraphManager> m_sceneGraphManager;
+  
+  Project::ProjectInfo m_projectInfo;
 
   static void fpsCallback(float fps, void* userData, SoQtViewer* viewer);
 
@@ -52,6 +54,8 @@ class MainWindow : public QMainWindow
   void updateUI();
 
   void connectSignals();
+
+  int getFaultIndex(const std::string& collectionName, const std::string& faultName) const;
 
 private slots:
 

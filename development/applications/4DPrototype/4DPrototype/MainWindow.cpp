@@ -144,6 +144,10 @@ void MainWindow::updateUI()
   reservoirsItem->setText(0, "Reservoirs");
   reservoirsItem->setFont(0, font);
 
+  QTreeWidgetItem* faultCollectionsItem = new QTreeWidgetItem;
+  faultCollectionsItem->setText(0, "Faults");
+  faultCollectionsItem->setFont(0, font);
+
   m_ui.treeWidgetProperties->clear();
   QTreeWidgetItem* header = m_ui.treeWidgetProperties->headerItem();
   header->setText(0, "Name");
@@ -155,8 +159,8 @@ void MainWindow::updateUI()
   propertiesItem->setText(0, "Properties");
 
   // Add properties to parent node
-  Project::ProjectInfo projectInfo = m_project->getProjectInfo();
-  for (auto prop : projectInfo.properties)
+  m_projectInfo = m_project->getProjectInfo();
+  for (auto prop : m_projectInfo.properties)
   {
     QTreeWidgetItem* item = new QTreeWidgetItem(propertiesItem, TreeWidgetItem_PropertyType);
     item->setText(0, prop.name.c_str());
@@ -188,30 +192,49 @@ void MainWindow::updateUI()
   }
 
   // Add formations to parent node
-  for (auto formation : projectInfo.formations)
+  for (auto formation : m_projectInfo.formations)
   {
     QTreeWidgetItem* item = new QTreeWidgetItem(formationsItem, TreeWidgetItem_FormationType);
     item->setText(0, formation.name.c_str());
     item->setCheckState(0, Qt::Checked);
   }
 
-  for (auto surface : projectInfo.surfaces)
+  for (auto surface : m_projectInfo.surfaces)
   {
     QTreeWidgetItem* item = new QTreeWidgetItem(surfacesItem, TreeWidgetItem_SurfaceType);
     item->setText(0, surface.name.c_str());
     item->setCheckState(0, Qt::Unchecked);
   }
 
-  for (auto reservoir : projectInfo.reservoirs)
+  for (auto reservoir : m_projectInfo.reservoirs)
   {
     QTreeWidgetItem* item = new QTreeWidgetItem(reservoirsItem, TreeWidgetItem_ReservoirType);
     item->setText(0, reservoir.name.c_str());
     item->setCheckState(0, Qt::Unchecked);
   }
 
+  int currentCollectionId = -1;
+  QTreeWidgetItem* currentCollectionItem = 0;
+  for (auto fault : m_projectInfo.faults)
+  {
+    if (fault.collectionId != currentCollectionId)
+    {
+      currentCollectionId = fault.collectionId;
+
+      currentCollectionItem = new QTreeWidgetItem(faultCollectionsItem, TreeWidgetItem_FaultCollectionType);
+      currentCollectionItem->setText(0, m_projectInfo.faultCollections[currentCollectionId].name.c_str());
+      currentCollectionItem->setFont(0, font);
+    }
+
+    QTreeWidgetItem* item = new QTreeWidgetItem(currentCollectionItem, TreeWidgetItem_FaultType);
+    item->setText(0, fault.name.c_str());
+    item->setCheckState(0, Qt::Unchecked);
+  }
+
   m_ui.treeWidget->addTopLevelItem(formationsItem);
   m_ui.treeWidget->addTopLevelItem(surfacesItem);
   m_ui.treeWidget->addTopLevelItem(reservoirsItem);
+  m_ui.treeWidget->addTopLevelItem(faultCollectionsItem);
   m_ui.treeWidgetProperties->addTopLevelItem(propertiesItem);
 
   formationsItem->setExpanded(true);
@@ -296,6 +319,22 @@ void MainWindow::connectSignals()
   connect(m_ui.radioButtonFlowVizVectors, SIGNAL(toggled(bool)), this, SLOT(onFlowVizTypeChanged(bool)));
 
   connect(m_ui.treeWidget, SIGNAL(itemChanged(QTreeWidgetItem*, int)), this, SLOT(onTreeWidgetItemChanged(QTreeWidgetItem*, int)));
+}
+
+int MainWindow::getFaultIndex(const std::string& collectionName, const std::string& faultName) const
+{
+  for (int i = 0; i < (int)m_projectInfo.faults.size(); ++i)
+  {
+    auto const& fault = m_projectInfo.faults[i];
+    if (fault.name == faultName)
+    {
+      auto const& collection = m_projectInfo.faultCollections[fault.collectionId];
+      if (collection.name == collectionName)
+        return i;
+    }
+  }
+
+  return -1;
 }
 
 void MainWindow::onActionOpenTriggered()
@@ -638,7 +677,7 @@ void MainWindow::onTreeWidgetItemChanged(QTreeWidgetItem* item, int column)
     m_sceneGraphManager->enableReservoir(index, checked);
     break;
   case TreeWidgetItem_FaultType:
-    m_sceneGraphManager->enableFault(parentName, name, checked);
+    m_sceneGraphManager->enableFault(getFaultIndex(parentName, name), checked);
     break;
   case TreeWidgetItem_FaultCollectionType:
   case TreeWidgetItem_FormationGroupType:

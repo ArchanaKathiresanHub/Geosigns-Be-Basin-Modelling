@@ -243,11 +243,12 @@ void BpaRenderAreaListener::onReceivedMessage(RenderArea* renderArea, Connection
   }
   else if (cmd == "EnableFault")
   {
-    auto collection = params.get<std::string>("collection");
-    auto name = params.get<std::string>("name");
+    //auto collection = params.get<std::string>("collection");
+    //auto name = params.get<std::string>("name");
+    auto faultId = params.get<jsonxx::Number>("faultId");
     auto enabled = params.get<bool>("enabled");
 
-    m_sceneGraphManager.enableFault(collection, name, enabled);
+    m_sceneGraphManager.enableFault((int)faultId, enabled);
   }
   else if (cmd == "EnableAllFaults")
   {

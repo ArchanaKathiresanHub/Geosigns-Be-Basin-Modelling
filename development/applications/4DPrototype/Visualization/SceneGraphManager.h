@@ -173,6 +173,7 @@ struct SnapshotInfo
   };
 
   size_t index; // index in snapshot list
+  double time;
 
   int currentPropertyId;
 
@@ -367,7 +368,7 @@ public:
 
   void enableAllReservoirs(bool enabled);
 
-  void enableFault(const std::string& collectionName, const std::string& name, bool enabled);
+  void enableFault(int faultId, bool enabled);
 
   void enableAllFaults(bool enabled);
 

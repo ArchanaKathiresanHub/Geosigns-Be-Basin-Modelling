@@ -71,7 +71,7 @@ SoLineSet* generateFlowLines(const MiDataSetIjk<double>& values, int startK, con
           vertices.emplace_back((float)center[0], (float)center[1], (float)center[2]);
           nverts++;
 
-          int code = (int)values.get(i, jj, kk);
+          int code = (int)values.get(ii, jj, kk);
           MbVec3<int32_t> deltas = decodeFlowDirection(code);
           if (deltas[0] == 0 && deltas[1] == 0 && deltas[2] == 0)
             break;
@@ -90,7 +90,10 @@ SoLineSet* generateFlowLines(const MiDataSetIjk<double>& values, int startK, con
           }
         }
 
-        if (nverts > 0)
+        if (nverts == 1)
+          vertices.erase(--vertices.end());
+
+        if (nverts > 1)
           numVertices.push_back((int)nverts);
       }
     }

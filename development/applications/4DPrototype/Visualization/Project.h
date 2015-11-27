@@ -49,6 +49,18 @@ public:
     std::string name;
   };
 
+  struct FaultCollection
+  {
+    std::string name;
+    std::vector<int> formations;
+  };
+
+  struct Fault
+  {
+    int collectionId;
+    std::string name;
+  };
+
   struct Property
   {
     std::string name;
@@ -60,6 +72,8 @@ public:
     std::vector<Formation> formations;
     std::vector<Surface>   surfaces;
     std::vector<Reservoir> reservoirs;
+    std::vector<FaultCollection> faultCollections;
+    std::vector<Fault>     faults;
     std::vector<Property>  properties;
   };
 

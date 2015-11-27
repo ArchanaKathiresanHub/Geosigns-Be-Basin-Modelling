@@ -117,7 +117,7 @@ void SceneGraphManager::updateSnapshotFormations()
   SnapshotInfo& snapshot = *m_snapshotInfoCache.begin();
 
   // Update formations
-  if (snapshot.formationsTimeStamp == m_formationsTimeStamp || snapshot.chunksGroup == 0)
+  if (snapshot.formationsTimeStamp == m_formationsTimeStamp || !snapshot.chunksGroup || !snapshot.meshData)
     return;
 
   snapshot.chunksGroup->removeAllChildren();
@@ -315,10 +315,15 @@ void SceneGraphManager::updateSnapshotTraps()
       // Trap outlines
       if (m_showTrapOutlines && !res.trapOutlines)
       {
+        std::shared_ptr<MiDataSetIjk<double> > dataSet;
+
         int propertyId = m_project->getPropertyId("ResRockTrapId");
-        auto data = m_project->createReservoirProperty(snapshot.index, res.id, propertyId);
+        if (propertyId == snapshot.currentPropertyId)
+          dataSet = res.propertyData;
+        else
+          dataSet = m_project->createReservoirProperty(snapshot.index, res.id, propertyId);
         const MiGeometryIjk& geometry = res.meshData->getGeometry();
-        res.trapOutlines = m_outlineBuilder->createOutline(data.get(), &geometry);
+        res.trapOutlines = m_outlineBuilder->createOutline(dataSet.get(), &geometry);
 
         res.root->addChild(res.trapOutlines);
       }
@@ -343,19 +348,29 @@ void SceneGraphManager::updateSnapshotTraps()
 
       if (m_drainageAreaType == DrainageAreaFluid && !res.drainageAreaOutlinesFluid)
       {
+        std::shared_ptr<MiDataSetIjk<double> > dataSet;
+
         int propertyId = m_project->getPropertyId("ResRockDrainageIdFluidPhase");
-        auto data = m_project->createReservoirProperty(snapshot.index, res.id, propertyId);
+        if (propertyId == snapshot.currentPropertyId)
+          dataSet = res.propertyData;
+        else
+          dataSet = m_project->createReservoirProperty(snapshot.index, res.id, propertyId);
         const MiGeometryIjk& geometry = res.meshData->getGeometry();
-        res.drainageAreaOutlinesFluid = m_outlineBuilder->createOutline(data.get(), &geometry);
+        res.drainageAreaOutlinesFluid = m_outlineBuilder->createOutline(dataSet.get(), &geometry);
 
         res.root->addChild(res.drainageAreaOutlinesFluid);
       }
       else if (m_drainageAreaType == DrainageAreaGas && !res.drainageAreaOutlinesGas)
       {
+        std::shared_ptr<MiDataSetIjk<double> > dataSet;
+
         int propertyId = m_project->getPropertyId("ResRockDrainageIdGasPhase");
-        auto data = m_project->createReservoirProperty(snapshot.index, res.id, propertyId);
+        if (propertyId == snapshot.currentPropertyId)
+          dataSet = res.propertyData;
+        else
+          dataSet = m_project->createReservoirProperty(snapshot.index, res.id, propertyId);
         const MiGeometryIjk& geometry = res.meshData->getGeometry();
-        res.drainageAreaOutlinesGas = m_outlineBuilder->createOutline(data.get(), &geometry);
+        res.drainageAreaOutlinesGas = m_outlineBuilder->createOutline(dataSet.get(), &geometry);
 
         res.root->addChild(res.drainageAreaOutlinesGas);
       }
@@ -415,8 +430,8 @@ std::shared_ptr<FaultMesh> SceneGraphManager::generateFaultMesh(
   double deltaX = m_project->deltaX();
   double deltaY = m_project->deltaY();
 
-  double minX = m_project->minX();
-  double minY = m_project->minY();
+  double minX = 0.0;// m_project->minX();
+  double minY = 0.0;// m_project->minY();
 
   double maxX = minX + deltaX * numI;
   double maxY = minY + deltaY * numJ;
@@ -428,8 +443,8 @@ std::shared_ptr<FaultMesh> SceneGraphManager::generateFaultMesh(
   {
     double i = std::max(std::min(p[0], maxX), 0.0) / deltaX;
     double j = std::max(std::min(p[1], maxY), 0.0) / deltaY;
-    double z0 = getZ(geometry, numI, numJ, p[0], p[1], k0);
-    double z1 = getZ(geometry, numI, numJ, p[0], p[1], k1);
+    double z0 = getZ(geometry, numI, numJ, i, j, k0);
+    double z1 = getZ(geometry, numI, numJ, i, j, k1);
 
     coords.emplace_back(p[0], p[1], z0);
     coords.emplace_back(p[0], p[1], z1);
@@ -619,7 +634,8 @@ void SceneGraphManager::updateColorMap()
   if (m_currentPropertyId < 0)
     return;
 
-  //m_colorMapSwitch->whichChild = (m_currentPropertyId == m_resRockTrapIdPropertyId) ? 1 : 0;
+  int trapId = m_project->getPropertyId("ResRockTrapId");
+  m_colorMapSwitch->whichChild = (m_currentPropertyId == trapId) ? 1 : 0;
 
   assert(!m_snapshotInfoCache.empty());
 
@@ -676,7 +692,7 @@ void SceneGraphManager::updateText()
   SnapshotInfo& snapshot = *m_snapshotInfoCache.begin();
 
   SbString str1, str2;
-  str1.sprintf("Snapshot %d/%d (Age %.1f)", (int)(snapshot.index + 1), (int)m_project->getSnapshotCount(), 123.f); //TODO: get age
+  str1.sprintf("Snapshot %d/%d (Age %.1f)", (int)(snapshot.index + 1), (int)m_project->getSnapshotCount(), snapshot.time);
   str2.sprintf("Resolution %dx%d (%dx%d)",
     m_project->numCellsI(),
     m_project->numCellsJ(),
@@ -785,11 +801,11 @@ namespace
 
 SnapshotInfo SceneGraphManager::createSnapshotNode(size_t index)
 {
-  SnapshotInfo info;
-  info.index = index;
-
   auto snapshotContents = m_project->getSnapshotContents(index);
 
+  SnapshotInfo info;
+  info.index = index;
+  info.time = snapshotContents.age;
   info.formations = snapshotContents.formations;
 
   // collect array of formation ids for FormationIdProperty
@@ -815,6 +831,63 @@ SnapshotInfo SceneGraphManager::createSnapshotNode(size_t index)
     SnapshotInfo::Reservoir reservoir;
     reservoir.id = id;
     info.reservoirs.push_back(reservoir);
+  }
+
+  int collectionId = 0;
+  for (auto const& coll : m_projectInfo.faultCollections)
+  {
+    // ids of formations in this snapshot containing faults
+    std::vector<int> formationIds;
+    size_t i = 0;
+    // match formation ids from the fault collection to formation ids in this snapshot
+    for (auto id : coll.formations)
+    {
+      // don't do full linear search; take advantage of the fact that ids
+      // are ordered, so we can resume searching at the point we left off
+      for (; i < snapshotContents.formations.size(); ++i)
+      {
+        if (snapshotContents.formations[i].id == id)
+        {
+          formationIds.push_back(id);
+          break;
+        }
+      }
+    }
+
+    if (!formationIds.empty())
+    {
+      // find minK and maxK for this collection
+      int minId = formationIds[0];
+      int maxId = formationIds[formationIds.size() - 1];
+
+      int minK = 0, maxK = 0;
+      for (auto const& fmt : info.formations)
+      {
+        if (fmt.id == minId)
+          minK = fmt.minK;
+
+        if (fmt.id == maxId)
+          maxK = fmt.maxK;
+      }
+
+      int faultId = 0;
+      for (auto const& fault : m_projectInfo.faults)
+      {
+        if (fault.collectionId == collectionId)
+        {
+          SnapshotInfo::Fault newFault;
+          newFault.id = faultId;
+          newFault.minK = minK;
+          newFault.maxK = maxK;
+
+          info.faults.push_back(newFault);
+        }
+
+        faultId++;
+      }
+    }
+
+    collectionId++;
   }
 
   // Build the scenegraph
@@ -1158,8 +1231,12 @@ void SceneGraphManager::setProperty(int propertyId)
   std::string unit = m_projectInfo.properties[propertyId].unit;
   std::string title = name + " [" + unit + "]";
 
+  int trapId = m_project->getPropertyId("ResRockTrapId");
+
   m_legend->title = title.c_str();
-  m_legendSwitch->whichChild = SO_SWITCH_ALL;
+  m_legendSwitch->whichChild = (propertyId == trapId)
+    ? SO_SWITCH_NONE
+    : SO_SWITCH_ALL;
 
   updateSnapshot();
 }
@@ -1227,20 +1304,15 @@ void SceneGraphManager::enableAllReservoirs(bool enabled)
   updateSnapshot();
 }
 
-void SceneGraphManager::enableFault(const std::string& collectionName, const std::string& name, bool enabled)
+void SceneGraphManager::enableFault(int faultId, bool enabled)
 {
-  //auto iter = m_faultIdMap.find(std::make_tuple(collectionName, name));
-  //if (iter == m_faultIdMap.end())
-  //  return;
+  if (m_faultVisibility[faultId] == enabled)
+    return;
 
-  //int id = iter->second;
-  //if (m_faults[id].visible == enabled)
-  //  return;
+  m_faultVisibility[faultId] = enabled;
+  m_faultsTimeStamp = MxTimeStamp::getTimeStamp();
 
-  //m_faults[id].visible = enabled;
-  //m_faultsTimeStamp = MxTimeStamp::getTimeStamp();
-
-  //updateSnapshot();
+  updateSnapshot();
 }
 
 void SceneGraphManager::enableAllFaults(bool enabled)
@@ -1332,6 +1404,7 @@ void SceneGraphManager::setup(std::shared_ptr<Project> project)
   m_formationVisibility = std::vector<bool>(m_projectInfo.formations.size(), true);
   m_surfaceVisibility = std::vector<bool>(m_projectInfo.surfaces.size(), false);
   m_reservoirVisibility = std::vector<bool>(m_projectInfo.reservoirs.size(), false);
+  m_faultVisibility = std::vector<bool>(m_projectInfo.faults.size(), false);
 
   for (int i = 0; i < 3; ++i)
   {
@@ -1342,30 +1415,6 @@ void SceneGraphManager::setup(std::shared_ptr<Project> project)
   m_outlineBuilder = std::make_shared<OutlineBuilder>(
     m_project->numCellsIHiRes(), 
     m_project->numCellsJHiRes());
-
-  //// Get faults
-  //std::unique_ptr<di::FaultCollectionList> faultCollections(handle->getFaultCollections(0));
-  //if (faultCollections && !faultCollections->empty())
-  //{
-  //  for (size_t i = 0; i < faultCollections->size(); ++i)
-  //  {
-  //    std::unique_ptr<di::FaultList> faults((*faultCollections)[i]->getFaults());
-  //    for (size_t j = 0; j < faults->size(); ++j)
-  //    {
-  //      m_faultIdMap[
-  //        std::make_tuple(
-  //          (*faultCollections)[i]->getName(), 
-  //          (*faults)[j]->getName())] = (int)j;
-
-  //      FaultInfo info;
-  //      info.object = (*faults)[j];
-  //      info.id = (int)j;
-  //      info.visible = false;
-
-  //      m_faults.push_back(info);
-  //    }
-  //  }
-  //}
 
   //m_maxPersistentTrapId = getMaxPersistentTrapId(handle);
 
