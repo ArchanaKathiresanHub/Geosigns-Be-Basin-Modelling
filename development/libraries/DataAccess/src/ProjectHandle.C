@@ -556,14 +556,12 @@ bool ProjectHandle::restartActivity( void )
       fileName += "_Results.HDF";
       string filePathName = getProjectPath() + "/" + directoryName + "/" + fileName;
 
-
       m_mapPropertyValuesWriter->close();
       m_mapPropertyValuesWriter->open( filePathName, false );
       m_mapPropertyValuesWriter->saveDescription( getActivityOutputGrid() );
 
       if( m_primary ) {
-         fileName = "PrimaryProperties_Results.HDF";
-         filePathName = getProjectPath() + "/" + directoryName + "/" + fileName;
+         filePathName = getProjectPath() + "/" + directoryName + "/" + PrimaryPropertiesFileName;
          
          m_mapPrimaryPropertyValuesWriter->close();
          m_mapPrimaryPropertyValuesWriter->open( filePathName, false );
@@ -2397,17 +2395,14 @@ bool ProjectHandle::initializeMapPropertyValuesWriter( const bool append )
    return status;
 }
 
-bool ProjectHandle::initializePrimaryPropertyValuesWriter( )
+bool ProjectHandle::initializePrimaryPropertyValuesWriter( const bool append )
 {
-    if ( Interface::MODE3D != getModellingMode() ) return true;
+   if ( Interface::MODE3D != getModellingMode() ) return true;
    if( m_primary ) {
       if ( m_mapPrimaryPropertyValuesWriter ) return false;
 
-      const bool append = false;
-    
      // create hdf file
-      string fileName = "PrimaryProperties_Results.HDF";
-      string filePathName = getFullOutputDir() + "/" + fileName;
+      string filePathName = getFullOutputDir() + "/" + PrimaryPropertiesFileName;
       
       if ( !makeOutputDir() ) return false;
       
@@ -2579,27 +2574,30 @@ bool ProjectHandle::saveCreatedVolumePropertyValuesMode3D( void )
             continue;
          }
 
-         if ( !snapshotUsed and not m_primary )
+         if ( !snapshotUsed ) 
          {
             // let's use this propertyValue's snapshot during this iteration
             // and open a (new, empty) snapshot file for it.
             // File will be appended if append-flag is true in the snapshot.
             snapshotUsed = (Snapshot *)propertyValue->getSnapshot();
+            if( m_primary and m_mapPrimaryPropertyValuesWriter != 0 ) {
 
-            const string & fileName = snapshotUsed->getFileName( true );
-            string filePathName = getProjectPath() + "/" + getOutputDir() + "/" + fileName;
-
+               snapshotUsed->setPrimaryFileName( true );
+               
+            } else {
+               const string & fileName = snapshotUsed->getFileName( true );
+               string filePathName = getProjectPath() + "/" + getOutputDir() + "/" + fileName;
+               
 #if 0
-            cerr << "Saving snapshot ";
-            snapshotUsed->printOn (cerr);
-            cerr << " to file " << filePathName << "  " << (snapshotUsed->getAppendFile () ? "APPEND" : "CREATE" ) << endl;
+               cerr << "Saving snapshot ";
+               snapshotUsed->printOn (cerr);
+               cerr << " to file " << filePathName << "  " << (snapshotUsed->getAppendFile () ? "APPEND" : "CREATE" ) << endl;
 #endif
-
-            mapWriter->open( filePathName, snapshotUsed->getAppendFile() );
+               
+               mapWriter->open( filePathName, snapshotUsed->getAppendFile() );
+            }
          }
-         if ( not m_primary ) {
-            propertyValue->create3DTimeIoRecord( timeIoTbl, Interface::MODE3D );
-         }
+         propertyValue->create3DTimeIoRecord( timeIoTbl, Interface::MODE3D );
          m_propertyValues.push_back( propertyValue );
          propertyValueIter = m_recordLessVolumePropertyValues.erase( propertyValueIter );
          increment = 0;
@@ -2607,8 +2605,11 @@ bool ProjectHandle::saveCreatedVolumePropertyValuesMode3D( void )
          if( not m_primary ) {
             status &= propertyValue->saveVolumeToFile( *mapWriter );
          } else {
-
-            status &= propertyValue->savePrimaryVolumeToFile( *m_mapPrimaryPropertyValuesWriter );
+            if(  m_mapPrimaryPropertyValuesWriter != 0 ) {
+               status &= propertyValue->savePrimaryVolumeToFile( *m_mapPrimaryPropertyValuesWriter );
+            } else {
+               status &= propertyValue->savePrimaryVolumeToFile( *mapWriter );
+            }
          }
          
       }
@@ -5845,4 +5846,14 @@ double ProjectHandle::getPreviousIgneousIntrusionTime( const double Current_Time
 MapWriter * ProjectHandle::getPrimaryPropertyValuesWriter() {
 
    return m_mapPrimaryPropertyValuesWriter;
+}
+
+bool ProjectHandle::isPrimary() const {
+
+   return m_primary;
+}
+
+void ProjectHandle::setPrimary( const bool PrimaryFlag ) {
+
+   m_primary = PrimaryFlag;
 }

@@ -211,7 +211,7 @@ bool AppCtx::readProjectFile () {
 
    projectSnapshots.setMinorSnapshotsPrescribed ( IsCalculationCoupled && DoTemperature );
 
-   if ( DoOverPressure || Do_Iteratively_Coupled || ( !IsCalculationCoupled && DoTemperature ) || DoDecompaction ) {
+   if (( DoOverPressure || Do_Iteratively_Coupled || ( !IsCalculationCoupled && DoTemperature ) || DoDecompaction ) and not FastcauldronSimulator::getInstance ().isPrimary() ) {
 
      // What can be deleted here? 
      // Only if we are starting a new run (overpressure, hydrostatic-temperature, 

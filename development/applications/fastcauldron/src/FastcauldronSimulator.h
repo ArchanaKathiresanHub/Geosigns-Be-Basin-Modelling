@@ -170,6 +170,8 @@ public :
 
    void printSnapshotProperties () const;
 
+   void updateMajorSnapshotsFileNameInSnapshotTable ();
+
 
    /// \brief Update any flags in the source rocks for the GenEx simulation.
    ///
@@ -279,9 +281,6 @@ public :
 
    /// \brief Set primary properties output flag
    void setPrimaryPropertiesFlag( const bool outputPrimaryProperties );
-        
-   /// \brief Get primary properties output flag
-   bool getPrimaryPropertiesFlag() const;
         
 private :
 
@@ -458,12 +457,6 @@ inline bool FastcauldronSimulator::useCalculatedCapillaryPressure () const {
 
 inline void FastcauldronSimulator::setPrimaryPropertiesFlag ( const bool flag )  {
    m_primary = flag;
-}
-
-//------------------------------------------------------------//
-
-inline bool FastcauldronSimulator::getPrimaryPropertiesFlag ( ) const  {
-   return m_primary;
 }
 
 

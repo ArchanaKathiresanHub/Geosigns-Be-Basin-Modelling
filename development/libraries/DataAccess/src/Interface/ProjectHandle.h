@@ -503,7 +503,13 @@ namespace DataAccess
          /// get primary properties map writer
          MapWriter * getPrimaryPropertyValuesWriter();
          
-      protected:
+         /// get primary properties flag
+         bool isPrimary() const;
+
+         /// set primary properties flag
+         void setPrimary( const bool primaryFlag );
+
+       protected:
 		  friend ProjectHandle * OpenCauldronProject( const string & name, const string & accessMode, DataAccess::Interface::ObjectFactory* objectFactory );
 
          typedef enum { READONLY, READWRITE } AccessMode;
@@ -721,7 +727,7 @@ namespace DataAccess
          bool initializeMapPropertyValuesWriter( const bool append = false );
          bool finalizeMapPropertyValuesWriter( void );
 
-         bool initializePrimaryPropertyValuesWriter();
+         bool initializePrimaryPropertyValuesWriter( const bool append = false );
 
          bool saveCreatedMapPropertyValues( void );
 

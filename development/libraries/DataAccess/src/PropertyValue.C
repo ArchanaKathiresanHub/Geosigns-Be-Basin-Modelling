@@ -179,7 +179,7 @@ GridMap * PropertyValue::getGridMap (void) const
    {
       // The GridMap is to be retrieved from file
       string fileName;
-      string dataSetName;
+      string dataSetName = "";
 
 
       if (getStorage () == TIMEIOTBL)
@@ -204,13 +204,22 @@ GridMap * PropertyValue::getGridMap (void) const
       {
          // The record to refer to is SnapshotIoTbl record
          fileName = getMapFileName (record);
-	 dataSetName = "/" + getGroupName (record) + "/" + getDataSetName(record);
+         if( fileName == PrimaryPropertiesFileName ) {
+            std::stringstream snapshotGroupName;
+            snapshotGroupName.setf (ios::fixed);
+            snapshotGroupName.precision (6);
+            
+            snapshotGroupName << "/Time_" <<  m_snapshot->getTime ();
+
+            dataSetName = snapshotGroupName.str ();
+         }
+	     dataSetName += "/" + getGroupName (record) + "/" + getDataSetName(record);
       }
       else if (getStorage () == SNAPSHOTIOTBL)
       {
          // The record to refer to is SnapshotIoTbl record
          fileName = getSnapshotFileName (record);
-	 dataSetName = "/" + getName () + "/" + ( dynamic_cast<const Formation *>(getFormation ())->getMangledName ());
+	     dataSetName = "/" + getName () + "/" + ( dynamic_cast<const Formation *>(getFormation ())->getMangledName ());
       }
 
       (void) m_projectHandle->loadOutputMap (this, ValueMap, fileName, dataSetName);
@@ -495,7 +504,19 @@ bool PropertyValue::saveMapToFile (MapWriter & mapWriter)
 
 bool PropertyValue::savePrimaryVolumeToFile (MapWriter & mapWriter)
 {
+   database::setMapFileName (m_record, mapWriter.getFileName ());
+   database::setGroupName (m_record, getName ());
+   database::setDataSetName (m_record, getFormation ()->getMangledName ());
+
    GridMap * gridMap = getGridMap ();
+   gridMap->retrieveData();
+
+   database::setNumberX (m_record, gridMap->numI ());
+   database::setNumberY (m_record, gridMap->numJ ());
+   database::setNumberZ (m_record, gridMap->getDepth ());
+
+   gridMap->restoreData();
+
    double time = getSnapshot ()->getTime ();
 
    mapWriter.writePrimaryVolumeToHDF (gridMap, getName (), time, getFormation ()->getMangledName ());

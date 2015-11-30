@@ -41,8 +41,10 @@ int FastcauldronStartup::startup ( int                  argc,
    FastcauldronSimulator::getInstance ().readCommandLineParametersLateStage ( argc, argv );
 
    // Initialise properties output
-   if( not cauldron->no2Doutput() ) {
-      cauldron->setNo2Doutput( FastcauldronSimulator::getInstance ().getPrimaryPropertiesFlag() );
+   if( not cauldron->no2Doutput() and 
+       not ( FastcauldronSimulator::getInstance ().getCalculationMode () == HYDROSTATIC_HIGH_RES_DECOMPACTION_MODE or
+             FastcauldronSimulator::getInstance ().getCalculationMode () == COUPLED_HIGH_RES_DECOMPACTION_MODE )) {
+      cauldron->setNo2Doutput( FastcauldronSimulator::getInstance ().isPrimary() );
    }
 
    // Initialise anything that is to be set from the environment.

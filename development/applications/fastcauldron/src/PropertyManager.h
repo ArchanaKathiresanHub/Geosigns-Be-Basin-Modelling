@@ -75,7 +75,15 @@ public :
                                         const Interface::Snapshot* snapshot,
                                         const PropListVec&         genexProperties,
                                         const PropListVec&         shaleGasProperties );
-
+ 
+   /// Computes volume-properties for source rock layers.
+   ///
+   // Appctx is required for the layers.
+   void computeSourceRockPropertyVolumes ( AppCtx*                    cauldron,
+                                           const Interface::Snapshot* snapshot,
+                                           const PropListVec&         genexProperties,
+                                           const PropListVec&         shaleGasProperties );
+   
    /// Computes all volume-properties on required-property list.
    ///
    // Appctx is required for the layers.

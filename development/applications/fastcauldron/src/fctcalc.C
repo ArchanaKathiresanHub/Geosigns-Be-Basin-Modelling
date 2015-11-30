@@ -128,6 +128,7 @@ void FCTCalc::decompact(){
 
   if ( FastcauldronSimulator::getInstance ().getCalculationMode () == HYDROSTATIC_DECOMPACTION_MODE ) {
      FastcauldronSimulator::getInstance ().deleteMinorSnapshotsFromSnapshotTable ();
+     FastcauldronSimulator::getInstance ().updateMajorSnapshotsFileNameInSnapshotTable ();
   }
 
   PetscBool minorSnapshots;

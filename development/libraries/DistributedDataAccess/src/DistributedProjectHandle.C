@@ -261,51 +261,53 @@ GridMap * ProjectHandle::loadGridMap (const Parent * parent, unsigned int childI
       petscD = new Petsc_3D;
    }
 
-   // create readwrite object
-   PetscVector_ReadWrite < float >reader;
-
    const Grid *grid = findGrid (numI, numJ);
-
+   
    assert (grid);
-
+   
    DistributedGridMap *gridMap = 0;
-
-
+   
    const Grid *theActivityOutputGrid = getActivityOutputGrid ();
+  
+   const bool equalGrids = theActivityOutputGrid == 0 || grid == theActivityOutputGrid;
 
-   if (theActivityOutputGrid == 0 || grid == theActivityOutputGrid)
+   //create
+   if ( equalGrids )
    {
-      //create
       gridMap = dynamic_cast<DistributedGridMap * > (getFactory ()->produceGridMap (parent, childIndex, grid, undefinedValue, depth));
-      //read
-      reader.read (&gridMapFile, fileId, dataSetName.c_str (), gridMap->getDA (), gridMap->getVec (), petscD);
-   }
-   else
-   {
-      DistributedGridMap *gridMapInActivityOutputGrid = 0;
-
+   } else {
       gridMap = dynamic_cast<DistributedGridMap * > (getFactory ()->produceGridMap (0, 0, grid, undefinedValue, depth));
-
+   }
+   //read
+   if (filePathName.find ( PrimaryPropertiesFileName ) != string::npos) {
+      
+      PetscVector_ReadWrite < double >reader;
       reader.read (&gridMapFile, fileId, dataSetName.c_str (), gridMap->getDA (), gridMap->getVec (), petscD);
+    } else {
+      PetscVector_ReadWrite < float >reader;
+      reader.read (&gridMapFile, fileId, dataSetName.c_str (), gridMap->getDA (), gridMap->getVec (), petscD);
+    }  
 
+   if( not equalGrids ) {
+      DistributedGridMap *gridMapInActivityOutputGrid = 0;
+      
       gridMapInActivityOutputGrid =
-            dynamic_cast<DistributedGridMap * > (getFactory ()->produceGridMap (parent, childIndex, theActivityOutputGrid, undefinedValue, depth));
-
+         dynamic_cast<DistributedGridMap * > (getFactory ()->produceGridMap (parent, childIndex, theActivityOutputGrid, undefinedValue, depth));
+      
       //map gridMap to gridMapInOutputGrid
       //bool ret = mapGridMapAtoGridMapB( gridMap, grid, gridMapInActivityOutputGrid, theActivityOutputGrid ); 
       bool ret = gridMap->convertToGridMap (gridMapInActivityOutputGrid);
-
+      
       delete gridMap;
       gridMap = 0;
-
+      
       if (ret)
       {
          //if the transformation was sucessful return the map otherwise 0. it should throw here...
          gridMap = gridMapInActivityOutputGrid;
       }
-
+         
    }
-
    delete petscD;
 
    return gridMap;

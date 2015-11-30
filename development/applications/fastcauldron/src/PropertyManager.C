@@ -458,7 +458,33 @@ void PropertyManager::computeSourceRockPropertyMaps ( AppCtx*                   
    initialisePropertyMaps ();
    calculatePropertyMaps ();
    finalisePropertyMaps ();
+}
+//------------------------------------------------------------//
 
+void PropertyManager::computeSourceRockPropertyVolumes ( AppCtx*                    cauldron,
+                                                         const Interface::Snapshot* snapshot,
+                                                         const PropListVec&         genexProperties,
+                                                         const PropListVec&         shaleGasProperties ) {
+
+   // Some of the properties (as Vr) should be output to the primary properties file
+   if( FastcauldronSimulator::getInstance ().isPrimary() and cauldron->projectSnapshots.projectPrescribesMinorSnapshots ()) {
+      PropListVec::const_iterator propertyIter;
+      
+      for ( propertyIter = genexProperties.begin (); propertyIter != genexProperties.end (); ++propertyIter ) {
+         computePropertyVolumes ( cauldron, *propertyIter, snapshot, DataAccess::Interface::SOURCE_ROCK_ONLY_OUTPUT );       
+      }
+
+      for ( propertyIter = shaleGasProperties.begin (); propertyIter != shaleGasProperties.end (); ++propertyIter ) {
+         
+         if ( std::find ( genexProperties.begin (), genexProperties.end (), *propertyIter ) == genexProperties.end ()) {
+            computePropertyVolumes ( cauldron, *propertyIter, snapshot, DataAccess::Interface::SOURCE_ROCK_ONLY_OUTPUT );       
+         }
+         
+      } 
+      initialisePropertyVolumes ();
+      calculatePropertyVolumes ();
+      finalisePropertyVolumes  ();
+   }
 }
 
 //------------------------------------------------------------//

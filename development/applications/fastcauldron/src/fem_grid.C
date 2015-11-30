@@ -464,7 +464,7 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
 
   PetscBool onlyPrimaryProperties = PETSC_FALSE;
   PetscOptionsHasName( PETSC_NULL, "-primary", &onlyPrimaryProperties );
-  if( not onlyPrimaryProperties and FastcauldronSimulator::getInstance().getPrimaryPropertiesFlag() ) {
+  if( not onlyPrimaryProperties and FastcauldronSimulator::getInstance().isPrimary() ) {
      onlyPrimaryProperties = PETSC_TRUE;
   }
 
@@ -511,7 +511,7 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
      looselyCoupledOutputProperties.push_back( TEMPERATURE );
      looselyCoupledOutputProperties.push_back( VR );
 
-     if (onlyPrimaryProperties) {
+     if (onlyPrimaryProperties and not (FastcauldronSimulator::getInstance().getCalculationMode() == OVERPRESSURE_MODE)) {
         basinModel->timefilter.setFilter( "Depth", "SedimentsPlusBasement" );
         FastcauldronSimulator::getInstance().setOutputPropertyOption( DEPTH, Interface::SEDIMENTS_AND_BASEMENT_OUTPUT );
 
@@ -647,6 +647,7 @@ void Basin_Modelling::FEM_Grid::solvePressure ( bool& solverHasConverged,
     FastcauldronSimulator::getInstance ().deleteSnapshotProperties ();
     FastcauldronSimulator::getInstance ().deleteMinorSnapshots ();
     FastcauldronSimulator::getInstance ().deleteMinorSnapshotsFromSnapshotTable ();
+    FastcauldronSimulator::getInstance ().updateMajorSnapshotsFileNameInSnapshotTable ();
     savedMinorSnapshotTimes.clear ();
 
     if( basinModel->isModellingMode1D () ) 
@@ -752,6 +753,9 @@ void Basin_Modelling::FEM_Grid::solveTemperature ( bool& solverHasConverged,
     // Delete the minor snapshots from the snapshot-table.
     FastcauldronSimulator::getInstance ().deleteMinorSnapshots (); 
     FastcauldronSimulator::getInstance ().deleteMinorSnapshotsFromSnapshotTable ();
+
+    // Update the filename for the major snapshots
+    FastcauldronSimulator::getInstance ().updateMajorSnapshotsFileNameInSnapshotTable ();
   }
   else if ( FastcauldronSimulator::getInstance ().getCalculationMode () == OVERPRESSURED_TEMPERATURE_MODE )
   {
@@ -843,11 +847,13 @@ void Basin_Modelling::FEM_Grid::solveCoupled ( bool& solverHasConverged,
        FastcauldronSimulator::getInstance ().deleteSnapshotProperties ();
        FastcauldronSimulator::getInstance ().deleteMinorSnapshots (); 
        FastcauldronSimulator::getInstance ().deleteMinorSnapshotsFromSnapshotTable ();
+       FastcauldronSimulator::getInstance ().updateMajorSnapshotsFileNameInSnapshotTable ();
    }
     else
     {
        basinModel->timeIoTbl->clear();
        FastcauldronSimulator::getInstance ().deleteMinorSnapshotsFromSnapshotTable ();
+       FastcauldronSimulator::getInstance ().updateMajorSnapshotsFileNameInSnapshotTable ();
        Temperature_Calculator.resetBiomarkerStateVectors ( );
        Temperature_Calculator.resetSmectiteIlliteStateVectors ( );
        Temperature_Calculator.resetFissionTrackCalculator();

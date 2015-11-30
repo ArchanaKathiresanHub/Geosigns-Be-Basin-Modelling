@@ -586,8 +586,10 @@ bool FastcauldronSimulator::setCalculationMode ( const CalculationMode mode)
 
    }
 
-   if( m_primary ) {
-      initializePrimaryPropertyValuesWriter();
+   // open the primary properties output file (in append mode for the Overpressure run)
+   if( m_primary and not ( getCalculationMode () == HYDROSTATIC_HIGH_RES_DECOMPACTION_MODE or 
+                           getCalculationMode () == COUPLED_HIGH_RES_DECOMPACTION_MODE )) {
+       initializePrimaryPropertyValuesWriter( getCalculationMode () == OVERPRESSURED_TEMPERATURE_MODE );
    }
 
    if( not started ) {
@@ -1528,6 +1530,31 @@ void FastcauldronSimulator::deleteMinorSnapshots () {
 
 //------------------------------------------------------------//
 
+void FastcauldronSimulator::updateMajorSnapshotsFileNameInSnapshotTable () {
+  
+   database::Table::iterator timeTableIter;
+   database::Table* snapshotTable = getTable ( "SnapshotIoTbl" );
+
+   assert ( snapshotTable != 0 );
+
+   for ( timeTableIter = snapshotTable->begin (); timeTableIter != snapshotTable->end (); ++timeTableIter ) {
+
+      if ( not database::getIsMinorSnapshot ( *timeTableIter )) {
+         const string majorFileName = database::getSnapshotFileName (*timeTableIter);
+         if ( not m_primary ) {
+            if( majorFileName == DataAccess::Interface::PrimaryPropertiesFileName ) {
+               database::setSnapshotFileName (*timeTableIter, "" );
+            }
+         } else {
+            if( majorFileName != DataAccess::Interface::PrimaryPropertiesFileName ) {
+               database::setSnapshotFileName (*timeTableIter, "" );
+            }
+         }
+      }
+   }
+}
+//------------------------------------------------------------//
+
 void FastcauldronSimulator::deleteMinorSnapshotsFromSnapshotTable () {
 
    database::Table::iterator timeTableIter;
@@ -1637,6 +1664,9 @@ void FastcauldronSimulator::saveSourceRockProperties ( const Interface::Snapshot
 
    // Compute all required properties.
    PropertyManager::getInstance ().computeSourceRockPropertyMaps ( m_cauldron, snapshot, genexProperties, shaleGasProperties );
+
+   // Compute all required volume properties (for primary output when minor snapshots are prescribed)
+   PropertyManager::getInstance ().computeSourceRockPropertyVolumes ( m_cauldron, snapshot, genexProperties, shaleGasProperties );
 
    // Save properties to disk.
    continueActivity ();
