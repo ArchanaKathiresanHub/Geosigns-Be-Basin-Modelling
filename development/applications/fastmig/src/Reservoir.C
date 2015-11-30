@@ -132,6 +132,11 @@ namespace migration
 
       return m_index;
    }
+   
+   void Reservoir::resetIndex (void)
+   {
+      m_index = -1;
+   }
 
    void Reservoir::retainPreviousTraps (void)
    {

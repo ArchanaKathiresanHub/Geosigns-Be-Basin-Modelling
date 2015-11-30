@@ -789,6 +789,8 @@ bool Migrator::detectReservoirs (const Interface::Snapshot * end, const bool pre
 
    if (numDetectedReservoirs > 0)
    {
+      //reset all indexes if new detected reservoirs are found
+      resetReservoirIndexes ();
       // connect the reservoirs
       m_projectHandle->connectReservoirs ();
 
@@ -1253,6 +1255,19 @@ bool Migrator::unloadExpulsionMaps (const Interface::Snapshot * end)
       }
    }
    return true;
+}
+
+void Migrator::resetReservoirIndexes (void)
+{
+   if (!m_reservoirs->empty ())
+   {
+      Interface::ReservoirList::iterator reservoirIter;
+      for (reservoirIter = m_reservoirs->begin (); reservoirIter != m_reservoirs->end (); ++reservoirIter)
+      {
+         Reservoir* reservoir = (Reservoir*) (*reservoirIter);
+         reservoir->resetIndex ();
+      }
+   }
 }
 
 Interface::ReservoirList * Migrator::getReservoirs (const Interface::Formation * formation) const

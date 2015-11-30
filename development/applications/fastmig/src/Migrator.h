@@ -163,6 +163,7 @@ namespace migration
 
       bool loadExpulsionMaps (const Interface::Snapshot * start, const Interface::Snapshot * end);
       bool unloadExpulsionMaps (const Interface::Snapshot * end);
+      void resetReservoirIndexes (void);
 
       void sortMigrationRecords (void);
       void uniqueMigrationRecords (void);
