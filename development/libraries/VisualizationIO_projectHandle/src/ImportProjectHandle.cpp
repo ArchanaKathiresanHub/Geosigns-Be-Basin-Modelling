@@ -68,7 +68,7 @@ void ImportProjectHandle::addSnapShots(boost::shared_ptr<Interface::ProjectHandl
         project->addSnapShot(snapShotIO);
 
         // TEMP!!!
-        //if (i == 1) break;
+        // if (i == 1) break;
     }
 }
 
@@ -87,12 +87,12 @@ boost::shared_ptr<CauldronIO::SnapShot> ImportProjectHandle::createSnapShotIO(bo
     // Add all the surfaces
     ///////////////////////////////////////////////////////////
     
-    boost::shared_ptr< vector<boost::shared_ptr<CauldronIO::Surface> > > surfaces = createSurfaces(projectHandle, depthFormations, snapShot);
+    const vector<boost::shared_ptr<CauldronIO::Surface> >& surfaces = createSurfaces(projectHandle, depthFormations, snapShot);
 
     // Set the depth map for these surfaces and add to the snapShot
-    for (size_t i = 0; i < surfaces->size(); ++i)
+    for (size_t i = 0; i < surfaces.size(); ++i)
     {
-        boost::shared_ptr<CauldronIO::Surface> surface = surfaces->at(i);
+        boost::shared_ptr<CauldronIO::Surface> surface = surfaces[i];
         boost::shared_ptr<const CauldronIO::Surface> depthSurface = findDepthSurface(surface, surfaces);
         if (depthSurface) surface->setDepthSurface(depthSurface);
         snapShotIO->addSurface(surface);
@@ -180,11 +180,11 @@ boost::shared_ptr<CauldronIO::SnapShot> ImportProjectHandle::createSnapShotIO(bo
     return snapShotIO;
 }
 
-boost::shared_ptr<vector<boost::shared_ptr<CauldronIO::Surface> > >  ImportProjectHandle::createSurfaces(
+vector<boost::shared_ptr<CauldronIO::Surface> > ImportProjectHandle::createSurfaces(
     boost::shared_ptr<DataAccess::Interface::ProjectHandle> projectHandle, boost::shared_ptr<CauldronIO::FormationInfoList> depthFormations,
     const DataAccess::Interface::Snapshot* snapShot) 
 {
-    boost::shared_ptr<vector<boost::shared_ptr<CauldronIO::Surface> > > surfaces(new vector<boost::shared_ptr<CauldronIO::Surface> >());
+    vector < boost::shared_ptr<CauldronIO::Surface> > surfaces;
     
     // Add all the surfaces
     ////////////////////////////////////////////////////////
@@ -240,18 +240,18 @@ boost::shared_ptr<vector<boost::shared_ptr<CauldronIO::Surface> > >  ImportProje
         // Set reservoirname
         if (reservoir) surfaceIO->setReservoirName(reservoir->getName());
 
-        surfaces->push_back(surfaceIO);
+        surfaces.push_back(surfaceIO);
     }
 
     return surfaces;
 }
 
 boost::shared_ptr<const CauldronIO::Surface> ImportProjectHandle::findDepthSurface(
-    boost::shared_ptr<CauldronIO::Surface> targetSurface, boost::shared_ptr< vector<boost::shared_ptr<CauldronIO::Surface> > > surfaces) const
+    boost::shared_ptr<CauldronIO::Surface> targetSurface, const vector<boost::shared_ptr<CauldronIO::Surface> >& surfaces) const
 {
-    for (size_t i = 0; i < surfaces->size(); ++i)
+    for (size_t i = 0; i < surfaces.size(); ++i)
     {
-        boost::shared_ptr<CauldronIO::Surface> depthSurface = surfaces->at(i);
+        boost::shared_ptr<CauldronIO::Surface> depthSurface = surfaces[i];
         if ((depthSurface->getProperty()->getName() == "Depth") && depthSurface->getName() == targetSurface->getName())
             return depthSurface;
     }
@@ -285,7 +285,7 @@ boost::shared_ptr<CauldronIO::Volume> ImportProjectHandle::createVolume(const Da
 {
     // Create a new empty volume
     boost::shared_ptr<CauldronIO::Volume> volume = createEmptyVolume(propValue);
-    CauldronIO::FormationInfo* depthInfo = CauldronIO::VolumeProjectHandle::findDepthInfo(depthFormations, propValue->getFormation());
+    boost::shared_ptr<CauldronIO::FormationInfo> depthInfo = CauldronIO::VolumeProjectHandle::findDepthInfo(depthFormations, propValue->getFormation());
 
     // Retrieve later
     CauldronIO::VolumeProjectHandle* volumeProjectHandle = dynamic_cast<CauldronIO::VolumeProjectHandle*>(volume.get());
@@ -456,7 +456,7 @@ boost::shared_ptr<CauldronIO::FormationInfoList> ImportProjectHandle::getDepthFo
         double min, max;
         GridMap* map = propValues->at(i)->getGridMap();
         map->getMinMaxValue(min, max);
-        CauldronIO::FormationInfo* info = new CauldronIO::FormationInfo();
+        boost::shared_ptr<CauldronIO::FormationInfo> info(new CauldronIO::FormationInfo());
         info->formation = propValues->at(i)->getFormation();
         info->kStart = map->firstK();
         info->kEnd = map->lastK();
@@ -506,7 +506,7 @@ boost::shared_ptr<CauldronIO::FormationInfoList> ImportProjectHandle::getDepthFo
     size_t currentK = depthFormations->at(0)->kEnd;
     for (int i = 1; i < depthFormations->size(); ++i)
     {
-        CauldronIO::FormationInfo* info = depthFormations->at(i);
+        boost::shared_ptr<CauldronIO::FormationInfo>& info = depthFormations->at(i);
         info->kStart += currentK;
         info->kEnd += currentK;
         currentK = info->kEnd;
@@ -520,7 +520,7 @@ boost::shared_ptr<CauldronIO::Formation> ImportProjectHandle::createFormation(co
     boost::shared_ptr<CauldronIO::Formation> formationPtr;
     
     if (!formation) return formationPtr;
-    CauldronIO::FormationInfo* info = NULL;
+    boost::shared_ptr<CauldronIO::FormationInfo> info;
     
     // Find the depth formation
     for (size_t i = 0; i < depthFormations->size(); ++i)
@@ -534,7 +534,7 @@ boost::shared_ptr<CauldronIO::Formation> ImportProjectHandle::createFormation(co
 
     if (!info) return formationPtr;
 
-    formationPtr.reset(new CauldronIO::Formation(info->kStart, info->kEnd, info->formation->getName()));
+    formationPtr.reset(new CauldronIO::Formation((unsigned int)info->kStart, (unsigned int)info->kEnd, info->formation->getName()));
 
     return formationPtr;
 }

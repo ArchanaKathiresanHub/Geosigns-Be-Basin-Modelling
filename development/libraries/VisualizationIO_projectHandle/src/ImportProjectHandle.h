@@ -46,7 +46,7 @@ namespace CauldronIO
     class Volume;
     class DiscontinuousVolume;
     struct FormationInfo;
-    typedef std::vector<FormationInfo*> FormationInfoList;
+    typedef std::vector<boost::shared_ptr<FormationInfo> > FormationInfoList;
 }
 
 /// \class Little class to import a projecthandle into the VisualizationIO library datamodel
@@ -81,7 +81,7 @@ private:
     boost::shared_ptr<CauldronIO::SnapShot> createSnapShotIO(boost::shared_ptr<DataAccess::Interface::ProjectHandle> projectHandle,
         const DataAccess::Interface::Snapshot* snapShot);
 
-    boost::shared_ptr<std::vector<boost::shared_ptr<CauldronIO::Surface> > > createSurfaces(boost::shared_ptr<DataAccess::Interface::ProjectHandle> projectHandle,
+    std::vector<boost::shared_ptr<CauldronIO::Surface> > createSurfaces(boost::shared_ptr<DataAccess::Interface::ProjectHandle> projectHandle,
         boost::shared_ptr<CauldronIO::FormationInfoList> depthFormations, const DataAccess::Interface::Snapshot* snapShot);
 
     boost::shared_ptr<CauldronIO::Formation> createFormation(const DataAccess::Interface::Formation* formation, boost::shared_ptr<CauldronIO::FormationInfoList> depthFormations) const;
@@ -108,7 +108,7 @@ private:
 
     boost::shared_ptr<CauldronIO::Volume> createEmptyVolume(const DataAccess::Interface::PropertyValue* propVal) const;
 
-    boost::shared_ptr<const CauldronIO::Surface> findDepthSurface(boost::shared_ptr<CauldronIO::Surface> surface, boost::shared_ptr<std::vector<boost::shared_ptr<CauldronIO::Surface> > > surfaces) const;
+    boost::shared_ptr<const CauldronIO::Surface> findDepthSurface(boost::shared_ptr<CauldronIO::Surface> surface, const std::vector<boost::shared_ptr<CauldronIO::Surface> >& surfaces) const;
 };
 
 #endif

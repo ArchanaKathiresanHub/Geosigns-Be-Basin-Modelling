@@ -23,7 +23,8 @@ namespace CauldronIO
     public:
         /// \brief Exports the current Project to XML and saves all 2D and 3D data in the supplied path
         /// Returns true on success, throws a CauldronIOException on failure
-        static bool exportToXML(boost::shared_ptr<Project>& project, const std::string& path);
+        /// if \param[in] release is true, data will be unloaded after storing
+        static bool exportToXML(boost::shared_ptr<Project>& project, const std::string& path, bool release = false);
         /// \brief Creates a new Project from the supplied XML indexing file
         /// Throws a CauldronIOException on failure
         static boost::shared_ptr<Project> importFromXML(const std::string& filename);
@@ -32,7 +33,7 @@ namespace CauldronIO
 
     private:
         ImportExport(const boost::filesystem::path& path = "");
-        void addProject(boost::property_tree::ptree& pt, boost::shared_ptr<Project>& project);
+        void addProject(boost::property_tree::ptree& pt, boost::shared_ptr<Project>& project, bool release);
         void addProperty(boost::property_tree::ptree &node, const boost::shared_ptr<const Property>& property) const;
         void addFormation(boost::property_tree::ptree& node, const boost::shared_ptr<const Formation>& formation) const;
         std::string getFilename(const boost::uuids::uuid& uuid) const;

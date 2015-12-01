@@ -88,7 +88,7 @@ char* CauldronIO::DataStoreLoad::decompress(const char* inputData, size_t& eleme
     return charResult;
 }
 
-boost::shared_ptr<Volume> CauldronIO::DataStoreLoad::getVolume(const boost::property_tree::ptree& ptree, boost::shared_ptr<Property> property)
+boost::shared_ptr<Volume> CauldronIO::DataStoreLoad::getVolume(const boost::property_tree::ptree& ptree, boost::shared_ptr<const Property> property)
 {
     SubsurfaceKind surfaceKind = (SubsurfaceKind)ptree.get<int>("<xmlattr>.subsurfacekind");
     boost::uuids::uuid uuid = ptree.get<boost::uuids::uuid>("<xmlattr>.uuid");
@@ -158,7 +158,7 @@ boost::shared_ptr<Volume> CauldronIO::DataStoreLoad::getVolume(const boost::prop
     return volume;
 }
 
-boost::shared_ptr<Surface> CauldronIO::DataStoreLoad::getSurface(const boost::property_tree::ptree& ptree, boost::shared_ptr<Property> property)
+boost::shared_ptr<Surface> CauldronIO::DataStoreLoad::getSurface(const boost::property_tree::ptree& ptree, boost::shared_ptr<const Property> property)
 {
     std::string surfaceName = ptree.get<std::string>("<xmlattr>.name");
     boost::optional<std::string> reservoirName = ptree.get_optional<std::string>("<xmlattr>.reservoirName");
@@ -234,7 +234,7 @@ boost::shared_ptr<Surface> CauldronIO::DataStoreLoad::getSurface(const boost::pr
  /// DataStoreSave
  //////////////////////////////////////////////////////////////////////////
 
-CauldronIO::DataStoreSave::DataStoreSave(const std::string& filename, bool append)
+CauldronIO::DataStoreSave::DataStoreSave(const std::string& filename, bool append, bool release)
 {
     if (!append)
         m_file_out.open(filename.c_str(), std::fstream::binary);
@@ -246,6 +246,7 @@ CauldronIO::DataStoreSave::DataStoreSave(const std::string& filename, bool appen
     m_compress = APPLY_COMPRESSION;
     m_fileName = filename;
     m_append = append;
+    m_release = release;
 }
 
 CauldronIO::DataStoreSave::~DataStoreSave()
@@ -355,6 +356,9 @@ void CauldronIO::DataStoreSave::addSurface(const boost::shared_ptr<Surface>& sur
 
         subNode.put("<xmlattr>.size", m_lastSize);
     }
+
+    if (m_release)
+        surfaceIO->release();
 }
 
 void CauldronIO::DataStoreSave::addVolume(const boost::shared_ptr<Volume>& volume, boost::property_tree::ptree& volNode)
@@ -393,6 +397,9 @@ void CauldronIO::DataStoreSave::addVolume(const boost::shared_ptr<Volume>& volum
 
     if (volume->hasDataKIJ() || (nativeVolume != NULL && nativeVolume->getDataStoreParamsKIJ() != NULL))
         writeVolumePart(volNode, compress, false, volume);
+
+    if (m_release)
+        volume->release();
 }
 
 void CauldronIO::DataStoreSave::writeVolumePart(boost::property_tree::ptree &volNode, bool compress, bool IJK, const boost::shared_ptr<Volume>& volume)

@@ -14,6 +14,7 @@
 #include <algorithm>
 #include <cstring>
 #include <boost/foreach.hpp>
+#include <boost/uuid/uuid_generators.hpp> // generators
 
 using namespace CauldronIO;
 using namespace std;
@@ -312,7 +313,7 @@ const string& CauldronIO::Formation::getName() const
 //////////////////////////////////////////////////////////////////////////
 
 CauldronIO::Surface::Surface(const string& name, SubsurfaceKind kind, 
-                             boost::shared_ptr<const Property> property, boost::shared_ptr<Map> valueMap)
+                             boost::shared_ptr<const Property>& property, boost::shared_ptr<Map>& valueMap)
 {
     m_name = name;
     m_subSurfaceKind = kind;
@@ -341,7 +342,7 @@ const boost::shared_ptr<const Property> CauldronIO::Surface::getProperty() const
     return m_property;
 }
 
-void CauldronIO::Surface::setFormation(boost::shared_ptr<const Formation> formation)
+void CauldronIO::Surface::setFormation(boost::shared_ptr<const Formation>& formation)
 {
     m_formation = formation;
 }
@@ -351,7 +352,7 @@ const boost::shared_ptr<const Formation> CauldronIO::Surface::getFormation() con
     return m_formation;
 }
 
-void CauldronIO::Surface::setDepthSurface(boost::shared_ptr<const Surface> surface)
+void CauldronIO::Surface::setDepthSurface(const boost::shared_ptr<const Surface>& surface)
 {
     m_depthSurface = surface;
 }
@@ -364,6 +365,12 @@ const boost::shared_ptr<const Surface> CauldronIO::Surface::getDepthSurface() co
 void CauldronIO::Surface::retrieve()
 {
     m_valueMap->retrieve();
+}
+
+
+void CauldronIO::Surface::release()
+{
+    m_valueMap->release();
 }
 
 bool CauldronIO::Surface::isRetrieved() const
@@ -391,7 +398,7 @@ CauldronIO::Map::Map(bool cellCentered)
     m_isCellCentered = cellCentered;
     m_isConstant = false;
     m_retrieved = false;
-    m_uuid = m_uuidGenerator();
+    m_uuid = boost::uuids::random_generator()();
 }
 
 size_t CauldronIO::Map::getNumI() const
@@ -591,6 +598,14 @@ void CauldronIO::Map::retrieve()
     throw CauldronIOException("Not implemented");
 }
 
+
+void CauldronIO::Map::release()
+{
+    if (m_internalData) delete[] m_internalData;
+    m_internalData = NULL;
+    m_retrieved = false;
+}
+
 bool CauldronIO::Map::isRetrieved() const
 {
     return m_retrieved;
@@ -621,7 +636,7 @@ float CauldronIO::Map::getConstantValue() const
 /// Volume implementation
 //////////////////////////////////////////////////////////////////////////
 
-CauldronIO::Volume::Volume(bool cellCentered, SubsurfaceKind kind, boost::shared_ptr<const Property> property)
+CauldronIO::Volume::Volume(bool cellCentered, SubsurfaceKind kind, boost::shared_ptr<const Property>& property)
 {
     // Indexing into the volume is unknown
     m_internalDataIJK = NULL;
@@ -632,7 +647,7 @@ CauldronIO::Volume::Volume(bool cellCentered, SubsurfaceKind kind, boost::shared
     m_property = property;
     m_retrieved = false;
     m_geometryAssigned = false;
-    m_uuid = m_uuidGenerator();
+    m_uuid = boost::uuids::random_generator()();
 }
 
 CauldronIO::Volume::~Volume()
@@ -918,7 +933,7 @@ float CauldronIO::Volume::getConstantValue() const
     return m_constantValue;
 }
 
-void CauldronIO::Volume::setDepthVolume(boost::shared_ptr<const Volume> depthVolume)
+void CauldronIO::Volume::setDepthVolume(const boost::shared_ptr<const Volume>& depthVolume)
 {
     m_depthVolume = depthVolume;
 }
@@ -942,6 +957,16 @@ void CauldronIO::Volume::retrieve()
 bool CauldronIO::Volume::isRetrieved() const
 {
     return m_retrieved;
+}
+
+
+void CauldronIO::Volume::release()
+{
+    if (m_internalDataIJK) delete[] m_internalDataIJK;
+    if (m_internalDataKIJ) delete[] m_internalDataKIJ;
+    m_internalDataIJK = NULL;
+    m_internalDataKIJ = NULL;
+    m_retrieved = false;
 }
 
 bool CauldronIO::Volume::isCellCentered() const

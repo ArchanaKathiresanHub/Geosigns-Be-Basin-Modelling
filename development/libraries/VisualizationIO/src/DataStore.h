@@ -52,9 +52,9 @@ namespace CauldronIO
         static char* decompress(const char* data, size_t& size);
 
         /// \brief Creates a volume from the current XML node and assigns given Property
-        static boost::shared_ptr<Volume> getVolume(const boost::property_tree::ptree& ptree, boost::shared_ptr<Property> property);
+        static boost::shared_ptr<Volume> getVolume(const boost::property_tree::ptree& ptree, boost::shared_ptr<const Property> property);
         /// \brief Creates a surface from the current XML node and assigns given Property
-        static boost::shared_ptr<Surface> getSurface(const boost::property_tree::ptree& ptree, boost::shared_ptr<Property> property);
+        static boost::shared_ptr<Surface> getSurface(const boost::property_tree::ptree& ptree, boost::shared_ptr<const Property> property);
 
     private:
         std::ifstream m_file_in;
@@ -66,7 +66,9 @@ namespace CauldronIO
     {
     public:
         /// \brief Creates a new instance, to store binary data to the given filename
-        DataStoreSave(const std::string& filename, bool append);
+        /// \param [in] append If true, appends to existing data structure, otherwise, write from scratch. This is only supported with native data
+        /// \param [in] release If true, data will be release upon saving
+        DataStoreSave(const std::string& filename, bool append, bool release);
         ~DataStoreSave();
 
         /// \brief Adds a surface to the XML node, and writes the binary data
@@ -88,6 +90,7 @@ namespace CauldronIO
         std::string m_fileName;
         bool m_compress;
         bool m_append;
+        bool m_release;
     };
 }
 

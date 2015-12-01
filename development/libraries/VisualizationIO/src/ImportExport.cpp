@@ -24,7 +24,7 @@
 
 using namespace CauldronIO;
 
-bool ImportExport::exportToXML(boost::shared_ptr<Project>& project, const std::string& path)
+bool ImportExport::exportToXML(boost::shared_ptr<Project>& project, const std::string& path, bool release)
 {
     // Create empty property tree object
     using boost::property_tree::ptree;
@@ -44,7 +44,7 @@ bool ImportExport::exportToXML(boost::shared_ptr<Project>& project, const std::s
     ImportExport newExport(outputPath);
 
     // Create xml property tree and write datastores
-    newExport.addProject(pt, project);
+    newExport.addProject(pt, project, release);
 
     // Write property tree to XML file
     std::string xmlFileName = getXMLIndexingFileName();
@@ -53,7 +53,7 @@ bool ImportExport::exportToXML(boost::shared_ptr<Project>& project, const std::s
     return true;
 }
 
-void ImportExport::addProject(boost::property_tree::ptree& pt, boost::shared_ptr<Project>& project)
+void ImportExport::addProject(boost::property_tree::ptree& pt, boost::shared_ptr<Project>& project, bool release)
 {
     // Create empty property tree object
     using boost::property_tree::ptree;
@@ -71,13 +71,19 @@ void ImportExport::addProject(boost::property_tree::ptree& pt, boost::shared_ptr
 
     BOOST_FOREACH(boost::shared_ptr<const SnapShot> snapShot, snapShotList)
     {
+        std::ostringstream ss;
+        ss << std::fixed << std::setprecision(6);
+        ss << snapShot->getAge();
+        std::string snapshotString = ss.str();
+        std::cout << "Writing snapshot Age=" << snapshotString << std::endl;
+        
         boost::filesystem::path volumeStorePath(m_outputPath);
-        volumeStorePath /= "Snapshot_" + boost::lexical_cast<std::string>(snapShot->getAge()) + "_volumes.cldrn";
-        DataStoreSave volumeStore(volumeStorePath.string(), append);
+        volumeStorePath /= "Snapshot_" + snapshotString + "_volumes.cldrn";
+        DataStoreSave volumeStore(volumeStorePath.string(), append, release);
 
         boost::filesystem::path surfaceStorePath(m_outputPath);
-        surfaceStorePath /= "Snapshot_" + boost::lexical_cast<std::string>(snapShot->getAge()) + "_surfaces.cldrn";
-        DataStoreSave surfaceDataStore(surfaceStorePath.string(), append);
+        surfaceStorePath /= "Snapshot_" + snapshotString + "_surfaces.cldrn";
+        DataStoreSave surfaceDataStore(surfaceStorePath.string(), append, release);
 
         ptree & node = pt.add("project.snapshots.snapshot", "");
         node.put("<xmlattr>.age", snapShot->getAge());
@@ -296,7 +302,7 @@ boost::shared_ptr<Project> CauldronIO::ImportExport::getProject(const boost::pro
                     {
                         const boost::uuids::uuid& depthMapUUID = mapNative->getDepthSurfaceUUID();
 
-                        BOOST_FOREACH(const boost::shared_ptr<Surface>& depthSurface, snapShot->getSurfaceList())
+                        BOOST_FOREACH(const boost::shared_ptr<const Surface>& depthSurface, snapShot->getSurfaceList())
                         {
                             if (depthSurface->getValueMap()->getUUID() == depthMapUUID)
                             {

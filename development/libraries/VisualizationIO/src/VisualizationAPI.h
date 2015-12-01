@@ -17,7 +17,6 @@
 #include <stdexcept>
 #include <boost/shared_ptr.hpp>
 #include <boost/uuid/uuid.hpp>         
-#include <boost/uuid/uuid_generators.hpp> // generators
 
 /// \namespace CauldronIO
 /// \brief The namespace for the visualization IO library related classes
@@ -279,8 +278,8 @@ namespace CauldronIO
         /// \param [in] kind kind of surface
         /// \param [in] property of this surface
         /// \param [in] valueMap the Map to associate with this surface
-        Surface(const std::string& name, SubsurfaceKind kind, boost::shared_ptr<const Property> property, 
-            boost::shared_ptr<Map> valueMap);
+        Surface(const std::string& name, SubsurfaceKind kind, boost::shared_ptr<const Property>& property, 
+            boost::shared_ptr<Map>& valueMap);
 
         /// \brief Get the name of this surface
         const std::string& getName() const;
@@ -292,16 +291,18 @@ namespace CauldronIO
         const boost::shared_ptr<const Property> getProperty() const;
         /// \brief Associate a formation with this map
         /// \param [in] formation the formation to be associated with this map. Optional.
-        void setFormation(boost::shared_ptr<const Formation> formation);
+        void setFormation(boost::shared_ptr<const Formation>& formation);
         /// \returns the associated formation for this map. Can be null
         const boost::shared_ptr<const Formation> getFormation() const;
         /// \brief Set the associated Depth surface for this surface
         /// \param [in] surface the depth-surface to associate with this 
-        void setDepthSurface(boost::shared_ptr<const Surface> surface);
+        void setDepthSurface(const boost::shared_ptr<const Surface>& surface);
         /// \returns the associated Depth surface for this surface; CAN BE NULL
         const boost::shared_ptr<const Surface> getDepthSurface() const;
         /// \brief Retrieve actual data into memory
         void retrieve();
+        /// \brief Release memory; does not destroy the object; it can be retrieved again
+        void release();
         /// \returns true if data is available
         bool isRetrieved() const;
         /// \brief Get the name of the reservoir associated with the surface. Optional.
@@ -348,6 +349,8 @@ namespace CauldronIO
         void setGeometry(size_t numI, size_t numJ, double deltaI, double deltaJ, double minI, double minJ);
         /// \brief Retrieve the data
         virtual void retrieve() = 0;
+        /// \brief Release memory; does not destroy the object; it can be retrieved again
+        virtual void release();
         /// \returns true if data is available
         bool isRetrieved() const;
         /// \returns true if this map is cell centered
@@ -411,14 +414,13 @@ namespace CauldronIO
         void setUndefinedValue(float undefined);
 
     private:
+        float* m_internalData;
         double m_deltaI, m_deltaJ, m_minI, m_minJ, m_maxI, m_maxJ;
         size_t m_numI, m_numJ;
         float m_constantValue, m_undefinedValue;
         bool m_isConstant, m_isCellCentered;
         void setData(float* data, bool setValue = false, float value = 0);
-        float* m_internalData;
         boost::uuids::uuid m_uuid;
-        boost::uuids::random_generator m_uuidGenerator;
 
     protected:
         bool m_retrieved;
@@ -438,7 +440,7 @@ namespace CauldronIO
         /// \param [in] cellCentered if true, this volume is cell centered: its associated depth volume will be one larger in each dimension
         /// \param [in] kind the SubsurfaceKind of this volume
         /// \param [in] property the property to assign to this volume
-        Volume(bool cellCentered, SubsurfaceKind kind, boost::shared_ptr<const Property> property);
+        Volume(bool cellCentered, SubsurfaceKind kind, boost::shared_ptr<const Property>& property);
         /// \brief Destructor
         ~Volume();
 
@@ -448,7 +450,7 @@ namespace CauldronIO
         const boost::shared_ptr<const Property> getProperty() const;
         /// \brief Assigns a related depth volume to this volume
         /// \param [in] depthVolume the depth volume to assign to this volume
-        void setDepthVolume(boost::shared_ptr<const Volume> depthVolume);
+        void setDepthVolume(const boost::shared_ptr<const Volume>& depthVolume);
         /// \returns an associated depth volume; should not be null
         boost::shared_ptr<const Volume> getDepthVolume() const;
 
@@ -461,6 +463,8 @@ namespace CauldronIO
         virtual void retrieve() = 0;
         /// \returns true if data is available
         bool isRetrieved() const;
+        /// \brief Release memory; does not destroy the object; it can be retrieved again
+        virtual void release();
 
         /// \brief Assign data to the volume as a 1D array: K fastest, then I, then J
         /// \param [in] data a pointer to the data; it will be copied, no ownership is transferred
@@ -582,7 +586,6 @@ namespace CauldronIO
         boost::shared_ptr<const Property> m_property;
         boost::shared_ptr<const Volume> m_depthVolume;
         boost::uuids::uuid m_uuid;
-        boost::uuids::random_generator m_uuidGenerator;
 
     protected:
         bool m_retrieved, m_geometryAssigned;

@@ -98,7 +98,7 @@ TEST(SnapShot, Add)
     // create a volume to add to the snapshot
     const string propName = "Depth";
     const string unit = "m";
-    boost::shared_ptr<Property> prop(new Property(propName, propName, propName, unit, FormationProperty, Continuous3DProperty));
+    boost::shared_ptr<const Property> prop(new Property(propName, propName, propName, unit, FormationProperty, Continuous3DProperty));
     boost::shared_ptr<Volume> volume(new VolumeNative(false, Sediment, prop));
     snapShot->addVolume(volume);
     EXPECT_EQ(volumeList.size(), 1);

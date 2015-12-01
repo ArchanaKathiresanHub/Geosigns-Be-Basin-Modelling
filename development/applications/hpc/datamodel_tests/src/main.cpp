@@ -94,7 +94,7 @@ int main(int argc, char ** argv)
             // Export to native format: it will retrieve data when needed
             cout << "Writing to new format" << endl;
             start = clock();
-            CauldronIO::ImportExport::exportToXML(project, "output-dir");
+            CauldronIO::ImportExport::exportToXML(project, "output-dir", true);
             timeInSeconds = (float)(clock() - start) / CLOCKS_PER_SEC;
             cout << "Wrote to new format in " << timeInSeconds << " seconds" << endl;
         }
