@@ -62,10 +62,7 @@ void CmdPlotTornado::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
    }
    sa->doeCaseSet().filterByExperimentName( "" );
 
-   if ( m_commander.verboseLevel() > CasaCommander::Quiet )
-   {
-      std::cout << "Generating script to plot Tornado diagram ...\n";
-   }
+   BOOST_LOG_TRIVIAL( info ) << "Generating script to plot Tornado diagram...";
 
    casa::SensitivityCalculator & sCalc = sa->sensitivityCalculator();
 
@@ -211,6 +208,8 @@ void CmdPlotTornado::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
    ofs << "   eval( sprintf( 'print Tornado_%s.jpg -S1000,1000', TornadoSens.obsName{i} ) );\n";
 
    ofs << "end\n";
+
+   BOOST_LOG_TRIVIAL( info ) << "Script generation succeeded";
 }
 
 void CmdPlotTornado::printHelpPage( const char * cmdName )

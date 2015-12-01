@@ -10,8 +10,20 @@ using namespace casa;
 class SerializationTest : public ::testing::Test
 {
 public:
-   SerializationTest() { ; }
-   ~SerializationTest( ) { ; }
+   SerializationTest()
+   { 
+      sc.reset( casa::ScenarioAnalysis::loadScenario( "Ottoland_casa_state.txt", "txt" ) );
+      if ( ErrorHandler::NoError != sc->errorCode() )
+      {
+         std::cerr << "Deserialization failed: " << sc->errorMessage();
+      }
+   }
+   ~SerializationTest( ) 
+   {
+      ;
+   }
+
+   std::auto_ptr<casa::ScenarioAnalysis> sc;
 };
 
 
@@ -19,24 +31,17 @@ public:
 // two freshly created state files are compared
 TEST_F( SerializationTest, ReloadStateFromBinTest )
 {
-   // create new scenario analysis
-   casa::ScenarioAnalysis * sc = casa::ScenarioAnalysis::loadScenario( "Ottoland_casa_state.txt", "txt" );
-   if ( ErrorHandler::NoError != sc->errorCode() )
-   {
-      std::cerr << "Deserialization failed: " << sc->errorMessage();
-   }
-
    ASSERT_EQ( ErrorHandler::NoError, sc->errorCode() );
 
    // Do round trip
    // create 1st reloaded scenario
    sc->saveScenario( "casa_state_reloaded_1.bin", "bin" );
-   delete sc;
+   
    // load it again
-   sc = casa::ScenarioAnalysis::loadScenario( "casa_state_reloaded_1.bin", "bin" );
+   casa::ScenarioAnalysis * scn = casa::ScenarioAnalysis::loadScenario( "casa_state_reloaded_1.bin", "bin" );
    // save it as new one
-   sc->saveScenario( "casa_state_reloaded_2.bin", "bin" );
-   delete sc; // clean and close all
+   scn->saveScenario( "casa_state_reloaded_2.bin", "bin" );
+   delete scn;
 
    // compare files
    std::ifstream org( "casa_state_reloaded_1.bin", std::ifstream::in | std::ifstream::binary );
@@ -57,23 +62,17 @@ TEST_F( SerializationTest, ReloadStateFromBinTest )
 // two freshly created state files are compared
 TEST_F( SerializationTest, ReloadStateFromTxtTest )
 {
-   // create new scenario analysis
-   casa::ScenarioAnalysis * sc = casa::ScenarioAnalysis::loadScenario( "Ottoland_casa_state.txt", "txt" );
-   if ( ErrorHandler::NoError != sc->errorCode() )
-   {
-      std::cerr << "Deserialization failed: " << sc->errorMessage();
-   }
    ASSERT_EQ( ErrorHandler::NoError, sc->errorCode() );
 
    // Do round trip
    // create 1st reloaded scenario
    sc->saveScenario( "casa_state_reloaded_1.txt", "txt" );
-   delete sc;
+   
    // load it again
-   sc = casa::ScenarioAnalysis::loadScenario( "casa_state_reloaded_1.txt", "txt" );
+   casa::ScenarioAnalysis * scn = casa::ScenarioAnalysis::loadScenario( "casa_state_reloaded_1.txt", "txt" );
    // save it as new one
-   sc->saveScenario( "casa_state_reloaded_2.txt", "txt" );
-   delete sc; // clean and close all
+   scn->saveScenario( "casa_state_reloaded_2.txt", "txt" );
+   delete scn; // clean and close all
 
    // compare files
    std::ifstream org( "casa_state_reloaded_1.txt", std::ifstream::in );
@@ -89,3 +88,71 @@ TEST_F( SerializationTest, ReloadStateFromTxtTest )
    }
 }
 
+TEST_F( SerializationTest, LoadStateFromMemoryStreamTxtFmt )
+{
+   // check Text stream
+   sc->saveScenario( "casa_state_reloaded_1.txt", "txt" );
+   ASSERT_EQ( ErrorHandler::NoError, sc->errorCode() );
+
+   // read file in memory buffer
+   std::ostringstream buf;
+   std::ifstream input( "casa_state_reloaded_1.txt" );
+   buf << input.rdbuf();
+
+   casa::ScenarioAnalysis * scn = casa::ScenarioAnalysis::loadScenario( buf.str().c_str(), buf.str().size() );
+   ASSERT_EQ( ErrorHandler::NoError, scn->errorCode() );
+
+   scn->saveScenario( "casa_state_reloaded_2.txt", "txt" );
+   ASSERT_EQ( ErrorHandler::NoError, scn->errorCode() );
+   delete scn;
+
+   // compare files
+   std::ifstream org( "casa_state_reloaded_1.txt", std::ifstream::in );
+   std::ifstream rel( "casa_state_reloaded_2.txt", std::ifstream::in );
+   while ( !org.eof() && org.good() )
+   {
+      ASSERT_TRUE( rel.good() );
+
+      int oc = org.get();
+      int rc = rel.get();
+
+      ASSERT_EQ( oc, rc );
+   }
+}
+
+TEST_F( SerializationTest, LoadStateFromMemoryStreamBinFmt )
+{
+   ASSERT_EQ( ErrorHandler::NoError, sc->errorCode() );
+
+   // check Text stream
+   sc->saveScenario( "casa_state_reloaded_1.bin", "bin" );
+   ASSERT_EQ( ErrorHandler::NoError, sc->errorCode() );
+
+   // read file in memory buffer
+   std::ifstream inpf( "casa_state_reloaded_1.bin", std::ios::binary | std::ios::ate );
+   std::streamsize sz = inpf.tellg();
+   inpf.seekg( 0, std::ios::beg );
+   std::vector<char> buf( sz + 5 );
+
+   ASSERT_EQ( inpf.read( buf.data(), sz ).good(), true );
+
+   casa::ScenarioAnalysis * scn = casa::ScenarioAnalysis::loadScenario( buf.data(), sz );
+   ASSERT_EQ( ErrorHandler::NoError, scn->errorCode() );
+
+   scn->saveScenario( "casa_state_reloaded_2.bin", "bin" );
+   ASSERT_EQ( ErrorHandler::NoError, scn->errorCode() );
+   delete scn;
+
+   // compare files
+   std::ifstream org( "casa_state_reloaded_1.bin", std::ifstream::in );
+   std::ifstream rel( "casa_state_reloaded_2.bin", std::ifstream::in );
+   while ( !org.eof() && org.good() )
+   {
+      ASSERT_TRUE( rel.good() );
+
+      int oc = org.get();
+      int rc = rel.get();
+
+      ASSERT_EQ( oc, rc );
+   }
+}

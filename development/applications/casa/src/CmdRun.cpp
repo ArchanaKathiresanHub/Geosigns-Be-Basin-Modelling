@@ -17,7 +17,6 @@
 #include <cstdlib>
 #include <iostream>
 
-
 static void PrintObsValues( casa::ScenarioAnalysis & sc )
 {
    casa::ObsSpace   & obSpace = sc.obsSpace();
@@ -30,8 +29,8 @@ static void PrintObsValues( casa::ScenarioAnalysis & sc )
 
       if ( !cs ) continue;
 
-      std::cout << "    " << cs->projectPath() << std::endl;
-      std::cout << "    Observable values:" << std::endl;
+      BOOST_LOG_TRIVIAL( debug ) << "    " << cs->projectPath();
+      BOOST_LOG_TRIVIAL( debug ) << "      Observable values:";
 
       for ( size_t i = 0; i < cs->observablesNumber(); ++i )
       {
@@ -43,13 +42,12 @@ static void PrintObsValues( casa::ScenarioAnalysis & sc )
 
             for ( size_t i = 0; i < vals.size(); ++i )
             {
-               std::cout << "      " << names[i] << " = " << vals[i] << "\n";
+               BOOST_LOG_TRIVIAL( debug ) << "      " << names[i] << " = " << vals[i];
             }
          }
       }
    }
 }
-
 
 CmdRun::CmdRun( CasaCommander & parent, const std::vector< std::string > & cmdPrms ) : CasaCmd( parent, cmdPrms )
 {
@@ -74,10 +72,7 @@ CmdRun::CmdRun( CasaCommander & parent, const std::vector< std::string > & cmdPr
 
 void CmdRun::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
 {
-   if ( m_commander.verboseLevel() > CasaCommander::Quiet )
-   {
-      std::cout << "Adding jobs to the queue and generating scripts for:" << std::endl;
-   }
+   BOOST_LOG_TRIVIAL( info ) << "Adding jobs to the queue and generating scripts...";
 
    casa::RunManager & rm = sa->runManager();
 
@@ -92,10 +87,7 @@ void CmdRun::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
    // submit jobs
    for ( size_t i = 0; i < sa->doeCaseSet().size(); ++i )
    {
-      if ( m_commander.verboseLevel() > CasaCommander::Quiet )
-      {
-         std::cout << "    " << (sa->doeCaseSet()[i])->projectPath() << std::endl;
-      }
+      BOOST_LOG_TRIVIAL( debug ) << "  Generating run scripts in: " << (sa->doeCaseSet()[i])->projectPath();
 
       if ( ErrorHandler::NoError != rm.scheduleCase( *(sa->doeCaseSet()[i]), sa->scenarioID() ) )
       {
@@ -103,10 +95,7 @@ void CmdRun::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
       }
    }
 
-   if ( m_commander.verboseLevel() > CasaCommander::Quiet )
-   {
-      std::cout << "Submitting jobs to the cluster " << m_prms[0] << " using Cauldron: " << m_prms[1] << std::endl;
-   }
+   BOOST_LOG_TRIVIAL( info ) << "Submitting jobs to the cluster " << m_prms[0] << " using Cauldron: " << m_prms[1];
 
    // spawn jobs for calculation
    if ( ErrorHandler::NoError != rm.runScheduledCases( false ) )
@@ -119,8 +108,10 @@ void CmdRun::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
    {
       throw ErrorHandler::Exception( rm.errorCode() ) << rm.errorMessage();
    }
+   
+   BOOST_LOG_TRIVIAL( info ) << "Scenarion execution succeeded";
 
-   if ( m_commander.verboseLevel() > CasaCommander::Minimal ) { PrintObsValues( *sa.get() ); }
+   PrintObsValues( *sa.get() );
 }
 
 void CmdRun::printHelpPage( const char * cmdName )

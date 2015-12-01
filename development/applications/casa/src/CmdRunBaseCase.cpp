@@ -21,8 +21,8 @@ static void PrintObsValues( const casa::RunCase * cs )
 {
    if ( !cs ) return;
 
-   std::cout << "    " << cs->projectPath() << std::endl;
-   std::cout << "    Observable values:" << std::endl;
+   BOOST_LOG_TRIVIAL( debug ) << "    " << cs->projectPath();
+   BOOST_LOG_TRIVIAL( debug ) << "      Observable values:";
 
    for ( size_t i = 0; i < cs->observablesNumber(); ++i )
    {
@@ -33,12 +33,11 @@ static void PrintObsValues( const casa::RunCase * cs )
          const std::vector<std::string> & names = ov->observable()->name();
          for ( size_t i = 0; i < vals.size(); ++i )
          {
-            std::cout << "      " << names[i] << " = " << vals[i] << "\n";
+            BOOST_LOG_TRIVIAL( debug ) << "      " << names[i] << " = " << vals[i];
          }
       }
    }
 }
-
 
 
 CmdRunBaseCase::CmdRunBaseCase( CasaCommander & parent, const std::vector< std::string > & cmdPrms ) : CasaCmd( parent, cmdPrms )
@@ -47,21 +46,14 @@ CmdRunBaseCase::CmdRunBaseCase( CasaCommander & parent, const std::vector< std::
 
 void CmdRunBaseCase::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
 {
-
-   if ( m_commander.verboseLevel() > CasaCommander::Quiet )
-   {
-      std::cout << "Data digger requesting observables for base case ..." << std::endl;
-   }
+   BOOST_LOG_TRIVIAL( info ) << "Data digger requesting observables for base case...";
 
    if ( ErrorHandler::NoError != sa->dataDigger().requestObservables( sa->obsSpace(), sa->baseCaseRunCase() ) )
    {
       throw ErrorHandler::Exception( sa->dataDigger().errorCode() ) << sa->dataDigger().errorMessage();
    }
 
-   if ( m_commander.verboseLevel() > CasaCommander::Quiet )
-   {
-      std::cout << "Adding base case project to the queue and generating scripts..." << std::endl;
-   }
+   BOOST_LOG_TRIVIAL( info ) << "Adding base case project to the queue and generating scripts...";
 
    casa::RunManager & rm = sa->runManager();
    
@@ -71,10 +63,7 @@ void CmdRunBaseCase::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
          throw ErrorHandler::Exception( rm.errorCode() ) << rm.errorMessage();
    }
 
-   if ( m_commander.verboseLevel() > CasaCommander::Quiet )
-   {
-      std::cout << "Submitting jobs for base case to the cluster: " << rm.clusterName() << std::endl;
-   }
+   BOOST_LOG_TRIVIAL( info ) << "Submitting jobs for base case to the cluster: " << rm.clusterName() << "...";
 
    // spawn jobs for calculation
    if ( ErrorHandler::NoError != rm.runScheduledCases( false ) )
@@ -82,13 +71,22 @@ void CmdRunBaseCase::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
       throw ErrorHandler::Exception( rm.errorCode() ) << rm.errorMessage();
    }
 
-   // collect observables value
-   if ( ErrorHandler::NoError != sa->dataDigger().collectRunResults( sa->obsSpace(), sa->baseCaseRunCase() ) )
+   if ( sa->baseCaseRunCase()->runStatus() == casa::RunCase::Completed )
    {
-      throw ErrorHandler::Exception( rm.errorCode() ) << rm.errorMessage();
+      BOOST_LOG_TRIVIAL( info ) << "Collecting observables values...";
+      // collect observables value
+      if ( ErrorHandler::NoError != sa->dataDigger().collectRunResults( sa->obsSpace(), sa->baseCaseRunCase() ) )
+      {
+         throw ErrorHandler::Exception( rm.errorCode() ) << rm.errorMessage();
+      }
+      BOOST_LOG_TRIVIAL( info ) << "Base case execution succeeded";
+   
+      PrintObsValues( sa->baseCaseRunCase() );
    }
-
-   if ( m_commander.verboseLevel() > CasaCommander::Minimal ) { PrintObsValues( sa->baseCaseRunCase() ); }
+   else
+   {
+      BOOST_LOG_TRIVIAL( info ) << "Base case execution failed";
+   }
 }
 
 void CmdRunBaseCase::printHelpPage( const char * cmdName )

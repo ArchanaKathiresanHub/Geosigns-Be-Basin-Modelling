@@ -16,6 +16,7 @@
 #include <cstdlib>
 #include <cmath>
 #include <iostream>
+#include <sstream>
 
 CmdRunMC::CmdRunMC( CasaCommander & parent, const std::vector< std::string > & cmdPrms ) : CasaCmd( parent, cmdPrms )
 {
@@ -78,17 +79,14 @@ CmdRunMC::CmdRunMC( CasaCommander & parent, const std::vector< std::string > & c
 
 void CmdRunMC::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
 {
-   if ( m_commander.verboseLevel() > CasaCommander::Quiet )
+   std::string algoName;
+   switch( m_mcAlg )
    {
-      std::cout << "Running: ";
-      switch( m_mcAlg )
-      {
-         case casa::MonteCarloSolver::MonteCarlo:  std::cout << "Monte Carlo";                    break;
-         case casa::MonteCarloSolver::MCMC:        std::cout << "Markov Chain Monte Carlo";       break;
-         case casa::MonteCarloSolver::MCLocSolver: std::cout << "Monte Carlo based local solver"; break;
-      }
-      std::cout << " ..." << std::endl;
+      case casa::MonteCarloSolver::MonteCarlo:  algoName = "Monte Carlo";                    break;
+      case casa::MonteCarloSolver::MCMC:        algoName = "Markov Chain Monte Carlo";       break;
+      case casa::MonteCarloSolver::MCLocSolver: algoName = "Monte Carlo based local solver"; break;
    }
+   BOOST_LOG_TRIVIAL( info ) << "Running: " << algoName << "...";
    
    // create corresponded MC algorithm
    if ( ErrorHandler::NoError != sa->setMCAlgorithm( static_cast<casa::MonteCarloSolver::Algorithm>( m_mcAlg ),
@@ -115,7 +113,8 @@ void CmdRunMC::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
                                                                  )
       ) { throw ErrorHandler::Exception( sa->mcSolver().errorCode() ) << sa->mcSolver().errorMessage(); }
    
-   std::cout << "Performed iterations: ";
+ 
+   BOOST_LOG_TRIVIAL( info ) << "Performed iterations: ";
 
    while( true )
    {
@@ -126,26 +125,10 @@ void CmdRunMC::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
          throw ErrorHandler::Exception( sa->mcSolver().errorCode() ) << sa->mcSolver().errorMessage();
       }
       if ( !itNum ) break; // converged
-      
-      if ( m_commander.verboseLevel() > CasaCommander::Minimal )
+
+      if ( (itNum % 10) == 0 )
       {
-         if ( itNum > 1 )
-         {
-            if (      itNum < 10   ) std::cout << "\b";
-            else if ( itNum < 100  ) std::cout << ( itNum > 10   ? "\b\b"     : "\b"   );
-            else if ( itNum < 1000 ) std::cout << ( itNum > 100  ? "\b\b\b"   : "\b\b" );
-            else                     std::cout << ( itNum > 1000 ? "\b\b\b\b" : "\b\b\b" );
-         }
-         std::cout << itNum;
-         std::cout.flush();
-      }
-      else if ( m_commander.verboseLevel() > CasaCommander::Quiet )
-      {
-         if ( (itNum % 10) == 0 )
-         {
-            std::cout << "\n  " << itNum << " iterations completed";
-            std::cout.flush();
-         }
+        BOOST_LOG_TRIVIAL( info ) << itNum << " iterations completed";
       }
    }
 
@@ -154,9 +137,6 @@ void CmdRunMC::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
       throw ErrorHandler::Exception( sa->mcSolver().errorCode() ) << sa->mcSolver().errorMessage();
    }
 
-   if ( m_commander.verboseLevel() > CasaCommander::Quiet )
-   {
-      std::cout << "\nSucceeded." << std::endl;
-   }
+   BOOST_LOG_TRIVIAL( info ) << "Simulation succeeded";
 }
 

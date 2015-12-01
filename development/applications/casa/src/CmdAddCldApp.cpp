@@ -72,14 +72,9 @@ void CmdAddCldApp::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
    size_t p = m_cpus < 0 ? 1 : (m_maxRunLimMin == 0 ? 2 : 3);
    if ( m_cpus < 0 ) { m_cpus = 1; } // if not - set it to 1
 
-   if ( m_commander.verboseLevel() > CasaCommander::Quiet )
-   {
-      std::cout << "Add cauldron application to calculation pipeline " << m_prms[p - 1] << "(";
-
-      for ( size_t i = p; i < m_prms.size(); ++i ) std::cout << m_prms[i] << ((i == m_prms.size() - 1) ? "" : ",");
-      
-      std::cout << ")" << std::endl;
-   }
+   BOOST_LOG_TRIVIAL( info ) << "Add cauldron application to calculation pipeline " << m_prms[p - 1] << "(" <<
+                                 CfgFileParser::implode( m_prms, ",", p ) << ")";
+   
    casa::CauldronApp * app = 0;
    
 

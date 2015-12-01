@@ -65,16 +65,15 @@ CmdExpDataTxt::CmdExpDataTxt( CasaCommander & parent, const std::vector< std::st
 
 void CmdExpDataTxt::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
 {
-   if ( m_commander.verboseLevel() > CasaCommander::Quiet )
-   {
-      std::cout << "Export CASA results to : " << m_dataFileName << std::endl;
-   }
+   BOOST_LOG_TRIVIAL( info ) << "Exporting CASA results for " << m_whatToSave << " to : " << m_dataFileName << "...";
 
    if (      m_whatToSave == "DoEParameters"        ) { exportParameters( sa ); }
    else if ( m_whatToSave == "RunCasesObservables"  ) { exportRunCaseObs( sa ); } 
    else if ( m_whatToSave == "ProxyEvalObservables" ) { exportEvalObserv( sa ); }
    else if ( m_whatToSave == "ProxyQC"              ) { exportProxyQC(    sa ); }
    else if ( m_whatToSave == "MCResults"            ) { exportMCResults(  sa ); }
+
+   BOOST_LOG_TRIVIAL( info ) << "Exporting CASA results succeeded.";
 }
 
 void CmdExpDataTxt::printHelpPage( const char * cmdName )
@@ -122,10 +121,7 @@ void CmdExpDataTxt::saveResults( const std::vector< std::vector<double> > & res 
 
 void CmdExpDataTxt::exportParameters( std::auto_ptr<casa::ScenarioAnalysis> & sa )
 {
-   if ( m_commander.verboseLevel() > CasaCommander::Quiet )
-   {
-      std::cout << "Export parameters value calculated by DoEs to " << m_dataFileName << std::endl;
-   }
+   BOOST_LOG_TRIVIAL( info ) << "Exporting parameters value calculated by DoEs to " << m_dataFileName << "...";
 
    casa::RunCaseSet & doeCaseSet = sa->doeCaseSet();
    std::vector<std::string> doeList = m_expList.empty() ? doeCaseSet.experimentNames() : m_expList;
@@ -167,10 +163,7 @@ void CmdExpDataTxt::exportParameters( std::auto_ptr<casa::ScenarioAnalysis> & sa
 
 void CmdExpDataTxt::exportRunCaseObs( std::auto_ptr<casa::ScenarioAnalysis> & sa )
 {
-   if ( m_commander.verboseLevel() > CasaCommander::Quiet )
-   {
-      std::cout << "Export observables value calculated in DoEs runs to " << m_dataFileName << std::endl;
-   }
+   BOOST_LOG_TRIVIAL( info ) << "Export observables value calculated in DoEs runs to " << m_dataFileName << "...";
 
    casa::RunCaseSet & doeCaseSet = sa->doeCaseSet();
    std::vector<std::string> doeList = m_expList.empty() ? doeCaseSet.experimentNames() : m_expList;
@@ -202,10 +195,7 @@ void CmdExpDataTxt::exportRunCaseObs( std::auto_ptr<casa::ScenarioAnalysis> & sa
 
 void CmdExpDataTxt::exportEvalObserv( std::auto_ptr<casa::ScenarioAnalysis> & sa )
 {
-   if ( m_commander.verboseLevel() > CasaCommander::Quiet )
-   {
-      std::cout << "Export observables value for response surface proxy " << m_proxyName << " to " << m_dataFileName << std::endl;
-   }
+   BOOST_LOG_TRIVIAL( info ) << "Exporting observables value for response surface proxy " << m_proxyName << " to " << m_dataFileName << "...";
 
    std::vector<std::string> doeList = m_expList.empty() ? sa->doeCaseSet().experimentNames() : m_expList;
 
@@ -224,10 +214,7 @@ void CmdExpDataTxt::exportEvalObserv( std::auto_ptr<casa::ScenarioAnalysis> & sa
    size_t i = 0;
    for ( size_t e = 0; e < doeList.size(); ++e )
    {
-      if ( m_commander.verboseLevel() > CasaCommander::Quiet )
-      {
-         std::cout << " evaluate proxy for " << doeList[e]  << "DoE for " << casePerExp[e]  << " cases\n";
-      }
+      BOOST_LOG_TRIVIAL( debug ) << "Evaluating proxy for " << doeList[e]  << "DoE for " << casePerExp[e]  << " cases...";
       
       for ( size_t c = 0; c < casePerExp[e]; ++c )
       {
@@ -257,10 +244,7 @@ void CmdExpDataTxt::exportEvalObserv( std::auto_ptr<casa::ScenarioAnalysis> & sa
 
 void CmdExpDataTxt::exportProxyQC( std::auto_ptr<casa::ScenarioAnalysis> & sa )
 {
-   if ( m_commander.verboseLevel() > CasaCommander::Quiet )
-   {
-      std::cout << "Export QC data for response surface proxy " << m_proxyName << " to " << m_dataFileName << std::endl;
-   }
+   BOOST_LOG_TRIVIAL( info ) << "Exporting QC data for response surface proxy " << m_proxyName << " to " << m_dataFileName << "...";
 
    casa::RunCaseSet & doeCaseSet = sa->doeCaseSet();
    std::vector<std::string> doeList = m_expList.empty() ? doeCaseSet.experimentNames() : m_expList;
@@ -280,10 +264,7 @@ void CmdExpDataTxt::exportProxyQC( std::auto_ptr<casa::ScenarioAnalysis> & sa )
    size_t i = 0;
    for ( size_t e = 0; e < doeList.size(); ++e )
    {
-      if ( m_commander.verboseLevel() > CasaCommander::Quiet )
-      {
-         std::cout << " evaluate proxy for " << doeList[e]  << "DoE for " << casePerExp[e]  << " cases\n";
-      }
+      BOOST_LOG_TRIVIAL( debug ) << " evaluating proxy for " << doeList[e]  << "DoE for " << casePerExp[e]  << " cases...";
       
       doeCaseSet.filterByExperimentName( doeList[e] );
 
@@ -324,10 +305,7 @@ void CmdExpDataTxt::exportProxyQC( std::auto_ptr<casa::ScenarioAnalysis> & sa )
          
 void CmdExpDataTxt::exportMCResults( std::auto_ptr<casa::ScenarioAnalysis> & sa )
 {
-   if ( m_commander.verboseLevel() > CasaCommander::Quiet )
-   {
-      std::cout << "Export MC/MCMC to " << m_dataFileName << std::endl;
-   }
+   BOOST_LOG_TRIVIAL( info ) << "Exporting MC/MCMC to " << m_dataFileName << "...";
 
    std::vector< std::vector<double> > results;
    // export MC samples

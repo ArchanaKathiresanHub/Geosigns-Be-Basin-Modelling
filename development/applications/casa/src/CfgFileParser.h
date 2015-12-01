@@ -15,6 +15,9 @@
 #include <vector>
 #include <iostream>
 
+// Boost log library
+#include <boost/log/trivial.hpp>
+
 class CasaCommander;
 
 class CfgFileParser
@@ -42,6 +45,10 @@ public:
    static void readParametersValueFile( const std::string & fileName, std::vector< std::vector<double> > & dataVals );
 
    static bool isNumericPrm( const std::string & prm );
+
+   // join array of string to one string separated with given delimiter
+   static std::string implode( const std::vector<std::string> & vos, const char * delim, size_t st = 0 );
+
 protected:
 };
 

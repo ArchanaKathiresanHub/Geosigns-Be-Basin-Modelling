@@ -51,21 +51,20 @@ CmdCreateResponse::CmdCreateResponse( CasaCommander & parent, const std::vector<
       if ( m_respSurfOrder == -1 ) m_targetR2 = atof( m_prms[4].c_str() );
       else
       {
-         throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Target R2 parameter could be defined only together with automatic search for polynomial order. " <<
-           "This is defined by setting the polynomial order to -1. But supplied polynomial order is: " << m_respSurfOrder;
+         throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << 
+            "Target R2 parameter could be defined only together with automatic search for polynomial order. " <<
+            "This is defined by setting the polynomial order to -1. But supplied polynomial order is: "       << m_respSurfOrder;
       }
    }
 }
 
 void CmdCreateResponse::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
 {  
-   if ( m_commander.verboseLevel() > CasaCommander::Quiet )
+   BOOST_LOG_TRIVIAL( info ) << "Starting response surface approximation calculation for proxy: " << m_proxyName; 
+   
+   if ( m_respSurfOrder < 0 )
    {
-      std::cout << "Starting response surface approximation calculation for proxy: " << m_proxyName << std::endl;
-      if ( m_respSurfOrder < 0 )
-      {
-         std::cout << " Automatic search for the polynomial order is set, target R2 value is: " << m_targetR2 << std::endl;
-      }
+      BOOST_LOG_TRIVIAL( debug ) << "The automatic search for the polynomial order is chosen, target R2 value is: " << m_targetR2;
    }
 
    // add and calculate response
@@ -80,14 +79,12 @@ void CmdCreateResponse::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
       throw ErrorHandler::Exception( sa->errorCode() ) << sa->errorMessage();
    }
    
-   if ( m_commander.verboseLevel() > CasaCommander::Quiet )
+   BOOST_LOG_TRIVIAL( info ) << "Response surface approximation calculation for proxy " << m_proxyName << " was finished";
+
+   const casa::RSProxy * proxy = sa->rsProxySet().rsProxy( m_proxyName );
+   if ( proxy )
    {
-      std::cout << "Response surface approximation calculation for proxy " << m_proxyName << " finished" << std::endl;
-      const casa::RSProxy * proxy = sa->rsProxySet().rsProxy( m_proxyName );
-      if ( proxy )
-      {
-         std::cout << "Polynomial order for response surface approximation is set to: " << proxy->polynomialOrder() << std::endl;
-      }
+      BOOST_LOG_TRIVIAL( debug ) << "Polynomial order for response surface approximation is set to: " << proxy->polynomialOrder();
    }
 }
 

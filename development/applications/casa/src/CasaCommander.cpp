@@ -95,15 +95,8 @@ void CasaCommander::addCommand( const std::string & cmdName, const std::vector< 
    m_cmdNames.push_back( cmdName );
    m_inpFileCmdPos.push_back( lineNum );
 
-   if ( m_msgLvl > Minimal )
-   {
-      std::cout << "Added command to the command queue: " << typeid(*(cmd.get())).name() << "(";
-      for ( size_t i = 0; i < prms.size(); ++i )
-      {
-         std::cout << (i == 0 ? " " : ", ") << prms[i];
-      }
-      std::cout << std::endl;
-   }
+   BOOST_LOG_TRIVIAL( debug ) << "Added command to the command queue: " << (typeid(*(cmd.get())).name()) << "("
+                              << CfgFileParser::implode( prms, "," ) << ")";
 }
 
 void CasaCommander::executeCommands( std::auto_ptr<casa::ScenarioAnalysis> & sa )

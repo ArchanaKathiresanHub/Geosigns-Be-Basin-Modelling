@@ -282,3 +282,13 @@ bool CfgFileParser::isNumericPrm( const std::string & prm )
    return std::isdigit( prm[0], loc );
 }
 
+std::string CfgFileParser::implode( const std::vector<std::string> & vos, const char * delim, size_t st )
+{
+   std::ostringstream ret;
+   for ( size_t i = st; i < vos.size(); ++i )
+   {
+      ret << (i == st ? "" : delim ) << vos[i];
+   }
+   return ret.str();
+}
+

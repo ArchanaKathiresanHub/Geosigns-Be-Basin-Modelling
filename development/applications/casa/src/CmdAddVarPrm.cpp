@@ -1331,16 +1331,10 @@ CmdAddVarPrm::CmdAddVarPrm( CasaCommander & parent, const std::vector< std::stri
 
 void CmdAddVarPrm::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
 {
-   if ( m_commander.verboseLevel() > CasaCommander::Quiet )
-   {
-      std::cout << "Add variable parameter: " << m_prms[0] << "(";
-      for ( size_t i = 1; i < m_prms.size(); ++i )
-      {
-         std::cout << m_prms[i] << ((i == m_prms.size() - 1) ? "" : ",");
-      }
-      std::cout << ")" << std::endl;
-   }
-
+   BOOST_LOG_TRIVIAL( info ) << "Add variable parameter: " << ( m_prmName.empty() ?
+                                                                  (m_prms[0] + "(" + CfgFileParser::implode( m_prms, ",", 1 ) + ")") :
+                                                                  (m_prmName)
+                                                              );
 
    g_prmFactory.factory( m_prms[0] )->addParameterObject( sa, m_prmName, m_prms );
 

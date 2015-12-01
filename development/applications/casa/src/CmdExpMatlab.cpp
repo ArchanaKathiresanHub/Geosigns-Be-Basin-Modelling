@@ -27,11 +27,10 @@ CmdExpMatlab::CmdExpMatlab( CasaCommander & parent, const std::vector< std::stri
 
 void CmdExpMatlab::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
 {
-   if ( m_commander.verboseLevel() > CasaCommander::Quiet )
-   {
-      std::cout << "Export CASA results to : " << m_dataFileName << std::endl;
-   }
+   BOOST_LOG_TRIVIAL( info ) << "Exporting CASA scenario results as set of matlab commands to: " << m_dataFileName << "...";
 
    MatlabExporter mex( m_dataFileName );
    mex.exportScenario( *sa.get(), sa->baseCaseProjectFileName(), sa->scenarioLocation() );
+
+   BOOST_LOG_TRIVIAL( info ) << "Exporting CASA scenario results succeeded";
 }

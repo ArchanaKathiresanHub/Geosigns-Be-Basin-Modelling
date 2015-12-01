@@ -26,10 +26,7 @@ CmdBaseProject::CmdBaseProject( CasaCommander & parent, const std::vector< std::
 
 void CmdBaseProject::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
 {
-   if ( m_commander.verboseLevel() > CasaCommander::Quiet )
-   {
-      std::cout << "Set base case: " << m_baseProjectName << std::endl;
-   }
+   BOOST_LOG_TRIVIAL( info ) <<"Set base case: " << m_baseProjectName;
 
    if ( ErrorHandler::NoError != sa->defineBaseCase( m_baseProjectName.c_str() ) )
    {

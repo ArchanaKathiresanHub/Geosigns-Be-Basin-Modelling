@@ -48,10 +48,7 @@ void CmdPlotPareto::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
    // call response evaluation
    if ( !proxy ) { throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Unknown proxy name:" << m_proxyName; }
 
-   if ( m_commander.verboseLevel() > CasaCommander::Quiet )
-   {
-      std::cout << "Generating script to plot Pareto diagram ...";
-   }
+   BOOST_LOG_TRIVIAL( info ) << "Generating script to plot Pareto diagram ...";
 
    casa::SensitivityCalculator & sCalc = sa->sensitivityCalculator();
 
@@ -102,10 +99,7 @@ void CmdPlotPareto::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
    ofs << "\n";
    ofs << "print( ['Pareto_' ProxyName '.jpg'] );\n";
 
-   if ( m_commander.verboseLevel() > CasaCommander::Quiet )
-   {
-      std::cout << "\nSucceeded." << std::endl;
-   }
+   BOOST_LOG_TRIVIAL( info ) << "Script generation succeeded";
 }
 
 void CmdPlotPareto::printHelpPage( const char * cmdName )

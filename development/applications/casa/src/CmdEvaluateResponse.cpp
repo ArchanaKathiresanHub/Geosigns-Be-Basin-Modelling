@@ -129,18 +129,12 @@ void CmdEvaluateResponse::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
    // call response evaluation
    if ( !proxy ) { throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Unknown proxy name:" << m_proxyName; }
 
-   if ( m_commander.verboseLevel() > CasaCommander::Quiet )
-   {
-      std::cout << "Evaluate proxy " << m_proxyName << " for " << rcs.size() << " cases\n";
-   }
+   BOOST_LOG_TRIVIAL( info ) << "Evaluating proxy " << m_proxyName << " for " << rcs.size() << " cases...";
 
    size_t i = 0;
    for ( size_t e = 0; e < m_expList.size(); ++e )
    {
-      if ( m_commander.verboseLevel() > CasaCommander::Quiet )
-      {
-         std::cout << " evaluate proxy for " << m_expList[e]  << "DoE/data file for " << casePerExp[e]  << " cases\n";
-      }
+      BOOST_LOG_TRIVIAL( debug ) << "Evaluate proxy for " << m_expList[e]  << "DoE/data file for " << casePerExp[e]  << " cases...";
 
       for ( size_t c = 0; c < casePerExp[e]; ++c )
       {
@@ -154,13 +148,12 @@ void CmdEvaluateResponse::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
       }
    }
 
-   if ( m_commander.verboseLevel() > CasaCommander::Quiet )
-   {
-      std::cout << "Export proxy evaluation results to " << m_dataFileName << "file\n";
-   }
+   BOOST_LOG_TRIVIAL( info ) << "Exporting proxy evaluation results to " << m_dataFileName << "file...";
 
    MatlabExporter::exportObsValues( m_dataFileName, rcs );
 
    for ( size_t i = 0; i < rcs.size(); ++i ) delete rcs[i]; // clean cases created here
+
+   BOOST_LOG_TRIVIAL( info ) << "Proxy evalutaion was succeeded";
 }
 

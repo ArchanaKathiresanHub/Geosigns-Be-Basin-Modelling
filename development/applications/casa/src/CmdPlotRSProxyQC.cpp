@@ -57,10 +57,7 @@ CmdPlotRSProxyQC::CmdPlotRSProxyQC( CasaCommander & parent, const std::vector< s
 
 void CmdPlotRSProxyQC::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
 {
-   if ( m_commander.verboseLevel() > CasaCommander::Quiet )
-   {
-      std::cout << "Generating script to plot QC for " << m_proxyName << "rs proxy...\n";
-   }
+   BOOST_LOG_TRIVIAL( info ) << "Generating script to plot QC for " << m_proxyName << "rs proxy...";
 
    std::vector<casa::RunCase *> proxyCaseSet;
    std::vector<casa::RunCase *> testCaseSet;
@@ -402,10 +399,7 @@ void CmdPlotRSProxyQC::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
    ofs << "   eval( sprintf( 'print QC_" << MatlabExporter::correctName( m_proxyName ) << "_" << "%s.jpg -S1000,1000', ProxyQC(i).obsNameFN ) );\n";
    ofs << "end\n";
 
-   if ( m_commander.verboseLevel() > CasaCommander::Quiet )
-   {
-      std::cout << "Succeded...\n";
-   }
+   BOOST_LOG_TRIVIAL( info ) << "Script generation succeded";
 }
 
 

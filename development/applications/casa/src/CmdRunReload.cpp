@@ -30,8 +30,8 @@ static void PrintObsValues( casa::ScenarioAnalysis & sc )
 
       if ( !cs ) continue;
 
-      std::cout << "    " << cs->projectPath() << std::endl;
-      std::cout << "    Observable values:" << std::endl;
+      BOOST_LOG_TRIVIAL( debug ) << "    " << cs->projectPath();
+      BOOST_LOG_TRIVIAL( debug ) << "      Observable values:";
 
       for ( size_t i = 0; i < cs->observablesNumber(); ++i )
       {
@@ -43,7 +43,7 @@ static void PrintObsValues( casa::ScenarioAnalysis & sc )
 
             for ( size_t i = 0; i < vals.size(); ++i )
             {
-               std::cout << "      " << names[i] << " = " << vals[i] << "\n";
+               BOOST_LOG_TRIVIAL( debug ) << "      " << names[i] << " = " << vals[i];
             }
          }
       }
@@ -59,22 +59,14 @@ CmdRunReload::CmdRunReload( CasaCommander & parent, const std::vector< std::stri
 
 void CmdRunReload::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
 {
-   if ( m_commander.verboseLevel() > CasaCommander::Quiet )
-   {
-      std::cout << "Loading completed jobs ... ";
-      std::cout.flush();
-   }
+   BOOST_LOG_TRIVIAL( info ) << "Loading completed jobs... ";
 
    if ( ErrorHandler::NoError != sa->restoreScenarioLocation( m_locPath.c_str() ) ) 
    {
       throw ErrorHandler::Exception( sa->errorCode() ) << sa->errorMessage();
    }
  
-   if ( m_commander.verboseLevel() > CasaCommander::Quiet )
-   {
-      std::cout << "done! " << std::endl;
-      std::cout << "Extracting observables values ... ";
-   }
+   BOOST_LOG_TRIVIAL( info ) << "done! " << " Extracting observables values ... ";
   
    // collect observables value
    if ( ErrorHandler::NoError != sa->dataDigger().collectRunResults( sa->obsSpace(), sa->doeCaseSet() ) )
@@ -82,12 +74,9 @@ void CmdRunReload::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
       throw ErrorHandler::Exception( sa->dataDigger().errorCode() ) << sa->dataDigger().errorMessage();
    }
 
-   if ( m_commander.verboseLevel() > CasaCommander::Quiet )
-   {
-      std::cout << "done! " << std::endl;
-   }
+   BOOST_LOG_TRIVIAL( info ) << "Load succeeded";
 
-   if ( m_commander.verboseLevel() > CasaCommander::Minimal ) { PrintObsValues( *sa.get() ); }
+   PrintObsValues( *sa.get() );
 }
 
 

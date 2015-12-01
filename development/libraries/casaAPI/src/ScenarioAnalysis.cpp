@@ -32,8 +32,8 @@
 #include "RunCaseSetImpl.h"
 #include "RunManagerImpl.h"
 #include "SensitivityCalculatorImpl.h"
-#include "SimpleSerializer.h"
-#include "SimpleDeserializer.h"
+#include "CasaSerializer.h"
+#include "CasaDeserializer.h"
 #include "VarSpaceImpl.h"
 #include "VarPrmOneCrustThinningEvent.h"
 #include "VarPrmTopCrustHeatProduction.h"
@@ -365,12 +365,16 @@ ErrorHandler::ReturnCode ScenarioAnalysis::saveScenario( const char * fileName, 
 {
    try
    {
-      SimpleSerializer outStream( fileName, fileType, version() );
-      m_pimpl->serialize( outStream );
+      std::auto_ptr<CasaSerializer> outStream( CasaSerializer::createSerializer( fileName, fileType, version() ) );
+      m_pimpl->serialize( *(outStream.get()) );
    }
    catch ( const ErrorHandler::Exception & ex )
    {
       return reportError( ex.errorCode(), ex.what() );
+   }
+   catch ( const std::exception & ex )
+   {
+      return reportError( SerializationError, ex.what() );
    }
    return NoError;
 }
@@ -383,7 +387,7 @@ ScenarioAnalysis * ScenarioAnalysis::loadScenario( const char * fileName, const 
    {
       std::ifstream fid;
 
-      if (      !strcmp( "bin", fileType ) ) { fid.open( fileName, std::ofstream::binary ); }
+      if (      !strcmp( "bin", fileType ) ) { fid.open( fileName, std::ios::binary ); }
       else if ( !strcmp( "txt", fileType ) ) { fid.open( fileName ); }
       else
       {
@@ -392,8 +396,9 @@ ScenarioAnalysis * ScenarioAnalysis::loadScenario( const char * fileName, const 
 
       if ( !fid.good() ) throw Exception(DeserializationError) << "Can not open file: " << fileName << " for reading";
       
-      SimpleDeserializer inStream( fid, sc->version(), !strcmp( "bin", fileType ) );
-      sc->m_pimpl->deserialize( inStream );
+      std::auto_ptr<CasaDeserializer> inStream( CasaDeserializer::createDeserializer( fid, fileType, sc->version() ) );
+      
+      sc->m_pimpl->deserialize( *(inStream.get()) );
       if ( sc->errorCode() != ErrorHandler::NoError )
       {
          throw ErrorHandler::Exception( sc->errorCode() ) << sc->errorMessage();
@@ -417,22 +422,14 @@ ScenarioAnalysis * ScenarioAnalysis::loadScenario( const char * stateFileBuf, si
 
       if ( !fid.good() ) throw Exception( DeserializationError ) << "Can not read from the given memory buffer";
 
-      if ( !strcmp( "bin", fileType ) )
+      std::auto_ptr<CasaDeserializer> inStream( CasaDeserializer::createDeserializer( fid
+                                                                                    , fileType == NULL ? "" : std::string( fileType )
+                                                                                    , sc->version() 
+                                                                                    ) );
+      sc->m_pimpl->deserialize( *(inStream.get()) );
+      if ( sc->errorCode() != ErrorHandler::NoError )
       {
-         throw Exception( NotImplementedAPI ) << "Binary deserialization not implemented yet";
-      }
-      else if ( !strcmp( "txt", fileType ) )
-      {
-         SimpleDeserializer txtInStream( fid, sc->version() );
-         sc->m_pimpl->deserialize( txtInStream );
-         if ( sc->errorCode() != ErrorHandler::NoError )
-         {
-            throw ErrorHandler::Exception( sc->errorCode() ) << sc->errorMessage();
-         }
-      }
-      else
-      {
-         throw Exception( NonexistingID ) << "Unknown type of input stream for loading ScenarioAnalysis object";
+         throw ErrorHandler::Exception( sc->errorCode() ) << sc->errorMessage();
       }
    }
    catch ( const ErrorHandler::Exception & ex )

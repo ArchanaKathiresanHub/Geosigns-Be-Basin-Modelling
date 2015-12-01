@@ -36,10 +36,7 @@ CmdPlotMC::CmdPlotMC( CasaCommander & parent, const std::vector< std::string > &
 
 void CmdPlotMC::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
 {
-   if ( m_commander.verboseLevel() > CasaCommander::Quiet )
-   {
-      std::cout << "Generating script to plot MC/MCMC results...";
-   }
+   BOOST_LOG_TRIVIAL( info ) << "Generating script to plot MC/MCMC results...";
 
    MatlabExporter ofs( m_mFileName );
 
@@ -135,10 +132,7 @@ void CmdPlotMC::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
    ofs << "cmd = sprintf( 'print %s.jpg -S%d,%d', mfilename(), subPlotSize * prmsNumber, subPlotSize * prmsNumber );\n";
    ofs << "eval( cmd );\n";
 
-   if ( m_commander.verboseLevel() > CasaCommander::Quiet )
-   {
-      std::cout << "\nSucceeded." << std::endl;
-   }
+   BOOST_LOG_TRIVIAL( info ) << "Script generation succeeded";
 }
 
 void CmdPlotMC::printHelpPage( const char * cmdName )

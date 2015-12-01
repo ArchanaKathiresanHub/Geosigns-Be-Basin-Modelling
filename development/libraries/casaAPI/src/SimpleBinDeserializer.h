@@ -8,11 +8,14 @@
 // Do not distribute without written permission from Shell.
 // 
 
-#ifndef TXT_DESERIALIZER_H
-#define TXT_DESERIALIZER_H
+#ifndef BIN_DESERIALIZER_H
+#define BIN_DESERIALIZER_H
 
 // CASA
 #include "CasaDeserializer.h"
+
+// BOOST
+#include <boost/iostreams/filtering_stream.hpp>
 
 // STL lib
 #include <istream>
@@ -20,17 +23,23 @@
 namespace casa
 {
    /// @brief This class implements the IDeserializer interface
-   class  SimpleDeserializer : public CasaDeserializer
+   class  SimpleBinDeserializer : public CasaDeserializer
    {
    public:
+
+      /// @brief Check is given stream is suitable to be deserialized by SimpleBinDeserializer.
+      ///        Funcion read a bit of stream, check signature then rewind stream back
+      /// @param ifs input stream
+      /// @return true if this stream could be deserialized by this deserializer;
+      static bool checkSignature( std::istream & ifs );
 
       /// @brief Constructor
       /// @param fileHandle file pointer
       /// @param ver version
-      SimpleDeserializer( std::istream & fileHandle, unsigned int ver, bool isBinary = false );
+      SimpleBinDeserializer( std::istream & fileHandle, unsigned int ver );
 
       /// @brief Destructor
-      virtual ~SimpleDeserializer();
+      virtual ~SimpleBinDeserializer();
 
       /// @brief Read the description of the next object from file and compare with given data. Works only for CasaSerializable objects
       /// @param objType string representation of object type as it returned by CasaSerializable::typeName() virtual method
@@ -170,14 +179,15 @@ namespace casa
       virtual int version() { return m_version; }
 
    private:
-      std::istream  & m_file;
+      std::istream                        & m_cfile;  ///< input stream
+      boost::iostreams::filtering_istream   m_file;   ///< compressed stream 
+
       unsigned int    m_version;
       char          * m_buf;
-      bool            m_isBinary;
 
-      SimpleDeserializer( const SimpleDeserializer & );               // copy constructor
-      SimpleDeserializer & operator = ( const SimpleDeserializer & ); // copy operator
+      SimpleBinDeserializer( const SimpleBinDeserializer & );               // copy constructor
+      SimpleBinDeserializer & operator = ( const SimpleBinDeserializer & ); // copy operator
 
    };
 }
-#endif // TXT_DESERIALIZER_H
+#endif // BIN_DESERIALIZER_H

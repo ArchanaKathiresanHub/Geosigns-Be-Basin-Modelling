@@ -24,10 +24,7 @@ CmdScenarioID::CmdScenarioID( CasaCommander & parent, const std::vector< std::st
 
 void CmdScenarioID::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
 {
-   if ( m_commander.verboseLevel() > CasaCommander::Quiet )
-   {
-      std::cout << "Setting scenario ID: " << m_id << "..." << std::endl;
-   }
+   BOOST_LOG_TRIVIAL( info ) << "Setting scenario ID: " << m_id << "...";
    
    if ( ErrorHandler::NoError != sa->defineScenarioID( m_id.c_str() ) )
    {

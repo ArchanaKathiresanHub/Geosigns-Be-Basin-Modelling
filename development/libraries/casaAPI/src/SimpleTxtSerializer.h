@@ -20,18 +20,17 @@
 namespace casa
 {
    /// @brief This class implements the ISerializer interface
-   class SimpleSerializer : public CasaSerializer
+   class SimpleTxtSerializer : public CasaSerializer
    {
    public:
 
-      /// @brief  Constructor. Throw on null file handle and negative version number
+      /// @brief Constructor. Throw on null file handle and negative version number
       /// @param fileName CASA state file name
-      /// @param fileType file type "txt" or "bin"
-      /// @param  ver file version 
-      SimpleSerializer( const std::string & fileName, const std::string & fileType, int ver );
+      /// @param ver file version 
+      SimpleTxtSerializer( const std::string & fileName, int ver );
 
       /// @brief  Destructor
-      virtual ~SimpleSerializer() { ; }
+      virtual ~SimpleTxtSerializer() { ; }
 
       /// @brief Save CasaSerializable object
       /// @param so CasaSerializable object reference
@@ -163,12 +162,11 @@ namespace casa
       virtual int version() { return m_version; }
 
    private:
-      std::ofstream m_file;
-      int           m_version;
-      bool          m_isBinary;
+      std::ofstream  m_file;
+      int            m_version;
 
-      SimpleSerializer( const SimpleSerializer & );             // copy constructor
-      SimpleSerializer & operator = (const SimpleSerializer &); // copy operator
+      SimpleTxtSerializer( const SimpleTxtSerializer & );             // copy constructor
+      SimpleTxtSerializer & operator = (const SimpleTxtSerializer &); // copy operator
 
       bool saveObjectDescription( const std::string & objType, const std::string & objName, unsigned int ver );
    };

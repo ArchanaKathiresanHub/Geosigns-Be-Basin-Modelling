@@ -7,12 +7,49 @@
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 // 
+
+// CASA API
 #include "casaAPI.h"
 
+// CASA APP
 #include "CasaCommander.h"
 #include "CfgFileParser.h"
 
+// STL
 #include <stdexcept>
+
+// Boost Log library
+#include <boost/log/core.hpp>
+#include <boost/log/expressions.hpp>
+#include <boost/log/sinks/text_file_backend.hpp>
+#include <boost/log/utility/setup/file.hpp>
+#include <boost/log/utility/setup/console.hpp>
+#include <boost/log/utility/setup/common_attributes.hpp>
+#include <boost/log/sources/severity_logger.hpp>
+#include <boost/log/sources/record_ostream.hpp>
+
+void initLog( CasaCommander::VerboseLevel lev )
+{
+   boost::log::add_file_log
+   ( "scenario.log"
+   , boost::log::keywords::format = "[%TimeStamp%]: %Message%"
+   );
+
+   boost::log::add_console_log
+   ( std::cout
+   , boost::log::keywords::format = "%Message%"
+   );
+
+   switch ( lev )
+   {
+      case CasaCommander::Quiet:    boost::log::core::get()->set_filter( boost::log::trivial::severity >= boost::log::trivial::error ); break;
+      case CasaCommander::Detailed: boost::log::core::get()->set_filter( boost::log::trivial::severity >= boost::log::trivial::debug ); break;
+      case CasaCommander::Minimal:  
+      default: boost::log::core::get()->set_filter( boost::log::trivial::severity >= boost::log::trivial::info ); break;
+   }
+
+   boost::log::add_common_attributes();
+}
 
 int main( int argc, char ** argv )
 {
@@ -53,11 +90,14 @@ int main( int argc, char ** argv )
             cmdFileName = argv[i];
          }
       }
+      
+      // Set up loggin for casa app
+      initLog( msgLvl );
 
       // parse command file
       CfgFileParser  cmdFile;
    
-      cmdFile.parseFile( argv[1], cmdQueue );
+      cmdFile.parseFile( cmdFileName, cmdQueue );
 
       //process commands
       cmdExecutionStarted = true;
@@ -65,31 +105,30 @@ int main( int argc, char ** argv )
    }
    catch ( const std::runtime_error & ex )
    {
-      std::cerr << "Command file " << cmdFileName << " execution error: " << std::endl;
-      std::cerr << "   SUMlib error: " << ex.what() << std::endl;
-      std::cerr << "   CASA command \"" << cmdQueue.curCmdName() << "\" at line: " << cmdQueue.curCmdInputFileLineNumber() << std::endl;
+      BOOST_LOG_TRIVIAL( fatal ) << "Command file " << cmdFileName << " execution error: " << "   SUMlib error: " << ex.what() <<
+                                    ", CASA command \"" << cmdQueue.curCmdName() << "\" at line: " << cmdQueue.curCmdInputFileLineNumber();
       return -1;
    }
    catch ( const ErrorHandler::Exception & ex )
    {
       if ( cmdExecutionStarted )
       {
-         std::cerr << "Exception on processing command: " << cmdQueue.curCmdName() << " located at line " << 
-            cmdQueue.curCmdInputFileLineNumber() << " of input file " << cmdFileName << std::endl;
+         BOOST_LOG_TRIVIAL( error ) << "Exception on processing command: " << cmdQueue.curCmdName() << " located at line " << 
+            cmdQueue.curCmdInputFileLineNumber() << " of input file " << cmdFileName << ". ";
          sc->runManager().stopAllSubmittedJobs();
       }
-      std::cerr << "CASA error ID:" << ex.errorCode() << ", message: " << ex.what() << std::endl;
+      BOOST_LOG_TRIVIAL( fatal ) << "CASA error ID:" << ex.errorCode() << ", message: " << ex.what();
       return -1;
    }
    catch ( ... )
    {
       if ( cmdExecutionStarted )
       {
-         std::cerr << "Exception on processing command: " << cmdQueue.curCmdName() << " located at line " << 
-            cmdQueue.curCmdInputFileLineNumber() << " of input file " << cmdFileName << std::endl;
+         BOOST_LOG_TRIVIAL( error ) << "Exception on processing command: " << cmdQueue.curCmdName() << " located at line " << 
+            cmdQueue.curCmdInputFileLineNumber() << " of input file " << cmdFileName << ". ";
          sc->runManager().stopAllSubmittedJobs();
       }
-      std::cerr << "CASA unknown exception, aborting..." << std::endl;
+      BOOST_LOG_TRIVIAL( fatal ) << "CASA unknown exception, aborting...";
       return -1;
    }
 }

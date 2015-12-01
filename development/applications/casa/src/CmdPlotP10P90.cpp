@@ -36,10 +36,7 @@ CmdPlotP10P90::CmdPlotP10P90( CasaCommander & parent, const std::vector< std::st
 
 void CmdPlotP10P90::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
 {
-   if ( m_commander.verboseLevel() > CasaCommander::Quiet )
-   {
-      std::cout << "Generating script to plot P10-P90 diagrams from MC/MCMC results...";
-   }
+   BOOST_LOG_TRIVIAL( info ) << "Generating script to plot P10-P90 diagrams from MC/MCMC results...";
 
    MatlabExporter ofs( m_mFileName );
 
@@ -170,11 +167,8 @@ void CmdPlotP10P90::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
    ofs << "   set( get( gcf, 'currentaxes' ), 'fontweight', 'bold' );\n";
    ofs << "   print ( sprintf( 'p10p90_pdf_obs_%d.jpg', o-1 ) );\n";
    ofs << "end\n";
- 
-   if ( m_commander.verboseLevel() > CasaCommander::Quiet )
-   {
-      std::cout << "\nSucceeded." << std::endl;
-   }
+
+   BOOST_LOG_TRIVIAL( info ) << "Script generation succeeded";
 }
 
 void CmdPlotP10P90::printHelpPage( const char * cmdName )

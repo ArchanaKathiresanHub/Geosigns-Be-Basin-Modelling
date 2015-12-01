@@ -12,7 +12,7 @@
 
 include( cmake/AddPackage.cmake)
 
-set(BOOST_LIBS_LIST log filesystem system thread atomic date_time chrono iostreams regex)
+set(BOOST_LIBS_LIST log log_setup filesystem system thread atomic date_time chrono iostreams regex)
 
 if (WIN32)
     list(APPEND BOOST_LIBS_LIST zlib)
@@ -33,7 +33,7 @@ if (UNIX)
          "using ${toolset} : ${CMAKE_CXX_COMPILER_VERSION} : ${CMAKE_CXX_COMPILER} ;\n"
    )
 
-   # filesystem;system;thread;atomic;log;iostreams -> "filesystem,system,thread,atomic,log,iostreams"
+   # filesystem;system;thread;atomic;log;iostreams -> "filesystem,log,system,thread,atomic,iostreams"
    #
    string( REPLACE ";" "," COMMA_SEP_BOOST_LIBS_LIST "${BOOST_LIBS_LIST}")
 

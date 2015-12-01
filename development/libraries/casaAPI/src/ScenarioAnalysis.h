@@ -223,7 +223,7 @@ namespace casa
       /// @param  bufSize size of the buffer
       /// @param  fileType "bin"/"txt" file type
       /// @return null if it fails, else the new casa::ScenarioAnalysis object.
-      static ScenarioAnalysis * loadScenario( const char * stateFileBuf, size_t bufSize, const char * fileType );
+      static ScenarioAnalysis * loadScenario( const char * stateFileBuf, size_t bufSize, const char * fileType = NULL );
 
    private:
       /// @brief Copy constructor is disabled

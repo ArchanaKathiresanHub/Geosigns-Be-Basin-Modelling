@@ -454,21 +454,9 @@ CmdAddObs::CmdAddObs( CasaCommander & parent, const std::vector< std::string > &
 
 void CmdAddObs::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
 {
-   // first check is the 
-   if ( m_commander.verboseLevel() > CasaCommander::Quiet )
-   {
-      std::cout << "Add observable: ";
-      if ( m_obsName.empty() )
-      {
-         std::cout << m_prms[0] << "(";
-         for ( size_t i = 1; i < m_prms.size(); ++i )
-         {
-            std::cout << m_prms[i] << ((i == m_prms.size() - 1) ? "" : ",");
-         }
-         std::cout << ")" << std::endl;
-      }
-      else { std::cout << m_obsName << std::endl; }
-   }
+   BOOST_LOG_TRIVIAL( info ) << "Add observable: " <<
+      (m_obsName.empty() ? (m_prms[0] + "(" + CfgFileParser::implode( m_prms, ",", 1 ) + ")") : m_obsName);
+
 
    casa::Observable * obs = g_obsFactory.factory( m_prms[0] )->createOservableObject( m_obsName, m_prms );
 

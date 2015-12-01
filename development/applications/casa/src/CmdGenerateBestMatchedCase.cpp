@@ -16,7 +16,8 @@
 #include <cstdlib>
 #include <iostream>
 
-CmdGenerateBestMatchedCase::CmdGenerateBestMatchedCase( CasaCommander & parent, const std::vector< std::string > & cmdPrms ) : CasaCmd( parent, cmdPrms )
+CmdGenerateBestMatchedCase::CmdGenerateBestMatchedCase( CasaCommander & parent, const std::vector< std::string > & cmdPrms )
+                                                      : CasaCmd( parent, cmdPrms )
 {
    m_bmcName   = m_prms.size() > 0 ? m_prms[0]                 : "";
    m_sampleNum = m_prms.size() > 1 ? atol( m_prms[1].c_str() ) : 1;
@@ -32,10 +33,7 @@ CmdGenerateBestMatchedCase::CmdGenerateBestMatchedCase( CasaCommander & parent, 
 
 void CmdGenerateBestMatchedCase::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
 {  
-   if ( m_commander.verboseLevel() > CasaCommander::Quiet )
-   {
-      std::cout << "Starting calibrated case generation: " << m_bmcName << std::endl;
-   }
+   BOOST_LOG_TRIVIAL( info ) << "Generating calibrated case: " << m_bmcName << "...";
 
    // add response
    if ( ErrorHandler::NoError != sa->saveCalibratedCase( m_bmcName.c_str(), m_sampleNum ) )
@@ -43,10 +41,7 @@ void CmdGenerateBestMatchedCase::execute( std::auto_ptr<casa::ScenarioAnalysis> 
       throw ErrorHandler::Exception( sa->errorCode() ) << sa->errorMessage();
    }
    
-   if ( m_commander.verboseLevel() > CasaCommander::Quiet )
-   {
-      std::cout << "Calibrated case generation " << m_bmcName << " finished" << std::endl;
-   }
+   BOOST_LOG_TRIVIAL( info ) << "Calibrated case generation " << m_bmcName << " succeeded";
 }
 
 void CmdGenerateBestMatchedCase::printHelpPage( const char * cmdName )
