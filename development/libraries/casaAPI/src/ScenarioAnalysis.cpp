@@ -387,8 +387,8 @@ ScenarioAnalysis * ScenarioAnalysis::loadScenario( const char * fileName, const 
    {
       std::ifstream fid;
 
-      if (      !strcmp( "bin", fileType ) ) { fid.open( fileName, std::ios::binary ); }
-      else if ( !strcmp( "txt", fileType ) ) { fid.open( fileName ); }
+      if (      !fileType || !strlen( fileType ) || !strcmp( "bin", fileType ) ) { fid.open( fileName, std::ios::binary ); }
+      else if (                                     !strcmp( "txt", fileType ) ) { fid.open( fileName ); }
       else
       {
          throw Exception( NonexistingID ) << "Unknown type of input file for loading ScenarioAnalysis object: " << fileType;

@@ -30,7 +30,7 @@ CmdLoadState::CmdLoadState( CasaCommander & parent, const std::vector< std::stri
    if ( m_prms.size() > 1 )
    {
       m_fileType = m_prms[1];
-      if ( m_fileType.empty() || (m_fileType != "bin" && m_fileType != "txt" ) )
+      if ( !m_fileType.empty() && m_fileType != "bin" && m_fileType != "txt" )
       {
          throw ErrorHandler::Exception(ErrorHandler::UndefinedValue) << "Unknow file type for loading CASA state: " << m_fileType;
       }
