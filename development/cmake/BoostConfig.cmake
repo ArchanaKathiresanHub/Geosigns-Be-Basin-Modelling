@@ -115,6 +115,9 @@ elseif(WIN32)
     math(EXPR _64 "${CMAKE_SIZEOF_VOID_P} * 8")
     set(BOOST_LIBRARYDIR "${BOOST_ROOT}/lib${_64}${BOOST_LIB_POSTFIX}")
 
+    if (NOT BUILD_SHARED_LIBS)
+        set(Boost_USE_STATIC_LIBS        ON) # only find static libs
+    endif()
 
     find_package( Boost 1.59.0 REQUIRED COMPONENTS ${BOOST_LIBS_LIST} )
 
