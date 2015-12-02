@@ -95,6 +95,10 @@ if (UNIX)
       ECCN_EVIDENCE "https://sps.sede-coe.pds.nl/CoE-II/Basin Modeling/Release documents/Export Classification Tracking/2013.10-ECCN_Discussion_with_George_Jolly.msg"
    )
 
+    if (BUILD_SHARED_LIBS)
+      add_definitions(-DBOOST_LOG_DYN_LINK)
+    endif()
+
 elseif(WIN32)
 
     set(BOOST_ROOT "Boost-NOTFOUND" CACHE PATH "Location of the Boost C++ libraries")
@@ -111,9 +115,6 @@ elseif(WIN32)
     math(EXPR _64 "${CMAKE_SIZEOF_VOID_P} * 8")
     set(BOOST_LIBRARYDIR "${BOOST_ROOT}/lib${_64}${BOOST_LIB_POSTFIX}")
 
-    if (NOT BUILD_SHARED_LIBS)
-        set(Boost_USE_STATIC_LIBS        ON) # only find static libs
-    endif()
 
     find_package( Boost 1.59.0 REQUIRED COMPONENTS ${BOOST_LIBS_LIST} )
 

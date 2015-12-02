@@ -43,6 +43,7 @@ namespace CauldronIO
 
 %{
 /* Includes the header in the wrapper code */
+#include VisualizationAPIFwDecl.h
 #include "VisualizationAPI.h"
 #include "VisualizationIO_native.h"
 #include "ImportExport.h"
@@ -50,6 +51,7 @@ namespace CauldronIO
 
 %ignore CauldronIOException;
 %rename ("Equals") CauldronIO::Property::operator==(const Property& other) const;
+%include "VisualizationAPIFwDecl.h"
 %include "VisualizationAPI.h"
 %include "VisualizationIO_native.h"
 %include "ImportExport.h"
