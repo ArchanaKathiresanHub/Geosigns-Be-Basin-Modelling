@@ -138,10 +138,13 @@ GridMap * ProjectHandle::loadGridMap (const Parent * parent, unsigned int childI
    int numJ;
 
    struct MapFileCache * mapFileCachePtr = 0;
+   bool fastcauldronOutput = false;
 
    if (filePathName.find ("HighResDecompaction_Results") != string::npos)
    {
       mapFileCachePtr = &  static_cast<struct MapFileCache * > (m_mapFileCache) [hrdecompaction];
+      fastcauldronOutput = true;
+      
    }
    else if (filePathName.find ("Genex5_Results") != string::npos ||
 	 filePathName.find ("Genex6_Results") != string::npos)
@@ -151,6 +154,7 @@ GridMap * ProjectHandle::loadGridMap (const Parent * parent, unsigned int childI
    else if (filePathName.find ("_Results.HDF") != string::npos) // then it must be fastcauldron...
    {
       mapFileCachePtr = & static_cast<struct MapFileCache * > (m_mapFileCache) [fastcauldron];
+      fastcauldronOutput = true;
    }
    else
    {
@@ -279,8 +283,16 @@ GridMap * ProjectHandle::loadGridMap (const Parent * parent, unsigned int childI
       gridMap = dynamic_cast<DistributedGridMap * > (getFactory ()->produceGridMap (0, 0, grid, undefinedValue, depth));
    }
    //read
-   if (filePathName.find ( PrimaryPropertiesFileName ) != string::npos) {
-      
+   if( m_primary or m_primaryDouble ) {
+      // fastcauldron output is in double precision
+      if (( not fastcauldronOutput ) and depth > 1 ) {
+       fastcauldronOutput = true;
+      }
+   } else {
+      fastcauldronOutput = false;
+   }
+
+   if (filePathName.find ( PrimaryPropertiesFileName ) != string::npos or fastcauldronOutput ) {       
       PetscVector_ReadWrite < double >reader;
       reader.read (&gridMapFile, fileId, dataSetName.c_str (), gridMap->getDA (), gridMap->getVec (), petscD);
     } else {
@@ -292,7 +304,7 @@ GridMap * ProjectHandle::loadGridMap (const Parent * parent, unsigned int childI
       DistributedGridMap *gridMapInActivityOutputGrid = 0;
       
       gridMapInActivityOutputGrid =
-         dynamic_cast<DistributedGridMap * > (getFactory ()->produceGridMap (parent, childIndex, theActivityOutputGrid, undefinedValue, depth));
+         dynamic_cast<DistributedGridMap *> (getFactory ()->produceGridMap (parent, childIndex, theActivityOutputGrid, undefinedValue, depth));
       
       //map gridMap to gridMapInOutputGrid
       //bool ret = mapGridMapAtoGridMapB( gridMap, grid, gridMapInActivityOutputGrid, theActivityOutputGrid ); 

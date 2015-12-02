@@ -31,14 +31,14 @@ namespace DataAccess
 
 	    /// write a 2D gridmap to a file
 	    bool writeMapToHDF (GridMap * gridMap, float time, double depoAge,
-                                const std::string & propertyGrid, const std::string& surfaceName );
+                                const std::string & propertyGrid, const std::string& surfaceName, const bool saveAsPrimary = false);
 	    
 		//bool writeMapToHDF (GridMap * gridMap, float time, double depoAge,
         //                        const std::string & propertyGrid, const std::string& surfaceName );
 
 	    /// write a 2D gridmap to a file
 	    bool writeMapToHDF (DM & da, Vec & vec, float time, double depoAge,
-                                const std::string & propertyGrid, const std::string& surfaceName );
+                                const std::string & propertyGrid, const std::string& surfaceName, const bool saveAsPrimary = false );
 
 	    /// write a 3D gridmap to a file; generic implementation (V.R.Ambati, 13/07/2011).
 	    bool writeVolumeToHDF (GridMap * gridMap, const std::string & propertyName, const std::string & layerName);
@@ -47,10 +47,10 @@ namespace DataAccess
 	    bool writeVolumeToHDF (DM & da, Vec & vec, const std::string & propertyName, const std::string & layerName);
 
 	    /// write a 3D gridmap to a primary properties file; generic implementation 
-         bool writePrimaryVolumeToHDF (GridMap * gridMap, const std::string & propertyName, double time, const std::string & layerName);
+         bool writePrimaryVolumeToHDF (GridMap * gridMap, const std::string & propertyName, double time, const std::string & layerName, const bool useGroupName = true ); 
 	    
 		/// write a 3D gridmap to a primary properties file; originally implemented.
-         bool writePrimaryVolumeToHDF (DM & da, Vec & vec, const std::string & propertyName, double time, const std::string & layerName);
+         bool writePrimaryVolumeToHDF (DM & da, Vec & vec, const std::string & propertyName, double time, const std::string & layerName, const bool useGroupName = true);
 
 	    bool write2DDataSet (const std::string & dataSetName, float *data, int *start, int *count, int *size);
 

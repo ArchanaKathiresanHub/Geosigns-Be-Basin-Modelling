@@ -467,7 +467,8 @@ void PropertyManager::computeSourceRockPropertyVolumes ( AppCtx*                
                                                          const PropListVec&         shaleGasProperties ) {
 
    // Some of the properties (as Vr) should be output to the primary properties file
-   if( FastcauldronSimulator::getInstance ().isPrimary() and cauldron->projectSnapshots.projectPrescribesMinorSnapshots ()) {
+   if(( FastcauldronSimulator::getInstance ().isPrimary() or  FastcauldronSimulator::getInstance ().isPrimaryDouble())
+      and cauldron->projectSnapshots.projectPrescribesMinorSnapshots ()) {
       PropListVec::const_iterator propertyIter;
       
       for ( propertyIter = genexProperties.begin (); propertyIter != genexProperties.end (); ++propertyIter ) {

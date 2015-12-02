@@ -206,6 +206,7 @@ ProjectHandle::ProjectHandle( Database * tables, const string & name, const stri
    m_irreducibleWaterSample = 0;
 
    m_primary = false;
+   m_primaryDouble = false;
 
    //1DComponent
    loadModellingMode();
@@ -2523,7 +2524,14 @@ bool ProjectHandle::saveCreatedMapPropertyValuesMode3D( void )
       propertyValueIter = m_recordLessMapPropertyValues.erase( propertyValueIter );
       increment = 0;
 
-      propertyValue->saveMapToFile( *m_mapPropertyValuesWriter ); // depends on success of createRecord ()
+      bool saveAsPrimary = false;
+      if( m_primary or m_primaryDouble ) {
+         if(( getActivityName() != "Genex5" and getActivityName() != "HighResMigration" and 
+              getActivityName() != "FastTouch" and getActivityName() != "CrustalThicknessCalculator" )) {
+            saveAsPrimary = true;
+         }
+      }   
+      propertyValue->saveMapToFile( *m_mapPropertyValuesWriter, saveAsPrimary); // depends on success of createRecord ()
    }
 
    // sort (timeIoTbl->begin (), timeIoTbl->end (), TimeIoTblSorter);
@@ -2603,7 +2611,11 @@ bool ProjectHandle::saveCreatedVolumePropertyValuesMode3D( void )
          increment = 0;
 
          if( not m_primary ) {
-            status &= propertyValue->saveVolumeToFile( *mapWriter );
+           if( m_primaryDouble ) {
+              status &= propertyValue->savePrimaryVolumeToFile( *mapWriter, false );
+           } else {
+              status &= propertyValue->saveVolumeToFile( *mapWriter );
+           }
          } else {
             if(  m_mapPrimaryPropertyValuesWriter != 0 ) {
                status &= propertyValue->savePrimaryVolumeToFile( *m_mapPrimaryPropertyValuesWriter );
@@ -5856,4 +5868,14 @@ bool ProjectHandle::isPrimary() const {
 void ProjectHandle::setPrimary( const bool PrimaryFlag ) {
 
    m_primary = PrimaryFlag;
+}
+
+bool ProjectHandle::isPrimaryDouble() const {
+
+   return m_primaryDouble;
+}
+
+void ProjectHandle::setPrimaryDouble( const bool PrimaryFlag ) {
+
+   m_primaryDouble = PrimaryFlag;
 }

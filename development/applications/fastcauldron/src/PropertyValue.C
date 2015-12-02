@@ -77,10 +77,10 @@ bool PropertyValue::outputIsRequested () const {
    return requested;
 }
 
-bool PropertyValue::saveMapToFile ( Interface::MapWriter & mapWriter ) {
+bool PropertyValue::saveMapToFile ( Interface::MapWriter & mapWriter, const bool saveAsPrimary ) {
 
    if ( toBeSaved ()) {
-      return Interface::PropertyValue::saveMapToFile ( mapWriter );
+      return Interface::PropertyValue::saveMapToFile ( mapWriter, saveAsPrimary );
    } else {
       return true;
    }
@@ -96,13 +96,15 @@ bool PropertyValue::saveVolumeToFile ( Interface::MapWriter & mapWriter ) {
    } 
 }
 
-bool PropertyValue::savePrimaryVolumeToFile ( Interface::MapWriter & mapWriter ) {
+bool PropertyValue::savePrimaryVolumeToFile ( Interface::MapWriter & mapWriter, const bool groupName ) {
 
    bool status = true;
 
-   if ( FastcauldronSimulator::getInstance ().isPrimary() and outputIsRequested ()) { 
-      status = Interface::PropertyValue::savePrimaryVolumeToFile ( mapWriter );
-   }
+   if ( ( FastcauldronSimulator::getInstance ().isPrimary() or FastcauldronSimulator::getInstance ().isPrimaryDouble()) and 
+        outputIsRequested ()) { 
+      status = Interface::PropertyValue::savePrimaryVolumeToFile ( mapWriter, 
+                                                                   not FastcauldronSimulator::getInstance ().isPrimaryDouble() );
+   } 
    return status;
 }
 

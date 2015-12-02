@@ -509,7 +509,13 @@ namespace DataAccess
          /// set primary properties flag
          void setPrimary( const bool primaryFlag );
 
-       protected:
+          /// get primary properties flag
+         bool isPrimaryDouble() const;
+
+         /// set primary properties flag
+         void setPrimaryDouble( const bool primaryFlag );
+
+      protected:
 		  friend ProjectHandle * OpenCauldronProject( const string & name, const string & accessMode, DataAccess::Interface::ObjectFactory* objectFactory );
 
          typedef enum { READONLY, READWRITE } AccessMode;
@@ -630,6 +636,8 @@ namespace DataAccess
          MapWriter * m_mapPrimaryPropertyValuesWriter;
          // flag to output primary properties in a new format
          bool m_primary;
+         // flag to output primary properties in a double precision
+         bool m_primaryDouble;
 
          int m_rank;
          int m_size;

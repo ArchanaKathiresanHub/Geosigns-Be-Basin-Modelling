@@ -40,13 +40,13 @@ public :
    bool outputIsRequested () const;
 
    /// save a 2D PropertyValue to file
-   bool saveMapToFile ( Interface::MapWriter & mapWriter );
+   bool saveMapToFile ( Interface::MapWriter & mapWriter, const bool saveAsPrimary = false );
 
    /// save a 3D PropertyValue to file
    bool saveVolumeToFile ( Interface::MapWriter & mapWriter );
 
    /// save a primary 3D PropertyValue to file
-   bool savePrimaryVolumeToFile ( Interface::MapWriter & mapWriter );
+   bool savePrimaryVolumeToFile ( Interface::MapWriter & mapWriter, const bool useGroupName = true );
 
    database::Record * createTimeIoRecord (database::Table * timeIoTbl, Interface::ModellingMode theMode);
 

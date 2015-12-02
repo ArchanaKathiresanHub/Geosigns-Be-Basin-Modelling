@@ -465,7 +465,7 @@ bool PropertyValue::linkToSnapshotIoRecord (void)
    return true;
 }
 
-bool PropertyValue::saveMapToFile (MapWriter & mapWriter)
+bool PropertyValue::saveMapToFile (MapWriter & mapWriter, const bool saveAsPrimary)
 {
    float time = (float) getSnapshot ()->getTime ();
 
@@ -495,14 +495,14 @@ bool PropertyValue::saveMapToFile (MapWriter & mapWriter)
    gridMapToOutput->restoreData();
 
    mapWriter.writeMapToHDF (gridMapToOutput, time, time, database::getPropertyGrid (m_record),
-                              (m_surface == 0 ? "" : m_surface->getName ()));
+                            (m_surface == 0 ? "" : m_surface->getName ()), saveAsPrimary);
 
    if (m_projectHandle->saveAsInputGrid ()) delete gridMapToOutput;
 
    return true;
 }
 
-bool PropertyValue::savePrimaryVolumeToFile (MapWriter & mapWriter)
+bool PropertyValue::savePrimaryVolumeToFile (MapWriter & mapWriter, const bool groupName )
 {
    database::setMapFileName (m_record, mapWriter.getFileName ());
    database::setGroupName (m_record, getName ());
@@ -515,11 +515,21 @@ bool PropertyValue::savePrimaryVolumeToFile (MapWriter & mapWriter)
    database::setNumberY (m_record, gridMap->numJ ());
    database::setNumberZ (m_record, gridMap->getDepth ());
 
+   double min, max;
+   gridMap->getMinMaxValue (min, max);
+
+   database::setMinimum (m_record, min);
+   database::setMaximum (m_record, max);
+   database::setAverage (m_record, gridMap->getAverageValue ());
+   database::setSum (m_record, gridMap->getSumOfValues ());
+   database::setSum2 (m_record, gridMap->getSumOfSquaredValues ());
+   database::setNP (m_record, gridMap->getNumberOfDefinedValues ());
+
    gridMap->restoreData();
 
    double time = getSnapshot ()->getTime ();
 
-   mapWriter.writePrimaryVolumeToHDF (gridMap, getName (), time, getFormation ()->getMangledName ());
+   mapWriter.writePrimaryVolumeToHDF (gridMap, getName (), time, getFormation ()->getMangledName (), groupName );
    return true;
 }
 

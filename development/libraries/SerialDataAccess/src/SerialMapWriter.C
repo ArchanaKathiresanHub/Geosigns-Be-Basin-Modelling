@@ -75,7 +75,7 @@ const string & SerialMapWriter::getFileName (void)
 }
 
 bool SerialMapWriter::writeMapToHDF (GridMap * gridMap, float time, double depoAge,
-                            const string & propertyGrid, const string & surfaceName)
+                                     const string & propertyGrid, const string & surfaceName, const bool saveAsPrimary)
 {
    return writeMapToHDF(gridMap, time, depoAge, propertyGrid);
 }
@@ -142,7 +142,7 @@ bool SerialMapWriter::writeVolumeToHDF (GridMap * gridMap, const string & proper
    return false;
 }
 
-bool SerialMapWriter::writePrimaryVolumeToHDF (GridMap * gridMap, const string & propertyName, double time, const string & layerName)
+bool SerialMapWriter::writePrimaryVolumeToHDF (GridMap * gridMap, const string & propertyName, double time, const string & layerName, const bool useGroupName )
 {
    // not yet implemented
    return false;

@@ -86,12 +86,12 @@ namespace DataAccess
 	    bool linkToSnapshotIoRecord (void);
 
 	    /// save a 2D PropertyValue to file
-	    virtual bool saveMapToFile (MapWriter & mapWriter);
+         virtual bool saveMapToFile (MapWriter & mapWriter, const bool saveAsPrimary = false);
 	    /// save a 3D PropertyValue to file
 	    virtual bool saveVolumeToFile (MapWriter & mapWriter);
 
 	    /// save a primary 3D PropertyValue to file
-	    virtual bool savePrimaryVolumeToFile (MapWriter & mapWriter);
+         virtual bool savePrimaryVolumeToFile (MapWriter & mapWriter, const bool groupName = true);
 
 	    /// Returns whether this PropertyValue has been uploaded onto a BPA server.
 	    virtual bool isUploadedToBPA (void) const;

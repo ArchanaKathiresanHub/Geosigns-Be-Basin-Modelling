@@ -464,7 +464,8 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
 
   PetscBool onlyPrimaryProperties = PETSC_FALSE;
   PetscOptionsHasName( PETSC_NULL, "-primary", &onlyPrimaryProperties );
-  if( not onlyPrimaryProperties and FastcauldronSimulator::getInstance().isPrimary() ) {
+  if( not onlyPrimaryProperties 
+      and ( FastcauldronSimulator::getInstance().isPrimary() or  FastcauldronSimulator::getInstance().isPrimaryDouble()) ) {
      onlyPrimaryProperties = PETSC_TRUE;
   }
 
@@ -506,18 +507,24 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
 
   if (addMinorProperties || onlyPrimaryProperties) {
      looselyCoupledOutputProperties.push_back( CHEMICAL_COMPACTION );
-     looselyCoupledOutputProperties.push_back( DEPTH );
      looselyCoupledOutputProperties.push_back( PRESSURE );
      looselyCoupledOutputProperties.push_back( TEMPERATURE );
      looselyCoupledOutputProperties.push_back( VR );
 
-     if (onlyPrimaryProperties and not (FastcauldronSimulator::getInstance().getCalculationMode() == OVERPRESSURE_MODE)) {
-        basinModel->timefilter.setFilter( "Depth", "SedimentsPlusBasement" );
-        FastcauldronSimulator::getInstance().setOutputPropertyOption( DEPTH, Interface::SEDIMENTS_AND_BASEMENT_OUTPUT );
+     if ( not ( basinModel->IsCalculationCoupled and basinModel->DoTemperature ) ) {
+        looselyCoupledOutputProperties.push_back( DEPTH );
 
+        if (onlyPrimaryProperties and not ( FastcauldronSimulator::getInstance().getCalculationMode() == OVERPRESSURE_MODE ) ) {
+           basinModel->timefilter.setFilter( "Depth", "SedimentsPlusBasement" );
+           FastcauldronSimulator::getInstance().setOutputPropertyOption( DEPTH, Interface::SEDIMENTS_AND_BASEMENT_OUTPUT );
+        }
+     }
+ 
+     if (onlyPrimaryProperties and not (FastcauldronSimulator::getInstance().getCalculationMode() == OVERPRESSURE_MODE)) {
         basinModel->timefilter.setFilter( "Temperature", "SedimentsPlusBasement" );
         FastcauldronSimulator::getInstance().setOutputPropertyOption( TEMPERATURE, Interface::SEDIMENTS_AND_BASEMENT_OUTPUT );
      }
+    
   }
   looselyCoupledOutputProperties.push_back( MAXVES );
   looselyCoupledOutputProperties.push_back( VES );

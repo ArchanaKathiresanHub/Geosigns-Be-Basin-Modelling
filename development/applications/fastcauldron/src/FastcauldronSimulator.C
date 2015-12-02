@@ -1933,6 +1933,11 @@ void FastcauldronSimulator::readCommandLineParametersEarlyStage( const int argc,
    if( onlyPrimary ) {
       setPrimaryPropertiesFlag( true );
    }
+   PetscOptionsHasName( PETSC_NULL, "-primaryDouble", &onlyPrimary );
+
+   if( onlyPrimary ) {
+      setPrimaryDouble( true );
+   }
 
    if ( fctScalingChanged ) {
       m_fctCorrectionScalingWeight = NumericFunctions::clipValueToRange ( fctScaling, 0.0, 1.0 );
