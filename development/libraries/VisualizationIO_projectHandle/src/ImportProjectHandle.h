@@ -16,38 +16,8 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/uuid/uuid.hpp>         
 
-// Forward declarations
-namespace DataAccess
-{
-    namespace Interface
-    {
-        class Formation;
-        class Snapshot;
-        class ProjectHandle;
-        class PropertyValue;
-        class Surface;
-        class Formation;
-        typedef std::vector<const PropertyValue *> PropertyValueList; 
-        class Property;
-    }
-}
-namespace CauldronIO
-{
-    enum SnapShotKind;
-    enum PropertyType;
-    enum PropertyAttribute;
-    enum SubsurfaceKind;
-    class SnapShot;
-    class Project;
-    class Surface;
-    class Map;
-    class Formation;
-    class Property;
-    class Volume;
-    class DiscontinuousVolume;
-    struct FormationInfo;
-    typedef std::vector<boost::shared_ptr<FormationInfo> > FormationInfoList;
-}
+// Include forward declarations
+#include "VisualizationAPIFwDecl.h"
 
 /// \class Little class to import a projecthandle into the VisualizationIO library datamodel
 class ImportProjectHandle

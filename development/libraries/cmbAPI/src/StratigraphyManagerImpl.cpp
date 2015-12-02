@@ -57,7 +57,7 @@ StratigraphyManagerImpl::StratigraphyManagerImpl()
 }
 
 // Copy operator
-StratigraphyManagerImpl & StratigraphyManagerImpl::operator = ( const StratigraphyManagerImpl & otherLithMgr )
+StratigraphyManagerImpl & StratigraphyManagerImpl::operator = ( const StratigraphyManagerImpl & /*otherLithMgr*/ )
 {
    throw std::runtime_error( "Not implemented yet" );
    return *this;
@@ -344,9 +344,9 @@ std::vector<StratigraphyManager::LayerID> StratigraphyManagerImpl::findLayersFor
 // [in] usid up surface id
 // [in] dsid down surface id
 // returns NoError on success or NonexistingID on error
-ErrorHandler::ReturnCode StratigraphyManagerImpl::setLayerSurfaces( StratigraphyManager::LayerID lid
-                                                                  , StratigraphyManager::SurfaceID usid
-                                                                  , StratigraphyManager::SurfaceID dsid
+ErrorHandler::ReturnCode StratigraphyManagerImpl::setLayerSurfaces( StratigraphyManager::LayerID   /*lid*/
+                                                                  , StratigraphyManager::SurfaceID /*usid*/
+                                                                  , StratigraphyManager::SurfaceID /*dsid*/
                                                                   )
 {
    throw std::runtime_error( "Not implemented yet" );
@@ -602,7 +602,7 @@ ErrorHandler::ReturnCode StratigraphyManagerImpl::setSourceRockMixHI( LayerID li
 ErrorHandler::ReturnCode StratigraphyManagerImpl::setSourceRockMixHC( LayerID lid, double srmHC )
 {
    double hi = Genex6::SourceRock::convertHCtoHI( srmHC );
-   return setSourceRockMixHI( lid, srmHC );
+   return setSourceRockMixHI( lid, hi );
 }
 
 // Search in PressureFaultcutIoTbl table for the given combination of map name/fault name

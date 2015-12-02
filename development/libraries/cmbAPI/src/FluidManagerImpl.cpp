@@ -26,7 +26,7 @@ FluidManagerImpl::FluidManagerImpl()
 }
 
 // Copy operator
-FluidManagerImpl & FluidManagerImpl::operator = ( const FluidManagerImpl & otherFluidMgr )
+FluidManagerImpl & FluidManagerImpl::operator = ( const FluidManagerImpl & /*otherFluidMgr*/ )
 {
    throw std::runtime_error( "Not implemented yet" );
    return *this;
@@ -51,7 +51,7 @@ FluidManager::FluidID FluidManagerImpl::createNewFluid()
 // [in] id fluid ID
 // [out] fluidName on succes has a fluid name, or empty string otherwise
 // return NoError on success or NonexistingID on error
-ErrorHandler::ReturnCode FluidManagerImpl::getFluidName( FluidID id, std::string & fluidName ) const
+ErrorHandler::ReturnCode FluidManagerImpl::getFluidName( FluidID /*id*/, std::string & /*fluidName*/ ) const
 {
    throw std::runtime_error( "Not implemented yet" );
    return NotImplementedAPI;

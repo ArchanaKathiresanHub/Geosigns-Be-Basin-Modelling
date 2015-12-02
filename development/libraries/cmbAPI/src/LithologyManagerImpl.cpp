@@ -110,7 +110,7 @@ LithologyManagerImpl::LithologyManagerImpl()
 }
 
 // Copy operator
-LithologyManagerImpl & LithologyManagerImpl::operator = ( const LithologyManagerImpl & otherLithMgr )
+LithologyManagerImpl & LithologyManagerImpl::operator = ( const LithologyManagerImpl & /*otherLithMgr*/ )
 {
    throw std::runtime_error( "Not implemented yet" );
    return *this;
@@ -407,6 +407,8 @@ ErrorHandler::ReturnCode LithologyManagerImpl::porosityModel( LithologyID       
          porModelPrms.push_back( rec->getValue<double>( s_ccaDblExponentialFieldName ) );
          porModelPrms.push_back( rec->getValue<double>( s_ccbDblExponentialFieldName ) );
          break;
+         
+      default: return reportError( NonexistingID, std::string( "Unsupported porosity model: " ) + tpName );
    }
    return NoError;
 }
@@ -475,6 +477,8 @@ ErrorHandler::ReturnCode LithologyManagerImpl::setPorosityModel( LithologyID    
          rec->setValue( s_ccaDblExponentialFieldName, porModelPrms[2] );
          rec->setValue( s_ccbDblExponentialFieldName, porModelPrms[3] );
          break;
+         
+      default: return reportError( NonexistingID, "Unsupported porosity model" );
    }
    return NoError;
 }
@@ -539,6 +543,7 @@ ErrorHandler::ReturnCode LithologyManagerImpl::permeabilityModel( LithologyID   
                mpPerm.resize( numPts );
             }
             break;
+         default: throw Exception( UndefinedValue ) << "Unknown permeability model:" << permModelName;
       }
    }
    catch ( const Exception & e ) { return reportError( e.errorCode(), e.what() ); }
@@ -605,6 +610,8 @@ ErrorHandler::ReturnCode LithologyManagerImpl::setPermeabilityModel( LithologyID
                rec->setValue<std::string>( s_mpPermpeabilityFieldName, PrintCoefficientsToString( mpPerm ) ); 
             }
             break;
+            
+         default: throw Exception( UndefinedValue ) << "Unknown permeability model:" << prmModel;
       }
    }
    catch ( const Exception & e ) { return reportError( e.errorCode(), e.what() ); }

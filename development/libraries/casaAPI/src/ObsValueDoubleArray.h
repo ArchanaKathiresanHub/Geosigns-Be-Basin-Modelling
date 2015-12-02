@@ -32,10 +32,9 @@ namespace casa
       /// @brief Constructor
       /// @param parent Observable object which contains full description of observable
       /// @param val value of observable
-      ObsValueDoubleArray( const Observable * parent, const std::vector<double> & val ) : 
-         m_parent( parent ), 
-         m_value( val.begin(), val.end() )
-      { ; }
+      ObsValueDoubleArray( const Observable * parent, const std::vector<double> & val )
+         : m_value( val.begin(), val.end() )
+         , m_parent( parent ) { ; }
 
       /// @brief Copy constructor
       /// @param ov another observable value to be copying

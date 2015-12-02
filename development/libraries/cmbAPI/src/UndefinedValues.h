@@ -16,7 +16,7 @@
 
 #define UndefinedDoubleValue  -9999.0    ///< Undefined value for float point numbers
 #define UndefinedIntegerValue -1         ///< Undefined value for integer numbers
-#define UndefinedIDValue       65535     ///< Undefined value for size_t/ID type numbers
+#define UndefinedIDValue       65535U    ///< Undefined value for size_t/ID type numbers
 #define UndefinedStringValue  "undef"    ///< Undefined value for strings
 
 #include <cmath>

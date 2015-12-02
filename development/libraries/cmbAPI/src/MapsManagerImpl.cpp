@@ -83,7 +83,7 @@ MapsManager::MapID MapsManagerImpl::findID( const std::string & mName )
    if ( errorCode() != NoError ) resetError();
    try
    {
-      for ( int i = 0; i < m_mapName.size(); ++i )
+      for ( size_t i = 0; i < m_mapName.size(); ++i )
       {
          if ( m_mapName[i] == mName )
          {
@@ -303,9 +303,9 @@ void MapsManagerImpl::setProject( DataAccess::Interface::ProjectHandle * ph, con
    if ( projectPath.empty() ) projectPath = ".";
 
    // go over all records in the table and collect names
-   for ( int i = 0; i < recNum; ++i )
+   for ( size_t i = 0; i < recNum; ++i )
    {
-      database::Record * rec = table->getRecord( i );
+      database::Record * rec = table->getRecord( static_cast<int>( i ) );
       if ( rec )
       {
          const std::string & fname = rec->getValue<std::string>( s_MapFileNameColName );

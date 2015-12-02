@@ -58,8 +58,8 @@ public:
    virtual double ComputeDiffusionConcDependence(const double in_Waso) = 0;
 
    virtual double getTotalOilForTSR() const;
-   virtual void   incTotalOilForTSR( double currentConc ) {};
-   virtual void   setTotalOilForTSR( double currentConc ) {};
+   virtual void   incTotalOilForTSR( double /* currentConc */ ) {};
+   virtual void   setTotalOilForTSR( double /* currentConc */ ) {};
 
    void setInitialToc ( const double toc );
 

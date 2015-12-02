@@ -32,7 +32,7 @@ SnapshotManagerImpl::SnapshotManagerImpl()
 }
 
 // Set project database. Reset all
-void SnapshotManagerImpl::setDatabase( database::Database * db, const std::string & projName )
+void SnapshotManagerImpl::setDatabase( database::Database * db, const std::string & /*projName*/ )
 {
    m_db = db;
    m_snpTable = m_db->getTable( "SnapshotIoTbl" );

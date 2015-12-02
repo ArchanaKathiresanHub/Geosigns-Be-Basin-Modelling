@@ -164,7 +164,7 @@ public:
 ///////////////////////////////////////////////////////////////////////////////
 // Set of Model wrapper functions to hide the actual implementation from .h
 Model::Model() { m_pimpl.reset( new ModelImpl() ); }
-Model::Model( const Model & otherModel ) {}
+Model::Model( const Model & /*otherModel*/ ) { assert(0); }
 Model::~Model() { m_pimpl.reset( 0 ); }
 
 Model & Model::operator = ( const Model & otherModel )
@@ -446,20 +446,20 @@ struct RecordSorter
       m_eps = tol;
 
       // cache fields index and data type 
-      for ( int i = 0; i < tblDef.size(); ++i )
+      for ( size_t i = 0; i < tblDef.size(); ++i )
       {
-         if ( tblDef.getFieldDefinition( i )->dataType() == datatype::String )
+         if ( tblDef.getFieldDefinition( static_cast<int>( i ) )->dataType() == datatype::String )
          {
             m_fldIDs.push_back( i );
-            m_fldTypes.push_back( tblDef.getFieldDefinition( i )->dataType() );
+            m_fldTypes.push_back( tblDef.getFieldDefinition( static_cast<int>( i ) )->dataType() );
          }         
       }
-      for ( int i = 0; i < tblDef.size(); ++i )
+      for ( size_t i = 0; i < tblDef.size(); ++i )
       {
-         if ( tblDef.getFieldDefinition( i )->dataType() != datatype::String )
+         if ( tblDef.getFieldDefinition( static_cast<int>( i ) )->dataType() != datatype::String )
          {
             m_fldIDs.push_back( i );
-            m_fldTypes.push_back( tblDef.getFieldDefinition( i )->dataType() );
+            m_fldTypes.push_back( tblDef.getFieldDefinition( static_cast<int>( i ) )->dataType() );
          }         
       }
    }
@@ -479,10 +479,11 @@ struct RecordSorter
             case datatype::Float:
                { double v = r1->getValue<float>( id ); double w = r2->getValue<float>( id ); if ( !NumericFunctions::isEqual( v, w, m_eps ) ) return v < w; }
                break;
-          case datatype::Double: 
+            case datatype::Double: 
                { double v = r1->getValue<double>( id ); double w = r2->getValue<double>( id ); if ( !NumericFunctions::isEqual( v, w, m_eps ) ) return v < w; }
                break;
             case datatype::String: { string v = r1->getValue<string>( id ); string w = r2->getValue<string>( id ); if ( v != w ) return v < w; } break;
+            default: ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Unknown data type for TableIO database record: " << m_fldTypes[i];
          }
       }
       return false;
@@ -519,9 +520,9 @@ std::string Model::ModelImpl::compareProject( Model::ModelImpl * mdl
 
    for ( database::Database::iterator it = m_projHandle->getDataBase()->begin(); it != m_projHandle->getDataBase()->end(); ++it )
    {
-      if ( ignoreList.size() > 0 && ignoreList.count( (*it)->name() ) > 0 ||
-           procesList.size() > 0 && procesList.count( (*it)->name() ) == 0 )
-      { continue; }
+      if ( (ignoreList.size() > 0 && ignoreList.count( (*it)->name() )  > 0 ) ||
+           (procesList.size() > 0 && procesList.count( (*it)->name() ) == 0 ) 
+         ) { continue; }
 
       if ( (*it)->size() > 0 ) { lst1.push_back( (*it)->name() ); }
    }
@@ -529,9 +530,9 @@ std::string Model::ModelImpl::compareProject( Model::ModelImpl * mdl
 
    for ( database::Database::iterator it = mdl->m_projHandle->getDataBase()->begin(); it != mdl->m_projHandle->getDataBase()->end(); ++it )
    {
-      if ( ignoreList.size() > 0 && ignoreList.count( (*it)->name() ) > 0 ||
-           procesList.size() > 0 && procesList.count( (*it)->name() ) == 0 )
-      { continue; }
+      if ( (ignoreList.size() > 0 && ignoreList.count( (*it)->name() )  > 0 )||
+           (procesList.size() > 0 && procesList.count( (*it)->name() ) == 0 )
+         ) { continue; }
 
       if ( (*it)->size() > 0 ) { lst2.push_back( (*it)->name() ); }
    }
@@ -609,33 +610,33 @@ std::string Model::ModelImpl::compareProject( Model::ModelImpl * mdl
          size_t pos1 = tbl1->findRecordPosition( r1 ) - tbl1->begin();
          size_t pos2 = tbl2->findRecordPosition( r2 ) - tbl2->begin();
 
-         for ( int k = 0; k < tblDef.size(); ++k )
+         for ( size_t k = 0; k < tblDef.size(); ++k )
          {
-            datatype::DataType dt = tblDef.getFieldDefinition( k )->dataType();
-            const std::string & colName = tblDef.getFieldDefinition( k )->name();
+            datatype::DataType dt = tblDef.getFieldDefinition( static_cast<int>( k ) )->dataType();
+            const std::string & colName = tblDef.getFieldDefinition( static_cast<int>( k ) )->name();
             
             switch ( dt )
             {
                case datatype::Bool:
                   {
-                     bool v1 = r1->getValue<bool>( k ); 
-                     bool v2 = r2->getValue<bool>( k );
+                     bool v1 = r1->getValue<bool>( static_cast<int>( k ) ); 
+                     bool v2 = r2->getValue<bool>( static_cast<int>( k ) );
                      if ( v1 != v2 ) { oss << tblName << "("<< pos1 << "," << pos2 << ")." << colName << ": " << v1 << " != " << v2 << "\n"; }
                   }
                   break;
 
                case datatype::Int:
                   {
-                     int v1 = r1->getValue<int>( k );
-                     int v2 = r2->getValue<int>( k );
+                     int v1 = r1->getValue<int>( static_cast<int>( k ) );
+                     int v2 = r2->getValue<int>( static_cast<int>( k ) );
                      if ( v1 != v2 ) { oss << tblName << "("<< pos1 << "," << pos2 << ")." << colName << ": " << v1 << " != " << v2 << "\n"; }
                   }
                   break;
 
                case datatype::Long:
                   {
-                     long v1 = r1->getValue<long>( k );
-                     long v2 = r2->getValue<long>( k );
+                     long v1 = r1->getValue<long>( static_cast<int>( k ) );
+                     long v2 = r2->getValue<long>( static_cast<int>( k ) );
                      if ( v1 != v2 ) { oss << tblName << "("<< pos1 << "," << pos2 << ")." << colName << ": " << v1 << " != " << v2 << "\n"; }
                   }
                   break;
@@ -643,8 +644,8 @@ std::string Model::ModelImpl::compareProject( Model::ModelImpl * mdl
                case datatype::Float:
                case datatype::Double: 
                   {
-                     double v1 = r1->getValue<double>( k );
-                     double v2 = r2->getValue<double>( k );
+                     double v1 = r1->getValue<double>( static_cast<int>( k ) );
+                     double v2 = r2->getValue<double>( static_cast<int>( k ) );
                      if ( !NumericFunctions::isEqual( v1, v2, relTol ) )
                      {
                         oss << tblName << "("<< pos1 << "," << pos2 << ")." << colName << ": " << v1 << " != " << v2 << "\n";
@@ -654,11 +655,13 @@ std::string Model::ModelImpl::compareProject( Model::ModelImpl * mdl
 
                case datatype::String:
                   {
-                     string v1 = r1->getValue<string>( k );
-                     string v2 = r2->getValue<string>( k );
+                     string v1 = r1->getValue<string>( static_cast<int>( k ) );
+                     string v2 = r2->getValue<string>( static_cast<int>( k ) );
                      if ( v1 != v2 ) { oss << tblName << "("<< pos1 << "," << pos2 << ")." << colName << ": " << v1 << " != " << v2 << "\n"; }
                   }
                   break;
+
+               default: break;
             }
          }
       }
@@ -1004,7 +1007,7 @@ void Model::ModelImpl::tableSort( const std::string & tblName, const std::vector
 
 
 // Load model from the project file
-Model::ModelImpl & Model::ModelImpl::operator = ( const Model::ModelImpl & otherModel )
+Model::ModelImpl & Model::ModelImpl::operator = ( const Model::ModelImpl & /*otherModel*/ )
 {
    throw ErrorHandler::Exception( ErrorHandler::NotImplementedAPI ) << "Not implemented yet";
 
@@ -1141,7 +1144,7 @@ std::vector<std::string> Model::ModelImpl::copyLithology( const std::string     
       }
 
       // create new lithology name, copy it and assign the new lithology name for the corresponded mixing position to the layer
-      std::string newLithoName = litName + "_" + GetRandomString( 3 ) + "_CASA";
+      std::string newLithoName = litName + "_" + GetRandomString( randStringSize ) + "_CASA";
 
       mbapi::LithologyManager::LithologyID newLithID = m_lithMgr.copyLithology( lithID, newLithoName );
       if ( UndefinedIDValue == newLithID ) throw ErrorHandler::Exception( m_lithMgr.errorCode() ) << m_lithMgr.errorMessage();
@@ -1181,7 +1184,7 @@ std::vector<std::string> Model::ModelImpl::copyLithology( const std::string     
       }
 
       // create new lithology name, copy it and assign the new lithology name for the corresponded layer
-      std::string newLithoName = litName + "_" + GetRandomString( 3 ) + "_CASA";
+      std::string newLithoName = litName + "_" + GetRandomString( randStringSize ) + "_CASA";
 
       mbapi::LithologyManager::LithologyID newLithID = m_lithMgr.copyLithology( lithID, newLithoName );
       if ( UndefinedIDValue == newLithID ) throw ErrorHandler::Exception( m_lithMgr.errorCode() ) << m_lithMgr.errorMessage();
@@ -1222,7 +1225,7 @@ std::vector<std::string> Model::ModelImpl::copyLithology( const std::string     
       }
 
       // create new lithology name, copy it and assign the new lithology name for the corresponded fault cut
-      std::string newLithoName = litName + "_" + GetRandomString( 3 ) + "_CASA";
+      std::string newLithoName = litName + "_" + GetRandomString( randStringSize ) + "_CASA";
 
       mbapi::LithologyManager::LithologyID newLithID = m_lithMgr.copyLithology( lithID, newLithoName );
       if ( UndefinedIDValue == newLithID ) throw ErrorHandler::Exception( m_lithMgr.errorCode() ) << m_lithMgr.errorMessage();

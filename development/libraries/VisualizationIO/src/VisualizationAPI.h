@@ -11,35 +11,18 @@
 #ifndef _CAULDRONIO_H_
 #define _CAULDRONIO_H_
 
+#include "VisualizationAPIFwDecl.h"
+
 #include <vector>
 #include <string>
 #include <utility>
 #include <stdexcept>
-#include <boost/shared_ptr.hpp>
 #include <boost/uuid/uuid.hpp>         
 
 /// \namespace CauldronIO
 /// \brief The namespace for the visualization IO library related classes
 namespace CauldronIO
 {
-    // enums
-
-    /// \enum ModellingMode
-    /// \brief FastCauldron modeling modes
-    enum ModellingMode { MODE1D, MODE3D };
-    /// \enum SnapShotKind 
-    /// \brief Type of snapshot
-    enum SnapShotKind { SYSTEM, USERDEFINED, NONE };
-    /// \enum PropertyAttribute
-    /// \brief Type of property
-    enum PropertyAttribute { Continuous3DProperty, Discontinuous3DProperty, Surface2DProperty, Formation2DProperty, Other};
-    /// \enum PropertyType
-    /// \brief Type of property
-    enum PropertyType { ReservoirProperty, FormationProperty, TrapProperty };
-    /// \enum SubsurfaceKind
-    /// \brief Type of subsurface
-    enum SubsurfaceKind { Sediment, Basement, None };
-
     /// \class CauldronIOException
     /// \brief The VisualizationIO exception class
     class CauldronIOException : public std::runtime_error
@@ -51,24 +34,15 @@ namespace CauldronIO
         CauldronIOException(const char* message) : std::runtime_error(message) {}
     };
 
-    /// forward declarations
-    class SnapShot;
-    class Map;
-    class Property;
-    class Formation;
-    class Volume;
-    class Surface;
-    class DiscontinuousVolume;
-    class Trapper;
     /// type definitions
-    typedef std::pair<boost::shared_ptr<Formation>, boost::shared_ptr<Volume> > FormationVolume;
-    typedef std::vector<boost::shared_ptr<FormationVolume > > FormationVolumeList;
-    typedef std::vector<boost::shared_ptr<SnapShot > > SnapShotList;
-    typedef std::vector<boost::shared_ptr<Surface > > SurfaceList;
-    typedef std::vector<boost::shared_ptr<Volume > > VolumeList;
-    typedef std::vector<boost::shared_ptr<DiscontinuousVolume > > DiscontinuousVolumeList;
-    typedef std::vector<boost::shared_ptr<Trapper > > TrapperList;
-    typedef std::vector<boost::shared_ptr<const Property > > PropertyList;
+    typedef std::pair<  boost::shared_ptr<Formation>, boost::shared_ptr<Volume> > FormationVolume;
+    typedef std::vector<boost::shared_ptr<FormationVolume > >                     FormationVolumeList;
+    typedef std::vector<boost::shared_ptr<SnapShot > >                            SnapShotList;
+    typedef std::vector<boost::shared_ptr<Surface > >                             SurfaceList;
+    typedef std::vector<boost::shared_ptr<Volume > >                              VolumeList;
+    typedef std::vector<boost::shared_ptr<DiscontinuousVolume > >                 DiscontinuousVolumeList;
+    typedef std::vector<boost::shared_ptr<Trapper > >                             TrapperList;
+    typedef std::vector<boost::shared_ptr<const Property > >                      PropertyList;
 
     /// \class Project
     /// \brief Highest level class containing all surface and volume data within a Cauldron project

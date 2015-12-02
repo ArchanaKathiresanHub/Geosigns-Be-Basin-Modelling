@@ -36,7 +36,7 @@ PropertyManagerImpl::PropertyManagerImpl()
 }
 
 // Set project database. Reset all
-void PropertyManagerImpl::setDatabase( database::Database * db, const std::string & projName )
+void PropertyManagerImpl::setDatabase( database::Database * db, const std::string & /*projName*/ )
 {
    m_db = db;
    m_fltTimeTable    = m_db->getTable( "FilterTimeIoTbl" );

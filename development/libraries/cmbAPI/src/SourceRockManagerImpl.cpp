@@ -44,7 +44,7 @@ SourceRockManagerImpl::SourceRockManagerImpl()
 }
 
 // Copy operator
-SourceRockManagerImpl & SourceRockManagerImpl::operator = ( const SourceRockManagerImpl & otherSrRockMgr )
+SourceRockManagerImpl & SourceRockManagerImpl::operator = ( const SourceRockManagerImpl & /*otherSrRockMgr*/ )
 {
    throw ErrorHandler::Exception( ErrorHandler::NotImplementedAPI ) << "SourceRockManagerImpl::operator = () not implemented yet";
    return *this;

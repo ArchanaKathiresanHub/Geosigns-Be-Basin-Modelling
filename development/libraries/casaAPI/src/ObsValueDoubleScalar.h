@@ -93,8 +93,8 @@ namespace casa
 
    protected:
 
-      double             m_value;    // value itself
       const Observable * m_parent;   // pointer to the observable description object
+      double             m_value;    // value itself
    
    private:
    };
