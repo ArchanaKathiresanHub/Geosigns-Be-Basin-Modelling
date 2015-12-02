@@ -23,7 +23,6 @@
 #include "FastcauldronSimulator.h"
 #include "LayerElement.h"
 #include "Lithology.h"
-#include "PetscBlockVector.h"
 #include "propinterface.h"
 
 //------------------------------------------------------------//
@@ -41,10 +40,12 @@ ComputationalDomain::ComputationalDomain ( const LayerProps& topLayer,
    m_activityPredicate ( activityPredicate ),
    m_isActive ( false ),
    m_globalDofNumbers ( PETSC_NULL ),
+   m_local2global ( PETSC_NULL ),
    m_currentAge ( -1.0 ),
    m_localMaximumNumberDegenerateSegments ( 0 ),
    m_rank ( FastcauldronSimulator::getInstance ().getRank ()),
-   m_localStartDofNumber ( 0 )
+   m_localStartDofNumber ( 0 ),
+   m_dofOrdering ( KJIOrder )
 {
 
    const ElementGrid& elementMap = FastcauldronSimulator::getInstance ().getElementGrid ();
@@ -77,6 +78,10 @@ ComputationalDomain::~ComputationalDomain () {
 
    if ( isValid ) {
       VecDestroy ( &m_globalDofNumbers );
+   }
+
+   if ( m_local2global != PETSC_NULL ) {
+      ISLocalToGlobalMappingDestroy ( &m_local2global );
    }
    
 }
@@ -184,7 +189,7 @@ void ComputationalDomain::numberDepthIndices ( const bool verbose ) {
 
    const FastcauldronSimulator& fc = FastcauldronSimulator::getInstance ();
 
-   m_depthIndexNumbers.fill ( 0 );
+   m_depthIndexNumbers.fill ( NullDofNumber );
 
    int activeSegments = 0;
    int inactiveSegments = 0;
@@ -286,63 +291,28 @@ void ComputationalDomain::numberGlobalDofs ( const bool verbose ) {
 
    PetscBlockVector<double> dof;
 
-   // One less because the first index is zero.
-   int numberOfNodesInDepth = m_column.getNumberOfLogicalNodesInDepth ( m_currentAge ) - 1;
    int globalDofNumber = m_localStartDofNumber;
 
    dof.setVector ( scalarNodeGrid, m_globalDofNumbers, INSERT_VALUES );
 
-#ifdef PLANE_FIRST_DOF_COUNTING
-   for ( int k = numberOfNodesInDepth; k >= 0; --k ) {
+   switch ( m_dofOrdering ) {
 
-      for ( int j = fc.firstJ (); j <= fc.lastJ (); ++j ) {
+      case IJKOrder :
+         numberGlobalDofsIJK ( globalDofNumber, dof );
+         break;
 
-         for ( int i = fc.firstI (); i <= fc.lastI (); ++i ) {
+      case KIJOrder :
+         numberGlobalDofsKIJ ( globalDofNumber, dof );
+         break;
 
-            if ( fc.nodeIsDefined ( i, j )) {
+      case KJIOrder :
+         numberGlobalDofsKJI ( globalDofNumber, dof );
+         break;
 
-               if ( m_activeNodes ( i, j, k )) {
-                  dof ( k, j, i ) = globalDofNumber++;
-               } else {
-                  // Could the number of the dof that lies directly above this in-active dof be 
-                  // used to number this one. This may make it easier when extracting the vector
-                  // of values and copying them back to the layer 3d array of values.
-                  dof ( k, j, i ) = NullDofNumberReal; // Is this the best value?
-               }
-
-            }
-
-         }
-
-      }
-
+      default :
+         PetscPrintf ( PETSC_COMM_WORLD, " MeSsAgE ERROR: dof ordering incorrectly defined.\n" );
+         exit ( 1 );
    }
-#else
-   for ( size_t i = fc.firstI (); i <= fc.lastI (); ++i ) {
-
-      for ( size_t j = fc.firstJ (); j <= fc.lastJ (); ++j ) {
-
-         if ( fc.nodeIsDefined ( i, j )) {
-
-            for ( int k = numberOfNodesInDepth; k >= 0; --k ) {
-
-               if ( m_activeNodes ( i, j, k )) {
-                  dof ( k, j, i ) = globalDofNumber++;
-               } else {
-                  // Could the number of the dof that lies directly above this in-active dof be 
-                  // used to number this one. This may make it easier when extracting the vector
-                  // of values and copying them back to the layer 3d array of values.
-                  dof ( k, j, i ) = NullDofNumberReal; // Is this the best value?
-               }
-
-            }
-
-         }
-
-      }
-
-   }
-#endif
 
    if ( verbose and m_rank + 1 == FastcauldronSimulator::getInstance ().getSize ()) {
       std::cout << " Total number of dofs : " << globalDofNumber << std::endl;
@@ -362,6 +332,130 @@ void ComputationalDomain::numberGlobalDofs ( const bool verbose ) {
    VecView ( m_globalDofNumbers, viewer );
    PetscViewerDestroy ( &viewer );
 #endif
+
+}
+
+//------------------------------------------------------------//
+
+void ComputationalDomain::numberGlobalDofsIJK ( int&                      globalDofNumber,
+                                                PetscBlockVector<double>& dof ) {
+
+   const FastcauldronSimulator& fc = FastcauldronSimulator::getInstance ();
+
+   const NodalVolumeGrid& scalarNodeGrid = m_grids.getNodeGrid ( 1 );
+   const double NullDofNumberReal = static_cast<double>( NullDofNumber );
+
+   // One less because the first index is zero.
+   int numberOfNodesInDepth = m_column.getNumberOfLogicalNodesInDepth ( m_currentAge ) - 1;
+   globalDofNumber = m_localStartDofNumber;
+
+   for ( size_t i = fc.firstI (); i <= fc.lastI (); ++i ) {
+
+      for ( size_t j = fc.firstJ (); j <= fc.lastJ (); ++j ) {
+
+         if ( fc.nodeIsDefined ( i, j )) {
+
+            // for ( size_t k = 0; k <= numberOfNodesInDepth; ++k ) {
+            for ( int k = numberOfNodesInDepth; k >= 0; --k ) {
+
+               if ( m_activeNodes ( i, j, k )) {
+                  dof ( k, j, i ) = globalDofNumber++;
+               } else {
+                  // Could the number of the dof that lies directly above this in-active dof be 
+                  // used to number this one. This may make it easier when extracting the vector
+                  // of values and copying them back to the layer 3d array of values.
+                  dof ( k, j, i ) = NullDofNumberReal; // Is this the best value?
+               }
+
+            }
+
+         }
+
+      }
+
+   }
+
+}
+
+//------------------------------------------------------------//
+
+void ComputationalDomain::numberGlobalDofsKIJ ( int&                      globalDofNumber,
+                                                PetscBlockVector<double>& dof ) {
+
+   const FastcauldronSimulator& fc = FastcauldronSimulator::getInstance ();
+
+   const NodalVolumeGrid& scalarNodeGrid = m_grids.getNodeGrid ( 1 );
+   const double NullDofNumberReal = static_cast<double>( NullDofNumber );
+
+   // One less because the first index is zero.
+   int numberOfNodesInDepth = m_column.getNumberOfLogicalNodesInDepth ( m_currentAge ) - 1;
+   globalDofNumber = m_localStartDofNumber;
+
+   for ( int k = numberOfNodesInDepth; k >= 0; --k ) {
+
+      for ( size_t i = fc.firstI (); i <= fc.lastI (); ++i ) {
+
+         for ( size_t j = fc.firstJ (); j <= fc.lastJ (); ++j ) {
+
+            if ( fc.nodeIsDefined ( i, j )) {
+
+               if ( m_activeNodes ( i, j, k )) {
+                  dof ( k, j, i ) = globalDofNumber++;
+               } else {
+                  // Could the number of the dof that lies directly above this in-active dof be 
+                  // used to number this one. This may make it easier when extracting the vector
+                  // of values and copying them back to the layer 3d array of values.
+                  dof ( k, j, i ) = NullDofNumberReal; // Is this the best value?
+               }
+
+            }
+
+         }
+
+      }
+
+   }
+
+}
+
+//------------------------------------------------------------//
+
+void ComputationalDomain::numberGlobalDofsKJI ( int&                      globalDofNumber,
+                                                PetscBlockVector<double>& dof ) {
+
+   const FastcauldronSimulator& fc = FastcauldronSimulator::getInstance ();
+
+   const NodalVolumeGrid& scalarNodeGrid = m_grids.getNodeGrid ( 1 );
+   const double NullDofNumberReal = static_cast<double>( NullDofNumber );
+
+   // One less because the first index is zero.
+   int numberOfNodesInDepth = m_column.getNumberOfLogicalNodesInDepth ( m_currentAge ) - 1;
+   globalDofNumber = m_localStartDofNumber;
+
+   for ( int k = numberOfNodesInDepth; k >= 0; --k ) {
+
+      for ( size_t j = fc.firstJ (); j <= fc.lastJ (); ++j ) {
+
+         for ( size_t i = fc.firstI (); i <= fc.lastI (); ++i ) {
+
+            if ( fc.nodeIsDefined ( i, j )) {
+
+               if ( m_activeNodes ( i, j, k )) {
+                  dof ( k, j, i ) = globalDofNumber++;
+               } else {
+                  // Could the number of the dof that lies directly above this in-active dof be 
+                  // used to number this one. This may make it easier when extracting the vector
+                  // of values and copying them back to the layer 3d array of values.
+                  dof ( k, j, i ) = NullDofNumberReal; // Is this the best value?
+               }
+
+            }
+
+         }
+
+      }
+
+   }
 
 }
 
@@ -420,6 +514,7 @@ void ComputationalDomain::resetAge ( const double age,
    numberGlobalDofs ( verbose );
    // Now for each active element assign the global dof numbers.
    assignElementGobalDofNumbers ();
+   numberLocalToGlobalMapping ();
 }
 
 //------------------------------------------------------------//
@@ -619,6 +714,23 @@ void ComputationalDomain::determineActiveNodes ( const bool verbose ) {
 
    activeNodes.restoreVector ( NO_UPDATE );
    VecDestroy ( &activeNodesVec );
+}
+
+//------------------------------------------------------------//
+
+void ComputationalDomain::numberLocalToGlobalMapping () {
+
+   if ( m_local2global != PETSC_NULL ) {
+      ISLocalToGlobalMappingDestroy ( &m_local2global );
+   }
+
+   IntegerArray localInds ( getLocalNumberOfActiveNodes ());
+
+   for ( size_t i = 0; i < localInds.size (); ++i ) {
+      localInds [ i ] = m_localStartDofNumber + i;
+   }
+
+   ISLocalToGlobalMappingCreate ( PETSC_COMM_WORLD, getLocalNumberOfActiveNodes (), localInds.data (), PETSC_COPY_VALUES, &m_local2global );
 }
 
 //------------------------------------------------------------//

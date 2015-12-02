@@ -28,6 +28,7 @@
 #include "globaldefs.h"
 #include "layer.h"
 #include "NodalVolumeGrid.h"
+#include "PetscBlockVector.h"
 #include "StratigraphicColumn.h"
 #include "StratigraphicGrids.h"
 
@@ -50,6 +51,13 @@
 class ComputationalDomain {
 
 public :
+
+   /// \brief Indicator for the ordering of the dofs.
+   ///
+   /// IJK -> numbers in depth are consecutive.
+   /// KIJ -> numbers in depth are not consecutive.
+   /// KJI -> numbers in depth are not consecutive.
+   enum DofOrdering { IJKOrder, KIJOrder, KJIOrder };
 
    /// \typedef FormationGeneralElementGrid
    typedef FormationElementGrid<GeneralElement> FormationGeneralElementGrid;
@@ -147,6 +155,13 @@ public :
    /// \brief Get the PETSc vector that contains the global dof numbers.
    Vec getDofVector () const;
 
+   /// \brief Get the ordering of the dofs.
+   DofOrdering getDofOrdering () const;
+
+   /// \brief Get the PETSc IS local to global mapping.
+   ISLocalToGlobalMapping getLocalToGlobalMapping () const;
+
+
    /// \brief Get the formation-grid associated with the formation.
    const FormationGeneralElementGrid* getFormationGrid ( const LayerProps* layer ) const;
 
@@ -183,6 +198,19 @@ private :
    /// \brief Number the dofs on the local process with the correct global dof number.
    void numberGlobalDofs ( const bool verbose );
 
+   /// \brief Number the dofs in IJK order.
+   void numberGlobalDofsIJK ( int&                      globalDofNumber,
+                              PetscBlockVector<double>& dof );
+
+   /// \brief Number the dofs in KIJ order.
+   void numberGlobalDofsKIJ ( int&                      globalDofNumber,
+                              PetscBlockVector<double>& dof );
+
+   /// \brief Number the dofs in KJI order.
+   void numberGlobalDofsKJI ( int&                      globalDofNumber,
+                              PetscBlockVector<double>& dof );
+
+
    /// \brief Resize all arrays and vectors to the new size.
    void resizeGrids ( const int newNodeCount );
 
@@ -203,6 +231,9 @@ private :
 
    /// \brief Assign the global dof number to the nodes of every active element.
    void assignElementGobalDofNumbers ();
+
+   /// \brief Number the PETSc IS local to global mapping.
+   void numberLocalToGlobalMapping ();
 
    /// \brief Assign the depth index numbers based on depth values.
    ///
@@ -254,6 +285,9 @@ private :
    /// \brief Vector containing the dof numbers for the computational domain.
    Vec                               m_globalDofNumbers;
 
+   /// \brief Local to global mapping.
+   ISLocalToGlobalMapping            m_local2global;
+
    /// \brief Array indicating which node is active 
    LocalBooleanArray3D               m_activeNodes;
 
@@ -276,6 +310,9 @@ private :
 
    /// \brief The number of the first degree of freedom on this process.
    int                               m_localStartDofNumber;
+
+   /// \brief Indicates in which order the dofs are to be numbered.
+   DofOrdering                       m_dofOrdering;
 
 };
 
@@ -305,6 +342,10 @@ inline int ComputationalDomain::getLocalNumberOfActiveElements () const {
 
 inline int ComputationalDomain::getLocalStartDof () const {
    return m_localStartDofNumber;
+}
+
+inline ComputationalDomain::DofOrdering ComputationalDomain::getDofOrdering () const {
+   return m_dofOrdering;
 }
 
 inline int ComputationalDomain::getLocalNumberOfActiveNodes () const {
@@ -363,6 +404,11 @@ ComputationalDomain::getFormationGrid ( const LayerProps* layer ) {
 
 inline Vec ComputationalDomain::getDofVector () const {
    return m_globalDofNumbers;
+
+}
+
+inline ISLocalToGlobalMapping ComputationalDomain::getLocalToGlobalMapping () const {
+   return m_local2global;
 }
 
 
