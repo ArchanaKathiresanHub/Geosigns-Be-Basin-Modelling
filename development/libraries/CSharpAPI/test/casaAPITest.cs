@@ -604,7 +604,7 @@ namespace Shell.BasinModeling.Cauldron.Test
       public void ScenarioAnalysis_Serialzation_Test() // analog of casaAPI/test/SerializationTest.C
       {
          {
-            ScenarioAnalysis sa = ScenarioAnalysis.loadScenario(m_serialisedStateFileName, "txt");
+            ScenarioAnalysis sa = ScenarioAnalysis.loadScenario(m_serialisedStateFileName, "");
 
             if ( ErrorHandler.ReturnCode.NoError != sa.errorCode() )
             {
@@ -616,7 +616,7 @@ namespace Shell.BasinModeling.Cauldron.Test
          }
          {
             // do round trip - load and save it
-            ScenarioAnalysis sb = ScenarioAnalysis.loadScenario(@".\casa_state_reloaded_1.txt", "txt");
+            ScenarioAnalysis sb = ScenarioAnalysis.loadScenario(@".\casa_state_reloaded_1.txt", "");
             Assert.AreEqual(ErrorHandler.ReturnCode.NoError, sb.errorCode());
 
             sb.saveScenario(@".\casa_state_reloaded_2.txt", "txt");
@@ -632,7 +632,7 @@ namespace Shell.BasinModeling.Cauldron.Test
       public void ScenarioAnalysis_DeserialzationTestFromByteArray() // deserialize casa state file from Byte [] array
       {
          Byte[] buf = File.ReadAllBytes(m_serialisedStateFileName);
-         ScenarioAnalysis sa = ScenarioAnalysis.loadScenario( buf, (uint)(buf.Length), "txt");
+         ScenarioAnalysis sa = ScenarioAnalysis.loadScenario( buf, (uint)(buf.Length), "");
 
          if ( ErrorHandler.ReturnCode.NoError != sa.errorCode() )
          {
