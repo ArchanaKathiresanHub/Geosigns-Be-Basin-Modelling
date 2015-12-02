@@ -43,7 +43,7 @@ namespace CauldronIO
 
 %{
 /* Includes the header in the wrapper code */
-#include VisualizationAPIFwDecl.h
+#include "VisualizationAPIFwDecl.h"
 #include "VisualizationAPI.h"
 #include "VisualizationIO_native.h"
 #include "ImportExport.h"
