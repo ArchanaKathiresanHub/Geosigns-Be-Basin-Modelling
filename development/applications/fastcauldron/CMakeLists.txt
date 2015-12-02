@@ -108,6 +108,7 @@ set( all_headers,
      src/PermeabilityCalculator.h
      src/PetscBlockVector.h
      src/PetscLogStages.h
+     src/PetscObjectAllocator.h
      src/PetscSolver.h
      src/PoreVolumeInterpolatorCalculator.h
      src/PorosityCalculator.h
@@ -252,6 +253,7 @@ set( all_srcs_except_main
      src/OutputPropertyMap.C
      src/PermeabilityCalculator.C
      src/PetscLogStages.C
+     src/PetscObjectAllocator.C
      src/PetscSolver.C
      src/PoreVolumeInterpolatorCalculator.C
      src/PorosityCalculator.C
