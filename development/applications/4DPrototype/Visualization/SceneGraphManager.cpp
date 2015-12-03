@@ -13,6 +13,7 @@
 #include "Property.h"
 #include "FlowLines.h"
 #include "OutlineBuilder.h"
+#include "FluidContacts.h"
 
 #include <Inventor/nodes/SoGroup.h>
 #include <Inventor/nodes/SoSwitch.h>
@@ -211,7 +212,7 @@ void SceneGraphManager::updateSnapshotSurfaces()
       surf.mesh = new MoMesh;
       surf.mesh->setMesh(surf.meshData.get());
       surf.scalarSet = new MoScalarSetIj;
-      surf.propertyData = m_project->createSurfaceProperty(snapshot.index, surf.id, m_currentPropertyId);
+      surf.propertyData = m_project->createSurfaceProperty(snapshot.index, surf.id, snapshot.currentPropertyId);
       surf.scalarSet->setScalarSet(surf.propertyData.get());
       surf.surfaceMesh = new MoMeshSurface;
 
@@ -257,7 +258,7 @@ void SceneGraphManager::updateSnapshotReservoirs()
       res.meshData = m_project->createReservoirMesh(snapshot.index, res.id);
       res.mesh->setMesh(res.meshData.get());
 
-      res.propertyData = m_project->createReservoirProperty(snapshot.index, res.id, m_currentPropertyId);
+      res.propertyData = m_project->createReservoirProperty(snapshot.index, res.id, snapshot.currentPropertyId);
       res.scalarSet = new MoScalarSetIjk;
       res.scalarSet->setScalarSet(res.propertyData.get());
 
@@ -304,6 +305,10 @@ void SceneGraphManager::updateSnapshotTraps()
         res.traps = Traps(traps, radius, m_verticalScale);
         if (res.traps.root() != 0)
           res.root->insertChild(res.traps.root(), 0); // 1st because of blending
+
+        // Temporary addition of fluid contact isolines
+        SoLineSet* lineSet = buildIsoLines(*res.meshData, traps);
+        res.root->insertChild(lineSet, 0);
       }
       // See if we need to remove existing traps
       else if (!m_showTraps && res.traps.root() != 0)

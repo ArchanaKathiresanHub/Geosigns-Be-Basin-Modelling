@@ -24,22 +24,11 @@
 #include <Inventor/nodes/SoGradientBackground.h>
 #include <Inventor/ViewerComponents/SoCameraInteractor.h>
 
-#include <Interface/ProjectHandle.h>
-#include <Interface/ObjectFactory.h>
-#include <Interface/Property.h>
-#include <Interface/Formation.h>
-#include <Interface/Surface.h>
-#include <Interface/Reservoir.h>
-#include <Interface/FaultCollection.h>
-#include <Interface/Faulting.h>
-
 #include <string>
 #include <list>
 #include <sstream>
 
 using namespace std;
-
-namespace di = DataAccess::Interface;
 
 void BpaRenderAreaListener::createSceneGraph(const std::string& id)
 {
@@ -74,8 +63,6 @@ void BpaRenderAreaListener::createSceneGraph(const std::string& id)
 BpaRenderAreaListener::BpaRenderAreaListener(RenderArea* renderArea)
   : m_renderArea(renderArea)
   , m_examiner(0)
-  , m_factory(new di::ObjectFactory)
-  , m_handle((di::ProjectHandle*)0)
   , m_drawFaces(true)
   , m_drawEdges(true)
 {
@@ -91,49 +78,44 @@ void BpaRenderAreaListener::sendProjectInfo() const
 
   // Add formation names
   jsonxx::Array formations;
-  std::unique_ptr<di::FormationList> formationList(m_handle->getFormations(0, false));
-  for (auto formation : *formationList)
-    formations << formation->getName();
+  for (auto formation : m_projectInfo.formations)
+    formations << formation.name;
 
   // Add surface names
   jsonxx::Array surfaces;
-  std::unique_ptr<di::SurfaceList> surfaceList(m_handle->getSurfaces(0, false));
-  for (auto surface : *surfaceList)
-    surfaces << surface->getName();
+  for (auto surface : m_projectInfo.surfaces)
+    surfaces << surface.name;
 
   // Add reservoir names
   jsonxx::Array reservoirs;
-  std::unique_ptr<di::ReservoirList> reservoirList(m_handle->getReservoirs());
-  for (auto reservoir : *reservoirList)
-    reservoirs << reservoir->getName();
+  for (auto reservoir : m_projectInfo.reservoirs)
+    reservoirs << reservoir.name;
 
   // Add fault collections
+  int collectionId = 0;
   jsonxx::Array faultCollections;
-  std::unique_ptr<di::FaultCollectionList> faultCollectionList(m_handle->getFaultCollections(0));
-  for (auto faultCollection : *faultCollectionList)
+  for (auto faultCollection : m_projectInfo.faultCollections)
   {
     jsonxx::Array faults;
-    std::unique_ptr<di::FaultList> faultList(faultCollection->getFaults());
-    for (auto fault : *faultList)
-      faults << fault->getName();
+    for (auto fault : m_projectInfo.faults)
+    {
+      if (fault.collectionId == collectionId)
+        faults << fault.name;
+    }
 
     jsonxx::Object collection;
-    collection << "name" << faultCollection->getName();
+    collection << "name" << faultCollection.name;
     collection << "faults" << faults;
 
     faultCollections << collection;
+
+    collectionId++;
   }
 
   // Add properties
   jsonxx::Array properties;
-  const int allFlags = di::FORMATION | di::SURFACE | di::RESERVOIR | di::FORMATIONSURFACE;
-  const int allTypes = di::MAP | di::VOLUME;
-  std::unique_ptr<di::PropertyList> propertyList(m_handle->getProperties(true));
-  for (auto property : *propertyList)
-  {
-    if (property->hasPropertyValues(allFlags, 0, 0, 0, 0, allTypes))
-      properties << property->getName();
-  }
+  for (auto property : m_projectInfo.properties)
+    properties << property.name;
 
   // Assemble complete projectInfo structure
   jsonxx::Object projectInfo;

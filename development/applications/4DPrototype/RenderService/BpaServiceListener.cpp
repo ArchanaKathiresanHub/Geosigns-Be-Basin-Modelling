@@ -24,11 +24,7 @@
 #include <Inventor/gestures/recognizers/SoScaleGestureRecognizer.h>
 #include <Inventor/gestures/recognizers/SoDoubleTapGestureRecognizer.h>
 
-#include <Interface/ProjectHandle.h>
-
 #include <iostream>
-
-namespace di = DataAccess::Interface;
 
 BpaServiceListener::BpaServiceListener(RenderService* renderService)
   : m_renderService(renderService)

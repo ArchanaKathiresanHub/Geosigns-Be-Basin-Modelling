@@ -97,6 +97,8 @@ public:
   {
     int id;
     int downStreamId;
+    double gasOilContactDepth;
+    double oilWaterContactDepth;
 
     SbVec3f spillPoint;
     SbVec3f leakagePoint;

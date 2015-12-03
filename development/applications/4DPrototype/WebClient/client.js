@@ -27,14 +27,14 @@ function showTab(index)
     tabs[1-index].className="tab";
 }
 
-function createCheckBoxDiv(name, checked, changedHandler)
+function createCheckBoxDiv(name, objectId, checked, changedHandler)
 {
     var cb = document.createElement("input");
     cb.type="checkbox";
     cb.name=name;
     cb.checked=checked;
     cb.style.marginLeft="20px";
-    cb.onchange=function(){ changedHandler(cb); };
+    cb.onchange=function(){ changedHandler(cb, objectId); };
 
     var label = document.createElement("label");
     var text = document.createTextNode(name);
@@ -47,12 +47,31 @@ function createCheckBoxDiv(name, checked, changedHandler)
     return div;
 }
 
+function createRadioButtonDiv(name, objectId, changedHandler)
+{
+    var rb = document.createElement("input");
+    rb.type="radio";
+    rb.name=name;
+    rb.style.marginLeft="20px";
+    rb.onchange=function(){ changedHandler(rb, objectId); };
+
+    var label = document.createElement("label");
+    var text = document.createTextNode(name);
+    label.appendChild(text);
+
+    var div = document.createElement("div");
+    div.appendChild(rb);
+    div.appendChild(label);
+
+    return div;
+}
+
 function initFormations(names)
 {
     var formationsDiv = document.getElementById("formationsList");
 
     for(var i=0; i < names.length; ++i)
-        formationsDiv.appendChild(createCheckBoxDiv(names[i], true, onFormationCheckBoxChanged));
+        formationsDiv.appendChild(createCheckBoxDiv(names[i], i, true, onFormationCheckBoxChanged));
 }
 
 function initSurfaces(names)
@@ -60,7 +79,7 @@ function initSurfaces(names)
     var surfacesDiv = document.getElementById("surfacesList");
 
     for(var i=0; i < names.length; ++i)
-        surfacesDiv.appendChild(createCheckBoxDiv(names[i], false, onSurfaceCheckBoxChanged));
+        surfacesDiv.appendChild(createCheckBoxDiv(names[i], i, false, onSurfaceCheckBoxChanged));
 }
 
 function initReservoirs(names)
@@ -68,13 +87,14 @@ function initReservoirs(names)
     var reservoirsDiv = document.getElementById("reservoirsList");
 
     for(var i=0; i < names.length; ++i)
-        reservoirsDiv.appendChild(createCheckBoxDiv(names[i], false, onReservoirCheckBoxChanged));
+        reservoirsDiv.appendChild(createCheckBoxDiv(names[i], i, false, onReservoirCheckBoxChanged));
 }
 
 function initFaults(collections)
 {
     var collectionsDiv = document.getElementById("faultsList");
 
+    var objectId=0;
     for(var i=0; i < collections.length; ++i)
     {
         var collection = collections[i];
@@ -85,7 +105,7 @@ function initFaults(collections)
         collDiv.appendChild(document.createTextNode(collection.name));
 
         for(var j=0; j < collection.faults.length; ++j)
-            collDiv.appendChild(createCheckBoxDiv(collection.faults[j], false, onFaultCheckBoxChanged));
+            collDiv.appendChild(createCheckBoxDiv(collection.faults[j], objectId++, false, onFaultCheckBoxChanged));
 
         collectionsDiv.appendChild(collDiv);
     }
@@ -93,11 +113,14 @@ function initFaults(collections)
 
 function initProperties(names)
 {
-    var fmt = "<div><input type='radio' name='property' value='xxx' onclick='onPropertyRadioButtonClicked(this)'>xxx</input></div>";
+    //var fmt = "<div><input type='radio' name='property' value='xxx' onclick='onPropertyRadioButtonClicked(this)'>xxx</input></div>";
     var propertiesList = document.getElementById("propertiesList");
 
+    //for(var i=0; i < names.length; ++i)
+    //    propertiesList.innerHTML += fmt.replace(/xxx/g, names[i]);
+
     for(var i=0; i < names.length; ++i)
-        propertiesList.innerHTML += fmt.replace(/xxx/g, names[i]);
+        propertiesList.appendChild(createRadioButtonDiv(names[i], i, onPropertyRadioButtonClicked));
 }
 
 function initUI(projectInfo)
@@ -196,14 +219,14 @@ function onCheckBoxAllFaultsChanged(elem)
         checkBoxes[i].checked = elem.checked;
 }
 
-function onFormationCheckBoxChanged(elem)
+function onFormationCheckBoxChanged(elem, objectId)
 {
     console.log("formation " + elem.name + " enabled = " + elem.checked);
 
     var msg = {
             cmd: "EnableFormation", 
             params: {
-                name: elem.name, 
+                formationId: objectId,
                 enabled: elem.checked 
             }
         };
@@ -211,14 +234,14 @@ function onFormationCheckBoxChanged(elem)
     theRenderArea.sendMessage(JSON.stringify(msg));
 }
 
-function onSurfaceCheckBoxChanged(elem)
+function onSurfaceCheckBoxChanged(elem, objectId)
 {
     console.log("surface " + elem.name + " enabled = " + elem.checked);
 
     var msg = {
             cmd: "EnableSurface", 
             params: {
-                name: elem.name, 
+                surfaceId: objectId,
                 enabled: elem.checked 
             }
         };
@@ -226,14 +249,14 @@ function onSurfaceCheckBoxChanged(elem)
     theRenderArea.sendMessage(JSON.stringify(msg));
 }
 
-function onReservoirCheckBoxChanged(elem)
+function onReservoirCheckBoxChanged(elem, objectId)
 {
     console.log("reservoir " + elem.name + " enabled = " + elem.checked);
 
     var msg = {
         cmd: "EnableReservoir",
         params: {
-            name: elem.name,
+            reservoirId: objectId,
             enabled: elem.checked
         }
     }
@@ -241,15 +264,14 @@ function onReservoirCheckBoxChanged(elem)
     theRenderArea.sendMessage(JSON.stringify(msg));
 }
 
-function onFaultCheckBoxChanged(elem)
+function onFaultCheckBoxChanged(elem, objectId)
 {
     console.log("fault " + elem.name + " enabled = " + elem.checked);
 
     var msg = {
         cmd: "EnableFault",
         params: {
-            collection: elem.parentNode.parentNode.name,
-            name: elem.name,
+            faultId: objectId,
             enabled: elem.checked
         }
     }
@@ -257,14 +279,14 @@ function onFaultCheckBoxChanged(elem)
     theRenderArea.sendMessage(JSON.stringify(msg));
 }
 
-function onPropertyRadioButtonClicked(elem)
+function onPropertyRadioButtonClicked(elem, objectId)
 {
     console.log("property " + elem.value + " clicked");
 
     var msg = {
         cmd: "SetProperty",
         params: {
-            name: elem.value
+            propertyId: objectId
         }
     }
 

@@ -18,17 +18,12 @@
 
 #include <memory>
 
-#include <Interface/Interface.h>
-
 using namespace RemoteViz::Rendering;
 
 class SceneExaminer;
 
 class BpaRenderAreaListener : public RenderAreaListener
 {
-  std::shared_ptr<DataAccess::Interface::ObjectFactory> m_factory;
-  std::shared_ptr<DataAccess::Interface::ProjectHandle> m_handle;
-
   std::shared_ptr<Project> m_project;
   Project::ProjectInfo m_projectInfo;
 
