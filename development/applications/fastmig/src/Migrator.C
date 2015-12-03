@@ -79,6 +79,18 @@ Migrator::Migrator (const string & name)
 
    m_reservoirs = 0;
    m_formations = 0;
+   
+   PetscBool usePrimary = PETSC_FALSE;
+   PetscOptionsHasName ( PETSC_NULL, "-primaryOnly", &usePrimary );
+   if( usePrimary ) {
+      m_projectHandle.get()->setPrimary( true );
+   }
+
+   PetscOptionsHasName ( PETSC_NULL, "-primaryDouble", &usePrimary );
+   if( usePrimary ) {
+      m_projectHandle.get()->setPrimaryDouble( true );
+   }
+
    InitializeRequestTypes ();
    if (GetRank () == 0)
    {
