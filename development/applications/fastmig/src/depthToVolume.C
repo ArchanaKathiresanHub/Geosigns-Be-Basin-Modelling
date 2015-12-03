@@ -28,7 +28,7 @@ const MonotonicIncreasingPiecewiseLinearInvertableFunction* compute(const double
    // The capacity of the trap is therefore determined by the capacities of the 
    // individual columns, and the top and base of each column.  Each column contributes 
    // from top to base with a certain capacity.  What we don't know here is, where the 
-   // individual column starts, and how much they contribute tot the overall capacity. 
+   // individual column starts, and how much they contribute to the overall capacity. 
    // Therefore we determin first a sorted map with for each depth the capacity increase 
    // (i.e. the gradient of the gradient):
    map<double,double> capacityGradientIncreases;
@@ -57,7 +57,7 @@ const MonotonicIncreasingPiecewiseLinearInvertableFunction* compute(const double
 #if 0
       if (columnHeight == 0)
       {
-	 cerr << "WARNING from depthToVolume::compute (): Trying to use zero thickness column " << (*it1) << ", spill depth = " << spillDepth << endl;
+         cerr << "WARNING from depthToVolume::compute (): Trying to use zero thickness column " << (*it1) << ", spill depth = " << spillDepth << endl;
       }
 #endif
 	 
@@ -111,7 +111,7 @@ const MonotonicIncreasingPiecewiseLinearInvertableFunction* compute(const double
       // should be prevented:
 #ifdef DEBUG_DEPTHTOVOLUME
       if (capacityGradient < 0.0)
-	 cerr << "WARNING: capacity gradient = " << capacityGradient << endl;
+         cerr << "WARNING: capacity gradient = " << capacityGradient << endl;
 #endif
       assert(capacityGradient > -TOLERANCE);
       capacityGradient = max(0.0, capacityGradient);

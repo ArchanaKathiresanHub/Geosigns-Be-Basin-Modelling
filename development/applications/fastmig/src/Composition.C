@@ -162,7 +162,7 @@ void Composition::setVolume (const double& volume)
 }
 
 void Composition::computeBiodegradation(const double& timeInterval, const double& temperature,
-   const Biodegrade& biodegrade, Composition& compositionLost) const
+   const Biodegrade& biodegrade, Composition& compositionLost, const double fractionVolumeBiodegraded) const
 {
    double inputComponents[NumComponents];
    double lostComponents[NumComponents];
@@ -171,7 +171,7 @@ void Composition::computeBiodegradation(const double& timeInterval, const double
 
    for (component = 0; component < NumComponents; ++component)
    {
-      inputComponents[component] = getWeight ((ComponentId) component);
+      inputComponents[component] = getWeight ((ComponentId) component) * fractionVolumeBiodegraded;
       lostComponents[component] = 0.0;
    }
 
@@ -285,9 +285,8 @@ void Composition::computePVT (double temperature, double pressure, Composition *
 
       for (unsigned int comp = 0; comp < NumComponents; comp++)
       {
-	 cerr << getWeight ((ComponentId) comp) << ", ";
+	      cerr << getWeight ((ComponentId) comp) << ", ";
       }
-
       cerr << endl;
       cerr.flush ();
    }
@@ -301,8 +300,8 @@ void Composition::computePVT (double temperature, double pressure, Composition *
 
       for (unsigned int component = 0; component < NumComponents; component++)
       {
-	 // compositionsOut[phase].add ((ComponentId) component, 0.5 * inputComponents[component]);
-	 compositionsOut[phase].add ((ComponentId) component, outputComponents[phase][component]);
+         // compositionsOut[phase].add ((ComponentId) component, 0.5 * inputComponents[component]);
+         compositionsOut[phase].add ((ComponentId) component, outputComponents[phase][component]);
       }
    }
 

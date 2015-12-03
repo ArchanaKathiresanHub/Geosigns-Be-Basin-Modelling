@@ -42,60 +42,60 @@ namespace migration
    class Composition
    {
       friend void InitializeRequestTypes (void);
-   public:
-      /// Constructor
-      Composition (void);
+      public:
+	 /// Constructor
+	 Composition (void);
 
-      /// Destructor
-      virtual ~Composition (void);
+	 /// Destructor
+	 virtual ~Composition (void);
 
-      inline void reset (ComponentId componentId);
-      inline void set (ComponentId componentId, double weight);
-      inline void add (ComponentId componentId, double weight);
-      inline void subtract (ComponentId componentId, double weight);
-      inline bool isEmpty (ComponentId componentId) const;
-      inline double getWeight (ComponentId componentId) const;
-      inline vector<double> getWeights() const;
-      inline double moles(ComponentId componentId, const double& gorm) const;
+	 inline void reset (ComponentId componentId);
+	 inline void set (ComponentId componentId, double weight);
+	 inline void add (ComponentId componentId, double weight);
+	 inline void subtract (ComponentId componentId, double weight);
+	 inline bool isEmpty (ComponentId componentId) const;
+	 inline double getWeight (ComponentId componentId) const;
+         inline vector<double> getWeights() const;
+         inline double moles(ComponentId componentId, const double& gorm) const;
 
-      inline void setViscosity (double viscosity);
-      inline double getViscosity (void) const;
-      inline void resetViscosity (void);
+	 inline void setViscosity (double viscosity);
+	 inline double getViscosity (void) const;
+	 inline void resetViscosity (void);
 
-      inline void setDensity (double density);
-      inline double getDensity (void) const;
-      inline void resetDensity (void);
+	 inline void setDensity (double density);
+	 inline double getDensity (void) const;
+	 inline void resetDensity (void);
 
-      void reset (void);
-      void set (const Composition & composition);
-      void add (const Composition & composition);
-      void subtract (const Composition & composition);
-      bool isEmpty (void) const;
-      double getWeight (void) const;
-      void setWeight(const double& weight);
+	 void reset (void);
+	 void set (const Composition & composition);
+	 void add (const Composition & composition);
+	 void subtract (const Composition & composition);
+	 bool isEmpty (void) const;
+	 double getWeight (void) const;
+	 void setWeight(const double& weight);
 
-      double getVolume (void) const;
-      void setVolume(const double& volume);
+	 double getVolume (void) const;
+         void setVolume(const double& volume);
 
-      void addFraction (const Composition & composition, double fraction);
-      void subtractFraction (const Composition & composition, double fraction);
+	 void addFraction (const Composition & composition, double fraction);
+	 void subtractFraction (const Composition & composition, double fraction);
 
-      void computeBiodegradation(const double& timeInterval, const double& temperature,
-                                 const Biodegrade& biodegrade, Composition& compositionLost) const;
+	 void computeBiodegradation(const double& timeInterval, const double& temperature,
+         const Biodegrade& biodegrade, Composition& compositionLost, const double fractionVolumeBiodegraded) const;
 
-      void computeDiffusionLeakages(const double& diffusionStartTime, const double & intervalStartTime, const double & intervalEndTime, const vector<double>& solubilities, 
-                                    const double& surfaceArea, vector<DiffusionLeak*>& diffusionLeaks, const double& gorm, 
-                                    Composition* compositionOut, Composition* compositionLost) const;
+	 void computeDiffusionLeakages(const double& diffusionStartTime, const double & intervalStartTime, const double & intervalEndTime, const vector<double>& solubilities, 
+            const double& surfaceArea, vector<DiffusionLeak*>& diffusionLeaks, const double& gorm, 
+	    Composition* compositionOut, Composition* compositionLost) const;
 
-      void computePVT (double temperature, double pressure, Composition * compositionsOut);
+	 void computePVT (double temperature, double pressure, Composition * compositionsOut);
 
-      Composition & operator= (const Composition & original);
+	 Composition & operator= (const Composition & original);
 
-   private:
+      private:
 
-      double m_components[NUM_COMPONENTS];
-      double m_density;
-      double m_viscosity;
+	 double m_components[NUM_COMPONENTS];
+	 double m_density;
+	 double m_viscosity;
    };
 
    ostream & operator<< (ostream & stream, Composition & composition);

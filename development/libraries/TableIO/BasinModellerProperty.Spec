@@ -806,7 +806,7 @@ START-properties
     Description         : The difference between the TwoWayTimeGrid (input by user from nDI)
                           and the TwoWayTime (computed in fastcauldron)
     Unit of measurement : ms
-    Type                : float
+    Type                : float 
     Error Field         : No
 
 # layer properties:
@@ -2014,7 +2014,7 @@ START-properties
 
     Identification      : SeisVelocity
     Description         : The seismic velocity of a lithotype, fluidtype, matrix,
-                          fluid or bulk
+                          fluid or bulk 
     Unit of measurement : m/s
     Type                : float
     Error Field         : Yes
@@ -4560,112 +4560,126 @@ Identification      : HcLiquidBrineCapillaryEntryPressure
     Unit of measurement : C (degCentigrade)
     Type                : double 
     Default             : 80.0 
-    Error Field         : Yes
+    Error Field         : No
 
     Identification      : TempConstant 
     Description         : Bio Degrad. temperature constant 
     Unit of measurement : 1/C 
     Type                : double 
     Default             : 70.0 
-    Error Field         : Yes 
+    Error Field         : No 
 
     Identification      : TimeConstant 
     Description         : Bio Degrad. time Constant 
     Unit of measurement : 1/Ma 
     Type                : double 
     Default             : 0.5
-    Error Field         : Yes 
+    Error Field         : No 
+
+	Identification      : BioRate 
+    Description         : Biodegradation impact zone rate. This rate helps to define the thickness affected by biodegradation above OWC
+    Unit of measurement : m/Ma 
+    Type                : double 
+    Default             : 0.3
+    Error Field         : No 
+
+	Identification      : PasteurizationInd 
+    Description         : Switch for pasteurization in biodegradation (1 = On, 0 = Off)
+    Unit of measurement :
+    Type                : boolean
+    Default             : 0
+    Error Field         : No 
 
     Identification      : C1_BioFactor 
     Description         : Bio Degradation factor 
     Unit of measurement : 
     Type                : double 
     Default             : 0.0008 
-    Error Field         : Yes 
+    Error Field         : No 
 
     Identification      : C2_BioFactor 
     Description         : Bio Degradation factor 
     Unit of measurement : 
     Type                : double 
     Default             : 0.0005 
-    Error Field         : Yes 
+    Error Field         : No 
 
     Identification      : C3_BioFactor 
     Description         : Bio Degradation factor 
     Unit of measurement : 
     Type                : double 
     Default             : 0.0003
-    Error Field         : Yes 
+    Error Field         : No 
 
     Identification      : C4_BioFactor 
     Description         : Bio Degradation factor 
     Unit of measurement : 
     Type                : double 
     Default             : 0.0008
-    Error Field         : Yes 
+    Error Field         : No 
 
     Identification      : C5_BioFactor 
     Description         : Bio Degradation factor 
     Unit of measurement : 
     Type                : double 
     Default             : 0.001
-    Error Field         : Yes 
+    Error Field         : No 
 
     Identification      : N2_BioFactor 
     Description         : Bio Degradation factor 
     Unit of measurement : 
     Type                : double 
     Default             : 0.001
-    Error Field         : Yes 
+    Error Field         : No 
 
     Identification      : COx_BioFactor 
     Description         : Bio Degradation factor 
     Unit of measurement : 
     Type                : double 
-    Default             : 0.0
-    Error Field         : Yes 
+    Default             : 1.0
+    Error Field         : No 
 
     Identification      : C6_14Aro_BioFactor 
     Description         : Bio Degradation factor 
     Unit of measurement : 
     Type                : double 
     Default             : 0.007
-    Error Field         : Yes 
+    Error Field         : No 
 
     Identification      : C6_14Sat_BioFactor 
     Description         : Bio Degradation factor 
     Unit of measurement : 
     Type                : double 
     Default             : 0.009
-    Error Field         : Yes 
+    Error Field         : No 
 
     Identification      : C15Aro_BioFactor 
     Description         : Bio Degradation factor 
     Unit of measurement : 
     Type                : double 
     Default             : 0.05
-    Error Field         : Yes 
+    Error Field         : No 
 
     Identification      : C15Sat_BioFactor 
     Description         : Bio Degradation factor 
     Unit of measurement : 
     Type                : double 
     Default             : 0.011
-    Error Field         : Yes 
+    Error Field         : No 
 
     Identification      : resins_BioFactor 
     Description         : Bio Degradation factor 
     Unit of measurement : 
     Type                : double 
     Default             : 0.061
-    Error Field         : Yes 
+    Error Field         : No 
 
     Identification      : asphaltenes_BioFactor 
     Description         : Bio Degradation factor 
     Unit of measurement : 
     Type                : double 
     Default             : 0.1
-    Error Field         : Yes 
+    Error Field         : No 
 
 #### Diffusion Constants -----------------------------
 
@@ -7137,11 +7151,11 @@ START-property-tables
     Column         : LayerFrequencyGrid
     Column         : BioDegradInd 
     Column         : OilToGasCrackingInd 
-    Column         : DiffusionInd
+    Column         : DiffusionInd 
     Column         : MinOilColumnHeight
     Column         : MinGasColumnHeight
     Column         : BlockingInd 
-    Column         : BlockingPermeability
+    Column         : BlockingPermeability 
     Column         : BlockingPorosity
     Header         : Reservoir Data
 
@@ -7150,6 +7164,8 @@ START-property-tables
     Column         : MaxBioTemp 
     Column         : TempConstant 
     Column         : TimeConstant 
+	Column         : BioRate
+	Column         : PasteurizationInd
     Column         : C1_BioFactor 
     Column         : C2_BioFactor 
     Column         : C3_BioFactor 
@@ -7794,7 +7810,7 @@ START-property-tables
     Column         : Sum
     Column         : NP
     Header         : Iso vr data for burial graph
-
+ 
     Identification : TwoWayTimeIoTbl
     Description    : Table to hold relationship between initial two way travel time and
                      stratigraphic surfaces (e.g. maps from nDI under TwoWayTimeGrid

@@ -1,3 +1,7 @@
+//#include <values.h>
+#include <limits.h>
+#include <float.h>
+
 #include <vector>
 
 #ifdef sgi

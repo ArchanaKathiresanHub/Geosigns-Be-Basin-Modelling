@@ -1,3 +1,26 @@
+//#include <values.h>
+
+#ifdef _MSC_VER
+#include <limits.h>
+#else
+#include <limits>
+#endif
+
+#include <float.h>
+
+#ifdef sgi
+   #ifdef _STANDARD_C_PLUS_PLUS
+      #include<iostream>
+      using namespace std;
+   #else // !_STANDARD_C_PLUS_PLUS
+      #include<iostream.h>
+   #endif // _STANDARD_C_PLUS_PLUS
+#else // !sgi
+   #include <iostream>
+   using namespace std;
+#endif // sgi
+
+
 #include "Trap.h"
 
 #include "PersistentTrap.h"
@@ -10,10 +33,6 @@
 #include "EosPack.h"
 
 #include "generics.h"
-
-#include <limits>
-#include <iostream>
-using namespace std;
 
 using namespace PersistentTraps;
 

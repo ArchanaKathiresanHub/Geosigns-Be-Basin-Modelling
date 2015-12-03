@@ -54,9 +54,9 @@ namespace migration
 
    enum ValueSpec
    {
-      TOPDEPTH = 0, BOTTOMDEPTH, THICKNESS, CAPACITY, NETTOGROSS, POROSITY, IMMOBILESVOLUME, IMMOBILESDENSITY, PERMEABILITY, POROSITYPERCENTAGE,
+      TOPDEPTH = 0, BOTTOMDEPTH, TOPDEPTHOFFSET, THICKNESS, CAPACITY, NETTOGROSS, POROSITY, IMMOBILESVOLUME, IMMOBILESDENSITY, PERMEABILITY, POROSITYPERCENTAGE,
       FAULTSTATUS, COLUMNSTATUS, PRESSURE, TEMPERATURE, OVERBURDEN, FLUX, FLOW, FLOWDIRECTION, FLOWDIRECTIONIJ,
-      ISUNDERSIZED, ISSPILLING, ISSEALING, ISWASTING, ISTRAPFLAG, SUPPORTEDCHARGEHEIGHT,
+      ISUNDERSIZED, ISSPILLING, ISSEALING, ISWASTING, PASTEURIZATIONSTATUS, ISTRAPFLAG, SUPPORTEDCHARGEHEIGHT,
       CAPILLARYSEALPRESSURE, CAPILLARYRESERVOIRPRESSURE, CAPILLARYTHRESHOLDPRESSURE,
       ADJACENTCOLUMN, TARGETCOLUMN, SPILLTARGET, TRAPSPILLCOLUMN,
       DRAINAGEAREAID, GLOBALTRAPID, LEAKAGEQUANTITY, FILLDEPTH, PENETRATIONDISTANCE, DIFFUSIONSTARTTIME,
@@ -65,7 +65,7 @@ namespace migration
       ISRESERVOIRGAS, ISRESERVOIROIL, ISENDOFPATH, HEIGHTGAS, HEIGHTOIL,
       GETFINITEELEMENTVALUE, GETFINITEELEMENTMINIMUMVALUE, GETFINITEELEMENTGRAD,
       SET /* separator, not used */,
-      SETGLOBALTRAPID, SETTOPDEPTH, SETBOTTOMDEPTH, SETFILLDEPTH, SETPENETRATIONDISTANCE, SETDIFFUSIONSTARTTIME, SETCHARGEDENSITY,
+      SETGLOBALTRAPID, SETTOPDEPTH, SETBOTTOMDEPTH, SETFILLDEPTH, SETPENETRATIONDISTANCE, SETDIFFUSIONSTARTTIME, SETCHARGEDENSITY, SETPASTEURIZATIONSTATUS,
       ADDMIGRATED, ADDFLUX,
       INCREASECHARGES, LEAKCHARGES, WASTECHARGES, SPILLCHARGES, ADDCOMPOSITIONTOBEMIGRATED, SETCHARGESTOBEMIGRATED, REGISTER, DEREGISTER,
       ADDTOYOURTRAP, SAVETRAPPROPERTIES,
@@ -94,9 +94,9 @@ namespace migration
    /// Column bit values
    enum CacheBit
    {
-      TOPDEPTHCACHE = 0, BOTTOMDEPTHCACHE, NETTOGROSSCACHE, POROSITYCACHE, IMMOBILESVOLUMECACHE,
-      PERMEABILITYCACHE, FAULTSTATUSCACHE, COLUMNSTATUSCACHE,
-      BASEADJACENTCOLUMNCACHE, GASADJACENTCOLUMNCACHE = BASEADJACENTCOLUMNCACHE, OILADJACENTCOLUMNCACHE,
+      TOPDEPTHCACHE = 0, BOTTOMDEPTHCACHE, TOPDEPTHOFFSETCACHE, NETTOGROSSCACHE, POROSITYCACHE, IMMOBILESVOLUMECACHE,
+      PERMEABILITYCACHE, FAULTSTATUSCACHE, COLUMNSTATUSCACHE, PASTEURIZATIONSTATUSCACHE,
+      BASEADJACENTCOLUMNCACHE, GASADJACENTCOLUMNCACHE = BASEADJACENTCOLUMNCACHE, OILADJACENTCOLUMNCACHE, 
       BASETARGETCOLUMNCACHE, GASTARGETCOLUMNCACHE = BASETARGETCOLUMNCACHE, OILTARGETCOLUMNCACHE,
       BASESEALINGCOLUMNCACHE, GASSEALINGCOLUMNCACHE = BASESEALINGCOLUMNCACHE, OILSEALINGCOLUMNCACHE,
       BASETRAPFLAGCOLUMNCACHE, GASTRAPFLAGCOLUMNCACHE = BASETRAPFLAGCOLUMNCACHE, OILTRAPFLAGCOLUMNCACHE,
@@ -134,7 +134,7 @@ namespace migration
    const int WASTED = 4;
    const int SPILLED = 8;
 
-   /// \brief Diffuse C1 to C5 contained in the gas phase of the trap
+   /// Diffuse C1 to C5 contained in the gas phase of the trap
    const int DiffusionComponentSize = 5;
    const int ColumnValueArraySize = 5;
 
@@ -150,8 +150,8 @@ namespace migration
       { { 0, 0, 1 }, { 1, 0, 1 }, { 1, 1, 1 }, { 0, 1, 1 }, { 0, 0, 0 }, { 1, 0, 0 }, { 1, 1, 0 }, { 0, 1, 0 } };
 
    const int NeighbourOffsets2D[8][2] =
-      {
-         { -1, -1 },
+   {
+      { -1, -1 },
          { -1, 0 },
          { -1, 1 },
          { 0, -1 },
@@ -159,7 +159,7 @@ namespace migration
          { 1, -1 },
          { 1, 0 },
          { 1, 1 }
-      };
+   };
 
    const int NumberOfNeighbourOffsets = 26;
    const int NumberOfUpwardNeighbourOffsets = 9;
@@ -173,53 +173,53 @@ namespace migration
       { 0, 0, -1 }, { -1, 0, -1 }, { 0, -1, -1 }, { 1, 0, -1 }, { 0, 1, -1 }, { -1, -1, -1 }, { -1, 1, -1 }, { 1, -1, -1 }, { 1, 1, -1 } };
 
    const double Offsets[8] =
-      {
-         Sqrt2,
-         1,
-         Sqrt2,
-         1,
-         1,
-         Sqrt2,
-         1,
-         Sqrt2
-      };
+   {
+      Sqrt2,
+      1,
+      Sqrt2,
+      1,
+      1,
+      Sqrt2,
+      1,
+      Sqrt2
+   };
 
    const int NeighbourOffsetIndices[3][3] =
-      {
-         { 0, 1, 2 },
+   {
+      { 0, 1, 2 },
          { 3, -1, 4 },
-         { 5, 6, 7 }
-      };
+      { 5, 6, 7 }
+   };
 
    const int DiagonalNeighbourOffsets[4][2] =
-      {
-         { -1, -1 },
+   {
+      { -1, -1 },
          { -1, 1 },
          { 1, -1 },
          { 1, 1 }
-      };
+   };
 
    const int DiagonalNeighbourOffsetIndices[3][3] =
-      {
+   {
          { 0, -1, 1 },
          { -1, -1, -1 },
          { 2, -1, 3 }
-      };
+   };
 
    const int OrthogonalNeighbourOffsets[4][2] =
-      {
+   {
          { -1, 0 },
          { 0, -1 },
          { 0, 1 },
          { 1, 0 },
-      };
+   };
 
    const int OrthogonalNeighbourOffsetIndices[3][3] =
-      {
+   {
          { -1, 0, -1 },
          { 1, -1, 2 },
          { -1, 3, -1 }
-      };
+   };
 
    const int I = 0;
    const int J = 1;
@@ -291,16 +291,16 @@ namespace migration
    extern bool MigrationErrorFound;
 
    extern const char * BooleanNames[];
-
+   
 #ifdef USEOTGC
    enum ImmobilesId
    {
-      precoke,
-      coke1,
-      Hetero1,
-      coke2,
-      CokeS,
-
+		precoke,
+		coke1,
+		Hetero1,
+		coke2,
+		CokeS,
+                
       NUM_IMMOBILES = 5
    };
 
@@ -310,25 +310,25 @@ namespace migration
    extern ostringstream cerrstrstr;
 
    template <class T>
-      T Square (T x)
+   T Square (T x)
    {
       return (x * x);
    }
 
    template <class T>
-      T Min (T x, T y)
+   T Min (T x, T y)
    {
       return (x < y ? x : y);
    }
 
    template <class T>
-      T Max (T x, T y)
+   T Max (T x, T y)
    {
       return (x > y ? x : y);
    }
 
    template <class T>
-      T Abs (T x)
+   T Abs (T x)
    {
       return (x >= 0 ? x : -x);
    }

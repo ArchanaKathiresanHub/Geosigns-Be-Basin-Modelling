@@ -46,4 +46,25 @@ double BiodegradationParameters::timeFactor() const
   return database::getTimeConstant(m_record);
 }
 
+double BiodegradationParameters::bioRate() const
+{
+   double bioRate = database::getBioRate(m_record);
+
+   // The biodegradation rate cannot be less than 0.0 m/Ma)
+   if (bioRate < 0.0)
+   {
+      getProjectHandle()->getMessageHandler().print("Warning: The biodegradation rate coefficient must be positive: ");
+      getProjectHandle()->getMessageHandler().print(bioRate);
+      getProjectHandle()->getMessageHandler().printLine(" < 0.0 (in m/Ma)");
+
+      bioRate = 0.0;
+   }
+   return bioRate;
+}
+
+bool BiodegradationParameters::pasteurizationInd() const
+{
+   return database::getPasteurizationInd(m_record);
+}
+
 } } // namespace DataAccess::Implementation
