@@ -132,7 +132,8 @@ namespace migration
 
       void addTrapRecord (Reservoir * reservoir, TrapPropertiesRequest & tpRequest);
 		// add a detected reservoir to ResIoTbl and return the record itself
-		database::Record * addDetectedReservoirRecord (Formation * formation);
+		database::Record * addDetectedReservoirRecord (Interface::Formation * formation, const Interface::Snapshot * start);
+		void getMinimumColumnHeights ();
 
       database::Record * copyMigrationRecord (database::Record * oldRecord, const std::string & newMigrationProcess);
 
@@ -163,7 +164,6 @@ namespace migration
 
       bool loadExpulsionMaps (const Interface::Snapshot * start, const Interface::Snapshot * end);
       bool unloadExpulsionMaps (const Interface::Snapshot * end);
-      void resetReservoirIndexes (void);
 
       void sortMigrationRecords (void);
       void uniqueMigrationRecords (void);
@@ -210,6 +210,8 @@ namespace migration
       database::Table * m_trapIoTbl;
       database::Table * m_migrationIoTbl;
       database::Table * m_ReservoirIoTbl;
+      database::Table * m_detectedReservoirIoTbl;
+      database::Record * m_detectedReservoirIoRecord;
 
       bool mergeOutputFiles ();
 
@@ -223,6 +225,8 @@ namespace migration
       bool m_isBlockingOn;
       double m_blockingPermeability;
       double m_blockingPorosity;
+      double m_minOilColumnHeight;
+      double m_minGasColumnHeight;
 
       vector<database::Record *> * m_migrationRecordLists;
       std::auto_ptr<MigrationPropertyManager> m_propertyManager;

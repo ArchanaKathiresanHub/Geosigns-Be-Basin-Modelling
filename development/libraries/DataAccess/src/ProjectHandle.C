@@ -3358,12 +3358,15 @@ Interface::ReservoirList * ProjectHandle::getReservoirs( const Interface::Format
 }
 
 
-void ProjectHandle::addDetectedReservoirs (database::Record * record) 
+Reservoir* ProjectHandle::addDetectedReservoirs (database::Record * record, const Formation * formation) 
 {
 	DataAccess::Interface::Reservoir * detectedReservoir = getFactory ()->produceReservoir (this, record);
-
+   // connect the detected Reservoir
+   detectedReservoir->setFormation(formation);
 	// add the detected reservoir to the list of reservoirs
 	m_reservoirs.push_back (detectedReservoir);
+	// return the reservoir to formation
+	return detectedReservoir;
 }
 
 

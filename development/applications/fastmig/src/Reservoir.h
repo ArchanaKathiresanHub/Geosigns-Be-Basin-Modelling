@@ -84,9 +84,6 @@ namespace migration
       /// get index of the reservoir in a list of reservoirs
       int getIndex (void);
       
-      /// re-set the index of the reservoir to -1 
-      void resetIndex (void);
-
    private:
       /// create the column grid of this reservoir.
       void createColumns (void);

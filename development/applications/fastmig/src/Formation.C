@@ -68,7 +68,6 @@ namespace migration
       m_migrator (migrator), m_index (-1)
    {
       m_isInitialised = false;
-      m_detectedReservoirRecord = false;
       m_detectedReservoir = false;
 
       m_genexData = 0;
@@ -1292,24 +1291,74 @@ namespace migration
       return true;
    }
 
+	//function that returns the first non zero thickness element in the reservoir
+	LocalFormationNode * Formation::validReservoirNode (const int i, const int j) const
+	{
+		//reservoir formation, loop downwards until a formation node with thickness is found in the reservoir formation
+		LocalFormationNode * reservoirFormationNode = 0;
+		bool validReservoirFormationNode = false;
+		int k = getNodeDepth () - 1;
+		
+		while (k >= 0 && validReservoirFormationNode == false)
+		{
+			reservoirFormationNode = getLocalFormationNode (i, j, k);
+			if (reservoirFormationNode && !reservoirFormationNode->hasNoThickness ()) validReservoirFormationNode = true;
+			else
+				--k;
+		}
+
+		if (validReservoirFormationNode)
+			return reservoirFormationNode;
+		else
+			return 0;
+	}
+
+
+   //function that returns the first non zero thickness element in the seal
+   LocalFormationNode * Formation::validSealNode (const int i, const int j, const Formation * topFormation, const Formation * topActiveFormation) const
+   {
+      //seal formation, loop upwards until a formation node with thickness is found in one of the formations above the reservoir
+      LocalFormationNode * sealFormationNode = 0;
+      bool validSealFormationNode = false;
+      int k = 0;
+      int ktopseal = topActiveFormation->getNodeDepth() -1;
+      //return topFormation->getLocalFormationNode (i, j, k);
+      
+      while (validSealFormationNode == false)
+      {
+         sealFormationNode = topFormation->getLocalFormationNode (i, j, k);
+         if (sealFormationNode && !sealFormationNode->hasNoThickness ())
+         { 
+            validSealFormationNode = true;
+         }
+         else
+         {
+            if (!sealFormationNode ||(sealFormationNode->getFormation () == topActiveFormation && sealFormationNode->getK() == ktopseal)) break;
+            ++k;
+         }
+      }
+
+      if (validSealFormationNode)
+         return sealFormationNode;
+      else
+         return 0;
+   }
+
    //
    // Loop through the uppermost cells and check capillary pressure across the boundary
    //
-
-   // TO DO: if top element has no thickness look at the one below etc.
    bool Formation::detectReservoir (Formation * topFormation,
-                                    const double minOilColumnHeight, const double minGasColumnHeight, const bool pressureRun)
+                                    const double minOilColumnHeight, const double minGasColumnHeight, const bool pressureRun, const Formation * topActiveFormation)
    {
-	  
-      int upperIndex = getNodeDepth () - 1;
-      int lowerIndex = 0;
-
+      
       for (int i = (int) m_formationNodeArray->firstILocal (); i <= (int) m_formationNodeArray->lastILocal (); ++i)
       {
          for (int j = (int) m_formationNodeArray->firstJLocal (); j <= (int) m_formationNodeArray->lastJLocal (); ++j)
          {
-            getLocalFormationNode (i, j, upperIndex)->detectReservoir (topFormation->getLocalFormationNode (i, j, lowerIndex),
-                                                                       minOilColumnHeight, minGasColumnHeight, pressureRun);
+				LocalFormationNode * reservoirFormationNode = validReservoirNode (i, j);
+				LocalFormationNode * sealFormationNode = validSealNode (i, j, topFormation, topActiveFormation);
+
+				if (reservoirFormationNode && sealFormationNode) reservoirFormationNode->detectReservoir (sealFormationNode,minOilColumnHeight, minGasColumnHeight, pressureRun);
          }
       }
 
@@ -1320,8 +1369,6 @@ namespace migration
    // Loop through the uppermost cells and check if a trap crests exist with m_height_oil > minOilColumnHeight OR m_height_gas > minGasColumnHeight 
    // Stop as soon as a trap crest is found. 
 
-
-   // TO DO: Same as above. Take care of the case where the topmost elements have 0 thickness
    bool Formation::detectReservoirCrests()
    {
       //cout << " Rank, Formation, m_detectedReservoir " << GetRank () << " " << getName () << " " << m_detectedReservoir << endl;
@@ -1338,7 +1385,8 @@ namespace migration
          {
             for (int j = (int)m_formationNodeArray->firstJLocal(); j <= (int)m_formationNodeArray->lastJLocal(); ++j)
             {
-               reservoirCrestDetected = getLocalFormationNode(i, j, upperIndex)->detectReservoirCrests(OIL);
+					LocalFormationNode * reservoirFormationNode = validReservoirNode (i, j);
+					if (reservoirFormationNode) reservoirCrestDetected = reservoirFormationNode->detectReservoirCrests (OIL);
                if (reservoirCrestDetected) break;
             }
             if (reservoirCrestDetected) break;
@@ -1351,7 +1399,8 @@ namespace migration
             {
                for (int j = (int)m_formationNodeArray->firstJLocal(); j <= (int)m_formationNodeArray->lastJLocal(); ++j)
                {
-                  reservoirCrestDetected = getLocalFormationNode(i, j, upperIndex)->detectReservoirCrests(GAS);
+						LocalFormationNode * reservoirFormationNode = validReservoirNode (i, j);
+						if (reservoirFormationNode) reservoirCrestDetected = reservoirFormationNode->detectReservoirCrests (GAS);
                   if (reservoirCrestDetected) break;
                }
                if (reservoirCrestDetected) break;
@@ -1379,15 +1428,20 @@ namespace migration
    }
 
    // add the detected reservoir to the reservoir vector
-   void Formation::addDetectedReservoir ()
+   void Formation::addDetectedReservoir (const Interface::Snapshot * start)
    {
-      if (!m_detectedReservoirRecord)
+      if (!m_detectedReservoir)
       {
          //add a record to the reservoir list
-         Migrator * migrator = getMigrator ();
-         database::Record * record = migrator->addDetectedReservoirRecord (this);
-         migrator->getProjectHandle ()->addDetectedReservoirs (record);
-         m_detectedReservoirRecord = true;
+         database::Record * record = m_migrator->addDetectedReservoirRecord (this, start);
+         Reservoir* reservoir = (Reservoir*) m_projectHandle->addDetectedReservoirs (record, this);
+         // Offsets and net to gross
+         reservoir->computeDepthOffsets (m_projectHandle->findSnapshot (0.));
+         reservoir->computeNetToGross ();
+         //all processes should arrive here
+         MPI_Barrier (PETSC_COMM_WORLD);
+         
+         m_detectedReservoir = true;
       }
    }
 

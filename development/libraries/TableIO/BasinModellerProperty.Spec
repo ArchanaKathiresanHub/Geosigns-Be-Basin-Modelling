@@ -4440,6 +4440,13 @@ Identification      : HcLiquidBrineCapillaryEntryPressure
     Type                : string
     Error Field         : No
     
+    Identification      : DetectedReservoir
+    Description         : Flag for detected reservoirs
+    Unit of measurement : 
+    Type                : boolean
+    Default             : 0
+    Error Field         : No	
+    
     Identification      : SourceAge
     Description         : Geological age of an event, entry in a table etc. 
     Unit of measurement : Ma
@@ -7127,6 +7134,7 @@ START-property-tables
     Description    : Table listing the list of reservoirs and
                      their properties
     Column         : ReservoirName
+    Column         : DetectedReservoir	    
     Column         : FormationName
     Column         : TrapCapacity
     Column         : ActivityMode
@@ -7158,6 +7166,38 @@ START-property-tables
     Column         : BlockingPermeability 
     Column         : BlockingPorosity
     Header         : Reservoir Data
+    
+    Identification : DetectedReservoirIoTbl
+    Description    : Table listing the parameters for detected reservoirs
+    Column         : TrapCapacity
+    Column         : ActivityMode
+    Column         : DepthOffset
+    Column         : DepthOffsetGrid
+    Column         : Thickness
+    Column         : ThicknessGrid
+    Column         : NetToGross
+    Column         : NetToGrossGrid
+    Column         : MicroTraps
+    Column         : LeakProperty
+    Column         : LeakRate
+    Column         : Lithotype1
+    Column         : Percent1
+    Column         : Percent1Grid
+    Column         : Lithotype2
+    Column         : Percent2
+    Column         : Percent2Grid
+    Column         : Lithotype3
+    Column         : LayerFrequency 
+    Column         : LayerFrequencyGrid
+    Column         : BioDegradInd 
+    Column         : OilToGasCrackingInd 
+    Column         : DiffusionInd
+    Column         : MinOilColumnHeight
+    Column         : MinGasColumnHeight
+    Column         : BlockingInd 
+    Column         : BlockingPermeability
+    Column         : BlockingPorosity
+    Header         : Detected reservoir data
 
     Identification : BioDegradIoTbl
     Description    : This table holds the bio degradation parameters 
@@ -7940,6 +7980,7 @@ START-application-class-properties
     Property : SmectiteIlliteIoTbl
     Property : SmectiteIlliteKinIoTbl
     Property : ReservoirIoTbl
+    Property : DetectedReservoirIoTbl
     Property : BioDegradIoTbl
     Property : DiffusionIoTbl
     Property : PalinspasticIoTbl

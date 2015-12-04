@@ -102,11 +102,11 @@ namespace migration
       int getNodeDepth (void) const;
       int getGridMapDepth (void) const;
 
-      bool detectReservoir (Formation * topFormation, const double minOilColumnHeight, const double minGasColumnHeight, const bool pressureRun);
+      bool detectReservoir (Formation * topFormation, const double minOilColumnHeight, const double minGasColumnHeight, const bool pressureRun, const Formation * topActiveFormation);
       bool detectReservoirCrests();
       bool getDetectedReservoir() const;
       void setDetectedReservoir (bool detectedReservoir);
-      void addDetectedReservoir ();
+      void addDetectedReservoir (const Interface::Snapshot * start);
 
       void saveReservoir (const Interface::Snapshot * curSnapshot);
 
@@ -165,6 +165,8 @@ namespace migration
 
       bool clearNodeProperties (void);
       bool clearNodeReservoirProperties (void);
+      LocalFormationNode * validReservoirNode (const int i, const int j) const;
+      LocalFormationNode * validSealNode (const int i, const int j, const Formation * topFormation, const Formation * topActiveFormation) const;
       bool computeNodeProperties ();
 
       const Interface::Grid * getGrid (void) const;
@@ -270,8 +272,6 @@ namespace migration
 
       // is a detected reservoir formation
       bool m_detectedReservoir;
-      bool  m_detectedReservoirRecord;
-
    };
 
    Migrator * Formation::getMigrator (void) const

@@ -760,8 +760,6 @@ namespace migration {
    //
    // Check change of capillary pressure across boundary to determine potential reservoir
    //
-
-   // TO DO: Take care of zero-thickness elements
    bool LocalFormationNode::detectReservoir (LocalFormationNode * topNode,
       const double minOilColumnHeight, const double minGasColumnHeight, const bool pressureRun)
    {
@@ -872,7 +870,7 @@ namespace migration {
       }
 
       //Calculations performed as in Reservoir::getAdjacentColumn. m_isCrestGas and m_isCrestOil are set true in the constructor. 
-
+		//if the neighbours nodes are zero thickness nodes does not matter, the highest depth is always taken
       int top = m_formation->getGridMapDepth () - 1;
 
       for (int n = 0; n < NumNeighbours; ++n)

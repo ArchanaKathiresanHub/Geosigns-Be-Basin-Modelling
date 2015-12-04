@@ -188,7 +188,7 @@ namespace DataAccess
          /// return the list of reservoirs
          virtual ReservoirList * getReservoirs( const Formation * formation = 0 ) const;
          /// add a detected reservoir to the list of reservoirs
-         virtual void addDetectedReservoirs (database::Record * record);
+         virtual Reservoir* addDetectedReservoirs (database::Record * record, const Formation * formation);
          /// return the list of MobileLayers
          virtual MobileLayerList * getMobileLayers( const Formation * formation ) const;
 
