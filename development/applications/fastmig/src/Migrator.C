@@ -176,12 +176,10 @@ bool Migrator::compute (void)
       m_hdynamicAndCapillary = 0;
    m_reservoirDetection = m_projectHandle->getRunParameters ()->getReservoirDetection ();
 
-   bool pressureRun = isPressureRun ();
-
-   // pressureRun set to false only here to avoid calculating overpressure before formation nodes are created.
-   computeFormationPropertyMaps (m_projectHandle->getSnapshots ()->front (), false);
+   bool overPressureRun = !isHydrostaticCalculation ();
 
    createFormationNodes ();
+   computeFormationPropertyMaps (m_projectHandle->getSnapshots ()->front (), overPressureRun);
 
    // compute the positions of the reservoirs within the formations
    computeDepthOffsets ();
@@ -208,7 +206,7 @@ bool Migrator::compute (void)
       end = *snapshotIter;
       if (!start) continue;
 
-      if (!performSnapshotMigration (start, end, pressureRun))
+      if (!performSnapshotMigration (start, end, overPressureRun))
          return false;
    }
       
@@ -257,16 +255,7 @@ void Migrator::closeMassBalanceFile (void)
 
 bool Migrator::setUpBasinGeometry (void)
 {
-   bool HydrostaticCalculation = false;
-   const DataAccess::Interface::SimulationDetails* lastFastcauldronRun = m_projectHandle->getDetailsOfLastSimulation ("fastcauldron");
-
-   if (lastFastcauldronRun != 0)
-   {
-      HydrostaticCalculation = lastFastcauldronRun->getSimulatorMode () == "HydrostaticTemperature" or
-         lastFastcauldronRun->getSimulatorMode () == "HydrostaticHighResDecompaction" or
-         lastFastcauldronRun->getSimulatorMode () == "HydrostaticTemperature" or
-         lastFastcauldronRun->getSimulatorMode () == "HydrostaticDarcy";
-   }
+   bool HydrostaticCalculation = isHydrostaticCalculation ();
 
    // From GeoPhysics::ProjectHandle
    if (!m_projectHandle->initialise () ||
@@ -278,7 +267,23 @@ bool Migrator::setUpBasinGeometry (void)
       return true;
 }
 
-bool Migrator::computeFormationPropertyMaps (const Interface::Snapshot * snapshot, bool isPressureRun)
+bool Migrator::isHydrostaticCalculation (void) const
+{
+   bool hydrostaticCalculation = false;
+   const DataAccess::Interface::SimulationDetails* lastFastcauldronRun = m_projectHandle->getDetailsOfLastSimulation ("fastcauldron");
+
+   if (lastFastcauldronRun != 0)
+   {
+      hydrostaticCalculation = lastFastcauldronRun->getSimulatorMode () == "HydrostaticTemperature" or
+         lastFastcauldronRun->getSimulatorMode () == "HydrostaticHighResDecompaction" or
+         lastFastcauldronRun->getSimulatorMode () == "HydrostaticTemperature" or
+         lastFastcauldronRun->getSimulatorMode () == "HydrostaticDarcy";
+   }
+
+   return hydrostaticCalculation;
+}
+
+bool Migrator::computeFormationPropertyMaps (const Interface::Snapshot * snapshot, bool isOverPressureRun)
 {
    Interface::FormationList * formations = getAllFormations ();
 
@@ -300,7 +305,7 @@ bool Migrator::computeFormationPropertyMaps (const Interface::Snapshot * snapsho
 
       bool lowResEqualsHighRes = ((*(m_projectHandle->getLowResolutionOutputGrid ())) == (*(m_projectHandle->getHighResolutionOutputGrid ())));
 
-      formation->computePropertyMaps (topDepthGridMap, snapshot, lowResEqualsHighRes, isPressureRun, m_projectHandle->getRunParameters ()->getNonGeometricLoop (),
+      formation->computePropertyMaps (topDepthGridMap, snapshot, lowResEqualsHighRes, isOverPressureRun, m_projectHandle->getRunParameters ()->getNonGeometricLoop (),
                                       m_projectHandle->getRunParameters ()->getChemicalCompaction ()); // allowed to fail
 
       formation->computeHCDensityMaps ();
@@ -312,6 +317,7 @@ bool Migrator::computeFormationPropertyMaps (const Interface::Snapshot * snapsho
       }
 
    }
+
    return true;
 
 }
@@ -384,22 +390,20 @@ bool Migrator::createFormationNodes (void)
    return true;
 }
 
-bool Migrator::performSnapshotMigration (const Interface::Snapshot * start, const Interface::Snapshot * end, const bool pressureRun)
+bool Migrator::performSnapshotMigration (const Interface::Snapshot * start, const Interface::Snapshot * end, const bool overPressureRun)
 {
    if ((activeReservoirs (end)|| m_reservoirDetection) and getBottomSourceRockFormation ()->isActive (end))
    {
       clearFormationNodeProperties ();
 
-      if (!computeFormationPropertyMaps (end, pressureRun) ||
-          !retrieveFormationCapillaryPressureMaps (end) ||
+      if (!computeFormationPropertyMaps (end, overPressureRun) ||
           !retrieveFormationPropertyMaps (end) ||
           !computeFormationNodeProperties (end) ||
-          !detectReservoirs (end, pressureRun) ||
+          !detectReservoirs (end, overPressureRun) ||
           !computeSMFlowPaths (start, end) ||
           !restoreFormationPropertyMaps (end) ||
           !loadExpulsionMaps (start, end) ||
           !chargeReservoirs (start, end) ||
-          !restoreFormationCapillaryPressureMaps (end) ||
           !unloadExpulsionMaps (end) ||
           !saveSMFlowPaths (start, end) ||
           !removeComputedFormationPropertyMaps ())
@@ -534,19 +538,21 @@ bool Migrator::retrieveFormationPropertyMaps (const Interface::Snapshot * end)
    Interface::FormationList * formations = getAllFormations ();
    Interface::FormationList::iterator formationIter;
 
+   bool retrieveCapillary = (m_hdynamicAndCapillary or m_reservoirDetection);
+
    for (formationIter = formations->begin (); formationIter != formations->end (); ++formationIter)
    {
       Formation * formation = Formation::CastToFormation (*formationIter);
 
       if (!formation->isActive (end)) continue;
 
-      if (!formation->retrievePropertyMaps ()) return false;
+      if (!formation->retrievePropertyMaps (retrieveCapillary)) return false;
    }
 
    return true;
 }
 
-bool Migrator::retrieveFormationCapillaryPressureMaps (const Interface::Snapshot * end)
+ /*bool Migrator::retrieveFormationCapillaryPressureMaps (const Interface::Snapshot * end)
 {
    Interface::FormationList * formations = getAllFormations ();
    Interface::FormationList::iterator formationIter;
@@ -561,25 +567,27 @@ bool Migrator::retrieveFormationCapillaryPressureMaps (const Interface::Snapshot
    }
 
    return true;
-}
+   }*/
 
 bool Migrator::restoreFormationPropertyMaps (const Interface::Snapshot * end)
 {
    Interface::FormationList * formations = getAllFormations ();
    Interface::FormationList::iterator formationIter;
 
+   bool restoreCapillary = (m_hdynamicAndCapillary or m_reservoirDetection);
+
    for (formationIter = formations->begin (); formationIter != formations->end (); ++formationIter)
    {
       Formation * formation = Formation::CastToFormation (*formationIter);
       if (!formation->isActive (end)) continue;
 
-      formation->restorePropertyMaps ();
+      formation->restorePropertyMaps (restoreCapillary);
    }
 
    return true;
 }
 
-bool Migrator::restoreFormationCapillaryPressureMaps (const Interface::Snapshot * end)
+   /*bool Migrator::restoreFormationCapillaryPressureMaps (const Interface::Snapshot * end)
 {
    Interface::FormationList * formations = getAllFormations ();
    Interface::FormationList::iterator formationIter;
@@ -593,7 +601,7 @@ bool Migrator::restoreFormationCapillaryPressureMaps (const Interface::Snapshot 
    }
 
    return true;
-}
+   }*/
 
 bool Migrator::computeFormationNodeProperties (const Interface::Snapshot * end)
 {
@@ -713,7 +721,7 @@ migration::Formation * Migrator::getBottomActiveReservoirFormation (const Interf
   ( difference between 0% saturation capillary pressure at current formation
   and 100% capillary pressure at lowermost cells of formation above ).
 */
-bool Migrator::detectReservoirs (const Interface::Snapshot * end, const bool pressureRun)
+bool Migrator::detectReservoirs (const Interface::Snapshot * end, const bool overPressureRun)
 {
    // first, find the the bottommost RESERVOIR formation where HC can go
    Formation *bottomSourceRockFormation = getBottomSourceRockFormation ();
@@ -771,7 +779,7 @@ bool Migrator::detectReservoirs (const Interface::Snapshot * end, const bool pre
 
       assert (reservoirFormation);
 
-      //Assigns top-row nodes of user-selected reservoirs as reservoir nodes, no need to identify the Reservoir here. Do this only for user-defined reservoirs
+      //Assigns nodes of user-selected reservoirs as reservoir nodes, no need to identify the Reservoir here. Do this only for user-defined reservoirs
       if (!getReservoirs (reservoirFormation)->empty () && !reservoirFormation->getDetectedReservoir ())
       {
          reservoirFormation->identifyAsReservoir ();
@@ -783,7 +791,7 @@ bool Migrator::detectReservoirs (const Interface::Snapshot * end, const bool pre
       if (m_reservoirDetection)
       {
          // In Reservoir formation flag specified nodes as reservoirs for oil or gas. Update the flag also for already detected reservoirs
-         reservoirFormation->detectReservoir (sealFormation, m_minOilColumnHeight, m_minGasColumnHeight, pressureRun, topActiveFormation);
+         reservoirFormation->detectReservoir (sealFormation, m_minOilColumnHeight, m_minGasColumnHeight, overPressureRun, topActiveFormation);
 
          // If the formation is already detected skip calculations otherwise detect crests that can hold hc
          if (reservoirFormation->detectReservoirCrests ())
@@ -820,19 +828,6 @@ bool Migrator::computeSMFlowPaths (const Interface::Snapshot * start, const Inte
    {
       if (!computeTargetFormationNodes (topActiveFormation, bottomSourceRockFormation)) return false;
    }
-   return true;
-}
-
-bool Migrator::computeTargetFormationNodes (const Interface::Snapshot * end)
-{
-   Formation * bottomSourceRockFormation = getBottomSourceRockFormation ();
-   if (!bottomSourceRockFormation) return false;
-
-   Formation * topActiveFormation = getTopActiveFormation (end);
-   if (!topActiveFormation) return false;
-   
-   if (!computeTargetFormationNodes (topActiveFormation, bottomSourceRockFormation))
-      return false;
 
    return true;
 }
@@ -923,9 +918,9 @@ bool Migrator::chargeReservoir (migration::Reservoir * reservoir, migration::Res
    reservoir->refineGeometry ();
 
    //We need to tell if it is a detected reservoir or not
-   migration::Formation * reservoirFormation = Formation::CastToFormation (reservoir->getFormation ());
-   if (reservoirFormation->getDetectedReservoir ())
-      reservoir->wasteNonReservoirColumns (end);
+   //migration::Formation * reservoirFormation = Formation::CastToFormation (reservoir->getFormation ());
+   //if (reservoirFormation->getDetectedReservoir ())
+      //reservoir->wasteNonReservoirColumns (end);
 
    // save only major snapshots results
    const bool saveSnapshot = end->getType () == Interface::MAJOR;
@@ -970,7 +965,6 @@ bool Migrator::chargeReservoir (migration::Reservoir * reservoir, migration::Res
       if (m_verticalMigration)
       {
          reservoir->collectLeakedCharges (reservoirBelow, barrier);
-      reservoir->migrateChargesToBeMigrated (0, reservoirBelow);
       }
       else
       {
@@ -1774,20 +1768,6 @@ void Migrator::renumberMigrationRecordTrap (const Interface::Snapshot * snapshot
          }
       }
    }
-}
-
-bool Migrator::isPressureRun (void) const
-{
-   const Property* prop = m_projectHandle->findProperty ("FCTCorrection");
-   assert (prop);
-
-   Interface::PropertyValueList * propertyValues =
-      m_projectHandle->getPropertyValues (Interface::FORMATION, prop, m_projectHandle->getSnapshots ()->front (), 0, 0, 0, Interface::MAP);
-
-   bool isNotEmpty = !propertyValues->empty ();
-
-   delete propertyValues;
-   return isNotEmpty;
 }
 
 const Interface::GridMap * Migrator::getPropertyGridMap (const string & propertyName, const Interface::Snapshot * snapshot,

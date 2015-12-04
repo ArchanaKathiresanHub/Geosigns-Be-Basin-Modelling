@@ -40,7 +40,6 @@ using namespace DataAccess;
 #include "SurfaceGridMap.h"
 #include "FormationSurfaceGridMaps.h"
 #include "RequestDefs.h"
-#include "FormationProperty.h"
 
 /// Formation Class
 namespace migration
@@ -62,8 +61,8 @@ namespace migration
 
       inline static Formation * CastToFormation (const Interface::Formation * formation);
 
-      bool computePropertyMaps (Interface::GridMap * topDepthGridMap, const Interface::Snapshot * snapshot, bool lowResEqualsHighRes,
-                                bool isPressureRun, bool nonGeometricLoop, bool chemicalCompaction);
+      bool computePropertyMaps (Interface::GridMap * topDepthGridMap, const Interface::Snapshot * snapshot, const bool lowResEqualsHighRes,
+                                const bool isPressureRun, const bool nonGeometricLoop, const bool chemicalCompaction);
 
       bool computeCapillaryPressureMaps (Interface::GridMap * topDepthGridMap, const Interface::Snapshot * snapshot);
 
@@ -107,6 +106,9 @@ namespace migration
       bool getDetectedReservoir() const;
       void setDetectedReservoir (bool detectedReservoir);
       void addDetectedReservoir (const Interface::Snapshot * start);
+
+      // Sets all top nodes of the given formation as ends of path due to the formation being a detected reservoir
+      void setEndOfPath (void);
 
       void saveReservoir (const Interface::Snapshot * curSnapshot);
 
@@ -157,8 +159,8 @@ namespace migration
       bool computeTargetFormationNode (unsigned int i, unsigned int j, int depthIndex);
       void prescribeTargetFormationNodes (void);
 
-      bool retrievePropertyMaps ();
-      bool restorePropertyMaps (void);
+      bool retrievePropertyMaps (bool retrieveCapillary);
+      bool restorePropertyMaps (bool restoreCapillary);
 
       bool retrieveCapillaryPressureMaps ();
       bool restoreCapillaryPressureMaps (void);
@@ -248,9 +250,6 @@ namespace migration
       // Map of all genex data
       Interface::GridMap* m_genexData;
 
-      // Sets all top nodes of the given formation as ends of path due to the formation being a detected reservoir
-      void setEndOfPath (void);
-
       bool computeInterpolator (const string & propertyName, const Interface::Snapshot *intervalStart, const Interface::Snapshot *intervalEnd,
                                 Genex6::LinearGridInterpolator& interpolator);
       bool extractGenexDataInterval (const Interface::Snapshot *intervalStart, const Interface::Snapshot *intervalEnd,
@@ -265,7 +264,7 @@ namespace migration
                                      Genex6::LinearGridInterpolator& vre);
 
       // loaded or computed grid maps
-      const Interface::GridMap * m_gridMaps[NUMBEROFPROPERTYINDICES];
+      DerivedProperties::FormationPropertyPtr m_formationPropertyPtr[NUMBEROFPROPERTYINDICES];
 
       GridMap * m_expulsionGridMaps[NUM_COMPONENTS];
       int m_index;
@@ -308,27 +307,7 @@ namespace migration
    {
       return getPropertyValue (VERTICALPERMEABILITYPROPERTY, i, j, k);
    }
-
-   double Formation::getCapillaryPressureGas100 (int i, int j, int k)
-   {
-      return getPropertyValue (CAPILLARYPRESSUREGAS100PROPERTY, i, j, k);
-   }
-
-   double Formation::getCapillaryPressureGas0 (int i, int j, int k)
-   {
-      return getPropertyValue (CAPILLARYPRESSUREGAS0PROPERTY, i, j, k);
-   }
-
-   double Formation::getCapillaryPressureOil100 (int i, int j, int k)
-   {
-      return getPropertyValue (CAPILLARYPRESSUREOIL100PROPERTY, i, j, k);
-   }
-
-   double Formation::getCapillaryPressureOil0 (int i, int j, int k)
-   {
-      return getPropertyValue (CAPILLARYPRESSUREOIL0PROPERTY, i, j, k);
-   }
-
+   /*
    double Formation::getGasDensity (int i, int j, int k)
    {
       return getPropertyValue (GASDENSITYPROPERTY, i, j, k);
@@ -337,7 +316,7 @@ namespace migration
    double Formation::getOilDensity (int i, int j, int k)
    {
       return getPropertyValue (OILDENSITYPROPERTY, i, j, k);
-   }
+      }*/
 
    double Formation::getPressure (int i, int j, int k)
    {
@@ -349,7 +328,7 @@ namespace migration
       return getPropertyValue (TEMPERATUREPROPERTY, i, j, k);
    }
 
-   const GridMap * & Formation::gridMap (PropertyIndex propertyIndex)
+   /*const GridMap * & Formation::gridMap (PropertyIndex propertyIndex)
    {
       return m_gridMaps[propertyIndex];
    }
@@ -407,7 +386,7 @@ namespace migration
    const GridMap * Formation::getCapPressureOil0GridMap (void) const
    {
       return getGridMap (CAPILLARYPRESSUREOIL0PROPERTY);
-   }
+      }*/
 
    bool Formation::performVerticalMigration (void) const
    {

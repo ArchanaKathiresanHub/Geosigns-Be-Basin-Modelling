@@ -71,7 +71,7 @@ namespace migration
       /// Compute the net/gross fractions
       bool computeNetToGross (void);
 
-      bool isPressureRun (void) const;
+      bool isHydrostaticCalculation (void) const;
 
       bool performSnapshotMigration (const Interface::Snapshot * start, const Interface::Snapshot * end, const bool pressureRun);
 

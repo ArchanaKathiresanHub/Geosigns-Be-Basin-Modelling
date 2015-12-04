@@ -229,7 +229,19 @@ namespace migration
       void computeAnalogFlowDirection (void);
       void determineThicknessProperties (void);
 
+      void setDepth (double);
+      void setPressure (double);
+      void setTemperature (double);
+      void setPorosity (double);
+      void setVerticalPermeability (double);
+      void setHorizontalPermeability (double);
       void setOverPressure (double);
+
+      void setGasDensity (double);
+      void setOilDensity (double);
+
+      void setCapillaryEntryPressureGas (double);
+      void setCapillaryEntryPressureOil (double);
 
       void computeAdjacentNode (void);
       void computeCosines (void);
@@ -244,10 +256,6 @@ namespace migration
 
       FormationNode *getAdjacentFormationNode (int directionIndex = -1);
       int getAdjacentFormationNodeGridOffset (int dimension);
-
-#ifdef USEDISCRETIZEDFLOWDIRECTIONS
-      double getDiscretizedFlowDirection (int direction);
-#endif
 
       virtual FormationNode *getTargetFormationNode (void);
       virtual bool computeTargetFormationNode (void);
@@ -273,8 +281,16 @@ namespace migration
       double getHorizontalPermeability ();
       double getVerticalPermeability ();
       double getPorosity ();
+      double getPressure ();
+      double getTemperature ();
       double getWaterDensity ();
       double getOverPressure ();
+
+      double getGasDensity ();
+      double getOilDensity ();
+
+      double getCapillaryEntryPressureGas ();
+      double getCapillaryEntryPressureOil ();
 
       void setReservoirGas (bool flag);
       void setReservoirOil (bool flag);
@@ -308,9 +324,6 @@ namespace migration
       FiniteElementMethod::FiniteElement m_finiteElement;
 
       FiniteElementMethod::ThreeVector m_analogFlowDirection;
-#ifdef USEDISCRETIZEDFLOWDIRECTIONS
-      FiniteElementMethod::ThreeVector m_discretizedFlowDirection;
-#endif
 
       LocalFormationNode * m_topFormationNode;
 #ifdef USEBOTTOMFORMATIONNODE
@@ -328,10 +341,18 @@ namespace migration
 #endif
 
       double m_depth;
+      double m_temperature;
+      double m_pressure;
       double m_horizontalPermeability;
       double m_verticalPermeability;
       double m_porosity;
       double m_overPressure;
+
+      double m_oilDensity;
+      double m_gasDensity;
+
+      double m_capillaryEntryPressureOil;
+      double m_capillaryEntryPressureGas;
 
       double m_height_oil;                     // actual height of oil (C6-14) column   (only for uppermost cells!)
       double m_height_gas;                     // actual height of gas (methane) column (only for uppermost cells!)
@@ -342,26 +363,22 @@ namespace migration
 
       int m_adjacentNodeIndex;                 // index into m_cosines of current adjacent node to use in computeAdjacentNode ()
       int m_selectedDirectionIndex;            // index into NeighbourOffsets3D of current adjacent node to use in computeTargetFormationNode (),
-      // derived using m_adjacentNodeIndex
+                                               // derived using m_adjacentNodeIndex
 
-      int m_tried;                             // Used to check whether computeTargetFormationNode () loops across multiple processors
+      int m_tried;
 
       bool m_entered;                          // Whether computeTargetFormationNode () loops
       bool m_hasNoThickness;                   // whether the node has thickness
 
       bool m_isReservoirGas;                   // true - if node is potential trap
       bool m_isReservoirOil;                   // true - if node is potential trap
-      bool m_isCrestOil;		       // true - if node is a crest for oil
+      bool m_isCrestOil;		                 // true - if node is a crest for oil
       bool m_isCrestGas;                       // true - if node is a crest for gas
 
       bool m_isEndOfPath;                      // true - if node is end of path. May even be a leaking (or zero-thickness) node
                                                // but it needs to be the end of the path to register it in the leaking reservoir.
 
       vector < IntDoublePair > *m_cosines;     // cosines of angles between the analog flow direction and the feasible discretized flow directions
-#ifdef USEDISCRETIZEDFLOWDIRECTIONS
-      vector < FiniteElementMethod::ThreeVector > * m_discretizedFlowDirections; // the feasible discretized flow directions
-#endif
-
    };
 
    bool IsValid (FormationNode * formationNode);
