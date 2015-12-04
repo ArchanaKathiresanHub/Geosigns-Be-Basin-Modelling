@@ -399,12 +399,11 @@ namespace migration
 #endif
 
 		Column * adjacentColumn = column;
+
 		// try to find a higher lying column
 		for (int n = 0; n < NumNeighbours; ++n)
 		{
 			Column *neighbourColumn = getColumn (column->getI () + NeighbourOffsets2D[n][I], column->getJ () + NeighbourOffsets2D[n][J]);
-
-                        
 
          if (!IsValid (neighbourColumn))
          {
@@ -1560,8 +1559,6 @@ namespace migration
                      column->setWasting(OIL);
                }
             }
-
-            column->resetProxies ();
          }
       }
 

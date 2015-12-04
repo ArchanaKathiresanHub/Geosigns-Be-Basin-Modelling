@@ -29,8 +29,6 @@
 #include "Interface/PropertyValue.h"
 #include "Interface/GridMap.h"
 #include "Interface/Grid.h"
-#include "PropertyRetriever.h"
-#include "DerivedFormationProperty.h"
 
 #include "Migrator.h"
 #include "MigrationPropertyManager.h"
@@ -84,8 +82,8 @@ namespace migration
          m_expulsionGridMaps[i] = NULL;
 
       // Initializing other data members for Windows build
-      //for (size_t i = 0; i != NUMBEROFPROPERTYINDICES; ++i)
-      //   m_derivedFormationPropertyPtr[i] = NULL;
+      for (size_t i = 0; i != NUMBEROFPROPERTYINDICES; ++i)
+         m_gridMaps[i] = NULL;
 
    }
 
@@ -101,130 +99,334 @@ namespace migration
    {
       if (m_formationNodeArray) return;
 
-      // Using the GeoPhysicsFormation function to get number of elements.
-      int depth = getMaximumNumberOfElements ();
-      assert (depth > 0);
+      const GridMap * formationGridMap = m_gridMaps[DEPTHPROPERTY];
+      assert (formationGridMap);
+      assert (formationGridMap->getGrid () == m_migrator->getProjectHandle ()->getActivityOutputGrid ());
 
-      // High-resolution grid
+      int depth = formationGridMap->getDepth ();
+      assert (depth > 1);
+
       const Grid * grid = m_migrator->getProjectHandle ()->getActivityOutputGrid ();
 
       m_formationNodeArray = new FormationNodeArray (this,
                                                      grid->numIGlobal () - 1, grid->numJGlobal () - 1,
                                                      grid->firstI (), Min (grid->lastI (), grid->numIGlobal () - 2),
-                                                     grid->firstJ (), Min (grid->lastJ (), grid->numJGlobal () - 2), depth);
+                                                     grid->firstJ (), Min (grid->lastJ (), grid->numJGlobal () - 2), depth - 1);
 
    }
 
    bool Formation::computePropertyMaps (Interface::GridMap * topDepthGridMap, const Interface::Snapshot * snapshot,
-                                        bool lowResEqualsHighRes, const bool isOverPressureRun, bool nonGeometricLoop, bool chemicalCompaction)
+                                        bool lowResEqualsHighRes, bool isPressureRun, bool nonGeometricLoop, bool chemicalCompaction)
    {
       assert (topDepthGridMap);
       const Grid *grid = m_projectHandle->getActivityOutputGrid ();
 
       assert (topDepthGridMap->getGrid () == grid);
 
-      // Calculate all properties at once
-      if ( (m_formationPropertyPtr[DEPTHPROPERTY]                  = getFormationPropertyPtr ("Depth", snapshot)) == 0 )  
+      unsigned int firstI = grid->firstI ();
+      unsigned int lastI = grid->lastI ();
+      unsigned int firstJ = grid->firstJ ();
+      unsigned int lastJ = grid->lastJ ();
+      unsigned int i, j;
+      int depth;
+
+      if (!hasVolumePropertyGridMap ("Ves", snapshot))
          return false;
-      if ( (m_formationPropertyPtr[PRESSUREPROPERTY]               = getFormationPropertyPtr ("Pressure", snapshot)) == 0 )  
+
+      if ((m_gridMaps[VESPROPERTY] = getVolumePropertyGridMap ("Ves", snapshot)) == 0)
          return false;
-      if ( (m_formationPropertyPtr[TEMPERATUREPROPERTY]            = getFormationPropertyPtr ("Temperature", snapshot)) == 0 )  
+      if ((m_gridMaps[MAXVESPROPERTY] = getVolumePropertyGridMap ("MaxVes", snapshot)) == 0)
          return false;
-      if ( (m_formationPropertyPtr[HORIZONTALPERMEABILITYPROPERTY] = getFormationPropertyPtr ("HorizontalPermeability", snapshot)) == 0 )  
+      if ((m_gridMaps[PRESSUREPROPERTY] = getVolumePropertyGridMap ("Pressure", snapshot)) == 0)
          return false;
-      if ( (m_formationPropertyPtr[VERTICALPERMEABILITYPROPERTY]   = getFormationPropertyPtr ("Permeability", snapshot)) == 0 )  
+      if ((m_gridMaps[TEMPERATUREPROPERTY] = getVolumePropertyGridMap ("Temperature", snapshot)) == 0)
          return false;
-      if ( (m_formationPropertyPtr[POROSITYPROPERTY]               = getFormationPropertyPtr ("Porosity", snapshot)) == 0 )  
-            return false;
-      if (isOverPressureRun)
+
+      // load or calculate the rest
+      if (lowResEqualsHighRes) // no reason to perform all these computations as we can just load the maps
       {
-         if ( (m_formationPropertyPtr[OVERPRESSUREPROPERTY]        = getFormationPropertyPtr ("OverPressure", snapshot)) == 0 )
+         FormationNode * getFormationNode (int i, int j, int k);
+
+         if ((m_gridMaps[DEPTHPROPERTY] = getVolumePropertyGridMap ("Depth", snapshot)) == 0)
+            return false;
+         if ((m_gridMaps[POROSITYPROPERTY] = getVolumePropertyGridMap ("Porosity", snapshot)) == 0)
+            return false;
+         if ((m_gridMaps[VERTICALPERMEABILITYPROPERTY] = getVolumePropertyGridMap ("Permeability", snapshot)) == 0)
+            return false;
+         if ((m_gridMaps[HORIZONTALPERMEABILITYPROPERTY] = getVolumePropertyGridMap ("HorizontalPermeability", snapshot)) == 0)
+            return false;
+	 if ((m_gridMaps[OVERPRESSUREPROPERTY] = getVolumePropertyGridMap("OverPressure", snapshot)) == 0)
+	    return false;
+
+         return true;
+      }
+
+      // Compute OverPressure if a pressure run.
+      if (isPressureRun)
+      {
+         DerivedProperties::FormationPropertyPtr gridMap = getFormationPropertyPtr ("OverPressure", snapshot);
+
+         if (gridMap == 0)
+         {
             return false;
          }
 
-         unsigned int depth = getMaximumNumberOfElements ();
-         assert (depth > 0);
+         unsigned int depth = gridMap->lengthK ();
+         assert (depth > 1);
 
          // Top series of domain nodes absent in fastmig so make sure they are not used
          if (!getTopFormation ())
             --depth;
 
-         // Using the PropertyRetriever class which ensures the retrieval and later on the restoration of property pointers
-         DerivedProperties::PropertyRetriever depthPropertyRetriever         (m_formationPropertyPtr[DEPTHPROPERTY]);
-         DerivedProperties::PropertyRetriever pressurePropertyRetriever      (m_formationPropertyPtr[PRESSUREPROPERTY]);
-         DerivedProperties::PropertyRetriever temperaturePropertyRetriever   (m_formationPropertyPtr[TEMPERATUREPROPERTY]);
-         DerivedProperties::PropertyRetriever porosityPropertyRetriever      (m_formationPropertyPtr[POROSITYPROPERTY]);
-         DerivedProperties::PropertyRetriever vPermeabilityPropertyRetriever (m_formationPropertyPtr[VERTICALPERMEABILITYPROPERTY]);
-         DerivedProperties::PropertyRetriever hPermeabilityPropertyRetriever (m_formationPropertyPtr[HORIZONTALPERMEABILITYPROPERTY]);
-         if (isOverPressureRun)
-            DerivedProperties::PropertyRetriever depthPropertyRetriever      (m_formationPropertyPtr[OVERPRESSUREPROPERTY]);
-
-
+         gridMap->retrieveData ();
          for (unsigned int i = m_formationNodeArray->firstILocal (); i <= m_formationNodeArray->lastILocal (); ++i)
          {
             for (unsigned int j = m_formationNodeArray->firstJLocal (); j <= m_formationNodeArray->lastJLocal (); ++j)
             {
-               for (unsigned int k = 0; k <= depth; ++k)
+               for (unsigned int k = 0; k < depth; ++k)
                {
                   LocalFormationNode * formationNode = getLocalFormationNode (i, j, k);
 
-                  formationNode->setDepth                  (m_formationPropertyPtr[DEPTHPROPERTY]                 ->get (i, j, k));
-                  formationNode->setPressure               (m_formationPropertyPtr[PRESSUREPROPERTY]              ->get (i, j, k));
-                  formationNode->setTemperature            (m_formationPropertyPtr[TEMPERATUREPROPERTY]           ->get (i, j, k));
-                  formationNode->setPorosity               (m_formationPropertyPtr[POROSITYPROPERTY]              ->get (i, j, k));
-                  formationNode->setVerticalPermeability   (m_formationPropertyPtr[VERTICALPERMEABILITYPROPERTY]  ->get (i, j, k));
-                  formationNode->setHorizontalPermeability (m_formationPropertyPtr[HORIZONTALPERMEABILITYPROPERTY]->get (i, j, k));
-                  if (isOverPressureRun)
-                     formationNode->setOverPressure        (m_formationPropertyPtr[OVERPRESSUREPROPERTY]          ->get (i, j, k));
+                  formationNode->setOverPressure (gridMap->get (i, j, k));
                }
             }
          }
+         gridMap->restoreData ();
+      }
+
+      SmartGridMapRetrieval    vesPropertyGridMapRetrieval (m_gridMaps[VESPROPERTY], false);
+      SmartGridMapRetrieval maxVesPropertyGridMapRetrieval (m_gridMaps[MAXVESPROPERTY], false);
+
+      // load or calculate porosities
+      if (chemicalCompaction)
+      {
+         if ((m_gridMaps[POROSITYPROPERTY] = getVolumePropertyGridMap ("Porosity", snapshot)) == 0)
+            return false;
+      }
+      else
+      {
+         GridMap *porosityGridMap = m_projectHandle->getFactory ()->produceGridMap (0, 0, grid,
+                                                                                    Interface::DefaultUndefinedMapValue, getGridMapDepth ());
+
+         m_gridMaps[POROSITYPROPERTY] = porosityGridMap;
+         SmartGridMapRetrieval porosityGridMapRetrieval (porosityGridMap, true);
+
+         for (depth = porosityGridMap->getDepth () - 1; depth >= 0; --depth)
+         {
+            for (i = firstI; i <= lastI; ++i)
+            {
+               for (j = firstJ; j <= lastJ; ++j)
+               {
+                  double ves = m_gridMaps[VESPROPERTY]->getValue (i, j, (unsigned int) depth);
+                  double maxVes = m_gridMaps[MAXVESPROPERTY]->getValue (i, j, (unsigned int) depth);
+
+                  if (ves != m_gridMaps[VESPROPERTY]->getUndefinedValue () && maxVes != m_gridMaps[MAXVESPROPERTY]->getUndefinedValue ())
+                  {
+                     double porosity = getCompoundLithology (i, j)->porosity (ves, maxVes, 0.0, false);
+
+                     porosityGridMap->setValue (i, j, (unsigned int) depth, porosity * Fraction2Percentage);
+                  }
+               }
+            }
+         }
+      }
+
+      getCompoundLithologyArray ().setCurrentLithologies (snapshot->getTime ());
+
+      GridMap *depthGridMap = m_projectHandle->getFactory ()->produceGridMap (0, 0, grid,
+                                                                              Interface::DefaultUndefinedMapValue, getGridMapDepth ());
+
+      m_gridMaps[DEPTHPROPERTY] = depthGridMap;
+
+      // to be used
+      SmartGridMapRetrieval porosityGridMapRetrieval (m_gridMaps[POROSITYPROPERTY], false);
+
+      // to be produced
+      SmartGridMapRetrieval topDepthGridMapRetrieval (topDepthGridMap, true);
+      SmartGridMapRetrieval depthGridMapRetrieval (depthGridMap, true);
+
+      // calculate depths
+      for (i = firstI; i <= lastI; ++i)
+      {
+         for (j = firstJ; j <= lastJ; ++j)
+         {
+            bool firstTime = true;
+            double topDepth = topDepthGridMap->getValue (i, j);
+
+            bool depthIsDefined = (topDepth != topDepthGridMap->getUndefinedValue ());
+
+            for (depth = depthGridMap->getDepth () - 1; depth >= 0; --depth)
+            {
+               double porosityBottom;
+               double porosityTop;
+               double realThickness = Interface::DefaultUndefinedScalarValue;
+
+               if (!firstTime && depthIsDefined)
+               {
+                  if (isPressureRun && nonGeometricLoop)
+                  {
+                     realThickness = getRealThickness (i, j, (unsigned int) depth, snapshot->getTime ());
+                  }
+                  else
+                  {
+                     porosityBottom = m_gridMaps[POROSITYPROPERTY]->getValue (i, j, (unsigned int) depth);
+                     porosityTop = m_gridMaps[POROSITYPROPERTY]->getValue (i, j, (unsigned int) depth + 1);
+
+                     if (porosityBottom != m_gridMaps[POROSITYPROPERTY]->getUndefinedValue () && porosityTop != m_gridMaps[POROSITYPROPERTY]->getUndefinedValue ())
+                     {
+                        // porosity expected in fractions
+                        porosityBottom *= Percentage2Fraction;
+                        porosityTop *= Percentage2Fraction;
+                        realThickness = computeRealThickness (i, j, (unsigned int) depth, porosityTop, porosityBottom, snapshot->getTime ());
+                     }
+                  }
+
+                  if (realThickness == Interface::DefaultUndefinedScalarValue)
+                  {
+                     realThickness = 0;
+                  }
+
+                  topDepth += realThickness;
+               }
+
+               depthGridMap->setValue (i, j, (unsigned int) depth, topDepth);
+
+#if 0
+               if (!depthIsDefined)
+               {
+                  cerr << "depthIsDefined = " << depthIsDefined << endl;
+                  cerr << "porosityTop = " << porosityTop << endl;
+                  cerr << "porosityBottom = " << porosityBottom << endl;
+                  cerr << "realThickness = " << realThickness << endl;
+                  cerr << "topDepth = " << topDepth << endl;
+                  cerr << "undefined = " << topDepthGridMap->getUndefinedValue () << endl;
+                  cerr << getName () << "->depth (" << i << ", " << j << ", " << depth << ") = " << topDepth << endl;
+                  cerr << endl;
+               }
+#endif
+
+               firstTime = false;
+            }
+
+            topDepthGridMap->setValue (i, j, topDepth);
+         }
+      }
+
+      // calculate permeabilities
+      GridMap *horizontalPermeabilityGridMap = m_projectHandle->getFactory ()->produceGridMap (0, 0, grid,
+                                                                                               Interface::DefaultUndefinedMapValue, getGridMapDepth ());
+      m_gridMaps[HORIZONTALPERMEABILITYPROPERTY] = horizontalPermeabilityGridMap;
+      SmartGridMapRetrieval horizontalPermeabilityGridMapRetrieval (horizontalPermeabilityGridMap, true);
+
+      GridMap *verticalPermeabilityGridMap = m_projectHandle->getFactory ()->produceGridMap (0, 0, grid,
+                                                                                             Interface::DefaultUndefinedMapValue, getGridMapDepth ());
+      m_gridMaps[VERTICALPERMEABILITYPROPERTY] = verticalPermeabilityGridMap;
+      SmartGridMapRetrieval verticalPermeabilityGridMapRetrieval (verticalPermeabilityGridMap, true);
+
+      for (depth = horizontalPermeabilityGridMap->getDepth () - 1; depth >= 0; --depth)
+      {
+         for (i = firstI; i <= lastI; ++i)
+         {
+            for (j = firstJ; j <= lastJ; ++j)
+            {
+               double ves = m_gridMaps[VESPROPERTY]->getValue (i, j, (unsigned int) depth);
+               double maxVes = m_gridMaps[MAXVESPROPERTY]->getValue (i, j, (unsigned int) depth);
+               double porosity = m_gridMaps[POROSITYPROPERTY]->getValue (i, j, (unsigned int) depth);
+
+               if (ves != m_gridMaps[VESPROPERTY]->getUndefinedValue () &&
+                   maxVes != m_gridMaps[MAXVESPROPERTY]->getUndefinedValue () &&
+                   porosity != m_gridMaps[POROSITYPROPERTY]->getUndefinedValue ())
+               {
+                  double horizontalPermeability;
+                  double verticalPermeability;
+
+                  porosity *= Percentage2Fraction;
+
+                  getCompoundLithology (i, j)->calcBulkPermeabilityNP (ves, maxVes, porosity, verticalPermeability, horizontalPermeability);
+                  verticalPermeability *= GeoPhysics::M2TOMILLIDARCY;
+                  horizontalPermeability *= GeoPhysics::M2TOMILLIDARCY;
+
+                  horizontalPermeabilityGridMap->setValue (i, j, (unsigned int) depth, horizontalPermeability);
+                  verticalPermeabilityGridMap->setValue (i, j, (unsigned int) depth, verticalPermeability);
+               }
+            }
+         }
+      }
+
       return true;
    }
 
    bool Formation::computeCapillaryPressureMaps (Interface::GridMap * topDepthGridMap, const Interface::Snapshot * snapshot)
    {
+
       assert (topDepthGridMap);
       const Grid *grid = m_projectHandle->getActivityOutputGrid ();
 
       assert (topDepthGridMap->getGrid () == grid);
 
-      unsigned int depth = getMaximumNumberOfElements ();
-      assert (depth > 0);
-      if (!getTopFormation ())
-          --depth;
+      if (!hasVolumePropertyGridMap ("Ves", snapshot))
+         return false;
 
-      const DataModel::AbstractProperty* gasPcE = m_migrator->getPropertyManager ().getProperty ( "CapillaryEntryPressureGas" );
-      const DataModel::AbstractProperty* oilPcE = m_migrator->getPropertyManager ().getProperty ( "CapillaryEntryPressureOil" );
+      GridMap *capillaryPressureGas100GridMap = m_projectHandle->getFactory ()->produceGridMap (0, 0, grid,
+                                                                                                Interface::DefaultUndefinedMapValue, getGridMapDepth ());
 
-      DerivedProperties::DerivedFormationPropertyPtr ptrGasPcE = DerivedProperties::DerivedFormationPropertyPtr ( new DerivedProperties::DerivedFormationProperty (gasPcE, snapshot, this, grid, depth + 1) );
-      assert (ptrGasPcE);
-      DerivedProperties::DerivedFormationPropertyPtr ptrOilPcE = DerivedProperties::DerivedFormationPropertyPtr ( new DerivedProperties::DerivedFormationProperty (oilPcE, snapshot, this, grid, depth + 1) );
-      assert (ptrOilPcE);
-      m_formationPropertyPtr[CAPILLARYENTRYPRESSUREGASPROPERTY] = ptrGasPcE;
-      m_formationPropertyPtr[CAPILLARYENTRYPRESSUREOILPROPERTY] = ptrOilPcE;
+      GridMap *capillaryPressureOil100GridMap = m_projectHandle->getFactory ()->produceGridMap (0, 0, grid,
+                                                                                                Interface::DefaultUndefinedMapValue, getGridMapDepth ());
 
-      for (int k = depth; k >= 0; --k)
+
+      m_gridMaps[CAPILLARYPRESSUREGAS100PROPERTY] = capillaryPressureGas100GridMap;
+      m_gridMaps[CAPILLARYPRESSUREOIL100PROPERTY] = capillaryPressureOil100GridMap;
+
+      //Required properties to compute capillary pressures
+      SmartGridMapRetrieval vesPropertyGridMapRetrieval (m_gridMaps[VESPROPERTY], false);
+      SmartGridMapRetrieval maxVesPropertyGridMapRetrieval (m_gridMaps[MAXVESPROPERTY], false);
+      SmartGridMapRetrieval porosityPropertyGridMapRetrieval (m_gridMaps[POROSITYPROPERTY], false);
+
+      SmartGridMapRetrieval gasDensityPropertyGridMapRetrieval (m_gridMaps[GASDENSITYPROPERTY], false);
+      SmartGridMapRetrieval oilDensityPropertyGridMapRetrieval (m_gridMaps[OILDENSITYPROPERTY], false);
+      SmartGridMapRetrieval temperaturePropertyGridMapRetrieval (m_gridMaps[TEMPERATUREPROPERTY], false);
+      SmartGridMapRetrieval pressurePropertyGridMapRetrieval (m_gridMaps[PRESSUREPROPERTY], false);
+      SmartGridMapRetrieval verticalPermeabilityPropertyGridMapRetrieval (m_gridMaps[VERTICALPERMEABILITYPROPERTY], false);
+
+      SmartGridMapRetrieval capillaryPressureGas100GridMapRetrieval (capillaryPressureGas100GridMap, true);
+      SmartGridMapRetrieval capillaryPressureOil100GridMapRetrieval (capillaryPressureOil100GridMap, true);
+
+      unsigned int firstI = grid->firstI ();
+      unsigned int lastI = grid->lastI ();
+      unsigned int firstJ = grid->firstJ ();
+      unsigned int lastJ = grid->lastJ ();
+      unsigned int i, j;
+      int k;
+
+      for (k = capillaryPressureGas100GridMap->getDepth () - 1; k >= 0; --k)
+      {
+         for (i = firstI; i <= lastI; ++i)
          {
-         for (unsigned int i = m_formationNodeArray->firstILocal (); i <= m_formationNodeArray->lastILocal (); ++i)
+            for (j = firstJ; j <= lastJ; ++j)
             {
-            for (unsigned int j = m_formationNodeArray->firstJLocal (); j <= m_formationNodeArray->lastJLocal (); ++j)
+               double ves = m_gridMaps[VESPROPERTY]->getValue (i, j, (unsigned int) k);
+               double maxVes = m_gridMaps[MAXVESPROPERTY]->getValue (i, j, (unsigned int) k);
+               double porosity = m_gridMaps[POROSITYPROPERTY]->getValue (i, j, (unsigned int) k);
+
+               if (ves != m_gridMaps[VESPROPERTY]->getUndefinedValue () &&
+                   maxVes != m_gridMaps[MAXVESPROPERTY]->getUndefinedValue () &&
+                   porosity != m_gridMaps[POROSITYPROPERTY]->getUndefinedValue ())
                {
-               LocalFormationNode * formationNode = getLocalFormationNode (i,j,k);
-               if (!formationNode)
-                  continue;
+                  double capillaryPressureGas100 (Interface::DefaultUndefinedMapValue);
+                  double capillaryPressureOil100 (Interface::DefaultUndefinedMapValue);
+                  const GeoPhysics::FluidType * fluid = (GeoPhysics::FluidType *) getFluidType ();
 
-               double pressure      = formationNode->getPressure ();
-               double temperature   = formationNode->getTemperature ();
-               double vPermeability = formationNode->getVerticalPermeability ();
-               double oilDensity    = formationNode->getOilDensity ();
+                  double gasDensity = m_gridMaps[GASDENSITYPROPERTY]->getValue (i, j, (unsigned int) k);
+                  double oilDensity = m_gridMaps[OILDENSITYPROPERTY]->getValue (i, j, (unsigned int) k);
+                  double tempValue = m_gridMaps[TEMPERATUREPROPERTY]->getValue (i, j, (unsigned int) k);
+                  double pressValue = m_gridMaps[PRESSUREPROPERTY]->getValue (i, j, (unsigned int) k);
+                  double permeability = m_gridMaps[VERTICALPERMEABILITYPROPERTY]->getValue (i, j, (unsigned int) k);
 
-               const GeoPhysics::FluidType * fluid = (GeoPhysics::FluidType *) getFluidType ();               
-               double waterDensity = fluid->density (temperature, pressure);
+                  double waterDensity = fluid->density (tempValue, pressValue);
 
                   // Do not assign any value and continue 
-               if (formationNode->getGasDensity () == Interface::DefaultUndefinedMapValue or
-                   formationNode->getOilDensity () == Interface::DefaultUndefinedMapValue or
+                  if (gasDensity == Interface::DefaultUndefinedMapValue ||
+                      oilDensity == Interface::DefaultUndefinedMapValue ||
                       waterDensity <= 0.0)
                      continue;
 
@@ -234,29 +436,30 @@ namespace migration
                   const double capC1 = getCompoundLithology (i, j)->capC1 ();
                   const double capC2 = getCompoundLithology (i, j)->capC2 ();
 
-               double capSealStrength_Air_Hg = CBMGenerics::capillarySealStrength::capSealStrength_Air_Hg (capC1, capC2, vPermeability);
+                  double capSealStrength_Air_Hg = CBMGenerics::capillarySealStrength::capSealStrength_Air_Hg (capC1, capC2, permeability);
 
-               double oilIFT = CBMGenerics::capillarySealStrength::capTension_H2O_HC (waterDensity, oilDensity, temperature + CBMGenerics::C2K, hcTempValueOil);
+                  double oilIFT = CBMGenerics::capillarySealStrength::capTension_H2O_HC (waterDensity, oilDensity, tempValue + CBMGenerics::C2K, hcTempValueOil);
+                  // double gasIFT = CBMGenerics::capillarySealStrength::capTension_H2O_HC (waterDensity, gasDensity, tempValue + CBMGenerics::C2K, hcTempValueGas);
 
                   // Considers 180 deg. angle between H2O and HC (strictly speaking not true for oil)
-               double capillaryEntryPressureOil = CBMGenerics::capillarySealStrength::capSealStrength_H2O_HC (capSealStrength_Air_Hg, oilIFT);
-               double capillaryEntryPressureGas = capillaryEntryPressureOil + capillaryEntryPressureOilGas (vPermeability, pressure, capC1, capC2);
+                  capillaryPressureOil100 = CBMGenerics::capillarySealStrength::capSealStrength_H2O_HC (capSealStrength_Air_Hg, oilIFT);
+                  capillaryPressureGas100 = capillaryPressureOil100 + capillaryEntryPressureOilGas (permeability, pressValue, capC1, capC2);
 
-               if (capillaryEntryPressureOil == Interface::DefaultUndefinedMapValue and capillaryEntryPressureGas == Interface::DefaultUndefinedMapValue)
+                  if (capillaryPressureOil100 == Interface::DefaultUndefinedMapValue && capillaryPressureGas100 == Interface::DefaultUndefinedMapValue)
                   {
                      continue;
                   }
                   else
                   {
-                  ptrGasPcE->set( i, j, (unsigned int) k, capillaryEntryPressureGas);
-                  ptrOilPcE->set( i, j, (unsigned int) k, capillaryEntryPressureOil);
+                     capillaryPressureGas100GridMap->setValue (i, j, (unsigned int) k, capillaryPressureGas100);
+                     capillaryPressureOil100GridMap->setValue (i, j, (unsigned int) k, capillaryPressureOil100);
+                  }
 
-                  formationNode->setCapillaryEntryPressureGas (capillaryEntryPressureGas);
-                  formationNode->setCapillaryEntryPressureOil (capillaryEntryPressureOil);
                }
             }
          }
       }
+
 
       return true;
    }
@@ -283,27 +486,52 @@ namespace migration
    {
       for (unsigned int i = 0; i < NUMBEROFPROPERTYINDICES; ++i)
       {
-         //delete m_gridMaps[i];
-         //m_gridMaps[i] = 0;
+         delete m_gridMaps[i];
+         m_gridMaps[i] = 0;
       }
       return true;
    }
 
    bool Formation::computeHCDensityMaps ()
    {
-      const Grid *grid    = m_projectHandle->getActivityOutputGrid ();
+      if (m_gridMaps[TEMPERATUREPROPERTY] == 0 || m_gridMaps[PRESSUREPROPERTY] == 0)
+         return false;
 
-      int depth = getMaximumNumberOfElements ();
-      // Top series of domain nodes absent in fastmig so make sure they are not used
-      if (!getTopFormation ())
-          --depth;
+      const Grid *grid = m_projectHandle->getActivityOutputGrid ();
+      unsigned int firstI = grid->firstI ();
+      unsigned int lastI = grid->lastI ();
+      unsigned int firstJ = grid->firstJ ();
+      unsigned int lastJ = grid->lastJ ();
+      unsigned int i, j;
+      int depth;
 
-      double compMasses[CBMGenerics::ComponentManager::NumberOfSpeciesToFlash];
-      double phaseCompMasses[CBMGenerics::ComponentManager::NumberOfPhases][CBMGenerics::ComponentManager::NumberOfSpeciesToFlash];
-      double phaseDensity[CBMGenerics::ComponentManager::NumberOfSpeciesToFlash];
-      double phaseViscosity[CBMGenerics::ComponentManager::NumberOfSpeciesToFlash];      
+      GridMap *oilDensityGridMap = m_projectHandle->getFactory ()->produceGridMap (0, 0, grid,
+                                                                                   Interface::DefaultUndefinedMapValue,
+                                                                                   getGridMapDepth ());
 
-      for(int nc = 0; nc != CBMGenerics::ComponentManager::NumberOfSpeciesToFlash ;++nc)
+      m_gridMaps[OILDENSITYPROPERTY] = oilDensityGridMap;
+      GridMap *gasDensityGridMap = m_projectHandle->getFactory ()->produceGridMap (0, 0, grid,
+                                                                                   Interface::DefaultUndefinedMapValue,
+                                                                                   getGridMapDepth ());
+
+      m_gridMaps[GASDENSITYPROPERTY] = gasDensityGridMap;
+
+#if 0
+      cerr << "Compute density maps formation " << getName () << endl;
+#endif
+
+      SmartGridMapRetrieval oilDensityGridMapRetrieval (oilDensityGridMap, true);
+      SmartGridMapRetrieval gasDensityGridMapRetrieval (gasDensityGridMap, true);
+
+      SmartGridMapRetrieval temperatureGridMapRetrieval (m_gridMaps[TEMPERATUREPROPERTY], false);
+      SmartGridMapRetrieval pressureGridMapRetrieval (m_gridMaps[PRESSUREPROPERTY], false);
+
+      double  compMasses[CBMGenerics::ComponentManager::NumberOfSpeciesToFlash];
+      double  phaseCompMasses[CBMGenerics::ComponentManager::NumberOfPhases][CBMGenerics::ComponentManager::NumberOfSpeciesToFlash];
+      double  phaseDensity[CBMGenerics::ComponentManager::NumberOfSpeciesToFlash];
+      double  phaseViscosity[CBMGenerics::ComponentManager::NumberOfSpeciesToFlash];
+   
+      for(int nc=0; nc != CBMGenerics::ComponentManager::NumberOfSpeciesToFlash ;++nc)
       {
 						 
          if(nc == CBMGenerics::ComponentManager::C1 or nc == CBMGenerics::ComponentManager::C6Minus14Sat) 
@@ -317,31 +545,36 @@ namespace migration
          phaseViscosity[nc]=0;
       }
 
-      for (int k = depth; k >= 0; --k)
+      for (depth = oilDensityGridMap->getDepth () - 1; depth >= 0; --depth)
       {
-         for (unsigned int i = m_formationNodeArray->firstILocal (); i <= m_formationNodeArray->lastILocal (); ++i)
+         for (i = firstI; i <= lastI; ++i)
          {
-            for (unsigned int j = m_formationNodeArray->firstJLocal (); j <= m_formationNodeArray->lastJLocal (); ++j)
+            for (j = firstJ; j <= lastJ; ++j)
             {
-               LocalFormationNode * formationNode = getLocalFormationNode (i,j,k);
-               if (!formationNode)
-                  continue;
+               double tempValue = m_gridMaps[TEMPERATUREPROPERTY]->getValue (i, j, (unsigned int) depth);
+               double pressValue = m_gridMaps[PRESSUREPROPERTY]->getValue (i, j, (unsigned int) depth);
 
-               double temperature = formationNode->getTemperature ();
-               double pressure    = formationNode->getPressure ();
-
-               if (formationNode->getTemperature () != Interface::DefaultUndefinedMapValue and
-                   formationNode->getPressure ()    != Interface::DefaultUndefinedMapValue)
+               if (tempValue != m_gridMaps[TEMPERATUREPROPERTY]->getUndefinedValue () &&
+                   pressValue != m_gridMaps[PRESSUREPROPERTY]->getUndefinedValue ())
                {
-                  pvtFlash::EosPack::getInstance ().compute (temperature + CBMGenerics::C2K, pressure * CBMGenerics::MPa2Pa,
+                  int gasComponent = pvtFlash::C1;
+                  int oilComponent = pvtFlash::C6_14SAT;
+
+                  int gasPhase, oilPhase;
+                  double gasDensity, oilDensity;
+                  double gasViscosity, oilViscosity;
+
+                  pvtFlash::EosPack::getInstance ().compute (tempValue + CBMGenerics::C2K, pressValue * CBMGenerics::MPa2Pa,
                                                              compMasses, phaseCompMasses, phaseDensity, phaseViscosity);
 
-                  formationNode->setGasDensity (phaseDensity[CBMGenerics::ComponentManager::C1]);
-                  formationNode->setOilDensity (phaseDensity[CBMGenerics::ComponentManager::C6Minus14Sat]);
+
+                  gasDensityGridMap->setValue (i, j, (unsigned int) depth, phaseDensity[ CBMGenerics::ComponentManager::C1]);
+                  oilDensityGridMap->setValue (i, j, (unsigned int) depth, phaseDensity[ CBMGenerics::ComponentManager::C6Minus14Sat]);
                }
             }
          }
       }
+
       return true;
    }
 
@@ -465,14 +698,15 @@ namespace migration
       }
       else
       {
-         if (!m_formationPropertyPtr[propertyIndex])
+         const GridMap * gridMap = getGridMap (propertyIndex);
+         if (!gridMap)
          {
             value = Interface::DefaultUndefinedMapValue;
          }
          else
          {
-            value = m_formationPropertyPtr[propertyIndex]->get ((unsigned int) i, (unsigned int) j, (unsigned int) k);
-            if (value == Interface::DefaultUndefinedMapValue) value = Interface::DefaultUndefinedMapValue;
+            value = gridMap->getValue ((unsigned int) i, (unsigned int) j, (unsigned int) k);
+            if (value == gridMap->getUndefinedValue ()) value = Interface::DefaultUndefinedMapValue;
          }
       }
 
@@ -514,6 +748,8 @@ namespace migration
          allComputed = true;
          for (Formation * formation = targetFormation; formation != getBottomFormation (); formation = (Formation *) formation->getBottomFormation ())
          {
+            if (formation->m_detectedReservoir)
+               formation->setEndOfPath ();
             int minDepthIndex = (formation == this ? formation->getNodeDepth () - 1 : 0);
             int maxDepthIndex = (formation == targetFormation ? formation->getNodeDepth () - 2 : formation->getNodeDepth () - 1);
 
@@ -540,9 +776,9 @@ namespace migration
       {
          allComputed = true;
          int targetNodesToCompute = 0;
-         for (int i = m_formationNodeArray->firstILocal (); i <= m_formationNodeArray->lastILocal (); ++i)
+         for (unsigned int i = m_formationNodeArray->firstILocal (); i <= m_formationNodeArray->lastILocal (); ++i)
          {
-            for (int j = m_formationNodeArray->firstJLocal (); j <= m_formationNodeArray->lastJLocal (); ++j)
+            for (unsigned int j = m_formationNodeArray->firstJLocal (); j <= m_formationNodeArray->lastJLocal (); ++j)
             {
                if (!computeTargetFormationNode (i, j, depthIndex))
                {
@@ -576,7 +812,7 @@ namespace migration
       {
          for (unsigned int j = m_formationNodeArray->firstJLocal (); j <= m_formationNodeArray->lastJLocal (); ++j)
          {
-            getLocalFormationNode (i, j, depthIndex)->setEndOfPath ();
+            getLocalFormationNode (i, j, depthIndex)->prescribeTargetFormationNode ();
          }
       }
    }
@@ -947,38 +1183,36 @@ namespace migration
       return true;
    }
 
-   bool Formation::retrievePropertyMaps (bool retrieveCapillary)
+   bool Formation::retrievePropertyMaps (void)
    {
-      assert (m_formationPropertyPtr[DEPTHPROPERTY]);
-      m_formationPropertyPtr[DEPTHPROPERTY]->retrieveData ();
+      assert (m_gridMaps[DEPTHPROPERTY]);
+      m_gridMaps[DEPTHPROPERTY]->retrieveData (true);
 
-      assert (m_formationPropertyPtr[VERTICALPERMEABILITYPROPERTY]);
-      m_formationPropertyPtr[VERTICALPERMEABILITYPROPERTY]->retrieveData ();
+      assert (m_gridMaps[VERTICALPERMEABILITYPROPERTY]);
+      m_gridMaps[VERTICALPERMEABILITYPROPERTY]->retrieveData (true);
 
-      assert (m_formationPropertyPtr[HORIZONTALPERMEABILITYPROPERTY]);
-      m_formationPropertyPtr[HORIZONTALPERMEABILITYPROPERTY]->retrieveData ();
+      assert (m_gridMaps[HORIZONTALPERMEABILITYPROPERTY]);
+      m_gridMaps[HORIZONTALPERMEABILITYPROPERTY]->retrieveData (true);
 
-      assert (m_formationPropertyPtr[POROSITYPROPERTY]);
-      m_formationPropertyPtr[POROSITYPROPERTY]->retrieveData ();
+      assert (m_gridMaps[POROSITYPROPERTY]);
+      m_gridMaps[POROSITYPROPERTY]->retrieveData (true);
 
-      assert (m_formationPropertyPtr[TEMPERATUREPROPERTY]);
-      m_formationPropertyPtr[TEMPERATUREPROPERTY]->retrieveData ();
+      assert (m_gridMaps[TEMPERATUREPROPERTY]);
+      m_gridMaps[TEMPERATUREPROPERTY]->retrieveData (true);
 
-      assert (m_formationPropertyPtr[PRESSUREPROPERTY]);
-      m_formationPropertyPtr[PRESSUREPROPERTY]->retrieveData ();
+      assert (m_gridMaps[PRESSUREPROPERTY]);
+      m_gridMaps[PRESSUREPROPERTY]->retrieveData (true);
 
-      if (retrieveCapillary)
-      {
-         assert (m_formationPropertyPtr[CAPILLARYENTRYPRESSUREGASPROPERTY]);
-         m_formationPropertyPtr[CAPILLARYENTRYPRESSUREGASPROPERTY]->retrieveData ();
+      assert (m_gridMaps[GASDENSITYPROPERTY]);
+      m_gridMaps[GASDENSITYPROPERTY]->retrieveData (true);
 
-         assert (m_formationPropertyPtr[CAPILLARYENTRYPRESSUREOILPROPERTY]);
-         m_formationPropertyPtr[CAPILLARYENTRYPRESSUREOILPROPERTY]->retrieveData ();
-      }
+      assert (m_gridMaps[OILDENSITYPROPERTY]);
+      m_gridMaps[OILDENSITYPROPERTY]->retrieveData (true);
+
       return true;
    }
 
-   /*bool Formation::retrieveCapillaryPressureMaps ()
+   bool Formation::retrieveCapillaryPressureMaps ()
    {
       if (performHDynamicAndCapillary () or performReservoirDetection ())
       {
@@ -991,40 +1225,40 @@ namespace migration
       }
 
       return true;
-      }*/
+   }
 
-   bool Formation::restorePropertyMaps (bool restoreCapillary)
+   bool Formation::restorePropertyMaps (void)
    {
-      assert (m_formationPropertyPtr[DEPTHPROPERTY]);
-      m_formationPropertyPtr[DEPTHPROPERTY]->restoreData ();
+      assert (m_gridMaps[DEPTHPROPERTY]);
+      m_gridMaps[DEPTHPROPERTY]->restoreData ();
 
-      assert (m_formationPropertyPtr[VERTICALPERMEABILITYPROPERTY]);
-      m_formationPropertyPtr[VERTICALPERMEABILITYPROPERTY]->restoreData ();
+      assert (m_gridMaps[VERTICALPERMEABILITYPROPERTY]);
+      m_gridMaps[VERTICALPERMEABILITYPROPERTY]->restoreData ();
 
-      assert (m_formationPropertyPtr[HORIZONTALPERMEABILITYPROPERTY]);
-      m_formationPropertyPtr[HORIZONTALPERMEABILITYPROPERTY]->restoreData ();
+      assert (m_gridMaps[HORIZONTALPERMEABILITYPROPERTY]);
+      m_gridMaps[HORIZONTALPERMEABILITYPROPERTY]->restoreData ();
 
-      assert (m_formationPropertyPtr[POROSITYPROPERTY]);
-      m_formationPropertyPtr[POROSITYPROPERTY]->restoreData ();
+      assert (m_gridMaps[POROSITYPROPERTY]);
+      m_gridMaps[POROSITYPROPERTY]->restoreData ();
 
-      assert (m_formationPropertyPtr[TEMPERATUREPROPERTY]);
-      m_formationPropertyPtr[TEMPERATUREPROPERTY]->restoreData ();
-
-      assert (m_formationPropertyPtr[PRESSUREPROPERTY]);
-      m_formationPropertyPtr[PRESSUREPROPERTY]->restoreData ();
-
-      if (restoreCapillary)
+      if (performHDynamicAndCapillary ())
       {
-         assert (m_formationPropertyPtr[CAPILLARYENTRYPRESSUREGASPROPERTY]);
-         m_formationPropertyPtr[CAPILLARYENTRYPRESSUREGASPROPERTY]->restoreData ();
+         assert (m_gridMaps[TEMPERATUREPROPERTY]);
+         m_gridMaps[TEMPERATUREPROPERTY]->restoreData ();
 
-         assert (m_formationPropertyPtr[CAPILLARYENTRYPRESSUREOILPROPERTY]);
-         m_formationPropertyPtr[CAPILLARYENTRYPRESSUREOILPROPERTY]->restoreData ();
+         assert (m_gridMaps[PRESSUREPROPERTY]);
+         m_gridMaps[PRESSUREPROPERTY]->restoreData ();
+
+         assert (m_gridMaps[GASDENSITYPROPERTY]);
+         m_gridMaps[GASDENSITYPROPERTY]->restoreData ();
+
+         assert (m_gridMaps[OILDENSITYPROPERTY]);
+         m_gridMaps[OILDENSITYPROPERTY]->restoreData ();
       }
       return true;
    }
 
-   /*bool Formation::restoreCapillaryPressureMaps ()
+   bool Formation::restoreCapillaryPressureMaps ()
    {
       if (performHDynamicAndCapillary ())
       {
@@ -1037,7 +1271,7 @@ namespace migration
       }
 
       return true;
-      }*/
+   }
 
    bool Formation::clearNodeProperties (void)
    {
@@ -1116,7 +1350,7 @@ namespace migration
    bool Formation::detectReservoir (Formation * topFormation,
                                     const double minOilColumnHeight, const double minGasColumnHeight, const bool pressureRun, const Formation * topActiveFormation)
    {
-	  
+      
       for (int i = (int) m_formationNodeArray->firstILocal (); i <= (int) m_formationNodeArray->lastILocal (); ++i)
       {
          for (int j = (int) m_formationNodeArray->firstJLocal (); j <= (int) m_formationNodeArray->lastJLocal (); ++j)
@@ -1142,6 +1376,7 @@ namespace migration
       
       if (!m_detectedReservoir)
       {     
+      
          RequestHandling::StartRequestHandling(getMigrator(), "detectReservoirCrests");
       
          int upperIndex = getNodeDepth() - 1;
@@ -1298,7 +1533,7 @@ namespace migration
          const GridMap * gridMapEnd = getPropertyGridMap (propertyName, end);
          const GridMap * gridMapStart = getPropertyGridMap (propertyName, begin);
 
-         if (gridMapEnd and gridMapStart)
+         if (gridMapEnd && gridMapStart)
          {
             Interface::SubtractionFunctor subtract;
             m_expulsionGridMaps[componentId] = m_migrator->getProjectHandle ()->getFactory ()->produceGridMap (0, 0, gridMapEnd, gridMapStart, subtract);
@@ -1441,6 +1676,10 @@ namespace migration
 
    bool Formation::computeAdjacentNodes (int depthIndex, const Interface::Snapshot * begin, const Interface::Snapshot * end)
    {
+#if 0
+      cerr << GetRankString () << ": " << getName () << "(" << depthIndex << ")->computeAdjacentNodes ()" << endl;
+#endif
+      
       RequestHandling::StartRequestHandling (getMigrator (), "computeAdjacentNodes");
 
       for (int i = (int) m_formationNodeArray->firstILocal (); i <= (int) m_formationNodeArray->lastILocal (); ++i)
@@ -1463,6 +1702,7 @@ namespace migration
          return;
 
       const double surfaceFraction = 0.25;
+
       double expulsionFraction = (direction == EXPELLEDUPANDDOWNWARD ? 1.0 : 0.5);
 
       unsigned int offsets[4][2] = { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } };
@@ -1474,11 +1714,6 @@ namespace migration
       {
          for (unsigned int j = m_formationNodeArray->firstJLocal (); j <= m_formationNodeArray->lastJLocal (); ++j)
          {
-            if (i==5 and j==2)
-            {
-               int debuggerDude = 1;
-            }
-
             LocalFormationNode * formationNode = getLocalFormationNode (i, j, depthIndex);
             if (!IsValid (formationNode)) continue;
 
@@ -1530,7 +1765,7 @@ namespace migration
 
                int offsetIndex;
 
-               Column * shallowestColumn = 0;
+               Column *shallowestColumn = 0;
                double shallowestDepth = Interface::DefaultUndefinedScalarValue;
 
                for (offsetIndex = 0; offsetIndex < 4; ++offsetIndex)
@@ -1547,7 +1782,7 @@ namespace migration
                      break;
                   }
 
-                  if (IsValid (targetColumn) and !targetColumn->isSealing () and (shallowestColumn == 0 || targetColumn->getTopDepth () < shallowestDepth))
+                  if (IsValid (targetColumn) && !targetColumn->isSealing () && (shallowestColumn == 0 || targetColumn->getTopDepth () < shallowestDepth))
                   {
                      shallowestColumn = targetColumn;
                      shallowestDepth = targetColumn->getTopDepth ();
@@ -1578,7 +1813,7 @@ namespace migration
       assert (!leakingReservoirList->empty());
 
       // leakingReservoir is the reservoir hosted in "this" formation
-      const DataAccess::Interface::Reservoir * dataAccessReservoir = (*leakingReservoirList)[0];
+      const DataAccess::Interface::Reservoir * dataAccessReservoir = * leakingReservoirList->begin();
       
       const Reservoir * leakingReservoir = dynamic_cast<const migration::Reservoir *> (dataAccessReservoir);
 
@@ -1594,6 +1829,13 @@ namespace migration
       {
          for (unsigned int j = m_formationNodeArray->firstJLocal (); j <= m_formationNodeArray->lastJLocal (); ++j)
          {
+
+            // Debugging
+            if (i==11 and (j==9 or j==10))
+            {
+               int justWannaPutABreakPointHere = 10;
+            }
+
             LocalColumn * leakingColumn = leakingReservoir->getLocalColumn (i, j);
             if (!IsValid (leakingColumn)) continue;
 
@@ -1662,7 +1904,7 @@ namespace migration
                      Column *targetColumn = targetReservoir->getColumn (iTarget + offsets[offsetIndex][0],
                                                                         jTarget + offsets[offsetIndex][1]);
 
-                     if (IsValid (targetColumn) and !targetColumn->isSealing () and (shallowestColumn == 0 || targetColumn->getTopDepth () < shallowestDepth))
+                     if (IsValid (targetColumn) && !targetColumn->isSealing () && (shallowestColumn == 0 || targetColumn->getTopDepth () < shallowestDepth))
                      {
                         shallowestColumn = targetColumn;
                         shallowestDepth = targetColumn->getTopDepth ();
@@ -1755,11 +1997,11 @@ namespace migration
       const double depoTime = (getTopSurface () ? getTopSurface ()->getSnapshot ()->getTime () : 0);
       bool sourceRockIsActive = (depoTime > start->getTime ()) || fabs (depoTime - start->getTime ()) < Genex6::Constants::ZERO;
 
-      if (sourceRockIsActive and m_isInitialised) {
+      if (sourceRockIsActive && m_isInitialised) {
 
          bool status = m_isInitialised;
  
-         if (start->getTime () == m_startGenexTime and end->getTime () == m_endGenexTime) {
+         if (start->getTime () == m_startGenexTime && end->getTime () == m_endGenexTime) {
             if (GetRank () == 0 and printDebug) {
                cout << getName () << ": Genex interval start = " << start->getTime () << ", end = " << end->getTime () << " is already calculated" << endl;
             }
@@ -1843,7 +2085,7 @@ namespace migration
       DerivedProperties::FormationMapPropertyPtr endProperty = m_migrator->getPropertyManager ().getFormationMapProperty (property, intervalEnd, this);
 
       bool status = true;
-      if (startProperty and endProperty) {
+      if (startProperty && endProperty) {
          startProperty->retrieveData ();
          endProperty->retrieveData ();
 
@@ -1901,7 +2143,7 @@ namespace migration
          DerivedProperties::FormationSurfacePropertyPtr endProperty = m_migrator->getPropertyManager().getFormationSurfaceProperty(property, intervalEnd,
                                                                                                                                    this, getTopSurface() );
       
-         if (startProperty and endProperty) {
+         if (startProperty && endProperty) {
             startProperty->retrieveData ();
             endProperty->retrieveData ();
             

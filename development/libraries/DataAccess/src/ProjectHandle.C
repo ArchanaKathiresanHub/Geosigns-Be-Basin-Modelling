@@ -945,10 +945,10 @@ bool ProjectHandle::loadProperties( void )
    m_properties.push_back( getFactory()->produceProperty( this, 0, "ALCStepMohoDepth",               "ALCStepMohoDepth",               "m",     FORMATIONPROPERTY, DataModel::SURFACE_2D_PROPERTY ));
 
    m_properties.push_back( getFactory()->produceProperty( this, 0, "AllochthonousLithology",         "AllochthonousLithology",         "",      FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty(this, 0, "CapillaryEntryPressureGas", "CapillaryEntryPressureGas", "Pa", FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY ));
-   //m_properties.push_back(getFactory()->produceProperty(this, 0, "CapillaryPressureGas0", "CapillaryPressureGas0", "Pa", FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY ));
-   //m_properties.push_back(getFactory()->produceProperty(this, 0, "CapillaryPressureOil0", "CapillaryPressureOil0", "Pa", FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY ));
-   m_properties.push_back(getFactory()->produceProperty(this, 0, "CapillaryEntryPressureOil", "CapillaryEntryPressureOil", "Pa", FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty(this, 0, "CapillaryPressureGas100", "CapillaryPressureGas100", "Pa", FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY ));
+   m_properties.push_back(getFactory()->produceProperty(this, 0, "CapillaryPressureGas0", "CapillaryPressureGas0", "Pa", FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY ));
+   m_properties.push_back(getFactory()->produceProperty(this, 0, "CapillaryPressureOil0", "CapillaryPressureOil0", "Pa", FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY ));
+   m_properties.push_back(getFactory()->produceProperty(this, 0, "CapillaryPressureOil100", "CapillaryPressureOil100", "Pa", FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( this, 0, "ChemicalCompaction",             "ChemicalCompaction",             "frac",  FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY));
    m_properties.push_back( getFactory()->produceProperty( this, 0, "BulkDensity",                    "BulkDensityVec2",                "kg/m3", FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( this, 0, "Depth",                          "Depth",                          "m",     FORMATIONPROPERTY, DataModel::CONTINUOUS_3D_PROPERTY ));
