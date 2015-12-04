@@ -114,26 +114,24 @@ void ElementVolumeGrid::resizeInZDirection ( const int numberOfZElements ) {
 
    if ( not isInitialised ()) {
       // Error.
-   } else if ( numberOfZElements == ( lastK () - firstK () + 1 )) {
-      return;
    } else {
       DM volumeDa;
 
       DMDestroy ( &m_localInfo.da );
 
       DMDACreate3d ( PETSC_COMM_WORLD, DMDA_BOUNDARY_NONE, DMDA_BOUNDARY_NONE, DMDA_BOUNDARY_NONE, DMDA_STENCIL_STAR,
-                   getNumberOfXElements (),
-                   getNumberOfYElements (),
-                   numberOfZElements,
-                   getNumberOfXProcessors (),
-                   getNumberOfYProcessors (),
-                   1, 
-                   getNumberOfDofs (),
-                   1,
-                   m_xPartitioning,
-                   m_yPartitioning,
-                   PETSC_NULL,
-                   &volumeDa );
+                     getNumberOfXElements (),
+                     getNumberOfYElements (),
+                     numberOfZElements,
+                     getNumberOfXProcessors (),
+                     getNumberOfYProcessors (),
+                     1, 
+                     getNumberOfDofs (),
+                     1,
+                     m_xPartitioning,
+                     m_yPartitioning,
+                     PETSC_NULL,
+                     &volumeDa );
 
       DMDAGetLocalInfo ( volumeDa, &m_localInfo );   
 
@@ -163,25 +161,7 @@ bool ElementVolumeGrid::isPartOfStencil ( const int i,
                                           const int j,
                                           const int k ) const {
 
-   bool isValid;
-
-   // if ( NumericFunctions::inRange ( i, m_first [ 0 ], m_last [ 0 ]) and
-   //      NumericFunctions::inRange ( j, m_first [ 1 ], m_last [ 1 ]) and
-   //      NumericFunctions::inRange ( k, m_first [ 2 ], m_last [ 2 ])) {
-   //    isValid = true;
-   // } else if ( NumericFunctions::inRange ( i, m_first [ 0 ], m_last [ 0 ]) and 
-   //             ( j == m_ghostFirst [ 1 ] or j == m_ghostLast [ 1 ])) {
-
-   //    isValid = true;
-
-   // } else if ( NumericFunctions::inRange ( j, m_first [ 1 ], m_last [ 1 ]) and 
-   //             ( i == m_ghostFirst [ 0 ] or i == m_ghostLast [ 0 ])) {
-
-   //    isValid = true;
-   // } else {
-   //    isValid = false;
-   // }
-      isValid = true;
+   bool isValid = true;
 
    if ( NumericFunctions::inRange ( i, firstI (), lastI ()) and
         NumericFunctions::inRange ( j, firstJ (), lastJ ()) and

@@ -15,6 +15,13 @@
 /// \brief Extract the coefficients for the property.
 ///
 /// Coefficients are extracted from the current-properties vector.
+void getCoefficients ( const LayerElement&                       element,
+                       const PETSC_3D_Array&                     property,
+                             FiniteElementMethod::ElementVector& coefficients );
+
+/// \brief Extract the coefficients for the property.
+///
+/// Coefficients are extracted from the current-properties vector.
 void getCoefficients ( const LayerElement&                         element,
                        const Basin_Modelling::Fundamental_Property property,
                              FiniteElementMethod::ElementVector&   coefficients );
@@ -188,17 +195,6 @@ FiniteElementMethod::ThreeVector computeFlowVelocity ( const LayerElement&  elem
                                                        const bool           limitGradPressure = false,
                                                        const double         gradPressureMaximum = DefaultMaximumGradPressure,
                                                        const bool           print = false );
-
-
-/// \brief Compute the CFL number of an element.
-double computeElementCflNumber ( const LayerElement&  element,
-                                 const FiniteElement& finiteElement,
-                                 const ElementVector& phasePressure,
-                                 const Matrix3x3&     permeability,
-                                 const double         phaseDensity,
-                                 const double         phaseViscosity,
-                                 const double         phaseSaturation,
-                                 const double         porosity );
 
 
 double centreOfElement ( const LayerElement& element );

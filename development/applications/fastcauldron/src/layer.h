@@ -171,7 +171,7 @@ public:
                                             const double endTime,
                                             const double constrainedOverpressureValue );
 
-  void getConstrainedOverpressure ( const double Time, double& Value, bool& Is_Constrained );
+  void getConstrainedOverpressure ( const double Time, double& Value, bool& Is_Constrained ) const;
 
   void Set_Chemical_Compaction_Mode ( const bool Mode );
 
@@ -204,14 +204,6 @@ public:
                                      const bool            Use_Solid_Thickness,
                                      const Boolean2DArray& Valid_Needle );
 
-  void SetIncludedNodeArray   ( const Boolean2DArray&   Valid_Needle );
-
-  void SetTopIncludedNodes    ( const Boolean2DArray& Valid_Needle,
-                                      Boolean2DArray& topIncludedNodes );
-
-  void SetBottomIncludedNodes ( const Boolean2DArray& Valid_Needle,
-                                      Boolean2DArray& bottomIncludedNodes );
-
   void setFaultElementsMap ( AppCtx*         Basin_Model,
 			     const Boolean2DArray& validNeedle );
 
@@ -234,8 +226,6 @@ public:
 
   /// Delete the erosion-factor maps.
   void deleteErosionFactorMap ();
-
-  void PutIncludedNodes () const;
 
   void setSnapshotInterval ( const SnapshotInterval& interval,
 			            AppCtx*          basinModel );
@@ -270,14 +260,28 @@ public:
    }
 
    virtual const CompoundLithology* getLithology ( const int i, const int j, const int k ) const {
+      // Added to prevent a cimpiler warning about unused parameter.
+      (void) k;
       return getCompoundLithology ( i, j );
    }
    virtual const CompoundLithology* getLithology ( const double time, const int i, const int j, const double k ) {
+      // Added to prevent a cimpiler warning about unused parameter.
+      (void) k;
+      (void) time;
       return getCompoundLithology ( i, j );
    }
-   virtual void setBasaltLitho (const int iPosition, const int jPosition, const int kPosition ) {};
+   virtual void setBasaltLitho (const int iPosition, const int jPosition, const int kPosition ) {
+      // Added to prevent a cimpiler warning about unused parameter.
+      (void) iPosition;
+      (void) jPosition;
+      (void) kPosition;
+   }
 
    virtual bool getPreviousBasaltLitho(const int iPosition, const int jPosition, const int kPosition ){
+      // Added to prevent a cimpiler warning about unused parameter.
+      (void) iPosition;
+      (void) jPosition;
+      (void) kPosition;
       return false;
    } 
       
@@ -420,7 +424,6 @@ public:
 
   PETSc3DDoubleArray     fracturedPermeabilityScaling;
   PETSc_3D_Boolean_Array pressureExceedsFracturePressure;
-  PETSc_3D_Boolean_Array includedNodes;
   PETSc_3D_Boolean_Array nodeIsTemporarilyDirichlet;
   PETSc3DDoubleArray preFractureScaling;
 

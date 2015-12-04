@@ -23,6 +23,21 @@ using namespace FiniteElementMethod;
 
 //------------------------------------------------------------//
 
+void getCoefficients ( const LayerElement&                 element,
+                       const PETSC_3D_Array&               property,
+                       FiniteElementMethod::ElementVector& coefficients ) {
+
+   for ( int i = 0; i < 8; ++i ) {
+      coefficients ( i + 1 ) = property ( element.getNodeLocalKPosition ( i ),
+                                          element.getNodeJPosition ( i ),
+                                          element.getNodeIPosition ( i ));
+
+   }
+
+}
+
+//------------------------------------------------------------//
+
 void getCoefficients ( const LayerElement&                         element,
                        const Basin_Modelling::Fundamental_Property property,
                              FiniteElementMethod::ElementVector&   coefficients ) {
@@ -652,19 +667,6 @@ FiniteElementMethod::ThreeVector computeFlowVelocity ( const LayerElement&  elem
 
    // Compute the pressure-gradient.
    gradOverpressure = finiteElement.interpolateGrad ( capillaryPressure );
-   // gradOverpressure = finiteElement.interpolateGrad ( brineOverpressure );
-   // gradHydrostaticPressure = finiteElement.interpolateGrad ( brineHydrostaticPressure );
-
-   // gradPorePressure = finiteElement.interpolateGrad ( phasePressure );
-
-   // velocity ( 1 ) = gradPorePressure ( 1 );
-   // velocity ( 2 ) = gradPorePressure ( 2 );
-   // velocity ( 3 ) = gradPorePressure ( 3 );
-
-   // velocity ( 1 ) = gradOverpressure ( 1 ) + gradHydrostaticPressure ( 1 );
-   // velocity ( 2 ) = gradOverpressure ( 2 ) + gradHydrostaticPressure ( 2 );
-   // velocity ( 3 ) = gradOverpressure ( 3 );
-
    velocity ( 1 ) = gradOverpressure ( 1 );
    velocity ( 2 ) = gradOverpressure ( 2 );
    velocity ( 3 ) = gradOverpressure ( 3 );
@@ -676,124 +678,12 @@ FiniteElementMethod::ThreeVector computeFlowVelocity ( const LayerElement&  elem
       velocity ( 3 ) = NumericFunctions::clipValueToRange<double> ( velocity ( 3 ), -gradPressureMaximum, gradPressureMaximum );
    }
 
-   // if ( print ) {
-   //    std::cout << " velocity: " << velocity ( 1 ) << "  " << velocity ( 2 ) << "  " << velocity ( 3 ) << "  " << endl;
-   // }
-
-   // cout << " velocity " 
-   //      << velocity ( 1 ) << "  " << velocity ( 2 ) << "  " << velocity ( 3 ) << "  " 
-   //      << gradPorePressure ( 1 ) << "  " << gradPorePressure ( 2 ) << "  " << gradPorePressure ( 3 ) << "  " 
-   //      << length ( velocity ) << "  " << ( brineDensity - hcDensity ) * GRAVITY << "  " << brineDensity << "  " << hcDensity << endl;
-
-   // Subtract the "buoyancy term"
-   // velocity ( 3 ) -= hcDensity * GRAVITY;
-
-   // Include the buoyancy term.
-   // velocity ( 3 ) -= ( brineDensity - hcDensity ) * GRAVITY;
-   // velocity ( 3 ) -= ( brineDensity - 0.0 * hcDensity ) * GRAVITY;
-
    // Now scale by the permeability tensor.
    velocity = matrixVectorProduct ( permeability, velocity );
    velocity *= -1.0 / hcViscosity;
 
-   // velocity ( 1 ) *= -1.0 / hcViscosity;
-   // velocity ( 2 ) *= -1.0 / hcViscosity;
-   // velocity ( 3 ) *=  1.0 / hcViscosity;
-
-   // if ( print ) {
-   //    std::cout << " velocity: " << velocity ( 1 ) << "  " << velocity ( 2 ) << "  " << velocity ( 3 ) << "  " << hcDensity << "  " << hcViscosity << "  " << endl;
-   // }
-
    return velocity;
-
-   // ThreeVector velocity;
-   // ThreeVector gradOverpressure;
-   // ThreeVector gradHydrostaticPressure;
-
-   // ThreeVector gradPorePressure;
-
-   // ElementVector phasePressure;
-
-   // add ( brineOverpressure, brineHydrostaticPressure, phasePressure );
-   // Increment ( capillaryPressure, phasePressure );
-
-   // // Compute the pressure-gradient.
-   // // gradOverpressure = finiteElement.interpolateGrad ( capillaryPressure );
-   // gradOverpressure = finiteElement.interpolateGrad ( brineOverpressure );
-   // gradHydrostaticPressure = finiteElement.interpolateGrad ( brineHydrostaticPressure );
-
-   // gradPorePressure = finiteElement.interpolateGrad ( phasePressure );
-
-   // // velocity ( 1 ) = gradPorePressure ( 1 );
-   // // velocity ( 2 ) = gradPorePressure ( 2 );
-   // // velocity ( 3 ) = gradPorePressure ( 3 );
-
-   // velocity ( 1 ) = gradOverpressure ( 1 ) + gradHydrostaticPressure ( 1 );
-   // velocity ( 2 ) = gradOverpressure ( 2 ) + gradHydrostaticPressure ( 2 );
-   // velocity ( 3 ) = gradOverpressure ( 3 );
-
-   // // velocity ( 1 ) = gradOverpressure ( 1 );
-   // // velocity ( 2 ) = gradOverpressure ( 2 );
-   // // velocity ( 3 ) = gradOverpressure ( 3 );
-
-   // if ( limitGradPressure ) {
-   //    // Limit the pressure gradient.
-   //    velocity ( 1 ) = NumericFunctions::clipValueToRange<double> ( velocity ( 1 ), -gradPressureMaximum, gradPressureMaximum );
-   //    velocity ( 2 ) = NumericFunctions::clipValueToRange<double> ( velocity ( 2 ), -gradPressureMaximum, gradPressureMaximum );
-   //    velocity ( 3 ) = NumericFunctions::clipValueToRange<double> ( velocity ( 3 ), -gradPressureMaximum, gradPressureMaximum );
-   // }
-
-   // // cout << " velocity " 
-   // //      << velocity ( 1 ) << "  " << velocity ( 2 ) << "  " << velocity ( 3 ) << "  " 
-   // //      << gradPorePressure ( 1 ) << "  " << gradPorePressure ( 2 ) << "  " << gradPorePressure ( 3 ) << "  " 
-   // //      << length ( velocity ) << "  " << ( brineDensity - hcDensity ) * GRAVITY << "  " << brineDensity << "  " << hcDensity << endl;
-
-   // // Subtract the "buoyancy term"
-   // // velocity ( 3 ) -= hcDensity * GRAVITY;
-
-   // // Include the buoyancy term.
-   // velocity ( 3 ) -= ( brineDensity - hcDensity ) * GRAVITY;
-   // // velocity ( 3 ) -= ( brineDensity - 0.0 * hcDensity ) * GRAVITY;
-
-   // // Now scale by the permeability tensor.
-   // velocity = matrixVectorProduct ( permeability, velocity );
-
-   // velocity ( 1 ) *= -1.0 / hcViscosity;
-   // velocity ( 2 ) *= -1.0 / hcViscosity;
-   // velocity ( 3 ) *=  1.0 / hcViscosity;
-
-   // return velocity;
 }
-
-//------------------------------------------------------------//
-
-double computeElementCflNumber ( const LayerElement&  element,
-                                 const FiniteElement& finiteElement,
-                                 const ElementVector& phasePressure,
-                                 const Matrix3x3&     permeability,
-                                 const double         phaseDensity,
-                                 const double         phaseViscosity,
-                                 const double         phaseSaturation,
-                                 const double         porosity ) {
-   
-   ThreeVector flux = computeMassFlux ( element, finiteElement, phasePressure, permeability, phaseDensity, phaseViscosity );
-
-   if ( NumericFunctions::isEqual<double>( maximumAbs ( flux ), 0.0, std::numeric_limits<double>::epsilon() ) or 
-        phaseSaturation < 0.001 or
-        NumericFunctions::isEqual<double>( phaseSaturation, 0.0, std::numeric_limits<double>::epsilon() ) or
-        NumericFunctions::isEqual<double>( porosity, 0.0, std::numeric_limits<double>::epsilon() )) {
-      // What else should be returned?
-      return DefaultMaximumTimeStep * SecondsPerYear;
-   } else {
-#if 0
-      // Actually after this statement the flux variable contains the velocity
-      flux *= 1.0 / ( phaseSaturation * porosity );
-#endif
-      return Basin_Modelling::Maximum_Diameter ( finiteElement.getGeometryMatrix ()) * phaseSaturation * porosity / sqrt ( innerProduct ( flux, flux ));
-   }
-
-}
-
 //------------------------------------------------------------//
 
 double centreOfElement ( const LayerElement& element ) {

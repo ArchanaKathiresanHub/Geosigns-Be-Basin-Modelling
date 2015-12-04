@@ -19,6 +19,14 @@
 
 #include "PetscLogStages.h"
 
+#include "BoundaryConditions.h"
+#include "ElementThicknessActivityPredicate.h"
+#include "CompositeElementActivityPredicate.h"
+#include "LayerElement.h"
+#include "ElementContributions.h"
+#include "Lithology.h"
+#include "BoundaryId.h"
+
 using namespace FiniteElementMethod;
 
 
@@ -97,85 +105,11 @@ void PressureSolver::initialiseFctCorrection () {
 
 //------------------------------------------------------------//
 
-void PressureSolver::restorePressureSolution ( const DM  pressureFEMGrid,
-                                               const Vec Pressure_DOF_Numbers,
-                                                     Vec Overpressure ) {
+void PressureSolver::checkPressureSolution () {
 
   using namespace Basin_Modelling;
-//    PetscFunctionBegin;
 
-  int xStart;
-  int yStart;
-  int zStart;
-  int xCount;
-  int yCount;
-  int zCount;
-  int FEM_Grid_Index;
-  int DOF_Index;
-
-  int I, J, K;
-  int*GlobalK;
-
-  int Z_Node_Count = 0;
-  int Number_Of_Segments;
-
-  Layer_Iterator Layers ( cauldron->layers, Ascending, Sediments_Only, Active_Layers_Only );
-  LayerProps_Ptr Current_Layer;
-
-  PETSC_3D_Array New_Overpressure ( pressureFEMGrid, Overpressure );
-  PETSC_3D_Array DOFs             ( pressureFEMGrid, Pressure_DOF_Numbers );
-
-  for ( Layers.Initialise_Iterator (); ! Layers.Iteration_Is_Done (); Layers++ ) {
-    Current_Layer = Layers.Current_Layer ();
-    Number_Of_Segments = Current_Layer->getNrOfActiveElements ();
-    GlobalK = new int [ Number_Of_Segments + 1 ];
-
-    for ( K = 0; K <= Number_Of_Segments; K++ ) {
-      GlobalK [ K ] = Z_Node_Count;
-      Z_Node_Count = Z_Node_Count + 1;
-    }
-
-    Z_Node_Count = Z_Node_Count - 1;
-
-    DMDAGetCorners ( Current_Layer->layerDA, &xStart, &yStart, &zStart, &xCount, &yCount, &zCount );
-
-    PETSC_3D_Array Layer_Po ( Current_Layer->layerDA, Current_Layer->Current_Properties ( Basin_Modelling::Overpressure ));
-
-    for ( I = xStart; I < xStart + xCount; I++ ) {
-
-      for ( J = yStart; J < yStart + yCount; J++ ) {
-
-        if ( cauldron->nodeIsDefined ( I, J ) ) {
-
-          for ( K = zStart; K < zStart + zCount; K++ ) {
-            FEM_Grid_Index = GlobalK[ K ];
-            DOF_Index = (int) DOFs ( FEM_Grid_Index, J, I );
-            New_Overpressure ( DOF_Index, J, I ) = Layer_Po ( K, J, I ) * MPa_To_Pa;
-          }
-
-	}
-
-      }
-
-    }
-
-    delete [] GlobalK;
-
-  }
-
-}
-
-//------------------------------------------------------------//
-
-void PressureSolver::storePressureSolution ( const DM  pressureFEMGrid,
-                                             const Vec Pressure_DOF_Numbers,
-                                             const Vec Overpressure ) {
-
-  using namespace Basin_Modelling;
-  //
-  //
   // Minimum amount of Overpressure, 1Pa (1.0e-6 Mpa)
-  //
   const double Minimum_Absolute_Overpressure_MPa = 1.0e-30;
 
   int xStart;
@@ -184,38 +118,17 @@ void PressureSolver::storePressureSolution ( const DM  pressureFEMGrid,
   int xCount;
   int yCount;
   int zCount;
-  int FEM_Grid_Index;
-  int DOF_Index;
-
-  int I, J, K;
-  int*GlobalK;
-
-  int Z_Node_Count = 0;
-  int Number_Of_Segments;
 
   PetscScalar Overpressure_Value;
   PetscScalar Fracture_Pressure;
-
 
   Layer_Iterator Layers ( cauldron->layers, Ascending, Sediments_Only, Active_Layers_Only );
   LayerProps_Ptr Current_Layer;
 
   DMDAGetCorners ( *cauldron->mapDA, &xStart, &yStart, PETSC_NULL, &xCount, &yCount, PETSC_NULL );
 
-  PETSC_3D_Array New_Overpressure ( pressureFEMGrid, Overpressure );
-  PETSC_3D_Array DOFs             ( pressureFEMGrid, Pressure_DOF_Numbers );
-
   for ( Layers.Initialise_Iterator (); ! Layers.Iteration_Is_Done (); Layers++ ) {
     Current_Layer = Layers.Current_Layer ();
-    Number_Of_Segments = Current_Layer->getNrOfActiveElements ();
-    GlobalK = new int [ Number_Of_Segments + 1 ];
-
-    for ( K = 0; K <= Number_Of_Segments; K++ ) {
-      GlobalK [ K ] = Z_Node_Count;
-      Z_Node_Count = Z_Node_Count + 1;
-    }
-
-    Z_Node_Count = Z_Node_Count - 1;
 
 
     DMDAGetCorners ( Current_Layer->layerDA, &xStart, &yStart, &zStart, &xCount, &yCount, &zCount );
@@ -225,28 +138,25 @@ void PressureSolver::storePressureSolution ( const DM  pressureFEMGrid,
     Current_Layer -> Current_Properties.Activate_Property ( Basin_Modelling::Hydrostatic_Pressure );
     Current_Layer -> Current_Properties.Activate_Property ( Basin_Modelling::Lithostatic_Pressure );
 
-    for ( I = xStart; I < xStart + xCount; I++ ) {
+    for ( int I = xStart; I < xStart + xCount; I++ ) {
 
-      for ( J = yStart; J < yStart + yCount; J++ ) {
+      for ( int J = yStart; J < yStart + yCount; J++ ) {
 
         if ( cauldron->nodeIsDefined ( I, J ) ) {
 
-          for ( K = zStart; K < zStart + zCount; K++ ) {
-            FEM_Grid_Index = GlobalK[ K ];
-            DOF_Index = (int) DOFs ( FEM_Grid_Index, J, I );
-
-            Overpressure_Value = New_Overpressure ( DOF_Index, J, I ) * Pa_To_MPa;
+          for ( int K = zStart; K < zStart + zCount; K++ ) {
+            Overpressure_Value = Current_Layer -> Current_Properties ( Basin_Modelling::Overpressure,  K, J, I );
 
             if ( fabs ( Overpressure_Value ) < Minimum_Absolute_Overpressure_MPa ) {
               Overpressure_Value = 0.0;
-            } // 
+            }
 
             Current_Layer -> Current_Properties ( Basin_Modelling::Overpressure,  K, J, I ) = Overpressure_Value;
             Current_Layer -> Current_Properties ( Basin_Modelling::Pore_Pressure, K, J, I ) = Overpressure_Value + 
                                                                                               Current_Layer -> Current_Properties ( Basin_Modelling::Hydrostatic_Pressure, K, J, I );
 
-            if ( Current_Layer -> Current_Properties ( Basin_Modelling::Pore_Pressure, K, J, I )> 
-                              Current_Layer -> Current_Properties ( Basin_Modelling::Lithostatic_Pressure, K, J, I )) {
+            if ( Current_Layer -> Current_Properties ( Basin_Modelling::Pore_Pressure, K, J, I ) > 
+                   Current_Layer -> Current_Properties ( Basin_Modelling::Lithostatic_Pressure, K, J, I )) {
 
               Fracture_Pressure = Current_Layer -> Current_Properties ( Basin_Modelling::Lithostatic_Pressure, K, J, I ) -
                                   Current_Layer -> Current_Properties ( Basin_Modelling::Hydrostatic_Pressure, K, J, I );
@@ -268,518 +178,9 @@ void PressureSolver::storePressureSolution ( const DM  pressureFEMGrid,
     Current_Layer -> Current_Properties.Restore_Property ( Basin_Modelling::Hydrostatic_Pressure );
     Current_Layer -> Current_Properties.Restore_Property ( Basin_Modelling::Lithostatic_Pressure );
 
-    delete [] GlobalK;
   }
 
 
-}
-
-//------------------------------------------------------------//
-
-
-void PressureSolver::assembleSystem ( const double  previousTime,
-                                      const double  currentTime,
-                                      const DM&     pressureFEMGrid,
-                                      const Vec&    pressureDOFs,
-                                      const Vec&    pressureNodeIncluded,
-                                            Mat&    Jacobian,
-                                            Vec&    Residual,
-                                            double& elementContributionsTime ) {
-
-  using namespace Basin_Modelling;
-
-  
-  PetscLogStages::push( PetscLogStages::PRESSURE_SYSTEM_ASSEMBLY );
-
-  const int Plane_Quadrature_Degree = getPlaneQuadratureDegree ( cauldron->Optimisation_Level );
-  const int Depth_Quadrature_Degree = getDepthQuadratureDegree ( cauldron->Optimisation_Level );
-
-
-  PetscLogDouble Element_Start_Time;
-  PetscLogDouble Element_End_Time;
-  PetscLogDouble Start_Time;
-  PetscLogDouble End_Time;
-
-  PetscTime(&Start_Time);
-
-  bool Include_Ghost_Values = true;
-
-  const CauldronGridDescription& grid = FastcauldronSimulator::getInstance ().getCauldronGridDescription ();
-
-  double Delta_X  = grid.deltaI;
-  double Delta_Y  = grid.deltaJ;
-  double Origin_X = grid.originI;
-  double Origin_Y = grid.originJ;
-
-  int I;
-  int J;
-  int K;
-
-  int FEM_K_Index;
-  int Inode;
-
-  int xStart;
-  int yStart;
-  int zStart;
-  int xCount;
-  int yCount;
-  int zCount;
-  int layerXCount;
-  int layerYCount;
-  int layerZCount;
-  int globalXCount;
-  int globalYCount;
-  int globalZCount;
-  int Element_Count = 0;
-  int NumCoincidentNodes = 0;
-  LayerProps_Ptr Current_Layer;
-  LayerProps_Ptr Previous_Layer = LayerProps_Ptr ( 0 );
-  const CompoundLithology* Element_Lithology;
-
-  Layer_Iterator FEM_Layers ( cauldron->layers, Ascending, Sediments_Only, Active_Layers_Only );
-  Layer_Iterator Layers_Above; // CHANGE THIS NAME!!!!!
-
-  int I_Position;
-  int J_Position;
-
-  unsigned int Element_Index;
-
-  PetscScalar Surface_Pressure_Value = 0.0;
-                            
-  MatStencil  col[8];
-  MatStencil  row[8];
-  MatStencil  a_diag[1];
-  PetscScalar OneDiagonal[1] = {1.0};
-
-#ifdef USE_EIGEN  
-  Matrix8x8     Element_Jacobian;
-#else
-  ElementMatrix Element_Jacobian;
-#endif
-
-  ElementVector Element_Residual;
-
-  ElementVector Element_Old_Po;
-  ElementVector Element_Current_Po;
-  ElementVector Element_VES;
-
-  ElementVector Element_Old_VES;
-  ElementVector Element_Old_Max_VES;
-  ElementVector Element_Old_Hydrostatic_Pressure;
-  ElementVector Element_Old_Lithostatic_Pressure;
-  ElementVector Element_Old_Overpressure;
-
-  ElementVector Element_Current_VES;
-  ElementVector Element_Current_Max_VES;
-  ElementVector Element_Current_Hydrostatic_Pressure;
-  ElementVector Element_Current_Lithostatic_Pressure;
-  ElementVector Element_Current_Overpressure;
-
-
-  ElementVector Current_Chemical_Compaction;
-  ElementVector Previous_Chemical_Compaction;
-
-  ElementVector Previous_Element_Solid_Thickness;
-  ElementVector Current_Element_Solid_Thickness;
-
-  ElementVector Previous_Ph;
-  ElementVector Current_Ph;
-  ElementVector Current_Pl;
-
-  ElementVector Previous_Po;
-  ElementVector Current_Po;
-
-  ElementVector Previous_Element_VES;
-  ElementVector Current_Element_VES;
-
-  ElementVector Previous_Element_Max_VES;
-  ElementVector Current_Element_Max_VES;
-
-  ElementVector Previous_Element_Temperature;
-  ElementVector Current_Element_Temperature;
-
-  double fracturePressure;
-  ElementVector Exceeded_Fracture_Pressure;
-  ElementVector preFractureScaling;
-  BooleanVector Included_Nodes;
-
-  Element_Positions Positions;
-
-  double Constrained_Po_Value;
-  bool   Overpressure_Is_Constrained;
-
-  ElementGeometryMatrix Previous_Geometry_Matrix;
-  ElementGeometryMatrix Geometry_Matrix;
-
-  ElementVector Dirichlet_Boundary_Values;
-  Boundary_Conditions Element_BCs [ 6 ];
-  Boundary_Conditions Nodal_BCs[8];
-
-  bool  degenerateElement;
-
-  int *GlobalK;
-
-  int Degenerate_Segments;
-
-  DMDAGetInfo ( pressureFEMGrid, PETSC_NULL,&globalXCount,&globalYCount,&globalZCount, 
-                PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL );
-
-  PETSC_3D_Array residualVector ( pressureFEMGrid, Residual, INSERT_VALUES, Include_Ghost_Values );
-  PETSC_3D_Array dof  ( pressureFEMGrid, pressureDOFs, INSERT_VALUES, Include_Ghost_Values);
-
-  PETSC_3D_Array nodeIncluded  ( pressureFEMGrid, pressureNodeIncluded, INSERT_VALUES, Include_Ghost_Values );
-
-
-  int Z_Node_Count = 0;
-  int Number_Of_Layer_Segments;
-
-  bool Include_Chemical_Compaction;
-
-  Saturation currentSaturation;
-  Saturation previousSaturation;
-
-  bool includeWaterSaturation = FastcauldronSimulator::getInstance ().getMcfHandler ().includeWaterSaturationInOp ();
-  bool includedInDarcySimulation = FastcauldronSimulator::getInstance ().getMcfHandler ().solveFlowEquations ();
-
-  VecSet ( Residual, Zero );
-
-  Element_BCs [ Gamma_1 ] = Interior_Boundary;
-
-  elementContributionsTime = 0.0;
-
-  if ( basisFunctions == 0 ) {
-     basisFunctions = new FiniteElementMethod::BasisFunctionCache ( Plane_Quadrature_Degree, Plane_Quadrature_Degree, Depth_Quadrature_Degree );
-  }
-
-  for ( FEM_Layers.Initialise_Iterator (); ! FEM_Layers.Iteration_Is_Done (); FEM_Layers++ ) {
-    Current_Layer  = FEM_Layers.Current_Layer ();
-    Previous_Layer = FEM_Layers.Layer_Above ();
-
-    double fluidDensityForP0_1andT0 = Current_Layer->fluid->density ( 0,  0.1 ); 
-
-
-    PetscBlockVector<Saturation> layerSaturations;
-    PetscBlockVector<Saturation> previousLayerSaturations;
-
-    if ( includedInDarcySimulation ) {
-       layerSaturations.setVector ( Current_Layer->getVolumeGrid ( Saturation::NumberOfPhases ), Current_Layer->getPhaseSaturationVec (), INSERT_VALUES, false );
-       previousLayerSaturations.setVector ( Current_Layer->getVolumeGrid ( Saturation::NumberOfPhases ), Current_Layer->getPreviousPhaseSaturationVec (), INSERT_VALUES, false );
-    }
-
-    Include_Chemical_Compaction = (( cauldron->Do_Chemical_Compaction ) && ( Current_Layer -> Get_Chemical_Compaction_Mode ()));
-
-    Layers_Above.Initialise_Iterator ( cauldron->layers, Ascending, Current_Layer, Ascending, Sediments_Only, Active_Layers_Only );
-
-    Current_Layer->getConstrainedOverpressure ( currentTime,
-                                                Constrained_Po_Value,
-                                                Overpressure_Is_Constrained );
-
-    Number_Of_Layer_Segments = Current_Layer->getNrOfActiveElements();
-    GlobalK = new int [ Number_Of_Layer_Segments + 1 ];
-
-    for ( K = 0; K <= Number_Of_Layer_Segments; K++ ){
-      GlobalK [ K ] = Z_Node_Count;
-      Z_Node_Count = Z_Node_Count + 1;
-    } 
-
-    Z_Node_Count = Z_Node_Count - 1;
-
-    Current_Layer->Current_Properties.Activate_Properties  ( INSERT_VALUES, Include_Ghost_Values );
-    Current_Layer->Previous_Properties.Activate_Properties ( INSERT_VALUES, Include_Ghost_Values );
-
-    DMDAGetInfo(Current_Layer->layerDA,0, &layerXCount, &layerYCount, &layerZCount,0,0,0,0,0,0,0,0,0);
-    DMDAGetCorners ( Current_Layer->layerDA, &xStart, &yStart, &zStart, &xCount, &yCount, &zCount );
-
-    for ( K = zStart; K < zStart + zCount; K++ ) {
-
-      if ( K != layerZCount - 1 ) {
-        FEM_K_Index = GlobalK [ K ];
-
-        for ( Element_Index = 0; Element_Index < cauldron->mapElementList.size (); Element_Index++ ) {
-          Exceeded_Fracture_Pressure.fill ( 0.0 );
-          preFractureScaling.fill ( 0.0 );
-          Included_Nodes.fill ( false );
-
-          Element_Count = Element_Count + 1;
-          Degenerate_Segments = 0;
-
-          Element_Residual.zero ();
-
-#ifndef USE_EIGEN
-          Element_Jacobian.zero ();
-#else
-          Element_Jacobian.setZero ();
-#endif
-          if ( cauldron->mapElementList [ Element_Index ].exists ) {
-            I_Position = cauldron->mapElementList [ Element_Index ].i [ 0 ];
-            J_Position = cauldron->mapElementList [ Element_Index ].j [ 0 ];
-
-            if ( includedInDarcySimulation ) {
-               currentSaturation = layerSaturations ( K, J_Position, I_Position );
-               previousSaturation = previousLayerSaturations ( K, J_Position, I_Position );
-            } else {
-               // If Darcy simulation has not been enabled then set the saturation to ( Water => 1, Vapour => 0, Liquid => 0 )
-               currentSaturation.initialise ();
-               previousSaturation.initialise ();
-            }
-
-            // Copy segment lithology
-            Element_Lithology = Current_Layer->getLithology ( I_Position, J_Position );
-
-            // if element hase fluid density more than matrix density, we assuming the solid is ice in this case. 
-            bool isIceSheetLayer = Current_Layer->fluid->SwitchPermafrost() && fluidDensityForP0_1andT0 > Element_Lithology->density();
-
-            degenerateElement = true;
-
-            for ( Inode = 0; Inode < 4; Inode++ ) {
-              I_Position = cauldron->mapElementList [ Element_Index ].i [ Inode ];
-              J_Position = cauldron->mapElementList [ Element_Index ].j [ Inode ];
-
-              Current_Element_Solid_Thickness  ( Inode + 1 ) = Current_Layer -> Current_Properties  ( Basin_Modelling::Solid_Thickness, K, J_Position, I_Position );
-              Previous_Element_Solid_Thickness ( Inode + 1 ) = Current_Layer -> Previous_Properties ( Basin_Modelling::Solid_Thickness, K, J_Position, I_Position );
-
-              if ( Current_Element_Solid_Thickness ( Inode + 1 ) == IBSNULLVALUE ) {
-                Current_Element_Solid_Thickness ( Inode + 1 ) = 0.0;
-              }
-
-              if ( Previous_Element_Solid_Thickness ( Inode + 1 ) == IBSNULLVALUE ) {
-                Previous_Element_Solid_Thickness ( Inode + 1 ) = 0.0;
-              }
-
-              degenerateElement = degenerateElement && ( Current_Element_Solid_Thickness ( Inode + 1 ) == 0.0 );
-            }
-
-            if ( degenerateElement || Element_Lithology->surfacePorosity () == 0.0 ) {
-              continue;
-            }
-
-
-            for ( Inode = 0; Inode < 8; Inode++ ) {
-              int LidxZ = K + ( Inode < 4 ? 1 : 0 );
-              int GidxZ = FEM_K_Index + ( Inode < 4 ? 1 : 0 );
-              int GidxY = cauldron->mapElementList [ Element_Index ].j[Inode%4];
-              int GidxX = cauldron->mapElementList [ Element_Index ].i[Inode%4];
-
-              Exceeded_Fracture_Pressure ( Inode + 1 ) = Current_Layer -> fracturedPermeabilityScaling ( GidxX, GidxY, LidxZ );
-              preFractureScaling ( Inode + 1 ) = double ( Current_Layer -> preFractureScaling ( GidxX, GidxY, LidxZ ));
-
-              Included_Nodes ( Inode + 1 ) = Current_Layer -> includedNodes ( GidxX, GidxY, LidxZ );
-              Positions.Set_Node_Position ( Inode, LidxZ, GidxY, GidxX );
-
-              Dirichlet_Boundary_Values ( Inode + 1 ) = 0.0;
-
-              if ( globalZCount-1 == int( dof(GidxZ,GidxY,GidxX) ) ) {
-                //
-                // A surface boundary node is any node having the same DOF number as the surface boundary node.
-                //
-                Nodal_BCs[Inode] = Surface_Boundary; 
-                Dirichlet_Boundary_Values ( Inode + 1 ) = Surface_Pressure_Value;
-
-              } else if ( Overpressure_Is_Constrained && ( Current_Element_Solid_Thickness ( Inode % 4 + 1 ) > EPS1 )) {
-
-                Nodal_BCs[Inode] = Interior_Constrained_Overpressure; 
-                Dirichlet_Boundary_Values ( Inode + 1 ) = Constrained_Po_Value;
-
-              } else if ( K == zCount - 2 and
-                          Exceeded_Fracture_Pressure ( Inode + 1 ) > 0.0 and
-                          Previous_Layer != NULL and
-                          Previous_Layer->getLithology ( I_Position, J_Position ) -> surfacePorosity () < 0.01 ) {
-
-                // In this branch if fracture pressure has been exceeded and the 
-                // lithology of the layer above is, for example, a salt.
-
-                Nodal_BCs[Inode] = Interior_Constrained_Overpressure; 
-
-                fracturePressure = HydraulicFracturingManager::getInstance().fracturePressure( Element_Lithology,
-                                                                                               Current_Layer->fluid,
-                                                                                               FastcauldronSimulator::getInstance().getSeaBottomTemperature( GidxX, GidxY, currentTime ),
-                                                                                               FastcauldronSimulator::getInstance().getSeaBottomDepth( GidxX, GidxY, currentTime ),
-                                                                                               Current_Layer->Current_Properties( Basin_Modelling::Depth, LidxZ, GidxY, GidxX ),
-                                                                                               Current_Layer->Current_Properties( Basin_Modelling::Hydrostatic_Pressure, LidxZ, GidxY, GidxX ),
-                                                                                               Current_Layer->Current_Properties( Basin_Modelling::Lithostatic_Pressure, LidxZ, GidxY, GidxX )
-                                                                                             );
-
-                // If the lithology above is a salt then scaling the permeabilities will not help.
-                // So the best method is to make the node a Dirichlet type boundary condition.
-                Dirichlet_Boundary_Values ( Inode + 1 ) = fracturePressure 
-                                                          - Current_Layer->Current_Properties ( Basin_Modelling::Hydrostatic_Pressure, LidxZ, GidxY, GidxX );
-
-                Dirichlet_Boundary_Values ( Inode + 1 ) = NumericFunctions::Maximum ( Dirichlet_Boundary_Values ( Inode + 1 ), 0.0 );
-
-              } else if ( HydraulicFracturingManager::getInstance ().isNonConservativeFractureModel () and Current_Layer->nodeIsTemporarilyDirichlet ( GidxX, GidxY, LidxZ ) ) {
-
-                fracturePressure = HydraulicFracturingManager::getInstance().fracturePressure( Element_Lithology,
-                                                                                               Current_Layer->fluid,
-                                                                                               FastcauldronSimulator::getInstance().getSeaBottomTemperature( GidxX, GidxY, currentTime ),
-                                                                                               FastcauldronSimulator::getInstance().getSeaBottomDepth ( GidxX, GidxY, currentTime ),
-                                                                                               Current_Layer->Current_Properties( Basin_Modelling::Depth, LidxZ, GidxY, GidxX ),
-                                                                                               Current_Layer->Current_Properties( Basin_Modelling::Hydrostatic_Pressure, LidxZ, GidxY, GidxX ),
-                                                                                               Current_Layer->Current_Properties( Basin_Modelling::Lithostatic_Pressure, LidxZ, GidxY, GidxX )
-                                                                                             );
-
-                Nodal_BCs[Inode] = Interior_Constrained_Overpressure; 
-                Dirichlet_Boundary_Values ( Inode + 1 ) = NumericFunctions::Maximum ( fracturePressure - Current_Layer->Current_Properties ( Basin_Modelling::Hydrostatic_Pressure, LidxZ, GidxY, GidxX ), 0.0 );
-              } else if ( GidxZ == 0 ) {
-                
-                 Nodal_BCs[Inode] = Bottom_Boundary_Flux;
-
-              } else if ( isIceSheetLayer ) {
-                 // For the ice sheet with Permafrost taking in account, we do noy want to "compute" the overpressure in the ice lithology - we want to impose it.
-                 Nodal_BCs[Inode] = Interior_Constrained_Overpressure;
-                 Dirichlet_Boundary_Values ( Inode + 1 ) = Current_Layer->Current_Properties( Basin_Modelling::Lithostatic_Pressure, LidxZ, GidxY, GidxX ) - 
-                                                           Current_Layer->Current_Properties( Basin_Modelling::Hydrostatic_Pressure, LidxZ, GidxY, GidxX );
-              }
-              else {
-                Nodal_BCs[Inode] = Interior_Boundary;
-              }
-
-              col[Inode].i = GidxX;
-              col[Inode].j = GidxY;
-              col[Inode].k = GidxZ;
-
-              row[Inode].i = GidxX;
-              row[Inode].j = GidxY;
-              row[Inode].k = GidxZ;
-
-              if (GidxZ != int ( dof(GidxZ,GidxY,GidxX ))) {
-                Degenerate_Segments = Degenerate_Segments + 1;
-                NumCoincidentNodes = max(NumCoincidentNodes,((int)dof(GidxZ,GidxY,GidxX)-GidxZ));
-
-                col[Inode].k = (int) dof(GidxZ,GidxY,GidxX);
-                row[Inode].k = col[Inode].k;
-              }
-
-              Geometry_Matrix ( 1, Inode + 1 ) = Origin_X + (Delta_X * GidxX);
-              Geometry_Matrix ( 2, Inode + 1 ) = Origin_Y + (Delta_Y * GidxY);
-              Geometry_Matrix ( 3, Inode + 1 ) = Current_Layer->Current_Properties ( Basin_Modelling::Depth, LidxZ, GidxY, GidxX );
-
-              Previous_Geometry_Matrix ( 1, Inode + 1 ) = Origin_X + (Delta_X * GidxX);
-              Previous_Geometry_Matrix ( 2, Inode + 1 ) = Origin_Y + (Delta_Y * GidxY);
-              Previous_Geometry_Matrix ( 3, Inode + 1 ) = Current_Layer->Previous_Properties ( Basin_Modelling::Depth, LidxZ, GidxY, GidxX );
-            }
-
-            int realI = cauldron->mapElementList [ Element_Index ].i[0];
-            int realJ = cauldron->mapElementList [ Element_Index ].j[0];
-
-            const Nodal3DIndexArray& indices = Current_Layer->getLayerElement ( realI, realJ, K ).getNodePositions ();
-
-            Current_Layer->Current_Properties.Extract_Property ( Basin_Modelling::Hydrostatic_Pressure, Positions, Current_Ph );
-            Current_Layer->Current_Properties.Extract_Property ( Basin_Modelling::Lithostatic_Pressure, Positions, Current_Pl );
-            Current_Layer->Current_Properties.Extract_Property ( Basin_Modelling::Overpressure,         Positions, Current_Po );
-            Current_Layer->Current_Properties.Extract_Property ( Basin_Modelling::VES_FP,               Positions, Current_Element_VES );
-            Current_Layer->Current_Properties.Extract_Property ( Basin_Modelling::Max_VES,              Positions, Current_Element_Max_VES );
-            Current_Layer->Current_Properties.Extract_Property ( Basin_Modelling::Temperature,          Positions, Current_Element_Temperature );
-            Current_Layer->Current_Properties.Extract_Property ( Basin_Modelling::Chemical_Compaction,  Positions, Current_Chemical_Compaction );
-
-            Current_Layer->Previous_Properties.Extract_Property ( Basin_Modelling::Hydrostatic_Pressure, Positions, Previous_Ph );
-            Current_Layer->Previous_Properties.Extract_Property ( Basin_Modelling::Overpressure,         Positions, Previous_Po );
-            Current_Layer->Previous_Properties.Extract_Property ( Basin_Modelling::VES_FP,               Positions, Previous_Element_VES );
-            Current_Layer->Previous_Properties.Extract_Property ( Basin_Modelling::Max_VES,              Positions, Previous_Element_Max_VES );
-            Current_Layer->Previous_Properties.Extract_Property ( Basin_Modelling::Temperature,          Positions, Previous_Element_Temperature );
-            Current_Layer->Previous_Properties.Extract_Property ( Basin_Modelling::Chemical_Compaction,  Positions, Previous_Chemical_Compaction );
-
-            PetscTime(&Element_Start_Time);
-
-            Assemble_Element_Pressure_System ( *basisFunctions,
-                                               currentTime,
-                                               previousTime - currentTime,
-                                               Element_BCs,
-                                               Nodal_BCs,
-                                               Dirichlet_Boundary_Values,
-                                               isIceSheetLayer,
-                                               Element_Lithology,
-                                               Current_Layer->fluid,
-                                               Include_Chemical_Compaction,
-                                               HydraulicFracturingManager::getInstance ().getModel (),
-                                               Previous_Geometry_Matrix,
-                                               Geometry_Matrix,
-                                               Previous_Element_Solid_Thickness,
-                                               Current_Element_Solid_Thickness,
-                                               Previous_Ph,
-                                               Current_Ph,
-                                               Previous_Po,
-                                               Current_Po,
-                                               Current_Pl,
-                                               Previous_Element_VES,
-                                               Current_Element_VES,
-                                               Previous_Element_Max_VES,
-                                               Current_Element_Max_VES,
-                                               Previous_Element_Temperature,
-                                               Current_Element_Temperature,
-                                               Previous_Chemical_Compaction,
-                                               Current_Chemical_Compaction,
-                                               Exceeded_Fracture_Pressure,
-                                               preFractureScaling,
-                                               Included_Nodes,
-                                               includeWaterSaturation,
-                                               currentSaturation,
-                                               previousSaturation,
-                                               Element_Jacobian,
-                                               Element_Residual );
-
-            PetscTime(&Element_End_Time);
-            elementContributionsTime = elementContributionsTime + Element_End_Time - Element_Start_Time;
-
-#ifdef USE_EIGEN
-            MatSetValuesStencil( Jacobian, 8, row, 8, col, Element_Jacobian.data(), ADD_VALUES);
-#else
-            MatSetValuesStencil( Jacobian, 8, row, 8, col, Element_Jacobian.C_Array (), ADD_VALUES);
-#endif
-            for (Inode = 0; Inode<8; Inode++) {
-              int irow = row[Inode].i;
-              int jrow = row[Inode].j;
-              int krow = row[Inode].k;
-
-              residualVector(krow,jrow,irow) = residualVector(krow,jrow,irow) - Element_Residual ( Inode + 1 );
-            }
-
-          }
-
-        }
-
-      }
-
-    } 
-
-    Current_Layer->Current_Properties.Restore_Properties ();
-    Current_Layer->Previous_Properties.Restore_Properties ();
-
-    delete[] GlobalK;
-
-  }
-
-  DMDAGetCorners ( pressureFEMGrid, &xStart, &yStart, &zStart, &xCount, &yCount, &zCount );
-
-  //
-  // Now set the dummy nodes on the diagonal of the Jacobian matrix to 1.
-  //
-  for ( K = zStart; K < zStart + zCount; K++ ) {
-
-    for ( J = yStart; J < yStart + yCount; J++ ) {
-
-      for ( I = xStart; I < xStart + xCount; I++ ) {
-
-        if ( (int) ( nodeIncluded ( K, J, I )) == 0 ) {
-          a_diag[0].k = K;
-          a_diag[0].j = J;
-          a_diag[0].i = I; 
-
-          MatSetValuesStencil( Jacobian, 1, a_diag, 1, a_diag, OneDiagonal, ADD_VALUES );
-        }
-
-      }
-
-    }
-
-  }
-
-  residualVector.Restore_Global_Array ( Update_Including_Ghosts );  
-  MatAssemblyBegin ( Jacobian, MAT_FINAL_ASSEMBLY );
-  MatAssemblyEnd   ( Jacobian, MAT_FINAL_ASSEMBLY );
-
-  PetscTime(&End_Time);
-
-  PetscLogStages::pop();
 }
 
 //------------------------------------------------------------//
@@ -822,8 +223,6 @@ PetscScalar PressureSolver::maximumPressureDifference () {
 
     DMCreateGlobalVector ( Current_Layer->layerDA, & Pressure_Difference );
 
-    // Check this!!
-    // VecWAXPY(&NegOne, Previous_Overpressure, Current_Overpressure, Pressure_Difference );
     VecWAXPY( Pressure_Difference, NegOne, Previous_Overpressure, Current_Overpressure );
     VecAbs( Pressure_Difference );
     VecMax( Pressure_Difference,PETSC_NULL,&Maximum_Layer_Difference );
@@ -1231,6 +630,387 @@ void PressureSolver::setIterationsForIluFillLevelIncrease ( const int newIluFill
       s_iterationsForiluFillLevelIncrease [ i ]= newIluFillLevelIterations;
    }
 
+}
+
+//------------------------------------------------------------//
+
+void PressureSolver::getBoundaryConditions ( const GeneralElement& element,
+                                             const double          currentTime,
+                                             const int             topIndex,
+                                             const bool            constrainedOverPressure,
+                                             const double          constrainedOverpressureValue,
+                                             const bool            isIceSheetLayer,
+                                             ElementVector&        fracturePressureExceeded,
+                                             BoundaryConditions&   bcs ) const {
+
+   const HydraulicFracturingManager& hfm = HydraulicFracturingManager::getInstance ();
+   const FastcauldronSimulator& fc = FastcauldronSimulator::getInstance ();
+
+   static const double surfaceOverPressureValue = 0.0;
+
+   const LayerElement& layerElement = element.getLayerElement ();
+   const LayerProps* currentLayer = layerElement.getFormation ();
+   const Lithology* elementLithology = layerElement.getLithology ();
+
+   int numberOfDepthElements = currentLayer->getMaximumNumberOfElements ();
+   bool constrainedOverPressureEnabled;
+   double constrainedOverPressureValue;
+
+   currentLayer->getConstrainedOverpressure ( currentTime, constrainedOverPressureValue, constrainedOverPressureEnabled );
+   bcs.reset ();
+
+   for ( int n = 0; n < 8; ++n ) {
+      int nodeK = element.getNodeK ( n );
+      int layerNodeK = layerElement.getNodeLocalKPosition ( n );
+      int nodeJ = element.getNodeJ ( n );
+      int nodeI = element.getNodeI ( n );
+
+      fracturePressureExceeded ( n + 1 ) = currentLayer->fracturedPermeabilityScaling ( nodeI, nodeJ, layerNodeK );
+
+      if ( nodeK == topIndex )
+      {
+         bcs.setBoundaryConditions ( n, Surface_Boundary, surfaceOverPressureValue );
+      }
+      else if ( constrainedOverPressureEnabled )
+      {
+         bcs.setBoundaryConditions ( n, Interior_Constrained_Overpressure, constrainedOverPressureValue );
+      }
+      else if ( layerNodeK == numberOfDepthElements - 1 and 
+                  fracturePressureExceeded ( n + 1 ) > 0.0 )
+      {
+         const GeneralElement* elementAbove = element.getActiveNeighbour ( VolumeData::ShallowFace );
+
+         // Need elemnt boundary conditions in order to eliminate this check for surface porosity == 0.
+         if ( elementAbove != 0 and elementAbove->getLayerElement ().getLithology ()->surfacePorosity () == 0.0 )
+         {
+            double hydrostaticPressure = currentLayer->Current_Properties( Basin_Modelling::Hydrostatic_Pressure,
+                                                                           layerNodeK, nodeJ, nodeI );
+
+            double fracturePressure = hfm.fracturePressure ( elementLithology,
+                                                             currentLayer->fluid,
+                                                             fc.getSeaBottomTemperature ( nodeI, nodeJ, currentTime ),
+                                                             fc.getSeaBottomDepth ( nodeI, nodeJ, currentTime ),
+                                                             currentLayer->Current_Properties ( Basin_Modelling::Depth, layerNodeK, nodeJ, nodeI ),
+                                                             hydrostaticPressure,
+                                                             currentLayer->Current_Properties ( Basin_Modelling::Lithostatic_Pressure, layerNodeK, nodeJ, nodeI ));
+            bcs.setBoundaryConditions ( n, Interior_Constrained_Overpressure,
+                                        NumericFunctions::Maximum ( fracturePressure - hydrostaticPressure, 0.0 ));
+         }
+
+      }
+      else if ( HydraulicFracturingManager::getInstance ().isNonConservativeFractureModel () and
+                currentLayer->nodeIsTemporarilyDirichlet ( nodeI, nodeJ, layerNodeK ))
+      {
+         
+         double hydrostaticPressure = currentLayer->Current_Properties ( Basin_Modelling::Hydrostatic_Pressure,
+                                                                         layerNodeK, nodeJ, nodeI );
+
+         double fracturePressure = hfm.fracturePressure ( elementLithology,
+                                                          currentLayer->fluid,
+                                                          fc.getSeaBottomTemperature ( nodeI, nodeJ, currentTime ),
+                                                          fc.getSeaBottomDepth ( nodeI, nodeJ, currentTime ),
+                                                          currentLayer->Current_Properties ( Basin_Modelling::Depth, layerNodeK, nodeJ, nodeI ),
+                                                          hydrostaticPressure,
+                                                          currentLayer->Current_Properties ( Basin_Modelling::Lithostatic_Pressure, layerNodeK, nodeJ, nodeI ));
+         bcs.setBoundaryConditions ( n, Interior_Constrained_Overpressure,
+                                     NumericFunctions::Maximum ( fracturePressure - hydrostaticPressure, 0.0 ));
+
+
+      }
+      else if ( isIceSheetLayer )
+      {
+         double hydrostaticPressure = currentLayer->Current_Properties ( Basin_Modelling::Hydrostatic_Pressure,
+                                                                         layerNodeK, nodeJ, nodeI );
+         double lithostaticPressure = currentLayer->Current_Properties ( Basin_Modelling::Lithostatic_Pressure,
+                                                                         layerNodeK, nodeJ, nodeI );
+
+
+         // For the ice sheet with Permafrost taking in account, we do noy want to "compute" the overpressure in the ice lithology - we want to impose it.
+         bcs.setBoundaryConditions ( n, Interior_Constrained_Overpressure,
+                                     NumericFunctions::Maximum ( lithostaticPressure - hydrostaticPressure, 0.0 ));
+      }
+      else if ( constrainedOverPressure )
+      {
+         bcs.setBoundaryConditions ( n, Interior_Constrained_Overpressure, constrainedOverpressureValue );
+         
+      }
+
+   }
+
+}
+
+//------------------------------------------------------------//
+
+void PressureSolver::assembleElementSystem ( const GeneralElement&     gridElement,
+                                             const double              currentTime,
+                                             const double              timeStep,
+                                             const BoundaryConditions& bcs,
+                                             const CompoundLithology*  elementLithology,
+                                             const ElementVector&      exceededFracturePressure,
+                                             const bool                includeChemicalCompaction,
+                                             const bool                includeInDarcySimulation,
+                                             const bool                includeWaterSaturation,
+                                             const bool                isIceSheetLayer,
+                                             const Saturation&         currentSaturation,
+                                             const Saturation&         previousSaturation,
+                                             ElementMatrix&            elementJacobian,
+                                             ElementVector&            elementResidual ) const {
+
+   using namespace Basin_Modelling;
+
+   const LayerElement& layerElement = gridElement.getLayerElement ();
+   const LayerProps* currentLayer = layerElement.getFormation ();
+
+   ElementVector currentPh;
+   ElementVector currentPl;
+   ElementVector currentPo;
+   ElementVector currentElementVES;
+   ElementVector currentElementMaxVES;
+   ElementVector currentChemicalCompaction;
+   ElementVector currentElementTemperature;
+
+   ElementVector previousChemicalCompaction;
+   ElementVector previousPh;
+   ElementVector previousPo;
+   ElementVector previousElementVES;
+   ElementVector previousElementMaxVES;
+   ElementVector previousElementTemperature;
+
+   ElementGeometryMatrix geometryMatrix;
+
+   getGeometryMatrix ( layerElement, geometryMatrix );
+
+   getCoefficients ( layerElement, Basin_Modelling::Hydrostatic_Pressure, currentPh );
+   getCoefficients ( layerElement, Basin_Modelling::Lithostatic_Pressure, currentPl );
+   getCoefficients ( layerElement, Basin_Modelling::Overpressure,         currentPo );
+   getCoefficients ( layerElement, Basin_Modelling::VES_FP,               currentElementVES );
+   getCoefficients ( layerElement, Basin_Modelling::Max_VES,              currentElementMaxVES );
+   getCoefficients ( layerElement, Basin_Modelling::Temperature,          currentElementTemperature );
+
+   getPreviousCoefficients ( layerElement, Basin_Modelling::Hydrostatic_Pressure, previousPh );
+   getPreviousCoefficients ( layerElement, Basin_Modelling::Overpressure,         previousPo );
+   getPreviousCoefficients ( layerElement, Basin_Modelling::VES_FP,               previousElementVES );
+   getPreviousCoefficients ( layerElement, Basin_Modelling::Max_VES,              previousElementMaxVES );
+   getPreviousCoefficients ( layerElement, Basin_Modelling::Temperature,          previousElementTemperature );
+
+   if ( includeChemicalCompaction ) {
+      getCoefficients ( layerElement, Basin_Modelling::Chemical_Compaction, currentChemicalCompaction );
+      getPreviousCoefficients ( layerElement, Basin_Modelling::Chemical_Compaction, previousChemicalCompaction );
+   }
+
+   assembleElementPressureSystem ( *basisFunctions,
+                                   currentTime,
+                                   timeStep,
+                                   bcs,
+                                   isIceSheetLayer,
+                                   elementLithology,
+                                   currentLayer->fluid,
+                                   includeChemicalCompaction,
+                                   HydraulicFracturingManager::getInstance ().getModel (),
+                                   geometryMatrix,
+                                   previousPh,
+                                   currentPh,
+                                   previousPo,
+                                   currentPo,
+                                   currentPl,
+                                   previousElementVES,
+                                   currentElementVES,
+                                   previousElementMaxVES,
+                                   currentElementMaxVES,
+                                   previousElementTemperature,
+                                   currentElementTemperature,
+                                   previousChemicalCompaction,
+                                   currentChemicalCompaction,
+                                   exceededFracturePressure,
+                                   includeWaterSaturation,
+                                   currentSaturation,
+                                   previousSaturation,
+                                   elementJacobian,
+                                   elementResidual );
+
+
+}
+
+//------------------------------------------------------------//
+
+void PressureSolver::assembleSystem ( const ComputationalDomain& computationalDomain,
+                                      const double               previousTime,
+                                      const double               currentTime,
+                                      Mat&                       jacobian,
+                                      Vec&                       residual,
+                                      double&                    elementContributionsTime ) {
+
+  using namespace Basin_Modelling;
+  
+  PetscLogStages::push( PetscLogStages::PRESSURE_SYSTEM_ASSEMBLY );
+
+  const int Plane_Quadrature_Degree = getPlaneQuadratureDegree ( cauldron->Optimisation_Level );
+  const int Depth_Quadrature_Degree = getDepthQuadratureDegree ( cauldron->Optimisation_Level );
+
+  double timeStep = previousTime - currentTime;
+
+  PetscLogDouble Element_Start_Time;
+  PetscLogDouble Element_End_Time;
+  PetscLogDouble Start_Time;
+  PetscLogDouble End_Time;
+
+  PetscTime(&Start_Time);
+
+  bool includeGhostValues = true;
+
+  const CauldronGridDescription& grid = FastcauldronSimulator::getInstance ().getCauldronGridDescription ();
+
+  LayerProps_Ptr currentLayer;
+  const CompoundLithology* elementLithology;
+
+  Layer_Iterator FEM_Layers ( cauldron->layers, Ascending, Sediments_Only, Active_Layers_Only );
+  Layer_Iterator Layers_Above; // CHANGE THIS NAME!!!!!
+
+  ElementMatrix elementJacobian;
+  ElementVector elementResidual;
+
+  ElementVector exceededFracturePressure;
+  ElementVector preFractureScaling;
+  double fracturePressure;
+
+  double constrainedPoValue;
+  bool   overpressureIsConstrained;
+  BoundaryConditions bcs;
+  bool includeChemicalCompaction;
+
+  Saturation currentSaturation;
+  Saturation previousSaturation;
+
+  // If Darcy simulation has not been enabled then set the saturation to ( Water => 1, Vapour => 0, Liquid => 0 )
+  currentSaturation.initialise ();
+  previousSaturation.initialise ();
+
+  bool includeWaterSaturation = FastcauldronSimulator::getInstance ().getMcfHandler ().includeWaterSaturationInOp ();
+  bool includedInDarcySimulation = FastcauldronSimulator::getInstance ().getMcfHandler ().solveFlowEquations ();
+
+  const CompositeElementActivityPredicate& activityPredicate = computationalDomain.getActivityPredicate ();
+  int topIndex = computationalDomain.getStratigraphicColumn ().getNumberOfLogicalNodesInDepth ( currentTime ) - 1;
+
+  VecSet ( residual, Zero );
+
+  elementContributionsTime = 0.0;
+
+  if ( basisFunctions == 0 ) {
+     basisFunctions = new FiniteElementMethod::BasisFunctionCache ( Plane_Quadrature_Degree, Plane_Quadrature_Degree, Depth_Quadrature_Degree );
+  }
+
+  for ( FEM_Layers.Initialise_Iterator (); ! FEM_Layers.Iteration_Is_Done (); FEM_Layers++ ) {
+    currentLayer  = FEM_Layers.Current_Layer ();
+
+    const ComputationalDomain::FormationGeneralElementGrid* formationGrid = computationalDomain.getFormationGrid ( currentLayer );
+
+    double fluidDensityForP0_1andT0 = currentLayer->fluid->density ( 0,  0.1 ); 
+
+
+    PetscBlockVector<Saturation> layerSaturations;
+    PetscBlockVector<Saturation> previousLayerSaturations;
+
+    if ( includedInDarcySimulation ) {
+       layerSaturations.setVector ( currentLayer->getVolumeGrid ( Saturation::NumberOfPhases ), currentLayer->getPhaseSaturationVec (), INSERT_VALUES, false );
+       previousLayerSaturations.setVector ( currentLayer->getVolumeGrid ( Saturation::NumberOfPhases ), currentLayer->getPreviousPhaseSaturationVec (), INSERT_VALUES, false );
+    }
+
+    includeChemicalCompaction = (( cauldron->Do_Chemical_Compaction ) && ( currentLayer -> Get_Chemical_Compaction_Mode ()));
+
+    Layers_Above.Initialise_Iterator ( cauldron->layers, Ascending, currentLayer, Ascending, Sediments_Only, Active_Layers_Only );
+
+    currentLayer->getConstrainedOverpressure ( currentTime,
+                                               constrainedPoValue,
+                                               overpressureIsConstrained );
+
+    currentLayer->Current_Properties.Activate_Properties  ( INSERT_VALUES, includeGhostValues );
+    currentLayer->Previous_Properties.Activate_Properties ( INSERT_VALUES, includeGhostValues );
+
+    for ( size_t i = formationGrid->firstI (); i <= formationGrid->lastI (); ++i ) {
+
+       for ( size_t j = formationGrid->firstJ (); j <= formationGrid->lastJ (); ++j ) {
+
+          for ( size_t k = formationGrid->firstK (); k <= formationGrid->lastK (); ++k ) {
+             const GeneralElement& gridElement = formationGrid->getElement ( i, j, k );
+             const LayerElement& layerElement = gridElement.getLayerElement ();
+
+             if ( activityPredicate.isActive ( layerElement )) {
+
+                exceededFracturePressure.fill ( 0.0 );
+                elementResidual.zero ();
+                elementJacobian.zero ();
+
+                if ( includedInDarcySimulation and includeWaterSaturation ) {
+                   currentSaturation = layerSaturations ( layerElement.getLocalKPosition (), layerElement.getJPosition (), layerElement.getIPosition ());
+                   previousSaturation = previousLayerSaturations ( layerElement.getLocalKPosition (), layerElement.getJPosition (), layerElement.getIPosition ());
+                }
+
+                // Copy segment lithology
+                elementLithology = layerElement.getLithology ();
+
+                // if element hase fluid density more than matrix density, we assuming the solid is ice in this case. 
+                bool isIceSheetLayer = layerElement.getFluid ()->SwitchPermafrost() and fluidDensityForP0_1andT0 > elementLithology->density();
+
+                PetscTime(&Element_Start_Time);
+                getBoundaryConditions ( gridElement,
+                                        currentTime,
+                                        topIndex,
+                                        overpressureIsConstrained,
+                                        constrainedPoValue,
+                                        isIceSheetLayer,
+                                        exceededFracturePressure,
+                                        bcs );
+
+                assembleElementSystem ( gridElement, 
+                                        currentTime,
+                                        timeStep,
+                                        bcs,
+                                        elementLithology,
+                                        exceededFracturePressure,
+                                        includeChemicalCompaction,
+                                        includedInDarcySimulation,
+                                        includeWaterSaturation,
+                                        isIceSheetLayer,
+                                        currentSaturation,
+                                        previousSaturation,
+                                        elementJacobian,
+                                        elementResidual );
+
+                PetscTime(&Element_End_Time);
+                elementContributionsTime = elementContributionsTime + Element_End_Time - Element_Start_Time;
+
+                MatSetValues ( jacobian,
+                               8, gridElement.getDofs ().data (),
+                               8, gridElement.getDofs ().data (),
+                               elementJacobian.C_Array (),
+                               ADD_VALUES );
+
+                VecSetValues ( residual,
+                               8, gridElement.getDofs ().data (),
+                               elementResidual.data (),
+                               ADD_VALUES );
+
+          }
+
+        }
+
+      }
+
+    } 
+
+    currentLayer->Current_Properties.Restore_Properties ();
+    currentLayer->Previous_Properties.Restore_Properties ();
+  }
+
+  VecAssemblyBegin ( residual );
+  VecAssemblyEnd   ( residual );
+
+  MatAssemblyBegin ( jacobian, MAT_FINAL_ASSEMBLY );
+  MatAssemblyEnd   ( jacobian, MAT_FINAL_ASSEMBLY );
+
+  PetscTime(&End_Time);
+
+  PetscLogStages::pop();
 }
 
 //------------------------------------------------------------//

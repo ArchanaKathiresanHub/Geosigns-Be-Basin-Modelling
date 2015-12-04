@@ -35,7 +35,7 @@ void MatrixNonZeroCalculator::compute ( const ComputationalDomain& domain,
 
    PetscBlockVector<double> dof;
 
-   // Need get only dof number for this process.
+   // Need get only dof numbers for this process.
    dof.setVector ( scalarNodeGrid, domain.getDofVector (), INSERT_VALUES );
 
    unsigned int activeAbove;
@@ -120,7 +120,8 @@ void MatrixNonZeroCalculator::findColumnActivityRange ( const LocalIntegerArray3
 
    for ( int k = localK - 1; k >= static_cast<int>(depthIndex.first ( 2 )); --k ) { 
 
-      if ( depthIndex ( localI, localJ, k ) != depthIndex ( localI, localJ, localK )) {
+      if ( depthIndex ( localI, localJ, k ) != depthIndex ( localI, localJ, localK ) or
+           k == static_cast<int>(depthIndex.first ( 2 ))) {
          activeBelow = k;
          break;
       }
@@ -177,17 +178,17 @@ void MatrixNonZeroCalculator::countNumberOfActiveDofsForColumn ( const LocalInte
    int activeCount = 1;
    bool isLocalColumn = nodelGrid.isPartOfStencil ( columnI, columnJ, false );
 
-   for ( unsigned int k = localK; k <= activeAbove; ++k ) {
+   for ( unsigned int k = localK + 1; k <= activeAbove; ++k ) {
 
-      if ( depthIndex ( columnI, columnJ, k ) != depthIndex ( columnI, columnJ, localK )) {
+      if ( depthIndex ( columnI, columnJ, k ) != depthIndex ( columnI, columnJ, k - 1 )) {
          ++activeCount;
       }
 
    }
 
-   for ( int k = localK; k >= static_cast<int>(activeBelow); --k ) { 
+   for ( int k = static_cast<int>(localK) - 1; k >= static_cast<int>(activeBelow); --k ) { 
 
-      if ( depthIndex ( columnI, columnJ, k ) != depthIndex ( columnI, columnJ, localK )) {
+      if ( depthIndex ( columnI, columnJ, k ) != depthIndex ( columnI, columnJ, k + 1 )) {
          ++activeCount;
       }
 

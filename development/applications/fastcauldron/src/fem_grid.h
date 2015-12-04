@@ -25,6 +25,8 @@
 #include "VreOutputGrid.h"
 #include "ChemicalCompactionGrid.h"
 
+#include "ComputationalDomain.h"
+
 class TemperatureForVreInputGrid;
 class VitriniteReflectance;
 
@@ -160,9 +162,6 @@ namespace Basin_Modelling {
                                const bool                      majorSnapshotTimesUpdated );
 
 
-     /// \brief Set the degree of freedom numbers for both overpressure and temperature grids.
-     void setDOFs ();
-
      /// \brief Set all vector used in transient calculation to zero.
      void clearLayerVectors ();
 
@@ -228,9 +227,6 @@ namespace Basin_Modelling {
                                                   double& T_Norm,
                                                   bool&   fracturingOccurred );
 
-     /// \brief Deallocate the pressure and/or temperature depth and dof vectors and the fem_grid DA.
-     void Destroy_Vectors ();
-
      /// The properties that are computed as a part of the calculation are copied
      /// from the current time step properties to the previous time step properties.
      void Copy_Current_Properties ();
@@ -256,11 +252,6 @@ namespace Basin_Modelling {
 
     /// \brief Save properties to disk.
     void Save_Properties ( const double Current_Time );
-
-     /// \brief Compute the Courant-Friedrichs-Lewy value.
-     ///
-     /// This is an indicator of the maximum size of time step that should be taken.
-     void Determine_CFL_Value ( double& CFL_Value );
   
      /// \brief Solves the steady state temperature equation for the basement.
      ///
@@ -321,17 +312,6 @@ namespace Basin_Modelling {
      int Number_Of_X_Processors;
      int Number_Of_Y_Processors;
 
-     DM          Pressure_FEM_Grid;
-     DM          Temperature_FEM_Grid;
-
-     Vec         Pressure_Depths;
-     Vec         Pressure_DOF_Numbers;
-     Vec         pressureNodeIncluded;
-
-     Vec         Temperature_Depths;
-     Vec         Temperature_DOF_Numbers;
-
-
      PetscScalar Pressure_Newton_Solver_Tolerance;
      PetscScalar Temperature_Newton_Solver_Tolerance;
 
@@ -367,6 +347,11 @@ namespace Basin_Modelling {
      PetscLogDouble Element_Assembly_Time;
      PetscLogDouble Property_Calculation_Time;
      PetscLogDouble Property_Saving_Time;
+
+     PetscLogDouble m_temperatureDomainResetTime;
+     PetscLogDouble m_temperatureMatrixAllocationTime;
+     PetscLogDouble m_temperatureSolutionMappingTime;
+
      //*}
 
      //*{
@@ -391,14 +376,8 @@ namespace Basin_Modelling {
      ///and corresponding chemical compaction calculator   
      std::auto_ptr<ChemicalCompactionCalculator>  m_chemicalCompactionCalculator;
 
-     //
-     //
-     // Sort out the names here!!!
-     //
-     Temperature_Solver  Temperature_Calculator;
-     CauldronCalculator*   cauldronCalculator;
-
-     PressureSolver* pressureSolver;
+     Temperature_Solver Temperature_Calculator;
+     PressureSolver*    pressureSolver;
 
 
      PropListVec mapOutputProperties;
@@ -418,6 +397,9 @@ namespace Basin_Modelling {
      /// These properties are recorded for each time step as soon as the node comes into existence.
      ///
      History     m_surfaceNodeHistory;
+
+     ComputationalDomain m_temperatureComputationalDomain;
+     ComputationalDomain m_pressureComputationalDomain;
 
   }; // end class FEM_Grid
 

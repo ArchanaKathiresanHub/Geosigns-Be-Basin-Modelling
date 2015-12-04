@@ -271,11 +271,6 @@ public:
 					 const double Surface_Temperature,
 					 const double Surface_Sea_Bottom_Depth );
 
-   /// Each layer contains a 3D Boolean array that indicates if a node 
-   /// is to be included in the mesh or not due to its lithology. The
-   /// values stored in the array's are set here.
-   void SetIncludedNodeArrays ();
-
 
    /// Set the time step used after a snapshot when performing a calculation.
    /// It depends on the maximum burial rate of all of the layers.

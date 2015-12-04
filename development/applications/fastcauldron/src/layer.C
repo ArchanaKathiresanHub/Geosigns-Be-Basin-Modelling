@@ -624,7 +624,6 @@ bool LayerProps::allocateNewVecs ( AppCtx* basinModel, const double Current_Time
     createVec ( Ves );
     createVec ( Max_VES );
     createVec ( Temperature );
-    //setVec(Temperature,CAULDRONIBSNULLVALUE);
    
 
     setVec(Max_VES,Zero);
@@ -672,10 +671,6 @@ bool LayerProps::allocateNewVecs ( AppCtx* basinModel, const double Current_Time
     }
 
    createVec ( m_IlliteFraction );
-
-    if ( includedNodes.isNull ()) {
-      includedNodes.create ( layerDA );
-    }
 
     if( basinModel -> isALC() ) {
        allocateBasementVecs( );
@@ -879,7 +874,7 @@ void LayerProps::setConstrainedOverpressureInterval ( const double startTime,
 
 }
 
-void LayerProps::getConstrainedOverpressure ( const double Time, double& Value, bool& Is_Constrained )
+void LayerProps::getConstrainedOverpressure ( const double Time, double& Value, bool& Is_Constrained ) const
 {
   size_t index;
 
@@ -1273,7 +1268,7 @@ void LayerProps::setLayerElementActivity ( const double age ) {
                         activeSegment2 = getDepositingThickness ( i, j + 1, k, age ) > DepositingThicknessTolerance;
 
                         volumeElement.setIsActive ( activeSegment1 or activeSegment2 );
-                        volumeElement.setIsActiveBoundary ( VolumeData::GAMMA_5, activeSegment1 or activeSegment2 );
+                        volumeElement.setIsActiveBoundary ( VolumeData::Left, activeSegment1 or activeSegment2 );
                      } 
 
                   } else if ( mapElements.firstI ( false ) != 0 and i < mapElements.firstI ( false )) {
@@ -1440,208 +1435,6 @@ void LayerProps::Fill_Topmost_Segment_Arrays ( const double          Previous_Ti
 
 }
 
-
-//------------------------------------------------------------//
-
-#undef  __FUNCT__
-#define __FUNCT__ "LayerProps::LayerProps::SetIncludedNodeArray"
-
-void LayerProps::SetIncludedNodeArray ( const Boolean2DArray& Valid_Needle ) {
-
-   if ( getMaximumNumberOfElements () <= 0 ) {
-    ///
-    /// If there are no elements in the layer then there will be no nodes that need to be included/not-included
-    ///
-    return;
-  }
-
-  int I;
-  int J;
-  int K;
-
-  int xStart;
-  int xCount;
-  int xEnd;
-
-  int yStart;
-  int yCount;
-  int yEnd;
-
-  int zStart;
-  int zCount;
-  int zEnd;
-  bool IncludeGhosts = true;
-
-  DMCreateGlobalVector ( layerDA, &includedNodeVec );
-
-  VecSet ( includedNodeVec, Zero );
-
-  PETSC_3D_Array includedNodeArray ( layerDA, includedNodeVec, INSERT_VALUES, IncludeGhosts );
-
-  DMDAGetGhostCorners ( layerDA, &xStart, &yStart, &zStart, &xCount, &yCount, &zCount );
-
-  xEnd = xStart + xCount;
-  yEnd = yStart + yCount;
-  zEnd = zStart + zCount;
-
-  for ( I = xStart; I < xEnd; I++ ) {
-
-    for ( J = yStart; J < yEnd; J++ ) {
-
-      if ( Valid_Needle ( I, J )) {
-
-        if ( getLithology ( I, J ) -> surfacePorosity () == 0.0 || // salt layer
-             ( fluid->SwitchPermafrost() && fluid->density( 0, 0.1 ) > getLithology( I, J )->density() ) ) { // NLSAY3: Ice sheet modeling
-
-          for ( K = zStart; K < zEnd; K++ ) {
-            includedNodeArray ( K, J, I ) = 0.0;
-          }
-
-        } else {
-
-          for ( K = zStart; K < zEnd; K++ ) {
-            ///
-            /// Dont care what the value is here as long as its greater than 0.0
-            ///
-            includedNodeArray ( K, J, I ) = 1.0; 
-          }
-        }
-      }
-    }
-  }
-
-  includedNodeArray.Restore_Global_Array( Update_Including_Ghosts );
-
-  /// Re-initialise the includedNodeArray PETSC_Array object for copy of its values
-  includedNodeArray.Set_Global_Array ( layerDA, includedNodeVec, INSERT_VALUES, true );
-
-  for ( I = xStart; I < xEnd; I++ ) {
-
-    for ( J = yStart; J < yEnd; J++ ) {
-
-      if ( Valid_Needle ( I, J )) {
-
-        for ( K = zStart; K < zEnd; K++ ) {
-          includedNodes ( I, J, K ) = includedNodeArray ( K, J, I ) > 0.0;
-        }
-
-      }
-
-    }
-
-  }
-
-  VecDestroy ( &includedNodeVec );
-
-}
-
-//------------------------------------------------------------//
-
-
-void LayerProps::SetTopIncludedNodes ( const Boolean2DArray& Valid_Needle,
-                                             Boolean2DArray& topIncludedNodes ) {
-
-   if ( getMaximumNumberOfElements () <= 0 ) {
-    ///
-    /// If there are no elements in the layer then there will be no nodes that need to be included/not-included
-    ///
-    return;
-  }
-
-  int I;
-  int J;
-
-  int xStart;
-  int xCount;
-  int xEnd;
-
-  int yStart;
-  int yCount;
-  int yEnd;
-
-  int zStart;
-  int zCount;
-  int zTop;
-
-  DMDAGetGhostCorners ( layerDA, &xStart, &yStart, &zStart, &xCount, &yCount, &zCount );
-
-  xEnd = xStart + xCount;
-  yEnd = yStart + yCount;
-  zTop = zStart + zCount - 1;
-
-  for ( I = xStart; I < xEnd; I++ ) {
-
-    for ( J = yStart; J < yEnd; J++ ) {
-
-      if ( Valid_Needle ( I, J )) {
-        includedNodes ( I, J, zTop ) = includedNodes ( I, J, zTop ) || topIncludedNodes ( I, J );
-
-        ///
-        /// Now that the layer array has been updated, we can overwrite the topIncludedNodes
-        /// array with the bottom of the layer ready for the top of the next layer.
-        ///
-        topIncludedNodes ( I, J ) = includedNodes ( I, J, 0 );
-      }
-
-    }
-
-  }
-
-}
-
-//------------------------------------------------------------//
-
-
-void LayerProps::SetBottomIncludedNodes ( const Boolean2DArray& Valid_Needle,
-                                                Boolean2DArray& bottomIncludedNodes ) {
-
-   if ( getMaximumNumberOfElements () <= 0 ) {
-    ///
-    /// If there are no elements in the layer then there will be no nodes that need to be included/not-included
-    ///
-    return;
-  }
-
-  int I;
-  int J;
-
-  int xStart;
-  int xCount;
-  int xEnd;
-
-  int yStart;
-  int yCount;
-  int yEnd;
-
-  int zStart;
-  int zCount;
-  int zTop;
-
-  DMDAGetGhostCorners ( layerDA, &xStart, &yStart, &zStart, &xCount, &yCount, &zCount );
-
-  xEnd = xStart + xCount;
-  yEnd = yStart + yCount;
-  zTop = zStart + zCount - 1;
-
-  for ( I = xStart; I < xEnd; I++ ) {
-
-    for ( J = yStart; J < yEnd; J++ ) {
-
-      if ( Valid_Needle ( I, J )) {
-        includedNodes ( I, J, 0 ) = includedNodes ( I, J, 0 ) || bottomIncludedNodes ( I, J );
-
-        ///
-        /// Now that the layer array has been updated, we can overwrite the bottomIncludedNodes
-        /// array with the bottom of the layer ready for the bottom of the next layer.
-        ///
-        bottomIncludedNodes ( I, J ) = includedNodes ( I, J, zTop );
-      }
-
-    }
-
-  }
-
-}
 
 //------------------------------------------------------------//
 
@@ -1911,56 +1704,6 @@ void LayerProps::deleteErosionFactorMap () {
 
 //------------------------------------------------------------//
 
-
-void LayerProps::PutIncludedNodes () const {
-
-   if ( getMaximumNumberOfElements () <= 0 ) {
-    ///
-    /// If there are no elements in the layer then there will be no nodes that need to be included/not-included
-    ///
-    return;
-  }
-
-  int I;
-  int J;
-  int K;
-
-  int xStart;
-  int xCount;
-  int xEnd;
-
-  int yStart;
-  int yCount;
-  int yEnd;
-
-  int zStart;
-  int zCount;
-  int zEnd;
-
-  DMDAGetGhostCorners ( layerDA, &xStart, &yStart, &zStart, &xCount, &yCount, &zCount );
-
-  xEnd = xStart + xCount;
-  yEnd = yStart + yCount;
-  zEnd = zStart + zCount;
-
-  cout << " Nodes for layer " << layername << endl;
-
-  for ( I = xStart; I < xEnd; I++ ) {
-
-    for ( J = yStart; J < yEnd; J++ ) {
-
-      for ( K = zStart; K < zEnd; K++ ) {
-        cout << " Include Node " << I << "  " << J << "  " << K << "  " << int ( includedNodes ( I, J, K )) << endl;
-      }
-
-    }
-
-  }
-
-}
-
-//------------------------------------------------------------//
-
 void LayerProps::setSnapshotInterval ( const SnapshotInterval& interval,
                                              AppCtx*          basinModel ) {
 
@@ -2055,125 +1798,6 @@ void LayerProps::interpolateProperty (       AppCtx*                  basinModel
   }
 
 }
-
-//------------------------------------------------------------//
-
-
-void LayerProps::Determine_CFL_Value ( AppCtx* Basin_Model,
-                                       double& Layer_CFL_Value ) {
-
-  using namespace Basin_Modelling;
-
-  const bool Include_Chemical_Compaction = (( Basin_Model -> Do_Chemical_Compaction ) && ( Get_Chemical_Compaction_Mode ()));
-
-  double Element_CFL_Value;
-
-  int K;
-  int I_Position;
-  int J_Position;
-
-  int X_Start, X_Count;
-  int Y_Start, Y_Count;
-  int Z_Start, Z_Count;
-  size_t Element_Index;
-  int layerMx, layerMy, layerMz;
-  int Inode;
-
-  const CauldronGridDescription& grid = FastcauldronSimulator::getInstance ().getCauldronGridDescription ();
-
-  double Delta_X  = grid.deltaI;
-  double Delta_Y  = grid.deltaJ;
-  double Origin_X = grid.originI;
-  double Origin_Y = grid.originJ;
-
-  const CompoundLithology*  Element_Lithology;
-
-
-  Layer_CFL_Value = 100.0 * Secs_IN_MA;
-
-  ElementVector Current_Ph;
-  ElementVector Current_Po;
-  ElementVector Current_Element_VES;
-  ElementVector Current_Element_Max_VES;
-  ElementVector Current_Element_Temperature;
-  ElementVector Current_Element_Chemical_Compaction;
-  ElementGeometryMatrix Geometry_Matrix;
-
-  ElementVector Exceeded_Fracture_Pressure;
-
-  bool Include_Ghost_Values = true;
-
-  Element_Positions Positions;
-
-  DMDAGetInfo( layerDA,0,&layerMx,&layerMy,&layerMz,0,0,0,0,0,0,0,0,0);
-  DMDAGetCorners ( layerDA, &X_Start, &Y_Start, &Z_Start, &X_Count, &Y_Count, &Z_Count );
-
-  Current_Properties.Activate_Properties  ( INSERT_VALUES, Include_Ghost_Values );
-
-  for ( K = Z_Start; K < Z_Start + Z_Count; K++ ) {
-
-    if ( K != layerMz - 1 ) {
-
-      for ( Element_Index = 0; Element_Index < Basin_Model -> mapElementList.size (); Element_Index++ ) {
-
-        if ( Basin_Model -> mapElementList [ Element_Index ].exists ) {
-          //
-          //
-          // Copy segment lithologies
-          //
-          I_Position = Basin_Model->mapElementList [ Element_Index ].i [ 0 ];
-          J_Position = Basin_Model->mapElementList [ Element_Index ].j [ 0 ];
-
-          Element_Lithology = getLithology ( I_Position, J_Position );
-
-          for (Inode = 0; Inode<8; Inode++) {
-            int LidxZ = K + (Inode<4 ? 1 : 0);
-            int GidxY = Basin_Model->mapElementList [ Element_Index ].j[Inode%4];
-            int GidxX = Basin_Model->mapElementList [ Element_Index ].i[Inode%4];
-
-            Positions.Set_Node_Position ( Inode, LidxZ, GidxY, GidxX );
-            Exceeded_Fracture_Pressure ( Inode + 1 ) = fracturedPermeabilityScaling ( GidxX, GidxY, LidxZ );
-
-            Geometry_Matrix ( 1, Inode + 1 ) = Origin_X + (Delta_X * GidxX);
-            Geometry_Matrix ( 2, Inode + 1 ) = Origin_Y + (Delta_Y * GidxY);
-            Geometry_Matrix ( 3, Inode + 1 ) = Current_Properties ( Basin_Modelling::Depth, LidxZ, GidxY, GidxX );
-          }
-
-          Current_Properties.Extract_Property ( Basin_Modelling::Hydrostatic_Pressure, Positions, Current_Ph );
-          Current_Properties.Extract_Property ( Basin_Modelling::Overpressure,         Positions, Current_Po );
-          Current_Properties.Extract_Property ( Basin_Modelling::VES_FP,               Positions, Current_Element_VES );
-          Current_Properties.Extract_Property ( Basin_Modelling::Max_VES,              Positions, Current_Element_Max_VES );
-          Current_Properties.Extract_Property ( Basin_Modelling::Temperature,          Positions, Current_Element_Temperature );
-          Current_Properties.Extract_Property ( Basin_Modelling::Chemical_Compaction,  Positions, Current_Element_Chemical_Compaction );
-
-          Element_CFL_Value = Basin_Modelling::CFL_Value ( Element_Lithology, this->fluid, 
-                                                           Include_Chemical_Compaction,
-                                                           Geometry_Matrix,
-                                                           Current_Ph, 
-                                                           Current_Po, 
-                                                           Current_Element_VES, 
-                                                           Current_Element_Max_VES, 
-                                                           Current_Element_Temperature,
-                                                           Current_Element_Chemical_Compaction,
-                                                           Exceeded_Fracture_Pressure );
-
-          Layer_CFL_Value = NumericFunctions::Minimum ( Layer_CFL_Value, Element_CFL_Value );
-
-        }
-
-      }
-
-    }
-
-  }
-
-
-  Layer_CFL_Value = Layer_CFL_Value / Secs_IN_MA;
-
-  Current_Properties.Restore_Properties ();
-
-}
-
 
 //------------------------------------------------------------//
 
@@ -2278,10 +1902,6 @@ void LayerProps::computeThicknessScaling ( const double startTime,
                   depositionSolidThickness += getDepositingThickness ( i, j, k, 0.0 );
                   currentSolidThickness += getDepositingThickness ( i, j, k, endTime );
                   previousSolidThickness += getDepositingThickness ( i, j, k, startTime );
-
-                  // depositionSolidThickness += getSolidThickness ( i, j, k, 0.0 );
-                  // currentSolidThickness += getSolidThickness ( i, j, k, endTime );
-                  // previousSolidThickness += getSolidThickness ( i, j, k, startTime );
                }
 
                if ( depositionSolidThickness != 0.0 ) {
@@ -2328,8 +1948,6 @@ void LayerProps::computeThicknessScaling ( const double time,
                for ( k = 0; k < getMaximumNumberOfElements (); ++k ) {
                   depositionSolidThickness += getDepositingThickness ( i, j, k, 0.0 );
                   currentSolidThickness += getDepositingThickness ( i, j, k, time );
-                  // depositionSolidThickness += getSolidThickness ( i, j, k, 0.0 );
-                  // currentSolidThickness += getSolidThickness ( i, j, k, time );
                }
 
                if ( depositionSolidThickness != 0.0 ) {

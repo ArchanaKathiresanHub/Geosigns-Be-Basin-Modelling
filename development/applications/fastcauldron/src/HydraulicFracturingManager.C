@@ -336,34 +336,7 @@ void HydraulicFracturingManager::checkForFracturing ( LayerProps*           theL
 
             increaseFactor = permeabilityScalingIncreaseFactor ();
             decreaseFactor = NumericFunctions::Maximum ( 1.0, 0.25 * increaseFactor );
-
-#if 0
-            startFracturingPressure = hydrostaticPressure + StartFracturingScalingFactor [ m_basinModel->fracturingModel ] * ( computedFracturePressure - hydrostaticPressure );
-            startFracturingPressure = NumericFunctions::Maximum ( startFracturingPressure, hydrostaticPressure );
-
-            computedFracturePressure = FracurePressureScalingFactor [ m_basinModel->fracturingModel ] * computedFracturePressure;
-            computedFracturePressure = NumericFunctions::Minimum ( computedFracturePressure, lithostaticPressure );
-            nodeHasFractured = false;
-#endif
-
             nodeHasFractured = porePressure > hydrostaticPressure and porePressure >= computedFracturePressure;
-
-#if 0
-            if ( porePressure > startFracturingPressure ) {
-
-              if ( porePressure >= computedFracturePressure ) {
-                nodeHasFractured = true;
-                increaseFactor = 4;
-              } else {
-                double scaling = MaximumPreFracturingScaling * ( porePressure - startFracturingPressure ) / ( computedFracturePressure - startFracturingPressure );
-                preFractureScaling ( i, j, k ) = scaling;
-              }
-
-            } else {
-              preFractureScaling ( i, j, k ) = MaximumPreFracturingScaling;
-              preFractureScaling ( i, j, k ) = 0.0;
-            }
-#endif
 
             if ( nodeHasFractured ) {
               theLayer->fracturedPermeabilityScaling ( i, j, k ) = NumericFunctions::Minimum ( theLayer->fracturedPermeabilityScaling ( i, j, k ) + increaseFactor, 40.0 );

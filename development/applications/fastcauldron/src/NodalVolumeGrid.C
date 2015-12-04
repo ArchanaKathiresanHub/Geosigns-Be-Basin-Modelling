@@ -96,8 +96,6 @@ void NodalVolumeGrid::resizeInZDirection ( const int numberOfZNodes ) {
 
    if ( not isInitialised ()) {
       // Error.
-   } else if ( numberOfZNodes == ( lastK () - firstK () + 1 )) {
-      return;
    } else {
       DM volumeDa;
 

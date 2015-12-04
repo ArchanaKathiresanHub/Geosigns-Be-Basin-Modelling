@@ -10,6 +10,7 @@
 #include "globaldefs.h"
 #include "Quadrature.h"
 #include "HydraulicFracturingManager.h"
+#include "BoundaryConditions.h"
 
 //------------------------------------------------------------//
 
@@ -35,14 +36,6 @@ using namespace FiniteElementMethod;
 
 namespace Basin_Modelling {
 
-
-  enum Element_Boundary { Gamma_1, Gamma_2, Gamma_3, Gamma_4, Gamma_5, Gamma_6 };
-
-  string Element_Boundary_Image ( const Element_Boundary Boundary );
-
-
-  //------------------------------------------------------------//
-
   void Compute_Normal
      ( const Matrix3x3&              Jacobian,
              ThreeVector&            Normal );
@@ -52,52 +45,10 @@ namespace Basin_Modelling {
              ThreeVector&            Normal,
              ThreeVector&            angles );
 
-  void Set_Heat_Conductivity_Tensor
-     ( const double                   Conductivity_Normal,
-       const double                   Conductivity_Plane,
-       const Matrix3x3&              Jacobian,
-             Matrix3x3&              Conductivity_Tensor );
-
-  void Set_Permeability_Tensor
-     ( const PetscScalar              Permeability_Normal,
-       const PetscScalar              Permeability_Plane,
-       const Matrix3x3&              Jacobian,
-             Matrix3x3&              Permeability_Tensor );
-
-
-  double Compute_Solid_Thickness
-     ( const ElementVector& Thickness,
-       const ElementVector& Basis );
-
-
-  double Maximum_Diameter 
-     ( const ElementGeometryMatrix& geometryMatrix );
-
-  double CFL_Value
-     ( const CompoundLithology*            Lithology,
-       const GeoPhysics::FluidType*        Fluid,
-       const bool                          includeChemicalCompaction,
-       const ElementGeometryMatrix&      geometryMatrix,
-       const ElementVector&               Current_Ph,
-       const ElementVector&               Current_Po,
-       const ElementVector&               Current_Element_VES,
-       const ElementVector&               Current_Element_Max_VES,
-       const ElementVector&               Current_Element_Temperature,
-       const ElementVector&               Current_Element_Chemical_Compaction,
-       const ElementVector&               Fracture_Pressure_Exceeded );
-
-
-   void computePermGradPTerm ( const bool                debugParameter,
-                               const bool                Has_Fractured,
-                               const double              fractureScaling,
-                               const double              VES,
-                               const double              Max_VES,
-                               const CompoundProperty&   Porosity,
-                               const double              relativePermeability,
-                               const Matrix3x3&          Jacobian,
-                               const ThreeVector&        Grad_Overpressure,
-                               const CompoundLithology*  lithology,
-                                     ThreeVector&        permGradP );
+   void setTensor ( const PetscScalar valueNormal,
+                    const PetscScalar valuePlane,
+                    const Matrix3x3&  jacobian,
+                    Matrix3x3&        tensor );
 
    void computeFluidMobilityTerms ( const bool                Has_Fractured,
                                     const double              fractureScaling,
@@ -165,211 +116,7 @@ namespace Basin_Modelling {
 
   bool Degenerate_Element ( const ElementGeometryMatrix& geometryMatrix );
 
-  ///
-  /// Applies the Neumann type boundar conditions to the temperature equations.
-  ///
-  void Apply_Heat_Flow_Boundary_Conditions 
-     ( const ElementGeometryMatrix& geometryMatrix,
-       const ElementVector&          Nodal_BC_Values,
-             ElementVector&          ElementVector_Contributions );
-
-  void applyPressureNeumannBoundaryConditions 
-     ( const ElementGeometryMatrix& geometryMatrix,
-       const CompoundLithology*       Lithology,
-       const GeoPhysics::FluidType*   Fluid,
-       const bool                     includeChemicalCompaction,
-       const Boundary_Conditions*     BCs,
-       const ElementVector&          Current_Ph,
-       const ElementVector&          Current_Po,
-       const ElementVector&          Current_Element_VES,
-       const ElementVector&          Current_Element_Max_VES,
-       const ElementVector&          Current_Element_Temperature,
-       const ElementVector&          Current_Element_Chemical_Compaction,
-             ElementVector&          ElementVector_Contributions );
-
-  ///
-  /// Apply Dirichlet type boundary conditions to both Jacobian and 
-  /// residual for non-linear systems using the Newton solver.
-  ///
-  void Apply_Dirichlet_Boundary_Conditions_Newton
-     ( const Boundary_Conditions*          BCs,
-       const ElementVector&               Dirichlet_Boundary_Values,
-       const double                        Dirichlet_Boundary_Scaling,
-       const ElementVector&               Current_Property_Values,
-             ElementMatrix&               Jacobian,
-             ElementVector&               Residual );
-
-  void Apply_Dirichlet_Boundary_Conditions_Newton
-     ( const Boundary_Conditions*          BCs,
-       const ElementVector&                Dirichlet_Boundary_Values,
-       const double                        Dirichlet_Boundary_Scaling,
-       const ElementVector&                Current_Property_Values,
-             Matrix8x8&                    Jacobian,
-             ElementVector&                Residual );
-
-  ///
-  /// Apply Dirichlet type boundary conditions to residual
-  /// only for non-linear systems using the Newton solver.
-  ///
-  void Apply_Dirichlet_Boundary_Conditions_Newton
-     ( const Boundary_Conditions*          BCs,
-       const ElementVector&               Dirichlet_Boundary_Values,
-       const double                        Dirichlet_Boundary_Scaling,
-       const ElementVector&               Current_Property_Values,
-             ElementVector&               Residual );
-
-  ///
-  /// Apply Dirichlet type boundary conditions to both stiffness 
-  /// matrix and load vector for linearised systems.
-  ///
-  void Apply_Dirichlet_Boundary_Conditions_Linear
-     ( const Boundary_Conditions*          BCs,
-       const ElementVector&               Dirichlet_Boundary_Values,
-       const double                        Dirichlet_Boundary_Scaling,
-             ElementMatrix&               Stiffness_Matrix,
-             ElementVector&               Load_Vector );
-
-  ///
-  /// Assemble the Jacobian and residual for elements have a salt lithology 
-  /// (in fact its for any lithology with zero porosity).
-  ///
-  void Assemble_Element_Pressure_Salt_System
-     ( const double                   timeStep,
-       const CompoundLithology*       Lithology,
-       const GeoPhysics::FluidType*   Fluid,
-       const ElementGeometryMatrix&   geometryMatrix,
-             ElementMatrix&           Element_Jacobian,
-             ElementVector&           Element_Residual );
-
-  ///
-  /// The overpressure equation:
-  ///
-  /// \f$
-  ///      \frac{\partial (\phi \rho_f)}{\partial t}=
-  ///                      \nabla \cdot \left( \frac{\rho_f k}{\mu} \nabla P_o \right) + S_p
-  /// \f$
-  ///
-  /// The weak form:
-  ///
-  /// \f$
-  ///      \int_{e} N \frac{(\phi \rho_f)_{n}}{\delta t} dx - \int_{e} N \frac{(\phi \rho_f)_{n-1}}{\delta t} dx =
-  ///                       \int_{e} \nabla N \cdot \left( \frac{\rho_f k}{\mu} \nabla P_o \right)  dx +
-  ///                       \int_{e} N S_p  dx
-  /// \f$
-  ///
-  /// The Residual:
-  ///
-  /// \f$
-  ///     R = -\int_{e} N \frac{(\phi \rho_f)_{n}}{\delta t} dx + \int_{e} N \frac{(\phi \rho_f)_{n-1}}{\delta t} dx
-  ///          -\int_{e} \nabla N \cdot \left( \frac{\rho_f k}{\mu} \nabla P_o \right)  dx
-  ///          +\int_{e} N S_p  dx
-  /// \f$
-  ///
-  /// The overpressure is defined as:
-  ///
-  /// \f$
-  ///      P_o(x) = \sum_{i=1}^n \alpha_i N_{i}(x)
-  /// \f$
-  ///
-  /// The Jacobian:
-  ///
-  /// \begin{eqnarray}
-  ///     J & = & \frac{\partial R}{\partial \alpha_i} \\
-  ///       & = & -\int_{e} N \frac{\partial (\phi \rho_f)_{n}}{\partial P_o}\frac{1}{\delta t} N dx
-  ///             -\int_{e} \nabla N \left( \frac{1}{\mu}\frac{\partial (k \rho_f)}{\partial P_o} \nabla P_o \right) N dx
-  ///             -\int_{e} \nabla N \left(\frac{k \rho_f}{\mu} \right) \nabla N dx
-  /// \end{eqnarray}
-  ///
-  ///
-  ///
-  void Assemble_Element_Pressure_System
-     ( const BasisFunctionCache&           basisFunctions,
-       const double                        currentTime,
-       const double                        timeStep,
-       const Boundary_Conditions*          Element_BCs,
-       const Boundary_Conditions*          BCs,
-       const ElementVector&                Dirichlet_Boundary_Values,
-       const bool                          isIceSheetLayer,
-       const CompoundLithology*            Lithology,
-       const GeoPhysics::FluidType*        Fluid,
-       const bool                          includeChemicalCompaction,
-       const Interface::FracturePressureModel         fractureModel,
-
-       const ElementGeometryMatrix&      previousGeometryMatrix,
-       const ElementGeometryMatrix&      geometryMatrix,
-
-       const ElementVector&               Previous_Element_Solid_Thickness,
-       const ElementVector&               Current_Element_Solid_Thickness,
-       const ElementVector&               Previous_Ph,
-       const ElementVector&               Current_Ph,
-       const ElementVector&               Previous_Po,
-       const ElementVector&               Current_Po,
-       const ElementVector&               Current_Pl,
-       const ElementVector&               Previous_Element_VES,
-       const ElementVector&               Current_Element_VES,
-       const ElementVector&               Previous_Element_Max_VES,
-       const ElementVector&               Current_Element_Max_VES,
-       const ElementVector&               Previous_Element_Temperature,
-       const ElementVector&               Current_Element_Temperature,
-
-       const ElementVector&               Previous_Element_Chemical_Compaction,
-       const ElementVector&               Current_Element_Chemical_Compaction,
-
-       const ElementVector&               Fracture_Pressure_Exceeded,
-       const ElementVector&               preFractureScaling,
-       const BooleanVector&               Included_Nodes,
-
-       const bool                         includeWaterSaturation,
-       const Saturation&                  currentSaturation,
-       const Saturation&                  previousSaturation,
-
-             ElementMatrix&               Element_Jacobian,
-             ElementVector&               Element_Residual );
 			 
-  void Assemble_Element_Pressure_System
-     ( const BasisFunctionCache&           basisFunctions,
-       const double                        currentTime,
-       const double                        timeStep,
-       const Boundary_Conditions*          Element_BCs,
-       const Boundary_Conditions*          BCs,
-       const ElementVector&                Dirichlet_Boundary_Values,
-       const bool                          isIceSheetLayer,
-       const CompoundLithology*            Lithology,
-       const GeoPhysics::FluidType*        Fluid,
-       const bool                          includeChemicalCompaction,
-       const Interface::FracturePressureModel         fractureModel,
-
-       const ElementGeometryMatrix&      previousGeometryMatrix,
-       const ElementGeometryMatrix&      geometryMatrix,
-
-       const ElementVector&               Previous_Element_Solid_Thickness,
-       const ElementVector&               Current_Element_Solid_Thickness,
-       const ElementVector&               Previous_Ph,
-       const ElementVector&               Current_Ph,
-       const ElementVector&               Previous_Po,
-       const ElementVector&               Current_Po,
-       const ElementVector&               Current_Pl,
-       const ElementVector&               Previous_Element_VES,
-       const ElementVector&               Current_Element_VES,
-       const ElementVector&               Previous_Element_Max_VES,
-       const ElementVector&               Current_Element_Max_VES,
-       const ElementVector&               Previous_Element_Temperature,
-       const ElementVector&               Current_Element_Temperature,
-
-       const ElementVector&               Previous_Element_Chemical_Compaction,
-       const ElementVector&               Current_Element_Chemical_Compaction,
-
-       const ElementVector&               Fracture_Pressure_Exceeded,
-       const ElementVector&               preFractureScaling,
-       const BooleanVector&               Included_Nodes,
-
-       const bool                         includeWaterSaturation,
-       const Saturation&                  currentSaturation,
-       const Saturation&                  previousSaturation,
-
-             Matrix8x8&                   Element_Jacobian,
-             ElementVector&               Element_Residual );
-
 
   void computeHeatFlow
      ( const bool                     isBasementFormation,
@@ -423,196 +170,150 @@ namespace Basin_Modelling {
              Matrix3x3&          Conductivity_Tensor );
 
 
-  void Assemble_Element_Temperature_System
-     ( const bool                          isBasementFormation,
-	   const int                           planeQuadratureDegree,
-       const int                           depthQuadratureDegree,
-       const double                        currentTime,
-       const double                        timeStep,
-       const bool                          Is_Steady_State,
-       const bool                          Include_Advection_Term,
-       const Boundary_Conditions*          BCs,
-       const ElementVector&               Dirichlet_Boundary_Values,
-       const CompoundLithology*            Lithology,
-       const GeoPhysics::FluidType*        Fluid,
-       const bool                          includeChemicalCompaction,
+  /// \brief Applies the Neumann type boundar conditions to the temperature equations.
+  void applyHeatFlowBoundaryConditions ( const ElementGeometryMatrix& geometryMatrix,
+                                         const BoundaryConditions&    bcs,
+                                         ElementVector&               ElementVector_Contributions );
 
-       const ElementGeometryMatrix&      previousGeometryMatrix,
-       const ElementGeometryMatrix&      geometryMatrix,
+   /// \brief Apply Dirichlet type boundary conditions for the linearised temperature equation.
+   void applyDirichletBoundaryConditionsLinear ( const BoundaryConditions&  bcs,
+                                                 const double               Dirichlet_Boundary_Scaling,
+                                                 ElementMatrix&             Stiffness_Matrix,
+                                                 ElementVector&             Load_Vector );
 
-       const ElementVector&               Element_Heat_Production,
-       const ElementVector&               Previous_Ph,
-       const ElementVector&               Current_Ph,
-       const ElementVector&               Previous_Po,
-       const ElementVector&               Current_Po,
-       const ElementVector&               Current_Lp,
-       const ElementVector&               Previous_Element_VES,
-       const ElementVector&               Current_Element_VES,
-       const ElementVector&               Previous_Element_Max_VES,
-       const ElementVector&               Current_Element_Max_VES,
-       const ElementVector&               Previous_Element_Temperature,
-       const ElementVector&               Current_Element_Temperature,
+   /// \brief Apply Dirichlet type boundary conditions for non-linear pressure and temperature equations.
+   void applyDirichletBoundaryConditionsNewton ( const BoundaryConditions&  bcs,
+                                                 const double               dirichletBoundaryScaling,
+                                                 const double               conversionFactor,
+                                                 const ElementVector&       currentPropertyValues,
+                                                 ElementMatrix&             matrix,
+                                                 ElementVector&             vector );
 
-       const ElementVector&               Previous_Element_Chemical_Compaction,
-       const ElementVector&               Current_Element_Chemical_Compaction,
+   /// \brief Apply Dirichlet type boundary conditions for non-linear pressure and temperature equations.
+   void applyDirichletBoundaryConditionsNewton ( const BoundaryConditions&  bcs,
+                                                 const double               dirichletBoundaryScaling,
+                                                 const double               conversionFactor,
+                                                 const ElementVector&       currentPropertyValues,
+                                                 ElementVector&             vector );
 
-             ElementMatrix&               Element_Jacobian,
-             ElementVector&               Element_Residual );
+   /// \brief Assemble the element Jacobian and residual for the pressure equation.
+   void assembleElementPressureSystem ( const BasisFunctionCache&              basisFunctions,
+                                        const double                           currentTime,
+                                        const double                           timeStep,
+                                        const BoundaryConditions&              bcs,
+                                        const bool                             isIceSheetLayer,
+                                        const CompoundLithology*               Lithology,
+                                        const GeoPhysics::FluidType*           Fluid,
+                                        const bool                             includeChemicalCompaction,
+                                        const Interface::FracturePressureModel fractureModel,
+                                        const ElementGeometryMatrix&           geometryMatrix,
+                                        const ElementVector&                   Previous_Ph,
+                                        const ElementVector&                   Current_Ph,
+                                        const ElementVector&                   Previous_Po,
+                                        const ElementVector&                   Current_Po,
+                                        const ElementVector&                   Current_Pl,
+                                        const ElementVector&                   Previous_Element_VES,
+                                        const ElementVector&                   Current_Element_VES,
+                                        const ElementVector&                   Previous_Element_Max_VES,
+                                        const ElementVector&                   Current_Element_Max_VES,
+                                        const ElementVector&                   Previous_Element_Temperature,
+                                        const ElementVector&                   Current_Element_Temperature,
+                                        const ElementVector&                   Previous_Element_Chemical_Compaction,
+                                        const ElementVector&                   Current_Element_Chemical_Compaction,
+                                        const ElementVector&                   Fracture_Pressure_Exceeded,
+                                        const bool                             includeWaterSaturation,
+                                        const Saturation&                      currentSaturation,
+                                        const Saturation&                      previousSaturation,
+                                        ElementMatrix&                         elementJacobian,
+                                        ElementVector&                         elementResidual );
 
-
-  void Assemble_Element_Temperature_Residual
-     ( const bool                          isBasementFormation,
-	   const int                           planeQuadratureDegree,
-       const int                           depthQuadratureDegree,
-       const double                        currentTime,
-       const double                        timeStep,
-       const bool                          Is_Steady_State,
-       const bool                          Include_Advection_Term,
-       const Boundary_Conditions*          BCs,
-       const ElementVector&                Dirichlet_Boundary_Values,
-       const CompoundLithology*            Lithology,
-       const GeoPhysics::FluidType*        Fluid,
-       const bool                          includeChemicalCompaction,
-
-       const ElementGeometryMatrix&      previousGeometryMatrix,
-       const ElementGeometryMatrix&      geometryMatrix,
-
-       const ElementVector&               Element_Heat_Production,
-       const ElementVector&               Previous_Ph,
-       const ElementVector&               Current_Ph,
-       const ElementVector&               Previous_Po,
-       const ElementVector&               Current_Po,
-       const ElementVector&               Current_Lp,
-       const ElementVector&               Previous_Element_VES,
-       const ElementVector&               Current_Element_VES,
-       const ElementVector&               Previous_Element_Max_VES,
-       const ElementVector&               Current_Element_Max_VES,
-       const ElementVector&               Previous_Element_Temperature,
-       const ElementVector&               Current_Element_Temperature,
-
-       const ElementVector&               Previous_Element_Chemical_Compaction,
-       const ElementVector&               Current_Element_Chemical_Compaction,
-
-             ElementVector&               Element_Residual );
-
-
-
-  void Assemble_Element_Temperature_Stiffness_Matrix
-     ( const bool                          isBasementFormation,
-	   const int                           planeQuadratureDegree,
-       const int                           depthQuadratureDegree,
-       const double                        currentTime,
-       const double                        timeStep,
-       const bool                          Is_Steady_State,
-       const bool                          Include_Advection_Term,
-       const Boundary_Conditions*          BCs,
-       const ElementVector&               Nodal_BC_Values,
-       const CompoundLithology*            Lithology,
-       const GeoPhysics::FluidType*        Fluid,
-       const bool                          includeChemicalCompaction,
-
-       const ElementGeometryMatrix&       geometryMatrix,
-       const ElementVector&               Element_Heat_Production,
-       const ElementVector&               Current_Ph,
-       const ElementVector&               Current_Po,
-
-       const ElementVector&               Previous_Pp,
-       const ElementVector&               Current_Pp,
-       const ElementVector&               Previous_Lp,
-       const ElementVector&               Current_Lp,
-
-       const ElementVector&               Previous_Element_VES,
-       const ElementVector&               Current_Element_VES,
-
-       const ElementVector&               Previous_Element_Max_VES,
-       const ElementVector&               Current_Element_Max_VES,
-
-       const ElementVector&               Previous_Element_Temperature,
-       const ElementVector&               Current_Element_Temperature,
-       const ElementVector&               Previous_Element_Chemical_Compaction,
-       const ElementVector&               Current_Element_Chemical_Compaction,
-
-             ElementMatrix&               Element_Stiffness_Matrix,
-             ElementVector&               Element_Load_Vector );
+   /// \brief Assemble the element Jacobian and residual for the temperature equation.
+  void assembleElementTemperatureSystem ( const bool                   isBasementFormation,
+                                          const int                    planeQuadratureDegree,
+                                          const int                    depthQuadratureDegree,
+                                          const double                 currentTime,
+                                          const double                 timeStep,
+                                          const bool                   Include_Advection_Term,
+                                          const BoundaryConditions&    bcs,
+                                          const CompoundLithology*     lithology,
+                                          const GeoPhysics::FluidType* fluid,
+                                          const bool                   includeChemicalCompaction,
+                                          const ElementGeometryMatrix& geometryMatrix,
+                                          const ElementVector&         Element_Heat_Production,
+                                          const ElementVector&         Previous_Ph,
+                                          const ElementVector&         Current_Ph,
+                                          const ElementVector&         Previous_Po,
+                                          const ElementVector&         Current_Po,
+                                          const ElementVector&         Current_Lp,
+                                          const ElementVector&         Previous_Element_VES,
+                                          const ElementVector&         Current_Element_VES,
+                                          const ElementVector&         Previous_Element_Max_VES,
+                                          const ElementVector&         Current_Element_Max_VES,
+                                          const ElementVector&         Previous_Element_Temperature,
+                                          const ElementVector&         Current_Element_Temperature,
+                                          const ElementVector&         Previous_Element_Chemical_Compaction,
+                                          const ElementVector&         Current_Element_Chemical_Compaction,
+                                          ElementMatrix&               Element_Jacobian,
+                                          ElementVector&               Element_Residual );
 
 
-  void Assemble_Element_Pressure_System2
-     ( const int                           planeQuadratureDegree,
-       const int                           depthQuadratureDegree,
-       const double                        currentTime,
-       const double                        timeStep,
-       const Boundary_Conditions*  Element_BCs,
-       const Boundary_Conditions*          BCs,
-       const ElementVector&               Dirichlet_Boundary_Values,
-       const CompoundLithology*            Lithology,
-       const GeoPhysics::FluidType*        Fluid,
-       const bool                          includeChemicalCompaction,
+   /// \brief Assemble the element residual for the temperature equation.
+  void assembleElementTemperatureResidual ( const bool                   isBasementFormation,
+                                            const int                    planeQuadratureDegree,
+                                            const int                    depthQuadratureDegree,
+                                            const double                 currentTime,
+                                            const double                 timeStep,
+                                            const bool                   Include_Advection_Term,
+                                            const BoundaryConditions&    bcs,
+                                            const CompoundLithology*     lithology,
+                                            const GeoPhysics::FluidType* fluid,
+                                            const bool                   includeChemicalCompaction,
+                                            const ElementGeometryMatrix& geometryMatrix,
+                                            const ElementVector&         Element_Heat_Production,
+                                            const ElementVector&         Previous_Ph,
+                                            const ElementVector&         Current_Ph,
+                                            const ElementVector&         Previous_Po,
+                                            const ElementVector&         Current_Po,
+                                            const ElementVector&         Current_Lp,
+                                            const ElementVector&         Previous_Element_VES,
+                                            const ElementVector&         Current_Element_VES,
+                                            const ElementVector&         Previous_Element_Max_VES,
+                                            const ElementVector&         Current_Element_Max_VES,
+                                            const ElementVector&         Previous_Element_Temperature,
+                                            const ElementVector&         Current_Element_Temperature,
+                                            const ElementVector&         Previous_Element_Chemical_Compaction,
+                                            const ElementVector&         Current_Element_Chemical_Compaction,
+                                            ElementVector&               Element_Residual );
 
-       const ElementGeometryMatrix&      previousGeometryMatrix,
-       const ElementGeometryMatrix&      geometryMatrix,
-
-       const ElementVector&               Previous_Element_Solid_Thickness,
-       const ElementVector&               Current_Element_Solid_Thickness,
-       const ElementVector&               Previous_Ph,
-       const ElementVector&               Current_Ph,
-       const ElementVector&               Previous_Po,
-       const ElementVector&               Current_Po,
-       const ElementVector&               Current_Pl,
-       const ElementVector&               Previous_Element_VES,
-       const ElementVector&               Current_Element_VES,
-       const ElementVector&               Previous_Element_Max_VES,
-       const ElementVector&               Current_Element_Max_VES,
-       const ElementVector&               Previous_Element_Temperature,
-       const ElementVector&               Current_Element_Temperature,
-
-       const ElementVector&               Previous_Element_Chemical_Compaction,
-       const ElementVector&               Current_Element_Chemical_Compaction,
-
-       const ElementVector&               Fracture_Pressure_Exceeded,
-       const BooleanVector&               Included_Nodes,
-
-             ElementMatrix&               Element_Jacobian,
-             ElementVector&               Element_Residual );
-
-
-  void Assemble_Element_Pressure_Residual2
-     ( const int                           planeQuadratureDegree,
-       const int                           depthQuadratureDegree,
-       const double                        currentTime,
-       const double                        timeStep,
-       const Boundary_Conditions*  Element_BCs,
-       const Boundary_Conditions*          BCs,
-       const ElementVector&               Dirichlet_Boundary_Values,
-       const CompoundLithology*            Lithology,
-       const GeoPhysics::FluidType*        Fluid,
-       const bool                          includeChemicalCompaction,
-       const ElementGeometryMatrix&      previousGeometryMatrix,
-       const ElementGeometryMatrix&      geometryMatrix,
-       const ElementVector&               Previous_Element_Solid_Thickness,
-       const ElementVector&               Current_Element_Solid_Thickness,
-       const ElementVector&               Previous_Ph,
-       const ElementVector&               Current_Ph,
-       const ElementVector&               Previous_Po,
-       const ElementVector&               Current_Po,
-       const ElementVector&               Current_Pl,
-       const ElementVector&               Previous_Element_VES,
-       const ElementVector&               Current_Element_VES,
-       const ElementVector&               Previous_Element_Max_VES,
-       const ElementVector&               Current_Element_Max_VES,
-       const ElementVector&               Previous_Element_Temperature,
-       const ElementVector&               Current_Element_Temperature,
-
-       const ElementVector&               Previous_Element_Chemical_Compaction,
-       const ElementVector&               Current_Element_Chemical_Compaction,
-       const ElementVector&               Fracture_Pressure_Exceeded,
-             ElementVector&               Element_Residual );
-
-
-
-  void computeGradSurfaceDepth ( const PetscScalar          xi,
-                                 const PetscScalar          eta,
-                                 const ElementVector&      surfaceDepth,
-                                       ThreeVector&        referenceGradSurfaceDepth );
+   /// \brief Assemble the element stiffness matrix and load vector for the linearised temperature equation.
+   void assembleElementTemperatureStiffnessMatrix ( const bool                          isBasementFormation,
+                                                    const int                           planeQuadratureDegree,
+                                                    const int                           depthQuadratureDegree,
+                                                    const double                        currentTime,
+                                                    const double                        timeStep,
+                                                    const bool                          Include_Advection_Term,
+                                                    const BoundaryConditions&           bcs,
+                                                    const CompoundLithology*            Lithology,
+                                                    const GeoPhysics::FluidType*        Fluid,
+                                                    const bool                          includeChemicalCompaction,
+                                                    const ElementGeometryMatrix&       geometryMatrix,
+                                                    const ElementVector&               Element_Heat_Production,
+                                                    const ElementVector&               Current_Ph,
+                                                    const ElementVector&               Current_Po,
+                                                    const ElementVector&               Previous_Pp,
+                                                    const ElementVector&               Current_Pp,
+                                                    const ElementVector&               Previous_Lp,
+                                                    const ElementVector&               Current_Lp,
+                                                    const ElementVector&               Previous_Element_VES,
+                                                    const ElementVector&               Current_Element_VES,
+                                                    const ElementVector&               Previous_Element_Max_VES,
+                                                    const ElementVector&               Current_Element_Max_VES,
+                                                    const ElementVector&               Previous_Element_Temperature,
+                                                    const ElementVector&               Current_Element_Temperature,
+                                                    const ElementVector&               Previous_Element_Chemical_Compaction,
+                                                    const ElementVector&               Current_Element_Chemical_Compaction,
+                                                    ElementMatrix&                     Element_Stiffness_Matrix,
+                                                    ElementVector&                     Element_Load_Vector );
 
 
 } // end namespace Basin_Modelling

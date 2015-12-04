@@ -359,15 +359,15 @@ void FormationElementGrid<ElementType>::setElementNodeKValues ( const LocalInteg
 
             ElementType& element = getElement ( i, j, k );
 
-            int n1 = static_cast<int>( kValues ( i,     j,     globalK - 1 ));
-            int n2 = static_cast<int>( kValues ( i + 1, j,     globalK - 1 ));
-            int n3 = static_cast<int>( kValues ( i + 1, j + 1, globalK - 1 ));
-            int n4 = static_cast<int>( kValues ( i,     j + 1, globalK - 1 ));
+            int n1 = static_cast<int>( kValues ( i,     j,     globalK ));
+            int n2 = static_cast<int>( kValues ( i + 1, j,     globalK ));
+            int n3 = static_cast<int>( kValues ( i + 1, j + 1, globalK ));
+            int n4 = static_cast<int>( kValues ( i,     j + 1, globalK ));
 
-            int n5 = static_cast<int>( kValues ( i,     j,     globalK ));
-            int n6 = static_cast<int>( kValues ( i + 1, j,     globalK ));
-            int n7 = static_cast<int>( kValues ( i + 1, j + 1, globalK ));
-            int n8 = static_cast<int>( kValues ( i,     j + 1, globalK ));
+            int n5 = static_cast<int>( kValues ( i,     j,     globalK - 1 ));
+            int n6 = static_cast<int>( kValues ( i + 1, j,     globalK - 1 ));
+            int n7 = static_cast<int>( kValues ( i + 1, j + 1, globalK - 1 ));
+            int n8 = static_cast<int>( kValues ( i,     j + 1, globalK - 1 ));
 
             // Set node numbers.
             element.setNodeK ( 0, n1 );

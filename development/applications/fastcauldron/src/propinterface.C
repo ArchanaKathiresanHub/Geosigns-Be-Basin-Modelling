@@ -307,9 +307,24 @@ void AppCtx::CheckForStartInDebugger(int *argc, char ***args)
     }
      else if ( Start_In_DDD )
      {
-       cout << "Attaching ddd to " << *args[ 0 ] << " (pid: " << Process_Id << ") Please wait..." << endl;
-       Debug_Command = "/apps/3rdparty/share/ddd " + string( *args[ 0 ] ) + " " + Process_Id + "&";
-       
+
+        char *MY_DEBUGGERDIR = getenv("MY_DEBUGGERDIR");
+
+        if ( MY_DEBUGGERDIR != 0 and not File_Exists ( MY_DEBUGGERDIR )) {
+           PetscPrintf ( PETSC_COMM_WORLD, " Environment variable MY_DEBUGGERDIR (=%s) does not point to anything, using system default.\n", MY_DEBUGGERDIR );
+        }
+
+        PetscSynchronizedPrintf ( PETSC_COMM_WORLD,"Attaching ddd to %s, with pid: %s. Please wait ...\n",
+                                  *args[ 0 ], Process_Id.c_str ());
+
+        // cout << "Attaching ddd to " << *args[ 0 ] << " (pid: " << Process_Id << ") Please wait..." << endl;
+
+        if ( MY_DEBUGGERDIR == 0 or strlen (MY_DEBUGGERDIR) == 0 or not File_Exists ( MY_DEBUGGERDIR )) {
+           Debug_Command = "/apps/3rdparty/share/ddd " + string( *args[ 0 ] ) + " " + Process_Id + "&";
+        } else {
+           Debug_Command = string ( MY_DEBUGGERDIR ) + ' ' + string( *args[ 0 ] ) + " " + Process_Id + "&";
+        }
+
        system( Debug_Command.c_str() );
        sleep(10);
      }
@@ -2466,53 +2481,6 @@ double AppCtx::Estimate_Temperature_At_Depth( const double Node_Depth,
 #endif
 
   return Estimated_Temperature;  
-}
-
-
-//------------------------------------------------------------//
-
-
-void AppCtx::SetIncludedNodeArrays () {
-
-  Layer_Iterator Layers;
-
-  Basin_Modelling::Activity_Range iterationRange = Active_Layers_Only;
-
-  Boolean2DArray includeInterLayerNodes;
-  includeInterLayerNodes.create ( *this->mapDA );
-
-  //
-  // Initialise the 3D Boolean arrays that are stored in the layers for the included nodes
-  //
-  Layers.Initialise_Iterator ( this -> layers, Descending, Sediments_Only, iterationRange );
-
-  while ( ! Layers.Iteration_Is_Done ()) {
-    Layers.Current_Layer () -> SetIncludedNodeArray ( m_nodeIsDefined );
-    Layers++;
-  }
-
-  //
-  // Next make sure that the top of the current layer matches the bottom of the layer above
-  //
-  Layers.Initialise_Iterator ( this -> layers, Descending, Sediments_Only, iterationRange );
-  includeInterLayerNodes.fill ( false );
-
-  while ( ! Layers.Iteration_Is_Done ()) {
-    Layers.Current_Layer () -> SetTopIncludedNodes ( m_nodeIsDefined, includeInterLayerNodes );
-    Layers++;
-  }
-
-  //
-  // Next make sure that the bottom of the current layer matches the top of the layer below
-  //
-  Layers.Initialise_Iterator ( this -> layers, Ascending, Sediments_Only, iterationRange );
-  includeInterLayerNodes.fill ( false );
-
-  while ( ! Layers.Iteration_Is_Done ()) {
-    Layers.Current_Layer () -> SetBottomIncludedNodes ( m_nodeIsDefined, includeInterLayerNodes );
-    Layers++;
-  }
-
 }
 
 

@@ -37,6 +37,7 @@ SolutionVectorMapping::SolutionVectorMapping ( ComputationalDomain&             
       exit ( 1 );
    }
 
+   numberMapping ();
 }
 
 //------------------------------------------------------------//
@@ -65,7 +66,7 @@ void SolutionVectorMapping::allocateLayerMappings ( const size_t topLayerIndex,
 
 //------------------------------------------------------------//
 
-void SolutionVectorMapping::renumber () {
+void SolutionVectorMapping::numberMapping () {
 
    if ( m_computationalDomain.getCurrentAge () < 0.0 ) {
       return;
@@ -77,7 +78,7 @@ void SolutionVectorMapping::renumber () {
    size_t maxDepthDirection = 0;
    size_t numberOfLayers = column.getNumberOfLayers ();
    size_t topLayerIndex = column.getTopLayerIndex ( m_computationalDomain.getCurrentAge ());
-   int startDof = m_computationalDomain.getLocalStartDof ();
+   int localStartDof = m_computationalDomain.getLocalStartDof ();
 
    allocateLayerMappings ( topLayerIndex, maxDepthDirection );
 
@@ -117,7 +118,7 @@ void SolutionVectorMapping::renumber () {
                for ( size_t k = 0; k < numberOfLayerNodes; ++k ) {
 
                   if ( dof ( depthIndex ( i, j, depthIndices [ k ] ), j, i ) != ComputationalDomain::NullDofNumber ) {
-                     layerMappingNumbers ( i, j, k ) = dof ( depthIndex ( i, j, depthIndices [ k ] ), j, i ) - startDof;
+                     layerMappingNumbers ( i, j, k ) = dof ( depthIndex ( i, j, depthIndices [ k ] ), j, i ) - localStartDof;
                   } else {
                      layerMappingNumbers ( i, j, k ) = ComputationalDomain::NullDofNumber;
                   }
@@ -170,7 +171,7 @@ void SolutionVectorMapping::putSolution ( const Vec vector ) const {
                for ( unsigned int k = 0; k <= formationGrid->getFormation ().getMaximumNumberOfElements (); ++k ) {
 
                   if ( layerMappingNumbers ( i, j, k ) != ComputationalDomain::NullDofNumber ) {
-                     layerProperty ( k, j, i ) = localArray [ layerMappingNumbers ( i, j, k )] /  m_scalingFactor;
+                     layerProperty ( k, j, i ) = localArray [ layerMappingNumbers ( i, j, k )] / m_scalingFactor;
                   }
 
                }

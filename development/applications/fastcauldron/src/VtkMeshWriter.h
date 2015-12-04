@@ -64,6 +64,25 @@ private :
                         const double               zScale,
                         const bool                 useProjectOrigin ) const;
 
+   /// \brief Get the node positions for the nodes that are local to the process counted in IJK order.
+   void getLocalNodesIJK ( const ComputationalDomain& domain,
+                           DoubleArray&               activeNodes,
+                           const double               zScale,
+                           const bool                 useProjectOrigin ) const;
+
+   /// \brief Get the node positions for the nodes that are local to the process counted in KIJ order.
+   void getLocalNodesKIJ ( const ComputationalDomain& domain,
+                           DoubleArray&               activeNodes,
+                           const double               zScale,
+                           const bool                 useProjectOrigin ) const;
+
+   /// \brief Get the node positions for the nodes that are local to the process counted in KJI order.
+   void getLocalNodesKJI ( const ComputationalDomain& domain,
+                           DoubleArray&               activeNodes,
+                           const double               zScale,
+                           const bool                 useProjectOrigin ) const;
+
+
    /// \brief Get the element dof numbers for the dofs that are local to the process.
    void getLocalElementDofs ( const ComputationalDomain& domain,
                               IntegerArray&              elementDofs ) const;

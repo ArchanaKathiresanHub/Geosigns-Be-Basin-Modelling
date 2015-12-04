@@ -355,7 +355,6 @@ void ComputationalDomain::numberGlobalDofsIJK ( int&                      global
 
          if ( fc.nodeIsDefined ( i, j )) {
 
-            // for ( size_t k = 0; k <= numberOfNodesInDepth; ++k ) {
             for ( int k = numberOfNodesInDepth; k >= 0; --k ) {
 
                if ( m_activeNodes ( i, j, k )) {

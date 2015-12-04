@@ -24,6 +24,9 @@ const int    Null                   = 0;
 const double IBSNULLVALUE           = -9999;
 const double CAULDRONIBSNULLVALUE   = 99999;
 
+const double EPS1                   = 0.1;
+
+
 /// \var GRAVITY
 /// Acceleration due to gravity in m/s^2, more accurate value: 9.80665 m /s^2.
 const double GRAVITY = 9.81;
@@ -107,7 +110,7 @@ const int NumberOfElementNodes = 8;
 
 /// \var DepositingThicknessTolerance
 /// \brief The minimum thickness.
-const double DepositingThicknessTolerance = 0.001;
+const double DepositingThicknessTolerance = EPS1;
 
 
 /// \var DefaultMaximumGradPressure
@@ -199,7 +202,6 @@ const double Zero                   = 0.0;
 const double NegOne                 = -1.0;
 const double One                    = 1.0;
 const double Hundred                = 100.0;
-const double EPS1                   = 0.1;
 const double TempNLSolverTolerance  = 1.0E-06;
 const double TempNLSolverMaxIter    = 20;
 const double PressNLSolverTolerance = 1.0E-06;
@@ -491,11 +493,9 @@ enum Boundary_Conditions { Interior_Boundary,
 			   Interior_Neumann_Boundary,
 			   Side_Neumann_Boundary,
 			   Bottom_Neumann_Boundary,
-               Interior_Constrained_Temperature };
+                           Interior_Constrained_Temperature };
 
-//  enum Boundary_Conditions { None,
-//                             Dirichlet_Boundary,
-//                             Neumann_Boundary };
+const std::string& getBoundaryConditionsImage ( const Boundary_Conditions bcs );
 
 
 enum RelativePermeabilityType { NO_RELATIVE_PERMEABILITY_FUNCTION, /// Use a rel-perm of 1.

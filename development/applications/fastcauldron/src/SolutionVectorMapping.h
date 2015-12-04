@@ -31,13 +31,11 @@ public :
 
    /// \brief Constructor.
    ///
-   /// \param [in] domain The domain for which the solution vector mapping.
-   /// \param [in] property The property to be stored. Can be only Temperature or Overpressure.
+   /// \param [in] domain   The domain for which the solution vector mapping is to be calculated.
+   /// \param [in] property The property to be stored. 
+   /// \pre property can be only Temperature or Overpressure.
    SolutionVectorMapping ( ComputationalDomain&                        domain,
                            const Basin_Modelling::Fundamental_Property property );
-
-   /// \brief Renumber the dof mappings based on the current computational domain state.
-   void renumber ();
 
    /// \brief Store the solution vector into the 3d arrays contained in each layer.
    void putSolution ( const Vec vector ) const;
@@ -54,6 +52,9 @@ private :
    typedef PETSc_Local_3D_Array<int> Integer3DArray;
 
    typedef std::vector<Integer3DArray> Integer3DArrayVector;
+
+   /// \brief Number the dof mapping based on the current computational domain state.
+   void numberMapping ();
 
    /// \brief Allocate the layer number mapping if it has not already been or has the incorrect size.
    void allocateLayerMappings ( const size_t topLayerIndex,

@@ -312,6 +312,15 @@ namespace Basin_Modelling {
       return *Vector_Properties [ Property ];
     } // end Fundamental_Property_Manager::operator ()
 
+
+     PETSC_3D_Array& getArray ( const Fundamental_Property property ) {
+        return Properties [ property ];
+     }
+
+     const PETSC_3D_Array& getArray ( const Fundamental_Property property ) const {
+        return Properties [ property ];
+     }
+
     //----------------------------//
 
     void Copy ( const Fundamental_Property_Manager& Manager,

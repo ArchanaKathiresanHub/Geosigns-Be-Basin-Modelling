@@ -1486,86 +1486,86 @@ void ExplicitMultiComponentFlowSolver::computeFluxTerms ( FormationSubdomainElem
             // mol/m^3
             PVTComponents& elementConcentrations = concentrations ( k, j, i );
 
-               elementSaturation = saturations ( element.getI (), element.getJ (), element.getK ());
+            elementSaturation = saturations ( element.getI (), element.getJ (), element.getK ());
 
-               vapourRelativePermeability = element.getLayerElement ().getLithology ()->relativePermeability ( Saturation::VAPOUR, elementSaturation );
-               liquidRelativePermeability = element.getLayerElement ().getLithology ()->relativePermeability ( Saturation::LIQUID, elementSaturation );
+            vapourRelativePermeability = element.getLayerElement ().getLithology ()->relativePermeability ( Saturation::VAPOUR, elementSaturation );
+            liquidRelativePermeability = element.getLayerElement ().getLithology ()->relativePermeability ( Saturation::LIQUID, elementSaturation );
 
-               if ( not m_interpolateFaceArea ) {
+            if ( not m_interpolateFaceArea ) {
                getGeometryMatrix ( element.getLayerElement (), geometryMatrix, lambda );
                finiteElement.setGeometry ( geometryMatrix );
-               }
+            }
 
-               ElementFaceValues elementPermeabilityN;
-               ElementFaceValues elementPermeabilityH;
+            ElementFaceValues elementPermeabilityN;
+            ElementFaceValues elementPermeabilityH;
 
-               if ( not m_interpolateFacePermeability ) {
-                  elementPermeabilityN = subdomainPermeabilitiesN ( element.getK (), j, i );
-                  elementPermeabilityH = subdomainPermeabilitiesH ( element.getK (), j, i );
-               }
+            if ( not m_interpolateFacePermeability ) {
+               elementPermeabilityN = subdomainPermeabilitiesN ( element.getK (), j, i );
+               elementPermeabilityH = subdomainPermeabilitiesH ( element.getK (), j, i );
+            }
 
-               // Composition now in same units as phase-composition (mol/m^3)
-               composition = elementConcentrations;
+            // Composition now in same units as phase-composition (mol/m^3)
+            composition = elementConcentrations;
 
-               // Units: mol/m^3
-               phaseComponents = phaseComposition ( i, j, elementK );
-               phaseComponents.sum ( phaseMolarConcentrations );
+            // Units: mol/m^3
+            phaseComponents = phaseComposition ( i, j, elementK );
+            phaseComponents.sum ( phaseMolarConcentrations );
 
-               if ( vapourRelativePermeability > 0.0 ) {
-                  gasMassDensity = phaseDensities ( i, j, elementK )( pvtFlash::VAPOUR_PHASE );
+            if ( vapourRelativePermeability > 0.0 ) {
+               gasMassDensity = phaseDensities ( i, j, elementK )( pvtFlash::VAPOUR_PHASE );
 
-                  if ( phaseMolarConcentrations ( pvtFlash::VAPOUR_PHASE ) != 0.0 ) {
-
-               for ( c = 0; c < NumberOfPVTComponents; ++c ) {
-                  pvtFlash::ComponentId component = static_cast<pvtFlash::ComponentId>( c );
-
-                        // fractions (phase-component-moles per total-phase-component-moles).
-                        phaseComponents ( pvtFlash::VAPOUR_PHASE, component ) /= phaseMolarConcentrations ( pvtFlash::VAPOUR_PHASE );
-               }
-
-                  }
-
-                  vapourMolarMass = 0.0;
-
-                  for ( c = 0; c < NumberOfPVTComponents; ++c ) {
-                     pvtFlash::ComponentId component = static_cast<pvtFlash::ComponentId>( c );
-
-                     vapourMolarMass += phaseComponents ( pvtFlash::VAPOUR_PHASE, component ) * m_defaultMolarMasses ( component );
-                  }
-
-                  computeFluxForPhase ( pvtFlash::VAPOUR_PHASE,
-                                        element,
-                                        faceAreaInterpolator,
-                                        finiteElement,
-                                        phaseMolarConcentrations,
-                                        subdomainVapourPressure,
-                                        depth,
-                                        porePressure,
-                                        lambda,
-                                        gasMassDensity,
-                                        vapourMolarMass,
-                                        phaseDensities ( i, j, elementK ),
-                                        phaseViscosities ( i, j, elementK ),
-                                        elementSaturation,
-                                        vapourRelativePermeability,
-                                        elementPermeabilityN,
-                                        elementPermeabilityH,
-                                        permeabilityInterpolator,
-                                        elementGasFlux );
-
-               }
-
-
-               if ( liquidRelativePermeability > 0.0 ) {
-                  oilMassDensity = phaseDensities ( i, j, elementK )( pvtFlash::LIQUID_PHASE );
-
-                  if ( phaseMolarConcentrations ( pvtFlash::LIQUID_PHASE ) != 0.0 ) {
+               if ( phaseMolarConcentrations ( pvtFlash::VAPOUR_PHASE ) != 0.0 ) {
 
                   for ( c = 0; c < NumberOfPVTComponents; ++c ) {
                      pvtFlash::ComponentId component = static_cast<pvtFlash::ComponentId>( c );
 
                      // fractions (phase-component-moles per total-phase-component-moles).
-                        phaseComponents ( pvtFlash::LIQUID_PHASE, component ) /= phaseMolarConcentrations ( pvtFlash::LIQUID_PHASE );
+                     phaseComponents ( pvtFlash::VAPOUR_PHASE, component ) /= phaseMolarConcentrations ( pvtFlash::VAPOUR_PHASE );
+                  }
+
+               }
+
+               vapourMolarMass = 0.0;
+
+               for ( c = 0; c < NumberOfPVTComponents; ++c ) {
+                  pvtFlash::ComponentId component = static_cast<pvtFlash::ComponentId>( c );
+
+                  vapourMolarMass += phaseComponents ( pvtFlash::VAPOUR_PHASE, component ) * m_defaultMolarMasses ( component );
+               }
+
+               computeFluxForPhase ( pvtFlash::VAPOUR_PHASE,
+                                     element,
+                                     faceAreaInterpolator,
+                                     finiteElement,
+                                     phaseMolarConcentrations,
+                                     subdomainVapourPressure,
+                                     depth,
+                                     porePressure,
+                                     lambda,
+                                     gasMassDensity,
+                                     vapourMolarMass,
+                                     phaseDensities ( i, j, elementK ),
+                                     phaseViscosities ( i, j, elementK ),
+                                     elementSaturation,
+                                     vapourRelativePermeability,
+                                     elementPermeabilityN,
+                                     elementPermeabilityH,
+                                     permeabilityInterpolator,
+                                     elementGasFlux );
+               
+            }
+
+
+            if ( liquidRelativePermeability > 0.0 ) {
+               oilMassDensity = phaseDensities ( i, j, elementK )( pvtFlash::LIQUID_PHASE );
+
+               if ( phaseMolarConcentrations ( pvtFlash::LIQUID_PHASE ) != 0.0 ) {
+
+                  for ( c = 0; c < NumberOfPVTComponents; ++c ) {
+                     pvtFlash::ComponentId component = static_cast<pvtFlash::ComponentId>( c );
+                     
+                     // fractions (phase-component-moles per total-phase-component-moles).
+                     phaseComponents ( pvtFlash::LIQUID_PHASE, component ) /= phaseMolarConcentrations ( pvtFlash::LIQUID_PHASE );
                   }
 
                }
@@ -2026,13 +2026,12 @@ void ExplicitMultiComponentFlowSolver::divideByMassMatrix ( FormationSubdomainEl
                      massTerm = poreVolumeInterpolator.access ( element ).evaluate ( PoreVolumeIndex, lambdaEnd );
                   } else {
                      massTerm = computeElementMassMatrix ( element, lambdaStart, lambdaEnd );
-               }
+                  }
 
                   computedConcentrations ( i, j, elementK ) *= 1.0 / massTerm;
-
-         } else {
+               } else {
                   computedConcentrations ( i, j, elementK ).zero ();
-}
+               }
 
             }
 
@@ -2484,7 +2483,7 @@ void ExplicitMultiComponentFlowSolver::estimateHcTransport ( FormationSubdomainE
 
             unsigned int elementK = element.getK ();
 
-               if ( layerElement.isActive ()) {
+            if ( layerElement.isActive ()) {
 
                if ( m_useSaturationEstimate ) {
                   estimateSaturation ( element,

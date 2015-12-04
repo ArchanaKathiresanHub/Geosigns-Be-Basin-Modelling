@@ -35,7 +35,6 @@ void VtkMeshWriter::save ( const ComputationalDomain& domain,
 
    int totalNumberOfNodes = std::accumulate ( numberOfActiveNodes.begin (), numberOfActiveNodes.end (), 0 );
    int totalNumberOfElements = std::accumulate ( numberOfActiveElements.begin (), numberOfActiveElements.end (), 0 );
-   int offset = 0;
 
    DoubleArray  localNodes ( ValuesPerNode * numberOfActiveNodes [ m_rank ]);
    IntegerArray localElementDofs ( NumberOfElementNodes * numberOfActiveElements [ m_rank ]);
@@ -158,6 +157,33 @@ void VtkMeshWriter::getLocalNodes ( const ComputationalDomain& domain,
                                     const double               zScale,
                                     const bool                 useProjectOrigin ) const {
 
+   switch ( domain.getDofOrdering ()) {
+
+      case ComputationalDomain::IJKOrder :
+         getLocalNodesIJK ( domain, activeNodes, zScale, useProjectOrigin );
+         break;
+
+      case ComputationalDomain::KIJOrder :
+         getLocalNodesKIJ ( domain, activeNodes, zScale, useProjectOrigin );
+         break;
+
+      case ComputationalDomain::KJIOrder :
+         getLocalNodesKJI ( domain, activeNodes, zScale, useProjectOrigin );
+         break;
+
+      default :
+         PetscPrintf ( PETSC_COMM_WORLD, " MeSsAgE ERROR: dof ordering incorrectly defined.\n" );
+         exit ( 1 );
+   }
+
+}
+
+
+void VtkMeshWriter::getLocalNodesIJK ( const ComputationalDomain& domain,
+                                       DoubleArray&               activeNodes,
+                                       const double               zScale,
+                                       const bool                 useProjectOrigin ) const {
+
    const FastcauldronSimulator& fc = FastcauldronSimulator::getInstance ();
    const StratigraphicColumn& stratigraphicColumn = domain.getStratigraphicColumn ();
 
@@ -177,10 +203,6 @@ void VtkMeshWriter::getLocalNodes ( const ComputationalDomain& domain,
 
    vector<PETSC_3D_Array> layerDepths ( stratigraphicColumn.getNumberOfLayers ());
 
-   PETSC_3D_Array mantleDepth;
-
-   const LayerProps* mantleLayer = 0;
-
    for ( size_t l = firstLayerIndex; l < stratigraphicColumn.getNumberOfLayers (); ++l ) {
       layerDepths [ l ].Set_Global_Array ( stratigraphicColumn.getLayer ( l )->layerDA,
                                            stratigraphicColumn.getLayer ( l )->Current_Properties ( Basin_Modelling::Depth ));
@@ -188,10 +210,10 @@ void VtkMeshWriter::getLocalNodes ( const ComputationalDomain& domain,
 
    x = originX;
 
-   for ( int i = fc.firstI (); i <= fc.lastI (); ++i ) {
+   for ( size_t i = fc.firstI (); i <= fc.lastI (); ++i ) {
       y = originY;
 
-      for ( int j = fc.firstJ (); j <= fc.lastJ (); ++j ) {
+      for ( size_t j = fc.firstJ (); j <= fc.lastJ (); ++j ) {
 
          if ( fc.nodeIsDefined ( i, j )) {
             z = fc.getSeaBottomDepth ( i, j, domain.getCurrentAge ());
@@ -233,8 +255,200 @@ void VtkMeshWriter::getLocalNodes ( const ComputationalDomain& domain,
       layerDepths [ l ].Restore_Global_Array ( No_Update );
    }
 
+} // end getLocalNodesIJK
 
-}
+
+void VtkMeshWriter::getLocalNodesKIJ ( const ComputationalDomain& domain,
+                                       DoubleArray&               activeNodes,
+                                       const double               zScale,
+                                       const bool                 useProjectOrigin ) const {
+
+   const FastcauldronSimulator& fc = FastcauldronSimulator::getInstance ();
+   const StratigraphicColumn& stratigraphicColumn = domain.getStratigraphicColumn ();
+
+   double deltaX = fc.getCauldronGridDescription ().deltaI;
+   double deltaY = fc.getCauldronGridDescription ().deltaJ;
+
+   double originX = fc.firstI () * deltaX + ( useProjectOrigin ? fc.getCauldronGridDescription ().originI : 0.0 );
+   double originY = fc.firstJ () * deltaY + ( useProjectOrigin ? fc.getCauldronGridDescription ().originJ : 0.0 );
+
+   double x;
+   double y;
+   double z;
+   int count = 0;
+   int numberOfNodesInDepth = stratigraphicColumn.getNumberOfLogicalNodesInDepth ( domain.getCurrentAge ());
+   size_t firstLayerIndex = stratigraphicColumn.getTopLayerIndex ( domain.getCurrentAge ());
+   int globalK;
+
+   vector<PETSC_3D_Array> layerDepths ( stratigraphicColumn.getNumberOfLayers ());
+
+   for ( size_t l = firstLayerIndex; l < stratigraphicColumn.getNumberOfLayers (); ++l ) {
+      layerDepths [ l ].Set_Global_Array ( stratigraphicColumn.getLayer ( l )->layerDA,
+                                           stratigraphicColumn.getLayer ( l )->Current_Properties ( Basin_Modelling::Depth ));
+   }
+
+   x = originX;
+
+   for ( size_t i = fc.firstI (); i <= fc.lastI (); ++i ) {
+      y = originY;
+
+      for ( size_t j = fc.firstJ (); j <= fc.lastJ (); ++j ) {
+
+         if ( fc.nodeIsDefined ( i, j )) {
+            z = fc.getSeaBottomDepth ( i, j, domain.getCurrentAge ());
+
+            if ( domain.getActiveNodes ()( i, j, numberOfNodesInDepth - 1 )) {
+               activeNodes [ count++ ] = x;
+               activeNodes [ count++ ] = y;
+               activeNodes [ count++ ] = zScale * z;
+            }
+
+         }
+
+         y += deltaY;
+      }
+
+      x += deltaX;
+   }
+
+
+   globalK = numberOfNodesInDepth - 2;
+
+   for ( size_t l = firstLayerIndex; l < stratigraphicColumn.getNumberOfLayers (); ++l ) {
+      const FormationElementGrid<GeneralElement>& grid = *domain.getFormationGrid ( stratigraphicColumn.getLayer ( l ));
+      const PETSC_3D_Array& layerDepth = layerDepths [ l ];
+
+      for ( int k = grid.lastK (); k >= grid.firstK (); --k, --globalK ) {
+         x = originX;
+
+         for ( size_t i = fc.firstI (); i <= fc.lastI (); ++i ) {
+            y = originY;
+
+            for ( size_t j = fc.firstJ (); j <= fc.lastJ (); ++j ) {
+
+               if ( fc.nodeIsDefined ( i, j )) {
+                  z = layerDepth ( k, j, i );
+
+                  if ( domain.getActiveNodes ()( i, j, globalK )) {
+                     activeNodes [ count++ ] = x;
+                     activeNodes [ count++ ] = y;
+                     activeNodes [ count++ ] = zScale * z;
+                  }
+
+               }
+
+            }
+
+            y += deltaY;
+         }
+
+         x += deltaX;
+      }
+ 
+   }
+
+   for ( size_t l = firstLayerIndex; l < stratigraphicColumn.getNumberOfLayers (); ++l ) {
+      layerDepths [ l ].Restore_Global_Array ( No_Update );
+   }
+
+} // end getLocalNodesKIJ
+
+void VtkMeshWriter::getLocalNodesKJI ( const ComputationalDomain& domain,
+                                       DoubleArray&               activeNodes,
+                                       const double               zScale,
+                                       const bool                 useProjectOrigin ) const {
+
+   const FastcauldronSimulator& fc = FastcauldronSimulator::getInstance ();
+   const StratigraphicColumn& stratigraphicColumn = domain.getStratigraphicColumn ();
+
+   double deltaX = fc.getCauldronGridDescription ().deltaI;
+   double deltaY = fc.getCauldronGridDescription ().deltaJ;
+
+   double originX = fc.firstI () * deltaX + ( useProjectOrigin ? fc.getCauldronGridDescription ().originI : 0.0 );
+   double originY = fc.firstJ () * deltaY + ( useProjectOrigin ? fc.getCauldronGridDescription ().originJ : 0.0 );
+
+   double x;
+   double y;
+   double z;
+   int count = 0;
+   int numberOfNodesInDepth = stratigraphicColumn.getNumberOfLogicalNodesInDepth ( domain.getCurrentAge ());
+   size_t firstLayerIndex = stratigraphicColumn.getTopLayerIndex ( domain.getCurrentAge ());
+   int globalK;
+
+   vector<PETSC_3D_Array> layerDepths ( stratigraphicColumn.getNumberOfLayers ());
+
+   for ( size_t l = firstLayerIndex; l < stratigraphicColumn.getNumberOfLayers (); ++l ) {
+      layerDepths [ l ].Set_Global_Array ( stratigraphicColumn.getLayer ( l )->layerDA,
+                                           stratigraphicColumn.getLayer ( l )->Current_Properties ( Basin_Modelling::Depth ));
+   }
+
+
+
+   y = originY;
+
+   for ( size_t j = fc.firstJ (); j <= fc.lastJ (); ++j ) {
+      x = originX;
+
+      for ( size_t i = fc.firstI (); i <= fc.lastI (); ++i ) {
+
+         if ( fc.nodeIsDefined ( i, j )) {
+            z = fc.getSeaBottomDepth ( i, j, domain.getCurrentAge ());
+
+            if ( domain.getActiveNodes ()( i, j, numberOfNodesInDepth - 1 )) {
+               activeNodes [ count++ ] = x;
+               activeNodes [ count++ ] = y;
+               activeNodes [ count++ ] = zScale * z;
+            }
+
+         }
+
+         x += deltaX;
+      }
+
+      y += deltaY;
+   }
+
+   globalK = numberOfNodesInDepth - 2;
+
+   for ( size_t l = firstLayerIndex; l < stratigraphicColumn.getNumberOfLayers (); ++l ) {
+      const FormationElementGrid<GeneralElement>& grid = *domain.getFormationGrid ( stratigraphicColumn.getLayer ( l ));
+      const PETSC_3D_Array& layerDepth = layerDepths [ l ];
+
+      for ( int k = grid.lastK (); k >= grid.firstK (); --k, --globalK ) {
+         y = originY;
+
+         for ( size_t j = fc.firstJ (); j <= fc.lastJ (); ++j ) {
+            x = originX;
+
+            for ( size_t i = fc.firstI (); i <= fc.lastI (); ++i ) {
+
+               if ( fc.nodeIsDefined ( i, j )) {
+                  z = layerDepth ( k, j, i );
+
+                  if ( domain.getActiveNodes ()( i, j, globalK )) {
+                     activeNodes [ count++ ] = x;
+                     activeNodes [ count++ ] = y;
+                     activeNodes [ count++ ] = zScale * z;
+                  }
+
+               }
+
+               x += deltaX;
+            }
+
+            y += deltaY;
+         }
+
+      }
+ 
+   }
+
+   for ( size_t l = firstLayerIndex; l < stratigraphicColumn.getNumberOfLayers (); ++l ) {
+      layerDepths [ l ].Restore_Global_Array ( No_Update );
+   }
+
+} // end getLocalNodesKJI
+
 
 void VtkMeshWriter::getLocalElementDofs ( const ComputationalDomain& domain,
                                           IntegerArray&              elementDofs ) const {
@@ -257,8 +471,6 @@ void VtkMeshWriter::getLocalElementLayerIds ( const ComputationalDomain& domain,
 
    const StratigraphicColumn& stratigraphicColumn = domain.getStratigraphicColumn ();
    size_t nullValue = StratigraphicColumn::NullIndexValue;
-
-   int count = 0;
 
    for ( int i = 0; i < domain.getLocalNumberOfActiveElements (); ++i ) {
       const GeneralElement& element = domain.getActiveElement ( i );

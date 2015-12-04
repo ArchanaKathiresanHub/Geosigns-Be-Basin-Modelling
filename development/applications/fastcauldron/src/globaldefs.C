@@ -67,3 +67,25 @@ const std::string& getSimulationModeString ( const CalculationMode mode ) {
    }
 
 }
+
+
+const std::string& getBoundaryConditionsImage ( const Boundary_Conditions bcs ) {
+
+   static std::string s_bcNames [] = { "Interior_Boundary",
+                                       "Interior_Constrained_Overpressure",
+                                       "Surface_Boundary",
+                                       "Bottom_Boundary",
+                                       "Bottom_Boundary_Flux",
+                                       "Interior_Neumann_Boundary",
+                                       "Side_Neumann_Boundary",
+                                       "Bottom_Neumann_Boundary",
+                                       "Interior_Constrained_Temperature",
+                                       "UNKNOWN "};
+
+   if ( Interior_Boundary <= bcs and bcs <= Interior_Constrained_Temperature ) {
+      return s_bcNames [ static_cast<int>(bcs)];
+   } else {
+      return s_bcNames [ 9 ];
+   }
+
+}

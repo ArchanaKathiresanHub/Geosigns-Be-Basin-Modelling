@@ -74,6 +74,17 @@
 #include "TemperatureForVreInputGrid.h"
 #include "VreOutputGrid.h"
 
+#include "ComputationalDomain.h"
+#include "CompositeElementActivityPredicate.h"
+#include "ElementNonZeroPorosityActivityPredicate.h"
+#include "ElementThicknessActivityPredicate.h"
+#include "SedimentElementActivityPredicate.h"
+#include "MatrixNonZeroCalculator.h"
+#include "VtkMeshWriter.h"
+#include "SolutionVectorMapping.h"
+#include "PetscObjectAllocator.h"
+
+
 #include <boost/shared_ptr.hpp>
 
 #ifdef _MSC_VER
@@ -105,13 +116,28 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
      m_vreAlgorithm(GeoPhysics::VitriniteReflectance::create( FastcauldronSimulator::getInstance ().getRunParameters ()->getVreAlgorithm () ) ),
      Temperature_Calculator ( Application_Context ), 
      m_surfaceNodeHistory ( Application_Context ),
-     m_chemicalCompactionGrid ( ChemicalCompactionGrid::create( FastcauldronSimulator::getInstance ().getRunParameters ()->getChemicalCompactionAlgorithm (), (Application_Context -> mapDA), (Application_Context -> layers) )),
-     m_chemicalCompactionCalculator ( m_chemicalCompactionGrid -> createChemicalCompaction() )
+     m_chemicalCompactionGrid ( ChemicalCompactionGrid::create( FastcauldronSimulator::getInstance ().getRunParameters ()->getChemicalCompactionAlgorithm (),
+                                                                Application_Context -> mapDA,
+                                                                Application_Context -> layers )),
+     m_chemicalCompactionCalculator ( m_chemicalCompactionGrid -> createChemicalCompaction() ),
+
+     // Construct the computational domain for the temperature simulation.
+     // This requires all layers in the domain.
+     m_temperatureComputationalDomain ( *Application_Context->layers [ 0 ],
+                                        *Application_Context->layers [ Application_Context->layers.size () - 1 ],
+                                        CompositeElementActivityPredicate ().compose ( ElementActivityPredicatePtr ( new ElementThicknessActivityPredicate ))),
+
+     // Construct the computational domain for the pressure simulation.
+     // This requires only the sediment layers in the domain.
+     m_pressureComputationalDomain ( *Application_Context->layers [ 0 ],
+                                     *Application_Context->layers [ Application_Context->layers.size () - 3 ],
+                                     CompositeElementActivityPredicate ().compose ( ElementActivityPredicatePtr ( new ElementThicknessActivityPredicate ))
+                                                                         .compose ( ElementActivityPredicatePtr ( new SedimentElementActivityPredicate ))
+                                                                         .compose ( ElementActivityPredicatePtr ( new ElementNonZeroPorosityActivityPredicate )))
+
 {
 
   basinModel = Application_Context;
-
-  cauldronCalculator = new CauldronCalculator ( basinModel );
 
   if ( FastcauldronSimulator::getInstance ().getRunParameters ()->getNonGeometricLoop ()) {
      pressureSolver = new NonGeometricLoopPressureSolver ( basinModel );
@@ -151,6 +177,10 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
   Accumulated_System_Solve_Time = 0.0;
   Accumulated_Property_Calculation_Time = 0.0;
   Accumulated_Property_Saving_Time = 0.0;
+
+  m_temperatureDomainResetTime = 0.0;
+  m_temperatureMatrixAllocationTime = 0.0;
+  m_temperatureSolutionMappingTime = 0.0;
 
   // RESPECT ALPHABETIC ORDER WHEN ADDING/EDITING PROPERTY
   // RESPECT ORGANISATION WHEN ADDING/EDITING PROPERTY
@@ -582,6 +612,11 @@ Basin_Modelling::FEM_Grid::~FEM_Grid () {
     PetscPrintf ( PETSC_COMM_WORLD, " total Element_Assembly_Time     %f \n", Accumulated_Element_Assembly_Time );
     PetscPrintf ( PETSC_COMM_WORLD, " total System_Solve_Time         %f \n", Accumulated_System_Solve_Time );
     PetscPrintf ( PETSC_COMM_WORLD, " total Property_Calculation_Time %f \n", Accumulated_Property_Calculation_Time );
+
+    PetscPrintf ( PETSC_COMM_WORLD, " total domain reset time         %f \n", m_temperatureDomainResetTime );
+    PetscPrintf ( PETSC_COMM_WORLD, " total matrix allocation time    %f \n", m_temperatureMatrixAllocationTime );
+    PetscPrintf ( PETSC_COMM_WORLD, " total solution mapping          %f \n", m_temperatureSolutionMappingTime );
+
   }
   PetscPrintf ( PETSC_COMM_WORLD, "Total Property_Saving_Time %f \n", Accumulated_Property_Saving_Time );
 
@@ -609,7 +644,6 @@ Basin_Modelling::FEM_Grid::~FEM_Grid () {
   PetscSynchronizedFlush ( PETSC_COMM_WORLD );
 #endif
 
-  delete cauldronCalculator;
   delete pressureSolver;
 }
 
@@ -1016,6 +1050,8 @@ void Basin_Modelling::FEM_Grid::Evolve_Pressure_Basin ( const int   Number_Of_Ge
 
     fracturingOccurredInPreviousTimeStep = fracturingOccurred;
 
+    m_pressureComputationalDomain.resetAge ( Current_Time );
+
     Solve_Pressure_For_Time_Step ( Previous_Time,
                                    Current_Time,
                                    MaximumNumberOfNonlinearIterations,
@@ -1040,7 +1076,6 @@ void Basin_Modelling::FEM_Grid::Evolve_Pressure_Basin ( const int   Number_Of_Ge
        computeBasementLithostaticPressureForCurrentTimeStep ( basinModel, Current_Time ); 
 
        Copy_Current_Properties ();
-       Destroy_Vectors ();
        Save_Properties ( Current_Time );
 
        postTimeStepOperations ( Current_Time );
@@ -1125,7 +1160,6 @@ void Basin_Modelling::FEM_Grid::Evolve_Temperature_Basin ( bool& temperatureHasD
 
   Display_Temperature_Solver_Progress ( Current_Time, 0.0, true );
   FastcauldronSimulator::getInstance ().getAllochthonousLithologyManager ().reset ();
-
   Initialise_Basin_Temperature ( temperatureHasDiverged );
 
   m_chemicalCompactionGrid->emptyGrid();
@@ -1150,6 +1184,43 @@ void Basin_Modelling::FEM_Grid::Evolve_Temperature_Basin ( bool& temperatureHasD
 
     Display_Temperature_Solver_Progress ( Current_Time, Previous_Time - Current_Time, 
                                           true or FastcauldronSimulator::getInstance ().getMcfHandler ().numberOfActiveSubdomains () != 1 );
+
+
+    WallTime::Time resetStartTime = WallTime::clock ();
+    m_temperatureComputationalDomain.resetAge ( Current_Time );
+    m_temperatureDomainResetTime += ( WallTime::clock () - resetStartTime ).floatValue ();
+
+    
+#if 0
+    static char units   = '0';
+    static char tens    = '0';
+    static char hundreds  = '0';
+
+    if ( units < '9' ) {
+       ++units;
+    } else if ( units == '9' ) {
+       units = '0';
+
+       if ( tens < '9' ) {
+          ++tens;
+       } else if ( tens == '9' ) {
+          tens = '0';
+          ++hundreds;
+       }
+
+    }
+
+
+
+    VtkMeshWriter vktWriter;
+    std::string fileName = "sedimsXXX.vtk";
+
+    fileName [ 6 ] = hundreds;
+    fileName [ 7 ] = tens;
+    fileName [ 8 ] = units;
+    vktWriter.save ( m_temperatureComputationalDomain, fileName, 1 );
+#endif
+
 
     Solve_Temperature_For_Time_Step ( Previous_Time,
                                       Current_Time,
@@ -1201,7 +1272,6 @@ void Basin_Modelling::FEM_Grid::Evolve_Temperature_Basin ( bool& temperatureHasD
        computeBasementLithostaticPressureForCurrentTimeStep ( basinModel, Current_Time ); 
 
        Copy_Current_Properties ();
-       Destroy_Vectors ();
 
        Save_Properties ( Current_Time );
        postTimeStepOperations ( Current_Time );
@@ -1333,6 +1403,9 @@ void Basin_Modelling::FEM_Grid::Evolve_Coupled_Basin ( const int   Number_Of_Geo
 
     fracturingOccurredInPreviousTimeStep = fracturingOccurred;
 
+    m_pressureComputationalDomain.resetAge ( Current_Time );
+    m_temperatureComputationalDomain.resetAge ( Current_Time );
+
     Solve_Coupled_For_Time_Step ( Previous_Time, Current_Time,
                                   maximumNumberOfNonlinearPressureIterations,
                                   maximumNumberOfNonlinearTemperatureIterations,
@@ -1382,7 +1455,6 @@ void Basin_Modelling::FEM_Grid::Evolve_Coupled_Basin ( const int   Number_Of_Geo
        computeBasementLithostaticPressureForCurrentTimeStep ( basinModel, Current_Time ); 
 
        Copy_Current_Properties ();
-       Destroy_Vectors ();
 
        Save_Properties ( Current_Time );
        postTimeStepOperations ( Current_Time );
@@ -1642,13 +1714,6 @@ void Basin_Modelling::FEM_Grid::Determine_Next_Pressure_Time_Step ( const double
         Predicted_Time_Step = Time_Step * PetscMax ( Optimal_Pressure_Difference / Maximum_Difference, Decrease_Factor );    
      }
 
-     if ( basinModel->cflTimeStepping ()) {
-        double CFL_Value;
-
-        Determine_CFL_Value ( CFL_Value );
-        Time_Step = NumericFunctions::Maximum ( CFL_Value, Predicted_Time_Step );
-     }
-
      Time_Step = NumericFunctions::Maximum ( Predicted_Time_Step, basinModel->minimumTimeStep ());
      Time_Step = NumericFunctions::Minimum ( Time_Step, basinModel->maximumTimeStep ());
   }
@@ -1808,16 +1873,7 @@ void Basin_Modelling::FEM_Grid::Determine_Next_Coupled_Time_Step ( const double 
 
      // Find the MINIMUM of these three predicted time steps.
      Time_Step = NumericFunctions::Minimum3 ( Predicted_Temperature_Time_Step, Predicted_Source_Rock_Time_Step, Predicted_Overpressure_Time_Step );
-
-     // This MUST be greater than the minimum allowed time step.
-     if ( basinModel->cflTimeStepping ()) {
-        double CFL_Value;
-        Determine_CFL_Value ( CFL_Value );
-        Time_Step = NumericFunctions::Maximum3 ( CFL_Value, Time_Step, basinModel->minimumTimeStep ());
-     } else {
-        Time_Step = NumericFunctions::Maximum ( Time_Step, basinModel->minimumTimeStep ());
-     }
-
+     Time_Step = NumericFunctions::Maximum ( Time_Step, basinModel->minimumTimeStep ());
      Time_Step = NumericFunctions::Minimum ( Time_Step, basinModel->maximumTimeStep ());
   }
 
@@ -1830,105 +1886,27 @@ void Basin_Modelling::FEM_Grid::Determine_Next_Coupled_Time_Step ( const double 
 //------------------------------------------------------------//
 
 #undef  __FUNCT__  
-#define __FUNCT__ "Basin_Modelling::FEM_Grid::Determine_CFL_Value"
-
-void Basin_Modelling::FEM_Grid::Determine_CFL_Value ( double& CFL_Value ) {
-
-  PetscLogDouble Start_Time;
-  PetscLogDouble End_Time;
-  PetscLogDouble Accumulated_Time = 0.0;
-
-  double Global_CFL_Value;
-  double Layer_CFL_Value;
-  Layer_Iterator Pressure_Layers;
-  // Allocate the property vectors in each of the layers
-  Pressure_Layers.Initialise_Iterator ( basinModel->layers, Descending, Sediments_Only, Active_Layers_Only );
-
-  CFL_Value = 100.0 * Secs_IN_MA;
-
-  while ( ! Pressure_Layers.Iteration_Is_Done ()) {
-
-    PetscTime(&Start_Time);
-    Pressure_Layers.Current_Layer () -> Determine_CFL_Value ( basinModel, Layer_CFL_Value );
-    PetscTime(&End_Time);
-
-    Accumulated_Time = Accumulated_Time + End_Time - Start_Time;
-
-    MPI_Allreduce ( &Layer_CFL_Value, &Global_CFL_Value, 1, 
-                     MPI_DOUBLE, MPI_MIN, PETSC_COMM_WORLD );
-
-    if ( basinModel -> debug1 or basinModel->verbose ) {
-      PetscPrintf(PETSC_COMM_WORLD, " CFL Value: %30s  %14f  %15f\n", 
-           Pressure_Layers.Current_Layer () -> layername.c_str(),
-           Global_CFL_Value ,
-           End_Time - Start_Time
-        );
-    }
-
-    CFL_Value = NumericFunctions::Minimum ( CFL_Value, Global_CFL_Value );
-    Pressure_Layers++;
-  }
-
-  if ( basinModel -> debug1 or basinModel->verbose) {
-
-    PetscPrintf ( PETSC_COMM_WORLD, " Basin CFL Value:  %3.4f  %2.4f \n", CFL_Value, Accumulated_Time );
-  }
-
-}
-
-
-//------------------------------------------------------------//
-
-#undef  __FUNCT__  
 #define __FUNCT__ "Basin_Modelling::FEM_Grid::Construct_Pressure_FEM_Grid"
 
 void Basin_Modelling::FEM_Grid::Construct_Pressure_FEM_Grid ( const double Previous_Time,
                                                               const double Current_Time ) {
 
-  int  Number_Of_Segments = 0;
+   Layer_Iterator Pressure_Layers;
 
-  Layer_Iterator Pressure_Layers;
+   // Allocate the property vectors in each of the layers
+   Pressure_Layers.Initialise_Iterator ( basinModel->layers, Descending, Basement_And_Sediments, Active_Layers_Only );
 
-  // Allocate the property vectors in each of the layers
-  Pressure_Layers.Initialise_Iterator ( basinModel->layers, Descending, Basement_And_Sediments, Active_Layers_Only );
+   while ( ! Pressure_Layers.Iteration_Is_Done ()) {
+      Pressure_Layers.Current_Layer ()->allocateNewVecs ( basinModel, Current_Time );
+      Pressure_Layers++;
+   }
 
-  while ( ! Pressure_Layers.Iteration_Is_Done ()) {
+   // Now that the layer DA's have been set we can fill the Topmost Active Segment arrays
+   basinModel -> Fill_Topmost_Segment_Arrays ( Previous_Time, Current_Time );
 
-     Pressure_Layers.Current_Layer ()->allocateNewVecs ( basinModel, Current_Time );
-
-    Pressure_Layers++;
-  }
-
-  // Now that the layer DA's have been set we can fill the Topmost Active Segment arrays
-  basinModel -> Fill_Topmost_Segment_Arrays ( Previous_Time, Current_Time );
-
-  // Count the number of active segments in the Basin (remembering that the basement is not included)
-  // AND find the maximum number of segments in any active layer.
-  Pressure_Layers.Initialise_Iterator ( basinModel->layers, Ascending, Sediments_Only, Active_Layers_Only );
-
-  while ( ! Pressure_Layers.Iteration_Is_Done ()) {
-    Number_Of_Segments = Number_Of_Segments + Pressure_Layers.Current_Layer ()->getNrOfActiveElements();
-    Pressure_Layers++;
-  }
-
-  if ( Number_Of_Segments != 0 ) {
-    Number_Of_Pressure_Z_Nodes = Number_Of_Segments + 1;
-  } else {
-    PetscPrintf(PETSC_COMM_WORLD,"No Active Segments");
-  }
-
-  // Compute the total number of nodes in the PETSc mesh (this may be different from number of nodes in the true fem mesh)
-  Total_Number_Of_Pressure_Nodes = Number_Of_X_Nodes * Number_Of_Y_Nodes * Number_Of_Pressure_Z_Nodes;
-
-  FastcauldronSimulator::DACreate3D ( Number_Of_Pressure_Z_Nodes, Pressure_FEM_Grid );
-
-  DMCreateGlobalVector ( Pressure_FEM_Grid, &Pressure_Depths );
-  DMCreateGlobalVector ( Pressure_FEM_Grid, &Pressure_DOF_Numbers );
-  DMCreateGlobalVector ( Pressure_FEM_Grid, &pressureNodeIncluded );
-
-  // This is really to initialise the properties (perhaps create a separate function to do this)
-  pressureSolver->initialisePressureProperties ( Previous_Time, Current_Time );
-  pressureSolver->computeDependantProperties ( Previous_Time, Current_Time, false );
+   // This is really to initialise the properties (perhaps create a separate function to do this)
+   pressureSolver->initialisePressureProperties ( Previous_Time, Current_Time );
+   pressureSolver->computeDependantProperties ( Previous_Time, Current_Time, false );
 }
 
 //------------------------------------------------------------//
@@ -1941,65 +1919,34 @@ void Basin_Modelling::FEM_Grid::Construct_Temperature_FEM_Grid ( const double   
                                                                  const SnapshotEntrySetIterator& majorSnapshotTimes,
                                                                  const bool                      majorSnapshotTimesUpdated ) {
 
-  int  Number_Of_Segments = 0;
+   Layer_Iterator Layers;
 
-  Layer_Iterator Layers;
+   // Allocate the property vectors in each of the layers
+   Layers.Initialise_Iterator ( basinModel -> layers, Descending, Basement_And_Sediments, Active_Layers_Only );
 
-  // Allocate the property vectors in each of the layers
-  Layers.Initialise_Iterator ( basinModel -> layers, Descending, Basement_And_Sediments, Active_Layers_Only );
+   while ( ! Layers.Iteration_Is_Done () ) 
+   {
+      Layers.Current_Layer ()->allocateNewVecs ( basinModel, Current_Time );
+      Layers++;
+   } 
 
-  while ( ! Layers.Iteration_Is_Done () ) 
-  {
-     Layers.Current_Layer ()->allocateNewVecs ( basinModel, Current_Time );
+   // If the calculation mode is the loosely coupled then we need to set-up the interpolators for the
+   // properties that are to be read in and used in the temperature calcualtion.
+   if ( majorSnapshotTimesUpdated && basinModel->DoTemperature ) {
+      SnapshotInterval interval;
 
-    Layers++;
-  } 
+      // Set the snapshots that are to be interpolated (from the current major snapshot back to 
+      // the previous major snapshot, including all the minor snapshots in between).
+      basinModel->projectSnapshots.getPrecedingSnapshotInterval ( majorSnapshotTimes, true, interval );
 
-  // If the calculation mode is the loosely coupled then we need to set-up the interpolators for the
-  // properties that are to be read in and used in the temperature calcualtion.
-  if ( majorSnapshotTimesUpdated && basinModel->DoTemperature ) {
-    SnapshotInterval interval;
+      // Now, read in all the snapshot data and compute the interpolants.
+      basinModel->setSnapshotInterval ( interval );
+   }
 
-    // Set the snapshots that are to be interpolated (from the current major snapshot back to 
-    // the previous major snapshot, including all the minor snapshots in between).
-    basinModel->projectSnapshots.getPrecedingSnapshotInterval ( majorSnapshotTimes, true, interval );
-
-    // Now, read in all the snapshot data and compute the interpolants.
-    basinModel->setSnapshotInterval ( interval );
-  }
-
-  // Count the number of active segments in the Basin ( including the basement )
-  // AND find the maximum number of segments in any active layer.
-  Layers.Initialise_Iterator ( basinModel->layers, Ascending, Basement_And_Sediments, Active_Layers_Only );
-
-  while ( ! Layers.Iteration_Is_Done () ) 
-  {
-    Number_Of_Segments = Number_Of_Segments + Layers.Current_Layer ()->getNrOfActiveElements();
-    Layers++;
-  } 
-
-  if ( Number_Of_Segments != 0 ) 
-  {
-    Number_Of_Temperature_Z_Nodes = Number_Of_Segments + 1;
-  } 
-  else 
-  {
-    PetscPrintf(PETSC_COMM_WORLD,"No Active Segments");
-  } 
-
-  // Compute the total number of nodes in the PETSc mesh 
-  // This may be different from number of nodes in the true fem mesh
-  Total_Number_Of_Temperature_Nodes = Number_Of_X_Nodes * Number_Of_Y_Nodes * Number_Of_Temperature_Z_Nodes;
-
-  FastcauldronSimulator::DACreate3D ( Number_Of_Temperature_Z_Nodes, Temperature_FEM_Grid );
-
-  DMCreateGlobalVector ( Temperature_FEM_Grid, &Temperature_Depths );
-  DMCreateGlobalVector ( Temperature_FEM_Grid, &Temperature_DOF_Numbers );
-
-  Temperature_Calculator.setSurfaceTemperature ( basinModel, Current_Time );
-  Set_Pressure_Dependent_Properties ( Current_Time );
-  Compute_Temperature_Dependant_Properties ( Previous_Time, Current_Time );
-  Temperature_Calculator.computeHeatProduction ( Previous_Time, Current_Time );
+   Temperature_Calculator.setSurfaceTemperature ( basinModel, Current_Time );
+   Set_Pressure_Dependent_Properties ( Current_Time );
+   Compute_Temperature_Dependant_Properties ( Previous_Time, Current_Time );
+   Temperature_Calculator.computeHeatProduction ( Previous_Time, Current_Time );
   
 }
 
@@ -2019,7 +1966,6 @@ void Basin_Modelling::FEM_Grid::Construct_FEM_Grid ( const double               
 
   if ( basinModel -> DoTemperature || basinModel -> Do_Iteratively_Coupled ) {
     Construct_Temperature_FEM_Grid ( Previous_Time, Current_Time, majorSnapshotTimes, majorSnapshotTimesUpdated );
-    Temperature_Calculator.Compute_Heat_Flow_Boundary_Conditions ( Current_Time );
   }
   
   if ( basinModel -> DoOverPressure || basinModel -> Do_Iteratively_Coupled ) {
@@ -2027,12 +1973,6 @@ void Basin_Modelling::FEM_Grid::Construct_FEM_Grid ( const double               
   }
 
   FastcauldronSimulator::getInstance ().switchLithologies ( Current_Time );
-
-  // Now that the lithologies have been 'switched' the 
-  // include-node arrays have to be updated.  
-  basinModel->SetIncludedNodeArrays ();
-
-  setDOFs ();
   setLayerElements ( Current_Time );
 }
 
@@ -2256,9 +2196,6 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  Pre
   bool Converged = false;
   bool applyNonConservativeModel = false;
 
-  // The default PETSc ILU-fill levels.
-  int iluFillLevels = 0;
-
   int linearSolverIterationCount = PressureSolver::DefaultMaximumPressureLinearSolverIterations;
   int linearSolverTotalIterationCount;
   int linearSolveAttempts;
@@ -2274,39 +2211,23 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  Pre
   PetscScalar Solution_Length;
   PetscReal   linearSolverResidualNorm;
 
-  boost::shared_ptr<PetscSolver> pressureLinearSolver( 
-        new PetscCG( pressureSolver->linearSolverTolerance ( basinModel->Optimisation_Level ),
-            PressureSolver::DefaultMaximumPressureLinearSolverIterations 
-           )
-       );
+  boost::shared_ptr<PetscSolver> pressureLinearSolver ( new PetscCG ( pressureSolver->linearSolverTolerance ( basinModel->Optimisation_Level ),
+                                                                      PressureSolver::DefaultMaximumPressureLinearSolverIterations ));
   pressureLinearSolver->loadCmdLineOptions();
 
 
   bool JacobianComputed;
 
+  Jacobian = PetscObjectAllocator::allocateMatrix ( m_pressureComputationalDomain );
+  Residual = PetscObjectAllocator::allocateVector ( m_pressureComputationalDomain );
+  Overpressure = PetscObjectAllocator::allocateVector ( m_pressureComputationalDomain );
+  Residual_Solution = PetscObjectAllocator::allocateVector ( m_pressureComputationalDomain );
 
-#if PETSc_MATRIX_BUG_FIXED
-  pressureSolver->createMatrixStructure ( *basinModel -> mapDA,
-                                          Pressure_FEM_Grid,
-                                          basinModel->getValidNeedles (),
-                                          Pressure_DOF_Numbers, 
-                                          &Jacobian,
-                                          pressureStencilWidth );
-
-#else
-//    MatCreate ( PETSC_COMM_WORLD, PETSC_DECIDE, PETSC_DECIDE, Total_Number_Of_Pressure_Nodes, Total_Number_Of_Pressure_Nodes, &Jacobian );
-  DMCreateMatrix ( Pressure_FEM_Grid, MATAIJ, &Jacobian );
-#endif
-
-  DMCreateGlobalVector ( Pressure_FEM_Grid, &Overpressure );
-
-  VecDuplicate( Overpressure, &Residual );
-  VecDuplicate( Overpressure, &Residual_Solution );
-
+  SolutionVectorMapping mapping ( m_pressureComputationalDomain, Basin_Modelling::Overpressure );
 
   PetscViewerSetFormat(PETSC_VIEWER_STDOUT_WORLD, PETSC_VIEWER_ASCII_MATLAB );
 
-  pressureSolver->restorePressureSolution ( Pressure_FEM_Grid, Pressure_DOF_Numbers, Overpressure );
+  mapping.getSolution ( Overpressure );
 
   PetscScalar Previous_Po_Norm;
   PetscScalar Previous_TS_Po_Norm;
@@ -2321,7 +2242,7 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  Pre
   Previous_TS_Po_Norm = Po_Norm;
 
   if (basinModel -> debug1 or basinModel->verbose ) {
-    PetscPrintf ( PETSC_COMM_WORLD, " Number of DOFs  =  %d \n", Total_Number_Of_Pressure_Nodes );
+    PetscPrintf ( PETSC_COMM_WORLD, " Number of DOFs  =  %d \n", m_pressureComputationalDomain.getGlobalNumberOfActiveNodes ());
     PetscPrintf ( PETSC_COMM_WORLD, " Initial Po norm =  %f \n", Po_Norm );
   }
 
@@ -2337,6 +2258,8 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  Pre
   HydraulicFracturingManager::getInstance ().resetFracturing ();
   overpressureHasDiverged  = false;
   fracturingOccurred = false;
+
+
 
   do {
 
@@ -2366,12 +2289,11 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  Pre
       // Compute the Jacobian and residual for the nonlinear solver (Newton).
       MatZeroEntries ( Jacobian ); 
       PetscTime(&Assembly_Start_Time);
-      pressureSolver->assembleSystem ( Previous_Time, Current_Time, 
-                                       Pressure_FEM_Grid, 
-                                       Pressure_DOF_Numbers, 
-                                       pressureNodeIncluded,
+      pressureSolver->assembleSystem ( m_pressureComputationalDomain,
+                                       Previous_Time, Current_Time, 
                                        Jacobian, Residual,
                                        Element_Contributions_Time );
+
       PetscTime(&Assembly_End_Time);
 
       Element_Assembly_Time = Element_Assembly_Time + Element_Contributions_Time;
@@ -2389,10 +2311,14 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  Pre
 
       // Solve the matrix equation (Jacobian^{-1} \times residual) to some acceptable tolerance.
       KSPConvergedReason convergedReason;
-      pressureLinearSolver->solve( 
-           Jacobian, Residual, Residual_Solution, 
-           &numberOfLinearIterations, &convergedReason, &linearSolverResidualNorm
-        ); 
+      pressureLinearSolver->solve ( Jacobian,
+                                    Residual,
+                                    Residual_Solution, 
+                                    &numberOfLinearIterations,
+                                    &convergedReason,
+                                    &linearSolverResidualNorm ); 
+
+
 
       // First attempt to solve linear system of equations.
       linearSolveAttempts = 1;
@@ -2412,27 +2338,22 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  Pre
 
             boost::shared_ptr<PetscGMRES> gmres = boost::dynamic_pointer_cast<PetscGMRES>( pressureLinearSolver);
             if ( ! gmres  ) {
-               pressureLinearSolver.reset( 
-                     new PetscGMRES( 
-                           pressureLinearSolver->getTolerance(),
-                           PressureSolver::DefaultGMResRestartValue, 
-                           pressureLinearSolver->getMaxIterations()
-                        )
-                     );
+               pressureLinearSolver.reset ( new PetscGMRES ( pressureLinearSolver->getTolerance(),
+                                                             PressureSolver::DefaultGMResRestartValue, 
+                                                             pressureLinearSolver->getMaxIterations ()));
+
                gmres = boost::dynamic_pointer_cast<PetscGMRES>( pressureLinearSolver);
                gmres->loadCmdLineOptions();
-               gmres->setRestart( std::max( gmres->getRestart() , PressureSolver::DefaultGMResRestartValue));
+               gmres->setRestart ( std::max( gmres->getRestart(), PressureSolver::DefaultGMResRestartValue ));
                gmres->setMaxIterations( std::max( pressureLinearSolver->getMaxIterations(), PressureSolver::DefaultMaximumPressureLinearSolverIterations) );
 
             } else {
                gmres->setRestart( gmres->getRestart() + PressureSolver::GMResRestartIncrementValue );
-               gmres->setMaxIterations( 3 * gmres->getMaxIterations() / 2 );
+               gmres->setMaxIterations(( 3 * gmres->getMaxIterations ()) / 2 );
             }
 
-            pressureLinearSolver->solve( 
-                  Jacobian, Residual, Residual_Solution, 
-                  &numberOfLinearIterations, &convergedReason, &linearSolverResidualNorm
-               );
+            pressureLinearSolver->solve ( Jacobian, Residual, Residual_Solution, 
+                                          &numberOfLinearIterations, &convergedReason, &linearSolverResidualNorm );
 
             linearSolverTotalIterationCount += numberOfLinearIterations;
 
@@ -2465,31 +2386,30 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  Pre
 
         // Set theta to 0.5, so that the initial update is not too big a jump.
         // This helps to improve the solving on, especially, layers with high deposition rates.
-        Theta = -0.5;
+        Theta = 0.5;
       } else if ( totalNumberOfNonlinearIterations <= 2 ) {
 
         // Set to 1, since the initial value is 0.5 only to help with the initial pressure solution.
-        Theta = -1.0;
+        Theta = 1.0;
       } else if ( totalNumberOfNonlinearIterations > 2 ) {
 
         if ( Previous_Residual_Length < Residual_Length ) {
           Theta = 0.5 * Theta;
-          Theta = PetscMin ( Theta, -0.1 );
+          Theta = PetscMax ( Theta, 0.1 );
         } else {
-          Theta = PetscMax ( -1.0, Theta - Theta_Increment );
+          Theta = PetscMin ( 1.0, Theta + Theta_Increment );
         }
 
       }
 
       Previous_Residual_Length = Residual_Length;
 
-      // Update the overpressure solution. p_{n+1} = p_{n} - \theta \times R(p_{n}) / Jac(p_{n})
-      // VecAXPY(&Theta, Residual_Solution, Overpressure );
-      // Check this!!
+      // Update the overpressure solution. p_{n+1} = p_{n} + \theta \times R(p_{n}) / Jac(p_{n})
       VecAXPY( Overpressure, Theta, Residual_Solution );
       VecNorm ( Overpressure, NORM_2, &Po_Norm );
 
-      pressureSolver->storePressureSolution ( Pressure_FEM_Grid, Pressure_DOF_Numbers, Overpressure );
+      mapping.putSolution ( Overpressure );
+      pressureSolver->checkPressureSolution ();
 
       VecNorm ( Overpressure, NORM_2, &Solution_Length );
       VecNorm ( Residual_Solution, NORM_2, &Residual_Solution_Length );
@@ -2530,14 +2450,14 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  Pre
       {
         cout << " Newton iteration (p): " 
              << setw (  5 ) << totalNumberOfNonlinearIterations + 1
-             << setw ( 16 ) << Residual_Length / Element_Scaling
+             << setw ( 16 ) << Residual_Length
              << setw ( 16 ) << Solution_Length
              << setw ( 16 ) << Residual_Solution_Length
              << setw ( 16 ) << ( Residual_Solution_Length / Solution_Length )
              << setw ( 16 ) << Po_Norm - Previous_Po_Norm
              << setw ( 16 ) << linearSolverResidualNorm
              << setw (  5 ) << numberOfLinearIterations
-             << setw ( 16 ) << fabs ( Theta )
+             << setw ( 16 ) << Theta
              << setw ( 16 ) << Jacobian_Time
              << setw ( 16 ) << timeStepCalculationTime
              << setw ( 16 ) << Iteration_Time
@@ -2670,15 +2590,13 @@ void Basin_Modelling::FEM_Grid::Solve_Temperature_For_Time_Step
 #undef  __FUNCT__  
 #define __FUNCT__ "Basin_Modelling::FEM_Grid::Solve_Nonlinear_Temperature_For_Time_Step"
 
-void Basin_Modelling::FEM_Grid::Solve_Nonlinear_Temperature_For_Time_Step
-   ( const double  Previous_Time,
-     const double  Current_Time,
-     const int     MaximumNumberOfNonlinearIterations,
-     const bool    isSteadyStateCalculation,
-           bool&   temperatureHasDiverged,
-           int&    Number_Of_Nonlinear_Iterations,
-           double& T_Norm ) {
-
+void Basin_Modelling::FEM_Grid::Solve_Nonlinear_Temperature_For_Time_Step ( const double  Previous_Time,
+                                                                            const double  Current_Time,
+                                                                            const int     MaximumNumberOfNonlinearIterations,
+                                                                            const bool    isSteadyStateCalculation,
+                                                                            bool&         temperatureHasDiverged,
+                                                                            int&          Number_Of_Nonlinear_Iterations,
+                                                                            double&       T_Norm ) {
 
   int numberOfLinearIterations;
   int maximumNumberOfLinearSolverIterations;
@@ -2718,23 +2636,15 @@ void Basin_Modelling::FEM_Grid::Solve_Nonlinear_Temperature_For_Time_Step
   
   if (isSteadyStateCalculation || strcmp(basinModel->Temperature_Linear_Solver_Type, KSPCG) == 0)
   {
-     temperatureLinearSolver.reset(
-        new PetscCG(
-          Temperature_Calculator.linearSolverTolerance ( basinModel->Optimisation_Level )
-        )
-     );
+     temperatureLinearSolver.reset ( new PetscCG ( Temperature_Calculator.linearSolverTolerance ( basinModel->Optimisation_Level )));
   }
   else
   {
-     temperatureLinearSolver.reset(
-        new PetscGMRES(
-          Temperature_Calculator.linearSolverTolerance ( basinModel->Optimisation_Level ),
-          basinModel->Temperature_GMRes_Restart
-        )
-     );
+     temperatureLinearSolver.reset ( new PetscGMRES ( Temperature_Calculator.linearSolverTolerance ( basinModel->Optimisation_Level ),
+                                                      basinModel->Temperature_GMRes_Restart ));
   }
-  temperatureLinearSolver->loadCmdLineOptions();
 
+  temperatureLinearSolver->loadCmdLineOptions();
 
   PetscScalar Previous_T_Norm = 0.0;
 
@@ -2742,37 +2652,24 @@ void Basin_Modelling::FEM_Grid::Solve_Nonlinear_Temperature_For_Time_Step
 
   maximumNumberOfLinearSolverIterations = temperatureLinearSolver->getMaxIterations();
 
-#if PETSc_MATRIX_BUG_FIXED
-  cauldronCalculator->createMatrixStructure ( *basinModel -> mapDA,
-                                              Temperature_FEM_Grid,
-                                              basinModel->getValidNeedles (),
-                                              Temperature_DOF_Numbers, 
-                                              &Jacobian,
-                                              temperatureStencilWidth );
-  // Temperature_Calculator.Create_Matrix_Structure ( *basinModel -> mapDA,
-  //       					   Temperature_FEM_Grid,
-  //                                                  basinModel->getValidNeedles (),
-  //       					   Temperature_DOF_Numbers, 
-  //       					   &Jacobian,
-  //       					   temperatureStencilWidth );
-#else
-//    MatCreate ( PETSC_COMM_WORLD, PETSC_DECIDE, PETSC_DECIDE, Total_Number_Of_Temperature_Nodes, Total_Number_Of_Temperature_Nodes, &Jacobian );
-  DMCreateMatrix ( Temperature_FEM_Grid, MATAIJ, &Jacobian );
-#endif
+  WallTime::Time matrixAllocationStartTime = WallTime::clock ();
 
-  DMCreateGlobalVector ( Temperature_FEM_Grid, &Temperature );
-  VecDuplicate( Temperature, &Residual );
-  VecDuplicate( Temperature, &Residual_Solution );
+  Jacobian = PetscObjectAllocator::allocateMatrix ( m_temperatureComputationalDomain );
+  m_temperatureMatrixAllocationTime += ( WallTime::clock () - matrixAllocationStartTime ).floatValue ();
 
-  Temperature_Calculator.Restore_Temperature_Solution ( Temperature_FEM_Grid, Temperature_DOF_Numbers, 
-							Temperature );
+  Residual = PetscObjectAllocator::allocateVector ( m_temperatureComputationalDomain );
+  Residual_Solution = PetscObjectAllocator::allocateVector ( m_temperatureComputationalDomain );
+  Temperature = PetscObjectAllocator::allocateVector ( m_temperatureComputationalDomain );
 
-  PetscScalar Theta = -1.0;
+  SolutionVectorMapping mapping ( m_temperatureComputationalDomain, Basin_Modelling::Temperature );
+  mapping.getSolution ( Temperature );
+
+  PetscScalar Theta = 1.0;
 
   VecNorm ( Temperature, NORM_2, &T_Norm );
 
   if (( basinModel -> debug1 || basinModel->verbose) && ( FastcauldronSimulator::getInstance ().getRank () == 0 )) {
-    cout << " Number of DOFs  = " << Total_Number_Of_Temperature_Nodes << endl;
+    cout << " Number of DOFs  = " << m_temperatureComputationalDomain.getGlobalNumberOfActiveNodes () << endl;
     cout << " Initial T norm = " << T_Norm << endl;
   }
 
@@ -2800,11 +2697,10 @@ void Basin_Modelling::FEM_Grid::Solve_Nonlinear_Temperature_For_Time_Step
     if ( Number_Of_Nonlinear_Iterations == 0 ) {
       MatZeroEntries ( Jacobian ); 
       PetscTime(&Assembly_Start_Time);
-      Temperature_Calculator.Assemble_System ( Previous_Time, Current_Time, 
-                                               Temperature_FEM_Grid, 
-                                               Temperature_DOF_Numbers, 
-                                               Jacobian, Residual,
-                                               Element_Contributions_Time );
+      Temperature_Calculator.assembleSystem ( m_temperatureComputationalDomain, 
+                                              Previous_Time, Current_Time, 
+                                              Jacobian, Residual,
+                                              Element_Contributions_Time );
       PetscTime(&Assembly_End_Time);
 
       Element_Assembly_Time = Element_Assembly_Time + Element_Contributions_Time;
@@ -2817,11 +2713,10 @@ void Basin_Modelling::FEM_Grid::Solve_Nonlinear_Temperature_For_Time_Step
       // is not computed but also the preconditioner remains the same as for the previous
       // iteration.
       PetscTime(&Assembly_Start_Time);
-      Temperature_Calculator.Assemble_Residual ( Previous_Time, Current_Time, 
-                                                 Temperature_FEM_Grid, 
-                                                 Temperature_DOF_Numbers, 
-                                                 Residual,
-                                                 Element_Contributions_Time );
+      Temperature_Calculator.assembleResidual ( m_temperatureComputationalDomain, 
+                                                Previous_Time, Current_Time, 
+                                                Residual,
+                                                Element_Contributions_Time );
       PetscTime(&Assembly_End_Time);
 
 
@@ -2849,13 +2744,11 @@ void Basin_Modelling::FEM_Grid::Solve_Nonlinear_Temperature_For_Time_Step
     System_Solve_Time = System_Solve_Time + timeStepCalculationTime;
 
     // Check this!!
-    // VecAXPY(&Theta, Residual_Solution, Temperature );
     VecAXPY( Temperature, Theta, Residual_Solution );
-
     VecNorm ( Temperature, NORM_2, &T_Norm );
 
-    Temperature_Calculator.Store_Temperature_Solution ( Temperature_FEM_Grid, Temperature_DOF_Numbers, 
-							Temperature, Current_Time );
+    mapping.putSolution ( Temperature );
+    Temperature_Calculator.correctTemperatureSolution ( Current_Time );
 
     Compute_Temperature_Dependant_Properties ( Previous_Time, Current_Time );
 
@@ -2920,18 +2813,15 @@ void Basin_Modelling::FEM_Grid::Solve_Nonlinear_Temperature_For_Time_Step
   PetscLogStages :: pop();
 }
 
-
 //------------------------------------------------------------//
 
 #undef  __FUNCT__  
 #define __FUNCT__ "Basin_Modelling::FEM_Grid::Solve_Linear_Temperature_For_Time_Step"
 
-void Basin_Modelling::FEM_Grid::Solve_Linear_Temperature_For_Time_Step
-   ( const double  Previous_Time,
-     const double  Current_Time,
-           bool&   temperatureHasDiverged,
-           double& T_Norm ) {
-
+void Basin_Modelling::FEM_Grid::Solve_Linear_Temperature_For_Time_Step ( const double Previous_Time,
+                                                                         const double Current_Time,
+                                                                         bool&        temperatureHasDiverged,
+                                                                         double&      T_Norm ) {
 
   int numberOfLinearIterations;
   int maximumNumberOfLinearSolverIterations;
@@ -2975,59 +2865,37 @@ void Basin_Modelling::FEM_Grid::Solve_Linear_Temperature_For_Time_Step
   
   if ( strcmp(basinModel->Temperature_Linear_Solver_Type, KSPCG) == 0)
   {
-     temperatureLinearSolver.reset(
-        new PetscCG(
-          Temperature_Calculator.linearSolverTolerance ( basinModel->Optimisation_Level )
-        )
-     );
+     temperatureLinearSolver.reset ( new PetscCG ( Temperature_Calculator.linearSolverTolerance ( basinModel->Optimisation_Level )));
   }
   else
   {
-     temperatureLinearSolver.reset(
-        new PetscGMRES(
-          Temperature_Calculator.linearSolverTolerance ( basinModel->Optimisation_Level ),
-          basinModel->Temperature_GMRes_Restart
-        )
-     );
+     temperatureLinearSolver.reset ( new PetscGMRES ( Temperature_Calculator.linearSolverTolerance ( basinModel->Optimisation_Level ),
+                                                      basinModel->Temperature_GMRes_Restart ));
   }
-  temperatureLinearSolver->loadCmdLineOptions();
 
+  temperatureLinearSolver->loadCmdLineOptions();
 
   PetscLogStages::push( PetscLogStages :: TEMPERATURE_LINEAR_SOLVER );
   PetscTime(&Iteration_Start_Time);
 
-
   maximumNumberOfLinearSolverIterations = temperatureLinearSolver->getMaxIterations();
-
-
 
   PetscTime(&matrixStartTime);
 
-#if PETSc_MATRIX_BUG_FIXED
-  cauldronCalculator->createMatrixStructure ( *basinModel -> mapDA,
-                                              Temperature_FEM_Grid,
-                                              basinModel->getValidNeedles (),
-                                              Temperature_DOF_Numbers, 
-                                              &Stiffness_Matrix,
-                                              temperatureStencilWidth );
 
-  // Temperature_Calculator.Create_Matrix_Structure ( *basinModel -> mapDA,
-  //       					   Temperature_FEM_Grid,
-  //                                                  basinModel->getValidNeedles (),
-  //       					   Temperature_DOF_Numbers, 
-  //       					   &Stiffness_Matrix,
-  //       					   temperatureStencilWidth );
-#else
-//    MatCreate ( PETSC_COMM_WORLD, PETSC_DECIDE, PETSC_DECIDE, Total_Number_Of_Temperature_Nodes, Total_Number_Of_Temperature_Nodes, &Stiffness_Matrix );
-  DMCreateMatrix ( Temperature_FEM_Grid, MATAIJ, &Stiffness_Matrix );
-#endif
+  WallTime::Time matrixAllocationStartTime = WallTime::clock ();
+  Stiffness_Matrix = PetscObjectAllocator::allocateMatrix ( m_temperatureComputationalDomain );
+  m_temperatureMatrixAllocationTime += ( WallTime::clock () - matrixAllocationStartTime ).floatValue ();
+
+  Load_Vector = PetscObjectAllocator::allocateVector ( m_temperatureComputationalDomain );
+  Temperature = PetscObjectAllocator::allocateVector ( m_temperatureComputationalDomain );
+
 
   PetscTime(&matrixEndTime);
   matrixCreationTime = matrixEndTime - matrixStartTime;
 
   PetscTime(&dupStartTime);
-  DMCreateGlobalVector ( Temperature_FEM_Grid, &Temperature );
-  VecDuplicate( Temperature, &Load_Vector );
+
   PetscTime(&dupEndTime);
   dupCreationTime = dupEndTime - dupStartTime;
 
@@ -3035,22 +2903,26 @@ void Basin_Modelling::FEM_Grid::Solve_Linear_Temperature_For_Time_Step
   VecSet ( Load_Vector, Zero );
 
   MatZeroEntries ( Stiffness_Matrix ); 
-  Temperature_Calculator.Assemble_Stiffness_Matrix ( Previous_Time, Current_Time, 
-                                                     Temperature_FEM_Grid, 
-                                                     Temperature_DOF_Numbers, 
-                                                     Stiffness_Matrix, Load_Vector,
-                                                     Element_Contributions_Time );
+
+  Temperature_Calculator.assembleStiffnessMatrix ( m_temperatureComputationalDomain,
+                                                   Previous_Time,
+                                                   Current_Time, 
+                                                   Stiffness_Matrix,
+                                                   Load_Vector,
+                                                   Element_Contributions_Time );
 
   PetscTime(&System_Assembly_End_Time);
   Total_System_Assembly_Time = System_Assembly_End_Time - System_Assembly_Start_Time;
 
   // Solve the linear system Temperature = Stiffness_Matrix^-1 * Load_Vector
   PetscTime(&Start_Time);
-
   PetscTime(&restoreStartTime);
 
-  Temperature_Calculator.Restore_Temperature_Solution ( Temperature_FEM_Grid, Temperature_DOF_Numbers, 
-							Temperature );
+  WallTime::Time solutionMappingStartTime = WallTime::clock ();
+  SolutionVectorMapping mapping ( m_temperatureComputationalDomain, Basin_Modelling::Temperature );
+
+  mapping.getSolution ( Temperature );
+  m_temperatureSolutionMappingTime += ( WallTime::clock () - solutionMappingStartTime ).floatValue ();
 
   PetscTime(&restoreEndTime);
   restoreCreationTime = restoreEndTime - restoreStartTime;
@@ -3067,9 +2939,8 @@ void Basin_Modelling::FEM_Grid::Solve_Linear_Temperature_For_Time_Step
 
   PetscTime(&storeStartTime);
 
-  Temperature_Calculator.Store_Temperature_Solution ( Temperature_FEM_Grid,
-                                                      Temperature_DOF_Numbers, 
-                                                      Temperature, Current_Time );
+  mapping.putSolution ( Temperature );
+  Temperature_Calculator.correctTemperatureSolution ( Current_Time );
   PetscTime(&storeEndTime);
   storeCreationTime = storeEndTime - storeStartTime;
 
@@ -3091,7 +2962,7 @@ void Basin_Modelling::FEM_Grid::Solve_Linear_Temperature_For_Time_Step
 
   if (( basinModel -> debug1 || basinModel->verbose ) && ( FastcauldronSimulator::getInstance ().getRank () == 0 )) {
     cout << " Temperature solving: "  
-         << Total_Number_Of_Temperature_Nodes << "  "
+         << m_temperatureComputationalDomain.getGlobalNumberOfActiveNodes () << "  "
          << numberOfLinearIterations << "  " 
          << Total_System_Assembly_Time << "  " 
          << Solve_Time << "  " 
@@ -3116,7 +2987,6 @@ void Basin_Modelling::FEM_Grid::Solve_Linear_Temperature_For_Time_Step
 
   PetscLogStages::pop();
 }
-
 
 //------------------------------------------------------------//
 
@@ -3213,29 +3083,6 @@ void Basin_Modelling::FEM_Grid::Solve_Coupled_For_Time_Step ( const double  Prev
   }
 
   Number_Of_Nonlinear_Iterations = Number_Of_Pressure_Nonlinear_Iterations;
-}
-
-
-//------------------------------------------------------------//
-
-#undef  __FUNCT__  
-#define __FUNCT__ "Basin_Modelling::FEM_Grid::Destroy_Vectors"
-
-void Basin_Modelling::FEM_Grid::Destroy_Vectors () {
-
-  if ( basinModel -> DoTemperature || basinModel -> Do_Iteratively_Coupled ) {
-     Destroy_Petsc_Vector ( Temperature_Depths );
-     Destroy_Petsc_Vector ( Temperature_DOF_Numbers );
-     DMDestroy ( &Temperature_FEM_Grid );
-  }
-
-  if ( basinModel->DoOverPressure || basinModel -> Do_Iteratively_Coupled ) {
-    Destroy_Petsc_Vector ( Pressure_Depths );
-    Destroy_Petsc_Vector ( Pressure_DOF_Numbers );
-    Destroy_Petsc_Vector ( pressureNodeIncluded );
-    DMDestroy ( &Pressure_FEM_Grid );
-  }
-
 }
 
 
@@ -3389,53 +3236,18 @@ void Basin_Modelling::FEM_Grid::clearLayerVectors () {
 //------------------------------------------------------------//
 
 #undef  __FUNCT__  
-#define __FUNCT__ "Basin_Modelling::FEM_Grid::setDOFs"
-
-void Basin_Modelling::FEM_Grid::setDOFs () {
-
-  if ( basinModel->DoTemperature || basinModel -> Do_Iteratively_Coupled ) {
-     cauldronCalculator->setDepths ( Temperature_FEM_Grid, true, Temperature_Depths );
-     cauldronCalculator->setDOFs ( Temperature_FEM_Grid, 
-                                   Temperature_Depths, 
-                                   Temperature_DOF_Numbers, 
-                                   temperatureStencilWidth );
-  }
-
-  if ( basinModel->DoOverPressure || basinModel -> Do_Iteratively_Coupled ) {
-     pressureSolver->setDepths ( Pressure_FEM_Grid, false, Pressure_Depths );
-     pressureSolver->setDOFs ( Pressure_FEM_Grid, 
-                               Pressure_Depths, 
-                               Pressure_DOF_Numbers, 
-                               pressureStencilWidth );
-     pressureSolver->setRealNodes ( Pressure_FEM_Grid,
-                                    Pressure_DOF_Numbers,
-                                    pressureNodeIncluded );
-  }
-
-}
-
-//------------------------------------------------------------//
-
-#undef  __FUNCT__  
 #define __FUNCT__ "Basin_Modelling::FEM_Grid::Copy_Current_Properties"
 
 void Basin_Modelling::FEM_Grid::Copy_Current_Properties () {
 
   Layer_Iterator Layers ( basinModel -> layers, Ascending, Basement_And_Sediments, Active_Layers_Only );
-//    Layer_Iterator Layers ( basinModel -> layers, Ascending, Sediments_Only, Active_Layers_Only );
   LayerProps_Ptr Current_Layer;
-
-//    PetscFunctionBegin;
 
   const Boolean2DArray& Valid_Needle = basinModel->getValidNeedles ();
 
   for ( Layers.Initialise_Iterator (); ! Layers.Iteration_Is_Done (); Layers++ ) {
      Layers.Current_Layer ()->copyProperties ();
-    // Current_Layer = Layers.Current_Layer ();
-    // Current_Layer -> Previous_Properties.Copy ( Current_Layer -> Current_Properties, Valid_Needle );
   } 
-
-//    PetscFunctionReturnVoid();
 
 }
 
@@ -3447,92 +3259,92 @@ void Basin_Modelling::FEM_Grid::Copy_Current_Properties () {
 
 void Basin_Modelling::FEM_Grid::Store_Computed_Deposition_Thickness ( const double Current_Time ) {
 
-	int I, J;
-	int K;
-	int X_Start;
-	int Y_Start;
-	int Z_Start;
-	int X_End;
-	int Y_End;
-	int Z_End;
-	int X_Count;
-	int Y_Count;
-	int Z_Count;
+   int I, J;
+   int K;
+   int X_Start;
+   int Y_Start;
+   int Z_Start;
+   int X_End;
+   int Y_End;
+   int Z_End;
+   int X_Count;
+   int Y_Count;
+   int Z_Count;
 
-	Layer_Iterator Layers ( basinModel -> layers, Descending, Sediments_Only, Active_Layers_Only );
+   Layer_Iterator Layers ( basinModel -> layers, Descending, Sediments_Only, Active_Layers_Only );
 
-	// Most of the time only the first layer has to be treated. However, for igneous intrusion and mobile layers,
-	// the time step of deposition can be zero, which means that two layers are deposited at the same time
-	// hence the for loop and the "if (!condition) break";
-	for (Layers.Initialise_Iterator (); ! Layers.Iteration_Is_Done (); Layers.Next() )
-	{
+   // Most of the time only the first layer has to be treated. However, for igneous intrusion and mobile layers,
+   // the time step of deposition can be zero, which means that two layers are deposited at the same time
+   // hence the for loop and the "if (!condition) break";
+   for (Layers.Initialise_Iterator (); ! Layers.Iteration_Is_Done (); Layers.Next() )
+   {
 
-		LayerProps_Ptr Current_Layer = Layers.Current_Layer ();
-		// Is this the best number to have here? I think so, but cannot prove it.
-		// The snapshot times, time step, ... are written out (perhaps read in too) 
-		// as a float, but stored and used as doubles.
-		const double Float_Epsilon = pow ( 2.0, -23 ); 
+      LayerProps_Ptr Current_Layer = Layers.Current_Layer ();
+      // Is this the best number to have here? I think so, but cannot prove it.
+      // The snapshot times, time step, ... are written out (perhaps read in too) 
+      // as a float, but stored and used as doubles.
+      const double Float_Epsilon = pow ( 2.0, -23 ); 
 
-		if ( fabs ( Current_Time - Current_Layer -> depoage ) >= NumericFunctions::Maximum ( Current_Time, 1.0 ) * Float_Epsilon ) break;
+      if ( fabs ( Current_Time - Current_Layer -> depoage ) >= NumericFunctions::Maximum ( Current_Time, 1.0 ) * Float_Epsilon ) break;
 
-		const Boolean2DArray& Valid_Needle = basinModel->getValidNeedles ();
+      const Boolean2DArray& Valid_Needle = basinModel->getValidNeedles ();
 
-		DMCreateGlobalVector ( *basinModel->mapDA, &(Current_Layer -> Computed_Deposition_Thickness) );
+      DMCreateGlobalVector ( *basinModel->mapDA, &(Current_Layer -> Computed_Deposition_Thickness) );
 
-		PETSC_2D_Array Computed_Deposition_Thickness ( *basinModel->mapDA, 
-				Current_Layer -> Computed_Deposition_Thickness );
+      PETSC_2D_Array Computed_Deposition_Thickness ( *basinModel->mapDA, 
+            Current_Layer -> Computed_Deposition_Thickness );
 
-		DMDAGetCorners ( Current_Layer->layerDA, &X_Start, &Y_Start, &Z_Start, &X_Count, &Y_Count, &Z_Count );
-		X_End = X_Start + X_Count;
-		Y_End = Y_Start + Y_Count;
+      DMDAGetCorners ( Current_Layer->layerDA, &X_Start, &Y_Start, &Z_Start, &X_Count, &Y_Count, &Z_Count );
+      X_End = X_Start + X_Count;
+      Y_End = Y_Start + Y_Count;
 
-		if ( basinModel->isGeometricLoop ()) {
+      if ( basinModel->isGeometricLoop ()) {
 
-			PETSC_3D_Array Depth ( Current_Layer->layerDA, Current_Layer->Current_Properties ( Basin_Modelling::Depth ));
+         PETSC_3D_Array Depth ( Current_Layer->layerDA, Current_Layer->Current_Properties ( Basin_Modelling::Depth ));
 
-			Z_End = Z_Start + Z_Count;
+         Z_End = Z_Start + Z_Count;
 
-			for ( I = X_Start; I < X_End; I++ ) {
+         for ( I = X_Start; I < X_End; I++ ) {
 
-				for ( J = Y_Start; J < Y_End; J++ ) {
+            for ( J = Y_Start; J < Y_End; J++ ) {
 
-					if ( Valid_Needle ( I, J )) {
-						Computed_Deposition_Thickness ( J, I ) = Depth ( Z_Start, J, I ) - Depth ( Z_End - 1, J, I );
-					}
+               if ( Valid_Needle ( I, J )) {
+                  Computed_Deposition_Thickness ( J, I ) = Depth ( Z_Start, J, I ) - Depth ( Z_End - 1, J, I );
+               }
 
-				}
+            }
 
-			}
+         }
 
-		} else {
+      } else {
 
-			double         Computed_Solid_Thickness;
-			PETSC_3D_Array Solid_Thickness ( Current_Layer->layerDA, Current_Layer->Current_Properties ( Basin_Modelling::Solid_Thickness ));
+         double         Computed_Solid_Thickness;
+         PETSC_3D_Array Solid_Thickness ( Current_Layer->layerDA, Current_Layer->Current_Properties ( Basin_Modelling::Solid_Thickness ));
 
-			// Minus 1 here because we are looping over segment arrays NOT node arrays.
-			Z_End = Z_Start + Z_Count - 1;
+         // Minus 1 here because we are looping over segment arrays NOT node arrays.
+         Z_End = Z_Start + Z_Count - 1;
 
-			for ( I = X_Start; I < X_End; I++ ) {
+         for ( I = X_Start; I < X_End; I++ ) {
 
-				for ( J = Y_Start; J < Y_End; J++ ) {
+            for ( J = Y_Start; J < Y_End; J++ ) {
 
-					if ( Valid_Needle ( I, J )) {
-						Computed_Solid_Thickness = 0.0;
+               if ( Valid_Needle ( I, J )) {
+                  Computed_Solid_Thickness = 0.0;
 
-						for ( K = Z_Start; K < Z_End; K++ ) {
-							Computed_Solid_Thickness = Computed_Solid_Thickness + Solid_Thickness ( K, J, I );
-						}
+                  for ( K = Z_Start; K < Z_End; K++ ) {
+                     Computed_Solid_Thickness = Computed_Solid_Thickness + Solid_Thickness ( K, J, I );
+                  }
 
-						Computed_Deposition_Thickness ( J, I ) = Computed_Solid_Thickness;
-					}
+                  Computed_Deposition_Thickness ( J, I ) = Computed_Solid_Thickness;
+               }
 
-				}
+            }
 
-			}
+         }
 
-		}
+      }
 
-	}
+   }
 
 }
 
@@ -3588,24 +3400,20 @@ void Basin_Modelling::FEM_Grid::Initialise_Basin_Temperature ( bool& temperature
 
   basinModel -> findActiveElements ( Current_Time );
   Construct_Temperature_FEM_Grid ( Current_Time, FastcauldronSimulator::getInstance ().getAgeOfBasin (), majorSnapshots, false );
-  // Construct_Temperature_FEM_Grid ( Current_Time, basinModel -> Age_Of_Basin (), majorSnapshots, false );
-  cauldronCalculator->setDepths ( Temperature_FEM_Grid, true, Temperature_Depths );
-  cauldronCalculator->setDOFs ( Temperature_FEM_Grid, 
-                                Temperature_Depths, 
-                                Temperature_DOF_Numbers, 
-                                temperatureStencilWidth );
+
+  FastcauldronSimulator::getInstance ().switchLithologies ( basinModel->Crust ()->depoage );
+  setLayerElements ( basinModel->Crust ()->depoage );
 
   Temperature_Calculator.Compute_Crust_Heat_Production ();
-  Temperature_Calculator.Compute_Heat_Flow_Boundary_Conditions ( Current_Time );
   Temperature_Calculator.Estimate_Basement_Temperature ();
 
+  m_temperatureComputationalDomain.resetAge ( basinModel->Crust ()->depoage );
   Solve_Nonlinear_Temperature_For_Time_Step ( Current_Time,
                                               FastcauldronSimulator::getInstance ().getAgeOfBasin (),
-                                              // basinModel->Age_Of_Basin (),
                                               10,
                                               true, // steady state calculation.
                                               temperatureHasDiverged,
-		          		      Number_Of_Newton_Iterations,
+                                              Number_Of_Newton_Iterations,
                                               T_Norm );
 
   computeBasementLithostaticPressureForCurrentTimeStep ( basinModel, Current_Time );
@@ -3659,7 +3467,6 @@ void Basin_Modelling::FEM_Grid::printRelatedProjects ( const double currentAge )
       }
  
       Print_Needle ( currentAge, X_Position, Y_Position );
-//        Print_Needle ( currentAge, X_Position, Y_Position, temperatureInterpolants [ I ], vesInterpolants [ I ] );
     }
 
     if ( basinModel -> Related_Projects.size () == 0 ) {
@@ -3689,7 +3496,6 @@ void Basin_Modelling::FEM_Grid::Print_Needle ( const double currentAge, const in
 
    bool includedInDarcySimulation = FastcauldronSimulator::getInstance ().getMcfHandler ().solveFlowEquations ();
 
-  // The Pressure_FEM_Grid MUST have been allocated at this point.
   int K;
   int X_Start;
   int Y_Start;
@@ -3728,20 +3534,14 @@ void Basin_Modelling::FEM_Grid::Print_Needle ( const double currentAge, const in
 
   if ( basinModel->DoOverPressure ) {
     Basin_Bottom = Sediments_Only;
-    gridUsed = &Pressure_FEM_Grid;
-    dofNumbers = &Pressure_DOF_Numbers;
   } else {
     Basin_Bottom = Basement_And_Sediments;
-    gridUsed = &Temperature_FEM_Grid;
-    dofNumbers = &Temperature_DOF_Numbers;
   }
 
   Pressure_Layers.Initialise_Iterator ( basinModel->layers, Descending, Basin_Bottom, Active_Layers_Only );
-  DMDAGetCorners ( *gridUsed, &X_Start, &Y_Start, PETSC_NULL, &X_Count, &Y_Count, &Z_Count );
 
-  int  DOF_Position = Z_Count - 1;
-  int  Number_Of_Segments;
-  int* GlobalK;
+  DMDAGetCorners ( *basinModel->mapDA, &X_Start, &Y_Start, PETSC_NULL, &X_Count, &Y_Count, PETSC_NULL );
+
   bool onThisNode = false;
 
   double c1Sum = 0.0;
@@ -3770,8 +3570,6 @@ void Basin_Modelling::FEM_Grid::Print_Needle ( const double currentAge, const in
   int elementI = NumericFunctions::clipValueToRange ( I, FastcauldronSimulator::getInstance ().getMapElementArray ().firstI (),
                                                       FastcauldronSimulator::getInstance ().getMapElementArray ().lastI ());
 
-  PETSC_3D_Array DOFs ( *gridUsed, *dofNumbers );
-
   if (( X_Start <= I ) && ( I < X_Start + X_Count ) && ( Y_Start <= J ) && ( J < Y_Start + Y_Count ) && Valid_Needle ( I, J )) {
     buffer << endl << endl;
     buffer << " Printing details of needle " << I << "  " << J << endl;
@@ -3785,16 +3583,6 @@ void Basin_Modelling::FEM_Grid::Print_Needle ( const double currentAge, const in
     blankSpaceUnderscore ( Layer_Name );
 
     Include_Chemical_Compaction = (( basinModel -> Do_Chemical_Compaction ) && ( Current_Layer -> Get_Chemical_Compaction_Mode ()));
-
-    Number_Of_Segments = Current_Layer->getNrOfActiveElements();
-    GlobalK = new int [ Number_Of_Segments + 1 ];
-
-    for ( K = Number_Of_Segments; K >= 0; K-- ) {
-      GlobalK [ K ] = DOF_Position;
-      DOF_Position = DOF_Position - 1;
-    }
-
-    DOF_Position = DOF_Position + 1;
 
     // Get the size of the layer DA.
     DMDAGetCorners ( Current_Layer->layerDA, &X_Start, &Y_Start, &Z_Start, &X_Count, &Y_Count, &Z_Count );
@@ -3830,12 +3618,6 @@ void Basin_Modelling::FEM_Grid::Print_Needle ( const double currentAge, const in
                                                         Porosity,
                                                         Permeability_Normal_Compound,
                                                         Permeability_Plane_Compound );
-
-            if ( Current_Layer->isBasement ()) {
-              includedDOF = 999;
-            } else {
-              includedDOF = int ( Current_Layer -> includedNodes ( I, J, K  ));
-            }
 
             fracturePressure = HydraulicFracturingManager::getInstance ().fracturePressure ( Current_Lithology,
                                                                                              currentFluid,
@@ -3874,8 +3656,6 @@ void Basin_Modelling::FEM_Grid::Print_Needle ( const double currentAge, const in
             buffer << setw (  4 ) << value;
             buffer << setw ( 14 ) << Current_Layer -> Current_Properties ( Basin_Modelling::Temperature, K, J, I );
             buffer << setw ( 14 ) << Current_Layer -> Current_Properties ( Basin_Modelling::Chemical_Compaction, K, J, I );
-            buffer << setw (  4 ) << int ( DOFs ( GlobalK [ K ], J, I ));
-            buffer << setw (  4 ) << includedDOF;
 
             if ( includedInDarcySimulation and Current_Layer->kind () == Interface::SEDIMENT_FORMATION ) {
 

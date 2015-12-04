@@ -13,7 +13,10 @@
 #include "globaldefs.h"
 #include "layer.h"
 
-#include "LayerElement.h"
+#include "ComputationalDomain.h"
+#include "BoundaryConditions.h"
+#include "GeneralElement.h"
+#include "Saturation.h"
 
 class PressureSolver : public CauldronCalculator {
 
@@ -56,27 +59,18 @@ public :
    virtual void initialisePressureProperties ( const double previousTime, 
                                                const double currentTime ) = 0;
 
-   /// Copies the pressure solution that is stored in the vectors in the layers
-   /// to the Overpressure vector that is defined on the entire basin.
-   void restorePressureSolution ( const DM  pressureFemGrid,
-                                  const Vec pressureDofNumbers,
-                                        Vec Overpressure );
 
-   /// Copies the overpressure vector that is stored on the entire basin to
-   /// the vectors in the layers.
-   void storePressureSolution ( const DM  pressureFemGrid,
-                                const Vec pressureDofNumbers,
-                                const Vec overpressure );
+   /// \brief Check the overpressure solution and update pore- and lithostatic pressures.
+   void checkPressureSolution ();
 
    /// Assemble the Jacobian and residual for the Newton solver.
-   void assembleSystem ( const double  previousTime,
-                         const double  currentTime,
-                         const DM&     pressureFEMGrid,
-                         const Vec&    pressureDOFs,
-                         const Vec&    pressureNodeIncluded,
-                               Mat&    jacobian,
-                               Vec&    residual,
-                               double& elementContributionsTime );
+   void assembleSystem ( const ComputationalDomain& computationalDomain,
+                         const double               previousTime,
+                         const double               currentTime,
+                         Mat&                       jacobian,
+                         Vec&                       residual,
+                         double&                    elementContributionsTime );
+
 
    ///
    /// Find the maximum difference between the overpressure solution at the 
@@ -158,6 +152,33 @@ protected :
 
 
    void initialiseFctCorrection ();
+
+   /// \brief Get the boundary conditions for the pressure equation.
+   void getBoundaryConditions ( const GeneralElement& element,
+                                const double          currentTime,
+                                const int             topIndex,
+                                const bool            constrainedOverPressure,
+                                const double          constrainedOverpressureValue,
+                                const bool            isIceSheetLayer,
+                                ElementVector&        fracturePressureExceeded,
+                                BoundaryConditions&   bcs ) const;
+
+   /// \brief Assemble the element Jacobian and residual for the pressure equation.
+   void assembleElementSystem ( const GeneralElement&     element,
+                                const double              currentTime,
+                                const double              timeStep,
+                                const BoundaryConditions& bcs,
+                                const CompoundLithology*  elementLithology,
+                                const ElementVector&      exceededFracturePressure,
+                                const bool                includeChemicalCompaction,
+                                const bool                includeInDarcySimulation,
+                                const bool                includeWaterSaturation,
+                                const bool                isIceSheetLayer,
+                                const Saturation&         currentSaturation,
+                                const Saturation&         previousSaturation,
+                                ElementMatrix&            elementJacobian,
+                                ElementVector&            elementResidual ) const;
+
 
 
    FiniteElementMethod::BasisFunctionCache* basisFunctions;
