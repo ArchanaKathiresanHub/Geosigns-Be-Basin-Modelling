@@ -731,13 +731,8 @@ void GeoPhysics::ProjectHandle::switchLithologies ( const double age ) {
    Interface::MutableFormationList::iterator formationIter;
 
    for ( formationIter = m_formations.begin (); formationIter != m_formations.end (); ++formationIter ) {
-
-      if ((*formationIter)->kind () == Interface::SEDIMENT_FORMATION ) {
-         GeoPhysics::Formation* formation = dynamic_cast<GeoPhysics::Formation*>(*formationIter);
-
-         formation->switchLithologies ( age );
-      }
-
+      GeoPhysics::Formation* formation = dynamic_cast<GeoPhysics::Formation*>(*formationIter);
+      formation->switchLithologies ( age );
    }
 
 }
@@ -785,9 +780,9 @@ bool GeoPhysics::ProjectHandle::createSeaBottomTemperature () {
          // This should be with ghost nodes.
          surfaceTemperatureMap->retrieveGhostedData ();
 
-         for ( i = surfaceTemperatureMap->firstI (); i <= surfaceTemperatureMap->lastI (); ++i ) {
+         for ( i = surfaceTemperatureMap->getGrid()->firstI ( true ); i <= surfaceTemperatureMap->getGrid()->lastI ( true ); ++i ) {
 
-            for ( j = surfaceTemperatureMap->firstJ (); j <= surfaceTemperatureMap->lastJ (); ++j ) {
+            for ( j = surfaceTemperatureMap->getGrid()->firstJ ( true ); j <= surfaceTemperatureMap->getGrid()->lastJ ( true ); ++j ) {
 
                if ( m_validNodes ( i, j )) {
                   m_seaBottomTemperature ( i, j ).AddPoint ( age, surfaceTemperatureMap->getValue ( i, j ));
@@ -891,11 +886,11 @@ bool GeoPhysics::ProjectHandle::createMantleHeatFlow () {
          const Interface::GridMap* heatFlowMap = dynamic_cast<const Interface::GridMap*>(heatFlowInstance->getMap ( Interface::HeatFlowHistoryInstanceHeatFlowMap ));
          const double age = heatFlowInstance->getSnapshot ()->getTime ();
 
-         heatFlowMap->retrieveData ( true );
+         heatFlowMap->retrieveGhostedData ();
 
-         for ( i = heatFlowMap->firstI (); i <= heatFlowMap->lastI (); ++i ) {
+         for ( i = heatFlowMap->getGrid()->firstI ( true ); i <= heatFlowMap->getGrid()->lastI ( true ); ++i ) {
 
-            for ( j = heatFlowMap->firstJ (); j <= heatFlowMap->lastJ (); ++j ) {
+            for ( j = heatFlowMap->getGrid()->firstJ ( true ); j <= heatFlowMap->getGrid()->lastJ ( true ); ++j ) {
 
                if ( m_validNodes ( i, j )) {
                   m_mantleHeatFlow ( i, j ).AddPoint( age, heatFlowMap->getValue ( i, j ) * MilliWattsToWatts );
