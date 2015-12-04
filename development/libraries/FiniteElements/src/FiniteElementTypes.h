@@ -183,6 +183,11 @@ namespace FiniteElementMethod {
     /// Just a temporary function used for testing
     void Randomise ();
 
+
+     const double* data () const {
+        return &m_entries [ 0 ];
+     }
+
     //----------------------------//
 
     //----------------------------//

@@ -703,9 +703,9 @@ void FiniteElementMethod::ElementMatrix::put ( const std::string& name,
   int I;
   int J;
 
-  for ( I = 1; I <= 8; I++ ) {
+  for ( I = 0; I < 8; I++ ) {
 
-    for ( J = 1; J <= 8; J++ ) {
+    for ( J = 0; J < 8; J++ ) {
        o << name << " (" << I + 1 << ", " << J + 1 << " ) = " << m_entries [ I ][ J ] << ";" << std::endl;
     }
 
