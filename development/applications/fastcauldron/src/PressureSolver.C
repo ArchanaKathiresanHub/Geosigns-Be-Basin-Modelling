@@ -659,6 +659,8 @@ void PressureSolver::getBoundaryConditions ( const GeneralElement& element,
    currentLayer->getConstrainedOverpressure ( currentTime, constrainedOverPressureValue, constrainedOverPressureEnabled );
    bcs.reset ();
 
+   const GeneralElement* elementAbove = element.getActiveNeighbour ( VolumeData::ShallowFace );
+
    for ( int n = 0; n < 8; ++n ) {
       int nodeK = element.getNodeK ( n );
       int layerNodeK = layerElement.getNodeLocalKPosition ( n );
@@ -676,26 +678,24 @@ void PressureSolver::getBoundaryConditions ( const GeneralElement& element,
          bcs.setBoundaryConditions ( n, Interior_Constrained_Overpressure, constrainedOverPressureValue );
       }
       else if ( layerNodeK == numberOfDepthElements - 1 and 
-                  fracturePressureExceeded ( n + 1 ) > 0.0 )
+                fracturePressureExceeded ( n + 1 ) > 0.0 and
+                elementAbove != 0 and 
+                elementAbove->getLayerElement ().getLithology ()->surfacePorosity () == 0.0 )
       {
-         const GeneralElement* elementAbove = element.getActiveNeighbour ( VolumeData::ShallowFace );
 
          // Need elemnt boundary conditions in order to eliminate this check for surface porosity == 0.
-         if ( elementAbove != 0 and elementAbove->getLayerElement ().getLithology ()->surfacePorosity () == 0.0 )
-         {
-            double hydrostaticPressure = currentLayer->Current_Properties( Basin_Modelling::Hydrostatic_Pressure,
-                                                                           layerNodeK, nodeJ, nodeI );
+         double hydrostaticPressure = currentLayer->Current_Properties( Basin_Modelling::Hydrostatic_Pressure,
+                                                                        layerNodeK, nodeJ, nodeI );
 
-            double fracturePressure = hfm.fracturePressure ( elementLithology,
-                                                             currentLayer->fluid,
-                                                             fc.getSeaBottomTemperature ( nodeI, nodeJ, currentTime ),
-                                                             fc.getSeaBottomDepth ( nodeI, nodeJ, currentTime ),
-                                                             currentLayer->Current_Properties ( Basin_Modelling::Depth, layerNodeK, nodeJ, nodeI ),
-                                                             hydrostaticPressure,
-                                                             currentLayer->Current_Properties ( Basin_Modelling::Lithostatic_Pressure, layerNodeK, nodeJ, nodeI ));
-            bcs.setBoundaryConditions ( n, Interior_Constrained_Overpressure,
-                                        NumericFunctions::Maximum ( fracturePressure - hydrostaticPressure, 0.0 ));
-         }
+         double fracturePressure = hfm.fracturePressure ( elementLithology,
+                                                          currentLayer->fluid,
+                                                          fc.getSeaBottomTemperature ( nodeI, nodeJ, currentTime ),
+                                                          fc.getSeaBottomDepth ( nodeI, nodeJ, currentTime ),
+                                                          currentLayer->Current_Properties ( Basin_Modelling::Depth, layerNodeK, nodeJ, nodeI ),
+                                                          hydrostaticPressure,
+                                                          currentLayer->Current_Properties ( Basin_Modelling::Lithostatic_Pressure, layerNodeK, nodeJ, nodeI ));
+         bcs.setBoundaryConditions ( n, Interior_Constrained_Overpressure,
+                                     NumericFunctions::Maximum ( fracturePressure - hydrostaticPressure, 0.0 ));
 
       }
       else if ( HydraulicFracturingManager::getInstance ().isNonConservativeFractureModel () and
