@@ -15,8 +15,10 @@
 
 #include <MeshVizXLM/mapping/MoMeshViz.h>
 
-#include <RemoteViz/Rendering/Service.h>
-#include <RemoteViz/Rendering/ServiceSettings.h>
+//#include <RemoteViz/Rendering/Service.h>
+//#include <RemoteViz/Rendering/ServiceSettings.h>
+#include <Service.h>
+#include <ServiceSettings.h>
 
 void RenderService::start()
 {

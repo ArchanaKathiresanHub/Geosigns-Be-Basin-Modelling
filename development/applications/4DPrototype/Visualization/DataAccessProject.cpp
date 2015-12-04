@@ -32,56 +32,6 @@
 
 namespace di = DataAccess::Interface;
 
-int DataAccessProject::numCellsI() const
-{
-  return m_numCellsI;
-}
-
-int DataAccessProject::numCellsJ() const
-{
-  return m_numCellsJ;
-}
-
-int DataAccessProject::numCellsIHiRes() const
-{
-  return m_numCellsIHiRes;
-}
-
-int DataAccessProject::numCellsJHiRes() const
-{
-  return m_numCellsJHiRes;
-}
-
-double DataAccessProject::deltaX() const
-{
-  return m_deltaI;
-}
-
-double DataAccessProject::deltaY() const
-{
-  return m_deltaJ;
-}
-
-double DataAccessProject::deltaXHiRes() const
-{
-  return m_deltaIHiRes;
-}
-
-double DataAccessProject::deltaYHiRes() const
-{
-  return m_deltaJHiRes;
-}
-
-double DataAccessProject::minX() const
-{
-  return m_minX;
-}
-
-double DataAccessProject::minY() const
-{
-  return m_minY;
-}
-
 int DataAccessProject::getPropertyId(const std::string& name) const
 {
   return m_propertyIdMap.at(name);
@@ -210,20 +160,21 @@ void DataAccessProject::init()
   const di::Grid* loresGrid = m_projectHandle->getLowResolutionOutputGrid();
   const di::Grid* hiresGrid = m_projectHandle->getHighResolutionOutputGrid();
 
-  m_numCellsI = loresGrid->numI() - 1;
-  m_numCellsJ = loresGrid->numJ() - 1;
-  m_numCellsIHiRes = hiresGrid->numI() - 1;
-  m_numCellsJHiRes = hiresGrid->numJ() - 1;
-  m_deltaI = loresGrid->deltaI();
-  m_deltaJ = loresGrid->deltaJ();
-  m_deltaIHiRes = hiresGrid->deltaI();
-  m_deltaJHiRes = hiresGrid->deltaJ();
-  m_minX = loresGrid->minI();
-  m_minY = loresGrid->minJ();
+  m_projectInfo.dimensions.numCellsI = loresGrid->numI() - 1;
+  m_projectInfo.dimensions.numCellsJ = loresGrid->numJ() - 1;
+  m_projectInfo.dimensions.numCellsIHiRes = hiresGrid->numI() - 1;
+  m_projectInfo.dimensions.numCellsJHiRes = hiresGrid->numJ() - 1;
+  m_projectInfo.dimensions.deltaX = loresGrid->deltaI();
+  m_projectInfo.dimensions.deltaY = loresGrid->deltaJ();
+  m_projectInfo.dimensions.deltaXHiRes = hiresGrid->deltaI();
+  m_projectInfo.dimensions.deltaYHiRes = hiresGrid->deltaJ();
+  m_projectInfo.dimensions.minX = loresGrid->minI();
+  m_projectInfo.dimensions.minY = loresGrid->minJ();
 
   // Get snapshots
   std::unique_ptr<di::SnapshotList> snapshots(m_projectHandle->getSnapshots());
   m_snapshotList = *snapshots;
+  m_projectInfo.snapshotCount = m_snapshotList.size();
 
   // Get all available formations
   std::unique_ptr<di::PropertyValueList> formationDepthValues(
@@ -565,6 +516,8 @@ std::vector<Project::Trap> DataAccessProject::getTraps(size_t snapshotIndex, int
 {
   std::vector<Trap> traps;
 
+  const Project::Dimensions& dim = m_projectInfo.dimensions;
+
   auto snapshot = m_snapshotList[snapshotIndex];
   auto reservoir = m_reservoirs[reservoirId];
   std::unique_ptr<di::TrapperList> trapperList(m_projectHandle->getTrappers(reservoir, snapshot, 0, 0));
@@ -575,11 +528,11 @@ std::vector<Project::Trap> DataAccessProject::getTraps(size_t snapshotIndex, int
     double x, y, z;
     trapper->getSpillPointPosition(x, y);
     z = -trapper->getSpillDepth();
-    trap.spillPoint = SbVec3f((float)(x - m_minX), (float)(y - m_minY), (float)z);
+    trap.spillPoint = SbVec3f((float)(x - dim.minX), (float)(y - dim.minY), (float)z);
 
     trapper->getPosition(x, y);
     z = -trapper->getDepth();
-    trap.leakagePoint = SbVec3f((float)(x - m_minX), (float)(y - m_minY), (float)z);
+    trap.leakagePoint = SbVec3f((float)(x - dim.minX), (float)(y - dim.minY), (float)z);
 
     trap.id = (int)trapper->getId();
     trap.gasOilContactDepth = -trapper->getGOC();
@@ -604,8 +557,8 @@ std::vector<SbVec2d> DataAccessProject::getFaultLine(int faultId) const
   oivpoints.reserve(points.size());
   for (auto p : points)
     oivpoints.emplace_back(
-    p(di::X_COORD) - m_minX,
-    p(di::Y_COORD) - m_minY);
+    p(di::X_COORD) - m_projectInfo.dimensions.minX,
+    p(di::Y_COORD) - m_projectInfo.dimensions.minY);
 
   return oivpoints;
 }

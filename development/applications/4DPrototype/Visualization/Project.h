@@ -67,8 +67,27 @@ public:
     std::string unit;
   };
 
+  struct Dimensions
+  {
+    int numCellsI;
+    int numCellsJ;
+    int numCellsIHiRes;
+    int numCellsJHiRes;
+
+    double deltaX;
+    double deltaY;
+    double deltaXHiRes;
+    double deltaYHiRes;
+
+    double minX;
+    double minY;
+  };
+
   struct ProjectInfo
   {
+    size_t snapshotCount;
+    Dimensions dimensions;
+
     std::vector<Formation> formations;
     std::vector<Surface>   surfaces;
     std::vector<Reservoir> reservoirs;
@@ -109,26 +128,6 @@ public:
   virtual ProjectInfo getProjectInfo() const = 0;
 
   virtual unsigned int getMaxPersistentTrapId() const = 0;
-
-  virtual int numCellsI() const = 0;
-
-  virtual int numCellsJ() const = 0;
-
-  virtual int numCellsIHiRes() const = 0;
-
-  virtual int numCellsJHiRes() const = 0;
-
-  virtual double deltaX() const = 0;
-
-  virtual double deltaY() const = 0;
-
-  virtual double deltaXHiRes() const = 0;
-
-  virtual double deltaYHiRes() const = 0;
-
-  virtual double minX() const = 0;
-
-  virtual double minY() const = 0;
 
   virtual int getPropertyId(const std::string& name) const = 0;
 

@@ -92,8 +92,9 @@ void SceneGraphManager::updateCoordinateGrid()
 
   SnapshotInfo& snapshot = *m_snapshotInfoCache.begin();
 
-  float sizeX = (float)(m_project->numCellsI() * m_project->deltaX());
-  float sizeY = (float)(m_project->numCellsJ() * m_project->deltaY());
+  const Project::Dimensions& dim = m_projectInfo.dimensions;
+  float sizeX = (float)(dim.numCellsI * dim.deltaX);
+  float sizeY = (float)(dim.numCellsJ * dim.deltaY);
   float sizeZ = (float)(snapshot.maxZ - snapshot.minZ);
 
   const float margin = .05f;
@@ -301,14 +302,16 @@ void SceneGraphManager::updateSnapshotTraps()
       else if (m_showTraps && res.traps.root() == 0)
       {
         std::vector<Project::Trap> traps = m_project->getTraps(snapshot.index, res.id);
-        float radius = (float)std::min(m_project->deltaXHiRes(), m_project->deltaYHiRes());
+        float radius = (float)std::min(
+          m_projectInfo.dimensions.deltaXHiRes,
+          m_projectInfo.dimensions.deltaYHiRes);
         res.traps = Traps(traps, radius, m_verticalScale);
         if (res.traps.root() != 0)
           res.root->insertChild(res.traps.root(), 0); // 1st because of blending
 
         // Temporary addition of fluid contact isolines
-        SoLineSet* lineSet = buildIsoLines(*res.meshData, traps);
-        res.root->insertChild(lineSet, 0);
+        //SoLineSet* lineSet = buildIsoLines(*res.meshData, traps);
+        //res.root->insertChild(lineSet, 0);
       }
       // See if we need to remove existing traps
       else if (!m_showTraps && res.traps.root() != 0)
@@ -429,27 +432,22 @@ std::shared_ptr<FaultMesh> SceneGraphManager::generateFaultMesh(
 {
   const MiGeometryIjk& geometry = mesh.getGeometry();
 
-  int numI = m_project->numCellsI();
-  int numJ = m_project->numCellsJ();
-
-  double deltaX = m_project->deltaX();
-  double deltaY = m_project->deltaY();
-
+  const Project::Dimensions& dim = m_projectInfo.dimensions;
   double minX = 0.0;// m_project->minX();
   double minY = 0.0;// m_project->minY();
 
-  double maxX = minX + deltaX * numI;
-  double maxY = minY + deltaY * numJ;
+  double maxX = minX + dim.deltaX * dim.numCellsI;
+  double maxY = minY + dim.deltaY * dim.numCellsJ;
 
   std::vector<MbVec3d> coords;
   coords.reserve(2 * points.size());
 
   for (auto p : points)
   {
-    double i = std::max(std::min(p[0], maxX), 0.0) / deltaX;
-    double j = std::max(std::min(p[1], maxY), 0.0) / deltaY;
-    double z0 = getZ(geometry, numI, numJ, i, j, k0);
-    double z1 = getZ(geometry, numI, numJ, i, j, k1);
+    double i = std::max(std::min(p[0], maxX), 0.0) / dim.deltaX;
+    double j = std::max(std::min(p[1], maxY), 0.0) / dim.deltaY;
+    double z0 = getZ(geometry, dim.numCellsI, dim.numCellsJ, i, j, k0);
+    double z1 = getZ(geometry, dim.numCellsI, dim.numCellsJ, i, j, k1);
 
     coords.emplace_back(p[0], p[1], z0);
     coords.emplace_back(p[0], p[1], z1);
@@ -695,14 +693,15 @@ void SceneGraphManager::updateText()
   assert(!m_snapshotInfoCache.empty());
 
   SnapshotInfo& snapshot = *m_snapshotInfoCache.begin();
+  const Project::Dimensions& dim = m_projectInfo.dimensions;
 
   SbString str1, str2;
   str1.sprintf("Snapshot %d/%d (Age %.1f)", (int)(snapshot.index + 1), (int)m_project->getSnapshotCount(), snapshot.time);
   str2.sprintf("Resolution %dx%d (%dx%d)",
-    m_project->numCellsI(),
-    m_project->numCellsJ(),
-    m_project->numCellsIHiRes(),
-    m_project->numCellsJHiRes());
+    dim.numCellsI,
+    dim.numCellsJ,
+    dim.numCellsIHiRes,
+    dim.numCellsJHiRes);
 
   m_text->string.set1Value(1, str1);
   m_text->string.set1Value(2, str2);
@@ -953,11 +952,12 @@ SnapshotInfo SceneGraphManager::createSnapshotNode(size_t index)
 
 void SceneGraphManager::setupCoordinateGrid()
 {
-  double maxX = m_project->minX() + m_project->numCellsI() * m_project->deltaX();
-  double maxY = m_project->minY() + m_project->numCellsJ() * m_project->deltaY();
+  const Project::Dimensions& dim = m_projectInfo.dimensions;
+  double maxX = dim.minX + dim.numCellsI * dim.deltaX;
+  double maxY = dim.minY + dim.numCellsJ * dim.deltaY;
   m_coordinateGrid = initCoordinateGrid(
-    m_project->minX(),
-    m_project->minY(),
+    dim.minX,
+    dim.minY,
     maxX,
     maxY);
 
@@ -1418,8 +1418,8 @@ void SceneGraphManager::setup(std::shared_ptr<Project> project)
   }
 
   m_outlineBuilder = std::make_shared<OutlineBuilder>(
-    m_project->numCellsIHiRes(), 
-    m_project->numCellsJHiRes());
+    m_projectInfo.dimensions.numCellsIHiRes,
+    m_projectInfo.dimensions.numCellsJHiRes);
 
   //m_maxPersistentTrapId = getMaxPersistentTrapId(handle);
 

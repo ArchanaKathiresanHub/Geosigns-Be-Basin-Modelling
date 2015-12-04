@@ -244,16 +244,17 @@ void MainWindow::updateUI()
 
   enableUI(true);
 
+  const Project::Dimensions& dim = m_projectInfo.dimensions;
   m_snapshotCountLabel->setText(QString("%1 snapshots")
     .arg(m_project->getSnapshotCount()));
   m_dimensionsLabel->setText(QString("Dimensions: %1x%2 / %3x%4")
-    .arg(m_project->numCellsI())
-    .arg(m_project->numCellsJ())
-    .arg(m_project->numCellsIHiRes())
-    .arg(m_project->numCellsJHiRes()));
+    .arg(dim.numCellsI)
+    .arg(dim.numCellsJ)
+    .arg(dim.numCellsIHiRes)
+    .arg(dim.numCellsJHiRes));
 
-  m_ui.sliderSliceI->setMaximum(m_project->numCellsI() - 1);
-  m_ui.sliderSliceJ->setMaximum(m_project->numCellsJ() - 1);
+  m_ui.sliderSliceI->setMaximum(dim.numCellsI - 1);
+  m_ui.sliderSliceJ->setMaximum(dim.numCellsJ - 1);
 
   m_ui.checkBoxTraps->setChecked(false);
   m_ui.checkBoxTrapOutline->setChecked(false);

@@ -23,17 +23,6 @@ class VisualizationIOProject : public Project
 
   CauldronIO::SnapShotList m_snapshots;
 
-  int m_numCellsI;
-  int m_numCellsJ;
-  int m_numCellsIHiRes;
-  int m_numCellsJHiRes;
-  double m_deltaX;
-  double m_deltaY;
-  double m_deltaXHiRes;
-  double m_deltaYHiRes;
-  double m_minX;
-  double m_minY;
-
   void init();
 
 public:
@@ -43,26 +32,6 @@ public:
   virtual ProjectInfo getProjectInfo() const;
 
   virtual unsigned int getMaxPersistentTrapId() const;
-
-  virtual int numCellsI() const;
-
-  virtual int numCellsJ() const;
-
-  virtual int numCellsIHiRes() const;
-
-  virtual int numCellsJHiRes() const;
-
-  virtual double deltaX() const;
-
-  virtual double deltaY() const;
-
-  virtual double deltaXHiRes() const;
-
-  virtual double deltaYHiRes() const;
-
-  virtual double minX() const;
-
-  virtual double minY() const;
 
   virtual int getPropertyId(const std::string& name) const;
 

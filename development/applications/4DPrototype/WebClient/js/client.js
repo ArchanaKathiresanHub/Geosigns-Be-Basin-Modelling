@@ -1,6 +1,4 @@
 var theRenderArea = null;
-var theCanvasDiv = null;
-var theCanvas = null;
 var node = null;
 var color = false;
 var dataSize = 0;
@@ -147,8 +145,8 @@ function initUI(projectInfo)
     timeSlider.step = 1;
     timeSlider.value = timeSlider.max;
 
-    onQualitySliderChanged(document.getElementById("qualitySlider").valueAsNumber);
-    onInteractiveQualitySliderChanged(document.getElementById("iqualitySlider").valueAsNumber);
+    //onQualitySliderChanged(document.getElementById("qualitySlider").valueAsNumber);
+    //onInteractiveQualitySliderChanged(document.getElementById("iqualitySlider").valueAsNumber);
 }
 
 function onCheckBoxAllFormationsChanged(elem)
@@ -618,12 +616,13 @@ function websocketURL()
 
 function init() 
 { 
-    window.canvas = document.getElementById("TheCanvas");
+    //window.canvas = document.getElementById("TheCanvas");
     //$(window).resize(onWindowResize);
 
     // This function is called immediately after the page is loaded. Initialization of 
     // the renderArea. "TheCanvas" refers to the id of the canvas. 
-    theRenderArea = new RemoteVizRenderArea("TheCanvas", //defaultWidth, defaultHeight);
+    theRenderArea = new RemoteVizRenderArea(
+        "TheCanvas",
     	window.innerWidth - leftMargin, 
     	window.innerHeight - bottomMargin);
 
@@ -636,9 +635,8 @@ function init()
     theRenderArea.connectTo(url);
 
     // Calls a function or executes a code snippet repeatedly to refresh the bandwidth and the fps
-    window.setInterval("measurebandwithandfps()",1000);
-	
-    node = document.getElementById('bandwidthfps');
+    //window.setInterval("measurebandwithandfps()",1000);
+    //node = document.getElementById('bandwidthfps');
 }
 
 function cwidth(){

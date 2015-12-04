@@ -62,19 +62,6 @@ class VISUALIZATIONDLL_API DataAccessProject : public Project
   const DataAccess::Interface::Property* m_flowDirectionProperty;
   const DataAccess::Interface::Property* m_currentProperty;
 
-  int m_numCellsI;
-  int m_numCellsJ;
-  int m_numCellsIHiRes;
-  int m_numCellsJHiRes;
-
-  double m_deltaI;
-  double m_deltaJ;
-  double m_deltaIHiRes;
-  double m_deltaJHiRes;
-
-  double m_minX;
-  double m_minY;
-
   std::vector<const DataAccess::Interface::Property*>  m_properties;
   std::vector<const DataAccess::Interface::Snapshot*>  m_snapshotList;
   std::vector<const DataAccess::Interface::Formation*> m_formations;
@@ -106,26 +93,6 @@ public:
   virtual ProjectInfo getProjectInfo() const;
 
   virtual unsigned int getMaxPersistentTrapId() const;
-
-  virtual int numCellsI() const;
-
-  virtual int numCellsJ() const;
-
-  virtual int numCellsIHiRes() const;
-
-  virtual int numCellsJHiRes() const;
-
-  virtual double deltaX() const;
-
-  virtual double deltaY() const;
-
-  virtual double deltaXHiRes() const;
-
-  virtual double deltaYHiRes() const;
-
-  virtual double minX() const;
-
-  virtual double minY() const;
 
   virtual int getPropertyId(const std::string& name) const;
 

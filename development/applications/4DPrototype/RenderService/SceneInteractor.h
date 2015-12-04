@@ -1,6 +1,13 @@
 #ifndef _SceneInteractor_
 #define _SceneInteractor_
 
+//#if defined(_WIN32)
+//#if _DEBUG
+//#pragma comment(lib,"ViewerComponentsD")
+//#else
+//#pragma comment(lib,"ViewerComponents")
+//#endif
+//#endif
 
 #include <Inventor/nodes/SoSeparator.h>
 #include <Inventor/SbViewportRegion.h>

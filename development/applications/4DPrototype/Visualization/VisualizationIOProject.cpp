@@ -476,7 +476,6 @@ void VisualizationIOProject::init()
 
   m_snapshots.erase(iter, m_snapshots.end());
 
-
   auto snapshot = m_snapshots[0];
   auto surfaceList = snapshot->getSurfaceList();
   int i = 0;
@@ -524,17 +523,13 @@ void VisualizationIOProject::init()
     Property prop = { name, "???" };
     m_projectInfo.properties.push_back(prop);
   }
+
+  m_projectInfo.snapshotCount = m_snapshots.size();
+
+  memset(&m_projectInfo.dimensions, 0, sizeof(Project::Dimensions));
 }
 
 VisualizationIOProject::VisualizationIOProject(const std::string& path)
-  : m_numCellsI(0)
-  , m_numCellsJ(0)
-  , m_numCellsIHiRes(0)
-  , m_numCellsJHiRes(0)
-  , m_deltaX(1.0)
-  , m_deltaY(1.0)
-  , m_minX(0.0)
-  , m_minY(0.0)
 {
   m_project = CauldronIO::ImportExport::importFromXML(path);
 
@@ -549,56 +544,6 @@ Project::ProjectInfo VisualizationIOProject::getProjectInfo() const
 unsigned int VisualizationIOProject::getMaxPersistentTrapId() const
 {
   return 0;
-}
-
-int VisualizationIOProject::numCellsI() const
-{
-  return m_numCellsI;
-}
-
-int VisualizationIOProject::numCellsJ() const
-{
-  return m_numCellsJ;
-}
-
-int VisualizationIOProject::numCellsIHiRes() const
-{
-  return m_numCellsIHiRes;
-}
-
-int VisualizationIOProject::numCellsJHiRes() const
-{
-  return m_numCellsJHiRes;
-}
-
-double VisualizationIOProject::deltaX() const
-{
-  return m_deltaX;
-}
-
-double VisualizationIOProject::deltaY() const
-{
-  return m_deltaY;
-}
-
-double VisualizationIOProject::deltaXHiRes() const
-{
-  return m_deltaXHiRes;
-}
-
-double VisualizationIOProject::deltaYHiRes() const
-{
-  return m_deltaYHiRes;
-}
-
-double VisualizationIOProject::minX() const
-{
-  return m_minX;
-}
-
-double VisualizationIOProject::minY() const
-{
-  return m_minY;
 }
 
 int VisualizationIOProject::getPropertyId(const std::string& name) const

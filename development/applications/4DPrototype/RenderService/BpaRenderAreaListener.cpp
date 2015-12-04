@@ -15,9 +15,12 @@
 #include <Visualization/SceneGraphManager.h>
 #include <Visualization/CameraUtil.h>
 
-#include <RemoteViz/Rendering/RenderArea.h>
-#include <RemoteViz/Rendering/Connection.h>
-#include <RemoteViz/Rendering/RenderAreaSettings.h>
+//#include <RemoteViz/Rendering/RenderArea.h>
+//#include <RemoteViz/Rendering/Connection.h>
+//#include <RemoteViz/Rendering/RenderAreaSettings.h>
+#include <RenderArea.h>
+#include <Connection.h>
+#include <RenderAreaSettings.h>
 
 #include <Inventor/SoSceneManager.h>
 #include <Inventor/nodes/SoSeparator.h>
@@ -25,10 +28,69 @@
 #include <Inventor/ViewerComponents/SoCameraInteractor.h>
 
 #include <string>
-#include <list>
-#include <sstream>
 
-using namespace std;
+namespace
+{
+  jsonxx::Object toJSON(const Project::ProjectInfo& projectInfo)
+  {
+    // Add formation names
+    jsonxx::Array formations;
+    for (auto formation : projectInfo.formations)
+      formations << formation.name;
+
+    // Add surface names
+    jsonxx::Array surfaces;
+    for (auto surface : projectInfo.surfaces)
+      surfaces << surface.name;
+
+    // Add reservoir names
+    jsonxx::Array reservoirs;
+    for (auto reservoir : projectInfo.reservoirs)
+      reservoirs << reservoir.name;
+
+    // Add fault collections
+    int collectionId = 0;
+    jsonxx::Array faultCollections;
+    for (auto faultCollection : projectInfo.faultCollections)
+    {
+      jsonxx::Array faults;
+      for (auto fault : projectInfo.faults)
+      {
+        if (fault.collectionId == collectionId)
+          faults << fault.name;
+      }
+
+      jsonxx::Object collection;
+      collection << "name" << faultCollection.name;
+      collection << "faults" << faults;
+
+      faultCollections << collection;
+
+      collectionId++;
+    }
+
+    // Add properties
+    jsonxx::Array properties;
+    for (auto property : projectInfo.properties)
+      properties << property.name;
+
+    // Assemble complete projectInfo structure
+    jsonxx::Object projectInfoObject;
+    projectInfoObject
+      << "snapshotCount" << (int)projectInfo.snapshotCount
+      << "numI" << projectInfo.dimensions.numCellsI
+      << "numJ" << projectInfo.dimensions.numCellsJ
+      << "numIHiRes" << projectInfo.dimensions.numCellsIHiRes
+      << "numJHiRes" << projectInfo.dimensions.numCellsJHiRes
+      << "formations" << formations
+      << "surfaces" << surfaces
+      << "reservoirs" << reservoirs
+      << "faultCollections" << faultCollections
+      << "properties" << properties;
+
+    return projectInfoObject;
+  }
+}
 
 void BpaRenderAreaListener::createSceneGraph(const std::string& id)
 {
@@ -60,83 +122,28 @@ void BpaRenderAreaListener::createSceneGraph(const std::string& id)
   std::cout << "...done" << std::endl;
 }
 
+void BpaRenderAreaListener::sendProjectInfo() const
+{
+  std::cout << "Sending project info" << std::endl;
+
+  jsonxx::Object msg;
+  msg << "projectInfo" << toJSON(m_projectInfo);
+
+  std::cout << msg.write(jsonxx::JSON) << std::endl;
+
+  m_renderArea->sendMessage(msg.write(jsonxx::JSON));
+}
+
 BpaRenderAreaListener::BpaRenderAreaListener(RenderArea* renderArea)
-  : m_renderArea(renderArea)
-  , m_examiner(0)
-  , m_drawFaces(true)
-  , m_drawEdges(true)
+: m_renderArea(renderArea)
+, m_examiner(0)
+, m_drawFaces(true)
+, m_drawEdges(true)
 {
 }
 
 BpaRenderAreaListener::~BpaRenderAreaListener()
 {
-}
-
-void BpaRenderAreaListener::sendProjectInfo() const
-{
-  std::cout << "Sending project info" << std::endl;
-
-  // Add formation names
-  jsonxx::Array formations;
-  for (auto formation : m_projectInfo.formations)
-    formations << formation.name;
-
-  // Add surface names
-  jsonxx::Array surfaces;
-  for (auto surface : m_projectInfo.surfaces)
-    surfaces << surface.name;
-
-  // Add reservoir names
-  jsonxx::Array reservoirs;
-  for (auto reservoir : m_projectInfo.reservoirs)
-    reservoirs << reservoir.name;
-
-  // Add fault collections
-  int collectionId = 0;
-  jsonxx::Array faultCollections;
-  for (auto faultCollection : m_projectInfo.faultCollections)
-  {
-    jsonxx::Array faults;
-    for (auto fault : m_projectInfo.faults)
-    {
-      if (fault.collectionId == collectionId)
-        faults << fault.name;
-    }
-
-    jsonxx::Object collection;
-    collection << "name" << faultCollection.name;
-    collection << "faults" << faults;
-
-    faultCollections << collection;
-
-    collectionId++;
-  }
-
-  // Add properties
-  jsonxx::Array properties;
-  for (auto property : m_projectInfo.properties)
-    properties << property.name;
-
-  // Assemble complete projectInfo structure
-  jsonxx::Object projectInfo;
-  projectInfo
-    << "snapshotCount" << (int)m_project->getSnapshotCount()
-    << "numI" << m_project->numCellsI()
-    << "numJ" << m_project->numCellsJ()
-    << "numIHiRes" << m_project->numCellsIHiRes()
-    << "numJHiRes" << m_project->numCellsJHiRes()
-    << "formations" << formations
-    << "surfaces" << surfaces
-    << "reservoirs" << reservoirs
-    << "faultCollections" << faultCollections
-    << "properties" << properties;
-
-  jsonxx::Object msg;
-  msg << "projectInfo" << projectInfo;
-
-  std::cout << msg.write(jsonxx::JSON) << std::endl;
-
-  m_renderArea->sendMessage(msg.write(jsonxx::JSON));
 }
 
 void BpaRenderAreaListener::onOpenedConnection(RenderArea* renderArea, Connection* connection)
@@ -146,20 +153,18 @@ void BpaRenderAreaListener::onOpenedConnection(RenderArea* renderArea, Connectio
   if(m_sceneGraphManager.getRoot() == 0)
     createSceneGraph(renderArea->getId());
   sendProjectInfo();
+
+  RemoteViz::Rendering::RenderAreaListener::onOpenedConnection(renderArea, connection);
 }
 
 void BpaRenderAreaListener::onClosedConnection(RenderArea* renderArea, const std::string& connectionId)
 {
   std::cout << "[BpaRenderAreaListener] onClosedConnection(renderArea = " << renderArea->getId() << ", connection = " << connectionId << ")" << std::endl;
-  if(renderArea->getNumConnections() == 0)
-  {
-    //renderArea->dispose();
-  }
 
   RenderAreaListener::onClosedConnection(renderArea, connectionId);
 }
 
-void BpaRenderAreaListener::onReceivedMessage(RenderArea* renderArea, Connection* /*sender*/, const string& message)
+void BpaRenderAreaListener::onReceivedMessage(RenderArea* renderArea, Connection* sender, const std::string& message)
 {
   std::cout << "[BpaRenderAreaListener] onReceivedMessage(renderArea = " << renderArea->getId() << ", message = " << message << ")" << std::endl;
   
@@ -225,8 +230,6 @@ void BpaRenderAreaListener::onReceivedMessage(RenderArea* renderArea, Connection
   }
   else if (cmd == "EnableFault")
   {
-    //auto collection = params.get<std::string>("collection");
-    //auto name = params.get<std::string>("name");
     auto faultId = params.get<jsonxx::Number>("faultId");
     auto enabled = params.get<bool>("enabled");
 
@@ -378,91 +381,6 @@ void BpaRenderAreaListener::onReceivedMessage(RenderArea* renderArea, Connection
 
     renderArea->resize((int)width, (int)height);
   }
+
+  RemoteViz::Rendering::RenderAreaListener::onReceivedMessage(renderArea, sender, message);
 }
-
-bool BpaRenderAreaListener::onPreRender(RenderArea* /*renderArea*/, bool& clearWindow, bool& clearZBuffer)
-{
-  //std::cout << "," << std::flush;
-
-  clearWindow = true;
-  clearZBuffer = true;
-
-  return true;
-}
-
-void BpaRenderAreaListener::onPostRender(RenderArea* /*renderArea*/)
-{
-  std::cout << "." << std::flush;
-}
-
-void BpaRenderAreaListener::onResize(RenderArea* renderArea, unsigned int width, unsigned int height)
-{
-  std::cout << "[BpaRenderAreaListener] onResize(renderArea = " << renderArea->getId() << ", width = " << width << ", height = " << height << ")" << std::endl;
-}
-
-void BpaRenderAreaListener::onRequestedSize(RenderArea* renderArea, Connection* sender, unsigned int width, unsigned int height)
-{
-  std::cout << "[BpaRenderAreaListener] onRequestedResize(renderArea = " 
-    << renderArea->getId() 
-    << ", connection = " << sender->getId() 
-    << ", width = " << width 
-    << ", height = " << height << ")" << std::endl;
-
-  renderArea->resize(width, height);
-}
-
-bool BpaRenderAreaListener::onMouseUp(int /*x*/, int /*y*/, int /*button*/)
-{
-  return true;
-}
-
-bool BpaRenderAreaListener::onMouseDown(int /*x*/, int /*y*/, int /*button*/)
-{
-  return true;
-}
-
-bool BpaRenderAreaListener::onMouseMove(int /*x*/, int /*y*/)
-{
-  return true;
-}
-
-bool BpaRenderAreaListener::onMouseEnter(int /*x*/, int /*y*/)
-{
-  return true;
-}
-
-bool BpaRenderAreaListener::onMouseLeave(int /*x*/, int /*y*/)
-{
-  return true;
-}
-
-bool BpaRenderAreaListener::onMouseWheel(int /*delta*/)
-{
-  return true;
-}
-
-bool BpaRenderAreaListener::onKeyUp(const std::string& /*key*/)
-{
-  return true;
-}
-
-bool BpaRenderAreaListener::onKeyDown(const std::string& /*key*/)
-{
-  return true;
-}
-
-bool BpaRenderAreaListener::onTouchStart(unsigned int /*id*/, int /*x*/, int /*y*/)
-{
-  return true;
-}
-
-bool BpaRenderAreaListener::onTouchEnd(unsigned int /*id*/, int /*x*/, int /*y*/)
-{
-  return true;
-}
-
-bool BpaRenderAreaListener::onTouchMove(unsigned int /*id*/, int /*x*/, int /*y*/)
-{
-  return true;
-}
-
