@@ -42,7 +42,6 @@ ComputationalDomain::ComputationalDomain ( const LayerProps& topLayer,
    m_globalDofNumbers ( PETSC_NULL ),
    m_local2global ( PETSC_NULL ),
    m_currentAge ( -1.0 ),
-   m_localMaximumNumberDegenerateSegments ( 0 ),
    m_rank ( FastcauldronSimulator::getInstance ().getRank ()),
    m_localStartDofNumber ( 0 ),
    m_dofOrdering ( KJIOrder )
@@ -249,8 +248,6 @@ void ComputationalDomain::numberDepthIndices ( const bool verbose ) {
    if ( mantleLayer != 0 and not mantleDepthRetrieved ) {
       mantleDepth.Restore_Global_Array ( No_Update );
    }
-
-   m_localMaximumNumberDegenerateSegments = maximumDegenerateSegments;
 
    if ( verbose ) {
       std::stringstream buffer;

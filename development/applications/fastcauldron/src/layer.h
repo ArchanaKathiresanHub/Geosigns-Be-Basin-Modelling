@@ -260,25 +260,25 @@ public:
    }
 
    virtual const CompoundLithology* getLithology ( const int i, const int j, const int k ) const {
-      // Added to prevent a cimpiler warning about unused parameter.
+      // Added to prevent a compiler warning about unused parameter.
       (void) k;
       return getCompoundLithology ( i, j );
    }
    virtual const CompoundLithology* getLithology ( const double time, const int i, const int j, const double k ) {
-      // Added to prevent a cimpiler warning about unused parameter.
+      // Added to prevent a compiler warning about unused parameter.
       (void) k;
       (void) time;
       return getCompoundLithology ( i, j );
    }
    virtual void setBasaltLitho (const int iPosition, const int jPosition, const int kPosition ) {
-      // Added to prevent a cimpiler warning about unused parameter.
+      // Added to prevent a compiler warning about unused parameter.
       (void) iPosition;
       (void) jPosition;
       (void) kPosition;
    }
 
    virtual bool getPreviousBasaltLitho(const int iPosition, const int jPosition, const int kPosition ){
-      // Added to prevent a cimpiler warning about unused parameter.
+      // Added to prevent a compiler warning about unused parameter.
       (void) iPosition;
       (void) jPosition;
       (void) kPosition;

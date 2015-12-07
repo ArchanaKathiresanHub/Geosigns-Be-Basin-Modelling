@@ -25,7 +25,6 @@ set( all_headers,
      src/BrooksCorey.h
      src/BulkDensityCalculator.h
      src/CapillaryPressureCalculator.h
-     src/CauldronCalculator.h
      src/ChemicalCompactionGrid.h
      src/ChemicalCompactionSchneiderGrid.h
      src/ChemicalCompactionWalderhaugGrid.h
@@ -185,7 +184,6 @@ set( all_srcs_except_main
      src/BrooksCorey.C
      src/BulkDensityCalculator.C
      src/CapillaryPressureCalculator.C
-     src/CauldronCalculator.C
      src/ChemicalCompactionGrid.C
      src/ChemicalCompactionSchneiderGrid.C
      src/ChemicalCompactionWalderhaugGrid.C

@@ -59,7 +59,7 @@ double PressureSolver::NewtonSolverTolerances [ NumberOfOptimisationLevels ][ 3 
 
 //------------------------------------------------------------//
 
-PressureSolver::PressureSolver(AppCtx *appl) : CauldronCalculator ( appl ) {
+PressureSolver::PressureSolver(AppCtx *appl) : cauldron ( appl ) {
   initialiseFctCorrection();
   basisFunctions = 0;
 }

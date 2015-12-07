@@ -7,7 +7,6 @@
 #include "petscdmda.h"
 
 #include "BasisFunctionCache.h"
-#include "CauldronCalculator.h"
 
 #include "propinterface.h"
 #include "globaldefs.h"
@@ -18,7 +17,7 @@
 #include "GeneralElement.h"
 #include "Saturation.h"
 
-class PressureSolver : public CauldronCalculator {
+class PressureSolver {
 
 public :
 
@@ -181,6 +180,7 @@ protected :
 
 
 
+   AppCtx* cauldron;
    FiniteElementMethod::BasisFunctionCache* basisFunctions;
 
 };

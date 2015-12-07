@@ -98,17 +98,8 @@ public :
    /// \brief Return the number of active nodes for the process.
    int getLocalNumberOfActiveNodes () const;
 
-   /// \brief Determine if the dof number is from the dofs that are local to the process or not.
-   bool isLocalDof ( const int dof ) const;
-
    /// \brief Return the number of active nodes for all processes.
    int getGlobalNumberOfActiveNodes () const;
-
-   /// \brief Get the maximum number of zero thickness segments for the process.
-   ///
-   /// This number will include zero thickness segments that are local to
-   /// the process and for the ghost nodes.
-   int getMaximumNumberDegenerateSegments () const;
 
    /// \brief Return the number of active elements for the process.
    int getLocalNumberOfActiveElements () const;
@@ -119,13 +110,6 @@ public :
    /// \param [in] i The index of the element required.
    /// \pre i should be in the half open interval [0,getLocalNumberOfActiveElements ())
    const GeneralElement& getActiveElement ( const size_t i ) const;
-
-   /// \brief Get a reference to element at position i.
-   ///
-   /// Only active elements that are local to the process will be returned here.
-   /// \param [in] i The index of the element required.
-   /// \pre i should be in the half open interval [0,getLocalNumberOfActiveElements ())
-   GeneralElement& getActiveElement ( const size_t i );
 
    /// \brief Get a reference to the element activity predicate.
    const CompositeElementActivityPredicate& getActivityPredicate () const;
@@ -300,11 +284,6 @@ private :
    /// \brief Array of number of active nodes on al processes.
    IntegerArray                      m_numberOfActiveNodesPerProcess;
 
-   /// \brief The maximum number of zero thickness segments for this process
-   ///
-   /// This will include local and ghost segments.
-   int                               m_localMaximumNumberDegenerateSegments;
-
    /// \brief The process on which this part of the computational domain lies.
    int                               m_rank;
 
@@ -332,10 +311,6 @@ inline double ComputationalDomain::getCurrentAge () const {
    return m_currentAge;
 }
 
-inline int ComputationalDomain::getMaximumNumberDegenerateSegments () const {
-   return m_localMaximumNumberDegenerateSegments;
-}
-
 inline int ComputationalDomain::getLocalNumberOfActiveElements () const {
    return m_activeElements.size ();
 }
@@ -352,10 +327,6 @@ inline int ComputationalDomain::getLocalNumberOfActiveNodes () const {
    return m_numberOfActiveNodesPerProcess [ m_rank ];
 }
 
-inline bool ComputationalDomain::isLocalDof ( const int dof ) const {
-   return m_localStartDofNumber <= dof and dof < m_localStartDofNumber + m_numberOfActiveNodesPerProcess [ m_rank ];
-}
-
 inline const LocalIntegerArray3D& ComputationalDomain::getDepthIndices () const {
    return m_depthIndexNumbers;
 }
@@ -365,10 +336,6 @@ inline const LocalBooleanArray3D& ComputationalDomain::getActiveNodes () const {
 }
 
 inline const GeneralElement& ComputationalDomain::getActiveElement ( const size_t i ) const {
-   return *m_activeElements [ i ];
-}
-
-inline GeneralElement& ComputationalDomain::getActiveElement ( const size_t i ) {
    return *m_activeElements [ i ];
 }
 

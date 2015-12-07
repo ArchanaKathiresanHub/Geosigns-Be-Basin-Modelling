@@ -74,6 +74,9 @@ namespace GeoPhysics {
 
       virtual unsigned int setMaximumNumberOfElements ( const bool readSizeFromVolumeData );
 
+      /// \brief Get the maximum number of elements in the thickness of the layer.
+      ///
+      /// This includes all elements that are active and not active.
       unsigned int getMaximumNumberOfElements () const;
 
       double getSolidThickness ( const unsigned int i,

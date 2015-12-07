@@ -43,10 +43,6 @@ public :
    /// \brief Get the solution vector from the 3d arrays contained in each layer.
    void getSolution ( Vec vector ) const;
 
-   /// \brief Get the property for which this mapping applies.
-   Basin_Modelling::Fundamental_Property getProperty () const;
-
-
 private :
 
    typedef PETSc_Local_3D_Array<int> Integer3DArray;

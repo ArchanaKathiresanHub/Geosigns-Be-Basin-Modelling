@@ -15,7 +15,6 @@
 #include "snapshotdata.h"
 #include "temperature_solver.h"
 
-#include "CauldronCalculator.h"
 #include "PressureSolver.h"
 
 #include "LayerElement.h"
