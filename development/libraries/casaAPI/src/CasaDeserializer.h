@@ -38,7 +38,7 @@ namespace casa
       /// @brief  Destructor
       virtual ~CasaDeserializer() { ; }
 
-      /// @brief Factory for deserializer depending on ther required output format. 
+      /// @brief Factory for deserializer. It creates deserializer depending on the requested output format. 
       /// @param fid input stream
       /// @param fileFormat file format. Currently implemented: "txt" or "bin"
       /// @param ver scenario file format version
@@ -237,6 +237,45 @@ namespace casa
       }
       return static_cast<const T*>( m_id2ptr[id] );
    }
+
+
+   // Wrapper to load SUMlib serializable objects
+   template <class T> class SUMlibDeserializer : public SUMlib::IDeserializer
+   {
+   public:
+      SUMlibDeserializer( T & os ) : m_iStream( os ) { ; }
+      virtual ~SUMlibDeserializer() { ; }
+
+      virtual bool load( bool               & v ) { return m_iStream.load( v, "sumlib" ); }
+      virtual bool load( int                & v ) { return m_iStream.load( v, "sumlib" ); }
+      virtual bool load( unsigned int       & v ) { return m_iStream.load( v, "sumlib" ); }
+      virtual bool load( long long          & v ) { return m_iStream.load( v, "sumlib" ); }
+      virtual bool load( unsigned long long & v ) { return m_iStream.load( v, "sumlib" ); }
+      virtual bool load( float              & v ) { return m_iStream.load( v, "sumlib" ); }
+      virtual bool load( double             & v ) { return m_iStream.load( v, "sumlib" ); }
+      virtual bool load( std::string        & v ) { return m_iStream.load( v, "sumlib" ); }
+
+      virtual bool load( std::vector< bool >               & vec ) { return m_iStream.load( vec, "sumlib" ); }
+      virtual bool load( std::vector< int >                & vec ) { return m_iStream.load( vec, "sumlib" ); }
+      virtual bool load( std::vector< unsigned int >       & vec ) { return m_iStream.load( vec, "sumlib" ); }
+      virtual bool load( std::vector< long long >          & vec ) { return m_iStream.load( vec, "sumlib" ); }
+      virtual bool load( std::vector< unsigned long long > & vec ) { return m_iStream.load( vec, "sumlib" ); }
+      virtual bool load( std::vector< float >              & vec ) { return m_iStream.load( vec, "sumlib" ); }
+      virtual bool load( std::vector< double >             & vec ) { return m_iStream.load( vec, "sumlib" ); }
+      virtual bool load( std::vector< std::string >        & vec ) { return m_iStream.load( vec, "sumlib" ); }
+
+      virtual bool load( SUMlib::ISerializable & so )
+      {
+         unsigned int version = 0;
+         load( version );
+         return so.load( this, version );
+      }
+
+   private:
+      T & m_iStream;
+   };
+
+
 }
 
 #endif // CASA_DESERIALIZER_H

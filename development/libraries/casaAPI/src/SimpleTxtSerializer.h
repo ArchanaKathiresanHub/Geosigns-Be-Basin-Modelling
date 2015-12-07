@@ -24,9 +24,9 @@ namespace casa
    {
    public:
 
-      /// @brief Constructor. Throw on null file handle and negative version number
+      /// @brief Constructor
       /// @param fileName CASA state file name
-      /// @param ver file version 
+      /// @param ver file version
       SimpleTxtSerializer( const std::string & fileName, int ver );
 
       /// @brief  Destructor
@@ -165,8 +165,8 @@ namespace casa
       std::ofstream  m_file;
       int            m_version;
 
-      SimpleTxtSerializer( const SimpleTxtSerializer & );             // copy constructor
-      SimpleTxtSerializer & operator = (const SimpleTxtSerializer &); // copy operator
+      SimpleTxtSerializer( const SimpleTxtSerializer & );             // copy constructor disabled
+      SimpleTxtSerializer & operator = (const SimpleTxtSerializer &); // copy operator disabled
 
       bool saveObjectDescription( const std::string & objType, const std::string & objName, unsigned int ver );
    };

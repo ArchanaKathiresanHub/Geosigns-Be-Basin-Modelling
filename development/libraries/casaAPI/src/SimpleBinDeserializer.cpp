@@ -16,25 +16,13 @@
 
 #include <stdint.h>
 
+#define SIMPLE_BIN_SD_DATA_TYPES 1
+#include "SimpleBin.h"
+
+using namespace std;
+
 namespace casa
 {
-   // Set of axillary function to be used in loading 
-
-   // to reduce binary file size, change simple data types to IDs
-   // this enum is duplicated in SimpleSerializer.C
-   typedef enum
-   {
-      BoolID = 0,
-      IntID,
-      UintID,
-      LlongID,
-      RefID,
-      FloatID,
-      DoubleID,
-      StringID,
-      UnknownID
-   } SimpleDataTypeBinID;
-
    static const char * dataTypeID2TypeName( SimpleDataTypeBinID typeID )
    {
       switch ( typeID )
@@ -48,7 +36,7 @@ namespace casa
       case DoubleID: return "double";
       case StringID: return "string";
       }
-      return "";
+      return "Unknown";
    }
 
    // functions to read values from binary stream
@@ -66,7 +54,7 @@ namespace casa
       return ok;
    }
 
-   inline bool loadValue( boost::iostreams::filtering_istream & fp, std::string & val )
+   inline bool loadValue( boost::iostreams::filtering_istream & fp, string & val )
    {
       uint64_t len;
       fp.read( reinterpret_cast<char*>(&len), sizeof( int64_t ) );
@@ -75,13 +63,13 @@ namespace casa
       {
          char buf[1000];
          fp.read( buf, len + 1 );
-         val = std::string( buf );
+         val = string( buf );
       }
       else
       {
-         char * buf = new char[len + 4];
+         char * buf = new char[len + 1];
          fp.read( buf, len + 1 );
-         val = std::string( buf );
+         val = string( buf );
          delete[] buf;
       }
       return fp.good();
@@ -89,20 +77,19 @@ namespace casa
 
    // read simple type variable like int/double/string
    template <typename T>
-   inline bool loadVal( boost::iostreams::filtering_istream & fp, T & val, const std::string & valName, const char * typeName )
+   inline bool loadVal( boost::iostreams::filtering_istream & fp, T & val, const string & valName, SimpleDataTypeBinID typeName )
    {
-      std::string readValName;
-      std::string readTypeName;
+      string readValName;
 
-      char tpID;
+      unsigned char tpID;
       bool ok = loadValue( fp, tpID );
-      readTypeName = dataTypeID2TypeName( static_cast<SimpleDataTypeBinID>( tpID ) );
+      SimpleDataTypeBinID readTypeName = static_cast<SimpleDataTypeBinID>( tpID );
       
-      if ( ok && readTypeName.compare( typeName ) != 0 )
+      if ( ok && readTypeName != typeName )
       {
          throw ErrorHandler::Exception( ErrorHandler::DeserializationError )
             << "SimpleBinDeserializer: Mismatch value type for " << valName
-            << ", expected: " << typeName << " but read: " << readTypeName;
+            << ", expected: " << dataTypeID2TypeName( typeName ) << " but read: " << dataTypeID2TypeName( readTypeName );
       }
 
       ok = ok ? loadValue( fp, readValName ) : ok;
@@ -117,21 +104,20 @@ namespace casa
 
    // read vector of simple type variables like int/double/string
    template <typename T>
-   inline bool loadVec( boost::iostreams::filtering_istream & fp, std::vector< T > & val, const std::string & valName, const char * typeName )
+   inline bool loadVec( boost::iostreams::filtering_istream & fp, vector< T > & val, const string & valName, SimpleDataTypeBinID typeName )
    {
-      std::string readValName;
-      std::string readTypeName;
-      std::string vectorName;
+      string readValName;
+      string vectorName;
 
-      char tpID;
+      unsigned char tpID;
       bool ok = loadValue( fp, tpID );
-      readTypeName = dataTypeID2TypeName( static_cast<SimpleDataTypeBinID>(tpID) );
+      SimpleDataTypeBinID readTypeName = static_cast<SimpleDataTypeBinID>(tpID);
 
-      if ( ok && readTypeName.compare( typeName ) != 0 )
+      if ( ok && readTypeName != typeName )
       {
          throw ErrorHandler::Exception( ErrorHandler::DeserializationError )
             << "SimpleBinDeserializer: Mismatch value type for " << valName
-            << ", expected: " << typeName << " but read: " << readTypeName;
+            << ", expected: " << dataTypeID2TypeName( typeName ) << " but read: " << dataTypeID2TypeName( readTypeName );
       }
 
       ok = ok ? loadValue( fp, readValName ) : ok;
@@ -157,9 +143,9 @@ namespace casa
       return ok;
    }
 
-   bool SimpleBinDeserializer::checkSignature( std::istream & ifs )
+   bool SimpleBinDeserializer::checkSignature( istream & ifs )
    {
-      std::string sig;
+      string sig;
       
       boost::iostreams::filtering_istream cfp;
       cfp.push( boost::iostreams::gzip_decompressor() );
@@ -168,18 +154,18 @@ namespace casa
       bool ok = loadValue( cfp, sig );
       cfp.pop(); // prevent ifs stream from closing on destruction of cfp
 
-      ifs.seekg( 0, std::ios::beg );
+      ifs.seekg( 0, ios::beg );
 
       return ok && sig == "BinSerializer" ? true : false;
    }
 
-   SimpleBinDeserializer::SimpleBinDeserializer( std::istream & fileHandle, unsigned int ver ) : m_cfile( fileHandle )
+   SimpleBinDeserializer::SimpleBinDeserializer( istream & fileHandle, unsigned int ver ) : m_cfile( fileHandle )
    {
       m_file.push( boost::iostreams::gzip_decompressor() );
       m_file.push( m_cfile, 65536 );
 
-      std::string objType;
-      std::string objName;
+      string objType;
+      string objName;
       unsigned int objVer;
 
       bool ok = loadObjectDescription( objType, objName, objVer );
@@ -217,10 +203,10 @@ namespace casa
    }
 
    // Read the description of the next object in file. Works only for CasaSerializable objects
-   bool SimpleBinDeserializer::checkObjectDescription( const char * objType, const std::string & objName, unsigned int & ver )
+   bool SimpleBinDeserializer::checkObjectDescription( const char * objType, const string & objName, unsigned int & ver )
    {
-      std::string readObjType;
-      std::string readObjName;
+      string readObjType;
+      string readObjName;
       unsigned int readObjVer;
 
       bool ok = loadObjectDescription( readObjType, readObjName, readObjVer );
@@ -248,7 +234,7 @@ namespace casa
    }
 
    // Read the description of the next object in file. Works only for class objects
-   bool SimpleBinDeserializer::loadObjectDescription( std::string & objType, std::string & objName, unsigned int & ver )
+   bool SimpleBinDeserializer::loadObjectDescription( string & objType, string & objName, unsigned int & ver )
    {
       bool ok = loadValue( m_file, objType );
       ok = ok ? loadValue( m_file, objName ) : ok;
@@ -257,73 +243,36 @@ namespace casa
       return ok;
    }
 
-   bool SimpleBinDeserializer::load( bool                        & v, const std::string & n ) { return loadVal( m_file, v, n, "bool"   ); }
-   bool SimpleBinDeserializer::load( int                         & v, const std::string & n ) { return loadVal( m_file, v, n, "int"    ); }
-   bool SimpleBinDeserializer::load( unsigned int                & v, const std::string & n ) { return loadVal( m_file, v, n, "uint"   ); }
-   bool SimpleBinDeserializer::load( long long                   & v, const std::string & n ) { return loadVal( m_file, v, n, "llong"  ); }
+   bool SimpleBinDeserializer::load( bool                         & v, const string & n ) { return loadVal( m_file, v, n, BoolID   ); }
+   bool SimpleBinDeserializer::load( int                          & v, const string & n ) { return loadVal( m_file, v, n, IntID    ); }
+   bool SimpleBinDeserializer::load( unsigned int                 & v, const string & n ) { return loadVal( m_file, v, n, UintID   ); }
+   bool SimpleBinDeserializer::load( long long                    & v, const string & n ) { return loadVal( m_file, v, n, LlongID  ); }
 #ifndef _WIN32
-   bool SimpleBinDeserializer::load( unsigned long long          & v, const std::string & n ) { return loadVal( m_file, v, n, "llong"  ); }
+   bool SimpleBinDeserializer::load( unsigned long long           & v, const string & n ) { return loadVal( m_file, v, n, LlongID  ); }
 #endif
-   bool SimpleBinDeserializer::load( ObjRefID                    & v, const std::string & n ) { return loadVal( m_file, v, n, "refID"  ); }
-   bool SimpleBinDeserializer::load( float                       & v, const std::string & n ) { return loadVal( m_file, v, n, "float"  ); }
-   bool SimpleBinDeserializer::load( double                      & v, const std::string & n ) { return loadVal( m_file, v, n, "double" ); }
-   bool SimpleBinDeserializer::load( std::string                 & v, const std::string & n ) { return loadVal( m_file, v, n, "string" ); }
+   bool SimpleBinDeserializer::load( ObjRefID                     & v, const string & n ) { return loadVal( m_file, v, n, RefID    ); }
+   bool SimpleBinDeserializer::load( float                        & v, const string & n ) { return loadVal( m_file, v, n, FloatID  ); }
+   bool SimpleBinDeserializer::load( double                       & v, const string & n ) { return loadVal( m_file, v, n, DoubleID ); }
+   bool SimpleBinDeserializer::load( string                       & v, const string & n ) { return loadVal( m_file, v, n, StringID ); }
 
-   bool SimpleBinDeserializer::load( std::vector< bool >         & v, const std::string & n ) { return loadVec( m_file, v, n, "bool"   ); }
-   bool SimpleBinDeserializer::load( std::vector< int >          & v, const std::string & n ) { return loadVec( m_file, v, n, "int"    ); }
-   bool SimpleBinDeserializer::load( std::vector< unsigned int > & v, const std::string & n ) { return loadVec( m_file, v, n, "uint"   ); }
-   bool SimpleBinDeserializer::load( std::vector< long long >    & v, const std::string & n ) { return loadVec( m_file, v, n, "llong"  ); }
+   bool SimpleBinDeserializer::load( vector< bool >               & v, const string & n ) { return loadVec( m_file, v, n, BoolID   ); }
+   bool SimpleBinDeserializer::load( vector< int >                & v, const string & n ) { return loadVec( m_file, v, n, IntID    ); }
+   bool SimpleBinDeserializer::load( vector< unsigned int >       & v, const string & n ) { return loadVec( m_file, v, n, UintID   ); }
+   bool SimpleBinDeserializer::load( vector< long long >          & v, const string & n ) { return loadVec( m_file, v, n, LlongID  ); }
 #ifndef _WIN32
-   bool SimpleBinDeserializer::load( std::vector< unsigned long long > & v, const std::string & n ) { return loadVec( m_file, v, n, "llong" ); }
+   bool SimpleBinDeserializer::load( vector< unsigned long long > & v, const string & n ) { return loadVec( m_file, v, n, LlongID  ); }
 #endif
-   bool SimpleBinDeserializer::load( std::vector< ObjRefID >     & v, const std::string & n ) { return loadVec( m_file, v, n, "refID"  ); }
-   bool SimpleBinDeserializer::load( std::vector< float >        & v, const std::string & n ) { return loadVec( m_file, v, n, "float"  ); }
-   bool SimpleBinDeserializer::load( std::vector< double >       & v, const std::string & n ) { return loadVec( m_file, v, n, "double" ); }
-   bool SimpleBinDeserializer::load( std::vector< std::string >  & v, const std::string & n ) { return loadVec( m_file, v, n, "string" ); }
-
-
-   // Wrapper to save SUMlib serializable objects
-   class SUMlibDeserializer : public SUMlib::IDeserializer
-   {
-   public:
-      SUMlibDeserializer( SimpleBinDeserializer & os ) : m_iStream( os ) { ; }
-      virtual ~SUMlibDeserializer() { ; }
-
-      virtual bool load( bool               & v ) { return m_iStream.load( v, "sumlib" ); }
-      virtual bool load( int                & v ) { return m_iStream.load( v, "sumlib" ); }
-      virtual bool load( unsigned int       & v ) { return m_iStream.load( v, "sumlib" ); }
-      virtual bool load( long long          & v ) { return m_iStream.load( v, "sumlib" ); }
-      virtual bool load( unsigned long long & v ) { return m_iStream.load( v, "sumlib" ); }
-      virtual bool load( float              & v ) { return m_iStream.load( v, "sumlib" ); }
-      virtual bool load( double             & v ) { return m_iStream.load( v, "sumlib" ); }
-      virtual bool load( std::string        & v ) { return m_iStream.load( v, "sumlib" ); }
-
-      virtual bool load( std::vector< bool >               & vec ) { return m_iStream.load( vec, "sumlib" ); }
-      virtual bool load( std::vector< int >                & vec ) { return m_iStream.load( vec, "sumlib" ); }
-      virtual bool load( std::vector< unsigned int >       & vec ) { return m_iStream.load( vec, "sumlib" ); }
-      virtual bool load( std::vector< long long >          & vec ) { return m_iStream.load( vec, "sumlib" ); }
-      virtual bool load( std::vector< unsigned long long > & vec ) { return m_iStream.load( vec, "sumlib" ); }
-      virtual bool load( std::vector< float >              & vec ) { return m_iStream.load( vec, "sumlib" ); }
-      virtual bool load( std::vector< double >             & vec ) { return m_iStream.load( vec, "sumlib" ); }
-      virtual bool load( std::vector< std::string >        & vec ) { return m_iStream.load( vec, "sumlib" ); }
-
-      virtual bool load( SUMlib::ISerializable & so )
-      {
-         unsigned int version = 0;
-         load( version );
-         return so.load( this, version );
-      }
-
-   private:
-      SimpleBinDeserializer & m_iStream;
-   };
+   bool SimpleBinDeserializer::load( vector< ObjRefID >           & v, const string & n ) { return loadVec( m_file, v, n, RefID    ); }
+   bool SimpleBinDeserializer::load( vector< float >              & v, const string & n ) { return loadVec( m_file, v, n, FloatID  ); }
+   bool SimpleBinDeserializer::load( vector< double >             & v, const string & n ) { return loadVec( m_file, v, n, DoubleID ); }
+   bool SimpleBinDeserializer::load( vector< string >             & v, const string & n ) { return loadVec( m_file, v, n, StringID ); }
 
    // Load SUMlib serializable object
-   bool SimpleBinDeserializer::load( SUMlib::ISerializable & so, const std::string & objName )
+   bool SimpleBinDeserializer::load( SUMlib::ISerializable & so, const string & objName )
    {
       // read from file object name and version
-      std::string  objNameInFile;
-      std::string  objType;
+      string  objNameInFile;
+      string  objType;
       unsigned int objVer;
 
       bool ok = loadObjectDescription( objType, objNameInFile, objVer );
@@ -332,7 +281,7 @@ namespace casa
          throw ErrorHandler::Exception( ErrorHandler::DeserializationError )
             << "Deserialization error. Can not load SUMlib object: " << objName;
       }
-      SUMlibDeserializer sumlibDsr( *this );
+      SUMlibDeserializer<SimpleBinDeserializer> sumlibDsr( *this );
       ok = ok ? so.load( &sumlibDsr, objVer ) : ok;
 
       return ok;

@@ -59,7 +59,7 @@ namespace casa
       /// @brief Load SUMlib serializable object
       /// @param so SUMlib object reference
       /// @param objName name of the object to be loaded
-      /// @return true if on success, false otherwise
+      /// @return true on success, false otherwise
       virtual bool load( SUMlib::ISerializable & so, const std::string & objName );
 
       /// @brief  Load boolean value
@@ -185,8 +185,8 @@ namespace casa
       unsigned int    m_version;
       char          * m_buf;
 
-      SimpleBinDeserializer( const SimpleBinDeserializer & );               // copy constructor
-      SimpleBinDeserializer & operator = ( const SimpleBinDeserializer & ); // copy operator
+      SimpleBinDeserializer( const SimpleBinDeserializer & );               // copy constructor disabled
+      SimpleBinDeserializer & operator = ( const SimpleBinDeserializer & ); // copy operator disabled
 
    };
 }

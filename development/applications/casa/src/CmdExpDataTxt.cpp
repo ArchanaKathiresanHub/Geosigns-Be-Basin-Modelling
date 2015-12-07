@@ -264,7 +264,7 @@ void CmdExpDataTxt::exportProxyQC( std::auto_ptr<casa::ScenarioAnalysis> & sa )
    size_t i = 0;
    for ( size_t e = 0; e < doeList.size(); ++e )
    {
-      BOOST_LOG_TRIVIAL( debug ) << " evaluating proxy for " << doeList[e]  << "DoE for " << casePerExp[e]  << " cases...";
+      BOOST_LOG_TRIVIAL( debug ) << " evaluating proxy for " << doeList[e]  << " DoE for " << casePerExp[e]  << " cases...";
       
       doeCaseSet.filterByExperimentName( doeList[e] );
 

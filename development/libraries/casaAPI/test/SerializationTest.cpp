@@ -88,6 +88,14 @@ TEST_F( SerializationTest, ReloadStateFromTxtTest )
    }
 }
 
+// Test is checking deserialization from memory buffer in txt format 
+// the sequence of steps are:
+//   1. deserealize scenario A from state txt file
+//   2. serialize scenario A to text state file "casa_state_reloaded_1.txt"
+//   3. read this file to memory buffer
+//   4. deserialize scenarion B from memory buffer
+//   5. serialize scenario B to "casa_state_reloaded_2.txt"
+//   6. Compare files casa_state_reloaded_1.txt and casa_state_reloaded_2.txt
 TEST_F( SerializationTest, LoadStateFromMemoryStreamTxtFmt )
 {
    // check Text stream
@@ -120,6 +128,14 @@ TEST_F( SerializationTest, LoadStateFromMemoryStreamTxtFmt )
    }
 }
 
+// Test is checking deserialization from memory buffer in binary format 
+// the sequence of steps are:
+//   1. deserealize scenario A from state txt file
+//   2. serialize scenario A to binary state file "casa_state_reloaded_1.bin"
+//   3. read this file to memory buffer
+//   4. deserialize scenarion B from memory buffer
+//   5. serialize scenario B to "casa_state_reloaded_2.bin"
+//   6. Compare files casa_state_reloaded_1.bin and casa_state_reloaded_2.bin
 TEST_F( SerializationTest, LoadStateFromMemoryStreamBinFmt )
 {
    ASSERT_EQ( ErrorHandler::NoError, sc->errorCode() );

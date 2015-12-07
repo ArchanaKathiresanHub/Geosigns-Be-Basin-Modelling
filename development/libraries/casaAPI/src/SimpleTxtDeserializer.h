@@ -177,8 +177,8 @@ namespace casa
       unsigned int    m_version;
       char          * m_buf;
 
-      SimpleTxtDeserializer( const SimpleTxtDeserializer & );               // copy constructor
-      SimpleTxtDeserializer & operator = ( const SimpleTxtDeserializer & ); // copy operator
+      SimpleTxtDeserializer( const SimpleTxtDeserializer & );               // copy constructor disabled
+      SimpleTxtDeserializer & operator = ( const SimpleTxtDeserializer & ); // copy operator disabled
 
    };
 }

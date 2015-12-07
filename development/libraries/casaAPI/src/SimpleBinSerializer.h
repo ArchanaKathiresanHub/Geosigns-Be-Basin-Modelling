@@ -27,7 +27,7 @@ namespace casa
    {
    public:
 
-      /// @brief  Constructor. Throw on null file handle and negative version number
+      /// @brief Constructor. Throw on null file handle and negative version number
       /// @param fileName CASA state file name
       /// @param  ver file version 
       SimpleBinSerializer( const std::string & fileName, int ver );
@@ -102,7 +102,6 @@ namespace casa
       /// @param  valName name of the value to be saved
       /// @return true if on success, false otherwise
       virtual bool save( const std::string & val, const std::string & valName );
-
 
       /// @brief  Save vector of booleans
       /// @param  vec the vector of booleans to save

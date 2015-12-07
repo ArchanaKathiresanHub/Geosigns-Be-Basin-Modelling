@@ -313,43 +313,6 @@ namespace casa
    bool SimpleTxtDeserializer::load( std::vector< double >       & v, const std::string & n ) { return loadVec( m_file, v, n, "double" ); }
    bool SimpleTxtDeserializer::load( std::vector< std::string >  & v, const std::string & n ) { return loadVec( m_file, v, n, "string" ); }
 
-
-   // Wrapper to save SUMlib serializable objects
-   class SUMlibDeserializer : public SUMlib::IDeserializer
-   {
-   public:
-      SUMlibDeserializer( SimpleTxtDeserializer & os ) : m_iStream( os ) { ; }
-      virtual ~SUMlibDeserializer() { ; }
-
-      virtual bool load( bool               & v ) { return m_iStream.load( v, "sumlib" ); }
-      virtual bool load( int                & v ) { return m_iStream.load( v, "sumlib" ); }
-      virtual bool load( unsigned int       & v ) { return m_iStream.load( v, "sumlib" ); }
-      virtual bool load( long long          & v ) { return m_iStream.load( v, "sumlib" ); }
-      virtual bool load( unsigned long long & v ) { return m_iStream.load( v, "sumlib" ); }
-      virtual bool load( float              & v ) { return m_iStream.load( v, "sumlib" ); }
-      virtual bool load( double             & v ) { return m_iStream.load( v, "sumlib" ); }
-      virtual bool load( std::string        & v ) { return m_iStream.load( v, "sumlib" ); }
-
-      virtual bool load( std::vector< bool >               & vec ) { return m_iStream.load( vec, "sumlib" ); }
-      virtual bool load( std::vector< int >                & vec ) { return m_iStream.load( vec, "sumlib" ); }
-      virtual bool load( std::vector< unsigned int >       & vec ) { return m_iStream.load( vec, "sumlib" ); }
-      virtual bool load( std::vector< long long >          & vec ) { return m_iStream.load( vec, "sumlib" ); }
-      virtual bool load( std::vector< unsigned long long > & vec ) { return m_iStream.load( vec, "sumlib" ); }
-      virtual bool load( std::vector< float >              & vec ) { return m_iStream.load( vec, "sumlib" ); }
-      virtual bool load( std::vector< double >             & vec ) { return m_iStream.load( vec, "sumlib" ); }
-      virtual bool load( std::vector< std::string >        & vec ) { return m_iStream.load( vec, "sumlib" ); }
-
-      virtual bool load( SUMlib::ISerializable & so )
-      {
-         unsigned int version = 0;
-         load( version );
-         return so.load( this, version );
-      }
-
-   private:
-      SimpleTxtDeserializer & m_iStream;
-   };
-
    // Load SUMlib serializable object
    bool SimpleTxtDeserializer::load( SUMlib::ISerializable & so, const std::string & objName )
    {
@@ -364,7 +327,7 @@ namespace casa
          throw ErrorHandler::Exception( ErrorHandler::DeserializationError )
             << "Deserialization error. Can not load SUMlib object: " << objName;
       }
-      SUMlibDeserializer sumlibDsr( *this );
+      SUMlibDeserializer<SimpleTxtDeserializer> sumlibDsr( *this );
       ok = ok ? so.load( &sumlibDsr, objVer ) : ok;
 
       return ok;

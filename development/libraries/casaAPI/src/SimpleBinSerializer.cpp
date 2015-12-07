@@ -22,36 +22,14 @@
 #include <boost/iostreams/filter/gzip.hpp>
 #include <boost/iostreams/device/file.hpp>
 
+
+#define SIMPLE_BIN_SD_DATA_TYPES 1
+#include "SimpleBin.h"
+
+using namespace std;
+
 namespace casa
 {
-   // to reduce binary file size, change simple data types to IDs
-   // this enum is duplicated in SimpleDeserializer.C
-   typedef enum
-   {
-      BoolID = 0,
-      IntID,
-      UintID,
-      LlongID,
-      RefID,
-      FloatID,
-      DoubleID,
-      StringID,
-      UnknownID
-   } SimpleDataTypeBinID;
-
-   static SimpleDataTypeBinID typeName2DataTypeID( const char * typeName )
-   {
-      if (      !strcmp( typeName, "bool"   ) ) return BoolID;
-      else if ( !strcmp( typeName, "int"    ) ) return IntID;
-      else if ( !strcmp( typeName, "uint"   ) ) return UintID;
-      else if ( !strcmp( typeName, "llong"  ) ) return LlongID;
-      else if ( !strcmp( typeName, "refID"  ) ) return RefID;
-      else if ( !strcmp( typeName, "float"  ) ) return FloatID;
-      else if ( !strcmp( typeName, "double" ) ) return DoubleID;
-      else if ( !strcmp( typeName, "string" ) ) return StringID;
-      return UnknownID;
-   }
-
    // functions to save values to binary file
    template <typename T> inline bool saveValue( boost::iostreams::filtering_ostream & fp, T val )
    {
@@ -69,7 +47,7 @@ namespace casa
       return fp.good();
    }
 
-   inline bool saveValue( boost::iostreams::filtering_ostream & fp, const std::string & val )
+   inline bool saveValue( boost::iostreams::filtering_ostream & fp, const string & val )
    {
       int64_t len = val.size();
       fp.write( reinterpret_cast<const char*>(&len), sizeof( int64_t ) );
@@ -78,20 +56,23 @@ namespace casa
    }
 
    // Save one value as a new line in file with template - type name - name value\n
-   template <typename T> inline bool saveValTo( boost::iostreams::filtering_ostream & fp, const char * typeName, const std::string & name, T val )
+   template <typename T> inline bool saveValTo( boost::iostreams::filtering_ostream & fp
+                                              , SimpleDataTypeBinID                   typeName
+                                              , const string                        & name
+                                              , T                                     val )
    {
-      bool   ok = saveValue( fp, static_cast<unsigned char>( typeName2DataTypeID( typeName ) ) );
+      bool   ok = saveValue( fp, static_cast<unsigned char>( typeName ) );
       ok   = ok ? saveValue( fp, name ) : ok;
       return ok ? saveValue( fp, val  ) : ok;
    }
 
    template < class T > inline bool saveVecTo( boost::iostreams::filtering_ostream & fp
-                                             , const char                          * typeName
-                                             , const std::string                   & name
-                                             , const std::vector< T >              & vec
+                                             , SimpleDataTypeBinID                   typeName
+                                             , const string                        & name
+                                             , const vector< T >                   & vec
                                              )
    {
-      bool ok = saveValue( fp, static_cast<unsigned char>( typeName2DataTypeID( typeName ) ) );
+      bool ok = saveValue( fp, static_cast<unsigned char>( typeName ) );
       ok = ok ? saveValue( fp, name ) : ok;
       ok = ok ? saveValue( fp, vec.size() ) : ok;
 
@@ -99,10 +80,10 @@ namespace casa
       return ok;
    }
 
-   SimpleBinSerializer::SimpleBinSerializer( const std::string & fileName, int ver ) : m_version( ver )
+   SimpleBinSerializer::SimpleBinSerializer( const string & fileName, int ver ) : m_version( ver )
    {
       m_file.push( boost::iostreams::gzip_compressor() );
-      m_file.push( boost::iostreams::file_sink( fileName, std::ios::out | std::ios::trunc | std::ios::binary ), 65536 );
+      m_file.push( boost::iostreams::file_sink( fileName, ios::out | ios::trunc | ios::binary ), 65536 );
 
       if ( !saveObjectDescription( "BinSerializer", "Serializer", ver ) )
       {
@@ -110,38 +91,38 @@ namespace casa
       }
    }
 
-   bool SimpleBinSerializer::save( bool                val, const std::string & vn ) { return saveValTo( m_file, "bool",   vn, val ); }
-   bool SimpleBinSerializer::save( int                 val, const std::string & vn ) { return saveValTo( m_file, "int",    vn, val ); }
-   bool SimpleBinSerializer::save( unsigned int        val, const std::string & vn ) { return saveValTo( m_file, "uint",   vn, val ); }
-   bool SimpleBinSerializer::save( long long           val, const std::string & vn ) { return saveValTo( m_file, "llong",  vn, val ); }
+   bool SimpleBinSerializer::save( bool                               val, const string & vn ) { return saveValTo( m_file, BoolID,   vn, val ); }
+   bool SimpleBinSerializer::save( int                                val, const string & vn ) { return saveValTo( m_file, IntID,    vn, val ); }
+   bool SimpleBinSerializer::save( unsigned int                       val, const string & vn ) { return saveValTo( m_file, UintID,   vn, val ); }
+   bool SimpleBinSerializer::save( long long                          val, const string & vn ) { return saveValTo( m_file, LlongID,  vn, val ); }
 #ifndef _WIN32
-   bool SimpleBinSerializer::save( unsigned long long  val, const std::string & vn ) { return saveValTo( m_file, "llong",  vn, val ); }
+   bool SimpleBinSerializer::save( unsigned long long                 val, const string & vn ) { return saveValTo( m_file, LlongID,  vn, val ); }
 #endif
-   bool SimpleBinSerializer::save( ObjRefID            val, const std::string & vn ) { return saveValTo( m_file, "refID",  vn, val ); }
-   bool SimpleBinSerializer::save( float               val, const std::string & vn ) { return saveValTo( m_file, "float",  vn, val ); }
-   bool SimpleBinSerializer::save( double              val, const std::string & vn ) { return saveValTo( m_file, "double", vn, val ); }
-   bool SimpleBinSerializer::save( const std::string & val, const std::string & vn ) { return saveValTo( m_file, "string", vn, val ); }
+   bool SimpleBinSerializer::save( ObjRefID                           val, const string & vn ) { return saveValTo( m_file, RefID,    vn, val ); }
+   bool SimpleBinSerializer::save( float                              val, const string & vn ) { return saveValTo( m_file, FloatID,  vn, val ); }
+   bool SimpleBinSerializer::save( double                             val, const string & vn ) { return saveValTo( m_file, DoubleID, vn, val ); }
+   bool SimpleBinSerializer::save( const string                     & val, const string & vn ) { return saveValTo( m_file, StringID, vn, val ); }
 
-   bool SimpleBinSerializer::save( const std::vector< bool >         & vec, const std::string & vn ) { return saveVecTo( m_file, "bool", vn, vec ); }
-   bool SimpleBinSerializer::save( const std::vector< int >          & vec, const std::string & vn ) { return saveVecTo( m_file, "int",  vn, vec ); }
-   bool SimpleBinSerializer::save( const std::vector< unsigned int > & vec, const std::string & vn ) { return saveVecTo( m_file, "uint", vn, vec ); }
+   bool SimpleBinSerializer::save( const vector<bool>               & vec, const string & vn ) { return saveVecTo( m_file, BoolID,   vn, vec ); }
+   bool SimpleBinSerializer::save( const vector<int>                & vec, const string & vn ) { return saveVecTo( m_file, IntID,    vn, vec ); }
+   bool SimpleBinSerializer::save( const vector<unsigned int>       & vec, const string & vn ) { return saveVecTo( m_file, UintID,   vn, vec ); }
 #ifndef _WIN32
-   bool SimpleBinSerializer::save( const std::vector< unsigned long long > & vec, const std::string & vn ) { return saveVecTo( m_file, "llong",  vn, vec ); }
+   bool SimpleBinSerializer::save( const vector<unsigned long long> & vec, const string & vn ) { return saveVecTo( m_file, LlongID,  vn, vec ); }
 #endif
-   bool SimpleBinSerializer::save( const std::vector< long long >    & vec, const std::string & vn ) { return saveVecTo( m_file, "llong",  vn, vec ); }
-   bool SimpleBinSerializer::save( const std::vector< ObjRefID >     & vec, const std::string & vn ) { return saveVecTo( m_file, "refID",  vn, vec ); }
-   bool SimpleBinSerializer::save( const std::vector< float >        & vec, const std::string & vn ) { return saveVecTo( m_file, "float",  vn, vec ); }
-   bool SimpleBinSerializer::save( const std::vector< double >       & vec, const std::string & vn ) { return saveVecTo( m_file, "double", vn, vec ); }
-   bool SimpleBinSerializer::save( const std::vector< std::string >  & vec, const std::string & vn ) { return saveVecTo( m_file, "string", vn, vec ); }
+   bool SimpleBinSerializer::save( const vector<long long>          & vec, const string & vn ) { return saveVecTo( m_file, LlongID,  vn, vec ); }
+   bool SimpleBinSerializer::save( const vector<ObjRefID>           & vec, const string & vn ) { return saveVecTo( m_file, RefID,    vn, vec ); }
+   bool SimpleBinSerializer::save( const vector<float>              & vec, const string & vn ) { return saveVecTo( m_file, FloatID,  vn, vec ); }
+   bool SimpleBinSerializer::save( const vector<double>             & vec, const string & vn ) { return saveVecTo( m_file, DoubleID, vn, vec ); }
+   bool SimpleBinSerializer::save( const vector<string>             & vec, const string & vn ) { return saveVecTo( m_file, StringID, vn, vec ); }
 
    // Save CasaSerializable object
-   bool SimpleBinSerializer::save( const CasaSerializable & so, const std::string & objName )
+   bool SimpleBinSerializer::save( const CasaSerializable & so, const string & objName )
    {
       saveObjectDescription( so.typeName(), objName, so.version() );
       return m_file.good() ? so.save( *this, m_version ) : false;
    }
 
-   bool SimpleBinSerializer::saveObjectDescription( const std::string & objType, const std::string & objName, unsigned int ver )
+   bool SimpleBinSerializer::saveObjectDescription( const string & objType, const string & objName, unsigned int ver )
    {
       bool ok = saveValue( m_file, objType );
       ok = ok ? saveValue( m_file, objName ) : ok;
@@ -150,52 +131,15 @@ namespace casa
       return ok;
    }
 
-   // Wrapper to save SUMlib serialazable objects
-   class SUMlibSerializer : public SUMlib::ISerializer
-   {
-   public:
-      SUMlibSerializer( SimpleBinSerializer & os ) : m_oStream( os ) { ; }
-      virtual ~SUMlibSerializer() { ; }
-
-      virtual bool save( bool                v ) { return m_oStream.save( v, "sumlib" ); }
-      virtual bool save( int                 v ) { return m_oStream.save( v, "sumlib" ); }
-      virtual bool save( unsigned int        v ) { return m_oStream.save( v, "sumlib" ); }
-      virtual bool save( long long           v ) { return m_oStream.save( v, "sumlib" ); }
-      virtual bool save( unsigned long long  v ) { return m_oStream.save( v, "sumlib" ); }
-      virtual bool save( float               v ) { return m_oStream.save( v, "sumlib" ); }
-      virtual bool save( double              v ) { return m_oStream.save( v, "sumlib" ); }
-      virtual bool save( const std::string & v ) { return m_oStream.save( v, "sumlib" ); }
-
-      virtual bool save( const std::vector< bool >               & vec ) { return m_oStream.save( vec, "sumlib" ); }
-      virtual bool save( const std::vector< int >                & vec ) { return m_oStream.save( vec, "sumlib" ); }
-      virtual bool save( const std::vector< unsigned int >       & vec ) { return m_oStream.save( vec, "sumlib" ); }
-      virtual bool save( const std::vector< long long >          & vec ) { return m_oStream.save( vec, "sumlib" ); }
-      virtual bool save( const std::vector< unsigned long long > & vec ) { return m_oStream.save( vec, "sumlib" ); }
-      virtual bool save( const std::vector< float >              & vec ) { return m_oStream.save( vec, "sumlib" ); }
-      virtual bool save( const std::vector< double >             & vec ) { return m_oStream.save( vec, "sumlib" ); }
-      virtual bool save( const std::vector< std::string >        & vec ) { return m_oStream.save( vec, "sumlib" ); }
-
-      virtual bool save( const SUMlib::ISerializable & so )
-      {
-         const SUMlib::ISerializationVersion* soVersion = dynamic_cast<const SUMlib::ISerializationVersion*>(&so);
-         unsigned int version = soVersion ? soVersion->getSerializationVersion() : 0;
-         save( version );
-         return so.save( this, version );
-      }
-
-   private:
-      SimpleBinSerializer & m_oStream;
-   };
-
    // Save SUMlib serializable object
-   bool SimpleBinSerializer::save( const SUMlib::ISerializable & so, const std::string & objName )
+   bool SimpleBinSerializer::save( const SUMlib::ISerializable & so, const string & objName )
    {
       const SUMlib::ISerializationVersion * soVersion = dynamic_cast<const SUMlib::ISerializationVersion*>(&so);
       unsigned int version = soVersion ? soVersion->getSerializationVersion() : 0;
 
       bool ok = saveObjectDescription( "ISerializable", objName, version );
       
-      SUMlibSerializer sumlibSer( *this );
+      SUMlibSerializer<SimpleBinSerializer> sumlibSer( *this );
       ok = ok ? so.save( &sumlibSer, version ) : ok;
       
       return ok;

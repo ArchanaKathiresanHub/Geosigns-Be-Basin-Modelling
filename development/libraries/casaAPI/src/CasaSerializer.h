@@ -32,7 +32,7 @@ namespace casa
    public:
       typedef size_t ObjRefID;
 
-      /// @brief Factory for serializer depending on ther required output format. 
+      /// @brief Factory for serializer. It creates serializer depending on the requested output format. 
       /// @param fileName CASA state file name
       /// @param fileFormat file format. Currently implemented: "txt" or "bin"
       /// @param  ver file version 
@@ -210,6 +210,44 @@ namespace casa
       }
       return m_ptr2id[static_cast<const void*>(obj)];
    }
+
+   // Wrapper to save SUMlib serialazable objects
+   template <class T> class SUMlibSerializer : public SUMlib::ISerializer
+   {
+   public:
+      SUMlibSerializer( T & os ) : m_oStream( os ) { ; }
+      virtual ~SUMlibSerializer() { ; }
+
+      virtual bool save( bool                v ) { return m_oStream.save( v, "sumlib" ); }
+      virtual bool save( int                 v ) { return m_oStream.save( v, "sumlib" ); }
+      virtual bool save( unsigned int        v ) { return m_oStream.save( v, "sumlib" ); }
+      virtual bool save( long long           v ) { return m_oStream.save( v, "sumlib" ); }
+      virtual bool save( unsigned long long  v ) { return m_oStream.save( v, "sumlib" ); }
+      virtual bool save( float               v ) { return m_oStream.save( v, "sumlib" ); }
+      virtual bool save( double              v ) { return m_oStream.save( v, "sumlib" ); }
+      virtual bool save( const std::string & v ) { return m_oStream.save( v, "sumlib" ); }
+
+      virtual bool save( const std::vector< bool >               & vec ) { return m_oStream.save( vec, "sumlib" ); }
+      virtual bool save( const std::vector< int >                & vec ) { return m_oStream.save( vec, "sumlib" ); }
+      virtual bool save( const std::vector< unsigned int >       & vec ) { return m_oStream.save( vec, "sumlib" ); }
+      virtual bool save( const std::vector< long long >          & vec ) { return m_oStream.save( vec, "sumlib" ); }
+      virtual bool save( const std::vector< unsigned long long > & vec ) { return m_oStream.save( vec, "sumlib" ); }
+      virtual bool save( const std::vector< float >              & vec ) { return m_oStream.save( vec, "sumlib" ); }
+      virtual bool save( const std::vector< double >             & vec ) { return m_oStream.save( vec, "sumlib" ); }
+      virtual bool save( const std::vector< std::string >        & vec ) { return m_oStream.save( vec, "sumlib" ); }
+
+      virtual bool save( const SUMlib::ISerializable & so )
+      {
+         const SUMlib::ISerializationVersion* soVersion = dynamic_cast<const SUMlib::ISerializationVersion*>( &so );
+         unsigned int version = soVersion ? soVersion->getSerializationVersion() : 0;
+         save( version );
+         return so.save( this, version );
+      }
+
+   private:
+      T & m_oStream;
+   };
+
 
 } // namespace casa
 
