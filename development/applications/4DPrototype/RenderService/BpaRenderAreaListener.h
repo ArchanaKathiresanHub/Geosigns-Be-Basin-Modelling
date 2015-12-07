@@ -7,9 +7,10 @@
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
-
 #ifndef BPARENDERAREALISTENER_H_INCLUDED
 #define BPARENDERAREALISTENER_H_INCLUDED
+
+#include "CommandHandler.h"
 
 #include <Visualization/Project.h>
 #include <Visualization/SceneGraphManager.h>
@@ -31,13 +32,12 @@ class BpaRenderAreaListener : public RenderAreaListener
   SceneGraphManager m_sceneGraphManager;
   RenderArea*       m_renderArea;
   SceneExaminer*    m_examiner;
+  CommandHandler    m_commandHandler;
 
   bool m_drawFaces;
   bool m_drawEdges;
 
   void createSceneGraph(const std::string& id);
-
-  void sendProjectInfo() const;
 
 public:
 
