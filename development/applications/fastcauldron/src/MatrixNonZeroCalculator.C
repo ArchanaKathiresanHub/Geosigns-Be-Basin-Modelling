@@ -44,7 +44,9 @@ void MatrixNonZeroCalculator::compute ( const ComputationalDomain& domain,
    unsigned int activeAbove;
    unsigned int activeBelow;
    int localDofNumber;
-   int localNumberOfDofs = domain.getLocalNumberOfActiveNodes ();
+   int localNumberOfDofs  = domain.getLocalNumberOfActiveNodes ();
+   int globalNumberOfDofs = domain.getGlobalNumberOfActiveNodes ();
+   int maximumNonZeroCountOffDiag = globalNumberOfDofs - localNumberOfDofs;
 
    localNumberOfNonZerosPerRow.resize ( domain.getLocalNumberOfActiveNodes (), 0 );
    ghostNumberOfNonZerosPerRow.resize ( domain.getLocalNumberOfActiveNodes (), 0 );
@@ -68,7 +70,7 @@ void MatrixNonZeroCalculator::compute ( const ComputationalDomain& domain,
                   // There cannot be more non-zeros per row than the size of the matrix.
                   // It is possible to exceed this because the calculated number of non-zeros is a upper bound.
                   localNumberOfNonZerosPerRow [ localDofNumber ] = NumericFunctions::Minimum ( localNumberOfNonZerosPerRow [ localDofNumber ], localNumberOfDofs );
-                  ghostNumberOfNonZerosPerRow [ localDofNumber ] = NumericFunctions::Minimum ( ghostNumberOfNonZerosPerRow [ localDofNumber ], localNumberOfDofs );
+                  ghostNumberOfNonZerosPerRow [ localDofNumber ] = NumericFunctions::Minimum ( ghostNumberOfNonZerosPerRow [ localDofNumber ], maximumNonZeroCountOffDiag );
                }
 
             }
