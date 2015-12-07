@@ -17,6 +17,9 @@
 // Access to PETSc library
 #include "petsc.h"
 
+// Access to utilities library.
+#include "NumericslFunctions.h"
+
 // Access to fastcauldron application code.
 #include "FastcauldronSimulator.h"
 #include "NodalGrid.h"
@@ -41,6 +44,7 @@ void MatrixNonZeroCalculator::compute ( const ComputationalDomain& domain,
    unsigned int activeAbove;
    unsigned int activeBelow;
    int localDofNumber;
+   int localNumberOfDofs = domain.getLocalNumberOfActiveNodes ();
 
    localNumberOfNonZerosPerRow.resize ( domain.getLocalNumberOfActiveNodes (), 0 );
    ghostNumberOfNonZerosPerRow.resize ( domain.getLocalNumberOfActiveNodes (), 0 );
@@ -60,6 +64,11 @@ void MatrixNonZeroCalculator::compute ( const ComputationalDomain& domain,
                   findColumnActivityRange ( depthIndex, i, j, k, activeAbove, activeBelow  );
                   localDofNumber = static_cast<int>(dof ( k, j, i )) - domain.getLocalStartDof ();
                   countNumberOfActiveDofs ( depthIndex, localDofNumber, i, j, k, activeAbove, activeBelow, localNumberOfNonZerosPerRow, ghostNumberOfNonZerosPerRow );
+
+                  // There cannot be more non-zeros per row than the size of the matrix.
+                  // It is possible to exceed this because the calculated number of non-zeros is a upper bound.
+                  localNumberOfNonZerosPerRow [ localDofNumber ] = NumericFunctions::Minimum ( localNumberOfNonZerosPerRow [ localDofNumber ], localNumberOfDofs );
+                  ghostNumberOfNonZerosPerRow [ localDofNumber ] = NumericFunctions::Minimum ( ghostNumberOfNonZerosPerRow [ localDofNumber ], localNumberOfDofs );
                }
 
             }
