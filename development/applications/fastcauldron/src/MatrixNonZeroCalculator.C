@@ -18,7 +18,7 @@
 #include "petsc.h"
 
 // Access to utilities library.
-#include "NumericslFunctions.h"
+#include "NumericFunctions.h"
 
 // Access to fastcauldron application code.
 #include "FastcauldronSimulator.h"
