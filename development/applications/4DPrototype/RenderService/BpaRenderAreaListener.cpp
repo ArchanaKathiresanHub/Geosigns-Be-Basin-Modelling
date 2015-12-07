@@ -20,6 +20,7 @@
 //#include <RemoteViz/Rendering/RenderAreaSettings.h>
 #include <RenderArea.h>
 #include <Connection.h>
+#include <ConnectionSettings.h>
 #include <RenderAreaSettings.h>
 
 #include <Inventor/SoSceneManager.h>
@@ -366,6 +367,12 @@ void BpaRenderAreaListener::onReceivedMessage(RenderArea* renderArea, Connection
     auto quality = params.get<jsonxx::Number>("quality");
 
     renderArea->getSettings()->setInteractiveCompressionQuality((float)quality);
+  }
+  else if (cmd == "SetBandwidth")
+  {
+    auto bandwidth = params.get<jsonxx::Number>("bandwidth");
+
+    sender->getSettings()->setBitsPerSecond((int)bandwidth);
   }
   else if (cmd == "SetWidth")
   {

@@ -147,6 +147,7 @@ function initUI(projectInfo)
 
     //onQualitySliderChanged(document.getElementById("qualitySlider").valueAsNumber);
     //onInteractiveQualitySliderChanged(document.getElementById("iqualitySlider").valueAsNumber);
+    onBandwidthSliderChanged(document.getElementById("bandwidthSlider").valueAsNumber * 8192);
 }
 
 function onCheckBoxAllFormationsChanged(elem)
@@ -512,6 +513,18 @@ function onInteractiveQualitySliderChanged(value)
         cmd: "SetInteractiveQuality",
         params: {
             quality: value
+        }
+    }
+
+    theRenderArea.sendMessage(JSON.stringify(msg));
+}
+
+function onBandwidthSliderChanged(value)
+{
+    var msg = {
+        cmd: "SetBandwidth",
+        params: {
+            bandwidth: value
         }
     }
 
