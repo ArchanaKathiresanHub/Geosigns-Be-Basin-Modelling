@@ -1190,38 +1190,6 @@ void Basin_Modelling::FEM_Grid::Evolve_Temperature_Basin ( bool& temperatureHasD
     m_temperatureComputationalDomain.resetAge ( Current_Time );
     m_temperatureDomainResetTime += ( WallTime::clock () - resetStartTime ).floatValue ();
 
-    
-#if 0
-    static char units   = '0';
-    static char tens    = '0';
-    static char hundreds  = '0';
-
-    if ( units < '9' ) {
-       ++units;
-    } else if ( units == '9' ) {
-       units = '0';
-
-       if ( tens < '9' ) {
-          ++tens;
-       } else if ( tens == '9' ) {
-          tens = '0';
-          ++hundreds;
-       }
-
-    }
-
-
-
-    VtkMeshWriter vktWriter;
-    std::string fileName = "sedimsXXX.vtk";
-
-    fileName [ 6 ] = hundreds;
-    fileName [ 7 ] = tens;
-    fileName [ 8 ] = units;
-    vktWriter.save ( m_temperatureComputationalDomain, fileName, 1 );
-#endif
-
-
     Solve_Temperature_For_Time_Step ( Previous_Time,
                                       Current_Time,
                                       MaximumNumberOfNonlinearIterations,
