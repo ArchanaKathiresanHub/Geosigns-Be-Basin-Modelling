@@ -86,6 +86,362 @@ namespace
   }
 }
 
+void CommandHandler::onEnableFormation(
+  const jsonxx::Object& params,
+  RemoteViz::Rendering::RenderArea* /*renderArea*/,
+  RemoteViz::Rendering::Connection* /*connection*/)
+{
+  auto formationId = (int)params.get<jsonxx::Number>("formationId");
+  auto enabled = params.get<bool>("enabled");
+
+  m_sceneGraphManager->enableFormation(formationId, enabled);
+}
+
+void CommandHandler::onEnableAllFormations(
+  const jsonxx::Object& params,
+  RemoteViz::Rendering::RenderArea* /*renderArea*/,
+  RemoteViz::Rendering::Connection* /*connection*/)
+{
+  auto enabled = params.get<bool>("enabled");
+
+  m_sceneGraphManager->enableAllFormations(enabled);
+}
+
+void CommandHandler::onEnableSurface(
+  const jsonxx::Object& params,
+  RemoteViz::Rendering::RenderArea* /*renderArea*/,
+  RemoteViz::Rendering::Connection* /*connection*/)
+{
+  auto surfaceId = (int)params.get<jsonxx::Number>("surfaceId");
+  auto enabled = params.get<bool>("enabled");
+
+  m_sceneGraphManager->enableSurface(surfaceId, enabled);
+}
+
+void CommandHandler::onEnableAllSurfaces(
+  const jsonxx::Object& params,
+  RemoteViz::Rendering::RenderArea* /*renderArea*/,
+  RemoteViz::Rendering::Connection* /*connection*/)
+{
+  auto enabled = params.get<bool>("enabled");
+
+  m_sceneGraphManager->enableAllSurfaces(enabled);
+}
+
+void CommandHandler::onEnableReservoir(
+  const jsonxx::Object& params,
+  RemoteViz::Rendering::RenderArea* /*renderArea*/,
+  RemoteViz::Rendering::Connection* /*connection*/)
+{
+  auto reservoirId = (int)params.get<jsonxx::Number>("reservoirId");
+  auto enabled = params.get<bool>("enabled");
+
+  m_sceneGraphManager->enableReservoir(reservoirId, enabled);
+}
+
+void CommandHandler::onEnableAllReservoirs(
+  const jsonxx::Object& params,
+  RemoteViz::Rendering::RenderArea* /*renderArea*/,
+  RemoteViz::Rendering::Connection* /*connection*/)
+{
+  auto enabled = params.get<bool>("enabled");
+
+  m_sceneGraphManager->enableAllReservoirs(enabled);
+}
+
+void CommandHandler::onEnableSlice(
+  const jsonxx::Object& params,
+  RemoteViz::Rendering::RenderArea* /*renderArea*/,
+  RemoteViz::Rendering::Connection* /*connection*/)
+{
+  auto slice = params.get<jsonxx::Number>("slice");
+  auto enabled = params.get<bool>("enabled");
+
+  m_sceneGraphManager->enableSlice((int)slice, enabled);
+}
+
+void CommandHandler::onSetSlicePosition(
+  const jsonxx::Object& params,
+  RemoteViz::Rendering::RenderArea* /*renderArea*/,
+  RemoteViz::Rendering::Connection* /*connection*/)
+{
+  auto slice = params.get<jsonxx::Number>("slice");
+  auto position = params.get<jsonxx::Number>("position");
+
+  m_sceneGraphManager->setSlicePosition((int)slice, (int)position);
+}
+
+void CommandHandler::onEnableFault(
+  const jsonxx::Object& params,
+  RemoteViz::Rendering::RenderArea* /*renderArea*/,
+  RemoteViz::Rendering::Connection* /*connection*/)
+{
+  auto faultId = params.get<jsonxx::Number>("faultId");
+  auto enabled = params.get<bool>("enabled");
+
+  m_sceneGraphManager->enableFault((int)faultId, enabled);
+}
+
+void CommandHandler::onEnableAllFaults(
+  const jsonxx::Object& params,
+  RemoteViz::Rendering::RenderArea* /*renderArea*/,
+  RemoteViz::Rendering::Connection* /*connection*/)
+{
+  auto enabled = params.get<bool>("enabled");
+
+  m_sceneGraphManager->enableAllFaults(enabled);
+}
+
+void CommandHandler::onSetProperty(
+  const jsonxx::Object& params,
+  RemoteViz::Rendering::RenderArea* /*renderArea*/,
+  RemoteViz::Rendering::Connection* /*connection*/)
+{
+  auto propertyId = (int)params.get<jsonxx::Number>("propertyId");
+
+  m_sceneGraphManager->setProperty(propertyId);
+}
+
+void CommandHandler::onSetVerticalScale(
+  const jsonxx::Object& params,
+  RemoteViz::Rendering::RenderArea* /*renderArea*/,
+  RemoteViz::Rendering::Connection* /*connection*/)
+{
+  auto scale = params.get<jsonxx::Number>("scale");
+
+  m_sceneGraphManager->setVerticalScale((float)scale);
+}
+
+void CommandHandler::onSetTransparency(
+  const jsonxx::Object& params,
+  RemoteViz::Rendering::RenderArea* /*renderArea*/,
+  RemoteViz::Rendering::Connection* /*connection*/)
+{
+  auto transparency = params.get<jsonxx::Number>("transparency");
+
+  m_sceneGraphManager->setTransparency((float)transparency);
+}
+
+void CommandHandler::onSetRenderStyle(
+  const jsonxx::Object& params,
+  RemoteViz::Rendering::RenderArea* /*renderArea*/,
+  RemoteViz::Rendering::Connection* /*connection*/)
+{
+  auto drawFaces = params.get<bool>("drawFaces");
+  auto drawEdges = params.get<bool>("drawEdges");
+
+  m_sceneGraphManager->setRenderStyle(drawFaces, drawEdges);
+}
+
+void CommandHandler::onShowCoordinateGrid(
+  const jsonxx::Object& params,
+  RemoteViz::Rendering::RenderArea* /*renderArea*/,
+  RemoteViz::Rendering::Connection* /*connection*/)
+{
+  auto showGrid = params.get<bool>("show");
+
+  m_sceneGraphManager->showCoordinateGrid(showGrid);
+}
+ 
+void CommandHandler::onShowTraps(
+  const jsonxx::Object& params,
+  RemoteViz::Rendering::RenderArea* /*renderArea*/,
+  RemoteViz::Rendering::Connection* /*connection*/)
+{
+  auto showTraps = params.get<bool>("show");
+
+  m_sceneGraphManager->showTraps(showTraps);
+}
+
+void CommandHandler::onShowTrapOutlines(
+  const jsonxx::Object& params,
+  RemoteViz::Rendering::RenderArea* /*renderArea*/,
+  RemoteViz::Rendering::Connection* /*connection*/)
+{
+  auto showOutlines = params.get<bool>("show");
+
+  m_sceneGraphManager->showTrapOutlines(showOutlines);
+}
+
+void CommandHandler::onShowFlowDirection(
+  const jsonxx::Object& params,
+  RemoteViz::Rendering::RenderArea* /*renderArea*/,
+  RemoteViz::Rendering::Connection* /*connection*/)
+{
+  auto typeStr = params.get<std::string>("type");
+
+  SceneGraphManager::FlowVizType type = SceneGraphManager::FlowVizNone;
+
+  if (typeStr == "FlowVizLines")
+    type = SceneGraphManager::FlowVizLines;
+  else if (typeStr == "FlowVizVectors")
+    type = SceneGraphManager::FlowVizVectors;
+
+  m_sceneGraphManager->showFlowDirection(type);
+}
+
+void CommandHandler::onShowDrainageAreaOutlines(
+  const jsonxx::Object& params,
+  RemoteViz::Rendering::RenderArea* /*renderArea*/,
+  RemoteViz::Rendering::Connection* /*connection*/)
+{
+  auto typeStr = params.get<std::string>("type");
+
+  SceneGraphManager::DrainageAreaType type = SceneGraphManager::DrainageAreaNone;
+
+  if (typeStr == "DrainageAreaFluid")
+    type = SceneGraphManager::DrainageAreaFluid;
+  else if (typeStr == "DrainageAreaGas")
+    type = SceneGraphManager::DrainageAreaGas;
+
+  m_sceneGraphManager->showDrainageAreaOutlines(type);
+}
+
+void CommandHandler::onSetProjection(
+  const jsonxx::Object& params,
+  RemoteViz::Rendering::RenderArea* /*renderArea*/,
+  RemoteViz::Rendering::Connection* /*connection*/)
+{
+  auto typeStr = params.get<std::string>("type");
+  auto mode = (typeStr == "Perspective")
+    ? SceneInteractor::PERSPECTIVE
+    : SceneInteractor::ORTHOGRAPHIC;
+
+  m_examiner->setCameraMode(mode);
+}
+
+void CommandHandler::onSetCurrentSnapshot(
+  const jsonxx::Object& params,
+  RemoteViz::Rendering::RenderArea* /*renderArea*/,
+  RemoteViz::Rendering::Connection* /*connection*/)
+{
+  auto index = params.get<jsonxx::Number>("index");
+
+  m_sceneGraphManager->setCurrentSnapshot((int)index);
+}
+
+void CommandHandler::onViewAll(
+  const jsonxx::Object& params,
+  RemoteViz::Rendering::RenderArea* renderArea,
+  RemoteViz::Rendering::Connection* /*connection*/)
+{
+  SbViewportRegion vpregion = renderArea->getSceneManager()->getViewportRegion();
+  m_examiner->viewAll(vpregion);
+}
+
+void CommandHandler::onSetViewPreset(
+  const jsonxx::Object& params,
+  RemoteViz::Rendering::RenderArea* /*renderArea*/,
+  RemoteViz::Rendering::Connection* /*connection*/)
+{
+  auto preset = params.get<std::string>("preset");
+
+  static const std::string presetKeys[] =
+  {
+    "Top", "Left", "Front",
+    "Bottom", "Right", "Back"
+  };
+
+  static const ViewPreset presetValues[] =
+  {
+    ViewPreset_Top, ViewPreset_Left, ViewPreset_Front,
+    ViewPreset_Bottom, ViewPreset_Right, ViewPreset_Back
+  };
+
+  for (int i = 0; i < 6; ++i)
+  {
+    if (preset == presetKeys[i])
+    {
+      setViewPreset(m_examiner->getCameraInteractor()->getCamera(), presetValues[i]);
+      break;
+    }
+  }
+}
+
+void CommandHandler::onSetStillQuality(
+  const jsonxx::Object& params,
+  RemoteViz::Rendering::RenderArea* renderArea,
+  RemoteViz::Rendering::Connection* /*connection*/)
+{
+  auto quality = params.get<jsonxx::Number>("quality");
+
+  renderArea->getSettings()->setStillCompressionQuality((float)quality);
+}
+
+void CommandHandler::onSetInteractiveQuality(
+  const jsonxx::Object& params,
+  RemoteViz::Rendering::RenderArea* renderArea,
+  RemoteViz::Rendering::Connection* /*connection*/)
+{
+  auto quality = params.get<jsonxx::Number>("quality");
+
+  renderArea->getSettings()->setInteractiveCompressionQuality((float)quality);
+}
+
+void CommandHandler::onSetBandwidth(
+  const jsonxx::Object& params,
+  RemoteViz::Rendering::RenderArea* /*renderArea*/,
+  RemoteViz::Rendering::Connection* connection)
+{
+  auto bandwidth = params.get<jsonxx::Number>("bandwidth");
+
+  connection->getSettings()->setBitsPerSecond((int)bandwidth);
+}
+
+void CommandHandler::onSetWidth(
+  const jsonxx::Object& params,
+  RemoteViz::Rendering::RenderArea* renderArea,
+  RemoteViz::Rendering::Connection* /*connection*/)
+{
+  auto width = params.get<jsonxx::Number>("width");
+  auto height = renderArea->getSceneManager()->getSize()[1];
+
+  renderArea->resize((int)width, (int)height);
+}
+
+void CommandHandler::onSetHeight(
+  const jsonxx::Object& params,
+  RemoteViz::Rendering::RenderArea* renderArea,
+  RemoteViz::Rendering::Connection* /*connection*/)
+{
+  auto width = renderArea->getSceneManager()->getSize()[0];
+  auto height = params.get<jsonxx::Number>("height");
+
+  renderArea->resize((int)width, (int)height);
+}
+
+void CommandHandler::registerHandlers()
+{
+  m_handlers["EnableFormation"] = &CommandHandler::onEnableFormation;
+  m_handlers["EnableAllFormations"] = &CommandHandler::onEnableAllFormations;
+  m_handlers["EnableSurface"] = &CommandHandler::onEnableSurface;
+  m_handlers["EnableAllSurfaces"] = &CommandHandler::onEnableAllSurfaces;
+  m_handlers["EnableReservoir"] = &CommandHandler::onEnableReservoir;
+  m_handlers["EnableAllReservoirs"] = &CommandHandler::onEnableAllReservoirs;
+  m_handlers["EnableSlice"] = &CommandHandler::onEnableSlice;
+  m_handlers["SetSlicePosition"] = &CommandHandler::onSetSlicePosition;
+  m_handlers["EnableFault"] = &CommandHandler::onEnableFault;
+  m_handlers["EnableAllFaults"] = &CommandHandler::onEnableAllFaults;
+  m_handlers["SetProperty"] = &CommandHandler::onSetProperty;
+  m_handlers["SetVerticalScale"] = &CommandHandler::onSetVerticalScale;
+  m_handlers["SetTransparency"] = &CommandHandler::onSetTransparency;
+  m_handlers["SetRenderStyle"] = &CommandHandler::onSetRenderStyle;
+  m_handlers["ShowCoordinateGrid"] = &CommandHandler::onShowCoordinateGrid;
+  m_handlers["ShowTraps"] = &CommandHandler::onShowTraps;
+  m_handlers["ShowTrapOutlines"] = &CommandHandler::onShowTrapOutlines;
+  m_handlers["ShowFlowDirection"] = &CommandHandler::onShowFlowDirection;
+  m_handlers["ShowDrainageAreaOutline"] = &CommandHandler::onShowDrainageAreaOutlines;
+  m_handlers["SetProjection"] = &CommandHandler::onSetProjection;
+  m_handlers["SetCurrentSnapshot"] = &CommandHandler::onSetCurrentSnapshot;
+  m_handlers["ViewAll"] = &CommandHandler::onViewAll;
+  m_handlers["SetViewPreset"] = &CommandHandler::onSetViewPreset;
+  m_handlers["SetStillQuality"] = &CommandHandler::onSetStillQuality;
+  m_handlers["SetInteractiveQuality"] = &CommandHandler::onSetInteractiveQuality;
+  m_handlers["SetBandwidth"] = &CommandHandler::onSetBandwidth;
+  m_handlers["SetWidth"] = &CommandHandler::onSetWidth;
+  m_handlers["SetHeight"] = &CommandHandler::onSetHeight;
+}
+
 CommandHandler::CommandHandler()
   : m_sceneGraphManager(nullptr)
   , m_examiner(nullptr)
@@ -96,6 +452,8 @@ void CommandHandler::setup(SceneGraphManager* mgr, SceneExaminer* examiner)
 {
   m_sceneGraphManager = mgr;
   m_examiner = examiner;
+
+  registerHandlers();
 }
 
 void CommandHandler::sendProjectInfo(
@@ -122,216 +480,10 @@ void CommandHandler::onReceivedMessage(
   auto cmd = jsonObj.get<std::string>("cmd");
   auto params = jsonObj.get<jsonxx::Object>("params");
 
-  if (cmd == "EnableFormation")
+  auto iter = m_handlers.find(cmd);
+  if (iter != m_handlers.end())
   {
-    auto formationId = (int)params.get<jsonxx::Number>("formationId");
-    auto enabled = params.get<bool>("enabled");
-
-    m_sceneGraphManager->enableFormation(formationId, enabled);
-  }
-  if (cmd == "EnableAllFormations")
-  {
-    auto enabled = params.get<bool>("enabled");
-
-    m_sceneGraphManager->enableAllFormations(enabled);
-  }
-  else if (cmd == "EnableSurface")
-  {
-    auto surfaceId = (int)params.get<jsonxx::Number>("surfaceId");
-    auto enabled = params.get<bool>("enabled");
-
-    m_sceneGraphManager->enableSurface(surfaceId, enabled);
-  }
-  else if (cmd == "EnableAllSurfaces")
-  {
-    auto enabled = params.get<bool>("enabled");
-
-    m_sceneGraphManager->enableAllSurfaces(enabled);
-  }
-  else if (cmd == "EnableReservoir")
-  {
-    auto reservoirId = (int)params.get<jsonxx::Number>("reservoirId");
-    auto enabled = params.get<bool>("enabled");
-
-    m_sceneGraphManager->enableReservoir(reservoirId, enabled);
-  }
-  else if (cmd == "EnableAllReservoirs")
-  {
-    auto enabled = params.get<bool>("enabled");
-
-    m_sceneGraphManager->enableAllReservoirs(enabled);
-  }
-  else if (cmd == "EnableSlice")
-  {
-    auto slice = params.get<jsonxx::Number>("slice");
-    auto enabled = params.get<bool>("enabled");
-
-    m_sceneGraphManager->enableSlice((int)slice, enabled);
-  }
-  else if (cmd == "SetSlicePosition")
-  {
-    auto slice = params.get<jsonxx::Number>("slice");
-    auto position = params.get<jsonxx::Number>("position");
-
-    m_sceneGraphManager->setSlicePosition((int)slice, (int)position);
-  }
-  else if (cmd == "EnableFault")
-  {
-    auto faultId = params.get<jsonxx::Number>("faultId");
-    auto enabled = params.get<bool>("enabled");
-
-    m_sceneGraphManager->enableFault((int)faultId, enabled);
-  }
-  else if (cmd == "EnableAllFaults")
-  {
-    auto enabled = params.get<bool>("enabled");
-
-    m_sceneGraphManager->enableAllFaults(enabled);
-  }
-  else if (cmd == "SetProperty")
-  {
-    auto propertyId = (int)params.get<jsonxx::Number>("propertyId");
-
-    m_sceneGraphManager->setProperty(propertyId);
-  }
-  else if (cmd == "SetVerticalScale")
-  {
-    auto scale = params.get<jsonxx::Number>("scale");
-
-    m_sceneGraphManager->setVerticalScale((float)scale);
-  }
-  else if (cmd == "SetTransparency")
-  {
-    auto transparency = params.get<jsonxx::Number>("transparency");
-
-    m_sceneGraphManager->setTransparency((float)transparency);
-  }
-  else if (cmd == "SetRenderStyle")
-  {
-    auto drawFaces = params.get<bool>("drawFaces");
-    auto drawEdges = params.get<bool>("drawEdges");
-
-    m_sceneGraphManager->setRenderStyle(drawFaces, drawEdges);
-  }
-  else if (cmd == "ShowCoordinateGrid")
-  {
-    auto showGrid = params.get<bool>("show");
-
-    m_sceneGraphManager->showCoordinateGrid(showGrid);
-  }
-  else if (cmd == "ShowTraps")
-  {
-    auto showTraps = params.get<bool>("show");
-
-    m_sceneGraphManager->showTraps(showTraps);
-  }
-  else if (cmd == "ShowTrapOutlines")
-  {
-    auto showOutlines = params.get<bool>("show");
-
-    m_sceneGraphManager->showTrapOutlines(showOutlines);
-  }
-  else if (cmd == "ShowFlowDirection")
-  {
-    auto typeStr = params.get<std::string>("type");
-
-    SceneGraphManager::FlowVizType type = SceneGraphManager::FlowVizNone;
-
-    if (typeStr == "FlowVizLines")
-      type = SceneGraphManager::FlowVizLines;
-    else if (typeStr == "FlowVizVectors")
-      type = SceneGraphManager::FlowVizVectors;
-
-    m_sceneGraphManager->showFlowDirection(type);
-  }
-  else if (cmd == "ShowDrainageAreaOutline")
-  {
-    auto typeStr = params.get<std::string>("type");
-
-    SceneGraphManager::DrainageAreaType type = SceneGraphManager::DrainageAreaNone;
-
-    if (typeStr == "DrainageAreaFluid")
-      type = SceneGraphManager::DrainageAreaFluid;
-    else if (typeStr == "DrainageAreaGas")
-      type = SceneGraphManager::DrainageAreaGas;
-
-    m_sceneGraphManager->showDrainageAreaOutlines(type);
-  }
-  else if (cmd == "SetProjection")
-  {
-    auto typeStr = params.get<std::string>("type");
-    auto mode = (typeStr == "Perspective")
-      ? SceneInteractor::PERSPECTIVE
-      : SceneInteractor::ORTHOGRAPHIC;
-
-    m_examiner->setCameraMode(mode);
-  }
-  else if (cmd == "SetCurrentSnapshot")
-  {
-    auto index = params.get<jsonxx::Number>("index");
-
-    m_sceneGraphManager->setCurrentSnapshot((int)index);
-  }
-  else if (cmd == "ViewAll")
-  {
-    SbViewportRegion vpregion = renderArea->getSceneManager()->getViewportRegion();
-    m_examiner->viewAll(vpregion);
-  }
-  else if (cmd == "SetViewPreset")
-  {
-    auto preset = params.get<std::string>("preset");
-
-    static const std::string presetKeys[] =
-    {
-      "Top", "Left", "Front",
-      "Bottom", "Right", "Back"
-    };
-
-    static const ViewPreset presetValues[] =
-    {
-      ViewPreset_Top, ViewPreset_Left, ViewPreset_Front,
-      ViewPreset_Bottom, ViewPreset_Right, ViewPreset_Back
-    };
-
-    for (int i = 0; i < 6; ++i)
-    {
-      if (preset == presetKeys[i])
-      {
-        setViewPreset(m_examiner->getCameraInteractor()->getCamera(), presetValues[i]);
-        break;
-      }
-    }
-  }
-  else if (cmd == "SetStillQuality")
-  {
-    auto quality = params.get<jsonxx::Number>("quality");
-
-    renderArea->getSettings()->setStillCompressionQuality((float)quality);
-  }
-  else if (cmd == "SetInteractiveQuality")
-  {
-    auto quality = params.get<jsonxx::Number>("quality");
-
-    renderArea->getSettings()->setInteractiveCompressionQuality((float)quality);
-  }
-  else if (cmd == "SetBandwidth")
-  {
-    auto bandwidth = params.get<jsonxx::Number>("bandwidth");
-
-    sender->getSettings()->setBitsPerSecond((int)bandwidth);
-  }
-  else if (cmd == "SetWidth")
-  {
-    auto width = params.get<jsonxx::Number>("width");
-    auto height = renderArea->getSceneManager()->getSize()[1];
-
-    renderArea->resize((int)width, (int)height);
-  }
-  else if (cmd == "SetHeight")
-  {
-    auto width = renderArea->getSceneManager()->getSize()[0];
-    auto height = params.get<jsonxx::Number>("height");
-
-    renderArea->resize((int)width, (int)height);
+    auto fn = iter->second;
+    ((this)->*(fn))(params, renderArea, sender);
   }
 }
