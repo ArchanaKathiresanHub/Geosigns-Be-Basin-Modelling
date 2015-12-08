@@ -737,9 +737,9 @@ namespace
       axis->tickNumOrPeriod.setValue(1);
     }
 
-    //axis->titleFontSize = 0.10F;
-    //axis->setMiscTextAttr(textAtt);
-    //axis->gradFontSize = 0.06F;
+    axis->titleFontSize = 0.03F;
+    axis->setMiscTextAttr(textAtt);
+    axis->gradFontSize = 0.02F;
     axis->gradVisibility = PoAxis::VISIBILITY_ON;
     axis->titleVisibility = PoAxis::VISIBILITY_ON;
     //axis->tickMainLength = 1.f;
@@ -901,13 +901,8 @@ SnapshotInfo SceneGraphManager::createSnapshotNode(size_t index)
   info.formationsRoot->setName("formations");
   info.meshData = m_project->createSnapshotMesh(index);
 
-  // Find minimum and maximum depth value
-  //double minValue1, maxValue1, minValue2, maxValue2;
-  //depthMaps[0]->getMinMaxValue(minValue1, maxValue1);
-  //depthMaps[depthMaps.size() - 1]->getMinMaxValue(minValue2, maxValue2);
-
-  //info.minZ = -std::max(maxValue1, maxValue2);
-  //info.maxZ = -std::min(minValue1, minValue2);
+  info.minZ = -snapshotContents.maxDepth;
+  info.maxZ = -snapshotContents.minDepth;
 
   info.mesh = new MoMesh;
   info.mesh->setName("snapshotMesh");

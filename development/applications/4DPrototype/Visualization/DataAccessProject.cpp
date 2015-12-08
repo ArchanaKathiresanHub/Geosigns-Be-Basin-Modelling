@@ -47,6 +47,8 @@ Project::SnapshotContents DataAccessProject::getSnapshotContents(size_t snapshot
   const di::Snapshot* snapshot = m_snapshotList[snapshotIndex];
 
   SnapshotContents contents;
+  contents.minDepth = 0.0;
+  contents.maxDepth = 0.0;
 
   // Instead of looping over the formation list, we get all the formation depth values. This 
   // allows us to also compute the minK and maxK values for each formation.
@@ -57,6 +59,16 @@ Project::SnapshotContents DataAccessProject::getSnapshotContents(size_t snapshot
       nullptr, 
       nullptr, 
       nullptr));
+
+  // Remove basement formations
+  auto iter = std::remove_if(
+    depthValues->begin(), 
+    depthValues->end(), 
+    [](const di::PropertyValue* val) 
+    { 
+      return val->getFormation()->kind() == di::BASEMENT_FORMATION; 
+    });
+  depthValues->erase(iter, depthValues->end());
 
   int k = 0;
   for (auto item : *depthValues)
@@ -80,6 +92,16 @@ Project::SnapshotContents DataAccessProject::getSnapshotContents(size_t snapshot
     std::unique_ptr<di::ReservoirList> reservoirList(m_projectHandle->getReservoirs(fmt));
     for (auto res : *reservoirList)
       contents.reservoirs.push_back(m_reservoirIdMap.at(res->getName()));
+  }
+
+  if (!depthValues->empty())
+  {
+    double minDepth0, maxDepth0, minDepth1, maxDepth1;
+    (*depthValues)[0]->getGridMap()->getMinMaxValue(minDepth0, maxDepth0);
+    (*depthValues)[depthValues->size() - 1]->getGridMap()->getMinMaxValue(minDepth1, maxDepth1);
+
+    contents.minDepth = std::min(minDepth0, minDepth1);
+    contents.maxDepth = std::max(maxDepth0, maxDepth1);
   }
 
   std::unique_ptr<di::SurfaceList> surfaceList(m_projectHandle->getSurfaces(snapshot));

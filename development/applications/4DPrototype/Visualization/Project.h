@@ -106,6 +106,8 @@ public:
   struct SnapshotContents
   {
     double age;
+    double minDepth;
+    double maxDepth;
 
     std::vector<SnapshotFormation> formations;
     std::vector<int> surfaces;
