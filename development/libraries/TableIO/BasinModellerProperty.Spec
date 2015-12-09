@@ -954,6 +954,7 @@ START-properties
     Type                : double
     Unit of measurement : Ma
     Error Field         : No
+    Default             : 0
 
 
 #### Source Rock properties -------------------------------------------------
