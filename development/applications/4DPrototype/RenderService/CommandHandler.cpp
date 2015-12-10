@@ -23,6 +23,7 @@
 #else
 #include <RemoteViz/Rendering/RenderArea.h>
 #include <RemoteViz/Rendering/Connection.h>
+#include <RemoteViz/Rendering/ConnectionSettings.h>
 #include <RemoteViz/Rendering/RenderAreaSettings.h>
 #endif
 
@@ -327,7 +328,7 @@ void CommandHandler::onSetCurrentSnapshot(
 }
 
 void CommandHandler::onViewAll(
-  const jsonxx::Object& params,
+  const jsonxx::Object& /*params*/,
   RemoteViz::Rendering::RenderArea* renderArea,
   RemoteViz::Rendering::Connection* /*connection*/)
 {
@@ -389,9 +390,14 @@ void CommandHandler::onSetBandwidth(
   RemoteViz::Rendering::RenderArea* /*renderArea*/,
   RemoteViz::Rendering::Connection* connection)
 {
+#ifdef USE_H264
   auto bandwidth = params.get<jsonxx::Number>("bandwidth");
 
   connection->getSettings()->setBitsPerSecond((int)bandwidth);
+#else
+  (void)params;
+  (void)connection;
+#endif
 }
 
 void CommandHandler::onSetWidth(

@@ -216,7 +216,7 @@ bool SnapshotTopology::hasDeadCells() const
   return true; //probably
 }
 
-bool SnapshotTopology::isDead(size_t i, size_t j, size_t k) const
+bool SnapshotTopology::isDead(size_t i, size_t j, size_t /*k*/) const
 {
   return m_deadMap[i * m_numJ + j];
 }

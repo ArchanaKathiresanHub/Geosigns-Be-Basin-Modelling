@@ -53,15 +53,15 @@ SoLineSet* generateFlowLines(const MiDataSetIjk<double>& values, int startK, con
   const int numJ = (int)topology.getNumCellsJ();
   const int numK = (int)topology.getNumCellsK();
 
-  for (size_t i = 0; i < numI; ++i)
+  for (int i = 0; i < numI; ++i)
   {
-    for (size_t j = 0; j < numJ; ++j)
+    for (int j = 0; j < numJ; ++j)
     {
       if (!topology.isDead(i, j, startK))
       {
-        int ii = (int)i;
-        int jj = (int)j;
-        int kk = (int)startK;
+        int ii = i;
+        int jj = j;
+        int kk = startK;
 
         int nverts = 0;
 

@@ -432,9 +432,9 @@ MbVec3d FlowDirectionProperty::get(size_t i0, size_t j0, size_t k0) const
   int k1 = (int)k0 - deltas[2];
 
   if (
-    i1 < 0 || i1 >= m_numI ||
-    j1 < 0 || j1 >= m_numJ ||
-    k1 < 0 || k1 >= m_numK ||
+    i1 < 0 || i1 >= (int)m_numI ||
+    j1 < 0 || j1 >= (int)m_numJ ||
+    k1 < 0 || k1 >= (int)m_numK ||
     m_topology.isDead((size_t)i1, (size_t)j1, (size_t)k1))
   {
     return MbVec3d();

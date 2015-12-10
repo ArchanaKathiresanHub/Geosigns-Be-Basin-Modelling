@@ -1,10 +1,12 @@
 bm_include_libraries(
 	DataAccess
 	DataModel
-	TableIO)
+	TableIO
+	VisualizationIO)
 
 include_directories(
-	$ENV{OIVHOME}/include)
+	$ENV{OIVHOME}/include
+	${HDF5_INCLUDE_DIRS})
 
 add_library(Visualization
 	CameraUtil.cpp
@@ -15,6 +17,10 @@ add_library(Visualization
 	Property.cpp
 	ROICellFilter.cpp
 	SceneGraphManager.cpp
+	Project.cpp
+	DataAccessProject.cpp
+	VisualizationIOProject.cpp
+	FluidContacts.cpp
 	Traps.cpp)
 
 

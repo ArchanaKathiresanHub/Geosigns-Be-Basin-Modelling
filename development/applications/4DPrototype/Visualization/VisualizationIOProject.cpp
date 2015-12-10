@@ -555,7 +555,7 @@ void VisualizationIOProject::init()
 
   auto snapshot = m_snapshots[0];
   auto surfaceList = snapshot->getSurfaceList();
-  int i = 0;
+
   for (auto surface : surfaceList)
   {
     auto type = surface->getProperty()->getType();
@@ -595,7 +595,7 @@ void VisualizationIOProject::init()
 
   for (auto fmt : formations)
   {
-    Formation formation = { fmt->getName(), false };
+    Formation formation = { fmt->getName(), 0, false };
     m_projectInfo.formations.push_back(formation);
   }
 
@@ -649,7 +649,7 @@ unsigned int VisualizationIOProject::getMaxPersistentTrapId() const
   return 0;
 }
 
-int VisualizationIOProject::getPropertyId(const std::string& name) const
+int VisualizationIOProject::getPropertyId(const std::string& /*name*/) const
 {
   return 0;
 }
@@ -890,21 +890,21 @@ std::shared_ptr<MiDataSetIj<double> > VisualizationIOProject::createSurfacePrope
 }
 
 std::shared_ptr<MiDataSetIjk<double> > VisualizationIOProject::createReservoirProperty(
-  size_t snapshotIndex,
-  int reservoirId,
-  int propertyId) const
+  size_t /*snapshotIndex*/,
+  int /*reservoirId*/,
+  int /*propertyId*/) const
 {
   return nullptr;
 }
 
 std::shared_ptr<MiDataSetIjk<double> > VisualizationIOProject::createPersistentTrapIdProperty(
-  size_t snapshotIndex,
-  int reservoirId) const
+  size_t /*snapshotIndex*/,
+  int /*reservoirId*/) const
 {
   return nullptr;
 }
 
-std::shared_ptr<MiDataSetIjk<double> > VisualizationIOProject::createFlowDirectionProperty(size_t snapshotIndex) const
+std::shared_ptr<MiDataSetIjk<double> > VisualizationIOProject::createFlowDirectionProperty(size_t /*snapshotIndex*/) const
 {
   return nullptr;
 }
@@ -943,7 +943,7 @@ std::vector<Project::Trap> VisualizationIOProject::getTraps(size_t snapshotIndex
   return traps;
 }
 
-std::vector<SbVec2d> VisualizationIOProject::getFaultLine(int faultId) const
+std::vector<SbVec2d> VisualizationIOProject::getFaultLine(int /*faultId*/) const
 {
   std::vector<SbVec2d> line;
 

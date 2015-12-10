@@ -12,6 +12,7 @@ link_directories($ENV{OIVHOME}/$ENV{OIVARCH}/lib)
 add_executable(RenderService
 	BpaRenderAreaListener.cpp
 	BpaServiceListener.cpp
+	CommandHandler.cpp
 	main.cpp
 	jsonxx.cpp
 	RenderService.cpp
@@ -21,6 +22,7 @@ add_executable(RenderService
 target_link_libraries(RenderService
 	Visualization
 	DataAccess
+	VisualizationIO
 	SerialDataAccess
 	RemoteVizServices
 	MeshVizDataMapping
@@ -28,5 +30,6 @@ target_link_libraries(RenderService
 	MeshViz
 	Inventor
 	InventorGL
-	InventorBase)
+	InventorBase
+	dl)
 

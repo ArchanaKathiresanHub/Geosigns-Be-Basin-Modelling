@@ -41,7 +41,7 @@ SoLineSet* buildIsoLines(
   {
     SbVec3f p = trap.leakagePoint;
     float z0 = p[2];
-    float z1 = (float)trap.gasOilContactDepth;
+    //float z1 = (float)trap.gasOilContactDepth;
     float z2 = (float)trap.oilWaterContactDepth;
 
     GridCoord coord;
@@ -93,8 +93,8 @@ SoLineSet* buildIsoLines(
         {
           GridCoord newCoord = { coord.i + di[i], coord.j + dj[i] };
           if (
-            newCoord.i >= 0 && newCoord.i < ni &&
-            newCoord.j >= 0 && newCoord.j < nj &&
+	    newCoord.i >= 0 && newCoord.i < (int)ni &&
+	    newCoord.j >= 0 && newCoord.j < (int)nj &&
             !topology.isDead(newCoord.i, newCoord.j, 0) &&
             !processed[newCoord.i + newCoord.j * ni])
           {

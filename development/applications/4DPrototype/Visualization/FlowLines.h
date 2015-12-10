@@ -10,6 +10,7 @@ template<class T>
 class MbVec3;
 
 #include <cstdint>
+#include <cstddef>
 
 MbVec3<double> getCellCenter(const MiGeometryIjk& geometry, size_t i, size_t j, size_t k);
 
