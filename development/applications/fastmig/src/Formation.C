@@ -171,7 +171,7 @@ namespace migration
                formationNode->setPorosity               (m_formationPropertyPtr[POROSITYPROPERTY]               ->get (i, j, k));
                formationNode->setVerticalPermeability   (m_formationPropertyPtr[VERTICALPERMEABILITYPROPERTY]   ->get (i, j, k));
                if (k == depth)
-                  formationNode->setVerticalPermeability   (m_formationPropertyPtr[VERTICALPERMEABILITYPROPERTY]->get (i, j, k+1),true);
+                  formationNode->setVerticalPermeability(m_formationPropertyPtr[VERTICALPERMEABILITYPROPERTY]   ->get (i, j, k+1),true);
                formationNode->setHorizontalPermeability (m_formationPropertyPtr[HORIZONTALPERMEABILITYPROPERTY] ->get (i, j, k));
                if (isOverPressureRun)
                {

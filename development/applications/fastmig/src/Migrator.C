@@ -1346,7 +1346,7 @@ database::Record * Migrator::addDetectedReservoirRecord (Interface::Formation * 
    return reservoirIoRecord;
 }
 
-database::Record * Migrator::copyMigrationRecord (database::Record * oldRecord, conststring & newMigrationProcess)
+database::Record * Migrator::copyMigrationRecord (database::Record * oldRecord, const string & newMigrationProcess)
 {
    static int index = 0;
    database::Record * newRecord = m_migrationIoTbl->createRecord ();

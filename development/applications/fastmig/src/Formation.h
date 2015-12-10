@@ -121,18 +121,14 @@ namespace migration
       inline double getHorizontalPermeability (int i, int j, int k);
       inline double getVerticalPermeability (int i, int j, int k);
       inline double getPorosity (int i, int j, int k);
-      inline double getCapillaryPressureGas100 (int i, int j, int k);
-      inline double getCapillaryPressureGas0 (int i, int j, int k);
-      inline double getCapillaryPressureOil100 (int i, int j, int k);
-      inline double getCapillaryPressureOil0 (int i, int j, int k);
+      inline double getCapillaryEntryPressureGas (int i, int j, int k);
+      inline double getCapillaryEntryPressureOil (int i, int j, int k);
       inline double getPressure (int i, int j, int k);
       inline double getTemperature (int i, int j, int k);
       inline double getOilDensity (int i, int j, int k);
       inline double getGasDensity (int i, int j, int k);
 
-      inline const GridMap * getGridMap (PropertyIndex propertyIndex) const;
-      inline const GridMap * & gridMap (PropertyIndex propertyIndex);
-
+      /*
       inline const GridMap * getDepthGridMap (void) const;
       inline const GridMap * getPorosityGridMap (void) const;
       inline const GridMap * getHorizontalPermeabilityGridMap (void) const;
@@ -143,6 +139,7 @@ namespace migration
       inline const GridMap * getCapPressureGas100GridMap (void) const;
       inline const GridMap * getCapPressureGas0GridMap (void) const;
       inline const GridMap * getCapPressureOil0GridMap (void) const;
+      */
 
       bool saveComputedSMFlowPaths (Formation * targetFormation, const Interface::Snapshot * end);
       bool saveComputedSMFlowPathsByGridOffsets (const DataAccess::Interface::Snapshot * end);
@@ -157,11 +154,11 @@ namespace migration
       bool computeTargetFormationNode (unsigned int i, unsigned int j, int depthIndex);
       void prescribeTargetFormationNodes (void);
 
-      bool retrievePropertyMaps ();
-      bool restorePropertyMaps (void);
+      bool retrievePropertyMaps (bool);
+      bool restorePropertyMaps (bool);
 
-      bool retrieveCapillaryPressureMaps ();
-      bool restoreCapillaryPressureMaps (void);
+      //bool retrieveCapillaryPressureMaps (bool);
+      //bool restoreCapillaryPressureMaps (bool);
 
       bool clearNodeProperties (void);
       bool clearNodeReservoirProperties (void);
@@ -265,7 +262,7 @@ namespace migration
                                      Genex6::LinearGridInterpolator& vre);
 
       // Formation property pointer using the derived properties library
-      const Interface::GridMap * m_gridMaps[NUMBEROFPROPERTYINDICES];
+      DerivedProperties::FormationPropertyPtr m_formationPropertyPtr[NUMBEROFPROPERTYINDICES];
 
       GridMap * m_expulsionGridMaps[NUM_COMPONENTS];
       int m_index;
@@ -309,24 +306,14 @@ namespace migration
       return getPropertyValue (VERTICALPERMEABILITYPROPERTY, i, j, k);
    }
 
-   double Formation::getCapillaryPressureGas100 (int i, int j, int k)
+   double Formation::getCapillaryEntryPressureGas (int i, int j, int k)
    {
-      return getPropertyValue (CAPILLARYPRESSUREGAS100PROPERTY, i, j, k);
+      return getPropertyValue (CAPILLARYENTRYPRESSUREGASPROPERTY, i, j, k);
    }
 
-   double Formation::getCapillaryPressureGas0 (int i, int j, int k)
+   double Formation::getCapillaryEntryPressureOil (int i, int j, int k)
    {
-      return getPropertyValue (CAPILLARYPRESSUREGAS0PROPERTY, i, j, k);
-   }
-
-   double Formation::getCapillaryPressureOil100 (int i, int j, int k)
-   {
-      return getPropertyValue (CAPILLARYPRESSUREOIL100PROPERTY, i, j, k);
-   }
-
-   double Formation::getCapillaryPressureOil0 (int i, int j, int k)
-   {
-      return getPropertyValue (CAPILLARYPRESSUREOIL0PROPERTY, i, j, k);
+      return getPropertyValue (CAPILLARYENTRYPRESSUREOILPROPERTY, i, j, k);
    }
 
    double Formation::getGasDensity (int i, int j, int k)
@@ -347,66 +334,6 @@ namespace migration
    double Formation::getTemperature (int i, int j, int k)
    {
       return getPropertyValue (TEMPERATUREPROPERTY, i, j, k);
-   }
-
-   const GridMap * & Formation::gridMap (PropertyIndex propertyIndex)
-   {
-      return m_gridMaps[propertyIndex];
-   }
-
-   const GridMap * Formation::getGridMap (PropertyIndex propertyIndex) const
-   {
-      return m_gridMaps[propertyIndex];
-   }
-
-   const GridMap * Formation::getDepthGridMap (void) const
-   {
-      return getGridMap (DEPTHPROPERTY);
-   }
-
-   const GridMap * Formation::getPorosityGridMap (void) const
-   {
-      return getGridMap (POROSITYPROPERTY);
-   }
-
-   const GridMap * Formation::getHorizontalPermeabilityGridMap (void) const
-   {
-      return getGridMap (HORIZONTALPERMEABILITYPROPERTY);
-   }
-
-   const GridMap * Formation::getVerticalPermeabilityGridMap (void) const
-   {
-      return getGridMap (VERTICALPERMEABILITYPROPERTY);
-   }
-
-   const GridMap * Formation::getTemperatureGridMap (void) const
-   {
-      return getGridMap (TEMPERATUREPROPERTY);
-   }
-
-   const GridMap * Formation::getPressureGridMap (void) const
-   {
-      return getGridMap (PRESSUREPROPERTY);
-   }
-
-   const GridMap * Formation::getCapPressureGas100GridMap (void) const
-   {
-      return getGridMap (CAPILLARYPRESSUREGAS100PROPERTY);
-   }
-
-   const GridMap * Formation::getCapPressureGas0GridMap (void) const
-   {
-      return getGridMap (CAPILLARYPRESSUREGAS0PROPERTY);
-   }
-
-   const GridMap * Formation::getCapPressureOil100GridMap (void) const
-   {
-      return getGridMap (CAPILLARYPRESSUREOIL100PROPERTY);
-   }
-
-   const GridMap * Formation::getCapPressureOil0GridMap (void) const
-   {
-      return getGridMap (CAPILLARYPRESSUREOIL0PROPERTY);
    }
 
    bool Formation::performVerticalMigration (void) const
