@@ -13,8 +13,11 @@
 
 #include "SceneExaminer.h"
 
-//#include <RemoteViz/Rendering/ServiceListener.h>
+#ifdef USE_H264
 #include <ServiceListener.h>
+#else
+#include <RemoteViz/Rendering/ServiceListener.h>
+#endif
 
 class BpaRenderAreaListener;
 class SceneGraph;

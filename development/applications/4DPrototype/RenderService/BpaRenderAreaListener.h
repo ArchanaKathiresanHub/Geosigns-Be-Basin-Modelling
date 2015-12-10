@@ -15,8 +15,11 @@
 #include <Visualization/Project.h>
 #include <Visualization/SceneGraphManager.h>
 
-//#include <RemoteViz/Rendering/RenderAreaListener.h>
+#ifdef USE_H264
 #include <RenderAreaListener.h>
+#else
+#include <RemoteViz/Rendering/RenderAreaListener.h>
+#endif
 
 #include <memory>
 

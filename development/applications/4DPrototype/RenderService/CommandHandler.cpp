@@ -15,10 +15,16 @@
 #include <Visualization/SceneGraphManager.h>
 #include <Visualization/CameraUtil.h>
 
+#ifdef USE_H264
 #include <RenderArea.h>
 #include <Connection.h>
 #include <ConnectionSettings.h>
 #include <RenderAreaSettings.h>
+#else
+#include <RemoteViz/Rendering/RenderArea.h>
+#include <RemoteViz/Rendering/Connection.h>
+#include <RemoteViz/Rendering/RenderAreaSettings.h>
+#endif
 
 #include <Inventor/SoSceneManager.h>
 #include <Inventor/ViewerComponents/SoCameraInteractor.h>

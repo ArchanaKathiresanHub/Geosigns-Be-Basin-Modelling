@@ -15,10 +15,13 @@
 
 #include <MeshVizXLM/mapping/MoMeshViz.h>
 
-//#include <RemoteViz/Rendering/Service.h>
-//#include <RemoteViz/Rendering/ServiceSettings.h>
+#ifdef USE_H264
 #include <Service.h>
 #include <ServiceSettings.h>
+#else
+#include <RemoteViz/Rendering/Service.h>
+#include <RemoteViz/Rendering/ServiceSettings.h>
+#endif
 
 void RenderService::start()
 {

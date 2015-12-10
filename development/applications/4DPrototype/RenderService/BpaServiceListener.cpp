@@ -12,8 +12,12 @@
 #include "BpaRenderAreaListener.h"
 #include "RenderService.h"
 
-//#include <RemoteViz/Rendering/RenderArea.h>
+#ifdef USE_H264
 #include <RenderArea.h>
+#else
+#include <RemoteViz/Rendering/RenderArea.h>
+#endif
+
 #include <Inventor/touch/SoTouchManager.h>
 
 #include <iostream>
