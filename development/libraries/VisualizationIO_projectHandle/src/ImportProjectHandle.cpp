@@ -66,9 +66,6 @@ void ImportProjectHandle::addSnapShots(boost::shared_ptr<Interface::ProjectHandl
 
         // Add to project
         project->addSnapShot(snapShotIO);
-
-        // TEMP!!!
-        // if (i == 1) break;
     }
 }
 
