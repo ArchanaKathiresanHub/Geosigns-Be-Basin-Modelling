@@ -264,7 +264,7 @@ namespace migration
                                      Genex6::LinearGridInterpolator& permeability,
                                      Genex6::LinearGridInterpolator& vre);
 
-      // loaded or computed grid maps
+      // Formation property pointer using the derived properties library
       const Interface::GridMap * m_gridMaps[NUMBEROFPROPERTYINDICES];
 
       GridMap * m_expulsionGridMaps[NUM_COMPONENTS];

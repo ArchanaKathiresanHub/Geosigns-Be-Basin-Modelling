@@ -945,10 +945,8 @@ bool ProjectHandle::loadProperties( void )
    m_properties.push_back( getFactory()->produceProperty( this, 0, "ALCStepMohoDepth",               "ALCStepMohoDepth",               "m",     FORMATIONPROPERTY, DataModel::SURFACE_2D_PROPERTY ));
 
    m_properties.push_back( getFactory()->produceProperty( this, 0, "AllochthonousLithology",         "AllochthonousLithology",         "",      FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty(this, 0, "CapillaryPressureGas100", "CapillaryPressureGas100", "Pa", FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY ));
-   m_properties.push_back(getFactory()->produceProperty(this, 0, "CapillaryPressureGas0", "CapillaryPressureGas0", "Pa", FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY ));
-   m_properties.push_back(getFactory()->produceProperty(this, 0, "CapillaryPressureOil0", "CapillaryPressureOil0", "Pa", FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY ));
-   m_properties.push_back(getFactory()->produceProperty(this, 0, "CapillaryPressureOil100", "CapillaryPressureOil100", "Pa", FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( this, 0, "CapillaryEntryPressureGas",      "CapillaryEntryPressureGas",      "Pa",    FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( this, 0, "CapillaryEntryPressureOil",      "CapillaryEntryPressureOil",      "Pa",    FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( this, 0, "ChemicalCompaction",             "ChemicalCompaction",             "frac",  FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY));
    m_properties.push_back( getFactory()->produceProperty( this, 0, "BulkDensity",                    "BulkDensityVec2",                "kg/m3", FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( this, 0, "Depth",                          "Depth",                          "m",     FORMATIONPROPERTY, DataModel::CONTINUOUS_3D_PROPERTY ));
@@ -957,14 +955,14 @@ bool ProjectHandle::loadProperties( void )
    m_properties.push_back( getFactory()->produceProperty( this, 0, "ErosionFactor",                  "ErosionFactor",                  "",      FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( this, 0, "FaultElements",                  "FaultElements",                  "",      FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( this, 0, "FCTCorrection",                  "FCTCorrection",                  "%",     FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY ));
-   m_properties.push_back(getFactory()->produceProperty(this, 0, "FlowDirectionIJK", "FlowDirectionIJK", "", FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY));
-   m_properties.push_back(getFactory()->produceProperty(this, 0, "FlowDirectionI", "FlowDirectionI", "", FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY));
-   m_properties.push_back(getFactory()->produceProperty(this, 0, "FlowDirectionJ", "FlowDirectionJ", "", FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY));
-   m_properties.push_back(getFactory()->produceProperty(this, 0, "FlowDirectionK", "FlowDirectionK", "", FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY));
-   m_properties.push_back(getFactory()->produceProperty(this, 0, "FlowDirectionX", "FlowDirectionX", "m", FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY));
-   m_properties.push_back(getFactory()->produceProperty(this, 0, "FlowDirectionY", "FlowDirectionY", "m", FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY));
-   m_properties.push_back(getFactory()->produceProperty(this, 0, "FlowDirectionZ", "FlowDirectionZ", "m", FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY));
-   m_properties.push_back(getFactory()->produceProperty(this, 0, "FluidVelocity", "FluidVelocity", "mm/y", FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY));
+   m_properties.push_back( getFactory()->produceProperty( this, 0, "FlowDirectionIJK",               "FlowDirectionIJK",               "",      FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY));
+   m_properties.push_back( getFactory()->produceProperty( this, 0, "FlowDirectionI",                 "FlowDirectionI",                 "",      FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY));
+   m_properties.push_back( getFactory()->produceProperty( this, 0, "FlowDirectionJ",                 "FlowDirectionJ",                 "",      FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY));
+   m_properties.push_back( getFactory()->produceProperty( this, 0, "FlowDirectionK",                 "FlowDirectionK",                 "",      FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY));
+   m_properties.push_back( getFactory()->produceProperty( this, 0, "FlowDirectionX",                 "FlowDirectionX",                 "m",     FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY));
+   m_properties.push_back( getFactory()->produceProperty( this, 0, "FlowDirectionY",                 "FlowDirectionY",                 "m",     FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY));
+   m_properties.push_back( getFactory()->produceProperty( this, 0, "FlowDirectionZ",                 "FlowDirectionZ",                 "m",     FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY));
+   m_properties.push_back( getFactory()->produceProperty( this, 0, "FluidVelocity",                  "FluidVelocity",                  "mm/y",  FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY));
    m_properties.push_back( getFactory()->produceProperty( this, 0, "FluidVelocityX",                 "FluidVelocityX",                 "mm/y",  FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( this, 0, "FluidVelocityY",                 "FluidVelocityY",                 "mm/y",  FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( this, 0, "FluidVelocityZ",                 "FluidVelocityZ",                 "mm/y",  FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY ));

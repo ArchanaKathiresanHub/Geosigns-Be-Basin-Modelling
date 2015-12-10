@@ -4,7 +4,7 @@
 // Developed under license for Shell by PDS BV.
 //
 // Confidential and proprietary source code of Shell.
-// Do not distribute without written permission frCOom Shell.
+// Do not distribute without written permission from Shell.
 //
 
 #include <iostream>
@@ -114,13 +114,6 @@ namespace migration {
 
    bool ProxyFormationNode::computeTargetFormationNode (void)
    {
-#if 0
-      if (!isCached ((FormationNodeCacheBit) (TARGETFORMATIONNODECACHE)))
-      {
-         cerr << GetRankString () << ": " << getFormation ()->getName () << " (" <<
-            getI () << ", " << getJ () << ", " << getK () << ", proxy) -> computeTargetFormationNode ()" << endl;
-      }
-#endif
       return false;
    }
 
@@ -246,13 +239,6 @@ namespace migration {
 
    FormationNode * ProxyFormationNode::getTargetFormationNode (void)
    {
-#ifdef DEBUG
-      if (isCached ((FormationNodeCacheBit) (TARGETFORMATIONNODECACHE)))
-      {
-         assert (m_targetFormationNode != 0);
-      }
-#endif
-
       if (!isCached ((FormationNodeCacheBit) (TARGETFORMATIONNODECACHE)))
       {
          FormationNodeValueRequest valueRequest;
@@ -304,7 +290,6 @@ namespace migration {
       RequestHandling::SendFormationNodeThreeVectorRequest (threeVectorRequest, threeVectorResponse);
 
       return threeVectorResponse.values;
-      //  setCached ((FormationNodeCacheBit) (ANALOGFLOWDIRECTIONCACHE));
    }
 
    // New getFiniteElementValue 
@@ -322,8 +307,6 @@ namespace migration {
 
       RequestHandling::SendFormationNodeThreeVectorValueRequest (threeVectorValueRequest, threeVectorValueResponse);
 
-      //m_analogFlowDirection = threeVectorValueResponse.values;
-      //setCached ((FormationNodeCacheBit) (ANALOGFLOWDIRECTIONCACHE));
       return threeVectorValueResponse.value;
    }
 
@@ -342,11 +325,6 @@ namespace migration {
 #ifdef REGISTERPROXIES
    void ProxyFormationNode::registerWithLocal (void)
    {
-
-#if 0
-      cerr << GetRankString () << ": " << "(" << getI () << ", " << getJ ()
-           << ")->registerWithLocal (" << GetRank (getI (), getJ ()) << ")" << endl;
-#endif
       FormationNodeValueRequest valueRequest;
       FormationNodeValueRequest valueResponse;
 
@@ -377,19 +355,20 @@ namespace migration {
 
    /// Constructor
    LocalFormationNode::LocalFormationNode (unsigned int i, unsigned int j, int k, Formation * formation) :
-      FormationNode (i, j, k, formation), m_compositionToBeMigrated (0), m_topFormationNode (0),
-#ifdef USEBOTTOMFORMATIONNODE
-      m_bottomFormationNode (0),
-#endif
-      m_targetFormationNode (0), m_selectedDirectionIndex (-1),
-      m_depth (Interface::DefaultUndefinedMapValue), m_horizontalPermeability (-1), m_verticalPermeability (-1), m_porosity (-1), m_adjacentNodeIndex (0),
+      FormationNode (i, j, k, formation), m_compositionToBeMigrated (0), m_topFormationNode (0), m_targetFormationNode (0), m_selectedDirectionIndex (-1),
+      m_depth (Interface::DefaultUndefinedMapValue), m_horizontalPermeability (-1), m_porosity (-1), m_pressure (-1), m_temperature (-1), m_adjacentNodeIndex (0),
       m_entered (false), m_tried (0), m_hasNoThickness (false), m_cosines (0), m_isCrestOil (true), m_isCrestGas (true), m_isEndOfPath (false)
-#ifdef USEDISCRETIZEDFLOWDIRECTIONS
-      , m_discretizedFlowDirections (0)
-#endif
    {
-      clearProperties ();
-      clearReservoirProperties ();
+      m_verticalPermeability[0] = -1.0;
+      m_verticalPermeability[1] = -1.0;
+
+      m_capillaryEntryPressureGas[0] = -1.0;
+      m_capillaryEntryPressureGas[1] = -1.0;
+
+      m_capillaryEntryPressureOil[0] = -1.0;
+      m_capillaryEntryPressureOil[1] = -1.0;
+      //clearProperties ();
+      //clearReservoirProperties ();
    }
 
    /// Destructor
@@ -406,8 +385,9 @@ namespace migration {
    {
       m_isReservoirGas = false;
       m_isReservoirOil = false;
-      m_isCrestGas = true;
-      m_isCrestOil = true;
+      m_isCrestGas     = true;
+      m_isCrestOil     = true;
+      m_isEndOfPath    = false;
 
       m_height_oil = m_height_gas = 0;
    }
@@ -415,28 +395,29 @@ namespace migration {
    void LocalFormationNode::clearProperties (void)
    {
       FormationNode::clearProperties ();
-      m_horizontalPermeability = -1;
-      m_verticalPermeability = -1;
+      m_horizontalPermeability = -1.0;
+
+      m_verticalPermeability[0] = -1.0;
+      m_verticalPermeability[1] = -1.0;
+
       m_depth = Interface::DefaultUndefinedMapValue;
-      m_porosity = -1;
+      m_porosity = -1.0;
+      m_pressure = -1.0;
+      m_temperature = -1.0;
+
+      m_capillaryEntryPressureGas[0] = -1.0;
+      m_capillaryEntryPressureOil[0] = -1.0;
+      m_capillaryEntryPressureGas[1] = -1.0;
+      m_capillaryEntryPressureOil[1] = -1.0;
+
       m_targetFormationNode = 0;
       m_selectedDirectionIndex = -1;
       m_adjacentNodeIndex = 0;
       m_entered = false;
       m_tried = 0;
       m_hasNoThickness = false;
-#ifdef USEDISCRETIZEDFLOWDIRECTIONS
-      m_discretizedFlowDirection (1) = Interface::DefaultUndefinedMapValue;
-      m_discretizedFlowDirection (2) = Interface::DefaultUndefinedMapValue;
-      m_discretizedFlowDirection (3) = Interface::DefaultUndefinedMapValue;
-#endif
 
       if (m_cosines) m_cosines->clear ();
-
-#ifdef USEDISCRETIZEDFLOWDIRECTIONS
-      delete m_discretizedFlowDirections;
-      m_discretizedFlowDirections = 0;
-#endif
 
       clearReservoirProperties ();
    }
@@ -467,7 +448,7 @@ namespace migration {
 
 #define USECORNERBASEDVALUES
 #define USEMINIMUMVALUES
-
+      /*
 #ifdef USECORNERBASEDVALUES
       // we do not want to lose any blocking permeability or porosity values through interpolation.
       m_horizontalPermeability = m_formation->getPropertyValue (HORIZONTALPERMEABILITYPROPERTY, i, j, k);
@@ -485,22 +466,13 @@ namespace migration {
       m_porosity               = getFiniteElementValue (0.0, 0.0, 0.0, POROSITYPROPERTY);
 #endif
 #endif
-
+      */
       const GeoPhysics::FluidType * fluid = (GeoPhysics::FluidType *) (m_formation->getFluidType ());
 
-      double tempValue = m_formation->getTemperature (i, j, k);
-      double pressValue = m_formation->getPressure (i, j, k);
+      //double tempValue = m_formation->getTemperature (i, j, k);
+      //double pressValue = m_formation->getPressure (i, j, k);
 
-      m_waterDensity = fluid->density (tempValue, pressValue);
-
-#if 0
-      if (m_hasNoThickness)
-      {
-         m_horizontalPermeability = 1;
-         m_verticalPermeability = 1000;
-         m_porosity = 100;
-      }
-#endif
+      m_waterDensity = fluid->density (m_temperature, m_pressure);
    }
 
    double LocalFormationNode::performVerticalMigration (void)
@@ -540,7 +512,6 @@ namespace migration {
 
    void LocalFormationNode::getValue (FormationNodeValueRequest & request, FormationNodeValueRequest & response)
    {
-      // cerr << GetRankString () << ": Handling Request (" << getI () << ", " << getJ () << ", " << getK () << ", " << valueSpec << ")" << endl;
       response.valueSpec = request.valueSpec;
 
       FormationNode * targetFormationNode;
@@ -659,7 +630,6 @@ namespace migration {
          cerr << "ERROR: illegal request: " << request.valueSpec << endl;
          assert (false);
       }
-      // cerr << GetRankString () << ": Sending Response (" << response.i << ", " << response.j << ", " << response.k << ", " << response.value << ")" << endl;
    }
 
    void LocalFormationNode::getThreeVectorValue (FormationNodeThreeVectorValueRequest & request, FormationNodeThreeVectorValueRequest & response)
@@ -677,7 +647,6 @@ namespace migration {
 
    void LocalFormationNode::getThreeVector (FormationNodeThreeVectorRequest & request, FormationNodeThreeVectorRequest & response)
    {
-      // cerr << GetRankString () << ": Handling Request (" << getI () << ", " << getJ () << ", " << getK () << ", " << valueSpec << ")" << endl;
       response.valueSpec = request.valueSpec;
 
       switch (request.valueSpec)
@@ -706,15 +675,11 @@ namespace migration {
          cerr << "ERROR: illegal request: " << request.valueSpec << endl;
          assert (false);
       }
-      // cerr << GetRankString () << ": Sending Response (" << response.i << ", " << response.j << ", " << response.k << ", " << response.value << ")" << endl;
    }
 
 #ifdef REGISTERPROXIES
    void LocalFormationNode::addProxy (int rank)
    {
-#if 0
-      cerr << GetRankString () << ": " << this << "->addProxy (" << rank << ", " << m_proxies.size () << ")" << endl;
-#endif
       m_proxies.push_back (rank);
    }
 
@@ -783,39 +748,26 @@ namespace migration {
             return true;
          }
 
-         double capillaryPressureGasReservoir;
-         double capillaryPressureOilReservoir;
-         double capillaryPressureGasSeal;
-         double capillaryPressureOilSeal;
-
-         // calculate capillary pressure and density for current node
-         // calculate capillary pressure for neighbour node across boundary
-         if (computeCapillaryPressure (HIGH, capillaryPressureGasReservoir, capillaryPressureOilReservoir) &&
-             topNode->computeCapillaryPressure (HIGH, capillaryPressureGasSeal, capillaryPressureOilSeal))
-         {
-            int i = getI ();
-            int j = getJ ();
-            int k = getK ();
-
             // correction factor for capillary pressure in the reservoir: assume 30% water saturation
-            double LambdaPC = m_formation->getCompoundLithology (i, j)->LambdaPc ();
-            double resCorr = computeBrooksCoreyCorrection (0.3, LambdaPC);
+            double lambdaPC = m_formation->getCompoundLithology (getI (), getJ ())->LambdaPc ();
+            // If the project file does not contain values for Lambda_Pc assign an 'avarage' value of 1.
+            if (lambdaPC == Interface::DefaultUndefinedMapValue or lambdaPC == Interface::DefaultUndefinedScalarValue)
+               lambdaPC = 1.0;
 
-            double gasDensity = m_formation->getGasDensity (i, j, k);
-            double oilDensity = m_formation->getOilDensity (i, j, k);
+            double resCorr = computeBrooksCoreyCorrection (0.3, lambdaPC);
 
             // calculate overpressure difference
             double dOverPressure;
             if (pressureRun)
-               dOverPressure = topNode->getOverPressure () - getOverPressure ();
+               dOverPressure = topNode->m_overPressure - m_overPressure;
             else
                dOverPressure = 0.0;
 
             // calculate actual capillary pressure sealing for gas
-            cp_gas = capillaryPressureGasSeal - capillaryPressureGasReservoir * resCorr;
+            cp_gas = topNode->m_capillaryEntryPressureGas[0] - m_capillaryEntryPressureGas[0] * resCorr;
 
             // calculate maximum height of the hydrocarbons column for gas
-            m_height_gas = (cp_gas + dOverPressure) / ((getWaterDensity () - gasDensity) * CBMGenerics::Gravity);
+            m_height_gas = (cp_gas + dOverPressure) / ((m_waterDensity - m_gasDensity) * CBMGenerics::Gravity);
 
             // if actual height is greater than the user-defined minimum - raise potential reservoir flag
             if (m_height_gas > minGasColumnHeight)
@@ -824,17 +776,18 @@ namespace migration {
             }
 
             // calculate actual capillary pressure sealing for oil
-            cp_oil = capillaryPressureOilSeal - capillaryPressureOilReservoir * resCorr;
+            cp_oil = topNode->m_capillaryEntryPressureOil[0] - m_capillaryEntryPressureOil[0] * resCorr;
 
             // calculate maximum height of the hydrocarbons column for oil
-            m_height_oil = (cp_oil + dOverPressure) / ((getWaterDensity () - oilDensity) * CBMGenerics::Gravity);
+            m_height_oil = (cp_oil + dOverPressure) / ((m_waterDensity - m_oilDensity) * CBMGenerics::Gravity);
 
             // if actual height is greater than the user-defined minimum - raise potential reservoir flag
             if (m_height_oil > minOilColumnHeight)
             {
                oilFlag = true;
             }
-         }
+      
+            //}
       }
 
       setReservoirGas (gasFlag);
@@ -966,7 +919,7 @@ namespace migration {
    // watersaturation == LOW: compute at 0 percent water saturation (top of the reservoir formation)
    // watersaturation == HIGH: compute at 100 percent water saturation (bottom of the seal formation)
    //
-   bool LocalFormationNode::computeCapillaryPressure (WaterSaturation waterSaturation, double & pressureGas, double & pressureOil)
+   /*bool LocalFormationNode::computeCapillaryPressure (WaterSaturation waterSaturation, double & pressureGas, double & pressureOil)
    {
       if (hasNoThickness ())
       {
@@ -989,7 +942,7 @@ namespace migration {
       pressureGas = m_formation->getCapillaryPressureGas100 (i, j, k);
 
       return (pressureOil != Interface::DefaultUndefinedMapValue && pressureGas != Interface::DefaultUndefinedMapValue);
-   }
+      }*/
 
    double LocalFormationNode::computeBrooksCoreyCorrection (double Sw, double lambda) const
    {
@@ -1023,7 +976,6 @@ namespace migration {
       return;
    }
 
-
    /// Compute the permeability anisotropy based flow direction for this node
    /// In the given coordinate system down is positive so gravity force is positive.
    /// All other forces follow straight from the Darcy equation
@@ -1051,9 +1003,9 @@ namespace migration {
       ThreeVector capPressureGrad;
 
 #ifdef GAS_DENSITY_FLOW_DIRECTION
-      capPressureGrad = getFiniteElementGrad (CAPILLARYPRESSUREGAS100PROPERTY);
+      capPressureGrad = getFiniteElementGrad (CAPILLARYENTRYPRESSUREGASPROPERTY);
 #else
-      capPressureGrad = getFiniteElementGrad (CAPILLARYPRESSUREOIL100PROPERTY);
+      capPressureGrad = getFiniteElementGrad (CAPILLARYENTRYPRESSUREOILPROPERTY);
 #endif
 
       if (!performHDynamicAndCapillary () || capPressureGrad (1) == Interface::DefaultUndefinedMapValue)
@@ -1073,9 +1025,9 @@ namespace migration {
          pressureGrad += capPressureGrad * CBMGenerics::Pa2MPa;
 
 #ifdef GAS_DENSITY_FLOW_DIRECTION
-         double hc_density = m_formation->getGasDensity (i, j, k);
+         double hc_density = m_gasDensity;
 #else
-         double hc_density = m_formation->getOilDensity (i, j, k);
+         double hc_density = m_oilDensity;
 #endif
          double gravity = hc_density * CBMGenerics::Gravity * CBMGenerics::Pa2MPa;
 
@@ -1113,7 +1065,9 @@ namespace migration {
    }
 
    void LocalFormationNode::computeNextAdjacentNode (void)
-   {
+   {      
+      FormationNode * adjacentNode = getAdjacentFormationNode (m_selectedDirectionIndex);
+
       if (hasThickness ())
       {
          ++m_adjacentNodeIndex;
@@ -1146,10 +1100,6 @@ namespace migration {
       {
          // it should just bypass this node upward as it either has no thickness or is a wasting node.
          m_selectedDirectionIndex = 0;
-#ifdef USEDISCRETIZEDFLOWDIRECTIONS
-         m_discretizedFlowDirection.zero ();
-         m_discretizedFlowDirection (3) = -1;
-#endif
          return;
       }
 
@@ -1159,17 +1109,11 @@ namespace migration {
       if ((unsigned int) m_adjacentNodeIndex < (*m_cosines).size ())
       {
          m_selectedDirectionIndex = (*m_cosines)[m_adjacentNodeIndex].first;
-#ifdef USEDISCRETIZEDFLOWDIRECTIONS
-         m_discretizedFlowDirection = (*m_discretizedFlowDirections)[m_selectedDirectionIndex];
-#endif
       }
       else
       {
          // No useful discretized flow direction found, the flow path stops here.
          m_selectedDirectionIndex = -1;
-#ifdef USEDISCRETIZEDFLOWDIRECTIONS
-         m_discretizedFlowDirection.zero ();
-#endif
       }
    }
 
@@ -1199,9 +1143,8 @@ namespace migration {
       double dySquare = dy * dy;
 
       if (!m_cosines) m_cosines = new vector < IntDoublePair >;
-#ifdef USEDISCRETIZEDFLOWDIRECTIONS
-      m_discretizedFlowDirections = new vector < ThreeVector > (NumberOfNeighbourOffsetsUsed);
-#endif
+
+      ThreeVector analogFDnode = getAnalogFlowDirection ();
 
       for (int di = diStart; di < NumberOfNeighbourOffsetsUsed; ++di)
       {
@@ -1245,6 +1188,10 @@ namespace migration {
          if (IsValid (neighbourNode))
          {
             neighbourNodeDepth = neighbourNode->getDepth ();
+
+            // Avoid loops in the path by going only upwards in depth
+            if (neighbourNodeDepth >= m_depth)
+               continue;
          }
          else
          {
@@ -1340,9 +1287,6 @@ namespace migration {
          double cosine = innerProduct (compoundAnalogFlowDirection, normalizedDiscretizedFlowDirection);
 
          (*m_cosines).push_back (IntDoublePair (di, cosine));
-#ifdef USEDISCRETIZEDFLOWDIRECTIONS
-         (*m_discretizedFlowDirections)[di] = discretizedFlowDirection;
-#endif
       }
 
       // the larger the cosine, the smaller the angle between the compund analog flow direction and the discretized flow direction
@@ -1352,7 +1296,12 @@ namespace migration {
 
    bool LocalFormationNode::computeTargetFormationNode (void)
    {
-      if (!IsValid (this)) return true;
+      if (!IsValid (this))
+      {
+         return true;
+      }
+
+      static int MaxTries = -1;
 
       if (m_isEndOfPath)
       {
@@ -1360,32 +1309,25 @@ namespace migration {
          return true;
       }
 
-      static int MaxTries = -1;
-
       if (hasNoThickness ())       // we are not interested
          return true;
 
       if (m_targetFormationNode) // already found
          return true;
 
-      // we will try a number of times with the current adjacent node depending on the number of cpu cores in use.
       if (MaxTries < 0)
          MaxTries = Max (2, NumProcessors () + 8);
 
       if (m_entered || ++m_tried > MaxTries)
-      {
-         // we have probably encountered a loop in the path, let's try to break it.
-         m_tried = 0;
-         computeNextAdjacentNode (); // selects next adjacent formation node; changes output of getAdjacentFormationNode ()
-         return false;
-      }
+       {
+          m_tried = 0;
+          computeNextAdjacentNode (); // selects next adjacent formation node; changes output of getAdjacentFormationNode ()
+          return false;
+       }
 
       if (hasNowhereToGo ())
       {
          // no useful target node
-#ifdef USEDISCRETIZEDFLOWDIRECTIONS
-         m_discretizedFlowDirection.zero ();
-#endif
          m_targetFormationNode = this;
       }
       else
@@ -1408,10 +1350,6 @@ namespace migration {
    {
       if (directionIndex < 0) directionIndex = m_selectedDirectionIndex;
       if (directionIndex < 0) return 0;
-
-      ///// TESTING-DEBUGGING
-      //if ( directionIndex != 0 and getFormation(-> )
-      //   std::cout << "Adjacent node not vertical ( = " << directionIndex << ") or same node for (i,j) = (" << this->m_iGlobal << "," << this->m_jGlobal << ")" << std::endl; 
 
       // this may still return 0!!!
       return m_formation->getFormationNode (getI () + NeighbourOffsets3D[directionIndex][0],
@@ -1502,6 +1440,26 @@ namespace migration {
          return Interface::DefaultUndefinedMapValue;
    }
 
+   double LocalFormationNode::getPressure ()
+   {
+      if (hasThickness ())
+         return m_pressure;
+      else if (m_topFormationNode)
+         return m_topFormationNode->getPressure ();
+      else
+         return Interface::DefaultUndefinedMapValue;
+   }
+
+   double LocalFormationNode::getTemperature ()
+   {
+      if (hasThickness ())
+         return m_temperature;
+      else if (m_topFormationNode)
+         return m_topFormationNode->getTemperature ();
+      else
+         return Interface::DefaultUndefinedMapValue;
+   }
+
    double LocalFormationNode::getHorizontalPermeability ()
    {
       if (hasThickness ())
@@ -1512,10 +1470,12 @@ namespace migration {
          return Interface::DefaultUndefinedMapValue;
    }
 
-   double LocalFormationNode::getVerticalPermeability ()
+   double LocalFormationNode::getVerticalPermeability (bool nodeOnTop)
    {
-      if (hasThickness ())
-         return m_verticalPermeability;
+      if (hasThickness () and !nodeOnTop)
+         return m_verticalPermeability[0];
+      else if (nodeOnTop)
+         return m_verticalPermeability[1];
       else if (m_topFormationNode)
          return m_topFormationNode->getVerticalPermeability ();
       else
@@ -1552,6 +1512,51 @@ namespace migration {
          return Interface::DefaultUndefinedMapValue;
    }
 
+   double LocalFormationNode::getGasDensity ()
+   {
+      if (hasThickness ())
+         return m_gasDensity;
+      else if (m_topFormationNode)
+         return m_topFormationNode->getGasDensity ();
+      else
+         return Interface::DefaultUndefinedMapValue;
+   }
+
+   double LocalFormationNode::getOilDensity ()
+   {
+      if (hasThickness ())
+         return m_oilDensity;
+      else if (m_topFormationNode)
+         return m_topFormationNode->getOilDensity ();
+      else
+         return Interface::DefaultUndefinedMapValue;
+   }
+
+   double LocalFormationNode::getCapillaryEntryPressureGas (bool nodeOnTop)
+   {
+      if (hasThickness () and !nodeOnTop)
+         return m_capillaryEntryPressureGas[0];
+      else if (nodeOnTop)
+         return m_capillaryEntryPressureGas[1];
+      else if (m_topFormationNode)
+         return m_topFormationNode->getCapillaryEntryPressureGas ();
+      else
+         return Interface::DefaultUndefinedMapValue;
+   }
+
+   double LocalFormationNode::getCapillaryEntryPressureOil (bool nodeOnTop)
+   {
+      if (hasThickness () and !nodeOnTop)
+         return m_capillaryEntryPressureOil[0];
+      else if (nodeOnTop)
+         return m_capillaryEntryPressureOil[1];
+      else if (m_topFormationNode)
+         return m_topFormationNode->getCapillaryEntryPressureOil ();
+      else
+         return Interface::DefaultUndefinedMapValue;
+   }
+
+
 #ifdef TOBETESTED
    double LocalFormationNode::getValueAtOffset (int offset)
    {
@@ -1579,9 +1584,89 @@ namespace migration {
       m_isReservoirOil = flag;
    }
 
+   void LocalFormationNode::setDepth (double depth)
+   {
+      m_depth = depth;
+   }
+
+   void LocalFormationNode::setPressure (double pressure)
+   {
+      m_pressure = pressure;
+   }
+
+   void LocalFormationNode::setTemperature (double temperature)
+   {
+      m_temperature = temperature;
+   }
+
+   void LocalFormationNode::setPorosity (double porosity)
+   {
+      m_porosity = porosity;
+   }
+
+   void LocalFormationNode::setVerticalPermeability (double verticalPermeability, bool nodeOnTop)
+   {
+      // We want to set the permeability of 'this' node
+      if (!nodeOnTop)
+      {
+         m_verticalPermeability[0] = verticalPermeability;
+      }
+      // We want to set the permeability of the node right above,
+      // at the interface with the formation above.
+      else
+      {
+         m_verticalPermeability[1] = verticalPermeability;
+      }
+   }
+
+   void LocalFormationNode::setHorizontalPermeability (double horizontalPermeability)
+   {
+      m_horizontalPermeability = horizontalPermeability;
+   }
+
    void LocalFormationNode::setOverPressure (double overPressure)
    {
       m_overPressure = overPressure;
+   }
+
+   void LocalFormationNode::setGasDensity (double gasDensity)
+   {
+      m_gasDensity = gasDensity;
+   }
+
+   void LocalFormationNode::setOilDensity (double oilDensity)
+   {
+      m_oilDensity = oilDensity;
+   }
+
+   void LocalFormationNode::setCapillaryEntryPressureGas (double capillaryEntryPressureGas, bool nodeOnTop)
+   {
+      // We want to set the Capillary Entry Pressure of 'this' node
+      if (!nodeOnTop)
+      {
+         m_capillaryEntryPressureGas[0] = capillaryEntryPressureGas;
+      }
+      // We want to set the Capillary Entry Pressure of the node right above,
+      // at the interface with the formation above.
+      else
+      {
+         m_capillaryEntryPressureGas[1] = capillaryEntryPressureGas;
+      }
+   }
+
+   void LocalFormationNode::setCapillaryEntryPressureOil (double capillaryEntryPressureOil, bool nodeOnTop)
+   {
+      // We want to set the Capillary Entry Pressure of 'this' node
+      if (!nodeOnTop)
+      {
+         m_capillaryEntryPressureOil[0] = capillaryEntryPressureOil;
+      }
+      // We want to set the Capillary Entry Pressure of the node right above,
+      // at the interface with the formation above.
+      else
+      {
+         m_capillaryEntryPressureOil[1] = capillaryEntryPressureOil;
+      }
    }
 
    bool LocalFormationNode::getReservoirGas (void)
@@ -1727,14 +1812,6 @@ namespace migration {
 
       return getFiniteElement ().interpolateGrad (valueVector);
    }
-
-#ifdef USEDISCRETIZEDFLOWDIRECTIONS
-   double LocalFormationNode::getDiscretizedFlowDirection (int direction)
-   {
-      assert (Abs (m_discretizedFlowDirection (direction + 1)) < 0.1);
-      return m_discretizedFlowDirection (direction + 1);
-   }
-#endif
 
 #ifdef USEPROPERTYVALUES
    void LocalFormationNode::setPropertyValue (int index, double value)
