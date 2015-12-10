@@ -64,8 +64,8 @@ namespace VizIO
 
     virtual MbVec3d getCoord(size_t i, size_t j, size_t k) const
     {
-      double x = m_minX + i * m_deltaX;
-      double y = m_minY + j * m_deltaY;
+      double x = /*m_minX + */ i * m_deltaX;
+      double y = /*m_minY + */ j * m_deltaY;
       double z = -m_volume->getValue(i, j, k);
 
       return MbVec3d(x, y, z);
@@ -97,15 +97,16 @@ namespace VizIO
     }
   };
 
+  template<class T>
   class VolumeTopology : public MiTopologyIjk
   {
-    const VolumeGeometry& m_geometry;
+    const T& m_geometry;
 
     size_t m_timestamp;
 
   public:
 
-    VolumeTopology(const VolumeGeometry& geometry)
+    VolumeTopology(const T& geometry)
       : m_geometry(geometry)
       , m_timestamp(MxTimeStamp::getTimeStamp())
     {
@@ -147,16 +148,18 @@ namespace VizIO
     }
   };
 
+  typedef VolumeTopology<VolumeGeometry> FormationTopology;
+
   class VolumeMesh : public MiVolumeMeshCurvilinear
   {
-    std::shared_ptr<VolumeGeometry> m_geometry;
-    std::shared_ptr<VolumeTopology> m_topology;
+    std::shared_ptr<MiGeometryIjk> m_geometry;
+    std::shared_ptr<MiTopologyIjk> m_topology;
 
   public:
 
     VolumeMesh(
-      std::shared_ptr<VolumeGeometry> geometry,
-      std::shared_ptr<VolumeTopology> topology)
+      std::shared_ptr<MiGeometryIjk> geometry,
+      std::shared_ptr<MiTopologyIjk> topology)
       : m_geometry(geometry)
       , m_topology(topology)
     {
@@ -173,6 +176,79 @@ namespace VizIO
       return *m_topology;
     }
   };
+
+  class ReservoirGeometry : public MiGeometryIjk
+  {
+    boost::shared_ptr<CauldronIO::Map> m_depthMaps[2];
+
+    double m_minX;
+    double m_minY;
+    double m_deltaX;
+    double m_deltaY;
+
+    size_t m_numI;
+    size_t m_numJ;
+
+    float  m_undefined;
+    
+    size_t m_timestamp;
+
+  public:
+
+    ReservoirGeometry(
+      boost::shared_ptr<CauldronIO::Map> topMap,
+      boost::shared_ptr<CauldronIO::Map> bottomMap)
+      : m_timestamp(MxTimeStamp::getTimeStamp())
+    {
+      m_depthMaps[0] = topMap;
+      m_depthMaps[1] = bottomMap;
+
+      m_minX = topMap->getMinI();
+      m_minY = topMap->getMinJ();
+      m_deltaX = topMap->getDeltaI();
+      m_deltaY = topMap->getDeltaJ();
+
+      m_numI = topMap->getNumI();
+      m_numJ = topMap->getNumJ();
+
+      m_undefined = topMap->getUndefinedValue();
+    }
+
+    virtual MbVec3d getCoord(size_t i, size_t j, size_t k) const
+    {
+      return MbVec3d(
+        i * m_deltaX,
+        j * m_deltaY,
+        -m_depthMaps[k]->getValue(i, j));
+    }
+
+    bool isUndefined(size_t i, size_t j, size_t k) const
+    {
+      return m_depthMaps[k]->getValue(i, j) == m_undefined;
+    }
+
+    size_t numI() const
+    {
+      return m_numI;
+    }
+
+    size_t numJ() const
+    {
+      return m_numJ;
+    }
+
+    size_t numK() const
+    {
+      return 2;
+    }
+
+    virtual size_t getTimeStamp() const
+    {
+      return m_timestamp;
+    }
+  };
+
+  typedef VolumeTopology<ReservoirGeometry> ReservoirTopology;
 
   class SurfaceGeometry : public MiGeometryIj
   {
@@ -203,8 +279,8 @@ namespace VizIO
 
     virtual MbVec3d getCoord(size_t i, size_t j) const
     {
-      double x = m_minX + i * m_deltaX;
-      double y = m_minY + j * m_deltaY;
+      double x = /*m_minX + */i * m_deltaX;
+      double y = /*m_minY + */j * m_deltaY;
       double z = -m_map->getValue(i, j);
 
       return MbVec3d(x, y, z);
@@ -462,6 +538,7 @@ void VisualizationIOProject::init()
   std::map<std::string, boost::shared_ptr<const CauldronIO::Formation> > formationMap;
   std::set<std::string> surfaceNames;
   std::set<std::string> propertyNames;
+  std::set<std::string> reservoirNames;
 
   m_snapshots = m_project->getSnapShots();
 
@@ -481,11 +558,21 @@ void VisualizationIOProject::init()
   int i = 0;
   for (auto surface : surfaceList)
   {
-    auto formation = surface->getFormation();
-    if (formation)
-      formationMap[formation->getName()] = formation;
-    if (surface->getDepthSurface())
-      surfaceNames.insert(surface->getName());
+    auto type = surface->getProperty()->getType();
+    if (type == CauldronIO::ReservoirProperty)
+    {
+      reservoirNames.insert(surface->getReservoirName());
+    }
+    else
+    {
+      auto formation = surface->getFormation();
+      if (formation)
+        formationMap[formation->getName()] = formation;
+
+      if (surface->getDepthSurface())
+        surfaceNames.insert(surface->getName());
+    }
+
     propertyNames.insert(surface->getProperty()->getName());
   }
 
@@ -518,6 +605,12 @@ void VisualizationIOProject::init()
     m_projectInfo.surfaces.push_back(surface);
   }
 
+  for (auto name : reservoirNames)
+  {
+    Reservoir reservoir = { name };
+    m_projectInfo.reservoirs.push_back(reservoir);
+  }
+
   for (auto name : propertyNames)
   {
     Property prop = { name, "???" };
@@ -526,7 +619,17 @@ void VisualizationIOProject::init()
 
   m_projectInfo.snapshotCount = m_snapshots.size();
 
-  memset(&m_projectInfo.dimensions, 0, sizeof(Project::Dimensions));
+  auto volume = m_snapshots[0]->getVolumeList()[0];
+  m_projectInfo.dimensions.minX = volume->getMinI();
+  m_projectInfo.dimensions.minY = volume->getMinJ();
+  m_projectInfo.dimensions.deltaX = volume->getDeltaI();
+  m_projectInfo.dimensions.deltaY = volume->getDeltaJ();
+  m_projectInfo.dimensions.deltaXHiRes = 0.0; // TODO: fix this
+  m_projectInfo.dimensions.deltaYHiRes = 0.0;
+  m_projectInfo.dimensions.numCellsI = volume->getNumI() - 1;
+  m_projectInfo.dimensions.numCellsJ = volume->getNumJ() - 1;
+  m_projectInfo.dimensions.numCellsIHiRes = m_projectInfo.dimensions.numCellsI; //TODO: fix this
+  m_projectInfo.dimensions.numCellsJHiRes = m_projectInfo.dimensions.numCellsJ;
 }
 
 VisualizationIOProject::VisualizationIOProject(const std::string& path)
@@ -566,6 +669,7 @@ Project::SnapshotContents VisualizationIOProject::getSnapshotContents(size_t sna
 
   // Get all unique surface names in this snapshot
   std::set<std::string> surfaceNames;
+  std::set<std::string> reservoirNames;
   std::map<std::string, boost::shared_ptr<const CauldronIO::Formation> > formationMap;
 
   auto surfaceList = snapshot->getSurfaceList();
@@ -577,6 +681,9 @@ Project::SnapshotContents VisualizationIOProject::getSnapshotContents(size_t sna
     auto formation = surface->getFormation();
     if (formation)
       formationMap[formation->getName()] = formation;
+
+    if (surface->getProperty()->getType() == CauldronIO::ReservoirProperty)
+      reservoirNames.insert(surface->getReservoirName());
   }
 
   for (auto name : surfaceNames)
@@ -587,6 +694,18 @@ Project::SnapshotContents VisualizationIOProject::getSnapshotContents(size_t sna
       if (m_projectInfo.surfaces[i].name == name)
       {
         contents.surfaces.push_back(i);
+        break;
+      }
+    }
+  }
+
+  for (auto name : reservoirNames)
+  {
+    for (int i = 0; i < (int)m_projectInfo.reservoirs.size(); ++i)
+    {
+      if (m_projectInfo.reservoirs[i].name == name)
+      {
+        contents.reservoirs.push_back(i);
         break;
       }
     }
@@ -626,7 +745,7 @@ std::shared_ptr<MiVolumeMeshCurvilinear> VisualizationIOProject::createSnapshotM
         depthVolume->retrieve();
 
       auto geometry = std::make_shared<VizIO::VolumeGeometry>(depthVolume);
-      auto topology = std::make_shared<VizIO::VolumeTopology>(*geometry);
+      auto topology = std::make_shared<VizIO::VolumeTopology<VizIO::VolumeGeometry> >(*geometry);
       return std::make_shared<VizIO::VolumeMesh>(geometry, topology);
     }
   }
@@ -638,6 +757,38 @@ std::shared_ptr<MiVolumeMeshCurvilinear> VisualizationIOProject::createReservoir
   size_t snapshotIndex,
   int reservoirId) const
 {
+  auto snapshot = m_snapshots[snapshotIndex];
+  auto surfaceList = snapshot->getSurfaceList();
+
+  std::string name = m_projectInfo.reservoirs[reservoirId].name;
+
+  boost::shared_ptr<CauldronIO::Map> topMap, bottomMap;
+
+  for (auto surface : surfaceList)
+  {
+    auto prop = surface->getProperty();
+    if (prop->getType() == CauldronIO::ReservoirProperty && surface->getReservoirName() == name)
+    {
+      const std::string& name = prop->getName();
+      if (name == "ResRockTop")
+        topMap = surface->getValueMap();
+      else if (name == "ResRockBottom")
+        bottomMap = surface->getValueMap();
+    }
+  }
+
+  if (topMap && bottomMap)
+  {
+    if (!topMap->isRetrieved())
+      topMap->retrieve();
+    if (!bottomMap->isRetrieved())
+      bottomMap->retrieve();
+
+    auto geometry = std::make_shared<VizIO::ReservoirGeometry>(topMap, bottomMap);
+    auto topology = std::make_shared<VizIO::ReservoirTopology>(*geometry);
+    return std::make_shared<VizIO::VolumeMesh>(geometry, topology);
+  }
+
   return nullptr;
 }
 
@@ -760,7 +911,34 @@ std::shared_ptr<MiDataSetIjk<double> > VisualizationIOProject::createFlowDirecti
 
 std::vector<Project::Trap> VisualizationIOProject::getTraps(size_t snapshotIndex, int reservoirId) const
 {
+  auto snapshot = m_snapshots[snapshotIndex];
+
+  std::string reservoirName = m_projectInfo.reservoirs[reservoirId].name;
+
   std::vector<Trap> traps;
+  for (auto trapper : snapshot->getTrapperList())
+  {
+    if (trapper->getReservoirName() == reservoirName)
+    {
+      Project::Trap trap;
+
+      float x, y, z;
+      trapper->getSpillPointPosition(x, y);
+      x -= (float)m_projectInfo.dimensions.minX;
+      y -= (float)m_projectInfo.dimensions.minY;
+      z = -trapper->getSpillDepth();
+      trap.spillPoint = SbVec3f(x, y, z);
+      trap.leakagePoint = trap.spillPoint;//leakage point not available yet!
+      trap.id = trapper->getID();
+      trap.downStreamId = trapper->getDownStreamTrapperID();
+      trap.gasOilContactDepth = 0.0; // not available in API
+      trap.oilWaterContactDepth = 0.0; // not available in API
+
+      traps.push_back(trap);
+    }
+  }
+
+  std::sort(traps.begin(), traps.end(), [](const Trap& lhs, const Trap& rhs) { return lhs.id < rhs.id;  });
 
   return traps;
 }
