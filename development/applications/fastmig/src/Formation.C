@@ -303,12 +303,12 @@ namespace migration
       int depth = getMaximumNumberOfElements () - 1;
       assert (depth >= 0);
 
-      double compMasses     [CBMGenerics::ComponentManager::NumberOfSpeciesToFlash];
-      double phaseCompMasses[CBMGenerics::ComponentManager::NumberOfPhases][CBMGenerics::ComponentManager::NumberOfSpeciesToFlash];
-      double phaseDensity   [CBMGenerics::ComponentManager::NumberOfSpeciesToFlash];
-      double phaseViscosity [CBMGenerics::ComponentManager::NumberOfSpeciesToFlash];      
+      double compMasses     [CBMGenerics::ComponentManager::NumberOfSpecies];
+      double phaseCompMasses[CBMGenerics::ComponentManager::NumberOfPhases][CBMGenerics::ComponentManager::NumberOfSpecies];
+      double phaseDensity   [CBMGenerics::ComponentManager::NumberOfSpecies];
+      double phaseViscosity [CBMGenerics::ComponentManager::NumberOfSpecies];      
 
-      for(int nc = 0; nc != CBMGenerics::ComponentManager::NumberOfSpeciesToFlash ;++nc)
+      for(int nc = 0; nc != CBMGenerics::ComponentManager::NumberOfSpecies ;++nc)
       {
 						 
          if(nc == CBMGenerics::ComponentManager::C1 or nc == CBMGenerics::ComponentManager::C6Minus14Sat) 
@@ -335,14 +335,35 @@ namespace migration
                double temperature = formationNode->getTemperature ();
                double pressure    = formationNode->getPressure ();
 
-               if (formationNode->getTemperature () != Interface::DefaultUndefinedMapValue and
-                   formationNode->getPressure ()    != Interface::DefaultUndefinedMapValue)
+               if (temperature != Interface::DefaultUndefinedMapValue and
+                   pressure    != Interface::DefaultUndefinedMapValue)
                {
-                  pvtFlash::EosPack::getInstance ().compute (temperature + CBMGenerics::C2K, pressure * CBMGenerics::MPa2Pa,
-                                                             compMasses, phaseCompMasses, phaseDensity, phaseViscosity);
+                  bool flashSuccess = pvtFlash::EosPack::getInstance ().computeWithLumping (temperature + CBMGenerics::C2K,
+                                                                                            pressure * CBMGenerics::MPa2Pa,
+                                                                                            compMasses, phaseCompMasses,
+                                                                                            phaseDensity, phaseViscosity);
 
-                  formationNode->setGasDensity (phaseDensity[CBMGenerics::ComponentManager::C1]);
-                  formationNode->setOilDensity (phaseDensity[CBMGenerics::ComponentManager::C6Minus14Sat]);
+                  if (phaseDensity[0] == 0 or phaseDensity[1] == 0)
+                  {
+                     std::cout << "Formation::computeHCDensityMaps () : Density 0\n";
+                     assert (phaseDensity[0] != 0);
+                     assert (phaseDensity[0] != 0);
+                  }
+
+                  if (phaseDensity[0] > phaseDensity[1])
+                  {
+                     std::cout << "Formation::computeHCDensityMaps () : Gas density higher than oil\n";
+                     assert (phaseDensity[0] < phaseDensity[1]);
+                  }
+
+                  // Some sort of bug in EosPack? The non-zero density values are at the front of the phaseDensity
+                  // and phaseViscosity arrays. Should be at the places where the commented lines suggest.
+                  // Report, possibly make an item and fix!
+                  formationNode->setGasDensity (phaseDensity[0]);
+                  formationNode->setOilDensity (phaseDensity[1]);
+
+                  //formationNode->setGasDensity (phaseDensity[CBMGenerics::ComponentManager::C1]);
+                  //formationNode->setOilDensity (phaseDensity[CBMGenerics::ComponentManager::C6Minus14Sat]);
                }
             }
          }
