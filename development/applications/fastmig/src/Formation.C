@@ -298,15 +298,13 @@ namespace migration
 
    bool Formation::computeHCDensityMaps ()
    {
-      const Grid *grid = m_projectHandle->getActivityOutputGrid ();
-
       int depth = getMaximumNumberOfElements () - 1;
       assert (depth >= 0);
 
       double compMasses     [CBMGenerics::ComponentManager::NumberOfSpecies];
       double phaseCompMasses[CBMGenerics::ComponentManager::NumberOfPhases][CBMGenerics::ComponentManager::NumberOfSpecies];
-      double phaseDensity   [CBMGenerics::ComponentManager::NumberOfSpecies];
-      double phaseViscosity [CBMGenerics::ComponentManager::NumberOfSpecies];      
+      double phaseDensity   [CBMGenerics::ComponentManager::NumberOfPhases] = {0};
+      double phaseViscosity [CBMGenerics::ComponentManager::NumberOfPhases] = {0};      
 
       for(int nc = 0; nc != CBMGenerics::ComponentManager::NumberOfSpecies ;++nc)
       {
@@ -318,8 +316,6 @@ namespace migration
 						 
          phaseCompMasses[0][nc]=0;                    
          phaseCompMasses[1][nc]=0;
-         phaseDensity[nc]=0; 
-         phaseViscosity[nc]=0;
       }
 
       for (int k = depth; k >= 0; --k)
@@ -343,27 +339,21 @@ namespace migration
                                                                                             compMasses, phaseCompMasses,
                                                                                             phaseDensity, phaseViscosity);
 
-                  if (phaseDensity[0] == 0 or phaseDensity[1] == 0)
+                  if (phaseDensity[CBMGenerics::ComponentManager::Vapour] == 0 or phaseDensity[CBMGenerics::ComponentManager::Liquid] == 0)
                   {
-                     std::cout << "Formation::computeHCDensityMaps () : Density 0\n";
-                     assert (phaseDensity[0] != 0);
-                     assert (phaseDensity[0] != 0);
+                     std::cout << "Formation::computeHCDensityMaps () : HC Density 0\n";
+                     assert (phaseDensity[CBMGenerics::ComponentManager::Vapour] != 0);
+                     assert (phaseDensity[CBMGenerics::ComponentManager::Liquid] != 0);
                   }
 
-                  if (phaseDensity[0] > phaseDensity[1])
+                  if (phaseDensity[CBMGenerics::ComponentManager::Vapour] > phaseDensity[CBMGenerics::ComponentManager::Liquid])
                   {
                      std::cout << "Formation::computeHCDensityMaps () : Gas density higher than oil\n";
-                     assert (phaseDensity[0] < phaseDensity[1]);
+                     assert (phaseDensity[CBMGenerics::ComponentManager::Vapour] < phaseDensity[CBMGenerics::ComponentManager::Liquid]);
                   }
 
-                  // Some sort of bug in EosPack? The non-zero density values are at the front of the phaseDensity
-                  // and phaseViscosity arrays. Should be at the places where the commented lines suggest.
-                  // Report, possibly make an item and fix!
-                  formationNode->setGasDensity (phaseDensity[0]);
-                  formationNode->setOilDensity (phaseDensity[1]);
-
-                  //formationNode->setGasDensity (phaseDensity[CBMGenerics::ComponentManager::C1]);
-                  //formationNode->setOilDensity (phaseDensity[CBMGenerics::ComponentManager::C6Minus14Sat]);
+                  formationNode->setGasDensity (phaseDensity[CBMGenerics::ComponentManager::Vapour]);
+                  formationNode->setOilDensity (phaseDensity[CBMGenerics::ComponentManager::Liquid]);
                }
             }
          }
