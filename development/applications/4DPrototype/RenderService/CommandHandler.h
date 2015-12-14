@@ -175,6 +175,11 @@ class CommandHandler
     RemoteViz::Rendering::RenderArea* renderArea,
     RemoteViz::Rendering::Connection* connection);
 
+  void onSetMaxFPS(
+    const jsonxx::Object& params,
+    RemoteViz::Rendering::RenderArea* renderArea,
+    RemoteViz::Rendering::Connection* connection);
+
   void onSetWidth(
     const jsonxx::Object& params,
     RemoteViz::Rendering::RenderArea* renderArea,

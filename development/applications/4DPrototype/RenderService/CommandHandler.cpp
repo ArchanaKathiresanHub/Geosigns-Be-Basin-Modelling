@@ -400,6 +400,15 @@ void CommandHandler::onSetBandwidth(
 #endif
 }
 
+void CommandHandler::onSetMaxFPS(
+  const jsonxx::Object& params,
+  RemoteViz::Rendering::RenderArea* /*renderArea*/,
+  RemoteViz::Rendering::Connection* connection)
+{
+  auto maxFPS = (unsigned int)params.get<jsonxx::Number>("maxFPS");
+  connection->getSettings()->setMaxSendingFPS(maxFPS);
+}
+
 void CommandHandler::onSetWidth(
   const jsonxx::Object& params,
   RemoteViz::Rendering::RenderArea* renderArea,
@@ -450,6 +459,7 @@ void CommandHandler::registerHandlers()
   m_handlers["SetStillQuality"] = &CommandHandler::onSetStillQuality;
   m_handlers["SetInteractiveQuality"] = &CommandHandler::onSetInteractiveQuality;
   m_handlers["SetBandwidth"] = &CommandHandler::onSetBandwidth;
+  m_handlers["SetMaxFPS"] = &CommandHandler::onSetMaxFPS;
   m_handlers["SetWidth"] = &CommandHandler::onSetWidth;
   m_handlers["SetHeight"] = &CommandHandler::onSetHeight;
 }

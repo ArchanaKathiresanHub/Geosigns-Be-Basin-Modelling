@@ -1,6 +1,6 @@
 var theRenderArea = null;
-var node = null;
-var color = false;
+var bandwidthDiv = null;
+var fpsDiv = null;
 var dataSize = 0;
 var fps = 0;		
 var resizeTimer = null;
@@ -148,6 +148,7 @@ function initUI(projectInfo)
     //onQualitySliderChanged(document.getElementById("qualitySlider").valueAsNumber);
     //onInteractiveQualitySliderChanged(document.getElementById("iqualitySlider").valueAsNumber);
     onBandwidthSliderChanged(document.getElementById("bandwidthSlider").valueAsNumber * 8192);
+    onMaxFPSSliderChanged(document.getElementById("maxfpsSlider").valueAsNumber);
 }
 
 function onCheckBoxAllFormationsChanged(elem)
@@ -406,6 +407,7 @@ function onShowGridChanged(elem)
         }
     }
 
+    window.canvas.focus();
     theRenderArea.sendMessage(JSON.stringify(msg));
 }
 
@@ -531,6 +533,18 @@ function onBandwidthSliderChanged(value)
     theRenderArea.sendMessage(JSON.stringify(msg));
 }
 
+function onMaxFPSSliderChanged(value)
+{
+    var msg = {
+        cmd: "SetMaxFPS",
+        params: {
+            maxFPS: value
+        }
+    }
+
+    theRenderArea.sendMessage(JSON.stringify(msg));
+}
+
 function resizeCanvas()
 {
     var w = window.innerWidth - leftMargin;
@@ -553,7 +567,7 @@ function receivedImage(length){
     if(timestamp != 0)
     {
     	var newtimestamp = window.performance.now();
-    	console.log("latency: " + (newtimestamp - timestamp));
+    	//console.log("latency: " + (newtimestamp - timestamp));
     	timestamp = 0;
     }
 }
@@ -570,13 +584,11 @@ function receivedMessage(message)
 
 function measurebandwithandfps()
 {
-    // refresh the bandwidth and the fps
-    if (node != null)
-    {
-        node.innerHTML = '<p>Bandwidth : ' + dataSize / 1000 + ' kb/s</p><p>FPS : ' + fps + '</p>';
-        dataSize = 0;
-        fps = 0;
-    }
+    bandwidthDiv.textContent = "Bandwidth: " + Math.round(dataSize / 1000) + "kB/s";
+    fpsDiv.textContent = "FPS: " + fps;
+
+    dataSize = 0;
+    fps = 0;
 }
 
 function generateGUID()
@@ -629,7 +641,8 @@ function websocketURL()
 
 function init() 
 { 
-    //window.canvas = document.getElementById("TheCanvas");
+    window.canvas = document.getElementById("TheCanvas");
+
     //$(window).resize(onWindowResize);
 
     // This function is called immediately after the page is loaded. Initialization of 
@@ -647,8 +660,11 @@ function init()
     var url = websocketURL();// + generateGUID();
     theRenderArea.connectTo(url);
 
+    bandwidthDiv = document.getElementById("bandwidthDiv");
+    fpsDiv = document.getElementById("fpsDiv");
+
     // Calls a function or executes a code snippet repeatedly to refresh the bandwidth and the fps
-    //window.setInterval("measurebandwithandfps()",1000);
+    window.setInterval("measurebandwithandfps()",1000);
     //node = document.getElementById('bandwidthfps');
 }
 
