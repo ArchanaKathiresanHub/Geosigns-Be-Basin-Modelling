@@ -885,7 +885,9 @@ bool Migrator::chargeReservoir (migration::Reservoir * reservoir, migration::Res
    if (!reservoir->computeProperties ())
       return false;
 
-   reservoir->refineGeometry ();
+   reservoir->resetProxiesBeforeRefine ();
+   reservoir->refineGeometryZeroThicknessAreas ();
+   reservoir->refineGeometrySetFaulStatus ();
 
    //We need to tell if it is a detected reservoir or not
    //migration::Formation * reservoirFormation = Formation::CastToFormation (reservoir->getFormation ());

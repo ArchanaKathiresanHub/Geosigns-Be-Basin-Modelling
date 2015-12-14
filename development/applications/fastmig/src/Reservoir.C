@@ -1442,15 +1442,13 @@ namespace migration
    }
 
    /// Any zero-thickness column is to become wasting
-/// Any zero-thickness neighbour of a non-zero-thickness column is to become sealing.
-   /// Also includes the faults into the geometry
-   bool Reservoir::refineGeometry (void)
+   /// Any zero-thickness neighbour of a non-zero-thickness column is to become sealing.
+   bool Reservoir::refineGeometryZeroThicknessAreas (void)
    {
-      RequestHandling::StartRequestHandling (m_migrator, "refineGeometry");
+      RequestHandling::StartRequestHandling (m_migrator, "refineGeometryZeroThicknessAreas");
 
       const Formation * formation = dynamic_cast<const Formation *>(getFormation ());
       assert (formation);
-      int depthIndex = formation->getNodeDepth () - 1;
 
       for (unsigned int i = m_columnArray->firstILocal (); i <= m_columnArray->lastILocal (); ++i)
       {
@@ -1475,9 +1473,30 @@ namespace migration
                         break;
                      }
                   }
-                  column->resetProxies ();
                }
+            }
+         }
+      }
 
+      RequestHandling::FinishRequestHandling ();
+      return true;
+   }
+
+   /// Also includes the faults into the geometry
+   bool Reservoir::refineGeometrySetFaulStatus (void)
+   {
+      RequestHandling::StartRequestHandling (m_migrator, "refineGeometrySetFaulStatus");
+
+      const Formation * formation = dynamic_cast<const Formation *>(getFormation ());
+      assert (formation);
+
+      for (unsigned int i = m_columnArray->firstILocal (); i <= m_columnArray->lastILocal (); ++i)
+      {
+         for (unsigned int j = m_columnArray->firstJLocal (); j <= m_columnArray->lastJLocal (); ++j)
+         {
+            LocalColumn * column = getLocalColumn (i, j);
+            if (IsValid (column))
+            {
                //set fault status
                if (column->getFaultStatus () != NOFAULT)
                {
@@ -1503,8 +1522,30 @@ namespace migration
                   default:
                      assert (false);
                   }
-                  column->resetProxies ();
                }
+            }
+         }
+      }
+      RequestHandling::FinishRequestHandling ();
+      return true;
+   }
+
+   /// reset Proxies before refine
+   bool Reservoir::resetProxiesBeforeRefine (void)
+   {
+      RequestHandling::StartRequestHandling (m_migrator, "resetProxiesBeforeRefine");
+
+      const Formation * formation = dynamic_cast<const Formation *>(getFormation ());
+      assert (formation);
+
+      for (unsigned int i = m_columnArray->firstILocal (); i <= m_columnArray->lastILocal (); ++i)
+      {
+         for (unsigned int j = m_columnArray->firstJLocal (); j <= m_columnArray->lastJLocal (); ++j)
+         {
+            LocalColumn * column = getLocalColumn (i, j);
+            if (IsValid (column) && (column->getThickness () < MinimumThickness || column->getFaultStatus () != NOFAULT))
+            {
+               column->resetProxies ();
             }
          }
       }
@@ -1512,7 +1553,8 @@ namespace migration
       RequestHandling::FinishRequestHandling ();
       return true;
    }
-   // Only for detected reservoirs! Sets columns corresponding to top nodes
+
+  // Only for detected reservoirs! Sets columns corresponding to top nodes
    // without the reservoir flag to wasting.
 
    // TO DO: Account for zero-thickness elements
