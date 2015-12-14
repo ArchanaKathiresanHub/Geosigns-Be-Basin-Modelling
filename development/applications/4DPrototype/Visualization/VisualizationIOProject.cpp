@@ -414,11 +414,79 @@ namespace VizIO
     }
   };
 
+  void getMinMax(boost::shared_ptr<CauldronIO::Volume> volume, float& minValue, float& maxValue)
+  {
+    const float undefined = volume->getUndefinedValue();
+
+    if (volume->isConstant())
+    {
+      minValue = volume->getConstantValue();
+      maxValue = minValue;
+    }
+    else
+    {
+      const float* values = volume->hasDataIJK()
+        ? volume->getVolumeValues_IJK()
+        : volume->getVolumeValues_KIJ();
+
+      size_t n = volume->getNumI() * volume->getNumJ() * volume->getNumK();
+      minValue =  std::numeric_limits<float>::infinity();
+      maxValue = -std::numeric_limits<float>::infinity();
+      for (size_t i = 0; i < n; ++i)
+      {
+        float val = values[i];
+        if (val != undefined)
+        {
+          minValue = std::min(minValue, val);
+          maxValue = std::max(maxValue, val);
+        }
+      }
+    }
+  }
+
+  void getMinMax(boost::shared_ptr<CauldronIO::Map> map, float& minValue, float& maxValue)
+  {
+    const float undefined = map->getUndefinedValue();
+
+    if (map->isConstant())
+    {
+      minValue = map->getConstantValue();
+      maxValue = minValue;
+    }
+    else
+    {
+      const float* values = map->getSurfaceValues();
+
+      size_t n = map->getNumI() * map->getNumJ();
+      minValue =  std::numeric_limits<float>::infinity();
+      maxValue = -std::numeric_limits<float>::infinity();
+      for (size_t i = 0; i < n; ++i)
+      {
+        float val = values[i];
+        if (val != undefined)
+        {
+          minValue = std::min(minValue, val);
+          maxValue = std::max(maxValue, val);
+        }
+      }
+    }
+  }
+
   class VolumeProperty : public MiDataSetIjk<double>
   {
     boost::shared_ptr<CauldronIO::Volume> m_volume;
     std::string m_name;
     size_t m_timestamp;
+
+    // these are mutable because of lazy initialization
+    mutable float m_minValue;
+    mutable float m_maxValue;
+    mutable bool m_minMaxValid;
+
+    void initMinMax() const
+    {
+      getMinMax(m_volume, m_minValue, m_maxValue);
+    }
 
   public:
 
@@ -426,6 +494,9 @@ namespace VizIO
       : m_volume(volume)
       , m_name(name)
       , m_timestamp(MxTimeStamp::getTimeStamp())
+      , m_minValue(0.0)
+      , m_maxValue(0.0)
+      , m_minMaxValid(false)
     {
     }
 
@@ -448,6 +519,22 @@ namespace VizIO
     {
       return m_timestamp;
     }
+
+    virtual double getMin() const
+    {
+      if (!m_minMaxValid)
+        initMinMax();
+
+      return m_minValue;
+    }
+
+    virtual double getMax() const
+    {
+      if (!m_minMaxValid)
+        initMinMax();
+
+      return m_maxValue;
+    }
   };
 
   class DiscontinuousVolumeProperty : public MiDataSetIjk<double>
@@ -458,6 +545,10 @@ namespace VizIO
 
     std::string m_name;
     size_t m_timestamp;
+
+    mutable float m_minValue;
+    mutable float m_maxValue;
+    mutable bool m_minMaxValid;
 
     void init()
     {
@@ -488,12 +579,32 @@ namespace VizIO
       }
     }
 
+    void initMinMax() const
+    {
+      m_minValue =  std::numeric_limits<float>::infinity();
+      m_maxValue = -std::numeric_limits<float>::infinity();
+
+      for (auto fv : m_formationVolumeList)
+      {
+        float minval, maxval;
+        getMinMax(fv->second, minval, maxval);
+
+        m_minValue = std::min(m_minValue, minval);
+        m_maxValue = std::max(m_maxValue, maxval);
+      }
+
+      m_minMaxValid = true;
+    }
+
   public:
 
     DiscontinuousVolumeProperty(const std::string& name, const CauldronIO::FormationVolumeList& fvlist)
       : m_formationVolumeList(fvlist)
       , m_name(name)
       , m_timestamp(MxTimeStamp::getTimeStamp())
+      , m_minValue(0.0)
+      , m_maxValue(0.0)
+      , m_minMaxValid(false)
     {
       init();
     }
@@ -528,7 +639,88 @@ namespace VizIO
       return m_timestamp;
     }
 
+    virtual double getMin() const
+    {
+      if (!m_minMaxValid)
+        initMinMax();
+
+      return m_minValue;
+    }
+
+    virtual double getMax() const
+    {
+      if (!m_minMaxValid)
+        initMinMax();
+
+      return m_maxValue;
+    }
   };
+
+  class ReservoirProperty : public MiDataSetIjk<double>
+  {
+    boost::shared_ptr<CauldronIO::Map> m_map;
+    std::string m_name;
+    size_t m_timestamp;
+
+    // these are mutable because of lazy initialization
+    mutable float m_minValue;
+    mutable float m_maxValue;
+    mutable bool m_minMaxValid;
+
+    void initMinMax() const
+    {
+      getMinMax(m_map, m_minValue, m_maxValue);
+    }
+
+  public:
+
+    ReservoirProperty(const std::string& name, boost::shared_ptr<CauldronIO::Map> map)
+      : m_map(map)
+      , m_name(name)
+      , m_timestamp(MxTimeStamp::getTimeStamp())
+      , m_minValue(0.0)
+      , m_maxValue(0.0)
+      , m_minMaxValid(false)
+    {
+    }
+
+    virtual double get(size_t i, size_t j, size_t /*k*/) const
+    {
+      return m_map->getValue(i, j);
+    }
+
+    virtual MiDataSet::DataBinding getBinding() const
+    {
+      return MiDataSet::PER_CELL;
+    }
+
+    virtual std::string getName() const
+    {
+      return m_name;
+    }
+
+    virtual size_t getTimeStamp() const
+    {
+      return m_timestamp;
+    }
+
+    virtual double getMin() const
+    {
+      if (!m_minMaxValid)
+        initMinMax();
+
+      return m_minValue;
+    }
+
+    virtual double getMax() const
+    {
+      if (!m_minMaxValid)
+        initMinMax();
+
+      return m_maxValue;
+    }
+  };
+
 }
 
 void VisualizationIOProject::init()
@@ -556,12 +748,24 @@ void VisualizationIOProject::init()
   auto snapshot = m_snapshots[0];
   auto surfaceList = snapshot->getSurfaceList();
 
+  int numCellsIHiRes = 0;
+  int numCellsJHiRes = 0;
+  double deltaXHiRes = 0.0;
+  double deltaYHiRes = 0.0;
   for (auto surface : surfaceList)
   {
     auto type = surface->getProperty()->getType();
     if (type == CauldronIO::ReservoirProperty)
     {
       reservoirNames.insert(surface->getReservoirName());
+      if (numCellsIHiRes == 0 && numCellsJHiRes == 0)
+      {
+        auto map = surface->getValueMap();
+        numCellsIHiRes = (int)map->getNumI() - 1;
+        numCellsJHiRes = (int)map->getNumJ() - 1;
+        deltaXHiRes = (int)map->getDeltaI();
+        deltaYHiRes = (int)map->getDeltaJ();
+      }
     }
     else
     {
@@ -624,12 +828,12 @@ void VisualizationIOProject::init()
   m_projectInfo.dimensions.minY = volume->getMinJ();
   m_projectInfo.dimensions.deltaX = volume->getDeltaI();
   m_projectInfo.dimensions.deltaY = volume->getDeltaJ();
-  m_projectInfo.dimensions.deltaXHiRes = 0.0; // TODO: fix this
-  m_projectInfo.dimensions.deltaYHiRes = 0.0;
-  m_projectInfo.dimensions.numCellsI = volume->getNumI() - 1;
-  m_projectInfo.dimensions.numCellsJ = volume->getNumJ() - 1;
-  m_projectInfo.dimensions.numCellsIHiRes = m_projectInfo.dimensions.numCellsI; //TODO: fix this
-  m_projectInfo.dimensions.numCellsJHiRes = m_projectInfo.dimensions.numCellsJ;
+  m_projectInfo.dimensions.deltaXHiRes = deltaXHiRes;
+  m_projectInfo.dimensions.deltaYHiRes = deltaYHiRes;
+  m_projectInfo.dimensions.numCellsI = (int)volume->getNumI() - 1;
+  m_projectInfo.dimensions.numCellsJ = (int)volume->getNumJ() - 1;
+  m_projectInfo.dimensions.numCellsIHiRes = numCellsIHiRes;
+  m_projectInfo.dimensions.numCellsJHiRes = numCellsJHiRes;
 }
 
 VisualizationIOProject::VisualizationIOProject(const std::string& path)
@@ -646,12 +850,30 @@ Project::ProjectInfo VisualizationIOProject::getProjectInfo() const
 
 unsigned int VisualizationIOProject::getMaxPersistentTrapId() const
 {
-  return 0;
+  int maxId = 0;
+
+  for (auto snapshot : m_snapshots)
+  {
+    auto const& traps = snapshot->getTrapperList();
+    for (auto trap : traps)
+    {
+      int pid = trap->getPersistentID();
+      maxId = std::max(maxId, pid);
+    }
+  }
+
+  return (unsigned int)maxId;
 }
 
-int VisualizationIOProject::getPropertyId(const std::string& /*name*/) const
+int VisualizationIOProject::getPropertyId(const std::string& name) const
 {
-  return 0;
+  for (int i = 0; i < (int)m_projectInfo.properties.size(); ++i)
+  {
+    if (m_projectInfo.properties[i].name == name)
+      return i;
+  }
+
+  return -1;
 }
 
 size_t VisualizationIOProject::getSnapshotCount() const
@@ -725,6 +947,46 @@ Project::SnapshotContents VisualizationIOProject::getSnapshotContents(size_t sna
       formation.maxK = (int)endK;
 
       contents.formations.push_back(formation);
+    }
+  }
+
+  // get minZ / maxZ
+  auto volumeList = snapshot->getVolumeList();
+  for (auto volume : volumeList)
+  {
+    auto depthVolume = boost::const_pointer_cast<CauldronIO::Volume>(volume->getDepthVolume());
+    if (depthVolume)
+    {
+      if (!depthVolume->isRetrieved())
+        depthVolume->retrieve();
+
+      const float undefined = depthVolume->getUndefinedValue();
+
+      float minDepth =  std::numeric_limits<float>::infinity();
+      float maxDepth = -std::numeric_limits<float>::infinity();
+
+      size_t ni = depthVolume->getNumI();
+      size_t nj = depthVolume->getNumJ();
+      size_t k = (size_t)contents.formations[contents.formations.size() - 1].maxK;
+
+      for (size_t j = 0; j < nj; ++j)
+      {
+        for (size_t i = 0; i < ni; ++i)
+        {
+          float topval = depthVolume->getValue(i, j, 0);
+          if (topval != undefined)
+          {
+            float bottomval = depthVolume->getValue(i, j, k);
+            minDepth = std::min(minDepth, topval);
+            maxDepth = std::max(maxDepth, bottomval);
+          }
+        }
+      }
+
+      contents.minDepth = minDepth;
+      contents.maxDepth = maxDepth;
+
+      break;
     }
   }
 
@@ -890,10 +1152,35 @@ std::shared_ptr<MiDataSetIj<double> > VisualizationIOProject::createSurfacePrope
 }
 
 std::shared_ptr<MiDataSetIjk<double> > VisualizationIOProject::createReservoirProperty(
-  size_t /*snapshotIndex*/,
-  int /*reservoirId*/,
-  int /*propertyId*/) const
+  size_t snapshotIndex,
+  int reservoirId,
+  int propertyId) const
 {
+  if (propertyId < 0 || propertyId >= (int)m_projectInfo.properties.size())
+    return nullptr;
+
+  auto snapshot = m_snapshots[snapshotIndex];
+
+  std::string reservoirName = m_projectInfo.reservoirs[reservoirId].name;
+  std::string propertyName = m_projectInfo.properties[propertyId].name;
+
+  auto surfaceList = snapshot->getSurfaceList();
+  for (auto surface : surfaceList)
+  {
+    auto prop = surface->getProperty();
+
+    if (
+      prop->getType() == CauldronIO::ReservoirProperty &&
+      prop->getName() == propertyName &&
+      surface->getReservoirName() == reservoirName)
+    {
+      auto map = surface->getValueMap();
+      if (!map->isRetrieved())
+        map->retrieve();
+      return std::make_shared<VizIO::ReservoirProperty>(propertyName, map);
+    }
+  }
+
   return nullptr;
 }
 
