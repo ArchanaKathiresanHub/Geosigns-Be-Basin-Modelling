@@ -1568,8 +1568,6 @@ namespace migration
       
       const Reservoir * leakingReservoir = dynamic_cast<const migration::Reservoir *> (dataAccessReservoir);
 
-      const double surfaceFraction = 0.25;
-
       unsigned int offsets[4][2] = { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } };
 
       int depthIndex = m_formationNodeArray->depth () - 1;
@@ -1581,7 +1579,7 @@ namespace migration
          for (unsigned int j = m_formationNodeArray->firstJLocal (); j <= m_formationNodeArray->lastJLocal (); ++j)
          {
             LocalColumn * leakingColumn = leakingReservoir->getLocalColumn (i, j);
-            if (!IsValid (leakingColumn)) continue;
+            if (!IsValid (leakingColumn) or leakingColumn->isOnBoundary ()) continue;
 
             LocalFormationNode * formationNode = getLocalFormationNode (i, j, depthIndex);
             if (!IsValid (formationNode)) continue;
@@ -1605,33 +1603,22 @@ namespace migration
 
                assert (getDepth (iTarget, jTarget, kTarget) >= targetReservoir->getColumn (iTarget, jTarget)->getTopDepth ());
 
-               Composition leakingCompositions[2][2];
+               Composition leakingComposition, composition;
+               assert (leakingComposition.isEmpty ());
+               assert (composition.isEmpty ());
 
-               for(int offsetIndex = 0; offsetIndex < 4; ++offsetIndex)
-               {
-                  if ( IsValid (leakingReservoir->getColumn (i + offsets[offsetIndex][0], j + offsets[offsetIndex][1])))
-                  {
-                     leakingCompositions [offsets[offsetIndex][0]][offsets[offsetIndex][1]] =
-                        leakingReservoir->getColumn (i + offsets[offsetIndex][0], j + offsets[offsetIndex][1])->getComposition ();
-                  }
-               }
+               leakingComposition = leakingColumn->getComposition ();
 
                // calculate the composition to migrate
-               Composition composition;
                for (int componentId = FIRST_COMPONENT; componentId < NUM_COMPONENTS; ++componentId)
                {
                   if (!ComponentsUsed[componentId])
                      continue;
 
-                  double sum = 0;
-
-                  for (int offsetIndex = 0; offsetIndex < 4; ++offsetIndex)
+                  double weight = leakingComposition.getWeight ((ComponentId) componentId);
+                  
+                  if (weight)
                   {
-                     sum += leakingCompositions[offsets[offsetIndex][0]][offsets[offsetIndex][1]].getWeight ((ComponentId) componentId);
-                  }
-                  if (sum)
-                  {
-                     double weight = sum * surfaceFraction;
                      composition.add ((ComponentId) componentId, weight);
                   }
                }               

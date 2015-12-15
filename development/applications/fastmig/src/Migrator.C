@@ -275,9 +275,8 @@ bool Migrator::isHydrostaticCalculation (void) const
    if (lastFastcauldronRun != 0)
    {
       hydrostaticCalculation = lastFastcauldronRun->getSimulatorMode () == "HydrostaticTemperature" or
-         lastFastcauldronRun->getSimulatorMode () == "HydrostaticHighResDecompaction" or
-         lastFastcauldronRun->getSimulatorMode () == "HydrostaticTemperature" or
-         lastFastcauldronRun->getSimulatorMode () == "HydrostaticDarcy";
+                               lastFastcauldronRun->getSimulatorMode () == "HydrostaticHighResDecompaction" or
+                               lastFastcauldronRun->getSimulatorMode () == "HydrostaticDarcy";
    }
 
    return hydrostaticCalculation;
