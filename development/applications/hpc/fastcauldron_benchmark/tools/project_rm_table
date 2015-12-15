@@ -1,0 +1,31 @@
+#!/bin/bash
+
+table=$1
+
+if [ x$table = x ]; then
+  echo Provide a table name to be removed
+  exit 1
+fi
+
+
+script=`mktemp` || { echo Cannot create temp file for script; exit 1; }
+
+cat > $script <<EOF
+/\[${table}\]/,/\[End\]/!p   # Normally print any line (except for the table)
+/\[${table}\]/,+3p           # Print the first 3 lines of a table (marker, field names, field units)
+/\[${table}\]/,/\[End\]/{    # Print the [End] marker, by doing in the table range:
+  h                          # Copy pattern to hold space
+  s/\[End\]//                # If it is the [End] marker
+  t final                    # Go to 'final'
+  T continue                 # Else go to 'continue'
+
+  :final                     
+  g                          # Get the hold space
+  p                          # Print the hold space
+  :continue                  
+}
+EOF
+
+sed -n -f $script
+
+rm $script

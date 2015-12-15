@@ -1,0 +1,5 @@
+[FaultcutIoTbl]
+;
+SurfaceName FaultName FaultcutStatus Age AgeSeqNbr
+() () () (Ma) ()
+[End]

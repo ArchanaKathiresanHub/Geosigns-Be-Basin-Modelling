@@ -1,0 +1,150 @@
+#!/bin/bash
+#
+# resources_system - GEMPIS system resource definitions
+#
+# Syntax:
+#     . $GEMPIS_DEFDIR/resources_system
+# 
+# Regional resources are defined in the $IBS_NAMES/gempis/regional_resources/
+# directory.
+# User resources are defined in ~/.gempis/resources_user and override 
+# those defined here.
+# 
+# References: See GEMPIS User manual for details.
+#
+# Format: <property>[<index>]="<value>"
+#
+# Only index values from 1 to 10 are permitted in the system configuration.
+# Do not use spaces between '=' character.
+# Make sure group definitions use different index values. 
+# User definitions begin at index value 11.
+#
+# Example: res_jobtype[3]="MPICH"
+#
+# Properties:
+# res_name      - (required) Resource name as used in the gempis command.
+# res_jobtype   - (required) Job Type: STANDALONE, LSF, or LSFHPC, or CUSTOM.
+# res_mpiref    - (required) MPI Reference name: refers to an entry in the 
+#	gempis_MPIRef file.
+# res_remote    - Name of remote computer to submit the gempis command.
+# res_request   - Identifier to use when requesting resource information. 
+# res_submit    - Identifier to use when submitting a job.
+# res_prepath   - Prepend directory list to PATH (separate entries using the 
+#	colon character ':' as used in the PATH)
+# res_cluster   - Cluster list: a list of computer names and number of 
+#	processors when Job Type is CUSTOM.
+
+#
+# Standalone SGI resource
+# Use this resource to run an MPI job locally on an SGI
+#
+res_name[1]="LOCAL.IRIX64"
+res_jobtype[1]="STANDALONE"
+res_mpiref[1]="SGI"
+
+#
+# Standalone Solaris resource
+# Use this resource to run an MPI job locally on an Solaris
+#
+res_name[2]="LOCAL.SunOS"
+res_jobtype[2]="STANDALONE"
+res_mpiref[2]="SUNHPC"
+
+#
+# Standalone Linux resource
+# Use this resource to run an MPI job locally on a Linux workstation
+#
+res_name[3]="LOCAL.Linux"
+res_jobtype[3]="STANDALONE"
+res_mpiref[3]="INTELMPI"
+
+#
+# Undefined resource 4
+#
+#res_name[4]=""
+#res_jobtype[4]=""
+#res_mpiref[4]=""
+#res_remote[4]=""
+#res_request[4]=""
+#res_submit[4]=""
+#res_prepath[4]=""
+#res_cluster[4]=""
+
+#
+# Undefined resource 5
+#
+#res_name[5]=""
+#res_jobtype[5]=""
+#res_mpiref[5]=""
+#res_remote[5]=""
+#res_request[5]=""
+#res_submit[5]=""
+#res_prepath[5]=""
+#res_cluster[5]=""
+
+#
+# Undefined resource 6
+#
+#res_name[6]=""
+#res_jobtype[6]=""
+#res_mpiref[6]=""
+#res_remote[6]=""
+#res_request[6]=""
+#res_submit[6]=""
+#res_prepath[6]=""
+#res_cluster[6]=""
+
+#
+# Undefined resource 7
+#
+#res_name[7]=""
+#res_jobtype[7]=""
+#res_mpiref[7]=""
+#res_remote[7]=""
+#res_request[7]=""
+#res_submit[7]=""
+#res_prepath[7]=""
+#res_cluster[7]=""
+
+#
+# Undefined resource 8
+#
+#res_name[8]=""
+#res_jobtype[8]=""
+#res_mpiref[8]=""
+#res_remote[8]=""
+#res_request[8]=""
+#res_submit[8]=""
+#res_prepath[8]=""
+#res_cluster[8]=""
+
+#
+# Undefined resource 9
+#
+#res_name[9]=""
+#res_jobtype[9]=""
+#res_mpiref[9]=""
+#res_remote[9]=""
+#res_request[9]=""
+#res_submit[9]=""
+#res_prepath[9]=""
+#res_cluster[9]=""
+
+#
+# Undefined resource 10
+#
+#res_name[10]=""
+#res_jobtype[10]=""
+#res_mpiref[10]=""
+#res_remote[10]=""
+#res_request[10]=""
+#res_submit[10]=""
+#res_prepath[10]=""
+#res_cluster[10]=""
+
+
+#
+# this definition is only to make sure that the script terminates successfully
+echo "" >/dev/null
+
+# End Script

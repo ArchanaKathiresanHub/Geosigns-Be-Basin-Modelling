@@ -1,0 +1,47 @@
+# applications
+app fastcauldron "-temperature"
+app fastcauldron "-hrdecompaction"
+app fastgenex6
+app fastmig
+app tracktraps
+
+base_project "Project.project3d"
+
+# Define variable parameter for Porosity model
+
+# for Soil mechanics only one parameter must be varied, the second one must be frozen and it will be ignored
+#       VarPrmName     Lithology Name         PorModel:              SurfPorosity [%]  CompCoeff      Parameter PDF
+varprm "PorosityModel" "SM.Mudstone.40%Clay"  "Soil_Mechanics"       24 70             -9999 -9999    "Block"
+
+#       VarPrmName     Layer name Name  TOC value  Parameter PDF
+varprm "SourceRockTOC" "Spekk"          5.0 20.0   "Block"
+
+#       VarPrmName     Layer name Name  HI value     Parameter PDF
+varprm "SourceRockHI"  "Spekk"          423.9 518.1  "Block"
+
+
+#        VarPrmName     Lithology Name        PorModel:            SurfPor [%] CompCf1   MinPorosity CompCf2   Prm PDF
+#varprm "PorosityModel" "SM.Mudstone.40%Clay" "Double_Exponential" 7.5 42.6    7.27 7.27 2  2        7.27 7.27 "Block"
+
+#       type               prop name     X       Y        Reserv. name     Age   SWght UWght
+# Free gas volume
+target  "TrapProp"        "VolumeFGIIP"  487000  6713500  "Jurassic"         0    1.0   1.0
+# Solution gas volume
+target  "TrapProp"        "VolumeSGIIP"  487000  6713500  "Jurassic"         0    1.0   1.0
+# Stock tank oil vlume
+target  "TrapProp"        "VolumeSTOIIP" 436000  6717500  "Jurassic"         0    1.0   1.0
+# Gas/oil ration
+target  "TrapProp"        "GOR"          436000  6717500  "Jurassic"        13    1.0   1.0
+
+savestate "VarPrmsDefined.txt" "txt"
+
+# DoE
+doe "Tornado"
+
+
+# Run Manager
+location "/scratch/nlskon/inversion/NVG/CaseSet/"
+
+run "LOCAL" "v2014.07nightly"
+
+exportMatlab "data.m"

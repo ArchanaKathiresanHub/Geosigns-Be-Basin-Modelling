@@ -1,0 +1,71 @@
+!
+!       This resource file is loaded by IBSLINK (a GOSPEL-application)
+! 
+
+!*table.background: #888
+
+!
+! General settings
+!
+*background:		#bdb09f
+*fontList:		-*-helvetica-bold-r-normal-*-12-*-*-*-*-*-*-*
+*selectColor:		red
+*XmLabel.fontList:	-*-helvetica-bold-r-normal-*-12-*-*-*-*-*-*-*
+*XmLabel.foreground:	Black
+
+!
+! Popup menu font size
+!
+*UIPopupmenu.fontList:	-*-helvetica-bold-r-normal-*-12-*-*-*-*-*-*-*
+
+!
+! Label resources
+!
+*UILabel.fontList:	-*-helvetica-bold-r-normal-*-12-*-*-*-*-*-*-*
+*UILabel.foreground:	Black
+
+!
+! Pushbutton resources
+!
+*UIAcceptbutton.background:	#bfb
+*UIApplybutton.background:	#ffb
+*UIHelpbutton.background:	#bbf
+*UICancelbutton.background:	#fbb
+
+!
+! Listbox resources
+!
+*UIListbox.fontList:	-*-courier-bold-r-normal-*-12-*-*-*-*-*-*-*
+
+! XmText must be non proportional to keep the field sizes on the
+! RS6000 <---> Sun,Silicon consistent
+
+*XmText.fontList:	-*-courier-bold-r-normal-*-12-*-*-*-*-*-*-*
+
+*mwmFunctions:          30
+
+
+!------------------------------------------------------------------------------
+
+*XmFrame.shadowThickness:        2
+*XmFrame.shadowType:             XmSHADOW_ETCHED_IN
+
+!------------------------------------------------------------------------------
+
+*table*UITextinput.marginHeight:        0
+*table*UITextinput.marginWidth: 0
+*table*UIIntinput.marginWidth:  0
+*table*UIIntinput.marginHeight: 0
+*table*UIFloatinput.marginWidth:        0
+*table*UIFloatinput.marginHeight:       0
+*table*UIToggle.spacing:        0
+*table*UIToggle.marginWidth:    0
+*table*UIToggle.marginHeight:   0
+*table*Optionmenu.spacing:     0
+*table*Optionmenu.marginWidth: 0
+*table*Optionmenu.marginHeight:        0
+
+*Optionmenu*shadowThickness:        2
+
+
+!!------------------- THE END --------------------

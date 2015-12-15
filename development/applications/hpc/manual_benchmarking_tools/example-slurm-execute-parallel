@@ -1,0 +1,168 @@
+#!/bin/bash
+
+
+# parameters
+N=1
+DEADLINE="90000"
+#VOLUMES="lustre-default"
+VOLUMES="lustre-striped"
+PROJECTS="WCSB"
+#MODES="temperature-nodata temperature-fulldata"
+#MODES="temperature-nodata-brts"
+MODES="itcoupled-fulldata-brts_ngl temperature-fulldata-brts"
+CORES_PER_NODE="16"
+#CORES="1 4 16 32 64 256"
+CORES="256 512 1024 2048 4096"
+
+# local vars
+entryFile=`mktemp` || { echo Cannot create temporary file; exit 1; }
+shuffle=`mktemp` || { echo Cannot create temporary file; exit 1; }
+
+# functions
+function generateJob() {
+# parse sequence number
+   sequence=`printf "%04d" $1`
+
+# parse working dir
+   work_dir_name="$2"
+   pushd $work_dir_name > /dev/null
+   work_dir=`pwd -P`
+   popd > /dev/null
+
+# parse project file name
+   project_file=`basename $3/*.project3d`
+   project_name=$3
+   project_dir=$3
+   pushd $project_dir > /dev/null
+   project_dir=`pwd -P`
+   popd > /dev/null
+
+# parse mode
+   mode="$4"
+
+# parse # cores
+   procs="$5"
+
+# Cores Per Node
+   cores_per_node=$6
+
+# Compute job name
+   jobName="StampedeVsHOUGDC-$sequence-$procs-$cores_per_node-$mode-$project_name-$work_dir_name"
+
+# Compute job dir
+   jobDir="$work_dir/$jobName"
+
+# Prepare job dir
+   rm -Rf $jobDir
+   mkdir -p $jobDir
+
+
+# Prepare command
+   case $mode in
+      decompaction)
+         command="fastcauldron -decompaction"
+         ;;
+
+      temperature-nodata-tdts)
+         command="fastcauldron -temperature -nohdfoutput"
+         ;;
+
+      temperature-nodata-brts)
+         command="fastcauldron -temperature -nohdfoutput -brts"
+         ;;
+
+      temperature-fulldata-tdts)
+         command="fastcauldron -temperature"
+         ;;
+
+      temperature-fulldata-brts)
+         command="fastcauldron -temperature -brts -verbose -log_summary"
+         ;;
+
+      itcoupled-nodata-brts)
+         command="fastcauldron -itcoupled -nohdfoutput -brts -log_summary -verbose"
+         ;;
+
+      itcoupled-nodata-brts_ngl)
+         command="fastcauldron -itcoupled -nohdfoutput -brts -log_summary -verbose -ngl"
+         ;;
+
+      itcoupled-fulldata-brts_ngl)
+         command="fastcauldron -itcoupled -brts -log_summary -verbose -ngl"
+         ;;
+
+      itcoupled)
+         command="fastcauldron -itcoupled"
+         ;;
+
+      genex)
+         command="fastgenex6"
+         ;;
+   esac
+
+
+cat > $jobDir/job <<EOF
+#!/bin/bash
+#SBATCH -t $(( DEADLINE / procs + 5 ))
+#SBATCH -J $jobName
+#SBATCH -o output.log
+#SBATCH -N $(( ( procs + cores_per_node - 1 ) / cores_per_node ))
+#SBATCH -n $procs
+#SBATCH -p normal
+#SBATCH -D $jobDir
+
+source $HOME/apps/envsetup-not_serial_io.sh
+
+echo Copying Cauldron input files
+cp -R $project_dir/* $jobDir
+echo
+echo Input Data Size:
+du --bytes .
+echo
+echo Running command '$command'
+echo -n UTC time is; date -u '+%F %T'
+time ibrun $HOME/apps/$command -project $project_file
+echo -n UTC time is; date -u '+%F %T'
+echo
+echo Output Data Size:
+du --bytes .
+echo
+echo Removing Cauldron output files
+rm -R $jobDir/*OutputDir
+echo -n UTC time is; date -u '+%F %T'
+EOF
+
+  echo
+  echo  Ready to submit: $jobName
+  # sbatch $jobDir/job
+  echo
+}
+
+
+# generate entry list
+i=1
+for ((n = 1; n <= N; ++n))
+do
+   for vol in $VOLUMES
+   do
+      for p in $PROJECTS
+      do
+         for m in $MODES
+         do
+            for c in $CORES
+            do
+              for cpn in $CORES_PER_NODE
+              do
+                generateJob $i $vol $p $m $c $cpn
+                i=$((i + 1))
+              done
+            done
+         done
+      done
+   done
+done
+
+# shuffle the entry file and generate the jobs
+
+rm -f $shuffle $entryFile
+

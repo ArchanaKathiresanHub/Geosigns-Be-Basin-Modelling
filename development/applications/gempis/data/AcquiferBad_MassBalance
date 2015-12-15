@@ -1,0 +1,120 @@
+
+-- Snapshot: 8 -------------------------------- Reservoir: Reservoir3 --
+
+Already in reservoir:                              0
+Expelled into reservoir:                           2.93071e+10
+Leaked into reservoir:                             0
+----------------------------------------------------------------------
+Total in:                                          2.93071e+10
+
+Blocked from entering reservoir:                   0
+Stored in reservoir:                               2.29615e+10
+Biodegraded:                                       0
+Diffused:                                          0
+Leaked outward from reservoir:                     6.34553e+09
+Leaked upward from reservoir:                      0
+----------------------------------------------------------------------
+Total out:                                         2.93071e+10
+
+----------------------------------------------------------------------
+Balance:                                           0
+
+======================================================================
+
+
+
+-- Snapshot: 6 -------------------------------- Reservoir: Reservoir3 --
+
+Already in reservoir:                              2.29615e+10
+Expelled into reservoir:                           5.71499e+10
+Leaked into reservoir:                             0
+----------------------------------------------------------------------
+Total in:                                          8.01115e+10
+
+Blocked from entering reservoir:                   0
+Stored in reservoir:                               7.05967e+10
+Biodegraded:                                       0
+Diffused:                                          0
+Leaked outward from reservoir:                     9.51478e+09
+Leaked upward from reservoir:                      0
+----------------------------------------------------------------------
+Total out:                                         8.01115e+10
+
+----------------------------------------------------------------------
+Balance:                                           -1.52588e-05
+
+======================================================================
+
+
+
+-- Snapshot: 4 -------------------------------- Reservoir: Reservoir3 --
+
+Already in reservoir:                              7.05967e+10
+Expelled into reservoir:                           8.65406e+10
+Leaked into reservoir:                             0
+----------------------------------------------------------------------
+Total in:                                          1.57137e+11
+
+Blocked from entering reservoir:                   0
+Stored in reservoir:                               1.44018e+11
+Biodegraded:                                       0
+Diffused:                                          0
+Leaked outward from reservoir:                     1.31196e+10
+Leaked upward from reservoir:                      0
+----------------------------------------------------------------------
+Total out:                                         1.57137e+11
+
+----------------------------------------------------------------------
+Balance:                                           3.05176e-05
+
+======================================================================
+
+
+
+-- Snapshot: 2 -------------------------------- Reservoir: Reservoir3 --
+
+Already in reservoir:                              1.44018e+11
+Expelled into reservoir:                           1.29527e+11
+Leaked into reservoir:                             0
+----------------------------------------------------------------------
+Total in:                                          2.73545e+11
+
+Blocked from entering reservoir:                   0
+Stored in reservoir:                               2.52285e+11
+Biodegraded:                                       0
+Diffused:                                          0
+Leaked outward from reservoir:                     2.12598e+10
+Leaked upward from reservoir:                      0
+----------------------------------------------------------------------
+Total out:                                         2.73545e+11
+
+----------------------------------------------------------------------
+Balance:                                           0
+
+======================================================================
+
+
+
+-- Snapshot: 0 -------------------------------- Reservoir: Reservoir3 --
+
+Already in reservoir:                              2.52285e+11
+Expelled into reservoir:                           2.15286e+11
+Leaked into reservoir:                             0
+----------------------------------------------------------------------
+Total in:                                          4.67571e+11
+
+Blocked from entering reservoir:                   0
+Stored in reservoir:                               4.32292e+11
+Biodegraded:                                       0
+Diffused:                                          0
+Leaked outward from reservoir:                     3.52795e+10
+Leaked upward from reservoir:                      0
+----------------------------------------------------------------------
+Total out:                                         4.67571e+11
+
+----------------------------------------------------------------------
+Balance:                                           -0.00012207
+
+======================================================================
+
+

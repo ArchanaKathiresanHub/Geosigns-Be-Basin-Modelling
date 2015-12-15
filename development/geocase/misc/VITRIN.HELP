@@ -1,0 +1,23 @@
+24
+
+
+                       Vitrinite Reflectance Data
+                       **************************
+
+ With this option up to 30 mean vitrinite reflectance values with their
+ standard deviation can be entered. Depth is in metres below datum depth.
+ 
+ The VR values are NOT USED AS CONSTRAINTS IN THE TEMPERATURE HISTORY
+ MODELLING, but are merely plotted to facilitate observation of the fit
+ between modelled and measured VR values.
+
+ A WARNING: The user should be aware of the quality of the entered mean VR
+ ---------  values. If a choice can be made, only mean values of 50-100
+            measurements on the standard telocollinite showing a unimodal,
+            narrow distribution should be entered. 
+            Questions to be asked when assessing VR data comprise: Was the
+            reflectance measured on telocollinite particles or on other
+            types of vitrinite? Is the mean value based on at least 30-50
+            individual measurements? Does the histogram show a distinct
+            peak or is it very flat? 
+

@@ -1,0 +1,9 @@
+This directory contains projects that are safe to be tested outside the Shell
+network.
+
+Barrowlands - A trainingmodel named after a subway station in Glasgow. It
+              originates from http://sww-bpa-eu.siep.shell.com/bpa/Bpa.aspx?ctx=84006.65.4_400.0.0.39974.186881.0.0.0.0.0.0.0.0.0.v3
+
+WCSB        - West Canadian Sedimentary Basin. It contains only data that is
+              also available in the public domain. 
+

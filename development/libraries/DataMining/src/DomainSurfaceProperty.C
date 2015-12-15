@@ -1,0 +1,75 @@
+#include "DomainSurfaceProperty.h"
+
+#include "Interface/PropertyValue.h"
+
+DataAccess::Mining::DomainSurfaceProperty::DomainSurfaceProperty ( const DomainPropertyCollection*            collection,
+                                                                   DerivedProperties::DerivedPropertyManager& propertyManager,
+                                                                   const Interface::Snapshot*                 snapshot,
+                                                                   const Interface::Property*                 property ) :
+   DomainProperty ( collection, propertyManager, snapshot, property )
+{
+
+   DerivedProperties::SurfacePropertyList values = propertyManager.getSurfaceProperties ( getProperty (), getSnapshot (), true );
+
+   for ( size_t i = 0; i < values.size (); ++i ) {
+      m_values [ values [ i ]->getSurface ()] = values [ i ];
+   }
+
+}
+
+DataAccess::Mining::DomainSurfaceProperty::~DomainSurfaceProperty () {
+   m_values.clear ();
+}
+
+void DataAccess::Mining::DomainSurfaceProperty::compute ( const ElementPosition&            position,
+                                                                InterpolatedPropertyValues& evaluations ) {
+
+   if ( position.getSurface () != 0 ) {
+      SurfaceToPropertyValueMapping::const_iterator propIter = m_values.find ( position.getSurface ());
+
+      if ( propIter != m_values.end ()) {
+         DerivedProperties::SurfacePropertyPtr grid = propIter->second;
+         evaluations.setValue ( getProperty (), interpolate2D ( position, grid ));
+      } else {
+         evaluations.setValue ( getProperty (), DataAccess::Interface::DefaultUndefinedMapValue );
+      }
+
+   } else {
+
+      if ( not evaluations.contains ( getProperty ())) {
+         // What kind of error is this?
+         evaluations.setValue ( getProperty (), DataAccess::Interface::DefaultUndefinedMapValue );
+      }
+
+   }
+
+}
+
+
+double DataAccess::Mining::DomainSurfaceProperty::compute ( const ElementPosition& position ) const {
+
+   if ( position.getSurface () != 0 ) {
+      SurfaceToPropertyValueMapping::const_iterator propIter = m_values.find ( position.getSurface ());
+
+      if ( propIter != m_values.end ()) {
+         DerivedProperties::SurfacePropertyPtr grid = propIter->second;
+         return interpolate2D ( position, grid );
+      } else {
+         return DataAccess::Interface::DefaultUndefinedMapValue;
+      }
+
+   } else {
+      return DataAccess::Interface::DefaultUndefinedMapValue;
+   }
+
+}
+
+
+
+DataAccess::Mining::DomainProperty* DataAccess::Mining::DomainSurfacePropertyAllocator::allocate ( const DomainPropertyCollection*            collection,
+                                                                                                   DerivedProperties::DerivedPropertyManager& propertyManager,
+                                                                                                   const Interface::Snapshot*                 snapshot,
+                                                                                                   const Interface::Property*                 property ) const {
+   return new DomainSurfaceProperty ( collection, propertyManager, snapshot, property );
+}
+

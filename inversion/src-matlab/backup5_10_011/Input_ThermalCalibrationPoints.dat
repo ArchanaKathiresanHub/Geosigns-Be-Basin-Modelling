@@ -1,0 +1,14 @@
+# dont use tabs for spacing
+# param x y z value wellindex, wellfile
+
+Temperature 0 0 3430.8 146.2218997 1 Point_0_east__0_north_PTCoupled.well 
+Temperature 0 0 3460.8 147.4711526 1 Point_0_east__0_north_PTCoupled.well
+Temperature 0 0 3699.0 157.3329225 1 Point_0_east__0_north_PTCoupled.well
+Temperature 0 0 3722.0 158.2808266 1 Point_0_east__0_north_PTCoupled.well
+Temperature 0 0 3782.0 160.7518856 1 Point_0_east__0_north_PTCoupled.well
+
+Vr 0 0 3430.8 2.226439967 1 Point_0_east__0_north_PTCoupled.well 
+Vr 0 0 3460.8 2.253380908 1 Point_0_east__0_north_PTCoupled.well
+Vr 0 0 3699.0 2.499541042 1 Point_0_east__0_north_PTCoupled.well
+Vr 0 0 3722.0 2.524726405 1 Point_0_east__0_north_PTCoupled.well
+Vr 0 0 3782.0 2.589161931 1 Point_0_east__0_north_PTCoupled.well 

@@ -1,0 +1,2468 @@
+;
+; START - ursa_A1.project1d 17-Dec-02 16:57:45
+;
+;
+; 
+;
+[IoOptionsIoTbl]
+;
+MapType FileVersioning AutoSaving SaveBeforeEachRun MaxFileWidth ConsoleLevel PopupLevel LogfileLevel 
+() () () () () () () () 
+"DECBINARY" 3 0 0 0 -5 -5 -5 
+[End]
+;
+[PlotBoundsTbl]
+;
+PropertyName BoundsEnabled LowerBound UpperBound 
+() () () () 
+[End]
+;
+;
+; Project data
+;
+[ProjectIoTbl]
+;
+ProjectName ProjectSize Description ProjectTeam ProjectStartDate ProjectEndDate ProgramVersion ModellingMode XCoord YCoord NumberX NumberY DeltaX DeltaY ScaleX ScaleY OffsetX OffsetY WindowXMin WindowXMax WindowYMin WindowYMax 
+() () () () () () () () () () () () (m) (m) () () () () () () () () 
+"Ursa_A1" "Small" "" "" "" "" "v2002.09" "1d" 0 0 2 2 100 100 1 1 0 0 0 1 0 1 
+[End]
+;
+[ProjectNotesIoTbl]
+;
+ProjectNotes 
+() 
+[End]
+;
+[RelatedProjectsIoTbl]
+;
+Filename 
+() 
+[End]
+;
+;
+; Default files
+;
+;
+; Run Options
+;
+[RunOptionsIoTbl]
+;
+<Row>
+CompactionAlgorithm            "Effective Stress"             ()
+VreAlgorithm                   "Modified Lopatin"             ()
+VelAlgorithm                   "Gardner's Velocity-Density"   ()
+HeatFlowSolution               "Transient"                    ()
+PrefSnapstep                   10                             (Ma)
+PrefReconstep                  0.5                            (Ma)
+OptimalTotalPresDiff           0.1                            (MPa)
+OptimalTotalTempDiff           4                              (DegreesCelcius)
+OptimalSourceRockTempDiff      2                              (DegreesCelcius)
+MaxTimeStepIncreaseFactor      1.5                            ()
+MinTimeStepDecreaseFactor      0.5                            (Ma)
+BricksizeEast                  100                            (m)
+BricksizeNorth                 100                            (m)
+BrickHeightSediment            400                            (m)
+BrickHeightCrust               4000                           (m)
+BrickHeightMantle              20000                          (m)
+MaxNumberOfRunOverpressure     10                             ()
+FracturePressureFunction       ""                             ()
+CalcAllDepthIoProps            0                              ()
+UncertaintyAnalysis            0                              ()
+NrMCLoops                      1000                           ()
+NrMCSaveEvery                  100                            ()
+Optimization                   0                              ()
+OptimTopCrustHeatProd          0                              ()
+OptimCrustalThickness          0                              ()
+OptimMantleThickness           0                              ()
+OptimUnconfThickness           0                              ()
+FormTempOptimWeight            10                             ()
+VrmOptimWeight                 10                             ()
+BiomOptimWeight                10                             ()
+FtOptimWeight                  10                             ()
+SmiOptimWeight                 10                             ()
+OptimTolerance                 0.001                          ()
+;
+[End]
+;
+[SensAnalysisIoTbl]
+;
+AnalysisIdentification AnalysisIndicator PropertyDescription TypeOfDistribution ModellingMode 
+() () () () () 
+0 0 "Age in stratigraphic data" "Normal_3SD" "1d" 
+1 0 "Depth in stratigraphic data" "Normal_3SD" "1d" 
+10 0 "Thickness in unconformity data" "Normal_3SD" "1d" 
+20 0 "Density of lithology" "Normal_3SD" "1d" 
+21 0 "STP thermal conductivity of lithology" "Normal_3SD" "1d" 
+22 0 "Heat production of lithology" "Normal_3SD" "1d" 
+23 0 "Surface porosity of lithology" "Normal_3SD" "1d" 
+24 0 "Seismic velocity of lithology" "Normal_3SD" "1d" 
+25 0 "Comp. coef. eff. stress of lithology" "Normal_3SD" "1d" 
+26 0 "Comp. coef. Sclater & Christie of lithology" "Normal_3SD" "1d" 
+27 0 "Comp. coef. Falvey & Middleton of lithology" "Normal_3SD" "1d" 
+40 0 "Thickness in mobile layer" "Normal_3SD" "1d" 
+50 0 "Surface temperature in boundary conditions" "Normal_3SD" "1d" 
+51 0 "Mantle heat flow in boundary conditions" "Normal_3SD" "1d" 
+100 0 "Initial TOC of source rock" "Normal_3SD" "1d" 
+101 0 "Initial S1 of source rock" "Normal_3SD" "1d" 
+104 0 "Intial H/C ratio of source rock" "Normal_3SD" "1d" 
+105 0 "Intial O/C ratio of source rock" "Normal_3SD" "1d" 
+106 0 "Intial N/C ratio of source rock" "Normal_3SD" "1d" 
+107 0 "Characteristic length of source rock" "Normal_3SD" "1d" 
+108 0 "Upper Biot number of source rock" "Normal_3SD" "1d" 
+109 0 "Lower Biot number of source rock" "Normal_3SD" "1d" 
+110 0 "Start Kerogen act. energy of source rock" "Normal_3SD" "1d" 
+111 0 "End Kerogen act. energy of source rock" "Normal_3SD" "1d" 
+112 0 "Start Pre Asphaltene act. energy of source rock" "Normal_3SD" "1d" 
+113 0 "End Pre Asphaltene act. energy of source rock" "Normal_3SD" "1d" 
+114 0 "Initial Nett thickness of source rock" "Normal_3SD" "1d" 
+100 0 "Initial TOC of source rock" "Normal_3SD" "3d" 
+104 0 "Initial H/C ratio of source rock" "Normal_3SD" "3d" 
+105 0 "Initial O/C ratio of source rock" "Normal_3SD" "3d" 
+107 0 "Characteristic length of source rock" "Normal_3SD" "3d" 
+108 0 "Upper Biot number of source rock" "Normal_3SD" "3d" 
+109 0 "Lower Biot number of source rock" "Normal_3SD" "3d" 
+110 0 "Start Kerogen act. energy of source rock" "Normal_3SD" "3d" 
+111 0 "End Kerogen act. energy of source rock" "Normal_3SD" "3d" 
+112 0 "Start Pre Asphaltene act. energy of source rock" "Normal_3SD" "3d" 
+113 0 "End Pre Asphaltene act. energy of source rock" "Normal_3SD" "3d" 
+114 0 "Initial Nett thickness of source rock" "Normal_3SD" "3d" 
+[End]
+;
+[FilterDepthIoTbl]
+;
+PropertyName ModellingMode OutputOption ResultOption 
+() () () () 
+"Massflux" "1d" "SedimentsPlusBasement" "Simple" 
+"Massflux_" "1d" "None" "Simple" 
+"Pressure" "1d" "SedimentsOnly" "Simple" 
+"LithoStaticPressure" "1d" "SedimentsOnly" "Simple" 
+"HydroStaticPressure" "1d" "SedimentsOnly" "Simple" 
+"OverPressure" "1d" "SedimentsOnly" "Simple" 
+"DiffusivityVec" "1d" "None" "Simple" 
+"HeatFlow" "1d" "SedimentsPlusBasement" "Simple" 
+"HeatFlow_" "1d" "None" "Simple" 
+"MaxVes" "1d" "None" "Simple" 
+"PorosityVec" "1d" "SedimentsOnly" "Simple" 
+"SonicVec" "1d" "SedimentsOnly" "Simple" 
+"VelocityVec" "1d" "SedimentsOnly" "Simple" 
+"ReflectivityVec" "1d" "SedimentsOnly" "Simple" 
+"BulkDensityVec" "1d" "SedimentsOnly" "Simple" 
+"Temperature" "1d" "SedimentsOnly" "Simple" 
+"ThCondVec" "1d" "SedimentsOnly" "Simple" 
+"PermeabilityVec" "1d" "SedimentsOnly" "Simple" 
+"Ves" "1d" "None" "Simple" 
+"Vr" "1d" "SedimentsOnly" "Simple" 
+"FissionTracks" "1d" "None" "Simple" 
+"Biomarkers" "1d" "None" "Simple" 
+"IlliteFraction" "1d" "None" "Simple" 
+[End]
+;
+[FilterTimeIoTbl]
+;
+PropertyName ModellingMode OutputOption ResultOption 
+() () () () 
+"IsoStaticMass" "1d" "None" "Simple" 
+"IsoStaticDeflection" "1d" "None" "Simple" 
+"IsoStaticWaterBottom" "1d" "None" "Simple" 
+"Massflux" "1d" "SedimentsPlusBasement" "Simple" 
+"Massflux_" "1d" "None" "Simple" 
+"Pressure" "1d" "SedimentsOnly" "Simple" 
+"LithoStaticPressure" "1d" "SedimentsOnly" "Simple" 
+"HydroStaticPressure" "1d" "SedimentsOnly" "Simple" 
+"OverPressure" "1d" "SedimentsOnly" "Simple" 
+"DiffusivityVec" "1d" "None" "Simple" 
+"PorosityVec" "1d" "SedimentsOnly" "Simple" 
+"SonicVec" "1d" "SedimentsOnly" "Simple" 
+"VelocityVec" "1d" "SedimentsOnly" "Simple" 
+"ReflectivityVec" "1d" "SedimentsOnly" "Simple" 
+"BulkDensityVec" "1d" "SedimentsOnly" "Simple" 
+"ThCondVec" "1d" "SedimentsPlusBasement" "Simple" 
+"PermeabilityVec" "1d" "SedimentsOnly" "Simple" 
+"Depth" "1d" "SedimentsPlusBasement" "Simple" 
+"HeatFlow" "1d" "SedimentsPlusBasement" "Simple" 
+"HeatFlow_" "1d" "None" "Simple" 
+"MaxVes" "1d" "None" "Simple" 
+"Temperature" "1d" "SedimentsPlusBasement" "Simple" 
+"Ves" "1d" "None" "Simple" 
+"Vr" "1d" "SedimentsOnly" "Simple" 
+"Biomarkers" "1d" "None" "Simple" 
+"IlliteFraction" "1d" "None" "Simple" 
+"Thickness" "1d" "SedimentsPlusBasement" "Simple" 
+"VreMaturity" "1d" "None" "Simple" 
+"ExpulsionApi" "1d" "None" "Simple" 
+"ExpulsionCondesateGasRatio" "1d" "None" "Simple" 
+"ExpulsionGasOilRatio" "1d" "None" "Simple" 
+"KerogenConversionRatio" "1d" "None" "Simple" 
+"CoxExpelledCumulative" "1d" "SourceRockOnly" "Simple" 
+"CoxExpelledCumulativeDownward" "1d" "None" "Simple" 
+"CoxExpelledCumulativeUpward" "1d" "None" "Simple" 
+"CoxExpelledDownwardRate" "1d" "None" "Simple" 
+"CoxExpelledRate" "1d" "SourceRockOnly" "Simple" 
+"CoxExpelledUpwardRate" "1d" "None" "Simple" 
+"CoxGeneratedCumulative" "1d" "SourceRockOnly" "Simple" 
+"CoxGeneratedRate" "1d" "SourceRockOnly" "Simple" 
+"DryGasExpelledCumulative" "1d" "SourceRockOnly" "Simple" 
+"DryGasExpelledCumulativeDownward" "1d" "None" "Simple" 
+"DryGasExpelledCumulativeUpward" "1d" "None" "Simple" 
+"DryGasExpelledDownwardRate" "1d" "None" "Simple" 
+"DryGasExpelledRate" "1d" "SourceRockOnly" "Simple" 
+"DryGasExpelledUpwardRate" "1d" "None" "Simple" 
+"DryGasGeneratedCumulative" "1d" "SourceRockOnly" "Simple" 
+"DryGasGeneratedRate" "1d" "SourceRockOnly" "Simple" 
+"HcGasExpelledCumulative" "1d" "SourceRockOnly" "Simple" 
+"HcGasExpelledCumulativeDownward" "1d" "None" "Simple" 
+"HcGasExpelledCumulativeUpward" "1d" "None" "Simple" 
+"HcGasExpelledDownwardRate" "1d" "None" "Simple" 
+"HcGasExpelledRate" "1d" "SourceRockOnly" "Simple" 
+"HcGasExpelledUpwardRate" "1d" "None" "Simple" 
+"HcGasGeneratedCumulative" "1d" "SourceRockOnly" "Simple" 
+"HcGasGeneratedRate" "1d" "SourceRockOnly" "Simple" 
+"NExpelledCumulative" "1d" "SourceRockOnly" "Simple" 
+"NExpelledCumulativeDownward" "1d" "None" "Simple" 
+"NExpelledCumulativeUpward" "1d" "None" "Simple" 
+"NExpelledDownwardRate" "1d" "None" "Simple" 
+"NExpelledRate" "1d" "SourceRockOnly" "Simple" 
+"NExpelledUpwardRate" "1d" "None" "Simple" 
+"NGeneratedCumulative" "1d" "SourceRockOnly" "Simple" 
+"NGeneratedRate" "1d" "SourceRockOnly" "Simple" 
+"OilExpelledCumulative" "1d" "SourceRockOnly" "Simple" 
+"OilExpelledCumulativeDownward" "1d" "None" "Simple" 
+"OilExpelledCumulativeUpward" "1d" "None" "Simple" 
+"OilExpelledDownwardRate" "1d" "None" "Simple" 
+"OilExpelledRate" "1d" "SourceRockOnly" "Simple" 
+"OilExpelledUpwardRate" "1d" "None" "Simple" 
+"OilGeneratedCumulative" "1d" "SourceRockOnly" "Simple" 
+"OilGeneratedRate" "1d" "SourceRockOnly" "Simple" 
+"WetGasExpelledCumulative" "1d" "SourceRockOnly" "Simple" 
+"WetGasExpelledCumulativeDownward" "1d" "None" "Simple" 
+"WetGasExpelledCumulativeUpward" "1d" "None" "Simple" 
+"WetGasExpelledDownwardRate" "1d" "None" "Simple" 
+"WetGasExpelledRate" "1d" "SourceRockOnly" "Simple" 
+"WetGasExpelledUpwardRate" "1d" "None" "Simple" 
+"WetGasGeneratedCumulative" "1d" "SourceRockOnly" "Simple" 
+"WetGasGeneratedRate" "1d" "SourceRockOnly" "Simple" 
+"Massflux" "3d" "None" "Simple" 
+"Pressure" "3d" "SedimentsOnly" "Simple" 
+"HydroStaticPressure" "3d" "SedimentsOnly" "Simple" 
+"LithoStaticPressure" "3d" "SedimentsOnly" "Simple" 
+"OverPressure" "3d" "SedimentsOnly" "Simple" 
+"DiffusivityVec" "3d" "None" "Simple" 
+"PorosityVec" "3d" "None" "Simple" 
+"VelocityVec" "3d" "None" "Simple" 
+"ReflectivityVec" "3d" "None" "Simple" 
+"BulkDensityVec" "3d" "None" "Simple" 
+"ThCondVec" "3d" "None" "Simple" 
+"PermeabilityVec" "3d" "None" "Simple" 
+"Depth" "3d" "SedimentsOnly" "Simple" 
+"HeatFlow" "3d" "None" "Simple" 
+"MaxVes" "3d" "None" "Simple" 
+"Temperature" "3d" "SedimentsOnly" "Simple" 
+"Ves" "3d" "None" "Simple" 
+"Vr" "3d" "SedimentsOnly" "Simple" 
+"Thickness" "3d" "None" "Simple" 
+"VreMaturity" "3d" "None" "Simple" 
+"ExpulsionApi" "3d" "None" "Simple" 
+"ExpulsionCondesateGasRatio" "3d" "None" "Simple" 
+"ExpulsionGasOilRatio" "3d" "SourceRockOnly" "Simple" 
+"KerogenConversionRatio" "3d" "SourceRockOnly" "Simple" 
+"CoxExpelledCumulative" "3d" "None" "Simple" 
+"CoxExpelledCumulativeDownward" "3d" "None" "Simple" 
+"CoxExpelledCumulativeUpward" "3d" "None" "Simple" 
+"CoxExpelledDownwardRate" "3d" "None" "Simple" 
+"CoxExpelledRate" "3d" "None" "Simple" 
+"CoxExpelledUpwardRate" "3d" "None" "Simple" 
+"CoxGeneratedCumulative" "3d" "None" "Simple" 
+"CoxGeneratedRate" "3d" "None" "Simple" 
+"DryGasExpelledCumulative" "3d" "None" "Simple" 
+"DryGasExpelledCumulativeDownward" "3d" "None" "Simple" 
+"DryGasExpelledCumulativeUpward" "3d" "None" "Simple" 
+"DryGasExpelledDownwardRate" "3d" "None" "Simple" 
+"DryGasExpelledRate" "3d" "None" "Simple" 
+"DryGasExpelledUpwardRate" "3d" "None" "Simple" 
+"DryGasGeneratedCumulative" "3d" "None" "Simple" 
+"DryGasGeneratedRate" "3d" "None" "Simple" 
+"HcGasExpelledCumulative" "3d" "None" "Simple" 
+"HcGasExpelledCumulativeDownward" "3d" "None" "Simple" 
+"HcGasExpelledCumulativeUpward" "3d" "None" "Simple" 
+"HcGasExpelledDownwardRate" "3d" "None" "Simple" 
+"HcGasExpelledRate" "3d" "SourceRockOnly" "Simple" 
+"HcGasExpelledUpwardRate" "3d" "None" "Simple" 
+"HcGasGeneratedCumulative" "3d" "None" "Simple" 
+"HcGasGeneratedRate" "3d" "SourceRockOnly" "Simple" 
+"NExpelledCumulative" "3d" "None" "Simple" 
+"NExpelledCumulativeDownward" "3d" "None" "Simple" 
+"NExpelledCumulativeUpward" "3d" "None" "Simple" 
+"NExpelledDownwardRate" "3d" "None" "Simple" 
+"NExpelledRate" "3d" "None" "Simple" 
+"NExpelledUpwardRate" "3d" "None" "Simple" 
+"NGeneratedCumulative" "3d" "None" "Simple" 
+"NGeneratedRate" "3d" "None" "Simple" 
+"OilExpelledCumulative" "3d" "None" "Simple" 
+"OilExpelledCumulativeDownward" "3d" "None" "Simple" 
+"OilExpelledCumulativeUpward" "3d" "None" "Simple" 
+"OilExpelledDownwardRate" "3d" "None" "Simple" 
+"OilExpelledRate" "3d" "SourceRockOnly" "Simple" 
+"OilExpelledUpwardRate" "3d" "None" "Simple" 
+"OilGeneratedCumulative" "3d" "None" "Simple" 
+"OilGeneratedRate" "3d" "SourceRockOnly" "Simple" 
+"WetGasExpelledCumulative" "3d" "None" "Simple" 
+"WetGasExpelledCumulativeDownward" "3d" "None" "Simple" 
+"WetGasExpelledCumulativeUpward" "3d" "None" "Simple" 
+"WetGasExpelledDownwardRate" "3d" "None" "Simple" 
+"WetGasExpelledRate" "3d" "None" "Simple" 
+"WetGasExpelledUpwardRate" "3d" "None" "Simple" 
+"WetGasGeneratedCumulative" "3d" "None" "Simple" 
+"WetGasGeneratedRate" "3d" "None" "Simple" 
+"ResRockLeakageUpward" "3d" "SedimentsPlusBasement" "Simple" 
+"ResRockLeakageOutward" "3d" "SedimentsPlusBasement" "Simple" 
+[End]
+;
+[FilterTimeDepthIoTbl]
+;
+PropertyName PropertyClass SurfaceName FormationName Time ResultOption NumberOfBins 
+() () () () (Ma) () () 
+"Massflux" "Physical" "" "" -9999 "None" -9999 
+"Massflux_" "Physical" "" "" -9999 "None" -9999 
+"Pressure" "Physical" "" "" -9999 "None" -9999 
+"LithoStaticPressure" "Physical" "" "" -9999 "None" -9999 
+"HydroStaticPressure" "Physical" "" "" -9999 "None" -9999 
+"OverPressure" "Physical" "" "" -9999 "None" -9999 
+"DiffusivityVec" "FormationTop" "" "" -9999 "None" -9999 
+"DiffusivityVec" "FormationBottom" "" "" -9999 "None" -9999 
+"PorosityVec" "FormationTop" "" "" -9999 "None" -9999 
+"PorosityVec" "FormationBottom" "" "" -9999 "None" -9999 
+"SonicVec" "FormationTop" "" "" -9999 "None" -9999 
+"SonicVec" "FormationBottom" "" "" -9999 "None" -9999 
+"VelocityVec" "FormationTop" "" "" -9999 "None" -9999 
+"VelocityVec" "FormationBottom" "" "" -9999 "None" -9999 
+"ReflectivityVec" "FormationTop" "" "" -9999 "None" -9999 
+"ReflectivityVec" "FormationBottom" "" "" -9999 "None" -9999 
+"BulkDensityVec" "FormationTop" "" "" -9999 "None" -9999 
+"BulkDensityVec" "FormationBottom" "" "" -9999 "None" -9999 
+"ThCondVec" "FormationTop" "" "" -9999 "None" -9999 
+"ThCondVec" "FormationBottom" "" "" -9999 "None" -9999 
+"PermeabilityVec" "FormationTop" "" "" -9999 "None" -9999 
+"PermeabilityVec" "FormationBottom" "" "" -9999 "None" -9999 
+"Depth" "Physical" "" "" -9999 "None" -9999 
+"HeatFlow" "Physical" "" "" -9999 "None" -9999 
+"HeatFlow_" "Physical" "" "" -9999 "None" -9999 
+"MaxVes" "Physical" "" "" -9999 "None" -9999 
+"Temperature" "Physical" "" "" -9999 "None" -9999 
+"Ves" "Physical" "" "" -9999 "None" -9999 
+"Vr" "Physical" "" "" -9999 "None" -9999 
+"Biomarkers" "Physical" "" "" -9999 "None" -9999 
+"IlliteFraction" "Physical" "" "" -9999 "None" -9999 
+"Thickness" "Formation" "" "" -9999 "None" -9999 
+"VreMaturity" "SourceRock" "" "" -9999 "None" -9999 
+"ExpulsionApi" "SourceRock" "" "" -9999 "None" -9999 
+"ExpulsionCondesateGasRatio" "SourceRock" "" "" -9999 "None" -9999 
+"ExpulsionGasOilRatio" "SourceRock" "" "" -9999 "None" -9999 
+"KerogenConversionRatio" "SourceRock" "" "" -9999 "None" -9999 
+"CoxExpelledCumulative" "SourceRock" "" "" -9999 "None" -9999 
+"CoxExpelledCumulativeDownward" "SourceRock" "" "" -9999 "None" -9999 
+"CoxExpelledCumulativeUpward" "SourceRock" "" "" -9999 "None" -9999 
+"CoxExpelledDownwardRate" "SourceRock" "" "" -9999 "None" -9999 
+"CoxExpelledRate" "SourceRock" "" "" -9999 "None" -9999 
+"CoxExpelledUpwardRate" "SourceRock" "" "" -9999 "None" -9999 
+"CoxGeneratedCumulative" "SourceRock" "" "" -9999 "None" -9999 
+"CoxGeneratedRate" "SourceRock" "" "" -9999 "None" -9999 
+"DryGasExpelledCumulative" "SourceRock" "" "" -9999 "None" -9999 
+"DryGasExpelledCumulativeDownward" "SourceRock" "" "" -9999 "None" -9999 
+"DryGasExpelledCumulativeUpward" "SourceRock" "" "" -9999 "None" -9999 
+"DryGasExpelledDownwardRate" "SourceRock" "" "" -9999 "None" -9999 
+"DryGasExpelledRate" "SourceRock" "" "" -9999 "None" -9999 
+"DryGasExpelledUpwardRate" "SourceRock" "" "" -9999 "None" -9999 
+"DryGasGeneratedCumulative" "SourceRock" "" "" -9999 "None" -9999 
+"DryGasGeneratedRate" "SourceRock" "" "" -9999 "None" -9999 
+"HcGasExpelledCumulative" "SourceRock" "" "" -9999 "None" -9999 
+"HcGasExpelledCumulativeDownward" "SourceRock" "" "" -9999 "None" -9999 
+"HcGasExpelledCumulativeUpward" "SourceRock" "" "" -9999 "None" -9999 
+"HcGasExpelledDownwardRate" "SourceRock" "" "" -9999 "None" -9999 
+"HcGasExpelledRate" "SourceRock" "" "" -9999 "None" -9999 
+"HcGasExpelledUpwardRate" "SourceRock" "" "" -9999 "None" -9999 
+"HcGasGeneratedCumulative" "SourceRock" "" "" -9999 "None" -9999 
+"HcGasGeneratedRate" "SourceRock" "" "" -9999 "None" -9999 
+"NExpelledCumulative" "SourceRock" "" "" -9999 "None" -9999 
+"NExpelledCumulativeDownward" "SourceRock" "" "" -9999 "None" -9999 
+"NExpelledCumulativeUpward" "SourceRock" "" "" -9999 "None" -9999 
+"NExpelledDownwardRate" "SourceRock" "" "" -9999 "None" -9999 
+"NExpelledRate" "SourceRock" "" "" -9999 "None" -9999 
+"NExpelledUpwardRate" "SourceRock" "" "" -9999 "None" -9999 
+"NGeneratedCumulative" "SourceRock" "" "" -9999 "None" -9999 
+"NGeneratedRate" "SourceRock" "" "" -9999 "None" -9999 
+"OilExpelledCumulative" "SourceRock" "" "" -9999 "None" -9999 
+"OilExpelledCumulativeDownward" "SourceRock" "" "" -9999 "None" -9999 
+"OilExpelledCumulativeUpward" "SourceRock" "" "" -9999 "None" -9999 
+"OilExpelledDownwardRate" "SourceRock" "" "" -9999 "None" -9999 
+"OilExpelledRate" "SourceRock" "" "" -9999 "None" -9999 
+"OilExpelledUpwardRate" "SourceRock" "" "" -9999 "None" -9999 
+"OilGeneratedCumulative" "SourceRock" "" "" -9999 "None" -9999 
+"OilGeneratedRate" "SourceRock" "" "" -9999 "None" -9999 
+"WetGasExpelledCumulative" "SourceRock" "" "" -9999 "None" -9999 
+"WetGasExpelledCumulativeDownward" "SourceRock" "" "" -9999 "None" -9999 
+"WetGasExpelledCumulativeUpward" "SourceRock" "" "" -9999 "None" -9999 
+"WetGasExpelledDownwardRate" "SourceRock" "" "" -9999 "None" -9999 
+"WetGasExpelledRate" "SourceRock" "" "" -9999 "None" -9999 
+"WetGasExpelledUpwardRate" "SourceRock" "" "" -9999 "None" -9999 
+"WetGasGeneratedCumulative" "SourceRock" "" "" -9999 "None" -9999 
+"WetGasGeneratedRate" "SourceRock" "" "" -9999 "None" -9999 
+[End]
+;
+;
+; Location Data
+;
+[WellLocIoTbl]
+;
+WellName XCoord YCoord Longitude Latitude Datum WellElevation DerFloorElev Waterdepth 
+() () () (degs,minutes) (degs,minutes) () (m) (m) (m) 
+"Ursa_A1" 292464.3125 3116286 0 0 "Sea Bottom (OFF shore)" -9999 -9999 -9999 
+[End]
+;
+;
+; Grid Map Data
+;
+;
+; Stratigraphic Data
+;
+[StratIoTbl]
+;
+SurfaceName DepoAge Depth DepthGrid TwoWayTtime LayerName DepoSequence Thickness CalibThickness OptimThickness ThicknessGrid Lithotype1 Percent1 Percent1Grid Lithotype2 Percent2 Percent2Grid Lithotype3 Percent3 MixModel SeisVelocity Fluidtype TempGradient SourceRock MobileLayer HydroSand ErrDepoAge ErrTwoWayTtime ErrDepth ErrThickness ErrSeisVelocity 
+() (Ma) (m) (m) (s) () () (m) (m) () (m) () (volume%) (volume%) () (volume%) (volume%) () (volume%) () (m/s) () (C/m) () () () () () () () () 
+"Water bottom" 0 0 "" 0 "Formation 1" 2 -9999 -9999 0 "" "Std. Sandstone" 100 "" "" 0 "" "" 0 "Homogeneous" 0 "Std. Marine Water" -9999 0 0 0 0 0 0 0 -9999 
+"Surface" 50 5000 "" 0 "Formation" 1 -9999 -9999 0 "" "Std. Sandstone" 100 "" "" 0 "" "" 0 "Layered" 0 "Std. Marine Water" -9999 0 0 0 0 0 0 0 -9999 
+"Hase" 100 10000 "" 0 "" -9999 -9999 -9999 0 "" "" -9999 "" "" -9999 "" "" -9999 "" -9999 "" -9999 -9999 -9999 -9999 0 0 0 -9999 -9999 
+[End]
+;
+[MobLayThicknIoTbl]
+;
+LayerName Age Thickness ThicknessGrid ErrThickness 
+() (Ma) (m) (m) () 
+[End]
+;
+[SourceRockLithoIoTbl]
+;
+[End]
+;
+;
+; Crust Thickness Data
+;
+[CrustIoTbl]
+;
+Age Thickness ThicknessGrid CalibThickness OptimThickness ErrThickness 
+(Ma) (m) (m) (m) () () 
+0 30000 "" -9999 -9999 0 
+100 30000 "" -9999 -9999 0 
+[End]
+;
+;
+; Geological Boundary datas
+;
+[GeologicalBoundaryIoTbl]
+;
+GeologicalObjectName GeologicalObjectType TypeOfProperty FirstIndexInPropertyIoTbl NumberOfProperties 
+() () () () () 
+[End]
+;
+;
+; Property Boundary datas
+;
+[PropertyBoundaryIoTbl]
+;
+NameOfProperty FirstIndexInPropertyBoundaryValuesIoTbl NumberOfTimeIntervals 
+() () () 
+[End]
+;
+;
+; Boundary values datas
+;
+[BoundaryValuesIoTbl]
+;
+BeginTimeValues EndTimeValues PropertyValueGrid PropertyValue 
+() () () () 
+[End]
+;
+;
+; Surface Temperatures
+;
+[SurfaceTempIoTbl]
+;
+Age Temperature TemperatureGrid ErrTemperature 
+(Ma) (C) (C) () 
+0 10 "" 4 
+[End]
+;
+;
+; Surface Depths
+;
+[SurfaceDepthIoTbl]
+;
+Age Depth DepthGrid ErrDepth 
+(Ma) (m) (m) () 
+0 0 "" -9999 
+[End]
+;
+;
+; Mantle Heat Flows
+;
+[MntlHeatFlowIoTbl]
+;
+Age HeatFlow HeatFlowGrid ErrHeatFlow 
+(Ma) (mW/m2) (mW/m2) () 
+0 30 "" 5 
+[End]
+;
+;
+; Basement
+;
+[BasementIoTbl]
+;
+BottomBoundaryModel TopAsthenoTemp TopCrustHeatProd TopCrustHeatProdGrid CalibTopCrustHeatProd CrustHeatPDecayConst LithoMantleThickness CalibLithoMantleThickness InitialLthMntThickns CalibInitialLthMntThickns FixedCrustThickness CalibFixedCrustThickness ErrLithoMantleThickness ErrInitialLthMntThickns ErrFixedCrustThickness ErrTopCrustHeatProd ErrCrustHeatPDecayConst 
+() (C) (uW/m3) (uW/m3) (uW/m3) (m) (m) (m) (m) (m) (m) (m) () () () () () 
+"Fixed Temperature" 1333 2.5 "" -9999 10000 90000 -9999 90000 -9999 30000 -9999 0 0 0 0 0 
+[End]
+;
+;
+; Measured Pressures
+;
+[FormPressIoTbl]
+;
+DepthIndex MPressure FormPressureType Label ErrMPressure 
+(m) (MPa) () () () 
+0 0 "RFT" "" 0 
+[End]
+;
+;
+; Formation Temperatures (corrected)
+;
+[FormTempIoTbl]
+;
+DepthIndex Temperature FormTempType Label Optimization ErrTemperature 
+(m) (C) () () () () 
+4891.4 78.5 "Production" "static" 1 0 
+5026 81 "Production" "" 0 0 
+[End]
+;
+;
+; Bottom Hole Temperatures (uncorrected)
+;
+[RawBhtIoTbl]
+;
+DepthIndex TimeSinceCirStopped Temperature Theta ErrTemperature 
+(m) (min) (C) () () 
+[End]
+;
+[RawBhtBitsizeIoTbl]
+;
+DepthIndex CirculationTime BitDiameter FormTempType 
+(m) (min) (inch) () 
+[End]
+;
+;
+; Marsden & Schreurs polynom coefficients
+;
+[MarsdenCoefIoTbl]
+;
+MarsdenAcoef MarsdenBcoef MarsdenCcoef 
+() () () 
+-3.8 22.8 -8.06 
+[End]
+;
+;
+; Vitrinite Reflectance Measurements
+;
+[VrmIoTbl]
+;
+DepthIndex Vr VrmType Label Optimization ErrVr 
+(m) (%) () () () () 
+[End]
+;
+;
+; Sonic Velocity Measurements
+;
+[SonicIoTbl]
+;
+Depth Dt ErrDepth 
+(m) (us/m) () 
+0 0 -9999 
+[End]
+;
+;
+; Bulk Density Measurements
+;
+[BulkDensityIoTbl]
+;
+Depth BDensity ErrDepth 
+(m) (kg/m^3) () 
+0 0 -9999 
+[End]
+;
+;
+; Biomarker Kinetics
+;
+[BiomarkerKinIoTbl]
+;
+HopIsoActEnergy SteIsoActEnergy SteAroActEnergy HopIsoFreqFactor SteIsoFreqFactor SteAroFreqFactor HopIsoGamma SteIsoGamma 
+(J/mol) (J/mol) (J/mol) (sec-1) (sec-1) (sec-1) () () 
+1.68e+05 1.69e+05 1.814e+05 8.1e+08 4.86e+08 4.85e+10 1.564 1.174 
+[End]
+;
+;
+; Biomarker Measurements
+;
+[BiomarkermIoTbl]
+;
+DepthIndex HopaneIsomerisation SteraneIsomerisation SteraneAromatisation Optimization ErrHopaneIsomerisation ErrSteraneIsomerisation ErrSteraneAromatisation 
+(m) () () () () () () () 
+[End]
+;
+;
+; Smectite Illite Kinetics
+;
+[SmectiteIlliteKinIoTbl]
+;
+ActEnergy1 FreqFactor1 ActEnergy2 FreqFactor2 InitIlliteFraction 
+() () () () () 
+55800 3.4229e+06 13700 1 0 
+[End]
+;
+;
+; Smectite Illite Measurements
+;
+[SmectiteIlliteIoTbl]
+;
+DepthIndex IlliteFraction Label Optimization ErrIlliteFraction 
+(m) () () () () 
+[End]
+;
+;
+; Fission track counts
+;
+[FtGrainIoTbl]
+;
+FtSampleId FtGrainId FtSpontTrackNo FtInducedTrackNo FtClWeightPerc FtGrainAge FtGrainAgeErr 
+() () () () (%) (Ma) (Ma) 
+[End]
+;
+;
+; Fission track lengths
+;
+[FtLengthIoTbl]
+;
+FtSampleId FtGrainId FtLength 
+() () (microns) 
+[End]
+;
+;
+; Fission track sample data
+;
+[FtSampleIoTbl]
+;
+FtSampleId DepthIndex FtZeta FtUstglTrackDensity FtPredictedAge FtPooledAge FtPooledAgeErr FtAgeChi2 FtDegreeOfFreedom FtPAgeChi2 FtCorrCoeff FtVarianceSqrtNs FtVarianceSqrtNi FtNsDivNi FtNsDivNiErr FtMeanRatio FtMeanRatioErr FtCentralAge FtCentralAgeErr FtMeanAge FtMeanAgeErr FtLengthChi2 FtApatiteYield Optimization 
+() (m) () (cm-2) (Ma) (Ma) (Ma) () () () () () () () () () () () () () () () () () 
+[End]
+;
+;
+; Reservoir Data
+;
+[ReservoirIoTbl]
+;
+ReservoirName FormationName DepthOffset DepthOffsetGrid Thickness ThicknessGrid NetToGross NetToGrossGrid MicroTraps LeakProperty LeakRate Lithotype1 Percent1 Percent1Grid Lithotype2 Percent2 Percent2Grid Lithotype3 LayerFrequency LayerFrequencyGrid ErrThickness ErrDepthOffset ErrNetToGross ErrMicroTraps ErrLayerFrequency 
+() () (m) (m) (m) (m) (m) (m) (m3/m2) () (kg/m2/ma) () (volume%) (volume%) () (volume%) (volume%) () (km) () () () () () () 
+[End]
+;
+;
+; Palinspastic Map Data
+;
+[PalinspasticIoTbl]
+;
+DepthGrid FaultcutsMap SurfaceName Age Depth MapSeqNbr OilSlope GasSlope MinimumSGR SGRIndicator ErrDepth ErrOilSlope ErrGasSlope ErrMinimumSGR 
+(m) (m) () (Ma) (m) () (km) () () () () () () () 
+[End]
+;
+;
+; Faultcut status data
+;
+[FaultcutIoTbl]
+;
+SurfaceName FaultName FaultcutStatus Age AgeSeqNbr 
+() () () (Ma) () 
+[End]
+;
+;
+; Fracture Pressure Functions against Depth
+;
+[PressureFuncIoTbl]
+;
+PresFuncName CoefA CoefB CoefC CoefD Selected UserDefined 
+() (MPa) (MPa/m) (MPa/m^2) (MPa/m^3) () () 
+"None        " 1e+09 0 0 0 0 0 
+"C-NorthSea  " 23.718 -0.01384 1.0687e-05 -9.0577e-10 0 0 
+"Nigeria Deep" 0.101 0.019906 0 0 0 0 
+"Terschelling" 0.101 0.01 2.3e-06 0 0 0 
+"Nigeria East" 0.36542 0.0099531 1.8554e-06 0 0 0 
+"Nigeria West" 0.101 0.0099531 2.3749e-06 0 0 0 
+"Brunei Deep " 0.101 0.022621 0 0 0 0 
+"Linear 70%  " 0.101 0.018834 0 0 0 0 
+"Linear 75%  " 0.101 0.019465 0 0 0 0 
+"Linear 80%  " 0.101 0.020096 0 0 0 0 
+"Linear 85%  " 0.101 0.020728 0 0 0 0 
+"Linear 90%  " 0.101 0.021359 0 0 0 0 
+"Linear 95%  " 0.101 0.02199 0 0 0 0 
+[End]
+;
+;
+; Trap Data
+;
+[TrapIoTbl]
+;
+ReservoirName Age TrapID XCoord YCoord Depth WCSurface Temperature Pressure GOC OWC MassC1 MassC2 MassC3 MassC4 MassC5 MassN2 MassCox MassOilPL MassOilPM MassOilPH MassOilAL MassOilAM MassOilAH ErrDepth ErrTemperature 
+() (Ma) () () () (m) (m2) (C) (MPa) (m) (m) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) () () 
+[End]
+;
+;
+; Trap Spill Data
+;
+[TrapSpillIoTbl]
+;
+Age SourceReservoirName SourceTrapID SpillPointX SpillPointY DestinationReservoirName DestinationTrapID GasDestinationTrapID OilDestinationTrapID MassOilSpilled MassGasSpilled MasterTrapID 
+(Ma) () () () () () () () () (kg) (kg) () 
+[End]
+;
+;
+; Reservoir Leak Data
+;
+[ReservoirLeakIoTbl]
+;
+Age SourceReservoirName SourceTrapID LeakPointX LeakPointY MassOilSpilled MassGasSpilled WasteLeakPoint 
+(Ma) () () () () (kg) (kg) (kg) 
+[End]
+;
+;
+; Lithotype Data
+;
+[LithotypeIoTbl]
+;
+<Row>
+Lithotype                      "Std. Sandstone"               ()
+Description                    "Standard Sandstone"           ()
+DefinedBy                      "RTS EPT-HM"                   ()
+UserDefined                    0                              ()
+DefinitionDate                 "November 1994"                ()
+LastChangedBy                  ""                             ()
+LastChangedDate                ""                             ()
+FgColour                       "black"                        ()
+BgColour                       "#e3e01c"                      ()
+Pixmap                         "Sandstone"                    ()
+Density                        2650                           (kg/m3)
+HeatProd                       0.8                            (uW/m3)
+HeatProdSource                 "User"                         ()
+SurfacePorosity                48                             (%)
+CompacCoefES                   3.22                           (10-8Pa-1)
+CompacCoefSC                   0.39                           (km-1)
+CompacCoefFM                   1.53                           (km-1)
+StpThCond                      3.4                            (W/mK)
+ThCondAnisotropy               1                              ((ratio))
+DepoPerm                       6000                           (mD)
+PermDecrStressCoef             0                              ()
+PermIncrRelaxCoef              1.5                            ()
+PermAnisotropy                 1                              ((ratio))
+PermMixModel                   "Sands"                        ()
+SeisVelocity                   6097                           (m/s)
+CapC1                          0.33                           ((unknown))
+CapC2                          0.2611                         ((unknown))
+ErrDensity                     51                             ()
+ErrDepoPerm                    0                              ()
+ErrStpThCond                   1.9                            ()
+ErrThCondAnisotropy            0.2                            ()
+ErrPermAnisotropy              0                              ()
+ErrHeatProd                    0.48                           ()
+ErrSurfacePorosity             8                              ()
+ErrSeisVelocity                0                              ()
+ErrCompacCoefSC                0                              ()
+ErrCompacCoefFM                0                              ()
+ErrCompacCoefES                1.6                            ()
+;
+<Row>
+Lithotype                      "Std. Shale"                   ()
+Description                    "Standard Shale"               ()
+DefinedBy                      "RTS EPT-HM"                   ()
+UserDefined                    0                              ()
+DefinitionDate                 "November 1994"                ()
+LastChangedBy                  ""                             ()
+LastChangedDate                ""                             ()
+FgColour                       "grey25"                       ()
+BgColour                       "grey75"                       ()
+Pixmap                         "Shale"                        ()
+Density                        2710                           (kg/m3)
+HeatProd                       1.8                            (uW/m3)
+HeatProdSource                 "User"                         ()
+SurfacePorosity                70                             (%)
+CompacCoefES                   7.27                           (10-8Pa-1)
+CompacCoefSC                   0.87                           (km-1)
+CompacCoefFM                   3.69                           (km-1)
+StpThCond                      1.4                            (W/mK)
+ThCondAnisotropy               1.6                            ((ratio))
+DepoPerm                       0.01                           (mD)
+PermDecrStressCoef             0.01                           ()
+PermIncrRelaxCoef              1.5                            ()
+PermAnisotropy                 1                              ((ratio))
+PermMixModel                   "Shales"                       ()
+SeisVelocity                   5000                           (m/s)
+CapC1                          0.33                           ((unknown))
+CapC2                          0.2611                         ((unknown))
+ErrDensity                     225                            ()
+ErrDepoPerm                    0                              ()
+ErrStpThCond                   0.69                           ()
+ErrThCondAnisotropy            0.5                            ()
+ErrPermAnisotropy              0                              ()
+ErrHeatProd                    0.2                            ()
+ErrSurfacePorosity             20                             ()
+ErrSeisVelocity                0                              ()
+ErrCompacCoefSC                0                              ()
+ErrCompacCoefFM                0                              ()
+ErrCompacCoefES                4.5                            ()
+;
+<Row>
+Lithotype                      "Std. Siltstone"               ()
+Description                    "Standard Siltstone"           ()
+DefinedBy                      "RTS EPT-HM"                   ()
+UserDefined                    0                              ()
+DefinitionDate                 "November 1994"                ()
+LastChangedBy                  ""                             ()
+LastChangedDate                ""                             ()
+FgColour                       "Black"                        ()
+BgColour                       "PaleGreen1"                   ()
+Pixmap                         "Siltstone"                    ()
+Density                        2648                           (kg/m3)
+HeatProd                       0.91                           (uW/m3)
+HeatProdSource                 "User"                         ()
+SurfacePorosity                38                             (%)
+CompacCoefES                   4                              (10-8Pa-1)
+CompacCoefSC                   0.39                           (km-1)
+CompacCoefFM                   2.18                           (km-1)
+StpThCond                      1.8                            (W/mK)
+ThCondAnisotropy               1.5                            ((ratio))
+DepoPerm                       50                             (mD)
+PermDecrStressCoef             0.01                           ()
+PermIncrRelaxCoef              1.5                            ()
+PermAnisotropy                 1                              ((ratio))
+PermMixModel                   "Shales"                       ()
+SeisVelocity                   5263                           (m/s)
+CapC1                          0.33                           ((unknown))
+CapC2                          0.2611                         ((unknown))
+ErrDensity                     60                             ()
+ErrDepoPerm                    0                              ()
+ErrStpThCond                   1.5                            ()
+ErrThCondAnisotropy            0.3                            ()
+ErrPermAnisotropy              0                              ()
+ErrHeatProd                    0                              ()
+ErrSurfacePorosity             20                             ()
+ErrSeisVelocity                0                              ()
+ErrCompacCoefSC                0                              ()
+ErrCompacCoefFM                0                              ()
+ErrCompacCoefES                2                              ()
+;
+<Row>
+Lithotype                      "Std.Grainstone"               ()
+Description                    "Standard Grainstone (Limestone)" ()
+DefinedBy                      "RTS EPT-HM"                   ()
+UserDefined                    0                              ()
+DefinitionDate                 "October 1995"                 ()
+LastChangedBy                  ""                             ()
+LastChangedDate                ""                             ()
+FgColour                       "Black"                        ()
+BgColour                       "#91e9e9"                      ()
+Pixmap                         "Limestone"                    ()
+Density                        2710                           (kg/m3)
+HeatProd                       0.45                           (uW/m3)
+HeatProdSource                 "User"                         ()
+SurfacePorosity                50                             (%)
+CompacCoefES                   3.8                            (10-8Pa-1)
+CompacCoefSC                   0.51                           (km-1)
+CompacCoefFM                   1.8                            (km-1)
+StpThCond                      2.5                            (W/mK)
+ThCondAnisotropy               1                              ((ratio))
+DepoPerm                       6000                           (mD)
+PermDecrStressCoef             0                              ()
+PermIncrRelaxCoef              1.5                            ()
+PermAnisotropy                 1                              ((ratio))
+PermMixModel                   "Sands"                        ()
+SeisVelocity                   6410                           (m/s)
+CapC1                          0.33                           ((unknown))
+CapC2                          0.2611                         ((unknown))
+ErrDensity                     24                             ()
+ErrDepoPerm                    0                              ()
+ErrStpThCond                   0.69                           ()
+ErrThCondAnisotropy            0.5                            ()
+ErrPermAnisotropy              0                              ()
+ErrHeatProd                    0.15                           ()
+ErrSurfacePorosity             10                             ()
+ErrSeisVelocity                0                              ()
+ErrCompacCoefSC                0                              ()
+ErrCompacCoefFM                0                              ()
+ErrCompacCoefES                2                              ()
+;
+<Row>
+Lithotype                      "Std.Dolo.Grainstone"          ()
+Description                    "Standard Domlomitic Grainstone (Dolostone)" ()
+DefinedBy                      "RTS EPT-HM"                   ()
+UserDefined                    0                              ()
+DefinitionDate                 "October 1995"                 ()
+LastChangedBy                  ""                             ()
+LastChangedDate                ""                             ()
+FgColour                       "Black"                        ()
+BgColour                       "#9589e2"                      ()
+Pixmap                         "Dolomite"                     ()
+Density                        2830                           (kg/m3)
+HeatProd                       0.32                           (uW/m3)
+HeatProdSource                 "User"                         ()
+SurfacePorosity                50                             (%)
+CompacCoefES                   3.03                           (10-8Pa-1)
+CompacCoefSC                   0.22                           (km-1)
+CompacCoefFM                   1.5                            (km-1)
+StpThCond                      5                              (W/mK)
+ThCondAnisotropy               1                              ((ratio))
+DepoPerm                       6000                           (mD)
+PermDecrStressCoef             0                              ()
+PermIncrRelaxCoef              1.5                            ()
+PermAnisotropy                 1                              ((ratio))
+PermMixModel                   "Sands"                        ()
+SeisVelocity                   6993                           (m/s)
+CapC1                          0.33                           ((unknown))
+CapC2                          0.2611                         ((unknown))
+ErrDensity                     36                             ()
+ErrDepoPerm                    0                              ()
+ErrStpThCond                   0.51                           ()
+ErrThCondAnisotropy            0.5                            ()
+ErrPermAnisotropy              0                              ()
+ErrHeatProd                    0.17                           ()
+ErrSurfacePorosity             10                             ()
+ErrSeisVelocity                0                              ()
+ErrCompacCoefSC                0                              ()
+ErrCompacCoefFM                0                              ()
+ErrCompacCoefES                2                              ()
+;
+<Row>
+Lithotype                      "Std.Lime Mudstone"            ()
+Description                    "Standard Calcareous Mudstone (Limestone)" ()
+DefinedBy                      "RTS EPT-HM"                   ()
+UserDefined                    0                              ()
+DefinitionDate                 "October 1995"                 ()
+LastChangedBy                  ""                             ()
+LastChangedDate                ""                             ()
+FgColour                       "Black"                        ()
+BgColour                       "#4ea7a7"                      ()
+Pixmap                         "Limestone"                    ()
+Density                        2710                           (kg/m3)
+HeatProd                       0.45                           (uW/m3)
+HeatProdSource                 "User"                         ()
+SurfacePorosity                70                             (%)
+CompacCoefES                   7.27                           (10-8Pa-1)
+CompacCoefSC                   0.51                           (km-1)
+CompacCoefFM                   1.8                            (km-1)
+StpThCond                      2.5                            (W/mK)
+ThCondAnisotropy               1.5                            ((ratio))
+DepoPerm                       0.01                           (mD)
+PermDecrStressCoef             0.01                           ()
+PermIncrRelaxCoef              1.5                            ()
+PermAnisotropy                 1                              ((ratio))
+PermMixModel                   "Shales"                       ()
+SeisVelocity                   6410                           (m/s)
+CapC1                          0.33                           ((unknown))
+CapC2                          0.2611                         ((unknown))
+ErrDensity                     24                             ()
+ErrDepoPerm                    0                              ()
+ErrStpThCond                   0.69                           ()
+ErrThCondAnisotropy            0.5                            ()
+ErrPermAnisotropy              0                              ()
+ErrHeatProd                    0.15                           ()
+ErrSurfacePorosity             20                             ()
+ErrSeisVelocity                0                              ()
+ErrCompacCoefSC                0                              ()
+ErrCompacCoefFM                0                              ()
+ErrCompacCoefES                4.5                            ()
+;
+<Row>
+Lithotype                      "Std.Dolo.Mudstone"            ()
+Description                    "Standard Dolomitic Mudstone (Dolostone)" ()
+DefinedBy                      "RTS EPT-HM"                   ()
+UserDefined                    0                              ()
+DefinitionDate                 "October 1995"                 ()
+LastChangedBy                  ""                             ()
+LastChangedDate                ""                             ()
+FgColour                       "Black"                        ()
+BgColour                       "#57499c"                      ()
+Pixmap                         "Dolomite"                     ()
+Density                        2830                           (kg/m3)
+HeatProd                       0.32                           (uW/m3)
+HeatProdSource                 "User"                         ()
+SurfacePorosity                70                             (%)
+CompacCoefES                   7.27                           (10-8Pa-1)
+CompacCoefSC                   0.22                           (km-1)
+CompacCoefFM                   1.5                            (km-1)
+StpThCond                      5                              (W/mK)
+ThCondAnisotropy               1.5                            ((ratio))
+DepoPerm                       0.01                           (mD)
+PermDecrStressCoef             0.01                           ()
+PermIncrRelaxCoef              1.5                            ()
+PermAnisotropy                 1                              ((ratio))
+PermMixModel                   "Shales"                       ()
+SeisVelocity                   6993                           (m/s)
+CapC1                          0.33                           ((unknown))
+CapC2                          0.2611                         ((unknown))
+ErrDensity                     36                             ()
+ErrDepoPerm                    0                              ()
+ErrStpThCond                   0.51                           ()
+ErrThCondAnisotropy            0.5                            ()
+ErrPermAnisotropy              0                              ()
+ErrHeatProd                    0.17                           ()
+ErrSurfacePorosity             20                             ()
+ErrSeisVelocity                0                              ()
+ErrCompacCoefSC                0                              ()
+ErrCompacCoefFM                0                              ()
+ErrCompacCoefES                4.5                            ()
+;
+<Row>
+Lithotype                      "Std. Chalk"                   ()
+Description                    "Standard Chalk"               ()
+DefinedBy                      "RTS EPT-HM"                   ()
+UserDefined                    0                              ()
+DefinitionDate                 "November 1994"                ()
+LastChangedBy                  ""                             ()
+LastChangedDate                ""                             ()
+FgColour                       "Red"                          ()
+BgColour                       "#95cce5"                      ()
+Pixmap                         "Limestone"                    ()
+Density                        2655                           (kg/m3)
+HeatProd                       0.45                           (uW/m3)
+HeatProdSource                 "User"                         ()
+SurfacePorosity                70                             (%)
+CompacCoefES                   4.83                           (10-8Pa-1)
+CompacCoefSC                   0.71                           (km-1)
+CompacCoefFM                   2.5                            (km-1)
+StpThCond                      2.9                            (W/mK)
+ThCondAnisotropy               1                              ((ratio))
+DepoPerm                       0.1                            (mD)
+PermDecrStressCoef             0.01                           ()
+PermIncrRelaxCoef              1.5                            ()
+PermAnisotropy                 1                              ((ratio))
+PermMixModel                   "Shales"                       ()
+SeisVelocity                   5988                           (m/s)
+CapC1                          0.33                           ((unknown))
+CapC2                          0.2611                         ((unknown))
+ErrDensity                     93                             ()
+ErrDepoPerm                    0                              ()
+ErrStpThCond                   0.9                            ()
+ErrThCondAnisotropy            0.5                            ()
+ErrPermAnisotropy              0                              ()
+ErrHeatProd                    0.15                           ()
+ErrSurfacePorosity             20                             ()
+ErrSeisVelocity                0                              ()
+ErrCompacCoefSC                0                              ()
+ErrCompacCoefFM                0                              ()
+ErrCompacCoefES                0                              ()
+;
+<Row>
+Lithotype                      "Std. Marl"                    ()
+Description                    "Standard Marl"                ()
+DefinedBy                      "RTS EPT-HM"                   ()
+UserDefined                    0                              ()
+DefinitionDate                 "November 1994"                ()
+LastChangedBy                  ""                             ()
+LastChangedDate                ""                             ()
+FgColour                       "Black"                        ()
+BgColour                       "#66a922"                      ()
+Pixmap                         "Clear"                        ()
+Density                        2670                           (kg/m3)
+HeatProd                       0.93                           (uW/m3)
+HeatProdSource                 "User"                         ()
+SurfacePorosity                70                             (%)
+CompacCoefES                   4.83                           (10-8Pa-1)
+CompacCoefSC                   0.71                           (km-1)
+CompacCoefFM                   2.5                            (km-1)
+StpThCond                      1.6                            (W/mK)
+ThCondAnisotropy               1.4                            ((ratio))
+DepoPerm                       0.01                           (mD)
+PermDecrStressCoef             0.01                           ()
+PermIncrRelaxCoef              1.5                            ()
+PermAnisotropy                 1                              ((ratio))
+PermMixModel                   "Shales"                       ()
+SeisVelocity                   5988                           (m/s)
+CapC1                          0.33                           ((unknown))
+CapC2                          0.2611                         ((unknown))
+ErrDensity                     39                             ()
+ErrDepoPerm                    0                              ()
+ErrStpThCond                   0.21                           ()
+ErrThCondAnisotropy            0.4                            ()
+ErrPermAnisotropy              0                              ()
+ErrHeatProd                    0.38                           ()
+ErrSurfacePorosity             20                             ()
+ErrSeisVelocity                0                              ()
+ErrCompacCoefSC                0                              ()
+ErrCompacCoefFM                0                              ()
+ErrCompacCoefES                0                              ()
+;
+<Row>
+Lithotype                      "Std. Anhydrite"               ()
+Description                    "Standard Anhydrite"           ()
+DefinedBy                      "RTS EPT-HM"                   ()
+UserDefined                    0                              ()
+DefinitionDate                 "November 1994"                ()
+LastChangedBy                  ""                             ()
+LastChangedDate                ""                             ()
+FgColour                       "Black"                        ()
+BgColour                       "#e595e5"                      ()
+Pixmap                         "Chert"                        ()
+Density                        2850                           (kg/m3)
+HeatProd                       0.09                           (uW/m3)
+HeatProdSource                 "User"                         ()
+SurfacePorosity                0                              (%)
+CompacCoefES                   0                              (10-8Pa-1)
+CompacCoefSC                   0                              (km-1)
+CompacCoefFM                   0                              (km-1)
+StpThCond                      5.8                            (W/mK)
+ThCondAnisotropy               1                              ((ratio))
+DepoPerm                       0                              (mD)
+PermDecrStressCoef             0                              ()
+PermIncrRelaxCoef              0                              ()
+PermAnisotropy                 0                              ((ratio))
+PermMixModel                   "None"                         ()
+SeisVelocity                   6097                           (m/s)
+CapC1                          0.33                           ((unknown))
+CapC2                          0.2611                         ((unknown))
+ErrDensity                     135                            ()
+ErrDepoPerm                    0                              ()
+ErrStpThCond                   0.81                           ()
+ErrThCondAnisotropy            0                              ()
+ErrPermAnisotropy              0                              ()
+ErrHeatProd                    0                              ()
+ErrSurfacePorosity             0                              ()
+ErrSeisVelocity                0                              ()
+ErrCompacCoefSC                0                              ()
+ErrCompacCoefFM                0                              ()
+ErrCompacCoefES                0                              ()
+;
+<Row>
+Lithotype                      "Std. Salt"                    ()
+Description                    "Standard Salt"                ()
+DefinedBy                      "RTS EPT-HM"                   ()
+UserDefined                    0                              ()
+DefinitionDate                 "November 1994"                ()
+LastChangedBy                  ""                             ()
+LastChangedDate                ""                             ()
+FgColour                       "MediumAquamarine"             ()
+BgColour                       "#96e4c9"                      ()
+Pixmap                         "Trellis1"                     ()
+Density                        2160                           (kg/m3)
+HeatProd                       0.012                          (uW/m3)
+HeatProdSource                 "User"                         ()
+SurfacePorosity                0                              (%)
+CompacCoefES                   0                              (10-8Pa-1)
+CompacCoefSC                   0                              (km-1)
+CompacCoefFM                   0                              (km-1)
+StpThCond                      6.3                            (W/mK)
+ThCondAnisotropy               1                              ((ratio))
+DepoPerm                       0                              (mD)
+PermDecrStressCoef             0                              ()
+PermIncrRelaxCoef              0                              ()
+PermAnisotropy                 0                              ((ratio))
+PermMixModel                   "None"                         ()
+SeisVelocity                   4545                           (m/s)
+CapC1                          0.33                           ((unknown))
+CapC2                          0.2611                         ((unknown))
+ErrDensity                     120                            ()
+ErrDepoPerm                    0                              ()
+ErrStpThCond                   1.5                            ()
+ErrThCondAnisotropy            0                              ()
+ErrPermAnisotropy              0                              ()
+ErrHeatProd                    0                              ()
+ErrSurfacePorosity             0                              ()
+ErrSeisVelocity                0                              ()
+ErrCompacCoefSC                0                              ()
+ErrCompacCoefFM                0                              ()
+ErrCompacCoefES                0                              ()
+;
+<Row>
+Lithotype                      "Sylvite"                      ()
+Description                    "Sylvite"                      ()
+DefinedBy                      "RTS EPT-HM"                   ()
+UserDefined                    0                              ()
+DefinitionDate                 "January 20 1997"              ()
+LastChangedBy                  "User"                         ()
+LastChangedDate                "January 20 1997"              ()
+FgColour                       "Grey7"                        ()
+BgColour                       "Red"                          ()
+Pixmap                         "Trellis1"                     ()
+Density                        2100                           (kg/m3)
+HeatProd                       0.95                           (uW/m3)
+HeatProdSource                 "User"                         ()
+SurfacePorosity                0                              (%)
+CompacCoefES                   0                              (10-8Pa-1)
+CompacCoefSC                   0                              (km-1)
+CompacCoefFM                   0                              (km-1)
+StpThCond                      6.95                           (W/mK)
+ThCondAnisotropy               1                              ((ratio))
+DepoPerm                       0                              (mD)
+PermDecrStressCoef             0                              ()
+PermIncrRelaxCoef              0                              ()
+PermAnisotropy                 0                              ((ratio))
+PermMixModel                   "None"                         ()
+SeisVelocity                   0                              (m/s)
+CapC1                          0.33                           ((unknown))
+CapC2                          0.2611                         ((unknown))
+ErrDensity                     100                            ()
+ErrDepoPerm                    0                              ()
+ErrStpThCond                   0.21                           ()
+ErrThCondAnisotropy            0                              ()
+ErrPermAnisotropy              0                              ()
+ErrHeatProd                    0.2                            ()
+ErrSurfacePorosity             0                              ()
+ErrSeisVelocity                0                              ()
+ErrCompacCoefSC                0                              ()
+ErrCompacCoefFM                0                              ()
+ErrCompacCoefES                0                              ()
+;
+<Row>
+Lithotype                      "Std. Coal"                    ()
+Description                    "Standard Coal"                ()
+DefinedBy                      "RTS EPT-HM"                   ()
+UserDefined                    0                              ()
+DefinitionDate                 "November 1994"                ()
+LastChangedBy                  ""                             ()
+LastChangedDate                ""                             ()
+FgColour                       "White"                        ()
+BgColour                       "gray20"                       ()
+Pixmap                         "Clear"                        ()
+Density                        1350                           (kg/m3)
+HeatProd                       0                              (uW/m3)
+HeatProdSource                 "User"                         ()
+SurfacePorosity                80                             (%)
+CompacCoefES                   4.76                           (10-8Pa-1)
+CompacCoefSC                   0.9                            (km-1)
+CompacCoefFM                   5                              (km-1)
+StpThCond                      0.21                           (W/mK)
+ThCondAnisotropy               0.03                           ((ratio))
+DepoPerm                       0                              (mD)
+PermDecrStressCoef             0                              ()
+PermIncrRelaxCoef              0                              ()
+PermAnisotropy                 0                              ((ratio))
+PermMixModel                   "Impermeable"                  ()
+SeisVelocity                   3003                           (m/s)
+CapC1                          0.33                           ((unknown))
+CapC2                          0.2611                         ((unknown))
+ErrDensity                     210                            ()
+ErrDepoPerm                    0                              ()
+ErrStpThCond                   0.03                           ()
+ErrThCondAnisotropy            0.01                           ()
+ErrPermAnisotropy              0                              ()
+ErrHeatProd                    0                              ()
+ErrSurfacePorosity             10                             ()
+ErrSeisVelocity                0                              ()
+ErrCompacCoefSC                0                              ()
+ErrCompacCoefFM                0                              ()
+ErrCompacCoefES                0                              ()
+;
+<Row>
+Lithotype                      "Std. Basalt"                  ()
+Description                    "Standard Basalt"              ()
+DefinedBy                      "RTS EPT-HM"                   ()
+UserDefined                    0                              ()
+DefinitionDate                 "November 1994"                ()
+LastChangedBy                  ""                             ()
+LastChangedDate                ""                             ()
+FgColour                       "Black"                        ()
+BgColour                       "#e3a992"                      ()
+Pixmap                         "Basement"                     ()
+Density                        2730                           (kg/m3)
+HeatProd                       0.63                           (uW/m3)
+HeatProdSource                 "User"                         ()
+SurfacePorosity                0                              (%)
+CompacCoefES                   0                              (10-8Pa-1)
+CompacCoefSC                   0                              (km-1)
+CompacCoefFM                   0                              (km-1)
+StpThCond                      2.4                            (W/mK)
+ThCondAnisotropy               1                              ((ratio))
+DepoPerm                       0                              (mD)
+PermDecrStressCoef             0                              ()
+PermIncrRelaxCoef              0                              ()
+PermAnisotropy                 0                              ((ratio))
+PermMixModel                   "None"                         ()
+SeisVelocity                   0                              (m/s)
+CapC1                          0.33                           ((unknown))
+CapC2                          0.2611                         ((unknown))
+ErrDensity                     180                            ()
+ErrDepoPerm                    0                              ()
+ErrStpThCond                   0.3                            ()
+ErrThCondAnisotropy            0                              ()
+ErrPermAnisotropy              0                              ()
+ErrHeatProd                    0.27                           ()
+ErrSurfacePorosity             0                              ()
+ErrSeisVelocity                0                              ()
+ErrCompacCoefSC                0                              ()
+ErrCompacCoefFM                0                              ()
+ErrCompacCoefES                0                              ()
+;
+<Row>
+Lithotype                      "Crust"                        ()
+Description                    "Standard Crust"               ()
+DefinedBy                      "RTS EPT-HM"                   ()
+UserDefined                    0                              ()
+DefinitionDate                 "November 1994"                ()
+LastChangedBy                  ""                             ()
+LastChangedDate                ""                             ()
+FgColour                       "Yellow"                       ()
+BgColour                       "#d5638e"                      ()
+Pixmap                         "Basement"                     ()
+Density                        2800                           (kg/m3)
+HeatProd                       0                              (uW/m3)
+HeatProdSource                 "Crust"                        ()
+SurfacePorosity                0                              (%)
+CompacCoefES                   0                              (10-8Pa-1)
+CompacCoefSC                   0                              (km-1)
+CompacCoefFM                   0                              (km-1)
+StpThCond                      4.09                           (W/mK)
+ThCondAnisotropy               1                              ((ratio))
+DepoPerm                       0                              (mD)
+PermDecrStressCoef             0                              ()
+PermIncrRelaxCoef              0                              ()
+PermAnisotropy                 0                              ((ratio))
+PermMixModel                   "None"                         ()
+SeisVelocity                   0                              (m/s)
+CapC1                          0.33                           ((unknown))
+CapC2                          0.2611                         ((unknown))
+ErrDensity                     180                            ()
+ErrDepoPerm                    0                              ()
+ErrStpThCond                   1.5                            ()
+ErrThCondAnisotropy            0                              ()
+ErrPermAnisotropy              0                              ()
+ErrHeatProd                    0                              ()
+ErrSurfacePorosity             0                              ()
+ErrSeisVelocity                0                              ()
+ErrCompacCoefSC                0                              ()
+ErrCompacCoefFM                0                              ()
+ErrCompacCoefES                0                              ()
+;
+<Row>
+Lithotype                      "Litho. Mantle"                ()
+Description                    "Lithospheric Mantle"          ()
+DefinedBy                      "RTS EPT-HM"                   ()
+UserDefined                    0                              ()
+DefinitionDate                 "November 1994"                ()
+LastChangedBy                  ""                             ()
+LastChangedDate                ""                             ()
+FgColour                       "Blue"                         ()
+BgColour                       "#da90da"                      ()
+Pixmap                         "Basement"                     ()
+Density                        3300                           (kg/m3)
+HeatProd                       0                              (uW/m3)
+HeatProdSource                 "User"                         ()
+SurfacePorosity                0                              (%)
+CompacCoefES                   0                              (10-8Pa-1)
+CompacCoefSC                   0                              (km-1)
+CompacCoefFM                   0                              (km-1)
+StpThCond                      3.2                            (W/mK)
+ThCondAnisotropy               1                              ((ratio))
+DepoPerm                       0                              (mD)
+PermDecrStressCoef             0                              ()
+PermIncrRelaxCoef              0                              ()
+PermAnisotropy                 0                              ((ratio))
+PermMixModel                   "None"                         ()
+SeisVelocity                   0                              (m/s)
+CapC1                          0.33                           ((unknown))
+CapC2                          0.2611                         ((unknown))
+ErrDensity                     180                            ()
+ErrDepoPerm                    0                              ()
+ErrStpThCond                   1.2                            ()
+ErrThCondAnisotropy            0                              ()
+ErrPermAnisotropy              0                              ()
+ErrHeatProd                    0                              ()
+ErrSurfacePorosity             0                              ()
+ErrSeisVelocity                0                              ()
+ErrCompacCoefSC                0                              ()
+ErrCompacCoefFM                0                              ()
+ErrCompacCoefES                0                              ()
+;
+<Row>
+Lithotype                      "Astheno. Mantle"              ()
+Description                    "Asthenospheric Mantle"        ()
+DefinedBy                      "RTS EPT-HM"                   ()
+UserDefined                    0                              ()
+DefinitionDate                 "November 1994"                ()
+LastChangedBy                  ""                             ()
+LastChangedDate                ""                             ()
+FgColour                       "White"                        ()
+BgColour                       "#c83232"                      ()
+Pixmap                         "Basement"                     ()
+Density                        3200                           (kg/m3)
+HeatProd                       0                              (uW/m3)
+HeatProdSource                 "User"                         ()
+SurfacePorosity                0                              (%)
+CompacCoefES                   0                              (10-8Pa-1)
+CompacCoefSC                   0                              (km-1)
+CompacCoefFM                   0                              (km-1)
+StpThCond                      3.8                            (W/mK)
+ThCondAnisotropy               1                              ((ratio))
+DepoPerm                       0                              (mD)
+PermDecrStressCoef             0                              ()
+PermIncrRelaxCoef              0                              ()
+PermAnisotropy                 0                              ((ratio))
+PermMixModel                   "None"                         ()
+SeisVelocity                   0                              (m/s)
+CapC1                          0.33                           ((unknown))
+CapC2                          0.2611                         ((unknown))
+ErrDensity                     180                            ()
+ErrDepoPerm                    0                              ()
+ErrStpThCond                   1.2                            ()
+ErrThCondAnisotropy            0                              ()
+ErrPermAnisotropy              0                              ()
+ErrHeatProd                    0                              ()
+ErrSurfacePorosity             0                              ()
+ErrSeisVelocity                0                              ()
+ErrCompacCoefSC                0                              ()
+ErrCompacCoefFM                0                              ()
+ErrCompacCoefES                0                              ()
+;
+<Row>
+Lithotype                      "HEAT Sandstone"               ()
+Description                    "Sandstone as used by IBS-HEAT" ()
+DefinedBy                      "RTS EPT-HM"                   ()
+UserDefined                    0                              ()
+DefinitionDate                 "October 1995"                 ()
+LastChangedBy                  ""                             ()
+LastChangedDate                ""                             ()
+FgColour                       "Grey7"                        ()
+BgColour                       "LightGrey"                    ()
+Pixmap                         "Sandstone"                    ()
+Density                        2700                           (kg/m3)
+HeatProd                       0.8                            (uW/m3)
+HeatProdSource                 "User"                         ()
+SurfacePorosity                48                             (%)
+CompacCoefES                   2.67                           (10-8Pa-1)
+CompacCoefSC                   0.39                           (km-1)
+CompacCoefFM                   1.53                           (km-1)
+StpThCond                      3.5                            (W/mK)
+ThCondAnisotropy               1                              ((ratio))
+DepoPerm                       6000                           (mD)
+PermDecrStressCoef             0                              ()
+PermIncrRelaxCoef              1.5                            ()
+PermAnisotropy                 1                              ((ratio))
+PermMixModel                   "Sands"                        ()
+SeisVelocity                   6097                           (m/s)
+CapC1                          0.33                           ((unknown))
+CapC2                          0.2611                         ((unknown))
+ErrDensity                     51                             ()
+ErrDepoPerm                    0                              ()
+ErrStpThCond                   3.4                            ()
+ErrThCondAnisotropy            0.2                            ()
+ErrPermAnisotropy              0                              ()
+ErrHeatProd                    0.48                           ()
+ErrSurfacePorosity             8                              ()
+ErrSeisVelocity                0                              ()
+ErrCompacCoefSC                0                              ()
+ErrCompacCoefFM                0                              ()
+ErrCompacCoefES                0                              ()
+;
+<Row>
+Lithotype                      "HEAT Shale"                   ()
+Description                    "Shale as used by IBS-HEAT"    ()
+DefinedBy                      "RTS EPT-HM"                   ()
+UserDefined                    0                              ()
+DefinitionDate                 "October 1995"                 ()
+LastChangedBy                  ""                             ()
+LastChangedDate                ""                             ()
+FgColour                       "Grey7"                        ()
+BgColour                       "Cyan"                         ()
+Pixmap                         "Shale"                        ()
+Density                        3330                           (kg/m3)
+HeatProd                       1.8                            (uW/m3)
+HeatProdSource                 "User"                         ()
+SurfacePorosity                70                             (%)
+CompacCoefES                   5.98                           (10-8Pa-1)
+CompacCoefSC                   0.87                           (km-1)
+CompacCoefFM                   3.69                           (km-1)
+StpThCond                      2                              (W/mK)
+ThCondAnisotropy               1.6                            ((ratio))
+DepoPerm                       0.01                           (mD)
+PermDecrStressCoef             0.01                           ()
+PermIncrRelaxCoef              1.5                            ()
+PermAnisotropy                 1                              ((ratio))
+PermMixModel                   "Shales"                       ()
+SeisVelocity                   5000                           (m/s)
+CapC1                          0.33                           ((unknown))
+CapC2                          0.2611                         ((unknown))
+ErrDensity                     225                            ()
+ErrDepoPerm                    0                              ()
+ErrStpThCond                   0.69                           ()
+ErrThCondAnisotropy            0.5                            ()
+ErrPermAnisotropy              0                              ()
+ErrHeatProd                    0.2                            ()
+ErrSurfacePorosity             0                              ()
+ErrSeisVelocity                0                              ()
+ErrCompacCoefSC                0                              ()
+ErrCompacCoefFM                0                              ()
+ErrCompacCoefES                0                              ()
+;
+<Row>
+Lithotype                      "HEAT Limestone"               ()
+Description                    "Limestone as used by IBS-HEAT" ()
+DefinedBy                      "RTS EPT-HM"                   ()
+UserDefined                    0                              ()
+DefinitionDate                 "October 1995"                 ()
+LastChangedBy                  ""                             ()
+LastChangedDate                ""                             ()
+FgColour                       "Grey7"                        ()
+BgColour                       "#91e9e9"                      ()
+Pixmap                         "Limestone"                    ()
+Density                        2800                           (kg/m3)
+HeatProd                       0.45                           (uW/m3)
+HeatProdSource                 "User"                         ()
+SurfacePorosity                50                             (%)
+CompacCoefES                   3.47                           (10-8Pa-1)
+CompacCoefSC                   0.51                           (km-1)
+CompacCoefFM                   1.8                            (km-1)
+StpThCond                      1.7                            (W/mK)
+ThCondAnisotropy               1                              ((ratio))
+DepoPerm                       0.01                           (mD)
+PermDecrStressCoef             0.01                           ()
+PermIncrRelaxCoef              1.5                            ()
+PermAnisotropy                 1                              ((ratio))
+PermMixModel                   "Shales"                       ()
+SeisVelocity                   6410                           (m/s)
+CapC1                          0.33                           ((unknown))
+CapC2                          0.2611                         ((unknown))
+ErrDensity                     24                             ()
+ErrDepoPerm                    0                              ()
+ErrStpThCond                   0.69                           ()
+ErrThCondAnisotropy            0.5                            ()
+ErrPermAnisotropy              0                              ()
+ErrHeatProd                    0.15                           ()
+ErrSurfacePorosity             10                             ()
+ErrSeisVelocity                0                              ()
+ErrCompacCoefSC                0                              ()
+ErrCompacCoefFM                0                              ()
+ErrCompacCoefES                0                              ()
+;
+<Row>
+Lithotype                      "HEAT Dolostone"               ()
+Description                    "Dolostone as used by IBS-HEAT" ()
+DefinedBy                      "RTS EPT-HM"                   ()
+UserDefined                    0                              ()
+DefinitionDate                 "October 1995"                 ()
+LastChangedBy                  ""                             ()
+LastChangedDate                ""                             ()
+FgColour                       "Grey7"                        ()
+BgColour                       "#9589e2"                      ()
+Pixmap                         "Dolomite"                     ()
+Density                        2800                           (kg/m3)
+HeatProd                       0.32                           (uW/m3)
+HeatProdSource                 "User"                         ()
+SurfacePorosity                40                             (%)
+CompacCoefES                   1.5                            (10-8Pa-1)
+CompacCoefSC                   0.22                           (km-1)
+CompacCoefFM                   1.5                            (km-1)
+StpThCond                      3                              (W/mK)
+ThCondAnisotropy               1                              ((ratio))
+DepoPerm                       0.01                           (mD)
+PermDecrStressCoef             0.01                           ()
+PermIncrRelaxCoef              1.5                            ()
+PermAnisotropy                 1                              ((ratio))
+PermMixModel                   "Shales"                       ()
+SeisVelocity                   6993                           (m/s)
+CapC1                          0.33                           ((unknown))
+CapC2                          0.2611                         ((unknown))
+ErrDensity                     36                             ()
+ErrDepoPerm                    0                              ()
+ErrStpThCond                   0.51                           ()
+ErrThCondAnisotropy            0.5                            ()
+ErrPermAnisotropy              0                              ()
+ErrHeatProd                    0.17                           ()
+ErrSurfacePorosity             0                              ()
+ErrSeisVelocity                0                              ()
+ErrCompacCoefSC                0                              ()
+ErrCompacCoefFM                0                              ()
+ErrCompacCoefES                0                              ()
+;
+<Row>
+Lithotype                      "HEAT Chalk"                   ()
+Description                    "Chalk as used by IBS-HEAT"    ()
+DefinedBy                      "RTS EPT-HM"                   ()
+UserDefined                    0                              ()
+DefinitionDate                 "October 1995"                 ()
+LastChangedBy                  ""                             ()
+LastChangedDate                ""                             ()
+FgColour                       "Grey7"                        ()
+BgColour                       "#66a922"                      ()
+Pixmap                         "Limestone"                    ()
+Density                        2650                           (kg/m3)
+HeatProd                       0.45                           (uW/m3)
+HeatProdSource                 "User"                         ()
+SurfacePorosity                70                             (%)
+CompacCoefES                   4.83                           (10-8Pa-1)
+CompacCoefSC                   0.71                           (km-1)
+CompacCoefFM                   2.5                            (km-1)
+StpThCond                      1.5                            (W/mK)
+ThCondAnisotropy               1                              ((ratio))
+DepoPerm                       0.1                            (mD)
+PermDecrStressCoef             0.01                           ()
+PermIncrRelaxCoef              1.5                            ()
+PermAnisotropy                 1                              ((ratio))
+PermMixModel                   "Shales"                       ()
+SeisVelocity                   5988                           (m/s)
+CapC1                          0.33                           ((unknown))
+CapC2                          0.2611                         ((unknown))
+ErrDensity                     93                             ()
+ErrDepoPerm                    0                              ()
+ErrStpThCond                   0.9                            ()
+ErrThCondAnisotropy            0.5                            ()
+ErrPermAnisotropy              0                              ()
+ErrHeatProd                    0.15                           ()
+ErrSurfacePorosity             0                              ()
+ErrSeisVelocity                0                              ()
+ErrCompacCoefSC                0                              ()
+ErrCompacCoefFM                0                              ()
+ErrCompacCoefES                0                              ()
+;
+[End]
+;
+[LitMixIoTbl]
+;
+Lithotype Lithotype1 Percent1 
+() () (volume%) 
+[End]
+;
+[LitThCondIoTbl]
+;
+Lithotype TempIndex ThCond 
+() (C) (W/mK) 
+"Std. Sandstone" 0 3.54 
+"Std. Sandstone" 20 3.4 
+"Std. Sandstone" 100 2.95 
+"Std. Sandstone" 200 2.54 
+"Std. Sandstone" 300 2.21 
+"Std. Sandstone" 400 1.94 
+"Std. Sandstone" 500 1.94 
+"Std. Sandstone" 600 1.94 
+"Std. Shale" 0 1.4 
+"Std. Shale" 20 1.4 
+"Std. Shale" 100 1.4 
+"Std. Shale" 200 1.4 
+"Std. Shale" 300 1.4 
+"Std. Shale" 400 1.4 
+"Std. Shale" 500 1.4 
+"Std. Shale" 600 1.4 
+"Std. Siltstone" 0 1.82 
+"Std. Siltstone" 20 1.8 
+"Std. Siltstone" 100 1.72 
+"Std. Siltstone" 200 1.63 
+"Std. Siltstone" 300 1.55 
+"Std. Siltstone" 400 1.48 
+"Std. Siltstone" 500 1.48 
+"Std. Siltstone" 600 1.48 
+"Std.Grainstone" 0 2.64 
+"Std.Grainstone" 20 2.5 
+"Std.Grainstone" 100 2.22 
+"Std.Grainstone" 200 1.86 
+"Std.Grainstone" 300 1.55 
+"Std.Grainstone" 400 1.31 
+"Std.Grainstone" 500 1.31 
+"Std.Grainstone" 600 1.31 
+"Std.Dolo.Grainstone" 0 5.19 
+"Std.Dolo.Grainstone" 20 5 
+"Std.Dolo.Grainstone" 100 4.37 
+"Std.Dolo.Grainstone" 200 3.67 
+"Std.Dolo.Grainstone" 300 3.11 
+"Std.Dolo.Grainstone" 400 2.66 
+"Std.Dolo.Grainstone" 500 2.66 
+"Std.Dolo.Grainstone" 600 2.66 
+"Std.Lime Mudstone" 0 2.64 
+"Std.Lime Mudstone" 20 2.5 
+"Std.Lime Mudstone" 100 2.22 
+"Std.Lime Mudstone" 200 1.86 
+"Std.Lime Mudstone" 300 1.55 
+"Std.Lime Mudstone" 400 1.31 
+"Std.Lime Mudstone" 500 1.31 
+"Std.Lime Mudstone" 600 1.31 
+"Std.Dolo.Mudstone" 0 5.19 
+"Std.Dolo.Mudstone" 20 5 
+"Std.Dolo.Mudstone" 100 4.37 
+"Std.Dolo.Mudstone" 200 3.67 
+"Std.Dolo.Mudstone" 300 3.11 
+"Std.Dolo.Mudstone" 400 2.66 
+"Std.Dolo.Mudstone" 500 2.66 
+"Std.Dolo.Mudstone" 600 2.66 
+"Std. Chalk" 0 3 
+"Std. Chalk" 20 2.9 
+"Std. Chalk" 100 2.56 
+"Std. Chalk" 200 2.23 
+"Std. Chalk" 300 1.96 
+"Std. Chalk" 400 1.72 
+"Std. Chalk" 500 1.72 
+"Std. Chalk" 600 1.72 
+"Std. Marl" 0 1.61 
+"Std. Marl" 20 1.6 
+"Std. Marl" 100 1.56 
+"Std. Marl" 200 1.51 
+"Std. Marl" 300 1.47 
+"Std. Marl" 400 1.43 
+"Std. Marl" 500 1.43 
+"Std. Marl" 600 1.43 
+"Std. Anhydrite" 0 6.19 
+"Std. Anhydrite" 20 5.8 
+"Std. Anhydrite" 100 4.55 
+"Std. Anhydrite" 200 3.38 
+"Std. Anhydrite" 300 2.69 
+"Std. Anhydrite" 400 2.48 
+"Std. Anhydrite" 500 2.48 
+"Std. Anhydrite" 600 2.48 
+"Std. Salt" 0 6.57 
+"Std. Salt" 20 6.33 
+"Std. Salt" 100 5.46 
+"Std. Salt" 200 4.51 
+"Std. Salt" 300 3.71 
+"Std. Salt" 400 3.06 
+"Std. Salt" 500 3.06 
+"Std. Salt" 600 3.06 
+"Sylvite" 0 6.95 
+"Sylvite" 20 6.7 
+"Sylvite" 100 5.8 
+"Sylvite" 200 4.79 
+"Sylvite" 300 3.94 
+"Sylvite" 400 3.25 
+"Sylvite" 500 3.25 
+"Sylvite" 600 3.25 
+"Std. Coal" 0 0.21 
+"Std. Coal" 20 0.21 
+"Std. Coal" 100 0.21 
+"Std. Coal" 200 0.22 
+"Std. Coal" 300 0.22 
+"Std. Coal" 400 0.22 
+"Std. Coal" 500 0.22 
+"Std. Coal" 600 0.22 
+"Std. Basalt" 0 2.41 
+"Std. Basalt" 20 2.4 
+"Std. Basalt" 100 2.31 
+"Std. Basalt" 200 2.21 
+"Std. Basalt" 300 2.11 
+"Std. Basalt" 400 2.01 
+"Std. Basalt" 500 1.9 
+"Std. Basalt" 600 1.8 
+"Std. Basalt" 700 1.7 
+"Std. Basalt" 800 1.6 
+"Std. Basalt" 900 1.5 
+"Std. Basalt" 1000 1.4 
+"Std. Basalt" 1100 1.3 
+"Std. Basalt" 1200 1.2 
+"Std. Basalt" 1300 1.1 
+"Crust" 0 4.2 
+"Crust" 20 4.09 
+"Crust" 100 3.66 
+"Crust" 200 3.19 
+"Crust" 300 2.79 
+"Crust" 400 2.45 
+"Crust" 500 2.18 
+"Crust" 600 1.97 
+"Crust" 700 1.84 
+"Crust" 800 1.76 
+"Crust" 900 1.75 
+"Crust" 1000 1.75 
+"Crust" 1100 1.75 
+"Crust" 1200 1.75 
+"Crust" 1300 1.75 
+"Litho. Mantle" 0 3.2 
+"Litho. Mantle" 20 3.2 
+"Litho. Mantle" 100 3.2 
+"Litho. Mantle" 200 3.2 
+"Litho. Mantle" 300 3.2 
+"Litho. Mantle" 400 3.2 
+"Litho. Mantle" 500 3.2 
+"Litho. Mantle" 600 3.2 
+"Litho. Mantle" 700 3.2 
+"Litho. Mantle" 800 3.2 
+"Litho. Mantle" 900 3.2 
+"Litho. Mantle" 1000 3.2 
+"Litho. Mantle" 1100 3.2 
+"Litho. Mantle" 1200 3.2 
+"Litho. Mantle" 1300 3.2 
+"Astheno. Mantle" 0 3.96 
+"Astheno. Mantle" 20 3.85 
+"Astheno. Mantle" 100 3.42 
+"Astheno. Mantle" 200 2.95 
+"Astheno. Mantle" 300 2.55 
+"Astheno. Mantle" 400 2.21 
+"Astheno. Mantle" 500 1.94 
+"Astheno. Mantle" 600 1.74 
+"Astheno. Mantle" 700 1.6 
+"Astheno. Mantle" 800 1.52 
+"Astheno. Mantle" 900 1.52 
+"Astheno. Mantle" 1000 1.57 
+"Astheno. Mantle" 1100 1.7 
+"Astheno. Mantle" 1200 1.89 
+"Astheno. Mantle" 1300 2.15 
+"HEAT Sandstone" 0 3.5 
+"HEAT Sandstone" 20 3.54 
+"HEAT Sandstone" 100 3.17 
+"HEAT Sandstone" 200 2.81 
+"HEAT Sandstone" 300 2.52 
+"HEAT Sandstone" 400 2.29 
+"HEAT Sandstone" 500 2.29 
+"HEAT Sandstone" 600 2.29 
+"HEAT Shale" 0 2 
+"HEAT Shale" 20 2.02 
+"HEAT Shale" 100 1.8 
+"HEAT Shale" 200 1.61 
+"HEAT Shale" 300 1.44 
+"HEAT Shale" 400 1.309 
+"HEAT Shale" 500 1.309 
+"HEAT Shale" 600 1.309 
+"HEAT Limestone" 0 2.64 
+"HEAT Limestone" 20 2.55 
+"HEAT Limestone" 100 2.22 
+"HEAT Limestone" 200 1.86 
+"HEAT Limestone" 300 1.55 
+"HEAT Limestone" 400 1.31 
+"HEAT Limestone" 500 1.31 
+"HEAT Limestone" 600 1.31 
+"HEAT Dolostone" 0 5.19 
+"HEAT Dolostone" 20 5.02 
+"HEAT Dolostone" 100 4.37 
+"HEAT Dolostone" 200 3.67 
+"HEAT Dolostone" 300 3.11 
+"HEAT Dolostone" 400 2.66 
+"HEAT Dolostone" 500 2.66 
+"HEAT Dolostone" 600 2.66 
+"HEAT Chalk" 0 3 
+"HEAT Chalk" 20 2.9 
+"HEAT Chalk" 100 2.56 
+"HEAT Chalk" 200 2.23 
+"HEAT Chalk" 300 1.96 
+"HEAT Chalk" 400 1.72 
+"HEAT Chalk" 500 1.72 
+"HEAT Chalk" 600 1.72 
+[End]
+;
+[LitHeatCapIoTbl]
+;
+Lithotype TempIndex HeatCapacity 
+() (C) (J/kgK) 
+"Std. Sandstone" 0 737.3 
+"Std. Sandstone" 100 882.3 
+"Std. Sandstone" 200 977.4 
+"Std. Sandstone" 300 1054 
+"Std. Sandstone" 400 1122.3 
+"Std. Sandstone" 500 1122.3 
+"Std. Sandstone" 600 1122.3 
+"Std. Shale" 0 779.1 
+"Std. Shale" 100 876.2 
+"Std. Shale" 200 962.9 
+"Std. Shale" 300 1045.7 
+"Std. Shale" 400 1126.8 
+"Std. Shale" 500 1126.8 
+"Std. Shale" 600 1126.8 
+"Std. Siltstone" 0 803.4 
+"Std. Siltstone" 100 946.7 
+"Std. Siltstone" 200 1034.7 
+"Std. Siltstone" 300 1102.3 
+"Std. Siltstone" 400 1160.7 
+"Std. Siltstone" 500 1160.7 
+"Std. Siltstone" 600 1160.7 
+"Std.Grainstone" 0 778.7 
+"Std.Grainstone" 100 931.5 
+"Std.Grainstone" 200 1015.7 
+"Std.Grainstone" 300 1074.6 
+"Std.Grainstone" 400 1122.1 
+"Std.Grainstone" 500 1122.1 
+"Std.Grainstone" 600 1122.1 
+"Std.Dolo.Grainstone" 0 813.9 
+"Std.Dolo.Grainstone" 100 972.6 
+"Std.Dolo.Grainstone" 200 1070.6 
+"Std.Dolo.Grainstone" 300 1146.3 
+"Std.Dolo.Grainstone" 400 1211.8 
+"Std.Dolo.Grainstone" 500 1211.8 
+"Std.Dolo.Grainstone" 600 1211.8 
+"Std.Lime Mudstone" 0 778.7 
+"Std.Lime Mudstone" 100 931.5 
+"Std.Lime Mudstone" 200 1015.7 
+"Std.Lime Mudstone" 300 1074.6 
+"Std.Lime Mudstone" 400 1122.1 
+"Std.Lime Mudstone" 500 1122.1 
+"Std.Lime Mudstone" 600 1122.1 
+"Std.Dolo.Mudstone" 0 813.9 
+"Std.Dolo.Mudstone" 100 972.6 
+"Std.Dolo.Mudstone" 200 1070.6 
+"Std.Dolo.Mudstone" 300 1146.3 
+"Std.Dolo.Mudstone" 400 1211.8 
+"Std.Dolo.Mudstone" 500 1211.8 
+"Std.Dolo.Mudstone" 600 1211.8 
+"Std. Chalk" 0 778.7 
+"Std. Chalk" 100 931.5 
+"Std. Chalk" 200 1015.7 
+"Std. Chalk" 300 1074.6 
+"Std. Chalk" 400 1122.1 
+"Std. Chalk" 500 1122.1 
+"Std. Chalk" 600 1122.1 
+"Std. Marl" 0 778.7 
+"Std. Marl" 100 931.5 
+"Std. Marl" 200 1015.7 
+"Std. Marl" 300 1074.6 
+"Std. Marl" 400 1122.1 
+"Std. Marl" 500 1122.1 
+"Std. Marl" 600 1122.1 
+"Std. Anhydrite" 0 711.5 
+"Std. Anhydrite" 100 788.7 
+"Std. Anhydrite" 200 861.7 
+"Std. Anhydrite" 300 933.2 
+"Std. Anhydrite" 400 1004 
+"Std. Anhydrite" 500 1004 
+"Std. Anhydrite" 600 1004 
+"Std. Salt" 0 846 
+"Std. Salt" 100 882.2 
+"Std. Salt" 200 913.9 
+"Std. Salt" 300 943.8 
+"Std. Salt" 400 973.1 
+"Std. Salt" 500 973.1 
+"Std. Salt" 600 973.1 
+"Sylvite" 0 679 
+"Sylvite" 100 708 
+"Sylvite" 200 730 
+"Sylvite" 300 755 
+"Sylvite" 400 780 
+"Sylvite" 500 808 
+"Sylvite" 600 834 
+"Std. Coal" 0 1000 
+"Std. Coal" 100 1000 
+"Std. Coal" 200 1000 
+"Std. Coal" 300 1000 
+"Std. Coal" 400 1000 
+"Std. Coal" 500 1000 
+"Std. Coal" 600 1000 
+"Std. Basalt" 0 852.9 
+"Std. Basalt" 100 928.9 
+"Std. Basalt" 200 987.2 
+"Std. Basalt" 300 1039 
+"Std. Basalt" 400 1087.9 
+"Std. Basalt" 500 1135.3 
+"Std. Basalt" 600 1181.8 
+"Std. Basalt" 700 1227.8 
+"Std. Basalt" 800 1273.4 
+"Std. Basalt" 900 1318.8 
+"Std. Basalt" 1000 1364.1 
+"Std. Basalt" 1100 1409.2 
+"Std. Basalt" 1200 1454.2 
+"Std. Basalt" 1300 1499.2 
+"Crust" 0 708.6 
+"Crust" 100 848.4 
+"Crust" 200 929.2 
+"Crust" 300 988.2 
+"Crust" 400 1037.4 
+"Crust" 500 1081.4 
+"Crust" 600 1122.6 
+"Crust" 700 1162 
+"Crust" 800 1200.2 
+"Crust" 900 1237.7 
+"Crust" 1000 1274.6 
+"Crust" 1100 1311.1 
+"Crust" 1200 1347.3 
+"Crust" 1300 1383.4 
+"Litho. Mantle" 0 721 
+"Litho. Mantle" 100 944.4 
+"Litho. Mantle" 200 1050.7 
+"Litho. Mantle" 300 1113.9 
+"Litho. Mantle" 400 1157.5 
+"Litho. Mantle" 500 1191 
+"Litho. Mantle" 600 1218.7 
+"Litho. Mantle" 700 1242.9 
+"Litho. Mantle" 800 1264.8 
+"Litho. Mantle" 900 1285.2 
+"Litho. Mantle" 1000 1304.6 
+"Litho. Mantle" 1100 1323.1 
+"Litho. Mantle" 1200 1341.1 
+"Litho. Mantle" 1300 1358.7 
+"Astheno. Mantle" 0 721 
+"Astheno. Mantle" 100 944.4 
+"Astheno. Mantle" 200 1050.7 
+"Astheno. Mantle" 300 1113.9 
+"Astheno. Mantle" 400 1157.5 
+"Astheno. Mantle" 500 1191 
+"Astheno. Mantle" 600 1218.7 
+"Astheno. Mantle" 700 1242.9 
+"Astheno. Mantle" 800 1264.8 
+"Astheno. Mantle" 900 1285.2 
+"Astheno. Mantle" 1000 1304.6 
+"Astheno. Mantle" 1100 1323.1 
+"Astheno. Mantle" 1200 1341.1 
+"Astheno. Mantle" 1300 1358.7 
+"HEAT Sandstone" 0 737.3 
+"HEAT Sandstone" 100 882.3 
+"HEAT Sandstone" 200 977.4 
+"HEAT Sandstone" 300 1054 
+"HEAT Sandstone" 400 1122.3 
+"HEAT Sandstone" 500 1122.3 
+"HEAT Sandstone" 600 1122.3 
+"HEAT Shale" 0 779.1 
+"HEAT Shale" 100 876.2 
+"HEAT Shale" 200 962.9 
+"HEAT Shale" 300 1045.7 
+"HEAT Shale" 400 1126.8 
+"HEAT Shale" 500 1126.8 
+"HEAT Shale" 600 1126.8 
+"HEAT Limestone" 0 778.7 
+"HEAT Limestone" 100 931.5 
+"HEAT Limestone" 200 1015.7 
+"HEAT Limestone" 300 1074.6 
+"HEAT Limestone" 400 1122.1 
+"HEAT Limestone" 500 1122.1 
+"HEAT Limestone" 600 1122.1 
+"HEAT Dolostone" 0 813.9 
+"HEAT Dolostone" 100 972.6 
+"HEAT Dolostone" 200 1070.6 
+"HEAT Dolostone" 300 1146.3 
+"HEAT Dolostone" 400 1211.8 
+"HEAT Dolostone" 500 1211.8 
+"HEAT Dolostone" 600 1211.8 
+"HEAT Chalk" 0 778.7 
+"HEAT Chalk" 100 931.5 
+"HEAT Chalk" 200 1015.7 
+"HEAT Chalk" 300 1074.6 
+"HEAT Chalk" 400 1122.1 
+"HEAT Chalk" 500 1122.1 
+"HEAT Chalk" 600 1122.1 
+[End]
+;
+;
+; Fluidtype Data
+;
+[FluidtypeIoTbl]
+;
+Fluidtype Description DefinedBy UserDefined DefinitionDate LastChangedDate LastChangedBy Density DensModel SeisVelocity SeisVelocityModel Salinity HeatCaptype ThermCondtype Denstype Viscotype ErrDensity ErrSeisVelocity 
+() () () () () () () (kg/m3) () (m/s) () (ppm) () () () () () () 
+"Std. Water" "KSEPL's Standard Water" "KSEPL" -9999 "November 1994" "" "" 1000 "Calculated" 1500 "Calculated" 0 "Std. Water" "Std. Water" "Std. Water" "Std. Water" -9999 -9999 
+"Std. Marine Water" "KSEPL's Standard Marine Water" "KSEPL" -9999 "February 2000" "" "" 1000 "Calculated" 1500 "Calculated" 0.13 "Std. Water" "Std. Water" "Std. Water" "Std. Water" -9999 -9999 
+"Std. Hyper Saline Water" "KSEPL's Standard Ultra Marine Water" "KSEPL" -9999 "February 2000" "" "" 1000 "Calculated" 1500 "Calculated" 0.22 "Std. Water" "Std. Water" "Std. Water" "Std. Water" -9999 -9999 
+[End]
+;
+[FltThCondIoTbl]
+;
+Fluidtype TempIndex ThCond 
+() (C) (W/mK) 
+"Std. Water" 0 0.57 
+"Std. Water" 20 0.6 
+"Std. Water" 100 0.67 
+"Std. Water" 200 0.66 
+"Std. Water" 300 0.53 
+"Std. Water" 400 0.29 
+[End]
+;
+[FltHeatCapIoTbl]
+;
+Fluidtype TempIndex Pressure HeatCapacity 
+() (C) (MPa) (J/kgK) 
+"Std. Water" 0 0.1 4250 
+"Std. Water" 50 0.1 4190 
+"Std. Water" 100 0.1 4200 
+"Std. Water" 150 0.1 4200 
+"Std. Water" 200 0.1 4200 
+"Std. Water" 250 0.1 4200 
+"Std. Water" 300 0.1 4200 
+"Std. Water" 350 0.1 4200 
+"Std. Water" 400 0.1 4200 
+"Std. Water" 450 0.1 4200 
+"Std. Water" 500 0.1 4200 
+"Std. Water" 550 0.1 4200 
+"Std. Water" 600 0.1 4200 
+"Std. Water" 0 40.1 4060 
+"Std. Water" 50 40.1 4090 
+"Std. Water" 100 40.1 4120 
+"Std. Water" 150 40.1 4120 
+"Std. Water" 200 40.1 4120 
+"Std. Water" 250 40.1 4120 
+"Std. Water" 300 40.1 4120 
+"Std. Water" 350 40.1 4120 
+"Std. Water" 400 40.1 4120 
+"Std. Water" 450 40.1 4120 
+"Std. Water" 500 40.1 4120 
+"Std. Water" 550 40.1 4120 
+"Std. Water" 600 40.1 4120 
+"Std. Water" 0 80.1 4030 
+"Std. Water" 50 80.1 4030 
+"Std. Water" 100 80.1 4060 
+"Std. Water" 150 80.1 4120 
+"Std. Water" 200 80.1 4190 
+"Std. Water" 250 80.1 4190 
+"Std. Water" 300 80.1 4190 
+"Std. Water" 350 80.1 4190 
+"Std. Water" 400 80.1 4190 
+"Std. Water" 450 80.1 4190 
+"Std. Water" 500 80.1 4190 
+"Std. Water" 550 80.1 4190 
+"Std. Water" 600 80.1 4190 
+"Std. Water" 0 120.1 4000 
+"Std. Water" 50 120.1 4000 
+"Std. Water" 100 120.1 4000 
+"Std. Water" 150 120.1 4030 
+"Std. Water" 200 120.1 4090 
+"Std. Water" 250 120.1 4090 
+"Std. Water" 300 120.1 4090 
+"Std. Water" 350 120.1 4090 
+"Std. Water" 400 120.1 4090 
+"Std. Water" 450 120.1 4090 
+"Std. Water" 500 120.1 4090 
+"Std. Water" 550 120.1 4090 
+"Std. Water" 600 120.1 4090 
+"Std. Water" 0 160.1 3970 
+"Std. Water" 50 160.1 3970 
+"Std. Water" 100 160.1 3970 
+"Std. Water" 150 160.1 4000 
+"Std. Water" 200 160.1 4030 
+"Std. Water" 250 160.1 4080 
+"Std. Water" 300 160.1 4080 
+"Std. Water" 350 160.1 4080 
+"Std. Water" 400 160.1 4080 
+"Std. Water" 450 160.1 4080 
+"Std. Water" 500 160.1 4080 
+"Std. Water" 550 160.1 4080 
+"Std. Water" 600 160.1 4080 
+"Std. Water" 0 200.1 3910 
+"Std. Water" 50 200.1 3910 
+"Std. Water" 100 200.1 3910 
+"Std. Water" 150 200.1 3910 
+"Std. Water" 200 200.1 3940 
+"Std. Water" 250 200.1 4000 
+"Std. Water" 300 200.1 4060 
+"Std. Water" 350 200.1 4060 
+"Std. Water" 400 200.1 4060 
+"Std. Water" 450 200.1 4060 
+"Std. Water" 500 200.1 4060 
+"Std. Water" 550 200.1 4060 
+"Std. Water" 600 200.1 4060 
+"Std. Water" 0 240.1 3880 
+"Std. Water" 50 240.1 3880 
+"Std. Water" 100 240.1 3880 
+"Std. Water" 150 240.1 3880 
+"Std. Water" 200 240.1 3910 
+"Std. Water" 250 240.1 3960 
+"Std. Water" 300 240.1 4000 
+"Std. Water" 350 240.1 4060 
+"Std. Water" 400 240.1 4060 
+"Std. Water" 450 240.1 4060 
+"Std. Water" 500 240.1 4060 
+"Std. Water" 550 240.1 4060 
+"Std. Water" 600 240.1 4060 
+"Std. Water" 0 280.1 3870 
+"Std. Water" 50 280.1 3870 
+"Std. Water" 100 280.1 3870 
+"Std. Water" 150 280.1 3870 
+"Std. Water" 200 280.1 3870 
+"Std. Water" 250 280.1 3910 
+"Std. Water" 300 280.1 3930 
+"Std. Water" 350 280.1 3970 
+"Std. Water" 400 280.1 4030 
+"Std. Water" 450 280.1 4030 
+"Std. Water" 500 280.1 4030 
+"Std. Water" 550 280.1 4030 
+"Std. Water" 600 280.1 4030 
+"Std. Water" 0 320.1 3860 
+"Std. Water" 50 320.1 3860 
+"Std. Water" 100 320.1 3860 
+"Std. Water" 150 320.1 3860 
+"Std. Water" 200 320.1 3860 
+"Std. Water" 250 320.1 3860 
+"Std. Water" 300 320.1 3870 
+"Std. Water" 350 320.1 3900 
+"Std. Water" 400 320.1 3940 
+"Std. Water" 450 320.1 3980 
+"Std. Water" 500 320.1 3980 
+"Std. Water" 550 320.1 3980 
+"Std. Water" 600 320.1 3980 
+"Std. Water" 0 360.1 3840 
+"Std. Water" 50 360.1 3840 
+"Std. Water" 100 360.1 3840 
+"Std. Water" 150 360.1 3840 
+"Std. Water" 200 360.1 3840 
+"Std. Water" 250 360.1 3840 
+"Std. Water" 300 360.1 3850 
+"Std. Water" 350 360.1 3860 
+"Std. Water" 400 360.1 3890 
+"Std. Water" 450 360.1 3930 
+"Std. Water" 500 360.1 3940 
+"Std. Water" 550 360.1 3940 
+"Std. Water" 600 360.1 3940 
+"Std. Water" 0 400.1 3800 
+"Std. Water" 50 400.1 3800 
+"Std. Water" 100 400.1 3800 
+"Std. Water" 150 400.1 3800 
+"Std. Water" 200 400.1 3800 
+"Std. Water" 250 400.1 3800 
+"Std. Water" 300 400.1 3800 
+"Std. Water" 350 400.1 3810 
+"Std. Water" 400 400.1 3830 
+"Std. Water" 450 400.1 3850 
+"Std. Water" 500 400.1 3860 
+"Std. Water" 550 400.1 3850 
+"Std. Water" 600 400.1 3840 
+"Std. Water" 0 440.1 3770 
+"Std. Water" 50 440.1 3770 
+"Std. Water" 100 440.1 3770 
+"Std. Water" 150 440.1 3770 
+"Std. Water" 200 440.1 3770 
+"Std. Water" 250 440.1 3770 
+"Std. Water" 300 440.1 3770 
+"Std. Water" 350 440.1 3780 
+"Std. Water" 400 440.1 3800 
+"Std. Water" 450 440.1 3810 
+"Std. Water" 500 440.1 3820 
+"Std. Water" 550 440.1 3820 
+"Std. Water" 600 440.1 3800 
+[End]
+;
+[FltDensityIoTbl]
+;
+Fluidtype TempIndex Pressure Density ErrDensity 
+() (C) (MPa) (kg/m3) () 
+"Std. Water" 0 0.1 999.8 -9999 
+"Std. Water" 50 0.1 988 -9999 
+"Std. Water" 100 0.1 958.4 -9999 
+"Std. Water" 150 0.1 916.8 -9999 
+"Std. Water" 200 0.1 863.6 -9999 
+"Std. Water" 250 0.1 794.4 -9999 
+"Std. Water" 300 0.1 689.8 -9999 
+"Std. Water" 350 0.1 600 -9999 
+"Std. Water" 400 0.1 400 -9999 
+"Std. Water" 450 0.1 250 -9999 
+"Std. Water" 500 0.1 150 -9999 
+"Std. Water" 550 0.1 125 -9999 
+"Std. Water" 600 0.1 100 -9999 
+"Std. Water" 0 40.1 1019.3 -9999 
+"Std. Water" 50 40.1 1004.7 -9999 
+"Std. Water" 100 40.1 976.2 -9999 
+"Std. Water" 150 40.1 937.9 -9999 
+"Std. Water" 200 40.1 891.1 -9999 
+"Std. Water" 250 40.1 834.5 -9999 
+"Std. Water" 300 40.1 764.7 -9999 
+"Std. Water" 350 40.1 672.3 -9999 
+"Std. Water" 400 40.1 524.4 -9999 
+"Std. Water" 450 40.1 272.4 -9999 
+"Std. Water" 500 40.1 178.7 -9999 
+"Std. Water" 550 40.1 143.9 -9999 
+"Std. Water" 600 40.1 124.2 -9999 
+"Std. Water" 0 80.1 1037 -9999 
+"Std. Water" 50 80.1 1020.1 -9999 
+"Std. Water" 100 80.1 992.2 -9999 
+"Std. Water" 150 80.1 956.3 -9999 
+"Std. Water" 200 80.1 913.7 -9999 
+"Std. Water" 250 80.1 864.1 -9999 
+"Std. Water" 300 80.1 806.7 -9999 
+"Std. Water" 350 80.1 739.4 -9999 
+"Std. Water" 400 80.1 659.5 -9999 
+"Std. Water" 450 80.1 564 -9999 
+"Std. Water" 500 80.1 457.4 -9999 
+"Std. Water" 550 80.1 362.3 -9999 
+"Std. Water" 600 80.1 295.9 -9999 
+"Std. Water" 0 120.1 1053.2 -9999 
+"Std. Water" 50 120.1 1034.5 -9999 
+"Std. Water" 100 120.1 1007 -9999 
+"Std. Water" 150 120.1 972.8 -9999 
+"Std. Water" 200 120.1 933.2 -9999 
+"Std. Water" 250 120.1 888.4 -9999 
+"Std. Water" 300 120.1 838 -9999 
+"Std. Water" 350 120.1 781.7 -9999 
+"Std. Water" 400 120.1 719.1 -9999 
+"Std. Water" 450 120.1 650.3 -9999 
+"Std. Water" 500 120.1 577.1 -9999 
+"Std. Water" 550 120.1 504 -9999 
+"Std. Water" 600 120.1 437.4 -9999 
+"Std. Water" 0 160.1 1067.9 -9999 
+"Std. Water" 50 160.1 1047.9 -9999 
+"Std. Water" 100 160.1 1020.7 -9999 
+"Std. Water" 150 160.1 987.9 -9999 
+"Std. Water" 200 160.1 950.6 -9999 
+"Std. Water" 250 160.1 909.2 -9999 
+"Std. Water" 300 160.1 863.7 -9999 
+"Std. Water" 350 160.1 814 -9999 
+"Std. Water" 400 160.1 760.3 -9999 
+"Std. Water" 450 160.1 703.3 -9999 
+"Std. Water" 500 160.1 644 -9999 
+"Std. Water" 550 160.1 584.6 -9999 
+"Std. Water" 600 160.1 527.7 -9999 
+"Std. Water" 0 200.1 1081.2 -9999 
+"Std. Water" 50 200.1 1060.5 -9999 
+"Std. Water" 100 200.1 1033.5 -9999 
+"Std. Water" 150 200.1 1001.9 -9999 
+"Std. Water" 200 200.1 966.4 -9999 
+"Std. Water" 250 200.1 927.7 -9999 
+"Std. Water" 300 200.1 885.7 -9999 
+"Std. Water" 350 200.1 840.6 -9999 
+"Std. Water" 400 200.1 792.7 -9999 
+"Std. Water" 450 200.1 742.6 -9999 
+"Std. Water" 500 200.1 691.3 -9999 
+"Std. Water" 550 200.1 639.9 -9999 
+"Std. Water" 600 200.1 590.1 -9999 
+"Std. Water" 0 240.1 1093.1 -9999 
+"Std. Water" 50 240.1 1072.3 -9999 
+"Std. Water" 100 240.1 1045.6 -9999 
+"Std. Water" 150 240.1 1014.9 -9999 
+"Std. Water" 200 240.1 981 -9999 
+"Std. Water" 250 240.1 944.3 -9999 
+"Std. Water" 300 240.1 905.1 -9999 
+"Std. Water" 350 240.1 863.5 -9999 
+"Std. Water" 400 240.1 819.8 -9999 
+"Std. Water" 450 240.1 774.5 -9999 
+"Std. Water" 500 240.1 728.4 -9999 
+"Std. Water" 550 240.1 682.4 -9999 
+"Std. Water" 600 240.1 637.5 -9999 
+"Std. Water" 0 280.1 1104 -9999 
+"Std. Water" 50 280.1 1083.5 -9999 
+"Std. Water" 100 280.1 1057 -9999 
+"Std. Water" 150 280.1 1027.1 -9999 
+"Std. Water" 200 280.1 994.5 -9999 
+"Std. Water" 250 280.1 959.6 -9999 
+"Std. Water" 300 280.1 922.7 -9999 
+"Std. Water" 350 280.1 883.8 -9999 
+"Std. Water" 400 280.1 843.2 -9999 
+"Std. Water" 450 280.1 801.5 -9999 
+"Std. Water" 500 280.1 759.2 -9999 
+"Std. Water" 550 280.1 717.1 -9999 
+"Std. Water" 600 280.1 675.8 -9999 
+"Std. Water" 0 320.1 1114.1 -9999 
+"Std. Water" 50 320.1 1094 -9999 
+"Std. Water" 100 320.1 1067.9 -9999 
+"Std. Water" 150 320.1 1038.6 -9999 
+"Std. Water" 200 320.1 1007.2 -9999 
+"Std. Water" 250 320.1 973.8 -9999 
+"Std. Water" 300 320.1 938.7 -9999 
+"Std. Water" 350 320.1 902 -9999 
+"Std. Water" 400 320.1 864.1 -9999 
+"Std. Water" 450 320.1 825.1 -9999 
+"Std. Water" 500 320.1 785.8 -9999 
+"Std. Water" 550 320.1 746.6 -9999 
+"Std. Water" 600 320.1 708.3 -9999 
+"Std. Water" 0 360.1 1123.4 -9999 
+"Std. Water" 50 360.1 1104 -9999 
+"Std. Water" 100 360.1 1078.2 -9999 
+"Std. Water" 150 360.1 1049.6 -9999 
+"Std. Water" 200 360.1 1019.1 -9999 
+"Std. Water" 250 360.1 987.1 -9999 
+"Std. Water" 300 360.1 953.6 -9999 
+"Std. Water" 350 360.1 918.8 -9999 
+"Std. Water" 400 360.1 882.9 -9999 
+"Std. Water" 450 360.1 846.3 -9999 
+"Std. Water" 500 360.1 809.3 -9999 
+"Std. Water" 550 360.1 772.6 -9999 
+"Std. Water" 600 360.1 736.5 -9999 
+"Std. Water" 0 400.1 1132.3 -9999 
+"Std. Water" 50 400.1 1113.6 -9999 
+"Std. Water" 100 400.1 1088 -9999 
+"Std. Water" 150 400.1 1060.1 -9999 
+"Std. Water" 200 400.1 1030.4 -9999 
+"Std. Water" 250 400.1 999.5 -9999 
+"Std. Water" 300 400.1 967.4 -9999 
+"Std. Water" 350 400.1 934.2 -9999 
+"Std. Water" 400 400.1 900.1 -9999 
+"Std. Water" 450 400.1 865.4 -9999 
+"Std. Water" 500 400.1 830.5 -9999 
+"Std. Water" 550 400.1 795.7 -9999 
+"Std. Water" 600 400.1 761.5 -9999 
+"Std. Water" 0 440.1 1140.6 -9999 
+"Std. Water" 50 440.1 1122.7 -9999 
+"Std. Water" 100 440.1 1097.4 -9999 
+"Std. Water" 150 440.1 1070 -9999 
+"Std. Water" 200 440.1 1041.2 -9999 
+"Std. Water" 250 440.1 1011.3 -9999 
+"Std. Water" 300 440.1 980.4 -9999 
+"Std. Water" 350 440.1 948.6 -9999 
+"Std. Water" 400 440.1 916.1 -9999 
+"Std. Water" 450 440.1 883.1 -9999 
+"Std. Water" 500 440.1 849.8 -9999 
+"Std. Water" 550 440.1 816.7 -9999 
+"Std. Water" 600 440.1 784.2 -9999 
+[End]
+;
+[FltViscoIoTbl]
+;
+Fluidtype TempIndex Viscosity 
+() (C) (PaS) 
+"Std. Water" 0 0.0017715 
+"Std. Water" 5 0.0015088 
+"Std. Water" 10 0.0013015 
+"Std. Water" 15 0.0011352 
+"Std. Water" 20 0.001 
+"Std. Water" 25 0.00088862 
+"Std. Water" 30 0.00079583 
+"Std. Water" 35 0.00071773 
+"Std. Water" 40 0.00065138 
+"Std. Water" 45 0.00059452 
+"Std. Water" 50 0.00054542 
+"Std. Water" 100 0.00028178 
+"Std. Water" 150 0.00018101 
+"Std. Water" 200 0.00013006 
+"Std. Water" 250 9.9758e-05 
+"Std. Water" 300 7.9743e-05 
+"Std. Water" 350 6.5542e-05 
+"Std. Water" 400 5.4938e-05 
+"Std. Water" 450 4.6715e-05 
+"Std. Water" 500 4.0155e-05 
+"Std. Water" 550 3.4806e-05 
+"Std. Water" 600 3.0368e-05 
+"Std. Water" 650 2.6637e-05 
+"Std. Water" 700 2.3465e-05 
+"Std. Water" 750 2.0745e-05 
+"Std. Water" 800 1.8394e-05 
+"Std. Water" 850 1.6351e-05 
+"Std. Water" 900 1.4566e-05 
+"Std. Water" 950 1.2999e-05 
+"Std. Water" 1000 1.1619e-05 
+"Std. Water" 1050 1.04e-05 
+"Std. Water" 1100 9.3203e-06 
+"Std. Water" 1150 8.3614e-06 
+"Std. Water" 1200 7.5083e-06 
+"Std. Water" 1250 6.7478e-06 
+"Std. Water" 1300 6.0689e-06 
+"Std. Water" 1350 5.462e-06 
+[End]
+;
+;
+; Countour settings
+;
+[DisplayContourIoTbl]
+;
+PropertyName ContourValue ContourColour 
+() () () 
+"Temperature" 0 "red" 
+"Temperature" 20 "red" 
+"Temperature" 40 "red" 
+"Temperature" 60 "red" 
+"Temperature" 80 "red" 
+"Temperature" 100 "white" 
+"Temperature" 120 "red" 
+"Temperature" 140 "red" 
+"Temperature" 160 "red" 
+"Temperature" 180 "red" 
+"Temperature" 200 "white" 
+"Vr" 0.6 "red" 
+"Vr" 1.2 "red" 
+"Vr" 2.4 "green" 
+"Depth" 1000 "red" 
+"Depth" 2000 "white" 
+"Depth" 3000 "blue" 
+[End]
+;
+;
+; Output results
+;
+;
+; Histograms of MC output
+;
+;
+; Histogram data
+;
+;
+; Iso temperature data for burial graph
+;
+;
+; Iso vr data for burial graph
+;
+;
+; Iso vr or temperature data for burial graph
+;
+;
+; END - ursa_A1.project1d 17-Dec-02 16:57:45
+;

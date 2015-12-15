@@ -1,0 +1,199 @@
+#!/bin/bash
+#
+# definitions_system - GEMPIS system definitions
+#
+# Purpose: defines GEMPIS environment for all users of this 
+#          environment. Users can overrides these values 
+#          in their own definition file.
+#
+# This is the only script that needs to be directly references by gempis
+#
+# Syntax:
+#     . $GEMPIS_DEFDIR/definitions_system
+# 
+# User resources are defined in ~/.gempis/definitions_user and override 
+# those defined here.
+# 
+# References: See GEMPIS User manual for details.
+#
+# File permissions need to be set to 444 in order to work.
+#
+# This file is executed in a korn shell to define references.
+# Lines preceeded by a '#' are treated as comments. Remove '#'
+# to activate the variable. Do not activate a properties unless 
+# you know what it is needed for.
+#
+
+###############################################################
+#
+# Gempis environment variables
+#
+
+#
+# define the names of the allowed job types.
+# Default = defined
+export GEMPIS_JOBTYPES="STANDALONE LSFHPC LSF LSFNORES CUSTOM"
+
+# base directory to use when saving information about a particular computer
+# and also saves gempis jobid information
+export GEMPIS_TMPDIR="/tmp/gempis"
+
+#
+# This directory displays gempis resource information
+# Default = defined
+export GEMPIS_DATABASE="$GEMPIS_TMPDIR/resources"
+
+#
+# directory to use when saving information about active processes
+# Default = defined
+export GEMPIS_DATADIR="$GEMPIS_TMPDIR/data"
+
+#
+# directory that contains all of the applications help text
+# Default = defined
+export GEMPIS_DOCDIR="$IBS_NAMES/HTML"
+
+#
+# define the user definition directory
+# default= defined
+export GEMPIS_USERDIR="`echo ~/.gempis`"
+
+#
+# defines the location of the user defiition file
+# Default = defined
+export GEMPIS_USER_DEF="$GEMPIS_USERDIR/definitions_user"
+
+#
+# defines the location of the system configuration file
+# Default = defined
+export GEMPIS_SYSTEM_CONF="$GEMPIS_DEFDIR/resources_system"
+
+#
+# defines the location for user templates. These files are copied over to the 
+# user's .gempis directory on an install
+# Default = defined
+export GEMPIS_TEMPLATE_DIR="$GEMPIS_DEFDIR/user_templates"
+
+#
+# defines the location of the user configuration file
+# Default = defined
+export GEMPIS_USER_CONF="$GEMPIS_USERDIR/resources_user"
+
+#
+# Regional resource name and file are defined in the user definitions
+#
+
+#
+# defines the location of the user MPI references file
+# Default = not defined
+export GEMPIS_MPIREF_FILE="$GEMPIS_DEFDIR/mpirefs_system"
+
+#
+# defines the location of the user MPI references file
+# Default = not defined
+export GEMPIS_MPIREF_USER="$GEMPIS_USERDIR/mpirefs_user"
+
+#
+# define email address to send logfile on successful completion
+# default = not defined
+#export GEMPIS_EMAIL_SUCCESS=""
+
+#
+# define email address to send logfile on failure completion
+# default = not defined
+#export GEMPIS_EMAIL_FAILURE=""
+
+#
+# define email address to send a message related to infrastructure
+# default = not defined
+export GEMPIS_EMAIL_INFRASTRUCTURE="Gregory.Lackore@shell.com"
+
+#
+# define email address to send configuration and test results
+# default = defined
+export GEMPIS_EMAIL_HELPDESK="SIEP-cauldron-helpdesk@shell.com"
+
+#
+# string that produces a list of files relates to a project.
+# this is to be executed to generate a list of files 
+# default = cauldron specific definitions
+export GEMPIS_PACKAGE_FILES="$GEMPIS_EXEDIR/xcauldron ${GEMPIS_PROJECT}.project3d"
+
+
+###############################################################
+#
+# this section defines resource ranges
+# 
+
+#
+# defines the maximum index value that a resource can be. 
+#
+# The current division of resources are 
+# 1 -  10: system definitions
+# 11 - 30: regional definitions
+# 31 - 50: user resources 
+export GEMPIS_MAXRESOURCE=51
+
+
+###############################################################
+#
+# this section defines MPIREF configurations
+# 
+
+# The current division of mpi references are 
+# 1 -  10: system definitions
+# 11 - 20: user definitions 
+# 
+# define the maximum mpi reference
+export GEMPIS_MAXMPIREF=21
+
+
+###############################################################
+#
+# LSF environment variables.
+# 
+#
+
+# These two determine how long LSF will wait for a parallel task to 
+# start before deciding that it was unsuccessful. If Nodes is the number
+# of nodes, LSF will wait:
+#	$LSF_PJL_WAIT_DEF + ( Nodes * $LSF_PJL_WAIT_REG )
+# seconds before killing everything.
+
+#
+# when not already defined will assign the LSF BASE timer.
+# Default = defined
+[ -z "$LSF_PJL_WAIT_DEF" ] && export LSF_PJL_WAIT_DEF=60
+
+#
+# when not already defined will assign the LSF INCREMENT timer.
+# Default = defined
+[ -z "$LSF_PJL_WAIT_REG" ] && export LSF_PJL_WAIT_REG=20
+
+#
+# this field is used to set debug flags that are used by LSF
+# for debugging purposes
+#  this example will generate level 3 debug messages and 
+#  enable debugging for the TaskStarter
+#export GEMPIS_LSF_DEBBUG="-pass -Dpass 3 -TSdebug"
+
+###############################################################
+#
+# System definitions
+#
+
+#
+# Prepend user and system directories to the Path so they can find
+# jobtype scripts. User defined gempis scripts will have 
+# priority over system defined scripts. This makes it possible to 
+# define new jobtypes.
+# default = <user .gempis> and <system gempis directories> are 
+#          prepended to the path.
+export PATH="$GEMPIS_USERDIR:$GEMPIS_DEFDIR:$PATH"
+
+
+#
+# this definition is only to make sure that the script terminates successfully
+echo "" >/dev/null
+
+# End Script

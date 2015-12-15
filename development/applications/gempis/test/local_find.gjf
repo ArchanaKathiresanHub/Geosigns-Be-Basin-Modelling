@@ -1,0 +1,5 @@
+# Gempis Job File
+PROJECT "Local find test"
+REQUIREMENTS "fastreq Acquifer.project3d"
+LOCAL "find /"
+LOCAL "echo done"

@@ -1,0 +1,15 @@
+!	This resource file is loaded by IBSlink-application
+
+Ibslink*background:  	lightskyblue3
+
+Ibslink*fontList: 	*courier-medium-r-normal*14*
+
+Ibslink*selectColor:	yellow
+
+Ibslink*XmList*background:	  light goldenrod yellow
+Ibslink*XmText*background:	  light goldenrod yellow
+Ibslink*XmTextField*background:	  light goldenrod yellow
+
+!to cancel funny Landmark defaults:
+Ibslink*.borderWidth: 	0
+

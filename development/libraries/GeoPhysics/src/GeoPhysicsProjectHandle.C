@@ -1,0 +1,2667 @@
+#include "GeoPhysicsProjectHandle.h"
+
+#include <iomanip>
+
+#define _USE_MATH_DEFINES
+#include <math.h>
+
+#include "Interface/Interface.h"
+
+#include "Interface/Interface.h"
+#include "Interface/AllochthonousLithology.h"
+#include "Interface/AllochthonousLithologyDistribution.h"
+#include "Interface/CrustFormation.h"
+#include "Interface/Formation.h"
+#include "Interface/GridMap.h"
+#include "Interface/IgneousIntrusionEvent.h"
+#include "Interface/MantleFormation.h"
+#include "Interface/MobileLayer.h"
+#include "Interface/PaleoFormationProperty.h"
+#include "Interface/PaleoSurfaceProperty.h"
+#include "Interface/PaleoProperty.h"
+#include "Interface/ProjectHandle.h"
+#include "Interface/Property.h"
+#include "Interface/PropertyValue.h"
+#include "Interface/Reservoir.h"
+#include "Interface/RunParameters.h"
+#include "Interface/Snapshot.h"
+#include "Interface/Surface.h"
+#include "Interface/SourceRock.h"
+
+
+#include "AllochthonousLithologyManager.h"
+#include "GeoPhysicsFluidType.h"
+#include "LithologyManager.h"
+#include "BasementLithology.h"
+#include "GeoPhysicsFormation.h"
+#include "GeoPhysicsObjectFactory.h"
+#include "GeoPhysicsCrustFormation.h"
+#include "GeoPhysicsMantleFormation.h"
+#include "GeoPhysicalConstants.h"
+
+#include "NumericFunctions.h"
+#include "errorhandling.h"
+
+
+using namespace DataAccess;
+using namespace CBMGenerics;
+
+GeoPhysics::ProjectHandle::ProjectHandle ( database::Database * database, const std::string & name, const std::string & accessMode, DataAccess::Interface::ObjectFactory* objectFactory ) :
+   DataAccess::Interface::ProjectHandle ( database, name, accessMode, objectFactory ) {
+
+   m_lithologyManager = new LithologyManager ( this );
+
+   m_allochthonousLithologyManager = new AllochthonousLithologyManager ( this );
+
+   m_isALCMode = ( getBottomBoundaryConditions () == Interface::ADVANCED_LITHOSPHERE_CALCULATOR );
+
+   m_minimumLithosphereThickness = 100000;
+   m_maximumNumberOfMantleElements = 100;
+   m_constrainedBasaltTemperature = 1000;
+
+   if( !loadALCConfigurationFile( "InterfaceData.cfg" )) {
+      std::cout<< " MeSsAgE WARNING: Can't load ALC configuration file. Default values will be used."<< std::endl;
+   } 
+
+   // Now load anything that was not loaded by default in the constructor of the default project handle.
+   loadFaults ();
+   loadConstrainedOverpressureIntervals ();
+
+   bool status = loadCrustThinningHistory ();
+
+   if( !status && m_isALCMode ) {
+      throw RecordException ( "Error: The Crust thinning history table is empty!" );
+   }
+
+   loadMantleThicknessHistory ();
+   correctCrustThicknessHistory ();
+   loadHeatFlowHistory ();
+
+   // Construct the fluid-property tables for each fluid.
+   loadFluidPropertyTables ();
+
+   // Now apply a correction to the constant density for "standard 
+   // pressure and temperature" of hydrostatic calculation mode.
+   correctSimpleFluidDensities ();
+
+   correctThermalConductivityTables ();
+   addSimpleLithologiesToLithologyManager ();
+
+   loadFracturePressureCalculator ();
+#if 0
+   if( getRunParameters ()->getHydrodynamicCapillaryPressure() ) {
+     computeHCTables();
+   }
+#endif
+
+}
+//------------------------------------------------------------//
+
+bool GeoPhysics::ProjectHandle::correctCrustThicknessHistory () {
+
+   if( getBottomBoundaryConditions () == Interface::MANTLE_HEAT_FLOW ) {
+      return true;
+   }
+
+   if ( m_crustPaleoThicknesses.size () == 1 ) {
+      // Should check for bottom BCs.
+      // No correction to the thickness history is necessary.
+      return true;
+   }
+
+   const Interface::Snapshot* firstSimulationSnapshot = m_crustFormation->getTopSurface ()->getSnapshot ();
+   assert ( firstSimulationSnapshot != 0 );
+
+   size_t i;
+
+   for ( i = 0; i < m_crustPaleoThicknesses.size (); ++i ) {
+
+      if ( m_crustPaleoThicknesses [ i ]->getSnapshot () == firstSimulationSnapshot ) {
+         // No correction to the thickness history is necessary.
+         return true;
+      }
+
+   }
+
+   const Interface::PaleoFormationProperty* beforeSimulation = 0;
+   const Interface::PaleoFormationProperty* afterSimulation = 0;
+
+   for ( i = 0; i < m_crustPaleoThicknesses.size (); ++i ) {
+
+      if ( m_crustPaleoThicknesses [ i ]->getSnapshot ()->getTime () > firstSimulationSnapshot->getTime ()) {
+
+         if ( beforeSimulation == 0 or beforeSimulation->getSnapshot ()->getTime () > m_crustPaleoThicknesses [ i ]->getSnapshot ()->getTime ()) {
+            beforeSimulation = m_crustPaleoThicknesses [ i ];
+         }
+
+      }
+
+      if ( m_crustPaleoThicknesses [ i ]->getSnapshot ()->getTime () < firstSimulationSnapshot->getTime ()) {
+
+         if ( afterSimulation == 0 or afterSimulation->getSnapshot ()->getTime () < m_crustPaleoThicknesses [ i ]->getSnapshot ()->getTime ()) {
+            afterSimulation = m_crustPaleoThicknesses [ i ];
+         }
+
+      }
+
+   }
+   
+   assert ( beforeSimulation != 0 or afterSimulation != 0 );
+
+   if ( beforeSimulation != 0 and afterSimulation != 0 ) {
+
+      double beforeTime = beforeSimulation->getSnapshot ()->getTime ();
+      double afterTime  = afterSimulation->getSnapshot ()->getTime ();
+      double firstTime  = firstSimulationSnapshot->getTime ();
+
+      m_crustPaleoThicknesses.push_back (getFactory ()->producePaleoFormationProperty ( this, m_crustFormation, beforeSimulation, afterSimulation, firstSimulationSnapshot ));
+
+      m_mantlePaleoThicknesses.push_back (getFactory ()->producePaleoFormationProperty ( this, m_crustFormation, beforeSimulation, afterSimulation, firstSimulationSnapshot ));
+
+      std::sort ( m_crustPaleoThicknesses.begin (), m_crustPaleoThicknesses.end (), Interface::PaleoPropertyTimeLessThan ());
+      std::sort ( m_mantlePaleoThicknesses.begin (), m_mantlePaleoThicknesses.end (), Interface::PaleoPropertyTimeLessThan ());
+   } else if ( beforeSimulation == 0 and afterSimulation != 0 ) {
+   } else {
+   }
+
+   return true;
+}
+
+
+//------------------------------------------------------------//
+
+GeoPhysics::ProjectHandle::~ProjectHandle () {
+   delete m_lithologyManager;
+   delete m_allochthonousLithologyManager;
+
+   if( m_basementLithoProps != 0 ) { 
+      delete m_basementLithoProps;
+   }
+
+   deleteFracturePressureCalculator ();
+
+}
+
+//------------------------------------------------------------//
+
+void GeoPhysics::ProjectHandle::loadFracturePressureCalculator () {
+   m_fracturePressureCalculator = dynamic_cast<GeoPhysics::ObjectFactory*>( getFactory ())->produceFracturePressureCalculator ( this );
+}
+
+//------------------------------------------------------------//
+
+void GeoPhysics::ProjectHandle::deleteFracturePressureCalculator () {
+   delete m_fracturePressureCalculator;
+}
+
+//------------------------------------------------------------//
+GeoPhysics::BasementLithologyProps * GeoPhysics::ProjectHandle::getBasementLithologyProps() const {
+   return m_basementLithoProps;
+}
+
+//------------------------------------------------------------//
+
+bool GeoPhysics::ProjectHandle::startActivity ( const std::string& name, const DataAccess::Interface::Grid* grid, bool saveAsInputGrid, bool createResultsFile, bool append ) {
+
+   bool started;
+
+   started = DataAccess::Interface::ProjectHandle::startActivity ( name, grid, saveAsInputGrid, createResultsFile, append );
+
+   if ( started ) {
+      // Now get the boundaries of the activity grid for this process.
+      const Interface::Grid* activityGrid = getActivityOutputGrid ();
+
+      m_firstI [ 0 ] = (unsigned int)activityGrid->firstI ( false );
+      m_firstI [ 1 ] = (unsigned int)activityGrid->firstI ( true );
+
+      m_firstJ [ 0 ] = (unsigned int)activityGrid->firstJ ( false );
+      m_firstJ [ 1 ] = (unsigned int)activityGrid->firstJ ( true );
+
+      m_lastI  [ 0 ] = (unsigned int)activityGrid->lastI ( false );
+      m_lastI  [ 1 ] = (unsigned int)activityGrid->lastI ( true );
+
+      m_lastJ  [ 0 ] = (unsigned int)activityGrid->lastJ ( false );
+      m_lastJ  [ 1 ] = (unsigned int)activityGrid->lastJ ( true );
+
+      m_cauldronGridDescription.nrI = activityGrid->numIGlobal ();
+      m_cauldronGridDescription.nrJ = activityGrid->numJGlobal ();
+
+      m_cauldronGridDescription.originI = activityGrid->minIGlobal ();
+      m_cauldronGridDescription.originJ = activityGrid->minJGlobal ();
+
+      m_cauldronGridDescription.deltaI = activityGrid->deltaIGlobal ();
+      m_cauldronGridDescription.deltaJ = activityGrid->deltaJGlobal ();
+
+#if 0
+      std::cout << " start postions " 
+                << m_firstI [ 0 ] << "  " << m_firstI [ 1 ] << "  "
+                << m_firstJ [ 0 ] << "  " << m_firstJ [ 1 ] << "  "
+                << endl;
+      std::cout << " end postions " 
+                << m_lastI [ 0 ] << "  " << m_lastI [ 1 ] << "  "
+                << m_lastJ [ 0 ] << "  " << m_lastJ [ 1 ] << "  " 
+                << endl;
+#endif
+      
+   }
+
+   return started;
+}
+
+//------------------------------------------------------------//
+
+bool GeoPhysics::ProjectHandle::setFormationLithologies ( const bool canRunGeomorph,
+                                                          const bool includeFaults ) {
+
+   Interface::MutableFormationList::iterator formationIter;
+   bool createdLithologies = true;
+   bool errorOccurredInLayer;
+
+   for ( formationIter = m_formations.begin (); formationIter != m_formations.end (); ++formationIter ) {
+
+      if ((*formationIter)->kind () == Interface::SEDIMENT_FORMATION ) {
+         GeoPhysics::Formation* formation = dynamic_cast<GeoPhysics::Formation*>(*formationIter);
+
+         createdLithologies = createdLithologies and formation->setLithologiesFromStratTable ();
+      }
+
+#if 0
+      else
+      {
+
+         if ((*formationIter)->getName () == Interface::CrustFormationName ) {
+            GeoPhysics::GeoPhysicsCrustFormation* formation = dynamic_cast<GeoPhysics::GeoPhysicsCrustFormation*>(*formationIter);
+
+            formation->setLithologiesFromStratTable ();
+         } else if ((*formationIter)->getName () == Interface::MantleFormationName ) {
+            GeoPhysics::GeoPhysicsMantleFormation* formation = dynamic_cast<GeoPhysics::GeoPhysicsMantleFormation*>(*formationIter);
+
+            formation->setLithologiesFromStratTable ();
+         } else {
+         }
+
+
+      }
+#endif
+
+
+   }
+
+   createdLithologies = createdLithologies and dynamic_cast<GeoPhysics::GeoPhysicsCrustFormation*>( m_crustFormation )->setLithologiesFromStratTable ();
+   createdLithologies = createdLithologies and dynamic_cast<GeoPhysics::GeoPhysicsMantleFormation*>( m_mantleFormation )->setLithologiesFromStratTable ();
+
+   // Set the allochthonous lithologies.
+   if ( canRunGeomorph ) {
+
+      // Initialise the allochthonous lithology manager interpolators.
+      m_allochthonousLithologyManager->initialiseInterpolators ( getDataBase (), getFullOutputDir () + '/' );
+
+      // No more interpolation data can be added after this point.
+      //   1. The interpolators are sorted into age-order, oldest first.
+      //   2. The lithologies are set in the lithology arrays, according to the interpolant.
+      //      The number of morphing steps depends on the optimisation-level.
+      m_allochthonousLithologyManager->freeze ( getRunParameters ()->getOptimisationLevel ());
+
+      // Set the grid description for each of the interpolators.
+      m_allochthonousLithologyManager->setGridDescription ( m_cauldronGridDescription );
+
+      // Pass the interpolator to those layers that are involved in the allochthonous modelling.
+      m_allochthonousLithologyManager->initialiseLayers ();
+   }
+
+   m_basinHasActiveFaults = false;
+
+   // Set the fault lithologies.
+   if ( includeFaults ) 
+   {
+      bool layerHasFaults;
+
+      for ( formationIter = m_formations.begin (); formationIter != m_formations.end (); ++formationIter ) {
+
+         // There are no faults in the basement formations.
+         if ((*formationIter)->kind () == Interface::SEDIMENT_FORMATION ) {
+            GeoPhysics::Formation* formation = dynamic_cast<GeoPhysics::Formation*>(*formationIter);
+
+            formation->setFaultLithologies ( layerHasFaults, errorOccurredInLayer );
+            m_basinHasActiveFaults = m_basinHasActiveFaults or layerHasFaults;
+            createdLithologies = createdLithologies and not errorOccurredInLayer;
+         }
+
+      }
+   }
+
+   return createdLithologies;
+}
+
+//------------------------------------------------------------//
+
+void GeoPhysics::ProjectHandle::loadFluidPropertyTables () {
+
+   Interface::MutableFluidTypeList::iterator fluidIter;
+
+   for ( fluidIter = m_fluidTypes.begin(); fluidIter != m_fluidTypes.end (); ++fluidIter ) {
+      GeoPhysics::FluidType* fluid = (GeoPhysics::FluidType*)(*fluidIter);
+      fluid->loadPropertyTables ();
+   }
+
+}
+
+//------------------------------------------------------------//
+
+void GeoPhysics::ProjectHandle::correctThermalConductivityTables () {
+
+  Interface::MutableLithoTypeList::iterator simpleLithologyIter;
+  double correctionFactor;
+  double stdThCondVal;
+
+  for ( simpleLithologyIter = m_lithoTypes.begin(); simpleLithologyIter != m_lithoTypes.end (); ++simpleLithologyIter ) {
+
+     if( (*simpleLithologyIter)->getName() == DataAccess::Interface::ALCBasalt ) {
+        continue;
+     }
+     SimpleLithology* simpleLithology = dynamic_cast<SimpleLithology*>(*simpleLithologyIter);
+
+     stdThCondVal = simpleLithology->getThCondVal();
+     correctionFactor = stdThCondVal / simpleLithology->thermalconductivity ( GeoPhysics::FluidType::DefaultThermalConductivityCorrectionTemperature );
+     simpleLithology->correctThermCondPoint ( correctionFactor );
+
+  } 
+  
+}
+
+//------------------------------------------------------------//
+
+void GeoPhysics::ProjectHandle::addSimpleLithologiesToLithologyManager () {
+
+   Interface::MutableLithoTypeList::iterator lithoIter;
+  
+
+   for ( lithoIter = m_lithoTypes.begin (); lithoIter != m_lithoTypes.end (); ++lithoIter ) {
+
+      Interface::LithoType* lithoType = *lithoIter;
+      if( m_isALCMode && ( lithoType->getName() == "Crust" || lithoType->getName() == "Litho. Mantle" || lithoType->getName() == DataAccess::Interface::ALCBasalt )) {
+         BasementLithology * litho = dynamic_cast<BasementLithology*>( lithoType );
+         assert( litho );
+         litho->setBasementLithoProperties( * m_basementLithoProps );
+         getLithologyManager ().addSimpleLithology ( litho );
+      } else {
+         SimpleLithology* litho = (SimpleLithology*)( lithoType );
+         getLithologyManager ().addSimpleLithology ( litho );
+      }
+   }
+
+}
+
+//------------------------------------------------------------//
+
+void GeoPhysics::ProjectHandle::correctSimpleFluidDensities () {
+
+   Interface::MutableFluidTypeList::iterator fluidIter;
+
+   // The temperature gradient in the project file is in C/Km and not C/m and so needs to be converted.
+   const double temperatureGradient = 0.001 * getRunParameters ()->getTemperatureGradient ();
+
+   for ( fluidIter = m_fluidTypes.begin(); fluidIter != m_fluidTypes.end (); ++fluidIter ) {
+      GeoPhysics::FluidType* fluid = (GeoPhysics::FluidType*)(*fluidIter);
+
+      fluid->correctSimpleDensity ( GeoPhysics::FluidType::DefaultStandardDepth,
+                                    GeoPhysics::FluidType::DefaultHydrostaticPressureGradient,
+                                    GeoPhysics::FluidType::StandardSurfaceTemperature,
+                                    temperatureGradient );
+   }
+
+}
+
+//------------------------------------------------------------//
+
+// const GeoPhysics::CompoundLithology* GeoPhysics::ProjectHandle::getCompoundLithology ( const CompoundLithologyComposition& composition ) {
+//    return m_lithologyManager->getCompoundLithology ( composition );
+// }
+
+GeoPhysics::LithologyManager& GeoPhysics::ProjectHandle::getLithologyManager () const {
+   return *m_lithologyManager;
+}
+
+//------------------------------------------------------------//
+
+const GeoPhysics::FracturePressureCalculator& GeoPhysics::ProjectHandle::getFracturePressureCalculator () const {
+   return *m_fracturePressureCalculator;
+} 
+
+//------------------------------------------------------------//
+
+GeoPhysics::AllochthonousLithologyManager& GeoPhysics::ProjectHandle::getAllochthonousLithologyManager () const {
+   return *m_allochthonousLithologyManager;
+}
+
+//------------------------------------------------------------//
+
+void GeoPhysics::ProjectHandle::addUndefinedAreas( const DataAccess::Interface::GridMap* theMap ) {
+
+   if ( theMap == 0 ) {
+      return;
+   }
+
+   unsigned int i;
+   unsigned int j;
+
+   bool dataIsRetrieved = theMap->retrieved ();
+
+   if ( not dataIsRetrieved ) {
+      theMap->retrieveGhostedData ();
+   }
+
+   for ( i = m_validNodes.first ( 0 ); i <= m_validNodes.last ( 0 ); ++i ) {
+
+      for ( j = m_validNodes.first ( 1 ); j <= m_validNodes.last ( 1 ); ++j ) {
+
+         if ( theMap->getValue ( i, j ) == theMap->getUndefinedValue ()) {
+            m_validNodes ( i, j ) = false;
+         }
+
+      }
+
+   }
+
+   if ( not dataIsRetrieved ) {
+      // If the data was not retrived then restore the map back to its original state.
+      theMap->restoreData ( false, true );
+   }
+
+}
+
+//------------------------------------------------------------//
+
+void GeoPhysics::ProjectHandle::addCrustUndefinedAreas ( const Interface::CrustFormation* crust ) {
+
+   if ( crust != 0 ) {
+
+      // Add undefined areas from crust thickness maps.
+      Interface::PaleoFormationPropertyList::const_iterator thicknessIter;
+      Interface::PaleoFormationPropertyList* thicknesses = crust->getPaleoThicknessHistory ();
+
+      for ( thicknessIter = thicknesses->begin (); thicknessIter != thicknesses->end (); ++thicknessIter ) {
+         addUndefinedAreas ( dynamic_cast<const Interface::GridMap*>((*thicknessIter)->getMap ( Interface::CrustThinningHistoryInstanceThicknessMap )));
+      }
+
+      if( m_isALCMode ) {
+         addUndefinedAreas ( dynamic_cast<const Interface::GridMap*>(crust->getBasaltThicknessMap ()));
+         addUndefinedAreas ( dynamic_cast<const Interface::GridMap*>(crust->getCrustThicknessMeltOnsetMap ()));
+      }
+      addUndefinedAreas ( dynamic_cast<const Interface::GridMap*>(crust->getCrustHeatProductionMap ()));
+
+      delete thicknesses;
+   }
+
+}
+
+//------------------------------------------------------------//
+
+void GeoPhysics::ProjectHandle::addUndefinedAreas ( const DataAccess::Interface::PropertyValue* theProperty ) {
+
+   if ( theProperty != 0 ) {
+      const Interface::GridMap* theMap = dynamic_cast<const Interface::GridMap*>(theProperty->getGridMap ());
+
+      addUndefinedAreas ( theMap );
+   }
+
+}
+
+//------------------------------------------------------------//
+
+void GeoPhysics::ProjectHandle::addMantleUndefinedAreas ( const Interface::MantleFormation* mantle ) {
+
+   if ( mantle != 0 ) {
+      if( mantle->getPaleoThicknessHistory () != 0 ) {
+         Interface::PaleoFormationPropertyList::const_iterator thicknessIter;
+         Interface::PaleoFormationPropertyList* thicknesses = mantle->getPaleoThicknessHistory ();
+         
+         for ( thicknessIter = thicknesses->begin (); thicknessIter != thicknesses->end (); ++thicknessIter ) {
+            addUndefinedAreas ( dynamic_cast<const Interface::GridMap*>((*thicknessIter)->getMap ( Interface::MantleThicknessHistoryInstanceThicknessMap )));
+         }
+         delete thicknesses;
+      }
+
+      // Add undefined areas from heat flow maps.
+      // Not explicitly dependent on the mantle.
+      Interface::PaleoSurfacePropertyList* heatFlowMaps = getHeatFlowHistory ();
+      Interface::PaleoSurfacePropertyList::const_iterator heatFlowIter;
+
+      for ( heatFlowIter = heatFlowMaps->begin (); heatFlowIter != heatFlowMaps->end (); ++heatFlowIter ) {
+         addUndefinedAreas ( dynamic_cast<const Interface::GridMap*>((*heatFlowIter)->getMap ( Interface::HeatFlowHistoryInstanceHeatFlowMap )));
+      }
+
+   }
+
+}
+
+//------------------------------------------------------------//
+
+void GeoPhysics::ProjectHandle::addFormationUndefinedAreas ( const Interface::Formation* formation ) {
+
+   if ( formation != 0 and formation->kind () == Interface::SEDIMENT_FORMATION ) {
+
+      // Add undefined areas from lithology maps.
+      addUndefinedAreas ( dynamic_cast<const Interface::GridMap*>(formation->getLithoType1PercentageMap ()));
+      addUndefinedAreas ( dynamic_cast<const Interface::GridMap*>(formation->getLithoType2PercentageMap ()));
+      addUndefinedAreas ( dynamic_cast<const Interface::GridMap*>(formation->getLithoType3PercentageMap ()));
+
+      addUndefinedAreas ( dynamic_cast<const Interface::GridMap*>(formation->getInputThicknessMap ()));
+
+      if ( formation->isSourceRock ()) {
+         addUndefinedAreas ( dynamic_cast<const Interface::GridMap*>(formation->getSourceRock1 ()->getMap ( Interface::TocIni )));
+      }
+
+      if ( formation->isMobileLayer ()) {
+         // Add undefined areas from mobile-layer maps.
+         Interface::MobileLayerList::const_iterator mobIt;
+         Interface::MobileLayerList* mobileLayers = formation->getMobileLayers ();
+
+         for ( mobIt = mobileLayers->begin (); mobIt != mobileLayers->end (); ++mobIt ) {
+            addUndefinedAreas ( dynamic_cast<const Interface::GridMap*>((*mobIt)->getMap ( Interface::MobileLayerThicknessMap )));
+         }
+
+         delete mobileLayers;
+      }
+
+      if ( formation->hasAllochthonousLithology ()) {
+         // Add undefined areas from allochthonous-distributions.
+         Interface::AllochthonousLithologyDistributionList::const_iterator allochIt;
+         Interface::AllochthonousLithologyDistributionList* allochthonousDistributions = formation->getAllochthonousLithology ()->getAllochthonousLithologyDistributions ();
+
+         for ( allochIt = allochthonousDistributions->begin (); allochIt != allochthonousDistributions->end (); ++ allochIt ) {
+            addUndefinedAreas ( dynamic_cast<const Interface::GridMap*>((*allochIt)->getMap ( Interface::AllochthonousLithologyDistributionMap )));
+         }
+
+         delete allochthonousDistributions;
+      }
+
+      // Add undefined areas from reservoirs maps.
+      Interface::ReservoirList::const_iterator resIt;
+      Interface::ReservoirList* reservoirs = formation->getReservoirs ();
+
+      for ( resIt = reservoirs->begin (); resIt != reservoirs->end (); ++resIt ) {
+         addUndefinedAreas ( dynamic_cast<const Interface::GridMap*>((*resIt)->getMap ( Interface::DepthOffset )));
+         addUndefinedAreas ( dynamic_cast<const Interface::GridMap*>((*resIt)->getMap ( Interface::ReservoirThickness )));
+         addUndefinedAreas ( dynamic_cast<const Interface::GridMap*>((*resIt)->getMap ( Interface::NetToGross )));
+         addUndefinedAreas ( dynamic_cast<const Interface::GridMap*>((*resIt)->getMap ( Interface::LayerFrequency )));
+      }
+
+      delete reservoirs;
+   }
+
+}
+
+//------------------------------------------------------------//
+
+bool GeoPhysics::ProjectHandle::initialiseValidNodes ( const bool readSizeFromVolumeData ) {
+
+   m_validNodes.reallocate ( getActivityOutputGrid ());
+   m_validNodes.fill ( true );
+
+   Interface::MutableFormationList::iterator formationIter;
+
+   // Add sediment-formation undefined areas:
+   //
+   //     o depth/thickness maps;
+   //     o lithology maps;
+   //     o mobile-layer maps;
+   //     o allochthonous-lithology distribution maps;
+   //     o all reservoir maps, if reservoir layer;
+   for ( formationIter = m_formations.begin (); formationIter != m_formations.end (); ++formationIter ) {
+
+      if ((*formationIter)->kind () == Interface::SEDIMENT_FORMATION ) {
+         addFormationUndefinedAreas ( *formationIter );
+      }
+
+   }
+
+   // Add crust-formation undefined areas.
+   addCrustUndefinedAreas ( getCrustFormation ());
+
+   // Add mantle-formation undefined areas.
+   addMantleUndefinedAreas ( getMantleFormation ());
+
+   // Add undefined areas from surface-depth maps.
+   Interface::PaleoPropertyList* surfaceDepthMaps = getSurfaceDepthHistory ();
+   Interface::PaleoPropertyList::const_iterator surfaceDepthIter;
+
+   for ( surfaceDepthIter = surfaceDepthMaps->begin (); surfaceDepthIter != surfaceDepthMaps->end (); ++surfaceDepthIter ) {
+      addUndefinedAreas ( dynamic_cast<const Interface::GridMap*>((*surfaceDepthIter)->getMap ( Interface::SurfaceDepthHistoryInstanceMap )));
+   }
+
+   delete surfaceDepthMaps;
+
+   // Add undefined areas from surface-temperature maps.
+   Interface::PaleoPropertyList* surfaceTemperatureMaps = getSurfaceTemperatureHistory ();
+   Interface::PaleoPropertyList::const_iterator surfaceTemperatureIter;
+
+   for ( surfaceTemperatureIter = surfaceTemperatureMaps->begin (); surfaceTemperatureIter != surfaceTemperatureMaps->end (); ++surfaceTemperatureIter ) {
+      addUndefinedAreas ( dynamic_cast<const Interface::GridMap*>((*surfaceTemperatureIter)->getMap ( Interface::SurfaceTemperatureHistoryInstanceMap )));
+   }
+
+   delete surfaceTemperatureMaps;
+
+   if ( readSizeFromVolumeData ) {
+      // Since the input depends on some results, these need to be 
+      // taken into account when setting the valid node array.
+      // And, since the number of element depends on the results volume-file
+      // there must be some results already.
+
+      // Any property could be used here that is always output, Ves is always output.
+      const Interface::Property* vesProperty = findProperty ( "Ves" );
+
+      // Any sediment-formation will do, so use the first on the list.
+      Interface::PropertyValueList* vesValueList = getPropertyValues ( Interface::FORMATION,
+                                                                       vesProperty,
+                                                                       findSnapshot ( 0.0, Interface::MAJOR ),
+                                                                       0,
+                                                                       *m_formations.begin (),
+                                                                       0,
+                                                                       Interface::VOLUME );
+
+      assert ( vesValueList->size () == 1 );
+
+      const Interface::PropertyValue* ves = *vesValueList->begin ();
+
+      if ( ves != 0 and ves->getGridMap () != 0 ) {
+         addUndefinedAreas ( dynamic_cast<const Interface::GridMap*>(ves->getGridMap ()));
+      }
+
+      delete vesValueList;
+
+   }
+
+   return true;
+}
+
+//------------------------------------------------------------//
+
+bool GeoPhysics::ProjectHandle::initialise ( const bool readSizeFromVolumeData,
+                                             const bool printTable ) {
+
+   bool result = true;
+
+   // Since the input depends on some results, these need to be 
+   // taken into account when setting the valid node array.
+   result = initialiseValidNodes ( readSizeFromVolumeData );
+
+
+   // Sets the age of basin field.
+   setBasinAge ();
+
+   // The reason for the order of operands in the expressions below is so 
+   // that the functions are executed on all processes even if result is false.
+   // Not doing so may result in a dead-lock situation.
+   // Under the assumption that in the expression: a and b, a is always evaluated
+   // first regardless.
+   if( m_isALCMode ) {
+      addCrustThinningHistoryMaps();
+   }
+
+   result = createSeaBottomTemperature () and result;
+   result = createPaleoBathymetry () and result;
+   result = createMantleHeatFlow () and result;
+   result = createCrustThickness () and result;
+   result = determineLayerMinMaxThickness () and result;
+   result = determineCrustThinningRatio () and result;
+   result = determineMaximumNumberOfSegmentsPerLayer ( readSizeFromVolumeData, printTable ) and result;
+
+   // Sets the age of basin field.
+   //   setBasinAge ();
+
+#if 0
+   result = result and initialiseLayerThicknessHistory ();
+#endif
+
+   return result;
+
+}
+
+//------------------------------------------------------------//
+
+void GeoPhysics::ProjectHandle::switchLithologies ( const double age ) {
+
+   // Would it be better here have the lithology-manager manage this?
+   // Since it can loop over all compound lithologies where as in the
+   // here and in the layer it is necessary to iterate over all pointers
+   // to compound lithologies, thereby performing the action multiple times
+   // in some (most?) lithologies.
+
+   Interface::MutableFormationList::iterator formationIter;
+
+   for ( formationIter = m_formations.begin (); formationIter != m_formations.end (); ++formationIter ) {
+      GeoPhysics::Formation* formation = dynamic_cast<GeoPhysics::Formation*>(*formationIter);
+      formation->switchLithologies ( age );
+   }
+
+}
+
+//------------------------------------------------------------//
+
+void GeoPhysics::ProjectHandle::setBasinAge () {
+
+   m_basinAge = getCrustFormation ()->getTopSurface ()->getSnapshot ()->getTime ();
+#if 0
+   Interface::MutableSnapshotList::iterator snapIter;
+
+   m_basinAge = 0.0;
+
+   for ( snapIter = m_snapshots.begin (); snapIter != m_snapshots.end (); ++snapIter ) {
+      m_basinAge = NumericFunctions::Maximum ( m_basinAge, (*snapIter)->getTime ());
+   }
+#endif
+
+}
+
+//------------------------------------------------------------//
+
+bool GeoPhysics::ProjectHandle::createSeaBottomTemperature () {
+
+   bool status = true;
+
+   unsigned int i;
+   unsigned int j;
+
+   //Create 2D Array of Polyfunction for Sea Bottom Temperature
+   m_seaBottomTemperature.reallocate ( getActivityOutputGrid ());
+
+   Interface::PaleoPropertyList* surfaceTemperatureHistory = getSurfaceTemperatureHistory ();
+   Interface::PaleoPropertyList::const_iterator surfaceTemperatureIter;
+
+   if ( surfaceTemperatureHistory != 0 && surfaceTemperatureHistory->size() != 0 ) {
+
+      for ( surfaceTemperatureIter = surfaceTemperatureHistory->begin (); surfaceTemperatureIter != surfaceTemperatureHistory->end (); ++surfaceTemperatureIter ) {
+
+         const Interface::PaleoProperty* surfaceTemperatureInstance = *surfaceTemperatureIter;
+         const Interface::GridMap* surfaceTemperatureMap = dynamic_cast<const Interface::GridMap*>(surfaceTemperatureInstance->getMap ( Interface::SurfaceTemperatureHistoryInstanceMap ));
+         const double age = surfaceTemperatureInstance->getSnapshot ()->getTime ();
+
+         // This should be with ghost nodes.
+         surfaceTemperatureMap->retrieveGhostedData ();
+
+         for ( i = surfaceTemperatureMap->getGrid()->firstI ( true ); i <= surfaceTemperatureMap->getGrid()->lastI ( true ); ++i ) {
+
+            for ( j = surfaceTemperatureMap->getGrid()->firstJ ( true ); j <= surfaceTemperatureMap->getGrid()->lastJ ( true ); ++j ) {
+
+               if ( m_validNodes ( i, j )) {
+                  m_seaBottomTemperature ( i, j ).AddPoint ( age, surfaceTemperatureMap->getValue ( i, j ));
+               }
+
+            }
+
+         }
+
+         surfaceTemperatureMap->restoreData ( false, true );
+      }
+
+      delete surfaceTemperatureHistory;
+      status = true;
+   } else {
+      status = false;
+
+      getMessageHandler ().printLine (  "MeSsAgE ERROR  Surface temperature is not defined." );
+   }
+
+   return status;
+}
+
+//------------------------------------------------------------//
+
+bool GeoPhysics::ProjectHandle::createPaleoBathymetry () {
+
+   bool status;
+
+   unsigned int i;
+   unsigned int j;
+
+   //Create 2D Array of Polyfunction for sea bottom depth.
+   m_seaBottomDepth.reallocate ( getActivityOutputGrid ());
+
+   Interface::PaleoPropertyList* surfaceDepthHistory = getSurfaceDepthHistory ();
+   Interface::PaleoPropertyList::const_iterator surfaceDepthIter;
+
+   if ( surfaceDepthHistory != 0 ) {
+
+      for ( surfaceDepthIter = surfaceDepthHistory->begin (); surfaceDepthIter != surfaceDepthHistory->end (); ++surfaceDepthIter ) {
+
+         const Interface::PaleoProperty* surfaceDepthInstance = *surfaceDepthIter;
+         const double age = surfaceDepthInstance->getSnapshot ()->getTime ();
+         const Interface::GridMap* surfaceDepthMap;
+
+         if ( age > 0.0 ) {
+            surfaceDepthMap = dynamic_cast<const Interface::GridMap*>(surfaceDepthInstance->getMap ( Interface::SurfaceDepthHistoryInstanceMap ));
+         } else {
+            // The present-day depth-map is obtained from the top surface of the sediments.
+            surfaceDepthMap = dynamic_cast<const Interface::GridMap*>((*m_surfaces.begin ())->getInputDepthMap ());
+         }
+
+         // This should be with ghost nodes.
+         surfaceDepthMap->retrieveGhostedData ();
+
+         for ( i = surfaceDepthMap->firstI (); i <= surfaceDepthMap->lastI (); ++i ) {
+
+            for ( j = surfaceDepthMap->firstJ (); j <= surfaceDepthMap->lastJ (); ++j ) {
+
+               if ( m_validNodes ( i, j )) {
+                  m_seaBottomDepth ( i, j ).AddPoint ( age, surfaceDepthMap->getValue ( i, j ));
+               }
+
+            }
+
+         }
+
+         surfaceDepthMap->restoreData ( false, true );
+      }
+
+      delete surfaceDepthHistory;
+      status = true;
+   } else {
+      status = false;
+
+      getMessageHandler ().printLine (  "MeSsAgE ERROR  Surface depth is not defined." );
+   }
+
+   return status;
+}
+
+//------------------------------------------------------------//
+
+bool GeoPhysics::ProjectHandle::createMantleHeatFlow () {
+
+   if ( getBottomBoundaryConditions () == Interface::MANTLE_HEAT_FLOW ) {
+
+      unsigned int i;
+      unsigned int j;
+
+      //Create 2D Array of Polyfunction for Mantle HeatFlow
+      m_mantleHeatFlow.reallocate ( getActivityOutputGrid ());
+
+      Interface::PaleoSurfacePropertyList* heatFlowHistory = getHeatFlowHistory ();
+      Interface::PaleoSurfacePropertyList::const_iterator heatFlowIter;
+
+      for ( heatFlowIter = heatFlowHistory->begin (); heatFlowIter != heatFlowHistory->end (); ++heatFlowIter ) {
+
+         const Interface::PaleoSurfaceProperty* heatFlowInstance = dynamic_cast<const Interface::PaleoSurfaceProperty*>(*heatFlowIter);
+         const Interface::GridMap* heatFlowMap = dynamic_cast<const Interface::GridMap*>(heatFlowInstance->getMap ( Interface::HeatFlowHistoryInstanceHeatFlowMap ));
+         const double age = heatFlowInstance->getSnapshot ()->getTime ();
+
+         heatFlowMap->retrieveGhostedData ();
+
+         for ( i = heatFlowMap->getGrid()->firstI ( true ); i <= heatFlowMap->getGrid()->lastI ( true ); ++i ) {
+
+            for ( j = heatFlowMap->getGrid()->firstJ ( true ); j <= heatFlowMap->getGrid()->lastJ ( true ); ++j ) {
+
+               if ( m_validNodes ( i, j )) {
+                  m_mantleHeatFlow ( i, j ).AddPoint( age, heatFlowMap->getValue ( i, j ) * MilliWattsToWatts );
+               }
+
+            }
+
+         }
+
+         heatFlowMap->restoreData ( false, true );
+      }
+
+      delete heatFlowHistory;
+   }
+
+   return true;
+}
+
+//------------------------------------------------------------//
+
+bool GeoPhysics::ProjectHandle::createBasaltThicknessAndECT () {
+
+   if ( m_isALCMode ) {
+      bool status = true;
+
+      unsigned int i;
+      unsigned int j;
+
+      //Create 2D Array of Polyfunction for Crust Thickness
+      m_crustThicknessHistory.reallocate ( getActivityOutputGrid ());
+      m_basaltThicknessHistory.reallocate ( getActivityOutputGrid ());
+      m_endOfRiftEvent.reallocate ( getActivityOutputGrid ());
+
+      Interface::PaleoFormationPropertyList* crustThicknesses = getCrustFormation ()->getPaleoThicknessHistory ();
+      Interface::PaleoFormationPropertyList::reverse_iterator crustThicknessIter;
+      // crustThicknessHistory = effectiveCrustThickness
+      GeoPhysics::GeoPhysicsCrustFormation*  crust  = dynamic_cast<GeoPhysics::GeoPhysicsCrustFormation*>( m_crustFormation );
+      const Interface::GridMap* presentDayBasaltThickness = crust->getBasaltThicknessMap();
+      const Interface::GridMap* crustMeltOnsetMap = crust->getCrustThicknessMeltOnsetMap();
+
+      if( presentDayBasaltThickness == 0 ) {
+         if( getRank() == 0 ) {
+            cerr << " MeSsAgE ERROR BasaltThickness map is not defined." << endl;
+         }
+         return false;
+      }
+      if( crustMeltOnsetMap == 0 ) {
+         if( getRank() == 0 ) {
+            cerr << " MeSsAgE ERROR Crustal thickness at melt onset  map is not defined." << endl;
+         }
+         return false;
+      }
+
+      double HLini = getMantleFormation ()->getInitialLithosphericMantleThickness ();
+      if( HLini < 0 ) {
+         if( getRank() == 0 ) {
+            cerr << " MeSsAgE ERROR Initial Lithosperic Mantle Thickness map is negative." << endl;
+         }
+         return false;
+      }
+
+      presentDayBasaltThickness->retrieveData( true );
+      crustMeltOnsetMap->retrieveData( true );
+   
+      double HCt, HCt_prev, v_pbt, v_co, v_ct, v_coeff, v_bt, v_ect;
+      
+      double initialCrustalThickness = crust->getInitialCrustalThickness();
+      double mult_coeff = initialCrustalThickness / ( HLini + initialCrustalThickness );
+      double agePrev = 0;
+
+      bool onsetStatus = true, basaltStatus = true;
+      for ( crustThicknessIter = crustThicknesses->rbegin (); crustThicknessIter != crustThicknesses->rend (); ++crustThicknessIter ) {
+
+         const Interface::PaleoFormationProperty* thicknessInstance = dynamic_cast<const Interface::PaleoFormationProperty*>(*crustThicknessIter);
+         const Interface::GridMap* thicknessMap = dynamic_cast<const Interface::GridMap*>(thicknessInstance->getMap ( Interface::CrustThinningHistoryInstanceThicknessMap ));
+         const double age = thicknessInstance->getSnapshot ()->getTime ();
+         if( agePrev == 0 ) agePrev = age;
+
+         thicknessMap->retrieveData ( true );
+
+         for ( i = thicknessMap->getGrid()->firstI ( true ); i <= thicknessMap->getGrid()->lastI (true); ++i ) {
+
+            for ( j = thicknessMap->getGrid()->firstJ (true); j <= thicknessMap->getGrid()->lastJ (true); ++j ) {
+               if ( m_validNodes ( i, j )) {
+                  v_bt  = 0.0;
+                  v_ect = 0.0;
+                  v_co  = crustMeltOnsetMap->getValue( i, j );
+                  HCt   = thicknessMap->getValue ( i, j ); 
+ 
+                  if( HCt < 0.0 ) { 
+                     // cout << "Continental crustal thickness is negative ... "   << " age " << age << ", (" << i << "," << j << ") = " << HCt << ", rank " << getRank() << endl << flush;                    
+                     HCt = 0.0;
+                     status = false;
+                  }
+                  if( v_co < 0.0 ) { 
+                     // cout << "Crustal thickness at melt onset is negative ... " << " age " << age << ", (" << i << "," << j << ") = " << v_co << ", rank " << getRank() << endl << flush;
+                     v_co = 0.0;
+                     status = false;
+                  }
+                  
+                  if( initialCrustalThickness < HCt || v_co <= HCt) {
+                     v_bt = 0.0;
+                  } else if ( v_co > HCt || HCt <= 0 ) {
+                     HCt_prev = getContCrustThickness( i, j, agePrev ); // should be the minimum before current Age
+                     if( HCt < HCt_prev ) { 
+                        v_pbt = presentDayBasaltThickness->getValue ( i, j );
+                        if( v_pbt < 0.0 ) { 
+                           // cout << "Present day basalt thickness is negative ... " << " age " << age << ", (" << i << "," << j << ") = " << v_pbt << ", rank " << getRank() << endl << flush;
+                           v_pbt = 0.0;
+                           status = false;
+                        }
+                        
+                        v_ct = getContCrustThickness( i, j, 0.0 );
+                        if( v_ct < 0.0 ) { 
+                           // cout << "Continental crustal thickness is negative ... age 0.0, (" << i << "," << j << ") = " << v_ct << ", rank " << getRank() << endl << flush;
+                           v_ct = 0.0;
+                           status = false;
+                        }
+                        
+                        v_coeff = v_co - v_ct;  
+                        
+                        if( v_coeff != 0.0 ) {
+                           v_bt = v_pbt * (( v_co - HCt ) / v_coeff );
+                        } else {
+                           //   cout << "Present day continental crustal thickness is equal to crust thickness at melt onset....";
+                           //   cout << " age " << age << ", (" << i << "," << j << ") = " << v_co << ", rank " << getRank() << endl << flush;
+                           onsetStatus = false;
+                           v_bt = m_basaltThicknessHistory ( i, j ).GetPoint(agePrev);
+                        }
+                        m_endOfRiftEvent( i, j ) = age;
+                     } else {                      
+                        // stop generate basalt if HCt reachs or drops below the previous minimun
+                        v_bt = m_basaltThicknessHistory ( i, j ).GetPoint(agePrev);
+                     }
+                  } else {
+                     // we shouldn't be here
+                     v_bt = 0.0; 
+                  }
+                  if( v_bt < 0.0 ) { 
+                     // cout << "Basalt thickness is negative ... " << " age " << age << ", (" << i << "," << j << ") = " << v_bt << ", rank " << getRank() << endl << flush;
+                     basaltStatus = false;
+                     v_bt = 0.0;
+                  }                
+                  m_basaltThicknessHistory ( i, j ).AddPoint( age, v_bt );
+
+                  v_ect = HCt + v_bt * mult_coeff;
+
+                  if( v_ect < 1000 ) {
+                     v_ect = 1000;
+                  }
+                  m_crustThicknessHistory ( i, j ).AddPoint( age, v_ect );
+                } 
+            }
+         }
+         agePrev = age;
+         thicknessMap->restoreData ( false, true );
+      }
+
+      presentDayBasaltThickness->restoreData( false, true );
+      crustMeltOnsetMap->restoreData( false, true );
+      initialCrustalThickness = 0;
+
+      int globalStatus = true;
+
+      getMinValue( status, globalStatus );
+      
+      if( not onsetStatus ) {
+         getMessageHandler ().printLine ( " MeSsAgE WARNING  Present day continental crustal thickness is equal to crust thickness at melt onset." );
+      }
+      if( not basaltStatus ) {
+         getMessageHandler ().printLine ( " MeSsAgE WARNING  Calculated basalt has some non-positive values." );
+      }
+      if( not globalStatus ) {
+         getMessageHandler ().printLine ( " MeSsAgE ERROR  Crust or basalt has some non-positive thickness values." );
+         getMessageHandler ().printLine ( " MeSsAgE ERROR  For correct execution all crust thickness values must be positive." );
+      }
+      return globalStatus;
+   }
+   return true;
+}
+//------------------------------------------------------------//
+
+bool GeoPhysics::ProjectHandle::createCrustThickness () {
+
+   unsigned int i;
+   unsigned int j;
+
+
+   //Create 2D Array of Polyfunction for Crust Thickness
+   m_crustThicknessHistory.reallocate ( getActivityOutputGrid ());
+  
+   if ( getBottomBoundaryConditions () == Interface::FIXED_BASEMENT_TEMPERATURE ) {
+
+      const Interface::Snapshot* firstSimulationSnapshot = m_crustFormation->getTopSurface ()->getSnapshot ();
+      Interface::PaleoFormationPropertyList* crustThicknesses = getCrustFormation ()->getPaleoThicknessHistory ();
+      Interface::PaleoFormationPropertyList::const_iterator crustThicknessIter;
+
+      for ( crustThicknessIter = crustThicknesses->begin (); crustThicknessIter != crustThicknesses->end (); ++crustThicknessIter ) {
+
+         const Interface::PaleoFormationProperty* thicknessInstance = dynamic_cast<const Interface::PaleoFormationProperty*>(*crustThicknessIter);
+         const Interface::GridMap* thicknessMap = dynamic_cast<const Interface::GridMap*>(thicknessInstance->getMap ( Interface::CrustThinningHistoryInstanceThicknessMap ));
+         const double age = thicknessInstance->getSnapshot ()->getTime ();
+         double min, max;
+         thicknessMap->retrieveData ( true );
+         thicknessMap->getMinMaxValue ( min, max );
+         if ( true or age <= firstSimulationSnapshot->getTime ()) {
+
+         thicknessMap->retrieveData ( true );
+
+         for ( i = thicknessMap->firstI (); i <= thicknessMap->lastI (); ++i ) {
+
+            for ( j = thicknessMap->firstJ (); j <= thicknessMap->lastJ (); ++j ) {
+
+               if ( m_validNodes ( i, j )) {
+                  m_crustThicknessHistory ( i, j ).AddPoint( age, thicknessMap->getValue ( i, j ));
+               }
+
+            }
+
+         }
+
+         thicknessMap->restoreData ( false, true );
+         }
+      }
+
+      delete crustThicknesses;
+
+   } else if ( m_isALCMode ) {
+      //    addCrustThinningHistoryMaps();
+      const Interface::Snapshot* firstSimulationSnapshot = m_crustFormation->getTopSurface ()->getSnapshot ();
+
+      Interface::PaleoFormationPropertyList* crustThicknesses = getCrustFormation ()->getPaleoThicknessHistory ();
+      Interface::PaleoFormationPropertyList::const_iterator crustThicknessIter;
+  
+      m_contCrustThicknessHistory.reallocate ( getActivityOutputGrid ());
+    
+      double localInitialCrustThickness =  -9999999999.9;
+      double localMaximumCrustThickness =  -9999999999.9;
+      double currentThickness;
+
+      double oldestMapAge = dynamic_cast<const Interface::PaleoFormationProperty*>(*(crustThicknesses->rbegin ()))->getSnapshot ()->getTime ();
+
+      bool flag = false;
+      for ( crustThicknessIter = crustThicknesses->begin (); crustThicknessIter != crustThicknesses->end (); ++crustThicknessIter ) {
+
+         const Interface::PaleoFormationProperty* thicknessInstance = dynamic_cast<const Interface::PaleoFormationProperty*>(*crustThicknessIter);
+         const Interface::GridMap* thicknessMap = dynamic_cast<const Interface::GridMap*>(thicknessInstance->getMap ( Interface::CrustThinningHistoryInstanceThicknessMap ));
+         const double age = thicknessInstance->getSnapshot ()->getTime ();
+
+         
+         if ( true or age <= firstSimulationSnapshot->getTime ()) {
+
+            thicknessMap->retrieveData ( true );
+            for ( i = thicknessMap->getGrid()->firstI ( true ); i <= thicknessMap->getGrid()->lastI ( true ); ++i ) {
+               
+               for ( j = thicknessMap->getGrid()->firstJ ( true ); j <= thicknessMap->getGrid()->lastJ ( true ); ++j ) {
+                  
+                  if ( m_validNodes ( i, j )) {
+                     currentThickness = thicknessMap->getValue ( i, j );
+                     m_contCrustThicknessHistory ( i, j ).AddPoint( age, currentThickness );
+                     if( age == m_basinAge ) {
+                        flag = true;
+                        // localInitialCrustThickness = NumePetscMax ( localInitialCrustThickness, thicknessMap->getValue ( i, j ) );  
+                        localInitialCrustThickness = NumericFunctions::Maximum ( localInitialCrustThickness, currentThickness );  
+                     } 
+                     if( age == oldestMapAge ) {
+                        localMaximumCrustThickness = NumericFunctions::Maximum ( localMaximumCrustThickness, currentThickness ); 
+                     } 
+                  }
+               }
+               
+            }
+            
+            thicknessMap->restoreData ( false, true );
+         }
+      }
+      
+
+      GeoPhysics::GeoPhysicsCrustFormation* crust = dynamic_cast<GeoPhysics::GeoPhysicsCrustFormation*>( m_crustFormation );
+      double initialCrustalThickness = 0;
+
+      getMaxValue ( &localInitialCrustThickness, &initialCrustalThickness );
+
+      if( initialCrustalThickness < 0 ) {
+         if( flag ) {
+            getMessageHandler ().printLine( " WARNING: Initial crustal thickness is negative!" );
+         } else {
+            getMessageHandler ().printLine( " WARNING: Initial crustal thickness is not defined at the age of basin!" );
+         }
+
+         getMaxValue ( &localMaximumCrustThickness, &initialCrustalThickness );
+
+         if( initialCrustalThickness < 0 ) {
+            getMessageHandler ().printLine (  " MeSsAgE ERROR  Could not determine the initial crustal thickness." );
+            return false;
+         } else {
+            getMessageHandler ().print (  " Setting initialCrustalThickness to = " );
+            getMessageHandler ().print ( initialCrustalThickness );
+            getMessageHandler ().printLine ( "" );
+         }
+      } else {
+         if( getRank() == 0 ) {
+            getMessageHandler ().print (  " InitialCrustalThickness = " );
+            getMessageHandler ().print ( initialCrustalThickness );
+            getMessageHandler ().printLine ( "" );
+         }
+      }
+      crust->setInitialCrustalThickness( initialCrustalThickness );
+ 
+      delete crustThicknesses;
+
+      if( !createBasaltThicknessAndECT() ) {
+         return false;
+      }
+     
+   } else {
+
+      const Interface::GridMap* thicknessMap = getCrustFormation ()->getInputThicknessMap ();
+
+      bool retrieved = thicknessMap->retrieved ();
+
+      if ( not retrieved ) {
+         thicknessMap->retrieveData ( true );
+      }
+
+      for ( i = thicknessMap->firstI (); i <= thicknessMap->lastI (); ++i ) {
+
+         for ( j = thicknessMap->firstJ (); j <= thicknessMap->lastJ (); ++j ) {
+
+            if ( m_validNodes ( i, j )) {
+               m_crustThicknessHistory ( i, j ).AddPoint( 0.0, thicknessMap->getValue ( i, j ));
+            }
+
+         }
+
+      }
+
+      if ( not retrieved ) {
+         thicknessMap->restoreData ( false, true );
+      }
+
+   }
+
+   return true;
+}
+
+//------------------------------------------------------------//
+
+bool GeoPhysics::ProjectHandle::determineLayerMinMaxThickness () {
+
+   Interface::MutableFormationList::iterator formationIter;
+
+   for ( formationIter = m_formations.begin (); formationIter != m_formations.end (); ++formationIter ) {
+
+      if ((*formationIter)->kind () == Interface::SEDIMENT_FORMATION ) {
+         GeoPhysics::Formation* formation = dynamic_cast<GeoPhysics::Formation*>(*formationIter);
+
+         formation->determineMinMaxThickness ();
+      }
+
+   }
+
+   dynamic_cast<GeoPhysics::GeoPhysicsCrustFormation*>( m_crustFormation )->determineMinMaxThickness ();
+   dynamic_cast<GeoPhysics::GeoPhysicsMantleFormation*>( m_mantleFormation )->determineMinMaxThickness ();
+
+   return true;
+}
+
+//------------------------------------------------------------//
+
+bool GeoPhysics::ProjectHandle::determineCrustThinningRatio () {
+
+   // Should this function be in the Crust class?
+
+   GeoPhysics::GeoPhysicsCrustFormation*  crust  = dynamic_cast<GeoPhysics::GeoPhysicsCrustFormation*>( m_crustFormation );
+   GeoPhysics::GeoPhysicsMantleFormation* mantle = dynamic_cast<GeoPhysics::GeoPhysicsMantleFormation*>( m_mantleFormation );
+
+   bool status = true;
+   double minimumCrustThickness;
+   double maximumBasementThickness;
+   double maximumCrustThinningRatio;
+   double mantleElementHeight = getRunParameters ()->getBrickHeightMantle ();
+
+   status = status and crust->determineCrustThinningRatio ();
+   minimumCrustThickness = crust->getMinimumThickness ();
+   maximumBasementThickness = ( m_isALCMode ? mantle->getInitialLithosphericMantleThickness() + crust->getInitialCrustalThickness() :
+                                mantle->getPresentDayThickness () + crust->getCrustMaximumThicknessHistory ( 0.0 ) );
+   maximumCrustThinningRatio = crust->getCrustThinningRatio ();
+
+
+   if ( not status ) {
+      getMessageHandler ().printLine ( " MeSsAgE ERROR  Crust has some non-positive thickness values." );
+      getMessageHandler ().printLine ( " MeSsAgE ERROR  For correct execution all crust thickness values must be positive" );
+   } else if ( status and maximumCrustThinningRatio > MaximumReasonableCrustThinningRatio and not m_isALCMode ) {
+      getMessageHandler ().printLine ( " MeSsAgE WARNING  Crust has very large ratio of crust thicknesses." );
+      getMessageHandler ().printLine ( " MeSsAgE WARNING  This can result in an unreasonable number of elements in the basement." );
+      getMessageHandler ().printLine ( " MeSsAgE WARNING  Possibly, resulting in extended execution-times." );
+      getMessageHandler ().print ( " MeSsAgE WARNING  The mantle will have approximately " );
+      getMessageHandler ().print ( int ( std::ceil ((( maximumBasementThickness - minimumCrustThickness ) / mantleElementHeight ) * maximumCrustThinningRatio )));
+      getMessageHandler ().printLine ( " elements in the depth-direction." );
+   } 
+ 
+   return status;
+} 
+
+//------------------------------------------------------------//
+
+bool GeoPhysics::ProjectHandle::determineMaximumNumberOfSegmentsPerLayer ( const bool readSizeFromVolumeData,
+                                                                           const bool printTable ) {
+
+   if ( printTable and getRank () == 0 ) {
+      cout << endl 
+           << "------------------------- Number of Segments --------------------------" << endl;
+      cout << "        LayerName    (Depo)Age  Min.Thickness  Max.Thickness    Effective Max. Elem. Hgt.   Nb.Seg " << endl << endl;
+#if 0
+      cout << "        LayerName    (Depo)Age  Min.Thickness  Max.Thickness    Effective Element Height    Nb.Seg " << endl << endl;
+#endif
+   }
+
+   Interface::MutableFormationList::iterator formationIter;
+   unsigned int numberOfSegments;
+   unsigned int totalSegmentCount = 0;
+
+   for ( formationIter = m_formations.begin (); formationIter != m_formations.end (); ++formationIter ) {
+
+      GeoPhysics::Formation* formation = dynamic_cast<GeoPhysics::Formation*>(*formationIter);
+
+      numberOfSegments = formation->setMaximumNumberOfElements ( readSizeFromVolumeData );
+      totalSegmentCount += numberOfSegments;
+
+      if ( printTable and getRank () == 0 ) {
+
+         if ( formation->isMantle ()) {
+            std::cout << std::setw ( 20 ) << formation->getName ()
+                      << std::setw ( 10 ) << -1
+                      << std::setw ( 15 ) << formation->getMinimumThickness ()
+                      << std::setw ( 15 ) << formation->getMaximumThickness ()
+                      << std::setw ( 24 ) << getRunParameters ()->getBrickHeightMantle ()
+                      << std::setw ( 10 ) << formation->getMaximumNumberOfElements ()
+                      << std::endl;
+         } else if ( formation->isCrust ()) {
+            std::cout << std::setw ( 20 ) << formation->getName ()
+                      << std::setw ( 10 ) << formation->getTopSurface ()->getSnapshot ()->getTime ()
+                      << std::setw ( 15 ) << formation->getMinimumThickness ()
+                      << std::setw ( 15 ) << formation->getMaximumThickness ()
+                      << std::setw ( 24 ) << getRunParameters ()->getBrickHeightCrust ()
+                      << std::setw ( 10 ) << formation->getMaximumNumberOfElements ()
+                      << std::endl;
+         } else {
+            // Sediments 
+            std::cout << std::setw ( 20 ) << formation->getName ()
+                      << std::setw ( 10 ) << formation->getTopSurface ()->getSnapshot ()->getTime ()
+                      << std::setw ( 15 ) << formation->getMinimumThickness ()
+                      << std::setw ( 15 ) << formation->getMaximumThickness ()
+                      << std::setw ( 24 ) << getRunParameters ()->getBrickHeightSediment () / formation->getDepthRefinementFactor ()
+                      << std::setw ( 10 ) << formation->getMaximumNumberOfElements ()
+                      << std::endl;
+         }
+
+      }
+
+#if 0
+      if ( printTable and getRank () == 0 ) {
+
+         if ( formation->getTopSurface ()->getSnapshot () == 0 ) {
+            // Mantle formation.
+            std::cout << std::setw ( 20 ) << formation->getName ()
+                      << std::setw ( 10 ) << -1
+                      << std::setw ( 15 ) << formation->getMinimumThickness ()
+                      << std::setw ( 15 ) << formation->getMaximumThickness ()
+                      << std::setw ( 10 ) << formation->getMaximumNumberOfElements ()
+                      << std::setw ( 10 ) << formation->getMaximumNumberOfElements ()
+                      << std::endl;
+         } else {
+            // Sediments and crust formation.
+            std::cout << std::setw ( 20 ) << formation->getName ()
+                      << std::setw ( 10 ) << formation->getTopSurface ()->getSnapshot ()->getTime ()
+                      << std::setw ( 15 ) << formation->getMinimumThickness ()
+                      << std::setw ( 15 ) << formation->getMaximumThickness ()
+                      << std::setw ( 10 ) << formation->getMaximumNumberOfElements ()
+                      << std::endl;
+         }
+
+      }
+#endif
+
+   }
+
+   if ( printTable and getRank () == 0 ) {
+      cout << "                                                                           -------------------" << endl;
+      std::cout << std::setw ( 84 ) << "Total" 
+                << std::setw ( 10 ) << totalSegmentCount
+                << std::endl;
+      cout << "----------------------------------------------------------------------------------------------" << endl;
+   }
+
+
+   return true;
+}
+
+
+//------------------------------------------------------------//
+
+bool GeoPhysics::ProjectHandle::determinePermafrost ( std::vector<double>& timeSteps, std::vector<double>& permafrostAges ) {
+
+   if( m_permafrost ) {
+      bool isPermafrost = false; 
+      permafrostAges.clear();
+      timeSteps.clear();
+      
+      // m_surfaceTemperatureHistory is sorted - youngest first on the list. 
+
+      if( m_surfaceTemperatureHistory.size() > 1 ) {
+
+    // find the negative temperature in the Surface Temperature history table and calculate the time interval.
+         double min, max;
+         
+         Interface::PaleoPropertyList* surfaceTemperatureHistory = getSurfaceTemperatureHistory ();
+         Interface::PaleoPropertyList::const_reverse_iterator surfaceTemperatureIter = surfaceTemperatureHistory->rbegin();
+         
+         double currentAge, age = ( * surfaceTemperatureIter )->getSnapshot ()->getTime ();
+         
+         ++ surfaceTemperatureIter;
+         
+         for ( ; surfaceTemperatureIter != surfaceTemperatureHistory->rend (); ++ surfaceTemperatureIter ) {
+            const Interface::PaleoProperty* surfaceTemperatureInstance = *surfaceTemperatureIter;
+            const Interface::GridMap* surfaceTemperatureMap = dynamic_cast<const Interface::GridMap*>(surfaceTemperatureInstance->getMap ( Interface::SurfaceTemperatureHistoryInstanceMap ));
+            
+            currentAge = surfaceTemperatureInstance->getSnapshot ()->getTime ();
+            surfaceTemperatureMap->retrieveData ();
+            surfaceTemperatureMap->getMinMaxValue ( min, max );
+
+            if( min < 0.0 ) {
+               isPermafrost = true;
+            }
+            if( isPermafrost ) {
+               if( age != currentAge ) {
+                  permafrostAges.push_back( age );
+                  timeSteps.push_back ( ( age - currentAge ) * 0.125 );
+               }
+            }
+
+            age = currentAge;
+            surfaceTemperatureMap->restoreData ();
+         }
+         if( permafrostAges.empty() ) {
+            isPermafrost = false;
+         }
+         if( isPermafrost && permafrostAges.back() != 0.0  ) {
+            permafrostAges.push_back( 0.0 ); 
+            timeSteps.push_back ( 0.0 );
+         }
+         if( permafrostAges.size() != 0 ) {
+            std::reverse( permafrostAges.begin(), permafrostAges.end() );
+            std::reverse( timeSteps.begin(), timeSteps.end() );
+         }
+      } 
+      setPermafrost( isPermafrost );    
+   }
+
+   return m_permafrost;
+}
+
+//------------------------------------------------------------//
+
+bool GeoPhysics::ProjectHandle::initialiseLayerThicknessHistory ( const bool overpressureCalculation ) {
+
+   Interface::MutableFormationList::iterator formationIter;
+
+   // Intially the check is only for negative thicknesses in mobile layers.
+   IntegerArray numberOfErrorsPerLayer ( m_formations.size () - 2, 0 );
+   unsigned int i;
+   unsigned int j;
+   int formCount;
+
+   for ( formationIter = m_formations.begin (); formationIter != m_formations.end (); ++formationIter ) {
+
+      GeoPhysics::Formation* formation = dynamic_cast<GeoPhysics::Formation*>(*formationIter);
+
+      formation->m_solidThickness.reallocate ( getActivityOutputGrid (), formation->getMaximumNumberOfElements ());
+      formation->m_realThickness.reallocate  ( getActivityOutputGrid (), formation->getMaximumNumberOfElements ());
+      formation->m_presentDayErodedThickness.reallocate ( getActivityOutputGrid ());
+
+   }
+
+   for ( formationIter = m_formations.begin (); formationIter != m_formations.end (); ++formationIter ) {
+      GeoPhysics::Formation* formation = dynamic_cast<GeoPhysics::Formation*>(*formationIter);
+      formation->retrieveAllThicknessMaps ();
+   }
+
+   FloatStack uncMaxVes;
+   FloatStack uncThickness;
+   int nrActUnc;
+   bool errorFound = false;
+
+   for ( i = firstI ( true ); i <= lastI ( true ); ++i ) {
+
+      for ( j = firstJ ( true ); j <= lastJ ( true ); ++j ) {
+
+         if ( getNodeIsValid ( i, j )) {
+
+            for ( formCount = int (m_formations.size ()) - 1; formCount >= 0; --formCount ) {
+
+#if 0
+            for ( formationIter = m_formations.begin (); formationIter != m_formations.end (); ++formationIter ) {
+#endif
+
+               GeoPhysics::Formation* formation = dynamic_cast<GeoPhysics::Formation*>( m_formations [ (unsigned int)(formCount)]);
+#if 0
+               GeoPhysics::Formation* formation = dynamic_cast<GeoPhysics::Formation*>(*formationIter);
+#endif
+
+               if ( not computeThicknessHistories ( i, j, formation, numberOfErrorsPerLayer )) {
+                  errorFound = true;
+               }
+
+            }
+
+         // Iterate over all sediment-layers.
+#if 0
+            for ( formCount = 0; formCount < int ( m_formations.size ()) - 2; ++formCount );
+#endif
+            for ( formationIter = m_formations.begin (); formationIter != m_formations.end (); ++formationIter )
+            {
+               GeoPhysics::Formation* formation = dynamic_cast<GeoPhysics::Formation*>( *formationIter );
+#if 0
+               GeoPhysics::Formation* formation = dynamic_cast<GeoPhysics::Formation*>( m_formations [ (unsigned int)(formCount)]);
+#endif
+
+               if ( formation->kind () == Interface::SEDIMENT_FORMATION ) {
+                  storePresentDayThickness ( i, j, formation );
+               }
+
+            }
+
+
+
+            // Start accounting for unconformities
+            nrActUnc = 0;
+            uncMaxVes.push_front (0);
+            uncThickness.push_front (100000);
+
+            // And now from top to bottom
+            // Do not include crust or mantle !!
+#if 0
+            for ( formCount = 0; formCount < int ( m_formations.size ()) - 2; ++formCount )
+#endif
+            for ( formationIter = m_formations.begin (); formationIter != m_formations.end (); ++formationIter )
+            {
+               GeoPhysics::Formation* formation = dynamic_cast<GeoPhysics::Formation*>( *formationIter );
+#if 0
+               GeoPhysics::Formation* formation = dynamic_cast<GeoPhysics::Formation*>( m_formations [ (unsigned int)(formCount)]);
+#endif
+
+               if ( formation->kind () == Interface::SEDIMENT_FORMATION ) {
+                  compFCThicknessHistories ( i, j, overpressureCalculation, formation, nrActUnc, uncMaxVes, uncThickness );
+               }
+
+            }
+
+            // Finish accounting for unconformities
+            uncMaxVes.pop_front ();
+            uncThickness.pop_front ();
+
+            if (0 != uncMaxVes.size ())
+            {
+               uncMaxVes.clear ();
+            }
+
+         }
+
+      }
+         
+   }
+
+   for ( formationIter = m_formations.begin (); formationIter != m_formations.end (); ++formationIter ) {
+      GeoPhysics::Formation* formation = dynamic_cast<GeoPhysics::Formation*>(*formationIter);
+      formation->restoreAllThicknessMaps ();
+   }
+
+   for ( i = 0; i < numberOfErrorsPerLayer.size (); ++i ) {
+
+      if ( numberOfErrorsPerLayer [ i ] > MaximumNumberOfErrorsPerLayer ) {
+         cout << " MeSsAgE ERROR formation '" << m_formations [ numberOfErrorsPerLayer.size () - i - 1 ]->getName () << "' has multiple errors, more than is indicated." << endl;
+      }
+
+   }
+
+
+   int errorFoundInt = ( errorFound ? 1 : 0 );
+   int globalErrorFoundInt;
+
+   getMaxValue ( errorFoundInt, globalErrorFoundInt );
+   errorFound = ( globalErrorFoundInt == 1 );
+
+   return not errorFound;
+}
+
+//------------------------------------------------------------//
+
+void GeoPhysics::ProjectHandle::storePresentDayThickness ( const unsigned int i,
+                                                           const unsigned int j,
+                                                           GeoPhysics::Formation* formation ) {
+
+   unsigned int zCount;
+   double segmentThickness;
+   double presentDayThickness = 0.0;
+
+   for ( zCount = 0; zCount < formation->getMaximumNumberOfElements (); ++zCount )
+   {
+      segmentThickness = formation->getSolidThickness (i, j, zCount ).F (0.0);
+
+      if ( segmentThickness != Interface::DefaultUndefinedScalarValue ) {
+         presentDayThickness = presentDayThickness + segmentThickness;
+      }
+
+   }
+
+   formation->m_presentDayErodedThickness ( i, j ) = presentDayThickness;
+}
+
+//------------------------------------------------------------//
+
+bool GeoPhysics::ProjectHandle::computeThicknessHistories ( const unsigned int i,
+                                                            const unsigned int j,
+                                                                  GeoPhysics::Formation* formation,
+                                                                  IntegerArray& numberOfErrorsPerLayer ) {
+
+   if ( formation->isMobileLayer () or formation->kind () == Interface::BASEMENT_FORMATION ) {
+      return setMobileLayerThicknessHistory ( i, j, formation, numberOfErrorsPerLayer ); 
+   } else if ( formation->getIsIgneousIntrusion ()) {
+      return setIgneousIntrusionThicknessHistory ( i, j, formation, numberOfErrorsPerLayer ); 
+   } else {
+
+      double thickness = formation->getInputThicknessMap ()->getValue ( i, j );
+
+      // If the thickness is positive (taking into account our minimum)
+      if ( thickness > ThicknessTolerance ) {
+         // depositing
+         return setDepositionHistory ( i, j, thickness, formation );
+      } else if ( thickness < -ThicknessTolerance ) {
+         // otherwise we are eroding if it is negative
+         return setHistoriesForUnconformity ( i, j, thickness, formation );
+      } else {
+         // the other else case here is when we consider the layer to be
+         // already eroded at this point
+         return true;
+      }
+
+   }
+
+}
+
+//------------------------------------------------------------//
+
+bool GeoPhysics::ProjectHandle::setDepositionHistory ( const unsigned int i,
+                                                       const unsigned int j,
+                                                       const double       thickness,
+                                                             GeoPhysics::Formation* formation ) {
+
+   double segmentThickness = thickness / double ( formation->getMaximumNumberOfElements ());
+
+   double startDepositionAge = formation->getBottomSurface ()->getSnapshot ()->getTime ();
+   double endDepositionAge = formation->getTopSurface ()->getSnapshot ()->getTime ();
+
+   // Notice the sign of elementDepositionDurations is -ve, 
+   // because we are counting from the top of the element stack.
+   double elementDepositionDuration = ( endDepositionAge - startDepositionAge ) / double ( formation->getMaximumNumberOfElements ());
+
+   unsigned int segment;
+
+   for ( segment = 0; segment < formation->getMaximumNumberOfElements (); ++segment ) {
+
+      formation->getSolidThickness ( i, j, segment ).AddPoint ( startDepositionAge, 0.0 );
+      formation->getRealThickness  ( i, j, segment ).AddPoint ( startDepositionAge, 0.0 );
+
+#if 0
+      formation->setSolidThickness ( i, j, segment, startDepositionAge, 0.0 );
+      formation->setRealThickness  ( i, j, segment, startDepositionAge, 0.0 );
+#endif
+
+      endDepositionAge = startDepositionAge + elementDepositionDuration;
+
+      formation->getSolidThickness ( i, j, segment ).AddPoint ( endDepositionAge, segmentThickness );
+      formation->getRealThickness  ( i, j, segment ).AddPoint ( endDepositionAge, segmentThickness );
+
+#if 0
+      formation->setSolidThickness ( i, j, segment, endDepositionAge, segmentThickness );
+      formation->setRealThickness  ( i, j, segment, endDepositionAge, segmentThickness );
+#endif
+
+      startDepositionAge = endDepositionAge;
+   }
+
+   return true;
+}
+
+//------------------------------------------------------------//
+
+bool GeoPhysics::ProjectHandle::setHistoriesForUnconformity ( const unsigned int i,
+                                                              const unsigned int j,
+                                                              const double       thickness,
+                                                                    GeoPhysics::Formation* formation ) {
+
+   double endErosionAge   = formation->getTopSurface ()->getSnapshot ()->getTime ();
+   double startErosionAge = formation->getBottomSurface ()->getSnapshot ()->getTime ();
+
+   // calculate how much we have eroded
+   double uncThickness = -thickness;
+
+   bool result = true;
+
+   GeoPhysics::Formation* currentFormation = formation;
+
+   while ( result and uncThickness > ThicknessTolerance ) {
+
+      currentFormation = const_cast<GeoPhysics::Formation*>(dynamic_cast<const GeoPhysics::Formation*>(currentFormation->getBottomSurface ()->getBottomFormation ()));
+
+      if ( currentFormation->kind () == Interface::BASEMENT_FORMATION ) {
+         // if we have reached the crust then exit with success
+         return true;
+      }
+
+      if ( currentFormation->isMobileLayer ()) {
+
+         if ( uncThickness <= MobileLayerNegativeThicknessTolerance ) {
+            uncThickness = 0.0;
+            continue;
+         } else {
+            cout << "MeSsAgE ERROR Erosion of mobile layer [" << currentFormation->getName () << "] at position (" << i << ", " << j << ") " << thickness <<  "  is not permitted " << endl;
+            return false;
+         }
+
+      }
+
+      if ( currentFormation->getIsIgneousIntrusion ()) {
+         cout << "MeSsAgE ERROR Erosion of igneousIntrusion [" << currentFormation->getName () << "] is not permitted " << endl;
+         return false;
+      }
+
+      if ( currentFormation->getInputThicknessMap ()->getValue ( i, j ) <= ThicknessTolerance ) {
+         continue;
+      }
+
+      double layerThickness = 0.0;
+      double segmentThickness = 0.0;
+
+      unsigned int segment = 0;
+
+      for ( segment = 0; segment < currentFormation->getMaximumNumberOfElements (); ++segment ) {
+         segmentThickness = currentFormation->getSolidThickness ( i, j, segment ).F ( 0.0 );
+//          segmentThickness = currentFormation->getSolidThickness ( i, j, segment, 0.0 );
+
+         if ( segmentThickness == Interface::DefaultUndefinedScalarValue ) {
+            std::cout << "(setHistoriesForUnconformity) FullCompThickness not set on segment " 
+                      << currentFormation->getName () << "  " << i << "  " << j << "  " << segment << std::endl;
+            return false;
+         }
+
+         layerThickness += segmentThickness;
+      }
+
+      assert ( layerThickness >= -ThicknessTolerance );
+
+      // Layer is completely eroded
+      if (layerThickness < ThicknessTolerance ) {
+         continue;
+      }
+
+      double erodedThickness = NumericFunctions::Minimum (layerThickness, uncThickness);
+
+      double localEndErosionAge = startErosionAge +
+            (erodedThickness / uncThickness) * (endErosionAge - startErosionAge);
+
+      result = setErosionHistory (i, j, currentFormation, startErosionAge, localEndErosionAge, erodedThickness);
+
+      if (result)
+      {
+         // subtract this layers' thickness from the remaining unconf thickness
+         uncThickness -= erodedThickness;
+         // set the new start depo age at the end of the erosion of this layer
+         //endErosionAge = Basin_Model -> layers[layerCnt]->depoage;
+         startErosionAge = localEndErosionAge; //Basin_Model -> layers[layerCnt+1]->depoage;
+      }
+
+   }
+
+   return result;
+}
+
+//------------------------------------------------------------//
+
+bool GeoPhysics::ProjectHandle::setErosionHistory ( const unsigned int i,
+                                                    const unsigned int j,
+                                                    GeoPhysics::Formation* formation,
+                                                    const double startErosionAge,
+                                                    const double endErosionAge,
+                                                    const double erodedThickness ) {
+
+   static const double ThicknessEpsilon = 1.0e-8;
+
+   CBMGenerics::Polyfunction *pf;
+   CBMGenerics::Polyfunction *real_thickness_pf;
+   double polyfThickness;
+
+   double actualErodedThickness = erodedThickness;
+   double segmentThicknessAfterErosion;
+   double segmentStartErosionAge = startErosionAge;
+
+   // we are going to iterate through the segments in this layer and remove
+   // the erosion
+   assert (0 != formation->getMaximumNumberOfElements ());
+
+   int segment = 0;
+
+   for ( segment = formation->getMaximumNumberOfElements () - 1; segment >= 0; --segment ) {
+
+      // if we have dealt with all of the eroded thickness
+      if ( actualErodedThickness <= ThicknessTolerance ) {
+         break;
+      }
+
+      pf = &(formation->getSolidThickness ( i, j, segment ));
+      real_thickness_pf = &(formation->getRealThickness (i, j, segment ));
+
+      pf->MinX (polyfThickness);
+      assert (polyfThickness != Interface::DefaultUndefinedScalarValue );
+
+      if (polyfThickness > 0)
+      {
+         double segErosionThickness = NumericFunctions::Minimum (polyfThickness, actualErodedThickness );
+
+         assert (0 != actualErodedThickness );
+         double segEndErosionAge = segmentStartErosionAge +
+               (segErosionThickness / actualErodedThickness) * (endErosionAge - segmentStartErosionAge);
+
+         bool added = pf->AddPoint ( segmentStartErosionAge, polyfThickness);
+
+         added = real_thickness_pf->AddPoint ( segmentStartErosionAge, polyfThickness);
+
+         if ( std::fabs ( polyfThickness - segErosionThickness ) < ThicknessEpsilon ) {
+            // If the difference between the two thickness is very small 
+            // then set the eroded thickness to be zero.
+            segmentThicknessAfterErosion = 0.0;
+         } else {
+            // otherwise set the actual eroded thickness.
+            segmentThicknessAfterErosion = polyfThickness - segErosionThickness;
+         }
+
+         added = pf->AddPoint (segEndErosionAge, segmentThicknessAfterErosion );
+         assert (added);
+
+         added = real_thickness_pf->AddPoint (segEndErosionAge, segmentThicknessAfterErosion);
+
+         segmentStartErosionAge = segEndErosionAge;
+         actualErodedThickness -= segErosionThickness;
+      }
+
+   }
+
+   return true;
+}
+
+//------------------------------------------------------------//
+
+bool GeoPhysics::ProjectHandle::setMobileLayerThicknessHistory ( const unsigned int i,
+                                                                 const unsigned int j,
+                                                                       GeoPhysics::Formation* formation,
+                                                                       IntegerArray& numberOfErrorsPerLayer ) {
+
+   if ( formation->isMantle ()) {
+      return true;
+   } else if ( formation->isCrust ()) {
+
+      if ( getBottomBoundaryConditions () == Interface::FIXED_BASEMENT_TEMPERATURE ||
+           getBottomBoundaryConditions () == Interface::ADVANCED_LITHOSPHERE_CALCULATOR) {
+         Interface::PaleoFormationPropertyList::const_iterator mapIter;
+         Interface::PaleoFormationPropertyList* crustThicknesses = dynamic_cast<GeoPhysics::GeoPhysicsCrustFormation*>(formation)->getPaleoThicknessHistory ();
+
+         unsigned int segment;
+         double age;
+
+         double segmentThickness;
+
+         for ( mapIter = crustThicknesses->begin (); mapIter != crustThicknesses->end (); ++mapIter ) {
+            age = (*mapIter)->getSnapshot ()->getTime ();
+
+            if( m_isALCMode ) {
+               segmentThickness = getCrustThickness( i, j, age ) / double ( formation->getMaximumNumberOfElements ());
+             } else {
+               segmentThickness = (*mapIter)->getMap ( Interface::CrustThinningHistoryInstanceThicknessMap )->getValue ( i, j ) / double ( formation->getMaximumNumberOfElements ());
+            }
+            for ( segment = 0; segment < formation->getMaximumNumberOfElements (); ++segment ) {
+               formation->getSolidThickness ( i, j, segment ).AddPoint ( age, segmentThickness );
+               formation->getRealThickness  ( i, j, segment ).AddPoint ( age, segmentThickness );
+            }
+
+         }
+
+         delete crustThicknesses;
+      } else {
+
+         double segmentThickness = formation->getInputThicknessMap ()->getValue ( i, j ) / double ( formation->getMaximumNumberOfElements ());
+         unsigned int segment;
+
+         for ( segment = 0; segment < formation->getMaximumNumberOfElements (); ++segment ) {
+            formation->getSolidThickness ( i, j, segment ).AddPoint ( 0.0, segmentThickness );
+            formation->getRealThickness  ( i, j, segment ).AddPoint ( 0.0, segmentThickness );
+         }
+
+      }
+
+      return true;
+   } else {
+
+      unsigned int segment;
+      double age;
+      bool onlyPositiveThickness = true;
+
+      double segmentThickness = formation->getInputThicknessMap ()->getValue ( i, j ) / double ( formation->getMaximumNumberOfElements ());
+
+      if ( NumericFunctions::inRange<double>( segmentThickness, -MobileLayerNegativeThicknessTolerance, 0.0 )) {
+        segmentThickness = 0.0;
+      }
+
+      if ( segmentThickness < 0.0 ) {
+         onlyPositiveThickness = false;
+
+         if ( formation->getDepositionSequence () > 0 and formation->getDepositionSequence () != Interface::DefaultUndefinedScalarValue ) {
+            ++numberOfErrorsPerLayer [ formation->getDepositionSequence () - 1 ];
+
+            if ( numberOfErrorsPerLayer [ formation->getDepositionSequence () - 1 ] <= MaximumNumberOfErrorsPerLayer ) {
+               cout << " MeSsAgE ERROR negative mobile layer thickness detected in formation '" << formation->getName () << "' at position (" << i << ", " << j  << ").  " << formation->getInputThicknessMap ()->getValue ( i, j ) << endl;
+            }
+
+         }
+
+      }
+
+      for ( segment = 0; segment < formation->getMaximumNumberOfElements (); ++segment ) {
+         formation->getSolidThickness ( i, j, segment ).AddPoint ( 0.0, segmentThickness );
+         formation->getRealThickness  ( i, j, segment ).AddPoint ( 0.0, segmentThickness );
+      }
+
+      if ( formation->isMobileLayer ()) {
+         Interface::MobileLayerList::const_iterator mapIter;
+         Interface::MobileLayerList* mobileLayerThicknesses = formation->getMobileLayers ();
+
+         for ( mapIter = mobileLayerThicknesses->begin (); mapIter != mobileLayerThicknesses->end (); ++mapIter ) {
+            age = (*mapIter)->getSnapshot ()->getTime ();
+
+            if ( age != 0.0 ) {
+               // The present day thicknesses are added above, the input-thickness map values.
+               segmentThickness = (*mapIter)->getMap ( Interface::MobileLayerThicknessMap )->getValue ( i, j ) / double ( formation->getMaximumNumberOfElements ());
+
+               for ( segment = 0; segment < formation->getMaximumNumberOfElements (); ++segment ) {
+                  formation->getSolidThickness ( i, j, segment ).AddPoint ( age, segmentThickness );
+                  formation->getRealThickness  ( i, j, segment ).AddPoint ( age, segmentThickness );
+               }
+
+            }
+
+         }
+
+         delete mobileLayerThicknesses;
+      }
+
+      return onlyPositiveThickness;
+   }
+
+}
+
+//------------------------------------------------------------//
+
+bool GeoPhysics::ProjectHandle::setIgneousIntrusionThicknessHistory ( const unsigned int i,
+                                                                      const unsigned int j,
+                                                                            GeoPhysics::Formation* formation,
+                                                                            IntegerArray& numberOfErrorsPerLayer ) {
+
+   //
+   //
+   //
+   //
+   //
+   //
+   //
+   //
+   //
+   //
+   //
+   //
+   //
+   //                                             ^
+   //                    +==================+     |
+   //                   /                         |
+   //                   |                         | 
+   //                   |                         | thickness
+   //                   |                         |
+   //                  /                          |
+   //  +===============+-+-----------------+------+ 0
+   //  t0             ts te               tp
+   //
+   //  t0 age of surrounding material
+   //  ts start of inflation of the igneous intrusion
+   //  te end of inflation of the igneous intrusion
+   //  tp present day
+   //
+   // The difference between ts and te (duration of inflation = ts - te) is defined by IgneousIntrusionEventDuration
+   // this can be found in DataAccess/src/Interface/interface/h
+   //
+
+   if ( not formation->getIsIgneousIntrusion ()) {
+      // If the formation is not an igneous intrusion then should not be in this function.
+      return false;
+   }
+
+   bool onlyPositiveThickness = true;
+
+   double endOfIntrusionAge;
+   double startOfIntrusionAge;
+   // The age at which the igneous intrusion formation appears in the strat table.
+   double formationInclusionAge;
+
+   unsigned int segment;
+
+   double segmentThickness = formation->getInputThicknessMap ()->getValue ( i, j ) / double ( formation->getMaximumNumberOfElements ());
+
+   if ( segmentThickness < 0.0 ) {
+      onlyPositiveThickness = false;
+
+      if ( formation->getDepositionSequence () > 0 and formation->getDepositionSequence () != Interface::DefaultUndefinedScalarValue ) {
+         ++numberOfErrorsPerLayer [ formation->getDepositionSequence () - 1 ];
+
+         if ( numberOfErrorsPerLayer [ formation->getDepositionSequence () - 1 ] <= MaximumNumberOfErrorsPerLayer ) {
+            cout << " MeSsAgE ERROR negative igneous intrusion thickness detected in formation '" << formation->getName () << "' at position (" << i << ", " << j  << ")." << endl;
+         }
+
+      }
+
+   }
+
+   const Interface::IgneousIntrusionEvent* intrusionEvent = formation->getIgneousIntrusionEvent ();
+
+   endOfIntrusionAge = intrusionEvent->getEndOfIntrusion ()->getTime ();
+   startOfIntrusionAge = intrusionEvent->getStartOfIntrusion ();
+   formationInclusionAge = formation->getTopSurface ()->getSnapshot ()->getTime ();
+
+   // Set present day thicknesses.
+   for ( segment = 0; segment < formation->getMaximumNumberOfElements (); ++segment ) {
+      formation->getSolidThickness ( i, j, segment ).AddPoint ( 0.0, segmentThickness );
+      formation->getRealThickness  ( i, j, segment ).AddPoint ( 0.0, segmentThickness );
+   }
+
+   // Set thickness at end of intrusion event age.
+   // If this is the same as present day then there is no need to add it because it has been added already.
+   if ( endOfIntrusionAge != 0.0 ) {
+
+      for ( segment = 0; segment < formation->getMaximumNumberOfElements (); ++segment ) {
+         formation->getSolidThickness ( i, j, segment ).AddPoint ( endOfIntrusionAge, segmentThickness );
+         formation->getRealThickness  ( i, j, segment ).AddPoint ( endOfIntrusionAge, segmentThickness );
+      }
+
+   }
+
+   for ( segment = 0; segment < formation->getMaximumNumberOfElements (); ++segment ) {
+      formation->getSolidThickness ( i, j, segment ).AddPoint ( startOfIntrusionAge, 0.0 );
+      formation->getRealThickness  ( i, j, segment ).AddPoint ( startOfIntrusionAge, 0.0 );
+   }
+
+
+   // set the thickness at the top surface age.
+   // This is the age the surrounding formation appears in the strat table.
+   for ( segment = 0; segment < formation->getMaximumNumberOfElements (); ++segment ) {
+      formation->getSolidThickness ( i, j, segment ).AddPoint ( formationInclusionAge, 0.0 );
+      formation->getRealThickness  ( i, j, segment ).AddPoint ( formationInclusionAge, 0.0 );
+   }
+
+
+   return onlyPositiveThickness;
+}
+
+//------------------------------------------------------------//
+
+double GeoPhysics::ProjectHandle::getSeaBottomDepth ( const unsigned int i,
+                                                      const unsigned int j,
+                                                      const double       age ) const {
+   return m_seaBottomDepth ( i, j ).F ( age );
+}
+
+//------------------------------------------------------------//
+
+double GeoPhysics::ProjectHandle::getSeaBottomTemperature ( const unsigned int i,
+                                                            const unsigned int j,
+                                                            const double       age ) const {
+   return m_seaBottomTemperature ( i, j ).F ( age );
+}
+
+//------------------------------------------------------------//
+
+double GeoPhysics::ProjectHandle::getMantleHeatFlow ( const unsigned int i,
+                                                      const unsigned int j,
+                                                      const double       age ) const {
+   /// Return -mhf because the up-direction is negative (in the cauldron model, i.e. depth is positive).
+   return -m_mantleHeatFlow ( i, j ).F ( age );
+}
+
+//------------------------------------------------------------//
+
+double GeoPhysics::ProjectHandle::getEndOfRiftEvent ( const unsigned int i,
+                                                      const unsigned int j ) const {
+   return m_endOfRiftEvent ( i, j );
+}
+//------------------------------------------------------------//
+
+double GeoPhysics::ProjectHandle::getCrustThickness ( const unsigned int i,
+                                                      const unsigned int j,
+                                                      const double       age ) const {
+   return m_crustThicknessHistory ( i, j ).F ( age );
+}
+//------------------------------------------------------------//
+
+double GeoPhysics::ProjectHandle::getContCrustThickness ( const unsigned int i,
+                                                          const unsigned int j,
+                                                          const double       age ) const {
+  if( m_isALCMode ) {  
+     return m_contCrustThicknessHistory ( i, j ).F ( age );
+  } 
+  return 0.0;
+}
+//------------------------------------------------------------//
+
+double GeoPhysics::ProjectHandle::getBasaltThickness ( const unsigned int i,
+                                                       const unsigned int j,
+                                                       const double       age ) const {
+   if( m_isALCMode ) {  
+      return m_basaltThicknessHistory ( i, j ).F ( age );
+   } 
+   return 0.0;
+}
+//------------------------------------------------------------//
+
+double GeoPhysics::ProjectHandle::getLithosphereThicknessMod ( const unsigned int i,
+                                                               const unsigned int j,
+                                                               const double       age ) const {
+   if( m_isALCMode ) {
+      double thinningFactor = 1.0 - getContCrustThickness( i, j, age ) / getCrustFormation()->getInitialCrustalThickness();
+      double initLithoThickness = getMantleFormation ()->getInitialLithosphericMantleThickness () + 
+                                  getCrustFormation()->getInitialCrustalThickness();
+  
+      const double HLmod = 0.5 * ( ( initLithoThickness + m_minimumLithosphereThickness ) + ( initLithoThickness - m_minimumLithosphereThickness ) * cos ( M_PI * thinningFactor ));
+      return HLmod;
+   }
+   return 0.0;
+}
+//------------------------------------------------------------//
+
+double GeoPhysics::ProjectHandle::getBasaltInMantleThickness ( const unsigned int i,
+                                                               const unsigned int j,
+                                                               const double       age ) const {
+   if( m_isALCMode ) {                                                         
+      return m_contCrustThicknessHistory( i, j ).F( age ) + m_basaltThicknessHistory ( i, j ).F ( age ) - m_crustThicknessHistory( i, j ).F( age ) ;
+   } 
+   return 0.0;
+}
+//------------------------------------------------------------//
+
+bool GeoPhysics::ProjectHandle::compFCThicknessHistories ( const unsigned int i,
+                                                           const unsigned int j,
+                                                           const bool     overpressureCalculation,
+                                                                 GeoPhysics::Formation* formation,
+                                                                 int& nrActUnc, 
+                                                                 FloatStack &uncMaxVes, 
+                                                                 FloatStack &uncThickness ) {
+
+   // we have 3 possible types of layer: 1: a mobile layer, 2: a normal
+   // sedemented layer or 3: an erosion (layer).
+
+   if ( formation->isMobileLayer () or formation->getIsIgneousIntrusion ()) {
+      // mobile layer or igneous intrusion!!
+      return updateMobileLayerOrIgneousIntrusionMaxVes (i, j, formation, uncMaxVes.front ());
+   } else  {
+      // get the thickness of the layer at this point to 
+      // determine whether the layer is depositing or eroding.
+      // for a non mobile layer there will only be one thickness
+
+      double thickness = formation->getInputThicknessMap ()->getValue ( i, j );
+
+      if ( thickness > ThicknessTolerance ) {
+         // Compact this layer
+         return compactLayerThicknessHistory (i, j, overpressureCalculation, formation, uncMaxVes, uncThickness, nrActUnc);
+      } else if (thickness < -ThicknessTolerance ) {
+
+         // the layer we are processing is an erosion layer and 
+         // therefore we have no fct thickness functions for the layer
+
+         // Put the erosion on the stack, necessary to compute maxVes
+         nrActUnc++;
+         uncMaxVes.push_front (0.0);
+         uncThickness.push_front (-thickness);
+      }
+   }
+
+   return false;
+}
+
+//------------------------------------------------------------//
+
+bool GeoPhysics::ProjectHandle::updateMobileLayerOrIgneousIntrusionMaxVes ( const unsigned int i,
+                                                                            const unsigned int j,
+                                                                            GeoPhysics::Formation* formation,
+                                                                            double &maxVes ) {
+
+  bool result = true;
+  double segmentThickness;
+  double dummy;
+  double diffdensity;
+
+  int segment;
+
+  const CompoundLithology* lithology = formation->getCompoundLithology ( i, j );
+  const GeoPhysics::FluidType* fluid = dynamic_cast<const GeoPhysics::FluidType*>( formation->getFluidType ());
+
+  for ( segment = formation->getMaximumNumberOfElements() - 1; segment >= 0; --segment ) {
+
+      segmentThickness = formation->getSolidThickness ( i, j, (unsigned int)(segment)).MaxY (dummy);
+      assert( segmentThickness != Interface::DefaultUndefinedScalarValue );
+
+      if ( fluid != 0  ) {
+         diffdensity = lithology->density () - fluid->getConstantDensity ();
+      } else {
+         diffdensity = lithology->density ();
+      }
+
+      maxVes += AccelerationDueToGravity * diffdensity * segmentThickness;
+    }
+
+  return result;
+}
+
+//------------------------------------------------------------//
+
+bool GeoPhysics::ProjectHandle::compactLayerThicknessHistory ( const unsigned int i,
+                                                               const unsigned int j,
+                                                               const bool     overpressureCalculation,
+                                                                     GeoPhysics::Formation* formation,
+                                                                     FloatStack &uncMaxVes,
+                                                                     FloatStack &uncThickness,
+                                                                const int nrActUnc ) {
+
+// Simple deposition                                                    ^
+//               =======================================================| depth
+//              /                                                       |
+//             /                                                        |
+//            /                                                         |
+//           /                                                          |
+//          /                                                           |
+//         /                                                            |
+// t <=====-------------------------------------------------------------
+//        t0    t1
+
+// Deposition followed by total erosion                                 ^
+//               ================                                       | depth
+//              /                \                                      |
+//             /                  \                                     |
+//            /                    \                                    |
+//           /                      \                                   |
+//          /                        \                                  |
+//         /                          \                                 |
+// t <=====----------------------------=================================
+//        t0    t1             t2      t3
+
+// Deposisiton followed by partial erosion                              ^
+//               ================                                       | depth
+//              /                \                                      |
+//             /                  \                                     |
+//            /                    =====================================|
+//           /                                                          |
+//          /                                                           |
+//         /                                                            |
+// t <=====-------------------------------------------------------------
+//        t0    t1                       t2 t3
+
+// Deposition followed by 2 (or more) partial erosions but not totally  ^
+// eroding       ================                                       | depth
+//              /                \                                      |
+//             /                  \                                     |
+//            /                    ================                     |
+//           /                                     \                    |
+//          /                                       ====================|
+//         /                                                            |
+// t <=====-------------------------------------------------------------
+//        t0    t1             t2 t3             t4 t5
+
+// Deposition followed by 2 (or more) partial erosions ending in        ^
+// total         ================                                       | depth
+// erosion      /                \                                      |
+//             /                  \                                     |
+//            /                    ================                     |
+//           /                                     \                    |
+//          /                                       =======             |
+//         /                                               \            |
+// t <=====-------------------------------------------------============
+//        t0    t1             t2 t3             t4 t5   t6 t7
+
+// Deposition followed by immediate total erosion                       ^
+//               ^                                                      | depth
+//              / \           This is important when setting            |
+//             /   \          start of erosion and end of               |
+//            /     \         erosion                                   |
+//           /       \                                                  |
+//          /         \                                                 |
+//         /           \                                                |
+// t <=====----------------------------=================================
+//        t0    t1             t2      t3
+
+
+   bool result = true;
+   double compThickness = 0.;
+   double fullCompThickness = 0.;
+   double totalFCT = 0.;
+   double startDepoTime = 0.0, endDepoTime = 1.e10;
+
+   int numberOfUnconformities = nrActUnc;
+
+   // loop through all the segments in this layer
+   int segmentNr = 0;
+
+   for (segmentNr = formation->getMaximumNumberOfElements () - 1; segmentNr >= 0; segmentNr--)
+   {
+
+      // create an empty polynomial function
+      CBMGenerics::Polyfunction *oldPolyf = new Polyfunction;
+      CBMGenerics::Polyfunction *newPolyf = &(formation->getSolidThickness (i, j, segmentNr));
+
+      // set the old polynomial function up and clear the new one
+      (*newPolyf).swap (*oldPolyf);
+
+      // set an iterator to point to the oldest point in the function
+      Polyfunction::Polypoint::const_reverse_iterator oldPolyfIter = oldPolyf->getRBegin ();
+
+      if (oldPolyf->getREnd () == oldPolyfIter)
+      {
+         cout << "poly function is empty" << endl;
+      }
+
+      // save the start of deposition point as we will add this
+      // point to the function last.
+      Polyfunction::Polypoint::const_reverse_iterator startOfDeposition = oldPolyfIter;
+
+      assert ((*startOfDeposition)->getY () == 0);
+
+      double thisStartDepoTime = (*startOfDeposition)->getX ();
+
+      startDepoTime = NumericFunctions::Maximum (startDepoTime, thisStartDepoTime);
+      Polyfunction::Polypoint::const_reverse_iterator endOfEvent = ++oldPolyfIter;
+      Polyfunction::Polypoint::const_reverse_iterator endOfPrevEvent = endOfEvent;
+      double thisEndDepoTime = (*endOfEvent)->getX ();
+
+      endDepoTime = NumericFunctions::Minimum (endDepoTime, thisEndDepoTime);
+
+      // this loop will only be executed when we have an erosion
+      Polyfunction::Polypoint::const_reverse_iterator startOfErosion;
+      while (true)
+      {
+
+         // move to the next point
+         startOfErosion = ++oldPolyfIter;
+         if (startOfErosion == oldPolyf->getREnd ())
+         {
+            // exit the loop if we have got to the end of the function
+            break;
+         }
+
+         endOfPrevEvent = endOfEvent;
+         if ((*endOfPrevEvent)->getY () == (*startOfErosion)->getY ())
+         {
+            endOfEvent = ++oldPolyfIter;
+       if (endOfEvent == oldPolyf->getREnd ())
+       {
+          // There is a start of erosion but not and end of it.
+          // exit the loop if we have got to the end of the function
+          break;
+       }
+            assert ((*endOfEvent)->getX () <= (*startOfErosion)->getX ());
+         }
+         else
+         {
+            // if this is a deposition followed immediately by an erosion or
+            // an erosion followed immediately by another erosion then we need
+            // to set the end of event and start of erosion to the same time
+            // note that the poly function will fail to add the second point.
+            endOfEvent = startOfErosion;
+            startOfErosion = endOfPrevEvent;
+         }
+
+         newPolyf->AddPoint ((*endOfPrevEvent)->getX (), 0.0);
+         newPolyf->AddPoint ((*startOfErosion)->getX (), 0.0);
+
+         compThickness = (*startOfErosion)->getY () - (*endOfEvent)->getY ();
+
+         // if the end of event has iterated past the end of the polyfunction then
+         // terminate the loop (we will not need to raise the function in this case)
+         if (oldPolyf->getREnd () == endOfEvent)
+            break;
+
+         //cout << "calcFullCompactedThickness for " << Basin_Model -> layers[layerNr]->layername 
+         //   << "[" << segmentNr << "]" << endl;
+         result &= calcFullCompactedThickness ( i, j, overpressureCalculation, formation, compThickness, uncMaxVes.front (), fullCompThickness, (*endOfEvent)->getX () );
+
+         if (!result)
+         {
+            cout << "Could not compute FCT" << endl;
+            delete oldPolyf;
+            return false;
+         }
+
+         totalFCT += fullCompThickness;
+
+         // we are adding points at y=0 and then raising the whole function
+         newPolyf->RaiseBy (fullCompThickness);
+
+         // compensate for the unconformity.
+         double remThickness = compThickness;
+
+         while (remThickness > 0 && uncMaxVes.size () > 0)
+         {
+            double tmpThickness = NumericFunctions::Minimum (uncThickness.front (), remThickness);
+
+            uncThickness.front () -= tmpThickness;
+            remThickness -= tmpThickness;
+
+            if ( uncThickness.front () < ThicknessTolerance )
+            {
+               numberOfUnconformities--;
+               double currentMaxVes = uncMaxVes.front ();
+
+               uncMaxVes.pop_front ();
+               uncThickness.pop_front ();
+               uncMaxVes.front () = NumericFunctions::Maximum (uncMaxVes.front (), currentMaxVes);
+            }
+         }
+      }
+
+      // add the start and end of the original deposition
+      bool added = newPolyf->AddPoint ((*endOfEvent)->getX (), 0.0);
+
+      compThickness = (*endOfEvent)->getY ();
+      result &= calcFullCompactedThickness (i, j, overpressureCalculation, formation, compThickness, uncMaxVes.front (), fullCompThickness, (*endOfEvent)->getX() );
+      if (!result)
+      {
+         cout << "Could not compute FCT (2)" << endl;
+         delete oldPolyf;
+         return false;
+      }
+
+      totalFCT += fullCompThickness;
+
+      newPolyf->RaiseBy (fullCompThickness);
+      added = newPolyf->AddPoint ((*startOfDeposition)->getX (), 0.0);
+
+      delete oldPolyf;
+   }
+
+   // Start at the bottom of the layer and iterate through 
+   // the segments to the top.
+   //
+   // At each iteration we will modify the time axis of the FCT
+   // polynomial function so that the deposition (not erosion) period of the 
+   // segment is proportional to the FCT of the deposited material.
+   //
+   // on entry to this loop the totalFCT will be that for the complete layer
+   // startDepoTime will be the start time of deposition of the complete layer
+   //
+   for (segmentNr = formation->getMaximumNumberOfElements () - 1; segmentNr >= 0; segmentNr--)
+   {
+
+      Polyfunction *polyf;
+
+      polyf = &(formation->getSolidThickness (i, j, segmentNr));
+      Polyfunction::Polypoint::const_reverse_iterator polyfit = polyf->getRBegin ();
+
+      Polyfunction::Polypoint::const_reverse_iterator startDepoPoint = polyfit;
+      Polyfunction::Polypoint::const_reverse_iterator endDepoPoint = ++polyfit;
+
+      double segmFCT = (*endDepoPoint)->getY ();
+
+      assert (0 == (*startDepoPoint)->getY ());
+      assert (0 != totalFCT);
+
+      double segmStartDepoTime = endDepoTime - (endDepoTime - startDepoTime) * (segmFCT / totalFCT);
+
+      (*endDepoPoint)->setX (endDepoTime);
+      (*startDepoPoint)->setX (segmStartDepoTime);
+
+      endDepoTime = segmStartDepoTime;
+      totalFCT -= segmFCT;
+   }
+
+   return result;
+}
+
+//------------------------------------------------------------//
+
+bool GeoPhysics::ProjectHandle::calcFullCompactedThickness ( const unsigned int i,
+                                                             const unsigned int j,
+                                                             const bool     overpressureCalculation,
+                                                                   GeoPhysics::Formation* formation,
+                                                             const double compThickness,
+                                                                   double &uncMaxVes,
+                                                             double &fullCompThickness,
+                                                             double age ) {
+
+  bool result = true;
+
+  double diffdensity;
+
+  const CompoundLithology* lithology = formation->getCompoundLithologyArray ()( i, j, age ); 
+  const GeoPhysics::FluidType* fluid = dynamic_cast<const GeoPhysics::FluidType*>( formation->getFluidType ());
+
+  if ( fluid != 0 ) {
+     diffdensity = lithology->density () - fluid->getConstantDensity ();
+  } else {
+     diffdensity = lithology->density ();
+  }
+
+  fullCompThickness = lithology->hydrostatFullCompThickness ( uncMaxVes, 
+                                                              compThickness, 
+                                                              diffdensity,
+                                                              overpressureCalculation );
+
+  uncMaxVes += AccelerationDueToGravity * diffdensity * fullCompThickness;
+
+  return result;
+}
+
+//------------------------------------------------------------/it
+
+bool GeoPhysics::ProjectHandle::applyFctCorrections () {
+
+   const Interface::Property* fctCorrectionProperty = findProperty ( "FCTCorrection" );
+   assert ( fctCorrectionProperty != 0 );
+
+   const Interface::Snapshot* presentDataSnapshot = findSnapshot ( 0.0, Interface::MAJOR );
+   assert ( presentDataSnapshot != 0 );
+
+   // Get the FCTCorrectionproperty from the results file.
+   Interface::PropertyValueList* solidThicknessCorrections = getPropertyValues ( Interface::FORMATION,
+                                                                                 fctCorrectionProperty,
+                                                                                 presentDataSnapshot,
+                                                                                 0, 0, 0, 
+                                                                                 Interface::MAP );
+
+   Interface::PropertyValueList::const_iterator fctIter;
+   unsigned int i;
+   unsigned int j;
+   unsigned int k;
+   unsigned int numberOfElements;
+
+   for ( fctIter = solidThicknessCorrections->begin (); fctIter != solidThicknessCorrections->end (); ++fctIter ) {
+
+      const Interface::PropertyValue* fct = *fctIter;
+
+      GeoPhysics::Formation* formation = const_cast<GeoPhysics::Formation*>(dynamic_cast<const GeoPhysics::Formation*>( fct->getFormation ()));
+
+      if ( formation->kind () == Interface::SEDIMENT_FORMATION ) {
+         const Interface::GridMap* fctMap = dynamic_cast<const Interface::GridMap*>(fct->getGridMap ());
+
+         fctMap->retrieveGhostedData ();
+
+         numberOfElements = formation->getMaximumNumberOfElements ();
+
+         for ( i = firstI ( true ); i <= lastI ( true ); ++i ) {
+
+            for ( j = firstJ ( true ); j <= lastJ ( true ); ++j ) {
+
+               for ( k = 0; k < numberOfElements; ++k ) {
+                  formation->getSolidThickness ( i, j, k ).ScaleBy ( fctMap->getValue ( i, j ));
+               }
+
+            }
+
+         }
+
+         fctMap->restoreData ( false, true );
+      }
+   }
+
+   delete solidThicknessCorrections;
+
+   return true;
+}
+
+//------------------------------------------------------------//
+
+void GeoPhysics::ProjectHandle::printValidNeedles ( std::ostream& o  ) {
+
+   unsigned int i;
+   unsigned int j;
+   int proc;
+
+   o << endl;
+   o << endl;
+   o << "--------------------------------" << endl;
+   o << endl;
+   o << endl;
+
+
+   for ( proc = 0; proc < getSize (); ++proc ) {
+
+      if ( proc == getRank () ) {
+         o << " process " << proc << endl;
+
+         for ( i = firstI ( true ); i <= lastI ( true ); ++i ) {
+
+            for ( j = firstJ ( true ); j <= lastJ ( true ); ++j ) {
+               o << ( m_validNodes ( i, j ) ? 'T' : 'F' );
+            }
+
+            o << endl;
+         }
+
+         o << flush;
+      }
+
+      barrier ();
+      getMessageHandler ().flush ();
+   }
+
+}
+
+//------------------------------------------------------------//
+bool GeoPhysics::ProjectHandle::loadALCConfigurationFile(const string & cfgFileName) {
+
+   m_basementLithoProps = 0;
+   if( m_isALCMode ) {
+      char * ALC_ConfigurationFile     = getenv ( "CTCDIR" );
+      char * ALC_UserConfigurationFile = getenv ( "MY_CTCDIR" );
+  
+      string fullpath;
+   
+      if( ALC_UserConfigurationFile != 0 ) {
+         fullpath = ALC_UserConfigurationFile + string("/") + cfgFileName;
+      } else if( ALC_ConfigurationFile != 0 ) {
+         fullpath = ALC_ConfigurationFile + string("/") + cfgFileName;
+      } else {
+         std::cout<< "MeSsAgE WARNING: Environment Variable CTCDIR is not set." << std::endl;;
+         return false;
+      }
+
+      ifstream  ConfigurationFile;
+      ConfigurationFile.open( fullpath.c_str() );
+
+      if (!ConfigurationFile) {
+         getMessageHandler().printLine( "MeSsAgE ERROR Attempting to open file : " + fullpath + "\nNo cfg file available in the $CTCDIR directory... Aborting..." );
+         throw RecordException( "MeSsAgE ERROR Attempting to open file : " + fullpath + "\nNo cfg file available in the $CTCDIR directory... Aborting..." );
+      }
+
+      m_basementLithoProps = new BasementLithologyProps();
+      if( !m_basementLithoProps->loadConfigurationFile ( ConfigurationFile )) {
+         ConfigurationFile.close();
+         return false;
+      };
+      
+      //     CrustalThicknessInterface::LoadALCParameters( ConfigurationFile, 
+      //                                            m_minimumLithosphereThickness, m_maximumNumberOfMantleElements );
+      m_minimumLithosphereThickness   = m_basementLithoProps->m_HLmin;
+      m_maximumNumberOfMantleElements = m_basementLithoProps->m_HLMEmax;
+      m_constrainedBasaltTemperature  = m_basementLithoProps->m_bT;
+       
+      ConfigurationFile.close();
+      return true;
+   }
+   return true;
+}

@@ -1,0 +1,25 @@
+#!/bin/sed -nf
+
+# Example output of what we want to parse.
+# Job was executed on host(s) <houcy1-n-cp031j12>, in queue <backfill.q>, as user <s_bpata> in cluster <HOUGDC>.
+
+/Job was executed on host(s) /{
+
+# First extract only the hostname
+   s/Job was executed on host(s) <\([[:digit:]]*\*\)\?\([^>]*\)>.*/\2/
+
+# Then apply this translation table. Only one of the following will apply
+   s/houcy1-n-cp029[d-f]../BRASS/
+   s/houcy1-n-cp029[a-c]../STEEL/
+   s/houcy1-n-cp018[a-f]../GOLD/
+   s/houcy1-n-cp031[c-j]../COBALT/
+   s/houcy1-n-cp030[a-f]../BRONZE/
+   s/houcy1-n-cp026[a-e]../SILVER/
+   s/houcy1-n-cp026[f]../COPPER/
+
+# Print the translation
+   p
+}
+
+
+

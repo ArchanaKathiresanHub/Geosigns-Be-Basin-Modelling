@@ -1,0 +1,101 @@
+Basin Modelling
+===============
+
+Installation instructions
+-------------------------
+
+See the INSTALL file in the current directory.
+
+
+Usage instructions
+------------------
+
+After building the applications you can run them from the build directory. Just
+source the generated 'envsetup.sh' script in your environment and you can run
+any application:
+
+   Fastcauldron
+     
+      The produced binary is applications/fastcauldron/fastcauldron. This is an
+      MPI program and it takes a bunch of parameters, of which the most notable
+      are:
+
+        -project FILENAME    [required] Sets the filename of the project to
+                             simulate.
+         
+        -save FILENAME       [optional] Without this parameter the simulator
+                             writes its results to the input project file. When
+                             this parameter is also given, it will leave the
+                             original project file untouched and write the
+                             result to the file denoted by this parameter.
+
+        -itcoupled           [required] Set simulation mode to fully coupled
+                             pressure and temperature calculation. There are
+                             other simulation modes, but they should only be
+                             used by an expert. 
+
+        -help                [optional] Prints a list of (most) command line
+                             parameters
+
+      For the people who are interested in performance analysis, the following
+      options might be useful:
+        
+        -verbose             [optional] Generates lots of diagnostic
+                             information how the simulator and its
+                             sub-components are performing. For example, you
+                             will get iteration count of the linear solver,
+                             iteration counts of the non-linear solver, wall
+                             clock times, etc... 
+
+        -log_summary         [optional] Prints detailed information about
+                             performance of PETSc solvers.
+
+        -nohdfoutput         [optional] Disables writing of HDF5 results to
+                             disk. Since I/O is a big bottleneck, it is
+                             necessary to disable it when doing analysis of
+                             CPU and RAM performance.
+
+
+Source Code Overview
+--------------------
+
+/3rdparty/  
+
+   All binaries and/or source code from some third party components.
+
+/3rdparty/licenses
+  
+   License texts of third party components. 
+
+/3rdparty/sources
+ 
+   Archives of some third party components.
+
+/development
+  
+   All source code and build scripts.
+
+/development/cmake
+
+   All CMake scripts that deal with the build in general.
+
+/development/cmake/*Config.cmake
+   
+   CMake scripts that help locate a certain 3rd party package.
+
+/development/applications
+/development/applications/*/src
+/development/applications/*/test
+
+   All source code and unit tests for each executable .
+
+/development/libraries
+/development/libraries/*/src
+/development/libraries/*/test
+
+   All source and and unit tests for each library.
+
+
+
+
+

@@ -1,0 +1,176 @@
+#!/bin/bash 
+#
+# Purpose: defines user MPI configurations for GEMPIS.
+# 
+# See GEMPIS User manual for details.
+#
+# This file is executed in a korn shell to define references.
+# Lines preceeded by a '#' are treated as comments.
+# Not all properties need to be defined.
+# Properties with the same index value describe the same object.
+#
+# Format: <property>[<index>]="<value>"
+#
+# Only index values from 10 to 20 are permitted in this file.
+# Do not use spaces between '=' character.
+# Make sure group definitions use different index values. 
+#
+# Example: mpi_name[3]="MPICH"
+#
+# Properties:
+# mpi_name         - (required) Reference name.
+# mpi_os           - (required) List of `uname` platforms where this MPI 
+#		reference is valid. Each reference is fseparated with a comma 
+#		(',').
+# mpi_run          - (required) Command to start MPI job.
+# mpi_path         - Executable directory (prepended to path).
+# mpi_lib          - Path to shared libraries used by MPI.
+# mpi_start        - Command to start MPI environment.
+# mpi_stop         - Command to stop MPI environment.
+# mpi_buildhost    - (when field is not empty): build host list
+# mpi_buildmachine - (when field is not empty): build machine file
+#
+# Predefined environment variables (for use in the commands);
+# $GEMPIS_EXEDIR	- location of sss executable for current platform.
+# $GEMPIS_NUMCPUS	- number of processors to use.
+# $GEMPIS_HOSTFILE	- unique name of host file when mpi_buildhost[] 
+#                       is defined.
+# $GEMPIS_MACHINEFILE	- unique name of machine file created by gempis 
+#                       when mpi_buildmachine[] is defined.
+###############################################################
+
+#
+# MPIREF entry 11
+#
+#mpi_name[11]=""
+#mpi_os[11]=""
+#mpi_run[11]=""
+#mpi_path[11]=""
+#mpi_lib[11]=""
+#mpi_start[11]=""
+#mpi_stop[11]=""
+#mpi_buildhost[11]=""
+#mpi_buildmachine[11]=""
+
+#
+# MPIREF entry 12
+#
+#mpi_name[12]=""
+#mpi_os[12]=""
+#mpi_run[12]=""
+#mpi_path[12]=""
+#mpi_lib[12]=""
+#mpi_start[12]=""
+#mpi_stop[12]=""
+#mpi_buildhost[12]=""
+#mpi_buildmachine[12]=""
+
+#
+# MPIREF entry 13
+#
+#mpi_name[13]=""
+#mpi_os[13]=""
+#mpi_run[13]=""
+#mpi_path[13]=""
+#mpi_lib[13]=""
+#mpi_start[13]=""
+#mpi_stop[13]=""
+#mpi_buildhost[13]=""
+#mpi_buildmachine[13]=""
+
+#
+# MPIREF entry 14
+#
+#mpi_name[14]=""
+#mpi_os[14]=""
+#mpi_run[14]=""
+#mpi_path[14]=""
+#mpi_lib[14]=""
+#mpi_start[14]=""
+#mpi_stop[14]=""
+#mpi_buildhost[14]=""
+#mpi_buildmachine[14]=""
+
+#
+# MPIREF entry 15
+#
+#mpi_name[15]=""
+#mpi_os[15]=""
+#mpi_run[15]=""
+#mpi_path[15]=""
+#mpi_lib[15]=""
+#mpi_start[15]=""
+#mpi_stop[15]=""
+#mpi_buildhost[15]=""
+#mpi_buildmachine[15]=""
+
+#
+# MPIREF entry 16
+#
+#mpi_name[16]=""
+#mpi_os[16]=""
+#mpi_run[16]=""
+#mpi_path[16]=""
+#mpi_lib[16]=""
+#mpi_start[16]=""
+#mpi_stop[16]=""
+#mpi_buildhost[16]=""
+#mpi_buildmachine[16]=""
+
+#
+# MPIREF entry 17
+#
+#mpi_name[17]=""
+#mpi_os[17]=""
+#mpi_run[17]=""
+#mpi_path[17]=""
+#mpi_lib[17]=""
+#mpi_start[17]=""
+#mpi_stop[17]=""
+#mpi_buildhost[17]=""
+#mpi_buildmachine[17]=""
+
+#
+# MPIREF entry 18
+#
+#mpi_name[18]=""
+#mpi_os[18]=""
+#mpi_run[18]=""
+#mpi_path[18]=""
+#mpi_lib[18]=""
+#mpi_start[18]=""
+#mpi_stop[18]=""
+#mpi_buildhost[18]=""
+#mpi_buildmachine[18]=""
+
+#
+# MPIREF entry 19
+#
+#mpi_name[19]=""
+#mpi_os[19]=""
+#mpi_run[19]=""
+#mpi_path[19]=""
+#mpi_lib[19]=""
+#mpi_start[19]=""
+#mpi_stop[19]=""
+#mpi_buildhost[19]=""
+#mpi_buildmachine[19]=""
+
+#
+# MPIREF entry 20
+#
+#mpi_name[20]=""
+#mpi_os[20]=""
+#mpi_run[20]=""
+#mpi_path[20]=""
+#mpi_lib[20]=""
+#mpi_start[20]=""
+#mpi_stop[20]=""
+#mpi_buildhost[20]=""
+#mpi_buildmachine[20]=""
+
+#
+# this definition is only to make sure that the script terminates successfully
+echo "" >/dev/null
+
+# End Script

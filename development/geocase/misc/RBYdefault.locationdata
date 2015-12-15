@@ -1,0 +1,6 @@
+[WellLocIoTbl]
+;
+WellName XCoord YCoord Longitude Latitude Datum WellElevation DerFloorElev Waterdepth 
+() () () (degs,minutes) (degs,minutes) () (m) (m) (m) 
+"MyWell" 0 0 0 0 "Sea Bottom (OFF shore)" 0 0 0 
+[End]

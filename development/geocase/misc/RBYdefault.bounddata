@@ -1,0 +1,20 @@
+[GeologicalBoundaryIoTbl]
+;
+GeologicalObjectName GeologicalObjectType TypeOfProperty FirstIndexInPropertyIoTbl NumberOfProperties 
+() () () () ()
+[End]
+;
+;
+[PropertyBoundaryIoTbl]
+;
+ NameOfProperty FirstIndexInPropertyBoundaryValuesIoTbl NumberOfTimeIntervals
+() () ()
+[End]
+;
+;
+[BoundaryValuesIoTbl]
+;
+BeginTimeValues EndTimeValues PropertyValueGrid PropertyValue 
+() () () ()
+[End]
+;

@@ -1,0 +1,30 @@
+!
+!       This resource file is loaded by GOSPEL-applications
+!
+
+!
+! General settings
+!
+*background:		#c3c3c3
+*fontList:		-*-helvetica-bold-r-normal-*-12-*-*-*-*-*-*-*
+*selectColor:		yellow
+*XmLabel.fontList:	-*-helvetica-bold-r-normal-*-12-*-*-*-*-*-*-*
+! *XmLabel.foreground:	#0808d5
+
+!
+! Label resources
+!
+*UILabel.fontList:	-*-helvetica-bold-r-normal-*-12-*-*-*-*-*-*-*
+! *UILabel.foreground:	#0808d5
+
+!
+! Listbox resources
+!
+*UIListbox.fontList:	-*-courier-bold-r-normal-*-12-*-*-*-*-*-*-*
+
+! XmText must be non proportional to keep the field sizes on the
+! RS6000 <---> Sun,Silicon consistent
+
+*XmText.fontList:	-*-courier-bold-r-normal-*-12-*-*-*-*-*-*-*
+
+*mwmFunctions:          30

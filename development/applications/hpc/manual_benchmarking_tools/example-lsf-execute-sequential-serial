@@ -1,0 +1,87 @@
+#!/bin/bash
+
+if [ x$1 = x ]; then
+  echo Usage: $0 PROJECT_FILE
+  exit 1
+fi
+
+N=50
+PROCS=32
+SEQUENTIAL=True
+RUNTIME="3:00"
+VERSIONS="v2013.1005WJS_without_fix v2013.1005WJS_fixed"
+
+project_dir=`dirname $1`
+project=`basename $1`
+name=`basename $project_dir`
+
+if [ x"$2" = x ]; then
+   SIMULATION="fastcauldron -temperature"
+else
+   SIMULATION="$2"
+fi
+
+pushd $project_dir > /dev/null
+project_dir=`pwd -P`
+popd > /dev/null
+
+source /glb/apps/hpc/lsfprod/conf/profile.lsf
+
+dependency=
+if [ "x$3" != x ]; then
+  dependency="#BSUB -w $3"
+fi
+
+for version in $VERSIONS
+do
+
+  for ((i=1 ; i <= N; ++i))
+  do
+
+     dir=$name/procs-$PROCS/$version/$i
+     jobname=AC_Itcoupled_H5_Fix_Benchmark_${name}_${PROCS}_${version}_${i}
+
+     mkdir -p $dir
+     cp -R $project_dir/* $dir
+
+     pushd $dir
+
+     cat > job <<EOF
+#!/bin/bash
+#BSUB -P cldrn
+#BSUB -W $RUNTIME
+#BSUB -J $jobname
+#BSUB -n $PROCS
+#BSUB -o output.log
+#BSUB -x
+$dependency
+export EOSPACKDIR="/apps/sssdev/ibs/$version/misc/eospack"
+export GENEXDIR="/apps/sssdev/ibs/$version/misc/genex40"
+export GENEX5DIR="/apps/sssdev/ibs/$version/misc/genex50"
+export GENEX6DIR="/apps/sssdev/ibs/$version/misc/genex60"
+export OTGCDIR="/apps/sssdev/ibs/$version/misc/OTGC"
+export CTCDIR="/apps/sssdev/ibs/$version/misc"
+export SIEPRTS_LICENSE_FILE="3000@houic-s-9320.americas.shell.com:3000@cbj-s-8447.asia-pac.shell.com:3000@ams1-s-07489.europe.shell.com"
+source /apps/3rdparty/intel/impi/4.1.1.036/intel64/bin/mpivars.sh
+
+echo Input Data Size:
+du -h .
+echo
+echo Running command '$SIMULATION'
+time mpirun -outfile-pattern 'output-rank-%r.log' -env I_MPI_FABRICS shm:tcp -env I_MPI_DEBUG 5 /apps/sssdev/ibs/$version/Linux/bin/$SIMULATION -project $project
+echo
+echo Output Data Size:
+du -h .
+EOF
+
+  bsub < job
+  popd
+
+  if [ $SEQUENTIAL = True ]; then
+    dependency="#BSUB -w $jobname"
+  fi
+
+  done
+
+done
+

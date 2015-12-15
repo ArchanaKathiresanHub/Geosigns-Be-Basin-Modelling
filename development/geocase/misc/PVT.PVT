@@ -1,0 +1,33 @@
+IDENT      EXAMPLE 8B                                                           (MIX  1)
+.         COMPONENTS
+CNAME     W                   H2O       
+CNAME     OIL                 HEAVY     
+CNAME     GAS                 LIGHT     
+.         PHASE TYPE
+PNAME     AQUEOUS   AQ        
+PNAME     OIL       LOWHY     
+PNAME     GAS       UPPHY     
+REFPHASE  2
+.         UNITS IN WHICH PVT DATA ARE PRESENTED
+.UNITS    PRES      ATM       
+.UNITS    TEMP      DEG-C     
+.UNITS    MASS      LB        
+.UNITS    L3        FT3       
+.UNITS    L3SURF(2) FT3       
+.UNITS    L3SURF(3) FT3       
+.UNITS    VISC      CP
+PVTTABLE  TABLE-1
+.         DOTC AND DDGSC AT HIGHEST PRESSURE STEP
+PVTTSTD   ..........   54.9602    0.0533
+.         BLACK OIL DATA
+.            PRES        BO       BGDG       RS       VORC      VDGRC
+PVTTBO        100.00    1.2684  0.011696     68.50    0.5494    0.0149
+PVTTBO        200.00    1.4728  0.005968    153.01    0.3693    0.0195
+PVTTBO        300.00    1.7740  0.004343    273.29    0.2337    0.0250
+PVTTBO        330.15    1.9029  0.004071    322.74    0.1998    0.0266
+.         VOLATILE OIL DATA
+.            PRES        BG       RS1        VGRC
+PVTTVO        100.00  0.011689 0.0000139    0.0149
+PVTTVO        200.00  0.005954 0.0000602    0.0201
+PVTTVO        300.00  0.004384 0.0001896    0.0281
+PVTTVO        330.15  0.004156 0.0002670    0.0316

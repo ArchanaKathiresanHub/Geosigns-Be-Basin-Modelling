@@ -1,0 +1,5 @@
+# Gempis Bad local Job File
+PROJECT "Bad LOCAL job"
+REQUIREMENTS "fastreq -v2006.90 Acquifer.project3d"
+LOCAL "xxx"
+LOCAL "ls *.xxx"

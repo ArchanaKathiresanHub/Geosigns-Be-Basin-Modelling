@@ -1,0 +1,78 @@
+Screen("IBS: 2D/3D Burial, Temp., Expulsion and Structural History","IBS",
+	NULL,700,380,NULL);
+
+Form("title", NULL,NULL,0,0,63,35,0,5,50 );
+Skip(1)
+Label("Calculate:","wheat",8);
+
+  Action(NULL,"light grey",
+   "2D/3D Temperature / Maturity / Burial History (BURTHA)",
+   5,0,TRUE,BHnone,StartProgram,"burtha");
+
+  Action(NULL,"light grey",
+   "Present Day Subsurface Temperatures (THERMOSTAT)",
+   5,0,TRUE,BHnone,StartProgram,"thermo");
+  Action(NULL,"light grey",
+   "Minimum Energy Structural History of Sections (MESH)",
+   5,0,TRUE,BHnone,StartProgram,"mesh");
+Skip(1)
+FormEnd()
+
+Form("title", NULL,NULL,0,35,57,52,0,5,50 );
+Label("Manipulate:","wheat",8);
+  Action(NULL,"light grey",
+   "Horizons (HORMAN)",
+   5,0,TRUE,BHnone,StartProgram,"horman");
+  Action(NULL,"light grey",
+   "Data Gridding and Interpolation (INTPOL)",
+   5,0,TRUE,BHnone,StartProgram,"intpol");
+  Action(NULL,"light grey",
+   "Edit and Correct Maps (MEDIC)",
+   5,0,TRUE,BHnone,StartProgram,"medic");
+Skip(1)
+Label("Create:","wheat",8);
+  Action(NULL,"light grey",
+   "Cross Sections (XMAP)",
+   5,0,TRUE,BHnone,StartProgram,"xmap");
+FormEnd()
+
+Form("title", NULL,NULL,63,0,35,35,0,5,50 );
+Skip(1)
+Label("Plot:","wheat",4);
+  Action(NULL,"light grey",
+   "Sections (CROSS)",
+   0,0,TRUE,BHnone,StartProgram,"cross");
+  Action(NULL,"light grey",
+   "Maps (ONION)",
+   0,0,TRUE,BHnone,StartProgram,"onion");
+  Action(NULL,"light grey",
+   "Generation Summary (GENPLT)",
+   0,0,TRUE,BHnone,StartProgram,"genplt");
+FormEnd()
+
+Form("title", NULL,NULL,57,37,43,52,0,5,50 );
+Label("Tools for DEC Files:","wheat",4);
+  Action(NULL,"light grey",
+   "List Contents of File (MINDER)",
+   0,0,TRUE,BHnone,StartProgram,"minder");
+  Action(NULL,"light grey",
+   "Convert m<->ft and/or C<->F",
+   0,0,TRUE,BHnone,StartProgram,"cmtrft");
+  Action(NULL,"light grey",
+   "Convert DEC to Internal DEC",
+   0,0,TRUE,BHnone,StartProgram,"cnvftu");
+  Action(NULL,"light grey",
+   "Convert Internal DEC to DEC",
+   0,0,TRUE,BHnone,StartProgram,"cnvutf");
+  Action(NULL,"light grey",
+   "IBS <-> Mapping Packages (IBSLINK)",
+   0,0,TRUE,BHnone,StartProgram,"ibslink");
+FormEnd()
+
+Form("title", NULL,NULL,0,87,100,15,0,5,50 );
+
+FormButtonList("red",90,30);
+   StandardFormButton(FBexit,NULL);  
+
+FormEnd()
+ScreenEnd()

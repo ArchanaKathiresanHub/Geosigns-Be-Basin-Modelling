@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+   <PropertyGroup>
+      <solution_root_native>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)\..\..'))</solution_root_native>
+      <solution_root_cmake>$(solution_root_native.Replace('\','/'))</solution_root_cmake>
+      <build_dir>$(solution_root_native)\..\..\Build\$(Configuration)\$(Platform)</build_dir>
+      <build_dir_cmake>$(build_dir.Replace('\','/'))</build_dir_cmake>
+      <VisualStudioVersion Condition=" '$(VisualStudioVersion)' == '' ">12</VisualStudioVersion>
+      <cmake_generator Condition=" '$(Platform)' == 'x64' ">Visual Studio $(VisualStudioVersion) Win64</cmake_generator>
+      <cmake_generator Condition=" '$(Platform)' == 'Win32' ">Visual Studio $(VisualStudioVersion)</cmake_generator>
+   
+      <cmake_exe Condition="'$(cmake_exe)' == ''">"C:\Program Files (x86)\CMake 3.2.1\bin\cmake.exe"</cmake_exe>
+      <ctest_exe Condition="'$(ctest_exe)' == ''">"C:\Program Files (x86)\CMake 3.2.1\bin\ctest.exe"</ctest_exe>
+
+      <DeployToHouston Condition=" '$(DeployToHouston)' == '' ">True</DeployToHouston>
+   </PropertyGroup>
+
+   <ItemGroup>
+      <cmake_options Include='-DCMAKE_CONFIGURATION_TYPES="$(Configuration)"'/>
+      <cmake_options Include="-DCMAKE_INSTALL_PREFIX=&quot;$(OutDir.Replace('\', '/'))&quot;" Condition=" '$(OutDir)' != ''" />
+  
+      <cmake_options Include='-DBM_TFS_SERVER_URL="$(TeamFoundationServerUrl)"' />
+      <cmake_options Include='-DBM_TFS_BUILD_NUMBER="$(BuildNumber)"' />
+      <cmake_options Include='-DBM_TFS_PROJECT_NAME="$(TeamProject)"' />
+  
+      <!-- TODO: Set version / build numbers in DLLs (are used in version.rc resource file)
+      <cmake_variables  Condition="'$(BM_BUILD_NUMBER)' != ''" >$(cmake_variables) -DBM_BUILD_NUMBER=$(BM_BUILD_NUMBER)</cmake_variables>
+      <cmake_variables  Condition="'$(BM_REVISION)' != ''" >$(cmake_variables) -DBM_REVISION=$(BM_REVISION)</cmake_variables>
+      -->
+   </ItemGroup>
+  
+   <Target Name="DebugInfo">
+      <Exec Command='cmd /c "set"' />
+    
+      <Message Text="Project File Name = $(MSBuildProjectFile)" />
+      <Message Text="MSBuildProjectDirectory = $(MSBuildProjectDirectory)" />
+      <Message Text="solution_root_native = $(solution_root_native)" />
+      <Message Text="solution_root_cmake = $(solution_root_cmake)" />
+      <Message Text="OutDir = $(OutDir)" />
+      <Message Text="BuildNumber = $(BuildNumber)" />
+      <Message Text="@(cmake_options, ' ')"/>
+   </Target>
+
+   <Target Name="CmakeProject">
+      <RemoveDir Directories="$(build_dir)" Condition="Exists('$(build_dir)')" />
+      <MakeDir   Directories="$(build_dir)" Condition="!Exists('$(build_dir)')" />
+      <Exec Command="$(cmake_exe) &quot;$(solution_root_cmake)/development&quot; -G&quot;$(cmake_generator)&quot; @(cmake_options, ' ')"  WorkingDirectory="$(build_dir)" />
+   </Target>
+
+   <Import Project="$(MSBuildProjectDirectory)\DeployToHoustonWindowsBuild.Props.xml" />
+
+   <Target Name="Build" DependsOnTargets="DebugInfo;CmakeProject">
+      <!-- Build and install binaries for Windows platform -->
+      <MSBuild Projects="$(build_dir)\INSTALL.vcxproj" Properties="VisualStudioVersion=$(VisualStudioVersion).0" RemoveProperties="OutDir;Platform" BuildInParallel="true"/>
+      <!-- Pack all binaries to zip file -->
+      <MSBuild Projects="$(build_dir)\PACKAGE.vcxproj" Properties="VisualStudioVersion=$(VisualStudioVersion).0" RemoveProperties="OutDir;Platform" BuildInParallel="true" ContinueOnError="WarnAndContinue"/>
+      <!-- Copy packed binaries to Houston cluster if deploy is set to True --> 
+      <CallTarget Targets="DeployBinariesToHouston" Condition=" '$(DeployToHouston)' == 'True' " ContinueOnError="WarnAndContinue"></CallTarget>
+      <!--Run unit tests -->
+      <MSBuild Projects="$(build_dir)\RUN_TESTS.vcxproj" Properties="VisualStudioVersion=$(VisualStudioVersion).0" RemoveProperties="OutDir;Platform" BuildInParallel="true" ContinueOnError="WarnAndContinue"/>
+   </Target>
+  
+  
+  <Target Name="Clean" >
+    <RemoveDir Directories="$(build_dir)" Condition="Exists('$(build_dir)')" />
+  </Target>
+  
+  <Target Name="Rebuild" DependsOnTargets="Clean;Build" />
+</Project>

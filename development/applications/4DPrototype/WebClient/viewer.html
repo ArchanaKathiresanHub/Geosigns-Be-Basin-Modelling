@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html style="height: 100%">
+
+<head>
+    <title>BPA 4D Viewer</title>
+    <script type="text/javascript" src="js/RemoteVizClientH264.js"></script> 
+    <script type="text/javascript" src="js/Decoder.js"></script>
+    <script type="text/javascript" src="js/WebGLCanvas.js"></script>
+    <script type="text/javascript" src="js/Player.js"></script>
+	<script type="text/javascript" src="js/client.js"></script>    
+<!--
+    <script type="text/javascript" src="RemoteVizClientJPEG.js"></script>
+ -->
+	<link rel="stylesheet" type="text/css" href="client.css"></style>
+</head>
+
+<body onload="init()">
+	<div style="height: 100%">
+		<div style="width:280px; height:100%; overflow: auto; float: left">
+			<div class="header">Data set</div>
+			<div>
+				<div id="structureTab" class="activeTab" style="display:inline-block;" onclick="showTab(0)">Structure</div>
+				<div id="propertiesTab" class="tab" style="display:inline-block;" onclick="showTab(1)">Properties</div>
+			</div>
+
+			<div>
+				<div id="formations" style="background-color: #ffffff; padding-left: 10px; height: 300px; overflow:auto">
+					<div>
+						<input type="checkbox" id="checkBoxAllFormations" checked onchange="onCheckBoxAllFormationsChanged(this)">
+						<label><b>Formations</b></label>
+					</div>
+					<div id="formationsList"></div>
+
+					<div>
+						<input type="checkbox" id="checkBoxAllSurfaces" onchange="onCheckBoxAllSurfacesChanged(this)">
+						<label><b>Surfaces</b></label>
+					</div>
+					<div id="surfacesList"></div>
+
+					<div>
+						<input type="checkbox" id="checkBoxAllReservoirs" onchange="onCheckBoxAllReservoirsChanged(this)">
+						<label><b>Reservoirs</b></label>
+					</div>
+					<div id="reservoirsList"></div>
+
+					<div>
+						<input type="checkbox" id="checkBoxAllFaults" onchange="onCheckBoxAllFaultsChanged(this)">
+						<label><b>Faults</b></label>
+					</div>
+					<div id="faultsList"></div>
+				</div>
+
+				<div id="properties" style="background-color: #ffffff; padding-left: 10px; height: 300px; overflow:auto; display: none">
+					<div id="propertiesList"></div>
+				</div>
+			</div>
+
+			<div>
+				<div class="header">Traps</div>
+				<div class="section">
+					<input type="checkbox" id="checkBoxDrawTraps" onchange="onShowTrapsChanged(this)">Locations</input><br>
+					<input type="checkbox" id="checkBoxDrawTrapOutlines" onchange="onShowTrapOutlinesChanged(this)">Trap outlines</input><br>
+				</div>
+
+				<div class="header">Drainage areas</div>
+				<div class="section">
+					<input type="radio" name="drainagearea" id="radioButtonDrainageAreaNone" value="DrainageAreaNone" checked onchange="onDrainageAreaRadioClicked(this)">None</input><br>
+					<input type="radio" name="drainagearea" id="radioButtonDrainageAreaFluid" value="DrainageAreaFluid" onchange="onDrainageAreaRadioClicked(this)">Fluid</input><br>
+					<input type="radio" name="drainagearea" id="radioButtonDrainageAreaGas" value="DrainageAreaGas" onchange="onDrainageAreaRadioClicked(this)">Gas</input><br>
+				</div>
+			</div>
+
+			<div>
+				<div class="header">Flow direction</div>
+				<div class="section">
+					<input type="radio" name="flowviz" id="radioButtonFlowVizNone" value="FlowVizNone" checked onchange="onFlowVizRadioClicked(this)">None</input><br>
+					<input type="radio" name="flowviz" id="radioButtonFlowVizLines" value="FlowVizLines" onchange="onFlowVizRadioClicked(this)">Flow lines</input><br>
+					<input type="radio" name="flowviz" id="radioButtonFlowVizVectors" value="FlowVizVectors" onchange="onFlowVizRadioClicked(this)">Flow vectors</input><br>
+				</div>
+			</div>
+
+			<div>
+				<div class="header">Viewing options</div>
+				<div class="section">
+					<input id="verticalScaleSlider" type="range" min="1" max="20" value="1" oninput="onVerticalScaleSliderChanged(this)">Vert. scale</input><br>
+					<input type="range" id="sliderTransparency" min="0" max="20" value="0" oninput="onTransparencySliderChanged(this)">Transparency</input><br>
+					<input type="checkbox" id="checkBoxDrawFaces" checked onchange="onRenderStyleChanged()">Faces</input><br>
+					<input type="checkbox" id="checkBoxDrawEdges" checked onchange="onRenderStyleChanged()">Edges</input><br>
+					<input type="checkbox" id="checkBoxDrawGrid" onchange="onShowGridChanged(this)">Coordinate grid</input><br>
+					<input type="checkbox" id="checkBoxPerspective" checked onchange="onPerspectiveChanged(this)">Perspective</input><br>
+
+					<button onclick="onButtonViewAllClicked()">View all</button>
+					<table>
+						<tr>
+							<td><button style="width:100%" onclick="onButtonViewPresetClicked(0)">Top</button></td>
+							<td><button style="width:100%" onclick="onButtonViewPresetClicked(1)">Left</button></td>
+							<td><button style="width:100%" onclick="onButtonViewPresetClicked(2)">Front</button></td>
+						</tr>
+						<tr>
+							<td><button style="width:100%" onclick="onButtonViewPresetClicked(3)">Bottom</button></td>
+							<td><button style="width:100%" onclick="onButtonViewPresetClicked(4)">Right</button></td>
+							<td><button style="width:100%" onclick="onButtonViewPresetClicked(5)">Back</button></td>
+						</tr>
+					</table>
+				</div>
+			</div>
+
+			<div>
+				<div class="header">Slices</div>
+				<div class="section">
+					<input id="sliceICheckBox" type="checkbox" onchange="onSliceCheckBoxChanged(0, this)">I</input>
+					<input id="sliceISlider" type="range" value="0" oninput="onSlicePositionChanged(0, this)"/><br>
+					<input id="sliceJCheckBox" type="checkbox" onchange="onSliceCheckBoxChanged(1, this)">J</input>
+					<input id="sliceJSlider" type="range" value="0" oninput="onSlicePositionChanged(1, this)"/><br>
+				</div>
+			</div>	
+			<div>
+				<div class="header">Time</div>
+				<div class="section">
+					<input id="timeSlider" type="range" value="0" oninput="onTimeSliderChanged(this)"/>
+				</div>
+			</div>
+
+			<div>
+				<div class="header">Settings</div>
+				<div class="section">
+				<!--
+					<div style="margin-top: 10px">JPEG Quality</div>
+					<input id="qualitySlider" min="0" max="1" step="0.05" type="range" value="1" oninput="onQualitySliderChanged(this.valueAsNumber)">Still</input>
+					<input id="iqualitySlider" min="0" max="1" step="0.05" type="range" value="0.75" oninput="onInteractiveQualitySliderChanged(this.valueAsNumber)">Interactive</input>
+				-->
+					<input id="bandwidthSlider" min="100" max="5000" type="range" value="2500" oninput="onBandwidthSliderChanged(this.valueAsNumber * 8 * 1024)">Bandwidth</input>
+					<input id="maxfpsSlider" min="1" max="30" type="range" value="20" oninput="onMaxFPSSliderChanged(this.valueAsNumber)">Max. FPS</input>
+
+				</div>
+			</div>
+
+			<div>
+				<div class="header">Performance</div>
+				<div class="section">
+					<div id="bandwidthDiv"></div>
+					<div id="fpsDiv"></div>
+				</div>
+			</div>
+
+		</div>
+
+
+		<div id="CanvasDiv" style="margin-left: 290px; width: 100%; height:100%; background-color: #aaaaff">
+		    <canvas id="TheCanvas" tabindex="0"></canvas>
+		</div>
+	</div>
+
+</body>
+
+</html>

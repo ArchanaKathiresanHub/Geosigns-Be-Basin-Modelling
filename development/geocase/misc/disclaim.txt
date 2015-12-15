@@ -1,0 +1,15 @@
+
+W A R N I N G :
+
+This is prototype software.
+A prototype is a program that is in an early phase of the development process.
+Please be aware that the following conditions may apply:
+-       This program may not have been subject to rigorous testing. 
+-       Documentation and user manuals (if any) may not be complete.
+-       Results of this program should be treated with caution.
+-       There is not necessarily a commitment for maintenance and support by 
+        SIEP/RTS for this prototype.
+
+We appreciate any comments about this prototype. For more information, 
+please contact the Hydrocarbon system Modelling group.
+

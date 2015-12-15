@@ -1,0 +1,5 @@
+[PlotBoundsTbl]
+;
+PropertyName BoundsEnabled LowerBound UpperBound
+() () () ()
+[End]

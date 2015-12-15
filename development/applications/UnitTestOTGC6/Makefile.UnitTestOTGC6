@@ -1,0 +1,98 @@
+ROOTDIR	= ..
+LIBDIR = ../../../libraries
+
+FILE_BASE = ../../../files
+include $(FILE_BASE)/Make.fctargets
+include $(FILE_BASE)/Make.3rdparty
+include $(FILE_BASE)/Make.libraries
+include $(FILE_BASE)/Make.machine
+
+CC = $(CXX)
+CLINKER = $(CXX)
+
+
+
+#
+#  Override for Make.machine definitions
+ifeq ($(machine),Linux64)
+  MP_INCLUDE	  = $(MPI_BASE)/include
+  FLEX_LIB        = -lrt
+endif
+#
+ifeq ($(machine),Sun)
+  MP_INCLUDE	  = /opt/SUNWhpc/include/v9
+  SOCKET_LIB      = -L/usr/lib/sparcv9 -lsocket -lnsl /apps/oss/lib/gcc-lib/sparc-sun-solaris2.8/2.95.3/libgcc.a
+  FLEX_LIB        = $(FLEXLMINCLUDEDIR)/$(APPSOS)/lib$(FLEXLMBITS)/EPTFlexLm.o
+endif
+#
+ifeq ($(machine),SunOS64)
+  MP_INCLUDE      = /opt/SUNWhpc/include/v9
+  SOCKET_LIB      = -L/usr/lib/sparcv9 -lsocket -lnsl /apps/oss/lib/gcc-lib/sparc-sun-solaris2.8/2.95.3/libgcc.a
+  FLEX_LIB        = $(FLEXLMINCLUDEDIR)/$(APPSOS)/lib$(FLEXLMBITS)/EPTFlexLm.o
+endif
+#
+ifeq ($(machine),Silicon64)
+  MP_INCLUDE      = /usr/include/CC
+  SOCKET_LIB      = -L/usr/lib64/mips4 -lsocket -woff 15
+  FLEX_LIB        = $(FLEXLMINCLUDEDIR)/$(APPSOS)/lib$(FLEXLMBITS)/EPTFlexLm.o
+endif
+
+FLEXLMBITS      = 64
+FLEX_INCLUDE    = $(FLEXLMINCLUDEDIR)/include
+
+MAKEDEPEND = /usr/bin/X11/makedepend
+
+DOXYGEN = doxygen
+DOXYGENCFG = UnitTestOTGC6.cfg
+
+ROOTDIR		= ..
+SRCDIR  	= $(ROOTDIR)/src/
+
+EOSPACK = $(LIBDIR)/EosPack/src
+EOSPACK_LIB = $(LIBDIR)/lib/$(machine)/libEosPack.a
+
+CBMGENERICS_INC	= $(LIBDIR)/CBMGenerics/src
+CBMGENERICS_LIB	= $(LIBDIR)/lib/$(machine)/libCBMGenerics.a
+
+OTGCKERNEL_INC = $(LIBDIR)/OTGC_kernel6/src
+OTGCKERNEL_LIB = $(LIBDIR)/lib/$(machine)/libOTGC_kernel6.a
+
+GENEX6_INC = $(LIBDIR)/genex6/src
+GENEX6_LIB = $(LIBDIR)/lib/$(machine)/libgenex6.a
+
+UTILITIES_INC   = $(LIBDIR)/utilities/src
+UTILITIES_LIB   = $(LIBDIR)/lib/$(machine)/libutilities.a
+
+EXEOBJECTS	= main.o TestingCode.o
+
+EXESRCS 	= $(EXEOBJECTS:.o=.C)
+
+EXELIBS		= $(OTGCKERNEL_LIB) $(EOSPACK_LIB) $(GENEX6_LIB) $(CBMGENERICS_LIB)\
+		  $(UTILITIES_LIB) $(SOCKET_LIB) -lz -lrt -lm
+
+CFLAGS		+=  ${PROFILEFLAGS} ${COMPILEFLAGS} -I/usr/include -I$(OTGCKERNEL_INC)\
+		    -I$(EOSPACK_INC) -I$(CBMGENERICS_INC) -I$(GENEX6_INC) -I$(UTILITIES_INC)
+
+vpath %.h $(SRCDIR)
+vpath %.C $(SRCDIR)
+
+OBJDIR		= .
+vpath %.o $(OBJDIR)
+
+EXE = UnitTestOTGC6
+
+target: $(EXE)
+
+$(EXE): $(EXEOBJECTS)
+	-$(PRELINK) $(CLINKER) $(LDFLAGS) -o $(EXE) $(EXEOBJECTS) $(EXELIBS)
+
+clean :
+	rm -rf $(EXEOBJECTS) ii_files
+
+doc:
+	cd ../src && $(DOXYGEN) $(DOXYGENCFG)
+
+depend: $(EXEOBJECTS:.o=.C)
+	cd ../src && $(MAKEDEPEND) -f../Makefile.genex5kernelApp -Y $(INCLUDEDIRS) $(EXEOBJECTS:.o=.C) 2> /dev/null
+
+# DO NOT DELETE

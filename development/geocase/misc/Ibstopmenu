@@ -1,0 +1,7 @@
+Ibstopmenu*background: 	lightskyblue3
+Ibstopmenu*foreground:		black
+Ibstopmenu*fontList:	*helvetica-bold-r-normal*14*=charset1
+
+!to cancel funny Landmark defaults:
+Ibstopmenu*.borderWidth: 0
+

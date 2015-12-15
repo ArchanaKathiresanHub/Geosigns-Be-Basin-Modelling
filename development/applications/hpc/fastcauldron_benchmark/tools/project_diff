@@ -1,0 +1,40 @@
+#!/bin/bash
+
+P1=$1
+P2=$2
+
+if [ x$P2 = x ]; then
+  echo Need two project files to compare
+  exit 1
+fi
+
+if [ x$P1 = x ]; then
+  echo Need two project files to compare
+  exit 1
+fi
+
+tooldir=`dirname $0`
+rm_ws=$tooldir/remove_unnecessary_whitespace
+rm_table=$tooldir/project_rm_table
+
+a1=`mktemp` || { echo Could not create temp file; exit 1 ; }
+b1=`mktemp` || { echo Could not create temp file; exit 1 ; }
+a2=`mktemp` || { echo Could not create temp file; exit 1 ; }
+b2=`mktemp` || { echo Could not create temp file; exit 1 ; }
+
+$rm_ws < $P1 > $a1
+$rm_ws < $P2 > $b1
+
+for table in TimeIoTbl TrapIoTbl TrapperIoTbl MigrationIoTbl DepthsIoTbl
+do
+  $rm_table $table < $a1 > $a2
+  $rm_table $table < $b1 > $b2
+
+  cp $a2 $a1
+  cp $b2 $b1
+done
+
+${DIFF:-diff} $a1 $b1
+echo
+
+rm $a1 $a2 $b1 $b2

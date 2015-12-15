@@ -1,0 +1,6 @@
+[IoOptionsIoTbl]
+;
+MapType FileVersioning AutoSaving SaveBeforeEachRun MaxFileWidth ConsoleLevel PopupLevel LogfileLevel 
+() () () () () () () ()
+"DECBINARY" 3 0 0 0 -5 -5 -5 
+[End]

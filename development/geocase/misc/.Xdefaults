@@ -1,0 +1,9 @@
+!
+! ibs requirements for .Xdefaults:
+! --------------------------------
+!
+*interactivePlacement: false
+*uniras*geometry:      960x840
+*uniras*backingstore:  always
+*uniras*switches:      noexit,warp
+*uniras*image:         accurate

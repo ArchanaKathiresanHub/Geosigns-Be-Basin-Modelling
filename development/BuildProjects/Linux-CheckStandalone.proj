@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+ <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">RHEL6.6</Platform>
+  </PropertyGroup>
+
+  <Import Project="$(MSBuildProjectDirectory)\BasinModeling.Linux.Props.xml" />
+
+  <PropertyGroup>
+     <check>$(ssh_command) "$(build_env_vars) /bin/bash -l -x $(RemoteSourceDirAlt)/development/BuildProjects/Linux-CheckStandalone.sh $(OtherCMakeParams)"</check>
+  </PropertyGroup>
+
+  <Target Name="Build">
+    <Exec Command="$(make_remote_dirs)" />
+    <Exec Command="$(copy_code)" WorkingDirectory="$(solution_root)"/>
+    <Exec Command="$(check)" />
+    <Exec Command="$(copy_build)" WorkingDirectory="$(OutDir)"/>
+
+    <CallTarget Targets="BuildOnLinux" ContinueOnError="true" />
+    <CallTarget Targets="PublishJUnitFromLinux" ContinueOnError="true"/>
+    <CallTarget Targets="CleanOnLinux" ContinueOnError="true"/>
+  </Target>  
+  
+</Project>

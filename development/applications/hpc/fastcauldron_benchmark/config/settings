@@ -1,0 +1,285 @@
+ID                      "nvg-01-reference"
+Project                 "input/nvg/01/NVG.project3d"
+Processors              12
+ScaleX                  20
+ScaleY                  20
+BrickHeightSediment     400
+ElementRefinementZ      1
+TimeSteppingMethod      BurialRateTimeStepping
+SimulationMode          FullyCoupled
+GeometricLoop           Yes
+CauldronVersion         "2012.1008"
+
+ID                      "nvg-02-reference"
+Project                 "input/nvg/02/Project.project3d"
+Processors              12
+ScaleX                  20
+ScaleY                  20
+BrickHeightSediment     400
+ElementRefinementZ      1
+TimeSteppingMethod      BurialRateTimeStepping
+SimulationMode          FullyCoupled
+GeometricLoop           Yes
+CauldronVersion         "2012.1008"
+
+ID                      "gmu-01-reference"
+Project                 "input/gmu/01/Greater_Mars_Ursa.project3d"
+Processors              12
+ScaleX                  5
+ScaleY                  5
+BrickHeightSediment     400
+ElementRefinementZ      1
+TimeSteppingMethod      BurialRateTimeStepping
+SimulationMode          FullyCoupled
+GeometricLoop           Yes
+CauldronVersion         "2012.1008"
+
+ID                      "marmul-01-reference"
+Project                 "input/marmul/01/Marmul.project3d"
+Processors              12
+ScaleX                  10
+ScaleY                  10
+BrickHeightSediment     400
+ElementRefinementZ      1
+TimeSteppingMethod      BurialRateTimeStepping
+SimulationMode          FullyCoupled
+GeometricLoop           Yes
+CauldronVersion         "2012.1008"
+
+ID                      "marmul-02-reference"
+Project                 "input/marmul/02/Marmul.project3d"
+Processors              12
+ScaleX                  10
+ScaleY                  10
+BrickHeightSediment     400
+ElementRefinementZ      1
+TimeSteppingMethod      BurialRateTimeStepping
+SimulationMode          FullyCoupled
+GeometricLoop           Yes
+CauldronVersion         "2012.1008"
+
+ID                      "tutorial-01-reference"
+Project                 "input/tutorial/01/TutorialOrig.project3d"
+Processors              12
+ScaleX                  2
+ScaleY                  2
+BrickHeightSediment     400
+ElementRefinementZ      1
+TimeSteppingMethod      BurialRateTimeStepping
+SimulationMode          FullyCoupled
+GeometricLoop           Yes
+CauldronVersion         "2012.1008"
+
+ID                      "wnb-01-reference"
+Project                 "input/wnb/01/WNB.project3d"
+Processors              12
+ScaleX                  4
+ScaleY                  4
+BrickHeightSediment     400
+ElementRefinementZ      1
+TimeSteppingMethod      BurialRateTimeStepping
+SimulationMode          FullyCoupled
+GeometricLoop           Yes
+CauldronVersion         "2012.1008"
+
+ID                      "nvg-01-big"
+Project                 "input/nvg/01/NVG.project3d"
+Processors              12
+ScaleX                  6
+ScaleY                  6
+BrickHeightSediment     400
+ElementRefinementZ      1
+TimeSteppingMethod      BurialRateTimeStepping
+SimulationMode          FullyCoupled
+GeometricLoop           Yes
+CauldronVersion         "2012.1008"
+
+ID                      "nvg-02-big"
+Project                 "input/nvg/02/Project.project3d"
+Processors              12
+ScaleX                  6
+ScaleY                  6
+BrickHeightSediment     400
+ElementRefinementZ      1
+TimeSteppingMethod      BurialRateTimeStepping
+SimulationMode          FullyCoupled
+GeometricLoop           Yes
+CauldronVersion         "2012.1008"
+
+ID                      "gmu-01-big"
+Project                 "input/gmu/01/Greater_Mars_Ursa.project3d"
+Processors              12
+ScaleX                  1
+ScaleY                  1
+BrickHeightSediment     400
+ElementRefinementZ      1
+TimeSteppingMethod      BurialRateTimeStepping
+SimulationMode          FullyCoupled
+GeometricLoop           Yes
+CauldronVersion         "2012.1008"
+
+ID                      "marmul-01-big"
+Project                 "input/marmul/01/Marmul.project3d"
+Processors              12
+ScaleX                  1
+ScaleY                  1
+BrickHeightSediment     400
+ElementRefinementZ      1
+TimeSteppingMethod      BurialRateTimeStepping
+SimulationMode          FullyCoupled
+GeometricLoop           Yes
+CauldronVersion         "2012.1008"
+
+ID                      "marmul-02-big"
+Project                 "input/marmul/02/Marmul.project3d"
+Processors              12
+ScaleX                  1
+ScaleY                  1
+BrickHeightSediment     400
+ElementRefinementZ      1
+TimeSteppingMethod      BurialRateTimeStepping
+SimulationMode          FullyCoupled
+GeometricLoop           Yes
+CauldronVersion         "2012.1008"
+
+ID                      "tutorial-01-big"
+Project                 "input/tutorial/01/TutorialOrig.project3d"
+Processors              12
+ScaleX                  1
+ScaleY                  1
+BrickHeightSediment     400
+ElementRefinementZ      1
+TimeSteppingMethod      BurialRateTimeStepping
+SimulationMode          FullyCoupled
+GeometricLoop           Yes
+CauldronVersion         "2012.1008"
+
+ID                      "wnb-01-big"
+Project                 "input/wnb/01/WNB.project3d"
+Processors              12
+ScaleX                  1
+ScaleY                  1
+BrickHeightSediment     400
+ElementRefinementZ      1
+TimeSteppingMethod      BurialRateTimeStepping
+SimulationMode          FullyCoupled
+GeometricLoop           Yes
+CauldronVersion         "2012.1008"
+
+ID                      "nvg-01-many-big"
+Project                 "input/nvg/01/NVG.project3d"
+Processors              12
+ScaleX                  12
+ScaleY                  12
+BrickHeightSediment     400
+ElementRefinementZ      1
+TimeSteppingMethod      BurialRateTimeStepping
+SimulationMode          FullyCoupled
+GeometricLoop           Yes
+CauldronVersion         "2012.1008"
+MultipleMeasurements    { 1, 2, 3, 4, 5 }
+
+ID                      "nvg-02-many-big"
+Project                 "input/nvg/02/Project.project3d"
+Processors              12
+ScaleX                  6
+ScaleY                  6
+BrickHeightSediment     400
+ElementRefinementZ      1
+TimeSteppingMethod      BurialRateTimeStepping
+SimulationMode          FullyCoupled
+GeometricLoop           Yes
+CauldronVersion         "2012.1008"
+MultipleMeasurements    { 1, 2, 3, 4, 5 }
+
+ID                      "gmu-01-many-big"
+Project                 "input/gmu/01/Greater_Mars_Ursa.project3d"
+Processors              12
+ScaleX                  1
+ScaleY                  1
+BrickHeightSediment     400
+ElementRefinementZ      1
+TimeSteppingMethod      BurialRateTimeStepping
+SimulationMode          FullyCoupled
+GeometricLoop           Yes
+CauldronVersion         "2012.1008"
+MultipleMeasurements    { 1, 2, 3, 4, 5 }
+
+ID                      "marmul-01-many-big"
+Project                 "input/marmul/01/Marmul.project3d"
+Processors              12
+ScaleX                  1
+ScaleY                  1
+BrickHeightSediment     400
+ElementRefinementZ      1
+TimeSteppingMethod      BurialRateTimeStepping
+SimulationMode          FullyCoupled
+GeometricLoop           Yes
+CauldronVersion         "2012.1008"
+MultipleMeasurements    { 1, 2, 3, 4, 5 }
+
+ID                      "marmul-02-many-big"
+Project                 "input/marmul/02/Marmul.project3d"
+Processors              12
+ScaleX                  1
+ScaleY                  1
+BrickHeightSediment     400
+ElementRefinementZ      1
+TimeSteppingMethod      BurialRateTimeStepping
+SimulationMode          FullyCoupled
+GeometricLoop           Yes
+CauldronVersion         "2012.1008"
+MultipleMeasurements    { 1, 2, 3, 4, 5 }
+
+ID                      "tutorial-01-many-big"
+Project                 "input/tutorial/01/TutorialOrig.project3d"
+Processors              12
+ScaleX                  1
+ScaleY                  1
+BrickHeightSediment     400
+ElementRefinementZ      1
+TimeSteppingMethod      BurialRateTimeStepping
+SimulationMode          FullyCoupled
+GeometricLoop           Yes
+CauldronVersion         "2012.1008"
+MultipleMeasurements    { 1, 2, 3, 4, 5 }
+
+ID                      "wnb-01-many-big"
+Project                 "input/wnb/01/WNB.project3d"
+Processors              12
+ScaleX                  1
+ScaleY                  1
+BrickHeightSediment     400
+ElementRefinementZ      1
+TimeSteppingMethod      BurialRateTimeStepping
+SimulationMode          FullyCoupled
+GeometricLoop           Yes
+CauldronVersion         "2012.1008"
+MultipleMeasurements    { 1, 2, 3, 4, 5 }
+
+ID                      "marmul-02-scaling-procs"
+Project                 "input/marmul/02/Marmul.project3d"
+Processors              { 12, 24, 36, 48, 60, 72, 84, 96 }
+ScaleX                  1
+ScaleY                  1
+BrickHeightSediment     400
+ElementRefinementZ      3
+TimeSteppingMethod      BurialRateTimeStepping
+SimulationMode          FullyCoupled
+GeometricLoop           Yes
+CauldronVersion         "2012.1008"
+MultipleMeasurements    { 1, 2, 3 }
+
+ID                      "nvg-02-scaling-procs"
+Project                 "input/nvg/02/Project.project3d"
+Processors              { 12, 24, 36, 48, 60, 72, 84, 96 }
+ScaleX                  1
+ScaleY                  1
+BrickHeightSediment     400
+ElementRefinementZ      1
+TimeSteppingMethod      BurialRateTimeStepping
+SimulationMode          FullyCoupled
+GeometricLoop           Yes
+CauldronVersion         "2012.1008"
+MultipleMeasurements    { 1, 2, 3 }
+

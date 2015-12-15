@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+ <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x64</Platform>
+	<Deploy Condition=" '$(Deploy)' == '' ">False</Deploy>
+	<DeployToHouston Condition=" '$(DeployToHouston)' == '' ">False</DeployToHouston>
+  </PropertyGroup>
+
+  <Import Project="$(MSBuildProjectDirectory)\BasinModeling.Linux.Props.xml" />
+
+  <Target Name="Build">
+    <CallTarget Targets="BuildOnLinux" ContinueOnError="true" />
+    <CallTarget Targets="PublishJUnitFromLinux" ContinueOnError="true"/>
+    <CallTarget Targets="CleanOnLinux" ContinueOnError="true" />
+  </Target>  
+  
+</Project>

@@ -1,0 +1,5 @@
+#!/bin/bash
+
+date=`sed -ne '/Started at/s/Started at //p' $1`
+date -u -d "$date" +'%F %T'
+

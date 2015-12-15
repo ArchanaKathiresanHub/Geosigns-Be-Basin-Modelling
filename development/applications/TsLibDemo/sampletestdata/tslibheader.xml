@@ -1,0 +1,107 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<tns:resultHeaders xmlns:tns="http://www.geocosm.net/200608/TcfSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.geocosm.net/200608/TcfSchema c:\src\geocosm\xmlschema\ResultSchema.xsd">
+  <detailedHeaders>
+    <burialHistoryHeaders header1="Burial History Data" header3="Time" units="geologic_time" axisScale="linear" decimalPlaces="2">
+      <iD resultType="burialHistory" iD="0" model="0" kernel="0" />
+    </burialHistoryHeaders>
+    <burialHistoryHeaders header1="Burial History Data" header3="Temperature" units="temperature" axisScale="linear" decimalPlaces="1">
+      <iD resultType="burialHistory" iD="1" model="0" kernel="0" />
+    </burialHistoryHeaders>
+    <burialHistoryHeaders header1="Burial History Data" header3="Burial Depth" units="depth" axisScale="linear" decimalPlaces="2">
+      <iD resultType="burialHistory" iD="2" model="0" kernel="0" />
+    </burialHistoryHeaders>
+    <burialHistoryHeaders header1="Burial History Data" header3="Fluid Overpressure" units="pressure" axisScale="linear" decimalPlaces="2">
+      <iD resultType="burialHistory" iD="3" model="0" kernel="0" />
+    </burialHistoryHeaders>
+    <burialHistoryHeaders header1="Burial History Data" header3="Effective Stress" units="pressure" axisScale="linear" decimalPlaces="2">
+      <iD resultType="burialHistory" iD="4" model="0" kernel="0" />
+    </burialHistoryHeaders>
+    <burialHistoryHeaders header1="Burial History Data" header3="Water Saturation" units="volume_percent" axisScale="linear" decimalPlaces="1">
+      <iD resultType="burialHistory" iD="5" model="0" kernel="0" />
+    </burialHistoryHeaders>
+    <modalHeaders header1="Grain Texture" header2="Size &amp; Fabric" header3="Grain size" units="grain_size" axisScale="linear" decimalPlaces="3">
+      <iD resultType="graintexture" iD="52" model="0" kernel="0" />
+    </modalHeaders>
+    <modalHeaders header1="Grain Texture" header2="Size &amp; Fabric" header3="Grain sorting" units="sorting" axisScale="linear" decimalPlaces="2">
+      <iD resultType="graintexture" iD="53" model="0" kernel="0" />
+    </modalHeaders>
+    <modalHeaders header1="Grain Texture" header2="Coating" header3="Grain coating" units="area_percent" axisScale="linear" decimalPlaces="1">
+      <iD resultType="graintexture" iD="62" model="0" kernel="0" />
+    </modalHeaders>
+    <modalHeaders header1="Porosity" header3="Intergranular porosity" units="volume_percent" axisScale="linear" decimalPlaces="2" saved="true" histogram="true" tornadoPlot="true">
+      <iD resultType="modal" iD="4" model="0" kernel="0" />
+    </modalHeaders>
+    <modalHeaders header1="Compaction" header3="IGV" units="volume_percent" axisScale="linear" decimalPlaces="2">
+      <iD resultType="compaction" iD="0" model="0" kernel="0" />
+    </modalHeaders>
+  </detailedHeaders>
+  <summaryHeaders header1="Burial History Data" header3="Max Temp" units="temperature" axisScale="linear" decimalPlaces="1">
+    <iD resultType="burialHistory" iD="0" model="0" kernel="0" />
+  </summaryHeaders>
+  <summaryHeaders header1="Burial History Data" header3="Max Depth" units="depth" axisScale="linear" decimalPlaces="1">
+    <iD resultType="burialHistory" iD="1" model="0" kernel="0" />
+  </summaryHeaders>
+  <summaryHeaders header1="Burial History Data" header3="Max Eff Stress" units="pressure" axisScale="linear" decimalPlaces="2">
+    <iD resultType="burialHistory" iD="2" model="0" kernel="0" />
+  </summaryHeaders>
+  <summaryHeaders header1="Grain Texture" header3="Grain size" units="grain_size" axisScale="linear" decimalPlaces="3">
+    <iD resultType="graintexture" iD="3" model="0" kernel="0" />
+  </summaryHeaders>
+  <summaryHeaders header1="Grain Texture" header3="Grain sorting" units="sorting" axisScale="linear" decimalPlaces="2">
+    <iD resultType="graintexture" iD="4" model="0" kernel="0" />
+  </summaryHeaders>
+  <summaryHeaders header1="Grain Texture" header3="Coating" units="area_percent" axisScale="linear" decimalPlaces="1">
+    <iD resultType="graintexture" iD="5" model="0" kernel="0" />
+  </summaryHeaders>
+  <summaryHeaders header1="QFR Calculations, % Grains" header2="Measured, Present-day" header3="Q" units="volume_percent" axisScale="linear" decimalPlaces="1">
+    <iD resultType="model" iD="6" model="0" kernel="0" />
+  </summaryHeaders>
+  <summaryHeaders header1="QFR Calculations, % Grains" header2="Measured, Present-day" header3="F" units="volume_percent" axisScale="linear" decimalPlaces="1">
+    <iD resultType="model" iD="7" model="0" kernel="0" />
+  </summaryHeaders>    
+  <summaryHeaders header1="QFR Calculations, % Grains" header2="Measured, Present-day" header3="R" units="volume_percent" axisScale="linear" decimalPlaces="1">
+    <iD resultType="model" iD="8" model="0" kernel="0" />
+  </summaryHeaders>
+  <summaryHeaders header1="QFR Calculations, % Grains" header2="Calc, Present-day" header3="Q" units="volume_percent" axisScale="linear" decimalPlaces="1">
+    <iD resultType="model" iD="9" model="0" kernel="0" />
+  </summaryHeaders>
+  <summaryHeaders header1="QFR Calculations, % Grains" header2="Calc, Present-day" header3="F" units="volume_percent" axisScale="linear" decimalPlaces="1">
+    <iD resultType="model" iD="10" model="0" kernel="0" />
+  </summaryHeaders>
+  <summaryHeaders header1="QFR Calculations, % Grains" header2="Calc, Present-day" header3="R" units="volume_percent" axisScale="linear" decimalPlaces="1">
+    <iD resultType="model" iD="11" model="0" kernel="0" />
+  </summaryHeaders>
+  <summaryHeaders header1="QFR Calculations, % Grains" header2="Calc, Deposition" header3="Q" units="volume_percent" axisScale="linear" decimalPlaces="1">
+    <iD resultType="model" iD="12" model="0" kernel="0" />
+  </summaryHeaders>
+  <summaryHeaders header1="QFR Calculations, % Grains" header2="Calc, Deposition" header3="F" units="volume_percent" axisScale="linear" decimalPlaces="1">
+    <iD resultType="model" iD="13" model="0" kernel="0" />
+  </summaryHeaders>
+  <summaryHeaders header1="QFR Calculations, % Grains" header2="Calc, Deposition" header3="R" units="volume_percent" axisScale="linear" decimalPlaces="1">
+    <iD resultType="model" iD="14" model="0" kernel="0" />
+  </summaryHeaders>
+  <summaryHeaders header1="Intergranular Porosity" header2="Present-day" header3="Mea" units="volume_percent" axisScale="linear" decimalPlaces="1">
+    <iD resultType="model" iD="15" model="0" kernel="0" />
+  </summaryHeaders>
+  <summaryHeaders header1="Intergranular Porosity" header2="Present-day" header3="Calc" units="volume_percent" axisScale="linear" decimalPlaces="1">
+    <iD resultType="model" iD="16" model="0" kernel="0" />
+  </summaryHeaders>
+  <summaryHeaders header1="Intergranular Porosity" header2="Present-day" header3="Error" units="volume_percent" axisScale="linear" decimalPlaces="1">
+    <iD resultType="model" iD="17" model="0" kernel="0" />
+  </summaryHeaders>
+  <summaryHeaders header1="Intergranular Porosity" header2="Deposition" header3="Calc" units="volume_percent" axisScale="linear" decimalPlaces="1">
+    <iD resultType="model" iD="18" model="0" kernel="0" />
+  </summaryHeaders>
+  <plotHeaders subCat="QFR" title="QFR--Present-day Measured" plotType="QFL" x_col="6" y_col="7" y2_col="8" x_title="Q" y_title="F" y2_title="R">
+    <iD resultType="model" iD="0" model="0" kernel="0" />
+  </plotHeaders>
+  <plotHeaders subCat="QFR" title="QFR--Present-day Modeled" plotType="QFL" x_col="9" y_col="10" y2_col="11" x_title="Q" y_title="F" y2_title="R">
+    <iD resultType="model" iD="1" model="0" kernel="0" />
+  </plotHeaders>
+  <plotHeaders subCat="QFR" title="QFR--Reconstructed" plotType="QFL" x_col="12" y_col="13" y2_col="14" x_title="Q" y_title="F" y2_title="R">
+    <iD resultType="model" iD="2" model="0" kernel="0" />
+  </plotHeaders>
+  <plotHeaders subCat="Diagenesis" title="Intergranular Porosity Calibration" plotType="Scatter" x_col="15" y_col="16" x_title="Measured Intergranular Porosity, %" y_title="Calculated Intergranular Porosity, %" plot_min="0" plot_max="25" major_tick="5" minor_tick="1">
+    <iD resultType="model" iD="3" model="0" kernel="0" />
+  </plotHeaders>
+</tns:resultHeaders>

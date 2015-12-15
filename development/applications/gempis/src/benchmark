@@ -1,0 +1,65 @@
+#!/bin/bash
+#
+# benchmark - runs a series of benchmark tests
+#
+version="-v2007.xx" 
+resource="Darwin"
+app="fastcauldron"
+option="-itcoupled"
+#option="-temperature"
+
+# force where the executable will be found
+export PATH=/apps/sssdev/share:$PATH
+
+# this name will appear as the project name for the job
+export GEMPIS_PROJECTNAME=`echo $0 | awk -F'/' '{ print $NF }'`
+
+# check usage
+if [ -z "$4" ]; then
+    echo "Usage: $0 <project> <size> <hdf:y|n> [ l2h | h2l | <cpu> <cpu> ...]"
+    echo ""
+    echo "l2h - cpu list = [1 2 4 8 16 32 64]"
+    echo "h2l - cpu list = [64 32 16 8 4 2 1]"
+    echo ""
+    exit 1
+fi
+
+# assign parameters
+project=$1
+shift
+size=$1
+shift
+nohdf=$1
+shift
+log="${project}_${size}.log"
+[ "$nohdf" = "n" ] && output="-nohdfoutput"
+
+# get list of processors to test
+case $1 in
+l2h)
+    list="1 2 4 8 16 32 64"
+    ;;
+h2l)
+    list="64 32 16 8 4 2 1"
+    ;;
+*)
+    list="$*"
+    ;;
+esac
+
+# turn on verbose mode
+export GEMPIS_VERBOSE=yes
+
+# loop through all cpus
+for cpus in $list; do
+
+    command="gempis $version perf $resource $cpus $project $size $option $output"
+    echo "Running [$command] >> $log"
+    eval $command >> $log
+
+done
+
+echo "Test completed"
+echo ""
+
+exit 0

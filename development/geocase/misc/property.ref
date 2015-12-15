@@ -1,0 +1,219 @@
+## File:        property.ref
+## Description: IBSLINK reference file
+## -------------------------------------------------------------------
+## $Header: /nfs/rvl/users/ibs/RCS/./EPT-HM/misc/property.ref,v 26.0 2005/10/12 15:33:50 ibs Stable $
+## -------------------------------------------------------------------
+## $Log: property.ref,v $
+## Revision 26.0  2005/10/12 15:33:50  ibs
+## IBS+ 2005.08 Release: October 4, 2005. Major: Fastcauldron Sun HR decompaction memory bug, View4Dreservoirs, colors, Touchstone.
+##
+## Revision 25.0  2005/07/05 08:14:25  ibs
+## IBS+ 2005.02 Release: May 30, 2005. Major: Loose coupled Pressure and Temperature, Aut. HDF5 conversions, View4D in 64 bits, Trapper, grid and volume output.
+##
+## Revision 24.0  2004/04/15 13:15:34  ibs
+## IBS+ 2004.01 Release: March 30, 2004. Major: Fastcauldron Parallel, Sensitivity II, Touchstone II, Overpressure Overhaul, Diffusion, Eclipse output.
+##
+## Revision 23.0  2003/09/18 12:31:36  ibs
+## IBS+ 2003.03 Release: September 1, 2003. Major: 64 bits, biodegradation, sensitivity I, touchstone I, 2D option, viewer PDF.
+##
+## Revision 22.0  2002/06/28 12:24:29  ibs
+## RS6000 relkease
+##
+## Revision 21.0  2001/05/02 09:09:10  ibs
+## IBS+ 2001.04 Release: April 27, 2001. Major: High/low/window res, mass balance,drainage, & Sun 4D viewer.
+##
+## Revision 20.0  2000/08/15 10:07:11  ibs
+## IBS+ 2000.07 Release: 16 August 2000. Major: Visualisation Faults, output compressed, OP re-runs, fracture leaks, gOcad tsurfs & 4D viewer.
+##
+## Revision 19.0  2000/02/23 13:32:20  ibs
+## IBS+ 2000.01 Release: 22 february 2000. Major: Fault history, Overpressure, Improved migration & 4D viewer.
+##
+## Revision 18.0  1999/08/01 14:41:52  ibs
+## IBS+ 2.5 Release: 30 Jly 1999 Major: Non-rectangular grids, Faults, Overpressure, Optimisations.
+##
+## Revision 17.0  1998/12/15 14:46:36  ibs
+## IBS+ 2.4 Release: 16 December 1998 Major: Bug fixes, stability, improved: Overpressure, Hig Res migration
+##
+## Revision 16.0  1998/10/15 22:38:40  ibs
+## IBS+ 2.3 Release: 30 September 1998 Major: Overpressure, Pxxx uncertainty, Hig Res migration
+##
+## Revision 15.0  1998/03/05 16:07:19  ibs
+## IBS+ 2.2 Release: 5 March 1998 Major: Multimig, 3D Uncertainty, 3D Viewer
+##
+##Revision 14.0  1997/09/16  18:41:24  ibs
+##IBS+ 2.1 Release: 16 Sept 1997 Major: Cauldron: unconf/uncert/plots
+##
+##Revision 13.0  1997/02/10  17:21:57  ibs
+##IBS+ 2.0 Release: 7 February 1997 Major: Cauldron 3D
+##
+##Revision 12.0  1996/07/15  15:04:55  ibs
+##IBS+ 1.1 Release: also ibs 1.6  release. 25-July-1996
+##
+##Revision 10.0  1996/03/11  13:02:15  ibs
+##IBS+ 1.0 Release: also ibs 1.5, sgt, reconmodel, stratagem release. 29-Feb-1996
+##
+##Revision 9.0  1995/07/10  12:11:26  ibs
+##RCS update: use of FSF RCS system (5.6) on all platforms. 10-July-1995
+##
+##Revision 8.0  95/03/21  20:52:52  ibs
+##IBS SUN & IBM RS6000 1.4 RELEASE (HTE 1.3) 22-March-1995
+##
+##Revision 7.0  94/06/01  10:53:30  ibs
+##IBS SUN & IBM RS6000 1.3 RELEASE (GENERAL) 31-MAY-1994
+##
+##Revision 6.7  94/05/17  09:59:30  ks319
+##shortened some titles
+##
+##Revision 6.6  94/05/17  09:52:59  ks319
+##removed last lines from file (where empty)
+##
+##Revision 6.5  94/05/16  16:37:53  ks319
+##created a new, more logical, subdivision of the different property codes.
+##
+## 
+## Property group
+##  Name     Slot LongName                                           UnitOfMeas.     StratTop  ReconAge
+##  -------- ---- -------------------------------------------------- --------------- --------  --------
+##
+> Input
+    RD0       @@   Present day horizon depth                          m               Horizon   No
+    DEP       @@   Depositional Age                                   Ma              Horizon   No
+    U1        @@   Base sediment heatflow                             mW/m2           None      Yes
+    IS0       @@   Salt movement                                      m               None      Yes
+    LI%       @@   Lithology mixture                                  %               Layer     No
+    PRM       0    Permeability premultiplier                         fraction        None      No  
+> Source Rock Input
+    SRP       1    Source rock layer thickness                        m               None      No
+    SRP       2    Source rock volume fraction                        fraction        None      No
+    SRP       3    Source rock hydrogen index                         -               None      No
+    SRP       4    Source rock total organic carbon content           wt.%            None      No
+    SRP       5    Source rock expulsion generation ratio             volume fraction None      No
+    SRP       6    Source rock primary cracking activation energy     kJ/Mole         None      No
+    SRP       7    Source rock bitumen content                        weight fraction None      No
+    SRP       8    Source rock upwards   biot number                  -               None      No
+    SRP       9    Source rock downwards biot number                  -               None      No
+    SRP       10   Source rock characteristic migration length        m               None      No
+    SRP       11   Source rock reference mass fraction                weight fraction None      No
+    SRP       12   Source rock initial Rock Eval II S1                -               None      No
+    SRP       13   Source rock initial Rock Eval II S2                -               None      No
+    SRP       14   Source rock initial Rock Eval II S3                -               None      No
+    SRP       15   Source rock initial Atomic H/C of kerogen          -               None      No
+    SRP       16   Source rock initial Atomic O/C of kerogen          -               None      No
+    SRP       17   Source rock start cracking energy for asphaltene   kJ/Mole         None      No
+    SRP       18   Source rock end   cracking energy for asphaltene   kJ/Mole         None      No
+    SRP       19   Source rock start cracking energy for kerogen      kJ/Mole         None      No
+    SRP       20   Source rock end   cracking energy for kerogen      kJ/Mole         None      No
+    SRP       21   Source rock initial Atomic N/C of kerogen          -               None      No
+    U4        @@   Permeability, source-rock properties               -               None      Yes
+> Depth Reconstruction
+    RD1       @@   Horizon depth                                      m               None      Yes
+    POR       @@   Reservoir porosity                                 fraction        None      Yes
+> Temperature Reconstruction
+    TMP       @@   Source rock temperature                            deg. C          None      Yes
+    VRE       @@   Source rock maturity                               % VRE           None      Yes
+    TRA       @@   Source rock transformation ratio                   volume fraction None      Yes
+    HCR       @@   Source rock hydrocarbon generation rate            m3/m2/Ma        None      Yes
+    U2        @@   Horizon temperatures                               deg. C          None      Yes
+    U3        @@   %VRE/Transformation/Generation/Expulsion           -               None      Yes
+> General Genex3 Output
+    API       @@   Gravity of cumulative expelled oil                 kg/m3           None      Yes
+    VRE       @@   Source rock maturity                               % VRE           None      Yes
+    TRG       @@   Kerogen transformation ratio                       -               None      Yes
+    XGO       @@   Expulsion Gas / Oil ratio                          -               None      Yes
+    XCG       @@   Expelled Condensate / Gas ratio                    Sm3/Sm3         None      Yes
+> Oil Generation
+    OGC       @@   Generated Oil cumulative                           kg/m2           None      Yes
+    OGR       @@   Generated Oil rate                                 kg/m2/Ma        None      Yes
+    GOC       @@   Generated Oil cumulative  (old)                    kg/m2           None      Yes
+    GOR       @@   Generated Oil rate  (old)                          kg/m2/Ma        None      Yes
+> Oil Expulsion
+    OUC       @@   Expelled  Oil upwards   cumulative                 kg/m2           None      Yes
+    ODC       @@   Expelled  Oil downwards cumulative                 kg/m2           None      Yes
+    OUR       @@   Expelled  Oil upwards   rate                       kg/m2/Ma        None      Yes
+    ODR       @@   Expelled  Oil downwards rate                       kg/m2/Ma        None      Yes
+    OXC       @@   Expelled  Oil cumulative                           kg/m2           None      Yes
+    OXR       @@   Expelled  Oil rate                                 kg/m2/Ma        None      Yes
+    XO1       @@   Expelled  Oil upwards   cumulative (old)           kg/m2           None      Yes
+    XO2       @@   Expelled  Oil downwards cumulative (old)           kg/m2           None      Yes
+    XO3       @@   Expelled  Oil upwards   rate (old)                 kg/m2/Ma        None      Yes
+    XO4       @@   Expelled  Oil downwards rate (old)                 kg/m2/Ma        None      Yes
+> Gas Generation
+    GGC       @@   Generated     HCgas cumulative                     kg/m2           None      Yes
+    GGR       @@   Generated     HCgas rate                           kg/m2/Ma        None      Yes
+    WGC       @@   Generated Wet HCgas cumulative                     kg/m2           None      Yes
+    WGR       @@   Generated Wet HCgas rate                           kg/m2/Ma        None      Yes
+    DGC       @@   Generated Dry HCgas cumulative                     kg/m2           None      Yes
+    DGR       @@   Generated Dry HCgas rate                           kg/m2/Ma        None      Yes
+> Gas Expulsion
+    GUC       @@   Expelled     HCgas upwards   cumulative            kg/m2           None      Yes
+    GDC       @@   Expelled     HCgas downwards cumulative            kg/m2           None      Yes
+    GUR       @@   Expelled     HCgas upwards   rate                  kg/m2/Ma        None      Yes
+    GDR       @@   Expelled     HCgas downwards rate                  kg/m2/Ma        None      Yes
+    GXC       @@   Expelled     HCgas cumulative                      kg/m2           None      Yes
+    GXR       @@   Expelled     HCgas rate                            kg/m2/Ma        None      Yes
+    WUC       @@   Expelled Wet HCgas upwards   cumulative            kg/m2           None      Yes
+    WDC       @@   Expelled Wet HCgas downwards cumulative            kg/m2           None      Yes
+    WUR       @@   Expelled Wet HCgas upwards   rate                  kg/m2/Ma        None      Yes
+    WDR       @@   Expelled Wet HCgas downwards rate                  kg/m2/Ma        None      Yes
+    WXC       @@   Expelled Wet HCgas cumulative                      kg/m2           None      Yes
+    WXR       @@   Expelled Wet HCgas rate                            kg/m2/Ma        None      Yes
+    DUC       @@   Expelled Dry HCgas upwards cumulative              kg/m2           None      Yes
+    DDC       @@   Expelled Dry HCgas downwards cumulative            kg/m2           None      Yes
+    DUR       @@   Expelled Dry HCgas upwards   rate                  kg/m2/Ma        None      Yes
+    DDR       @@   Expelled Dry HCgas downwards rate                  kg/m2/Ma        None      Yes
+    DXC       @@   Expelled Dry HCgas cumulative                      kg/m2           None      Yes
+    DXR       @@   Expelled Dry HCgas rate                            kg/m2/Ma        None      Yes
+    XG1       @@   Expelled  Gas upwards   cumulative (old)           kg/m2           None      Yes
+    XG2       @@   Expelled  Gas downwards cumulative (old)           kg/m2           None      Yes
+    XG3       @@   Expelled  Gas upwards   rate (old)                 kg/m2/Ma        None      Yes
+    XG4       @@   Expelled  Gas downwards rate (old)                 kg/m2/Ma        None      Yes
+> COx Generation
+    CGC       @@   Generated COx cumulative                           kg/m2           None      Yes
+    CGR       @@   Generated COx rate                                 kg/m2/Ma        None      Yes
+> COx Expulsion
+    CUC       @@   Expelled COx upwards   cumulative                  kg/m2           None      Yes
+    CDC       @@   Expelled COx downwards cumulative                  kg/m2           None      Yes
+    CUR       @@   Expelled COx upwards   rate                        kg/m2/Ma        None      Yes
+    CDR       @@   Expelled COx downwards rate                        kg/m2/Ma        None      Yes
+    CXC       @@   Expelled COx cumulative                            kg/m2           None      Yes
+    CXR       @@   Expelled COx rate                                  kg/m2/Ma        None      Yes
+> N2 Generation
+    NGC       @@   Generated N2 cumulative                            kg/m2           None      Yes
+    NGR       @@   Generated N2 rate                                  kg/m2/Ma        None      Yes
+> N2 Expulsion
+    NUC       @@   Expelled N2 upwards   cumulative                   kg/m2           None      Yes
+    NDC       @@   Expelled N2 downwards cumulative                   kg/m2           None      Yes
+    NUR       @@   Expelled N2 upwards   rate                         kg/m2/Ma        None      Yes
+    NDR       @@   Expelled N2 downwards rate                         kg/m2/Ma        None      Yes
+    NXC       @@   Expelled N2 cumulative                             kg/m2           None      Yes
+    NXR       @@   Expelled N2 rate                                   kg/m2/Ma        None      Yes
+> Deviations
+    SRS       1    St. dev. source rock layer thickness               m               None      No
+    SRS       2    St. dev. source rock volume fraction               fraction        None      No
+    SRS       3    St. dev. source rock hydrogen index                -               None      No
+    SRS       4    St. dev. source rock total organic carbon content  wt.%            None      No
+    SRS       5    St. dev. source rock expulsion generation ratio    volume fraction None      No
+    SRS       6    St. dev. source rock primary cracking act. energy  kJ/Mole         None      No
+    SRS       7    St. dev. source rock bitumen content               weight fraction None      No
+    SRS       8    St. dev. source rock upwards   biot number         -               None      No
+    SRS       9    St. dev. source rock downwards biot number         -               None      No
+    SRS       10   St. dev. source rock charact. migration length     m               None      No
+    SRS       11   St. dev. source rock reference mass fraction       weight fraction None      No
+    U1S       @@   St. dev. base sediment heatflow              (U1 ) -               None      Yes
+    U2S       @@   St. dev. horizon temperatures                (U2 ) -               None      Yes
+    U3S       @@   St. dev. %VRE/Transf/Generat/Expulsion       (U3 ) -               None      Yes
+    U4S       @@   St. dev. permeability, SR properties         (U4 ) -               None      Yes
+    ISS       @@   St. dev. salt movement history               (ISO) -               None      Yes
+    LIS       @@   St. dev. lithology                           (LI%) -               Layer     No
+    PRS       @@   St. dev. permeability premultiplier          (PRM) -               None      No 
+    POS       @@   St. dev. reservoir porosity                  (POR) -               None      Yes
+    TMS       @@   St. dev. source rock temperature             (TMP) -               None      Yes
+    VRS       @@   St. dev. source rock maturity                (VRE) -               None      Yes
+    TRS       @@   St. dev. transformation ratio                (TRA) -               None      Yes
+    HCS       @@   St. dev. hydrocarbon generation rate         (HCR) -               None      Yes
+> Cross Section
+    RD2       @@   Depth to temperature milestones                    m               None      Yes
+    RD3       @@   Depth to VRE milestones                            m               None      Yes
+    RD4       @@   Depth to transformation milestones                 m               None      Yes
+> Miscellaneous
+    NOP       @@   No property                                        -               None      No

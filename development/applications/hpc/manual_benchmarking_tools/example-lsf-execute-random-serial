@@ -1,0 +1,229 @@
+#!/bin/bash
+
+
+# parameters
+N=10
+DEADLINE="180"
+VOLUMES="isilon-ac netapp-ac"
+PROJECTS="Barrowlands"
+MODES="temperature-nodata temperature-fulldata"
+CORES_PER_NODE="8 16"
+CORES="1 4 16 32 64 256"
+VERSION="v2013.1005"
+CLUSTER="steel-compute-nodes cobalt-compute-nodes"
+
+# local vars
+entryFile=`mktemp` || { echo Cannot create temporary file; exit 1; }
+shuffle=`mktemp` || { echo Cannot create temporary file; exit 1; }
+
+# Other tools
+source /glb/apps/hpc/lsfprod/conf/profile.lsf
+
+# functions
+function generateJob() {
+# parse sequence number
+   sequence=`printf "%04d" $1`
+
+# parse working dir
+   work_dir_name="$2"
+   pushd $work_dir_name > /dev/null
+   work_dir=`pwd -P`
+   popd > /dev/null
+
+# parse project file name
+   project_file=`basename $3/*.project3d`
+   project_name=$3
+   project_dir=$3 
+   pushd $project_dir > /dev/null
+   project_dir=`pwd -P`
+   popd > /dev/null
+
+# parse mode
+   mode="$4"
+
+# parse # cores
+   procs="$5"
+
+# parse version
+   version="$VERSION"
+
+# Cores Per Node
+   cores_per_node=$6
+
+# parse dependency
+   if [ "x$7" != x ]; then
+      dependency="#BSUB -w $7" 
+   else
+      dependency=
+   fi
+#!/bin/bash
+
+
+# parameters
+N=10
+DEADLINE="180"
+VOLUMES="isilon-ac netapp-ac"
+PROJECTS="Barrowlands"
+MODES="temperature-nodata temperature-fulldata"
+CORES_PER_NODE="8 16"
+CORES="1 4 16 32 64 256"
+VERSION="v2013.1005"
+CLUSTER="steel-compute-nodes cobalt-compute-nodes"
+
+# local vars
+entryFile=`mktemp` || { echo Cannot create temporary file; exit 1; }
+shuffle=`mktemp` || { echo Cannot create temporary file; exit 1; }
+
+# Other tools
+source /glb/apps/hpc/lsfprod/conf/profile.lsf
+
+# functions
+function generateJob() {
+# parse sequence number
+   sequence=`printf "%04d" $1`
+
+# parse working dir
+   work_dir_name="$2"
+   pushd $work_dir_name > /dev/null
+   work_dir=`pwd -P`
+   popd > /dev/null
+
+# parse project file name
+   project_file=`basename $3/*.project3d`
+   project_name=$3
+   project_dir=$3 
+   pushd $project_dir > /dev/null
+   project_dir=`pwd -P`
+   popd > /dev/null
+
+# parse mode
+   mode="$4"
+
+# parse # cores
+   procs="$5"
+
+# parse version
+   version="$VERSION"
+
+# Cores Per Node
+   cores_per_node=$6
+
+# parse dependency
+   if [ "x$7" != x ]; then
+      dependency="#BSUB -w $7" 
+   else
+      dependency=
+   fi
+
+# Compute job name
+   jobName="StampedeVsHOUGDC-$sequence-$procs-$cores_per_node-$mode-$project_name-$work_dir_name"
+   copyJobName="$jobName-COPY_INPUT"
+
+# Compute job dir
+   jobDir="$work_dir/$jobName"
+
+# Prepare job dir
+   rm -Rf $jobDir
+   mkdir -p $jobDir
+
+
+# Prepare command
+   command=
+   case $mode in
+      decompaction)
+         command="fastcauldron -decompaction"
+         ;;
+
+      temperature-nodata)
+         command="fastcauldron -temperature -nohdfoutput"
+         ;;
+
+      temperature-fulldata)
+         command="fastcauldron -temperature"
+         ;;
+
+      itcoupled)
+         command="fastcauldron -itcoupled"
+         ;;
+
+      genex)
+         command="fastgenex6"
+         ;;
+   esac
+
+
+cat > $jobDir/job <<EOF
+#!/bin/bash
+#BSUB -P cldrn
+#BSUB -W $(( DEADLINE / procs + 10 ))
+#BSUB -J $jobName
+#BSUB -N $(( ( procs + cores_per_node - 1 ) / cores_per_node ))
+#BSUB -n $procs
+#BSUB -o output.log
+#BSUB -x
+#BSUB -cwd $jobDir
+$dependency
+#BSUB -m "$CLUSTER"
+export EOSPACKDIR="/apps/sssdev/ibs/$version/misc/eospack"
+export GENEXDIR="/apps/sssdev/ibs/$version/misc/genex40"
+export GENEX5DIR="/apps/sssdev/ibs/$version/misc/genex50"
+export GENEX6DIR="/apps/sssdev/ibs/$version/misc/genex60"
+export OTGCDIR="/apps/sssdev/ibs/$version/misc/OTGC"
+export CTCDIR="/apps/sssdev/ibs/$version/misc"
+export SIEPRTS_LICENSE_FILE="3000@houic-s-9320.americas.shell.com:3000@cbj-s-8447.asia-pac.shell.com:3000@ams1-s-07489.europe.shell.com"
+source /apps/3rdparty/intel/impi/4.1.1.036/intel64/bin/mpivars.sh
+
+echo Copying Cauldron input files
+cp -R $project_dir/* $jobDir
+echo
+echo Input Data Size:
+du --bytes .
+echo
+echo Running command '$command'
+echo -n UTC time is; date -u '+%F %T'
+time mpirun -outfile-pattern 'output-rank-%r.log' /apps/sssdev/ibs/$version/Linux/bin/$command -project $project_file
+echo -n UTC time is; date -u '+%F %T'
+echo
+echo Output Data Size:
+du --bytes .
+echo
+echo Removing Cauldron output files
+rm -R $jobDir/*OutputDir
+echo -n UTC time is; date -u '+%F %T'
+EOF
+
+  bsub < $jobDir/job > /dev/null
+  
+  echo $jobName
+}
+
+
+# generate entry list
+for ((n = 1; n <= N; ++n))
+do 
+   for vol in $VOLUMES
+   do
+      for p in $PROJECTS
+      do
+         for m in $MODES
+         do
+            for c in $CORES
+            do
+              for cpn in $CORES_PER_NODE
+              do
+                echo "$vol $p $m $c $cpn" >> $entryFile
+              done
+            done
+         done
+      done
+   done
+done
+
+# shuffle the entry file and generate the jobs
+gcc -std=c99 shuffle.c -Wall -Wextra -o $shuffle || { echo Error in shuffle.c; exit 1 ; }
+command=$($shuffle $entryFile | awk '{ print "dependency=`generateJob", NR, $0, "$dependency` ; echo Generated job $dependency ; " }')
+dependency=
+eval $command
+
+rm -f $shuffle $entryFile
+
