@@ -1,4 +1,5 @@
 #include "PropertyOutputConstraints.h"
+#include "FastcauldronSimulator.h"
 
 #include <iomanip>
 
@@ -482,14 +483,18 @@ void PropertyOutputConstraints::applyOutputRegionConstraints () {
    for ( property = 0; property < PropertyListSize; ++property ) {
 
       if ( s_propertyOutputRegion [ property ] == ApplicableOutputRegion::SEDIMENTS_AND_BASEMENT ) {
-         m_maximumOutputOption [ property ] = Interface::SEDIMENTS_AND_BASEMENT_OUTPUT;
+         if (FastcauldronSimulator::getInstance().getBottomBoundaryConditions() == Interface::BottomBoundaryConditions::MANTLE_HEAT_FLOW) {
+            m_maximumOutputOption[property] = Interface::SEDIMENTS_ONLY_OUTPUT;
+         }
+         else {
+            m_maximumOutputOption[property] = Interface::SEDIMENTS_AND_BASEMENT_OUTPUT;
+         }
       } else if ( s_propertyOutputRegion [ property ] == ApplicableOutputRegion::SEDIMENTS_ONLY ) {
          m_maximumOutputOption [ property ] = Interface::SEDIMENTS_ONLY_OUTPUT;
       } else {
          m_maximumOutputOption [ property ] = Interface::SOURCE_ROCK_ONLY_OUTPUT;
       }
 
-      m_minimumOutputOption [ property ] = Interface::SEDIMENTS_ONLY_OUTPUT;
       m_minimumOutputOption [ property ] = Interface::NO_OUTPUT;
    }
 
