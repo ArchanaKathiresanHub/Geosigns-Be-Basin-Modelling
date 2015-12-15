@@ -70,8 +70,8 @@ Trap::Trap (LocalColumn * column):
    m_globalId (UnknownTrapId),
    m_drainageAreaId (UnknownTrapId),
    m_diffusionStartTime (-1),
-   m_diffusionOverburdenProps(0)
-
+   m_diffusionOverburdenProps(0),
+   m_hydrocarbonWaterContactDepth(-199999)
 {
    column->setTrap (this);
    m_reservoir = column->getReservoir ();
@@ -1220,6 +1220,8 @@ double Trap::biodegradeCharges(const double& timeInterval, const Biodegrade& bio
 
    Composition biodegradedGas;
    Composition biodegradedOil;
+   // TO FIX: is this necessary?
+   setFillDepth(OIL, m_hydrocarbonWaterContactDepth);
 
    double volumeFractionOfGasBiodegraded = 0.0;
    double volumeFractionOfOilBiodegraded = 0.0;
@@ -2462,7 +2464,7 @@ bool Trap::computeHydrocarbonWaterContactDepth (void)
    double const volumeGas = m_toBeDistributed[GAS].getVolume();
 
    double const maximumCapacityOfTrap = getVolumeBetweenDepths2(getTopDepth(), getBottomDepth());
-   double m_hydrocarbonWaterContactDepth = -199999;  // initialisation with most likely "impossible" value
+   m_hydrocarbonWaterContactDepth = -199999;
 
    if ((volumeGas + volumeOil) < maximumCapacityOfTrap)
    {
@@ -2473,12 +2475,9 @@ bool Trap::computeHydrocarbonWaterContactDepth (void)
    {
       m_hydrocarbonWaterContactDepth = getBottomDepth ();
    }
-
-   // TO FIX: is this necessary?
-   setFillDepth (OIL, m_hydrocarbonWaterContactDepth);
-
+ 
    // Assert to be add again after bug fix in Fastmig: spilling depth of a trap shallower than the top depth of the trap....
-   //assert((hydrocarbonWaterContactDepth >= getTopDepth()) && (hydrocarbonWaterContactDepth <= getBottomDepth()));
+   assert((m_hydrocarbonWaterContactDepth >= getTopDepth()) && (m_hydrocarbonWaterContactDepth <= getBottomDepth()));
 
    return true;
 }
@@ -2532,9 +2531,9 @@ bool Trap::computeHydrocarbonWaterContactTemperature ()
       return true;
    }
 
+   gridMapTemperature->retrieveData ();
    double depth = gridMapTemperature->lengthK ();
    assert (depth > 1);
-   gridMapTemperature->retrieveData ();
 
    // If the hydrocarbon - water contact is included between the top and the bottom of the crest column
    // The interpolation of temperature will be done only on the crest column
@@ -2548,7 +2547,7 @@ bool Trap::computeHydrocarbonWaterContactTemperature ()
       double const percentageHeightHydrocarbonWaterContact = (bottomCrestColumnDepth - getHydrocarbonWaterContactDepth ()) / (bottomCrestColumnDepth - topCrestColumnDepth);
       double const nodeHydrocarbonWaterContact = (depth - 1) * percentageHeightHydrocarbonWaterContact;
 
-      LocalColumn const * column = getReservoir ()->getLocalColumn (getCrestColumn ()->getI (), getCrestColumn ()->getJ ());
+      LocalColumn const * column = getCrestColumn ();
       double index = nodeHydrocarbonWaterContact - column->getTopDepthOffset () * (depth - 1);
       index = Max ((double) 0, index);
       index = Min ((double) depth - 1, index);
@@ -2585,11 +2584,13 @@ bool Trap::computeHydrocarbonWaterContactTemperature ()
       }
 
    }
+   
+   gridMapTemperature->restoreData ();
 
 #ifdef DEBUG_BIODEGRADATION
    cerr << endl << "==== Compute the temperature at the hydrocarbon - water contact ====" << endl;
    cerr << "Temperature of the crest column: " << getCrestColumn()->getTemperature() << endl;
-   cerr << "Temperature at the hydrocarbon - Water contact: " << hydrocarbonWaterContactTemperature << endl;
+   cerr << "Temperature at the hydrocarbon - Water contact: " << m_hydrocarbonWaterContactTemperature << endl;
 #endif
 
    return true;

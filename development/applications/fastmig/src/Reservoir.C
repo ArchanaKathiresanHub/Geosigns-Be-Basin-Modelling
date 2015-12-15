@@ -2536,7 +2536,12 @@ namespace migration
    bool Reservoir::computeHydrocarbonWaterContactDepth ()
    {
       RequestHandling::StartRequestHandling (m_migrator, "computeHydrocarbonWaterContactDepth");
-      bool succeded = false;
+      bool succeded;
+   
+      if (m_traps.size() > 0) 
+         succeded = false;
+      else
+         succeded = true;
 
       for (TrapVector::iterator trapIter = m_traps.begin (); trapIter != m_traps.end (); ++trapIter)
       {
@@ -2551,7 +2556,12 @@ namespace migration
    bool Reservoir::computeHydrocarbonWaterTemperature ()
    {
       RequestHandling::StartRequestHandling (m_migrator, "computeHydrocarbonWaterTemperature");
-      bool succeded = false;
+      bool succeded;
+      
+      if (m_traps.size() > 0) 
+         succeded = false;
+      else
+         succeded = true;
 
       for (TrapVector::iterator trapIter = m_traps.begin (); trapIter != m_traps.end (); ++trapIter)
       {
@@ -2570,18 +2580,18 @@ namespace migration
       double biodegraded = 0;
 
       const BiodegradationParameters* biodegradationParameters = 
-      getProjectHandle()->getBiodegradationParameters();
-   double timeInterval = m_start->getTime() - m_end->getTime();
+         getProjectHandle()->getBiodegradationParameters();
+      double timeInterval = m_start->getTime() - m_end->getTime();
 
-   if (timeInterval >= 30)
-   {
-      getProjectHandle()->getMessageHandler().print("WARNING: The time interval between the two snapshots ");
-      getProjectHandle()->getMessageHandler().print(m_start->getTime());
-      getProjectHandle()->getMessageHandler().print(" Ma and ");
-      getProjectHandle()->getMessageHandler().print(m_end->getTime());
-      getProjectHandle()->getMessageHandler().printLine(" Ma involving biodegradation is bigger than 30 Ma, the biodegradation results can be questionable due to the large time interval");
-   }
-   Biodegrade biodegrade(biodegradationParameters);
+      if (timeInterval >= 30)
+      {
+         getProjectHandle()->getMessageHandler().print("WARNING: The time interval between the two snapshots ");
+         getProjectHandle()->getMessageHandler().print(m_start->getTime());
+         getProjectHandle()->getMessageHandler().print(" Ma and ");
+         getProjectHandle()->getMessageHandler().print(m_end->getTime());
+         getProjectHandle()->getMessageHandler().printLine(" Ma involving biodegradation is bigger than 30 Ma, the biodegradation results can be questionable due to the large time interval");
+      }
+      Biodegrade biodegrade(biodegradationParameters);
 
       for (TrapVector::iterator trapIter = m_traps.begin (); trapIter != m_traps.end (); ++trapIter)
       {
