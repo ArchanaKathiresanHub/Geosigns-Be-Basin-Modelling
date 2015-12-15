@@ -61,6 +61,28 @@ do
    fi
 done
 
+#check was build succeded and genertate script
+if [ ! -f check_build.sh ]; then
+  touch check_build.sh
+  FORADDING="${FORADDING} check_build.sh"
+fi
+
+#copy job log
+if [ ! -f log ]; then
+  FORADDING="${FORADDING} log"
+fi
+cp ${JENKINS_HOME}/jobs/${JOB_NAME}/builds/${BUILD_NUMBER}/log .
+
+# Generate script which will print log and return 0 on success build or 1 on failure
+echo "#!/bin/bash" > check_build.sh
+echo "cat ./log" >> check_build.sh
+
+if [ -f ../BuildSucceeded ]; then
+  echo "exit 0" >> check_build.sh
+else
+  echo "exit 1" >> check_build.sh
+fi
+
 #echo "Will be deleted: $FORDELTE"
 
 if [ "x${FORDELETE}" != "x" ]; then
@@ -74,6 +96,7 @@ if [ "x${FORADDING}" != "x" ]; then
 #   echo "Add to TFS ${FORADDING}"
    ${TF} add ${FORADDING}
 fi
+
 
 $TF ci -recursive .
 
