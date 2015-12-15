@@ -483,7 +483,7 @@ void PropertyOutputConstraints::applyOutputRegionConstraints () {
    for ( property = 0; property < PropertyListSize; ++property ) {
 
       if ( s_propertyOutputRegion [ property ] == ApplicableOutputRegion::SEDIMENTS_AND_BASEMENT ) {
-         if (FastcauldronSimulator::getInstance().getBottomBoundaryConditions() == Interface::BottomBoundaryConditions::MANTLE_HEAT_FLOW) {
+         if (FastcauldronSimulator::getInstance().getBottomBoundaryConditions() == Interface::MANTLE_HEAT_FLOW) {
             m_maximumOutputOption[property] = Interface::SEDIMENTS_ONLY_OUTPUT;
          }
          else {
