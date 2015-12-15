@@ -1220,13 +1220,7 @@ double Trap::biodegradeCharges(const double& timeInterval, const Biodegrade& bio
 
    Composition biodegradedGas;
    Composition biodegradedOil;
-   
-   double const hydrocarbonWaterContactDepth = computeHydrocarbonWaterContactDepth();
-   setFillDepth(OIL, hydrocarbonWaterContactDepth);
-   setHydrocarbonWaterContactDepth(hydrocarbonWaterContactDepth);
 
-   double const hydrocarbonWaterContactTemperature = computeHydrocarbonWaterContactTemperature();
-   
    double volumeFractionOfGasBiodegraded = 0.0;
    double volumeFractionOfOilBiodegraded = 0.0;
    computePhaseVolumeProportionInBiodegradadedZone(timeInterval, volumeFractionOfGasBiodegraded, volumeFractionOfOilBiodegraded, biodegrade);
@@ -1235,7 +1229,7 @@ double Trap::biodegradeCharges(const double& timeInterval, const Biodegrade& bio
    if (biodegrade.pasteurizationInd())
    {
       // Assesses pasteurization and states if a trap is or not pasteurized
-      if (isPasteurized(hydrocarbonWaterContactTemperature, biodegrade.maxBioTemp()))
+      if (isPasteurized(biodegrade.maxBioTemp()))
       {
          return 0.0; // if a trap is pasteurized => no biodegradation, return 0
    }
@@ -1244,7 +1238,7 @@ double Trap::biodegradeCharges(const double& timeInterval, const Biodegrade& bio
    // Compute biodegradation for the GAS phase
    if (volumeFractionOfGasBiodegraded > 0.0)
    {
-      m_toBeDistributed[GAS].computeBiodegradation(timeInterval, hydrocarbonWaterContactTemperature, biodegrade,
+      m_toBeDistributed[GAS].computeBiodegradation(timeInterval, m_hydrocarbonWaterContactTemperature, biodegrade,
          biodegradedGas, volumeFractionOfGasBiodegraded);
       m_toBeDistributed[GAS].subtract(biodegradedGas);
       assert(m_toBeDistributed[GAS].getWeight() >= 0.0);
@@ -1252,7 +1246,7 @@ double Trap::biodegradeCharges(const double& timeInterval, const Biodegrade& bio
    // Compute biodegradation for the OIL phase
    if (volumeFractionOfOilBiodegraded > 0.0)
    {
-      m_toBeDistributed[OIL].computeBiodegradation(timeInterval, hydrocarbonWaterContactTemperature, biodegrade,
+      m_toBeDistributed[OIL].computeBiodegradation(timeInterval, m_hydrocarbonWaterContactTemperature, biodegrade,
          biodegradedOil, volumeFractionOfOilBiodegraded);
       m_toBeDistributed[OIL].subtract(biodegradedOil);
       assert(m_toBeDistributed[OIL].getWeight() >= 0.0);
@@ -1277,7 +1271,7 @@ double Trap::biodegradeCharges(const double& timeInterval, const Biodegrade& bio
    return biodegraded.getWeight();
 }
 
-bool Trap::isPasteurized(const double hydrocarbonWaterContactTemperature, const double maxBiodegradationTemperature)
+bool Trap::isPasteurized(const double maxBiodegradationTemperature)
 {
 #ifdef DEBUG_BIODEGRADATION
    cerr << endl << "==== Compute pasteurization status ====" << endl;
@@ -1321,7 +1315,7 @@ bool Trap::isPasteurized(const double hydrocarbonWaterContactTemperature, const 
    // Need to define the status of columns according to the temperature at the OWC (new trap or existing trap with not-pasteurized columns)
    if (needToComputeColumnPasteurizationStatus == true)
    {
-      if (hydrocarbonWaterContactTemperature >= maxBiodegradationTemperature) // Trap pasteurized if temperature higher or equal to the maximum temperature allowed for biodegradation 
+      if (m_hydrocarbonWaterContactTemperature >= maxBiodegradationTemperature) // Trap pasteurized if temperature higher or equal to the maximum temperature allowed for biodegradation 
       {
          for (iter = m_interior.begin(); iter != m_interior.end(); ++iter)
          {
@@ -1396,7 +1390,7 @@ bool Trap::isPasteurized(const double hydrocarbonWaterContactTemperature, const 
    if (includeNotPasteurizedColumn == true && includePasteurizedColumn == true)
    {
       // The temperature at the OWC is not high enough at this snapshot to pasteurized the trap
-      if (hydrocarbonWaterContactTemperature <= maxBiodegradationTemperature)
+      if (m_hydrocarbonWaterContactTemperature <= maxBiodegradationTemperature)
       {
          for (iter = m_interior.begin(); iter != m_interior.end(); ++iter)
          {
@@ -2462,45 +2456,48 @@ double Trap::computethicknessAffectedByBiodegradationAboveOWC(const double timeI
    return thicknessAffectedByBiodegradationAboveOWC;
 }
 
-double Trap::computeHydrocarbonWaterContactDepth (void) const
+bool Trap::computeHydrocarbonWaterContactDepth (void) 
 {
    double const volumeOil = m_toBeDistributed[OIL].getVolume();
    double const volumeGas = m_toBeDistributed[GAS].getVolume();
 
    double const maximumCapacityOfTrap = getVolumeBetweenDepths2(getTopDepth(), getBottomDepth());
-   double hydrocarbonWaterContactDepth = -199999;  // initialisation with most likely "impossible" value
+   double m_hydrocarbonWaterContactDepth = -199999;  // initialisation with most likely "impossible" value
 
    if ((volumeGas + volumeOil) < maximumCapacityOfTrap)
    {
-      hydrocarbonWaterContactDepth = (m_levelToVolume->invert(volumeGas + volumeOil));
-      hydrocarbonWaterContactDepth += getTopDepth();
+      m_hydrocarbonWaterContactDepth = (m_levelToVolume->invert (volumeGas + volumeOil));
+      m_hydrocarbonWaterContactDepth += getTopDepth ();
    }
    else
    {
-      hydrocarbonWaterContactDepth = getBottomDepth();
+      m_hydrocarbonWaterContactDepth = getBottomDepth ();
    }
-   
+
+   // TO FIX: is this necessary?
+   setFillDepth (OIL, m_hydrocarbonWaterContactDepth);
+
    // Assert to be add again after bug fix in Fastmig: spilling depth of a trap shallower than the top depth of the trap....
    //assert((hydrocarbonWaterContactDepth >= getTopDepth()) && (hydrocarbonWaterContactDepth <= getBottomDepth()));
 
-   return hydrocarbonWaterContactDepth;
+   return true;
 }
 
-double Trap::computeFractionVolumeBiodegraded(const double timeInterval, const PhaseId phase, const double bioRate)
+double Trap::computeFractionVolumeBiodegraded (const double timeInterval, const PhaseId phase, const double bioRate)
 {
-   double const volumePhase = m_toBeDistributed[phase].getVolume();
-   
+   double const volumePhase = m_toBeDistributed[phase].getVolume ();
+
    // Arbitrary value which states the thickness of the biodegradation impact above the OWC
-   double const thicknessAffectedByBiodegradationAboveOWC = computethicknessAffectedByBiodegradationAboveOWC(timeInterval, bioRate);
+   double const thicknessAffectedByBiodegradationAboveOWC = computethicknessAffectedByBiodegradationAboveOWC (timeInterval, bioRate);
 
-   double const maximumCapacityOfTrap = getVolumeBetweenDepths2(getTopDepth(), getBottomDepth());
-   double const volumeBiodegraded = min(getVolumeBetweenDepths2(getHydrocarbonWaterContactDepth() - thicknessAffectedByBiodegradationAboveOWC, getHydrocarbonWaterContactDepth()), volumePhase);
+   double const maximumCapacityOfTrap = getVolumeBetweenDepths2 (getTopDepth (), getBottomDepth ());
+   double const volumeBiodegraded = min (getVolumeBetweenDepths2 (getHydrocarbonWaterContactDepth () - thicknessAffectedByBiodegradationAboveOWC, getHydrocarbonWaterContactDepth ()), volumePhase);
 
-   assert(volumeBiodegraded >= 0.0);
-   assert(volumeBiodegraded <= maximumCapacityOfTrap && volumeBiodegraded <= volumePhase);
+   assert (volumeBiodegraded >= 0.0);
+   assert (volumeBiodegraded <= maximumCapacityOfTrap && volumeBiodegraded <= volumePhase);
 
    double const fractionVolumeBiodegraded = volumeBiodegraded / volumePhase;
-   assert(fractionVolumeBiodegraded >= 0.0 && fractionVolumeBiodegraded <= 1.0);
+   assert (fractionVolumeBiodegraded >= 0.0 && fractionVolumeBiodegraded <= 1.0);
 
 #ifdef DEBUG_BIODEGRADATION
    cerr << endl << "==== Compute the fraction of volume which is biodegraded ====" << endl;
@@ -2519,73 +2516,73 @@ double Trap::computeFractionVolumeBiodegraded(const double timeInterval, const P
    return fractionVolumeBiodegraded;
 }
 
-double Trap::computeHydrocarbonWaterContactTemperature()
+bool Trap::computeHydrocarbonWaterContactTemperature ()
 {
    // Obtain a gridMap of temperature thanks to the DerivedProperties   
    DerivedProperties::FormationPropertyPtr gridMapTemperature = getReservoir ()->getFormationPropertyPtr ("Temperature", getReservoir ()->getEnd ());
 
    // Initialisation of the hydrocarbon - water contact temperature at the temperature at the top of crest column of the trap
-   double hydrocarbonWaterContactTemperature = getCrestColumn()->getTemperature();
+   m_hydrocarbonWaterContactTemperature = getCrestColumn ()->getTemperature ();
 
    if (gridMapTemperature == 0) // No gridMap, then we use the temperature of the crest column for biodegradation
    {
-      cerr << "The temperature at the hydrocarbon - water contact can't be computed for the trapID " << getGlobalId()
-         << " of the reservoir " << getReservoir()->getName()
+      cerr << "The temperature at the hydrocarbon - water contact can't be computed for the trapID " << getGlobalId ()
+         << " of the reservoir " << getReservoir ()->getName ()
          << ". The temperature at the crest of the trap has been selected instead." << endl;
-      return hydrocarbonWaterContactTemperature;
+      return true;
    }
 
-   double depth = gridMapTemperature->lengthK();
-   assert(depth > 1);
-   gridMapTemperature->retrieveData();
+   double depth = gridMapTemperature->lengthK ();
+   assert (depth > 1);
+   gridMapTemperature->retrieveData ();
 
    // If the hydrocarbon - water contact is included between the top and the bottom of the crest column
    // The interpolation of temperature will be done only on the crest column
-   if (getHydrocarbonWaterContactDepth() <= getCrestColumn()->getBottomDepth())
+   if (getHydrocarbonWaterContactDepth () <= getCrestColumn ()->getBottomDepth ())
    {
       // Obtain the depths at the top and bottom of the crest column
-      double const topCrestColumnDepth = getCrestColumn()->getTopDepth();
-      double const bottomCrestColumnDepth = getCrestColumn()->getBottomDepth();
+      double const topCrestColumnDepth = getCrestColumn ()->getTopDepth ();
+      double const bottomCrestColumnDepth = getCrestColumn ()->getBottomDepth ();
 
       // Transform the depth of the hydrocarbon - water contact in a node position of the crest column
-      double const percentageHeightHydrocarbonWaterContact = (bottomCrestColumnDepth - getHydrocarbonWaterContactDepth()) / (bottomCrestColumnDepth - topCrestColumnDepth);
+      double const percentageHeightHydrocarbonWaterContact = (bottomCrestColumnDepth - getHydrocarbonWaterContactDepth ()) / (bottomCrestColumnDepth - topCrestColumnDepth);
       double const nodeHydrocarbonWaterContact = (depth - 1) * percentageHeightHydrocarbonWaterContact;
 
-      LocalColumn const * column = getReservoir()->getLocalColumn(getCrestColumn()->getI(), getCrestColumn()->getJ());
-      double index = nodeHydrocarbonWaterContact - column->getTopDepthOffset() * (depth - 1);
-      index = Max((double)0, index);
-      index = Min((double)depth - 1, index);
-      hydrocarbonWaterContactTemperature = (gridMapTemperature->interpolate(getCrestColumn()->getI(), getCrestColumn()->getJ(), index));
+      LocalColumn const * column = getReservoir ()->getLocalColumn (getCrestColumn ()->getI (), getCrestColumn ()->getJ ());
+      double index = nodeHydrocarbonWaterContact - column->getTopDepthOffset () * (depth - 1);
+      index = Max ((double) 0, index);
+      index = Min ((double) depth - 1, index);
+      m_hydrocarbonWaterContactTemperature = (gridMapTemperature->interpolate (getCrestColumn ()->getI (), getCrestColumn ()->getJ (), index));
 
-}
+   }
    // Else we need to find another column which has a top and a bottom depth which surrounded the OWC 
    else
    {
       // Find a column of the trap with a bottom depth deeper than the hydrocarbon - water contact
       // and a top depth shallower than the hydrocarbon - water contact
       ConstColumnIterator iter;
-      for (iter = m_interior.begin(); iter != m_interior.end(); ++iter)
+      for (iter = m_interior.begin (); iter != m_interior.end (); ++iter)
       {
          Column * column = *iter;
 
-         if (getHydrocarbonWaterContactDepth() <= column->getBottomDepth() && getHydrocarbonWaterContactDepth() >= column->getTopDepth())
-{
+         if (getHydrocarbonWaterContactDepth () <= column->getBottomDepth () && getHydrocarbonWaterContactDepth () >= column->getTopDepth ())
+         {
             // Compute the temperature at the top of the crest column
-            double const topColumnDepth = column->getTopDepth();
-            double const bottomColumnDepth = column->getBottomDepth();
+            double const topColumnDepth = column->getTopDepth ();
+            double const bottomColumnDepth = column->getBottomDepth ();
 
             // Transform the depth of the hydrocarbon - water contact in a node position of the crest column
-            double const percentageHeightHydrocarbonWaterContact = (bottomColumnDepth - getHydrocarbonWaterContactDepth()) / (bottomColumnDepth - topColumnDepth);
+            double const percentageHeightHydrocarbonWaterContact = (bottomColumnDepth - getHydrocarbonWaterContactDepth ()) / (bottomColumnDepth - topColumnDepth);
             double const nodeHydrocarbonWaterContact = (depth - 1) * percentageHeightHydrocarbonWaterContact;
 
-            double index = nodeHydrocarbonWaterContact - column->getTopDepthOffset() * (depth - 1);
-            index = Max((double)0, index);
-            index = Min((double)depth - 1, index);
-            hydrocarbonWaterContactTemperature = (gridMapTemperature->interpolate(column->getI(), column->getJ(), index));
+            double index = nodeHydrocarbonWaterContact - column->getTopDepthOffset () * (depth - 1);
+            index = Max ((double) 0, index);
+            index = Min ((double) depth - 1, index);
+            m_hydrocarbonWaterContactTemperature = (gridMapTemperature->interpolate (column->getI (), column->getJ (), index));
 
             break;
+         }
       }
-   }
 
    }
 
@@ -2595,7 +2592,7 @@ double Trap::computeHydrocarbonWaterContactTemperature()
    cerr << "Temperature at the hydrocarbon - Water contact: " << hydrocarbonWaterContactTemperature << endl;
 #endif
 
-   return hydrocarbonWaterContactTemperature;
+   return true;
 }
 
 void Trap::computePhaseVolumeProportionInBiodegradadedZone(const double timeInterval, double& volumeFractionOfGasBiodegraded, double& volumeFractionOfOilBiodegraded, const Biodegrade& biodegrade)

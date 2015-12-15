@@ -333,9 +333,9 @@ namespace migration
    * \brief Compute the temperature at the hydrocarbon - water contact (in °C)
    * \details This function makes an interpolation between the top and the bottom temperature of a column
    * in order to find the temperature around the hydrocarbon - water contact
-   * \return The interpolated temperature at the hydrocarbon - water contact (in °C)
+   * \assigns the interpolated temperature at the hydrocarbon - water contact (in °C) to m_hydrocarbonWaterContactTemperature 
    */
-   double computeHydrocarbonWaterContactTemperature();
+   bool computeHydrocarbonWaterContactTemperature();
 
    void computePhaseVolumeProportionInBiodegradadedZone(const double timeInterval, double& VolumeProportionGas, double& VolumeProportionOil, const Biodegrade& biodegrade);
 
@@ -356,7 +356,7 @@ namespace migration
 
    * \return The pateurization status of the trap: TRUE = trap is pasteurized / FALSE = trap not pasteurized
    */
-   bool isPasteurized(const double hydrocarbonWaterContactTemperature, const double maxBiodegradationTemperature);
+   bool isPasteurized(const double maxBiodegradationTemperature);
 
          /// If depths contains a vector of formations starting with the formation containing 
          /// this trap, return iterators pointing to the formations which constitute the 
@@ -452,14 +452,6 @@ namespace migration
 	 double getFillDepth (PhaseId phase);
 
     /*!
-    * \brief Set the Hydrocarbon - Water contact depth
-    * \details This limit represent the transition between water and hydrocarbon.
-    * With this function, we don't know if the hydrocarbon in question are GAS or OIL (ie. this limit can be equal to getFillDepth(GAS) or getFillDepth(OIL) )
-    * This limit is used to compute biodegradation.
-    */
-    inline void setHydrocarbonWaterContactDepth(double hydrocarbonDepth) { m_hydrocarbonWaterContactDepth = hydrocarbonDepth; };
-
-    /*!
     * \brief Get the Hydrocarbon - Water contact depth
     * \details This limit represent the transition between water and hydrocarbon.
     * With this function, we don't know if the hydrocarbon in question are GAS or OIL (ie. this limit can be equal to getFillDepth(GAS) or getFillDepth(OIL) )
@@ -470,9 +462,9 @@ namespace migration
 
    /*!
    * \brief Compute the Hydrocarbon - Water contact depth
-   * \return The absolute depth of the hydrocarbon - water contact (from the surface)
+   * \assigns the absolute depth of the hydrocarbon - water contact (from the surface) to m_hydrocarbonWaterContactDepth
    */
-   double computeHydrocarbonWaterContactDepth(void) const;
+   bool computeHydrocarbonWaterContactDepth(void) ;
 
 	 void setMinimumSpillDepth (double minimumSpillDepth);
 	 double getMinimumSpillDepth (void);
@@ -482,10 +474,10 @@ namespace migration
 
 	 void negotiateDensity (PhaseId phase);
 
-         double getSealPressureLeakages(void) const;
-         double getSealPressureLeakages(PhaseId phase) const;
+    double getSealPressureLeakages(void) const;
+    double getSealPressureLeakages(PhaseId phase) const;
 
-         double getDiffusionLeakages(void) const;         
+    double getDiffusionLeakages(void) const;         
 
 	 void reportLeakage ();
 
@@ -508,17 +500,18 @@ namespace migration
 
 	 Composition m_toBeDistributed[NUM_PHASES];
 	 Composition m_distributed[NUM_PHASES];
-         Composition m_diffusionLeaked[NUM_PHASES];
-         Composition m_sealPressureLeaked[NUM_PHASES];
+    Composition m_diffusionLeaked[NUM_PHASES];
+    Composition m_sealPressureLeaked[NUM_PHASES];
 
-      //store what was already leaked before diffusion
-      Composition m_leakedBeforeDiffusion;
+    //store what was already leaked before diffusion
+    Composition m_leakedBeforeDiffusion;
 		
 	 double m_diffusionStartTime;
 	 double m_penetrationDistances[DiffusionComponentSize];
 
 	 double m_fillDepth[NUM_PHASES];
-   double m_hydrocarbonWaterContactDepth;
+    double m_hydrocarbonWaterContactDepth;
+    double m_hydrocarbonWaterContactTemperature;
 #ifdef COMPUTECAPACITY
 	 double m_capacity;
 #endif

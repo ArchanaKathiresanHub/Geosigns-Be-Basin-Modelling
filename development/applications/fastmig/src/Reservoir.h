@@ -215,11 +215,13 @@ namespace migration
 	 void incrementChargeDistributionCount (void);
 	 void reportChargeDistributionCount (void);
    private:
-         void reportLeakages (void);
-         bool computeDistributionParameters (void);
+    void reportLeakages (void);
+    bool computeDistributionParameters (void);
 	 double biodegradeCharges (void);
-         bool isDiffusionOn (void);
-         bool diffusionLeakCharges (void);
+    bool computeHydrocarbonWaterContactDepth (void);
+    bool computeHydrocarbonWaterTemperature (void);
+    bool isDiffusionOn (void);
+    bool diffusionLeakCharges (void);
 	 void mergeSpillingTraps (void);
 #ifdef MERGEUNDERSIZEDTRAPSAPRIORI
 	 bool mergeUndersizedTraps (void);

@@ -2444,6 +2444,10 @@ namespace migration
       m_biodegraded = 0;
       if (isBioDegradationOn ())
       {
+         if (!computeHydrocarbonWaterContactDepth ())
+            return false;
+         if (!computeHydrocarbonWaterTemperature ())
+            return false;
          m_biodegraded = biodegradeCharges ();
       }
 
@@ -2528,6 +2532,36 @@ namespace migration
 
       return true;
    }
+
+   bool Reservoir::computeHydrocarbonWaterContactDepth ()
+   {
+      RequestHandling::StartRequestHandling (m_migrator, "computeHydrocarbonWaterContactDepth");
+      bool succeded = false;
+
+      for (TrapVector::iterator trapIter = m_traps.begin (); trapIter != m_traps.end (); ++trapIter)
+      {
+         succeded = (*trapIter)->computeHydrocarbonWaterContactDepth ();
+         if (!succeded) break;
+      }
+      RequestHandling::FinishRequestHandling ();
+
+      return succeded;
+   };
+
+   bool Reservoir::computeHydrocarbonWaterTemperature ()
+   {
+      RequestHandling::StartRequestHandling (m_migrator, "computeHydrocarbonWaterTemperature");
+      bool succeded = false;
+
+      for (TrapVector::iterator trapIter = m_traps.begin (); trapIter != m_traps.end (); ++trapIter)
+      {
+         succeded = (*trapIter)->computeHydrocarbonWaterContactTemperature ();
+         if (!succeded) break;
+      }
+      RequestHandling::FinishRequestHandling ();
+
+      return succeded;
+   };
 
    double Reservoir::biodegradeCharges ()
    {
