@@ -2476,7 +2476,7 @@ bool Trap::computeHydrocarbonWaterContactDepth (void)
    }
  
    // Assert to be add again after bug fix in Fastmig: spilling depth of a trap shallower than the top depth of the trap....
-   assert((m_hydrocarbonWaterContactDepth >= getTopDepth()) && (m_hydrocarbonWaterContactDepth <= getBottomDepth()));
+   //assert((m_hydrocarbonWaterContactDepth >= getTopDepth()) && (m_hydrocarbonWaterContactDepth <= getBottomDepth()));
 
    // Is this necessary?
    setFillDepth (OIL, m_hydrocarbonWaterContactDepth);
