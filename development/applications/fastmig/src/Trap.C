@@ -1204,8 +1204,6 @@ void Trap::migrateTo (Column * column)
 
 double Trap::biodegradeCharges(const double& timeInterval, const Biodegrade& biodegrade)
 {
-   if (requiresPVT ())
-      computePVT ();
 
    if (m_toBeDistributed[GAS].isEmpty() && m_toBeDistributed[OIL].isEmpty())
          return 0;
@@ -1220,8 +1218,6 @@ double Trap::biodegradeCharges(const double& timeInterval, const Biodegrade& bio
 
    Composition biodegradedGas;
    Composition biodegradedOil;
-   // TO FIX: is this necessary?
-   setFillDepth(OIL, m_hydrocarbonWaterContactDepth);
 
    double volumeFractionOfGasBiodegraded = 0.0;
    double volumeFractionOfOilBiodegraded = 0.0;
@@ -2460,6 +2456,9 @@ double Trap::computethicknessAffectedByBiodegradationAboveOWC(const double timeI
 
 bool Trap::computeHydrocarbonWaterContactDepth (void) 
 {
+   if (requiresPVT ())
+      computePVT ();
+
    double const volumeOil = m_toBeDistributed[OIL].getVolume();
    double const volumeGas = m_toBeDistributed[GAS].getVolume();
 
@@ -2478,6 +2477,9 @@ bool Trap::computeHydrocarbonWaterContactDepth (void)
  
    // Assert to be add again after bug fix in Fastmig: spilling depth of a trap shallower than the top depth of the trap....
    assert((m_hydrocarbonWaterContactDepth >= getTopDepth()) && (m_hydrocarbonWaterContactDepth <= getBottomDepth()));
+
+   // Is this necessary?
+   setFillDepth (OIL, m_hydrocarbonWaterContactDepth);
 
    return true;
 }
