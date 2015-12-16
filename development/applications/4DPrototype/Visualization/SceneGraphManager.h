@@ -256,6 +256,8 @@ private:
   int m_currentPropertyId;
 
   bool m_showGrid;
+  bool m_showCompass;
+  bool m_showText;
   bool m_showTraps;
   bool m_showTrapOutlines;
 
@@ -304,6 +306,7 @@ private:
 
   SoText2*        m_text;
   SoSwitch*       m_textSwitch;
+  SoSwitch*       m_compassSwitch;
 
   SoSwitch*       m_snapshotsSwitch;
 
@@ -377,6 +380,10 @@ public:
   void setSlicePosition(int slice, int position);
 
   void showCoordinateGrid(bool show);
+
+  void showCompass(bool show);
+
+  void showText(bool show);
 
   void showTraps(bool show);
 

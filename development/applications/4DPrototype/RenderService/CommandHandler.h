@@ -120,6 +120,16 @@ class CommandHandler
     RemoteViz::Rendering::RenderArea* renderArea,
     RemoteViz::Rendering::Connection* connection);
 
+  void onShowCompass(
+    const jsonxx::Object& params,
+    RemoteViz::Rendering::RenderArea* renderArea,
+    RemoteViz::Rendering::Connection* connection);
+
+  void onShowText(
+    const jsonxx::Object& params,
+    RemoteViz::Rendering::RenderArea* renderArea,
+    RemoteViz::Rendering::Connection* connection);
+
   void onShowTraps(
     const jsonxx::Object& params,
     RemoteViz::Rendering::RenderArea* renderArea,

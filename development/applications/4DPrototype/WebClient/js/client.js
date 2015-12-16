@@ -407,7 +407,34 @@ function onShowGridChanged(elem)
         }
     }
 
-    window.canvas.focus();
+    theRenderArea.sendMessage(JSON.stringify(msg));
+}
+
+function onShowCompassChanged(elem)
+{
+    var showCompass = elem.checked;
+
+    var msg = {
+        cmd: "ShowCompass",
+        params: {
+            show: showCompass
+        }
+    }
+
+    theRenderArea.sendMessage(JSON.stringify(msg));
+}
+
+function onShowTextChanged(elem)
+{
+    var showText = elem.checked;
+
+    var msg = {
+        cmd: "ShowText",
+        params: {
+            show: showText
+        }
+    }
+
     theRenderArea.sendMessage(JSON.stringify(msg));
 }
 

@@ -1086,6 +1086,8 @@ void SceneGraphManager::setupSceneGraph()
   m_textSwitch->whichChild = SO_SWITCH_ALL;
   m_annotation->addChild(m_textSwitch);
 
+  m_compassSwitch = createCompass();
+
   m_snapshotsSwitch = new SoSwitch;
   m_snapshotsSwitch->setName("snapshots");
   m_snapshotsSwitch->whichChild = SO_SWITCH_ALL;
@@ -1100,7 +1102,7 @@ void SceneGraphManager::setupSceneGraph()
   m_root->addChild(m_snapshotsSwitch);
   m_root->addChild(m_decorationShapeHints);
   m_root->addChild(m_annotation);
-  m_root->addChild(createCompass());
+  m_root->addChild(m_compassSwitch);
 
   static_cast<MoPredefinedColorMapping*>(m_colorMap)->maxValue = (float)(m_projectInfo.formations.size() - 1);
 }
@@ -1109,6 +1111,8 @@ SceneGraphManager::SceneGraphManager()
   : m_maxCacheItems(5)
   , m_currentPropertyId(-1)
   , m_showGrid(false)
+  , m_showCompass(true)
+  , m_showText(true)
   , m_showTraps(false)
   , m_showTrapOutlines(false)
   , m_drainageAreaType(DrainageAreaNone)
@@ -1352,6 +1356,26 @@ void SceneGraphManager::showCoordinateGrid(bool show)
       updateCoordinateGrid();
       m_coordinateGridSwitch->whichChild = SO_SWITCH_ALL;
     }
+  }
+}
+
+void SceneGraphManager::showCompass(bool show)
+{
+  if (show != m_showCompass)
+  {
+    m_showCompass = show;
+
+    m_compassSwitch->whichChild = show ? SO_SWITCH_ALL : SO_SWITCH_NONE;
+  }
+}
+
+void SceneGraphManager::showText(bool show)
+{
+  if (show != m_showText)
+  {
+    m_showText = show;
+
+    m_textSwitch->whichChild = show ? SO_SWITCH_ALL : SO_SWITCH_NONE;
   }
 }
 

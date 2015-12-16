@@ -250,6 +250,26 @@ void CommandHandler::onShowCoordinateGrid(
   m_sceneGraphManager->showCoordinateGrid(showGrid);
 }
  
+void CommandHandler::onShowCompass(
+  const jsonxx::Object& params,
+  RemoteViz::Rendering::RenderArea* /*renderArea*/,
+  RemoteViz::Rendering::Connection* /*connection*/)
+{
+  auto showCompass = params.get<bool>("show");
+
+  m_sceneGraphManager->showCompass(showCompass);
+}
+
+void CommandHandler::onShowText(
+  const jsonxx::Object& params,
+  RemoteViz::Rendering::RenderArea* /*renderArea*/,
+  RemoteViz::Rendering::Connection* /*connection*/)
+{
+  auto showText = params.get<bool>("show");
+
+  m_sceneGraphManager->showText(showText);
+}
+
 void CommandHandler::onShowTraps(
   const jsonxx::Object& params,
   RemoteViz::Rendering::RenderArea* /*renderArea*/,
@@ -448,6 +468,8 @@ void CommandHandler::registerHandlers()
   m_handlers["SetTransparency"] = &CommandHandler::onSetTransparency;
   m_handlers["SetRenderStyle"] = &CommandHandler::onSetRenderStyle;
   m_handlers["ShowCoordinateGrid"] = &CommandHandler::onShowCoordinateGrid;
+  m_handlers["ShowCompass"] = &CommandHandler::onShowCompass;
+  m_handlers["ShowText"] = &CommandHandler::onShowText;
   m_handlers["ShowTraps"] = &CommandHandler::onShowTraps;
   m_handlers["ShowTrapOutlines"] = &CommandHandler::onShowTrapOutlines;
   m_handlers["ShowFlowDirection"] = &CommandHandler::onShowFlowDirection;
