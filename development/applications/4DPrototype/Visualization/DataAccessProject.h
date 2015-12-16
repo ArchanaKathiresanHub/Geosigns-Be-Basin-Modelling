@@ -79,6 +79,9 @@ class VISUALIZATIONDLL_API DataAccessProject : public Project
       std::string>, 
     int> m_faultMap;
 
+  mutable bool* m_loresDeadMap;
+  mutable bool* m_hiresDeadMap;
+
   std::vector<const DataAccess::Interface::GridMap*> getFormationPropertyGridMaps(
     size_t snapshotIndex,
     const DataAccess::Interface::Property* prop,
@@ -89,6 +92,8 @@ class VISUALIZATIONDLL_API DataAccessProject : public Project
 public:
 
   explicit DataAccessProject(const std::string& path);
+
+  virtual ~DataAccessProject();
 
   virtual ProjectInfo getProjectInfo() const;
 

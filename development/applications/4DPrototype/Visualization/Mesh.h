@@ -30,6 +30,13 @@ class ReservoirGeometry : public MiGeometryIjk
 {
   const DataAccess::Interface::GridMap* m_depthMaps[2];
 
+  // Direct pointers to gridmap data, so we can skip all the bounds 
+  // checking when accessing the values
+  const double* m_values[2];
+
+  size_t m_numI;
+  size_t m_numJ;
+
   double m_deltaX;
   double m_deltaY;
 
@@ -55,6 +62,8 @@ public:
   bool isUndefined(size_t i, size_t j, size_t k) const;
 
   virtual MbVec3d getCoord(size_t i, size_t j, size_t k) const;
+
+  virtual MiMeshIjk::StorageLayout getStorageLayout() const;
 
   virtual size_t getTimeStamp() const;
 };
@@ -123,8 +132,6 @@ public:
 
   MbVec3d getCellCenter(size_t i, size_t j, size_t k) const;
 
-  virtual MiMeshIjk::StorageLayout getStorageLayout() const;
-
   virtual size_t getNumCellsI() const;
 
   virtual size_t getNumCellsJ() const;
@@ -145,10 +152,14 @@ class ReservoirTopology : public MiTopologyIjk
 {
   std::shared_ptr<ReservoirGeometry> m_geometry;
   size_t m_timestamp;
+  size_t m_numI;
+  size_t m_numJ;
+
+  const bool* m_deadMap;
 
 public:
 
-  explicit ReservoirTopology(std::shared_ptr<ReservoirGeometry> geometry);
+  ReservoirTopology(std::shared_ptr<ReservoirGeometry> geometry, const bool* deadMap=nullptr);
 
   virtual size_t getNumCellsI() const;
 

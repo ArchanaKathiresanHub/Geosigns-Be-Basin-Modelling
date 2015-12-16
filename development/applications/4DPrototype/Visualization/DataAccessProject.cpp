@@ -298,6 +298,8 @@ void DataAccessProject::init()
 }
 
 DataAccessProject::DataAccessProject(const std::string& path)
+  : m_loresDeadMap(nullptr)
+  , m_hiresDeadMap(nullptr)
 {
   m_objectFactory = std::make_shared<di::ObjectFactory>();
   m_projectHandle.reset(di::OpenCauldronProject(path, "r", m_objectFactory.get()));
@@ -306,6 +308,12 @@ DataAccessProject::DataAccessProject(const std::string& path)
     throw std::runtime_error("Could not open project");
 
   init();
+}
+
+DataAccessProject::~DataAccessProject()
+{
+  delete[] m_loresDeadMap;
+  delete[] m_hiresDeadMap;
 }
 
 Project::ProjectInfo DataAccessProject::getProjectInfo() const
@@ -359,6 +367,27 @@ std::shared_ptr<MiVolumeMeshCurvilinear> DataAccessProject::createSnapshotMesh(s
   return std::make_shared<SnapshotMesh>(geometry, topology);
 }
 
+bool* createDeadMap(const di::GridMap* gridMap)
+{
+  unsigned int ni = gridMap->numI() - 1;
+  unsigned int nj = gridMap->numJ() - 1;
+
+  bool* deadMap = new bool[ni * nj];
+  for (unsigned int i = 0; i < ni; ++i)
+  {
+    for (unsigned int j = 0; j < nj; ++j)
+    {
+      deadMap[i * nj + j] =
+        gridMap->getValue(i, j)     == di::DefaultUndefinedMapValue ||
+        gridMap->getValue(i, j+1)   == di::DefaultUndefinedMapValue ||
+        gridMap->getValue(i+1, j)   == di::DefaultUndefinedMapValue ||
+        gridMap->getValue(i+1, j+1) == di::DefaultUndefinedMapValue;
+    }
+  }
+
+  return deadMap;
+}
+
 std::shared_ptr<MiVolumeMeshCurvilinear> DataAccessProject::createReservoirMesh(
   size_t snapshotIndex, 
   int reservoirId) const
@@ -371,12 +400,18 @@ std::shared_ptr<MiVolumeMeshCurvilinear> DataAccessProject::createReservoirMesh(
   std::unique_ptr<di::PropertyValueList> bottomValues(m_projectHandle->getPropertyValues(
     di::RESERVOIR, m_resRockBottomProperty, snapshot, reservoir, 0, 0, di::MAP));
 
-  //if (topValues && !topValues->empty() && bottomValues && !bottomValues->empty())
-  //  ; // TODO: throw exception
+  if (!topValues || topValues->empty() || !bottomValues || bottomValues->empty())
+    return nullptr;
 
-  return std::make_shared<ReservoirMesh>(
+  if (!m_hiresDeadMap)
+    m_hiresDeadMap = createDeadMap((*topValues)[0]->getGridMap());
+
+  auto geometry = std::make_shared<ReservoirGeometry>(
     (*topValues)[0]->getGridMap(), 
     (*bottomValues)[0]->getGridMap());
+  auto topology = std::make_shared<ReservoirTopology>(geometry, m_hiresDeadMap);
+
+  return std::make_shared<ReservoirMesh>(geometry, topology);
 }
 
 std::shared_ptr<MiSurfaceMeshCurvilinear> DataAccessProject::createSurfaceMesh(

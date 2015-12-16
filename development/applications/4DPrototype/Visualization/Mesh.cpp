@@ -29,6 +29,12 @@ ReservoirGeometry::ReservoirGeometry(
   m_depthMaps[0] = depthMapTop;
   m_depthMaps[1] = depthMapBottom;
 
+  m_values[0] = depthMapTop->getValues()[0][0];
+  m_values[1] = depthMapBottom->getValues()[0][0];
+
+  m_numI = depthMapTop->numI();
+  m_numJ = depthMapTop->numJ();
+
   m_deltaX = depthMapTop->deltaI();
   m_deltaY = depthMapTop->deltaJ();
 }
@@ -41,12 +47,12 @@ ReservoirGeometry::~ReservoirGeometry()
 
 size_t ReservoirGeometry::numI() const
 {
-  return m_depthMaps[0]->numI();
+  return m_numI;
 }
 
 size_t ReservoirGeometry::numJ() const
 {
-  return m_depthMaps[0]->numJ();
+  return m_numJ;
 }
 
 size_t ReservoirGeometry::numK() const
@@ -56,7 +62,7 @@ size_t ReservoirGeometry::numK() const
 
 bool ReservoirGeometry::isUndefined(size_t i, size_t j, size_t k) const
 {
-  return m_depthMaps[k]->getValue((unsigned int)i, (unsigned int)j, 0u) == di::DefaultUndefinedMapValue;
+  return m_values[0][i * m_numJ + j] == di::DefaultUndefinedMapValue;
 }
 
 MbVec3d ReservoirGeometry::getCoord(size_t i, size_t j, size_t k) const
@@ -64,7 +70,12 @@ MbVec3d ReservoirGeometry::getCoord(size_t i, size_t j, size_t k) const
   return MbVec3d(
     i * m_deltaX,
     j * m_deltaY,
-    -m_depthMaps[k]->getValue((unsigned int)i, (unsigned int)j));
+    -m_values[0][i * m_numJ + j]);
+}
+
+MiMeshIjk::StorageLayout ReservoirGeometry::getStorageLayout() const
+{
+  return MiMeshIjk::LAYOUT_KIJ;
 }
 
 size_t ReservoirGeometry::getTimeStamp() const
@@ -186,11 +197,6 @@ MbVec3d SnapshotTopology::getCellCenter(size_t i, size_t j, size_t k) const
     m_geometry->getCoord(i + 1, j + 1, k + 1));
 }
 
-MiMeshIjk::StorageLayout SnapshotTopology::getStorageLayout() const
-{
-  return MiMeshIjk::LAYOUT_IJK;
-}
-
 size_t SnapshotTopology::getNumCellsI() const
 {
   return m_numI;
@@ -224,19 +230,23 @@ bool SnapshotTopology::isDead(size_t i, size_t j, size_t /*k*/) const
 //--------------------------------------------------------------------------------------------------
 // ReservoirTopology
 //--------------------------------------------------------------------------------------------------
-ReservoirTopology::ReservoirTopology(std::shared_ptr<ReservoirGeometry> geometry)
+ReservoirTopology::ReservoirTopology(std::shared_ptr<ReservoirGeometry> geometry, const bool* deadMap)
   : m_geometry(geometry)
+  , m_timestamp(MxTimeStamp::getTimeStamp())
+  , m_deadMap(deadMap)
 {
+  m_numI = m_geometry->numI() - 1;
+  m_numJ = m_geometry->numJ() - 1;
 }
 
 size_t ReservoirTopology::getNumCellsI() const
 {
-  return m_geometry->numI() - 1;
+  return m_numI;
 }
 
 size_t ReservoirTopology::getNumCellsJ() const
 {
-  return m_geometry->numJ() - 1;
+  return m_numJ;
 }
 
 size_t ReservoirTopology::getNumCellsK() const
@@ -246,11 +256,14 @@ size_t ReservoirTopology::getNumCellsK() const
 
 bool ReservoirTopology::isDead(size_t i, size_t j, size_t k) const
 {
-  return
-    m_geometry->isUndefined(i, j, k) ||
-    m_geometry->isUndefined(i, j + 1, k) ||
-    m_geometry->isUndefined(i + 1, j, k) ||
-    m_geometry->isUndefined(i + 1, j + 1, k);
+  if (m_deadMap)
+    return m_deadMap[i * m_numJ + j];
+  else
+    return
+      m_geometry->isUndefined(i, j, k) ||
+      m_geometry->isUndefined(i, j + 1, k) ||
+      m_geometry->isUndefined(i + 1, j, k) ||
+      m_geometry->isUndefined(i + 1, j + 1, k);
 }
 
 bool ReservoirTopology::hasDeadCells() const
