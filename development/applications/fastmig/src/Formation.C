@@ -222,10 +222,10 @@ namespace migration
                // When treating the top node (element) of a formation:
                // For continuous properties (P, T, rho) we just take the value of the node above (belogning to the formation above)
                // For vertical permeability we call the getVerticalPermeability function specifying that we are interested in node on top.
-               double pressure      = (k != depth) ? formationNode->getPressure ()             : getLocalFormationNode (i,j,k)->getPressure ();
-               double temperature   = (k != depth) ? formationNode->getTemperature ()          : getLocalFormationNode (i,j,k)->getTemperature ();
-               double vPermeability = (k != depth) ? formationNode->getVerticalPermeability () : getLocalFormationNode (i,j,k)->getVerticalPermeability (true);
-               double oilDensity    = (k != depth) ? formationNode->getOilDensity ()           : getLocalFormationNode (i,j,k)->getOilDensity ();
+               double pressure      = (k != depth) ? formationNode->getPressure ()       : getLocalFormationNode (i,j,k)->getPressure ();
+               double temperature   = (k != depth) ? formationNode->getTemperature ()    : getLocalFormationNode (i,j,k)->getTemperature ();
+               double oilDensity    = (k != depth) ? formationNode->getOilDensity ()     : getLocalFormationNode (i,j,k)->getOilDensity ();
+               double vPermeability = formationNode->getVerticalPermeability (k == depth);
 
                // Fluid type the same independent of the position of the node inside the formation.
                const GeoPhysics::FluidType * fluid = (GeoPhysics::FluidType *) getFluidType ();               
@@ -261,8 +261,8 @@ namespace migration
                   ptrGasPcE->set( i, j, (unsigned int) k, capillaryEntryPressureGas);
                   ptrOilPcE->set( i, j, (unsigned int) k, capillaryEntryPressureOil);
 
-                  (k == depth) ? formationNode->setCapillaryEntryPressureGas (capillaryEntryPressureGas, true) : formationNode->setCapillaryEntryPressureGas (capillaryEntryPressureGas);
-                  (k == depth) ? formationNode->setCapillaryEntryPressureOil (capillaryEntryPressureOil, true) : formationNode->setCapillaryEntryPressureOil (capillaryEntryPressureOil);
+                  formationNode->setCapillaryEntryPressureGas (capillaryEntryPressureGas, k==depth);
+                  formationNode->setCapillaryEntryPressureOil (capillaryEntryPressureOil, k==depth);
                }
             }
          }
@@ -1509,9 +1509,7 @@ namespace migration
                   }
 
                   double weight = sum * surfaceFraction * expulsionFraction * surface;
-                  weight = weight * 1000.0;
                   composition.add ((ComponentId) componentId, weight);
-
                }
 
                int offsetIndex;
