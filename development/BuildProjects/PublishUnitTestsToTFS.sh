@@ -74,7 +74,7 @@ fi
 cp ${JENKINS_HOME}/jobs/${JOB_NAME}/builds/${BUILD_NUMBER}/log .
 
 # Generate script which will print log and return 0 on success build or 1 on failure
-echo "type log" >> check_build.bat
+echo "type log" > check_build.bat
 echo "REM Build: ${JOB_NAME}_${BUILD_TIMESTAMP}_${BUILD_NUMBER} was" >> check_build.bat
 if [ -f ../BuildSucceeded ]; then
   echo "REM Succeeded! :0)" >> check_build.bat
