@@ -4,6 +4,8 @@
 #TFS_SERVERURL=https://tfs.sede-coe.pds.nl/tfs/COE-II
 #JOB_NAME=Linux_Nightly_BuildAndInstall
 #TFS_PROJECTPATH='$/Basin Modeling/IBS/Trunk'
+#JENKINS_HOME=/nfs/rvl/groups/ept-sg/SWEast/Cauldron/Tools/jenkins
+#BUILD_NUMBER=44
 #
 
 #
@@ -17,20 +19,20 @@ pushd build
 mkdir -p ${UTF}
 pushd ${UTF}
 
-#echo "${TF} workspaces -collection:${TFS_SERVERURL} | grep ${WORKSPACE}"
+echo "${TF} workspaces -collection:${TFS_SERVERURL} | grep ${WORKSPACE}"
 CHKWS=`${TF} workspaces -collection:${TFS_SERVERURL} | grep ${WORKSPACE} | cut -d ' ' -f 1`
-#echo $CHKWS
+echo $CHKWS
 
 if [ "x${CHKWS}" != "x" ]; then
-#    echo Deleting workspace: $WORKSPACE
+    echo Deleting workspace: $WORKSPACE
     $TF workspace -delete ${WORKSPACE} -collection:${TFS_SERVERURL}
 fi
 
-#echo "Creating workspace: ${WORKSPACE}"
+echo "Creating workspace: ${WORKSPACE}"
 $TF workspace -new ${WORKSPACE} -collection:${TFS_SERVERURL} -location:local
 
-#echo "Mapping folder"
-#echo "$TF workfold -map -workspace:${WORKSPACE} -collection:${TFS_SERVERURL} ${TFS_PROJECTPATH}/../Builds/Jenknis/ `pwd`"
+echo "Mapping folder"
+echo "$TF workfold -map -workspace:${WORKSPACE} -collection:${TFS_SERVERURL} ${TFS_PROJECTPATH}/../Builds/Jenknis/${JOB_NAME} `pwd`"
 
 $TF workfold -map -workspace:${WORKSPACE} -collection:${TFS_SERVERURL} "${TFS_PROJECTPATH}/../Builds/Jenkins/${JOB_NAME}/" `pwd`
 $TF get -force .
@@ -40,11 +42,11 @@ FORDELETE=""
 for f in `find . -maxdepth 1 -name '*.xml'`
 do
     if [ -f ../${f} ]; then
-#       echo "Copy: $f"
+       echo "Copy: $f"
        rm -f ./$f
        cp ../$f .
     else
-#       echo "Mark to delete $f"
+       echo "Mark to delete $f"
        FORDELETE="${FORDELETE} ${f}"
     fi
 done
@@ -96,9 +98,10 @@ if [ "x${FORADDING}" != "x" ]; then
    ${TF} add ${FORADDING}
 fi
 
+echo "Check in changes to TFS"
 $TF ci -recursive .
 
-# delete workspace as not needed any more
+echo "Delete workspace as not needed any more ${WORKSPACE}"
 $TF workspace -delete ${WORKSPACE} -collection:${TFS_SERVERURL}
 
 popd
