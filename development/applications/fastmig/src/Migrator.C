@@ -888,10 +888,11 @@ bool Migrator::chargeReservoir (migration::Reservoir * reservoir, migration::Res
    reservoir->refineGeometryZeroThicknessAreas ();
    reservoir->refineGeometrySetFaulStatus ();
 
-   //We need to tell if it is a detected reservoir or not
-   //migration::Formation * reservoirFormation = Formation::CastToFormation (reservoir->getFormation ());
-   //if (reservoirFormation->getDetectedReservoir ())
-      //reservoir->wasteNonReservoirColumns (end);
+   // Wasting the columns that have no element with the reservoir flag
+   // Only for detected reservoirs.
+   migration::Formation * reservoirFormation = Formation::CastToFormation (reservoir->getFormation ());
+   if (reservoirFormation->getDetectedReservoir ())
+      reservoir->wasteNonReservoirColumns (end);
 
    // save only major snapshots results
    const bool saveSnapshot = end->getType () == Interface::MAJOR;

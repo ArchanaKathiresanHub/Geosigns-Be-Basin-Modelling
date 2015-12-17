@@ -206,6 +206,9 @@ namespace migration
 
       for (int k = depth; k >= 0; --k)
       {
+         // If there's no formation above then don't treat the topmost node of this formation.
+         if (!getTopFormation ())
+            continue;
          for (unsigned int i = m_formationNodeArray->firstILocal (); i <= m_formationNodeArray->lastILocal (); ++i)
          {
             for (unsigned int j = m_formationNodeArray->firstJLocal (); j <= m_formationNodeArray->lastJLocal (); ++j)
@@ -216,13 +219,13 @@ namespace migration
                if (!formationNode)
                   continue;
 
-               // When treating the top node of a formation:
+               // When treating the top node (element) of a formation:
                // For continuous properties (P, T, rho) we just take the value of the node above (belogning to the formation above)
                // For vertical permeability we call the getVerticalPermeability function specifying that we are interested in node on top.
-               double pressure      = (k == depth) ? formationNode->getPressure ()             : getLocalFormationNode (i,j,k)->getPressure ();
-               double temperature   = (k == depth) ? formationNode->getTemperature ()          : getLocalFormationNode (i,j,k)->getTemperature ();
-               double vPermeability = (k == depth) ? formationNode->getVerticalPermeability () : getLocalFormationNode (i,j,k)->getVerticalPermeability (true);
-               double oilDensity    = (k == depth) ? formationNode->getOilDensity ()           : getLocalFormationNode (i,j,k)->getOilDensity ();
+               double pressure      = (k != depth) ? formationNode->getPressure ()             : getLocalFormationNode (i,j,k)->getPressure ();
+               double temperature   = (k != depth) ? formationNode->getTemperature ()          : getLocalFormationNode (i,j,k)->getTemperature ();
+               double vPermeability = (k != depth) ? formationNode->getVerticalPermeability () : getLocalFormationNode (i,j,k)->getVerticalPermeability (true);
+               double oilDensity    = (k != depth) ? formationNode->getOilDensity ()           : getLocalFormationNode (i,j,k)->getOilDensity ();
 
                // Fluid type the same independent of the position of the node inside the formation.
                const GeoPhysics::FluidType * fluid = (GeoPhysics::FluidType *) getFluidType ();               
@@ -259,7 +262,7 @@ namespace migration
                   ptrOilPcE->set( i, j, (unsigned int) k, capillaryEntryPressureOil);
 
                   (k == depth) ? formationNode->setCapillaryEntryPressureGas (capillaryEntryPressureGas, true) : formationNode->setCapillaryEntryPressureGas (capillaryEntryPressureGas);
-                  (k == depth) ? formationNode->setCapillaryEntryPressureOil (capillaryEntryPressureOil, true) : formationNode->setCapillaryEntryPressureGas (capillaryEntryPressureOil);
+                  (k == depth) ? formationNode->setCapillaryEntryPressureOil (capillaryEntryPressureOil, true) : formationNode->setCapillaryEntryPressureOil (capillaryEntryPressureOil);
                }
             }
          }
@@ -1472,9 +1475,6 @@ namespace migration
                 !targetFormationNode->goesOutOfBounds () and
                 targetFormationNode->getFormation () == targetReservoir->getFormation ())
             {
-               //std::cout << "Well inside migrateExpelledChargesToReservoir for reservoir " << targetReservoir->getFormation ()->getName () << std::endl;
-               //std::cout << "It's being charged by SR" << getName () << std::endl;
-
                unsigned int iTarget = targetFormationNode->getI ();
                unsigned int jTarget = targetFormationNode->getJ ();
                unsigned int kTarget = targetFormationNode->getK ();
@@ -1509,7 +1509,7 @@ namespace migration
                   }
 
                   double weight = sum * surfaceFraction * expulsionFraction * surface;
-
+                  weight = weight * 1000.0;
                   composition.add ((ComponentId) componentId, weight);
 
                }

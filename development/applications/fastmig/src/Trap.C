@@ -2142,7 +2142,7 @@ bool Trap::distributeCharges (void)
    if (getWasteDepth(GAS) != WasteDepth) 
    {
       double wasteLevel = getWasteDepth(GAS) - getTopDepth();
-      if (wasteLevel < m_levelToVolume->invert(numeric_limits<double>::max())) 
+      if (wasteLevel <= m_levelToVolume->invert(numeric_limits<double>::max())) 
       {
 	 m_distributor->setWasteLevel(wasteLevel);
 	 m_distributor->setWasting(true);

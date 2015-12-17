@@ -786,8 +786,6 @@ namespace migration {
             {
                oilFlag = true;
             }
-      
-            //}
       }
 
       setReservoirGas (gasFlag);
