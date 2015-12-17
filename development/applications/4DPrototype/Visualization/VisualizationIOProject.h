@@ -23,6 +23,9 @@ class VisualizationIOProject : public Project
 
   CauldronIO::SnapShotList m_snapshots;
 
+  mutable bool* m_loresDeadMap;
+  mutable bool* m_hiresDeadMap;
+
   void init();
 
 public:

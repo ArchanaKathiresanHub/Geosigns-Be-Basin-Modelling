@@ -310,9 +310,9 @@ void SceneGraphManager::updateSnapshotTraps()
           res.root->insertChild(res.traps.root(), 0); // 1st because of blending
 
         // Temporary addition of fluid contact isolines
-        //SoLineSet* lineSet = buildIsoLines(*res.meshData, traps);
-        //res.root->insertChild(lineSet, 0);
-      }
+        // SoLineSet* lineSet = buildIsoLines(*res.meshData, traps);
+        // res.root->insertChild(lineSet, 0);
+       }
       // See if we need to remove existing traps
       else if (!m_showTraps && res.traps.root() != 0)
       {

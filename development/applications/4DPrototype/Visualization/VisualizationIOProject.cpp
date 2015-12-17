@@ -100,41 +100,43 @@ namespace VizIO
   template<class T>
   class VolumeTopology : public MiTopologyIjk
   {
-    const T& m_geometry;
-
-    size_t m_timestamp;
+    const T&    m_geometry;
+    const bool* m_deadMap;
+    size_t      m_timestamp;
+    size_t      m_numI;
+    size_t      m_numJ;
+    size_t      m_numK;
 
   public:
 
-    VolumeTopology(const T& geometry)
+    VolumeTopology(const T& geometry, const bool* deadMap)
       : m_geometry(geometry)
+      , m_deadMap(deadMap)
       , m_timestamp(MxTimeStamp::getTimeStamp())
     {
-
+      m_numI = m_geometry.numI() - 1;
+      m_numJ = m_geometry.numJ() - 1;
+      m_numK = m_geometry.numK() - 1;
     }
 
     virtual size_t getNumCellsI() const
     {
-      return m_geometry.numI() - 1;
+      return m_numI;
     }
 
     virtual size_t getNumCellsJ() const
     {
-      return m_geometry.numJ() - 1;
+      return m_numJ;
     }
 
     virtual size_t getNumCellsK() const
     {
-      return m_geometry.numK() - 1;
+      return m_numK;
     }
 
     virtual bool isDead(size_t i, size_t j, size_t /*k*/) const
     {
-      return
-        m_geometry.isUndefined(i, j, 0) ||
-        m_geometry.isUndefined(i + 1, j, 0) ||
-        m_geometry.isUndefined(i, j + 1, 0) ||
-        m_geometry.isUndefined(i + 1, j, 0);
+      return m_deadMap[i * m_numJ + j];
     }
 
     virtual bool hasDeadCells() const
@@ -723,6 +725,56 @@ namespace VizIO
 
 }
 
+namespace
+{
+  bool* createDeadMap(boost::shared_ptr<CauldronIO::Map> map)
+  {
+    const float undefined = map->getUndefinedValue();
+
+    size_t ni = map->getNumI() - 1;
+    size_t nj = map->getNumJ() - 1;
+
+    bool* deadMap = new bool[ni * nj];
+    for (size_t i = 0; i < ni; ++i)
+    {
+      for (size_t j = 0; j < nj; ++j)
+      {
+        deadMap[nj * i + j] =
+          map->getValue(i, j) == undefined ||
+          map->getValue(i, j + 1) == undefined ||
+          map->getValue(i + 1, j) == undefined ||
+          map->getValue(i + 1, j + 1) == undefined;
+      }
+    }
+
+    return deadMap;
+  }
+
+  bool* createDeadMap(boost::shared_ptr<CauldronIO::Volume> volume)
+  {
+    const float undefined = volume->getUndefinedValue();
+
+    size_t ni = volume->getNumI() - 1;
+    size_t nj = volume->getNumJ() - 1;
+
+    bool* deadMap = new bool[ni * nj];
+    for (size_t i = 0; i < ni; ++i)
+    {
+      for (size_t j = 0; j < nj; ++j)
+      {
+        deadMap[nj * i + j] =
+          volume->getValue(i, j, 0u) == undefined ||
+          volume->getValue(i, j + 1, 0u) == undefined ||
+          volume->getValue(i + 1, j, 0u) == undefined ||
+          volume->getValue(i + 1, j + 1, 0u) == undefined;
+      }
+    }
+
+    return deadMap;
+  }
+
+}
+
 void VisualizationIOProject::init()
 {
   const std::string nullStr("null");
@@ -837,6 +889,8 @@ void VisualizationIOProject::init()
 }
 
 VisualizationIOProject::VisualizationIOProject(const std::string& path)
+  : m_loresDeadMap(nullptr)
+  , m_hiresDeadMap(nullptr)
 {
   m_project = CauldronIO::ImportExport::importFromXML(path);
 
@@ -950,6 +1004,10 @@ Project::SnapshotContents VisualizationIOProject::getSnapshotContents(size_t sna
     }
   }
 
+  // No formations? then no need to continue
+  if (contents.formations.empty())
+    return contents;
+
   // get minZ / maxZ
   auto volumeList = snapshot->getVolumeList();
   for (auto volume : volumeList)
@@ -1006,8 +1064,11 @@ std::shared_ptr<MiVolumeMeshCurvilinear> VisualizationIOProject::createSnapshotM
       if (!depthVolume->isRetrieved())
         depthVolume->retrieve();
 
+      if (!m_loresDeadMap)
+        m_loresDeadMap = createDeadMap(depthVolume);
+
       auto geometry = std::make_shared<VizIO::VolumeGeometry>(depthVolume);
-      auto topology = std::make_shared<VizIO::VolumeTopology<VizIO::VolumeGeometry> >(*geometry);
+      auto topology = std::make_shared<VizIO::FormationTopology>(*geometry, m_loresDeadMap);
       return std::make_shared<VizIO::VolumeMesh>(geometry, topology);
     }
   }
@@ -1046,8 +1107,11 @@ std::shared_ptr<MiVolumeMeshCurvilinear> VisualizationIOProject::createReservoir
     if (!bottomMap->isRetrieved())
       bottomMap->retrieve();
 
+    if (!m_hiresDeadMap)
+      m_hiresDeadMap = createDeadMap(topMap);
+
     auto geometry = std::make_shared<VizIO::ReservoirGeometry>(topMap, bottomMap);
-    auto topology = std::make_shared<VizIO::ReservoirTopology>(*geometry);
+    auto topology = std::make_shared<VizIO::ReservoirTopology>(*geometry, m_hiresDeadMap);
     return std::make_shared<VizIO::VolumeMesh>(geometry, topology);
   }
 

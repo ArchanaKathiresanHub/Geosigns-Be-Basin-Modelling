@@ -113,17 +113,15 @@ class SnapshotTopology : public MiTopologyIjk
   size_t m_numJ; // num cells in J direction
   size_t m_numK; // num cells in K direction
 
-  bool* m_deadMap;
+  const bool* m_deadMap;
 
   size_t m_timeStamp;
 
   std::shared_ptr<SnapshotGeometry> m_geometry;
 
-  void initDeadMap();
-
 public:
 
-  explicit SnapshotTopology(std::shared_ptr<SnapshotGeometry> geometry);
+  SnapshotTopology(std::shared_ptr<SnapshotGeometry> geometry, const bool* deadMap);
 
   ~SnapshotTopology();
 
@@ -159,7 +157,7 @@ class ReservoirTopology : public MiTopologyIjk
 
 public:
 
-  ReservoirTopology(std::shared_ptr<ReservoirGeometry> geometry, const bool* deadMap=nullptr);
+  ReservoirTopology(std::shared_ptr<ReservoirGeometry> geometry, const bool* deadMap);
 
   virtual size_t getNumCellsI() const;
 
@@ -278,7 +276,8 @@ public:
 
   ReservoirMesh(
     const DataAccess::Interface::GridMap* depthMapTop,
-    const DataAccess::Interface::GridMap* depthMapBottom);
+    const DataAccess::Interface::GridMap* depthMapBottom,
+    const bool* deadMap);
 
   ReservoirMesh(
     std::shared_ptr<ReservoirGeometry> geometry,

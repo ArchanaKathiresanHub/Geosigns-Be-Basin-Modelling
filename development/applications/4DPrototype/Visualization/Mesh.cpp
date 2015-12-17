@@ -150,38 +150,18 @@ size_t SnapshotGeometry::getTimeStamp() const
 // SnapshotTopology
 //--------------------------------------------------------------------------------------------------
 
-void SnapshotTopology::initDeadMap()
-{
-  m_deadMap = new bool[m_numI * m_numJ];
-
-  bool* p = m_deadMap;
-  for (size_t i = 0; i < m_numI; ++i)
-  {
-    for (size_t j = 0; j < m_numJ; ++j)
-    {
-      *p++ =
-        m_geometry->isUndefined(i, j, 0) ||
-        m_geometry->isUndefined(i, j + 1, 0) ||
-        m_geometry->isUndefined(i + 1, j, 0) ||
-        m_geometry->isUndefined(i + 1, j + 1, 0);
-    }
-  }
-}
-
-SnapshotTopology::SnapshotTopology(std::shared_ptr<SnapshotGeometry> geometry)
+SnapshotTopology::SnapshotTopology(std::shared_ptr<SnapshotGeometry> geometry, const bool* deadMap)
   : m_numI(geometry->numI() - 1)
   , m_numJ(geometry->numJ() - 1)
   , m_numK(geometry->numK() - 1)
-  , m_deadMap(0)
+  , m_deadMap(deadMap)
   , m_timeStamp(MxTimeStamp::getTimeStamp())
   , m_geometry(geometry)
 {
-  initDeadMap();
 }
 
 SnapshotTopology::~SnapshotTopology()
 {
-  delete[] m_deadMap;
 }
 
 MbVec3d SnapshotTopology::getCellCenter(size_t i, size_t j, size_t k) const
@@ -256,14 +236,7 @@ size_t ReservoirTopology::getNumCellsK() const
 
 bool ReservoirTopology::isDead(size_t i, size_t j, size_t k) const
 {
-  if (m_deadMap)
-    return m_deadMap[i * m_numJ + j];
-  else
-    return
-      m_geometry->isUndefined(i, j, k) ||
-      m_geometry->isUndefined(i, j + 1, k) ||
-      m_geometry->isUndefined(i + 1, j, k) ||
-      m_geometry->isUndefined(i + 1, j + 1, k);
+  return m_deadMap[i * m_numJ + j];
 }
 
 bool ReservoirTopology::hasDeadCells() const
@@ -376,10 +349,11 @@ const SnapshotGeometry& SnapshotMesh::getGeometry() const
 //--------------------------------------------------------------------------------------------------
 ReservoirMesh::ReservoirMesh(
   const DataAccess::Interface::GridMap* depthMapTop,
-  const DataAccess::Interface::GridMap* depthMapBottom)
+  const DataAccess::Interface::GridMap* depthMapBottom,
+  const bool* deadMap)
 {
   m_geometry = std::make_shared<ReservoirGeometry>(depthMapTop, depthMapBottom);
-  m_topology = std::make_shared<ReservoirTopology>(m_geometry);
+  m_topology = std::make_shared<ReservoirTopology>(m_geometry, deadMap);
 }
 
 ReservoirMesh::ReservoirMesh(

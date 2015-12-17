@@ -334,6 +334,32 @@ unsigned int DataAccessProject::getMaxPersistentTrapId() const
   return maxPersistentId;
 }
 
+namespace
+{
+
+  bool* createDeadMap(const di::GridMap* gridMap)
+  {
+    unsigned int ni = gridMap->numI() - 1;
+    unsigned int nj = gridMap->numJ() - 1;
+
+    bool* deadMap = new bool[ni * nj];
+    for (unsigned int i = 0; i < ni; ++i)
+    {
+      for (unsigned int j = 0; j < nj; ++j)
+      {
+        deadMap[i * nj + j] =
+          gridMap->getValue(i, j) == di::DefaultUndefinedMapValue ||
+          gridMap->getValue(i, j + 1) == di::DefaultUndefinedMapValue ||
+          gridMap->getValue(i + 1, j) == di::DefaultUndefinedMapValue ||
+          gridMap->getValue(i + 1, j + 1) == di::DefaultUndefinedMapValue;
+      }
+    }
+
+    return deadMap;
+  }
+
+}
+
 std::shared_ptr<MiVolumeMeshCurvilinear> DataAccessProject::createSnapshotMesh(size_t snapshotIndex) const
 {
   const di::Snapshot* snapshot = m_snapshotList[snapshotIndex];
@@ -362,30 +388,12 @@ std::shared_ptr<MiVolumeMeshCurvilinear> DataAccessProject::createSnapshotMesh(s
   if (depthMaps.empty())
     return nullptr;
 
+  if (!m_loresDeadMap)
+    m_loresDeadMap = createDeadMap(depthMaps[0]);
+
   auto geometry = std::make_shared<SnapshotGeometry>(depthMaps);
-  auto topology = std::make_shared<SnapshotTopology>(geometry);
+  auto topology = std::make_shared<SnapshotTopology>(geometry, m_loresDeadMap);
   return std::make_shared<SnapshotMesh>(geometry, topology);
-}
-
-bool* createDeadMap(const di::GridMap* gridMap)
-{
-  unsigned int ni = gridMap->numI() - 1;
-  unsigned int nj = gridMap->numJ() - 1;
-
-  bool* deadMap = new bool[ni * nj];
-  for (unsigned int i = 0; i < ni; ++i)
-  {
-    for (unsigned int j = 0; j < nj; ++j)
-    {
-      deadMap[i * nj + j] =
-        gridMap->getValue(i, j)     == di::DefaultUndefinedMapValue ||
-        gridMap->getValue(i, j+1)   == di::DefaultUndefinedMapValue ||
-        gridMap->getValue(i+1, j)   == di::DefaultUndefinedMapValue ||
-        gridMap->getValue(i+1, j+1) == di::DefaultUndefinedMapValue;
-    }
-  }
-
-  return deadMap;
 }
 
 std::shared_ptr<MiVolumeMeshCurvilinear> DataAccessProject::createReservoirMesh(
