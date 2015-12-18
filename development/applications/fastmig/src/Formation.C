@@ -289,13 +289,14 @@ namespace migration
       return pceog;
    }
 
+   // DELETE WHEN CERTAIN IT'S NOT NEEDED ANYMORE
    bool Formation::removeComputedPropertyMaps (void)
    {
-      for (unsigned int i = 0; i < NUMBEROFPROPERTYINDICES; ++i)
+      /*for (unsigned int i = 0; i < NUMBEROFPROPERTYINDICES; ++i)
       {
-         //delete m_gridMaps[i];
-         //m_gridMaps[i] = 0;
-      }
+         delete m_gridMaps[i];
+         m_gridMaps[i] = 0;
+      }*/
       return true;
    }
 
@@ -342,18 +343,10 @@ namespace migration
                                                                                             compMasses, phaseCompMasses,
                                                                                             phaseDensity, phaseViscosity);
 
-                  if (phaseDensity[CBMGenerics::ComponentManager::Vapour] == 0 or phaseDensity[CBMGenerics::ComponentManager::Liquid] == 0)
-                  {
-                     std::cout << "Formation::computeHCDensityMaps () : HC Density 0\n";
-                     assert (phaseDensity[CBMGenerics::ComponentManager::Vapour] != 0);
-                     assert (phaseDensity[CBMGenerics::ComponentManager::Liquid] != 0);
-                  }
-
-                  if (phaseDensity[CBMGenerics::ComponentManager::Vapour] > phaseDensity[CBMGenerics::ComponentManager::Liquid])
-                  {
-                     std::cout << "Formation::computeHCDensityMaps () : Gas density higher than oil\n";
-                     assert (phaseDensity[CBMGenerics::ComponentManager::Vapour] < phaseDensity[CBMGenerics::ComponentManager::Liquid]);
-                  }
+                  // If there's only vapour phase the Liquid density will be 1000. We should then use vapour density
+                  // in the subsequent calculations of buoyancy and the resulting flow directions 
+                  if (phaseDensity[CBMGenerics::ComponentManager::Liquid] == 1000.0)
+                     phaseDensity[CBMGenerics::ComponentManager::Liquid] = phaseDensity[CBMGenerics::ComponentManager::Vapour];
 
                   formationNode->setGasDensity (phaseDensity[CBMGenerics::ComponentManager::Vapour]);
                   formationNode->setOilDensity (phaseDensity[CBMGenerics::ComponentManager::Liquid]);
@@ -491,7 +484,6 @@ namespace migration
          else
          {
             value = m_formationPropertyPtr[propertyIndex]->get ((unsigned int) i, (unsigned int) j, (unsigned int) k);
-            if (value == Interface::DefaultUndefinedMapValue) value = Interface::DefaultUndefinedMapValue;
          }
       }
 

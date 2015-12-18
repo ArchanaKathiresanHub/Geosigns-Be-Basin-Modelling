@@ -367,8 +367,9 @@ namespace migration {
 
       m_capillaryEntryPressureOil[0] = -1.0;
       m_capillaryEntryPressureOil[1] = -1.0;
-      //clearProperties ();
-      //clearReservoirProperties ();
+
+      m_gasDensity = -1.0;
+      m_oilDensity = -1.0;
    }
 
    /// Destructor
@@ -444,33 +445,10 @@ namespace migration {
          return;
       }
 
+      // Replace node depth with depth at the centre of the element
       m_depth = getFiniteElementValue (0.0, 0.0, 0.0, DEPTHPROPERTY);
 
-#define USECORNERBASEDVALUES
-#define USEMINIMUMVALUES
-      /*
-#ifdef USECORNERBASEDVALUES
-      // we do not want to lose any blocking permeability or porosity values through interpolation.
-      m_horizontalPermeability = m_formation->getPropertyValue (HORIZONTALPERMEABILITYPROPERTY, i, j, k);
-      m_verticalPermeability = m_formation->getPropertyValue (VERTICALPERMEABILITYPROPERTY, i, j, k);
-      m_porosity = m_formation->getPropertyValue (POROSITYPROPERTY, i, j, k);
-#else // finite element values
-#ifdef USEMINIMUMVALUES
-      // we do not want to lose any blocking permeability or porosity values through interpolation.
-      m_horizontalPermeability = getFiniteElementMinimumValue (0.0, 0.0, 0.0, HORIZONTALPERMEABILITYPROPERTY);
-      m_verticalPermeability   = getFiniteElementMinimumValue (0.0, 0.0, 0.0, VERTICALPERMEABILITYPROPERTY);
-      m_porosity               = getFiniteElementMinimumValue (0.0, 0.0, 0.0, POROSITYPROPERTY);
-#else
-      m_horizontalPermeability = getFiniteElementValue (0.0, 0.0, 0.0, HORIZONTALPERMEABILITYPROPERTY);
-      m_verticalPermeability   = getFiniteElementValue (0.0, 0.0, 0.0, VERTICALPERMEABILITYPROPERTY);
-      m_porosity               = getFiniteElementValue (0.0, 0.0, 0.0, POROSITYPROPERTY);
-#endif
-#endif
-      */
       const GeoPhysics::FluidType * fluid = (GeoPhysics::FluidType *) (m_formation->getFluidType ());
-
-      //double tempValue = m_formation->getTemperature (i, j, k);
-      //double pressValue = m_formation->getPressure (i, j, k);
 
       m_waterDensity = fluid->density (m_temperature, m_pressure);
    }
@@ -911,37 +889,7 @@ namespace migration {
       else
          return m_isCrestOil ;
    };
-
-   //
-   // Compute capillary pressure across stratigrathic boundary.
-   // watersaturation == LOW: compute at 0 percent water saturation (top of the reservoir formation)
-   // watersaturation == HIGH: compute at 100 percent water saturation (bottom of the seal formation)
-   //
-   /*bool LocalFormationNode::computeCapillaryPressure (WaterSaturation waterSaturation, double & pressureGas, double & pressureOil)
-   {
-      if (hasNoThickness ())
-      {
-         if (m_topFormationNode)
-         {
-            bool succeeded = m_topFormationNode->computeCapillaryPressure (waterSaturation, pressureGas, pressureOil);
-
-            return succeeded;
-         }
-         else
-            return false;
-      }
-
-      const int i = getI ();
-      const int j = getJ ();
-      const int k = getK ();
-
-      // Use of Capillary-Pressure maps at 100% water saturation as calculated in Formation::computeCapillaryPressureMaps
-      pressureOil = m_formation->getCapillaryPressureOil100 (i, j, k);
-      pressureGas = m_formation->getCapillaryPressureGas100 (i, j, k);
-
-      return (pressureOil != Interface::DefaultUndefinedMapValue && pressureGas != Interface::DefaultUndefinedMapValue);
-      }*/
-
+   
    double LocalFormationNode::computeBrooksCoreyCorrection (double Sw, double lambda) const
    {
       //Now these values are hard coded: it might change if required   
