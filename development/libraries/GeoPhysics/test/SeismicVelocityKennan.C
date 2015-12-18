@@ -27,9 +27,9 @@ TEST(SeismicVelocityKennan, std_sandstone_compaction)
 	EXPECT_EQ(6097, myVelocity.seismicVelocity(-1, -1, 2650, 0.45, 40, 40));
 
 	//For different values of bulk density
-	EXPECT_NEAR(4125.4515120704, myVelocity.seismicVelocity(1507, 1000, 1925, 0.3, 40, 40), 1e-10);
-	EXPECT_NEAR(3859.0065309790, myVelocity.seismicVelocity(1507, 1000, 2200, 0.3, 40, 40), 1e-10);
-	EXPECT_NEAR(3516.1218502028, myVelocity.seismicVelocity(1507, 1000, 2650, 0.3, 40, 40), 1e-10);
+	EXPECT_NEAR(0, myVelocity.seismicVelocity(1507, 1000, 1925, 0.3, 40, 40), 1e-10);
+	EXPECT_NEAR(0, myVelocity.seismicVelocity(1507, 1000, 2200, 0.3, 40, 40), 1e-10);
+	EXPECT_NEAR(0, myVelocity.seismicVelocity(1507, 1000, 2650, 0.3, 40, 40), 1e-10);
 
 	//For different values of porosity
 	EXPECT_NEAR(3859.0065309790, myVelocity.seismicVelocity(1507, 1000, 2200, 0.3, 40, 40), 1e-10);
