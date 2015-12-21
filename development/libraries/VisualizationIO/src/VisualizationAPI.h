@@ -81,7 +81,7 @@ namespace CauldronIO
         const SnapShotList& getSnapShots() const;
         /// \returns A list of all unique properties
         const PropertyList& getAllUniqueProperties();
-    
+
     private:
         void addUniqueProperty(const boost::shared_ptr<const Property> param1);
         SnapShotList m_snapShotList;
@@ -159,11 +159,21 @@ namespace CauldronIO
         /// \param [in] depth the spill depth to assign to this trapper
         void setSpillDepth(float depth);
         /// \param [out] posX the spillpoint X position
-        /// \param [out] posY the spillpoint X position
-        void getSpillPointPosition(float& spillPointPosX, float& spillPointPosY) const;
+        /// \param [out] posY the spillpoint Y position
+        void getSpillPointPosition(float& posX, float& posY) const;
         /// \param [in] posX the spillpoint X position
-        /// \param [in] posY the spillpoint X position
+        /// \param [in] posY the spillpoint Y position
         void setSpillPointPosition(float posX, float posY);
+        /// \returns the leakage point depth
+        float getDepth() const;
+        /// \param [in] depth the leakage point depth
+        void setDepth(float depth);
+        /// \param [out] posX the leakage point X position
+        /// \param [out] posY the leakage point Y position
+        void getPosition(float& posX, float& posY) const;
+        /// \param [in] posX the leakage point X position
+        /// \param [in] posY the leakage point Y position
+        void setPosition(float posX, float posY);
         /// \returns the ID
         int getID() const;
         /// \returns the persistent ID
@@ -180,6 +190,7 @@ namespace CauldronIO
 
     private:
         int m_ID, m_persistentID, m_downstreamTrapperID;
+        float m_depth, m_positionX, m_positionY;
         float m_spillDepth, m_spillPositionX, m_spillPositionY;
         boost::shared_ptr<const Trapper> m_downstreamTrapper;
         std::string m_reservoir;

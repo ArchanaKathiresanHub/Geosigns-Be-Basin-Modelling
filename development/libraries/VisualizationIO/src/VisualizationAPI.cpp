@@ -1062,6 +1062,28 @@ void CauldronIO::Trapper::setSpillPointPosition(float posX, float posY)
     m_spillPositionY = posY;
 }
 
+float CauldronIO::Trapper::getDepth() const
+{
+  return m_depth;
+}
+
+void CauldronIO::Trapper::setDepth(float depth)
+{
+  m_depth = depth;
+}
+
+void CauldronIO::Trapper::getPosition(float& posX, float& posY) const
+{
+  posX = m_positionX;
+  posY = m_positionY;
+}
+
+void CauldronIO::Trapper::setPosition(float posX, float posY)
+{
+  m_positionX = posX;
+  m_positionY = posY;
+}
+
 int CauldronIO::Trapper::getID() const
 {
     return m_ID;
