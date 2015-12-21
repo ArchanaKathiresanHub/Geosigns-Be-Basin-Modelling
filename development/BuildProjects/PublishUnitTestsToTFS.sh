@@ -5,7 +5,7 @@
 #JOB_NAME=Linux_Nightly_BuildAndInstall
 #TFS_PROJECTPATH='$/Basin Modeling/IBS/Trunk'
 #JENKINS_HOME=/nfs/rvl/groups/ept-sg/SWEast/Cauldron/Tools/jenkins
-#BUILD_NUMBER=44
+#BUILD_NUMBER=51
 #
 
 #
@@ -63,10 +63,16 @@ do
    fi
 done
 
-#check was build succeded and genertate script
+#check was the build succeded and genertate script
 if [ ! -f check_build.bat ]; then
   touch check_build.bat
   FORADDING="${FORADDING} check_build.bat"
+fi
+
+#check was unit tests are succeded and genertate script
+if [ ! -f check_utests.bat ]; then
+  touch check_utests.bat
+  FORADDING="${FORADDING} check_utests.bat"
 fi
 
 #copy job log
@@ -85,6 +91,17 @@ else
   echo "REM Failed :0(" >> check_build.bat
   echo "exit 1" >> check_build.bat
 fi
+
+# Generate script which will return 0 on success of unit tests or 1 on failure
+echo "REM Unit tests for the build: ${JOB_NAME}_${BUILD_TIMESTAMP}_${BUILD_NUMBER} were" > check_utests.bat
+if [ -f ../UnitTestsSucceeded ]; then
+  echo "REM Succeeded! :0)" >> check_utests.bat
+  echo "exit 0" >> check_utests.bat
+else
+  echo "REM Failed :0(" >> check_utests.bat
+  echo "exit 1" >> check_utests.bat
+fi
+
 
 #echo "Will be deleted: $FORDELTE"
 if [ "x${FORDELETE}" != "x" ]; then
