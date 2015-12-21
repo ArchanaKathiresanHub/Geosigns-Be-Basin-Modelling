@@ -543,7 +543,8 @@ namespace VizIO
   {
     CauldronIO::FormationVolumeList m_formationVolumeList;
 
-    std::vector<std::tuple<size_t, CauldronIO::Volume*> > m_index;
+    //std::vector<std::tuple<size_t, CauldronIO::Volume*> > m_index;
+    std::vector<CauldronIO::Volume*> m_index;
 
     std::string m_name;
     size_t m_timestamp;
@@ -562,22 +563,22 @@ namespace VizIO
         boost::shared_ptr<CauldronIO::FormationVolume> vol1,
         boost::shared_ptr<CauldronIO::FormationVolume> vol2)
       {
-        size_t start1, end1, start2, end2;
-        vol1->first->getDepthRange(start1, end1);
-        vol2->first->getDepthRange(start2, end2);
+        unsigned int start1, end1, start2, end2;
+        vol1->first->getK_Range(start1, end1);
+        vol2->first->getK_Range(start2, end2);
         return start1 < start2;
       });
 
-      size_t startK, endK;
-      m_formationVolumeList[0]->first->getDepthRange(startK, endK);
-      for (size_t i = 0; i < startK; ++i)
-        m_index.push_back(std::make_tuple(i, nullptr));
+      unsigned int startK, endK;
+      m_formationVolumeList[0]->first->getK_Range(startK, endK);
+      for (unsigned int i = 0; i < startK; ++i)
+        m_index.push_back(nullptr);
 
       for (auto fv : m_formationVolumeList)
       {
-        fv->first->getDepthRange(startK, endK);
-        for (size_t i = startK; i < endK; ++i)
-          m_index.push_back(std::make_tuple(i - startK, fv->second.get()));
+        fv->first->getK_Range(startK, endK);
+        for (unsigned int i = startK; i < endK; ++i)
+          m_index.push_back(fv->second.get());
       }
     }
 
@@ -616,14 +617,12 @@ namespace VizIO
       if (k >= m_index.size())
         return 0.0;
 
-      auto item = m_index[k];
-      auto localK = std::get<0>(item);
-      auto volume = std::get<1>(item);
+      auto volume = m_index[k];
       
       if (!volume)
         return 0.0;
 
-      return volume->getValue(i, j, localK);
+      return volume->getValue(i, j, k);
     }
 
     virtual MiDataSet::DataBinding getBinding() const
@@ -843,9 +842,9 @@ void VisualizationIOProject::init()
         boost::shared_ptr<const CauldronIO::Formation> f1, 
         boost::shared_ptr<const CauldronIO::Formation> f2) 
       {
-        size_t start1, end1, start2, end2;
-        f1->getDepthRange(start1, end1);
-        f2->getDepthRange(start2, end2);
+        unsigned int start1, end1, start2, end2;
+        f1->getK_Range(start1, end1);
+        f2->getK_Range(start2, end2);
         return start1 < start2;
       });
 
@@ -992,8 +991,8 @@ Project::SnapshotContents VisualizationIOProject::getSnapshotContents(size_t sna
     auto iter = formationMap.find(m_projectInfo.formations[i].name);
     if (iter != formationMap.end())
     {
-      size_t startK, endK;
-      iter->second->getDepthRange(startK, endK);
+      unsigned int startK, endK;
+      iter->second->getK_Range(startK, endK);
 
       Project::SnapshotFormation formation;
       formation.id = i;
@@ -1177,8 +1176,10 @@ std::shared_ptr<MiDataSetIjk<double> > VisualizationIOProject::createFormationPr
       continue;
 
     for (auto fv : formationVolumeList)
-    if (!fv->second->isRetrieved())
-      fv->second->retrieve();
+    {
+      if (!fv->second->isRetrieved())
+        fv->second->retrieve();
+    }
 
     return std::make_shared<VizIO::DiscontinuousVolumeProperty>(name, formationVolumeList);
   }
@@ -1279,7 +1280,13 @@ std::vector<Project::Trap> VisualizationIOProject::getTraps(size_t snapshotIndex
       y -= (float)m_projectInfo.dimensions.minY;
       z = -trapper->getSpillDepth();
       trap.spillPoint = SbVec3f(x, y, z);
-      trap.leakagePoint = trap.spillPoint;//leakage point not available yet!
+
+      trapper->getPosition(x, y);
+      x -= (float)m_projectInfo.dimensions.minX;
+      y -= (float)m_projectInfo.dimensions.minY;
+      z = -trapper->getDepth();
+      trap.leakagePoint = SbVec3f(x, y, z);
+
       trap.id = trapper->getID();
       trap.downStreamId = trapper->getDownStreamTrapperID();
       trap.gasOilContactDepth = 0.0; // not available in API
