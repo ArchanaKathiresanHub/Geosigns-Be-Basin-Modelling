@@ -561,6 +561,43 @@ double LocalColumn::getTopDepth (void) const
    return m_topDepth;
 }
 
+double LocalColumn::getOWCTemperature (const double hydrocarbonWaterContactDepth) const
+{
+   // Obtain a gridMap of temperature thanks to the DerivedProperties   
+   DerivedProperties::FormationPropertyPtr gridMapTemperature = m_reservoir->getFormationPropertyPtr ("Temperature", m_reservoir->getEnd ());
+
+   if (gridMapTemperature == 0) // No gridMap, then we use the temperature of the crest column for biodegradation
+   {
+      cerr << " The grid map for the reservoir  " << m_reservoir->getName() << " can't be retrived, using the temperature at the column's top " << endl;
+      return getTemperature ();
+   }
+
+   gridMapTemperature->retrieveData();
+   double depth = gridMapTemperature->lengthK();
+   assert(depth > 1);
+
+   // Obtain the depths at the top and bottom of the crest column
+   double const topDepth = getTopDepth();
+   double const bottomDepth = getBottomDepth();
+
+   // Transform the depth of the hydrocarbon - water contact in a node position of the crest column
+   double const percentageHeightHydrocarbonWaterContact = (bottomDepth - hydrocarbonWaterContactDepth) / (bottomDepth - topDepth);
+   double const nodeHydrocarbonWaterContact = (depth - 1) * percentageHeightHydrocarbonWaterContact;
+
+   double index = nodeHydrocarbonWaterContact - getTopDepthOffset() * (depth - 1);
+   index = Max((double)0, index);
+   index = Min((double)depth - 1, index);
+
+   double owcTemperature = gridMapTemperature->interpolate (getI (), getJ (), index);
+
+   // we are in a local column, we should always get a valid owcTemperature
+   assert(owcTemperature != gridMapTemperature->getUndefinedValue());
+
+   gridMapTemperature->restoreData();
+
+   return owcTemperature;
+}
+
 double LocalColumn::getPreviousTopDepth (void)
 {
    return m_topDepthPrevious;
@@ -1058,8 +1095,14 @@ void LocalColumn::getValue (ColumnValueRequest & request, ColumnValueRequest & r
 	    response.i = -1;
 	    response.j = -1;
 	 }
-	 response.value = 0;
+	 response.value = 0;	 
 	 break;
+      case OWCTEMPERATURE:
+         response.i = getI ();
+         response.j = getJ ();
+         response.phase = request.phase;
+         response.value = getOWCTemperature (request.value);
+    break;
       default:
 	 cerr << "ERROR: illegal request: " << request.valueSpec << endl;
 	 assert (false);
@@ -1845,6 +1888,23 @@ double ProxyColumn::getTopDepth (void) const
    }
 
    return m_topDepth;
+}
+
+double ProxyColumn::getOWCTemperature (const double hydrocarbonWaterContactdepth) const
+{
+
+   ColumnValueRequest valueRequest;
+   ColumnValueRequest valueResponse;
+
+   //no need to cache this value, it needs to be computed all times
+   valueRequest.i = getI ();
+   valueRequest.j = getJ ();
+   valueRequest.reservoirIndex = m_reservoir->getIndex ();
+   valueRequest.valueSpec = OWCTEMPERATURE;
+   valueRequest.value = hydrocarbonWaterContactdepth;
+   RequestHandling::SendRequest (valueRequest, valueResponse);
+    
+   return valueResponse.value;
 }
 
 void ProxyColumn::setBottomDepth (double depth)
