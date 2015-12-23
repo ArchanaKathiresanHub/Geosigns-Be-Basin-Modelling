@@ -112,6 +112,7 @@ void CauldronIO::VolumeProjectHandle::release()
     {
         assert(!m_depthFormations && !m_propValues);
         const GridMap* gridMap = m_propVal->getGridMap();
+        gridMap->release();
     }
 
     Volume::release();
