@@ -434,7 +434,11 @@ std::shared_ptr<MiSurfaceMeshCurvilinear> DataAccessProject::createSurfaceMesh(
 
   assert(values->size() == 1); //TODO: should not be an assert
 
-  return std::make_shared<SurfaceMesh>((*values)[0]->getGridMap());
+  auto depthMap = (*values)[0]->getGridMap();
+  auto geometry = std::make_shared<SurfaceGeometry>(depthMap);
+  auto topology = std::make_shared<SurfaceTopology>(depthMap->numI() - 1, depthMap->numJ() - 1, *geometry);
+
+  return std::make_shared<SurfaceMesh>(geometry, topology);
 }
 
 std::shared_ptr<MiDataSetIjk<double> > DataAccessProject::createFormationProperty(

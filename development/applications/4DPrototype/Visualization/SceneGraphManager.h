@@ -28,10 +28,7 @@ class SnapshotGeometry;
 class SnapshotTopology;
 class FormationIdProperty;
 class FlowDirectionProperty;
-class SnapshotMesh;
-class SurfaceMesh;
-class ReservoirMesh;
-class ReservoirTopology;
+
 class FaultMesh;
 class OutlineBuilder;
 

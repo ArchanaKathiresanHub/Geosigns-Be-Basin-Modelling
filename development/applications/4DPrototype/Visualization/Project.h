@@ -19,6 +19,7 @@
 
 #include <Inventor/SbVec.h>
 
+class MiMeshIjk;
 class MiSurfaceMeshCurvilinear;
 class MiVolumeMeshCurvilinear;
 template<class T>

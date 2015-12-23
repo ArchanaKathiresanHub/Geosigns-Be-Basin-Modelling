@@ -140,9 +140,11 @@ public:
   {
     IndexPair p = m_indexMap[k];
     auto gridMap = m_gridMaps[p.gridMapIndex];
-    return (gridMap != nullptr)
-      ? gridMap->getValue((unsigned int)i, (unsigned int)j, p.kIndex)
-      : DataAccess::Interface::DefaultUndefinedMapValue;
+
+    if (gridMap == nullptr)
+      return DataAccess::Interface::DefaultUndefinedMapValue;
+
+    return gridMap->getValues()[i][j][p.kIndex];
   }
 
   size_t numI() const { return m_numI; }
