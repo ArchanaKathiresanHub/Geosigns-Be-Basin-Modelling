@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2012-2014 Shell International Exploration & Production.
+// Copyright (C) 2012-2016 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -14,7 +14,7 @@
 #ifndef IBS_PATH_H
 #define IBS_PATH_H
 
-#include "formattingexception.h"
+#include "FormattingException.h"
 #include "boost/filesystem/path.hpp"
 
 #include <string>
