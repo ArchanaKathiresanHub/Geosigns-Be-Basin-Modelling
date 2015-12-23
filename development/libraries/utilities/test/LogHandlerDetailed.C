@@ -11,12 +11,12 @@
 /// @file LogHandlerDetailed.C
 /// @brief This file tests the LogHandler for the Detailed verbosity
 
-#include "LogHandlerUnitTester.C"
+#include "LogHandlerUnitTester.h"
 
 ///1. INITIALISE TEST--------------------------------------------------------------------------------
 
 //Initialize constants for comparaison
-std::vector<std::string> expectedLog =                ///< Expected parsed lines from the log file and console
+const std::string expectedLog[] =           ///< Expected parsed lines from the log file and console
 {
    "MeSsAgE FATAL    This is a fatal error.",
    "MeSsAgE ERROR    This is an error.",
@@ -25,7 +25,7 @@ std::vector<std::string> expectedLog =                ///< Expected parsed lines
 };
 
 //Initialise variables                                 
-std::vector<std::string> parsedLinesLog = {};         ///< Parsed lines from the log file
+std::vector<std::string> parsedLinesLog;   ///< Parsed lines from the log file
 
 
 ///3. TEST-------------------------------------------------------------------------------------------
@@ -38,7 +38,7 @@ TEST( LogHandlerDetailed, log_detailed )
 
       analyzeLogFile( logUnitTestDetailed.getName(), parsedLinesLog );
 
-      EXPECT_EQ( expectedLog.size(), parsedLinesLog.size() );
+      EXPECT_EQ( sizeof(expectedLog)/sizeof(std::string), parsedLinesLog.size() );
       for (unsigned int i = 0; i < parsedLinesLog.size(); i++)
       {
          EXPECT_EQ( expectedLog[i], parsedLinesLog[i] );

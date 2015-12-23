@@ -11,6 +11,9 @@
 /// @file LogHandlerUnitTester.C
 /// @brief This file is a testing utility for all LogHandler unit tests
 
+#ifndef UTILITIES_LOGHANDLERUNITTESTER_H
+#define UTILITIES_LOGHANDLERUNITTESTER_H
+
 #include "../src/LogHandler.h"
 
 // std library
@@ -42,7 +45,8 @@ void writeLogUnitTest ( LogHandler& log ) {
 /// @param parsedLines The parsed lines from the log file
 void analyzeLogFile( const std::string& logName, std::vector<std::string>& parsedLines  ) {
    parsedLines.clear();
-   std::ifstream myfile( logName );
+   // C++11 std::ifstream myfile( logName );
+   std::ifstream myfile( logName.c_str() );
    std::string line;
    const std::string delimiter = ">:";
    std::string parsedLine;
@@ -63,3 +67,4 @@ void analyzeLogFile( const std::string& logName, std::vector<std::string>& parse
       myfile.close();
    }
 }
+#endif

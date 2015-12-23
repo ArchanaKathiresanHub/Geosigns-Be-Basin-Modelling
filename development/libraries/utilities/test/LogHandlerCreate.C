@@ -11,7 +11,7 @@
 /// @file LogHandlerCreate.C
 /// @brief This file tests the that the Log Handler creates a log file and that it can be only created once.
 
-#include "LogHandlerUnitTester.C"
+#include "LogHandlerUnitTester.h"
 
 //Test if the log is created
 TEST( LogHandlerSerial, log_created )
@@ -21,7 +21,8 @@ TEST( LogHandlerSerial, log_created )
       writeLogUnitTest( logUnitTestDiagnostic );
 
       bool fileExisits = false;
-      std::ifstream myfile( logUnitTestDiagnostic.getName() );
+      // C++11 std::ifstream myfile( logUnitTestDiagnostic.getName() );
+      std::ifstream myfile( logUnitTestDiagnostic.getName().c_str() );
       if (myfile.is_open()){
          fileExisits = true;
       }

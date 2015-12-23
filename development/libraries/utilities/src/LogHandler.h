@@ -65,9 +65,9 @@ public:
 
 private:
    /// @ brief Overwrite default assginment operator
-   LogHandler& operator= (const LogHandler&){};
+   LogHandler& operator= (const LogHandler&);
    /// @ brief Overwrite default copy constructor
-   LogHandler( const LogHandler& ){};
+   LogHandler( const LogHandler& );
 
    std::string m_logName;         ///< Full name of the log file
 

@@ -54,25 +54,25 @@ add_gtest( NAME utilities::IBSinterpolator2d
 
 # LogHandler tests
 add_gtest( NAME utilities::LogHandlerCreate
-   SOURCES test/LogHandlerCreate.C test/LogHandlerUnitTester.C
+   SOURCES test/LogHandlerCreate.C test/LogHandlerUnitTester.h
    LIBRARIES utilities)
 
 add_gtest( NAME utilities::LogHandlerDiagnostic
-   SOURCES test/LogHandlerDiagnostic.C test/LogHandlerUnitTester.C
+   SOURCES test/LogHandlerDiagnostic.C test/LogHandlerUnitTester.h
    LIBRARIES utilities)
 
 add_gtest( NAME utilities::LogHandlerDetailed
-   SOURCES test/LogHandlerDetailed.C test/LogHandlerUnitTester.C
+   SOURCES test/LogHandlerDetailed.C test/LogHandlerUnitTester.h
    LIBRARIES utilities)
 
 add_gtest( NAME utilities::LogHandlerNormal
-   SOURCES test/LogHandlerNormal.C test/LogHandlerUnitTester.C
+   SOURCES test/LogHandlerNormal.C test/LogHandlerUnitTester.h
    LIBRARIES utilities)
 
 add_gtest( NAME utilities::LogHandlerQuiet
-   SOURCES test/LogHandlerQuiet.C test/LogHandlerUnitTester.C
+   SOURCES test/LogHandlerQuiet.C test/LogHandlerUnitTester.h
    LIBRARIES utilities)
 
 add_gtest( NAME utilities::LogHandlerMinimal
-   SOURCES test/LogHandlerMinimal.C test/LogHandlerUnitTester.C
+   SOURCES test/LogHandlerMinimal.C test/LogHandlerUnitTester.h
    LIBRARIES utilities)

@@ -8,7 +8,7 @@
 #include <iosfwd>
 #include <tr1/array>
 
-#include "formattingexception.h"
+#include "FormattingException.h"
 
 namespace DataAccess { namespace Interface {
 class ProjectHandle;
