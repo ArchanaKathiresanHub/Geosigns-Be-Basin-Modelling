@@ -31,7 +31,10 @@ bool LogHandler::m_logIsCreated;
 
 LogHandler::LogHandler( const std::string & logName, const Verbosity_level verbosity, const int& mpiRank ){
 
-   const std::string mpiRankString = std::to_string( mpiRank );
+   // To switch when C++11 const std::string mpiRankString = std::to_string( mpiRank );
+   std::ostringstream mpiRankConverter;
+   mpiRankConverter << mpiRank;
+   std::string mpiRankString = mpiRankConverter.str();
    m_logName = logName + "_" + mpiRankString + ".log";
 
    if (!m_logIsCreated){
