@@ -1185,10 +1185,7 @@ namespace migration
          Reservoir* reservoir = (Reservoir*) m_projectHandle->addDetectedReservoirs (record, this);
          // Offsets and net to gross
          reservoir->computeDepthOffsets (m_projectHandle->findSnapshot (0.));
-         reservoir->computeNetToGross ();
-         //all processes should arrive here
-         MPI_Barrier (PETSC_COMM_WORLD);
-         
+         reservoir->computeNetToGross ();         
          m_detectedReservoir = true;
       }
    }

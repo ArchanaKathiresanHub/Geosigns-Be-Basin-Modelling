@@ -1792,7 +1792,8 @@ void Trap::diffusionLeakCharges(const double& intervalStartTime, const double & 
    m_volumeBalance->subtractFromBalance("diffusion leaked", m_diffusionLeaked[GAS].getVolume());
 #endif
       // delete diffusionLeak objects pointed in diffusionLeaks vector
-      for (int i = 0; i != diffusionLeaks.size (); ++i) delete diffusionLeaks[i];		
+      for (int i = 0; i != diffusionLeaks.size (); ++i) delete diffusionLeaks[i];
+      delete m_diffusionOverburdenProps;
 }
 
 bool Trap::computeDistributionParameters(const Interface::FracturePressureFunctionParameters* 
