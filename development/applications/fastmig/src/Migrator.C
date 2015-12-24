@@ -219,8 +219,33 @@ bool Migrator::compute (void)
    closeMassBalanceFile ();
 
    m_projectHandle->finishActivity ();
-
-   m_projectHandle->setSimulationDetails("fastmig", "Default", "");
+   
+   //Specify the simulation details   
+   string simulatorMode;
+   
+   if(!m_verticalMigration and !m_hdynamicAndCapillary ) 
+   {
+   simulatorMode += simulationModeStr[3];
+   simulatorMode += " ";
+   }
+     
+   if (m_verticalMigration)
+   {
+   simulatorMode += simulationModeStr[0];
+   simulatorMode += " ";
+   }
+   if (m_hdynamicAndCapillary) 
+   {
+   simulatorMode += simulationModeStr[1];
+   simulatorMode += " ";
+   }
+   if (m_reservoirDetection)
+   {
+   simulatorMode += simulationModeStr[2];
+   simulatorMode += " ";
+   }
+   
+   m_projectHandle->setSimulationDetails ("fastmig", simulatorMode, "");
 
    bool status = true;
    if (!mergeOutputFiles ()) {

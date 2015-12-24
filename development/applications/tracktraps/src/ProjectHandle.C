@@ -36,7 +36,7 @@ bool ProjectHandle::createPersistentTraps (void)
    Interface::SnapshotList::const_iterator snapshotIter;
 
    const Interface::Snapshot * previousSnapshot = 0;
-
+   
    for (snapshotIter = snapshots->begin (); snapshotIter != snapshots->end (); ++snapshotIter)
    {
       const Interface::Snapshot * snapshot = * snapshotIter;
@@ -98,7 +98,7 @@ bool ProjectHandle::determineTrapExtents (const Interface::Snapshot * snapshot)
    {
       Reservoir * reservoir = (Reservoir *) * reservoirIter;
 
-      if (!reservoir->isActive (snapshot)) continue;
+      if (!reservoir->isActive (snapshot) || snapshot->getTime()>reservoir->getActivityStart()) continue;
 
       if (!reservoir->determineTrapExtents (snapshot)) result = false;
    }
@@ -134,7 +134,7 @@ bool ProjectHandle::determineTrapPorosities (const Interface::Snapshot * snapsho
    {
       Reservoir * reservoir = (Reservoir *) * reservoirIter;
 
-      if (!reservoir->isActive (snapshot)) continue;
+      if (!reservoir->isActive (snapshot) || snapshot->getTime()>reservoir->getActivityStart()) continue;
 
       if (!reservoir->determineTrapPorosities (snapshot)) result = false;
    }
@@ -152,7 +152,7 @@ bool ProjectHandle::determineReservoirDepths (const Interface::Snapshot * snapsh
    {
       Reservoir * reservoir = (Reservoir *) * reservoirIter;
 
-      if (!reservoir->isActive (snapshot)) continue;
+      if (!reservoir->isActive (snapshot) || snapshot->getTime()>reservoir->getActivityStart()) continue;
 
       if (!reservoir->determineAverageDepth (snapshot)) result = false;
    }

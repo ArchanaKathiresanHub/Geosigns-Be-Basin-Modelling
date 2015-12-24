@@ -333,5 +333,8 @@ namespace migration
    }
 
    bool DebugColumn (Column * column);
+   
+   //Specify the simulation details
+   static const std::string simulationModeStr[4] = { "VerticalSecondaryMigration", "HydrodynamicCapillaryPressure", "ReservoirDetection", "InclinedStratigraphy" };
 }
 #endif // _MIGRATION_H
