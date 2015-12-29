@@ -150,8 +150,22 @@ namespace mbapi {
       /// @return new lithology ID on success or UndefinedIDValue on error
       virtual LithologyID copyLithology( LithologyID id, const std::string & newLithoName ) = 0;
 
+      /// @brief Check does this lithology has references in FaultCut and AlochtLith tables, then delete
+      /// this lithology from the Lithology table and delete all records from ThermoCond/ThermoCapacity tables
+      /// @param id lithology ID
+      /// @return NoError on success or error code if this lithology is referenced in other tables
+      virtual ReturnCode deleteLithology( LithologyID id ) = 0;
+
+      /// @brief Scan lithology table for duplicated lithologies and delete them updating references
+      /// @return NoError on success or error code otherwise
+      virtual ReturnCode cleanDuplicatedLithologies() = 0;
+
       // Alochton lithology methods
       /// @{ 
+
+      /// @brief Get list of allochton lithologies in the model
+      /// @return array with IDs of allochton lygthologies defined in the model
+      virtual std::vector<AllochtLithologyID> allochtonLithologiesIDs() const = 0; 
 
       /// @brief Search in AllochthonLithoIoTbl table for the given layer name
       /// @param layerName layer name for allochton lithology
@@ -161,6 +175,10 @@ namespace mbapi {
       /// @brief Get lithlogy name for the allochton lithology
       /// @return Name of the allochton lithology
       virtual std::string allochtonLithology( AllochtLithologyID alID ) = 0;
+
+      /// @brief Get layer name for the allochton lithology
+      /// @return Name of the layer for allochton lithology
+      virtual std::string allochtonLithologyLayerName( AllochtLithologyID alID ) = 0;
 
       /// @brief Set new allochton lithology for the layer
       /// @param alID layer id in AllochthonLithoIoTbl

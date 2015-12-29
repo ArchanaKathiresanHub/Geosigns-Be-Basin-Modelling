@@ -348,7 +348,7 @@ ErrorHandler::ReturnCode RunManagerImpl::runScheduledCases( bool asyncRun )
          for ( size_t i = 0; i < m_jobs.size(); ++i )
          {
             bool contAppPipeline = true;
-
+            
             for ( size_t j = 0; j < m_jobs[i].size() && contAppPipeline; ++j )
             {
                JobScheduler::JobID job = m_jobs[i][j];
@@ -373,12 +373,17 @@ ErrorHandler::ReturnCode RunManagerImpl::runScheduledCases( bool asyncRun )
                            case JobScheduler::JobFinished:                                                                       break;
                            default: assert( 0 );
                         }
-                        if ( allJobFinished ) { jobState = m_jobSched->runJob( job ); }
+                        if ( allJobFinished )
+                        { 
+                           jobState = m_jobSched->runJob( job );
+                           if ( JobScheduler::JobPending == jobState ) ++prevPending; // take in account just submitted job
+                        }
                      }
                   }
                   else
                   {
                      jobState = m_jobSched->runJob( job ); // submit the job if it not dependent on any other job
+                     if ( JobScheduler::JobPending == jobState ) ++prevPending; // take in account just submitted job
                   }
                }
 
@@ -391,8 +396,8 @@ ErrorHandler::ReturnCode RunManagerImpl::runScheduledCases( bool asyncRun )
                      contAppPipeline = false; 
                      break;
 
-                  case JobScheduler::NotSubmittedYet:
                   case JobScheduler::JobPending:
+                  case JobScheduler::NotSubmittedYet:
                   case JobScheduler::JobRunning:
                      contAppPipeline = false; // stop going further in applications pipeline for this case
                      break;

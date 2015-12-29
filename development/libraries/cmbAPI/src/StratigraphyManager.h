@@ -162,6 +162,10 @@ namespace mbapi {
 
       /// @{ Fault cuts methods
 
+      /// @brief Get list of fault cuts from PressureFaultcutIoTbl
+      /// @return array with IDs of layers defined in the model
+      virtual std::vector<PrFaultCutID> faultCutsIDs() = 0;
+
       /// @brief Search in PressureFaultcutIoTbl table for the given combination of map name/fault name
       /// @param mapName map name
       /// @param fltName fault cut name 
@@ -171,6 +175,14 @@ namespace mbapi {
       /// @brief Get lithlogy name for the given fault cut ID
       /// @return Name of the fault cut lithology
       virtual std::string faultCutLithology( PrFaultCutID flID ) = 0;
+
+      /// @brief Get fault cut name for the given fault cut ID
+      /// @return Name of the fault cut
+      virtual std::string faultCutName( PrFaultCutID flID ) = 0;
+
+      /// @brief Get fault cat map for the given fault cut ID
+      /// @return map name
+      virtual std::string faultCutMapName( PrFaultCutID flID ) = 0;
 
       /// @brief Set new lithology for the fault cut
       /// @param flID fault cut id in PressureFaultcutIoTbl

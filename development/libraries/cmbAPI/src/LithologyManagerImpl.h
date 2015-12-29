@@ -19,9 +19,12 @@
 namespace database
 {
    class Database;
+   class Table;
 }
 
 namespace mbapi {
+
+   class StratigraphyManagerImpl;
 
    // Class LithologyManager keeps a list of lithologies in Cauldron model and allows to add/delete/edit lithology
    class LithologyManagerImpl : public LithologyManager
@@ -37,7 +40,7 @@ namespace mbapi {
       // Set of interfaces for interacting with a Cauldron model
 
       // Set project database. Reset all
-      void setDatabase( database::Database * db );
+      void setDatabase( database::Database * db, StratigraphyManagerImpl * stMgr );
 
       // Get list of lithologies in the model
       // return array with IDs of different lygthologies defined in the model
@@ -55,13 +58,27 @@ namespace mbapi {
       // return ID of found lithology on success or UndefinedIDValue otherwise
       virtual LithologyID findID( const std::string & lName );
 
-
       // Make a copy of the given lithology. Also makes a new set of records in table [LitThCondIoTbl] for the new litholog
       //        If there is another lithology with the same as given new name, method will fail.
       // return new lithology ID on success or UndefinedIDValue on error
       virtual LithologyID copyLithology( LithologyID id, const std::string & newLithoName );
 
+      // Check does this lithology has references in FaultCut and AlochtLith tables, then delete
+      // this lithology from the Lithology table and delete all records from ThermoCond/ThermoCapacity tables
+      // return NoError on success or error code if this lithology is referenced in other tables
+      virtual ReturnCode deleteLithology( LithologyID id );
+
+
+      // Scan lithology table for duplicated lithologies and delete them updating references
+      // return NoError on success or error code otherwise
+      virtual ReturnCode cleanDuplicatedLithologies();
+
       // Allochton lithology methods
+      
+      // Get list of allochton lithologies in the model
+      // return array with IDs of allochton lygthologies defined in the model
+      virtual std::vector<AllochtLithologyID> allochtonLithologiesIDs() const; 
+
       // Search in AllochthonLithoIoTbl table for the given layer name
       // AllochthonLithologyID for the found lithology on success, UndefinedIDValue otherwise
       virtual AllochtLithologyID findAllochtID( const std::string & layerName );
@@ -69,6 +86,10 @@ namespace mbapi {
       // Get lithlogy name for the allochton lithology
       // return Name of the allochton lithology
       virtual std::string allochtonLithology( AllochtLithologyID alID );
+
+      // Get layer name for the allochton lithology
+      // return Name of the layer for allochton lithology
+      virtual std::string allochtonLithologyLayerName( AllochtLithologyID alID );
 
       // Set new allochton lithology for the layer
       // return ErrorHandler::NoError on success, error code otherwise
@@ -181,7 +202,10 @@ namespace mbapi {
       static const char * s_allochtLayerNameFieldName;  // column name for layer name 
       static const char * s_allochtLithotypeFieldName;  // column name for lithology name
 
-      database::Database * m_db; // cauldron project database
+      database::Database      * m_db;          // cauldron project database
+      database::Table         * m_lithIoTbl;   // lithology Io table
+      database::Table         * m_alLithIoTbl; // allochton lithology Io table
+      StratigraphyManagerImpl * m_stMgr;       // Stratigraphy manager
    };                                                        }
 
 #endif // CMB_LITHOLOGY_MANAGER_IMPL_API

@@ -13,7 +13,12 @@
 
 // CMB API
 #include "LithologyManagerImpl.h"
+#include "StratigraphyManagerImpl.h"
 #include "UndefinedValues.h"
+
+
+// Utilities lib
+#include <NumericFunctions.h>
 
 // DataAccess
 #include "database.h"
@@ -21,6 +26,7 @@
 // STL
 #include <stdexcept>
 #include <string>
+#include <set>
 #include <cmath>
 #include <sstream>
 
@@ -107,6 +113,7 @@ static std::string PrintCoefficientsToString( const std::vector<double> & inp )
 LithologyManagerImpl::LithologyManagerImpl()
 {
    m_db = NULL;
+   m_stMgr = NULL;
 }
 
 // Copy operator
@@ -117,27 +124,28 @@ LithologyManagerImpl & LithologyManagerImpl::operator = ( const LithologyManager
 }
 
 // Set project database. Reset all
-void LithologyManagerImpl::setDatabase( database::Database * db )
+void LithologyManagerImpl::setDatabase( database::Database * db, mbapi::StratigraphyManagerImpl * stratMgr )
 {
    m_db = db;
+   
+   m_lithIoTbl   = m_db->getTable( s_lithoTypesTableName );
+   m_alLithIoTbl = m_db->getTable( s_allochtLithTableName );
+
+   m_stMgr = stratMgr;
 }
 
 // Get list of lithologies in the model
 std::vector<LithologyManager::LithologyID> LithologyManagerImpl::lithologiesIDs() const
 {
    std::vector<LithologyID> ltIDs;
-   if ( !m_db ) return ltIDs;
 
-   // get pointer to the table
-   database::Table * table = m_db->getTable( s_lithoTypesTableName );
-
-   // if table does not exist - return empty array
-   if ( !table ) return ltIDs;
-
-   // fill IDs array with increasing indexes
-   ltIDs.resize( table->size(), 0 );
- 
-   for ( size_t i = 0; i < ltIDs.size(); ++i ) ltIDs[ i ] = static_cast<LithologyID>( i );
+   // if m_lithIoTbl does not exist - return empty array
+   if ( m_lithIoTbl )
+   {
+      // fill IDs array with increasing indexes
+      ltIDs.resize( m_lithIoTbl->size(), 0 );
+      for ( size_t i = 0; i < ltIDs.size(); ++i ) ltIDs[ i ] = static_cast<LithologyID>( i );
+   }
 
    return ltIDs;
 }
@@ -157,17 +165,18 @@ LithologyManager::LithologyID LithologyManagerImpl::copyLithology( LithologyID i
    try
    {
       // first check if given name already exist
-      if ( findID( newLithoName ) != UndefinedIDValue ) { throw Exception( AlreadyDefined ) << "Create copy: " << newLithoName << ", already exist in the lithology table"; }
+      if ( findID( newLithoName ) != UndefinedIDValue )
+      {
+         throw Exception( AlreadyDefined ) << "Create copy: " << newLithoName << ", already exist in the lithology table";
+      }
 
       // proceed with copy
-      // get pointer to the table
-      database::Table * table = m_db->getTable( s_lithoTypesTableName );
 
       // if table does not exist - report error
-      if ( !table ) { throw Exception( NonexistingID ) <<  s_lithoTypesTableName << " table could not be found in project"; }
+      if ( !m_lithIoTbl ) { throw Exception( NonexistingID ) <<  s_lithoTypesTableName << " table could not be found in project"; }
 
       // get record for copy
-      database::Record * origRec = table->getRecord( static_cast<int>( id ) );
+      database::Record * origRec = m_lithIoTbl->getRecord( static_cast<int>( id ) );
       if ( !origRec ) { throw Exception( NonexistingID ) << "No lithology type with such ID: " << id; }
 
       // create a copy of lithology
@@ -179,7 +188,7 @@ LithologyManager::LithologyID LithologyManagerImpl::copyLithology( LithologyID i
       // change the name
       copyRec->setValue( s_lithoTypeNameFieldName, newLithoName );
       // add copy record with new name to the table end
-      table->addRecord( copyRec );
+      m_lithIoTbl->addRecord( copyRec );
 
       // duplicate records in Thermal conductivity and heat capacity tables
       for ( size_t j = 0; j < 2; ++j ) // first process thermal conductivity then heat capacity
@@ -212,14 +221,258 @@ LithologyManager::LithologyID LithologyManagerImpl::copyLithology( LithologyID i
       }
 
       // if all is OK - create the new LithologyID for lithology copy
-      ret = table->size() - 1;
+      ret = m_lithIoTbl->size() - 1;
    }
    catch( const Exception & ex ) { reportError( ex.errorCode(), ex.what() ); }
 
    return ret;
 }
 
+ErrorHandler::ReturnCode LithologyManagerImpl::deleteLithology( LithologyID id )
+{
+   if ( errorCode() != NoError ) resetError();
+   try
+   {
+      // if table does not exist - report error
+      if ( !m_lithIoTbl ) { throw Exception( NonexistingID ) <<  s_lithoTypesTableName << " table could not be found in project"; }
 
+      // get record for copy
+      database::Record * lrec = m_lithIoTbl->getRecord( static_cast<int>( id ) );
+      if ( !lrec ) { throw Exception( NonexistingID ) << "No lithology type with such ID: " << id; }
+
+      const std::string & lithoName = lrec->getValue<std::string>( s_lithoTypeNameFieldName );
+
+      // go over known tables and check if they have a reference to this lithology
+      if ( m_stMgr )
+      {  //////////// check stratigraphy layers
+         const std::vector<StratigraphyManager::LayerID> & layIDs = m_stMgr->layersIDs();
+         for ( size_t i = 0; i < layIDs.size(); ++i )
+         {
+            std::vector<std::string> lithoNamesLst;
+            std::vector<double>      lithoPerct;
+            m_stMgr->layerLithologiesList( layIDs[i], lithoNamesLst, lithoPerct );
+            std::vector<std::string>::iterator it = std::find( lithoNamesLst.begin(), lithoNamesLst.end(), lithoName );
+            if ( it != lithoNamesLst.end() ) // this lithology is referenced in stratigraphy, return error
+            {
+               throw Exception( ValidationError ) << "Can not remove lithology: " << lithoName << 
+                  ", because it is referenced in stratigraphy by the layer: " << m_stMgr->layerName( layIDs[i] );
+            }
+         }
+
+         ////////////// check fault cuts
+         const std::vector<StratigraphyManager::PrFaultCutID> & fcIDs = m_stMgr->faultCutsIDs();
+         for ( size_t i = 0; i < fcIDs.size(); ++i )
+         {
+            if ( m_stMgr->faultCutLithology( fcIDs[i] ) == lithoName )
+            {  
+               throw Exception( ValidationError ) << "Can not remove lithology: " << lithoName << 
+                  ", because it is referenced in fault cuts by the fault cut: " << m_stMgr->faultCutName( fcIDs[i] ) <<
+                  " for the map: " << m_stMgr->faultCutMapName( fcIDs[i] );
+            }
+         }
+      }
+
+      ////////////// then go over alochotnous lithologies
+      const std::vector<AllochtLithologyID> & alLithoIDs = allochtonLithologiesIDs();
+      for ( size_t i = 0; i < alLithoIDs.size(); ++i )
+      {
+         if ( allochtonLithology( alLithoIDs[i] ) == lithoName )
+         {
+            throw Exception( ValidationError ) << "Can not remove lithology: " << lithoName << 
+               ", because it is referenced in allochton lithology by the layer: " << allochtonLithologyLayerName( alLithoIDs[i] );
+         }
+      }
+      
+      // delete records in Thermal conductivity and heat capacity tables
+      for ( size_t j = 0; j < 2; ++j ) // first process thermal conductivity then heat capacity
+      {
+         const std::string & tblName = j == 0 ? s_lithoThCondTableName : s_lithoHeatCapTableName;
+         database::Table * ttable = m_db->getTable( tblName );  
+
+         // if table does not exist - report error
+         if ( !ttable ) { throw Exception( NonexistingID ) << tblName << " table could not be found in project"; }
+
+         // go over all records and collect records for the source lithology 
+         std::vector<const database::Record *> recSet;
+         for ( size_t k = 0; k < ttable->size(); ++k )
+         {
+            database::Record * rec = ttable->getRecord( static_cast<int>( k ) );
+            if ( !rec ) continue;
+            if ( rec->getValue<std::string>( s_LithotypeFieldName ) == lithoName )
+            {
+               ttable->deleteRecord( rec ); // because we deleting current record we need to shift k back
+               k--;
+            }
+         }
+      }
+     
+      // and finaly remove the record in lithology table itself
+      m_lithIoTbl->deleteRecord( lrec );
+   }
+   catch( const Exception & ex ) { return reportError( ex.errorCode(), ex.what() ); }
+
+   return NoError;
+}
+
+struct RecordSorter
+{
+   RecordSorter( database::Table * tbl, double tol, const std::vector<std::string> & ignoreList  ) 
+   {
+      const database::TableDefinition & tblDef = tbl->getTableDefinition();
+      m_eps = tol;
+
+      // cache fields index and data type 
+      for ( size_t i = 0; i < tblDef.size(); ++i )
+      { 
+         if ( tblDef.getFieldDefinition( i )->dataType() == datatype::String )
+         {
+            if ( ! ignoreList.empty() && 
+                 std::find( ignoreList.begin(), ignoreList.end(), tblDef.getFieldDefinition( i )->name() ) != ignoreList.end() )
+            { continue; }
+
+            m_fldIDs.push_back( i );
+            m_fldTypes.push_back( tblDef.getFieldDefinition( i )->dataType() );
+         }         
+      }
+      for ( size_t i = 0; i < tblDef.size(); ++i )
+      {
+         if ( tblDef.getFieldDefinition( i )->dataType() != datatype::String )
+         {
+            if ( ! ignoreList.empty() && 
+                 std::find( ignoreList.begin(), ignoreList.end(), tblDef.getFieldDefinition( i )->name() ) != ignoreList.end() )
+            { continue; }
+
+            m_fldIDs.push_back( i );
+            m_fldTypes.push_back( tblDef.getFieldDefinition( i )->dataType() );
+         }         
+      }
+   }
+
+   //  this function is used as less operator for the strict weak ordering
+   bool operator() ( const database::Record * r1, const database::Record * r2 ) const
+   {
+      assert( r1 != NULL && r2 != NULL );
+
+      for ( size_t i = 0; i < m_fldIDs.size(); ++ i )
+      {  int id = m_fldIDs[i];
+         switch ( m_fldTypes[i] )
+         {
+            case datatype::Bool:   { bool v = r1->getValue<bool>( id ); bool w = r2->getValue<bool>( id ); if ( v != w ) return v < w; } break;
+            case datatype::Int:    { int  v = r1->getValue<int >( id ); int  w = r2->getValue<int >( id ); if ( v != w ) return v < w; } break;
+            case datatype::Long:   { long v = r1->getValue<long>( id ); int  w = r2->getValue<long>( id ); if ( v != w ) return v < w; } break;
+            case datatype::Float:
+               { double v = r1->getValue<float>( id ); double w = r2->getValue<float>( id ); if ( !NumericFunctions::isEqual( v, w, m_eps ) ) return v < w; }
+               break;
+            case datatype::Double: 
+               { double v = r1->getValue<double>( id ); double w = r2->getValue<double>( id ); if ( !NumericFunctions::isEqual( v, w, m_eps ) ) return v < w; }
+               break;
+            case datatype::String: { string v = r1->getValue<string>( id ); string w = r2->getValue<string>( id ); if ( v != w ) return v < w; } break;
+            default: ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Unknown data type for TableIO database record: " << m_fldTypes[i];
+         }
+      }
+      return false;
+   }
+
+   std::vector<int>                 m_fldIDs;
+   std::vector<datatype::DataType>  m_fldTypes;
+   double                           m_eps;
+};
+
+
+
+//////////////////////////////////////////////////////////////////////////////////////
+// Scan lithology table for duplicated lithologies and delete them updating references
+ErrorHandler::ReturnCode LithologyManagerImpl::cleanDuplicatedLithologies()
+{
+   if ( errorCode() != NoError ) resetError();
+   
+   try
+   {
+      // if table does not exist - report error
+      if ( !m_lithIoTbl ) { throw Exception( NonexistingID ) <<  s_lithoTypesTableName << " table could not be found in project"; }
+
+      // create records comparer and add to ignore list the lithology name field
+      RecordSorter recCmp( m_lithIoTbl, 1e-5, std::vector<std::string>( 1, s_lithoTypeNameFieldName ) );
+
+      // keep unique records in the set
+      std::set< const database::Record *, RecordSorter > uniqLst( recCmp );
+
+      // go over all records and collect records for the source lithology  and check for duplicate records
+      // first element in pair keeps original record, the second one - copy
+      std::vector< std::pair< const database::Record *, const database::Record * > > forDelLst;
+      for ( size_t i = 0; i < m_lithIoTbl->size(); ++i )
+      {
+         const database::Record * rec = m_lithIoTbl->getRecord( static_cast<int>( i ) );
+         if ( !rec ) continue;
+
+         std::pair< std::set<const database::Record*>::iterator, bool> insRes = uniqLst.insert( rec );
+         if ( !insRes.second )
+         {
+            forDelLst.push_back( std::pair<const database::Record *, const database::Record * >( *(insRes.first), rec ) );
+         }
+      }
+
+      //go over the list of duplicated records and delete them from the table correcting references from FaultCut and AlochtLith tables
+      for ( size_t i = 0; i < forDelLst.size(); ++i )
+      {
+         const database::Record * rec = forDelLst[i].second; // this record will be deleted
+
+         const std::string & oldLithName = rec->getValue<std::string>(                 s_lithoTypeNameFieldName );
+         const std::string & newLithName = forDelLst[i].first->getValue<std::string>(  s_lithoTypeNameFieldName );
+
+         // go over known tables and replce reference to lithology which will be deleted
+         if ( m_stMgr )
+         {  //////////// process stratigraphy layers
+            const std::vector<StratigraphyManager::LayerID> & layIDs = m_stMgr->layersIDs();
+            for ( size_t j = 0; j < layIDs.size(); ++j )
+            {
+               std::vector<std::string> lithoNamesLst;
+               std::vector<double>      lithoPerct;
+               m_stMgr->layerLithologiesList( layIDs[j], lithoNamesLst, lithoPerct );
+               bool isReplaced = false;
+               for ( size_t k = 0; k < lithoNamesLst.size(); ++k )
+               {
+                  if ( lithoNamesLst[k] == oldLithName ) 
+                  {
+                     lithoNamesLst[k] = newLithName;
+                     isReplaced = true;
+                  }
+               }
+               if ( isReplaced ) { m_stMgr->setLayerLithologiesList( layIDs[j], lithoNamesLst, lithoPerct ); }
+            }
+
+            ////////////// process fault cuts
+            const std::vector<StratigraphyManager::PrFaultCutID> & fcIDs = m_stMgr->faultCutsIDs();
+            for ( size_t j = 0; j < fcIDs.size(); ++j )
+            {
+               if ( m_stMgr->faultCutLithology( fcIDs[j] ) == oldLithName )
+               {  
+                  if ( NoError != m_stMgr->setFaultCutLithology( fcIDs[j], newLithName ) ) return moveError( *m_stMgr );
+               }
+            }
+         }
+
+         ////////////// then process alochotnous lithologies
+         const std::vector<AllochtLithologyID> & alLithoIDs = allochtonLithologiesIDs();
+         for ( size_t j = 0; j < alLithoIDs.size(); ++j )
+         {
+            if ( allochtonLithology( alLithoIDs[j] ) == oldLithName )
+            {
+               if ( NoError != setAllochtonLithology( alLithoIDs[j], newLithName ) ) { return errorCode(); }
+            }
+         }
+
+         // at final - delete unneeded lithology record
+         if ( NoError != deleteLithology( findID( oldLithName ) ) ) { return errorCode(); }
+      }
+   }
+   catch ( const Exception & e ) { return reportError( e.errorCode(), e.what() ); }
+
+   return NoError;
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
 // Get lithology name
 std::string LithologyManagerImpl::lithologyName( LithologyID id )
 {
@@ -227,17 +480,14 @@ std::string LithologyManagerImpl::lithologyName( LithologyID id )
 
    std::string lName;
 
-   // get pointer to the table
-   database::Table * table = m_db->getTable( s_lithoTypesTableName );
-
    // if table does not exist - report error
-   if ( !table )
+   if ( !m_lithIoTbl )
    {
       reportError( NonexistingID, std::string( s_lithoTypesTableName ) + " table could not be found in project" );
       return lName;
    }
 
-   database::Record * rec = table->getRecord( static_cast<int>( id ) );
+   database::Record * rec = m_lithIoTbl->getRecord( static_cast<int>( id ) );
    if ( !rec )
    {
       reportError( NonexistingID, "No lithology type with such ID" );
@@ -254,16 +504,12 @@ LithologyManager::LithologyID LithologyManagerImpl::findID( const std::string & 
    if ( errorCode() != NoError ) resetError();
    try
    {
-      // get pointer to the table
-      database::Table * table = m_db->getTable( s_lithoTypesTableName );
-
       // if table does not exist - report error
-      if ( !table ) { throw Exception( NonexistingID ) << s_lithoTypesTableName << " table could not be found in project"; }
+      if ( !m_lithIoTbl ) { throw Exception( NonexistingID ) << s_lithoTypesTableName << " table could not be found in project"; }
 
-      size_t tblSize = table->size();
-      for ( size_t i = 0; i < tblSize; ++i )
+      for ( size_t i = 0; i < m_lithIoTbl->size(); ++i )
       {
-         database::Record * rec = table->getRecord( static_cast<unsigned int>( i ) );
+         database::Record * rec = m_lithIoTbl->getRecord( static_cast<unsigned int>( i ) );
          if ( !rec ) { throw Exception( NonexistingID ) << "No lithology type with such ID: " << i; }
 
          if ( lName == rec->getValue<std::string>( s_lithoTypeNameFieldName ) )
@@ -277,7 +523,26 @@ LithologyManager::LithologyID LithologyManagerImpl::findID( const std::string & 
    return UndefinedIDValue;
 }
 
+///////////////////////////////////////////////////////////////////////////////
 // Allochton lithology methods
+
+// Get list of allochton lithologies in the model
+// return array with IDs of allochton lygthologies defined in the model
+std::vector<LithologyManager::AllochtLithologyID> LithologyManagerImpl::allochtonLithologiesIDs() const
+{
+   std::vector<LithologyManager::AllochtLithologyID>  ltIDs;
+
+   // if m_alLithIoTbl does not exist - return empty array
+   if ( m_alLithIoTbl )
+   {
+      // fill IDs array with increasing indexes
+      ltIDs.resize( m_alLithIoTbl->size(), 0 );
+      for ( size_t i = 0; i < ltIDs.size(); ++i ) ltIDs[ i ] = static_cast<AllochtLithologyID>( i );
+   }
+   return ltIDs;
+}
+
+
 // Search in AllochthonLithoIoTbl table for the given layer name
 // AllochthonLithologyID for the found lithology on success, UndefinedIDValue otherwise
 LithologyManager::AllochtLithologyID LithologyManagerImpl::findAllochtID( const std::string & layerName )
@@ -285,16 +550,12 @@ LithologyManager::AllochtLithologyID LithologyManagerImpl::findAllochtID( const 
    if ( errorCode() != NoError ) resetError();
    try
    {
-      // get pointer to the table
-      database::Table * table = m_db->getTable( s_allochtLithTableName );
-
       // if table does not exist - report error
-      if ( !table ) { throw Exception( NonexistingID ) << s_allochtLithTableName << " table could not be found in project"; }
+      if ( !m_alLithIoTbl ) { throw Exception( NonexistingID ) << s_allochtLithTableName << " table could not be found in project"; }
 
-      size_t tblSize = table->size();
-      for ( size_t i = 0; i < tblSize; ++i )
+      for ( size_t i = 0; i < m_alLithIoTbl->size(); ++i )
       {
-         database::Record * rec = table->getRecord( static_cast<unsigned int>( i ) );
+         database::Record * rec = m_alLithIoTbl->getRecord( static_cast<unsigned int>( i ) );
          if ( !rec ) { throw Exception( NonexistingID ) << "No allochton lithology type with such ID: " << i; }
 
          if ( layerName == rec->getValue<std::string>( s_allochtLayerNameFieldName ) )
@@ -316,16 +577,34 @@ std::string LithologyManagerImpl::allochtonLithology( AllochtLithologyID alID )
 
    try
    {
-      // get pointer to the table
-      database::Table * table = m_db->getTable( s_allochtLithTableName );
-
       // if table does not exist - report error
-      if ( !table ) { throw Exception( NonexistingID ) << s_allochtLithTableName << " table could not be found in project"; }
+      if ( !m_alLithIoTbl ) { throw Exception( NonexistingID ) << s_allochtLithTableName << " table could not be found in project"; }
 
-      database::Record * rec = table->getRecord( static_cast<int>( alID ) );
+      database::Record * rec = m_alLithIoTbl->getRecord( static_cast<int>( alID ) );
       if ( !rec ) { throw Exception( NonexistingID ) << "No allochtonous lithology type with such ID: " << alID; }
 
       return rec->getValue<std::string>( s_allochtLithotypeFieldName );
+   }
+   catch ( const Exception & e ) { reportError( e.errorCode(), e.what() ); }
+
+   return "";
+}
+
+// Get layer name for the allochton lithology
+// return Name of the layer for allochton lithology
+std::string LithologyManagerImpl::allochtonLithologyLayerName( AllochtLithologyID alID )
+{
+   if ( errorCode() != NoError ) resetError();
+
+   try
+   {
+      // if table does not exist - report error
+      if ( !m_alLithIoTbl ) { throw Exception( NonexistingID ) << s_allochtLithTableName << " table could not be found in project"; }
+
+      database::Record * rec = m_alLithIoTbl->getRecord( static_cast<int>( alID ) );
+      if ( !rec ) { throw Exception( NonexistingID ) << "No allochtonous lithology type with such ID: " << alID; }
+
+      return rec->getValue<std::string>( s_allochtLayerNameFieldName );
    }
    catch ( const Exception & e ) { reportError( e.errorCode(), e.what() ); }
 
@@ -340,18 +619,15 @@ ErrorHandler::ReturnCode LithologyManagerImpl::setAllochtonLithology( AllochtLit
 
    try
    {
-      // get pointer to the table
-      database::Table * table = m_db->getTable( s_allochtLithTableName );
-
       // if table does not exist - report error
-      if ( !table ) { throw Exception( NonexistingID ) << s_allochtLithTableName << " table could not be found in project"; }
+      if ( !m_alLithIoTbl ) { throw Exception( NonexistingID ) << s_allochtLithTableName << " table could not be found in project"; }
 
-      database::Record * rec = table->getRecord( static_cast<int>( alID ) );
+      database::Record * rec = m_alLithIoTbl->getRecord( static_cast<int>( alID ) );
       if ( !rec ) { throw Exception( NonexistingID ) << "No allochtonous lithology type with such ID: " << alID; }
 
       rec->setValue( s_allochtLithotypeFieldName, newLithoName );
    }
-   catch ( const Exception & e ) { reportError( e.errorCode(), e.what() ); }
+   catch ( const Exception & e ) { return reportError( e.errorCode(), e.what() ); }
 
    return NoError;
 }
@@ -365,16 +641,13 @@ ErrorHandler::ReturnCode LithologyManagerImpl::porosityModel( LithologyID       
 {
    if ( errorCode() != NoError ) resetError();
 
-   // get pointer to the table
-   database::Table * table = m_db->getTable( s_lithoTypesTableName );
-
    // if table does not exist - report error
-   if ( !table )
+   if ( !m_lithIoTbl )
    {
       return reportError( NonexistingID, std::string( s_lithoTypesTableName ) + " table could not be found in project" );
    }
 
-   database::Record * rec = table->getRecord( static_cast<int>( id ) );
+   database::Record * rec = m_lithIoTbl->getRecord( static_cast<int>( id ) );
    if ( !rec )
    {
       return reportError( NonexistingID, "No lithology type with such ID" );
@@ -437,16 +710,13 @@ ErrorHandler::ReturnCode LithologyManagerImpl::setPorosityModel( LithologyID    
       default: return reportError( NonexistingID, "Unsupported porosity model" );
    }
 
-   // get pointer to the table
-   database::Table * table = m_db->getTable( s_lithoTypesTableName );
-
    // if table does not exist - report error
-   if ( !table ) return reportError( NonexistingID, std::string( s_lithoTypesTableName ) + " table could not be found in project" );
+   if ( !m_lithIoTbl ) return reportError( NonexistingID, std::string( s_lithoTypesTableName ) + " table could not be found in project" );
    
-   size_t recNum = table->size();
+   size_t recNum = m_lithIoTbl->size();
    if ( id >= recNum ) { return reportError( OutOfRangeValue, "Wrong lithology ID" ); }
       
-   database::Record * rec = table->getRecord(  static_cast<int>( id ) );
+   database::Record * rec = m_lithIoTbl->getRecord(  static_cast<int>( id ) );
    if ( !rec ) { return reportError( OutOfRangeValue, "Can't get lithology with given ID from project" ); }
 
    switch ( porModel )
@@ -495,13 +765,10 @@ ErrorHandler::ReturnCode LithologyManagerImpl::permeabilityModel( LithologyID   
    try
    {
 
-      // get pointer to the table
-      database::Table * table = m_db->getTable( s_lithoTypesTableName );
-
       // if table does not exist - report error
-      if ( !table ) { throw Exception( NonexistingID ) << s_lithoTypesTableName << " table could not be found in project"; }
+      if ( !m_lithIoTbl ) { throw Exception( NonexistingID ) << s_lithoTypesTableName << " table could not be found in project"; }
 
-      database::Record * rec = table->getRecord( static_cast<int>( id ) );
+      database::Record * rec = m_lithIoTbl->getRecord( static_cast<int>( id ) );
       if ( !rec ) { throw Exception( NonexistingID ) << "No lithology type with such ID: " << id ; }
 
       modelPrms.clear();
@@ -562,13 +829,10 @@ ErrorHandler::ReturnCode LithologyManagerImpl::setPermeabilityModel( LithologyID
    if ( errorCode() != NoError ) resetError();
    try
    {
-      // get pointer to the table
-      database::Table * table = m_db->getTable( s_lithoTypesTableName );
-
       // if table does not exist - report error
-      if ( !table ) { throw Exception( NonexistingID ) << s_lithoTypesTableName << " table could not be found in project"; }
+      if ( !m_lithIoTbl ) { throw Exception( NonexistingID ) << s_lithoTypesTableName << " table could not be found in project"; }
 
-      database::Record * rec = table->getRecord( static_cast<int>( id ) );
+      database::Record * rec = m_lithIoTbl->getRecord( static_cast<int>( id ) );
       if ( !rec ) { throw Exception( NonexistingID ) << "No lithology type with such ID: " << id ; }
 
       switch( prmModel )
@@ -627,13 +891,10 @@ double LithologyManagerImpl::stpThermalConductivityCoeff( LithologyID id )
    if ( errorCode() != NoError ) resetError();
    try
    {
-      // get pointer to the table
-      database::Table * table = m_db->getTable( s_lithoTypesTableName );
-
       // if table does not exist - report error
-      if ( !table ) { throw Exception( NonexistingID ) << s_lithoTypesTableName << " table could not be found in project"; }
+      if ( !m_lithIoTbl ) { throw Exception( NonexistingID ) << s_lithoTypesTableName << " table could not be found in project"; }
 
-      database::Record * rec = table->getRecord( static_cast<int>( id ) );
+      database::Record * rec = m_lithIoTbl->getRecord( static_cast<int>( id ) );
       if ( !rec ) { throw Exception( NonexistingID ) << "No lithology type with such ID: " << id ; }
 
       val = rec->getValue<double>( s_stpThermalCondFieldName );
@@ -660,13 +921,10 @@ ErrorHandler::ReturnCode LithologyManagerImpl::setSTPThermalConductivityCoeff( L
          throw Exception( OutOfRangeValue ) << "STP thermal conductivity value must be in range [0:100] but given is: " << stpThermCond;
       }
  
-      // get pointer to the table
-      database::Table * table = m_db->getTable( s_lithoTypesTableName );
-
       // if table does not exist - report error
-      if ( !table ) { throw Exception( NonexistingID ) << s_lithoTypesTableName << " table could not be found in project"; }
+      if ( !m_lithIoTbl ) { throw Exception( NonexistingID ) << s_lithoTypesTableName << " table could not be found in project"; }
 
-      database::Record * rec = table->getRecord( static_cast<int>( id ) );
+      database::Record * rec = m_lithIoTbl->getRecord( static_cast<int>( id ) );
       if ( !rec ) { throw Exception( NonexistingID ) << "No lithology type with such ID: " << id ; }
 
       rec->setValue( s_stpThermalCondFieldName, stpThermCond );

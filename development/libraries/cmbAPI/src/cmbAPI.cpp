@@ -83,7 +83,11 @@ public:
    // methods
 
    // compare tables in project file
-   std::string compareProject( Model::ModelImpl * mdl, const std::set<std::string> & procesList, const std::set<std::string> & ignoreList, double relTol );
+   std::string compareProject( Model::ModelImpl            * mdl
+                             , const std::set<std::string> & procesList
+                             , const std::set<std::string> & ignoreList
+                             , double                        relTol
+                             );
 
    // Copy matched given filter records from the given project to the current, all similar records in 
    // the currenct projects will be deleted and replaced
@@ -183,7 +187,7 @@ std::vector<std::string> Model::tablesList()
 
    try { return m_pimpl->tablesList(); }
    catch ( const ErrorHandler::Exception & ex ) { reportError( ex.errorCode(), ex.what() ); }
-   catch ( ... ) { reportError( UnknownError, "Unknown error" ); }
+   catch ( ... )                                { reportError( UnknownError, "Unknown error" ); }
 
    return std::vector<std::string>();
 }
@@ -193,8 +197,8 @@ std::vector<std::string> Model::tableColumnsList( const std::string & tableName,
    if ( errorCode() != NoError ) resetError(); // clean any previous error
 
    try { return m_pimpl->tableColumnsList( tableName, colTypes ); }
-   catch ( const ErrorHandler::Exception & ex ) { reportError( ex.errorCode(), ex.what() ); }
-   catch ( ... ) { reportError( UnknownError, "Unknown error" ); }
+   catch ( const Exception & ex ) { reportError( ex.errorCode(), ex.what() ); }
+   catch ( ... )                  { reportError( UnknownError, "Unknown error" ); }
 
    colTypes.clear();
    return std::vector<std::string>();
@@ -207,8 +211,8 @@ int Model::tableSize( const std::string & tableName )
    if ( errorCode() != NoError ) resetError(); // clean any previous error
 
    try { return m_pimpl->tableSize( tableName ); }
-   catch ( const ErrorHandler::Exception & ex ) { return this->ErrorHandler::reportError( ex.errorCode(), ex.what( ) ); }
-   catch ( ... ) { return this->ErrorHandler::reportError( UnknownError, "Unknown error" ); }
+   catch ( const Exception & ex ) { return reportError( ex.errorCode(), ex.what( ) ); }
+   catch ( ... )                  { return reportError( UnknownError, "Unknown error" ); }
 
    return UndefinedIntegerValue;
 }
@@ -219,8 +223,8 @@ long Model::tableValueAsInteger( const std::string & tableName, size_t rowNumber
    if ( errorCode() != NoError ) resetError(); // clean any previous error
 
    try { return m_pimpl->tableValueAsInteger( tableName, rowNumber, propName ); }
-   catch ( const ErrorHandler::Exception & ex ) { this->ErrorHandler::reportError( ex.errorCode(), ex.what( ) ); }
-   catch ( ... ) { this->ErrorHandler::reportError( UnknownError, "Unknown error" ); }
+   catch ( const Exception & ex ) { reportError( ex.errorCode(), ex.what( ) ); }
+   catch ( ... )                  { reportError( UnknownError, "Unknown error" ); }
 
    return UndefinedIntegerValue;
 }
@@ -231,8 +235,8 @@ double Model::tableValueAsDouble( const std::string & tableName, size_t rowNumbe
    if ( errorCode() != NoError ) resetError(); // clean any previous error
 
    try { return m_pimpl->tableValueAsDouble( tableName, rowNumber, propName ); }
-   catch ( const ErrorHandler::Exception & ex ) { this->ErrorHandler::reportError( ex.errorCode(), ex.what( ) ); }
-   catch ( ... ) { this->ErrorHandler::reportError( UnknownError, "Unknown error" ); }
+   catch ( const Exception & ex ) { reportError( ex.errorCode(), ex.what( ) ); }
+   catch ( ... )                  { reportError( UnknownError, "Unknown error" ); }
 
    return UndefinedDoubleValue;
 }
@@ -243,8 +247,8 @@ std::string Model::tableValueAsString( const std::string & tableName, size_t row
    if ( errorCode() != NoError ) resetError(); // clean any previous error
 
    try { return m_pimpl->tableValueAsString( tableName, rowNumber, propName ); }
-   catch ( const ErrorHandler::Exception & ex ) { this->ErrorHandler::reportError( ex.errorCode(), ex.what( ) ); }
-   catch ( ... ) { this->ErrorHandler::reportError( UnknownError, "Unknown error" ); }
+   catch ( const Exception & ex ) { reportError( ex.errorCode(), ex.what( ) ); }
+   catch ( ... )                  { reportError( UnknownError, "Unknown error" ); }
 
    return UndefinedStringValue;
 }
@@ -255,8 +259,8 @@ ErrorHandler::ReturnCode Model::setTableValue( const std::string & tableName, si
    if ( errorCode() != NoError ) resetError(); // clean any previous error
 
    try { m_pimpl->setTableIntegerValue( tableName, rowNumber, propName, propValue ); }
-   catch ( const ErrorHandler::Exception & ex ) { return this->ErrorHandler::reportError( ex.errorCode(), ex.what( ) ); }
-   catch ( ... ) { return this->ErrorHandler::reportError( UnknownError, "Unknown error" ); }
+   catch ( const Exception & ex ) { return reportError( ex.errorCode(), ex.what( ) ); }
+   catch ( ... )                  { return reportError( UnknownError, "Unknown error" ); }
 
    return NoError;
 }
@@ -267,8 +271,8 @@ ErrorHandler::ReturnCode Model::setTableValue( const std::string & tableName, si
    if ( errorCode() != NoError ) resetError(); // clean any previous error
 
    try { m_pimpl->setTableDoubleValue( tableName, rowNumber, propName, propValue ); }
-   catch ( const ErrorHandler::Exception & ex ) { return this->ErrorHandler::reportError( ex.errorCode(), ex.what( ) ); }
-   catch ( ... ) { return this->ErrorHandler::reportError( UnknownError, "Unknown error" ); }
+   catch ( const Exception & ex ) { return reportError( ex.errorCode(), ex.what( ) ); }
+   catch ( ... )                  { return reportError( UnknownError, "Unknown error" ); }
 
    return NoError;
 }
@@ -283,8 +287,8 @@ ErrorHandler::ReturnCode Model::setTableValue( const std::string & tableName
    if ( errorCode() != NoError ) resetError(); // clean any previous error
 
    try { m_pimpl->setTableStringValue( tableName, rowNumber, propName, propValue ); }
-   catch ( const ErrorHandler::Exception & ex ) { return this->ErrorHandler::reportError( ex.errorCode(), ex.what() ); }
-   catch ( ... ) { return this->ErrorHandler::reportError( UnknownError, "Unknown error" ); }
+   catch ( const Exception & ex ) { return reportError( ex.errorCode(), ex.what() ); }
+   catch ( ... )                  { return reportError( UnknownError, "Unknown error" ); }
 
    return NoError;
 }
@@ -298,7 +302,7 @@ std::string Model::compareProject( Model                       & mdl1
    if ( errorCode() != NoError ) resetError(); // clean any previous error
 
    try { return m_pimpl->compareProject( mdl1.m_pimpl.get(), compareTblsList, ignoreTblsList, relTol ); }
-   catch ( const ErrorHandler::Exception & ex ) { return std::string( "Exception during project comparison. Error code: " + 
+   catch ( const Exception & ex ) { return std::string( "Exception during project comparison. Error code: " + 
                                                          ibs::to_string( ex.errorCode() ) + ", error message " + ex.what() ); }
    catch ( ... ) { return "Unknown error"; }
   
@@ -316,8 +320,8 @@ std::string Model::mergeProject( Model                                   & mdl1
    if ( errorCode() != NoError ) resetError(); // clean any previous error
 
    try { return m_pimpl->mergeProject( mdl1.m_pimpl.get(), tblsList, fltList, dlRecNum, cpRecNum ); }
-   catch ( const ErrorHandler::Exception & ex ) { return std::string( "Exception during project merge. Error code: " + 
-                                                         ibs::to_string( ex.errorCode() ) + ", error message " + ex.what() ); }
+   catch ( const Exception & ex ) { return std::string( "Exception during project merge. Error code: " + 
+                                                        ibs::to_string( ex.errorCode() ) + ", error message " + ex.what() ); }
    catch ( ... ) { return "Unknown error"; }
 
    return "Can not perform merge for unknown reason";
@@ -329,8 +333,8 @@ ErrorHandler::ReturnCode Model::tableSort( const std::string & tblName, const st
    if ( errorCode() != NoError ) resetError(); // clean any previous error
 
    try { m_pimpl->tableSort( tblName, colsName ); }
-   catch ( const ErrorHandler::Exception & ex ) { return this->ErrorHandler::reportError( ex.errorCode(), ex.what() ); }
-   catch ( ... ) { return this->ErrorHandler::reportError( UnknownError, "Unknown error" ); }
+   catch ( const Exception & ex ) { return reportError( ex.errorCode(), ex.what() ); }
+   catch ( ... )                  { return reportError( UnknownError, "Unknown error" ); }
 
    return NoError;
 }
@@ -341,8 +345,8 @@ ErrorHandler::ReturnCode Model::clearTable( const std::string & tableName )
    if ( errorCode() != NoError ) resetError(); // clean any previous error
 
    try { m_pimpl->clearTable( tableName ); }
-   catch ( const ErrorHandler::Exception & ex ) { return this->ErrorHandler::reportError( ex.errorCode(), ex.what() ); }
-   catch ( ... ) { return this->ErrorHandler::reportError( UnknownError, "Unknown error" ); }
+   catch ( const Exception & ex ) { return reportError( ex.errorCode(), ex.what() ); }
+   catch ( ... )                  { return reportError( UnknownError, "Unknown error" ); }
 
    return NoError;
 }
@@ -353,8 +357,8 @@ ErrorHandler::ReturnCode Model::addRowToTable( const std::string & tableName )
    if ( errorCode() != NoError ) resetError(); // clean any previous error
 
    try { m_pimpl->addRowToTable( tableName ); }
-   catch ( const ErrorHandler::Exception & ex ) { return this->ErrorHandler::reportError( ex.errorCode(), ex.what() ); }
-   catch ( ... ) { return this->ErrorHandler::reportError( UnknownError, "Unknown error" ); }
+   catch ( const Exception & ex ) { return reportError( ex.errorCode(), ex.what() ); }
+   catch ( ... )                  { return reportError( UnknownError, "Unknown error" ); }
 
    return NoError;
 }
@@ -365,8 +369,8 @@ Model::ReturnCode Model::loadModelFromProjectFile( const char * projectFileName 
    if ( errorCode() != NoError ) resetError(); // clean any previous error
 
    try { m_pimpl->loadModelFromProjectFile( projectFileName ); }
-   catch ( const ErrorHandler::Exception & ex ) { return this->ErrorHandler::reportError( ex.errorCode(), ex.what() ); }
-   catch ( ... ) { return this->ErrorHandler::reportError( UnknownError, "Unknown error" ); }
+   catch ( const Exception & ex ) { return reportError( ex.errorCode(), ex.what() ); }
+   catch ( ... )                  { return reportError( UnknownError, "Unknown error" ); }
 
    return NoError;
 }
@@ -376,8 +380,8 @@ Model::ReturnCode Model::saveModelToProjectFile( const char * projectFileName )
    if ( errorCode() != NoError ) resetError(); // clean any previous error
 
    try { m_pimpl->saveModelToProjectFile( projectFileName ); }
-   catch ( const ErrorHandler::Exception & ex ) { return this->ErrorHandler::reportError( ex.errorCode(), ex.what() ); }
-   catch ( ... ) { return this->ErrorHandler::reportError( UnknownError, "Unknown error" ); }
+   catch ( const Exception & ex ) { return reportError( ex.errorCode(), ex.what() ); }
+   catch ( ... )                  { return reportError( UnknownError, "Unknown error" ); }
 
    return NoError;
 }
@@ -397,8 +401,8 @@ Model::ReturnCode Model::origin( double & x, double & y )
    if ( errorCode() != NoError ) resetError(); // clean any previous error
 
    try { m_pimpl->origin( x, y ); }
-   catch ( const ErrorHandler::Exception & ex ) { return this->ErrorHandler::reportError( ex.errorCode(), ex.what() ); }
-   catch ( ... ) { return this->ErrorHandler::reportError( UnknownError, "Unknown error" ); }
+   catch ( const Exception & ex ) { return reportError( ex.errorCode(), ex.what() ); }
+   catch ( ... )                  { return reportError( UnknownError, "Unknown error" ); }
 
    return NoError;
 }
@@ -408,8 +412,8 @@ Model::ReturnCode Model::arealSize( double & dimX, double & dimY )
    if ( errorCode() != NoError ) resetError(); // clean any previous error
 
    try { m_pimpl->arealSize( dimX, dimY ); }
-   catch ( const ErrorHandler::Exception & ex ) { return this->ErrorHandler::reportError( ex.errorCode(), ex.what() ); }
-   catch ( ... ) { return this->ErrorHandler::reportError( UnknownError, "Unknown error" ); }
+   catch ( const Exception & ex ) { return reportError( ex.errorCode(), ex.what() ); }
+   catch ( ... )                  { return reportError( UnknownError, "Unknown error" ); }
 
    return NoError;
 }
@@ -424,8 +428,8 @@ std::vector<std::string> Model::copyLithology( const std::string                
 
    try { return m_pimpl->copyLithology( litName, layersName, alochtLitName, faultsName ); }
 
-   catch ( const ErrorHandler::Exception & ex ) { this->ErrorHandler::reportError( ex.errorCode(), ex.what() ); }
-   catch ( ... ) { this->ErrorHandler::reportError( UnknownError, "Unknown error" ); }
+   catch ( const Exception & ex ) { reportError( ex.errorCode(), ex.what() ); }
+   catch ( ... )                  { reportError( UnknownError, "Unknown error" ); }
 
    return std::vector<std::string>();
 }
@@ -1028,7 +1032,7 @@ void Model::ModelImpl::loadModelFromProjectFile( const char * projectFileName )
    m_projFileName = projectFileName;
    
    m_srkMgr.setDatabase(   m_projHandle->getDataBase() );                 // set database in source rock manager
-   m_lithMgr.setDatabase(  m_projHandle->getDataBase() );                 // set database in lithologies type manager
+   m_lithMgr.setDatabase(  m_projHandle->getDataBase(), &m_stratMgr );    // set database in lithologies type manager and link to strigraphy manager
    m_snpMgr.setDatabase(   m_projHandle->getDataBase(), m_projFileName ); // set database in snapshot manager
    m_prpMgr.setDatabase(   m_projHandle->getDataBase(), m_projFileName ); // set database in property manager
    m_stratMgr.setDatabase( m_projHandle->getDataBase() );                 // set database in stratigraphy manager

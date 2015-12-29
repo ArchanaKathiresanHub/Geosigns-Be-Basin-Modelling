@@ -116,6 +116,9 @@ namespace casa
          }
       }
 
+      // clean duplicated lithologies
+      m_model->lithologyManager().cleanDuplicatedLithologies();
+
       // write mutated project to the file
       if ( ErrorHandler::NoError != m_model->saveModelToProjectFile( newProjectName ) )
       {

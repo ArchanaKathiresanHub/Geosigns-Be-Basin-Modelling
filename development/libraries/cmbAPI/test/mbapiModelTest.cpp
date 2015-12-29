@@ -26,13 +26,15 @@ public:
    static const char * m_sourceRockTestProject;
    static const char * m_testProject;
    static const char * m_lithologyTestProject;
+   static const char * m_dupLithologyTestProject;
    static const char * m_mapsTestProject;
 };
 
-const char * mbapiModelTest::m_sourceRockTestProject = "SourceRockTesting.project3d";
-const char * mbapiModelTest::m_lithologyTestProject  = "LithologyTesting.project3d";
-const char * mbapiModelTest::m_testProject           = "Project.project3d";
-const char * mbapiModelTest::m_mapsTestProject       = "MapsTesting.project3d";
+const char * mbapiModelTest::m_sourceRockTestProject   = "SourceRockTesting.project3d";
+const char * mbapiModelTest::m_lithologyTestProject    = "LithologyTesting.project3d";
+const char * mbapiModelTest::m_testProject             = "Project.project3d";
+const char * mbapiModelTest::m_mapsTestProject         = "MapsTesting.project3d";
+const char * mbapiModelTest::m_dupLithologyTestProject = "DupLithologyTesting.project3d";
 
 bool mbapiModelTest::compareFiles( const char * projFile1, const char * projFile2 )
 {
@@ -409,6 +411,53 @@ TEST_F( mbapiModelTest, CopyLithologyTest )
    ASSERT_TRUE( newName == "Std. Sandstone COPY" );
    ASSERT_EQ( lithNum+1, lthMgr.lithologiesIDs().size() );
 }
+
+
+TEST_F( mbapiModelTest, DeleteLithologyTest )
+{
+   mbapi::Model testModel;
+
+   // load test project
+   ASSERT_EQ( ErrorHandler::NoError, testModel.loadModelFromProjectFile( m_testProject ) );
+
+   mbapi::LithologyManager & lthMgr = testModel.lithologyManager();
+   
+   // First create a copy of lithology
+   mbapi::LithologyManager::LithologyID lid = lthMgr.findID( "Std. Sandstone" );
+   ASSERT_NE( lid, UndefinedIDValue );
+   mbapi::LithologyManager::LithologyID newLID = lthMgr.copyLithology( lid, "Std. Sandstone COPY" );
+   ASSERT_NE( newLID, UndefinedIDValue );
+
+   // then try to delete lithology which has references. Expecting ValidationError on this.
+   ASSERT_EQ( ErrorHandler::ValidationError, lthMgr.deleteLithology( lid ) );
+
+   // and now delete copy of lithology which has no any reference
+   ASSERT_EQ( ErrorHandler::NoError, lthMgr.deleteLithology( newLID ) );
+
+   newLID = lthMgr.findID( "Std. Sandstone COPY" );
+   ASSERT_EQ( newLID, UndefinedIDValue );
+}
+
+TEST_F( mbapiModelTest, DeleteDuplicatedLithologyTest )
+{
+   mbapi::Model testModel;
+
+   // load test project
+   ASSERT_EQ( ErrorHandler::NoError, testModel.loadModelFromProjectFile( m_dupLithologyTestProject ) );
+
+   mbapi::LithologyManager & lthMgr = testModel.lithologyManager();
+
+   size_t lithNum = lthMgr.lithologiesIDs().size();
+
+   // First create a copy of lithology
+   ASSERT_EQ( lithNum, 14 );
+   ASSERT_EQ( ErrorHandler::NoError, lthMgr.cleanDuplicatedLithologies() );
+
+   lithNum = lthMgr.lithologiesIDs().size();
+   ASSERT_EQ( lithNum, 9 );
+   testModel.saveModelToProjectFile( "mytest.project3d" );
+}
+
 
 TEST_F( mbapiModelTest, GetPermeabilityModelParametersTest )
 {
