@@ -48,7 +48,7 @@ namespace Shell.BasinModeling.Cauldron.Test
       private static void logMsg(string msg)
       {
          if (!s_isDebug) return;
-         using (System.IO.StreamWriter file = new System.IO.StreamWriter(@".\logfile.txt", true))
+         using (System.IO.StreamWriter file = new System.IO.StreamWriter(@".\logfileSensCalc.txt", true))
          {
             file.WriteLine(msg);
          }
