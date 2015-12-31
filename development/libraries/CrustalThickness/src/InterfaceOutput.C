@@ -1,36 +1,40 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
+#include "InterfaceOutput.h"
+
+// std library
 #include <stdarg.h>
 
+// DataAccess library
 #include "Interface/ProjectHandle.h"
 #include "Interface/CrustFormation.h"
 #include "Interface/PropertyValue.h"
 #include "Interface/Snapshot.h"
 #include "Interface/Surface.h"
 
-#include "InterfaceOutput.h"
+// CrustalThickness library
 #include "InterfaceInput.h" 
 
 using namespace CrustalThicknessInterface;
 
 //------------------------------------------------------------//
 InterfaceOutput::InterfaceOutput() {
-
    clean();
 }
+
 //------------------------------------------------------------//
 InterfaceOutput::~InterfaceOutput() {
-
-   for( int i = 0; i < numberOfOutputMaps; ++ i ) {
-      if( m_outputMaps[i] != 0 ) {
-
-         // Where properties maps are deleted???
-
-         // m_outputMaps[i]->release();
-         //delete m_outputMaps[i];
-      }
-   }
-
   clean();
 }
+
 //------------------------------------------------------------//
 void InterfaceOutput::clean() {
 
@@ -50,6 +54,7 @@ void InterfaceOutput::retrieveData() {
       }
    }
 }
+
 //------------------------------------------------------------//
 void InterfaceOutput::restoreData() {
 
@@ -59,6 +64,7 @@ void InterfaceOutput::restoreData() {
       }
    }
 }
+
 //------------------------------------------------------------//
 bool InterfaceOutput::saveOutputMaps( Interface::ProjectHandle * projectHandle, const Snapshot * theSnapshot ) {
 
@@ -147,6 +153,7 @@ bool InterfaceOutput::saveXYZOutputMaps( Interface::ProjectHandle * projectHandl
    }
    return true; 
 }
+
 //------------------------------------------------------------//
 bool InterfaceOutput::saveExcelSurfaceOutputMaps( Interface::ProjectHandle * projectHandle ) {
 
@@ -199,6 +206,7 @@ bool InterfaceOutput::saveExcelSurfaceOutputMaps( Interface::ProjectHandle * pro
    }
    return true; 
 }
+
 //------------------------------------------------------------//
 void InterfaceOutput::setMapsToOutput(CrustalThicknessInterface::outputMaps mapIndex, ... ) {
 
@@ -212,6 +220,7 @@ void InterfaceOutput::setMapsToOutput(CrustalThicknessInterface::outputMaps mapI
    }
    va_end( vlist );
 }
+
 //------------------------------------------------------------//
 void InterfaceOutput::setAllMapsToOutput( bool flag ) {
  
@@ -220,6 +229,7 @@ void InterfaceOutput::setAllMapsToOutput( bool flag ) {
    }
 
 }
+
 //------------------------------------------------------------//
 bool InterfaceOutput::allocateOutputMaps(Interface::ProjectHandle * projectHandle) {
 
@@ -239,28 +249,49 @@ bool InterfaceOutput::allocateOutputMaps(Interface::ProjectHandle * projectHandl
 }
 
 //------------------------------------------------------------//
-bool InterfaceOutput::createSnapShotOutputMaps(ProjectHandle * pHandle, const Snapshot * theSnapshot) {
-
+bool InterfaceOutput::createSnapShotOutputMaps(ProjectHandle * pHandle, const Snapshot * theSnapshot, const Interface::Surface *theSurface ) {
    
+   int i;
    bool status = true;
-   for(int i = 0; i < numberOfOutputMaps; ++ i ) {
-      if( m_outputMapsMask[i] ) {
-         m_outputMaps[i] = createSnapshotResultPropertyValueMap(pHandle, outputMapsNames[i], theSnapshot);
-         if( m_outputMaps[i] == 0 ) {
-            status = false;
-            break;
+   if( theSnapshot->getTime() == 0.0 ) {
+      // Output these properties for present-day only
+      for( i = 0; i < WLSMap; ++ i ) {
+         if( m_outputMapsMask[i] ) {
+            m_outputMaps[i] = createSnapshotResultPropertyValueMap(pHandle, outputMapsNames[i], theSnapshot);
+            if( m_outputMaps[i] == 0 ) {
+               status = false;
+               break;
+            }
          }
+      }
+   }
+   if( status ) {
+      for( i = WLSMap; i < numberOfOutputMaps; ++ i ) {
+         if( m_outputMapsMask[i] ) {
+            outputMaps id = ( outputMaps ) i;
+            if( id != isostaticBathymetry && id != incTectonicSubsidence ) {
+               m_outputMaps[i] = createSnapshotResultPropertyValueMap(pHandle, outputMapsNames[i], theSnapshot);
+            } else {
+               m_outputMaps[i] = createSnapshotResultPropertyValueMap(pHandle, outputMapsNames[i], theSnapshot, theSurface );
+         }
+            if( m_outputMaps[i] == 0 ) {
+               status = false;
+               break;
+      }
+   }
       }
    }
    return status;
 }
+
 //------------------------------------------------------------//
-GridMap * InterfaceOutput::createSnapshotResultPropertyValueMap (ProjectHandle * pHandle, const std::string& propertyName, const Snapshot* theSnapshot) {
+GridMap * InterfaceOutput::createSnapshotResultPropertyValueMap (ProjectHandle * pHandle, const std::string& propertyName, 
+                                                                 const Snapshot* theSnapshot, const Interface::Surface *theSurface ) {
 
    const Interface::Formation * formationCrust = dynamic_cast<const Interface::Formation *>(pHandle->getCrustFormation ());
-   const Interface::Surface   * topOfCrust = formationCrust->getTopSurface();
+   const Interface::Surface   * topSurface = ( theSurface != 0 ? theSurface : formationCrust->getTopSurface() );
 
-   PropertyValue *thePropertyValue = pHandle->createMapPropertyValue (propertyName, theSnapshot, 0, 0, topOfCrust);
+   PropertyValue *thePropertyValue = pHandle->createMapPropertyValue (propertyName, theSnapshot, 0, 0, topSurface);
    GridMap *theMap = 0;
 
    if(thePropertyValue) {
@@ -269,6 +300,7 @@ GridMap * InterfaceOutput::createSnapshotResultPropertyValueMap (ProjectHandle *
 
    return theMap;   
 }
+
 //------------------------------------------------------------//
 void InterfaceOutput::allocateOutputMap( ProjectHandle * pHandle, outputMaps aMapIndex ) 
 {
@@ -281,9 +313,99 @@ void InterfaceOutput::deleteOutputMap( outputMaps aMapIndex )
 {
    if( m_outputMaps[aMapIndex] != 0 ) {
       delete m_outputMaps[aMapIndex];
+      m_outputMaps[aMapIndex] = 0;
    }
+   m_outputMapsMask[aMapIndex] = false;
 } 
 
+//------------------------------------------------------------//
+bool InterfaceOutput::updateIsoBathymetryMaps( ProjectHandle * pHandle, std::vector<double> & snapshots ) {
+   
+   if( m_outputMapsMask[isostaticBathymetry] ) {
+      const Interface::Property * isoBathymetry = pHandle->findProperty("IsostaticBathymetry");
+      
+      if( isoBathymetry != 0 ) {
+         const GridMap * presentDayWLS = getMap( WLSMap );
+                  
+         if( presentDayWLS ) {
+            const Interface::Formation * formationCrust = dynamic_cast<const Interface::Formation *>( pHandle->getCrustFormation ());
+            const Interface::Surface   * topOfCrust = formationCrust->getTopSurface();
+
+            unsigned firstI = presentDayWLS->firstI();
+            unsigned firstJ = presentDayWLS->firstJ();
+            unsigned lastI  = presentDayWLS->lastI();
+            unsigned lastJ  = presentDayWLS->lastJ();
+            
+            presentDayWLS->retrieveData();
+            
+            unsigned int i, j, k;
+            for( k = 0; k < snapshots.size(); ++ k ) {
+               const Snapshot * theSnapshot = (const Snapshot *) pHandle->findSnapshot ( snapshots[k] );
+               
+               Interface::PropertyValueList* propVals;
+               Interface::PropertyValueList::const_iterator propValIter;
+               
+               propVals = pHandle->getPropertyValues ( Interface::SURFACE, isoBathymetry, theSnapshot, 0, 0, topOfCrust, Interface::MAP );
+               
+               if (propVals->size() == 1) {
+                  const PropertyValue *thePropertyValue = (*propVals)[ 0 ];  
+                  GridMap *theMap = ( thePropertyValue ? thePropertyValue->getGridMap() : 0 );
+                  
+                  if( theMap ) {
+                     theMap->retrieveData();
+                     for ( i = firstI; i <= lastI; ++ i ) {
+                        for ( j = firstJ; j <= lastJ; ++ j ) { 
+                           if( presentDayWLS->getValue( i, j ) != Interface::DefaultUndefinedMapValue ) {
+                              const double value = theMap->getValue( i, j );
+                              theMap->setValue( i, j, presentDayWLS->getValue( i, j ) - value );
+                           }
+                        }
+                     }  
+                     theMap->restoreData();
+   }
+               }
+               
+               delete propVals;
+} 
+            presentDayWLS->retrieveData();
+         } else {
+            return false;
+         }  
+      }
+   } else {
+      return false; 
+   }
+   return true;
+}
+
+//------------------------------------------------------------//
+void InterfaceOutput::saveOutput( Interface::ProjectHandle * pHandle, bool isDebug, int outputOptions, const Snapshot * theSnapshot ) {
+
+   if( isDebug ) {
+      if( outputOptions & XYZ ) {
+         if( pHandle->getSize() > 1 ) {
+            cout << "Can not save maps in XYZ format in parallel. Run with nprocs = 1." << endl;
+         } else {
+            saveXYZOutputMaps( pHandle );
+         }
+      }
+      if( outputOptions & SUR ) {
+         if( pHandle->getSize() > 1 ) {
+            cout << "Can not save maps in XYZ format in parallel. Run with nprocs = 1." << endl;
+         } else {
+            saveExcelSurfaceOutputMaps( pHandle );
+         }
+      }
+      if( outputOptions & HDF ) {
+         saveOutputMaps( pHandle, theSnapshot );
+      }
+   } else if( outputOptions & XYZ ) {
+      saveXYZOutputMaps( pHandle );
+   } else  if( outputOptions & HDF ) {
+      saveOutputMaps( pHandle, theSnapshot );
+   }
+   
+}
 
 //------------------------------------------------------------//
 namespace CrustalThicknessInterface {

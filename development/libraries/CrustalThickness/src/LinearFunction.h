@@ -1,47 +1,76 @@
-#ifndef _LINEAR_FUNCTION_H_
-#define _LINEAR_FUNCTION_H_
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
 
+#ifndef _CRUSTALTHICKNESS_LINEARFUNCTION_H_
+#define _CRUSTALTHICKNESS_LINEARFUNCTION_H_
+
+/// @class LinearFunction Stores the linear functions used by the CTC
 class LinearFunction {
 
-public:
-
-   LinearFunction ();
-
-   ~LinearFunction () {};
-
+   public:
    
-private:
+      LinearFunction ();
+      ~LinearFunction () {};
 
-   double m_WLS_crit;
-   double m_WLS_onset;
-   double m_m1;
-   double m_m2;
-   double m_c2;
-   double m_maxBasalticCrustThickness;
-   double m_magmaThicknessCoeff;
-  
-public:
-   void setWLS_crit( const double inWLS );
-   void setWLS_onset( const double inWLS );
-   void setM1( const double inM1 );
-   void setM2( const double inM2 );
-   void setC2( const double inC2 );
-   void setMaxBasalticCrustThickness( const double inMaxBasalticCrustThickness );
-   void setMagmaThicknessCoeff( const double inMagmaThicknessCoeff );
+      /// @defgroup Mutators
+      /// @{
+      void setWLS_crit                 ( const double inWLS );
+      void setWLS_onset                ( const double inWLS );
+      void setM1                       ( const double inM1 );
+      void setM2                       ( const double inM2 );
+      void setC2                       ( const double inC2 );
+      void setMaxBasalticCrustThickness( const double inMaxBasalticCrustThickness );
+      void setMagmaThicknessCoeff      ( const double inMagmaThicknessCoeff );
+      /// @}
+   
+      /// @defgroup Accessors
+      /// @{
+      double getWLS_crit                 () const;
+      double getWLS_onset                () const;
+      double getM1                       () const;
+      double getM2                       () const;
+      double getC2                       () const;
+      double getMaxBasalticCrustThickness() const;
+      double getMagmaThicknessCoeff      () const;
+      /// @}
 
-   double getWLS_crit() const;
-   double getWLS_onset() const;
-   double getM1() const;
-   double getM2() const;
-   double getC2() const;
-   double getMaxBasalticCrustThickness() const;
-   double getMagmaThicknessCoeff() const;
+      /// @brief Compute the thinning factor according to the WLS value
+      /// @param WLS the water loaded subsidence
+      /// @return the thinning factor (TF)
+      double getCrustTF        ( const double WLS );
 
-   double getCrustTF( const double WLS );
-   double getBasaltThickness( const double WLS );
-  
-   void printCoeffs();
+      /// @brief Compute the basalt factor according to the WLS value
+      /// @param WLS the water loaded subsidence
+      /// @return the basalt thickness
+      double getBasaltThickness( const double WLS );
+     
+      /// @brief Print m1, m2 and c2 coefficients
+      void printCoeffs();
+
+   private:
+   
+      double m_WLS_crit;    ///< The maximum water loaded subsidence
+      double m_WLS_onset;   ///< The initial water loaded subsidence at the beginning of the rifting
+      
+      /// @defgroup Thinning factor coefficients
+      /// @{
+      double m_m1;
+      double m_m2;          
+      double m_c2;
+      /// @}
+
+      double m_maxBasalticCrustThickness;   ///< The maximum oceanic (basaltic) crust thickness
+      double m_magmaThicknessCoeff;         ///< The asthenospheric mantle (magma) thickness coefficient
 };
+
+//------------------------------------------------------------//
 
 inline void LinearFunction::setWLS_crit( const double inWLS ) {
    m_WLS_crit = inWLS;

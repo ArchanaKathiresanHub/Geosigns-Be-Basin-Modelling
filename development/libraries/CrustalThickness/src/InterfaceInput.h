@@ -1,13 +1,27 @@
-#ifndef _Interface_INPUT_H_
-#define _Interface_INPUT_H_
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
 
+#ifndef _CRUSTALTHICKNESS_INTERFACEINPUT_H_
+#define _CRUSTALTHICKNESS_INTERFACEINPUT_H_
+
+// std library
 #include <iostream>
 #include <fstream>
 #include <string>
 #include <vector>
 
+// DataAccess library
 #include "Interface/GridMap.h"
 #include "Interface/CrustalThicknessData.h"
+
+// CrustalThickness library
 #include "LinearFunction.h"
 
 using namespace std;
@@ -30,171 +44,249 @@ namespace DataAccess
 }
 
 namespace CrustalThicknessInterface {
-   const string TableBasicConstants = "Table:[BasicConstants]";
+   const string TableBasicConstants          = "Table:[BasicConstants]";
    const string TableLithoAndCrustProperties = "Table:[LithoAndCrustProperties]";
-   const string TableTemperatureData = "Table:[TemperatureData]";
-   const string TableSolidus = "Table:[Solidus]";
-   const string TableMagmaLayer = "Table:[MagmaLayer]";
-   const string TableUserDefinedData = "Table:[UserDefinedData]";
-   const string TableMantle = "Table:[Mantle]";
-   const string TableStandardCrust = "Table:[StandardCrust]";
-   const string TableLowCondCrust = "Table:[LowCondCrust]";
-   const string TableBasalt = "Table:[Basalt]";
-   const string EndOfTable = "[EndOfTable]";
+   const string TableTemperatureData         = "Table:[TemperatureData]";
+   const string TableSolidus                 = "Table:[Solidus]";
+   const string TableMagmaLayer              = "Table:[MagmaLayer]";
+   const string TableUserDefinedData         = "Table:[UserDefinedData]";
+   const string TableMantle                  = "Table:[Mantle]";
+   const string TableStandardCrust           = "Table:[StandardCrust]";
+   const string TableLowCondCrust            = "Table:[LowCondCrust]";
+   const string TableBasalt                  = "Table:[Basalt]";
+   const string EndOfTable                   = "[EndOfTable]";
 
-   const string t_0 = "t_0";
-   const string t_r = "t_r";
-   const string initialCrustThickness = "initialCrustThickness";
-   const string maxBasalticCrustThickness = "maxBasalticCrustThickness";
+   const string t_0                          = "t_0";
+   const string t_r                          = "t_r";
+   const string initialCrustThickness        = "initialCrustThickness";
+   const string maxBasalticCrustThickness    = "maxBasalticCrustThickness";
    const string initialLithosphericThickness = "initialLithosphericThickness";
-   const string seaLevelAdjustment = "seaLevelAdjustment";
-   const string coeffThermExpansion = "coeffThermExpansion";
-   const string initialSubsidenceMax = "initialSubsidenceMax";
-   const string thermalSubsidenceMax = "thermalSubsidenceMax";
-   const string pi = "pi";
-   const string E0 = "E0";
-   const string tau = "tau";
-   const string modelTotalLithoThickness = "modelTotalLithoThickness";
-   const string backstrippingMantleDensity = "backstrippingMantleDensity";
-   const string lithoMantleDensity = "lithoMantleDensity";
-   const string baseLithosphericTemperature = "baseLithosphericTemperature";
-   const string referenceCrustThickness = "referenceCrustThickness";
-   const string referenceCrustDensity = "referenceCrustDensity";
-   const string waterDensity = "waterDensity";
-   const string A = "A";
-   const string B = "B";
-   const string C = "C";
-   const string D = "D";
-   const string E = "E";
-   const string F = "F";
-   const string T = "T";
-   const string decayConstant = "decayConstant";
-   const string lithosphereThicknessMin = "HLmin";
-   const string maxNumberOfMantleElements = "HLMEmax";
-   const string Heat = "Heat";
-   const string Rho  = "Rho";
+   const string seaLevelAdjustment           = "seaLevelAdjustment";
+   const string coeffThermExpansion          = "coeffThermExpansion";
+   const string initialSubsidenceMax         = "initialSubsidenceMax";
+   const string pi                           = "pi";
+   const string E0                           = "E0";
+   const string tau                          = "tau";
+   const string modelTotalLithoThickness     = "modelTotalLithoThickness";
+   const string backstrippingMantleDensity   = "backstrippingMantleDensity";
+   const string lithoMantleDensity           = "lithoMantleDensity";
+   const string baseLithosphericTemperature  = "baseLithosphericTemperature";
+   const string referenceCrustThickness      = "referenceCrustThickness";
+   const string referenceCrustDensity        = "referenceCrustDensity";
+   const string waterDensity                 = "waterDensity";
+   const string A                            = "A";
+   const string B                            = "B";
+   const string C                            = "C";
+   const string D                            = "D";
+   const string E                            = "E";
+   const string F                            = "F";
+   const string T                            = "T";
+   const string Heat                         = "Heat";
+   const string Rho                          = "Rho";
+   const string decayConstant                = "decayConstant";
+   const string lithosphereThicknessMin      = "HLmin";
+   const string maxNumberOfMantleElements    = "NLMEmax";
+   const string maxNumberOfMantleElementsOld = "HLMEmax";
+   const string initNumberOfMantleElements   = "NInitLMEmax";
+   const string minECT                       = "ECTmin";
+   const string minBoundaryLayer             = "HCBLmin";
 
+   /// @brief Parse the CTC command line
+   /// @param theString The command to be parsed
+   /// @param theDelimiter The command option delimiter
+   /// @param theTokens The command's options parsed from the command line
    void parseLine(const string &theString, const string &theDelimiter, vector<string> &theTokens);
+   /// @brief Get the MPI rank
+   /// @return The MPI rank
    int GetRank ();
+   /// @brief Get the number of processes
+   /// @return The number of processes
    int GetNumOfProcs ();
 }
 
+/// @class InterfaceInput The CTC input interface
 class InterfaceInput : public Interface::CrustalThicknessData
 {
 
 public:
 
    InterfaceInput (Interface::ProjectHandle * projectHandle, database::Record * record);
-
    virtual ~InterfaceInput ();
-
    
-private:
-
-  //-------------- User interface data ------------------
-   double m_t_0;
-   double m_t_r;
-   double m_initialCrustThickness;
-   double m_initialLithosphericThickness;
-   double m_maxBasalticCrustThickness;
-   double m_seaLevelAdjustment;
-
-   //-------------- Basic constants ---------------------
-   double m_coeffThermExpansion;
-   double m_initialSubsidenceMax;
-   double m_thermalSubsidenceMax;
-   double m_pi;
-   double m_E0;
-   double m_tau;
-
-   //-------------- Lithospphere and crust properties ---------------------
-   double m_modelTotalLithoThickness;
-   double m_backstrippingMantleDensity;
-   double m_lithoMantleDensity;
-   double m_baseLithosphericTemperature;
-   double m_referenceCrustThickness;
-   double m_referenceCrustDensity;
-   double m_waterDensity;
-   
-   //------------- Asthenosphere potential temperature data ---------------------
-   double m_A;
-   double m_B;
-  
-   //------------- Solidus (onset of adiabatic melting) ---------------------
-   double m_C;
-   double m_D;
-
-   //------------- Magma-layer density ---------------------
-   double m_E;
-   double m_F;
-   double m_decayConstant;
-
-   //------------- Data from CTCIoTbl
-   
-   const GridMap * m_T0Map;
-   const GridMap * m_TRMap;
-   const GridMap * m_HCuMap;
-   const GridMap * m_HLMuMap;
-   const GridMap * m_HBuMap;
-   const GridMap * m_DeltaSLMap;
-
-   string m_baseRiftSurfaceName; 
-   //-------------   
-   double m_modelCrustDensity;
-   double m_TF_onset;
-   double m_TF_onset_lin;
-   double m_TF_onset_mig;
-   double m_PTa;
-   double m_magmaticDensity;
-   double m_WLS_onset;
-   double m_WLS_crit;
-   double m_WLS_exhume;
-   double m_WLS_exhume_serp;
-
-   double m_densityDiff;
-
-   void clean();
-   
-public:
+   /// @defgroup LoadData
+   ///    Load data from configuration file
+   /// @{
    void loadInputDataAndConfigurationFile( const string & inFile );
-   void loadInputData();
-   void loadConfigurationFile( const string & inFile );
+   void loadInputData                    ();
+   void loadConfigurationFile            ( const string & inFile );
+   void LoadBasicConstants               ( ifstream &ConfigurationFile );
+   void LoadLithoAndCrustProperties      ( ifstream &ConfigurationFile );
+   void LoadTemperatureData              ( ifstream &ConfigurationFile );
+   void LoadSolidus                      ( ifstream &ConfigurationFile );
+   void LoadMagmaLayer                   ( ifstream &ConfigurationFile );
+   void LoadUserDefinedData              ( ifstream &ConfigurationFile );
+   /// @}
 
-   void LoadBasicConstants( ifstream &ConfigurationFile );
-   void LoadLithoAndCrustProperties( ifstream &ConfigurationFile );
-   void LoadTemperatureData( ifstream &ConfigurationFile );
-   void LoadSolidus( ifstream &ConfigurationFile );
-   void LoadMagmaLayer( ifstream &ConfigurationFile );
-   void LoadUserDefinedData( ifstream &ConfigurationFile );
-
-   double getMidAge() const;
-   double getDensityDifference() const;
-   double getInitialCrustThickness() const;
+   /// @defgroup Accessors
+   /// @{
+   int    getSmoothRadius               () const;
+   double getMidAge                     () const;
+   double getDensityDifference          () const;
+   double getInitialCrustThickness      () const;
    double getInitialLithosphereThickness() const;
-   double getBackstrippingMantleDensity() const;
-   double getEstimatedCrustDensity() const;
-   double getTFOnset() const;
-   double getTFOnsetLin() const;
-   double getTFOnsetMig() const;
-   double getPTa() const;
-   double getMagmaticDensity() const;
-   double getWLSexhume() const;
-   double getWLScrit() const;
-   double getWLSonset() const;
-   double getWLSexhumeSerp() const;
-   double getDeltaSLValue(unsigned int i, unsigned int j) const;
-   const string& getBaseRiftSurfaceName() const;
+   double getBackstrippingMantleDensity () const;
+   double getWaterDensity               () const;
+   double getECTmin                     () const;
+   double getEstimatedCrustDensity      () const;
+   double getTFOnset                    () const;
+   double getTFOnsetLin                 () const;
+   double getTFOnsetMig                 () const;
+   double getPTa                        () const;
+   double getMagmaticDensity            () const;
+   double getWLSexhume                  () const;
+   double getWLScrit                    () const;
+   double getWLSonset                   () const;
+   double getWLSexhumeSerp              () const;
+
+   double getDeltaSLValue               (unsigned int i, unsigned int j) const;
+   const string& getBaseRiftSurfaceName () const;
+   double getInitialSubsidence          () const { return m_initialSubsidenceMax; }
+
+   const GridMap* getT0Map     () const;
+   const GridMap* getTRMap     () const;
+   const GridMap* getHCuMap    () const;
+   const GridMap* getHLMuMap   () const;
+   const GridMap* getDeltaSLMap() const;
+   /// @}
+
+   /// @brief Calculate coefficients for the linear function to invert from WLS to TF (thinning factor) for the (i,j) node
    bool defineLinearFunction( LinearFunction & theFunction, unsigned int i, unsigned int j );
 
+   /// @defgroup DataUtilities
+   /// @{
+   /// @brief Retrieve all CTC maps data
    void retrieveData();
+   /// @brief Restore all CTC maps data
    void restoreData();
+   /// @}
 
+   /// @defgroup GridUtilities
+   ///    Defined from m_T0Map
+   /// @{
    unsigned firstI() const;
    unsigned firstJ() const;
    unsigned lastI() const;
    unsigned lastJ() const;
+   /// @}
+
+private:
+
+   /// @defgroup User_interface_data
+   /// @{
+   double m_t_0;                           ///< Beginning of rifting                       [Ma]
+   double m_t_r;                           ///< End of rifting                             [Ma]
+   double m_initialCrustThickness;         ///< Initial continental crust thickness        [m]
+   double m_initialLithosphericThickness;  ///< Initial lithospheric mantle thickness      [m]
+   double m_maxBasalticCrustThickness;     ///< Maximum oceanic (basaltic) crust thickness [m]
+   double m_seaLevelAdjustment;            ///< Sea level adjustment                       [m]
+
+   const GridMap * m_T0Map;        ///< Beginning of rifting                       [Ma]
+   const GridMap * m_TRMap;        ///< End of rifting                             [Ma]
+   const GridMap * m_HCuMap;       ///< Initial continental crust thickness        [m]
+   const GridMap * m_HLMuMap;      ///< Initial lithospheric mantle thickness      [m]
+   const GridMap * m_HBuMap;       ///< Maximum oceanic (basaltic) crust thickness [m]
+   const GridMap * m_DeltaSLMap;   ///< Sea level adjustment                       [m]
+   int    m_smoothRadius;          ///< Smoothing radius                           [Cells]
+   /// @}
+
+   /// @defgroup Basic_constants
+   /// @{
+   double m_coeffThermExpansion;   ///< Thermal expension coefficeint
+   double m_initialSubsidenceMax;  ///< Maximum initial subsidence
+   double m_pi;                    ///< Pi
+   double m_E0;
+   double m_tau;
+   /// @}
+
+   /// @defgroup Lithospphere_and_crust_properties
+   /// @{
+   double m_modelTotalLithoThickness;    ///< Total lithospher thickness (crust + lithospheric mantle)
+   /// @todo Why do we use two mantle and crust density?
+   double m_backstrippingMantleDensity;  ///< The backstriped lithospheric mantle density
+   double m_lithoMantleDensity;          ///< The lithospheric mantle density
+   double m_baseLithosphericTemperature; ///< The bottom lithospheric mantle temperature
+   double m_referenceCrustThickness;     ///< The reference continental crust thickness
+   double m_referenceCrustDensity;       ///< The reference continental crust density
+   double m_waterDensity;                ///< The water density
+   double m_minECT;                      ///< Minimum effective crustal thickness
+   /// @}
+
+   /// @defgroup Asthenosphere_potential_temperature_data
+   /// @{
+   double m_A;
+   double m_B;
+   /// @}
+
+   /// @defgroup Solidus_data
+   ///    onsetof adiabatic melting
+   /// @{
+   double m_C;
+   double m_D;
+   /// @}
+
+   /// @defgroup Magma-layer_density_data
+   /// @{
+   double m_E;
+   double m_F;
+   double m_decayConstant;
+   /// @}
+
+   /// @defgroup Variables
+   /// @{
+   double m_modelCrustDensity; ///< Estimated continental crust density
+   double m_TF_onset;          ///< Crustal thinning factor at melt onset
+   double m_TF_onset_lin;      ///< Liner approximation of thinning factor at melt onset
+   double m_TF_onset_mig;      ///< Crustal thinning factor at threshold 'm_maxBasalticCrustThickness'
+   double m_PTa;               ///< Asthenospheric mantle potential temperature
+   double m_magmaticDensity;   ///< Asthenospheric mantle density
+   double m_WLS_onset;         ///< Water loaded subsidence at melt onset
+   /// @todo Ask Natalya what are these WLS for
+   double m_WLS_crit;          ///< Water loaded subsidence at ?
+   double m_WLS_exhume;        ///< Water loaded subsidence at ?
+   double m_WLS_exhume_serp;   ///< Water loaded subsidence at ?
+   /// @}
+
+   string m_baseRiftSurfaceName;  ///< Name of a base of syn-rift 
+
+   /// @brief Clean all class members
+   void clean();
 };
 
+//------------------------------------------------------------//
+
+inline const GridMap* InterfaceInput::getT0Map() const {
+   return m_T0Map;
+}
+
+inline const GridMap* InterfaceInput::getTRMap() const {
+   return m_TRMap;
+}
+
+inline const GridMap* InterfaceInput::getHCuMap() const {
+   return m_HCuMap;
+}
+
+inline const GridMap* InterfaceInput::getHLMuMap() const {
+   return m_HLMuMap;
+}
+
+inline const GridMap* InterfaceInput::getDeltaSLMap() const {
+   return m_DeltaSLMap;
+}
+
+inline int InterfaceInput::getSmoothRadius() const {
+   return m_smoothRadius;
+}
 
 inline double InterfaceInput::getDeltaSLValue( unsigned int i, unsigned int j ) const {
    
@@ -209,10 +301,6 @@ inline double InterfaceInput::getMidAge() const {
    return (m_t_r + m_t_0) / 2;
 }
 
-inline double InterfaceInput::getDensityDifference() const {
-
-   return m_densityDiff;
-}
 inline double InterfaceInput::getInitialCrustThickness() const {
    
    return m_initialCrustThickness;
@@ -226,6 +314,16 @@ inline double InterfaceInput::getInitialLithosphereThickness() const {
 inline double InterfaceInput::getBackstrippingMantleDensity() const {
    
    return m_backstrippingMantleDensity;
+}
+
+inline double InterfaceInput::getWaterDensity() const {
+   
+   return m_waterDensity;
+}
+
+inline double InterfaceInput::getECTmin() const {
+   
+   return m_minECT;
 }
 
 inline double InterfaceInput::getEstimatedCrustDensity() const {

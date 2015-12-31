@@ -1,25 +1,35 @@
-#include <assert.h>
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
 
+// std library
+#include <assert.h>
 #include <iostream>
 #include <sstream>
 using namespace std;
 #define USESTANDARD
 
-#include "database.h"
+// TableIO library
 #include "cauldronschemafuncs.h"
-
+#include "database.h"
 using namespace database;
 
-#include "Interface/GridMap.h"
-#include "Interface/ProjectHandle.h"
+// DataAccess library
 #include "Interface/CrustalThicknessData.h"
+#include "Interface/GridMap.h"
 #include "Interface/ObjectFactory.h"
-
+#include "Interface/ProjectHandle.h"
 using namespace DataAccess;
 using namespace Interface;
 
 
-const string CrustalThicknessData::s_MapAttributeNames[] =
+const char* CrustalThicknessData::s_MapAttributeNames[] =
 {
    "T0Ini", "TRIni", "HCuIni", "HLMuIni", "HBu", "DeltaSL"
 };
@@ -58,6 +68,11 @@ const double & CrustalThicknessData::getHBu(void) const
    return database::getHBu (m_record);
 }
 
+const int & CrustalThicknessData::getFilterHalfWidth(void) const
+{
+   return database::getFilterHalfWidth (m_record);
+}
+
 const double & CrustalThicknessData::getDeltaSL(void) const
 {
    return database::getDeltaSL (m_record);
@@ -85,8 +100,8 @@ GridMap * CrustalThicknessData::loadMap (Interface::CTCMapAttributeId attributeI
 {
    unsigned int attributeIndex = (unsigned int) attributeId;
 
-   string attributeGridName = s_MapAttributeNames[attributeIndex] + "Grid";
-   const string & valueGridMapId = m_record->getValue<std::string>(attributeGridName);
+   string attributeGridName = string(s_MapAttributeNames[attributeIndex]) + "Grid";
+   const string & valueGridMapId = m_record->getValue<std::string>( attributeGridName );
 
    GridMap * gridMap = 0;
    if (valueGridMapId.length () != 0)
@@ -95,12 +110,12 @@ GridMap * CrustalThicknessData::loadMap (Interface::CTCMapAttributeId attributeI
    }
    else
    {
-      double value;
-      if ((value = m_record->getValue<double>(s_MapAttributeNames[attributeIndex])) != RecordValueUndefined)
+      double value = m_record->getValue<double>( string( s_MapAttributeNames[attributeIndex] ) );
+      if (value != RecordValueUndefined)
       {
          //const Grid *grid = m_projectHandle->getInputGrid ();
-	 const Grid * grid = m_projectHandle->getActivityOutputGrid();
-	 if (!grid) grid = (const Grid *) m_projectHandle->getInputGrid ();
+	      const Grid * grid = m_projectHandle->getActivityOutputGrid();
+	      if (!grid) grid = (const Grid *) m_projectHandle->getInputGrid ();
          gridMap = m_projectHandle->getFactory ()->produceGridMap (this, attributeIndex, grid, value);
 
          assert (gridMap == getChild (attributeIndex));

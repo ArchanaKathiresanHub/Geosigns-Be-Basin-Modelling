@@ -14,15 +14,25 @@ if (NOT BM_PARALLEL)
 	return()
 endif()
 
-FILE( GLOB all_headers src/*.h )
-source_group(include FILES ${all_headers})
 
-FILE( GLOB all_srcs src/*.C)
-source_group(source FILES ${all_srcs})
+set( all_headers
+   src/DensityCalculator.h
+   src/InterfaceDefs.h
+	src/InterfaceInput.h
+	src/InterfaceOutput.h
+   src/LinearFunction.h
+)
 
-add_library(CrustalThickness 
-   ${all_srcs}
-   ${all_headers}
+set( all_srcs
+	src/DensityCalculator.C
+	src/InterfaceInput.C
+	src/InterfaceOutput.C
+   src/LinearFunction.C
+)
+
+add_library(CrustalThickness
+  ${all_srcs}
+  ${all_headers}
 )
 
 bm_include_libraries(
@@ -40,17 +50,21 @@ bm_include_libraries(
 	Serial_Hdf5
 )
 
+remove_definitions(-fPIC)
+
 include_directories(
 	${HDF5_INCLUDE_DIRS}
 )
 
 target_link_libraries(CrustalThickness
+	DistributedDataAccess
 	DataAccess
 	DerivedProperties	
 	EosPack	
 	CBMGenerics
 	utilities
 	TableIO
+	Utilities_Petsc
 	Serial_Hdf5
 	${HDF5_LIBRARIES}
 ) 
@@ -60,6 +74,8 @@ install(TARGETS CrustalThickness
 	LIBRARY DESTINATION lib
 	ARCHIVE DESTINATION lib
 )
+
+generate_dox(CrustalThickness.cfg)
 
 # Local Variables:
 # mode: cmake
