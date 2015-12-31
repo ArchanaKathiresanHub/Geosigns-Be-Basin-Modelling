@@ -6200,11 +6200,9 @@ Identification      : HcLiquidBrineCapillaryEntryPressure
     Identification      : FilterHalfWidth
     Description         : Half of the filter width for spatial smoothing of WLS
     Type                : integer
-    Unit of measurement : 
+    Unit of measurement :
     Default             : 5
     Error Field         : No
-    Time dependent      : No
-    Property I/O        : No
 
 #### Crustal Thickness Calculator and Advanced Lithosphere Calculator output properties 
 
@@ -6864,7 +6862,7 @@ START-property-tables
     Column         : HBuGrid
     Column         : DeltaSL
     Column         : DeltaSLGrid
-    Column	       : FilterHalfWidth
+    Column         : FilterHalfWidth
     Header         : Crustal Thickness Calculator input data  
 
 # Boundary condition data -------------------------------------------------
