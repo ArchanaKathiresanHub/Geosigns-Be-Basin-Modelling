@@ -577,7 +577,7 @@ add_gtest( NAME "MeshUnitTesterMixedHoles"
 	
 endif(BM_PARALLEL)	
 
-generate_dox(src/fastcauldron.cfg )
+generate_dox(src/fastcauldron.cfg)
 
 # Local Variables:
 # mode: cmake

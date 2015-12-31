@@ -1,10 +1,25 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
+// std library
 #include <iostream>
 #include <fstream>
+
+// petsc library
 #include <petsc.h>
 
+// CrustalThickness library
 #include "CrustalThicknessCalculator.h"
 #include "CrustalThicknessCalculatorFactory.h"
 
+// Flexlm licenses
 #ifdef FLEXLM
 #undef FLEXLM
 #endif
@@ -14,7 +29,6 @@
 #else
 #define FLEXLM 1
 #endif
-
 
 #ifdef FLEXLM
 // FlexLM license handling
@@ -28,7 +42,8 @@ void showUsage () {
    cout << "Usage: " << endl
         << "\t-project projectname       Name of the project file" << endl
         << "\t[-debug]                   Output all map properties. Use in combination with -hdf or/and -xyz or/and -sur to output into individual files" << endl
-        << "\t[-nosmooth]                Don't smooth the WLS map" << endl
+        << "\t[-nosmooth]                Don't smooth the result maps" << endl
+        << "\t[-smooth <radius>]         Smooth the result maps using the defined <radius>. Default value: 5" << endl
         << "\t[-save filename]           Name of output project file" << endl
         << "\t[-xyz]                     Output selected maps also in XYZ format" << endl
         << "\t[-sur]                     Use only in combination with -debug. Output selected maps in SUR format (to visualize surface chart in Excel)" << endl
@@ -40,7 +55,7 @@ void showUsage () {
 void finaliseCrustalThicknessCalculator ( char* feature, const char* errorMessage = "" , CrustalThicknessCalculatorFactory* factory = 0 ) {
    
    if ( strlen ( errorMessage ) > 0 ) {
-      PetscPrintf ( PETSC_COMM_WORLD, "\n %s \n\n", errorMessage );
+      PetscPrintf ( PETSC_COMM_WORLD, "\nMeSsAgE ERROR %s \n\n", errorMessage );
    }
 
  
@@ -67,6 +82,8 @@ int main (int argc, char ** argv)
    int rank = 99999;
 
    CrustalThicknessCalculatorFactory* factory = new CrustalThicknessCalculatorFactory;
+   //DataAccess::Interface::ProjectHandle::UseFactory (factory);
+
    PetscInitialize (&argc, &argv, (char *) 0, PETSC_NULL);
 
    MPI_Comm_rank(PETSC_COMM_WORLD, &rank);
@@ -78,7 +95,7 @@ int main (int argc, char ** argv)
    char version[EPTFLEXLM_MAX_VER_LEN];
    char errmessage[EPTFLEXLM_MAX_MESS_LEN];
    
-  
+
    // FlexLM license handling only for node with rank = 0
    if( rank == 0 ) {
       sprintf(feature, "ibs_cauldron_calc");
@@ -144,6 +161,9 @@ int main (int argc, char ** argv)
       return -1;
    }
 
+   PetscBool upgradeOnly = PETSC_FALSE;
+   PetscOptionsHasName (PETSC_NULL, "-upgrade", &upgradeOnly);
+
    const int lineSize = 128;
    char inputFileName[lineSize];
    inputFileName[0] = '\0';
@@ -155,11 +175,12 @@ int main (int argc, char ** argv)
       showUsage ();
       PetscFinalize ();
       return -1;
-   } 
-   PetscLogDouble sim_Start_Time;
-   PetscTime( &sim_Start_Time );   
+   }
 
-   if(!CrustalThicknessCalculator::CreateFrom( inputFileName, factory)) {
+   PetscLogDouble sim_Start_Time;
+   PetscTime( &sim_Start_Time );
+
+   if(!CrustalThicknessCalculator::CreateFrom( inputFileName )) {
       fprintf(stderr, "MeSsAgE ERROR Can not open the project file\n");
       showUsage ();
       PetscFinalize ();
@@ -171,23 +192,26 @@ int main (int argc, char ** argv)
       return -1;
    };
    
-   try {
-      CrustalThicknessCalculator::getInstance().deleteCTCPropertyValues();
+   if( !upgradeOnly ) {
+      try {
+         CrustalThicknessCalculator::getInstance().deleteCTCPropertyValues();
 
-      CrustalThicknessCalculator::getInstance().run();
-
-   } catch ( std::string& s ) {
-      finaliseCrustalThicknessCalculator(feature, s.c_str(), factory);
-      return 0;
+         CrustalThicknessCalculator::getInstance().run();
+         
+      } catch ( std::string& s ) {
+         finaliseCrustalThicknessCalculator(feature, s.c_str(), factory);
+         return 0;
+      }
+      catch (...) {
+         finaliseCrustalThicknessCalculator(feature, "", factory);
+         return 0;
+      }
+   } else {
+      cout << "Upgrade only" << endl;
    }
 
-   catch (...) {
-      finaliseCrustalThicknessCalculator(feature, "", factory);
-      return 0;
-   }
    PetscLogDouble sim_End_Time;
-   PetscTime( &sim_End_Time );   
-
+   PetscTime( &sim_End_Time );
    displayTime( sim_End_Time - sim_Start_Time, "End of simulation" );
 
 #ifdef FLEXLM
@@ -198,6 +222,7 @@ int main (int argc, char ** argv)
       EPTFlexLmTerminate();
    }
 #endif
+
    CrustalThicknessCalculator::finalise(true);
 
    PetscTime( &sim_End_Time );   
