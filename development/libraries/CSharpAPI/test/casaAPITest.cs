@@ -545,8 +545,59 @@ namespace Shell.BasinModeling.Cauldron.Test
       [TestMethod]
       public void MCSolver_MCMC_Test() // analog of casaAPI/test/MCTest.C
       {
-         /////////!!!!!!!!!!!!!!!!!!!!!!! temporary disabled
-         return;
+         //                                       RMSE    prm 1    prm 2     obs 1    obs 2
+         double[,] mcResults = new double[,] { { 10.6199, 14.9939, 0.353319, 80.4759, 0.572543 },
+                                               { 10.6241, 14.9899, 2.22,     80.4637, 0.57247  },
+                                               { 10.6246, 14.9894, 0.823811, 80.4621, 0.57246  },
+                                               { 10.625,  14.989,  1.07942,  80.4609, 0.572452 },
+                                               { 10.6293, 14.985,  0.152547, 80.4485, 0.572378 },
+                                               { 10.6296, 14.9847, 0.244148, 80.4477, 0.572373 },
+                                               { 10.6358, 14.9788, 1.79458,  80.4297, 0.572264 },
+                                               { 10.64,   14.9749, 0.925276, 80.4178, 0.572192 },
+                                               { 10.6417, 14.9733, 1.1165,   80.4128, 0.572161 },
+                                               { 10.642,  14.973,  0.426355, 80.4119, 0.572156 },
+                                               { 10.6421, 14.9729, 4.25969,  80.4116, 0.572154 },
+                                               { 10.6422, 14.9728, 3.57137,  80.4113, 0.572152 },
+                                               { 10.6425, 14.9725, 2.14452,  80.4103, 0.572146 },
+                                               { 10.6426, 14.9725, 3.47253,  80.4102, 0.572146 },
+                                               { 10.6441, 14.9711, 0.140859, 80.406,  0.57212  },
+                                               { 10.6455, 14.9697, 0.531559, 80.4016, 0.572094 },
+                                               { 10.6463, 14.969,  3.96393,  80.3995, 0.572081 },
+                                               { 10.6464, 14.9689, 2.5711,   80.3993, 0.572079 },
+                                               { 10.6492, 14.9662, 0.380807, 80.3911, 0.57203  },
+                                               { 10.6498, 14.9657, 1.21838,  80.3895, 0.57202  },
+                                               { 10.6503, 14.9652, 4.19547,  80.3878, 0.57201  },
+                                               { 10.6504, 14.9651, 1.01329,  80.3875, 0.572008 },
+                                               { 10.6522, 14.9634, 1.05815,  80.3823, 0.571977 },
+                                               { 10.6558, 14.96,   0.23379,  80.372,  0.571914 },
+                                               { 10.6562, 14.9597, 2.57613,  80.3709, 0.571908 },
+                                               { 10.6563, 14.9595, 1.13229,  80.3705, 0.571905 },
+                                               { 10.6588, 14.9572, 2.57458,  80.3634, 0.571862 },
+                                               { 10.6592, 14.9568, 2.15885,  80.3622, 0.571855 },
+                                               { 10.6593, 14.9568, 2.28329,  80.362,  0.571854 },
+                                               { 10.6631, 14.9531, 2.25454,  80.3509, 0.571787 },
+                                               { 10.6664, 14.95,   2.18242,  80.3413, 0.571729 },
+                                               { 10.6688, 14.9478, 2.22615,  80.3345, 0.571687 },
+                                               { 10.6698, 14.9468, 2.69632,  80.3315, 0.571669 },
+                                               { 10.6728, 14.944,  0.530648, 80.3228, 0.571616 },
+                                               { 10.68,   14.9372, 3.96848,  80.3021, 0.571491 },
+                                               { 10.685,  14.9326, 1.17187,  80.2878, 0.571404 },
+                                               { 10.6868, 14.9308, 0.40862,  80.2824, 0.571372 },
+                                               { 10.6877, 14.93,   2.6942,   80.28,   0.571357 },
+                                               { 10.6911, 14.9268, 0.56615,  80.27,   0.571297 },
+                                               { 10.6912, 14.9267, 2.42626,  80.2696, 0.571294 },
+                                               { 10.7057, 14.913,  3.32914,  80.2278, 0.571041 },
+                                               { 10.7062, 14.9126, 0.597936, 80.2264, 0.571032 },
+                                               { 10.7141, 14.9052, 0.541473, 80.2037, 0.570895 },
+                                               { 10.7147, 14.9046, 0.293939, 80.2018, 0.570884 },
+                                               { 10.7196, 14.8999, 3.53698,  80.1877, 0.570798 },
+                                               { 10.7215, 14.8981, 0.884713, 80.1821, 0.570765 },
+                                               { 10.7285, 14.8916, 4.25707,  80.162,  0.570642 },
+                                               { 10.7324, 14.8879, 2.23697,  80.1507, 0.570574 },
+                                               { 10.7336, 14.8868, 0.268091, 80.1474, 0.570554 },
+                                               { 10.7351, 14.8854, 3.33775,  80.143,  0.570527 }
+                                             };
+
          // create new scenario analysis
          ScenarioAnalysis sa = new ScenarioAnalysis();
          // prepare scenario - define Tornado DoE for 2 var parameters and 2 observables, create 1st order proxy
@@ -562,39 +613,43 @@ namespace Shell.BasinModeling.Cauldron.Test
 
          Assert.AreEqual(ErrorHandler.ReturnCode.NoError, sa.mcSolver().runSimulation(proxy, sa.varSpace(), sa.varSpace(), sa.obsSpace(), 50, 10, 1.0));
 
-         sa.saveScenario("MCMC.txt", "txt");
+         m_isDebug = true;
+         if (m_isDebug) { logMsg("MCSolver_MCMC_Test StdDev " + sa.mcSolver().stdDevFactor().ToString()); }
+         else           { Assert.AreEqual(1.0, sa.mcSolver().stdDevFactor(), eps);  }
+         m_isDebug = false;
 
-         // Get MCMC samples
+         // Get MC samples
          // must be 50 samples
-         Assert.IsTrue(sa.mcSolver().samplingsNumber() == 50);
+         Assert.AreEqual(50U, sa.mcSolver().samplingsNumber());
 
-         // check couple cases to be sure
-         RunCase rc = sa.mcSolver().samplingPoint(7);
+         // go over all samplings and compare results
+         for (uint i = 0; i < sa.mcSolver().samplingsNumber(); ++i)
+         {
+            RunCase rc = sa.mcSolver().samplingPoint(i);
 
-         // check RMSE value
-         double rmse = sa.mcSolver().RMSE(7);
-         Assert.IsTrue(relativeError(rmse, 10.6236) < reps);
-         	
-         // check generated parameters
-         Assert.IsTrue(relativeError(rc.parameter(0).asDoubleArray()[0], 14.9903) < reps);
-         Assert.IsTrue(relativeError(rc.parameter(1).asDoubleArray()[0], 3.03292) < reps);
+            if (!m_isDebug)
+            {
+               // check RMSE value
+               Assert.IsTrue(relativeError(mcResults[i, 0], sa.mcSolver().RMSE(i)) < reps);
 
-         // check evaluated observables
-         Assert.IsTrue(relativeError(rc.obsValue(0).asDoubleArray()[0], 80.4651) < reps);
-         Assert.IsTrue(relativeError(rc.obsValue(1).asDoubleArray()[0], 0.572478) < reps);
+               // check generated parameters
+               Assert.IsTrue(relativeError(mcResults[i, 1], rc.parameter(0).asDoubleArray()[0]) < reps);
+               Assert.IsTrue(relativeError(mcResults[i, 2], rc.parameter(1).asDoubleArray()[0]) < reps);
 
-         rc = sa.mcSolver().samplingPoint(44);
-
-         rmse = sa.mcSolver().RMSE(44);
-         Assert.IsTrue(relativeError(rmse, 10.758168) < reps);
-	
-         // check generated parameters
-         Assert.IsTrue(relativeError(rc.parameter(0).asDoubleArray()[0], 14.8485) < reps);
-         Assert.IsTrue(relativeError(rc.parameter(1).asDoubleArray()[0], 0.375491) < reps);
-
-         // check evaluated observables
-         Assert.IsTrue(relativeError(rc.obsValue(0).asDoubleArray()[0], 80.0297) < reps);
-         Assert.IsTrue(relativeError(rc.obsValue(1).asDoubleArray()[0], 0.569842) < reps);
+               // check evaluated observables
+               Assert.IsTrue(relativeError(mcResults[i, 3], rc.obsValue(0).asDoubleArray()[0]) < reps);
+               Assert.IsTrue(relativeError(mcResults[i, 4], rc.obsValue(1).asDoubleArray()[0]) < reps);
+            }
+            else
+            {
+               string msg = "{ " + sa.mcSolver().RMSE(i).ToString() + ", " +
+                                   rc.parameter(0).asDoubleArray()[0].ToString() + ", " +
+                                   rc.parameter(1).asDoubleArray()[0].ToString() + ", " +
+                                   rc.obsValue(0).asDoubleArray()[0].ToString() + ", " +
+                                   rc.obsValue(1).asDoubleArray()[0].ToString() + " }";
+               logMsg(msg);
+            }
+         }
       }
 
       [TestMethod]
@@ -642,8 +697,6 @@ namespace Shell.BasinModeling.Cauldron.Test
       [TestMethod]
       public void ScenarioAnalysis_GenerateCalibratedCase() // load state file after MCMC and generate calibrated case
       {
-         /////////!!!!!!!!!!!!!!!!!!!!!!! temporary disabled
-         return;
          ScenarioAnalysis sa = ScenarioAnalysis.loadScenario(m_bestMatchStateFileName, "txt");
 
          if (ErrorHandler.ReturnCode.NoError != sa.errorCode())

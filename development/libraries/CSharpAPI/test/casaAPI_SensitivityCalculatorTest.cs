@@ -43,7 +43,7 @@ namespace Shell.BasinModeling.Cauldron.Test
       public double eps = 1.0e-6;
       public double reps = 1.0e-2;
 
-      private static bool s_isDebug = true;
+      private static bool s_isDebug = false;
 
       private static void logMsg(string msg)
       {
@@ -60,39 +60,39 @@ namespace Shell.BasinModeling.Cauldron.Test
       [ClassInitialize()]
       public static void casaAPIInitialize(TestContext testContext)
       {
-         s_tornadoSensVals = new double[,] { { 55.6078,     81.0514,  -42.0209, 41.7564 },
-                                             { 81.258,      121.177,  -42.0117, 41.7914 },
-                                             { 88.4597,     132.449,  -42.0283, 41.7914 },
-                                             { 99.6968,     150.208,  -42.0177, 41.8049 },
-                                             { 111.823,     169.604,  -41.9781, 41.8438 },
-                                             { 0.431208,    0.599471, -34.0939, 41.1183 },
-                                             { 0.711283,    1.32084,  -26.7844, 43.1506 },
-                                             { 6.81877e-06, 161.83,   -2.03658, 89.2981 },
-                                             { 0.0623489,   221.102,  -8.02639, 64.1602 }
+         s_tornadoSensVals = new double[,] { { 56.9761183202679,  78.7675848282301, -39.8905326989529, 37.4800375702763 },
+                                             { 83.3959559081421,  117.590958040096, -39.921468587791,  37.5152214857655 },
+                                             { 90.8163782325751,  128.501934539077, -39.9374756844599, 37.5295925431513 },
+                                             { 102.402683371851,  145.667139493962, -39.9485602691141, 37.5427543330524 },
+                                             { 114.912094737518,  164.383385141402, -39.9471678687579, 37.5483568307296 },
+                                             { 0.433424616828938, 0.57428645069342, -36.451486625877,  34.5147514924337 },
+                                             { 0.719827865463825, 1.20840726003787, -33.2245783532828, 32.5385566980164 },
+                                             { 1.6627423539092,   33.7258061561916, -11.195096737769,  16.9305869513553 },
+                                             { 6.66252437185891,  110.051092887016, -16.10117231224,   18.8421478561432 }
                                            };
 
          s_observablesName = new string[] { @"Temperature(460001,6.75e+06,1293,0)"
                                           , @"Temperature(460001,6.75e+06,2129,0)"
-                                          , @"Temperature(460001,6.75e+06,2362,0)" 
+                                          , @"Temperature(460001,6.75e+06,2362,0)"
                                           , @"Temperature(460001,6.75e+06,2751,0)"
-                                          , @"Temperature(460001,6.75e+06,3200,0)" 
-                                          , @"Vr(460001,6.75e+06,1590,0)" 
-                                          , @"Vr(460001,6.75e+06,2722,0)" 
-                                          , @"OilExpelledCumulative(460001,6.75e+06,Lower Jurassic,0)" 
+                                          , @"Temperature(460001,6.75e+06,3200,0)"
+                                          , @"Vr(460001,6.75e+06,1590,0)"
+                                          , @"Vr(460001,6.75e+06,2722,0)"
+                                          , @"OilExpelledCumulative(460001,6.75e+06,Lower Jurassic,0)"
                                           , @"HcGasExpelledCumulative(460001,6.75e+06,Lower Jurassic,0)" 
                                           };
-         s_mostInfluentialPrmName = new string[] { @"TopCrustHeatProdRate [\\mu W/m^3]"
-                                                 , @"TopCrustHeatProdRate [\\mu W/m^3]"
-                                                 , @"TopCrustHeatProdRate [\\mu W/m^3]"
-                                                 , @"TopCrustHeatProdRate [\\mu W/m^3]"
-                                                 , @"TopCrustHeatProdRate [\\mu W/m^3]"
-                                                 , @"TopCrustHeatProdRate [\\mu W/m^3]"
-                                                 , @"TopCrustHeatProdRate [\\mu W/m^3]"
-                                                 , @"TopCrustHeatProdRate [\\mu W/m^3]"
-                                                 , @"TopCrustHeatProdRate [\\mu W/m^3]"
+         s_mostInfluentialPrmName = new string[] { @"TopCrustHeatProdRate [\mu W/m^3]"
+                                                 , @"TopCrustHeatProdRate [\mu W/m^3]"
+                                                 , @"TopCrustHeatProdRate [\mu W/m^3]"
+                                                 , @"TopCrustHeatProdRate [\mu W/m^3]"
+                                                 , @"TopCrustHeatProdRate [\mu W/m^3]"
+                                                 , @"TopCrustHeatProdRate [\mu W/m^3]"
+                                                 , @"TopCrustHeatProdRate [\mu W/m^3]"
+                                                 , @"TopCrustHeatProdRate [\mu W/m^3]"
+                                                 , @"TopCrustHeatProdRate [\mu W/m^3]"
                                                  };
 
-         s_paretoSensValues = new double[] { 79.6204, 7.57774, 7.11666, 3.78362, 1.46877, 0.43279 };
+         s_paretoSensValues = new double[] { 79.5068460513933, 7.57026021533152, 7.09413596688527, 3.8752513382104, 1.52132627716224, 0.432180151017226 };
 
          s_paretoIPNames = new string[] { @"TopCrustHeatProdRate [\mu W/m^3]"
                                         , @"EventStartTime [Ma]"
@@ -102,12 +102,11 @@ namespace Shell.BasinModeling.Cauldron.Test
                                         , @"EventDuration [Ma]"
                                        };
 
-
-         s_paretoCyclicSensValues = new double[,] { { 79.1661, 7.54919, 7.03656, 4.15736, 1.66057, 0.430239 },
-                                                    { 79.3384, 7.55971, 7.06475, 4.01406, 1.59182, 0.431209 },
-                                                    { 79.424,  7.56502, 7.07935, 3.94333, 1.55661, 0.431702 },
-                                                    { 79.4743, 7.56819, 7.08822, 3.90195, 1.53538, 0.431993 },
-                                                    { 79.5068, 7.57026, 7.09414, 3.87525, 1.52133, 0.43218  },
+         s_paretoCyclicSensValues = new double[,] { { 79.1660749598523, 7.54919365058352, 7.03655848450819, 4.15736152313869, 1.66057196183064, 0.430239420086683 },
+                                                    { 79.3384479056503, 7.55971389424283, 7.06475291766308, 4.01406069921233, 1.591816015768,   0.431208567463474 },
+                                                    { 79.4239851661058, 7.56502218704875, 7.07934832858845, 3.94333300619245, 1.55660959485788, 0.431701717206694 },
+                                                    { 79.474272845272,  7.56818678516592, 7.08822495752887, 3.90194760660633, 1.53537511111083, 0.431992694316026 },
+                                                    { 79.5068460513933, 7.57026021533152, 7.09413596688527, 3.8752513382104,  1.52132627716224, 0.432180151017226 },
                                                    };
 
 
