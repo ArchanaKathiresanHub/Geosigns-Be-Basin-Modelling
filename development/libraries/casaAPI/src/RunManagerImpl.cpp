@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2012-2014 Shell International Exploration & Production.
+// Copyright (C) 2012-2016 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -376,14 +376,14 @@ ErrorHandler::ReturnCode RunManagerImpl::runScheduledCases( bool asyncRun )
                         if ( allJobFinished )
                         { 
                            jobState = m_jobSched->runJob( job );
-                           if ( JobScheduler::JobPending == jobState ) ++prevPending; // take in account just submitted job
+                           if ( JobScheduler::JobPending == jobState ) ++prevPending; // take into account just submitted job
                         }
                      }
                   }
                   else
                   {
                      jobState = m_jobSched->runJob( job ); // submit the job if it not dependent on any other job
-                     if ( JobScheduler::JobPending == jobState ) ++prevPending; // take in account just submitted job
+                     if ( JobScheduler::JobPending == jobState ) ++prevPending; // take into account just submitted job
                   }
                }
 

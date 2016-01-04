@@ -124,6 +124,10 @@ int main( int argc, char ** argv )
       numRecs += cldProject.tableSize( "DepthIoTbl" );
       cldProject.clearTable( "DepthIoTbl" );
 
+      std::cout << "SimulationDetailsIoTbl";
+      numRecs += cldProject.tableSize( "SimulationDetailsIoTbl" );
+      cldProject.clearTable( "SimulationDetailsIoTbl" );
+      
       for ( size_t i = 0; i < tablesList.size(); ++i )
       {
          numRecs += cldProject.tableSize( tablesList[i] );

@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2012-2014 Shell International Exploration & Production.
+// Copyright (C) 2012-2016 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -137,9 +137,7 @@ void LithologyManagerImpl::setDatabase( database::Database * db, mbapi::Stratigr
 // Get list of lithologies in the model
 std::vector<LithologyManager::LithologyID> LithologyManagerImpl::lithologiesIDs() const
 {
-   std::vector<LithologyID> ltIDs;
-
-   // if m_lithIoTbl does not exist - return empty array
+   std::vector<LithologyID> ltIDs; // if m_lithIoTbl does not exist - return empty array
    if ( m_lithIoTbl )
    {
       // fill IDs array with increasing indexes
@@ -154,6 +152,36 @@ std::vector<LithologyManager::LithologyID> LithologyManagerImpl::lithologiesIDs(
 LithologyManager::LithologyID LithologyManagerImpl::createNewLithology()
 {
    throw std::runtime_error( "Not implemented yet" );
+}
+
+
+// duplicate records in thermal conductivity and heat capacity tables for the given lithology
+void LithologyManagerImpl::copyRecordsHeatCoeffTbls( const char * tblName, const std::string & origLithoName, const std::string & newLithoName )
+{
+   database::Table * ttable = m_db->getTable( tblName );  
+
+   // if table does not exist - report error
+   if ( !ttable ) { throw Exception( NonexistingID ) <<  tblName << " table could not be found in project"; }
+
+   // go over all records and collect records for the source lithology 
+   std::vector<const database::Record *> recSet;
+   for ( size_t k = 0; k < ttable->size(); ++k )
+   {
+      database::Record * rec = ttable->getRecord( static_cast<int>( k ) );
+      if ( !rec ) continue;
+      if ( rec->getValue<std::string>( s_LithotypeFieldName ) == origLithoName )
+      {
+         recSet.push_back( rec );
+      }
+   }
+
+   // go over found records and duplicate them for the new lithology
+   for ( size_t k = 0; k < recSet.size(); ++k )
+   {
+      database::Record * nrec = new database::Record( *(recSet[k]) );
+      nrec->setValue( s_LithotypeFieldName, newLithoName );
+      ttable->addRecord( nrec );
+   }
 }
 
 // Make a copy of the given lithology. Also makes a new set of records in table [LitThCondIoTbl] for the new litholog
@@ -191,34 +219,8 @@ LithologyManager::LithologyID LithologyManagerImpl::copyLithology( LithologyID i
       m_lithIoTbl->addRecord( copyRec );
 
       // duplicate records in Thermal conductivity and heat capacity tables
-      for ( size_t j = 0; j < 2; ++j ) // first process thermal conductivity then heat capacity
-      {
-         const std::string & tblName = j == 0 ? s_lithoThCondTableName : s_lithoHeatCapTableName;
-         database::Table * ttable = m_db->getTable( tblName );  
-
-         // if table does not exist - report error
-         if ( !ttable ) { throw Exception( NonexistingID ) <<  tblName << " table could not be found in project"; }
-
-         // go over all records and collect records for the source lithology 
-         std::vector<const database::Record *> recSet;
-         for ( size_t k = 0; k < ttable->size(); ++k )
-         {
-            database::Record * rec = ttable->getRecord( static_cast<int>( k ) );
-            if ( !rec ) continue;
-            if ( rec->getValue<std::string>( s_LithotypeFieldName ) == origLithoName )
-            {
-               recSet.push_back( rec );
-            }
-         }
-
-         // go over found records and duplicate them for the new lithology
-         for ( size_t k = 0; k < recSet.size(); ++k )
-         {
-            database::Record * nrec = new database::Record( *(recSet[k]) );
-            nrec->setValue( s_LithotypeFieldName, newLithoName );
-            ttable->addRecord( nrec );
-         }
-      }
+      copyRecordsHeatCoeffTbls( s_lithoThCondTableName,  origLithoName, newLithoName ); // duplicate records for the lithoName in ThermoCond table
+      copyRecordsHeatCoeffTbls( s_lithoHeatCapTableName, origLithoName, newLithoName ); // duplicate records for the lithoName in HeatCap table
 
       // if all is OK - create the new LithologyID for lithology copy
       ret = m_lithIoTbl->size() - 1;
@@ -226,6 +228,29 @@ LithologyManager::LithologyID LithologyManagerImpl::copyLithology( LithologyID i
    catch( const Exception & ex ) { reportError( ex.errorCode(), ex.what() ); }
 
    return ret;
+}
+
+
+// clean records from thermal conductivity and heat capacity tables for the given lithology
+void LithologyManagerImpl::cleanHeatCoeffTbls( const char * tblName, const std::string & lithoName )
+{
+   database::Table * ttable = m_db->getTable( tblName );  
+
+   // if table does not exist - report error
+   if ( !ttable ) { throw Exception( NonexistingID ) << tblName << " table could not be found in project"; }
+
+   // go over all records and collect records for the source lithology 
+   std::vector<const database::Record *> recSet;
+   for ( size_t k = 0; k < ttable->size(); ++k )
+   {
+      database::Record * rec = ttable->getRecord( static_cast<int>( k ) );
+      if ( !rec ) continue;
+      if ( rec->getValue<std::string>( s_LithotypeFieldName ) == lithoName )
+      {
+         ttable->deleteRecord( rec ); // because we deleting current record we need to shift k back
+         k--;
+      }
+   }
 }
 
 ErrorHandler::ReturnCode LithologyManagerImpl::deleteLithology( LithologyID id )
@@ -244,7 +269,8 @@ ErrorHandler::ReturnCode LithologyManagerImpl::deleteLithology( LithologyID id )
 
       // go over known tables and check if they have a reference to this lithology
       if ( m_stMgr )
-      {  //////////// check stratigraphy layers
+      {
+         //////////// check stratigraphy layers
          const std::vector<StratigraphyManager::LayerID> & layIDs = m_stMgr->layersIDs();
          for ( size_t i = 0; i < layIDs.size(); ++i )
          {
@@ -284,28 +310,9 @@ ErrorHandler::ReturnCode LithologyManagerImpl::deleteLithology( LithologyID id )
       }
       
       // delete records in Thermal conductivity and heat capacity tables
-      for ( size_t j = 0; j < 2; ++j ) // first process thermal conductivity then heat capacity
-      {
-         const std::string & tblName = j == 0 ? s_lithoThCondTableName : s_lithoHeatCapTableName;
-         database::Table * ttable = m_db->getTable( tblName );  
+      cleanHeatCoeffTbls( s_lithoThCondTableName,  lithoName ); // clean records for the lithoName in ThermoCond table
+      cleanHeatCoeffTbls( s_lithoHeatCapTableName, lithoName ); // clean records for the lithoName in HeatCap table
 
-         // if table does not exist - report error
-         if ( !ttable ) { throw Exception( NonexistingID ) << tblName << " table could not be found in project"; }
-
-         // go over all records and collect records for the source lithology 
-         std::vector<const database::Record *> recSet;
-         for ( size_t k = 0; k < ttable->size(); ++k )
-         {
-            database::Record * rec = ttable->getRecord( static_cast<int>( k ) );
-            if ( !rec ) continue;
-            if ( rec->getValue<std::string>( s_LithotypeFieldName ) == lithoName )
-            {
-               ttable->deleteRecord( rec ); // because we deleting current record we need to shift k back
-               k--;
-            }
-         }
-      }
-     
       // and finaly remove the record in lithology table itself
       m_lithIoTbl->deleteRecord( lrec );
    }
@@ -314,6 +321,8 @@ ErrorHandler::ReturnCode LithologyManagerImpl::deleteLithology( LithologyID id )
    return NoError;
 }
 
+// Record comparison method which compare values of each field in both record and skip fileds from the ignoreList
+// this is needed for finding lithologies with the same properties
 struct RecordSorter
 {
    RecordSorter( database::Table * tbl, double tol, const std::vector<std::string> & ignoreList  ) 
@@ -348,7 +357,7 @@ struct RecordSorter
       }
    }
 
-   //  this function is used as less operator for the strict weak ordering
+   //  this function is used as less operator for the strict weak ordering to compare cached fields
    bool operator() ( const database::Record * r1, const database::Record * r2 ) const
    {
       assert( r1 != NULL && r2 != NULL );
@@ -367,7 +376,7 @@ struct RecordSorter
                { double v = r1->getValue<double>( id ); double w = r2->getValue<double>( id ); if ( !NumericFunctions::isEqual( v, w, m_eps ) ) return v < w; }
                break;
             case datatype::String: { string v = r1->getValue<string>( id ); string w = r2->getValue<string>( id ); if ( v != w ) return v < w; } break;
-            default: ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Unknown data type for TableIO database record: " << m_fldTypes[i];
+            default: ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Unknown data type for LithoType database record: " << m_fldTypes[i];
          }
       }
       return false;
@@ -420,7 +429,7 @@ ErrorHandler::ReturnCode LithologyManagerImpl::cleanDuplicatedLithologies()
          const std::string & oldLithName = rec->getValue<std::string>(                 s_lithoTypeNameFieldName );
          const std::string & newLithName = forDelLst[i].first->getValue<std::string>(  s_lithoTypeNameFieldName );
 
-         // go over known tables and replce reference to lithology which will be deleted
+         // go over known tables and replace reference to lithology which will be deleted
          if ( m_stMgr )
          {  //////////// process stratigraphy layers
             const std::vector<StratigraphyManager::LayerID> & layIDs = m_stMgr->layersIDs();

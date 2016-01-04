@@ -449,13 +449,13 @@ TEST_F( mbapiModelTest, DeleteDuplicatedLithologyTest )
 
    size_t lithNum = lthMgr.lithologiesIDs().size();
 
-   // First create a copy of lithology
+   // project file already has duplicated lithologies. Clean them
    ASSERT_EQ( lithNum, 14 );
    ASSERT_EQ( ErrorHandler::NoError, lthMgr.cleanDuplicatedLithologies() );
 
+   // check that 5 lithologies were deleted
    lithNum = lthMgr.lithologiesIDs().size();
    ASSERT_EQ( lithNum, 9 );
-   testModel.saveModelToProjectFile( "mytest.project3d" );
 }
 
 

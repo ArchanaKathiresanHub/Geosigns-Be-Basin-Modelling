@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2012-2014 Shell International Exploration & Production.
+// Copyright (C) 2012-2016 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -63,7 +63,7 @@ namespace mbapi {
       // return new lithology ID on success or UndefinedIDValue on error
       virtual LithologyID copyLithology( LithologyID id, const std::string & newLithoName );
 
-      // Check does this lithology has references in FaultCut and AlochtLith tables, then delete
+      // Check does this lithology has references in StratIoTbl, FaultCut and AlochtLith tables, then delete
       // this lithology from the Lithology table and delete all records from ThermoCond/ThermoCapacity tables
       // return NoError on success or error code if this lithology is referenced in other tables
       virtual ReturnCode deleteLithology( LithologyID id );
@@ -84,11 +84,11 @@ namespace mbapi {
       virtual AllochtLithologyID findAllochtID( const std::string & layerName );
 
       // Get lithlogy name for the allochton lithology
-      // return Name of the allochton lithology
+      // return Name of the allochton lithology on success or empty string on error.
       virtual std::string allochtonLithology( AllochtLithologyID alID );
 
       // Get layer name for the allochton lithology
-      // return Name of the layer for allochton lithology
+      // return Name of the layer for allochton lithology on success or empty strin on error
       virtual std::string allochtonLithologyLayerName( AllochtLithologyID alID );
 
       // Set new allochton lithology for the layer
@@ -167,6 +167,12 @@ namespace mbapi {
 
       // Copy operator is disabled
       LithologyManagerImpl & operator = ( const LithologyManagerImpl & otherLithMgr );
+
+      // clean records from thermal conductivity and heat capacity tables for the given lithology
+      void cleanHeatCoeffTbls( const char * tblName, const std::string & lithoName );
+      // duplicate records in thermal conductivity and heat capacity tables for the given lithology
+      void copyRecordsHeatCoeffTbls( const char * tblName, const std::string & origLithoName, const std::string & newLithoName );
+
 
       static const char * s_lithoTypesTableName;        // table name for lithologies type in project file
       static const char * s_lithoTypeNameFieldName;     // column name for lithology type name 
