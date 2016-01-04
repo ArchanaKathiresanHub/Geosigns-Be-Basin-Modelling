@@ -41,7 +41,7 @@ TEST( LogHandlerSerial, log_quiet )
          EXPECT_EQ( expectedLog[i], parsedLinesLog[i] );
       }
    }
-   catch (const formattingexception::GeneralException& ex) {
+   catch (const LogHandlerException& ex) {
       FAIL() << "Unexpected exception: " << ex.what();
    }
 }

@@ -24,7 +24,7 @@
 #include <boost/log/utility/setup/common_attributes.hpp>
 
 // Initialise singleton token
-bool LogHandler::s_logIsCreated;
+bool LogHandler::s_logIsCreated = false;
 // Initialise log file name
 std::string LogHandler::s_logName;
 
@@ -74,14 +74,14 @@ LogHandler::LogHandler( const std::string & logName, const VerbosityLevel verbos
       case NORMAL:      boost::log::core::get()->set_filter( boost::log::trivial::severity >= boost::log::trivial::warning );    break;
       case MINIMAL:     boost::log::core::get()->set_filter( boost::log::trivial::severity >= boost::log::trivial::error   );    break;
       case QUIET:       boost::log::core::get()->set_filter( boost::log::trivial::severity >= boost::log::trivial::fatal   );    break;
-      default: throw logHandlerException() << "Unknown verbosity level for logging file " << s_logName << "."; break;
+      default: throw LogHandlerException() << "Unknown verbosity level for logging file " << s_logName << "."; break;
       }
 
       boost::log::add_common_attributes();
       s_logIsCreated = true;
    }
    else{
-      throw logHandlerException() << "Log file '" << s_logName << "' already created, cannot create new log file '" << fullLogName << "'.";
+      throw LogHandlerException() << "Log file '" << s_logName << "' already created, cannot create new log file '" << fullLogName << "'.";
    }
 }
 
@@ -94,19 +94,19 @@ LogHandler::~LogHandler(){
       if (s_logIsCreated) {
          switch (m_severity)
          {
-         case DEBUG:     BOOST_LOG_TRIVIAL( debug )   << "MeSsAgE DEBUG    "        << m_oss.str() << "\n"; break;
-         case INFO:      BOOST_LOG_TRIVIAL( info )                                  << m_oss.str() << "\n"; break;
-         case WARNING:   BOOST_LOG_TRIVIAL( warning ) << "MeSsAgE WARNING  "        << m_oss.str() << "\n"; break;
-         case ERROR:     BOOST_LOG_TRIVIAL( error )   << "MeSsAgE ERROR    "        << m_oss.str() << "\n"; break;
-         case FATAL:     BOOST_LOG_TRIVIAL( fatal )   << "MeSsAgE FATAL    "        << m_oss.str() << "\n"; break;
-         default: throw logHandlerException()         << "Unknwon severity level '" << m_severity  << "'."; break;
+         case DEBUG:     BOOST_LOG_TRIVIAL( debug )   << "MeSsAgE DEBUG    "        << m_oss.str(); break;
+         case INFO:      BOOST_LOG_TRIVIAL( info )                                  << m_oss.str(); break;
+         case WARNING:   BOOST_LOG_TRIVIAL( warning ) << "MeSsAgE WARNING  "        << m_oss.str(); break;
+         case ERROR:     BOOST_LOG_TRIVIAL( error )   << "MeSsAgE ERROR    "        << m_oss.str(); break;
+         case FATAL:     BOOST_LOG_TRIVIAL( fatal )   << "MeSsAgE FATAL    "        << m_oss.str(); break;
+         default: throw LogHandlerException() << "Unknwon severity level '" << m_severity << "'."; break;
          }
       }
       else {
-         throw logHandlerException() << "Cannot find log file for current application.";
+         throw LogHandlerException() << "Cannot find log file for current application.";
       }
    }
-   catch (logHandlerException ex){
+   catch (LogHandlerException ex){
       BOOST_LOG_TRIVIAL( error ) << "MeSsAgE ERROR    " << ex.what();
    }
    catch (...){

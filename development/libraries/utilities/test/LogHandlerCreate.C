@@ -29,7 +29,7 @@ TEST( LogHandlerSerial, log_created )
 
       EXPECT_EQ( fileExisits, true );
    }
-   catch (const formattingexception::GeneralException& ex) {
+   catch (const LogHandlerException& ex) {
       FAIL() << "Unexpected exception: " << ex.what();
    }
 }
@@ -38,14 +38,14 @@ TEST( LogHandlerSerial, log_created )
 TEST( LogHandlerSerial, log_created_again )
 {
    // Test if the exception is thrown
-   EXPECT_THROW( LogHandler( "log_unit_test_crash", LogHandler::DIAGNOSTIC ), formattingexception::GeneralException );
+   EXPECT_THROW( LogHandler( "log_unit_test_crash", LogHandler::DIAGNOSTIC ), LogHandlerException );
 
    // Test if the good exception is thrown
    try{
       LogHandler( "log_unit_test_crash", LogHandler::DIAGNOSTIC );
-      FAIL() << "Expected 'Log file log_unit_test_crash_0.log already created.' exception";
+      FAIL() << "Expected 'Log file 'log_unit_test_created_0.log' already created, cannot create new log file 'log_unit_test_crash_0.log'.' exception";
    }
-   catch (const formattingexception::GeneralException& ex) {
+   catch (const LogHandlerException& ex) {
       EXPECT_EQ( "Log file 'log_unit_test_created_0.log' already created, cannot create new log file 'log_unit_test_crash_0.log'.", std::string(ex.what()) );
    }
    catch (...) {

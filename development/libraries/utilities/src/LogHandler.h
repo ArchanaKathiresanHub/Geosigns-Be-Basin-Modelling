@@ -27,7 +27,7 @@
 class LogHandler
 {
 
-   typedef formattingexception::GeneralException logHandlerException;
+   typedef formattingexception::GeneralException LogHandlerException;
 
 public:
    /// @name Types definitions

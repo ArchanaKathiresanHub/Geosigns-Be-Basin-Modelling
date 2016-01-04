@@ -27,6 +27,8 @@
 // utility library
 #include "../src/FormattingException.h"
 
+typedef formattingexception::GeneralException LogHandlerException;
+
 /// @brief Write test messages in the boost log object
 void writeLogUnitTest () {
    LogHandler( LogHandler::FATAL)   << "This is a fatal error: " << 0 ;
