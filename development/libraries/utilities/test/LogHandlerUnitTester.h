@@ -28,13 +28,12 @@
 #include "../src/FormattingException.h"
 
 /// @brief Write test messages in the boost log object
-/// @param log The log object
-void writeLogUnitTest ( LogHandler& log ) {
-   LogHandler::write( LogHandler::FATAL,   "This is a fatal error." );
-   LogHandler::write( LogHandler::ERROR,   "This is an error."      );
-   LogHandler::write( LogHandler::WARNING, "This is a warning."     );
-   LogHandler::write( LogHandler::INFO,    "This is an info."       );
-   LogHandler::write( LogHandler::DEBUG,   "This is a debug info."  );
+void writeLogUnitTest () {
+   LogHandler( LogHandler::FATAL)   << "This is a fatal error: " << 0 ;
+   LogHandler( LogHandler::ERROR)   << "This is an error: "      << 1 ;
+   LogHandler( LogHandler::WARNING) << "This is a warning: "     << 2 ;
+   LogHandler( LogHandler::INFO)    << "This is an info: "       << 3 ;
+   LogHandler( LogHandler::DEBUG)   << "This is a debug info: "  << 4 ;
 }
 
 /// @ brief Count the number of lines in one log file, extract the lines after parsing

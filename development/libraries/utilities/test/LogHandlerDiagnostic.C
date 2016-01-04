@@ -18,11 +18,11 @@
 //Initialize constants for comparaison
 const std::string expectedLog[] =                ///< Expected parsed lines from the log file and console
 {                                                      
-   "MeSsAgE FATAL    This is a fatal error.",
-   "MeSsAgE ERROR    This is an error.",
-   "MeSsAgE WARNING  This is a warning.",
-   "This is an info.",
-   "MeSsAgE DEBUG    This is a debug info."
+   "MeSsAgE FATAL    This is a fatal error: 0",
+   "MeSsAgE ERROR    This is an error: 1",
+   "MeSsAgE WARNING  This is a warning: 2",
+   "This is an info: 3",
+   "MeSsAgE DEBUG    This is a debug info: 4"
 };
                                                        
 //Initialise variables                                 
@@ -35,7 +35,7 @@ TEST( LogHandlerSerial, log_diagnostic )
 {
    try{
       LogHandler logUnitTestDiagnostic( "log_unit_test_diagnostic", LogHandler::DIAGNOSTIC );
-      writeLogUnitTest( logUnitTestDiagnostic );
+      writeLogUnitTest();
 
       analyzeLogFile( logUnitTestDiagnostic.getName(), parsedLinesLog );
 
@@ -46,7 +46,6 @@ TEST( LogHandlerSerial, log_diagnostic )
       }
    }
    catch (const formattingexception::GeneralException& ex) {
-      std::cerr << ex.what();
-      EXPECT_EQ( "NoError", "Error" );
+      FAIL() << "Unexpected exception: " << ex.what();
    }
 }

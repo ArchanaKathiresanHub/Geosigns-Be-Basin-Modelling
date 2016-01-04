@@ -18,7 +18,7 @@ TEST( LogHandlerSerial, log_created )
 {
    try{
       LogHandler logUnitTestDiagnostic( "log_unit_test_created", LogHandler::DIAGNOSTIC );
-      writeLogUnitTest( logUnitTestDiagnostic );
+      writeLogUnitTest();
 
       bool fileExisits = false;
       // C++11 std::ifstream myfile( logUnitTestDiagnostic.getName() );
@@ -30,18 +30,25 @@ TEST( LogHandlerSerial, log_created )
       EXPECT_EQ( fileExisits, true );
    }
    catch (const formattingexception::GeneralException& ex) {
-      std::cerr << ex.what();
-      EXPECT_EQ( "NoError", "Error" );
+      FAIL() << "Unexpected exception: " << ex.what();
    }
 }
 
 //Test that the log can be created only once
 TEST( LogHandlerSerial, log_created_again )
 {
+   // Test if the exception is thrown
+   EXPECT_THROW( LogHandler( "log_unit_test_crash", LogHandler::DIAGNOSTIC ), formattingexception::GeneralException );
+
+   // Test if the good exception is thrown
    try{
-      LogHandler crashTest( "log_unit_test_crash", LogHandler::DIAGNOSTIC );
+      LogHandler( "log_unit_test_crash", LogHandler::DIAGNOSTIC );
+      FAIL() << "Expected 'Log file log_unit_test_crash_0.log already created.' exception";
    }
    catch (const formattingexception::GeneralException& ex) {
-      EXPECT_EQ( "Log file log_unit_test_crash.log already created.", ex.what() );
+      EXPECT_EQ( "Log file 'log_unit_test_created_0.log' already created, cannot create new log file 'log_unit_test_crash_0.log'.", std::string(ex.what()) );
+   }
+   catch (...) {
+      FAIL() << "Expected 'Log file log_unit_test_crash.log already created.' exception";
    }
 }
