@@ -1,6 +1,6 @@
 #########################################################################
 #                                                                       #
-# Copyright (C) 2012-2013 Shell International Exploration & Production. #
+# Copyright (C) 2012-2016 Shell International Exploration & Production. #
 # All rights reserved.                                                  #
 #                                                                       #
 # Developed under license for Shell by PDS BV.                          #
@@ -12,6 +12,13 @@
 
 if (BM_PARALLEL)
 
+################################################################
+######################### SET TARGETS ##########################
+################################################################
+
+#
+# 1. This list contains all header files
+#
 set( all_headers,
      src/AllochthonousLithologyMapCalculator.h
      src/auxiliary_operations.h
@@ -171,7 +178,7 @@ set( all_headers,
 )
 
 #
-# This list contains all implementation files except main.C
+# 2. This list contains all implementation files except main.C
 #
 set( all_srcs_except_main
      src/AllochthonousLithologyMapCalculator.C
@@ -313,12 +320,25 @@ set( all_srcs_except_main
 source_group(include FILES ${all_headers})
 source_group(source FILES ${all_srcs_except_main} src/main.C)
 
+#
+# 3. FastcauldronApplication library, contains all code except main.c
+#       The main purpose of this library is to be able to run mesh unit tests (see below)
+#       without having to rebuild all the application every time
+#       since the FastcauldronApplication library is linked to the unit tests projects.
+#
 add_library( FastcauldronApplication
 	${all_srcs_except_main}
 	${all_headers}
 )
 
+#
+# 4. fastcauldron application
+#
 add_executable(fastcauldron src/main.C ${all_headers})
+
+################################################################
+################### SET DEPENDENCIES/LINKS #####################
+################################################################
 
 if (UNIX)
 add_dependencies(FastcauldronApplication TableIO Boost PETSC)
@@ -326,10 +346,9 @@ else (WIN32)
 add_dependencies(FastcauldronApplication TableIO)
 endif (UNIX)
 
-
 include_directories(
-        src
-        ${PROJECT_SOURCE_DIR}/libraries
+   src
+   ${PROJECT_SOURCE_DIR}/libraries
 	${HDF5_INCLUDE_DIRS}
 	${MPI_INCLUDE_DIRS}
 	${PETSC_INCLUDE_DIRS}
@@ -357,9 +376,22 @@ bm_include_libraries(
 	calibration_kernel	
 )
 
-
+#
+# 1. fastcauldron links to FastcauldronApplication only
+# fastcauldron needs to be linked to DataAccess and DistributedDataAccess
+# libraries even if they are already linked to FastcauldronApplication because of
+# DataAccess and DistributedDataAccess crossdependencies
+#
 target_link_libraries(fastcauldron
 	FastcauldronApplication
+	DataAccess
+	DistributedDataAccess
+)
+
+#
+# 2. FastcauldronApplication links to IBS libraries
+#
+target_link_libraries(FastcauldronApplication
 	DataAccess
 	DistributedDataAccess
 	utilities
@@ -381,7 +413,7 @@ target_link_libraries(fastcauldron
 	${PETSC_LIBRARIES}
 	${MPI_LIBRARIES}
 	${Boost_LIBRARIES}
-     ${BM_CLOCK_GETTIME_LIB}
+        ${BM_CLOCK_GETTIME_LIB}
 )
 
 set_target_properties(fastcauldron
@@ -391,7 +423,7 @@ set_target_properties(fastcauldron
 if(UNIX)
    # The OneFilePerProcess library is only available on Unix
    bm_include_libraries( OneFilePerProcess )
-   target_link_libraries(fastcauldron OneFilePerProcess)
+   target_link_libraries(FastcauldronApplication OneFilePerProcess)
 endif()
 
 if (WIN32)
@@ -402,46 +434,66 @@ endif()
 
 if (BM_USE_FLEXLM)
    include_directories( ${FLEXLM_INCLUDE_DIRS})
-   target_link_libraries(fastcauldron ${FLEXLM_LIBRARIES})
+   target_link_libraries(FastcauldronApplication ${FLEXLM_LIBRARIES})
 endif(BM_USE_FLEXLM)
 
 install(TARGETS fastcauldron
 	RUNTIME DESTINATION bin
 )
 
+################################################################
+######################## MEMORY CHECK ##########################
+################################################################
+
+configure_file( 
+   ${CMAKE_CURRENT_SOURCE_DIR}/test/MemCheck.project3d
+   MemCheck.project3d
+   COPYONLY
+)
+
+add_memcheck( 
+   NAME "Fastcauldron_SimpleItcoupled"
+   EXECUTABLE fastcauldron
+   PARAMETERS "-project" "MemCheck.project3d" "-itcoupled"
+)
+
+################################################################
+######################## UNIT TESTS ############################
+################################################################
+
+
+################## INTERPOLATOR UNIT TESTS #####################
+#
+#
 add_gtest( NAME "VectorInterpolator"
            SOURCES test/InterpolationTest.C 
            LIBRARIES LinearAlgebra 
-           )
+         )
 
 add_gtest( NAME "MatrixInterpolator"
            SOURCES test/MatrixInterpolationTest.C
-           LIBRARIES LinearAlgebra )
+           LIBRARIES LinearAlgebra
+         )
 
+################ CAPILLARY PRESSURE UNIT TEST ##################
+#
+#
 add_gtest( NAME "BrooksCorey::computeCapillaryEntryPressure"
-	   SOURCES test/PceTest.C )
+	        SOURCES test/PceTest.C
+         )
 
+################## PETSC SOLVER UNIT TESTS #####################
+#
+#
 add_gtest( NAME "PetscSolver"
            SOURCES src/PetscSolver.C test/PetscSolver.C
            LIBRARIES ${PETSC_LIBRARIES}
            LINK_FLAGS "${PETSC_LINK_FLAGS}"
          )
 
-configure_file( 
-      ${CMAKE_CURRENT_SOURCE_DIR}/test/MemCheck.project3d
-      MemCheck.project3d
-      COPYONLY
-)
-
-add_memcheck( NAME "Fastcauldron_SimpleItcoupled"
-             EXECUTABLE fastcauldron
-             PARAMETERS "-project" "MemCheck.project3d" "-itcoupled"
-      )
-
-
-
+###################### MESH UNIT TESTS #########################
 #
-# Copy project files and input maps for dof counting unit tests
+# 1. Copy project files and input maps for dof counting unit tests
 #
 configure_file( 
       ${CMAKE_CURRENT_SOURCE_DIR}/test/Acquifer.project3d
@@ -491,9 +543,8 @@ configure_file(
       COPYONLY
 )
 
-
 #
-# Copy valid vtk mesh files for dof counting unit tests
+# 2. Copy valid vtk mesh files for dof counting unit tests
 #
 configure_file( 
       ${CMAKE_CURRENT_SOURCE_DIR}/test/valid_noholes_seds_only_0.vtk
@@ -537,6 +588,9 @@ configure_file(
       COPYONLY
 )
 
+#
+# 3. Add unit tests
+#
 set(CFGFLS "${PROJECT_SOURCE_DIR}/geocase/misc")
 
 add_gtest( NAME "MeshUnitTesterFull"
@@ -575,7 +629,11 @@ add_gtest( NAME "MeshUnitTesterMixedHoles"
          )
 
 	
-endif(BM_PARALLEL)	
+endif(BM_PARALLEL)
+
+################################################################
+########################### DOXYGEN ############################
+################################################################
 
 generate_dox(src/fastcauldron.cfg )
 
@@ -584,6 +642,4 @@ generate_dox(src/fastcauldron.cfg )
 # cmake-tab-width: 4
 # tab-width: 4
 # End:
-
-
 
