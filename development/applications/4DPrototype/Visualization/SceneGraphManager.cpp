@@ -259,7 +259,7 @@ void SceneGraphManager::updateSnapshotReservoirs()
       res.meshData = m_project->createReservoirMesh(snapshot.index, res.id);
       res.mesh->setMesh(res.meshData.get());
 
-      res.propertyData = m_project->createReservoirProperty(snapshot.index, res.id, snapshot.currentPropertyId);
+      res.propertyData = createReservoirProperty(snapshot, res, snapshot.currentPropertyId);
       res.scalarSet = new MoScalarSetIjk;
       res.scalarSet->setScalarSet(res.propertyData.get());
 
@@ -526,7 +526,7 @@ void SceneGraphManager::updateSnapshotProperties()
   {
     if (res.root)
     {
-      res.propertyData = m_project->createReservoirProperty(snapshot.index, res.id, m_currentPropertyId);
+      res.propertyData = createReservoirProperty(snapshot, res, m_currentPropertyId);
       res.scalarSet->setScalarSet(res.propertyData.get());
     }
   }
@@ -637,8 +637,14 @@ void SceneGraphManager::updateColorMap()
   if (m_currentPropertyId < 0)
     return;
 
+  int index = 0;
   int trapId = m_project->getPropertyId("ResRockTrapId");
-  m_colorMapSwitch->whichChild = (m_currentPropertyId == trapId) ? 1 : 0;
+  if (m_currentPropertyId == trapId || m_currentPropertyId == PersistentTrapIdProperty)
+    index = 1;
+  else if (m_currentPropertyId == FluidContactsProperty)
+    index = 2;
+
+  m_colorMapSwitch->whichChild = index;
 
   assert(!m_snapshotInfoCache.empty());
 
@@ -1026,9 +1032,11 @@ void SceneGraphManager::setupSceneGraph()
   colorMap->predefColorMap = MoPredefinedColorMapping::STANDARD;
   m_colorMap = colorMap;
   m_trapIdColorMap = createTrapsColorMap(m_project->getMaxPersistentTrapId());
+  m_fluidContactsColorMap = createFluidContactsColorMap();
   m_colorMapSwitch = new SoSwitch;
   m_colorMapSwitch->addChild(m_colorMap);
   m_colorMapSwitch->addChild(m_trapIdColorMap);
+  m_colorMapSwitch->addChild(m_fluidContactsColorMap);
   m_colorMapSwitch->whichChild = 0;
 
   m_appearanceNode = new SoGroup;
@@ -1107,6 +1115,33 @@ void SceneGraphManager::setupSceneGraph()
   static_cast<MoPredefinedColorMapping*>(m_colorMap)->maxValue = (float)(m_projectInfo.formations.size() - 1);
 }
 
+std::shared_ptr<MiDataSetIjk<double> > SceneGraphManager::createReservoirProperty(
+  const SnapshotInfo& snapshot,
+  const SnapshotInfo::Reservoir& res,
+  int propertyId)
+{
+  std::shared_ptr<MiDataSetIjk<double> > result;
+
+  if (propertyId < DerivedPropertyBase)
+  {
+    result = m_project->createReservoirProperty(snapshot.index, res.id, m_currentPropertyId);
+  }
+  else if (m_currentPropertyId == FluidContactsProperty)
+  {
+    std::shared_ptr<MiDataSetIjk<double> > trapIdPropertyData;
+    int trapIdPropertyId = m_project->getPropertyId("ResRockTrapId");
+    if (snapshot.currentPropertyId == trapIdPropertyId)
+      trapIdPropertyData = res.propertyData;
+    else
+      trapIdPropertyData = m_project->createReservoirProperty(snapshot.index, res.id, trapIdPropertyId);
+
+    auto traps = m_project->getTraps(snapshot.index, res.id);
+    result = createFluidContactsProperty(traps, *trapIdPropertyData, *res.meshData);
+  }
+
+  return result;
+}
+
 SceneGraphManager::SceneGraphManager()
   : m_maxCacheItems(5)
   , m_currentPropertyId(-1)
@@ -1136,6 +1171,7 @@ SceneGraphManager::SceneGraphManager()
   , m_dataBinding(0)
   , m_colorMap(0)
   , m_trapIdColorMap(0)
+  , m_fluidContactsColorMap(0)
   , m_annotation(0)
   , m_legend(0)
   , m_legendSwitch(0)
@@ -1231,16 +1267,19 @@ void SceneGraphManager::setProperty(int propertyId)
 
   m_currentPropertyId = propertyId;
 
-  std::string name = m_projectInfo.properties[propertyId].name;
-  std::string unit = m_projectInfo.properties[propertyId].unit;
-  std::string title = name + " [" + unit + "]";
+  if (propertyId >= 0 && propertyId < DerivedPropertyBase)
+  {
+    std::string name = m_projectInfo.properties[propertyId].name;
+    std::string unit = m_projectInfo.properties[propertyId].unit;
+    std::string title = name + " [" + unit + "]";
 
-  int trapId = m_project->getPropertyId("ResRockTrapId");
-
-  m_legend->title = title.c_str();
-  m_legendSwitch->whichChild = (propertyId == trapId)
-    ? SO_SWITCH_NONE
-    : SO_SWITCH_ALL;
+    m_legend->title = title.c_str();
+    m_legendSwitch->whichChild = SO_SWITCH_ALL;
+  }
+  else
+  {
+    m_legendSwitch->whichChild = SO_SWITCH_NONE;
+  }
 
   updateSnapshot();
 }

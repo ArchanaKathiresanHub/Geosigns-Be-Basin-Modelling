@@ -97,6 +97,8 @@ private slots:
 
   void onDrainageAreaTypeChanged(bool value);
 
+  void onFluidContactsToggled(bool value);
+
   void onFlowVizTypeChanged(bool value);
 
   void onItemDoubleClicked(QTreeWidgetItem* item, int column);

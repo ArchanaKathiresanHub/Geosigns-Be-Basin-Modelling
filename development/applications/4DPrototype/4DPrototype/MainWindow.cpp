@@ -314,7 +314,7 @@ void MainWindow::connectSignals()
   connect(m_ui.checkBoxDrainageOutline, SIGNAL(toggled(bool)), this, SLOT(onDrainageAreaOutlineToggled(bool)));
   connect(m_ui.radioButtonDrainageAreaFluid, SIGNAL(toggled(bool)), this, SLOT(onDrainageAreaTypeChanged(bool)));
   connect(m_ui.radioButtonDrainageAreaGas, SIGNAL(toggled(bool)), this, SLOT(onDrainageAreaTypeChanged(bool)));
-
+  connect(m_ui.checkBoxFluidContacts, SIGNAL(toggled(bool)), this, SLOT(onFluidContactsToggled(bool)));
   connect(m_ui.radioButtonFlowVizNone, SIGNAL(toggled(bool)), this, SLOT(onFlowVizTypeChanged(bool)));
   connect(m_ui.radioButtonFlowVizLines, SIGNAL(toggled(bool)), this, SLOT(onFlowVizTypeChanged(bool)));
   connect(m_ui.radioButtonFlowVizVectors, SIGNAL(toggled(bool)), this, SLOT(onFlowVizTypeChanged(bool)));
@@ -395,12 +395,15 @@ void MainWindow::onActionRenderAllSnapshotsTriggered()
     snapshotTime.start();
 
     m_ui.snapshotSlider->setValue(i);
-    qApp->processEvents();
+    //qApp->processEvents();
+    m_sceneGraphManager->setCurrentSnapshot(i);
     m_ui.renderWidget->getViewer()->render();
 
     int t = snapshotTime.elapsed();
     if(t > maxTimeMs)
       maxTimeMs = t;
+
+    std::cout << "snapshot " << i << ": " << t << " ms" << std::endl;
   }
 
   m_ui.renderWidget->getViewer()->setAutoRedraw(true);
@@ -599,6 +602,11 @@ void MainWindow::onDrainageAreaTypeChanged(bool value)
 
     m_sceneGraphManager->showDrainageAreaOutlines(type);
   }
+}
+
+void MainWindow::onFluidContactsToggled(bool value)
+{
+  m_sceneGraphManager->setProperty(value ? SceneGraphManager::FluidContactsProperty : -1);
 }
 
 void MainWindow::onFlowVizTypeChanged(bool value)

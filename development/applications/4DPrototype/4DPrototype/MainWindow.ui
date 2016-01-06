@@ -165,6 +165,13 @@
              </item>
             </layout>
            </item>
+           <item>
+            <widget class="QCheckBox" name="checkBoxFluidContacts">
+             <property name="text">
+              <string>Fluid contacts</string>
+             </property>
+            </widget>
+           </item>
           </layout>
          </widget>
         </item>

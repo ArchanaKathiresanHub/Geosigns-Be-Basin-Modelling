@@ -466,6 +466,20 @@ function onShowTrapOutlinesChanged(elem)
     theRenderArea.sendMessage(JSON.stringify(msg));
 }
 
+function onShowFluidContactsChanged(elem)
+{
+    var showContacts = elem.checked;
+
+    var msg = {
+        cmd: "ShowFluidContacts",
+        params: {
+            show: showContacts
+        }
+    }
+
+    theRenderArea.sendMessage(JSON.stringify(msg));
+}
+
 function onPerspectiveChanged(elem)
 {
     var projection = elem.checked 

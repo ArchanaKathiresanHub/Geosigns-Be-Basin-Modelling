@@ -604,8 +604,8 @@ std::vector<Project::Trap> DataAccessProject::getTraps(size_t snapshotIndex, int
     trap.leakagePoint = SbVec3f((float)(x - dim.minX), (float)(y - dim.minY), (float)z);
 
     trap.id = (int)trapper->getId();
-    trap.gasOilContactDepth = -trapper->getGOC();
-    trap.oilWaterContactDepth = -trapper->getOWC();
+    trap.gasOilContactDepth = trapper->getGOC();
+    trap.oilWaterContactDepth = trapper->getOWC();
 
     const di::Trapper* dsTrapper = trapper->getDownstreamTrapper();
     trap.downStreamId = (dsTrapper != 0) ? (int)dsTrapper->getId() : -1;

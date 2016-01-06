@@ -2,11 +2,15 @@
 
 #include <MeshVizXLM/MxTimeStamp.h>
 #include <MeshVizXLM/mesh/MiVolumeMeshCurvilinear.h>
+#include <MeshVizXLM/mesh/data/MiDataSetIjk.h>
+#include <MeshVizXLM/mapping/nodes/MoLevelColorMapping.h>
 
 #include <Inventor/nodes/SoVertexProperty.h>
 #include <Inventor/nodes/SoLineSet.h>
+#include <Inventor/SbVec.h>
 
 #include <stack>
+#include <vector>
 
 struct GridCoord
 {
@@ -117,3 +121,121 @@ SoLineSet* buildIsoLines(
   return lineSet;
 }
 
+class DataSet : public MiDataSetIjk<double>
+{
+  size_t m_numI;
+  size_t m_numJ;
+  size_t m_numK;
+
+  double* m_values;
+
+  size_t m_timestamp;
+
+public:
+
+  DataSet(double* values, size_t ni, size_t nj, size_t nk)
+    : m_values(values)
+    , m_numI(ni)
+    , m_numJ(nj)
+    , m_numK(nk)
+    , m_timestamp(MxTimeStamp::getTimeStamp())
+  {
+  }
+
+  DataSet(const DataSet&) = delete;
+  DataSet& operator=(const DataSet&) = delete;
+
+  virtual ~DataSet()
+  {
+    delete[] m_values;
+  }
+
+  virtual double get(size_t i, size_t j, size_t k) const
+  {
+    return m_values[k * m_numI * m_numJ + j * m_numI + i];
+  }
+
+  virtual MiMeshIjk::StorageLayout getLayout() const
+  {
+    return MiMeshIjk::LAYOUT_KJI;
+  }
+
+  virtual DataBinding getBinding() const
+  {
+    return MiDataSet::PER_CELL;
+  }
+
+  virtual size_t getTimeStamp() const
+  {
+    return m_timestamp;
+  }
+
+  virtual std::string getName() const { return "DataSet"; }
+  virtual double getMin() const { return 0.0; }
+  virtual double getMax() const { return 3.0; }
+};
+
+std::shared_ptr<MiDataSetIjk<double> > createFluidContactsProperty(
+  const std::vector<Project::Trap>& traps, 
+  const MiDataSetIjk<double>& trapIdProperty, 
+  const MiVolumeMeshCurvilinear& mesh)
+{
+  auto const& topology = mesh.getTopology();
+  auto const& geometry = mesh.getGeometry();
+
+  size_t ni = topology.getNumCellsI();
+  size_t nj = topology.getNumCellsJ();
+
+  double* values = new double[ni * nj];
+  memset(values, 0, ni * nj * sizeof(double));
+
+  double* p = values;
+  for (size_t j = 0; j < nj; ++j)
+  {
+    for (size_t i = 0; i < ni; ++i)
+    {
+      double val = 0.0;
+
+      int id = (int)trapIdProperty.get(i, j, 0);
+      if (id > 0 && id < 99999)
+      {
+        unsigned int index = id - 1;
+        if (index < traps.size())
+        {
+          const Project::Trap& trap = traps[index];
+          if (trap.id == id)
+          {
+            double depth = -geometry.getCoord(i, j, 0)[2];
+            if (depth < trap.gasOilContactDepth)
+              val = 3.0; // gas
+            else if (depth < trap.oilWaterContactDepth)
+              val = 2.0; // oil
+            else
+              val = 1.0; // water
+          }
+        }
+      }
+
+      *p++ = val;
+    }
+  }
+
+  return std::make_shared<DataSet>(values, ni, nj, 1);
+}
+
+MoLevelColorMapping* createFluidContactsColorMap()
+{
+  const SbVec4f defaultColor(.5f, .5f, .5f, 1.f);
+  const SbVec4f waterColor(0.f, 0.f, 1.f, 1.f); // blue
+  const SbVec4f oilColor(1.f, 0.f, 0.f, 1.f);   // red
+  const SbVec4f gasColor(0.f, 1.f, 0.f, 1.f);   // green
+
+  float values[] = { -.5f, .5f, 1.5f, 2.5f, 3.5f };
+  SbVec4f colors[] = { defaultColor, waterColor, oilColor, gasColor };
+
+  auto map = new MoLevelColorMapping();
+  map->values.setValues(0, 5, values);
+  map->colors.setValues(0, 4, colors);
+
+  return map;
+}

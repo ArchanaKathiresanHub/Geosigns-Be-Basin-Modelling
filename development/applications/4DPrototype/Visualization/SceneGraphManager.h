@@ -122,7 +122,8 @@ struct SnapshotInfo
 
     std::shared_ptr<MiVolumeMeshCurvilinear> meshData;
     std::shared_ptr<MiDataSetIjk<double> > propertyData;
-    
+    std::weak_ptr<MiDataSetIjk<double> > trapIdPropertyData;
+
     Traps traps;
 
     void clear()
@@ -240,6 +241,12 @@ public:
     DrainageAreaGas
   };
 
+  // Derived property ids. These properties are built at runtime
+  // based on one or more base properties from the data set.
+  static const int DerivedPropertyBase      = 10000;
+  static const int PersistentTrapIdProperty = DerivedPropertyBase;
+  static const int FluidContactsProperty    = DerivedPropertyBase + 1;
+
 private:
 
   std::shared_ptr<Project> m_project;
@@ -294,6 +301,7 @@ private:
   MoDataBinding*  m_dataBinding;
   MoColorMapping* m_colorMap;
   MoColorMapping* m_trapIdColorMap;
+  MoColorMapping* m_fluidContactsColorMap;
   SoSwitch*       m_colorMapSwitch;
 
   SoAnnotation*   m_annotation;
@@ -326,7 +334,7 @@ private:
   void updateSnapshot();
 
   SnapshotInfo createSnapshotNode(size_t index);
-    
+
   void setupCoordinateGrid();
   void setupSceneGraph();
 
@@ -335,6 +343,11 @@ private:
     const MiVolumeMeshCurvilinear& mesh,
     int k0,
     int k1);
+
+  std::shared_ptr<MiDataSetIjk<double> > createReservoirProperty(
+    const SnapshotInfo& snapshot, 
+    const SnapshotInfo::Reservoir& res, 
+    int propertyId);
 
 public:
 
