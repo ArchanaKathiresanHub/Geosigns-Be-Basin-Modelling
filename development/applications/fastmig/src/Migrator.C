@@ -1336,8 +1336,8 @@ database::Record * Migrator::addDetectedReservoirRecord (Interface::Formation * 
    database::setDetectedReservoir (reservoirIoRecord, 1);
    database::setFormationName (reservoirIoRecord, formation->getName ()); 
    database::setTrapCapacity (reservoirIoRecord, database::getTrapCapacity (m_detectedReservoirIoRecord));
-   database::setActivityMode (reservoirIoRecord, database::getActivityMode (m_detectedReservoirIoRecord));
-
+   database::setActivityMode (reservoirIoRecord, "ActiveFrom");
+   
    database::setActivityStart (reservoirIoRecord, start->getTime ());
    database::setDepthOffset (reservoirIoRecord, database::getDepthOffset (m_detectedReservoirIoRecord));
    database::setDepthOffsetGrid (reservoirIoRecord, database::getDepthOffsetGrid (m_detectedReservoirIoRecord));

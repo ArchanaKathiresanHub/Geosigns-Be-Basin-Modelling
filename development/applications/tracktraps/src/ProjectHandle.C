@@ -98,8 +98,8 @@ bool ProjectHandle::determineTrapExtents (const Interface::Snapshot * snapshot)
    {
       Reservoir * reservoir = (Reservoir *) * reservoirIter;
 
-      if (!reservoir->isActive (snapshot) || snapshot->getTime()>reservoir->getActivityStart()) continue;
-
+      if (!reservoir->isActive (snapshot)) continue;
+      if ( reservoir->getActivityMode() == "ActiveFrom" && snapshot->getTime()>reservoir->getActivityStart()) continue;
       if (!reservoir->determineTrapExtents (snapshot)) result = false;
    }
    delete reservoirs;
@@ -134,8 +134,8 @@ bool ProjectHandle::determineTrapPorosities (const Interface::Snapshot * snapsho
    {
       Reservoir * reservoir = (Reservoir *) * reservoirIter;
 
-      if (!reservoir->isActive (snapshot) || snapshot->getTime()>reservoir->getActivityStart()) continue;
-
+      if (!reservoir->isActive (snapshot)) continue;
+      if ( reservoir->getActivityMode() == "ActiveFrom" && snapshot->getTime()>reservoir->getActivityStart()) continue;
       if (!reservoir->determineTrapPorosities (snapshot)) result = false;
    }
    delete reservoirs;
@@ -152,8 +152,8 @@ bool ProjectHandle::determineReservoirDepths (const Interface::Snapshot * snapsh
    {
       Reservoir * reservoir = (Reservoir *) * reservoirIter;
 
-      if (!reservoir->isActive (snapshot) || snapshot->getTime()>reservoir->getActivityStart()) continue;
-
+      if (!reservoir->isActive (snapshot)) continue;
+      if ( reservoir->getActivityMode() == "ActiveFrom" && snapshot->getTime()>reservoir->getActivityStart()) continue;
       if (!reservoir->determineAverageDepth (snapshot)) result = false;
    }
    delete reservoirs;
