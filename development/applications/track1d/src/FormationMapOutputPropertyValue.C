@@ -31,3 +31,11 @@ unsigned int FormationMapOutputPropertyValue::getDepth () const {
    
 }
 
+bool FormationMapOutputPropertyValue::isPrimary() const {
+   
+   if ( m_formationMapProperty != 0 ) {
+      return m_formationMapProperty->isPrimary();
+   } else {
+      return false;
+   }
+}

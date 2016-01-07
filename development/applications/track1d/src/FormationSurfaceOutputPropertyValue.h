@@ -28,6 +28,8 @@ public :
 
    unsigned int getDepth () const;
 
+   bool isPrimary() const;
+
 private :
 
    DerivedProperties::FormationSurfacePropertyPtr m_formationSurfaceProperty;

@@ -34,3 +34,12 @@ unsigned int FormationSurfaceOutputPropertyValue::getDepth () const {
 }
 
 
+bool FormationSurfaceOutputPropertyValue::isPrimary() const {
+
+   if ( m_formationSurfaceProperty != 0 ) {
+      return m_formationSurfaceProperty->isPrimary();
+   } else {
+      return false;
+   }
+}
+

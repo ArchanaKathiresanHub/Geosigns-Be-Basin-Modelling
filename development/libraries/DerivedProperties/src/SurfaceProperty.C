@@ -19,3 +19,8 @@ double DerivedProperties::SurfaceProperty::interpolate ( double i,
    Interpolate2DProperty<SurfaceProperty> interpolator;
    return interpolator.interpolate ( *this, i, j );
 }
+
+double DerivedProperties::SurfaceProperty::getA ( unsigned int i,
+                                                  unsigned int j ) const {
+   return get ( i, j );
+}

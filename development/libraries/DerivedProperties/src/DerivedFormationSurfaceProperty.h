@@ -39,6 +39,9 @@ namespace DerivedProperties {
 
       /// \brief Get the undefined value.
       virtual double getUndefinedValue () const;
+
+      /// \brief Return false.
+      bool isPrimary () const;
    private :
 
       boost::multi_array<double,2> m_values;

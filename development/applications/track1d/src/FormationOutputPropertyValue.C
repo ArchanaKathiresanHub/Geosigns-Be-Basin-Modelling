@@ -36,3 +36,11 @@ unsigned int FormationOutputPropertyValue::getDepth () const {
    
 }
 
+bool FormationOutputPropertyValue::isPrimary() const {
+   
+   if ( m_formationProperty != 0 ) {
+      return m_formationProperty->isPrimary();
+   } else {
+      return false;
+   }
+}

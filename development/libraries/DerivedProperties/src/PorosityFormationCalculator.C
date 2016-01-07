@@ -91,8 +91,8 @@ void DerivedProperties::PorosityFormationCalculator::calculate ( DerivedProperti
                if ( m_projectHandle->getNodeIsValid ( i, j )) {
                   
                   for ( unsigned int k = porosityProp->firstK (); k <= porosityProp->lastK (); ++k ) {
-                     double chemicalCompactionValue = ( chemicalCompactionRequired ? chemicalCompaction->get ( i, j, k ) : 0.0 );
-                     double value = 100.0 * (*lithologies)( i, j, currentTime )->porosity ( ves->get ( i, j, k ), maxVes->get ( i, j, k ),
+                     double chemicalCompactionValue = ( chemicalCompactionRequired ? chemicalCompaction->getA ( i, j, k ) : 0.0 );
+                     double value = 100.0 * (*lithologies)( i, j, currentTime )->porosity ( ves->getA ( i, j, k ), maxVes->getA ( i, j, k ),
                                                                                             chemicalCompactionRequired,
                                                                                             chemicalCompactionValue );
                      porosityProp->set ( i, j, k, value );

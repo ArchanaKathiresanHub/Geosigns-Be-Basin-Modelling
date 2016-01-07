@@ -189,8 +189,11 @@ bool DataAccess::Mining::CauldronDomain::findLocation( double x, double y, const
             if ( formation->getTopSurface() == surface )
             {
                // Interpolate the depth at the (x,y) point on the surface.
-               surfaceDepth = interpolate2D ( element, grid, 0 );
-
+               if( grid->isPrimary() ) {
+                  surfaceDepth = interpolate2D ( element, grid, 0 );
+               } else {
+                  surfaceDepth = interpolate2D ( element, grid, grid->lastK() );
+               }
                if ( surfaceDepth != Interface::DefaultUndefinedMapValue )
                {
                   elementFound = true;
@@ -244,7 +247,11 @@ bool DataAccess::Mining::CauldronDomain::findLocation( double x, double y, const
             if ( grid->getFormation () == formation )
             { 
                // Interpolate the depth at the (x,y) point on the surface.
-               surfaceDepth = interpolate2D( element, grid, 0 );
+               if( grid->isPrimary() ) {
+                  surfaceDepth = interpolate2D( element, grid, 0 );
+               } else {
+                  surfaceDepth = interpolate2D( element, grid, grid->lastK() );
+               }
 
                if ( surfaceDepth != Interface::DefaultUndefinedMapValue )
                {
