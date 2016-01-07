@@ -72,7 +72,7 @@ target_link_libraries(fastmig
 	${PETSC_LIBRARIES}
 	${HDF5_LIBRARIES}
 	${MPI_LIBRARIES}
-     ${BM_CLOCK_GETTIME_LIB}
+   ${BM_CLOCK_GETTIME_LIB}
 )
 
 set_target_properties(fastmig
@@ -99,6 +99,7 @@ install(TARGETS fastmig
 
 add_gtest( NAME "Fastmig::Biodegrade"
 		   SOURCES test/BiodegradeTest.C src/Biodegrade.C
+		   LIBRARIES DataAccess DistributedDataAccess
 		  )
 
 endif (BM_PARALLEL)
