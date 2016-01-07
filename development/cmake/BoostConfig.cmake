@@ -12,7 +12,7 @@
 
 include( cmake/AddPackage.cmake)
 
-set(BOOST_LIBS_LIST log log_setup filesystem system thread atomic date_time chrono iostreams regex)
+set(BOOST_LIBS_LIST log filesystem system thread atomic date_time chrono iostreams regex)
 
 if (WIN32)
     list(APPEND BOOST_LIBS_LIST zlib)
@@ -36,6 +36,10 @@ if (UNIX)
    # filesystem;system;thread;atomic;log;iostreams -> "filesystem,log,system,thread,atomic,iostreams"
    #
    string( REPLACE ";" "," COMMA_SEP_BOOST_LIBS_LIST "${BOOST_LIBS_LIST}")
+
+   # For lnking application with Boost.Log it is required 2 libraries: "log" and "log_setup",
+   # but only "log" must be given to Boost configuring step. That is why log_setup is added later
+   list(APPEND BOOST_LIBS_LIST log_setup) 
 
    # filesystem;system;thread;atomic... -> "boost_filesystem boost_system boost_thread boost_atomic..."
    #
