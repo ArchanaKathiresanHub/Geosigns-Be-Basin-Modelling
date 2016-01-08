@@ -91,7 +91,8 @@ namespace migration
 
    Formation::~Formation (void)
    {
-      if (m_genexData != 0) {
+      if (m_genexData != 0)
+      {
          delete m_genexData;
       }
    }
@@ -220,20 +221,20 @@ namespace migration
          {
             for (unsigned int j = ptrVapourPcE->firstJ (true); j <= ptrVapourPcE->lastJ (true); ++j)
             {
-               double pressure      = m_formationPropertyPtr [PRESSUREPROPERTY]            ->get (i, j, k);
-               double temperature   = m_formationPropertyPtr [TEMPERATUREPROPERTY]         ->get (i, j, k);
-               double liquidDensity = m_formationPropertyPtr [LIQUIDDENSITYPROPERTY]       ->get (i, j, k);
-               double vapourDensity = m_formationPropertyPtr [VAPOURDENSITYPROPERTY]       ->get (i, j, k);
-               double vPermeability = m_formationPropertyPtr [VERTICALPERMEABILITYPROPERTY]->get (i, j, k);
+               double pressure = m_formationPropertyPtr[PRESSUREPROPERTY]->get (i, j, k);
+               double temperature = m_formationPropertyPtr[TEMPERATUREPROPERTY]->get (i, j, k);
+               double liquidDensity = m_formationPropertyPtr[LIQUIDDENSITYPROPERTY]->get (i, j, k);
+               double vapourDensity = m_formationPropertyPtr[VAPOURDENSITYPROPERTY]->get (i, j, k);
+               double vPermeability = m_formationPropertyPtr[VERTICALPERMEABILITYPROPERTY]->get (i, j, k);
 
                // Fluid type the same independent of the position of the node inside the formation.
-               const GeoPhysics::FluidType * fluid = (GeoPhysics::FluidType *) getFluidType ();               
+               const GeoPhysics::FluidType * fluid = (GeoPhysics::FluidType *) getFluidType ();
                double waterDensity = fluid->density (temperature, pressure);
 
                // Do not assign any value and continue 
                if (liquidDensity == Interface::DefaultUndefinedMapValue or
-                   vapourDensity == Interface::DefaultUndefinedMapValue or
-                   waterDensity <= 0.0)
+                  vapourDensity == Interface::DefaultUndefinedMapValue or
+                  waterDensity <= 0.0)
                   continue;
 
                // Critical temperatures and c1, c2 are independent of the exact position of the node inside the formation.
@@ -269,29 +270,30 @@ namespace migration
 
                      formationNode->setCapillaryEntryPressureVapour (0.0, k == depth);
                      formationNode->setCapillaryEntryPressureLiquid (0.0, k == depth);
-               }
-               else
-               {
-                  ptrVapourPcE->set( i, j, (unsigned int) k, capillaryEntryPressureVapour);
-                  ptrLiquidPcE->set( i, j, (unsigned int) k, capillaryEntryPressureLiquid);
-
-                  // If not a ghost node and not on last I or J row of the basin then assign the values to the local formation node
-                  if (i >= m_formationNodeArray->firstILocal () and i <= m_formationNodeArray->lastILocal () and
-                     j >= m_formationNodeArray->firstJLocal () and j <= m_formationNodeArray->lastJLocal () and
-                     i < grid->numIGlobal () - 1 and j < grid->numJGlobal () - 1)
+                  }
+                  else
                   {
-                     // If at the top choose the formation node right below it. We will still calculate and save values for the top node,
-                     // but these values will be stored in the arrays of the node below it.
-                     LocalFormationNode * formationNode = (k == depth) ? getLocalFormationNode (i, j, k - 1) : getLocalFormationNode (i, j, k);
-                     if (!formationNode)
-                        continue;
+                     ptrVapourPcE->set (i, j, (unsigned int)k, capillaryEntryPressureVapour);
+                     ptrLiquidPcE->set (i, j, (unsigned int)k, capillaryEntryPressureLiquid);
 
-                     formationNode->setCapillaryEntryPressureVapour (capillaryEntryPressureVapour, k == depth);
-                     formationNode->setCapillaryEntryPressureLiquid (capillaryEntryPressureLiquid, k == depth);
+                     // If not a ghost node and not on last I or J row of the basin then assign the values to the local formation node
+                     if (i >= m_formationNodeArray->firstILocal () and i <= m_formationNodeArray->lastILocal () and
+                        j >= m_formationNodeArray->firstJLocal () and j <= m_formationNodeArray->lastJLocal () and
+                        i < grid->numIGlobal () - 1 and j < grid->numJGlobal () - 1)
+                     {
+                        // If at the top choose the formation node right below it. We will still calculate and save values for the top node,
+                        // but these values will be stored in the arrays of the node below it.
+                        LocalFormationNode * formationNode = (k == depth) ? getLocalFormationNode (i, j, k - 1) : getLocalFormationNode (i, j, k);
+                        if (!formationNode)
+                           continue;
+
+                        formationNode->setCapillaryEntryPressureVapour (capillaryEntryPressureVapour, k == depth);
+                        formationNode->setCapillaryEntryPressureLiquid (capillaryEntryPressureLiquid, k == depth);
+                     }
+                  }
                }
             }
          }
-      }
       }
 
       return true;
@@ -544,7 +546,7 @@ namespace migration
          }
          else
          {
-            value = m_formationPropertyPtr[propertyIndex]->get ((unsigned int) i, (unsigned int) j, (unsigned int) k);
+            value = m_formationPropertyPtr[propertyIndex]->get ((unsigned int)i, (unsigned int)j, (unsigned int)k);
          }
       }
 
