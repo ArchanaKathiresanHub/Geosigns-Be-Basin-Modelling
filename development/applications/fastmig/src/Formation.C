@@ -190,101 +190,127 @@ namespace migration
 
       assert (topDepthGridMap->getGrid () == grid);
 
-      // For capillary pressure we 
       unsigned int depth = getMaximumNumberOfElements ();
       assert (depth > 0);
 
-      const DataModel::AbstractProperty* gasPcE = m_migrator->getPropertyManager ().getProperty ( "CapillaryEntryPressureGas" );
-      const DataModel::AbstractProperty* oilPcE = m_migrator->getPropertyManager ().getProperty ( "CapillaryEntryPressureOil" );
+      const DataModel::AbstractProperty* vapourPcE = m_migrator->getPropertyManager ().getProperty ( "CapillaryEntryPressureVapour" );
+      const DataModel::AbstractProperty* liquidPcE = m_migrator->getPropertyManager ().getProperty ( "CapillaryEntryPressureLiquid" );
 
-      DerivedProperties::DerivedFormationPropertyPtr ptrGasPcE = DerivedProperties::DerivedFormationPropertyPtr ( new DerivedProperties::DerivedFormationProperty (gasPcE, snapshot, this, grid, depth + 1) );
-      assert (ptrGasPcE);
-      DerivedProperties::DerivedFormationPropertyPtr ptrOilPcE = DerivedProperties::DerivedFormationPropertyPtr ( new DerivedProperties::DerivedFormationProperty (oilPcE, snapshot, this, grid, depth + 1) );
-      assert (ptrOilPcE);
-      m_formationPropertyPtr[CAPILLARYENTRYPRESSUREGASPROPERTY] = ptrGasPcE;
-      m_formationPropertyPtr[CAPILLARYENTRYPRESSUREOILPROPERTY] = ptrOilPcE;
+      DerivedProperties::DerivedFormationPropertyPtr ptrVapourPcE = DerivedProperties::DerivedFormationPropertyPtr
+                                                                    ( new DerivedProperties::DerivedFormationProperty (vapourPcE, snapshot, this, grid, depth + 1) );
+      DerivedProperties::DerivedFormationPropertyPtr ptrLiquidPcE = DerivedProperties::DerivedFormationPropertyPtr
+                                                                    ( new DerivedProperties::DerivedFormationProperty (liquidPcE, snapshot, this, grid, depth + 1) );
+
+      assert (ptrVapourPcE);
+      assert (ptrLiquidPcE);
+
+      m_formationPropertyPtr[CAPILLARYENTRYPRESSUREVAPOURPROPERTY] = ptrVapourPcE;
+      m_formationPropertyPtr[CAPILLARYENTRYPRESSURELIQUIDPROPERTY] = ptrLiquidPcE;
+
+      // Using the PropertyRetriever class which ensures the retrieval and later on the restoration of property pointers
+      DerivedProperties::PropertyRetriever pressurePropertyRetriever      (m_formationPropertyPtr[PRESSUREPROPERTY]);
+      DerivedProperties::PropertyRetriever temperaturePropertyRetriever   (m_formationPropertyPtr[TEMPERATUREPROPERTY]);
+      DerivedProperties::PropertyRetriever liquidDensityPropertyRetriever (m_formationPropertyPtr[LIQUIDDENSITYPROPERTY]);
+      DerivedProperties::PropertyRetriever vapourDensityPropertyRetriever (m_formationPropertyPtr[VAPOURDENSITYPROPERTY]);
+      DerivedProperties::PropertyRetriever vPermeabilityPropertyRetriever (m_formationPropertyPtr[VERTICALPERMEABILITYPROPERTY]);
 
       for (int k = depth; k >= 0; --k)
       {
-         // If there's no formation above then don't treat the topmost node of this formation.
-         if (!getTopFormation ())
-            continue;
-         for (unsigned int i = m_formationNodeArray->firstILocal (); i <= m_formationNodeArray->lastILocal (); ++i)
+         for (unsigned int i = ptrVapourPcE->firstI (true); i <= ptrVapourPcE->lastI (true); ++i)
          {
-            for (unsigned int j = m_formationNodeArray->firstJLocal (); j <= m_formationNodeArray->lastJLocal (); ++j)
+            for (unsigned int j = ptrVapourPcE->firstJ (true); j <= ptrVapourPcE->lastJ (true); ++j)
             {
-               // If at the top choose the formation node right below it. We will still calculate and save values for the top node,
-               // but these values will be stored in the arrays of the node below it.
-               LocalFormationNode * formationNode = (k == depth) ? getLocalFormationNode (i,j,k-1) : getLocalFormationNode (i,j,k);
-               if (!formationNode)
-                  continue;
-
-               // When treating the top node (element) of a formation:
-               // For continuous properties (P, T, rho) we just take the value of the node above (belogning to the formation above)
-               // For vertical permeability we call the getVerticalPermeability function specifying that we are interested in node on top.
-               double pressure      = (k != depth) ? formationNode->getPressure ()       : getLocalFormationNode (i,j,k)->getPressure ();
-               double temperature   = (k != depth) ? formationNode->getTemperature ()    : getLocalFormationNode (i,j,k)->getTemperature ();
-               double oilDensity    = (k != depth) ? formationNode->getOilDensity ()     : getLocalFormationNode (i,j,k)->getOilDensity ();
-               double vPermeability = formationNode->getVerticalPermeability (k == depth);
+               double pressure      = m_formationPropertyPtr [PRESSUREPROPERTY]            ->get (i, j, k);
+               double temperature   = m_formationPropertyPtr [TEMPERATUREPROPERTY]         ->get (i, j, k);
+               double liquidDensity = m_formationPropertyPtr [LIQUIDDENSITYPROPERTY]       ->get (i, j, k);
+               double vapourDensity = m_formationPropertyPtr [VAPOURDENSITYPROPERTY]       ->get (i, j, k);
+               double vPermeability = m_formationPropertyPtr [VERTICALPERMEABILITYPROPERTY]->get (i, j, k);
 
                // Fluid type the same independent of the position of the node inside the formation.
                const GeoPhysics::FluidType * fluid = (GeoPhysics::FluidType *) getFluidType ();               
                double waterDensity = fluid->density (temperature, pressure);
 
                // Do not assign any value and continue 
-               if (formationNode->getGasDensity () == Interface::DefaultUndefinedMapValue or
-                   formationNode->getOilDensity () == Interface::DefaultUndefinedMapValue or
+               if (liquidDensity == Interface::DefaultUndefinedMapValue or
+                   vapourDensity == Interface::DefaultUndefinedMapValue or
                    waterDensity <= 0.0)
                   continue;
 
                // Critical temperatures and c1, c2 are independent of the exact position of the node inside the formation.
-               double hcTempValueGas = pvtFlash::getCriticalTemperature (C1, 0);
-               double hcTempValueOil = pvtFlash::getCriticalTemperature (C6_14SAT, 0);
+               double hcTempValueVapour = pvtFlash::getCriticalTemperature (C1, 0);
+               double hcTempValueLiquid = pvtFlash::getCriticalTemperature (C6_14SAT, 0);
 
                const double capC1 = getCompoundLithology (i, j)->capC1 ();
                const double capC2 = getCompoundLithology (i, j)->capC2 ();
 
                double capSealStrength_Air_Hg = CBMGenerics::capillarySealStrength::capSealStrength_Air_Hg (capC1, capC2, vPermeability);
 
-               double oilIFT = CBMGenerics::capillarySealStrength::capTension_H2O_HC (waterDensity, oilDensity, temperature + CBMGenerics::C2K, hcTempValueOil);
+               double liquidIFT = CBMGenerics::capillarySealStrength::capTension_H2O_HC (waterDensity, liquidDensity, temperature + CBMGenerics::C2K, hcTempValueLiquid);
 
                // Considers 180 deg. angle between H2O and HC (strictly speaking not true for oil)
-               double capillaryEntryPressureOil = CBMGenerics::capillarySealStrength::capSealStrength_H2O_HC (capSealStrength_Air_Hg, oilIFT);
-               double capillaryEntryPressureGas = capillaryEntryPressureOil + capillaryEntryPressureOilGas (vPermeability, pressure, capC1, capC2);
+               double capillaryEntryPressureLiquid = CBMGenerics::capillarySealStrength::capSealStrength_H2O_HC (capSealStrength_Air_Hg, liquidIFT);
+               double capillaryEntryPressureVapour = capillaryEntryPressureLiquid + capillaryEntryPressureLiquidVapour (vPermeability, pressure, capC1, capC2);
 
-               if (capillaryEntryPressureOil == Interface::DefaultUndefinedMapValue and capillaryEntryPressureGas == Interface::DefaultUndefinedMapValue)
+               if (capillaryEntryPressureLiquid == Interface::DefaultUndefinedMapValue or capillaryEntryPressureVapour == Interface::DefaultUndefinedMapValue)
                {
-                  continue;
+                  ptrVapourPcE->set (i, j, (unsigned int)k, 0.0);
+                  ptrLiquidPcE->set (i, j, (unsigned int)k, 0.0);
+
+                  // If not a ghost node and not on last I or J row of the basin then assign the values to the local formation node
+                  if (i >= m_formationNodeArray->firstILocal () and i <= m_formationNodeArray->lastILocal () and
+                     j >= m_formationNodeArray->firstJLocal () and j <= m_formationNodeArray->lastJLocal () and
+                     i < grid->numIGlobal () - 1 and j < grid->numJGlobal () - 1)
+                  {
+                     // If at the top choose the formation node right below it. We will still calculate and save values for the top node,
+                     // but these values will be stored in the arrays of the node below it.
+                     LocalFormationNode * formationNode = (k == depth) ? getLocalFormationNode (i, j, k - 1) : getLocalFormationNode (i, j, k);
+                     if (!formationNode)
+                        continue;
+
+                     formationNode->setCapillaryEntryPressureVapour (0.0, k == depth);
+                     formationNode->setCapillaryEntryPressureLiquid (0.0, k == depth);
                }
                else
                {
-                  ptrGasPcE->set( i, j, (unsigned int) k, capillaryEntryPressureGas);
-                  ptrOilPcE->set( i, j, (unsigned int) k, capillaryEntryPressureOil);
+                  ptrVapourPcE->set( i, j, (unsigned int) k, capillaryEntryPressureVapour);
+                  ptrLiquidPcE->set( i, j, (unsigned int) k, capillaryEntryPressureLiquid);
 
-                  formationNode->setCapillaryEntryPressureGas (capillaryEntryPressureGas, k==depth);
-                  formationNode->setCapillaryEntryPressureOil (capillaryEntryPressureOil, k==depth);
+                  // If not a ghost node and not on last I or J row of the basin then assign the values to the local formation node
+                  if (i >= m_formationNodeArray->firstILocal () and i <= m_formationNodeArray->lastILocal () and
+                     j >= m_formationNodeArray->firstJLocal () and j <= m_formationNodeArray->lastJLocal () and
+                     i < grid->numIGlobal () - 1 and j < grid->numJGlobal () - 1)
+                  {
+                     // If at the top choose the formation node right below it. We will still calculate and save values for the top node,
+                     // but these values will be stored in the arrays of the node below it.
+                     LocalFormationNode * formationNode = (k == depth) ? getLocalFormationNode (i, j, k - 1) : getLocalFormationNode (i, j, k);
+                     if (!formationNode)
+                        continue;
+
+                     formationNode->setCapillaryEntryPressureVapour (capillaryEntryPressureVapour, k == depth);
+                     formationNode->setCapillaryEntryPressureLiquid (capillaryEntryPressureLiquid, k == depth);
                }
             }
          }
+      }
       }
 
       return true;
    }
 
    /// To be moved into GeoPhysics library
-   double Formation::capillaryEntryPressureOilGas (const double permeability, const double brinePressure, const double capC1, const double capC2) const
+   double Formation::capillaryEntryPressureLiquidVapour (const double permeability, const double brinePressure, const double capC1, const double capC2) const
    {
       double pceHgAir;
       double pceog;
-      double hgAigToOilGasConversionFactor;
+      double hgAigToLiquidVapourConversionFactor;
 
       // Ratio of interfacial-tensions and cos(contact-angle).
-      hgAigToOilGasConversionFactor = BrooksCorey::oilGasInterfacialTension (brinePressure) * BrooksCorey::CosOilGasContactAngle /
+      hgAigToLiquidVapourConversionFactor = BrooksCorey::liquidVapourInterfacialTension (brinePressure) * BrooksCorey::CosLiquidVapourContactAngle /
          //------------------------------------------------------------------------------------------//
          (BrooksCorey::MercuryAirInterfacialTension * BrooksCorey::CosMercuryAirContactAngle);
 
       pceHgAir = CBMGenerics::capillarySealStrength::capSealStrength_Air_Hg (capC1, capC2, permeability);
-      pceog = pceHgAir * hgAigToOilGasConversionFactor;
+      pceog = pceHgAir * hgAigToLiquidVapourConversionFactor;
 
       return pceog;
    }
@@ -300,15 +326,37 @@ namespace migration
       return true;
    }
 
-   bool Formation::computeHCDensityMaps ()
+   bool Formation::computeHCDensityMaps (const Interface::Snapshot * snapshot)
    {
-      int depth = getMaximumNumberOfElements () - 1;
-      assert (depth >= 0);
+      const Grid *grid = m_projectHandle->getActivityOutputGrid ();
+
+      int depth = getMaximumNumberOfElements ();
+      assert (depth > 0);
+
+      const DataModel::AbstractProperty* vapourDensity = m_migrator->getPropertyManager ().getProperty ("HcVapourDensity");
+      const DataModel::AbstractProperty* liquidDensity = m_migrator->getPropertyManager ().getProperty ("HcLiquidDensity");
+
+      // We'll be storing the top nodes of each formation
+      DerivedProperties::DerivedFormationPropertyPtr ptrVapourDensity = DerivedProperties::DerivedFormationPropertyPtr 
+                                                                        (new DerivedProperties::DerivedFormationProperty (vapourDensity, snapshot, this, grid, depth + 1));
+      
+      DerivedProperties::DerivedFormationPropertyPtr ptrLiquidDensity = DerivedProperties::DerivedFormationPropertyPtr
+                                                                        (new DerivedProperties::DerivedFormationProperty (liquidDensity, snapshot, this, grid, depth + 1));
+      
+      assert (ptrVapourDensity);
+      assert (ptrLiquidDensity);
+
+      m_formationPropertyPtr[VAPOURDENSITYPROPERTY] = ptrVapourDensity;
+      m_formationPropertyPtr[LIQUIDDENSITYPROPERTY] = ptrLiquidDensity;
 
       double compMasses     [CBMGenerics::ComponentManager::NumberOfSpecies];
       double phaseCompMasses[CBMGenerics::ComponentManager::NumberOfPhases][CBMGenerics::ComponentManager::NumberOfSpecies];
       double phaseDensity   [CBMGenerics::ComponentManager::NumberOfPhases] = {0};
       double phaseViscosity [CBMGenerics::ComponentManager::NumberOfPhases] = {0};      
+
+      // Using the PropertyRetriever class which ensures the retrieval and later on the restoration of property pointers
+      DerivedProperties::PropertyRetriever pressurePropertyRetriever    (m_formationPropertyPtr[PRESSUREPROPERTY]);
+      DerivedProperties::PropertyRetriever temperaturePropertyRetriever (m_formationPropertyPtr[TEMPERATUREPROPERTY]);
 
       for(int nc = 0; nc != CBMGenerics::ComponentManager::NumberOfSpecies ;++nc)
       {
@@ -324,16 +372,12 @@ namespace migration
 
       for (int k = depth; k >= 0; --k)
       {
-         for (unsigned int i = m_formationNodeArray->firstILocal (); i <= m_formationNodeArray->lastILocal (); ++i)
+         for (unsigned int i = ptrVapourDensity->firstI (true); i <= ptrVapourDensity->lastI (true); ++i)
          {
-            for (unsigned int j = m_formationNodeArray->firstJLocal (); j <= m_formationNodeArray->lastJLocal (); ++j)
+            for (unsigned int j = ptrVapourDensity->firstJ (true); j <= ptrVapourDensity->lastJ (true); ++j)
             {
-               LocalFormationNode * formationNode = getLocalFormationNode (i,j,k);
-               if (!formationNode)
-                  continue;
-
-               double temperature = formationNode->getTemperature ();
-               double pressure    = formationNode->getPressure ();
+               double temperature = m_formationPropertyPtr [TEMPERATUREPROPERTY]->get (i,j,k);
+               double pressure    = m_formationPropertyPtr    [PRESSUREPROPERTY]->get (i,j,k);
 
                if (temperature != Interface::DefaultUndefinedMapValue and
                    pressure    != Interface::DefaultUndefinedMapValue)
@@ -348,8 +392,25 @@ namespace migration
                   if (phaseDensity[CBMGenerics::ComponentManager::Liquid] == 1000.0)
                      phaseDensity[CBMGenerics::ComponentManager::Liquid] = phaseDensity[CBMGenerics::ComponentManager::Vapour];
 
-                  formationNode->setGasDensity (phaseDensity[CBMGenerics::ComponentManager::Vapour]);
-                  formationNode->setOilDensity (phaseDensity[CBMGenerics::ComponentManager::Liquid]);
+                  if (phaseDensity[CBMGenerics::ComponentManager::Vapour] == 1000.0)
+                     phaseDensity[CBMGenerics::ComponentManager::Vapour] = phaseDensity[CBMGenerics::ComponentManager::Liquid];
+                  
+                  ptrVapourDensity->set (i, j, (unsigned int)k, phaseDensity[CBMGenerics::ComponentManager::Vapour]);
+                  ptrLiquidDensity->set (i, j, (unsigned int)k, phaseDensity[CBMGenerics::ComponentManager::Liquid]);
+
+                  // If not a ghost node and not on last I or J row of the basin and
+                  // not a top node then assign the value to the local formation node
+                  if (i >= m_formationNodeArray->firstILocal () and i <= m_formationNodeArray->lastILocal () and
+                      j >= m_formationNodeArray->firstJLocal () and j <= m_formationNodeArray->lastJLocal () and
+                      i < grid->numIGlobal () - 1 and j < grid->numJGlobal () - 1 and k != depth)
+                  {
+                     LocalFormationNode * formationNode = getLocalFormationNode (i, j, k);
+                     if (!formationNode)
+                        continue;
+
+                     formationNode->setVapourDensity (phaseDensity[CBMGenerics::ComponentManager::Vapour]);
+                     formationNode->setLiquidDensity (phaseDensity[CBMGenerics::ComponentManager::Liquid]);
+                  }
                }
             }
          }
@@ -490,12 +551,12 @@ namespace migration
       return value;
    }
 
-   double Formation::getMinOilColumnHeight (void) const
+   double Formation::getMinLiquidColumnHeight (void) const
    {
       return m_migrator->getProjectHandle ()->getRunParameters ()->getMinOilColumnHeight ();
    }
 
-   double Formation::getMinGasColumnHeight (void) const
+   double Formation::getMinVapourColumnHeight (void) const
    {
       return m_migrator->getProjectHandle ()->getRunParameters ()->getMinGasColumnHeight ();
    }
@@ -940,6 +1001,17 @@ namespace migration
 
       gridMap->retrieveData ();
 
+      // Get the reservoir object of this formation (if it hosts a reservoir)
+      // in order to use FlowDirectionIJ values for lateral migration 
+      DataAccess::Interface::ReservoirList * reservoirList = m_migrator->getReservoirs (this);
+      const Reservoir * reservoir = 0;
+      if (!reservoirList->empty ())
+      {
+         const DataAccess::Interface::Reservoir * dataAccessReservoir = (*reservoirList)[0];
+         reservoir = dynamic_cast<const migration::Reservoir *> (dataAccessReservoir);
+         assert (reservoir);
+      }
+
       for (unsigned int i = m_formationNodeArray->firstILocal (); i <= m_formationNodeArray->lastILocal (); ++i)
       {
          for (unsigned int j = m_formationNodeArray->firstJLocal (); j <= m_formationNodeArray->lastJLocal (); ++j)
@@ -947,10 +1019,22 @@ namespace migration
             for (unsigned int k = 0; k < nodeDepth; ++k)
             {
                LocalFormationNode * node = getLocalFormationNode (i, j, k);
-               double gridMapValue =
+               double gridMapValue;
+
+               // If there's an end-of-path node inside a reservoir it means we are at the reservoir top.
+               // Use FlowDirectionIJ then to get non-zero values for lateral migration.
+               if (reservoir and node->isEndOfPath ())
+               {
+                  LocalColumn * localColumn = reservoir->getLocalColumn (i, j);
+                  gridMapValue = 10 * localColumn->getFlowDirectionJ (migration::OIL) + 1 * localColumn->getFlowDirectionI (migration::OIL);
+               }
+               else
+               {
+                  gridMapValue = 
                   100 * node->getAdjacentFormationNodeGridOffset (2) +     // K
                   10 * node->getAdjacentFormationNodeGridOffset (1) +     // J
                   1 * node->getAdjacentFormationNodeGridOffset (0);      // I
+               }
 
                gridMap->setValue (i, j, k, gridMapValue);
             }
@@ -983,11 +1067,11 @@ namespace migration
 
       if (retrieveCapillary)
       {
-         assert (m_formationPropertyPtr[CAPILLARYENTRYPRESSUREGASPROPERTY]);
-         m_formationPropertyPtr[CAPILLARYENTRYPRESSUREGASPROPERTY]->retrieveData ();
+         assert (m_formationPropertyPtr[CAPILLARYENTRYPRESSUREVAPOURPROPERTY]);
+         m_formationPropertyPtr[CAPILLARYENTRYPRESSUREVAPOURPROPERTY]->retrieveData ();
 
-         assert (m_formationPropertyPtr[CAPILLARYENTRYPRESSUREOILPROPERTY]);
-         m_formationPropertyPtr[CAPILLARYENTRYPRESSUREOILPROPERTY]->retrieveData ();
+         assert (m_formationPropertyPtr[CAPILLARYENTRYPRESSURELIQUIDPROPERTY]);
+         m_formationPropertyPtr[CAPILLARYENTRYPRESSURELIQUIDPROPERTY]->retrieveData ();
       }
       return true;
    }
@@ -1014,11 +1098,11 @@ namespace migration
 
       if (restoreCapillary)
       {
-         assert (m_formationPropertyPtr[CAPILLARYENTRYPRESSUREGASPROPERTY]);
-         m_formationPropertyPtr[CAPILLARYENTRYPRESSUREGASPROPERTY]->restoreData ();
+         assert (m_formationPropertyPtr[CAPILLARYENTRYPRESSUREVAPOURPROPERTY]);
+         m_formationPropertyPtr[CAPILLARYENTRYPRESSUREVAPOURPROPERTY]->restoreData ();
 
-         assert (m_formationPropertyPtr[CAPILLARYENTRYPRESSUREOILPROPERTY]);
-         m_formationPropertyPtr[CAPILLARYENTRYPRESSUREOILPROPERTY]->restoreData ();
+         assert (m_formationPropertyPtr[CAPILLARYENTRYPRESSURELIQUIDPROPERTY]);
+         m_formationPropertyPtr[CAPILLARYENTRYPRESSURELIQUIDPROPERTY]->restoreData ();
       }
       return true;
    }
@@ -1098,7 +1182,7 @@ namespace migration
    // Loop through the uppermost cells and check capillary pressure across the boundary
    //
    bool Formation::detectReservoir (Formation * topFormation,
-                                    const double minOilColumnHeight, const double minGasColumnHeight, const bool pressureRun, const Formation * topActiveFormation)
+                                    const double minLiquidColumnHeight, const double minVapourColumnHeight, const bool pressureRun, const Formation * topActiveFormation)
    {
       for (int i = (int) m_formationNodeArray->firstILocal (); i <= (int) m_formationNodeArray->lastILocal (); ++i)
       {
@@ -1107,7 +1191,7 @@ namespace migration
             LocalFormationNode * reservoirFormationNode = validReservoirNode (i, j);
             LocalFormationNode * sealFormationNode = validSealNode (i, j, topFormation, topActiveFormation);
 
-            if (reservoirFormationNode && sealFormationNode) reservoirFormationNode->detectReservoir (sealFormationNode,minOilColumnHeight, minGasColumnHeight, pressureRun);
+            if (reservoirFormationNode && sealFormationNode) reservoirFormationNode->detectReservoir (sealFormationNode,minLiquidColumnHeight, minVapourColumnHeight, pressureRun);
          }
       }
 
@@ -1215,8 +1299,8 @@ namespace migration
             int top = fnode->getFormation ()->getGridMapDepth ()-1;
             depth = fnode->getFormation ()->getPropertyValue (DEPTHPROPERTY, fnode->getI (), fnode->getJ (), top);
 
-            fprintf (fres, "%d(%lf)\t\t%d(%lf) \t\t %d \t\t %d \t\t %lf\n", (fnode->getReservoirOil () ? 1 : 0), fnode->getHeightOil (),
-                     (fnode->getReservoirGas () ? 1 : 0), fnode->getHeightGas (), (fnode->getIsCrest (OIL) ? 1 : 0), (fnode->getIsCrest (GAS) ? 1 : 0), depth);
+            fprintf (fres, "%d(%lf)\t\t%d(%lf) \t\t %d \t\t %d \t\t %lf\n", (fnode->getReservoirLiquid () ? 1 : 0), fnode->getHeightLiquid (),
+                     (fnode->getReservoirVapour () ? 1 : 0), fnode->getHeightVapour (), (fnode->getIsCrest (OIL) ? 1 : 0), (fnode->getIsCrest (GAS) ? 1 : 0), depth);
          }
       }
 

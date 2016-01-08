@@ -201,14 +201,14 @@ namespace migration {
       return getCachedScalarValue<bool> (GOESOUTOFBOUNDS, GOESOUTOFBOUNDSCACHE, m_goesOutOfBounds);
    }
 
-   bool ProxyFormationNode::getReservoirGas ()
+   bool ProxyFormationNode::getReservoirVapour ()
    {
-      return getScalarValue<bool> (ISRESERVOIRGAS);
+      return getScalarValue<bool> (ISRESERVOIRVAPOUR);
    }
 
-   bool ProxyFormationNode::getReservoirOil ()
+   bool ProxyFormationNode::getReservoirLiquid ()
    {
-      return getScalarValue<bool> (ISRESERVOIROIL);
+      return getScalarValue<bool> (ISRESERVOIRLIQUID);
    }
 
    bool ProxyFormationNode::isEndOfPath ()
@@ -222,14 +222,14 @@ namespace migration {
       return getCachedDoubleValue(DEPTH, DEPTHCACHE, m_depth);
    }
 
-   double ProxyFormationNode::getHeightGas ()
+   double ProxyFormationNode::getHeightVapour ()
    {
-      return getCachedDoubleValue(HEIGHTGAS, HEIGHTGASCACHE, m_height_gas);
+      return getCachedDoubleValue(HEIGHTVAPOUR, HEIGHTVAPOURCACHE, m_heightVapour);
    }
 
-   double ProxyFormationNode::getHeightOil ()
+   double ProxyFormationNode::getHeightLiquid ()
    {
-      return getCachedDoubleValue(HEIGHTOIL, HEIGHTOILCACHE, m_height_oil);
+      return getCachedDoubleValue(HEIGHTLIQUID, HEIGHTLIQUIDCACHE, m_heightLiquid);
    }
 
    FaultStatus ProxyFormationNode::getFaultStatus ()
@@ -357,19 +357,19 @@ namespace migration {
    LocalFormationNode::LocalFormationNode (unsigned int i, unsigned int j, int k, Formation * formation) :
       FormationNode (i, j, k, formation), m_compositionToBeMigrated (0), m_topFormationNode (0), m_targetFormationNode (0), m_selectedDirectionIndex (-1),
       m_depth (Interface::DefaultUndefinedMapValue), m_horizontalPermeability (-1), m_porosity (-1), m_pressure (-1), m_temperature (-1), m_adjacentNodeIndex (0),
-      m_entered (false), m_tried (0), m_hasNoThickness (false), m_cosines (0), m_isCrestOil (true), m_isCrestGas (true), m_isEndOfPath (false)
+      m_entered (false), m_tried (0), m_hasNoThickness (false), m_cosines (0), m_isCrestLiquid (true), m_isCrestVapour (true), m_isEndOfPath (false)
    {
       m_verticalPermeability[0] = -1.0;
       m_verticalPermeability[1] = -1.0;
 
-      m_capillaryEntryPressureGas[0] = -1.0;
-      m_capillaryEntryPressureGas[1] = -1.0;
+      m_capillaryEntryPressureVapour[0] = 0.0;
+      m_capillaryEntryPressureVapour[1] = 0.0;
 
-      m_capillaryEntryPressureOil[0] = -1.0;
-      m_capillaryEntryPressureOil[1] = -1.0;
+      m_capillaryEntryPressureLiquid[0] = 0.0;
+      m_capillaryEntryPressureLiquid[1] = 0.0;
 
-      m_gasDensity = -1.0;
-      m_oilDensity = -1.0;
+      m_vapourDensity = -1.0;
+      m_liquidDensity = -1.0;
    }
 
    /// Destructor
@@ -384,13 +384,13 @@ namespace migration {
 
    void LocalFormationNode::clearReservoirProperties (void)
    {
-      m_isReservoirGas = false;
-      m_isReservoirOil = false;
-      m_isCrestGas     = true;
-      m_isCrestOil     = true;
+      m_isReservoirVapour = false;
+      m_isReservoirLiquid = false;
+      m_isCrestVapour     = true;
+      m_isCrestLiquid     = true;
       m_isEndOfPath    = false;
 
-      m_height_oil = m_height_gas = 0;
+      m_heightLiquid = m_heightVapour = 0;
    }
 
    void LocalFormationNode::clearProperties (void)
@@ -406,10 +406,10 @@ namespace migration {
       m_pressure = -1.0;
       m_temperature = -1.0;
 
-      m_capillaryEntryPressureGas[0] = -1.0;
-      m_capillaryEntryPressureOil[0] = -1.0;
-      m_capillaryEntryPressureGas[1] = -1.0;
-      m_capillaryEntryPressureOil[1] = -1.0;
+      m_capillaryEntryPressureVapour[0] = -1.0;
+      m_capillaryEntryPressureLiquid[0] = -1.0;
+      m_capillaryEntryPressureVapour[1] = -1.0;
+      m_capillaryEntryPressureLiquid[1] = -1.0;
 
       m_targetFormationNode = 0;
       m_selectedDirectionIndex = -1;
@@ -555,19 +555,19 @@ namespace migration {
          response.formationIndex = getFormation ()->getIndex ();
          response.value = goesOutOfBounds ();
          break;
-      case ISRESERVOIRGAS:
+      case ISRESERVOIRVAPOUR:
          response.i = getI ();
          response.j = getJ ();
          response.k = getK ();
          response.formationIndex = getFormation ()->getIndex ();
-         response.value = getReservoirGas ();
+         response.value = getReservoirVapour ();
          break;
-      case ISRESERVOIROIL:
+      case ISRESERVOIRLIQUID:
          response.i = getI ();
          response.j = getJ ();
          response.k = getK ();
          response.formationIndex = getFormation ()->getIndex ();
-         response.value = getReservoirOil ();
+         response.value = getReservoirLiquid ();
          break;
       case ISENDOFPATH:
          response.i = getI ();
@@ -576,19 +576,19 @@ namespace migration {
          response.formationIndex = getFormation ()->getIndex ();
          response.value = isEndOfPath ();
          break;
-      case HEIGHTGAS:
+      case HEIGHTVAPOUR:
          response.i = getI ();
          response.j = getJ ();
          response.k = getK ();
          response.formationIndex = getFormation ()->getIndex ();
-         response.value = getHeightGas ();
+         response.value = getHeightVapour ();
          break;
-      case HEIGHTOIL:
+      case HEIGHTLIQUID:
          response.i = getI ();
          response.j = getJ ();
          response.k = getK ();
          response.formationIndex = getFormation ()->getIndex ();
-         response.value = getHeightOil ();
+         response.value = getHeightLiquid ();
          break;
       case FAULTSTATUS:
          response.i = getI ();
@@ -704,25 +704,25 @@ namespace migration {
    // Check change of capillary pressure across boundary to determine potential reservoir
    //
    bool LocalFormationNode::detectReservoir (LocalFormationNode * topNode,
-      const double minOilColumnHeight, const double minGasColumnHeight, const bool pressureRun)
+      const double minLiquidColumnHeight, const double minVapourColumnHeight, const bool pressureRun)
    {
       if (!IsValid (this)) return true;
 
-      double cp_oil, cp_gas;
+      double cp_liquid, cp_vapour;
 
-      bool gasFlag = false;
-      bool oilFlag = false;
+      bool vapourFlag = false;
+      bool liquidFlag = false;
 
-      m_height_oil = m_height_gas = 0;
+      m_heightLiquid = m_heightVapour = 0;
 
       if (hasThickness () && !isImpermeable ())
       {
          if (topNode->isImpermeable ())
          {
-            gasFlag = true;
-            oilFlag = true;
-            setReservoirGas (gasFlag);
-            setReservoirOil (oilFlag);
+            vapourFlag = true;
+            liquidFlag = true;
+            setReservoirVapour (vapourFlag);
+            setReservoirLiquid (liquidFlag);
             return true;
          }
 
@@ -742,34 +742,34 @@ namespace migration {
                dOverPressure = 0.0;
 
             // calculate actual capillary pressure sealing for gas
-            cp_gas = topNode->m_capillaryEntryPressureGas[0] - m_capillaryEntryPressureGas[0] * resCorr;
+            cp_vapour = topNode->m_capillaryEntryPressureVapour[0] - m_capillaryEntryPressureVapour[0] * resCorr;
 
             // calculate maximum height of the hydrocarbons column for gas
-            m_height_gas = (cp_gas + dOverPressure) / ((m_waterDensity - m_gasDensity) * CBMGenerics::Gravity);
+            m_heightVapour = (cp_vapour + dOverPressure) / ((m_waterDensity - m_vapourDensity) * CBMGenerics::Gravity);
 
             // if actual height is greater than the user-defined minimum - raise potential reservoir flag
-            if (m_height_gas > minGasColumnHeight)
+            if (m_heightVapour > minVapourColumnHeight)
             {
-               gasFlag = true;
+               vapourFlag = true;
             }
 
             // calculate actual capillary pressure sealing for oil
-            cp_oil = topNode->m_capillaryEntryPressureOil[0] - m_capillaryEntryPressureOil[0] * resCorr;
+            cp_liquid = topNode->m_capillaryEntryPressureLiquid[0] - m_capillaryEntryPressureLiquid[0] * resCorr;
 
             // calculate maximum height of the hydrocarbons column for oil
-            m_height_oil = (cp_oil + dOverPressure) / ((m_waterDensity - m_oilDensity) * CBMGenerics::Gravity);
+            m_heightLiquid = (cp_liquid + dOverPressure) / ((m_waterDensity - m_liquidDensity) * CBMGenerics::Gravity);
 
             // if actual height is greater than the user-defined minimum - raise potential reservoir flag
-            if (m_height_oil > minOilColumnHeight)
+            if (m_heightLiquid > minLiquidColumnHeight)
             {
-               oilFlag = true;
+               liquidFlag = true;
             }
       }
 
-      setReservoirGas (gasFlag);
-      setReservoirOil (oilFlag);
+      setReservoirVapour (vapourFlag);
+      setReservoirLiquid (liquidFlag);
 
-      return (gasFlag || oilFlag);
+      return (vapourFlag || liquidFlag);
    }
 
    // Check if the node is a crest node for the phaseId, similarly to what is done in Reservoir::getAdjacentColumn
@@ -777,14 +777,14 @@ namespace migration {
    {
 
       // if the node can not gas or oil, skip the calculations
-      if (phase == GAS && !getReservoirGas())
+      if (phase == GAS && !getReservoirVapour())
       {
-         m_isCrestGas = false;
+         m_isCrestVapour = false;
          return false;
       }
-      if (phase == OIL && !getReservoirOil ())
+      if (phase == OIL && !getReservoirLiquid ())
       {
-         m_isCrestOil = false;
+         m_isCrestLiquid = false;
          return false;
       }
 
@@ -792,9 +792,9 @@ namespace migration {
       if (!IsValid (this)) 
       {
          if (phase == GAS)
-            m_isCrestGas = false;
+            m_isCrestVapour = false;
          else
-            m_isCrestOil = false;
+            m_isCrestLiquid = false;
          return false;
       }
 
@@ -810,9 +810,9 @@ namespace migration {
          {
             // node lies on the edge, can not be a trap crest
             if (phase == GAS)
-               m_isCrestGas = false;
+               m_isCrestVapour = false;
             else
-               m_isCrestOil = false;
+               m_isCrestLiquid = false;
             return false;
          }
 
@@ -838,18 +838,18 @@ namespace migration {
          {
             // neighbour is shallower 
             if (phase == GAS)
-               m_isCrestGas = false;
+               m_isCrestVapour = false;
             else
-               m_isCrestOil = false;
+               m_isCrestLiquid = false;
             return false;
          }
       }
 
       // return true if the node is crest column AND can hold gas or oil 
       if (phase == GAS)
-         return (m_isCrestGas && getReservoirGas());
+         return (m_isCrestVapour && getReservoirVapour());
       else
-         return (m_isCrestOil && getReservoirOil());
+         return (m_isCrestLiquid && getReservoirLiquid());
 
    };
 
@@ -885,9 +885,9 @@ namespace migration {
    bool LocalFormationNode::getIsCrest (PhaseId phase) 
    {
       if (phase == GAS)
-         return m_isCrestGas;
+         return m_isCrestVapour;
       else
-         return m_isCrestOil ;
+         return m_isCrestLiquid;
    };
    
    double LocalFormationNode::computeBrooksCoreyCorrection (double Sw, double lambda) const
@@ -914,8 +914,8 @@ namespace migration {
 
    void LocalFormationNode::identifyAsReservoir (void)
    {
-      setReservoirGas (true);
-      setReservoirOil (true);
+      setReservoirVapour (true);
+      setReservoirLiquid (true);
 
       setEndOfPath ();
 
@@ -949,9 +949,9 @@ namespace migration {
       ThreeVector capPressureGrad;
 
 #ifdef GAS_DENSITY_FLOW_DIRECTION
-      capPressureGrad = getFiniteElementGrad (CAPILLARYENTRYPRESSUREGASPROPERTY);
+      capPressureGrad = getFiniteElementGrad (CAPILLARYENTRYPRESSUREVAPOURPROPERTY);
 #else
-      capPressureGrad = getFiniteElementGrad (CAPILLARYENTRYPRESSUREOILPROPERTY);
+      capPressureGrad = getFiniteElementGrad (CAPILLARYENTRYPRESSURELIQUIDPROPERTY);
 #endif
 
       if (!performHDynamicAndCapillary () || capPressureGrad (1) == Interface::DefaultUndefinedMapValue)
@@ -971,9 +971,9 @@ namespace migration {
          pressureGrad += capPressureGrad * CBMGenerics::Pa2MPa;
 
 #ifdef GAS_DENSITY_FLOW_DIRECTION
-         double hc_density = m_gasDensity;
+         double hc_density = m_vapourDensity;
 #else
-         double hc_density = m_oilDensity;
+         double hc_density = m_liquidDensity;
 #endif
          double gravity = hc_density * CBMGenerics::Gravity * CBMGenerics::Pa2MPa;
 
@@ -1076,7 +1076,7 @@ namespace migration {
 
       int diStart = 0;
 
-      if (getReservoirGas () || getReservoirOil ())
+      if (getReservoirVapour () || getReservoirLiquid ())
       {
          // Only look laterally (grid-wise) for flow path continuations
          diStart += NumberOfUpwardNeighbourOffsets;
@@ -1102,7 +1102,7 @@ namespace migration {
             continue;
          }
 
-         if ((getReservoirGas () || getReservoirOil ()) && neighbourNode && neighbourNode->hasNoThickness ())
+         if ((getReservoirVapour () || getReservoirLiquid ()) && neighbourNode && neighbourNode->hasNoThickness ())
          {
             // cannot escape via a zero thickness node if we are in a reservoir
             continue;
@@ -1155,7 +1155,7 @@ namespace migration {
             neighbourNodeDepth = getFiniteElementValue (iQP, jQP, kQP, DEPTHPROPERTY);
          }
 
-         if ((getReservoirGas () || getReservoirOil ()) && neighbourNodeDepth >= m_depth)
+         if ((getReservoirVapour () || getReservoirLiquid ()) && neighbourNodeDepth >= m_depth)
          {
             // if we are in the reservoir area, only try to go upward (z-wise)
             continue;
@@ -1458,46 +1458,46 @@ namespace migration {
          return Interface::DefaultUndefinedMapValue;
    }
 
-   double LocalFormationNode::getGasDensity ()
+   double LocalFormationNode::getVapourDensity ()
    {
       if (hasThickness ())
-         return m_gasDensity;
+         return m_vapourDensity;
       else if (m_topFormationNode)
-         return m_topFormationNode->getGasDensity ();
+         return m_topFormationNode->getVapourDensity ();
       else
          return Interface::DefaultUndefinedMapValue;
    }
 
-   double LocalFormationNode::getOilDensity ()
+   double LocalFormationNode::getLiquidDensity ()
    {
       if (hasThickness ())
-         return m_oilDensity;
+         return m_liquidDensity;
       else if (m_topFormationNode)
-         return m_topFormationNode->getOilDensity ();
+         return m_topFormationNode->getLiquidDensity ();
       else
          return Interface::DefaultUndefinedMapValue;
    }
 
-   double LocalFormationNode::getCapillaryEntryPressureGas (bool nodeOnTop)
+   double LocalFormationNode::getCapillaryEntryPressureVapour (bool nodeOnTop)
    {
       if (hasThickness () and !nodeOnTop)
-         return m_capillaryEntryPressureGas[0];
+         return m_capillaryEntryPressureVapour[0];
       else if (nodeOnTop)
-         return m_capillaryEntryPressureGas[1];
+         return m_capillaryEntryPressureVapour[1];
       else if (m_topFormationNode)
-         return m_topFormationNode->getCapillaryEntryPressureGas ();
+         return m_topFormationNode->getCapillaryEntryPressureVapour ();
       else
          return Interface::DefaultUndefinedMapValue;
    }
 
-   double LocalFormationNode::getCapillaryEntryPressureOil (bool nodeOnTop)
+   double LocalFormationNode::getCapillaryEntryPressureLiquid (bool nodeOnTop)
    {
       if (hasThickness () and !nodeOnTop)
-         return m_capillaryEntryPressureOil[0];
+         return m_capillaryEntryPressureLiquid[0];
       else if (nodeOnTop)
-         return m_capillaryEntryPressureOil[1];
+         return m_capillaryEntryPressureLiquid[1];
       else if (m_topFormationNode)
-         return m_topFormationNode->getCapillaryEntryPressureOil ();
+         return m_topFormationNode->getCapillaryEntryPressureLiquid ();
       else
          return Interface::DefaultUndefinedMapValue;
    }
@@ -1520,14 +1520,14 @@ namespace migration {
       m_selectedDirectionIndex = index;
    }
 
-   void LocalFormationNode::setReservoirGas (bool flag)
+   void LocalFormationNode::setReservoirVapour (bool flag)
    {
-      m_isReservoirGas = flag;
+      m_isReservoirVapour = flag;
    }
 
-   void LocalFormationNode::setReservoirOil (bool flag)
+   void LocalFormationNode::setReservoirLiquid (bool flag)
    {
-      m_isReservoirOil = flag;
+      m_isReservoirLiquid = flag;
    }
 
    void LocalFormationNode::setDepth (double depth)
@@ -1575,56 +1575,56 @@ namespace migration {
       m_overPressure = overPressure;
    }
 
-   void LocalFormationNode::setGasDensity (double gasDensity)
+   void LocalFormationNode::setVapourDensity (double vapourDensity)
    {
-      m_gasDensity = gasDensity;
+      m_vapourDensity = vapourDensity;
    }
 
-   void LocalFormationNode::setOilDensity (double oilDensity)
+   void LocalFormationNode::setLiquidDensity (double liquidDensity)
    {
-      m_oilDensity = oilDensity;
+      m_liquidDensity = liquidDensity;
    }
 
-   void LocalFormationNode::setCapillaryEntryPressureGas (double capillaryEntryPressureGas, bool nodeOnTop)
+   void LocalFormationNode::setCapillaryEntryPressureVapour (double capillaryEntryPressureVapour, bool nodeOnTop)
    {
       // We want to set the Capillary Entry Pressure of 'this' node
       if (!nodeOnTop)
       {
-         m_capillaryEntryPressureGas[0] = capillaryEntryPressureGas;
+         m_capillaryEntryPressureVapour[0] = capillaryEntryPressureVapour;
       }
       // We want to set the Capillary Entry Pressure of the node right above,
       // at the interface with the formation above.
       else
       {
-         m_capillaryEntryPressureGas[1] = capillaryEntryPressureGas;
+         m_capillaryEntryPressureVapour[1] = capillaryEntryPressureVapour;
       }
    }
 
-   void LocalFormationNode::setCapillaryEntryPressureOil (double capillaryEntryPressureOil, bool nodeOnTop)
+   void LocalFormationNode::setCapillaryEntryPressureLiquid (double capillaryEntryPressureLiquid, bool nodeOnTop)
    {
       // We want to set the Capillary Entry Pressure of 'this' node
       if (!nodeOnTop)
       {
-         m_capillaryEntryPressureOil[0] = capillaryEntryPressureOil;
+         m_capillaryEntryPressureLiquid[0] = capillaryEntryPressureLiquid;
       }
       // We want to set the Capillary Entry Pressure of the node right above,
       // at the interface with the formation above.
       else
       {
-         m_capillaryEntryPressureOil[1] = capillaryEntryPressureOil;
+         m_capillaryEntryPressureLiquid[1] = capillaryEntryPressureLiquid;
       }
    }
 
-   bool LocalFormationNode::getReservoirGas (void)
+   bool LocalFormationNode::getReservoirVapour (void)
    {
       // a node can only be a reservoir node if it has thickness
-      return m_isReservoirGas && hasThickness ();
+      return m_isReservoirVapour && hasThickness ();
    }
 
-   bool LocalFormationNode::getReservoirOil (void)
+   bool LocalFormationNode::getReservoirLiquid (void)
    {
       // a node can only be a reservoir node if it has thickness
-      return m_isReservoirOil && hasThickness ();
+      return m_isReservoirLiquid && hasThickness ();
    }
 
    bool LocalFormationNode::isEndOfPath (void)
@@ -1632,16 +1632,16 @@ namespace migration {
       return m_isEndOfPath;
    }
 
-   double LocalFormationNode::getHeightGas (void)
+   double LocalFormationNode::getHeightVapour (void)
    {
       if (m_hasNoThickness) return Interface::DefaultUndefinedMapValue;
-      return m_height_gas;
+      return m_heightVapour;
    }
 
-   double LocalFormationNode::getHeightOil (void)
+   double LocalFormationNode::getHeightLiquid (void)
    {
       if (m_hasNoThickness) return Interface::DefaultUndefinedMapValue;
-      return m_height_oil;
+      return m_heightLiquid;
    }
 
    void LocalFormationNode::setFaultStatus (FaultStatus newFaultStatus)

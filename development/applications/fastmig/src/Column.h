@@ -287,8 +287,8 @@ namespace migration
 	 virtual void setSeaBottomPressure (double seaBottomPressure);
 
 	 virtual double getFlowDirection (PhaseId phase);
-      virtual double getFlowDirectionI (PhaseId phase);
-      virtual double getFlowDirectionJ (PhaseId phase);
+    virtual double getFlowDirectionI (PhaseId phase);
+    virtual double getFlowDirectionJ (PhaseId phase);
 
 	 virtual double getBottomDepth (void) const;
 	 virtual double getPreviousBottomDepth (void);

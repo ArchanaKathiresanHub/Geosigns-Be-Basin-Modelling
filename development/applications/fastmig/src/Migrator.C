@@ -332,7 +332,7 @@ bool Migrator::computeFormationPropertyMaps (const Interface::Snapshot * snapsho
       formation->computePropertyMaps (topDepthGridMap, snapshot, lowResEqualsHighRes, isOverPressureRun, m_projectHandle->getRunParameters ()->getNonGeometricLoop (),
                                       m_projectHandle->getRunParameters ()->getChemicalCompaction ()); // allowed to fail
 
-      formation->computeHCDensityMaps ();
+      formation->computeHCDensityMaps (snapshot);
 
       if (m_hdynamicAndCapillary or m_reservoirDetection)
       {

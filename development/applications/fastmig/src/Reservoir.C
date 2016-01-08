@@ -1589,14 +1589,14 @@ namespace migration
 
                assert (formationNode->hasThickness () or depth == 0);
 
-               if (!formationNode->getReservoirGas () or !formationNode->getReservoirOil ())
+               if (!formationNode->getReservoirVapour () or !formationNode->getReservoirLiquid ())
                {
                   column->resetProxies ();
 
-                  if (!formationNode->getReservoirGas ())
+                  if (!formationNode->getReservoirVapour ())
                      column->setWasting(GAS);
 
-                  if (!formationNode->getReservoirOil ())
+                  if (!formationNode->getReservoirLiquid ())
                      column->setWasting(OIL);
                }
             }

@@ -6,14 +6,14 @@
 
 const double BrooksCorey::log10 = std::log ( 10.0 );
 
-const double BrooksCorey::GasWaterContactAngle = 180.0;
+const double BrooksCorey::VapourWaterContactAngle = 180.0;
 
-const double BrooksCorey::OilWaterContactAngle = 180.0 - 30.0; // 150
+const double BrooksCorey::LiquidWaterContactAngle = 180.0 - 30.0; // 150
 
 
-const double BrooksCorey::OilGasContactAngle = 180.0 - 22.0; // 158
+const double BrooksCorey::LiquidVapourContactAngle = 180.0 - 22.0; // 158
 
-const double BrooksCorey::CosOilGasContactAngle = std::cos ( BrooksCorey::OilGasContactAngle * M_PI / 180.0 );
+const double BrooksCorey::CosLiquidVapourContactAngle = std::cos ( BrooksCorey::LiquidVapourContactAngle * M_PI / 180.0 );
 
 const double BrooksCorey::MercuryAirContactAngle = 140.0;
 
