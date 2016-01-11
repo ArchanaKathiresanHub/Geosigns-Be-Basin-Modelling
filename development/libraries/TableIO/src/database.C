@@ -391,8 +391,15 @@ namespace database {
 
    bool Table::deleteRecord (Record * record)
    {
-      removeRecord (record);
-      return true;
+
+     Table::iterator iter = findRecordPosition (record);
+
+     if ( iter != end() )
+     {
+         m_records.erase (iter);
+         delete record;
+     }
+     return true;
    }
 
    Record * Table::removeRecord (Record * record)
