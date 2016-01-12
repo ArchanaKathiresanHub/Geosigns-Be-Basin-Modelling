@@ -23,7 +23,7 @@ if(UNIX)
          NAME HDF5
          VERSION ${HDF5_VERSION}
          ARCHIVE "${THIRD_PARTY_DIR}/sources/hdf5-1.8.11.tar.gz"
-         ARCHIVE_MD5 "1a4cc04f7dbe34e072ddcf3325717504"
+         ARCHIVE_MD5 "3c28da19129fca00945d8eeea519db1c"
          CONFIGURE_COMMAND "./configure" "--prefix={ROOT}"
          BUILD_COMMAND   "make"
          INSTALL_COMMAND "make" "install"
