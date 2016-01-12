@@ -95,6 +95,16 @@ class CommandHandler
     RemoteViz::Rendering::RenderArea* renderArea,
     RemoteViz::Rendering::Connection* connection);
 
+  void onEnableFlowLines(
+    const jsonxx::Object& params,
+    RemoteViz::Rendering::RenderArea* renderArea,
+    RemoteViz::Rendering::Connection* connection);
+
+  void onEnableAllFlowLines(
+    const jsonxx::Object& params,
+    RemoteViz::Rendering::RenderArea* renderArea,
+    RemoteViz::Rendering::Connection* connection);
+
   void onSetProperty(
     const jsonxx::Object& params,
     RemoteViz::Rendering::RenderArea* renderArea,
@@ -145,7 +155,12 @@ class CommandHandler
     RemoteViz::Rendering::RenderArea* renderArea,
     RemoteViz::Rendering::Connection* connection);
 
-  void onShowFlowDirection(
+  void onShowFlowVectors(
+    const jsonxx::Object& params,
+    RemoteViz::Rendering::RenderArea* renderArea,
+    RemoteViz::Rendering::Connection* connection);
+
+  void onSetFlowLinesStep(
     const jsonxx::Object& params,
     RemoteViz::Rendering::RenderArea* renderArea,
     RemoteViz::Rendering::Connection* connection);

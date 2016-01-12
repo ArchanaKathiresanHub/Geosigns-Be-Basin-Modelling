@@ -119,6 +119,11 @@ public:
     size_t snapshotIndex,
     int propertyId) const;
 
+  virtual std::shared_ptr<MiDataSetIj<double> > DataAccessProject::createFormation2DProperty(
+    size_t snapshotIndex,
+    int formationId,
+    int propertyId) const;
+
   virtual std::shared_ptr<MiDataSetIj<double> > createSurfaceProperty(
     size_t snapshotIndex,
     int surfaceId,

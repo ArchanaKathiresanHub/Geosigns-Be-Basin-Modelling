@@ -99,7 +99,9 @@ private slots:
 
   void onFluidContactsToggled(bool value);
 
-  void onFlowVizTypeChanged(bool value);
+  void onFlowVectorsToggled(bool value);
+
+  void onFlowLinesStepChanged(int value);
 
   void onItemDoubleClicked(QTreeWidgetItem* item, int column);
 

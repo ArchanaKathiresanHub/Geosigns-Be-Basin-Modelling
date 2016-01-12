@@ -48,6 +48,13 @@
 						<label><b>Faults</b></label>
 					</div>
 					<div id="faultsList"></div>
+
+					<div>
+						<input type="checkbox" id="checkBoxAllFlowLines" onchange="onCheckBoxAllFlowLinesChanged(this)">
+						<label><b>Flowlines</b></label>
+					</div>
+					<div id="flowLinesList"></div>
+
 				</div>
 
 				<div id="properties" style="background-color: #ffffff; padding-left: 10px; height: 300px; overflow:auto; display: none">
@@ -74,9 +81,8 @@
 			<div>
 				<div class="header">Flow direction</div>
 				<div class="section">
-					<input type="radio" name="flowviz" id="radioButtonFlowVizNone" value="FlowVizNone" checked onchange="onFlowVizRadioClicked(this)">None</input><br>
-					<input type="radio" name="flowviz" id="radioButtonFlowVizLines" value="FlowVizLines" onchange="onFlowVizRadioClicked(this)">Flow lines</input><br>
-					<input type="radio" name="flowviz" id="radioButtonFlowVizVectors" value="FlowVizVectors" onchange="onFlowVizRadioClicked(this)">Flow vectors</input><br>
+					<input type="checkbox" id="checkBoxShowFlowVectors" onchange="onShowFlowVectorsChanged(this)">Flow vectors</input><br>
+					<input type="range" id="sliderFlowLinesStep" min="1" max="25" value="1" oninput="onFlowLinesStepSliderChanged(this)">Flow lines step</input><br>
 				</div>
 			</div>
 

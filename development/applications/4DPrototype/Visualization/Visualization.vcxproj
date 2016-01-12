@@ -142,6 +142,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CameraUtil.h" />
+    <ClInclude Include="DataSet.h" />
     <ClInclude Include="defines.h" />
     <ClInclude Include="FlowLines.h" />
     <ClInclude Include="FluidContacts.h" />

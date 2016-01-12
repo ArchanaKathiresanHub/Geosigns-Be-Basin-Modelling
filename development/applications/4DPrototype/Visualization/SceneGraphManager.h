@@ -37,6 +37,8 @@ class SoSwitch;
 class SoGroup;
 class SoNode;
 class SoText2;
+class SoBaseColor;
+class SoLineSet;
 class SoShapeHints;
 class SoAnnotation;
 class SoCamera;
@@ -170,6 +172,38 @@ struct SnapshotInfo
     }
   };
 
+  struct FlowLines
+  {
+    int id;
+    int formationId;
+    int startK;
+
+    SoSeparator* root;
+    SoBaseColor* color;
+    SoLineSet*   lines;
+
+    std::shared_ptr<MiDataSetIj<double> > expulsionData;
+
+    FlowLines()
+      : id(0)
+      , formationId(0)
+      , startK(0)
+      , root(0)
+      , color(0)
+      , lines(0)
+    {
+    }
+
+    void clear()
+    {
+      root = 0;
+      color = 0;
+      lines = 0;
+
+      expulsionData.reset();
+    }
+  };
+
   size_t index; // index in snapshot list
   double time;
 
@@ -208,11 +242,13 @@ struct SnapshotInfo
   std::vector<Surface> surfaces;
   std::vector<Reservoir> reservoirs;
   std::vector<Fault> faults;
+  std::vector<FlowLines> flowlines;
 
   size_t formationsTimeStamp;
   size_t surfacesTimeStamp;
   size_t reservoirsTimeStamp;
   size_t faultsTimeStamp;
+  size_t flowLinesTimeStamp;
 
   SnapshotInfo();
 };
@@ -225,13 +261,6 @@ public:
   {
     PerspectiveProjection,
     OrthographicProjection
-  };
-
-  enum FlowVizType
-  {
-    FlowVizNone,
-    FlowVizLines,
-    FlowVizVectors
   };
 
   enum DrainageAreaType
@@ -264,9 +293,10 @@ private:
   bool m_showText;
   bool m_showTraps;
   bool m_showTrapOutlines;
+  bool m_showFlowVectors;
 
   DrainageAreaType m_drainageAreaType;
-  FlowVizType m_flowVizType;
+  int m_flowLinesStep;
 
   float m_verticalScale;
   ProjectionType m_projectionType;
@@ -275,6 +305,7 @@ private:
   size_t m_surfacesTimeStamp;
   size_t m_reservoirsTimeStamp;
   size_t m_faultsTimeStamp;
+  size_t m_flowLinesTimeStamp;
 
   size_t m_slicePosition[3];
   bool   m_sliceEnabled[3];
@@ -319,6 +350,7 @@ private:
   std::vector<bool> m_surfaceVisibility;
   std::vector<bool> m_reservoirVisibility;
   std::vector<bool> m_faultVisibility;
+  std::vector<bool> m_flowLinesVisibility;
 
   void updateCoordinateGrid();
   void updateSnapshotFormations();
@@ -369,6 +401,10 @@ public:
 
   void setProperty(int propertyId);
 
+  void showFlowVectors(bool enabled);
+
+  void setFlowLinesStep(int step);
+
   void enableFormation(int formationId, bool enabled);
 
   void enableAllFormations(bool enabled);
@@ -385,6 +421,10 @@ public:
 
   void enableAllFaults(bool enabled);
 
+  void enableFlowLines(int flowLinesId, bool enabled);
+
+  void enableAllFlowLines(bool enabled);
+
   void enableSlice(int slice, bool enabled);
 
   void setSlicePosition(int slice, int position);
@@ -400,8 +440,6 @@ public:
   void showTrapOutlines(bool show);
 
   void showDrainageAreaOutlines(DrainageAreaType type);
-
-  void showFlowDirection(FlowVizType type);
 
   void setup(std::shared_ptr<Project> project);
 };

@@ -191,9 +191,18 @@ size_t SurfaceProperty::getTimeStamp() const
 //---------------------------------------------------------------------------------------
 // VectorProperty
 //---------------------------------------------------------------------------------------
+namespace
+{
+  inline double cappedlog(double x)
+  {
+    return (x > 1) ? log(x) : 0.0;
+  }
+}
 void ReservoirProperty::updateMinMax() const
 {
   m_values->getMinMaxValue(m_minVal, m_maxVal);
+  m_minVal = m_minVal;
+  m_maxVal = m_maxVal;
   m_minMaxValid = true;
 }
 

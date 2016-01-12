@@ -62,6 +62,12 @@ public:
     std::string name;
   };
 
+  struct FlowLines
+  {
+    int formationId;
+    std::string formationName;
+  };
+
   struct Property
   {
     std::string name;
@@ -94,6 +100,7 @@ public:
     std::vector<Reservoir> reservoirs;
     std::vector<FaultCollection> faultCollections;
     std::vector<Fault>     faults;
+    std::vector<FlowLines> flowLines;
     std::vector<Property>  properties;
   };
 
@@ -113,6 +120,7 @@ public:
     std::vector<SnapshotFormation> formations;
     std::vector<int> surfaces;
     std::vector<int> reservoirs;
+    std::vector<int> flowlines;
   };
 
   struct Trap
@@ -150,6 +158,11 @@ public:
 
   virtual std::shared_ptr<MiDataSetIjk<double> > createFormationProperty(
     size_t snapshotIndex,
+    int propertyId) const = 0;
+
+  virtual std::shared_ptr<MiDataSetIj<double> > createFormation2DProperty(
+    size_t snapshotIndex,
+    int formationId,
     int propertyId) const = 0;
 
   virtual std::shared_ptr<MiDataSetIj<double> > createSurfaceProperty(

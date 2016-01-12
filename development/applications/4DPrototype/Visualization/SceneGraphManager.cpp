@@ -78,6 +78,7 @@ SnapshotInfo::SnapshotInfo()
   , surfacesTimeStamp(MxTimeStamp::getTimeStamp())
   , reservoirsTimeStamp(MxTimeStamp::getTimeStamp())
   , faultsTimeStamp(MxTimeStamp::getTimeStamp())
+  , flowLinesTimeStamp(MxTimeStamp::getTimeStamp())
 {
   for (int i = 0; i < 3; ++i)
   {
@@ -578,58 +579,111 @@ void SceneGraphManager::updateSnapshotFlowLines()
 
   SnapshotInfo& snapshot = *m_snapshotInfoCache.begin();
 
-  if (m_flowVizType == FlowVizNone)
-  {
-    snapshot.flowDirScalarSet.reset();
-    snapshot.flowDirVectorSet.reset();
-    snapshot.flowLinesGroup->removeAllChildren();
-    snapshot.flowVectorsGroup->removeAllChildren();
-  }
-  else
-  {
-    if (!snapshot.flowDirScalarSet)
-    {
-      snapshot.flowDirScalarSet = m_project->createFlowDirectionProperty(snapshot.index);
-    }
+  if (snapshot.flowLinesTimeStamp == m_flowLinesTimeStamp)
+    return;
 
-    if (m_flowVizType == FlowVizLines && snapshot.flowLinesGroup->getNumChildren() == 0)
-    {
-      // Add color node
-      SoBaseColor* color = new SoBaseColor;
-      color->rgb.setValue(1.f, .5f, 1.f);
-      snapshot.flowLinesGroup->addChild(color);
+  if (!snapshot.flowDirScalarSet)
+    snapshot.flowDirScalarSet = m_project->createFlowDirectionProperty(snapshot.index);
 
-      for (auto& fmt : snapshot.formations)
+  for (auto& flowlines : snapshot.flowlines)
+  {
+    int id = flowlines.id;
+
+    if (m_flowLinesVisibility[id])
+    {
+      if (!flowlines.root)
       {
-        if (m_projectInfo.formations[fmt.id].isSourceRock)
-        {
-          SoLineSet* flowLines = generateFlowLines(*snapshot.flowDirScalarSet, fmt.minK, *snapshot.meshData);
-          snapshot.flowLinesGroup->addChild(flowLines);
-        }
+        flowlines.root = new SoSeparator;
+        flowlines.color = new SoBaseColor;
+        flowlines.color->rgb.setValue(1.f, .5f, 1.f);
+        flowlines.expulsionData = generateExpulsionProperty(*m_project, snapshot.index, flowlines.formationId);
+        flowlines.lines = generateFlowLines(
+          *snapshot.flowDirScalarSet, 
+          flowlines.expulsionData, 
+          *snapshot.meshData, 
+          flowlines.startK, 
+          m_flowLinesStep);
+
+        flowlines.root->addChild(flowlines.color);
+        flowlines.root->addChild(flowlines.lines);
+        snapshot.flowLinesGroup->addChild(flowlines.root);
       }
+      else
+      {
+        auto newlines = generateFlowLines(
+          *snapshot.flowDirScalarSet, 
+          flowlines.expulsionData, 
+          *snapshot.meshData, 
+          flowlines.startK, 
+          m_flowLinesStep);
 
-      snapshot.flowVectorsGroup->removeAllChildren();
+        flowlines.root->replaceChild(flowlines.lines, newlines);
+        flowlines.lines = newlines;
+      }
     }
-    else if (m_flowVizType == FlowVizVectors && snapshot.flowVectorsGroup->getNumChildren() == 0)
+    else if (!m_flowLinesVisibility[id] && flowlines.root)
     {
-      // Add color node
-      SoBaseColor* color = new SoBaseColor;
-      color->rgb.setValue(1.f, 1.f, .5f);
-      snapshot.flowVectorsGroup->addChild(color);
-
-      snapshot.flowDirSet = new MoVec3SetIjk;
-      snapshot.flowDirVectorSet = std::make_shared<FlowDirectionProperty>(*snapshot.flowDirScalarSet, *snapshot.meshData);
-      snapshot.flowDirSet->setVec3Set(snapshot.flowDirVectorSet.get());
-      snapshot.flowVectorsGroup->addChild(snapshot.flowDirSet);
-
-      MoMeshVector* meshVector = new MoMeshVector;
-      meshVector->colorScalarSetId = -1;
-      meshVector->scaleFactor = .5f;
-      snapshot.flowVectorsGroup->addChild(meshVector);
-
-      snapshot.flowLinesGroup->removeAllChildren();
+      snapshot.flowLinesGroup->removeChild(flowlines.root);
+      flowlines.clear();
     }
   }
+
+  snapshot.flowLinesTimeStamp = m_flowLinesTimeStamp;
+  return;
+
+  //if (m_flowVizType == FlowVizNone)
+  //{
+  //  snapshot.flowDirScalarSet.reset();
+  //  snapshot.flowDirVectorSet.reset();
+  //  snapshot.flowLinesGroup->removeAllChildren();
+  //  snapshot.flowVectorsGroup->removeAllChildren();
+  //}
+  //else
+  //{
+  //  if (!snapshot.flowDirScalarSet)
+  //  {
+  //    snapshot.flowDirScalarSet = m_project->createFlowDirectionProperty(snapshot.index);
+  //  }
+
+  //  if (m_flowVizType == FlowVizLines && snapshot.flowLinesGroup->getNumChildren() == 0)
+  //  {
+  //    // Add color node
+  //    SoBaseColor* color = new SoBaseColor;
+  //    color->rgb.setValue(1.f, .5f, 1.f);
+  //    snapshot.flowLinesGroup->addChild(color);
+
+  //    for (auto& fmt : snapshot.formations)
+  //    {
+  //      if (m_projectInfo.formations[fmt.id].isSourceRock)
+  //      {
+  //        auto expulsionProperty = generateExpulsionProperty(*m_project, snapshot.index, fmt.id);
+  //        SoLineSet* flowLines = generateFlowLines(*snapshot.flowDirScalarSet, expulsionProperty, *snapshot.meshData, fmt.minK, 10);
+  //        snapshot.flowLinesGroup->addChild(flowLines);
+  //      }
+  //    }
+
+  //    snapshot.flowVectorsGroup->removeAllChildren();
+  //  }
+  //  else if (m_flowVizType == FlowVizVectors && snapshot.flowVectorsGroup->getNumChildren() == 0)
+  //  {
+  //    // Add color node
+  //    SoBaseColor* color = new SoBaseColor;
+  //    color->rgb.setValue(1.f, 1.f, .5f);
+  //    snapshot.flowVectorsGroup->addChild(color);
+
+  //    snapshot.flowDirSet = new MoVec3SetIjk;
+  //    snapshot.flowDirVectorSet = std::make_shared<FlowDirectionProperty>(*snapshot.flowDirScalarSet, *snapshot.meshData);
+  //    snapshot.flowDirSet->setVec3Set(snapshot.flowDirVectorSet.get());
+  //    snapshot.flowVectorsGroup->addChild(snapshot.flowDirSet);
+
+  //    MoMeshVector* meshVector = new MoMeshVector;
+  //    meshVector->colorScalarSetId = -1;
+  //    meshVector->scaleFactor = .5f;
+  //    snapshot.flowVectorsGroup->addChild(meshVector);
+
+  //    snapshot.flowLinesGroup->removeAllChildren();
+  //  }
+  //}
 }
 
 void SceneGraphManager::updateColorMap()
@@ -841,6 +895,24 @@ SnapshotInfo SceneGraphManager::createSnapshotNode(size_t index)
     SnapshotInfo::Reservoir reservoir;
     reservoir.id = id;
     info.reservoirs.push_back(reservoir);
+  }
+
+  for (auto id : snapshotContents.flowlines)
+  {
+    SnapshotInfo::FlowLines flowlines;
+    flowlines.id = id;
+    flowlines.formationId = m_projectInfo.flowLines[id].formationId;
+
+    for (auto formation : snapshotContents.formations)
+    {
+      if (formation.id == flowlines.formationId)
+      {
+        flowlines.startK = formation.minK;
+        break;
+      }
+    }
+
+    info.flowlines.push_back(flowlines);
   }
 
   int collectionId = 0;
@@ -1150,14 +1222,16 @@ SceneGraphManager::SceneGraphManager()
   , m_showText(true)
   , m_showTraps(false)
   , m_showTrapOutlines(false)
+  , m_showFlowVectors(false)
   , m_drainageAreaType(DrainageAreaNone)
-  , m_flowVizType(FlowVizNone)
+  , m_flowLinesStep(1)
   , m_verticalScale(1.f)
   , m_projectionType(PerspectiveProjection)
   , m_formationsTimeStamp(MxTimeStamp::getTimeStamp())
   , m_surfacesTimeStamp(MxTimeStamp::getTimeStamp())
   , m_reservoirsTimeStamp(MxTimeStamp::getTimeStamp())
   , m_faultsTimeStamp(MxTimeStamp::getTimeStamp())
+  , m_flowLinesTimeStamp(MxTimeStamp::getTimeStamp())
   , m_root(0)
   , m_formationShapeHints(0)
   , m_surfaceShapeHints(0)
@@ -1284,6 +1358,28 @@ void SceneGraphManager::setProperty(int propertyId)
   updateSnapshot();
 }
 
+void SceneGraphManager::showFlowVectors(bool enabled)
+{
+  if (m_showFlowVectors != enabled)
+  {
+    // TODO: do something here
+    // ...
+
+    m_showFlowVectors = enabled;
+  }
+}
+
+void SceneGraphManager::setFlowLinesStep(int step)
+{
+  if (step != m_flowLinesStep)
+  {
+    m_flowLinesStep = step;
+    m_flowLinesTimeStamp = MxTimeStamp::getTimeStamp();
+
+    updateSnapshot();
+  }
+}
+
 void SceneGraphManager::enableFormation(int formationId, bool enabled)
 {
   if (m_formationVisibility[formationId] == enabled)
@@ -1368,6 +1464,27 @@ void SceneGraphManager::enableAllFaults(bool enabled)
   updateSnapshot();
 }
 
+void SceneGraphManager::enableFlowLines(int flowLinesId, bool enabled)
+{
+  if (m_flowLinesVisibility[flowLinesId] == enabled)
+    return;
+
+  m_flowLinesVisibility[flowLinesId] = enabled;
+  m_flowLinesTimeStamp = MxTimeStamp::getTimeStamp();
+
+  updateSnapshot();
+}
+
+void SceneGraphManager::enableAllFlowLines(bool enabled)
+{
+  for (size_t i = 0; i < m_flowLinesVisibility.size(); ++i)
+    m_flowLinesVisibility[i] = enabled;
+
+  m_flowLinesTimeStamp = MxTimeStamp::getTimeStamp();
+
+  updateSnapshot();
+}
+
 void SceneGraphManager::enableSlice(int slice, bool enabled)
 {
   m_sliceEnabled[slice] = enabled;
@@ -1448,26 +1565,17 @@ void SceneGraphManager::showDrainageAreaOutlines(DrainageAreaType type)
   }
 }
 
-void SceneGraphManager::showFlowDirection(FlowVizType type)
-{
-  if (type != m_flowVizType)
-  {
-    m_flowVizType = type;
-
-    updateSnapshot();
-  }
-}
-
 void SceneGraphManager::setup(std::shared_ptr<Project> project)
 {
   m_project = project;
   m_projectInfo = project->getProjectInfo();
 
-  Project::SnapshotContents contents = project->getSnapshotContents(0);
-  m_formationVisibility = std::vector<bool>(m_projectInfo.formations.size(), true);
-  m_surfaceVisibility = std::vector<bool>(m_projectInfo.surfaces.size(), false);
-  m_reservoirVisibility = std::vector<bool>(m_projectInfo.reservoirs.size(), false);
-  m_faultVisibility = std::vector<bool>(m_projectInfo.faults.size(), false);
+  //Project::SnapshotContents contents = project->getSnapshotContents(0);
+  m_formationVisibility.assign(m_projectInfo.formations.size(), true);
+  m_surfaceVisibility.assign(m_projectInfo.surfaces.size(), false);
+  m_reservoirVisibility.assign(m_projectInfo.reservoirs.size(), false);
+  m_faultVisibility.assign(m_projectInfo.faults.size(), false);
+  m_flowLinesVisibility.assign(m_projectInfo.flowLines.size(), false);
 
   for (int i = 0; i < 3; ++i)
   {

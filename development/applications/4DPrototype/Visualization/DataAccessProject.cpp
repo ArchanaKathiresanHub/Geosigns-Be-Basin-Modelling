@@ -92,6 +92,19 @@ Project::SnapshotContents DataAccessProject::getSnapshotContents(size_t snapshot
     std::unique_ptr<di::ReservoirList> reservoirList(m_projectHandle->getReservoirs(fmt));
     for (auto res : *reservoirList)
       contents.reservoirs.push_back(m_reservoirIdMap.at(res->getName()));
+
+    // Push a flowline entry for each formation that is a source rock
+    if (fmt->isSourceRock())
+    {
+      for (int id = 0; id < (int)m_projectInfo.flowLines.size(); ++id)
+      {
+        if (m_projectInfo.flowLines[id].formationId == ssf.id)
+        {
+          contents.flowlines.push_back(id);
+          break;
+        }
+      }
+    }
   }
 
   if (!depthValues->empty())
@@ -209,14 +222,24 @@ void DataAccessProject::init()
       continue;
 
     m_formations.push_back(formation);
-    m_formationIdMap[formation->getName()] = id++;
+    m_formationIdMap[formation->getName()] = id;
 
     Formation fmt;
     fmt.name = formation->getName();
     fmt.numCellsK = depthValue->getGridMap()->getDepth() - 1;
     fmt.isSourceRock = formation->isSourceRock();
-
     m_projectInfo.formations.push_back(fmt);
+
+    if (formation->isSourceRock() && m_flowDirectionProperty)
+    {
+      FlowLines flowLines;
+      flowLines.formationId = id;
+      flowLines.formationName = formation->getName();
+
+      m_projectInfo.flowLines.push_back(flowLines);
+    }
+
+    id++;
   }
 
   // Get all available surfaces
@@ -464,6 +487,31 @@ std::shared_ptr<MiDataSetIjk<double> > DataAccessProject::createFormationPropert
     return std::make_shared<Formation2DProperty>(name, gridMaps);
   else
     return std::make_shared<FormationProperty>(name, gridMaps);
+}
+
+std::shared_ptr<MiDataSetIj<double> > DataAccessProject::createFormation2DProperty(
+  size_t snapshotIndex,
+  int formationId,
+  int propertyId) const
+{
+  if (propertyId < 0 || propertyId >= (int)m_properties.size())
+    return nullptr;
+
+  const di::Property* prop = m_properties[propertyId];
+
+  if (!prop || prop->getPropertyAttribute() != DataModel::FORMATION_2D_PROPERTY)
+    return nullptr;
+
+  const di::Snapshot* snapshot = m_snapshotList[snapshotIndex];
+  const di::Formation* formation = m_formations[formationId];
+
+  std::unique_ptr<di::PropertyValueList> values(
+    prop->getPropertyValues(di::FORMATION, snapshot, nullptr, formation, nullptr));
+
+  if (!values || values->empty())
+    return nullptr;
+
+  return std::make_shared<SurfaceProperty>(prop->getName(), (*values)[0]->getGridMap());
 }
 
 std::shared_ptr<MiDataSetIj<double> > DataAccessProject::createSurfaceProperty(

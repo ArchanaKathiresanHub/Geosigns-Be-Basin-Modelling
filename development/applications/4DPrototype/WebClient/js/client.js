@@ -109,6 +109,14 @@ function initFaults(collections)
     }
 }
 
+function initFlowLines(names)
+{
+    var flowLinesDiv = document.getElementById("flowLinesList");
+
+    for(var i=0; i < names.length; ++i)
+        flowLinesDiv.appendChild(createCheckBoxDiv(names[i], i, false, onFlowLinesCheckBoxChanged));
+}
+
 function initProperties(names)
 {
     //var fmt = "<div><input type='radio' name='property' value='xxx' onclick='onPropertyRadioButtonClicked(this)'>xxx</input></div>";
@@ -127,6 +135,7 @@ function initUI(projectInfo)
     initSurfaces(projectInfo.surfaces);
     initReservoirs(projectInfo.reservoirs);
     initFaults(projectInfo.faultCollections);
+    initFlowLines(projectInfo.flowLines);
     initProperties(projectInfo.properties);
 
     var sliceI = document.getElementById("sliceISlider");
@@ -219,6 +228,23 @@ function onCheckBoxAllFaultsChanged(elem)
         checkBoxes[i].checked = elem.checked;
 }
 
+function onCheckBoxAllFlowLinesChanged(elem)
+{
+    var msg = {
+        cmd: "EnableAllFlowLines",
+        params: {
+            enabled: elem.checked
+        }
+    }
+
+    theRenderArea.sendMessage(JSON.stringify(msg));
+
+    var flowLinesDiv = document.getElementById("flowLinesList");
+    var checkBoxes = flowLinesDiv.getElementsByTagName("input");
+    for(var i=0; i < checkBoxes.length; ++i)
+        checkBoxes[i].checked = elem.checked;
+}
+
 function onFormationCheckBoxChanged(elem, objectId)
 {
     console.log("formation " + elem.name + " enabled = " + elem.checked);
@@ -279,6 +305,19 @@ function onFaultCheckBoxChanged(elem, objectId)
     theRenderArea.sendMessage(JSON.stringify(msg));
 }
 
+function onFlowLinesCheckBoxChanged(elem, objectId)
+{
+    var msg = {
+        cmd: "EnableFlowLines",
+        params: {
+            flowLinesId: objectId,
+            enabled: elem.checked
+        }
+    }
+
+    theRenderArea.sendMessage(JSON.stringify(msg));
+}
+
 function onPropertyRadioButtonClicked(elem, objectId)
 {
     console.log("property " + elem.value + " clicked");
@@ -293,14 +332,24 @@ function onPropertyRadioButtonClicked(elem, objectId)
     theRenderArea.sendMessage(JSON.stringify(msg));
 }
 
-function onFlowVizRadioClicked(elem)
+function onShowFlowVectorsChanged(elem)
 {
-    console.log("radiobutton " + elem.value + " clicked");
-
     var msg = {
-        cmd: "ShowFlowDirection",
+        cmd: "ShowFlowVectors",
         params: {
-            type: elem.value
+            show: elem.checked
+        }
+    }
+
+    theRenderArea.sendMessage(JSON.stringify(msg));
+}
+
+function onFlowLinesStepSliderChanged(elem)
+{
+    var msg = {
+        cmd: "SetFlowLinesStep",
+        params: {
+            step: elem.valueAsNumber
         }
     }
 

@@ -29,9 +29,10 @@ namespace
   const int TreeWidgetItem_PropertyType  = QTreeWidgetItem::UserType + 3;
   const int TreeWidgetItem_ReservoirType = QTreeWidgetItem::UserType + 4;
   const int TreeWidgetItem_FaultType     = QTreeWidgetItem::UserType + 5;
-  const int TreeWidgetItem_FaultCollectionType = QTreeWidgetItem::UserType + 6;
-  const int TreeWidgetItem_FormationGroupType  = QTreeWidgetItem::UserType + 7;
-  const int TreeWidgetItem_SurfaceGroupType    = QTreeWidgetItem::UserType + 8;
+  const int TreeWidgetItem_FlowLinesType = QTreeWidgetItem::UserType + 6;
+  const int TreeWidgetItem_FaultCollectionType = QTreeWidgetItem::UserType + 7;
+  const int TreeWidgetItem_FormationGroupType  = QTreeWidgetItem::UserType + 8;
+  const int TreeWidgetItem_SurfaceGroupType    = QTreeWidgetItem::UserType + 9;
 }
 
 void MainWindow::fpsCallback(float fps, void* userData, SoQtViewer* viewer)
@@ -148,6 +149,10 @@ void MainWindow::updateUI()
   faultCollectionsItem->setText(0, "Faults");
   faultCollectionsItem->setFont(0, font);
 
+  QTreeWidgetItem* flowLinesItem = new QTreeWidgetItem;
+  flowLinesItem->setText(0, "Flowlines");
+  flowLinesItem->setFont(0, font);
+
   m_ui.treeWidgetProperties->clear();
   QTreeWidgetItem* header = m_ui.treeWidgetProperties->headerItem();
   header->setText(0, "Name");
@@ -231,10 +236,18 @@ void MainWindow::updateUI()
     item->setCheckState(0, Qt::Unchecked);
   }
 
+  for (auto flowlines : m_projectInfo.flowLines)
+  {
+    QTreeWidgetItem* item = new QTreeWidgetItem(flowLinesItem, TreeWidgetItem_FlowLinesType);
+    item->setText(0, flowlines.formationName.c_str());
+    item->setCheckState(0, Qt::Unchecked);
+  }
+
   m_ui.treeWidget->addTopLevelItem(formationsItem);
   m_ui.treeWidget->addTopLevelItem(surfacesItem);
   m_ui.treeWidget->addTopLevelItem(reservoirsItem);
   m_ui.treeWidget->addTopLevelItem(faultCollectionsItem);
+  m_ui.treeWidget->addTopLevelItem(flowLinesItem);
   m_ui.treeWidgetProperties->addTopLevelItem(propertiesItem);
 
   formationsItem->setExpanded(true);
@@ -261,7 +274,8 @@ void MainWindow::updateUI()
   m_ui.checkBoxDrainageOutline->setChecked(false);
 
   m_ui.radioButtonDrainageAreaFluid->setChecked(true);
-  m_ui.radioButtonFlowVizNone->setChecked(true);
+  m_ui.checkBoxFlowVectors->setChecked(false);
+  m_ui.sliderFlowLinesStep->setValue(1);
 
   m_ui.sliderVerticalScale->setValue(0);
 
@@ -315,9 +329,8 @@ void MainWindow::connectSignals()
   connect(m_ui.radioButtonDrainageAreaFluid, SIGNAL(toggled(bool)), this, SLOT(onDrainageAreaTypeChanged(bool)));
   connect(m_ui.radioButtonDrainageAreaGas, SIGNAL(toggled(bool)), this, SLOT(onDrainageAreaTypeChanged(bool)));
   connect(m_ui.checkBoxFluidContacts, SIGNAL(toggled(bool)), this, SLOT(onFluidContactsToggled(bool)));
-  connect(m_ui.radioButtonFlowVizNone, SIGNAL(toggled(bool)), this, SLOT(onFlowVizTypeChanged(bool)));
-  connect(m_ui.radioButtonFlowVizLines, SIGNAL(toggled(bool)), this, SLOT(onFlowVizTypeChanged(bool)));
-  connect(m_ui.radioButtonFlowVizVectors, SIGNAL(toggled(bool)), this, SLOT(onFlowVizTypeChanged(bool)));
+  connect(m_ui.checkBoxFlowVectors, SIGNAL(toggled(bool)), this, SLOT(onFlowVectorsToggled(bool)));
+  connect(m_ui.sliderFlowLinesStep, SIGNAL(valueChanged(int)), this, SLOT(onFlowLinesStepChanged(int)));
 
   connect(m_ui.treeWidget, SIGNAL(itemChanged(QTreeWidgetItem*, int)), this, SLOT(onTreeWidgetItemChanged(QTreeWidgetItem*, int)));
 }
@@ -609,18 +622,14 @@ void MainWindow::onFluidContactsToggled(bool value)
   m_sceneGraphManager->setProperty(value ? SceneGraphManager::FluidContactsProperty : -1);
 }
 
-void MainWindow::onFlowVizTypeChanged(bool value)
+void MainWindow::onFlowVectorsToggled(bool enabled)
 {
-  if (value)
-  {
-    SceneGraphManager::FlowVizType type = SceneGraphManager::FlowVizNone;
-    if (m_ui.radioButtonFlowVizLines->isChecked())
-      type = SceneGraphManager::FlowVizLines;
-    else if (m_ui.radioButtonFlowVizVectors->isChecked())
-      type = SceneGraphManager::FlowVizVectors;
+  m_sceneGraphManager->showFlowVectors(enabled);
+}
 
-    m_sceneGraphManager->showFlowDirection(type);
-  }
+void MainWindow::onFlowLinesStepChanged(int value)
+{
+  m_sceneGraphManager->setFlowLinesStep(value);
 }
 
 void MainWindow::onItemDoubleClicked(QTreeWidgetItem* item, int column)
@@ -687,6 +696,9 @@ void MainWindow::onTreeWidgetItemChanged(QTreeWidgetItem* item, int column)
     break;
   case TreeWidgetItem_FaultType:
     m_sceneGraphManager->enableFault(getFaultIndex(parentName, name), checked);
+    break;
+  case TreeWidgetItem_FlowLinesType:
+    m_sceneGraphManager->enableFlowLines(index, checked);
     break;
   case TreeWidgetItem_FaultCollectionType:
   case TreeWidgetItem_FormationGroupType:

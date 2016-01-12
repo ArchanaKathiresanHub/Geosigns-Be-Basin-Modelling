@@ -1188,6 +1188,14 @@ std::shared_ptr<MiDataSetIjk<double> > VisualizationIOProject::createFormationPr
 
 }
 
+std::shared_ptr<MiDataSetIj<double> > VisualizationIOProject::createFormation2DProperty(
+  size_t snapshotIndex,
+  int formationId,
+  int propertyId) const
+{
+  return nullptr;
+}
+
 std::shared_ptr<MiDataSetIj<double> > VisualizationIOProject::createSurfaceProperty(
   size_t snapshotIndex,
   int surfaceId,
