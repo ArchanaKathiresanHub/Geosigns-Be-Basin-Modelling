@@ -4057,7 +4057,11 @@ void ProjectHandle::deletePropertyValues( int selectionFlags,
 
          if ( propertyValue->getRecord() )
          {
-            propertyValue->getRecord()->getTable()->deleteRecord( propertyValue->getRecord() );
+            if( propertyValue->getStorage() == SNAPSHOTIOTBL ) {
+               propertyValue->getRecord()->getTable()->removeRecord( propertyValue->getRecord() );
+            } else {
+               propertyValue->getRecord()->getTable()->deleteRecord( propertyValue->getRecord() );
+            }
          }
          delete propertyValue;
       }
