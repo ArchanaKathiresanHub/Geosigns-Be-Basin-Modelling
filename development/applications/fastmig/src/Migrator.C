@@ -426,7 +426,7 @@ bool Migrator::performSnapshotMigration (const Interface::Snapshot * start, cons
       if (!computeFormationPropertyMaps (end, overPressureRun) ||
           !retrieveFormationPropertyMaps (end) ||
           !computeFormationNodeProperties (end) ||
-          !detectReservoirs (end, overPressureRun) ||
+          !detectReservoirs (start, end, overPressureRun) ||
           !computeSMFlowPaths (start, end) ||
           !restoreFormationPropertyMaps (end) ||
           !loadExpulsionMaps (start, end) ||
@@ -715,7 +715,7 @@ migration::Formation * Migrator::getBottomActiveReservoirFormation (const Interf
   ( difference between 0% saturation capillary pressure at current formation
   and 100% capillary pressure at lowermost cells of formation above ).
 */
-bool Migrator::detectReservoirs (const Interface::Snapshot * end, const bool overPressureRun)
+bool Migrator::detectReservoirs (const Interface::Snapshot * start, const Interface::Snapshot * end, const bool overPressureRun)
 {
    // first, find the the bottommost RESERVOIR formation where HC can go
    Formation *bottomSourceRockFormation = getBottomSourceRockFormation ();
@@ -794,7 +794,7 @@ bool Migrator::detectReservoirs (const Interface::Snapshot * end, const bool ove
             {
                // cerr << "Formation " << reservoirFormation->getName() << " detected" << endl;
                // if the formation is detected as reservoir, add it in the reservoir list 
-               reservoirFormation->addDetectedReservoir (end);
+               reservoirFormation->addDetectedReservoir (start);
             }
          }
          // print to file information about the reservoirs 
