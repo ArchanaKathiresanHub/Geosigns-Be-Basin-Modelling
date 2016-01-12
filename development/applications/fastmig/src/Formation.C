@@ -271,30 +271,31 @@ namespace migration
                      formationNode->setCapillaryEntryPressureVapour (0.0, k == depth);
                      formationNode->setCapillaryEntryPressureLiquid (0.0, k == depth);
                   }
-                  else
+               }
+               else
+               {
+                  ptrVapourPcE->set (i, j, (unsigned int)k, capillaryEntryPressureVapour);
+                  ptrLiquidPcE->set (i, j, (unsigned int)k, capillaryEntryPressureLiquid);
+
+                  // If not a ghost node and not on last I or J row of the basin then assign the values to the local formation node
+                  if (i >= m_formationNodeArray->firstILocal () and i <= m_formationNodeArray->lastILocal () and
+                      j >= m_formationNodeArray->firstJLocal () and j <= m_formationNodeArray->lastJLocal () and
+                      i < grid->numIGlobal () - 1 and j < grid->numJGlobal () - 1)
                   {
-                     ptrVapourPcE->set (i, j, (unsigned int)k, capillaryEntryPressureVapour);
-                     ptrLiquidPcE->set (i, j, (unsigned int)k, capillaryEntryPressureLiquid);
+                     // If at the top choose the formation node right below it. We will still calculate and save values for the top node,
+                     // but these values will be stored in the arrays of the node below it.
+                     LocalFormationNode * formationNode = (k == depth) ? getLocalFormationNode (i, j, k - 1) : getLocalFormationNode (i, j, k);
+                     if (!formationNode)
+                        continue;
 
-                     // If not a ghost node and not on last I or J row of the basin then assign the values to the local formation node
-                     if (i >= m_formationNodeArray->firstILocal () and i <= m_formationNodeArray->lastILocal () and
-                        j >= m_formationNodeArray->firstJLocal () and j <= m_formationNodeArray->lastJLocal () and
-                        i < grid->numIGlobal () - 1 and j < grid->numJGlobal () - 1)
-                     {
-                        // If at the top choose the formation node right below it. We will still calculate and save values for the top node,
-                        // but these values will be stored in the arrays of the node below it.
-                        LocalFormationNode * formationNode = (k == depth) ? getLocalFormationNode (i, j, k - 1) : getLocalFormationNode (i, j, k);
-                        if (!formationNode)
-                           continue;
-
-                        formationNode->setCapillaryEntryPressureVapour (capillaryEntryPressureVapour, k == depth);
-                        formationNode->setCapillaryEntryPressureLiquid (capillaryEntryPressureLiquid, k == depth);
-                     }
+                     formationNode->setCapillaryEntryPressureVapour (capillaryEntryPressureVapour, k == depth);
+                     formationNode->setCapillaryEntryPressureLiquid (capillaryEntryPressureLiquid, k == depth);
                   }
                }
             }
          }
       }
+      
 
       return true;
    }
