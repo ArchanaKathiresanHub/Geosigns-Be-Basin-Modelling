@@ -4055,13 +4055,9 @@ void ProjectHandle::deletePropertyValues( int selectionFlags,
       {
          propertyValueIter = m_propertyValues.erase( propertyValueIter );
 
-         if ( propertyValue->getRecord() )
+         if ( propertyValue->getRecord() and propertyValue->getStorage() != SNAPSHOTIOTBL )
          {
-            if( propertyValue->getStorage() == SNAPSHOTIOTBL ) {
-               propertyValue->getRecord()->getTable()->removeRecord( propertyValue->getRecord() );
-            } else {
-               propertyValue->getRecord()->getTable()->deleteRecord( propertyValue->getRecord() );
-            }
+            propertyValue->getRecord()->getTable()->deleteRecord( propertyValue->getRecord() );
          }
          delete propertyValue;
       }
