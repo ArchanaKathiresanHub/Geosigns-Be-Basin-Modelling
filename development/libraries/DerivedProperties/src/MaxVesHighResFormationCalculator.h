@@ -48,15 +48,6 @@ namespace DerivedProperties
                                     const DataModel::AbstractSnapshot *  snapshot,
                                     const DataModel::AbstractFormation * formation,
                                           FormationPropertyList &        derivedProperties ) const;
-      
-      /// \brief Compute max VES at high resolution at deposition age
-      void computeAtDepositionAge( DerivedFormationPropertyPtr & maxVesHighRes ) const;
-      
-      /// \brief Compute max VES at high resolution at a generic age
-      void computeAtGenericAge(       AbstractPropertyManager &      propertyManager,
-                                const DataModel::AbstractSnapshot *  snapshot,
-                                const DataModel::AbstractFormation * formation,
-                                      DerivedFormationPropertyPtr & maxVesHighRes ) const;
 
       const GeoPhysics::ProjectHandle * const m_projectHandle; //!< Project handle
 
