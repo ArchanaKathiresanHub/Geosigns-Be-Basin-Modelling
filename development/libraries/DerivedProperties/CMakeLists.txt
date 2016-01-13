@@ -34,12 +34,13 @@ set(all_headers
   src/FormationSurfacePropertyCalculator.h
   src/FormationSurfacePropertyOffsetCalculator.h
   src/FracturePressureFormationCalculator.h
-  src/Interpolate2DProperty.h
   src/HydrostaticPressureFormationCalculator.h
   src/HydrostaticPressureSurfaceCalculator.h
   src/IndirectFormationProperty.h
+  src/Interpolate2DProperty.h
   src/LithostaticPressureFormationCalculator.h
   src/LithostaticPressureSurfaceCalculator.h
+  src/MaxVesHighResFormationCalculator.h
   src/OverpressureFormationCalculator.h
   src/OverpressureSurfaceCalculator.h
   src/PermeabilityFormationCalculator.h
@@ -102,6 +103,7 @@ set(all_srcs
   src/IndirectFormationProperty.C
   src/LithostaticPressureFormationCalculator.C
   src/LithostaticPressureSurfaceCalculator.C
+  src/MaxVesHighResFormationCalculator.C
   src/OverpressureFormationCalculator.C
   src/OverpressureSurfaceCalculator.C
   src/PermeabilityFormationCalculator.C
