@@ -81,11 +81,11 @@ CrustalThicknessCalculator::~CrustalThicknessCalculator () {
 
 //------------------------------------------------------------//
 
-CrustalThicknessCalculator* CrustalThicknessCalculator::CreateFrom ( const string& inputFileName ) {
+CrustalThicknessCalculator* CrustalThicknessCalculator::CreateFrom( const string& inputFileName, ObjectFactory* factory ) {
 
 
    if ( m_crustalThicknessCalculator == 0 ) {
-      m_crustalThicknessCalculator = (CrustalThicknessCalculator*)Interface::OpenCauldronProject( inputFileName, "rw", m_crustalThicknessCalculator->m_factory );
+      m_crustalThicknessCalculator = (CrustalThicknessCalculator*)Interface::OpenCauldronProject( inputFileName, "rw", factory );
 
    }
    m_projectFileName = inputFileName;
@@ -200,8 +200,6 @@ void CrustalThicknessCalculator::run() {
    }
    setFormationLithologies( false, true );
 
-   LinearFunction theLF;
-   DensityCalculator theDensityCalculator;
    InterfaceOutput theOutput;
 
    if (m_crustalThicknessData.size() != 1) {
@@ -218,11 +216,7 @@ void CrustalThicknessCalculator::run() {
    InterfaceInput &theInterfaceData = dynamic_cast<InterfaceInput &>(*m_crustalThicknessData[0]);
    theInterfaceData.loadInputDataAndConfigurationFile( "InterfaceData.cfg" );
 
-   m_validNodes.reallocate( getActivityOutputGrid() );
-   m_currentValidNodes.reallocate( getActivityOutputGrid() );
-
-   initialiseValidNodes( theInterfaceData );
-
+   updateValidNodes( theInterfaceData );
    m_smoothRadius = theInterfaceData.getSmoothRadius();
 
    setAdditionalOptionsFromCommandLine();
@@ -265,8 +259,9 @@ void CrustalThicknessCalculator::run() {
 
       const double age = snapshots[k];
 
-      const Interface::Property * depthProperty = m_DensityCalculator.loadDepthProperty( m_crustalThicknessCalculator, age, theInterfaceData.getBaseRiftSurfaceName() );
       try {
+         m_DensityCalculator.loadTopAndBottomOfSediments( m_crustalThicknessCalculator, age, theInterfaceData.getBaseRiftSurfaceName() );
+         const DataModel::AbstractProperty* depthProperty = m_DensityCalculator.loadDepthProperty( m_crustalThicknessCalculator, age );
          m_DensityCalculator.loadDepthData( m_crustalThicknessCalculator, depthProperty, age );
       }
       catch (std::string& s) {
@@ -274,8 +269,8 @@ void CrustalThicknessCalculator::run() {
          continue;
       }
 
-      const Interface::Property * pressureProperty = m_DensityCalculator.loadPressureProperty( m_crustalThicknessCalculator, age );
       try {
+         const DataModel::AbstractProperty* pressureProperty = m_DensityCalculator.loadPressureProperty( m_crustalThicknessCalculator, age );
          m_DensityCalculator.loadPressureData( m_crustalThicknessCalculator, pressureProperty, age );
       }
       catch (std::string& s) {
@@ -293,8 +288,6 @@ void CrustalThicknessCalculator::run() {
       theInterfaceData.retrieveData();
       m_DensityCalculator.retrieveData();
       theOutput.retrieveData();
-
-      initialiseCurrentValidNodes();
 
       if (previousWLS != 0) {
          previousWLS->retrieveData();
@@ -467,7 +460,6 @@ void CrustalThicknessCalculator::run() {
                      basaltThickness != Interface::DefaultUndefinedMapValue) {
 
                      ECT = crustalThickness + basaltThickness * (theInterfaceData.getInitialCrustThickness() / theInterfaceData.getInitialLithosphereThickness());
-                     ECT = (ECT < theInterfaceData.getECTmin() ? theInterfaceData.getECTmin() : ECT);
 
                   }
                   else {
@@ -519,9 +511,10 @@ GridMap * CrustalThicknessCalculator::calculatePresentDayWLS( InterfaceInput & t
                                                                                    DefaultUndefinedMapValue, 1);
 
    if( WLSmap != 0 ) {
-      const Interface::Property * depthProperty = m_DensityCalculator.loadDepthProperty(  m_crustalThicknessCalculator, 0.0, theInterfaceData.getBaseRiftSurfaceName() );
+      m_DensityCalculator.loadTopAndBottomOfSediments( m_crustalThicknessCalculator, 0.0, theInterfaceData.getBaseRiftSurfaceName() );
+      const DataModel::AbstractProperty* depthProperty = m_DensityCalculator.loadDepthProperty( m_crustalThicknessCalculator, 0.0 );
       m_DensityCalculator.loadDepthData( m_crustalThicknessCalculator, depthProperty, 0.0 );
-      const Interface::Property * pressureProperty = m_DensityCalculator.loadPressureProperty(  m_crustalThicknessCalculator, 0.0 );
+      const DataModel::AbstractProperty* pressureProperty = m_DensityCalculator.loadPressureProperty( m_crustalThicknessCalculator, 0.0 );
       m_DensityCalculator.loadPressureData( m_crustalThicknessCalculator, pressureProperty, 0.0 );
      
       LinearFunction m_LF;
@@ -529,9 +522,7 @@ GridMap * CrustalThicknessCalculator::calculatePresentDayWLS( InterfaceInput & t
       WLSmap->retrieveData();
       theInterfaceData.retrieveData();
       m_DensityCalculator.retrieveData();
- 
-      initialiseCurrentValidNodes();
-      
+       
       unsigned firstI = WLSmap->firstI();
       unsigned firstJ = WLSmap->firstJ();
       unsigned lastI  = WLSmap->lastI();
@@ -846,37 +837,30 @@ bool CrustalThicknessCalculator::movingAverageSmoothing( GridMap * aWLSMap) {
   }
   // aMap->restoreData(); will be restored in the end
 
-  delete columnMap;
+
+  delete[] columnMap[0];
+  delete[] columnMap[1];
+  delete[] columnMap;
+
+  delete[] numberMapCollect[0];
+  delete[] numberMapCollect[1];
+  delete[] numberMapCollect;
+
   delete sumMap;
   delete numberMap;
-  delete numberMapCollect;
 
   return status;
 }
 
 //------------------------------------------------------------//
 
-void CrustalThicknessCalculator::initialiseValidNodes( const InterfaceInput &theInterfaceData ) {
+void CrustalThicknessCalculator::updateValidNodes( const InterfaceInput &theInterfaceData ) {
 
-   m_validNodes.fill( true );
-
-   addUndefinedAreas( m_validNodes, theInterfaceData.getT0Map() );
-   addUndefinedAreas( m_validNodes, theInterfaceData.getTRMap() );
-   addUndefinedAreas( m_validNodes, theInterfaceData.getHCuMap() );
-   addUndefinedAreas( m_validNodes, theInterfaceData.getHLMuMap() );
-   addUndefinedAreas( m_validNodes, theInterfaceData.getDeltaSLMap() );
-}
-
-//------------------------------------------------------------//
-
-void CrustalThicknessCalculator::initialiseCurrentValidNodes () {
-
-   m_currentValidNodes.fill ( true );
-
-   addUndefinedAreas( m_currentValidNodes, m_DensityCalculator.getDepthBasementMap() );
-   addUndefinedAreas( m_currentValidNodes, m_DensityCalculator.getDepthWaterBottomMap() );
-   addUndefinedAreas( m_currentValidNodes, m_DensityCalculator.getPressureBasementMap() );
-   addUndefinedAreas( m_currentValidNodes, m_DensityCalculator.getPressureWaterBottomMap() );
+   addUndefinedAreas( theInterfaceData.getT0Map     () );
+   addUndefinedAreas( theInterfaceData.getTRMap     () );
+   addUndefinedAreas( theInterfaceData.getHCuMap    () );
+   addUndefinedAreas( theInterfaceData.getHLMuMap   () );
+   addUndefinedAreas( theInterfaceData.getDeltaSLMap() );
 }
 
 //------------------------------------------------------------//
@@ -914,41 +898,6 @@ bool CrustalThicknessCalculator::mergeOutputFiles ( ) {
    }
    return status;
 #endif
-}
-
-//------------------------------------------------------------//
-
-void CrustalThicknessCalculator::addUndefinedAreas ( BooleanLocal2DArray &validNodes, const Interface::GridMap* theMap ) {
-
-   if ( theMap == 0 ) {
-      return;
-   }
-
-   unsigned int i;
-   unsigned int j;
-
-   bool dataIsRetrieved = theMap->retrieved ();
-
-   if ( not dataIsRetrieved ) {
-      theMap->retrieveGhostedData ();
-   }
-
-   for (i = validNodes.first( 0 ); i <= validNodes.last( 0 ); ++i) {
-
-      for (j = validNodes.first( 1 ); j <= validNodes.last( 1 ); ++j) {
-
-         if (theMap->getValue( i, j ) == theMap->getUndefinedValue()) {
-            validNodes( i, j ) = false;
-         }
-
-      }
-   }
-
-   if ( not dataIsRetrieved ) {
-      // If the data was not retrived then restore the map back to its original state.
-      theMap->restoreData ( false, true );
-   }
-
 }
 
 //------------------------------------------------------------//

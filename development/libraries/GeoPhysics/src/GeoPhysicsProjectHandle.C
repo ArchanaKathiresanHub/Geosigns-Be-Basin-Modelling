@@ -699,12 +699,12 @@ bool GeoPhysics::ProjectHandle::initialise ( const bool readSizeFromVolumeData,
       addCrustThinningHistoryMaps();
    }
 
-   result = createSeaBottomTemperature () and result;
-   result = createPaleoBathymetry () and result;
-   result = createMantleHeatFlow () and result;
-   result = createCrustThickness () and result;
+   result = createSeaBottomTemperature    () and result;
+   result = createPaleoBathymetry         () and result;
+   result = createMantleHeatFlow          () and result;
+   result = createCrustThickness          () and result;
    result = determineLayerMinMaxThickness () and result;
-   result = determineCrustThinningRatio () and result;
+   result = determineCrustThinningRatio   () and result;
    result = determineMaximumNumberOfSegmentsPerLayer ( readSizeFromVolumeData, printTable ) and result;
 
    // Sets the age of basin field.
@@ -2657,7 +2657,7 @@ bool GeoPhysics::ProjectHandle::loadALCConfigurationFile(const string & cfgFileN
       //     CrustalThicknessInterface::LoadALCParameters( ConfigurationFile, 
       //                                            m_minimumLithosphereThickness, m_maximumNumberOfMantleElements );
       m_minimumLithosphereThickness   = m_basementLithoProps->m_HLmin;
-      m_maximumNumberOfMantleElements = m_basementLithoProps->m_HLMEmax;
+      m_maximumNumberOfMantleElements = m_basementLithoProps->m_NLMEmax;
       m_constrainedBasaltTemperature  = m_basementLithoProps->m_bT;
        
       ConfigurationFile.close();

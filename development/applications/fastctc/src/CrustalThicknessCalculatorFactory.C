@@ -25,14 +25,14 @@
 using namespace DataAccess;
 
 
-DataAccess::Interface::ProjectHandle *
+GeoPhysics::ProjectHandle *
 CrustalThicknessCalculatorFactory::produceProjectHandle ( database::Database * database, const string & name,
                                                           const string & accessMode) {
    return new CrustalThicknessCalculator ( database, name, accessMode, this );
 }
 
 DataAccess::Interface::CrustalThicknessData *
-CrustalThicknessCalculatorFactory::produceCrustalThicknessData (DataAccess::Interface::ProjectHandle * projectHandle, 
+CrustalThicknessCalculatorFactory::produceCrustalThicknessData( GeoPhysics::ProjectHandle * projectHandle,
                                                                 database::Record * record)
 {
    return new InterfaceInput(projectHandle, record);

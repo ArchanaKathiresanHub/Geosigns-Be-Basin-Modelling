@@ -26,12 +26,12 @@ InterfaceInput::InterfaceInput(Interface::ProjectHandle * projectHandle, databas
 
    clean();
    //-------------
-   m_T0Map   = 0;
-   m_TRMap   = 0;
-   m_HCuMap  = 0;
-   m_HLMuMap = 0;
-   m_HBuMap  = 0;
-   m_DeltaSLMap = 0;
+   m_T0Map        = 0;
+   m_TRMap        = 0;
+   m_HCuMap       = 0;
+   m_HLMuMap      = 0;
+   m_HBuMap       = 0;
+   m_DeltaSLMap   = 0;
    m_smoothRadius = 0;
 
    m_baseRiftSurfaceName = "";
@@ -44,29 +44,28 @@ InterfaceInput::~InterfaceInput() {
 void InterfaceInput::clean() {
 
    //-------------- User defined ---------------------
-   m_t_0 = 0.0;
-   m_t_r = 0.0;
-   m_initialCrustThickness = 0.0;
+   m_t_0                          = 0.0;
+   m_t_r                          = 0.0;
+   m_initialCrustThickness        = 0.0;
    m_initialLithosphericThickness = 0.0;
-   m_maxBasalticCrustThickness = 0.0;
-   m_seaLevelAdjustment = 0.0;
+   m_maxBasalticCrustThickness    = 0.0;
+   m_seaLevelAdjustment           = 0.0;
 
    //-------------- Basic constants ---------------------
-   m_coeffThermExpansion = 0.0;
+   m_coeffThermExpansion  = 0.0;
    m_initialSubsidenceMax = 0.0;
-   m_pi = M_PI;
-   m_E0 = 0.0;
-   m_tau = 0.0;
+   m_pi                   = M_PI;
+   m_E0                   = 0.0;
+   m_tau                  = 0.0;
    
    //-------------- Lithospphere and crust properties ---------------------
-   m_modelTotalLithoThickness = 0.0;
-   m_backstrippingMantleDensity = 0.0;
-   m_lithoMantleDensity = 0.0;
+   m_modelTotalLithoThickness    = 0.0;
+   m_backstrippingMantleDensity  = 0.0;
+   m_lithoMantleDensity          = 0.0;
    m_baseLithosphericTemperature = 0.0;
-   m_referenceCrustThickness = 0.0;
-   m_referenceCrustDensity = 0.0;
-   m_waterDensity = 0.0;
-   m_minECT = 0.0;
+   m_referenceCrustThickness     = 0.0;
+   m_referenceCrustDensity       = 0.0;
+   m_waterDensity                = 0.0;
 
    //------------- Asthenosphere potential temperature data ---------------------
    m_A = 0.0;
@@ -77,21 +76,21 @@ void InterfaceInput::clean() {
    m_D = 0.0;
    
    //------------- Magma-layer density ---------------------
-   m_E = 0.0;
-   m_F = 0.0;
+   m_E             = 0.0;
+   m_F             = 0.0;
    m_decayConstant = 0.0;
 
    //-------------
    m_modelCrustDensity = 0;
-   m_TF_onset = 0;
-   m_TF_onset_lin = 0;
-   m_TF_onset_mig = 0;
-   m_PTa = 0;
-   m_magmaticDensity = 0;
-   m_WLS_exhume = 0;
-   m_WLS_crit = 0;
-   m_WLS_onset = 0;
-   m_WLS_exhume_serp = 0;  
+   m_TF_onset          = 0;
+   m_TF_onset_lin      = 0;
+   m_TF_onset_mig      = 0;
+   m_PTa               = 0;
+   m_magmaticDensity   = 0;
+   m_WLS_exhume        = 0;
+   m_WLS_crit          = 0;
+   m_WLS_onset         = 0;
+   m_WLS_exhume_serp   = 0;  
 }
 //------------------------------------------------------------//
 void InterfaceInput::loadInputDataAndConfigurationFile( const string & inFile ) {
@@ -303,10 +302,6 @@ void InterfaceInput::LoadLithoAndCrustProperties( ifstream &ConfigurationFile ) 
                m_waterDensity = atof( theTokens[1].c_str() );
                ++ countParam;
                
-            }  else if( theTokens[0] == CrustalThicknessInterface::minECT ) {
-               
-               ++ countParam;
-               m_minECT = atof( theTokens[1].c_str() );
             }
          } else {
             theTokens.clear();

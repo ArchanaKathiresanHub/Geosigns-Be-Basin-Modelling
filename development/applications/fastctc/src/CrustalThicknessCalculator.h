@@ -36,9 +36,6 @@ void displayTime( const double timeToDisplay, const char * msgToDisplay );
 /// @class CrustalThicknessCalculator The main class used to runn the CTC (CrustalThicknessCalculator)
 class CrustalThicknessCalculator : public GeoPhysics::ProjectHandle {
 
- typedef GeoPhysics::Local2DArray <bool>  BooleanLocal2DArray;
-
-
 public :
    // Constructor / Destructor
    CrustalThicknessCalculator( database::Database * database, const std::string & name, const std::string & accessMode, ObjectFactory* objectFactory );
@@ -50,7 +47,8 @@ public :
 
    /// @brief Open the project file
    /// @param inputFileName The file name of the project file such as project.project3d
-   static CrustalThicknessCalculator* CreateFrom ( const string& inputFileName );
+   /// @ param factory The object factory
+   static CrustalThicknessCalculator* CreateFrom( const string& inputFileName, ObjectFactory* factory );
 
    /// @brief Finish any activity and deallocate the singleton object
    /// @param saveResults Specify if the results must be saved in HDF file or not
@@ -90,9 +88,6 @@ private :
    bool   m_applySmoothing;   ///< Smooth the WLS map
    int    m_smoothRadius;     ///< The smoothing radius defined in the project file under HaflFilterWidth
 
-   BooleanLocal2DArray m_validNodes;          ///< The nodes included in the computation
-   BooleanLocal2DArray m_currentValidNodes;   ///< The nodes included in the computation at current time
-
    /// @brief Set requested output properties from the Project file
    void setRequestedOutputProperties( InterfaceOutput & theOutput);
 
@@ -105,23 +100,8 @@ private :
    ///    -# smooth <SmoothingRadius> turns smoothing on and set the smoothing radius
    void setAdditionalOptionsFromCommandLine();
 
-   /// @brief Return whether or not the node is defined
-   /// @param i Indice i of the node
-   /// @param j Indice j of the node
-   bool getNodeIsValid ( const unsigned int i, const unsigned int j ) const;
-   
-   /// @brief Set undefined nodes according to the input map
-   /// @details Set validNodes to false when their value in the map is undefined
-   /// @param validNodes The array of valid nodes (true) and unvalid nodes (false)
-   /// @param theMap The input map where to find the undefined areas
-   void addUndefinedAreas ( BooleanLocal2DArray & validNodes, const Interface::GridMap* theMap );
-
-   /// @brief Initialise valid nodes
-   void initialiseValidNodes ( const InterfaceInput &theInterfaceData );
-
-   /// @brief Initialise current valid nodes
-   void initialiseCurrentValidNodes ();
-
+   /// @brief Update geophysics ProjectHandle valid nodes using the CTC input maps
+   void updateValidNodes( const InterfaceInput &theInterfaceData );
    /// @brief Computes the present day water loaded subsidence (WLS) map
    /// @return The WLS map
    GridMap * calculatePresentDayWLS( InterfaceInput & theInterfaceData );
@@ -133,9 +113,4 @@ private :
 inline CrustalThicknessCalculator& CrustalThicknessCalculator::getInstance () {
    return *m_crustalThicknessCalculator;
 }
-
-inline bool CrustalThicknessCalculator::getNodeIsValid ( const unsigned int i, const unsigned int j ) const {
-   return ( m_validNodes ( i, j ) && m_currentValidNodes ( i, j ));
-}
-
 #endif
