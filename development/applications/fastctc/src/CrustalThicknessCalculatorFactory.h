@@ -11,8 +11,8 @@
 #ifndef _FASTCTC_CRUSTALTHICKNESS_CALCULATORFACTORY_H_
 #define _FASTCTC_CRUSTALTHICKNESS_CALCULATORFACTORY_H_
 
-// DataAccess library
-#include "Interface/ObjectFactory.h"
+// Geophysics library
+#include "GeoPhysicsObjectFactory.h"
 
 namespace DataAccess
 {
@@ -30,14 +30,14 @@ namespace database
 }
 
 /// @class CrustalThicknessCalculatorFactory The CTC object factory
-class CrustalThicknessCalculatorFactory : public DataAccess::Interface::ObjectFactory
+class CrustalThicknessCalculatorFactory : public GeoPhysics::ObjectFactory
 {
 public:
    /// @brief Produce the CrustalThicknessCalculator specific ProjectHandle
-   virtual DataAccess::Interface::ProjectHandle * produceProjectHandle (database::Database * database, 
+   virtual GeoPhysics::ProjectHandle * produceProjectHandle( database::Database * database,
                                                                              const string & name,  const string & accessMode);
    /// @brief Produce the InterfaceInput
-   virtual DataAccess::Interface::CrustalThicknessData * produceCrustalThicknessData (DataAccess::Interface::ProjectHandle * projectHandle, database::Record * record);                                                                    
+   virtual DataAccess::Interface::CrustalThicknessData * produceCrustalThicknessData( GeoPhysics::ProjectHandle * projectHandle, database::Record * record );
 };
 
 

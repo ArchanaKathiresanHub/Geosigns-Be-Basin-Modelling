@@ -86,10 +86,7 @@ namespace CrustalThicknessInterface {
    const string decayConstant                = "decayConstant";
    const string lithosphereThicknessMin      = "HLmin";
    const string maxNumberOfMantleElements    = "NLMEmax";
-   const string maxNumberOfMantleElementsOld = "HLMEmax";
    const string initNumberOfMantleElements   = "NInitLMEmax";
-   const string minECT                       = "ECTmin";
-   const string minBoundaryLayer             = "HCBLmin";
 
    /// @brief Parse the CTC command line
    /// @param theString The command to be parsed
@@ -136,7 +133,6 @@ public:
    double getInitialLithosphereThickness() const;
    double getBackstrippingMantleDensity () const;
    double getWaterDensity               () const;
-   double getECTmin                     () const;
    double getEstimatedCrustDensity      () const;
    double getTFOnset                    () const;
    double getTFOnsetLin                 () const;
@@ -218,7 +214,6 @@ private:
    double m_referenceCrustThickness;     ///< The reference continental crust thickness
    double m_referenceCrustDensity;       ///< The reference continental crust density
    double m_waterDensity;                ///< The water density
-   double m_minECT;                      ///< Minimum effective crustal thickness
    /// @}
 
    /// @defgroup Asthenosphere_potential_temperature_data
@@ -319,11 +314,6 @@ inline double InterfaceInput::getBackstrippingMantleDensity() const {
 inline double InterfaceInput::getWaterDensity() const {
    
    return m_waterDensity;
-}
-
-inline double InterfaceInput::getECTmin() const {
-   
-   return m_minECT;
 }
 
 inline double InterfaceInput::getEstimatedCrustDensity() const {

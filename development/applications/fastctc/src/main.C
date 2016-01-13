@@ -161,9 +161,6 @@ int main (int argc, char ** argv)
       return -1;
    }
 
-   PetscBool upgradeOnly = PETSC_FALSE;
-   PetscOptionsHasName (PETSC_NULL, "-upgrade", &upgradeOnly);
-
    const int lineSize = 128;
    char inputFileName[lineSize];
    inputFileName[0] = '\0';
@@ -180,7 +177,7 @@ int main (int argc, char ** argv)
    PetscLogDouble sim_Start_Time;
    PetscTime( &sim_Start_Time );
 
-   if(!CrustalThicknessCalculator::CreateFrom( inputFileName )) {
+   if (!CrustalThicknessCalculator::CreateFrom( inputFileName, factory )) {
       fprintf(stderr, "MeSsAgE ERROR Can not open the project file\n");
       showUsage ();
       PetscFinalize ();
@@ -192,22 +189,19 @@ int main (int argc, char ** argv)
       return -1;
    };
    
-   if( !upgradeOnly ) {
-      try {
-         CrustalThicknessCalculator::getInstance().deleteCTCPropertyValues();
+   try {
+      CrustalThicknessCalculator::getInstance().deleteCTCPropertyValues();
 
-         CrustalThicknessCalculator::getInstance().run();
+      CrustalThicknessCalculator::getInstance().run();
          
-      } catch ( std::string& s ) {
-         finaliseCrustalThicknessCalculator(feature, s.c_str(), factory);
-         return 0;
       }
-      catch (...) {
-         finaliseCrustalThicknessCalculator(feature, "", factory);
-         return 0;
-      }
-   } else {
-      cout << "Upgrade only" << endl;
+   catch ( std::string& s ) {
+      finaliseCrustalThicknessCalculator(feature, s.c_str(), factory);
+      return 0;
+   }
+   catch (...) {
+      finaliseCrustalThicknessCalculator(feature, "", factory);
+      return 0;
    }
 
    PetscLogDouble sim_End_Time;

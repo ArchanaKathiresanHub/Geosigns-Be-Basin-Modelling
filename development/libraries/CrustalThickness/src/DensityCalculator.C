@@ -10,7 +10,6 @@
 #include "DensityCalculator.h"
 
 // DataAccess library
-
 #include "Interface/CrustFormation.h"
 #include "Interface/Formation.h"
 #include "Interface/LithoType.h"
@@ -18,7 +17,6 @@
 #include "Interface/Property.h"
 #include "Interface/ProjectHandle.h"
 #include "Interface/PropertyValue.h"
-
 #include "Interface/Snapshot.h"
 #include "Interface/Surface.h"
 
@@ -34,40 +32,28 @@ const double GRAVITY = 9.81;
 //------------------------------------------------------------//
 DensityCalculator::DensityCalculator() {
 
-   m_depthBasementMap = 0; 
-   m_depthWaterBottomMap = 0; 
-   m_pressureBasementMap = 0; 
-   m_pressureWaterBottomMap = 0;
-
    m_waterBottomDepthValue = 0.0;
-   m_sedimentThickness = 0.0;
+   m_sedimentThickness     = 0.0;
    m_topBasementDepthValue = 0.0;
-   m_WLS = 0.0;
-   m_backstrip = 0.0;
-   m_sedimentDensity = 0.0;
+   m_WLS                   = 0.0;
+   m_backstrip             = 0.0;
+   m_sedimentDensity       = 0.0;
 
    m_bottomOfSedimentSurface = 0;
-   m_topOfSedimentSurface = 0;
+   m_topOfSedimentSurface    = 0;
 
-   m_densityTerm = 1.0;
+   m_densityTerm                = 1.0;
    m_backstrippingMantleDensity = 0.0;
-   m_waterDensity = 0.0;
-} 
+   m_waterDensity               = 0.0;
+}
 
-//------------------------------------------------------------//
-const Interface::Property * DensityCalculator::loadDepthProperty( Interface::ProjectHandle* projectHandle, const double snapshotAge, const string & baseSurfaceName ) {
+void DensityCalculator::loadTopAndBottomOfSediments( GeoPhysics::ProjectHandle* projectHandle, const double snapshotAge, const string & baseSurfaceName ) {
 
    bool debug = false;
+
    const Interface::Snapshot * currentSnapshot = projectHandle->findSnapshot( snapshotAge, MINOR | MAJOR );
 
-   const Interface::Property * depthProperty = projectHandle->findProperty( "Depth" );
-
-   if (!depthProperty) {
-      string s = "Could not find property named Depth.";
-      throw s;
-   }
-
-   // Find the depth of the bottom of the sediment
+   //1. Find the bottom of the sediment
    if (baseSurfaceName == "") {
 
       const Interface::CrustFormation * formationCrust = dynamic_cast<const Interface::CrustFormation *>(projectHandle->getCrustFormation());
@@ -98,7 +84,7 @@ const Interface::Property * DensityCalculator::loadDepthProperty( Interface::Pro
       }
    }
 
-   // Find the depth of the top of the sediment
+   //2. Find the top of the sediment
    Interface::FormationList * myFormations = projectHandle->getFormations( currentSnapshot, true );
    const Interface::Formation * formationWB = (*myFormations)[0]; // find Water bottom
 
@@ -113,207 +99,123 @@ const Interface::Property * DensityCalculator::loadDepthProperty( Interface::Pro
    if (debug && projectHandle->getRank() == 0) {
       cout << "Top surface: " << m_topOfSedimentSurface->getName() << "; surface below " << m_bottomOfSedimentSurface->getName() << "." << endl;
    }
+}
+
+//------------------------------------------------------------//
+const DataModel::AbstractProperty* DensityCalculator::loadDepthProperty( GeoPhysics::ProjectHandle* projectHandle, const double snapshotAge) {
+
+   DerivedProperties::DerivedPropertyManager derivedManager( projectHandle );
+   const Interface::Snapshot * currentSnapshot = projectHandle->findSnapshot( snapshotAge, MINOR | MAJOR );
+
+   const DataModel::AbstractProperty* depthProperty = derivedManager.getProperty( "Depth" );
+
+   if (!depthProperty) {
+      string s = "Could not find property named Depth.";
+      throw s;
+   }
 
    return depthProperty;
 }
+
 //------------------------------------------------------------//
-void DensityCalculator::loadDepthData( Interface::ProjectHandle* projectHandle, const Interface::Property * depthProperty, const double snapshotAge ) {
+void DensityCalculator::loadDepthData( GeoPhysics::ProjectHandle* projectHandle, const DataModel::AbstractProperty* depthProperty, const double snapshotAge ) {
 
-   bool debug = false;
+   DerivedProperties::DerivedPropertyManager derivedManager( projectHandle );
+   const Interface::Snapshot * currentSnapshot = projectHandle->findSnapshot( snapshotAge, MINOR | MAJOR );
 
-   const Interface::Snapshot * currentSnapshot = projectHandle->findSnapshot (snapshotAge, MINOR | MAJOR);
-
-   Interface::PropertyValueList * propertyValues = projectHandle->getPropertyValues (SURFACE | FORMATION | FORMATIONSURFACE,
-                                                                                     depthProperty, currentSnapshot, 0, 0, m_bottomOfSedimentSurface, MAP);
-
-
-   if (propertyValues->size() != 1) {
-      stringstream ss;
-      if( snapshotAge != 0.0 ) {
-         ss << "WARNING: ";
-      }
-      ss << "Could not find property Depth (" << propertyValues->size() << ") for bottom of sediment surface " << 
-         m_bottomOfSedimentSurface->getName() <<  " at age " << currentSnapshot->getTime() << "." << endl;
-
-      throw ss.str();
-   }
-
-   const Interface::PropertyValue * depthBasement = (* propertyValues)[0];
-   delete propertyValues;
-
- 
-   // Find the pressure property of the top of sediment
-   propertyValues = projectHandle->getPropertyValues (SURFACE | FORMATION | FORMATIONSURFACE, depthProperty, currentSnapshot, 0, 0, m_topOfSedimentSurface, MAP);
-
-   if (propertyValues->size() != 1) {
-      stringstream ss;
-      if( snapshotAge != 0.0 ) {  ss << "WARNING: ";  }
-
-      ss << "Could not find property Depth (" << propertyValues->size() << ") for top of sediment surface." << 
-         m_topOfSedimentSurface->getName() << " at age " << currentSnapshot->getTime() << "."<< endl;
-
-      throw ss.str();
-   }
-   const Interface::PropertyValue * depthWaterBottom = (* propertyValues)[0];
-   delete propertyValues;
-
-   m_depthBasementMap    = depthBasement->getGridMap();
-   m_depthWaterBottomMap = depthWaterBottom->getGridMap();
-
-   if( m_depthBasementMap == 0 || m_depthWaterBottomMap == 0 ) {
-      stringstream ss;
-      if( snapshotAge != 0.0 ) {  ss << "WARNING: ";  }
-
-      ss << "Could not find property Depth at the age " << currentSnapshot->getTime() << "."<< endl;
-
-      throw ss.str();
-   }
+   // Find the depth property of the bottom of sediment
+   m_depthBasement = derivedManager.getSurfaceProperty( depthProperty, currentSnapshot, m_bottomOfSedimentSurface );
+   // Find the depth property of the top of sediment
+   m_depthWaterBottom = derivedManager.getSurfaceProperty( depthProperty, currentSnapshot, m_topOfSedimentSurface );
 }
 
 //------------------------------------------------------------//
-const Interface::Property * DensityCalculator::loadPressureProperty( Interface::ProjectHandle* projectHandle, const double snapshotAge ) {
+const DataModel::AbstractProperty* DensityCalculator::loadPressureProperty( GeoPhysics::ProjectHandle* projectHandle, const double snapshotAge ) {
 
-   const Interface::Snapshot * currentSnapshot = projectHandle->findSnapshot (snapshotAge, MINOR | MAJOR);
-   
-   const Interface::Property * pressureProperty = projectHandle->findProperty("LithoStaticPressure");
+   DerivedProperties::DerivedPropertyManager derivedManager( projectHandle );
+
+   const Interface::Snapshot * zeroSnapshot = projectHandle->findSnapshot( 0 );
+   const DataModel::AbstractProperty* pressureProperty = derivedManager.getProperty( "LithoStaticPressure" );
 
    if (!pressureProperty) {
-      string s = "Could not find property named LithoStaticPressure."; 
+      string s = "Could not find property named LithoStaticPressure.";
       throw s;
    }
-   return pressureProperty;
    
+   return pressureProperty;
 }
 
 //------------------------------------------------------------//
-void DensityCalculator::loadPressureData( Interface::ProjectHandle* projectHandle, const Interface::Property * pressureProperty, const double snapshotAge ) {
+void DensityCalculator::loadPressureData( GeoPhysics::ProjectHandle* projectHandle, const DataModel::AbstractProperty* pressureProperty, const double snapshotAge ) {
 
-   bool debug = false;
-
+   DerivedProperties::DerivedPropertyManager derivedManager( projectHandle );
    const Interface::Snapshot * currentSnapshot = projectHandle->findSnapshot (snapshotAge, MINOR | MAJOR);
  
    // Find the pressure property of the bottom of sediment
-   const Interface::Formation * bottomFormation = m_bottomOfSedimentSurface->getTopFormation ();
-
-   Interface::PropertyValueList * propertyValues = projectHandle->getPropertyValues (SURFACE | FORMATION | FORMATIONSURFACE,
-                                                                                     pressureProperty, currentSnapshot, 0, 0, m_bottomOfSedimentSurface, MAP);
-
-
-   if (propertyValues->size() != 1) {
-      stringstream ss;
-      if( snapshotAge != 0.0 ) { ss << "WARNING: ";  }
-      ss << "Could not find property LithoStaticPressure (" << propertyValues->size() << ") for bottom of sediment surface " << m_bottomOfSedimentSurface->getName() 
-         <<  " at age " << currentSnapshot->getTime() << "." << endl;
-
-      throw ss.str();
-   }
-   const Interface::PropertyValue * pressureBasement = (* propertyValues)[0];
-   delete propertyValues;
-
-   const Interface::Formation * formationWB = m_topOfSedimentSurface->getBottomFormation ();
-   
+   m_pressureBasement = derivedManager.getSurfaceProperty( pressureProperty, currentSnapshot, m_bottomOfSedimentSurface );
    // Find the pressure property of the top of sediment
-   propertyValues = projectHandle->getPropertyValues (SURFACE | FORMATION | FORMATIONSURFACE, pressureProperty, currentSnapshot, 0, 0, m_topOfSedimentSurface, MAP);
+   m_pressureWaterBottom = derivedManager.getSurfaceProperty( pressureProperty, currentSnapshot, m_topOfSedimentSurface );
 
-   if (propertyValues->size() != 1) {
-      stringstream ss;
-      if( snapshotAge != 0.0 ) { ss << "WARNING: ";  }
-
-      ss << "Could not find property LithoStaticPressure (" << propertyValues->size() << ") for top of sediment surface." << m_topOfSedimentSurface->getName() 
-         << " at age " << currentSnapshot->getTime() << "."<< endl;
-
-      throw ss.str();
-   }
-   const Interface::PropertyValue * pressureWaterBottom = (* propertyValues)[0];
-   delete propertyValues;
-
-   m_pressureBasementMap    = pressureBasement->getGridMap();
-   m_pressureWaterBottomMap = pressureWaterBottom->getGridMap();
-
-   if( m_pressureBasementMap == 0 || m_pressureWaterBottomMap == 0 ) {
-      stringstream ss;
-      if( snapshotAge != 0.0 ) {  ss << "WARNING: ";  }
-
-      ss << "Could not find property LithostaticPressure at the age " << currentSnapshot->getTime() << "."<< endl;
-
-      throw ss.str();
-}
 }
 
 //------------------------------------------------------------//
 void DensityCalculator::loadSnapshots( Interface::ProjectHandle* projectHandle ) {
    
-   
-   Interface::FormationList* formations = projectHandle->getFormations ( ); //0, true );
+   Interface::FormationList* formations = projectHandle->getFormations ( );
    Interface::FormationList::const_iterator formationIter;
 
    for ( formationIter = formations->begin (); formationIter != formations->end (); ++formationIter ) {
       const Interface::Formation * formation = ( *formationIter );
 
       if ( formation != 0 ) {
-         const Interface::Surface * topSurface = formation->getBottomSurface(); //TopSurface();
+         const Interface::Surface * topSurface = formation->getBottomSurface();
          m_snapshots.push_back( topSurface->getSnapshot()->getTime() );
       }
    }
    m_snapshots.push_back( 0.0 ); // add present day
 }
 
-#if 0
-//------------------------------------------------------------//
-void DensityCalculator::setWaterBottomDepthMap( Interface::ProjectHandle* projectHandle ) {
-   
-   Interface::PaleoPropertyList * pList = projectHandle->getSurfaceDepthHistory();
-   
-   for( int i = 0; i < pList->size(); ++ i ) {
-      if( pList[i]->getSnapshot()->getTime() == 0 ) {
-         m_depthWaterBottomMap = pList[i]->getMap();
-         break;
-      }
-   }
-}
-#endif
 //------------------------------------------------------------//
 void DensityCalculator::retrieveData() {
 
-   m_depthBasementMap->retrieveData ();
-   m_depthWaterBottomMap->retrieveData ();
-   m_pressureBasementMap->retrieveData ();
-   m_pressureWaterBottomMap->retrieveData ();
+   m_depthBasement      ->retrieveData ();
+   m_depthWaterBottom   ->retrieveData ();
+   m_pressureBasement   ->retrieveData ();
+   m_pressureWaterBottom->retrieveData ();
 }
 
 //------------------------------------------------------------//
 void DensityCalculator::restoreData() {
 
-   m_depthBasementMap->restoreData ();
-   m_depthWaterBottomMap->restoreData ();
-   m_pressureBasementMap->restoreData ();
-   m_pressureWaterBottomMap->restoreData ();
+   m_depthBasement      ->restoreData ();
+   m_depthWaterBottom   ->restoreData ();
+   m_pressureBasement   ->restoreData ();
+   m_pressureWaterBottom->restoreData ();
 }
+
 //------------------------------------------------------------//
 void DensityCalculator::computeNode( unsigned int i, unsigned int j ) {
 
  
-   m_topBasementDepthValue = m_depthBasementMap->getValue (i, j) ;
-   m_waterBottomDepthValue = m_depthWaterBottomMap->getValue (i, j);
+   m_topBasementDepthValue = m_depthBasement->get (i, j) ;
+   m_waterBottomDepthValue = m_depthWaterBottom->get (i, j);
 
-   if((m_topBasementDepthValue != m_depthBasementMap->getUndefinedValue()) &&   
-      (m_waterBottomDepthValue != m_depthWaterBottomMap->getUndefinedValue())) {
+   if((m_topBasementDepthValue != m_depthBasement->getUndefinedValue()) &&   
+      (m_waterBottomDepthValue != m_depthWaterBottom->getUndefinedValue())) {
    
       m_sedimentThickness = m_topBasementDepthValue - m_waterBottomDepthValue;
    } else {
-      m_sedimentThickness = Interface::DefaultUndefinedMapValue; // or 0.0?  
+      m_sedimentThickness = Interface::DefaultUndefinedMapValue;
    }
-   
-   unsigned int maxK = m_pressureWaterBottomMap->getDepth() - 1 ;
 
-   double pressureTopBasementValue = m_pressureBasementMap->getValue (i, j);
-   double pressureWaterBottomValue = m_pressureWaterBottomMap->getValue (i, j, maxK);
+   double pressureTopBasementValue = m_pressureBasement->get (i, j);
+   double pressureWaterBottomValue = m_pressureWaterBottom->get (i, j);
 
    m_sedimentDensity = Interface::DefaultUndefinedMapValue;
    m_backstrip = Interface::DefaultUndefinedMapValue;
 
-   if((pressureTopBasementValue != m_pressureBasementMap->getUndefinedValue()) &&
-      (pressureWaterBottomValue != m_pressureWaterBottomMap->getUndefinedValue()) &&
+   if((pressureTopBasementValue != m_pressureBasement->getUndefinedValue()) &&
+      (pressureWaterBottomValue != m_pressureWaterBottom->getUndefinedValue()) &&
       (m_sedimentThickness != Interface::DefaultUndefinedMapValue)) {
    
       m_backstrip =  m_sedimentThickness *  m_backstrippingMantleDensity * m_densityTerm - 
@@ -326,7 +228,7 @@ void DensityCalculator::computeNode( unsigned int i, unsigned int j ) {
    }
    m_WLS = Interface::DefaultUndefinedMapValue;
 
-   if( m_waterBottomDepthValue != m_depthWaterBottomMap->getUndefinedValue() && m_backstrip != Interface::DefaultUndefinedMapValue ) {
+   if( m_waterBottomDepthValue != m_depthWaterBottom->getUndefinedValue() && m_backstrip != Interface::DefaultUndefinedMapValue ) {
       
       if( m_waterBottomDepthValue  >= 0.0 ) {
          m_WLS = m_waterBottomDepthValue + m_backstrip;
@@ -338,14 +240,7 @@ void DensityCalculator::computeNode( unsigned int i, unsigned int j ) {
       }
    } 
 }
-//------------------------------------------------------------//
-double DensityCalculator::getTopBasementDepthValue() const {
-   if( m_topBasementDepthValue != m_depthBasementMap->getUndefinedValue() ) {
-      return m_topBasementDepthValue;
-   } else {
-      return Interface::DefaultUndefinedMapValue;
-   }
-}
+
 //------------------------------------------------------------//
 bool DensityCalculator::setDensities( const double aMantleDensity, const double aWaterDensity ) {
 
@@ -357,131 +252,3 @@ bool DensityCalculator::setDensities( const double aMantleDensity, const double 
    } 
    return false;
 }
-
-
-/*
-//------------------------------------------------------------//
-double DensityCalculator::calculateWLS( const double backstrippingMantleDensity, const double densityDiff ) {
-
-   m_WLS = Interface::DefaultUndefinedMapValue;
-   m_backstrip = Interface::DefaultUndefinedMapValue;
-
-   if( m_waterBottomDepthValue != m_depthWaterBottomMap->getUndefinedValue() && m_sedimentThickness != Interface::DefaultUndefinedMapValue ) {
-      if( m_sedimentDensity != Interface::DefaultUndefinedMapValue ) {
-         m_backstrip =  m_sedimentThickness * (backstrippingMantleDensity - m_sedimentDensity) * densityDiff;
-         m_WLS = m_waterBottomDepthValue + m_backstrip;
-      } else {
-         if(( m_sedimentThickness == 0 ) && ( m_sedimentDensity == Interface::DefaultUndefinedMapValue )) {
-            m_WLS = m_waterBottomDepthValue;
-            m_backstrip = 0.0;
-         }
-      }
-       
-      if(m_WLS < 0 ) m_WLS = 0;
-   } 
-   return m_WLS;
-}
-   return WLS;
-   // if( m_waterBottomDepthValue != m_depthWaterBottomMap->getUndefinedValue() && m_sedimentThickness != Interface::DefaultUndefinedMapValue ) {
-   //    if( m_sedimentDensity != Interface::DefaultUndefinedMapValue ) {
-   //       WLS = m_waterBottomDepthValue + m_sedimentThickness * (backstrippingMantleDensity - m_sedimentDensity) * densityDiff;
-   //    } else {
-   //       // WLS = m_waterBottomDepthValue;
-   //    }
-
-*/
-
-#if 0
-//------------------------------------------------------------//
-void DensityCalculator::loadData( Interface::ProjectHandle* projectHandle, const string & baseSurfaceName ) {
-
-   bool debug = false;
-
-   const Interface::Snapshot * zeroSnapshot = projectHandle->findSnapshot (0);
-
-   const Interface::Property * depthProperty =  projectHandle->findProperty("Depth");
-   if (!depthProperty) {
-      string s = "Could not find property named Depth.";
-      throw s;
-   }
-   const Interface::Property * pressureProperty = projectHandle->findProperty("LithoStaticPressure");
-   if (!pressureProperty) {
-      string s = "Could not find property named LithoStaticPressure.";
-      throw s;
-   }
-   // Find the depth of the bottom of sediment
-   const Interface::Surface * bottomOfSedimentSurface;
-
-   if( baseSurfaceName == "" ) {
-
-      const Interface::CrustFormation * formationCrust = dynamic_cast<const Interface::CrustFormation *>(projectHandle->getCrustFormation ());
-      
-      if (!formationCrust) {
-         string s = "Could not find Crust Formation.";
-         throw s;
-      }
-      bottomOfSedimentSurface = formationCrust->getTopSurface();
-      
-      if(debug && projectHandle->getRank() == 0) {
-         cout << "Crust formation: " << formationCrust->getName() << ", surface above " << bottomOfSedimentSurface->getName() << "." << endl;
-      }
-      //cout << "Take the default one : " << bottomOfSedimentSurface->getName()  << endl;
-   } else {
-      bottomOfSedimentSurface = projectHandle->findSurface ( baseSurfaceName );
-
-      if (!bottomOfSedimentSurface) { 
-         stringstream ss;
-         ss << "Could not find user defined base surface of the rift event: " << baseSurfaceName;
-         throw ss.str();
-      } else {
-
-         cout << "Take surface " << bottomOfSedimentSurface->getName() << " as the base of syn-rift" << endl;
-      }
-    }
-
-   // Find the pressure property of the bottom of sediment
-   const Interface::Formation * bottomFormation = bottomOfSedimentSurface->getTopFormation ();
-
-   Interface::PropertyValueList * propertyValues = projectHandle->getPropertyValues (SURFACE | FORMATION | FORMATIONSURFACE,
-                                                                                     pressureProperty, zeroSnapshot, 0, bottomFormation, 0, VOLUME);
-   if (propertyValues->size() != 1) {
-      stringstream ss;
-      ss << "Could not find property LithoStaticPressure for formation " << bottomFormation->getName() <<  " at age " << zeroSnapshot->getTime() << "." << endl;
-
-      throw ss.str();
-   }
-   const Interface::PropertyValue * pressureBasement = (* propertyValues)[0];
-   
-   // Find the depth of the top of sediment
-   Interface::FormationList * myFormations = projectHandle->getFormations (zeroSnapshot, true);
-   const Interface::Formation * formationWB = (*myFormations)[0]; // find Water bottom
- 
-  if (!formationWB) {
-      string s = "Could not find topformation.";
-      throw s;
-   } 
-
-   const Interface::Surface * topOfSedimentSurface = formationWB->getTopSurface();
-
-   if(debug && projectHandle->getRank() == 0) {
-      cout << "Top formation: " << formationWB->getName() << "; surface below " << topOfSedimentSurface->getName() << "." << endl;
-   }
-   
-   // Find the pressure property of the top of sediment
-   propertyValues = projectHandle->getPropertyValues (SURFACE | FORMATION | FORMATIONSURFACE, pressureProperty, zeroSnapshot, 0, formationWB, 0, VOLUME);
-
-   if (propertyValues->size() != 1) {
-      stringstream ss;
-      ss << "Could not find property LithoStaticPressure for formation." << formationWB->getName() << " at age " << zeroSnapshot->getTime() << "."<< endl;
-
-      throw ss.str();
-   }
-   const Interface::PropertyValue * pressureWaterBottom = (* propertyValues)[0];
-
-   m_depthBasementMap    = const_cast<Interface::GridMap *>(bottomOfSedimentSurface->getInputDepthMap());
-   m_depthWaterBottomMap = const_cast<Interface::GridMap *>(topOfSedimentSurface->getInputDepthMap());
-   m_pressureBasementMap    = pressureBasement->getGridMap();
-   m_pressureWaterBottomMap = pressureWaterBottom->getGridMap();
-
-}
-#endif
