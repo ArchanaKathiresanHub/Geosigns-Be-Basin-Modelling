@@ -160,7 +160,7 @@ void DerivedProperties::VesHighResFormationCalculator::computeForSubsampledRun( 
                {
                   // index k     is top node of segment
                   // index k - 1 is bottom node of segment
-                  solidThickness = currentFormation->getSolidThickness( i, j, k, time);
+                  solidThickness = currentFormation->getSolidThickness( i, j, k - 1, time);
                   if( solidThickness > 0.0 )
                   {
                      vesHighResValue = vesHighResAboveValue + GeoPhysics::AccelerationDueToGravity * densityDifference * solidThickness;
