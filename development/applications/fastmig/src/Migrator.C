@@ -799,6 +799,9 @@ bool Migrator::detectReservoirs (const Interface::Snapshot * start, const Interf
          }
          // print to file information about the reservoirs 
          // reservoirFormation->saveReservoir (end);
+
+         //setEndOfPath for detected reservoirs
+         if (reservoirFormation->getDetectedReservoir()) reservoirFormation->setEndOfPath ();
       }
    }
 
@@ -810,6 +813,8 @@ bool Migrator::detectReservoirs (const Interface::Snapshot * start, const Interf
 
 bool Migrator::computeSMFlowPaths (const Interface::Snapshot * start, const Interface::Snapshot * end)
 {
+   if (!m_verticalMigration)
+   {
    Formation * bottomSourceRockFormation = getBottomSourceRockFormation ();
    if (!bottomSourceRockFormation) return false;
 
@@ -817,12 +822,9 @@ bool Migrator::computeSMFlowPaths (const Interface::Snapshot * start, const Inte
    if (!topActiveFormation) return false;
 
    if (!computeSMFlowPaths (topActiveFormation, bottomSourceRockFormation, start, end)) return false;
-
-   if (!m_verticalMigration)
-   {
-      if (!computeTargetFormationNodes (topActiveFormation, bottomSourceRockFormation)) return false;
+   
+   if (!computeTargetFormationNodes (topActiveFormation, bottomSourceRockFormation)) return false;
    }
-
    return true;
 }
 

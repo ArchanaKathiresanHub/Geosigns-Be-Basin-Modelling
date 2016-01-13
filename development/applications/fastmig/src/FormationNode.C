@@ -476,7 +476,7 @@ namespace migration {
    void LocalFormationNode::setValue (FormationNodeValueRequest & request)
    {
       switch (request.valueSpec)
-      {
+      {   
 #ifdef REGISTERPROXIES
       case REGISTER:
          addProxy ((int) request.value);

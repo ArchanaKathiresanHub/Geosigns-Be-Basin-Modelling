@@ -589,9 +589,6 @@ namespace migration
          allComputed = true;
          for (Formation * formation = targetFormation; formation != getBottomFormation (); formation = (Formation *) formation->getBottomFormation ())
          {
-            if (formation->m_detectedReservoir)
-               formation->setEndOfPath ();
-
             int minDepthIndex = (formation == this ? formation->getNodeDepth () - 1 : 0);
             int maxDepthIndex = (formation == targetFormation ? formation->getNodeDepth () - 2 : formation->getNodeDepth () - 1);
 
@@ -1033,10 +1030,17 @@ namespace migration
                }
                else
                {
-                  gridMapValue = 
-                  100 * node->getAdjacentFormationNodeGridOffset (2) +     // K
-                  10 * node->getAdjacentFormationNodeGridOffset (1) +     // J
-                  1 * node->getAdjacentFormationNodeGridOffset (0);      // I
+                  if (!m_migrator->performVerticalMigration ())
+                  {
+                     gridMapValue =
+                        100 * node->getAdjacentFormationNodeGridOffset (2) +     // K
+                        10 * node->getAdjacentFormationNodeGridOffset (1) +     // J
+                        1 * node->getAdjacentFormationNodeGridOffset (0);      // I
+                  }
+                  else
+                  {
+                     gridMapValue = 100;
+                  }
                }
 
                gridMap->setValue (i, j, k, gridMapValue);

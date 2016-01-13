@@ -213,6 +213,8 @@ namespace migration
 
       DerivedProperties::FormationPropertyPtr getFormationPropertyPtr (const string & propertyName, const Interface::Snapshot * snapshot) const;
 
+      // Sets all top nodes of the given formation as ends of path due to the formation being a detected reservoir
+      void setEndOfPath (void);
 
    private:
 
@@ -231,9 +233,6 @@ namespace migration
 
       // Map of all genex data
       Interface::GridMap* m_genexData;
-
-      // Sets all top nodes of the given formation as ends of path due to the formation being a detected reservoir
-      void setEndOfPath (void);
 
       bool computeInterpolator (const string & propertyName, const Interface::Snapshot *intervalStart, const Interface::Snapshot *intervalEnd,
                                 Genex6::LinearGridInterpolator& interpolator);
