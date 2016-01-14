@@ -8,8 +8,9 @@
 #BUILD_NUMBER=51
 #
 
-#
 WORKSPACE=${JOB_NAME}_results
+#Replace none ntfs characters for Jenkins multiconfiguration projects
+WORKSPACE=`echo $WORKSPACE | sed "s/=/_/g"`
 UTF=UnitTestResults
 
 TF=/nfs/rvl/groups/ept-sg/SWEast/Cauldron/Tools/bin/tf
