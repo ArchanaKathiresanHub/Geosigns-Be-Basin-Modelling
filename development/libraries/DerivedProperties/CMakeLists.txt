@@ -18,6 +18,7 @@ set(all_headers
   src/BrineDensityCalculator.h
   src/BrineViscosityCalculator.h
   src/BulkDensityFormationCalculator.h
+  src/DepthHighResFormationCalculator.h
   src/DerivedFormationMapProperty.h
   src/DerivedFormationProperty.h
   src/DerivedFormationSurfaceProperty.h
@@ -82,6 +83,7 @@ set(all_srcs
   src/BrineDensityCalculator.C
   src/BrineViscosityCalculator.C
   src/BulkDensityFormationCalculator.C
+  src/DepthHighResFormationCalculator.C
   src/DerivedFormationMapProperty.C
   src/DerivedFormationProperty.C
   src/DerivedFormationSurfaceProperty.C
