@@ -171,6 +171,12 @@ void SceneGraphManager::updateSnapshotFormations()
 
   snapshot.chunks.swap(tmpChunks);
   snapshot.formationsTimeStamp = m_formationsTimeStamp;
+
+  if (!snapshot.scalarDataSet)
+  {
+    snapshot.scalarDataSet = createFormationProperty(snapshot, snapshot.currentPropertyId);
+    snapshot.scalarSet->setScalarSet(snapshot.scalarDataSet.get());
+  }
 }
 
 namespace
@@ -511,7 +517,7 @@ void SceneGraphManager::updateSnapshotProperties()
   if (snapshot.currentPropertyId == m_currentPropertyId)
     return;
 
-  snapshot.scalarDataSet = m_project->createFormationProperty(snapshot.index, m_currentPropertyId);
+  snapshot.scalarDataSet = createFormationProperty(snapshot, m_currentPropertyId);
   snapshot.scalarSet->setScalarSet(snapshot.scalarDataSet.get());
 
   for (auto &surf : snapshot.surfaces)
@@ -693,9 +699,9 @@ void SceneGraphManager::updateColorMap()
 
   int index = 0;
   int trapId = m_project->getPropertyId("ResRockTrapId");
-  if (m_currentPropertyId == trapId || m_currentPropertyId == PersistentTrapIdProperty)
+  if (m_currentPropertyId == trapId || m_currentPropertyId == PersistentTrapIdPropertyId)
     index = 1;
-  else if (m_currentPropertyId == FluidContactsProperty)
+  else if (m_currentPropertyId == FluidContactsPropertyId)
     index = 2;
 
   m_colorMapSwitch->whichChild = index;
@@ -704,41 +710,49 @@ void SceneGraphManager::updateColorMap()
 
   SnapshotInfo& snapshot = *m_snapshotInfoCache.begin();
 
-  double minValue =  std::numeric_limits<double>::max();
+  double minValue = std::numeric_limits<double>::max();
   double maxValue = -std::numeric_limits<double>::max();
 
-  if (snapshot.scalarDataSet)
+  if (m_currentPropertyId == FormationIdPropertyId)
   {
-    minValue = std::min(minValue, snapshot.scalarDataSet->getMin());
-    maxValue = std::max(maxValue, snapshot.scalarDataSet->getMax());
+    minValue = 0.0;
+    maxValue = (double)(m_projectInfo.formations.size() - 1);
   }
-
-  for (auto const& surf : snapshot.surfaces)
+  else
   {
-    if (surf.propertyData)
+    if (snapshot.scalarDataSet)
     {
-      minValue = std::min(minValue, surf.propertyData->getMin());
-      maxValue = std::max(maxValue, surf.propertyData->getMax());
+      minValue = std::min(minValue, snapshot.scalarDataSet->getMin());
+      maxValue = std::max(maxValue, snapshot.scalarDataSet->getMax());
     }
-  }
 
-  for (auto const& res : snapshot.reservoirs)
-  {
-    if (res.propertyData)
+    for (auto const& surf : snapshot.surfaces)
     {
-      minValue = std::min(minValue, res.propertyData->getMin());
-      maxValue = std::max(maxValue, res.propertyData->getMax());
+      if (surf.propertyData)
+      {
+        minValue = std::min(minValue, surf.propertyData->getMin());
+        maxValue = std::max(maxValue, surf.propertyData->getMax());
+      }
     }
-  }
 
-  // Round minValue and maxValue down resp. up to 'nice' numbers
-  if (minValue != maxValue)
-  {
-    double e = round(log10(maxValue - minValue)) - 1.0;
-    double delta = pow(10.0, e);
+    for (auto const& res : snapshot.reservoirs)
+    {
+      if (res.propertyData)
+      {
+        minValue = std::min(minValue, res.propertyData->getMin());
+        maxValue = std::max(maxValue, res.propertyData->getMax());
+      }
+    }
 
-    minValue = delta * floor(minValue / delta);
-    maxValue = delta * ceil(maxValue / delta);
+    // Round minValue and maxValue down resp. up to 'nice' numbers
+    if (minValue != maxValue)
+    {
+      double e = round(log10(maxValue - minValue)) - 1.0;
+      double delta = pow(10.0, e);
+
+      minValue = delta * floor(minValue / delta);
+      maxValue = delta * ceil(maxValue / delta);
+    }
   }
 
   static_cast<MoPredefinedColorMapping*>(m_colorMap)->minValue = (float)minValue;
@@ -872,17 +886,6 @@ SnapshotInfo SceneGraphManager::createSnapshotNode(size_t index)
   info.time = snapshotContents.age;
   info.formations = snapshotContents.formations;
 
-  // collect array of formation ids for FormationIdProperty
-  std::vector<double> formationIds;
-  for (auto formation : snapshotContents.formations)
-  {
-    int minK = formation.minK;
-    int maxK = formation.maxK;
-
-    for (int i = minK; i < maxK; ++i)
-      formationIds.push_back((double)formation.id);
-  }
-
   for (auto id : snapshotContents.surfaces)
   {
     SnapshotInfo::Surface surface;
@@ -986,10 +989,8 @@ SnapshotInfo SceneGraphManager::createSnapshotNode(size_t index)
   info.mesh->setName("snapshotMesh");
   info.mesh->setMesh(info.meshData.get());
 
-  info.scalarDataSet = std::make_shared<FormationIdProperty>(formationIds);
   info.scalarSet = new MoScalarSetIjk;
   info.scalarSet->setName("formationID");
-  info.scalarSet->setScalarSet(info.scalarDataSet.get());
 
   info.chunksGroup = new SoGroup;
   info.chunksGroup->setName("chunks");
@@ -1019,6 +1020,10 @@ SnapshotInfo SceneGraphManager::createSnapshotNode(size_t index)
   info.root->addChild(m_surfaceShapeHints);
   info.root->addChild(info.surfacesGroup);
   info.root->addChild(info.faultsGroup);
+
+  // set property id, so when updateSnapshot() is called, all elements (formations, surfaces
+  // and reservoirs) are created with the correct property
+  info.currentPropertyId = m_currentPropertyId;
 
   return info;
 }
@@ -1187,6 +1192,31 @@ void SceneGraphManager::setupSceneGraph()
   static_cast<MoPredefinedColorMapping*>(m_colorMap)->maxValue = (float)(m_projectInfo.formations.size() - 1);
 }
 
+std::shared_ptr<MiDataSetIjk<double> > SceneGraphManager::createFormationProperty(
+  const SnapshotInfo& snapshot,
+  int propertyId)
+{
+  if (propertyId == FormationIdPropertyId)
+  {
+    // collect array of formation ids for FormationIdProperty
+    std::vector<double> formationIds;
+    for (auto formation : snapshot.formations)
+    {
+      int minK = formation.minK;
+      int maxK = formation.maxK;
+
+      for (int i = minK; i < maxK; ++i)
+        formationIds.push_back((double)formation.id);
+    }
+
+    return std::make_shared<FormationIdProperty>(formationIds);
+  }
+  else
+  {
+    return m_project->createFormationProperty(snapshot.index, propertyId);
+  }
+}
+
 std::shared_ptr<MiDataSetIjk<double> > SceneGraphManager::createReservoirProperty(
   const SnapshotInfo& snapshot,
   const SnapshotInfo::Reservoir& res,
@@ -1194,11 +1224,11 @@ std::shared_ptr<MiDataSetIjk<double> > SceneGraphManager::createReservoirPropert
 {
   std::shared_ptr<MiDataSetIjk<double> > result;
 
-  if (propertyId < DerivedPropertyBase)
+  if (propertyId < DerivedPropertyBaseId)
   {
     result = m_project->createReservoirProperty(snapshot.index, res.id, m_currentPropertyId);
   }
-  else if (m_currentPropertyId == FluidContactsProperty)
+  else if (m_currentPropertyId == FluidContactsPropertyId)
   {
     std::shared_ptr<MiDataSetIjk<double> > trapIdPropertyData;
     int trapIdPropertyId = m_project->getPropertyId("ResRockTrapId");
@@ -1215,8 +1245,8 @@ std::shared_ptr<MiDataSetIjk<double> > SceneGraphManager::createReservoirPropert
 }
 
 SceneGraphManager::SceneGraphManager()
-  : m_maxCacheItems(5)
-  , m_currentPropertyId(-1)
+  : m_maxCacheItems(3)
+  , m_currentPropertyId(FormationIdPropertyId)
   , m_showGrid(false)
   , m_showCompass(true)
   , m_showText(true)
@@ -1341,7 +1371,7 @@ void SceneGraphManager::setProperty(int propertyId)
 
   m_currentPropertyId = propertyId;
 
-  if (propertyId >= 0 && propertyId < DerivedPropertyBase)
+  if (propertyId >= 0 && propertyId < DerivedPropertyBaseId)
   {
     std::string name = m_projectInfo.properties[propertyId].name;
     std::string unit = m_projectInfo.properties[propertyId].unit;

@@ -324,7 +324,7 @@ void CommandHandler::onShowFluidContacts(
 {
   auto show = params.get<bool>("show");
 
-  m_sceneGraphManager->setProperty(show ? SceneGraphManager::FluidContactsProperty : -1);
+  m_sceneGraphManager->setProperty(show ? SceneGraphManager::FluidContactsPropertyId : -1);
 }
 
 void CommandHandler::onShowFlowVectors(

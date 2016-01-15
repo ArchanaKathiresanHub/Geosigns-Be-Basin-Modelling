@@ -34,7 +34,11 @@ namespace di = DataAccess::Interface;
 
 int DataAccessProject::getPropertyId(const std::string& name) const
 {
-  return m_propertyIdMap.at(name);
+  auto iter = m_propertyIdMap.find(name);
+  if (iter != m_propertyIdMap.end())
+    return iter->second;
+  else
+    return -1;
 }
 
 size_t DataAccessProject::getSnapshotCount() const
@@ -182,6 +186,7 @@ void DataAccessProject::init()
   const std::string resRockTrapIdKey = "ResRockTrapId";
   const std::string resRockDrainageIdGasPhasePropertyKey = "ResRockDrainageIdGasPhase";
   const std::string resRockDrainageIdFluidPhasePropertyKey = "ResRockDrainageIdFluidPhase";
+  const std::string resRockLeakagePropertyKey = "ResRockLeakage";
   const std::string flowDirectionKey = "FlowDirectionIJK";
 
   m_depthProperty = m_projectHandle->findProperty(depthKey);
@@ -190,6 +195,7 @@ void DataAccessProject::init()
   m_resRockTrapIdProperty = m_projectHandle->findProperty(resRockTrapIdKey);
   m_resRockDrainageIdGasPhaseProperty = m_projectHandle->findProperty(resRockDrainageIdGasPhasePropertyKey);
   m_resRockDrainageIdFluidPhaseProperty = m_projectHandle->findProperty(resRockDrainageIdFluidPhasePropertyKey);
+  m_resRockLeakageProperty = m_projectHandle->findProperty(resRockLeakagePropertyKey);
   m_flowDirectionProperty = m_projectHandle->findProperty(flowDirectionKey);
 
   const di::Grid* loresGrid = m_projectHandle->getLowResolutionOutputGrid();
@@ -566,8 +572,11 @@ std::shared_ptr<MiDataSetIjk<double> > DataAccessProject::createReservoirPropert
   if (!values || values->empty())
     return nullptr;
 
-  return std::make_shared<ReservoirProperty>(prop->getName(), (*values)[0]->getGridMap());
+  auto result = std::make_shared<ReservoirProperty>(prop->getName(), (*values)[0]->getGridMap());
+  if (prop == m_resRockLeakageProperty)
+    result->setLogarithmic(true);
 
+  return result;
 }
 
 // A PersistentTrapIdProperty consists of the values of the ResRockTrapId property, combined with

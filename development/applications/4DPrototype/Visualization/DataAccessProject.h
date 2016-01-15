@@ -59,6 +59,7 @@ class VISUALIZATIONDLL_API DataAccessProject : public Project
   const DataAccess::Interface::Property* m_resRockTrapIdProperty;
   const DataAccess::Interface::Property* m_resRockDrainageIdGasPhaseProperty;
   const DataAccess::Interface::Property* m_resRockDrainageIdFluidPhaseProperty;
+  const DataAccess::Interface::Property* m_resRockLeakageProperty;
   const DataAccess::Interface::Property* m_flowDirectionProperty;
   const DataAccess::Interface::Property* m_currentProperty;
 

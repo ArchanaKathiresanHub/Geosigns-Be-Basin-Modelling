@@ -619,7 +619,7 @@ void MainWindow::onDrainageAreaTypeChanged(bool value)
 
 void MainWindow::onFluidContactsToggled(bool value)
 {
-  m_sceneGraphManager->setProperty(value ? SceneGraphManager::FluidContactsProperty : -1);
+  m_sceneGraphManager->setProperty(value ? SceneGraphManager::FluidContactsPropertyId : -1);
 }
 
 void MainWindow::onFlowVectorsToggled(bool enabled)

@@ -272,9 +272,10 @@ public:
 
   // Derived property ids. These properties are built at runtime
   // based on one or more base properties from the data set.
-  static const int DerivedPropertyBase      = 10000;
-  static const int PersistentTrapIdProperty = DerivedPropertyBase;
-  static const int FluidContactsProperty    = DerivedPropertyBase + 1;
+  static const int DerivedPropertyBaseId      = 0x10000;
+  static const int FormationIdPropertyId      = DerivedPropertyBaseId;
+  static const int PersistentTrapIdPropertyId = DerivedPropertyBaseId + 1;
+  static const int FluidContactsPropertyId    = DerivedPropertyBaseId + 2;
 
 private:
 
@@ -375,6 +376,10 @@ private:
     const MiVolumeMeshCurvilinear& mesh,
     int k0,
     int k1);
+
+  std::shared_ptr<MiDataSetIjk<double> > createFormationProperty(
+    const SnapshotInfo& snapshot,
+    int propertyId);
 
   std::shared_ptr<MiDataSetIjk<double> > createReservoirProperty(
     const SnapshotInfo& snapshot, 
