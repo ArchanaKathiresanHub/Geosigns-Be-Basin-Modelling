@@ -175,7 +175,6 @@ struct SnapshotInfo
   struct FlowLines
   {
     int id;
-    int formationId;
     int startK;
 
     SoSeparator* root;
@@ -186,7 +185,6 @@ struct SnapshotInfo
 
     FlowLines()
       : id(0)
-      , formationId(0)
       , startK(0)
       , root(0)
       , color(0)
@@ -298,6 +296,8 @@ private:
 
   DrainageAreaType m_drainageAreaType;
   int m_flowLinesStep;
+  double m_flowLinesExpulsionThreshold;
+  double m_flowLinesLeakageThreshold;
 
   float m_verticalScale;
   ProjectionType m_projectionType;

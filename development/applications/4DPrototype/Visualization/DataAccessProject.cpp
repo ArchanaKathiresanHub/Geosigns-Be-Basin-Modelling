@@ -95,7 +95,20 @@ Project::SnapshotContents DataAccessProject::getSnapshotContents(size_t snapshot
     // See if this formation has any reservoirs
     std::unique_ptr<di::ReservoirList> reservoirList(m_projectHandle->getReservoirs(fmt));
     for (auto res : *reservoirList)
-      contents.reservoirs.push_back(m_reservoirIdMap.at(res->getName()));
+    {
+      int reservoirId = m_reservoirIdMap.at(res->getName());
+      contents.reservoirs.push_back(reservoirId);
+
+      // Push a flowline entry for each reservoir
+      for (int id = 0; id < (int)m_projectInfo.flowLines.size(); ++id)
+      {
+        if (m_projectInfo.flowLines[id].reservoirId == reservoirId)
+        {
+          contents.flowlines.push_back(id);
+          break;
+        }
+      }
+    }
 
     // Push a flowline entry for each formation that is a source rock
     if (fmt->isSourceRock())
@@ -236,11 +249,13 @@ void DataAccessProject::init()
     fmt.isSourceRock = formation->isSourceRock();
     m_projectInfo.formations.push_back(fmt);
 
-    if (formation->isSourceRock() && m_flowDirectionProperty)
+    if (formation->isSourceRock())
     {
       FlowLines flowLines;
+      flowLines.type = FlowLines::Expulsion;
       flowLines.formationId = id;
-      flowLines.formationName = formation->getName();
+      flowLines.reservoirId = -1;
+      flowLines.name = formation->getName();
 
       m_projectInfo.flowLines.push_back(flowLines);
     }
@@ -267,11 +282,23 @@ void DataAccessProject::init()
   id = 0;
   for (auto item : *reservoirs)
   {
-    m_reservoirIdMap[item->getName()] = id++;
+    m_reservoirIdMap[item->getName()] = id;
 
     Reservoir reservoir;
     reservoir.name = item->getName();
     m_projectInfo.reservoirs.push_back(reservoir);
+
+    // Get flowlines from reservoir leakage
+    auto formation = item->getFormation();
+    FlowLines flowLines;
+    flowLines.type = FlowLines::Leakage;
+    flowLines.formationId = m_formationIdMap[formation->getName()];
+    flowLines.reservoirId = id;
+    flowLines.name = item->getName();
+
+    m_projectInfo.flowLines.push_back(flowLines);
+
+    id++;
   }
 
   // Get faults
@@ -573,8 +600,8 @@ std::shared_ptr<MiDataSetIjk<double> > DataAccessProject::createReservoirPropert
     return nullptr;
 
   auto result = std::make_shared<ReservoirProperty>(prop->getName(), (*values)[0]->getGridMap());
-  if (prop == m_resRockLeakageProperty)
-    result->setLogarithmic(true);
+  //if (prop == m_resRockLeakageProperty)
+  //  result->setLogarithmic(true);
 
   return result;
 }

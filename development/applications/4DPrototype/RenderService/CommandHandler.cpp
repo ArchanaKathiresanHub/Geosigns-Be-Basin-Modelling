@@ -73,7 +73,7 @@ namespace
     // Add flow lines
     jsonxx::Array flowlines;
     for (auto lines : projectInfo.flowLines)
-      flowlines << lines.formationName;
+      flowlines << lines.name;
 
     // Add properties
     jsonxx::Array properties;

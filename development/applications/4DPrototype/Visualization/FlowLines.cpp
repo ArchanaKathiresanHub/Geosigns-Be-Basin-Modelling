@@ -42,6 +42,50 @@ MbVec3<int32_t> decodeFlowDirection(int code)
   return MbVec3<int32_t>(di, dj, dk);
 }
 
+std::shared_ptr<MiDataSetIj<double> > generateLeakageProperty(const Project& project, size_t snapshotIndex, int reservoirId)
+{
+  const double undefined = 99999.0;
+  const char* leakage = "ResRockLeakage";
+
+  int propertyId = project.getPropertyId(leakage);
+
+  auto prop = project.createReservoirProperty(snapshotIndex, reservoirId, propertyId);
+  auto dim = project.getProjectInfo().dimensions;
+
+  size_t di = (size_t)(dim.numCellsIHiRes / dim.numCellsI);
+  size_t dj = (size_t)(dim.numCellsJHiRes / dim.numCellsJ);
+
+  size_t ni = (size_t)(dim.numCellsI + 1);
+  size_t nj = (size_t)(dim.numCellsJ + 1);
+  double* values = new double[ni * nj];
+  double* p = values;
+  for (size_t j = 0; j < nj; ++j)
+  {
+    for (size_t i = 0; i < ni; ++i)
+    {
+      double sum = 0.0;
+      int n = 0;
+
+      for (size_t jj = 0; jj < dj; ++jj)
+      {
+        for (size_t ii = 0; ii < di; ++ii)
+        {
+          double v = prop->get(i * di + ii, j * dj + jj, 0u);
+          if (v != undefined)
+          {
+            sum += v;
+            n++;
+          }
+        }
+      }
+
+      *p++ = (n > 0) ? sum : undefined;
+    }
+  }
+
+  return std::make_shared<DataSetIj>(values, ni, nj);
+}
+
 std::shared_ptr<MiDataSetIj<double> > generateExpulsionProperty(const Project& project, size_t snapshotIndex, int formationId)
 {
   const double undefined = 99999.0;
@@ -121,7 +165,8 @@ SoLineSet* generateFlowLines(
   std::shared_ptr<MiDataSetIj<double> > expulsion, 
   const MiVolumeMeshCurvilinear& mesh,
   int startK,
-  int step)
+  int step,
+  double threshold)
 {
   const MiGeometryIjk& geometry = mesh.getGeometry();
   const MiTopologyIjk& topology = mesh.getTopology();
@@ -139,7 +184,7 @@ SoLineSet* generateFlowLines(
     {
       double expulsionValue = expulsion ? expulsion->get(i, j) : 1.0;
 
-      if (!topology.isDead(i, j, startK) && expulsionValue > 0.0 && expulsionValue != 99999.0)
+      if (!topology.isDead(i, j, startK) && expulsionValue > threshold && expulsionValue != 99999.0)
       {
         int ii = i;
         int jj = j;

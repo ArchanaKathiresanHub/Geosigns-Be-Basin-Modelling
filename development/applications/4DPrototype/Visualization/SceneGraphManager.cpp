@@ -309,17 +309,16 @@ void SceneGraphManager::updateSnapshotTraps()
       else if (m_showTraps && res.traps.root() == 0)
       {
         std::vector<Project::Trap> traps = m_project->getTraps(snapshot.index, res.id);
-        float radius = (float)std::min(
-          m_projectInfo.dimensions.deltaXHiRes,
-          m_projectInfo.dimensions.deltaYHiRes);
-        res.traps = Traps(traps, radius, m_verticalScale);
-        if (res.traps.root() != 0)
-          res.root->insertChild(res.traps.root(), 0); // 1st because of blending
-
-        // Temporary addition of fluid contact isolines
-        // SoLineSet* lineSet = buildIsoLines(*res.meshData, traps);
-        // res.root->insertChild(lineSet, 0);
-       }
+        if (!traps.empty())
+        {
+          float radius = (float)std::min(
+            m_projectInfo.dimensions.deltaXHiRes,
+            m_projectInfo.dimensions.deltaYHiRes);
+          res.traps = Traps(traps, radius, m_verticalScale);
+          if (res.traps.root() != 0)
+            res.root->insertChild(res.traps.root(), 0); // 1st because of blending
+        }
+      }
       // See if we need to remove existing traps
       else if (!m_showTraps && res.traps.root() != 0)
       {
@@ -597,18 +596,40 @@ void SceneGraphManager::updateSnapshotFlowLines()
 
     if (m_flowLinesVisibility[id])
     {
+      auto type = m_projectInfo.flowLines[id].type;
+      int step = (type == Project::FlowLines::Expulsion) 
+        ? m_flowLinesStep 
+        : 1;
+      double threshold = (type == Project::FlowLines::Expulsion) 
+        ? m_flowLinesExpulsionThreshold 
+        : m_flowLinesLeakageThreshold;
+
       if (!flowlines.root)
       {
+        int formationId = m_projectInfo.flowLines[id].formationId;
+        int reservoirId = m_projectInfo.flowLines[id].reservoirId;
+
+
         flowlines.root = new SoSeparator;
         flowlines.color = new SoBaseColor;
-        flowlines.color->rgb.setValue(1.f, .5f, 1.f);
-        flowlines.expulsionData = generateExpulsionProperty(*m_project, snapshot.index, flowlines.formationId);
+        if (type == Project::FlowLines::Expulsion)
+        {
+          flowlines.color->rgb.setValue(1.f, .5f, 1.f);
+          flowlines.expulsionData = generateExpulsionProperty(*m_project, snapshot.index, formationId);
+        }
+        else // Leakage
+        {
+          flowlines.color->rgb.setValue(1.f, 1.f, .5f);
+          flowlines.expulsionData = generateLeakageProperty(*m_project, snapshot.index, reservoirId);
+        }
+
         flowlines.lines = generateFlowLines(
           *snapshot.flowDirScalarSet, 
           flowlines.expulsionData, 
           *snapshot.meshData, 
           flowlines.startK, 
-          m_flowLinesStep);
+          step,
+          threshold);
 
         flowlines.root->addChild(flowlines.color);
         flowlines.root->addChild(flowlines.lines);
@@ -621,7 +642,8 @@ void SceneGraphManager::updateSnapshotFlowLines()
           flowlines.expulsionData, 
           *snapshot.meshData, 
           flowlines.startK, 
-          m_flowLinesStep);
+          step,
+          threshold);
 
         flowlines.root->replaceChild(flowlines.lines, newlines);
         flowlines.lines = newlines;
@@ -904,13 +926,17 @@ SnapshotInfo SceneGraphManager::createSnapshotNode(size_t index)
   {
     SnapshotInfo::FlowLines flowlines;
     flowlines.id = id;
-    flowlines.formationId = m_projectInfo.flowLines[id].formationId;
+
+    int formationId = m_projectInfo.flowLines[id].formationId;
+    auto type = m_projectInfo.flowLines[id].type;
 
     for (auto formation : snapshotContents.formations)
     {
-      if (formation.id == flowlines.formationId)
+      if (formation.id == formationId)
       {
         flowlines.startK = formation.minK;
+        if (type == Project::FlowLines::Leakage)
+          flowlines.startK--;
         break;
       }
     }
@@ -1255,6 +1281,8 @@ SceneGraphManager::SceneGraphManager()
   , m_showFlowVectors(false)
   , m_drainageAreaType(DrainageAreaNone)
   , m_flowLinesStep(1)
+  , m_flowLinesExpulsionThreshold(0.0)
+  , m_flowLinesLeakageThreshold(1e6)
   , m_verticalScale(1.f)
   , m_projectionType(PerspectiveProjection)
   , m_formationsTimeStamp(MxTimeStamp::getTimeStamp())

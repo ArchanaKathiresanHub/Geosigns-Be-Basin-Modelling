@@ -64,8 +64,15 @@ public:
 
   struct FlowLines
   {
+    enum Type
+    {
+      Expulsion,
+      Leakage
+    } type;
+
     int formationId;
-    std::string formationName;
+    int reservoirId;
+    std::string name;
   };
 
   struct Property

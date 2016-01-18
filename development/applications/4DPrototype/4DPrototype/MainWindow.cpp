@@ -239,7 +239,7 @@ void MainWindow::updateUI()
   for (auto flowlines : m_projectInfo.flowLines)
   {
     QTreeWidgetItem* item = new QTreeWidgetItem(flowLinesItem, TreeWidgetItem_FlowLinesType);
-    item->setText(0, flowlines.formationName.c_str());
+    item->setText(0, flowlines.name.c_str());
     item->setCheckState(0, Qt::Unchecked);
   }
 

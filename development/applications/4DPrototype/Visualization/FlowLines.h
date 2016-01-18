@@ -21,6 +21,8 @@ MbVec3<double> getCellCenter(const MiGeometryIjk& geometry, size_t i, size_t j, 
 
 MbVec3<int32_t> decodeFlowDirection(int code);
 
+std::shared_ptr<MiDataSetIj<double> > generateLeakageProperty(const Project& project, size_t snapshotIndex, int reservoirId);
+
 std::shared_ptr<MiDataSetIj<double> > generateExpulsionProperty(const Project& project, size_t snapshotIndex, int formationId);
 
 /**
@@ -36,6 +38,7 @@ SoLineSet* generateFlowLines(
   std::shared_ptr<MiDataSetIj<double> > expulsion,
   const MiVolumeMeshCurvilinear& mesh,
   int startK,
-  int step = 1);
+  int step = 1,
+  double threshold = 0.0);
 
 #endif
