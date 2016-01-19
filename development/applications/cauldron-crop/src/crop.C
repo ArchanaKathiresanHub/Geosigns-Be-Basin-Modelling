@@ -2,7 +2,7 @@
 #include "Interface/ObjectFactory.h"
 #include "database.h"
 #include "cauldronschemafuncs.h"
-#include "formattingexception.h"
+#include "FormattingException.h"
 
 #include "hdf5.h"
 #include "hdf5_hl.h"

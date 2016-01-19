@@ -45,6 +45,9 @@ namespace DerivedProperties {
       /// \brief Restore the grid map.
       virtual void restoreData () const;
 
+      /// \brief Return true.
+      bool isPrimary () const;
+
    private :
 
       const DataAccess::Interface::PropertyValue* m_propertyValue;
@@ -54,6 +57,11 @@ namespace DerivedProperties {
 
    typedef boost::shared_ptr<PrimaryFormationSurfaceProperty> PrimaryFormationSurfacePropertyPtr;
 
+}
+
+inline bool DerivedProperties::PrimaryFormationSurfaceProperty::isPrimary () const {
+
+   return true;
 }
 
 

@@ -32,6 +32,16 @@ namespace DerivedProperties {
                            unsigned int j,
                            unsigned int k ) const;
 
+      /// \brief Get the value at the position (ascending order).
+      virtual double getA ( unsigned int i,
+                            unsigned int j,
+                            unsigned int k ) const;
+
+      /// \brief Get the value at the position (descending order).
+      virtual double getD ( unsigned int i,
+                            unsigned int j,
+                            unsigned int k ) const;
+
       /// \ brief Get the gridMap
       const DataAccess::Interface::GridMap* getGridMap() const;
 
@@ -54,6 +64,8 @@ namespace DerivedProperties {
 
       const DataAccess::Interface::PropertyValue* m_propertyValue;
       const DataAccess::Interface::GridMap* m_gridMap;
+      unsigned int m_depth;
+      bool m_storedInAscending;
 
    };
 

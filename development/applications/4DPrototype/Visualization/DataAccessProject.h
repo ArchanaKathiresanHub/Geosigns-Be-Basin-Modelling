@@ -59,6 +59,7 @@ class VISUALIZATIONDLL_API DataAccessProject : public Project
   const DataAccess::Interface::Property* m_resRockTrapIdProperty;
   const DataAccess::Interface::Property* m_resRockDrainageIdGasPhaseProperty;
   const DataAccess::Interface::Property* m_resRockDrainageIdFluidPhaseProperty;
+  const DataAccess::Interface::Property* m_resRockLeakageProperty;
   const DataAccess::Interface::Property* m_flowDirectionProperty;
   const DataAccess::Interface::Property* m_currentProperty;
 
@@ -79,6 +80,9 @@ class VISUALIZATIONDLL_API DataAccessProject : public Project
       std::string>, 
     int> m_faultMap;
 
+  mutable bool* m_loresDeadMap;
+  mutable bool* m_hiresDeadMap;
+
   std::vector<const DataAccess::Interface::GridMap*> getFormationPropertyGridMaps(
     size_t snapshotIndex,
     const DataAccess::Interface::Property* prop,
@@ -89,6 +93,8 @@ class VISUALIZATIONDLL_API DataAccessProject : public Project
 public:
 
   explicit DataAccessProject(const std::string& path);
+
+  virtual ~DataAccessProject();
 
   virtual ProjectInfo getProjectInfo() const;
 
@@ -112,6 +118,11 @@ public:
 
   virtual std::shared_ptr<MiDataSetIjk<double> > createFormationProperty(
     size_t snapshotIndex,
+    int propertyId) const;
+
+  virtual std::shared_ptr<MiDataSetIj<double> > DataAccessProject::createFormation2DProperty(
+    size_t snapshotIndex,
+    int formationId,
     int propertyId) const;
 
   virtual std::shared_ptr<MiDataSetIj<double> > createSurfaceProperty(

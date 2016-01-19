@@ -822,10 +822,14 @@ void createVoxetProjectFile ( Interface::ProjectHandle* cauldronProject,
    const GridMap *bottomDepthGridMap = 0; // = bottomDepthPropertyValueList->front ()->getGridMap ();
    const GridMap *topDepthGridMap = 0;
 
-   if ( dynamic_cast<const DerivedProperties::PrimarySurfaceProperty*>(bottomDepthPropertyValue.get ()) != 0 ) {
-      bottomDepthGridMap = dynamic_cast<const DerivedProperties::PrimarySurfaceProperty*>(bottomDepthPropertyValue.get ())->getGridMap ();
-   }
+   bottomDepthGridMap = bottomDepthPropertyValue.get ()->getGridMap ();
 
+   if ( bottomDepthGridMap == 0 )
+   {
+      cerr << " Depth property for bottom surface " << bottomSurface->getName () << " at snapshot " << snapshot->getTime () << " is not available." << endl;
+      return;
+   }
+   
    Interface::SurfaceList::iterator surfaceIter;
    for ( surfaceIter = surfaces->begin (); topDepthGridMap == 0 && surfaceIter != surfaces->end (); ++surfaceIter )
    {
@@ -839,13 +843,16 @@ void createVoxetProjectFile ( Interface::ProjectHandle* cauldronProject,
          continue;
       }
 
-      if ( dynamic_cast<const DerivedProperties::PrimarySurfaceProperty*>(topDepthPropertyValue.get ()) != 0 ) {
-         topDepthGridMap = dynamic_cast<const DerivedProperties::PrimarySurfaceProperty*>(topDepthPropertyValue.get ())->getGridMap ();
-      }
-
+      topDepthGridMap = topDepthPropertyValue.get ()->getGridMap ();
       break;
    }
 
+
+   if ( topDepthGridMap == 0 )
+   {
+      cerr << " Depth property for top surface " << " is not available." << endl;
+      return;
+   }
 
    double minimumDepth;
    double maximumDepth;

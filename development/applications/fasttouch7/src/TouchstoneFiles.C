@@ -13,7 +13,7 @@ void TouchstoneFiles::readOrder(std::vector<int> & vec)
    size_t numCategories;
    m_filename >> numCategories;
    vec.resize(numCategories);
-   for ( int ii = 0; ii < numCategories; ++ii ) m_filename >> vec[ii];
+   for ( size_t ii = 0; ii < numCategories; ++ii ) m_filename >> vec[ii];
 }
 
 void TouchstoneFiles::readNumTimeSteps( size_t * numTimeSteps)
@@ -23,7 +23,7 @@ void TouchstoneFiles::readNumTimeSteps( size_t * numTimeSteps)
 
 void TouchstoneFiles::readArray( std::vector<double> & outputProperties )
 {
-   for(int ii = 0; ii < outputProperties.size( ); ++ii) m_filename >> outputProperties [ ii ] ;			
+   for(size_t ii = 0; ii < outputProperties.size( ); ++ii) m_filename >> outputProperties [ ii ] ;			
 }
 
 //write functions
@@ -31,7 +31,7 @@ void TouchstoneFiles::readArray( std::vector<double> & outputProperties )
 void TouchstoneFiles::writeOrder(std::map <int, int> categoriesMappingOrder )
 {
    m_filename << categoriesMappingOrder.size();
-   for ( int ii = 0; ii < categoriesMappingOrder.size(); ++ii ) m_filename << categoriesMappingOrder[ii];
+   for ( size_t ii = 0; ii < categoriesMappingOrder.size(); ++ii ) m_filename << categoriesMappingOrder[ii];
 }
 
 void TouchstoneFiles::writeNumTimeSteps(size_t numTimeSteps)
@@ -41,7 +41,7 @@ void TouchstoneFiles::writeNumTimeSteps(size_t numTimeSteps)
 
 void TouchstoneFiles::writeArray(std::vector<double> & outputProperties )
 {
-   for(int ii = 0; ii < outputProperties.size( ); ++ii) m_filename << outputProperties [ ii ] ;	
+   for(size_t ii = 0; ii < outputProperties.size( ); ++ii) m_filename << outputProperties [ ii ] ;	
 }
 
 

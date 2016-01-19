@@ -20,3 +20,8 @@ double DerivedProperties::FormationMapProperty::interpolate ( double i,
    Interpolate2DProperty<FormationMapProperty> interpolator;
    return interpolator.interpolate ( *this, i, j );
 }
+
+double DerivedProperties::FormationMapProperty::getA ( unsigned int i,
+                                                       unsigned int j ) const {
+   return get ( i, j );
+}

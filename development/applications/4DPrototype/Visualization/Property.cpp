@@ -191,9 +191,18 @@ size_t SurfaceProperty::getTimeStamp() const
 //---------------------------------------------------------------------------------------
 // VectorProperty
 //---------------------------------------------------------------------------------------
+namespace
+{
+  inline double cappedlog(double x)
+  {
+    return (x > 1) ? log10(x) : 0.0;
+  }
+}
 void ReservoirProperty::updateMinMax() const
 {
   m_values->getMinMaxValue(m_minVal, m_maxVal);
+  m_minVal = m_minVal;
+  m_maxVal = m_maxVal;
   m_minMaxValid = true;
 }
 
@@ -202,6 +211,7 @@ ReservoirProperty::ReservoirProperty(const std::string& name, const DataAccess::
   , m_binding(binding)
   , m_name(name)
   , m_timestamp(MxTimeStamp::getTimeStamp())
+  , m_logarithmic(false)
   , m_minMaxValid(false)
   , m_minVal(0.0)
   , m_maxVal(0.0)
@@ -215,10 +225,12 @@ ReservoirProperty::~ReservoirProperty()
 
 double ReservoirProperty::get(size_t i, size_t j, size_t k) const
 {
-  return m_values->getValue(
+  double v = m_values->getValue(
     (unsigned int)i,
     (unsigned int)j,
     (unsigned int)k);
+
+  return m_logarithmic ? cappedlog(v) : v;
 }
 
 MiDataSet::DataBinding ReservoirProperty::getBinding() const
@@ -231,7 +243,7 @@ double ReservoirProperty::getMin() const
   if (!m_minMaxValid)
     updateMinMax();
 
-  return m_minVal;
+  return m_logarithmic ? cappedlog(m_minVal) : m_minVal;
 }
 
 double ReservoirProperty::getMax() const
@@ -239,7 +251,7 @@ double ReservoirProperty::getMax() const
   if (!m_minMaxValid)
     updateMinMax();
 
-  return m_maxVal;
+  return m_logarithmic ? cappedlog(m_maxVal) : m_maxVal;
 }
 
 std::string ReservoirProperty::getName() const
@@ -250,6 +262,15 @@ std::string ReservoirProperty::getName() const
 size_t ReservoirProperty::getTimeStamp() const
 {
   return m_timestamp;
+}
+
+void ReservoirProperty::setLogarithmic(bool log)
+{
+  if (log != m_logarithmic)
+  {
+    m_logarithmic = log;
+    m_timestamp = MxTimeStamp::getTimeStamp();
+  }
 }
 
 //---------------------------------------------------------------------------------------

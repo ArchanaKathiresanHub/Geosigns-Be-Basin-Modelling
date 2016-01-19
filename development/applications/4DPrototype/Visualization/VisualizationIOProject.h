@@ -23,6 +23,9 @@ class VisualizationIOProject : public Project
 
   CauldronIO::SnapShotList m_snapshots;
 
+  mutable bool* m_loresDeadMap;
+  mutable bool* m_hiresDeadMap;
+
   void init();
 
 public:
@@ -51,6 +54,11 @@ public:
 
   virtual std::shared_ptr<MiDataSetIjk<double> > createFormationProperty(
     size_t snapshotIndex,
+    int propertyId) const;
+
+  virtual std::shared_ptr<MiDataSetIj<double> > createFormation2DProperty(
+    size_t snapshotIndex,
+    int formationId,
     int propertyId) const;
 
   virtual std::shared_ptr<MiDataSetIj<double> > createSurfaceProperty(

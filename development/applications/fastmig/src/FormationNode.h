@@ -66,13 +66,13 @@ namespace migration
       virtual bool hasNowhereToGo (void) = 0;
       virtual bool goesOutOfBounds (void) = 0;
 
-      virtual bool getReservoirGas (void) = 0;
-      virtual bool getReservoirOil (void) = 0;
+      virtual bool getReservoirVapour (void) = 0;
+      virtual bool getReservoirLiquid (void) = 0;
 
       virtual bool isEndOfPath (void) = 0;
 
-      virtual double getHeightGas (void) = 0;
-      virtual double getHeightOil (void) = 0;
+      virtual double getHeightVapour (void) = 0;
+      virtual double getHeightLiquid (void) = 0;
 
       virtual FaultStatus getFaultStatus (void) = 0;
 
@@ -137,13 +137,13 @@ namespace migration
       virtual bool hasNowhereToGo (void);
       virtual bool goesOutOfBounds (void);
 
-      virtual bool getReservoirGas (void);
-      virtual bool getReservoirOil (void);
+      virtual bool getReservoirVapour (void);
+      virtual bool getReservoirLiquid (void);
 
       virtual bool isEndOfPath (void);
 
-      virtual double getHeightGas (void);
-      virtual double getHeightOil (void);
+      virtual double getHeightVapour (void);
+      virtual double getHeightLiquid (void);
 
       virtual FaultStatus getFaultStatus (void);
 
@@ -167,8 +167,8 @@ namespace migration
       bool m_goesOutOfBounds;
 
       double m_depth;
-      double m_height_gas;
-      double m_height_oil;
+      double m_heightVapour;
+      double m_heightLiquid;
 
       virtual bool isCached (FormationNodeCacheBit bit) const;
       virtual void setCached (FormationNodeCacheBit bit) const;
@@ -211,10 +211,10 @@ namespace migration
       void addChargeToBeMigrated (int componentId, double weight);
 
       // evaluating the change in capillary pressure across the boundary
-      bool computeCapillaryPressure (WaterSaturation waterSaturation, double & pressureGas, double & pressureOil);
+      bool computeCapillaryPressure (WaterSaturation waterSaturation, double & pressureVapour, double & pressureLiquid);
       double computeBrooksCoreyCorrection (double Sw, double lamda) const;
 
-      bool detectReservoir (LocalFormationNode * topNode, const double minOilColumnHeight, const double minGasColumnHeight, const bool pressureRun);
+      bool detectReservoir (LocalFormationNode * topNode, const double minLiquidColumnHeight, const double minVapourColumnHeight, const bool pressureRun);
       void identifyAsReservoir (void);
 
       // check if a LocalFormationNode is a crest node
@@ -238,11 +238,11 @@ namespace migration
       void setHorizontalPermeability (double);
       void setOverPressure (double);
 
-      void setGasDensity (double);
-      void setOilDensity (double);
+      void setVapourDensity (double);
+      void setLiquidDensity (double);
 
-      void setCapillaryEntryPressureGas (double, bool nodeOnTop = false);
-      void setCapillaryEntryPressureOil (double, bool nodeOnTop = false);
+      void setCapillaryEntryPressureVapour (double, bool nodeOnTop = false);
+      void setCapillaryEntryPressureLiquid (double, bool nodeOnTop = false);
 
       void computeAdjacentNode (void);
       void computeCosines (void);
@@ -287,22 +287,22 @@ namespace migration
       double getWaterDensity ();
       double getOverPressure ();
 
-      double getGasDensity ();
-      double getOilDensity ();
+      double getVapourDensity ();
+      double getLiquidDensity ();
 
-      double getCapillaryEntryPressureGas (bool nodeOnTop = false);
-      double getCapillaryEntryPressureOil (bool nodeOnTop = false);
+      double getCapillaryEntryPressureVapour (bool nodeOnTop = false);
+      double getCapillaryEntryPressureLiquid (bool nodeOnTop = false);
 
-      void setReservoirGas (bool flag);
-      void setReservoirOil (bool flag);
+      void setReservoirVapour (bool flag);
+      void setReservoirLiquid (bool flag);
 
-      virtual bool getReservoirGas (void);
-      virtual bool getReservoirOil (void);
+      virtual bool getReservoirVapour (void);
+      virtual bool getReservoirLiquid (void);
 
       virtual bool isEndOfPath (void);
 
-      virtual double getHeightGas (void);
-      virtual double getHeightOil (void);
+      virtual double getHeightVapour (void);
+      virtual double getHeightLiquid (void);
 
 #ifdef USEPROPERTYVALUES
       void setPropertyValue (int index, double value);
@@ -316,8 +316,8 @@ namespace migration
       void resetProxies (void);
 #endif
 
-      inline double getHeightOil () const;
-      inline double getHeightGas () const;
+      inline double getHeightLiquid () const;
+      inline double getHeightVapour () const;
 
    private:
       Composition * m_compositionToBeMigrated;
@@ -349,14 +349,14 @@ namespace migration
       double m_porosity;
       double m_overPressure;
 
-      double m_oilDensity;
-      double m_gasDensity;
+      double m_liquidDensity;
+      double m_vapourDensity;
 
-      boost::array<double, 2> m_capillaryEntryPressureOil;
-      boost::array<double, 2> m_capillaryEntryPressureGas;
+      boost::array<double, 2> m_capillaryEntryPressureLiquid;
+      boost::array<double, 2> m_capillaryEntryPressureVapour;
 
-      double m_height_oil;                     // actual height of oil (C6-14) column   (only for uppermost cells!)
-      double m_height_gas;                     // actual height of gas (methane) column (only for uppermost cells!)
+      double m_heightLiquid;                   // actual height of liquid column (only for uppermost cells!)
+      double m_heightVapour;                   // actual height of vapour column (only for uppermost cells!)
 
       double m_waterDensity;
 
@@ -371,10 +371,10 @@ namespace migration
       bool m_entered;                          // Whether computeTargetFormationNode () loops
       bool m_hasNoThickness;                   // whether the node has thickness
 
-      bool m_isReservoirGas;                   // true - if node is potential trap
-      bool m_isReservoirOil;                   // true - if node is potential trap
-      bool m_isCrestOil;		                 // true - if node is a crest for oil
-      bool m_isCrestGas;                       // true - if node is a crest for gas
+      bool m_isReservoirVapour;                // true - if node is potential trap
+      bool m_isReservoirLiquid;                // true - if node is potential trap
+      bool m_isCrestLiquid;                    // true - if node is a crest for liquid
+      bool m_isCrestVapour;                    // true - if node is a crest for vapour
 
       bool m_isEndOfPath;                      // true - if node is end of path. May even be a leaking (or zero-thickness) node
                                                // but it needs to be the end of the path to register it in the leaking reservoir.
@@ -477,14 +477,14 @@ namespace migration
       return m_hasNoThickness;
    }
 
-   double LocalFormationNode::getHeightOil () const
+   double LocalFormationNode::getHeightLiquid () const
    {
-      return m_height_oil;
+      return m_heightLiquid;
    }
 
-   double LocalFormationNode::getHeightGas () const
+   double LocalFormationNode::getHeightVapour () const
    {
-      return m_height_gas;
+      return m_heightVapour;
    }
 
    void ProxyFormationNode::clearProperties (void)

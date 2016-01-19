@@ -48,6 +48,13 @@
 						<label><b>Faults</b></label>
 					</div>
 					<div id="faultsList"></div>
+
+					<div>
+						<input type="checkbox" id="checkBoxAllFlowLines" onchange="onCheckBoxAllFlowLinesChanged(this)">
+						<label><b>Flowlines</b></label>
+					</div>
+					<div id="flowLinesList"></div>
+
 				</div>
 
 				<div id="properties" style="background-color: #ffffff; padding-left: 10px; height: 300px; overflow:auto; display: none">
@@ -60,6 +67,7 @@
 				<div class="section">
 					<input type="checkbox" id="checkBoxDrawTraps" onchange="onShowTrapsChanged(this)">Locations</input><br>
 					<input type="checkbox" id="checkBoxDrawTrapOutlines" onchange="onShowTrapOutlinesChanged(this)">Trap outlines</input><br>
+					<input type="checkbox" id="checkBoxDrawFluidContacts" onchange="onShowFluidContactsChanged(this)">Fluid contacts</input><br>
 				</div>
 
 				<div class="header">Drainage areas</div>
@@ -73,9 +81,8 @@
 			<div>
 				<div class="header">Flow direction</div>
 				<div class="section">
-					<input type="radio" name="flowviz" id="radioButtonFlowVizNone" value="FlowVizNone" checked onchange="onFlowVizRadioClicked(this)">None</input><br>
-					<input type="radio" name="flowviz" id="radioButtonFlowVizLines" value="FlowVizLines" onchange="onFlowVizRadioClicked(this)">Flow lines</input><br>
-					<input type="radio" name="flowviz" id="radioButtonFlowVizVectors" value="FlowVizVectors" onchange="onFlowVizRadioClicked(this)">Flow vectors</input><br>
+					<input type="checkbox" id="checkBoxShowFlowVectors" onchange="onShowFlowVectorsChanged(this)">Flow vectors</input><br>
+					<input type="range" id="sliderFlowLinesStep" min="1" max="25" value="1" oninput="onFlowLinesStepSliderChanged(this)">Flow lines step</input><br>
 				</div>
 			</div>
 
@@ -87,6 +94,8 @@
 					<input type="checkbox" id="checkBoxDrawFaces" checked onchange="onRenderStyleChanged()">Faces</input><br>
 					<input type="checkbox" id="checkBoxDrawEdges" checked onchange="onRenderStyleChanged()">Edges</input><br>
 					<input type="checkbox" id="checkBoxDrawGrid" onchange="onShowGridChanged(this)">Coordinate grid</input><br>
+					<input type="checkbox" id="checkBoxDrawCompass" checked onchange="onShowCompassChanged(this)">Compass</input><br>
+					<input type="checkbox" id="checkBoxDrawText" checked onchange="onShowTextChanged(this)">Info text</input><br>
 					<input type="checkbox" id="checkBoxPerspective" checked onchange="onPerspectiveChanged(this)">Perspective</input><br>
 
 					<button onclick="onButtonViewAllClicked()">View all</button>

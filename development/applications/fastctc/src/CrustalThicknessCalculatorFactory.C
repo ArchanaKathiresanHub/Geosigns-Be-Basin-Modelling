@@ -32,7 +32,7 @@ CrustalThicknessCalculatorFactory::produceProjectHandle ( database::Database * d
 }
 
 DataAccess::Interface::CrustalThicknessData *
-CrustalThicknessCalculatorFactory::produceCrustalThicknessData( GeoPhysics::ProjectHandle * projectHandle,
+CrustalThicknessCalculatorFactory::produceCrustalThicknessData( DataAccess::Interface::ProjectHandle * projectHandle,
                                                                 database::Record * record)
 {
    return new InterfaceInput(projectHandle, record);

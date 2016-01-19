@@ -16,7 +16,7 @@
 #include "Interface/Interface.h"
 #include "Interface/GridMap.h"
 
-#include <MeshVizXLM/mesh/MiVolumeMeshHexahedronIjk.h>
+#include <MeshVizXLM/mesh/MiVolumeMeshVertexHexahedronIjk.h>
 #include <MeshVizXLM/mesh/MiVolumeMeshCurvilinear.h>
 #include <MeshVizXLM/mesh/MiSurfaceMeshCurvilinear.h>
 #include <MeshVizXLM/mesh/MiSurfaceMeshUnstructured.h>
@@ -26,9 +26,16 @@
 /**
 * Geometry class for reservoirs, which are defined by the top and bottom properties
 */
-class ReservoirGeometry : public MiGeometryIjk
+class ReservoirGeometry : public MiGeometryHexahedronIjk, public MiGeometryIjk
 {
   const DataAccess::Interface::GridMap* m_depthMaps[2];
+
+  // Direct pointers to gridmap data, so we can skip all the bounds 
+  // checking when accessing the values
+  const double* m_values[2];
+
+  size_t m_numI;
+  size_t m_numJ;
 
   double m_deltaX;
   double m_deltaY;
@@ -56,6 +63,13 @@ public:
 
   virtual MbVec3d getCoord(size_t i, size_t j, size_t k) const;
 
+  virtual void getCellCoords(
+    size_t i, size_t j, size_t k,
+    MbVec3d& v0, MbVec3d& v1, MbVec3d& v2, MbVec3d& v3,
+    MbVec3d& v4, MbVec3d& v5, MbVec3d& v6, MbVec3d& v7) const;
+
+  virtual MiMeshIjk::StorageLayout getStorageLayout() const;
+
   virtual size_t getTimeStamp() const;
 };
 
@@ -63,7 +77,7 @@ public:
 /**
  * Contains the geometry for an entire snapshot
  */
-class SnapshotGeometry : public MiGeometryIjk
+class SnapshotGeometry : public MiGeometryHexahedronIjk, public MiGeometryIjk
 {
   GridMapCollection m_depthMaps;
 
@@ -92,6 +106,11 @@ public:
 
   virtual MbVec3d getCoord(size_t i, size_t j, size_t k) const;
 
+  virtual void getCellCoords(
+    size_t i, size_t j, size_t k,
+    MbVec3d& v0, MbVec3d& v1, MbVec3d& v2, MbVec3d& v3,
+    MbVec3d& v4, MbVec3d& v5, MbVec3d& v6, MbVec3d& v7) const;
+
   virtual size_t getTimeStamp() const;
 };
 
@@ -104,17 +123,15 @@ class SnapshotTopology : public MiTopologyIjk
   size_t m_numJ; // num cells in J direction
   size_t m_numK; // num cells in K direction
 
-  bool* m_deadMap;
+  const bool* m_deadMap;
 
   size_t m_timeStamp;
 
   std::shared_ptr<SnapshotGeometry> m_geometry;
 
-  void initDeadMap();
-
 public:
 
-  explicit SnapshotTopology(std::shared_ptr<SnapshotGeometry> geometry);
+  SnapshotTopology(std::shared_ptr<SnapshotGeometry> geometry, const bool* deadMap);
 
   ~SnapshotTopology();
 
@@ -122,8 +139,6 @@ public:
   SnapshotTopology& operator=(const SnapshotTopology&) = delete;
 
   MbVec3d getCellCenter(size_t i, size_t j, size_t k) const;
-
-  virtual MiMeshIjk::StorageLayout getStorageLayout() const;
 
   virtual size_t getNumCellsI() const;
 
@@ -145,10 +160,14 @@ class ReservoirTopology : public MiTopologyIjk
 {
   std::shared_ptr<ReservoirGeometry> m_geometry;
   size_t m_timestamp;
+  size_t m_numI;
+  size_t m_numJ;
+
+  const bool* m_deadMap;
 
 public:
 
-  explicit ReservoirTopology(std::shared_ptr<ReservoirGeometry> geometry);
+  ReservoirTopology(std::shared_ptr<ReservoirGeometry> geometry, const bool* deadMap);
 
   virtual size_t getNumCellsI() const;
 
@@ -236,64 +255,36 @@ public:
   virtual bool hasDeadCells() const;
 };
 
-/**
-* Represents the mesh for a single formation
-*/
-class SnapshotMesh: public MiVolumeMeshCurvilinear
+template<class MeshType, class GeometryType, class TopologyType>
+class GenericMesh : public MeshType
 {
-  std::shared_ptr<SnapshotGeometry> m_geometry;
-  std::shared_ptr<SnapshotTopology> m_topology;
+  std::shared_ptr<GeometryType> m_geometry;
+  std::shared_ptr<TopologyType> m_topology;
 
 public:
 
-  SnapshotMesh(
-    std::shared_ptr<SnapshotGeometry> geometry,
-    std::shared_ptr<SnapshotTopology> topology);
+  GenericMesh(
+    std::shared_ptr<GeometryType> geometry,
+    std::shared_ptr<TopologyType> topology)
+    : m_geometry(geometry)
+    , m_topology(topology)
+  {
+  }
 
-  const SnapshotTopology& getTopology() const;
+  virtual const GeometryType& getGeometry() const
+  {
+    return *m_geometry;
+  }
 
-  const SnapshotGeometry& getGeometry() const;
+  virtual const TopologyType& getTopology() const
+  {
+    return *m_topology;
+  }
 };
 
-/**
-* Represents the mesh for a single reservoir
-*/
-class ReservoirMesh: public MiVolumeMeshCurvilinear
-{
-  std::shared_ptr<ReservoirGeometry> m_geometry;
-  std::shared_ptr<ReservoirTopology> m_topology;
-
-public:
-
-  ReservoirMesh(
-    const DataAccess::Interface::GridMap* depthMapTop,
-    const DataAccess::Interface::GridMap* depthMapBottom);
-
-  ReservoirMesh(
-    std::shared_ptr<ReservoirGeometry> geometry,
-    std::shared_ptr<ReservoirTopology> topology);
-
-  const MiTopologyIjk& getTopology() const;
-
-  const MiGeometryIjk& getGeometry() const;
-};
-
-/**
-*
-*/
-class SurfaceMesh : public MiSurfaceMeshCurvilinear
-{
-  std::shared_ptr<SurfaceGeometry> m_geometry;
-  std::shared_ptr<SurfaceTopology> m_topology;
-
-public:
-
-  explicit SurfaceMesh(const DataAccess::Interface::GridMap* depthMap);
-
-  virtual const MiTopologyIj& getTopology() const;
-
-  virtual const MiGeometryIj& getGeometry() const;
-};
+typedef GenericMesh<MiVolumeMeshCurvilinear, SnapshotGeometry, SnapshotTopology> SnapshotMesh;
+typedef GenericMesh<MiVolumeMeshCurvilinear, ReservoirGeometry, ReservoirTopology> ReservoirMesh;
+typedef GenericMesh<MiSurfaceMeshCurvilinear, SurfaceGeometry, SurfaceTopology> SurfaceMesh;
 
 class FaultGeometry : public MiGeometryI
 {

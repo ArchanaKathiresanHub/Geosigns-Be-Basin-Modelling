@@ -32,3 +32,11 @@ unsigned int SurfaceOutputPropertyValue::getDepth () const {
    
 }
 
+bool SurfaceOutputPropertyValue::isPrimary() const {
+
+   if ( m_surfaceProperty != 0 ) {
+      return m_surfaceProperty->isPrimary();
+   } else {
+      return false;
+   }
+}

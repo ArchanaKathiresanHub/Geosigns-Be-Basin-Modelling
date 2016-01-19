@@ -13,7 +13,7 @@
 #include <sys/resource.h>
 
 // Utilities lib
-#include "formattingexception.h"
+#include "FormattingException.h"
 
 using namespace Geocosm;
 

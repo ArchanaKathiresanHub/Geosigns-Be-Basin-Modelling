@@ -539,6 +539,10 @@ const Grid * DistributedGridMap::getGrid (void) const
    return m_grid;
 }
 
+bool DistributedGridMap::isAscendingOrder() const {
+   return true;
+}
+
 double DistributedGridMap::getValue (unsigned int i, unsigned int j) const
 {
    return getValue (i, j, (unsigned int) 0);

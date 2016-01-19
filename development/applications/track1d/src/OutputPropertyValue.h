@@ -17,7 +17,7 @@ public :
 
    virtual double getUndefinedValue () const;
 
-
+   virtual bool isPrimary() const = 0;
 };
 
 typedef boost::shared_ptr<OutputPropertyValue> OutputPropertyValuePtr;

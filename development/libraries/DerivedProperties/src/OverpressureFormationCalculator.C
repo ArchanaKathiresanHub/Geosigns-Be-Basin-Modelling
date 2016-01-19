@@ -46,7 +46,7 @@ void DerivedProperties::OverpressureFormationCalculator::calculate ( DerivedProp
             if ( propertyManager.getNodeIsValid ( i, j )) {
                 
                for ( unsigned int k = hydrostaticPressure->firstK (); k <= hydrostaticPressure->lastK (); ++k ) {
-                  overpressure->set ( i, j, k, porePressure->get ( i, j, k ) - hydrostaticPressure->get ( i, j, k ));
+                  overpressure->set ( i, j, k, porePressure->getA ( i, j, k ) - hydrostaticPressure->getA ( i, j, k ));
                }
 
             } else {

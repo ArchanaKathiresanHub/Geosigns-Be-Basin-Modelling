@@ -1554,7 +1554,7 @@ namespace migration
       return true;
    }
 
-  // Only for detected reservoirs! Sets columns corresponding to top nodes
+   // Only for detected reservoirs! Sets columns corresponding to top nodes
    // without the reservoir flag to wasting.
 
    // TO DO: Account for zero-thickness elements
@@ -1566,45 +1566,42 @@ namespace migration
       assert (formation);
       int depthIndex = formation->getNodeDepth () - 1;
 
-      DerivedProperties::FormationPropertyPtr gridMap = formation->getFormationPropertyPtr ("Depth", snapshot);
-      assert (gridMap);
-
-      gridMap->retrieveData ();
-
       // Grid is different for nodes and columns: one more column in the x and y direction.
       for (unsigned int i = m_columnArray->firstILocal (); i <= Min((int) m_columnArray->lastILocal (), getGrid ()->numIGlobal () - 2); ++i)
       {
          for (unsigned int j = m_columnArray->firstJLocal (); j <= Min((int) m_columnArray->lastJLocal (), getGrid ()->numJGlobal () - 2) ; ++j)
          {
             LocalColumn * column = getLocalColumn (i, j);
-            if (IsValid (column) and !column->isSealing (GAS) and !column->isSealing (OIL))
+            // Skip invalid, sealing and already wasting columns
+            if (IsValid (column) and
+                !column->isSealing (GAS) and !column->isSealing (OIL) and
+                !column->isWasting (GAS) and !column->isWasting (OIL))
             {
-               int depth = depthIndex + 1;
-               double formationThickness = formation->getDepth (i,j,0) - formation->getDepth (i,j,depth);
-               int topDepth = formation->getDepth (i,j,depth); // Node at horizon
+               int depth = depthIndex;
+               LocalFormationNode * formationNode = formation->getLocalFormationNode (i,j,depth);
 
-               LocalFormationNode * formationNode = 0;
-
-               do
+               // Move to deeper elements until a non-zero-thickness element is found
+               while (!formationNode->hasThickness () and depth > 0)
                {
                   --depth;
-               formationNode = formation->getLocalFormationNode (i, j, depth);
+                  formationNode = formation->getLocalFormationNode (i,j,depth);
                }
-               while ((column->getTopDepthOffset () * formationThickness + topDepth > formation->getDepth (i,j,depth)));
-               
-               if (IsValid (formationNode))
+
+               assert (formationNode->hasThickness () or depth == 0);
+
+               if (!formationNode->getReservoirVapour () or !formationNode->getReservoirLiquid ())
                {
-                  if (!formationNode->getReservoirGas ())
+                  column->resetProxies ();
+
+                  if (!formationNode->getReservoirVapour ())
                      column->setWasting(GAS);
 
-                  if (!formationNode->getReservoirOil ())
+                  if (!formationNode->getReservoirLiquid ())
                      column->setWasting(OIL);
                }
             }
          }
       }
-
-      gridMap->restoreData ();
 
       RequestHandling::FinishRequestHandling ();
       return;

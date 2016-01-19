@@ -166,6 +166,8 @@ class ReservoirProperty : public MiDataSetIjk<double>
 
   size_t m_timestamp;
 
+  bool m_logarithmic;
+
   mutable bool   m_minMaxValid;
   mutable double m_minVal;
   mutable double m_maxVal;
@@ -196,6 +198,8 @@ public:
   virtual std::string getName() const;
 
   virtual size_t getTimeStamp() const;
+
+  void setLogarithmic(bool log);
 };
 
 /**

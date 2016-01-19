@@ -104,9 +104,7 @@ TouchstoneWrapper::TouchstoneWrapper( const char * burhistFile
 {
 
    char * geocosmDir = getenv ( "GEOCOSMDIR" );
-
    std::string workingDirstr( geocosmDir );
-
    try
    {
 
@@ -238,7 +236,7 @@ bool TouchstoneWrapper::loadTcf ( )
    stats.statistics().clear();
    
    // fill stats.statistics()
-   for(int i = 0 ; i != m_statsVect.size() ; ++ i) stats.statistics().push_back(m_statsVect[i]);
+   for(size_t i = 0 ; i != m_statsVect.size() ; ++ i) stats.statistics().push_back(m_statsVect[i]);
    
    //add or remove to the stats list, then update m_tslib...
    m_tslibCalcContext->Statistics( stats );
@@ -248,8 +246,6 @@ bool TouchstoneWrapper::loadTcf ( )
    //say the user selected categories 1, 5, and 10 be saved, and stats "mean, mode, and stdev" to
    //calculate.  You would then get result headers:
    //Cat 1 Mean, Cat 1 Mode, Cat 1 stdve, Cat 5 Mean, Cat 5 Mode, Cat 5 stdev, Cat 10 Mean, Cat 10 Mode, Cat 10 stdev ...
-
-   const TcfSchema::ResultHeadersType& statHeaders = m_tslibCalcContext->StatisticsResultHeaders();
    
    try 
    { 

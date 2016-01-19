@@ -39,8 +39,8 @@ void DerivedProperties::LithostaticPressureSurfaceCalculator::calculate ( Derive
          
          for ( unsigned int j = ves->firstJ ( true ); j <= ves->lastJ ( true ); ++j ) {
 
-            if( ves->get ( i, j ) != undefinedValue && porePressure->get ( i, j ) != porePressure->getUndefinedValue () ) {
-               lithostaticPressure->set ( i, j, ( ves->get ( i, j ) * GeoPhysics::PascalsToMegaPascals + porePressure->get ( i, j )));
+            if( ves->getA ( i, j ) != undefinedValue && porePressure->getA ( i, j ) != porePressure->getUndefinedValue () ) {
+               lithostaticPressure->set ( i, j, ( ves->getA ( i, j ) * GeoPhysics::PascalsToMegaPascals + porePressure->getA ( i, j )));
             } else {
                lithostaticPressure->set ( i, j, undefinedValue );
             }

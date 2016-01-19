@@ -24,6 +24,9 @@
 #include "GeoPhysicsProjectHandle.h"
 #include "Local2DArray.h"
 
+// utilitites
+#include "FormattingException.h"
+
 using namespace DataAccess;
 using namespace std;
 
@@ -35,6 +38,8 @@ void displayTime( const double timeToDisplay, const char * msgToDisplay );
 
 /// @class CrustalThicknessCalculator The main class used to runn the CTC (CrustalThicknessCalculator)
 class CrustalThicknessCalculator : public GeoPhysics::ProjectHandle {
+
+   typedef formattingexception::GeneralException CtcException;
 
 public :
    // Constructor / Destructor
@@ -101,10 +106,10 @@ private :
    void setAdditionalOptionsFromCommandLine();
 
    /// @brief Update geophysics ProjectHandle valid nodes using the CTC input maps
-   void updateValidNodes( const InterfaceInput &theInterfaceData );
+   void updateValidNodes( const InterfaceInput* theInterfaceData );
    /// @brief Computes the present day water loaded subsidence (WLS) map
    /// @return The WLS map
-   GridMap * calculatePresentDayWLS( InterfaceInput & theInterfaceData );
+   GridMap * calculatePresentDayWLS( InterfaceInput* theInterfaceData );
 
 };
 

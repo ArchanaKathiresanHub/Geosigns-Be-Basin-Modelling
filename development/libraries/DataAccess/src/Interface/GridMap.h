@@ -146,6 +146,9 @@ namespace DataAccess
          virtual double deltaJ (void) const = 0;
 
          virtual bool retrieved() const = 0;
+          
+		 /// return true if the data are stored in ascending order
+         virtual bool isAscendingOrder() const = 0;
 	   protected:
       };
    }

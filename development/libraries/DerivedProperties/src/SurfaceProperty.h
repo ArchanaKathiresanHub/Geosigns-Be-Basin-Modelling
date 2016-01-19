@@ -63,6 +63,10 @@ namespace DerivedProperties {
       virtual double get ( unsigned int i,
                            unsigned int j ) const = 0;
 
+      /// \brief Get the value of the property at the position i,j.
+      virtual double getA ( unsigned int i,
+                            unsigned int j ) const;
+
       /// \brief Interpolate the value of the property at the position i,j.
       virtual double interpolate ( double i,
                                    double j ) const;
@@ -71,7 +75,7 @@ namespace DerivedProperties {
       /// \brief Return true if the property is primary.
       virtual bool isPrimary () const = 0;
 
-      /// \ brief Get the gridMap
+      /// \brief Get the gridMap
       virtual const DataAccess::Interface::GridMap* getGridMap() const = 0;
 
    private :

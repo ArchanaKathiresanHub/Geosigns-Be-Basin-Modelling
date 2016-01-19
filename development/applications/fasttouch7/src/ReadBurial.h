@@ -16,7 +16,7 @@ class ReadBurial
    void readIndexes(int * firstI, int * lastI, int * firstJ, int * lastJ, int * numLayers) ;
    void readSnapshotsIndexes(std::vector<size_t> & usedSnapshotsIndexes); 
    void readNumTimeStepsID( size_t * numTimeSteps, int * iD) ;
-   void readBurialHistory(std::vector<Geocosm::TsLib::burHistTimestep > & burHistTimesteps, int numTimeSteps); 	
+   void readBurialHistory(std::vector<Geocosm::TsLib::burHistTimestep > & burHistTimesteps, size_t numTimeSteps); 	
 };
 
 #endif

@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2012-2014 Shell International Exploration & Production.
+// Copyright (C) 2012-2016 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -605,6 +605,27 @@ ErrorHandler::ReturnCode StratigraphyManagerImpl::setSourceRockMixHC( LayerID li
    return setSourceRockMixHI( lid, hi );
 }
 
+// Get list of fault cuts from PressureFaultcutIoTbl
+// return array with IDs of layers defined in the model
+std::vector<StratigraphyManager::PrFaultCutID> StratigraphyManagerImpl::faultCutsIDs()
+{
+   std::vector<PrFaultCutID> ids;
+   if ( !m_db ) return ids;
+
+   // get pointer to the table
+   database::Table * table = m_db->getTable( s_pressureFaultCutTableName );
+
+   // if table does not exist - return empty array
+   if ( !table ) return ids;
+
+   // fill IDs array with increasing indexes
+   ids.resize( table->size(), 0 );
+
+   for ( size_t i = 0; i < ids.size(); ++i ) ids[i] = static_cast<PrFaultCutID>(i);
+
+   return ids;
+}
+
 // Search in PressureFaultcutIoTbl table for the given combination of map name/fault name
 StratigraphyManager::PrFaultCutID StratigraphyManagerImpl::findFaultCut( const std::string & mapName, const std::string & fltName )
 {
@@ -659,6 +680,52 @@ std::string StratigraphyManagerImpl::faultCutLithology( PrFaultCutID flID )
    return "";
 }
 
+// Get fault cut name for the given fault cut ID
+std::string StratigraphyManagerImpl::faultCutName( PrFaultCutID flID )
+{
+   if ( errorCode() != NoError ) resetError();
+
+   try
+   {
+      // get pointer to the table
+      database::Table * table = m_db->getTable( s_pressureFaultCutTableName );
+
+      // if table does not exist - report error
+      if ( !table ) { throw Exception( NonexistingID ) << s_pressureFaultCutTableName << " table could not be found in project"; }
+
+      database::Record * rec = table->getRecord( static_cast<int>( flID ) );
+      if ( !rec ) { throw Exception( NonexistingID ) << "No fault cut lithology type with such ID: " << flID; }
+
+      return rec->getValue<std::string>( s_FaultNameFieldName );
+   }
+   catch ( const Exception & e ) { reportError( e.errorCode(), e.what() ); }
+
+   return "";
+}
+
+// Get fault cat map for the given fault cut ID
+std::string StratigraphyManagerImpl::faultCutMapName( PrFaultCutID flID )
+{
+   if ( errorCode() != NoError ) resetError();
+
+   try
+   {
+      // get pointer to the table
+      database::Table * table = m_db->getTable( s_pressureFaultCutTableName );
+
+      // if table does not exist - report error
+      if ( !table ) { throw Exception( NonexistingID ) << s_pressureFaultCutTableName << " table could not be found in project"; }
+
+      database::Record * rec = table->getRecord( static_cast<int>( flID ) );
+      if ( !rec ) { throw Exception( NonexistingID ) << "No fault cut lithology type with such ID: " << flID; }
+
+      return rec->getValue<std::string>( s_FaultcutsMapFieldName );
+   }
+   catch ( const Exception & e ) { reportError( e.errorCode(), e.what() ); }
+
+   return "";
+}
+
 // Set new lithology for the fault cut
 ErrorHandler::ReturnCode StratigraphyManagerImpl::setFaultCutLithology( PrFaultCutID flID, const std::string & newLithoName )
 {
@@ -677,7 +744,7 @@ ErrorHandler::ReturnCode StratigraphyManagerImpl::setFaultCutLithology( PrFaultC
 
       rec->setValue( s_FaultLithologyFieldName, newLithoName );
    }
-   catch ( const Exception & e ) { reportError( e.errorCode(), e.what() ); }
+   catch ( const Exception & e ) { return reportError( e.errorCode(), e.what() ); }
 
    return NoError;
 }

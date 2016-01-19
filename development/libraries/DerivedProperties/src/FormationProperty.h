@@ -85,7 +85,18 @@ namespace DerivedProperties {
                            unsigned int j,
                            unsigned int k ) const = 0;
 
-      /// \brief Get the value of the property at the position i,j and interpolated at a position k.
+      /// \brief Get the value of the property at the position i,j,k (ascending order)
+      virtual double getA ( unsigned int i,
+                            unsigned int j,
+                            unsigned int k ) const = 0;
+
+
+      /// \brief Get the value of the property at the position i,j,k (descending order)
+      virtual double getD ( unsigned int i,
+                            unsigned int j,
+                            unsigned int k ) const = 0;
+
+       /// \brief Get the value of the property at the position i,j and interpolated at a position k.
       virtual double interpolate ( unsigned int i,
                                    unsigned int j,
                                    double       k ) const;

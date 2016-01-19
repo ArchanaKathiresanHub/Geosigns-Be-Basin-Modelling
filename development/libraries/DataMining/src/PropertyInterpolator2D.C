@@ -104,10 +104,10 @@ double DataAccess::Mining::PropertyInterpolator2D::operator ()( const ElementPos
       return DataAccess::Interface::DefaultUndefinedMapValue;
    }
 
-   weights [ 0 ] = property->get ( i, j, k );
-   weights [ 1 ] = property->get ( i + 1, j, k );
-   weights [ 2 ] = property->get ( i + 1, j + 1, k );
-   weights [ 3 ] = property->get ( i, j + 1, k );
+   weights [ 0 ] = property->getD ( i, j, k );
+   weights [ 1 ] = property->getD ( i + 1, j, k );
+   weights [ 2 ] = property->getD ( i + 1, j + 1, k );
+   weights [ 3 ] = property->getD ( i, j + 1, k );
 
    return doInterpolation ( xi, eta, weights );
 }

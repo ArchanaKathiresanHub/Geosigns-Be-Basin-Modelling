@@ -14,15 +14,6 @@
 // Geophysics library
 #include "GeoPhysicsObjectFactory.h"
 
-namespace DataAccess
-{
-   namespace Interface
-   {
-      class ObjectFactory;
-      class ProjectHandle;  
-   }
-}
-
 namespace database
 {
    class Record;
@@ -37,7 +28,7 @@ public:
    virtual GeoPhysics::ProjectHandle * produceProjectHandle( database::Database * database,
                                                                              const string & name,  const string & accessMode);
    /// @brief Produce the InterfaceInput
-   virtual DataAccess::Interface::CrustalThicknessData * produceCrustalThicknessData( GeoPhysics::ProjectHandle * projectHandle, database::Record * record );
+   virtual DataAccess::Interface::CrustalThicknessData * produceCrustalThicknessData( DataAccess::Interface::ProjectHandle * projectHandle, database::Record * record );
 };
 
 

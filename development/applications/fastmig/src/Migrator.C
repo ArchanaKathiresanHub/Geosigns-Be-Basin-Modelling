@@ -219,8 +219,33 @@ bool Migrator::compute (void)
    closeMassBalanceFile ();
 
    m_projectHandle->finishActivity ();
-
-   m_projectHandle->setSimulationDetails("fastmig", "Default", "");
+   
+   //Specify the simulation details   
+   string simulatorMode;
+   
+   if(!m_verticalMigration and !m_hdynamicAndCapillary ) 
+   {
+   simulatorMode += simulationModeStr[3];
+   simulatorMode += " ";
+   }
+     
+   if (m_verticalMigration)
+   {
+   simulatorMode += simulationModeStr[0];
+   simulatorMode += " ";
+   }
+   if (m_hdynamicAndCapillary) 
+   {
+   simulatorMode += simulationModeStr[1];
+   simulatorMode += " ";
+   }
+   if (m_reservoirDetection)
+   {
+   simulatorMode += simulationModeStr[2];
+   simulatorMode += " ";
+   }
+   
+   m_projectHandle->setSimulationDetails ("fastmig", simulatorMode, "");
 
    bool status = true;
    if (!mergeOutputFiles ()) {
@@ -275,9 +300,8 @@ bool Migrator::isHydrostaticCalculation (void) const
    if (lastFastcauldronRun != 0)
    {
       hydrostaticCalculation = lastFastcauldronRun->getSimulatorMode () == "HydrostaticTemperature" or
-         lastFastcauldronRun->getSimulatorMode () == "HydrostaticHighResDecompaction" or
-         lastFastcauldronRun->getSimulatorMode () == "HydrostaticTemperature" or
-         lastFastcauldronRun->getSimulatorMode () == "HydrostaticDarcy";
+                               lastFastcauldronRun->getSimulatorMode () == "HydrostaticHighResDecompaction" or
+                               lastFastcauldronRun->getSimulatorMode () == "HydrostaticDarcy";
    }
 
    return hydrostaticCalculation;
@@ -308,7 +332,7 @@ bool Migrator::computeFormationPropertyMaps (const Interface::Snapshot * snapsho
       formation->computePropertyMaps (topDepthGridMap, snapshot, lowResEqualsHighRes, isOverPressureRun, m_projectHandle->getRunParameters ()->getNonGeometricLoop (),
                                       m_projectHandle->getRunParameters ()->getChemicalCompaction ()); // allowed to fail
 
-      formation->computeHCDensityMaps ();
+      formation->computeHCDensityMaps (snapshot);
 
       if (m_hdynamicAndCapillary or m_reservoirDetection)
       {
@@ -402,7 +426,7 @@ bool Migrator::performSnapshotMigration (const Interface::Snapshot * start, cons
       if (!computeFormationPropertyMaps (end, overPressureRun) ||
           !retrieveFormationPropertyMaps (end) ||
           !computeFormationNodeProperties (end) ||
-          !detectReservoirs (end, overPressureRun) ||
+          !detectReservoirs (start, end, overPressureRun) ||
           !computeSMFlowPaths (start, end) ||
           !restoreFormationPropertyMaps (end) ||
           !loadExpulsionMaps (start, end) ||
@@ -691,7 +715,7 @@ migration::Formation * Migrator::getBottomActiveReservoirFormation (const Interf
   ( difference between 0% saturation capillary pressure at current formation
   and 100% capillary pressure at lowermost cells of formation above ).
 */
-bool Migrator::detectReservoirs (const Interface::Snapshot * end, const bool overPressureRun)
+bool Migrator::detectReservoirs (const Interface::Snapshot * start, const Interface::Snapshot * end, const bool overPressureRun)
 {
    // first, find the the bottommost RESERVOIR formation where HC can go
    Formation *bottomSourceRockFormation = getBottomSourceRockFormation ();
@@ -770,11 +794,14 @@ bool Migrator::detectReservoirs (const Interface::Snapshot * end, const bool ove
             {
                // cerr << "Formation " << reservoirFormation->getName() << " detected" << endl;
                // if the formation is detected as reservoir, add it in the reservoir list 
-               reservoirFormation->addDetectedReservoir (end);
+               reservoirFormation->addDetectedReservoir (start);
             }
          }
          // print to file information about the reservoirs 
          // reservoirFormation->saveReservoir (end);
+
+         //setEndOfPath for detected reservoirs
+         if (reservoirFormation->getDetectedReservoir()) reservoirFormation->setEndOfPath ();
       }
    }
 
@@ -786,6 +813,8 @@ bool Migrator::detectReservoirs (const Interface::Snapshot * end, const bool ove
 
 bool Migrator::computeSMFlowPaths (const Interface::Snapshot * start, const Interface::Snapshot * end)
 {
+   if (!m_verticalMigration)
+   {
    Formation * bottomSourceRockFormation = getBottomSourceRockFormation ();
    if (!bottomSourceRockFormation) return false;
 
@@ -793,12 +822,9 @@ bool Migrator::computeSMFlowPaths (const Interface::Snapshot * start, const Inte
    if (!topActiveFormation) return false;
 
    if (!computeSMFlowPaths (topActiveFormation, bottomSourceRockFormation, start, end)) return false;
-
-   if (!m_verticalMigration)
-   {
-      if (!computeTargetFormationNodes (topActiveFormation, bottomSourceRockFormation)) return false;
+   
+   if (!computeTargetFormationNodes (topActiveFormation, bottomSourceRockFormation)) return false;
    }
-
    return true;
 }
 
@@ -889,10 +915,11 @@ bool Migrator::chargeReservoir (migration::Reservoir * reservoir, migration::Res
    reservoir->refineGeometryZeroThicknessAreas ();
    reservoir->refineGeometrySetFaulStatus ();
 
-   //We need to tell if it is a detected reservoir or not
-   //migration::Formation * reservoirFormation = Formation::CastToFormation (reservoir->getFormation ());
-   //if (reservoirFormation->getDetectedReservoir ())
-      //reservoir->wasteNonReservoirColumns (end);
+   // Wasting the columns that have no element with the reservoir flag
+   // Only for detected reservoirs.
+   migration::Formation * reservoirFormation = Formation::CastToFormation (reservoir->getFormation ());
+   if (reservoirFormation->getDetectedReservoir ())
+      reservoir->wasteNonReservoirColumns (end);
 
    // save only major snapshots results
    const bool saveSnapshot = end->getType () == Interface::MAJOR;
@@ -1311,8 +1338,8 @@ database::Record * Migrator::addDetectedReservoirRecord (Interface::Formation * 
    database::setDetectedReservoir (reservoirIoRecord, 1);
    database::setFormationName (reservoirIoRecord, formation->getName ()); 
    database::setTrapCapacity (reservoirIoRecord, database::getTrapCapacity (m_detectedReservoirIoRecord));
-   database::setActivityMode (reservoirIoRecord, database::getActivityMode (m_detectedReservoirIoRecord));
-
+   database::setActivityMode (reservoirIoRecord, "ActiveFrom");
+   
    database::setActivityStart (reservoirIoRecord, start->getTime ());
    database::setDepthOffset (reservoirIoRecord, database::getDepthOffset (m_detectedReservoirIoRecord));
    database::setDepthOffsetGrid (reservoirIoRecord, database::getDepthOffsetGrid (m_detectedReservoirIoRecord));

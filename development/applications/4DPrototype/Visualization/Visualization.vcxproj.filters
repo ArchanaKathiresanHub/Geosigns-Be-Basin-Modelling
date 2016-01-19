@@ -98,5 +98,8 @@
     <ClInclude Include="FluidContacts.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="DataSet.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

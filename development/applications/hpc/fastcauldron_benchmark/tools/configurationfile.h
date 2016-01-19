@@ -4,7 +4,7 @@
 #include <map>
 #include <string>
 
-#include "formattingexception.h"
+#include "FormattingException.h"
 
 namespace hpc
 {

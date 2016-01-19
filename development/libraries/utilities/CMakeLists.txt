@@ -13,7 +13,7 @@
 FILE( GLOB all_headers src/*.h )
 source_group(include FILES ${all_headers})
 
-FILE( GLOB all_srcs src/*.C)
+FILE( GLOB all_srcs src/*.C )
 source_group(source FILES ${all_srcs})
 
 add_library(utilities 
@@ -43,10 +43,36 @@ install(TARGETS utilities
 
 ### Unit Tests
 
-add_gtest( NAME utilities::IBSinterpolator 
+# IBSInterpolator tests
+add_gtest( NAME utilities::IBSinterpolator
 			SOURCES test/IBSinterpolator.C
 			LIBRARIES utilities)
  			
-add_gtest( NAME utilities::IBSinterpolator2d 
+add_gtest( NAME utilities::IBSinterpolator2d
 			SOURCES test/IBSinterpolator2d.C
 			LIBRARIES utilities)
+
+# LogHandler tests
+add_gtest( NAME utilities::LogHandlerCreate
+   SOURCES test/LogHandlerCreate.C test/LogHandlerUnitTester.h
+   LIBRARIES utilities)
+
+add_gtest( NAME utilities::LogHandlerDiagnostic
+   SOURCES test/LogHandlerDiagnostic.C test/LogHandlerUnitTester.h
+   LIBRARIES utilities)
+
+add_gtest( NAME utilities::LogHandlerDetailed
+   SOURCES test/LogHandlerDetailed.C test/LogHandlerUnitTester.h
+   LIBRARIES utilities)
+
+add_gtest( NAME utilities::LogHandlerNormal
+   SOURCES test/LogHandlerNormal.C test/LogHandlerUnitTester.h
+   LIBRARIES utilities)
+
+add_gtest( NAME utilities::LogHandlerQuiet
+   SOURCES test/LogHandlerQuiet.C test/LogHandlerUnitTester.h
+   LIBRARIES utilities)
+
+add_gtest( NAME utilities::LogHandlerMinimal
+   SOURCES test/LogHandlerMinimal.C test/LogHandlerUnitTester.h
+   LIBRARIES utilities)

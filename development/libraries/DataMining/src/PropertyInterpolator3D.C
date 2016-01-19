@@ -23,16 +23,16 @@ double DataAccess::Mining::PropertyInterpolator3D::operator ()( const ElementPos
         zeta == DataAccess::Interface::DefaultUndefinedMapValue ) {
       return DataAccess::Interface::DefaultUndefinedMapValue;
    }
-
-   weights [ 0 ] = property->get ( i, j, k );
-   weights [ 1 ] = property->get ( i + 1, j, k );
-   weights [ 2 ] = property->get ( i + 1, j + 1, k );
-   weights [ 3 ] = property->get ( i, j + 1, k );
-   weights [ 4 ] = property->get ( i, j, k + 1 );
-   weights [ 5 ] = property->get ( i + 1, j, k + 1 );
-   weights [ 6 ] = property->get ( i + 1, j + 1, k + 1 );
-   weights [ 7 ] = property->get ( i, j + 1, k + 1 );
-
+   
+   weights [ 0 ] = property->getD ( i, j, k );
+   weights [ 1 ] = property->getD ( i + 1, j, k );
+   weights [ 2 ] = property->getD ( i + 1, j + 1, k );
+   weights [ 3 ] = property->getD ( i, j + 1, k );
+   weights [ 4 ] = property->getD ( i, j, k + 1 );
+   weights [ 5 ] = property->getD ( i + 1, j, k + 1 );
+   weights [ 6 ] = property->getD ( i + 1, j + 1, k + 1 );
+   weights [ 7 ] = property->getD ( i, j + 1, k + 1 );
+      
    for ( l = 0; l < 8; ++l ) {
 
       if ( weights [ l ] == DataAccess::Interface::DefaultUndefinedMapValue ) {

@@ -39,6 +39,9 @@ namespace DerivedProperties {
       /// \brief Restore the grid map.
       virtual void restoreData () const;
 
+      /// \brief Return the primary property of the formation property
+      virtual bool isPrimary() const; 
+
    private :
 
       const FormationPropertyPtr m_formationProperty;

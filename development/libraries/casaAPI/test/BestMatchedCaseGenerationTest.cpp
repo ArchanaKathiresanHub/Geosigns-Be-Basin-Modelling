@@ -23,8 +23,6 @@ public:
 
 TEST_F( BestMatchedCaseGenerationTest, LoadScenarioAndGenerateCalibratedCase )
 {
-   // temporary disabled!!!
-   return;
    try
    {
       // create new scenario analysis

@@ -2,7 +2,7 @@
 #include "variabledefinitions.h"
 #include "parameterdefinitions.h"
 #include "parametersettings.h"
-#include "formattingexception.h"
+#include "FormattingException.h"
 
 #include <fstream>
 #include <iomanip>

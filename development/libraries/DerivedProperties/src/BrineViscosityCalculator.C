@@ -54,7 +54,7 @@ void DerivedProperties::BrineViscosityCalculator::calculate ( AbstractPropertyMa
       for ( unsigned int j = brineViscosity->firstJ ( true ); j <= brineViscosity->lastJ ( true ); ++j ) {
 
          for ( unsigned int k = brineViscosity->firstK (); k <= brineViscosity->lastK (); ++k ) {
-            brineViscosity->set ( i, j, k, fluid->viscosity ( temperature->get ( i, j, k ), pressure->get ( i, j, k )));
+            brineViscosity->set ( i, j, k, fluid->viscosity ( temperature->getA ( i, j, k ), pressure->getA ( i, j, k )));
          }
 
       }

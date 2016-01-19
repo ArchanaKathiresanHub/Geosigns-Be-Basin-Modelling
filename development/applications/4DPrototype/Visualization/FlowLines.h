@@ -9,12 +9,19 @@ class MiDataSetIjk;
 template<class T>
 class MbVec3;
 
+#include <memory>
 #include <cstdint>
 #include <cstddef>
+
+class Project;
+template<class T> 
+class MiDataSetIj;
 
 MbVec3<double> getCellCenter(const MiGeometryIjk& geometry, size_t i, size_t j, size_t k);
 
 MbVec3<int32_t> decodeFlowDirection(int code);
+
+std::shared_ptr<MiDataSetIj<double> > generateExpulsionProperty(const Project& project, size_t snapshotIndex, int formationId);
 
 /**
  * Generate a SoLineSet for a set of flowlines
@@ -26,7 +33,9 @@ MbVec3<int32_t> decodeFlowDirection(int code);
  */
 SoLineSet* generateFlowLines(
   const MiDataSetIjk<double>& values,
+  std::shared_ptr<MiDataSetIj<double> > expulsion,
+  const MiVolumeMeshCurvilinear& mesh,
   int startK,
-  const MiVolumeMeshCurvilinear& mesh);
+  int step = 1);
 
 #endif

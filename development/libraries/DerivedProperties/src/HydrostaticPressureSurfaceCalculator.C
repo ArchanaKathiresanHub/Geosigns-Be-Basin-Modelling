@@ -85,7 +85,7 @@ void DerivedProperties::HydrostaticPressureSurfaceCalculator::copyHydrostaticPre
       for ( unsigned int j = hydrostaticPressureAbove->firstJ ( true ); j <= hydrostaticPressureAbove->lastJ ( true ); ++j ) {
 
          if ( m_projectHandle->getNodeIsValid ( i, j )) {
-            hydrostaticPressure->set ( i, j, hydrostaticPressureAbove->get ( i, j, 0 ));
+            hydrostaticPressure->set ( i, j, hydrostaticPressureAbove->getA ( i, j, 0 ));
          } else {
             hydrostaticPressure->set ( i, j, undefinedValue );
          }
