@@ -19,6 +19,9 @@
 #include "CrustalThicknessCalculator.h"
 #include "CrustalThicknessCalculatorFactory.h"
 
+// utilitites
+#include "LogHandler.h"
+
 // Flexlm licenses
 #ifdef FLEXLM
 #undef FLEXLM
@@ -80,6 +83,7 @@ int main (int argc, char ** argv)
 {
    bool status;
    int rank = 99999;
+   typedef formattingexception::GeneralException CtcException;
 
    CrustalThicknessCalculatorFactory* factory = new CrustalThicknessCalculatorFactory;
    //DataAccess::Interface::ProjectHandle::UseFactory (factory);
@@ -152,6 +156,9 @@ int main (int argc, char ** argv)
    }
 #endif
 
+   /// @todo make command line argument for verbosity
+   LogHandler ctcLog( "CTC", LogHandler::DIAGNOSTIC_LEVEL, rank );
+
    PetscBool isDefined = PETSC_FALSE;
    
    PetscOptionsHasName (PETSC_NULL, "-help", &isDefined);
@@ -168,6 +175,7 @@ int main (int argc, char ** argv)
    PetscOptionsGetString (PETSC_NULL, "-project", inputFileName, lineSize, &isDefined);
 
    if (!isDefined)  {
+      LogHandler( LogHandler::ERROR_SEVERITY ) << "ERROR Error when reading the project file";
       fprintf(stderr, "MeSsAgE ERROR Error when reading the project file\n");
       showUsage ();
       PetscFinalize ();
@@ -178,6 +186,7 @@ int main (int argc, char ** argv)
    PetscTime( &sim_Start_Time );
 
    if (!CrustalThicknessCalculator::CreateFrom( inputFileName, factory )) {
+      LogHandler( LogHandler::ERROR_SEVERITY ) << "Can not open the project file";
       fprintf(stderr, "MeSsAgE ERROR Can not open the project file\n");
       showUsage ();
       PetscFinalize ();
@@ -185,6 +194,7 @@ int main (int argc, char ** argv)
    };
 
    if( !CrustalThicknessCalculator::getInstance().parseCommandLine()) {
+      LogHandler( LogHandler::ERROR_SEVERITY ) << "Could not parse command line";
       finaliseCrustalThicknessCalculator(feature, "", factory);
       return -1;
    };
@@ -195,11 +205,18 @@ int main (int argc, char ** argv)
       CrustalThicknessCalculator::getInstance().run();
          
       }
+   /// @todo delete catch string once migrated to CtcException
    catch ( std::string& s ) {
       finaliseCrustalThicknessCalculator(feature, s.c_str(), factory);
       return 0;
    }
+   catch (CtcException& ex){
+      LogHandler( LogHandler::ERROR_SEVERITY ) << ex.what();
+      finaliseCrustalThicknessCalculator( feature, ex.what(), factory );
+      return 0;
+   }
    catch (...) {
+      LogHandler( LogHandler::FATAL_SEVERITY ) << "CTC fatal error";
       finaliseCrustalThicknessCalculator(feature, "", factory);
       return 0;
    }

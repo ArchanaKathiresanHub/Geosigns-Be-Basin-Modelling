@@ -67,9 +67,9 @@ namespace migration
 
       bool computeCapillaryPressureMaps (Interface::GridMap * topDepthGridMap, const Interface::Snapshot * snapshot);
 
-      double capillaryEntryPressureOilGas (const double permeability, const double brinePressure, const double capC1, const double capC2) const;
+      double capillaryEntryPressureLiquidVapour (const double permeability, const double brinePressure, const double capC1, const double capC2) const;
 
-      bool computeHCDensityMaps ();
+      bool computeHCDensityMaps (const Interface::Snapshot * snapshot);
 
       bool removeComputedPropertyMaps (void);
 
@@ -102,7 +102,7 @@ namespace migration
       int getNodeDepth (void) const;
       int getGridMapDepth (void) const;
 
-      bool detectReservoir (Formation * topFormation, const double minOilColumnHeight, const double minGasColumnHeight, const bool pressureRun, const Formation * topActiveFormation);
+      bool detectReservoir (Formation * topFormation, const double minLiquidColumnHeight, const double minVapourColumnHeight, const bool pressureRun, const Formation * topActiveFormation);
       bool detectReservoirCrests();
       bool getDetectedReservoir() const;
       void setDetectedReservoir (bool detectedReservoir);
@@ -114,32 +114,19 @@ namespace migration
 
       double getPropertyValue (PropertyIndex propertyIndex, int i, int j, int k) const;
 
-      double getMinOilColumnHeight (void) const;
-      double getMinGasColumnHeight (void) const;
+      double getMinLiquidColumnHeight (void) const;
+      double getMinVapourColumnHeight (void) const;
 
       inline double getDepth (int i, int j, int k) const;
       inline double getHorizontalPermeability (int i, int j, int k);
       inline double getVerticalPermeability (int i, int j, int k);
       inline double getPorosity (int i, int j, int k);
-      inline double getCapillaryEntryPressureGas (int i, int j, int k);
-      inline double getCapillaryEntryPressureOil (int i, int j, int k);
+      inline double getCapillaryEntryPressureVapour (int i, int j, int k);
+      inline double getCapillaryEntryPressureLiquid (int i, int j, int k);
       inline double getPressure (int i, int j, int k);
       inline double getTemperature (int i, int j, int k);
-      inline double getOilDensity (int i, int j, int k);
-      inline double getGasDensity (int i, int j, int k);
-
-      /*
-      inline const GridMap * getDepthGridMap (void) const;
-      inline const GridMap * getPorosityGridMap (void) const;
-      inline const GridMap * getHorizontalPermeabilityGridMap (void) const;
-      inline const GridMap * getVerticalPermeabilityGridMap (void) const;
-      inline const GridMap * getTemperatureGridMap (void) const;
-      inline const GridMap * getPressureGridMap (void) const;
-      inline const GridMap * getCapPressureOil100GridMap (void) const;
-      inline const GridMap * getCapPressureGas100GridMap (void) const;
-      inline const GridMap * getCapPressureGas0GridMap (void) const;
-      inline const GridMap * getCapPressureOil0GridMap (void) const;
-      */
+      inline double getLiquidDensity (int i, int j, int k);
+      inline double getVapourDensity (int i, int j, int k);
 
       bool saveComputedSMFlowPaths (Formation * targetFormation, const Interface::Snapshot * end);
       bool saveComputedSMFlowPathsByGridOffsets (const DataAccess::Interface::Snapshot * end);
@@ -226,6 +213,8 @@ namespace migration
 
       DerivedProperties::FormationPropertyPtr getFormationPropertyPtr (const string & propertyName, const Interface::Snapshot * snapshot) const;
 
+      // Sets all top nodes of the given formation as ends of path due to the formation being a detected reservoir
+      void setEndOfPath (void);
 
    private:
 
@@ -244,9 +233,6 @@ namespace migration
 
       // Map of all genex data
       Interface::GridMap* m_genexData;
-
-      // Sets all top nodes of the given formation as ends of path due to the formation being a detected reservoir
-      void setEndOfPath (void);
 
       bool computeInterpolator (const string & propertyName, const Interface::Snapshot *intervalStart, const Interface::Snapshot *intervalEnd,
                                 Genex6::LinearGridInterpolator& interpolator);
@@ -306,24 +292,24 @@ namespace migration
       return getPropertyValue (VERTICALPERMEABILITYPROPERTY, i, j, k);
    }
 
-   double Formation::getCapillaryEntryPressureGas (int i, int j, int k)
+   double Formation::getCapillaryEntryPressureVapour (int i, int j, int k)
    {
-      return getPropertyValue (CAPILLARYENTRYPRESSUREGASPROPERTY, i, j, k);
+      return getPropertyValue (CAPILLARYENTRYPRESSUREVAPOURPROPERTY, i, j, k);
    }
 
-   double Formation::getCapillaryEntryPressureOil (int i, int j, int k)
+   double Formation::getCapillaryEntryPressureLiquid (int i, int j, int k)
    {
-      return getPropertyValue (CAPILLARYENTRYPRESSUREOILPROPERTY, i, j, k);
+      return getPropertyValue (CAPILLARYENTRYPRESSURELIQUIDPROPERTY, i, j, k);
    }
 
-   double Formation::getGasDensity (int i, int j, int k)
+   double Formation::getVapourDensity (int i, int j, int k)
    {
-      return getPropertyValue (GASDENSITYPROPERTY, i, j, k);
+      return getPropertyValue (VAPOURDENSITYPROPERTY, i, j, k);
    }
 
-   double Formation::getOilDensity (int i, int j, int k)
+   double Formation::getLiquidDensity (int i, int j, int k)
    {
-      return getPropertyValue (OILDENSITYPROPERTY, i, j, k);
+      return getPropertyValue (LIQUIDDENSITYPROPERTY, i, j, k);
    }
 
    double Formation::getPressure (int i, int j, int k)

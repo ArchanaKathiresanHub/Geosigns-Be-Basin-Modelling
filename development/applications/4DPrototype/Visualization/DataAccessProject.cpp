@@ -34,7 +34,11 @@ namespace di = DataAccess::Interface;
 
 int DataAccessProject::getPropertyId(const std::string& name) const
 {
-  return m_propertyIdMap.at(name);
+  auto iter = m_propertyIdMap.find(name);
+  if (iter != m_propertyIdMap.end())
+    return iter->second;
+  else
+    return -1;
 }
 
 size_t DataAccessProject::getSnapshotCount() const
@@ -92,6 +96,19 @@ Project::SnapshotContents DataAccessProject::getSnapshotContents(size_t snapshot
     std::unique_ptr<di::ReservoirList> reservoirList(m_projectHandle->getReservoirs(fmt));
     for (auto res : *reservoirList)
       contents.reservoirs.push_back(m_reservoirIdMap.at(res->getName()));
+
+    // Push a flowline entry for each formation that is a source rock
+    if (fmt->isSourceRock())
+    {
+      for (int id = 0; id < (int)m_projectInfo.flowLines.size(); ++id)
+      {
+        if (m_projectInfo.flowLines[id].formationId == ssf.id)
+        {
+          contents.flowlines.push_back(id);
+          break;
+        }
+      }
+    }
   }
 
   if (!depthValues->empty())
@@ -169,6 +186,7 @@ void DataAccessProject::init()
   const std::string resRockTrapIdKey = "ResRockTrapId";
   const std::string resRockDrainageIdGasPhasePropertyKey = "ResRockDrainageIdGasPhase";
   const std::string resRockDrainageIdFluidPhasePropertyKey = "ResRockDrainageIdFluidPhase";
+  const std::string resRockLeakagePropertyKey = "ResRockLeakage";
   const std::string flowDirectionKey = "FlowDirectionIJK";
 
   m_depthProperty = m_projectHandle->findProperty(depthKey);
@@ -177,6 +195,7 @@ void DataAccessProject::init()
   m_resRockTrapIdProperty = m_projectHandle->findProperty(resRockTrapIdKey);
   m_resRockDrainageIdGasPhaseProperty = m_projectHandle->findProperty(resRockDrainageIdGasPhasePropertyKey);
   m_resRockDrainageIdFluidPhaseProperty = m_projectHandle->findProperty(resRockDrainageIdFluidPhasePropertyKey);
+  m_resRockLeakageProperty = m_projectHandle->findProperty(resRockLeakagePropertyKey);
   m_flowDirectionProperty = m_projectHandle->findProperty(flowDirectionKey);
 
   const di::Grid* loresGrid = m_projectHandle->getLowResolutionOutputGrid();
@@ -209,14 +228,24 @@ void DataAccessProject::init()
       continue;
 
     m_formations.push_back(formation);
-    m_formationIdMap[formation->getName()] = id++;
+    m_formationIdMap[formation->getName()] = id;
 
     Formation fmt;
     fmt.name = formation->getName();
     fmt.numCellsK = depthValue->getGridMap()->getDepth() - 1;
     fmt.isSourceRock = formation->isSourceRock();
-
     m_projectInfo.formations.push_back(fmt);
+
+    if (formation->isSourceRock() && m_flowDirectionProperty)
+    {
+      FlowLines flowLines;
+      flowLines.formationId = id;
+      flowLines.formationName = formation->getName();
+
+      m_projectInfo.flowLines.push_back(flowLines);
+    }
+
+    id++;
   }
 
   // Get all available surfaces
@@ -298,6 +327,8 @@ void DataAccessProject::init()
 }
 
 DataAccessProject::DataAccessProject(const std::string& path)
+  : m_loresDeadMap(nullptr)
+  , m_hiresDeadMap(nullptr)
 {
   m_objectFactory = std::make_shared<di::ObjectFactory>();
   m_projectHandle.reset(di::OpenCauldronProject(path, "r", m_objectFactory.get()));
@@ -306,6 +337,12 @@ DataAccessProject::DataAccessProject(const std::string& path)
     throw std::runtime_error("Could not open project");
 
   init();
+}
+
+DataAccessProject::~DataAccessProject()
+{
+  delete[] m_loresDeadMap;
+  delete[] m_hiresDeadMap;
 }
 
 Project::ProjectInfo DataAccessProject::getProjectInfo() const
@@ -324,6 +361,32 @@ unsigned int DataAccessProject::getMaxPersistentTrapId() const
     maxPersistentId = std::max(maxPersistentId, trapper->getPersistentId());
 
   return maxPersistentId;
+}
+
+namespace
+{
+
+  bool* createDeadMap(const di::GridMap* gridMap)
+  {
+    unsigned int ni = gridMap->numI() - 1;
+    unsigned int nj = gridMap->numJ() - 1;
+
+    bool* deadMap = new bool[ni * nj];
+    for (unsigned int i = 0; i < ni; ++i)
+    {
+      for (unsigned int j = 0; j < nj; ++j)
+      {
+        deadMap[i * nj + j] =
+          gridMap->getValue(i, j) == di::DefaultUndefinedMapValue ||
+          gridMap->getValue(i, j + 1) == di::DefaultUndefinedMapValue ||
+          gridMap->getValue(i + 1, j) == di::DefaultUndefinedMapValue ||
+          gridMap->getValue(i + 1, j + 1) == di::DefaultUndefinedMapValue;
+      }
+    }
+
+    return deadMap;
+  }
+
 }
 
 std::shared_ptr<MiVolumeMeshCurvilinear> DataAccessProject::createSnapshotMesh(size_t snapshotIndex) const
@@ -354,8 +417,11 @@ std::shared_ptr<MiVolumeMeshCurvilinear> DataAccessProject::createSnapshotMesh(s
   if (depthMaps.empty())
     return nullptr;
 
+  if (!m_loresDeadMap)
+    m_loresDeadMap = createDeadMap(depthMaps[0]);
+
   auto geometry = std::make_shared<SnapshotGeometry>(depthMaps);
-  auto topology = std::make_shared<SnapshotTopology>(geometry);
+  auto topology = std::make_shared<SnapshotTopology>(geometry, m_loresDeadMap);
   return std::make_shared<SnapshotMesh>(geometry, topology);
 }
 
@@ -371,12 +437,18 @@ std::shared_ptr<MiVolumeMeshCurvilinear> DataAccessProject::createReservoirMesh(
   std::unique_ptr<di::PropertyValueList> bottomValues(m_projectHandle->getPropertyValues(
     di::RESERVOIR, m_resRockBottomProperty, snapshot, reservoir, 0, 0, di::MAP));
 
-  //if (topValues && !topValues->empty() && bottomValues && !bottomValues->empty())
-  //  ; // TODO: throw exception
+  if (!topValues || topValues->empty() || !bottomValues || bottomValues->empty())
+    return nullptr;
 
-  return std::make_shared<ReservoirMesh>(
+  if (!m_hiresDeadMap)
+    m_hiresDeadMap = createDeadMap((*topValues)[0]->getGridMap());
+
+  auto geometry = std::make_shared<ReservoirGeometry>(
     (*topValues)[0]->getGridMap(), 
     (*bottomValues)[0]->getGridMap());
+  auto topology = std::make_shared<ReservoirTopology>(geometry, m_hiresDeadMap);
+
+  return std::make_shared<ReservoirMesh>(geometry, topology);
 }
 
 std::shared_ptr<MiSurfaceMeshCurvilinear> DataAccessProject::createSurfaceMesh(
@@ -391,7 +463,11 @@ std::shared_ptr<MiSurfaceMeshCurvilinear> DataAccessProject::createSurfaceMesh(
 
   assert(values->size() == 1); //TODO: should not be an assert
 
-  return std::make_shared<SurfaceMesh>((*values)[0]->getGridMap());
+  auto depthMap = (*values)[0]->getGridMap();
+  auto geometry = std::make_shared<SurfaceGeometry>(depthMap);
+  auto topology = std::make_shared<SurfaceTopology>(depthMap->numI() - 1, depthMap->numJ() - 1, *geometry);
+
+  return std::make_shared<SurfaceMesh>(geometry, topology);
 }
 
 std::shared_ptr<MiDataSetIjk<double> > DataAccessProject::createFormationProperty(
@@ -417,6 +493,31 @@ std::shared_ptr<MiDataSetIjk<double> > DataAccessProject::createFormationPropert
     return std::make_shared<Formation2DProperty>(name, gridMaps);
   else
     return std::make_shared<FormationProperty>(name, gridMaps);
+}
+
+std::shared_ptr<MiDataSetIj<double> > DataAccessProject::createFormation2DProperty(
+  size_t snapshotIndex,
+  int formationId,
+  int propertyId) const
+{
+  if (propertyId < 0 || propertyId >= (int)m_properties.size())
+    return nullptr;
+
+  const di::Property* prop = m_properties[propertyId];
+
+  if (!prop || prop->getPropertyAttribute() != DataModel::FORMATION_2D_PROPERTY)
+    return nullptr;
+
+  const di::Snapshot* snapshot = m_snapshotList[snapshotIndex];
+  const di::Formation* formation = m_formations[formationId];
+
+  std::unique_ptr<di::PropertyValueList> values(
+    prop->getPropertyValues(di::FORMATION, snapshot, nullptr, formation, nullptr));
+
+  if (!values || values->empty())
+    return nullptr;
+
+  return std::make_shared<SurfaceProperty>(prop->getName(), (*values)[0]->getGridMap());
 }
 
 std::shared_ptr<MiDataSetIj<double> > DataAccessProject::createSurfaceProperty(
@@ -471,8 +572,11 @@ std::shared_ptr<MiDataSetIjk<double> > DataAccessProject::createReservoirPropert
   if (!values || values->empty())
     return nullptr;
 
-  return std::make_shared<ReservoirProperty>(prop->getName(), (*values)[0]->getGridMap());
+  auto result = std::make_shared<ReservoirProperty>(prop->getName(), (*values)[0]->getGridMap());
+  if (prop == m_resRockLeakageProperty)
+    result->setLogarithmic(true);
 
+  return result;
 }
 
 // A PersistentTrapIdProperty consists of the values of the ResRockTrapId property, combined with
@@ -557,8 +661,8 @@ std::vector<Project::Trap> DataAccessProject::getTraps(size_t snapshotIndex, int
     trap.leakagePoint = SbVec3f((float)(x - dim.minX), (float)(y - dim.minY), (float)z);
 
     trap.id = (int)trapper->getId();
-    trap.gasOilContactDepth = -trapper->getGOC();
-    trap.oilWaterContactDepth = -trapper->getOWC();
+    trap.gasOilContactDepth = trapper->getGOC();
+    trap.oilWaterContactDepth = trapper->getOWC();
 
     const di::Trapper* dsTrapper = trapper->getDownstreamTrapper();
     trap.downStreamId = (dsTrapper != 0) ? (int)dsTrapper->getId() : -1;

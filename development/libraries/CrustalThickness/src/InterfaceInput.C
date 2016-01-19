@@ -20,6 +20,9 @@
 #include "errorhandling.h"
 #include "Interface/ProjectHandle.h"
 
+//utility
+#include "LogHandler.h"
+
 //------------------------------------------------------------//
 InterfaceInput::InterfaceInput(Interface::ProjectHandle * projectHandle, database::Record * record) :
    Interface::CrustalThicknessData(projectHandle, record) {
@@ -94,8 +97,26 @@ void InterfaceInput::clean() {
 }
 //------------------------------------------------------------//
 void InterfaceInput::loadInputDataAndConfigurationFile( const string & inFile ) {
-   loadInputData();
-   loadConfigurationFile( inFile );
+   ///1. Load input data
+   try {
+      loadInputData();
+   }
+   catch (InputException& ex){
+      LogHandler( LogHandler::ERROR_SEVERITY ) << ex.what();
+   }
+   catch (...){
+      LogHandler( LogHandler::FATAL_SEVERITY ) << "CTC fatal error when loading input data";
+   }
+   ///2. Load configuration file
+   try {
+      loadConfigurationFile( inFile );
+   }
+   catch (InputException& ex){
+      LogHandler( LogHandler::ERROR_SEVERITY ) << ex.what();
+   }
+   catch (...){
+      LogHandler( LogHandler::FATAL_SEVERITY ) << "CTC fatal error when loading configuration file";
+   }
 }
 //------------------------------------------------------------//
 void InterfaceInput::loadInputData() {
@@ -110,11 +131,9 @@ void InterfaceInput::loadInputData() {
    m_smoothRadius = getFilterHalfWidth();
 
    if( m_T0Map == 0 || m_TRMap == 0 || m_HCuMap == 0 || m_HLMuMap == 0 || m_DeltaSLMap == 0 ) {
-      string s = "Cannot load input data... Aborting... ";
-      throw s;
+      throw InputException() << "Cannot load input data... Aborting... ";
    }
      
-   //cout << "Base of Rift = " << m_baseRiftSurfaceName << endl;
 }
 //------------------------------------------------------------//
 void InterfaceInput::loadConfigurationFile( const string & inFile ) {
@@ -129,8 +148,7 @@ void InterfaceInput::loadConfigurationFile( const string & inFile ) {
    } else if( CTCDIR != 0 ) {
       fullpath = CTCDIR + string("/") + inFile;
    } else {
-      string s = "Environment Variable CTCDIR is not set. Aborting...";
-      throw s;
+      throw InputException() << "Environment Variable CTCDIR is not set. Aborting...";
    }
 
    ifstream  ConfigurationFile;
@@ -138,8 +156,7 @@ void InterfaceInput::loadConfigurationFile( const string & inFile ) {
    ConfigurationFile.open( fullpath.c_str() );
    
    if(!ConfigurationFile) {
-      string s = "Attempting to open file :" + fullpath + "\nNo cfg file available in the $CTCDIR directory... Aborting... ";
-      throw s;
+      throw InputException() << "Attempting to open configuration file " << fullpath << " but no file does not exist... Aborting... ";
    }
 
    string line;
@@ -225,22 +242,23 @@ void InterfaceInput::LoadBasicConstants( ifstream &ConfigurationFile ) {
                
                m_tau = atof( theTokens[1].c_str() );
                ++ countParam;
-            }  
-         } else {
+            }
+            else{
+               LogHandler( LogHandler::WARNING_SEVERITY ) << "CTC configuration file BasicConstants table: unknown CTC parameter '" << theTokens[0] << "'.";
+            }
+         }
+         else {
             theTokens.clear();
-            string s = "More or less arguments than expected.";
-            throw s;
+            throw InputException() << "CTC configuration file BasicConstants table: unexpected parameter definition (should be Name, Value).";
          }
          theTokens.clear();
       }
-      }
-   if( countParam != 4 ) {
-      string s = "BasicConstants table: More or less arguments than expected.";
-      throw s;
    }
-     if( m_tau == 0 ) {
-      string s = "MeSsAgE ERROR  Tau = 0.";
-      throw s;
+   if( countParam != 4 ) {
+      throw InputException() << "CTC configuration file BasicConstants table: 4 parameters expected but only " << countParam << " found.";
+   }
+   if( m_tau == 0 ) {
+      throw InputException() << "CTC configuration file BasicConstants table: Tau=0 but should be !=0.";
    }
  
 }
@@ -301,26 +319,25 @@ void InterfaceInput::LoadLithoAndCrustProperties( ifstream &ConfigurationFile ) 
                
                m_waterDensity = atof( theTokens[1].c_str() );
                ++ countParam;
-               
+            }
+            // lithosphereThicknessMin and maxNumberOfMantleElements will be defined in BasementLithology.C so they should not return a warning
+            else if (theTokens[0] != CrustalThicknessInterface::lithosphereThicknessMin
+                     and theTokens[0] != CrustalThicknessInterface::maxNumberOfMantleElements) {
+               LogHandler( LogHandler::WARNING_SEVERITY ) << "CTC configuration file LithoAndCrustProperties table: unknown CTC parameter '" << theTokens[0] << "'.";
             }
          } else {
             theTokens.clear();
-            string s = "More or less arguments than expected.";
-            throw s;
+            throw InputException() << "CTC configuration file LithoAndCrustProperties table: unexpected parameter definition (should be Name, Value).";
          }
          theTokens.clear();
       }
    }
-   if( countParam != 8 ) {
-      string s = "LithoAndCrustProperties table: More or less arguments than expected.";
-      throw s;
+   if( countParam != 7 ) {
+      throw InputException() << "CTC configuration file LithoAndCrustProperties table: 7 parameters expected but only " << countParam << " found.";
    }
- 
-
    if( m_modelTotalLithoThickness == 0 ) {
-      string s = "MeSsAgE ERROR  TotalLithoThickness of the Model = 0.";
-      throw s;
-}
+      throw InputException() << "CTC configuration file LithoAndCrustProperties table: TotalLithoThickness of the Model = 0 but should be !=0.";
+   }
 }
 
 //------------------------------------------------------------//
@@ -359,23 +376,19 @@ void InterfaceInput::LoadTemperatureData( ifstream &ConfigurationFile ) {
                ++countParam;
 
             }
+            else{
+               LogHandler( LogHandler::WARNING_SEVERITY ) << "CTC configuration file TemperatureData table: unknown CTC parameter '" << theTokens[0] << "'.";
+            }
          }
          else {
             theTokens.clear();
-            string s = "More or less arguments than expected.";
-            throw s;
+            throw InputException() << "CTC configuration file TemperatureData table: unexpected parameter definition (should be Name, Value).";
          }
          theTokens.clear();
       }
-      else {
-         theTokens.clear();
-         string s = "More or less arguments than expected.";
-         throw s;
-      }
-      if (countParam != 2) {
-         string s = "TemperatureData table: More or less arguments than expected.";
-         throw s;
-      }
+   }
+   if (countParam != 2) {
+      throw InputException() << "CTC configuration file TemperatureData table: 2 parameters expected but only " << countParam << " found.";
    }
 }
 //------------------------------------------------------------//
@@ -413,20 +426,20 @@ void InterfaceInput::LoadSolidus( ifstream &ConfigurationFile ) {
                ++countParam;
    
             }
+            else{
+               LogHandler( LogHandler::WARNING_SEVERITY ) << "CTC configuration file Solidus table: unknown CTC parameter '" << theTokens[0] << "'.";
+            }
          }
          else {
             theTokens.clear();
-            string s = "More or less arguments than expected.";
-            throw s;
+            throw InputException() << "CTC configuration file Solidus table: unexpected parameter definition (should be Name, Value).";
          }
          theTokens.clear();
       }
    }
    if (countParam != 2) {
-      string s = "Solidus table: More or less arguments than expected.";
-      throw s;
+      throw InputException() << "CTC configuration file Solidus table: 2 parameters expected but only " << countParam << " found.";
    }
-   theTokens.clear();
 }
 //------------------------------------------------------------//
 void InterfaceInput::LoadMagmaLayer( ifstream &ConfigurationFile ) {
@@ -465,18 +478,20 @@ void InterfaceInput::LoadMagmaLayer( ifstream &ConfigurationFile ) {
                m_decayConstant = atof( theTokens[1].c_str() );
                ++ countParam;
                
-            } 
-         } else {
-         theTokens.clear();
-            string s = "More or less arguments than expected.";
-            throw s;
+            }
+            else{
+               LogHandler( LogHandler::WARNING_SEVERITY ) << "CTC configuration file MagmaLayer table: unknown CTC parameter '" << theTokens[0] << "'.";
+            }
+         }
+         else {
+            theTokens.clear();
+            throw InputException() << "CTC configuration file MagmaLayer table: unexpected parameter definition (should be Name, Value).";
          }
          theTokens.clear();
       }
-      }
+   }
    if( countParam != 2 ) {
-      string s = "MagmaLayer table: More or less arguments than expected.";
-      throw s;
+      throw InputException() << "CTC configuration file MagmaLayer table: 2 parameters expected but only " << countParam << " found.";
    }
 }
 //------------------------------------------------------------//
@@ -531,18 +546,20 @@ void InterfaceInput::LoadUserDefinedData( ifstream &ConfigurationFile ) {
                
                m_seaLevelAdjustment = atof( theTokens[1].c_str() );
                ++ countParam;
-      }
-         } else {
+            }
+            else{
+               LogHandler( LogHandler::WARNING_SEVERITY ) << "CTC configuration file UserDefinedData table: unknown CTC parameter '" << theTokens[0] << "'.";
+            }
+         }
+         else {
             theTokens.clear();
-            string s = "More or less arguments than expected.";
-            throw s;
-   }
+            throw InputException() << "CTC configuration file UserDefinedData table: unexpected parameter definition (should be Name, Value).";
+         }
          theTokens.clear();
-}
+      }
    }
    if( countParam != 6 ) {
-      string s = "UserDefinedData table: More or less arguments than expected.";
-      throw s;
+      throw InputException() << "CTC configuration file UserDefinedData table: 6 parameters expected but only " << countParam << " found.";
    }
 }
 
@@ -559,8 +576,7 @@ bool InterfaceInput::defineLinearFunction( LinearFunction & theFunction, unsigne
    m_initialCrustThickness = m_HCuMap->getValue( i, j );
 
    if( m_initialCrustThickness == 0 ) {
-      string s = "MeSsAgE ERROR  initialCrustThickness = 0";
-      throw s;
+      throw InputException() << "InitialCrustThickness=0 but should be !=0";
    }
    const double mantleDensityAV = m_lithoMantleDensity * (1 - (m_coeffThermExpansion * m_baseLithosphericTemperature / 2) * 
                                                           ((m_referenceCrustThickness + m_initialCrustThickness) / m_modelTotalLithoThickness));  
@@ -617,8 +633,7 @@ bool InterfaceInput::defineLinearFunction( LinearFunction & theFunction, unsigne
   const double c2 = m_TF_onset_lin - m_WLS_onset * m2;
 
   if( m_maxBasalticCrustThickness != 0 && ( m_backstrippingMantleDensity - m_magmaticDensity ) == 0.0 ) {
-      string s = "MeSsAgE ERROR Backstripping Mantle density == magmatic density";
-      throw s;
+     throw InputException() << "Backstripping Mantle density == Magmatic density but they should be !=";
   }     
   const double magmaThicknessCoeff = (m_backstrippingMantleDensity - m_waterDensity) / (m_backstrippingMantleDensity - m_magmaticDensity);
 
@@ -633,21 +648,21 @@ bool InterfaceInput::defineLinearFunction( LinearFunction & theFunction, unsigne
 //------------------------------------------------------------//
 void InterfaceInput::retrieveData() {
 
-   m_T0Map->retrieveData();
-   m_TRMap->retrieveData();
-   m_HCuMap->retrieveData();
-   m_HLMuMap->retrieveData();
-   m_HBuMap->retrieveData();
+   m_T0Map     ->retrieveData();
+   m_TRMap     ->retrieveData();
+   m_HCuMap    ->retrieveData();
+   m_HLMuMap   ->retrieveData();
+   m_HBuMap    ->retrieveData();
    m_DeltaSLMap->retrieveData();
 }
 //------------------------------------------------------------//
 void InterfaceInput::restoreData() {
 
-   m_T0Map->restoreData();
-   m_TRMap->restoreData();
-   m_HCuMap->restoreData();
-   m_HLMuMap->restoreData();
-   m_HBuMap->restoreData();
+   m_T0Map     ->restoreData();
+   m_TRMap     ->restoreData();
+   m_HCuMap    ->restoreData();
+   m_HLMuMap   ->restoreData();
+   m_HBuMap    ->restoreData();
    m_DeltaSLMap->restoreData();
 }
 //------------------------------------------------------------//

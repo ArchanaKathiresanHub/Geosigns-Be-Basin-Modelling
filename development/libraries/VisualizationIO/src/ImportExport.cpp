@@ -155,12 +155,17 @@ void ImportExport::addProject(boost::property_tree::ptree& pt, boost::shared_ptr
             trapperNode.put("<xmlattr>.id", trapper->getID());
             trapperNode.put("<xmlattr>.persistentID", trapper->getPersistentID());
             trapperNode.put("<xmlattr>.reservoirname", trapper->getReservoirName());
-            trapperNode.put("<xmlattr>.depth", trapper->getSpillDepth());
-            
+            trapperNode.put("<xmlattr>.depth", trapper->getDepth());
+            trapperNode.put("<xmlattr>.spillDepth", trapper->getSpillDepth());
+
             float x, y;
-            trapper->getSpillPointPosition(x, y);
+            trapper->getPosition(x, y);
             trapperNode.put("<xmlattr>.posX", x);
             trapperNode.put("<xmlattr>.posY", y);
+
+            trapper->getSpillPointPosition(x, y);
+            trapperNode.put("<xmlattr>.spillPosX", x);
+            trapperNode.put("<xmlattr>.spillPosY", y);
 
             int downstreamTrapperID = trapper->getDownStreamTrapperID();
             trapperNode.put("<xmlattr>.downstreamtrapper", downstreamTrapperID);
@@ -437,16 +442,21 @@ boost::shared_ptr<Project> CauldronIO::ImportExport::getProject(const boost::pro
                         int persistentID = trapperNode.get<int>("<xmlattr>.persistentID");
                         int downstreamTrapperID = trapperNode.get<int>("<xmlattr>.downstreamtrapper");
                         float depth = trapperNode.get<float>("<xmlattr>.depth");
+                        float spillDepth = trapperNode.get<float>("<xmlattr>.spillDepth");
                         std::string reservoirname = trapperNode.get<std::string>("<xmlattr>.reservoirname");
                         
                         float x = trapperNode.get<float>("<xmlattr>.posX");
                         float y = trapperNode.get<float>("<xmlattr>.posY");
+                        float spillX = trapperNode.get<float>("<xmlattr>.spillPosX");
+                        float spillY = trapperNode.get<float>("<xmlattr>.spillPosY");
 
                         boost::shared_ptr<Trapper> trapperIO(new Trapper(ID, persistentID));
                         trapperIO->setDownStreamTrapperID(downstreamTrapperID);
                         trapperIO->setReservoirName(reservoirname);
-                        trapperIO->setSpillDepth(depth);
-                        trapperIO->setSpillPointPosition(x, y);
+                        trapperIO->setSpillDepth(spillDepth);
+                        trapperIO->setSpillPointPosition(spillX, spillY);
+                        trapperIO->setDepth(depth);
+                        trapperIO->setPosition(x, y);
 
                         snapShot->addTrapper(trapperIO);
 

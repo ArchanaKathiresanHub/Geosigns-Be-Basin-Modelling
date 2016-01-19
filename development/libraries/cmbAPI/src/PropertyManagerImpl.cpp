@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2012-2014 Shell International Exploration & Production.
+// Copyright (C) 2012-2016 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -182,7 +182,7 @@ ErrorHandler::ReturnCode PropertyManagerImpl::copyResultsFiles( const std::strin
          if ( !copied ) throw Exception( IoError )  << "Can't copy file: " << oldResFile.path() << " to " << newResFile.path();
       }
    }
-   catch( const Exception & ex ) { reportError( ex.errorCode(), ex.what() ); }
+   catch( const Exception & ex ) { return reportError( ex.errorCode(), ex.what() ); }
 
    return NoError;
 }

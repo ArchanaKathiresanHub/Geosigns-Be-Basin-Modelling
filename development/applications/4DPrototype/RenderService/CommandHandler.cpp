@@ -70,6 +70,11 @@ namespace
       collectionId++;
     }
 
+    // Add flow lines
+    jsonxx::Array flowlines;
+    for (auto lines : projectInfo.flowLines)
+      flowlines << lines.formationName;
+
     // Add properties
     jsonxx::Array properties;
     for (auto property : projectInfo.properties)
@@ -87,6 +92,7 @@ namespace
       << "surfaces" << surfaces
       << "reservoirs" << reservoirs
       << "faultCollections" << faultCollections
+      << "flowLines" << flowlines
       << "properties" << properties;
 
     return projectInfoObject;
@@ -199,6 +205,27 @@ void CommandHandler::onEnableAllFaults(
   m_sceneGraphManager->enableAllFaults(enabled);
 }
 
+void CommandHandler::onEnableFlowLines(
+  const jsonxx::Object& params,
+  RemoteViz::Rendering::RenderArea* /*renderArea*/,
+  RemoteViz::Rendering::Connection* /*connection*/)
+{
+  auto flowLinesId = (int)params.get<jsonxx::Number>("flowLinesId");
+  auto enabled = params.get<bool>("enabled");
+
+  m_sceneGraphManager->enableFlowLines(flowLinesId, enabled);
+}
+
+void CommandHandler::onEnableAllFlowLines(
+  const jsonxx::Object& params,
+  RemoteViz::Rendering::RenderArea* /*renderArea*/,
+  RemoteViz::Rendering::Connection* /*connection*/)
+{
+  auto enabled = params.get<bool>("enabled");
+
+  m_sceneGraphManager->enableAllFlowLines(enabled);
+}
+
 void CommandHandler::onSetProperty(
   const jsonxx::Object& params,
   RemoteViz::Rendering::RenderArea* /*renderArea*/,
@@ -250,6 +277,26 @@ void CommandHandler::onShowCoordinateGrid(
   m_sceneGraphManager->showCoordinateGrid(showGrid);
 }
  
+void CommandHandler::onShowCompass(
+  const jsonxx::Object& params,
+  RemoteViz::Rendering::RenderArea* /*renderArea*/,
+  RemoteViz::Rendering::Connection* /*connection*/)
+{
+  auto showCompass = params.get<bool>("show");
+
+  m_sceneGraphManager->showCompass(showCompass);
+}
+
+void CommandHandler::onShowText(
+  const jsonxx::Object& params,
+  RemoteViz::Rendering::RenderArea* /*renderArea*/,
+  RemoteViz::Rendering::Connection* /*connection*/)
+{
+  auto showText = params.get<bool>("show");
+
+  m_sceneGraphManager->showText(showText);
+}
+
 void CommandHandler::onShowTraps(
   const jsonxx::Object& params,
   RemoteViz::Rendering::RenderArea* /*renderArea*/,
@@ -270,21 +317,34 @@ void CommandHandler::onShowTrapOutlines(
   m_sceneGraphManager->showTrapOutlines(showOutlines);
 }
 
-void CommandHandler::onShowFlowDirection(
+void CommandHandler::onShowFluidContacts(
   const jsonxx::Object& params,
   RemoteViz::Rendering::RenderArea* /*renderArea*/,
   RemoteViz::Rendering::Connection* /*connection*/)
 {
-  auto typeStr = params.get<std::string>("type");
+  auto show = params.get<bool>("show");
 
-  SceneGraphManager::FlowVizType type = SceneGraphManager::FlowVizNone;
+  m_sceneGraphManager->setProperty(show ? SceneGraphManager::FluidContactsPropertyId : -1);
+}
 
-  if (typeStr == "FlowVizLines")
-    type = SceneGraphManager::FlowVizLines;
-  else if (typeStr == "FlowVizVectors")
-    type = SceneGraphManager::FlowVizVectors;
+void CommandHandler::onShowFlowVectors(
+  const jsonxx::Object& params,
+  RemoteViz::Rendering::RenderArea* /*renderArea*/,
+  RemoteViz::Rendering::Connection* /*connection*/)
+{
+  auto show = params.get<bool>("show");
 
-  m_sceneGraphManager->showFlowDirection(type);
+  m_sceneGraphManager->showFlowVectors(show);
+}
+
+void CommandHandler::onSetFlowLinesStep(
+  const jsonxx::Object& params,
+  RemoteViz::Rendering::RenderArea* /*renderArea*/,
+  RemoteViz::Rendering::Connection* /*connection*/)
+{
+  auto step = (int)params.get<jsonxx::Number>("step");
+
+  m_sceneGraphManager->setFlowLinesStep(step);
 }
 
 void CommandHandler::onShowDrainageAreaOutlines(
@@ -443,14 +503,20 @@ void CommandHandler::registerHandlers()
   m_handlers["SetSlicePosition"] = &CommandHandler::onSetSlicePosition;
   m_handlers["EnableFault"] = &CommandHandler::onEnableFault;
   m_handlers["EnableAllFaults"] = &CommandHandler::onEnableAllFaults;
+  m_handlers["EnableFlowLines"] = &CommandHandler::onEnableFlowLines;
+  m_handlers["EnableAllFlowLines"] = &CommandHandler::onEnableAllFlowLines;
   m_handlers["SetProperty"] = &CommandHandler::onSetProperty;
   m_handlers["SetVerticalScale"] = &CommandHandler::onSetVerticalScale;
   m_handlers["SetTransparency"] = &CommandHandler::onSetTransparency;
   m_handlers["SetRenderStyle"] = &CommandHandler::onSetRenderStyle;
   m_handlers["ShowCoordinateGrid"] = &CommandHandler::onShowCoordinateGrid;
+  m_handlers["ShowCompass"] = &CommandHandler::onShowCompass;
+  m_handlers["ShowText"] = &CommandHandler::onShowText;
   m_handlers["ShowTraps"] = &CommandHandler::onShowTraps;
   m_handlers["ShowTrapOutlines"] = &CommandHandler::onShowTrapOutlines;
-  m_handlers["ShowFlowDirection"] = &CommandHandler::onShowFlowDirection;
+  m_handlers["ShowFluidContacts"] = &CommandHandler::onShowFluidContacts;
+  m_handlers["ShowFlowVectors"] = &CommandHandler::onShowFlowVectors;
+  m_handlers["SetFlowLinesStep"] = &CommandHandler::onSetFlowLinesStep;
   m_handlers["ShowDrainageAreaOutline"] = &CommandHandler::onShowDrainageAreaOutlines;
   m_handlers["SetProjection"] = &CommandHandler::onSetProjection;
   m_handlers["SetCurrentSnapshot"] = &CommandHandler::onSetCurrentSnapshot;

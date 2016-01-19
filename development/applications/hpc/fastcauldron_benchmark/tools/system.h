@@ -1,7 +1,7 @@
 #ifndef HPC_FCBENCH_SYSTEM_H
 #define HPC_FCBENCH_SYSTEM_H
 
-#include "formattingexception.h"
+#include "FormattingException.h"
 
 #include <boost/shared_ptr.hpp>
 

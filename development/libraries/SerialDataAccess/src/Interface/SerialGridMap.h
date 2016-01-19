@@ -155,6 +155,9 @@ namespace DataAccess
      double deltaJ (void) const;
      
      bool retrieved() const { return true;}
+ 
+     /// return false 
+     bool isAscendingOrder() const;
 	 private:
 	    /// The (regular) Grid this GridMap is based on.
 	    const Grid * m_grid;

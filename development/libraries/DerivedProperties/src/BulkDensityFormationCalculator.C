@@ -131,7 +131,7 @@ void DerivedProperties::BulkDensityFormationCalculator::computeBulkDensitySedime
                solidDensity = lithologies ( i, j, currentTime )->density ();
 
                for ( unsigned int k = bulkDensity->firstK (); k <= bulkDensity->lastK (); ++k ) {
-                  const double porosity = 0.01 * layerPorosity->get ( i, j, k );
+                  const double porosity = 0.01 * layerPorosity->getA ( i, j, k );
                   bulkDensity->set ( i, j, k,  ( 1.0 - porosity ) * solidDensity + porosity * fluidDensity );
                }
 
@@ -188,8 +188,8 @@ void DerivedProperties::BulkDensityFormationCalculator::computeBulkDensitySedime
                double solidDensity = lithologies ( i, j, currentTime )->density ();
 
                for ( unsigned int k = bulkDensity->firstK (); k <= bulkDensity->lastK (); ++k ) {
-                  const double porosity = 0.01 * layerPorosity->get ( i, j, k );
-                  const double fluidDensity = fluid->density ( temperature->get ( i, j, k ), porePressure->get ( i, j, k ));
+                  const double porosity = 0.01 * layerPorosity->getA ( i, j, k );
+                  const double fluidDensity = fluid->density ( temperature->getA ( i, j, k ), porePressure->getA ( i, j, k ));
                   bulkDensity->set ( i, j, k, ( 1.0 - porosity ) * solidDensity + porosity * fluidDensity );
                }
 
@@ -282,7 +282,7 @@ void DerivedProperties::BulkDensityFormationCalculator::computeBulkDensityBaseme
             if ( m_projectHandle->getNodeIsValid ( i, j )) {
 
                for ( unsigned int k = bulkDensity->firstK (); k <= bulkDensity->lastK (); ++k ) {
-                  double solidDensity = lithologies ( i, j )->computeDensity ( temperature->get ( i, j, k ), lithostaticPressure->get ( i, j, k ));
+                  double solidDensity = lithologies ( i, j )->computeDensity ( temperature->getA ( i, j, k ), lithostaticPressure->getA ( i, j, k ));
                   bulkDensity->set ( i, j, k, solidDensity );
                }
 

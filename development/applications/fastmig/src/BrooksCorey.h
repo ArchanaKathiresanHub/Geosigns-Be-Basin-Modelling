@@ -20,22 +20,22 @@ class BrooksCorey
    /// The contact angle for the gas-water interface.
    ///
    /// 180 Degrees.
-   static const double GasWaterContactAngle;
+   static const double VapourWaterContactAngle;
 
    /// The contact angle for the oil-water interface.
    ///
    /// 150 Degrees = 180 - 30.
-   static const double OilWaterContactAngle;
+   static const double LiquidWaterContactAngle;
 
    /// The contact angle for the oil-gas interface.
    ///
    /// 180 - 21 degrees?
-   static const double OilGasContactAngle;
+   static const double LiquidVapourContactAngle;
 
    /// The cosine of the contact angle for the oil-gas interface.
    ///
    /// cos ( OilGasContactAngle degrees ) = cos ( 180 - 21 ).
-   static const double CosOilGasContactAngle;
+   static const double CosLiquidVapourContactAngle;
 
    /// The contact angle for the mercury-air interface.
    ///
@@ -76,7 +76,7 @@ class BrooksCorey
    ///
    /// \f[ 19.099e-3 c_1 10^{-0.034878 c1} \f]
    /// Units N/m
-   static double oilGasInterfacialTension ( const double pressure );
+   static double liquidVapourInterfacialTension ( const double pressure );
 
    // =========== The Brooks-Corey capillary pressure function  ===========//
    // Params: wetting saturation, connate/irreducible saturation, entry pressure, lambda (exponent)
@@ -116,8 +116,7 @@ inline double BrooksCorey::computeCapillaryEntryPressure ( const double permeabi
 }
 
 
-inline double BrooksCorey::oilGasInterfacialTension ( const double pressure ) {
-   // return 19.099e-3 * 10^{-0.034878 * pressure}
+inline double BrooksCorey::liquidVapourInterfacialTension ( const double pressure ) {
    return 19.099e-3 * std::exp ( -0.034878 * pressure * log10 );
 }
 

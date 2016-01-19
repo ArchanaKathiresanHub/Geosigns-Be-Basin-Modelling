@@ -165,24 +165,25 @@ MasterTouch::MasterTouch( ProjectHandle & projectHandle )
    : m_projectHandle( projectHandle )
    , m_percentPercentileMapping()
    , m_categoriesMapping()
+   , m_categories()
    , m_formatsMapping()
    , m_layerList()
    , m_usedSnapshotsIndex()
    , m_usedSnapshotsAge()
-   , m_layerCategoryResultCounter()
    , m_verboseLevel(0)
-   , m_categories(0)
+   , m_layerCategoryResultCounter()
+   , m_fileLayerFaciesGridMap()
 {
    // set format mapping
    m_formatsMapping["Summary Standard Deviation"]  = SD;  
-   m_formatsMapping["Summary Mean"]         	   = MEAN;  
-   m_formatsMapping["Geometric Mean"]      	   = GEOMEAN; 
-   m_formatsMapping["Summary Skewness"]     	   = SKEWNESS;   
-   m_formatsMapping["Summary Kurtosis"]     	   = KURTOSIS;    
+   m_formatsMapping["Summary Mean"]         	      = MEAN;  
+   m_formatsMapping["Geometric Mean"]      	      = GEOMEAN; 
+   m_formatsMapping["Summary Skewness"]     	      = SKEWNESS;   
+   m_formatsMapping["Summary Kurtosis"]     	      = KURTOSIS;    
    m_formatsMapping["Summary Minimum"]             = MIN;          
    m_formatsMapping["Summary Maximum"]             = MAX;          
-   m_formatsMapping["Summary Mode"]         	   = MODE;         
-   m_formatsMapping["Percentile"]   		   = PERCENTILE;  
+   m_formatsMapping["Summary Mode"]         	      = MODE;         
+   m_formatsMapping["Percentile"]   		         = PERCENTILE;  
    m_formatsMapping["Distribution"]                = DISTRIBUTION;
 
 
@@ -462,14 +463,14 @@ void MasterTouch::writeBurialHistory( const Surface * surface, WriteBurial & wri
    BurialHistory burialHistory(surface, m_projectHandle);
        
    // write Burial History	
-   for ( unsigned int i = firstI; i <= lastI; ++i )
+   for ( int i = firstI; i <= lastI; ++i )
    {
-      for( unsigned int j = firstJ; j <= lastJ; ++j )
+      for( int j = firstJ; j <= lastJ; ++j )
       {
          // write burial histories only for selected areas, for areas with gridMapValue == 0 do not write burial histories. Perform this check only if facieGridMapisDefined    
          if (facieGridMapisDefined) 
          {
-            gridMapValue = faciesGridMap->GridMap->getValue(i, j);
+            gridMapValue = faciesGridMap->GridMap->getValue((unsigned int) i, (unsigned int)j);
             if (gridMapValue == 0) 
             {
                writeFlag = false ;
@@ -525,7 +526,7 @@ bool MasterTouch::calculate( const std::string & filename, const char * burhistF
       ReadTouchstone.readOrder(vec);
 		
       //as saved by the library
-      for ( int ii = 0; ii < vec.size() - 1; ++ii ) m_categoriesMapping[m_categories[ii]] = vec[ii];
+      for ( size_t ii = 0; ii < vec.size() - 1; ++ii ) m_categoriesMapping[m_categories[ii]] = vec[ii];
         
       //Read touchstone results for all included layers	
       LayerCategoryMapInfoList::iterator outIt;

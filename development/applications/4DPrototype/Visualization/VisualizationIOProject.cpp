@@ -100,41 +100,43 @@ namespace VizIO
   template<class T>
   class VolumeTopology : public MiTopologyIjk
   {
-    const T& m_geometry;
-
-    size_t m_timestamp;
+    const T&    m_geometry;
+    const bool* m_deadMap;
+    size_t      m_timestamp;
+    size_t      m_numI;
+    size_t      m_numJ;
+    size_t      m_numK;
 
   public:
 
-    VolumeTopology(const T& geometry)
+    VolumeTopology(const T& geometry, const bool* deadMap)
       : m_geometry(geometry)
+      , m_deadMap(deadMap)
       , m_timestamp(MxTimeStamp::getTimeStamp())
     {
-
+      m_numI = m_geometry.numI() - 1;
+      m_numJ = m_geometry.numJ() - 1;
+      m_numK = m_geometry.numK() - 1;
     }
 
     virtual size_t getNumCellsI() const
     {
-      return m_geometry.numI() - 1;
+      return m_numI;
     }
 
     virtual size_t getNumCellsJ() const
     {
-      return m_geometry.numJ() - 1;
+      return m_numJ;
     }
 
     virtual size_t getNumCellsK() const
     {
-      return m_geometry.numK() - 1;
+      return m_numK;
     }
 
     virtual bool isDead(size_t i, size_t j, size_t /*k*/) const
     {
-      return
-        m_geometry.isUndefined(i, j, 0) ||
-        m_geometry.isUndefined(i + 1, j, 0) ||
-        m_geometry.isUndefined(i, j + 1, 0) ||
-        m_geometry.isUndefined(i + 1, j, 0);
+      return m_deadMap[i * m_numJ + j];
     }
 
     virtual bool hasDeadCells() const
@@ -541,7 +543,8 @@ namespace VizIO
   {
     CauldronIO::FormationVolumeList m_formationVolumeList;
 
-    std::vector<std::tuple<size_t, CauldronIO::Volume*> > m_index;
+    //std::vector<std::tuple<size_t, CauldronIO::Volume*> > m_index;
+    std::vector<CauldronIO::Volume*> m_index;
 
     std::string m_name;
     size_t m_timestamp;
@@ -560,22 +563,22 @@ namespace VizIO
         boost::shared_ptr<CauldronIO::FormationVolume> vol1,
         boost::shared_ptr<CauldronIO::FormationVolume> vol2)
       {
-        size_t start1, end1, start2, end2;
-        vol1->first->getDepthRange(start1, end1);
-        vol2->first->getDepthRange(start2, end2);
+        unsigned int start1, end1, start2, end2;
+        vol1->first->getK_Range(start1, end1);
+        vol2->first->getK_Range(start2, end2);
         return start1 < start2;
       });
 
-      size_t startK, endK;
-      m_formationVolumeList[0]->first->getDepthRange(startK, endK);
-      for (size_t i = 0; i < startK; ++i)
-        m_index.push_back(std::make_tuple(i, nullptr));
+      unsigned int startK, endK;
+      m_formationVolumeList[0]->first->getK_Range(startK, endK);
+      for (unsigned int i = 0; i < startK; ++i)
+        m_index.push_back(nullptr);
 
       for (auto fv : m_formationVolumeList)
       {
-        fv->first->getDepthRange(startK, endK);
-        for (size_t i = startK; i < endK; ++i)
-          m_index.push_back(std::make_tuple(i - startK, fv->second.get()));
+        fv->first->getK_Range(startK, endK);
+        for (unsigned int i = startK; i < endK; ++i)
+          m_index.push_back(fv->second.get());
       }
     }
 
@@ -614,14 +617,12 @@ namespace VizIO
       if (k >= m_index.size())
         return 0.0;
 
-      auto item = m_index[k];
-      auto localK = std::get<0>(item);
-      auto volume = std::get<1>(item);
+      auto volume = m_index[k];
       
       if (!volume)
         return 0.0;
 
-      return volume->getValue(i, j, localK);
+      return volume->getValue(i, j, k);
     }
 
     virtual MiDataSet::DataBinding getBinding() const
@@ -723,6 +724,56 @@ namespace VizIO
 
 }
 
+namespace
+{
+  bool* createDeadMap(boost::shared_ptr<CauldronIO::Map> map)
+  {
+    const float undefined = map->getUndefinedValue();
+
+    size_t ni = map->getNumI() - 1;
+    size_t nj = map->getNumJ() - 1;
+
+    bool* deadMap = new bool[ni * nj];
+    for (size_t i = 0; i < ni; ++i)
+    {
+      for (size_t j = 0; j < nj; ++j)
+      {
+        deadMap[nj * i + j] =
+          map->getValue(i, j) == undefined ||
+          map->getValue(i, j + 1) == undefined ||
+          map->getValue(i + 1, j) == undefined ||
+          map->getValue(i + 1, j + 1) == undefined;
+      }
+    }
+
+    return deadMap;
+  }
+
+  bool* createDeadMap(boost::shared_ptr<CauldronIO::Volume> volume)
+  {
+    const float undefined = volume->getUndefinedValue();
+
+    size_t ni = volume->getNumI() - 1;
+    size_t nj = volume->getNumJ() - 1;
+
+    bool* deadMap = new bool[ni * nj];
+    for (size_t i = 0; i < ni; ++i)
+    {
+      for (size_t j = 0; j < nj; ++j)
+      {
+        deadMap[nj * i + j] =
+          volume->getValue(i, j, 0u) == undefined ||
+          volume->getValue(i, j + 1, 0u) == undefined ||
+          volume->getValue(i + 1, j, 0u) == undefined ||
+          volume->getValue(i + 1, j + 1, 0u) == undefined;
+      }
+    }
+
+    return deadMap;
+  }
+
+}
+
 void VisualizationIOProject::init()
 {
   const std::string nullStr("null");
@@ -791,9 +842,9 @@ void VisualizationIOProject::init()
         boost::shared_ptr<const CauldronIO::Formation> f1, 
         boost::shared_ptr<const CauldronIO::Formation> f2) 
       {
-        size_t start1, end1, start2, end2;
-        f1->getDepthRange(start1, end1);
-        f2->getDepthRange(start2, end2);
+        unsigned int start1, end1, start2, end2;
+        f1->getK_Range(start1, end1);
+        f2->getK_Range(start2, end2);
         return start1 < start2;
       });
 
@@ -837,6 +888,8 @@ void VisualizationIOProject::init()
 }
 
 VisualizationIOProject::VisualizationIOProject(const std::string& path)
+  : m_loresDeadMap(nullptr)
+  , m_hiresDeadMap(nullptr)
 {
   m_project = CauldronIO::ImportExport::importFromXML(path);
 
@@ -938,8 +991,8 @@ Project::SnapshotContents VisualizationIOProject::getSnapshotContents(size_t sna
     auto iter = formationMap.find(m_projectInfo.formations[i].name);
     if (iter != formationMap.end())
     {
-      size_t startK, endK;
-      iter->second->getDepthRange(startK, endK);
+      unsigned int startK, endK;
+      iter->second->getK_Range(startK, endK);
 
       Project::SnapshotFormation formation;
       formation.id = i;
@@ -949,6 +1002,10 @@ Project::SnapshotContents VisualizationIOProject::getSnapshotContents(size_t sna
       contents.formations.push_back(formation);
     }
   }
+
+  // No formations? then no need to continue
+  if (contents.formations.empty())
+    return contents;
 
   // get minZ / maxZ
   auto volumeList = snapshot->getVolumeList();
@@ -1006,8 +1063,11 @@ std::shared_ptr<MiVolumeMeshCurvilinear> VisualizationIOProject::createSnapshotM
       if (!depthVolume->isRetrieved())
         depthVolume->retrieve();
 
+      if (!m_loresDeadMap)
+        m_loresDeadMap = createDeadMap(depthVolume);
+
       auto geometry = std::make_shared<VizIO::VolumeGeometry>(depthVolume);
-      auto topology = std::make_shared<VizIO::VolumeTopology<VizIO::VolumeGeometry> >(*geometry);
+      auto topology = std::make_shared<VizIO::FormationTopology>(*geometry, m_loresDeadMap);
       return std::make_shared<VizIO::VolumeMesh>(geometry, topology);
     }
   }
@@ -1046,8 +1106,11 @@ std::shared_ptr<MiVolumeMeshCurvilinear> VisualizationIOProject::createReservoir
     if (!bottomMap->isRetrieved())
       bottomMap->retrieve();
 
+    if (!m_hiresDeadMap)
+      m_hiresDeadMap = createDeadMap(topMap);
+
     auto geometry = std::make_shared<VizIO::ReservoirGeometry>(topMap, bottomMap);
-    auto topology = std::make_shared<VizIO::ReservoirTopology>(*geometry);
+    auto topology = std::make_shared<VizIO::ReservoirTopology>(*geometry, m_hiresDeadMap);
     return std::make_shared<VizIO::VolumeMesh>(geometry, topology);
   }
 
@@ -1113,14 +1176,24 @@ std::shared_ptr<MiDataSetIjk<double> > VisualizationIOProject::createFormationPr
       continue;
 
     for (auto fv : formationVolumeList)
-    if (!fv->second->isRetrieved())
-      fv->second->retrieve();
+    {
+      if (!fv->second->isRetrieved())
+        fv->second->retrieve();
+    }
 
     return std::make_shared<VizIO::DiscontinuousVolumeProperty>(name, formationVolumeList);
   }
 
   return nullptr;
 
+}
+
+std::shared_ptr<MiDataSetIj<double> > VisualizationIOProject::createFormation2DProperty(
+  size_t snapshotIndex,
+  int formationId,
+  int propertyId) const
+{
+  return nullptr;
 }
 
 std::shared_ptr<MiDataSetIj<double> > VisualizationIOProject::createSurfaceProperty(
@@ -1215,7 +1288,13 @@ std::vector<Project::Trap> VisualizationIOProject::getTraps(size_t snapshotIndex
       y -= (float)m_projectInfo.dimensions.minY;
       z = -trapper->getSpillDepth();
       trap.spillPoint = SbVec3f(x, y, z);
-      trap.leakagePoint = trap.spillPoint;//leakage point not available yet!
+
+      trapper->getPosition(x, y);
+      x -= (float)m_projectInfo.dimensions.minX;
+      y -= (float)m_projectInfo.dimensions.minY;
+      z = -trapper->getDepth();
+      trap.leakagePoint = SbVec3f(x, y, z);
+
       trap.id = trapper->getID();
       trap.downStreamId = trapper->getDownStreamTrapperID();
       trap.gasOilContactDepth = 0.0; // not available in API

@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2012-2015 Shell International Exploration & Production.
+// Copyright (C) 2012-2016 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Developed under license for Shell by PDS BV.
@@ -13,8 +13,6 @@
 #define DATABASE_H
 
 #include "stdafx.h"
-// Note: Comments starting with '///' are suitable for parsing by 'doxygen' to produce readable documentation
-// in the form of html, latex or rtf files.
 #include <stdlib.h>
 
 #include <vector>
@@ -129,33 +127,33 @@ namespace database
 		/// Return the list index of the field with the specified name.
 		inline int getIndex (const std::string & fieldName);
 
-      inline const TableDefinition & getTableDefinition() const;
-      inline Table * getTable() const;
+         inline const TableDefinition & getTableDefinition() const;
+         inline Table * getTable() const;
 
 
-      template <typename Type>
-      void setValue (int index, const Type & value)
-      {
-         boost::dynamic_pointer_cast< Field < Type > >(getField (index))->setValue(value);
-      }
+                template <typename Type>
+                void setValue (int index, const Type & value)
+                {
+                   boost::dynamic_pointer_cast< Field < Type > >(getField (index))->setValue(value);
+                }
 
-      template < class Type > 
-      void setValue (const std::string & fieldName, const Type & value, int * cachedIndex = 0) const
-      {
-         boost::dynamic_pointer_cast< Field < Type > >( getField (fieldName, cachedIndex) )->setValue(value);
-      }
+                template < class Type > 
+                void setValue (const std::string & fieldName, const Type & value, int * cachedIndex = 0) const
+                {
+                   boost::dynamic_pointer_cast< Field < Type > >( getField (fieldName, cachedIndex) )->setValue(value);
+                }
 
-      template <typename Type>
-      const Type & getValue (int index) const
-      {
-         return boost::dynamic_pointer_cast< const Field < Type > >(getField (index))->getValue();
-      }
+                template <typename Type>
+                const Type & getValue (int index) const
+                {
+                   return boost::dynamic_pointer_cast< const Field < Type > >(getField (index))->getValue();
+                }
 
-      template < class Type > 
-      const Type & getValue (const std::string & fieldName, int * cachedIndex = 0) const
-      {
-         return boost::dynamic_pointer_cast< const Field < Type > >( getField (fieldName, cachedIndex) )->getValue();
-      }
+                template < class Type > 
+                const Type & getValue (const std::string & fieldName, int * cachedIndex = 0) const
+                {
+                   return boost::dynamic_pointer_cast< const Field < Type > >( getField (fieldName, cachedIndex) )->getValue();
+                }
 
 		Record (const TableDefinition & tableDefinition, Table * table);
 		Record (const Record & record);
@@ -163,22 +161,22 @@ namespace database
 	 private:
 		friend class Table;
                 
-      typedef std::vector< boost::shared_ptr< AbstractField > > FieldList;
+                typedef std::vector< boost::shared_ptr< AbstractField > > FieldList;
 		typedef FieldList::iterator FieldListIterator;
 
 		~Record() {}
                 
-      boost::shared_ptr<AbstractField> getField (int index) const
-      { return m_fields[index]; }
+                boost::shared_ptr<AbstractField> getField (int index) const
+                { return m_fields[index]; }
 
-      boost::shared_ptr<AbstractField> getField(const std::string & name, int * index) const;
+                boost::shared_ptr<AbstractField> getField(const std::string & name, int * index) const;
  
 		// Record (const TableDefinition & tableDefinition, Table * table);
 		//      Record (Record & record);
-     void createFields();
+         void createFields();
 
-     void destroyYourself();
-     void addToTable();
+         void destroyYourself();
+         void addToTable();
 
 		
 		bool saveToStream (ostream & ofile, bool rowBased);

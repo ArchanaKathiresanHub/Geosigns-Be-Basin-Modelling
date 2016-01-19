@@ -26,3 +26,8 @@ double DerivedProperties::DerivedFormationSurfaceProperty::getUndefinedValue () 
 
    return DataAccess::Interface::DefaultUndefinedMapValue;
 }
+
+bool DerivedProperties::DerivedFormationSurfaceProperty::isPrimary() const {
+ 
+   return false;
+}

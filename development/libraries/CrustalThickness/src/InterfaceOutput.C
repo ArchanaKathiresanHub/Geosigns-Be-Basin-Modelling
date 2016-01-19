@@ -23,6 +23,9 @@
 // CrustalThickness library
 #include "InterfaceInput.h" 
 
+// utilitites
+#include "LogHandler.h"
+
 using namespace CrustalThicknessInterface;
 
 //------------------------------------------------------------//
@@ -68,7 +71,7 @@ void InterfaceOutput::restoreData() {
 //------------------------------------------------------------//
 bool InterfaceOutput::saveOutputMaps( Interface::ProjectHandle * projectHandle, const Snapshot * theSnapshot ) {
 
-   // cout << "My rank is " << CrustalThicknessInterface::GetRank() << endl;
+   LogHandler( LogHandler::DEBUG_SEVERITY ) << "saveOutputMaps: My rank is " << projectHandle->getRank();
    // char ageString[64];
    // sprintf(ageString, "_%lf", 0);
    
@@ -113,7 +116,7 @@ bool InterfaceOutput::saveOutputMaps( Interface::ProjectHandle * projectHandle, 
 //------------------------------------------------------------//
 bool InterfaceOutput::saveXYZOutputMaps( Interface::ProjectHandle * projectHandle ) {
 
-   // cout << "My rank is " << CrustalThicknessInterface::GetRank() << endl;
+   LogHandler( LogHandler::DEBUG_SEVERITY ) << "saveXYZOutputMaps: My rank is " << projectHandle->getRank();
    // char ageString[64];
    // sprintf(ageString, "_%lf", 0);
    
@@ -157,7 +160,7 @@ bool InterfaceOutput::saveXYZOutputMaps( Interface::ProjectHandle * projectHandl
 //------------------------------------------------------------//
 bool InterfaceOutput::saveExcelSurfaceOutputMaps( Interface::ProjectHandle * projectHandle ) {
 
-   // cout << "My rank is " << CrustalThicknessInterface::GetRank() << endl;
+   LogHandler( LogHandler::DEBUG_SEVERITY ) << "saveExcelSurfaceOutputMaps: My rank is " << projectHandle->getRank();
 
    // char ageString[64];
    // sprintf(ageString, "_%lf", 0);
@@ -238,6 +241,7 @@ bool InterfaceOutput::allocateOutputMaps(Interface::ProjectHandle * projectHandl
 
   for( int i = 0; i < numberOfOutputMaps; ++ i ) {
      if( m_outputMapsMask[i] ) {
+        LogHandler( LogHandler::DEBUG_SEVERITY ) << "Allocate map " << outputMapsNames[i];
         m_outputMaps[i] = projectHandle->getFactory()->produceGridMap(0, 0, grid, Interface::DefaultUndefinedMapValue, 1);    
         if( m_outputMaps[i] == 0 ) {
            status = false;
@@ -251,12 +255,14 @@ bool InterfaceOutput::allocateOutputMaps(Interface::ProjectHandle * projectHandl
 //------------------------------------------------------------//
 bool InterfaceOutput::createSnapShotOutputMaps(ProjectHandle * pHandle, const Snapshot * theSnapshot, const Interface::Surface *theSurface ) {
    
+   LogHandler( LogHandler::DEBUG_SEVERITY ) << "Create snaphot output maps @ time " << theSnapshot->asString();
    int i;
    bool status = true;
    if( theSnapshot->getTime() == 0.0 ) {
       // Output these properties for present-day only
       for( i = 0; i < WLSMap; ++ i ) {
          if( m_outputMapsMask[i] ) {
+            LogHandler( LogHandler::DEBUG_SEVERITY ) << "   #for map " << outputMapsNames[i];
             m_outputMaps[i] = createSnapshotResultPropertyValueMap(pHandle, outputMapsNames[i], theSnapshot);
             if( m_outputMaps[i] == 0 ) {
                status = false;
@@ -270,15 +276,18 @@ bool InterfaceOutput::createSnapShotOutputMaps(ProjectHandle * pHandle, const Sn
          if( m_outputMapsMask[i] ) {
             outputMaps id = ( outputMaps ) i;
             if( id != isostaticBathymetry && id != incTectonicSubsidence ) {
+               LogHandler( LogHandler::DEBUG_SEVERITY ) << "   #for map " << outputMapsNames[i];
                m_outputMaps[i] = createSnapshotResultPropertyValueMap(pHandle, outputMapsNames[i], theSnapshot);
-            } else {
+            }
+            else {
+               LogHandler( LogHandler::DEBUG_SEVERITY ) << "   #for map " << outputMapsNames[i];
                m_outputMaps[i] = createSnapshotResultPropertyValueMap(pHandle, outputMapsNames[i], theSnapshot, theSurface );
-         }
+            }
             if( m_outputMaps[i] == 0 ) {
                status = false;
                break;
-      }
-   }
+            }
+         }
       }
    }
    return status;
@@ -384,15 +393,16 @@ void InterfaceOutput::saveOutput( Interface::ProjectHandle * pHandle, bool isDeb
    if( isDebug ) {
       if( outputOptions & XYZ ) {
          if( pHandle->getSize() > 1 ) {
-            cout << "Can not save maps in XYZ format in parallel. Run with nprocs = 1." << endl;
+            LogHandler( LogHandler::ERROR_SEVERITY ) << "Can not save maps in XYZ format in parallel. Run with nprocs = 1 to save as XYZ.";
          } else {
             saveXYZOutputMaps( pHandle );
          }
       }
       if( outputOptions & SUR ) {
          if( pHandle->getSize() > 1 ) {
-            cout << "Can not save maps in XYZ format in parallel. Run with nprocs = 1." << endl;
-         } else {
+            LogHandler( LogHandler::ERROR_SEVERITY ) << "Can not save maps in SUR format in parallel. Run with nprocs = 1 to save as SUR.";
+         }
+         else {
             saveExcelSurfaceOutputMaps( pHandle );
          }
       }

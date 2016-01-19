@@ -85,13 +85,13 @@ void DerivedProperties::ReflectivitySurfaceCalculator::calculate ( AbstractPrope
 
       for ( unsigned int j = reflectivity->firstJ ( true ); j <= reflectivity->lastJ ( true ); ++j ) {
 
-         if ( m_projectHandle->getNodeIsValid ( i, j ) and layerThickness->get ( i, j ) > 0.0 ) {
+         if ( m_projectHandle->getNodeIsValid ( i, j ) and layerThickness->getA ( i, j ) > 0.0 ) {
             unsigned int surfaceIndex = 0;
 
             // Find first layer that is not 0 thickness at the i, j position.
             while ( surfaceIndex < thicknesses.size ()) {
 
-               if ( thicknesses [ surfaceIndex ]->get ( i, j ) > 0.0 ) {
+               if ( thicknesses [ surfaceIndex ]->getA ( i, j ) > 0.0 ) {
                   break;
                }
 
@@ -103,11 +103,11 @@ void DerivedProperties::ReflectivitySurfaceCalculator::calculate ( AbstractPrope
             if ( surfaceIndex == thicknesses.size ()) {
                reflectivityValue = undefinedValue;
             } else {
-               const double bulkDensity = layerBulkDensity->get ( i, j );
-               const double bulkDensityAbove = bulkDensities [ surfaceIndex ]->get ( i, j );
+               const double bulkDensity = layerBulkDensity->getA ( i, j );
+               const double bulkDensityAbove = bulkDensities [ surfaceIndex ]->getA ( i, j );
 
-               const double velocity = layerVelocity->get ( i, j );
-               const double velocityAbove = velocities [ surfaceIndex ]->get ( i, j );
+               const double velocity = layerVelocity->getA ( i, j );
+               const double velocityAbove = velocities [ surfaceIndex ]->getA ( i, j );
 
                reflectivityValue = ( bulkDensityAbove * velocityAbove - bulkDensity * velocity ) /
                                    ( bulkDensityAbove * velocityAbove + bulkDensity * velocity );

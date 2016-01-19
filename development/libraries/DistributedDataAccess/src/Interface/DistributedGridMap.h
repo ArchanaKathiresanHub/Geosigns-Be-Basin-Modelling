@@ -61,12 +61,15 @@ public:
 
          /// restore data according to specifications
          bool restoreData (bool save = true, bool withGhosts = false) const;
+         
+		 /// return true
+         bool isAscendingOrder() const;
 
-	     /// Return the Petsc Vec
-	     Vec & getVec (void);
-	     /// Return the Petsc DA
-	     DM & getDA (void) const;
-
+         /// Return the Petsc Vec
+         Vec & getVec (void);
+         /// Return the Petsc DA
+         DM & getDA (void) const;
+         
          /// return the leftmost local grid coordinate value
          double minI (void) const;
          /// return the bottommost local grid coordinate value

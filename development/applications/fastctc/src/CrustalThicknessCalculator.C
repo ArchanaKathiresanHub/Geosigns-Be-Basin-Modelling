@@ -7,6 +7,7 @@
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
+#include "CrustalThicknessCalculator.h"
 
 // std library
 #include <sstream>
@@ -28,12 +29,17 @@ using namespace database;
 #include "Interface/PropertyValue.h"
 
 // Crustal Thickness library
-#include "CrustalThicknessCalculator.h"
 #include "LinearFunction.h"
 
 // Parallel _Hdf5 library
 #include "h5_parallel_file_types.h"
 #include "h5merge.h"
+
+// utilitites
+#include "LogHandler.h"
+
+#include <typeinfo>       // operator typeid
+
 //------------------------------------------------------------//
 
 CrustalThicknessCalculator* CrustalThicknessCalculator::m_crustalThicknessCalculator = 0;
@@ -184,60 +190,61 @@ void CrustalThicknessCalculator::deleteCTCPropertyValues()
 void CrustalThicknessCalculator::run() {
 
    unsigned int i, j, k;
+
+   ///1. Initialise CTC
    bool started = CrustalThicknessCalculator::getInstance().startActivity( CrustalThicknessCalculatorActivityName,
       CrustalThicknessCalculator::getInstance().getHighResolutionOutputGrid(),
       true );
-
    if (!started) {
-      string s = "Can not start CrustalThicknessCalculator";
-      throw s;
+      throw CtcException() << "Can not start CrustalThicknessCalculator activity.";
    }
+
+   ///2. Initialise GeoPhysics ProjectHandle
    started = GeoPhysics::ProjectHandle::initialise();
-
    if (!started) {
-      string s = "Can not start CrustalThicknessCalculator";
-      throw s;
+      throw CtcException() << "Can not start CrustalThicknessCalculator because geophysics project handle cannot be initialised.";
    }
+
+   ///3. Initialise InterfaceInput
    setFormationLithologies( false, true );
-
-   InterfaceOutput theOutput;
-
    if (m_crustalThicknessData.size() != 1) {
-      string s;
       if (m_crustalThicknessData.size() == 0) {
-         s = "The CrustalThicknessData table in the ProjectFile is empty.";
+         throw CtcException() << "The CrustalThicknessData table in the ProjectFile is empty.";
       }
       else {
-         s = "Too many records for CrustalThicknessData table in the ProjectFile.";
+         throw CtcException() << "Too many records for CrustalThicknessData table in the ProjectFile.";
       }
-      throw s;
    }
-
-   InterfaceInput &theInterfaceData = dynamic_cast<InterfaceInput &>(*m_crustalThicknessData[0]);
-   theInterfaceData.loadInputDataAndConfigurationFile( "InterfaceData.cfg" );
+   InterfaceInput *theInterfaceData = dynamic_cast<InterfaceInput *>(m_crustalThicknessData[0]);
+   if (!theInterfaceData)
+   {
+      throw CtcException() << "Could not create the input interface from crustal thickness data.";
+   }
+   theInterfaceData->loadInputDataAndConfigurationFile( "InterfaceData.cfg" );
 
    updateValidNodes( theInterfaceData );
-   m_smoothRadius = theInterfaceData.getSmoothRadius();
-
-   setAdditionalOptionsFromCommandLine();
-
+   m_smoothRadius = theInterfaceData->getSmoothRadius();
    m_applySmoothing = (m_smoothRadius > 0);
    if (m_applySmoothing) {
+      LogHandler( LogHandler::INFO_SEVERITY ) << "Applying spatial smoothing with radius = " << m_smoothRadius;
+      /// @todo delte PETSC print
       PetscPrintf( PETSC_COMM_WORLD, "Applying spatial smoothing with radius = %d\n", m_smoothRadius );
    }
+   /// @todo is it needed?
+   setAdditionalOptionsFromCommandLine();
 
+   ///4. Initialise InterfaceOutput
+   InterfaceOutput theOutput;
    setRequestedOutputProperties( theOutput );
 
    if (m_debug) {
       theOutput.setAllMapsToOutput( true );
    }
-   //   if( !theOutput.allocateOutputMaps( m_crustalThicknessCalculator ) ) {
 
+   ///5. Load snapshots
    m_DensityCalculator.loadSnapshots( m_crustalThicknessCalculator );
-   if (!m_DensityCalculator.setDensities( theInterfaceData.getBackstrippingMantleDensity(), theInterfaceData.getWaterDensity() )) {
-      string s;
-      s = "BackstrippingMantleDensity = WaterDensity. Check the constants in theconfiguration file.";
-      throw s;
+   if (!m_DensityCalculator.setDensities( theInterfaceData->getBackstrippingMantleDensity(), theInterfaceData->getWaterDensity() )) {
+      throw CtcException() << "BackstrippingMantleDensity = WaterDensity. Check the constants in theconfiguration file.";
    }
 
    snapshotsList snapshots = m_DensityCalculator.getSnapshots();
@@ -249,8 +256,7 @@ void CrustalThicknessCalculator::run() {
    GridMap *presentDayWLS = calculatePresentDayWLS( theInterfaceData );
 
    if (presentDayWLS == 0) {
-      string s = "Cannot calculate present day WLS map.";
-      throw s;
+      throw CtcException() << "Cannot calculate present day WLS map.";
    };
 
    presentDayWLS->retrieveData();
@@ -260,7 +266,7 @@ void CrustalThicknessCalculator::run() {
       const double age = snapshots[k];
 
       try {
-         m_DensityCalculator.loadTopAndBottomOfSediments( m_crustalThicknessCalculator, age, theInterfaceData.getBaseRiftSurfaceName() );
+         m_DensityCalculator.loadTopAndBottomOfSediments( m_crustalThicknessCalculator, age, theInterfaceData->getBaseRiftSurfaceName() );
          const DataModel::AbstractProperty* depthProperty = m_DensityCalculator.loadDepthProperty( m_crustalThicknessCalculator, age );
          m_DensityCalculator.loadDepthData( m_crustalThicknessCalculator, depthProperty, age );
       }
@@ -273,6 +279,7 @@ void CrustalThicknessCalculator::run() {
          const DataModel::AbstractProperty* pressureProperty = m_DensityCalculator.loadPressureProperty( m_crustalThicknessCalculator, age );
          m_DensityCalculator.loadPressureData( m_crustalThicknessCalculator, pressureProperty, age );
       }
+      /// @todo switch to CtcException
       catch (std::string& s) {
          PetscPrintf( PETSC_COMM_WORLD, "\n %s \n\n", s.c_str() );
          continue;
@@ -281,11 +288,10 @@ void CrustalThicknessCalculator::run() {
       const Snapshot * theSnapshot = (const Snapshot *)findSnapshot( age );
 
       if (!theOutput.createSnapShotOutputMaps( m_crustalThicknessCalculator, theSnapshot, m_DensityCalculator.getTopOfSedimentSurface() )) {
-         string s = "Cannot allocate output maps.";
-         throw s;
+         throw CtcException() << "Cannot allocate output maps.";
       };
 
-      theInterfaceData.retrieveData();
+      theInterfaceData->retrieveData();
       m_DensityCalculator.retrieveData();
       theOutput.retrieveData();
 
@@ -294,10 +300,10 @@ void CrustalThicknessCalculator::run() {
       }
       ////
 
-      unsigned firstI = theInterfaceData.firstI();
-      unsigned firstJ = theInterfaceData.firstJ();
-      unsigned lastI = theInterfaceData.lastI();
-      unsigned lastJ = theInterfaceData.lastJ();
+      unsigned firstI = theInterfaceData->firstI();
+      unsigned firstJ = theInterfaceData->firstJ();
+      unsigned lastI = theInterfaceData->lastI();
+      unsigned lastJ = theInterfaceData->lastJ();
 
       double sedimentDensity, sedimentThickness, WLS, WLS_adjusted, TF, Moho, RDA_adjusted, crustalThickness, basaltThickness, ECT;
       double posI, posJ, backStrip, topBasalt, isoBathymetry, compensation;
@@ -307,7 +313,7 @@ void CrustalThicknessCalculator::run() {
 
       for (i = firstI; i <= lastI; ++i) {
          for (j = firstJ; j <= lastJ; ++j) {
-            if (!theInterfaceData.defineLinearFunction( m_LF, i, j ) || !getNodeIsValid( i, j )) {
+            if (!theInterfaceData->defineLinearFunction( m_LF, i, j ) || !getNodeIsValid( i, j )) {
                WLS = Interface::DefaultUndefinedMapValue;
                backStrip = Interface::DefaultUndefinedMapValue;
                sedimentThickness = Interface::DefaultUndefinedMapValue;
@@ -345,37 +351,29 @@ void CrustalThicknessCalculator::run() {
 
          bool status = movingAverageSmoothing( theOutput.getMap( WLSMap ) );
          if (!status) {
-            string s = "Failed to smooth WLS map.";
-            throw s;
+            throw CtcException() << "Failed to smooth WLS map.";
          }
          status = movingAverageSmoothing( theOutput.getMap( WLSMap ) );
          if (!status) {
-            string s = "Failed to smooth WLS map.";
-            throw s;
+            throw CtcException() << "Failed to smooth WLS map.";
          }
       }
       if (m_applySmoothing) {
 
          bool status = movingAverageSmoothing( theOutput.getMap( isostaticBathymetry ) );
          if (!status) {
-            string s = "Failed to smooth isostaticBathymetry map.";
-            throw s;
+            throw CtcException() << "Failed to smooth isostaticBathymetry map.";
          }
          status = movingAverageSmoothing( theOutput.getMap( isostaticBathymetry ) );
          if (!status) {
-            string s = "Failed to smooth isostaticBathymetry map.";
-            throw s;
+            throw CtcException() << "Failed to smooth isostaticBathymetry map.";
          }
       }
 
       for (i = firstI; i <= lastI; ++i) {
          for (j = firstJ; j <= lastJ; ++j) {
-            if (!theInterfaceData.defineLinearFunction( m_LF, i, j ) || !getNodeIsValid( i, j )) {
-               // errorMsg << "I = " << i << "; J = " << j << endl;
-               // status = false;
-               // break;
+            if (!theInterfaceData->defineLinearFunction( m_LF, i, j ) || !getNodeIsValid( i, j )) {
                theOutput.setAllMapsUndefined( i, j );
-
             }
             else {
 
@@ -388,17 +386,17 @@ void CrustalThicknessCalculator::run() {
                theOutput[interceptPostMelt] = m_LF.getC2();
 
                theOutput[sedimentDensityMap]       = sedimentDensity;
-               theOutput[estimatedCrustDensityMap] = theInterfaceData.getEstimatedCrustDensity();
-               theOutput[TFOnsetMap]               = theInterfaceData.getTFOnset();
-               theOutput[TFOnsetLinMap]            = theInterfaceData.getTFOnsetLin();
-               theOutput[TFOnsetMigMap]            = theInterfaceData.getTFOnsetMig();
-               theOutput[PTaMap]                   = theInterfaceData.getPTa();
-               theOutput[basaltDensityMap]         = theInterfaceData.getMagmaticDensity();
-               theOutput[WLSOnsetMap]              = theInterfaceData.getWLSonset();
-               theOutput[WLSCritMap]               = theInterfaceData.getWLScrit();
-               theOutput[WLSExhumeMap]             = theInterfaceData.getWLSexhume();
-               theOutput[WLSExhumeSerpMap]         = theInterfaceData.getWLSexhumeSerp();
-               theOutput[thicknessCrustMeltOnset]  = theInterfaceData.getInitialCrustThickness() * (1 - theInterfaceData.getTFOnsetLin());
+               theOutput[estimatedCrustDensityMap] = theInterfaceData->getEstimatedCrustDensity();
+               theOutput[TFOnsetMap]               = theInterfaceData->getTFOnset();
+               theOutput[TFOnsetLinMap]            = theInterfaceData->getTFOnsetLin();
+               theOutput[TFOnsetMigMap]            = theInterfaceData->getTFOnsetMig();
+               theOutput[PTaMap]                   = theInterfaceData->getPTa();
+               theOutput[basaltDensityMap]         = theInterfaceData->getMagmaticDensity();
+               theOutput[WLSOnsetMap]              = theInterfaceData->getWLSonset();
+               theOutput[WLSCritMap]               = theInterfaceData->getWLScrit();
+               theOutput[WLSExhumeMap]             = theInterfaceData->getWLSexhume();
+               theOutput[WLSExhumeSerpMap]         = theInterfaceData->getWLSexhumeSerp();
+               theOutput[thicknessCrustMeltOnset]  = theInterfaceData->getInitialCrustThickness() * (1 - theInterfaceData->getTFOnsetLin());
 
                WLS = theOutput.getMapValue( WLSMap, i, j );
                theOutput[WLSMap] = WLS;
@@ -421,11 +419,11 @@ void CrustalThicknessCalculator::run() {
 
                if (WLS != Interface::DefaultUndefinedMapValue) {
 
-                  WLS_adjusted = WLS - theInterfaceData.getDeltaSLValue( i, j );
+                  WLS_adjusted = WLS - theInterfaceData->getDeltaSLValue( i, j );
                   RDA_adjusted = m_LF.getWLS_crit() - WLS_adjusted;
 
                   TF = m_LF.getCrustTF( WLS_adjusted );
-                  crustalThickness = (TF < 1 ? theInterfaceData.getInitialCrustThickness() * (1 - TF) : 0);
+                  crustalThickness = (TF < 1 ? theInterfaceData->getInitialCrustThickness() * (1 - TF) : 0);
 
                   if (WLS >= theOutput[WLSExhumeMap]) basaltThickness = 0;
                   else basaltThickness = m_LF.getBasaltThickness( WLS_adjusted );
@@ -434,7 +432,7 @@ void CrustalThicknessCalculator::run() {
                   Moho = topBasalt + basaltThickness;
                }
 
-               if (WLS == Interface::DefaultUndefinedMapValue || theInterfaceData.getWLScrit() < theInterfaceData.getWLSonset()) {
+               if (WLS == Interface::DefaultUndefinedMapValue || theInterfaceData->getWLScrit() < theInterfaceData->getWLSonset()) {
                   // if WLS_crit < Wls_onset, set all mandatory outputs to Undefined value
                   theOutput[WLSadjustedMap]          = Interface::DefaultUndefinedMapValue;
                   theOutput[RDAadjustedMap]          = Interface::DefaultUndefinedMapValue;
@@ -455,11 +453,11 @@ void CrustalThicknessCalculator::run() {
                   theOutput[thicknessBasaltMap] = basaltThickness;
                   theOutput[mohoMap]            = Moho;
 
-                  if (theInterfaceData.getInitialLithosphereThickness() != 0.0 &&
+                  if (theInterfaceData->getInitialLithosphereThickness() != 0.0 &&
                      crustalThickness != Interface::DefaultUndefinedMapValue &&
                      basaltThickness != Interface::DefaultUndefinedMapValue) {
 
-                     ECT = crustalThickness + basaltThickness * (theInterfaceData.getInitialCrustThickness() / theInterfaceData.getInitialLithosphereThickness());
+                     ECT = crustalThickness + basaltThickness * (theInterfaceData->getInitialCrustThickness() / theInterfaceData->getInitialLithosphereThickness());
 
                   }
                   else {
@@ -473,12 +471,8 @@ void CrustalThicknessCalculator::run() {
             }
          }
       }
-      if (!status) {
-         string s = "Linear function can not be defined due to wrong rift event age at " + errorMsg.str();
-         throw s;
-      }
       ///
-      theInterfaceData.restoreData();
+      theInterfaceData->restoreData();
       m_DensityCalculator.restoreData();
       theOutput.restoreData();
 
@@ -505,13 +499,13 @@ void CrustalThicknessCalculator::run() {
 
 //------------------------------------------------------------//
 
-GridMap * CrustalThicknessCalculator::calculatePresentDayWLS( InterfaceInput & theInterfaceData ) {
+GridMap * CrustalThicknessCalculator::calculatePresentDayWLS( InterfaceInput* theInterfaceData ) {
 
    GridMap * WLSmap = m_crustalThicknessCalculator->getFactory ()->produceGridMap (0, 0, m_crustalThicknessCalculator->getActivityOutputGrid (),
                                                                                    DefaultUndefinedMapValue, 1);
 
    if( WLSmap != 0 ) {
-      m_DensityCalculator.loadTopAndBottomOfSediments( m_crustalThicknessCalculator, 0.0, theInterfaceData.getBaseRiftSurfaceName() );
+      m_DensityCalculator.loadTopAndBottomOfSediments( m_crustalThicknessCalculator, 0.0, theInterfaceData->getBaseRiftSurfaceName() );
       const DataModel::AbstractProperty* depthProperty = m_DensityCalculator.loadDepthProperty( m_crustalThicknessCalculator, 0.0 );
       m_DensityCalculator.loadDepthData( m_crustalThicknessCalculator, depthProperty, 0.0 );
       const DataModel::AbstractProperty* pressureProperty = m_DensityCalculator.loadPressureProperty( m_crustalThicknessCalculator, 0.0 );
@@ -520,7 +514,7 @@ GridMap * CrustalThicknessCalculator::calculatePresentDayWLS( InterfaceInput & t
       LinearFunction m_LF;
 
       WLSmap->retrieveData();
-      theInterfaceData.retrieveData();
+      theInterfaceData->retrieveData();
       m_DensityCalculator.retrieveData();
        
       unsigned firstI = WLSmap->firstI();
@@ -532,7 +526,7 @@ GridMap * CrustalThicknessCalculator::calculatePresentDayWLS( InterfaceInput & t
 
       for (i = firstI; i <= lastI; ++i) {
          for (j = firstJ; j <= lastJ; ++j) {
-            if (!theInterfaceData.defineLinearFunction( m_LF, i, j ) || !getNodeIsValid( i, j )) {
+            if (!theInterfaceData->defineLinearFunction( m_LF, i, j ) || !getNodeIsValid( i, j )) {
                WLS = Interface::DefaultUndefinedMapValue;
             }
             else {
@@ -554,7 +548,7 @@ GridMap * CrustalThicknessCalculator::calculatePresentDayWLS( InterfaceInput & t
          }
       }
       WLSmap->restoreData();
-      theInterfaceData.restoreData();
+      theInterfaceData->restoreData();
       m_DensityCalculator.restoreData();
 
       if (!status) return 0;
@@ -811,13 +805,13 @@ bool CrustalThicknessCalculator::movingAverageSmoothing( GridMap * aWLSMap) {
 
         if( val != Interface::DefaultUndefinedMapValue && aMap->getValue(i, j ) != Interface::DefaultUndefinedMapValue ) {
            if( num == Interface::DefaultUndefinedMapValue ) {
-              cout << "WARNING --- Undefined num value in the smoothing algorithm!" << endl;
+              LogHandler( LogHandler::WARNING_SEVERITY ) << "Undefined num value in the smoothing algorithm!. Will be set to 1.";
               num = 1;
            } else if( num == 0 ) {
-              cout << "WARNING --- Zero num value in the smoothing algorithm!" << endl;
+              LogHandler( LogHandler::WARNING_SEVERITY ) << "Zero num value in the smoothing algorithm! Will be set to 1.";
               num = 1;
            } else  if( num < 0 ) {
-              cout << "WARNING --- Negative num value in the smoothing algorithm!" << endl;
+              LogHandler( LogHandler::WARNING_SEVERITY ) << "Negative num value in the smoothing algorithm! Will be set to 1.";
               num = 1;
            } 
            multVal = 1.0 / (double)num;
@@ -854,13 +848,13 @@ bool CrustalThicknessCalculator::movingAverageSmoothing( GridMap * aWLSMap) {
 
 //------------------------------------------------------------//
 
-void CrustalThicknessCalculator::updateValidNodes( const InterfaceInput &theInterfaceData ) {
+void CrustalThicknessCalculator::updateValidNodes( const InterfaceInput* theInterfaceData ) {
 
-   addUndefinedAreas( theInterfaceData.getT0Map     () );
-   addUndefinedAreas( theInterfaceData.getTRMap     () );
-   addUndefinedAreas( theInterfaceData.getHCuMap    () );
-   addUndefinedAreas( theInterfaceData.getHLMuMap   () );
-   addUndefinedAreas( theInterfaceData.getDeltaSLMap() );
+   addUndefinedAreas( theInterfaceData->getT0Map     () );
+   addUndefinedAreas( theInterfaceData->getTRMap     () );
+   addUndefinedAreas( theInterfaceData->getHCuMap    () );
+   addUndefinedAreas( theInterfaceData->getHLMuMap   () );
+   addUndefinedAreas( theInterfaceData->getDeltaSLMap() );
 }
 
 //------------------------------------------------------------//

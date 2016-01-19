@@ -28,10 +28,7 @@ class SnapshotGeometry;
 class SnapshotTopology;
 class FormationIdProperty;
 class FlowDirectionProperty;
-class SnapshotMesh;
-class SurfaceMesh;
-class ReservoirMesh;
-class ReservoirTopology;
+
 class FaultMesh;
 class OutlineBuilder;
 
@@ -40,6 +37,8 @@ class SoSwitch;
 class SoGroup;
 class SoNode;
 class SoText2;
+class SoBaseColor;
+class SoLineSet;
 class SoShapeHints;
 class SoAnnotation;
 class SoCamera;
@@ -125,7 +124,8 @@ struct SnapshotInfo
 
     std::shared_ptr<MiVolumeMeshCurvilinear> meshData;
     std::shared_ptr<MiDataSetIjk<double> > propertyData;
-    
+    std::weak_ptr<MiDataSetIjk<double> > trapIdPropertyData;
+
     Traps traps;
 
     void clear()
@@ -172,6 +172,38 @@ struct SnapshotInfo
     }
   };
 
+  struct FlowLines
+  {
+    int id;
+    int formationId;
+    int startK;
+
+    SoSeparator* root;
+    SoBaseColor* color;
+    SoLineSet*   lines;
+
+    std::shared_ptr<MiDataSetIj<double> > expulsionData;
+
+    FlowLines()
+      : id(0)
+      , formationId(0)
+      , startK(0)
+      , root(0)
+      , color(0)
+      , lines(0)
+    {
+    }
+
+    void clear()
+    {
+      root = 0;
+      color = 0;
+      lines = 0;
+
+      expulsionData.reset();
+    }
+  };
+
   size_t index; // index in snapshot list
   double time;
 
@@ -210,11 +242,13 @@ struct SnapshotInfo
   std::vector<Surface> surfaces;
   std::vector<Reservoir> reservoirs;
   std::vector<Fault> faults;
+  std::vector<FlowLines> flowlines;
 
   size_t formationsTimeStamp;
   size_t surfacesTimeStamp;
   size_t reservoirsTimeStamp;
   size_t faultsTimeStamp;
+  size_t flowLinesTimeStamp;
 
   SnapshotInfo();
 };
@@ -229,19 +263,19 @@ public:
     OrthographicProjection
   };
 
-  enum FlowVizType
-  {
-    FlowVizNone,
-    FlowVizLines,
-    FlowVizVectors
-  };
-
   enum DrainageAreaType
   {
     DrainageAreaNone,
     DrainageAreaFluid,
     DrainageAreaGas
   };
+
+  // Derived property ids. These properties are built at runtime
+  // based on one or more base properties from the data set.
+  static const int DerivedPropertyBaseId      = 0x10000;
+  static const int FormationIdPropertyId      = DerivedPropertyBaseId;
+  static const int PersistentTrapIdPropertyId = DerivedPropertyBaseId + 1;
+  static const int FluidContactsPropertyId    = DerivedPropertyBaseId + 2;
 
 private:
 
@@ -256,11 +290,14 @@ private:
   int m_currentPropertyId;
 
   bool m_showGrid;
+  bool m_showCompass;
+  bool m_showText;
   bool m_showTraps;
   bool m_showTrapOutlines;
+  bool m_showFlowVectors;
 
   DrainageAreaType m_drainageAreaType;
-  FlowVizType m_flowVizType;
+  int m_flowLinesStep;
 
   float m_verticalScale;
   ProjectionType m_projectionType;
@@ -269,6 +306,7 @@ private:
   size_t m_surfacesTimeStamp;
   size_t m_reservoirsTimeStamp;
   size_t m_faultsTimeStamp;
+  size_t m_flowLinesTimeStamp;
 
   size_t m_slicePosition[3];
   bool   m_sliceEnabled[3];
@@ -295,6 +333,7 @@ private:
   MoDataBinding*  m_dataBinding;
   MoColorMapping* m_colorMap;
   MoColorMapping* m_trapIdColorMap;
+  MoColorMapping* m_fluidContactsColorMap;
   SoSwitch*       m_colorMapSwitch;
 
   SoAnnotation*   m_annotation;
@@ -304,6 +343,7 @@ private:
 
   SoText2*        m_text;
   SoSwitch*       m_textSwitch;
+  SoSwitch*       m_compassSwitch;
 
   SoSwitch*       m_snapshotsSwitch;
 
@@ -311,6 +351,7 @@ private:
   std::vector<bool> m_surfaceVisibility;
   std::vector<bool> m_reservoirVisibility;
   std::vector<bool> m_faultVisibility;
+  std::vector<bool> m_flowLinesVisibility;
 
   void updateCoordinateGrid();
   void updateSnapshotFormations();
@@ -326,7 +367,7 @@ private:
   void updateSnapshot();
 
   SnapshotInfo createSnapshotNode(size_t index);
-    
+
   void setupCoordinateGrid();
   void setupSceneGraph();
 
@@ -335,6 +376,15 @@ private:
     const MiVolumeMeshCurvilinear& mesh,
     int k0,
     int k1);
+
+  std::shared_ptr<MiDataSetIjk<double> > createFormationProperty(
+    const SnapshotInfo& snapshot,
+    int propertyId);
+
+  std::shared_ptr<MiDataSetIjk<double> > createReservoirProperty(
+    const SnapshotInfo& snapshot, 
+    const SnapshotInfo::Reservoir& res, 
+    int propertyId);
 
 public:
 
@@ -356,6 +406,10 @@ public:
 
   void setProperty(int propertyId);
 
+  void showFlowVectors(bool enabled);
+
+  void setFlowLinesStep(int step);
+
   void enableFormation(int formationId, bool enabled);
 
   void enableAllFormations(bool enabled);
@@ -372,19 +426,25 @@ public:
 
   void enableAllFaults(bool enabled);
 
+  void enableFlowLines(int flowLinesId, bool enabled);
+
+  void enableAllFlowLines(bool enabled);
+
   void enableSlice(int slice, bool enabled);
 
   void setSlicePosition(int slice, int position);
 
   void showCoordinateGrid(bool show);
 
+  void showCompass(bool show);
+
+  void showText(bool show);
+
   void showTraps(bool show);
 
   void showTrapOutlines(bool show);
 
   void showDrainageAreaOutlines(DrainageAreaType type);
-
-  void showFlowDirection(FlowVizType type);
 
   void setup(std::shared_ptr<Project> project);
 };

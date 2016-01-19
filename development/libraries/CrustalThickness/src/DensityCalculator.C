@@ -26,6 +26,9 @@
 #include <sstream>
 #include <math.h>
 
+// utilitites
+#include "LogHandler.h"
+
 // @todo must already be defined somewhere else
 const double GRAVITY = 9.81;
 
@@ -161,6 +164,7 @@ void DensityCalculator::loadPressureData( GeoPhysics::ProjectHandle* projectHand
 //------------------------------------------------------------//
 void DensityCalculator::loadSnapshots( Interface::ProjectHandle* projectHandle ) {
    
+   LogHandler( LogHandler::DEBUG_SEVERITY ) << "Loading snpashots from stratigraphy";
    Interface::FormationList* formations = projectHandle->getFormations ( );
    Interface::FormationList::const_iterator formationIter;
 
@@ -170,9 +174,11 @@ void DensityCalculator::loadSnapshots( Interface::ProjectHandle* projectHandle )
       if ( formation != 0 ) {
          const Interface::Surface * topSurface = formation->getBottomSurface();
          m_snapshots.push_back( topSurface->getSnapshot()->getTime() );
+         LogHandler( LogHandler::DEBUG_SEVERITY ) << "   #time " << topSurface->getSnapshot()->getTime() << "Ma loaded";
       }
    }
    m_snapshots.push_back( 0.0 ); // add present day
+   LogHandler( LogHandler::DEBUG_SEVERITY ) << "   #time 0.0Ma loaded";
 }
 
 //------------------------------------------------------------//
@@ -249,6 +255,9 @@ bool DensityCalculator::setDensities( const double aMantleDensity, const double 
    if(( m_waterDensity - m_backstrippingMantleDensity ) != 0.0 ) {
       m_densityTerm = 1.0 / ( m_backstrippingMantleDensity - m_waterDensity );
       return true;
-   } 
+   }
+   LogHandler( LogHandler::DEBUG_SEVERITY ) << "Densities are set to:";
+   LogHandler( LogHandler::DEBUG_SEVERITY ) << "   #mantle=" << m_backstrippingMantleDensity;
+   LogHandler( LogHandler::DEBUG_SEVERITY ) << "   #water="  << m_waterDensity;
    return false;
 }

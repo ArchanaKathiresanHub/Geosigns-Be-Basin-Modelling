@@ -445,8 +445,13 @@ void VoxetCalculator::calculatorInterpolatorValues ( const DerivedProperties::Fo
                         depth = depthPropertyValue->interpolate (cauldronI, cauldronJ, (double) l);
                         topDepth = Min (depth, topDepth);
                         bottomDepth = Max (depth, bottomDepth);
-
-                        property = propertyValue->interpolate (cauldronI, cauldronJ, (double) l);
+                        
+                        if( propertyValue->isPrimary() ) {
+                           
+                           property = propertyValue->interpolate (cauldronI, cauldronJ, (double) l);
+                        } else {
+                           property = propertyValue->interpolate (cauldronI, cauldronJ, (double) (depthPropertyValue->lengthK () - 1 - l ));
+                        }
                         layerInterp.addSample (depth, property);
                      }
 

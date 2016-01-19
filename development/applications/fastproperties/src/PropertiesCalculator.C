@@ -57,7 +57,7 @@ void  PropertiesCalculator::finalise ( bool isComplete ) {
    m_projectHandle->setSimulationDetails ( "fastproperties", "Default", "" );
    m_projectHandle->finishActivity ( isComplete );
 
-   if( isComplete && m_rank == 0 ) {
+  if( isComplete && m_rank == 0 ) {
       m_projectHandle->saveToFile(m_projectFileName);
 
    }
@@ -82,6 +82,13 @@ bool PropertiesCalculator::CreateFrom ( DataAccess::Interface::ObjectFactory* fa
    if(  m_projectHandle == 0 ||  m_propertyManager == 0 ) {
       return false;
    }
+
+   PetscBool onlyPrimary = PETSC_FALSE;
+   PetscOptionsHasName( PETSC_NULL, "-primaryDouble", &onlyPrimary );
+   if( onlyPrimary ) {
+      m_projectHandle->setPrimaryDouble( true );
+   }
+
    return true;
 
 }

@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2012-2014 Shell International Exploration & Production.
+// Copyright (C) 2012-2016 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -91,7 +91,10 @@ namespace mbapi {
 
       // Set lithologies and their percenatges for the given layer
       // return ErrorHandler::NoError on success, or error code otherwise
-      virtual ErrorHandler::ReturnCode setLayerLithologiesList( LayerID id, const std::vector<std::string> & lithoList, const std::vector<double> & lithoPercent );
+      virtual ErrorHandler::ReturnCode setLayerLithologiesList( LayerID                          id
+                                                              , const std::vector<std::string> & lithoList
+                                                              , const std::vector<double>      & lithoPercent
+                                                              );
 
       // Bind layer with top and bottom surfaces. Layer set itself as top/bottom layer for surface also
       // [in] lid layer ID
@@ -160,6 +163,10 @@ namespace mbapi {
       // return ErrorHandler::NoError on success or error code if mixing is not turned off or other error happened
       virtual ReturnCode setSourceRockMixHC( LayerID lid, double srmHC );
 
+      // Get list of fault cuts from PressureFaultcutIoTbl
+      // return array with IDs of layers defined in the model
+      virtual std::vector<PrFaultCutID> faultCutsIDs();
+
       // Search in PressureFaultcutIoTbl table for the given combination of map name/fault name
       // mapName map name
       // fltName fault cut name 
@@ -170,6 +177,14 @@ namespace mbapi {
       // flID fault cut id in PressureFaultcutIoTbl
       // return Name of the fault cut lithology
       virtual std::string faultCutLithology( PrFaultCutID flID );
+
+      // Get fault cut name for the given fault cut ID
+      // return Name of the fault cut
+      virtual std::string faultCutName( PrFaultCutID flID );
+
+      // Get fault cat map for the given fault cut ID
+      // return map name
+      virtual std::string faultCutMapName( PrFaultCutID flID );
 
       // Set new lithology for the fault cut
       // flID fault cut id in PressureFaultcutIoTbl

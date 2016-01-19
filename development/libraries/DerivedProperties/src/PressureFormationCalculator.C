@@ -46,7 +46,7 @@ void DerivedProperties::PressureFormationCalculator::calculate ( DerivedProperti
          for ( unsigned int j = hydrostaticPressure->firstJ ( true ); j <= hydrostaticPressure->lastJ ( true ); ++j ) {
             
             for ( unsigned int k = hydrostaticPressure->firstK (); k <= hydrostaticPressure->lastK (); ++k ) {
-               porePressure->set ( i, j, k, hydrostaticPressure->get ( i, j, k ));
+               porePressure->set ( i, j, k, hydrostaticPressure->getA ( i, j, k ));
             }
          }
       }

@@ -1222,7 +1222,7 @@ int main (int argc, char ** argv)
             {
                for (i = 0; i < numI; ++i)
                {
-                  double propValue = formationPropertyValue->get (i, j, k);
+                  double propValue = formationPropertyValue->getD (i, j, k);
 
                   if (propValue == formationPropertyValue->getUndefinedValue ())
                   {
@@ -1369,11 +1369,9 @@ double GetValue (const DerivedProperties::FormationPropertyPtr& gridMap, double 
 {
    unsigned int iBase = (unsigned int) i;
    unsigned int jBase = (unsigned int) j;
-   unsigned int kBase = (unsigned int) k;
 
    double iFrac = i - iBase;
    double jFrac = j - jBase;
-   double kFrac = k - kBase;
 
    double totalValue = 0;
    double totalWeight = 0;
@@ -1382,16 +1380,13 @@ double GetValue (const DerivedProperties::FormationPropertyPtr& gridMap, double 
    {
       for (unsigned int jInc = 0; jInc < 2; ++jInc)
       {
-	 for (unsigned int kInc = 0; kInc < 2; ++kInc)
-	 {
-	    double valueAtIndex = gridMap->get (iBase + iInc, jBase + jInc, kBase + kInc);
-	    if (valueAtIndex != gridMap->getUndefinedValue ())
-	    {
-	       double weightAtIndex = (iInc == 0 ? 1 - iFrac : iFrac) * (jInc == 0 ? 1 - jFrac : jFrac) * (kInc == 0 ? 1 - kFrac : kFrac);
-	       totalValue += weightAtIndex * valueAtIndex;
-	       totalWeight += weightAtIndex;
-	    }
-	 }
+         double valueAtIndex = gridMap->interpolate( iBase + iInc, jBase + jInc, k );
+         if (valueAtIndex != gridMap->getUndefinedValue ())
+         {
+            double weightAtIndex = (iInc == 0 ? 1 - iFrac : iFrac) * (jInc == 0 ? 1 - jFrac : jFrac) ;//* (kInc == 1 ? 1 - kFrac : kFrac);
+            totalValue += weightAtIndex * valueAtIndex;
+            totalWeight += weightAtIndex;
+         }
       }
    }
 

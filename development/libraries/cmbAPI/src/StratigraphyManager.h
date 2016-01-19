@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2012-2014 Shell International Exploration & Production.
+// Copyright (C) 2012-2016 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -162,6 +162,10 @@ namespace mbapi {
 
       /// @{ Fault cuts methods
 
+      /// @brief Get list of fault cuts from PressureFaultcutIoTbl
+      /// @return array with IDs of layers defined in the model
+      virtual std::vector<PrFaultCutID> faultCutsIDs() = 0;
+
       /// @brief Search in PressureFaultcutIoTbl table for the given combination of map name/fault name
       /// @param mapName map name
       /// @param fltName fault cut name 
@@ -169,8 +173,16 @@ namespace mbapi {
       virtual PrFaultCutID findFaultCut( const std::string & mapName, const std::string & fltName ) = 0;
 
       /// @brief Get lithlogy name for the given fault cut ID
-      /// @return Name of the fault cut lithology
+      /// @return name of the fault cut lithology on success or emtpy string on error
       virtual std::string faultCutLithology( PrFaultCutID flID ) = 0;
+
+      /// @brief Get fault cut name for the given fault cut ID
+      /// @return name of the fault cut on success or empty string on error
+      virtual std::string faultCutName( PrFaultCutID flID ) = 0;
+
+      /// @brief Get fault cat map for the given fault cut ID
+      /// @return map name on success or empty string on error
+      virtual std::string faultCutMapName( PrFaultCutID flID ) = 0;
 
       /// @brief Set new lithology for the fault cut
       /// @param flID fault cut id in PressureFaultcutIoTbl

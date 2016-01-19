@@ -112,6 +112,7 @@ void CauldronIO::VolumeProjectHandle::release()
     {
         assert(!m_depthFormations && !m_propValues);
         const GridMap* gridMap = m_propVal->getGridMap();
+        gridMap->release();
     }
 
     Volume::release();
@@ -196,7 +197,7 @@ void CauldronIO::VolumeProjectHandle::retrieveSingleFormation()
     // Set the values
     const GridMap* gridMap = m_propVal->getGridMap();
     setGeometry(gridMap->numI(), gridMap->numJ(), depthK, m_depthInfo->kStart, gridMap->deltaI(), gridMap->deltaJ(), gridMap->minI(), gridMap->minJ());
-    setConstantValue((float)gridMap->getUndefinedValue());
+    setUndefinedValue((float)gridMap->getUndefinedValue());
 
     if (gridMap->isConstant())
     {

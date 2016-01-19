@@ -52,7 +52,8 @@ namespace migration
 	 virtual double getTopDepth (void) const = 0;
 	 virtual void setBottomDepth (double depth) = 0;
 	 virtual double getBottomDepth (void) const = 0;
-    virtual double getTopDepthOffset(void) const = 0;
+         virtual double getTopDepthOffset(void) const = 0;
+         virtual double getOWCTemperature(const double hydrocarbonWatercontactDepth) const = 0;
 	 virtual double getThickness (void);
 	 virtual double getCapacity (double spillDepth = 1e8);
 
@@ -163,9 +164,10 @@ namespace migration
 	 virtual double getTopDepth (void) const;
 	 virtual void setBottomDepth (double depth);
 	 virtual double getBottomDepth (void) const;
-    virtual double getTopDepthOffset(void) const;
+         virtual double getTopDepthOffset(void) const;
 	 virtual double getNetToGross (void) const;
 	 virtual double getPorosity (void) const;
+	 virtual double getOWCTemperature (const double hydrocarbonWatercontactDepth) const;
 
 #ifdef USEOTGC
 	 virtual double getImmobilesVolume (void) const;
@@ -265,6 +267,7 @@ namespace migration
 	 virtual void setGlobalTrapId (int trapId);
 
 	 virtual double getTopDepth (void) const;
+	 virtual double getOWCTemperature(const double hydrocarbonWatercontactDepth) const;
 	 virtual double getPreviousTopDepth (void);
 	 virtual void setTopDepth (double newTopDepth);
 
@@ -284,8 +287,8 @@ namespace migration
 	 virtual void setSeaBottomPressure (double seaBottomPressure);
 
 	 virtual double getFlowDirection (PhaseId phase);
-      virtual double getFlowDirectionI (PhaseId phase);
-      virtual double getFlowDirectionJ (PhaseId phase);
+    virtual double getFlowDirectionI (PhaseId phase);
+    virtual double getFlowDirectionJ (PhaseId phase);
 
 	 virtual double getBottomDepth (void) const;
 	 virtual double getPreviousBottomDepth (void);

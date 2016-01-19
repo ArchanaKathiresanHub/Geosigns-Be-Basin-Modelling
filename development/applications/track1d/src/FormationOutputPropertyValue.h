@@ -27,6 +27,8 @@ public :
 
    unsigned int getDepth () const;
 
+   bool isPrimary () const;
+
 private :
 
    DerivedProperties::FormationPropertyPtr m_formationProperty;

@@ -24,6 +24,9 @@
 // CrustalThickness library
 #include "LinearFunction.h"
 
+// utilitites
+#include "FormattingException.h"
+
 using namespace std;
 using namespace DataAccess;
 using Interface::GridMap;
@@ -86,7 +89,6 @@ namespace CrustalThicknessInterface {
    const string decayConstant                = "decayConstant";
    const string lithosphereThicknessMin      = "HLmin";
    const string maxNumberOfMantleElements    = "NLMEmax";
-   const string initNumberOfMantleElements   = "NInitLMEmax";
 
    /// @brief Parse the CTC command line
    /// @param theString The command to be parsed
@@ -104,6 +106,8 @@ namespace CrustalThicknessInterface {
 /// @class InterfaceInput The CTC input interface
 class InterfaceInput : public Interface::CrustalThicknessData
 {
+
+   typedef formattingexception::GeneralException InputException;
 
 public:
 

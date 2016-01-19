@@ -40,3 +40,7 @@ void DerivedProperties::FormationSurfacePropertyAtSurface::retrieveData () const
 void DerivedProperties::FormationSurfacePropertyAtSurface::restoreData () const {
    m_formationProperty->restoreData ();
 }
+
+bool DerivedProperties::FormationSurfacePropertyAtSurface::isPrimary () const {
+   return m_formationProperty->isPrimary();
+}

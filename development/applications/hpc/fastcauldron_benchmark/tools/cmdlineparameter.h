@@ -6,7 +6,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "formattingexception.h"
+#include "FormattingException.h"
 
 namespace hpc
 {

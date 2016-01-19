@@ -53,7 +53,7 @@ class DensityCalculator {
       const DataModel::AbstractProperty* loadPressureProperty( GeoPhysics::ProjectHandle* projectHandle, const double snapshotAge );
       /// @brief Load the depth at the defined snapshot and intitalise the top and bottom surface of sediments according to the baseSurfaceName
       /// @return The depth property
-      const const DataModel::AbstractProperty* loadDepthProperty( GeoPhysics::ProjectHandle* projectHandle, const double snapshotAge);
+      const DataModel::AbstractProperty* loadDepthProperty( GeoPhysics::ProjectHandle* projectHandle, const double snapshotAge);
       /// @}
 
       /// @defgroup DataUtilities
@@ -64,7 +64,7 @@ class DensityCalculator {
       void restoreData();
       /// @}
 
-      /// @brief Set the mantle and densities
+      /// @brief Set the mantle and water densities
       bool setDensities( const double aMantleDensity, const double aWaterDensity );
 
       /// @brief Perfrom the backstriping at node (i,j)

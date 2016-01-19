@@ -160,6 +160,9 @@ boost::shared_ptr<CauldronIO::SnapShot> ImportProjectHandle::createSnapShotIO(bo
         double spillPointDepth = trapper->getSpillDepth();
         double spillPointX, spillPointY;
         trapper->getSpillPointPosition(spillPointX, spillPointY);
+        double depth = trapper->getDepth();
+        double pointX, pointY;
+        trapper->getPosition(pointX, pointY);
 
         const Reservoir* reservoir = trapper->getReservoir();
         assert(reservoir);
@@ -169,6 +172,8 @@ boost::shared_ptr<CauldronIO::SnapShot> ImportProjectHandle::createSnapShotIO(bo
         trapperIO->setReservoirName(reservoir->getName());
         trapperIO->setSpillDepth((float)spillPointDepth);
         trapperIO->setSpillPointPosition((float)spillPointX, (float)spillPointY);
+        trapperIO->setDepth((float)depth);
+        trapperIO->setPosition((float)pointX, (float)pointY);
         trapperIO->setDownStreamTrapperID(downstreamTrapperID);
 
         snapShotIO->addTrapper(trapperIO);

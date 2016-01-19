@@ -1374,6 +1374,7 @@ START-properties
     Description         : Formation thickness 
     Unit of measurement : m
     Type                : float
+	Default				: -9999
     Error Field         : Yes
 
     Identification      : SpillDepth
@@ -4496,6 +4497,7 @@ Identification      : HcLiquidBrineCapillaryEntryPressure
     Description         : offset depth from the top of a formation 
     Unit of measurement : m
     Type                : double
+	Default				: -9999
     Error Field         : Yes
 
     Identification      : DepthOffsetGrid
@@ -4507,6 +4509,7 @@ Identification      : HcLiquidBrineCapillaryEntryPressure
     Description         : Net to Gross Percentage  
     Unit of measurement : percent
     Type                : double
+	Default				: -9999
     Error Field         : No
 
     Identification      : NetToGrossGrid
@@ -4518,6 +4521,7 @@ Identification      : HcLiquidBrineCapillaryEntryPressure
     Description         : microtraps density at the top of the reservoir 
     Unit of measurement : m3/m2
     Type                : double
+	Default				: -9999
     Error Field         : Yes
 
     Identification      : LeakProperty
@@ -4530,12 +4534,14 @@ Identification      : HcLiquidBrineCapillaryEntryPressure
     Description         : rate at which the oil/gas is leaking. 
     Unit of measurement : kg/m2/ma
     Type                : double
+	Default				: -9999
     Error Field         : No
 
     Identification      : LayerFrequency 
     Description         : Sand/Shale Layer Frequency  
     Unit of measurement : km 
     Type                : double 
+	Default				: -9999
     Error Field         : Yes
 
     Identification      : LayerFrequencyGrid

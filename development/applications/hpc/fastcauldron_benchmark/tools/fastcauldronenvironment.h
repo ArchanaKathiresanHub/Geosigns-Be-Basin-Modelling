@@ -7,7 +7,7 @@
 #include <boost/shared_ptr.hpp>
 #include <iosfwd>
 
-#include "formattingexception.h"
+#include "FormattingException.h"
 
 namespace DataAccess { namespace Interface {
    class ProjectHandle;

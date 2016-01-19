@@ -146,7 +146,7 @@
 
 // Interface for APIs library
 // CMB API
-#include "../../../utilities/src/formattingexception.h"
+#include "../../../utilities/src/FormattingException.h"
 #include "../../../cmbAPI/src/UndefinedValues.h"
 #include "../../../cmbAPI/src/ErrorHandler.h"
 #include "../../../cmbAPI/src/LithologyManager.h"
@@ -362,7 +362,7 @@ CSHARP_ARRAYS(char, byte)
 %csconstvalue( "Cauldron.PermeabilityModel.IMPERMEABLE_PERMEABILITY" ) DataAccess::Interface::IMPERMEABLE_PERMEABILITY;
 %csconstvalue( "Cauldron.PermeabilityModel.MULTIPOINT_PERMEABILITY"  ) DataAccess::Interface::MULTIPOINT_PERMEABILITY;
 
-%include "../../../utilities/src/formattingexception.h"
+%include "../../../utilities/src/FormattingException.h"
 %include "../../../cmbAPI/src/ErrorHandler.h"
 %include "../../../cmbAPI/src/UndefinedValues.h"
 %include "../../../cmbAPI/src/LithologyManager.h"

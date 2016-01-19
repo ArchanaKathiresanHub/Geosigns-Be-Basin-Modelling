@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2012-2014 Shell International Exploration & Production.
+// Copyright (C) 2012-2016 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -115,6 +115,9 @@ namespace casa
             throw ErrorHandler::Exception( m_model->errorCode() ) << m_model->errorMessage();
          }
       }
+
+      // clean duplicated lithologies
+      m_model->lithologyManager().cleanDuplicatedLithologies();
 
       // write mutated project to the file
       if ( ErrorHandler::NoError != m_model->saveModelToProjectFile( newProjectName ) )

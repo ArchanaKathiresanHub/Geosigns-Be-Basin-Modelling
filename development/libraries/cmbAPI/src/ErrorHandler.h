@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2012-2014 Shell International Exploration & Production.
+// Copyright (C) 2012-2016 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -14,7 +14,7 @@
 #ifndef ERROR_HANDLER_API
 #define ERROR_HANDLER_API
 
-#include "formattingexception.h"
+#include "FormattingException.h"
 #include <string>
 
 /// @brief Class ErrorHandler keeps handling of error codes, error messages and is a base class for 

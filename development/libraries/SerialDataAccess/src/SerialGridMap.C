@@ -312,6 +312,10 @@ double SerialGridMap::getValue (unsigned int i, unsigned int j, unsigned int k) 
       return m_undefinedValue;
 }
 
+bool SerialGridMap::isAscendingOrder() const {
+   return false;
+}
+
 double SerialGridMap::getValue (unsigned int i, unsigned int j, double k) const
 {
    return getValue ( (double) i, (double) j, k);
