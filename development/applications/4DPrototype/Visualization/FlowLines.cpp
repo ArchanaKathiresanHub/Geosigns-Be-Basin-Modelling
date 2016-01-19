@@ -6,7 +6,79 @@
 
 #include <Inventor/SbVec.h>
 #include <Inventor/nodes/SoLineSet.h>
+#include <Inventor/nodes/SoVertexShader.h>
+#include <Inventor/nodes/SoGeometryShader.h>
+#include <Inventor/nodes/SoFragmentShader.h>
+#include <Inventor/nodes/SoShaderProgram.h>
 #include <MeshVizXLM/MbVec3.h>
+
+const char* vertexShaderSrc =
+  "void main()\n"
+  "{\n"
+  "  gl_FrontColor = gl_Color;\n"
+  "  gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;\n"
+  "}\n";
+
+const char* geometryShaderSrc =
+  "#version 150 core\n"
+  "layout(lines) in;\n"
+  "layout(line_strip, max_vertices=6) out;\n"
+  "void main()\n"
+  "{\n"
+  "  gl_FrontColor = gl_in[0].gl_FrontColor;\n"
+  "  vec4 p0 = gl_in[0].gl_Position;\n"
+  "  vec4 p1 = gl_in[1].gl_Position;\n"
+  "  vec4 vt = p1 - p0;\n"
+  "  vec4 vp = vec4(-vt.y, vt.x, vt.z, vt.w);\n"
+  "  gl_Position = p0;\n"
+  "  EmitVertex();\n"
+  "  vec4 p2 = p0 + 0.8 * vt;\n"
+  "  gl_Position = p2;\n"
+  "  EmitVertex();\n"
+  "  gl_Position = p2 + 0.05 * vp;\n"
+  "  EmitVertex();\n"
+  "  gl_Position = p1;\n"
+  "  EmitVertex();\n"
+  "  gl_Position = p2 - 0.05 * vp;\n"
+  "  EmitVertex();\n"
+  "  gl_Position = p2;\n"
+  "  EmitVertex();\n"
+  "}\n";
+
+const char* fragmentShaderSrc =
+  "//!oiv_include <Inventor/oivDepthPeeling_frag.h>\n"
+  "void main()\n"
+  "{\n"
+  "  OivDepthPeelingOutputColor(gl_Color);\n"
+  "}\n";
+
+SoShaderProgram* createFlowLinesVectorShader()
+{
+  auto vertexShader = new SoVertexShader;
+  vertexShader->sourceProgram = vertexShaderSrc;
+  vertexShader->sourceType = SoShaderObject::GLSL_PROGRAM;
+  vertexShader->isActive = true;
+
+  auto geometryShader = new SoGeometryShader;
+  geometryShader->sourceProgram = geometryShaderSrc;
+  geometryShader->sourceType = SoShaderObject::GLSL_PROGRAM;
+  geometryShader->isActive = true;
+
+  auto fragmentShader = new SoFragmentShader;
+  fragmentShader->sourceProgram = fragmentShaderSrc;
+  fragmentShader->sourceType = SoShaderObject::GLSL_PROGRAM;
+  fragmentShader->isActive = true;
+
+  auto program = new SoShaderProgram;
+  program->shaderObject.set1Value(0, vertexShader);
+  program->shaderObject.set1Value(1, geometryShader);
+  program->shaderObject.set1Value(2, fragmentShader);
+  program->geometryInputType = SoShaderProgram::LINES_INPUT;
+  program->geometryOutputType = SoShaderProgram::LINE_STRIP_OUTPUT;
+  program->maxGeometryOutputVertices = 6;
+
+  return program;
+}
 
 MbVec3d getCellCenter(const MiGeometryIjk& geometry, size_t i, size_t j, size_t k)
 {

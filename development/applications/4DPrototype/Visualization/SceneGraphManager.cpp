@@ -30,6 +30,7 @@
 #include <Inventor/nodes/SoLineSet.h>
 #include <Inventor/nodes/SoBaseColor.h>
 #include <Inventor/nodes/SoIndexedLineSet.h>
+#include <Inventor/nodes/SoShaderProgram.h>
 
 #include <MeshVizXLM/MxTimeStamp.h>
 #include <MeshVizXLM/mapping/nodes/MoDrawStyle.h>
@@ -1022,6 +1023,7 @@ SnapshotInfo SceneGraphManager::createSnapshotNode(size_t index)
   info.chunksGroup->setName("chunks");
   info.flowLinesGroup = new SoSeparator;
   info.flowLinesGroup->setName("flowlines");
+  info.flowLinesGroup->addChild(createFlowLinesVectorShader());
   info.flowVectorsGroup = new SoSeparator;
   info.flowVectorsGroup->setName("flowvectors");
   info.surfacesGroup = new SoGroup;

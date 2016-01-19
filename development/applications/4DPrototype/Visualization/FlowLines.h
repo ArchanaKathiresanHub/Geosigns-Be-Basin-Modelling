@@ -2,20 +2,23 @@
 #define FLOWLINES_H_INCLUDED
 
 class SoLineSet;
+class SoShaderProgram; 
 class MiVolumeMeshCurvilinear;
 class MiGeometryIjk;
 template<class T>
 class MiDataSetIjk;
 template<class T>
+class MiDataSetIj;
+template<class T>
 class MbVec3;
+
+class Project;
 
 #include <memory>
 #include <cstdint>
 #include <cstddef>
 
-class Project;
-template<class T> 
-class MiDataSetIj;
+SoShaderProgram* createFlowLinesVectorShader();
 
 MbVec3<double> getCellCenter(const MiGeometryIjk& geometry, size_t i, size_t j, size_t k);
 
