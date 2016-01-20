@@ -10,9 +10,6 @@
 #                                                                       #
 #########################################################################
 
-#!Commented as it broke Linux builds
-#add_subdirectory(4DPrototype)
-
 if (BM_BUILD_SERIAL_APPS)
 	add_subdirectory(eosptdiag)
 	add_subdirectory(EosPackDemo)
@@ -61,6 +58,7 @@ else ()
 	add_subdirectory(fastgenex6)
 	add_subdirectory(hpc)
 	add_subdirectory(tracktraps)
+#	add_subdirectory(4DViewer)
 endif ()
 
 # Local Variables:

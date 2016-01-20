@@ -20,7 +20,7 @@
 #include <MeshVizXLM/mapping/MoMeshviz.h>
 #include <MeshViz/PoMeshViz.h>
 
-#include <Visualization/CameraUtil.h>
+#include <CameraUtil.h>
 
 namespace
 {

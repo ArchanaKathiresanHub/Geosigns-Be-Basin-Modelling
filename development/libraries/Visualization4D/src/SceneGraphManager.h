@@ -251,7 +251,7 @@ struct SnapshotInfo
   SnapshotInfo();
 };
 
-class VISUALIZATIONDLL_API SceneGraphManager
+class SceneGraphManager
 {
 public:
 

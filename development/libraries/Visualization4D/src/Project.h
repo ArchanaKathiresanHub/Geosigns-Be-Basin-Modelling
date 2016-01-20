@@ -29,7 +29,7 @@ class MiDataSetIjk;
 template<class T>
 class MbVec3;
 
-class VISUALIZATIONDLL_API Project
+class Project
 {
 public:
 

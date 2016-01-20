@@ -11,7 +11,7 @@
 #include "RenderService.h"
 #include "BpaServiceListener.h"
 
-#include <Visualization/SceneGraphManager.h>
+#include <SceneGraphManager.h>
 
 #include <MeshVizXLM/mapping/MoMeshViz.h>
 

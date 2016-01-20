@@ -11,10 +11,10 @@
 #ifndef MAINWINDOW_H_INCLUDED
 #define MAINWINDOW_H_INCLUDED
 
-#include "MainWindow.ui.h"
+#include "ui_MainWindow.h"
 
-#include <Visualization/Project.h>
-#include <Visualization/SceneGraphManager.h>
+#include <Project.h>
+#include <SceneGraphManager.h>
 
 #include <QtGui/QMainWindow>
 

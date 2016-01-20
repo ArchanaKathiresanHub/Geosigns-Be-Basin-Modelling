@@ -46,7 +46,7 @@ namespace DataAccess
   }
 }
 
-class VISUALIZATIONDLL_API DataAccessProject : public Project
+class DataAccessProject : public Project
 {
   std::shared_ptr<DataAccess::Interface::ObjectFactory> m_objectFactory;
   std::shared_ptr<DataAccess::Interface::ProjectHandle> m_projectHandle;

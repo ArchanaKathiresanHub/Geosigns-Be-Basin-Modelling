@@ -12,8 +12,8 @@
 
 #include "CommandHandler.h"
 
-#include <Visualization/Project.h>
-#include <Visualization/SceneGraphManager.h>
+#include <Project.h>
+#include <SceneGraphManager.h>
 
 #ifdef USE_H264
 #include <RenderAreaListener.h>

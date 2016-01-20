@@ -44,6 +44,8 @@ if(UNIX)
 	# Libraries that can only be built on Unix at the moment.
     add_subdirectory(ParaViewPlugin)
 	add_subdirectory(OneFilePerProcess)
+else(UNIX)
+#	add_subdirectory(Visualization4D)
 endif(UNIX)
 
 if (BM_CSHARP_API)

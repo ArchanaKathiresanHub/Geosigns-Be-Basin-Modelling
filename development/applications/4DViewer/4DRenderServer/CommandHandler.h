@@ -28,7 +28,7 @@ namespace jsonxx
   class Object;
 }
 
-#include <Visualization/Project.h>
+#include <Project.h>
 
 #include <string>
 #include <map>

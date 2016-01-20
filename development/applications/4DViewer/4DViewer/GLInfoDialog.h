@@ -11,7 +11,7 @@
 #ifndef GLINFODIALOG_H_INCLUDED
 #define GLINFODIALOG_H_INCLUDED
 
-#include "GLInfoDialog.ui.h" 
+#include "ui_GLInfoDialog.h" 
 
 class GLInfoDialog : public QDialog
 {

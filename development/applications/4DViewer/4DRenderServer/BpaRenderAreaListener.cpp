@@ -11,8 +11,8 @@
 #include "BpaRenderAreaListener.h"
 #include "SceneExaminer.h"
 
-#include <Visualization/SceneGraphManager.h>
-#include <Visualization/CameraUtil.h>
+#include <SceneGraphManager.h>
+#include <CameraUtil.h>
 
 #ifdef USE_H264
 #include <RenderArea.h>
