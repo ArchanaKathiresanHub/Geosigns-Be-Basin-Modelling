@@ -126,9 +126,6 @@ void DerivedProperties::MaxVesHighResFormationCalculator::computeForSubsampledRu
 
       const DataModel::AbstractProperty * const vesHighResProperty = propertyManager.getProperty( "VesHighRes" );
       FormationPropertyPtr currentVesHighRes = propertyManager.getFormationProperty( vesHighResProperty, snapshot, formation );
-      
-      const DataAccess::Interface::Snapshot * const prevSnapshot = m_projectHandle->findPreviousSnapshot( snapshot->getTime() );
-      FormationPropertyPtr previousMaxVesHighRes = propertyManager.getFormationProperty( maxVesHighResProperty, prevSnapshot, formation );
 
       const bool includeGhostNodes = true;
       const unsigned int firstI = maxVesHighRes->firstI( includeGhostNodes );
@@ -138,26 +135,55 @@ void DerivedProperties::MaxVesHighResFormationCalculator::computeForSubsampledRu
       const unsigned int firstK = maxVesHighRes->firstK();
       const unsigned int lastK  = maxVesHighRes->lastK();
 
-      for( unsigned int i = firstI; i <= lastI; ++i )
+      if( currentFormation->getBottomSurface()->getSnapshot()->getTime() == snapshot->getTime() )
       {
-         for( unsigned int j = firstJ; j <= lastJ; ++j )
+         for( unsigned int i = firstI; i <= lastI; ++i )
          {
-            if( m_projectHandle->getNodeIsValid(i, j) )
+            for( unsigned int j = firstJ; j <= lastJ; ++j )
             {
-               for( unsigned int k = firstK; k <= lastK; ++k )
+               if( m_projectHandle->getNodeIsValid(i, j) )
                {
-                  maxVesHighRes->set(i, j, k, NumericFunctions::Maximum( currentVesHighRes->getA(i,j,k), previousMaxVesHighRes->getA(i,j,k) ) );
+                  for( unsigned int k = firstK; k <= lastK; ++k )
+                  {
+                     maxVesHighRes->set(i, j, k, 0.0 );
+                  }
                }
-            }
-            else
-            {
-               for( unsigned int k = firstK; k <= lastK; ++k )
+               else
                {
-                  maxVesHighRes->set(i, j, k, DataAccess::Interface::DefaultUndefinedMapValue);
+                  for( unsigned int k = firstK; k <= lastK; ++k )
+                  {
+                     maxVesHighRes->set(i, j, k, DataAccess::Interface::DefaultUndefinedMapValue);
+                  }
                }
             }
          }
       }
+      else
+      {
+         const DataAccess::Interface::Snapshot * const prevSnapshot = m_projectHandle->findPreviousSnapshot( snapshot->getTime() );
+         FormationPropertyPtr previousMaxVesHighRes = propertyManager.getFormationProperty( maxVesHighResProperty, prevSnapshot, formation );
+
+         for( unsigned int i = firstI; i <= lastI; ++i )
+         {
+            for( unsigned int j = firstJ; j <= lastJ; ++j )
+            {
+               if( m_projectHandle->getNodeIsValid(i, j) )
+               {
+                  for( unsigned int k = firstK; k <= lastK; ++k )
+                  {
+                     maxVesHighRes->set(i, j, k, NumericFunctions::Maximum( currentVesHighRes->getA(i,j,k), previousMaxVesHighRes->getA(i,j,k) ) );
+                  }
+               }
+               else
+               {
+                  for( unsigned int k = firstK; k <= lastK; ++k )
+                  {
+                     maxVesHighRes->set(i, j, k, DataAccess::Interface::DefaultUndefinedMapValue);
+                  }
+               }
+            }
+         }
+      }      
 
       derivedProperties.clear();
       derivedProperties.push_back(maxVesHighRes);
