@@ -175,7 +175,7 @@ int main (int argc, char ** argv)
    PetscOptionsGetString (PETSC_NULL, "-project", inputFileName, lineSize, &isDefined);
 
    if (!isDefined)  {
-      LogHandler( LogHandler::ERROR_SEVERITY ) << "ERROR Error when reading the project file";
+      LogHandler( LogHandler::ERROR_SEVERITY ) << "ERROR Error when reading the project file.";
       fprintf(stderr, "MeSsAgE ERROR Error when reading the project file\n");
       showUsage ();
       PetscFinalize ();
@@ -186,7 +186,7 @@ int main (int argc, char ** argv)
    PetscTime( &sim_Start_Time );
 
    if (!CrustalThicknessCalculator::CreateFrom( inputFileName, factory )) {
-      LogHandler( LogHandler::ERROR_SEVERITY ) << "Can not open the project file";
+      LogHandler( LogHandler::ERROR_SEVERITY ) << "Can not open the project file.";
       fprintf(stderr, "MeSsAgE ERROR Can not open the project file\n");
       showUsage ();
       PetscFinalize ();
@@ -194,7 +194,7 @@ int main (int argc, char ** argv)
    };
 
    if( !CrustalThicknessCalculator::getInstance().parseCommandLine()) {
-      LogHandler( LogHandler::ERROR_SEVERITY ) << "Could not parse command line";
+      LogHandler( LogHandler::ERROR_SEVERITY ) << "Could not parse command line.";
       finaliseCrustalThicknessCalculator(feature, "", factory);
       return -1;
    };
@@ -216,7 +216,7 @@ int main (int argc, char ** argv)
       return 0;
    }
    catch (...) {
-      LogHandler( LogHandler::FATAL_SEVERITY ) << "CTC fatal error";
+      LogHandler( LogHandler::FATAL_SEVERITY ) << "CTC fatal error.";
       finaliseCrustalThicknessCalculator(feature, "", factory);
       return 0;
    }

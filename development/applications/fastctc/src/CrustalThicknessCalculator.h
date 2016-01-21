@@ -107,7 +107,7 @@ private :
 
    /// @brief Update geophysics ProjectHandle valid nodes using the CTC input maps
    void updateValidNodes( const InterfaceInput* theInterfaceData );
-   /// @brief Computes the present day water loaded subsidence (WLS) map
+   /// @brief Computes the present day water loaded subsidence (WLS) map and smooth it
    /// @return The WLS map
    GridMap * calculatePresentDayWLS( InterfaceInput* theInterfaceData );
 

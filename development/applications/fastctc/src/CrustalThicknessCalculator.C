@@ -225,11 +225,7 @@ void CrustalThicknessCalculator::run() {
    updateValidNodes( theInterfaceData );
    m_smoothRadius = theInterfaceData->getSmoothRadius();
    m_applySmoothing = (m_smoothRadius > 0);
-   if (m_applySmoothing) {
-      LogHandler( LogHandler::INFO_SEVERITY ) << "Applying spatial smoothing with radius = " << m_smoothRadius;
-      /// @todo delte PETSC print
-      PetscPrintf( PETSC_COMM_WORLD, "Applying spatial smoothing with radius = %d\n", m_smoothRadius );
-   }
+
    /// @todo is it needed?
    setAdditionalOptionsFromCommandLine();
 
@@ -251,9 +247,19 @@ void CrustalThicknessCalculator::run() {
 
    std::sort( snapshots.begin(), snapshots.end(), std::greater<int>() );
 
+   ///6.Compute WLS @ 0Ma
    GridMap *previousWLS = 0;
 
-   GridMap *presentDayWLS = calculatePresentDayWLS( theInterfaceData );
+   GridMap *presentDayWLS;
+   try{
+      presentDayWLS = calculatePresentDayWLS( theInterfaceData );
+   }
+   catch (CtcException& ex) {
+      LogHandler( LogHandler::ERROR_SEVERITY ) << ex.what();
+   }
+   catch (...){
+      LogHandler( LogHandler::FATAL_SEVERITY ) << "CTC fatal error when computing WLS @ snapshot 0Ma.";
+   }
 
    if (presentDayWLS == 0) {
       throw CtcException() << "Cannot calculate present day WLS map.";
@@ -261,6 +267,7 @@ void CrustalThicknessCalculator::run() {
 
    presentDayWLS->retrieveData();
 
+   ///7. Compute WLS for all other snapshots
    for (k = 0; k < snapshots.size(); ++k) {
 
       const double age = snapshots[k];
@@ -269,19 +276,12 @@ void CrustalThicknessCalculator::run() {
          m_DensityCalculator.loadTopAndBottomOfSediments( m_crustalThicknessCalculator, age, theInterfaceData->getBaseRiftSurfaceName() );
          const DataModel::AbstractProperty* depthProperty = m_DensityCalculator.loadDepthProperty( m_crustalThicknessCalculator, age );
          m_DensityCalculator.loadDepthData( m_crustalThicknessCalculator, depthProperty, age );
-      }
-      catch (std::string& s) {
-         PetscPrintf( PETSC_COMM_WORLD, "\n %s \n\n", s.c_str() );
-         continue;
-      }
-
-      try {
          const DataModel::AbstractProperty* pressureProperty = m_DensityCalculator.loadPressureProperty( m_crustalThicknessCalculator, age );
          m_DensityCalculator.loadPressureData( m_crustalThicknessCalculator, pressureProperty, age );
       }
-      /// @todo switch to CtcException
-      catch (std::string& s) {
-         PetscPrintf( PETSC_COMM_WORLD, "\n %s \n\n", s.c_str() );
+      catch (CtcException& ex) {
+         LogHandler( LogHandler::ERROR_SEVERITY ) << ex.what();
+         PetscPrintf( PETSC_COMM_WORLD, "\n %s \n\n", ex.what() );
          continue;
       }
 
@@ -289,7 +289,7 @@ void CrustalThicknessCalculator::run() {
 
       if (!theOutput.createSnapShotOutputMaps( m_crustalThicknessCalculator, theSnapshot, m_DensityCalculator.getTopOfSedimentSurface() )) {
          throw CtcException() << "Cannot allocate output maps.";
-      };
+      }
 
       theInterfaceData->retrieveData();
       m_DensityCalculator.retrieveData();
@@ -298,7 +298,6 @@ void CrustalThicknessCalculator::run() {
       if (previousWLS != 0) {
          previousWLS->retrieveData();
       }
-      ////
 
       unsigned firstI = theInterfaceData->firstI();
       unsigned firstJ = theInterfaceData->firstJ();
@@ -348,21 +347,10 @@ void CrustalThicknessCalculator::run() {
       }
 
       if (m_applySmoothing) {
-
+         LogHandler( LogHandler::INFO_SEVERITY ) << "Applying spatial smoothing with radius = " << m_smoothRadius << " @ snapshot " << age <<".";
          bool status = movingAverageSmoothing( theOutput.getMap( WLSMap ) );
          if (!status) {
             throw CtcException() << "Failed to smooth WLS map.";
-         }
-         status = movingAverageSmoothing( theOutput.getMap( WLSMap ) );
-         if (!status) {
-            throw CtcException() << "Failed to smooth WLS map.";
-         }
-      }
-      if (m_applySmoothing) {
-
-         bool status = movingAverageSmoothing( theOutput.getMap( isostaticBathymetry ) );
-         if (!status) {
-            throw CtcException() << "Failed to smooth isostaticBathymetry map.";
          }
          status = movingAverageSmoothing( theOutput.getMap( isostaticBathymetry ) );
          if (!status) {
@@ -471,7 +459,7 @@ void CrustalThicknessCalculator::run() {
             }
          }
       }
-      ///
+      
       theInterfaceData->restoreData();
       m_DensityCalculator.restoreData();
       theOutput.restoreData();
@@ -489,11 +477,6 @@ void CrustalThicknessCalculator::run() {
 
    presentDayWLS->restoreData();
 
-   // if( ! theOutput.updateIsoBathymetryMaps ( m_crustalThicknessCalculator, snapshots  )) {
-   //    string s = "The present day WLS map cannot be found - the Isostatic Bathymetry map cannot be computed.";
-   //    throw s;
-   // };
-
    delete presentDayWLS;
 }
 
@@ -504,23 +487,25 @@ GridMap * CrustalThicknessCalculator::calculatePresentDayWLS( InterfaceInput* th
    GridMap * WLSmap = m_crustalThicknessCalculator->getFactory ()->produceGridMap (0, 0, m_crustalThicknessCalculator->getActivityOutputGrid (),
                                                                                    DefaultUndefinedMapValue, 1);
 
-   if( WLSmap != 0 ) {
+   if (WLSmap != 0) {
+
+      ///1. Compute WLS
       m_DensityCalculator.loadTopAndBottomOfSediments( m_crustalThicknessCalculator, 0.0, theInterfaceData->getBaseRiftSurfaceName() );
       const DataModel::AbstractProperty* depthProperty = m_DensityCalculator.loadDepthProperty( m_crustalThicknessCalculator, 0.0 );
       m_DensityCalculator.loadDepthData( m_crustalThicknessCalculator, depthProperty, 0.0 );
       const DataModel::AbstractProperty* pressureProperty = m_DensityCalculator.loadPressureProperty( m_crustalThicknessCalculator, 0.0 );
       m_DensityCalculator.loadPressureData( m_crustalThicknessCalculator, pressureProperty, 0.0 );
-     
+
       LinearFunction m_LF;
 
       WLSmap->retrieveData();
       theInterfaceData->retrieveData();
       m_DensityCalculator.retrieveData();
-       
+
       unsigned firstI = WLSmap->firstI();
       unsigned firstJ = WLSmap->firstJ();
-      unsigned lastI  = WLSmap->lastI();
-      unsigned lastJ  = WLSmap->lastJ();
+      unsigned lastI = WLSmap->lastI();
+      unsigned lastJ = WLSmap->lastJ();
       unsigned i, j;
       double WLS;
 
@@ -535,23 +520,21 @@ GridMap * CrustalThicknessCalculator::calculatePresentDayWLS( InterfaceInput* th
                WLS = m_DensityCalculator.getWLS();
             }
             WLSmap->setValue( i, j, WLS );
-
          }
       }
 
+      ///2. Smooth WLS
       bool status = true;
-
-      if (false && m_applySmoothing) {
+      if (m_applySmoothing) {
+         LogHandler( LogHandler::INFO_SEVERITY ) << "Applying spatial smoothing with radius = " << m_smoothRadius << " @ snapshot 0Ma.";
          status = movingAverageSmoothing( WLSmap );
-         if (status) {
-            status = movingAverageSmoothing( WLSmap );
-         }
       }
       WLSmap->restoreData();
       theInterfaceData->restoreData();
       m_DensityCalculator.restoreData();
-
-      if (!status) return 0;
+      if (!status) {
+         throw CtcException() << "Could not smooth the WLS map @ snapshot 0Ma";
+      }
    }
 
    return WLSmap;

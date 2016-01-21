@@ -17,10 +17,15 @@
 #include "ReservoirPropertyCalculator.h"
 #include "PropertySnapshotCalculatorMap.h"
 
+// utilities library
+#include "FormattingException.h"
+
 namespace DerivedProperties {
 
    /// \brief Handles derived properties and their calculation.
    class AbstractPropertyManager {
+
+   typedef formattingexception::GeneralException AbstractPropertyException;
 
    public :
 
