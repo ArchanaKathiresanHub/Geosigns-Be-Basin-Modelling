@@ -19,12 +19,17 @@
 // DerivedProperties library
 #include "DerivedPropertyManager.h"
 
+// utilitites library
+#include "FormattingException.h"
+
 using namespace DataAccess;
 
 typedef std::vector<double> snapshotsList;
 
 /// @class DensityCalculator The density calcultor used during the CTC backstriping
 class DensityCalculator {
+
+   typedef formattingexception::GeneralException DensityException;
 
    public:
    

@@ -10,6 +10,9 @@ using namespace std;
 #include "FormationSurfacePropertyOffsetCalculator.h"
 #include "SurfacePropertyOffsetCalculator.h"
 
+// utility library
+#include "LogHandler.h"
+
 DerivedProperties::AbstractPropertyManager::AbstractPropertyManager () {}
 
 DerivedProperties::AbstractPropertyManager::~AbstractPropertyManager () {
@@ -336,11 +339,11 @@ DerivedProperties::SurfacePropertyPtr DerivedProperties::AbstractPropertyManager
             }
 
             if ( result == 0 ) {
-               // Error.
+               throw AbstractPropertyException() << "Could not calculate derived property " << property->getName() << " @ snapshot " << snapshot->getTime() << ".";
             }
 
          } else {
-            // Error.
+            LogHandler( LogHandler::DEBUG_SEVERITY ) << "Derived property " << property->getName() << " @ snapshot " << snapshot->getTime() << " already computed.";
          }
 
       }

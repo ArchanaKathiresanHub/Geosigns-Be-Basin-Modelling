@@ -62,27 +62,23 @@ void DensityCalculator::loadTopAndBottomOfSediments( GeoPhysics::ProjectHandle* 
       const Interface::CrustFormation * formationCrust = dynamic_cast<const Interface::CrustFormation *>(projectHandle->getCrustFormation());
 
       if (!formationCrust) {
-         stringstream ss;
-         ss << "Could not find Crust formation at the age " << currentSnapshot->getTime();
-         throw ss.str();
+         throw DensityException() << "Could not find Crust formation at the age " << currentSnapshot->getTime() << ".";
       }
       m_bottomOfSedimentSurface = formationCrust->getTopSurface();
 
       if (debug && projectHandle->getRank() == 0) {
-         cout << "Crust formation: " << formationCrust->getName() << ", surface above " << m_bottomOfSedimentSurface->getName() << "." << endl;
+         LogHandler( LogHandler::INFO_SEVERITY ) << "Crust formation: " << formationCrust->getName() << ", surface above " << m_bottomOfSedimentSurface->getName() << ".";
       }
    }
    else {
       m_bottomOfSedimentSurface = projectHandle->findSurface( baseSurfaceName );
 
       if (!m_bottomOfSedimentSurface) {
-         stringstream ss;
-         ss << "Could not find user defined base surface of the rift event: " << baseSurfaceName;
-         throw ss.str();
+         throw DensityException() << "Could not find user defined base surface of the rift event: " << baseSurfaceName << ".";
       }
       else {
          if (false && projectHandle->getRank() == 0) {
-            printf( "Using surface %s as the base of syn-rift\n", m_bottomOfSedimentSurface->getName().c_str() );
+            LogHandler( LogHandler::INFO_SEVERITY ) << "Using surface " << m_bottomOfSedimentSurface->getName() << " as the base of syn-rift.";
          }
       }
    }
@@ -92,15 +88,13 @@ void DensityCalculator::loadTopAndBottomOfSediments( GeoPhysics::ProjectHandle* 
    const Interface::Formation * formationWB = (*myFormations)[0]; // find Water bottom
 
    if (!formationWB) {
-      stringstream ss;
-      ss << "Could not find the Water bottom formation at the age " << currentSnapshot->getTime();
-      throw ss.str();
+      throw DensityException() << "Could not find the Water bottom formation at the age " << currentSnapshot->getTime();
    }
 
    m_topOfSedimentSurface = formationWB->getTopSurface();
 
    if (debug && projectHandle->getRank() == 0) {
-      cout << "Top surface: " << m_topOfSedimentSurface->getName() << "; surface below " << m_bottomOfSedimentSurface->getName() << "." << endl;
+      LogHandler( LogHandler::INFO_SEVERITY ) << "Top surface: " << m_topOfSedimentSurface->getName() << "; surface below " << m_bottomOfSedimentSurface->getName() << ".";
    }
 }
 
@@ -113,8 +107,7 @@ const DataModel::AbstractProperty* DensityCalculator::loadDepthProperty( GeoPhys
    const DataModel::AbstractProperty* depthProperty = derivedManager.getProperty( "Depth" );
 
    if (!depthProperty) {
-      string s = "Could not find property named Depth.";
-      throw s;
+      throw DensityException() << "Could not find property named Depth.";
    }
 
    return depthProperty;
@@ -126,10 +119,18 @@ void DensityCalculator::loadDepthData( GeoPhysics::ProjectHandle* projectHandle,
    DerivedProperties::DerivedPropertyManager derivedManager( projectHandle );
    const Interface::Snapshot * currentSnapshot = projectHandle->findSnapshot( snapshotAge, MINOR | MAJOR );
 
-   // Find the depth property of the bottom of sediment
-   m_depthBasement = derivedManager.getSurfaceProperty( depthProperty, currentSnapshot, m_bottomOfSedimentSurface );
-   // Find the depth property of the top of sediment
-   m_depthWaterBottom = derivedManager.getSurfaceProperty( depthProperty, currentSnapshot, m_topOfSedimentSurface );
+   try{
+      // Find the depth property of the bottom of sediment
+      m_depthBasement = derivedManager.getSurfaceProperty( depthProperty, currentSnapshot, m_bottomOfSedimentSurface );
+      // Find the depth property of the top of sediment
+      m_depthWaterBottom = derivedManager.getSurfaceProperty( depthProperty, currentSnapshot, m_topOfSedimentSurface );
+   }
+   catch ( DensityException& ex ){
+      LogHandler( LogHandler::ERROR_SEVERITY ) << ex.what();
+   }
+   catch (...){
+      LogHandler( LogHandler::FATAL_SEVERITY ) << "Could not load depth data for property " << depthProperty->getName() << " @ snapshot " << snapshotAge << ".";
+   }
 }
 
 //------------------------------------------------------------//
@@ -141,8 +142,7 @@ const DataModel::AbstractProperty* DensityCalculator::loadPressureProperty( GeoP
    const DataModel::AbstractProperty* pressureProperty = derivedManager.getProperty( "LithoStaticPressure" );
 
    if (!pressureProperty) {
-      string s = "Could not find property named LithoStaticPressure.";
-      throw s;
+      throw DensityException() << "Could not find property named LithoStaticPressure.";
    }
    
    return pressureProperty;
