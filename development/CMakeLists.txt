@@ -52,6 +52,7 @@ option( BM_BUILD_ENABLE_TESTING "Whether testing is enabled" ON )
 option( BM_CODE_COVERAGE_ENABLE "Enable code coverage" OFF )
 option( BM_INSTALL_BENCHMARK_SUITE "Install the cauldron benchmark suite" OFF )
 option( BM_USE_FLEXLM "Whether to require a license via FlexLM" OFF)
+option( BM_BUILD_4DVIEWER "Build the 4D viewer (Windows only, needs Qt4 and Open Inventor)" OFF)
 
 #
 # Variables concerning version numbers

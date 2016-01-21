@@ -71,6 +71,11 @@ namespace VizIO
       return MbVec3d(x, y, z);
     }
 
+    virtual MiMeshIjk::StorageLayout getStorageLayout() const
+    {
+      return MiMeshIjk::LAYOUT_KJI;
+    }
+
     virtual size_t getTimeStamp() const
     {
       return m_timestamp;

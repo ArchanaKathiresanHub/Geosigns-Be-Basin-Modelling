@@ -58,7 +58,7 @@ else ()
 	add_subdirectory(fastgenex6)
 	add_subdirectory(hpc)
 	add_subdirectory(tracktraps)
-#	add_subdirectory(4DViewer)
+	add_subdirectory(4DViewer)
 endif ()
 
 # Local Variables:

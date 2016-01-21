@@ -27,9 +27,10 @@ set(OIVHOME $ENV{OIVHOME})
 set(OIVARCH $ENV{OIVARCH})
 
 set(OIV_INCLUDE_DIR ${OIVHOME}/include)
-set(OIV_LIB_DIR ${OIVHOME}/${OIVARCH}/lib)
+set(OIV_LIB_DIR_REL ${OIVHOME}/arch-Windows-x86_64-msvc12-Release/lib)
+set(OIV_LIB_DIR_DBG ${OIVHOME}/arch-Windows-x86_64-msvc12-Debug/lib)
 
-link_directories(${OIV_LIB_DIR})
+link_directories( ${OIV_LIB_DIR_REL} ${OIV_LIB_DIR_DBG})
 
 add_executable( 4DViewer ${all_srcs} ${all_headers} ${all_ui})
 

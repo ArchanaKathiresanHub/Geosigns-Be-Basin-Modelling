@@ -19,8 +19,13 @@
 
 #include <MeshVizXLM/mapping/MoMeshViz.h>
 
+#ifdef USE_H264
+#include <Service.h>
+#include <ServiceSettings.h>
+#else
 #include <RemoteViz/Rendering/Service.h>
 #include <RemoteViz/Rendering/ServiceSettings.h>
+#endif
 
 #include <iostream>
 
@@ -55,12 +60,12 @@ int main(int /*argc*/, char* /*argv*/[])
   MoMeshViz::init();
 
   ServiceSettings settings;
-  settings.setIP("172.28.16.121");
-  //settings.setIP("127.0.0.1");
   settings.setPort(8081);
-  settings.setUsedExtensions(ServiceSettings::MESHVIZXLM | ServiceSettings::MESHVIZ);
+  settings.setUsedExtensions(
+    ServiceSettings::MESHVIZXLM | 
+    ServiceSettings::MESHVIZ);
 
-  std::shared_ptr<ServiceListener> serviceListener(new BpaServiceListener);
+  auto serviceListener = std::make_shared<BpaServiceListener>();
   Service::instance()->addListener(serviceListener);
 
   // Open the service by using the settings
