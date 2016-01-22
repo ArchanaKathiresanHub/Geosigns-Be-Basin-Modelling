@@ -125,7 +125,7 @@ namespace casa
       bool isAllDone() const;                                         ///< do check are all cases are completed?
 
       // run over all jobs and collect runs statistics. Also report progress if any change in numbers
-      void collectStatistics( int & pFinished, int & pPending, int & pRunning, int & pToBeSubmitted );
+      void collectStatistics( size_t & pFinished, size_t & pPending, size_t & pRunning, size_t & pToBeSubmitted );
    };
 }
 

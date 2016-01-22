@@ -272,6 +272,38 @@ ErrorHandler::ReturnCode MapsManagerImpl::scaleMap( MapID id, double coeff )
 
    return NoError;
 }
+
+ErrorHandler::ReturnCode MapsManagerImpl::interpolateMap( MapID id, MapID minId, MapID maxId, double coeff )
+{
+   if ( errorCode() != NoError ) resetError();
+   try
+   {
+      double nulVal = m_mapObj[id]->getUndefinedValue();
+      
+      if ( !m_mapObj[minId] ) { loadGridMap( minId ); }
+      if ( !m_mapObj[maxId] ) { loadGridMap( maxId ); }
+
+      for (    unsigned int i = m_mapObj[id]->firstI(); i <= m_mapObj[id]->lastI(); ++i )
+      {
+         for ( unsigned int j = m_mapObj[id]->firstJ(); j <= m_mapObj[id]->lastJ(); ++j )
+         {
+            double minV = m_mapObj[minId]->getValue( i, j );
+            double maxV = m_mapObj[maxId]->getValue( i, j );
+
+            if ( NumericFunctions::isEqual( minV, nulVal, 1e-5 ) || NumericFunctions::isEqual( maxV, nulVal, 1.e-5 ) )
+            {
+               m_mapObj[id]->setValue( i, j, nulVal );
+               continue;
+            }
+            
+            m_mapObj[id]->setValue( i, j, minV + (maxV - minV) * coeff );
+         }
+      }
+   }
+   catch( const Exception & ex ) { return reportError( ex.errorCode(), ex.what() ); }
+
+   return NoError;
+}
  
 // Set project database. Reset all
 void MapsManagerImpl::setProject( DataAccess::Interface::ProjectHandle * ph, const std::string & projectFileName )

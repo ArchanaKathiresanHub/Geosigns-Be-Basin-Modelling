@@ -67,6 +67,14 @@ namespace mbapi
       /// @return ErrorHandler::NoError on success, or error code otherwise
       virtual ErrorHandler::ReturnCode scaleMap( MapID id, double coeff ) = 0;
 
+      /// @brief Create map by interpolating between 2 maps 
+      /// @param id new map id
+      /// @param minId low range map
+      /// @param maxId high range map
+      /// @param coeff coefficient in range [0:1]
+      /// @return NoError on success or error code otherwise
+      virtual ErrorHandler::ReturnCode interpolateMap( MapID id, MapID minId, MapID maxId, double coeff ) = 0;
+
       /// @}
 
    protected:

@@ -9,6 +9,7 @@
 // 
 
 #include "ErrorHandler.h"
+#include "LogHandler.h"
 
 #include "CasaCommander.h"
 #include "CfgFileParser.h"
@@ -95,7 +96,7 @@ void CasaCommander::addCommand( const std::string & cmdName, const std::vector< 
    m_cmdNames.push_back( cmdName );
    m_inpFileCmdPos.push_back( lineNum );
 
-   BOOST_LOG_TRIVIAL( debug ) << "Added command to the command queue: " << (typeid(*(cmd.get())).name()) << "("
+   LogHandler( LogHandler::DEBUG ) << "Added command to the command queue: " << (typeid(*(cmd.get())).name()) << "("
                               << CfgFileParser::implode( prms, "," ) << ")";
 }
 

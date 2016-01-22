@@ -53,7 +53,7 @@ PrmSourceRockType::PrmSourceRockType( mbapi::Model & mdl, const std::string & la
          throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Layer " << m_layerName <<
                " is set as a source rock layer but has no source rock lithology defined";
       }
-      if ( mixID < 1 || mixID > srtNames.size() )
+      if ( mixID < 1 || static_cast<size_t>( mixID ) > srtNames.size() )
       {
          throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Layer " << m_layerName <<
             " has not source rock mixing enabled or invalid mixing ID:  " << mixID << " is given";
@@ -82,8 +82,8 @@ PrmSourceRockType::PrmSourceRockType( const VarPrmSourceRockType * parent
                                     , int                          mixID
                                     ) : m_parent( parent )
                                       , m_layerName( layerName )
-                                      , m_mixID( mixID )
                                       , m_srtName( sourceRockTypeName )
+                                      , m_mixID( mixID )
 {
    // construct parameter name
    std::ostringstream oss;
@@ -96,7 +96,6 @@ ErrorHandler::ReturnCode PrmSourceRockType::setInModel( mbapi::Model & caldModel
 {
    try
    {
-      mbapi::SourceRockManager   & srMgr = caldModel.sourceRockManager();
       mbapi::StratigraphyManager & stMgr = caldModel.stratigraphyManager();
 
       // get check is this layer has a mix of source rocks
@@ -111,7 +110,7 @@ ErrorHandler::ReturnCode PrmSourceRockType::setInModel( mbapi::Model & caldModel
       }
 
       std::vector<std::string> srtNames = stMgr.sourceRockTypeName( lid );
-      if ( srtNames.empty() || m_mixID < 1 || m_mixID > srtNames.size() )
+      if ( srtNames.empty() || m_mixID < 1 || static_cast<size_t>( m_mixID ) > srtNames.size() )
       {
          throw ErrorHandler::Exception(ErrorHandler::UndefinedValue) << "Layer " << m_layerName <<
             " set as source rock layer but has no source rock lithology defined for the mixing ID: " << m_mixID;
@@ -196,7 +195,7 @@ bool PrmSourceRockType::operator == ( const Parameter & prm ) const
 
 
 // Save all object data to the given stream, that object could be later reconstructed from saved data
-bool PrmSourceRockType::save( CasaSerializer & sz, unsigned int version ) const
+bool PrmSourceRockType::save( CasaSerializer & sz, unsigned int /* version */ ) const
 {
    bool hasParent = m_parent ? true : false;
    bool ok = sz.save( hasParent, "hasParent" );
@@ -215,7 +214,7 @@ bool PrmSourceRockType::save( CasaSerializer & sz, unsigned int version ) const
 }
 
 // Create a new var.parameter instance by deserializing it from the given stream
-PrmSourceRockType::PrmSourceRockType( CasaDeserializer & dz, unsigned int objVer )
+PrmSourceRockType::PrmSourceRockType( CasaDeserializer & dz, unsigned int /* objVer */ )
 {
    CasaDeserializer::ObjRefID parentID;
 

@@ -200,7 +200,7 @@ namespace casa
       {
          // register run case with serializer to allow RunManager object keep reference after deserialization
          CasaSerializer::ObjRefID rcID = sz.ptr2id( this );
-         bool ok = sz.save( rcID, "ID" );
+         ok = sz.save( rcID, "ID" );
       }
 
       // std::auto_ptr<mbapi::Model> m_model;

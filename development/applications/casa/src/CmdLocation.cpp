@@ -13,6 +13,8 @@
 
 #include "casaAPI.h"
 
+#include "LogHandler.h"
+
 #include <cstdlib>
 #include <iostream>
 
@@ -24,7 +26,7 @@ CmdLocation::CmdLocation( CasaCommander & parent, const std::vector< std::string
 
 void CmdLocation::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
 {
-   BOOST_LOG_TRIVIAL( info ) << "Generating the set of cases in folder: " << m_locPath << "...";
+   LogHandler( LogHandler::INFO ) << "Generating the set of cases in folder: " << m_locPath << "...";
    
    if ( ErrorHandler::NoError != sa->setScenarioLocation( m_locPath.c_str() )  ||
         ErrorHandler::NoError != sa->applyMutations( sa->doeCaseSet() ) )
@@ -33,13 +35,13 @@ void CmdLocation::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
       throw ErrorHandler::Exception( sa->errorCode() ) << sa->errorMessage();
    }
 
-   BOOST_LOG_TRIVIAL( info ) << "Data digger requesting observables...";
+   LogHandler( LogHandler::INFO ) << "Data digger requesting observables...";
 
    if ( ErrorHandler::NoError != sa->dataDigger().requestObservables( sa->obsSpace(), sa->doeCaseSet() ) )
    {
       throw ErrorHandler::Exception( sa->dataDigger().errorCode() ) << sa->dataDigger().errorMessage();
    }
 
-   BOOST_LOG_TRIVIAL( info ) << "Cases generation succeeded";
+   LogHandler( LogHandler::INFO ) << "Cases generation succeeded";
 }
 

@@ -14,6 +14,8 @@
 
 #include "casaAPI.h"
 
+#include "LogHandler.h"
+
 #include <cstdlib>
 #include <cmath>
 #include <iostream>
@@ -36,7 +38,7 @@ CmdPlotP10P90::CmdPlotP10P90( CasaCommander & parent, const std::vector< std::st
 
 void CmdPlotP10P90::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
 {
-   BOOST_LOG_TRIVIAL( info ) << "Generating script to plot P10-P90 diagrams from MC/MCMC results...";
+   LogHandler( LogHandler::INFO ) << "Generating script to plot P10-P90 diagrams from MC/MCMC results...";
 
    MatlabExporter ofs( m_mFileName );
 
@@ -168,7 +170,7 @@ void CmdPlotP10P90::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
    ofs << "   print ( sprintf( 'p10p90_pdf_obs_%d.jpg', o-1 ) );\n";
    ofs << "end\n";
 
-   BOOST_LOG_TRIVIAL( info ) << "Script generation succeeded";
+   LogHandler( LogHandler::INFO ) << "Script generation succeeded";
 }
 
 void CmdPlotP10P90::printHelpPage( const char * cmdName )

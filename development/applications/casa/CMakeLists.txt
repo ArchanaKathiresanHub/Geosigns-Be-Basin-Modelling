@@ -15,6 +15,8 @@ source_group(include FILES ${all_headers})
 FILE( GLOB all_srcs src/*.cpp)
 source_group(source FILES ${all_srcs})
 
+configure_file(../../libraries/casaAPI/src/CauldronEnvConfig.h.in CauldronEnvConfig.h)
+
 add_executable( casa
   ${all_srcs}
   ${all_headers}
@@ -36,6 +38,7 @@ bm_include_libraries(
 
 include_directories(
    ${SUMPP_INCLUDE_DIR}
+   ${CMAKE_CURRENT_BINARY_DIR}
    utilities
 )
 

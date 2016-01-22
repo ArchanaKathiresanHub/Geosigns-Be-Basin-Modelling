@@ -64,7 +64,10 @@ namespace mbapi
 
       // Linearly rescale input map to the new value range
       virtual ErrorHandler::ReturnCode scaleMap( MapID id, double coeff );
- 
+
+      // Interpolate between 2 maps, coefficient in range [0:1]
+      virtual ErrorHandler::ReturnCode interpolateMap( MapID id, MapID minId, MapID maxId, double coeff );
+
       // Set of interfaces for interacting with a Cauldron model
       // Set project database. Reset all
       void setProject( DataAccess::Interface::ProjectHandle * ph, const std::string & projectFileName );
@@ -87,8 +90,9 @@ namespace mbapi
       database::Database                                  * m_db;              // cauldron project database
       DataAccess::Interface::ProjectHandle                * m_proj;            // project handle, to load/save maps
       std::string                                           m_projectFileName; // project file name
-      std::vector<std::string> m_mapName;
-      std::vector<std::string> m_mapRefTable;
+
+      std::vector<std::string>                              m_mapName;
+      std::vector<std::string>                              m_mapRefTable;
 
       std::vector<DataAccess::Interface::GridMap *>   m_mapObj;
    

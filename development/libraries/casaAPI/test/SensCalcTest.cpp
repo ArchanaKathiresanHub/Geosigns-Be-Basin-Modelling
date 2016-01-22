@@ -76,11 +76,8 @@ TEST_F( SensCalcTest, SensitivityCalculatorTornadoTest )
    doeNames.push_back( "Tornado" );
    doeNames.push_back( "FullFactorila" );
 
-   const casa::RunCaseSet & cs = m_sc->doeCaseSet();
-   size_t csNum = cs.size();
-
    std::vector<TornadoSensitivityInfo> tornadoData = sensCalc.calculateTornado( m_sc->doeCaseSet(), doeNames );
-   ASSERT_EQ( tornadoData.size(), 9 ); // number of observables
+   ASSERT_EQ( tornadoData.size(), 9U ); // number of observables
 
    for ( size_t i = 0; i < tornadoData.size(); ++i ) // do test only for 1 observable
    {
@@ -107,7 +104,6 @@ TEST_F( SensCalcTest, SensitivityCalculatorTornadoTest )
          double maxPrmRelSens = tornadoData[i].maxRelSensitivityValue( j );
 
          const std::string  & name      = prmNames[j];
-         const VarParameter * vprm      = tornadoData[i].varParameter( j );
          int                  subPrmNum = tornadoData[i].varParameterSubID( j );
 
          // check results

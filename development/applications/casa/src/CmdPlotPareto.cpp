@@ -14,6 +14,8 @@
 
 #include "casaAPI.h"
 
+#include "LogHandler.h"
+
 #include <cstdlib>
 #include <cmath>
 #include <iostream>
@@ -48,7 +50,7 @@ void CmdPlotPareto::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
    // call response evaluation
    if ( !proxy ) { throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Unknown proxy name:" << m_proxyName; }
 
-   BOOST_LOG_TRIVIAL( info ) << "Generating script to plot Pareto diagram ...";
+   LogHandler( LogHandler::INFO ) << "Generating script to plot Pareto diagram ...";
 
    casa::SensitivityCalculator & sCalc = sa->sensitivityCalculator();
 
@@ -99,7 +101,7 @@ void CmdPlotPareto::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
    ofs << "\n";
    ofs << "print( ['Pareto_' ProxyName '.jpg'] );\n";
 
-   BOOST_LOG_TRIVIAL( info ) << "Script generation succeeded";
+   LogHandler( LogHandler::INFO ) << "Script generation succeeded";
 }
 
 void CmdPlotPareto::printHelpPage( const char * cmdName )

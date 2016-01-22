@@ -34,6 +34,7 @@
 
 using namespace casa;
 using namespace casa::BusinessLogicRulesSet;
+using namespace std;
 
 static const double eps = 1.e-5;
 
@@ -63,13 +64,15 @@ TEST_F( BLRSTest, VaryTopCrustHeatProductionTest )
    ASSERT_EQ( ErrorHandler::NoError, sc.defineBaseCase( m_testProject ) );
 
    // add the new variable parameter TopCrustHeatProduction to the scenario analysis by using one of the BLRS API function
-   ASSERT_EQ( ErrorHandler::NoError, VaryTopCrustHeatProduction( sc, 0, 0.2, 4.0, VarPrmContinuous::Block ) );
+   vector<double> dblRng( 1, 0.2 );
+   dblRng.push_back( 4.0 );
+   ASSERT_EQ( ErrorHandler::NoError, VaryTopCrustHeatProduction( sc, 0, dblRng, vector<string>(), VarPrmContinuous::Block ) );
 
    // get varspace 
    casa::VarSpaceImpl & varPrms = dynamic_cast<casa::VarSpaceImpl&>( sc.varSpace() );
 
    // check how the parameter was set
-   ASSERT_EQ( varPrms.size(), 1 );
+   ASSERT_EQ( varPrms.size(), 1U );
    const VarPrmTopCrustHeatProduction * p1c = dynamic_cast<const VarPrmTopCrustHeatProduction*>( varPrms.continuousParameter( 0 ) );
 
    ASSERT_TRUE( p1c != NULL ); // do we have the required parameter in the list?
@@ -101,7 +104,7 @@ TEST_F( BLRSTest, VarySourceRockTOCSimpleTest )
    casa::VarSpaceImpl & varPrms = dynamic_cast<casa::VarSpaceImpl&>( sc.varSpace() );
 
    // check how the parameter was set
-   ASSERT_EQ( varPrms.size(), 1 );
+   ASSERT_EQ( varPrms.size(), 1U );
    const VarPrmSourceRockTOC * p1c = dynamic_cast<const VarPrmSourceRockTOC*>( varPrms.continuousParameter( 0 ) );
    ASSERT_TRUE( p1c != NULL ); // do we have required the parameter in the list?
 
@@ -109,9 +112,9 @@ TEST_F( BLRSTest, VarySourceRockTOCSimpleTest )
    const std::vector<double> & maxV = p1c->maxValue()->asDoubleArray();
    const std::vector<double> & baseV = p1c->baseValue()->asDoubleArray();
 
-   ASSERT_NEAR( minV[0],  0.0, eps );  // does it range have given min value?
-   ASSERT_NEAR( maxV[0], 30.0, eps );  // does it range have given max value?
-   ASSERT_NEAR( baseV[0],10.0, eps );  // does it range have base value from the project?
+   ASSERT_NEAR( minV[0],   0.0, eps );  // does it range have given min value?
+   ASSERT_NEAR( maxV[0],  30.0, eps );  // does it range have given max value?
+   ASSERT_NEAR( baseV[0], 10.0, eps );  // does it range have base value from the project?
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -169,7 +172,7 @@ TEST_F( BLRSTest, VarySourceRockTOCDepOnSrourceRockTypeTest )
    casa::VarSpaceImpl & varPrms = dynamic_cast<casa::VarSpaceImpl&>( sc.varSpace() );
 
    // check how the parameter was set
-   ASSERT_EQ( varPrms.size(), 2 );
+   ASSERT_EQ( varPrms.size(), 2U );
    const VarPrmSourceRockType * p1cat = dynamic_cast<const VarPrmSourceRockType*>( varPrms.categoricalParameter( 0 ) );
    const VarPrmSourceRockTOC  * p1cnt = dynamic_cast<const VarPrmSourceRockTOC*>( varPrms.continuousParameter( 0 ) );
    ASSERT_TRUE( p1cat != NULL ); // do we have required the parameter in the list?
@@ -221,7 +224,7 @@ TEST_F( BLRSTest, VarySourceRockHISimpleTest )
    casa::VarSpaceImpl & varPrms = dynamic_cast<casa::VarSpaceImpl&>( sc.varSpace( ) );
 
    // check how the parameter was set
-   ASSERT_EQ( varPrms.size(), 1 );
+   ASSERT_EQ( varPrms.size(), 1U );
    const VarPrmSourceRockHI * p1c = dynamic_cast<const VarPrmSourceRockHI*>( varPrms.continuousParameter( 0 ) );
    ASSERT_TRUE( p1c != NULL ); // do we have required the parameter in the list?
 
@@ -288,7 +291,7 @@ TEST_F( BLRSTest, VarySourceRockHIDepOnSrourceRockTypeTest )
    casa::VarSpaceImpl & varPrms = dynamic_cast<casa::VarSpaceImpl&>( sc.varSpace() );
 
    // check how the parameter was set
-   ASSERT_EQ( varPrms.size(), 2 );
+   ASSERT_EQ( varPrms.size(), 2U );
    const VarPrmSourceRockType * p1cat = dynamic_cast<const VarPrmSourceRockType*>( varPrms.categoricalParameter( 0 ) );
    const VarPrmSourceRockHI   * p1cnt = dynamic_cast<const VarPrmSourceRockHI*>(   varPrms.continuousParameter(  0 ) );
    ASSERT_TRUE( p1cat != NULL ); // do we have required the parameter in the list?
@@ -340,7 +343,7 @@ TEST_F( BLRSTest, VarySourceRockHCSimpleTest )
    casa::VarSpaceImpl & varPrms = dynamic_cast<casa::VarSpaceImpl&>(sc.varSpace());
 
    // check how the parameter was set
-   ASSERT_EQ( varPrms.size(), 1 );
+   ASSERT_EQ( varPrms.size(), 1U );
    const VarPrmSourceRockHC * p1c = dynamic_cast<const VarPrmSourceRockHC*>(varPrms.continuousParameter( 0 ));
    ASSERT_TRUE( p1c != NULL ); // do we have required the parameter in the list?
 
@@ -407,7 +410,7 @@ TEST_F( BLRSTest, VarySourceRockHCDepOnSrourceRockTypeTest )
    casa::VarSpaceImpl & varPrms = dynamic_cast<casa::VarSpaceImpl&>( sc.varSpace() );
 
    // check how the parameter was set
-   ASSERT_EQ( varPrms.size(), 2 );
+   ASSERT_EQ( varPrms.size(), 2U );
    const VarPrmSourceRockType * p1cat = dynamic_cast<const VarPrmSourceRockType*>( varPrms.categoricalParameter( 0 ) );
    const VarPrmSourceRockHC   * p1cnt = dynamic_cast<const VarPrmSourceRockHC*>(   varPrms.continuousParameter(  0 ) );
    ASSERT_TRUE( p1cat != NULL ); // do we have required the parameter in the list?
@@ -457,7 +460,7 @@ TEST_F( BLRSTest, VarySourceRockPreasphaltActEnergySimpleTest )
    casa::VarSpaceImpl & varPrms = dynamic_cast<casa::VarSpaceImpl&>(sc.varSpace());
 
    // check how the parameter was set
-   ASSERT_EQ( varPrms.size(), 1 );
+   ASSERT_EQ( varPrms.size(), 1U );
    const VarPrmSourceRockPreAsphaltStartAct * p1c = dynamic_cast<const VarPrmSourceRockPreAsphaltStartAct*>(varPrms.continuousParameter( 0 ));
    ASSERT_TRUE( p1c != NULL ); // do we have required the parameter in the list?
 
@@ -526,7 +529,7 @@ TEST_F( BLRSTest, VarySourceRockPreAsphaltActEnergyDepOnSrourceRockTypeTest )
    casa::VarSpaceImpl & varPrms = dynamic_cast<casa::VarSpaceImpl&>( sc.varSpace() );
 
    // check how the parameter was set
-   ASSERT_EQ( varPrms.size(), 2 );
+   ASSERT_EQ( varPrms.size(), 2U );
    const VarPrmSourceRockType               * p1cat = dynamic_cast<const VarPrmSourceRockType*>( varPrms.categoricalParameter( 0 ) );
    const VarPrmSourceRockPreAsphaltStartAct * p1cnt = dynamic_cast<const VarPrmSourceRockPreAsphaltStartAct*>( varPrms.continuousParameter( 0 ) );
    ASSERT_TRUE( p1cat != NULL ); // do we have required the parameter in the list?
@@ -610,7 +613,7 @@ TEST_F( BLRSTest, VarySourceRockTypeTest )
    casa::VarSpaceImpl & varPrms = dynamic_cast<casa::VarSpaceImpl &>( sc.varSpace() );
 
    // check how the parameter was set
-   ASSERT_EQ( varPrms.size(), 1 );
+   ASSERT_EQ( varPrms.size(), 1U );
 
    const VarPrmSourceRockType * prm = dynamic_cast<const VarPrmSourceRockType *>(varPrms.categoricalParameter( 0 ) );
    ASSERT_TRUE( prm != NULL ); // do we have required the parameter in the list?
@@ -639,7 +642,7 @@ TEST_F( BLRSTest, VaryOneCrustThinningEvent )
    casa::VarSpaceImpl & varPrms = dynamic_cast<casa::VarSpaceImpl&>( sc.varSpace( ) );
 
    // check how the parameter was set
-   ASSERT_EQ( varPrms.size(), 1 );
+   ASSERT_EQ( varPrms.size(), 1U );
 
    const VarPrmOneCrustThinningEvent * p1c = dynamic_cast<const VarPrmOneCrustThinningEvent*>( varPrms.continuousParameter( 0 ) );
    ASSERT_TRUE( p1c != NULL ); // do we have required the parameter in the list?
@@ -716,13 +719,13 @@ TEST_F( BLRSTest, VarySurfacePorosity )
                                                                                      , 40.0, 60.0
                                                                                      , VarPrmContinuous::Block ) );
 
-   ASSERT_EQ( sc.baseCase().lithologyManager().lithologiesIDs().size() - numLithologies, 3 ); //one new lithology 
+   ASSERT_EQ( sc.baseCase().lithologyManager().lithologiesIDs().size() - numLithologies, 3U ); //one new lithology 
  
    // get varspace 
    casa::VarSpaceImpl & varPrms = dynamic_cast<casa::VarSpaceImpl&>( sc.varSpace( ) );
 
    // check how the parameter was set
-   ASSERT_EQ( varPrms.size(), 1 );
+   ASSERT_EQ( varPrms.size(), 1U );
 
    const VarPrmSurfacePorosity * p1c = dynamic_cast<const VarPrmSurfacePorosity*>( varPrms.continuousParameter( 0 ) );
    ASSERT_TRUE( p1c != NULL ); // do we have required the parameter in the list?
@@ -731,9 +734,9 @@ TEST_F( BLRSTest, VarySurfacePorosity )
    const std::vector<double> & maxV  = p1c->maxValue()->asDoubleArray();
    const std::vector<double> & baseV = p1c->baseValue()->asDoubleArray();
 
-   ASSERT_EQ( minV.size(),  1 );
-   ASSERT_EQ( maxV.size(),  1 );
-   ASSERT_EQ( baseV.size(), 1 );
+   ASSERT_EQ( minV.size(),  1U );
+   ASSERT_EQ( maxV.size(),  1U );
+   ASSERT_EQ( baseV.size(), 1U );
 
    // does it range have given min value
    ASSERT_NEAR( minV[0], 40.0, eps );
@@ -807,7 +810,7 @@ TEST_F( BLRSTest, VaryCrustThinningNoMaps )
    casa::VarSpaceImpl & varPrms = dynamic_cast<casa::VarSpaceImpl&>( sc.varSpace( ) );
 
    // check how the parameter was set
-   ASSERT_EQ( varPrms.size(), 1 );
+   ASSERT_EQ( varPrms.size(), 1U );
 
    const VarPrmCrustThinning * p1c = dynamic_cast<const VarPrmCrustThinning*>( varPrms.continuousParameter( 0 ) );
    ASSERT_TRUE( p1c != NULL ); // do we have required the parameter in the list?
@@ -816,9 +819,9 @@ TEST_F( BLRSTest, VaryCrustThinningNoMaps )
    const std::vector<double> & maxV  = p1c->maxValue()->asDoubleArray();
    const std::vector<double> & baseV = p1c->baseValue()->asDoubleArray();
 
-   ASSERT_EQ( minV.size(),  10 );
-   ASSERT_EQ( baseV.size(), 10 );
-   ASSERT_EQ( maxV.size(),  10 );
+   ASSERT_EQ( minV.size(),  10U );
+   ASSERT_EQ( baseV.size(), 10U );
+   ASSERT_EQ( maxV.size(),  10U );
 
    // does it range have given min/base/max values
    ASSERT_NEAR( minV[0], 15000.0, eps ); ASSERT_NEAR( baseV[0], 27500.0, eps ); ASSERT_NEAR( maxV[0], 40000.0, eps ); 
@@ -870,7 +873,7 @@ TEST_F( BLRSTest, VaryPorosityExponentialModelParameters )
    casa::VarSpaceImpl & varPrms = dynamic_cast<casa::VarSpaceImpl&>( sc.varSpace( ) );
 
    // check how the parameter was set
-   ASSERT_EQ( varPrms.size(), 1 );
+   ASSERT_EQ( varPrms.size(), 1U );
 
    const VarPrmPorosityModel * p1c = dynamic_cast<const VarPrmPorosityModel *>( varPrms.continuousParameter( 0 ) );
    ASSERT_TRUE( p1c != NULL ); // do we have required the parameter in the list?
@@ -879,9 +882,9 @@ TEST_F( BLRSTest, VaryPorosityExponentialModelParameters )
    const std::vector<double> & maxV  = p1c->maxValue()->asDoubleArray();
    const std::vector<double> & baseV = p1c->baseValue()->asDoubleArray();
 
-   ASSERT_EQ( minV.size(),  2 );
-   ASSERT_EQ( maxV.size(),  2 );
-   ASSERT_EQ( baseV.size(), 2 );
+   ASSERT_EQ( minV.size(),  2U );
+   ASSERT_EQ( maxV.size(),  2U );
+   ASSERT_EQ( baseV.size(), 2U );
 
    // does it range have given min value
    ASSERT_NEAR( minV[0], 30.0, eps );
@@ -908,7 +911,7 @@ TEST_F( BLRSTest, VaryPorosityExponentialModelParameters )
    ASSERT_EQ( ErrorHandler::NoError, strMgr.layerLithologiesList( lid, lithoList, lithoPercent ) );
    // check that lithology was copied
    ASSERT_NE( lithoList[0].rfind( "_CASA" ), std::string::npos );
-   ASSERT_EQ( lithoList[0].find( sandLithology ), 0 );
+   ASSERT_EQ( lithoList[0].find( sandLithology ), 0U );
 
    mbapi::LithologyManager & lthMgr = mdl.lithologyManager();
    ASSERT_NE( UndefinedIDValue, lthMgr.findID( lithoList[0] ) );
@@ -945,7 +948,7 @@ TEST_F( BLRSTest, VaryPorositySoilMechanicsModelParameters )
    casa::VarSpaceImpl & varPrms = dynamic_cast<casa::VarSpaceImpl&>( sc.varSpace( ) );
 
    // check how the parameter was set
-   ASSERT_EQ( varPrms.size(), 1 );
+   ASSERT_EQ( varPrms.size(), 1U );
 
    const VarPrmPorosityModel * p1c = dynamic_cast<const VarPrmPorosityModel *>( varPrms.continuousParameter( 0 ) );
    ASSERT_TRUE( p1c != NULL ); // do we have required the parameter in the list?
@@ -954,9 +957,9 @@ TEST_F( BLRSTest, VaryPorositySoilMechanicsModelParameters )
    const std::vector<double> & maxV  = p1c->maxValue()->asDoubleArray();
    const std::vector<double> & baseV = p1c->baseValue()->asDoubleArray();
 
-   ASSERT_EQ( minV.size(),  1 );
-   ASSERT_EQ( maxV.size(),  1 );
-   ASSERT_EQ( baseV.size(), 1 );
+   ASSERT_EQ( minV.size(),  1U );
+   ASSERT_EQ( maxV.size(),  1U );
+   ASSERT_EQ( baseV.size(), 1U );
 
    // does it range have given min value
    ASSERT_NEAR( minV[0], 6.92570e-2, eps );
@@ -994,7 +997,7 @@ TEST_F( BLRSTest, VaryPorosityDoubleExponentialModelParameters )
    casa::VarSpaceImpl & varPrms = dynamic_cast<casa::VarSpaceImpl&>( sc.varSpace( ) );
 
    // check how the parameter was set
-   ASSERT_EQ( varPrms.size(), 1 );
+   ASSERT_EQ( varPrms.size(), 1U );
 
    const VarPrmPorosityModel * p1c = dynamic_cast<const VarPrmPorosityModel *>( varPrms.continuousParameter( 0 ) );
    ASSERT_TRUE( p1c != NULL ); // do we have required the parameter in the list?
@@ -1004,9 +1007,9 @@ TEST_F( BLRSTest, VaryPorosityDoubleExponentialModelParameters )
    const std::vector<double> & baseV = p1c->baseValue()->asDoubleArray();
 
    
-   ASSERT_EQ( minV.size(),  4 );
-   ASSERT_EQ( maxV.size(),  4 );
-   ASSERT_EQ( baseV.size(), 4 );
+   ASSERT_EQ( minV.size(),  4U );
+   ASSERT_EQ( maxV.size(),  4U );
+   ASSERT_EQ( baseV.size(), 4U );
 
     // does it range have given min value
    ASSERT_NEAR( minV[0], 30.0,  eps );
@@ -1045,7 +1048,7 @@ TEST_F( BLRSTest, VaryLithoSTPThermalCondCoeff )
    casa::VarSpaceImpl & varPrms = dynamic_cast<casa::VarSpaceImpl&>( sc.varSpace( ) );
 
    // check how the parameter was set
-   ASSERT_EQ( varPrms.size(), 1 );
+   ASSERT_EQ( varPrms.size(), 1U );
 
    const VarPrmLithoSTPThermalCond * p1c = dynamic_cast<const VarPrmLithoSTPThermalCond*>( varPrms.continuousParameter( 0 ) );
    ASSERT_TRUE( p1c != NULL ); // do we have required the parameter in the list?
@@ -1200,7 +1203,7 @@ TEST_F( BLRSTest, VaryPermeabilitySandstoneModelParameters )
    casa::VarSpaceImpl & varPrms = dynamic_cast<casa::VarSpaceImpl&>( sc.varSpace() );
 
    // check how the parameter was set
-   ASSERT_EQ( varPrms.size(), 1 );
+   ASSERT_EQ( varPrms.size(), 1U );
 
    const VarPrmPermeabilityModel * p1c = dynamic_cast<const VarPrmPermeabilityModel *>( varPrms.continuousParameter( 0 ) );
    ASSERT_TRUE( p1c != NULL ); // do we have required the parameter in the list?
@@ -1209,9 +1212,9 @@ TEST_F( BLRSTest, VaryPermeabilitySandstoneModelParameters )
    const std::vector<double> & maxV  = p1c->maxValue()->asDoubleArray();
    const std::vector<double> & baseV = p1c->baseValue()->asDoubleArray();
 
-   ASSERT_EQ( minV.size(),  3 );
-   ASSERT_EQ( maxV.size(),  3 );
-   ASSERT_EQ( baseV.size(), 3 );
+   ASSERT_EQ( minV.size(),  3U );
+   ASSERT_EQ( maxV.size(),  3U );
+   ASSERT_EQ( baseV.size(), 3U );
 
    // does it range have given min value
    ASSERT_NEAR( minV[0], 1.0, eps );
@@ -1269,7 +1272,7 @@ TEST_F( BLRSTest, VaryPermeabilityMudstoneModelParameters )
    casa::VarSpaceImpl & varPrms = dynamic_cast<casa::VarSpaceImpl&>( sc.varSpace() );
 
    // check how the parameter was set
-   ASSERT_EQ( varPrms.size(), 1 );
+   ASSERT_EQ( varPrms.size(), 1U );
 
    const VarPrmPermeabilityModel * p1c = dynamic_cast<const VarPrmPermeabilityModel *>( varPrms.continuousParameter( 0 ) );
    ASSERT_TRUE( p1c != NULL ); // do we have required the parameter in the list?
@@ -1278,9 +1281,9 @@ TEST_F( BLRSTest, VaryPermeabilityMudstoneModelParameters )
    const std::vector<double> & maxV  = p1c->maxValue()->asDoubleArray();
    const std::vector<double> & baseV = p1c->baseValue()->asDoubleArray();
 
-   ASSERT_EQ( minV.size(),  4 );
-   ASSERT_EQ( maxV.size(),  4 );
-   ASSERT_EQ( baseV.size(), 4 );
+   ASSERT_EQ( minV.size(),  4U );
+   ASSERT_EQ( maxV.size(),  4U );
+   ASSERT_EQ( baseV.size(), 4U );
 
    // does it range have given min value
    ASSERT_NEAR( minV[0], 1.0,   eps );
@@ -1349,7 +1352,7 @@ TEST_F( BLRSTest, VaryPermeabilityMultipointModelParameters )
    VarSpaceImpl & varPrms = dynamic_cast< VarSpaceImpl & >( sc.varSpace() );
 
    // check how the parameter was set
-   ASSERT_EQ( varPrms.size(), 1 );
+   ASSERT_EQ( varPrms.size(), 1U );
 
    const VarPrmPermeabilityModel * p1c = dynamic_cast<const VarPrmPermeabilityModel *>( varPrms.continuousParameter( 0 ) );
    ASSERT_TRUE( p1c != NULL ); // do we have required the parameter in the list?
@@ -1362,9 +1365,9 @@ TEST_F( BLRSTest, VaryPermeabilityMultipointModelParameters )
    std::vector<double> maxV  = prmMax->asDoubleArray();
    std::vector<double> baseV = prmBas->asDoubleArray();
 
-   ASSERT_EQ( minV.size(),  2 );
-   ASSERT_EQ( maxV.size(),  2 );
-   ASSERT_EQ( baseV.size(), 2 );
+   ASSERT_EQ( minV.size(),  2U );
+   ASSERT_EQ( maxV.size(),  2U );
+   ASSERT_EQ( baseV.size(), 2U );
 
    // does it range have given min value
    ASSERT_NEAR( minV[0], 1.0, eps ); // Anisotropy coeff
@@ -1424,7 +1427,7 @@ TEST_F( BLRSTest, VaryPermeabilityMultipointModelParameters )
                                                                                                  , VarPrmContinuous::Block
                                                                                                  ) );
    // check how the parameter was set
-   ASSERT_EQ( varPrms.size(), 2 );
+   ASSERT_EQ( varPrms.size(), 2U );
 
    p1c = dynamic_cast<const VarPrmPermeabilityModel *>( varPrms.continuousParameter( 1 ) );
    ASSERT_TRUE( p1c != NULL ); // do we have required the parameter in the list?
@@ -1437,9 +1440,9 @@ TEST_F( BLRSTest, VaryPermeabilityMultipointModelParameters )
    maxV  = prmMax->asDoubleArray();
    baseV = prmBas->asDoubleArray();
 
-   ASSERT_EQ( minV.size(),  2 );
-   ASSERT_EQ( maxV.size(),  2 );
-   ASSERT_EQ( baseV.size(), 2 );
+   ASSERT_EQ( minV.size(),  2U );
+   ASSERT_EQ( maxV.size(),  2U );
+   ASSERT_EQ( baseV.size(), 2U );
 
    // does it range have given min value
    ASSERT_NEAR( minV[0], 1.0, eps ); // Anisotropy coeff

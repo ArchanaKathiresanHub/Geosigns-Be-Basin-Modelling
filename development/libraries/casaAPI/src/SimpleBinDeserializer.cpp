@@ -35,6 +35,7 @@ namespace casa
       case FloatID:  return "float";
       case DoubleID: return "double";
       case StringID: return "string";
+      default:       return "unknown";
       }
       return "Unknown";
    }

@@ -365,7 +365,7 @@ void MatlabExporter::exportRSAProxies( ScenarioAnalysis & sc )
 
          // allocate zero matrix with rank equals to polynomial order
          m_ofs << proxyNames[i] << "(" << j+1 << ").ord0 = 0.0;\n"; // zero order always
-         for ( int k = 0; k < ord; ++k  )
+         for ( size_t k = 0; k < ord; ++k  )
          {
             m_ofs << proxyNames[i] << "(" << j+1 << ").ord" << k+1 << " = zeros(";
             if ( k == 0 ) m_ofs << "1, ";
@@ -386,7 +386,7 @@ void MatlabExporter::exportRSAProxies( ScenarioAnalysis & sc )
             {
                m_ofs << "(" << numCoefPerOrd[prmsLst.size()]+1 << ",:) = [";
                numCoefPerOrd[prmsLst.size()] += 1;
-               for ( int k = 0; k < prmsLst.size(); ++k ) m_ofs << prmsLst[k]+1 << ",";
+               for ( size_t k = 0; k < prmsLst.size(); ++k ) m_ofs << prmsLst[k]+1 << ",";
                m_ofs << coef << "];\n";
             }
          }
@@ -420,7 +420,7 @@ void MatlabExporter::exportRSAProxies( ScenarioAnalysis & sc )
          {
             const std::vector< unsigned int > & prmsLst = it->first;
             double coef = it->second.first;
-            double errr = it->second.second;
+            // double errr = it->second.second;
 
             m_ofs << " " << (coef < 0.0 ? "" : "+ ") << coef << " ";
             for( size_t k = 0; k < prmsLst.size(); ++k ) 

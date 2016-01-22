@@ -63,7 +63,7 @@ bool PrmLithologyProp::operator == ( const Parameter & prm ) const
 
 
 // Save all object data to the given stream, that object could be later reconstructed from saved data
-bool PrmLithologyProp::serializeCommonPart( CasaSerializer & sz, unsigned int version ) const
+bool PrmLithologyProp::serializeCommonPart( CasaSerializer & sz, unsigned int /* version */ ) const
 {
    bool hasParent = m_parent ? true : false;
    bool ok = sz.save( hasParent, "hasParent" );
@@ -81,7 +81,7 @@ bool PrmLithologyProp::serializeCommonPart( CasaSerializer & sz, unsigned int ve
 }
 
 // Create a new var.parameter instance by deserializing it from the given stream
-bool PrmLithologyProp::deserializeCommonPart( CasaDeserializer & dz, unsigned int objVer )
+bool PrmLithologyProp::deserializeCommonPart( CasaDeserializer & dz, unsigned int /* objVer */ )
 {
    CasaDeserializer::ObjRefID parentID;
 

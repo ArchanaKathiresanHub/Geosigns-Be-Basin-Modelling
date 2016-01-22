@@ -28,7 +28,7 @@ bool LogHandler::s_logIsCreated = false;
 // Initialise log file name
 std::string LogHandler::s_logName;
 
-LogHandler::LogHandler( const std::string & logName, const VerbosityLevel verbosity, const int& mpiRank ){
+LogHandler::LogHandler( const std::string & logName, const VerbosityLevel verbosity, int mpiRank ){
 
    // C++11 const std::string mpiRankString = std::to_string( mpiRank );
    std::ostringstream mpiRankConverter;
@@ -36,12 +36,13 @@ LogHandler::LogHandler( const std::string & logName, const VerbosityLevel verbos
    std::string mpiRankString = mpiRankConverter.str();
    std::string fullLogName = logName + "_" + mpiRankString + ".log";
 
+   m_severity = INFO;
    if (!s_logIsCreated){
       s_logName = fullLogName;
 
       ///1. Initiate log file name and format
       boost::log::add_file_log
-         (
+      (
          // Write on the fly
          boost::log::keywords::auto_flush = true,
          boost::log::keywords::file_name = s_logName,
@@ -49,13 +50,13 @@ LogHandler::LogHandler( const std::string & logName, const VerbosityLevel verbos
          // More info @ http://www.boost.org/doc/libs/1_59_0/doc/html/date_time/date_time_io.html
          boost::log::keywords::format =
          (
-         boost::log::expressions::stream
-         << "<"
-         << boost::log::expressions::format_date_time< boost::posix_time::ptime >( "TimeStamp", "%Y-%m-%d %H:%M:%S.%f" )
-         << " | " << mpiRankString
-         << ">: " << boost::log::expressions::smessage
+           boost::log::expressions::stream
+             << "<"
+             << boost::log::expressions::format_date_time< boost::posix_time::ptime >( "TimeStamp", "%Y-%m-%d %H:%M:%S.%f" )
+             << " | " << mpiRankString
+             << ">: " << boost::log::expressions::smessage
          )
-         );
+      );
 
       ///2. Add the console output if serial or only for the first rank if distributued
       if (mpiRank == 0)
@@ -69,11 +70,11 @@ LogHandler::LogHandler( const std::string & logName, const VerbosityLevel verbos
       ///3. Set log file verbosity
       switch (verbosity)
       {
-      case DIAGNOSTIC:  boost::log::core::get()->set_filter( boost::log::trivial::severity >= boost::log::trivial::debug   );    break;
-      case DETAILED:    boost::log::core::get()->set_filter( boost::log::trivial::severity >= boost::log::trivial::info    );    break;
-      case NORMAL:      boost::log::core::get()->set_filter( boost::log::trivial::severity >= boost::log::trivial::warning );    break;
-      case MINIMAL:     boost::log::core::get()->set_filter( boost::log::trivial::severity >= boost::log::trivial::error   );    break;
-      case QUIET:       boost::log::core::get()->set_filter( boost::log::trivial::severity >= boost::log::trivial::fatal   );    break;
+      case LogHandler::DIAGNOSTIC:  boost::log::core::get()->set_filter( boost::log::trivial::severity >= boost::log::trivial::debug   );    break;
+      case LogHandler::DETAILED:    boost::log::core::get()->set_filter( boost::log::trivial::severity >= boost::log::trivial::info    );    break;
+      case LogHandler::NORMAL:      boost::log::core::get()->set_filter( boost::log::trivial::severity >= boost::log::trivial::warning );    break;
+      case LogHandler::MINIMAL:     boost::log::core::get()->set_filter( boost::log::trivial::severity >= boost::log::trivial::error   );    break;
+      case LogHandler::QUIET:       boost::log::core::get()->set_filter( boost::log::trivial::severity >= boost::log::trivial::fatal   );    break;
       default: throw LogHandlerException() << "Unknown verbosity level for logging file " << s_logName << "."; break;
       }
 
@@ -90,23 +91,25 @@ LogHandler::LogHandler( const SeverityLevel severity ){
 }
 
 LogHandler::~LogHandler(){
-   try{
-      if (s_logIsCreated) {
-         switch (m_severity)
-         {
-         case DEBUG:     BOOST_LOG_TRIVIAL( debug )   << "MeSsAgE DEBUG    "        << m_oss.str(); break;
-         case INFO:      BOOST_LOG_TRIVIAL( info )                                  << m_oss.str(); break;
-         case WARNING:   BOOST_LOG_TRIVIAL( warning ) << "MeSsAgE WARNING  "        << m_oss.str(); break;
-         case ERROR:     BOOST_LOG_TRIVIAL( error )   << "MeSsAgE ERROR    "        << m_oss.str(); break;
-         case FATAL:     BOOST_LOG_TRIVIAL( fatal )   << "MeSsAgE FATAL    "        << m_oss.str(); break;
-         default: throw LogHandlerException() << "Unknwon severity level '" << m_severity << "'."; break;
+   try {
+      if ( !m_oss.str().empty() ) {
+         if ( s_logIsCreated ) {
+            switch (m_severity)
+            {
+            case LogHandler::DEBUG:     BOOST_LOG_TRIVIAL( debug )   << "MeSsAgE DEBUG    "        << m_oss.str(); break;
+            case LogHandler::INFO:      BOOST_LOG_TRIVIAL( info )                                  << m_oss.str(); break;
+            case LogHandler::WARNING:   BOOST_LOG_TRIVIAL( warning ) << "MeSsAgE WARNING  "        << m_oss.str(); break;
+            case LogHandler::ERROR:     BOOST_LOG_TRIVIAL( error )   << "MeSsAgE ERROR    "        << m_oss.str(); break;
+            case LogHandler::FATAL:     BOOST_LOG_TRIVIAL( fatal )   << "MeSsAgE FATAL    "        << m_oss.str(); break;
+            default:                    throw LogHandlerException()  << "Unknwon severity level '" << m_severity << "'."; break;
+            }
+         }
+         else {
+            throw LogHandlerException() << "Cannot find log file for current application.";
          }
       }
-      else {
-         throw LogHandlerException() << "Cannot find log file for current application.";
-      }
    }
-   catch (LogHandlerException ex){
+   catch (LogHandlerException ex) {
       BOOST_LOG_TRIVIAL( error ) << "MeSsAgE ERROR    " << ex.what();
    }
    catch (...){

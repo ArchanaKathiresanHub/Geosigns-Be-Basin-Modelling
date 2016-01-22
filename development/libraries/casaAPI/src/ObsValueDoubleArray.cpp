@@ -43,7 +43,7 @@ namespace casa
       return rmse;
    }
 
-   bool ObsValueDoubleArray::save( CasaSerializer & sz, unsigned int version ) const
+   bool ObsValueDoubleArray::save( CasaSerializer & sz, unsigned int /* version */ ) const
    {
       CasaSerializer::ObjRefID parentID = sz.ptr2id( m_parent );
 
@@ -53,7 +53,7 @@ namespace casa
    }
 
    // Create a new ObsValueDoubleScalar instance and deserialize it from the given stream
-   ObsValueDoubleArray::ObsValueDoubleArray( CasaDeserializer & dz, unsigned int objVer )
+   ObsValueDoubleArray::ObsValueDoubleArray( CasaDeserializer & dz, unsigned int /* objVer */ )
    {
       CasaDeserializer::ObjRefID parentID;
 

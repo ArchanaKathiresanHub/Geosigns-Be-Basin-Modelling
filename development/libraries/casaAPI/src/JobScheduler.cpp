@@ -45,7 +45,10 @@ casa::JobScheduler * casa::JobScheduler::load( CasaDeserializer & dz, const char
    return 0;
 }
 
-casa::JobScheduler::JobState casa::JobScheduler::restoreJobState( const std::string & cwd, const std::string & scriptName, const std::string & jobName )
+casa::JobScheduler::JobState casa::JobScheduler::restoreJobState( const std::string & // cwd
+                                                                , const std::string & scriptName
+                                                                , const std::string & // jobName
+                                                                )
 {
    if (      ibs::FilePath ( scriptName + ".success" ).exists() ) { return JobScheduler::JobFinished; }
    else if ( ibs::FilePath ( scriptName + ".failed"  ).exists() ) { return JobScheduler::JobFailed; }

@@ -56,7 +56,10 @@ TEST_F( MutatorTest, Tornado2PrmsMutations )
    
    // vary 2 parameters
    ASSERT_EQ( ErrorHandler::NoError, VarySourceRockTOC(          sc, 0, m_layerName, 1, 0, m_minTOC,  m_maxTOC,  VarPrmContinuous::Block ) );
-   ASSERT_EQ( ErrorHandler::NoError, VaryTopCrustHeatProduction( sc, 0,                    m_minTCHP, m_maxTCHP, VarPrmContinuous::Block ) );
+
+   std::vector<double> dblRng( 1, m_minTCHP );
+   dblRng.push_back( m_maxTCHP );
+   ASSERT_EQ( ErrorHandler::NoError, VaryTopCrustHeatProduction( sc, 0, dblRng, std::vector<std::string>(), VarPrmContinuous::Block ) );
 
    // set up and generate DoE
    ASSERT_EQ( ErrorHandler::NoError, sc.setDoEAlgorithm( DoEGenerator::Tornado ) );
@@ -64,7 +67,7 @@ TEST_F( MutatorTest, Tornado2PrmsMutations )
 
    doe.generateDoE( sc.varSpace(), sc.doeCaseSet() );
    
-   ASSERT_EQ( 5, sc.doeCaseSet().size() );
+   ASSERT_EQ( 5U, sc.doeCaseSet().size() );
 
    ibs::FolderPath pathToCaseSet = ibs::FolderPath( "." );
    pathToCaseSet << "CaseSet";
@@ -121,7 +124,10 @@ TEST_F( MutatorTest, TornadoBB2PrmsMutations )
 
    // vary 2 parameters
    ASSERT_EQ( ErrorHandler::NoError, VarySourceRockTOC(          sc, 0, m_layerName, 1, "", m_minTOC, m_maxTOC,   VarPrmContinuous::Block ) );
-   ASSERT_EQ( ErrorHandler::NoError, VaryTopCrustHeatProduction( sc, 0,                     m_minTCHP, m_maxTCHP, VarPrmContinuous::Block ) );
+
+   std::vector<double> dblRng( 1, m_minTCHP );
+   dblRng.push_back( m_maxTCHP );
+   ASSERT_EQ( ErrorHandler::NoError, VaryTopCrustHeatProduction( sc, 0, dblRng, std::vector<std::string>(), VarPrmContinuous::Block ) );
 
    // set root folder for the experiments
    ibs::FolderPath pathToCaseSet = ibs::FolderPath( "." );
@@ -134,13 +140,13 @@ TEST_F( MutatorTest, TornadoBB2PrmsMutations )
    ASSERT_EQ( ErrorHandler::NoError, sc.setDoEAlgorithm( DoEGenerator::Tornado ) );
    ASSERT_EQ( ErrorHandler::NoError, sc.doeGenerator().generateDoE( sc.varSpace(), sc.doeCaseSet() ) );
 
-   ASSERT_EQ( 5, sc.doeCaseSet().size() );
+   ASSERT_EQ( 5U, sc.doeCaseSet().size() );
 
    // set up and generate the second DoE
    ASSERT_EQ( ErrorHandler::NoError, sc.setDoEAlgorithm( DoEGenerator::BoxBehnken ) );
    ASSERT_EQ( ErrorHandler::NoError, sc.doeGenerator().generateDoE( sc.varSpace(), sc.doeCaseSet() ) );
 
-   ASSERT_EQ( 9, sc.doeCaseSet().size() ); // Box-Behnken & Tornado have central point in common
+   ASSERT_EQ( 9U, sc.doeCaseSet().size() ); // Box-Behnken & Tornado have central point in common
 
    ASSERT_EQ( ErrorHandler::NoError, sc.setScenarioLocation( pathToCaseSet.path().c_str() ) );
 
@@ -148,7 +154,7 @@ TEST_F( MutatorTest, TornadoBB2PrmsMutations )
    {
       // filter experiment
       sc.doeCaseSet().filterByExperimentName( sc.doeCaseSet().experimentNames()[expNum] );
-      ASSERT_EQ( 5, sc.doeCaseSet().size() ); // must be 2 times 5 - Tornado + BoxBehnken
+      ASSERT_EQ( 5U, sc.doeCaseSet().size() ); // must be 2 times 5 - Tornado + BoxBehnken
 
       ASSERT_EQ( ErrorHandler::NoError, sc.applyMutations( sc.doeCaseSet() ) );
 

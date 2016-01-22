@@ -113,6 +113,11 @@ namespace casa
       /// @return new observable value
       virtual ObsValue * createNewObsValueFromDouble( std::vector<double>::const_iterator & val ) const;
 
+      /// @brief Do observable validation for the given model
+      /// @param caldModel reference to Cauldron model
+      /// @return empty string if there is no any problems with this observable, or error message if well is outside of the project 
+      virtual std::string checkObservableForProject( mbapi::Model & caldModel );
+
       /// @{
       /// @brief Defines version of serialized object representation. Must be updated on each change in save()
       /// @return Actual version of serialized object representation

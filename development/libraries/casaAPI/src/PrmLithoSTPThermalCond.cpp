@@ -153,7 +153,7 @@ bool PrmLithoSTPThermalCond::operator == ( const Parameter & prm ) const
 
 
 // Save all object data to the given stream, that object could be later reconstructed from saved data
-bool PrmLithoSTPThermalCond::save( CasaSerializer & sz, unsigned int version ) const
+bool PrmLithoSTPThermalCond::save( CasaSerializer & sz, unsigned int /* version */ ) const
 {
    bool hasParent = m_parent ? true : false;
    bool ok = sz.save( hasParent, "hasParent" );
@@ -171,7 +171,7 @@ bool PrmLithoSTPThermalCond::save( CasaSerializer & sz, unsigned int version ) c
 }
 
 // Create a new var.parameter instance by deserializing it from the given stream
-PrmLithoSTPThermalCond::PrmLithoSTPThermalCond( CasaDeserializer & dz, unsigned int objVer )
+PrmLithoSTPThermalCond::PrmLithoSTPThermalCond( CasaDeserializer & dz, unsigned int /* objVer */ )
 {
    CasaDeserializer::ObjRefID parentID;
 

@@ -16,6 +16,8 @@
 #include "CmdLocation.h"
 #include "CmdBaseProject.h"
 
+#include "LogHandler.h"
+
 #include <cstdlib>
 #include <iostream>
 
@@ -27,10 +29,10 @@ CmdExpMatlab::CmdExpMatlab( CasaCommander & parent, const std::vector< std::stri
 
 void CmdExpMatlab::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
 {
-   BOOST_LOG_TRIVIAL( info ) << "Exporting CASA scenario results as set of matlab commands to: " << m_dataFileName << "...";
+   LogHandler( LogHandler::INFO ) << "Exporting CASA scenario results as set of matlab commands to: " << m_dataFileName << "...";
 
    MatlabExporter mex( m_dataFileName );
    mex.exportScenario( *sa.get(), sa->baseCaseProjectFileName(), sa->scenarioLocation() );
 
-   BOOST_LOG_TRIVIAL( info ) << "Exporting CASA scenario results succeeded";
+   LogHandler( LogHandler::INFO ) << "Exporting CASA scenario results succeeded";
 }

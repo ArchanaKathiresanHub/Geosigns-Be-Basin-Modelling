@@ -125,7 +125,7 @@ namespace casa
       
       // Available slots
       // called from categorical parameter on which this parameter depends on
-      virtual void onCategoryChosen( const Parameter * prm ) {;}
+      virtual void onCategoryChosen( const Parameter * ) { ; }
       virtual void onSerialization( CasaSerializer::ObjRefID objSerID ) { m_dependsOn.insert( objSerID ); }
 
    protected:

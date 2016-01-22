@@ -62,7 +62,7 @@ public:
    /// @param logName The main name of the log file (i.e. fastcauldron)
    /// @param verbosity The level of verbosity used as a filter for the log file
    /// @param mpiRank The MPI rank which will be added as a sufix of the log file name (i.e. "24"). Set to 0 by default.
-   LogHandler( const std::string & logName, const VerbosityLevel verbosity, const int& mpiRank = 0 );
+   LogHandler( const std::string & logName, const VerbosityLevel verbosity, int mpiRank = 0 );
 
    /// @brief Constructor which must be used to write into the boost log file
    /// @param severity The severity level of the message
@@ -96,6 +96,5 @@ private:
    static bool        s_logIsCreated;    ///< Singleton token
    SeverityLevel      m_severity;        ///< The current severity level
    std::ostringstream m_oss;             ///< The stream containing the message to be writen in the log file during destruction of the object
-
 };
 #endif

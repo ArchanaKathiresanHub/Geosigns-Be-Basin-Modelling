@@ -33,8 +33,8 @@ namespace casa
 // Constructor
 PrmPermeabilityModel::PrmPermeabilityModel( mbapi::Model & mdl, const char * lithoName )
    : m_parent( 0 )
-   , m_lithoName(      lithoName )
    , m_modelType(      Unknown )
+   , m_lithoName(      lithoName )
    , m_anisotCoeff(    1.0 )
    , m_depoPerm(       UndefinedDoubleValue )
    , m_clayPercentage( UndefinedDoubleValue )
@@ -110,8 +110,8 @@ PrmPermeabilityModel::PrmPermeabilityModel( const VarPrmPermeabilityModel * pare
                                           , const std::vector<double>     & modelPrms
                                           )
    : m_parent(         parent )
-   , m_lithoName(      lithoName )
    , m_modelType(      mdlType )
+   , m_lithoName(      lithoName )
    , m_anisotCoeff(    1.0 )
    , m_depoPerm(       UndefinedDoubleValue )
    , m_clayPercentage( UndefinedDoubleValue )
@@ -278,6 +278,8 @@ std::string PrmPermeabilityModel::validate( mbapi::Model & caldModel )
             }
          }
          break;
+
+      default: oss << "Unsupported permeability model for lithology: " << m_lithoName << std::endl; break;
    }
 
    mbapi::LithologyManager & lmgr = caldModel.lithologyManager();
@@ -446,7 +448,7 @@ bool PrmPermeabilityModel::operator == ( const Parameter & prm ) const
 
 
 // Save all object data to the given stream, that object could be later reconstructed from saved data
-bool PrmPermeabilityModel::save( CasaSerializer & sz, unsigned int version ) const
+bool PrmPermeabilityModel::save( CasaSerializer & sz, unsigned int /* version */ ) const
 {
    bool hasParent = m_parent ? true : false;
    bool ok = sz.save( hasParent, "hasParent" );
@@ -472,7 +474,7 @@ bool PrmPermeabilityModel::save( CasaSerializer & sz, unsigned int version ) con
 }
 
 // Create a new var.parameter instance by deserializing it from the given stream
-PrmPermeabilityModel::PrmPermeabilityModel( CasaDeserializer & dz, unsigned int objVer )
+PrmPermeabilityModel::PrmPermeabilityModel( CasaDeserializer & dz, unsigned int /* objVer */ )
 {
    CasaDeserializer::ObjRefID parentID;
 

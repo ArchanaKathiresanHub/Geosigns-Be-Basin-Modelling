@@ -209,6 +209,8 @@ std::vector<std::string> VarPrmPermeabilityModel::name() const
             ret[PrmPermeabilityModel::AnisotropicCoeff] = m_lithoName + ". Anisotropic coeff. [kv/kh]";
             ret.push_back( m_lithoName + ". Profile variation parameter []" );
             break;
+
+         default: throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Unknown permeability model ID: " << m_mdlType;
       }
    }
    else
@@ -239,6 +241,8 @@ std::vector<std::string> VarPrmPermeabilityModel::name() const
             ret[PrmPermeabilityModel::AnisotropicCoeff] = m_name + "_ansCoef";
             ret.push_back( m_name + "_intCoef" );
             break;
+      
+         default: throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Unknown permeability model ID: " << m_mdlType;
       }
       if ( ret.size() > 0 ) ret[0] = m_name;
       else ret.push_back( m_name );

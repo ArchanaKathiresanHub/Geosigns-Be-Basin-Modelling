@@ -44,7 +44,6 @@ SharedParameterPtr VarPrmLithologyProp::newParameterFromDoubles( std::vector<dou
 {
    double minProp  = dynamic_cast<PrmLithologyProp*>( m_minValue.get( ) )->value();
    double maxProp  = dynamic_cast<PrmLithologyProp*>( m_maxValue.get( ) )->value();
-   double baseProp = dynamic_cast<PrmLithologyProp*>( m_baseValue.get() )->value();
 
    double prmV = *vals++;
 

@@ -256,14 +256,14 @@ ErrorHandler::ReturnCode RunManagerImpl::setResourceRequirements( const std::str
 
 ///////////////////////////////////////////////////////////////////////////////
 // run over all jobs and collect runs statistics. Also report progress if any change in numbers
-void RunManagerImpl::collectStatistics( int & pFinished, int & pPending, int & pRunning, int & pToBeSubmitted )
+void RunManagerImpl::collectStatistics( size_t & pFinished, size_t & pPending, size_t & pRunning, size_t & pToBeSubmitted )
 {
-   int total         = 0;
-   int finished      = 0;
-   int failed        = 0; 
-   int pending       = 0;
-   int running       = 0; 
-   int toBeSubmitted = 0;
+   size_t total         = 0;
+   size_t finished      = 0;
+   size_t failed        = 0; 
+   size_t pending       = 0;
+   size_t running       = 0; 
+   size_t toBeSubmitted = 0;
 
    for ( size_t i = 0; i < m_jobs.size(); ++i )
    {
@@ -329,16 +329,14 @@ bool RunManagerImpl::isAllDone() const
 
 ///////////////////////////////////////////////////////////////////////////////
 // Execute all scheduled cases. Very loooong cycle
-ErrorHandler::ReturnCode RunManagerImpl::runScheduledCases( bool asyncRun )
+ErrorHandler::ReturnCode RunManagerImpl::runScheduledCases( bool /* asyncRun */)
 {
-   bool allFinished = false;
-  
    try 
    {
-      int prevFinished      = 0;
-      int prevToBeSubmitted = 0;
-      int prevRunning       = 0;
-      int prevPending       = 0;
+      size_t prevFinished      = 0;
+      size_t prevToBeSubmitted = 0;
+      size_t prevRunning       = 0;
+      size_t prevPending       = 0;
 
       do
       {
@@ -578,7 +576,7 @@ void RunManagerImpl::restoreCaseStatus( RunCase * cs )
 }
 
 // Serialize object to the given stream
-bool RunManagerImpl::save( CasaSerializer & sz, unsigned int fileVersion ) const
+bool RunManagerImpl::save( CasaSerializer & sz, unsigned int /* fileVersion */ ) const
 {
    bool ok = true;
 

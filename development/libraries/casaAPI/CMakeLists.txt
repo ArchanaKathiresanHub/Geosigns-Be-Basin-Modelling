@@ -109,6 +109,12 @@ if (LSF_HOME)
       INCLUDE_DIRS ${LSF_INCLUDE_DIR}
       LIBRARIES casaapi cmbapi DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} ${Boost_LIBRARIES} ${LSF_LIBS}
    )
+
+   add_gtest( NAME LSFJobSchedulerTest
+      SOURCES test/lsfJobSched.cpp
+      INCLUDE_DIRS ${LSF_INCLUDE_DIR}
+      LIBRARIES casaapi cmbapi DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} ${Boost_LIBRARIES} ${LSF_LIBS}
+   )
 endif()
 
 add_gtest( NAME DataDiggerTest

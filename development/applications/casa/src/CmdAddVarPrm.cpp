@@ -17,6 +17,9 @@
 // CASA API
 #include "casaAPI.h"
 
+// LogHandler lib
+#include "LogHandler.h"
+
 // STD C
 #include <cstdlib>
 
@@ -100,11 +103,23 @@ public:
                                   , const std::vector<std::string>        & prms
                                   ) const
    {
-      double                      minVal = atof(  prms[1].c_str() );
-      double                      maxVal = atof(  prms[2].c_str() );
+      std::vector<double>      simpleRange;
+      std::vector<std::string> mapRange;
+      // if parameters - 2 doubles - it is a simple range
+      if ( CfgFileParser::isNumericPrm( prms[1] ) && CfgFileParser::isNumericPrm( prms[2] ) )
+      {
+         simpleRange.push_back( atof( prms[1].c_str() ) );
+         simpleRange.push_back( atof( prms[2].c_str() ) );
+      }
+      else // otherwise consider it as a map range
+      {
+         mapRange.push_back( prms[1] );
+         mapRange.push_back( prms[2] );
+      }
+
       casa::VarPrmContinuous::PDF ppdf = Str2pdf( prms[3] );
 
-      if ( ErrorHandler::NoError != casa::BusinessLogicRulesSet::VaryTopCrustHeatProduction( *sa.get(), name.c_str(), minVal, maxVal, ppdf ) )
+      if ( ErrorHandler::NoError != casa::BusinessLogicRulesSet::VaryTopCrustHeatProduction( *sa.get(), name.c_str(), simpleRange, mapRange, ppdf ) )
       {
          throw ErrorHandler::Exception( sa->errorCode() ) << sa->errorMessage();
       }
@@ -124,8 +139,8 @@ public:
       oss << "    [varPrmName] \"BasementIoTbl:TopCrustHeatProd\" <minVal> <maxVal> <prmPDF>\n";
       oss << "    Where:\n";
       oss << "       varPrmName - user specified variable parameter name (Optional)\n";
-      oss << "       minVal     - the parameter minimal range value\n";
-      oss << "       maxVal     - the parameter maximal range value\n";
+      oss << "       minVal     - the parameter minimal range value (double value or a map name)\n";
+      oss << "       maxVal     - the parameter maximal range value (double value or a map name)\n";
       oss << "       prmPDF     - the parameter probability density function type, the value could be one of the following:\n";
       oss << "                \"Block\"    - uniform probability between min and max values,\n";
       oss << "                \"Triangle\" - triangle shape probability function. The top triangle value is taken from the base case\n";
@@ -139,6 +154,9 @@ public:
       std::ostringstream oss;
       oss << "    #                                      type               minVal  maxVal prmPDF\n";
       oss << "    " << cmdName << " \"Radiogenic heat rate\"  \"" << name() << "\"    0.1     4.9  \"Block\"\n";
+      oss << "\n";
+      oss << "    #                                      type               minVal  maxVal prmPDF\n";
+      oss << "    " << cmdName << " \"Radiogenic heat rate\"  \"" << name() << "\"  \"MinMapName\" \"MaxMapName\"  \"Block\"\n";
       oss << "\n";
       return oss.str();
    }
@@ -1331,7 +1349,7 @@ CmdAddVarPrm::CmdAddVarPrm( CasaCommander & parent, const std::vector< std::stri
 
 void CmdAddVarPrm::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
 {
-   BOOST_LOG_TRIVIAL( info ) << "Add variable parameter: " << ( m_prmName.empty() ?
+   LogHandler( LogHandler::INFO ) << "Add variable parameter: " << ( m_prmName.empty() ?
                                                                   (m_prms[0] + "(" + CfgFileParser::implode( m_prms, ",", 1 ) + ")") :
                                                                   (m_prmName)
                                                               );

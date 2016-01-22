@@ -53,8 +53,8 @@ namespace casa
    CauldronApp::CauldronApp( ShellType sh, const std::string & appName, bool isParallel )
       : m_appName( appName )
       , m_parallel( isParallel )
-      , m_sh( sh )
       , m_cpus( 1 )
+      , m_sh( sh )
       , m_inputOpt( "-project" )
       , m_outputOpt( "-save" )
       , m_clearSnapshots( false )
@@ -74,17 +74,17 @@ namespace casa
          break;
       }
 
-      if ( !env( "SIEPRTS_LICENSE_FILE" ) ) m_env["SIEPRTS_LICENSE_FILE"] = s_LICENSE_SERVER;
+      if ( !env( "SIEPRTS_LICENSE_FILE" ) ) m_env["SIEPRTS_LICENSE_FILE"] = LICENSE_SERVER;
 
-      m_version   = env( "CAULDRON_VERSION" )    ? env( "CAULDRON_VERSION" )    : s_DEFAULT_VERSION;  // default is the ver. of the build itself
-      m_rootPath  = env( "IBS_ROOT" )            ? env( "IBS_ROOT" )            : s_IBS_INSTALL_PATH; // path to IBS folder
+      m_version   = env( "CAULDRON_VERSION" )    ? env( "CAULDRON_VERSION" )    : DEFAULT_VERSION;  // default is the ver. of the build itself
+      m_rootPath  = env( "IBS_ROOT" )            ? env( "IBS_ROOT" )            : IBS_INSTALL_PATH; // path to IBS folder
       m_mpirunCmd = env( "CAULDRON_MPIRUN_CMD" ) ? env( "CAULDRON_MPIRUN_CMD" ) : "";                 //
 
       if ( m_mpirunCmd.empty() )
       {
          ibs::FilePath mpiWrapCmd( ibs::Path::applicationFullPath() );
-         mpiWrapCmd << s_MPIRUN_CMD;
-         m_mpirunCmd = mpiWrapCmd.exists() ? mpiWrapCmd.path() : s_MPIRUN_CMD;
+         mpiWrapCmd << MPIRUN_CMD;
+         m_mpirunCmd = mpiWrapCmd.exists() ? mpiWrapCmd.path() : MPIRUN_CMD;
          
 #ifndef _WIN32
          m_mpirunCmd += " -env I_MPI_DEBUG 5";
@@ -303,8 +303,6 @@ namespace casa
       // create new folder for results files if it doesn't exist
       if ( !toPath.exists() ) ibs::FolderPath( toPath.path() ).create();
 
-      const char ** flLst = NULL;
-
       switch( m_appDepLevel ) 
       {
          case PTSolver:
@@ -466,34 +464,31 @@ namespace casa
    }
 
    // Serialize object to the given stream
-   bool CauldronApp::save( CasaSerializer & sz, unsigned int fileVersion ) const
+   bool CauldronApp::save( CasaSerializer & sz, unsigned int /* fileVersion */ ) const
    {
       bool ok = true;
 
       // initial implementation
-      if ( fileVersion >= 0 )
+      ok =  ok ? sz.save( m_env.size(), "EnvVarList" ) : ok;
+      for ( std::map< std::string, std::string >::const_iterator it = m_env.begin(); it != m_env.end() && ok; ++it )
       {
-         ok =  ok ? sz.save( m_env.size(), "EnvVarList" ) : ok;
-         for ( std::map< std::string, std::string >::const_iterator it = m_env.begin(); it != m_env.end() && ok; ++it )
-         {
-            ok = sz.save( it->first, "EnvVarName" );
-            ok = ok ? sz.save( it->second, "EnvVarVal" ) : ok;
-         }
-
-         ok = ok ? sz.save( m_appName,                       "AppName"         ) : ok;
-         ok = ok ? sz.save( m_scriptBody,                    "ScriptBody"      ) : ok;
-         ok = ok ? sz.save( m_parallel,                      "IsAppParallel"   ) : ok;
-         ok = ok ? sz.save( m_cpus,                          "CPUsNum"         ) : ok;
-         ok = ok ? sz.save( static_cast<int>( m_sh ),        "ShellType"       ) : ok;
-         ok = ok ? sz.save( m_version,                       "CldVersion"      ) : ok;
-         ok = ok ? sz.save( m_rootPath,                      "IBSROOT"         ) : ok;
-         ok = ok ? sz.save( m_mpirunCmd,                     "MPIRunCmd"       ) : ok;
-         ok = ok ? sz.save( m_inputOpt,                      "InputOpt"        ) : ok;
-         ok = ok ? sz.save( m_outputOpt,                     "OutputOpt"       ) : ok;
-         ok = ok ? sz.save( m_optionsList,                   "AppOptionsList"  ) : ok;
-         ok = ok ? sz.save( m_runTimeLim,                    "AppRunTimeLimit" ) : ok;
-         ok = ok ? sz.save( static_cast<int>(m_appDepLevel), "AppDepLevel"     ) : ok;
+         ok = sz.save( it->first, "EnvVarName" );
+         ok = ok ? sz.save( it->second, "EnvVarVal" ) : ok;
       }
+
+      ok = ok ? sz.save( m_appName,                       "AppName"         ) : ok;
+      ok = ok ? sz.save( m_scriptBody,                    "ScriptBody"      ) : ok;
+      ok = ok ? sz.save( m_parallel,                      "IsAppParallel"   ) : ok;
+      ok = ok ? sz.save( m_cpus,                          "CPUsNum"         ) : ok;
+      ok = ok ? sz.save( static_cast<int>( m_sh ),        "ShellType"       ) : ok;
+      ok = ok ? sz.save( m_version,                       "CldVersion"      ) : ok;
+      ok = ok ? sz.save( m_rootPath,                      "IBSROOT"         ) : ok;
+      ok = ok ? sz.save( m_mpirunCmd,                     "MPIRunCmd"       ) : ok;
+      ok = ok ? sz.save( m_inputOpt,                      "InputOpt"        ) : ok;
+      ok = ok ? sz.save( m_outputOpt,                     "OutputOpt"       ) : ok;
+      ok = ok ? sz.save( m_optionsList,                   "AppOptionsList"  ) : ok;
+      ok = ok ? sz.save( m_runTimeLim,                    "AppRunTimeLimit" ) : ok;
+      ok = ok ? sz.save( static_cast<int>(m_appDepLevel), "AppDepLevel"     ) : ok;
       return ok;
    }
 

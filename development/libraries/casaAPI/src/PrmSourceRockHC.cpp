@@ -88,7 +88,7 @@ ErrorHandler::ReturnCode PrmSourceRockHC::setInModel( mbapi::Model & caldModel, 
       }
 
       const std::vector<std::string> & srtNames = stMgr.sourceRockTypeName( lid );
-      if ( srtNames.empty() || m_mixID < 1 || m_mixID > srtNames.size() )
+      if ( srtNames.empty() || m_mixID < 1 || static_cast<size_t>( m_mixID ) > srtNames.size() )
       { 
          throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Layer " << m_layerName <<
             " set as source rock layer but has no source rock lithology defined for the mixing ID: " << m_mixID;
@@ -143,7 +143,7 @@ std::string PrmSourceRockHC::validate( mbapi::Model & caldModel )
             " set as source rock layer but has no source rock lithology defined";
       }
 
-      if ( srtNames.size() < m_mixID )
+      if ( srtNames.size() < static_cast<size_t>( m_mixID ) )
       {
          throw ErrorHandler::Exception( ErrorHandler::ValidationError ) <<
             "Layer " << m_layerName << " has no source rock definition for the mixing ID: " << m_mixID;

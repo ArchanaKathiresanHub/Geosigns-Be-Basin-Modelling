@@ -43,12 +43,12 @@ MonteCarloSolverImpl::MonteCarloSolverImpl( Algorithm               algo
                                           , PriorDistribution       priorDist
                                           , MeasurementDistribution measureDistr
                                           )
-                                          : m_algo( algo )
+                                          : m_GOF( 0.0 )
+                                          , m_algo( algo )
                                           , m_kriging( interp )
                                           , m_priorDistr( priorDist )
                                           , m_measureDistr( measureDistr )
                                           , m_stdDevFactor( 1.0 )
-                                          , m_GOF( 0.0 )
 {
    ;
 }
@@ -366,26 +366,23 @@ ErrorHandler::ReturnCode MonteCarloSolverImpl::collectMCResults( const VarSpace 
 }
 
 // Serialize object to the given stream
-bool MonteCarloSolverImpl::save( CasaSerializer & sz, unsigned int fileVersion ) const
+bool MonteCarloSolverImpl::save( CasaSerializer & sz, unsigned int /* fileVersion */ ) const
 {
    bool ok = true;
 
-   if ( fileVersion >= 0 )
-   {
-      ok = ok ? sz.save( static_cast<int>(m_algo),         "Algo"        ) : ok;
-      ok = ok ? sz.save( static_cast<int>(m_kriging),      "Kriging"     ) : ok;
-      ok = ok ? sz.save( static_cast<int>(m_priorDistr),   "PriorDistr"  ) : ok;
-      ok = ok ? sz.save( static_cast<int>(m_measureDistr), "MeasurDistr" ) : ok;
-      ok = ok ? sz.save( static_cast<int>(m_stepMethod),   "StepMethod"  ) : ok;
-      ok = ok ? sz.save( m_stdDevFactor,                   "StdDevFact"  ) : ok;
+   ok = ok ? sz.save( static_cast<int>(m_algo),         "Algo"        ) : ok;
+   ok = ok ? sz.save( static_cast<int>(m_kriging),      "Kriging"     ) : ok;
+   ok = ok ? sz.save( static_cast<int>(m_priorDistr),   "PriorDistr"  ) : ok;
+   ok = ok ? sz.save( static_cast<int>(m_measureDistr), "MeasurDistr" ) : ok;
+   ok = ok ? sz.save( static_cast<int>(m_stepMethod),   "StepMethod"  ) : ok;
+   ok = ok ? sz.save( m_stdDevFactor,                   "StdDevFact"  ) : ok;
 
-      // save MC results
-      ok = ok ? sz.save( m_results.size(), "ResultsSetSize" ) : ok;
-      for ( size_t i = 0; i < m_results.size() && ok; ++i )
-      {
-         ok = sz.save( m_results[i].first, "RMSEVal" );
-         ok = ok ? sz.save( *(m_results[i].second), "MCRunCase" ) : ok;
-      }
+   // save MC results
+   ok = ok ? sz.save( m_results.size(), "ResultsSetSize" ) : ok;
+   for ( size_t i = 0; i < m_results.size() && ok; ++i )
+   {
+      ok = sz.save( m_results[i].first, "RMSEVal" );
+      ok = ok ? sz.save( *(m_results[i].second), "MCRunCase" ) : ok;
    }
 
    ok = sz.save( m_GOF, "GOF" );

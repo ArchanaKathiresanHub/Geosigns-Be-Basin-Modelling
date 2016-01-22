@@ -23,6 +23,9 @@
 #include "ObsValueDoubleScalar.h"
 #include "ObsValueDoubleArray.h"
 
+// LogHandler
+#include "LogHandler.h"
+
 // STD C
 #include <cstdlib>
 
@@ -454,7 +457,7 @@ CmdAddObs::CmdAddObs( CasaCommander & parent, const std::vector< std::string > &
 
 void CmdAddObs::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
 {
-   BOOST_LOG_TRIVIAL( info ) << "Add observable: " <<
+   LogHandler( LogHandler::INFO ) << "Add observable: " <<
       (m_obsName.empty() ? (m_prms[0] + "(" + CfgFileParser::implode( m_prms, ",", 1 ) + ")") : m_obsName);
 
 

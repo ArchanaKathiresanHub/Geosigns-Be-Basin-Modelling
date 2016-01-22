@@ -13,6 +13,8 @@
 
 #include "casaAPI.h"
 
+#include "LogHandler.h"
+
 #include <cstdlib>
 #include <iostream>
 
@@ -24,7 +26,7 @@ CmdScenarioID::CmdScenarioID( CasaCommander & parent, const std::vector< std::st
 
 void CmdScenarioID::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
 {
-   BOOST_LOG_TRIVIAL( info ) << "Setting scenario ID: " << m_id << "...";
+   LogHandler( LogHandler::INFO ) << "Setting scenario ID: " << m_id << "...";
    
    if ( ErrorHandler::NoError != sa->defineScenarioID( m_id.c_str() ) )
    {

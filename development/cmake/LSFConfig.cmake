@@ -16,7 +16,10 @@
 set (LSF_LIBS)
 set (LSF_INCLUDE_DIR)
 set (LSF_HOME "LSF-NOTFOUND" CACHE PATH "Home dir for LSF binary files")
-set (LSF_CAULDRON_PROJECT_NAME "cldrn" CACHE STRING "Project name for submitting jobs to LSF (for billing purpose)" )
+set (LSF_CAULDRON_PROJECT_NAME               "LSF-NOTFOUND" CACHE STRING "Project name for submitting jobs to LSF (for billing purpose)" )
+set (LSF_CAULDRON_PROJECT_QUEUE              "LSF-NOTFOUND" CACHE STRING "LSF job queue name" )
+set (LSF_CAULDRON_PROJECT_GROUP              "LSF-NOTFOUND" CACHE STRING "Project group" )
+set (LSF_CAULDRON_PROJECT_SERVICE_CLASS_NAME "LSF-NOTFOUND" CACHE STRING "Project service class name" )
 
 if(UNIX)
    find_path(LSF_INCLUDE_DIR lsf/lsbatch.h

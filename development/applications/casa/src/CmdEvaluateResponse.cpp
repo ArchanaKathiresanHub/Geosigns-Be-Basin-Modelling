@@ -18,6 +18,8 @@
 #include "VarPrmCategorical.h"
 #include "RunCaseImpl.h"
 
+#include "LogHandler.h"
+
 #include <cstdlib>
 #include <iostream>
 #include <memory>
@@ -129,12 +131,12 @@ void CmdEvaluateResponse::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
    // call response evaluation
    if ( !proxy ) { throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Unknown proxy name:" << m_proxyName; }
 
-   BOOST_LOG_TRIVIAL( info ) << "Evaluating proxy " << m_proxyName << " for " << rcs.size() << " cases...";
+   LogHandler( LogHandler::INFO ) << "Evaluating proxy " << m_proxyName << " for " << rcs.size() << " cases...";
 
    size_t i = 0;
    for ( size_t e = 0; e < m_expList.size(); ++e )
    {
-      BOOST_LOG_TRIVIAL( debug ) << "Evaluate proxy for " << m_expList[e]  << "DoE/data file for " << casePerExp[e]  << " cases...";
+      LogHandler( LogHandler::DEBUG ) << "Evaluate proxy for " << m_expList[e]  << "DoE/data file for " << casePerExp[e]  << " cases...";
 
       for ( size_t c = 0; c < casePerExp[e]; ++c )
       {
@@ -148,12 +150,12 @@ void CmdEvaluateResponse::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
       }
    }
 
-   BOOST_LOG_TRIVIAL( info ) << "Exporting proxy evaluation results to " << m_dataFileName << "file...";
+   LogHandler( LogHandler::INFO ) << "Exporting proxy evaluation results to " << m_dataFileName << "file...";
 
    MatlabExporter::exportObsValues( m_dataFileName, rcs );
 
    for ( size_t i = 0; i < rcs.size(); ++i ) delete rcs[i]; // clean cases created here
 
-   BOOST_LOG_TRIVIAL( info ) << "Proxy evalutaion was succeeded";
+   LogHandler( LogHandler::INFO ) << "Proxy evalutaion was succeeded";
 }
 

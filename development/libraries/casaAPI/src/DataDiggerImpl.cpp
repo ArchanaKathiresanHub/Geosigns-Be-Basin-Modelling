@@ -133,7 +133,7 @@ namespace casa
    }
 
    // Serialize object to the given stream
-   bool DataDiggerImpl::save( CasaSerializer & sz, unsigned int fileVersion ) const
+   bool DataDiggerImpl::save( CasaSerializer & /* sz */, unsigned int /* fileVersion */ ) const
    {
       bool ok = true;
       return ok;

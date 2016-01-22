@@ -20,13 +20,14 @@
 /// is calculated from a number of simulated cases and then allows to interpolate the observable value for other of the parameters value.
 /// The Response surface proxy model is usually constructed from a polynomial approximation. For 2 parameters it can be written like this:
 ///
-/// @f[ y=\left\{ \begin{array}{lcl}
-///     \hat{y}_{0\, order} & = & \beta_{0}\\
-/// \hat{y}_{1^{st}\, order} & = & \hat{y}_{0\, order}+\beta_{1}x_{1}+\beta_{2}x_{2}\\
-/// \hat{y}_{2^{nd}\, order} & = & \hat{y}_{1^{st}\, order}+\beta_{12}x_{1}x_{2}+\beta_{11}x_{1}^{2}+\beta_{22}x_{2}^{2}\\
-/// \hat{y}_{3^{d}\, order} & = & \hat{y}_{2^{nd}\, order}+\beta_{112}x_{1}^{2}x_{2}+\beta_{122}x_{1}x_{2}^{2}+\beta_{111}x_{1}^{3}+\beta_{222}x_{2}^{3}
-/// \end{array}\right. @f]
-///
+/** @f[ y=\left\{ \begin{array}{lcl}
+    \hat{y}_{0\, order} & = & \beta_{0}\\
+    \hat{y}_{1^{st}\, order} & = & \hat{y}_{0\, order}+\beta_{1}x_{1}+\beta_{2}x_{2}\\
+    \hat{y}_{2^{nd}\, order} & = & \hat{y}_{1^{st}\, order}+\beta_{12}x_{1}x_{2}+\beta_{11}x_{1}^{2}+\beta_{22}x_{2}^{2}\\
+    \hat{y}_{3^{d}\, order} & = & \hat{y}_{2^{nd}\, order}+\beta_{112}x_{1}^{2}x_{2}+\beta_{122}x_{1}x_{2}^{2}+\beta_{111}x_{1}^{3}+\beta_{222}x_{2}^{3}
+    \end{array}\right.
+    @f]
+*/
 /// Where:
 ///
 /// @f$ y @f$ - is the response value for T/VRe/CumOil...

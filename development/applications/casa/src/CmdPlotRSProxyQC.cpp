@@ -20,6 +20,9 @@
 #include "ObsGridPropertyWell.h"
 #include "RunCase.h"
 
+// LogHandler
+#include "LogHandler.h"
+
 // Stadard C lib
 #include <cstdlib>
 #include <cmath>
@@ -57,7 +60,7 @@ CmdPlotRSProxyQC::CmdPlotRSProxyQC( CasaCommander & parent, const std::vector< s
 
 void CmdPlotRSProxyQC::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
 {
-   BOOST_LOG_TRIVIAL( info ) << "Generating script to plot QC for " << m_proxyName << "rs proxy...";
+   LogHandler( LogHandler::INFO ) << "Generating script to plot QC for " << m_proxyName << "rs proxy...";
 
    std::vector<casa::RunCase *> proxyCaseSet;
    std::vector<casa::RunCase *> testCaseSet;
@@ -399,7 +402,7 @@ void CmdPlotRSProxyQC::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
    ofs << "   eval( sprintf( 'print QC_" << MatlabExporter::correctName( m_proxyName ) << "_" << "%s.jpg -S1000,1000', ProxyQC(i).obsNameFN ) );\n";
    ofs << "end\n";
 
-   BOOST_LOG_TRIVIAL( info ) << "Script generation succeded";
+   LogHandler( LogHandler::INFO ) << "Script generation succeded";
 }
 
 

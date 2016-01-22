@@ -13,6 +13,8 @@
 
 #include "casaAPI.h"
 
+#include "LogHandler.h"
+
 #include <cstdlib>
 #include <cmath>
 #include <iostream>
@@ -86,7 +88,7 @@ void CmdRunMC::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
       case casa::MonteCarloSolver::MCMC:        algoName = "Markov Chain Monte Carlo";       break;
       case casa::MonteCarloSolver::MCLocSolver: algoName = "Monte Carlo based local solver"; break;
    }
-   BOOST_LOG_TRIVIAL( info ) << "Running: " << algoName << "...";
+   LogHandler( LogHandler::INFO ) << "Running: " << algoName << "...";
    
    // create corresponded MC algorithm
    if ( ErrorHandler::NoError != sa->setMCAlgorithm( static_cast<casa::MonteCarloSolver::Algorithm>( m_mcAlg ),
@@ -114,7 +116,7 @@ void CmdRunMC::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
       ) { throw ErrorHandler::Exception( sa->mcSolver().errorCode() ) << sa->mcSolver().errorMessage(); }
    
  
-   BOOST_LOG_TRIVIAL( info ) << "Performed iterations: ";
+   LogHandler( LogHandler::INFO ) << "Performed iterations: ";
 
    while( true )
    {
@@ -128,7 +130,7 @@ void CmdRunMC::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
 
       if ( (itNum % 10) == 0 )
       {
-        BOOST_LOG_TRIVIAL( info ) << itNum << " iterations completed";
+        LogHandler( LogHandler::INFO ) << itNum << " iterations completed";
       }
    }
 
@@ -137,6 +139,6 @@ void CmdRunMC::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
       throw ErrorHandler::Exception( sa->mcSolver().errorCode() ) << sa->mcSolver().errorMessage();
    }
 
-   BOOST_LOG_TRIVIAL( info ) << "Simulation succeeded";
+   LogHandler( LogHandler::INFO ) << "Simulation succeeded";
 }
 

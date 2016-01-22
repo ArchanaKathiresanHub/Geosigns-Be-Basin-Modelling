@@ -14,6 +14,7 @@
 
 using namespace casa;
 using namespace casa::BusinessLogicRulesSet;
+using namespace std;
 
 static const double eps = 1.e-5;
 
@@ -53,7 +54,10 @@ TEST_F( ValidatorTest, TwoPrmsValidationTornadoDoE )
    
    // vary 2 parameters
    ASSERT_EQ( ErrorHandler::NoError, VarySourceRockTOC(          sc, 0, m_layerName, 1, 0, m_minTOC,  m_maxTOC,  VarPrmContinuous::Block ) );
-   ASSERT_EQ( ErrorHandler::NoError, VaryTopCrustHeatProduction( sc, 0,                    m_minTCHP, m_maxTCHP, VarPrmContinuous::Block ) );
+
+   vector<double> dblRng( 1, m_minTCHP );
+   dblRng.push_back( m_maxTCHP );
+   ASSERT_EQ( ErrorHandler::NoError, VaryTopCrustHeatProduction( sc, 0, dblRng, vector<string>(), VarPrmContinuous::Block ) );
 
    // set up and generate DoE
    ASSERT_EQ( ErrorHandler::NoError, sc.setDoEAlgorithm( DoEGenerator::Tornado ) );
@@ -61,7 +65,7 @@ TEST_F( ValidatorTest, TwoPrmsValidationTornadoDoE )
 
    doe.generateDoE( sc.varSpace(), sc.doeCaseSet() );
    
-   ASSERT_EQ( 5, sc.doeCaseSet().size() );
+   ASSERT_EQ( 5U, sc.doeCaseSet().size() );
 
    ibs::FolderPath pathToCaseSet = ibs::FolderPath( "." );
    pathToCaseSet << "CaseSet";

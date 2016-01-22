@@ -18,38 +18,8 @@
 // STL
 #include <stdexcept>
 
-// Boost Log library
-#include <boost/log/core.hpp>
-#include <boost/log/expressions.hpp>
-#include <boost/log/sinks/text_file_backend.hpp>
-#include <boost/log/utility/setup/file.hpp>
-#include <boost/log/utility/setup/console.hpp>
-#include <boost/log/utility/setup/common_attributes.hpp>
-#include <boost/log/sources/severity_logger.hpp>
-#include <boost/log/sources/record_ostream.hpp>
-
-void initLog( CasaCommander::VerboseLevel lev )
-{
-   boost::log::add_file_log
-   ( "scenario.log"
-   , boost::log::keywords::format = "[%TimeStamp%]: %Message%"
-   );
-
-   boost::log::add_console_log
-   ( std::cout
-   , boost::log::keywords::format = "%Message%"
-   );
-
-   switch ( lev )
-   {
-      case CasaCommander::Quiet:    boost::log::core::get()->set_filter( boost::log::trivial::severity >= boost::log::trivial::error ); break;
-      case CasaCommander::Detailed: boost::log::core::get()->set_filter( boost::log::trivial::severity >= boost::log::trivial::debug ); break;
-      case CasaCommander::Minimal:  
-      default: boost::log::core::get()->set_filter( boost::log::trivial::severity >= boost::log::trivial::info ); break;
-   }
-
-   boost::log::add_common_attributes();
-}
+// Log library
+#include "LogHandler.h"
 
 int main( int argc, char ** argv )
 {
@@ -75,7 +45,7 @@ int main( int argc, char ** argv )
    try
    {
       // parse args
-      for ( size_t i = 1; i < argc; ++i )
+      for ( int i = 1; i < argc; ++i )
       {
          if ( '-' == argv[i][0] )
          {
@@ -92,8 +62,14 @@ int main( int argc, char ** argv )
       }
       
       // Set up loggin for casa app
-      initLog( msgLvl );
-
+      switch ( msgLvl )
+      {
+         case CasaCommander::Quiet:    LogHandler( "scenario.log", LogHandler::QUIET );      break;
+         case CasaCommander::Detailed: LogHandler( "scenario.log", LogHandler::DIAGNOSTIC ); break;
+         case CasaCommander::Minimal:  
+         default:                      LogHandler( "scenario.log", LogHandler::DETAILED );   break;
+      }
+      
       // parse command file
       CfgFileParser  cmdFile;
    
@@ -105,7 +81,7 @@ int main( int argc, char ** argv )
    }
    catch ( const std::runtime_error & ex )
    {
-      BOOST_LOG_TRIVIAL( fatal ) << "Command file " << cmdFileName << " execution error: " << "   SUMlib error: " << ex.what() <<
+      LogHandler( LogHandler::FATAL ) << "Command file " << cmdFileName << " execution error: " << "   SUMlib error: " << ex.what() <<
                                     ", CASA command \"" << cmdQueue.curCmdName() << "\" at line: " << cmdQueue.curCmdInputFileLineNumber();
       return -1;
    }
@@ -113,22 +89,22 @@ int main( int argc, char ** argv )
    {
       if ( cmdExecutionStarted )
       {
-         BOOST_LOG_TRIVIAL( error ) << "Exception on processing command: " << cmdQueue.curCmdName() << " located at line " << 
+         LogHandler( LogHandler::ERROR ) << "Exception on processing command: " << cmdQueue.curCmdName() << " located at line " << 
             cmdQueue.curCmdInputFileLineNumber() << " of input file " << cmdFileName << ". ";
          sc->runManager().stopAllSubmittedJobs();
       }
-      BOOST_LOG_TRIVIAL( fatal ) << "CASA error ID:" << ex.errorCode() << ", message: " << ex.what();
+      LogHandler( LogHandler::FATAL ) << "CASA error ID:" << ex.errorCode() << ", message: " << ex.what();
       return -1;
    }
    catch ( ... )
    {
       if ( cmdExecutionStarted )
       {
-         BOOST_LOG_TRIVIAL( error ) << "Exception on processing command: " << cmdQueue.curCmdName() << " located at line " << 
+         LogHandler( LogHandler::ERROR ) << "Exception on processing command: " << cmdQueue.curCmdName() << " located at line " << 
             cmdQueue.curCmdInputFileLineNumber() << " of input file " << cmdFileName << ". ";
          sc->runManager().stopAllSubmittedJobs();
       }
-      BOOST_LOG_TRIVIAL( fatal ) << "CASA unknown exception, aborting...";
+      LogHandler( LogHandler::FATAL ) << "CASA unknown exception, aborting...";
       return -1;
    }
 }

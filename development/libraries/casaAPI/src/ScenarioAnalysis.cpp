@@ -469,7 +469,7 @@ ScenarioAnalysis::ScenarioAnalysisImpl::~ScenarioAnalysisImpl()
 {
 }
 
-void ScenarioAnalysis::ScenarioAnalysisImpl::defineBaseCase( const mbapi::Model & bcModel )
+void ScenarioAnalysis::ScenarioAnalysisImpl::defineBaseCase( const mbapi::Model & /* bcModel */ )
 {
    throw ErrorHandler::Exception( ErrorHandler::NotImplementedAPI ) <<  "defineBaseCase() is not implemented yet";
 }

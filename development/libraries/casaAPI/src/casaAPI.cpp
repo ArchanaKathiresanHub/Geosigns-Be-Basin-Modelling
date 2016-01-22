@@ -91,28 +91,31 @@ static size_t findMixingIDForLithologyInLayer( const char * layerName, const std
 namespace BusinessLogicRulesSet
 {
 // Add a parameter to variate layer thickness value [m] in given range
-ErrorHandler::ReturnCode VaryLayerThickness( ScenarioAnalysis & sa
-                                           , const char * name
-                                           , const char * layerName
-                                           , double minVal
-                                           , double maxVal
-                                           , VarPrmContinuous::PDF rangeShape
+ErrorHandler::ReturnCode VaryLayerThickness( ScenarioAnalysis    & // sa
+                                           , const char          * // name
+                                           , const char          * // layerName
+                                           , double                // minVal
+                                           , double                // maxVal
+                                           , VarPrmContinuous::PDF // rangeShape
                                            )
 {
    return ErrorHandler::NotImplementedAPI;
 }
 
 // Add a parameter to variate top crust heat production value @f$ [\mu W/m^3] @f$ in given range
-ErrorHandler::ReturnCode VaryTopCrustHeatProduction( ScenarioAnalysis    & sa
-                                                   , const char          * name
-                                                   , double                minVal
-                                                   , double                maxVal
-                                                   , VarPrmContinuous::PDF rangeShape
+ErrorHandler::ReturnCode VaryTopCrustHeatProduction( ScenarioAnalysis               & sa
+                                                   , const char                     * name
+                                                   , const std::vector<double>      & dblRngIn
+                                                   , const std::vector<std::string> & mapRngIn
+                                                   , VarPrmContinuous::PDF            rangeShape
                                                    )
 {
    try
    {
       VarSpace & varPrmsSet = sa.varSpace();
+
+      std::vector<double>      dblRng( dblRngIn.begin(), dblRngIn.end() );
+      std::vector<std::string> mapRng( mapRngIn.begin(), mapRngIn.end() );
 
       // Get base value of parameter from the Model
       mbapi::Model & mdl = sa.baseCase();
@@ -120,15 +123,44 @@ ErrorHandler::ReturnCode VaryTopCrustHeatProduction( ScenarioAnalysis    & sa
       casa::PrmTopCrustHeatProduction prm( mdl );
       if ( mdl.errorCode() != ErrorHandler::NoError ) return sa.moveError( mdl );
 
-      const std::vector<double> & baseValue = prm.asDoubleArray();
-      assert( baseValue.size() == 1 );
-
-      if ( baseValue[0] < minVal || baseValue[0] > maxVal )
+      if ( dblRng.size() == 2 )
       {
-         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Value of parameter in base case is outside of the given range";
+         double baseValue = prm.value();
+
+         if ( baseValue < dblRng[0] || baseValue > dblRng[1] )
+         {
+            throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Value of parameter in base case is outside of the given range";
+         }
+
+         dblRng.push_back( baseValue );
+      }
+      else if ( mapRng.size() == 2 )
+      {
+         std::string baseValue = prm.mapName();
+         if ( baseValue.empty() )
+         {
+            throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Base case has no map defined for radiogenic heat production";
+         }
+         mapRng.push_back( baseValue );
+
+         // check are other 2 maps exist in maps list
+         mbapi::MapsManager & mm = mdl.mapsManager();
+         for ( size_t k = 0; k < 2; ++k )
+         {
+            mbapi::MapsManager::MapID mid = mm.findID( mapRng[k] );
+            if ( UndefinedIDValue == mid )
+            {
+               throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Base case project has no map " << mapRng[k] << " defined";
+            }
+         }
+      }
+      else
+      {
+         ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Radiogenic heat production IP must be defined by simple range of" <<
+            " two double values or by map range with two map names";
       }
 
-      if ( ErrorHandler::NoError != varPrmsSet.addParameter( new VarPrmTopCrustHeatProduction( baseValue[0], minVal, maxVal, rangeShape, name ) ) )
+      if ( ErrorHandler::NoError != varPrmsSet.addParameter( new VarPrmTopCrustHeatProduction( dblRng, mapRng, rangeShape, name ) ) )
       {
          return sa.moveError( varPrmsSet );
       }
@@ -682,12 +714,14 @@ ErrorHandler::ReturnCode VaryOneCrustThinningEvent( casa::ScenarioAnalysis & sa,
       std::vector<double> baseValues = prm.asDoubleArray();
 
       for ( size_t i = 0; i < 4; ++i ) // replace undefined base value with middle of value range
-      // crust thickness profile shape in base project file could not match what we need : 
-      // *--------*
-      //          \
-      //           *-----------*
-      // in this case, constructor of parameter could pick up some of base values from the base project file
-      // for others - we will use avarage from min/max
+      /*
+       crust thickness profile shape in base project file could not match what we need : 
+       *--------*
+                \
+                 *-----------*
+       in this case, constructor of parameter could pick up some of base values from the base project file
+       for others - we will use avarage from min/max
+      */
       {
          if ( IsValueUndefined( baseValues[i] ) )
          {
@@ -793,8 +827,6 @@ ErrorHandler::ReturnCode VaryCrustThinning( casa::ScenarioAnalysis & sa
 
       std::vector<double> minValues( 3 * minT0.size() + 1, UndefinedDoubleValue );
       std::vector<double> maxValues( 3 * minT0.size() + 1, UndefinedDoubleValue );
-
-      double basinTime = 1000.0; // MYA
 
       if ( IsValueUndefined( minThickIni ) ||
            IsValueUndefined( maxThickIni ) ) { throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Initial crust thickness is undefined"; }
@@ -979,6 +1011,10 @@ ErrorHandler::ReturnCode VaryPorosityModelParameters( ScenarioAnalysis    & sa
                   baseMinPor    = baseValues[2];
                   baseCompCoef1 = baseValues[3];
                   break;                     
+
+               default:
+                  assert(0);
+                  break;
             }
          }
       }
@@ -1005,6 +1041,10 @@ ErrorHandler::ReturnCode VaryPorosityModelParameters( ScenarioAnalysis    & sa
                if ( surfPorIsDef && ( baseSurfPor < minSurfPor || baseSurfPor > maxSurfPor ) ) { throw ex << "Surface porosity in the base case is outside of the given range"; }
                if ( compCofIsDef && ( baseCompCoef < minCompCoef || baseCompCoef > maxCompCoef ) ) { throw ex << "Compaction coeff. in the base case is outside of the given range"; }
             }
+            break;
+
+         default:
+            assert(0);
             break;
       }
 
@@ -1095,7 +1135,7 @@ ErrorHandler::ReturnCode VaryPermeabilityModelParameters( ScenarioAnalysis      
       if ( ErrorHandler::NoError != lmgr.permeabilityModel( ltid, litMdl, litMdlPrms, litMdlMPPor, litMdlMPPerm ) ) { return sa.moveError( lmgr ); }
 
       // check if model in project file is the same
-      if ( litMdl == mdlType )
+      if ( static_cast<int>(litMdl) == static_cast<int>(mdlType) )
       {
          basModelPrms = litMdlPrms;
          if ( mbapi::LithologyManager::PermMultipoint == litMdl )
@@ -1113,7 +1153,7 @@ ErrorHandler::ReturnCode VaryPermeabilityModelParameters( ScenarioAnalysis      
       {
          if ( IsValueUndefined( minModelPrms[i] ) || IsValueUndefined( maxModelPrms[i] ) )
          {
-            if ( litMdl == mdlType ) // if one of the range value is undefined assign min/max to the base value
+            if ( static_cast<int>(litMdl) == static_cast<int>(mdlType) ) // if one of the range value is undefined assign min/max to the base value
             {
                minModelPrms[i] = maxModelPrms[i] = basModelPrms[i];
             }

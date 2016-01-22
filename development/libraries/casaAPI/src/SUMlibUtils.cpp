@@ -30,7 +30,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 // CASA -> SUMlib case conversion
-void sumext::convertCase( const casa::RunCase & crc, const casa::VarSpace & vp, SUMlib::Case  & sc )
+void sumext::convertCase( const casa::RunCase & crc, const casa::VarSpace & /* vp */, SUMlib::Case  & sc )
 {
    const casa::RunCaseImpl & rci = dynamic_cast<const casa::RunCaseImpl &>( crc );
 
@@ -132,7 +132,6 @@ void sumext::convertObservablesValue( const std::vector<const casa::RunCase*> & 
    matrValidObs.clear();
 
    size_t obsNum = 0;
-   size_t caseNum = caseSet.size();
 
    // count number of observables value for the first case
    const casa::RunCaseImpl * rc0 = dynamic_cast<const casa::RunCaseImpl *>( caseSet[0] );
@@ -180,7 +179,6 @@ void sumext::convertObservablesValue( const std::vector<const casa::RunCase*> & 
          assert( obv );
          assert( obv->observable() );
    
-         const casa::Observable * osb = obv->observable();
          if ( obv->isDouble() )
          {
             // push values of observable to array of targets

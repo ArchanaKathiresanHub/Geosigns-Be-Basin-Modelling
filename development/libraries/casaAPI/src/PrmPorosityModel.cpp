@@ -33,8 +33,8 @@ namespace casa
 // Constructor
 PrmPorosityModel::PrmPorosityModel( mbapi::Model & mdl, const char * lithoName )
    : m_parent( 0 )
-   , m_lithoName(   lithoName )
    , m_modelType(   UndefinedModel )
+   , m_lithoName(   lithoName )
    , m_surfPor(     UndefinedDoubleValue )
    , m_compCoef(    UndefinedDoubleValue )
    , m_minPorosity( UndefinedDoubleValue )
@@ -98,8 +98,8 @@ PrmPorosityModel::PrmPorosityModel( mbapi::Model & mdl, const char * lithoName )
  // Constructor
 PrmPorosityModel::PrmPorosityModel( const VarPrmPorosityModel * parent, const char * lithoName, PorosityModelType mdlType, const std::vector<double> & mdlPrms )
    : m_parent(      parent )
-   , m_lithoName(   lithoName )
    , m_modelType(   mdlType )
+   , m_lithoName(   lithoName )
    , m_surfPor(     UndefinedDoubleValue )
    , m_compCoef(    UndefinedDoubleValue )
    , m_minPorosity( UndefinedDoubleValue )
@@ -227,6 +227,10 @@ std::string PrmPorosityModel::validate( mbapi::Model & caldModel )
          if ( m_compCoef1 < 0  ) oss << "Compaction coef. \"B\" for lithology " << m_lithoName << " can not be negative: " << m_compCoef << std::endl;
          if ( m_compCoef1 > 50 ) oss << "To high value for compaction coef. \"B\" for lithology " << m_lithoName << ": "   << m_compCoef << std::endl;
          break;
+
+      default:
+         assert(0);
+         break;
    }
 
    mbapi::LithologyManager & mgr = caldModel.lithologyManager();
@@ -335,6 +339,10 @@ std::vector<double> PrmPorosityModel::asDoubleArray() const
          vals.push_back( m_minPorosity );
          vals.push_back( m_compCoef1 );
          break;
+
+      default:
+         assert(0);
+         break;
    }
 
    return vals;
@@ -367,13 +375,17 @@ bool PrmPorosityModel::operator == ( const Parameter & prm ) const
          if ( !NumericFunctions::isEqual( m_compCoef,    pp->m_compCoef,    eps ) ) return false;
          if ( !NumericFunctions::isEqual( m_minPorosity, pp->m_minPorosity, eps ) ) return false;
          if ( !NumericFunctions::isEqual( m_compCoef1,   pp->m_compCoef1,   eps ) ) return false;
+         
+      default:
+         assert(0);
+         break;
    }
    return true;
 }
 
 
 // Save all object data to the given stream, that object could be later reconstructed from saved data
-bool PrmPorosityModel::save( CasaSerializer & sz, unsigned int version ) const
+bool PrmPorosityModel::save( CasaSerializer & sz, unsigned int /* version */ ) const
 {
    bool hasParent = m_parent ? true : false;
    bool ok = sz.save( hasParent, "hasParent" );
@@ -396,7 +408,7 @@ bool PrmPorosityModel::save( CasaSerializer & sz, unsigned int version ) const
 }
 
 // Create a new var.parameter instance by deserializing it from the given stream
-PrmPorosityModel::PrmPorosityModel( CasaDeserializer & dz, unsigned int objVer )
+PrmPorosityModel::PrmPorosityModel( CasaDeserializer & dz, unsigned int /* objVer */ )
 {
    CasaDeserializer::ObjRefID parentID;
 

@@ -260,7 +260,6 @@ void CfgFileParser::readParametersValueFile( const std::string & fileName, std::
 
       std::string result;
       
-      int tokNum = 0;
       std::string opt;
 
       std::vector<double> oneLineVals;

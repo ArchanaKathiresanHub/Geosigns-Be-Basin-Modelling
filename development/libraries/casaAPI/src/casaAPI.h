@@ -159,10 +159,10 @@ namespace casa
       /// @brief Add a parameter to variate top crust heat production value @f$ [\mu W/m^3] @f$ in given range
       /// @return ErrorHandler::NoError on success or error code otherwise
       ErrorHandler::ReturnCode VaryTopCrustHeatProduction(
-            ScenarioAnalysis    & sa          ///< [in,out] casa::ScenarioAnalysis object reference, if any error, this object will keep an error message
-          , const char          * name        ///< user specified name for variable parameter 
-          , double                minVal      ///< [in] the minimal range value 
-          , double                maxVal      ///< [in] the maximal range value 
+            ScenarioAnalysis               & sa     ///< [in,out] casa::ScenarioAnalysis reference, if any error, this object will keep an error message
+          , const char                     * name   ///< user specified name for variable parameter 
+          , const std::vector<double>      & dblRng ///< [in] the minimal/maximal range values for simple range
+          , const std::vector<std::string> & mapRng ///< [in] the minimal/maximal range values for maps range
           , VarPrmContinuous::PDF rangeShape  /**< [in] defines a type of probability function for the parameter. If PDF needs some middle
                                                    parameter value it will be taken from the base case model */
           );

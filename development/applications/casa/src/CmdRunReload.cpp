@@ -14,13 +14,14 @@
 #include "casaAPI.h"
 #include "RunCase.h"
 
+#include "LogHandler.h"
+
 #include <cstdlib>
 #include <iostream>
 
 
 static void PrintObsValues( casa::ScenarioAnalysis & sc )
 {
-   casa::ObsSpace   & obSpace = sc.obsSpace();
    casa::RunCaseSet & rcSet = sc.doeCaseSet();
 
    for ( size_t rc = 0; rc < rcSet.size(); ++rc )
@@ -30,8 +31,8 @@ static void PrintObsValues( casa::ScenarioAnalysis & sc )
 
       if ( !cs ) continue;
 
-      BOOST_LOG_TRIVIAL( debug ) << "    " << cs->projectPath();
-      BOOST_LOG_TRIVIAL( debug ) << "      Observable values:";
+      LogHandler( LogHandler::DEBUG ) << "    " << cs->projectPath();
+      LogHandler( LogHandler::DEBUG ) << "      Observable values:";
 
       for ( size_t i = 0; i < cs->observablesNumber(); ++i )
       {
@@ -43,7 +44,7 @@ static void PrintObsValues( casa::ScenarioAnalysis & sc )
 
             for ( size_t i = 0; i < vals.size(); ++i )
             {
-               BOOST_LOG_TRIVIAL( debug ) << "      " << names[i] << " = " << vals[i];
+               LogHandler( LogHandler::DEBUG ) << "      " << names[i] << " = " << vals[i];
             }
          }
       }
@@ -59,14 +60,14 @@ CmdRunReload::CmdRunReload( CasaCommander & parent, const std::vector< std::stri
 
 void CmdRunReload::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
 {
-   BOOST_LOG_TRIVIAL( info ) << "Loading completed jobs... ";
+   LogHandler( LogHandler::INFO ) << "Loading completed jobs... ";
 
    if ( ErrorHandler::NoError != sa->restoreScenarioLocation( m_locPath.c_str() ) ) 
    {
       throw ErrorHandler::Exception( sa->errorCode() ) << sa->errorMessage();
    }
  
-   BOOST_LOG_TRIVIAL( info ) << "done! " << " Extracting observables values ... ";
+   LogHandler( LogHandler::INFO ) << "done! " << " Extracting observables values ... ";
   
    // collect observables value
    if ( ErrorHandler::NoError != sa->dataDigger().collectRunResults( sa->obsSpace(), sa->doeCaseSet() ) )
@@ -74,7 +75,7 @@ void CmdRunReload::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
       throw ErrorHandler::Exception( sa->dataDigger().errorCode() ) << sa->dataDigger().errorMessage();
    }
 
-   BOOST_LOG_TRIVIAL( info ) << "Load succeeded";
+   LogHandler( LogHandler::INFO ) << "Load succeeded";
 
    PrintObsValues( *sa.get() );
 }

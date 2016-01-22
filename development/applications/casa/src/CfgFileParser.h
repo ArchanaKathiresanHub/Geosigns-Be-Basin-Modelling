@@ -15,9 +15,6 @@
 #include <vector>
 #include <iostream>
 
-// Boost log library
-#include <boost/log/trivial.hpp>
-
 class CasaCommander;
 
 class CfgFileParser

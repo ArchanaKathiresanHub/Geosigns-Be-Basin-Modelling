@@ -15,6 +15,8 @@
 
 #include "casaAPI.h"
 
+#include "LogHandler.h"
+
 #include <cstdlib>
 #include <cmath>
 #include <iostream>
@@ -62,7 +64,7 @@ void CmdPlotTornado::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
    }
    sa->doeCaseSet().filterByExperimentName( "" );
 
-   BOOST_LOG_TRIVIAL( info ) << "Generating script to plot Tornado diagram...";
+   LogHandler( LogHandler::INFO ) << "Generating script to plot Tornado diagram...";
 
    casa::SensitivityCalculator & sCalc = sa->sensitivityCalculator();
 
@@ -209,7 +211,7 @@ void CmdPlotTornado::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
 
    ofs << "end\n";
 
-   BOOST_LOG_TRIVIAL( info ) << "Script generation succeeded";
+   LogHandler( LogHandler::INFO ) << "Script generation succeeded";
 }
 
 void CmdPlotTornado::printHelpPage( const char * cmdName )

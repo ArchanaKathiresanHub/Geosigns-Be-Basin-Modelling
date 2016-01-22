@@ -40,10 +40,10 @@ ObsGridPropertyXYZ::ObsGridPropertyXYZ( double x
                                       , m_z( z )
                                       , m_propName( propName )
                                       , m_simTime( simTime )
+                                      , m_posDataMiningTbl( -1 )
                                       , m_devValue( 0.0 )
                                       , m_saWeight( 1.0 )
                                       , m_uaWeight( 1.0 )
-                                      , m_posDataMiningTbl( -1 )
 {
    // check input values
    if ( m_propName.empty() ) throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "No property name specified for point target";
@@ -171,7 +171,7 @@ ObsValue * ObsGridPropertyXYZ::createNewObsValueFromDouble( std::vector<double>:
    return new ObsValueDoubleScalar( this, *val++ );
 }
 
-bool ObsGridPropertyXYZ::save( CasaSerializer & sz, unsigned int version ) const
+bool ObsGridPropertyXYZ::save( CasaSerializer & sz, unsigned int /* version */ ) const
 {
    // register observable with serializer to allow ObsValue objects keep reference after deserializtion
    CasaSerializer::ObjRefID obID = sz.ptr2id( this );

@@ -22,17 +22,31 @@
 namespace casa
 {
 
-VarPrmTopCrustHeatProduction::VarPrmTopCrustHeatProduction( double baseValue, double minValue, double maxValue, PDF pdfType, const char * name )
+VarPrmTopCrustHeatProduction::VarPrmTopCrustHeatProduction( const std::vector<double>      & dblRng
+                                                          , const std::vector<std::string> & mapRng
+                                                          , PDF                              pdfType
+                                                          , const char                     * name 
+                                                          )
 {
    m_pdf = pdfType;
    m_name = name && strlen( name ) > 0 ? std::string( name ) : std::string( "" );
   
-   m_minValue.reset( new PrmTopCrustHeatProduction( this, minValue ) );
-   m_maxValue.reset( new PrmTopCrustHeatProduction( this, maxValue ) );
-   
-   assert( minValue <= baseValue && maxValue >= baseValue );
-
-   m_baseValue.reset( new PrmTopCrustHeatProduction( this, baseValue ) );
+   if ( dblRng.size() == 3 )
+   {
+      m_minValue.reset(  new PrmTopCrustHeatProduction( this, dblRng[0] ) );
+      m_maxValue.reset(  new PrmTopCrustHeatProduction( this, dblRng[1] ) );
+      m_baseValue.reset( new PrmTopCrustHeatProduction( this, dblRng[2] ) );
+   }
+   else if ( mapRng.size() == 3 )
+   {
+      m_minValue.reset(  new PrmTopCrustHeatProduction( this, -1, mapRng[0] ) );
+      m_maxValue.reset(  new PrmTopCrustHeatProduction( this,  1, mapRng[1] ) );
+      m_baseValue.reset( new PrmTopCrustHeatProduction( this,  0, mapRng[2] ) );
+   }
+   else
+   {
+      throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Wrong range is given for the TopCrustHeatProduction IP";
+   }
 }
 
 VarPrmTopCrustHeatProduction::~VarPrmTopCrustHeatProduction()
@@ -52,8 +66,14 @@ std::vector<std::string> VarPrmTopCrustHeatProduction::name() const
 
 SharedParameterPtr VarPrmTopCrustHeatProduction::newParameterFromDoubles( std::vector<double>::const_iterator & vals ) const
 {
-   double minV = dynamic_cast<PrmTopCrustHeatProduction*>( m_minValue.get() )->value();
-   double maxV = dynamic_cast<PrmTopCrustHeatProduction*>( m_maxValue.get() )->value();
+   PrmTopCrustHeatProduction * minPrm = dynamic_cast<PrmTopCrustHeatProduction*>( m_minValue.get()  );
+   PrmTopCrustHeatProduction * maxPrm = dynamic_cast<PrmTopCrustHeatProduction*>( m_maxValue.get()  );
+   PrmTopCrustHeatProduction * basPrm = dynamic_cast<PrmTopCrustHeatProduction*>( m_baseValue.get() );
+
+   double minV = minPrm->value();
+   double maxV = maxPrm->value();
+   double basV = basPrm->value();
+
    double valP = *vals++;
 
    if ( minV > valP || valP > maxV )
@@ -62,9 +82,25 @@ SharedParameterPtr VarPrmTopCrustHeatProduction::newParameterFromDoubles( std::v
                                                                         " falls out of range: [" << minV << ":" << maxV << "]";
    }
    
-   SharedParameterPtr prm( new PrmTopCrustHeatProduction( this, valP ) );
+   if ( minPrm->mapName().empty() ) // no maps defined, simple range - just use given value
+   {
+      SharedParameterPtr prm( new PrmTopCrustHeatProduction( this, valP ) );
+      return prm;
+   }
 
-   return prm;
+   // maps range case. First check from low/middle/max case that we will not duplicate maps
+   if ( valP == minV ) return m_minValue;
+   if ( valP == maxV ) return m_maxValue;
+   if ( valP == basV ) return m_baseValue;
+
+   SharedParameterPtr newPrm( new PrmTopCrustHeatProduction( this, valP, basPrm->mapName() ) );
+
+   PrmTopCrustHeatProduction * prm = dynamic_cast<PrmTopCrustHeatProduction*>( newPrm.get() );
+
+   if ( valP < basV ) {  prm->defineMapsRange( minPrm->mapName(), basPrm->mapName() ); }
+   else               {  prm->defineMapsRange( basPrm->mapName(), maxPrm->mapName() ); }
+
+   return newPrm;
 }
 
 // Save all object data to the given stream, that object could be later reconstructed from saved data

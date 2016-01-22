@@ -465,7 +465,7 @@ JobSchedulerLocal::~JobSchedulerLocal()
 // get cluster name
 void JobSchedulerLocal::setClusterName( const char * clusterName )
 {
-   if ( clusterName != "LOCAL" )
+   if ( std::string( clusterName ) != "LOCAL" )
       throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Local job scheduler can not submit jobs to the cluster " << clusterName;
 }
 
@@ -578,7 +578,7 @@ size_t JobSchedulerLocal::runningJobsNumber()
 }
 
 // Serialize object to the given stream
-bool JobSchedulerLocal::save( CasaSerializer & sz, unsigned int fileVersion ) const
+bool JobSchedulerLocal::save( CasaSerializer & sz, unsigned int /* fileVersion */ ) const
 {
    bool ok = sz.save( m_clusterName, "ClusterName" );
    ok = ok ? sz.save( m_avCPUs,      "CoresNumber" ) : ok;
