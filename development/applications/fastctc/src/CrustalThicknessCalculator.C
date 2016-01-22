@@ -152,7 +152,7 @@ void CrustalThicknessCalculator::setRequestedOutputProperties( InterfaceOutput &
       }  
    }
    // set default output properties
-   theOutput.setMapsToOutput( mohoMap, thicknessBasaltMap, WLSadjustedMap, RDAadjustedMap, thicknessCrustMap, ECTMap, 
+   theOutput.setMapsToOutput( mohoMap, thicknessBasaltMap, WLSadjustedMap, RDAadjustedMap, thicknessCrustMap, 
                               thicknessCrustMeltOnset, topBasaltMap, incTectonicSubsidence, WLSMap, isostaticBathymetry,
                               numberOfOutputMaps );
 }

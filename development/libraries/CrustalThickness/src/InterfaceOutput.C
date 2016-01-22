@@ -105,7 +105,7 @@ bool InterfaceOutput::saveOutputMaps( Interface::ProjectHandle * projectHandle, 
          mapWriter->close();
 
          if( projectHandle->getRank() == 0 ) {
-            cout << "Map " << outputMapsNames[i] << " is saved into " << outputFileName <<  endl;
+            LogHandler( LogHandler::INFO_SEVERITY ) << "Map " << outputMapsNames[i] << " is saved into " << outputFileName << ".";
          }
       }
    }
@@ -151,7 +151,7 @@ bool InterfaceOutput::saveXYZOutputMaps( Interface::ProjectHandle * projectHandl
          }
          m_outputMaps[k]->restoreData();
          outputFileCrust.close();
-         cout << "Map " << outputMapsNames[k] << " is saved into " << outputFileName <<  endl;
+         LogHandler( LogHandler::INFO_SEVERITY ) << "Map " << outputMapsNames[k] << " is saved into " << outputFileName << ".";
       }
    }
    return true; 
