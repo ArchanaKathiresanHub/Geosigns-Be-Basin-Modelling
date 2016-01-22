@@ -57,8 +57,14 @@ namespace Shell.BasinModeling.Cauldron.Test
          // vary 2 parameters
          Assert.AreEqual(ErrorHandler.ReturnCode.NoError,
             CauldronAPI.VarySourceRockTOC(sa, "", m_layerName, 1, "", m_minTOC, m_maxTOC, VarPrmContinuous.PDF.Block));
+
+         StringVector mapRng = new StringVector();
+         DoubleVector dblRng = new DoubleVector();
+         dblRng.Add(m_minTCHP);
+         dblRng.Add(m_maxTCHP);
+
          Assert.IsTrue(ErrorHandler.ReturnCode.NoError ==
-                       CauldronAPI.VaryTopCrustHeatProduction(sa, "", m_minTCHP, m_maxTCHP, VarPrmContinuous.PDF.Block));
+                       CauldronAPI.VaryTopCrustHeatProduction(sa, "", dblRng, mapRng, VarPrmContinuous.PDF.Block));
 
          // add 2 observables for T & VRE
          Observable ob = ObsGridPropertyXYZ.createNewInstance(460001.0, 6750001.0, 2751.0, "Temperature", 0.0);
@@ -181,7 +187,12 @@ namespace Shell.BasinModeling.Cauldron.Test
          }
          Assert.AreEqual(ErrorHandler.ReturnCode.NoError, ret );
 
-         ret = CauldronAPI.VaryTopCrustHeatProduction(sa, "", m_minTCHP, m_maxTCHP, VarPrmContinuous.PDF.Block);
+         StringVector mapRng = new StringVector();
+         DoubleVector dblRng = new DoubleVector();
+         dblRng.Add(m_minTCHP);
+         dblRng.Add(m_maxTCHP);
+
+         ret = CauldronAPI.VaryTopCrustHeatProduction(sa, "", dblRng, mapRng, VarPrmContinuous.PDF.Block);
          if (ret != ErrorHandler.ReturnCode.NoError)
          {
             m_isDebug = true;
@@ -224,8 +235,13 @@ namespace Shell.BasinModeling.Cauldron.Test
          // vary 2 parameters
          Assert.AreEqual(ErrorHandler.ReturnCode.NoError,
             CauldronAPI.VarySourceRockTOC(sa, "", m_layerName, 1, "", m_minTOC, m_maxTOC, VarPrmContinuous.PDF.Block));
+         
+         StringVector mapRng = new StringVector();
+         DoubleVector dblRng = new DoubleVector();
+         dblRng.Add(m_minTCHP);
+         dblRng.Add(m_maxTCHP);
          Assert.AreEqual(ErrorHandler.ReturnCode.NoError,
-            CauldronAPI.VaryTopCrustHeatProduction(sa, "", m_minTCHP, m_maxTCHP, VarPrmContinuous.PDF.Block));
+                         CauldronAPI.VaryTopCrustHeatProduction(sa, "", dblRng, mapRng, VarPrmContinuous.PDF.Block));
 
          // set up and generate DoE
          Assert.AreEqual(ErrorHandler.ReturnCode.NoError, sa.setDoEAlgorithm(DoEGenerator.DoEAlgorithm.Tornado));
@@ -281,8 +297,13 @@ namespace Shell.BasinModeling.Cauldron.Test
          // vary 2 parameters
          Assert.AreEqual(ErrorHandler.ReturnCode.NoError,
                        CauldronAPI.VarySourceRockTOC(sa, "", m_layerName, 1, "", m_minTOC, m_maxTOC, VarPrmContinuous.PDF.Block));
+         
+         StringVector mapRng = new StringVector();
+         DoubleVector dblRng = new DoubleVector();
+         dblRng.Add(m_minTCHP);
+         dblRng.Add(m_maxTCHP);
          Assert.AreEqual(ErrorHandler.ReturnCode.NoError,
-                       CauldronAPI.VaryTopCrustHeatProduction(sa, "", m_minTCHP, m_maxTCHP, VarPrmContinuous.PDF.Block));
+                       CauldronAPI.VaryTopCrustHeatProduction(sa, "", dblRng, mapRng, VarPrmContinuous.PDF.Block));
 
          // set up and generate DoE
          Assert.AreEqual(ErrorHandler.ReturnCode.NoError, sa.setDoEAlgorithm(DoEGenerator.DoEAlgorithm.Tornado));
@@ -397,7 +418,7 @@ namespace Shell.BasinModeling.Cauldron.Test
          RunCaseImpl nrc = new RunCaseImpl();
          DoubleVector prmVals = new DoubleVector();
          // set case parameters
-         prmVals.Add( -1 + (10.16 - m_minTOC)/(m_maxTOC-m_minTOC) ); // For TOC -1:1 range is used insede the parameter
+         prmVals.Add( -1 + (10.16 - m_minTOC)/(m_maxTOC-m_minTOC) ); // For TOC -1:1 range is used inside the parameter
          prmVals.Add(1.970);
 
          int off = 0;
