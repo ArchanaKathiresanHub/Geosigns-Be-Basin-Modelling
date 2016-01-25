@@ -54,10 +54,10 @@ void MantleFormation::cleanVectors() {
 //------------------------------------------------------------//
 void MantleFormation::initialise () {
 
-   layername = Interface::MantleFormation::getName ();
-   lithoMixModel = Interface::MantleFormation::getMixModelStr ();
+   layername             = Interface::MantleFormation::getName ();
+   lithoMixModel         = Interface::MantleFormation::getMixModelStr ();
    m_presentDayThickness = Interface::MantleFormation::getInputThicknessMap ();
-   depthGridMap = Interface::MantleFormation::getTopSurface ()->getInputDepthMap ();
+   depthGridMap          = Interface::MantleFormation::getTopSurface ()->getInputDepthMap ();
 
    setLayerElements ();
 }
@@ -121,7 +121,7 @@ const CompoundLithology* MantleFormation::getLithology( const double aTime, cons
    const AppCtx* aBasinModel =  FastcauldronSimulator::getInstance ().getCauldron ();
 
    if( aBasinModel->isALC() ) { 
-      double partOfBasaltInMantle = ((GeoPhysics::ProjectHandle*)(GeoPhysics::Formation::m_projectHandle))->getBasaltThickness(iPosition, jPosition, aTime) +
+      double partOfBasaltInMantle = ((GeoPhysics::ProjectHandle*)(GeoPhysics::Formation::m_projectHandle))->getBasaltThickness( iPosition, jPosition, aTime ) +
          ((GeoPhysics::ProjectHandle*)(GeoPhysics::Formation::m_projectHandle))->getContCrustThickness( iPosition, jPosition, aTime) -
          ((GeoPhysics::ProjectHandle*)(GeoPhysics::Formation::m_projectHandle))->getCrustThickness( iPosition, jPosition, aTime );
       if(partOfBasaltInMantle != 0.0) {
@@ -181,8 +181,8 @@ void MantleFormation::reInitialiseBasementVecs() {
 //------------------------------------------------------------//
 
 void MantleFormation::setBasementVectorList() {
-   vectorList.VecArray[ALCORIGMANTLE] = &UpliftedOrigMantleDepth; UpliftedOrigMantleDepth = NULL;
-   vectorList.VecArray[HLMOD]         = &LithosphereThicknessMod; LithosphereThicknessMod = NULL;
+   vectorList.VecArray[ALC_ORIGINAL_MANTLE] = &UpliftedOrigMantleDepth; UpliftedOrigMantleDepth = NULL;
+   vectorList.VecArray[ALC_MAX_MANTLE_DEPTH]= &LithosphereThicknessMod; LithosphereThicknessMod = NULL;
 }
 
 

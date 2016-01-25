@@ -137,8 +137,6 @@ const ApplicableOutputRegion::ApplicableRegion PropertyOutputConstraints::s_prop
      ApplicableOutputRegion::SEDIMENTS_ONLY,              /* Fluid Properties such as GOR, COR, OilAPI */
      ApplicableOutputRegion::SEDIMENTS_ONLY,              /* Brine properties viscosity density        */
      ApplicableOutputRegion::SEDIMENTS_ONLY,              /* Time of invasion                          */				
-     ApplicableOutputRegion::SEDIMENTS_AND_BASEMENT,      /* ALCSmBasaltThickness     */
-     ApplicableOutputRegion::SEDIMENTS_AND_BASEMENT,      /* ALCMaxAsthenoMantleDepth */
      ApplicableOutputRegion::SEDIMENTS_AND_BASEMENT,      /* ALCStepTopBasaltDepth    */
      ApplicableOutputRegion::SEDIMENTS_AND_BASEMENT,      /* ALCStepMohoDepth         */
      ApplicableOutputRegion::SEDIMENTS_AND_BASEMENT,      /* ALCStepContCrustThickness*/
@@ -146,7 +144,9 @@ const ApplicableOutputRegion::ApplicableRegion PropertyOutputConstraints::s_prop
      ApplicableOutputRegion::SEDIMENTS_AND_BASEMENT,      /* ALCSmContCrustThickness  */
      ApplicableOutputRegion::SEDIMENTS_AND_BASEMENT,      /* ALCSmTopBasaltDepth      */
      ApplicableOutputRegion::SEDIMENTS_AND_BASEMENT,      /* ALCSmMohoDepth           */
-     ApplicableOutputRegion::SEDIMENTS_AND_BASEMENT       /* ALCOrigMantle            */
+     ApplicableOutputRegion::SEDIMENTS_AND_BASEMENT,      /* ALCOrigMantle            */
+     ApplicableOutputRegion::SEDIMENTS_AND_BASEMENT,      /* ALCSmBasaltThickness     */
+     ApplicableOutputRegion::SEDIMENTS_AND_BASEMENT       /* ALCMaxAsthenoMantleDepth */
 };
 
 const Interface::PropertyOutputOption PropertyOutputConstraints::s_calculationModeMaxima[NumberOfCalculationModes] = {
@@ -294,8 +294,6 @@ const bool PropertyOutputConstraints::s_outputPermitted [ PropertyListSize ][ Nu
    { false, false,  true,  true,  true, false,  true,  true,  true, false },  /* Fluid Properties such as GOR, COR, OilAPI */
    { false, false,  true,  true,  true, false,  true,  true,  true, false },  /* Brine Properties density and viscosity    */
    { false, false,  true,  true,  true, false,  true,  true,  true, false },  /* Time of invasion                          */                                                                                                      
-   {  true,  true,  true,  true, false,  true,  true, false },  /* ALCSmBasaltThickness     */
-   {  true,  true,  true,  true, false,  true,  true, false },  /* ALCMaxAsthenoMantleDepth */
    {  true,  true,  true,  true, false,  true,  true, false },  /* ALCStepTopBasaltDepth    */
    {  true,  true,  true,  true, false,  true,  true, false },  /* ALCStepMohoDepth         */
    {  true,  true,  true,  true, false,  true,  true, false },  /* ALCStepContCrustThickness*/
@@ -303,7 +301,9 @@ const bool PropertyOutputConstraints::s_outputPermitted [ PropertyListSize ][ Nu
    {  true,  true,  true,  true, false,  true,  true, false },  /* ALCSmContCrustThickness  */
    {  true,  true,  true,  true, false,  true,  true, false },  /* ALCSmTopBasaltDepth      */
    {  true,  true,  true,  true, false,  true,  true, false },  /* ALCSmMohoDepth           */
-   {  true,  true,  true,  true, false,  true,  true, false }   /* ALCOrigMantle            */																								
+   {  true,  true,  true,  true, false,  true,  true, false },  /* ALCOrigMantle            */
+   {  true,  true,  true,  true, false,  true,  true, false },  /* ALCSmBasaltThickness     */
+   {  true,  true,  true,  true, false,  true,  true, false }   /* ALCMaxAsthenoMantleDepth */
 };
 
 /*
@@ -436,8 +436,6 @@ const bool PropertyOutputConstraints::s_outputRequired [ PropertyListSize ][ Num
    { false, false, false, false, false, false, false, false, false, false },  /* Fluid Properties such as GOR, COR, OilAPI */
 	{ false, false, false, false, false, false, false, false, false, false },  /* Brine properties density viscosity        */
    { false, false, false, false, false, false, false, false, false, false },  /* Time of Invasion                          */
-   {  true,  true,  true,  true, false,  true,  true, false },  /* ALCSmBasaltThickness     */
-   {  true,  true,  true,  true, false,  true,  true, false },  /* ALCMaxAsthenoMantleDepth */
    {  true,  true,  true,  true, false,  true,  true, false },  /* ALCStepTopBasaltDepth    */
    {  true,  true,  true,  true, false,  true,  true, false },  /* ALCStepMohoDepth         */
    {  true,  true,  true,  true, false,  true,  true, false },  /* ALCStepContCrustThickness*/
@@ -445,8 +443,9 @@ const bool PropertyOutputConstraints::s_outputRequired [ PropertyListSize ][ Num
    {  true,  true,  true,  true, false,  true,  true, false },  /* ALCSmContCrustThickness  */
    {  true,  true,  true,  true, false,  true,  true, false },  /* ALCSmTopBasaltDepth      */
    {  true,  true,  true,  true, false,  true,  true, false },  /* ALCSmMohoDepth           */
-   {  true,  true,  true,  true, false,  true,  true, false }   /* ALCOrigMantle            */
-
+   {  true,  true,  true,  true, false,  true,  true, false },  /* ALCOrigMantle            */
+   {  true,  true,  true,  true, false,  true,  true, false },  /* ALCSmBasaltThickness     */
+   {  true,  true,  true,  true, false,  true,  true, false }   /* ALCMaxAsthenoMantleDepth */
 
 };
                                                                                                      

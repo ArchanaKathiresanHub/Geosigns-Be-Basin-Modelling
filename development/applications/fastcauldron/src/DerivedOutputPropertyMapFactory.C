@@ -369,52 +369,52 @@ DerivedOutputPropertyMapFactory::DerivedOutputPropertyMapFactory () {
    mapTraits.m_propertyAllocator = allocateBasementPropertyCalculator;
    mapTraits.m_outputAssociation = FORMATION_ASSOCIATION;
    mapTraits.m_isPrimaryProperty = false;
-   m_mapPropertyTraitsMap [ BASALTTHICKNESS ] = mapTraits;
+   m_mapPropertyTraitsMap[ ALC_SM_THICKNESS_OCEANIC_CRUST ] = mapTraits;
 
    mapTraits.m_propertyAllocator = allocateBasementPropertyCalculator;
    mapTraits.m_outputAssociation = FORMATION_ASSOCIATION;
    mapTraits.m_isPrimaryProperty = false;
-   m_mapPropertyTraitsMap [ HLMOD ] = mapTraits;
+   m_mapPropertyTraitsMap [ ALC_MAX_MANTLE_DEPTH ] = mapTraits;
 
    mapTraits.m_propertyAllocator = allocateBasementPropertyCalculator;
    mapTraits.m_outputAssociation = FORMATION_ASSOCIATION;
    mapTraits.m_isPrimaryProperty = false;
-   m_mapPropertyTraitsMap [ TOPBASALTALC ] = mapTraits;
+   m_mapPropertyTraitsMap [ TOP_BASALT_ALC ] = mapTraits;
 
    mapTraits.m_propertyAllocator = allocateBasementPropertyCalculator;
    mapTraits.m_outputAssociation = FORMATION_ASSOCIATION;
    mapTraits.m_isPrimaryProperty = false;
-   m_mapPropertyTraitsMap [ MOHOALC ] = mapTraits;
+   m_mapPropertyTraitsMap [ MOHO_ALC ] = mapTraits;
 
    mapTraits.m_propertyAllocator = allocateBasementPropertyCalculator;
    mapTraits.m_outputAssociation = FORMATION_ASSOCIATION;
    mapTraits.m_isPrimaryProperty = false;
-   m_mapPropertyTraitsMap [ THICKNESSCCRUSTALC ] = mapTraits;
+   m_mapPropertyTraitsMap [ THICKNESS_CONTINENTAL_CRUST_ALC ] = mapTraits;
 
    mapTraits.m_propertyAllocator = allocateBasementPropertyCalculator;
    mapTraits.m_outputAssociation = FORMATION_ASSOCIATION;
    mapTraits.m_isPrimaryProperty = false;
-   m_mapPropertyTraitsMap [ THICKNESSBASALTALC ] = mapTraits;
+   m_mapPropertyTraitsMap [ THICKNESS_OCEANIC_CRUST_ALC ] = mapTraits;
 
    mapTraits.m_propertyAllocator = allocateBasementPropertyCalculator;
    mapTraits.m_outputAssociation = FORMATION_ASSOCIATION;
    mapTraits.m_isPrimaryProperty = false;
-   m_mapPropertyTraitsMap [ ALCSMCRUST ] = mapTraits;
+   m_mapPropertyTraitsMap [ ALC_SM_THICKNESS_CONTINENTAL_CRUST ] = mapTraits;
 
    mapTraits.m_propertyAllocator = allocateBasementPropertyCalculator;
    mapTraits.m_outputAssociation = FORMATION_ASSOCIATION;
    mapTraits.m_isPrimaryProperty = false;
-   m_mapPropertyTraitsMap [ ALCSMTOPBASALT ] = mapTraits;
+   m_mapPropertyTraitsMap [ ALC_SM_TOP_BASALT ] = mapTraits;
 
    mapTraits.m_propertyAllocator = allocateBasementPropertyCalculator;
    mapTraits.m_outputAssociation = FORMATION_ASSOCIATION;
    mapTraits.m_isPrimaryProperty = false;
-   m_mapPropertyTraitsMap [ ALCSMMOHO ] = mapTraits;
+   m_mapPropertyTraitsMap [ ALC_SM_MOHO ] = mapTraits;
 
    mapTraits.m_propertyAllocator = allocateBasementPropertyCalculator;
    mapTraits.m_outputAssociation = FORMATION_ASSOCIATION;
    mapTraits.m_isPrimaryProperty = false;
-   m_mapPropertyTraitsMap [ ALCORIGMANTLE ] = mapTraits;
+   m_mapPropertyTraitsMap [ ALC_ORIGINAL_MANTLE ] = mapTraits;
 
 
 

@@ -6212,6 +6212,8 @@ Identification      : HcLiquidBrineCapillaryEntryPressure
 
 #### Crustal Thickness Calculator and Advanced Lithosphere Calculator output properties 
 
+    ### Default ctc outputs
+
     Identification      : Moho
     Description         : present-day Moho depth 
     Unit of measurement : m
@@ -6236,26 +6238,24 @@ Identification      : HcLiquidBrineCapillaryEntryPressure
     Type                : float
     Error Field         : No
 
-    Identification      : EffectiveCrustalThickness
-    Description         : present-day effective crust thickness
-    Unit of measurement : m
-    Type                : float
-    Error Field         : No
-
     Identification      : TopBasaltUnderplate
     Description         : present-day depth to top basalt
     Unit of measurement : m
     Type                : float
     Error Field         : No
 
-    Identification      : ALCMaxAsthenoMantleDepth
-    Description         : maximum depth of asthenospheric mantle
+    ### Debug ctc outputs
+
+    Identification      : EffectiveCrustalThickness
+    Description         : present-day effective crust thickness (-debug output)
     Unit of measurement : m
     Type                : float
     Error Field         : No
+
+    ### Default alc outputs
     
     Identification      : ALCStepTopBasaltDepth
-    Description         : depth of top of lithoswitched basalt
+    Description         : depth of top of lithoswitched basalt after lithoswitching
     Unit of measurement : m
     Type                : float
     Error Field         : No
@@ -6273,37 +6273,45 @@ Identification      : HcLiquidBrineCapillaryEntryPressure
     Error Field         : No
     
     Identification      : ALCStepBasaltThickness
-    Description         : calculated after lithoswitching thickness of basalt
+    Description         : thickness of oceanic (basalt) crust after lithoswitching
     Unit of measurement : m
     Type                : float
     Error Field         : No
-    
+
+    ### Debug alc outputs
+       
     Identification      : ALCSmBasaltThickness
-    Description         : smooth basalt thickness
+    Description         : smooth basalt thickness (-debugalc output)
     Unit of measurement : m
     Type                : float
     Error Field         : No
  
     Identification      : ALCSmContCrustThickness
-    Description         : interpolated continental crust thickness
+    Description         : interpolated continental crust thickness (-debugalc output)
     Unit of measurement : m
     Type                : float
     Error Field         : No
     
-    Identification      : ALCSmTopBasaltDepth
-    Description         : calculated depth of top of basalt
+    Identification      : ALC_SM_TOP_BASALTDepth
+    Description         : calculated depth of top of basalt (-debugalc output)
     Unit of measurement : m
     Type                : float
     Error Field         : No
     
-    Identification      : ALCSmMohoDepth
-    Description         : calculated depth of Moho
+    Identification      : ALC_SM_MOHODepth
+    Description         : calculated depth of Moho (-debugalc output)
     Unit of measurement : m
     Type                : float
     Error Field         : No
     
     Identification      : ALCOrigLithMantleDepth
-    Description         : base of uplifted initial mantle
+    Description         : base of uplifted initial mantle (-debugalc output)
+    Unit of measurement : m
+    Type                : float
+    Error Field         : No
+
+    Identification      : ALCMaxAsthenoMantleDepth
+    Description         : maximum depth of asthenospheric mantle (-debugalc output)
     Unit of measurement : m
     Type                : float
     Error Field         : No

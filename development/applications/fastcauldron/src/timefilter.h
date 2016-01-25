@@ -131,9 +131,12 @@ enum PropertyList {
    //time of element invasion
    TIME_OF_ELEMENT_INVASION,
    
-   // ALC properties
-   BASALTTHICKNESS, HLMOD, TOPBASALTALC, MOHOALC, THICKNESSCCRUSTALC, THICKNESSBASALTALC,
-   ALCSMCRUST, ALCSMTOPBASALT, ALCSMMOHO, ALCORIGMANTLE, 
+   // ALC properties @todo
+   //    #default alc
+   TOP_BASALT_ALC, MOHO_ALC, THICKNESS_CONTINENTAL_CRUST_ALC, THICKNESS_OCEANIC_CRUST_ALC,
+   //    #debug alc
+   ALC_SM_THICKNESS_CONTINENTAL_CRUST, ALC_SM_TOP_BASALT, ALC_SM_MOHO, ALC_ORIGINAL_MANTLE,
+   ALC_SM_THICKNESS_OCEANIC_CRUST, ALC_MAX_MANTLE_DEPTH,
 
    // End of enum. Do not put anything after this.
    ENDPROPERTYLIST
@@ -368,8 +371,6 @@ const string PropertyName[] = {
   "BrineProperties",
   "HcFluidVelocity",
   "TimeOfInvasion",
-  "ALCSmBasaltThickness",
-  "ALCMaxAsthenoMantleDepth",
   "ALCStepTopBasaltDepth",
   "ALCStepMohoDepth",
   "ALCStepContCrustThickness",
@@ -378,6 +379,8 @@ const string PropertyName[] = {
   "ALCSmTopBasaltDepth",
   "ALCSmMohoDepth",
   "ALCOrigLithMantleDepth",
+  "ALCSmBasaltThickness",
+  "ALCMaxAsthenoMantleDepth"
   "UNKNOWN"
 };
 

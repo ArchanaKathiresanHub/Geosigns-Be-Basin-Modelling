@@ -34,14 +34,14 @@ CrustFormation::CrustFormation ( Interface::ProjectHandle * projectHandle, datab
    basaltThickness = 0;
    crustalThicknessMeltOnset = 0;
 
-   TopBasaltDepth = NULL;
-   BasaltThickness = NULL;
+   TopBasaltDepth          = NULL;
+   BasaltThickness         = NULL;
    BottomBasaltDepth       = NULL;
-   ThicknessBasaltALC = NULL;
-   ThicknessCCrustALC = NULL;
-   SmCCrustThickness = NULL;
-   SmTopBasaltDepth = NULL;
-   SmBottomBasaltDepth = NULL;
+   ThicknessBasaltALC      = NULL;
+   ThicknessCCrustALC      = NULL;
+   SmCCrustThickness       = NULL;
+   SmTopBasaltDepth        = NULL;
+   SmBottomBasaltDepth     = NULL;
 
    
    setBasementVectorList();
@@ -70,11 +70,11 @@ CrustFormation::~CrustFormation () {
 //------------------------------------------------------------//
 void CrustFormation::initialise () {
 
-   layername = Interface::CrustFormation::getName ();
-   depoage = Interface::CrustFormation::getTopSurface ()->getSnapshot ()->getTime ();
-   lithoMixModel = Interface::CrustFormation::getMixModelStr ();
+   layername           = Interface::CrustFormation::getName ();
+   depoage             = Interface::CrustFormation::getTopSurface ()->getSnapshot ()->getTime ();
+   lithoMixModel       = Interface::CrustFormation::getMixModelStr ();
    presentDayThickness = Interface::CrustFormation::getInputThicknessMap ();
-   depthGridMap = Interface::CrustFormation::getTopSurface ()->getInputDepthMap ();
+   depthGridMap        = Interface::CrustFormation::getTopSurface ()->getInputDepthMap ();
 
    m_heatProductionMap = getCrustHeatProductionMap ();
 
@@ -180,14 +180,14 @@ void CrustFormation::reInitialiseBasementVecs() {
 //------------------------------------------------------------//
 void CrustFormation::setBasementVectorList() {
 
-   vectorList.VecArray[TOPBASALTALC] = &TopBasaltDepth; TopBasaltDepth = NULL;
-   vectorList.VecArray[BASALTTHICKNESS] = &BasaltThickness;  BasaltThickness = NULL;
-   vectorList.VecArray[MOHOALC] = &BottomBasaltDepth; BottomBasaltDepth = NULL;
-   vectorList.VecArray[THICKNESSCCRUSTALC] = &ThicknessCCrustALC; ThicknessCCrustALC = NULL;
-   vectorList.VecArray[THICKNESSBASALTALC] = &ThicknessBasaltALC; ThicknessBasaltALC = NULL;
-   vectorList.VecArray[ALCSMCRUST] = &SmCCrustThickness; SmCCrustThickness = NULL;
-   vectorList.VecArray[ALCSMTOPBASALT] = &SmTopBasaltDepth; SmTopBasaltDepth = NULL;
-   vectorList.VecArray[ALCSMMOHO] = &SmBottomBasaltDepth; SmBottomBasaltDepth = NULL;
+   vectorList.VecArray[TOP_BASALT_ALC]                     = &TopBasaltDepth     ; TopBasaltDepth      = NULL;
+   vectorList.VecArray[ALC_SM_THICKNESS_OCEANIC_CRUST]     = &BasaltThickness    ; BasaltThickness     = NULL;
+   vectorList.VecArray[MOHO_ALC]                           = &BottomBasaltDepth  ; BottomBasaltDepth   = NULL;
+   vectorList.VecArray[THICKNESS_CONTINENTAL_CRUST_ALC]    = &ThicknessCCrustALC ; ThicknessCCrustALC  = NULL;
+   vectorList.VecArray[THICKNESS_OCEANIC_CRUST_ALC]        = &ThicknessBasaltALC ; ThicknessBasaltALC  = NULL;
+   vectorList.VecArray[ALC_SM_THICKNESS_CONTINENTAL_CRUST] = &SmCCrustThickness  ; SmCCrustThickness   = NULL;
+   vectorList.VecArray[ALC_SM_TOP_BASALT]                  = &SmTopBasaltDepth   ; SmTopBasaltDepth    = NULL;
+   vectorList.VecArray[ALC_SM_MOHO]                        = &SmBottomBasaltDepth; SmBottomBasaltDepth = NULL;
 }
     
 //------------------------------------------------------------//
