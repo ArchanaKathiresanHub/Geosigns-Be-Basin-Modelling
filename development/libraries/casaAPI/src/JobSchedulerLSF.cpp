@@ -129,13 +129,17 @@ public:
       if ( m_runTimeLim > 0 ) { m_submit.rLimits[LSF_RLIMIT_RUN] = static_cast<int>( m_runTimeLim ) * 60; } // convert to sec.
  
       /// Prepare job to submit through LSF
-      m_submit.options          = SUB_QUEUE | SUB_PROJECT_NAME | SUB_JOB_NAME | SUB_OUT_FILE | SUB_ERR_FILE;
-      m_submit.options2         = SUB2_JOB_GROUP   | SUB2_SLA; 
+      m_submit.options          = SUB_PROJECT_NAME | SUB_JOB_NAME | SUB_OUT_FILE | SUB_ERR_FILE;
+#ifdef LSF_XDR_VERSION9_1_3
+      m_submit.options          |= SUB_QUEUE;
+      m_submit.options2          = SUB2_JOB_GROUP   | SUB2_SLA; 
+#endif
       m_submit.options3         = SUB3_CWD;
 
       const char * envVar       = getenv( "LSF_CAULDRON_PROJECT_NAME" ); 
       m_submit.projectName      = strdup( envVar ? envVar : LSF_CAULDRON_PROJECT_NAME ); // add project name (must be the same for all cauldron app)
       
+#ifdef LSF_XDR_VERSION9_1_3
       envVar                    = getenv( "LSF_CAULDRON_PROJECT_GROUP" );
       m_submit.userGroup        = strdup( envVar ? envVar : LSF_CAULDRON_PROJECT_GROUP ); // add project group
 
@@ -144,7 +148,7 @@ public:
 
       envVar                    = getenv( "LSF_CAULDRON_PROJECT_SERVICE_CLASS_NAME" );    // add project class service ??
       m_submit.sla              = strdup( envVar ? envVar : LSF_CAULDRON_PROJECT_SERVICE_CLASS_NAME );
-
+#endif
       m_submit.command          = strdup( scriptName.c_str() );
       m_submit.jobName          = strdup( jobName.c_str() );
       m_submit.outFile          = strdup( (jobName + ".out" ).c_str() ); // redirect stdout to file
@@ -165,9 +169,11 @@ public:
    ~Job()
    {  // allocated by strdup
       if ( m_submit.projectName ) free( m_submit.projectName );
+#ifdef LSF_XDR_VERSION9_1_3
       if ( m_submit.userGroup   ) free( m_submit.userGroup   );
       if ( m_submit.queue       ) free( m_submit.queue       );
       if ( m_submit.sla         ) free( m_submit.sla         );
+#endif
       if ( m_submit.command     ) free( m_submit.command     );
       if ( m_submit.jobName     ) free( m_submit.jobName     );
       if ( m_submit.cwd         ) free( m_submit.cwd         );
