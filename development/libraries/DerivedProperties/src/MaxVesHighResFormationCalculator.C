@@ -51,15 +51,6 @@ void DerivedProperties::MaxVesHighResFormationCalculator::calculate(       Abstr
 {
    try
    {
-      // Check snapshot. It's not possible to ask for this property at a snapshot age earlier than the formation deposition age
-      const GeoPhysics::Formation * const currentFormation = dynamic_cast<const GeoPhysics::Formation * const>( formation );
-      const DataAccess::Interface::Snapshot * const prevSnapshot = m_projectHandle->findPreviousSnapshot(snapshot->getTime());
-      if( prevSnapshot != 0 and 
-          prevSnapshot->getTime() > currentFormation->getBottomSurface()->getSnapshot()->getTime() )
-      {
-         throw formattingexception::GeneralException() << "Invalid snapshot provided";
-      }
-
       if( !m_isSubsampled || m_isCoupledMode )
       {
          computeIndirectly( propertyManager,
@@ -161,6 +152,12 @@ void DerivedProperties::MaxVesHighResFormationCalculator::computeForSubsampledRu
       else
       {
          const DataAccess::Interface::Snapshot * const prevSnapshot = m_projectHandle->findPreviousSnapshot( snapshot->getTime() );
+         // Check snapshot. It's not possible to ask for this property at a snapshot age earlier than the formation deposition age
+         if( prevSnapshot != 0 and 
+             prevSnapshot->getTime() > currentFormation->getBottomSurface()->getSnapshot()->getTime() )
+         {
+            throw formattingexception::GeneralException() << "Invalid snapshot provided";
+         }
          FormationPropertyPtr previousMaxVesHighRes = propertyManager.getFormationProperty( maxVesHighResProperty, prevSnapshot, formation );
 
          for( unsigned int i = firstI; i <= lastI; ++i )

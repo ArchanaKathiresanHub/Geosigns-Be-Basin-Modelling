@@ -439,10 +439,10 @@ void DerivedProperties::DepthHighResFormationCalculator::computeForSubsampledRun
                         {
                            assert( maxVesHighRes != 0 );
                            assert( vesHighRes != 0 );
-                           segmentThickness = lithology->computeSegmentThickness( maxVesHighRes->getA( k, j, i ),
-                                                                                  maxVesHighRes->getA( k - 1, j, i ),
-                                                                                  vesHighRes->getA( k, j, i ),
-                                                                                  vesHighRes->getA( k - 1, j, i ),
+                           segmentThickness = lithology->computeSegmentThickness( maxVesHighRes->getA( i, j, k ),
+                                                                                  maxVesHighRes->getA( i, j, k - 1 ),
+                                                                                  vesHighRes->getA( i, j, k ),
+                                                                                  vesHighRes->getA( i, j, k - 1 ),
                                                                                   densityDifference,
                                                                                   solidThickness );
                         }
@@ -450,8 +450,8 @@ void DerivedProperties::DepthHighResFormationCalculator::computeForSubsampledRun
                         {
                            assert( maxVesHighRes != 0 );
                            // Should the ves be used here too?
-                           segmentThickness = lithology->computeSegmentThickness( maxVesHighRes->getA( k, j, i ),
-                                                                                  maxVesHighRes->getA( k - 1, j, i ),
+                           segmentThickness = lithology->computeSegmentThickness( maxVesHighRes->getA( i, j, k ),
+                                                                                  maxVesHighRes->getA( i, j, k - 1 ),
                                                                                   densityDifference,
                                                                                   solidThickness );
                         }
