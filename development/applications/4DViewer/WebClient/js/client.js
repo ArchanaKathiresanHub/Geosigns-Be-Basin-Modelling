@@ -154,9 +154,11 @@ function initUI(projectInfo)
     timeSlider.step = 1;
     timeSlider.value = timeSlider.max;
 
-    //onQualitySliderChanged(document.getElementById("qualitySlider").valueAsNumber);
-    //onInteractiveQualitySliderChanged(document.getElementById("iqualitySlider").valueAsNumber);
-    onBandwidthSliderChanged(document.getElementById("bandwidthSlider").valueAsNumber * 8192);
+    // Init JPEG quality
+    onQualitySliderChanged(document.getElementById("qualitySlider").valueAsNumber);
+    onInteractiveQualitySliderChanged(document.getElementById("iqualitySlider").valueAsNumber);
+    // Init H264 quality
+    //onBandwidthSliderChanged(document.getElementById("bandwidthSlider").valueAsNumber * 8192);
     onMaxFPSSliderChanged(document.getElementById("maxfpsSlider").valueAsNumber);
 }
 
