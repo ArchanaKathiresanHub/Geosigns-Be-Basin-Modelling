@@ -380,7 +380,7 @@ const string PropertyName[] = {
   "ALCSmMohoDepth",
   "ALCOrigLithMantleDepth",
   "ALCSmBasaltThickness",
-  "ALCMaxAsthenoMantleDepth"
+  "ALCMaxAsthenoMantleDepth",
   "UNKNOWN"
 };
 

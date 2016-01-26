@@ -495,11 +495,12 @@ void AppCtx::printHelp () const {
   helpBuffer << "Usage: mpirun -np <procs> fastcauldron [-help] [-options]" << endl;
   helpBuffer << "The command line options include:"                         << endl << endl;
   helpBuffer << "    -help                  Shows this help message"        << endl;
-  helpBuffer                                                                << endl;
+  helpBuffer << endl;
 
   /////////////////////////////////////////////////////////////////////////
   ///1. Basic solver options
   helpBuffer << "  Basic solvers:"                                                                                                  << endl;
+  helpBuffer                                                                                                                        << endl;
   helpBuffer << "    -decompaction          Runs decompaction."                                                                     << endl;
   helpBuffer << "    -temperature           Solve for the temperature using a hydrostatic pressure."                                << endl;
   helpBuffer << "    -coupled               To run a loosely coupled calculation, this must be either temperature or decompaction." << endl;
@@ -509,8 +510,8 @@ void AppCtx::printHelp () const {
   helpBuffer << "    -genex                 Include GenEx5 calculation."                                                            << endl;
   helpBuffer << "    -project <filename>    Name of project file."                                                                  << endl;
   helpBuffer << "    -save <filename>       Name of project file in which to save input and results."                               << endl;
-  helpBuffer                                                                                                                        << endl;
-  helpBuffer                                                                                                                        << endl;
+  helpBuffer << endl;
+  helpBuffer << endl;
 
   /////////////////////////////////////////////////////////////////////////
   ///2. General options
@@ -523,8 +524,8 @@ void AppCtx::printHelp () const {
      << "                                             1 < x     => elements larger than user defined mantle-element-height."                                 << endl
      << "                                             x = 1     => elements larger than user defined mantle-element-height."                                 << endl;
   helpBuffer << "    -numberminorss <n>          Number of minor-snapshots, n >= 0."                                                                         << endl;
-  helpBuffer                                                                                                                                                 << endl;
-  helpBuffer                                                                                                                                                 << endl;
+  helpBuffer << endl;
+  helpBuffer << endl;
 
   /////////////////////////////////////////////////////////////////////////
   ///3. Expert options
@@ -570,8 +571,8 @@ void AppCtx::printHelp () const {
   helpBuffer << "                                Runs high resolution decompaction at major and minor snapshot times."                                             << endl;
                                                  
   helpBuffer << "    -debugalc                   Output debg ALC (advanced lithospheric calculator) properties."                                                   << endl;
-  helpBuffer                                                                                                                                                       << endl;
-  helpBuffer                                                                                                                                                       << endl;
+  helpBuffer << endl;
+  helpBuffer << endl;
 
   /////////////////////////////////////////////////////////////////////////
   ///4. Element quadrature options
@@ -585,8 +586,8 @@ void AppCtx::printHelp () const {
              << NumericFunctions::Quadrature::MaximumQuadratureDegree << "."                                                                << endl;
   helpBuffer << "    -tempdepthquadrature  <n>   Over-ride Gauss Legendre quadrature degree in depth for temperature solver, 1 <= n <= "
              << NumericFunctions::Quadrature::MaximumQuadratureDegree << "."                                                                << endl;
-  helpBuffer                                                                                                                                << endl;
-  helpBuffer                                                                                                                                << endl;
+  helpBuffer << endl;
+  helpBuffer << endl;
 
   /////////////////////////////////////////////////////////////////////////
   ///5. Time step control options
@@ -602,8 +603,8 @@ void AppCtx::printHelp () const {
   helpBuffer << "    -erfrac <frac>              Fraction of element to erode to control the time-stepping, default is " 
              << DefaultElementBurialFraction << ", must be use in combination with -brts."                                                                                 << endl;
   helpBuffer << "                                If -brfrac is specified and not -erfrac, the -brfrac value will be used."                                                 << endl;
-  helpBuffer                                                                                                                                                               << endl;
-  helpBuffer                                                                                                                                                               << endl;
+  helpBuffer << endl;
+  helpBuffer << endl;
 
   /////////////////////////////////////////////////////////////////////////
   ///6. Lateral stress options
@@ -617,31 +618,30 @@ void AppCtx::printHelp () const {
   helpBuffer << "                                              50.0 1.0"                                                                  << endl;
   helpBuffer << "                                              49.9 0.0"                                                                  << endl;
   helpBuffer << "                                               0.0 0.0"                                                                  << endl;
-  helpBuffer                                                                                                                              << endl;
-  helpBuffer                                                                                                                              << endl;
+  helpBuffer << endl;
+  helpBuffer << endl;
 
   /////////////////////////////////////////////////////////////////////////
   ///7. Multi-component multi-phase flow solver options
   helpBuffer << "  Multi-component multi-phase flow solver options:" << endl;
-  helpBuffer                                                         << endl;
   helpBuffer << MultiComponentFlowHandler::getCommandLineOptions ();
-  helpBuffer                                                         << endl;
+  helpBuffer << endl;
 
 
   /////////////////////////////////////////////////////////////////////////
   ///8. Permafrost modelling options
   helpBuffer << "  Permafrost modelling options:"                                                                                                << endl;
   helpBuffer << "           -permafrost [ts]            Enable permafrost modelling and set a time-step size to be used (if defined), ts > 0.0." << endl;
-  helpBuffer                                                                                                                                     << endl;
-  helpBuffer                                                                                                                                     << endl;
+  helpBuffer << endl;
+  helpBuffer << endl;
 
   /////////////////////////////////////////////////////////////////////////
   ///9. Parallel I/O options
   helpBuffer << "  Parallel I/O options:"                                                                                << endl;
   helpBuffer << "           -onefileperprocess [dir]    Use dir to store imtermediate output files. Default is $TMPDIR." << endl;
   helpBuffer << "           -noofpp                     Do not use one-file-perprocess I/O."                             << endl;
-  helpBuffer                                                                                                             << endl;
-  helpBuffer                                                                                                             << endl;
+  helpBuffer << endl;
+  helpBuffer << endl;
 
   PetscPrintf ( PETSC_COMM_WORLD, helpBuffer.str ().c_str ());
 
