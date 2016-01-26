@@ -19,9 +19,9 @@
 #include "Interface/Snapshot.h"
 
 // meshviz interface
-#include <MeshVizInterface/MxTimeStamp.h>
-#include <MeshVizInterface/mesh/data/MiDataSetIjk.h>
-#include <MeshVizInterface/mesh/topology/MiHexahedronTopologyExplicitIjk.h>
+#include <MeshVizXLM/MxTimeStamp.h>
+#include <MeshVizXLM/mesh/data/MiDataSetIjk.h>
+#include <MeshVizXLM/mesh/topology/MiHexahedronTopologyExplicitIjk.h>
 
 namespace di = DataAccess::Interface; 
 

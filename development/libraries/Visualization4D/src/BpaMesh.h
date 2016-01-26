@@ -17,8 +17,8 @@
 #include "Interface/Interface.h"
 
 // OIV
-#include <MeshVizInterface/mesh/MiVolumeMeshHexahedronIjk.h>
-#include <MeshVizInterface/mesh/data/MiDataSetI.h>
+#include <MeshVizXLM/mesh/MiVolumeMeshHexahedronIjk.h>
+#include <MeshVizXLM/mesh/data/MiDataSetI.h>
 
 #include <memory>
 
