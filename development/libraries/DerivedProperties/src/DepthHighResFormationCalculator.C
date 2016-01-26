@@ -390,7 +390,13 @@ void DerivedProperties::DepthHighResFormationCalculator::computeForSubsampledRun
       // - formation->isMobileLayer()
       // - solidThickness > GeoPhysics::ThicknessTolerance
       const DataModel::AbstractProperty * const maxVesHighResProperty = propertyManager.getProperty( "MaxVesHighRes" );
-      FormationPropertyPtr maxVesHighRes = propertyManager.getFormationProperty( maxVesHighResProperty, snapshot, formation );
+      FormationPropertyPtr maxVesHighRes;
+
+      if( !formation->isCrust() )
+      {
+         maxVesHighRes = propertyManager.getFormationProperty( maxVesHighResProperty, snapshot, formation );
+      }
+
       // VES might be required only for coupled runs
       const DataModel::AbstractProperty * vesHighResProperty = 0;
       FormationPropertyPtr vesHighRes;

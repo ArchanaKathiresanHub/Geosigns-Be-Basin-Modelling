@@ -51,8 +51,6 @@ namespace DerivedProperties
 
       const GeoPhysics::ProjectHandle * const m_projectHandle; //!< Project handle
 
-      bool m_isCoupledMode;                                    //!< Boolean flag for coupled mode
-
       const bool m_isSubsampled;                               //!< Boolean flag for subsampled grids
 
    };

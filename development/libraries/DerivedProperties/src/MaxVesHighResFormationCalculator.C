@@ -9,7 +9,6 @@
 
 DerivedProperties::MaxVesHighResFormationCalculator::MaxVesHighResFormationCalculator( const GeoPhysics::ProjectHandle * projectHandle ) :
    m_projectHandle( projectHandle ),
-   m_isCoupledMode( false ),
    m_isSubsampled( ! ((*(m_projectHandle->getLowResolutionOutputGrid())) == (*(m_projectHandle->getHighResolutionOutputGrid()))) )
 {
    try
@@ -23,13 +22,7 @@ DerivedProperties::MaxVesHighResFormationCalculator::MaxVesHighResFormationCalcu
          throw formattingexception::GeneralException() << "Last simulation is missing";
       }
 
-      m_isCoupledMode = simulationDetails->getSimulatorMode () == "Overpressure" ||
-                        simulationDetails->getSimulatorMode () == "LooselyCoupledTemperature" ||
-                        simulationDetails->getSimulatorMode () == "CoupledHighResDecompaction" ||
-                        simulationDetails->getSimulatorMode () == "CoupledPressureAndTemperature" ||
-                        simulationDetails->getSimulatorMode () == "CoupledDarcy";
-
-      if( !m_isSubsampled || m_isCoupledMode )
+      if( !m_isSubsampled )
       {
          addDependentPropertyName( "MaxVes" );
       }
@@ -51,7 +44,7 @@ void DerivedProperties::MaxVesHighResFormationCalculator::calculate(       Abstr
 {
    try
    {
-      if( !m_isSubsampled || m_isCoupledMode )
+      if( !m_isSubsampled )
       {
          computeIndirectly( propertyManager,
                             snapshot,

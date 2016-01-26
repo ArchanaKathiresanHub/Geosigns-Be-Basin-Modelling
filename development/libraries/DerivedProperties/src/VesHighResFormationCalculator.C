@@ -78,15 +78,59 @@ void DerivedProperties::VesHighResFormationCalculator::computeIndirectly(       
 {
    try
    {
-      const DataModel::AbstractProperty * vesHighResProperty = propertyManager.getProperty( getPropertyNames()[ 0 ] );
-
-      const DataModel::AbstractProperty* vesProperty = propertyManager.getProperty( "Ves" );
-      FormationPropertyPtr ves = propertyManager.getFormationProperty( vesProperty, snapshot, formation );
-
-      IndirectFormationPropertyPtr vesHighRes = IndirectFormationPropertyPtr( new DerivedProperties::IndirectFormationProperty( vesHighResProperty, ves) );
-
       derivedProperties.clear();
-      derivedProperties.push_back( vesHighRes );
+
+      const DataModel::AbstractProperty * vesHighResProperty = propertyManager.getProperty( getPropertyNames()[ 0 ] );
+      
+      const GeoPhysics::Formation * const currentFormation = dynamic_cast<const GeoPhysics::Formation * const>( formation );
+      
+      if( currentFormation->getBottomSurface()->getSnapshot()->getTime() != snapshot->getTime() )
+      {
+         const DataModel::AbstractProperty* vesProperty = propertyManager.getProperty( "Ves" );
+         FormationPropertyPtr ves = propertyManager.getFormationProperty( vesProperty, snapshot, formation );
+
+         IndirectFormationPropertyPtr vesHighRes = IndirectFormationPropertyPtr( new DerivedProperties::IndirectFormationProperty( vesHighResProperty, ves) );
+
+         derivedProperties.push_back( vesHighRes );
+      }
+      else
+      {
+         DerivedFormationPropertyPtr vesHighRes = 
+            DerivedFormationPropertyPtr( new DerivedProperties::DerivedFormationProperty( vesHighResProperty,
+                                                                                          snapshot,
+                                                                                          formation,
+                                                                                          propertyManager.getMapGrid(),
+                                                                                          currentFormation->getMaximumNumberOfElements() + 1 ) );
+         const bool includeGhostNodes = true;
+         const unsigned int firstI = vesHighRes->firstI( includeGhostNodes );
+         const unsigned int lastI  = vesHighRes->lastI( includeGhostNodes );
+         const unsigned int firstJ = vesHighRes->firstJ( includeGhostNodes );
+         const unsigned int lastJ  = vesHighRes->lastJ( includeGhostNodes );
+         const unsigned int firstK = vesHighRes->firstK();
+         const unsigned int lastK  = vesHighRes->lastK();
+
+         for( unsigned int i = firstI; i <= lastI; ++i )
+         {
+            for( unsigned int j = firstJ; j <= lastJ; ++j )
+            {
+               if( m_projectHandle->getNodeIsValid(i, j) )
+               {
+                  for( unsigned int k = firstK; k <= lastK; ++k )
+                  {
+                     vesHighRes->set(i, j, k, 0.0 );
+                  }
+               }
+               else
+               {
+                  for( unsigned int k = firstK; k <= lastK; ++k )
+                  {
+                     vesHighRes->set(i, j, k, DataAccess::Interface::DefaultUndefinedMapValue);
+                  }
+               }
+            }
+         }
+      }
+
    }
    catch( formattingexception::GeneralException & ex )
    {
