@@ -61,7 +61,15 @@ void DerivedProperties::DepthHighResFormationCalculator::calculate(       Abstra
 {
    try
    {
-      if( !m_isSubsampled )
+      const GeoPhysics::Formation * const currentFormation = dynamic_cast<const GeoPhysics::Formation * const>( formation );
+
+      if( currentFormation->getBottomSurface()->getSnapshot()->getTime() <= snapshot->getTime() )
+      {
+         // If at the provided snapshot the current formation has't deposited yet
+         // or is just about to deposit we return an empty list of derived properties
+         derivedProperties.clear();
+      }
+      else if( !m_isSubsampled )
       {
          computeIndirectly( propertyManager,
                             snapshot,
@@ -332,7 +340,7 @@ void DerivedProperties::DepthHighResFormationCalculator::computeForCoupledRunWit
                   {
                      depthHighResValue = depthHighResAboveValue + realThickness;
                   }
-                  depthHighRes->set( i, j, k, depthHighResValue );
+                  depthHighRes->set( i, j, k - 1, depthHighResValue );
                   depthHighResAboveValue = depthHighResValue;
                }
             }

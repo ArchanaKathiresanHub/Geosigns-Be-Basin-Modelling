@@ -44,7 +44,15 @@ void DerivedProperties::MaxVesHighResFormationCalculator::calculate(       Abstr
 {
    try
    {
-      if( !m_isSubsampled )
+      const GeoPhysics::Formation * const currentFormation = dynamic_cast<const GeoPhysics::Formation * const>( formation );
+
+      if( currentFormation->getBottomSurface()->getSnapshot()->getTime() <= snapshot->getTime() )
+      {
+         // If at the provided snapshot the current formation has't deposited yet
+         // or is just about to deposit we return an empty list of derived properties
+         derivedProperties.clear();
+      }
+      else if( !m_isSubsampled )
       {
          computeIndirectly( propertyManager,
                             snapshot,
@@ -108,9 +116,6 @@ void DerivedProperties::MaxVesHighResFormationCalculator::computeForSubsampledRu
                                                                                        propertyManager.getMapGrid(),
                                                                                        currentFormation->getMaximumNumberOfElements() + 1 ) );
 
-      const DataModel::AbstractProperty * const vesHighResProperty = propertyManager.getProperty( "VesHighRes" );
-      FormationPropertyPtr currentVesHighRes = propertyManager.getFormationProperty( vesHighResProperty, snapshot, formation );
-
       const bool includeGhostNodes = true;
       const unsigned int firstI = maxVesHighRes->firstI( includeGhostNodes );
       const unsigned int lastI  = maxVesHighRes->lastI( includeGhostNodes );
@@ -119,7 +124,23 @@ void DerivedProperties::MaxVesHighResFormationCalculator::computeForSubsampledRu
       const unsigned int firstK = maxVesHighRes->firstK();
       const unsigned int lastK  = maxVesHighRes->lastK();
 
-      if( currentFormation->getBottomSurface()->getSnapshot()->getTime() == snapshot->getTime() )
+      const DataAccess::Interface::Snapshot * const prevSnapshot = m_projectHandle->findPreviousSnapshot( snapshot->getTime() );
+      // Check snapshot. It's not possible to ask for this property at a snapshot age earlier than the formation deposition age
+      if( prevSnapshot != 0 and 
+          prevSnapshot->getTime() > currentFormation->getBottomSurface()->getSnapshot()->getTime() )
+      {
+         throw formattingexception::GeneralException() << "Invalid snapshot provided";
+      }
+      FormationPropertyPtr previousMaxVesHighRes = propertyManager.getFormationProperty( maxVesHighResProperty, prevSnapshot, formation );
+
+      const DataModel::AbstractProperty * const vesHighResProperty = propertyManager.getProperty( "VesHighRes" );
+      FormationPropertyPtr currentVesHighRes = propertyManager.getFormationProperty( vesHighResProperty, snapshot, formation );
+
+      // If the previous snapshot is the deposition snapshot of the current formation
+      // the max VES is the VES itself
+      // These 2 conditions should be the same (hopefully)
+      if( previousMaxVesHighRes == 0 &&
+          prevSnapshot->getTime() == currentFormation->getBottomSurface()->getSnapshot()->getTime() )
       {
          for( unsigned int i = firstI; i <= lastI; ++i )
          {
@@ -129,7 +150,7 @@ void DerivedProperties::MaxVesHighResFormationCalculator::computeForSubsampledRu
                {
                   for( unsigned int k = firstK; k <= lastK; ++k )
                   {
-                     maxVesHighRes->set(i, j, k, 0.0 );
+                     maxVesHighRes->set(i, j, k, currentVesHighRes->getA(i,j,k) );
                   }
                }
                else
@@ -144,15 +165,6 @@ void DerivedProperties::MaxVesHighResFormationCalculator::computeForSubsampledRu
       }
       else
       {
-         const DataAccess::Interface::Snapshot * const prevSnapshot = m_projectHandle->findPreviousSnapshot( snapshot->getTime() );
-         // Check snapshot. It's not possible to ask for this property at a snapshot age earlier than the formation deposition age
-         if( prevSnapshot != 0 and 
-             prevSnapshot->getTime() > currentFormation->getBottomSurface()->getSnapshot()->getTime() )
-         {
-            throw formattingexception::GeneralException() << "Invalid snapshot provided";
-         }
-         FormationPropertyPtr previousMaxVesHighRes = propertyManager.getFormationProperty( maxVesHighResProperty, prevSnapshot, formation );
-
          for( unsigned int i = firstI; i <= lastI; ++i )
          {
             for( unsigned int j = firstJ; j <= lastJ; ++j )
@@ -173,7 +185,7 @@ void DerivedProperties::MaxVesHighResFormationCalculator::computeForSubsampledRu
                }
             }
          }
-      }      
+      }
 
       derivedProperties.clear();
       derivedProperties.push_back(maxVesHighRes);
