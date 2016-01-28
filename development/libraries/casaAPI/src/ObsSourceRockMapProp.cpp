@@ -80,24 +80,24 @@ void ObsSourceRockMapProp::setReferenceValue( ObsValue * obsVal, double devVal )
 }
 
 // Update Model to be sure that requested property will be saved at the requested time
-ErrorHandler::ReturnCode ObsSourceRockMapProp::requestObservableInModel( mbapi::Model & caldModel )
+ErrorHandler::ReturnCode ObsSourceRockMapProp::requestObservableInModel( mbapi::Model & cldModel )
 {
-   if ( ErrorHandler::NoError != caldModel.snapshotManager().requestMajorSnapshot(       m_simTime ) ||
-        ErrorHandler::NoError != caldModel.propertyManager().requestPropertyInSnapshots( m_propName, "SourceRockOnly" )
-      ) return caldModel.errorCode();
+   if ( ErrorHandler::NoError != cldModel.snapshotManager().requestMajorSnapshot(       m_simTime ) ||
+        ErrorHandler::NoError != cldModel.propertyManager().requestPropertyInSnapshots( m_propName, "SourceRockOnly" )
+      ) return cldModel.errorCode();
 
-   m_posDataMiningTbl = caldModel.tableSize( Observable::s_dataMinerTable );
+   m_posDataMiningTbl = cldModel.tableSize( Observable::s_dataMinerTable );
 
-   if ( ErrorHandler::NoError != caldModel.addRowToTable( Observable::s_dataMinerTable ) ) return caldModel.errorCode();
+   if ( ErrorHandler::NoError != cldModel.addRowToTable( Observable::s_dataMinerTable ) ) return cldModel.errorCode();
 
-   if ( ErrorHandler::NoError != caldModel.setTableValue( Observable::s_dataMinerTable, m_posDataMiningTbl, "Time",          m_simTime            ) ||
-        ErrorHandler::NoError != caldModel.setTableValue( Observable::s_dataMinerTable, m_posDataMiningTbl, "XCoord",        m_x                  ) ||
-        ErrorHandler::NoError != caldModel.setTableValue( Observable::s_dataMinerTable, m_posDataMiningTbl, "YCoord",        m_y                  ) ||
-        ErrorHandler::NoError != caldModel.setTableValue( Observable::s_dataMinerTable, m_posDataMiningTbl, "ZCoord",        UndefinedDoubleValue ) ||
-        ErrorHandler::NoError != caldModel.setTableValue( Observable::s_dataMinerTable, m_posDataMiningTbl, "FormationName", m_layerName          ) ||
-        ErrorHandler::NoError != caldModel.setTableValue( Observable::s_dataMinerTable, m_posDataMiningTbl, "PropertyName",  m_propName           ) ||
-        ErrorHandler::NoError != caldModel.setTableValue( Observable::s_dataMinerTable, m_posDataMiningTbl, "Value",         UndefinedDoubleValue ) 
-      ) return caldModel.errorCode();
+   if ( ErrorHandler::NoError != cldModel.setTableValue( Observable::s_dataMinerTable, m_posDataMiningTbl, "Time",          m_simTime            ) ||
+        ErrorHandler::NoError != cldModel.setTableValue( Observable::s_dataMinerTable, m_posDataMiningTbl, "XCoord",        m_x                  ) ||
+        ErrorHandler::NoError != cldModel.setTableValue( Observable::s_dataMinerTable, m_posDataMiningTbl, "YCoord",        m_y                  ) ||
+        ErrorHandler::NoError != cldModel.setTableValue( Observable::s_dataMinerTable, m_posDataMiningTbl, "ZCoord",        UndefinedDoubleValue ) ||
+        ErrorHandler::NoError != cldModel.setTableValue( Observable::s_dataMinerTable, m_posDataMiningTbl, "FormationName", m_layerName          ) ||
+        ErrorHandler::NoError != cldModel.setTableValue( Observable::s_dataMinerTable, m_posDataMiningTbl, "PropertyName",  m_propName           ) ||
+        ErrorHandler::NoError != cldModel.setTableValue( Observable::s_dataMinerTable, m_posDataMiningTbl, "Value",         UndefinedDoubleValue ) 
+      ) return cldModel.errorCode();
 
    return ErrorHandler::NoError;
 }

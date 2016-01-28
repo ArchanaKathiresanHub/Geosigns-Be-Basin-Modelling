@@ -44,6 +44,9 @@ PrmTopCrustHeatProduction::PrmTopCrustHeatProduction( const VarPrmTopCrustHeatPr
 {
 }
 
+// This constructor extracts top crust heat production rate value from the model and initilize class with this value.
+// If project has top crust production rate defined as a map, constructor extracts map maximum value and use it to
+// initilize class with this value and stores map name also.
 PrmTopCrustHeatProduction::PrmTopCrustHeatProduction( mbapi::Model & mdl ) : m_parent( 0 )
 {
    const std::string & modelName = mdl.tableValueAsString( s_basementTblName, 0, s_bottomBoundaryModel );
@@ -89,12 +92,13 @@ PrmTopCrustHeatProduction::PrmTopCrustHeatProduction( mbapi::Model & mdl ) : m_p
 PrmTopCrustHeatProduction::~PrmTopCrustHeatProduction() {;}
 
 // Update given model with the parameter value
-ErrorHandler::ReturnCode PrmTopCrustHeatProduction::setInModel( mbapi::Model & caldModel, size_t caseID )
+ErrorHandler::ReturnCode PrmTopCrustHeatProduction::setInModel( mbapi::Model & cldModel, size_t caseID )
 {
    try
    {
-      const std::string & modelName = caldModel.tableValueAsString( s_basementTblName, 0, s_bottomBoundaryModel );
-      if ( ErrorHandler::NoError != caldModel.errorCode() ) { throw ErrorHandler::Exception( caldModel.errorCode() ) << caldModel.errorMessage(); }
+      // check which model is used in project file for top crust heat production rate, "Fixed Temperature" is the only supported now model
+      const std::string & modelName = cldModel.tableValueAsString( s_basementTblName, 0, s_bottomBoundaryModel );
+      if ( ErrorHandler::NoError != cldModel.errorCode() ) { throw ErrorHandler::Exception( cldModel.errorCode() ) << cldModel.errorMessage(); }
 
       if ( modelName != "Fixed Temperature" )
       {
@@ -102,15 +106,15 @@ ErrorHandler::ReturnCode PrmTopCrustHeatProduction::setInModel( mbapi::Model & c
                "Unsupported bottom boundary model: '" << modelName << "' for using with top crust heat production rate.";
       }
 
-      if ( m_mapName.empty() ) // value or map scaler case
+      if ( m_mapName.empty() ) // scalar value or scaled map case
       {
-         const std::string & mapName = caldModel.tableValueAsString( s_basementTblName, 0, s_topCrustHeatProdGrid );
-         if ( ErrorHandler::NoError != caldModel.errorCode() ) throw ErrorHandler::Exception( caldModel.errorCode() ) << caldModel.errorMessage();
+         const std::string & mapName = cldModel.tableValueAsString( s_basementTblName, 0, s_topCrustHeatProdGrid );
+         if ( ErrorHandler::NoError != cldModel.errorCode() ) throw ErrorHandler::Exception( cldModel.errorCode() ) << cldModel.errorMessage();
 
          // check if in base project heat production rate is defined as a map
-         if ( ! mapName.empty() ) // if yes rescale map according to the new maximum value
+         if ( ! mapName.empty() ) // if yes, rescale map according to the new maximum value
          {
-            mbapi::MapsManager & mpMgr = caldModel.mapsManager();
+            mbapi::MapsManager & mpMgr = cldModel.mapsManager();
             mbapi::MapsManager::MapID mID = mpMgr.findID( mapName ); // get map
 
             if ( UndefinedIDValue == mID )
@@ -130,43 +134,52 @@ ErrorHandler::ReturnCode PrmTopCrustHeatProduction::setInModel( mbapi::Model & c
             // extract min/max values from the map
             double minVal, maxVal;
 
-            bool ok = ErrorHandler::NoError == mpMgr.mapValuesRange( mID, minVal, maxVal ) ? true : false;
-            double scaleCoeff = NumericFunctions::isEqual(0.0, maxVal, 1e-10) ? 0.0 : (m_value / maxVal);
+            if ( ErrorHandler::NoError != mpMgr.mapValuesRange( mID, minVal, maxVal ) )
+            {
+               throw ErrorHandler::Exception( cldModel.errorCode() ) << cldModel.errorMessage();
+            }
+
+            double scaleCoeff = NumericFunctions::isEqual( 0.0, maxVal, 1e-10 ) ? 0.0 : ( m_value / maxVal );
 
             // scale map with new maximum value
-            ok = ErrorHandler::NoError == mpMgr.scaleMap( cmID, scaleCoeff ) ? true : ok;
+            if ( ErrorHandler::NoError != mpMgr.scaleMap( cmID, scaleCoeff ) )
+            {
+               throw ErrorHandler::Exception( cldModel.errorCode() ) << cldModel.errorMessage();
+            }
 
             // save map to separate HDF file
-            ok = ErrorHandler::NoError == mpMgr.saveMapToHDF( cmID, mapName + "_VarRHPR.HDF" ) ? true : ok;
-            if ( !ok ) { throw ErrorHandler::Exception( caldModel.errorCode() ) << caldModel.errorMessage(); }
+            if ( ErrorHandler::NoError != mpMgr.saveMapToHDF( cmID, mapName + "_VarRHPR.HDF" ) )
+            {
+               throw ErrorHandler::Exception( cldModel.errorCode() ) << cldModel.errorMessage(); 
+            }
            
             // update project with new map name 
-            if ( ErrorHandler::NoError != caldModel.setTableValue( s_basementTblName, 0, s_topCrustHeatProdGrid, newMapName ) )
+            if ( ErrorHandler::NoError != cldModel.setTableValue( s_basementTblName, 0, s_topCrustHeatProdGrid, newMapName ) )
             {
-               throw ErrorHandler::Exception( caldModel.errorCode() ) << caldModel.errorMessage();
+               throw ErrorHandler::Exception( cldModel.errorCode() ) << cldModel.errorMessage();
             }
-            if ( ErrorHandler::NoError != caldModel.setTableValue( s_basementTblName, 0, s_topCrustHeatProd, UndefinedDoubleValue ) )
+            if ( ErrorHandler::NoError != cldModel.setTableValue( s_basementTblName, 0, s_topCrustHeatProd, UndefinedDoubleValue ) )
             {
-               throw ErrorHandler::Exception( caldModel.errorCode() ) << caldModel.errorMessage();
+               throw ErrorHandler::Exception( cldModel.errorCode() ) << cldModel.errorMessage();
             }
          }
-         else if ( ErrorHandler::NoError != caldModel.setTableValue( s_basementTblName, 0, s_topCrustHeatProd, m_value ) )
+         else if ( ErrorHandler::NoError != cldModel.setTableValue( s_basementTblName, 0, s_topCrustHeatProd, m_value ) )
          {
-            throw ErrorHandler::Exception( caldModel.errorCode() ) << caldModel.errorMessage();
+            throw ErrorHandler::Exception( cldModel.errorCode() ) << cldModel.errorMessage();
          }
       }
-      else // interpolation between maps case
+      else // interpolation between range maps 
       {
          if ( m_minMapName.empty() && m_maxMapName.empty() ) // no interpolation needed, just set map name
          {
-            if ( ErrorHandler::NoError != caldModel.setTableValue( s_basementTblName, 0, s_topCrustHeatProdGrid, m_mapName ) )
+            if ( ErrorHandler::NoError != cldModel.setTableValue( s_basementTblName, 0, s_topCrustHeatProdGrid, m_mapName ) )
             {
-               throw ErrorHandler::Exception( caldModel.errorCode() ) << caldModel.errorMessage();
+               throw ErrorHandler::Exception( cldModel.errorCode() ) << cldModel.errorMessage();
             }
          }
          else // interpolation is needed
          {
-            mbapi::MapsManager & mpMgr = caldModel.mapsManager();
+            mbapi::MapsManager & mpMgr = cldModel.mapsManager();
 
             mbapi::MapsManager::MapID bsID = mpMgr.findID( m_mapName );
             if ( UndefinedIDValue == bsID ) { throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Can't find map: " << m_mapName; }
@@ -177,7 +190,7 @@ ErrorHandler::ReturnCode PrmTopCrustHeatProduction::setInModel( mbapi::Model & c
             mbapi::MapsManager::MapID maxID = mpMgr.findID( m_maxMapName );
             if ( UndefinedIDValue == maxID ) { throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Can't find map: " << m_maxMapName; }
 
-            // copy map and oweright it wieh interpolated between min/max maps values
+            // copy map and overwrite it wieh interpolated between min/max maps values
             std::string newMapName = m_mapName + "_Case_" + ibs::to_string( caseID + 1 ) + "_RHPR";
             mbapi::MapsManager::MapID cmID = mpMgr.copyMap( bsID, newMapName );
 
@@ -195,30 +208,30 @@ ErrorHandler::ReturnCode PrmTopCrustHeatProduction::setInModel( mbapi::Model & c
             // Save new map to file
             if ( ErrorHandler::NoError != mpMgr.saveMapToHDF( cmID, m_mapName + "_VarRHPR.HDF" ) )
             {
-               throw ErrorHandler::Exception( caldModel.errorCode() ) << caldModel.errorMessage();
+               throw ErrorHandler::Exception( cldModel.errorCode() ) << cldModel.errorMessage();
             }
            
             // Set this map to table
-            if ( ErrorHandler::NoError != caldModel.setTableValue( s_basementTblName, 0, s_topCrustHeatProdGrid, newMapName ) )
+            if ( ErrorHandler::NoError != cldModel.setTableValue( s_basementTblName, 0, s_topCrustHeatProdGrid, newMapName ) )
             {
-               throw ErrorHandler::Exception( caldModel.errorCode() ) << caldModel.errorMessage();
+               throw ErrorHandler::Exception( cldModel.errorCode() ) << cldModel.errorMessage();
             }
          }
 
-         if ( ErrorHandler::NoError != caldModel.setTableValue( s_basementTblName, 0, s_topCrustHeatProd, UndefinedDoubleValue ) )
+         if ( ErrorHandler::NoError != cldModel.setTableValue( s_basementTblName, 0, s_topCrustHeatProd, UndefinedDoubleValue ) )
          {
-            throw ErrorHandler::Exception( caldModel.errorCode() ) << caldModel.errorMessage();
+            throw ErrorHandler::Exception( cldModel.errorCode() ) << cldModel.errorMessage();
          }
       }
    }
-   catch ( const ErrorHandler::Exception & e ) { return caldModel.reportError( e.errorCode(), e.what() ); }
+   catch ( const ErrorHandler::Exception & e ) { return cldModel.reportError( e.errorCode(), e.what() ); }
 
    return ErrorHandler::NoError;
 }
 
 // Validate top crust heat production rate value if it is in positive range\n
 // also it checks does the given model has the same value for this parameter.
-std::string PrmTopCrustHeatProduction::validate( mbapi::Model & caldModel )
+std::string PrmTopCrustHeatProduction::validate( mbapi::Model & cldModel )
 {
    std::ostringstream oss;
 
@@ -227,10 +240,10 @@ std::string PrmTopCrustHeatProduction::validate( mbapi::Model & caldModel )
       oss << "Top crust heat production rate value  can not be negative: " << m_value << std::endl;
    }
 
-   const std::string & modelName = caldModel.tableValueAsString( s_basementTblName, 0, s_bottomBoundaryModel );
-   if ( ErrorHandler::NoError != caldModel.errorCode() )
+   const std::string & modelName = cldModel.tableValueAsString( s_basementTblName, 0, s_bottomBoundaryModel );
+   if ( ErrorHandler::NoError != cldModel.errorCode() )
    {
-      oss << caldModel.errorMessage() << std::endl;
+      oss << cldModel.errorMessage() << std::endl;
       return oss.str();
    }
 
@@ -240,10 +253,10 @@ std::string PrmTopCrustHeatProduction::validate( mbapi::Model & caldModel )
       return oss.str(); // another model, no reason to check further
    }
 
-   const std::string & heatProdMap = caldModel.tableValueAsString( s_basementTblName, 0, s_topCrustHeatProdGrid );
-   if ( ErrorHandler::NoError != caldModel.errorCode() )
+   const std::string & heatProdMap = cldModel.tableValueAsString( s_basementTblName, 0, s_topCrustHeatProdGrid );
+   if ( ErrorHandler::NoError != cldModel.errorCode() )
    {
-      oss << caldModel.errorMessage() << std::endl;
+      oss << cldModel.errorMessage() << std::endl;
       return oss.str();
    }
 
@@ -254,11 +267,11 @@ std::string PrmTopCrustHeatProduction::validate( mbapi::Model & caldModel )
       return oss.str();
    }
       
-   double valInModel = caldModel.tableValueAsDouble( s_basementTblName, 0, s_topCrustHeatProd );
+   double valInModel = cldModel.tableValueAsDouble( s_basementTblName, 0, s_topCrustHeatProd );
 
-   if ( ErrorHandler::NoError != caldModel.errorCode() )
+   if ( ErrorHandler::NoError != cldModel.errorCode() )
    {
-      oss << caldModel.errorMessage() << std::endl;
+      oss << cldModel.errorMessage() << std::endl;
       return oss.str();
    }
 
