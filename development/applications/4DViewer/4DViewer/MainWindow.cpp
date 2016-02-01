@@ -407,7 +407,7 @@ void MainWindow::onActionRenderAllSnapshotsTriggered()
     QTime snapshotTime;
     snapshotTime.start();
 
-    m_ui.snapshotSlider->setValue(i);
+    //m_ui.snapshotSlider->setValue(i);
     //qApp->processEvents();
     m_sceneGraphManager->setCurrentSnapshot(i);
     m_ui.renderWidget->getViewer()->render();

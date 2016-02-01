@@ -122,6 +122,9 @@ std::shared_ptr<MiDataSetIj<double> > generateLeakageProperty(const Project& pro
   int propertyId = project.getPropertyId(leakage);
 
   auto prop = project.createReservoirProperty(snapshotIndex, reservoirId, propertyId);
+  if (!prop)
+    return nullptr;
+
   auto dim = project.getProjectInfo().dimensions;
 
   size_t di = (size_t)(dim.numCellsIHiRes / dim.numCellsI);

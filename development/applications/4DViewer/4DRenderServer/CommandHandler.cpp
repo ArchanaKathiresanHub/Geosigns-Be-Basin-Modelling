@@ -29,9 +29,39 @@
 
 #include <Inventor/SoSceneManager.h>
 #include <Inventor/ViewerComponents/SoCameraInteractor.h>
+#include <Inventor/actions/SoRayPickAction.h>
 
 namespace
 {
+  jsonxx::Object toJSON(const SceneGraphManager::PickResult& pickResult)
+  {
+    jsonxx::Object obj;
+
+    std::string typeStr;
+    switch (pickResult.type)
+    {
+    case SceneGraphManager::PickResult::Formation: typeStr = "formation"; break;
+    case SceneGraphManager::PickResult::Surface: typeStr = "surface"; break;
+    case SceneGraphManager::PickResult::Reservoir: typeStr = "reservoir"; break;
+    case SceneGraphManager::PickResult::Trap: typeStr = "trap"; break;
+    }
+
+    obj
+      << "type" << typeStr
+      << "positionX" << pickResult.position[0]
+      << "positionY" << pickResult.position[1]
+      << "positionZ" << pickResult.position[2]
+      << "i" << pickResult.i
+      << "j" << pickResult.j
+      << "k" << pickResult.k
+      << "name" << pickResult.name
+      << "propertyValue" << pickResult.propertyValue
+      << "trapID" << pickResult.trapID
+      << "persistentTrapID" << pickResult.persistentTrapID;
+
+    return obj;
+  }
+
   jsonxx::Object toJSON(const Project::ProjectInfo& projectInfo)
   {
     // Add formation names
@@ -96,6 +126,36 @@ namespace
       << "properties" << properties;
 
     return projectInfoObject;
+  }
+}
+
+void CommandHandler::onPick(
+  const jsonxx::Object& params,
+  RemoteViz::Rendering::RenderArea* renderArea,
+  RemoteViz::Rendering::Connection* /*connection*/)
+{
+  auto x = (int)params.get<jsonxx::Number>("x");
+  auto y = (int)params.get<jsonxx::Number>("y");
+
+  unsigned int width = renderArea->getWidth();
+  unsigned int height = renderArea->getHeight();
+  SbViewportRegion vpregion((short)width, (short)height);
+
+  SoRayPickAction action(vpregion);
+  action.setPoint(SbVec2s((short)x, (short)(height - y - 1)));
+  action.apply(m_examiner);
+  SoPickedPoint* p = action.getPickedPoint();
+  if (p)
+  {
+    auto pickResult = m_sceneGraphManager->processPickedPoint(p);
+    if (pickResult.type != SceneGraphManager::PickResult::Unknown)
+    {
+      jsonxx::Object msg;
+      msg << "pickResult" << toJSON(pickResult);
+
+      std::cout << msg.write(jsonxx::JSON) << std::endl;
+      renderArea->sendMessage(msg.write(jsonxx::JSON));
+    }
   }
 }
 
@@ -493,6 +553,7 @@ void CommandHandler::onSetHeight(
 
 void CommandHandler::registerHandlers()
 {
+  m_handlers["Pick"] = &CommandHandler::onPick;
   m_handlers["EnableFormation"] = &CommandHandler::onEnableFormation;
   m_handlers["EnableAllFormations"] = &CommandHandler::onEnableAllFormations;
   m_handlers["EnableSurface"] = &CommandHandler::onEnableSurface;

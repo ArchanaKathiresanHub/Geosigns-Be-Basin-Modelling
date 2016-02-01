@@ -89,6 +89,24 @@ void Traps::setVerticalScale(float scale)
   m_verticalScale = scale;
 }
 
+bool Traps::getTrap(const SbVec3f& position, Project::Trap& pickedTrap) const
+{
+  float maxDistance = 1.5f * m_radius * m_radius;
+  SbVec3f p(position[0], position[1], position[2] / m_verticalScale);
+  for (auto const& trap : m_traps)
+  {
+    if (
+      (trap.leakagePoint - p).lengthSquared() < maxDistance ||
+      (trap.spillPoint - p).lengthSquared() < maxDistance)
+    {
+      pickedTrap = trap;
+      return true;
+    }
+  }
+
+  return false;
+}
+
 Traps::Traps()
   : m_root(0)
   , m_spillpointsGroup(0)

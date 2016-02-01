@@ -45,6 +45,11 @@ class CommandHandler
 
   std::map<std::string, FunctionPtr> m_handlers;
 
+  void onPick(
+    const jsonxx::Object& params,
+    RemoteViz::Rendering::RenderArea* renderArea,
+    RemoteViz::Rendering::Connection* connection);
+
   void onEnableFormation(
     const jsonxx::Object& params,
     RemoteViz::Rendering::RenderArea* renderArea,

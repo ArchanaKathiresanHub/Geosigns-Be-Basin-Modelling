@@ -1301,6 +1301,7 @@ std::vector<Project::Trap> VisualizationIOProject::getTraps(size_t snapshotIndex
       trap.leakagePoint = SbVec3f(x, y, z);
 
       trap.id = trapper->getID();
+      trap.persistentId = trapper->getPersistentID();
       trap.downStreamId = trapper->getDownStreamTrapperID();
       trap.gasOilContactDepth = 0.0; // not available in API
       trap.oilWaterContactDepth = 0.0; // not available in API

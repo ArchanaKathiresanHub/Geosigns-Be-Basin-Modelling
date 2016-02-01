@@ -53,6 +53,12 @@ public:
 
   void setVerticalScale(float scale);
 
+  size_t trapCount() const { return m_traps.size(); }
+
+  Project::Trap getTrap(size_t index) const { return m_traps[index]; }
+
+  bool getTrap(const SbVec3f& p, Project::Trap& trap) const;
+
   Traps();
 
   Traps(const std::vector<Project::Trap>& traps, float radius, float verticalScale);

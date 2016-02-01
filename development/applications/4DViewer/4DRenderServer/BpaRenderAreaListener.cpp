@@ -114,3 +114,14 @@ void BpaRenderAreaListener::onReceivedMessage(RenderArea* renderArea, Connection
 
   RemoteViz::Rendering::RenderAreaListener::onReceivedMessage(renderArea, sender, message);
 }
+
+void BpaRenderAreaListener::onResize(RenderArea* renderArea, unsigned int width, unsigned int height)
+{
+  std::cout << "[BpaRenderAreaListener] onResize("
+    << "renderArea = " << renderArea->getId()
+    << ", width = " << width
+    << ", height = " << height
+    << ")" << std::endl;
+
+  RemoteViz::Rendering::RenderAreaListener::onResize(renderArea, width, height);
+}

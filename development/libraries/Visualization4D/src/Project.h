@@ -133,6 +133,7 @@ public:
   struct Trap
   {
     int id;
+    int persistentId;
     int downStreamId;
     double gasOilContactDepth;
     double oilWaterContactDepth;

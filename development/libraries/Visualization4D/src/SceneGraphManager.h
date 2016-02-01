@@ -32,6 +32,8 @@ class FlowDirectionProperty;
 class FaultMesh;
 class OutlineBuilder;
 
+class SbViewportRegion;
+class SoPickedPoint;
 class SoSeparator;
 class SoSwitch; 
 class SoGroup;
@@ -51,6 +53,7 @@ class PoAutoCubeAxis;
 class MoLegend;
 class SoScale;
 class SoTransparencyType;
+class SoEventCallback;
 class MoDrawStyle;
 class MoMaterial;
 class MoDataBinding;
@@ -268,6 +271,29 @@ public:
     DrainageAreaGas
   };
 
+  struct PickResult
+  {
+    enum Type
+    {
+      Formation,
+      Surface,
+      Reservoir,
+      Trap,
+      Unknown
+    } type = Unknown;
+
+    SbVec3f position = SbVec3f(0.f, 0.f, 0.f);
+
+    // Only valid in case type is not Trap
+    size_t i=0, j=0, k=0;
+    std::string name;
+    double propertyValue = 99999.0;
+
+    // Only valid in case type is Trap
+    int trapID = -1;
+    int persistentTrapID = -1;
+  };
+
   // Derived property ids. These properties are built at runtime
   // based on one or more base properties from the data set.
   static const int DerivedPropertyBaseId      = 0x10000;
@@ -343,6 +369,8 @@ private:
 
   SoText2*        m_text;
   SoSwitch*       m_textSwitch;
+  SoText2*        m_pickText;
+  SoSwitch*       m_pickTextSwitch;
   SoSwitch*       m_compassSwitch;
 
   SoSwitch*       m_snapshotsSwitch;
@@ -352,6 +380,14 @@ private:
   std::vector<bool> m_reservoirVisibility;
   std::vector<bool> m_faultVisibility;
   std::vector<bool> m_flowLinesVisibility;
+
+  static void mouseMovedCallback(void* userData, SoEventCallback* node);
+
+  void onMouseMoved(SoEventCallback* node);
+
+  int getSurfaceId(MoMeshSurface* surface) const;
+  int getFormationId(MoMeshSkin* skin, size_t k) const;
+  int getReservoirId(MoMeshSkin* skin) const;
 
   void updateCoordinateGrid();
   void updateSnapshotFormations();
@@ -365,6 +401,8 @@ private:
   void updateColorMap();
   void updateText();
   void updateSnapshot();
+
+  void showPickResult(const PickResult& pickResult);
 
   SnapshotInfo createSnapshotNode(size_t index);
 
@@ -391,6 +429,8 @@ public:
   SceneGraphManager();
 
   SoNode* getRoot() const;
+
+  PickResult processPickedPoint(const SoPickedPoint* point);
 
   void setCurrentSnapshot(size_t index);
 

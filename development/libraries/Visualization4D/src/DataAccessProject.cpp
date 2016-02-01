@@ -544,7 +544,11 @@ std::shared_ptr<MiDataSetIj<double> > DataAccessProject::createFormation2DProper
   if (!values || values->empty())
     return nullptr;
 
-  return std::make_shared<SurfaceProperty>(prop->getName(), (*values)[0]->getGridMap());
+  auto gridMap = (*values)[0]->getGridMap();
+  if (!gridMap)
+    return nullptr;
+
+  return std::make_shared<SurfaceProperty>(prop->getName(), gridMap);
 }
 
 std::shared_ptr<MiDataSetIj<double> > DataAccessProject::createSurfaceProperty(
@@ -599,7 +603,11 @@ std::shared_ptr<MiDataSetIjk<double> > DataAccessProject::createReservoirPropert
   if (!values || values->empty())
     return nullptr;
 
-  auto result = std::make_shared<ReservoirProperty>(prop->getName(), (*values)[0]->getGridMap());
+  auto gridMap = (*values)[0]->getGridMap();
+  if (!gridMap)
+    return nullptr;
+
+  auto result = std::make_shared<ReservoirProperty>(prop->getName(), gridMap);
   //if (prop == m_resRockLeakageProperty)
   //  result->setLogarithmic(true);
 
@@ -688,6 +696,7 @@ std::vector<Project::Trap> DataAccessProject::getTraps(size_t snapshotIndex, int
     trap.leakagePoint = SbVec3f((float)(x - dim.minX), (float)(y - dim.minY), (float)z);
 
     trap.id = (int)trapper->getId();
+    trap.persistentId = (int)trapper->getPersistentId();
     trap.gasOilContactDepth = trapper->getGOC();
     trap.oilWaterContactDepth = trapper->getOWC();
 

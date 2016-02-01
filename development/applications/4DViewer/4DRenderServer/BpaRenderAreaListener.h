@@ -53,6 +53,8 @@ public:
   virtual void onClosedConnection(RenderArea* renderArea, const std::string& connectionId);
 
   virtual void onReceivedMessage(RenderArea* renderArea, Connection* sender, const std::string& message);
+
+  virtual void onResize(RenderArea* renderArea, unsigned int width, unsigned int height);
 };
 
 #endif

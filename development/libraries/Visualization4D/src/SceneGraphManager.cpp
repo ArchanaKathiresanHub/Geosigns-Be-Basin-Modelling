@@ -26,11 +26,17 @@
 #include <Inventor/nodes/SoPerspectiveCamera.h>
 #include <Inventor/nodes/SoOrthographicCamera.h>
 #include <Inventor/nodes/SoTranslation.h>
+#include <Inventor/nodes/SoTransformSeparator.h>
 #include <Inventor/nodes/SoText2.h>
 #include <Inventor/nodes/SoLineSet.h>
 #include <Inventor/nodes/SoBaseColor.h>
 #include <Inventor/nodes/SoIndexedLineSet.h>
 #include <Inventor/nodes/SoShaderProgram.h>
+#include <Inventor/nodes/SoAlgebraicSphere.h>
+
+#include <Inventor/nodes/SoEventCallback.h>
+#include <Inventor/events/SoLocation2Event.h>
+#include <Inventor/SoPickedPoint.h>
 
 #include <MeshVizXLM/MxTimeStamp.h>
 #include <MeshVizXLM/mapping/nodes/MoDrawStyle.h>
@@ -48,6 +54,8 @@
 #include <MeshVizXLM/mapping/nodes/MoScalarSetIjk.h>
 #include <MeshVizXLM/mapping/nodes/MoVec3SetIjk.h>
 #include <MeshVizXLM/mapping/nodes/MoLegend.h>
+#include <MeshVizXLM/mapping/details/MoFaceDetailIj.h>
+#include <MeshVizXLM/mapping/details/MoFaceDetailIjk.h>
 
 #include <MeshViz/graph/PoAutoCubeAxis.h>
 #include <MeshViz/graph/PoLinearAxis.h>
@@ -86,6 +94,66 @@ SnapshotInfo::SnapshotInfo()
     sliceSwitch[i] = 0;
     slice[i] = 0;
   }
+}
+
+void SceneGraphManager::mouseMovedCallback(void* userData, SoEventCallback* node)
+{
+  reinterpret_cast<SceneGraphManager*>(userData)->onMouseMoved(node);
+}
+
+void SceneGraphManager::onMouseMoved(SoEventCallback* node)
+{
+  auto pickedPoint = node->getPickedPoint();
+  if (pickedPoint)
+    processPickedPoint(pickedPoint);
+}
+
+int SceneGraphManager::getSurfaceId(MoMeshSurface* surface) const
+{
+  assert(!m_snapshotInfoCache.empty());
+
+  const SnapshotInfo& snapshot = *m_snapshotInfoCache.begin();
+  for (auto const& s : snapshot.surfaces)
+  {
+    if (s.surfaceMesh == surface)
+      return s.id;
+  }
+
+  return -1;
+}
+
+int SceneGraphManager::getFormationId(MoMeshSkin* skin, size_t k) const
+{
+  assert(!m_snapshotInfoCache.empty());
+
+  const SnapshotInfo& snapshot = *m_snapshotInfoCache.begin();
+  for (auto const& chunk : snapshot.chunks)
+  {
+    if (chunk.skin == skin)
+    {
+      for (auto const& fmt : snapshot.formations)
+      {
+        if ((int)k >= fmt.minK && (int)k < fmt.maxK)
+          return fmt.id;
+      }
+    }
+  }
+
+  return -1;
+}
+
+int SceneGraphManager::getReservoirId(MoMeshSkin* skin) const
+{
+  assert(!m_snapshotInfoCache.empty());
+
+  const SnapshotInfo& snapshot = *m_snapshotInfoCache.begin();
+  for (auto const& res : snapshot.reservoirs)
+  {
+    if (res.skin == skin)
+      return res.id;
+  }
+
+  return -1;
 }
 
 void SceneGraphManager::updateCoordinateGrid()
@@ -167,6 +235,7 @@ void SceneGraphManager::updateSnapshotFormations()
 #ifdef _DEBUG
     meshSkin->parallel = false;
 #endif
+    tmpChunks[i].skin = meshSkin;
     snapshot.chunksGroup->addChild(meshSkin);
   }
 
@@ -900,6 +969,38 @@ namespace
   }
 }
 
+void SceneGraphManager::showPickResult(const PickResult& pickResult)
+{
+  SbString line1, line2, line3;
+
+  switch (pickResult.type)
+  {
+  case PickResult::Formation:
+  case PickResult::Surface:
+  case PickResult::Reservoir:
+    line1.sprintf("[%d, %d]",
+      (int)pickResult.i,
+      (int)pickResult.j,
+      (int)pickResult.k);
+    line2.sprintf("Value %g", pickResult.propertyValue);
+    line3 = pickResult.name;
+    break;
+
+  case PickResult::Trap:
+    line1.sprintf("Trap id %d", pickResult.trapID);
+    line2.sprintf("Persistent id %d", pickResult.persistentTrapID);
+    break;
+  }
+
+  m_pickText->string.set1Value(0, line1);
+  m_pickText->string.set1Value(1, line2);
+  m_pickText->string.set1Value(2, line3);
+
+  m_pickTextSwitch->whichChild = (pickResult.type == PickResult::Unknown)
+    ? SO_SWITCH_NONE
+    : SO_SWITCH_ALL;
+}
+
 SnapshotInfo SceneGraphManager::createSnapshotNode(size_t index)
 {
   auto snapshotContents = m_project->getSnapshotContents(index);
@@ -1172,28 +1273,54 @@ void SceneGraphManager::setupSceneGraph()
   MoDrawStyle* legendDrawStyle = new MoDrawStyle;
   legendDrawStyle->displayEdges = false;
 
+  SoPickStyle* pickStyle = new SoPickStyle;
+  pickStyle->style = SoPickStyle::UNPICKABLE;
+
   m_annotation = new SoAnnotation;
   m_annotation->setName("annotation");
   m_annotation->boundingBoxIgnoring = true;
+  m_annotation->addChild(pickStyle);
   m_annotation->addChild(legendDrawStyle);
   m_annotation->addChild(m_legendSwitch);
 
   // Text area
   m_text = new SoText2;
   m_text->string.set1Value(0, "");
+
+  m_pickText = new SoText2;
+  m_pickText->string.set1Value(0, "");
+  m_pickText->justification = SoText2::RIGHT;
+  m_pickTextSwitch = new SoSwitch;
+  m_pickTextSwitch->addChild(m_pickText);
+  m_pickTextSwitch->whichChild = SO_SWITCH_NONE;
+
+  // Set up a camera for the 2D overlay
   SoOrthographicCamera* camera = new SoOrthographicCamera;
   camera->viewportMapping = SoCamera::LEAVE_ALONE;
   SoTranslation* translation = new SoTranslation;
   translation->translation.setValue(-.99f, .99f, 0.f);
+  SoTranslation* pickTextTranslation = new SoTranslation;
+  pickTextTranslation->translation.setValue(.95f, -.9f, .0f);
+
   SoFont* font = new SoFont;
   font->name = "Arial";
   font->size = 14.f;
   font->renderStyle = SoFont::TEXTURE;
+
+  SoTransformSeparator* textGroup = new SoTransformSeparator;
+  textGroup->addChild(translation);
+  textGroup->addChild(m_text);
+
+  SoTransformSeparator* pickTextGroup = new SoTransformSeparator;
+  pickTextGroup->addChild(pickTextTranslation);
+  pickTextGroup->addChild(m_pickTextSwitch);
+
   SoSeparator* textSeparator = new SoSeparator;
   textSeparator->addChild(camera);
-  textSeparator->addChild(translation);
   textSeparator->addChild(font);
-  textSeparator->addChild(m_text);
+  textSeparator->addChild(textGroup);
+  textSeparator->addChild(pickTextGroup);
+
   m_textSwitch = new SoSwitch;
   m_textSwitch->addChild(textSeparator);
   m_textSwitch->whichChild = SO_SWITCH_ALL;
@@ -1216,6 +1343,11 @@ void SceneGraphManager::setupSceneGraph()
   m_root->addChild(m_decorationShapeHints);
   m_root->addChild(m_annotation);
   m_root->addChild(m_compassSwitch);
+
+  SoEventCallback* callback = new SoEventCallback;
+  callback->setName("MouseMoved");
+  callback->addEventCallback(SoLocation2Event::getClassTypeId(), mouseMovedCallback, this);
+  //m_root->addChild(callback);
 
   static_cast<MoPredefinedColorMapping*>(m_colorMap)->maxValue = (float)(m_projectInfo.formations.size() - 1);
 }
@@ -1284,7 +1416,7 @@ SceneGraphManager::SceneGraphManager()
   , m_drainageAreaType(DrainageAreaNone)
   , m_flowLinesStep(1)
   , m_flowLinesExpulsionThreshold(0.0)
-  , m_flowLinesLeakageThreshold(1e6)
+  , m_flowLinesLeakageThreshold(5e8)
   , m_verticalScale(1.f)
   , m_projectionType(PerspectiveProjection)
   , m_formationsTimeStamp(MxTimeStamp::getTimeStamp())
@@ -1319,6 +1451,87 @@ SoNode* SceneGraphManager::getRoot() const
 {
   return m_root;
 }
+
+SceneGraphManager::PickResult SceneGraphManager::processPickedPoint(const SoPickedPoint* pickedPoint)
+{
+  auto p = pickedPoint->getPoint();
+
+  PickResult pickResult;
+  pickResult.position = p;
+
+  auto path = pickedPoint->getPath();
+  auto tail = path->getTail();
+  auto detail = pickedPoint->getDetail();
+
+  if (detail)
+  {
+    // Check for surface
+    if (
+      detail->isOfType(MoFaceDetailIj::getClassTypeId()) &&
+      tail->isOfType(MoMeshSurface::getClassTypeId()))
+    {
+      MoFaceDetailIj* fdetail = (MoFaceDetailIj*)detail;
+      pickResult.i = fdetail->getCellIndexI();
+      pickResult.j = fdetail->getCellIndexJ();
+
+      int id = getSurfaceId(static_cast<MoMeshSurface*>(tail));
+      if (id != -1)
+        pickResult.name = m_projectInfo.surfaces[id].name;
+
+      pickResult.propertyValue = fdetail->getValue(p);
+    }
+    // Check for formation / reservoir
+    else if (
+      detail->isOfType(MoFaceDetailIjk::getClassTypeId()) &&
+      tail->isOfType(MoMeshSkin::getClassTypeId()))
+    {
+      MoFaceDetailIjk* fdetail = (MoFaceDetailIjk*)detail;
+      pickResult.i = fdetail->getCellIndexI();
+      pickResult.j = fdetail->getCellIndexJ();
+      pickResult.k = fdetail->getCellIndexK();
+
+      pickResult.propertyValue = fdetail->getValue(p);
+
+      MoMeshSkin* skin = static_cast<MoMeshSkin*>(tail);
+      int id = getFormationId(skin, pickResult.k);
+      if (id != -1)
+      {
+        pickResult.type = PickResult::Formation;
+        pickResult.name = m_projectInfo.formations[id].name;
+      }
+      else
+      {
+        id = getReservoirId(skin);
+        if (id != -1)
+        {
+          pickResult.type = PickResult::Reservoir;
+          pickResult.name = m_projectInfo.reservoirs[id].name;
+        }
+      }
+    }
+  }
+  // Check for trap
+  else if (tail->isOfType(SoAlgebraicSphere::getClassTypeId()))
+  {
+    assert(!m_snapshotInfoCache.empty());
+    const SnapshotInfo& snapshot = *m_snapshotInfoCache.begin();
+
+    for (auto const& res : snapshot.reservoirs)
+    {
+      Project::Trap pickedTrap;
+      if (res.traps.getTrap(p, pickedTrap))
+      {
+        pickResult.type = PickResult::Trap;
+        pickResult.trapID = pickedTrap.id;
+        pickResult.persistentTrapID = pickedTrap.persistentId;
+        break;
+      }
+    }
+  }
+
+  return pickResult;
+}
+
 
 void SceneGraphManager::setCurrentSnapshot(size_t index)
 {

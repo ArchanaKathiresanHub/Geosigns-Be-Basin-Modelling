@@ -664,6 +664,16 @@ function receivedImage(length){
     }
 }
 
+function logPickResult(pickResult)
+{
+    if(pickResult.type == "trap")
+        console.log("Picked trap id = " + pickResult.trapID);
+    else
+        console.log("Picked " + pickResult.type + " \"" + pickResult.name 
+            + "\" [" + pickResult.i + ", " + pickResult.j + ", " + pickResult.k + "] "
+            + "property value " + pickResult.propertyValue);
+}
+
 function receivedMessage(message)
 {
     var msgObj = JSON.parse(message);
@@ -671,6 +681,10 @@ function receivedMessage(message)
     {
     	theRenderArea.projectInfo = msgObj.projectInfo;
         initUI(msgObj.projectInfo);
+    }
+    else if(msgObj.pickResult)
+    {
+        logPickResult(msgObj.pickResult);
     }
 }
 
@@ -734,6 +748,21 @@ function websocketURL()
 function init() 
 { 
     window.canvas = document.getElementById("TheCanvas");
+    window.canvas.addEventListener("click", function(event)
+    {
+        var x = event.pageX - window.canvas.offsetLeft;
+        var y = event.pageY - window.canvas.offsetTop;
+
+        var msg = {
+            cmd: "Pick",
+            params: {
+                x: x,
+                y: y
+            }
+        }
+
+        theRenderArea.sendMessage(JSON.stringify(msg));
+    });
 
     //$(window).resize(onWindowResize);
 
