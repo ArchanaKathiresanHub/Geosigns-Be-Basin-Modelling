@@ -104,7 +104,7 @@ MbVec3<int32_t> decodeFlowDirection(int code)
   int di = (code % 10) - 1;
 
   if (
-    dk <  0 || dk > 1 ||
+    dk < -1 || dk > 1 ||
     dj < -1 || dj > 1 ||
     di < -1 || di > 1)
   {
