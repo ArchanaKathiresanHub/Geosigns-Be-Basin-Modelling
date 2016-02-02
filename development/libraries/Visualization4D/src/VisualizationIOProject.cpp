@@ -1013,6 +1013,7 @@ Project::SnapshotContents VisualizationIOProject::getSnapshotContents(size_t sna
     return contents;
 
   // get minZ / maxZ
+  /*
   auto volumeList = snapshot->getVolumeList();
   for (auto volume : volumeList)
   {
@@ -1022,36 +1023,15 @@ Project::SnapshotContents VisualizationIOProject::getSnapshotContents(size_t sna
       if (!depthVolume->isRetrieved())
         depthVolume->retrieve();
 
-      const float undefined = depthVolume->getUndefinedValue();
-
-      float minDepth =  std::numeric_limits<float>::infinity();
-      float maxDepth = -std::numeric_limits<float>::infinity();
-
-      size_t ni = depthVolume->getNumI();
-      size_t nj = depthVolume->getNumJ();
-      size_t k = (size_t)contents.formations[contents.formations.size() - 1].maxK;
-
-      for (size_t j = 0; j < nj; ++j)
-      {
-        for (size_t i = 0; i < ni; ++i)
-        {
-          float topval = depthVolume->getValue(i, j, 0);
-          if (topval != undefined)
-          {
-            float bottomval = depthVolume->getValue(i, j, k);
-            minDepth = std::min(minDepth, topval);
-            maxDepth = std::max(maxDepth, bottomval);
-          }
-        }
-      }
-
+      float minDepth, maxDepth;
+      VizIO::getMinMax(depthVolume, minDepth, maxDepth);
       contents.minDepth = minDepth;
       contents.maxDepth = maxDepth;
 
       break;
     }
   }
-
+  */
   return contents;
 }
 

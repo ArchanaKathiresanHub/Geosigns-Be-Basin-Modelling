@@ -158,23 +158,26 @@ int SceneGraphManager::getReservoirId(MoMeshSkin* skin) const
 
 void SceneGraphManager::updateCoordinateGrid()
 {
+  if (!m_showGrid)
+    return;
+
   assert(!m_snapshotInfoCache.empty());
 
-  SnapshotInfo& snapshot = *m_snapshotInfoCache.begin();
-
-  const Project::Dimensions& dim = m_projectInfo.dimensions;
-  float sizeX = (float)(dim.numCellsI * dim.deltaX);
-  float sizeY = (float)(dim.numCellsJ * dim.deltaY);
-  float sizeZ = (float)(snapshot.maxZ - snapshot.minZ);
+  SbViewportRegion vpregion;
+  SoGetBoundingBoxAction action(vpregion);
+  action.apply(m_snapshotsSwitch);
+  SbBox3f box = action.getBoundingBox();
+  SbVec3f minvec = box.getMin();
+  SbVec3f maxvec = box.getMax();
+  SbVec3f size = box.getSize();
 
   const float margin = .05f;
-  float dx = sizeX * margin;
-  float dy = sizeY * margin;
-
-  SbVec3f start(-dx, -dy, -sizeZ * m_verticalScale);
-  SbVec3f end(sizeX + dx, sizeY + dy, 0.0f);
-  SbVec3f gradStart(start[0], start[1], (float)-snapshot.minZ);
-  SbVec3f gradEnd(end[0], end[1], (float)-snapshot.maxZ);
+  const float dx = margin * size[0];
+  const float dy = margin * size[1];
+  SbVec3f gradStart(minvec[0] - dx, minvec[1] - dy, minvec[2]);
+  SbVec3f gradEnd(maxvec[0] + dx, maxvec[1] + dy, maxvec[2]);
+  SbVec3f start(gradStart[0], gradStart[1], m_verticalScale * gradStart[2]);
+  SbVec3f end(gradEnd[0], gradEnd[1], m_verticalScale * gradEnd[2]);
 
   m_coordinateGrid->start = start;
   m_coordinateGrid->end = end;
@@ -189,7 +192,7 @@ void SceneGraphManager::updateSnapshotFormations()
   SnapshotInfo& snapshot = *m_snapshotInfoCache.begin();
 
   // Update formations
-  if (snapshot.formationsTimeStamp == m_formationsTimeStamp || !snapshot.chunksGroup || !snapshot.meshData)
+  if (snapshot.formationsTimeStamp == m_formationsTimeStamp || !snapshot.chunksGroup || snapshot.formations.empty())
     return;
 
   snapshot.chunksGroup->removeAllChildren();
@@ -220,23 +223,33 @@ void SceneGraphManager::updateSnapshotFormations()
   if (buildingChunk)
     tmpChunks.push_back(SnapshotInfo::Chunk(minK, maxK));
 
-  const MiTopologyIjk& topology = snapshot.meshData->getTopology();
-  for (size_t i = 0; i < tmpChunks.size(); ++i)
+  // load meshData if needed
+  if (!snapshot.meshData && !tmpChunks.empty())
   {
-    MoMeshSkin* meshSkin = new MoMeshSkin;
-    uint32_t rangeMin[] = { 0, 0, (uint32_t)tmpChunks[i].minK };
-    uint32_t rangeMax[] = { 
-      (uint32_t)(topology.getNumCellsI()),
-      (uint32_t)(topology.getNumCellsJ()),
-      (uint32_t)(tmpChunks[i].maxK - 1) };
+    snapshot.meshData = m_project->createSnapshotMesh(snapshot.index);
+    snapshot.mesh->setMesh(snapshot.meshData.get());
+  }
 
-    meshSkin->minCellRanges.setValues(0, 3, rangeMin);
-    meshSkin->maxCellRanges.setValues(0, 3, rangeMax);
+  if (snapshot.meshData)
+  {
+    const MiTopologyIjk& topology = snapshot.meshData->getTopology();
+    for (size_t i = 0; i < tmpChunks.size(); ++i)
+    {
+      MoMeshSkin* meshSkin = new MoMeshSkin;
+      uint32_t rangeMin[] = { 0, 0, (uint32_t)tmpChunks[i].minK };
+      uint32_t rangeMax[] = {
+        (uint32_t)(topology.getNumCellsI()),
+        (uint32_t)(topology.getNumCellsJ()),
+        (uint32_t)(tmpChunks[i].maxK - 1) };
+
+      meshSkin->minCellRanges.setValues(0, 3, rangeMin);
+      meshSkin->maxCellRanges.setValues(0, 3, rangeMax);
 #ifdef _DEBUG
-    meshSkin->parallel = false;
+      meshSkin->parallel = false;
 #endif
-    tmpChunks[i].skin = meshSkin;
-    snapshot.chunksGroup->addChild(meshSkin);
+      tmpChunks[i].skin = meshSkin;
+      snapshot.chunksGroup->addChild(meshSkin);
+    }
   }
 
   snapshot.chunks.swap(tmpChunks);
@@ -623,6 +636,12 @@ void SceneGraphManager::updateSnapshotSlices()
   {
     if (m_sliceEnabled[i])
     {
+      if (!snapshot.meshData)
+      {
+        snapshot.meshData = m_project->createSnapshotMesh(snapshot.index);
+        snapshot.mesh->setMesh(snapshot.meshData.get());
+      }
+
       if (snapshot.slice[i] == 0)
       {
         auto slice = new MoMeshSlab;
@@ -674,11 +693,16 @@ void SceneGraphManager::updateSnapshotFlowLines()
         ? m_flowLinesExpulsionThreshold 
         : m_flowLinesLeakageThreshold;
 
+      if (!snapshot.meshData)
+      {
+        snapshot.meshData = m_project->createSnapshotMesh(snapshot.index);
+        snapshot.mesh->setMesh(snapshot.meshData.get());
+      }
+
       if (!flowlines.root)
       {
         int formationId = m_projectInfo.flowLines[id].formationId;
         int reservoirId = m_projectInfo.flowLines[id].reservoirId;
-
 
         flowlines.root = new SoSeparator;
         flowlines.color = new SoBaseColor;
@@ -1108,14 +1132,14 @@ SnapshotInfo SceneGraphManager::createSnapshotNode(size_t index)
   info.root->ref();
   info.formationsRoot = new SoSeparator;
   info.formationsRoot->setName("formations");
-  info.meshData = m_project->createSnapshotMesh(index);
+  //info.meshData = m_project->createSnapshotMesh(index);
 
   info.minZ = -snapshotContents.maxDepth;
   info.maxZ = -snapshotContents.minDepth;
 
   info.mesh = new MoMesh;
   info.mesh->setName("snapshotMesh");
-  info.mesh->setMesh(info.meshData.get());
+  //info.mesh->setMesh(info.meshData.get());
 
   info.scalarSet = new MoScalarSetIjk;
   info.scalarSet->setName("formationID");
@@ -1398,6 +1422,7 @@ std::shared_ptr<MiDataSetIjk<double> > SceneGraphManager::createReservoirPropert
       trapIdPropertyData = m_project->createReservoirProperty(snapshot.index, res.id, trapIdPropertyId);
 
     auto traps = m_project->getTraps(snapshot.index, res.id);
+
     result = createFluidContactsProperty(traps, *trapIdPropertyData, *res.meshData);
   }
 
