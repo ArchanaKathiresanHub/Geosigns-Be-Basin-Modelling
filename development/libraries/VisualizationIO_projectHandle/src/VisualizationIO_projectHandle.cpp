@@ -15,7 +15,7 @@
 using namespace DataAccess;
 using namespace DataAccess::Interface;
 
-CauldronIO::MapProjectHandle::MapProjectHandle(bool cellCentered) : Map(cellCentered)
+CauldronIO::MapProjectHandle::MapProjectHandle(boost::shared_ptr<const CauldronIO::Geometry2D>& geometry) : SurfaceData(geometry)
 {
     m_propVal = NULL;
 }
@@ -27,8 +27,6 @@ void CauldronIO::MapProjectHandle::retrieve()
     assert(m_propVal != NULL);
     const DataAccess::Interface::GridMap* gridmap = m_propVal->getGridMap();
 
-    // Set the geometry
-    setGeometry(gridmap->numI(), gridmap->numJ(), gridmap->deltaI(), gridmap->deltaJ(), gridmap->minI(), gridmap->minJ());
     setUndefinedValue((float)gridmap->getUndefinedValue());
 
     if (gridmap->isConstant())
@@ -37,14 +35,35 @@ void CauldronIO::MapProjectHandle::retrieve()
     }
     else
     {
-        // TODO: add check on constantness?
-        float* mapData = new float[getNumI() * getNumJ()];
+        float constantValue;
+        bool isConstant = true;
+        bool firstConstant = true;
+        float* mapData = new float[m_numI*m_numJ];
         size_t index = 0;
-        for (unsigned int j = 0; j < getNumJ(); ++j)
-            for (unsigned int i = 0; i < getNumI(); ++i)
+
+        for (unsigned int j = 0; j < m_numJ; ++j)
+        { 
+            for (unsigned int i = 0; i < m_numI; ++i)
+            {
                 // Store row first
-                mapData[index++] = (float)gridmap->getValue(i, j);
-        setData_IJ(mapData);
+                float val = (float)gridmap->getValue(i, j);
+                mapData[index++] = val;
+
+                if (firstConstant)
+                {
+                    constantValue = val;
+                    firstConstant = false;
+                }
+                if (isConstant) isConstant = val == constantValue;
+
+            }
+        }
+
+        if (!isConstant)
+            setData_IJ(mapData);
+        else
+            setConstantValue(constantValue);
+        
         delete[] mapData;
     }
 
@@ -61,7 +80,7 @@ void CauldronIO::MapProjectHandle::release()
     const DataAccess::Interface::GridMap* gridmap = m_propVal->getGridMap();
 
     gridmap->release();
-    Map::release();
+    SurfaceData::release();
 }
 
 void CauldronIO::MapProjectHandle::setDataStore(const DataAccess::Interface::PropertyValue* propVal)
@@ -69,8 +88,8 @@ void CauldronIO::MapProjectHandle::setDataStore(const DataAccess::Interface::Pro
     m_propVal = propVal;
 }
 
-CauldronIO::VolumeProjectHandle::VolumeProjectHandle(bool cellCentered, SubsurfaceKind kind, boost::shared_ptr<const Property> property)
-    : Volume(cellCentered, kind, property)
+CauldronIO::VolumeProjectHandle::VolumeProjectHandle(const boost::shared_ptr<const Geometry3D>& geometry)
+    : VolumeData(geometry)
 {
     m_propVal = NULL;
     m_depthInfo.reset();
@@ -94,7 +113,6 @@ void CauldronIO::VolumeProjectHandle::retrieve()
     }
 }
 
-
 void CauldronIO::VolumeProjectHandle::release()
 {
     if (!isRetrieved()) return;
@@ -115,7 +133,7 @@ void CauldronIO::VolumeProjectHandle::release()
         gridMap->release();
     }
 
-    Volume::release();
+    VolumeData::release();
 }
 
 void CauldronIO::VolumeProjectHandle::retrieveMultipleFormations()
@@ -128,23 +146,9 @@ void CauldronIO::VolumeProjectHandle::retrieveMultipleFormations()
     const PropertyValue* propVal = m_propValues->at(0);
     const GridMap* propGridMap = propVal->getGridMap();
 
-    // Find the total depth size & offset
-    assert(m_depthFormations->at(0)->kStart == 0);
-    size_t maxK = 0;
-    size_t minK = std::numeric_limits<size_t>::max();
-    for (size_t i = 0; i < m_propValues->size(); ++i)
-    {
-        boost::shared_ptr<CauldronIO::FormationInfo> depthInfo = CauldronIO::VolumeProjectHandle::findDepthInfo(m_depthFormations, m_propValues->at(i)->getFormation());
-        // TODO: check if formations are continuous.. (it is assumed now)
-        maxK = max(maxK, depthInfo->kEnd);
-        minK = min(minK, depthInfo->kStart);
-    }
-    size_t depthK = 1 + maxK - minK;
-
-    setGeometry(propGridMap->numI(), propGridMap->numJ(), depthK, minK, propGridMap->deltaI(), propGridMap->deltaJ(), propGridMap->minI(), propGridMap->minJ());
     setUndefinedValue((float)propGridMap->getUndefinedValue());
 
-    float* inputData = new float[getNumI() * getNumJ() * depthK];
+    float* inputData = new float[m_numI * m_numJ * m_numK];
 
     // Get data
     for (size_t i = 0; i < m_propValues->size(); ++i)
@@ -196,7 +200,6 @@ void CauldronIO::VolumeProjectHandle::retrieveSingleFormation()
 
     // Set the values
     const GridMap* gridMap = m_propVal->getGridMap();
-    setGeometry(gridMap->numI(), gridMap->numJ(), depthK, m_depthInfo->kStart, gridMap->deltaI(), gridMap->deltaJ(), gridMap->minI(), gridMap->minJ());
     setUndefinedValue((float)gridMap->getUndefinedValue());
 
     if (gridMap->isConstant())
@@ -205,7 +208,11 @@ void CauldronIO::VolumeProjectHandle::retrieveSingleFormation()
     }
     else
     {
-        float* inputData = new float[getNumI() * getNumJ() * (1 + getLastK() - getFirstK())];
+        float constantValue;
+        bool isConstant = true;
+        bool firstConstant = true;
+
+        float* inputData = new float[m_numI * m_numJ * m_numK];
 
         // Get the volume data for this formation
         assert(gridMap->firstI() == 0 && gridMap->firstJ() == 0 && gridMap->firstK() == 0);
@@ -221,11 +228,22 @@ void CauldronIO::VolumeProjectHandle::retrieveSingleFormation()
                 {
                     float val = (float)gridMap->getValue(i, j, k);
                     inputData[index++] = val;
+
+                    if (firstConstant)
+                    {
+                        constantValue = val;
+                        firstConstant = false;
+                    }
+                    if (isConstant) isConstant = val == constantValue;
                 }
             }
         }
 
-        setData_IJK(inputData);
+        // Assign the data
+        if (!isConstant)
+            setData_IJK(inputData);
+        else
+            setConstantValue(constantValue);
         delete[] inputData;
     }
     

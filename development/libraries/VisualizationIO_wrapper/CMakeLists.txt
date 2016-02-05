@@ -97,13 +97,12 @@ set( CSHARP_UNIT_TESTS_SRC
 configure_file(test/AssemblyInfo.cs.cmake csharp-test/Properties/AssemblyInfo.cs)
 
 # copy some unit test data
-configure_file(test/data/cauldron_outputs.xml      ${CMAKE_CURRENT_BINARY_DIR}/csharp-test/cauldron_outputs.xml COPYONLY)
-configure_file(test/data/Snapshot_0_surfaces.cldrn ${CMAKE_CURRENT_BINARY_DIR}/csharp-test/Snapshot_0_surfaces.cldrn COPYONLY)
-configure_file(test/data/Snapshot_0_volumes.cldrn  ${CMAKE_CURRENT_BINARY_DIR}/csharp-test/Snapshot_0_volumes.cldrn COPYONLY)
-configure_file(test/data/Snapshot_4_surfaces.cldrn ${CMAKE_CURRENT_BINARY_DIR}/csharp-test/Snapshot_4_surfaces.cldrn COPYONLY)
-configure_file(test/data/Snapshot_4_volumes.cldrn  ${CMAKE_CURRENT_BINARY_DIR}/csharp-test/Snapshot_4_volumes.cldrn COPYONLY)
-configure_file(test/data/Snapshot_8_surfaces.cldrn ${CMAKE_CURRENT_BINARY_DIR}/csharp-test/Snapshot_8_surfaces.cldrn COPYONLY)
-configure_file(test/data/Snapshot_8_volumes.cldrn  ${CMAKE_CURRENT_BINARY_DIR}/csharp-test/Snapshot_8_volumes.cldrn COPYONLY)
+configure_file(test/data/cauldron_outputs.xml             ${CMAKE_CURRENT_BINARY_DIR}/csharp-test/cauldron_outputs.xml COPYONLY)
+configure_file(test/data/Snapshot_0.000000_surfaces.cldrn ${CMAKE_CURRENT_BINARY_DIR}/csharp-test/Snapshot_0.000000_surfaces.cldrn COPYONLY)
+configure_file(test/data/Snapshot_0.000000_volumes.cldrn  ${CMAKE_CURRENT_BINARY_DIR}/csharp-test/Snapshot_0.000000_volumes.cldrn  COPYONLY)
+configure_file(test/data/Snapshot_5.000000_surfaces.cldrn ${CMAKE_CURRENT_BINARY_DIR}/csharp-test/Snapshot_5.000000_surfaces.cldrn COPYONLY)
+configure_file(test/data/Snapshot_5.000000_volumes.cldrn  ${CMAKE_CURRENT_BINARY_DIR}/csharp-test/Snapshot_5.000000_volumes.cldrn  COPYONLY)
+configure_file(test/data/Snapshot_10.000000_volumes.cldrn ${CMAKE_CURRENT_BINARY_DIR}/csharp-test/Snapshot_10.000000_volumes.cldrn COPYONLY)
 
 add_csharp_unittest( 
   NAME Shell.BasinModeling.CauldronIO.Test

@@ -30,7 +30,7 @@ namespace Shell.BasinModeling.CauldronIO.Test
         {
             Project project = ImportExport.importFromXML("../../../csharp-test/cauldron_outputs.xml");
             int count = project.getSnapShots().Count;
-            Assert.IsTrue(count == 3);
+            Assert.IsTrue(count == 14);
         }
 
         [TestMethod]
@@ -38,24 +38,27 @@ namespace Shell.BasinModeling.CauldronIO.Test
         {
             Project project = ImportExport.importFromXML("../../../csharp-test/cauldron_outputs.xml");
             int count = project.getSnapShots().Count;
-            Assert.IsTrue(count == 3);
+            Assert.IsTrue(count == 14);
 
             // Create a new volume
             string propName = "Depth";
             string unit = "m";
             Property prop = new Property(propName, propName, propName, unit, PropertyType.FormationProperty, PropertyAttribute.Continuous3DProperty);
-            VolumeNative volume = new VolumeNative(false, SubsurfaceKind.Sediment, prop);
-            volume.setGeometry(2, 2, 2, 0, 1, 1, 0, 0);
-            
+            Geometry3D geo = new Geometry3D(2, 2, 2, 0, 100, 100, 0, 0);
+            VolumeDataNative volumeData = new VolumeDataNative(geo);
+            Volume volume = new Volume(SubsurfaceKind.Sediment, geo);
+            PropertyVolumeData propVol = new PropertyVolumeData(prop, volumeData);
+            volume.addPropertyVolumeData(propVol);
+                        
             // Marshal data to unmanaged memory
             int nrElems = 8;
             float[] data = new float[] { 0.5f, 0.5f, 0.5f, 0.1f, 0.1f, 0.1f, 0.3f, 0.24f };
             IntPtr myData = Marshal.AllocHGlobal(sizeof(float) * nrElems);
             Marshal.Copy(data, 0, myData, nrElems);
-            volume.setData_IJK(myData);
+            volumeData.setData_IJK(myData);
 
             SnapShot snapShot = project.getSnapShots()[0];
-            snapShot.addVolume(volume);
+            snapShot.setVolume(volume);
         }
     }
 }

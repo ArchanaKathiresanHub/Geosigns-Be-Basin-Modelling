@@ -18,75 +18,42 @@ namespace CauldronIO
     struct DataStoreParams;
 
     /// \brief Map class implementation with native retrieve of data
-    class MapNative : public Map
+    class MapNative : public SurfaceData
     {
     public:
         /// \brief Constructor defining if this map is cell centered, and its undefined value
-        MapNative(bool cellCentered);
+        MapNative(const boost::shared_ptr<const Geometry2D>& geometry);
         
         /// \brief Override the retrieve method to load data from datastore
         virtual void retrieve();
         /// \brief Set all variables needed to retrieve the data
         void setDataStore(DataStoreParams* params);
-        /// \brief Assign an associated depth surface by UUID
-        void setDepthSurfaceUUID(const boost::uuids::uuid& uuid);
-        /// \brief Returns true if a depthMap UUID has been assigned
-        bool hasDepthMap() const;
-        /// \brief Returns the depthmap UUID
-        const boost::uuids::uuid& getDepthSurfaceUUID() const;
         /// \brief Returns the parameters needed for loading this data
         const DataStoreParams* getDataStoreParams() const;
 
     private:
         DataStoreParams* m_params;
-        bool m_hasDepthMap_uuid;
-        boost::uuids::uuid m_uuid_depth;
     };
 
     /// \brief Volume class implementation with native retrieve of data
-    class VolumeNative : public Volume
+    class VolumeDataNative : public VolumeData
     {
     public:
-        VolumeNative(bool cellCentered, SubsurfaceKind kind, boost::shared_ptr<const Property> property);
+        VolumeDataNative(const boost::shared_ptr<const Geometry3D>& geometry);
 
         /// \brief Override the retrieve method to load data from datastore
         virtual void retrieve();
         /// \brief Set all variables needed to retrieve the data
         void setDataStore(DataStoreParams* params, bool dataIJK);
-        /// \brief Assign an associated depth surface by UUID
-        void setDepthSurfaceUUID(const boost::uuids::uuid& uuid);
-        /// \brief Returns true if a depthMap UUID has been assigned
-        bool hasDepthMap() const;
-        /// \brief Returns the depthmap UUID
-        const boost::uuids::uuid& getDepthSurfaceUUID() const;
         /// \brief Returns the parameters needed for loading this data, IJK
         const DataStoreParams* getDataStoreParamsIJK() const;
         /// \brief Returns the parameters needed for loading this data, KIJ
         const DataStoreParams* getDataStoreParamsKIJ() const;
 
     private:
-        bool m_hasDepthMap_uuid, m_dataIJK, m_dataKIJ;
-        boost::uuids::uuid m_uuid_depth;
+        bool m_dataIJK, m_dataKIJ;
         DataStoreParams* m_paramsIJK;
         DataStoreParams* m_paramsKIJ;
-    };
-
-    /// \brief Volume class implementation with native retrieve of data
-    class DiscontinuousVolumeNative : public DiscontinuousVolume
-    {
-    public:
-        DiscontinuousVolumeNative();
-
-        /// \brief Assign an associated depth surface by UUID
-        void setDepthSurfaceUUID(const boost::uuids::uuid& uuid);
-        /// \brief Returns true if a depthMap UUID has been assigned
-        bool hasDepthMap() const;
-        /// \brief Returns the depthmap UUID
-        const boost::uuids::uuid& getDepthSurfaceUUID();
-
-    private:
-        bool m_hasDepthMap_uuid;
-        boost::uuids::uuid m_uuid_depth;
     };
 }
 #endif

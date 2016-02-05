@@ -17,7 +17,6 @@
 #include <boost/iostreams/copy.hpp>
 #include <boost/property_tree/xml_parser.hpp>
 #include <boost/foreach.hpp>
-#include <boost/uuid/uuid_io.hpp>
 #include <boost/iostreams/stream.hpp>
 #include <boost/iostreams/device/file.hpp>
 
@@ -88,147 +87,70 @@ char* CauldronIO::DataStoreLoad::decompress(const char* inputData, size_t& eleme
     return charResult;
 }
 
-boost::shared_ptr<Volume> CauldronIO::DataStoreLoad::getVolume(const boost::property_tree::ptree& ptree, boost::shared_ptr<const Property> property)
+void CauldronIO::DataStoreLoad::getVolume(const boost::property_tree::ptree& ptree, boost::shared_ptr<VolumeData> volumeData, const boost::filesystem::path& path)
 {
-    SubsurfaceKind surfaceKind = (SubsurfaceKind)ptree.get<int>("<xmlattr>.subsurfacekind");
-    boost::uuids::uuid uuid = ptree.get<boost::uuids::uuid>("<xmlattr>.uuid");
-    bool cellCentered = ptree.get<bool>("<xmlattr>.cell-centered");
-
-    // Create the volume
-    VolumeNative* volumeNative = new VolumeNative(cellCentered, surfaceKind, property);
-
-    boost::shared_ptr<Volume> volume(volumeNative);
-
     BOOST_FOREACH(boost::property_tree::ptree::value_type const& nodes, ptree.get_child(""))
     {
-        if (nodes.first == "geometry")
+        if (nodes.first == "datastore")
         {
-            const boost::property_tree::ptree& geometryNode = nodes.second;
-            double minI, minJ, maxI, maxJ, deltaI, deltaJ;
-            float undef;
-            size_t numI, numJ, numK, firstK, lastK;
+            VolumeDataNative* volumeNative = dynamic_cast<VolumeDataNative*>(volumeData.get());
+            assert(volumeNative);
 
-            numI = geometryNode.get<size_t>("<xmlattr>.numI");
-            numJ = geometryNode.get<size_t>("<xmlattr>.numJ");
-            numK = geometryNode.get<size_t>("<xmlattr>.numK");
-            minI = geometryNode.get<double>("<xmlattr>.minI");
-            minJ = geometryNode.get<double>("<xmlattr>.minJ");
-            maxI = geometryNode.get<double>("<xmlattr>.maxI");
-            maxJ = geometryNode.get<double>("<xmlattr>.maxJ");
-            deltaI = geometryNode.get<double>("<xmlattr>.deltaI");
-            deltaJ = geometryNode.get<double>("<xmlattr>.deltaJ");
-            firstK = geometryNode.get<size_t>("<xmlattr>.firstK");
-            lastK = geometryNode.get<size_t>("<xmlattr>.lastK");
-            undef = geometryNode.get<float>("<xmlattr>.undefinedvalue");
-
-            volume->setGeometry(numI, numJ, numK, firstK, deltaI, deltaJ, minI, minJ);
-            volume->setUndefinedValue(undef);
-        }
-        else if (nodes.first == "constantvalue")
-        {
-            float value = ptree.get<float>("constantvalue");
-            volume->setConstantValue(value);
-        }
-        else if (nodes.first == "datastore")
-        {
             // Extract some data
             const boost::property_tree::ptree& datastoreNode = nodes.second;
 
+            float undef = datastoreNode.get<float>("<xmlattr>.undef");
+            volumeNative->setUndefinedValue(undef);
+
             DataStoreParamsNative* paramsNative = new DataStoreParamsNative();
-            paramsNative->fileName = datastoreNode.get<std::string>("<xmlattr>.file");
+            std::string filename = datastoreNode.get<std::string>("<xmlattr>.file");
+            boost::filesystem::path filepath(path);
+            filepath /= filename;
+            paramsNative->fileName = filepath;
+
             paramsNative->compressed = datastoreNode.get<std::string>("<xmlattr>.compression") == "gzip";
             paramsNative->size = datastoreNode.get<size_t>("<xmlattr>.size");
             paramsNative->offset = datastoreNode.get<size_t>("<xmlattr>.offset");
             bool dataIJK = datastoreNode.get<bool>("<xmlattr>.dataIJK");
 
             volumeNative->setDataStore(paramsNative, dataIJK);
+
+            // do not return, there can be more than one orientation
         }
     }
-
-    volume->setUUID(uuid);
-
-    // Check for optional depthSurfaceUUID
-    boost::optional<boost::uuids::uuid> depthSurfaceUUID = ptree.get_optional<boost::uuids::uuid>("depthvolume-uuid");
-    if (depthSurfaceUUID)
-    {
-        VolumeNative* volumeNative = dynamic_cast<VolumeNative*>(volume.get());
-        volumeNative->setDepthSurfaceUUID(*depthSurfaceUUID);
-    }
-
-    return volume;
 }
 
-boost::shared_ptr<Surface> CauldronIO::DataStoreLoad::getSurface(const boost::property_tree::ptree& ptree, boost::shared_ptr<const Property> property)
+void CauldronIO::DataStoreLoad::getSurface(const boost::property_tree::ptree& ptree, boost::shared_ptr<SurfaceData> surfaceData, const boost::filesystem::path& path)
 {
-    std::string surfaceName = ptree.get<std::string>("<xmlattr>.name");
-    boost::optional<std::string> reservoirName = ptree.get_optional<std::string>("<xmlattr>.reservoirName");
-
-    SubsurfaceKind surfaceKind = (SubsurfaceKind)ptree.get<int>("<xmlattr>.subsurfacekind");
-    boost::uuids::uuid uuid = ptree.get<boost::uuids::uuid>("<xmlattr>.uuid");
-    bool cellCentered = ptree.get<bool>("<xmlattr>.cell-centered");
-
-    // Create the value map
-    MapNative* mapNative = new MapNative(cellCentered);
-
-    boost::shared_ptr<Map> valueMap(mapNative);
     BOOST_FOREACH(boost::property_tree::ptree::value_type const& nodes, ptree.get_child(""))
     {
-        if (nodes.first == "geometry")
+        if (nodes.first == "datastore")
         {
-            const boost::property_tree::ptree& geometryNode = nodes.second;
-            double minI, minJ, maxI, maxJ, deltaI, deltaJ;
-            float undef;
-            size_t numI, numJ;
-
-            numI = geometryNode.get<size_t>("<xmlattr>.numI");
-            numJ = geometryNode.get<size_t>("<xmlattr>.numJ");
-            minI = geometryNode.get<double>("<xmlattr>.minI");
-            minJ = geometryNode.get<double>("<xmlattr>.minJ");
-            maxI = geometryNode.get<double>("<xmlattr>.maxI");
-            maxJ = geometryNode.get<double>("<xmlattr>.maxJ");
-            deltaI = geometryNode.get<double>("<xmlattr>.deltaI");
-            deltaJ = geometryNode.get<double>("<xmlattr>.deltaJ");
-            undef = geometryNode.get<float>("<xmlattr>.undefinedvalue");
-
-            valueMap->setGeometry(numI, numJ, deltaI, deltaJ, minI, minJ);
-            valueMap->setUndefinedValue(undef);
-        }
-        else if (nodes.first == "constantvalue")
-        {
-            float value = ptree.get<float>("constantvalue");
-            valueMap->setConstantValue(value);
-        }
-        else if (nodes.first == "datastore")
-        {
+            MapNative* mapNative = dynamic_cast<MapNative*>(surfaceData.get());
+            assert(mapNative); 
+            
             // Extract some data
             const boost::property_tree::ptree& datastoreNode = nodes.second;
 
+            float undef = datastoreNode.get<float>("<xmlattr>.undef");
+            mapNative->setUndefinedValue(undef);
+
             DataStoreParamsNative* paramsNative = new DataStoreParamsNative();
-            paramsNative->fileName = datastoreNode.get<std::string>("<xmlattr>.file");
+
+            std::string filename = datastoreNode.get<std::string>("<xmlattr>.file");
+            boost::filesystem::path filepath(path);
+            filepath /= filename;
+            paramsNative->fileName = filepath;
+
             paramsNative->compressed = datastoreNode.get<std::string>("<xmlattr>.compression") == "gzip";
             paramsNative->size = datastoreNode.get<size_t>("<xmlattr>.size");
             paramsNative->offset = datastoreNode.get<size_t>("<xmlattr>.offset");
             mapNative->setDataStore(paramsNative);
+            return;
         }
     }
 
-    valueMap->setUUID(uuid);
-
-    // Check for optional depthSurfaceUUID
-    boost::optional<boost::uuids::uuid> depthSurfaceUUID = ptree.get_optional<boost::uuids::uuid>("depthsurface-uuid");
-    if (depthSurfaceUUID)
-    {
-        mapNative->setDepthSurfaceUUID(*depthSurfaceUUID);
-    }
-
-    // Create the surface
-    boost::shared_ptr<Surface> surface(new Surface(surfaceName, surfaceKind, property, valueMap));
-
-    // Set reservoirname if present
-    if (reservoirName)
-        surface->setReservoirName(*reservoirName);
-
-    return surface;
+    throw CauldronIOException("Could not find datastore in xml node");
 }
 
  /// DataStoreSave
@@ -303,58 +225,66 @@ void CauldronIO::DataStoreSave::addSurface(const boost::shared_ptr<Surface>& sur
     if (!surfaceIO->isRetrieved() && !m_append)
         surfaceIO->retrieve();
 
+    // Write general info
     ptree.put("<xmlattr>.name", surfaceIO->getName());
-    if (surfaceIO->getReservoirName().length() > 0)
-        ptree.put("<xmlattr>.reservoirName", surfaceIO->getReservoirName());
+    if (surfaceIO->getReservoir())
+        ptree.put("<xmlattr>.reservoir", surfaceIO->getReservoir()->getName());
     ptree.put("<xmlattr>.subsurfacekind", surfaceIO->getSubSurfaceKind());
-    ptree.put("<xmlattr>.uuid", surfaceIO->getValueMap()->getUUID());
-    ptree.put("<xmlattr>.cell-centered", surfaceIO->getValueMap()->isCellCentered());
+    if (surfaceIO->getFormation())
+        ptree.put("<xmlattr>.formation", surfaceIO->getFormation()->getName());
 
-    // Set geometry
-    addGeometryInfo(ptree, surfaceIO->getValueMap());
+    // Write geometry
+    addGeometryInfo2D(ptree, surfaceIO->getGeometry());
 
-    // Set depth surface
-    boost::shared_ptr<const Surface> depthSurface = surfaceIO->getDepthSurface();
-    if (depthSurface)
-        ptree.put("depthsurface-uuid", depthSurface->getValueMap()->getUUID());
-
-    if (surfaceIO->getValueMap()->isConstant())
-        ptree.put("constantvalue", surfaceIO->getValueMap()->getConstantValue());
-    else
+    // Iterate over all contained valuemaps
+    const PropertySurfaceDataList valueMaps = surfaceIO->getPropertySurfaceDataList();
+    
+    BOOST_FOREACH(boost::shared_ptr<PropertySurfaceData> propertySurfaceData, valueMaps)
     {
-        boost::property_tree::ptree& subNode = ptree.add("datastore", "");
-        subNode.put("<xmlattr>.file", m_fileName);
+        boost::property_tree::ptree& node = ptree.add("propertymaps.propertymap", "");
+        node.put("<xmlattr>.property", propertySurfaceData->first->getName());
 
-        boost::shared_ptr<Map> map = surfaceIO->getValueMap();
-        MapNative* mapNative = dynamic_cast<MapNative*>(map.get());
+        boost::shared_ptr<SurfaceData>& surfaceData = propertySurfaceData->second;
 
-        size_t numBytes = map->getNumI()*map->getNumJ()*sizeof(float);
-        bool compress = m_compress && numBytes > MINIMALBYTESTOCOMPRESS;
-        if (compress)
-            subNode.put("<xmlattr>.compression", "gzip");
-        else
-            subNode.put("<xmlattr>.compression", "none");
-        subNode.put("<xmlattr>.offset", m_offset);
-
-        if (map->isConstant()) throw CauldronIO::CauldronIOException("Cannot write constant value");
-        
-        // We write the actual data if 1) this map has been loaded from projecthandle (so mapNative == null)
-        // or 2) this map has been created in native format, but was not loaded from disk (so no datastoreparams were set)
-        if (mapNative == NULL || (mapNative != NULL && mapNative->getDataStoreParams() == NULL))
-        {
-            size_t seekPos = m_file_out.tellp();
-            addData(map->getSurfaceValues(), map->getNumI()*map->getNumJ(), compress);
-        }
+        if (surfaceData->isConstant())
+            node.put("<xmlattr>.constantvalue", surfaceData->getConstantValue());
         else
         {
-            // This surface already has been written: skip it
-            const DataStoreParamsNative* const params = static_cast<DataStoreParamsNative const*>(mapNative->getDataStoreParams());
-            assert(m_fileName == params->fileName);
-            m_lastSize = params->size;
-            m_offset += m_lastSize;
-        }
+            boost::property_tree::ptree& subNode = node.add("datastore", "");
+            subNode.put("<xmlattr>.file", boost::filesystem::path(m_fileName).filename().string());
+            subNode.put("<xmlattr>.undef", surfaceData->getUndefinedValue());
 
-        subNode.put("<xmlattr>.size", m_lastSize);
+            MapNative* mapNative = dynamic_cast<MapNative*>(surfaceData.get());
+            const boost::shared_ptr<const Geometry2D>& geometry = surfaceIO->getGeometry();
+
+            size_t numBytes = geometry->getNumI()*geometry->getNumJ()*sizeof(float);
+            bool compress = m_compress && numBytes > MINIMALBYTESTOCOMPRESS;
+            if (compress)
+                subNode.put("<xmlattr>.compression", "gzip");
+            else
+                subNode.put("<xmlattr>.compression", "none");
+            subNode.put("<xmlattr>.offset", m_offset);
+
+            if (surfaceData->isConstant()) throw CauldronIO::CauldronIOException("Cannot write constant value");
+
+            // We write the actual data if 1) this map has been loaded from projecthandle (so mapNative == null)
+            // or 2) this map has been created in native format, but was not loaded from disk (so no datastoreparams were set)
+            if (mapNative == NULL || (mapNative != NULL && mapNative->getDataStoreParams() == NULL))
+            {
+                size_t seekPos = m_file_out.tellp();
+                addData(surfaceData->getSurfaceValues(), geometry->getNumI()*geometry->getNumJ(), compress);
+            }
+            else
+            {
+                // This surface already has been written: skip it
+                const DataStoreParamsNative* const params = static_cast<DataStoreParamsNative const*>(mapNative->getDataStoreParams());
+                assert(m_fileName == params->fileName);
+                m_lastSize = params->size;
+                m_offset += m_lastSize;
+            }
+
+            subNode.put("<xmlattr>.size", m_lastSize);
+        }
     }
 
     if (m_release)
@@ -367,48 +297,51 @@ void CauldronIO::DataStoreSave::addVolume(const boost::shared_ptr<Volume>& volum
         volume->retrieve();
 
     volNode.put("<xmlattr>.subsurfacekind", volume->getSubSurfaceKind());
-    volNode.put("<xmlattr>.uuid", volume->getUUID());
-    volNode.put("<xmlattr>.cell-centered", volume->isCellCentered());
 
     // Set geometry
-    addGeometryInfo(volNode, volume);
+    const boost::shared_ptr<const Geometry3D>& geometry = volume->getGeometry();
+    addGeometryInfo3D(volNode, geometry);
+    size_t numBytes = geometry->getNumI()*geometry->getNumJ()*geometry->getNumK()*sizeof(float);
 
-    // Set depth volume
-    boost::shared_ptr<const Volume> depthVolume = volume->getDepthVolume();
-    if (depthVolume)
-        volNode.put("depthvolume-uuid", depthVolume->getUUID());
-
-    if (volume->isConstant())
+    BOOST_FOREACH(const boost::shared_ptr<PropertyVolumeData>& propVolume, volume->getPropertyVolumeDataList())
     {
-        volNode.put("constantvalue", volume->getConstantValue());
-        return;
+        const boost::shared_ptr<const Property>& prop = propVolume->first;
+        const boost::shared_ptr<VolumeData>& data = propVolume->second;
+
+        boost::property_tree::ptree& node = volNode.add("propertyvols.propertyvol", "");
+        node.put("<xmlattr>.property", prop->getName());
+
+        if (data->isConstant())
+        {
+            node.put("<xmlattr>.constantvalue", data->getConstantValue());
+            continue;
+        }
+
+        bool compress = m_compress && numBytes > MINIMALBYTESTOCOMPRESS;
+        VolumeDataNative* nativeVolume = dynamic_cast<VolumeDataNative*>(data.get());
+
+        // We need to check if this volume has IJK data, and account for the case it was not retrieved yet;
+        // in that case we need to write the meta data again to XML, without writing the volume data itself.
+        // To check for that, it should be a native volume, with datastore parameters set.
+        if (data->hasDataIJK() || (nativeVolume != NULL && nativeVolume->getDataStoreParamsIJK() != NULL))
+            writeVolumePart(node, compress, true, data);
+
+        if (data->hasDataKIJ() || (nativeVolume != NULL && nativeVolume->getDataStoreParamsKIJ() != NULL))
+            writeVolumePart(node, compress, false, data);
     }
-
-    size_t numBytes = volume->getNumI()*volume->getNumJ()*volume->getNumK()*sizeof(float);
-    bool compress = m_compress && numBytes > MINIMALBYTESTOCOMPRESS;
-
-    VolumeNative* nativeVolume = dynamic_cast<VolumeNative*>(volume.get());
-
-    // We need to check if this volume has IJK data, and account for the case it was not retrieved yet;
-    // in that case we need to write the meta data again to XML, without writing the volume data itself.
-    // To check for that, it should be a native volume, with datastore parameters set.
-    if (volume->hasDataIJK() || (nativeVolume != NULL && nativeVolume->getDataStoreParamsIJK() != NULL))
-        writeVolumePart(volNode, compress, true, volume);
-
-    if (volume->hasDataKIJ() || (nativeVolume != NULL && nativeVolume->getDataStoreParamsKIJ() != NULL))
-        writeVolumePart(volNode, compress, false, volume);
-
+    
     if (m_release)
         volume->release();
 }
 
-void CauldronIO::DataStoreSave::writeVolumePart(boost::property_tree::ptree &volNode, bool compress, bool IJK, const boost::shared_ptr<Volume>& volume)
+void CauldronIO::DataStoreSave::writeVolumePart(boost::property_tree::ptree &volNode, bool compress, bool IJK, const boost::shared_ptr<VolumeData>& volume)
 {
     // See if we're writing a native volume
-    VolumeNative* nativeVolume = dynamic_cast<VolumeNative*>(volume.get());
+    VolumeDataNative* nativeVolume = dynamic_cast<VolumeDataNative*>(volume.get());
 
     boost::property_tree::ptree& subNode = volNode.add("datastore", "");
-    subNode.put("<xmlattr>.file", m_fileName);
+    subNode.put("<xmlattr>.file", boost::filesystem::path(m_fileName).filename().string());
+    subNode.put("<xmlattr>.undef", volume->getUndefinedValue());
 
     if (compress)
         subNode.put("<xmlattr>.compression", "gzip");
@@ -441,41 +374,35 @@ void CauldronIO::DataStoreSave::writeVolumePart(boost::property_tree::ptree &vol
     subNode.put("<xmlattr>.size", m_lastSize);
 }
 
-void CauldronIO::DataStoreSave::addGeometryInfo(boost::property_tree::ptree& node, const boost::shared_ptr<const Map>& map) const
+void CauldronIO::DataStoreSave::addGeometryInfo2D(boost::property_tree::ptree& node, const boost::shared_ptr<const Geometry2D>& geometry) const
 {
     boost::property_tree::ptree& subNode = node.add("geometry", "");
-    subNode.put("<xmlattr>.numI", map->getNumI());
-    subNode.put("<xmlattr>.numJ", map->getNumJ());
-    subNode.put("<xmlattr>.minI", map->getMinI());
-    subNode.put("<xmlattr>.minJ", map->getMinJ());
-    subNode.put("<xmlattr>.maxI", map->getMaxI());
-    subNode.put("<xmlattr>.maxJ", map->getMaxJ());
-    subNode.put("<xmlattr>.deltaI", map->getDeltaI());
-    subNode.put("<xmlattr>.deltaJ", map->getDeltaJ());
-    subNode.put("<xmlattr>.undefinedvalue", map->getUndefinedValue());
+    subNode.put("<xmlattr>.numI",   geometry->getNumI());
+    subNode.put("<xmlattr>.numJ",   geometry->getNumJ());
+    subNode.put("<xmlattr>.minI",   geometry->getMinI());
+    subNode.put("<xmlattr>.minJ",   geometry->getMinJ());
+    subNode.put("<xmlattr>.deltaI", geometry->getDeltaI());
+    subNode.put("<xmlattr>.deltaJ", geometry->getDeltaJ());
 }
 
-void CauldronIO::DataStoreSave::addGeometryInfo(boost::property_tree::ptree& tree, const boost::shared_ptr<const Volume>& volume) const
+void CauldronIO::DataStoreSave::addGeometryInfo3D(boost::property_tree::ptree& tree, const boost::shared_ptr<const Geometry3D>& geometry) const
 {
     boost::property_tree::ptree& subNode = tree.add("geometry", "");
-    subNode.put("<xmlattr>.numI", volume->getNumI());
-    subNode.put("<xmlattr>.numJ", volume->getNumJ());
-    subNode.put("<xmlattr>.numK", volume->getNumK());
-    subNode.put("<xmlattr>.minI", volume->getMinI());
-    subNode.put("<xmlattr>.minJ", volume->getMinJ());
-    subNode.put("<xmlattr>.maxI", volume->getMaxI());
-    subNode.put("<xmlattr>.maxJ", volume->getMaxJ());
-    subNode.put("<xmlattr>.firstK", volume->getFirstK());
-    subNode.put("<xmlattr>.lastK", volume->getLastK());
-    subNode.put("<xmlattr>.deltaI", volume->getDeltaI());
-    subNode.put("<xmlattr>.deltaJ", volume->getDeltaJ());
-    subNode.put("<xmlattr>.undefinedvalue", volume->getUndefinedValue());
+
+    subNode.put("<xmlattr>.numI", geometry->getNumI());
+    subNode.put("<xmlattr>.numJ", geometry->getNumJ());
+    subNode.put("<xmlattr>.minI", geometry->getMinI());
+    subNode.put("<xmlattr>.minJ", geometry->getMinJ());
+    subNode.put("<xmlattr>.deltaI", geometry->getDeltaI());
+    subNode.put("<xmlattr>.deltaJ", geometry->getDeltaJ());
+    subNode.put("<xmlattr>.numK",   geometry->getNumK());
+    subNode.put("<xmlattr>.firstK", geometry->getFirstK());
 }
 
-void CauldronIO::DataStoreSave::writeVolume(const boost::shared_ptr<Volume>& volume, bool dataIJK, bool compress)
+void CauldronIO::DataStoreSave::writeVolume(const boost::shared_ptr<VolumeData>& volume, bool dataIJK, bool compress)
 {
     if (volume->isConstant()) return;
     const float* data = (dataIJK ? volume->getVolumeValues_IJK() : volume->getVolumeValues_KIJ());
 
-    addData(data, volume->getNumI()*volume->getNumJ()*volume->getNumK(), compress);
+    addData(data, volume->getVolumeSize(), compress);
 }

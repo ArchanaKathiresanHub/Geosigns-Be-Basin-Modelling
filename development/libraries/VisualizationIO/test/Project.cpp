@@ -21,7 +21,7 @@ TEST( Project, Create )
     const string version("version");
     ModellingMode mode = MODE1D;
 
-    Project* project = new Project(projectName, description, teamName, version, mode);
+    Project* project = new Project(projectName, description, teamName, version, mode, 0.1f);
 
     EXPECT_STREQ(project->getName().c_str(), projectName.c_str());
     EXPECT_STREQ(project->getDescription().c_str(), description.c_str());
@@ -55,7 +55,7 @@ TEST(Project, AddSnapShot)
     const string version("version");
     ModellingMode mode = MODE1D;
 
-    boost::shared_ptr<Project> project(new Project(projectName, description, teamName, version, mode));
+    boost::shared_ptr<Project> project(new Project(projectName, description, teamName, version, mode, 0.1f));
     boost::shared_ptr<SnapShot> snapShot(new SnapShot(0, SYSTEM, false));
 
     const SnapShotList& snapShotList = project->getSnapShots();
@@ -87,29 +87,31 @@ TEST(SnapShot, Add)
 {
     boost::shared_ptr<SnapShot> snapShot(new SnapShot(0, SYSTEM, false));
     
-    const VolumeList& volumeList = snapShot->getVolumeList();
-    const DiscontinuousVolumeList& discVolumes = snapShot->getDiscontinuousVolumeList();
+    const FormationVolumeList& formVolumes = snapShot->getFormationVolumeList();
     const SurfaceList& surfaceList = snapShot->getSurfaceList();
 
-    EXPECT_EQ(volumeList.size(), 0);
-    EXPECT_EQ(discVolumes.size(), 0);
+    EXPECT_EQ(formVolumes.size(), 0);
     EXPECT_EQ(surfaceList.size(), 0);
 
     // create a volume to add to the snapshot
     const string propName = "Depth";
     const string unit = "m";
     boost::shared_ptr<const Property> prop(new Property(propName, propName, propName, unit, FormationProperty, Continuous3DProperty));
-    boost::shared_ptr<Volume> volume(new VolumeNative(false, Sediment, prop));
-    snapShot->addVolume(volume);
-    EXPECT_EQ(volumeList.size(), 1);
+    boost::shared_ptr<const Geometry3D> geometry3D(new Geometry3D(2, 2, 2, 0, 100, 100, 0, 0));
+    boost::shared_ptr<Volume> volume(new Volume(Sediment, geometry3D));
+    boost::shared_ptr<VolumeData> volumeData(new VolumeDataNative(geometry3D));
+    boost::shared_ptr<PropertyVolumeData> propVolume(new PropertyVolumeData(prop, volumeData));
+    volume->addPropertyVolumeData(propVolume);
+    EXPECT_EQ(volume->getPropertyVolumeDataList().size(), 1);
+    snapShot->setVolume(volume);
 
     // create a surface to add to the snapshot
     const string surfaceName = "waterbottom";
-    boost::shared_ptr<Map> valueMap(new MapNative(false));
-    boost::shared_ptr<Surface> surface(new Surface(surfaceName, Sediment, prop, valueMap));
+    boost::shared_ptr<const Geometry2D> geometry(new Geometry2D(2, 2, 100, 100, 0, 0));
+    boost::shared_ptr<SurfaceData> valueMap(new MapNative(geometry));
+    boost::shared_ptr<Surface> surface(new Surface(surfaceName, Sediment, geometry));
+    boost::shared_ptr<PropertySurfaceData> propSurface(new PropertySurfaceData(prop, valueMap));
+    surface->addPropertySurfaceData(propSurface);
     snapShot->addSurface(surface);
     EXPECT_EQ(surfaceList.size(), 1);
-
-    // create a discontinuous volume and add to the snapshot
-
 }
