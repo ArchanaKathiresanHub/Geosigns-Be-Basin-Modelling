@@ -46,6 +46,9 @@ void CauldronIO::Project::addSnapShot(boost::shared_ptr<SnapShot>& newSnapShot)
         if (snapShot == newSnapShot) throw CauldronIOException("Cannot add snapshot twice");
 
     m_snapShotList.push_back(newSnapShot);
+    
+    // Invalidate the surface names; the list may have changed now
+    m_surfaceNames.clear();
 }
 
 const string& CauldronIO::Project::getName() const
@@ -109,9 +112,33 @@ boost::shared_ptr<const Formation> CauldronIO::Project::findFormation(std::strin
     return boost::shared_ptr<const Formation>();
 }
 
-const std::vector<std::string>& CauldronIO::Project::getSurfaceNames() const
+const std::vector<std::string>& CauldronIO::Project::getSurfaceNames() 
 {
-    throw CauldronIOException("Not implemented");
+    // Construct the list if needed
+    if (m_surfaceNames.size() == 0)
+    {
+        BOOST_FOREACH(boost::shared_ptr<SnapShot>& snapShot, m_snapShotList)
+        {
+            BOOST_FOREACH(const boost::shared_ptr<Surface>& surface, snapShot->getSurfaceList())
+            {
+                const string& surfaceName = surface->getName();
+                if (surfaceName.empty()) continue;
+
+                bool exists = false;
+                BOOST_FOREACH(const string& existingSurface, m_surfaceNames)
+                {
+                    if (existingSurface == surfaceName)
+                    {
+                        exists = true;
+                        break;
+                    }
+                }
+                if (!exists) m_surfaceNames.push_back(surfaceName);
+            }
+        }
+    }
+
+    return m_surfaceNames;
 }
 
 float CauldronIO::Project::getXmlVersion() const

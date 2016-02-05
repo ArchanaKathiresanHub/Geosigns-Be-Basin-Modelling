@@ -101,7 +101,7 @@ namespace CauldronIO
         /// \returns the reservoir (if existing) for the given name [we assume there are no reservoirs with identical names and different otherwise]
         boost::shared_ptr<const Reservoir> findReservoir(std::string reservoirName) const;
         /// \returns a list of strings containing the names of all surfaces
-        const std::vector<std::string>& getSurfaceNames() const;
+        const std::vector<std::string>& getSurfaceNames();
         /// \returns the xml version number
         float getXmlVersion() const;
 

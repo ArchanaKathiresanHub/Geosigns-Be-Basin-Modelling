@@ -31,6 +31,8 @@ namespace Shell.BasinModeling.CauldronIO.Test
             Project project = ImportExport.importFromXML("../../../csharp-test/cauldron_outputs.xml");
             int count = project.getSnapShots().Count;
             Assert.IsTrue(count == 14);
+            count = project.getSurfaceNames().Count;
+            Assert.IsTrue(count == 5);
         }
 
         [TestMethod]
