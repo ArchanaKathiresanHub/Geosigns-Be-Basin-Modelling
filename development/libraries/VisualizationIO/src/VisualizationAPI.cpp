@@ -199,6 +199,12 @@ void CauldronIO::Project::retrieve()
         snapShot->retrieve();
 }
 
+void CauldronIO::Project::release()
+{
+    BOOST_FOREACH(boost::shared_ptr<SnapShot>& snapShot, m_snapShotList)
+        snapShot->release();
+}
+
 /// SnapShot implementation
 //////////////////////////////////////////////////////////////////////////
 
@@ -299,6 +305,16 @@ void CauldronIO::SnapShot::retrieve()
         formVolume->second->retrieve();
     BOOST_FOREACH(boost::shared_ptr<Surface>& surface, m_surfaceList)
         surface->retrieve();
+}
+
+void CauldronIO::SnapShot::release()
+{
+    if (m_volume)
+        m_volume->release();
+    BOOST_FOREACH(boost::shared_ptr<FormationVolume>& formVolume, m_formationVolumeList)
+        formVolume->second->release();
+    BOOST_FOREACH(boost::shared_ptr<Surface>& surface, m_surfaceList)
+        surface->release();
 }
 
 /// Property implementation

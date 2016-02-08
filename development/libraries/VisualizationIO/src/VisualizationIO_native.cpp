@@ -18,6 +18,16 @@ CauldronIO::MapNative::MapNative(const boost::shared_ptr<const Geometry2D>& geom
     m_params = NULL;
 }
 
+
+CauldronIO::MapNative::~MapNative()
+{
+    if (m_params)
+    {
+        delete m_params;
+        m_params = NULL;
+    }
+}
+
 void CauldronIO::MapNative::retrieve()
 {
     if (isConstant()) return;
@@ -55,6 +65,20 @@ CauldronIO::VolumeDataNative::VolumeDataNative(const boost::shared_ptr<const Geo
     m_dataKIJ = false;
     m_paramsIJK = NULL;
     m_paramsKIJ = NULL;
+}
+
+CauldronIO::VolumeDataNative::~VolumeDataNative()
+{
+    if (m_paramsIJK)
+    {
+        delete m_paramsIJK;
+        m_paramsIJK = NULL;
+    }
+    if (m_paramsKIJ)
+    {
+        delete m_paramsKIJ;
+        m_paramsKIJ = NULL;
+    }
 }
 
 void CauldronIO::VolumeDataNative::retrieve()

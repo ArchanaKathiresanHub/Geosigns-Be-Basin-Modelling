@@ -23,6 +23,7 @@ namespace CauldronIO
     public:
         /// \brief Constructor defining if this map is cell centered, and its undefined value
         MapNative(const boost::shared_ptr<const Geometry2D>& geometry);
+        ~MapNative();
         
         /// \brief Override the retrieve method to load data from datastore
         virtual void retrieve();
@@ -40,6 +41,7 @@ namespace CauldronIO
     {
     public:
         VolumeDataNative(const boost::shared_ptr<const Geometry3D>& geometry);
+        ~VolumeDataNative();
 
         /// \brief Override the retrieve method to load data from datastore
         virtual void retrieve();

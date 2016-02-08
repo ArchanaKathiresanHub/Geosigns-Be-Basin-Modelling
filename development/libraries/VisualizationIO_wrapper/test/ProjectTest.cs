@@ -62,5 +62,15 @@ namespace Shell.BasinModeling.CauldronIO.Test
             SnapShot snapShot = project.getSnapShots()[0];
             snapShot.setVolume(volume);
         }
+
+        [TestMethod]
+        public void RetrieveRelease()
+        {
+            Project project = ImportExport.importFromXML("../../../csharp-test/cauldron_outputs.xml");
+
+            project.retrieve();
+            project.release();
+            project.retrieve();
+        }
     }
 }

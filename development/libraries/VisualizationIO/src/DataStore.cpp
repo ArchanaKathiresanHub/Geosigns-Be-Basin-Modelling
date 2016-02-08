@@ -46,7 +46,8 @@ CauldronIO::DataStoreLoad::DataStoreLoad(DataStoreParams* params)
 CauldronIO::DataStoreLoad::~DataStoreLoad()
 {
     m_file_in.close();
-    delete m_params;
+
+    // No need to destroy the parameters; they are not owned by us
 }
 
 float* CauldronIO::DataStoreLoad::getData(size_t& size)

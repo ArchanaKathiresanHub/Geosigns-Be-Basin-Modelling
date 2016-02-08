@@ -75,6 +75,8 @@ namespace CauldronIO
         void addReservoir(boost::shared_ptr<const Reservoir>& newReservoir);
         /// \brief Retrieve all data in project
         void retrieve();
+        /// \brief Release all data in project
+        void release();
 
         /// \returns Name of the project
         const std::string& getName() const;
@@ -131,6 +133,8 @@ namespace CauldronIO
         /// \brief Retrieve all data in snapshot: 
         /// This will iterate over all contained data (surfaces, volumes, etc.)
         void retrieve();
+        /// \brief Release all data in the snapshot
+        void release();
 
 	    /// \brief Add a surface to the snapshot; ownership is transfered
 	    void addSurface(boost::shared_ptr<Surface>& surface);
