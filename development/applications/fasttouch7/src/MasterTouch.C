@@ -83,6 +83,16 @@ bool MasterTouch::executeWrapper( const char * burHistFile, const string & filen
       errno = 0;
       ibs::Path pathToWrapper = ibs::Path::applicationFullPath();
       pathToWrapper << wrapperName;
+      
+      // create a temporary file in the current directory to store the standard output (e.g. the warning messages from Matlab)
+      string wrapperOut("./wrapperStandardOutput_");
+      wrapperOut += rank.str( );
+      //read and write permissions for the user, read permission for the group  
+      mode_t mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH; 
+      // copy standard output (1) to file
+      int fd=open(wrapperOut.c_str(), O_WRONLY| O_CREAT| O_TRUNC, mode);      
+      dup2(fd,1);
+      close(fd);
 
       if ( pathToWrapper.exists() )
       {
