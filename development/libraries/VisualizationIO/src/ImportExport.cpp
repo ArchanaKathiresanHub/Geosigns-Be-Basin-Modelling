@@ -56,6 +56,8 @@ bool ImportExport::exportToXML(boost::shared_ptr<Project>& project, const std::s
 
 void ImportExport::addProject(boost::property_tree::ptree& pt, boost::shared_ptr<Project>& project, bool release)
 {
+    m_release = release;
+    
     // Create empty property tree object
     using boost::property_tree::ptree;
 
@@ -95,7 +97,7 @@ void ImportExport::addProject(boost::property_tree::ptree& pt, boost::shared_ptr
 
     // Write all snapshots
     const SnapShotList snapShotList = project->getSnapShots();
-    bool append = detectAppend(project);
+    m_append = detectAppend(project);
 
     BOOST_FOREACH(const boost::shared_ptr<const SnapShot>& snapShot, snapShotList)
     {
@@ -107,11 +109,11 @@ void ImportExport::addProject(boost::property_tree::ptree& pt, boost::shared_ptr
         
         boost::filesystem::path volumeStorePath(fullPath);
         volumeStorePath /= "Snapshot_" + snapshotString + "_volumes.cldrn";
-        DataStoreSave volumeStore(volumeStorePath.string(), append, release);
+        DataStoreSave volumeStore(volumeStorePath.string(), m_append);
 
         boost::filesystem::path surfaceStorePath(fullPath);
         surfaceStorePath /= "Snapshot_" + snapshotString + "_surfaces.cldrn";
-        DataStoreSave surfaceDataStore(surfaceStorePath.string(), append, release);
+        DataStoreSave surfaceDataStore(surfaceStorePath.string(), m_append);
 
         ptree& node = pt.add("project.snapshots.snapshot", "");
         node.put("<xmlattr>.age", snapShot->getAge());
@@ -125,7 +127,7 @@ void ImportExport::addProject(boost::property_tree::ptree& pt, boost::shared_ptr
             ptree& surfaceNode = node.add("surfaces.surface", "");
 
             // Data storage
-            surfaceDataStore.addSurface(surfaceIO, surfaceNode);
+            addSurface(surfaceDataStore, surfaceIO, surfaceNode);
         }
 
         // Add the continuous volume
@@ -133,7 +135,7 @@ void ImportExport::addProject(boost::property_tree::ptree& pt, boost::shared_ptr
         if (volume)
         {
             ptree& volNode = node.add("volume", "");
-            volumeStore.addVolume(volume, volNode);
+            addVolume(volumeStore, volume, volNode);
         }
 
         // Add a volume per formation, with discontinuous properties
@@ -151,7 +153,7 @@ void ImportExport::addProject(boost::property_tree::ptree& pt, boost::shared_ptr
 
             // Add volume 
             ptree& subvolNode = volNode.add("volume", "");
-            volumeStore.addVolume(subVolume, subvolNode);
+            addVolume(volumeStore, subVolume, subvolNode);
         }
 
         const TrapperList trappers = snapShot->getTrapperList();
@@ -215,6 +217,129 @@ void CauldronIO::ImportExport::addFormation(boost::property_tree::ptree& node, c
     subNode.put("<xmlattr>.isML", formation->isMobileLayer());
 }
 
+void CauldronIO::ImportExport::addSurface(DataStoreSave& dataStore, const boost::shared_ptr<Surface>& surfaceIO, boost::property_tree::ptree& ptree)
+{
+    // Retrieve data if necessary: if the getDataStoreParams is unequal to zero this means data is saved and does not need to be saved again
+    if (!surfaceIO->isRetrieved() && !m_append)
+        surfaceIO->retrieve();
+
+    // Write general info
+    ptree.put("<xmlattr>.name", surfaceIO->getName());
+    if (surfaceIO->getReservoir())
+        ptree.put("<xmlattr>.reservoir", surfaceIO->getReservoir()->getName());
+    ptree.put("<xmlattr>.subsurfacekind", surfaceIO->getSubSurfaceKind());
+    if (surfaceIO->getFormation())
+        ptree.put("<xmlattr>.formation", surfaceIO->getFormation()->getName());
+
+    // Write geometry
+    addGeometryInfo2D(ptree, surfaceIO->getGeometry());
+    size_t size = surfaceIO->getGeometry()->getNumI()*surfaceIO->getGeometry()->getNumJ();
+
+    // Iterate over all contained valuemaps
+    const PropertySurfaceDataList valueMaps = surfaceIO->getPropertySurfaceDataList();
+
+    BOOST_FOREACH(boost::shared_ptr<PropertySurfaceData> propertySurfaceData, valueMaps)
+    {
+        boost::property_tree::ptree& node = ptree.add("propertymaps.propertymap", "");
+        node.put("<xmlattr>.property", propertySurfaceData->first->getName());
+
+        boost::shared_ptr<SurfaceData>& surfaceData = propertySurfaceData->second;
+
+        if (surfaceData->isConstant())
+            node.put("<xmlattr>.constantvalue", surfaceData->getConstantValue());
+        else
+            dataStore.addSurface(surfaceData, node, size);
+    }
+
+    if (m_release)
+        surfaceIO->release();
+
+}
+
+void CauldronIO::ImportExport::addVolume(DataStoreSave& dataStore, const boost::shared_ptr<Volume>& volume, boost::property_tree::ptree& volNode)
+{
+    if (!volume->isRetrieved() && !m_append)
+        volume->retrieve();
+
+    volNode.put("<xmlattr>.subsurfacekind", volume->getSubSurfaceKind());
+
+    // Set geometry
+    const boost::shared_ptr<const Geometry3D>& geometry = volume->getGeometry();
+    addGeometryInfo3D(volNode, geometry);
+    size_t numBytes = geometry->getNumI()*geometry->getNumJ()*geometry->getNumK()*sizeof(float);
+
+    BOOST_FOREACH(const boost::shared_ptr<PropertyVolumeData>& propVolume, volume->getPropertyVolumeDataList())
+    {
+        const boost::shared_ptr<const Property>& prop = propVolume->first;
+        const boost::shared_ptr<VolumeData>& data = propVolume->second;
+
+        boost::property_tree::ptree& node = volNode.add("propertyvols.propertyvol", "");
+        node.put("<xmlattr>.property", prop->getName());
+
+        if (data->isConstant())
+        {
+            node.put("<xmlattr>.constantvalue", data->getConstantValue());
+            continue;
+        }
+
+        dataStore.addVolume(data, node, numBytes);
+    }
+
+    if (m_release)
+        volume->release();
+}
+
+void CauldronIO::ImportExport::addGeometryInfo2D(boost::property_tree::ptree& node, const boost::shared_ptr<const Geometry2D>& geometry) const
+{
+    boost::property_tree::ptree& subNode = node.add("geometry", "");
+    subNode.put("<xmlattr>.numI", geometry->getNumI());
+    subNode.put("<xmlattr>.numJ", geometry->getNumJ());
+    subNode.put("<xmlattr>.minI", geometry->getMinI());
+    subNode.put("<xmlattr>.minJ", geometry->getMinJ());
+    subNode.put("<xmlattr>.deltaI", geometry->getDeltaI());
+    subNode.put("<xmlattr>.deltaJ", geometry->getDeltaJ());
+}
+
+void CauldronIO::ImportExport::addGeometryInfo3D(boost::property_tree::ptree& tree, const boost::shared_ptr<const Geometry3D>& geometry) const
+{
+    boost::property_tree::ptree& subNode = tree.add("geometry", "");
+
+    subNode.put("<xmlattr>.numI", geometry->getNumI());
+    subNode.put("<xmlattr>.numJ", geometry->getNumJ());
+    subNode.put("<xmlattr>.minI", geometry->getMinI());
+    subNode.put("<xmlattr>.minJ", geometry->getMinJ());
+    subNode.put("<xmlattr>.deltaI", geometry->getDeltaI());
+    subNode.put("<xmlattr>.deltaJ", geometry->getDeltaJ());
+    subNode.put("<xmlattr>.numK", geometry->getNumK());
+    subNode.put("<xmlattr>.firstK", geometry->getFirstK());
+}
+
+// If the objects are 'native' implementation, we should append the output files, otherwise
+// we should start from scratch
+bool CauldronIO::ImportExport::detectAppend(boost::shared_ptr<Project>& project)
+{
+    const SnapShotList snapShotList = project->getSnapShots();
+    BOOST_FOREACH(boost::shared_ptr<const SnapShot> snapShot, snapShotList)
+    {
+        const SurfaceList surfaces = snapShot->getSurfaceList();
+        BOOST_FOREACH(const boost::shared_ptr<Surface>& surfaceIO, surfaces)
+        {
+            if (dynamic_cast<MapNative*>(surfaceIO->getPropertySurfaceDataList().at(0)->second.get()) != NULL) return true;
+            return false;
+        }
+
+        const boost::shared_ptr<Volume>& volume = snapShot->getVolume();
+        BOOST_FOREACH(const boost::shared_ptr<PropertyVolumeData>& volumeData, volume->getPropertyVolumeDataList())
+        {
+            if (dynamic_cast<VolumeDataNative*>(volumeData->second.get()) != NULL) return true;
+            return false;
+        }
+    }
+
+    // This should not happen
+    return false;
+}
+
 //////////////////////////////////////////////////////////////////////////
 /// Importing from native format
 //////////////////////////////////////////////////////////////////////////
@@ -262,7 +387,8 @@ std::string CauldronIO::ImportExport::getXMLIndexingFileName()
     return std::string(result.string());
 }
 
-boost::shared_ptr<Project> CauldronIO::ImportExport::getProject(const boost::property_tree::ptree& pt) 
+
+boost::shared_ptr<Project> CauldronIO::ImportExport::getProject(const boost::property_tree::ptree& pt)
 {
     std::string projectName = pt.get<std::string>("project.name");
     std::string projectDescript = pt.get<std::string>("project.description");
@@ -503,32 +629,6 @@ boost::shared_ptr<Project> CauldronIO::ImportExport::getProject(const boost::pro
     }
 
     return m_project;
-}
-
-// If the objects are 'native' implementation, we should append the output files, otherwise
-// we should start from scratch
-bool CauldronIO::ImportExport::detectAppend(boost::shared_ptr<Project>& project)
-{
-    const SnapShotList snapShotList = project->getSnapShots();
-    BOOST_FOREACH(boost::shared_ptr<const SnapShot> snapShot, snapShotList)
-    {
-        const SurfaceList surfaces = snapShot->getSurfaceList();
-        BOOST_FOREACH(const boost::shared_ptr<Surface>& surfaceIO, surfaces)
-        {
-            if (dynamic_cast<MapNative*>(surfaceIO->getPropertySurfaceDataList().at(0)->second.get()) != NULL) return true;
-            return false;
-        }
-
-        const boost::shared_ptr<Volume>& volume = snapShot->getVolume();
-        BOOST_FOREACH(const boost::shared_ptr<PropertyVolumeData>& volumeData, volume->getPropertyVolumeDataList())
-        {
-            if (dynamic_cast<VolumeDataNative*>(volumeData->second.get()) != NULL) return true;
-            return false;
-        }
-    }
-
-    // This should not happen
-    return false;
 }
 
 boost::shared_ptr<const Reservoir> CauldronIO::ImportExport::getReservoir(const boost::property_tree::ptree& reservoirNode) const

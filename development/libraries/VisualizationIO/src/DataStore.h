@@ -73,19 +73,17 @@ namespace CauldronIO
         /// \param [in] append If true, appends to existing data structure, otherwise, write from scratch. This is only supported with native data
         /// \param [in] release If true, data will be release upon saving
         /// \param [in] filename filename where to save to
-        DataStoreSave(const std::string& filename, bool append, bool release);
+        DataStoreSave(const std::string& filename, bool append);
         ~DataStoreSave();
 
         /// \brief Adds a surface to the XML node, and writes the binary data
-        void addSurface(const boost::shared_ptr<Surface>& surfaceIO, boost::property_tree::ptree& ptree);
+        void addSurface(const boost::shared_ptr<SurfaceData>& surfaceData, boost::property_tree::ptree& node, size_t size);
         /// \brief Adds a volume to the XML node, and writes the binary data
-        void addVolume(const boost::shared_ptr<Volume>& volume, boost::property_tree::ptree& volNode);
+        void addVolume(const boost::shared_ptr<VolumeData>& data, boost::property_tree::ptree& node, size_t numBytes);
         // Returns a compressed char* with size "size", for given input data char* and size
         static char* compress(const char* data, size_t& size);
 
     private:
-        void addGeometryInfo2D(boost::property_tree::ptree& tree, const boost::shared_ptr<const Geometry2D>& map) const;
-        void addGeometryInfo3D(boost::property_tree::ptree& tree, const boost::shared_ptr<const Geometry3D>& geometry) const;
         void writeVolume(const boost::shared_ptr<VolumeData>& volume, bool dataIJK, bool compress);
         void writeVolumePart(boost::property_tree::ptree &volNode, bool compress, bool IJK, const boost::shared_ptr<VolumeData>& volume);
         void addData(const float* data, size_t size, bool compressData);
@@ -94,8 +92,6 @@ namespace CauldronIO
         size_t m_offset, m_lastSize;
         std::string m_fileName;
         bool m_compress;
-        bool m_append;
-        bool m_release;
     };
 }
 

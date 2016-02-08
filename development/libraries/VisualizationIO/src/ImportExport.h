@@ -47,12 +47,18 @@ namespace CauldronIO
         boost::shared_ptr<const Geometry2D> getGeometry2D(const boost::property_tree::ptree& surfaceNode) const;
         boost::shared_ptr<const Geometry3D> getGeometry3D(const boost::property_tree::ptree& volumeNode);
         boost::shared_ptr<Volume> getVolume(const boost::property_tree::ptree& volumeNode, const boost::filesystem::path& path);
+        void addSurface(DataStoreSave& dataStore, const boost::shared_ptr<Surface>& surfaceIO, boost::property_tree::ptree& ptree);
+        void addVolume(DataStoreSave& dataStore, const boost::shared_ptr<Volume>& volumeIO, boost::property_tree::ptree& ptree);
+        void addGeometryInfo2D(boost::property_tree::ptree& node, const boost::shared_ptr<const Geometry2D>& geometry) const;
+        void addGeometryInfo3D(boost::property_tree::ptree& tree, const boost::shared_ptr<const Geometry3D>& geometry) const;
+
         /// \brief Returns the default XML indexing filename 
         static std::string getXMLIndexingFileName();
-
+        
         // member variables
         boost::filesystem::path m_absPath, m_relPath;
         boost::shared_ptr<Project> m_project;
+        bool m_append, m_release;
     };
 }
 #endif
