@@ -89,7 +89,8 @@ mpi_lib[1]="$INTELMPI_HOME/lib"
 # mpi_start[1]="mpdboot -n $GEMPIS_NUMHOSTS -f $GEMPIS_MACHINEFILE $GEMPIS_MPISTART_OPTIONS "
 # mpi_stop[1]="mpdallexit"
 # mpi_run[1]="mpirun -r ssh -np $GEMPIS_NUMCPUS -f $GEMPIS_MACHINEFILE -env I_MPI_DEBUG 5 -env I_MPI_FABRICS shm:tcp $GEMPIS_MPIRUN_OPTIONS "
-mpi_run[1]="mpirun -r ssh -np $GEMPIS_NUMCPUS -env I_MPI_DEBUG 5 -env I_MPI_FABRICS shm:tcp $GEMPIS_MPIRUN_OPTIONS "
+#mpi_run[1]="mpirun -r ssh -np $GEMPIS_NUMCPUS -env I_MPI_DEBUG 5 -env I_MPI_FABRICS shm:tcp $GEMPIS_MPIRUN_OPTIONS "
+mpi_run[1]="mpirun -np $GEMPIS_NUMCPUS $GEMPIS_MPIRUN_OPTIONS "
 # mpi_start[1]="mpdboot -n $GEMPIS_NUMHOSTS -f $GEMPIS_MACHINEFILE $GEMPIS_MPISTART_OPTIONS "
 # mpi_stop[1]="mpdallexit"
 # builds machine file 
@@ -99,8 +100,13 @@ mpi_buildfile_INTELMPI()
 {
     # parse the assignment list find out the number of processor 
     # fill in the rest of the machine list (order is not important)
-    . /apps/3rdparty/intel/impi/4.1.1.036/intel64/bin/mpivars.sh
 
+    if [ -z "${I_MPI_ROOT}" ]; then
+       . /glb/data/hpcrnd/easybuild/PRODUCTION/software/rhel/6/impi/5.1.2.150-iccifort-2016.1.150-GCC-4.9.3-2.25/intel64/bin/mpivars.sh
+    else
+       . ${I_MPI_ROOT}/intel64/bin/mpivars.sh
+    fi
+    
     # find out the number of processor I have been allowed 
     # and put me at the top of the list
     state=1

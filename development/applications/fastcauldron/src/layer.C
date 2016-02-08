@@ -962,11 +962,6 @@ void LayerProps::nullify (){
   m_previousFlowComponents = NULL;
   m_saturations = NULL;
   m_timeOfElementInvasionVec=NULL;
-
-   if( isBasement() ) {
-     initialiseBasementVecs();
-   }
-
 }
 
 void LayerProps::initialiseSourceRockProperties ( const bool printInitialisationDetails ) {

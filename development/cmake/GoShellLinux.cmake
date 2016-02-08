@@ -26,7 +26,6 @@ endif()
 
 set(CBM_HOME "/nfs/rvl/groups/ept-sg/SWEast/Cauldron" CACHE PATH "The path the shared drive of the development team")
 
-option( BM_BUILD_QT3_APPS "Build programs that need QT3" ON)
 option( BM_CSHARP_API "Build the C sharp interface (Windows only)" OFF )
 option( BM_USE_FLEXLM "Whether to require a license via FlexLM" ON)
 option( BM_EXTERNAL_COMPONENTS_REBUILD "Whether or not to rebuild external components" OFF)
@@ -39,6 +38,14 @@ set(INTEL_MKL_ROOT "${INTEL_CXX_ROOT}/mkl" CACHE PATH "Path to Intel MKL" )
 
 option(BM_USE_INTEL_COMPILER "Whether to use the Intel compiler (UNIX only)" ON)
 option(BM_USE_INTEL_MPI "Whether to use the Intel MPI (UNIX only)" ON)
+
+# Qt3 programs are failed to build with gcc 4.9
+if (BM_USE_INTEL_COMPILER)
+   option( BM_BUILD_QT3_APPS "Build programs that need QT3" ON)
+else (BM_USE_INTEL_COMPILER)
+   option( BM_BUILD_QT3_APPS "Build programs that need QT3" OFF)
+endif (BM_USE_INTEL_COMPILER)
+
 
 set(BM_CLOCK_GETTIME_LIB "")
 set(BM_DL_LIB "" )

@@ -43,7 +43,7 @@ CrustFormation::CrustFormation ( Interface::ProjectHandle * projectHandle, datab
    SmTopBasaltDepth = NULL;
    SmBottomBasaltDepth = NULL;
 
-   
+   initialiseBasementVecs();
    setBasementVectorList();
  }
 

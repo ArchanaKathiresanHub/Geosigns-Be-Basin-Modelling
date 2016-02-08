@@ -14,14 +14,16 @@ include(cmake/AddPackage.cmake)
 include(cmake/EnvSetup.cmake)
 
 set(INTEL_CXX_ROOT "INTEL_CXX_ROOT-NOTFOUND" CACHE PATH "Path to Intel's compiler collection")
+
+set(INTEL_MPI_VERSION "5.03.20150128" CACHE STRING "Intel MPI version")
 set(INTEL_MPI_ROOT "INTEL_MPI_ROOT-NOTFOUND" CACHE PATH "Path to Intel MPI library" )
-set(INTEL_MPI_FLAVOUR "opt" CACHE STRING "Intel MPI library type. Choose from: opt, opt_mt, dbg, dbg_mt, log, log_mt" ) 
+set(INTEL_MPI_FLAVOUR "opt" CACHE STRING "Intel MPI library type. Choose from: opt, opt_mt, dbg, dbg_mt, log, log_mt" )
 
 option(BM_USE_INTEL_COMPILER "Whether to use the Intel compiler (UNIX only)" OFF)
 option(BM_USE_INTEL_MPI "Whether to use the Intel MPI (UNIX only)" OFF)
 option(BM_USE_MPI_FRONTEND "Whether to use MPI frontend when compiling. (UNIX only)" OFF)
-   
-if (UNIX) 
+
+if (UNIX)
 
    #
    # We may need to construct wrappers for a few commands because they need
@@ -54,7 +56,7 @@ if (UNIX)
           CAPABILITY   Compiler
           NAME         "Compiler"
           VENDOR       "Intel"
-          VERSION      "13.1.3 20130607"
+          VERSION      "${CMAKE_CXX_COMPILER_VERSION}"
           LICENSE_TYPE "Commercial"
           LICENSE_FILE "${INTEL_CXX_ROOT}/Documentation/en_US/clicense"
           URL          "http://software.intel.com/en-us/intel-compilers"
@@ -131,19 +133,19 @@ if (UNIX)
          if (NOT BM_USE_MPI_FRONTEND)
             # However the Intel MPI compiler frontends are quite a bit slower when
             # ran from NFS volumes, therefore it's to call the compilers directly
-            execute_process( COMMAND "${C_Compiler}" "-show" "${args}"
+            execute_process( COMMAND "${C_Compiler}" "-nostrip" "-show" "${args}"
                   OUTPUT_VARIABLE evaluatedFrontendLinkingC
             )
-            execute_process( COMMAND "${CXX_Compiler}" "-show" "${args}"
+            execute_process( COMMAND "${CXX_Compiler}" "-nostrip" "-show" "${args}"
                   OUTPUT_VARIABLE evaluatedFrontendLinkingCXX
             )
 
             # Note: Also take into account that these wrappers generate a
             # different set of commands when they are ran in non-linking mode
-            execute_process( COMMAND "${C_Compiler_Without_Linking}" "-c" "-show" "${args}"
+            execute_process( COMMAND "${C_Compiler_Without_Linking}" "-c" "-nostrip" "-show" "${args}"
                   OUTPUT_VARIABLE evaluatedFrontendNonLinkingC
             )
-            execute_process( COMMAND "${CXX_Compiler_Without_Linking}" "-c" "-show" "${args}"
+            execute_process( COMMAND "${CXX_Compiler_Without_Linking}" "-c" "-nostrip" "-show" "${args}"
                   OUTPUT_VARIABLE evaluatedFrontendNonLinkingCXX
             )
 
@@ -167,7 +169,7 @@ if (UNIX)
              CAPABILITY MPIlib
              NAME         "MPI"
              VENDOR       "Intel"
-             VERSION      "4.1.1.036"
+             VERSION      "${INTEL_MPI_VERSION}"
              LICENSE_TYPE "Commercial"
              LICENSE_FILE "${INTEL_MPI_ROOT}/mpiEULA.txt"
              URL          "http://software.intel.com/en-us/intel-mpi-library"
