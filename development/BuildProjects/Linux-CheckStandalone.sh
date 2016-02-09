@@ -84,7 +84,7 @@ EOF
 
 # Make script to be executed on the remote host
 cat > $script <<EOF
-#!/bin/bash
+#!/bin/bash -l -x
 
 local_host=${local_host}
 tarfile=${tarfile}
@@ -158,7 +158,7 @@ scp $SSH_OPTS ${run_on_cluster} ${remote_host}:${run_on_cluster} \
 
 echo "Execute the script on the remote host"
 exit_status=0
-ssh $SSH_OPTS  ${remote_host} /bin/bash ${run_on_cluster} < ${script} 
+ssh $SSH_OPTS  ${remote_host} /bin/bash -l -x ${run_on_cluster} < ${script} 
 if [ $? != 0 ]; then
   echo "$0 : error: Standalone version could not be compiled"
   exit_status=1
