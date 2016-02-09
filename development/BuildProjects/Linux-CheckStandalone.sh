@@ -84,7 +84,7 @@ EOF
 
 # Make script to be executed on the remote host
 cat > $script <<EOF
-#!/bin/bash -l -x
+#!/bin/bash -lx
 
 local_host=${local_host}
 tarfile=${tarfile}
