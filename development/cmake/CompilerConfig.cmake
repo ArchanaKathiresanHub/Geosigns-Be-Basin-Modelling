@@ -93,8 +93,9 @@ if (UNIX)
 
       # If we do build parallel applications
       if (BM_USE_INTEL_MPI)
-      
-         if ( ${INTEL_MPI_VERSION} VERSION_GREATER "4" )
+
+         STRING(SUBSTRING ${INTEL_MPI_VERSION} 1 1 INTEL_MPI_VERSION_MAJOR)
+         if (${INTEL_MPI_VERSION_MAJOR} VERSION_GREATER  4)
             set(NO_STRIP_OPTION "-nostrip")
          endif()
          

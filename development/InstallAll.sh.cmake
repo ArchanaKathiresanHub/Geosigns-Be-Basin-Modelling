@@ -13,7 +13,7 @@
 set -e
 
 # search for the correct group
-cldgrp=`groups`
+cldgrp=`groups 2> /dev/null` || true
   if [[ "$cldgrp" =~ "g_psaz00" ]];then
     cldgrp="g_psaz00"
   else
