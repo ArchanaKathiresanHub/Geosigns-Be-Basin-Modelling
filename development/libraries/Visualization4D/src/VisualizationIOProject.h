@@ -15,11 +15,19 @@
 
 #include <VisualizationAPI.h>
 
+#include <map>
+#include <string>
+
 class VisualizationIOProject : public Project
 {
   boost::shared_ptr<CauldronIO::Project> m_project;
 
   ProjectInfo m_projectInfo;
+  
+  std::map<std::string, int> m_formationIdMap;
+  std::map<std::string, int> m_surfaceIdMap;
+  std::map<std::string, int> m_reservoirIdMap;
+  std::map<std::string, int> m_propertyIdMap;
 
   CauldronIO::SnapShotList m_snapshots;
 
