@@ -160,12 +160,12 @@ class CommandHandler
     RemoteViz::Rendering::RenderArea* renderArea,
     RemoteViz::Rendering::Connection* connection);
 
-  void onShowFlowVectors(
+  void onSetFlowLinesStep(
     const jsonxx::Object& params,
     RemoteViz::Rendering::RenderArea* renderArea,
     RemoteViz::Rendering::Connection* connection);
 
-  void onSetFlowLinesStep(
+  void onSetFlowLinesThreshold(
     const jsonxx::Object& params,
     RemoteViz::Rendering::RenderArea* renderArea,
     RemoteViz::Rendering::Connection* connection);

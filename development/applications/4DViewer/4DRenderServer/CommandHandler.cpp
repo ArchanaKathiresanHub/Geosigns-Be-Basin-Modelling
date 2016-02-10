@@ -387,24 +387,34 @@ void CommandHandler::onShowFluidContacts(
   m_sceneGraphManager->setProperty(show ? SceneGraphManager::FluidContactsPropertyId : -1);
 }
 
-void CommandHandler::onShowFlowVectors(
-  const jsonxx::Object& params,
-  RemoteViz::Rendering::RenderArea* /*renderArea*/,
-  RemoteViz::Rendering::Connection* /*connection*/)
-{
-  auto show = params.get<bool>("show");
-
-  m_sceneGraphManager->showFlowVectors(show);
-}
-
 void CommandHandler::onSetFlowLinesStep(
   const jsonxx::Object& params,
   RemoteViz::Rendering::RenderArea* /*renderArea*/,
   RemoteViz::Rendering::Connection* /*connection*/)
 {
+  auto typeStr = params.get<std::string>("type");
+  auto type = (typeStr == "FlowLinesExpulsion")
+    ? SceneGraphManager::FlowLinesExpulsion
+    : SceneGraphManager::FlowLinesLeakage;
+
   auto step = (int)params.get<jsonxx::Number>("step");
 
-  m_sceneGraphManager->setFlowLinesStep(step);
+  m_sceneGraphManager->setFlowLinesStep(type, step);
+}
+
+void CommandHandler::onSetFlowLinesThreshold(
+  const jsonxx::Object& params,
+  RemoteViz::Rendering::RenderArea* /*renderArea*/,
+  RemoteViz::Rendering::Connection* /*connection*/)
+{
+  auto typeStr = params.get<std::string>("type");
+  auto type = (typeStr == "FlowLinesExpulsion")
+    ? SceneGraphManager::FlowLinesExpulsion
+    : SceneGraphManager::FlowLinesLeakage;
+
+  auto threshold = (double)params.get<jsonxx::Number>("threshold");
+
+  m_sceneGraphManager->setFlowLinesThreshold(type, threshold);
 }
 
 void CommandHandler::onShowDrainageAreaOutlines(
@@ -576,8 +586,8 @@ void CommandHandler::registerHandlers()
   m_handlers["ShowTraps"] = &CommandHandler::onShowTraps;
   m_handlers["ShowTrapOutlines"] = &CommandHandler::onShowTrapOutlines;
   m_handlers["ShowFluidContacts"] = &CommandHandler::onShowFluidContacts;
-  m_handlers["ShowFlowVectors"] = &CommandHandler::onShowFlowVectors;
   m_handlers["SetFlowLinesStep"] = &CommandHandler::onSetFlowLinesStep;
+  m_handlers["SetFlowLinesThreshold"] = &CommandHandler::onSetFlowLinesThreshold;
   m_handlers["ShowDrainageAreaOutline"] = &CommandHandler::onShowDrainageAreaOutlines;
   m_handlers["SetProjection"] = &CommandHandler::onSetProjection;
   m_handlers["SetCurrentSnapshot"] = &CommandHandler::onSetCurrentSnapshot;

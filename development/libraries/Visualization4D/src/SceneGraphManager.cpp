@@ -687,8 +687,8 @@ void SceneGraphManager::updateSnapshotFlowLines()
     {
       auto type = m_projectInfo.flowLines[id].type;
       int step = (type == Project::FlowLines::Expulsion) 
-        ? m_flowLinesStep 
-        : 1;
+        ? m_flowLinesExpulsionStep 
+        : m_flowLinesLeakageStep;
       double threshold = (type == Project::FlowLines::Expulsion) 
         ? m_flowLinesExpulsionThreshold 
         : m_flowLinesLeakageThreshold;
@@ -1439,9 +1439,10 @@ SceneGraphManager::SceneGraphManager()
   , m_showTrapOutlines(false)
   , m_showFlowVectors(false)
   , m_drainageAreaType(DrainageAreaNone)
-  , m_flowLinesStep(1)
+  , m_flowLinesExpulsionStep(1)
+  , m_flowLinesLeakageStep(1)
   , m_flowLinesExpulsionThreshold(0.0)
-  , m_flowLinesLeakageThreshold(5e8)
+  , m_flowLinesLeakageThreshold(0.0)
   , m_verticalScale(1.f)
   , m_projectionType(PerspectiveProjection)
   , m_formationsTimeStamp(MxTimeStamp::getTimeStamp())
@@ -1656,25 +1657,51 @@ void SceneGraphManager::setProperty(int propertyId)
   updateSnapshot();
 }
 
-void SceneGraphManager::showFlowVectors(bool enabled)
+void SceneGraphManager::setFlowLinesStep(FlowLinesType type, int step)
 {
-  if (m_showFlowVectors != enabled)
+  if (type == FlowLinesExpulsion)
   {
-    // TODO: do something here
-    // ...
+    if (step != m_flowLinesExpulsionStep)
+    {
+      m_flowLinesExpulsionStep = step;
+      m_flowLinesTimeStamp = MxTimeStamp::getTimeStamp();
 
-    m_showFlowVectors = enabled;
+      updateSnapshot();
+    }
+  }
+  else
+  {
+    if (step != m_flowLinesLeakageStep)
+    {
+      m_flowLinesLeakageStep = step;
+      m_flowLinesTimeStamp = MxTimeStamp::getTimeStamp();
+
+      updateSnapshot();
+    }
   }
 }
 
-void SceneGraphManager::setFlowLinesStep(int step)
+void SceneGraphManager::setFlowLinesThreshold(FlowLinesType type, double threshold)
 {
-  if (step != m_flowLinesStep)
+  if (type == FlowLinesExpulsion)
   {
-    m_flowLinesStep = step;
-    m_flowLinesTimeStamp = MxTimeStamp::getTimeStamp();
+    if (threshold != m_flowLinesExpulsionThreshold)
+    {
+      m_flowLinesExpulsionThreshold = threshold;
+      m_flowLinesTimeStamp = MxTimeStamp::getTimeStamp();
 
-    updateSnapshot();
+      updateSnapshot();
+    }
+  }
+  else
+  {
+    if (threshold != m_flowLinesLeakageThreshold)
+    {
+      m_flowLinesLeakageThreshold = threshold;
+      m_flowLinesTimeStamp = MxTimeStamp::getTimeStamp();
+
+      updateSnapshot();
+    }
   }
 }
 

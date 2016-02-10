@@ -274,8 +274,10 @@ void MainWindow::updateUI()
   m_ui.checkBoxDrainageOutline->setChecked(false);
 
   m_ui.radioButtonDrainageAreaFluid->setChecked(true);
-  m_ui.checkBoxFlowVectors->setChecked(false);
-  m_ui.sliderFlowLinesStep->setValue(1);
+  m_ui.spinBoxExpulsionStep->setValue(1);
+  m_ui.sliderExpulsionThreshold->setValue(0);
+  m_ui.spinBoxLeakageStep->setValue(1);
+  m_ui.sliderLeakageThreshold->setValue(0);
 
   m_ui.sliderVerticalScale->setValue(0);
 
@@ -329,8 +331,12 @@ void MainWindow::connectSignals()
   connect(m_ui.radioButtonDrainageAreaFluid, SIGNAL(toggled(bool)), this, SLOT(onDrainageAreaTypeChanged(bool)));
   connect(m_ui.radioButtonDrainageAreaGas, SIGNAL(toggled(bool)), this, SLOT(onDrainageAreaTypeChanged(bool)));
   connect(m_ui.checkBoxFluidContacts, SIGNAL(toggled(bool)), this, SLOT(onFluidContactsToggled(bool)));
-  connect(m_ui.checkBoxFlowVectors, SIGNAL(toggled(bool)), this, SLOT(onFlowVectorsToggled(bool)));
-  connect(m_ui.sliderFlowLinesStep, SIGNAL(valueChanged(int)), this, SLOT(onFlowLinesStepChanged(int)));
+  
+  //connect(m_ui.sliderFlowLinesStep, SIGNAL(valueChanged(int)), this, SLOT(onFlowLinesStepChanged(int)));
+  connect(m_ui.spinBoxLeakageStep, SIGNAL(valueChanged(int)), this, SLOT(onFlowLinesStepChanged(int)));
+  connect(m_ui.spinBoxExpulsionStep, SIGNAL(valueChanged(int)), this, SLOT(onFlowLinesStepChanged(int)));
+  connect(m_ui.sliderLeakageThreshold, SIGNAL(valueChanged(int)), this, SLOT(onFlowLinesThresholdChanged(int)));
+  connect(m_ui.sliderExpulsionThreshold, SIGNAL(valueChanged(int)), this, SLOT(onFlowLinesThresholdChanged(int)));
 
   connect(m_ui.treeWidget, SIGNAL(itemChanged(QTreeWidgetItem*, int)), this, SLOT(onTreeWidgetItemChanged(QTreeWidgetItem*, int)));
 }
@@ -622,14 +628,30 @@ void MainWindow::onFluidContactsToggled(bool value)
   m_sceneGraphManager->setProperty(value ? SceneGraphManager::FluidContactsPropertyId : -1);
 }
 
-void MainWindow::onFlowVectorsToggled(bool enabled)
-{
-  m_sceneGraphManager->showFlowVectors(enabled);
-}
-
 void MainWindow::onFlowLinesStepChanged(int value)
 {
-  m_sceneGraphManager->setFlowLinesStep(value);
+  auto type = (sender() == m_ui.spinBoxExpulsionStep)
+    ? SceneGraphManager::FlowLinesExpulsion
+    : SceneGraphManager::FlowLinesLeakage;
+
+  m_sceneGraphManager->setFlowLinesStep(type, value);
+}
+
+void MainWindow::onFlowLinesThresholdChanged(int value)
+{
+  auto slider = reinterpret_cast<QSlider*>(sender());
+
+  const double maxPower = 9.0;
+  double power = maxPower * (double)value / (double)slider->maximum();
+  double threshold = pow(10, power);
+
+  slider->setToolTip(QString::number(threshold, 'g', 2));
+
+  auto type = (sender() == m_ui.sliderExpulsionThreshold)
+    ? SceneGraphManager::FlowLinesExpulsion
+    : SceneGraphManager::FlowLinesLeakage;
+
+  m_sceneGraphManager->setFlowLinesThreshold(type, threshold);
 }
 
 void MainWindow::onItemDoubleClicked(QTreeWidgetItem* item, int column)

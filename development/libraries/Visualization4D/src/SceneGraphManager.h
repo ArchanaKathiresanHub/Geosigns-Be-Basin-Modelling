@@ -271,6 +271,12 @@ public:
     DrainageAreaGas
   };
 
+  enum FlowLinesType
+  {
+    FlowLinesLeakage,
+    FlowLinesExpulsion
+  };
+
   struct PickResult
   {
     enum Type
@@ -321,7 +327,8 @@ private:
   bool m_showFlowVectors;
 
   DrainageAreaType m_drainageAreaType;
-  int m_flowLinesStep;
+  int m_flowLinesExpulsionStep;
+  int m_flowLinesLeakageStep;
   double m_flowLinesExpulsionThreshold;
   double m_flowLinesLeakageThreshold;
 
@@ -446,9 +453,9 @@ public:
 
   void setProperty(int propertyId);
 
-  void showFlowVectors(bool enabled);
+  void setFlowLinesStep(FlowLinesType type, int step);
 
-  void setFlowLinesStep(int step);
+  void setFlowLinesThreshold(FlowLinesType type, double threshold);
 
   void enableFormation(int formationId, bool enabled);
 

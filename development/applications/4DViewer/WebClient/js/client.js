@@ -348,10 +348,35 @@ function onShowFlowVectorsChanged(elem)
 
 function onFlowLinesStepSliderChanged(elem)
 {
+    var typeStr = (elem.id == "sliderFlowLinesLeakageStep")
+        ? "FlowLinesLeakage"
+        : "FlowLinesExpulsion";
+
     var msg = {
         cmd: "SetFlowLinesStep",
         params: {
+            type: typeStr,
             step: elem.valueAsNumber
+        }
+    }
+
+    theRenderArea.sendMessage(JSON.stringify(msg));
+}
+
+function onFlowLinesThresholdSliderChanged(elem)
+{
+    var typeStr = (elem.id == "sliderFlowLinesLeakageThreshold")
+        ? "FlowLinesLeakage"
+        : "FlowLinesExpulsion";
+
+    var maxPower = 9.0;
+    var thresholdVal = Math.pow(10, maxPower * .01 * elem.valueAsNumber);
+
+    var msg = {
+        cmd: "SetFlowLinesThreshold",
+        params: {
+            type: typeStr,
+            threshold: thresholdVal
         }
     }
 
