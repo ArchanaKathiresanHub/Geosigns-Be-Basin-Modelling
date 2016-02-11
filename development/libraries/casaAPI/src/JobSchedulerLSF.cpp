@@ -130,10 +130,6 @@ public:
  
       /// Prepare job to submit through LSF
       m_submit.options          = SUB_PROJECT_NAME | SUB_JOB_NAME | SUB_OUT_FILE | SUB_ERR_FILE;
-#ifdef LSF_XDR_VERSION9_1_3
-      m_submit.options          |= SUB_QUEUE;
-      m_submit.options2          = SUB2_JOB_GROUP   | SUB2_SLA; 
-#endif
       m_submit.options3         = SUB3_CWD;
 
       const char * envVar       = getenv( "LSF_CAULDRON_PROJECT_NAME" ); 
@@ -141,13 +137,25 @@ public:
       
 #ifdef LSF_XDR_VERSION9_1_3
       envVar                    = getenv( "LSF_CAULDRON_PROJECT_GROUP" );
-      m_submit.userGroup        = strdup( envVar ? envVar : LSF_CAULDRON_PROJECT_GROUP ); // add project group
+      if ( envVar )
+      {
+         m_submit.userGroup     = strdup( envVar ); // add project group
+         m_submit.options2     |= SUB2_JOB_GROUP;
+      }
 
       envVar                    = getenv( "LSF_CAULDRON_PROJECT_QUEUE" );
-      m_submit.queue            = strdup( envVar ? envVar : LSF_CAULDRON_PROJECT_QUEUE ); // add project queue
+      if ( envVar )
+      {
+         m_submit.queue         = strdup( envVar ); // add project queue
+         m_submit.options      |= SUB_QUEUE;
+      }
 
       envVar                    = getenv( "LSF_CAULDRON_PROJECT_SERVICE_CLASS_NAME" );    // add project class service ??
-      m_submit.sla              = strdup( envVar ? envVar : LSF_CAULDRON_PROJECT_SERVICE_CLASS_NAME );
+      if ( envVar )
+      {
+         m_submit.sla           = strdup( envVar );
+         m_submit.options2     |= SUB2_SLA; 
+      }
 #endif
       m_submit.command          = strdup( scriptName.c_str() );
       m_submit.jobName          = strdup( jobName.c_str() );

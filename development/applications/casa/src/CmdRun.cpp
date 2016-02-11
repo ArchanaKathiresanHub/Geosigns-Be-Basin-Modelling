@@ -143,29 +143,29 @@ void CmdRun::printHelpPage( const char * cmdName )
       
    envVar = getenv( "LSF_CAULDRON_PROJECT_QUEUE" ); 
    std::cout << "    LSF_CAULDRON_PROJECT_QUEUE - project queue (bsub -q .. )\n";
-   std::cout << "        the default value: " << LSF_CAULDRON_PROJECT_QUEUE << "\n";
-   std::cout << "        the current value: " << ( envVar ? envVar : LSF_CAULDRON_PROJECT_QUEUE ) << "\n";
+   std::cout << "        the default value: NotDefined" << "\n";
+   std::cout << "        the current value: " << ( envVar ? envVar : "NotDefined" ) << "\n";
 
    envVar = getenv( "LSF_CAULDRON_PROJECT_GROUP" ); 
    std::cout << "    LSF_CAULDRON_PROJECT_GROUP - project group (bsub -G ...)\n";
-   std::cout << "        the default value: " << LSF_CAULDRON_PROJECT_GROUP << "\n";
-   std::cout << "        the current value: " << ( envVar ? envVar : LSF_CAULDRON_PROJECT_GROUP ) << "\n";
+   std::cout << "        the default value: NotDefined" << "\n";
+   std::cout << "        the current value: " << ( envVar ? envVar : "NotDefined" ) << "\n";
 
    envVar = getenv( "LSF_CAULDRON_PROJECT_SERVICE_CLASS_NAME" );
    std::cout << "    LSF_CAULDRON_PROJECT_SERVICE_CLASS_NAME - project class service name (bsla)\n";
-   std::cout << "        the default value: " << LSF_CAULDRON_PROJECT_SERVICE_CLASS_NAME << "\n";
-   std::cout << "        the current value: " << ( envVar ? envVar : LSF_CAULDRON_PROJECT_SERVICE_CLASS_NAME ) << "\n";
+   std::cout << "        the default value: NotDefined" << "\n";
+   std::cout << "        the current value: " << ( envVar ? envVar : "NotDefined" ) << "\n";
 
    std::cout << "\n";
    std::cout << "    Examples:\n";
    std::cout << "    #     Cluster  Cauldron version.\n";
-   std::cout << "    " << cmdName << " \"LOCAL\"        \"v2014.07nightly\"\n";
+   std::cout << "    " << cmdName << " \"LOCAL\"        \"v2015.1104\"\n";
    std::cout << "\n";
    std::cout << "    #     Cluster  Cauldron ver.   Max pend. jobs\n";
-   std::cout << "    " << cmdName << " \"AMSGDC\"        \"v2014.07nightly\"  5\n";
+   std::cout << "    " << cmdName << " \"AMSGDC\"        \"v2015.1104\"  5\n";
    std::cout << "\n";
    std::cout << "    #     Cluster  Cauldron ver.   Max pend. jobs\n";
-   std::cout << "    " << cmdName << " \"AMSGDC\"        \"v2014.07nightly\"  5  \"select[ostype==RHEL6.6]\"\n";
+   std::cout << "    " << cmdName << " \"AMSGDC\"        \"v2016.05nightly\"  5  \"select[ostype==RHEL6.6]\"\n";
    std::cout << "\n";
 }
 

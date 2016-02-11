@@ -58,12 +58,13 @@ set(DOT_EXECUTABLE "${CBM_HOME}/Tools/bin/dot" CACHE PATH "Path to dot executabl
 set(FLEXLM_ROOT "/apps/3rdparty/EPTFlexLm/v9.2" CACHE PATH "Path to FlexLM directory" )
 set(FLEXLM_LIBRARY "${FLEXLM_ROOT}/LinuxRHEL_i686_30WS/lib64/EPTFlexLm.o" CACHE FILEPATH "Path of FlexLM libraries" )
 
-set(LSF_HOME "/glb/apps/hpc/lsfprod/9.1/linux2.6-glibc2.3-x86_64" CACHE PATH "Home dir for LSF binary files")
-set(LSF_CAULDRON_PROJECT_NAME               "cldrn"     CACHE STRING "Project name for submitting jobs to LSF (for billing purpose)" )
-set(LSF_CAULDRON_PROJECT_QUEUE              "default.q" CACHE STRING "LSF job queue name" )
-set(LSF_CAULDRON_PROJECT_GROUP              "grp_pt"    CACHE STRING "Project group" )
-set(LSF_CAULDRON_PROJECT_SERVICE_CLASS_NAME "pt-sla"    CACHE STRING "Project service class name" )
+if (DEFINED ENV{LSF_BINDIR})
+   set(LSF_HOME "$ENV{LSF_BINDIR}/.." CACHE PATH "Home dir for LSF binary files")
+else ()
+   set(LSF_HOME "/glb/apps/hpc/lsfprod/9.1/linux2.6-glibc2.3-x86_64" CACHE PATH "Home dir for LSF binary files")
+endif ()
 
+set(LSF_CAULDRON_PROJECT_NAME               "cldrn"     CACHE STRING "Project name for submitting jobs to LSF (for billing purpose)" )
 
 set(PARAVIEW_CONFIG_ROOT "${CBM_HOME}/Tools/paraview/Paraview-4.1.0-Release/Linux64x_26/lib/cmake/paraview-4.1"
       CACHE PATH "Path where ParaViewConfig.cmake can be found")
