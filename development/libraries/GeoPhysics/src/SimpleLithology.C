@@ -1,3 +1,12 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
 #include "SimpleLithology.h"
 
 #include <cmath>
@@ -342,7 +351,7 @@ double GeoPhysics::SimpleLithology::porosity(const double ves,
    const bool   includeChemicalCompaction,
    const double chemicalCompaction) const {
 
-   return m_porosity.porosity(ves, maxVes, includeChemicalCompaction, chemicalCompaction);
+   return m_porosity.calculate(ves, maxVes, includeChemicalCompaction, chemicalCompaction);
 
 }
 

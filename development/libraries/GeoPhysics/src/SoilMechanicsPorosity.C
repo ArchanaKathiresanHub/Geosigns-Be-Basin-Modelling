@@ -1,3 +1,12 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
 #include "SoilMechanicsPorosity.h"
 #include "GeoPhysicalConstants.h"
 #include "NumericFunctions.h"
@@ -20,7 +29,7 @@ namespace GeoPhysics
    {}
 
    ///soilMechanicsPorosity porosity function
-   double soilMechanicsPorosity::porosity(const double ves, const double maxVes, const bool includeChemicalCompaction, const double chemicalCompactionTerm) const {
+   double soilMechanicsPorosity::calculate(const double ves, const double maxVes, const bool includeChemicalCompaction, const double chemicalCompactionTerm) const {
 
       const bool loadingPhase = (ves >= maxVes);
 
@@ -105,7 +114,7 @@ namespace GeoPhysics
    }
 
    ///PorosityDerivative
-   double soilMechanicsPorosity::porosityDerivative(const double ves, const double maxVes, const bool includeChemicalCompaction, const double chemicalCompactionTerm) const {
+   double soilMechanicsPorosity::calculateDerivative( const double ves, const double maxVes, const bool includeChemicalCompaction, const double chemicalCompactionTerm ) const {
 
       //
       //
@@ -124,7 +133,7 @@ namespace GeoPhysics
       //
       vesValue = NumericFunctions::Maximum(ves, std::numeric_limits<double>::epsilon());
 
-      porosityValue = porosity(ves, maxVes, includeChemicalCompaction, chemicalCompactionTerm);
+      porosityValue = calculate( ves, maxVes, includeChemicalCompaction, chemicalCompactionTerm );
       porosityDerivative = pow(1.0 - porosityValue, 2) * m_soilMechanicsCompactionCoefficient / vesValue;
 
       return porosityDerivative;

@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2015-2015 Shell International Exploration & Production.
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -38,12 +38,18 @@ namespace GeoPhysics
 		* \param maxVes The maximum vertical effective stress.
 		* \warning Only densityBulk parameter is used for the Gardner computation mode.
 		*/
-		virtual double seismicVelocity(const double seismicVelocityFluid,
+      virtual double calculate( const double seismicVelocityFluid,
 			const double densityFluid,
 			const double densityBulk,
 			const double porosity,
 			const double currentVes,
 			const double maxVes) const;
+
+   private:
+      /// @brief Overwrite default assginment operator
+      SeismicVelocityGardner& operator= (const SeismicVelocityGardner&);
+      /// @brief Overwrite default copy constructor
+      SeismicVelocityGardner( const SeismicVelocityGardner& );
 	};
 }
 

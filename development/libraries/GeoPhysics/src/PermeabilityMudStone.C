@@ -1,28 +1,28 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
 #include "PermeabilityMudStone.h"
+
+#include "GeoPhysicalConstants.h"
 
 #include <cmath>
 
 namespace GeoPhysics
 {
 
-const double
-PermeabilityMudStone
-   :: s_log10 = std::log(10.0);
-
-const double
-PermeabilityMudStone
-   :: ves0 = 1.0E+05;
-
-PermeabilityMudStone
-   :: PermeabilityMudStone( double depoPermeability, double permeabilityIncr, double permeabilityDecr)
+PermeabilityMudStone::PermeabilityMudStone( double depoPermeability, double permeabilityIncr, double permeabilityDecr)
    : m_depoPermeability( depoPermeability)
    , m_permeabilityIncr(permeabilityIncr)
    , m_permeabilityDecr(permeabilityDecr)
 {}
 
-double 
-PermeabilityMudStone
-   :: permeability( const double ves, const double maxVes, const double calculatedPorosity) const
+double PermeabilityMudStone::calculate( const double ves, const double maxVes, const double calculatedPorosity) const
 {
    const double cutOff = 0.0;
    const double maxPerm = 1000.0;
@@ -50,9 +50,7 @@ PermeabilityMudStone
    }
 }
 
-void
-PermeabilityMudStone
-   :: permeabilityDerivative( const double ves, const double maxVes, const double calculatedPorosity,
+void PermeabilityMudStone::calculateDerivative( const double ves, const double maxVes, const double calculatedPorosity,
 		   const double porosityDerivativeWrtVes, double & permeability, double & derivative ) const
 {
    const double cutOff = 0.0;
@@ -67,18 +65,18 @@ PermeabilityMudStone
    //
    // The ves can be negative during the Newton solve for the pressure 
    // this is a temporary occurence.
-   if (ves >= cutOff && ves0 <= maxVes )
+   if (ves >= cutOff && Ves0 <= maxVes )
    {
       shalePermeabilityAndDerivative(ves, maxVes, permeability, derivative);
       permeability = std::min( maxPerm, permeability);
    }
-   else if (ves >= cutOff && ves0 > maxVes)
+   else if (ves >= cutOff && Ves0 > maxVes)
    {
       double unused = 0.0;
       permeability = shalePermeability( ves, maxVes );
-      shalePermeabilityAndDerivative( ves, ves0, unused, derivative);
+      shalePermeabilityAndDerivative( ves, Ves0, unused, derivative );
    }
-   else if (ves < cutOff && ves0 <= maxVes)
+   else if (ves < cutOff && Ves0 <= maxVes)
    {
      double a = 0.0, b = 0.0;
      shalePermeabilityAndDerivative(cutOff, maxVes, b, a);
@@ -94,67 +92,58 @@ PermeabilityMudStone
      permeability = std::min( a * (ves - cutOff) + b, maxPerm);
 
      double unused = 0.0;
-     shalePermeabilityAndDerivative(cutOff, ves0, unused, derivative);
+     shalePermeabilityAndDerivative( cutOff, Ves0, unused, derivative );
    }
 }
 
-double 
-PermeabilityMudStone
-   :: shalePermeability(  const double ves, const double maxVes) const
+double PermeabilityMudStone::shalePermeability(  const double ves, const double maxVes) const
 {
-  assert ( 0 != ves0 );
+   assert( 0 != Ves0 );
 
   if (ves >= maxVes) 
   {
-    return m_depoPermeability * fastPow(ves0/(ves+ves0), m_permeabilityIncr);
+     return m_depoPermeability * fastPow( Ves0 / (ves + Ves0), m_permeabilityIncr );
   } 
   else 
   {
-    assert ( maxVes != -ves0 );
+    assert( maxVes != -Ves0 );
     assert ( 0 != maxVes );
 
-    return m_depoPermeability * fastPow(ves0/(maxVes+ves0), m_permeabilityIncr) *
-          fastPow((maxVes+ves0)/(ves+ves0), m_permeabilityDecr);
+    return m_depoPermeability * fastPow( Ves0 / (maxVes + Ves0), m_permeabilityIncr ) *
+       fastPow( (maxVes + Ves0) / (ves + Ves0), m_permeabilityDecr );
   }
 }
 
 void
-PermeabilityMudStone
-   :: shalePermeabilityAndDerivative( const double ves, const double maxVes, double & permeability, double & permeabilityDerivative) const
+PermeabilityMudStone::shalePermeabilityAndDerivative( const double ves, const double maxVes, double & permeability, double & permeabilityDerivative) const
 {
-   assert (0 != ves0);
-   assert (0 != (maxVes+ves0));
+   assert( 0 != Ves0 );
+   assert( 0 != (maxVes + Ves0) );
 
    permeability = shalePermeability(ves, maxVes);
 
    if (ves >= maxVes) 
    {
-      permeabilityDerivative = -permeability * m_permeabilityIncr / (ves0 + ves);
+      permeabilityDerivative = -permeability * m_permeabilityIncr / (Ves0 + ves);
    } 
    else
    {
-      assert (maxVes != -ves0);
-      permeabilityDerivative = -permeability * m_permeabilityDecr / (ves0 + ves);
+      assert( maxVes != -Ves0 );
+      permeabilityDerivative = -permeability * m_permeabilityDecr / (Ves0 + ves);
    }
 }
 
-double
-PermeabilityMudStone
-   :: depoPerm() const
+double PermeabilityMudStone::depoPerm() const
 {
    return m_depoPermeability;
 }
 
-Permeability::Model
-PermeabilityMudStone
-   :: model() const
+Permeability::Model PermeabilityMudStone::model() const
 {
    return DataAccess::Interface::MUDSTONE_PERMEABILITY;
 }
 
-inline double
-PermeabilityMudStone
-   :: fastPow( double x, double y)
+inline double PermeabilityMudStone::fastPow( double x, double y)
 {
    if (y == 1.5)
    {

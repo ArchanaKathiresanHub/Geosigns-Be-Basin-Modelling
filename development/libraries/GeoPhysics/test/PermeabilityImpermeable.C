@@ -31,9 +31,9 @@ TEST_F( PermeabilityImpermeableTest, permeability )
    // maxVes >= ves
    // 0 <= calculatedPorosity < 1
 
-   EXPECT_FLOAT_EQ( 1.0e-9, m_p.permeability( 1.0e+5, 1.0e+5, 0) );
-   EXPECT_FLOAT_EQ( 1.0e-9, m_p.permeability( 1.0e+6, 1.0e+6, 0.2) );
-   EXPECT_FLOAT_EQ( 1.0e-9, m_p.permeability( 1.0e+6, 2.0e+6, 0.3) );
+   EXPECT_FLOAT_EQ( 1.0e-9, m_p.calculate( 1.0e+5, 1.0e+5, 0  ) );
+   EXPECT_FLOAT_EQ( 1.0e-9, m_p.calculate( 1.0e+6, 1.0e+6, 0.2) );
+   EXPECT_FLOAT_EQ( 1.0e-9, m_p.calculate( 1.0e+6, 2.0e+6, 0.3) );
 }
 
   //Input domain:
@@ -44,24 +44,24 @@ TEST_F( PermeabilityImpermeableTest, permeability )
 TEST_F( PermeabilityImpermeableTest, permeabilityDerivativeAtmosphere )
 {
    double permeability = NaN, derivative = NaN;
-   m_p.permeabilityDerivative( 1.0e+5, 1.0e+5, 0, 0, permeability, derivative);
+   m_p.calculateDerivative( 1.0e+5, 1.0e+5, 0, 0, permeability, derivative);
    EXPECT_FLOAT_EQ( 1e-9,  permeability );
-   EXPECT_FLOAT_EQ( 0.0,  derivative );
+   EXPECT_FLOAT_EQ( 0.0,  derivative    );
 }
 
 TEST_F( PermeabilityImpermeableTest, permeabilityDerivativeUnderground )
 { 
    double permeability = NaN, derivative = NaN;
-   m_p.permeabilityDerivative( 1.0e+6, 1.0e+6, 0.2, 0, permeability, derivative);
+   m_p.calculateDerivative( 1.0e+6, 1.0e+6, 0.2, 0, permeability, derivative);
    EXPECT_FLOAT_EQ( 1e-9,  permeability );
-   EXPECT_FLOAT_EQ( 0.0,  derivative );
+   EXPECT_FLOAT_EQ( 0.0,  derivative    );
 }
 
 TEST_F( PermeabilityImpermeableTest, permeabilityDerivativeUndergroundAndHigherMaxVes)
 {  double permeability = NaN, derivative = NaN;
-   m_p.permeabilityDerivative( 1.0e+6, 2.0e+6, 0.3, 0, permeability, derivative);
+   m_p.calculateDerivative( 1.0e+6, 2.0e+6, 0.3, 0, permeability, derivative);
    EXPECT_FLOAT_EQ( 1e-9,  permeability );
-   EXPECT_FLOAT_EQ( 0.0,  derivative );
+   EXPECT_FLOAT_EQ( 0.0,   derivative   );
 }
 
 TEST( PermeabilityImpermeable, depoPerm )
@@ -81,6 +81,6 @@ TEST( PermeabilityImpermeable, model )
    // model = any value
    using namespace DataAccess::Interface;
    EXPECT_EQ( IMPERMEABLE_PERMEABILITY ,  PermeabilityImpermeable(0.0, IMPERMEABLE_PERMEABILITY).model() );
-   EXPECT_EQ( NONE_PERMEABILITY,  PermeabilityImpermeable(5.0, NONE_PERMEABILITY).model() );
+   EXPECT_EQ( NONE_PERMEABILITY,          PermeabilityImpermeable(5.0, NONE_PERMEABILITY).model()        );
 }
 

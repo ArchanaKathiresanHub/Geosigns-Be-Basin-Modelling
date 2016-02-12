@@ -1,3 +1,13 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "AbstractPropertyManager.h"
 #include "DerivedFormationProperty.h"
 #include "DerivedPropertyManager.h"
@@ -93,7 +103,7 @@ void DerivedProperties::VelocityFormationCalculator::calculate ( DerivedProperti
                      densityFluid = -1;
                   }
 
-                  velocityValue = lithologies ( i, j, currentTime )->seismicVelocity().seismicVelocity ( seismciVelocityFluid,
+                  velocityValue = lithologies ( i, j, currentTime )->seismicVelocity().calculate ( seismciVelocityFluid,
                                                                                                          densityFluid,
                                                                                                          bulkDensity->getA(i, j, k),
                                                                                                          0.01 * porosity->getA(i, j, k),

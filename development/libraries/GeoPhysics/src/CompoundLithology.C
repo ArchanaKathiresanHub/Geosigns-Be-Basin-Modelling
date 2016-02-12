@@ -1,3 +1,12 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
 #include "CompoundLithology.h"
 
 #include <iostream>
@@ -429,7 +438,7 @@ double GeoPhysics::CompoundLithology::porosity(const double sigma,
    const bool   includeChemicalCompaction,
    const double chemicalCompactionTerm) const {
 
-   return m_porosity.porosity(sigma, sigma_max, includeChemicalCompaction, chemicalCompactionTerm);
+   return m_porosity.calculate(sigma, sigma_max, includeChemicalCompaction, chemicalCompactionTerm);
 }
 //------------------------------------------------------------//
 
@@ -610,7 +619,7 @@ bool  GeoPhysics::CompoundLithology::reCalcProperties(){
    //7. Seismic velocity
    DataAccess::Interface::SeismicVelocityModel seismicVelocityModel = m_projectHandle->getRunParameters()->getSeismicVelocityAlgorithm();
    double mixedModulusSolid = this->mixModulusSolid();
-   m_seismicVelocity = m_seismicVelocity.create(seismicVelocityModel,
+   m_seismicVelocity = SeismicVelocity::create( seismicVelocityModel,
 	   m_seismicVelocitySolid,
 	   mixedModulusSolid,
 	   m_density,
@@ -1352,7 +1361,7 @@ double GeoPhysics::CompoundLithology::computePorosityDerivativeWRTPressure(const
    const bool   includeChemicalCompaction,
    const double chemicalCompactionTerm) const {
 
-   return m_porosity.getPorosityDerivative(ves, maxVes, includeChemicalCompaction, chemicalCompactionTerm);
+   return m_porosity.calculateDerivative(ves, maxVes, includeChemicalCompaction, chemicalCompactionTerm);
 
 }
 //------------------------------------------------------------//

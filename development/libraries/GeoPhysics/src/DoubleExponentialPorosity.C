@@ -1,3 +1,12 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
 #include "DoubleExponentialPorosity.h"
 
 #include "NumericFunctions.h"
@@ -18,7 +27,7 @@ namespace GeoPhysics
    {}
 
    ///Double Exponential porosity function
-   double DoubleExponentialPorosity::porosity(const double ves, const double maxVes, const bool includeChemicalCompaction, const double chemicalCompactionTerm) const
+   double DoubleExponentialPorosity::calculate(const double ves, const double maxVes, const bool includeChemicalCompaction, const double chemicalCompactionTerm) const
    {
 
       double calculatedPorosity;
@@ -61,7 +70,7 @@ namespace GeoPhysics
    }
 
    ///PorosityDerivative
-   double DoubleExponentialPorosity::porosityDerivative(const double ves, const double maxVes, const bool includeChemicalCompaction, const double chemicalCompactionTerm) const {
+   double DoubleExponentialPorosity::calculateDerivative(const double ves, const double maxVes, const bool includeChemicalCompaction, const double chemicalCompactionTerm) const {
 
       //
       //

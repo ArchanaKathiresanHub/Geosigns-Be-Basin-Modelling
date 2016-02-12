@@ -1,3 +1,12 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
 #include "VelocityCalculator.h"
 
 #include "DerivedOutputPropertyMap.h"
@@ -82,7 +91,7 @@ bool VelocityCalculator::operator ()( const OutputPropertyMap::OutputPropertyLis
 				 densityFluid = -1;
 			 }
 
-			 value = (*m_lithologies)(i, j)->seismicVelocity().seismicVelocity(seismciVelocityFluid,
+			 value = (*m_lithologies)(i, j)->seismicVelocity().calculate(seismciVelocityFluid,
 				 densityFluid,
 				 (*m_bulkDensity)(i, j),
 				 (*m_porosity)(i, j) / 100.0,
@@ -201,7 +210,7 @@ bool VelocityVolumeCalculator::operator ()( const OutputPropertyMap::OutputPrope
 					densityFluid = -1;
 				}
 
-				value = (*m_lithologies)(i, j)->seismicVelocity().seismicVelocity(seismciVelocityFluid,
+				value = (*m_lithologies)(i, j)->seismicVelocity().calculate(seismciVelocityFluid,
 					densityFluid,
 					m_bulkDensity->getVolumeValue(i, j, k),
 					m_porosity->getVolumeValue(i, j, k) / 100.0,

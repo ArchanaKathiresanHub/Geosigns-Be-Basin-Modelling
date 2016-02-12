@@ -1,3 +1,12 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
 #ifndef _GEOPHYSICS__POROSITY_H_
 #define _GEOPHYSICS__POROSITY_H_
 
@@ -66,7 +75,23 @@ namespace GeoPhysics
        * \param chemicalCompactionTerm Value of chemical compaction property, ie volume of quartz cemented  [fraction of volume]
        * 
        */
-      double porosity(const double ves, const double maxVes, const bool includeChemicalCompaction, const double chemicalCompactionTerm) const;
+      double calculate( const double ves, const double maxVes, const bool includeChemicalCompaction, const double chemicalCompactionTerm ) const;
+
+      /*!
+      * \brief Get the derivative of porosity at the current time [Pa-1]
+      *
+      * \param ves Vertical Effective Stress [Pa]
+      * \param maxVes Maximum VES reached until current time. If equals to the ves, it is a loading phase [Pa]
+      * \param includeChemicalCompaction Is chemical compaction allowed?
+      * \param chemicalCompactionTerm Value of chemical compaction property, ie volume of quartz cemented  [fraction of volume]
+      *
+      */
+      double calculateDerivative( const double ves, const double maxVes, const bool includeChemicalCompaction, const double chemicalCompactionTerm ) const;
+
+      /// @brief Overwrite default assginment operator to avoid bitwise copy
+      Porosity& operator= (const Porosity& porosity);
+      /// @brief Overwrite default copy constructor to avoid bitwise copy
+      Porosity( const Porosity& porosity );
       
       /*!
        * \brief Get the porosity model
@@ -105,17 +130,6 @@ namespace GeoPhysics
       double getCompactionCoefficientB() const;
       
       /*!
-       * \brief Get the derivative of porosity at the current time [Pa-1]
-       * 
-       * \param ves Vertical Effective Stress [Pa]
-       * \param maxVes Maximum VES reached until current time. If equals to the ves, it is a loading phase [Pa]
-       * \param includeChemicalCompaction Is chemical compaction allowed?
-       * \param chemicalCompactionTerm Value of chemical compaction property, ie volume of quartz cemented  [fraction of volume]
-       * 
-       */
-      double getPorosityDerivative(const double ves, const double maxVes, const bool includeChemicalCompaction, const double chemicalCompactionTerm) const;
-      
-      /*!
        * \brief Get the minimum porosity that the model can reach (for example 3%) [fraction of volume]
        */
       double getMinimumMechanicalPorosity() const;
@@ -136,7 +150,16 @@ namespace GeoPhysics
          /*!
           * \brief Compute the porosity value [fraction of volume]
           */
-         virtual double porosity(const double ves, const double maxVes, const bool includeChemicalCompaction, const double chemicalCompactionTerm) const = 0;
+         virtual double calculate(const double ves, const double maxVes,
+                                  const bool includeChemicalCompaction, 
+                                  const double chemicalCompactionTerm) const = 0;
+
+         /*!
+         * \brief Return the porosity derivative [Pa-1]
+         */
+         virtual double calculateDerivative( const double ves, const double maxVes,
+                                             const bool includeChemicalCompaction,
+                                             const double chemicalCompactionTerm ) const = 0;
 
          /*!
           * \brief Determine if the porosity model is incompressible.
@@ -156,7 +179,11 @@ namespace GeoPhysics
          /*!
           * \brief Return the solid thickness of the layer [m]
           */ 
-         virtual double  fullCompThickness(const double MaxVesValue, const double thickness, const double densitydiff, const double vesScaleFactor, const bool overpressuredCompaction) const;
+         virtual double  fullCompThickness(const double MaxVesValue,
+                                           const double thickness,
+                                           const double densitydiff,
+                                           const double vesScaleFactor,
+                                           const bool overpressuredCompaction) const;
 
          /*!
           * \brief Return the compaction coefficient during loading phase for single exponential model [Pa-1] or the compaction coefficient for soil mechanics model [1]
@@ -174,19 +201,14 @@ namespace GeoPhysics
          virtual double compactionCoefficientB () const =0;
 
          /*!
-         * \brief Return the porosity derivative [Pa-1]
-         */ 
-         virtual double porosityDerivative(const double ves, const double maxVes, const bool includeChemicalCompaction, const double chemicalCompactionTerm) const = 0;
-
-         /*!
           * \brief Return the minimum porosity [fraction of volume]
           */ 
          double  minimumMechanicalPorosity( ) const;
          
       protected:
          
-         double m_minimumMechanicalPorosity;/*!< Minimum porosity */
-         double m_depoPorosity;/*!< Porosity at deposition */
+         double m_minimumMechanicalPorosity; /*!< Minimum porosity */
+         double m_depoPorosity;              /*!< Porosity at deposition */
 
       };
 
@@ -204,25 +226,25 @@ namespace GeoPhysics
 
    };
 
-   /// functions to return the algorithm value
-   inline DataAccess::Interface::PorosityModel
-      Porosity
+   //////////////////////////////////////////////
+   // Inline functions
+
+   inline DataAccess::Interface::PorosityModel Porosity
       ::getPorosityModel() const
    {
       return m_algorithm->model();
    }
 
-   inline double
-      Porosity
+   inline double Porosity
       ::getSurfacePorosity() const
    {
       return m_algorithm->surfacePorosity();
    }
 
    inline double Porosity
-      ::porosity(const double ves, const double maxVes, const bool includeChemicalCompaction, const double chemicalCompactionTerm) const
+      ::calculate( const double ves, const double maxVes, const bool includeChemicalCompaction, const double chemicalCompactionTerm ) const
    {
-      return m_algorithm->porosity(ves, maxVes, includeChemicalCompaction, chemicalCompactionTerm);
+      return m_algorithm->calculate(ves, maxVes, includeChemicalCompaction, chemicalCompactionTerm);
    }
 
    inline double Porosity
@@ -247,8 +269,8 @@ namespace GeoPhysics
       }
 
    inline double Porosity
-     ::getPorosityDerivative(const double ves, const double maxVes, const bool includeChemicalCompaction, const double chemicalCompactionTerm) const {
-     return m_algorithm->porosityDerivative(ves, maxVes, includeChemicalCompaction, chemicalCompactionTerm);
+     ::calculateDerivative(const double ves, const double maxVes, const bool includeChemicalCompaction, const double chemicalCompactionTerm) const {
+     return m_algorithm->calculateDerivative(ves, maxVes, includeChemicalCompaction, chemicalCompactionTerm);
    }
 
    inline double Porosity

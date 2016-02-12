@@ -1,18 +1,25 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
 #include "PermeabilityMultiPoint.h"
+
+#include "GeoPhysicalConstants.h"
 
 #include <cmath>
 
 namespace GeoPhysics
 {
 
-const double
-PermeabilityMultiPoint
-   :: s_log10 = std::log(10.0);
-
-PermeabilityMultiPoint
-   :: PermeabilityMultiPoint(double depoPorosity, const std::vector<double> & porositySamples, const std::vector<double> & permeabilitySamples)
-   : m_porosityPermeabilityInterpolant()
-   , m_depoPermeability(0)
+PermeabilityMultiPoint::PermeabilityMultiPoint(double depoPorosity,
+                                               const std::vector<double> & porositySamples,
+                                               const std::vector<double> & permeabilitySamples)
+   :m_porosityPermeabilityInterpolant(),m_depoPermeability(0)
 {
    assert( porositySamples.size() == permeabilitySamples.size());
    assert( porositySamples.size() > 0);
@@ -31,34 +38,28 @@ PermeabilityMultiPoint
    m_depoPermeability = m_porosityPermeabilityInterpolant.evaluate ( depoPorosity );
 }
 
-double 
-PermeabilityMultiPoint
-   :: permeability( const double ves, const double maxVes, const double calculatedPorosity) const
+double PermeabilityMultiPoint::calculate( const double ves, const double maxVes, const double calculatedPorosity) const
 {
-   double  val = exp ( s_log10 * m_porosityPermeabilityInterpolant.evaluate ( calculatedPorosity ));
+   double  val = exp ( Log10 * m_porosityPermeabilityInterpolant.evaluate ( calculatedPorosity ));
    return std::min( val, 1000.0 );
 }
 
-void
-PermeabilityMultiPoint
-   :: permeabilityDerivative( const double ves, const double maxVes, const double calculatedPorosity,
-		   const double porosityDerivativeWrtVes, double & permeability, double & derivative ) const
+void PermeabilityMultiPoint::calculateDerivative( const double ves, const double maxVes,
+                                                  const double calculatedPorosity,
+		                                            const double porosityDerivativeWrtVes,
+                                                  double & permeability, double & derivative ) const
 {
-   permeability = this->permeability( ves, maxVes, calculatedPorosity);
-   derivative = s_log10 * m_porosityPermeabilityInterpolant.evaluateDerivative ( calculatedPorosity ) * permeability;
+   permeability = this->calculate( ves, maxVes, calculatedPorosity );
+   derivative = Log10 * m_porosityPermeabilityInterpolant.evaluateDerivative ( calculatedPorosity ) * permeability;
    derivative *= porosityDerivativeWrtVes;
 }
 
-double
-PermeabilityMultiPoint
-   :: depoPerm() const
+double PermeabilityMultiPoint::depoPerm() const
 {
    return m_depoPermeability;
 }
 
-Permeability::Model
-PermeabilityMultiPoint
-   :: model() const
+Permeability::Model PermeabilityMultiPoint::model() const
 {
    return DataAccess::Interface::MULTIPOINT_PERMEABILITY;
 }

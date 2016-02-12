@@ -1,3 +1,12 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
 #include "ExponentialPorosity.h"
 
 #include "GeoPhysicalConstants.h"
@@ -12,14 +21,19 @@ namespace GeoPhysics
 {
 
    ///Parameters from constructor
-   ExponentialPorosity::ExponentialPorosity(double depoPorosity, double minimumMechanicalPorosity, double compactionIncr, double compactionDecr) :
+   ExponentialPorosity::ExponentialPorosity(double depoPorosity,
+                                            double minimumMechanicalPorosity,
+                                            double compactionIncr,
+                                            double compactionDecr) :
 	  Algorithm(depoPorosity,minimumMechanicalPorosity),
       m_compactionIncr(compactionIncr),
       m_compactionDecr(compactionDecr)
    {}
 
    ///Exponential porosity function
-   double ExponentialPorosity::porosity(const double ves, const double maxVes, const bool includeChemicalCompaction, const double chemicalCompactionTerm) const {
+   double ExponentialPorosity::calculate( const double ves, const double maxVes,
+                                          const bool includeChemicalCompaction,
+                                          const double chemicalCompactionTerm ) const {
 
       double calculatedPorosity;
 
@@ -65,7 +79,11 @@ namespace GeoPhysics
    }
 
    ///FullCompThickness
-   double ExponentialPorosity::fullCompThickness(const double MaxVesValue, const double thickness, const double densitydiff, const double vesScaleFactor, const bool overpressuredCompaction) const {
+   double ExponentialPorosity::fullCompThickness(const double MaxVesValue,
+                                                 const double thickness,
+                                                 const double densitydiff,
+                                                 const double vesScaleFactor,
+                                                 const bool overpressuredCompaction) const {
 
       double c1;
       double c2;
@@ -92,7 +110,9 @@ namespace GeoPhysics
    }
 
    ///PorosityDerivative
-   double ExponentialPorosity::porosityDerivative(const double ves, const double maxVes, const bool includeChemicalCompaction, const double chemicalCompactionTerm) const {
+   double ExponentialPorosity::calculateDerivative(const double ves, const double maxVes,
+                                                  const bool includeChemicalCompaction,
+                                                  const double chemicalCompactionTerm) const {
 
       //
       //
@@ -105,7 +125,7 @@ namespace GeoPhysics
       double porosityDerivative;
       double porosityValue;
 
-      porosityValue = porosity(ves, maxVes, includeChemicalCompaction, chemicalCompactionTerm);
+      porosityValue = calculate( ves, maxVes, includeChemicalCompaction, chemicalCompactionTerm );
 
       if (ves >= maxVes) {
          porosityDerivative = m_compactionIncr * porosityValue;

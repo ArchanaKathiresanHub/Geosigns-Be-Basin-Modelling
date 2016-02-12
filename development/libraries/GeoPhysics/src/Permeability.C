@@ -1,3 +1,12 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
 #include "Permeability.h"
 #include "PermeabilitySandStone.h"
 #include "PermeabilityMudStone.h"
@@ -15,9 +24,7 @@ Permeability
    , m_permeabilityAniso(permAniso)                               
 {}
 
-Permeability
-Permeability
-   :: create(
+Permeability Permeability::create(
          Model permeabilityModel, double permAniso,
          double depoPorosityPercentage, double depoPermeability, 
          double permeabilityIncr, double permeabilityDecr,
@@ -67,9 +74,10 @@ Permeability
   return Permeability(permAniso, 0);
 }
 
-Permeability
-Permeability
-   :: createMultiPoint(double permAniso, double depoPorosityPercentage, const std::vector<double>& porosityPercentageSamples, const std::vector<double> & permeabilitySamples)
+Permeability Permeability::createMultiPoint(double permAniso,
+                                            double depoPorosityPercentage,
+                                            const std::vector<double>& porosityPercentageSamples,
+                                            const std::vector<double> & permeabilitySamples)
 {
    std::vector<double> porosityFractions = porosityPercentageSamples;
 
@@ -80,9 +88,7 @@ Permeability
 }
 
 
-std::vector<double>
-Permeability
-   :: parseCoefficientsFromString ( const std::string & string)
+std::vector<double> Permeability::parseCoefficientsFromString ( const std::string & string)
 {
    std::istringstream stream(string);
    std::vector<double> result;
@@ -101,6 +107,17 @@ Permeability
 
    return result;
 }
+
+Permeability& Permeability::operator= (const Permeability& permeability){
+   if (this != &permeability) {
+      m_algorithm = permeability.m_algorithm;
+   }
+   return *this;
+}
+
+Permeability::Permeability( const Permeability& permeability )
+   :m_algorithm( permeability.m_algorithm )
+{}
 
 
 }

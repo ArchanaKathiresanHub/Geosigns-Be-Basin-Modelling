@@ -1,3 +1,12 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
 #ifndef _GEOPHYSICS__SIMPLE_LITHOLOGY_H_
 #define _GEOPHYSICS__SIMPLE_LITHOLOGY_H_
 
@@ -340,7 +349,7 @@ inline double GeoPhysics::SimpleLithology::getLambdaKr() const {
 
 inline double GeoPhysics::SimpleLithology::permeability(const double ves, const double maxVes, const double calculatedPorosity) const
 {
-   return m_permeability.permeability(ves, maxVes, calculatedPorosity);
+   return m_permeability.calculate(ves, maxVes, calculatedPorosity);
 }
 
 /// Compte the derivative of the permeability function.
@@ -352,7 +361,7 @@ inline void GeoPhysics::SimpleLithology::permeabilityDerivative(
    double& permeability,
    double& derivative) const
 {
-   m_permeability.permeabilityDerivative(ves, maxVes, calculatedPorosity, porosityDerivativeWrtVes, permeability, derivative);
+   m_permeability.calculateDerivative(ves, maxVes, calculatedPorosity, porosityDerivativeWrtVes, permeability, derivative);
 }
 
 

@@ -1,3 +1,12 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
 #ifndef _GEOPHYSICS__PERMEABILITYIMPERMEABLE_H_
 #define _GEOPHYSICS__PERMEABILITYIMPERMEABLE_H_
 
@@ -14,18 +23,18 @@ public:
       , m_model(model)
    {}
 
-   virtual double permeability ( const double ves, const double maxVes, const double calculatedPorosity ) const
+   virtual double calculate ( const double ves, const double maxVes, const double calculatedPorosity ) const
    {
       return 1.0E-9;
    }
 
    /// Compte the derivative of the permeability function.
-   virtual void permeabilityDerivative ( const double  ves,
-                                         const double  maxVes,
-                                         const double  calculatedPorosity, 
-                                         const double  porosityDerivativeWrtVes,
-                                               double& permeability, 
-                                               double& derivative ) const
+   virtual void calculateDerivative( const double  ves,
+                                     const double  maxVes,
+                                     const double  calculatedPorosity, 
+                                     const double  porosityDerivativeWrtVes,
+                                           double& permeability, 
+                                           double& derivative ) const
    {
       permeability = 1.0E-9;
       derivative = 0.0;
@@ -44,8 +53,13 @@ public:
    }
 
 private:
-   double m_depoPermeability;
-   Permeability::Model m_model;
+   /// @brief Overwrite default assginment operator
+   PermeabilityImpermeable& operator= (const PermeabilityImpermeable&);
+   /// @brief Overwrite default copy constructor
+   PermeabilityImpermeable( const PermeabilityImpermeable& );
+
+   double m_depoPermeability;   ///< The depositional permeability
+   Permeability::Model m_model; ///< The permeability model
 };
 
 

@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2015-2015 Shell International Exploration & Production.
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -20,7 +20,7 @@ namespace GeoPhysics
 	SeismicVelocityWyllie::~SeismicVelocityWyllie()
 	{}
 
-	double SeismicVelocityWyllie::seismicVelocity(const double seismicVelocityFluid,
+	double SeismicVelocityWyllie::calculate(const double seismicVelocityFluid,
 		const double densityFluid,
 		const double densityBulk,
 		const double porosity,

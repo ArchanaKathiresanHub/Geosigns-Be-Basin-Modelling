@@ -1,3 +1,12 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
 #ifndef _GEOPHYSICS__PERMEABILITYSANDSTONE_H_
 #define _GEOPHYSICS__PERMEABILITYSANDSTONE_H_
 
@@ -11,12 +20,13 @@ class PermeabilitySandStone: public Permeability::Algorithm
 public:
    PermeabilitySandStone( double depoPorosity, double depoPermeability, double permeabilityIncr);
 
-   virtual double permeability ( const double ves,
+   /// @brief Compte the sandstone model permeability
+   virtual double calculate ( const double ves,
                                  const double maxVes,
                                  const double calculatedPorosity ) const ;
 
-   /// Compte the derivative of the permeability function.
-   virtual void permeabilityDerivative ( const double  ves,
+   /// @brief Compte the derivative of the sandstone model permeability function
+   virtual void calculateDerivative( const double  ves,
                                          const double  maxVes,
                                          const double  calculatedPorosity, 
                                          const double  porosityDerivativeWrtVes,
@@ -27,15 +37,18 @@ public:
    virtual double depoPerm() const ;
 
    /// Return the permeability model
-   virtual Permeability::Model  model()    const ;
+   virtual Permeability::Model  model() const ;
   
 private:
-   double            m_depoPorosity;
-   double            m_depoPermeability;
+   /// @brief Overwrite default assginment operator
+   PermeabilitySandStone& operator= (const PermeabilitySandStone&);
+   /// @brief Overwrite default copy constructor
+   PermeabilitySandStone( const PermeabilitySandStone& );
+
+   double            m_depoPorosity;      ///< The depositional porosity
+   double            m_depoPermeability;  ///< the depositional permeability
    double            m_permeabilityIncr;
 
-   static const double s_log10;
-   static const double s_maxPerm;
 };
 
 
