@@ -48,6 +48,9 @@ namespace DerivedProperties {
       /// \brief Return true.
       bool isPrimary () const;
 
+      /// \ brief Get the gridMap
+      const DataAccess::Interface::GridMap* getGridMap() const;
+       
    private :
 
       const DataAccess::Interface::PropertyValue* m_propertyValue;

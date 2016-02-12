@@ -109,11 +109,11 @@ void DerivedProperties::VelocityFormationCalculator::calculate ( DerivedProperti
                   }
 
                   velocityValue = lithologies ( i, j, currentTime )->seismicVelocity().calculate ( seismciVelocityFluid,
-                                                                                                         densityFluid,
-                                                                                                         bulkDensity->getA(i, j, k),
-                                                                                                         0.01 * porosity->getA(i, j, k),
-                                                                                                         ves->getA(i, j, k),
-                                                                                                         maxVes->getA(i, j, k));
+                                                                                                   densityFluid,
+                                                                                                   bulkDensity->getA(i, j, k),
+                                                                                                   0.01 * porosity->getA(i, j, k),
+                                                                                                   ves->getA(i, j, k),
+                                                                                                   maxVes->getA(i, j, k));
                   velocity->set ( i, j, k, velocityValue );
                }
 
@@ -183,11 +183,11 @@ void DerivedProperties::VelocityFormationCalculator::calculateForBasement ( Deri
                   seismciVelocityFluid = -1;
                   densityFluid = -1;
 
-                  velocityValue = lithologies ( i, j, currentTime )->seismicVelocity().seismicVelocity ( seismciVelocityFluid,
-                                                                                                         densityFluid,
-                                                                                                         bulkDensity->getA(i, j, k),
-                                                                                                         0.0, 0.0, 0.0 );
-
+                  velocityValue = lithologies ( i, j, currentTime )->seismicVelocity().calculate ( seismciVelocityFluid,
+                                                                                                   densityFluid,
+                                                                                                   bulkDensity->getA(i, j, k),
+                                                                                                   0.0, 0.0, 0.0 );
+                  
                   velocity->set ( i, j, k, velocityValue );
                }
 
