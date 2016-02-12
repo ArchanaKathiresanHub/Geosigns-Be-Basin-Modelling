@@ -33,6 +33,7 @@ Permeability Permeability::create(
          int numberOfMultiPointSamples
          )
 {
+   if (permAniso == 0.0) permAniso = 1.0;
   switch(permeabilityModel)
   {
      case DataAccess::Interface::SANDSTONE_PERMEABILITY:
@@ -61,9 +62,6 @@ Permeability Permeability::create(
       case DataAccess::Interface::IMPERMEABLE_PERMEABILITY:
       case DataAccess::Interface::NONE_PERMEABILITY:
         {
-           if (permAniso == 0.0)
-              permAniso = 1.0;
-
            return Permeability( permAniso, new PermeabilityImpermeable( depoPermeability, permeabilityModel) );
         }
 
