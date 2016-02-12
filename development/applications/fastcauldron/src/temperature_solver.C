@@ -262,6 +262,9 @@ void Temperature_Solver::computeHeatProduction ( const double previousTime,
          if ( not temperatureIsActive ) {
             currentLayer -> Current_Properties.Restore_Property ( Basin_Modelling::Temperature );
          }
+         if ( not depthIsActive ) {
+            currentLayer -> Current_Properties.Restore_Property ( Basin_Modelling::Depth );
+         }
       }
 
       Layers++;
