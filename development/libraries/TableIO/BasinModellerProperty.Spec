@@ -3092,6 +3092,14 @@ START-properties
     Property I/O        : No
     Default             : 0
 
+    Identification      : Legacy
+    Description         : Whether to run BPA-compatible migration mode
+    Type                : integer
+    Error Field         : No
+    Time dependent      : No
+    Property I/O        : No
+    Default             : 1
+
     Identification      : Constrain_VES
     Description         : Constrain VES to be greater than zero/Reference VES (0 or 1.0e5)(Should be Boolean)
     Type                : integer
@@ -6522,6 +6530,7 @@ START-property-tables
     Column         : VerticalSecondaryMigration
     Column         : HydrodynamicCapillaryPressure
     Column         : ReservoirDetection
+    Column         : Legacy
     Column         : HeatFlowSolution
     Column         : PrefSnapstep
     Column         : StepsPerSegment

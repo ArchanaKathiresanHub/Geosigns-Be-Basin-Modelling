@@ -16,6 +16,7 @@
 #include "Interface/PropertyValue.h"
 #include "Interface/ProjectHandle.h"
 #include "Interface/Snapshot.h"
+#include "Interface/RunParameters.h"
 
 #include "Path.h"
 
@@ -380,6 +381,12 @@ bool MasterTouch::addOutputFormat( const string & filename,
  
    string propertyValueName;
    propertyValueName += "Resq: ";  
+   const bool isLegacy = m_projectHandle.getRunParameters()->getLegacy();
+   if (isLegacy)
+   {
+   propertyValueName += filename;
+   propertyValueName += " ";
+   }
    propertyValueName += category;
    propertyValueName += " ";
    propertyValueName += format;
