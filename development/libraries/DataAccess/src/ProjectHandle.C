@@ -936,8 +936,8 @@ bool ProjectHandle::loadProperties( void )
    m_properties.push_back( getFactory()->produceProperty( this, 0, "ALCOrigLithMantleDepth",         "ALCOrigLithMantleDepth",         "m",     FORMATIONPROPERTY, DataModel::SURFACE_2D_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( this, 0, "ALCMaxAsthenoMantleDepth",       "ALCMaxAsthenoMantleDepth",       "m",     FORMATIONPROPERTY, DataModel::SURFACE_2D_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( this, 0, "ALCStepContCrustThickness",      "ALCStepContCrustThickness",      "m",     FORMATIONPROPERTY, DataModel::SURFACE_2D_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ALCStepBasaltThickness",         "ALCStepBasaltThickness",         "m",     FORMATIONPROPERTY, DataModel::SURFACE_2D_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ALCStepTopBasaltDepth",          "ALCStepTopBasaltDepth",          "m",     FORMATIONPROPERTY, DataModel::SURFACE_2D_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( this, 0, "ALCStepBasaltThickness",         "ALCStepBasaltThickness",         "m",     FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( this, 0, "ALCStepTopBasaltDepth",          "ALCStepTopBasaltDepth",          "m",     FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( this, 0, "ALCSmContCrustThickness",        "ALCSmContCrustThickness",        "m",     FORMATIONPROPERTY, DataModel::SURFACE_2D_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( this, 0, "ALCSmBasaltThickness",           "ALCSmBasaltThickness",           "m",     FORMATIONPROPERTY, DataModel::SURFACE_2D_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( this, 0, "ALCSmTopBasaltDepth",            "ALCSmTopBasaltDepth",            "m",     FORMATIONPROPERTY, DataModel::SURFACE_2D_PROPERTY ));

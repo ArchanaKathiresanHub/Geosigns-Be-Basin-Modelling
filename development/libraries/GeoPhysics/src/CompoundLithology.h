@@ -199,6 +199,8 @@ namespace GeoPhysics {
          double Porosity, double Temperature, double LithoPressure,
          double &BulkTHCondN, double &BulkTHCondP) const;
 
+      /// thermal permeability for ALC Basalt  lithology								   	
+      void calcBulkThermCondNPBasalt( double Temperature, double LithoPressure, double &BulkTHCondN, double &BulkTHCondP) const;
 
       /// Calculate the bulk heat-production.
       void calcBulkHeatProd(const double Porosity, double &BulkHeatProd) const;

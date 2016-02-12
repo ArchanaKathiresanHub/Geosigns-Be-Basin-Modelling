@@ -14,6 +14,7 @@
 #include "Interface/Interface.h"
 #include "Interface/RunParameters.h"
 #include "Interface/SimulationDetails.h"
+#include "Interface/Surface.h"
 
 #include "GeoPhysicsFormation.h"
 #include "CompoundLithologyArray.h"
@@ -57,7 +58,11 @@ DerivedProperties::BulkDensityFormationCalculator::BulkDensityFormationCalculato
       }
 
    }
-
+   if ( m_alcModeEnabled ) {
+      addDependentPropertyName( "ALCStepTopBasaltDepth");
+      addDependentPropertyName( "ALCStepBasaltThickness");
+      addDependentPropertyName( "Depth" );
+   } 
 }
 
 
@@ -262,11 +267,31 @@ void DerivedProperties::BulkDensityFormationCalculator::computeBulkDensityBaseme
    const DataModel::AbstractProperty* bulkDensityProperty  = propertyManager.getProperty ( "BulkDensity" );
    const DataModel::AbstractProperty* temperatureProperty  = propertyManager.getProperty ( "Temperature" );
    const DataModel::AbstractProperty* lithostaticProperty  = propertyManager.getProperty ( "LithoStaticPressure" );
+   const DataModel::AbstractProperty* depthProperty        = propertyManager.getProperty ( "Depth" );
    
    const FormationPropertyPtr temperature         = propertyManager.getFormationProperty ( temperatureProperty,  snapshot, formation );
    const FormationPropertyPtr lithostaticPressure = propertyManager.getFormationProperty ( lithostaticProperty,  snapshot, formation );
+   const FormationPropertyPtr depth               = propertyManager.getFormationProperty ( depthProperty, snapshot, formation );
 
-   if ( temperature != 0 and lithostaticPressure != 0 ) {
+   FormationMapPropertyPtr basaltDepth;
+   FormationMapPropertyPtr basaltThickness;
+
+   const DataModel::AbstractProperty* basaltDepthProperty = propertyManager.getProperty ( "ALCStepTopBasaltDepth" );
+   const DataModel::AbstractProperty* basaltThicknessProperty = propertyManager.getProperty ( "ALCStepBasaltThickness" );
+   
+   if( formation->getName() != "Crust" ) {
+      const GeoPhysics::Formation *mantleFormation = dynamic_cast<const GeoPhysics::Formation*>( formation );
+      const DataModel::AbstractFormation * crustFormation = ( mantleFormation->getTopSurface()->getTopFormation() );
+      
+      basaltDepth = propertyManager.getFormationMapProperty ( basaltDepthProperty, snapshot, crustFormation );
+      basaltThickness = propertyManager.getFormationMapProperty ( basaltThicknessProperty, snapshot, crustFormation );
+   } else {
+      basaltDepth = propertyManager.getFormationMapProperty ( basaltDepthProperty, snapshot, formation );
+      basaltThickness = propertyManager.getFormationMapProperty ( basaltThicknessProperty, snapshot, formation );
+   }
+
+  if ( temperature != 0 and lithostaticPressure != 0 and depth != 0 and basaltDepth != 0 and basaltThickness != 0 ) {
+
       DerivedFormationPropertyPtr bulkDensity = DerivedFormationPropertyPtr ( new DerivedProperties::DerivedFormationProperty ( bulkDensityProperty,
                                                                                                                                 snapshot,
                                                                                                                                 formation, 
@@ -282,7 +307,18 @@ void DerivedProperties::BulkDensityFormationCalculator::computeBulkDensityBaseme
             if ( m_projectHandle->getNodeIsValid ( i, j )) {
 
                for ( unsigned int k = bulkDensity->firstK (); k <= bulkDensity->lastK (); ++k ) {
-                  double solidDensity = lithologies ( i, j )->computeDensity ( temperature->getA ( i, j, k ), lithostaticPressure->getA ( i, j, k ));
+                  const GeoPhysics::CompoundLithology* lithology = lithologies ( i, j, snapshot->getTime () );
+
+                  const double topBasaltDepth = basaltDepth->getA( i, j );
+                  const double botBasaltDepth = topBasaltDepth + 1 + basaltThickness->getA( i, j );
+                  double solidDensity;
+
+                  if( basaltThickness->getA( i, j ) != 0 and ( topBasaltDepth <= depth->getA ( i, j, k ) and botBasaltDepth > depth->getA ( i, j, k  ))) {
+                   
+                     solidDensity = lithology->getSimpleLithology()->getBasaltDensity ( temperature->getA ( i, j, k ), lithostaticPressure->getA ( i, j, k ));
+                  } else {
+                     solidDensity = lithology->computeDensity ( temperature->getA ( i, j, k ), lithostaticPressure->getA ( i, j, k ));
+                  }
                   bulkDensity->set ( i, j, k, solidDensity );
                }
 
@@ -309,6 +345,10 @@ bool DerivedProperties::BulkDensityFormationCalculator::isComputable ( const Abs
 
    bool basementFormation = ( dynamic_cast<const GeoPhysics::Formation*>( formation ) != 0 and dynamic_cast<const GeoPhysics::Formation*>( formation )->kind () == DataAccess::Interface::BASEMENT_FORMATION );
 
+   if( basementFormation ) {
+      return isComputableForBasement ( propManager, snapshot, formation ) ;
+   }
+
    const std::vector<std::string>& dependentProperties = getDependentPropertyNames ();
 
    bool propertyIsComputable = true;
@@ -316,20 +356,61 @@ bool DerivedProperties::BulkDensityFormationCalculator::isComputable ( const Abs
    // Determine if the required properties are computable.
    for ( size_t i = 0; i < dependentProperties.size () and propertyIsComputable; ++i ) {
 
-      if ( basementFormation and ( not m_alcModeEnabled or dependentProperties [ i ] == "Porosity" or dependentProperties [ i ] == "Pressure" )) {
+      if( dependentProperties [ i ] == "ALCStepTopBasaltDepth" or dependentProperties [ i ] == "ALCStepBasaltThickness" or
+          dependentProperties [ i ] == "Depth" or dependentProperties [ i ] == "LithoStaticPressure" ) {
          propertyIsComputable = true;
       } else {
-         const DataModel::AbstractProperty* property = propManager.getProperty ( dependentProperties [ i ]);
 
+         const DataModel::AbstractProperty* property = propManager.getProperty ( dependentProperties [ i ]);
+         
          if ( property == 0 ) {
             propertyIsComputable = false;
          } else {
             propertyIsComputable = propertyIsComputable and propManager.formationPropertyIsComputable ( property, snapshot, formation );
          }
-         
       }
-
    }
 
+   return propertyIsComputable;
+}
+
+bool DerivedProperties::BulkDensityFormationCalculator::isComputableForBasement ( const AbstractPropertyManager&      propManager,
+                                                                                  const DataModel::AbstractSnapshot*  snapshot,
+                                                                                  const DataModel::AbstractFormation* formation ) const {
+   
+   const std::vector<std::string>& dependentProperties = getDependentPropertyNames ();
+
+   bool propertyIsComputable = true;
+
+   // Determine if the required properties are computable.
+   for ( size_t i = 0; i < dependentProperties.size () and propertyIsComputable; ++i ) {
+
+      if( not m_alcModeEnabled ) {
+
+         return true;
+      }
+      if( dependentProperties [ i ] == "Porosity" or dependentProperties [ i ] == "Pressure" ) {   
+         propertyIsComputable = true;
+      } else {
+         const DataModel::AbstractProperty* property = propManager.getProperty ( dependentProperties [ i ]);
+         
+         if ( property == 0 ) {
+            propertyIsComputable = false;
+         } else {
+            if( dependentProperties [ i ] == "ALCStepTopBasaltDepth" or dependentProperties [ i ] == "ALCStepBasaltThickness" ) {
+               if( formation->getName() != "Crust" ) {
+                  const GeoPhysics::Formation *mantleFormation = dynamic_cast<const GeoPhysics::Formation*>( formation );
+                  
+                  const DataModel::AbstractFormation * crustFormation = (mantleFormation->getTopSurface()->getTopFormation() );
+                  propertyIsComputable = propertyIsComputable and propManager.formationMapPropertyIsComputable ( property, snapshot, crustFormation );
+               } else {
+                  propertyIsComputable = propertyIsComputable and propManager.formationMapPropertyIsComputable ( property, snapshot, formation );
+               }
+            } else {
+               propertyIsComputable = propertyIsComputable and propManager.formationPropertyIsComputable ( property, snapshot, formation );
+            }
+         }                  
+      }
+   }
    return propertyIsComputable;
 }

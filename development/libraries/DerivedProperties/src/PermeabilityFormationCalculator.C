@@ -67,7 +67,10 @@ void DerivedProperties::PermeabilityFormationCalculator::calculate ( DerivedProp
          // Just in case the property is not found.
          chemicalCompactionRequired = chemicalCompaction != 0;
       }
-      
+      PropertyRetriever chemicalCompactionRetriever; 
+      if ( chemicalCompactionRequired ) {
+         chemicalCompactionRetriever.reset( chemicalCompaction );
+      }
 
       const GeoPhysics::CompoundLithologyArray * lithologies = &geoFormation->getCompoundLithologyArray ();
       

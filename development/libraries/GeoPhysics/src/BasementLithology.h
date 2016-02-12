@@ -77,10 +77,13 @@ class BasementLithology : public SimpleLithology
    double thermCondPointWillis(const double inTemperature) const; 
 
    double thermalconductivity(double t, double p) const;
+   double basaltThermalConductivity(double t, double p) const;
+
    bool   setThermalModel( const string& aThermalModel );
 
    virtual double heatcapacity( const double t ) const;
    double getDensity( double t, double p ) const;
+   double getBasaltDensity( double t, double p ) const;
    double getDensity( ) const;
 
    void setBasementLithoProperties( BasementLithologyProps & aBP );

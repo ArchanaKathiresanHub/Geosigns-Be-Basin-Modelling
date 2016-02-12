@@ -12,11 +12,13 @@ DerivedProperties::PrimaryFormationSurfaceProperty::PrimaryFormationSurfacePrope
                               propertyValue->getSnapshot (),
                               propertyValue->getFormation (),
                               propertyValue->getSurface (),
-                              propertyValue->getGridMap ()->getGrid ()),
+                              ( propertyValue->getGridMap () != 0 ? propertyValue->getGridMap ()->getGrid () : 0 )),
    m_propertyValue ( propertyValue ),
    m_gridMap ( propertyValue->getGridMap ())
 {
-   m_gridMap->retrieveData ( true );
+   if( m_gridMap != 0 ) {
+      m_gridMap->retrieveData ( true );
+   }
 }
 
 DerivedProperties::PrimaryFormationSurfaceProperty::~PrimaryFormationSurfaceProperty() {
@@ -44,4 +46,9 @@ void DerivedProperties::PrimaryFormationSurfaceProperty::retrieveData() const {
 
 void DerivedProperties::PrimaryFormationSurfaceProperty::restoreData() const {
    m_gridMap->restoreData();
+}
+
+const DataAccess::Interface::GridMap* DerivedProperties::PrimaryFormationSurfaceProperty::getGridMap() const {
+
+   return m_gridMap;
 }

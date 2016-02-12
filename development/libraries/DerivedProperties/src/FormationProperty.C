@@ -29,10 +29,10 @@ double DerivedProperties::FormationProperty::interpolate ( unsigned int i,
    double fraction = k - static_cast<double> ( bottomNode );
 
    if ( fraction == 0.0 ) {
-      return get ( i, j, bottomNode );
+      return getA ( i, j, bottomNode );
    } else {
-      double bottomValue = get ( i, j, bottomNode );
-      double topValue = get ( i, j, bottomNode + 1 );
+      double bottomValue = getA ( i, j, bottomNode );
+      double topValue = getA ( i, j, bottomNode + 1 );
 
       if ( bottomValue == getUndefinedValue () or topValue == getUndefinedValue ()) {
          return getUndefinedValue ();
@@ -77,7 +77,7 @@ double DerivedProperties::FormationProperty::interpolate ( double i,
 
    if (fractionI == 0 && fractionJ == 0 && fractionK == 0)
    {
-      return get (baseI, baseJ, baseK);
+      return getA (baseI, baseJ, baseK);
    }
 
    weight [ 0 ] = fractionI         * fractionJ         * fractionK;

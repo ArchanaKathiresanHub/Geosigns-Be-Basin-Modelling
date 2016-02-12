@@ -24,8 +24,7 @@ DerivedProperties::BrineDensityCalculator::BrineDensityCalculator ( const GeoPhy
 
    if ( lastFastcauldronRun != 0 ) {
       // Even though
-      m_hydrostaticMode = lastFastcauldronRun->getSimulatorMode () == "HydrostaticTemperature" or
-                          lastFastcauldronRun->getSimulatorMode () == "HydrostaticHighResDecompaction";
+      m_hydrostaticMode = lastFastcauldronRun->getSimulatorMode () == "HydrostaticTemperature"; 
    }
 
    if ( not m_hydrostaticMode ) {
@@ -52,7 +51,8 @@ void DerivedProperties::BrineDensityCalculator::calculate ( AbstractPropertyMana
    DerivedFormationPropertyPtr brineDensity = DerivedFormationPropertyPtr ( new DerivedProperties::DerivedFormationProperty ( brineDensityProperty, snapshot, formation, 
                                                                                                                               propertyManager.getMapGrid (),
                                                                                                                               currentFormation->getMaximumNumberOfElements() + 1 ));
-
+   const double undefinedValue = brineDensity->getUndefinedValue ();
+ 
    if ( m_hydrostaticMode ) {
       // The temperature gradient in the project file is in C/Km and not C/m and so needs to be converted.
       const double temperatureGradient = 0.001 * m_projectHandle->getRunParameters ()->getTemperatureGradient ();
@@ -64,11 +64,17 @@ void DerivedProperties::BrineDensityCalculator::calculate ( AbstractPropertyMana
       for ( unsigned int i = brineDensity->firstI ( true ); i <= brineDensity->lastI ( true ); ++i ) {
 
          for ( unsigned int j = brineDensity->firstJ ( true ); j <= brineDensity->lastJ ( true ); ++j ) {
-
-            for ( unsigned int k = brineDensity->firstK (); k <= brineDensity->lastK (); ++k ) {
-               brineDensity->set ( i, j, k, fluidDensity );
+            
+            if ( m_projectHandle->getNodeIsValid ( i, j )) {
+ 
+               for ( unsigned int k = brineDensity->firstK (); k <= brineDensity->lastK (); ++k ) {
+                  brineDensity->set ( i, j, k, fluidDensity );
+               } 
+            } else {
+               for ( unsigned int k = brineDensity->firstK (); k <= brineDensity->lastK (); ++k ) {
+                  brineDensity->set ( i, j, k, undefinedValue );
+               } 
             }
-
          }
 
       }
@@ -86,9 +92,17 @@ void DerivedProperties::BrineDensityCalculator::calculate ( AbstractPropertyMana
       for ( unsigned int i = brineDensity->firstI ( true ); i <= brineDensity->lastI ( true ); ++i ) {
 
          for ( unsigned int j = brineDensity->firstJ ( true ); j <= brineDensity->lastJ ( true ); ++j ) {
+           
+            if ( m_projectHandle->getNodeIsValid ( i, j )) {
 
-            for ( unsigned int k = brineDensity->firstK (); k <= brineDensity->lastK (); ++k ) {
-               brineDensity->set ( i, j, k, fluid->density ( temperature->getA ( i, j, k ), porePressure->getA ( i, j, k )));
+               for ( unsigned int k = brineDensity->firstK (); k <= brineDensity->lastK (); ++k ) {
+                  brineDensity->set ( i, j, k, fluid->density ( temperature->getA ( i, j, k ), porePressure->getA ( i, j, k )));
+               }
+
+            } else {
+               for ( unsigned int k = brineDensity->firstK (); k <= brineDensity->lastK (); ++k ) {
+                  brineDensity->set ( i, j, k, undefinedValue );
+               }
             }
 
          }

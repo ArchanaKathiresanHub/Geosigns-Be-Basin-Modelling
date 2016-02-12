@@ -193,7 +193,7 @@ inline double DerivedProperties::FormationProperty::checkedGet ( unsigned int i,
    if ( NumericFunctions::inRange<unsigned int>( i, firstI ( true ), lastI ( true )) and
         NumericFunctions::inRange<unsigned int>( j, firstJ ( true ), lastJ ( true )) and
         NumericFunctions::inRange<unsigned int>( k, firstK (), lastK ())) {
-      return get ( i, j, k );
+      return getA ( i, j, k );
    } else {
       return getUndefinedValue ();
    }

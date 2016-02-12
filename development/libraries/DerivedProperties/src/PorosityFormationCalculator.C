@@ -48,13 +48,10 @@ void DerivedProperties::PorosityFormationCalculator::calculate ( DerivedProperti
    
    const GeoPhysics::Formation* geoFormation = dynamic_cast<const GeoPhysics::Formation*>( formation );
 
-   PropertyRetriever vesRetriever ( ves );
-   PropertyRetriever maxVesRetriever ( maxVes );
-   
    derivedProperties.clear ();
    
    if( ves != 0 and maxVes != 0 and geoFormation != 0 ) {
-               
+             
       bool chemicalCompactionRequired = m_projectHandle->getDetailsOfLastSimulation ( "fastcauldron" ) != 0 and
                                         m_projectHandle->getDetailsOfLastSimulation ( "fastcauldron" )->getSimulatorMode () != "HydrostaticDecompaction" and
                                         geoFormation->hasChemicalCompaction () and m_projectHandle->getRunParameters()->getChemicalCompaction ();

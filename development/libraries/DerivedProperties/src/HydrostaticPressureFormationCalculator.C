@@ -21,9 +21,10 @@ DerivedProperties::HydrostaticPressureFormationCalculator::HydrostaticPressureFo
    m_hydrostaticMode             = false;
 
    if ( lastFastcauldronRun != 0 ) {
-      m_hydrostaticDecompactionMode = lastFastcauldronRun->getSimulatorMode () == "HydrostaticDecompaction";
-      m_hydrostaticMode = lastFastcauldronRun->getSimulatorMode () == "HydrostaticTemperature" or
-                          lastFastcauldronRun->getSimulatorMode () == "HydrostaticHighResDecompaction";
+      m_hydrostaticDecompactionMode = lastFastcauldronRun->getSimulatorMode () == "HydrostaticDecompaction" ;
+      
+      m_hydrostaticMode = lastFastcauldronRun->getSimulatorMode () == "HydrostaticTemperature" or 
+                          lastFastcauldronRun->getSimulatorMode () == "Overpressure";
    }
 
    if ( m_hydrostaticDecompactionMode ) {
@@ -154,6 +155,12 @@ void DerivedProperties::HydrostaticPressureFormationCalculator::computeHydrostat
                                                                                                                 FormationPropertyList&              derivedProperties ) const {
 
    const GeoPhysics::Formation* currentFormation = dynamic_cast<const GeoPhysics::Formation*>( formation );
+
+   const bool basementFormation = ( currentFormation->kind () == DataAccess::Interface::BASEMENT_FORMATION );
+ 
+   if ( basementFormation ) {
+      return computeForBasement( propertyManager, snapshot, formation, derivedProperties );
+   }  
    
    const DataModel::AbstractProperty* hydrostaticPressureProperty = propertyManager.getProperty ( getPropertyNames ()[ 0 ]);
    DerivedFormationPropertyPtr hydrostaticPressure = DerivedFormationPropertyPtr ( new DerivedProperties::DerivedFormationProperty ( hydrostaticPressureProperty, snapshot, formation, 
@@ -163,80 +170,82 @@ void DerivedProperties::HydrostaticPressureFormationCalculator::computeHydrostat
       
    const DataModel::AbstractProperty* depthProperty = propertyManager.getProperty ( "Depth" );
    FormationPropertyPtr depth = propertyManager.getFormationProperty ( depthProperty, snapshot, formation );
-   PropertyRetriever depthRetriever ( depth );
 
-   const GeoPhysics::Formation* formationAbove = 0;
-
-   const GeoPhysics::FluidType* fluid = dynamic_cast<const GeoPhysics::FluidType*>(currentFormation->getFluidType ());
-
-   double fluidDensityTop;
-   double fluidDensityBottom;
-   double fluidDensity = 0;
-
-   double thickness;
-   double segmentPressure;
-   double pressure;
-   unsigned int topNodeIndex = hydrostaticPressure->lastK ();
-   double undefinedValue = hydrostaticPressure->getUndefinedValue ();
-
-   derivedProperties.clear ();
-
-   if ( currentFormation->getTopSurface ()->getSnapshot () == 0 ||
-        currentFormation->getTopSurface ()->getSnapshot ()->getTime () > snapshot->getTime ()) {
-      formationAbove = dynamic_cast<const GeoPhysics::Formation*>( currentFormation->getTopSurface ()->getTopFormation ());
-   }
-
-   if ( fluid == 0 ) {
-      fluidDensity = 0.0;
-   } else {
-      double temperatureGradient = 0.001 * m_projectHandle->getRunParameters ()->getTemperatureGradient ();
-      fluidDensity = fluid->getCorrectedSimpleDensity ( GeoPhysics::FluidType::DefaultStandardDepth,
-                                                        GeoPhysics::FluidType::DefaultHydrostaticPressureGradient,
-                                                        GeoPhysics::FluidType::StandardSurfaceTemperature,
-                                                        temperatureGradient );
-   }
-   
-   // Initialise the top set of nodes for the hydrostatic pressure.
-   if ( formationAbove == 0 ) {
-      computeHydrostaticPressureAtSeaBottomForHydrostatic ( propertyManager, snapshot->getTime (), fluid, hydrostaticPressure );
-   } else {
-      copyHydrostaticPressureFromLayerAbove ( propertyManager, hydrostaticPressureProperty, snapshot, formationAbove, hydrostaticPressure );
-   }
-
-   // now that the top of the set of nodes of the property has been initialised 
-   // the hydrostatic pressure for the remaining nodes below them can be computed.
-   for ( unsigned int i = hydrostaticPressure->firstI ( true ); i <= hydrostaticPressure->lastI ( true ); ++i ) {
-
-      for ( unsigned int j = hydrostaticPressure->firstJ ( true ); j <= hydrostaticPressure->lastJ ( true ); ++j ) {
-
-         if ( m_projectHandle->getNodeIsValid ( i, j )) {
-
-            // Loop index is shifted up by 1.
-            for ( unsigned int k = hydrostaticPressure->lastK (); k > hydrostaticPressure->firstK (); --k ) {
-               // index k     is top node of segment
-               // index k - 1 is bottom node of segment
-
-               thickness = depth->getA ( i, j, k - 1 ) - depth->getA ( i, j, k );
-
-               segmentPressure = thickness * fluidDensity * GeoPhysics::AccelerationDueToGravity * GeoPhysics::PascalsToMegaPascals;
-               pressure = hydrostaticPressure->getA ( i, j, k ) + segmentPressure;
-               hydrostaticPressure->set ( i, j, k - 1, pressure );
+   if( depth != 0 ) {
+      PropertyRetriever depthRetriever ( depth );
+      
+      const GeoPhysics::Formation* formationAbove = 0;
+      
+      const GeoPhysics::FluidType* fluid = dynamic_cast<const GeoPhysics::FluidType*>(currentFormation->getFluidType ());
+      
+      double fluidDensityTop;
+      double fluidDensityBottom;
+      double fluidDensity = 0;
+      
+      double thickness;
+      double segmentPressure;
+      double pressure;
+      unsigned int topNodeIndex = hydrostaticPressure->lastK ();
+      double undefinedValue = hydrostaticPressure->getUndefinedValue ();
+      
+      derivedProperties.clear ();
+      
+      if ( currentFormation->getTopSurface ()->getSnapshot () == 0 ||
+           currentFormation->getTopSurface ()->getSnapshot ()->getTime () > snapshot->getTime ()) {
+         formationAbove = dynamic_cast<const GeoPhysics::Formation*>( currentFormation->getTopSurface ()->getTopFormation ());
+      }
+      
+      if ( fluid == 0 ) {
+         fluidDensity = 0.0;
+      } else {
+         double temperatureGradient = 0.001 * m_projectHandle->getRunParameters ()->getTemperatureGradient ();
+         fluidDensity = fluid->getCorrectedSimpleDensity ( GeoPhysics::FluidType::DefaultStandardDepth,
+                                                           GeoPhysics::FluidType::DefaultHydrostaticPressureGradient,
+                                                           GeoPhysics::FluidType::StandardSurfaceTemperature,
+                                                           temperatureGradient );
+      }
+      
+      // Initialise the top set of nodes for the hydrostatic pressure.
+      if ( formationAbove == 0 ) {
+         computeHydrostaticPressureAtSeaBottomForHydrostatic ( propertyManager, snapshot->getTime (), fluid, hydrostaticPressure );
+      } else {
+         copyHydrostaticPressureFromLayerAbove ( propertyManager, hydrostaticPressureProperty, snapshot, formationAbove, hydrostaticPressure );
+      }
+      
+      // now that the top of the set of nodes of the property has been initialised 
+      // the hydrostatic pressure for the remaining nodes below them can be computed.
+      for ( unsigned int i = hydrostaticPressure->firstI ( true ); i <= hydrostaticPressure->lastI ( true ); ++i ) {
+         
+         for ( unsigned int j = hydrostaticPressure->firstJ ( true ); j <= hydrostaticPressure->lastJ ( true ); ++j ) {
+            
+            if ( m_projectHandle->getNodeIsValid ( i, j )) {
+               
+               // Loop index is shifted up by 1.
+               for ( unsigned int k = hydrostaticPressure->lastK (); k > hydrostaticPressure->firstK (); --k ) {
+                  // index k     is top node of segment
+                  // index k - 1 is bottom node of segment
+                  
+                  thickness = depth->getA ( i, j, k - 1 ) - depth->getA ( i, j, k );
+                  
+                  segmentPressure = thickness * fluidDensity * GeoPhysics::AccelerationDueToGravity * GeoPhysics::PascalsToMegaPascals;
+                  pressure = hydrostaticPressure->getA ( i, j, k ) + segmentPressure;
+                  hydrostaticPressure->set ( i, j, k - 1, pressure );
+               }
+               
+            } else {
+               
+               for ( unsigned int k = hydrostaticPressure->firstK (); k <= hydrostaticPressure->lastK (); ++k ) {
+                  hydrostaticPressure->set ( i, j, k, undefinedValue );
+               }
+               
             }
-
-         } else {
-
-            for ( unsigned int k = hydrostaticPressure->firstK (); k <= hydrostaticPressure->lastK (); ++k ) {
-               hydrostaticPressure->set ( i, j, k, undefinedValue );
-            }
-
+            
          }
 
       }
-
+      
+      derivedProperties.push_back ( hydrostaticPressure );
    }
-
-   derivedProperties.push_back ( hydrostaticPressure );
-
 }
 
 
@@ -246,7 +255,13 @@ void DerivedProperties::HydrostaticPressureFormationCalculator::computeHydrostat
                                                                                                                FormationPropertyList&              derivedProperties ) const {
 
    const GeoPhysics::Formation* currentFormation = dynamic_cast<const GeoPhysics::Formation*>( formation );
-   
+ 
+   const bool basementFormation = ( currentFormation->kind () == DataAccess::Interface::BASEMENT_FORMATION );
+ 
+   if ( basementFormation ) {
+      return computeForBasement( propertyManager, snapshot, formation, derivedProperties );
+   }  
+
    const DataModel::AbstractProperty* hydrostaticPressureProperty = propertyManager.getProperty ( getPropertyNames ()[ 0 ]);
    DerivedFormationPropertyPtr hydrostaticPressure = DerivedFormationPropertyPtr ( new DerivedProperties::DerivedFormationProperty ( hydrostaticPressureProperty, snapshot, formation, 
                                                                                                                                      propertyManager.getMapGrid (),
@@ -256,29 +271,27 @@ void DerivedProperties::HydrostaticPressureFormationCalculator::computeHydrostat
       
    FormationPropertyPtr porePressure = propertyManager.getFormationProperty ( porePressureProperty, snapshot, formation );
 
-   if ( porePressure == 0 ) {
-      return;
-   }
-
-   PropertyRetriever ppRetriever ( porePressure );
       
    derivedProperties.clear ();
+
+   if( porePressure != 0 ) {
+      PropertyRetriever ppRetriever ( porePressure );
       
-   // now copy the pore pressure to the hydrostatic pressure
+      // now copy the pore pressure to the hydrostatic pressure
       
-   for ( unsigned int i = hydrostaticPressure->firstI ( true ); i <= hydrostaticPressure->lastI ( true ); ++i ) {
+      for ( unsigned int i = hydrostaticPressure->firstI ( true ); i <= hydrostaticPressure->lastI ( true ); ++i ) {
          
-      for ( unsigned int j = hydrostaticPressure->firstJ ( true ); j <= hydrostaticPressure->lastJ ( true ); ++j ) {
+         for ( unsigned int j = hydrostaticPressure->firstJ ( true ); j <= hydrostaticPressure->lastJ ( true ); ++j ) {
             
-         for ( unsigned int k = hydrostaticPressure->firstK (); k <= hydrostaticPressure->lastK (); ++k ) {
-            hydrostaticPressure->set ( i, j, k, porePressure->getA ( i, j, k ));
+            for ( unsigned int k = hydrostaticPressure->firstK (); k <= hydrostaticPressure->lastK (); ++k ) {
+               hydrostaticPressure->set ( i, j, k, porePressure->getA ( i, j, k ));
+            }
+            
          }
-
       }
-
-   }
       
-   derivedProperties.push_back ( hydrostaticPressure );
+      derivedProperties.push_back ( hydrostaticPressure );
+   }
 }
 
 void DerivedProperties::HydrostaticPressureFormationCalculator::computeHydrostaticPressureForCoupledMode ( AbstractPropertyManager&            propertyManager,
@@ -287,7 +300,13 @@ void DerivedProperties::HydrostaticPressureFormationCalculator::computeHydrostat
                                                                                                            FormationPropertyList&              derivedProperties ) const {
 
    const GeoPhysics::Formation* currentFormation = dynamic_cast<const GeoPhysics::Formation*>( formation );
-   
+ 
+   const bool basementFormation = ( currentFormation->kind () == DataAccess::Interface::BASEMENT_FORMATION );
+ 
+   if ( basementFormation ) {
+      return computeForBasement( propertyManager, snapshot, formation, derivedProperties );
+   }  
+  
    const DataModel::AbstractProperty* hydrostaticPressureProperty = propertyManager.getProperty ( getPropertyNames ()[ 0 ]);
    DerivedFormationPropertyPtr hydrostaticPressure = DerivedFormationPropertyPtr ( new DerivedProperties::DerivedFormationProperty ( hydrostaticPressureProperty, snapshot, formation, 
                                                                                                                                      propertyManager.getMapGrid (),
@@ -338,44 +357,126 @@ void DerivedProperties::HydrostaticPressureFormationCalculator::computeHydrostat
       copyHydrostaticPressureFromLayerAbove ( propertyManager, hydrostaticPressureProperty, snapshot, formationAbove, hydrostaticPressure );
    }
 
-   // now that the top of the set of nodes of the property has been initialised 
-   // the hydrostatic pressure for the remaining nodes below them can be computed.
-   for ( unsigned int i = hydrostaticPressure->firstI ( true ); i <= hydrostaticPressure->lastI ( true ); ++i ) {
-
-      for ( unsigned int j = hydrostaticPressure->firstJ ( true ); j <= hydrostaticPressure->lastJ ( true ); ++j ) {
-
-         if ( m_projectHandle->getNodeIsValid ( i, j )) {
-            fluidDensityTop = ( fluid == 0 ? 0.0 : fluid->density ( temperature->getA ( i, j, topNodeIndex ), porePressure->getA ( i, j, topNodeIndex )));
-
-            // Loop index is shifted up by 1.
-            for ( unsigned int k = hydrostaticPressure->lastK (); k > hydrostaticPressure->firstK (); --k ) {
-               // index k     is top node of segment
-               // index k - 1 is bottom node of segment
-
-               thickness = depth->getA ( i, j, k - 1 ) - depth->getA ( i, j, k );
-               fluidDensityBottom = ( m_hydrostaticDecompactionMode ? fluidDensity : 
-                    ( fluid == 0 ? 0.0 : fluid->density ( temperature->getA ( i, j, k - 1 ), porePressure->getA ( i, j, k - 1 ))));
-               segmentPressure = 0.5 * thickness * ( fluidDensityTop + fluidDensityBottom ) * GeoPhysics::AccelerationDueToGravity * GeoPhysics::PascalsToMegaPascals;
-               pressure = hydrostaticPressure->getA ( i, j, k ) + segmentPressure;
-               hydrostaticPressure->set ( i, j, k - 1, pressure );
-
-               // now copy the density at bottom of segment to use for top of segment below.
-               // This saves on a density calculation.
-               fluidDensityTop = fluidDensityBottom;
+   
+   if( temperature != 0 and porePressure != 0 and depth != 0 ) {
+      
+      
+      // now that the top of the set of nodes of the property has been initialised 
+      // the hydrostatic pressure for the remaining nodes below them can be computed.
+      for ( unsigned int i = hydrostaticPressure->firstI ( true ); i <= hydrostaticPressure->lastI ( true ); ++i ) {
+         
+         for ( unsigned int j = hydrostaticPressure->firstJ ( true ); j <= hydrostaticPressure->lastJ ( true ); ++j ) {
+            
+            if ( m_projectHandle->getNodeIsValid ( i, j )) {
+               
+               fluidDensityTop = ( fluid == 0 ? 0.0 : fluid->density ( temperature->getA ( i, j, topNodeIndex ), porePressure->getA ( i, j, topNodeIndex )));
+               
+               // Loop index is shifted up by 1.
+               for ( unsigned int k = hydrostaticPressure->lastK (); k > hydrostaticPressure->firstK (); --k ) {
+                  // index k     is top node of segment
+                  // index k - 1 is bottom node of segment
+                  
+                  thickness = depth->getA ( i, j, k - 1 ) - depth->getA ( i, j, k );
+                  fluidDensityBottom = ( fluid == 0 ? 0.0 : 
+                                         fluid->density ( temperature->getA ( i, j, k - 1 ), porePressure->getA ( i, j, k - 1 )));
+                  segmentPressure = 0.5 * thickness * ( fluidDensityTop + fluidDensityBottom ) * GeoPhysics::AccelerationDueToGravity * GeoPhysics::PascalsToMegaPascals;
+                  
+                  pressure = hydrostaticPressure->getA ( i, j, k ) + segmentPressure;
+                  
+                  hydrostaticPressure->set ( i, j, k - 1, pressure );
+                  
+                  // now copy the density at bottom of segment to use for top of segment below.
+                  // This saves on a density calculation.
+                  
+                  fluidDensityTop = fluidDensityBottom;
+                  
+               }
+               
+            } else {
+               
+               for ( unsigned int k = hydrostaticPressure->firstK (); k <= hydrostaticPressure->lastK (); ++k ) {
+                  hydrostaticPressure->set ( i, j, k, undefinedValue );
+               }
+               
             }
-
-         } else {
-
-            for ( unsigned int k = hydrostaticPressure->firstK (); k <= hydrostaticPressure->lastK (); ++k ) {
-               hydrostaticPressure->set ( i, j, k, undefinedValue );
-            }
-
          }
-
       }
+   
 
+      derivedProperties.push_back ( hydrostaticPressure );
    }
 
-   derivedProperties.push_back ( hydrostaticPressure );
+}
 
+void DerivedProperties::HydrostaticPressureFormationCalculator::computeForBasement ( AbstractPropertyManager&            propertyManager,
+                                                                                     const DataModel::AbstractSnapshot*  snapshot,
+                                                                                     const DataModel::AbstractFormation* formation,
+                                                                                     FormationPropertyList&              derivedProperties ) const {
+   
+   const GeoPhysics::Formation* currentFormation = dynamic_cast<const GeoPhysics::Formation*>( formation );
+ 
+   const bool basementFormation = ( currentFormation->kind () == DataAccess::Interface::BASEMENT_FORMATION );
+ 
+   if ( not basementFormation ) {
+      return;
+   }  
+
+   const DataModel::AbstractProperty* hydrostaticPressureProperty = propertyManager.getProperty ( getPropertyNames ()[ 0 ]);
+   DerivedFormationPropertyPtr hydrostaticPressure = DerivedFormationPropertyPtr ( new DerivedProperties::DerivedFormationProperty ( hydrostaticPressureProperty, snapshot, formation, 
+                                                                                                                                     propertyManager.getMapGrid (),
+                                                                                                                                     currentFormation->getMaximumNumberOfElements() + 1 ));
+
+    derivedProperties.clear ();
+
+    double undefinedValue = hydrostaticPressure->getUndefinedValue ();
+ 
+    for ( unsigned int i = hydrostaticPressure->firstI ( true ); i <= hydrostaticPressure->lastI ( true ); ++i ) {
+       
+       for ( unsigned int j = hydrostaticPressure->firstJ ( true ); j <= hydrostaticPressure->lastJ ( true ); ++j ) {
+
+          if ( m_projectHandle->getNodeIsValid ( i, j )) {
+        
+             for ( unsigned int k = hydrostaticPressure->firstK (); k <= hydrostaticPressure->lastK (); ++k ) {
+                hydrostaticPressure->set ( i, j, k, 0.0 );
+             }
+          } else {
+        
+             for ( unsigned int k = hydrostaticPressure->firstK (); k <= hydrostaticPressure->lastK (); ++k ) {
+                hydrostaticPressure->set ( i, j, k, undefinedValue );
+             }
+          }
+       }
+    }
+      
+   derivedProperties.push_back ( hydrostaticPressure );
+}
+
+bool DerivedProperties::HydrostaticPressureFormationCalculator::isComputable ( const DerivedProperties::AbstractPropertyManager& propManager,
+                                                                               const DataModel::AbstractSnapshot*  snapshot,
+                                                                               const DataModel::AbstractFormation* formation ) const {
+   
+   bool basementFormation = ( dynamic_cast<const GeoPhysics::Formation*>( formation ) != 0 and dynamic_cast<const GeoPhysics::Formation*>( formation )->kind () == DataAccess::Interface::BASEMENT_FORMATION );
+
+   const std::vector<std::string>& dependentProperties = getDependentPropertyNames ();
+
+   bool propertyIsComputable = true;
+   
+   // Determine if the required properties are computable.
+   for ( size_t i = 0; i < dependentProperties.size () and propertyIsComputable; ++i ) {
+
+      if( basementFormation ) {
+         propertyIsComputable = true;
+      } else {
+         const DataModel::AbstractProperty* property = propManager.getProperty ( dependentProperties [ i ]);
+         
+         if ( property == 0 ) {
+            propertyIsComputable = false;
+         } else {
+            propertyIsComputable = propertyIsComputable and propManager.formationPropertyIsComputable ( property, snapshot, formation );
+         }
+      }
+      
+   }
+
+   return propertyIsComputable;
 }

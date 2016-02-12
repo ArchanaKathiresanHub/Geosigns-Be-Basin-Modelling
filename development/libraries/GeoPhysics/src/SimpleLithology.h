@@ -108,6 +108,7 @@ namespace GeoPhysics {
       double getGeometricVariance () const;
   
       virtual double getDensity( double t, double p ) const { (void) t; (void) p; return m_density; }
+      virtual double getBasaltDensity( double t, double p ) const { (void) t; (void) p; return m_density; }
       
       /// Return the C1 - capillary entry pressure coefficient
       double getCapC1() const;
@@ -154,7 +155,13 @@ namespace GeoPhysics {
       ///
       /// NOTE: This function uses the uncorrected table values.
       double thermalconductivity(const double t) const;
+
       virtual double thermalconductivity(double t, double p) const {
+         (void) p;
+         return thermalconductivity(t);
+      }
+
+      virtual double basaltThermalConductivity(double t, double p) const {
          (void) p;
          return thermalconductivity(t);
       }

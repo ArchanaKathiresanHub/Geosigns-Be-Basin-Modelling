@@ -137,29 +137,24 @@ double BasementLithology::thermCondPointWillis (const double inTemperature)  con
   return termCond;
 } 
 
-
-
 double BasementLithology::thermalconductivity(double t, double p) const 
 {
-   double val;
+
+   if(  m_lithotype == BASALT ) {
+      return basaltThermalConductivity( t, p );
+   }
 
    switch (m_thermalcondmodel) {
+
    case Interface::CONSTANT_MODEL: 
-   case Interface::TABLE_MODEL: {
-      if( m_lithotype == BASALT ) {
-         val = thermCondBasalt( t );
-      } else {
-         val = SimpleLithology::thermalconductivity( t );
-      }
-      return val;
-   }
+   case Interface::TABLE_MODEL: 
+      return SimpleLithology::thermalconductivity( t );
+
    case Interface::LOWCOND_MODEL: {
       if( m_lithotype == CRUST ) {
          return crustThermCondLow( t );
       } else if ( m_lithotype == MANTLE ) {
          return mantleThermCondLow( t, p );
-      } else if( m_lithotype == BASALT ) {
-         return thermCondBasalt( t );
       } else {
          cout << m_lithoname << endl;
          assert(0);
@@ -168,8 +163,6 @@ double BasementLithology::thermalconductivity(double t, double p) const
    case Interface::HIGHCOND_MODEL: {
       if ( m_lithotype == MANTLE ) {
          return mantleThermCondHigh( t, p );
-      } else if( m_lithotype == BASALT ) {
-         return thermCondBasalt( t );
       } else {
          cout << m_lithoname << endl;
          assert(0);
@@ -180,8 +173,6 @@ double BasementLithology::thermalconductivity(double t, double p) const
          return crustThermCondStandard( t );
       } else if ( m_lithotype == MANTLE ) {
          return mantleThermCondStandard( t );
-      } else if( m_lithotype == BASALT ) {
-         return thermCondBasalt( t );
       } else {
          cout << m_lithoname << endl;
          assert(0);
@@ -197,29 +188,53 @@ double BasementLithology::thermalconductivity(double t, double p) const
    
 }
 
+double BasementLithology::basaltThermalConductivity( double t, double p ) const 
+{
+
+   switch ( m_thermalcondmodel ) {
+
+   case Interface::CONSTANT_MODEL: 
+   case Interface::TABLE_MODEL: 
+      return  thermCondBasalt( t );
+
+   case Interface::LOWCOND_MODEL: 
+      return thermCondBasalt( t );
+
+   case Interface::HIGHCOND_MODEL: 
+      return thermCondBasalt( t );
+
+   case Interface::STANDARD_MODEL: 
+      return thermCondBasalt( t );
+      
+   default: {
+      cout << "basaltThermalConductivity: " <<  m_lithoname << endl;
+      assert(0);
+   }
+   }
+   return 0;
+   
+}
+
 
 double BasementLithology::getDensity( double t, double p ) const
 {
-  double val;
-
-  switch (m_thermalcondmodel) {
-  case Interface::TABLE_MODEL:
-  case Interface::CONSTANT_MODEL:{
-      if( m_lithotype == BASALT ) {
-         val = densityBasalt( t, p );
-      } else {
-         val = SimpleLithology::getDensity();
-      }
-     return val;
+ 
+  if( m_lithotype == BASALT ) {
+     return getBasaltDensity( t, p ) ;
   }
+
+  switch ( m_thermalcondmodel ) {
+
+  case Interface::TABLE_MODEL:
+  case Interface::CONSTANT_MODEL:
+     return SimpleLithology::getDensity();
+
   case Interface::LOWCOND_MODEL: {
      if( m_lithotype == CRUST ) {
         return crustDensityLow( t, p );
      } else if ( m_lithotype == MANTLE ) {
         return mantleDensityLow( t, p );
-     } else if( m_lithotype == BASALT ) {
-        return densityBasalt( t, p );
-     } else {
+     }  else {
         cout << m_lithoname << endl;
         assert(0);
      }
@@ -227,9 +242,7 @@ double BasementLithology::getDensity( double t, double p ) const
   case Interface::HIGHCOND_MODEL: {
      if ( m_lithotype == MANTLE ) {
         return mantleDensityHigh( t, p );
-     } else if( m_lithotype == BASALT ) {
-        return densityBasalt( t, p );
-     } else {
+     }  else {
         cout << m_lithoname << endl;
         assert(0);
      }
@@ -252,6 +265,34 @@ double BasementLithology::getDensity( double t, double p ) const
      assert(0);
   }
   }
+  return 0;
+  
+}
+double BasementLithology::getBasaltDensity( double t, double p ) const
+{
+
+  switch (m_thermalcondmodel) {
+
+  case Interface::TABLE_MODEL:
+  case Interface::CONSTANT_MODEL:
+
+     return densityBasalt( t, p );
+
+  case Interface::LOWCOND_MODEL: 
+     return densityBasalt( t, p );
+
+  case Interface::HIGHCOND_MODEL:
+     return densityBasalt( t, p );
+
+  case Interface::STANDARD_MODEL: 
+     return densityBasalt( t, p );
+     
+  default: {
+     cout << m_lithoname << endl;
+     assert(0);
+  }
+  }
+
   return 0;
   
 }

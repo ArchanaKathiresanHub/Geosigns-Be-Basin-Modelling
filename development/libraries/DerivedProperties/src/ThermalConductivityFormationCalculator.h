@@ -46,6 +46,11 @@ namespace DerivedProperties {
       virtual bool isComputable ( const AbstractPropertyManager&      propManager,
                                   const DataModel::AbstractSnapshot*  snapshot,
                                   const DataModel::AbstractFormation* formation ) const;
+
+       /// \brief Determine if the property is computable for the specific combination of basement formation and snapshot.
+      virtual bool isComputableForBasement ( const AbstractPropertyManager&      propManager,
+                                             const DataModel::AbstractSnapshot*  snapshot,
+                                             const DataModel::AbstractFormation* formation ) const;
    private :
 
       const GeoPhysics::ProjectHandle* m_projectHandle;

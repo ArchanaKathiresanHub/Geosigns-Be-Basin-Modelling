@@ -40,10 +40,14 @@ namespace DerivedProperties {
                                                 FormationPropertyList&        derivedProperties ) const;
       
       /// \brief Determine if the property is computable for the specific combination of formation and snapshot.
-     virtual bool isComputable ( const AbstractPropertyManager&      propManager,
+      virtual bool isComputable ( const AbstractPropertyManager&      propManager,
                                   const DataModel::AbstractSnapshot*  snapshot,
                                   const DataModel::AbstractFormation* formation ) const;
-  private :
+      /// \brief Determine if the property is computable for the specific combination of basement formation and snapshot.
+      virtual bool isComputableForBasement ( const AbstractPropertyManager&      propManager,
+                                             const DataModel::AbstractSnapshot*  snapshot,
+                                             const DataModel::AbstractFormation* formation ) const;
+   private :
 
       /// \brief Compute the lithostatic pressure at the top of the domain.
       void computeLithostaticPressureAtSeaBottom ( const AbstractPropertyManager&     propertyManager,
@@ -56,6 +60,7 @@ namespace DerivedProperties {
                                                    const DataModel::AbstractSnapshot*  snapshot,
                                                    const DataModel::AbstractFormation* formationAbove,
                                                          DerivedFormationPropertyPtr&  lithostaticPressure ) const;
+
       const GeoPhysics::ProjectHandle* m_projectHandle;
 
    };

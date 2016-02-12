@@ -35,6 +35,15 @@ namespace DerivedProperties {
                                const DataModel::AbstractFormation* formation,
                                      FormationPropertyList&        derivedProperties ) const;
 
+      virtual void calculateForBasement ( AbstractPropertyManager&            propManager,
+                                          const DataModel::AbstractSnapshot*  snapshot,
+                                          const DataModel::AbstractFormation* formation,
+                                          FormationPropertyList&        derivedProperties ) const;
+
+      virtual bool isComputable ( const DerivedProperties::AbstractPropertyManager& propManager,
+                                  const DataModel::AbstractSnapshot*  snapshot,
+                                  const DataModel::AbstractFormation* formation ) const;
+
    };
 
 

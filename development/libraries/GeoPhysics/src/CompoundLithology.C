@@ -1568,11 +1568,11 @@ double GeoPhysics::CompoundLithology::capillaryPressure(const unsigned int phase
 }
 //------------------------------------------------------------//
 void GeoPhysics::CompoundLithology::calcBulkThermCondNPBasement(const FluidType* fluid,
-   double           Porosity,
-   double           Temperature,
-   double           LithoPressure,
-   double&          BulkTHCondN,
-   double&          BulkTHCondP) const {
+                                                                double           Porosity,
+                                                                double           Temperature,
+                                                                double           LithoPressure,
+                                                                double&          BulkTHCondN,
+                                                                double&          BulkTHCondP) const {
 
    bool LithoHasFluid = false;
    if (fluid != 0) LithoHasFluid = true;
@@ -1580,15 +1580,16 @@ void GeoPhysics::CompoundLithology::calcBulkThermCondNPBasement(const FluidType*
    if (this->m_lithoComponents.size() != 1) {
       cerr << "Few lithologies in basement." << endl;
    }
-
-   double MatrixTHCondN = 0.0, MatrixTHCondP = 0.0;
    SimpleLithology * currentLitho = m_lithoComponents[0];
 
-   if ((currentLitho->getThermalCondModel() == Interface::TABLE_MODEL ||
-      currentLitho->getThermalCondModel() == Interface::CONSTANT_MODEL) && m_lithoComponents[0]->getName() != DataAccess::Interface::ALCBasalt) {
+   if( m_lithoComponents[0]->getName() == DataAccess::Interface::ALCBasalt ) {
+      return calcBulkThermCondNPBasalt ( Temperature, LithoPressure, BulkTHCondN, BulkTHCondP );
+   }
+   double MatrixTHCondN = 0.0, MatrixTHCondP = 0.0;
+
+   if ((currentLitho->getThermalCondModel() == Interface::TABLE_MODEL or currentLitho->getThermalCondModel() == Interface::CONSTANT_MODEL)) {
       MatrixTHCondN = thermalconductivityN(Temperature);
       MatrixTHCondP = thermalconductivityP(Temperature);
-
    }
    else {
       // cout << "calcBulkThermCondNPBasement for " <<  m_lithoComponents [ 0 ]->getName() << "; model = " << currentLitho->getThermalCondModel() << endl;
@@ -1604,5 +1605,17 @@ void GeoPhysics::CompoundLithology::calcBulkThermCondNPBasement(const FluidType*
    BulkTHCondN = pow(MatrixTHCondN, 1.0 - Porosity) * pow(FluidThCond, Porosity);
    BulkTHCondP = pow(MatrixTHCondP, 1.0 - Porosity) * pow(FluidThCond, Porosity);
 
+}
+//------------------------------------------------------------//
+void GeoPhysics::CompoundLithology::calcBulkThermCondNPBasalt(double           Temperature,
+                                                              double           LithoPressure,
+                                                              double&          BulkTHCondN,
+                                                              double&          BulkTHCondP) const {
+   
+    if (this->m_lithoComponents.size() != 1) {
+      cerr << "Few lithologies in basement." << endl;
+   }
+   // here we assume that the lithology is ALCBasalt
+   BulkTHCondN = ( BulkTHCondP =  m_lithoComponents[0]->basaltThermalConductivity( Temperature, LithoPressure) );
 }
 
