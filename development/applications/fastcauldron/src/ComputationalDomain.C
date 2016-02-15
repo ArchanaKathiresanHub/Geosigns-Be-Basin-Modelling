@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2015 Shell International Exploration & Production.
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -352,7 +352,7 @@ void ComputationalDomain::numberGlobalDofsIJK ( int&                      global
 
          if ( fc.nodeIsDefined ( i, j )) {
 
-            for ( int k = numberOfNodesInDepth; k >= 0; --k ) {
+            for (unsigned int k = 0; k <= numberOfNodesInDepth; ++k) {
 
                if ( m_activeNodes ( i, j, k )) {
                   dof ( k, j, i ) = globalDofNumber++;
@@ -387,7 +387,7 @@ void ComputationalDomain::numberGlobalDofsKIJ ( int&                      global
    int numberOfNodesInDepth = m_column.getNumberOfLogicalNodesInDepth ( m_currentAge ) - 1;
    globalDofNumber = m_localStartDofNumber;
 
-   for ( int k = numberOfNodesInDepth; k >= 0; --k ) {
+   for (unsigned int k = 0; k <= numberOfNodesInDepth; ++k) {
 
       for ( size_t i = fc.firstI (); i <= fc.lastI (); ++i ) {
 
@@ -428,7 +428,7 @@ void ComputationalDomain::numberGlobalDofsKJI ( int&                      global
    int numberOfNodesInDepth = m_column.getNumberOfLogicalNodesInDepth ( m_currentAge ) - 1;
    globalDofNumber = m_localStartDofNumber;
 
-   for ( int k = numberOfNodesInDepth; k >= 0; --k ) {
+   for (unsigned int k = 0; k <= numberOfNodesInDepth; ++k) {
 
       for ( size_t j = fc.firstJ (); j <= fc.lastJ (); ++j ) {
 

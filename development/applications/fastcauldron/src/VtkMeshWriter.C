@@ -216,21 +216,17 @@ void VtkMeshWriter::getLocalNodesIJK ( const ComputationalDomain& domain,
       for ( size_t j = fc.firstJ (); j <= fc.lastJ (); ++j ) {
 
          if ( fc.nodeIsDefined ( i, j )) {
-            z = fc.getSeaBottomDepth ( i, j, domain.getCurrentAge ());
 
-            if ( domain.getActiveNodes ()( i, j, numberOfNodesInDepth - 1 )) {
-               activeNodes [ count++ ] = x;
-               activeNodes [ count++ ] = y;
-               activeNodes [ count++ ] = zScale * z;
-            }
+            globalK = 0;
 
-            globalK = numberOfNodesInDepth - 2;
+            ///1. Loop over the elements, so top nodes are excluded
+            // size_t must not be 0 so we use stratigraphicColumn.getNumberOfLayers () instead of stratigraphicColumn.getNumberOfLayers ()-1
+            // and firstLayerIndex+1 instead of firstLayerIndex, so we access l-1
+            for ( size_t l = stratigraphicColumn.getNumberOfLayers (); l >= firstLayerIndex+1; --l ) {
+               const FormationElementGrid<GeneralElement>& grid = *domain.getFormationGrid ( stratigraphicColumn.getLayer ( l-1 ));
+               const PETSC_3D_Array& layerDepth = layerDepths [ l-1 ];
 
-            for ( size_t l = firstLayerIndex; l < stratigraphicColumn.getNumberOfLayers (); ++l ) {
-               const FormationElementGrid<GeneralElement>& grid = *domain.getFormationGrid ( stratigraphicColumn.getLayer ( l ));
-               const PETSC_3D_Array& layerDepth = layerDepths [ l ];
-
-               for ( int k = grid.lastK (); k >= grid.firstK (); --k, --globalK ) {
+               for ( int k = grid.firstK (); k <= grid.lastK (); ++k, ++globalK ) {
                   z = layerDepth ( k, j, i );
 
                   if ( domain.getActiveNodes ()( i, j, globalK )) {
@@ -243,6 +239,15 @@ void VtkMeshWriter::getLocalNodesIJK ( const ComputationalDomain& domain,
 
             }
 
+            ///2. Top nodes numbering
+            z = fc.getSeaBottomDepth ( i, j, domain.getCurrentAge ());
+
+            if ( domain.getActiveNodes ()( i, j, numberOfNodesInDepth - 1 )) {
+               activeNodes [ count++ ] = x;
+               activeNodes [ count++ ] = y;
+               activeNodes [ count++ ] = zScale * z;
+            }
+
          }
 
          y += deltaY;
@@ -251,6 +256,7 @@ void VtkMeshWriter::getLocalNodesIJK ( const ComputationalDomain& domain,
       x += deltaX;
    }
 
+   ///3. Restore array
    for ( size_t l = firstLayerIndex; l < stratigraphicColumn.getNumberOfLayers (); ++l ) {
       layerDepths [ l ].Restore_Global_Array ( No_Update );
    }
@@ -287,38 +293,15 @@ void VtkMeshWriter::getLocalNodesKIJ ( const ComputationalDomain& domain,
                                            stratigraphicColumn.getLayer ( l )->Current_Properties ( Basin_Modelling::Depth ));
    }
 
-   x = originX;
+   ///1. Loop over the elements, so top nodes are excluded
+   // size_t must not be 0 so we use stratigraphicColumn.getNumberOfLayers () instead of stratigraphicColumn.getNumberOfLayers ()-1
+   // and firstLayerIndex+1 instead of firstLayerIndex, so we access l-1
+   globalK = 0;
+   for ( size_t l = stratigraphicColumn.getNumberOfLayers (); l >= firstLayerIndex+1; --l ) {
+      const FormationElementGrid<GeneralElement>& grid = *domain.getFormationGrid ( stratigraphicColumn.getLayer ( l-1 ));
+      const PETSC_3D_Array& layerDepth = layerDepths [ l-1 ];
 
-   for ( size_t i = fc.firstI (); i <= fc.lastI (); ++i ) {
-      y = originY;
-
-      for ( size_t j = fc.firstJ (); j <= fc.lastJ (); ++j ) {
-
-         if ( fc.nodeIsDefined ( i, j )) {
-            z = fc.getSeaBottomDepth ( i, j, domain.getCurrentAge ());
-
-            if ( domain.getActiveNodes ()( i, j, numberOfNodesInDepth - 1 )) {
-               activeNodes [ count++ ] = x;
-               activeNodes [ count++ ] = y;
-               activeNodes [ count++ ] = zScale * z;
-            }
-
-         }
-
-         y += deltaY;
-      }
-
-      x += deltaX;
-   }
-
-
-   globalK = numberOfNodesInDepth - 2;
-
-   for ( size_t l = firstLayerIndex; l < stratigraphicColumn.getNumberOfLayers (); ++l ) {
-      const FormationElementGrid<GeneralElement>& grid = *domain.getFormationGrid ( stratigraphicColumn.getLayer ( l ));
-      const PETSC_3D_Array& layerDepth = layerDepths [ l ];
-
-      for ( int k = grid.lastK (); k >= grid.firstK (); --k, --globalK ) {
+      for ( int k = grid.firstK (); k <= grid.lastK (); ++k, ++globalK ) {
          x = originX;
 
          for ( size_t i = fc.firstI (); i <= fc.lastI (); ++i ) {
@@ -347,6 +330,32 @@ void VtkMeshWriter::getLocalNodesKIJ ( const ComputationalDomain& domain,
  
    }
 
+   ///2. Top nodes numbering
+   x = originX;
+
+   for ( size_t i = fc.firstI (); i <= fc.lastI (); ++i ) {
+      y = originY;
+
+      for ( size_t j = fc.firstJ (); j <= fc.lastJ (); ++j ) {
+
+         if ( fc.nodeIsDefined ( i, j )) {
+            z = fc.getSeaBottomDepth ( i, j, domain.getCurrentAge ());
+
+            if ( domain.getActiveNodes ()( i, j, numberOfNodesInDepth - 1 )) {
+               activeNodes [ count++ ] = x;
+               activeNodes [ count++ ] = y;
+               activeNodes [ count++ ] = zScale * z;
+            }
+
+         }
+
+         y += deltaY;
+      }
+
+      x += deltaX;
+   }
+
+   ///3. Restore array
    for ( size_t l = firstLayerIndex; l < stratigraphicColumn.getNumberOfLayers (); ++l ) {
       layerDepths [ l ].Restore_Global_Array ( No_Update );
    }
@@ -382,39 +391,16 @@ void VtkMeshWriter::getLocalNodesKJI ( const ComputationalDomain& domain,
                                            stratigraphicColumn.getLayer ( l )->Current_Properties ( Basin_Modelling::Depth ));
    }
 
+   globalK = 0;
 
+   ///1. Loop over the elements, so top nodes are excluded
+   // size_t must not be 0 so we use stratigraphicColumn.getNumberOfLayers () instead of stratigraphicColumn.getNumberOfLayers ()-1
+   // and firstLayerIndex+1 instead of firstLayerIndex, so we access l-1
+   for ( size_t l = stratigraphicColumn.getNumberOfLayers (); l >= firstLayerIndex+1; --l ) {
+      const FormationElementGrid<GeneralElement>& grid = *domain.getFormationGrid ( stratigraphicColumn.getLayer ( l-1 ));
+      const PETSC_3D_Array& layerDepth = layerDepths [ l-1 ];
 
-   y = originY;
-
-   for ( size_t j = fc.firstJ (); j <= fc.lastJ (); ++j ) {
-      x = originX;
-
-      for ( size_t i = fc.firstI (); i <= fc.lastI (); ++i ) {
-
-         if ( fc.nodeIsDefined ( i, j )) {
-            z = fc.getSeaBottomDepth ( i, j, domain.getCurrentAge ());
-
-            if ( domain.getActiveNodes ()( i, j, numberOfNodesInDepth - 1 )) {
-               activeNodes [ count++ ] = x;
-               activeNodes [ count++ ] = y;
-               activeNodes [ count++ ] = zScale * z;
-            }
-
-         }
-
-         x += deltaX;
-      }
-
-      y += deltaY;
-   }
-
-   globalK = numberOfNodesInDepth - 2;
-
-   for ( size_t l = firstLayerIndex; l < stratigraphicColumn.getNumberOfLayers (); ++l ) {
-      const FormationElementGrid<GeneralElement>& grid = *domain.getFormationGrid ( stratigraphicColumn.getLayer ( l ));
-      const PETSC_3D_Array& layerDepth = layerDepths [ l ];
-
-      for ( int k = grid.lastK (); k >= grid.firstK (); --k, --globalK ) {
+      for ( int k = grid.firstK (); k <= grid.lastK (); ++k, ++globalK ) {
          y = originY;
 
          for ( size_t j = fc.firstJ (); j <= fc.lastJ (); ++j ) {
@@ -443,6 +429,32 @@ void VtkMeshWriter::getLocalNodesKJI ( const ComputationalDomain& domain,
  
    }
 
+   ///2. Top nodes numbering
+   y = originY;
+
+   for ( size_t j = fc.firstJ (); j <= fc.lastJ (); ++j ) {
+      x = originX;
+
+      for ( size_t i = fc.firstI (); i <= fc.lastI (); ++i ) {
+
+         if ( fc.nodeIsDefined ( i, j )) {
+            z = fc.getSeaBottomDepth ( i, j, domain.getCurrentAge ());
+
+            if ( domain.getActiveNodes ()( i, j, numberOfNodesInDepth - 1 )) {
+               activeNodes [ count++ ] = x;
+               activeNodes [ count++ ] = y;
+               activeNodes [ count++ ] = zScale * z;
+            }
+
+         }
+
+         x += deltaX;
+      }
+
+      y += deltaY;
+   }
+
+   ///3. Restore array
    for ( size_t l = firstLayerIndex; l < stratigraphicColumn.getNumberOfLayers (); ++l ) {
       layerDepths [ l ].Restore_Global_Array ( No_Update );
    }
