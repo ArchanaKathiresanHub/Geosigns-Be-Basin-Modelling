@@ -28,7 +28,7 @@ namespace Shell.BasinModeling.CauldronIO.Test
         [TestMethod]
         public void LoadProjectNative()
         {
-            Project project = ImportExport.importFromXML("../../../csharp-test/cauldron_outputs.xml");
+            Project project = ImportExport.importFromXML("../../../csharp-test/HydrostaticGL_out.xml");
             int count = project.getSnapShots().Count;
             Assert.IsTrue(count == 14);
             count = project.getSurfaceNames().Count;
@@ -38,7 +38,7 @@ namespace Shell.BasinModeling.CauldronIO.Test
         [TestMethod]
         public void AddToProjectNative()
         {
-            Project project = ImportExport.importFromXML("../../../csharp-test/cauldron_outputs.xml");
+            Project project = ImportExport.importFromXML("../../../csharp-test/HydrostaticGL_out.xml");
             int count = project.getSnapShots().Count;
             Assert.IsTrue(count == 14);
 
@@ -66,7 +66,7 @@ namespace Shell.BasinModeling.CauldronIO.Test
         [TestMethod]
         public void RetrieveRelease()
         {
-            Project project = ImportExport.importFromXML("../../../csharp-test/cauldron_outputs.xml");
+            Project project = ImportExport.importFromXML("../../../csharp-test/HydrostaticGL_out.xml");
 
             project.retrieve();
             project.release();

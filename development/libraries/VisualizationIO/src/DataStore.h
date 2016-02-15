@@ -16,6 +16,7 @@
 #include <boost/filesystem.hpp>
 #include <iostream>
 #include <fstream>
+#include "pugixml-1.7/pugixml.hpp"
 
 namespace CauldronIO
 {
@@ -56,9 +57,9 @@ namespace CauldronIO
         static char* decompress(const char* data, size_t& size);
 
         /// \brief Creates a volume from the current XML node and assigns given Property
-        static void getVolume(const boost::property_tree::ptree& ptree, boost::shared_ptr<VolumeData> volumeData, const boost::filesystem::path& path);
+        static void getVolume(pugi::xml_node propertyVolNode, boost::shared_ptr<VolumeData> volumeData, const boost::filesystem::path& path);
         /// \brief Gets surfacedata from the current XML node
-        static void getSurface(const boost::property_tree::ptree& ptree, boost::shared_ptr<SurfaceData> surfaceData, const boost::filesystem::path& path);
+        static void getSurface(pugi::xml_node propertyMapNode, boost::shared_ptr<SurfaceData> surfaceData, const boost::filesystem::path& path);
 
     private:
         std::ifstream m_file_in;
@@ -77,15 +78,15 @@ namespace CauldronIO
         ~DataStoreSave();
 
         /// \brief Adds a surface to the XML node, and writes the binary data
-        void addSurface(const boost::shared_ptr<SurfaceData>& surfaceData, boost::property_tree::ptree& node, size_t size);
+        void addSurface(const boost::shared_ptr<SurfaceData>& surfaceData, pugi::xml_node node);
         /// \brief Adds a volume to the XML node, and writes the binary data
-        void addVolume(const boost::shared_ptr<VolumeData>& data, boost::property_tree::ptree& node, size_t numBytes);
+        void addVolume(const boost::shared_ptr<VolumeData>& data, pugi::xml_node node, size_t numBytes);
         // Returns a compressed char* with size "size", for given input data char* and size
         static char* compress(const char* data, size_t& size);
 
     private:
         void writeVolume(const boost::shared_ptr<VolumeData>& volume, bool dataIJK, bool compress);
-        void writeVolumePart(boost::property_tree::ptree &volNode, bool compress, bool IJK, const boost::shared_ptr<VolumeData>& volume);
+        void writeVolumePart(pugi::xml_node volNode, bool compress, bool IJK, const boost::shared_ptr<VolumeData>& volume);
         void addData(const float* data, size_t size, bool compressData);
 
         std::ofstream m_file_out;

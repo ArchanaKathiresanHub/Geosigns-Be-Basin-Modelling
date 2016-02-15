@@ -21,14 +21,15 @@ using namespace std;
 /// Project Implementation
 //////////////////////////////////////////////////////////////////////////
 
-CauldronIO::Project::Project(const string& name, const string& description, const string& team, const string& version, ModellingMode mode, float xmlVersion)
+CauldronIO::Project::Project(const string& name, const string& description, const string& team, const string& version, ModellingMode mode, int xmlVersionMajor, int xmlVersionMinor)
 {
     m_name = name;
     m_description = description;
     m_team = team;
     m_version = version;
     m_mode = mode;
-    m_xmlVersion = xmlVersion;
+    m_xmlVersionMajor = xmlVersionMajor;
+    m_xmlVersionMinor = xmlVersionMinor;
 }
 
 CauldronIO::Project::~Project()
@@ -141,9 +142,15 @@ const std::vector<std::string>& CauldronIO::Project::getSurfaceNames()
     return m_surfaceNames;
 }
 
-float CauldronIO::Project::getXmlVersion() const
+
+int CauldronIO::Project::getXmlVersionMajor() const
 {
-    return m_xmlVersion;
+    return m_xmlVersionMajor;
+}
+
+int CauldronIO::Project::getXmlVersionMinor() const
+{
+    return m_xmlVersionMinor;
 }
 
 const ReservoirList& CauldronIO::Project::getReservoirs() const
@@ -360,6 +367,13 @@ CauldronIO::PropertyAttribute CauldronIO::Property::getAttribute() const
     return m_attrib;
 }
 
+bool CauldronIO::Property::isHighRes() const
+{
+    if (m_name.find("HighRes") != std::string::npos) return true;
+    if (m_name.find("ResRock") != std::string::npos) return true;
+    return false;
+}
+
 bool CauldronIO::Property::operator==(const Property& other) const
 {
     return this->m_name == other.m_name;
@@ -407,12 +421,11 @@ bool CauldronIO::Formation::operator==(const Formation& other) const
 /// Surface implementation
 //////////////////////////////////////////////////////////////////////////
 
-CauldronIO::Surface::Surface(const std::string& name, SubsurfaceKind kind, boost::shared_ptr<const Geometry2D>& geometry)
+CauldronIO::Surface::Surface(const std::string& name, SubsurfaceKind kind)
 {
     m_name = name;
     m_subSurfaceKind = kind;
     m_propSurfaceList.clear();
-    m_geometry = geometry;
     m_reservoir.reset();
 }
 
@@ -422,9 +435,24 @@ CauldronIO::Surface::~Surface()
     m_geometry.reset();
 }
 
+void CauldronIO::Surface::setGeometry(boost::shared_ptr<const Geometry2D>& geometry)
+{
+    m_geometry = geometry;
+}
+
+void CauldronIO::Surface::setHighResGeometry(boost::shared_ptr<const Geometry2D>& geometry)
+{
+    m_highresgeometry = geometry;
+}
+
 const boost::shared_ptr<const Geometry2D>& CauldronIO::Surface::getGeometry() const
 {
     return m_geometry;
+}
+
+const boost::shared_ptr<const Geometry2D>& CauldronIO::Surface::getHighResGeometry() const
+{
+    return m_highresgeometry;
 }
 
 const PropertySurfaceDataList& CauldronIO::Surface::getPropertySurfaceDataList() const
@@ -468,14 +496,22 @@ CauldronIO::SubsurfaceKind CauldronIO::Surface::getSubSurfaceKind() const
     return m_subSurfaceKind;
 }
 
-void CauldronIO::Surface::setFormation(boost::shared_ptr<const Formation>& formation)
+void CauldronIO::Surface::setFormation(boost::shared_ptr<const Formation>& formation, bool isTopFormation)
 {
-    m_formation = formation;
+    if (isTopFormation)
+        m_Topformation = formation;
+    else
+        m_Bottomformation = formation;
 }
 
-const boost::shared_ptr<const Formation> CauldronIO::Surface::getFormation() const
+const boost::shared_ptr<const Formation>& CauldronIO::Surface::getTopFormation() const
 {
-    return m_formation;
+    return m_Topformation;
+}
+
+const boost::shared_ptr<const Formation>& CauldronIO::Surface::getBottomFormation() const
+{
+    return m_Bottomformation;
 }
 
 void CauldronIO::Surface::retrieve()
@@ -569,6 +605,20 @@ double CauldronIO::Geometry2D::getMaxJ() const
     return m_maxJ;
 }
 
+size_t CauldronIO::Geometry2D::getSize() const
+{
+    return m_numI * m_numJ;
+}
+
+
+bool CauldronIO::Geometry2D::operator==(const Geometry2D& other) const
+{
+    return
+        m_numI == other.m_numI && m_numJ == other.m_numJ &&
+        m_deltaI == other.m_deltaI && m_deltaJ == other.m_deltaJ &&
+        m_minI == other.m_minI && m_minJ == other.m_minJ;
+}
+
 // Map implementation
 //////////////////////////////////////////////////////////////////////////
 
@@ -586,6 +636,7 @@ CauldronIO::SurfaceData::SurfaceData(const boost::shared_ptr<const Geometry2D>& 
     m_maxJ   = geometry->getMaxJ(); 
     m_isConstant = false;
     m_retrieved = false;
+    m_geometry = geometry;
 
     // Indexing into the map is unknown
     m_internalData = NULL;
@@ -599,6 +650,16 @@ float CauldronIO::SurfaceData::getUndefinedValue() const
 void CauldronIO::SurfaceData::setUndefinedValue(float undefined)
 {
     m_undefinedValue = undefined;
+}
+
+void CauldronIO::SurfaceData::setFormation(boost::shared_ptr<const Formation>& formation)
+{
+    m_formation = formation;
+}
+
+const boost::shared_ptr<const Formation>& CauldronIO::SurfaceData::getFormation() const
+{
+    return m_formation;
 }
 
 bool CauldronIO::SurfaceData::isConstant() const
@@ -617,6 +678,11 @@ CauldronIO::SurfaceData::~SurfaceData()
 {
     if (m_internalData) delete[] m_internalData;
     m_internalData = NULL;
+}
+
+const boost::shared_ptr<const Geometry2D>& CauldronIO::SurfaceData::getGeometry() const
+{
+    return m_geometry;
 }
 
 void CauldronIO::SurfaceData::setData_IJ(float* data)
@@ -852,6 +918,21 @@ size_t CauldronIO::Geometry3D::getLastK() const
     return m_firstK + m_numK - 1;
 }
 
+size_t CauldronIO::Geometry3D::getSize() const
+{
+    return m_numI * m_numJ * m_numK;
+}
+
+
+bool CauldronIO::Geometry3D::operator==(const Geometry3D& other) const
+{
+    return
+        m_numI == other.m_numI && m_numJ == other.m_numJ &&
+        m_deltaI == other.m_deltaI && m_deltaJ == other.m_deltaJ &&
+        m_minI == other.m_minI && m_minJ == other.m_minJ &&
+        m_numK == other.m_numK && m_firstK == other.m_firstK;
+}
+
 //////////////////////////////////////////////////////////////////////////
 /// Trapper implementation
 //////////////////////////////////////////////////////////////////////////
@@ -997,6 +1078,8 @@ CauldronIO::VolumeData::VolumeData(const boost::shared_ptr<const Geometry3D>& ge
     m_minJ = geometry->getMinJ();
     m_maxJ = geometry->getMaxJ();
     m_lastK = geometry->getLastK();
+
+    m_geometry = geometry;
 }
 
 CauldronIO::VolumeData::~VolumeData()
@@ -1005,6 +1088,12 @@ CauldronIO::VolumeData::~VolumeData()
     if (m_internalDataKIJ) delete[] m_internalDataKIJ;
     m_internalDataIJK = NULL;
     m_internalDataKIJ = NULL;
+}
+
+
+const boost::shared_ptr<const Geometry3D>& CauldronIO::VolumeData::getGeometry() const
+{
+    return m_geometry;
 }
 
 bool CauldronIO::VolumeData::isUndefined(size_t i, size_t j, size_t k) const
@@ -1081,11 +1170,6 @@ float const * CauldronIO::VolumeData::getVolumeValues_KIJ()
     if (!m_internalDataKIJ && m_isConstant) setData_KIJ(NULL, true, m_constantValue);
 
     return m_internalDataKIJ;
-}
-
-size_t CauldronIO::VolumeData::getVolumeSize() const
-{
-    return m_numI * m_numJ * m_numK;
 }
 
 float const * CauldronIO::VolumeData::getVolumeValues_IJK()

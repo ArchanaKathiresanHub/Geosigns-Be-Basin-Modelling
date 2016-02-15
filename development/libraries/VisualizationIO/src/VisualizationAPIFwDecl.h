@@ -31,6 +31,7 @@ namespace DataAccess
         class Formation;
         class Property;
         typedef std::vector<const PropertyValue *> PropertyValueList;
+        typedef std::vector<const Property *> PropertyList;
     }
 }
 

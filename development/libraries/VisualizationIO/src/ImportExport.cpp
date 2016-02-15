@@ -13,17 +13,15 @@
 #include "DataStore.h"
 
 #include <boost/foreach.hpp>
-#include <boost/system/error_code.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/property_tree/xml_parser.hpp>
-
+#include <iomanip>
 #include <iostream>
 #include <fstream>
 #include <cstring>
 
 using namespace CauldronIO;
 
-bool ImportExport::exportToXML(boost::shared_ptr<Project>& project, const std::string& absPath, const std::string& relPath, bool release)
+bool ImportExport::exportToXML(boost::shared_ptr<Project>& project, const std::string& absPath, const std::string& relPath, 
+    const std::string& xmlIndexingName, bool release)
 {
     // Create empty property tree object
     using boost::property_tree::ptree;
@@ -39,7 +37,8 @@ bool ImportExport::exportToXML(boost::shared_ptr<Project>& project, const std::s
         if (err != boost::system::errc::success) throw CauldronIOException("cannot create path");
     }
 
-    ptree pt;
+    pugi::xml_document doc;
+    pugi::xml_node pt = doc.append_child("project");
 
     ImportExport newExport(absPath, relPath);
 
@@ -48,56 +47,60 @@ bool ImportExport::exportToXML(boost::shared_ptr<Project>& project, const std::s
 
     // Write property tree to XML file
     fs::path xmlFileName(absPath);
-    xmlFileName.append(getXMLIndexingFileName());
-    write_xml(xmlFileName.string(), pt);
+    xmlFileName.append(xmlIndexingName);
 
-    return true;
+    return doc.save_file(xmlFileName.string().c_str());
 }
 
-void ImportExport::addProject(boost::property_tree::ptree& pt, boost::shared_ptr<Project>& project, bool release)
+void ImportExport::addProject(pugi::xml_node pt, boost::shared_ptr<Project>& project, bool release)
 {
     m_release = release;
     
-    // Create empty property tree object
-    using boost::property_tree::ptree;
-
     boost::filesystem::path fullPath(m_absPath);
     fullPath.append(m_relPath.string());
 
     // Add general project description
-    pt.put("project.name", project->getName());
-    pt.put("project.description", project->getDescription());
-    pt.put("project.modelingmode", project->getModelingMode());
-    pt.put("project.team", project->getTeam());
-    pt.put("project.programversion", project->getProgramVersion());
-    pt.put("project.outputpath", m_relPath.string());
-    pt.put("project.xml-version", (float)xml_version);
+    pt.append_child("name").text() = project->getName().c_str();
+    pt.append_child("description").text() = project->getDescription().c_str();
+    pt.append_child("modelingmode").text() = (int)project->getModelingMode();
+    pt.append_child("team").text() = project->getTeam().c_str();
+    pt.append_child("programversion").text() = project->getProgramVersion().c_str();
+    pt.append_child("outputpath").text() = m_relPath.string().c_str();
+    
+    pugi::xml_node ptxml = pt.append_child("xml-version");
+    ptxml.append_attribute("major") = xml_version_major;
+    ptxml.append_attribute("minor") = xml_version_minor;
 
     // Write all formations
-    ptree& formationNode = pt.add("project.formations","");
+    pugi::xml_node formationNode = pt.append_child("formations");
     BOOST_FOREACH(const boost::shared_ptr<const Formation>& formation, project->getFormations())
     {
         addFormation(formationNode, formation);
     }
 
     // Write all properties
-    ptree& propertyNode = pt.add("project.properties", "");
+    pugi::xml_node propertyNode = pt.append_child("properties");
     BOOST_FOREACH(const boost::shared_ptr<const Property>& property, project->getProperties())
     {
         addProperty(propertyNode, property);
     }
 
     // Write all reservoirs
-    BOOST_FOREACH(const boost::shared_ptr<const Reservoir>& reservoir, project->getReservoirs())
+    if (project->getReservoirs().size() > 0)
     {
-        ptree& reservoirNode = pt.add("project.reservoirs.reservoir", "");
-        reservoirNode.put("<xmlattr>.name", reservoir->getName());
-        reservoirNode.put("<xmlattr>.formation", reservoir->getFormation()->getName());
+        pugi::xml_node reservoirNodes = pt.append_child("reservoirs");
+        BOOST_FOREACH(const boost::shared_ptr<const Reservoir>& reservoir, project->getReservoirs())
+        {
+            pugi::xml_node reservoirNode = reservoirNodes.append_child("reservoir");
+            reservoirNode.append_attribute("name") = reservoir->getName().c_str();
+            reservoirNode.append_attribute("formation") = reservoir->getFormation()->getName().c_str();
+        }
     }
-
+    
     // Write all snapshots
     const SnapShotList snapShotList = project->getSnapShots();
     m_append = detectAppend(project);
+    pugi::xml_node snapShotNodes = pt.append_child("snapshots");
 
     BOOST_FOREACH(const boost::shared_ptr<const SnapShot>& snapShot, snapShotList)
     {
@@ -115,76 +118,89 @@ void ImportExport::addProject(boost::property_tree::ptree& pt, boost::shared_ptr
         surfaceStorePath /= "Snapshot_" + snapshotString + "_surfaces.cldrn";
         DataStoreSave surfaceDataStore(surfaceStorePath.string(), m_append);
 
-        ptree& node = pt.add("project.snapshots.snapshot", "");
-        node.put("<xmlattr>.age", snapShot->getAge());
-        node.put("<xmlattr>.kind", snapShot->getKind());
-        node.put("<xmlattr>.isminor", snapShot->isMinorShapshot());
+        pugi::xml_node node = snapShotNodes.append_child("snapshot");
+        node.append_attribute("age") = snapShot->getAge();
+        node.append_attribute("kind") = snapShot->getKind();
+        node.append_attribute("isminor") = snapShot->isMinorShapshot();
 
         const SurfaceList surfaces = snapShot->getSurfaceList();
-        BOOST_FOREACH(const boost::shared_ptr<Surface>& surfaceIO, surfaces)
+        if (surfaces.size() > 0)
         {
-            // General properties
-            ptree& surfaceNode = node.add("surfaces.surface", "");
+            pugi::xml_node surfacesNode = node.append_child("surfaces");
+            BOOST_FOREACH(const boost::shared_ptr<Surface>& surfaceIO, surfaces)
+            {
+                // General properties
+                pugi::xml_node surfaceNode = surfacesNode.append_child("surface");
 
-            // Data storage
-            addSurface(surfaceDataStore, surfaceIO, surfaceNode);
+                // Data storage
+                addSurface(surfaceDataStore, surfaceIO, surfaceNode);
+            }
         }
 
         // Add the continuous volume
         const boost::shared_ptr<Volume> volume = snapShot->getVolume();
         if (volume)
         {
-            ptree& volNode = node.add("volume", "");
+            pugi::xml_node volNode = node.append_child("volume");
             addVolume(volumeStore, volume, volNode);
         }
 
         // Add a volume per formation, with discontinuous properties
         const FormationVolumeList formVolumes = snapShot->getFormationVolumeList();
-        BOOST_FOREACH(const boost::shared_ptr<FormationVolume>& formVolume, formVolumes)
+        if (formVolumes.size() > 0)
         {
-            // General properties
-            ptree& volNode = node.add("formvols.formvol", "");
+            pugi::xml_node formVolumesNode = node.append_child("formvols");
+            BOOST_FOREACH(const boost::shared_ptr<FormationVolume>& formVolume, formVolumes)
+            {
+                // General properties
+                pugi::xml_node volNode = formVolumesNode.append_child("formvol");
 
-            const boost::shared_ptr<Volume> subVolume = formVolume->second;
-            const boost::shared_ptr<const Formation> subFormation = formVolume->first;
-                
-            // Add formation name
-            volNode.put("<xmlattr>.formation", subFormation->getName());
+                const boost::shared_ptr<Volume> subVolume = formVolume->second;
+                const boost::shared_ptr<const Formation> subFormation = formVolume->first;
 
-            // Add volume 
-            ptree& subvolNode = volNode.add("volume", "");
-            addVolume(volumeStore, subVolume, subvolNode);
-        }
+                // Add formation name
+                volNode.append_attribute("formation") = subFormation->getName().c_str();
 
-        const TrapperList trappers = snapShot->getTrapperList();
-        int maxPersistentTrapperID = -1;
-        BOOST_FOREACH(const boost::shared_ptr<const Trapper>& trapper, trappers)
-        {
-            // General properties
-            ptree& trapperNode = node.add("trappers.trapper", "");
-
-            trapperNode.put("<xmlattr>.id", trapper->getID());
-            trapperNode.put("<xmlattr>.persistentID", trapper->getPersistentID());
-            trapperNode.put("<xmlattr>.reservoirname", trapper->getReservoirName());
-            trapperNode.put("<xmlattr>.depth", trapper->getDepth());
-            trapperNode.put("<xmlattr>.spillDepth", trapper->getSpillDepth());
-
-            float x, y;
-            trapper->getPosition(x, y);
-            trapperNode.put("<xmlattr>.posX", x);
-            trapperNode.put("<xmlattr>.posY", y);
-
-            trapper->getSpillPointPosition(x, y);
-            trapperNode.put("<xmlattr>.spillPosX", x);
-            trapperNode.put("<xmlattr>.spillPosY", y);
-
-            int downstreamTrapperID = trapper->getDownStreamTrapperID();
-            trapperNode.put("<xmlattr>.downstreamtrapper", downstreamTrapperID);
-            maxPersistentTrapperID = std::max(maxPersistentTrapperID, trapper->getPersistentID());
+                // Add volume 
+                pugi::xml_node subvolNode = volNode.append_child("volume");
+                addVolume(volumeStore, subVolume, subvolNode);
+            }
         }
         
-        if (maxPersistentTrapperID != -1)
-            node.add("trappers.maxPersistentTrapperID", maxPersistentTrapperID);
+        const TrapperList trappers = snapShot->getTrapperList();
+        if (trappers.size() > 0)
+        {
+            pugi::xml_node trappersNode = node.append_child("trappers");
+            
+            int maxPersistentTrapperID = -1;
+            BOOST_FOREACH(const boost::shared_ptr<const Trapper>& trapper, trappers)
+            {
+                // General properties
+                pugi::xml_node trapperNode = trappersNode.append_child("trapper");
+
+                trapperNode.append_attribute("id") = trapper->getID();
+                trapperNode.append_attribute("persistentID") = trapper->getPersistentID();
+                trapperNode.append_attribute("reservoirname") = trapper->getReservoirName().c_str();
+                trapperNode.append_attribute("depth") = trapper->getDepth();
+                trapperNode.append_attribute("spillDepth") = trapper->getSpillDepth();
+
+                float x, y;
+                trapper->getPosition(x, y);
+                trapperNode.append_attribute("posX") = x;
+                trapperNode.append_attribute("posY") = y;
+
+                trapper->getSpillPointPosition(x, y);
+                trapperNode.append_attribute("spillPosX") = x;
+                trapperNode.append_attribute("spillPosY") = y;
+
+                int downstreamTrapperID = trapper->getDownStreamTrapperID();
+                trapperNode.append_attribute("downstreamtrapper") = downstreamTrapperID;
+                maxPersistentTrapperID = std::max(maxPersistentTrapperID, trapper->getPersistentID());
+            }
+
+            if (maxPersistentTrapperID != -1)
+                trappersNode.append_child("maxPersistentTrapperID").text() = maxPersistentTrapperID;
+        }
     }
 }
 
@@ -194,61 +210,75 @@ CauldronIO::ImportExport::ImportExport(const boost::filesystem::path& absPath, c
     m_relPath = relPath;
 }
 
-void CauldronIO::ImportExport::addProperty(boost::property_tree::ptree &node, const boost::shared_ptr<const Property>& property) const
+void CauldronIO::ImportExport::addProperty(pugi::xml_node node, const boost::shared_ptr<const Property>& property) const
 {
-    boost::property_tree::ptree& propNode = node.add("property","");
-    propNode.put("<xmlattr>.name", property->getName());
-    propNode.put("<xmlattr>.cauldronname", property->getCauldronName());
-    propNode.put("<xmlattr>.username", property->getUserName());
-    propNode.put("<xmlattr>.unit", property->getUnit());
-    propNode.put("<xmlattr>.attribute", property->getAttribute());
-    propNode.put("<xmlattr>.type", property->getType());
+    pugi::xml_node propNode = node.append_child("property");
+    propNode.append_attribute("name") = property->getName().c_str();
+    propNode.append_attribute("cauldronname") = property->getCauldronName().c_str();
+    propNode.append_attribute("username") = property->getUserName().c_str();
+    propNode.append_attribute("unit") = property->getUnit().c_str();
+    propNode.append_attribute("attribute") = property->getAttribute();
+    propNode.append_attribute("type") = property->getType();
 }
 
-void CauldronIO::ImportExport::addFormation(boost::property_tree::ptree& node, const boost::shared_ptr<const Formation>& formation) const
+void CauldronIO::ImportExport::addFormation(pugi::xml_node node, const boost::shared_ptr<const Formation>& formation) const
 {
-    boost::property_tree::ptree& subNode = node.add("formation", "");
-    subNode.put("<xmlattr>.name", formation->getName());
+    pugi::xml_node subNode = node.append_child("formation");
+    subNode.append_attribute("name") = formation->getName().c_str();
     unsigned int start, end;
     formation->getK_Range(start, end);
-    subNode.put("<xmlattr>.kstart", start);
-    subNode.put("<xmlattr>.kend", end);
-    subNode.put("<xmlattr>.isSR", formation->isSourceRock());
-    subNode.put("<xmlattr>.isML", formation->isMobileLayer());
+    
+    subNode.append_attribute("kstart") = start;
+    subNode.append_attribute("kend") = end;
+    subNode.append_attribute("isSR") = formation->isSourceRock();
+    subNode.append_attribute("isML") =formation->isMobileLayer();
 }
 
-void CauldronIO::ImportExport::addSurface(DataStoreSave& dataStore, const boost::shared_ptr<Surface>& surfaceIO, boost::property_tree::ptree& ptree)
+void CauldronIO::ImportExport::addSurface(DataStoreSave& dataStore, const boost::shared_ptr<Surface>& surfaceIO, pugi::xml_node ptree)
 {
     // Retrieve data if necessary: if the getDataStoreParams is unequal to zero this means data is saved and does not need to be saved again
     if (!surfaceIO->isRetrieved() && !m_append)
         surfaceIO->retrieve();
 
     // Write general info
-    ptree.put("<xmlattr>.name", surfaceIO->getName());
+    ptree.append_attribute("name") = surfaceIO->getName().c_str();
     if (surfaceIO->getReservoir())
-        ptree.put("<xmlattr>.reservoir", surfaceIO->getReservoir()->getName());
-    ptree.put("<xmlattr>.subsurfacekind", surfaceIO->getSubSurfaceKind());
-    if (surfaceIO->getFormation())
-        ptree.put("<xmlattr>.formation", surfaceIO->getFormation()->getName());
+        ptree.append_attribute("reservoir") = surfaceIO->getReservoir()->getName().c_str();
+    ptree.append_attribute("subsurfacekind") = surfaceIO->getSubSurfaceKind();
+    if (surfaceIO->getTopFormation())
+        ptree.append_attribute("top-formation") = surfaceIO->getTopFormation()->getName().c_str();
+    if (surfaceIO->getBottomFormation())
+        ptree.append_attribute("bottom-formation") = surfaceIO->getBottomFormation()->getName().c_str();
 
     // Write geometry
-    addGeometryInfo2D(ptree, surfaceIO->getGeometry());
-    size_t size = surfaceIO->getGeometry()->getNumI()*surfaceIO->getGeometry()->getNumJ();
+    if (surfaceIO->getGeometry())
+        addGeometryInfo2D(ptree, surfaceIO->getGeometry(), "geometry");
+    if (surfaceIO->getHighResGeometry())
+        addGeometryInfo2D(ptree, surfaceIO->getHighResGeometry(), "geometry-highres");
 
     // Iterate over all contained valuemaps
     const PropertySurfaceDataList valueMaps = surfaceIO->getPropertySurfaceDataList();
 
-    BOOST_FOREACH(boost::shared_ptr<PropertySurfaceData> propertySurfaceData, valueMaps)
+    if (valueMaps.size() > 0)
     {
-        boost::property_tree::ptree& node = ptree.add("propertymaps.propertymap", "");
-        node.put("<xmlattr>.property", propertySurfaceData->first->getName());
+        pugi::xml_node valueMapsNode = ptree.append_child("propertymaps");
+        BOOST_FOREACH(boost::shared_ptr<PropertySurfaceData> propertySurfaceData, valueMaps)
+        {
+            pugi::xml_node node = valueMapsNode.append_child("propertymap");
+            node.append_attribute("property") = propertySurfaceData->first->getName().c_str();
 
-        boost::shared_ptr<SurfaceData>& surfaceData = propertySurfaceData->second;
+            boost::shared_ptr<SurfaceData>& surfaceData = propertySurfaceData->second;
+            if (surfaceData->getFormation())
+                node.append_attribute("formation") = surfaceData->getFormation()->getName().c_str();
 
-        if (surfaceData->isConstant())
-            node.put("<xmlattr>.constantvalue", surfaceData->getConstantValue());
-        else
-            dataStore.addSurface(surfaceData, node, size);
+            bool isHighRes = surfaceIO->getHighResGeometry() && (*surfaceIO->getHighResGeometry().get() == *surfaceData->getGeometry().get());
+            node.append_attribute("high-res") = isHighRes;
+
+            if (surfaceData->isConstant())
+                node.append_attribute("constantvalue") = surfaceData->getConstantValue();
+            else
+                dataStore.addSurface(surfaceData, node);
+        }
     }
 
     if (m_release)
@@ -256,62 +286,66 @@ void CauldronIO::ImportExport::addSurface(DataStoreSave& dataStore, const boost:
 
 }
 
-void CauldronIO::ImportExport::addVolume(DataStoreSave& dataStore, const boost::shared_ptr<Volume>& volume, boost::property_tree::ptree& volNode)
+void CauldronIO::ImportExport::addVolume(DataStoreSave& dataStore, const boost::shared_ptr<Volume>& volume, pugi::xml_node volNode)
 {
     if (!volume->isRetrieved() && !m_append)
         volume->retrieve();
 
-    volNode.put("<xmlattr>.subsurfacekind", volume->getSubSurfaceKind());
+    volNode.append_attribute("subsurfacekind") = volume->getSubSurfaceKind();
 
     // Set geometry
     const boost::shared_ptr<const Geometry3D>& geometry = volume->getGeometry();
     addGeometryInfo3D(volNode, geometry);
     size_t numBytes = geometry->getNumI()*geometry->getNumJ()*geometry->getNumK()*sizeof(float);
 
-    BOOST_FOREACH(const boost::shared_ptr<PropertyVolumeData>& propVolume, volume->getPropertyVolumeDataList())
+    if (volume->getPropertyVolumeDataList().size() > 0)
     {
-        const boost::shared_ptr<const Property>& prop = propVolume->first;
-        const boost::shared_ptr<VolumeData>& data = propVolume->second;
-
-        boost::property_tree::ptree& node = volNode.add("propertyvols.propertyvol", "");
-        node.put("<xmlattr>.property", prop->getName());
-
-        if (data->isConstant())
+        pugi::xml_node propVolNodes = volNode.append_child("propertyvols");
+        BOOST_FOREACH(const boost::shared_ptr<PropertyVolumeData>& propVolume, volume->getPropertyVolumeDataList())
         {
-            node.put("<xmlattr>.constantvalue", data->getConstantValue());
-            continue;
-        }
+            const boost::shared_ptr<const Property>& prop = propVolume->first;
+            const boost::shared_ptr<VolumeData>& data = propVolume->second;
 
-        dataStore.addVolume(data, node, numBytes);
+            pugi::xml_node node = propVolNodes.append_child("propertyvol");
+            node.append_attribute("property") = prop->getName().c_str();
+
+            if (data->isConstant())
+            {
+                node.append_attribute("constantvalue") = data->getConstantValue();
+                continue;
+            }
+
+            dataStore.addVolume(data, node, numBytes);
+        }
     }
 
     if (m_release)
         volume->release();
 }
 
-void CauldronIO::ImportExport::addGeometryInfo2D(boost::property_tree::ptree& node, const boost::shared_ptr<const Geometry2D>& geometry) const
+void CauldronIO::ImportExport::addGeometryInfo2D(pugi::xml_node node, const boost::shared_ptr<const Geometry2D>& geometry, const std::string& name) const
 {
-    boost::property_tree::ptree& subNode = node.add("geometry", "");
-    subNode.put("<xmlattr>.numI", geometry->getNumI());
-    subNode.put("<xmlattr>.numJ", geometry->getNumJ());
-    subNode.put("<xmlattr>.minI", geometry->getMinI());
-    subNode.put("<xmlattr>.minJ", geometry->getMinJ());
-    subNode.put("<xmlattr>.deltaI", geometry->getDeltaI());
-    subNode.put("<xmlattr>.deltaJ", geometry->getDeltaJ());
+    pugi::xml_node subNode = node.append_child(name.c_str());
+    subNode.append_attribute("numI"  ) = (unsigned int)geometry->getNumI();
+    subNode.append_attribute("numJ"  ) = (unsigned int)geometry->getNumJ();
+    subNode.append_attribute("minI"  ) = geometry->getMinI();
+    subNode.append_attribute("minJ"  ) = geometry->getMinJ();
+    subNode.append_attribute("deltaI") = geometry->getDeltaI();
+    subNode.append_attribute("deltaJ") = geometry->getDeltaJ();
 }
 
-void CauldronIO::ImportExport::addGeometryInfo3D(boost::property_tree::ptree& tree, const boost::shared_ptr<const Geometry3D>& geometry) const
+void CauldronIO::ImportExport::addGeometryInfo3D(pugi::xml_node node, const boost::shared_ptr<const Geometry3D>& geometry) const
 {
-    boost::property_tree::ptree& subNode = tree.add("geometry", "");
+    pugi::xml_node subNode = node.append_child("geometry");
+    subNode.append_attribute("numI")   = (unsigned int)geometry->getNumI();
+    subNode.append_attribute("numJ")   = (unsigned int)geometry->getNumJ();
+    subNode.append_attribute("minI")   = geometry->getMinI();
+    subNode.append_attribute("minJ")   = geometry->getMinJ();
+    subNode.append_attribute("deltaI") = geometry->getDeltaI();
+    subNode.append_attribute("deltaJ") = geometry->getDeltaJ();
 
-    subNode.put("<xmlattr>.numI", geometry->getNumI());
-    subNode.put("<xmlattr>.numJ", geometry->getNumJ());
-    subNode.put("<xmlattr>.minI", geometry->getMinI());
-    subNode.put("<xmlattr>.minJ", geometry->getMinJ());
-    subNode.put("<xmlattr>.deltaI", geometry->getDeltaI());
-    subNode.put("<xmlattr>.deltaJ", geometry->getDeltaJ());
-    subNode.put("<xmlattr>.numK", geometry->getNumK());
-    subNode.put("<xmlattr>.firstK", geometry->getFirstK());
+    subNode.append_attribute("numK")   = (unsigned int)geometry->getNumK();
+    subNode.append_attribute("firstK") = (unsigned int)geometry->getFirstK();
 }
 
 // If the objects are 'native' implementation, we should append the output files, otherwise
@@ -349,31 +383,24 @@ boost::shared_ptr<Project> CauldronIO::ImportExport::importFromXML(const std::st
     if (!boost::filesystem::exists(filename))
         throw CauldronIOException("Cannot open file");
     
-    using boost::property_tree::ptree;
-    ptree pt;
+    pugi::xml_document doc;
+    std::cout << "Reading XML into pugiXML DOM" << std::endl;
+    pugi::xml_parse_result result = doc.load_file(filename.c_str());
 
-    std::cout << "Reading XML into boost property tree" << std::endl;
-
-    try
-    {
-        read_xml(filename, pt);
-    }
-    catch (boost::property_tree::xml_parser::xml_parser_error e)
-    {
+    if (!result)
         throw CauldronIOException("Error during parsing xml file");
-    }
 
     boost::filesystem::path path(filename);
     path.remove_filename();
     
     ImportExport importExport(path, boost::filesystem::path(""));
     boost::shared_ptr<Project> project;
-
+    
     try
     {
-        project = importExport.getProject(pt);
+        project = importExport.getProject(doc);
     }
-    catch (boost::property_tree::ptree_bad_path e)
+    catch (...)
     {
         throw CauldronIOException("error during xml parse");
     }
@@ -381,35 +408,38 @@ boost::shared_ptr<Project> CauldronIO::ImportExport::importFromXML(const std::st
     return project;
 }
 
-std::string CauldronIO::ImportExport::getXMLIndexingFileName()
+std::string CauldronIO::ImportExport::getXMLIndexingFileName(const std::string& project3Dfilename)
 {
-    boost::filesystem::path result = "cauldron_outputs.xml";
-    return std::string(result.string());
+    boost::filesystem::path path(project3Dfilename);
+    return path.stem().string() + ".xml";
 }
 
-
-boost::shared_ptr<Project> CauldronIO::ImportExport::getProject(const boost::property_tree::ptree& pt)
+boost::shared_ptr<Project> CauldronIO::ImportExport::getProject(const pugi::xml_document& ptDoc)
 {
-    std::string projectName = pt.get<std::string>("project.name");
-    std::string projectDescript = pt.get<std::string>("project.description");
-    std::string projectTeam = pt.get<std::string>("project.team");
-    ModellingMode mode = (ModellingMode)pt.get<int>("project.modelingmode");
-    std::string projectVersion = pt.get<std::string>("project.programversion");
-    std::string outputPath = pt.get<std::string>("project.outputpath");
+    pugi::xml_node pt = ptDoc.child("project");
+    std::string projectName = pt.child_value("name");
+    std::string projectDescript = pt.child_value("description");
+    std::string projectTeam = pt.child_value("team");
+    std::string projectVersion = pt.child_value("programversion");
+    std::string outputPath = pt.child_value("outputpath");
+    ModellingMode mode = (ModellingMode)pt.child("modelingmode").text().as_int();
 
     // Check XML versions
     // dataXmlVersion > xml_version : actual data generated with code newer than this code, requires forward compatibility
     // dataXmlVersion < xml_version : actual data generated with code older than this code, requires backward compatibility
     //////////////////////////////////////////////////////////////////////////
 
-    float dataXmlVersion = 0;
-    boost::optional<float> xmlOptional = pt.get<float>("project.xml-version");  // xml version at moment of data creation
-    if (xmlOptional) dataXmlVersion = *xmlOptional;
+    int dataXmlVersionMinor = 0;
+    int dataXmlVersionMajor = 0;
+    pugi::xml_node xmlOptional = pt.child("xml-version");
+    if (xmlOptional)
+    {
+        dataXmlVersionMinor = xmlOptional.attribute("minor").as_int();
+        dataXmlVersionMajor = xmlOptional.attribute("major").as_int();
+    }
 
-    float eps = 0.0001f;
-    bool equalVersions = abs(dataXmlVersion - xml_version) < eps;
-    bool forwardCompatible = (dataXmlVersion - xml_version) > eps;
-    bool backwardCompatible = (xml_version - dataXmlVersion) > eps;
+    bool forwardCompatible = dataXmlVersionMajor > xml_version_major || (dataXmlVersionMajor == xml_version_major && dataXmlVersionMinor > xml_version_minor);
+    bool backwardCompatible = dataXmlVersionMajor < xml_version_major || (dataXmlVersionMajor == xml_version_major && dataXmlVersionMinor < xml_version_minor);
 
     if (forwardCompatible)
         throw CauldronIOException("Xml format not forward compatible");
@@ -420,109 +450,122 @@ boost::shared_ptr<Project> CauldronIO::ImportExport::getProject(const boost::pro
     fullOutputPath /= outputPath;
 
     // Create the project
-    m_project.reset(new Project(projectName, projectDescript, projectTeam, projectVersion, mode, dataXmlVersion));
+    m_project.reset(new Project(projectName, projectDescript, projectTeam, projectVersion, mode, dataXmlVersionMajor, dataXmlVersionMinor));
 
     // Read all formations
-    BOOST_FOREACH(boost::property_tree::ptree::value_type const& formationNodes, pt.get_child("project.formations"))
+    pugi::xml_node formationsNode = pt.child("formations");
+    for (pugi::xml_node formationNode = formationsNode.child("formation"); formationNode; formationNode = formationNode.next_sibling("formation"))
     {
-        assert(formationNodes.first == "formation");
-        const boost::property_tree::ptree& formationNode = formationNodes.second;
         boost::shared_ptr<const Formation> formation = getFormation(formationNode);
         m_project->addFormation(formation);
     }
 
     // Read all properties
-    BOOST_FOREACH(boost::property_tree::ptree::value_type const& propertyNodes, pt.get_child("project.properties"))
+    pugi::xml_node propertiesNode = pt.child("properties");
+    for (pugi::xml_node propertyNode = propertiesNode.child("property"); propertyNode; propertyNode = propertyNode.next_sibling("property"))
     {
-        assert(propertyNodes.first == "property");
-        const boost::property_tree::ptree& propertyNode = propertyNodes.second;
         boost::shared_ptr<const Property> property = getProperty(propertyNode);
         m_project->addProperty(property);
     }
 
     // Read all reservoirs
-    boost::optional<boost::property_tree::ptree const&> hasReservoirs = pt.get_child_optional("project.reservoirs");
+    pugi::xml_node hasReservoirs = pt.child("reservoirs");
     if (hasReservoirs)
     {
-        BOOST_FOREACH(boost::property_tree::ptree::value_type const& reservoirNodes, *hasReservoirs)
+        for (pugi::xml_node reservoirNode = hasReservoirs.child("reservoir"); reservoirNode; reservoirNode = reservoirNode.next_sibling("reservoir"))
         {
-            assert(reservoirNodes.first == "reservoir");
-            const boost::property_tree::ptree& reservoirNode = reservoirNodes.second;
             boost::shared_ptr<const Reservoir> reservoir = getReservoir(reservoirNode);
             m_project->addReservoir(reservoir);
         }
     }
     
     // Read all snapshots
-    BOOST_FOREACH(boost::property_tree::ptree::value_type const& snapShotNodes, pt.get_child("project.snapshots"))
+    pugi::xml_node snapshotsNode = pt.child("snapshots");
+    for (pugi::xml_node snapShotNode = snapshotsNode.child("snapshot"); snapShotNode; snapShotNode = snapShotNode.next_sibling("snapshot"))
     {
-        assert(snapShotNodes.first == "snapshot");
-        const boost::property_tree::ptree& snapShotNode = snapShotNodes.second;
-
-        double age = snapShotNode.get<double>("<xmlattr>.age");
-        SnapShotKind kind = (SnapShotKind)snapShotNode.get<int>("<xmlattr>.kind");
-        bool isminor = snapShotNode.get<bool>("<xmlattr>.isminor");
+        double age = snapShotNode.attribute("age").as_double();
+        SnapShotKind kind = (SnapShotKind)snapShotNode.attribute("kind").as_int();
+        bool isminor = snapShotNode.attribute("isminor").as_bool();
 
         // Create the snapshot
         boost::shared_ptr<SnapShot> snapShot(new SnapShot(age, kind, isminor));
 
-        boost::optional<boost::property_tree::ptree const&> hasSurfaces = snapShotNode.get_child_optional("surfaces");
+        // Find all surfaces
+        /////////////////////////////////////////
+        pugi::xml_node hasSurfaces = snapShotNode.child("surfaces");
         if (hasSurfaces)
         {
-            // Find all surfaces
-            /////////////////////////////////////////
-            BOOST_FOREACH(boost::property_tree::ptree::value_type const& surfaceNodes, snapShotNode.get_child("surfaces"))
+            for (pugi::xml_node surfaceNode = hasSurfaces.child("surface"); surfaceNode; surfaceNode = surfaceNode.next_sibling("surface"))
             {
-                assert(surfaceNodes.first == "surface");
-                const boost::property_tree::ptree& surfaceNode = surfaceNodes.second;
-
                 // Read some xml attributes
-                std::string surfaceName = surfaceNode.get<std::string>("<xmlattr>.name");
-                SubsurfaceKind surfaceKind = (SubsurfaceKind)surfaceNode.get<int>("<xmlattr>.subsurfacekind");
-                
-                boost::optional<std::string> formationName = surfaceNode.get_optional<std::string>("<xmlattr>.formation");
-                boost::shared_ptr<const Formation> formationIO;
-                if (formationName)
-                    formationIO = m_project->findFormation(*formationName);
+                std::string surfaceName = surfaceNode.attribute("name").value();
+                SubsurfaceKind surfaceKind = (SubsurfaceKind)surfaceNode.attribute("subsurfacekind").as_int();
+
+                // Find formations, if present
+                boost::shared_ptr<const Formation> topFormationIO;
+                pugi::xml_attribute topFormationName = surfaceNode.attribute("top-formation");
+                if (topFormationName)
+                    topFormationIO = m_project->findFormation(topFormationName.value());
+                boost::shared_ptr<const Formation> bottomFormationIO;
+                pugi::xml_attribute bottomFormationName = surfaceNode.attribute("bottom-formation");
+                if (bottomFormationName)
+                    bottomFormationIO = m_project->findFormation(bottomFormationName.value());
 
                 // Find the reservoir object, if name is present
-                boost::optional<std::string> reservoirName = surfaceNode.get_optional<std::string>("<xmlattr>.reservoirName");
                 boost::shared_ptr<const Reservoir> reservoirIO;
+                pugi::xml_attribute reservoirName = surfaceNode.attribute("reservoirName");
                 if (reservoirName)
                 {
-                    reservoirIO = m_project->findReservoir(*reservoirName);
+                    reservoirIO = m_project->findReservoir(reservoirName.value());
                     assert(reservoirIO);
-                    assert(formationIO);
-                    assert(reservoirIO->getFormation() == formationIO);
+                    assert(reservoirIO->getFormation() == bottomFormationIO || reservoirIO->getFormation() == topFormationIO);
                 }
 
                 // Get geometry
-                boost::shared_ptr<const Geometry2D> geometry = getGeometry2D(surfaceNode);
+                boost::shared_ptr<const Geometry2D> geometryHighRes = getGeometry2D(surfaceNode,"geometry-highres");
+                boost::shared_ptr<const Geometry2D> geometry = getGeometry2D(surfaceNode, "geometry");
+                assert(geometry || geometryHighRes);
 
                 // Construct the surface
-                boost::shared_ptr<Surface> surface(new Surface(surfaceName, surfaceKind, geometry));
-                if (formationIO) surface->setFormation(formationIO);
+                boost::shared_ptr<Surface> surface(new Surface(surfaceName, surfaceKind)); 
+                if (topFormationIO) surface->setFormation(topFormationIO, true);
+                if (bottomFormationIO) surface->setFormation(bottomFormationIO, false);
                 if (reservoirIO) surface->setReservoir(reservoirIO);
+                if (geometryHighRes) surface->setHighResGeometry(geometryHighRes);
+                if (geometry) surface->setGeometry(geometry);
 
                 // Get all property surface data
-                BOOST_FOREACH(boost::property_tree::ptree::value_type const& propertyMapNodes, surfaceNode.get_child("propertymaps"))
+                pugi::xml_node propertyMapNodes = surfaceNode.child("propertymaps");
+                for (pugi::xml_node propertyMapNode = propertyMapNodes.child("propertymap"); propertyMapNode; propertyMapNode = propertyMapNode.next_sibling("propertymap"))
                 {
-                    boost::shared_ptr<SurfaceData> surfaceData(new MapNative(geometry));
-
-                    assert(propertyMapNodes.first == "propertymap");
-                    const boost::property_tree::ptree& propertyMapNode = propertyMapNodes.second;
-                    std::string propertyName = propertyMapNode.get<std::string>("<xmlattr>.property");
+                    std::string propertyName = propertyMapNode.attribute("property").value();
                     boost::shared_ptr<const Property> property = m_project->findProperty(propertyName);
                     assert(property);
 
+                    // High-res geometry?
+                    bool isHighRes = propertyMapNode.attribute("high-res").as_bool();
+                    const boost::shared_ptr<const Geometry2D>& geometryPtr = isHighRes ? geometryHighRes : geometry;
+
+                    // Create the surface data
+                    boost::shared_ptr<SurfaceData> surfaceData(new MapNative(geometryPtr));
+
+                    // Contains formation?
+                    pugi::xml_attribute formationName = surfaceNode.attribute("formation");
+                    if (formationName)
+                    {
+                        boost::shared_ptr<const Formation> formationIO = m_project->findFormation(formationName.value());
+                        surfaceData->setFormation(formationIO);
+                    }
+
                     // Get the datastore xml node or constantvalue
-                    boost::optional<float> constantVal = propertyMapNode.get_optional<float>("<xmlattr>.constantvalue");
+                    pugi::xml_attribute constantVal = propertyMapNode.attribute("constantvalue");
                     if (constantVal)
-                        surfaceData->setConstantValue(*constantVal);
+                        surfaceData->setConstantValue(constantVal.as_float());
                     else
                         DataStoreLoad::getSurface(propertyMapNode, surfaceData, fullOutputPath);
 
                     boost::shared_ptr<PropertySurfaceData> propSurfaceData(new PropertySurfaceData(property, surfaceData));
+
 
                     surface->addPropertySurfaceData(propSurfaceData);
                 }
@@ -531,35 +574,31 @@ boost::shared_ptr<Project> CauldronIO::ImportExport::getProject(const boost::pro
                 snapShot->addSurface(surface);
             }
         }
-
+        
         // Find all (continuous) volumes
         /////////////////////////////////////////
-        boost::optional<boost::property_tree::ptree const&> hasVolumes = snapShotNode.get_child_optional("volume");
+        pugi::xml_node hasVolumes = snapShotNode.child("volume");
         if (hasVolumes)
         {
-            const boost::property_tree::ptree& volumeNode = *hasVolumes;
-            boost::shared_ptr<Volume> volume = getVolume(volumeNode, fullOutputPath);
+            boost::shared_ptr<Volume> volume = getVolume(hasVolumes, fullOutputPath);
             snapShot->setVolume(volume);
         }
 
         // Get formation volumes
         //////////////////////////////////////////////////////////////////////////
-        boost::optional<boost::property_tree::ptree const&> hasFormationVolumes = snapShotNode.get_child_optional("formvols");
+        pugi::xml_node hasFormationVolumes = snapShotNode.child("formvols");
 
         // Get all property volume data
         if (hasFormationVolumes)
         {
-            BOOST_FOREACH(boost::property_tree::ptree::value_type const& formVolNodes, *hasFormationVolumes)
+            for (pugi::xml_node formVolNode = hasFormationVolumes.child("formvol"); formVolNode; formVolNode = formVolNode.next_sibling("formvol"))
             {
-                assert(formVolNodes.first == "formvol");
-                const boost::property_tree::ptree& formVolNode = formVolNodes.second;
-
-                std::string formationName = formVolNode.get<std::string>("<xmlattr>.formation");
+                std::string formationName = formVolNode.attribute("formation").value();
                 boost::shared_ptr<const Formation> formationIO = m_project->findFormation(formationName);
                 assert(formationIO);
 
                 // There should be a volume
-                const boost::property_tree::ptree& volumeNode = formVolNode.get_child("volume");
+                pugi::xml_node volumeNode = formVolNode.child("volume");
                 boost::shared_ptr<Volume> volume = getVolume(volumeNode, fullOutputPath);
 
                 // Add it to the list
@@ -571,44 +610,40 @@ boost::shared_ptr<Project> CauldronIO::ImportExport::getProject(const boost::pro
         // Get trappers
         //////////////////////////////////////////////////////////////////////////
 
-        boost::optional<boost::property_tree::ptree const&> hasTrappers = snapShotNode.get_child_optional("trappers");
+        pugi::xml_node hasTrappers = snapShotNode.child("trappers");
         if (hasTrappers)
         {
-            int maxPersistentTrapperID = snapShotNode.get<int>("trappers.maxPersistentTrapperID");
+            int maxPersistentTrapperID = hasTrappers.child("maxPersistentTrapperID").text().as_int();
             assert(maxPersistentTrapperID > -1);
                 
             std::vector<boost::shared_ptr<Trapper>* > persistentIDs(maxPersistentTrapperID + 1);
 
-            BOOST_FOREACH(boost::property_tree::ptree::value_type const& trapperNodes, *hasTrappers)
+            for (pugi::xml_node trapperNode = hasTrappers.child("trapper"); trapperNode; trapperNode = trapperNode.next_sibling("trapper"))
             {
-                if (trapperNodes.first == "trapper")
-                {
-                    const boost::property_tree::ptree& trapperNode = trapperNodes.second;
-                    int ID = trapperNode.get<int>("<xmlattr>.id");
-                    int persistentID = trapperNode.get<int>("<xmlattr>.persistentID");
-                    int downstreamTrapperID = trapperNode.get<int>("<xmlattr>.downstreamtrapper");
-                    float depth = trapperNode.get<float>("<xmlattr>.depth");
-                    float spillDepth = trapperNode.get<float>("<xmlattr>.spillDepth");
-                    std::string reservoirname = trapperNode.get<std::string>("<xmlattr>.reservoirname");
+                int ID = trapperNode.attribute("id").as_int();
+                int persistentID = trapperNode.attribute("persistentID").as_int(); 
+                int downstreamTrapperID = trapperNode.attribute("downstreamtrapper").as_int(); 
+                float depth = trapperNode.attribute("depth").as_float();
+                float spillDepth = trapperNode.attribute("spillDepth").as_float(); 
+                std::string reservoirname = trapperNode.attribute("reservoirname").value();
                         
-                    float x = trapperNode.get<float>("<xmlattr>.posX");
-                    float y = trapperNode.get<float>("<xmlattr>.posY");
-                    float spillX = trapperNode.get<float>("<xmlattr>.spillPosX");
-                    float spillY = trapperNode.get<float>("<xmlattr>.spillPosY");
+                float x      = trapperNode.attribute("posX").as_float();
+                float y      = trapperNode.attribute("posY").as_float();
+                float spillX = trapperNode.attribute("spillPosX").as_float();
+                float spillY = trapperNode.attribute("spillPosY").as_float();
 
-                    boost::shared_ptr<Trapper> trapperIO(new Trapper(ID, persistentID));
-                    trapperIO->setDownStreamTrapperID(downstreamTrapperID);
-                    trapperIO->setReservoirName(reservoirname);
-                    trapperIO->setSpillDepth(spillDepth);
-                    trapperIO->setSpillPointPosition(spillX, spillY);
-                    trapperIO->setDepth(depth);
-                    trapperIO->setPosition(x, y);
+                boost::shared_ptr<Trapper> trapperIO(new Trapper(ID, persistentID));
+                trapperIO->setDownStreamTrapperID(downstreamTrapperID);
+                trapperIO->setReservoirName(reservoirname);
+                trapperIO->setSpillDepth(spillDepth);
+                trapperIO->setSpillPointPosition(spillX, spillY);
+                trapperIO->setDepth(depth);
+                trapperIO->setPosition(x, y);
 
-                    snapShot->addTrapper(trapperIO);
+                snapShot->addTrapper(trapperIO);
 
-                    assert(persistentID <= maxPersistentTrapperID);
-                    persistentIDs[persistentID] = &trapperIO;
-                }
+                assert(persistentID <= maxPersistentTrapperID);
+                persistentIDs[persistentID] = &trapperIO;
             }
 
             // Assign downstream trappers
@@ -627,16 +662,16 @@ boost::shared_ptr<Project> CauldronIO::ImportExport::getProject(const boost::pro
 
         m_project->addSnapShot(snapShot);
     }
-
+    
     return m_project;
 }
 
-boost::shared_ptr<const Reservoir> CauldronIO::ImportExport::getReservoir(const boost::property_tree::ptree& reservoirNode) const
+boost::shared_ptr<const Reservoir> CauldronIO::ImportExport::getReservoir(pugi::xml_node reservoirNode) const
 {
     boost::shared_ptr<Reservoir> reservoir;
 
-    std::string name = reservoirNode.get<std::string>("<xmlattr>.name");
-    std::string formation = reservoirNode.get<std::string>("<xmlattr>.formation");
+    std::string name = reservoirNode.attribute("name").value();
+    std::string formation = reservoirNode.attribute("formation").value(); 
 
     boost::shared_ptr<const Formation> formationIO = m_project->findFormation(formation);
     assert(formationIO);
@@ -645,81 +680,73 @@ boost::shared_ptr<const Reservoir> CauldronIO::ImportExport::getReservoir(const 
     return reservoir;
 }
 
-
-boost::shared_ptr<const Geometry2D> CauldronIO::ImportExport::getGeometry2D(const boost::property_tree::ptree& surfaceNode) const
+boost::shared_ptr<const Geometry2D> CauldronIO::ImportExport::getGeometry2D(pugi::xml_node surfaceNode, const char* name) const
 {
-    BOOST_FOREACH(boost::property_tree::ptree::value_type const& nodes, surfaceNode.get_child(""))
-    {
-        if (nodes.first == "geometry")
-        {
-            const boost::property_tree::ptree& geometryNode = nodes.second;
-            double minI, minJ, deltaI, deltaJ;
-            size_t numI, numJ;
+    boost::shared_ptr<const Geometry2D> geometry;
+    pugi::xml_node geometryNode = surfaceNode.child(name);
+    if (!geometryNode)
+        return geometry;
 
-            numI = geometryNode.get<size_t>("<xmlattr>.numI");
-            numJ = geometryNode.get<size_t>("<xmlattr>.numJ");
-            minI = geometryNode.get<double>("<xmlattr>.minI");
-            minJ = geometryNode.get<double>("<xmlattr>.minJ");
-            deltaI = geometryNode.get<double>("<xmlattr>.deltaI");
-            deltaJ = geometryNode.get<double>("<xmlattr>.deltaJ");
+    double minI, minJ, deltaI, deltaJ;
+    size_t numI, numJ;
 
-            return boost::shared_ptr<const Geometry2D>(new Geometry2D(numI, numJ, deltaI, deltaJ, minI, minJ));
-        }
-    }
+    numI = (size_t)geometryNode.attribute("numI").as_uint();
+    numJ = (size_t)geometryNode.attribute("numJ").as_uint();
+    minI =   geometryNode.attribute("minI").as_double();
+    minJ =   geometryNode.attribute("minJ").as_double();
+    deltaI = geometryNode.attribute("deltaI").as_double();
+    deltaJ = geometryNode.attribute("deltaJ").as_double();
 
-    throw CauldronIOException("Could not parse geometry");
+    return boost::shared_ptr<const Geometry2D>(new Geometry2D(numI, numJ, deltaI, deltaJ, minI, minJ));
 }
 
-boost::shared_ptr<const Geometry3D> CauldronIO::ImportExport::getGeometry3D(const boost::property_tree::ptree& volumeNode)
+boost::shared_ptr<const Geometry3D> CauldronIO::ImportExport::getGeometry3D(pugi::xml_node volumeNode) const
 {
-    BOOST_FOREACH(boost::property_tree::ptree::value_type const& nodes, volumeNode.get_child(""))
-    {
-        if (nodes.first == "geometry")
-        {
-            const boost::property_tree::ptree& geometryNode = nodes.second;
-            double minI, minJ, deltaI, deltaJ;
-            size_t numI, numJ, numK, firstK;
 
-            numI = geometryNode.get<size_t>("<xmlattr>.numI");
-            numJ = geometryNode.get<size_t>("<xmlattr>.numJ");
-            numK = geometryNode.get<size_t>("<xmlattr>.numK");
-            minI = geometryNode.get<double>("<xmlattr>.minI");
-            minJ = geometryNode.get<double>("<xmlattr>.minJ");
-            deltaI = geometryNode.get<double>("<xmlattr>.deltaI");
-            deltaJ = geometryNode.get<double>("<xmlattr>.deltaJ");
-            firstK = geometryNode.get<size_t>("<xmlattr>.firstK");
+    pugi::xml_node geometryNode = volumeNode.child("geometry");
+    if (!geometryNode)
+        throw CauldronIOException("Could not parse geometry");
 
-            return boost::shared_ptr<const Geometry3D>(new Geometry3D(numI, numJ, numK, firstK, deltaI, deltaJ, minI, minJ));
-        }
-    }
+    double minI, minJ, deltaI, deltaJ;
+    size_t numI, numJ, numK, firstK;
 
-    throw CauldronIOException("Could not parse geometry");
+    numI = (size_t)geometryNode.attribute("numI").as_uint();
+    numJ = (size_t)geometryNode.attribute("numJ").as_uint();
+    numK = (size_t)geometryNode.attribute("numK").as_uint();
+    firstK = (size_t)geometryNode.attribute("firstK").as_uint();
+    minI = geometryNode.attribute("minI").as_double();
+    minJ = geometryNode.attribute("minJ").as_double();
+    deltaI = geometryNode.attribute("deltaI").as_double();
+    deltaJ = geometryNode.attribute("deltaJ").as_double();
+
+    return boost::shared_ptr<const Geometry3D>(new Geometry3D(numI, numJ, numK, firstK, deltaI, deltaJ, minI, minJ));
 }
 
-boost::shared_ptr<Volume> CauldronIO::ImportExport::getVolume(const boost::property_tree::ptree& volumeNode, const boost::filesystem::path& path)
+boost::shared_ptr<Volume> CauldronIO::ImportExport::getVolume(pugi::xml_node volumeNode, const boost::filesystem::path& path)
 {
-    SubsurfaceKind surfaceKind = (SubsurfaceKind)volumeNode.get<int>("<xmlattr>.subsurfacekind");
+    SubsurfaceKind surfaceKind = (SubsurfaceKind)volumeNode.attribute("subsurfacekind").as_int();
 
     // Get geometry
     boost::shared_ptr<const Geometry3D> geometry = getGeometry3D(volumeNode);
     // Create the volume
     boost::shared_ptr<Volume> volume(new Volume(surfaceKind, geometry));
-
+    
     // Get all property volume data
-    BOOST_FOREACH(boost::property_tree::ptree::value_type const& propertyVolNodes, volumeNode.get_child("propertyvols"))
+    pugi::xml_node propertyVolNodes = volumeNode.child("propertyvols");
+    assert(propertyVolNodes);
+
+    for (pugi::xml_node propertyVolNode = propertyVolNodes.child("propertyvol"); propertyVolNode; propertyVolNode = propertyVolNode.next_sibling("propertyvol"))
     {
         boost::shared_ptr<VolumeData> volData(new VolumeDataNative(geometry));
 
-        assert(propertyVolNodes.first == "propertyvol");
-        const boost::property_tree::ptree& propertyVolNode = propertyVolNodes.second;
-        std::string propertyName = propertyVolNode.get<std::string>("<xmlattr>.property");
+        std::string propertyName = propertyVolNode.attribute("property").value();
         boost::shared_ptr<const Property> property = m_project->findProperty(propertyName);
         assert(property);
 
         // Get the datastore xml node or constantvalue
-        boost::optional<float> constantVal = propertyVolNode.get_optional<float>("<xmlattr>.constantvalue");
+        pugi::xml_attribute constantVal = propertyVolNode.attribute("constantvalue");
         if (constantVal)
-            volData->setConstantValue(*constantVal);
+            volData->setConstantValue(constantVal.as_float());
         else
             DataStoreLoad::getVolume(propertyVolNode, volData, path);
 
@@ -727,35 +754,35 @@ boost::shared_ptr<Volume> CauldronIO::ImportExport::getVolume(const boost::prope
 
         volume->addPropertyVolumeData(propVolData);
     }
-
+    
     return volume;
 }
 
-boost::shared_ptr<Property> CauldronIO::ImportExport::getProperty(const boost::property_tree::ptree& propertyNode) const
+boost::shared_ptr<Property> CauldronIO::ImportExport::getProperty(pugi::xml_node propertyNode) const
 {
     boost::shared_ptr<Property> property;
 
-    std::string name = propertyNode.get<std::string>("<xmlattr>.name");
-    std::string cauldronname = propertyNode.get<std::string>("<xmlattr>.cauldronname");
-    std::string username = propertyNode.get<std::string>("<xmlattr>.username");
-    std::string unit = propertyNode.get<std::string>("<xmlattr>.unit");
-    PropertyType type = (PropertyType)propertyNode.get<int>("<xmlattr>.type");
-    PropertyAttribute attrib = (PropertyAttribute)propertyNode.get<int>("<xmlattr>.attribute");
+    std::string name = propertyNode.attribute("name").value();
+    std::string cauldronname = propertyNode.attribute("cauldronname").value(); 
+    std::string username = propertyNode.attribute("username").value(); 
+    std::string unit = propertyNode.attribute("unit").value();  
+    PropertyType type = (PropertyType)propertyNode.attribute("type").as_int();
+    PropertyAttribute attrib = (PropertyAttribute)propertyNode.attribute("attribute").as_int();
 
     property.reset(new Property(name, username, cauldronname, unit, type, attrib));
     return property;
 }
 
-boost::shared_ptr<Formation> CauldronIO::ImportExport::getFormation(const boost::property_tree::ptree& formationNode) const
+boost::shared_ptr<Formation> CauldronIO::ImportExport::getFormation(pugi::xml_node formationNode) const
 {
     boost::shared_ptr<Formation> formation;
 
     unsigned int start, end;
-    std::string name = formationNode.get<std::string>("<xmlattr>.name");
-    start = formationNode.get<unsigned int>("<xmlattr>.kstart");
-    end = formationNode.get<unsigned int>("<xmlattr>.kend");
-    bool isSR = formationNode.get<bool>("<xmlattr>.isSR");
-    bool isML = formationNode.get<bool>("<xmlattr>.isML");
+    std::string name = formationNode.attribute("name").value();
+    start = formationNode.attribute("kstart").as_uint();
+    end = formationNode.attribute("kend").as_uint();
+    bool isSR = formationNode.attribute("isSR").as_bool();
+    bool isML = formationNode.attribute("isML").as_bool(); 
 
     formation.reset(new Formation(start, end, name, isSR, isML));
     return formation;

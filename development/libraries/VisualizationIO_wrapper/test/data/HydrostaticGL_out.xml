@@ -1,0 +1,611 @@
+<?xml version="1.0"?>
+<project>
+	<name>ErosionFactorTest</name>
+	<description></description>
+	<modelingmode>1</modelingmode>
+	<team></team>
+	<programversion>v2014.07</programversion>
+	<outputpath/>
+	<xml-version major="0" minor="1" />
+	<formations>
+		<formation name="Erosion" kstart="0" kend="1" isSR="false" isML="false" />
+		<formation name="Deposition" kstart="1" kend="4" isSR="false" isML="false" />
+		<formation name="Mantle" kstart="12" kend="17" isSR="false" isML="false" />
+		<formation name="Crust" kstart="4" kend="12" isSR="false" isML="false" />
+	</formations>
+	<properties>
+		<property name="HeatFlowX" cauldronname="HeatFlowX" username="HeatFlowX" unit="mW/m2" attribute="1" type="1" />
+		<property name="Porosity" cauldronname="PorosityVec2" username="Porosity" unit="vol%" attribute="1" type="1" />
+		<property name="Depth" cauldronname="Depth" username="Depth" unit="m" attribute="0" type="1" />
+		<property name="Temperature" cauldronname="Temperature" username="Temperature" unit="C" attribute="0" type="1" />
+		<property name="Vr" cauldronname="VrVec2" username="Vr" unit="%" attribute="1" type="1" />
+		<property name="Ves" cauldronname="Ves" username="Ves" unit="Pa" attribute="0" type="1" />
+		<property name="Thickness" cauldronname="Thickness" username="Thickness" unit="m" attribute="3" type="1" />
+		<property name="HeatFlowZ" cauldronname="HeatFlowZ" username="HeatFlowZ" unit="mW/m2" attribute="1" type="1" />
+		<property name="HeatFlowY" cauldronname="HeatFlowY" username="HeatFlowY" unit="mW/m2" attribute="1" type="1" />
+		<property name="Permeability" cauldronname="PermeabilityVec2" username="Permeability" unit="mD" attribute="1" type="1" />
+		<property name="PermeabilityH" cauldronname="PermeabilityHVec2" username="PermeabilityH" unit="mD" attribute="1" type="1" />
+		<property name="ErosionFactor" cauldronname="ErosionFactor" username="ErosionFactor" unit="" attribute="3" type="1" />
+		<property name="ThCond" cauldronname="ThCondVec2" username="ThCond" unit="W/mK" attribute="1" type="1" />
+		<property name="BulkDensity" cauldronname="BulkDensityVec2" username="BulkDensity" unit="kg/m3" attribute="1" type="1" />
+		<property name="Velocity" cauldronname="VelocityVec2" username="Velocity" unit="m/s" attribute="1" type="1" />
+		<property name="Reflectivity" cauldronname="ReflectivityVec2" username="Reflectivity" unit="" attribute="2" type="1" />
+		<property name="MaxVes" cauldronname="MaxVesVec2" username="MaxVes" unit="Pa" attribute="1" type="1" />
+		<property name="OverPressure" cauldronname="OverPressure" username="OverPressure" unit="MPa" attribute="0" type="1" />
+		<property name="Pressure" cauldronname="Pressure" username="Pressure" unit="MPa" attribute="0" type="1" />
+		<property name="HydroStaticPressure" cauldronname="HydroStaticPressure" username="HydroStaticPressure" unit="MPa" attribute="0" type="1" />
+		<property name="LithoStaticPressure" cauldronname="LithoStaticPressure" username="LithoStaticPressure" unit="MPa" attribute="0" type="1" />
+		<property name="BrineDensity" cauldronname="BrineDensity" username="BrineDensity" unit="kg/m3" attribute="1" type="1" />
+		<property name="BrineViscosity" cauldronname="BrineViscosity" username="BrineViscosity" unit="Pa.s" attribute="1" type="1" />
+	</properties>
+	<snapshots>
+		<snapshot age="0" kind="0" isminor="false">
+			<surfaces>
+				<surface name="s1" subsurfacekind="0" bottom-formation="Erosion">
+					<geometry numI="2" numJ="2" minI="50" minJ="50" deltaI="100" deltaJ="100" />
+					<propertymaps>
+						<propertymap property="HeatFlowX" high-res="false" constantvalue="99999" />
+						<propertymap property="Ves" high-res="false" constantvalue="0" />
+						<propertymap property="Temperature" high-res="false" constantvalue="10" />
+						<propertymap property="HeatFlowZ" high-res="false" constantvalue="99999" />
+						<propertymap property="Porosity" formation="Erosion" high-res="false" constantvalue="38" />
+						<propertymap property="Permeability" formation="Erosion" high-res="false" constantvalue="50" />
+						<propertymap property="PermeabilityH" formation="Erosion" high-res="false" constantvalue="50" />
+						<propertymap property="Depth" high-res="false" constantvalue="0" />
+						<propertymap property="HeatFlowY" high-res="false" constantvalue="99999" />
+						<propertymap property="Vr" formation="Erosion" high-res="false" constantvalue="0.200000003" />
+						<propertymap property="BulkDensity" formation="Erosion" high-res="false" constantvalue="2051.71436" />
+						<propertymap property="Velocity" formation="Erosion" high-res="false" constantvalue="1933.68774" />
+						<propertymap property="Reflectivity" formation="Erosion" high-res="false" constantvalue="99999" />
+						<propertymap property="ThCond" formation="Erosion" high-res="false" constantvalue="1.17836535" />
+						<propertymap property="MaxVes" formation="Erosion" high-res="false" constantvalue="0" />
+						<propertymap property="OverPressure" high-res="false" constantvalue="0" />
+						<propertymap property="Pressure" high-res="false" constantvalue="0.100000001" />
+						<propertymap property="HydroStaticPressure" high-res="false" constantvalue="0.100000001" />
+						<propertymap property="LithoStaticPressure" high-res="false" constantvalue="0.100000001" />
+					</propertymaps>
+				</surface>
+				<surface name="s2" subsurfacekind="0" top-formation="Erosion" bottom-formation="Deposition">
+					<geometry numI="2" numJ="2" minI="50" minJ="50" deltaI="100" deltaJ="100" />
+					<propertymaps>
+						<propertymap property="Porosity" formation="Erosion" high-res="false" constantvalue="38" />
+						<propertymap property="Depth" high-res="false" constantvalue="0" />
+						<propertymap property="Temperature" high-res="false" constantvalue="10" />
+						<propertymap property="Vr" formation="Erosion" high-res="false" constantvalue="0.200000003" />
+						<propertymap property="Vr" formation="Deposition" high-res="false" constantvalue="0.246377394" />
+						<propertymap property="HeatFlowZ" high-res="false" constantvalue="57.2800064" />
+						<propertymap property="HeatFlowX" high-res="false" constantvalue="0" />
+						<propertymap property="HeatFlowY" high-res="false" constantvalue="0" />
+						<propertymap property="Porosity" formation="Deposition" high-res="false" constantvalue="31.6906815" />
+						<propertymap property="Permeability" formation="Erosion" high-res="false" constantvalue="50" />
+						<propertymap property="PermeabilityH" formation="Erosion" high-res="false" constantvalue="50" />
+						<propertymap property="Permeability" formation="Deposition" high-res="false" constantvalue="0.140994892" />
+						<propertymap property="PermeabilityH" formation="Deposition" high-res="false" constantvalue="0.140994892" />
+						<propertymap property="MaxVes" formation="Deposition" high-res="false" constantvalue="5043429" />
+						<propertymap property="Reflectivity" formation="Erosion" high-res="false" constantvalue="99999" />
+						<propertymap property="Ves" high-res="false" constantvalue="0" />
+						<propertymap property="BulkDensity" formation="Erosion" high-res="false" constantvalue="2051.71436" />
+						<propertymap property="BulkDensity" formation="Deposition" high-res="false" constantvalue="2150.71851" />
+						<propertymap property="Velocity" formation="Erosion" high-res="false" constantvalue="1933.68774" />
+						<propertymap property="Velocity" formation="Deposition" high-res="false" constantvalue="2334.81787" />
+						<propertymap property="OverPressure" high-res="false" constantvalue="0" />
+						<propertymap property="Reflectivity" formation="Deposition" high-res="false" constantvalue="0" />
+						<propertymap property="ThCond" formation="Erosion" high-res="false" constantvalue="1.17836535" />
+						<propertymap property="ThCond" formation="Deposition" high-res="false" constantvalue="1.2654022" />
+						<propertymap property="HydroStaticPressure" high-res="false" constantvalue="0.100000001" />
+						<propertymap property="Pressure" high-res="false" constantvalue="0.100000001" />
+						<propertymap property="MaxVes" formation="Erosion" high-res="false" constantvalue="0" />
+						<propertymap property="LithoStaticPressure" high-res="false" constantvalue="0.100000001" />
+					</propertymaps>
+				</surface>
+				<surface name="" subsurfacekind="2" top-formation="Erosion" bottom-formation="Erosion">
+					<geometry numI="2" numJ="2" minI="50" minJ="50" deltaI="100" deltaJ="100" />
+					<propertymaps>
+						<propertymap property="Thickness" formation="Erosion" high-res="false" constantvalue="0" />
+						<propertymap property="ErosionFactor" formation="Erosion" high-res="false" constantvalue="1" />
+					</propertymaps>
+				</surface>
+				<surface name="" subsurfacekind="2" top-formation="Deposition" bottom-formation="Deposition">
+					<geometry numI="2" numJ="2" minI="50" minJ="50" deltaI="100" deltaJ="100" />
+					<propertymaps>
+						<propertymap property="Thickness" formation="Deposition" high-res="false" constantvalue="500" />
+						<propertymap property="ErosionFactor" formation="Deposition" high-res="false" constantvalue="0.523894906" />
+					</propertymaps>
+				</surface>
+				<surface name="Bottom of Lithospheric Mantle" subsurfacekind="1" top-formation="Mantle">
+					<geometry numI="2" numJ="2" minI="50" minJ="50" deltaI="100" deltaJ="100" />
+					<propertymaps>
+						<propertymap property="HeatFlowZ" high-res="false" constantvalue="33.7432442" />
+						<propertymap property="ThCond" formation="Mantle" high-res="false" constantvalue="3.20000005" />
+						<propertymap property="HeatFlowY" high-res="false" constantvalue="0" />
+						<propertymap property="Depth" high-res="false" constantvalue="120500" />
+						<propertymap property="Temperature" high-res="false" constantvalue="1333" />
+						<propertymap property="HeatFlowX" high-res="false" constantvalue="0" />
+					</propertymaps>
+				</surface>
+				<surface name="Basement" subsurfacekind="0" top-formation="Deposition" bottom-formation="Crust">
+					<geometry numI="2" numJ="2" minI="50" minJ="50" deltaI="100" deltaJ="100" />
+					<propertymaps>
+						<propertymap property="PermeabilityH" formation="Deposition" high-res="false" constantvalue="0.0455077477" />
+						<propertymap property="Depth" high-res="false" constantvalue="500" />
+						<propertymap property="Temperature" high-res="false" constantvalue="32.0179672" />
+						<propertymap property="Porosity" formation="Deposition" high-res="false" constantvalue="25.3818874" />
+						<propertymap property="Permeability" formation="Deposition" high-res="false" constantvalue="0.0455077477" />
+						<propertymap property="Vr" formation="Deposition" high-res="false" constantvalue="0.307654768" />
+						<propertymap property="HeatFlowX" high-res="false" constantvalue="-2.22044605e-013" />
+						<propertymap property="HeatFlowY" high-res="false" constantvalue="-1.66533454e-013" />
+						<propertymap property="HeatFlowZ" high-res="false" constantvalue="59.1033363" />
+						<propertymap property="Ves" high-res="false" constantvalue="5549671.5" />
+						<propertymap property="HydroStaticPressure" high-res="false" constantvalue="5.39164734" />
+						<propertymap property="Pressure" high-res="false" constantvalue="5.39164734" />
+						<propertymap property="LithoStaticPressure" high-res="false" constantvalue="10.9413185" />
+						<propertymap property="OverPressure" high-res="false" constantvalue="0" />
+						<propertymap property="BulkDensity" formation="Deposition" high-res="false" constantvalue="2249.71436" />
+						<propertymap property="Velocity" formation="Deposition" high-res="false" constantvalue="2795.29883" />
+						<propertymap property="Reflectivity" formation="Deposition" high-res="false" constantvalue="99999" />
+						<propertymap property="ThCond" formation="Deposition" high-res="false" constantvalue="1.36117649" />
+						<propertymap property="ThCond" formation="Crust" high-res="false" constantvalue="4.0254035" />
+						<propertymap property="MaxVes" formation="Deposition" high-res="false" constantvalue="10593101" />
+					</propertymaps>
+				</surface>
+				<surface name="" subsurfacekind="2" top-formation="Crust" bottom-formation="Crust">
+					<geometry numI="2" numJ="2" minI="50" minJ="50" deltaI="100" deltaJ="100" />
+					<propertymaps>
+						<propertymap property="Thickness" formation="Crust" high-res="false" constantvalue="30000" />
+					</propertymaps>
+				</surface>
+				<surface name="" subsurfacekind="2" top-formation="Mantle" bottom-formation="Mantle">
+					<geometry numI="2" numJ="2" minI="50" minJ="50" deltaI="100" deltaJ="100" />
+					<propertymaps>
+						<propertymap property="Thickness" formation="Mantle" high-res="false" constantvalue="90000" />
+					</propertymaps>
+				</surface>
+				<surface name="Bottom of Crust" subsurfacekind="1" top-formation="Crust" bottom-formation="Mantle">
+					<geometry numI="2" numJ="2" minI="50" minJ="50" deltaI="100" deltaJ="100" />
+					<propertymaps>
+						<propertymap property="Depth" high-res="false" constantvalue="30500" />
+						<propertymap property="Temperature" high-res="false" constantvalue="392.718964" />
+						<propertymap property="ThCond" formation="Mantle" high-res="false" constantvalue="3.20000005" />
+						<propertymap property="HeatFlowX" high-res="false" constantvalue="-8.8817842e-013" />
+						<propertymap property="HeatFlowY" high-res="false" constantvalue="0" />
+						<propertymap property="HeatFlowZ" high-res="false" constantvalue="30.5010509" />
+						<propertymap property="ThCond" formation="Crust" high-res="false" constantvalue="2.47475553" />
+					</propertymaps>
+				</surface>
+			</surfaces>
+			<volume subsurfacekind="2">
+				<geometry numI="2" numJ="2" minI="50" minJ="50" deltaI="100" deltaJ="100" numK="18" firstK="0" />
+				<propertyvols>
+					<propertyvol property="Depth">
+						<datastore file="Snapshot_0.000000_volumes.cldrn" undef="99999" compression="gzip" offset="0" dataIJK="true" size="86" />
+					</propertyvol>
+					<propertyvol property="HydroStaticPressure">
+						<datastore file="Snapshot_0.000000_volumes.cldrn" undef="99999" compression="gzip" offset="86" dataIJK="true" size="42" />
+					</propertyvol>
+					<propertyvol property="LithoStaticPressure">
+						<datastore file="Snapshot_0.000000_volumes.cldrn" undef="99999" compression="gzip" offset="128" dataIJK="true" size="42" />
+					</propertyvol>
+					<propertyvol property="OverPressure" constantvalue="0" />
+					<propertyvol property="Pressure">
+						<datastore file="Snapshot_0.000000_volumes.cldrn" undef="99999" compression="gzip" offset="170" dataIJK="true" size="42" />
+					</propertyvol>
+					<propertyvol property="Temperature">
+						<datastore file="Snapshot_0.000000_volumes.cldrn" undef="99999" compression="gzip" offset="212" dataIJK="true" size="101" />
+					</propertyvol>
+					<propertyvol property="Ves">
+						<datastore file="Snapshot_0.000000_volumes.cldrn" undef="99999" compression="gzip" offset="313" dataIJK="true" size="39" />
+					</propertyvol>
+				</propertyvols>
+			</volume>
+			<formvols>
+				<formvol formation="Erosion">
+					<volume subsurfacekind="0">
+						<geometry numI="2" numJ="2" minI="50" minJ="50" deltaI="100" deltaJ="100" numK="2" firstK="0" />
+						<propertyvols>
+							<propertyvol property="BulkDensity" constantvalue="2051.71436" />
+							<propertyvol property="HeatFlowX" constantvalue="99999" />
+							<propertyvol property="HeatFlowY" constantvalue="99999" />
+							<propertyvol property="HeatFlowZ" constantvalue="99999" />
+							<propertyvol property="MaxVes" constantvalue="0" />
+							<propertyvol property="Permeability" constantvalue="50" />
+							<propertyvol property="Porosity" constantvalue="38" />
+							<propertyvol property="ThCond" constantvalue="1.17836535" />
+							<propertyvol property="Velocity" constantvalue="1933.68774" />
+							<propertyvol property="Vr" constantvalue="0.200000003" />
+							<propertyvol property="BrineDensity" constantvalue="1078.82715" />
+							<propertyvol property="BrineViscosity" constantvalue="0.0015350373" />
+						</propertyvols>
+					</volume>
+				</formvol>
+				<formvol formation="Deposition">
+					<volume subsurfacekind="0">
+						<geometry numI="2" numJ="2" minI="50" minJ="50" deltaI="100" deltaJ="100" numK="4" firstK="1" />
+						<propertyvols>
+							<propertyvol property="BulkDensity">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" undef="99999" compression="gzip" offset="352" dataIJK="true" size="40" />
+							</propertyvol>
+							<propertyvol property="HeatFlowX">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" undef="99999" compression="gzip" offset="392" dataIJK="true" size="37" />
+							</propertyvol>
+							<propertyvol property="HeatFlowY">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" undef="99999" compression="gzip" offset="429" dataIJK="true" size="36" />
+							</propertyvol>
+							<propertyvol property="HeatFlowZ">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" undef="99999" compression="gzip" offset="465" dataIJK="true" size="37" />
+							</propertyvol>
+							<propertyvol property="MaxVes">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" undef="99999" compression="gzip" offset="502" dataIJK="true" size="42" />
+							</propertyvol>
+							<propertyvol property="Permeability">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" undef="99999" compression="gzip" offset="544" dataIJK="true" size="42" />
+							</propertyvol>
+							<propertyvol property="Porosity">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" undef="99999" compression="gzip" offset="586" dataIJK="true" size="42" />
+							</propertyvol>
+							<propertyvol property="ThCond">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" undef="99999" compression="gzip" offset="628" dataIJK="true" size="41" />
+							</propertyvol>
+							<propertyvol property="Velocity">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" undef="99999" compression="gzip" offset="669" dataIJK="true" size="41" />
+							</propertyvol>
+							<propertyvol property="Vr">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" undef="99999" compression="gzip" offset="710" dataIJK="true" size="41" />
+							</propertyvol>
+							<propertyvol property="BrineDensity" constantvalue="1078.82715" />
+							<propertyvol property="BrineViscosity">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" undef="99999" compression="gzip" offset="751" dataIJK="true" size="36" />
+							</propertyvol>
+						</propertyvols>
+					</volume>
+				</formvol>
+				<formvol formation="Crust">
+					<volume subsurfacekind="1">
+						<geometry numI="2" numJ="2" minI="50" minJ="50" deltaI="100" deltaJ="100" numK="9" firstK="4" />
+						<propertyvols>
+							<propertyvol property="HeatFlowX">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" undef="99999" compression="gzip" offset="787" dataIJK="true" size="56" />
+							</propertyvol>
+							<propertyvol property="HeatFlowY">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" undef="99999" compression="gzip" offset="843" dataIJK="true" size="43" />
+							</propertyvol>
+							<propertyvol property="HeatFlowZ">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" undef="99999" compression="gzip" offset="886" dataIJK="true" size="61" />
+							</propertyvol>
+							<propertyvol property="ThCond">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" undef="99999" compression="gzip" offset="947" dataIJK="true" size="64" />
+							</propertyvol>
+						</propertyvols>
+					</volume>
+				</formvol>
+				<formvol formation="Mantle">
+					<volume subsurfacekind="1">
+						<geometry numI="2" numJ="2" minI="50" minJ="50" deltaI="100" deltaJ="100" numK="6" firstK="12" />
+						<propertyvols>
+							<propertyvol property="HeatFlowX">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" undef="99999" compression="gzip" offset="1011" dataIJK="true" size="32" />
+							</propertyvol>
+							<propertyvol property="HeatFlowY">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" undef="99999" compression="gzip" offset="1043" dataIJK="true" size="36" />
+							</propertyvol>
+							<propertyvol property="HeatFlowZ">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" undef="99999" compression="gzip" offset="1079" dataIJK="true" size="43" />
+							</propertyvol>
+							<propertyvol property="ThCond" constantvalue="3.20000005" />
+						</propertyvols>
+					</volume>
+				</formvol>
+			</formvols>
+		</snapshot>
+		<snapshot age="0.80000000000001503" kind="0" isminor="true" />
+		<snapshot age="1.6000000000000101" kind="0" isminor="true" />
+		<snapshot age="2.4000000000000101" kind="0" isminor="true" />
+		<snapshot age="3.30000000000001" kind="0" isminor="true" />
+		<snapshot age="4.0999999999999996" kind="0" isminor="true" />
+		<snapshot age="5" kind="0" isminor="false">
+			<surfaces>
+				<surface name="s2" subsurfacekind="0" top-formation="Erosion" bottom-formation="Deposition">
+					<geometry numI="2" numJ="2" minI="50" minJ="50" deltaI="100" deltaJ="100" />
+					<propertymaps>
+						<propertymap property="HeatFlowX" high-res="false" constantvalue="0" />
+						<propertymap property="HeatFlowY" high-res="false" constantvalue="0" />
+						<propertymap property="HeatFlowZ" high-res="false" constantvalue="46.3184662" />
+						<propertymap property="Depth" high-res="false" constantvalue="0" />
+						<propertymap property="Temperature" high-res="false" constantvalue="10" />
+						<propertymap property="Porosity" formation="Deposition" high-res="false" constantvalue="38" />
+						<propertymap property="Permeability" formation="Deposition" high-res="false" constantvalue="50" />
+						<propertymap property="PermeabilityH" formation="Deposition" high-res="false" constantvalue="50" />
+						<propertymap property="Vr" formation="Deposition" high-res="false" constantvalue="0.200000003" />
+						<propertymap property="BulkDensity" formation="Deposition" high-res="false" constantvalue="2051.71436" />
+						<propertymap property="Velocity" formation="Deposition" high-res="false" constantvalue="1933.68774" />
+						<propertymap property="Reflectivity" formation="Deposition" high-res="false" constantvalue="99999" />
+						<propertymap property="ThCond" formation="Deposition" high-res="false" constantvalue="1.17836535" />
+						<propertymap property="Pressure" high-res="false" constantvalue="0.100000001" />
+						<propertymap property="Ves" high-res="false" constantvalue="0" />
+						<propertymap property="MaxVes" formation="Deposition" high-res="false" constantvalue="0" />
+						<propertymap property="OverPressure" high-res="false" constantvalue="0" />
+						<propertymap property="HydroStaticPressure" high-res="false" constantvalue="0.100000001" />
+						<propertymap property="LithoStaticPressure" high-res="false" constantvalue="0.100000001" />
+					</propertymaps>
+				</surface>
+				<surface name="" subsurfacekind="2" top-formation="Deposition" bottom-formation="Deposition">
+					<geometry numI="2" numJ="2" minI="50" minJ="50" deltaI="100" deltaJ="100" />
+					<propertymaps>
+						<propertymap property="Thickness" formation="Deposition" high-res="false" constantvalue="1000" />
+						<propertymap property="ErosionFactor" formation="Deposition" high-res="false" constantvalue="1" />
+					</propertymaps>
+				</surface>
+				<surface name="Basement" subsurfacekind="0" top-formation="Deposition" bottom-formation="Crust">
+					<geometry numI="2" numJ="2" minI="50" minJ="50" deltaI="100" deltaJ="100" />
+					<propertymaps>
+						<propertymap property="Vr" formation="Deposition" high-res="false" constantvalue="0.293373048" />
+						<propertymap property="HeatFlowX" high-res="false" constantvalue="1.11022302e-013" />
+						<propertymap property="HeatFlowY" high-res="false" constantvalue="3.33066907e-013" />
+						<propertymap property="HeatFlowZ" high-res="false" constantvalue="48.5813942" />
+						<propertymap property="Permeability" formation="Deposition" high-res="false" constantvalue="0.0452183299" />
+						<propertymap property="PermeabilityH" formation="Deposition" high-res="false" constantvalue="0.0452183299" />
+						<propertymap property="Depth" high-res="false" constantvalue="1000" />
+						<propertymap property="Temperature" high-res="false" constantvalue="47.3620605" />
+						<propertymap property="Porosity" formation="Deposition" high-res="false" constantvalue="24.8749714" />
+						<propertymap property="Ves" high-res="false" constantvalue="10593101" />
+						<propertymap property="MaxVes" formation="Deposition" high-res="false" constantvalue="10593101" />
+						<propertymap property="OverPressure" high-res="false" constantvalue="0" />
+						<propertymap property="Pressure" high-res="false" constantvalue="10.6832943" />
+						<propertymap property="HydroStaticPressure" high-res="false" constantvalue="10.6832943" />
+						<propertymap property="LithoStaticPressure" high-res="false" constantvalue="21.2763958" />
+						<propertymap property="BulkDensity" formation="Deposition" high-res="false" constantvalue="2257.6687" />
+						<propertymap property="Velocity" formation="Deposition" high-res="false" constantvalue="2835.04272" />
+						<propertymap property="Reflectivity" formation="Deposition" high-res="false" constantvalue="99999" />
+						<propertymap property="ThCond" formation="Deposition" high-res="false" constantvalue="1.36715591" />
+						<propertymap property="ThCond" formation="Crust" high-res="false" constantvalue="3.94292903" />
+					</propertymaps>
+				</surface>
+				<surface name="" subsurfacekind="2" top-formation="Crust" bottom-formation="Crust">
+					<geometry numI="2" numJ="2" minI="50" minJ="50" deltaI="100" deltaJ="100" />
+					<propertymaps>
+						<propertymap property="Thickness" formation="Crust" high-res="false" constantvalue="30000" />
+					</propertymaps>
+				</surface>
+				<surface name="" subsurfacekind="2" top-formation="Mantle" bottom-formation="Mantle">
+					<geometry numI="2" numJ="2" minI="50" minJ="50" deltaI="100" deltaJ="100" />
+					<propertymaps>
+						<propertymap property="Thickness" formation="Mantle" high-res="false" constantvalue="90000" />
+					</propertymaps>
+				</surface>
+				<surface name="Bottom of Crust" subsurfacekind="1" top-formation="Crust" bottom-formation="Mantle">
+					<geometry numI="2" numJ="2" minI="50" minJ="50" deltaI="100" deltaJ="100" />
+					<propertymaps>
+						<propertymap property="Depth" high-res="false" constantvalue="31000" />
+						<propertymap property="Temperature" high-res="false" constantvalue="385.831329" />
+						<propertymap property="HeatFlowX" high-res="false" constantvalue="8.8817842e-013" />
+						<propertymap property="HeatFlowY" high-res="false" constantvalue="0" />
+						<propertymap property="HeatFlowZ" high-res="false" constantvalue="31.5650253" />
+						<propertymap property="ThCond" formation="Crust" high-res="false" constantvalue="2.49817348" />
+						<propertymap property="ThCond" formation="Mantle" high-res="false" constantvalue="3.20000005" />
+					</propertymaps>
+				</surface>
+				<surface name="Bottom of Lithospheric Mantle" subsurfacekind="1" top-formation="Mantle">
+					<geometry numI="2" numJ="2" minI="50" minJ="50" deltaI="100" deltaJ="100" />
+					<propertymaps>
+						<propertymap property="Depth" high-res="false" constantvalue="121000" />
+						<propertymap property="Temperature" high-res="false" constantvalue="1333" />
+						<propertymap property="HeatFlowX" high-res="false" constantvalue="0" />
+						<propertymap property="HeatFlowY" high-res="false" constantvalue="0" />
+						<propertymap property="HeatFlowZ" high-res="false" constantvalue="33.7444077" />
+						<propertymap property="ThCond" formation="Mantle" high-res="false" constantvalue="3.20000005" />
+					</propertymaps>
+				</surface>
+			</surfaces>
+			<volume subsurfacekind="2">
+				<geometry numI="2" numJ="2" minI="50" minJ="50" deltaI="100" deltaJ="100" numK="17" firstK="0" />
+				<propertyvols>
+					<propertyvol property="Depth">
+						<datastore file="Snapshot_5.000000_volumes.cldrn" undef="99999" compression="gzip" offset="0" dataIJK="true" size="89" />
+					</propertyvol>
+					<propertyvol property="HydroStaticPressure">
+						<datastore file="Snapshot_5.000000_volumes.cldrn" undef="99999" compression="gzip" offset="89" dataIJK="true" size="47" />
+					</propertyvol>
+					<propertyvol property="LithoStaticPressure">
+						<datastore file="Snapshot_5.000000_volumes.cldrn" undef="99999" compression="gzip" offset="136" dataIJK="true" size="47" />
+					</propertyvol>
+					<propertyvol property="OverPressure" constantvalue="0" />
+					<propertyvol property="Pressure">
+						<datastore file="Snapshot_5.000000_volumes.cldrn" undef="99999" compression="gzip" offset="183" dataIJK="true" size="47" />
+					</propertyvol>
+					<propertyvol property="Temperature">
+						<datastore file="Snapshot_5.000000_volumes.cldrn" undef="99999" compression="gzip" offset="230" dataIJK="true" size="106" />
+					</propertyvol>
+					<propertyvol property="Ves">
+						<datastore file="Snapshot_5.000000_volumes.cldrn" undef="99999" compression="gzip" offset="336" dataIJK="true" size="43" />
+					</propertyvol>
+				</propertyvols>
+			</volume>
+			<formvols>
+				<formvol formation="Deposition">
+					<volume subsurfacekind="0">
+						<geometry numI="2" numJ="2" minI="50" minJ="50" deltaI="100" deltaJ="100" numK="4" firstK="0" />
+						<propertyvols>
+							<propertyvol property="BulkDensity">
+								<datastore file="Snapshot_5.000000_volumes.cldrn" undef="99999" compression="gzip" offset="379" dataIJK="true" size="40" />
+							</propertyvol>
+							<propertyvol property="HeatFlowX">
+								<datastore file="Snapshot_5.000000_volumes.cldrn" undef="99999" compression="gzip" offset="419" dataIJK="true" size="34" />
+							</propertyvol>
+							<propertyvol property="HeatFlowY">
+								<datastore file="Snapshot_5.000000_volumes.cldrn" undef="99999" compression="gzip" offset="453" dataIJK="true" size="35" />
+							</propertyvol>
+							<propertyvol property="HeatFlowZ">
+								<datastore file="Snapshot_5.000000_volumes.cldrn" undef="99999" compression="gzip" offset="488" dataIJK="true" size="35" />
+							</propertyvol>
+							<propertyvol property="MaxVes">
+								<datastore file="Snapshot_5.000000_volumes.cldrn" undef="99999" compression="gzip" offset="523" dataIJK="true" size="40" />
+							</propertyvol>
+							<propertyvol property="Permeability">
+								<datastore file="Snapshot_5.000000_volumes.cldrn" undef="99999" compression="gzip" offset="563" dataIJK="true" size="43" />
+							</propertyvol>
+							<propertyvol property="Porosity">
+								<datastore file="Snapshot_5.000000_volumes.cldrn" undef="99999" compression="gzip" offset="606" dataIJK="true" size="42" />
+							</propertyvol>
+							<propertyvol property="ThCond">
+								<datastore file="Snapshot_5.000000_volumes.cldrn" undef="99999" compression="gzip" offset="648" dataIJK="true" size="42" />
+							</propertyvol>
+							<propertyvol property="Velocity">
+								<datastore file="Snapshot_5.000000_volumes.cldrn" undef="99999" compression="gzip" offset="690" dataIJK="true" size="42" />
+							</propertyvol>
+							<propertyvol property="Vr">
+								<datastore file="Snapshot_5.000000_volumes.cldrn" undef="99999" compression="gzip" offset="732" dataIJK="true" size="41" />
+							</propertyvol>
+							<propertyvol property="BrineDensity" constantvalue="1078.82715" />
+							<propertyvol property="BrineViscosity">
+								<datastore file="Snapshot_5.000000_volumes.cldrn" undef="99999" compression="gzip" offset="773" dataIJK="true" size="40" />
+							</propertyvol>
+						</propertyvols>
+					</volume>
+				</formvol>
+				<formvol formation="Crust">
+					<volume subsurfacekind="1">
+						<geometry numI="2" numJ="2" minI="50" minJ="50" deltaI="100" deltaJ="100" numK="9" firstK="3" />
+						<propertyvols>
+							<propertyvol property="HeatFlowX">
+								<datastore file="Snapshot_5.000000_volumes.cldrn" undef="99999" compression="gzip" offset="813" dataIJK="true" size="38" />
+							</propertyvol>
+							<propertyvol property="HeatFlowY">
+								<datastore file="Snapshot_5.000000_volumes.cldrn" undef="99999" compression="gzip" offset="851" dataIJK="true" size="51" />
+							</propertyvol>
+							<propertyvol property="HeatFlowZ">
+								<datastore file="Snapshot_5.000000_volumes.cldrn" undef="99999" compression="gzip" offset="902" dataIJK="true" size="59" />
+							</propertyvol>
+							<propertyvol property="ThCond">
+								<datastore file="Snapshot_5.000000_volumes.cldrn" undef="99999" compression="gzip" offset="961" dataIJK="true" size="64" />
+							</propertyvol>
+						</propertyvols>
+					</volume>
+				</formvol>
+				<formvol formation="Mantle">
+					<volume subsurfacekind="1">
+						<geometry numI="2" numJ="2" minI="50" minJ="50" deltaI="100" deltaJ="100" numK="6" firstK="11" />
+						<propertyvols>
+							<propertyvol property="HeatFlowX">
+								<datastore file="Snapshot_5.000000_volumes.cldrn" undef="99999" compression="gzip" offset="1025" dataIJK="true" size="34" />
+							</propertyvol>
+							<propertyvol property="HeatFlowY">
+								<datastore file="Snapshot_5.000000_volumes.cldrn" undef="99999" compression="gzip" offset="1059" dataIJK="true" size="33" />
+							</propertyvol>
+							<propertyvol property="HeatFlowZ">
+								<datastore file="Snapshot_5.000000_volumes.cldrn" undef="99999" compression="gzip" offset="1092" dataIJK="true" size="44" />
+							</propertyvol>
+							<propertyvol property="ThCond" constantvalue="3.20000005" />
+						</propertyvols>
+					</volume>
+				</formvol>
+			</formvols>
+		</snapshot>
+		<snapshot age="5.8000000000000096" kind="0" isminor="true" />
+		<snapshot age="6.6000000000000103" kind="0" isminor="true" />
+		<snapshot age="7.4000000000000101" kind="0" isminor="true" />
+		<snapshot age="8.3000000000000096" kind="0" isminor="true" />
+		<snapshot age="9.0999999999999996" kind="0" isminor="true" />
+		<snapshot age="10" kind="0" isminor="false">
+			<surfaces>
+				<surface name="" subsurfacekind="2" top-formation="Crust" bottom-formation="Crust">
+					<geometry numI="2" numJ="2" minI="50" minJ="50" deltaI="100" deltaJ="100" />
+					<propertymaps>
+						<propertymap property="Thickness" formation="Crust" high-res="false" constantvalue="30000" />
+					</propertymaps>
+				</surface>
+				<surface name="Basement" subsurfacekind="0" top-formation="Deposition" bottom-formation="Crust">
+					<geometry numI="2" numJ="2" minI="50" minJ="50" deltaI="100" deltaJ="100" />
+					<propertymaps>
+						<propertymap property="Depth" high-res="false" constantvalue="0" />
+						<propertymap property="Temperature" high-res="false" constantvalue="10" />
+						<propertymap property="HeatFlowX" high-res="false" constantvalue="0" />
+						<propertymap property="HeatFlowY" high-res="false" constantvalue="0" />
+						<propertymap property="HeatFlowZ" high-res="false" constantvalue="55.3929253" />
+						<propertymap property="ThCond" formation="Crust" high-res="false" constantvalue="4.14499998" />
+						<propertymap property="Ves" high-res="false" constantvalue="0" />
+						<propertymap property="OverPressure" high-res="false" constantvalue="0" />
+						<propertymap property="Pressure" high-res="false" constantvalue="0" />
+						<propertymap property="HydroStaticPressure" high-res="false" constantvalue="0" />
+						<propertymap property="LithoStaticPressure" high-res="false" constantvalue="0.100000001" />
+					</propertymaps>
+				</surface>
+				<surface name="" subsurfacekind="2" top-formation="Mantle" bottom-formation="Mantle">
+					<geometry numI="2" numJ="2" minI="50" minJ="50" deltaI="100" deltaJ="100" />
+					<propertymaps>
+						<propertymap property="Thickness" formation="Mantle" high-res="false" constantvalue="90000" />
+					</propertymaps>
+				</surface>
+				<surface name="Bottom of Crust" subsurfacekind="1" top-formation="Crust" bottom-formation="Mantle">
+					<geometry numI="2" numJ="2" minI="50" minJ="50" deltaI="100" deltaJ="100" />
+					<propertymaps>
+						<propertymap property="Depth" high-res="false" constantvalue="30000" />
+						<propertymap property="Temperature" high-res="false" constantvalue="383.944489" />
+						<propertymap property="HeatFlowX" high-res="false" constantvalue="0" />
+						<propertymap property="HeatFlowY" high-res="false" constantvalue="8.8817842e-013" />
+						<propertymap property="HeatFlowZ" high-res="false" constantvalue="32.9117813" />
+						<propertymap property="ThCond" formation="Crust" high-res="false" constantvalue="2.50458884" />
+						<propertymap property="ThCond" formation="Mantle" high-res="false" constantvalue="3.20000005" />
+					</propertymaps>
+				</surface>
+				<surface name="Bottom of Lithospheric Mantle" subsurfacekind="1" top-formation="Mantle">
+					<geometry numI="2" numJ="2" minI="50" minJ="50" deltaI="100" deltaJ="100" />
+					<propertymaps>
+						<propertymap property="Depth" high-res="false" constantvalue="120000" />
+						<propertymap property="Temperature" high-res="false" constantvalue="1333" />
+						<propertymap property="HeatFlowX" high-res="false" constantvalue="0" />
+						<propertymap property="HeatFlowY" high-res="false" constantvalue="0" />
+						<propertymap property="HeatFlowZ" high-res="false" constantvalue="33.7441978" />
+						<propertymap property="ThCond" formation="Mantle" high-res="false" constantvalue="3.20000005" />
+					</propertymaps>
+				</surface>
+			</surfaces>
+			<volume subsurfacekind="2">
+				<geometry numI="2" numJ="2" minI="50" minJ="50" deltaI="100" deltaJ="100" numK="14" firstK="0" />
+				<propertyvols>
+					<propertyvol property="Depth">
+						<datastore file="Snapshot_10.000000_volumes.cldrn" undef="99999" compression="gzip" offset="0" dataIJK="true" size="74" />
+					</propertyvol>
+					<propertyvol property="Temperature">
+						<datastore file="Snapshot_10.000000_volumes.cldrn" undef="99999" compression="gzip" offset="74" dataIJK="true" size="92" />
+					</propertyvol>
+				</propertyvols>
+			</volume>
+			<formvols>
+				<formvol formation="Crust">
+					<volume subsurfacekind="1">
+						<geometry numI="2" numJ="2" minI="50" minJ="50" deltaI="100" deltaJ="100" numK="9" firstK="0" />
+						<propertyvols>
+							<propertyvol property="HeatFlowX">
+								<datastore file="Snapshot_10.000000_volumes.cldrn" undef="99999" compression="gzip" offset="166" dataIJK="true" size="28" />
+							</propertyvol>
+							<propertyvol property="HeatFlowY">
+								<datastore file="Snapshot_10.000000_volumes.cldrn" undef="99999" compression="gzip" offset="194" dataIJK="true" size="31" />
+							</propertyvol>
+							<propertyvol property="HeatFlowZ">
+								<datastore file="Snapshot_10.000000_volumes.cldrn" undef="99999" compression="gzip" offset="225" dataIJK="true" size="60" />
+							</propertyvol>
+							<propertyvol property="ThCond">
+								<datastore file="Snapshot_10.000000_volumes.cldrn" undef="99999" compression="gzip" offset="285" dataIJK="true" size="64" />
+							</propertyvol>
+						</propertyvols>
+					</volume>
+				</formvol>
+				<formvol formation="Mantle">
+					<volume subsurfacekind="1">
+						<geometry numI="2" numJ="2" minI="50" minJ="50" deltaI="100" deltaJ="100" numK="6" firstK="8" />
+						<propertyvols>
+							<propertyvol property="HeatFlowX">
+								<datastore file="Snapshot_10.000000_volumes.cldrn" undef="99999" compression="gzip" offset="349" dataIJK="true" size="29" />
+							</propertyvol>
+							<propertyvol property="HeatFlowY">
+								<datastore file="Snapshot_10.000000_volumes.cldrn" undef="99999" compression="gzip" offset="378" dataIJK="true" size="33" />
+							</propertyvol>
+							<propertyvol property="HeatFlowZ" constantvalue="33.7441978" />
+							<propertyvol property="ThCond" constantvalue="3.20000005" />
+						</propertyvols>
+					</volume>
+				</formvol>
+			</formvols>
+		</snapshot>
+		<snapshot age="100" kind="0" isminor="false" />
+	</snapshots>
+</project>

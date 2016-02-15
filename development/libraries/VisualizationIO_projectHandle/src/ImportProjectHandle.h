@@ -48,6 +48,8 @@ private:
 
     bool m_verbose;
     boost::shared_ptr<CauldronIO::Project> m_project;
+    boost::shared_ptr<DataAccess::Interface::PropertyValueList> m_propValues;
+    boost::shared_ptr<DataAccess::Interface::PropertyList> m_props;
 
     /// Private helper methods
     CauldronIO::SnapShotKind getSnapShotKind(const DataAccess::Interface::Snapshot* snapShot) const;
@@ -59,9 +61,8 @@ private:
     boost::shared_ptr<CauldronIO::SnapShot> createSnapShotIO(boost::shared_ptr<DataAccess::Interface::ProjectHandle> projectHandle,
         const DataAccess::Interface::Snapshot* snapShot);
 
-    std::vector<boost::shared_ptr<CauldronIO::Surface> > createSurfaces(boost::shared_ptr<DataAccess::Interface::ProjectHandle> projectHandle,
-        boost::shared_ptr<CauldronIO::FormationInfoList> depthFormations, const DataAccess::Interface::Snapshot* snapShot);
-
+    std::vector<boost::shared_ptr<CauldronIO::Surface> > createSurfaces(
+        boost::shared_ptr<CauldronIO::FormationInfoList> depthFormations, const DataAccess::Interface::Snapshot* snapShot, const boost::shared_ptr<DataAccess::Interface::PropertyValueList>& snapShotPropVals);
     boost::shared_ptr<const CauldronIO::Formation> createFormation(const DataAccess::Interface::Formation* formation, boost::shared_ptr<CauldronIO::FormationInfoList> depthFormations) const;
 
     boost::shared_ptr<CauldronIO::FormationInfoList> getDepthFormations(boost::shared_ptr<DataAccess::Interface::ProjectHandle> projectHandle,
@@ -88,6 +89,12 @@ private:
     boost::shared_ptr<const CauldronIO::Formation> findOrCreateFormation(const DataAccess::Interface::Formation* form, boost::shared_ptr<CauldronIO::FormationInfoList> depthFormations);
     boost::shared_ptr<const CauldronIO::Reservoir> findOrCreateReservoir(const DataAccess::Interface::Reservoir* reservoir, boost::shared_ptr<const CauldronIO::Formation> formationIO);
     boost::shared_ptr<CauldronIO::FormationInfo> findDepthFormationInfo(const DataAccess::Interface::Formation* formation, boost::shared_ptr<CauldronIO::FormationInfoList> depthFormations);
+
+    boost::shared_ptr<DataAccess::Interface::PropertyValueList> ImportProjectHandle::getPropertyValues(const DataAccess::Interface::Snapshot* snapshot) const;
+    boost::shared_ptr<DataAccess::Interface::PropertyList> ImportProjectHandle::getProperties(const boost::shared_ptr<DataAccess::Interface::PropertyValueList>& propValues) const;
+    boost::shared_ptr<DataAccess::Interface::PropertyValueList> getMapPropertyValues(const boost::shared_ptr<DataAccess::Interface::PropertyValueList>& snapShotPropVals) const;
+    boost::shared_ptr<DataAccess::Interface::PropertyValueList> getFormationVolumePropertyValues(const DataAccess::Interface::Property* prop, boost::shared_ptr<DataAccess::Interface::PropertyValueList> snapShotPropVals,
+        const DataAccess::Interface::Formation* formation) const;
 };
 
 #endif

@@ -60,6 +60,8 @@ namespace CauldronIO
 %rename ("Equals") CauldronIO::Property::operator==(const Property& other) const;
 %rename ("Equals") CauldronIO::Reservoir::operator==(const Reservoir& other) const;
 %rename ("Equals") CauldronIO::Formation::operator==(const Formation& other) const;
+%rename ("Equals") CauldronIO::Geometry2D::operator==(const Geometry2D& other) const;
+%rename ("Equals") CauldronIO::Geometry3D::operator==(const Geometry3D& other) const;
 %include "VisualizationAPIFwDecl.h"
 %include "VisualizationAPI.h"
 %include "VisualizationIO_native.h"

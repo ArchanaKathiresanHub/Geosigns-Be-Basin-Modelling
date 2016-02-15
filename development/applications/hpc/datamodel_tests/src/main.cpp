@@ -112,8 +112,9 @@ int main(int argc, char ** argv)
                 relPath = relPath.stem().string() + "_vizIO_output";
                 boost::filesystem::path absPath(projectFileName);
                 absPath.remove_filename();
+                std::string indexingXMLname = CauldronIO::ImportExport::getXMLIndexingFileName(projectFileName);
 
-                CauldronIO::ImportExport::exportToXML(project, absPath.string(), relPath.string(), true);
+                CauldronIO::ImportExport::exportToXML(project, absPath.string(), relPath.string(), indexingXMLname, true);
                 timeInSeconds = (float)(clock() - start) / CLOCKS_PER_SEC;
                 cout << "Wrote to new format in " << timeInSeconds << " seconds" << endl;
             }

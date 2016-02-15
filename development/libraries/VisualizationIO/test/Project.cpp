@@ -21,7 +21,7 @@ TEST( Project, Create )
     const string version("version");
     ModellingMode mode = MODE1D;
 
-    Project* project = new Project(projectName, description, teamName, version, mode, 0.1f);
+    Project* project = new Project(projectName, description, teamName, version, mode, 0, 1);
 
     EXPECT_STREQ(project->getName().c_str(), projectName.c_str());
     EXPECT_STREQ(project->getDescription().c_str(), description.c_str());
@@ -55,7 +55,7 @@ TEST(Project, AddSnapShot)
     const string version("version");
     ModellingMode mode = MODE1D;
 
-    boost::shared_ptr<Project> project(new Project(projectName, description, teamName, version, mode, 0.1f));
+    boost::shared_ptr<Project> project(new Project(projectName, description, teamName, version, mode, 0, 1));
     boost::shared_ptr<SnapShot> snapShot(new SnapShot(0, SYSTEM, false));
 
     const SnapShotList& snapShotList = project->getSnapShots();
@@ -109,7 +109,8 @@ TEST(SnapShot, Add)
     const string surfaceName = "waterbottom";
     boost::shared_ptr<const Geometry2D> geometry(new Geometry2D(2, 2, 100, 100, 0, 0));
     boost::shared_ptr<SurfaceData> valueMap(new MapNative(geometry));
-    boost::shared_ptr<Surface> surface(new Surface(surfaceName, Sediment, geometry));
+    boost::shared_ptr<Surface> surface(new Surface(surfaceName, Sediment));
+    surface->setGeometry(geometry);
     boost::shared_ptr<PropertySurfaceData> propSurface(new PropertySurfaceData(prop, valueMap));
     surface->addPropertySurfaceData(propSurface);
     snapShot->addSurface(surface);

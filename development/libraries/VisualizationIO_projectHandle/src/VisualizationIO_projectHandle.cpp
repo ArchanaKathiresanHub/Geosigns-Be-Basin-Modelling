@@ -41,6 +41,9 @@ void CauldronIO::MapProjectHandle::retrieve()
         float* mapData = new float[m_numI*m_numJ];
         size_t index = 0;
 
+        // Verify sizes
+        assert(gridmap->numI() == m_numI && gridmap->numJ() == m_numJ);
+
         for (unsigned int j = 0; j < m_numJ; ++j)
         { 
             for (unsigned int i = 0; i < m_numI; ++i)
@@ -149,6 +152,9 @@ void CauldronIO::VolumeProjectHandle::retrieveMultipleFormations()
     setUndefinedValue((float)propGridMap->getUndefinedValue());
 
     float* inputData = new float[m_numI * m_numJ * m_numK];
+
+    // Verify sizes
+    assert(propGridMap->numI() == m_numI && propGridMap->numJ());
 
     // Get data
     for (size_t i = 0; i < m_propValues->size(); ++i)

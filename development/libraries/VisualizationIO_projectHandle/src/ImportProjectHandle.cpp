@@ -25,6 +25,7 @@
 #include "ImportExport.h"
 #include <string>
 #include <iostream>
+#include <iomanip>
 #include <boost/foreach.hpp>
 
 using namespace DataAccess;
@@ -45,10 +46,11 @@ boost::shared_ptr<CauldronIO::Project> ImportProjectHandle::createFromProjectHan
     // Create the project
     boost::shared_ptr<CauldronIO::Project> project(new CauldronIO::Project(
         projectData->getProjectName(), projectData->getDescription(), projectData->getProjectTeam(),
-        projectData->getProgramVersion(), mode, (float)xml_version));
+        projectData->getProgramVersion(), mode, xml_version_major, xml_version_minor));
 
     // Import all snapshots
     ImportProjectHandle import(verbose, project);
+
     import.addSnapShots(projectHandle);
 
     return project;
@@ -62,6 +64,15 @@ ImportProjectHandle::ImportProjectHandle(bool verbose, boost::shared_ptr<Cauldro
 
 void ImportProjectHandle::addSnapShots(boost::shared_ptr<Interface::ProjectHandle> projectHandle) 
 {
+    // Get all property values once
+    m_propValues.reset(projectHandle->getPropertyValues(ALLSELECTION, 0, 0, 0, 0, 0, MAP | VOLUME));
+    sort(m_propValues->begin(), m_propValues->end(), PropertyValue::SortByAgeAndDepoAge);
+
+    m_props.reset(projectHandle->getProperties(true, ALLSELECTION, 0, 0, 0, 0, MAP | VOLUME));
+
+    if (m_verbose)
+        cout << "Loaded " << m_propValues->size() << " propertyvalues and " << m_props->size() << " properties" << endl;
+
     boost::shared_ptr<SnapshotList> snapShots;
     snapShots.reset(projectHandle->getSnapshots(MAJOR | MINOR));
 
@@ -83,15 +94,22 @@ boost::shared_ptr<CauldronIO::SnapShot> ImportProjectHandle::createSnapShotIO(bo
     boost::shared_ptr<CauldronIO::SnapShot> snapShotIO(new CauldronIO::SnapShot(snapShot->getTime(), 
         getSnapShotKind(snapShot), snapShot->getType() == MINOR));
 
-    //if (m_verbose)
-        cout << "== Adding " << (snapShot->getType() == MINOR ? "Minor" : "Major") << " snapshot with Age: " << snapShot->getTime() << " === " << endl;
+    std::ostringstream ss;
+    ss << std::fixed << std::setprecision(6);
+    ss << snapShot->getTime();
+    std::string snapshotString = ss.str();
+    std::cout << "Adding snapshot Age=" << snapshotString << std::endl;
+
+    // Get all property and property values for this snapshot
+    boost::shared_ptr<PropertyValueList> snapShotPropVals = getPropertyValues(snapShot);
+    boost::shared_ptr<PropertyList> snapShotProps = getProperties(snapShotPropVals);
 
     // Create depth-geometry information
     boost::shared_ptr<CauldronIO::FormationInfoList> depthFormations = getDepthFormations(projectHandle, snapShot);
 
     // Add all the surfaces
     ///////////////////////////////////////////////////////////
-    vector<boost::shared_ptr<CauldronIO::Surface> > surfaces = createSurfaces(projectHandle, depthFormations, snapShot);
+    vector<boost::shared_ptr<CauldronIO::Surface> > surfaces = createSurfaces(depthFormations, snapShot, snapShotPropVals);
     BOOST_FOREACH(boost::shared_ptr<CauldronIO::Surface>& surface, surfaces)
         snapShotIO->addSurface(surface);
 
@@ -107,15 +125,14 @@ boost::shared_ptr<CauldronIO::SnapShot> ImportProjectHandle::createSnapShotIO(bo
     snapShotIO->setVolume(volume);
 
     // Add all volumeData: loop over properties, then get all property values for the property
-    boost::shared_ptr<PropertyList> properties(projectHandle->getProperties(false, FORMATION, snapShot, 0, 0, 0, VOLUME));
-    for (size_t i = 0; i < properties->size(); ++i)
+    for (size_t i = 0; i < snapShotProps->size(); ++i)
     {
         // Get all the propertyValue objects for this property and snapshot
-        const Property* prop = properties->at(i);
+        const Property* prop = snapShotProps->at(i);
         PropertyAttribute attrib = prop->getPropertyAttribute();
         // Bail out if it is not continuous
         if (attrib != CONTINUOUS_3D_PROPERTY) continue;
-        boost::shared_ptr<PropertyValueList> propValues(projectHandle->getPropertyValues(FORMATION, prop, snapShot, 0, 0, 0, VOLUME));
+        boost::shared_ptr<PropertyValueList> propValues = getFormationVolumePropertyValues(prop, snapShotPropVals, NULL);
         // Bail out if there are no property value objects
         if (propValues->size() == 0) continue;
 
@@ -145,15 +162,14 @@ boost::shared_ptr<CauldronIO::SnapShot> ImportProjectHandle::createSnapShotIO(bo
         boost::shared_ptr<CauldronIO::Volume> volume(new CauldronIO::Volume(getSubSurfaceKind(formation), geometry));
 
         // Add all property-value data : loop over properties, then get all property values for the property and this formation
-        boost::shared_ptr<PropertyList> properties(projectHandle->getProperties(false, FORMATION, snapShot, 0, formation, 0, VOLUME));
-        for (size_t i = 0; i < properties->size(); ++i)
+        for (size_t i = 0; i < snapShotProps->size(); ++i)
         {
             // Get all the propertyValue objects for this property and snapshot
-            const Property* prop = properties->at(i);
+            const Property* prop = snapShotProps->at(i);
             PropertyAttribute attrib = prop->getPropertyAttribute();
             // Bail out if it is not continuous
             if (attrib != DISCONTINUOUS_3D_PROPERTY) continue;
-            boost::shared_ptr<PropertyValueList> propValues(projectHandle->getPropertyValues(FORMATION, prop, snapShot, 0, formation, 0, VOLUME));
+            boost::shared_ptr<PropertyValueList> propValues = getFormationVolumePropertyValues(prop, snapShotPropVals, formation);
             // Bail out if there are no property value objects
             if (propValues->size() == 0) continue;
             assert(propValues->size() == 1);
@@ -209,8 +225,8 @@ boost::shared_ptr<CauldronIO::SnapShot> ImportProjectHandle::createSnapShotIO(bo
 }
 
 vector<boost::shared_ptr<CauldronIO::Surface> > ImportProjectHandle::createSurfaces(
-    boost::shared_ptr<DataAccess::Interface::ProjectHandle> projectHandle, boost::shared_ptr<CauldronIO::FormationInfoList> depthFormations,
-    const DataAccess::Interface::Snapshot* snapShot) 
+    boost::shared_ptr<CauldronIO::FormationInfoList> depthFormations,
+    const DataAccess::Interface::Snapshot* snapShot, const boost::shared_ptr<PropertyValueList>& snapShotPropVals)
 {
     vector < boost::shared_ptr<CauldronIO::Surface> > surfaces;
     
@@ -223,7 +239,7 @@ vector<boost::shared_ptr<CauldronIO::Surface> > ImportProjectHandle::createSurfa
     // 5. Add SurfaceData to Surface
     ////////////////////////////////////////////////////////
     
-    boost::shared_ptr<PropertyValueList> propValues(projectHandle->getPropertyValues(ALLSELECTION, 0, snapShot, 0, 0, 0, MAP));
+    boost::shared_ptr<PropertyValueList> propValues = getMapPropertyValues(snapShotPropVals);
 
     for (size_t i = 0; i < propValues->size(); ++i)
     {
@@ -238,6 +254,7 @@ vector<boost::shared_ptr<CauldronIO::Surface> > ImportProjectHandle::createSurfa
             formation = reservoir->getFormation();
         if (!formation && !surface)
                 throw new CauldronIO::CauldronIOException("Found map without formation, surface or reservoir");
+
         string surfaceName;
         if (surface)
             surfaceName = surface->getName();
@@ -272,9 +289,21 @@ vector<boost::shared_ptr<CauldronIO::Surface> > ImportProjectHandle::createSurfa
         boost::shared_ptr<const CauldronIO::Geometry2D> geometry;
         if (surfaceIO)
         {
-            geometry = surfaceIO->getGeometry();
+            if (propertyIO->isHighRes() && surfaceIO->getHighResGeometry())
+                geometry = surfaceIO->getHighResGeometry();
+            else if (!propertyIO->isHighRes() && surfaceIO->getGeometry())
+                geometry = surfaceIO->getGeometry();
+#if _DEBUG
+            if (geometry)
+            {
+                // Check geometry sizes
+                const DataAccess::Interface::GridMap* gridmap = propValue->getGridMap();
+                assert(gridmap->numI() == geometry->getNumI() && gridmap->numI() == geometry->getNumI());
+                gridmap->release();
+            }
+#endif
         }
-        else
+        if (!geometry)
         {
             // Get from the gridmap: this will load the gridmap :-(
             const DataAccess::Interface::GridMap* gridmap = propValue->getGridMap();
@@ -285,21 +314,44 @@ vector<boost::shared_ptr<CauldronIO::Surface> > ImportProjectHandle::createSurfa
 
         // Create the surface data object
         boost::shared_ptr<CauldronIO::SurfaceData> propertyMap = createMapIO(propValue, geometry);
+        propertyMap->setFormation(formationIO);
 
         // Instantiate the surface if not existing
         if (!surfaceIO)
         {
-            surfaceIO.reset(new CauldronIO::Surface(surfaceName, getSubSurfaceKind(surface), geometry));
+            surfaceIO.reset(new CauldronIO::Surface(surfaceName, getSubSurfaceKind(surface)));
             surfaces.push_back(surfaceIO);
-
             if (m_verbose && surface)
                 cout << " - Adding surface: " << surfaceIO->getName() << endl;
 
-            // Set the formation
-            if (formationIO) surfaceIO->setFormation(formationIO);
+            // Set the formations
+            if (surface)
+            {
+                // Find or create top/bottom formations
+                boost::shared_ptr<const CauldronIO::Formation> topFormation = findOrCreateFormation(surface->getTopFormation(), depthFormations);
+                boost::shared_ptr<const CauldronIO::Formation> bottomFormation = findOrCreateFormation(surface->getBottomFormation(), depthFormations);
+                assert(topFormation == formationIO || bottomFormation == formationIO || !formationIO);
+
+                surfaceIO->setFormation(topFormation, true);
+                surfaceIO->setFormation(bottomFormation, false);
+            }
+            else
+            {
+                // Assign same formation to bottom/surface formation
+                assert(formationIO);
+                surfaceIO->setFormation(formationIO, true);
+                surfaceIO->setFormation(formationIO, false);
+            }
+            
             // Set reservoir
             if (reservoir) surfaceIO->setReservoir(reservoirIO);
         }
+
+        // Set the geometry
+        if (propertyIO->isHighRes() && !surfaceIO->getHighResGeometry())
+            surfaceIO->setHighResGeometry(geometry);
+        if (!propertyIO->isHighRes() && !surfaceIO->getGeometry())
+            surfaceIO->setGeometry(geometry);
 
         // Add the property/surfaceData object
         boost::shared_ptr<CauldronIO::PropertySurfaceData> propSurfaceData(new CauldronIO::PropertySurfaceData(propertyIO, propertyMap));
@@ -323,7 +375,9 @@ boost::shared_ptr<CauldronIO::Surface> ImportProjectHandle::findSurface(vector< 
     boost::shared_ptr<const CauldronIO::Formation>& formation) const
 {
     BOOST_FOREACH(boost::shared_ptr<CauldronIO::Surface>& surface, surfaces)
-        if (surface->getFormation() == formation) return surface;
+    {
+        if (surface->getBottomFormation() == formation && surface->getTopFormation() == formation) return surface;
+    }
 
     return boost::shared_ptr< CauldronIO::Surface >();
 }
@@ -343,10 +397,13 @@ boost::shared_ptr<const CauldronIO::Property> ImportProjectHandle::findOrCreateP
 
 boost::shared_ptr<const CauldronIO::Formation> ImportProjectHandle::findOrCreateFormation(const Formation* form, boost::shared_ptr<CauldronIO::FormationInfoList> depthFormations)
 {
+    boost::shared_ptr< const CauldronIO::Formation> formationIO;
+    if (!form) return formationIO;
+    
     BOOST_FOREACH(const boost::shared_ptr<const CauldronIO::Formation>& formation, m_project->getFormations())
         if (formation->getName() == form->getName()) return formation;
 
-    boost::shared_ptr< const CauldronIO::Formation> formationIO = createFormation(form, depthFormations);
+    formationIO = createFormation(form, depthFormations);
     // It can be that this formation is not met with a depthformation: don't add it to the list
     if (!formationIO)
         return formationIO;
@@ -384,6 +441,7 @@ boost::shared_ptr<CauldronIO::FormationInfo> ImportProjectHandle::findDepthForma
 
     throw CauldronIO::CauldronIOException("Could not find depth geometry for formation");
 }
+
 
 boost::shared_ptr<const CauldronIO::Geometry3D> ImportProjectHandle::createGeometry3D(boost::shared_ptr<CauldronIO::FormationInfoList> depthFormations)
 {
@@ -568,6 +626,7 @@ boost::shared_ptr<CauldronIO::FormationInfoList> ImportProjectHandle::getDepthFo
     {
         double min, max;
         GridMap* map = propValues->at(i)->getGridMap();
+        if (!map) throw CauldronIO::CauldronIOException("Could not open project3D HDF file!");
         map->getMinMaxValue(min, max);
         boost::shared_ptr<CauldronIO::FormationInfo> info(new CauldronIO::FormationInfo());
         info->formation = propValues->at(i)->getFormation();
@@ -658,4 +717,76 @@ boost::shared_ptr<const CauldronIO::Formation> ImportProjectHandle::createFormat
     formationPtr.reset(new CauldronIO::Formation(info->kStart, info->kEnd, info->formation->getName(), formation->isSourceRock(), formation->isMobileLayer()));
 
     return formationPtr;
+}
+
+boost::shared_ptr<PropertyValueList> ImportProjectHandle::getPropertyValues(const DataAccess::Interface::Snapshot* snapshot) const
+{
+    boost::shared_ptr<PropertyValueList> propertyValueList(new Interface::PropertyValueList());
+
+    for (int i = 0; i < m_propValues->size(); i++)
+    {
+        const PropertyValue* propValue = m_propValues->at(i);
+        if (propValue->getSnapshot() == snapshot)
+            propertyValueList->push_back(propValue);
+    }
+
+    return propertyValueList;
+}
+
+boost::shared_ptr<PropertyList> ImportProjectHandle::getProperties(const boost::shared_ptr<PropertyValueList>& propValues) const
+{
+    boost::shared_ptr<PropertyList> propertyList(new Interface::PropertyList);
+
+    for (int i = 0; i < m_props->size(); i++)
+    {
+        const Property* prop = m_props->at(i);
+        
+        for (int j = 0; j < propValues->size(); j++)
+        {
+            const PropertyValue* propValue = propValues->at(j);
+
+            if (propValue->getProperty() == prop)
+            {
+                propertyList->push_back(prop);
+                break;
+            }
+        }
+    }
+
+    return propertyList;
+}
+
+boost::shared_ptr<PropertyValueList> ImportProjectHandle::getMapPropertyValues(const boost::shared_ptr<PropertyValueList>& snapShotPropVals) const
+{
+    boost::shared_ptr<PropertyValueList> propertyValueList(new Interface::PropertyValueList);
+
+    for (int i = 0; i < snapShotPropVals->size(); i++)
+    {
+        const PropertyValue* propValue = snapShotPropVals->at(i);
+
+        if (propValue->getStorage() == TIMEIOTBL)
+            propertyValueList->push_back(propValue);
+    }
+
+    return propertyValueList;
+}
+
+boost::shared_ptr<PropertyValueList> ImportProjectHandle::getFormationVolumePropertyValues(const Property* prop, boost::shared_ptr<PropertyValueList> snapShotPropVals,
+    const Formation* formation) const
+{
+    boost::shared_ptr<PropertyValueList> propertyValueList(new Interface::PropertyValueList);
+
+    for (int i = 0; i < snapShotPropVals->size(); i++)
+    {
+        const PropertyValue* propValue = snapShotPropVals->at(i);
+
+        if (propValue->getProperty() != prop) continue;
+        if (propValue->getStorage() != SNAPSHOTIOTBL && propValue->getStorage() != THREEDTIMEIOTBL) continue;
+        if (propValue->getSurface() != NULL) continue;
+        if (formation != NULL && propValue->getFormation() != formation) continue;
+
+        propertyValueList->push_back(propValue);
+    }
+
+    return propertyValueList;
 }

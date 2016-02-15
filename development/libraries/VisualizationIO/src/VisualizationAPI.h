@@ -60,7 +60,7 @@ namespace CauldronIO
         /// \param [in] version Cauldron simulator version
         /// \param [in] mode Modeling mode
         Project(const std::string& name, const std::string& description, const std::string& team, const std::string& version,
-            ModellingMode mode, float xmlVersion);
+            ModellingMode mode, int xmlVersionMajor, int xmlVersionMinor);
 
         /// \brief Destructor
         ~Project();
@@ -105,7 +105,9 @@ namespace CauldronIO
         /// \returns a list of strings containing the names of all surfaces
         const std::vector<std::string>& getSurfaceNames();
         /// \returns the xml version number
-        float getXmlVersion() const;
+        int getXmlVersionMajor() const;
+        /// \returns the xml version number
+        int getXmlVersionMinor() const;
 
     private:
         SnapShotList m_snapShotList;
@@ -115,7 +117,7 @@ namespace CauldronIO
         FormationList m_formationList;
         ReservoirList m_reservoirList;
         std::vector<std::string> m_surfaceNames;
-        float m_xmlVersion;
+        int m_xmlVersionMajor, m_xmlVersionMinor;
     };
 
     /// \class SnapShot 
@@ -276,6 +278,8 @@ namespace CauldronIO
         PropertyAttribute getAttribute() const;
         /// \returns true if two properties are equal
         bool operator==(const Property& other) const;
+        /// \return true if this property is high-resolution
+        bool isHighRes() const;
 
     private:
 	    std::string m_name, m_username, m_cauldronName, m_unit;
@@ -321,12 +325,18 @@ namespace CauldronIO
         /// \param [in] name Name of the surface
         /// \param [in] kind kind of surface
         /// \param [in] geometry the geometry to associate with this surface
-        Surface(const std::string& name, SubsurfaceKind kind, boost::shared_ptr<const Geometry2D>& geometry);
+        Surface(const std::string& name, SubsurfaceKind kind);
         /// \brief Destructor
         ~Surface();
-
-        /// \returns the geometry
+        
+        /// \brief assign the geometry
+        void setGeometry(boost::shared_ptr<const Geometry2D>& geometry);
+        /// \brief assign the high-res geometry
+        void setHighResGeometry(boost::shared_ptr<const Geometry2D>& geometry);
+        /// \returns the geometry; can be null
         const boost::shared_ptr<const Geometry2D>& getGeometry() const;
+        /// \returns the high-res geometry; can be null
+        const boost::shared_ptr<const Geometry2D>& getHighResGeometry() const;
         /// \brief get the list of property-surfaceData pairs contained in this surface
         const PropertySurfaceDataList& getPropertySurfaceDataList() const;
         /// \brief Add a property-surfaceData pair to the list
@@ -341,9 +351,11 @@ namespace CauldronIO
         SubsurfaceKind getSubSurfaceKind() const;
         /// \brief Associate a formation with this map
         /// \param [in] formation the formation to be associated with this map. Optional.
-        void setFormation(boost::shared_ptr<const Formation>& formation);
-        /// \returns the associated formation for this map. Can be null
-        const boost::shared_ptr<const Formation> getFormation() const;
+        void setFormation(boost::shared_ptr<const Formation>& formation, bool isTop);
+        /// \returns the associated top formation for this map. Can be null
+        const boost::shared_ptr<const Formation>& getTopFormation() const;
+        /// \returns the associated bottom formation for this map. Can be null
+        const boost::shared_ptr<const Formation>& getBottomFormation() const;
         /// \brief Retrieve actual data into memory
         void retrieve();
         /// \brief Release memory; does not destroy the object; it can be retrieved again
@@ -357,11 +369,13 @@ namespace CauldronIO
 
     private:
         SubsurfaceKind m_subSurfaceKind;
-        boost::shared_ptr<const Formation> m_formation;
+        boost::shared_ptr<const Formation> m_Topformation;
+        boost::shared_ptr<const Formation> m_Bottomformation;
         std::string m_name;
         std::string m_reservoirName;
         PropertySurfaceDataList m_propSurfaceList;
         boost::shared_ptr<const Geometry2D> m_geometry;
+        boost::shared_ptr<const Geometry2D> m_highresgeometry;
         boost::shared_ptr<const Reservoir> m_reservoir;
     };
 
@@ -392,6 +406,10 @@ namespace CauldronIO
         double getMaxI() const;
         /// \returns  the topmost grid coordinate value
         double getMaxJ() const;
+        /// \return the total number of elements
+        virtual size_t getSize() const;
+        /// \returns true if two geometries are equal
+        bool operator==(const Geometry2D& other) const;
 
     protected:
         double m_deltaI, m_deltaJ, m_minI, m_minJ, m_maxI, m_maxJ;
@@ -419,6 +437,10 @@ namespace CauldronIO
         size_t getFirstK() const;
         /// \returns the index of the last k element (inclusive)
         size_t getLastK() const;
+        /// \return the total number of elements
+        virtual size_t getSize() const;
+        /// \returns true if two geometries are equal
+        bool operator==(const Geometry3D& other) const;
 
         size_t m_numK, m_firstK;
     };
@@ -432,6 +454,8 @@ namespace CauldronIO
         SurfaceData(const boost::shared_ptr<const Geometry2D>& geometry);
         ~SurfaceData();
 
+        /// \returns the geometry
+        const boost::shared_ptr<const Geometry2D>& getGeometry() const;
         /// \brief Assign data to the map : geometry must have been assigned
         /// \param [in] data pointer to the xy data, ordered row-wise
         /// \note data ownership is not transferred; data should be deleted by client if obsolete
@@ -481,12 +505,18 @@ namespace CauldronIO
         /// \brief Set the undefined value
         /// \param [in] undefined the undefined value value
         void setUndefinedValue(float undefined);
+        /// \param [in] formation the formation to be associated with this map. Optional.
+        void setFormation(boost::shared_ptr<const Formation>& formation);
+        /// \returns the associated top formation for this map. Can be null
+        const boost::shared_ptr<const Formation>& getFormation() const;
 
     private:
         float* m_internalData;
         float m_constantValue, m_undefinedValue;
         bool m_isConstant, m_isCellCentered;
         void setData(float* data, bool setValue = false, float value = 0);
+        boost::shared_ptr<const Formation> m_formation;
+        boost::shared_ptr<const Geometry2D> m_geometry;
 
     protected:
         bool m_retrieved;
@@ -543,6 +573,8 @@ namespace CauldronIO
         VolumeData(const boost::shared_ptr<const Geometry3D>& geometry);
         ~VolumeData();
 
+        /// \returns the geometry
+        const boost::shared_ptr<const Geometry3D>& getGeometry() const;
         /// \brief Assign data to the volume as a 1D array: K fastest, then I, then J
         /// \param [in] data a pointer to the data; it will be copied, no ownership is transferred
         /// \param [in] setValue if true, a constant value will be assigned to the data
@@ -598,8 +630,6 @@ namespace CauldronIO
         float const * getVolumeValues_IJK();
         /// \returns pointer to entire data: can be NULL 
         float const * getVolumeValues_KIJ();
-        /// \returns the total size of elements in this object
-        size_t getVolumeSize() const;
 
         /// \brief Convenience function to get an index into the 1D volume data : indexing is through the full-k range, corresponding to the depth volume
         /// \param [in] i index in i-dimension
@@ -628,6 +658,7 @@ namespace CauldronIO
         SubsurfaceKind m_subSurfaceKind;
         boost::shared_ptr<const Property> m_property;
         boost::shared_ptr<const Volume> m_depthVolume;
+        boost::shared_ptr<const Geometry3D> m_geometry;
 
     protected:
         bool m_retrieved;
