@@ -121,6 +121,12 @@ namespace mbapi {
       // return true if source rock mixing is enabled, false otherwise
       virtual bool isSourceRockMixingEnabled( LayerID id );
 
+      // Enable or disable source rock mixing for the giving layer
+      // id layer ID
+      // val true - enable source rock mixing/false - disable
+      // return NoError on success, error code otherwise
+      virtual ErrorHandler::ReturnCode setSourceRockMixingEnabled( LayerID id, bool val );
+
       // Check if layer has active allochton lithology
       // id layer ID
       // return true if yes, false otherwise
@@ -156,6 +162,13 @@ namespace mbapi {
       // srmHI HI value for source rock mix
       // return ErrorHandler::NoError on success or error code if mixing is not turned off or other error happened
       virtual ReturnCode setSourceRockMixHI( LayerID lid, double srmHI );
+
+      // Set HI map name for the source rock mix for the given layer
+      // lid layer ID
+      // srmHImap HI map name for the source rock mix
+      // return ErrorHandler::NoError on success or error code if mixing is not turned off or other error happened
+      virtual ReturnCode setSourceRockMixHIMapName( LayerID lid, const std::string & srmHImap );
+
 
       // Set H/C value for source rock mix for the given layer
       // lid layer ID
@@ -206,7 +219,8 @@ namespace mbapi {
       static const char * s_sourceRockType1FieldName;
       static const char * s_sourceRockType2FieldName;
       static const char * s_sourceRockHIFieldName;
-      static const char * s_sourceRockEnableMixintFieldName;
+      static const char * s_sourceRockHIMapFieldName;        
+      static const char * s_sourceRockEnableMixingFieldName;
       static const char * s_isAllochtonLithology;
 
       static const char * s_pressureFaultCutTableName;

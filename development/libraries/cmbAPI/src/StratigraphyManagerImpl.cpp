@@ -41,7 +41,8 @@ const char * StratigraphyManagerImpl::s_isSourceRockFieldName           = "Sourc
 const char * StratigraphyManagerImpl::s_sourceRockType1FieldName        = "SourceRockType1";
 const char * StratigraphyManagerImpl::s_sourceRockType2FieldName        = "SourceRockType2";
 const char * StratigraphyManagerImpl::s_sourceRockHIFieldName           = "SourceRockMixingHI";
-const char * StratigraphyManagerImpl::s_sourceRockEnableMixintFieldName = "EnableSourceRockMixing";
+const char * StratigraphyManagerImpl::s_sourceRockHIMapFieldName        = "SourceRockMixingHIGrid";
+const char * StratigraphyManagerImpl::s_sourceRockEnableMixingFieldName = "EnableSourceRockMixing";
 const char * StratigraphyManagerImpl::s_isAllochtonLithology            = "HasAllochthonLitho";
 
 const char * StratigraphyManagerImpl::s_pressureFaultCutTableName       = "PressureFaultcutIoTbl";
@@ -394,12 +395,34 @@ bool StratigraphyManagerImpl::isSourceRockMixingEnabled( LayerID id )
       database::Record * rec = m_stratIoTbl->getRecord( static_cast<int>(id) );
       if ( !rec ) { throw Exception( NonexistingID ) << "No layer with ID: " << id << " in stratigraphy table"; }
 
-      flag = rec->getValue<int>( s_sourceRockEnableMixintFieldName ) == 1 ? true : false;
+      flag = rec->getValue<int>( s_sourceRockEnableMixingFieldName ) == 1 ? true : false;
    }
    catch ( const Exception & e ) { reportError( e.errorCode(), e.what() ); }
 
    return flag;
 }
+
+// Enable or disable source rock mixing for the giving layer
+ErrorHandler::ReturnCode StratigraphyManagerImpl::setSourceRockMixingEnabled( LayerID id, bool val )
+{
+   if ( errorCode() != NoError ) resetError();
+
+   try
+   {
+      // if table does not exist - report error
+      if ( !m_stratIoTbl ) { throw Exception( NonexistingID ) << s_stratigraphyTableName << " table could not be found in project"; }
+
+      database::Record * rec = m_stratIoTbl->getRecord( static_cast<int>(id) );
+      if ( !rec ) { throw Exception( NonexistingID ) << "No layer with ID: " << id << " in stratigraphy table"; }
+
+      rec->setValue<int>( s_sourceRockEnableMixingFieldName, (val ? 1 : 0) );
+   }
+   catch ( const Exception & e ) { return reportError( e.errorCode(), e.what() ); }
+
+   return NoError;
+}
+
+
 
 // Check if layer has active allochton lithology
 bool StratigraphyManagerImpl::isAllochtonLithology( LayerID id )
@@ -453,7 +476,7 @@ std::vector<std::string> StratigraphyManagerImpl::sourceRockTypeName( LayerID li
          srtNames.push_back( rec->getValue<std::string>( s_sourceRockType1FieldName ) );
 
          // check if mixing is enabled
-         int isMixingEnabled = rec->getValue<int>( s_sourceRockEnableMixintFieldName );
+         int isMixingEnabled = rec->getValue<int>( s_sourceRockEnableMixingFieldName );
          if ( 1 == isMixingEnabled )
          {
             srtNames.push_back( rec->getValue<std::string>( s_sourceRockType2FieldName ) );
@@ -492,7 +515,7 @@ double StratigraphyManagerImpl::sourceRockMixHI( LayerID lid )
       if ( 1 == isSourceRock )
       {
          // check if mixing is enabled
-         int isMixingEnabled = rec->getValue<int>( s_sourceRockEnableMixintFieldName );
+         int isMixingEnabled = rec->getValue<int>( s_sourceRockEnableMixingFieldName );
          if ( 1 == isMixingEnabled )
          {
             mixHI = rec->getValue<double>( s_sourceRockHIFieldName );
@@ -542,7 +565,9 @@ ErrorHandler::ReturnCode StratigraphyManagerImpl::setSourceRockTypeName( LayerID
       }
       else
       {  // enable/disable mixing
-         rec->setValue( s_sourceRockEnableMixintFieldName, (srTypeNames.size() == 1 ? 0 : 1) );
+         int srNum = 0;
+         for ( size_t i = 0; i < srTypeNames.size(); ++i ) { srNum += srTypeNames[i].empty() ? 0 : 1; }
+         rec->setValue<int>( s_sourceRockEnableMixingFieldName, (srNum == 1 ? 0 : 1) );
 
          rec->setValue( s_sourceRockType1FieldName, srTypeNames[0] );
          if ( srTypeNames.size() > 1 )
@@ -584,14 +609,49 @@ ErrorHandler::ReturnCode StratigraphyManagerImpl::setSourceRockMixHI( LayerID li
       }
 
       // check if mixing is enabled
-      int isMixingEnabled = rec->getValue<int>( s_sourceRockEnableMixintFieldName );
-      if ( 1 == isMixingEnabled )
+      int isMixingEnabled = rec->getValue<int>( s_sourceRockEnableMixingFieldName );
+      if ( 0 == isMixingEnabled && srmHI != 0.0 )
       {
          throw Exception( OutOfRangeValue ) << "Layer with id: " << lid <<
             " has source rock mixing disabled. Can't set HI for source rock mixing";
       }
       // all checks are OK, set HI for mixing
       rec->setValue( s_sourceRockHIFieldName, srmHI );
+   }
+   catch ( const Exception & e ) { return reportError( e.errorCode(), e.what() ); }
+
+   return NoError;
+}
+
+// Set HI map name for the source rock mix for the given layer
+ErrorHandler::ReturnCode StratigraphyManagerImpl::setSourceRockMixHIMapName( LayerID lid, const std::string & srmHImap )
+{
+   if ( errorCode() != NoError ) resetError();
+   try
+   {
+      // if table does not exist - report error
+      if ( !m_stratIoTbl ) { throw Exception( NonexistingID ) << s_stratigraphyTableName << " table could not be found in project"; }
+
+      database::Record * rec = m_stratIoTbl->getRecord( static_cast<int>(lid) );
+      if ( !rec ) { throw Exception( NonexistingID ) << "No layer with ID: " << lid << " in stratigraphy table"; }
+
+      int isSourceRock = rec->getValue<int>( s_isSourceRockFieldName );
+
+      // check if layer is source rock layer
+      if ( 1 != isSourceRock )
+      {
+         throw Exception( OutOfRangeValue ) << "Layer with id: " << lid << " is not a source rock layer. Can't set HI for source rock mixing";
+      }
+
+      // check if mixing is enabled
+      int isMixingEnabled = rec->getValue<int>( s_sourceRockEnableMixingFieldName );
+      if ( 0 == isMixingEnabled && !srmHImap.empty() )
+      {
+         throw Exception( OutOfRangeValue ) << "Layer with id: " << lid <<
+            " has source rock mixing disabled. Can't set HI for source rock mixing";
+      }
+      // all checks are OK, set HI for mixing
+      rec->setValue( s_sourceRockHIMapFieldName, srmHImap );
    }
    catch ( const Exception & e ) { return reportError( e.errorCode(), e.what() ); }
 

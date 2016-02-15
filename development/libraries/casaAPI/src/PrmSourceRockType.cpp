@@ -116,7 +116,19 @@ ErrorHandler::ReturnCode PrmSourceRockType::setInModel( mbapi::Model & caldModel
             " set as source rock layer but has no source rock lithology defined for the mixing ID: " << m_mixID;
       }
 
-      srtNames[m_mixID-1] = m_srtName; 
+      if ( srtNames.size() > 1 ) // source rock mixint not allowed for categorical source rock parameter
+      {
+         if ( srtNames[m_mixID-1] != m_srtName ) // for the base case do not change mixing!!
+         {
+            srtNames[ m_mixID == 1 ? 1 : 0 ] = "";          // remove other source rock
+            stMgr.setSourceRockMixHI( lid, 0.0 );           // set HI of the mix to 0.0
+            stMgr.setSourceRockMixHIMapName( lid, "" );     // delete HI map
+            
+            srtNames[m_mixID-1] = m_srtName;                // change source rock type
+         }
+      }
+      else { srtNames[m_mixID-1] = m_srtName; }
+
       if ( ErrorHandler::NoError != stMgr.setSourceRockTypeName( lid, srtNames ) )
       {
          throw ErrorHandler::Exception( stMgr.errorCode() ) << stMgr.errorMessage();

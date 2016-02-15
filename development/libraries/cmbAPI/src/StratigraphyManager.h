@@ -116,6 +116,12 @@ namespace mbapi {
       /// @return true if source rock mixing is enabled, false otherwise
       virtual bool isSourceRockMixingEnabled( LayerID id ) = 0;
 
+      /// @brief Enable or disable source rock mixing for the giving layer
+      /// @param id layer ID
+      /// @param val true - enable source rock mixing/false - disable
+      /// @return NoError on success, error code otherwise
+      virtual ErrorHandler::ReturnCode setSourceRockMixingEnabled( LayerID id, bool val ) = 0;
+
       /// @brief Check if layer has active allochton lithology
       /// @param id layer ID
       /// @return true if yes, false otherwise
@@ -151,6 +157,13 @@ namespace mbapi {
       /// @param srmHI HI value for source rock mix
       /// @return ErrorHandler::NoError on success or error code if mixing is not turned off or other error happened
       virtual ReturnCode setSourceRockMixHI( LayerID lid, double srmHI ) = 0;
+
+      /// @brief Set HI map name for the source rock mix for the given layer
+      /// @param lid layer ID
+      /// @param srmHImap HI map name for the source rock mix
+      /// @return ErrorHandler::NoError on success or error code if mixing is not turned off or other error happened
+      virtual ReturnCode setSourceRockMixHIMapName( LayerID lid, const std::string & srmHImap ) = 0;
+
 
       /// @brief Set H/C value for source rock mix for the given layer
       /// @param lid layer ID
