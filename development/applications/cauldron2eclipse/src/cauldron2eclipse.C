@@ -1380,7 +1380,7 @@ double GetValue (const DerivedProperties::FormationPropertyPtr& gridMap, double 
    {
       for (unsigned int jInc = 0; jInc < 2; ++jInc)
       {
-         double valueAtIndex = gridMap->interpolate( iBase + iInc, jBase + jInc, k );
+         double valueAtIndex = gridMap->interpolate( iBase + iInc, jBase + jInc, k, false );
          if (valueAtIndex != gridMap->getUndefinedValue ())
          {
             double weightAtIndex = (iInc == 0 ? 1 - iFrac : iFrac) * (jInc == 0 ? 1 - jFrac : jFrac) ;//* (kInc == 1 ? 1 - kFrac : kFrac);
