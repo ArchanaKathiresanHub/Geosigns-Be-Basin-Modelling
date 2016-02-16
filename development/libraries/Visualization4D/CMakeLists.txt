@@ -9,11 +9,11 @@
 # Do not distribute without written permission from Shell.              #
 #                                                                       #
 #########################################################################
-FILE( GLOB all_headers src/*.h )
-source_group(include FILES ${all_headers})
+FILE( GLOB all_headers src/*.h)
+source_group("Header Files" FILES ${all_headers})
 
 FILE( GLOB all_srcs src/*.cpp)
-source_group(source FILES ${all_srcs})
+source_group("Source Files" FILES ${all_srcs})
 
 add_library(Visualization4D ${all_srcs})
 

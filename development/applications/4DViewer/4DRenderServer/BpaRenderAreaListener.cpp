@@ -71,6 +71,7 @@ BpaRenderAreaListener::BpaRenderAreaListener(RenderArea* renderArea)
 , m_examiner(0)
 , m_drawFaces(true)
 , m_drawEdges(true)
+, m_logEvents(true)
 {
 }
 
@@ -80,10 +81,13 @@ BpaRenderAreaListener::~BpaRenderAreaListener()
 
 void BpaRenderAreaListener::onOpenedConnection(RenderArea* renderArea, Connection* connection)
 {
-  std::cout << "[BpaRenderAreaListener] onOpenedConnection("
-    << "renderArea = " << renderArea->getId() 
-    << ", connection = " << connection->getId() 
-    << ")" << std::endl;
+  if (m_logEvents)
+  {
+    std::cout << "[BpaRenderAreaListener] onOpenedConnection("
+      << "renderArea = " << renderArea->getId()
+      << ", connection = " << connection->getId()
+      << ")" << std::endl;
+  }
 
   if(m_sceneGraphManager.getRoot() == 0)
     createSceneGraph(renderArea->getId());
@@ -95,20 +99,26 @@ void BpaRenderAreaListener::onOpenedConnection(RenderArea* renderArea, Connectio
 
 void BpaRenderAreaListener::onClosedConnection(RenderArea* renderArea, const std::string& connectionId)
 {
-  std::cout << "[BpaRenderAreaListener] onClosedConnection("
-    << "renderArea = " << renderArea->getId() 
-    << ", connection = " << connectionId 
-    << ")" << std::endl;
+  if (m_logEvents)
+  {
+    std::cout << "[BpaRenderAreaListener] onClosedConnection("
+      << "renderArea = " << renderArea->getId()
+      << ", connection = " << connectionId
+      << ")" << std::endl;
+  }
 
   RenderAreaListener::onClosedConnection(renderArea, connectionId);
 }
 
 void BpaRenderAreaListener::onReceivedMessage(RenderArea* renderArea, Connection* sender, const std::string& message)
 {
-  std::cout << "[BpaRenderAreaListener] onReceivedMessage("
-    << "renderArea = " << renderArea->getId() 
-    << ", message = " << message 
-    << ")" << std::endl;
+  if (m_logEvents)
+  {
+    std::cout << "[BpaRenderAreaListener] onReceivedMessage("
+      << "renderArea = " << renderArea->getId()
+      << ", message = " << message
+      << ")" << std::endl;
+  }
 
   m_commandHandler.onReceivedMessage(renderArea, sender, message);
 
@@ -117,11 +127,14 @@ void BpaRenderAreaListener::onReceivedMessage(RenderArea* renderArea, Connection
 
 void BpaRenderAreaListener::onResize(RenderArea* renderArea, unsigned int width, unsigned int height)
 {
-  std::cout << "[BpaRenderAreaListener] onResize("
-    << "renderArea = " << renderArea->getId()
-    << ", width = " << width
-    << ", height = " << height
-    << ")" << std::endl;
+  if (m_logEvents)
+  {
+    std::cout << "[BpaRenderAreaListener] onResize("
+      << "renderArea = " << renderArea->getId()
+      << ", width = " << width
+      << ", height = " << height
+      << ")" << std::endl;
+  }
 
   RemoteViz::Rendering::RenderAreaListener::onResize(renderArea, width, height);
 }

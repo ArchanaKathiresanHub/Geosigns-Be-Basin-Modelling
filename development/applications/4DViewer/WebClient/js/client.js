@@ -4,9 +4,21 @@ var fpsDiv = null;
 var dataSize = 0;
 var fps = 0;		
 var resizeTimer = null;
-var leftMargin = 300;
-var bottomMargin = 100;
+var leftMargin = 330;
+var bottomMargin = 20;
 var timestamp = 0;
+
+var logMessages = true;
+
+function sendMsg(msg)
+{
+    var msgStr = JSON.stringify(msg, null, 4);
+    
+    if(logMessages)
+	console.log(msgStr);
+    
+    theRenderArea.sendMessage(msgStr);
+}
 
 function showTab(index)
 {
@@ -45,11 +57,11 @@ function createCheckBoxDiv(name, objectId, checked, changedHandler)
     return div;
 }
 
-function createRadioButtonDiv(name, objectId, changedHandler)
+function createRadioButtonDiv(groupName, name, objectId, changedHandler)
 {
     var rb = document.createElement("input");
     rb.type="radio";
-    rb.name=name;
+    rb.name=groupName;
     rb.style.marginLeft="20px";
     rb.onchange=function(){ changedHandler(rb, objectId); };
 
@@ -126,7 +138,7 @@ function initProperties(names)
     //    propertiesList.innerHTML += fmt.replace(/xxx/g, names[i]);
 
     for(var i=0; i < names.length; ++i)
-        propertiesList.appendChild(createRadioButtonDiv(names[i], i, onPropertyRadioButtonClicked));
+        propertiesList.appendChild(createRadioButtonDiv("properties", names[i], i, onPropertyRadioButtonClicked));
 }
 
 function initUI(projectInfo)
@@ -152,7 +164,7 @@ function initUI(projectInfo)
     timeSlider.min = 0;
     timeSlider.max = projectInfo.snapshotCount - 1;
     timeSlider.step = 1;
-    timeSlider.value = timeSlider.max;
+    timeSlider.value = 0;
 
     // Init JPEG quality
     onQualitySliderChanged(document.getElementById("qualitySlider").valueAsNumber);
@@ -171,7 +183,7 @@ function onCheckBoxAllFormationsChanged(elem)
         }
     }
 
-    theRenderArea.sendMessage(JSON.stringify(msg));
+    sendMsg(msg);
 
     var formationsDiv = document.getElementById("formationsList");
     var checkBoxes = formationsDiv.getElementsByTagName("input");
@@ -188,7 +200,7 @@ function onCheckBoxAllSurfacesChanged(elem)
         }
     }
 
-    theRenderArea.sendMessage(JSON.stringify(msg));
+    sendMsg(msg);
 
     var surfacesDiv = document.getElementById("surfacesList");
     var checkBoxes = surfacesDiv.getElementsByTagName("input");
@@ -205,7 +217,7 @@ function onCheckBoxAllReservoirsChanged(elem)
         }
     }
 
-    theRenderArea.sendMessage(JSON.stringify(msg));
+    sendMsg(msg);
 
     var reservoirsDiv = document.getElementById("reservoirsList");
     var checkBoxes = reservoirsDiv.getElementsByTagName("input");
@@ -222,7 +234,7 @@ function onCheckBoxAllFaultsChanged(elem)
         }
     }
 
-    theRenderArea.sendMessage(JSON.stringify(msg));
+    sendMsg(msg);
 
     var faultsDiv = document.getElementById("faultsList");
     var checkBoxes = faultsDiv.getElementsByTagName("input");
@@ -239,7 +251,7 @@ function onCheckBoxAllFlowLinesChanged(elem)
         }
     }
 
-    theRenderArea.sendMessage(JSON.stringify(msg));
+    sendMsg(msg);
 
     var flowLinesDiv = document.getElementById("flowLinesList");
     var checkBoxes = flowLinesDiv.getElementsByTagName("input");
@@ -259,7 +271,7 @@ function onFormationCheckBoxChanged(elem, objectId)
             }
         };
 
-    theRenderArea.sendMessage(JSON.stringify(msg));
+    sendMsg(msg);
 }
 
 function onSurfaceCheckBoxChanged(elem, objectId)
@@ -274,7 +286,7 @@ function onSurfaceCheckBoxChanged(elem, objectId)
             }
         };
 
-    theRenderArea.sendMessage(JSON.stringify(msg));
+    sendMsg(msg);
 }
 
 function onReservoirCheckBoxChanged(elem, objectId)
@@ -289,7 +301,7 @@ function onReservoirCheckBoxChanged(elem, objectId)
         }
     }
 
-    theRenderArea.sendMessage(JSON.stringify(msg));
+    sendMsg(msg);
 }
 
 function onFaultCheckBoxChanged(elem, objectId)
@@ -304,7 +316,7 @@ function onFaultCheckBoxChanged(elem, objectId)
         }
     }
 
-    theRenderArea.sendMessage(JSON.stringify(msg));
+    sendMsg(msg);
 }
 
 function onFlowLinesCheckBoxChanged(elem, objectId)
@@ -317,7 +329,7 @@ function onFlowLinesCheckBoxChanged(elem, objectId)
         }
     }
 
-    theRenderArea.sendMessage(JSON.stringify(msg));
+    sendMsg(msg);
 }
 
 function onPropertyRadioButtonClicked(elem, objectId)
@@ -331,7 +343,7 @@ function onPropertyRadioButtonClicked(elem, objectId)
         }
     }
 
-    theRenderArea.sendMessage(JSON.stringify(msg));
+    sendMsg(msg);
 }
 
 function onShowFlowVectorsChanged(elem)
@@ -343,7 +355,7 @@ function onShowFlowVectorsChanged(elem)
         }
     }
 
-    theRenderArea.sendMessage(JSON.stringify(msg));
+    sendMsg(msg);
 }
 
 function onFlowLinesStepSliderChanged(elem)
@@ -360,7 +372,7 @@ function onFlowLinesStepSliderChanged(elem)
         }
     }
 
-    theRenderArea.sendMessage(JSON.stringify(msg));
+    sendMsg(msg);
 }
 
 function onFlowLinesThresholdSliderChanged(elem)
@@ -394,7 +406,7 @@ function onDrainageAreaRadioClicked(elem)
         }
     }
 
-    theRenderArea.sendMessage(JSON.stringify(msg));
+    sendMsg(msg);
 }
 
 function onSlicePositionChanged(index, elem)
@@ -409,7 +421,7 @@ function onSlicePositionChanged(index, elem)
         }
     };
 
-    theRenderArea.sendMessage(JSON.stringify(msg));
+    sendMsg(msg);
 }
 
 function onSliceCheckBoxChanged(index, elem)
@@ -424,7 +436,7 @@ function onSliceCheckBoxChanged(index, elem)
         }
     }
 
-    theRenderArea.sendMessage(JSON.stringify(msg));
+    sendMsg(msg);
 }
 
 function onVerticalScaleSliderChanged(elem)
@@ -438,7 +450,7 @@ function onVerticalScaleSliderChanged(elem)
         }
     }
 
-    theRenderArea.sendMessage(JSON.stringify(msg));
+    sendMsg(msg);
 }
 
 function onTransparencySliderChanged(elem)
@@ -453,7 +465,7 @@ function onTransparencySliderChanged(elem)
         }
     }
 
-    theRenderArea.sendMessage(JSON.stringify(msg));
+    sendMsg(msg);
 }
 
 function onRenderStyleChanged()
@@ -469,7 +481,7 @@ function onRenderStyleChanged()
         }
     }
 
-    theRenderArea.sendMessage(JSON.stringify(msg));
+    sendMsg(msg);
 }
 
 function onShowGridChanged(elem)
@@ -483,7 +495,7 @@ function onShowGridChanged(elem)
         }
     }
 
-    theRenderArea.sendMessage(JSON.stringify(msg));
+    sendMsg(msg);
 }
 
 function onShowCompassChanged(elem)
@@ -497,7 +509,7 @@ function onShowCompassChanged(elem)
         }
     }
 
-    theRenderArea.sendMessage(JSON.stringify(msg));
+    sendMsg(msg);
 }
 
 function onShowTextChanged(elem)
@@ -511,7 +523,7 @@ function onShowTextChanged(elem)
         }
     }
 
-    theRenderArea.sendMessage(JSON.stringify(msg));
+    sendMsg(msg);
 }
 
 function onShowTrapsChanged(elem)
@@ -525,7 +537,7 @@ function onShowTrapsChanged(elem)
         }
     }
 
-    theRenderArea.sendMessage(JSON.stringify(msg));
+    sendMsg(msg);
 }
 
 function onShowTrapOutlinesChanged(elem)
@@ -539,7 +551,7 @@ function onShowTrapOutlinesChanged(elem)
         }
     }
 
-    theRenderArea.sendMessage(JSON.stringify(msg));
+    sendMsg(msg);
 }
 
 function onShowFluidContactsChanged(elem)
@@ -553,7 +565,7 @@ function onShowFluidContactsChanged(elem)
         }
     }
 
-    theRenderArea.sendMessage(JSON.stringify(msg));
+    sendMsg(msg);
 }
 
 function onPerspectiveChanged(elem)
@@ -569,7 +581,7 @@ function onPerspectiveChanged(elem)
         }
     }
 
-    theRenderArea.sendMessage(JSON.stringify(msg));
+    sendMsg(msg);
 }
 
 function onTimeSliderChanged(elem)
@@ -583,7 +595,7 @@ function onTimeSliderChanged(elem)
         }
     }
 
-    theRenderArea.sendMessage(JSON.stringify(msg));
+    sendMsg(msg);
 }
 
 function onButtonViewAllClicked()
@@ -595,7 +607,7 @@ function onButtonViewAllClicked()
         params: {}
     }
 
-    theRenderArea.sendMessage(JSON.stringify(msg));
+    sendMsg(msg);
 }
 
 function onButtonViewPresetClicked(index)
@@ -611,7 +623,30 @@ function onButtonViewPresetClicked(index)
         }
     }
 
-    theRenderArea.sendMessage(JSON.stringify(msg));
+    sendMsg(msg);
+}
+
+function onColorScaleParamsChanged()
+{
+    var selectMapping = document.getElementById('selectColorScaleMapping');
+    var selectRange   = document.getElementById('selectColorScaleRange');
+    var editMinValue  = document.getElementById('editColorScaleMinValue');
+    var editMaxValue  = document.getElementById('editColorScaleMaxValue');
+
+    var mappings = [ "linear", "log" ];
+    var ranges = ["auto", "manual" ];
+
+    var msg = {
+        cmd: "SetColorScaleParams",
+        params: {
+            mapping: mappings[selectMapping.selectedIndex],
+            range: ranges[selectRange.selectedIndex],
+            minval: parseFloat(editMinValue.value),
+            maxval: parseFloat(editMaxValue.value)
+        }
+    }
+
+    sendMsg(msg);
 }
 
 function onQualitySliderChanged(value)
@@ -623,7 +658,7 @@ function onQualitySliderChanged(value)
         }
     }
 
-    theRenderArea.sendMessage(JSON.stringify(msg));
+    sendMsg(msg);
 }
 
 function onInteractiveQualitySliderChanged(value)
@@ -635,7 +670,7 @@ function onInteractiveQualitySliderChanged(value)
         }
     }
 
-    theRenderArea.sendMessage(JSON.stringify(msg));
+    sendMsg(msg);
 }
 
 function onBandwidthSliderChanged(value)
@@ -647,7 +682,7 @@ function onBandwidthSliderChanged(value)
         }
     }
 
-    theRenderArea.sendMessage(JSON.stringify(msg));
+    sendMsg(msg);
 }
 
 function onMaxFPSSliderChanged(value)
@@ -659,7 +694,7 @@ function onMaxFPSSliderChanged(value)
         }
     }
 
-    theRenderArea.sendMessage(JSON.stringify(msg));
+    sendMsg(msg);
 }
 
 function resizeCanvas()
@@ -701,6 +736,9 @@ function logPickResult(pickResult)
 
 function receivedMessage(message)
 {
+    if(logMessages)
+	console.log(message);
+
     var msgObj = JSON.parse(message);
     if(msgObj.projectInfo)
     {
@@ -786,7 +824,7 @@ function init()
             }
         }
 
-        theRenderArea.sendMessage(JSON.stringify(msg));
+        sendMsg(msg);
     });
 
     //$(window).resize(onWindowResize);
@@ -841,7 +879,7 @@ function rwidth(){
             }
         }
 
-	   theRenderArea.sendMessage(JSON.stringify(msg));
+	   sendMsg(msg);
     }
 }
 
@@ -856,6 +894,6 @@ function rheight(){
             }
         }
 	   
-        theRenderArea.sendMessage(JSON.stringify(msg));
+        sendMsg(msg);
     }
 }

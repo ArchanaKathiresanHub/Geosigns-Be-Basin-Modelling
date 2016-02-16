@@ -74,7 +74,8 @@ public:
   enum InteractionMode
   {
     VIEWING,
-    PICKING
+    PICKING,
+    FENCE_EDITING
   };
 
   /** Constructor */

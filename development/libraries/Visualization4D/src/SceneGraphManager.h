@@ -22,12 +22,14 @@
 #include <memory>
 
 #include <Inventor/SbColor.h>
+#include <Inventor/misc/SoRef.h>
 #include <MeshVizXLM/MbVec3.h>
 
 class SnapshotGeometry;
 class SnapshotTopology;
 class FormationIdProperty;
 class FlowDirectionProperty;
+class ColorMap;
 
 class FaultMesh;
 class OutlineBuilder;
@@ -284,6 +286,7 @@ public:
       Formation,
       Surface,
       Reservoir,
+      Slice,
       Trap,
       Unknown
     } type = Unknown;
@@ -298,6 +301,24 @@ public:
     // Only valid in case type is Trap
     int trapID = -1;
     int persistentTrapID = -1;
+  };
+
+  struct ColorScaleParams
+  {
+    enum Mapping
+    {
+      Linear,
+      Logarithmic
+    } mapping = Linear;
+
+    enum Range
+    {
+      Automatic,
+      Manual
+    } range = Automatic;
+
+    double minValue = 0.0;
+    double maxValue = 1.0;
   };
 
   // Derived property ids. These properties are built at runtime
@@ -317,6 +338,8 @@ private:
 
   std::shared_ptr<OutlineBuilder> m_outlineBuilder;
 
+  // ----------------------------------------
+  // View state
   int m_currentPropertyId;
 
   bool m_showGrid;
@@ -324,7 +347,6 @@ private:
   bool m_showText;
   bool m_showTraps;
   bool m_showTrapOutlines;
-  bool m_showFlowVectors;
 
   DrainageAreaType m_drainageAreaType;
   int m_flowLinesExpulsionStep;
@@ -335,14 +357,23 @@ private:
   float m_verticalScale;
   ProjectionType m_projectionType;
 
+  std::vector<bool> m_formationVisibility;
+  std::vector<bool> m_surfaceVisibility;
+  std::vector<bool> m_reservoirVisibility;
+  std::vector<bool> m_faultVisibility;
+  std::vector<bool> m_flowLinesVisibility;
+
+  size_t m_slicePosition[3];
+  bool   m_sliceEnabled[3];
+
+  ColorScaleParams m_colorScaleParams;
+  // ----------------------------------------
+
   size_t m_formationsTimeStamp;
   size_t m_surfacesTimeStamp;
   size_t m_reservoirsTimeStamp;
   size_t m_faultsTimeStamp;
   size_t m_flowLinesTimeStamp;
-
-  size_t m_slicePosition[3];
-  bool   m_sliceEnabled[3];
 
   SoPerspectiveCamera*  m_perspectiveCamera;
   SoOrthographicCamera* m_orthographicCamera;
@@ -364,6 +395,8 @@ private:
   MoDrawStyle*    m_drawStyle;
   MoMaterial*     m_material;
   MoDataBinding*  m_dataBinding;
+
+  std::shared_ptr<ColorMap> m_colors;
   MoColorMapping* m_colorMap;
   MoColorMapping* m_trapIdColorMap;
   MoColorMapping* m_fluidContactsColorMap;
@@ -382,21 +415,31 @@ private:
 
   SoSwitch*       m_snapshotsSwitch;
 
-  std::vector<bool> m_formationVisibility;
-  std::vector<bool> m_surfaceVisibility;
-  std::vector<bool> m_reservoirVisibility;
-  std::vector<bool> m_faultVisibility;
-  std::vector<bool> m_flowLinesVisibility;
+  struct FenceSlice
+  {
+    int id;
+    bool visible;
+    std::vector<SbVec2f> points;
 
+    SoSwitch* fenceSwitch;
+    MoMeshFenceSlice* fence;
+  };
+
+  std::vector<FenceSlice> m_fences;
+  SoRef<SoGroup>  m_fencesGroup;
+
+  static void mousePressedCallback(void* userData, SoEventCallback* node);
   static void mouseMovedCallback(void* userData, SoEventCallback* node);
 
+  void onMousePressed(SoEventCallback* node);
   void onMouseMoved(SoEventCallback* node);
 
   int getSurfaceId(MoMeshSurface* surface) const;
-  int getFormationId(MoMeshSkin* skin, size_t k) const;
+  int getFormationId(/*MoMeshSkin* skin, */size_t k) const;
   int getReservoirId(MoMeshSkin* skin) const;
 
   void updateCoordinateGrid();
+  void updateSnapshotMesh();
   void updateSnapshotFormations();
   void updateSnapshotSurfaces();
   void updateSnapshotReservoirs();
@@ -480,6 +523,14 @@ public:
   void enableSlice(int slice, bool enabled);
 
   void setSlicePosition(int slice, int position);
+
+  int  addFence(const std::vector<SbVec2f>& polyline);
+
+  void removeFence(int id);
+
+  void enableFence(int id, bool enabled);
+
+  void setColorScaleParams(const ColorScaleParams& params);
 
   void showCoordinateGrid(bool show);
 

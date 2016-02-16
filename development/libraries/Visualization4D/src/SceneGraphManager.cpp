@@ -14,6 +14,7 @@
 #include "FlowLines.h"
 #include "OutlineBuilder.h"
 #include "FluidContacts.h"
+#include "ColorMap.h"
 
 #include <Inventor/nodes/SoGroup.h>
 #include <Inventor/nodes/SoSwitch.h>
@@ -36,17 +37,19 @@
 
 #include <Inventor/nodes/SoEventCallback.h>
 #include <Inventor/events/SoLocation2Event.h>
+#include <Inventor/events/SoMouseButtonEvent.h>
 #include <Inventor/SoPickedPoint.h>
 
 #include <MeshVizXLM/MxTimeStamp.h>
 #include <MeshVizXLM/mapping/nodes/MoDrawStyle.h>
 #include <MeshVizXLM/mapping/nodes/MoMaterial.h>
 #include <MeshVizXLM/mapping/nodes/MoDataBinding.h>
-#include <MeshVizXLM/mapping/nodes/MoPredefinedColorMapping.h>
+#include <MeshVizXLM/mapping/nodes/MoCustomColorMapping.h>
 #include <MeshVizXLM/mapping/nodes/MoLevelColorMapping.h>
 #include <MeshVizXLM/mapping/nodes/MoMesh.h>
 #include <MeshVizXLM/mapping/nodes/MoMeshSkin.h>
 #include <MeshVizXLM/mapping/nodes/MoMeshSlab.h>
+#include <MeshVizXLM/mapping/nodes/MoMeshFenceSlice.h>
 #include <MeshVizXLM/mapping/nodes/MoMeshVector.h>
 #include <MeshVizXLM/mapping/nodes/MoMeshSurface.h>
 #include <MeshVizXLM/mapping/nodes/MoMeshIsoline.h>
@@ -62,6 +65,7 @@
 #include <MeshViz/graph/PoGenAxis.h>
 
 #include <memory>
+
 
 SoSwitch* createCompass();
 
@@ -96,16 +100,35 @@ SnapshotInfo::SnapshotInfo()
   }
 }
 
+void SceneGraphManager::mousePressedCallback(void* userData, SoEventCallback* node)
+{
+  reinterpret_cast<SceneGraphManager*>(userData)->onMousePressed(node);
+}
+
 void SceneGraphManager::mouseMovedCallback(void* userData, SoEventCallback* node)
 {
   reinterpret_cast<SceneGraphManager*>(userData)->onMouseMoved(node);
 }
 
-void SceneGraphManager::onMouseMoved(SoEventCallback* node)
+void SceneGraphManager::onMousePressed(SoEventCallback* node)
 {
+  if (!SoMouseButtonEvent::isButtonPressEvent(node->getEvent(), SoMouseButtonEvent::BUTTON1))
+    return;
+
+  PickResult result;
+
   auto pickedPoint = node->getPickedPoint();
   if (pickedPoint)
-    processPickedPoint(pickedPoint);
+  {
+    node->setHandled();
+    result = processPickedPoint(pickedPoint);
+  }
+
+  showPickResult(result);
+}
+
+void SceneGraphManager::onMouseMoved(SoEventCallback* node)
+{
 }
 
 int SceneGraphManager::getSurfaceId(MoMeshSurface* surface) const
@@ -122,22 +145,22 @@ int SceneGraphManager::getSurfaceId(MoMeshSurface* surface) const
   return -1;
 }
 
-int SceneGraphManager::getFormationId(MoMeshSkin* skin, size_t k) const
+int SceneGraphManager::getFormationId(/*MoMeshSkin* skin, */size_t k) const
 {
   assert(!m_snapshotInfoCache.empty());
 
   const SnapshotInfo& snapshot = *m_snapshotInfoCache.begin();
-  for (auto const& chunk : snapshot.chunks)
-  {
-    if (chunk.skin == skin)
-    {
+  //for (auto const& chunk : snapshot.chunks)
+  //{
+  //  if (chunk.skin == skin)
+  //  {
       for (auto const& fmt : snapshot.formations)
       {
         if ((int)k >= fmt.minK && (int)k < fmt.maxK)
           return fmt.id;
       }
-    }
-  }
+  //  }
+  //}
 
   return -1;
 }
@@ -185,6 +208,64 @@ void SceneGraphManager::updateCoordinateGrid()
   m_coordinateGrid->gradEnd = gradEnd;
 }
 
+void SceneGraphManager::updateSnapshotMesh()
+{
+  assert(!m_snapshotInfoCache.empty());
+
+  SnapshotInfo& snapshot = *m_snapshotInfoCache.begin();
+  
+  if (snapshot.meshData)
+    return;
+
+  bool needMesh = false;
+
+  // Check if formations need mesh
+  if (snapshot.formationsTimeStamp != m_formationsTimeStamp)
+  {
+    for (auto const& formation : snapshot.formations)
+    {
+      if (m_formationVisibility[formation.id])
+        needMesh = true;
+    }
+  }
+
+  // Check if flowlines need mesh
+  if (!needMesh && snapshot.flowLinesTimeStamp != m_flowLinesTimeStamp)
+  {
+    for (auto const& flowlines : snapshot.flowlines)
+    {
+      if (m_flowLinesVisibility[flowlines.id])
+        needMesh = true;
+    }
+  }
+
+  // Check if slices need mesh
+  if (!needMesh)
+  {
+    for (int i = 0; i < 3; ++i)
+    {
+      if (m_sliceEnabled[i])
+        needMesh = true;
+    }
+  }
+
+  // Check if fences need mesh
+  if (!needMesh)
+  {
+    for (auto const& fence : m_fences)
+    {
+      if (fence.visible)
+        needMesh = true;
+    }
+  }
+
+  if (needMesh)
+  {
+    snapshot.meshData = m_project->createSnapshotMesh(snapshot.index);
+    snapshot.mesh->setMesh(snapshot.meshData.get());
+  }
+}
+
 void SceneGraphManager::updateSnapshotFormations()
 {
   assert(!m_snapshotInfoCache.empty());
@@ -222,13 +303,6 @@ void SceneGraphManager::updateSnapshotFormations()
   // don't forget the last one
   if (buildingChunk)
     tmpChunks.push_back(SnapshotInfo::Chunk(minK, maxK));
-
-  // load meshData if needed
-  if (!snapshot.meshData && !tmpChunks.empty())
-  {
-    snapshot.meshData = m_project->createSnapshotMesh(snapshot.index);
-    snapshot.mesh->setMesh(snapshot.meshData.get());
-  }
 
   if (snapshot.meshData)
   {
@@ -636,11 +710,7 @@ void SceneGraphManager::updateSnapshotSlices()
   {
     if (m_sliceEnabled[i])
     {
-      if (!snapshot.meshData)
-      {
-        snapshot.meshData = m_project->createSnapshotMesh(snapshot.index);
-        snapshot.mesh->setMesh(snapshot.meshData.get());
-      }
+      assert(snapshot.meshData);
 
       if (snapshot.slice[i] == 0)
       {
@@ -693,11 +763,7 @@ void SceneGraphManager::updateSnapshotFlowLines()
         ? m_flowLinesExpulsionThreshold 
         : m_flowLinesLeakageThreshold;
 
-      if (!snapshot.meshData)
-      {
-        snapshot.meshData = m_project->createSnapshotMesh(snapshot.index);
-        snapshot.mesh->setMesh(snapshot.meshData.get());
-      }
+      assert(snapshot.meshData);
 
       if (!flowlines.root)
       {
@@ -829,50 +895,58 @@ void SceneGraphManager::updateColorMap()
   double minValue = std::numeric_limits<double>::max();
   double maxValue = -std::numeric_limits<double>::max();
 
-  if (m_currentPropertyId == FormationIdPropertyId)
+  m_colors->setLogarithmic(m_colorScaleParams.mapping == ColorScaleParams::Logarithmic);
+  if (m_colorScaleParams.range == ColorScaleParams::Manual)
   {
-    minValue = 0.0;
-    maxValue = (double)(m_projectInfo.formations.size() - 1);
+    minValue = m_colorScaleParams.minValue;
+    maxValue = m_colorScaleParams.maxValue;
   }
   else
   {
-    if (snapshot.scalarDataSet)
+    if (m_currentPropertyId == FormationIdPropertyId)
     {
-      minValue = std::min(minValue, snapshot.scalarDataSet->getMin());
-      maxValue = std::max(maxValue, snapshot.scalarDataSet->getMax());
+      minValue = 0.0;
+      maxValue = (double)(m_projectInfo.formations.size() - 1);
     }
-
-    for (auto const& surf : snapshot.surfaces)
+    else
     {
-      if (surf.propertyData)
+      if (snapshot.scalarDataSet)
       {
-        minValue = std::min(minValue, surf.propertyData->getMin());
-        maxValue = std::max(maxValue, surf.propertyData->getMax());
+        minValue = std::min(minValue, snapshot.scalarDataSet->getMin());
+        maxValue = std::max(maxValue, snapshot.scalarDataSet->getMax());
       }
-    }
 
-    for (auto const& res : snapshot.reservoirs)
-    {
-      if (res.propertyData)
+      for (auto const& surf : snapshot.surfaces)
       {
-        minValue = std::min(minValue, res.propertyData->getMin());
-        maxValue = std::max(maxValue, res.propertyData->getMax());
+        if (surf.propertyData)
+        {
+          minValue = std::min(minValue, surf.propertyData->getMin());
+          maxValue = std::max(maxValue, surf.propertyData->getMax());
+        }
       }
-    }
 
-    // Round minValue and maxValue down resp. up to 'nice' numbers
-    if (minValue != maxValue)
-    {
-      double e = round(log10(maxValue - minValue)) - 1.0;
-      double delta = pow(10.0, e);
+      for (auto const& res : snapshot.reservoirs)
+      {
+        if (res.propertyData)
+        {
+          minValue = std::min(minValue, res.propertyData->getMin());
+          maxValue = std::max(maxValue, res.propertyData->getMax());
+        }
+      }
 
-      minValue = delta * floor(minValue / delta);
-      maxValue = delta * ceil(maxValue / delta);
+      // Round minValue and maxValue down resp. up to 'nice' numbers
+      if (minValue != maxValue)
+      {
+        double e = round(log10(maxValue - minValue)) - 1.0;
+        double delta = pow(10.0, e);
+
+        minValue = delta * floor(minValue / delta);
+        maxValue = delta * ceil(maxValue / delta);
+      }
     }
   }
 
-  static_cast<MoPredefinedColorMapping*>(m_colorMap)->minValue = (float)minValue;
-  static_cast<MoPredefinedColorMapping*>(m_colorMap)->maxValue = (float)maxValue;
+  m_colors->setRange(minValue, maxValue);
 
   m_legend->minValue = minValue;
   m_legend->maxValue = maxValue;
@@ -899,6 +973,7 @@ void SceneGraphManager::updateText()
 
 void SceneGraphManager::updateSnapshot()
 {
+  updateSnapshotMesh();
   updateSnapshotFormations();
   updateSnapshotSurfaces();
   updateSnapshotReservoirs();
@@ -1002,7 +1077,8 @@ void SceneGraphManager::showPickResult(const PickResult& pickResult)
   case PickResult::Formation:
   case PickResult::Surface:
   case PickResult::Reservoir:
-    line1.sprintf("[%d, %d]",
+  case PickResult::Slice:
+    line1.sprintf("[%d, %d, %d]",
       (int)pickResult.i,
       (int)pickResult.j,
       (int)pickResult.k);
@@ -1067,7 +1143,8 @@ SnapshotInfo SceneGraphManager::createSnapshotNode(size_t index)
       }
     }
 
-    info.flowlines.push_back(flowlines);
+    if(flowlines.startK > 0)
+      info.flowlines.push_back(flowlines);
   }
 
   int collectionId = 0;
@@ -1132,14 +1209,12 @@ SnapshotInfo SceneGraphManager::createSnapshotNode(size_t index)
   info.root->ref();
   info.formationsRoot = new SoSeparator;
   info.formationsRoot->setName("formations");
-  //info.meshData = m_project->createSnapshotMesh(index);
 
   info.minZ = -snapshotContents.maxDepth;
   info.maxZ = -snapshotContents.minDepth;
 
   info.mesh = new MoMesh;
   info.mesh->setName("snapshotMesh");
-  //info.mesh->setMesh(info.meshData.get());
 
   info.scalarSet = new MoScalarSetIjk;
   info.scalarSet->setName("formationID");
@@ -1166,10 +1241,12 @@ SnapshotInfo SceneGraphManager::createSnapshotNode(size_t index)
   info.formationsRoot->addChild(info.scalarSet);
   info.formationsRoot->addChild(info.chunksGroup);
   info.formationsRoot->addChild(info.slicesGroup);
+  info.formationsRoot->addChild(m_surfaceShapeHints);
+  info.formationsRoot->addChild(m_fencesGroup.ptr());
 
   info.root->addChild(info.formationsRoot);
-  // Add surfaceShapeHints to prevent backface culling, and enable double-sided lighting
   info.root->addChild(info.reservoirsGroup);
+  // Add surfaceShapeHints to prevent backface culling, and enable double-sided lighting
   info.root->addChild(m_surfaceShapeHints);
   info.root->addChild(info.surfacesGroup);
   info.root->addChild(info.faultsGroup);
@@ -1258,9 +1335,11 @@ void SceneGraphManager::setupSceneGraph()
   m_dataBinding = new MoDataBinding;
   m_dataBinding->dataBinding = MoDataBinding::PER_CELL;
 
-  MoPredefinedColorMapping* colorMap = new MoPredefinedColorMapping;
-  colorMap->predefColorMap = MoPredefinedColorMapping::STANDARD;
+  m_colors = std::make_shared<ColorMap>();
+  MoCustomColorMapping* colorMap = new MoCustomColorMapping;
+  colorMap->setColorMapping(m_colors.get());
   m_colorMap = colorMap;
+
   m_trapIdColorMap = createTrapsColorMap(m_project->getMaxPersistentTrapId());
   m_fluidContactsColorMap = createFluidContactsColorMap();
   m_colorMapSwitch = new SoSwitch;
@@ -1356,6 +1435,8 @@ void SceneGraphManager::setupSceneGraph()
   m_snapshotsSwitch->setName("snapshots");
   m_snapshotsSwitch->whichChild = SO_SWITCH_ALL;
 
+  m_fencesGroup = new SoGroup;
+
   m_root = new SoGroup;
   m_root->setName("root");
   m_root->addChild(m_cameraSwitch);
@@ -1368,12 +1449,18 @@ void SceneGraphManager::setupSceneGraph()
   m_root->addChild(m_annotation);
   m_root->addChild(m_compassSwitch);
 
-  SoEventCallback* callback = new SoEventCallback;
-  callback->setName("MouseMoved");
-  callback->addEventCallback(SoLocation2Event::getClassTypeId(), mouseMovedCallback, this);
-  //m_root->addChild(callback);
+  SoEventCallback* mouseMovedCallbackNode = new SoEventCallback;
+  mouseMovedCallbackNode->setName("MouseMoved");
+  mouseMovedCallbackNode->addEventCallback(SoLocation2Event::getClassTypeId(), mouseMovedCallback, this);
 
-  static_cast<MoPredefinedColorMapping*>(m_colorMap)->maxValue = (float)(m_projectInfo.formations.size() - 1);
+  SoEventCallback* mousePressedCallbackNode = new SoEventCallback;
+  mousePressedCallbackNode->setName("MousePressed");
+  mousePressedCallbackNode->addEventCallback(SoMouseButtonEvent::getClassTypeId(), mousePressedCallback, this);
+
+  m_root->addChild(mousePressedCallbackNode);
+  m_root->addChild(mouseMovedCallbackNode);
+
+  m_colors->setRange(0.0, (double)(m_projectInfo.formations.size() - 1));
 }
 
 std::shared_ptr<MiDataSetIjk<double> > SceneGraphManager::createFormationProperty(
@@ -1437,7 +1524,6 @@ SceneGraphManager::SceneGraphManager()
   , m_showText(true)
   , m_showTraps(false)
   , m_showTrapOutlines(false)
-  , m_showFlowVectors(false)
   , m_drainageAreaType(DrainageAreaNone)
   , m_flowLinesExpulsionStep(1)
   , m_flowLinesLeakageStep(1)
@@ -1496,6 +1582,8 @@ SceneGraphManager::PickResult SceneGraphManager::processPickedPoint(const SoPick
       detail->isOfType(MoFaceDetailIj::getClassTypeId()) &&
       tail->isOfType(MoMeshSurface::getClassTypeId()))
     {
+      pickResult.type = PickResult::Surface;
+
       MoFaceDetailIj* fdetail = (MoFaceDetailIj*)detail;
       pickResult.i = fdetail->getCellIndexI();
       pickResult.j = fdetail->getCellIndexJ();
@@ -1506,10 +1594,8 @@ SceneGraphManager::PickResult SceneGraphManager::processPickedPoint(const SoPick
 
       pickResult.propertyValue = fdetail->getValue(p);
     }
-    // Check for formation / reservoir
-    else if (
-      detail->isOfType(MoFaceDetailIjk::getClassTypeId()) &&
-      tail->isOfType(MoMeshSkin::getClassTypeId()))
+    // Check for formation / reservoir / slab
+    else if (detail->isOfType(MoFaceDetailIjk::getClassTypeId()))
     {
       MoFaceDetailIjk* fdetail = (MoFaceDetailIjk*)detail;
       pickResult.i = fdetail->getCellIndexI();
@@ -1518,20 +1604,27 @@ SceneGraphManager::PickResult SceneGraphManager::processPickedPoint(const SoPick
 
       pickResult.propertyValue = fdetail->getValue(p);
 
-      MoMeshSkin* skin = static_cast<MoMeshSkin*>(tail);
-      int id = getFormationId(skin, pickResult.k);
-      if (id != -1)
+      if (tail->isOfType(MoMeshSlab::getClassTypeId()))
       {
-        pickResult.type = PickResult::Formation;
+        int id = getFormationId(pickResult.k);
+        pickResult.type = PickResult::Slice;
         pickResult.name = m_projectInfo.formations[id].name;
       }
-      else
+      else if(tail->isOfType(MoMeshSkin::getClassTypeId()))
       {
-        id = getReservoirId(skin);
+        // If this is a MoMeshSkin, it can be a formation or a reservoir
+        MoMeshSkin* skin = static_cast<MoMeshSkin*>(tail);
+        int id = getReservoirId(skin);
         if (id != -1)
         {
           pickResult.type = PickResult::Reservoir;
           pickResult.name = m_projectInfo.reservoirs[id].name;
+        }
+        else
+        {
+          id = getFormationId(pickResult.k);
+          pickResult.type = PickResult::Formation;
+          pickResult.name = m_projectInfo.formations[id].name;
         }
       }
     }
@@ -1640,7 +1733,9 @@ void SceneGraphManager::setProperty(int propertyId)
 
   m_currentPropertyId = propertyId;
 
-  if (propertyId >= 0 && propertyId < DerivedPropertyBaseId)
+  int trapIdPropertyId = m_project->getPropertyId("ResRockTrapId");
+
+  if (propertyId >= 0 && propertyId < DerivedPropertyBaseId && propertyId != trapIdPropertyId)
   {
     std::string name = m_projectInfo.properties[propertyId].name;
     std::string unit = m_projectInfo.properties[propertyId].unit;
@@ -1820,6 +1915,52 @@ void SceneGraphManager::setSlicePosition(int slice, int position)
 {
   m_slicePosition[slice] = position;
   updateSnapshot();
+}
+
+int  SceneGraphManager::addFence(const std::vector<SbVec2f>& polyline)
+{
+  FenceSlice fence;
+  fence.id = (int)m_fences.size();
+  fence.visible = true;
+  fence.points = polyline;
+
+  fence.fence = new MoMeshFenceSlice;
+  int i = 0;
+  for (auto p : polyline)
+    fence.fence->polyline.set1Value(i++, p[0], p[1], 0.f);
+  fence.fence->direction.setValue(0.f, 0.f, -1.f);
+
+  fence.fenceSwitch = new SoSwitch;
+  fence.fenceSwitch->addChild(fence.fence);
+  fence.fenceSwitch->whichChild = SO_SWITCH_ALL;
+
+  m_fencesGroup->addChild(fence.fenceSwitch);
+
+  return fence.id;
+}
+
+void SceneGraphManager::removeFence(int id)
+{
+
+}
+
+void SceneGraphManager::enableFence(int id, bool enabled)
+{
+
+}
+
+void SceneGraphManager::setColorScaleParams(const SceneGraphManager::ColorScaleParams& params)
+{
+  if (
+    params.mapping != m_colorScaleParams.mapping ||
+    params.range != m_colorScaleParams.range ||
+    params.minValue != m_colorScaleParams.minValue ||
+    params.maxValue != m_colorScaleParams.maxValue)
+  {
+    m_colorScaleParams = params;
+
+    updateSnapshot();
+  }
 }
 
 void SceneGraphManager::showCoordinateGrid(bool show)

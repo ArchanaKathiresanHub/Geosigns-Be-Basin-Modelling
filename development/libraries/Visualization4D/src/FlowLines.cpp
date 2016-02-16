@@ -286,7 +286,8 @@ SoLineSet* generateFlowLines(
             ii < 0 || ii >= numI ||
             jj < 0 || jj >= numJ ||
             kk < 0 || kk >= numK ||
-            topology.isDead(ii, jj, kk))
+            topology.isDead(ii, jj, kk) ||
+            nverts > 1000) // lazy fix for circular paths
           {
             break;
           }

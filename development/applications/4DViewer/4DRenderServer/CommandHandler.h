@@ -195,6 +195,11 @@ class CommandHandler
     RemoteViz::Rendering::RenderArea* renderArea,
     RemoteViz::Rendering::Connection* connection);
 
+  void onSetColorScaleParams(
+    const jsonxx::Object& params,
+    RemoteViz::Rendering::RenderArea* renderArea,
+    RemoteViz::Rendering::Connection* connection);
+
   void onSetStillQuality(
     const jsonxx::Object& params,
     RemoteViz::Rendering::RenderArea* renderArea,

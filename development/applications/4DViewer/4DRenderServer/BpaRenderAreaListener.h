@@ -39,6 +39,7 @@ class BpaRenderAreaListener : public RenderAreaListener
 
   bool m_drawFaces;
   bool m_drawEdges;
+  bool m_logEvents;
 
   void createSceneGraph(const std::string& id);
 

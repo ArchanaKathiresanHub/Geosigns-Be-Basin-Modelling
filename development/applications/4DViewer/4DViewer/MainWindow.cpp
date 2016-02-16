@@ -33,6 +33,8 @@ namespace
   const int TreeWidgetItem_FaultCollectionType = QTreeWidgetItem::UserType + 7;
   const int TreeWidgetItem_FormationGroupType  = QTreeWidgetItem::UserType + 8;
   const int TreeWidgetItem_SurfaceGroupType    = QTreeWidgetItem::UserType + 9;
+  const int TreeWidgetItem_ReservoirGroupType = QTreeWidgetItem::UserType + 10;
+  const int TreeWidgetItem_FlowLinesGroupType = QTreeWidgetItem::UserType + 11;
 }
 
 void MainWindow::fpsCallback(float fps, void* userData, SoQtViewer* viewer)
@@ -129,6 +131,8 @@ void MainWindow::updateUI()
 {
   m_ui.treeWidget->clear();
 
+  m_ui.toolBox->setCurrentIndex(0);
+
   QTreeWidgetItem* formationsItem = new QTreeWidgetItem(TreeWidgetItem_FormationGroupType);
   formationsItem->setText(0, "Formations");
   formationsItem->setCheckState(0, Qt::Checked);
@@ -141,16 +145,18 @@ void MainWindow::updateUI()
   surfacesItem->setCheckState(0, Qt::Unchecked);
   surfacesItem->setFont(0, font);
 
-  QTreeWidgetItem* reservoirsItem = new QTreeWidgetItem;
+  QTreeWidgetItem* reservoirsItem = new QTreeWidgetItem(TreeWidgetItem_ReservoirGroupType);
   reservoirsItem->setText(0, "Reservoirs");
+  reservoirsItem->setCheckState(0, Qt::Unchecked);
   reservoirsItem->setFont(0, font);
 
   QTreeWidgetItem* faultCollectionsItem = new QTreeWidgetItem;
   faultCollectionsItem->setText(0, "Faults");
   faultCollectionsItem->setFont(0, font);
 
-  QTreeWidgetItem* flowLinesItem = new QTreeWidgetItem;
+  QTreeWidgetItem* flowLinesItem = new QTreeWidgetItem(TreeWidgetItem_FlowLinesGroupType);
   flowLinesItem->setText(0, "Flowlines");
+  flowLinesItem->setCheckState(0, Qt::Unchecked);
   flowLinesItem->setFont(0, font);
 
   m_ui.treeWidgetProperties->clear();
@@ -284,7 +290,6 @@ void MainWindow::updateUI()
   m_ui.checkBoxDrawGrid->setChecked(false);
   m_ui.checkBoxDrawFaces->setChecked(true);
   m_ui.checkBoxDrawEdges->setChecked(true);
-  m_ui.checkBoxPerspective->setChecked(true);
   m_ui.sliderTransparency->setValue(0);
 
   m_ui.checkBoxSliceI->setChecked(false);
@@ -292,6 +297,18 @@ void MainWindow::updateUI()
 
   m_ui.sliderSliceI->setValue(0);
   m_ui.sliderSliceJ->setValue(0);
+
+  m_colorScaleParams = SceneGraphManager::ColorScaleParams();
+  m_ui.comboBoxColorScaleMapping->setCurrentIndex(0);
+  m_ui.comboBoxColorScaleRange->setCurrentIndex(0);
+  m_ui.labelColorScaleMinValue->setEnabled(false);
+  m_ui.labelColorScaleMaxValue->setEnabled(false);
+  m_ui.lineEditColorScaleMinValue->setEnabled(false);
+  m_ui.lineEditColorScaleMaxValue->setEnabled(false);
+  m_ui.lineEditColorScaleMinValue->setText("0.0");
+  m_ui.lineEditColorScaleMaxValue->setText("1.0");
+  m_ui.lineEditColorScaleMinValue->setValidator(new QDoubleValidator);
+  m_ui.lineEditColorScaleMaxValue->setValidator(new QDoubleValidator);
 }
 
 void MainWindow::connectSignals()
@@ -322,8 +339,13 @@ void MainWindow::connectSignals()
   connect(m_ui.checkBoxDrawFaces, SIGNAL(toggled(bool)), this, SLOT(onRenderStyleChanged()));
   connect(m_ui.checkBoxDrawEdges, SIGNAL(toggled(bool)), this, SLOT(onRenderStyleChanged()));
   connect(m_ui.checkBoxDrawGrid, SIGNAL(toggled(bool)), this, SLOT(onCoordinateGridToggled(bool)));
-  connect(m_ui.checkBoxPerspective, SIGNAL(toggled(bool)), this, SLOT(onPerspectiveToggled(bool)));
   connect(m_ui.sliderTransparency, SIGNAL(valueChanged(int)), this, SLOT(onTransparencyChanged(int)));
+  connect(m_ui.comboBoxProjection, SIGNAL(currentIndexChanged(int)), this, SLOT(onProjectionIndexChanged(int)));
+
+  connect(m_ui.comboBoxColorScaleMapping, SIGNAL(currentIndexChanged(int)), this, SLOT(onColorScaleMappingChanged(int)));
+  connect(m_ui.comboBoxColorScaleRange, SIGNAL(currentIndexChanged(int)), this, SLOT(onColorScaleRangeChanged(int)));
+  connect(m_ui.lineEditColorScaleMinValue, SIGNAL(editingFinished()), this, SLOT(onColorScaleValueChanged()));
+  connect(m_ui.lineEditColorScaleMaxValue, SIGNAL(editingFinished()), this, SLOT(onColorScaleValueChanged()));
 
   connect(m_ui.checkBoxTraps, SIGNAL(toggled(bool)), this, SLOT(onTrapsToggled(bool)));
   connect(m_ui.checkBoxTrapOutline, SIGNAL(toggled(bool)), this, SLOT(onTrapOutlinesToggled(bool)));
@@ -331,14 +353,13 @@ void MainWindow::connectSignals()
   connect(m_ui.radioButtonDrainageAreaFluid, SIGNAL(toggled(bool)), this, SLOT(onDrainageAreaTypeChanged(bool)));
   connect(m_ui.radioButtonDrainageAreaGas, SIGNAL(toggled(bool)), this, SLOT(onDrainageAreaTypeChanged(bool)));
   connect(m_ui.checkBoxFluidContacts, SIGNAL(toggled(bool)), this, SLOT(onFluidContactsToggled(bool)));
-  
-  //connect(m_ui.sliderFlowLinesStep, SIGNAL(valueChanged(int)), this, SLOT(onFlowLinesStepChanged(int)));
+
   connect(m_ui.spinBoxLeakageStep, SIGNAL(valueChanged(int)), this, SLOT(onFlowLinesStepChanged(int)));
   connect(m_ui.spinBoxExpulsionStep, SIGNAL(valueChanged(int)), this, SLOT(onFlowLinesStepChanged(int)));
   connect(m_ui.sliderLeakageThreshold, SIGNAL(valueChanged(int)), this, SLOT(onFlowLinesThresholdChanged(int)));
   connect(m_ui.sliderExpulsionThreshold, SIGNAL(valueChanged(int)), this, SLOT(onFlowLinesThresholdChanged(int)));
 
-  connect(m_ui.treeWidget, SIGNAL(itemChanged(QTreeWidgetItem*, int)), this, SLOT(onTreeWidgetItemChanged(QTreeWidgetItem*, int)));
+  connect(m_ui.treeWidget, SIGNAL(itemClicked(QTreeWidgetItem*, int)), this, SLOT(onTreeWidgetItemClicked(QTreeWidgetItem*, int)));
 }
 
 int MainWindow::getFaultIndex(const std::string& collectionName, const std::string& faultName) const
@@ -548,6 +569,27 @@ void MainWindow::onSliceToggled(bool value)
     m_sceneGraphManager->enableSlice(0, value);
   else
     m_sceneGraphManager->enableSlice(1, value);
+
+  if (false)
+  {
+    SbVec2f size(
+      (float)(m_projectInfo.dimensions.deltaX * m_projectInfo.dimensions.numCellsI),
+      (float)(m_projectInfo.dimensions.deltaY * m_projectInfo.dimensions.numCellsJ));
+
+    std::vector<SbVec2f> points;
+
+    int n = 10;
+    for (int j = 0; j < n; ++j)
+    {
+      SbVec2f p(
+        (float)j / (float)n,
+        .5f * (1.f + sinf(j * 6.f / n)));
+
+      points.emplace_back(p * size);
+}
+
+    int id = m_sceneGraphManager->addFence(points);
+  }
 }
 
 void MainWindow::onRenderStyleChanged()
@@ -563,13 +605,53 @@ void MainWindow::onCoordinateGridToggled(bool value)
   m_sceneGraphManager->showCoordinateGrid(value);
 }
 
-void MainWindow::onPerspectiveToggled(bool value)
+void MainWindow::onProjectionIndexChanged(int index)
 {
-  m_sceneGraphManager->setProjection(value 
+  m_sceneGraphManager->setProjection(index == 0
     ? SceneGraphManager::PerspectiveProjection 
     : SceneGraphManager::OrthographicProjection);
 
   static_cast<SoQtViewer*>(m_ui.renderWidget->getViewer())->setCamera(m_sceneGraphManager->getCamera());
+}
+
+void MainWindow::onColorScaleMappingChanged(int index)
+{
+  m_colorScaleParams.mapping = (index == 0)
+    ? SceneGraphManager::ColorScaleParams::Linear
+    : SceneGraphManager::ColorScaleParams::Logarithmic;
+
+  m_sceneGraphManager->setColorScaleParams(m_colorScaleParams);
+}
+
+void MainWindow::onColorScaleRangeChanged(int index)
+{
+  m_colorScaleParams.range = (index == 0)
+    ? SceneGraphManager::ColorScaleParams::Automatic
+    : SceneGraphManager::ColorScaleParams::Manual;
+
+  bool manual = (index == 1);
+  m_ui.labelColorScaleMinValue->setEnabled(manual);
+  m_ui.labelColorScaleMaxValue->setEnabled(manual);
+  m_ui.lineEditColorScaleMinValue->setEnabled(manual);
+  m_ui.lineEditColorScaleMaxValue->setEnabled(manual);
+
+  m_colorScaleParams.minValue = m_ui.lineEditColorScaleMinValue->text().toDouble();
+  m_colorScaleParams.maxValue = m_ui.lineEditColorScaleMaxValue->text().toDouble();
+
+  m_sceneGraphManager->setColorScaleParams(m_colorScaleParams);
+}
+
+void MainWindow::onColorScaleValueChanged()
+{
+  auto edit = reinterpret_cast<QLineEdit*>(sender());
+  double value = edit->text().toDouble();
+
+  if (edit == m_ui.lineEditColorScaleMinValue)
+    m_colorScaleParams.minValue = value;
+  else
+    m_colorScaleParams.maxValue = value;
+
+  m_sceneGraphManager->setColorScaleParams(m_colorScaleParams);
 }
 
 void MainWindow::onTransparencyChanged(int value)
@@ -695,7 +777,7 @@ void MainWindow::onShowGLInfo()
   dlg.exec();
 }
 
-void MainWindow::onTreeWidgetItemChanged(QTreeWidgetItem* item, int column)
+void MainWindow::onTreeWidgetItemClicked(QTreeWidgetItem* item, int column)
 {
   std::string name = item->text(0).toStdString();
   std::string parentName = item->parent() != 0 ? item->parent()->text(0).toStdString() : "";
@@ -723,10 +805,29 @@ void MainWindow::onTreeWidgetItemChanged(QTreeWidgetItem* item, int column)
     m_sceneGraphManager->enableFlowLines(index, checked);
     break;
   case TreeWidgetItem_FaultCollectionType:
+    for (int i = 0; i < item->childCount(); ++i)
+      item->child(i)->setCheckState(0, item->checkState(0));
+    m_sceneGraphManager->enableAllFaults(item->checkState(0) == Qt::Checked);
+    break;
   case TreeWidgetItem_FormationGroupType:
+    for (int i = 0; i < item->childCount(); ++i)
+      item->child(i)->setCheckState(0, item->checkState(0));
+    m_sceneGraphManager->enableAllFormations(item->checkState(0) == Qt::Checked);
+    break;
   case TreeWidgetItem_SurfaceGroupType:
     for (int i = 0; i < item->childCount(); ++i)
       item->child(i)->setCheckState(0, item->checkState(0));
+    m_sceneGraphManager->enableAllSurfaces(item->checkState(0) == Qt::Checked);
+    break;
+  case TreeWidgetItem_ReservoirGroupType:
+    for (int i = 0; i < item->childCount(); ++i)
+      item->child(i)->setCheckState(0, item->checkState(0));
+    m_sceneGraphManager->enableAllReservoirs(item->checkState(0) == Qt::Checked);
+    break;
+  case TreeWidgetItem_FlowLinesGroupType:
+    for (int i = 0; i < item->childCount(); ++i)
+      item->child(i)->setCheckState(0, item->checkState(0));
+    m_sceneGraphManager->enableAllFlowLines(item->checkState(0) == Qt::Checked);
     break;
   }
 }

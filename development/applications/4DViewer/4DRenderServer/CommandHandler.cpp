@@ -153,7 +153,6 @@ void CommandHandler::onPick(
       jsonxx::Object msg;
       msg << "pickResult" << toJSON(pickResult);
 
-      std::cout << msg.write(jsonxx::JSON) << std::endl;
       renderArea->sendMessage(msg.write(jsonxx::JSON));
     }
   }
@@ -495,6 +494,30 @@ void CommandHandler::onSetViewPreset(
   }
 }
 
+void CommandHandler::onSetColorScaleParams(
+  const jsonxx::Object& params,
+  RemoteViz::Rendering::RenderArea* /*renderArea*/,
+  RemoteViz::Rendering::Connection* /*connection*/)
+{
+  auto mappingStr = params.get<std::string>("mapping");
+  auto rangeStr = params.get<std::string>("range");
+
+  SceneGraphManager::ColorScaleParams colorScaleParams;
+  colorScaleParams.mapping = (mappingStr == "linear")
+    ? SceneGraphManager::ColorScaleParams::Linear
+    : SceneGraphManager::ColorScaleParams::Logarithmic;
+
+  colorScaleParams.range = (rangeStr == "auto")
+    ? SceneGraphManager::ColorScaleParams::Automatic
+    : SceneGraphManager::ColorScaleParams::Manual;
+
+  colorScaleParams.minValue = (double)params.get<jsonxx::Number>("minval");
+  colorScaleParams.maxValue = (double)params.get<jsonxx::Number>("maxval");
+
+  m_sceneGraphManager->setColorScaleParams(colorScaleParams);
+}
+
+
 void CommandHandler::onSetStillQuality(
   const jsonxx::Object& params,
   RemoteViz::Rendering::RenderArea* renderArea,
@@ -593,6 +616,7 @@ void CommandHandler::registerHandlers()
   m_handlers["SetCurrentSnapshot"] = &CommandHandler::onSetCurrentSnapshot;
   m_handlers["ViewAll"] = &CommandHandler::onViewAll;
   m_handlers["SetViewPreset"] = &CommandHandler::onSetViewPreset;
+  m_handlers["SetColorScaleParams"] = &CommandHandler::onSetColorScaleParams;
   m_handlers["SetStillQuality"] = &CommandHandler::onSetStillQuality;
   m_handlers["SetInteractiveQuality"] = &CommandHandler::onSetInteractiveQuality;
   m_handlers["SetBandwidth"] = &CommandHandler::onSetBandwidth;
@@ -622,7 +646,7 @@ void CommandHandler::sendProjectInfo(
   jsonxx::Object msg;
   msg << "projectInfo" << toJSON(projectInfo);
 
-  std::cout << msg.write(jsonxx::JSON) << std::endl;
+  //std::cout << msg.write(jsonxx::JSON) << std::endl;
 
   renderArea->sendMessage(msg.write(jsonxx::JSON));
 }

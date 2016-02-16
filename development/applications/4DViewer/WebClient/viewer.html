@@ -16,7 +16,7 @@
 
 <body onload="init()">
 	<div style="height: 100%">
-		<div style="width:280px; height:100%; overflow: auto; float: left">
+		<div style="width:320px; height:100%; overflow: auto; float: left">
 			<div class="header">Data set</div>
 			<div>
 				<div id="structureTab" class="activeTab" style="display:inline-block;" onclick="showTab(0)">Structure</div>
@@ -24,7 +24,7 @@
 			</div>
 
 			<div>
-				<div id="formations" style="background-color: #ffffff; padding-left: 10px; height: 300px; overflow:auto">
+				<div id="formations" style="background-color: #ffffff; padding-left: 10px; height: 350px; overflow:auto; white-space:nowrap">
 					<div>
 						<input type="checkbox" id="checkBoxAllFormations" checked onchange="onCheckBoxAllFormationsChanged(this)">
 						<label><b>Formations</b></label>
@@ -57,7 +57,7 @@
 
 				</div>
 
-				<div id="properties" style="background-color: #ffffff; padding-left: 10px; height: 300px; overflow:auto; display: none">
+				<div id="properties" style="background-color: #ffffff; padding-left: 10px; height: 350px; overflow:auto; display: none">
 					<div id="propertiesList"></div>
 				</div>
 			</div>
@@ -117,6 +117,35 @@
 			</div>
 
 			<div>
+				<div class="header">Color scale</div>
+				<div class="section">
+					<div>
+						<select id="selectColorScaleMapping" onchange="onColorScaleParamsChanged()">
+							<option value="linear">Linear</option>
+							<option value="log">Logarithmic</option>
+						</select>
+						<label>Mapping</label>						
+					</div>
+					<div>
+						<select id="selectColorScaleRange" onchange="onColorScaleParamsChanged()">
+							<option value="auto">Automatic</option>
+							<option value="manual">Manual</option>
+						</select>
+						<label>Range</label>						
+					</div>
+					<div>
+						<input id="editColorScaleMinValue" type="text" value="0.0" onchange="onColorScaleParamsChanged()">
+						<label>Minimum</label>						
+					</div>
+					<div>
+						<input id="editColorScaleMaxValue" type="text" value="1.0" onchange="onColorScaleParamsChanged()">
+						<label>Maximum</label>						
+					</div>
+
+				</div>
+			</div>
+
+			<div>
 				<div class="header">Slices</div>
 				<div class="section">
 					<input id="sliceICheckBox" type="checkbox" onchange="onSliceCheckBoxChanged(0, this)">I</input>
@@ -137,12 +166,12 @@
 				<div class="section">
 
 					<div style="margin-top: 10px">JPEG Quality</div>
-					<input id="qualitySlider" min="0" max="1" step="0.05" type="range" value="1" oninput="onQualitySliderChanged(this.valueAsNumber)">Still</input>
-					<input id="iqualitySlider" min="0" max="1" step="0.05" type="range" value="0.75" oninput="onInteractiveQualitySliderChanged(this.valueAsNumber)">Interactive</input>
+					<input id="qualitySlider" min="0" max="1" step="0.05" type="range" value="1" oninput="onQualitySliderChanged(this.valueAsNumber)">Still</input><br>
+					<input id="iqualitySlider" min="0" max="1" step="0.05" type="range" value="0.75" oninput="onInteractiveQualitySliderChanged(this.valueAsNumber)">Interactive</input><br>
 				<!--
 					<input id="bandwidthSlider" min="100" max="5000" type="range" value="2500" oninput="onBandwidthSliderChanged(this.valueAsNumber * 8 * 1024)">Bandwidth</input>
 				  -->
-					<input id="maxfpsSlider" min="1" max="30" type="range" value="20" oninput="onMaxFPSSliderChanged(this.valueAsNumber)">Max. FPS</input>
+					<input id="maxfpsSlider" min="1" max="30" type="range" value="20" oninput="onMaxFPSSliderChanged(this.valueAsNumber)">Max. FPS</input><br>
 			
 				</div>
 			</div>
@@ -158,7 +187,7 @@
 		</div>
 
 
-		<div id="CanvasDiv" style="margin-left: 290px; width: 100%; height:100%; background-color: #aaaaff">
+		<div id="CanvasDiv" style="margin-left: 330px; width: 100%; height:100%; background-color: #aaaaff">
 		    <canvas id="TheCanvas" tabindex="0"></canvas>
 		</div>
 	</div>

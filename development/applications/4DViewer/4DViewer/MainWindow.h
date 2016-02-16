@@ -39,6 +39,8 @@ class MainWindow : public QMainWindow
   
   Project::ProjectInfo m_projectInfo;
 
+  SceneGraphManager::ColorScaleParams m_colorScaleParams;
+
   static void fpsCallback(float fps, void* userData, SoQtViewer* viewer);
 
   void initOIV();
@@ -85,7 +87,13 @@ private slots:
 
   void onCoordinateGridToggled(bool value);
 
-  void onPerspectiveToggled(bool value);
+  void onProjectionIndexChanged(int index);
+
+  void onColorScaleMappingChanged(int index);
+
+  void onColorScaleRangeChanged(int index);
+
+  void onColorScaleValueChanged();
 
   void onTransparencyChanged(int value);
 
@@ -107,7 +115,7 @@ private slots:
 
   void onShowGLInfo();
 
-  void onTreeWidgetItemChanged(QTreeWidgetItem* item, int column);
+  void onTreeWidgetItemClicked(QTreeWidgetItem* item, int column);
 
 public:
 
