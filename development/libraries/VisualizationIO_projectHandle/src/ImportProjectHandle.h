@@ -90,8 +90,8 @@ private:
     boost::shared_ptr<const CauldronIO::Reservoir> findOrCreateReservoir(const DataAccess::Interface::Reservoir* reservoir, boost::shared_ptr<const CauldronIO::Formation> formationIO);
     boost::shared_ptr<CauldronIO::FormationInfo> findDepthFormationInfo(const DataAccess::Interface::Formation* formation, boost::shared_ptr<CauldronIO::FormationInfoList> depthFormations);
 
-    boost::shared_ptr<DataAccess::Interface::PropertyValueList> ImportProjectHandle::getPropertyValues(const DataAccess::Interface::Snapshot* snapshot) const;
-    boost::shared_ptr<DataAccess::Interface::PropertyList> ImportProjectHandle::getProperties(const boost::shared_ptr<DataAccess::Interface::PropertyValueList>& propValues) const;
+    boost::shared_ptr<DataAccess::Interface::PropertyValueList> getPropertyValues(const DataAccess::Interface::Snapshot* snapshot) const;
+    boost::shared_ptr<DataAccess::Interface::PropertyList> getProperties(const boost::shared_ptr<DataAccess::Interface::PropertyValueList>& propValues) const;
     boost::shared_ptr<DataAccess::Interface::PropertyValueList> getMapPropertyValues(const boost::shared_ptr<DataAccess::Interface::PropertyValueList>& snapShotPropVals) const;
     boost::shared_ptr<DataAccess::Interface::PropertyValueList> getFormationVolumePropertyValues(const DataAccess::Interface::Property* prop, boost::shared_ptr<DataAccess::Interface::PropertyValueList> snapShotPropVals,
         const DataAccess::Interface::Formation* formation) const;
