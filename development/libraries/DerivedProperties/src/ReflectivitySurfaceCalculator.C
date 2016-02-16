@@ -36,13 +36,19 @@ void DerivedProperties::ReflectivitySurfaceCalculator::calculate ( AbstractPrope
    if ( formationBelow == 0 ) {
       return;
    }
+   const GeoPhysics::Formation* geoFormationBelow = dynamic_cast<const GeoPhysics::Formation*>( formationBelow );
+   if( geoFormationBelow->kind() == DataAccess::Interface::BASEMENT_FORMATION ) {
+      return;
+   }
 
    const DataModel::AbstractProperty* reflectivityProperty = propManager.getProperty ( "Reflectivity" );
    const DataModel::AbstractProperty* thicknessProperty   = propManager.getProperty ( "Thickness" );
    const DataModel::AbstractProperty* bulkDensityProperty = propManager.getProperty ( "BulkDensity" );
    const DataModel::AbstractProperty* velocityProperty    = propManager.getProperty ( "Velocity" );
 
-   bool formationAboveFound = formationAbove != 0 and formationAbove->getBottomSurface ()->getSnapshot ()->getTime () > snapshot->getTime ();
+   bool formationAboveFound = formationAbove != 0 and 
+      ( formationAbove->getBottomSurface ()->getSnapshot () != 0 ?
+        formationAbove->getBottomSurface ()->getSnapshot ()->getTime () > snapshot->getTime () : true );
 
    FormationMapPropertyPtr     layerThickness = propManager.getFormationMapProperty ( thicknessProperty, snapshot, formationBelow );
    FormationSurfacePropertyPtr layerBulkDensity = propManager.getFormationSurfaceProperty ( bulkDensityProperty, snapshot, formationBelow, surface );
