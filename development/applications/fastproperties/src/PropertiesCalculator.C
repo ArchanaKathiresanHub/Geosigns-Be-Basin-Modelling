@@ -125,6 +125,9 @@ bool PropertiesCalculator::startActivity() {
    }
    if( started) {
       started = m_projectHandle->initialiseLayerThicknessHistory ( coupledCalculation );
+      if( started ) {
+         m_projectHandle->applyFctCorrections();
+      }
    }
 
    return started;
