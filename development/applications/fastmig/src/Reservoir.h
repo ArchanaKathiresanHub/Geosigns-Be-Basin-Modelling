@@ -124,6 +124,8 @@ namespace migration
 
       void wasteNonReservoirColumns (const Snapshot * snapshot);
 
+      Column * avoidSealingColumn (PhaseId phase, Column * column, Trap * trap = 0);
+
       void setSourceFormation (const Formation * formation);
 	 void setSourceReservoir (const Reservoir * reservoir);
 
@@ -180,6 +182,8 @@ namespace migration
 	 void computeTrapTop (PhaseId phase, unsigned int i, unsigned int j);
 
 	 bool computeTargetColumn (PhaseId phase, unsigned int i, unsigned int j);
+
+         Column * findNonSealingColumn (int kappa, int n, PhaseId phase, Column * column, Trap * trap);
 
    public:
 	 double getSurface (unsigned int i, unsigned int j) const;

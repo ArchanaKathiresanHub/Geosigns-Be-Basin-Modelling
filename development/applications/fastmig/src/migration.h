@@ -226,6 +226,9 @@ namespace migration
    const int NumNeighbours = 8;
    const int NumDiagonalNeighbours = 4;
    const int NumOrthogonalNeighbours = 4;
+   const int MaximumNeighbourOffset = 10; // (MaximumNeighbourOffset - 1) is the maximum number of columns allowed
+                                          // between the original and the one under consideration when trying to find
+                                          // a suitable column to divert HCs that have ended up in a sealing column.
 
    const int NoTrapId = -10;
    const int UnknownTrapId = -5;

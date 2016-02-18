@@ -146,7 +146,9 @@ bool Migrator::compute (void)
    if (GetRank () == 0)
    {
       m_projectHandle->deletePropertyValues (DataAccess::Interface::RESERVOIR);
-      m_projectHandle->deletePropertyValues (DataAccess::Interface::FORMATION, m_projectHandle->findProperty("FlowDirectionIJK"), 0, 0, 0, 0, DataAccess::Interface::VOLUME);
+
+      // Commented out only for May 2016 release. When 3d grid is used, FlowDirectionIJK will be output and then it must be deleted
+      // m_projectHandle->deletePropertyValues (DataAccess::Interface::FORMATION, m_projectHandle->findProperty("FlowDirectionIJK"), 0, 0, 0, 0, DataAccess::Interface::VOLUME);
 
       if (!m_trapIoTbl) m_trapIoTbl = m_projectHandle->getTable ("TrapIoTbl");
       m_trapIoTbl->clear ();
@@ -693,20 +695,6 @@ migration::Formation * Migrator::getBottomActiveReservoirFormation (const Interf
    }
    return bottomActiveReservoirFormation;
 }
-
-// If getMinOilColumnHeight and getMinGasColumnHeight get moved to RunOptionsIoTbl these functions can be used
-/*
-  double Migrator::getMinOilColumnHeight (void) const
-  {
-  return m_projectHandle->getRunParameters ()->getMinOilColumnHeight ();
-  }
-
-  double Migrator::getMinGasColumnHeight (void) const
-  {
-
-  return m_projectHandle->getRunParameters ()->getMinGasColumnHeight ();
-  }
-*/
 
 /*
   Reservoir definition based on capillary pressure evaluation.

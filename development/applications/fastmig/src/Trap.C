@@ -814,7 +814,6 @@ double Trap::getSpillDepth ()
 Column * Trap::getColumnToSpillTo (void)
 {
    Column * spillColumn = getSpillColumn ();
-   if (spillColumn->isSealing ()) return 0;
 
    return getReservoir ()->getAdjacentColumn (GAS, spillColumn, this);
 }
@@ -851,7 +850,10 @@ void Trap::computeSpillTarget (void)
 /// Return the column where charge spilled from this trap finally ends up
 Column * Trap::getFinalSpillTarget (PhaseId phase)
 {
-   return getSpillTarget ()->getFinalTargetColumn (phase);
+   if (m_spillTarget->isSealing ())
+      return m_spillTarget;
+   else
+      return getSpillTarget ()->getFinalTargetColumn (phase);
 }
 
 Column * Trap::getSpillTarget (void)
