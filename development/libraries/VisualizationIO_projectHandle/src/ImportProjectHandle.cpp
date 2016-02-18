@@ -138,7 +138,7 @@ boost::shared_ptr<CauldronIO::SnapShot> ImportProjectHandle::createSnapShotIO(bo
 
         if (m_verbose)
             cout << " - Adding continuous volume data with (" << propValues->size() << ") formations for property " << prop->getName() << endl;
-        boost::shared_ptr<CauldronIO::PropertyVolumeData> propVolume = createPropertyVolumeData(propValues, geometry3D, depthFormations);
+        CauldronIO::PropertyVolumeData propVolume = createPropertyVolumeData(propValues, geometry3D, depthFormations);
         volume->addPropertyVolumeData(propVolume);
     }
 
@@ -175,7 +175,7 @@ boost::shared_ptr<CauldronIO::SnapShot> ImportProjectHandle::createSnapShotIO(bo
             assert(propValues->size() == 1);
             const PropertyValue* propVal = propValues->at(0);
 
-            boost::shared_ptr<CauldronIO::PropertyVolumeData> propVolume = createPropertyVolumeData(propVal, geometry, formationInfo);
+            CauldronIO::PropertyVolumeData propVolume = createPropertyVolumeData(propVal, geometry, formationInfo);
             volume->addPropertyVolumeData(propVolume);
         }
 
@@ -183,7 +183,7 @@ boost::shared_ptr<CauldronIO::SnapShot> ImportProjectHandle::createSnapShotIO(bo
             cout << " - Adding discontinuous volume data formation " << formationIO->getName() << " with " 
                  << volume->getPropertyVolumeDataList().size() << " properties" << endl;
 
-        boost::shared_ptr<CauldronIO::FormationVolume> formVolume(new CauldronIO::FormationVolume(formationIO, volume));
+        CauldronIO::FormationVolume formVolume(formationIO, volume);
         snapShotIO->addFormationVolume(formVolume);
     }
         
@@ -342,10 +342,11 @@ vector<boost::shared_ptr<CauldronIO::Surface> > ImportProjectHandle::createSurfa
                 surfaceIO->setFormation(formationIO, true);
                 surfaceIO->setFormation(formationIO, false);
             }
-            
-            // Set reservoir
-            if (reservoir) surfaceIO->setReservoir(reservoirIO);
         }
+
+        // Set reservoir
+        if (reservoir)
+            propertyMap->setReservoir(reservoirIO);
 
         // Set the geometry
         if (propertyIO->isHighRes() && !surfaceIO->getHighResGeometry())
@@ -354,7 +355,7 @@ vector<boost::shared_ptr<CauldronIO::Surface> > ImportProjectHandle::createSurfa
             surfaceIO->setGeometry(geometry);
 
         // Add the property/surfaceData object
-        boost::shared_ptr<CauldronIO::PropertySurfaceData> propSurfaceData(new CauldronIO::PropertySurfaceData(propertyIO, propertyMap));
+        CauldronIO::PropertySurfaceData propSurfaceData(propertyIO, propertyMap);
         if (m_verbose)
             cout << " --- adding surface data for property " << propertyIO->getName() << endl;
         surfaceIO->addPropertySurfaceData(propSurfaceData);
@@ -471,7 +472,7 @@ boost::shared_ptr<const CauldronIO::Geometry3D> ImportProjectHandle::createGeome
     return geometry;
 }
 
-boost::shared_ptr<CauldronIO::PropertyVolumeData> ImportProjectHandle::createPropertyVolumeData(boost::shared_ptr<PropertyValueList> propValues,
+CauldronIO::PropertyVolumeData ImportProjectHandle::createPropertyVolumeData(boost::shared_ptr<PropertyValueList> propValues,
     boost::shared_ptr<const CauldronIO::Geometry3D>& geometry3D, boost::shared_ptr<CauldronIO::FormationInfoList> depthFormations)
 {
     CauldronIO::VolumeProjectHandle* volumeDataProjHandle = new CauldronIO::VolumeProjectHandle(geometry3D);
@@ -480,13 +481,13 @@ boost::shared_ptr<CauldronIO::PropertyVolumeData> ImportProjectHandle::createPro
     volumeDataProjHandle->setDataStore(propValues, depthFormations);
 
     boost::shared_ptr<const CauldronIO::Property> prop = findOrCreateProperty(propValues->at(0)->getProperty());
-    boost::shared_ptr<CauldronIO::PropertyVolumeData> propVolumeData(new CauldronIO::PropertyVolumeData(prop, volumeData));
+    CauldronIO::PropertyVolumeData propVolumeData(prop, volumeData);
 
     return propVolumeData;
 }
 
 
-boost::shared_ptr<CauldronIO::PropertyVolumeData> ImportProjectHandle::createPropertyVolumeData(const DataAccess::Interface::PropertyValue* propVal, 
+CauldronIO::PropertyVolumeData ImportProjectHandle::createPropertyVolumeData(const DataAccess::Interface::PropertyValue* propVal, 
     boost::shared_ptr<const CauldronIO::Geometry3D>& geometry3D, boost::shared_ptr<CauldronIO::FormationInfo> formationInfo)
 {
     CauldronIO::VolumeProjectHandle* volumeDataProjHandle = new CauldronIO::VolumeProjectHandle(geometry3D);
@@ -495,7 +496,7 @@ boost::shared_ptr<CauldronIO::PropertyVolumeData> ImportProjectHandle::createPro
     volumeDataProjHandle->setDataStore(propVal, formationInfo);
 
     boost::shared_ptr<const CauldronIO::Property> prop = findOrCreateProperty(propVal->getProperty());
-    boost::shared_ptr<CauldronIO::PropertyVolumeData> propVolumeData(new CauldronIO::PropertyVolumeData(prop, volumeData));
+    CauldronIO::PropertyVolumeData propVolumeData(prop, volumeData);
 
     return propVolumeData;
 }

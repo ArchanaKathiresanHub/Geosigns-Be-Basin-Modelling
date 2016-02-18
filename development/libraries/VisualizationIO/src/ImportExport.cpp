@@ -146,17 +146,17 @@ void ImportExport::addProject(pugi::xml_node pt, boost::shared_ptr<Project>& pro
         }
 
         // Add a volume per formation, with discontinuous properties
-        const FormationVolumeList formVolumes = snapShot->getFormationVolumeList();
+        FormationVolumeList formVolumes = snapShot->getFormationVolumeList();
         if (formVolumes.size() > 0)
         {
             pugi::xml_node formVolumesNode = node.append_child("formvols");
-            BOOST_FOREACH(const boost::shared_ptr<FormationVolume>& formVolume, formVolumes)
+            BOOST_FOREACH(FormationVolume& formVolume, formVolumes)
             {
                 // General properties
                 pugi::xml_node volNode = formVolumesNode.append_child("formvol");
 
-                const boost::shared_ptr<Volume> subVolume = formVolume->second;
-                const boost::shared_ptr<const Formation> subFormation = formVolume->first;
+                const boost::shared_ptr<Volume> subVolume = formVolume.second;
+                const boost::shared_ptr<const Formation> subFormation = formVolume.first;
 
                 // Add formation name
                 volNode.append_attribute("formation") = subFormation->getName().c_str();
@@ -242,8 +242,6 @@ void CauldronIO::ImportExport::addSurface(DataStoreSave& dataStore, const boost:
 
     // Write general info
     ptree.append_attribute("name") = surfaceIO->getName().c_str();
-    if (surfaceIO->getReservoir())
-        ptree.append_attribute("reservoir") = surfaceIO->getReservoir()->getName().c_str();
     ptree.append_attribute("subsurfacekind") = surfaceIO->getSubSurfaceKind();
     if (surfaceIO->getTopFormation())
         ptree.append_attribute("top-formation") = surfaceIO->getTopFormation()->getName().c_str();
@@ -262,14 +260,16 @@ void CauldronIO::ImportExport::addSurface(DataStoreSave& dataStore, const boost:
     if (valueMaps.size() > 0)
     {
         pugi::xml_node valueMapsNode = ptree.append_child("propertymaps");
-        BOOST_FOREACH(boost::shared_ptr<PropertySurfaceData> propertySurfaceData, valueMaps)
+        BOOST_FOREACH(const PropertySurfaceData& propertySurfaceData, valueMaps)
         {
             pugi::xml_node node = valueMapsNode.append_child("propertymap");
-            node.append_attribute("property") = propertySurfaceData->first->getName().c_str();
+            node.append_attribute("property") = propertySurfaceData.first->getName().c_str();
 
-            boost::shared_ptr<SurfaceData>& surfaceData = propertySurfaceData->second;
+            const boost::shared_ptr<SurfaceData>& surfaceData = propertySurfaceData.second;
             if (surfaceData->getFormation())
                 node.append_attribute("formation") = surfaceData->getFormation()->getName().c_str();
+            if (surfaceData->getReservoir())
+                node.append_attribute("reservoir") = surfaceData->getReservoir()->getName().c_str();
 
             bool isHighRes = surfaceIO->getHighResGeometry() && (*surfaceIO->getHighResGeometry().get() == *surfaceData->getGeometry().get());
             node.append_attribute("high-res") = isHighRes;
@@ -301,10 +301,10 @@ void CauldronIO::ImportExport::addVolume(DataStoreSave& dataStore, const boost::
     if (volume->getPropertyVolumeDataList().size() > 0)
     {
         pugi::xml_node propVolNodes = volNode.append_child("propertyvols");
-        BOOST_FOREACH(const boost::shared_ptr<PropertyVolumeData>& propVolume, volume->getPropertyVolumeDataList())
+        BOOST_FOREACH(const PropertyVolumeData& propVolume, volume->getPropertyVolumeDataList())
         {
-            const boost::shared_ptr<const Property>& prop = propVolume->first;
-            const boost::shared_ptr<VolumeData>& data = propVolume->second;
+            const boost::shared_ptr<const Property>& prop = propVolume.first;
+            const boost::shared_ptr<VolumeData>& data = propVolume.second;
 
             pugi::xml_node node = propVolNodes.append_child("propertyvol");
             node.append_attribute("property") = prop->getName().c_str();
@@ -358,14 +358,14 @@ bool CauldronIO::ImportExport::detectAppend(boost::shared_ptr<Project>& project)
         const SurfaceList surfaces = snapShot->getSurfaceList();
         BOOST_FOREACH(const boost::shared_ptr<Surface>& surfaceIO, surfaces)
         {
-            if (dynamic_cast<MapNative*>(surfaceIO->getPropertySurfaceDataList().at(0)->second.get()) != NULL) return true;
+            if (dynamic_cast<MapNative*>(surfaceIO->getPropertySurfaceDataList().at(0).second.get()) != NULL) return true;
             return false;
         }
 
         const boost::shared_ptr<Volume>& volume = snapShot->getVolume();
-        BOOST_FOREACH(const boost::shared_ptr<PropertyVolumeData>& volumeData, volume->getPropertyVolumeDataList())
+        BOOST_FOREACH(const PropertyVolumeData& volumeData, volume->getPropertyVolumeDataList())
         {
-            if (dynamic_cast<VolumeDataNative*>(volumeData->second.get()) != NULL) return true;
+            if (dynamic_cast<VolumeDataNative*>(volumeData.second.get()) != NULL) return true;
             return false;
         }
     }
@@ -511,16 +511,6 @@ boost::shared_ptr<Project> CauldronIO::ImportExport::getProject(const pugi::xml_
                 if (bottomFormationName)
                     bottomFormationIO = m_project->findFormation(bottomFormationName.value());
 
-                // Find the reservoir object, if name is present
-                boost::shared_ptr<const Reservoir> reservoirIO;
-                pugi::xml_attribute reservoirName = surfaceNode.attribute("reservoirName");
-                if (reservoirName)
-                {
-                    reservoirIO = m_project->findReservoir(reservoirName.value());
-                    assert(reservoirIO);
-                    assert(reservoirIO->getFormation() == bottomFormationIO || reservoirIO->getFormation() == topFormationIO);
-                }
-
                 // Get geometry
                 boost::shared_ptr<const Geometry2D> geometryHighRes = getGeometry2D(surfaceNode,"geometry-highres");
                 boost::shared_ptr<const Geometry2D> geometry = getGeometry2D(surfaceNode, "geometry");
@@ -530,7 +520,6 @@ boost::shared_ptr<Project> CauldronIO::ImportExport::getProject(const pugi::xml_
                 boost::shared_ptr<Surface> surface(new Surface(surfaceName, surfaceKind)); 
                 if (topFormationIO) surface->setFormation(topFormationIO, true);
                 if (bottomFormationIO) surface->setFormation(bottomFormationIO, false);
-                if (reservoirIO) surface->setReservoir(reservoirIO);
                 if (geometryHighRes) surface->setHighResGeometry(geometryHighRes);
                 if (geometry) surface->setGeometry(geometry);
 
@@ -557,6 +546,16 @@ boost::shared_ptr<Project> CauldronIO::ImportExport::getProject(const pugi::xml_
                         surfaceData->setFormation(formationIO);
                     }
 
+                    // Find the reservoir object, if name is present
+                    boost::shared_ptr<const Reservoir> reservoirIO;
+                    pugi::xml_attribute reservoirName = propertyMapNode.attribute("reservoir");
+                    if (reservoirName)
+                    {
+                        reservoirIO = m_project->findReservoir(reservoirName.value());
+                        assert(reservoirIO);
+                        surfaceData->setReservoir(reservoirIO);
+                    }
+
                     // Get the datastore xml node or constantvalue
                     pugi::xml_attribute constantVal = propertyMapNode.attribute("constantvalue");
                     if (constantVal)
@@ -564,9 +563,7 @@ boost::shared_ptr<Project> CauldronIO::ImportExport::getProject(const pugi::xml_
                     else
                         DataStoreLoad::getSurface(propertyMapNode, surfaceData, fullOutputPath);
 
-                    boost::shared_ptr<PropertySurfaceData> propSurfaceData(new PropertySurfaceData(property, surfaceData));
-
-
+                    PropertySurfaceData propSurfaceData(property, surfaceData);
                     surface->addPropertySurfaceData(propSurfaceData);
                 }
 
@@ -602,7 +599,7 @@ boost::shared_ptr<Project> CauldronIO::ImportExport::getProject(const pugi::xml_
                 boost::shared_ptr<Volume> volume = getVolume(volumeNode, fullOutputPath);
 
                 // Add it to the list
-                boost::shared_ptr<FormationVolume> formVolume(new FormationVolume(formationIO, volume));
+                FormationVolume formVolume(formationIO, volume);
                 snapShot->addFormationVolume(formVolume);
             }
         }
@@ -750,8 +747,7 @@ boost::shared_ptr<Volume> CauldronIO::ImportExport::getVolume(pugi::xml_node vol
         else
             DataStoreLoad::getVolume(propertyVolNode, volData, path);
 
-        boost::shared_ptr<PropertyVolumeData> propVolData(new PropertyVolumeData(property, volData));
-
+        PropertyVolumeData propVolData(property, volData);
         volume->addPropertyVolumeData(propVolData);
     }
     

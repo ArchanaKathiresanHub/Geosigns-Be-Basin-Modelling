@@ -78,9 +78,9 @@ private:
 
     boost::shared_ptr<const CauldronIO::Geometry3D> createGeometry3D(boost::shared_ptr<CauldronIO::FormationInfoList> depthFormations);
     boost::shared_ptr<const CauldronIO::Geometry3D> createGeometry3D(const boost::shared_ptr<CauldronIO::FormationInfo>& info);
-    boost::shared_ptr<CauldronIO::PropertyVolumeData> createPropertyVolumeData(boost::shared_ptr<DataAccess::Interface::PropertyValueList> propValues, boost::shared_ptr<const CauldronIO::Geometry3D>& geometry3D,
+    CauldronIO::PropertyVolumeData createPropertyVolumeData(boost::shared_ptr<DataAccess::Interface::PropertyValueList> propValues, boost::shared_ptr<const CauldronIO::Geometry3D>& geometry3D,
         boost::shared_ptr<CauldronIO::FormationInfoList> depthFormations);
-    boost::shared_ptr<CauldronIO::PropertyVolumeData> createPropertyVolumeData(const DataAccess::Interface::PropertyValue* propVal,
+    CauldronIO::PropertyVolumeData createPropertyVolumeData(const DataAccess::Interface::PropertyValue* propVal,
         boost::shared_ptr<const CauldronIO::Geometry3D>& geometry3D, boost::shared_ptr<CauldronIO::FormationInfo> formationInfo);
     boost::shared_ptr<const CauldronIO::Surface> findDepthSurface(boost::shared_ptr<CauldronIO::Surface> surface, const std::vector<boost::shared_ptr<CauldronIO::Surface> >& surfaces) const;
     boost::shared_ptr<CauldronIO::Surface> findSurface(std::vector< boost::shared_ptr<CauldronIO::Surface> > surfaces, const std::string& surfaceName) const;

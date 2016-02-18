@@ -37,9 +37,6 @@ namespace CauldronIO
 %shared_ptr(CauldronIO::SurfaceData)
 %shared_ptr(CauldronIO::Formation)
 %shared_ptr(CauldronIO::Property)
-%shared_ptr(CauldronIO::FormationVolume)
-%shared_ptr(CauldronIO::PropertySurfaceData)
-%shared_ptr(CauldronIO::PropertyVolumeData)
 %shared_ptr(CauldronIO::Project)
 %shared_ptr(CauldronIO::Trapper)
 %shared_ptr(CauldronIO::MapNative)
@@ -70,15 +67,15 @@ namespace CauldronIO
 /* some templates */
 %template(SnapShotList) std::vector < boost::shared_ptr<CauldronIO::SnapShot > >;
 %template(FormationVolume) std::pair<boost::shared_ptr<const CauldronIO::Formation>, boost::shared_ptr<CauldronIO::Volume> >;
-%template(FormationVolumeList) std::vector<boost::shared_ptr<CauldronIO::FormationVolume > >;
+%template(FormationVolumeList) std::vector< CauldronIO::FormationVolume >;
 %template(SurfaceList) std::vector<boost::shared_ptr<CauldronIO::Surface > > ;
 %template(VolumeList) std::vector<boost::shared_ptr<CauldronIO::Volume > > ;
 %template(TrapperList) std::vector<boost::shared_ptr<CauldronIO::Trapper > > ;
 %template(PropertyList) std::vector<boost::shared_ptr<const CauldronIO::Property > > ;
 %template(PropertySurfaceData) std::pair<boost::shared_ptr<const CauldronIO::Property>, boost::shared_ptr<CauldronIO::SurfaceData> >;
-%template(PropertySurfaceDataList) std::vector < boost::shared_ptr<CauldronIO::PropertySurfaceData> > ;
+%template(PropertySurfaceDataList) std::vector < CauldronIO::PropertySurfaceData > ;
 %template(ReservoirList) std::vector<boost::shared_ptr<const CauldronIO::Reservoir> >  ;
 %template(FormationList) std::vector<boost::shared_ptr<const CauldronIO::Formation> > ;
 %template(SurfaceNameList) std::vector<std::string> ;
 %template(PropertyVolumeData) std::pair<boost::shared_ptr<const CauldronIO::Property>, boost::shared_ptr<CauldronIO::VolumeData> >;
-%template(PropertyVolumeDataList) std::vector < boost::shared_ptr<CauldronIO::PropertyVolumeData> > ;
+%template(PropertyVolumeDataList) std::vector < CauldronIO::PropertyVolumeData > ;

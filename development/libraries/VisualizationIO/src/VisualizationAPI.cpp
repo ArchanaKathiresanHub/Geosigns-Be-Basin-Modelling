@@ -247,12 +247,10 @@ void CauldronIO::SnapShot::addSurface(boost::shared_ptr<Surface>& newSurface)
     m_surfaceList.push_back(newSurface);
 }
 
-void CauldronIO::SnapShot::addFormationVolume(boost::shared_ptr<FormationVolume>& formVolume)
+void CauldronIO::SnapShot::addFormationVolume(FormationVolume& formVolume)
 {
-    if (!formVolume) throw CauldronIOException("Cannot add empty volume");
-
     // Check if volume exists
-    BOOST_FOREACH(boost::shared_ptr<FormationVolume>& volume, m_formationVolumeList)
+    BOOST_FOREACH(FormationVolume& volume, m_formationVolumeList)
         if (volume == formVolume) throw CauldronIOException("Cannot add volume twice");
 
     m_formationVolumeList.push_back(formVolume);
@@ -308,8 +306,8 @@ void CauldronIO::SnapShot::retrieve()
 {
     if (m_volume)
         m_volume->retrieve();
-    BOOST_FOREACH(boost::shared_ptr<FormationVolume>& formVolume, m_formationVolumeList)
-        formVolume->second->retrieve();
+    BOOST_FOREACH(FormationVolume& formVolume, m_formationVolumeList)
+        formVolume.second->retrieve();
     BOOST_FOREACH(boost::shared_ptr<Surface>& surface, m_surfaceList)
         surface->retrieve();
 }
@@ -318,8 +316,8 @@ void CauldronIO::SnapShot::release()
 {
     if (m_volume)
         m_volume->release();
-    BOOST_FOREACH(boost::shared_ptr<FormationVolume>& formVolume, m_formationVolumeList)
-        formVolume->second->release();
+    BOOST_FOREACH(FormationVolume& formVolume, m_formationVolumeList)
+        formVolume.second->release();
     BOOST_FOREACH(boost::shared_ptr<Surface>& surface, m_surfaceList)
         surface->release();
 }
@@ -426,7 +424,6 @@ CauldronIO::Surface::Surface(const std::string& name, SubsurfaceKind kind)
     m_name = name;
     m_subSurfaceKind = kind;
     m_propSurfaceList.clear();
-    m_reservoir.reset();
 }
 
 CauldronIO::Surface::~Surface()
@@ -460,11 +457,9 @@ const PropertySurfaceDataList& CauldronIO::Surface::getPropertySurfaceDataList()
     return m_propSurfaceList;
 }
 
-void CauldronIO::Surface::addPropertySurfaceData(boost::shared_ptr<PropertySurfaceData>& newData)
+void CauldronIO::Surface::addPropertySurfaceData(PropertySurfaceData& newData)
 {
-    if (!newData) throw CauldronIOException("Cannot add empty trapper");
-
-    BOOST_FOREACH(boost::shared_ptr<PropertySurfaceData>& data, m_propSurfaceList)
+    BOOST_FOREACH(PropertySurfaceData& data, m_propSurfaceList)
         if (data == newData) throw CauldronIOException("Cannot add property-surfaceData twice");
 
     m_propSurfaceList.push_back(newData);
@@ -472,16 +467,16 @@ void CauldronIO::Surface::addPropertySurfaceData(boost::shared_ptr<PropertySurfa
 
 bool CauldronIO::Surface::hasDepthSurface() const
 {
-    BOOST_FOREACH(const boost::shared_ptr<PropertySurfaceData>& data, m_propSurfaceList)
-        if (data->first->getName() == "Depth") return true;
+    BOOST_FOREACH(const PropertySurfaceData& data, m_propSurfaceList)
+        if (data.first->getName() == "Depth") return true;
 
     return false;
 }
 
 boost::shared_ptr<SurfaceData> CauldronIO::Surface::getDepthSurface() const
 {
-    BOOST_FOREACH(const boost::shared_ptr<PropertySurfaceData>& data, m_propSurfaceList)
-        if (data->first->getName() == "Depth") return data->second;
+    BOOST_FOREACH(const PropertySurfaceData& data, m_propSurfaceList)
+        if (data.first->getName() == "Depth") return data.second;
 
     return boost::shared_ptr<SurfaceData>();
 }
@@ -516,38 +511,28 @@ const boost::shared_ptr<const Formation>& CauldronIO::Surface::getBottomFormatio
 
 void CauldronIO::Surface::retrieve()
 {
-    BOOST_FOREACH(boost::shared_ptr<PropertySurfaceData>& data, m_propSurfaceList)
+    BOOST_FOREACH(PropertySurfaceData& data, m_propSurfaceList)
     {
-        data->second->retrieve();
+        data.second->retrieve();
     }
 }
 
 void CauldronIO::Surface::release()
 {
-    BOOST_FOREACH(boost::shared_ptr<PropertySurfaceData>& data, m_propSurfaceList)
+    BOOST_FOREACH(PropertySurfaceData& data, m_propSurfaceList)
     {
-        data->second->release();
+        data.second->release();
     }
 }
 
 bool CauldronIO::Surface::isRetrieved() const
 {
-    BOOST_FOREACH(const boost::shared_ptr<PropertySurfaceData>& data, m_propSurfaceList)
+    BOOST_FOREACH(const PropertySurfaceData& data, m_propSurfaceList)
     {
-        if (!data->second->isRetrieved()) return false;
+        if (!data.second->isRetrieved()) return false;
     }
 
     return true;
-}
-
-const boost::shared_ptr<const Reservoir>& CauldronIO::Surface::getReservoir() const
-{
-    return m_reservoir;
-}
-
-void CauldronIO::Surface::setReservoir(boost::shared_ptr<const Reservoir> reservoir)
-{
-    m_reservoir = reservoir;
 }
 
 /// Geometry2D Implementation
@@ -640,6 +625,8 @@ CauldronIO::SurfaceData::SurfaceData(const boost::shared_ptr<const Geometry2D>& 
 
     // Indexing into the map is unknown
     m_internalData = NULL;
+    m_reservoir.reset();
+    m_formation.reset();
 }
 
 float CauldronIO::SurfaceData::getUndefinedValue() const
@@ -660,6 +647,16 @@ void CauldronIO::SurfaceData::setFormation(boost::shared_ptr<const Formation>& f
 const boost::shared_ptr<const Formation>& CauldronIO::SurfaceData::getFormation() const
 {
     return m_formation;
+}
+
+void CauldronIO::SurfaceData::setReservoir(boost::shared_ptr<const Reservoir> reservoir)
+{
+    m_reservoir = reservoir;
+}
+
+const boost::shared_ptr<const Reservoir>& CauldronIO::SurfaceData::getReservoir() const
+{
+    return m_reservoir;
 }
 
 bool CauldronIO::SurfaceData::isConstant() const
@@ -839,50 +836,47 @@ const PropertyVolumeDataList& CauldronIO::Volume::getPropertyVolumeDataList() co
     return m_propVolumeList;
 }
 
-void CauldronIO::Volume::addPropertyVolumeData(boost::shared_ptr<PropertyVolumeData>& newData)
+void CauldronIO::Volume::addPropertyVolumeData(PropertyVolumeData& newData)
 {
-    if (!newData) throw CauldronIOException("Cannot add empty trapper");
-
-    BOOST_FOREACH(boost::shared_ptr<PropertyVolumeData>& data, m_propVolumeList)
+    BOOST_FOREACH(PropertyVolumeData& data, m_propVolumeList)
         if (data == newData) throw CauldronIOException("Cannot add property-volumeData twice");
 
     m_propVolumeList.push_back(newData);
-
 }
 
 bool CauldronIO::Volume::hasDepthVolume() const
 {
-    BOOST_FOREACH(const boost::shared_ptr<PropertyVolumeData>& data, m_propVolumeList)
-        if (data->first->getName() == "Depth") return true;
+    BOOST_FOREACH(const PropertyVolumeData& data, m_propVolumeList)
+        if (data.first->getName() == "Depth") return true;
 
     return false;
 }
 
 boost::shared_ptr<VolumeData> CauldronIO::Volume::getDepthVolume() const
 {
-    BOOST_FOREACH(const boost::shared_ptr<PropertyVolumeData>& data, m_propVolumeList)
-        if (data->first->getName() == "Depth") return data->second;
+    BOOST_FOREACH(const PropertyVolumeData& data, m_propVolumeList)
+        if (data.first->getName() == "Depth") return data.second;
 
     return boost::shared_ptr<VolumeData>();
 }
 
 void CauldronIO::Volume::retrieve()
 {
-    BOOST_FOREACH(const boost::shared_ptr<PropertyVolumeData>& data, m_propVolumeList)
-        data->second->retrieve();
+    BOOST_FOREACH(PropertyVolumeData& data, m_propVolumeList)
+        data.second->retrieve();
 }
 
 bool CauldronIO::Volume::isRetrieved() const
 {
-    BOOST_FOREACH(const boost::shared_ptr<PropertyVolumeData>& data, m_propVolumeList)
-        if (!data->second->isRetrieved()) return false;
+    BOOST_FOREACH(const PropertyVolumeData& data, m_propVolumeList)
+        if (!data.second->isRetrieved()) return false;
     return true;
 }
 
 void CauldronIO::Volume::release()
 {
-    BOOST_FOREACH(const boost::shared_ptr<PropertyVolumeData>& data, m_propVolumeList)
-        data->second->release();
+    BOOST_FOREACH(PropertyVolumeData& data, m_propVolumeList)
+        data.second->release();
 }
 
 /// Geometry3D implementation

@@ -100,7 +100,7 @@ TEST(SnapShot, Add)
     boost::shared_ptr<const Geometry3D> geometry3D(new Geometry3D(2, 2, 2, 0, 100, 100, 0, 0));
     boost::shared_ptr<Volume> volume(new Volume(Sediment, geometry3D));
     boost::shared_ptr<VolumeData> volumeData(new VolumeDataNative(geometry3D));
-    boost::shared_ptr<PropertyVolumeData> propVolume(new PropertyVolumeData(prop, volumeData));
+    PropertyVolumeData propVolume(prop, volumeData);
     volume->addPropertyVolumeData(propVolume);
     EXPECT_EQ(volume->getPropertyVolumeDataList().size(), 1);
     snapShot->setVolume(volume);
@@ -111,7 +111,7 @@ TEST(SnapShot, Add)
     boost::shared_ptr<SurfaceData> valueMap(new MapNative(geometry));
     boost::shared_ptr<Surface> surface(new Surface(surfaceName, Sediment));
     surface->setGeometry(geometry);
-    boost::shared_ptr<PropertySurfaceData> propSurface(new PropertySurfaceData(prop, valueMap));
+    PropertySurfaceData propSurface(prop, valueMap);
     surface->addPropertySurfaceData(propSurface);
     snapShot->addSurface(surface);
     EXPECT_EQ(surfaceList.size(), 1);

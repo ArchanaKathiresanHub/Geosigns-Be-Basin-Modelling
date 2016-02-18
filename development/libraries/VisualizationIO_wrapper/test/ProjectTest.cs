@@ -72,5 +72,25 @@ namespace Shell.BasinModeling.CauldronIO.Test
             project.release();
             project.retrieve();
         }
+
+        [TestMethod]
+        public void AccessProperty()
+        {
+            Project project = ImportExport.importFromXML("../../../csharp-test/HydrostaticGL_out.xml");
+
+            SnapShot snapShot = project.getSnapShots()[0];
+            Volume volume = snapShot.getVolume();
+            Assert.IsNotNull(volume);
+            PropertyVolumeDataList propvolList = volume.getPropertyVolumeDataList();
+            int count = propvolList.Count;
+
+            string projectStr = project.getName();
+            PropertyVolumeData propvolData = propvolList[1];
+            Property prop = propvolData.first;
+            VolumeData data = propvolData.second;
+
+            string name = prop.getName();
+            Geometry3D geometry = data.getGeometry();
+        }
     }
 }
