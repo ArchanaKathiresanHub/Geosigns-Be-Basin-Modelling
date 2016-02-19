@@ -18,6 +18,7 @@
 
 #include <QtGui/QMainWindow>
 
+class SoRenderArea;
 class SceneGraph;
 class QLabel;
 
@@ -41,7 +42,7 @@ class MainWindow : public QMainWindow
 
   SceneGraphManager::ColorScaleParams m_colorScaleParams;
 
-  static void fpsCallback(float fps, void* userData, SoQtViewer* viewer);
+  //static void fpsCallback(float fps, void* userData, SoQtViewer* viewer);
 
   void initOIV();
 
@@ -120,6 +121,8 @@ private slots:
 public:
 
 	MainWindow();
+
+    void viewAll();
 };
 
 #endif

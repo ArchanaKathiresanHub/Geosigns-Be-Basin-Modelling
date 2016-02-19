@@ -40,7 +40,7 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>559</width>
+               <width>298</width>
                <height>728</height>
               </rect>
              </property>
@@ -124,7 +124,7 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>559</width>
+               <width>298</width>
                <height>728</height>
               </rect>
              </property>
@@ -365,6 +365,14 @@
              </layout>
             </widget>
             <widget class="QWidget" name="page_3">
+             <property name="geometry">
+              <rect>
+               <x>0</x>
+               <y>0</y>
+               <width>298</width>
+               <height>728</height>
+              </rect>
+             </property>
              <attribute name="label">
               <string>Visualization settings</string>
              </attribute>
@@ -690,7 +698,7 @@
         </item>
        </layout>
       </widget>
-      <widget class="SoQtWrapper" name="renderWidget" native="true">
+      <widget class="OIVWidget" name="renderWidget" native="true">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
          <horstretch>10</horstretch>
@@ -820,9 +828,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>SoQtWrapper</class>
+   <class>OIVWidget</class>
    <extends>QWidget</extends>
-   <header location="global">Inventor/Qt/SoQtWrapper.h</header>
+   <header>OIVWidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

@@ -9,6 +9,7 @@
 //
 
 #include "MainWindow.h"
+#include "OIVWidget.h"
 #include "GLInfoDialog.h"
   
 #include <QtGui/QFileDialog>
@@ -37,11 +38,11 @@ namespace
   const int TreeWidgetItem_FlowLinesGroupType = QTreeWidgetItem::UserType + 11;
 }
 
-void MainWindow::fpsCallback(float fps, void* userData, SoQtViewer* viewer)
-{
-  MainWindow* mainWnd = reinterpret_cast<MainWindow*>(userData);
-  mainWnd->onFps(fps);
-}
+//void MainWindow::fpsCallback(float fps, void* userData, SoQtViewer* viewer)
+//{
+//  MainWindow* mainWnd = reinterpret_cast<MainWindow*>(userData);
+//  mainWnd->onFps(fps);
+//}
 
 void MainWindow::initOIV()
 {
@@ -92,15 +93,15 @@ void MainWindow::loadProject(const QString& filename)
   {
     m_sceneGraphManager = std::make_unique<SceneGraphManager>();
     m_sceneGraphManager->setup(m_project);
-    m_sceneGraphManager->setProjection(SceneGraphManager::PerspectiveProjection);
+    //m_sceneGraphManager->setProjection(SceneGraphManager::PerspectiveProjection);
 
-    m_ui.renderWidget->getViewer()->setSceneGraph(m_sceneGraphManager->getRoot());
+    m_ui.renderWidget->setSceneGraph(m_sceneGraphManager->getRoot());
 
     m_ui.snapshotSlider->setMinimum(0);
     m_ui.snapshotSlider->setMaximum((int)m_project->getSnapshotCount() - 1);
     m_ui.snapshotSlider->setValue(0);
 
-    m_ui.renderWidget->getViewer()->getGuiAlgoViewers()->viewAll();
+    viewAll();
 
     updateUI();
   }
@@ -110,7 +111,7 @@ void MainWindow::closeProject()
 {
   if(m_project)
   {
-    m_ui.renderWidget->getViewer()->setSceneGraph(nullptr);
+    m_ui.renderWidget->setSceneGraph(nullptr);
     m_ui.treeWidget->clear();
     m_ui.treeWidgetProperties->clear();
 
@@ -393,7 +394,9 @@ void MainWindow::onActionOpenTriggered()
 
 void MainWindow::onActionViewAllTriggered()
 {
-  m_ui.renderWidget->getViewer()->getGuiAlgoViewers()->viewAll();
+  viewAll();
+
+  m_ui.renderWidget->updateGL();
 }
 
 void MainWindow::onActionViewPresetTriggered()
@@ -419,12 +422,12 @@ void MainWindow::onActionViewPresetTriggered()
       break;
     }
   }
+
+  m_ui.renderWidget->updateGL();
 }
 
 void MainWindow::onActionRenderAllSnapshotsTriggered()
 {
-  m_ui.renderWidget->getViewer()->setAutoRedraw(false);
-
   QTime time;
   time.start();
 
@@ -437,7 +440,7 @@ void MainWindow::onActionRenderAllSnapshotsTriggered()
     //m_ui.snapshotSlider->setValue(i);
     //qApp->processEvents();
     m_sceneGraphManager->setCurrentSnapshot(i);
-    m_ui.renderWidget->getViewer()->render();
+    m_ui.renderWidget->updateGL();
 
     int t = snapshotTime.elapsed();
     if(t > maxTimeMs)
@@ -445,8 +448,6 @@ void MainWindow::onActionRenderAllSnapshotsTriggered()
 
     std::cout << "snapshot " << i << ": " << t << " ms" << std::endl;
   }
-
-  m_ui.renderWidget->getViewer()->setAutoRedraw(true);
 
   int ms = time.elapsed();
   float avgTime = (.001f * ms) / (m_ui.snapshotSlider->maximum() + 1);
@@ -457,8 +458,6 @@ void MainWindow::onActionRenderAllSnapshotsTriggered()
 
 void MainWindow::onActionRenderAllSlicesTriggered()
 {
-  m_ui.renderWidget->getViewer()->setAutoRedraw(false);
-
   QTime time;
   time.start();
 
@@ -470,7 +469,7 @@ void MainWindow::onActionRenderAllSlicesTriggered()
 
     m_ui.sliderSliceI->setValue(i);
     qApp->processEvents();
-    m_ui.renderWidget->getViewer()->render();
+    m_ui.renderWidget->updateGL();
 
     int t = snapshotTime.elapsed();
     if(t > maxTimeMs)
@@ -484,14 +483,12 @@ void MainWindow::onActionRenderAllSlicesTriggered()
 
     m_ui.sliderSliceJ->setValue(i);
     qApp->processEvents();
-    m_ui.renderWidget->getViewer()->render();
+    m_ui.renderWidget->updateGL();
 
     int t = snapshotTime.elapsed();
     if(t > maxTimeMs)
       maxTimeMs = t;
   }
-
-  m_ui.renderWidget->getViewer()->setAutoRedraw(true);
 
   int ms = time.elapsed();
   float avgTime = (.001f * ms) / (m_ui.sliderSliceI->maximum() + m_ui.sliderSliceJ->maximum() + 2);
@@ -502,8 +499,6 @@ void MainWindow::onActionRenderAllSlicesTriggered()
 
 void MainWindow::onActionSwitchPropertiesTriggered()
 {
-  m_ui.renderWidget->getViewer()->setAutoRedraw(false);
-
   const char* propertyNames[] = 
   {
     "BulkDensity", 
@@ -529,10 +524,8 @@ void MainWindow::onActionSwitchPropertiesTriggered()
     int id = m_project->getPropertyId(propertyNames[i]);
     m_sceneGraphManager->setProperty(id);
     qApp->processEvents();
-    m_ui.renderWidget->getViewer()->render();
+    m_ui.renderWidget->updateGL();
   }
-
-  m_ui.renderWidget->getViewer()->setAutoRedraw(true);
 
   int ms = time.elapsed();
   float avgTime = (.001f * ms) / n;
@@ -545,22 +538,30 @@ void MainWindow::onSliderValueChanged(int value)
 {
   //m_timeLabel->setText(QString("Time: %1").arg(m_sceneGraph->getSnapshot(value)->getTime()));
   m_sceneGraphManager->setCurrentSnapshot(value);
+
+  m_ui.renderWidget->updateGL();
 }
 
 void MainWindow::onSliceIValueChanged(int value)
 {
   m_sceneGraphManager->setSlicePosition(0, value);
+
+  m_ui.renderWidget->updateGL();
 }
 
 void MainWindow::onSliceJValueChanged(int value)
 {
   m_sceneGraphManager->setSlicePosition(1, value);
+
+  m_ui.renderWidget->updateGL();
 }
 
 void MainWindow::onVerticalScaleSliderValueChanged(int value)
 {
   float scale = powf(10.f, .2f * value);
   m_sceneGraphManager->setVerticalScale(scale);
+
+  m_ui.renderWidget->updateGL();
 }
 
 void MainWindow::onSliceToggled(bool value)
@@ -586,10 +587,12 @@ void MainWindow::onSliceToggled(bool value)
         .5f * (1.f + sinf(j * 6.f / n)));
 
       points.emplace_back(p * size);
-}
+    }
 
     int id = m_sceneGraphManager->addFence(points);
   }
+
+  m_ui.renderWidget->updateGL();
 }
 
 void MainWindow::onRenderStyleChanged()
@@ -598,11 +601,15 @@ void MainWindow::onRenderStyleChanged()
   bool drawEdges = m_ui.checkBoxDrawEdges->isChecked();
 
   m_sceneGraphManager->setRenderStyle(drawFaces, drawEdges);
+
+  m_ui.renderWidget->updateGL();
 }
 
 void MainWindow::onCoordinateGridToggled(bool value)
 {
   m_sceneGraphManager->showCoordinateGrid(value);
+
+  m_ui.renderWidget->updateGL();
 }
 
 void MainWindow::onProjectionIndexChanged(int index)
@@ -611,7 +618,7 @@ void MainWindow::onProjectionIndexChanged(int index)
     ? SceneGraphManager::PerspectiveProjection 
     : SceneGraphManager::OrthographicProjection);
 
-  static_cast<SoQtViewer*>(m_ui.renderWidget->getViewer())->setCamera(m_sceneGraphManager->getCamera());
+  m_ui.renderWidget->updateGL();
 }
 
 void MainWindow::onColorScaleMappingChanged(int index)
@@ -621,6 +628,8 @@ void MainWindow::onColorScaleMappingChanged(int index)
     : SceneGraphManager::ColorScaleParams::Logarithmic;
 
   m_sceneGraphManager->setColorScaleParams(m_colorScaleParams);
+
+  m_ui.renderWidget->updateGL();
 }
 
 void MainWindow::onColorScaleRangeChanged(int index)
@@ -639,6 +648,8 @@ void MainWindow::onColorScaleRangeChanged(int index)
   m_colorScaleParams.maxValue = m_ui.lineEditColorScaleMaxValue->text().toDouble();
 
   m_sceneGraphManager->setColorScaleParams(m_colorScaleParams);
+
+  m_ui.renderWidget->updateGL();
 }
 
 void MainWindow::onColorScaleValueChanged()
@@ -652,6 +663,8 @@ void MainWindow::onColorScaleValueChanged()
     m_colorScaleParams.maxValue = value;
 
   m_sceneGraphManager->setColorScaleParams(m_colorScaleParams);
+
+  m_ui.renderWidget->updateGL();
 }
 
 void MainWindow::onTransparencyChanged(int value)
@@ -661,16 +674,22 @@ void MainWindow::onTransparencyChanged(int value)
 
   float transparency = (float)(value - minVal) / (float)(maxVal - minVal);
   m_sceneGraphManager->setTransparency(transparency);
+
+  m_ui.renderWidget->updateGL();
 }
 
 void MainWindow::onTrapsToggled(bool value)
 {
   m_sceneGraphManager->showTraps(value);
+
+  m_ui.renderWidget->updateGL();
 }
 
 void MainWindow::onTrapOutlinesToggled(bool value)
 {
   m_sceneGraphManager->showTrapOutlines(value);
+
+  m_ui.renderWidget->updateGL();
 }
 
 void MainWindow::onDrainageAreaOutlineToggled(bool value)
@@ -689,6 +708,8 @@ void MainWindow::onDrainageAreaOutlineToggled(bool value)
   }
 
   m_sceneGraphManager->showDrainageAreaOutlines(type);
+
+  m_ui.renderWidget->updateGL();
 }
 
 void MainWindow::onDrainageAreaTypeChanged(bool value)
@@ -702,12 +723,16 @@ void MainWindow::onDrainageAreaTypeChanged(bool value)
       type = SceneGraphManager::DrainageAreaGas;
 
     m_sceneGraphManager->showDrainageAreaOutlines(type);
+
+    m_ui.renderWidget->updateGL();
   }
 }
 
 void MainWindow::onFluidContactsToggled(bool value)
 {
   m_sceneGraphManager->setProperty(value ? SceneGraphManager::FluidContactsPropertyId : -1);
+
+  m_ui.renderWidget->updateGL();
 }
 
 void MainWindow::onFlowLinesStepChanged(int value)
@@ -717,6 +742,8 @@ void MainWindow::onFlowLinesStepChanged(int value)
     : SceneGraphManager::FlowLinesLeakage;
 
   m_sceneGraphManager->setFlowLinesStep(type, value);
+
+  m_ui.renderWidget->updateGL();
 }
 
 void MainWindow::onFlowLinesThresholdChanged(int value)
@@ -734,6 +761,8 @@ void MainWindow::onFlowLinesThresholdChanged(int value)
     : SceneGraphManager::FlowLinesLeakage;
 
   m_sceneGraphManager->setFlowLinesThreshold(type, threshold);
+
+  m_ui.renderWidget->updateGL();
 }
 
 void MainWindow::onItemDoubleClicked(QTreeWidgetItem* item, int column)
@@ -767,6 +796,8 @@ void MainWindow::onItemDoubleClicked(QTreeWidgetItem* item, int column)
       m_sceneGraphManager->setProperty(item->parent()->indexOfChild(item));
     }
   }
+
+  m_ui.renderWidget->updateGL();
 }
 
 void MainWindow::onShowGLInfo()
@@ -830,6 +861,8 @@ void MainWindow::onTreeWidgetItemClicked(QTreeWidgetItem* item, int column)
     m_sceneGraphManager->enableAllFlowLines(item->checkState(0) == Qt::Checked);
     break;
   }
+
+  m_ui.renderWidget->updateGL();
 }
 
 MainWindow::MainWindow()
@@ -845,41 +878,35 @@ MainWindow::MainWindow()
 
   enableUI(false);
 
-  // Remove all the ugly buttons and scroll wheels that 
-  // you always get for free with these OIV viewers
-  m_ui.renderWidget->setDecoration(false);
-  m_ui.renderWidget->getViewer()->setBackgroundColor(SbColor(.2f, .2f, .3f));
-
   // Disable OIV widget if there's no valid license, to prevent it from drawing and crashing
   if (!m_oivLicenseOK)
     m_ui.renderWidget->setVisible(false);
 
-  SoQtViewer* viewer = dynamic_cast<SoQtViewer*>(m_ui.renderWidget->getViewer());
-  if(viewer != 0)
-  {
-    viewer->setSceneGraph(nullptr); // avoids annoying 'Qt by Nokia' text in 3D view
+  int labelFrameStyle = QFrame::Panel | QFrame::Sunken;
 
-    int labelFrameStyle = QFrame::Panel | QFrame::Sunken;
+  m_snapshotCountLabel = new QLabel;
+  m_snapshotCountLabel->setFrameStyle(labelFrameStyle);
 
-    m_snapshotCountLabel = new QLabel;
-    m_snapshotCountLabel->setFrameStyle(labelFrameStyle);
+  m_fpsLabel = new QLabel;
+  m_fpsLabel->setFrameStyle(labelFrameStyle);
 
-    m_fpsLabel = new QLabel;
-    m_fpsLabel->setFrameStyle(labelFrameStyle);
+  m_dimensionsLabel = new QLabel;
+  m_dimensionsLabel->setFrameStyle(labelFrameStyle);
 
-    m_dimensionsLabel = new QLabel;
-    m_dimensionsLabel->setFrameStyle(labelFrameStyle);
+  m_timeLabel = new QLabel;
+  m_timeLabel->setFrameStyle(labelFrameStyle);
 
-    m_timeLabel = new QLabel;
-    m_timeLabel->setFrameStyle(labelFrameStyle);
+  statusBar()->addPermanentWidget(m_snapshotCountLabel);
+  statusBar()->addPermanentWidget(m_dimensionsLabel);
+  statusBar()->addPermanentWidget(m_timeLabel);
+  statusBar()->addPermanentWidget(m_fpsLabel);
 
-    statusBar()->addPermanentWidget(m_snapshotCountLabel);
-    statusBar()->addPermanentWidget(m_dimensionsLabel);
-    statusBar()->addPermanentWidget(m_timeLabel);
-    statusBar()->addPermanentWidget(m_fpsLabel);
-
-    viewer->setFramesPerSecondCallback(fpsCallback, this);
-  }
+  //viewer->setFramesPerSecondCallback(fpsCallback, this);
 
   connectSignals();
+}
+
+void MainWindow::viewAll()
+{
+  m_ui.renderWidget->viewAll();
 }

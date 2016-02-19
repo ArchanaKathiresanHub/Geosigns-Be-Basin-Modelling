@@ -726,6 +726,7 @@ void SceneGraphManager::updateSnapshotSlices()
       }
 
       snapshot.slice[i]->index = (int)m_slicePosition[i];
+      snapshot.slice[i]->touch();
     }
 
     if (snapshot.sliceSwitch[i] != 0)

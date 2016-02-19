@@ -818,17 +818,6 @@ void VisualizationIOProject::init()
   }
 
   id = 0;
-  auto const& reservoirs = m_project->getReservoirs();
-  for (auto res : reservoirs)
-  {
-    Reservoir reservoir;
-    reservoir.name = res->getName();
-
-    m_projectInfo.reservoirs.push_back(reservoir);
-    m_reservoirIdMap[reservoir.name] = id++;
-  }
-
-  id = 0;
   auto const& formations = m_project->getFormations();
   for (auto fmt : formations)
   {
@@ -842,6 +831,18 @@ void VisualizationIOProject::init()
 
     m_projectInfo.formations.push_back(formation);
     m_formationIdMap[formation.name] = id++;
+  }
+
+  id = 0;
+  auto const& reservoirs = m_project->getReservoirs();
+  for (auto res : reservoirs)
+  {
+    Reservoir reservoir;
+    reservoir.name = res->getName();
+    reservoir.formationId = m_formationIdMap.at(res->getFormation()->getName());
+
+    m_projectInfo.reservoirs.push_back(reservoir);
+    m_reservoirIdMap[reservoir.name] = id++;
   }
 
   id = 0;
@@ -861,35 +862,22 @@ void VisualizationIOProject::init()
   double deltaXHiRes = 0.0;
   double deltaYHiRes = 0.0;
 
-  auto const& surfaces = m_snapshots[0]->getSurfaceList();
-  for (auto s : surfaces)
-  {
-    if (s->getReservoir())
-    {
-      CauldronIO::Geometry2D geometry = *s->getGeometry();
-      numCellsIHiRes = (int)geometry.getNumI() - 1;
-      numCellsJHiRes = (int)geometry.getNumJ() - 1;
-      deltaXHiRes = geometry.getDeltaI();
-      deltaYHiRes = geometry.getDeltaJ();
-      break;
-    }
-  }
-
   m_projectInfo.snapshotCount = m_snapshots.size();
 
-  auto volume = m_snapshots[0]->getVolume();
-  CauldronIO::Geometry3D geometry = *volume->getGeometry();
+  auto const& surfaces = m_snapshots[0]->getSurfaceList();
+  auto loresGeometry = *surfaces[0]->getGeometry();
+  auto hiresGeometry = *surfaces[0]->getHighResGeometry();
 
-  m_projectInfo.dimensions.minX = geometry.getMinI();
-  m_projectInfo.dimensions.minY = geometry.getMinJ();
-  m_projectInfo.dimensions.deltaX = geometry.getDeltaI();
-  m_projectInfo.dimensions.deltaY = geometry.getDeltaJ();
-  m_projectInfo.dimensions.deltaXHiRes = deltaXHiRes;
-  m_projectInfo.dimensions.deltaYHiRes = deltaYHiRes;
-  m_projectInfo.dimensions.numCellsI = (int)geometry.getNumI() - 1;
-  m_projectInfo.dimensions.numCellsJ = (int)geometry.getNumJ() - 1;
-  m_projectInfo.dimensions.numCellsIHiRes = numCellsIHiRes;
-  m_projectInfo.dimensions.numCellsJHiRes = numCellsJHiRes;
+  m_projectInfo.dimensions.minX = loresGeometry.getMinI();
+  m_projectInfo.dimensions.minY = loresGeometry.getMinJ();
+  m_projectInfo.dimensions.deltaX = loresGeometry.getDeltaI();
+  m_projectInfo.dimensions.deltaY = loresGeometry.getDeltaJ();
+  m_projectInfo.dimensions.deltaXHiRes = hiresGeometry.getDeltaI();
+  m_projectInfo.dimensions.deltaYHiRes = hiresGeometry.getDeltaJ();
+  m_projectInfo.dimensions.numCellsI = (int)loresGeometry.getNumI() - 1;
+  m_projectInfo.dimensions.numCellsJ = (int)loresGeometry.getNumJ() - 1;
+  m_projectInfo.dimensions.numCellsIHiRes = (int)hiresGeometry.getNumI() - 1;
+  m_projectInfo.dimensions.numCellsJHiRes = (int)hiresGeometry.getNumJ() - 1;
 }
 
 VisualizationIOProject::VisualizationIOProject(const std::string& path)
@@ -956,14 +944,18 @@ Project::SnapshotContents VisualizationIOProject::getSnapshotContents(size_t sna
     if (surface->getDepthSurface())
       surfaceNames.insert(surface->getName());
 
-    auto res = surface->getReservoir();
-    if (res)
-      reservoirNames.insert(res->getName());
+    auto const& dataList = surface->getPropertySurfaceDataList();
+    for (auto data : dataList)
+    {
+      auto res = data.second->getReservoir();
+      if (res)
+        reservoirNames.insert(res->getName());
+    }
   }
 
   for (auto fv : snapshot->getFormationVolumeList())
   {
-    CauldronIO::Formation formation = *fv->first;
+    CauldronIO::Formation formation = *fv.first;
     unsigned int startK, endK;
     formation.getK_Range(startK, endK);
 
@@ -1015,25 +1007,27 @@ std::shared_ptr<MiVolumeMeshCurvilinear> VisualizationIOProject::createReservoir
 
   for (auto surface : snapshot->getSurfaceList())
   {
-    auto res = surface->getReservoir();
-    if(res && res->getName() == name)
+    for (auto ps : surface->getPropertySurfaceDataList())
     {
-      for (auto ps : surface->getPropertySurfaceDataList())
-      {
-        const std::string& propertyName = ps->first->getName();
-        if (propertyName == "ResRockTop")
-          topMap = ps->second;
-        else if (name == "ResRockBottom")
-          bottomMap = ps->second;
-      }
+      if (ps.first->getType() != CauldronIO::ReservoirProperty)
+        continue;
 
-      reservoirGeometry = surface->getGeometry();
-      break;
+      auto res = ps.second->getReservoir();
+      if (res && res->getName() == name)
+      {
+        const std::string& propertyName = ps.first->getName();
+        if (propertyName == "ResRockTop")
+          topMap = ps.second;
+        else if (propertyName == "ResRockBottom")
+          bottomMap = ps.second;
+      }
     }
   }
 
   if (topMap && bottomMap)
   {
+    auto reservoirGeometry = topMap->getGeometry();
+
     if (!topMap->isRetrieved())
       topMap->retrieve();
     if (!bottomMap->isRetrieved())
@@ -1088,11 +1082,11 @@ std::shared_ptr<MiDataSetIjk<double> > VisualizationIOProject::createFormationPr
   auto volume = snapshot->getVolume();
   for (auto pv : volume->getPropertyVolumeDataList())
   {
-    if (pv->first->getName() == propertyName)
+    if (pv.first->getName() == propertyName)
     {
-      if (!pv->second->isRetrieved())
-        pv->second->retrieve();
-      return std::make_shared<VizIO::VolumeProperty>(propertyName, *volume->getGeometry(), pv->second);
+      if (!pv.second->isRetrieved())
+        pv.second->retrieve();
+      return std::make_shared<VizIO::VolumeProperty>(propertyName, *volume->getGeometry(), pv.second);
     }
   }
 
@@ -1147,12 +1141,12 @@ std::shared_ptr<MiDataSetIj<double> > VisualizationIOProject::createSurfacePrope
     {
       for (auto ps : surface->getPropertySurfaceDataList())
       {
-        if (ps->first->getName() == propertyName)
+        if (ps.first->getName() == propertyName)
         {
-          if (!ps->second->isRetrieved())
-            ps->second->retrieve();
+          if (!ps.second->isRetrieved())
+            ps.second->retrieve();
 
-          return std::make_shared<VizIO::SurfaceProperty>(propertyName, ps->second);
+          return std::make_shared<VizIO::SurfaceProperty>(propertyName, ps.second);
         }
       }
     }
@@ -1176,18 +1170,18 @@ std::shared_ptr<MiDataSetIjk<double> > VisualizationIOProject::createReservoirPr
 
   for (auto surface : snapshot->getSurfaceList())
   {
-    auto res = surface->getReservoir();
-    if(res && res->getName() == reservoirName)
+    for (auto ps : surface->getPropertySurfaceDataList())
     {
-      for (auto ps : surface->getPropertySurfaceDataList())
-      {
-        if (ps->first->getName() == propertyName)
-        {
-          if (!ps->second->isRetrieved())
-            ps->second->retrieve();
+      if (ps.first->getType() != CauldronIO::ReservoirProperty)
+        continue;
 
-          return std::make_shared<VizIO::ReservoirProperty>(propertyName, *surface->getGeometry(), ps->second);
-        }
+      auto res = ps.second->getReservoir();
+      if (res && res->getName() == reservoirName && ps.first->getName() == propertyName)
+      {
+        if (!ps.second->isRetrieved())
+          ps.second->retrieve();
+
+        return std::make_shared<VizIO::ReservoirProperty>(propertyName, *surface->getGeometry(), ps.second);
       }
     }
   }

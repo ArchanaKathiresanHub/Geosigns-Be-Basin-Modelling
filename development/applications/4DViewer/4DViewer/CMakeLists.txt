@@ -9,6 +9,7 @@
 # Do not distribute without written permission from Shell.              #
 #                                                                       #
 #########################################################################
+
 FILE( GLOB all_headers *.h )
 source_group(include FILES ${all_headers})
 
@@ -21,7 +22,7 @@ source_group(ui FILES ${all_ui})
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
-find_package(Qt4 4.8.4 REQUIRED QtGui QtCore)
+find_package(Qt4 4.8.4 REQUIRED QtGui QtCore QtOpenGL)
 
 set(OIVHOME $ENV{OIVHOME})
 set(OIVARCH $ENV{OIVARCH})
@@ -60,6 +61,7 @@ target_link_libraries(4DViewer
    ${Boost_LIBRARIES}
    Qt4::QtGui
    Qt4::QtCore
+   Qt4::QtOpenGL
 )
 
 install( TARGETS 4DViewer

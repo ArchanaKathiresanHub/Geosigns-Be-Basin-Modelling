@@ -48,6 +48,7 @@ public:
   struct Reservoir
   {
     std::string name;
+    int formationId;
   };
 
   struct FaultCollection
