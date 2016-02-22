@@ -184,6 +184,11 @@ void Trap::save (database::Table * table)
    performPVT (masses, getTemperature (), getPressure (),
 	 massesRC, densitiesRC, viscositiesRC);
 
+   for (phase = 0; phase < ComponentManager::NumberOfPhases; ++phase)
+   {
+      viscositiesRC[phase] *= 0.001; // Converting back to SI (from cP to Pa*s)
+   }
+
    saveReservoirChargeProperties (record, massesRC, densitiesRC, viscositiesRC);
 
    for (phase = 0; phase < ComponentManager::NumberOfPhases; ++phase)
@@ -316,6 +321,7 @@ void Trap::saveStockTankChargeProperties (database::Record * record, int phaseRC
    for (phaseST = 0; phaseST < ComponentManager::NumberOfPhases; ++phaseST)
    {
       phaseMassSTTotal[phaseST] = Accumulate (phaseMassesST[phaseST], ComponentManager::NumberOfOutputSpecies);
+      viscositiesST[phaseST] *= 0.001; // Converting back to SI (from cP to Pa*s)
    }
 
    if (phaseRC == ComponentManager::Vapour)

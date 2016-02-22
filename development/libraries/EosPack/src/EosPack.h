@@ -124,7 +124,7 @@ namespace pvtFlash
       /// \param[in]  gorm prescribed GORM (only significant when isPrescribed is true)       
       /// \param[out] phaseCompMasses [gas==0, oil==1][number of components]: masses of components per phase (in kg)
       /// \param[out] phaseDensity [gas==0, oil==1]:   density per phase (in kg/m3)
-      /// \param[out] phaseViscosity [gas==0, oil==1]:  viscosity per phase (in Pa*s)
+      /// \param[out] phaseViscosity [gas==0, oil==1]:  viscosity per phase (in cP)
       /// \param[in,out] kValues Initialise the flash newton solve with a set of k-values.
       ///                The array must have at least as many entries as there are species modelled in the flasher.
       ///                If this array is null then the normal initialisation will occur and the k-values will not be passed back to the calling procedure.
