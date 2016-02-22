@@ -1,3 +1,13 @@
+//
+// Copyright (C) 2016 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #ifndef DERIVED_PROPERTIES__DEPTH_HIGHRES_FORMATION_CALCULATOR_H
 #define DERIVED_PROPERTIES__DEPTH_HIGHRES_FORMATION_CALCULATOR_H
 
@@ -42,7 +52,7 @@ namespace DerivedProperties
 
    private :
 
-      /// \brief Compute (indirectly, because we actually already have it) high resolution depth for coupled runs or non subsampled runs.
+      /// \brief Compute (indirectly, because we actually already have it) high resolution depth for non subsampled runs.
       void computeIndirectly(       AbstractPropertyManager &      propertyManager,
                               const DataModel::AbstractSnapshot *  snapshot,
                               const DataModel::AbstractFormation * formation,

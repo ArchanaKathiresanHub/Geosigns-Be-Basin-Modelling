@@ -1,5 +1,16 @@
+//
+// Copyright (C) 2016 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "MaxVesHighResFormationCalculator.h"
 
+#include <assert.h>
 #include "FormattingException.h"
 #include "Interface/SimulationDetails.h"
 #include "IndirectFormationProperty.h"
@@ -45,6 +56,7 @@ void DerivedProperties::MaxVesHighResFormationCalculator::calculate(       Abstr
    try
    {
       const GeoPhysics::Formation * const currentFormation = dynamic_cast<const GeoPhysics::Formation * const>( formation );
+      assert( currentFormation != 0 );
 
       if( currentFormation->getBottomSurface()->getSnapshot()->getTime() <= snapshot->getTime() )
       {
@@ -82,9 +94,12 @@ void DerivedProperties::MaxVesHighResFormationCalculator::computeIndirectly(    
    try
    {
       const DataModel::AbstractProperty * const maxVesHighResProperty = propertyManager.getProperty( getPropertyNames()[ 0 ] );
+      assert( maxVesHighResProperty != 0 );
 
       const DataModel::AbstractProperty * const maxVesProperty = propertyManager.getProperty( "MaxVes" );
+      assert( maxVesProperty != 0 );
       FormationPropertyPtr maxVes = propertyManager.getFormationProperty( maxVesProperty, snapshot, formation );
+      assert( maxVes != 0 );
 
       IndirectFormationPropertyPtr maxVesHighRes = IndirectFormationPropertyPtr( new DerivedProperties::IndirectFormationProperty( maxVesHighResProperty, maxVes) );
 
@@ -108,6 +123,7 @@ void DerivedProperties::MaxVesHighResFormationCalculator::computeForSubsampledRu
       const GeoPhysics::Formation * const currentFormation = dynamic_cast<const GeoPhysics::Formation * const>( formation );
 
       const DataModel::AbstractProperty * const maxVesHighResProperty = propertyManager.getProperty( getPropertyNames()[ 0 ] );
+      assert( maxVesHighResProperty != 0 );
 
       DerivedFormationPropertyPtr maxVesHighRes = 
          DerivedFormationPropertyPtr( new DerivedProperties::DerivedFormationProperty( maxVesHighResProperty,
@@ -134,7 +150,9 @@ void DerivedProperties::MaxVesHighResFormationCalculator::computeForSubsampledRu
       FormationPropertyPtr previousMaxVesHighRes = propertyManager.getFormationProperty( maxVesHighResProperty, prevSnapshot, formation );
 
       const DataModel::AbstractProperty * const vesHighResProperty = propertyManager.getProperty( "VesHighRes" );
+      assert( vesHighResProperty != 0 );
       FormationPropertyPtr currentVesHighRes = propertyManager.getFormationProperty( vesHighResProperty, snapshot, formation );
+      assert( currentVesHighRes != 0 );
 
       // If the previous snapshot is the deposition snapshot of the current formation
       // the max VES is the VES itself

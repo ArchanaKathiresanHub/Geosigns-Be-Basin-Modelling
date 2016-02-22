@@ -1,3 +1,13 @@
+//
+// Copyright (C) 2016 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "DepthHighResFormationCalculator.h"
 
 #include <assert.h>
@@ -5,6 +15,7 @@
 #include "FormattingException.h"
 #include "GeoPhysicalConstants.h"
 #include "GeoPhysicsCrustFormation.h"
+#include "GeoPhysicsFluidType.h"
 #include "GeoPhysicsFormation.h"
 #include "GeoPhysicsMantleFormation.h"
 #include "IndirectFormationProperty.h"
@@ -62,6 +73,7 @@ void DerivedProperties::DepthHighResFormationCalculator::calculate(       Abstra
    try
    {
       const GeoPhysics::Formation * const currentFormation = dynamic_cast<const GeoPhysics::Formation * const>( formation );
+      assert( currentFormation != 0 );
 
       if( currentFormation->getBottomSurface()->getSnapshot()->getTime() <= snapshot->getTime() )
       {
@@ -78,9 +90,8 @@ void DerivedProperties::DepthHighResFormationCalculator::calculate(       Abstra
       }
       else
       {
-         const GeoPhysics::Formation* currentFormation = dynamic_cast<const GeoPhysics::Formation*>( formation );
-
          const DataModel::AbstractProperty * depthHighResProperty = propertyManager.getProperty( getPropertyNames()[ 0 ] );
+         assert( depthHighResProperty != 0 );
 
          DerivedFormationPropertyPtr depthHighRes = 
             DerivedFormationPropertyPtr( new DerivedProperties::DerivedFormationProperty( depthHighResProperty,
@@ -134,6 +145,7 @@ void DerivedProperties::DepthHighResFormationCalculator::computeIndirectly(     
       const DataModel::AbstractProperty * const depthHighResProperty = propertyManager.getProperty( getPropertyNames()[ 0 ] );
 
       const DataModel::AbstractProperty * const depthProperty = propertyManager.getProperty( "Depth" );
+      assert( depthProperty != 0 );
       FormationPropertyPtr depth = propertyManager.getFormationProperty( depthProperty, snapshot, formation );
 
       derivedProperties.clear();
@@ -196,6 +208,7 @@ void DerivedProperties::DepthHighResFormationCalculator::initializeTopSurface(  
          const FormationPropertyPtr depthHighResAbove = propertyManager.getFormationProperty( depthHighResProperty,
                                                                                               snapshot,
                                                                                               formationAbove );
+         assert( depthHighResAbove != 0 );
 
          for( unsigned int i = firstI; i <= lastI; ++i )
          {
@@ -235,6 +248,14 @@ void DerivedProperties::DepthHighResFormationCalculator::computeForMantle( const
       }
 
       const GeoPhysics::GeoPhysicsCrustFormation * crust = dynamic_cast<const GeoPhysics::GeoPhysicsCrustFormation*>( m_projectHandle->getCrustFormation() );
+      assert( crust != 0 );
+
+      const GeoPhysics::GeoPhysicsMantleFormation * mantle = 0;
+      if( isALC )
+      {
+         mantle = dynamic_cast<const GeoPhysics::GeoPhysicsMantleFormation*>( m_projectHandle->getMantleFormation() );
+         assert( mantle != 0 );
+      }
 
       const bool includeGhostNodes = true;
       const unsigned int firstI = depthHighRes->firstI( includeGhostNodes );
@@ -260,8 +281,6 @@ void DerivedProperties::DepthHighResFormationCalculator::computeForMantle( const
                   {
                      throw formattingexception::GeneralException() << "Effective Crustal thickness can't be 0";
                   }
-
-                  const GeoPhysics::GeoPhysicsMantleFormation * mantle = dynamic_cast<const GeoPhysics::GeoPhysicsMantleFormation*>( m_projectHandle->getMantleFormation() );
                   mantleSegmentHeight = mantle->m_mantleElementHeight0 / crustThinningRatio;
                }
                else
@@ -322,7 +341,6 @@ void DerivedProperties::DepthHighResFormationCalculator::computeForCoupledRunWit
          {
             if( m_projectHandle->getNodeIsValid(i, j) )
             {
-               const GeoPhysics::CompoundLithology * const lithology = formation->getCompoundLithology(i, j);
                depthHighResAboveValue = depthHighRes->getA(i, j, lastK);
                
                // Loop index is shifted up by 1.
@@ -390,28 +408,34 @@ void DerivedProperties::DepthHighResFormationCalculator::computeForSubsampledRun
       double depthHighResAboveValue = 0.0;
 
       const GeoPhysics::FluidType * fluid = dynamic_cast<const GeoPhysics::FluidType*>(formation->getFluidType());
-      const double fluidDensity = (fluid == 0) ? 0.0 : fluid->getConstantDensity();
+      const double constFluidDensity = (fluid == 0) ? 0.0 : fluid->getConstantDensity();
       
       // I can't know at this level whether the VES or max VES will be required
       // because it depends on the following (i,j,k)-related specific conditions
-      // - lithology->isIncompressible()
+      // - lithology(i,j)->isIncompressible()
       // - formation->isMobileLayer()
-      // - solidThickness > GeoPhysics::ThicknessTolerance
+      // - solidThickness(i,j,k,t) > GeoPhysics::ThicknessTolerance
       const DataModel::AbstractProperty * const maxVesHighResProperty = propertyManager.getProperty( "MaxVesHighRes" );
+      assert( maxVesHighResProperty != 0 );
       FormationPropertyPtr maxVesHighRes;
+      
+      // VES, pressure and temperature might be required only for coupled runs and not in the crust
+      const DataModel::AbstractProperty * vesHighResProperty = 0;
+      FormationPropertyPtr vesHighRes;
 
       if( !formation->isCrust() )
       {
+         // The mantle case is handled in DepthHighResFormationCalculator::computeForMantle
          maxVesHighRes = propertyManager.getFormationProperty( maxVesHighResProperty, snapshot, formation );
-      }
+         assert( maxVesHighRes != 0 );
 
-      // VES might be required only for coupled runs
-      const DataModel::AbstractProperty * vesHighResProperty = 0;
-      FormationPropertyPtr vesHighRes;
-      if( m_isCoupledMode )
-      {
-         vesHighResProperty = propertyManager.getProperty( "VesHighRes" );
-         vesHighRes         = propertyManager.getFormationProperty( vesHighResProperty, snapshot, formation );
+         if( m_isCoupledMode )
+         {
+            vesHighResProperty = propertyManager.getProperty( "VesHighRes" );
+            assert( vesHighResProperty != 0 );
+            vesHighRes = propertyManager.getFormationProperty( vesHighResProperty, snapshot, formation );
+            assert( vesHighRes != 0 );
+         }
       }
 
       for( unsigned int i = firstI; i <= lastI; ++i )
@@ -422,7 +446,8 @@ void DerivedProperties::DepthHighResFormationCalculator::computeForSubsampledRun
             {
                depthHighResAboveValue = depthHighRes->getA(i, j, lastK);
                const GeoPhysics::CompoundLithology * lithology = formation->getCompoundLithology(i, j);
-               densityDifference = lithology->density() - fluidDensity;    // Is that correct?? Fluid density should depend on P-T...
+               assert( lithology != 0 );
+               densityDifference = lithology->density() - constFluidDensity;
                const double oneMinusSurfacePorosity = 1.0 - lithology->surfacePorosity();
                
                // Loop index is shifted up by 1.
@@ -434,6 +459,7 @@ void DerivedProperties::DepthHighResFormationCalculator::computeForSubsampledRun
 
                   if( lithology->isIncompressible() )
                   {
+                     // This case covers also the crust
                      depthHighResValue = depthHighResAboveValue;
                      if( solidThickness > 0.0 )    // Is that check necessary?
                      {
@@ -451,8 +477,6 @@ void DerivedProperties::DepthHighResFormationCalculator::computeForSubsampledRun
                      {
                         if( m_isCoupledMode )
                         {
-                           assert( maxVesHighRes != 0 );
-                           assert( vesHighRes != 0 );
                            segmentThickness = lithology->computeSegmentThickness( maxVesHighRes->getA( i, j, k ),
                                                                                   maxVesHighRes->getA( i, j, k - 1 ),
                                                                                   vesHighRes->getA( i, j, k ),
@@ -462,7 +486,6 @@ void DerivedProperties::DepthHighResFormationCalculator::computeForSubsampledRun
                         }
                         else
                         {
-                           assert( maxVesHighRes != 0 );
                            // Should the ves be used here too?
                            segmentThickness = lithology->computeSegmentThickness( maxVesHighRes->getA( i, j, k ),
                                                                                   maxVesHighRes->getA( i, j, k - 1 ),
