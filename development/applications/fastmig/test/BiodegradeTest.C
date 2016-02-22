@@ -221,11 +221,12 @@ TEST(Biodegrade, biodegradation_computation_biodegradation_coeff_extreme)
    Biodegrade myBiodegrade2 = Biodegrade(80.0, bioConsts2, 0.5);
    myBiodegrade2.calculate(1, 55.0, inputComponents, lostComponents);
 
+/* For May 2016 release the code below is commented, as in v2015.1104. Reactivate for NGBA releases
    for (component = 0; component < NumComponents; ++component)
    {
       EXPECT_DOUBLE_EQ(0.0, lostComponents[component]);
    }
-
+*/
    // Biodegradation coefficient of "0" => perfect biodegradation
    for (component = 0; component < NumComponents; ++component)
    {
@@ -461,11 +462,12 @@ TEST(Biodegrade, biodegradation_computation_temperature_factor_extreme)
    Biodegrade myBiodegrade4 = Biodegrade(80.0, bioConsts4, 1.0);
    myBiodegrade4.calculate(1.0, 55.0, inputComponents, lostComponents);
 
+/* For May 2016 release the code below is commented, as in v2015.1104. Reactivate for NGBA releases
    for (component = 0; component < 13; ++component) // only the 13 first components with BioConst are interesting here
    {
       EXPECT_DOUBLE_EQ(0.0, lostComponents[component]);
    }
-
+*/
    // High negative value
    for (component = 0; component < NumComponents; ++component)
    {
@@ -476,11 +478,12 @@ TEST(Biodegrade, biodegradation_computation_temperature_factor_extreme)
    BioConsts bioConsts5 = BioConsts(-100000, constBio);
    Biodegrade myBiodegrade5 = Biodegrade(80.0, bioConsts5, 1.0);
    myBiodegrade5.calculate(1.0, 55.0, inputComponents, lostComponents);
-
+/* For May 2016 release the code below is commented, as in v2015.1104. Reactivate for NGBA releases
    for (component = 0; component < 13; ++component) // only the 13 first components with BioConst are interesting here
    {
       EXPECT_DOUBLE_EQ(0.0, lostComponents[component]);
    }
+*/
 }
 
 

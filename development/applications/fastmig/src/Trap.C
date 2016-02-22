@@ -1204,6 +1204,51 @@ void Trap::migrateTo (Column * column)
    getCrestColumn ()->resetComposition ();
 }
 
+// legacy biodegradeCharges
+double Trap::biodegradeChargesLegacy (const double& timeInterval, const Biodegrade& biodegrade)
+{
+   if (requiresPVT ())
+      computePVT ();
+
+   int phase = LAST_PHASE;
+   if (m_toBeDistributed[phase].isEmpty ()) {
+      phase = FIRST_PHASE;
+      if (m_toBeDistributed[phase].isEmpty ())
+         return 0;
+   }
+
+   double biodegraded = biodegradeChargesLegacy (timeInterval, biodegrade, (PhaseId) phase);
+
+#ifdef DETAILED_MASS_BALANCE
+   m_massBalance->subtractFromBalance ("biodegraded", biodegraded);
+#endif
+
+#ifdef DETAILED_VOLUME_BALANCE
+   m_volumeBalance->subtractFromBalance ("biodegraded", biodegraded);
+#endif
+
+   return biodegraded;
+
+}
+
+// legacy biodegradeCharges
+double Trap::biodegradeChargesLegacy (const double& timeInterval, const Biodegrade& biodegrade, PhaseId phase)
+{
+   Composition biodegraded;
+
+   assert (!m_toBeDistributed[phase].isEmpty ());
+
+   //temperature here is compute at the trap crest
+   m_toBeDistributed[phase].computeBiodegradation (timeInterval, getTemperature (), biodegrade,
+      biodegraded, 1.0, true);
+
+   m_toBeDistributed[phase].subtract (biodegraded);
+
+   m_reservoir->reportBiodegradationLoss (this, biodegraded);
+
+   return biodegraded.getWeight ();
+}
+
 double Trap::biodegradeCharges(const double& timeInterval, const Biodegrade& biodegrade)
 {
 
@@ -1239,7 +1284,7 @@ double Trap::biodegradeCharges(const double& timeInterval, const Biodegrade& bio
    if (volumeFractionOfGasBiodegraded > 0.0)
    {
       m_toBeDistributed[GAS].computeBiodegradation(timeInterval, m_hydrocarbonWaterContactTemperature, biodegrade,
-         biodegradedGas, volumeFractionOfGasBiodegraded);
+         biodegradedGas, volumeFractionOfGasBiodegraded, false);
       m_toBeDistributed[GAS].subtract(biodegradedGas);
       assert(m_toBeDistributed[GAS].getWeight() >= 0.0);
    }
@@ -1247,7 +1292,7 @@ double Trap::biodegradeCharges(const double& timeInterval, const Biodegrade& bio
    if (volumeFractionOfOilBiodegraded > 0.0)
    {
       m_toBeDistributed[OIL].computeBiodegradation(timeInterval, m_hydrocarbonWaterContactTemperature, biodegrade,
-         biodegradedOil, volumeFractionOfOilBiodegraded);
+         biodegradedOil, volumeFractionOfOilBiodegraded,false);
       m_toBeDistributed[OIL].subtract(biodegradedOil);
       assert(m_toBeDistributed[OIL].getWeight() >= 0.0);
    }

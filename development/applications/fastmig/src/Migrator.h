@@ -188,6 +188,7 @@ namespace migration
       inline bool performVerticalMigration (void) const;
       inline bool performHDynamicAndCapillary (void) const;
       inline bool performReservoirDetection (void) const;
+      inline bool performLegacyMigration (void) const;
       inline bool isBlockingOn (void);
       inline double getBlockingPermeability (void);
       inline double getBlockingPorosity (void);
@@ -225,6 +226,7 @@ namespace migration
       bool m_hdynamicAndCapillary;
       bool m_reservoirDetection;
       bool m_isBlockingOn;
+      bool m_legacyMigration;
       double m_blockingPermeability;
       double m_blockingPorosity;
       double m_minOilColumnHeight;
@@ -255,6 +257,11 @@ bool migration::Migrator::performHDynamicAndCapillary (void) const
 bool migration::Migrator::performReservoirDetection (void) const
 {
    return m_reservoirDetection;
+}
+
+bool migration::Migrator::performLegacyMigration (void) const
+{
+   return m_legacyMigration;
 }
 
 bool migration::Migrator::isBlockingOn (void)

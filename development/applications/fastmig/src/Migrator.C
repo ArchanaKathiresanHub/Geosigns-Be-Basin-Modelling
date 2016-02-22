@@ -177,6 +177,7 @@ bool Migrator::compute (void)
    if (m_verticalMigration)
       m_hdynamicAndCapillary = 0;
    m_reservoirDetection = m_projectHandle->getRunParameters ()->getReservoirDetection ();
+   m_legacyMigration    = m_projectHandle->getRunParameters ()->getLegacy ();
 
    bool overPressureRun = !isHydrostaticCalculation ();
 

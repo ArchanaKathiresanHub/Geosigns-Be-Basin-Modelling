@@ -2676,7 +2676,7 @@ namespace migration
          getProjectHandle()->getBiodegradationParameters();
       double timeInterval = m_start->getTime() - m_end->getTime();
 
-      if (timeInterval >= 30)
+      if (timeInterval >= 30 and !m_migrator->performLegacyMigration())
       {
          getProjectHandle()->getMessageHandler().print("WARNING: The time interval between the two snapshots ");
          getProjectHandle()->getMessageHandler().print(m_start->getTime());
@@ -2686,9 +2686,19 @@ namespace migration
       }
       Biodegrade biodegrade(biodegradationParameters);
 
-      for (TrapVector::iterator trapIter = m_traps.begin (); trapIter != m_traps.end (); ++trapIter)
+      if (m_migrator->performLegacyMigration())
       {
-         biodegraded += (*trapIter)->biodegradeCharges (timeInterval, biodegrade);
+         for (TrapVector::iterator trapIter = m_traps.begin (); trapIter != m_traps.end (); ++trapIter)
+         {
+            biodegraded += (*trapIter)->biodegradeChargesLegacy (timeInterval, biodegrade);
+         }
+      } 
+      else
+      {
+         for (TrapVector::iterator trapIter = m_traps.begin (); trapIter != m_traps.end (); ++trapIter)
+         {
+            biodegraded += (*trapIter)->biodegradeCharges (timeInterval, biodegrade);
+         }
       }
 
       RequestHandling::FinishRequestHandling ();
