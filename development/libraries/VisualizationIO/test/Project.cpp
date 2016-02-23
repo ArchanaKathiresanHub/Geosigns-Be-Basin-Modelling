@@ -13,106 +13,1123 @@
 using namespace CauldronIO;
 using namespace std;
 
-TEST( Project, Create )
+TEST(Project, Create)
 {
-    const string projectName("project");
-    const string teamName("team");
-    const string description("descript");
-    const string version("version");
-    ModellingMode mode = MODE1D;
+	const string projectName("project");
+	const string teamName("team");
+	const string description("descript");
+	const string version("version");
+	ModellingMode mode = MODE1D;
+	int xmlVersionMjr = 2;
+	int xmlVersionMnr = 1;
 
-    Project* project = new Project(projectName, description, teamName, version, mode, 0, 1);
+	boost::shared_ptr<Project> project(new Project(projectName, description, teamName, version, mode, xmlVersionMjr, xmlVersionMnr));
 
-    EXPECT_STREQ(project->getName().c_str(), projectName.c_str());
-    EXPECT_STREQ(project->getDescription().c_str(), description.c_str());
-    EXPECT_STREQ(project->getProgramVersion().c_str(), version.c_str());
-    EXPECT_STREQ(project->getTeam().c_str(), teamName.c_str());
-    EXPECT_EQ(project->getModelingMode(), mode);
+	EXPECT_STREQ(project->getName().c_str(), projectName.c_str());
+	EXPECT_STREQ(project->getDescription().c_str(), description.c_str());
+	EXPECT_STREQ(project->getProgramVersion().c_str(), version.c_str());
+	EXPECT_STREQ(project->getTeam().c_str(), teamName.c_str());
+	EXPECT_EQ(project->getModelingMode(), mode);
+	EXPECT_EQ(project->getXmlVersionMajor(), xmlVersionMjr);
+	EXPECT_EQ(project->getXmlVersionMinor(), xmlVersionMnr);
+}
 
-    delete project;
+TEST(Project, Create_HandleEmptyProjectName)
+{
+	const string projectName;
+	const string teamName("team");
+	const string description("descript");
+	const string version("version");
+	ModellingMode mode = MODE1D;
+	int xmlVersionMjr = 2;
+	int xmlVersionMnr = 1;
+	try{
+		boost::shared_ptr<Project> project(new Project(projectName, description, teamName, version, mode, xmlVersionMjr, xmlVersionMnr));
+		FAIL();
+	}
+	catch (CauldronIOException const & err)
+	{
+		EXPECT_STREQ(err.what(), "Project name cannot be empty");
+	}
+	catch (...) {
+		FAIL() << "Expected: Project name cannot be empty";
+	}
+
 }
 
 TEST(SnapShot, Create)
 {
-    double age = 10.11;
-    SnapShotKind kind = SYSTEM;
-    bool isMinor = true;
+	double age = 10.11;
+	SnapShotKind kind = SYSTEM;
+	bool isMinor = true;
 
-    SnapShot* snap = new SnapShot(age, kind, isMinor);
+	boost::shared_ptr<SnapShot> snap(new SnapShot(age, kind, isMinor));
+	EXPECT_DOUBLE_EQ(snap->getAge(), age);
+	EXPECT_EQ(snap->getKind(), kind);
+	EXPECT_EQ(snap->isMinorShapshot(), isMinor);
+}
 
-    EXPECT_DOUBLE_EQ(snap->getAge(), age);
-    EXPECT_EQ(snap->getKind(), kind);
-    EXPECT_EQ(snap->isMinorShapshot(), isMinor);
+TEST(SnapShot, Create_HandleNegativeAge)
+{
+	double age = -10.11;
+	SnapShotKind kind = SYSTEM;
+	bool isMinor = true;
+	try{
+		boost::shared_ptr<SnapShot> snap(new SnapShot(age, kind, isMinor));
+		FAIL();
+	}
+	catch (CauldronIOException const & err)
+	{
+		EXPECT_STREQ(err.what(), "SnapShot age cannot be negative");
+	}
+	catch (...){
+		FAIL() << "Expected: SnapShot age cannot be negative";
+	}
 
-    delete snap;
 }
 
 TEST(Project, AddSnapShot)
 {
-    const string projectName("project");
-    const string teamName("team");
-    const string description("descript");
-    const string version("version");
-    ModellingMode mode = MODE1D;
+	const string projectName("project");
+	const string teamName("team");
+	const string description("descript");
+	const string version("version");
+	ModellingMode mode = MODE1D;
 
-    boost::shared_ptr<Project> project(new Project(projectName, description, teamName, version, mode, 0, 1));
-    boost::shared_ptr<SnapShot> snapShot(new SnapShot(0, SYSTEM, false));
+	boost::shared_ptr<Project> project(new Project(projectName, description, teamName, version, mode, 2,1));
+	boost::shared_ptr<SnapShot> snapShot(new SnapShot(0, SYSTEM, false));
 
-    const SnapShotList& snapShotList = project->getSnapShots();
-    EXPECT_EQ(snapShotList.size(), 0);
-    project->addSnapShot(snapShot);
-    EXPECT_EQ(snapShotList.size(), 1);
+	const SnapShotList& snapShotList = project->getSnapShots();
+	EXPECT_EQ(snapShotList.size(), 0);
+	project->addSnapShot(snapShot);
+	EXPECT_EQ(snapShotList.size(), 1);
+}
+
+TEST(Project, AddSnapShot_HandleEmptySnapShot)
+{
+	const string projectName("project");
+	const string teamName("team");
+	const string description("descript");
+	const string version("version");
+	ModellingMode mode = MODE1D;
+	
+	boost::shared_ptr<Project> project(new Project(projectName, description, teamName, version, mode, 2, 1));
+	boost::shared_ptr<SnapShot> snapShot;
+
+	const SnapShotList& snapShotList = project->getSnapShots();
+
+	try{
+		project->addSnapShot(snapShot);
+		FAIL();
+	}
+	catch (CauldronIOException const & err)
+	{
+		EXPECT_STREQ(err.what(), "Cannot add empty snapshot");
+		EXPECT_EQ(snapShotList.size(), 0);
+	}
+	catch (...)
+	{
+		FAIL() << "Expected: Cannot add empty snapshot";
+	}
+}
+
+TEST(Project, AddSnapShot_HandleDuplicateSnapShot)
+{
+	const string projectName("project");
+	const string teamName("team");
+	const string description("descript");
+	const string version("version");
+	ModellingMode mode = MODE1D;
+	
+	boost::shared_ptr<Project> project(new Project(projectName, description, teamName, version, mode, 2, 1));
+	boost::shared_ptr<SnapShot> snapShot(new SnapShot(0, SYSTEM, false));
+	project->addSnapShot(snapShot);
+	const SnapShotList& snapShotList = project->getSnapShots();
+
+	try{
+		project->addSnapShot(snapShot);
+		FAIL();
+	}
+	catch (CauldronIOException const & err)
+	{
+		EXPECT_STREQ(err.what(), "Cannot add snapshot twice");
+		EXPECT_EQ(snapShotList.size(), 1);
+	}
+	catch (...)
+	{
+		FAIL() << "Expected: Cannot add snapshot twice";
+	}
+}
+
+TEST(Project, AddProperty)
+{
+	const string projectName("project");
+	const string teamName("team");
+	const string description("descript");
+	const string version("version");
+	ModellingMode mode = MODE1D;
+	
+	const string name = "Depth";
+	const string cauldronName = "cDepth";
+	const string userName = "uDepth";
+	const string unit = "unit";
+	PropertyType type = FormationProperty;
+	PropertyAttribute attrib = Continuous3DProperty;
+
+	boost::shared_ptr<const Property> prop(new Property(name, userName, cauldronName, unit, type, attrib));
+	boost::shared_ptr<Project> project(new Project(projectName, description, teamName, version, mode, 2, 1));
+	const PropertyList& propertyList = project->getProperties();
+	EXPECT_EQ(propertyList.size(), 0);
+	project->addProperty(prop);
+	EXPECT_EQ(propertyList.size(), 1);
+}
+
+TEST(Project, AddProperty_HandleDuplicateProperty)
+{
+	const string projectName("project");
+	const string teamName("team");
+	const string description("descript");
+	const string version("version");
+	ModellingMode mode = MODE1D;
+	
+	const string name = "Depth";
+	const string cauldronName = "cDepth";
+	const string userName = "uDepth";
+	const string unit = "unit";
+	PropertyType type = FormationProperty;
+	PropertyAttribute attrib = Continuous3DProperty;
+
+	boost::shared_ptr<const Property> prop(new Property(name, userName, cauldronName, unit, type, attrib));
+	boost::shared_ptr<Project> project(new Project(projectName, description, teamName, version, mode, 2, 1));
+	const PropertyList& propertyList = project->getProperties();
+
+	project->addProperty(prop);
+	EXPECT_EQ(propertyList.size(), 1);
+	project->addProperty(prop);
+	EXPECT_EQ(propertyList.size(), 1);
+}
+
+TEST(Project, FindProperty)
+{
+	const string projectName("project");
+	const string teamName("team");
+	const string description("descript");
+	const string version("version");
+	ModellingMode mode = MODE1D;
+	
+	const string name = "Depth";
+	const string cauldronName = "cDepth";
+	const string userName = "uDepth";
+	const string unit = "unit";
+	PropertyType type = FormationProperty;
+	PropertyAttribute attrib = Continuous3DProperty;
+
+	boost::shared_ptr<const Property> prop(new Property(name, userName, cauldronName, unit, type, attrib));
+	boost::shared_ptr<Project> project(new Project(projectName, description, teamName, version, mode, 2, 1));
+	const PropertyList& propertyList = project->getProperties();
+
+	project->addProperty(prop);
+	boost::shared_ptr<const Property> newProp = project->findProperty(name);
+	EXPECT_STREQ(newProp->getName().c_str(), name.c_str());
+}
+
+TEST(Project, AddFormation)
+{
+	const string projectName("project");
+	const string teamName("team");
+	const string description("descript");
+	const string version("version");
+	ModellingMode mode = MODE1D;
+	
+	size_t kStart = 1.5;
+	size_t kEnd = 2.5;
+	const string formationName("formation");
+	bool isSourceRock = true;
+	bool isMobileLayer = true;
+
+	boost::shared_ptr<const Formation> formation(new Formation(kStart, kEnd, formationName, isSourceRock, isMobileLayer));
+	boost::shared_ptr<Project> project(new Project(projectName, description, teamName, version, mode, 2, 1));
+	const FormationList& formationList = project->getFormations();
+	EXPECT_EQ(formationList.size(), 0);
+	project->addFormation(formation);
+	EXPECT_EQ(formationList.size(), 1);
+}
+
+TEST(Project, AddFormation_HandleEmptyFormation)
+{
+	const string projectName("project");
+	const string teamName("team");
+	const string description("descript");
+	const string version("version");
+	ModellingMode mode = MODE1D;
+	
+	size_t kStart = 1.5;
+	size_t kEnd = 2.5;
+	const string formationName("formation");
+	bool isSourceRock = true;
+	bool isMobileLayer = true;
+
+	boost::shared_ptr<const Formation> formation;
+	boost::shared_ptr<Project> project(new Project(projectName, description, teamName, version, mode, 2, 1));
+	const FormationList& formationList = project->getFormations();
+
+	try{
+		project->addFormation(formation);
+		FAIL();
+	}
+	catch (CauldronIOException const & err)
+	{
+		EXPECT_STREQ(err.what(), "Cannot add empty formation");
+		EXPECT_EQ(formationList.size(), 0);
+	}
+	catch (...)
+	{
+		FAIL() << "Expected: Cannot add empty formation";
+	}
+}
+
+TEST(Project, AddFormation_HandleDuplicateFormation)
+{
+	const string projectName("project");
+	const string teamName("team");
+	const string description("descript");
+	const string version("version");
+	ModellingMode mode = MODE1D;
+	
+	size_t kStart = 1.5;
+	size_t kEnd = 2.5;
+	const string formationName("formation");
+	bool isSourceRock = true;
+	bool isMobileLayer = true;
+
+	boost::shared_ptr<const Formation> formation(new Formation(kStart, kEnd, formationName, isSourceRock, isMobileLayer));
+	boost::shared_ptr<Project> project(new Project(projectName, description, teamName, version, mode, 2, 1));
+	const FormationList& formationList = project->getFormations();
+	project->addFormation(formation);
+
+	try{
+		project->addFormation(formation);
+		FAIL();
+	}
+	catch (CauldronIOException const & err)
+	{
+		EXPECT_STREQ(err.what(), "Cannot add formation twice");
+		EXPECT_EQ(formationList.size(), 1);
+	}
+	catch (...)
+	{
+		FAIL() << "Expected: Cannot add formation twice";
+	}
+}
+
+TEST(Project, FindFormation)
+{
+	const string projectName("project");
+	const string teamName("team");
+	const string description("descript");
+	const string version("version");
+	ModellingMode mode = MODE1D;
+	
+	size_t kStart = 1.5;
+	size_t kEnd = 2.5;
+	const string formationName("formation");
+	bool isSourceRock = true;
+	bool isMobileLayer = true;
+
+	boost::shared_ptr<const Formation> formation(new Formation(kStart, kEnd, formationName, isSourceRock, isMobileLayer));
+	boost::shared_ptr<Project> project(new Project(projectName, description, teamName, version, mode, 2, 1));
+	project->addFormation(formation);
+
+	boost::shared_ptr<const Formation> newFormation = project->findFormation(formationName);
+	EXPECT_STREQ(newFormation->getName().c_str(), formationName.c_str());
+}
+
+TEST(Project, AddReservoir)
+{
+	const string projectName("project");
+	const string teamName("team");
+	const string description("descript");
+	const string version("version");
+	ModellingMode mode = MODE1D;
+	
+	size_t kStart = 1.5;
+	size_t kEnd = 2.5;
+	const string formationName("formation");
+	bool isSourceRock = true;
+	bool isMobileLayer = true;
+	const string reservoirName("reservoir");
+
+	boost::shared_ptr<const Formation> formation(new Formation(kStart, kEnd, formationName, isSourceRock, isMobileLayer));
+	boost::shared_ptr<const Reservoir> reservoir(new Reservoir(reservoirName, formation));
+	boost::shared_ptr<Project> project(new Project(projectName, description, teamName, version, mode, 2, 1));
+	const ReservoirList& reservoirList = project->getReservoirs();
+	EXPECT_EQ(reservoirList.size(), 0);
+	project->addReservoir(reservoir);
+	EXPECT_EQ(reservoirList.size(), 1);
+}
+
+TEST(Project, AddReservoir_HandleEmptyReservoir)
+{
+	const string projectName("project");
+	const string teamName("team");
+	const string description("descript");
+	const string version("version");
+	ModellingMode mode = MODE1D;
+	
+	const string reservoirName("reservoir");
+	boost::shared_ptr<const Formation> formation;
+	boost::shared_ptr<const Reservoir> reservoir(new Reservoir(reservoirName, formation));
+	boost::shared_ptr<Project> project(new Project(projectName, description, teamName, version, mode, 2, 1));
+	const ReservoirList& reservoirList = project->getReservoirs();
+
+	try{
+		project->addReservoir(reservoir);
+		FAIL();
+	}
+	catch (CauldronIOException const & err)
+	{
+		EXPECT_STREQ(err.what(), "Cannot add empty reservoir");
+		EXPECT_EQ(reservoirList.size(), 0);
+	}
+	catch (...)
+	{
+		FAIL() << "Expected: Cannot add empty reservoir";
+	}
+}
+
+TEST(Project, AddReservoir_HandleDuplicateReservoir)
+{
+	const string projectName("project");
+	const string teamName("team");
+	const string description("descript");
+	const string version("version");
+	ModellingMode mode = MODE1D;
+	
+	size_t kStart = 1.5;
+	size_t kEnd = 2.5;
+	const string formationName("formation");
+	bool isSourceRock = true;
+	bool isMobileLayer = true;
+	const string reservoirName("reservoir");
+
+	boost::shared_ptr<const Formation> formation(new Formation(kStart, kEnd, formationName, isSourceRock, isMobileLayer));
+	boost::shared_ptr<const Reservoir> reservoir(new Reservoir(reservoirName, formation));
+	boost::shared_ptr<Project> project(new Project(projectName, description, teamName, version, mode, 2, 1));
+	const ReservoirList& reservoirList = project->getReservoirs();
+	project->addReservoir(reservoir);
+
+	try{
+		project->addReservoir(reservoir);
+		FAIL();
+	}
+	catch (CauldronIOException const & err)
+	{
+		EXPECT_STREQ(err.what(), "Cannot add reservoir twice");
+		EXPECT_EQ(reservoirList.size(), 1);
+	}
+	catch (...)
+	{
+		FAIL() << "Expected: Cannot add reservoir twice";
+	}
+}
+
+TEST(Project, FindReservoir)
+{
+	const string projectName("project");
+	const string teamName("team");
+	const string description("descript");
+	const string version("version");
+	ModellingMode mode = MODE1D;
+	
+	size_t kStart = 1.5;
+	size_t kEnd = 2.5;
+	const string formationName("formation");
+	bool isSourceRock = true;
+	bool isMobileLayer = true;
+	const string reservoirName("reservoir");
+
+	boost::shared_ptr<const Formation> formation(new Formation(kStart, kEnd, formationName, isSourceRock, isMobileLayer));
+	boost::shared_ptr<const Reservoir> reservoir(new Reservoir(reservoirName, formation));
+	boost::shared_ptr<Project> project(new Project(projectName, description, teamName, version, mode, 2, 1));
+	project->addReservoir(reservoir);
+
+	boost::shared_ptr<const Reservoir> newReservoir = project->findReservoir(reservoirName);
+	EXPECT_STREQ(newReservoir->getName().c_str(), reservoirName.c_str());
 }
 
 TEST(Property, Create)
 {
-    // create a volume to add to the snapshot
-    const string name = "Depth";
-    const string cauldronName = "cDepth";
-    const string userName = "uDepth";
-    const string unit = "unit";
-    PropertyType type = FormationProperty;
-    PropertyAttribute attrib = Continuous3DProperty;
-    boost::shared_ptr<Property> prop(new Property(name, userName, cauldronName, unit, type, attrib));
+	// create a volume to add to the snapshot
+	const string name = "Depth";
+	const string cauldronName = "cDepth";
+	const string userName = "uDepth";
+	const string unit = "unit";
+	PropertyType type = FormationProperty;
+	PropertyAttribute attrib = Continuous3DProperty;
+	boost::shared_ptr<Property> prop(new Property(name, userName, cauldronName, unit, type, attrib));
 
-    EXPECT_STREQ(prop->getName().c_str(), name.c_str());
-    EXPECT_STREQ(prop->getCauldronName().c_str(), cauldronName.c_str());
-    EXPECT_STREQ(prop->getUserName().c_str(), userName.c_str());
-    EXPECT_STREQ(prop->getUnit().c_str(), unit.c_str());
-    EXPECT_EQ(prop->getAttribute(), attrib);
-    EXPECT_EQ(prop->getType(), type);
+	EXPECT_STREQ(prop->getName().c_str(), name.c_str());
+	EXPECT_STREQ(prop->getCauldronName().c_str(), cauldronName.c_str());
+	EXPECT_STREQ(prop->getUserName().c_str(), userName.c_str());
+	EXPECT_STREQ(prop->getUnit().c_str(), unit.c_str());
+	EXPECT_EQ(prop->getAttribute(), attrib);
+	EXPECT_EQ(prop->getType(), type);
+
 }
+
+TEST(Property, Create_HandleEmptyPropertyName)
+{
+	// create a volume to add to the snapshot
+	const string name;
+	const string cauldronName = "cDepth";
+	const string userName = "uDepth";
+	const string unit = "unit";
+	PropertyType type = FormationProperty;
+	PropertyAttribute attrib = Continuous3DProperty;
+
+	try{
+		boost::shared_ptr<Property> prop(new Property(name, userName, cauldronName, unit, type, attrib));
+		FAIL();
+	}
+	catch (CauldronIOException const & err)
+	{
+		EXPECT_STREQ(err.what(), "Property name cannot be empty");
+
+	}
+	catch (...)
+	{
+		FAIL() << "Expected: Property name cannot be empty";
+	}
+}
+
+TEST(Property, Create_HandleEmptyCauldronName)
+{
+	// create a volume to add to the snapshot
+	const string name = "Depth";
+	const string cauldronName;
+	const string userName = "uDepth";
+	const string unit = "unit";
+	PropertyType type = FormationProperty;
+	PropertyAttribute attrib = Continuous3DProperty;
+
+	try{
+		boost::shared_ptr<Property> prop(new Property(name, userName, cauldronName, unit, type, attrib));
+		FAIL();
+	}
+	catch (CauldronIOException const & err)
+	{
+		EXPECT_STREQ(err.what(), "Cauldron name cannot be empty");
+
+	}
+	catch (...)
+	{
+		FAIL() << "Expected: Cauldron name cannot be empty";
+	}
+}
+
+TEST(Property, Create_HandleEmptyUserName)
+{
+	// create a volume to add to the snapshot
+	const string name = "Depth";
+	const string cauldronName = "cDepth";
+	const string userName;
+	const string unit = "unit";
+	PropertyType type = FormationProperty;
+	PropertyAttribute attrib = Continuous3DProperty;
+
+	try{
+		boost::shared_ptr<Property> prop(new Property(name, userName, cauldronName, unit, type, attrib));
+		FAIL();
+	}
+	catch (CauldronIOException const & err)
+	{
+		EXPECT_STREQ(err.what(), "User name cannot be empty");
+
+	}
+	catch (...)
+	{
+		FAIL() << "Expected: User name cannot be empty";
+	}
+}
+
+TEST(Property, OperatorEquals)
+{
+	// create a volume to add to the snapshot
+	const string name = "Depth";
+	const string cauldronName = "cDepth";
+	const string userName = "uDepth";
+	const string unit = "unit";
+	PropertyType type = FormationProperty;
+	PropertyAttribute attrib = Continuous3DProperty;
+	boost::shared_ptr<Property> prop1(new Property(name, userName, cauldronName, unit, type, attrib));
+	boost::shared_ptr<Property> prop2(new Property(name, userName, cauldronName, unit, type, attrib));
+	bool isEqual = prop1 == prop2;
+	EXPECT_EQ(isEqual, true);
+}
+/*
+TEST(SnapShot, Add)
+{
+boost::shared_ptr<SnapShot> snapShot(new SnapShot(0, SYSTEM, false));
+
+const FormationVolumeList& formVolumes = snapShot->getFormationVolumeList();
+const SurfaceList& surfaceList = snapShot->getSurfaceList();
+const TrapperList& trapperList = snapShot->getTrapperList();
+
+EXPECT_EQ(formVolumes.size(), 0);
+EXPECT_EQ(surfaceList.size(), 0);
+EXPECT_EQ(trapperList.size(), 0);
+
+// create a volume to add to the snapshot
+const string propName = "Depth";
+const string unit = "m";
+boost::shared_ptr<const Property> prop(new Property(propName, propName, propName, unit, FormationProperty, Continuous3DProperty));
+boost::shared_ptr<const Geometry3D> geometry3D(new Geometry3D(2, 2, 2, 0, 100, 100, 0, 0));
+boost::shared_ptr<Volume> volume(new Volume(Sediment, geometry3D));
+boost::shared_ptr<VolumeData> volumeData(new VolumeDataNative(geometry3D));
+boost::shared_ptr<PropertyVolumeData> propVolume(new PropertyVolumeData(prop, volumeData));
+volume->addPropertyVolumeData(propVolume);
+EXPECT_EQ(volume->getPropertyVolumeDataList().size(), 1);
+snapShot->setVolume(volume);
+
+// create a surface to add to the snapshot
+const string surfaceName = "waterbottom";
+boost::shared_ptr<const Geometry2D> geometry(new Geometry2D(2, 2, 100, 100, 0, 0));
+boost::shared_ptr<SurfaceData> valueMap(new MapNative(geometry));
+boost::shared_ptr<Surface> surface(new Surface(surfaceName, Sediment, geometry));
+boost::shared_ptr<PropertySurfaceData> propSurface(new PropertySurfaceData(prop, valueMap));
+surface->addPropertySurfaceData(propSurface);
+snapShot->addSurface(surface);
+EXPECT_EQ(surfaceList.size(), 1);
+
+//create a trapper to add to the snapshot
+int ID = 1234;
+int persistentID = 2345;
+boost::shared_ptr<Trapper> trapper(new Trapper(ID, persistentID));
+snapShot->addTrapper(trapper);
+EXPECT_EQ(trapperList.size(), 1);
+
+}*/
 
 TEST(SnapShot, Add)
 {
-    boost::shared_ptr<SnapShot> snapShot(new SnapShot(0, SYSTEM, false));
-    
-    const FormationVolumeList& formVolumes = snapShot->getFormationVolumeList();
-    const SurfaceList& surfaceList = snapShot->getSurfaceList();
+	boost::shared_ptr<SnapShot> snapShot(new SnapShot(0, SYSTEM, false));
 
-    EXPECT_EQ(formVolumes.size(), 0);
-    EXPECT_EQ(surfaceList.size(), 0);
+	const FormationVolumeList& formVolumes = snapShot->getFormationVolumeList();
+	const SurfaceList& surfaceList = snapShot->getSurfaceList();
+	const TrapperList& trapperList = snapShot->getTrapperList();
 
-    // create a volume to add to the snapshot
-    const string propName = "Depth";
-    const string unit = "m";
-    boost::shared_ptr<const Property> prop(new Property(propName, propName, propName, unit, FormationProperty, Continuous3DProperty));
-    boost::shared_ptr<const Geometry3D> geometry3D(new Geometry3D(2, 2, 2, 0, 100, 100, 0, 0));
-    boost::shared_ptr<Volume> volume(new Volume(Sediment, geometry3D));
-    boost::shared_ptr<VolumeData> volumeData(new VolumeDataNative(geometry3D));
-    PropertyVolumeData propVolume(prop, volumeData);
-    volume->addPropertyVolumeData(propVolume);
-    EXPECT_EQ(volume->getPropertyVolumeDataList().size(), 1);
-    snapShot->setVolume(volume);
+	EXPECT_EQ(formVolumes.size(), 0);
+	EXPECT_EQ(surfaceList.size(), 0);
+	EXPECT_EQ(trapperList.size(), 0);
 
-    // create a surface to add to the snapshot
-    const string surfaceName = "waterbottom";
-    boost::shared_ptr<const Geometry2D> geometry(new Geometry2D(2, 2, 100, 100, 0, 0));
-    boost::shared_ptr<SurfaceData> valueMap(new MapNative(geometry));
-    boost::shared_ptr<Surface> surface(new Surface(surfaceName, Sediment));
-    surface->setGeometry(geometry);
-    PropertySurfaceData propSurface(prop, valueMap);
-    surface->addPropertySurfaceData(propSurface);
-    snapShot->addSurface(surface);
-    EXPECT_EQ(surfaceList.size(), 1);
+	// create a formation volume to add to the snapshot
+	boost::shared_ptr<const Geometry3D> geometry3D(new Geometry3D(2, 2, 2, 0, 100, 100, 0, 0));
+	size_t kStart = 1.5;
+	size_t kEnd = 2.5;
+	const string formationName("formation");
+	bool isSourceRock = true;
+	bool isMobileLayer = true;
+	boost::shared_ptr<const Formation> formation(new Formation(kStart, kEnd, formationName, isSourceRock, isMobileLayer));
+	boost::shared_ptr<Volume> volume(new Volume(Sediment, geometry3D));
+	FormationVolume formationVolume = FormationVolume(formation, volume);
+	snapShot->addFormationVolume(formationVolume);
+	EXPECT_EQ(formVolumes.size(), 1);
+
+	// create a surface to add to the snapshot
+	const string surfaceName = "waterbottom";
+	const string propName = "Depth";
+	const string unit = "m";
+	boost::shared_ptr<const Property> prop(new Property(propName, propName, propName, unit, FormationProperty, Continuous3DProperty));
+	boost::shared_ptr<const Geometry2D> geometry(new Geometry2D(2, 2, 100, 100, 0, 0));
+	boost::shared_ptr<SurfaceData> valueMap(new MapNative(geometry));
+	boost::shared_ptr<Surface> surface(new Surface(surfaceName, Sediment));
+	PropertySurfaceData propSurface = PropertySurfaceData(prop, valueMap);
+	surface->addPropertySurfaceData(propSurface);
+	snapShot->addSurface(surface);
+	EXPECT_EQ(surfaceList.size(), 1);
+
+	//create a trapper to add to the snapshot
+	int ID = 1234;
+	int persistentID = 2345;
+	boost::shared_ptr<Trapper> trapper(new Trapper(ID, persistentID));
+	snapShot->addTrapper(trapper);
+	EXPECT_EQ(trapperList.size(), 1);
+
+}
+
+TEST(SnapShot, AddSurface_HandleEmptySurface)
+{
+	boost::shared_ptr<SnapShot> snapShot(new SnapShot(0, SYSTEM, false));
+
+	const SurfaceList& surfaceList = snapShot->getSurfaceList();
+	EXPECT_EQ(surfaceList.size(), 0);
+
+	// create a surface to add to the snapshot
+	const string surfaceName = "waterbottom";
+	boost::shared_ptr<const Geometry2D> geometry(new Geometry2D(2, 2, 100, 100, 0, 0));
+	boost::shared_ptr<SurfaceData> valueMap(new MapNative(geometry));
+	boost::shared_ptr<Surface> surface;
+	try{
+		snapShot->addSurface(surface);
+		FAIL();
+	}
+	catch (CauldronIOException const & err)
+	{
+		EXPECT_STREQ(err.what(), "Cannot add empty surface");
+		EXPECT_EQ(surfaceList.size(), 0);
+
+	}
+	catch (...)
+	{
+		FAIL() << "Expected: Cannot add empty surface";
+
+	}
+
+}
+
+TEST(SnapShot, AddSurface_HandleDuplicateSurface)
+{
+	boost::shared_ptr<SnapShot> snapShot(new SnapShot(0, SYSTEM, false));
+
+	const SurfaceList& surfaceList = snapShot->getSurfaceList();
+	EXPECT_EQ(surfaceList.size(), 0);
+
+	// create a surface to add to the snapshot
+	const string propName = "Depth";
+	const string unit = "m";
+	boost::shared_ptr<const Property> prop(new Property(propName, propName, propName, unit, FormationProperty, Continuous3DProperty));
+	const string surfaceName = "waterbottom";
+	boost::shared_ptr<const Geometry2D> geometry(new Geometry2D(2, 2, 100, 100, 0, 0));
+	boost::shared_ptr<SurfaceData> valueMap(new MapNative(geometry));
+	boost::shared_ptr<Surface> surface(new Surface(surfaceName, Sediment));
+	PropertySurfaceData propSurface = PropertySurfaceData(prop, valueMap);
+	surface->addPropertySurfaceData(propSurface);
+	snapShot->addSurface(surface);
+
+	try{
+		snapShot->addSurface(surface);
+		FAIL();
+	}
+	catch (CauldronIOException const & err)
+	{
+		EXPECT_STREQ(err.what(), "Cannot add surface twice");
+		EXPECT_EQ(surfaceList.size(), 1);
+
+	}
+	catch (...)
+	{
+		FAIL() << "Expected: Cannot add surface twice";
+
+	}
+
+}
+
+TEST(SnapShot, AddFormationVolume_HandleEmptyVolume)
+{
+	boost::shared_ptr<SnapShot> snapShot(new SnapShot(0, SYSTEM, false));
+
+	const FormationVolumeList& formVolumes = snapShot->getFormationVolumeList();
+
+	boost::shared_ptr<const Geometry3D> geometry3D(new Geometry3D(2, 2, 2, 0, 100, 100, 0, 0));
+	size_t kStart = 1.5;
+	size_t kEnd = 2.5;
+	const string formationName("formation");
+	bool isSourceRock = true;
+	bool isMobileLayer = true;
+	boost::shared_ptr<const Formation> formation(new Formation(kStart, kEnd, formationName, isSourceRock, isMobileLayer));
+	boost::shared_ptr<Volume> volume(new Volume(Sediment, geometry3D));
+	FormationVolume formationVolume;
+
+	try{
+		snapShot->addFormationVolume(formationVolume);
+		FAIL();
+	}
+	catch (CauldronIOException const & err)
+	{
+		EXPECT_STREQ(err.what(), "Cannot add empty volume");
+		EXPECT_EQ(formVolumes.size(), 0);
+
+	}
+	catch (...)
+	{
+		FAIL() << "Expected: Cannot add empty volume";
+	}
+}
+
+TEST(SnapShot, AddFormationVolume_HandleDuplicateVolume)
+{
+	boost::shared_ptr<SnapShot> snapShot(new SnapShot(0, SYSTEM, false));
+	const FormationVolumeList& formVolumes = snapShot->getFormationVolumeList();
+	boost::shared_ptr<const Geometry3D> geometry3D(new Geometry3D(2, 2, 2, 0, 100, 100, 0, 0));
+	size_t kStart = 1.5;
+	size_t kEnd = 2.5;
+	const string formationName("formation");
+	bool isSourceRock = true;
+	bool isMobileLayer = true;
+	boost::shared_ptr<const Formation> formation(new Formation(kStart, kEnd, formationName, isSourceRock, isMobileLayer));
+	boost::shared_ptr<Volume> volume(new Volume(Sediment, geometry3D));
+	FormationVolume formationVolume = FormationVolume(formation, volume);
+	snapShot->addFormationVolume(formationVolume);
+
+	try{
+		snapShot->addFormationVolume(formationVolume);
+		FAIL();
+	}
+	catch (CauldronIOException const & err)
+	{
+		EXPECT_STREQ(err.what(), "Cannot add volume twice");
+		EXPECT_EQ(formVolumes.size(), 1);
+
+	}
+	catch (...)
+	{
+		FAIL() << "Expected: Cannot add volume twice";
+	}
+
+}
+
+TEST(SnapShot, AddTrapper_HandleEmptyTrapper)
+{
+	boost::shared_ptr<SnapShot> snapShot(new SnapShot(0, SYSTEM, false));
+	const TrapperList& trapperList = snapShot->getTrapperList();
+
+	int ID = 1234;
+	int persistentID = 2345;
+	boost::shared_ptr<Trapper> trapper;
+
+	try{
+		snapShot->addTrapper(trapper);
+		FAIL();
+	}
+	catch (CauldronIOException const & err)
+	{
+		EXPECT_STREQ(err.what(), "Cannot add empty trapper");
+		EXPECT_EQ(trapperList.size(), 0);
+
+	}
+	catch (...)
+	{
+		FAIL() << "Expected: Cannot add empty trapper";
+	}
+}
+
+TEST(SnapShot, AddTrapper_HandleDuplicateTrapper)
+{
+	boost::shared_ptr<SnapShot> snapShot(new SnapShot(0, SYSTEM, false));
+	const TrapperList& trapperList = snapShot->getTrapperList();
+
+	int ID = 1234;
+	int persistentID = 2345;
+	boost::shared_ptr<Trapper> trapper(new Trapper(ID, persistentID));
+	snapShot->addTrapper(trapper);
+
+	try{
+		snapShot->addTrapper(trapper);
+		FAIL();
+	}
+	catch (CauldronIOException const & err)
+	{
+		EXPECT_STREQ(err.what(), "Cannot add trapper twice");
+		EXPECT_EQ(trapperList.size(), 1);
+	}
+	catch (...)
+	{
+		FAIL() << "Expected: Cannot add trapper twice";
+	}
+}
+
+TEST(Formation, Create)
+{
+	size_t kStart = 1.5;
+	size_t kEnd = 2.5;
+	const string formationName("formation");
+	bool isSourceRock = true;
+	bool isMobileLayer = true;
+	boost::shared_ptr<const Formation> formation(new Formation(kStart, kEnd, formationName, isSourceRock, isMobileLayer));
+	unsigned int start, end;
+	formation->getK_Range(start, end);
+	EXPECT_EQ(start, kStart);
+	EXPECT_EQ(end, kEnd);
+	EXPECT_EQ(formation->getName().c_str(), formationName);
+	EXPECT_EQ(formation->isMobileLayer(), isMobileLayer);
+	EXPECT_EQ(formation->isSourceRock(), isSourceRock);
+}
+
+TEST(Formation, Create_HandleEmptyName)
+{
+	size_t kStart = 1.5;
+	size_t kEnd = 2.5;
+	const string formationName;
+	bool isSourceRock = true;
+	bool isMobileLayer = true;
+	try{
+		boost::shared_ptr<const Formation> formation(new Formation(kStart, kEnd, formationName, isSourceRock, isMobileLayer));
+		FAIL();
+	}
+	catch (CauldronIOException const & err)
+	{
+		EXPECT_STREQ(err.what(), "Formation name cannot be empty");
+	}
+	catch (...)
+	{
+		FAIL() << "Expected: Formation name cannot be empty";
+	}
+}
+
+TEST(Formation, Create_HandleEmptyKStart)
+{
+	size_t kStart;
+	size_t kEnd = 2.5;
+	const string formationName("formation");
+	bool isSourceRock = true;
+	bool isMobileLayer = true;
+	try{
+		boost::shared_ptr<const Formation> formation(new Formation(kStart, kEnd, formationName, isSourceRock, isMobileLayer));
+		FAIL();
+	}
+	catch (CauldronIOException const & err)
+	{
+		EXPECT_STREQ(err.what(), "K range cannot be empty");
+	}
+	catch (...)
+	{
+		FAIL() << "Expected: K range cannot be empty";
+	}
+}
+
+TEST(Formation, Create_HandleEmptyKEnd)
+{
+	size_t kStart = 1.5;
+	size_t kEnd;
+	const string formationName("formation");
+	bool isSourceRock = true;
+	bool isMobileLayer = true;
+	try{
+		boost::shared_ptr<const Formation> formation(new Formation(kStart, kEnd, formationName, isSourceRock, isMobileLayer));
+		FAIL();
+	}
+	catch (CauldronIOException const & err)
+	{
+		EXPECT_STREQ(err.what(), "K range cannot be empty");
+	}
+	catch (...)
+	{
+		FAIL() << "Expected: K range cannot be empty";
+	}
+}
+
+TEST(Formation, OperatorEquals)
+{
+	size_t kStart = 1.5;
+	size_t kEnd = 2.5;
+	const string formationName("formation");
+	bool isSourceRock = true;
+	bool isMobileLayer = true;
+	boost::shared_ptr<const Formation> formation1(new Formation(kStart, kEnd, formationName, isSourceRock, isMobileLayer));
+	boost::shared_ptr<const Formation> formation2(new Formation(kStart, kEnd, formationName, isSourceRock, isMobileLayer));
+	bool isEqual = formation1 == formation2;
+	EXPECT_EQ(isEqual, true);
+
+}
+
+TEST(Surface, Create)
+{
+	const string surfaceName = "waterbottom";
+	boost::shared_ptr<Surface> surface(new Surface(surfaceName, Sediment));
+	EXPECT_STREQ(surface->getName().c_str(), surfaceName.c_str());
+	EXPECT_EQ(surface->getSubSurfaceKind(), Sediment);
+
+}
+
+TEST(Surface, SetFormation)
+{
+	const string surfaceName = "waterbottom";
+	boost::shared_ptr<Surface> surface(new Surface(surfaceName, Sediment));
+	size_t kStart = 1.5;
+	size_t kEnd = 2.5;
+	const string formationName("formation");
+	bool isSourceRock = true;
+	bool isMobileLayer = true;
+	boost::shared_ptr<const Formation> formation(new Formation(kStart, kEnd, formationName, isSourceRock, isMobileLayer));
+	surface->setFormation(formation, true);
+	EXPECT_STREQ(surface->getTopFormation()->getName().c_str(), formationName.c_str());
+
+}
+
+TEST(Surface, AddPropertySurfaceData_HandleEmptyData)
+{
+	const string surfaceName = "waterbottom";
+	boost::shared_ptr<Surface> surface(new Surface(surfaceName, Sediment));
+	PropertySurfaceData propSurface;
+
+	try{
+		surface->addPropertySurfaceData(propSurface);
+		FAIL();
+	}
+	catch (CauldronIOException const & err)
+	{
+		EXPECT_STREQ(err.what(), "Cannot add empty property-surfaceData");
+	}
+	catch (...)
+	{
+		FAIL() << "Expected: Cannot add empty property-surfaceData";
+	}
+
+}
+
+TEST(Surface, AddPropertySurfaceData_HandleDuplicateData)
+{
+	const string propName = "Depth";
+	const string unit = "m";
+	boost::shared_ptr<const Property> prop(new Property(propName, propName, propName, unit, FormationProperty, Continuous3DProperty));
+	const string surfaceName = "waterbottom";
+	boost::shared_ptr<const Geometry2D> geometry(new Geometry2D(2, 2, 100, 100, 0, 0));
+	boost::shared_ptr<SurfaceData> valueMap(new MapNative(geometry));
+	boost::shared_ptr<Surface> surface(new Surface(surfaceName, Sediment));
+	PropertySurfaceData propSurface = PropertySurfaceData(prop, valueMap);
+	surface->addPropertySurfaceData(propSurface);
+	try{
+		surface->addPropertySurfaceData(propSurface);
+		FAIL();
+	}
+	catch (CauldronIOException const & err)
+	{
+		EXPECT_STREQ(err.what(), "Cannot add property-surfaceData twice");
+	}
+	catch (...)
+	{
+		FAIL() << "Expected: Cannot add property-surfaceData twice";
+	}
+
+}
+
+TEST(Geometry2D, Create)
+{
+	size_t numI = 2;
+	size_t numJ = 3;
+	double deltaI = 1.5;
+	double deltaJ = 2.5;
+	double minI = 1.2;
+	double minJ = 3.2;
+	double maxI = minI + deltaI * numI;
+	double maxJ = minJ + deltaJ * numJ;
+	boost::shared_ptr<const Geometry2D> geometry(new Geometry2D(numI, numJ, deltaI, deltaJ, minI, minJ));
+	EXPECT_EQ(geometry->getNumI(), numI);
+	EXPECT_EQ(geometry->getNumJ(), numJ);
+	EXPECT_DOUBLE_EQ(geometry->getDeltaI(), deltaI);
+	EXPECT_DOUBLE_EQ(geometry->getDeltaJ(), deltaJ);
+	EXPECT_DOUBLE_EQ(geometry->getMinI(), minI);
+	EXPECT_DOUBLE_EQ(geometry->getMinJ(), minJ);
+	EXPECT_DOUBLE_EQ(geometry->getMaxI(), maxI);
+	EXPECT_DOUBLE_EQ(geometry->getMaxJ(), maxJ);
+}
+
+TEST(Geometry2D, Create_HandleNegativeNumI)
+{
+	size_t numI = -2;
+	size_t numJ = 3;
+	double deltaI = 1.5;
+	double deltaJ = 2.5;
+	double minI = 1.2;
+	double minJ = 3.2;
+	double maxI = minI + deltaI * numI;
+	double maxJ = minJ + deltaJ * numJ;
+
+	try{
+		boost::shared_ptr<const Geometry2D> geometry(new Geometry2D(numI, numJ, deltaI, deltaJ, minI, minJ));
+		FAIL();
+	}
+	catch (CauldronIOException const & err)
+	{
+		EXPECT_STREQ(err.what(), "Number of elements in i-direction cannot be negative");
+	}
+	catch (...)
+	{
+		FAIL() << "Expected: Number of elements in i-direction cannot be negative";
+	}
+
+}
+
+TEST(Geometry2D, Create_HandleNegativeNumJ)
+{
+	size_t numI = 2;
+	size_t numJ = -3;
+	double deltaI = 1.5;
+	double deltaJ = 2.5;
+	double minI = 1.2;
+	double minJ = 3.2;
+	double maxI = minI + deltaI * numI;
+	double maxJ = minJ + deltaJ * numJ;
+
+	try{
+		boost::shared_ptr<const Geometry2D> geometry(new Geometry2D(numI, numJ, deltaI, deltaJ, minI, minJ));
+		FAIL();
+	}
+	catch (CauldronIOException const & err)
+	{
+		EXPECT_STREQ(err.what(), "Number of elements in j-direction cannot be negative");
+	}
+	catch (...)
+	{
+		FAIL() << "Expected: Number of elements in j-direction cannot be negative";
+	}
+
+}
+
+TEST(Volume, Create)
+{
+	size_t numI = 2;
+	size_t numJ = 3;
+	size_t numK = 4;
+	size_t offsetK = 3;
+	double deltaI = 1.5;
+	double deltaJ = 2.5;
+	double minI = 1.2;
+	double minJ = 3.2;
+
+	SubsurfaceKind kind = Sediment;
+	boost::shared_ptr<const Geometry3D> geometry(new Geometry3D(numI, numJ, numK, offsetK, deltaI, deltaJ, minI, minJ));
+	boost::shared_ptr<Volume> volume(new Volume(kind, geometry));
+	EXPECT_EQ(volume->getSubSurfaceKind(), kind);
+	EXPECT_EQ(volume->getGeometry()->getMinI(), minI);
+
+}
+
+TEST(Geometry3D, Create)
+{
+	size_t numI = 2;
+	size_t numJ = 3;
+	size_t numK = 4;
+	size_t offsetK = 3;
+	double deltaI = 1.5;
+	double deltaJ = 2.5;
+	double minI = 1.2;
+	double minJ = 3.2;
+	double maxI = minI + deltaI * numI;
+	double maxJ = minJ + deltaJ * numJ;
+	size_t lastK = offsetK + numK - 1;
+	boost::shared_ptr<const Geometry3D> geometry(new Geometry3D(numI, numJ, numK, offsetK, deltaI, deltaJ, minI, minJ));
+	EXPECT_EQ(geometry->getNumI(), numI);
+	EXPECT_EQ(geometry->getNumJ(), numJ);
+	EXPECT_EQ(geometry->getNumK(), numK);
+	EXPECT_EQ(geometry->getFirstK(), offsetK);
+	EXPECT_DOUBLE_EQ(geometry->getDeltaI(), deltaI);
+	EXPECT_DOUBLE_EQ(geometry->getDeltaJ(), deltaJ);
+	EXPECT_DOUBLE_EQ(geometry->getMinI(), minI);
+	EXPECT_DOUBLE_EQ(geometry->getMinJ(), minJ);
+	EXPECT_DOUBLE_EQ(geometry->getMaxI(), maxI);
+	EXPECT_DOUBLE_EQ(geometry->getMaxJ(), maxJ);
+	EXPECT_EQ(geometry->getLastK(), lastK);
+
+}
+
+TEST(Trapper, Create)
+{
+	int ID = 1234;
+	int persistentID = 2345;
+	boost::shared_ptr<const Trapper> trapper(new Trapper(ID, persistentID));
+
+	EXPECT_EQ(trapper->getID(), ID);
+	EXPECT_EQ(trapper->getPersistentID(), persistentID);
+
 }
