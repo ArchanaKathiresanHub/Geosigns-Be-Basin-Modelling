@@ -419,7 +419,7 @@ private:
   {
     int id;
     bool visible;
-    std::vector<SbVec2f> points;
+    std::vector<SbVec3f> points;
 
     SoSwitch* fenceSwitch;
     MoMeshFenceSlice* fence;
@@ -524,7 +524,9 @@ public:
 
   void setSlicePosition(int slice, int position);
 
-  int  addFence(const std::vector<SbVec2f>& polyline);
+  int  addFence(const std::vector<SbVec3f>& polyline);
+
+  void updateFence(int id, const std::vector<SbVec3f>& polyline);
 
   void removeFence(int id);
 

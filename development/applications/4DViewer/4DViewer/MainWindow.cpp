@@ -11,7 +11,7 @@
 #include "MainWindow.h"
 #include "OIVWidget.h"
 #include "GLInfoDialog.h"
-  
+
 #include <QtGui/QFileDialog>
 #include <QtGui/QMessageBox>
 #include <QtGui/QTreeWidget>
@@ -91,11 +91,17 @@ void MainWindow::loadProject(const QString& filename)
 
   if (m_oivLicenseOK)
   {
-    m_sceneGraphManager = std::make_unique<SceneGraphManager>();
+    m_sceneGraphManager = std::make_shared<SceneGraphManager>();
     m_sceneGraphManager->setup(m_project);
-    //m_sceneGraphManager->setProjection(SceneGraphManager::PerspectiveProjection);
 
-    m_ui.renderWidget->setSceneGraph(m_sceneGraphManager->getRoot());
+    m_examiner = new SceneExaminer(m_sceneGraphManager);
+    m_examiner->setModeChangedCallback(std::bind(&MainWindow::onModeChanged, this, std::placeholders::_1));
+    m_examiner->setFenceAddedCallback(std::bind(&MainWindow::onFenceAdded, this, std::placeholders::_1));
+    
+    // Init label
+    onModeChanged(m_examiner->getInteractionMode());
+
+    m_ui.renderWidget->setSceneGraph(m_examiner.ptr());
 
     m_ui.snapshotSlider->setMinimum(0);
     m_ui.snapshotSlider->setMaximum((int)m_project->getSnapshotCount() - 1);
@@ -299,6 +305,8 @@ void MainWindow::updateUI()
   m_ui.sliderSliceI->setValue(0);
   m_ui.sliderSliceJ->setValue(0);
 
+  m_ui.listWidgetFences->clear();
+
   m_colorScaleParams = SceneGraphManager::ColorScaleParams();
   m_ui.comboBoxColorScaleMapping->setCurrentIndex(0);
   m_ui.comboBoxColorScaleRange->setCurrentIndex(0);
@@ -361,6 +369,7 @@ void MainWindow::connectSignals()
   connect(m_ui.sliderExpulsionThreshold, SIGNAL(valueChanged(int)), this, SLOT(onFlowLinesThresholdChanged(int)));
 
   connect(m_ui.treeWidget, SIGNAL(itemClicked(QTreeWidgetItem*, int)), this, SLOT(onTreeWidgetItemClicked(QTreeWidgetItem*, int)));
+  connect(m_ui.listWidgetFences, SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(onFenceListItemClicked(QListWidgetItem*)));
 }
 
 int MainWindow::getFaultIndex(const std::string& collectionName, const std::string& faultName) const
@@ -377,6 +386,29 @@ int MainWindow::getFaultIndex(const std::string& collectionName, const std::stri
   }
 
   return -1;
+}
+
+void MainWindow::onModeChanged(SceneExaminer::InteractionMode mode)
+{
+  QString text;
+  switch (mode)
+  {
+  case SceneExaminer::VIEWING: text = "VIEWING"; break;
+  case SceneExaminer::PICKING: text = "PICKING"; break;
+  case SceneExaminer::FENCE_EDITING: text = "FENCE"; break;
+  }
+
+  m_modeLabel->setText(text);
+}
+
+void MainWindow::onFenceAdded(int fenceId)
+{
+  auto item = new QListWidgetItem;
+  item->setText(QString("Fence %1").arg(fenceId));
+  item->setCheckState(Qt::Checked);
+  item->setData(Qt::UserRole, fenceId);
+
+  m_ui.listWidgetFences->addItem(item);
 }
 
 void MainWindow::onActionOpenTriggered()
@@ -570,27 +602,6 @@ void MainWindow::onSliceToggled(bool value)
     m_sceneGraphManager->enableSlice(0, value);
   else
     m_sceneGraphManager->enableSlice(1, value);
-
-  if (false)
-  {
-    SbVec2f size(
-      (float)(m_projectInfo.dimensions.deltaX * m_projectInfo.dimensions.numCellsI),
-      (float)(m_projectInfo.dimensions.deltaY * m_projectInfo.dimensions.numCellsJ));
-
-    std::vector<SbVec2f> points;
-
-    int n = 10;
-    for (int j = 0; j < n; ++j)
-    {
-      SbVec2f p(
-        (float)j / (float)n,
-        .5f * (1.f + sinf(j * 6.f / n)));
-
-      points.emplace_back(p * size);
-    }
-
-    int id = m_sceneGraphManager->addFence(points);
-  }
 
   m_ui.renderWidget->updateGL();
 }
@@ -865,8 +876,17 @@ void MainWindow::onTreeWidgetItemClicked(QTreeWidgetItem* item, int column)
   m_ui.renderWidget->updateGL();
 }
 
+void MainWindow::onFenceListItemClicked(QListWidgetItem* item)
+{
+  int fenceId = item->data(Qt::UserRole).toInt();
+  m_sceneGraphManager->enableFence(fenceId, item->checkState() == Qt::Checked);
+
+  m_ui.renderWidget->updateGL();
+}
+
 MainWindow::MainWindow()
   : m_oivLicenseOK(false)
+  , m_modeLabel(nullptr)
   , m_snapshotCountLabel(nullptr)
   , m_dimensionsLabel(nullptr)
   , m_timeLabel(nullptr)
@@ -884,6 +904,9 @@ MainWindow::MainWindow()
 
   int labelFrameStyle = QFrame::Panel | QFrame::Sunken;
 
+  m_modeLabel = new QLabel;
+  m_modeLabel->setFrameStyle(labelFrameStyle);
+
   m_snapshotCountLabel = new QLabel;
   m_snapshotCountLabel->setFrameStyle(labelFrameStyle);
 
@@ -896,6 +919,7 @@ MainWindow::MainWindow()
   m_timeLabel = new QLabel;
   m_timeLabel->setFrameStyle(labelFrameStyle);
 
+  statusBar()->addPermanentWidget(m_modeLabel);
   statusBar()->addPermanentWidget(m_snapshotCountLabel);
   statusBar()->addPermanentWidget(m_dimensionsLabel);
   statusBar()->addPermanentWidget(m_timeLabel);
@@ -908,5 +932,10 @@ MainWindow::MainWindow()
 
 void MainWindow::viewAll()
 {
-  m_ui.renderWidget->viewAll();
+  m_examiner->viewAll(
+    SbViewportRegion(
+      (short)m_ui.renderWidget->width(),
+      (short)m_ui.renderWidget->height()));
+
+  m_ui.renderWidget->updateGL();
 }

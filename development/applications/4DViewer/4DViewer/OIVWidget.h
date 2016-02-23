@@ -13,7 +13,6 @@ class OIVWidget : public QGLWidget
 {
   SoRef<SoGLContext> m_glcontext;
   SoRef<SoRenderAreaCore> m_renderArea;
-  SoRef<SceneExaminer> m_examiner;
 
  protected:
 
@@ -38,8 +37,6 @@ class OIVWidget : public QGLWidget
   OIVWidget(QWidget* parent=0, Qt::WindowFlags f=0);
 
   void setSceneGraph(SoNode* root);
-
-  void viewAll();
 };
 
 #endif // OIVWIDGET_H_INCLUDED

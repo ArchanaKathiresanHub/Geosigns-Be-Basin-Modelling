@@ -1,18 +1,13 @@
 #ifndef _SceneExaminer_
 #define _SceneExaminer_
 
-//#if defined(_WIN32)
-//#if _DEBUG
-//#pragma comment(lib,"ViewerComponentsD")
-//#else
-//#pragma comment(lib,"ViewerComponents")
-//#endif
-//#endif
-
 #include "SceneInteractor.h" 
 
 #include <Inventor/events/SoMouseButtonEvent.h>
 #include <Inventor/events/SoLocation2Event.h>
+
+#include <memory>
+#include <functional>
 
 class SoMouseWheelEvent;
 class SoKeyboardEvent;
@@ -21,6 +16,7 @@ class SoScaleGestureEvent;
 class SoEvent;
 class SoTouchEvent;
 class SoRotateGestureEvent;
+class SceneGraphManager;
 
 /**
 * Tool class for easily building a basic interactive OpenInventor application 
@@ -78,61 +74,9 @@ public:
     FENCE_EDITING
   };
 
-  /** Constructor */
-  SceneExaminer();
+  explicit SceneExaminer(std::shared_ptr<SceneGraphManager> mgr);
 
-  /** Destructor */
   virtual ~SceneExaminer();
-
-  /**
-  * Enable or disable picking mode. Default is true.
-  */
-  void enablePicking(bool enabled);
-
-  /**
-  * Returns if picking is enabled.
-  */
-  bool isPickingEnabled();
-
-  /**
-  * Enable or disable zoom. Default is true.
-  */
-  void enableZoom(bool enabled);
-
-  /**
-  * Returns if zoom is enabled.
-  */
-  bool isZoomEnabled();
-
-  /**
-  * Enable or disable camera panning. Default is true.
-  */
-  void enablePan(bool enabled);
-
-  /**
-  * Returns if camera panning is enabled.
-  */
-  bool isPanEnabled();
-
-  /**
-  * Enable or disable camera orbiting. Default is true.
-  */
-  void enableOrbit(bool enabled);
-
-  /**
-  * Returns if camera orbiting is enabled.
-  */
-  bool isOrbitEnabled();
-
-  /**
-  * Enable or disable camera rotation. Default is true.
-  */
-  void enableRotate(bool enabled);
-
-  /**
-  * Returns if camera rotation is enabled.
-  */
-  bool isRotateEnabled();
 
   /**
   * Set interaction mode to viewing or picking. Default is VIEWING.
@@ -144,7 +88,11 @@ public:
   */
   SceneExaminer::InteractionMode getInteractionMode();
 
+  void setModeChangedCallback(std::function<void(InteractionMode)> cb);
+  void setFenceAddedCallback(std::function<void(int)> cb);
+
 protected:
+
   virtual void mouseWheelMoved( SoMouseWheelEvent* wheelEvent, SoHandleEventAction* action );
   virtual void mouseMoved( SoLocation2Event* mouseEvent, SoHandleEventAction* action );
   virtual void mousePressed( SoMouseButtonEvent* mouseEvent, SoHandleEventAction* action );
@@ -157,11 +105,6 @@ protected:
 
 private:
 
-  bool m_isPickingEnabled;
-  bool m_isZoomEnabled;
-  bool m_isPanEnabled;
-  bool m_isOrbitEnabled;
-  bool m_isRotateEnabled;
   bool m_isButton1Down;
   bool m_isButton2Down;
   bool m_isTouchOrbitActivated;
@@ -174,6 +117,14 @@ private:
 
   // given an SoTouchEvent convert it into MouseButton or Location2Event
   SoEvent* convertTouchEvent( SoTouchEvent* touchEvent );
+
+  std::shared_ptr<SceneGraphManager> m_scenegraph;
+
+  std::function<void(int)> m_fenceAddedCallback;
+  std::function<void(InteractionMode)> m_modeChangedCallback;
+
+  int m_currentFenceId;
+  std::vector<SbVec3f> m_fencePoints;
 };
 
 #endif // _SceneExaminer_

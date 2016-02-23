@@ -1,4 +1,5 @@
 #include "SceneExaminer.h"
+#include "SceneGraphManager.h"
 
 #include <cmath>
 #include <Inventor/events/SoMouseWheelEvent.h>
@@ -10,144 +11,97 @@
 #include <Inventor/touch/SoTouchManager.h>
 #include <Inventor/nodes/SoEventCallback.h>
 #include <Inventor/ViewerComponents/SoCameraInteractor.h>
+#include <Inventor/SoPickedPoint.h>
 
-SceneExaminer::SceneExaminer()
-  : m_isPickingEnabled(true)
-  , m_isZoomEnabled(true)
-  , m_isPanEnabled(true)
-  , m_isOrbitEnabled(true)
-  , m_isRotateEnabled(true)
-  , m_isButton1Down(false)
+SceneExaminer::SceneExaminer(std::shared_ptr<SceneGraphManager> mgr)
+  : m_isButton1Down(false)
   , m_isButton2Down(false)
   , m_isTouchOrbitActivated(false)
   , m_activeMode(VIEWING)
   , m_mousePositionNorm( 0.f, 0.f )
+  , m_currentFenceId(-1)
+  , m_scenegraph(mgr)
 {
   m_mouseWheelDelta = SoPreferences::getInt( "OIV_WHEEL_DELTA", 120 );
+
+  addChild(mgr->getRoot());
 }
 
 SceneExaminer::~SceneExaminer()
 {
 }
 
-void
-SceneExaminer::enablePicking(bool enabled)
-{
-  m_isPickingEnabled = enabled;
-}
-
-bool
-SceneExaminer::isPickingEnabled()
-{
-  return m_isPickingEnabled;
-}
-
-void
-SceneExaminer::enableZoom(bool enabled)
-{
-  m_isZoomEnabled = enabled;
-}
-
-bool
-SceneExaminer::isZoomEnabled()
-{
-  return m_isZoomEnabled;
-}
-
-void
-SceneExaminer::enablePan(bool enabled)
-{
-  m_isPanEnabled = enabled;
-}
-
-bool
-SceneExaminer::isPanEnabled()
-{
-  return m_isPanEnabled;
-}
-
-void
-SceneExaminer::enableOrbit(bool enabled)
-{
-  m_isOrbitEnabled = enabled;
-}
-
-bool
-SceneExaminer::isOrbitEnabled()
-{
-  return m_isOrbitEnabled;
-}
-
-void
-SceneExaminer::enableRotate(bool enabled)
-{
-  m_isRotateEnabled = enabled;
-}
-
-bool
-SceneExaminer::isRotateEnabled()
-{
-  return m_isRotateEnabled;
-}
-
-SceneExaminer::InteractionMode
-SceneExaminer::getInteractionMode()
+SceneExaminer::InteractionMode SceneExaminer::getInteractionMode()
 {
   return m_activeMode;
 }
 
-void 
-SceneExaminer::setInteractionMode(SceneExaminer::InteractionMode mode)
+void SceneExaminer::setModeChangedCallback(std::function<void(InteractionMode)> cb)
 {
-  m_activeMode = mode;
+  m_modeChangedCallback = cb;
 }
 
+void SceneExaminer::setFenceAddedCallback(std::function<void(int)> cb)
+{
+  m_fenceAddedCallback = cb;
+}
+
+void SceneExaminer::setInteractionMode(SceneExaminer::InteractionMode mode)
+{
+  if (mode != m_activeMode)
+  {
+    m_activeMode = mode;
+    if (m_modeChangedCallback)
+      m_modeChangedCallback(mode);
+  }
+}
 
 /** Keyboard */
-void
-SceneExaminer::keyPressed( SoKeyboardEvent* keyboardEvent, SoHandleEventAction* action )
+void SceneExaminer::keyPressed( SoKeyboardEvent* keyboardEvent, SoHandleEventAction* action )
 {
   SoKeyboardEvent::Key key = keyboardEvent->getKey();
 
   switch ( key )
   {
   case SoKeyboardEvent::LEFT_CONTROL:
-    if( m_isPanEnabled && m_isButton1Down )
+    if(m_isButton1Down)
     {
       // BUTTON 1 + CTRL = pan
       m_cameraInteractor->activatePanning(m_mousePositionNorm, action->getViewportRegion());
       action->setHandled();
     }
     break;
+
   case SoKeyboardEvent::ESCAPE:
-    if( m_isPickingEnabled )
+    if (m_activeMode == VIEWING)
+      setInteractionMode(PICKING);
+    else
+      setInteractionMode(VIEWING);
+
+    action->setHandled();
+    break;
+
+  case SoKeyboardEvent::F:
+    if (m_activeMode != FENCE_EDITING)
     {
-      if (m_activeMode == VIEWING)
-      {
-        // Activate picking mode
-        m_activeMode = PICKING;
-      } 
-      else if (m_activeMode == PICKING)
-      {
-        // Activate viewing mode
-        m_activeMode = VIEWING;
-      }
+      m_currentFenceId = -1;
+      m_fencePoints.clear();
+      setInteractionMode(FENCE_EDITING);
       action->setHandled();
     }
     break;
+
   default:
     break;
   }
 }
 
-void
-SceneExaminer::keyReleased( SoKeyboardEvent* , SoHandleEventAction* )
+void SceneExaminer::keyReleased( SoKeyboardEvent* , SoHandleEventAction* )
 {
 }
 
 /** Mouse */
-void
-SceneExaminer::mousePressed( SoMouseButtonEvent* mouseEvent, SoHandleEventAction* action )
+void SceneExaminer::mousePressed( SoMouseButtonEvent* mouseEvent, SoHandleEventAction* action )
 {
   SoMouseButtonEvent::Button button = mouseEvent->getButton();
   SbViewportRegion vpRegion = action->getViewportRegion();
@@ -158,34 +112,61 @@ SceneExaminer::mousePressed( SoMouseButtonEvent* mouseEvent, SoHandleEventAction
   if ( button == SoMouseButtonEvent::BUTTON2)
     m_isButton2Down = true;
 
-  if ( m_isButton1Down && m_activeMode == VIEWING )
+  if (m_activeMode == VIEWING)
   {
-    // BUTTON 1
-    bool ctrlDown = mouseEvent->wasCtrlDown();
+    if (m_isButton1Down)
+    {
+      // BUTTON 1
+      bool ctrlDown = mouseEvent->wasCtrlDown();
 
-    if ( m_isPanEnabled && ctrlDown )
-    {
-      // BUTTON 1 + CTRL = pan
-      m_cameraInteractor->activatePanning(m_mousePositionNorm, vpRegion);
-      action->setHandled();
+      if (ctrlDown)
+      {
+        // BUTTON 1 + CTRL = pan
+        m_cameraInteractor->activatePanning(m_mousePositionNorm, vpRegion);
+        action->setHandled();
+      }
+      else
+      {
+        // BUTTON 1 without modifier = orbit
+        m_cameraInteractor->activateOrbiting(m_mousePositionNorm);
+        m_cameraInteractor->setRotationCenter(m_cameraInteractor->getFocalPoint());
+        action->setHandled();
+      }
     }
-    else if ( m_isOrbitEnabled && !ctrlDown )
+    else if (m_isButton2Down)
     {
-      // BUTTON 1 without modifier = orbit
-      m_cameraInteractor->activateOrbiting(m_mousePositionNorm);
-      m_cameraInteractor->setRotationCenter(m_cameraInteractor->getFocalPoint());
+      m_cameraInteractor->activatePanning(m_mousePositionNorm, action->getViewportRegion());
       action->setHandled();
     }
   }
-  else if (m_isPanEnabled && m_isButton2Down)
+  else if (m_activeMode == PICKING)
   {
-    m_cameraInteractor->activatePanning(m_mousePositionNorm, action->getViewportRegion());
-    action->setHandled();
+    // let scenegraph handle this one
+  }
+  else if (m_activeMode == FENCE_EDITING)
+  {
+    auto pickedPoint = action->getPickedPoint();
+    if (pickedPoint)
+    {
+      auto p = pickedPoint->getPoint();
+      m_fencePoints.push_back(p);
+      if (m_fencePoints.size() == 1)
+      {
+        m_currentFenceId = m_scenegraph->addFence(m_fencePoints);
+        if (m_fenceAddedCallback)
+          m_fenceAddedCallback(m_currentFenceId);
+      }
+      else
+      {
+        m_scenegraph->updateFence(m_currentFenceId, m_fencePoints);
+      }
+
+      action->setHandled();
+    }
   }
 }
 
-void
-SceneExaminer::mouseReleased( SoMouseButtonEvent* mouseEvent, SoHandleEventAction* action )
+void SceneExaminer::mouseReleased( SoMouseButtonEvent* mouseEvent, SoHandleEventAction* action )
 {
   SoMouseButtonEvent::Button button = mouseEvent->getButton();
   m_mousePositionNorm = mouseEvent->getNormalizedPosition( action->getViewportRegion() );
@@ -196,10 +177,9 @@ SceneExaminer::mouseReleased( SoMouseButtonEvent* mouseEvent, SoHandleEventActio
     m_isButton2Down = false;
 }
 
-void
-SceneExaminer::mouseWheelMoved( SoMouseWheelEvent* wheelEvent, SoHandleEventAction* action )
+void SceneExaminer::mouseWheelMoved( SoMouseWheelEvent* wheelEvent, SoHandleEventAction* action )
 {
-  if ( m_isZoomEnabled && m_activeMode == VIEWING )
+  if ( m_activeMode == VIEWING )
   {
     // ZOOM
     SbViewportRegion vpRegion = action->getViewportRegion();
@@ -213,8 +193,7 @@ SceneExaminer::mouseWheelMoved( SoMouseWheelEvent* wheelEvent, SoHandleEventActi
   }
 }
 
-void
-SceneExaminer::mouseMoved( SoLocation2Event* mouseEvent, SoHandleEventAction* action )
+void SceneExaminer::mouseMoved( SoLocation2Event* mouseEvent, SoHandleEventAction* action )
 {
   if (m_activeMode != VIEWING) 
     return;
@@ -245,13 +224,13 @@ SceneExaminer::mouseMoved( SoLocation2Event* mouseEvent, SoHandleEventAction* ac
       m_cameraInteractor->adjustClippingPlanes(this, vpRegion);
       action->setHandled();
     }
-    else if ( m_isPanEnabled && ctrlDown )
+    else if (ctrlDown)
     {
       // BUTTON 1 + CTRL = pan
       m_cameraInteractor->pan(m_mousePositionNorm, vpRegion);
       action->setHandled();
     }
-    else if ( m_isOrbitEnabled && !ctrlDown )
+    else if (!ctrlDown)
     {
       // BUTTON 1 without modifier = orbit
       m_cameraInteractor->orbit(m_mousePositionNorm);
@@ -259,7 +238,7 @@ SceneExaminer::mouseMoved( SoLocation2Event* mouseEvent, SoHandleEventAction* ac
       action->setHandled();
     }
   }
-  else if ( m_isButton2Down )
+  else if (m_isButton2Down)
   {
     if ( ctrlDown )
     {
@@ -268,7 +247,7 @@ SceneExaminer::mouseMoved( SoLocation2Event* mouseEvent, SoHandleEventAction* ac
       m_cameraInteractor->adjustClippingPlanes(this, vpRegion);
       action->setHandled();
     } 
-    else if ( m_isPanEnabled  )
+    else
     {
       // BUTTON 2 only = pan
       m_cameraInteractor->pan(m_mousePositionNorm, vpRegion);
@@ -278,8 +257,7 @@ SceneExaminer::mouseMoved( SoLocation2Event* mouseEvent, SoHandleEventAction* ac
 }
 
 /** Touch */
-SoEvent*
-SceneExaminer::convertTouchEvent(SoTouchEvent* touchEvent)
+SoEvent* SceneExaminer::convertTouchEvent(SoTouchEvent* touchEvent)
 {
   SoMouseButtonEvent* mbe = &m_touchMouseButtonEvent;
   SoLocation2Event* lct = &m_touchLocation2Event;
@@ -315,8 +293,7 @@ SceneExaminer::convertTouchEvent(SoTouchEvent* touchEvent)
   return NULL;
 }
 
-void
-SceneExaminer::touch( SoTouchEvent* touchEvent, SoHandleEventAction* action )
+void SceneExaminer::touch( SoTouchEvent* touchEvent, SoHandleEventAction* action )
 {
   if( m_activeMode == VIEWING )
   {
@@ -327,28 +304,25 @@ SceneExaminer::touch( SoTouchEvent* touchEvent, SoHandleEventAction* action )
 
     if ( numFinger == 1)
     {
-      if ( m_isOrbitEnabled )
+      if( state == SoTouchEvent::DOWN )
       {
-        if( state == SoTouchEvent::DOWN )
-        {
-          // one finger down
-          m_cameraInteractor->activateOrbiting(touchNormPosition);
-          m_cameraInteractor->setRotationCenter(m_cameraInteractor->getFocalPoint());
-          m_isTouchOrbitActivated = true;
-          action->setHandled();
-        }
-        else if ( state == SoTouchEvent::MOVE && m_isTouchOrbitActivated )
-        {
-          // one finger moved
-          m_cameraInteractor->orbit(touchNormPosition);
-          m_cameraInteractor->adjustClippingPlanes(this, vpRegion);
-          action->setHandled();
-        }
+        // one finger down
+        m_cameraInteractor->activateOrbiting(touchNormPosition);
+        m_cameraInteractor->setRotationCenter(m_cameraInteractor->getFocalPoint());
+        m_isTouchOrbitActivated = true;
+        action->setHandled();
+      }
+      else if ( state == SoTouchEvent::MOVE && m_isTouchOrbitActivated )
+      {
+        // one finger moved
+        m_cameraInteractor->orbit(touchNormPosition);
+        m_cameraInteractor->adjustClippingPlanes(this, vpRegion);
+        action->setHandled();
       }
     }
     else if (numFinger == 2)
     {
-      if ( m_isPanEnabled && ( state == SoTouchEvent::DOWN || state == SoTouchEvent::MOVE ) )
+      if (state == SoTouchEvent::DOWN || state == SoTouchEvent::MOVE)
       {
         // 2 fingers down or moved
         m_cameraInteractor->translate(vpRegion.normalize(SbVec2s(touchEvent->getDisplacement() * 0.5f)), vpRegion);
@@ -370,10 +344,9 @@ SceneExaminer::touch( SoTouchEvent* touchEvent, SoHandleEventAction* action )
   }
 }
 
-void
-SceneExaminer::zoom( SoScaleGestureEvent* scaleEvent, SoHandleEventAction* action )
+void SceneExaminer::zoom( SoScaleGestureEvent* scaleEvent, SoHandleEventAction* action )
 {
-  if( m_isZoomEnabled &&  m_activeMode == VIEWING )
+  if(m_activeMode == VIEWING)
   {
     float delta = scaleEvent->getDeltaScaleFactor();
     const SbViewportRegion &region = action->getViewportRegion();
@@ -387,10 +360,9 @@ SceneExaminer::zoom( SoScaleGestureEvent* scaleEvent, SoHandleEventAction* actio
   }
 }
 
-void
-SceneExaminer::rotate( SoRotateGestureEvent* rotateEvent, SoHandleEventAction* action )
+void SceneExaminer::rotate( SoRotateGestureEvent* rotateEvent, SoHandleEventAction* action )
 {
-  if ( m_isRotateEnabled && m_activeMode == VIEWING )
+  if (m_activeMode == VIEWING)
   {
     SbViewportRegion vpRegion = action->getViewportRegion();
     SbVec2f eventNormPosition = rotateEvent->getNormalizedPosition(vpRegion);
@@ -403,3 +375,4 @@ SceneExaminer::rotate( SoRotateGestureEvent* rotateEvent, SoHandleEventAction* a
     action->setHandled();
   }
 }
+

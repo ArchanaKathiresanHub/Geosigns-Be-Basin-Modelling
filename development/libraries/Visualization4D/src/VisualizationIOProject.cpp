@@ -866,7 +866,9 @@ void VisualizationIOProject::init()
 
   auto const& surfaces = m_snapshots[0]->getSurfaceList();
   auto loresGeometry = *surfaces[0]->getGeometry();
-  auto hiresGeometry = *surfaces[0]->getHighResGeometry();
+  auto hiresGeometry = surfaces[0]->getHighResGeometry()
+    ? *surfaces[0]->getHighResGeometry()
+    : loresGeometry;
 
   m_projectInfo.dimensions.minX = loresGeometry.getMinI();
   m_projectInfo.dimensions.minY = loresGeometry.getMinJ();

@@ -110,6 +110,11 @@ class CommandHandler
     RemoteViz::Rendering::RenderArea* renderArea,
     RemoteViz::Rendering::Connection* connection);
 
+  void onEnableFence(
+    const jsonxx::Object& params,
+    RemoteViz::Rendering::RenderArea* renderArea,
+    RemoteViz::Rendering::Connection* connection);
+
   void onSetProperty(
     const jsonxx::Object& params,
     RemoteViz::Rendering::RenderArea* renderArea,
@@ -241,7 +246,11 @@ public:
   void sendProjectInfo(
     RemoteViz::Rendering::RenderArea* renderArea,
     const Project::ProjectInfo& projectInfo) const;
-    
+
+  void sendFenceAddedEvent(
+    RemoteViz::Rendering::RenderArea* renderArea,
+    int fenceId);
+
   void onReceivedMessage(
     RemoteViz::Rendering::RenderArea* renderArea, 
     RemoteViz::Rendering::Connection* sender, 

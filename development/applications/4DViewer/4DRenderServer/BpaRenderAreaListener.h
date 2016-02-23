@@ -32,9 +32,10 @@ class BpaRenderAreaListener : public RenderAreaListener
   std::shared_ptr<Project> m_project;
   Project::ProjectInfo m_projectInfo;
 
-  SceneGraphManager m_sceneGraphManager;
+  std::shared_ptr<SceneGraphManager> m_sceneGraphManager;
+  SoRef<SceneExaminer> m_examiner;
+
   RenderArea*       m_renderArea;
-  SceneExaminer*    m_examiner;
   CommandHandler    m_commandHandler;
 
   bool m_drawFaces;
@@ -42,6 +43,8 @@ class BpaRenderAreaListener : public RenderAreaListener
   bool m_logEvents;
 
   void createSceneGraph(const std::string& id);
+
+  void onFenceAdded(int fenceId);
 
 public:
 

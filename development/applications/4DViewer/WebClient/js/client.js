@@ -332,6 +332,21 @@ function onFlowLinesCheckBoxChanged(elem, objectId)
     sendMsg(msg);
 }
 
+function onFenceCheckBoxChanged(elem, objectId)
+{
+    console.log("fence " + elem.name + " enabled = " + elem.checked);
+
+    var msg = {
+            cmd: "EnableFence", 
+            params: {
+                fenceId: objectId,
+                enabled: elem.checked 
+            }
+        };
+
+    sendMsg(msg);
+}
+
 function onPropertyRadioButtonClicked(elem, objectId)
 {
     console.log("property " + elem.value + " clicked");
@@ -734,10 +749,25 @@ function logPickResult(pickResult)
             + "property value " + pickResult.propertyValue);
 }
 
+function onFenceAdded(fenceId)
+{
+    var fencesDiv = document.getElementById("fences");
+    var name = "Fence " + fenceId;
+
+    fencesDiv.appendChild(
+        createCheckBoxDiv(name, fenceId, true, onFenceCheckBoxChanged));
+}
+
+function handleEvent(e)
+{
+    if(e.type == "fenceAdded")
+        onFenceAdded(e.params.fenceId);
+}
+
 function receivedMessage(message)
 {
     if(logMessages)
-	console.log(message);
+    	console.log(message);
 
     var msgObj = JSON.parse(message);
     if(msgObj.projectInfo)
@@ -748,6 +778,10 @@ function receivedMessage(message)
     else if(msgObj.pickResult)
     {
         logPickResult(msgObj.pickResult);
+    }
+    else if(msgObj.event)
+    {
+        handleEvent(msgObj.event);
     }
 }
 

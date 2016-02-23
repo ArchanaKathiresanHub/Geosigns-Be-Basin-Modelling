@@ -30,23 +30,20 @@ SceneInteractor::SceneInteractor()
 
   // Camera switch
   m_cameraSwitch = new SoSwitch();
-  {
-    m_cameraSwitch->addChild(perspCamera);
-    m_cameraSwitch->addChild(orthoCamera);
-  }
+  
+  m_cameraSwitch->addChild(perspCamera);
+  m_cameraSwitch->addChild(orthoCamera);
 
   // Headlight
   m_headlightRot = new SoRotation();
   SoTransformSeparator* transformSeparator = new SoTransformSeparator();
-  {
-    transformSeparator->addChild(m_headlightRot.ptr());
-    transformSeparator->addChild(new SoDirectionalLight());
-  }
+  transformSeparator->addChild(m_headlightRot.ptr());
+  transformSeparator->addChild(new SoDirectionalLight());
+
   m_headlightSwitch = new SoSwitch();
-  {
-    m_headlightSwitch->addChild(transformSeparator);
-  }
-  // enable headlight by default
+  m_headlightSwitch->addChild(transformSeparator);
+
+    // enable headlight by default
   m_headlightSwitch->whichChild.setValue(SO_SWITCH_ALL);
 
   // perspective camera by default
@@ -69,11 +66,9 @@ SceneInteractor::SceneInteractor()
   m_eventCallBack->addEventCallback(SoRotateGestureEvent::getClassTypeId(), &rotateCB, this);
   m_eventCallBack->addEventCallback(SoDoubleTapGestureEvent::getClassTypeId(), &doubleTapCB, this);
 
-  {
-    this->addChild(m_cameraSwitch.ptr());
-    this->addChild(m_headlightSwitch.ptr());
-    this->addChild(m_eventCallBack.ptr());
-  }
+  addChild(m_cameraSwitch.ptr());
+  addChild(m_headlightSwitch.ptr());
+  addChild(m_eventCallBack.ptr());
 }
 
 SceneInteractor::~SceneInteractor()

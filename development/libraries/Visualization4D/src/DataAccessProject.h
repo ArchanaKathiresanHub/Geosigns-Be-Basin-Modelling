@@ -51,6 +51,8 @@ class DataAccessProject : public Project
   std::shared_ptr<DataAccess::Interface::ObjectFactory> m_objectFactory;
   std::shared_ptr<DataAccess::Interface::ProjectHandle> m_projectHandle;
 
+  bool m_includeBasement;
+
   ProjectInfo m_projectInfo;
 
   const DataAccess::Interface::Property* m_depthProperty;

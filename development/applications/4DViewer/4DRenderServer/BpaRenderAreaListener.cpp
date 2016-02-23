@@ -47,24 +47,24 @@ void BpaRenderAreaListener::createSceneGraph(const std::string& id)
 
   std::cout << "Project loaded, building scenegraph" << std::endl;
 
-  m_sceneGraphManager.setup(m_project);
+  m_sceneGraphManager = std::make_shared<SceneGraphManager>();
+  m_sceneGraphManager->setup(m_project);
 
-  SoGradientBackground* background = new SoGradientBackground;
-  background->color0 = SbColor(.2f, .2f, .2f);
-  background->color1 = SbColor(.2f, .2f, .3f);
+  m_examiner = new SceneExaminer(m_sceneGraphManager);
+  m_examiner->setFenceAddedCallback(std::bind(&BpaRenderAreaListener::onFenceAdded, this, std::placeholders::_1));
 
-  m_examiner = new SceneExaminer();
-  m_examiner->addChild(background);
-  m_examiner->addChild(m_sceneGraphManager.getRoot());
+  m_commandHandler.setup(m_sceneGraphManager.get(), m_examiner.ptr());
 
-  m_commandHandler.setup(&m_sceneGraphManager, m_examiner);
-
-  m_renderArea->getSceneManager()->setSceneGraph(m_examiner);
+  m_renderArea->getSceneManager()->setSceneGraph(m_examiner.ptr());
   m_examiner->viewAll(m_renderArea->getSceneManager()->getViewportRegion());
 
   std::cout << "...done" << std::endl;
 }
 
+void BpaRenderAreaListener::onFenceAdded(int fenceId)
+{
+  m_commandHandler.sendFenceAddedEvent(m_renderArea, fenceId);
+}
 
 BpaRenderAreaListener::BpaRenderAreaListener(RenderArea* renderArea)
 : m_renderArea(renderArea)
@@ -89,7 +89,7 @@ void BpaRenderAreaListener::onOpenedConnection(RenderArea* renderArea, Connectio
       << ")" << std::endl;
   }
 
-  if(m_sceneGraphManager.getRoot() == 0)
+  if(!m_sceneGraphManager)
     createSceneGraph(renderArea->getId());
 
   m_commandHandler.sendProjectInfo(renderArea, m_projectInfo);

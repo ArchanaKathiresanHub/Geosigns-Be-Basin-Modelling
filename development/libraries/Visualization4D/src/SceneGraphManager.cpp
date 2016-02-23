@@ -747,15 +747,15 @@ void SceneGraphManager::updateSnapshotFlowLines()
   if (snapshot.flowLinesTimeStamp == m_flowLinesTimeStamp)
     return;
 
-  if (!snapshot.flowDirScalarSet)
-    snapshot.flowDirScalarSet = m_project->createFlowDirectionProperty(snapshot.index);
-
   for (auto& flowlines : snapshot.flowlines)
   {
     int id = flowlines.id;
 
     if (m_flowLinesVisibility[id])
     {
+      if (!snapshot.flowDirScalarSet)
+        snapshot.flowDirScalarSet = m_project->createFlowDirectionProperty(snapshot.index);
+
       auto type = m_projectInfo.flowLines[id].type;
       int step = (type == Project::FlowLines::Expulsion) 
         ? m_flowLinesExpulsionStep 
@@ -1918,17 +1918,23 @@ void SceneGraphManager::setSlicePosition(int slice, int position)
   updateSnapshot();
 }
 
-int  SceneGraphManager::addFence(const std::vector<SbVec2f>& polyline)
+int SceneGraphManager::addFence(const std::vector<SbVec3f>& polyline)
 {
+  int maxId = 0;
+  for (auto const& f : m_fences)
+  {
+    if (f.id > maxId)
+      maxId = f.id;
+  }
+
   FenceSlice fence;
-  fence.id = (int)m_fences.size();
+  fence.id = maxId + 1;
   fence.visible = true;
   fence.points = polyline;
 
   fence.fence = new MoMeshFenceSlice;
   int i = 0;
-  for (auto p : polyline)
-    fence.fence->polyline.set1Value(i++, p[0], p[1], 0.f);
+  fence.fence->polyline.setValues(0, (int)polyline.size(), polyline.data());
   fence.fence->direction.setValue(0.f, 0.f, -1.f);
 
   fence.fenceSwitch = new SoSwitch;
@@ -1937,7 +1943,19 @@ int  SceneGraphManager::addFence(const std::vector<SbVec2f>& polyline)
 
   m_fencesGroup->addChild(fence.fenceSwitch);
 
+  m_fences.push_back(fence);
+
   return fence.id;
+}
+
+void SceneGraphManager::updateFence(int id, const std::vector<SbVec3f>& polyline)
+{
+  auto iter = std::find_if(m_fences.begin(), m_fences.end(), [id](const FenceSlice& f) { return f.id == id; });
+  if (iter == m_fences.end())
+    return;
+
+  iter->points = polyline;
+  iter->fence->polyline.setValues(0, (int)polyline.size(), polyline.data());
 }
 
 void SceneGraphManager::removeFence(int id)
@@ -1947,7 +1965,11 @@ void SceneGraphManager::removeFence(int id)
 
 void SceneGraphManager::enableFence(int id, bool enabled)
 {
+  auto iter = std::find_if(m_fences.begin(), m_fences.end(), [id](const FenceSlice& f) { return f.id == id; });
+  if (iter == m_fences.end())
+    return;
 
+  iter->fenceSwitch->whichChild = enabled ? SO_SWITCH_ALL : SO_SWITCH_NONE;
 }
 
 void SceneGraphManager::setColorScaleParams(const SceneGraphManager::ColorScaleParams& params)

@@ -1,5 +1,4 @@
 #include "OIVWidget.h"
-#include "SceneExaminer.h"
 
 #include <QtGui/QMouseEvent>
 
@@ -63,6 +62,10 @@ namespace
     {
     case Qt::Key_Escape: key = SoKeyboardEvent::ESCAPE; break;
     case Qt::Key_Control: key = SoKeyboardEvent::LEFT_CONTROL; break;
+    default:
+      if (event->key() >= Qt::Key_A && event->key() <= Qt::Key_Z)
+        key = (SoKeyboardEvent::Key)(SoKeyboardEvent::A + event->key() - Qt::Key_A);
+      break;
     }
 
     oivEvent.setKey(key);
@@ -80,9 +83,8 @@ void OIVWidget::initializeGL()
   m_glcontext->setNoGLContextDelete();
   m_glcontext->bind();
   
-  m_examiner = new SceneExaminer;
   m_renderArea = new SoRenderAreaCore(m_glcontext.ptr());
-  m_renderArea->setSceneGraph(m_examiner.ptr());
+  //m_renderArea->setSceneGraph(m_examiner.ptr());
 }
 
 void OIVWidget::resizeGL(int width, int height)
@@ -160,16 +162,6 @@ OIVWidget::OIVWidget(QWidget* parent, Qt::WindowFlags flags)
 
 void OIVWidget::setSceneGraph(SoNode* root)
 {
-  m_examiner->addChild(root);
-  
-  m_examiner->viewAll(
-    SbViewportRegion(
-      (short)width(),
-      (short)height()));
-}
-
-void OIVWidget::viewAll()
-{
-  SbViewportRegion vpregion((short)width(), (short)height());
-  m_examiner->viewAll(vpregion);
+  m_renderArea->setSceneGraph(root);
+ 
 }

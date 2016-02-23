@@ -29,7 +29,6 @@
 #include "Mesh.h"
 #include "Property.h"
 
-
 namespace di = DataAccess::Interface;
 
 int DataAccessProject::getPropertyId(const std::string& name) const
@@ -65,14 +64,17 @@ Project::SnapshotContents DataAccessProject::getSnapshotContents(size_t snapshot
       nullptr));
 
   // Remove basement formations
-  auto iter = std::remove_if(
-    depthValues->begin(), 
-    depthValues->end(), 
-    [](const di::PropertyValue* val) 
-    { 
-      return val->getFormation()->kind() == di::BASEMENT_FORMATION; 
+  if (!m_includeBasement)
+  {
+    auto iter = std::remove_if(
+      depthValues->begin(),
+      depthValues->end(),
+      [](const di::PropertyValue* val)
+    {
+      return val->getFormation()->kind() == di::BASEMENT_FORMATION;
     });
-  depthValues->erase(iter, depthValues->end());
+    depthValues->erase(iter, depthValues->end());
+  }
 
   int k = 0;
   for (auto item : *depthValues)
@@ -167,7 +169,7 @@ std::vector<const di::GridMap*> DataAccessProject::getFormationPropertyGridMaps(
         }));
 
   std::vector<const di::GridMap*> gridMaps;
-  std::unique_ptr<di::FormationList> formationList(m_projectHandle->getFormations(snapshot));
+  std::unique_ptr<di::FormationList> formationList(m_projectHandle->getFormations(snapshot, m_includeBasement));
   size_t i = 0;
   for (auto formation : *formationList)
   {
@@ -237,7 +239,7 @@ void DataAccessProject::init()
   for (auto depthValue : *formationDepthValues)
   {
     auto formation = depthValue->getFormation();
-    if (formation->kind() == di::BASEMENT_FORMATION)
+    if (formation->kind() == di::BASEMENT_FORMATION && !m_includeBasement)
       continue;
 
     m_formations.push_back(formation);
@@ -354,7 +356,8 @@ void DataAccessProject::init()
 }
 
 DataAccessProject::DataAccessProject(const std::string& path)
-  : m_loresDeadMap(nullptr)
+  : m_includeBasement(true)
+  , m_loresDeadMap(nullptr)
   , m_hiresDeadMap(nullptr)
 {
   m_objectFactory = std::make_shared<di::ObjectFactory>();
@@ -435,7 +438,7 @@ std::shared_ptr<MiVolumeMeshCurvilinear> DataAccessProject::createSnapshotMesh(s
   for (auto depthValue : *depthValues)
   {
     auto formation = depthValue->getFormation();
-    if (formation->kind() == di::BASEMENT_FORMATION)
+    if (formation->kind() == di::BASEMENT_FORMATION && !m_includeBasement)
       continue;
 
     depthMaps.push_back(depthValue->getGridMap());

@@ -15,10 +15,12 @@
 
 #include <Project.h>
 #include <SceneGraphManager.h>
+#include <SceneExaminer.h>
+
+#include <Inventor/misc/SoRef.h>
 
 #include <QtGui/QMainWindow>
 
-class SoRenderArea;
 class SceneGraph;
 class QLabel;
 
@@ -30,6 +32,7 @@ class MainWindow : public QMainWindow
 
   bool m_oivLicenseOK;
 
+  QLabel* m_modeLabel;
   QLabel* m_snapshotCountLabel;
   QLabel* m_dimensionsLabel;
   QLabel* m_timeLabel;
@@ -37,7 +40,8 @@ class MainWindow : public QMainWindow
 
   std::shared_ptr<Project> m_project;
   std::shared_ptr<SceneGraphManager> m_sceneGraphManager;
-  
+  SoRef<SceneExaminer> m_examiner;
+
   Project::ProjectInfo m_projectInfo;
 
   SceneGraphManager::ColorScaleParams m_colorScaleParams;
@@ -59,6 +63,10 @@ class MainWindow : public QMainWindow
   void connectSignals();
 
   int getFaultIndex(const std::string& collectionName, const std::string& faultName) const;
+
+  void onModeChanged(SceneExaminer::InteractionMode mode);
+
+  void onFenceAdded(int fenceId);
 
 private slots:
 
@@ -117,6 +125,8 @@ private slots:
   void onShowGLInfo();
 
   void onTreeWidgetItemClicked(QTreeWidgetItem* item, int column);
+
+  void onFenceListItemClicked(QListWidgetItem* item);
 
 public:
 

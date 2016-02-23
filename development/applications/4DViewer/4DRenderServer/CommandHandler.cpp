@@ -285,6 +285,17 @@ void CommandHandler::onEnableAllFlowLines(
   m_sceneGraphManager->enableAllFlowLines(enabled);
 }
 
+void CommandHandler::onEnableFence(
+  const jsonxx::Object& params,
+  RemoteViz::Rendering::RenderArea* /*renderArea*/,
+  RemoteViz::Rendering::Connection* /*connection*/)
+{
+  auto fenceId = (int)params.get<jsonxx::Number>("fenceId");
+  auto enabled = params.get<bool>("enabled");
+
+  m_sceneGraphManager->enableFence(fenceId, enabled);
+}
+
 void CommandHandler::onSetProperty(
   const jsonxx::Object& params,
   RemoteViz::Rendering::RenderArea* /*renderArea*/,
@@ -599,6 +610,7 @@ void CommandHandler::registerHandlers()
   m_handlers["EnableAllFaults"] = &CommandHandler::onEnableAllFaults;
   m_handlers["EnableFlowLines"] = &CommandHandler::onEnableFlowLines;
   m_handlers["EnableAllFlowLines"] = &CommandHandler::onEnableAllFlowLines;
+  m_handlers["EnableFence"] = &CommandHandler::onEnableFence;
   m_handlers["SetProperty"] = &CommandHandler::onSetProperty;
   m_handlers["SetVerticalScale"] = &CommandHandler::onSetVerticalScale;
   m_handlers["SetTransparency"] = &CommandHandler::onSetTransparency;
@@ -635,7 +647,7 @@ void CommandHandler::setup(SceneGraphManager* mgr, SceneExaminer* examiner)
 {
   m_sceneGraphManager = mgr;
   m_examiner = examiner;
-
+  
   registerHandlers();
 }
 
@@ -647,6 +659,23 @@ void CommandHandler::sendProjectInfo(
   msg << "projectInfo" << toJSON(projectInfo);
 
   //std::cout << msg.write(jsonxx::JSON) << std::endl;
+
+  renderArea->sendMessage(msg.write(jsonxx::JSON));
+}
+
+void CommandHandler::sendFenceAddedEvent(
+  RemoteViz::Rendering::RenderArea* renderArea,
+  int fenceId)
+{
+  jsonxx::Object params;
+  params << "fenceId" << fenceId;
+
+  jsonxx::Object event;
+  event << "type" << "fenceAdded";
+  event << "params" << params;
+
+  jsonxx::Object msg;
+  msg << "event" << event;
 
   renderArea->sendMessage(msg.write(jsonxx::JSON));
 }

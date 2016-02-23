@@ -33,7 +33,7 @@
           <item>
            <widget class="QToolBox" name="toolBox">
             <property name="currentIndex">
-             <number>0</number>
+             <number>2</number>
             </property>
             <widget class="QWidget" name="page">
              <property name="geometry">
@@ -376,7 +376,7 @@
              <attribute name="label">
               <string>Visualization settings</string>
              </attribute>
-             <layout class="QVBoxLayout" name="verticalLayout_11">
+             <layout class="QVBoxLayout" name="verticalLayout_13">
               <item>
                <layout class="QHBoxLayout" name="horizontalLayout_2">
                 <item>
@@ -538,6 +538,18 @@
                     </widget>
                    </item>
                   </layout>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+              <item>
+               <widget class="QGroupBox" name="groupBoxFences">
+                <property name="title">
+                 <string>Fences</string>
+                </property>
+                <layout class="QVBoxLayout" name="verticalLayout_11">
+                 <item>
+                  <widget class="QListWidget" name="listWidgetFences"/>
                  </item>
                 </layout>
                </widget>
