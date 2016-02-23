@@ -170,8 +170,6 @@ bool Migrator::compute (void)
 
    ComputeRanks (m_projectHandle->getActivityOutputGrid ());
 
-   if (!setUpBasinGeometry ()) return false;
-
    m_verticalMigration = m_projectHandle->getRunParameters ()->getVerticalSecondaryMigration ();
    m_hdynamicAndCapillary = m_projectHandle->getRunParameters ()->getHydrodynamicCapillaryPressure ();
    if (m_verticalMigration)
@@ -179,10 +177,21 @@ bool Migrator::compute (void)
    m_reservoirDetection = m_projectHandle->getRunParameters ()->getReservoirDetection ();
    m_legacyMigration    = m_projectHandle->getRunParameters ()->getLegacy ();
 
+   if (m_legacyMigration)
+   {
+      m_verticalMigration    = true;
+      m_hdynamicAndCapillary = false;
+      m_reservoirDetection   = false;
+   }
+
    bool overPressureRun = !isHydrostaticCalculation ();
 
-   createFormationNodes ();
-   computeFormationPropertyMaps (m_projectHandle->getSnapshots ()->front (), overPressureRun);
+   if (!m_legacyMigration)
+   {
+      if (!setUpBasinGeometry ()) return false;
+      createFormationNodes ();
+      computeFormationPropertyMaps (m_projectHandle->getSnapshots ()->front (), overPressureRun);
+   }
 
    // compute the positions of the reservoirs within the formations
    computeDepthOffsets ();
@@ -419,26 +428,34 @@ bool Migrator::createFormationNodes (void)
 
 bool Migrator::performSnapshotMigration (const Interface::Snapshot * start, const Interface::Snapshot * end, const bool overPressureRun)
 {
-   if ((activeReservoirs (end)|| m_reservoirDetection) and getBottomSourceRockFormation ()->isActive (end))
+   if ((activeReservoirs (end) or m_reservoirDetection) and getBottomSourceRockFormation ()->isActive (end))
    {
-      clearFormationNodeProperties ();
-      
       if (GetRank () == 0)
-         std::cout << "Processing snapshot " << end->getTime() << std::endl;
+         std::cout << "Processing snapshot " << end->getTime () << std::endl;
 
-      if (!computeFormationPropertyMaps (end, overPressureRun) ||
-          !retrieveFormationPropertyMaps (end) ||
-          !computeFormationNodeProperties (end) ||
-          !detectReservoirs (start, end, overPressureRun) ||
-          !computeSMFlowPaths (start, end) ||
-          !restoreFormationPropertyMaps (end) ||
-          !loadExpulsionMaps (start, end) ||
-          !chargeReservoirs (start, end) ||
-          !unloadExpulsionMaps (end) ||
-          !saveSMFlowPaths (start, end) ||
-          !removeComputedFormationPropertyMaps ())
+      if (m_legacyMigration)
       {
-         return false;
+         if (!chargeReservoirs (start, end))
+            return false;
+      }
+      else
+      {
+         clearFormationNodeProperties ();
+
+         if (!computeFormationPropertyMaps (end, overPressureRun) ||
+            !retrieveFormationPropertyMaps (end) ||
+            !computeFormationNodeProperties (end) ||
+            !detectReservoirs (start, end, overPressureRun) ||
+            !computeSMFlowPaths (start, end) ||
+            !restoreFormationPropertyMaps (end) ||
+            !loadExpulsionMaps (start, end) ||
+            !chargeReservoirs (start, end) ||
+            !unloadExpulsionMaps (end) ||
+            !saveSMFlowPaths (start, end) ||
+            !removeComputedFormationPropertyMaps ())
+         {
+            return false;
+         }
       }
    }
 
@@ -804,15 +821,15 @@ bool Migrator::computeSMFlowPaths (const Interface::Snapshot * start, const Inte
 {
    if (!m_verticalMigration)
    {
-   Formation * bottomSourceRockFormation = getBottomSourceRockFormation ();
-   if (!bottomSourceRockFormation) return false;
+      Formation * bottomSourceRockFormation = getBottomSourceRockFormation ();
+      if (!bottomSourceRockFormation) return false;
 
-   Formation * topActiveFormation = getTopActiveFormation (end);
-   if (!topActiveFormation) return false;
+      Formation * topActiveFormation = getTopActiveFormation (end);
+      if (!topActiveFormation) return false;
 
-   if (!computeSMFlowPaths (topActiveFormation, bottomSourceRockFormation, start, end)) return false;
-   
-   if (!computeTargetFormationNodes (topActiveFormation, bottomSourceRockFormation)) return false;
+      if (!computeSMFlowPaths (topActiveFormation, bottomSourceRockFormation, start, end)) return false;
+
+      if (!computeTargetFormationNodes (topActiveFormation, bottomSourceRockFormation)) return false;
    }
    return true;
 }

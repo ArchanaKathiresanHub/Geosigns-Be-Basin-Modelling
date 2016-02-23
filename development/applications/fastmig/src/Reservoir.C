@@ -720,13 +720,17 @@ namespace migration
       }
 #endif
 
-      if (!computeViscosities())
-         return false;
+      // Optimization for May 2016 Release
+      if (!m_migrator->performLegacyMigration ())
+      {
+         if (!computeViscosities ())
+            return false;
 #if DEBUG
-      if( GetRank() == 0 ) {
-         cout << "computeViscosities done" << endl;
-      }
+         if( GetRank() == 0 ) {
+            cout << "computeViscosities done" << endl;
+         }
 #endif
+      }
 
       if (!computePressures ())
          return false;
@@ -1084,7 +1088,8 @@ namespace migration
 
       // If diffusion leakages is included, initialize m_diffusionOverburdenGridMaps with 
       // the necessary grid maps:
-      if (isDiffusionOn ())
+      // Optimization for May 2016 Release
+      if (isDiffusionOn () and !m_migrator->performLegacyMigration ())
       {
          vector<SurfaceGridMapFormations> temperatureGridMaps = overburden_MPI::getAdjacentSurfaceGridMapFormations (
                                                                                                                      overburden, "Temperature", getEnd ());
@@ -2553,7 +2558,8 @@ namespace migration
          processMigrationRequests ();
       } while (!allProcessorsFinished (distributionHasFinished ()));
 
-      if (isDiffusionOn ())
+      // Optimization for May 2016 Release
+      if (isDiffusionOn () and !m_migrator->performLegacyMigration ())
       {
          broadcastTrapFillDepthProperties ();
          if (!diffusionLeakCharges ())
@@ -2909,7 +2915,8 @@ namespace migration
 
    void Reservoir::broadcastTrapDiffusionStartTimes (void)
    {
-      if (!isDiffusionOn ()) return;
+      // Optimization for May 2016 Release
+      if (!isDiffusionOn () or m_migrator->performLegacyMigration ()) return;
 
       TrapVector::iterator trapIter;
 
@@ -2924,7 +2931,8 @@ namespace migration
 
    void Reservoir::broadcastTrapPenetrationDistances (void)
    {
-      if (!isDiffusionOn ()) return;
+      // Optimization for May 2016 Release
+      if (!isDiffusionOn () or m_migrator->performLegacyMigration ()) return;
 
       const DiffusionLeakageParameters *parameters = getProjectHandle ()->getDiffusionLeakageParameters ();
 
