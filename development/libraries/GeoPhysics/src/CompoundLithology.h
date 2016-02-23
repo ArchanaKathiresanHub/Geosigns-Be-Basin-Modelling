@@ -1,3 +1,13 @@
+//
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #ifndef _GEOPHYSICS__COMPOUND_LITHOLOGY_H_
 #define _GEOPHYSICS__COMPOUND_LITHOLOGY_H_
 
@@ -242,7 +252,7 @@ namespace GeoPhysics {
 
       const string getThermalModel() const;
 
-      double computePorosityDerivativeWRTPressure(const double ves,
+      double computePorosityDerivativeWRTVes(const double ves,
          const double maxVes,
          const bool   includeChemicalCompaction,
          const double chemicalCompactionTerm) const;
@@ -332,13 +342,15 @@ namespace GeoPhysics {
          double&           permeabilityNormal,
          double&           permeabilityPlane) const;
 
-      /// Calculate the permeability-derivative value using the compound porosity.
-      void calcBulkPermeabilityNPDerivative(const double            ves,
+      /// Calculate the permeability-derivative value with respect to ves using the compound porosity.
+      /// It returns derivatives computed both in normal and plane direction
+      // The handled mixing modes are HOMOGENEOUS and LAYERED
+      void calcBulkPermeabilityNPDerivativeWRTVes(const double            ves,
          const double            maxVes,
          const CompoundProperty& Porosity,
          const double            porosityDerivativeWrtVes,
-         double&           	  Permeability_Derivative_Normal,
-         double&           Permeability_Derivative_Plane) const;
+         double&                 Permeability_Derivative_Normal,
+         double&                 Permeability_Derivative_Plane) const;
 
       /// Integrate the chemical-compaction terms.
       double integrateChemicalCompaction(const double Time_Step,

@@ -1,3 +1,13 @@
+//
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "../src/PermeabilityMultiPoint.h"
 
 #include <iostream>
@@ -44,14 +54,14 @@ TEST( PermeabilityMultiPoint, permeability )
    
    EXPECT_DOUBLE_EQ(3.51119173421513053E-01, PermeabilityMultiPoint( surfacePorosity, porositySamples, permeabilitySamples ).calculate( 0, 0, 0.0 ));
    
-   EXPECT_DOUBLE_EQ( 1.99526231496887951, PermeabilityMultiPoint( surfacePorosity, porositySamples, permeabilitySamples ).calculate( 0, 0, 0.05 ) );
+   EXPECT_DOUBLE_EQ(1.99526231496887951, PermeabilityMultiPoint( surfacePorosity, porositySamples, permeabilitySamples ).calculate( 0, 0, 0.05 ));
    
    
-   EXPECT_DOUBLE_EQ( 1.13382350121784938E+01, PermeabilityMultiPoint( surfacePorosity, porositySamples, permeabilitySamples ).calculate( 0, 0, 0.1 ) );
+   EXPECT_DOUBLE_EQ(1.13382350121784938E+01, PermeabilityMultiPoint( surfacePorosity, porositySamples, permeabilitySamples ).calculate( 0, 0, 0.1 ));
    
-   EXPECT_DOUBLE_EQ( 1000, PermeabilityMultiPoint( surfacePorosity, porositySamples, permeabilitySamples ).calculate( 0, 0, 0.9999 ) );
+   EXPECT_DOUBLE_EQ(1000, PermeabilityMultiPoint( surfacePorosity, porositySamples, permeabilitySamples ).calculate( 0, 0, 0.9999 ));
 
-   EXPECT_DOUBLE_EQ( 1000, PermeabilityMultiPoint( surfacePorosity, porositySamples, permeabilitySamples ).calculate( 0, 0, 1.0 ) );
+   EXPECT_DOUBLE_EQ(1000, PermeabilityMultiPoint( surfacePorosity, porositySamples, permeabilitySamples ).calculate( 0, 0, 1.0 ));
 
 }
 
@@ -62,37 +72,37 @@ TEST( PermeabilityMultiPoint, permeabilityDerivative)
 
    {
       double permeability = NaN, derivative = NaN;
-      PermeabilityMultiPoint( surfacePorosity, porositySamples, permeabilitySamples ).calculateDerivative( 0, 0, 0, 1, permeability, derivative );
+      PermeabilityMultiPoint( surfacePorosity, porositySamples, permeabilitySamples ).calculateDerivative( 0, 0, 0, 1, permeability, derivative);
       EXPECT_DOUBLE_EQ(3.51119173421513053E-01, permeability);
       EXPECT_DOUBLE_EQ(1.22007249619155775E+01, derivative);
    }
 
    {
       double permeability = NaN, derivative = NaN;
-      PermeabilityMultiPoint( surfacePorosity, porositySamples, permeabilitySamples ).calculateDerivative( 0, 0, 0.05, 1, permeability, derivative );
+      PermeabilityMultiPoint( surfacePorosity, porositySamples, permeabilitySamples ).calculateDerivative( 0, 0, 0.05, 1, permeability, derivative);
       EXPECT_DOUBLE_EQ(1.99526231496887951E+00, permeability);
       EXPECT_DOUBLE_EQ(6.93315790607256304E+01, derivative);
    }
 
    {
       double permeability = NaN, derivative = NaN;
-      PermeabilityMultiPoint( surfacePorosity, porositySamples, permeabilitySamples ).calculateDerivative( 0, 0, 0.1, 1, permeability, derivative );
+      PermeabilityMultiPoint( surfacePorosity, porositySamples, permeabilitySamples ).calculateDerivative( 0, 0, 0.1, 1, permeability, derivative);
       EXPECT_DOUBLE_EQ(1.13382350121784938E+01, permeability);
       EXPECT_DOUBLE_EQ(3.93982150245844593E+02, derivative);
    }
 
    {
       double permeability = NaN, derivative = NaN;
-      PermeabilityMultiPoint( surfacePorosity, porositySamples, permeabilitySamples ).calculateDerivative( 0, 0, 0.9999, 1, permeability, derivative );
+      PermeabilityMultiPoint( surfacePorosity, porositySamples, permeabilitySamples ).calculateDerivative( 0, 0, 0.9999, 1, permeability, derivative);
       EXPECT_DOUBLE_EQ(1000.0, permeability);
-      EXPECT_DOUBLE_EQ(3.47481023124556013E+04, derivative);
+      EXPECT_DOUBLE_EQ(0.0, derivative);
    }
 
    {
       double permeability = NaN, derivative = NaN;
-      PermeabilityMultiPoint( surfacePorosity, porositySamples, permeabilitySamples ).calculateDerivative( 0, 0, 1.0, 1, permeability, derivative );
+      PermeabilityMultiPoint( surfacePorosity, porositySamples, permeabilitySamples ).calculateDerivative( 0, 0, 1.0, 1, permeability, derivative);
       EXPECT_DOUBLE_EQ(1000.0, permeability);
-      EXPECT_DOUBLE_EQ(3.47481023124556013E+04, derivative);
+      EXPECT_DOUBLE_EQ(0.0, derivative);
    }
 }
 

@@ -12,23 +12,27 @@
 
 #include "Porosity.h"
 
-
-
 namespace GeoPhysics
 {
 
    class ExponentialPorosity : public Porosity::Algorithm {
    public:
-      ExponentialPorosity(double depoPorosity,
-    	                    double minimumMechanicalPorosity,
-                          double compactionIncr,
-                          double compactionDecr);
+      ExponentialPorosity( const double depoPorosity,
+                           const double minimumMechanicalPorosity,
+                           const double compactionIncr,
+                           const double compactionDecr );
 
       /// Return porosity with exponential function
-      virtual double calculate(const double ves, const double maxVes, const bool includeChemicalCompaction, const double chemicalCompactionTerm) const;
+      virtual double calculate( const double ves,
+                                const double maxVes,
+                                const bool includeChemicalCompaction,
+                                const double chemicalCompactionTerm) const;
 
       /// Return PorosityDerivative
-      virtual double calculateDerivative( const double ves, const double maxVes, const bool includeChemicalCompaction, const double chemicalCompactionTerm ) const;
+      virtual double calculateDerivative( const double ves,
+                                          const double maxVes,
+                                          const bool includeChemicalCompaction,
+                                          const double chemicalCompactionTerm ) const;
 
       /// \brief Determine if the porosity model is incompressible.
       virtual bool isIncompressible () const;
@@ -37,7 +41,11 @@ namespace GeoPhysics
       virtual Porosity::Model  model() const;
 
       /// Return FullCompThickness
-      virtual double fullCompThickness(const double MaxVesValue, const double thickness, const double densitydiff, const double vesScaleFactor, const bool overpressuredCompaction) const;
+      virtual double fullCompThickness( const double MaxVesValue,
+                                        const double thickness,
+                                        const double densitydiff,
+                                        const double vesScaleFactor,
+                                        const bool overpressuredCompaction) const;
 
       /// Return Compaction coefficients
       virtual double compactionCoefficient() const;
@@ -47,7 +55,6 @@ namespace GeoPhysics
 
       /// Return Compaction coefficients 
       virtual double compactionCoefficientB() const { return 0.0; }
-      
 
    private:
       /// @brief Overwrite default assginment operator

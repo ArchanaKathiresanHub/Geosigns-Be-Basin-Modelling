@@ -30,13 +30,13 @@ public:
 
    /// Compte the derivative of the permeability function.
    virtual void calculateDerivative( const double  ves,
-                                     const double  maxVes,
-                                     const double  calculatedPorosity, 
-                                     const double  porosityDerivativeWrtVes,
-                                           double& permeability, 
-                                           double& derivative ) const
+                                         const double  maxVes,
+                                         const double  calculatedPorosity, 
+                                         const double  porosityDerivativeWrtVes,
+                                               double& permeability, 
+                                               double& derivative ) const
    {
-      permeability = 1.0E-9;
+      permeability = this->calculate(ves, maxVes, calculatedPorosity);
       derivative = 0.0;
    }
 

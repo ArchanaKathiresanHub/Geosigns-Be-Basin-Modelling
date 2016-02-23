@@ -1,3 +1,13 @@
+//
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "../src/DoubleExponentialPorosity.h"
 #include "../src/ExponentialPorosity.h"
 
@@ -91,3 +101,64 @@ TEST( DoubleExponentialPorosity, single_is_special_case_double )
 	EXPECT_NEAR( doubleExp.calculate( 40.0e6, 50.0e6,false, 0.0 ), singleExp.calculate( 40.0e6, 50.0e6,false, 0.0 ), 1e-10);
 }
 
+
+TEST( DoubleExponentialPorosity, derivatives )
+{
+   // For different depositional porosities
+   {
+      DoubleExponentialPorosity doubleExp(0.0, 0.0, 2.66E-07, 1.0E-07, 2.66E-08, 1.0E-08 );
+      EXPECT_NEAR( doubleExp.calculateDerivative( 1.0E+04, 1.0E+04, false, 0.0 ), 0.0, 1e-18);
+   }
+   {
+      DoubleExponentialPorosity doubleExp(0.2, 0.0, 2.66E-07, 1.0E-07, 2.66E-08, 1.0E-08 );
+      EXPECT_NEAR( doubleExp.calculateDerivative( 1.0E+04, 1.0E+04, false, 0.0 ), -3.651934302043E-08, 1e-18);
+   }
+   {
+      DoubleExponentialPorosity doubleExp(0.6, 0.0, 2.66E-07, 1.0E-07, 2.66E-08, 1.0E-08 );
+      EXPECT_NEAR( doubleExp.calculateDerivative( 1.0E+04, 1.0E+04, false, 0.0 ), -1.095580290613E-07, 1e-18);
+   }
+
+   // For different minimum mechanical porosities
+   {
+      DoubleExponentialPorosity doubleExp(0.4, 0.0, 2.66E-07, 1.0E-07, 2.66E-08, 1.0E-08 );
+      EXPECT_NEAR( doubleExp.calculateDerivative( 1.0E+04, 1.0E+04, false, 0.0 ), -7.303868604086E-08, 1e-18);
+   }
+   {
+      DoubleExponentialPorosity doubleExp(0.4, 0.4, 2.66E-07, 1.0E-07, 2.66E-08, 1.0E-08 );
+      EXPECT_NEAR( doubleExp.calculateDerivative( 1.0E+04, 1.0E+04, false, 0.0 ), 0.0, 1e-18);
+   }
+   {
+      DoubleExponentialPorosity doubleExp(0.4, 0.6, 2.66E-07, 1.0E-07, 2.66E-08, 1.0E-08 );
+      EXPECT_NEAR( doubleExp.calculateDerivative( 1.0E+04, 1.0E+04, false, 0.0 ), 3.651934302043E-08, 1e-18);
+   }
+
+   // For different ves (loading)
+   {
+      DoubleExponentialPorosity doubleExp(0.4, 0.3, 2.66E-07, 1.0E-07, 2.66E-08, 1.0E-08 );
+      EXPECT_NEAR( doubleExp.calculateDerivative( 0.0    , 0.0    , false, 0.0 ), -1.830000000000E-08, 1e-18);
+      EXPECT_NEAR( doubleExp.calculateDerivative( 1.0E+01, 1.0E+01, false, 0.0 ), -1.829995962205E-08, 1e-18);
+      EXPECT_NEAR( doubleExp.calculateDerivative( 1.0E+02, 1.0E+02, false, 0.0 ), -1.829959622496E-08, 1e-18);
+      EXPECT_NEAR( doubleExp.calculateDerivative( 1.0E+03, 1.0E+03, false, 0.0 ), -1.829596269548E-08, 1e-18);
+      EXPECT_NEAR( doubleExp.calculateDerivative( 1.0E+04, 1.0E+04, false, 0.0 ), -1.825967151021E-08, 1e-18);
+      EXPECT_NEAR( doubleExp.calculateDerivative( 1.0E+05, 1.0E+05, false, 0.0 ), -1.790113299862E-08, 1e-18);
+      EXPECT_NEAR( doubleExp.calculateDerivative( 1.0E+06, 1.0E+06, false, 0.0 ), -1.471782748594E-08, 1e-18);
+   }
+
+   // For different ves (unloading)
+   {
+      DoubleExponentialPorosity doubleExp(0.4, 0.3, 2.66E-07, 1.0E-07, 2.66E-08, 1.0E-08 );
+      EXPECT_NEAR( doubleExp.calculateDerivative( 1.0E+01, 2.0E+01, false, 0.0 ), -1.829992328198E-09, 1e-18);
+      EXPECT_NEAR( doubleExp.calculateDerivative( 1.0E+02, 2.0E+02, false, 0.0 ), -1.829923283589E-09, 1e-18);
+      EXPECT_NEAR( doubleExp.calculateDerivative( 1.0E+03, 2.0E+03, false, 0.0 ), -1.829232996856E-09, 1e-18);
+      EXPECT_NEAR( doubleExp.calculateDerivative( 1.0E+04, 2.0E+04, false, 0.0 ), -1.822346039388E-09, 1e-18);
+      EXPECT_NEAR( doubleExp.calculateDerivative( 1.0E+05, 2.0E+05, false, 0.0 ), -1.755041827158E-09, 1e-18);
+      EXPECT_NEAR( doubleExp.calculateDerivative( 1.0E+06, 2.0E+06, false, 0.0 ), -1.215820981528E-09, 1e-18);
+   }
+
+   // For different chemical compaction terms
+   {
+      DoubleExponentialPorosity doubleExp(0.4, 0.3, 2.66E-07, 1.0E-07, 2.66E-08, 1.0E-08 );
+      EXPECT_NEAR( doubleExp.calculateDerivative( 1.0E+03, 1.0E+03, true, -1.00E-01 ), -1.829596269548E-08, 1e-18);
+      EXPECT_NEAR( doubleExp.calculateDerivative( 1.0E+03, 1.0E+03, true, -4.00E-01 ), 0.0                , 1e-18);
+   }
+}

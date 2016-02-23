@@ -1,9 +1,9 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -12,23 +12,27 @@
 
 #include "Porosity.h"
 
-
-
 namespace GeoPhysics
 {
 
    class soilMechanicsPorosity : public Porosity::Algorithm {
    public:
-      soilMechanicsPorosity(double depoPorosity,
-         double minimumMechanicalPorosity,
-         double soilMechanicsCompactionCoefficient,
-         double depositionVoidRatio);
+      soilMechanicsPorosity( const double depoPorosity,
+                             const double minimumMechanicalPorosity,
+                             const double soilMechanicsCompactionCoefficient,
+                             const double depositionVoidRatio );
 
       /// Return porosity with soilMechanicsPorosity
-      virtual double calculate(const double ves, const double maxVes, const bool includeChemicalCompaction, const double chemicalCompactionTerm) const;
+      virtual double calculate( const double ves,
+                                const double maxVes,
+                                const bool includeChemicalCompaction,
+                                const double chemicalCompactionTerm ) const;
 
       /// Return PorosityDerivative
-      virtual double calculateDerivative( const double ves, const double maxVes, const bool includeChemicalCompaction, const double chemicalCompactionTerm ) const;
+      virtual double calculateDerivative( const double ves,
+                                          const double maxVes,
+                                          const bool includeChemicalCompaction,
+                                          const double chemicalCompactionTerm ) const;
 
       /// \brief Determine if the porosity model is incompressible.
       virtual bool isIncompressible () const;
@@ -51,8 +55,8 @@ namespace GeoPhysics
       /// @brief Overwrite default copy constructor
       soilMechanicsPorosity( const soilMechanicsPorosity& );
 
-      const double  m_soilMechanicsCompactionCoefficient; ///< The soil mechanics compaction coefficient
-      const double  m_depositionVoidRatio;                ///< The depositional void ration
+      const double m_soilMechanicsCompactionCoefficient; ///< The soil mechanics compaction coefficient
+      const double m_depositionVoidRatio;                ///< The depositional void ration
    };
 }
 #endif
