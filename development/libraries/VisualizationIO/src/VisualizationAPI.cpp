@@ -23,6 +23,8 @@ using namespace std;
 
 CauldronIO::Project::Project(const string& name, const string& description, const string& team, const string& version, ModellingMode mode, int xmlVersionMajor, int xmlVersionMinor)
 {
+    if (name.empty()) throw CauldronIOException("Project name cannot be empty");
+    
     m_name = name;
     m_description = description;
     m_team = team;
@@ -191,7 +193,7 @@ void CauldronIO::Project::addFormation(boost::shared_ptr<const Formation>& newFo
 
 void CauldronIO::Project::addReservoir(boost::shared_ptr<const Reservoir>& newReservoir)
 {
-    if (!newReservoir) throw CauldronIOException("Cannot add empty formation");
+    if (!newReservoir) throw CauldronIOException("Cannot add empty reservoir");
 
     // Check if reservoir exists
     BOOST_FOREACH(const boost::shared_ptr<const Reservoir>& reservoir, m_reservoirList)
@@ -217,6 +219,7 @@ void CauldronIO::Project::release()
 
 CauldronIO::SnapShot::SnapShot(double age, SnapShotKind kind, bool isMinorShapshot)
 {
+    if (age < 0) throw CauldronIO::CauldronIOException("SnapShot age cannot be negative");
     m_age = age;
     m_kind = kind;
     m_isMinor = isMinorShapshot;
@@ -327,6 +330,10 @@ void CauldronIO::SnapShot::release()
 
 CauldronIO::Property::Property(const string& name, const string& username, const string& cauldronName, const string& unit, PropertyType type, PropertyAttribute attrib)
 {
+    if (name.empty()) throw CauldronIOException("Property name cannot be empty");
+    if (username.empty()) throw CauldronIOException("User name cannot be empty");
+    if (cauldronName.empty()) throw CauldronIOException("Cauldron name cannot be empty");
+
     m_name = name;
     m_username = username;
     m_cauldronName = cauldronName;
@@ -382,6 +389,8 @@ bool CauldronIO::Property::operator==(const Property& other) const
 
 CauldronIO::Formation::Formation(size_t kStart, size_t kEnd, const string& name, bool isSourceRock, bool isMobileLayer)
 {
+    if (name.empty()) throw CauldronIOException("Formation name cannot be empty");
+    
     m_kstart = kStart;
     m_kend = kEnd;
     m_name = name;

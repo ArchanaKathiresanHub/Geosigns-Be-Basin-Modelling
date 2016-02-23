@@ -241,8 +241,8 @@ TEST(Project, AddFormation)
 	const string version("version");
 	ModellingMode mode = MODE1D;
 	
-	size_t kStart = 1.5;
-	size_t kEnd = 2.5;
+	size_t kStart = 1;
+	size_t kEnd = 2;
 	const string formationName("formation");
 	bool isSourceRock = true;
 	bool isMobileLayer = true;
@@ -263,8 +263,8 @@ TEST(Project, AddFormation_HandleEmptyFormation)
 	const string version("version");
 	ModellingMode mode = MODE1D;
 	
-	size_t kStart = 1.5;
-	size_t kEnd = 2.5;
+	size_t kStart = 1;
+	size_t kEnd = 2;
 	const string formationName("formation");
 	bool isSourceRock = true;
 	bool isMobileLayer = true;
@@ -296,8 +296,8 @@ TEST(Project, AddFormation_HandleDuplicateFormation)
 	const string version("version");
 	ModellingMode mode = MODE1D;
 	
-	size_t kStart = 1.5;
-	size_t kEnd = 2.5;
+	size_t kStart = 1;
+	size_t kEnd = 2;
 	const string formationName("formation");
 	bool isSourceRock = true;
 	bool isMobileLayer = true;
@@ -330,8 +330,8 @@ TEST(Project, FindFormation)
 	const string version("version");
 	ModellingMode mode = MODE1D;
 	
-	size_t kStart = 1.5;
-	size_t kEnd = 2.5;
+	size_t kStart = 1;
+	size_t kEnd = 2;
 	const string formationName("formation");
 	bool isSourceRock = true;
 	bool isMobileLayer = true;
@@ -352,8 +352,8 @@ TEST(Project, AddReservoir)
 	const string version("version");
 	ModellingMode mode = MODE1D;
 	
-	size_t kStart = 1.5;
-	size_t kEnd = 2.5;
+	size_t kStart = 1;
+	size_t kEnd = 2;
 	const string formationName("formation");
 	bool isSourceRock = true;
 	bool isMobileLayer = true;
@@ -378,7 +378,7 @@ TEST(Project, AddReservoir_HandleEmptyReservoir)
 	
 	const string reservoirName("reservoir");
 	boost::shared_ptr<const Formation> formation;
-	boost::shared_ptr<const Reservoir> reservoir(new Reservoir(reservoirName, formation));
+	boost::shared_ptr<const Reservoir> reservoir;
 	boost::shared_ptr<Project> project(new Project(projectName, description, teamName, version, mode, 2, 1));
 	const ReservoirList& reservoirList = project->getReservoirs();
 
@@ -405,8 +405,8 @@ TEST(Project, AddReservoir_HandleDuplicateReservoir)
 	const string version("version");
 	ModellingMode mode = MODE1D;
 	
-	size_t kStart = 1.5;
-	size_t kEnd = 2.5;
+	size_t kStart = 1;
+	size_t kEnd = 2;
 	const string formationName("formation");
 	bool isSourceRock = true;
 	bool isMobileLayer = true;
@@ -441,8 +441,8 @@ TEST(Project, FindReservoir)
 	const string version("version");
 	ModellingMode mode = MODE1D;
 	
-	size_t kStart = 1.5;
-	size_t kEnd = 2.5;
+	size_t kStart = 1;
+	size_t kEnd = 2;
 	const string formationName("formation");
 	bool isSourceRock = true;
 	bool isMobileLayer = true;
@@ -563,52 +563,9 @@ TEST(Property, OperatorEquals)
 	PropertyAttribute attrib = Continuous3DProperty;
 	boost::shared_ptr<Property> prop1(new Property(name, userName, cauldronName, unit, type, attrib));
 	boost::shared_ptr<Property> prop2(new Property(name, userName, cauldronName, unit, type, attrib));
-	bool isEqual = prop1 == prop2;
+	bool isEqual = *prop1 == *prop2;
 	EXPECT_EQ(isEqual, true);
 }
-/*
-TEST(SnapShot, Add)
-{
-boost::shared_ptr<SnapShot> snapShot(new SnapShot(0, SYSTEM, false));
-
-const FormationVolumeList& formVolumes = snapShot->getFormationVolumeList();
-const SurfaceList& surfaceList = snapShot->getSurfaceList();
-const TrapperList& trapperList = snapShot->getTrapperList();
-
-EXPECT_EQ(formVolumes.size(), 0);
-EXPECT_EQ(surfaceList.size(), 0);
-EXPECT_EQ(trapperList.size(), 0);
-
-// create a volume to add to the snapshot
-const string propName = "Depth";
-const string unit = "m";
-boost::shared_ptr<const Property> prop(new Property(propName, propName, propName, unit, FormationProperty, Continuous3DProperty));
-boost::shared_ptr<const Geometry3D> geometry3D(new Geometry3D(2, 2, 2, 0, 100, 100, 0, 0));
-boost::shared_ptr<Volume> volume(new Volume(Sediment, geometry3D));
-boost::shared_ptr<VolumeData> volumeData(new VolumeDataNative(geometry3D));
-boost::shared_ptr<PropertyVolumeData> propVolume(new PropertyVolumeData(prop, volumeData));
-volume->addPropertyVolumeData(propVolume);
-EXPECT_EQ(volume->getPropertyVolumeDataList().size(), 1);
-snapShot->setVolume(volume);
-
-// create a surface to add to the snapshot
-const string surfaceName = "waterbottom";
-boost::shared_ptr<const Geometry2D> geometry(new Geometry2D(2, 2, 100, 100, 0, 0));
-boost::shared_ptr<SurfaceData> valueMap(new MapNative(geometry));
-boost::shared_ptr<Surface> surface(new Surface(surfaceName, Sediment, geometry));
-boost::shared_ptr<PropertySurfaceData> propSurface(new PropertySurfaceData(prop, valueMap));
-surface->addPropertySurfaceData(propSurface);
-snapShot->addSurface(surface);
-EXPECT_EQ(surfaceList.size(), 1);
-
-//create a trapper to add to the snapshot
-int ID = 1234;
-int persistentID = 2345;
-boost::shared_ptr<Trapper> trapper(new Trapper(ID, persistentID));
-snapShot->addTrapper(trapper);
-EXPECT_EQ(trapperList.size(), 1);
-
-}*/
 
 TEST(SnapShot, Add)
 {
@@ -624,8 +581,8 @@ TEST(SnapShot, Add)
 
 	// create a formation volume to add to the snapshot
 	boost::shared_ptr<const Geometry3D> geometry3D(new Geometry3D(2, 2, 2, 0, 100, 100, 0, 0));
-	size_t kStart = 1.5;
-	size_t kEnd = 2.5;
+	size_t kStart = 1;
+	size_t kEnd = 2;
 	const string formationName("formation");
 	bool isSourceRock = true;
 	bool isMobileLayer = true;
@@ -724,45 +681,13 @@ TEST(SnapShot, AddSurface_HandleDuplicateSurface)
 
 }
 
-TEST(SnapShot, AddFormationVolume_HandleEmptyVolume)
-{
-	boost::shared_ptr<SnapShot> snapShot(new SnapShot(0, SYSTEM, false));
-
-	const FormationVolumeList& formVolumes = snapShot->getFormationVolumeList();
-
-	boost::shared_ptr<const Geometry3D> geometry3D(new Geometry3D(2, 2, 2, 0, 100, 100, 0, 0));
-	size_t kStart = 1.5;
-	size_t kEnd = 2.5;
-	const string formationName("formation");
-	bool isSourceRock = true;
-	bool isMobileLayer = true;
-	boost::shared_ptr<const Formation> formation(new Formation(kStart, kEnd, formationName, isSourceRock, isMobileLayer));
-	boost::shared_ptr<Volume> volume(new Volume(Sediment, geometry3D));
-	FormationVolume formationVolume;
-
-	try{
-		snapShot->addFormationVolume(formationVolume);
-		FAIL();
-	}
-	catch (CauldronIOException const & err)
-	{
-		EXPECT_STREQ(err.what(), "Cannot add empty volume");
-		EXPECT_EQ(formVolumes.size(), 0);
-
-	}
-	catch (...)
-	{
-		FAIL() << "Expected: Cannot add empty volume";
-	}
-}
-
 TEST(SnapShot, AddFormationVolume_HandleDuplicateVolume)
 {
 	boost::shared_ptr<SnapShot> snapShot(new SnapShot(0, SYSTEM, false));
 	const FormationVolumeList& formVolumes = snapShot->getFormationVolumeList();
 	boost::shared_ptr<const Geometry3D> geometry3D(new Geometry3D(2, 2, 2, 0, 100, 100, 0, 0));
-	size_t kStart = 1.5;
-	size_t kEnd = 2.5;
+	size_t kStart = 1;
+	size_t kEnd = 2;
 	const string formationName("formation");
 	bool isSourceRock = true;
 	bool isMobileLayer = true;
@@ -840,8 +765,8 @@ TEST(SnapShot, AddTrapper_HandleDuplicateTrapper)
 
 TEST(Formation, Create)
 {
-	size_t kStart = 1.5;
-	size_t kEnd = 2.5;
+	size_t kStart = 1;
+	size_t kEnd = 2;
 	const string formationName("formation");
 	bool isSourceRock = true;
 	bool isMobileLayer = true;
@@ -857,8 +782,8 @@ TEST(Formation, Create)
 
 TEST(Formation, Create_HandleEmptyName)
 {
-	size_t kStart = 1.5;
-	size_t kEnd = 2.5;
+	size_t kStart = 1;
+	size_t kEnd = 2;
 	const string formationName;
 	bool isSourceRock = true;
 	bool isMobileLayer = true;
@@ -876,58 +801,16 @@ TEST(Formation, Create_HandleEmptyName)
 	}
 }
 
-TEST(Formation, Create_HandleEmptyKStart)
-{
-	size_t kStart;
-	size_t kEnd = 2.5;
-	const string formationName("formation");
-	bool isSourceRock = true;
-	bool isMobileLayer = true;
-	try{
-		boost::shared_ptr<const Formation> formation(new Formation(kStart, kEnd, formationName, isSourceRock, isMobileLayer));
-		FAIL();
-	}
-	catch (CauldronIOException const & err)
-	{
-		EXPECT_STREQ(err.what(), "K range cannot be empty");
-	}
-	catch (...)
-	{
-		FAIL() << "Expected: K range cannot be empty";
-	}
-}
-
-TEST(Formation, Create_HandleEmptyKEnd)
-{
-	size_t kStart = 1.5;
-	size_t kEnd;
-	const string formationName("formation");
-	bool isSourceRock = true;
-	bool isMobileLayer = true;
-	try{
-		boost::shared_ptr<const Formation> formation(new Formation(kStart, kEnd, formationName, isSourceRock, isMobileLayer));
-		FAIL();
-	}
-	catch (CauldronIOException const & err)
-	{
-		EXPECT_STREQ(err.what(), "K range cannot be empty");
-	}
-	catch (...)
-	{
-		FAIL() << "Expected: K range cannot be empty";
-	}
-}
-
 TEST(Formation, OperatorEquals)
 {
-	size_t kStart = 1.5;
-	size_t kEnd = 2.5;
+	size_t kStart = 1;
+	size_t kEnd = 2;
 	const string formationName("formation");
 	bool isSourceRock = true;
 	bool isMobileLayer = true;
 	boost::shared_ptr<const Formation> formation1(new Formation(kStart, kEnd, formationName, isSourceRock, isMobileLayer));
 	boost::shared_ptr<const Formation> formation2(new Formation(kStart, kEnd, formationName, isSourceRock, isMobileLayer));
-	bool isEqual = formation1 == formation2;
+	bool isEqual = *formation1 == *formation2;
 	EXPECT_EQ(isEqual, true);
 
 }
@@ -945,35 +828,14 @@ TEST(Surface, SetFormation)
 {
 	const string surfaceName = "waterbottom";
 	boost::shared_ptr<Surface> surface(new Surface(surfaceName, Sediment));
-	size_t kStart = 1.5;
-	size_t kEnd = 2.5;
+	size_t kStart = 1;
+	size_t kEnd = 2;
 	const string formationName("formation");
 	bool isSourceRock = true;
 	bool isMobileLayer = true;
 	boost::shared_ptr<const Formation> formation(new Formation(kStart, kEnd, formationName, isSourceRock, isMobileLayer));
 	surface->setFormation(formation, true);
 	EXPECT_STREQ(surface->getTopFormation()->getName().c_str(), formationName.c_str());
-
-}
-
-TEST(Surface, AddPropertySurfaceData_HandleEmptyData)
-{
-	const string surfaceName = "waterbottom";
-	boost::shared_ptr<Surface> surface(new Surface(surfaceName, Sediment));
-	PropertySurfaceData propSurface;
-
-	try{
-		surface->addPropertySurfaceData(propSurface);
-		FAIL();
-	}
-	catch (CauldronIOException const & err)
-	{
-		EXPECT_STREQ(err.what(), "Cannot add empty property-surfaceData");
-	}
-	catch (...)
-	{
-		FAIL() << "Expected: Cannot add empty property-surfaceData";
-	}
 
 }
 
@@ -1022,58 +884,6 @@ TEST(Geometry2D, Create)
 	EXPECT_DOUBLE_EQ(geometry->getMinJ(), minJ);
 	EXPECT_DOUBLE_EQ(geometry->getMaxI(), maxI);
 	EXPECT_DOUBLE_EQ(geometry->getMaxJ(), maxJ);
-}
-
-TEST(Geometry2D, Create_HandleNegativeNumI)
-{
-	size_t numI = -2;
-	size_t numJ = 3;
-	double deltaI = 1.5;
-	double deltaJ = 2.5;
-	double minI = 1.2;
-	double minJ = 3.2;
-	double maxI = minI + deltaI * numI;
-	double maxJ = minJ + deltaJ * numJ;
-
-	try{
-		boost::shared_ptr<const Geometry2D> geometry(new Geometry2D(numI, numJ, deltaI, deltaJ, minI, minJ));
-		FAIL();
-	}
-	catch (CauldronIOException const & err)
-	{
-		EXPECT_STREQ(err.what(), "Number of elements in i-direction cannot be negative");
-	}
-	catch (...)
-	{
-		FAIL() << "Expected: Number of elements in i-direction cannot be negative";
-	}
-
-}
-
-TEST(Geometry2D, Create_HandleNegativeNumJ)
-{
-	size_t numI = 2;
-	size_t numJ = -3;
-	double deltaI = 1.5;
-	double deltaJ = 2.5;
-	double minI = 1.2;
-	double minJ = 3.2;
-	double maxI = minI + deltaI * numI;
-	double maxJ = minJ + deltaJ * numJ;
-
-	try{
-		boost::shared_ptr<const Geometry2D> geometry(new Geometry2D(numI, numJ, deltaI, deltaJ, minI, minJ));
-		FAIL();
-	}
-	catch (CauldronIOException const & err)
-	{
-		EXPECT_STREQ(err.what(), "Number of elements in j-direction cannot be negative");
-	}
-	catch (...)
-	{
-		FAIL() << "Expected: Number of elements in j-direction cannot be negative";
-	}
-
 }
 
 TEST(Volume, Create)
