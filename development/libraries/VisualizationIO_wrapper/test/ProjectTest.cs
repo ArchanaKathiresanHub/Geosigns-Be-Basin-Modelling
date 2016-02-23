@@ -28,11 +28,11 @@ namespace Shell.BasinModeling.CauldronIO.Test
         [TestMethod]
         public void LoadProjectNative()
         {
-            Project project = ImportExport.importFromXML("C:/Apps/Documents/BPA-Cauldron/build/libraries/VisualizationIO_wrapper/csharp-test/HydrostaticGL_out.xml");
+            Project project = ImportExport.importFromXML("../../../csharp-test/HydrostaticGL_out.xml");
             int count = project.getSnapShots().Count;
             Assert.IsTrue(count == 14);
             count = project.getSurfaceNames().Count;
-            Assert.IsTrue(count == 21);
+            Assert.IsTrue(count == 5);
             count = project.getProperties().Count;
             Assert.IsTrue(count == 23);
             count = project.getFormations().Count;
@@ -55,7 +55,7 @@ namespace Shell.BasinModeling.CauldronIO.Test
         [TestMethod]
         public void AddToProjectNative()
         {
-            Project project = ImportExport.importFromXML("C:/Apps/Documents/BPA-Cauldron/build/libraries/VisualizationIO_wrapper/csharp-test/HydrostaticGL_out.xml");
+            Project project = ImportExport.importFromXML("../../../csharp-test/HydrostaticGL_out.xml");
             int count = project.getSnapShots().Count;
             Assert.IsTrue(count == 14);
 
