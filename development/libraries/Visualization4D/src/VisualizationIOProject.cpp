@@ -818,7 +818,17 @@ void VisualizationIOProject::init()
   }
 
   id = 0;
-  auto const& formations = m_project->getFormations();
+  auto formations = m_project->getFormations();
+  std::sort(formations.begin(), formations.end(), 
+    [](boost::shared_ptr<const CauldronIO::Formation> lhs, boost::shared_ptr<const CauldronIO::Formation> rhs)
+    {
+      unsigned int startK1, endK1, startK2, endK2;
+      lhs->getK_Range(startK1, endK1);
+      rhs->getK_Range(startK2, endK2);
+
+      return startK1 < startK2;
+    });
+
   for (auto fmt : formations)
   {
     Formation formation;
@@ -967,6 +977,24 @@ Project::SnapshotContents VisualizationIOProject::getSnapshotContents(size_t sna
     sf.maxK = endK;
 
     contents.formations.push_back(sf);
+  }
+
+  if (!contents.formations.empty())
+  {
+    // Sort
+    std::sort(contents.formations.begin(), contents.formations.end(),
+      [](const SnapshotFormation& lhs, const SnapshotFormation& rhs)
+      {
+        return lhs.minK < rhs.minK;
+      });
+
+    // Make k start at 0
+    int minK = contents.formations[0].minK;
+    for (auto &fmt : contents.formations)
+    {
+      fmt.minK -= minK;
+      fmt.maxK -= minK;
+    }
   }
 
   for (auto name : surfaceNames)
