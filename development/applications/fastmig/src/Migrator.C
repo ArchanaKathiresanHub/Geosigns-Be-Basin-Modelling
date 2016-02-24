@@ -177,6 +177,8 @@ bool Migrator::compute (void)
    m_reservoirDetection = m_projectHandle->getRunParameters ()->getReservoirDetection ();
    m_legacyMigration    = m_projectHandle->getRunParameters ()->getLegacy ();
 
+   if (!setUpBasinGeometry()) return false;
+
    if (m_legacyMigration)
    {
       m_verticalMigration    = true;
@@ -188,7 +190,6 @@ bool Migrator::compute (void)
 
    if (!m_legacyMigration)
    {
-      if (!setUpBasinGeometry ()) return false;
       createFormationNodes ();
       computeFormationPropertyMaps (m_projectHandle->getSnapshots ()->front (), overPressureRun);
    }
@@ -294,14 +295,25 @@ bool Migrator::setUpBasinGeometry (void)
 {
    bool HydrostaticCalculation = isHydrostaticCalculation ();
 
-   // From GeoPhysics::ProjectHandle
-   if (!m_projectHandle->initialise (true) ||
-       !m_projectHandle->setFormationLithologies (true, true) ||
-       !m_projectHandle->initialiseLayerThicknessHistory (!HydrostaticCalculation) || // Backstripping
-       !m_projectHandle->applyFctCorrections ())
-      return false;
-   else
-      return true;
+   if (!performLegacyMigration())
+   {
+      // From GeoPhysics::ProjectHandle
+      if (!m_projectHandle->initialise(true) ||
+         !m_projectHandle->setFormationLithologies(true, true) ||
+         !m_projectHandle->initialiseLayerThicknessHistory(!HydrostaticCalculation) || // Backstripping
+         !m_projectHandle->applyFctCorrections())
+         return false;
+      else
+         return true;
+   }
+   else 
+   {
+      if (!m_projectHandle->initialise(true) ||
+         !m_projectHandle->setFormationLithologies(true, true))
+         return false;
+      else
+         return true;
+   }
 }
 
 bool Migrator::isHydrostaticCalculation (void) const
