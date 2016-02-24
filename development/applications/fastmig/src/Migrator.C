@@ -295,7 +295,7 @@ bool Migrator::setUpBasinGeometry (void)
 {
    bool HydrostaticCalculation = isHydrostaticCalculation ();
 
-   if (!performLegacyMigration())
+   if (!m_legacyMigration)
    {
       // From GeoPhysics::ProjectHandle
       if (!m_projectHandle->initialise(true) ||
