@@ -166,7 +166,7 @@ void RunTest( Geocosm::TsLib::CalcContextInterface* tslib )
 void TestTcfInfo( const std::string & workingDir )
 {
 	try {
-		std::auto_ptr<Geocosm::TsLib::TcfInfoInterface> tcfInfo (Geocosm::TsLibPluginManager::CreateTcfInfo());		
+      std::unique_ptr<Geocosm::TsLib::TcfInfoInterface> tcfInfo( Geocosm::TsLibPluginManager::CreateTcfInfo() );
 		tcfInfo->Tcf(workingDir + "/sampletestdata/RQCDataSet.tcf");
 		cout << "Tcf Tests..." << endl;
 		cout << "RQCDataSet.tcf: Is Version 1 Tcf: " << tcfInfo->IsV1() << " Is Version 2 Tcf: " << tcfInfo->IsV2() << endl;
@@ -234,7 +234,7 @@ int main( int argc, char* argv[] )
 	//test delayed load, at this point you should be able to start this program 
 	//without geocosmxmllibbasecpp.dll on the path (or renamed to something else)
 	//now rename it back and continue, it will be automatically loaded by the
-	//windows loader when it is needed.  
+	//windows loader when it is needed.
    try {
 #ifdef _WIN32
 		LibLoader::AddToLibSearchPath( pluginDirDir );
@@ -251,7 +251,7 @@ int main( int argc, char* argv[] )
 		}
 
 		//get me a TsLibInterface object...
-		std::auto_ptr<Geocosm::TsLib::TsLibInterface> tslib( Geocosm::TsLibPluginManager::CreateTsLibPlugin() );
+      std::unique_ptr<Geocosm::TsLib::TsLibInterface> tslib( Geocosm::TsLibPluginManager::CreateTsLibPlugin() );
 
 		//verify the loaded plugin is for the same version that we compiled against.
 		if ( tslib->GetInterfaceVersion() != Geocosm::TsLib::TSLIB_INTERFACE_VERSION ) {
@@ -259,7 +259,7 @@ int main( int argc, char* argv[] )
 			throw GeocosmException("TsLib Interface mismatch");
 		}
 
-      std::auto_ptr<Geocosm::TsLib::CalcContextInterface> tslibCalcContext;
+      std::unique_ptr<Geocosm::TsLib::CalcContextInterface> tslibCalcContext;
      
 #ifdef AsItShouldBe
       if ( mpiGetRank() == 0 ) // master process

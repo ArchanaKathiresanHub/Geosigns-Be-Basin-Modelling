@@ -46,7 +46,7 @@ public:
    virtual ~PrmType() {;}
 
    /// @brief add variable parameter to scenario
-   virtual void addParameterObject( std::auto_ptr<casa::ScenarioAnalysis> & sa
+   virtual void addParameterObject( std::unique_ptr<casa::ScenarioAnalysis> & sa
                                   , const std::string                     & name
                                   , const std::vector<std::string>        & prms
                                   ) const = 0;
@@ -98,7 +98,7 @@ public:
    TopCrustHeatProduction( const std::string & prmTypeName = "" ) : PrmType( prmTypeName ) {;}
    virtual ~TopCrustHeatProduction() {;}
 
-   virtual void addParameterObject( std::auto_ptr<casa::ScenarioAnalysis> & sa
+   virtual void addParameterObject( std::unique_ptr<casa::ScenarioAnalysis> & sa
                                   , const std::string                     & name
                                   , const std::vector<std::string>        & prms
                                   ) const
@@ -172,7 +172,7 @@ public:
    SourceRockTOC( const std::string & prmTypeName = "" ) : PrmType( prmTypeName ) {;}
    virtual ~SourceRockTOC() {;}
 
-   virtual void addParameterObject( std::auto_ptr<casa::ScenarioAnalysis> & sa
+   virtual void addParameterObject( std::unique_ptr<casa::ScenarioAnalysis> & sa
                                   , const std::string                     & name
                                   , const std::vector<std::string>        & prms
                                   ) const
@@ -255,7 +255,7 @@ public:
    SourceRockHC( const std::string & prmTypeName = "" ) : PrmType( prmTypeName ) {;}
    virtual ~SourceRockHC() {;}
 
-   virtual void addParameterObject( std::auto_ptr<casa::ScenarioAnalysis> & sa
+   virtual void addParameterObject( std::unique_ptr<casa::ScenarioAnalysis> & sa
                                   , const std::string                     & name
                                   , const std::vector<std::string>        & prms
                                   ) const
@@ -343,7 +343,7 @@ public:
    
    virtual ~SourceRockHI() {;}
 
-   virtual void addParameterObject( std::auto_ptr<casa::ScenarioAnalysis> & sa
+   virtual void addParameterObject( std::unique_ptr<casa::ScenarioAnalysis> & sa
                                   , const std::string                     & name
                                   , const std::vector<std::string>        & prms
                                   ) const
@@ -429,7 +429,7 @@ public:
    SourceRockPreasphActEnergy( const std::string & prmTypeName = "" ) : PrmType( prmTypeName ) {;}
    virtual ~SourceRockPreasphActEnergy() {;}
 
-   virtual void addParameterObject( std::auto_ptr<casa::ScenarioAnalysis> & sa
+   virtual void addParameterObject( std::unique_ptr<casa::ScenarioAnalysis> & sa
                                   , const std::string                     & name
                                   , const std::vector<std::string>        & prms
                                   ) const
@@ -512,7 +512,7 @@ public:
    SourceRockType( const std::string & prmTypeName = "" ) : PrmType( prmTypeName ) {;}
    virtual ~SourceRockType() {;}
 
-   virtual void addParameterObject( std::auto_ptr<casa::ScenarioAnalysis> & sa
+   virtual void addParameterObject( std::unique_ptr<casa::ScenarioAnalysis> & sa
                                   , const std::string                     & name
                                   , const std::vector<std::string>        & prms
                                   ) const
@@ -587,7 +587,7 @@ public:
    CrustThinningOneEvent()  {;}
    virtual ~CrustThinningOneEvent() {;}
 
-   virtual void addParameterObject( std::auto_ptr<casa::ScenarioAnalysis> & sa
+   virtual void addParameterObject( std::unique_ptr<casa::ScenarioAnalysis> & sa
                                   , const std::string                     & name
                                   , const std::vector<std::string>        & prms
                                   ) const
@@ -668,7 +668,7 @@ public:
    CrustThinning()  {;}
    virtual ~CrustThinning() {;}
 
-   virtual void addParameterObject( std::auto_ptr<casa::ScenarioAnalysis> & sa
+   virtual void addParameterObject( std::unique_ptr<casa::ScenarioAnalysis> & sa
                                   , const std::string                     & name
                                   , const std::vector<std::string>        & prms
                                   ) const
@@ -782,7 +782,7 @@ public:
    SurfacePorosity( const std::string & prmTypeName = "" ) : PrmType( prmTypeName ) {;}
    virtual ~SurfacePorosity() {;}
 
-   virtual void addParameterObject( std::auto_ptr<casa::ScenarioAnalysis> & sa
+   virtual void addParameterObject( std::unique_ptr<casa::ScenarioAnalysis> & sa
                                   , const std::string                     & name
                                   , const std::vector<std::string>        & prms
                                   ) const
@@ -899,7 +899,7 @@ public:
    PorosityModel( const std::string & prmTypeName = "" ) : PrmType( prmTypeName ) {;}
    virtual ~PorosityModel() {;}
 
-   virtual void addParameterObject( std::auto_ptr<casa::ScenarioAnalysis> & sa
+   virtual void addParameterObject( std::unique_ptr<casa::ScenarioAnalysis> & sa
                                   , const std::string                     & name
                                   , const std::vector<std::string>        & prms
                                   ) const
@@ -1005,7 +1005,7 @@ public:
    PermeabilityModel( const std::string & prmTypeName = "" ) : PrmType( prmTypeName ) {;}
    virtual ~PermeabilityModel() {;}
 
-   virtual void addParameterObject( std::auto_ptr<casa::ScenarioAnalysis> & sa
+   virtual void addParameterObject( std::unique_ptr<casa::ScenarioAnalysis> & sa
                                   , const std::string                     & name
                                   , const std::vector<std::string>        & prms
                                   ) const
@@ -1194,7 +1194,7 @@ public:
    STPThermalCondCoeff( const std::string & prmTypeName = "" ) : PrmType( prmTypeName ) {;}
    virtual ~STPThermalCondCoeff() {;}
 
-   virtual void addParameterObject( std::auto_ptr<casa::ScenarioAnalysis> & sa
+   virtual void addParameterObject( std::unique_ptr<casa::ScenarioAnalysis> & sa
                                   , const std::string                     & name
                                   , const std::vector<std::string>        & prms
                                   ) const
@@ -1347,9 +1347,9 @@ CmdAddVarPrm::CmdAddVarPrm( CasaCommander & parent, const std::vector< std::stri
    }
 }
 
-void CmdAddVarPrm::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
+void CmdAddVarPrm::execute( std::unique_ptr<casa::ScenarioAnalysis> & sa )
 {
-   LogHandler( LogHandler::INFO ) << "Add variable parameter: " << ( m_prmName.empty() ?
+   LogHandler( LogHandler::INFO_SEVERITY ) << "Add variable parameter: " << ( m_prmName.empty() ?
                                                                   (m_prms[0] + "(" + CfgFileParser::implode( m_prms, ",", 1 ) + ")") :
                                                                   (m_prmName)
                                                               );

@@ -1,6 +1,20 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include <petsc.h>
 
 using namespace std;
+
+// Utility library
+#include "FormattingException.h"
+#include "LogHandler.h"
 
 #include "PropertiesCalculator.h"
 
@@ -14,10 +28,36 @@ int main( int argc, char ** argv )
 
    MPI_Comm_rank ( PETSC_COMM_WORLD, &rank );
 
-   SnapshotList snapshots;
-   PropertyList properties;
-   FormationVector formationItems;
+   //////////////////////////////////////////////////
+   ///1. Intitialise fastproperties loger
+   try{
+      PetscBool log = PETSC_FALSE;
+      PetscOptionsHasName( PETSC_NULL, "-verbosity", &log );
+      if (log){
+         char verbosity[11];
+         PetscOptionsGetString( PETSC_NULL, "-verbosity", verbosity, 11, 0 );
+         if      (!strcmp( verbosity, "quiet"      )) { LogHandler( "fastproperties", LogHandler::QUIET_LEVEL     , rank ); }
+         else if (!strcmp( verbosity, "minimal"    )) { LogHandler( "fastproperties", LogHandler::MINIMAL_LEVEL   , rank ); }
+         else if (!strcmp( verbosity, "normal"     )) { LogHandler( "fastproperties", LogHandler::NORMAL_LEVEL    , rank ); }
+         else if (!strcmp( verbosity, "detailed"   )) { LogHandler( "fastproperties", LogHandler::DETAILED_LEVEL  , rank ); }
+         else if (!strcmp( verbosity, "diagnostic" )) { LogHandler( "fastproperties", LogHandler::DIAGNOSTIC_LEVEL, rank ); }
+         else throw formattingexception::GeneralException() << "Unknown <" << verbosity << "> option for -verbosity command line parameter.";
+      }
+      else{
+         LogHandler( "fastproperties", LogHandler::DETAILED_LEVEL, rank );
+      }
+   }
+   catch (formattingexception::GeneralException& ex){
+      std::cout << ex.what();
+      return 1;
+   }
+   catch (...){
+      std::cout << "Fatal error when initialising log file(s).";
+      return 1;
+   }
 
+   ////////////////////////////////////////////
+   ///2. Parse command line and create calculator
    PetscLogDouble sim_Start_Time;
    PetscTime( &sim_Start_Time );   
 
@@ -39,6 +79,8 @@ int main( int argc, char ** argv )
       return 1;
    }
  
+   ////////////////////////////////////////////
+   ///3. Load data
    propCalculator.printOutputableProperties ();
    propCalculator.acquireAll2Dproperties();
    propCalculator.acquireAll3Dproperties();
@@ -61,13 +103,31 @@ int main( int argc, char ** argv )
 
       return 1;
    };
-   
+
+   SnapshotList snapshots;
+   PropertyList properties;
+   FormationVector formationItems;
+
    propCalculator.acquireSnapshots( snapshots );
    propCalculator.acquireProperties( properties );
    propCalculator.acquireFormations( formationItems );
 
-   propCalculator.calculateProperties( formationItems, properties, snapshots );
+   //////////////////////////////////////////////////
+   ///4. Compute derived properties
+   try{
+      propCalculator.calculateProperties( formationItems, properties, snapshots );
+   }
+   catch (formattingexception::GeneralException& ex){
+      LogHandler( LogHandler::ERROR_SEVERITY ) << ex.what();
+      return 1;
+   }
+   catch (...){
+      LogHandler( LogHandler::FATAL_SEVERITY ) << "Fatal error when computing derived properties.";
+      return 1;
+   }
    
+   ////////////////////////////////////////////
+   ///5. Save results
    propCalculator.finalise ( true );
 
    PetscLogDouble sim_End_Time;
@@ -78,4 +138,3 @@ int main( int argc, char ** argv )
    PetscFinalize ();
    return 0;
 }
-

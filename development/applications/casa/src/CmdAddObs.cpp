@@ -455,9 +455,9 @@ CmdAddObs::CmdAddObs( CasaCommander & parent, const std::vector< std::string > &
    }
 }
 
-void CmdAddObs::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
+void CmdAddObs::execute( std::unique_ptr<casa::ScenarioAnalysis> & sa )
 {
-   LogHandler( LogHandler::INFO ) << "Add observable: " <<
+   LogHandler( LogHandler::INFO_SEVERITY ) << "Add observable: " <<
       (m_obsName.empty() ? (m_prms[0] + "(" + CfgFileParser::implode( m_prms, ",", 1 ) + ")") : m_obsName);
 
 

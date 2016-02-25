@@ -27,7 +27,7 @@ public:
 
    ~SensCalcTest() {;}
 
-   std::auto_ptr<casa::ScenarioAnalysis> m_sc;
+   std::unique_ptr<casa::ScenarioAnalysis> m_sc;
 
    bool   m_validationMode;
    double eps;

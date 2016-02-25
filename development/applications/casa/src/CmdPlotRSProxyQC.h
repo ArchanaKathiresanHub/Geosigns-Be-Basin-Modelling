@@ -30,7 +30,7 @@ public:
    virtual ~CmdPlotRSProxyQC() { ; }
 
    /// @brief Run command
-   virtual void execute( std::auto_ptr<casa::ScenarioAnalysis> & sa );
+   virtual void execute( std::unique_ptr<casa::ScenarioAnalysis> & sa );
 
 protected:
    std::string                  m_mFileName;
@@ -40,7 +40,7 @@ protected:
    std::set<std::string>        m_targetNames;  ///< List of user specified observables name, if only some of observables must be QCed
 
    std::string obsWellData( size_t                                  obsID
-                          , std::auto_ptr<casa::ScenarioAnalysis> & sa
+                          , std::unique_ptr<casa::ScenarioAnalysis> & sa
                           , std::vector<casa::RunCase *>          & proxyCaseSet
                           , std::vector<casa::RunCase *>          & testCaseSet
                           );

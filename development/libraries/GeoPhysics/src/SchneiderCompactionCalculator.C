@@ -16,11 +16,6 @@
 #include <algorithm>
 #include "GeoPhysicalConstants.h"
 
-#ifdef _MSC_VER
-#include <float.h>  // for _isnan() on VC++
-#define isnan(x) _isnan(x)  // VC++ uses _isnan() instead of isnan()
-#endif /** _MSC_VER */
-
 namespace GeoPhysics{
 
 SchneiderCompactionCalculator :: ~SchneiderCompactionCalculator()
@@ -75,7 +70,7 @@ void SchneiderCompactionCalculator::computeOnTimeStep( Grid & grid )
 		const double temperatureTerm  = 1.0 / ( std::max( currentTemperature , RockViscosityReferenceTemperature  ) + CelciusToKelvin ) - 1.0 / ( RockViscosityReferenceTemperature + CelciusToKelvin );
 		const double solidViscosity   = 1.0e9 * referenceSolidViscosity * exp( activationEnergy * temperatureTerm / GasConstant );
 		const double result           = timeStep * ( 1.0 - currentPorosity ) * currentVES / solidViscosity;
-		assert( ("The computation of the chemical compaction returns not number value", !isnan(result) ) );
+      assert( ("The computation of the chemical compaction returns not number value", !std::isnan( result )) );
 
 		//Store the result in the currentGrid
 		

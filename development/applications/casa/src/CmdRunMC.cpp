@@ -79,7 +79,7 @@ CmdRunMC::CmdRunMC( CasaCommander & parent, const std::vector< std::string > & c
    if ( m_prms.size() > 6 ) m_stdDevFactor = atof( m_prms[6].c_str() );
 }
 
-void CmdRunMC::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
+void CmdRunMC::execute( std::unique_ptr<casa::ScenarioAnalysis> & sa )
 {
    std::string algoName;
    switch( m_mcAlg )
@@ -88,7 +88,7 @@ void CmdRunMC::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
       case casa::MonteCarloSolver::MCMC:        algoName = "Markov Chain Monte Carlo";       break;
       case casa::MonteCarloSolver::MCLocSolver: algoName = "Monte Carlo based local solver"; break;
    }
-   LogHandler( LogHandler::INFO ) << "Running: " << algoName << "...";
+   LogHandler( LogHandler::INFO_SEVERITY ) << "Running: " << algoName << "...";
    
    // create corresponded MC algorithm
    if ( ErrorHandler::NoError != sa->setMCAlgorithm( static_cast<casa::MonteCarloSolver::Algorithm>( m_mcAlg ),
@@ -116,7 +116,7 @@ void CmdRunMC::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
       ) { throw ErrorHandler::Exception( sa->mcSolver().errorCode() ) << sa->mcSolver().errorMessage(); }
    
  
-   LogHandler( LogHandler::INFO ) << "Performed iterations: ";
+   LogHandler( LogHandler::INFO_SEVERITY ) << "Performed iterations: ";
 
    while( true )
    {
@@ -130,7 +130,7 @@ void CmdRunMC::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
 
       if ( (itNum % 10) == 0 )
       {
-        LogHandler( LogHandler::INFO ) << itNum << " iterations completed";
+        LogHandler( LogHandler::INFO_SEVERITY ) << itNum << " iterations completed";
       }
    }
 
@@ -139,6 +139,6 @@ void CmdRunMC::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
       throw ErrorHandler::Exception( sa->mcSolver().errorCode() ) << sa->mcSolver().errorMessage();
    }
 
-   LogHandler( LogHandler::INFO ) << "Simulation succeeded";
+   LogHandler( LogHandler::INFO_SEVERITY ) << "Simulation succeeded";
 }
 

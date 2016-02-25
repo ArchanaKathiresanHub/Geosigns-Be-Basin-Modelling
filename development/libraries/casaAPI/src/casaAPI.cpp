@@ -226,7 +226,7 @@ ErrorHandler::ReturnCode VarySourceRockTOC( ScenarioAnalysis    & sa
       }
       if ( !alreadyAdded )
       {
-         std::auto_ptr<VarPrmSourceRockTOC> newPrm( new VarPrmSourceRockTOC( layerName
+         std::unique_ptr<VarPrmSourceRockTOC> newPrm( new VarPrmSourceRockTOC( layerName
                                                                        , baseValue[0]
                                                                        , minVal
                                                                        , maxVal
@@ -333,7 +333,7 @@ ErrorHandler::ReturnCode VarySourceRockHI( ScenarioAnalysis    & sa
 
       if ( !alreadyAdded )
       {
-         std::auto_ptr<VarPrmSourceRockHI> newPrm( new VarPrmSourceRockHI( layerName
+         std::unique_ptr<VarPrmSourceRockHI> newPrm( new VarPrmSourceRockHI( layerName
                                                                          , baseValue[0]
                                                                          , minVal
                                                                          , maxVal
@@ -439,7 +439,7 @@ ErrorHandler::ReturnCode VarySourceRockHC( ScenarioAnalysis    & sa
       // add variable parameter to VarSpace
       if ( !alreadyAdded )
       {
-         std::auto_ptr<VarPrmSourceRockHC> newPrm( new VarPrmSourceRockHC( layerName
+         std::unique_ptr<VarPrmSourceRockHC> newPrm( new VarPrmSourceRockHC( layerName
                                                                          , baseValue[0]
                                                                          , minVal
                                                                          , maxVal
@@ -542,7 +542,7 @@ ErrorHandler::ReturnCode VarySourceRockPreAsphaltActEnergy( ScenarioAnalysis    
       }
       if ( !alreadyAdded )
       {
-         std::auto_ptr<VarPrmSourceRockPreAsphaltStartAct> newPrm( new VarPrmSourceRockPreAsphaltStartAct( layerName
+         std::unique_ptr<VarPrmSourceRockPreAsphaltStartAct> newPrm( new VarPrmSourceRockPreAsphaltStartAct( layerName
                                                                                                          , baseValue[0]
                                                                                                          , minVal
                                                                                                          , maxVal

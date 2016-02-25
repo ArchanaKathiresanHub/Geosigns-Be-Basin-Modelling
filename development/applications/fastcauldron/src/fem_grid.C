@@ -97,12 +97,6 @@
 
 #include <boost/shared_ptr.hpp>
 
-#ifdef _MSC_VER
-#include <float.h>  // for _isnan() on VC++
-#define isnan(x) _isnan(x)  // VC++ uses _isnan() instead of isnan()
-#define isinf(x) !_finite(x) 
-#endif /** _MSC_VER */
-
 #include "PetscObjectsIO.h"
 
 using namespace GeoPhysics;
@@ -2444,7 +2438,7 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  Pre
          overpressureHasDiverged = true;
       } else {
          // If solver has converged now check that none of the vectors contain a nan.
-         overpressureHasDiverged = isnan ( Po_Norm ) || isnan ( Solution_Length ) || isnan ( Residual_Solution_Length ) || isnan ( Residual_Length );
+         overpressureHasDiverged = std::isnan( Po_Norm ) || std::isnan( Solution_Length ) || std::isnan( Residual_Solution_Length ) || std::isnan( Residual_Length );
 
          if ( overpressureHasDiverged ) {
             PetscPrintf ( PETSC_COMM_WORLD, " MeSsAgE ERROR pressure solution contains a NaN. \n");
@@ -2987,7 +2981,7 @@ void Basin_Modelling::FEM_Grid::Solve_Linear_Temperature_For_Time_Step ( const d
 
   VecNorm ( Temperature, NORM_2, &T_Norm );
 
-  temperatureHasDiverged = isnan ( T_Norm ) || ( numberOfLinearIterations == maximumNumberOfLinearSolverIterations ) || convergedReason == KSP_DIVERGED_NANORINF;
+  temperatureHasDiverged = std::isnan( T_Norm ) || (numberOfLinearIterations == maximumNumberOfLinearSolverIterations) || convergedReason == KSP_DIVERGED_NANORINF;
 
   PetscTime(&storeStartTime);
 

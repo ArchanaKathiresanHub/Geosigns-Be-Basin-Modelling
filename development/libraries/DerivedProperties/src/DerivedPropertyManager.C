@@ -1,3 +1,13 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
+
 #include "DerivedPropertyManager.h"
 
 #include "AbstractProperty.h"
@@ -34,8 +44,10 @@
 #include "PermeabilityFormationCalculator.h"
 #include "PorosityFormationCalculator.h"
 #include "PressureFormationCalculator.h"
+#include "SonicFormationCalculator.h"
 #include "ThermalConductivityFormationCalculator.h"
 #include "ThermalDiffusivityFormationCalculator.h"
+#include "TwoWayTimeFormationCalculator.h"
 #include "VelocityFormationCalculator.h"
 
 // Derived formation-map property calcualtors
@@ -45,17 +57,23 @@
 
 // Derived surface property calcualtors
 #include "ReflectivitySurfaceCalculator.h"
+#include "TwoWayTimeResidualSurfaceCalculator.h"
+
+//utilities library
+#include "FormattingException.h"
+
+typedef formattingexception::GeneralException DerivedPropertyManagerException;
 
 DerivedProperties::DerivedPropertyManager::DerivedPropertyManager ( GeoPhysics::ProjectHandle* projectHandle,
                                                                     const bool                 debug ) : m_projectHandle ( projectHandle ) {
-   loadPrimaryFormationPropertyCalculators ( debug );
-   loadPrimarySurfacePropertyCalculators ( debug );
+   loadPrimaryFormationPropertyCalculators        ( debug );
+   loadPrimarySurfacePropertyCalculators          ( debug );
    loadPrimaryFormationSurfacePropertyCalculators ( debug );
-   loadPrimaryFormationMapPropertyCalculators ( debug );
-   loadPrimaryReservoirPropertyCalculators ( debug );
-   loadDerivedFormationPropertyCalculator ( debug );
-   loadDerivedFormationMapPropertyCalculator ( debug );
-   loadDerivedSurfacePropertyCalculator ( debug );
+   loadPrimaryFormationMapPropertyCalculators     ( debug );
+   loadPrimaryReservoirPropertyCalculators        ( debug );
+   loadDerivedFormationPropertyCalculator         ( debug );
+   loadDerivedFormationMapPropertyCalculator      ( debug );
+   loadDerivedSurfacePropertyCalculator           ( debug );
 }
 
 const GeoPhysics::ProjectHandle* DerivedProperties::DerivedPropertyManager::getProjectHandle () const {
@@ -63,7 +81,13 @@ const GeoPhysics::ProjectHandle* DerivedProperties::DerivedPropertyManager::getP
 }
 
 const DataAccess::Interface::Property* DerivedProperties::DerivedPropertyManager::getProperty ( const std::string& name ) const {
-   return m_projectHandle->findProperty ( name );
+   const DataAccess::Interface::Property* property = m_projectHandle->findProperty ( name );
+   if (property == 0) {
+      throw DerivedPropertyManagerException() << "Property '" << name << "' could not be found by the ProjectHandle.";
+   }
+   else {
+      return property;
+   }
 }
 
 const DataAccess::Interface::Grid* DerivedProperties::DerivedPropertyManager::getMapGrid () const {
@@ -197,6 +221,12 @@ void DerivedProperties::DerivedPropertyManager::loadDerivedFormationPropertyCalc
       addFormationPropertyCalculator ( formationPropertyCalculator, 0, debug );
    }
 
+   formationPropertyCalculator = FormationPropertyCalculatorPtr( new SonicFormationCalculator );
+
+   if (canAddDerivedFormationPropertyCalculator( formationPropertyCalculator )) {
+      addFormationPropertyCalculator( formationPropertyCalculator, 0, debug );
+   }
+
    formationPropertyCalculator = FormationPropertyCalculatorPtr ( new ThermalConductivityFormationCalculator ( m_projectHandle ));
 
    if ( canAddDerivedFormationPropertyCalculator ( formationPropertyCalculator )) {
@@ -207,6 +237,12 @@ void DerivedProperties::DerivedPropertyManager::loadDerivedFormationPropertyCalc
 
    if ( canAddDerivedFormationPropertyCalculator ( formationPropertyCalculator )) {
       addFormationPropertyCalculator ( formationPropertyCalculator, 0, debug );
+   }
+
+   formationPropertyCalculator = FormationPropertyCalculatorPtr( new TwoWayTimeFormationCalculator );
+
+   if (canAddDerivedFormationPropertyCalculator( formationPropertyCalculator )) {
+      addFormationPropertyCalculator( formationPropertyCalculator, 0, debug );
    }
    
    formationPropertyCalculator = FormationPropertyCalculatorPtr ( new VelocityFormationCalculator );
@@ -249,6 +285,12 @@ void DerivedProperties::DerivedPropertyManager::loadDerivedSurfacePropertyCalcul
 
    if ( canAddDerivedSurfacePropertyCalculator ( surfacePropertyCalculator )) {
       addSurfacePropertyCalculator ( surfacePropertyCalculator );
+   }
+
+   surfacePropertyCalculator = SurfacePropertyCalculatorPtr( new TwoWayTimeResidualSurfaceCalculator( m_projectHandle ) );
+
+   if (canAddDerivedSurfacePropertyCalculator( surfacePropertyCalculator )) {
+      addSurfacePropertyCalculator( surfacePropertyCalculator );
    }
 
 }

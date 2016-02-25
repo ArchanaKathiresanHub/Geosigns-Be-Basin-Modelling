@@ -81,6 +81,9 @@ target_link_libraries(fastproperties
 install(TARGETS fastproperties
 	RUNTIME DESTINATION bin
 )
+
+generate_dox( fastproperties.cfg )
+
 # Local Variables:
 # mode: cmake
 # cmake-tab-width: 4

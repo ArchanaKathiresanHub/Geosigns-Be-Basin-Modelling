@@ -119,7 +119,7 @@ namespace casa
       void setID( size_t id ) { m_id = id; }
 
    private:
-      std::auto_ptr<mbapi::Model>      m_model;                // Mutated model, available after mutateCaseTo call
+      std::unique_ptr<mbapi::Model>      m_model;                // Mutated model, available after mutateCaseTo call
       std::string                      m_modelProjectFileName; // full path to the project file
       std::vector<SharedParameterPtr>  m_prmsSet;              // list of parameters for this case
       std::vector<ObsValue*>           m_results;              // list of observables values

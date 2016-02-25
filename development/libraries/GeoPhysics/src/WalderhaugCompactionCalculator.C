@@ -15,11 +15,6 @@
 #include <cassert>
 #include <algorithm>
 
-#ifdef _MSC_VER
-#include <float.h>  // for _isnan() on VC++
-#define isnan(x) _isnan(x)  // VC++ uses _isnan() instead of isnan()
-#endif /** _MSC_VER */
-
 namespace GeoPhysics{
 
 const double WalderhaugCompactionCalculator::m_coefA = 1.98e-22;       //[mol/s/cm2]
@@ -124,7 +119,7 @@ void WalderhaugCompactionCalculator::computeOnTimeStep( Grid & grid )
             cementedFraction *= ( exp( m_coefB * currentTemperature * ln10 ) - exp( m_coefB * previousTemperature * ln10 ) );
             cementedFraction /= m_coefB * ln10 * ( currentTemperature - previousTemperature );
          }
-         assert( ("The cemented fraction is not a number, one of the parameters is wrong.>", !isnan( cementedFraction ) ) );
+         assert( ("The cemented fraction is not a number, one of the parameters is wrong.>", !std::isnan( cementedFraction )) );
          
          //Store the new value in the grid
          chemicalCompactionGrid[refNode] = std::max( chemicalCompaction - cementedFraction, -1.0 );

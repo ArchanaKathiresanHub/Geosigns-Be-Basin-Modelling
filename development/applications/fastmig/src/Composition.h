@@ -25,11 +25,6 @@
 #include <map>
 #include <vector>
 
-#ifdef _MSC_VER
-#include <float.h>  // for _isnan() on VC++
-#define isnan(x) _isnan(x)  // VC++ uses _isnan() instead of isnan()
-#endif /** _MSC_VER */
-
 using namespace std;
 
 using namespace pvtFlash;
@@ -112,7 +107,7 @@ void migration::Composition::reset (ComponentId componentId)
 void migration::Composition::set (ComponentId componentId, double weight)
 {
    assert( FIRST_COMPONENT <= componentId && componentId <= LAST_COMPONENT);
-   if (isnan (weight)) weight = 0;
+   if (std::isnan( weight )) weight = 0;
    m_components[(int) componentId] = weight;
    if (m_components[componentId] < 0) m_components[componentId] = 0;
 }
@@ -120,7 +115,7 @@ void migration::Composition::set (ComponentId componentId, double weight)
 void migration::Composition::add (ComponentId componentId, double weight)
 {
    assert( FIRST_COMPONENT <= componentId && componentId <= LAST_COMPONENT);
-   if (isnan (weight)) weight = 0;
+   if (std::isnan( weight )) weight = 0;
    m_components[(int) componentId] += weight;
    if (m_components[componentId] < 0) m_components[componentId] = 0;
 }
@@ -128,7 +123,7 @@ void migration::Composition::add (ComponentId componentId, double weight)
 void migration::Composition::subtract (ComponentId componentId, double weight)
 {
    assert( FIRST_COMPONENT <= componentId && componentId <= LAST_COMPONENT);
-   if (isnan (weight)) weight = 0;
+   if (std::isnan( weight )) weight = 0;
    m_components[(int) componentId] -= weight;
    if (m_components[componentId] < 0) m_components[componentId] = 0;
 }
@@ -171,7 +166,7 @@ void migration::Composition::resetViscosity (void)
 void migration::Composition::setDensity (double density)
 {
 #if 0
-   assert (!isnan (density));
+   assert (!std::isnan (density));
 #endif
    m_density = density;
 }

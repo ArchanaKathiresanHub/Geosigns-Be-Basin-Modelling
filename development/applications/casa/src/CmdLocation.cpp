@@ -24,9 +24,9 @@ CmdLocation::CmdLocation( CasaCommander & parent, const std::vector< std::string
    if ( m_locPath.empty() ) throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Empty path to generated cases";
 }
 
-void CmdLocation::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
+void CmdLocation::execute( std::unique_ptr<casa::ScenarioAnalysis> & sa )
 {
-   LogHandler( LogHandler::INFO ) << "Generating the set of cases in folder: " << m_locPath << "...";
+   LogHandler( LogHandler::INFO_SEVERITY ) << "Generating the set of cases in folder: " << m_locPath << "...";
    
    if ( ErrorHandler::NoError != sa->setScenarioLocation( m_locPath.c_str() )  ||
         ErrorHandler::NoError != sa->applyMutations( sa->doeCaseSet() ) )
@@ -35,13 +35,13 @@ void CmdLocation::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
       throw ErrorHandler::Exception( sa->errorCode() ) << sa->errorMessage();
    }
 
-   LogHandler( LogHandler::INFO ) << "Data digger requesting observables...";
+   LogHandler( LogHandler::INFO_SEVERITY ) << "Data digger requesting observables...";
 
    if ( ErrorHandler::NoError != sa->dataDigger().requestObservables( sa->obsSpace(), sa->doeCaseSet() ) )
    {
       throw ErrorHandler::Exception( sa->dataDigger().errorCode() ) << sa->dataDigger().errorMessage();
    }
 
-   LogHandler( LogHandler::INFO ) << "Cases generation succeeded";
+   LogHandler( LogHandler::INFO_SEVERITY ) << "Cases generation succeeded";
 }
 

@@ -23,7 +23,7 @@ public:
    virtual ~CmdLoadState() { ; }
 
    /// @brief Run command
-   virtual void execute( std::auto_ptr<casa::ScenarioAnalysis> & sa );
+   virtual void execute( std::unique_ptr<casa::ScenarioAnalysis> & sa );
 
 protected:
    std::string m_fileName;

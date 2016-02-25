@@ -29,7 +29,7 @@ bool BenchmarkTest::execute()
       simulation_type = Constants::SIMOTGC | Genex6::Constants::SIMTSR;
    }
 
-   std::auto_ptr<Genex6::Simulator> theSimulator (new Genex6::Simulator(m_theData.m_configurationFilePath, 
+   std::unique_ptr<Genex6::Simulator> theSimulator (new Genex6::Simulator(m_theData.m_configurationFilePath, 
                                                                         simulation_type,
                                                                         m_theData.m_sourceRockType, 
                                                                         m_theData.m_HC,
@@ -173,7 +173,7 @@ bool TransformSch::execute()
    cout << "About to use file: " << InputFullPathSchFileName << endl;
    
    int simulation_type = (m_simulateGX5 ? Genex6::Constants::SIMOTGC | Genex6::Constants::SIMGENEX5 : Genex6::Constants::SIMOTGC);
-   auto_ptr<Genex6::Simulator> theSimulator (new Genex6::Simulator(InputFullPathSchFileName,
+   unique_ptr<Genex6::Simulator> theSimulator( new Genex6::Simulator( InputFullPathSchFileName,
                                                                    simulation_type, 
                                                                    m_theData.m_HC, m_theData.m_SC, m_theData.m_Emean, 
                                                                    m_theData.m_preprocessData,

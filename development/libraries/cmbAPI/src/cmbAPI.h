@@ -287,7 +287,7 @@ namespace mbapi {
       /// @brief Class which hides all interface implementation
       class ModelImpl;
       
-      std::auto_ptr<ModelImpl> m_pimpl; ///< The actual object which will do all the job
+      std::unique_ptr<ModelImpl> m_pimpl; ///< The actual object which will do all the job
 
       /// @brief Copy constructor is disabled, use the copy operator instead
       Model( const Model & );

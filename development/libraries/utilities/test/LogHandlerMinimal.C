@@ -26,12 +26,12 @@ const std::string expectedLog[] =                ///< Expected parsed lines from
 std::vector<std::string> parsedLinesLog;         ///< Parsed lines from the log file
 
 
-///3. TESTS-------------------------------------------------------------------------------------------
+///2. TESTS-------------------------------------------------------------------------------------------
 //Tests log for minimal verbosity
 TEST( LogHandlerSerial, log_minimal )
 {
    try{
-      LogHandler logUnitTestMinimal( "log_unit_test_minimal", LogHandler::MINIMAL );
+      LogHandler logUnitTestMinimal( "log_unit_test_minimal", LogHandler::MINIMAL_LEVEL );
       writeLogUnitTest();
 
       analyzeLogFile( logUnitTestMinimal.getName(), parsedLinesLog );

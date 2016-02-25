@@ -34,7 +34,7 @@ namespace SUMlib
 class INTERFACE_SUMLIB ParameterTransforms : public ISerializable
 {
    public:
-      typedef std::auto_ptr< ParameterTransforms > ptr;
+      typedef std::shared_ptr< ParameterTransforms > ptr;
 
       enum TransformType
       {

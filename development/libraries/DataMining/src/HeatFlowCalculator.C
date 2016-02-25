@@ -1,3 +1,12 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
 #include "HeatFlowCalculator.h"
 
 #include <iostream>
@@ -209,5 +218,3 @@ DataAccess::Mining::DomainProperty* DataAccess::Mining::HeatFlowCalculatorAlloca
                                                                                                 const Interface::Property*                 property ) const {
    return new HeatFlowCalculator ( collection, propertyManager, snapshot, property, m_calculation );
 }
-
-

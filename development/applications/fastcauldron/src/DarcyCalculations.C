@@ -18,12 +18,6 @@
 
 #include "Lithology.h"
 
-#ifdef _MSC_VER
-#include <float.h>  // for _isnan() on VC++
-#define isnan(x) _isnan(x)  // VC++ uses _isnan() instead of isnan()
-#define isinf(x) !_finite(x) 
-#endif /** _MSC_VER */
-
 //------------------------------------------------------------//
 
 DarcyCalculations::DarcyCalculations () {
@@ -1086,12 +1080,12 @@ void DarcyCalculations::computeSaturation ( const SubdomainElement&        eleme
       saturation ( Saturation::IMMOBILE ) = immobileSaturation;
    }
 
-   if ( isnan ( saturation ( Saturation::WATER  )) or isinf ( saturation ( Saturation::WATER  )) or
-        isnan ( saturation ( Saturation::VAPOUR )) or isinf ( saturation ( Saturation::VAPOUR )) or
-        isnan ( saturation ( Saturation::LIQUID )) or isinf ( saturation ( Saturation::LIQUID ))) {
+   if ( std::isnan ( saturation ( Saturation::WATER  )) or std::isinf ( saturation ( Saturation::WATER  )) or
+        std::isnan ( saturation ( Saturation::VAPOUR )) or std::isinf ( saturation ( Saturation::VAPOUR )) or
+        std::isnan ( saturation ( Saturation::LIQUID )) or std::isinf ( saturation ( Saturation::LIQUID ))) {
       cout << " incorrect inter saturation: " << element.getI ()  << "  " << element.getJ ()  << "  " << element.getK ()  << "  " << endl << flush;
-      cout << saturation.image () << endl << flush;
-      cout << density.image () << endl << flush;
+      cout << saturation.image ()       << endl << flush;
+      cout << density.image ()          << endl << flush;
       cout << phaseComposition.image () << endl << flush;
    }
 
