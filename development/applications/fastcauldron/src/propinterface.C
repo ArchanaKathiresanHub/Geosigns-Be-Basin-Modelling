@@ -603,13 +603,19 @@ void AppCtx::printHelp () const {
   helpBuffer << MultiComponentFlowHandler::getCommandLineOptions ();
 
   helpBuffer << "  Permafrost modelling options:" << endl;
-  helpBuffer << "           -permafrost [ts]            Enable permafrost modelling and set a time-step size to be used (if defined), ts > 0.0." << endl;
+  helpBuffer << "           -permafrost <ts>            Enable permafrost modelling and set a time-step size to be used (if defined), ts > 0.0." << endl;
 
   helpBuffer << endl;
 
   helpBuffer << "  Parallel I/O options:" << endl;
-  helpBuffer << "           -onefileperprocess [dir]    Use dir to store imtermediate output files. Default is $TMPDIR." << endl;
+  helpBuffer << "           -onefileperprocess <dir>    Use dir to store imtermediate output files. Default is $TMPDIR." << endl;
   helpBuffer << "           -noofpp                     Do not use one-file-perprocess I/O." << endl;
+
+  helpBuffer << endl;
+
+  helpBuffer << "  Matrix and RHS save to file:" << endl;
+  helpBuffer << "           -saveMatrix <timeStep>      At provided time step (or the next closest one) the FEM matrix and RHS is saved to file." << endl;
+  helpBuffer << "           -matlab                     [optional] Output files in matlab format (default is binary)." << endl;
 
   helpBuffer << endl;
   helpBuffer << endl;

@@ -1,3 +1,13 @@
+//
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 //------------------------------------------------------------//
 
 #include "fem_grid.h"
@@ -92,6 +102,8 @@
 #define isnan(x) _isnan(x)  // VC++ uses _isnan() instead of isnan()
 #define isinf(x) !_finite(x) 
 #endif /** _MSC_VER */
+
+#include "PetscObjectsIO.h"
 
 using namespace GeoPhysics;
 
@@ -596,6 +608,32 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
 
   m_surfaceNodeHistory.Read_Spec_File ();
   savedMinorSnapshotTimes.clear ();
+
+  
+  //------------------------------------------------------------------------------------------------
+  //4. Matrix and RHS I/O --------------------------------------------------------------------------
+  //------------------------------------------------------------------------------------------------
+  // The user can request to save the matrix and RHS at a specific time step (or the next closest one)
+  // If the saving time step has not been defined nothing will be saved.
+  m_saveMatrixToFile   = PETSC_FALSE;
+  m_saveInMatlabFormat = PETSC_FALSE;
+  m_saveTimeStep       = 0.0;
+  PetscOptionsHasName( NULL, "-saveMatrix", &m_saveMatrixToFile );
+  if( m_saveMatrixToFile )
+  {    
+     PetscBool status = PETSC_FALSE;
+     PetscOptionsGetReal( NULL, "-saveMatrix", &m_saveTimeStep, &status );
+     if( !status )
+     {
+        m_saveMatrixToFile = PETSC_FALSE;
+     }
+     else
+     {
+        PetscOptionsHasName( NULL, "-matlab", &m_saveInMatlabFormat );
+        m_saveTimeStep = std::min( m_saveTimeStep, FastcauldronSimulator::getInstance().getAgeOfBasin() );
+        m_saveTimeStep = std::max( m_saveTimeStep, 0.0 );
+     }
+  }
 
 }
 
@@ -2227,8 +2265,9 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  Pre
   overpressureHasDiverged  = false;
   fracturingOccurred = false;
 
-
-
+  const bool saveMatrix = m_saveMatrixToFile and
+                          ( (( m_saveTimeStep - Current_Time >= 0.0 ) and ( m_saveTimeStep - Previous_Time < 0.0 ))
+                            or (m_saveTimeStep == Previous_Time) );
   do {
 
     Previous_Po_Norm = 0.0;
@@ -2276,6 +2315,19 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  Pre
       Total_Jacobian_Time = Total_Jacobian_Time + Jacobian_Time; 
 
       VecSet ( Residual_Solution, Zero );
+
+      // Print matrix adn rhs to file
+      if( saveMatrix and totalNumberOfNonlinearIterations == 0 )
+      {
+         const std::string matrixFileName = std::string("presMatrix_t" + static_cast<ostringstream*>( &(ostringstream() << Current_Time) )->str() );
+         const std::string rhsFileName    = std::string(   "presRhs_t" + static_cast<ostringstream*>( &(ostringstream() << Current_Time) )->str() );
+
+         int rc = 0;
+         rc = PetscObjectsIO::writeMatrixToFile( Jacobian, basinModel->getOutputDirectory(), matrixFileName, !m_saveInMatlabFormat );
+         assert( rc == 0 );
+         rc = PetscObjectsIO::writeVectorToFile( Residual, basinModel->getOutputDirectory(), rhsFileName, !m_saveInMatlabFormat );
+         assert( rc == 0 );
+      }
 
       // Solve the matrix equation (Jacobian^{-1} \times residual) to some acceptable tolerance.
       KSPConvergedReason convergedReason;
@@ -2654,6 +2706,10 @@ void Basin_Modelling::FEM_Grid::Solve_Nonlinear_Temperature_For_Time_Step ( cons
   cout.flags ( ios::scientific );
 
   temperatureHasDiverged = false;
+  
+  const bool saveMatrix = m_saveMatrixToFile and
+                          ( (( m_saveTimeStep - Current_Time >= 0.0 ) and ( m_saveTimeStep - Previous_Time < 0.0 ))
+                            or (m_saveTimeStep == Previous_Time) );
 
   while ( ! Converged && ! temperatureHasDiverged ) {
     PetscTime(&Iteration_Start_Time);
@@ -2673,6 +2729,19 @@ void Basin_Modelling::FEM_Grid::Solve_Nonlinear_Temperature_For_Time_Step ( cons
 
       Element_Assembly_Time = Element_Assembly_Time + Element_Contributions_Time;
       System_Assembly_Time = System_Assembly_Time + Assembly_End_Time - Assembly_Start_Time;
+
+      // Print matrix and rhs to file
+      if( saveMatrix )
+      {
+         const std::string matrixFileName = std::string("nlTempMatrix_t" + static_cast<ostringstream*>( &(ostringstream() << Current_Time) )->str() );
+         const std::string rhsFileName    = std::string(   "nlTempRhs_t" + static_cast<ostringstream*>( &(ostringstream() << Current_Time) )->str() );
+
+         int rc = 0;
+         rc = PetscObjectsIO::writeMatrixToFile( Jacobian, basinModel->getOutputDirectory(), matrixFileName, !m_saveInMatlabFormat );
+         assert( rc == 0 );
+         rc = PetscObjectsIO::writeVectorToFile( Residual, basinModel->getOutputDirectory(), rhsFileName, !m_saveInMatlabFormat );
+         assert( rc == 0 );
+      }
 
     } else {
 
@@ -2881,6 +2950,21 @@ void Basin_Modelling::FEM_Grid::Solve_Linear_Temperature_For_Time_Step ( const d
 
   PetscTime(&System_Assembly_End_Time);
   Total_System_Assembly_Time = System_Assembly_End_Time - System_Assembly_Start_Time;
+
+  // Print matrix and rhs to file
+  if( m_saveMatrixToFile and
+      ( (( m_saveTimeStep - Current_Time >= 0.0 ) and ( m_saveTimeStep - Previous_Time < 0.0 ))
+        or (m_saveTimeStep == Previous_Time) ) )
+  {
+    const std::string matrixFileName = std::string("tempMatrix_t" + static_cast<ostringstream*>( &(ostringstream() << Current_Time) )->str() );
+    const std::string rhsFileName    = std::string(   "tempRhs_t" + static_cast<ostringstream*>( &(ostringstream() << Current_Time) )->str() );
+
+    int rc = 0;
+    rc = PetscObjectsIO::writeMatrixToFile( Stiffness_Matrix, basinModel->getOutputDirectory(), matrixFileName, !m_saveInMatlabFormat );
+    assert( rc == 0 );
+    rc = PetscObjectsIO::writeVectorToFile( Load_Vector, basinModel->getOutputDirectory(), rhsFileName, !m_saveInMatlabFormat );
+    assert( rc == 0 );
+  }
 
   // Solve the linear system Temperature = Stiffness_Matrix^-1 * Load_Vector
   PetscTime(&Start_Time);

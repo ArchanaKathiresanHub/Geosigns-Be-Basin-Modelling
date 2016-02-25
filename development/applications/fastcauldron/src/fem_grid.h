@@ -1,3 +1,13 @@
+//
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 //------------------------------------------------------------//
 
 #ifndef __FEM_Grid_HH__
@@ -399,6 +409,10 @@ namespace Basin_Modelling {
 
      ComputationalDomain m_temperatureComputationalDomain;
      ComputationalDomain m_pressureComputationalDomain;
+
+     PetscBool m_saveMatrixToFile;     // Boolean flag for saving matrix and rhs to file
+     PetscBool m_saveInMatlabFormat;   // TRUE: matlab format, FALSE: binary
+     double    m_saveTimeStep;         // Time step for matrix and rhs save
 
   }; // end class FEM_Grid
 
