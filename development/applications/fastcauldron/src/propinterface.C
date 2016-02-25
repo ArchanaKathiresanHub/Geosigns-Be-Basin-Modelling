@@ -1,12 +1,3 @@
-//                                                                      
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
-// All rights reserved.
-// 
-// Developed under license for Shell by PDS BV.
-// 
-// Confidential and proprietary source code of Shell.
-// Do not distribute without written permission from Shell.
-//
 #include <sstream>
 #include <stdlib.h>
 
@@ -66,8 +57,13 @@ using namespace Basin_Modelling;
 #include "FastcauldronSimulator.h"
 
 #ifdef _MSC_VER
+#include <Windows.h>
+#include <float.h>  // for _isnan() on VC++
+#define isnan(x) _isnan(x)  // VC++ uses _isnan() instead of isnan()
+#define isinf(x) !_finite(x) 
 #define sleep(x) Sleep(1000 * x) // convert from to milliseconds
 #endif /** _MSC_VER */
+
 //------------------------------------------------------------//
 
 bool Elt2dIndices::onDomainBoundary ( const int boundaryNumber ) const {
@@ -513,7 +509,6 @@ void AppCtx::printHelp () const {
   helpBuffer << "    -readfct                    Before running an overperssure calculation read-in the fct-correction factors from a previous overpressure" << endl
              << "                                run (not working)." << endl;
   helpBuffer << "    -numberminorss <n>          Number of minor-snapshots, n >= 0." << endl;
-  helpBuffer << "    -verbosity <level>          Verbosity level of the log file(s): minimal|normal|detailed|diagnostic. Default value is 'normal'." << endl;
   helpBuffer << endl;
   helpBuffer << endl;
 
@@ -548,12 +543,12 @@ void AppCtx::printHelp () const {
              << "                                Refine a selected set of the formations, formations are indicated by name, ref_i > 0." << endl;
   helpBuffer << "    -refinenumberedforms <form1,ref1,form2,ref2,...>" << endl 
              << "                                Refine a selected set of the formations, formations are indicated by position from top, ref_i > 0." << endl;
-  helpBuffer << "    -fcvesscale <val>           VES scaling factor when initialising the solid-thicknesses in the geometric loop pressure calculation, default value is " << DefaultVesScalingForFctInitialisation << endl;
-  helpBuffer << "    -fcctmodel <n>              Set the crust-thinning model, default = 1." << endl;
-  helpBuffer << "    -fcinfmantscal <scal>       Set the scaling factor for inferior-mantle element height, default scal = 1" << endl;
-  helpBuffer << "                                Maximum element height of elements in inferior-mantle is defined to be: scal * maximum-element-height-in-mantle." << endl;
-  helpBuffer << "    -minor                      Output Pressure, Depth, Temperature, Chemical Compaction volume properties at minor snapshots times." << endl;
-  helpBuffer << "                                Runs high resolution decompaction at major and minor snapshot times." << endl;
+  helpBuffer << "    -fcvesscale <val>         VES scaling factor when initialising the solid-thicknesses in the geometric loop pressure calculation, default value is " << DefaultVesScalingForFctInitialisation << endl;
+  helpBuffer << "    -fcctmodel <n>            Set the crust-thinning model, default = 1." << endl;
+  helpBuffer << "    -fcinfmantscal <scal>     Set the scaling factor for inferior-mantle element height, default scal = 1" << endl;
+  helpBuffer << "                              Maximum element height of elements in inferior-mantle is defined to be: scal * maximum-element-height-in-mantle." << endl;
+  helpBuffer << "    -minor                    Output Pressure, Depth, Temperature, Chemical Compaction volume properties at minor snapshots times." << endl;
+  helpBuffer << "                              Runs high resolution decompaction at major and minor snapshot times." << endl;
 
   helpBuffer << endl;
   helpBuffer << endl;
@@ -2380,12 +2375,12 @@ bool AppCtx::Calculate_Pressure( const double time ) {
           //
 	  Excess_Pressure = NumericFunctions::Maximum ( Fluid_Pressure - Hydrostatic_Pressure, 0.0 );
 
-     if (std::isnan( Hydrostatic_Pressure ))
+	  if ( isnan( Hydrostatic_Pressure ))
 	  {
              cout << "Error hydrostatic... " << endl << flush;
 	  }
 
-     if (std::isnan( Lithostatic_Pressure ))
+	  if ( isnan ( Lithostatic_Pressure )) 
 	  {
              cout << "Error lithostatic ... " 
                   << Lithostatic_Pressure << "  "
@@ -2397,13 +2392,13 @@ bool AppCtx::Calculate_Pressure( const double time ) {
                   << endl << flush;
 	  }
 
-     if (std::isnan( Fluid_Pressure ))
+	  if ( isnan( Fluid_Pressure )) 
 	  {
              cout << "Error pore-pressure... " << endl << flush;
 	  }
 
 
-     if (std::isnan( Excess_Pressure ))
+	  if ( isnan( Excess_Pressure )) 
 	  {
              cout << "Error overpressure... " << endl << flush;
 	  }

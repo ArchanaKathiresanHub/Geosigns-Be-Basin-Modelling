@@ -32,8 +32,8 @@ static void PrintObsValues( casa::ScenarioAnalysis & sc )
 
       if ( !cs ) continue;
 
-      LogHandler( LogHandler::DEBUG_SEVERITY ) << "    " << cs->projectPath();
-      LogHandler( LogHandler::DEBUG_SEVERITY ) << "      Observable values:";
+      LogHandler( LogHandler::DEBUG ) << "    " << cs->projectPath();
+      LogHandler( LogHandler::DEBUG ) << "      Observable values:";
 
       for ( size_t i = 0; i < cs->observablesNumber(); ++i )
       {
@@ -45,7 +45,7 @@ static void PrintObsValues( casa::ScenarioAnalysis & sc )
 
             for ( size_t i = 0; i < vals.size(); ++i )
             {
-               LogHandler( LogHandler::DEBUG_SEVERITY ) << "      " << names[i] << " = " << vals[i];
+               LogHandler( LogHandler::DEBUG ) << "      " << names[i] << " = " << vals[i];
             }
          }
       }
@@ -73,9 +73,9 @@ CmdRun::CmdRun( CasaCommander & parent, const std::vector< std::string > & cmdPr
    }
 }
 
-void CmdRun::execute( std::unique_ptr<casa::ScenarioAnalysis> & sa )
+void CmdRun::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
 {
-   LogHandler( LogHandler::INFO_SEVERITY ) << "Adding jobs to the queue and generating scripts...";
+   LogHandler( LogHandler::INFO ) << "Adding jobs to the queue and generating scripts...";
 
    casa::RunManager & rm = sa->runManager();
 
@@ -90,7 +90,7 @@ void CmdRun::execute( std::unique_ptr<casa::ScenarioAnalysis> & sa )
    // submit jobs
    for ( size_t i = 0; i < sa->doeCaseSet().size(); ++i )
    {
-      LogHandler( LogHandler::DEBUG_SEVERITY ) << "  Generating run scripts in: " << (sa->doeCaseSet()[i])->projectPath();
+      LogHandler( LogHandler::DEBUG ) << "  Generating run scripts in: " << (sa->doeCaseSet()[i])->projectPath();
 
       if ( ErrorHandler::NoError != rm.scheduleCase( *(sa->doeCaseSet()[i]), sa->scenarioID() ) )
       {
@@ -98,7 +98,7 @@ void CmdRun::execute( std::unique_ptr<casa::ScenarioAnalysis> & sa )
       }
    }
 
-   LogHandler( LogHandler::INFO_SEVERITY ) << "Submitting jobs to the cluster " << m_prms[0] << " using Cauldron: " << m_prms[1];
+   LogHandler( LogHandler::INFO ) << "Submitting jobs to the cluster " << m_prms[0] << " using Cauldron: " << m_prms[1];
 
    // spawn jobs for calculation
    if ( ErrorHandler::NoError != rm.runScheduledCases( false ) )
@@ -112,7 +112,7 @@ void CmdRun::execute( std::unique_ptr<casa::ScenarioAnalysis> & sa )
       throw ErrorHandler::Exception( rm.errorCode() ) << rm.errorMessage();
    }
    
-   LogHandler( LogHandler::INFO_SEVERITY ) << "Scenarion execution succeeded";
+   LogHandler( LogHandler::INFO ) << "Scenarion execution succeeded";
 
    PrintObsValues( *sa.get() );
 }

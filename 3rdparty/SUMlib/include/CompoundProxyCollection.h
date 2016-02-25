@@ -185,7 +185,7 @@ class INTERFACE_SUMLIB CompoundProxyCollection : public ISerializable
       void deleteProxies();
 
       // data
-      std::unique_ptr<KrigingData>  m_krigingData;
+      std::auto_ptr<KrigingData>    m_krigingData;
       CompoundProxyList             m_proxies;
       ParameterSpace                m_parameterSpace;
       RealMatrix                    m_preparedCaseSet;

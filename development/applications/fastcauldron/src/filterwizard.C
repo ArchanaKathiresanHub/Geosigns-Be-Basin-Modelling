@@ -1,12 +1,3 @@
-//                                                                      
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
-// All rights reserved.
-// 
-// Developed under license for Shell by PDS BV.
-// 
-// Confidential and proprietary source code of Shell.
-// Do not distribute without written permission from Shell.
-//
 #include   "filterwizard.h"
 
 #include <string>
@@ -61,6 +52,17 @@ bool Filterwizard::IsBulkPermeabilityCalculationNeeded(){
    bool bCalculationNeeded = false;
 
    bCalculationNeeded = timefilter->PropertyOutputOption[PERMEABILITYVEC];
+
+   return (bCalculationNeeded);
+
+}
+
+bool Filterwizard::IsDecompactionNeeded()
+{
+
+   bool bCalculationNeeded = false;
+
+   bCalculationNeeded = timefilter->IsSomethingSelected();
 
    return (bCalculationNeeded);
 

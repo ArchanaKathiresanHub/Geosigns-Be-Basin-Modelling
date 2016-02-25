@@ -237,7 +237,7 @@ namespace casa
       /// @brief Class which hides all interface implementation
       class ScenarioAnalysisImpl;
       
-      std::unique_ptr<ScenarioAnalysisImpl> m_pimpl; ///< The actual object which will do all the job
+      std::auto_ptr<ScenarioAnalysisImpl> m_pimpl; ///< The actual object which will do all the job
       /// @}
    };
 }

@@ -25,6 +25,11 @@ const double epsilon = std::numeric_limits<double>::epsilon();
 const double NaN = std::numeric_limits<double>::quiet_NaN();
 }
 
+#ifdef WIN32
+#define isnan(x) _isnan(x)
+#define isinf(x) (!_finite(x))
+#endif
+
 // Input domain: PermeabilityMudStone::permeability
 // permeabilityIncr = 1.5
 // permeabilityDecr = 0.01
@@ -79,18 +84,21 @@ TEST( PermeabilityMudStonePermeability, validCases)
    // The weird cases
 TEST( PermeabilityMudStonePermeabilityDerivative, invalidLargeNegativeVes)
 {
+   using namespace std;
    double permeability = NaN, derivative = NaN;
    PermeabilityMudStone( 0.01, 1.5, 0.01).calculateDerivative( -1e+6, 1.0e+5, 0, 0, permeability, derivative);
    EXPECT_DOUBLE_EQ(3.91613803789194782345e-03, permeability);
-   EXPECT_TRUE( std::isnan( derivative ));
+   EXPECT_TRUE( isnan( derivative ));
 }
 
 TEST( PermeabilityMudStonePermeabilityDerivative, invalidSmallNegativeVes)
 {
+   using namespace std;
    double permeability = NaN, derivative = NaN;
+
    PermeabilityMudStone( 0.05, 1.5, 0.01).calculateDerivative( -1e+5, 1.0e+5, 0.1, 0, permeability, derivative);
    EXPECT_DOUBLE_EQ( 1.79786337194130368955e-02, permeability);
-   EXPECT_TRUE( std::isinf( derivative) && derivative < 0.0 );
+   EXPECT_TRUE( isinf( derivative) && derivative < 0.0 );
 }
 
 TEST( PermeabilityMudStonePermeabilityDerivative, invalidLargeNegativeMaxVes)

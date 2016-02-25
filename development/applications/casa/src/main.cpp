@@ -40,7 +40,7 @@ int main( int argc, char ** argv )
    bool                          cmdExecutionStarted = false; // to distinct execution error from input file parsing errors
 
    // New scenario object
-   std::unique_ptr<casa::ScenarioAnalysis> sc( new casa::ScenarioAnalysis() );
+   std::auto_ptr<casa::ScenarioAnalysis> sc( new casa::ScenarioAnalysis() );
 
    try
    {
@@ -64,10 +64,10 @@ int main( int argc, char ** argv )
       // Set up loggin for casa app
       switch ( msgLvl )
       {
-         case CasaCommander::Quiet:    LogHandler( "scenario.log", LogHandler::QUIET_LEVEL );      break;
-         case CasaCommander::Detailed: LogHandler( "scenario.log", LogHandler::DIAGNOSTIC_LEVEL ); break;
+         case CasaCommander::Quiet:    LogHandler( "scenario.log", LogHandler::QUIET );      break;
+         case CasaCommander::Detailed: LogHandler( "scenario.log", LogHandler::DIAGNOSTIC ); break;
          case CasaCommander::Minimal:  
-         default:                      LogHandler( "scenario.log", LogHandler::DETAILED_LEVEL );   break;
+         default:                      LogHandler( "scenario.log", LogHandler::DETAILED );   break;
       }
       
       // parse command file
@@ -81,7 +81,7 @@ int main( int argc, char ** argv )
    }
    catch ( const std::runtime_error & ex )
    {
-      LogHandler( LogHandler::FATAL_SEVERITY ) << "Command file " << cmdFileName << " execution error: " << "   SUMlib error: " << ex.what() <<
+      LogHandler( LogHandler::FATAL ) << "Command file " << cmdFileName << " execution error: " << "   SUMlib error: " << ex.what() <<
                                     ", CASA command \"" << cmdQueue.curCmdName() << "\" at line: " << cmdQueue.curCmdInputFileLineNumber();
       return -1;
    }
@@ -89,22 +89,22 @@ int main( int argc, char ** argv )
    {
       if ( cmdExecutionStarted )
       {
-         LogHandler( LogHandler::ERROR_SEVERITY ) << "Exception on processing command: " << cmdQueue.curCmdName() << " located at line " << 
+         LogHandler( LogHandler::ERROR ) << "Exception on processing command: " << cmdQueue.curCmdName() << " located at line " << 
             cmdQueue.curCmdInputFileLineNumber() << " of input file " << cmdFileName << ". ";
          sc->runManager().stopAllSubmittedJobs();
       }
-      LogHandler( LogHandler::FATAL_SEVERITY ) << "CASA error ID:" << ex.errorCode() << ", message: " << ex.what();
+      LogHandler( LogHandler::FATAL ) << "CASA error ID:" << ex.errorCode() << ", message: " << ex.what();
       return -1;
    }
    catch ( ... )
    {
       if ( cmdExecutionStarted )
       {
-         LogHandler( LogHandler::ERROR_SEVERITY ) << "Exception on processing command: " << cmdQueue.curCmdName() << " located at line " << 
+         LogHandler( LogHandler::ERROR ) << "Exception on processing command: " << cmdQueue.curCmdName() << " located at line " << 
             cmdQueue.curCmdInputFileLineNumber() << " of input file " << cmdFileName << ". ";
          sc->runManager().stopAllSubmittedJobs();
       }
-      LogHandler( LogHandler::FATAL_SEVERITY ) << "CASA unknown exception, aborting...";
+      LogHandler( LogHandler::FATAL ) << "CASA unknown exception, aborting...";
       return -1;
    }
 }

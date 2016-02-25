@@ -75,7 +75,7 @@ namespace AllochMod {
     ///
     /// The domain is extended beyond that of the input map, so that edge effects of the 
     /// allochthonous lithology distribution can be minimised.
-    static constexpr Numerics::FloatingPoint BoundaryExtensionFactor = 5.0;
+    static const Numerics::FloatingPoint BoundaryExtensionFactor = 5.0;
 
 
     AllochthonousLithologyDistribution (Interface::ProjectHandle * projectHandle, database::Record * record);

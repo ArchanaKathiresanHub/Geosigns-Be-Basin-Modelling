@@ -15,19 +15,17 @@ if (UNIX)
    if (BM_USE_INTEL_COMPILER)
       set(preciseFpModel "-fp-model precise")
    endif()
-   set(cxxVersion "-std=c++11")
-   MESSAGE(STATUS "C++ version is set to ${cxxVersion}")
 
    set(CMAKE_C_FLAGS_RELEASE "-g -O2" CACHE STRING "List of C compiler flags for a Release build") 
-   set(CMAKE_CXX_FLAGS_RELEASE "-g -O2 ${cxxVersion}" CACHE STRING "List of C++ compiler flags for a Release build") 
+   set(CMAKE_CXX_FLAGS_RELEASE "-g -O2" CACHE STRING "List of C++ compiler flags for a Release build") 
 
    set(CMAKE_C_FLAGS_DEBUG"-g -O0 ${preciseFpModel}" CACHE STRING "List of C compiler flags for a Debug build") 
-   set(CMAKE_CXX_FLAGS_DEBUG "-g -O0 ${preciseFpModel} ${cxxVersion}" CACHE STRING "List of C++ compiler flags for a Debug build") 
+   set(CMAKE_CXX_FLAGS_DEBUG "-g -O0 ${preciseFpModel}" CACHE STRING "List of C++ compiler flags for a Debug build") 
 
    set(CMAKE_C_FLAGS_DEBUGALL "-g -O0 -DGLIBCXX_DEBUG ${preciseFpModel}" CACHE STRING "List of C compiler flags for a DebugAll build") 
-   set(CMAKE_CXX_FLAGS_DEBUGALL "-g -O0 -DGLIBCXX_DEBUG ${preciseFpModel} ${cxxVersion}" CACHE STRING "List of C++ compiler flags for a DebugAll build") 
+   set(CMAKE_CXX_FLAGS_DEBUGALL "-g -O0 -DGLIBCXX_DEBUG ${preciseFpModel}" CACHE STRING "List of C++ compiler flags for a DebugAll build") 
    set(CMAKE_C_FLAGS_MEMCHECK "-g -O0 ${preciseFpModel}" CACHE STRING "List of C compiler flags for a MemCheck build") 
-   set(CMAKE_CXX_FLAGS_MEMCHECK "-g -O0 ${preciseFpModel} ${cxxVersion}" CACHE STRING "List of C++ compiler flags for a MemCheck build") 
+   set(CMAKE_CXX_FLAGS_MEMCHECK "-g -O0 ${preciseFpModel}" CACHE STRING "List of C++ compiler flags for a MemCheck build") 
 
    if (CMAKE_BUILD_TYPE STREQUAL MemCheck)
      if (NOT BUILD_SHARED_LIBS)

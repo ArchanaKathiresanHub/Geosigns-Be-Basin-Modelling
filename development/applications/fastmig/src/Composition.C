@@ -262,7 +262,7 @@ void Composition::computePVT (double temperature, double pressure, Composition *
          {
             totalMass += getWeight ((ComponentId) component);
             inputComponents[component] = getWeight ((ComponentId) component);
-            if (std::isnan( inputComponents[component] )) inputComponents[component] = 0;
+	    if (isnan (inputComponents[component])) inputComponents[component] = 0;
          }
 
          // initialize

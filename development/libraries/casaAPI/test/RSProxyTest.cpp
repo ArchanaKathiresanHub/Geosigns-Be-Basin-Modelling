@@ -137,7 +137,7 @@ TEST_F( RSProxyTest, Prm2Obs1Proxy1Test )
    }
    // check response surface evaluation
    // prepare one new case
-   std::unique_ptr<RunCaseImpl> nrc( new RunCaseImpl() );
+   std::auto_ptr<RunCaseImpl> nrc( new RunCaseImpl() );
 
    std::vector<double> prmVals(2);
 

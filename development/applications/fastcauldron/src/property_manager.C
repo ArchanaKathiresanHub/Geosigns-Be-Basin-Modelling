@@ -931,8 +931,8 @@ void Basin_Modelling::collectAndSaveIsoValues(const double Current_Time, AppCtx 
    Layers.Initialise_Iterator ( basinModel->layers, Descending, Basement_And_Sediments, Active_Layers_Only );
    DMDAGetCorners ( *basinModel->mapDA, &xStart, &yStart, PETSC_NULL, &xCount, &yCount, PETSC_NULL );
    
-   std::unique_ptr<Polyfunction> temperatureDepthFunction (new Polyfunction);
-   std::unique_ptr<Polyfunction> vreDepthFunction (new Polyfunction);
+   std::auto_ptr<Polyfunction> temperatureDepthFunction (new Polyfunction);
+   std::auto_ptr<Polyfunction> vreDepthFunction (new Polyfunction);
    
    static EqualityTest<double> doubleEqualityTest;
    //collect data

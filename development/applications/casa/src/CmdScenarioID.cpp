@@ -24,9 +24,9 @@ CmdScenarioID::CmdScenarioID( CasaCommander & parent, const std::vector< std::st
    if ( m_id.empty() ) throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Scenario ID is not provided";
 }
 
-void CmdScenarioID::execute( std::unique_ptr<casa::ScenarioAnalysis> & sa )
+void CmdScenarioID::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
 {
-   LogHandler( LogHandler::INFO_SEVERITY ) << "Setting scenario ID: " << m_id << "...";
+   LogHandler( LogHandler::INFO ) << "Setting scenario ID: " << m_id << "...";
    
    if ( ErrorHandler::NoError != sa->defineScenarioID( m_id.c_str() ) )
    {

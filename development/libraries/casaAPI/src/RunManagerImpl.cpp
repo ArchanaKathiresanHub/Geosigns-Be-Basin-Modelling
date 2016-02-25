@@ -51,7 +51,7 @@ CauldronApp * RunManager::createApplication( ApplicationType        appType
                                            , CauldronApp::ShellType sh
                                            , std::string            cmdLine )
 {
-   std::unique_ptr<CauldronApp> app;
+   std::auto_ptr<CauldronApp> app;
    switch ( appType )
    {
       case fastcauldron: app.reset( new CauldronApp( sh, "fastcauldron", true  ) ); break;

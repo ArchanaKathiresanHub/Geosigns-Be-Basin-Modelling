@@ -1,12 +1,3 @@
-//                                                                      
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
-// All rights reserved.
-// 
-// Developed under license for Shell by PDS BV.
-// 
-// Confidential and proprietary source code of Shell.
-// Do not distribute without written permission from Shell.
-//
 #ifndef DERIVED_PROPERTIES__ABSTRACT_PROPERTY_MANAGER_H
 #define DERIVED_PROPERTIES__ABSTRACT_PROPERTY_MANAGER_H
 
@@ -26,15 +17,10 @@
 #include "ReservoirPropertyCalculator.h"
 #include "PropertySnapshotCalculatorMap.h"
 
-// utilities library
-#include "FormattingException.h"
-
 namespace DerivedProperties {
 
    /// \brief Handles derived properties and their calculation.
    class AbstractPropertyManager {
-
-   typedef formattingexception::GeneralException AbstractPropertyException;
 
    public :
 
@@ -63,7 +49,6 @@ namespace DerivedProperties {
       /// \pre surface is not null and is a  valid surface.
       /// \pre A calculator for this property exists.
       /// \post The result contains values of the required property at the required surface for the required snapshot age.
-      /// If the propery is not computed then a null will be returned.
       virtual SurfacePropertyPtr getSurfaceProperty ( const DataModel::AbstractProperty* property,
                                                       const DataModel::AbstractSnapshot* snapshot,
                                                       const DataModel::AbstractSurface*  surface );
@@ -75,7 +60,6 @@ namespace DerivedProperties {
       /// \param [in] property  The property whose values are requested.
       /// \param [in] snapshot  The snapshot time at which the values were calculated.
       /// \param [in] formation The formation with which the values are associated.
-      /// If the propery is not computed then a null will be returned.
       virtual FormationMapPropertyPtr getFormationMapProperty ( const DataModel::AbstractProperty*  property,
                                                                 const DataModel::AbstractSnapshot*  snapshot,
                                                                 const DataModel::AbstractFormation* formation );
@@ -87,7 +71,6 @@ namespace DerivedProperties {
       /// \param [in] property  The property whose values are requested.
       /// \param [in] snapshot  The snapshot time at which the values were calculated.
       /// \param [in] formation The formation with which the values are associated.
-      /// If the propery is not computed then a null will be returned.
       virtual FormationPropertyPtr getFormationProperty ( const DataModel::AbstractProperty*  property,
                                                           const DataModel::AbstractSnapshot*  snapshot,
                                                           const DataModel::AbstractFormation* formation );
@@ -100,7 +83,6 @@ namespace DerivedProperties {
       /// \param [in] snapshot  The snapshot time at which the values were calculated.
       /// \param [in] formation The formation with which the values are associated.
       /// \param [in] surface   The surface with which the values are associated.
-      /// If the propery is not computed then a null will be returned.
       virtual FormationSurfacePropertyPtr getFormationSurfaceProperty ( const DataModel::AbstractProperty*  property,
                                                                         const DataModel::AbstractSnapshot*  snapshot,
                                                                         const DataModel::AbstractFormation* formation,
@@ -113,7 +95,6 @@ namespace DerivedProperties {
       /// \param [in] property  The property whose values are requested.
       /// \param [in] snapshot  The snapshot time at which the values were calculated.
       /// \param [in] reservoir The reservoir to which the values are associated.
-      /// If the propery is not computed then a null will be returned.
       virtual ReservoirPropertyPtr getReservoirProperty ( const DataModel::AbstractProperty*  property,
                                                           const DataModel::AbstractSnapshot*  snapshot,
                                                           const DataModel::AbstractReservoir* reservoir );

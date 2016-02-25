@@ -62,13 +62,13 @@ namespace AllochMod {
     /// by a gradual phasing-in of the second distribution map. If it is too small then
     /// there will be a rather abrupt change between the distribution maps at some point
     /// around the mid point of the two ages of the maps. 
-    static constexpr FloatingPoint TimeDimensionScaling = 0.033;
+    static const FloatingPoint TimeDimensionScaling = 0.033;
 
     /// \var SpaceDimensionScaling
     /// The scaling of the space dimensions.
     ///
     /// First the space is scaled to a unit square [0,1]x[0,1], then it is scaled by this factor.
-    static constexpr FloatingPoint SpaceDimensionScaling = 1.0;
+    static const FloatingPoint SpaceDimensionScaling = 1.0;
 
 
     AllochthonousLithology (Interface::ProjectHandle * projectHandle, database::Record * record);

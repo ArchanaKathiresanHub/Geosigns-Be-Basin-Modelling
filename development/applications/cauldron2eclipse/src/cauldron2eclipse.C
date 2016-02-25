@@ -536,8 +536,8 @@ int main (int argc, char ** argv)
 
          if (doAscii)
          {
-            outputFile << posI << " " << posJ << " " << (std::isnan (bottomDepth) ? EclipseUndefined : bottomDepth) << endl;
-            outputFile << "  " << posI << " " << posJ << " " << (std::isnan( topDepth ) ? EclipseUndefined : topDepth) << endl;
+            outputFile << posI << " " << posJ << " " << (isnan (bottomDepth) ? EclipseUndefined : bottomDepth) << endl;
+            outputFile << "  " << posI << " " << posJ << " " << (isnan (topDepth) ? EclipseUndefined : topDepth) << endl;
          }
 
          //------------- Binary data
@@ -632,7 +632,7 @@ int main (int argc, char ** argv)
 			
 			if (doAscii)
 			{
-            outputFile << (std::isnan( depth ) ? EclipseUndefined : depth) << "  ";
+			   outputFile << (isnan (depth) ? EclipseUndefined : depth) << "  ";
 			   if (++numDepth % 4 == 0)
 			      outputFile << endl;
 			}

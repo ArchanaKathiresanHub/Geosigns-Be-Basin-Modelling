@@ -17,7 +17,7 @@
 TEST( LogHandlerSerial, log_created )
 {
    try{
-      LogHandler logUnitTestDiagnostic( "log_unit_test_created", LogHandler::DIAGNOSTIC_LEVEL );
+      LogHandler logUnitTestDiagnostic( "log_unit_test_created", LogHandler::DIAGNOSTIC );
       writeLogUnitTest();
 
       bool fileExisits = false;
@@ -38,11 +38,11 @@ TEST( LogHandlerSerial, log_created )
 TEST( LogHandlerSerial, log_created_again )
 {
    // Test if the exception is thrown
-   EXPECT_THROW( LogHandler( "log_unit_test_crash", LogHandler::DIAGNOSTIC_LEVEL ), LogHandlerException );
+   EXPECT_THROW( LogHandler( "log_unit_test_crash", LogHandler::DIAGNOSTIC ), LogHandlerException );
 
    // Test if the good exception is thrown
    try{
-      LogHandler( "log_unit_test_crash", LogHandler::DIAGNOSTIC_LEVEL );
+      LogHandler( "log_unit_test_crash", LogHandler::DIAGNOSTIC );
       FAIL() << "Expected 'Log file 'log_unit_test_created_0.log' already created, cannot create new log file 'log_unit_test_crash_0.log'.' exception";
    }
    catch (const LogHandlerException& ex) {

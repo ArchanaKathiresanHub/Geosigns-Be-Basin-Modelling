@@ -65,9 +65,9 @@ CmdExpDataTxt::CmdExpDataTxt( CasaCommander & parent, const std::vector< std::st
    else { throw ErrorHandler::Exception( ErrorHandler::RSProxyError ) << "Unknown command parameter: " <<  m_whatToSave; }
 }
 
-void CmdExpDataTxt::execute( std::unique_ptr<casa::ScenarioAnalysis> & sa )
+void CmdExpDataTxt::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
 {
-   LogHandler( LogHandler::INFO_SEVERITY ) << "Exporting CASA results for " << m_whatToSave << " to : " << m_dataFileName << "...";
+   LogHandler( LogHandler::INFO ) << "Exporting CASA results for " << m_whatToSave << " to : " << m_dataFileName << "...";
 
    if (      m_whatToSave == "DoEParameters"        ) { exportParameters( sa ); }
    else if ( m_whatToSave == "RunCasesObservables"  ) { exportRunCaseObs( sa ); } 
@@ -75,7 +75,7 @@ void CmdExpDataTxt::execute( std::unique_ptr<casa::ScenarioAnalysis> & sa )
    else if ( m_whatToSave == "ProxyQC"              ) { exportProxyQC(    sa ); }
    else if ( m_whatToSave == "MCResults"            ) { exportMCResults(  sa ); }
 
-   LogHandler( LogHandler::INFO_SEVERITY ) << "Exporting CASA results succeeded.";
+   LogHandler( LogHandler::INFO ) << "Exporting CASA results succeeded.";
 }
 
 void CmdExpDataTxt::printHelpPage( const char * cmdName )
@@ -121,9 +121,9 @@ void CmdExpDataTxt::saveResults( const std::vector< std::vector<double> > & res 
 }
 
 
-void CmdExpDataTxt::exportParameters( std::unique_ptr<casa::ScenarioAnalysis> & sa )
+void CmdExpDataTxt::exportParameters( std::auto_ptr<casa::ScenarioAnalysis> & sa )
 {
-   LogHandler( LogHandler::INFO_SEVERITY ) << "Exporting parameters value calculated by DoEs to " << m_dataFileName << "...";
+   LogHandler( LogHandler::INFO ) << "Exporting parameters value calculated by DoEs to " << m_dataFileName << "...";
 
    casa::RunCaseSet & doeCaseSet = sa->doeCaseSet();
    std::vector<std::string> doeList = m_expList.empty() ? doeCaseSet.experimentNames() : m_expList;
@@ -163,9 +163,9 @@ void CmdExpDataTxt::exportParameters( std::unique_ptr<casa::ScenarioAnalysis> & 
    saveResults( results );
 }
 
-void CmdExpDataTxt::exportRunCaseObs( std::unique_ptr<casa::ScenarioAnalysis> & sa )
+void CmdExpDataTxt::exportRunCaseObs( std::auto_ptr<casa::ScenarioAnalysis> & sa )
 {
-   LogHandler( LogHandler::INFO_SEVERITY ) << "Export observables value calculated in DoEs runs to " << m_dataFileName << "...";
+   LogHandler( LogHandler::INFO ) << "Export observables value calculated in DoEs runs to " << m_dataFileName << "...";
 
    casa::RunCaseSet & doeCaseSet = sa->doeCaseSet();
    std::vector<std::string> doeList = m_expList.empty() ? doeCaseSet.experimentNames() : m_expList;
@@ -195,9 +195,9 @@ void CmdExpDataTxt::exportRunCaseObs( std::unique_ptr<casa::ScenarioAnalysis> & 
    saveResults( results );
 }
 
-void CmdExpDataTxt::exportEvalObserv( std::unique_ptr<casa::ScenarioAnalysis> & sa )
+void CmdExpDataTxt::exportEvalObserv( std::auto_ptr<casa::ScenarioAnalysis> & sa )
 {
-   LogHandler( LogHandler::INFO_SEVERITY ) << "Exporting observables value for response surface proxy " << m_proxyName << " to " << m_dataFileName << "...";
+   LogHandler( LogHandler::INFO ) << "Exporting observables value for response surface proxy " << m_proxyName << " to " << m_dataFileName << "...";
 
    std::vector<std::string> doeList = m_expList.empty() ? sa->doeCaseSet().experimentNames() : m_expList;
 
@@ -216,7 +216,7 @@ void CmdExpDataTxt::exportEvalObserv( std::unique_ptr<casa::ScenarioAnalysis> & 
    size_t i = 0;
    for ( size_t e = 0; e < doeList.size(); ++e )
    {
-      LogHandler( LogHandler::DEBUG_SEVERITY ) << "Evaluating proxy for " << doeList[e]  << "DoE for " << casePerExp[e]  << " cases...";
+      LogHandler( LogHandler::DEBUG ) << "Evaluating proxy for " << doeList[e]  << "DoE for " << casePerExp[e]  << " cases...";
       
       for ( size_t c = 0; c < casePerExp[e]; ++c )
       {
@@ -244,9 +244,9 @@ void CmdExpDataTxt::exportEvalObserv( std::unique_ptr<casa::ScenarioAnalysis> & 
 
 }
 
-void CmdExpDataTxt::exportProxyQC( std::unique_ptr<casa::ScenarioAnalysis> & sa )
+void CmdExpDataTxt::exportProxyQC( std::auto_ptr<casa::ScenarioAnalysis> & sa )
 {
-   LogHandler( LogHandler::INFO_SEVERITY ) << "Exporting QC data for response surface proxy " << m_proxyName << " to " << m_dataFileName << "...";
+   LogHandler( LogHandler::INFO ) << "Exporting QC data for response surface proxy " << m_proxyName << " to " << m_dataFileName << "...";
 
    casa::RunCaseSet & doeCaseSet = sa->doeCaseSet();
    std::vector<std::string> doeList = m_expList.empty() ? doeCaseSet.experimentNames() : m_expList;
@@ -266,7 +266,7 @@ void CmdExpDataTxt::exportProxyQC( std::unique_ptr<casa::ScenarioAnalysis> & sa 
    size_t i = 0;
    for ( size_t e = 0; e < doeList.size(); ++e )
    {
-      LogHandler( LogHandler::DEBUG_SEVERITY ) << " evaluating proxy for " << doeList[e]  << " DoE for " << casePerExp[e]  << " cases...";
+      LogHandler( LogHandler::DEBUG ) << " evaluating proxy for " << doeList[e]  << " DoE for " << casePerExp[e]  << " cases...";
       
       doeCaseSet.filterByExperimentName( doeList[e] );
 
@@ -305,9 +305,9 @@ void CmdExpDataTxt::exportProxyQC( std::unique_ptr<casa::ScenarioAnalysis> & sa 
    saveResults( results );
 }
          
-void CmdExpDataTxt::exportMCResults( std::unique_ptr<casa::ScenarioAnalysis> & sa )
+void CmdExpDataTxt::exportMCResults( std::auto_ptr<casa::ScenarioAnalysis> & sa )
 {
-   LogHandler( LogHandler::INFO_SEVERITY ) << "Exporting MC/MCMC to " << m_dataFileName << "...";
+   LogHandler( LogHandler::INFO ) << "Exporting MC/MCMC to " << m_dataFileName << "...";
 
    std::vector< std::vector<double> > results;
    // export MC samples

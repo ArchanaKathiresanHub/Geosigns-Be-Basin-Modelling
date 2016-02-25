@@ -80,7 +80,7 @@ class INTERFACE_SUMLIB CompoundProxy : public Proxy, public ISerializationVersio
             double                     targetR2,
             double                     confLevel,
             Partition const&           partition,
-            ParameterTransforms::ptr&  parTransforms,
+            ParameterTransforms::ptr   parTransforms,
             EliminationCriterion&      criterion
            );
 
@@ -111,7 +111,7 @@ class INTERFACE_SUMLIB CompoundProxy : public Proxy, public ISerializationVersio
             double                     targetR2,
             double                     confLevel,
             Partition const&           partition,
-            ParameterTransforms::ptr&  parTransforms
+            ParameterTransforms::ptr   parTransforms
            );
 
       /// Initialiser for the CompoundProxy.
@@ -139,7 +139,7 @@ class INTERFACE_SUMLIB CompoundProxy : public Proxy, public ISerializationVersio
             double                     targetR2,
             double                     confLevel,
             Partition const&           partition,
-            ParameterTransforms::ptr&  parTransforms,
+            ParameterTransforms::ptr   parTransforms,
             EliminationCriterion&      criterion
             );
 
@@ -167,7 +167,7 @@ class INTERFACE_SUMLIB CompoundProxy : public Proxy, public ISerializationVersio
             double                     targetR2,
             double                     confLevel,
             Partition const&           partition,
-            ParameterTransforms::ptr&  parTransforms
+            ParameterTransforms::ptr   parTransforms
             );
 
       void update( EliminationCriterion& criterion );
@@ -245,7 +245,7 @@ class INTERFACE_SUMLIB CompoundProxy : public Proxy, public ISerializationVersio
    private: // methods
 
       /// A pair of polynomial and kriging proxies
-      typedef std::pair< std::unique_ptr<CubicProxy>,std::unique_ptr<KrigingProxy> > ProxyPair;
+      typedef std::pair< std::auto_ptr<CubicProxy>,std::auto_ptr<KrigingProxy> > ProxyPair;
 
       /// Compute the proxies associated with a parameterSet and TargetSet
       /// @param [in]  parSet       scaled parameter set

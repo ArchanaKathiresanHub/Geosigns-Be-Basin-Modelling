@@ -33,9 +33,9 @@ CmdGenerateBestMatchedCase::CmdGenerateBestMatchedCase( CasaCommander & parent, 
 }
 
 
-void CmdGenerateBestMatchedCase::execute( std::unique_ptr<casa::ScenarioAnalysis> & sa )
+void CmdGenerateBestMatchedCase::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
 {  
-   LogHandler( LogHandler::INFO_SEVERITY ) << "Generating calibrated case: " << m_bmcName << "...";
+   LogHandler( LogHandler::INFO ) << "Generating calibrated case: " << m_bmcName << "...";
 
    // add response
    if ( ErrorHandler::NoError != sa->saveCalibratedCase( m_bmcName.c_str(), m_sampleNum ) )
@@ -43,7 +43,7 @@ void CmdGenerateBestMatchedCase::execute( std::unique_ptr<casa::ScenarioAnalysis
       throw ErrorHandler::Exception( sa->errorCode() ) << sa->errorMessage();
    }
    
-   LogHandler( LogHandler::INFO_SEVERITY ) << "Calibrated case generation " << m_bmcName << " succeeded";
+   LogHandler( LogHandler::INFO ) << "Calibrated case generation " << m_bmcName << " succeeded";
 }
 
 void CmdGenerateBestMatchedCase::printHelpPage( const char * cmdName )

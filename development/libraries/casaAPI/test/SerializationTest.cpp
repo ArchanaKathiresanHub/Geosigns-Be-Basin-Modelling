@@ -23,7 +23,7 @@ public:
       ;
    }
 
-   std::unique_ptr<casa::ScenarioAnalysis> sc;
+   std::auto_ptr<casa::ScenarioAnalysis> sc;
 };
 
 

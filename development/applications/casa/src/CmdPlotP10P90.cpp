@@ -36,9 +36,9 @@ CmdPlotP10P90::CmdPlotP10P90( CasaCommander & parent, const std::vector< std::st
    }
 }
 
-void CmdPlotP10P90::execute( std::unique_ptr<casa::ScenarioAnalysis> & sa )
+void CmdPlotP10P90::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
 {
-   LogHandler( LogHandler::INFO_SEVERITY ) << "Generating script to plot P10-P90 diagrams from MC/MCMC results...";
+   LogHandler( LogHandler::INFO ) << "Generating script to plot P10-P90 diagrams from MC/MCMC results...";
 
    MatlabExporter ofs( m_mFileName );
 
@@ -170,7 +170,7 @@ void CmdPlotP10P90::execute( std::unique_ptr<casa::ScenarioAnalysis> & sa )
    ofs << "   print ( sprintf( 'p10p90_pdf_obs_%d.jpg', o-1 ) );\n";
    ofs << "end\n";
 
-   LogHandler( LogHandler::INFO_SEVERITY ) << "Script generation succeeded";
+   LogHandler( LogHandler::INFO ) << "Script generation succeeded";
 }
 
 void CmdPlotP10P90::printHelpPage( const char * cmdName )

@@ -74,14 +74,14 @@ namespace NumericFunctions {
 
    template<>
    struct ScalarValues<double> {
-      static constexpr double Zero = 0.0;
-      static constexpr double One  = 1.0;
+      static const double Zero = 0.0;
+      static const double One  = 1.0;
    };
 
    template<>
    struct ScalarValues<float> {
-      static constexpr float Zero = 0.0;
-      static constexpr float One  = 1.0;
+      static const float Zero = 0.0;
+      static const float One  = 1.0;
    };
 
 

@@ -1,12 +1,3 @@
-//                                                                      
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
-// All rights reserved.
-// 
-// Developed under license for Shell by PDS BV.
-// 
-// Confidential and proprietary source code of Shell.
-// Do not distribute without written permission from Shell.
-//
 #include "SonicCalculator.h"
 #include "DerivedOutputPropertyMap.h"
 #include "PropertyManager.h"
@@ -83,10 +74,6 @@ void SonicCalculator::allocatePropertyValues ( OutputPropertyMap::PropertyValueL
 }
 
 bool SonicCalculator::initialise ( OutputPropertyMap::PropertyValueList& propertyValues ) {
-
-   if (FastcauldronSimulator::getInstance().getCauldron()->no2Doutput()) {
-      propertyValues[0]->allowOutput( false );
-   }
 
    m_velocity = PropertyManager::getInstance().findOutputPropertyMap ( "Velocity", m_formation, m_surface, m_snapshot );
 

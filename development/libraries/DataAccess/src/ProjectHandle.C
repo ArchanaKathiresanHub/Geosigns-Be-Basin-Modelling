@@ -1,12 +1,3 @@
-//                                                                      
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
-// All rights reserved.
-// 
-// Developed under license for Shell by PDS BV.
-// 
-// Confidential and proprietary source code of Shell.
-// Do not distribute without written permission from Shell.
-//
 #include <stdafx.h>
 
 #include <stdlib.h>
@@ -109,10 +100,6 @@
 #include "InterfaceDefs.h"
 
 
-//utilities library
-#include "LogHandler.h"
-
-
 using namespace DataAccess;
 using namespace Interface;
 using namespace std;
@@ -124,7 +111,7 @@ using database::Record;
 
 const double DefaultUndefinedValue = 99999;
 
-typedef formattingexception::GeneralException ProjectHandleException;
+
 
 DataAccess::Interface::ProjectHandle * DataAccess::Interface::OpenCauldronProject( const string & name, const string & accessMode, ObjectFactory* objectFactory )
 {
@@ -1006,7 +993,7 @@ bool ProjectHandle::loadProperties( void )
    // Currently fastcauldron outputs both surface and a volume dataset for this property.
    // The Volume data is largely filled with the null-value (99999) except at the surface.
    m_properties.push_back( getFactory()->produceProperty( this, 0, "Reflectivity",                   "ReflectivityVec2",               "",      FORMATIONPROPERTY, DataModel::SURFACE_2D_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "SonicSlowness",                  "SonicVec2",                      "us/m",  FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( this, 0, "SonicVelocity",                  "SonicVec2",                      "us/m",  FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY ));
 
    // not sure which attribute this property shoudl have, so give it the most general one
    m_properties.push_back( getFactory()->produceProperty( this, 0, "SteraneAromatisation",           "SteraneAromatisation",           "",      FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY ));
@@ -1179,13 +1166,13 @@ bool ProjectHandle::loadProperties( void )
    m_properties.push_back( getFactory()->produceProperty( this, 0, "ResRockThickness",              "ResRockThickness",              "m",       RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( this, 0, "ResRockPorosity",               "ResRockPorosity",               "%",       RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( this, 0, "ResRockSealPermeability",       "ResRockSealPermeability",       "mD",      RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ResRockFlowDirectionGasIJ",     "ResRockFlowDirectionGasIJ",     "",        RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ResRockFlowDirectionGasI",      "ResRockFlowDirectionGasI",      "",        RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ResRockFlowDirectionGasJ",      "ResRockFlowDirectionGasJ",      "",        RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ResRockFlowDirectionFluidIJ",   "ResRockFlowDirectionFluidIJ",   "",        RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ResRockFlowDirectionFluidI",    "ResRockFlowDirectionFluidI",    "",        RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ResRockFlowDirectionFluidJ",    "ResRockFlowDirectionFluidJ",    "",        RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ResRockFlow",                   "ResRockFlow",                   "log(kg)", RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY ));
+   m_properties.push_back(getFactory()->produceProperty(this, 0, "ResRockFlowDirectionGasIJ", "ResRockFlowDirectionGasIJ", "", RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY));
+   m_properties.push_back(getFactory()->produceProperty(this, 0, "ResRockFlowDirectionGasI", "ResRockFlowDirectionGasI", "", RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY));
+   m_properties.push_back(getFactory()->produceProperty(this, 0, "ResRockFlowDirectionGasJ", "ResRockFlowDirectionGasJ", "", RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY));
+   m_properties.push_back(getFactory()->produceProperty(this, 0, "ResRockFlowDirectionFluidIJ", "ResRockFlowDirectionFluidIJ", "", RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY));
+   m_properties.push_back(getFactory()->produceProperty(this, 0, "ResRockFlowDirectionFluidI", "ResRockFlowDirectionFluidI", "", RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY));
+   m_properties.push_back(getFactory()->produceProperty(this, 0, "ResRockFlowDirectionFluidJ", "ResRockFlowDirectionFluidJ", "", RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY));
+   m_properties.push_back(getFactory()->produceProperty(this, 0, "ResRockFlow", "ResRockFlow", "log(kg)", RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY));
    m_properties.push_back( getFactory()->produceProperty( this, 0, "ResRockFlowDirection",          "ResRockFlowDirection",          "",        RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( this, 0, "ResRockFlux",                   "ResRockFlux",                   "kg/m2",   RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( this, 0, "ResRockImmobilesVolume",        "ResRockImmobilesVolume",        "m3",      RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY ));
@@ -4474,19 +4461,19 @@ const Interface::Surface * ProjectHandle::findSurface( const string & name ) con
 const Interface::Property * ProjectHandle::findProperty( const string & name ) const
 {
    MutablePropertyList::const_iterator propertyIter;
-   for (propertyIter = m_properties.begin();
+
+   for ( propertyIter = m_properties.begin();
       propertyIter != m_properties.end();
-      ++propertyIter)
+      ++propertyIter )
    {
       const Property * property = *propertyIter;
-      if (WildMatch( property->getCauldronName().c_str(), name.c_str() ) ||
-         WildMatch( property->getUserName().c_str(), name.c_str() ))
+      if ( WildMatch( property->getCauldronName().c_str(), name.c_str() ) ||
+         WildMatch( property->getUserName().c_str(), name.c_str() ) )
       {
          // Note that we return an Interface::Property
          return property;
       }
    }
-   LogHandler( LogHandler::WARNING_SEVERITY ) << "Property '" << name << "' could not be found by the ProjectHandle.";
    return 0;
 }
 

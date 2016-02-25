@@ -206,7 +206,7 @@ namespace migration
 
       ofstream m_massBalanceFile;
 
-      std::unique_ptr<GeoPhysics::ProjectHandle> m_projectHandle;
+      std::auto_ptr<GeoPhysics::ProjectHandle> m_projectHandle;
 
       MassBalance<ofstream>* m_massBalance;
 
@@ -233,7 +233,7 @@ namespace migration
       double m_minGasColumnHeight;
 
       vector<database::Record *> * m_migrationRecordLists;
-      std::unique_ptr<MigrationPropertyManager> m_propertyManager;
+      std::auto_ptr<MigrationPropertyManager> m_propertyManager;
 
    };
 }

@@ -170,7 +170,7 @@ public:
    void setNonLinSolverConvPrms( double stopTol, int maxItNum, double newtonRelCoef ) { m_stopTol = stopTol; m_maxIters = maxItNum; m_newtonRelCoeff = newtonRelCoef; }
 
 private:
-   std::unique_ptr<pvtFlash::EosPack> m_flasher;   ///< for multithreading purpouse keep own flasher
+   std::auto_ptr<pvtFlash::EosPack> m_flasher;   ///< for multithreading purpouse keep own flasher
 
    DiagramType         m_diagType;               ///< which type of diagram are calculating - Mass/Mole/Volume fraction
    std::vector<double> m_gridT;                  ///< 1D grid for Temperature values

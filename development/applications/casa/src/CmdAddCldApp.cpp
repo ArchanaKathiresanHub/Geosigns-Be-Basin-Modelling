@@ -62,7 +62,7 @@ CmdAddCldApp::CmdAddCldApp( CasaCommander & parent, const std::vector< std::stri
    }
 }
 
-void CmdAddCldApp::execute( std::unique_ptr<casa::ScenarioAnalysis> & sa )
+void CmdAddCldApp::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
 {
 #ifdef _WIN32
    casa::CauldronApp::ShellType sh = casa::CauldronApp::cmd;
@@ -74,7 +74,7 @@ void CmdAddCldApp::execute( std::unique_ptr<casa::ScenarioAnalysis> & sa )
    size_t p = m_cpus < 0 ? 1 : (m_maxRunLimMin == 0 ? 2 : 3);
    if ( m_cpus < 0 ) { m_cpus = 1; } // if not - set it to 1
 
-   LogHandler( LogHandler::INFO_SEVERITY ) << "Add cauldron application to calculation pipeline " << m_prms[p - 1] << "(" <<
+   LogHandler( LogHandler::INFO ) << "Add cauldron application to calculation pipeline " << m_prms[p - 1] << "(" <<
                                  CfgFileParser::implode( m_prms, ",", p ) << ")";
    
    casa::CauldronApp * app = 0;

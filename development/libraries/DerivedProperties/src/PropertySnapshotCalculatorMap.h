@@ -1,24 +1,10 @@
-//                                                                      
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
-// All rights reserved.
-// 
-// Developed under license for Shell by PDS BV.
-// 
-// Confidential and proprietary source code of Shell.
-// Do not distribute without written permission from Shell.
-//
 #ifndef DERIVED_PROPERTIES__PROPERTY_SNAPSHOT_CALCULATOR_MAP_H
 #define DERIVED_PROPERTIES__PROPERTY_SNAPSHOT_CALCULATOR_MAP_H
 
-// std library
 #include <map>
-#include <string>
 
 #include "AbstractProperty.h"
 #include "AbstractSnapshot.h"
-
-// utilities library
-#include "LogHandler.h"
 
 namespace DerivedProperties {
 
@@ -91,11 +77,6 @@ CalculatorType DerivedProperties::PropertySnapshotCalculatorMap<CalculatorType>:
 
    }
 
-   if (property){
-      std::string snapshotLog = "' @ snapshot " + std::to_string( snapshot ? snapshot->getTime() : -9999 ) + "Ma.";
-      LogHandler( LogHandler::DEBUG_SEVERITY ) << "Could not find calculator for derived property '" << property->getName()
-         << (snapshot ? snapshotLog : "'.");
-   }
    return CalculatorType ();
 }
 

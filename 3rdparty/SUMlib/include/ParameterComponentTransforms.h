@@ -20,7 +20,7 @@ class IParameterComponentTransform
 {
    public:
       /// Readability typedef.
-      typedef std::unique_ptr< IParameterComponentTransform > ptr;
+      typedef std::auto_ptr< IParameterComponentTransform > ptr;
 
    public:
       /// Virtual destructor.

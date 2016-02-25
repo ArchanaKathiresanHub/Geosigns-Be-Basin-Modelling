@@ -1,12 +1,3 @@
-//                                                                      
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
-// All rights reserved.
-// 
-// Developed under license for Shell by PDS BV.
-// 
-// Confidential and proprietary source code of Shell.
-// Do not distribute without written permission from Shell.
-//
 #include   "timefilter.h"
 
 #include <petsc.h>
@@ -154,6 +145,16 @@ OutputOption TimeFilter::getOutputRange(const string & outputOption){
 
   return OutputOption(RangeCount);
 }
+
+bool TimeFilter::IsSomethingSelected()const{
+  int PLCount;
+  for ( PLCount=0; PLCount<=THICKNESS; ++PLCount) {
+    if (PropertyOutputOption[PLCount]!= NOOUTPUT) {
+      return true;
+    }
+  }
+  return false;
+};
 
 
 bool TimeFilter::propertyIsSelected ( const PropertyList propertyId ) const {

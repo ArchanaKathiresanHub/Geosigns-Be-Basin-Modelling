@@ -152,8 +152,8 @@ public:
    PropertyManagerImpl               m_prpMgr;
    MapsManagerImpl                   m_mapMgr;
 
-   std::unique_ptr<DataAccess::Interface::ProjectHandle>  m_projHandle;  // project file database (set of tables)
-   std::unique_ptr<DataAccess::Interface::ObjectFactory>  m_factory;  
+   std::auto_ptr<DataAccess::Interface::ProjectHandle>  m_projHandle;  // project file database (set of tables)
+   std::auto_ptr<DataAccess::Interface::ObjectFactory>  m_factory;  
    std::string                                          m_projFileName;  // project files name with path
 
    // model origin

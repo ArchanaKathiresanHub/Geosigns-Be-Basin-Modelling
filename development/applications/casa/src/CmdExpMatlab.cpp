@@ -27,12 +27,12 @@ CmdExpMatlab::CmdExpMatlab( CasaCommander & parent, const std::vector< std::stri
    if ( m_dataFileName.empty() ) throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Empty Matlab data file name for exporting results";
 }
 
-void CmdExpMatlab::execute( std::unique_ptr<casa::ScenarioAnalysis> & sa )
+void CmdExpMatlab::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
 {
-   LogHandler( LogHandler::INFO_SEVERITY ) << "Exporting CASA scenario results as set of matlab commands to: " << m_dataFileName << "...";
+   LogHandler( LogHandler::INFO ) << "Exporting CASA scenario results as set of matlab commands to: " << m_dataFileName << "...";
 
    MatlabExporter mex( m_dataFileName );
    mex.exportScenario( *sa.get(), sa->baseCaseProjectFileName(), sa->scenarioLocation() );
 
-   LogHandler( LogHandler::INFO_SEVERITY ) << "Exporting CASA scenario results succeeded";
+   LogHandler( LogHandler::INFO ) << "Exporting CASA scenario results succeeded";
 }

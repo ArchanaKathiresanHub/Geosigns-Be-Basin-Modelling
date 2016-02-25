@@ -178,20 +178,20 @@ private:
    int                                      m_iterationNum;        // Scenario analysis iteration number
    int                                      m_caseNum;             // counter for the cases, used in folder name of the case
 
-   std::unique_ptr<mbapi::Model>              m_baseCase;
-   std::unique_ptr<RunCaseImpl>               m_baseCaseRunCase;    // run case for the base case project
-   std::unique_ptr<ObsSpaceImpl>              m_obsSpace;           // observables manager
-   std::unique_ptr<VarSpaceImpl>              m_varSpace;           // variable parameters manager
-   std::unique_ptr<DoEGeneratorImpl>          m_doe;
+   std::auto_ptr<mbapi::Model>              m_baseCase;
+   std::auto_ptr<RunCaseImpl>               m_baseCaseRunCase;    // run case for the base case project
+   std::auto_ptr<ObsSpaceImpl>              m_obsSpace;           // observables manager
+   std::auto_ptr<VarSpaceImpl>              m_varSpace;           // variable parameters manager
+   std::auto_ptr<DoEGeneratorImpl>          m_doe;
 
-   std::unique_ptr<RunCaseSetImpl>            m_doeCases;
-   std::unique_ptr<RunCaseSetImpl>            m_mcCases;
+   std::auto_ptr<RunCaseSetImpl>            m_doeCases;
+   std::auto_ptr<RunCaseSetImpl>            m_mcCases;
 
-   std::unique_ptr<RunManagerImpl>            m_runManager;
-   std::unique_ptr<DataDiggerImpl>            m_dataDigger;
-   std::unique_ptr<RSProxySetImpl>            m_rsProxySet;
-   std::unique_ptr<SensitivityCalculatorImpl> m_sensCalc;
-   std::unique_ptr<MonteCarloSolver>          m_mcSolver;
+   std::auto_ptr<RunManagerImpl>            m_runManager;
+   std::auto_ptr<DataDiggerImpl>            m_dataDigger;
+   std::auto_ptr<RSProxySetImpl>            m_rsProxySet;
+   std::auto_ptr<SensitivityCalculatorImpl> m_sensCalc;
+   std::auto_ptr<MonteCarloSolver>          m_mcSolver;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -365,7 +365,7 @@ ErrorHandler::ReturnCode ScenarioAnalysis::saveScenario( const char * fileName, 
 {
    try
    {
-      std::unique_ptr<CasaSerializer> outStream( CasaSerializer::createSerializer( fileName, fileType, version() ) );
+      std::auto_ptr<CasaSerializer> outStream( CasaSerializer::createSerializer( fileName, fileType, version() ) );
       m_pimpl->serialize( *(outStream.get()) );
    }
    catch ( const ErrorHandler::Exception & ex )
@@ -382,7 +382,7 @@ ErrorHandler::ReturnCode ScenarioAnalysis::saveScenario( const char * fileName, 
 // Create new ScenarioAnaylysis object and read all data from the given file
 ScenarioAnalysis * ScenarioAnalysis::loadScenario( const char * fileName, const char * fileType )
 {
-   std::unique_ptr<ScenarioAnalysis> sc( new ScenarioAnalysis() );
+   std::auto_ptr<ScenarioAnalysis> sc( new ScenarioAnalysis() );
    try
    {
       std::ifstream fid;
@@ -396,7 +396,7 @@ ScenarioAnalysis * ScenarioAnalysis::loadScenario( const char * fileName, const 
 
       if ( !fid.good() ) throw Exception(DeserializationError) << "Can not open file: " << fileName << " for reading";
       
-      std::unique_ptr<CasaDeserializer> inStream( CasaDeserializer::createDeserializer( fid, fileType, sc->version() ) );
+      std::auto_ptr<CasaDeserializer> inStream( CasaDeserializer::createDeserializer( fid, fileType, sc->version() ) );
       
       sc->m_pimpl->deserialize( *(inStream.get()) );
       if ( sc->errorCode() != ErrorHandler::NoError )
@@ -414,7 +414,7 @@ ScenarioAnalysis * ScenarioAnalysis::loadScenario( const char * fileName, const 
 // Create new ScenarioAnaylysis object and read all data from the given file
 ScenarioAnalysis * ScenarioAnalysis::loadScenario( const char * stateFileBuf, size_t bufSize, const char * fileType )
 {
-   std::unique_ptr<ScenarioAnalysis> sc( new ScenarioAnalysis() );
+   std::auto_ptr<ScenarioAnalysis> sc( new ScenarioAnalysis() );
    try
    {
       std::string inpStr( stateFileBuf, bufSize );
@@ -422,7 +422,7 @@ ScenarioAnalysis * ScenarioAnalysis::loadScenario( const char * stateFileBuf, si
 
       if ( !fid.good() ) throw Exception( DeserializationError ) << "Can not read from the given memory buffer";
 
-      std::unique_ptr<CasaDeserializer> inStream( CasaDeserializer::createDeserializer( fid
+      std::auto_ptr<CasaDeserializer> inStream( CasaDeserializer::createDeserializer( fid
                                                                                     , fileType == NULL ? "" : std::string( fileType )
                                                                                     , sc->version() 
                                                                                     ) );

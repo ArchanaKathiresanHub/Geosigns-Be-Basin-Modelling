@@ -31,8 +31,8 @@ static void PrintObsValues( casa::ScenarioAnalysis & sc )
 
       if ( !cs ) continue;
 
-      LogHandler( LogHandler::DEBUG_SEVERITY ) << "    " << cs->projectPath();
-      LogHandler( LogHandler::DEBUG_SEVERITY ) << "      Observable values:";
+      LogHandler( LogHandler::DEBUG ) << "    " << cs->projectPath();
+      LogHandler( LogHandler::DEBUG ) << "      Observable values:";
 
       for ( size_t i = 0; i < cs->observablesNumber(); ++i )
       {
@@ -44,7 +44,7 @@ static void PrintObsValues( casa::ScenarioAnalysis & sc )
 
             for ( size_t i = 0; i < vals.size(); ++i )
             {
-               LogHandler( LogHandler::DEBUG_SEVERITY ) << "      " << names[i] << " = " << vals[i];
+               LogHandler( LogHandler::DEBUG ) << "      " << names[i] << " = " << vals[i];
             }
          }
       }
@@ -58,16 +58,16 @@ CmdRunReload::CmdRunReload( CasaCommander & parent, const std::vector< std::stri
    if ( m_locPath.empty() ) throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Empty path to completed cases";
 }
 
-void CmdRunReload::execute( std::unique_ptr<casa::ScenarioAnalysis> & sa )
+void CmdRunReload::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
 {
-   LogHandler( LogHandler::INFO_SEVERITY ) << "Loading completed jobs... ";
+   LogHandler( LogHandler::INFO ) << "Loading completed jobs... ";
 
    if ( ErrorHandler::NoError != sa->restoreScenarioLocation( m_locPath.c_str() ) ) 
    {
       throw ErrorHandler::Exception( sa->errorCode() ) << sa->errorMessage();
    }
  
-   LogHandler( LogHandler::INFO_SEVERITY ) << "done! " << " Extracting observables values ... ";
+   LogHandler( LogHandler::INFO ) << "done! " << " Extracting observables values ... ";
   
    // collect observables value
    if ( ErrorHandler::NoError != sa->dataDigger().collectRunResults( sa->obsSpace(), sa->doeCaseSet() ) )
@@ -75,7 +75,7 @@ void CmdRunReload::execute( std::unique_ptr<casa::ScenarioAnalysis> & sa )
       throw ErrorHandler::Exception( sa->dataDigger().errorCode() ) << sa->dataDigger().errorMessage();
    }
 
-   LogHandler( LogHandler::INFO_SEVERITY ) << "Load succeeded";
+   LogHandler( LogHandler::INFO ) << "Load succeeded";
 
    PrintObsValues( *sa.get() );
 }

@@ -1,13 +1,7 @@
 #ifndef READBURIAL_H
 #define READBURIAL_H
 
-#pragma warning( push )
-#pragma warning( disable : 1478 )
-// Disable warning 1478 for touchstone 3rd party library
-// warning #1478: class "std::auto_ptr" (declared at line xx of "tslFileName") was declared deprecated
 #include "tslibI.h"
-#pragma warning( pop ) 
-
 #include "DataPipe.h"
 #include <vector>
 
@@ -22,7 +16,7 @@ class ReadBurial
    void readIndexes(int * firstI, int * lastI, int * firstJ, int * lastJ, int * numLayers) ;
    void readSnapshotsIndexes(std::vector<size_t> & usedSnapshotsIndexes); 
    void readNumTimeStepsID( size_t * numTimeSteps, int * iD) ;
-   void readBurialHistory(std::vector<Geocosm::TsLib::burHistTimestep> & burHistTimesteps, size_t numTimeSteps); 	
+   void readBurialHistory(std::vector<Geocosm::TsLib::burHistTimestep > & burHistTimesteps, size_t numTimeSteps); 	
 };
 
 #endif

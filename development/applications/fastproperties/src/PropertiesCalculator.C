@@ -1,12 +1,3 @@
-//                                                                      
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
-// All rights reserved.
-// 
-// Developed under license for Shell by PDS BV.
-// 
-// Confidential and proprietary source code of Shell.
-// Do not distribute without written permission from Shell.
-//
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <assert.h>
@@ -14,9 +5,6 @@
 
 #include "PropertiesCalculator.h"
 #include "Interface/SimulationDetails.h"
-
-// utilities library
-#include "LogHandler.h"
 
 static bool splitString( char * string, char separator, char * & firstPart, char * & secondPart );
 static bool parseStrings( StringVector & strings, char * stringsString );
@@ -32,20 +20,20 @@ PropertiesCalculator::PropertiesCalculator( int aRank ) {
 
    m_rank = aRank;
 
-   m_debug            = false;
-   m_basement         = false; 
-   m_all2Dproperties  = false;
-   m_all3Dproperties  = false;
-   m_listProperties   = false;
-   m_listSnapshots    = false;
+   m_debug = false;
+   m_basement = false; 
+   m_all2Dproperties = false;
+   m_all3Dproperties = false;
+   m_listProperties = false;
+   m_listSnapshots = false;
    m_listStratigraphy = false;
    m_snapshotsType = MAJOR;
 
    m_projectFileName = "";
-   m_simulationMode  = "";
-   m_activityName    = "";
+   m_simulationMode = "";
+   m_activityName = "";
 
-   m_projectHandle   = 0; 
+   m_projectHandle = 0; 
    m_propertyManager = 0;
 
 }
@@ -195,13 +183,9 @@ void PropertiesCalculator::calculateProperties( FormationVector& formationItems,
 
             if ( outputProperty != 0 ) {
                if( m_debug && m_rank == 0 ) {
-                  LogHandler( LogHandler::INFO_SEVERITY) << "Snapshot: " << snapshot->getTime() << " allocate " << property->getName() << " " << formation->getName();
+                  cout << "Snapshot: " << snapshot->getTime() << " allocate " << property->getName() << " " << formation->getName() << endl;
                }
                allOutputPropertyValues [ snapshot ][ formation ][ property ] = outputProperty;
-            }
-            else{
-               LogHandler( LogHandler::WARNING_SEVERITY ) << "Could not calculate derived property " << property->getName()
-                  << " @ snapshot " << snapshot->getTime() << "Ma for formation " << formation->getName() << ".";
             }
 
          }
@@ -258,7 +242,7 @@ bool PropertiesCalculator::acquireSnapshots( SnapshotList & snapshots )
                {
                   const Snapshot * snapshot = m_projectHandle->findSnapshot( firstAge, m_snapshotsType );
                   if ( snapshot ) snapshots.push_back( snapshot );
-                  if ( m_debug && m_rank == 0 && snapshot ) LogHandler(LogHandler::INFO_SEVERITY) << "adding single snapshot " << snapshot->getTime();
+                  if ( m_debug && m_rank == 0 && snapshot ) cerr << "adding single snapshot " << snapshot->getTime() << endl;
                }
             }
             else
@@ -278,7 +262,7 @@ bool PropertiesCalculator::acquireSnapshots( SnapshotList & snapshots )
                      if ( snapshot->getTime() >= firstAge && snapshot->getTime() <= secondAge )
                      {
                         if ( snapshot ) snapshots.push_back( snapshot );
-                        if ( m_debug && snapshot && m_rank == 0 ) LogHandler( LogHandler::INFO_SEVERITY ) << "adding range snapshot " << snapshot->getTime();
+                        if ( m_debug && snapshot && m_rank == 0 ) cerr << "adding range snapshot " << snapshot->getTime() << endl;
                      }
                   }
                }
@@ -291,11 +275,11 @@ bool PropertiesCalculator::acquireSnapshots( SnapshotList & snapshots )
 
    if ( m_debug && m_rank == 0 )
    {
-      LogHandler( LogHandler::INFO_SEVERITY ) << "Snapshots ordered";
+      cerr << "Snapshots ordered" << endl;
       SnapshotList::iterator snapshotIter;
       for ( snapshotIter = snapshots.begin(); snapshotIter != snapshots.end(); ++snapshotIter )
       {
-         LogHandler( LogHandler::INFO_SEVERITY ) << (*snapshotIter)->getTime();
+         cerr << ( *snapshotIter )->getTime() << endl;
       }
    }
 
@@ -304,11 +288,11 @@ bool PropertiesCalculator::acquireSnapshots( SnapshotList & snapshots )
 
    if ( m_debug && m_rank == 0 )
    {
-      LogHandler( LogHandler::INFO_SEVERITY ) << "Snapshots uniquefied";
+      cerr << "Snapshots uniquefied" << endl;
       SnapshotList::iterator snapshotIter;
       for ( snapshotIter = snapshots.begin(); snapshotIter != snapshots.end(); ++snapshotIter )
       {
-         LogHandler( LogHandler::INFO_SEVERITY ) << (*snapshotIter)->getTime();
+         cerr << ( *snapshotIter )->getTime() << endl;
       }
    }
 
@@ -328,7 +312,7 @@ bool PropertiesCalculator::acquireProperties( PropertyList & properties )
 
       if ( property == 0 && m_rank == 0 )
       {
-         LogHandler( LogHandler::WARNING_SEVERITY ) << "Could not find property named '" << *stringIter << "'";
+         cerr << "Could not find property named '" << *stringIter << "'" << endl;
          continue;
       }
 
@@ -352,7 +336,7 @@ bool PropertiesCalculator::acquireProperties( PropertyList & properties )
          properties.push_back( property );
       } else {
          if( m_rank == 0 ) {
-            LogHandler( LogHandler::WARNING_SEVERITY ) << "Could not find calculator for property named '" << *stringIter << "'";
+            cerr << "Could not find calculator for property named '" << *stringIter << "'" << endl;
          }
       }
 
@@ -372,7 +356,7 @@ bool PropertiesCalculator::acquireFormations( FormationVector & formationsItems 
          const Formation * formation = m_projectHandle->findFormation( *stringIter );
          if ( !formation && m_rank == 0 )
          {
-            LogHandler( LogHandler::WARNING_SEVERITY ) << "Could not find formation named '" << *stringIter << "'";
+            cerr << "Could not find formation named '" << *stringIter << "'" << endl;
             continue;
          }
 
@@ -390,7 +374,7 @@ bool PropertiesCalculator::acquireFormations( FormationVector & formationsItems 
          formationsItems.push_back( formation );
 
          if ( m_debug ) {
-            LogHandler( LogHandler::INFO_SEVERITY ) << " adding formation " << formation->getName();
+            cout << " adding formation "  << formation->getName () << endl;
          }
 
       }
@@ -438,8 +422,8 @@ const GridMap * PropertiesCalculator::getPropertyGridMap ( const string & proper
 
       
       if ( propertyValues->size () != 1 && m_debug &&  m_rank == 0 ) {
-         LogHandler( LogHandler::INFO_SEVERITY ) << propertyValues->size() << (volumeProperties ? " volume " : " map ") << "properties values are available for  " << propertyName
-              << " at " << snapshot->getTime() << " for formation " << formation->getName();
+         cout << propertyValues->size () << ( volumeProperties ? " volume " : " map " ) << "properties values are available for  " << propertyName 
+              << " at " << snapshot->getTime() << " for formation " << formation->getName() << endl;
       }
          
       propertyHasMap = (*propertyValues)[0]->hasGridMap();
@@ -490,8 +474,8 @@ bool PropertiesCalculator::toBeSaved( const string & propertyName, const Interfa
 
       
       if (propertyValues->size () != 1 && m_rank == 0 ) {
-         LogHandler( LogHandler::INFO_SEVERITY ) << propertyValues->size() << (volumeProperties ? " volume " : " map ") << "properties values are available for  " << propertyName
-              << " at " << snapshot->getTime() << " for formation " << formation->getName();
+         cout << propertyValues->size () << ( volumeProperties ? " volume " : " map " ) << "properties values are available for  " << propertyName 
+              << " at " << snapshot->getTime() << " for formation " << formation->getName() << endl;
       }
          
       isSaved = ( (*propertyValues)[0]->hasGridMap() != 0 ) || (*propertyValues)[0]->hasRecord();
@@ -523,8 +507,8 @@ bool PropertiesCalculator::toBeSaved( const string & propertyName, const Interfa
       }
       
       if (propertyValues->size () != 1 && m_rank == 0 ) {
-         LogHandler( LogHandler::INFO_SEVERITY ) << propertyValues->size() << (volumeProperties ? " volume " : " map ") << "properties values are available for  " << propertyName
-              << " at " << snapshot->getTime() << " for surface " << surface->getName();
+         cout << propertyValues->size () << ( volumeProperties ? " volume " : " map " ) << "properties values are available for  " << propertyName 
+              << " at " << snapshot->getTime() << " for surface " << surface->getName() << endl;
       }
          
       isSaved = ( (*propertyValues)[0]->hasGridMap() != 0 ) || (*propertyValues)[0]->hasRecord();
@@ -553,7 +537,7 @@ bool PropertiesCalculator::createSnapshotResultPropertyValue ( OutputPropertyVal
       } else {
          // the property is already in output file
          if( false && m_debug && m_rank == 0 ) {
-            LogHandler( LogHandler::INFO_SEVERITY ) << "Volume " << propertyValue->getName() << " is in the output file";
+            cout << "Volume " <<propertyValue->getName() << " is in the output file" << endl;
          }
       }
    } else {
@@ -577,14 +561,14 @@ bool PropertiesCalculator::createSnapshotResultPropertyValue ( OutputPropertyVal
       } else {
          //  the property is already in output file
         if( false && m_debug && m_rank == 0 ) {
-           LogHandler( LogHandler::INFO_SEVERITY ) << "Map " << propertyValue->getName() << " is in the output file";
+           cout << "Map " << propertyValue->getName() << " is in the output file" << endl;
          }
       }
    }     
  
    if( thePropertyValue != 0 ) {
       if ( m_debug && m_rank == 0 ) {
-         LogHandler( LogHandler::INFO_SEVERITY ) << "   " << propertyValue->getName();
+         cout << "   " << propertyValue->getName() << endl;;
       }
       
       GridMap * theMap = thePropertyValue->getGridMap();
@@ -614,7 +598,7 @@ void PropertiesCalculator::outputSnapshotFormationData( const Snapshot * snapsho
    PropertyList::iterator propertyIter;
 
    if ( m_debug && m_rank == 0 ) {
-      LogHandler( LogHandler::INFO_SEVERITY ) << "Calculating formation " << formation->getName() << " at " << snapshot->getTime() << ":";
+      cout << "Calculating formation " << formation->getName() << " at " << snapshot->getTime() << ":" << endl;
    }
 
    for ( propertyIter = properties.begin(); propertyIter != properties.end(); ++propertyIter )
@@ -631,6 +615,9 @@ void PropertiesCalculator::outputSnapshotFormationData( const Snapshot * snapsho
          //  outputStream << " No property available" << endl;;
       }
    }
+   if ( m_debug && m_rank == 0 ) {
+      cout << endl;
+   }
 }
 
 //------------------------------------------------------------//
@@ -640,7 +627,6 @@ void PropertiesCalculator::acquireAll2Dproperties() {
    {
       PropertyList * allProperties = m_projectHandle->getProperties( true );
       
-      LogHandler( LogHandler::DEBUG_SEVERITY ) << "Acquiring computable 2D properties";
       for ( size_t i = 0; i < allProperties->size (); ++i ) {
          const Interface::Property* property = (*allProperties)[ i ];
          
@@ -649,12 +635,10 @@ void PropertiesCalculator::acquireAll2Dproperties() {
          if ( property->getPropertyAttribute () == DataModel::FORMATION_2D_PROPERTY and 
               m_propertyManager->formationMapPropertyIsComputable ( property )) {
             m_propertyNames.push_back( property->getName() );
-            LogHandler( LogHandler::DEBUG_SEVERITY ) << "   #" << property->getName() << " (2D formation)";
          }
          if ( property->getPropertyAttribute () == DataModel::SURFACE_2D_PROPERTY and 
               m_propertyManager->surfacePropertyIsComputable ( property )) {
             m_propertyNames.push_back( property->getName() );
-            LogHandler( LogHandler::DEBUG_SEVERITY ) << "   #" << property->getName() << " (2D surface)";
          }
          
       }
@@ -699,13 +683,13 @@ OutputPropertyValuePtr PropertiesCalculator::allocateOutputProperty ( DerivedPro
          if( topSurface != 0 && m_propertyManager->surfacePropertyIsComputable ( property, snapshot, topSurface )) 
          {
             if( m_debug && m_rank == 0 ) {
-               LogHandler( LogHandler::INFO_SEVERITY ) << "Formation " << formation->getName() << " and the top surface " << topSurface->getName();
+               cout << "Formation " << formation->getName() << " and the top surface " << topSurface->getName() << endl;
             }
             outputProperty = OutputPropertyValuePtr ( new SurfaceOutputPropertyValue ( * m_propertyManager, property, snapshot, topSurface ));
          } else if( bottomSurface != 0 && m_propertyManager->surfacePropertyIsComputable ( property, snapshot, bottomSurface )) 
          {
             if( m_debug && m_rank == 0 ) {
-               LogHandler( LogHandler::INFO_SEVERITY ) << "Formation " << formation->getName() << " and the bottom surface " << bottomSurface->getName();
+               cout << "Formation " << formation->getName() << " and the bottom surface " << bottomSurface->getName() << endl;
             }
             outputProperty = OutputPropertyValuePtr ( new SurfaceOutputPropertyValue ( * m_propertyManager, property, snapshot, bottomSurface ));
          }
@@ -722,7 +706,7 @@ void PropertiesCalculator::acquireAll3Dproperties() {
    if ( m_all3Dproperties ) {
 
       PropertyList * allProperties = m_projectHandle->getProperties( true );
-      LogHandler( LogHandler::DEBUG_SEVERITY ) << "Acquiring computable 3D property ";
+
       for ( size_t i = 0; i < allProperties->size (); ++i ) {
          const Interface::Property* property = (*allProperties)[ i ];
 
@@ -731,7 +715,7 @@ void PropertiesCalculator::acquireAll3Dproperties() {
              m_propertyManager->formationPropertyIsComputable ( property ))
          {
             m_propertyNames.push_back( property->getName() );
-            LogHandler( LogHandler::DEBUG_SEVERITY ) << "   #" << property->getName();
+            //            cout << property->getName() << endl;
          }
 
       }
@@ -820,17 +804,11 @@ void PropertiesCalculator::printOutputableProperties () {
       
       for ( size_t i = 0; i < allProperties->size (); ++i ) {
          const Interface::Property* property = (*allProperties)[ i ];
-         LogHandler( LogHandler::DEBUG_SEVERITY ) << "########################################################";
-         LogHandler( LogHandler::DEBUG_SEVERITY ) << "3D-->" << property->getName() << " computable?";
          
          if (( property->getPropertyAttribute () == DataModel::CONTINUOUS_3D_PROPERTY or
                property->getPropertyAttribute () == DataModel::DISCONTINUOUS_3D_PROPERTY ) and 
-               m_propertyManager->formationPropertyIsComputable ( property )) {
-            PetscPrintf( PETSC_COMM_WORLD, "%s ",  property->getName ().c_str() ); 
-            LogHandler( LogHandler::DEBUG_SEVERITY ) << "YES";
-         }
-         else{
-            LogHandler( LogHandler::DEBUG_SEVERITY ) << "NO";
+             m_propertyManager->formationPropertyIsComputable ( property )) {
+            PetscPrintf( PETSC_COMM_WORLD, "%s ",  property->getName ().c_str() );          
          }
          
       }
@@ -840,22 +818,15 @@ void PropertiesCalculator::printOutputableProperties () {
       
       for ( size_t i = 0; i < allProperties->size (); ++i ) {
          const Interface::Property* property = (*allProperties)[ i ];
-         LogHandler( LogHandler::DEBUG_SEVERITY ) << "########################################################";
-         LogHandler( LogHandler::DEBUG_SEVERITY ) << "2D-->" << property->getName();
          
          if ( property->getPropertyAttribute () == DataModel::FORMATION_2D_PROPERTY and 
               m_propertyManager->formationMapPropertyIsComputable ( property )) {
             PetscPrintf( PETSC_COMM_WORLD, "%s ", property->getName ().c_str() );
-            LogHandler( LogHandler::DEBUG_SEVERITY ) << "YES";
          }
-
+         
          if ( property->getPropertyAttribute () == DataModel::SURFACE_2D_PROPERTY and 
               m_propertyManager->surfacePropertyIsComputable ( property )) {
             PetscPrintf( PETSC_COMM_WORLD, "%s ", property->getName ().c_str() );
-            LogHandler( LogHandler::DEBUG_SEVERITY ) << "YES";
-         }
-         else{
-            LogHandler( LogHandler::DEBUG_SEVERITY ) << "NO";
          }
          
       }
@@ -1006,19 +977,9 @@ bool PropertiesCalculator::parseCommandLine( int argc, char ** argv ) {
       {
          m_projectFileName = argv[ arg ];
       }
-      else if (strncmp( argv[arg], "-verbosity", Max( 5, (int)strlen( argv[arg] ) ) ) == 0){
-         if (arg + 1 >= argc || argv[arg + 1][0] == '-')
-         {
-            showUsage( argv[0], "Argument for '-verbosity' is missing" );
-
-            return false;
-         }
-         ++arg;
-         continue;
-      }
       else
       {
-         LogHandler(LogHandler::ERROR_SEVERITY) << "Unknown or ambiguous option: " << argv[ arg ];
+         cerr << endl << "Unknown or ambiguous option: " << argv[ arg ] << endl;
          showUsage( argv[ 0 ] );
 
          return false;
@@ -1054,7 +1015,6 @@ void PropertiesCalculator::showUsage( const char* command, const char* message )
            << "\t                                                   only needed if none of the three options above have been specified" << endl << endl
            << "\t[-project] projectname                             name of 3D Cauldron project file to produce output for" << endl
            << "\t[-save filename]                                   name of file to save output (*.csv format) table to, otherwise save to stdout" << endl
-           << "\t[-verbosity level]                                 verbosity level of the log file(s): minimal|normal|detailed|diagnostic. Default value is 'normal'." << endl
            << endl
            << "\t[-all-3D-properties]                               produce output for all 3D properties" << endl
            << "\t[-all-2D-properties]                               produce output for all 2D properties" << endl

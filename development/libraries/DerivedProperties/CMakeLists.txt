@@ -65,15 +65,12 @@ set(all_headers
   src/ReflectivitySurfaceCalculator.h
   src/ReservoirProperty.h
   src/ReservoirPropertyCalculator.h
-  src/SonicFormationCalculator.h
   src/SurfaceProperty.h
   src/SurfacePropertyCalculator.h
   src/SurfacePropertyOffsetCalculator.h
   src/ThermalConductivityFormationCalculator.h
   src/ThermalDiffusivityFormationCalculator.h
   src/ThicknessFormationMapCalculator.h
-  src/TwoWayTimeFormationCalculator.h
-  src/TwoWayTimeResidualSurfaceCalculator.h
   src/VelocityFormationCalculator.h
   src/VesFormationCalculator.h
   src/VesHighResFormationCalculator.h
@@ -130,15 +127,12 @@ set(all_srcs
   src/ReflectivitySurfaceCalculator.C
   src/ReservoirProperty.C
   src/ReservoirPropertyCalculator.C
-  src/SonicFormationCalculator.C
   src/SurfaceProperty.C
   src/SurfacePropertyCalculator.C
   src/SurfacePropertyOffsetCalculator.C
   src/ThermalConductivityFormationCalculator.C
   src/ThermalDiffusivityFormationCalculator.C
   src/ThicknessFormationMapCalculator.C
-  src/TwoWayTimeFormationCalculator.C
-  src/TwoWayTimeResidualSurfaceCalculator.C
   src/VelocityFormationCalculator.C
   src/VesFormationCalculator.C
   src/VesHighResFormationCalculator.C

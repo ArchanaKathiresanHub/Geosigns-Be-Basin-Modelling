@@ -23,7 +23,7 @@ public:
    virtual ~CmdExpDataTxt() { ; }
 
    /// @brief Run command
-   virtual void execute( std::unique_ptr<casa::ScenarioAnalysis> & sa );
+   virtual void execute( std::auto_ptr<casa::ScenarioAnalysis> & sa );
 
    /// @brief Print help page about command purpose and it parameters
    /// @param cmdName - command name - how it is defined in CasaCommander
@@ -32,11 +32,11 @@ public:
 protected:
    void saveResults( const std::vector< std::vector<double> > & res );
 
-   void exportParameters( std::unique_ptr<casa::ScenarioAnalysis> & sa );
-   void exportRunCaseObs( std::unique_ptr<casa::ScenarioAnalysis> & sa );
-   void exportEvalObserv( std::unique_ptr<casa::ScenarioAnalysis> & sa );
-   void exportProxyQC(    std::unique_ptr<casa::ScenarioAnalysis> & sa );
-   void exportMCResults(  std::unique_ptr<casa::ScenarioAnalysis> & sa );
+   void exportParameters( std::auto_ptr<casa::ScenarioAnalysis> & sa );
+   void exportRunCaseObs( std::auto_ptr<casa::ScenarioAnalysis> & sa );
+   void exportEvalObserv( std::auto_ptr<casa::ScenarioAnalysis> & sa );
+   void exportProxyQC(    std::auto_ptr<casa::ScenarioAnalysis> & sa );
+   void exportMCResults(  std::auto_ptr<casa::ScenarioAnalysis> & sa );
  
    std::string                  m_whatToSave;   ///< DoEParameters/RunCasesObservables/ProxyEvalObservables
    std::string                  m_proxyName;    ///< Name of Response Surface proxy

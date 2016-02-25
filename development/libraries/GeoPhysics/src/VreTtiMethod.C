@@ -5,6 +5,11 @@
 
 #include "NumericFunctions.h"
 
+#ifdef _MSC_VER
+#include <float.h>  // for _isnan() on VC++
+#define isnan(x) _isnan(x)  // VC++ uses _isnan() instead of isnan()
+#endif /** _MSC_VER */
+
 namespace GeoPhysics { 
 
 const double VreTtiMethod::s_referenceTemperature = 105.0;
@@ -73,7 +78,7 @@ void VreTtiMethod::doTimestep( const InputGrid & previousGrid, const InputGrid &
       else 
          m_tti[node] += (currentRate - previousRate) / (temperatureRate * a);
 
-     assert( !std::isnan( m_tti[node] ) );
+      assert ( !isnan( m_tti[node] ) );
    }
    
 }
@@ -101,7 +106,7 @@ void VreTtiMethod::getResults( OutputGrid & outputGrid)
          vreStorageArray[node] = s_initialVRe;
       }
 
-      assert( !std::isnan( vreStorageArray[node] ) );
+      assert( !isnan( vreStorageArray[node] ) );
    }
 }
  

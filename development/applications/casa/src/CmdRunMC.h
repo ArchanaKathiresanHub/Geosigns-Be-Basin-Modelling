@@ -23,7 +23,7 @@ public:
    virtual ~CmdRunMC() { ; }
 
    /// @brief Run command
-   virtual void execute( std::unique_ptr<casa::ScenarioAnalysis> & sa );
+   virtual void execute( std::auto_ptr<casa::ScenarioAnalysis> & sa );
 
 protected:
    std::string    m_proxyName;     ///< name of the response proxy which will be used for evaluation

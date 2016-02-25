@@ -92,7 +92,7 @@ bool mbapiModelTest::compareModels( mbapi::Model & model1, mbapi::Model & model2
 // compare second and third project file to be the same
 TEST_F( mbapiModelTest, ModelLoadSaveProjectRoundTrip )
 {
-   std::unique_ptr<mbapi::Model> modelBase;
+   std::auto_ptr<mbapi::Model> modelBase;
    modelBase.reset( new mbapi::Model() );
 
    // load original project file
@@ -101,7 +101,7 @@ TEST_F( mbapiModelTest, ModelLoadSaveProjectRoundTrip )
    // Save a first copy 
    ASSERT_EQ( ErrorHandler::NoError, modelBase->saveModelToProjectFile( "Project_case1.project3d" ) );
 
-   std::unique_ptr<mbapi::Model> modelCase2;
+   std::auto_ptr<mbapi::Model> modelCase2;
    modelCase2.reset( new mbapi::Model() );
    // load first copy
    ASSERT_EQ( ErrorHandler::NoError, modelCase2->loadModelFromProjectFile( "Project_case1.project3d" ) );

@@ -382,7 +382,7 @@ int main(int argc, char ** argv)
 		  (    fraction_i) * (    fraction_j) * dataloc[1][1];
 	    }
 
-	    assert (!std::isnan(croppedloc));
+	    assert (!isnan(croppedloc));
 
 	    cropped[j - y0 + (i -x0)* newNy] = croppedloc;
 	 }

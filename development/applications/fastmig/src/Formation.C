@@ -777,7 +777,7 @@ namespace migration
 
    const GridMap * Formation::getVolumePropertyGridMap (const Property* prop, const Snapshot * snapshot) const
    {
-      unique_ptr<PropertyValueList> propertyValues (m_projectHandle->getPropertyValues (Interface::FORMATION,
+      auto_ptr<PropertyValueList> propertyValues (m_projectHandle->getPropertyValues (Interface::FORMATION,
                                                                                       prop, snapshot, 0, this, 0,
                                                                                       Interface::VOLUME));
 

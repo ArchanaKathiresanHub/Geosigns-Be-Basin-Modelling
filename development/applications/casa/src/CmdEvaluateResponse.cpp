@@ -43,7 +43,7 @@ CmdEvaluateResponse::CmdEvaluateResponse( CasaCommander & parent, const std::vec
    if ( m_proxyName.empty() ) throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "No output file name was specified";
 }
 
-void CmdEvaluateResponse::createRunCasesSet( std::unique_ptr<casa::ScenarioAnalysis> & sa
+void CmdEvaluateResponse::createRunCasesSet( std::auto_ptr<casa::ScenarioAnalysis> & sa
                                            , std::vector<casa::RunCase *>          & rcs
                                            , const std::vector<std::string>        & expList
                                            , std::vector<size_t>                   & sizePerExp
@@ -61,7 +61,7 @@ void CmdEvaluateResponse::createRunCasesSet( std::unique_ptr<casa::ScenarioAnaly
          {
             const casa::RunCase * rc = sa->doeCaseSet()[j];
             // create new RunCase and make a shallow copy of parameters using shared pointers
-            std::unique_ptr<casa::RunCase> nrc( new casa::RunCaseImpl() );
+            std::auto_ptr<casa::RunCase> nrc( new casa::RunCaseImpl() );
             for ( size_t k = 0; k < rc->parametersNumber(); ++k ) nrc->addParameter( rc->parameter( k ) );
 
             // add new case to the list
@@ -77,7 +77,7 @@ void CmdEvaluateResponse::createRunCasesSet( std::unique_ptr<casa::ScenarioAnaly
 
          for ( size_t i = 0; i < prmVals.size(); ++i )
          {
-            std::unique_ptr<casa::RunCase> nrc( new casa::RunCaseImpl() );
+            std::auto_ptr<casa::RunCase> nrc( new casa::RunCaseImpl() );
 
             std::vector<double>::const_iterator vit = prmVals[i].begin();
    
@@ -119,7 +119,7 @@ void CmdEvaluateResponse::createRunCasesSet( std::unique_ptr<casa::ScenarioAnaly
    sa->doeCaseSet().filterByExperimentName( "" );
 }
 
-void CmdEvaluateResponse::execute( std::unique_ptr<casa::ScenarioAnalysis> & sa )
+void CmdEvaluateResponse::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
 {
    std::vector<casa::RunCase *> rcs; // set of run cases which were created from set of parameters defined in external dat file
    std::vector<size_t> casePerExp;
@@ -131,12 +131,12 @@ void CmdEvaluateResponse::execute( std::unique_ptr<casa::ScenarioAnalysis> & sa 
    // call response evaluation
    if ( !proxy ) { throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Unknown proxy name:" << m_proxyName; }
 
-   LogHandler( LogHandler::INFO_SEVERITY ) << "Evaluating proxy " << m_proxyName << " for " << rcs.size() << " cases...";
+   LogHandler( LogHandler::INFO ) << "Evaluating proxy " << m_proxyName << " for " << rcs.size() << " cases...";
 
    size_t i = 0;
    for ( size_t e = 0; e < m_expList.size(); ++e )
    {
-      LogHandler( LogHandler::DEBUG_SEVERITY ) << "Evaluate proxy for " << m_expList[e]  << "DoE/data file for " << casePerExp[e]  << " cases...";
+      LogHandler( LogHandler::DEBUG ) << "Evaluate proxy for " << m_expList[e]  << "DoE/data file for " << casePerExp[e]  << " cases...";
 
       for ( size_t c = 0; c < casePerExp[e]; ++c )
       {
@@ -150,12 +150,12 @@ void CmdEvaluateResponse::execute( std::unique_ptr<casa::ScenarioAnalysis> & sa 
       }
    }
 
-   LogHandler( LogHandler::INFO_SEVERITY ) << "Exporting proxy evaluation results to " << m_dataFileName << "file...";
+   LogHandler( LogHandler::INFO ) << "Exporting proxy evaluation results to " << m_dataFileName << "file...";
 
    MatlabExporter::exportObsValues( m_dataFileName, rcs );
 
    for ( size_t i = 0; i < rcs.size(); ++i ) delete rcs[i]; // clean cases created here
 
-   LogHandler( LogHandler::INFO_SEVERITY ) << "Proxy evalutaion was succeeded";
+   LogHandler( LogHandler::INFO ) << "Proxy evalutaion was succeeded";
 }
 

@@ -25,12 +25,12 @@ const std::string expectedLog[]=           ///< Expected parsed lines from the l
 std::vector<std::string> parsedLinesLog;   ///< Parsed lines from the log file
 
 
-///2. TEST-------------------------------------------------------------------------------------------
+///3. TEST-------------------------------------------------------------------------------------------
 //Tests log for quiet verbosity
 TEST( LogHandlerSerial, log_quiet )
 {
    try{
-      LogHandler logUnitTestQuiet( "log_unit_test_quiet", LogHandler::QUIET_LEVEL );
+      LogHandler logUnitTestQuiet( "log_unit_test_quiet", LogHandler::QUIET );
       writeLogUnitTest();
 
       analyzeLogFile( logUnitTestQuiet.getName(), parsedLinesLog );

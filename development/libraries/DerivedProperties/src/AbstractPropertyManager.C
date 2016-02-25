@@ -1,12 +1,3 @@
-//                                                                      
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
-// All rights reserved.
-// 
-// Developed under license for Shell by PDS BV.
-// 
-// Confidential and proprietary source code of Shell.
-// Do not distribute without written permission from Shell.
-//
 #include "AbstractPropertyManager.h"
 
 #include <algorithm>
@@ -18,9 +9,6 @@ using namespace std;
 // Surface property calcualtors with offset.
 #include "FormationSurfacePropertyOffsetCalculator.h"
 #include "SurfacePropertyOffsetCalculator.h"
-
-// utility library
-#include "LogHandler.h"
 
 DerivedProperties::AbstractPropertyManager::AbstractPropertyManager () {}
 
@@ -34,15 +22,14 @@ void DerivedProperties::AbstractPropertyManager::addSurfacePropertyCalculator ( 
    const std::vector<std::string>& propertyNames = calculator->getPropertyNames ();
 
    assert ( propertyNames.size () > 0 );
-   LogHandler( LogHandler::DEBUG_SEVERITY ) << "Adding surface derived property calculator for:";
+
    for ( size_t i = 0; i < propertyNames.size (); ++i ) {
-      LogHandler( LogHandler::DEBUG_SEVERITY ) << "   #" << propertyNames[i];
       const DataModel::AbstractProperty* computedProperty = getProperty ( propertyNames [ i ]);
 
       if ( computedProperty != 0 ) {
          m_surfacePropertyCalculators.insert ( computedProperty, snapshot, calculator );
       } else {
-         throw AbstractPropertyException() << "Could not find the surface property '" << propertyNames[i] << "' to add to the surface property calculator.";
+         // Error
       }
 
    }
@@ -55,15 +42,14 @@ void DerivedProperties::AbstractPropertyManager::addFormationMapPropertyCalculat
    const std::vector<std::string>& propertyNames = calculator->getPropertyNames ();
 
    assert ( propertyNames.size () > 0 );
-   LogHandler( LogHandler::DEBUG_SEVERITY ) << "Adding formation map derived property calculator for:";
+
    for ( size_t i = 0; i < propertyNames.size (); ++i ) {
-      LogHandler( LogHandler::DEBUG_SEVERITY ) << "   #" << propertyNames[i];
       const DataModel::AbstractProperty* computedProperty = getProperty ( propertyNames [ i ]);
 
       if ( computedProperty != 0 ) {
          m_formationMapPropertyCalculators.insert ( computedProperty, snapshot, calculator );
       } else {
-         throw AbstractPropertyException() << "Could not find the formation map property '" << propertyNames[i] << "' to add to the formation map property calculator.";
+         // Error
       }
 
    }
@@ -79,7 +65,7 @@ void DerivedProperties::AbstractPropertyManager::addFormationPropertyCalculator 
    assert ( propertyNames.size () > 0 );
 
    if ( debug ) {
-      LogHandler( LogHandler::INFO_SEVERITY ) << " Adding formation derived property calculator for: ";
+      std::cerr << " Adding formation derived property calculator for: ";
    }
 
    for ( size_t i = 0; i < propertyNames.size (); ++i ) {
@@ -88,11 +74,16 @@ void DerivedProperties::AbstractPropertyManager::addFormationPropertyCalculator 
       if ( computedProperty != 0 ) {
          // Add calculator to the property->calculator mapping.
          m_formationPropertyCalculators.insert ( computedProperty, snapshot, calculator );
-         std::string pptyLogString;
+
          if ( debug ) {
 
             for ( size_t j = 0; j < propertyNames.size (); ++j ) {
-               pptyLogString = "   #" + propertyNames[j];
+               std::cerr << propertyNames [ j ];
+
+               if ( j < propertyNames.size () - 1 ) {
+                  std::cerr << ", ";
+               }
+
             }
 
          }
@@ -106,7 +97,7 @@ void DerivedProperties::AbstractPropertyManager::addFormationPropertyCalculator 
             if ( not surfacePropertyIsComputable ( computedProperty )) {
 
                if ( debug ) {
-                  pptyLogString+= " (+surface)";
+                  std::cerr << "(+surface)";
                }
 
                addSurfacePropertyCalculator ( surfaceCalculator, snapshot );
@@ -120,19 +111,21 @@ void DerivedProperties::AbstractPropertyManager::addFormationPropertyCalculator 
             if ( not formationSurfacePropertyIsComputable ( computedProperty )) {
 
                if ( debug ) {
-                  pptyLogString += " (+formation-surface)";
+                  std::cerr << "(+formation-surface)";
                }
 
                addFormationSurfacePropertyCalculator ( surfaceCalculator, snapshot );
             }
          }
-         if (debug) {
-            LogHandler( LogHandler::INFO_SEVERITY ) << pptyLogString;
-         }
+
       } else {
-         throw AbstractPropertyException() << "Could not find the formation property '" << propertyNames[i] << "' to add to the formation property calculator.";
+         // Error
       }
 
+   }
+
+   if ( debug ) {
+      std::cerr << std::endl;
    }
 
 }
@@ -150,7 +143,7 @@ void DerivedProperties::AbstractPropertyManager::addFormationSurfacePropertyCalc
       if ( computedProperty != 0 ) {
          m_formationSurfacePropertyCalculators.insert ( computedProperty, snapshot, calculator );
       } else {
-         throw AbstractPropertyException() << "Could not find the formation surface property '" << propertyNames[i] << "' to add to the formation surface property calculator.";
+         // Error
       }
 
    }
@@ -170,7 +163,7 @@ void DerivedProperties::AbstractPropertyManager::addReservoirPropertyCalculator 
       if ( computedProperty != 0 ) {
          m_reservoirPropertyCalculators.insert ( computedProperty, snapshot, calculator );
       } else {
-         throw AbstractPropertyException() << "Could not find the reservoir property '" << propertyNames[i] << "' to add to the reservoir property calculator.";
+         // Error
       }
 
    }
@@ -336,22 +329,22 @@ DerivedProperties::SurfacePropertyPtr DerivedProperties::AbstractPropertyManager
             for ( size_t i = 0; i < calculatedProperties.size (); ++i ) {
                addSurfaceProperty ( calculatedProperties [ i ]);
 
-               if ( calculatedProperties[i] and calculatedProperties[i]->getProperty() == property ) {
-                     result = calculatedProperties[i];
+               if ( calculatedProperties [ i ]->getProperty () == property ) {
+                  result = calculatedProperties [ i ];
                }
 
             }
 
+            if ( result == 0 ) {
+               // Error.
+            }
+
          } else {
-            LogHandler( LogHandler::DEBUG_SEVERITY ) << "Derived property " << property->getName() << " @ snapshot " << snapshot->getTime() << " already computed.";
+            // Error.
          }
 
       }
 
-   }
-   else{
-      throw AbstractPropertyException() << "Could not compute surface derived property " << property->getName() << " @ snapshot " << snapshot->getTime() << ":"
-         << " this property is neither a 2D surface property or a 3D continuous property.";
    }
 
    return result;
@@ -383,17 +376,16 @@ DerivedProperties::FormationMapPropertyPtr DerivedProperties::AbstractPropertyMa
 
             }
 
+            if ( result == 0 ) {
+               // Error.
+            }
+
          } else {
-            LogHandler( LogHandler::DEBUG_SEVERITY ) << "Derived property " << property->getName() << " @ snapshot " << snapshot->getTime() << " already computed.";
+            // Error.
          }
 
       }
 
-   }
-
-   else{
-      throw AbstractPropertyException() << "Could not compute surface derived property " << property->getName() << " @ snapshot " << snapshot->getTime() << ":"
-         << " this property is not a 2D formation property.";
    }
 
    return result;
@@ -426,18 +418,16 @@ DerivedProperties::FormationPropertyPtr DerivedProperties::AbstractPropertyManag
 
             }
 
+            if ( result == 0 ) {
+               // Error.
+            }
+
          } else {
-            LogHandler( LogHandler::DEBUG_SEVERITY ) << "Derived property " << property->getName()
-               << " @ snapshot " << snapshot->getTime() << "Ma for formation " << formation->getName() << " already computed.";
+            // Error.
          }
 
       }
 
-   }
-
-   else{
-      throw AbstractPropertyException() << "Could not compute surface derived property " << property->getName()
-         << " @ snapshot " << snapshot->getTime() << "Ma for formation " << formation->getName() << ": this property is neither a 3D continuous property or a 3D discontinuous property.";
    }
 
    return result;
@@ -470,17 +460,16 @@ DerivedProperties::FormationSurfacePropertyPtr DerivedProperties::AbstractProper
 
             }
 
+            if ( result == 0 ) {
+               // Error.
+            }
+
          } else {
-            LogHandler( LogHandler::DEBUG_SEVERITY ) << "Derived property " << property->getName() << " @ snapshot " << snapshot->getTime() << " already computed.";
+            // Error.
          }
 
       }
 
-   }
-
-   else{
-      throw AbstractPropertyException() << "Could not compute surface derived property " << property->getName() << " @ snapshot " << snapshot->getTime() << ":"
-         << " this property is not a 3D continuous property.";
    }
 
    return result;
@@ -512,17 +501,16 @@ DerivedProperties::ReservoirPropertyPtr DerivedProperties::AbstractPropertyManag
 
             }
 
+            if ( result == 0 ) {
+               // Error.
+            }
+
          } else {
-            LogHandler( LogHandler::DEBUG_SEVERITY ) << "Derived property " << property->getName() << " @ snapshot " << snapshot->getTime() << " already computed.";
+            // Error.
          }
 
       }
 
-   }
-
-   else{
-      throw AbstractPropertyException() << "Could not compute surface derived property " << property->getName() << " @ snapshot " << snapshot->getTime() << ":"
-         << " this property is not a 2D formation property.";
    }
 
    return result;
@@ -570,9 +558,6 @@ bool DerivedProperties::AbstractPropertyManager::formationPropertyIsComputable (
       isComputable = false;
    }
 
-   if (!isComputable) {
-      LogHandler( LogHandler::DEBUG_SEVERITY ) << "Derived formation property '" << property->getName() << "' is not computable.";
-   }
    return isComputable;
 }
 
@@ -590,17 +575,16 @@ bool DerivedProperties::AbstractPropertyManager::formationSurfacePropertyIsCompu
       isComputable = false;
    }
 
-   if (!isComputable) {
-      LogHandler( LogHandler::DEBUG_SEVERITY ) << "Derived formation surface property '" << property->getName() << "' is not computable.";
-   }
    return isComputable;
 }
 
 bool DerivedProperties::AbstractPropertyManager::surfacePropertyIsComputable ( const DataModel::AbstractProperty* property,
                                                                                const DataModel::AbstractSnapshot* snapshot,
                                                                                const DataModel::AbstractSurface*  surface ) const {
+
    SurfacePropertyCalculatorPtr calculator = getSurfaceCalculator ( property, 0 );
    bool isComputable;
+
 
    if ( calculator != 0 ) {
       isComputable = calculator->isComputable ( *this, snapshot, surface );
@@ -608,9 +592,6 @@ bool DerivedProperties::AbstractPropertyManager::surfacePropertyIsComputable ( c
       isComputable = false;
    }
 
-   if (!isComputable) {
-      LogHandler( LogHandler::DEBUG_SEVERITY ) << "Derived surface property '" << property->getName() << "' is not computable.";
-   }
    return isComputable;
 }
 
@@ -627,9 +608,6 @@ bool DerivedProperties::AbstractPropertyManager::formationMapPropertyIsComputabl
       isComputable = false;
    }
 
-   if (!isComputable) {
-      LogHandler( LogHandler::DEBUG_SEVERITY ) << "Derived formation map property '" << property->getName() << "' is not computable.";
-   }
    return isComputable;
 }
 
@@ -646,8 +624,5 @@ bool DerivedProperties::AbstractPropertyManager::reservoirPropertyIsComputable (
       isComputable = false;
    }
 
-   if (!isComputable) {
-      LogHandler( LogHandler::DEBUG_SEVERITY ) << "Derived reservoir property '" << property->getName() << "' is not computable.";
-   }
    return isComputable;
 }

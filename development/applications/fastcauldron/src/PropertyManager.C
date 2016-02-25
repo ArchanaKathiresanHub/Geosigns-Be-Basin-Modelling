@@ -1,20 +1,9 @@
-//                                                                      
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
-// All rights reserved.
-// 
-// Developed under license for Shell by PDS BV.
-// 
-// Confidential and proprietary source code of Shell.
-// Do not distribute without written permission from Shell.
-//
 #include "PropertyManager.h"
 
-//Derived property library
 #include "PrimaryOutputPropertyMap.h"
 #include "DerivedOutputPropertyMap.h"
 #include "DerivedOutputPropertyMapFactory.h"
 
-//DataAccess library
 #include "Interface/Surface.h"
 #include "Interface/Snapshot.h"
 #include "Interface/Formation.h"
@@ -72,7 +61,7 @@ PropertyManager::PropertyManager () {
    m_propertyName2OutputName [ "Pressure" ]               = "Pressure"; 
    m_propertyName2OutputName [ "FracturePressure" ]       = "FracturePressure"; 
    m_propertyName2OutputName [ "Reflectivity" ]           = "ReflectivityVec"; 
-   m_propertyName2OutputName [ "SonicSlowness" ]          = "SonicVec"; 
+   m_propertyName2OutputName [ "SonicVelocity" ]          = "SonicVec"; 
    m_propertyName2OutputName [ "SteraneAromatisation" ]   = "Biomarkers"; 
    m_propertyName2OutputName [ "SteraneIsomerisation" ]   = "Biomarkers"; 
    m_propertyName2OutputName [ "Temperature" ]            = "Temperature"; 

@@ -38,9 +38,9 @@ CmdLoadState::CmdLoadState( CasaCommander & parent, const std::vector< std::stri
    }
 }
 
-void CmdLoadState::execute( std::unique_ptr<casa::ScenarioAnalysis> & sa )
+void CmdLoadState::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
 {
-   LogHandler( LogHandler::INFO_SEVERITY ) << "Deserializing CASA state from: " << m_fileName << "...";
+   LogHandler( LogHandler::INFO ) << "Deserializing CASA state from: " << m_fileName << "...";
 
    sa.reset( casa::ScenarioAnalysis::loadScenario( m_fileName.c_str(), m_fileType.c_str() ) );
    if ( sa->errorCode() != ErrorHandler::NoError )
@@ -48,5 +48,5 @@ void CmdLoadState::execute( std::unique_ptr<casa::ScenarioAnalysis> & sa )
       throw ErrorHandler::Exception( sa->errorCode() ) << sa->errorMessage();
    }
 
-   LogHandler( LogHandler::INFO_SEVERITY )  << "Deserialization succeeded";
+   LogHandler( LogHandler::INFO )  << "Deserialization succeeded";
 }

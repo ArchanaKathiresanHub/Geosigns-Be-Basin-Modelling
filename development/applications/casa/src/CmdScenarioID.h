@@ -23,7 +23,7 @@ public:
    virtual ~CmdScenarioID() { ; }
 
    /// @brief Run command
-   virtual void execute( std::unique_ptr<casa::ScenarioAnalysis> & sa );
+   virtual void execute( std::auto_ptr<casa::ScenarioAnalysis> & sa );
 
    /// @brief Get name of the project file which will be the base for the scenario analysis
    std::string scenarioID() const { return m_id;  }

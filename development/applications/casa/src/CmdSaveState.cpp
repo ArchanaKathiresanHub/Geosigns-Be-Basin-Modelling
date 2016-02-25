@@ -34,14 +34,14 @@ CmdSaveState::CmdSaveState( CasaCommander & parent, const std::vector< std::stri
    }
 }
 
-void CmdSaveState::execute( std::unique_ptr<casa::ScenarioAnalysis> & sa )
+void CmdSaveState::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
 {
-   LogHandler( LogHandler::INFO_SEVERITY ) <<  "Serializing CASA state to: " << m_fileName << "...";
+   LogHandler( LogHandler::INFO ) <<  "Serializing CASA state to: " << m_fileName << "...";
    
    if ( ErrorHandler::NoError != sa->saveScenario( m_fileName.c_str(), m_fileType.c_str() ) )
    {
       throw ErrorHandler::Exception( sa->errorCode() ) << sa->errorMessage();
    }
 
-   LogHandler( LogHandler::INFO_SEVERITY ) << "Serializing succeeded";
+   LogHandler( LogHandler::INFO ) << "Serializing succeeded";
 }

@@ -51,7 +51,7 @@ CompoundProxy::CompoundProxy(
          double                     targetR2,
          double                     confLevel,
          Partition const&           partition,
-         ParameterTransforms::ptr&  parTransforms,
+         ParameterTransforms::ptr   parTransforms,
          EliminationCriterion&      criterion
          )
 :
@@ -73,7 +73,7 @@ CompoundProxy::CompoundProxy(
          double                     targetR2,
          double                     confLevel,
          Partition const&           partition,
-         ParameterTransforms::ptr&  parTransforms
+         ParameterTransforms::ptr   parTransforms
          )
 :
    m_krigingData(krigingData),
@@ -85,7 +85,7 @@ CompoundProxy::CompoundProxy(
 
 CompoundProxy::~CompoundProxy()
 {
-   // destructor implemented where CubicProxy and KrigingProxy classes are defined, to avoid std::unique_ptr related memory leak
+   // destructor implemented where CubicProxy and KrigingProxy classes are defined, to avoid std::auto_ptr related memory leak
 }
 
 void CompoundProxy::initialise(
@@ -99,7 +99,7 @@ void CompoundProxy::initialise(
          double                     targetR2,
          double                     confLevel,
          Partition const&           partition,
-         ParameterTransforms::ptr&  parTransforms
+         ParameterTransforms::ptr   parTransforms
          )
 {
    NoElimination noElim;
@@ -117,7 +117,7 @@ void CompoundProxy::initialise(
          double                     targetR2,
          double                     confLevel,
          Partition const&           partition,
-         ParameterTransforms::ptr&  parTransforms,
+         ParameterTransforms::ptr   parTransforms,
          EliminationCriterion&      criterion
          )
 {

@@ -30,27 +30,26 @@ class LogHandler
    typedef formattingexception::GeneralException LogHandlerException;
 
 public:
-
    /// @name Types definitions
    /// @{
    /// @brief Set of verbosity levels for log filter
    /// @details The log will write only the messages with Verbosity_level<=Severity_level;
    enum VerbosityLevel{
-      DIAGNOSTIC_LEVEL,
-      DETAILED_LEVEL,
-      NORMAL_LEVEL,
-      MINIMAL_LEVEL,
-      QUIET_LEVEL
+      DIAGNOSTIC,
+      DETAILED,
+      NORMAL,
+      MINIMAL,
+      QUIET
    };
 
    /// @brief Set of severity levels for log messages
    /// @details The log will write only the messages with Verbosity_level<=Severity_level;
    enum SeverityLevel {
-      DEBUG_SEVERITY,
-      INFO_SEVERITY,
-      WARNING_SEVERITY,
-      ERROR_SEVERITY,
-      FATAL_SEVERITY
+      DEBUG,
+      INFO,
+      WARNING,
+      ERROR,
+      FATAL
    };
    /// @}
 
@@ -72,7 +71,7 @@ public:
    /// @brief Destructor which writes the stream (m_oss) in the boost log according to the current severity level
    ~LogHandler();
 
-   /// @brief Stream operator to write simple types into the log file
+   /// @brief Stream operator to write into the log file
    /// @details Should be used like this:
    ///    -# LogHandler(DEBUG) << "This is my debug message with value" << 4 << " or " << m_value;
    ///    -# LogHandler(INFO)  << "This is my info message with value"  << 4 << " or " << m_value;
@@ -82,32 +81,15 @@ public:
       return *this;
    };
 
-   /// @brief Stream operator to write string vectors into the log file
-   /// @details Should be used like this:
-   ///    -# LogHandler(DEBUG) << "This is my debug message with values" << m_stringVector;
-   ///    -# LogHandler(INFO)  << "This is my info message with values"  << m_stringVector;
-   ///    -# etc.
-   LogHandler & operator << (std::vector<std::string> vectVal){
-      m_oss << "[";
-      for (int i = 0; i < vectVal.size(); i++){
-         m_oss << vectVal[i];
-         if (i < vectVal.size() - 1){
-            m_oss << ";";
-         }
-      }
-      m_oss << "]";
-      return *this;
-   };
-
    /// @brief Get the name of the log file
    /// @details Used for unit tests only
    /// @return s_logName The name of the log file such as "fastcauldron_0.log"
    const std::string getName() const { return s_logName; };
 
 private:
-   /// @brief Overwrite default assginment operator
+   /// @ brief Overwrite default assginment operator
    LogHandler& operator= (const LogHandler&);
-   /// @brief Overwrite default copy constructor
+   /// @ brief Overwrite default copy constructor
    LogHandler( const LogHandler& );
 
    static std::string s_logName;         ///< Full name of the log file (from constructor logName_mpiRank.log)

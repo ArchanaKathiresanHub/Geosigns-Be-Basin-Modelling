@@ -26,12 +26,12 @@ const std::string expectedLog[] =                ///< Expected parsed lines from
 //Initialise variables                                 
 std::vector<std::string> parsedLinesLog;         ///< Parsed lines from the log file
 
-///2. TEST-------------------------------------------------------------------------------------------
+///3. TEST-------------------------------------------------------------------------------------------
 //Tests log for normal verbosity
 TEST( LogHandlerSerial, log_normal )
 {
    try{
-      LogHandler logUnitTestNormal( "log_unit_test_normal", LogHandler::NORMAL_LEVEL );
+      LogHandler logUnitTestNormal( "log_unit_test_normal", LogHandler::NORMAL );
       writeLogUnitTest();
 
       analyzeLogFile( logUnitTestNormal.getName(), parsedLinesLog );

@@ -34,7 +34,7 @@ public:
    virtual ~CasaCmd() { ; }
 
    /// @brief Run command
-   virtual void execute( std::unique_ptr<casa::ScenarioAnalysis> & sa ) = 0;
+   virtual void execute( std::auto_ptr<casa::ScenarioAnalysis> & sa ) = 0;
 
 protected:
    /// @brief Constructor

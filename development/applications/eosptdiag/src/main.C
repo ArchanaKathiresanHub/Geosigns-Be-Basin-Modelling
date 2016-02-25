@@ -375,7 +375,7 @@ int main( int argc, char ** argv )
          std::cout << "Empty composition ignorred, total mass: " << data[it].totMass() << "\n";
       }
       clock_t cStart = clock();
-      std::unique_ptr<PTDiagramCalculator> diagBuilder( CreateDiagramAndSaveToMFile( data[it], cmdString ) );
+      std::auto_ptr<PTDiagramCalculator> diagBuilder( CreateDiagramAndSaveToMFile( data[it], cmdString ) );
       clock_t cEnd = clock();
 
       if ( diagBuilder.get() )
@@ -397,14 +397,14 @@ int main( int argc, char ** argv )
 }
 
 // Set of auxillary functions to print in m file data from PTDiagramCalculator
-static void dumpPTGrids( std::ofstream & ofs, std::unique_ptr<PTDiagramCalculator> & diagBuilder );
-static void dumpCompositionInfo( std::ofstream & ofs, std::unique_ptr<PTDiagramCalculator> & diagBuilder, std::vector<double> masses );
-static void dumpLiquidFractionArray( std::ofstream & ofs, std::unique_ptr<PTDiagramCalculator> & diagBuilder, TrapperIoTableRec & data );
-static void dumpPropertiesListArrays( std::ofstream & ofs, std::unique_ptr<PTDiagramCalculator> & diagBuilder, const std::vector<double> & masses );
-static void dumpPropertySlice( std::unique_ptr<PTDiagramCalculator> & diagBuilder, const std::vector<double> & composition );
+static void dumpPTGrids( std::ofstream & ofs, std::auto_ptr<PTDiagramCalculator> & diagBuilder );
+static void dumpCompositionInfo( std::ofstream & ofs, std::auto_ptr<PTDiagramCalculator> & diagBuilder, std::vector<double> masses );
+static void dumpLiquidFractionArray( std::ofstream & ofs, std::auto_ptr<PTDiagramCalculator> & diagBuilder, TrapperIoTableRec & data );
+static void dumpPropertiesListArrays( std::ofstream & ofs, std::auto_ptr<PTDiagramCalculator> & diagBuilder, const std::vector<double> & masses );
+static void dumpPropertySlice( std::auto_ptr<PTDiagramCalculator> & diagBuilder, const std::vector<double> & composition );
 static void createListValuesForIsolinesCalculation( std::ofstream & ofs, std::vector<double> & vals, std::vector<size_t> & colors );
-static void generateLiquidVaporSeparationLine( std::ofstream & ofs, std::unique_ptr<PTDiagramCalculator> & diagBuilder );
-static void dumpSpecialPoints( std::ofstream & ofs, std::unique_ptr<PTDiagramCalculator> & diagBuilder, TrapperIoTableRec & data );
+static void generateLiquidVaporSeparationLine( std::ofstream & ofs, std::auto_ptr<PTDiagramCalculator> & diagBuilder );
+static void dumpSpecialPoints( std::ofstream & ofs, std::auto_ptr<PTDiagramCalculator> & diagBuilder, TrapperIoTableRec & data );
 static void generatePlotDescription( std::ofstream & ofs, const std::vector<double> & vals, const std::string& diagTypeStr );
 static void plotSpecialPoints( std::ofstream & ofs );
 static void plotPieChartForComposition( std::ofstream & ofs );
@@ -430,7 +430,7 @@ PTDiagramCalculator * CreateDiagramAndSaveToMFile( TrapperIoTableRec & data, con
    // Mesure time for finding bubble/dew line and 0.5 isoline
    clock_t cStart = clock();
 
-   std::unique_ptr<PTDiagramCalculator> diagBuilder( new PTDiagramCalculator( g_DiagType, masses ) );
+   std::auto_ptr<PTDiagramCalculator> diagBuilder( new PTDiagramCalculator( g_DiagType, masses ) );
    
    if ( g_ABTerm > 0 ) // negative value means ignore AoverB term
    {
@@ -734,7 +734,7 @@ void dumpCompositionToCSVforPVTsim( TrapperIoTableRec & data )
 // Set of auxillary functions to print in m file data from PTDiagramCalculator
 //
 // Save grids along Pressure/Temperature axiss for PT diagram which were used to reconstruct diagram
-static void dumpPTGrids( std::ofstream & ofs, std::unique_ptr<PTDiagramCalculator> & diagBuilder )
+static void dumpPTGrids( std::ofstream & ofs, std::auto_ptr<PTDiagramCalculator> & diagBuilder )
 {
    const std::vector<double> & gridT = diagBuilder->getGridT();
    const std::vector<double> & gridP = diagBuilder->getGridP();
@@ -757,7 +757,7 @@ static void dumpPTGrids( std::ofstream & ofs, std::unique_ptr<PTDiagramCalculato
 }
 
 // Dump info about composition
-static void dumpCompositionInfo( std::ofstream & ofs, std::unique_ptr<PTDiagramCalculator> & diagBuilder, std::vector<double> masses )
+static void dumpCompositionInfo( std::ofstream & ofs, std::auto_ptr<PTDiagramCalculator> & diagBuilder, std::vector<double> masses )
 {
    ofs << "%Hydrocarbons composition masses\n";
    ofs << "Composition = [\n";
@@ -806,7 +806,7 @@ static void dumpCompositionInfo( std::ofstream & ofs, std::unique_ptr<PTDiagramC
 
 
 // Save Liquid fraction 2D array for each point on P/T grid and plot isolines
-static void dumpLiquidFractionArray( std::ofstream & ofs, std::unique_ptr<PTDiagramCalculator> & diagBuilder, TrapperIoTableRec & data )
+static void dumpLiquidFractionArray( std::ofstream & ofs, std::auto_ptr<PTDiagramCalculator> & diagBuilder, TrapperIoTableRec & data )
 {
    const std::vector<double> & gridT = diagBuilder->getGridT();
    const std::vector<double> & gridP = diagBuilder->getGridP();
@@ -855,7 +855,7 @@ static void dumpLiquidFractionArray( std::ofstream & ofs, std::unique_ptr<PTDiag
    }
 }
 
-static void dumpPropertiesListArrays( std::ofstream & ofs, std::unique_ptr<PTDiagramCalculator> & diagBuilder, const std::vector<double> & composition )
+static void dumpPropertiesListArrays( std::ofstream & ofs, std::auto_ptr<PTDiagramCalculator> & diagBuilder, const std::vector<double> & composition )
 {
    const std::vector<double> & gridT = diagBuilder->getGridT();
    const std::vector<double> & gridP = diagBuilder->getGridP();
@@ -988,7 +988,7 @@ static void dumpPropertiesListArrays( std::ofstream & ofs, std::unique_ptr<PTDia
    }
 }
 
-static void dumpPropertySlice( std::unique_ptr<PTDiagramCalculator> & diagBuilder, const std::vector<double> & composition )
+static void dumpPropertySlice( std::auto_ptr<PTDiagramCalculator> & diagBuilder, const std::vector<double> & composition )
 {
    const std::vector<double> & gridT = diagBuilder->getGridT();
    const std::vector<double> & gridP = diagBuilder->getGridP();
@@ -1228,7 +1228,7 @@ static void createListValuesForIsolinesCalculation( std::ofstream & ofs, std::ve
 
 
 // Generate Liquid/Fraction separation line
-static void generateLiquidVaporSeparationLine( std::ofstream & ofs, std::unique_ptr<PTDiagramCalculator> & diagBuilder )
+static void generateLiquidVaporSeparationLine( std::ofstream & ofs, std::auto_ptr<PTDiagramCalculator> & diagBuilder )
 {
    const PTDiagramCalculator::TPLine & spsline = diagBuilder->getSinglePhaseSeparationLine();
    if ( spsline.size() )
@@ -1260,7 +1260,7 @@ static void generateLiquidVaporSeparationLine( std::ofstream & ofs, std::unique_
 
 // Dump data for special points on diagram like Trap Condition, Bubble point for trap temperature, 
 //  Surface conditions, Critical point, Criconden therm/bar points
-static void dumpSpecialPoints( std::ofstream & ofs, std::unique_ptr<PTDiagramCalculator> & diagBuilder, TrapperIoTableRec & data )
+static void dumpSpecialPoints( std::ofstream & ofs, std::auto_ptr<PTDiagramCalculator> & diagBuilder, TrapperIoTableRec & data )
 {
    // Point with trap condition could call axiss ajustmenst that is why we should draw it first
    ofs << "%Point for trap conditions\n"; 

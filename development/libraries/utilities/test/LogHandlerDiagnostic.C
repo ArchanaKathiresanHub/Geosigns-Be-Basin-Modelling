@@ -29,12 +29,12 @@ const std::string expectedLog[] =                ///< Expected parsed lines from
 std::vector<std::string> parsedLinesLog;         ///< Parsed lines from the log file
 
 
-///2. TEST-------------------------------------------------------------------------------------------
+///3. TEST-------------------------------------------------------------------------------------------
 //Test log for diagnostic verbosity
 TEST( LogHandlerSerial, log_diagnostic )
 {
    try{
-      LogHandler logUnitTestDiagnostic( "log_unit_test_diagnostic", LogHandler::DIAGNOSTIC_LEVEL );
+      LogHandler logUnitTestDiagnostic( "log_unit_test_diagnostic", LogHandler::DIAGNOSTIC );
       writeLogUnitTest();
 
       analyzeLogFile( logUnitTestDiagnostic.getName(), parsedLinesLog );

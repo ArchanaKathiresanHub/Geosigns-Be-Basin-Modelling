@@ -434,7 +434,7 @@ public:
    }
 
 protected:
-   std::unique_ptr<SystemProcess> m_proc;
+   std::auto_ptr<SystemProcess> m_proc;
 
    JobScheduler::JobState m_jobState; // state of the job
 
