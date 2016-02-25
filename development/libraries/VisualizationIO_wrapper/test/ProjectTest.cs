@@ -273,6 +273,7 @@ namespace Shell.BasinModeling.CauldronIO.Test
         }
     }
 
+    [TestClass()]
     public class SurfaceTests
     {
         [TestMethod]
@@ -328,6 +329,7 @@ namespace Shell.BasinModeling.CauldronIO.Test
             Assert.AreEqual(end, kEnd);
         }
 
+        [TestClass()]
         public class SnapShotTests
         {
             [TestMethod]
@@ -411,10 +413,9 @@ namespace Shell.BasinModeling.CauldronIO.Test
                 snap.addTrapper(trapper);
                 Assert.AreEqual(trapperList.Count, 1);
             }
-
-
-
         }
+
+        [TestClass()]
         public class TrapperTests
         {
             [TestMethod]
@@ -514,7 +515,6 @@ namespace Shell.BasinModeling.CauldronIO.Test
             [TestMethod]
             public void TrapperSetDownStreamTrapperID()
             {
-
                 int ID = 1234;
                 int persistentID = 2345;
                 Trapper trapper = new Trapper(ID, persistentID);
@@ -523,24 +523,22 @@ namespace Shell.BasinModeling.CauldronIO.Test
                 Trapper downstreamTrapper = new Trapper(downID, downPersistentID);
                 trapper.setDownStreamTrapper(downstreamTrapper);
                 trapper.setDownStreamTrapperID(persistentID);
-                Assert.AreEqual(trapper.getDownStreamTrapper().getDownStreamTrapperID(), persistentID);
-
+                Assert.AreEqual(trapper.getDownStreamTrapperID(), persistentID);
             }
-
         }
+
+        [TestClass()]
         public class MapTests
         {
             [TestMethod]
             public void MapSetUUID()
             {
 
-
             }
 
             [TestMethod]
             public void MapSetData_IJ()
             {
-
             }
         }
     }

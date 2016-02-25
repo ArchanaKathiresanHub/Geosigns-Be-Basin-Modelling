@@ -237,9 +237,9 @@ namespace CauldronIO
         boost::shared_ptr<const Trapper> getDownStreamTrapper() const;
         /// \param [in] trapper the downstreamtrapper for this trapper
         void setDownStreamTrapper(boost::shared_ptr<const Trapper> trapper);
-        /// \param [in] persistentID the downstreamtrapper persistent ID for this trapper
+        /// \param [in] persistentID the downstreamtrapper persistent ID for this trapper; temporary state - do not use
         void setDownStreamTrapperID(int persistentID);
-        /// \returns the downstream trapper ID
+        /// \returns the downstream trapper ID; temporary state - do not use
         int getDownStreamTrapperID() const;
 
     private:
