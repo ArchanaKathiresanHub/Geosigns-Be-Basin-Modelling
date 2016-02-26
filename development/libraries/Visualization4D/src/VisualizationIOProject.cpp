@@ -62,6 +62,11 @@ namespace VizIO
       m_undefined = data->getUndefinedValue();
     }
 
+    virtual ~VolumeGeometry()
+    {
+      m_data->release();
+    }
+
     virtual MbVec3d getCoord(size_t i, size_t j, size_t k) const
     {
       double x = /*m_minX + */ i * m_deltaX;
@@ -222,6 +227,12 @@ namespace VizIO
       m_undefined = topMap->getUndefinedValue();
     }
 
+    virtual ~ReservoirGeometry()
+    {
+      m_depthMaps[0]->release();
+      m_depthMaps[1]->release();
+    }
+
     virtual MbVec3d getCoord(size_t i, size_t j, size_t k) const
     {
       return MbVec3d(
@@ -288,6 +299,11 @@ namespace VizIO
       m_numJ = geometry.getNumJ();
 
       m_undefined = valueMap->getUndefinedValue();
+    }
+
+    virtual ~SurfaceGeometry()
+    {
+      m_map->release();
     }
 
     virtual MbVec3d getCoord(size_t i, size_t j) const
@@ -406,6 +422,11 @@ namespace VizIO
     {
     }
 
+    virtual ~SurfaceProperty()
+    {
+      m_map->release();
+    }
+
     virtual double get(size_t i, size_t j) const
     {
       return m_map->getValue(i, j);
@@ -500,6 +521,7 @@ namespace VizIO
     void initMinMax() const
     {
       getMinMax(m_data, m_geometry, m_minValue, m_maxValue);
+      m_minMaxValid = true;
     }
 
   public:
@@ -513,6 +535,11 @@ namespace VizIO
       , m_maxValue(0.0)
       , m_minMaxValid(false)
     {
+    }
+
+    virtual ~VolumeProperty()
+    {
+      m_data->release();
     }
 
     virtual double get(size_t i, size_t j, size_t k) const
@@ -685,6 +712,7 @@ namespace VizIO
     void initMinMax() const
     {
       getMinMax(m_map, m_geometry, m_minValue, m_maxValue);
+      m_minMaxValid = true;
     }
 
   public:
@@ -698,6 +726,11 @@ namespace VizIO
       , m_maxValue(0.0)
       , m_minMaxValid(false)
     {
+    }
+
+    virtual ~ReservoirProperty()
+    {
+      m_map->release();
     }
 
     virtual double get(size_t i, size_t j, size_t /*k*/) const
@@ -1116,6 +1149,7 @@ std::shared_ptr<MiDataSetIjk<double> > VisualizationIOProject::createFormationPr
     {
       if (!pv.second->isRetrieved())
         pv.second->retrieve();
+
       return std::make_shared<VizIO::VolumeProperty>(propertyName, *volume->getGeometry(), pv.second);
     }
   }
@@ -1211,7 +1245,7 @@ std::shared_ptr<MiDataSetIjk<double> > VisualizationIOProject::createReservoirPr
         if (!ps.second->isRetrieved())
           ps.second->retrieve();
 
-        return std::make_shared<VizIO::ReservoirProperty>(propertyName, *surface->getGeometry(), ps.second);
+        return std::make_shared<VizIO::ReservoirProperty>(propertyName, *ps.second->getGeometry(), ps.second);
       }
     }
   }

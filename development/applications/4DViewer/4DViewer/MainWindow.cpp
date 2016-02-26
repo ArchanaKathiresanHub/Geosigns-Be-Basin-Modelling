@@ -318,6 +318,17 @@ void MainWindow::updateUI()
   m_ui.lineEditColorScaleMaxValue->setText("1.0");
   m_ui.lineEditColorScaleMinValue->setValidator(new QDoubleValidator);
   m_ui.lineEditColorScaleMaxValue->setValidator(new QDoubleValidator);
+
+  m_ui.checkBoxCellFilter->setEnabled(true);
+  m_ui.checkBoxCellFilter->setCheckState(Qt::Unchecked);
+  m_ui.labelCellFilterMinValue->setEnabled(false);
+  m_ui.labelCellFilterMaxValue->setEnabled(false);
+  m_ui.lineEditCellFilterMaxValue->setEnabled(false);
+  m_ui.lineEditCellFilterMaxValue->setEnabled(false);
+  m_ui.lineEditCellFilterMinValue->setText("0.0");
+  m_ui.lineEditCellFilterMaxValue->setText("1.0");
+  m_ui.lineEditCellFilterMinValue->setValidator(new QDoubleValidator);
+  m_ui.lineEditCellFilterMaxValue->setValidator(new QDoubleValidator);
 }
 
 void MainWindow::connectSignals()
@@ -355,6 +366,10 @@ void MainWindow::connectSignals()
   connect(m_ui.comboBoxColorScaleRange, SIGNAL(currentIndexChanged(int)), this, SLOT(onColorScaleRangeChanged(int)));
   connect(m_ui.lineEditColorScaleMinValue, SIGNAL(editingFinished()), this, SLOT(onColorScaleValueChanged()));
   connect(m_ui.lineEditColorScaleMaxValue, SIGNAL(editingFinished()), this, SLOT(onColorScaleValueChanged()));
+
+  connect(m_ui.checkBoxCellFilter, SIGNAL(toggled(bool)), this, SLOT(onCellFilterToggled(bool)));
+  connect(m_ui.lineEditCellFilterMinValue, SIGNAL(editingFinished()), this, SLOT(onCellFilterRangeChanged()));
+  connect(m_ui.lineEditCellFilterMaxValue, SIGNAL(editingFinished()), this, SLOT(onCellFilterRangeChanged()));
 
   connect(m_ui.checkBoxTraps, SIGNAL(toggled(bool)), this, SLOT(onTrapsToggled(bool)));
   connect(m_ui.checkBoxTrapOutline, SIGNAL(toggled(bool)), this, SLOT(onTrapOutlinesToggled(bool)));
@@ -466,19 +481,23 @@ void MainWindow::onActionRenderAllSnapshotsTriggered()
   int maxTimeMs = 0;
   for(int i=0; i <= m_ui.snapshotSlider->maximum(); ++i)
   {
-    QTime snapshotTime;
-    snapshotTime.start();
+    std::cout << i << " ";
 
     //m_ui.snapshotSlider->setValue(i);
     //qApp->processEvents();
-    m_sceneGraphManager->setCurrentSnapshot(i);
-    m_ui.renderWidget->updateGL();
 
-    int t = snapshotTime.elapsed();
-    if(t > maxTimeMs)
+    QTime snapshotTime;
+    snapshotTime.start();
+    m_sceneGraphManager->setCurrentSnapshot(i);
+    int t1 = snapshotTime.restart();
+    m_ui.renderWidget->updateGL();
+    int t2 = snapshotTime.elapsed();
+
+    int t = t1 + t2;
+    if (t > maxTimeMs)
       maxTimeMs = t;
 
-    std::cout << "snapshot " << i << ": " << t << " ms" << std::endl;
+    std::cout << t1 << " " << t2 << std::endl;
   }
 
   int ms = time.elapsed();
@@ -773,6 +792,26 @@ void MainWindow::onFlowLinesThresholdChanged(int value)
 
   m_sceneGraphManager->setFlowLinesThreshold(type, threshold);
 
+  m_ui.renderWidget->updateGL();
+}
+
+void MainWindow::onCellFilterToggled(bool value)
+{
+  m_ui.labelCellFilterMinValue->setEnabled(value);
+  m_ui.labelCellFilterMaxValue->setEnabled(value);
+  m_ui.lineEditCellFilterMinValue->setEnabled(value);
+  m_ui.lineEditCellFilterMaxValue->setEnabled(value);
+
+  m_sceneGraphManager->enableCellFilter(value);
+  m_ui.renderWidget->updateGL();
+}
+
+void MainWindow::onCellFilterRangeChanged()
+{
+  double minValue = m_ui.lineEditCellFilterMinValue->text().toDouble();
+  double maxValue = m_ui.lineEditCellFilterMaxValue->text().toDouble();
+
+  m_sceneGraphManager->setCellFilterRange(minValue, maxValue);
   m_ui.renderWidget->updateGL();
 }
 

@@ -30,7 +30,7 @@ class SnapshotTopology;
 class FormationIdProperty;
 class FlowDirectionProperty;
 class ColorMap;
-
+class PropertyValueCellFilter;
 class FaultMesh;
 class OutlineBuilder;
 
@@ -68,6 +68,7 @@ class MoMeshSkin;
 class MoMeshSlab;
 class MoMeshSurface;
 class MoMeshFenceSlice;
+class MoCellFilter;
 
 template<class T>
 class MiDataSetIjk;
@@ -231,9 +232,12 @@ struct SnapshotInfo
   SoSwitch* sliceSwitch[3];
   MoMeshSlab* slice[3];
 
+  SoSwitch* cellFilterSwitch;
+  MoCellFilter* cellFilter;
+  std::shared_ptr<PropertyValueCellFilter> propertyValueCellFilter;
+
   SoGroup* chunksGroup;
   SoGroup* flowLinesGroup;
-  SoGroup* flowVectorsGroup;
   SoGroup* surfacesGroup;
   SoGroup* reservoirsGroup;
   SoGroup* faultsGroup;
@@ -367,6 +371,10 @@ private:
   bool   m_sliceEnabled[3];
 
   ColorScaleParams m_colorScaleParams;
+
+  bool m_cellFilterEnabled;
+  double m_cellFilterMinValue;
+  double m_cellFilterMaxValue;
   // ----------------------------------------
 
   size_t m_formationsTimeStamp;
@@ -448,6 +456,7 @@ private:
   void updateSnapshotProperties();
   void updateSnapshotSlices();
   void updateSnapshotFlowLines();
+  void updateSnapshotCellFilter();
   void updateColorMap();
   void updateText();
   void updateSnapshot();
@@ -545,6 +554,10 @@ public:
   void showTrapOutlines(bool show);
 
   void showDrainageAreaOutlines(DrainageAreaType type);
+
+  void enableCellFilter(bool enable);
+
+  void setCellFilterRange(double minValue, double maxValue);
 
   void setup(std::shared_ptr<Project> project);
 };

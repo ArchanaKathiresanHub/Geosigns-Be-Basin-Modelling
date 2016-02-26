@@ -664,6 +664,34 @@ function onColorScaleParamsChanged()
     sendMsg(msg);
 }
 
+function onCellFilterToggled(elem)
+{
+    var msg = {
+        cmd: "EnableCellFilter",
+        params: {
+            enabled: elem.checked
+        }
+    }
+
+    sendMsg(msg);
+}
+
+function onCellFilterRangeChanged()
+{
+    var editMinValue = document.getElementById("editCellFilterMinValue");
+    var editMaxValue = document.getElementById("editCellFilterMaxValue");
+
+    var msg = {
+        cmd: "SetCellFilterRange",
+        params: {
+            minval: parseFloat(editMinValue.value),
+            maxval: parseFloat(editMaxValue.value)
+        }
+    }
+
+    sendMsg(msg);
+}
+
 function onQualitySliderChanged(value)
 {
     var msg = {

@@ -15,6 +15,7 @@
 #include "OutlineBuilder.h"
 #include "FluidContacts.h"
 #include "ColorMap.h"
+#include "PropertyValueCellFilter.h"
 
 #include <Inventor/nodes/SoGroup.h>
 #include <Inventor/nodes/SoSwitch.h>
@@ -57,15 +58,16 @@
 #include <MeshVizXLM/mapping/nodes/MoScalarSetIjk.h>
 #include <MeshVizXLM/mapping/nodes/MoVec3SetIjk.h>
 #include <MeshVizXLM/mapping/nodes/MoLegend.h>
+#include <MeshVizXLM/mapping/nodes/MoCellFilter.h>
 #include <MeshVizXLM/mapping/details/MoFaceDetailIj.h>
 #include <MeshVizXLM/mapping/details/MoFaceDetailIjk.h>
+#include <MeshVizXLM/mapping/elements/MoScalarSetElementIjk.h>
 
 #include <MeshViz/graph/PoAutoCubeAxis.h>
 #include <MeshViz/graph/PoLinearAxis.h>
 #include <MeshViz/graph/PoGenAxis.h>
 
 #include <memory>
-
 
 SoSwitch* createCompass();
 
@@ -80,9 +82,10 @@ SnapshotInfo::SnapshotInfo()
   , meshData(0)
   , scalarSet(0)
   , flowDirSet(0)
+  , cellFilterSwitch(0)
+  , cellFilter(0)
   , chunksGroup(0)
   , flowLinesGroup(0)
-  , flowVectorsGroup(0)
   , surfacesGroup(0)
   , reservoirsGroup(0)
   , faultsGroup(0)
@@ -270,7 +273,7 @@ void SceneGraphManager::updateSnapshotFormations()
 {
   assert(!m_snapshotInfoCache.empty());
 
-  SnapshotInfo& snapshot = *m_snapshotInfoCache.begin();
+  SnapshotInfo& snapshot = *m_snapshotInfoCache.begin(); 
 
   // Update formations
   if (snapshot.formationsTimeStamp == m_formationsTimeStamp || !snapshot.chunksGroup || snapshot.formations.empty())
@@ -818,61 +821,17 @@ void SceneGraphManager::updateSnapshotFlowLines()
   }
 
   snapshot.flowLinesTimeStamp = m_flowLinesTimeStamp;
-  return;
+}
 
-  //if (m_flowVizType == FlowVizNone)
-  //{
-  //  snapshot.flowDirScalarSet.reset();
-  //  snapshot.flowDirVectorSet.reset();
-  //  snapshot.flowLinesGroup->removeAllChildren();
-  //  snapshot.flowVectorsGroup->removeAllChildren();
-  //}
-  //else
-  //{
-  //  if (!snapshot.flowDirScalarSet)
-  //  {
-  //    snapshot.flowDirScalarSet = m_project->createFlowDirectionProperty(snapshot.index);
-  //  }
+void SceneGraphManager::updateSnapshotCellFilter()
+{
+  assert(!m_snapshotInfoCache.empty());
 
-  //  if (m_flowVizType == FlowVizLines && snapshot.flowLinesGroup->getNumChildren() == 0)
-  //  {
-  //    // Add color node
-  //    SoBaseColor* color = new SoBaseColor;
-  //    color->rgb.setValue(1.f, .5f, 1.f);
-  //    snapshot.flowLinesGroup->addChild(color);
-
-  //    for (auto& fmt : snapshot.formations)
-  //    {
-  //      if (m_projectInfo.formations[fmt.id].isSourceRock)
-  //      {
-  //        auto expulsionProperty = generateExpulsionProperty(*m_project, snapshot.index, fmt.id);
-  //        SoLineSet* flowLines = generateFlowLines(*snapshot.flowDirScalarSet, expulsionProperty, *snapshot.meshData, fmt.minK, 10);
-  //        snapshot.flowLinesGroup->addChild(flowLines);
-  //      }
-  //    }
-
-  //    snapshot.flowVectorsGroup->removeAllChildren();
-  //  }
-  //  else if (m_flowVizType == FlowVizVectors && snapshot.flowVectorsGroup->getNumChildren() == 0)
-  //  {
-  //    // Add color node
-  //    SoBaseColor* color = new SoBaseColor;
-  //    color->rgb.setValue(1.f, 1.f, .5f);
-  //    snapshot.flowVectorsGroup->addChild(color);
-
-  //    snapshot.flowDirSet = new MoVec3SetIjk;
-  //    snapshot.flowDirVectorSet = std::make_shared<FlowDirectionProperty>(*snapshot.flowDirScalarSet, *snapshot.meshData);
-  //    snapshot.flowDirSet->setVec3Set(snapshot.flowDirVectorSet.get());
-  //    snapshot.flowVectorsGroup->addChild(snapshot.flowDirSet);
-
-  //    MoMeshVector* meshVector = new MoMeshVector;
-  //    meshVector->colorScalarSetId = -1;
-  //    meshVector->scaleFactor = .5f;
-  //    snapshot.flowVectorsGroup->addChild(meshVector);
-
-  //    snapshot.flowLinesGroup->removeAllChildren();
-  //  }
-  //}
+  SnapshotInfo& snapshot = *m_snapshotInfoCache.begin();
+  snapshot.cellFilterSwitch->whichChild = m_cellFilterEnabled 
+    ? SO_SWITCH_ALL 
+    : SO_SWITCH_NONE;
+  snapshot.propertyValueCellFilter->setRange(m_cellFilterMinValue, m_cellFilterMaxValue);
 }
 
 void SceneGraphManager::updateColorMap()
@@ -983,6 +942,7 @@ void SceneGraphManager::updateSnapshot()
   updateSnapshotProperties();
   updateSnapshotSlices();
   updateSnapshotFlowLines();
+  updateSnapshotCellFilter();
 
   updateColorMap();
   updateText();
@@ -1100,6 +1060,24 @@ void SceneGraphManager::showPickResult(const PickResult& pickResult)
   m_pickTextSwitch->whichChild = (pickResult.type == PickResult::Unknown)
     ? SO_SWITCH_NONE
     : SO_SWITCH_ALL;
+}
+
+namespace
+{
+  // This callback picks up the current scalar set from the traversal
+  // state, and passes it to the cell filter. This ensures that the filter
+  // is always operating on the correct values
+  void cellFilterCallbackFunc(void* userData, SoAction* action)
+  {
+    if (!action->isOfType(SoGLRenderAction::getClassTypeId()))
+      return;
+
+    auto filter = reinterpret_cast<PropertyValueCellFilter*>(userData);
+    auto state = action->getState();
+    auto dataSet = MoScalarSetElementIjk::get(state, 0);
+
+    filter->setDataSet(dataSet);
+  }
 }
 
 SnapshotInfo SceneGraphManager::createSnapshotNode(size_t index)
@@ -1220,13 +1198,22 @@ SnapshotInfo SceneGraphManager::createSnapshotNode(size_t index)
   info.scalarSet = new MoScalarSetIjk;
   info.scalarSet->setName("formationID");
 
+  // Setup cell filter
+  info.propertyValueCellFilter = std::make_shared<PropertyValueCellFilter>();
+  info.cellFilter = new MoCellFilter;
+  info.cellFilter->setCellFilter(info.propertyValueCellFilter.get());
+  SoCallback* cellFilterCallback = new SoCallback;
+  cellFilterCallback->setCallback(cellFilterCallbackFunc, info.propertyValueCellFilter.get());
+  info.cellFilterSwitch = new SoSwitch;
+  info.cellFilterSwitch->addChild(cellFilterCallback);
+  info.cellFilterSwitch->addChild(info.cellFilter);
+  info.cellFilterSwitch->whichChild = SO_SWITCH_NONE;
+
   info.chunksGroup = new SoGroup;
   info.chunksGroup->setName("chunks");
   info.flowLinesGroup = new SoSeparator;
   info.flowLinesGroup->setName("flowlines");
   info.flowLinesGroup->addChild(createFlowLinesVectorShader());
-  info.flowVectorsGroup = new SoSeparator;
-  info.flowVectorsGroup->setName("flowvectors");
   info.surfacesGroup = new SoGroup;
   info.surfacesGroup->setName("surfaces");
   info.reservoirsGroup = new SoGroup;
@@ -1238,12 +1225,12 @@ SnapshotInfo SceneGraphManager::createSnapshotNode(size_t index)
 
   info.formationsRoot->addChild(info.mesh);
   info.formationsRoot->addChild(info.flowLinesGroup);
-  info.formationsRoot->addChild(info.flowVectorsGroup);
   info.formationsRoot->addChild(info.scalarSet);
-  info.formationsRoot->addChild(info.chunksGroup);
   info.formationsRoot->addChild(info.slicesGroup);
   info.formationsRoot->addChild(m_surfaceShapeHints);
   info.formationsRoot->addChild(m_fencesGroup.ptr());
+  info.formationsRoot->addChild(info.cellFilterSwitch);
+  info.formationsRoot->addChild(info.chunksGroup);
 
   info.root->addChild(info.formationsRoot);
   info.root->addChild(info.reservoirsGroup);
@@ -1532,6 +1519,9 @@ SceneGraphManager::SceneGraphManager()
   , m_flowLinesLeakageThreshold(0.0)
   , m_verticalScale(1.f)
   , m_projectionType(PerspectiveProjection)
+  , m_cellFilterEnabled(false)
+  , m_cellFilterMinValue(0.0)
+  , m_cellFilterMaxValue(1.0)
   , m_formationsTimeStamp(MxTimeStamp::getTimeStamp())
   , m_surfacesTimeStamp(MxTimeStamp::getTimeStamp())
   , m_reservoirsTimeStamp(MxTimeStamp::getTimeStamp())
@@ -2051,6 +2041,27 @@ void SceneGraphManager::showDrainageAreaOutlines(DrainageAreaType type)
     m_drainageAreaType = type;
 
     updateSnapshot();
+  }
+}
+
+void SceneGraphManager::enableCellFilter(bool enabled)
+{
+  if (enabled != m_cellFilterEnabled)
+  {
+    m_cellFilterEnabled = enabled;
+
+    updateSnapshotCellFilter();
+  }
+}
+
+void SceneGraphManager::setCellFilterRange(double minValue, double maxValue)
+{
+  if (minValue != m_cellFilterMinValue || maxValue != m_cellFilterMaxValue)
+  {
+    m_cellFilterMinValue = minValue;
+    m_cellFilterMaxValue = maxValue;
+
+    updateSnapshotCellFilter();
   }
 }
 

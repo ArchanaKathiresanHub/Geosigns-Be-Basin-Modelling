@@ -183,10 +183,14 @@ std::vector<const di::GridMap*> DataAccessProject::getFormationPropertyGridMaps(
     }
     else
     {
-      int id = m_formationIdMap.at(formation->getName());
-      int n = m_projectInfo.formations[id].numCellsK;
-      for (int k = 0; k < n; ++k)
-        gridMaps.push_back(gridMap);
+      auto iter = m_formationIdMap.find(formation->getName());
+      if (iter != m_formationIdMap.end())
+      {
+        int id = iter->second;
+        int n = m_projectInfo.formations[id].numCellsK;
+        for (int k = 0; k < n; ++k)
+          gridMaps.push_back(gridMap);
+      }
     }
   }
 

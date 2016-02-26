@@ -146,6 +146,22 @@
 			</div>
 
 			<div>
+				<div class="header">Cell filter</div>
+				<div class="section">
+					<input type="checkbox" id="checkBoxCellFilter" onchange="onCellFilterToggled(this)">Enabled</input><br>
+					<div>
+						<input id="editCellFilterMinValue" type="text" value="0.0" onchange="onCellFilterRangeChanged()">
+						<label>Minimum</label>						
+					</div>
+					<div>
+						<input id="editCellFilterMaxValue" type="text" value="1.0" onchange="onCellFilterRangeChanged()">
+						<label>Maximum</label>						
+					</div>
+
+				</div>
+			</div>
+
+			<div>
 				<div class="header">Slices</div>
 				<div class="section">
 					<input id="sliceICheckBox" type="checkbox" onchange="onSliceCheckBoxChanged(0, this)">I</input>

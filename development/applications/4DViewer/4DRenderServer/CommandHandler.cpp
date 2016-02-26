@@ -528,6 +528,26 @@ void CommandHandler::onSetColorScaleParams(
   m_sceneGraphManager->setColorScaleParams(colorScaleParams);
 }
 
+void CommandHandler::onEnableCellFilter(
+  const jsonxx::Object& params,
+  RemoteViz::Rendering::RenderArea* /*renderArea*/,
+  RemoteViz::Rendering::Connection* /*connection*/)
+{
+  bool enabled = params.get<bool>("enabled");
+
+  m_sceneGraphManager->enableCellFilter(enabled);
+}
+
+void CommandHandler::onSetCellFilterRange(
+  const jsonxx::Object& params,
+  RemoteViz::Rendering::RenderArea* /*renderArea*/,
+  RemoteViz::Rendering::Connection* /*connection*/)
+{
+  double minValue = params.get<jsonxx::Number>("minval");
+  double maxValue = params.get<jsonxx::Number>("maxval");
+
+  m_sceneGraphManager->setCellFilterRange(minValue, maxValue);
+}
 
 void CommandHandler::onSetStillQuality(
   const jsonxx::Object& params,
@@ -629,6 +649,8 @@ void CommandHandler::registerHandlers()
   m_handlers["ViewAll"] = &CommandHandler::onViewAll;
   m_handlers["SetViewPreset"] = &CommandHandler::onSetViewPreset;
   m_handlers["SetColorScaleParams"] = &CommandHandler::onSetColorScaleParams;
+  m_handlers["EnableCellFilter"] = &CommandHandler::onEnableCellFilter;
+  m_handlers["SetCellFilterRange"] = &CommandHandler::onSetCellFilterRange;
   m_handlers["SetStillQuality"] = &CommandHandler::onSetStillQuality;
   m_handlers["SetInteractiveQuality"] = &CommandHandler::onSetInteractiveQuality;
   m_handlers["SetBandwidth"] = &CommandHandler::onSetBandwidth;

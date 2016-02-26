@@ -120,6 +120,10 @@ private slots:
 
   void onFlowLinesThresholdChanged(int value);
 
+  void onCellFilterToggled(bool value);
+
+  void onCellFilterRangeChanged();
+
   void onItemDoubleClicked(QTreeWidgetItem* item, int column);
 
   void onShowGLInfo();
