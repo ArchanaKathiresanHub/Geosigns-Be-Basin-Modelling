@@ -18,10 +18,13 @@
 namespace PetscObjectsIO
 {
    /// \brief Output PETSc matrix to file
+   /// The output matrix can be loaded in Matlab.
+   /// If the format is binary: use share/petsc/matlab/PetscBinaryRead.m
+   /// If the format is matlab: run the generated "*.m" output file
    /// 
    /// \param [in] matrix         The PETSc matrix.
    /// \param [in] outputFolder   The output folder full path.
-   /// \param [in] outputFileName The output file name (extension will be added depending on output format).
+   /// \param [in] outputFileName The output file name (extension will be added depending on output format, ".bin" or ".m").
    /// \param [in] binary         TRUE: binary output, FALSE: ASCII matlab format.
    /// \return Return code        0 success, else failure.
    int writeMatrixToFile( const Mat & matrix,
@@ -29,7 +32,7 @@ namespace PetscObjectsIO
                           const std::string & outputFileName,
                           const bool binary );
 
-   /// \brief Load PETSc matrix from file. It works only with binary files
+   /// \brief Load PETSc matrix from file. It works ONLY with binary files
    /// 
    /// \param [in] inputFolder   The full path to input folder.
    /// \param [in] inputFileName The file name.
@@ -43,7 +46,7 @@ namespace PetscObjectsIO
    /// 
    /// \param [in] vector         The PETSc vector.
    /// \param [in] outputFolder   The output folder full path.
-   /// \param [in] outputFileName The output file name (extension will be added depending on output format).
+   /// \param [in] outputFileName The output file name (extension will be added depending on output format, ".bin" or ".m").
    /// \param [in] binary         TRUE: binary output, FALSE: ASCII matlab format.
    /// \return Return code        0 success, else failure.
    int writeVectorToFile( const Vec & vector,
@@ -51,7 +54,7 @@ namespace PetscObjectsIO
                           const std::string & outputFileName,
                           const bool binary );
 
-   /// \brief Load PETSc vector from file. It works only with binary files
+   /// \brief Load PETSc vector from file. It works ONLY with binary files
    /// 
    /// \param [in] inputFolder   The full path to input folder.
    /// \param [in] inputFileName The file name.

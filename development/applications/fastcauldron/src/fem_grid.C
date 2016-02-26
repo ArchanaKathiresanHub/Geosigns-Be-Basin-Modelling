@@ -2265,6 +2265,8 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  Pre
   overpressureHasDiverged  = false;
   fracturingOccurred = false;
 
+  // If the input provided m_saveTimeStep is equal to the age of the basin (case m_saveTimeStep == Previous_Time) or
+  // the current time step is the first one greater or equal to m_saveTimeStep, then matrix and RHS will be saved
   const bool saveMatrix = m_saveMatrixToFile and
                           ( (( m_saveTimeStep - Current_Time >= 0.0 ) and ( m_saveTimeStep - Previous_Time < 0.0 ))
                             or (m_saveTimeStep == Previous_Time) );
@@ -2707,6 +2709,8 @@ void Basin_Modelling::FEM_Grid::Solve_Nonlinear_Temperature_For_Time_Step ( cons
 
   temperatureHasDiverged = false;
   
+  // If the input provided m_saveTimeStep is equal to the age of the basin (case m_saveTimeStep == Previous_Time) or
+  // the current time step is the first one greater or equal to m_saveTimeStep, then matrix and RHS will be saved
   const bool saveMatrix = m_saveMatrixToFile and
                           ( (( m_saveTimeStep - Current_Time >= 0.0 ) and ( m_saveTimeStep - Previous_Time < 0.0 ))
                             or (m_saveTimeStep == Previous_Time) );
@@ -2952,6 +2956,8 @@ void Basin_Modelling::FEM_Grid::Solve_Linear_Temperature_For_Time_Step ( const d
   Total_System_Assembly_Time = System_Assembly_End_Time - System_Assembly_Start_Time;
 
   // Print matrix and rhs to file
+  // If the input provided m_saveTimeStep is equal to the age of the basin (case m_saveTimeStep == Previous_Time) or
+  // the current time step is the first one greater or equal to m_saveTimeStep, then matrix and RHS will be saved
   if( m_saveMatrixToFile and
       ( (( m_saveTimeStep - Current_Time >= 0.0 ) and ( m_saveTimeStep - Previous_Time < 0.0 ))
         or (m_saveTimeStep == Previous_Time) ) )

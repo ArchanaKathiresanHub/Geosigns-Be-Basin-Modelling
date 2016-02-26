@@ -18,7 +18,7 @@
 
 namespace PetscObjectsIO
 {
-   static const std::string s_matlabExt = ".mat";
+   static const std::string s_matlabExt = ".m";
    static const std::string s_binaryExt = ".bin";
 
    int writeMatrixToFile( const Mat & matrix,
@@ -46,10 +46,12 @@ namespace PetscObjectsIO
       {
          PetscMPIInt mpiSize = 0;
          MPI_Comm_size( PETSC_COMM_WORLD, &mpiSize );
-         PetscInt m, n;
+         PetscInt m, n;    // Number of rows and columns
          status = MatGetSize( matrix, &m, &n );
          if( (mpiSize > 1) and (m > 1024) )
          {
+            // PETSc by default prevents writing to ASCII file matrices with more than 1024 rows,
+            // in this case an additional command line option has to be added to override it
             char additionalOptions[] = "-mat_ascii_output_large";
             status = PetscOptionsInsertString( additionalOptions );
          }
@@ -58,7 +60,7 @@ namespace PetscObjectsIO
          status = PetscViewerSetFormat(viewer, PETSC_VIEWER_ASCII_MATLAB);
       }
       status = PetscViewerSetFromOptions( viewer );
-      status = MatView( matrix, viewer );
+      status = MatView( matrix, viewer ); // Write matrix to file
       status = PetscViewerDestroy( &viewer );
 
       return status;
@@ -83,6 +85,10 @@ namespace PetscObjectsIO
          status = PetscViewerBinaryOpen( PETSC_COMM_WORLD, fileName.c_str(), FILE_MODE_READ, &viewer );
          if( matrix == 0 )
          {
+            // If the matrix (to be filled in by reading the file) provided in input has not been initialized
+            // it will be initialized with default setup. If the current run is multiprocessor we might be
+            // loading the matrix in a different way with respect to how it was saved, for example in terms
+            // of local sizes on each processor
             PetscMPIInt mpiSize = 0;
             MPI_Comm_size( PETSC_COMM_WORLD, &mpiSize );
             if( mpiSize > 1 ) std::cout << "WARNING: Loading matrix with default setup in parallel run";
@@ -130,7 +136,7 @@ namespace PetscObjectsIO
          status = PetscViewerSetFormat(viewer, PETSC_VIEWER_ASCII_MATLAB);
       }
       status = PetscViewerSetFromOptions( viewer );
-      status = VecView( vector, viewer );
+      status = VecView( vector, viewer ); // Write vector to file
       status = PetscViewerDestroy( &viewer );
 
       return status;
@@ -155,6 +161,10 @@ namespace PetscObjectsIO
          status = PetscViewerBinaryOpen( PETSC_COMM_WORLD, fileName.c_str(), FILE_MODE_READ, &viewer );
          if( vector == 0 )
          {
+            // If the vector (to be filled in by reading the file) provided in input has not been initialized
+            // it will be initialized with default setup. If the current run is multiprocessor we might be
+            // loading the vector in a different way with respect to how it was saved, for example in terms
+            // of local sizes on each processor
             PetscMPIInt mpiSize = 0;
             MPI_Comm_size( PETSC_COMM_WORLD, &mpiSize );
             if( mpiSize > 1 ) std::cout << "WARNING: Loading vector with default setup in parallel run";
