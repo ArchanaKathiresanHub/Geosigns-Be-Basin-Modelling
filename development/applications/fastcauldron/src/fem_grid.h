@@ -378,12 +378,12 @@ namespace Basin_Modelling {
      VreOutputGrid                              m_vreOutputGrid;
 
      /// The vitrinte reflectance algorithm
-     std::auto_ptr<GeoPhysics::VitriniteReflectance> m_vreAlgorithm;
+     std::unique_ptr<GeoPhysics::VitriniteReflectance> m_vreAlgorithm;
 
      /// Grid that links computation of chemical compaction and grid
-     std::auto_ptr<ChemicalCompactionGrid>  m_chemicalCompactionGrid;
+     std::unique_ptr<ChemicalCompactionGrid>  m_chemicalCompactionGrid;
      ///and corresponding chemical compaction calculator   
-     std::auto_ptr<ChemicalCompactionCalculator>  m_chemicalCompactionCalculator;
+     std::unique_ptr<ChemicalCompactionCalculator>  m_chemicalCompactionCalculator;
 
      Temperature_Solver Temperature_Calculator;
      PressureSolver*    pressureSolver;

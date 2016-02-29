@@ -22,7 +22,7 @@ namespace pvtFlash
       bool EosPackComputeWithLumping(ComputeStruct* computeInfo)
       {
          double phaseCompMasses[CBMGenerics::ComponentManager::NumberOfPhases][CBMGenerics::ComponentManager::NumberOfOutputSpecies];
-         std::auto_ptr<EosPack> instance( EosPack::createNewInstance() );
+         std::unique_ptr<EosPack> instance( EosPack::createNewInstance() );
          
          bool result = instance->computeWithLumping( computeInfo->temperature, 
                                                      computeInfo->pressure, 
@@ -63,7 +63,7 @@ namespace pvtFlash
          assert( phaseViscosity );
 
          double phaseMasses[CBMGenerics::ComponentManager::NumberOfPhases][CBMGenerics::ComponentManager::NumberOfOutputSpecies];
-         std::auto_ptr<EosPack> instance( EosPack::createNewInstance() );
+         std::unique_ptr<EosPack> instance( EosPack::createNewInstance() );
          
          bool result = instance->computeWithLumping( temperature, 
                                                      pressure, 

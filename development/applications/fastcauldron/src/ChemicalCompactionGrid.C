@@ -171,7 +171,7 @@ void ChemicalCompactionGrid :: addLayers(
 		const int layerGridSize = xm*ym*zm;
 
 		// Get pointers to properties
-		std::auto_ptr<Properties> properties( getProperties(layer) );
+		std::unique_ptr<Properties> properties( getProperties(layer) );
 
 		double***depth;
 		DMDAVecGetArray(layer.layerDA,

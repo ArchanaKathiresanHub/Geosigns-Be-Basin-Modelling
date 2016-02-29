@@ -23,7 +23,7 @@ public:
    virtual ~CmdDoE() { ; }
 
    /// @brief Run command
-   virtual void execute( std::auto_ptr<casa::ScenarioAnalysis> & sa );
+   virtual void execute( std::unique_ptr<casa::ScenarioAnalysis> & sa );
 
 protected:
    unsigned int   m_doeAlg;

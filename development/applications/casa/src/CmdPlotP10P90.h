@@ -23,7 +23,7 @@ public:
    virtual ~CmdPlotP10P90() { ; }
 
    /// @brief Run command
-   virtual void execute( std::auto_ptr<casa::ScenarioAnalysis> & sa );
+   virtual void execute( std::unique_ptr<casa::ScenarioAnalysis> & sa );
 
    /// @brief Print help page about command purpose and it parameters
    /// @param cmdName - command name - how it is distinguished in CasaCommander

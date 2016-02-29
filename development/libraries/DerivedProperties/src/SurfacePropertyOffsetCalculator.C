@@ -1,9 +1,20 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
 #include "SurfacePropertyOffsetCalculator.h"
 
 #include "AbstractFormation.h"
 #include "FormationProperty.h"
 #include "FormationPropertyAtSurface.h"
 
+// utilitites library
+#include "LogHandler.h"
 
 DerivedProperties::SurfacePropertyOffsetCalculator::SurfacePropertyOffsetCalculator ( const DataModel::AbstractProperty* property,
                                                                                       const std::vector<std::string>&    dependentPropertyNames ) :
@@ -38,13 +49,13 @@ const DataModel::AbstractFormation* DerivedProperties::SurfacePropertyOffsetCalc
          return 0;
       }
    } else {
-      if ( formationAbove != 0 and ( formationBelow == 0 or formationBelow->getName () == "Crust" )) {
-         return formationAbove;
-      } else if ( formationBelow != 0 ) {
-         return formationBelow;
-      } else {
-         return 0;
-      }
+   if ( formationAbove != 0 and ( formationBelow == 0 or formationBelow->getName () == "Crust" )) {
+      return formationAbove;
+   } else if ( formationBelow != 0 ) {
+      return formationBelow;
+   } else {
+      return 0;
+   }
    }
 }
 
@@ -73,8 +84,8 @@ void DerivedProperties::SurfacePropertyOffsetCalculator::calculate ( AbstractPro
          if ( formationProperty != 0 ) {
             result = SurfacePropertyPtr ( new FormationPropertyAtSurface ( formationProperty, surface ));
             derivedProperties.push_back ( result );
-         }
-      }
+   }
+}
    }
 }
 
@@ -87,17 +98,15 @@ bool DerivedProperties::SurfacePropertyOffsetCalculator::isComputable ( const Ab
    }
    const DataModel::AbstractFormation* formation = getAdjacentFormation ( surface, false );
 
-   if ( formation != 0 ) {
-      const bool isComputable = propManager.formationPropertyIsComputable ( m_property, snapshot, formation );
-      if( not isComputable ) {
-         // check the formation below
-         formation = getAdjacentFormation ( surface, true );
-         return propManager.formationPropertyIsComputable ( m_property, snapshot, formation );
-      } else {
-         return true;
-      }
-   } else {
-      return false;
+   bool isComputable = propManager.formationPropertyIsComputable ( m_property, snapshot, formation );
+   if (not isComputable) {
+      // check the formation below
+      formation = getAdjacentFormation( surface, true );
+      isComputable = propManager.formationPropertyIsComputable( m_property, snapshot, formation );
    }
+   if (not isComputable) {
+      LogHandler( LogHandler::DEBUG_SEVERITY ) << "Derived surface offset property '" << m_property->getName() << "' is not computable.";
+   }
+   return isComputable;
 
 }

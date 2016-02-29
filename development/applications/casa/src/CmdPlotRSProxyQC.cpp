@@ -58,9 +58,9 @@ CmdPlotRSProxyQC::CmdPlotRSProxyQC( CasaCommander & parent, const std::vector< s
    if ( !testCases.empty() ) m_testCaseList = CfgFileParser::list2array( testCases, ',' );
 }
 
-void CmdPlotRSProxyQC::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
+void CmdPlotRSProxyQC::execute( std::unique_ptr<casa::ScenarioAnalysis> & sa )
 {
-   LogHandler( LogHandler::INFO ) << "Generating script to plot QC for " << m_proxyName << "rs proxy...";
+   LogHandler( LogHandler::INFO_SEVERITY ) << "Generating script to plot QC for " << m_proxyName << "rs proxy...";
 
    std::vector<casa::RunCase *> proxyCaseSet;
    std::vector<casa::RunCase *> testCaseSet;
@@ -402,13 +402,13 @@ void CmdPlotRSProxyQC::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
    ofs << "   eval( sprintf( 'print QC_" << MatlabExporter::correctName( m_proxyName ) << "_" << "%s.jpg -S1000,1000', ProxyQC(i).obsNameFN ) );\n";
    ofs << "end\n";
 
-   LogHandler( LogHandler::INFO ) << "Script generation succeded";
+   LogHandler( LogHandler::INFO_SEVERITY ) << "Script generation succeded";
 }
 
 
 
 std::string CmdPlotRSProxyQC::obsWellData( size_t                                  obsID
-                                         , std::auto_ptr<casa::ScenarioAnalysis> & sa
+                                         , std::unique_ptr<casa::ScenarioAnalysis> & sa
                                          , std::vector<casa::RunCase *>          & proxyCaseSet
                                          , std::vector<casa::RunCase *>          & testCaseSet
                                          )

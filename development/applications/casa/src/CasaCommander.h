@@ -44,7 +44,7 @@ public:
    void addCommand( const std::string & cmdID, const std::vector< std::string > & prms, size_t inpFileLineNum );
 
    /// @brief Go over all command in a queue and execute them for the
-   void executeCommands( std::auto_ptr<casa::ScenarioAnalysis> & sa );
+   void executeCommands( std::unique_ptr<casa::ScenarioAnalysis> & sa );
 
    /// @brief Get verbose level for command processing
    VerboseLevel verboseLevel() const { return m_msgLvl; }

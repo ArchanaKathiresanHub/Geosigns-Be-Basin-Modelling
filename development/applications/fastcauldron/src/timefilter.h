@@ -1,3 +1,12 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
 #ifndef _TIMEFILTER_H_
 #define _TIMEFILTER_H_
 
@@ -395,8 +404,6 @@ class TimeFilter
   void setFilter(const string& propertyName, const string& outputOption);
 
   void setFilter(const string& propertyName, const DataAccess::Interface::PropertyOutputOption outputOption);
-
-  bool IsSomethingSelected()const;
 
    const std::string& getPropertyName(PropertyList propertyId) const {return PropertyName[propertyId];}
 

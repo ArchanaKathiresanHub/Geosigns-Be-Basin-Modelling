@@ -118,9 +118,9 @@ VarPrmPermeabilityModel::VarPrmPermeabilityModel( const char                    
       throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "It is not possible to variate permeability model parameters for impermeable lithology";
    }
 
-   std::auto_ptr<PrmPermeabilityModel> minPrm;
-   std::auto_ptr<PrmPermeabilityModel> maxPrm;
-   std::auto_ptr<PrmPermeabilityModel> basPrm;
+   std::unique_ptr<PrmPermeabilityModel> minPrm;
+   std::unique_ptr<PrmPermeabilityModel> maxPrm;
+   std::unique_ptr<PrmPermeabilityModel> basPrm;
 
    // for Multipoint create profiles with the same porosity points set
    if ( PrmPermeabilityModel::Multipoint == mdlType )

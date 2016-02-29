@@ -1,3 +1,13 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #ifndef _FILTERWIZARD_H_
 #define _FILTERWIZARD_H_
 
@@ -26,7 +36,6 @@ public:
   bool IsBiomarkersCalculationNeeded();
   bool IsBulkThCondCalculationNeeded();
   bool IsBulkPermeabilityCalculationNeeded();
-  bool IsDecompactionNeeded();
   bool IsDiffusivityCalculationNeeded();
   bool IsFissionTrackCalculationNeeded();
   bool IsHeatFlowCalculationNeeded();

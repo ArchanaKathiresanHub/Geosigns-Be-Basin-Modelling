@@ -48,7 +48,7 @@ int main(int argc, char *argv[])
 
       UnitTestFactory theUnitTestFactory = Singleton<UnitTestFactory>::instance();
       
-      auto_ptr<UnitTest> theTest (theUnitTestFactory.createTest(theType, testFileFullPathName, simulateGX5, approxFlag));
+      unique_ptr<UnitTest> theTest (theUnitTestFactory.createTest(theType, testFileFullPathName, simulateGX5, approxFlag));
 
       theTest->execute();
    } catch(int &ex) {

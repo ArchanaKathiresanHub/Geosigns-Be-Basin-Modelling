@@ -1,3 +1,12 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
 #include <iostream>
 #include <vector>
 #include <string>
@@ -11,12 +20,17 @@
 #include "MockProperty.h"
 #include "MockGrid.h"
 
+// utilitites library
+#include "FormattingException.h"
+
 #include <gtest/gtest.h>
 
 using namespace DataModel;
 using namespace DerivedProperties;
 
 static const double ValueToAdd = 10.0;
+
+typedef formattingexception::GeneralException MultiplePropertyException;
 
 class TestPropertyManager : public DerivedProperties::AbstractPropertyManager {
 
@@ -135,8 +149,8 @@ TEST ( AbstractPropertyManagerTest,  Test1 )
    SurfacePropertyPtr surfaceProperty3 = propertyManager.getSurfaceProperty ( property3, snapshot, surface );
 
    // These following 2 surface properties should be null after the get surface property call.
-   SurfacePropertyPtr surfaceProperty5 = propertyManager.getSurfaceProperty ( property3, snapshot, bottomSurface );
-   SurfacePropertyPtr surfaceProperty6 = propertyManager.getSurfaceProperty ( property3, anotherSnapshot, bottomSurface );
+   SurfacePropertyPtr surfaceProperty5 = propertyManager.getSurfaceProperty( property3, snapshot, bottomSurface );
+   SurfacePropertyPtr surfaceProperty6 = propertyManager.getSurfaceProperty( property3, anotherSnapshot, bottomSurface );
 
 
    EXPECT_EQ ( property4, surfaceProperty4->getProperty ());
@@ -151,8 +165,8 @@ TEST ( AbstractPropertyManagerTest,  Test1 )
 
    }
 
-   EXPECT_EQ ( true, surfaceProperty5 == 0 );
-   EXPECT_EQ ( true, surfaceProperty6 == 0 );
+   EXPECT_EQ( true, surfaceProperty5 == 0 );
+   EXPECT_EQ( true, surfaceProperty6 == 0 );
 
    delete snapshot;
    delete surface;

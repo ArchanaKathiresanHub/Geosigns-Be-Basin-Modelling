@@ -203,7 +203,7 @@ namespace casa
          ok = sz.save( rcID, "ID" );
       }
 
-      // std::auto_ptr<mbapi::Model> m_model;
+      // std::unique_ptr<mbapi::Model> m_model;
       ok = ok ? sz.save( m_modelProjectFileName, "PathToModel" ) : ok;
 
       // save parameters value for this case
@@ -240,7 +240,7 @@ namespace casa
       // register runcase with deserializer under read ID to allow RunManager object keep reference after deserializtion
       if ( ok ) dz.registerObjPtrUnderID( this, rcID );
 
-      // std::auto_ptr<mbapi::Model> m_model;
+      // std::unique_ptr<mbapi::Model> m_model;
       ok = ok ? dz.load( m_modelProjectFileName, "PathToModel" ) : ok;
 
       // load parameters value for this case

@@ -79,7 +79,7 @@ public:
 
 TEST_F( DoETest, Tornado2Prms )
 {
-   std::auto_ptr<casa::ScenarioAnalysis> sc;
+   std::unique_ptr<casa::ScenarioAnalysis> sc;
    sc.reset( new ScenarioAnalysis() );
 
    ASSERT_EQ( ErrorHandler::NoError, sc->defineBaseCase( "Ottoland.project3d" ) );

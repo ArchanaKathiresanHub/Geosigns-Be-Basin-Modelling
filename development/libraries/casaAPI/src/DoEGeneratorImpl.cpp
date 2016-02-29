@@ -119,7 +119,7 @@ namespace casa
 
             // replicate for each categorical value?
             bool replicate = LatinHypercube == m_typeOfDoE ? false : true; // LatinHypercube bit special case, doesn't support replication
-            std::auto_ptr<SUMlib::ExpDesign> doe; // SUMLib DoE object
+            std::unique_ptr<SUMlib::ExpDesign> doe; // SUMLib DoE object
 
             switch ( m_typeOfDoE )
             {
@@ -165,7 +165,7 @@ namespace casa
    void DoEGeneratorImpl::addCase( const VarSpace & varSp, std::vector<RunCase*> & expSet, const SUMlib::Case & cs )
    {
       // create new CASA case
-      std::auto_ptr<RunCaseImpl> newCase( new RunCaseImpl() );
+      std::unique_ptr<RunCaseImpl> newCase( new RunCaseImpl() );
 
       sumext::convertCase( cs, varSp, *(newCase.get()) );
 

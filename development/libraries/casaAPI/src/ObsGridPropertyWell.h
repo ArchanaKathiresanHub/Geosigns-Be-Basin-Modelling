@@ -157,7 +157,7 @@ namespace casa
 
       std::vector<int>          m_posDataMiningTbl; ///< row number in DataMiningIoTbl which corresponds this observable
 
-      std::auto_ptr<ObsValue>   m_refValue;         ///< reference value
+      std::unique_ptr<ObsValue>   m_refValue;         ///< reference value
       double                    m_devValue;         ///< standard deviation for reference value
 
       double                    m_saWeight;         ///< Observable weight for sensitivity analysis

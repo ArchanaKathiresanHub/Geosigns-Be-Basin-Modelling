@@ -162,7 +162,7 @@ namespace casa
       SUMlib::McmcStatistics           m_statistics;
       SUMlib::ParameterPdf             m_unscaledPdf;
       SUMlib::ParameterSpace           m_parSpace;
-      std::auto_ptr<SUMlib::McmcBase>  m_mcmc;          // SUMlib MC/MC/MC Solver object itself
+      std::unique_ptr<SUMlib::McmcBase>  m_mcmc;          // SUMlib MC/MC/MC Solver object itself
    };
 }
 

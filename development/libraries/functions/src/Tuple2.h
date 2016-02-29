@@ -7,6 +7,8 @@
 #undef max
 #endif
 
+#include <tuple>
+
 namespace functions {
 
 template <typename ENTRY>
@@ -24,7 +26,7 @@ private:
 public:
 
   inline static Tuple2<ENTRY> filled(const ENTRY& value) {
-    return tuple(value,value);
+    return std::tuple<ENTRY,ENTRY>(value,value);
   }
  
   Tuple2()

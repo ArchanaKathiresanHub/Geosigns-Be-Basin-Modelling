@@ -7,12 +7,6 @@
 
 #include "NumericFunctions.h"
 
-#ifdef _MSC_VER
-#define NOMINMAX
-#include <float.h>  // for _isnan() on VC++
-#define isnan(x) _isnan(x)  // VC++ uses _isnan() instead of isnan()
-#endif /** _MSC_VER */
-
 namespace GeoPhysics {
 
    VreArrheniusMethod::VreArrheniusMethod(int numberOfReactions, double preExponentialFactorA, const double * stoichiometricFactors, const double * activationEnergies)
@@ -206,7 +200,7 @@ namespace GeoPhysics {
       {
          vreStorageArray[node] = convertFractionToVR( m_fractionF[node] );
 
-         assert( !isnan( vreStorageArray[node] ) );
+         assert( !std::isnan( vreStorageArray[node] ) );
       }
    }
 

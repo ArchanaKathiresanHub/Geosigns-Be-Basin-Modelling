@@ -96,11 +96,11 @@ void CasaCommander::addCommand( const std::string & cmdName, const std::vector< 
    m_cmdNames.push_back( cmdName );
    m_inpFileCmdPos.push_back( lineNum );
 
-   LogHandler( LogHandler::DEBUG ) << "Added command to the command queue: " << (typeid(*(cmd.get())).name()) << "("
+   LogHandler( LogHandler::DEBUG_SEVERITY ) << "Added command to the command queue: " << (typeid(*(cmd.get())).name()) << "("
                               << CfgFileParser::implode( prms, "," ) << ")";
 }
 
-void CasaCommander::executeCommands( std::auto_ptr<casa::ScenarioAnalysis> & sa )
+void CasaCommander::executeCommands( std::unique_ptr<casa::ScenarioAnalysis> & sa )
 {
    for ( size_t i = 0; i < m_cmds.size(); ++i )
    {

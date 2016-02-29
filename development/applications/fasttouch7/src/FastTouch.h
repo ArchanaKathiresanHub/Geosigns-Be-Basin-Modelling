@@ -55,7 +55,7 @@ namespace fasttouch
 
          bool addToComputationList (const DataAccess::Interface::TouchstoneMap * touchstoneMap);
 
-         std::auto_ptr<DataAccess::Interface::ProjectHandle> m_projectHandle;
+         std::unique_ptr<DataAccess::Interface::ProjectHandle> m_projectHandle;
          MasterTouch m_masterTouch;
    };
 }
