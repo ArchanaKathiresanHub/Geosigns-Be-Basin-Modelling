@@ -60,6 +60,7 @@ namespace PetscObjectsIO
          status = PetscViewerSetFormat(viewer, PETSC_VIEWER_ASCII_MATLAB);
       }
       status = PetscViewerSetFromOptions( viewer );
+      status = PetscObjectSetName( (PetscObject) matrix, "A" );
       status = MatView( matrix, viewer ); // Write matrix to file
       status = PetscViewerDestroy( &viewer );
 
@@ -136,6 +137,7 @@ namespace PetscObjectsIO
          status = PetscViewerSetFormat(viewer, PETSC_VIEWER_ASCII_MATLAB);
       }
       status = PetscViewerSetFromOptions( viewer );
+      status = PetscObjectSetName( (PetscObject) vector, "b" );
       status = VecView( vector, viewer ); // Write vector to file
       status = PetscViewerDestroy( &viewer );
 
