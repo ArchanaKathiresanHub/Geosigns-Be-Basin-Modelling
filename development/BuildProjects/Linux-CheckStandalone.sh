@@ -107,8 +107,8 @@ function onExit()
 trap onExit EXIT
 
 CMAKE=/glb/data/ifshou_ird02/projects/cauldron/cmake/latest/bin/cmake
-MPIROOT=/apps/3rdparty/intel/impi/4.1.3.049
-MKLROOT=/apps/3rdparty/intel/parallel_studio_xe/mkl
+#MPIROOT=/apps/3rdparty/intel/impi/4.1.3.049
+#MKLROOT=/apps/3rdparty/intel/parallel_studio_xe/mkl
 
 tar=`basename $tarfile`
 srcdir=`basename $tarfile .tar.gz`
@@ -121,17 +121,34 @@ scp -q -o StrictHostKeyChecking=no -o CheckHostIP=no ${local_host}:${tarfile} . 
 echo "Untarring the source package"
 tar xzf $tar || { echo "tar : error : Could not uncompress tarfile"; exit 1 ; }
 
+#################################################################################
+# loading modules
+[[ -r /glb/data/hpcrnd/easybuild/public/etc/profile.d/shell-envmodules.sh ]] && . /glb/data/hpcrnd/easybuild/public/etc/profile.d/shell-envmodules.sh
+module load impi/5.1.2.150-iccifort-2016.1.150-GCC-4.9.3-2.25
+module load imkl/11.3.1.150-iimpi-2016.01-GCC-4.9.3-2.25 &9
+module load CMake/3.4.1
+
 echo "Configuring the package"
-${CMAKE} \
+${srcdir}/development/bootstrap.sh \
+   -DBUSE_INTEL_COMPILER=OFF \
    -DBUILD_SHARED_LIBS=ON \
    -DBM_USE_INTEL_MPI=ON \
-   -DINTEL_MPI_ROOT=$MPIROOT \
-   -DINTEL_MKL_ROOT=$MKLROOT \
    -DBM_UNIT_TEST_OUTPUT_DIR=. \
    -DBLA_VENDOR=MKL \
    -DBM_CONFIG_PRESET=OFF \
-   ${srcdir}/development \
    || { echo "CMake : error : Configuration of standalone package has failed" ; exit 1; }
+#################################################################################
+  
+#${CMAKE} \
+#   -DBUILD_SHARED_LIBS=ON \
+#   -DBM_USE_INTEL_MPI=ON \
+#   -DINTEL_MPI_ROOT=$MPIROOT \
+#   -DINTEL_MKL_ROOT=$MKLROOT \
+#   -DBM_UNIT_TEST_OUTPUT_DIR=. \
+#   -DBLA_VENDOR=MKL \
+#   -DBM_CONFIG_PRESET=OFF \
+#   ${srcdir}/development \
+#   || { echo "CMake : error : Configuration of standalone package has failed" ; exit 1; }
 
 source envsetup.sh
 
