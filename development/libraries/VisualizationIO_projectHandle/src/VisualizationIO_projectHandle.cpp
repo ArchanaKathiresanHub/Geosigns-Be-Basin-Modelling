@@ -70,6 +70,8 @@ void CauldronIO::MapProjectHandle::retrieve()
         delete[] mapData;
     }
 
+    gridmap->release();
+
     m_retrieved = true;
 }
 
@@ -77,12 +79,6 @@ void CauldronIO::MapProjectHandle::retrieve()
 void CauldronIO::MapProjectHandle::release()
 {
     if (!isRetrieved()) return;
-
-    // release the gridmap data if possible
-    assert(m_propVal != NULL);
-    const DataAccess::Interface::GridMap* gridmap = m_propVal->getGridMap();
-
-    gridmap->release();
     SurfaceData::release();
 }
 
@@ -119,23 +115,6 @@ void CauldronIO::VolumeProjectHandle::retrieve()
 void CauldronIO::VolumeProjectHandle::release()
 {
     if (!isRetrieved()) return;
-
-    if (m_depthFormations && m_propValues)
-    {
-        assert(m_propVal == NULL && m_depthInfo == NULL);
-        for (size_t i = 0; i < m_propValues->size(); ++i)
-        {
-            const GridMap* gridMap = m_propValues->at(i)->getGridMap();
-            gridMap->release();
-        }
-    }
-    else if (m_propVal != NULL)
-    {
-        assert(!m_depthFormations && !m_propValues);
-        const GridMap* gridMap = m_propVal->getGridMap();
-        gridMap->release();
-    }
-
     VolumeData::release();
 }
 
@@ -186,6 +165,7 @@ void CauldronIO::VolumeProjectHandle::retrieveMultipleFormations()
                 }
             }
         }
+        gridMap->release();
     }
 
     // Assign the data
@@ -252,7 +232,8 @@ void CauldronIO::VolumeProjectHandle::retrieveSingleFormation()
             setConstantValue(constantValue);
         delete[] inputData;
     }
-    
+
+    gridMap->release();
     m_retrieved = true;
 }
 
