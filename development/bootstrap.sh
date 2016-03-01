@@ -240,9 +240,19 @@ $cmake $extra_cmake_params $@ $source_directory || exit 1
 if [ $module_loaded_in_script -eq 1 ]; then
    echo ""
    echo "Some modules has been loaded in bootstrap script. To compile cauldron you'll need these modules:"
-   echo "  ${intel_cxx_module_name}"
-   echo "  ${intel_impi_module_name}"
-   echo "  ${intel_imkl_module_name}"
+
+   if [ $cmake_param_use_intel -eq 1 ]; then
+      echo "  ${intel_cxx_module_name}"
+   fi
+
+   if [ $cmake_param_use_impi -eq 1 ]; then
+      echo "  ${intel_impi_module_name}"
+   fi
+   
+   if [ $cmake_param_use_imkl -eq 1 ] ; then
+      echo "  ${intel_imkl_module_name}"
+   fi
+   
    echo "to be loaded before make command. To do so you need to add to your .kshrc/.bashrc file the following lines:"
    echo ""
    echo "  [[ -r /glb/data/hpcrnd/easybuild/public/etc/profile.d/shell-envmodules.sh ]] && . /glb/data/hpcrnd/easybuild/public/etc/profile.d/shell-envmodules.sh"

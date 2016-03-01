@@ -106,7 +106,7 @@ function onExit()
 
 trap onExit EXIT
 
-CMAKE=/glb/data/ifshou_ird02/projects/cauldron/cmake/latest/bin/cmake
+#CMAKE=/glb/data/ifshou_ird02/projects/cauldron/cmake/latest/bin/cmake
 #MPIROOT=/apps/3rdparty/intel/impi/4.1.3.049
 #MKLROOT=/apps/3rdparty/intel/parallel_studio_xe/mkl
 
@@ -122,15 +122,16 @@ echo "Untarring the source package"
 tar xzf $tar || { echo "tar : error : Could not uncompress tarfile"; exit 1 ; }
 
 #################################################################################
-# loading modules
+# preloading modules before bootstrap call
+
 [[ -r /glb/data/hpcrnd/easybuild/public/etc/profile.d/shell-envmodules.sh ]] && . /glb/data/hpcrnd/easybuild/public/etc/profile.d/shell-envmodules.sh
 module load impi/5.1.2.150-iccifort-2016.1.150-GCC-4.9.3-2.25
-module load imkl/11.3.1.150-iimpi-2016.01-GCC-4.9.3-2.25 &9
+module load imkl/11.3.1.150-iimpi-2016.01-GCC-4.9.3-2.25
 module load CMake/3.4.1
 
 echo "Configuring the package"
 ${srcdir}/development/bootstrap.sh \
-   -DBUSE_INTEL_COMPILER=OFF \
+   -DBM_USE_INTEL_COMPILER=OFF \
    -DBUILD_SHARED_LIBS=ON \
    -DBM_USE_INTEL_MPI=ON \
    -DBM_UNIT_TEST_OUTPUT_DIR=. \
