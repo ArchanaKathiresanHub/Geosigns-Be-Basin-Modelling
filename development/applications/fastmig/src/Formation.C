@@ -954,7 +954,7 @@ namespace migration
             if (theFormationProperty != 0)
             {
                theMap = m_migrator->getPropertyManager().produceDerivedGridMap(theFormationProperty);
-                  }
+            }
 
          }
       }

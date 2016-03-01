@@ -392,7 +392,7 @@ DerivedProperties::FormationMapPropertyPtr DerivedProperties::AbstractPropertyMa
    }
 
    else{
-      throw AbstractPropertyException() << "Could not compute surface derived property " << property->getName() << " @ snapshot " << snapshot->getTime() << ":"
+      throw AbstractPropertyException() << "Could not compute formation map derived property " << property->getName() << " @ snapshot " << snapshot->getTime() << ":"
          << " this property is not a 2D formation property.";
    }
 
@@ -436,7 +436,7 @@ DerivedProperties::FormationPropertyPtr DerivedProperties::AbstractPropertyManag
    }
 
    else{
-      throw AbstractPropertyException() << "Could not compute surface derived property " << property->getName()
+      throw AbstractPropertyException() << "Could not compute formation derived property " << property->getName()
          << " @ snapshot " << snapshot->getTime() << "Ma for formation " << formation->getName() << ": this property is neither a 3D continuous property or a 3D discontinuous property.";
    }
 
@@ -479,8 +479,10 @@ DerivedProperties::FormationSurfacePropertyPtr DerivedProperties::AbstractProper
    }
 
    else{
-      throw AbstractPropertyException() << "Could not compute surface derived property " << property->getName() << " @ snapshot " << snapshot->getTime() << ":"
-         << " this property is not a 3D continuous property.";
+      // This error is commented because of a bug in fastmig
+      // Should be reactivated after correction of BUG 56677
+      //throw AbstractPropertyException() << "Could not compute formation surface derived property " << property->getName() << " @ snapshot " << snapshot->getTime() << ":"
+      //   << " this property is not a 3D discontinuous property.";
    }
 
    return result;
@@ -521,7 +523,7 @@ DerivedProperties::ReservoirPropertyPtr DerivedProperties::AbstractPropertyManag
    }
 
    else{
-      throw AbstractPropertyException() << "Could not compute surface derived property " << property->getName() << " @ snapshot " << snapshot->getTime() << ":"
+      throw AbstractPropertyException() << "Could not compute reservoir derived property " << property->getName() << " @ snapshot " << snapshot->getTime() << ":"
          << " this property is not a 2D formation property.";
    }
 

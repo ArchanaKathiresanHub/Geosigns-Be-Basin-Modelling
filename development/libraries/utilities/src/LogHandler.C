@@ -97,7 +97,7 @@ LogHandler::~LogHandler(){
             switch (m_severity)
             {
             case LogHandler::DEBUG_SEVERITY:     BOOST_LOG_TRIVIAL( debug )   << "MeSsAgE DEBUG    " << m_oss.str(); break;
-            case LogHandler::INFO_SEVERITY:      BOOST_LOG_TRIVIAL( info )    << m_oss.str();                        break;
+            case LogHandler::INFO_SEVERITY:      BOOST_LOG_TRIVIAL( info )                           << m_oss.str(); break;
             case LogHandler::WARNING_SEVERITY:   BOOST_LOG_TRIVIAL( warning ) << "MeSsAgE WARNING  " << m_oss.str(); break;
             case LogHandler::ERROR_SEVERITY:     BOOST_LOG_TRIVIAL( error )   << "MeSsAgE ERROR    " << m_oss.str(); break;
             case LogHandler::FATAL_SEVERITY:     BOOST_LOG_TRIVIAL( fatal )   << "MeSsAgE FATAL    " << m_oss.str(); break;
