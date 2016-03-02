@@ -436,8 +436,10 @@ DerivedProperties::FormationPropertyPtr DerivedProperties::AbstractPropertyManag
    }
 
    else{
-      throw AbstractPropertyException() << "Could not compute formation derived property " << property->getName()
-         << " @ snapshot " << snapshot->getTime() << "Ma for formation " << formation->getName() << ": this property is neither a 3D continuous property or a 3D discontinuous property.";
+      // This error is commented because of a bug in cauldron2voxet
+      // Should be reactivated after correction of BUG 56710
+      //throw AbstractPropertyException() << "Could not compute formation derived property " << property->getName()
+      //   << " @ snapshot " << snapshot->getTime() << "Ma for formation " << formation->getName() << ": this property is neither a 3D continuous property or a 3D discontinuous property.";
    }
 
    return result;

@@ -1,8 +1,6 @@
 #include <stdlib.h>
-#include <unistd.h>
 #include <math.h>
 #include <map>
-#include <values.h>
 
 #include <sys/types.h>
 #include <sys/stat.h>
