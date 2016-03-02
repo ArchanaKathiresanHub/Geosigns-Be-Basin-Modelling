@@ -224,7 +224,6 @@ namespace migration
 	 double biodegradeCharges (void);
     bool computeHydrocarbonWaterContactDepth (void);
     bool computeHydrocarbonWaterTemperature (void);
-    bool isDiffusionOn (void);
     bool diffusionLeakCharges (void);
 	 void mergeSpillingTraps (void);
 #ifdef MERGEUNDERSIZEDTRAPSAPRIORI
@@ -353,6 +352,7 @@ namespace migration
 	 bool checkChargesToBeMigrated (ComponentId componentId);
 
    public:
+    bool isDiffusionOn (void);
 	 void addBlocked (ComponentId componentId, double mass);
 	 void addBlocked (const Composition & composition);
 	 void subtractBlocked (ComponentId componentId, double mass);
