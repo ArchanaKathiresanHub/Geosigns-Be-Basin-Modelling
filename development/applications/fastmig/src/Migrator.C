@@ -779,6 +779,7 @@ bool Migrator::detectReservoirs (const Interface::Snapshot * start, const Interf
    Formation *reservoirFormation;
    Formation *sealFormation;
    Interface::ReservoirList *  reservoirsBeforeDetection = getReservoirs ();
+   int numDetected = 0;
 
 
    bool topSealFormationReached = false;
@@ -813,6 +814,7 @@ bool Migrator::detectReservoirs (const Interface::Snapshot * start, const Interf
                // cerr << "Formation " << reservoirFormation->getName() << " detected" << endl;
                // if the formation is detected as reservoir, add it in the reservoir list 
                reservoirFormation->addDetectedReservoir (start);
+               numDetected += 1;
             }
          }
          // print to file information about the reservoirs 
@@ -822,6 +824,9 @@ bool Migrator::detectReservoirs (const Interface::Snapshot * start, const Interf
          if (reservoirFormation->getDetectedReservoir()) reservoirFormation->setEndOfPath ();
       }
    }
+   
+   // in case one or more formations have been detected, sort m_reservoirs
+   if (numDetected > 0) sortReservoirs();
 
 
    return true;
@@ -1038,11 +1043,13 @@ bool Migrator::chargeReservoir (migration::Reservoir * reservoir, migration::Res
    totalLeakedUpward -= totalLeakedOutward;
    if (GetRank () == 0) m_massBalance->subtractFromBalance ("Leaked upward from reservoir", totalLeakedUpward);
 
+   if (!m_legacyMigration && reservoir->isDiffusionOn())
+   {
    /// For each column in the trap set the diffusion starting time
    reservoir->broadcastTrapDiffusionStartTimes ();
-
    /// For each column in the trap set the new penetration distances
    reservoir->broadcastTrapPenetrationDistances ();
+   }
 
    reservoir->broadcastTrapFillDepthProperties ();
    reservoir->broadcastTrapChargeProperties ();
@@ -1258,17 +1265,19 @@ Interface::ReservoirList * Migrator::getReservoirs (const Interface::Formation *
    }
    else
    {
-      // Sort evertime a detected reservoir is added/removed to the list 
-      if (!m_reservoirs || m_reservoirs->empty () || m_reservoirs->size () != m_projectHandle->getReservoirs (0)->size())
-      {
-         m_reservoirs = m_projectHandle->getReservoirs (0);
-
-         if (!m_reservoirs->empty ())
-            std::sort (m_reservoirs->begin (), m_reservoirs->end (), reservoirSorter);
-      }
+      if (!m_reservoirs) sortReservoirs();
       return m_reservoirs;
    }
 }
+
+void Migrator::sortReservoirs() const
+{ 
+   //if a list is present, delete it because a new one will be created (this occours in ARD)
+   if (m_reservoirs) delete m_reservoirs; 
+   m_reservoirs = m_projectHandle->getReservoirs();
+   sort(m_reservoirs->begin(), m_reservoirs->end(), reservoirSorter);
+}
+
 
 void Migrator::addTrapRecord (migration::Reservoir * reservoir, migration::TrapPropertiesRequest & tpRequest)
 {

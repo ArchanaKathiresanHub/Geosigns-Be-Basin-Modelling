@@ -1049,6 +1049,9 @@ namespace migration
       }
       gridMap->restoreData ();
 
+      //when calling getReservoirs (this) a new ReservoirList is created in project handle.
+      delete reservoirList;
+
       return true;
    }
 
@@ -1721,7 +1724,8 @@ namespace migration
             }
          }
       }
- 
+      
+      delete leakingReservoirList;
       RequestHandling::FinishRequestHandling ();
    }
 

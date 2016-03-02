@@ -200,6 +200,7 @@ namespace migration
 
    private:
       GeoPhysics::ProjectHandle* openProject (const std::string & fileName);
+      void sortReservoirs() const;
 
       mutable DataAccess::Interface::FormationList * m_formations;
       mutable DataAccess::Interface::ReservoirList * m_reservoirs;
