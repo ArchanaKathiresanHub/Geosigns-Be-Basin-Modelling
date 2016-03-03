@@ -754,7 +754,7 @@ float CauldronIO::SurfaceData::getValue(size_t i, size_t j) const
     return m_internalData[getMapIndex(i, j)];
 }
 
-float const * CauldronIO::SurfaceData::getRowValues(size_t j)
+const float* CauldronIO::SurfaceData::getRowValues(size_t j)
 {
     if (!canGetRow()) throw CauldronIOException("Cannot return row values");
     if (!isRetrieved()) throw CauldronIOException("Need to assign data first");
@@ -765,7 +765,7 @@ float const * CauldronIO::SurfaceData::getRowValues(size_t j)
     return m_internalData + getMapIndex(0, j);
 }
 
-float const * CauldronIO::SurfaceData::getColumnValues(size_t i)
+const float* CauldronIO::SurfaceData::getColumnValues(size_t i)
 {
     if (!isRetrieved()) throw CauldronIOException("Need to assign data first");
     if (!canGetColumn()) throw CauldronIOException("Cannot return column values");
@@ -776,7 +776,7 @@ float const * CauldronIO::SurfaceData::getColumnValues(size_t i)
     return m_internalData + getMapIndex(i, 0);
 }
 
-float const * CauldronIO::SurfaceData::getSurfaceValues()
+const float* CauldronIO::SurfaceData::getSurfaceValues()
 {
     if (!isRetrieved()) throw CauldronIOException("Need to assign data first");
 
@@ -819,25 +819,19 @@ float CauldronIO::SurfaceData::getConstantValue() const
 /// Volume implementation
 //////////////////////////////////////////////////////////////////////////
 
-CauldronIO::Volume::Volume(SubsurfaceKind kind, boost::shared_ptr<const Geometry3D> geometry)
+CauldronIO::Volume::Volume(SubsurfaceKind kind)
 {
     m_subSurfaceKind = kind;
-    m_geometry = geometry;
 }
 
 CauldronIO::Volume::~Volume()
 {
+    m_propVolumeList.clear();
 }
 
 CauldronIO::SubsurfaceKind CauldronIO::Volume::getSubSurfaceKind() const
 {
     return m_subSurfaceKind;
-}
-
-
-const boost::shared_ptr<const Geometry3D>& CauldronIO::Volume::getGeometry() const
-{
-    return m_geometry;
 }
 
 const PropertyVolumeDataList& CauldronIO::Volume::getPropertyVolumeDataList() const
@@ -926,6 +920,11 @@ size_t CauldronIO::Geometry3D::getSize() const
     return m_numI * m_numJ * m_numK;
 }
 
+void CauldronIO::Geometry3D::updateK_range(size_t firstK, size_t numK)
+{
+    m_firstK = firstK;
+    m_numK = numK;
+}
 
 bool CauldronIO::Geometry3D::operator==(const Geometry3D& other) const
 {
@@ -1062,27 +1061,15 @@ const boost::shared_ptr<const Formation>& CauldronIO::Reservoir::getFormation() 
 /// VolumeData implementation
 //////////////////////////////////////////////////////////////////////////
 
-CauldronIO::VolumeData::VolumeData(const boost::shared_ptr<const Geometry3D>& geometry)
+CauldronIO::VolumeData::VolumeData(const boost::shared_ptr<Geometry3D>& geometry)
 {
     m_internalDataIJK = NULL;
     m_internalDataKIJ = NULL;
     m_isConstant = false;
     m_retrieved = false;
-
-    // Cache all geometry
-    m_numI = geometry->getNumI();
-    m_numJ = geometry->getNumJ();
-    m_firstK = geometry->getFirstK();
-    m_numK = geometry->getNumK();
-    m_deltaI = geometry->getDeltaI();
-    m_deltaJ = geometry->getDeltaJ();
-    m_minI = geometry->getMinI();
-    m_maxI = geometry->getMaxI();
-    m_minJ = geometry->getMinJ();
-    m_maxJ = geometry->getMaxJ();
-    m_lastK = geometry->getLastK();
-
     m_geometry = geometry;
+
+    updateGeometry();
 }
 
 CauldronIO::VolumeData::~VolumeData()
@@ -1093,8 +1080,7 @@ CauldronIO::VolumeData::~VolumeData()
     m_internalDataKIJ = NULL;
 }
 
-
-const boost::shared_ptr<const Geometry3D>& CauldronIO::VolumeData::getGeometry() const
+const boost::shared_ptr<Geometry3D>& CauldronIO::VolumeData::getGeometry() const
 {
     return m_geometry;
 }
@@ -1124,7 +1110,7 @@ float CauldronIO::VolumeData::getValue(size_t i, size_t j, size_t k) const
     return m_internalDataKIJ[computeIndex_KIJ(i, j, k)];
 }
 
-float const * CauldronIO::VolumeData::getRowValues(size_t j, size_t k)
+const float* CauldronIO::VolumeData::getRowValues(size_t j, size_t k)
 {
     if (!isRetrieved()) throw CauldronIOException("Need to assign data first");
     if (!hasDataIJK()) throw CauldronIOException("Cannot return row values");
@@ -1137,12 +1123,12 @@ float const * CauldronIO::VolumeData::getRowValues(size_t j, size_t k)
     return m_internalDataIJK + computeIndex_IJK(0, j, k);
 }
 
-float const * CauldronIO::VolumeData::getColumnValues(size_t i, size_t k)
+const float* CauldronIO::VolumeData::getColumnValues(size_t i, size_t k)
 {
     throw CauldronIOException("Not implemented");
 }
 
-float const * CauldronIO::VolumeData::getNeedleValues(size_t i, size_t j)
+const float* CauldronIO::VolumeData::getNeedleValues(size_t i, size_t j)
 {
     if (!isRetrieved()) throw CauldronIOException("Need to assign data first");
     if (!hasDataKIJ() || isConstant()) throw CauldronIOException("Cannot return needle values");
@@ -1153,7 +1139,7 @@ float const * CauldronIO::VolumeData::getNeedleValues(size_t i, size_t j)
     return m_internalDataKIJ + computeIndex_KIJ(i, j, m_firstK);
 }
 
-float const * CauldronIO::VolumeData::getSurface_IJ(size_t k)
+const float* CauldronIO::VolumeData::getSurface_IJ(size_t k)
 {
     if (!isRetrieved()) throw CauldronIOException("Need to assign data first");
     if (!hasDataIJK() || isConstant()) throw CauldronIOException("Cannot return surface values");
@@ -1164,7 +1150,7 @@ float const * CauldronIO::VolumeData::getSurface_IJ(size_t k)
     return m_internalDataIJK + computeIndex_IJK(0, 0, k);
 }
 
-float const * CauldronIO::VolumeData::getVolumeValues_KIJ()
+const float* CauldronIO::VolumeData::getVolumeValues_KIJ()
 {
     if (!isRetrieved()) throw CauldronIOException("Need to assign data first");
     if (!hasDataKIJ() || isConstant()) throw CauldronIOException("Cannot return volume values");
@@ -1175,7 +1161,7 @@ float const * CauldronIO::VolumeData::getVolumeValues_KIJ()
     return m_internalDataKIJ;
 }
 
-float const * CauldronIO::VolumeData::getVolumeValues_IJK()
+const float* CauldronIO::VolumeData::getVolumeValues_IJK()
 {
     if (!isRetrieved()) throw CauldronIOException("Need to assign data first");
     if (!hasDataIJK() || isConstant()) throw CauldronIOException("Cannot return volume values");
@@ -1194,6 +1180,23 @@ void CauldronIO::VolumeData::setData_KIJ(float* data, bool setValue /*= false*/,
 void CauldronIO::VolumeData::setData_IJK(float* data, bool setValue /*= false*/, float value /*= 0*/)
 {
     setData(data, &m_internalDataIJK, setValue, value);
+}
+
+
+void CauldronIO::VolumeData::updateGeometry()
+{
+    // Cache all geometry
+    m_numI = m_geometry->getNumI();
+    m_numJ = m_geometry->getNumJ();
+    m_firstK = m_geometry->getFirstK();
+    m_numK = m_geometry->getNumK();
+    m_deltaI = m_geometry->getDeltaI();
+    m_deltaJ = m_geometry->getDeltaJ();
+    m_minI = m_geometry->getMinI();
+    m_maxI = m_geometry->getMaxI();
+    m_minJ = m_geometry->getMinJ();
+    m_maxJ = m_geometry->getMaxJ();
+    m_lastK = m_geometry->getLastK();
 }
 
 void CauldronIO::VolumeData::setData(float* data, float** internalData, bool setValue /*= false*/, float value /*= 0*/)

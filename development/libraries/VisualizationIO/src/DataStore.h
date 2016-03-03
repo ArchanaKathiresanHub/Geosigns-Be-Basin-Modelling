@@ -14,6 +14,7 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/thread.hpp>
 #include <iostream>
 #include <fstream>
 #include "pugixml-1.7/pugixml.hpp"
@@ -66,6 +67,47 @@ namespace CauldronIO
         DataStoreParamsNative* m_params;
     };
 
+    /// \brief Little class to hold data to compress
+    class DataToCompress
+    {
+    public:
+        /// \brief Creates a new instance of DataToCompress
+        /// \param[in] inputData the data to compress
+        /// \param[in] nrOfElements the number of floats in the input data to compress
+        /// \param[in] compress if true the data will be compressed, otherwise, no compression 
+        DataToCompress(const float* inputData, size_t nrOfElements, bool compress);
+        /// \brief Destroys the obect
+        ~DataToCompress();
+        /// \brief Sets the offset within the binary output file; to be written to 
+        void setOffset(size_t offset);
+        /// \brief Compress this block of data
+        void compress();
+        /// \brief Returns true if this block has been compressed
+        bool isProcessed() const;
+        /// \brief Returns a float* to the output data
+        const float* getOutputData() const;
+        /// \brief
+        size_t getOutputSizeInBytes() const;
+        /// \brief
+        void setXmlNode(pugi::xml_node node);
+        /// \brief Writes size and offset to the xml node
+        void updateXmlNode();
+        /// \brief Returns the threadID assigned to compress this block
+        boost::thread::id getThreadId() const;
+        /// \brief Sets the threadID to compress this block
+        void setThreadId(const boost::thread::id& id);
+        /// \return true if this block is not assigned yet to a thread
+        bool canBeProcessed() const;
+
+    private:
+        const float* m_inputData; // not owned by us (!)
+        float* m_outputData;
+        size_t m_inputNrElements, m_outputNrBytes, m_offset;
+        bool m_compress, m_processed, m_node_set, m_available;
+        pugi::xml_node m_node;
+        boost::thread::id m_id;
+    };
+
     /// \brief Little class to load data from binary storage
     class DataStoreSave
     {
@@ -81,18 +123,24 @@ namespace CauldronIO
         void addSurface(const boost::shared_ptr<SurfaceData>& surfaceData, pugi::xml_node node);
         /// \brief Adds a volume to the XML node, and writes the binary data
         void addVolume(const boost::shared_ptr<VolumeData>& data, pugi::xml_node node, size_t numBytes);
+
+        std::vector<boost::shared_ptr<DataToCompress> > getDataToCompressList();
+
         // Returns a compressed char* with size "size", for given input data char* and size
         static char* compress(const char* data, size_t& size);
 
     private:
+        void flush();
         void writeVolume(const boost::shared_ptr<VolumeData>& volume, bool dataIJK, bool compress);
         void writeVolumePart(pugi::xml_node volNode, bool compress, bool IJK, const boost::shared_ptr<VolumeData>& volume);
         void addData(const float* data, size_t size, bool compressData);
 
         std::ofstream m_file_out;
-        size_t m_offset, m_lastSize;
         std::string m_fileName;
+        size_t m_offset;
         bool m_compress;
+        std::vector<boost::shared_ptr<DataToCompress> > m_dataToCompress;
+        bool m_flushed;
     };
 }
 

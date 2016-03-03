@@ -58,7 +58,7 @@ const DataStoreParams* CauldronIO::MapNative::getDataStoreParams() const
 //////////////////////////////////////////////////////////////////////////
 
 
-CauldronIO::VolumeDataNative::VolumeDataNative(const boost::shared_ptr<const Geometry3D>& geometry)
+CauldronIO::VolumeDataNative::VolumeDataNative(const boost::shared_ptr<Geometry3D>& geometry)
     : VolumeData(geometry)
 {
     m_dataIJK = false;

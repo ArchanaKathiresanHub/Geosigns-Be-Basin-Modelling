@@ -65,7 +65,7 @@ namespace Shell.BasinModeling.CauldronIO.Test
             Property prop = new Property(propName, propName, propName, unit, PropertyType.FormationProperty, PropertyAttribute.Continuous3DProperty);
             Geometry3D geo = new Geometry3D(2, 2, 2, 0, 100, 100, 0, 0);
             VolumeDataNative volumeData = new VolumeDataNative(geo);
-            Volume volume = new Volume(SubsurfaceKind.Sediment, geo);
+            Volume volume = new Volume(SubsurfaceKind.Sediment);
             PropertyVolumeData propVol = new PropertyVolumeData(prop, volumeData);
             volume.addPropertyVolumeData(propVol);
 
@@ -369,10 +369,9 @@ namespace Shell.BasinModeling.CauldronIO.Test
                 SnapShot snap = new SnapShot(age, kind, isMinorSnapShot);
                 SubsurfaceKind subsurfaceKind = SubsurfaceKind.Sediment;
                 Geometry3D geometry = new Geometry3D(2, 2, 2, 4, 100, 100, 0, 0);
-                Volume volume = new Volume(subsurfaceKind, geometry);
+                Volume volume = new Volume(subsurfaceKind);
                 snap.setVolume(volume);
                 Assert.AreEqual(snap.getVolume().getSubSurfaceKind(), subsurfaceKind);
-
             }
 
             [TestMethod]
@@ -390,7 +389,7 @@ namespace Shell.BasinModeling.CauldronIO.Test
                 Formation formation = new Formation(kStart, kEnd, formationName, isSourceRock, isMobileLayer);
                 SubsurfaceKind subsurfaceKind = SubsurfaceKind.Sediment;
                 Geometry3D geometry = new Geometry3D(2, 2, 2, 4, 100, 100, 0, 0);
-                Volume volume = new Volume(subsurfaceKind, geometry);
+                Volume volume = new Volume(subsurfaceKind);
                 FormationVolume formationVolume = new FormationVolume(formation, volume);
                 FormationVolumeList formationVolumeList = snap.getFormationVolumeList();
                 Assert.AreEqual(formationVolumeList.Count, 0);

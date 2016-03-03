@@ -40,7 +40,7 @@ namespace CauldronIO
     class VolumeDataNative : public VolumeData
     {
     public:
-        VolumeDataNative(const boost::shared_ptr<const Geometry3D>& geometry);
+        VolumeDataNative(const boost::shared_ptr<Geometry3D>& geometry);
         ~VolumeDataNative();
 
         /// \brief Override the retrieve method to load data from datastore

@@ -587,7 +587,7 @@ TEST(SnapShot, Add)
 	bool isSourceRock = true;
 	bool isMobileLayer = true;
 	boost::shared_ptr<const Formation> formation(new Formation(kStart, kEnd, formationName, isSourceRock, isMobileLayer));
-	boost::shared_ptr<Volume> volume(new Volume(Sediment, geometry3D));
+	boost::shared_ptr<Volume> volume(new Volume(Sediment));
 	FormationVolume formationVolume = FormationVolume(formation, volume);
 	snapShot->addFormationVolume(formationVolume);
 	EXPECT_EQ(formVolumes.size(), 1);
@@ -692,7 +692,7 @@ TEST(SnapShot, AddFormationVolume_HandleDuplicateVolume)
 	bool isSourceRock = true;
 	bool isMobileLayer = true;
 	boost::shared_ptr<const Formation> formation(new Formation(kStart, kEnd, formationName, isSourceRock, isMobileLayer));
-	boost::shared_ptr<Volume> volume(new Volume(Sediment, geometry3D));
+	boost::shared_ptr<Volume> volume(new Volume(Sediment));
 	FormationVolume formationVolume = FormationVolume(formation, volume);
 	snapShot->addFormationVolume(formationVolume);
 
@@ -898,11 +898,8 @@ TEST(Volume, Create)
 	double minJ = 3.2;
 
 	SubsurfaceKind kind = Sediment;
-	boost::shared_ptr<const Geometry3D> geometry(new Geometry3D(numI, numJ, numK, offsetK, deltaI, deltaJ, minI, minJ));
-	boost::shared_ptr<Volume> volume(new Volume(kind, geometry));
+	boost::shared_ptr<Volume> volume(new Volume(kind));
 	EXPECT_EQ(volume->getSubSurfaceKind(), kind);
-	EXPECT_EQ(volume->getGeometry()->getMinI(), minI);
-
 }
 
 TEST(Geometry3D, Create)

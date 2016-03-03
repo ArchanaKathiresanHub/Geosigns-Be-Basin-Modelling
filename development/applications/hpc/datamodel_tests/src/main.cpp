@@ -23,10 +23,11 @@ int main(int argc, char ** argv)
 {
     if (argc <= 1)
     {
-        cout << "Usage: datamodel_test.exe [ -import-native <xml-file> | -import-projectHandle <projectHandle> | -convert <projectHandle> ] " << endl
+        cout << "Usage: datamodel_test.exe [ -import-native <xml-file> | -import-projectHandle <projectHandle> | -convert <projectHandle> [-threads=x] ]" << endl
             << " -import-native       : loads xml reads all the data into memory" << endl
             << " -import-projectHandle: loads the specified projectHandle into memory" << endl
-            << " -convert             : converts the specified projectHandle to new native format" << endl;
+            << " -convert             : converts the specified projectHandle to new native format" << endl
+            << " -threads=x           : use x threads for compression during export" << endl;
         return 1;
     }
 
@@ -114,7 +115,15 @@ int main(int argc, char ** argv)
                 absPath.remove_filename();
                 std::string indexingXMLname = CauldronIO::ImportExport::getXMLIndexingFileName(projectFileName);
 
-                CauldronIO::ImportExport::exportToXML(project, absPath.string(), relPath.string(), indexingXMLname, true);
+                // Check threads
+                size_t numThreads = 1;
+                if (argc >= 4)
+                {
+                    numThreads = std::atoi(argv[3] + 9);
+                    numThreads = min(24, max(1, numThreads));
+                }
+
+                CauldronIO::ImportExport::exportToXML(project, absPath.string(), relPath.string(), indexingXMLname, numThreads);
                 timeInSeconds = (float)(clock() - start) / CLOCKS_PER_SEC;
                 cout << "Wrote to new format in " << timeInSeconds << " seconds" << endl;
             }

@@ -174,123 +174,123 @@
 				</surface>
 			</surfaces>
 			<volume subsurfacekind="2">
-				<geometry numI="2" numJ="2" minI="50" minJ="50" deltaI="100" deltaJ="100" numK="18" firstK="0" />
+				<geometry numI="2" numJ="2" minI="50" minJ="50" deltaI="100" deltaJ="100" />
 				<propertyvols>
-					<propertyvol property="Depth">
-						<datastore file="Snapshot_0.000000_volumes.cldrn" undef="99999" compression="gzip" offset="0" dataIJK="true" size="86" />
+					<propertyvol property="Depth" firstK="0" numK="18">
+						<datastore file="Snapshot_0.000000_volumes.cldrn" undef="99999" compression="gzip" dataIJK="true" size="86" offset="0" />
 					</propertyvol>
-					<propertyvol property="HydroStaticPressure">
-						<datastore file="Snapshot_0.000000_volumes.cldrn" undef="99999" compression="gzip" offset="86" dataIJK="true" size="42" />
+					<propertyvol property="HydroStaticPressure" firstK="0" numK="5">
+						<datastore file="Snapshot_0.000000_volumes.cldrn" undef="99999" compression="gzip" dataIJK="true" size="39" offset="86" />
 					</propertyvol>
-					<propertyvol property="LithoStaticPressure">
-						<datastore file="Snapshot_0.000000_volumes.cldrn" undef="99999" compression="gzip" offset="128" dataIJK="true" size="42" />
+					<propertyvol property="LithoStaticPressure" firstK="0" numK="5">
+						<datastore file="Snapshot_0.000000_volumes.cldrn" undef="99999" compression="gzip" dataIJK="true" size="38" offset="125" />
 					</propertyvol>
-					<propertyvol property="OverPressure" constantvalue="0" />
-					<propertyvol property="Pressure">
-						<datastore file="Snapshot_0.000000_volumes.cldrn" undef="99999" compression="gzip" offset="170" dataIJK="true" size="42" />
+					<propertyvol property="OverPressure" firstK="0" numK="18" constantvalue="0" />
+					<propertyvol property="Pressure" firstK="0" numK="5">
+						<datastore file="Snapshot_0.000000_volumes.cldrn" undef="99999" compression="gzip" dataIJK="true" size="39" offset="163" />
 					</propertyvol>
-					<propertyvol property="Temperature">
-						<datastore file="Snapshot_0.000000_volumes.cldrn" undef="99999" compression="gzip" offset="212" dataIJK="true" size="101" />
+					<propertyvol property="Temperature" firstK="0" numK="18">
+						<datastore file="Snapshot_0.000000_volumes.cldrn" undef="99999" compression="gzip" dataIJK="true" size="101" offset="202" />
 					</propertyvol>
-					<propertyvol property="Ves">
-						<datastore file="Snapshot_0.000000_volumes.cldrn" undef="99999" compression="gzip" offset="313" dataIJK="true" size="39" />
+					<propertyvol property="Ves" firstK="0" numK="5">
+						<datastore file="Snapshot_0.000000_volumes.cldrn" undef="99999" compression="gzip" dataIJK="true" size="35" offset="303" />
 					</propertyvol>
 				</propertyvols>
 			</volume>
 			<formvols>
 				<formvol formation="Erosion">
 					<volume subsurfacekind="0">
-						<geometry numI="2" numJ="2" minI="50" minJ="50" deltaI="100" deltaJ="100" numK="2" firstK="0" />
+						<geometry numI="2" numJ="2" minI="50" minJ="50" deltaI="100" deltaJ="100" />
 						<propertyvols>
-							<propertyvol property="BulkDensity" constantvalue="2051.71436" />
-							<propertyvol property="HeatFlowX" constantvalue="99999" />
-							<propertyvol property="HeatFlowY" constantvalue="99999" />
-							<propertyvol property="HeatFlowZ" constantvalue="99999" />
-							<propertyvol property="MaxVes" constantvalue="0" />
-							<propertyvol property="Permeability" constantvalue="50" />
-							<propertyvol property="Porosity" constantvalue="38" />
-							<propertyvol property="ThCond" constantvalue="1.17836535" />
-							<propertyvol property="Velocity" constantvalue="1933.68774" />
-							<propertyvol property="Vr" constantvalue="0.200000003" />
-							<propertyvol property="BrineDensity" constantvalue="1078.82715" />
-							<propertyvol property="BrineViscosity" constantvalue="0.0015350373" />
+							<propertyvol property="BulkDensity" firstK="0" numK="2" constantvalue="2051.71436" />
+							<propertyvol property="HeatFlowX" firstK="0" numK="2" constantvalue="99999" />
+							<propertyvol property="HeatFlowY" firstK="0" numK="2" constantvalue="99999" />
+							<propertyvol property="HeatFlowZ" firstK="0" numK="2" constantvalue="99999" />
+							<propertyvol property="MaxVes" firstK="0" numK="2" constantvalue="0" />
+							<propertyvol property="Permeability" firstK="0" numK="2" constantvalue="50" />
+							<propertyvol property="Porosity" firstK="0" numK="2" constantvalue="38" />
+							<propertyvol property="ThCond" firstK="0" numK="2" constantvalue="1.17836535" />
+							<propertyvol property="Velocity" firstK="0" numK="2" constantvalue="1933.68774" />
+							<propertyvol property="Vr" firstK="0" numK="2" constantvalue="0.200000003" />
+							<propertyvol property="BrineDensity" firstK="0" numK="2" constantvalue="1078.82715" />
+							<propertyvol property="BrineViscosity" firstK="0" numK="2" constantvalue="0.0015350373" />
 						</propertyvols>
 					</volume>
 				</formvol>
 				<formvol formation="Deposition">
 					<volume subsurfacekind="0">
-						<geometry numI="2" numJ="2" minI="50" minJ="50" deltaI="100" deltaJ="100" numK="4" firstK="1" />
+						<geometry numI="2" numJ="2" minI="50" minJ="50" deltaI="100" deltaJ="100" />
 						<propertyvols>
-							<propertyvol property="BulkDensity">
-								<datastore file="Snapshot_0.000000_volumes.cldrn" undef="99999" compression="gzip" offset="352" dataIJK="true" size="40" />
+							<propertyvol property="BulkDensity" firstK="1" numK="4">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" undef="99999" compression="gzip" dataIJK="true" size="40" offset="338" />
 							</propertyvol>
-							<propertyvol property="HeatFlowX">
-								<datastore file="Snapshot_0.000000_volumes.cldrn" undef="99999" compression="gzip" offset="392" dataIJK="true" size="37" />
+							<propertyvol property="HeatFlowX" firstK="1" numK="4">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" undef="99999" compression="gzip" dataIJK="true" size="37" offset="378" />
 							</propertyvol>
-							<propertyvol property="HeatFlowY">
-								<datastore file="Snapshot_0.000000_volumes.cldrn" undef="99999" compression="gzip" offset="429" dataIJK="true" size="36" />
+							<propertyvol property="HeatFlowY" firstK="1" numK="4">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" undef="99999" compression="gzip" dataIJK="true" size="36" offset="415" />
 							</propertyvol>
-							<propertyvol property="HeatFlowZ">
-								<datastore file="Snapshot_0.000000_volumes.cldrn" undef="99999" compression="gzip" offset="465" dataIJK="true" size="37" />
+							<propertyvol property="HeatFlowZ" firstK="1" numK="4">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" undef="99999" compression="gzip" dataIJK="true" size="37" offset="451" />
 							</propertyvol>
-							<propertyvol property="MaxVes">
-								<datastore file="Snapshot_0.000000_volumes.cldrn" undef="99999" compression="gzip" offset="502" dataIJK="true" size="42" />
+							<propertyvol property="MaxVes" firstK="1" numK="4">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" undef="99999" compression="gzip" dataIJK="true" size="42" offset="488" />
 							</propertyvol>
-							<propertyvol property="Permeability">
-								<datastore file="Snapshot_0.000000_volumes.cldrn" undef="99999" compression="gzip" offset="544" dataIJK="true" size="42" />
+							<propertyvol property="Permeability" firstK="1" numK="4">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" undef="99999" compression="gzip" dataIJK="true" size="42" offset="530" />
 							</propertyvol>
-							<propertyvol property="Porosity">
-								<datastore file="Snapshot_0.000000_volumes.cldrn" undef="99999" compression="gzip" offset="586" dataIJK="true" size="42" />
+							<propertyvol property="Porosity" firstK="1" numK="4">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" undef="99999" compression="gzip" dataIJK="true" size="42" offset="572" />
 							</propertyvol>
-							<propertyvol property="ThCond">
-								<datastore file="Snapshot_0.000000_volumes.cldrn" undef="99999" compression="gzip" offset="628" dataIJK="true" size="41" />
+							<propertyvol property="ThCond" firstK="1" numK="4">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" undef="99999" compression="gzip" dataIJK="true" size="41" offset="614" />
 							</propertyvol>
-							<propertyvol property="Velocity">
-								<datastore file="Snapshot_0.000000_volumes.cldrn" undef="99999" compression="gzip" offset="669" dataIJK="true" size="41" />
+							<propertyvol property="Velocity" firstK="1" numK="4">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" undef="99999" compression="gzip" dataIJK="true" size="41" offset="655" />
 							</propertyvol>
-							<propertyvol property="Vr">
-								<datastore file="Snapshot_0.000000_volumes.cldrn" undef="99999" compression="gzip" offset="710" dataIJK="true" size="41" />
+							<propertyvol property="Vr" firstK="1" numK="4">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" undef="99999" compression="gzip" dataIJK="true" size="41" offset="696" />
 							</propertyvol>
-							<propertyvol property="BrineDensity" constantvalue="1078.82715" />
-							<propertyvol property="BrineViscosity">
-								<datastore file="Snapshot_0.000000_volumes.cldrn" undef="99999" compression="gzip" offset="751" dataIJK="true" size="36" />
+							<propertyvol property="BrineDensity" firstK="1" numK="4" constantvalue="1078.82715" />
+							<propertyvol property="BrineViscosity" firstK="1" numK="4">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" undef="99999" compression="gzip" dataIJK="true" size="36" offset="737" />
 							</propertyvol>
 						</propertyvols>
 					</volume>
 				</formvol>
 				<formvol formation="Crust">
 					<volume subsurfacekind="1">
-						<geometry numI="2" numJ="2" minI="50" minJ="50" deltaI="100" deltaJ="100" numK="9" firstK="4" />
+						<geometry numI="2" numJ="2" minI="50" minJ="50" deltaI="100" deltaJ="100" />
 						<propertyvols>
-							<propertyvol property="HeatFlowX">
-								<datastore file="Snapshot_0.000000_volumes.cldrn" undef="99999" compression="gzip" offset="787" dataIJK="true" size="56" />
+							<propertyvol property="HeatFlowX" firstK="4" numK="9">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" undef="99999" compression="gzip" dataIJK="true" size="56" offset="773" />
 							</propertyvol>
-							<propertyvol property="HeatFlowY">
-								<datastore file="Snapshot_0.000000_volumes.cldrn" undef="99999" compression="gzip" offset="843" dataIJK="true" size="43" />
+							<propertyvol property="HeatFlowY" firstK="4" numK="9">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" undef="99999" compression="gzip" dataIJK="true" size="43" offset="829" />
 							</propertyvol>
-							<propertyvol property="HeatFlowZ">
-								<datastore file="Snapshot_0.000000_volumes.cldrn" undef="99999" compression="gzip" offset="886" dataIJK="true" size="61" />
+							<propertyvol property="HeatFlowZ" firstK="4" numK="9">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" undef="99999" compression="gzip" dataIJK="true" size="61" offset="872" />
 							</propertyvol>
-							<propertyvol property="ThCond">
-								<datastore file="Snapshot_0.000000_volumes.cldrn" undef="99999" compression="gzip" offset="947" dataIJK="true" size="64" />
+							<propertyvol property="ThCond" firstK="4" numK="9">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" undef="99999" compression="gzip" dataIJK="true" size="64" offset="933" />
 							</propertyvol>
 						</propertyvols>
 					</volume>
 				</formvol>
 				<formvol formation="Mantle">
 					<volume subsurfacekind="1">
-						<geometry numI="2" numJ="2" minI="50" minJ="50" deltaI="100" deltaJ="100" numK="6" firstK="12" />
+						<geometry numI="2" numJ="2" minI="50" minJ="50" deltaI="100" deltaJ="100" />
 						<propertyvols>
-							<propertyvol property="HeatFlowX">
-								<datastore file="Snapshot_0.000000_volumes.cldrn" undef="99999" compression="gzip" offset="1011" dataIJK="true" size="32" />
+							<propertyvol property="HeatFlowX" firstK="12" numK="6">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" undef="99999" compression="gzip" dataIJK="true" size="32" offset="997" />
 							</propertyvol>
-							<propertyvol property="HeatFlowY">
-								<datastore file="Snapshot_0.000000_volumes.cldrn" undef="99999" compression="gzip" offset="1043" dataIJK="true" size="36" />
+							<propertyvol property="HeatFlowY" firstK="12" numK="6">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" undef="99999" compression="gzip" dataIJK="true" size="36" offset="1029" />
 							</propertyvol>
-							<propertyvol property="HeatFlowZ">
-								<datastore file="Snapshot_0.000000_volumes.cldrn" undef="99999" compression="gzip" offset="1079" dataIJK="true" size="43" />
+							<propertyvol property="HeatFlowZ" firstK="12" numK="6">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" undef="99999" compression="gzip" dataIJK="true" size="43" offset="1065" />
 							</propertyvol>
-							<propertyvol property="ThCond" constantvalue="3.20000005" />
+							<propertyvol property="ThCond" firstK="12" numK="6" constantvalue="3.20000005" />
 						</propertyvols>
 					</volume>
 				</formvol>
@@ -396,104 +396,104 @@
 				</surface>
 			</surfaces>
 			<volume subsurfacekind="2">
-				<geometry numI="2" numJ="2" minI="50" minJ="50" deltaI="100" deltaJ="100" numK="17" firstK="0" />
+				<geometry numI="2" numJ="2" minI="50" minJ="50" deltaI="100" deltaJ="100" />
 				<propertyvols>
-					<propertyvol property="Depth">
-						<datastore file="Snapshot_5.000000_volumes.cldrn" undef="99999" compression="gzip" offset="0" dataIJK="true" size="89" />
+					<propertyvol property="Depth" firstK="0" numK="17">
+						<datastore file="Snapshot_5.000000_volumes.cldrn" undef="99999" compression="gzip" dataIJK="true" size="89" offset="0" />
 					</propertyvol>
-					<propertyvol property="HydroStaticPressure">
-						<datastore file="Snapshot_5.000000_volumes.cldrn" undef="99999" compression="gzip" offset="89" dataIJK="true" size="47" />
+					<propertyvol property="HydroStaticPressure" firstK="0" numK="4">
+						<datastore file="Snapshot_5.000000_volumes.cldrn" undef="99999" compression="gzip" dataIJK="true" size="43" offset="89" />
 					</propertyvol>
-					<propertyvol property="LithoStaticPressure">
-						<datastore file="Snapshot_5.000000_volumes.cldrn" undef="99999" compression="gzip" offset="136" dataIJK="true" size="47" />
+					<propertyvol property="LithoStaticPressure" firstK="0" numK="4">
+						<datastore file="Snapshot_5.000000_volumes.cldrn" undef="99999" compression="gzip" dataIJK="true" size="43" offset="132" />
 					</propertyvol>
-					<propertyvol property="OverPressure" constantvalue="0" />
-					<propertyvol property="Pressure">
-						<datastore file="Snapshot_5.000000_volumes.cldrn" undef="99999" compression="gzip" offset="183" dataIJK="true" size="47" />
+					<propertyvol property="OverPressure" firstK="0" numK="17" constantvalue="0" />
+					<propertyvol property="Pressure" firstK="0" numK="4">
+						<datastore file="Snapshot_5.000000_volumes.cldrn" undef="99999" compression="gzip" dataIJK="true" size="43" offset="175" />
 					</propertyvol>
-					<propertyvol property="Temperature">
-						<datastore file="Snapshot_5.000000_volumes.cldrn" undef="99999" compression="gzip" offset="230" dataIJK="true" size="106" />
+					<propertyvol property="Temperature" firstK="0" numK="17">
+						<datastore file="Snapshot_5.000000_volumes.cldrn" undef="99999" compression="gzip" dataIJK="true" size="106" offset="218" />
 					</propertyvol>
-					<propertyvol property="Ves">
-						<datastore file="Snapshot_5.000000_volumes.cldrn" undef="99999" compression="gzip" offset="336" dataIJK="true" size="43" />
+					<propertyvol property="Ves" firstK="0" numK="4">
+						<datastore file="Snapshot_5.000000_volumes.cldrn" undef="99999" compression="gzip" dataIJK="true" size="40" offset="324" />
 					</propertyvol>
 				</propertyvols>
 			</volume>
 			<formvols>
 				<formvol formation="Deposition">
 					<volume subsurfacekind="0">
-						<geometry numI="2" numJ="2" minI="50" minJ="50" deltaI="100" deltaJ="100" numK="4" firstK="0" />
+						<geometry numI="2" numJ="2" minI="50" minJ="50" deltaI="100" deltaJ="100" />
 						<propertyvols>
-							<propertyvol property="BulkDensity">
-								<datastore file="Snapshot_5.000000_volumes.cldrn" undef="99999" compression="gzip" offset="379" dataIJK="true" size="40" />
+							<propertyvol property="BulkDensity" firstK="0" numK="4">
+								<datastore file="Snapshot_5.000000_volumes.cldrn" undef="99999" compression="gzip" dataIJK="true" size="40" offset="364" />
 							</propertyvol>
-							<propertyvol property="HeatFlowX">
-								<datastore file="Snapshot_5.000000_volumes.cldrn" undef="99999" compression="gzip" offset="419" dataIJK="true" size="34" />
+							<propertyvol property="HeatFlowX" firstK="0" numK="4">
+								<datastore file="Snapshot_5.000000_volumes.cldrn" undef="99999" compression="gzip" dataIJK="true" size="34" offset="404" />
 							</propertyvol>
-							<propertyvol property="HeatFlowY">
-								<datastore file="Snapshot_5.000000_volumes.cldrn" undef="99999" compression="gzip" offset="453" dataIJK="true" size="35" />
+							<propertyvol property="HeatFlowY" firstK="0" numK="4">
+								<datastore file="Snapshot_5.000000_volumes.cldrn" undef="99999" compression="gzip" dataIJK="true" size="35" offset="438" />
 							</propertyvol>
-							<propertyvol property="HeatFlowZ">
-								<datastore file="Snapshot_5.000000_volumes.cldrn" undef="99999" compression="gzip" offset="488" dataIJK="true" size="35" />
+							<propertyvol property="HeatFlowZ" firstK="0" numK="4">
+								<datastore file="Snapshot_5.000000_volumes.cldrn" undef="99999" compression="gzip" dataIJK="true" size="35" offset="473" />
 							</propertyvol>
-							<propertyvol property="MaxVes">
-								<datastore file="Snapshot_5.000000_volumes.cldrn" undef="99999" compression="gzip" offset="523" dataIJK="true" size="40" />
+							<propertyvol property="MaxVes" firstK="0" numK="4">
+								<datastore file="Snapshot_5.000000_volumes.cldrn" undef="99999" compression="gzip" dataIJK="true" size="40" offset="508" />
 							</propertyvol>
-							<propertyvol property="Permeability">
-								<datastore file="Snapshot_5.000000_volumes.cldrn" undef="99999" compression="gzip" offset="563" dataIJK="true" size="43" />
+							<propertyvol property="Permeability" firstK="0" numK="4">
+								<datastore file="Snapshot_5.000000_volumes.cldrn" undef="99999" compression="gzip" dataIJK="true" size="43" offset="548" />
 							</propertyvol>
-							<propertyvol property="Porosity">
-								<datastore file="Snapshot_5.000000_volumes.cldrn" undef="99999" compression="gzip" offset="606" dataIJK="true" size="42" />
+							<propertyvol property="Porosity" firstK="0" numK="4">
+								<datastore file="Snapshot_5.000000_volumes.cldrn" undef="99999" compression="gzip" dataIJK="true" size="42" offset="591" />
 							</propertyvol>
-							<propertyvol property="ThCond">
-								<datastore file="Snapshot_5.000000_volumes.cldrn" undef="99999" compression="gzip" offset="648" dataIJK="true" size="42" />
+							<propertyvol property="ThCond" firstK="0" numK="4">
+								<datastore file="Snapshot_5.000000_volumes.cldrn" undef="99999" compression="gzip" dataIJK="true" size="42" offset="633" />
 							</propertyvol>
-							<propertyvol property="Velocity">
-								<datastore file="Snapshot_5.000000_volumes.cldrn" undef="99999" compression="gzip" offset="690" dataIJK="true" size="42" />
+							<propertyvol property="Velocity" firstK="0" numK="4">
+								<datastore file="Snapshot_5.000000_volumes.cldrn" undef="99999" compression="gzip" dataIJK="true" size="42" offset="675" />
 							</propertyvol>
-							<propertyvol property="Vr">
-								<datastore file="Snapshot_5.000000_volumes.cldrn" undef="99999" compression="gzip" offset="732" dataIJK="true" size="41" />
+							<propertyvol property="Vr" firstK="0" numK="4">
+								<datastore file="Snapshot_5.000000_volumes.cldrn" undef="99999" compression="gzip" dataIJK="true" size="41" offset="717" />
 							</propertyvol>
-							<propertyvol property="BrineDensity" constantvalue="1078.82715" />
-							<propertyvol property="BrineViscosity">
-								<datastore file="Snapshot_5.000000_volumes.cldrn" undef="99999" compression="gzip" offset="773" dataIJK="true" size="40" />
+							<propertyvol property="BrineDensity" firstK="0" numK="4" constantvalue="1078.82715" />
+							<propertyvol property="BrineViscosity" firstK="0" numK="4">
+								<datastore file="Snapshot_5.000000_volumes.cldrn" undef="99999" compression="gzip" dataIJK="true" size="40" offset="758" />
 							</propertyvol>
 						</propertyvols>
 					</volume>
 				</formvol>
 				<formvol formation="Crust">
 					<volume subsurfacekind="1">
-						<geometry numI="2" numJ="2" minI="50" minJ="50" deltaI="100" deltaJ="100" numK="9" firstK="3" />
+						<geometry numI="2" numJ="2" minI="50" minJ="50" deltaI="100" deltaJ="100" />
 						<propertyvols>
-							<propertyvol property="HeatFlowX">
-								<datastore file="Snapshot_5.000000_volumes.cldrn" undef="99999" compression="gzip" offset="813" dataIJK="true" size="38" />
+							<propertyvol property="HeatFlowX" firstK="3" numK="9">
+								<datastore file="Snapshot_5.000000_volumes.cldrn" undef="99999" compression="gzip" dataIJK="true" size="38" offset="798" />
 							</propertyvol>
-							<propertyvol property="HeatFlowY">
-								<datastore file="Snapshot_5.000000_volumes.cldrn" undef="99999" compression="gzip" offset="851" dataIJK="true" size="51" />
+							<propertyvol property="HeatFlowY" firstK="3" numK="9">
+								<datastore file="Snapshot_5.000000_volumes.cldrn" undef="99999" compression="gzip" dataIJK="true" size="51" offset="836" />
 							</propertyvol>
-							<propertyvol property="HeatFlowZ">
-								<datastore file="Snapshot_5.000000_volumes.cldrn" undef="99999" compression="gzip" offset="902" dataIJK="true" size="59" />
+							<propertyvol property="HeatFlowZ" firstK="3" numK="9">
+								<datastore file="Snapshot_5.000000_volumes.cldrn" undef="99999" compression="gzip" dataIJK="true" size="59" offset="887" />
 							</propertyvol>
-							<propertyvol property="ThCond">
-								<datastore file="Snapshot_5.000000_volumes.cldrn" undef="99999" compression="gzip" offset="961" dataIJK="true" size="64" />
+							<propertyvol property="ThCond" firstK="3" numK="9">
+								<datastore file="Snapshot_5.000000_volumes.cldrn" undef="99999" compression="gzip" dataIJK="true" size="64" offset="946" />
 							</propertyvol>
 						</propertyvols>
 					</volume>
 				</formvol>
 				<formvol formation="Mantle">
 					<volume subsurfacekind="1">
-						<geometry numI="2" numJ="2" minI="50" minJ="50" deltaI="100" deltaJ="100" numK="6" firstK="11" />
+						<geometry numI="2" numJ="2" minI="50" minJ="50" deltaI="100" deltaJ="100" />
 						<propertyvols>
-							<propertyvol property="HeatFlowX">
-								<datastore file="Snapshot_5.000000_volumes.cldrn" undef="99999" compression="gzip" offset="1025" dataIJK="true" size="34" />
+							<propertyvol property="HeatFlowX" firstK="11" numK="6">
+								<datastore file="Snapshot_5.000000_volumes.cldrn" undef="99999" compression="gzip" dataIJK="true" size="34" offset="1010" />
 							</propertyvol>
-							<propertyvol property="HeatFlowY">
-								<datastore file="Snapshot_5.000000_volumes.cldrn" undef="99999" compression="gzip" offset="1059" dataIJK="true" size="33" />
+							<propertyvol property="HeatFlowY" firstK="11" numK="6">
+								<datastore file="Snapshot_5.000000_volumes.cldrn" undef="99999" compression="gzip" dataIJK="true" size="33" offset="1044" />
 							</propertyvol>
-							<propertyvol property="HeatFlowZ">
-								<datastore file="Snapshot_5.000000_volumes.cldrn" undef="99999" compression="gzip" offset="1092" dataIJK="true" size="44" />
+							<propertyvol property="HeatFlowZ" firstK="11" numK="6">
+								<datastore file="Snapshot_5.000000_volumes.cldrn" undef="99999" compression="gzip" dataIJK="true" size="44" offset="1077" />
 							</propertyvol>
-							<propertyvol property="ThCond" constantvalue="3.20000005" />
+							<propertyvol property="ThCond" firstK="11" numK="6" constantvalue="3.20000005" />
 						</propertyvols>
 					</volume>
 				</formvol>
@@ -559,48 +559,48 @@
 				</surface>
 			</surfaces>
 			<volume subsurfacekind="2">
-				<geometry numI="2" numJ="2" minI="50" minJ="50" deltaI="100" deltaJ="100" numK="14" firstK="0" />
+				<geometry numI="2" numJ="2" minI="50" minJ="50" deltaI="100" deltaJ="100" />
 				<propertyvols>
-					<propertyvol property="Depth">
-						<datastore file="Snapshot_10.000000_volumes.cldrn" undef="99999" compression="gzip" offset="0" dataIJK="true" size="74" />
+					<propertyvol property="Depth" firstK="0" numK="14">
+						<datastore file="Snapshot_10.000000_volumes.cldrn" undef="99999" compression="gzip" dataIJK="true" size="74" offset="0" />
 					</propertyvol>
-					<propertyvol property="Temperature">
-						<datastore file="Snapshot_10.000000_volumes.cldrn" undef="99999" compression="gzip" offset="74" dataIJK="true" size="92" />
+					<propertyvol property="Temperature" firstK="0" numK="14">
+						<datastore file="Snapshot_10.000000_volumes.cldrn" undef="99999" compression="gzip" dataIJK="true" size="92" offset="74" />
 					</propertyvol>
 				</propertyvols>
 			</volume>
 			<formvols>
 				<formvol formation="Crust">
 					<volume subsurfacekind="1">
-						<geometry numI="2" numJ="2" minI="50" minJ="50" deltaI="100" deltaJ="100" numK="9" firstK="0" />
+						<geometry numI="2" numJ="2" minI="50" minJ="50" deltaI="100" deltaJ="100" />
 						<propertyvols>
-							<propertyvol property="HeatFlowX">
-								<datastore file="Snapshot_10.000000_volumes.cldrn" undef="99999" compression="gzip" offset="166" dataIJK="true" size="28" />
+							<propertyvol property="HeatFlowX" firstK="0" numK="9">
+								<datastore file="Snapshot_10.000000_volumes.cldrn" undef="99999" compression="gzip" dataIJK="true" size="28" offset="166" />
 							</propertyvol>
-							<propertyvol property="HeatFlowY">
-								<datastore file="Snapshot_10.000000_volumes.cldrn" undef="99999" compression="gzip" offset="194" dataIJK="true" size="31" />
+							<propertyvol property="HeatFlowY" firstK="0" numK="9">
+								<datastore file="Snapshot_10.000000_volumes.cldrn" undef="99999" compression="gzip" dataIJK="true" size="31" offset="194" />
 							</propertyvol>
-							<propertyvol property="HeatFlowZ">
-								<datastore file="Snapshot_10.000000_volumes.cldrn" undef="99999" compression="gzip" offset="225" dataIJK="true" size="60" />
+							<propertyvol property="HeatFlowZ" firstK="0" numK="9">
+								<datastore file="Snapshot_10.000000_volumes.cldrn" undef="99999" compression="gzip" dataIJK="true" size="60" offset="225" />
 							</propertyvol>
-							<propertyvol property="ThCond">
-								<datastore file="Snapshot_10.000000_volumes.cldrn" undef="99999" compression="gzip" offset="285" dataIJK="true" size="64" />
+							<propertyvol property="ThCond" firstK="0" numK="9">
+								<datastore file="Snapshot_10.000000_volumes.cldrn" undef="99999" compression="gzip" dataIJK="true" size="64" offset="285" />
 							</propertyvol>
 						</propertyvols>
 					</volume>
 				</formvol>
 				<formvol formation="Mantle">
 					<volume subsurfacekind="1">
-						<geometry numI="2" numJ="2" minI="50" minJ="50" deltaI="100" deltaJ="100" numK="6" firstK="8" />
+						<geometry numI="2" numJ="2" minI="50" minJ="50" deltaI="100" deltaJ="100" />
 						<propertyvols>
-							<propertyvol property="HeatFlowX">
-								<datastore file="Snapshot_10.000000_volumes.cldrn" undef="99999" compression="gzip" offset="349" dataIJK="true" size="29" />
+							<propertyvol property="HeatFlowX" firstK="8" numK="6">
+								<datastore file="Snapshot_10.000000_volumes.cldrn" undef="99999" compression="gzip" dataIJK="true" size="29" offset="349" />
 							</propertyvol>
-							<propertyvol property="HeatFlowY">
-								<datastore file="Snapshot_10.000000_volumes.cldrn" undef="99999" compression="gzip" offset="378" dataIJK="true" size="33" />
+							<propertyvol property="HeatFlowY" firstK="8" numK="6">
+								<datastore file="Snapshot_10.000000_volumes.cldrn" undef="99999" compression="gzip" dataIJK="true" size="33" offset="378" />
 							</propertyvol>
-							<propertyvol property="HeatFlowZ" constantvalue="33.7441978" />
-							<propertyvol property="ThCond" constantvalue="3.20000005" />
+							<propertyvol property="HeatFlowZ" firstK="8" numK="6" constantvalue="33.7441978" />
+							<propertyvol property="ThCond" firstK="8" numK="6" constantvalue="3.20000005" />
 						</propertyvols>
 					</volume>
 				</formvol>

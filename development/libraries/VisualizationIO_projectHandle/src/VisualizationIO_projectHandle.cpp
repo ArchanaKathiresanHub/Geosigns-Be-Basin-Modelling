@@ -87,7 +87,7 @@ void CauldronIO::MapProjectHandle::setDataStore(const DataAccess::Interface::Pro
     m_propVal = propVal;
 }
 
-CauldronIO::VolumeProjectHandle::VolumeProjectHandle(const boost::shared_ptr<const Geometry3D>& geometry)
+CauldronIO::VolumeProjectHandle::VolumeProjectHandle(const boost::shared_ptr<Geometry3D>& geometry)
     : VolumeData(geometry)
 {
     m_propVal = NULL;
@@ -131,6 +131,10 @@ void CauldronIO::VolumeProjectHandle::retrieveMultipleFormations()
     setUndefinedValue((float)propGridMap->getUndefinedValue());
 
     float* inputData = new float[m_numI * m_numJ * m_numK];
+    
+    // Make sure all k-range is accounted for
+    size_t detected_minK = 16384;
+    size_t detected_maxK = 0;
 
     // Verify sizes
     assert(propGridMap->numI() == m_numI && propGridMap->numJ());
@@ -148,6 +152,9 @@ void CauldronIO::VolumeProjectHandle::retrieveMultipleFormations()
         {
             size_t kIndex = depthInfo->reverseDepth ? depthInfo->kEnd - (size_t)k : depthInfo->kStart + (size_t)k;
             size_t index = computeIndex_IJK(0, 0, kIndex);
+
+            detected_maxK = max(detected_maxK, kIndex);
+            detected_minK = min(detected_minK, kIndex);
 
             for (unsigned int j = 0; j <= gridMap->lastJ(); ++j)
             {
@@ -168,9 +175,31 @@ void CauldronIO::VolumeProjectHandle::retrieveMultipleFormations()
         gridMap->release();
     }
 
-    // Assign the data
+    // Verify full coverage of data
+    //////////////////////////////
     if (!isConstant)
-        setData_IJK(inputData);
+    {
+        // Correct if only first k index is wrong
+        if (detected_minK > m_geometry->getFirstK())
+        {
+            assert(detected_maxK == m_geometry->getLastK());
+            m_geometry->updateK_range(detected_minK, 1 + detected_maxK - detected_minK);
+            updateGeometry();
+            setData_IJK(inputData + computeIndex_IJK(0, 0, detected_minK));
+        }
+        // Correct if only last k index is wrong
+        else if (detected_maxK < m_geometry->getLastK())
+        {
+            assert(detected_minK == m_geometry->getFirstK());
+            m_geometry->updateK_range(detected_minK, 1 + detected_maxK - detected_minK);
+            updateGeometry();
+            setData_IJK(inputData);
+        }
+        else
+        {
+            setData_IJK(inputData);
+        }
+    }
     else
         setConstantValue(constantValue);
 

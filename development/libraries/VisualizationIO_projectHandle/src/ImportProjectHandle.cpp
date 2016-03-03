@@ -116,12 +116,9 @@ boost::shared_ptr<CauldronIO::SnapShot> ImportProjectHandle::createSnapShotIO(bo
     // Bail out if we don't have depthFormations
     if (depthFormations->size() == 0) return snapShotIO;
 
-    // Construct the geometry for the (continuous) volume
-    boost::shared_ptr<const CauldronIO::Geometry3D> geometry3D = createGeometry3D(depthFormations);
-
     // Add the volume
     //////////////////////////////////////////////////////////////////////////////////////////////////
-    boost::shared_ptr<CauldronIO::Volume> volume(new CauldronIO::Volume(CauldronIO::None, geometry3D));
+    boost::shared_ptr<CauldronIO::Volume> volume(new CauldronIO::Volume(CauldronIO::None));
     snapShotIO->setVolume(volume);
 
     // Add all volumeData: loop over properties, then get all property values for the property
@@ -135,6 +132,9 @@ boost::shared_ptr<CauldronIO::SnapShot> ImportProjectHandle::createSnapShotIO(bo
         boost::shared_ptr<PropertyValueList> propValues = getFormationVolumePropertyValues(prop, snapShotPropVals, NULL);
         // Bail out if there are no property value objects
         if (propValues->size() == 0) continue;
+
+        // Construct the geometry for the (continuous) volume
+        boost::shared_ptr<CauldronIO::Geometry3D> geometry3D = createGeometry3D(depthFormations);
 
         if (m_verbose)
             cout << " - Adding continuous volume data with (" << propValues->size() << ") formations for property " << prop->getName() << endl;
@@ -158,8 +158,8 @@ boost::shared_ptr<CauldronIO::SnapShot> ImportProjectHandle::createSnapShotIO(bo
         boost::shared_ptr<CauldronIO::FormationInfo> formationInfo = findDepthFormationInfo(formation, depthFormations);
 
         // Create the volume for this formation
-        boost::shared_ptr<const CauldronIO::Geometry3D> geometry = createGeometry3D(formationInfo);
-        boost::shared_ptr<CauldronIO::Volume> volume(new CauldronIO::Volume(getSubSurfaceKind(formation), geometry));
+        boost::shared_ptr<CauldronIO::Geometry3D> geometry = createGeometry3D(formationInfo);
+        boost::shared_ptr<CauldronIO::Volume> volume(new CauldronIO::Volume(getSubSurfaceKind(formation)));
 
         // Add all property-value data : loop over properties, then get all property values for the property and this formation
         for (size_t i = 0; i < snapShotProps->size(); ++i)
@@ -444,7 +444,7 @@ boost::shared_ptr<CauldronIO::FormationInfo> ImportProjectHandle::findDepthForma
 }
 
 
-boost::shared_ptr<const CauldronIO::Geometry3D> ImportProjectHandle::createGeometry3D(boost::shared_ptr<CauldronIO::FormationInfoList> depthFormations)
+boost::shared_ptr<CauldronIO::Geometry3D> ImportProjectHandle::createGeometry3D(boost::shared_ptr<CauldronIO::FormationInfoList> depthFormations)
 {
     // Find the total depth size & offset
     assert(depthFormations->at(0)->kStart == 0);
@@ -460,20 +460,20 @@ boost::shared_ptr<const CauldronIO::Geometry3D> ImportProjectHandle::createGeome
     
     size_t depthK = 1 + maxK - minK;
     boost::shared_ptr<CauldronIO::FormationInfo>& info = depthFormations->at(0);
-    boost::shared_ptr<const CauldronIO::Geometry3D> geometry(new CauldronIO::Geometry3D(info->numI, info->numJ, depthK, minK, info->deltaI, info->deltaJ, info->minI, info->minJ));
+    boost::shared_ptr<CauldronIO::Geometry3D> geometry(new CauldronIO::Geometry3D(info->numI, info->numJ, depthK, minK, info->deltaI, info->deltaJ, info->minI, info->minJ));
 
     return geometry;
 }
 
-boost::shared_ptr<const CauldronIO::Geometry3D> ImportProjectHandle::createGeometry3D(const boost::shared_ptr<CauldronIO::FormationInfo>& info)
+boost::shared_ptr<CauldronIO::Geometry3D> ImportProjectHandle::createGeometry3D(const boost::shared_ptr<CauldronIO::FormationInfo>& info)
 {
     size_t numK = 1 + info->kEnd - info->kStart;
-    boost::shared_ptr<const CauldronIO::Geometry3D> geometry(new CauldronIO::Geometry3D(info->numI, info->numJ, numK, (int)info->kStart, info->deltaI, info->deltaJ, info->minI, info->minJ));
+    boost::shared_ptr<CauldronIO::Geometry3D> geometry(new CauldronIO::Geometry3D(info->numI, info->numJ, numK, (int)info->kStart, info->deltaI, info->deltaJ, info->minI, info->minJ));
     return geometry;
 }
 
 CauldronIO::PropertyVolumeData ImportProjectHandle::createPropertyVolumeData(boost::shared_ptr<PropertyValueList> propValues,
-    boost::shared_ptr<const CauldronIO::Geometry3D>& geometry3D, boost::shared_ptr<CauldronIO::FormationInfoList> depthFormations)
+    boost::shared_ptr<CauldronIO::Geometry3D>& geometry3D, boost::shared_ptr<CauldronIO::FormationInfoList> depthFormations)
 {
     CauldronIO::VolumeProjectHandle* volumeDataProjHandle = new CauldronIO::VolumeProjectHandle(geometry3D);
     boost::shared_ptr<CauldronIO::VolumeData> volumeData(volumeDataProjHandle);
@@ -488,7 +488,7 @@ CauldronIO::PropertyVolumeData ImportProjectHandle::createPropertyVolumeData(boo
 
 
 CauldronIO::PropertyVolumeData ImportProjectHandle::createPropertyVolumeData(const DataAccess::Interface::PropertyValue* propVal, 
-    boost::shared_ptr<const CauldronIO::Geometry3D>& geometry3D, boost::shared_ptr<CauldronIO::FormationInfo> formationInfo)
+    boost::shared_ptr<CauldronIO::Geometry3D>& geometry3D, boost::shared_ptr<CauldronIO::FormationInfo> formationInfo)
 {
     CauldronIO::VolumeProjectHandle* volumeDataProjHandle = new CauldronIO::VolumeProjectHandle(geometry3D);
     boost::shared_ptr<CauldronIO::VolumeData> volumeData(volumeDataProjHandle);

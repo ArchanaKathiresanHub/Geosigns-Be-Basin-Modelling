@@ -436,7 +436,12 @@ namespace CauldronIO
         virtual size_t getSize() const;
         /// \returns true if two geometries are equal
         bool operator==(const Geometry3D& other) const;
+        /// \brief updates the k-range [use with care!!!]
+        /// \param [in] first K index in k-dimension
+        /// \param [in] numK number of elements in k-dimension
+        void updateK_range(size_t firstK, size_t numK);
 
+    private:
         size_t m_numK, m_firstK;
     };
 
@@ -473,13 +478,13 @@ namespace CauldronIO
         /// \brief Gets an entire row; can be null if this map is not row-ordered (or throw an exception)
         /// \param [in] j column index
         /// \returns
-        float const * getRowValues(size_t j);
+        const float* getRowValues(size_t j);
         /// \brief Gets an entire column; can be null if this map is not row-ordered (or throw an exception)
         /// \param [in] i row index
         /// \returns
-        float const * getColumnValues(size_t i);
+        const float* getColumnValues(size_t i);
         /// \returns pointer to entire data 
-        float const * getSurfaceValues();
+        const float* getSurfaceValues();
         /// \brief Convenience function to get an index into the 1D volume data 
         /// \param [in] i row index
         /// \param [in] j column index
@@ -533,17 +538,13 @@ namespace CauldronIO
     {
     public:
         /// \brief Constructor
-        /// \param [in] cellCentered if true, this volume is cell centered: its associated depth volume will be one larger in each dimension
         /// \param [in] kind the SubsurfaceKind of this volume
-        /// \param [in] property the property to assign to this volume
-        Volume(SubsurfaceKind kind, boost::shared_ptr<const Geometry3D> geometry);
+        Volume(SubsurfaceKind kind);
         /// \brief Destructor
         ~Volume();
 
         /// \returns the SubsurfaceKind
         SubsurfaceKind getSubSurfaceKind() const;
-        /// \returns the geometry
-        const boost::shared_ptr<const Geometry3D>& getGeometry() const;
         /// \brief get the list of property-surfaceData pairs contained in this surface
         const PropertyVolumeDataList& getPropertyVolumeDataList() const;
         /// \brief Add a property-surfaceData pair to the list
@@ -563,18 +564,17 @@ namespace CauldronIO
     private:
         SubsurfaceKind m_subSurfaceKind;
         PropertyVolumeDataList m_propVolumeList;
-        boost::shared_ptr<const Geometry3D> m_geometry;
     };
 
     class VolumeData
     {
     public:
         /// \brief Create a surface-data object
-        VolumeData(const boost::shared_ptr<const Geometry3D>& geometry);
+        VolumeData(const boost::shared_ptr<Geometry3D>& geometry);
         ~VolumeData();
 
         /// \returns the geometry
-        const boost::shared_ptr<const Geometry3D>& getGeometry() const;
+        const boost::shared_ptr<Geometry3D>& getGeometry() const;
         /// \brief Assign data to the volume as a 1D array: K fastest, then I, then J
         /// \param [in] data a pointer to the data; it will be copied, no ownership is transferred
         /// \param [in] setValue if true, a constant value will be assigned to the data
@@ -613,23 +613,23 @@ namespace CauldronIO
         /// \param [in] j index in j-dimension
         /// \param [in] k index in k-dimension
         /// \returns an entire row of data; can be null if this volume is not row-ordered (or throw an exception)
-        float const * getRowValues(size_t j, size_t k);
+        const float* getRowValues(size_t j, size_t k);
         /// \param [in] i index in i-dimension
         /// \param [in] k index in k-dimension
         /// \returns an entire column of data; can be null if this volume is not row-ordered (or throw an exception)
-        float const * getColumnValues(size_t i, size_t k);
+        const float* getColumnValues(size_t i, size_t k);
         /// \param [in] i index in i-dimension
         /// \param [in] j index in j-dimension
         /// \throws CauldronIOException
         /// \returns an entire needle of data; can be null if this volume is not needle-ordered (or throw an exception)
-        float const * getNeedleValues(size_t i, size_t j);
+        const float* getNeedleValues(size_t i, size_t j);
         /// \param [in] k index in k-dimension
         /// \returns pointer to entire data for the surface at depth k; can be null if data is not stored per ij surface
-        float const * getSurface_IJ(size_t k);
+        const float* getSurface_IJ(size_t k);
         /// \returns pointer to entire data: can be NULL
-        float const * getVolumeValues_IJK();
+        const float* getVolumeValues_IJK();
         /// \returns pointer to entire data: can be NULL 
-        float const * getVolumeValues_KIJ();
+        const float* getVolumeValues_KIJ();
 
         /// \brief Convenience function to get an index into the 1D volume data : indexing is through the full-k range, corresponding to the depth volume
         /// \param [in] i index in i-dimension
@@ -658,9 +658,10 @@ namespace CauldronIO
         SubsurfaceKind m_subSurfaceKind;
         boost::shared_ptr<const Property> m_property;
         boost::shared_ptr<const Volume> m_depthVolume;
-        boost::shared_ptr<const Geometry3D> m_geometry;
 
     protected:
+        void updateGeometry();
+        boost::shared_ptr<Geometry3D> m_geometry;
         bool m_retrieved;
         size_t m_numI, m_numJ, m_firstK, m_lastK, m_numK;
         double m_deltaI, m_deltaJ, m_minI, m_minJ, m_maxI, m_maxJ;

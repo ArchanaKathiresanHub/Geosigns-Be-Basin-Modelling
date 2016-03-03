@@ -13,15 +13,19 @@
 #include "DataStore.h"
 
 #include <boost/foreach.hpp>
+#include <boost/thread/thread_pool.hpp>
+#include <boost/thread.hpp>
 #include <iomanip>
 #include <iostream>
 #include <fstream>
 #include <cstring>
 
+boost::mutex mutex;
+
 using namespace CauldronIO;
 
 bool ImportExport::exportToXML(boost::shared_ptr<Project>& project, const std::string& absPath, const std::string& relPath, 
-    const std::string& xmlIndexingName, bool release)
+    const std::string& xmlIndexingName, size_t numThreads)
 {
     // Create empty property tree object
     using boost::property_tree::ptree;
@@ -40,10 +44,10 @@ bool ImportExport::exportToXML(boost::shared_ptr<Project>& project, const std::s
     pugi::xml_document doc;
     pugi::xml_node pt = doc.append_child("project");
 
-    ImportExport newExport(absPath, relPath);
+    ImportExport newExport(absPath, relPath, numThreads);
 
     // Create xml property tree and write datastores
-    newExport.addProject(pt, project, release);
+    newExport.addProject(pt, project);
 
     // Write property tree to XML file
     fs::path xmlFileName(absPath);
@@ -52,10 +56,8 @@ bool ImportExport::exportToXML(boost::shared_ptr<Project>& project, const std::s
     return doc.save_file(xmlFileName.string().c_str());
 }
 
-void ImportExport::addProject(pugi::xml_node pt, boost::shared_ptr<Project>& project, bool release)
+void ImportExport::addProject(pugi::xml_node pt, boost::shared_ptr<Project>& project)
 {
-    m_release = release;
-    
     boost::filesystem::path fullPath(m_absPath);
     fullPath.append(m_relPath.string());
 
@@ -102,112 +104,18 @@ void ImportExport::addProject(pugi::xml_node pt, boost::shared_ptr<Project>& pro
     m_append = detectAppend(project);
     pugi::xml_node snapShotNodes = pt.append_child("snapshots");
 
-    BOOST_FOREACH(const boost::shared_ptr<const SnapShot>& snapShot, snapShotList)
+    BOOST_FOREACH(const boost::shared_ptr<SnapShot>& snapShot, snapShotList)
     {
-        std::ostringstream ss;
-        ss << std::fixed << std::setprecision(6);
-        ss << snapShot->getAge();
-        std::string snapshotString = ss.str();
-        std::cout << "Writing snapshot Age=" << snapshotString << std::endl;
-        
-        boost::filesystem::path volumeStorePath(fullPath);
-        volumeStorePath /= "Snapshot_" + snapshotString + "_volumes.cldrn";
-        DataStoreSave volumeStore(volumeStorePath.string(), m_append);
-
-        boost::filesystem::path surfaceStorePath(fullPath);
-        surfaceStorePath /= "Snapshot_" + snapshotString + "_surfaces.cldrn";
-        DataStoreSave surfaceDataStore(surfaceStorePath.string(), m_append);
-
         pugi::xml_node node = snapShotNodes.append_child("snapshot");
-        node.append_attribute("age") = snapShot->getAge();
-        node.append_attribute("kind") = snapShot->getKind();
-        node.append_attribute("isminor") = snapShot->isMinorShapshot();
-
-        const SurfaceList surfaces = snapShot->getSurfaceList();
-        if (surfaces.size() > 0)
-        {
-            pugi::xml_node surfacesNode = node.append_child("surfaces");
-            BOOST_FOREACH(const boost::shared_ptr<Surface>& surfaceIO, surfaces)
-            {
-                // General properties
-                pugi::xml_node surfaceNode = surfacesNode.append_child("surface");
-
-                // Data storage
-                addSurface(surfaceDataStore, surfaceIO, surfaceNode);
-            }
-        }
-
-        // Add the continuous volume
-        const boost::shared_ptr<Volume> volume = snapShot->getVolume();
-        if (volume)
-        {
-            pugi::xml_node volNode = node.append_child("volume");
-            addVolume(volumeStore, volume, volNode);
-        }
-
-        // Add a volume per formation, with discontinuous properties
-        FormationVolumeList formVolumes = snapShot->getFormationVolumeList();
-        if (formVolumes.size() > 0)
-        {
-            pugi::xml_node formVolumesNode = node.append_child("formvols");
-            BOOST_FOREACH(FormationVolume& formVolume, formVolumes)
-            {
-                // General properties
-                pugi::xml_node volNode = formVolumesNode.append_child("formvol");
-
-                const boost::shared_ptr<Volume> subVolume = formVolume.second;
-                const boost::shared_ptr<const Formation> subFormation = formVolume.first;
-
-                // Add formation name
-                volNode.append_attribute("formation") = subFormation->getName().c_str();
-
-                // Add volume 
-                pugi::xml_node subvolNode = volNode.append_child("volume");
-                addVolume(volumeStore, subVolume, subvolNode);
-            }
-        }
-        
-        const TrapperList trappers = snapShot->getTrapperList();
-        if (trappers.size() > 0)
-        {
-            pugi::xml_node trappersNode = node.append_child("trappers");
-            
-            int maxPersistentTrapperID = -1;
-            BOOST_FOREACH(const boost::shared_ptr<const Trapper>& trapper, trappers)
-            {
-                // General properties
-                pugi::xml_node trapperNode = trappersNode.append_child("trapper");
-
-                trapperNode.append_attribute("id") = trapper->getID();
-                trapperNode.append_attribute("persistentID") = trapper->getPersistentID();
-                trapperNode.append_attribute("reservoirname") = trapper->getReservoirName().c_str();
-                trapperNode.append_attribute("depth") = trapper->getDepth();
-                trapperNode.append_attribute("spillDepth") = trapper->getSpillDepth();
-
-                float x, y;
-                trapper->getPosition(x, y);
-                trapperNode.append_attribute("posX") = x;
-                trapperNode.append_attribute("posY") = y;
-
-                trapper->getSpillPointPosition(x, y);
-                trapperNode.append_attribute("spillPosX") = x;
-                trapperNode.append_attribute("spillPosY") = y;
-
-                int downstreamTrapperID = trapper->getDownStreamTrapperID();
-                trapperNode.append_attribute("downstreamtrapper") = downstreamTrapperID;
-                maxPersistentTrapperID = std::max(maxPersistentTrapperID, trapper->getPersistentID());
-            }
-
-            if (maxPersistentTrapperID != -1)
-                trappersNode.append_child("maxPersistentTrapperID").text() = maxPersistentTrapperID;
-        }
+        addSnapShot(snapShot, project, fullPath, node);
     }
 }
 
-CauldronIO::ImportExport::ImportExport(const boost::filesystem::path& absPath, const boost::filesystem::path& relPath)
+CauldronIO::ImportExport::ImportExport(const boost::filesystem::path& absPath, const boost::filesystem::path& relPath, size_t numThreads)
 {
     m_absPath = absPath;
     m_relPath = relPath;
+    m_numThreads = numThreads;
 }
 
 void CauldronIO::ImportExport::addProperty(pugi::xml_node node, const boost::shared_ptr<const Property>& property) const
@@ -280,10 +188,6 @@ void CauldronIO::ImportExport::addSurface(DataStoreSave& dataStore, const boost:
                 dataStore.addSurface(surfaceData, node);
         }
     }
-
-    if (m_release)
-        surfaceIO->release();
-
 }
 
 void CauldronIO::ImportExport::addVolume(DataStoreSave& dataStore, const boost::shared_ptr<Volume>& volume, pugi::xml_node volNode)
@@ -293,21 +197,25 @@ void CauldronIO::ImportExport::addVolume(DataStoreSave& dataStore, const boost::
 
     volNode.append_attribute("subsurfacekind") = volume->getSubSurfaceKind();
 
-    // Set geometry
-    const boost::shared_ptr<const Geometry3D>& geometry = volume->getGeometry();
-    addGeometryInfo3D(volNode, geometry);
-    size_t numBytes = geometry->getNumI()*geometry->getNumJ()*geometry->getNumK()*sizeof(float);
-
     if (volume->getPropertyVolumeDataList().size() > 0)
     {
+        // Set shared geometry
+        const boost::shared_ptr<Geometry3D>& geometry = volume->getPropertyVolumeDataList().at(0).second->getGeometry();
+        addGeometryInfo2D(volNode, geometry, "geometry");
+        
         pugi::xml_node propVolNodes = volNode.append_child("propertyvols");
         BOOST_FOREACH(const PropertyVolumeData& propVolume, volume->getPropertyVolumeDataList())
         {
             const boost::shared_ptr<const Property>& prop = propVolume.first;
             const boost::shared_ptr<VolumeData>& data = propVolume.second;
+            const boost::shared_ptr<Geometry3D>& thisGeometry = data->getGeometry();
 
             pugi::xml_node node = propVolNodes.append_child("propertyvol");
             node.append_attribute("property") = prop->getName().c_str();
+            node.append_attribute("firstK") = (unsigned int)thisGeometry->getFirstK();
+            node.append_attribute("numK") = (unsigned int)thisGeometry->getNumK();
+
+            size_t numBytes = geometry->getNumI()*geometry->getNumJ()*geometry->getNumK()*sizeof(float);
 
             if (data->isConstant())
             {
@@ -318,9 +226,6 @@ void CauldronIO::ImportExport::addVolume(DataStoreSave& dataStore, const boost::
             dataStore.addVolume(data, node, numBytes);
         }
     }
-
-    if (m_release)
-        volume->release();
 }
 
 void CauldronIO::ImportExport::addGeometryInfo2D(pugi::xml_node node, const boost::shared_ptr<const Geometry2D>& geometry, const std::string& name) const
@@ -346,6 +251,151 @@ void CauldronIO::ImportExport::addGeometryInfo3D(pugi::xml_node node, const boos
 
     subNode.append_attribute("numK")   = (unsigned int)geometry->getNumK();
     subNode.append_attribute("firstK") = (unsigned int)geometry->getFirstK();
+}
+
+void CauldronIO::ImportExport::addSnapShot(const boost::shared_ptr<SnapShot>& snapShot, boost::shared_ptr<Project>& project, boost::filesystem::path fullPath, pugi::xml_node node)
+{
+    std::ostringstream ss;
+    ss << std::fixed << std::setprecision(6);
+    ss << snapShot->getAge();
+    std::string snapshotString = ss.str();
+    std::cout << "Writing snapshot Age=" << snapshotString << std::endl;
+
+    boost::filesystem::path volumeStorePath(fullPath);
+    volumeStorePath /= "Snapshot_" + snapshotString + "_volumes.cldrn";
+    DataStoreSave volumeStore(volumeStorePath.string(), m_append);
+
+    boost::filesystem::path surfaceStorePath(fullPath);
+    surfaceStorePath /= "Snapshot_" + snapshotString + "_surfaces.cldrn";
+    DataStoreSave surfaceDataStore(surfaceStorePath.string(), m_append);
+
+    node.append_attribute("age") = snapShot->getAge();
+    node.append_attribute("kind") = snapShot->getKind();
+    node.append_attribute("isminor") = snapShot->isMinorShapshot();
+
+    const SurfaceList surfaces = snapShot->getSurfaceList();
+    if (surfaces.size() > 0)
+    {
+        pugi::xml_node surfacesNode = node.append_child("surfaces");
+        BOOST_FOREACH(const boost::shared_ptr<Surface>& surfaceIO, surfaces)
+        {
+            // General properties
+            pugi::xml_node surfaceNode = surfacesNode.append_child("surface");
+
+            // Data storage
+            addSurface(surfaceDataStore, surfaceIO, surfaceNode);
+        }
+    }
+
+    // Add the continuous volume
+    const boost::shared_ptr<Volume> volume = snapShot->getVolume();
+    if (volume)
+    {
+        pugi::xml_node volNode = node.append_child("volume");
+        addVolume(volumeStore, volume, volNode);
+    }
+
+    // Add a volume per formation, with discontinuous properties
+    FormationVolumeList formVolumes = snapShot->getFormationVolumeList();
+    if (formVolumes.size() > 0)
+    {
+        pugi::xml_node formVolumesNode = node.append_child("formvols");
+        BOOST_FOREACH(FormationVolume& formVolume, formVolumes)
+        {
+            // General properties
+            pugi::xml_node volNode = formVolumesNode.append_child("formvol");
+
+            const boost::shared_ptr<Volume> subVolume = formVolume.second;
+            const boost::shared_ptr<const Formation> subFormation = formVolume.first;
+
+            // Add formation name
+            volNode.append_attribute("formation") = subFormation->getName().c_str();
+
+            // Add volume 
+            pugi::xml_node subvolNode = volNode.append_child("volume");
+            addVolume(volumeStore, subVolume, subvolNode);
+        }
+    }
+
+    // Compress all data
+    ////////////////////////////////
+
+    // Collect all data
+    std::vector<boost::shared_ptr<DataToCompress> > allData;
+    for (int i = 0; i < surfaceDataStore.getDataToCompressList().size(); i++)
+        allData.push_back(surfaceDataStore.getDataToCompressList().at(i));
+    for (int i = 0; i < volumeStore.getDataToCompressList().size(); i++)
+        allData.push_back(volumeStore.getDataToCompressList().at(i));
+    
+    // Compress it in separate threads
+    boost::thread_group threads;
+    for (int i = 0; i < m_numThreads; ++i)
+        threads.add_thread(new boost::thread(CauldronIO::ImportExport::compressData, allData));
+    threads.join_all();
+
+    // Add trappers
+    /////////////////////////////
+    const TrapperList trappers = snapShot->getTrapperList();
+    if (trappers.size() > 0)
+    {
+        pugi::xml_node trappersNode = node.append_child("trappers");
+
+        int maxPersistentTrapperID = -1;
+        BOOST_FOREACH(const boost::shared_ptr<const Trapper>& trapper, trappers)
+        {
+            // General properties
+            pugi::xml_node trapperNode = trappersNode.append_child("trapper");
+
+            trapperNode.append_attribute("id") = trapper->getID();
+            trapperNode.append_attribute("persistentID") = trapper->getPersistentID();
+            trapperNode.append_attribute("reservoirname") = trapper->getReservoirName().c_str();
+            trapperNode.append_attribute("depth") = trapper->getDepth();
+            trapperNode.append_attribute("spillDepth") = trapper->getSpillDepth();
+
+            float x, y;
+            trapper->getPosition(x, y);
+            trapperNode.append_attribute("posX") = x;
+            trapperNode.append_attribute("posY") = y;
+
+            trapper->getSpillPointPosition(x, y);
+            trapperNode.append_attribute("spillPosX") = x;
+            trapperNode.append_attribute("spillPosY") = y;
+
+            int downstreamTrapperID = trapper->getDownStreamTrapperID();
+            trapperNode.append_attribute("downstreamtrapper") = downstreamTrapperID;
+            maxPersistentTrapperID = std::max(maxPersistentTrapperID, trapper->getPersistentID());
+        }
+
+        if (maxPersistentTrapperID != -1)
+            trappersNode.append_child("maxPersistentTrapperID").text() = maxPersistentTrapperID;
+    }
+
+    // Release all data
+    snapShot->release();
+}
+
+void CauldronIO::ImportExport::compressData(std::vector< boost::shared_ptr < DataToCompress > > allData)
+{
+    boost::thread::id id = boost::this_thread::get_id();
+    for (int i = 0; i < allData.size(); i++)
+    {
+        boost::shared_ptr<DataToCompress> data = allData.at(i);
+        bool compressThisOne = false;
+
+        mutex.lock();
+        if (data->canBeProcessed())
+        {
+            data->setThreadId(id);
+            compressThisOne = true;
+        }
+        mutex.unlock();
+
+        if (compressThisOne)
+        {
+            assert(data->getThreadId() == id);
+            data->compress();
+        }
+    }
 }
 
 // If the objects are 'native' implementation, we should append the output files, otherwise
@@ -393,16 +443,21 @@ boost::shared_ptr<Project> CauldronIO::ImportExport::importFromXML(const std::st
     boost::filesystem::path path(filename);
     path.remove_filename();
     
-    ImportExport importExport(path, boost::filesystem::path(""));
+    ImportExport importExport(path, boost::filesystem::path(""), 1);
     boost::shared_ptr<Project> project;
     
     try
     {
         project = importExport.getProject(doc);
     }
+    catch (CauldronIOException& excp)
+    {
+        // Just rethrow it
+        throw excp;
+    }
     catch (...)
     {
-        throw CauldronIOException("error during xml parse");
+        throw CauldronIOException("unspecified error during xml parse");
     }
     
     return project;
@@ -697,9 +752,8 @@ boost::shared_ptr<const Geometry2D> CauldronIO::ImportExport::getGeometry2D(pugi
     return boost::shared_ptr<const Geometry2D>(new Geometry2D(numI, numJ, deltaI, deltaJ, minI, minJ));
 }
 
-boost::shared_ptr<const Geometry3D> CauldronIO::ImportExport::getGeometry3D(pugi::xml_node volumeNode) const
+boost::shared_ptr<Geometry3D> CauldronIO::ImportExport::getGeometry3D(pugi::xml_node volumeNode) const
 {
-
     pugi::xml_node geometryNode = volumeNode.child("geometry");
     if (!geometryNode)
         throw CauldronIOException("Could not parse geometry");
@@ -716,29 +770,41 @@ boost::shared_ptr<const Geometry3D> CauldronIO::ImportExport::getGeometry3D(pugi
     deltaI = geometryNode.attribute("deltaI").as_double();
     deltaJ = geometryNode.attribute("deltaJ").as_double();
 
-    return boost::shared_ptr<const Geometry3D>(new Geometry3D(numI, numJ, numK, firstK, deltaI, deltaJ, minI, minJ));
+    return boost::shared_ptr<Geometry3D>(new Geometry3D(numI, numJ, numK, firstK, deltaI, deltaJ, minI, minJ));
 }
 
 boost::shared_ptr<Volume> CauldronIO::ImportExport::getVolume(pugi::xml_node volumeNode, const boost::filesystem::path& path)
 {
     SubsurfaceKind surfaceKind = (SubsurfaceKind)volumeNode.attribute("subsurfacekind").as_int();
 
-    // Get geometry
-    boost::shared_ptr<const Geometry3D> geometry = getGeometry3D(volumeNode);
     // Create the volume
-    boost::shared_ptr<Volume> volume(new Volume(surfaceKind, geometry));
+    boost::shared_ptr<Volume> volume(new Volume(surfaceKind));
     
     // Get all property volume data
     pugi::xml_node propertyVolNodes = volumeNode.child("propertyvols");
     assert(propertyVolNodes);
 
+    // Get shared geometry
+    boost::shared_ptr<const Geometry2D> geometry = getGeometry2D(volumeNode, "geometry");
+
     for (pugi::xml_node propertyVolNode = propertyVolNodes.child("propertyvol"); propertyVolNode; propertyVolNode = propertyVolNode.next_sibling("propertyvol"))
     {
-        boost::shared_ptr<VolumeData> volData(new VolumeDataNative(geometry));
-
         std::string propertyName = propertyVolNode.attribute("property").value();
         boost::shared_ptr<const Property> property = m_project->findProperty(propertyName);
         assert(property);
+        
+        // Get K range
+        pugi::xml_attribute firstK_attrib = propertyVolNode.attribute("firstK");
+        if (!firstK_attrib) throw CauldronIOException("Cannot find firstK attribute in property-volume");
+        size_t firstK = firstK_attrib.as_uint();
+        pugi::xml_attribute numK_attrib = propertyVolNode.attribute("numK");
+        if (!numK_attrib) throw CauldronIOException("Cannot find numK attribute in property-volume");
+        size_t numK = numK_attrib.as_uint();
+
+        // Create the VolumeData
+        boost::shared_ptr<Geometry3D> geometry3D(new Geometry3D(geometry->getNumI(), geometry->getNumJ(), numK, firstK, geometry->getDeltaI(),
+            geometry->getDeltaJ(), geometry->getMinI(), geometry->getMinJ()));
+        boost::shared_ptr<VolumeData> volData(new VolumeDataNative(geometry3D));
 
         // Get the datastore xml node or constantvalue
         pugi::xml_attribute constantVal = propertyVolNode.attribute("constantvalue");

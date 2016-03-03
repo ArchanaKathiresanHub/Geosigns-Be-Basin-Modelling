@@ -57,7 +57,7 @@ namespace CauldronIO
     class VolumeProjectHandle : public VolumeData
     {
     public:
-        VolumeProjectHandle(const boost::shared_ptr<const Geometry3D>& geometry);
+        VolumeProjectHandle(const boost::shared_ptr<Geometry3D>& geometry);
 
         /// \brief Override the retrieve method to load data from datastore
         virtual void retrieve();

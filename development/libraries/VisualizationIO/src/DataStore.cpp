@@ -157,14 +157,17 @@ CauldronIO::DataStoreSave::DataStoreSave(const std::string& filename, bool appen
     else
         m_file_out.open(filename.c_str(), std::fstream::binary | std::fstream::ate | std::fstream::app);
 
-    m_offset = 0;
-    m_lastSize = 0;
     m_compress = APPLY_COMPRESSION;
     m_fileName = filename;
+    m_flushed = false;
+    m_offset = 0;
 }
 
 CauldronIO::DataStoreSave::~DataStoreSave()
 {
+    if (!m_flushed)
+        flush();
+    
     m_file_out.flush();
     m_file_out.close();
 
@@ -194,20 +197,30 @@ char* CauldronIO::DataStoreSave::compress(const char* inputData, size_t& element
 
 void CauldronIO::DataStoreSave::addData(const float* data, size_t size, bool compressData)
 {
-    char* dataToWrite = (char*)data;
-    size_t sizeToWrite = sizeof(float)*size;
+    boost::shared_ptr<DataToCompress> dataToCompress(new DataToCompress(data, size, compressData));
+    m_dataToCompress.push_back(dataToCompress);
+}
 
-    std::vector<char> compressed;
+void CauldronIO::DataStoreSave::flush()
+{
+    for (int i = 0; i < m_dataToCompress.size(); i++)
+    {
+        boost::shared_ptr<DataToCompress> data = m_dataToCompress.at(i);
 
-    if (compressData)
-        dataToWrite = compress(dataToWrite, sizeToWrite);
+        // Compress all data if not done
+        if (!data->isProcessed())
+            data->compress();
 
-    m_file_out.write((char*)dataToWrite, sizeToWrite);
-    m_offset += sizeToWrite;
-    m_lastSize = sizeToWrite;
+        // Write to file
+        m_file_out.write((char*)data->getOutputData(), data->getOutputSizeInBytes());
+        data->setOffset(m_offset);
+        m_offset += data->getOutputSizeInBytes();
 
-    if (compressData)
-        delete[] dataToWrite;
+        // Update offset and size in the local node
+        data->updateXmlNode();
+    }
+
+    m_flushed = true;
 }
 
 void CauldronIO::DataStoreSave::addSurface(const boost::shared_ptr<SurfaceData>& surfaceData, pugi::xml_node node)
@@ -224,7 +237,6 @@ void CauldronIO::DataStoreSave::addSurface(const boost::shared_ptr<SurfaceData>&
         subNode.append_attribute("compression") = "gzip";
     else
         subNode.append_attribute("compression") = "none";
-    subNode.append_attribute("offset") = (unsigned int)m_offset;
 
     if (surfaceData->isConstant()) throw CauldronIO::CauldronIOException("Cannot write constant value");
 
@@ -234,17 +246,19 @@ void CauldronIO::DataStoreSave::addSurface(const boost::shared_ptr<SurfaceData>&
     {
         size_t seekPos = m_file_out.tellp();
         addData(surfaceData->getSurfaceValues(), surfaceData->getGeometry()->getNumI() * surfaceData->getGeometry()->getNumJ(), compress);
+        m_dataToCompress.back()->setXmlNode(subNode);
     }
     else
     {
         // This surface already has been written: skip it
         const DataStoreParamsNative* const params = static_cast<DataStoreParamsNative const*>(mapNative->getDataStoreParams());
         assert(m_fileName == params->fileName);
-        m_lastSize = params->size;
-        m_offset += m_lastSize;
+
+        subNode.append_attribute("offset") = (unsigned int)m_offset;
+        subNode.append_attribute("size") = (unsigned int)params->size;
+        m_offset += params->size;
     }
 
-    subNode.append_attribute("size") = (unsigned int)m_lastSize;
 }
 
 void CauldronIO::DataStoreSave::addVolume(const boost::shared_ptr<VolumeData>& data, pugi::xml_node node, size_t numBytes)
@@ -262,6 +276,12 @@ void CauldronIO::DataStoreSave::addVolume(const boost::shared_ptr<VolumeData>& d
         writeVolumePart(node, compress, false, data);
 }
 
+
+std::vector<boost::shared_ptr<DataToCompress> > CauldronIO::DataStoreSave::getDataToCompressList()
+{
+    return m_dataToCompress;
+}
+
 void CauldronIO::DataStoreSave::writeVolumePart(pugi::xml_node volNode, bool compress, bool IJK, const boost::shared_ptr<VolumeData>& volume)
 {
     // See if we're writing a native volume
@@ -275,7 +295,6 @@ void CauldronIO::DataStoreSave::writeVolumePart(pugi::xml_node volNode, bool com
         subNode.append_attribute("compression") = "gzip";
     else
         subNode.append_attribute("compression") = "none";
-    subNode.append_attribute("offset") = (unsigned int)m_offset;
     subNode.append_attribute("dataIJK") = IJK;
 
     // We write the actual data if 1) this volume has been loaded from projecthandle (so nativeVolume == null)
@@ -290,16 +309,18 @@ void CauldronIO::DataStoreSave::writeVolumePart(pugi::xml_node volNode, bool com
     {
         // Write the volume and update the offset
         writeVolume(volume, IJK, compress);
+        m_dataToCompress.back()->setXmlNode(subNode);
     }
     else
     {
         // This volume already has been written: skip it
         const DataStoreParamsNative* const params = static_cast<DataStoreParamsNative const*>(nativeVolume->getDataStoreParamsIJK());
         assert(m_fileName == params->fileName);
-        m_lastSize = params->size;
-        m_offset += m_lastSize;
+
+        subNode.append_attribute("offset") = (unsigned int)m_offset;
+        subNode.append_attribute("size") = (unsigned int)params->size;
+        m_offset += params->size;
     }
-    subNode.append_attribute("size") = (unsigned int)m_lastSize;
 }
 
 void CauldronIO::DataStoreSave::writeVolume(const boost::shared_ptr<VolumeData>& volume, bool dataIJK, bool compress)
@@ -308,4 +329,89 @@ void CauldronIO::DataStoreSave::writeVolume(const boost::shared_ptr<VolumeData>&
     const float* data = (dataIJK ? volume->getVolumeValues_IJK() : volume->getVolumeValues_KIJ());
 
     addData(data, volume->getGeometry()->getSize(), compress);
+}
+
+/// DataToCompress
+//////////////////////////////////////////////////////////////////////////
+
+CauldronIO::DataToCompress::DataToCompress(const float* inputData, size_t nrOfElements, bool compress)
+{
+    m_inputData = inputData;
+    m_compress = compress;
+    m_inputNrElements = nrOfElements;
+    m_outputData = NULL;
+    m_processed = false;
+    m_node_set = false;
+    m_available = true;
+}
+
+CauldronIO::DataToCompress::~DataToCompress()
+{
+    if (m_outputData)
+    {
+        delete m_outputData;
+        m_outputData = NULL;
+    }
+}
+
+void CauldronIO::DataToCompress::setOffset(size_t offset)
+{
+    m_offset = offset;
+}
+
+void CauldronIO::DataToCompress::compress()
+{
+    m_outputNrBytes = sizeof(float)*m_inputNrElements;
+
+    if (m_compress)
+        m_outputData = (float*)DataStoreSave::compress((char*)m_inputData, m_outputNrBytes);
+
+    m_processed = true;
+}
+
+bool CauldronIO::DataToCompress::isProcessed() const
+{
+    return m_processed;
+}
+
+const float* CauldronIO::DataToCompress::getOutputData() const
+{
+    if (m_outputData)
+        return m_outputData;
+    else
+        return m_inputData;
+}
+
+size_t CauldronIO::DataToCompress::getOutputSizeInBytes() const
+{
+    return m_outputNrBytes;
+}
+
+void CauldronIO::DataToCompress::setXmlNode(pugi::xml_node node)
+{
+    m_node = node;
+    m_node_set = true;
+}
+
+void CauldronIO::DataToCompress::updateXmlNode()
+{
+    assert(m_node_set);
+    m_node.append_attribute("size") = m_outputNrBytes;
+    m_node.append_attribute("offset") = m_offset;
+}
+
+boost::thread::id CauldronIO::DataToCompress::getThreadId() const
+{
+    return m_id;
+}
+
+void CauldronIO::DataToCompress::setThreadId(const boost::thread::id& id)
+{
+    m_available = false;
+    m_id = id;
+}
+
+bool CauldronIO::DataToCompress::canBeProcessed() const
+{
+    return m_available;
 }
