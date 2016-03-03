@@ -12,7 +12,11 @@
 #define CAULDRON_CONFIG_ENV_H
 
 #define LICENSE_SERVER            "${BM_ENV_SIEPRTS_LICENSE_FILE}"
+#ifdef _WIN32
+#define MPIRUN_CMD                "mpiexec"
+#else
 #define MPIRUN_CMD                "mpirun_wrap.sh"
+#endif
 
 #define LSF_CAULDRON_PROJECT_NAME "${LSF_CAULDRON_PROJECT_NAME}"
 
