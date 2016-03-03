@@ -201,7 +201,12 @@ namespace casa
 #ifndef _WIN32
          oss << " -outfile-pattern '" + m_appName + "-output-rank-%r.log' ";
 #endif
+
+#ifndef _WIN32
+         if ( m_cpus > 0 ) { oss << " -n " << m_cpus << " "; }
+#else
          if ( m_cpus > 0 ) { oss << " -np " << m_cpus << " "; }
+#endif
       }
 
       // dump application name with full path
