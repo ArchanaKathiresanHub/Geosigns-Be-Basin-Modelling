@@ -103,6 +103,7 @@ namespace casa
    {
       RunCaseSetImpl & runCaseSet = dynamic_cast<RunCaseSetImpl &>(rcs);
 
+      rcs.filterByExperimentName( "" );
       for ( size_t c = 0; c < runCaseSet.size(); ++c )
       {
          if ( NoError != collectRunResults( obs, runCaseSet[c] ) ) return errorCode();

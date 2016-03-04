@@ -136,7 +136,7 @@ public:
    {
       std::ostringstream oss;
 
-      oss << "    [varPrmName] \"BasementIoTbl:TopCrustHeatProd\" <minVal> <maxVal> <prmPDF>\n";
+      oss << "    [varPrmName] \"" << m_tblName << ":" << m_colName << "\" <minVal> <maxVal> <prmPDF>\n";
       oss << "    Where:\n";
       oss << "       varPrmName - user specified variable parameter name (Optional)\n";
       oss << "       minVal     - the parameter minimal range value (double value or a map name)\n";
@@ -156,7 +156,7 @@ public:
       oss << "    " << cmdName << " \"Radiogenic heat rate\"  \"" << name() << "\"    0.1     4.9  \"Block\"\n";
       oss << "\n";
       oss << "    #                                      type               minVal  maxVal prmPDF\n";
-      oss << "    " << cmdName << " \"Radiogenic heat rate\"  \"" << name() << "\"  \"MinMapName\" \"MaxMapName\"  \"Block\"\n";
+      oss << "    " << cmdName << " \"Radiogenic heat rate\"  \"" << name() << "Grid\"  \"MinMapName\" \"MaxMapName\"  \"Block\"\n";
       oss << "\n";
       return oss.str();
    }
@@ -1273,7 +1273,9 @@ public:
       m_prmType["LithotypeIoTbl:Porosity_Model" ] = new PorosityModel(          "LithotypeIoTbl:Porosity_Model"   );
       m_prmType["LithotypeIoTbl:SurfacePorosity"] = new SurfacePorosity(        "LithotypeIoTbl::SurfacePorosity" );
 
-      m_prmType["BasementIoTbl:TopCrustHeatProd"] = new TopCrustHeatProduction( "BasementIoTbl:TopCrustHeatProd"  );
+      m_prmType["BasementIoTbl:TopCrustHeatProd"]     = new TopCrustHeatProduction( "BasementIoTbl:TopCrustHeatProd"  );
+      m_prmType["BasementIoTbl:TopCrustHeatProdGrid"] = new TopCrustHeatProduction( "BasementIoTbl:TopCrustHeatProdGrid"  );
+
       m_prmType["LithotypeIoTbl:StpThCond"      ] = new STPThermalCondCoeff(    "LithotypeIoTbl:StpThCond"        );
 
       m_prmType["StratIoTbl:SourceRockType"     ] = new SourceRockType( "StratIoTbl:SourceRockType" );

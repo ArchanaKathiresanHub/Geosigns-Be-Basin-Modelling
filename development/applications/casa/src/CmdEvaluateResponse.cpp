@@ -112,8 +112,8 @@ void CmdEvaluateResponse::createRunCasesSet( std::unique_ptr<casa::ScenarioAnaly
                }
             }
             rcs.push_back( nrc.release() );
+            sizePerExp[e] += 1;
          }
-         sizePerExp[e] += 1;
       }
    }
    sa->doeCaseSet().filterByExperimentName( "" );
