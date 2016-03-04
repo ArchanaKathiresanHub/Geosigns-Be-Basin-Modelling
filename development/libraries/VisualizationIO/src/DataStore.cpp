@@ -396,8 +396,8 @@ void CauldronIO::DataToCompress::setXmlNode(pugi::xml_node node)
 void CauldronIO::DataToCompress::updateXmlNode()
 {
     assert(m_node_set);
-    m_node.append_attribute("size") = m_outputNrBytes;
-    m_node.append_attribute("offset") = m_offset;
+    m_node.append_attribute("size") = (unsigned int)m_outputNrBytes;
+    m_node.append_attribute("offset") = (unsigned int)m_offset;
 }
 
 boost::thread::id CauldronIO::DataToCompress::getThreadId() const
