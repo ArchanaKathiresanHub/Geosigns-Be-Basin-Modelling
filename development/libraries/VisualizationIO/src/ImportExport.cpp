@@ -594,7 +594,7 @@ boost::shared_ptr<Project> CauldronIO::ImportExport::getProject(const pugi::xml_
                     boost::shared_ptr<SurfaceData> surfaceData(new MapNative(geometryPtr));
 
                     // Contains formation?
-                    pugi::xml_attribute formationName = surfaceNode.attribute("formation");
+                    pugi::xml_attribute formationName = propertyMapNode.attribute("formation");
                     if (formationName)
                     {
                         boost::shared_ptr<const Formation> formationIO = m_project->findFormation(formationName.value());
