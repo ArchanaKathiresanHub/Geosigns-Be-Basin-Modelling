@@ -19,7 +19,7 @@ FormationOutputPropertyValue::FormationOutputPropertyValue ( DerivedProperties::
 double FormationOutputPropertyValue::getValue ( const double i, const double j, const double k ) const {
 
    if ( m_formationProperty != 0 ) {
-      return m_formationProperty->interpolate ( i, j, k );
+      return m_formationProperty->interpolate ( i, j, k, not isPrimary() );
    } else {
       return DataAccess::Interface::DefaultUndefinedMapValue;
    }
