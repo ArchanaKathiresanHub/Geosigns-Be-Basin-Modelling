@@ -211,6 +211,14 @@ if [ $cmake_param_defines_config -eq 0 ]; then
          configuration=Release
          ;;
 
+      *[Mm]em[Cc]heck*)
+         configuration=MemCheck
+         ;;
+
+      *[Cc]ode[Cc]overage*)
+         configuration=CodeCoverage
+         ;;
+
       *)
         configuration=Release
         ;;
