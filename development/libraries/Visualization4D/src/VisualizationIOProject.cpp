@@ -47,10 +47,12 @@ namespace VizIO
 
   public:
 
-    VolumeGeometry(const CauldronIO::Geometry3D& geometry, boost::shared_ptr<CauldronIO::VolumeData> data)
+    VolumeGeometry(boost::shared_ptr<CauldronIO::VolumeData> data)
       : m_data(data)
       , m_timestamp(MxTimeStamp::getTimeStamp())
     {
+      auto geometry = *data->getGeometry();
+
       m_minX = geometry.getMinI();
       m_minY = geometry.getMinJ();
       m_deltaX = geometry.getDeltaI();
@@ -448,9 +450,11 @@ namespace VizIO
     }
   };
 
-  void getMinMax(boost::shared_ptr<CauldronIO::VolumeData> volume, const CauldronIO::Geometry3D& geometry, float& minValue, float& maxValue)
+  void getMinMax(boost::shared_ptr<CauldronIO::VolumeData> volume, float& minValue, float& maxValue)
   {
     const float undefined = volume->getUndefinedValue();
+
+    auto geometry = *volume->getGeometry();
 
     if (volume->isConstant())
     {
@@ -513,6 +517,11 @@ namespace VizIO
     std::string m_name;
     size_t m_timestamp;
 
+    size_t m_numI;
+    size_t m_numJ;
+    size_t m_numK;
+    const float* m_ptr;
+
     // these are mutable because of lazy initialization
     mutable float m_minValue;
     mutable float m_maxValue;
@@ -520,21 +529,25 @@ namespace VizIO
 
     void initMinMax() const
     {
-      getMinMax(m_data, m_geometry, m_minValue, m_maxValue);
+      getMinMax(m_data, m_minValue, m_maxValue);
       m_minMaxValid = true;
     }
 
   public:
 
-    VolumeProperty(const std::string& name, const CauldronIO::Geometry3D& geometry, boost::shared_ptr<CauldronIO::VolumeData> data)
+    VolumeProperty(const std::string& name, boost::shared_ptr<CauldronIO::VolumeData> data)
       : m_data(data)
-      , m_geometry(geometry)
+      , m_geometry(*data->getGeometry())
       , m_name(name)
       , m_timestamp(MxTimeStamp::getTimeStamp())
+      , m_ptr(data->getVolumeValues_IJK())
       , m_minValue(0.0)
       , m_maxValue(0.0)
       , m_minMaxValid(false)
     {
+      m_numI = m_geometry.getNumI();
+      m_numJ = m_geometry.getNumJ();
+      m_numK = m_geometry.getNumK();
     }
 
     virtual ~VolumeProperty()
@@ -544,7 +557,11 @@ namespace VizIO
 
     virtual double get(size_t i, size_t j, size_t k) const
     {
-      return m_data->getValue(i, j, k);
+      if (k >= m_numK)
+        return m_data->getUndefinedValue();
+
+      //return m_data->getValue(i, j, k);
+      return m_ptr[i + j * m_numI + k * m_numI * m_numJ];
     }
 
     virtual MiDataSet::DataBinding getBinding() const
@@ -578,16 +595,16 @@ namespace VizIO
       return m_maxValue;
     }
   };
-/*
+
   class DiscontinuousVolumeProperty : public MiDataSetIjk<double>
   {
-    CauldronIO::FormationVolumeList m_formationVolumeList;
-
-    //std::vector<std::tuple<size_t, CauldronIO::Volume*> > m_index;
-    std::vector<CauldronIO::Volume*> m_index;
+    std::vector<boost::shared_ptr<CauldronIO::VolumeData> > m_data;
+    std::vector<CauldronIO::VolumeData*> m_index;
 
     std::string m_name;
     size_t m_timestamp;
+
+    float m_undefinedValue;
 
     mutable float m_minValue;
     mutable float m_maxValue;
@@ -595,30 +612,32 @@ namespace VizIO
 
     void init()
     {
+      if (m_data.empty())
+        return;
+
+      m_undefinedValue = m_data[0]->getUndefinedValue();
+
       // found the right property, sort list on k
       std::sort(
-        m_formationVolumeList.begin(),
-        m_formationVolumeList.end(),
+        m_data.begin(),
+        m_data.end(),
         [](
-        boost::shared_ptr<CauldronIO::FormationVolume> vol1,
-        boost::shared_ptr<CauldronIO::FormationVolume> vol2)
+        boost::shared_ptr<CauldronIO::VolumeData> v1,
+        boost::shared_ptr<CauldronIO::VolumeData> v2)
       {
-        unsigned int start1, end1, start2, end2;
-        vol1->first->getK_Range(start1, end1);
-        vol2->first->getK_Range(start2, end2);
-        return start1 < start2;
+        return v1->getGeometry()->getFirstK() < v2->getGeometry()->getFirstK();
       });
 
-      unsigned int startK, endK;
-      m_formationVolumeList[0]->first->getK_Range(startK, endK);
-      for (unsigned int i = 0; i < startK; ++i)
+      size_t k0 = m_data[0]->getGeometry()->getFirstK();
+      for (size_t i = 0; i < k0; ++i)
         m_index.push_back(nullptr);
 
-      for (auto fv : m_formationVolumeList)
+      for (auto v : m_data)
       {
-        fv->first->getK_Range(startK, endK);
-        for (unsigned int i = startK; i < endK; ++i)
-          m_index.push_back(fv->second.get());
+        size_t nk = v->getGeometry()->getNumK() - 1;
+
+        for (size_t i = 0; i < nk; ++i)
+          m_index.push_back(v.get());
       }
     }
 
@@ -627,10 +646,10 @@ namespace VizIO
       m_minValue =  std::numeric_limits<float>::infinity();
       m_maxValue = -std::numeric_limits<float>::infinity();
 
-      for (auto fv : m_formationVolumeList)
+      for (auto v : m_data)
       {
         float minval, maxval;
-        getMinMax(fv->second->, minval, maxval);
+        getMinMax(v, minval, maxval);
 
         m_minValue = std::min(m_minValue, minval);
         m_maxValue = std::max(m_maxValue, maxval);
@@ -641,8 +660,8 @@ namespace VizIO
 
   public:
 
-    DiscontinuousVolumeProperty(const std::string& name, const CauldronIO::FormationVolumeList& fvlist)
-      : m_formationVolumeList(fvlist)
+    DiscontinuousVolumeProperty(const std::string& name, const std::vector<boost::shared_ptr<CauldronIO::VolumeData> >& data)
+      : m_data(data)
       , m_name(name)
       , m_timestamp(MxTimeStamp::getTimeStamp())
       , m_minValue(0.0)
@@ -655,14 +674,10 @@ namespace VizIO
     virtual double get(size_t i, size_t j, size_t k) const
     {
       if (k >= m_index.size())
-        return 0.0;
+        return m_undefinedValue;
 
-      auto volume = m_index[k];
-      
-      if (!volume)
-        return 0.0;
-
-      return volume->getValue(i, j, k);
+      auto p = m_index[k];
+      return p ? p->getValue(i, j, k) : m_undefinedValue;
     }
 
     virtual MiDataSet::DataBinding getBinding() const
@@ -696,7 +711,98 @@ namespace VizIO
       return m_maxValue;
     }
   };
-  */
+
+  class Formation2DProperty : public MiDataSetIjk<double>
+  {
+    std::vector<boost::shared_ptr<CauldronIO::SurfaceData>> m_index;
+    std::string m_name;
+    size_t m_timestamp;
+
+    float m_undefinedValue;
+    
+    mutable bool m_minMaxValid;
+    mutable float m_minValue;
+    mutable float m_maxValue;
+
+    void initMinMax() const
+    {
+      m_minValue = std::numeric_limits<float>::infinity();
+      m_maxValue = -m_minValue;
+
+      for (size_t i = 0; i < m_index.size(); ++i)
+      {
+        if (m_index[i])
+        {
+          float localMin, localMax;
+          getMinMax(m_index[i], *m_index[i]->getGeometry(), localMin, localMax);
+          m_minValue = std::min(m_minValue, localMin);
+          m_maxValue = std::max(m_maxValue, localMax);
+        }
+      }
+
+      m_minMaxValid = true;
+    }
+
+  public:
+
+    Formation2DProperty(const std::string& name, const std::vector<boost::shared_ptr<CauldronIO::SurfaceData>> index)
+      : m_index(index)
+      , m_name(name)
+      , m_timestamp(MxTimeStamp::getTimeStamp())
+      , m_minMaxValid(false)
+    {
+      for (size_t i = 0; i < index.size(); ++i)
+      {
+        if (index[i])
+        {
+          m_undefinedValue = index[i]->getUndefinedValue();
+          break;
+        }
+      }
+    }
+
+    virtual double get(size_t i, size_t j, size_t k) const
+    {
+      if (k >= m_index.size())
+        return m_undefinedValue;
+
+      auto p = m_index[k];
+      return p ? p->getValue(i, j) : m_undefinedValue;
+    }
+
+    virtual MiDataSet::DataBinding getBinding() const
+    {
+      return MiDataSet::PER_CELL;
+    }
+
+    virtual std::string getName() const
+    {
+      return m_name;
+    }
+
+    virtual size_t getTimeStamp() const
+    {
+      return m_timestamp;
+    }
+
+    virtual double getMin() const
+    {
+      if (!m_minMaxValid)
+        initMinMax();
+
+      return m_minValue;
+    }
+
+    virtual double getMax() const
+    {
+      if (!m_minMaxValid)
+        initMinMax();
+
+      return m_maxValue;
+    }
+
+  };
+
   class ReservoirProperty : public MiDataSetIjk<double>
   {
     boost::shared_ptr<CauldronIO::SurfaceData> m_map;
@@ -797,12 +903,14 @@ namespace
     return deadMap;
   }
 
-  bool* createDeadMap(boost::shared_ptr<CauldronIO::VolumeData> volume, const CauldronIO::Geometry3D& geometry)
+  bool* createDeadMap(boost::shared_ptr<CauldronIO::VolumeData> volume)
   {
     const float undefined = volume->getUndefinedValue();
 
-    size_t ni = geometry.getNumI() - 1;
-    size_t nj = geometry.getNumJ() - 1;
+    auto geometry = volume->getGeometry();
+
+    size_t ni = geometry->getNumI() - 1;
+    size_t nj = geometry->getNumJ() - 1;
 
     bool* deadMap = new bool[ni * nj];
     for (size_t i = 0; i < ni; ++i)
@@ -1044,15 +1152,18 @@ std::shared_ptr<MiVolumeMeshCurvilinear> VisualizationIOProject::createSnapshotM
   auto snapshot = m_snapshots[snapshotIndex];
 
   auto volume = snapshot->getVolume();
+  if (!volume)
+    return nullptr;
+
   auto depthVolume = volume->getDepthVolume();
 
   if (!depthVolume->isRetrieved())
     depthVolume->retrieve();
 
   if (!m_loresDeadMap)
-    m_loresDeadMap = createDeadMap(depthVolume, *volume->getGeometry());
+    m_loresDeadMap = createDeadMap(depthVolume);
 
-  auto geometry = std::make_shared<VizIO::VolumeGeometry>(*volume->getGeometry(), depthVolume);
+  auto geometry = std::make_shared<VizIO::VolumeGeometry>(depthVolume);
   auto topology = std::make_shared<VizIO::FormationTopology>(*geometry, m_loresDeadMap);
   return std::make_shared<VizIO::VolumeMesh>(geometry, topology);
 }
@@ -1142,40 +1253,121 @@ std::shared_ptr<MiDataSetIjk<double> > VisualizationIOProject::createFormationPr
 
   std::string propertyName = m_projectInfo.properties[propertyId].name;
 
-  auto volume = snapshot->getVolume();
-  for (auto pv : volume->getPropertyVolumeDataList())
-  {
-    if (pv.first->getName() == propertyName)
+  auto properties = m_project->getProperties();
+  auto iter = std::find_if(
+    properties.begin(), 
+    properties.end(), 
+    [propertyName](boost::shared_ptr<const CauldronIO::Property> p)
     {
-      if (!pv.second->isRetrieved())
-        pv.second->retrieve();
+      return p->getName() == propertyName;
+    });
 
-      return std::make_shared<VizIO::VolumeProperty>(propertyName, *volume->getGeometry(), pv.second);
+  if (iter == properties.end())
+    return nullptr;
+
+  auto attr = (*iter)->getAttribute();
+  if (attr == CauldronIO::Continuous3DProperty)
+  {
+    auto volume = snapshot->getVolume();
+    if (volume)
+    {
+      for (auto pv : volume->getPropertyVolumeDataList())
+      {
+        if (pv.first->getName() == propertyName)
+        {
+          if (!pv.second->isRetrieved())
+            pv.second->retrieve();
+
+          return std::make_shared<VizIO::VolumeProperty>(propertyName, pv.second);
+        }
+      }
+    }
+  }
+  else if (attr == CauldronIO::Discontinuous3DProperty)
+  {
+    std::vector<boost::shared_ptr<CauldronIO::VolumeData> > volumes;
+    for (auto fv : snapshot->getFormationVolumeList())
+    {
+      auto pvl = fv.second->getPropertyVolumeDataList();
+      for (auto pv : fv.second->getPropertyVolumeDataList())
+      {
+        if (pv.first->getName() != propertyName)
+          continue;
+
+        if (!pv.second->isRetrieved())
+          pv.second->retrieve();
+
+        volumes.push_back(pv.second);
+        break;
+      }
+    }
+
+    if (!volumes.empty())
+      return std::make_shared<VizIO::DiscontinuousVolumeProperty>(propertyName, volumes);
+
+    return nullptr;
+  }
+  else if (attr == CauldronIO::Formation2DProperty)
+  {
+    std::vector<boost::shared_ptr<CauldronIO::SurfaceData>> maps;
+
+    for (auto s : snapshot->getSurfaceList())
+    {
+      if (s->getName() == "")
+      {
+        for (auto p : s->getPropertySurfaceDataList())
+        {
+          if (p.first->getName() == propertyName)
+          {
+            if (!p.second->isRetrieved())
+              p.second->retrieve();
+            maps.push_back(p.second);
+          }
+        }
+      }
+    }
+
+    if (!maps.empty())
+    {
+      std::sort(maps.begin(), maps.end(),
+        [](boost::shared_ptr<CauldronIO::SurfaceData> lhs, boost::shared_ptr<CauldronIO::SurfaceData> rhs)
+      {
+        auto f1 = lhs->getFormation();
+        auto f2 = rhs->getFormation();
+
+        unsigned int startK1, endK1, startK2, endK2;
+        f1->getK_Range(startK1, endK1);
+        f2->getK_Range(startK2, endK2);
+
+        return startK1 < startK2;
+      });
+
+      auto contents = getSnapshotContents(snapshotIndex);
+      assert(!contents.formations.empty());
+      size_t mapIndex = 0;
+      std::vector<boost::shared_ptr<CauldronIO::SurfaceData>> index;
+      for (auto f : contents.formations)
+      {
+        if (m_projectInfo.formations[f.id].name == maps[mapIndex]->getFormation()->getName())
+        {
+          for (int i = f.minK; i < f.maxK; ++i)
+            index.push_back(maps[mapIndex]);
+          mapIndex++;
+          if (mapIndex == maps.size())
+            break;
+        }
+        else
+        {
+          for (int i = f.minK; i < f.maxK; ++i)
+            index.push_back(nullptr);
+        }
+      }
+
+      return std::make_shared<VizIO::Formation2DProperty>(propertyName, index);
     }
   }
 
-  //auto discVolumeList = snapshot->getDiscontinuousVolumeList();
-  //for (auto discVolume : discVolumeList)
-  //{
-  //  auto formationVolumeList = discVolume->getVolumeList();
-  //  if (formationVolumeList.empty())
-  //    continue;
-  //  
-  //  std::string name = formationVolumeList[0]->second->getProperty()->getName();
-  //  if (name != propertyName)
-  //    continue;
-
-  //  for (auto fv : formationVolumeList)
-  //  {
-  //    if (!fv->second->isRetrieved())
-  //      fv->second->retrieve();
-  //  }
-
-  //  return std::make_shared<VizIO::DiscontinuousVolumeProperty>(name, formationVolumeList);
-  //}
-
   return nullptr;
-
 }
 
 std::shared_ptr<MiDataSetIj<double> > VisualizationIOProject::createFormation2DProperty(

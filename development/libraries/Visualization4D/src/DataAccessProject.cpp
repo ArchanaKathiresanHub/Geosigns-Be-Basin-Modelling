@@ -360,7 +360,7 @@ void DataAccessProject::init()
 }
 
 DataAccessProject::DataAccessProject(const std::string& path)
-  : m_includeBasement(true)
+  : m_includeBasement(false)
   , m_loresDeadMap(nullptr)
   , m_hiresDeadMap(nullptr)
 {
