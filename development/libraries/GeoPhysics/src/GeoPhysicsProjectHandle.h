@@ -1,3 +1,13 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #ifndef _GEOPHYSICS__PROJECT_HANDLE_H_
 #define _GEOPHYSICS__PROJECT_HANDLE_H_
 
@@ -7,12 +17,7 @@
 
 #include "Polyfunction.h"
 
-#include "CompoundLithology.h"
-#include "CompoundLithologyComposition.h"
 #include "CauldronGridDescription.h"
-#include "GeoPhysicsFormation.h"
-#include "FracturePressureCalculator.h"
-#include "GeoPhysicsObjectFactory.h"
 
 #include "Local2DArray.h"
 
@@ -21,26 +26,29 @@
 namespace DataAccess {
 
    namespace Interface {
-      class GridMap;
-      class Formation;
       class CrustFormation;
+      class Formation;
+      class GridMap;
       class MantleFormation;
+      class ProjectHandle;
    }
 
 }
 
 namespace GeoPhysics {
-   class ObjectFactory;
-   class LithologyManager;
    class AllochthonousLithologyManager;
    class BasementLithologyProps;
+   class Formation;
+   class FracturePressureCalculator;
+   class LithologyManager;
+   class ObjectFactory;
 }
 
 namespace GeoPhysics {
 
    /// Create a project from a project file with the given name and access mode ("r" or "rw") and
    /// return the associated ProjectHandle
-   ProjectHandle * OpenCauldronProject( const string & name, const string & accessMode );
+   DataAccess::Interface::ProjectHandle * OpenCauldronProject( const std::string & name, const std::string & accessMode );
 
    class ProjectHandle : public DataAccess::Interface::ProjectHandle
    {
@@ -58,12 +66,19 @@ namespace GeoPhysics {
       typedef GeoPhysics::Local2DArray <double> DoubleLocal2DArray;
 
 
-      ProjectHandle ( database::Database * database, const std::string & name, const std::string & accessMode, DataAccess::Interface::ObjectFactory* objectFactory );
+      ProjectHandle ( database::Database * database,
+                      const std::string & name,
+                      const std::string & accessMode,
+                      DataAccess::Interface::ObjectFactory* objectFactory );
 
       ~ProjectHandle ();
 
       /// start a new activity
-      bool startActivity ( const std::string& name, const DataAccess::Interface::Grid* grid, bool saveAsInputGrid = false, bool createResultsFile = true, bool append = false );
+      bool startActivity ( const std::string& name,
+                           const DataAccess::Interface::Grid* grid,
+                           bool saveAsInputGrid = false,
+                           bool createResultsFile = true,
+                           bool append = false );
 
       /// Assign the litholgies to the formations.
       ///
@@ -251,6 +266,10 @@ namespace GeoPhysics {
       /// The undefined areas may depend on 
       void addUndefinedAreas ( const DataAccess::Interface::PropertyValue* theProperty );
 
+      /// Valid isolated nodes will be removed.
+      /// A valid node is marked as "isolated" when it does not belong to any entirely valid element,
+      /// eg. a 4-points element with all valid nodes.
+      void filterValidNodesByValidElements();
 
       /// Initialise the valid-node array.
       ///

@@ -12,6 +12,7 @@
 
 #include <assert.h>
 #include "FormattingException.h"
+#include "GeoPhysicsFormation.h"
 #include "Interface/SimulationDetails.h"
 #include "IndirectFormationProperty.h"
 #include "Interface/Surface.h"

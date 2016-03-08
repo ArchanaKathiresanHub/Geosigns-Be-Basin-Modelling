@@ -1,3 +1,13 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "GeoPhysicsProjectHandle.h"
 
 #include <iomanip>
@@ -30,14 +40,16 @@
 
 
 #include "AllochthonousLithologyManager.h"
-#include "GeoPhysicsFluidType.h"
-#include "LithologyManager.h"
 #include "BasementLithology.h"
-#include "GeoPhysicsFormation.h"
-#include "GeoPhysicsObjectFactory.h"
-#include "GeoPhysicsCrustFormation.h"
-#include "GeoPhysicsMantleFormation.h"
+#include "CompoundLithology.h"
+#include "FracturePressureCalculator.h"
 #include "GeoPhysicalConstants.h"
+#include "GeoPhysicsCrustFormation.h"
+#include "GeoPhysicsFluidType.h"
+#include "GeoPhysicsFormation.h"
+#include "GeoPhysicsMantleFormation.h"
+#include "GeoPhysicsObjectFactory.h"
+#include "LithologyManager.h"
 
 #include "NumericFunctions.h"
 #include "errorhandling.h"
@@ -594,6 +606,125 @@ void GeoPhysics::ProjectHandle::addFormationUndefinedAreas ( const Interface::Fo
 
 //------------------------------------------------------------//
 
+void GeoPhysics::ProjectHandle::filterValidNodesByValidElements()
+{
+   /// An active element is a 4-points element with valid nodes ONLY.
+   /// It is identified by its leftmost-bottomost node, the other nodes
+   /// can be accessed as shown in the following scheme.
+   ///
+   /// (i+1,j)  (i+1,j+1)
+   ///   O---------O
+   ///   |         |
+   ///   |         |
+   ///   |         |
+   ///   O---------O
+   /// (i,j)     (i,j+1)
+   ///
+   /// NB: This is a temporary local struct
+   struct ActiveElem
+   {
+      ActiveElem() : m_i(0),m_j(0) {}
+      ActiveElem( const int i, const int j ) : m_i(i),m_j(j) {}
+      const int m_i, m_j; // leftmost-bottommost element node indeces
+   };
+
+   const DataAccess::Interface::Grid * grid = getActivityOutputGrid();
+   const bool useGhosts = true;
+   const unsigned int firstIgh = grid->firstI( useGhosts );
+   const unsigned int lastIgh  = grid->lastI ( useGhosts );
+   const unsigned int firstJgh = grid->firstJ( useGhosts );
+   const unsigned int lastJgh  = grid->lastJ ( useGhosts );
+
+   // Create vector of all local active elements (including ghost nodes)
+   // The criteria is that all the 4 nodes belonging to the element must be valid
+   unsigned int activeCounter = 0;
+   std::vector<ActiveElem> activeElemVec;
+   activeElemVec.reserve( (lastIgh-firstIgh-1) * (lastJgh-firstJgh-1) );
+   for( unsigned int i = firstIgh; i < lastIgh; ++i )
+   {
+      for( unsigned int j = firstJgh; j < lastJgh; ++j )
+      {
+         if( m_validNodes( i, j ) and m_validNodes( i+1, j ) and m_validNodes( i, j+1 ) and m_validNodes( i+1, j+1 ) )
+         {
+            activeElemVec.push_back( ActiveElem(i, j) );
+            ++activeCounter;
+         }
+      }
+   }
+   activeElemVec.resize( activeCounter );
+
+   // Now that we have stored all the information about the active elements we can
+   // reset the valid node 2D array to false e fill it in again using the above information
+   m_validNodes.fill( false );
+   for( unsigned int elemIdx = 0; elemIdx < activeCounter; ++elemIdx )
+   {
+      const ActiveElem & elem = activeElemVec[elemIdx];
+      m_validNodes( elem.m_i,   elem.m_j   ) = true;
+      m_validNodes( elem.m_i+1, elem.m_j   ) = true;
+      m_validNodes( elem.m_i,   elem.m_j+1 ) = true;
+      m_validNodes( elem.m_i+1, elem.m_j+1 ) = true;
+   }
+
+   // Now the information about the ghost nodes has to be communicated to the other processors (if any)
+   // Create a GridMap for the nodes validity, initialised to 0 (not valid)
+   DataAccess::Interface::GridMap * validGridMap = getFactory()->produceGridMap( 0, 0, grid, 0.0 );
+   validGridMap->retrieveData( useGhosts );
+   for( unsigned int i = firstIgh; i <= lastIgh; ++i )
+   {
+      for( unsigned int j = firstJgh; j <= lastJgh; ++j )
+      {
+         if( m_validNodes( i, j ) ) validGridMap->setValue( i, j, 1.0 );
+      }
+   }
+   validGridMap->restoreData( true, useGhosts );
+
+   // Check if the current local grid has ghost nodes in the 4 directions
+   // If in one direction there are no ghost nodes it means that it's a real boundary
+   const bool hasLeftGhost   = firstIgh != grid->firstI( !useGhosts );
+   const bool hasRightGhost  = lastIgh  != grid->lastI ( !useGhosts );
+   const bool hasBottomGhost = firstJgh != grid->firstJ( !useGhosts );
+   const bool hasTopGhost    = lastJgh  != grid->lastJ ( !useGhosts );
+
+   // Now loop over ghost nodes only:
+   // The ghost node for the local grid will be set valid only if the gridMap has
+   // a value greater than zero, this means that at least one processor
+   // has set to 1 (eg valid) its local node
+   validGridMap->retrieveData( useGhosts );
+   if( hasLeftGhost )
+   {
+      for( unsigned int j = firstJgh; j <= lastJgh; ++j )
+      {
+         m_validNodes( firstIgh, j ) = (validGridMap->getValue( firstIgh, j ) > 0.0);
+      }
+   }
+   if( hasRightGhost )
+   {
+      for( unsigned int j = firstJgh; j <= lastJgh; ++j )
+      {
+         m_validNodes( lastIgh, j ) = (validGridMap->getValue( lastIgh, j ) > 0.0);
+      }
+   }
+   if( hasBottomGhost )
+   {
+      for( unsigned int i = firstIgh; i <= lastIgh; ++i )
+      {
+         m_validNodes( i, firstJgh ) = (validGridMap->getValue( i, firstJgh ) > 0.0);
+      }
+   }
+   if( hasTopGhost )
+   {
+      for( unsigned int i = firstIgh; i <= lastIgh; ++i )
+      {
+         m_validNodes( i, lastJgh ) = (validGridMap->getValue( i, lastJgh ) > 0.0);
+      }
+   }
+   validGridMap->restoreData( false, useGhosts );
+
+   delete validGridMap;
+}
+
+//------------------------------------------------------------//
+
 bool GeoPhysics::ProjectHandle::initialiseValidNodes ( const bool readSizeFromVolumeData ) {
 
    m_validNodes.reallocate ( getActivityOutputGrid ());
@@ -671,6 +802,8 @@ bool GeoPhysics::ProjectHandle::initialiseValidNodes ( const bool readSizeFromVo
       delete vesValueList;
 
    }
+
+   filterValidNodesByValidElements();
 
    return true;
 }
@@ -2591,27 +2724,29 @@ void GeoPhysics::ProjectHandle::printValidNeedles ( std::ostream& o  ) {
    unsigned int j;
    int proc;
 
-   o << endl;
-   o << endl;
-   o << "--------------------------------" << endl;
-   o << endl;
-   o << endl;
+   std::ostringstream msg;
+   msg << endl;
+   msg << endl;
+   msg << "--------------------------------" << endl;
+   msg << endl;
+   msg << endl;
 
 
    for ( proc = 0; proc < getSize (); ++proc ) {
 
       if ( proc == getRank () ) {
-         o << " process " << proc << endl;
+         msg << " process " << proc << endl;
 
          for ( i = firstI ( true ); i <= lastI ( true ); ++i ) {
 
             for ( j = firstJ ( true ); j <= lastJ ( true ); ++j ) {
-               o << ( m_validNodes ( i, j ) ? 'T' : 'F' );
+               msg << ( m_validNodes ( i, j ) ? 'T' : 'F' );
             }
 
-            o << endl;
+            msg << endl;
          }
 
+         o << msg.str();
          o << flush;
       }
 

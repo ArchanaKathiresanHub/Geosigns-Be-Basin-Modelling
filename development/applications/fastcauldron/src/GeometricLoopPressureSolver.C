@@ -1,3 +1,13 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "GeometricLoopPressureSolver.h"
 
 #include "FiniteElementTypes.h"
@@ -57,14 +67,8 @@ void GeometricLoopPressureSolver::adjustSolidThickness ( const double relativeTh
 
   DMDAGetGhostCorners ( *cauldron->mapDA, &xStart, &yStart, PETSC_NULL, &xCount, &yCount, PETSC_NULL );
 
-  PETSc_Local_2D_Array<double> FCT_Scaling_Factors;
-
-  FCT_Scaling_Factors.create ( *cauldron->mapDA );
-
   while ( ! Pressure_Layers.Iteration_Is_Done ()) {
     currentLayer = Pressure_Layers.Current_Layer ();
-
-    FCT_Scaling_Factors.fill ( 0.0 );
 
     sumErrorSquared = 0.0;
     segmentCount = 0;
@@ -74,21 +78,17 @@ void GeometricLoopPressureSolver::adjustSolidThickness ( const double relativeTh
     sumAbsThicknessSquared = 0.0;
 
     //
-    //
     // Get the size of the layer DA.
     //
     DMDAGetGhostCorners ( currentLayer->layerDA, &xStart, &yStart, &zStart, &xCount, &yCount, &zCount );
-    DMDALocalInfo Local_Info;
-
-    DMDAGetLocalInfo ( *cauldron->mapDA, &Local_Info );
 
     PETSC_2D_Array FCTCorrection;
     FCTCorrection.Set_Global_Array( *cauldron -> mapDA, currentLayer->FCTCorrection, 
-				    INSERT_VALUES, true );
+                                    INSERT_VALUES, true );
 
     PETSC_2D_Array Thickness_Error;
     Thickness_Error.Set_Global_Array( *cauldron -> mapDA, currentLayer->Thickness_Error, 
-				      INSERT_VALUES, true );
+                                      INSERT_VALUES, true );
     //
     //
     //  Computed_Depths:                 Present day depths, as computed by the pressure calculator
@@ -143,8 +143,7 @@ void GeometricLoopPressureSolver::adjustSolidThickness ( const double relativeTh
             FCT_Scaling = 1.0;
           }
 
-          FCT_Scaling_Factors ( I, J ) = FCTCorrection ( J, I ) * FCT_Scaling;
-	  FCTCorrection ( J, I ) = FCTCorrection ( J, I ) * FCT_Scaling;
+          FCTCorrection ( J, I ) = FCTCorrection ( J, I ) * FCT_Scaling;
 
           if ( Input_Thickness == 0.0 ) {
             Thickness_Error ( J, I ) = 0.0;
@@ -184,8 +183,8 @@ void GeometricLoopPressureSolver::adjustSolidThickness ( const double relativeTh
           }
 
         } else {
-	  FCTCorrection   ( J, I ) = CAULDRONIBSNULLVALUE;
-	  Thickness_Error ( J, I ) = CAULDRONIBSNULLVALUE;
+           FCTCorrection   ( J, I ) = CAULDRONIBSNULLVALUE;
+           Thickness_Error ( J, I ) = CAULDRONIBSNULLVALUE;
         }
 
       }
