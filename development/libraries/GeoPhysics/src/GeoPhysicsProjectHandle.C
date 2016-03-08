@@ -803,7 +803,7 @@ bool GeoPhysics::ProjectHandle::initialiseValidNodes ( const bool readSizeFromVo
 
    }
 
-   //filterValidNodesByValidElements();
+   filterValidNodesByValidElements();
 
    return true;
 }
