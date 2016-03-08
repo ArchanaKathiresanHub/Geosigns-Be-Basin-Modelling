@@ -2032,7 +2032,7 @@ bool ProxyColumn::isSpilling (void)
       valueRequest.reservoirIndex = m_reservoir->getIndex ();
    valueRequest.valueSpec = ISSPILLING;
    RequestHandling::SendRequest (valueRequest, valueResponse);
-   return (bool) valueResponse.value;
+   return (valueResponse.value != 0.0);
 }
 
 bool ProxyColumn::isUndersized (void)
@@ -2045,7 +2045,7 @@ bool ProxyColumn::isUndersized (void)
       valueRequest.reservoirIndex = m_reservoir->getIndex ();
    valueRequest.valueSpec = ISUNDERSIZED;
    RequestHandling::SendRequest (valueRequest, valueResponse);
-   return (bool) valueResponse.value;
+   return (valueResponse.value != 0.0);
 }
 
 bool ProxyColumn::isSealing (PhaseId phase)
@@ -2061,7 +2061,7 @@ bool ProxyColumn::isSealing (PhaseId phase)
       valueRequest.valueSpec = ISSEALING;
       valueRequest.phase = (int) phase;
       RequestHandling::SendRequest (valueRequest, valueResponse);
-      setBit (BASESEALINGSET + phase, (bool) valueResponse.value);
+      setBit (BASESEALINGSET + phase, (valueResponse.value != 0.0));
       setCached ((CacheBit) (BASESEALINGCOLUMNCACHE + phase));
    }
 
@@ -2081,7 +2081,7 @@ bool ProxyColumn::isWasting (PhaseId phase)
       valueRequest.valueSpec = ISWASTING;
       valueRequest.phase = (int) phase;
       RequestHandling::SendRequest (valueRequest, valueResponse);
-      setBit (BASEWASTINGSET + phase, (bool) valueResponse.value);
+      setBit (BASEWASTINGSET + phase, (valueResponse.value != 0.0));
       setCached ((CacheBit) (BASEWASTINGCOLUMNCACHE + phase));
    }
 
@@ -2228,7 +2228,7 @@ int ProxyColumn::getPasteurizationStatus() const
       valueRequest.reservoirIndex = m_reservoir->getIndex ();
       valueRequest.valueSpec = PASTEURIZATIONSTATUS;
       RequestHandling::SendRequest(valueRequest, valueResponse);
-      m_pasteurizationStatus = valueResponse.value;
+      m_pasteurizationStatus = (int) valueResponse.value;
       setCached(PASTEURIZATIONSTATUSCACHE);
    }
 

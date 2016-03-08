@@ -60,7 +60,6 @@ namespace migration
       bool setUpBasinGeometry (void);
 
       bool computeFormationPropertyMaps (const Interface::Snapshot * snapshot, bool isPressureRun);
-      bool removeComputedFormationPropertyMaps (void);
       bool getSeaBottomDepths (Interface::GridMap * topDepthGridMap, const Interface::Snapshot * snapshot);
 
       bool createFormationNodes (void);

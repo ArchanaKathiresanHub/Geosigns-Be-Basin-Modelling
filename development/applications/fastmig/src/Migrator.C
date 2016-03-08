@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2010-2015 Shell International Exploration & Production.
+// Copyright (C) 2010-2016 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Developed under license for Shell by PDS BV.
@@ -198,8 +198,6 @@ bool Migrator::compute (void)
    computeDepthOffsets ();
    computeNetToGross ();
 
-   removeComputedFormationPropertyMaps ();
-
    PetscBool minorSnapshots;
 
    PetscOptionsHasName (PETSC_NULL, "-minor", &minorSnapshots);
@@ -370,23 +368,6 @@ bool Migrator::computeFormationPropertyMaps (const Interface::Snapshot * snapsho
 
 }
 
-bool Migrator::removeComputedFormationPropertyMaps (void)
-{
-   Interface::FormationList * formations = getAllFormations ();
-
-   Interface::FormationList::iterator formationIter;
-
-   for (formationIter = formations->begin (); formationIter != formations->end (); ++formationIter)
-   {
-      Formation * formation = Formation::CastToFormation (*formationIter);
-
-      assert (formation);
-
-      formation->removeComputedPropertyMaps ();
-   }
-   return true;
-}
-
 bool Migrator::getSeaBottomDepths (Interface::GridMap * topDepthGridMap, const Interface::Snapshot * snapshot)
 {
    if (!topDepthGridMap->retrieveData ()) return false;
@@ -463,8 +444,7 @@ bool Migrator::performSnapshotMigration (const Interface::Snapshot * start, cons
             !loadExpulsionMaps (start, end) ||
             !chargeReservoirs (start, end) ||
             !unloadExpulsionMaps (end) ||
-            !saveSMFlowPaths (start, end) ||
-            !removeComputedFormationPropertyMaps ())
+            !saveSMFlowPaths (start, end))
          {
             return false;
          }

@@ -1963,12 +1963,12 @@ namespace migration
    /// See whether distribution has finished on all processors
    bool Reservoir::allProcessorsFinished (bool finished)
    {
-      return (bool) AndAll ((int) finished);
+      return (AndAll ((int) finished) != 0);
    }
 
    int Reservoir::computeMaximumTrapCount (bool countUndersized)
    {
-      int numberOfTraps = m_traps.size ();
+      int numberOfTraps = (int) m_traps.size ();
       if (!countUndersized)
       {
          TrapVector::iterator trapIter;
@@ -3196,7 +3196,7 @@ namespace migration
    void Reservoir::addTrap (Trap * trap)
    {
       m_traps.push_back (trap);
-      trap->setLocalId (m_traps.size ());
+      trap->setLocalId ((int) m_traps.size ());
    }
 
    void Reservoir::processTrapProperties (TrapPropertiesRequest & tpRequest)
@@ -3810,7 +3810,7 @@ namespace migration
    /// send all collected migration requests to processor 0 to be added to the MigrationIoTbl
    void Reservoir::processMigrationRequests (void)
    {
-      int localSize = m_migrationRequests.size ();
+      int localSize = (int) m_migrationRequests.size ();
 
       // determine maximum number of requests per processor
       int localMaximumSize = MaximumAll (localSize);
