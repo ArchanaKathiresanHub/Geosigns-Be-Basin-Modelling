@@ -674,6 +674,7 @@ void GeoPhysics::ProjectHandle::filterValidNodesByValidElements()
       for( unsigned int j = firstJgh; j <= lastJgh; ++j )
       {
          if( m_validNodes( i, j ) ) validGridMap->setValue( i, j, 1.0 );
+         else validGridMap->setValue( i, j, 0.0 ); // Temporary workaround for a bug in DistributedGridMap::restoreData
       }
    }
    validGridMap->restoreData( true, useGhosts );
