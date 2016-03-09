@@ -20,6 +20,14 @@ CauldronIO::MapProjectHandle::MapProjectHandle(boost::shared_ptr<const CauldronI
     m_propVal = NULL;
 }
 
+
+void CauldronIO::MapProjectHandle::prefetch()
+{
+    if (isRetrieved()) return;
+    assert(m_propVal != NULL);
+    const DataAccess::Interface::GridMap* gridmap = m_propVal->getGridMap();
+}
+
 void CauldronIO::MapProjectHandle::retrieve()
 {
     if (isRetrieved()) return;
@@ -94,6 +102,24 @@ CauldronIO::VolumeProjectHandle::VolumeProjectHandle(const boost::shared_ptr<Geo
     m_depthInfo.reset();
     m_propValues.reset();
     m_depthFormations.reset();
+}
+
+void CauldronIO::VolumeProjectHandle::prefetch()
+{
+    if (isRetrieved()) return;
+
+    if (m_depthFormations && m_propValues)
+    {
+        assert(m_propVal == NULL && m_depthInfo == NULL);
+        // Get data
+        for (size_t i = 0; i < m_propValues->size(); ++i)
+            const GridMap* gridMap = m_propValues->at(i)->getGridMap();
+    }
+    else if (m_propVal != NULL)
+    {
+        assert(!m_depthFormations && !m_propValues);
+        const GridMap* gridMap = m_propVal->getGridMap();
+    }
 }
 
 void CauldronIO::VolumeProjectHandle::retrieve()

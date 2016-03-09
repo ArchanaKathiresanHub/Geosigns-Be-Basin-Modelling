@@ -42,6 +42,8 @@ namespace CauldronIO
         /// \brief Constructor defining if this map is cell centered, and its undefined value
         MapProjectHandle(boost::shared_ptr<const CauldronIO::Geometry2D>& geometry);
         
+        /// \brief Prefetch any data
+        virtual void prefetch();
         /// \brief Override the retrieve method to load data from datastore
         virtual void retrieve();
         /// \brief Release memory; does not destroy the object; it can be retrieved again
@@ -59,6 +61,8 @@ namespace CauldronIO
     public:
         VolumeProjectHandle(const boost::shared_ptr<Geometry3D>& geometry);
 
+        /// \brief Prefetch any data
+        virtual void prefetch();
         /// \brief Override the retrieve method to load data from datastore
         virtual void retrieve();
         /// \brief Release memory; does not destroy the object; it can be retrieved again

@@ -35,6 +35,7 @@ namespace CauldronIO
 %shared_ptr(CauldronIO::Volume)
 %shared_ptr(CauldronIO::VolumeData)
 %shared_ptr(CauldronIO::SurfaceData)
+%shared_ptr(CauldronIO::VisualizationIOData)
 %shared_ptr(CauldronIO::Formation)
 %shared_ptr(CauldronIO::Property)
 %shared_ptr(CauldronIO::Project)

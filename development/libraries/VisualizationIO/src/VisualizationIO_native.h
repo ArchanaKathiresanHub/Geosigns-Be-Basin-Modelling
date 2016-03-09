@@ -25,6 +25,8 @@ namespace CauldronIO
         MapNative(const boost::shared_ptr<const Geometry2D>& geometry);
         ~MapNative();
         
+        /// \brief Prefetch any data
+        virtual void prefetch() {};
         /// \brief Override the retrieve method to load data from datastore
         virtual void retrieve();
         /// \brief Set all variables needed to retrieve the data
@@ -43,6 +45,8 @@ namespace CauldronIO
         VolumeDataNative(const boost::shared_ptr<Geometry3D>& geometry);
         ~VolumeDataNative();
 
+        /// \brief Prefetch any data
+        virtual void prefetch() {};
         /// \brief Override the retrieve method to load data from datastore
         virtual void retrieve();
         /// \brief Set all variables needed to retrieve the data

@@ -445,14 +445,40 @@ namespace CauldronIO
         size_t m_numK, m_firstK;
     };
 
+    /// \class VisualizationIOData
+    /// \brief interface class for surface and volume data
+    class VisualizationIOData
+    {
+    public:
+        /// \brief Retrieve the data
+        virtual void retrieve() = 0;
+        /// \brief Release memory; does not destroy the object; it can be retrieved again
+        virtual void release() = 0;
+        /// \brief Prefetch any data
+        virtual void prefetch() = 0;
+        /// \returns true if data is available
+        virtual bool isRetrieved() const = 0;
+    };
+
     /// \class SurfaceData 
     /// \brief container class to hold data for a Surface
-    class SurfaceData
+    class SurfaceData : public VisualizationIOData
     {
     public:
         /// \brief Create a surface-data object
         SurfaceData(const boost::shared_ptr<const Geometry2D>& geometry);
         ~SurfaceData();
+
+        /// VisualizationIOData implementation
+        //////////////////////////////////////////////////////////////////////////
+        /// \brief Retrieve the data
+        virtual void retrieve() = 0;
+        /// \brief Release memory; does not destroy the object; it can be retrieved again
+        virtual void release();
+        /// \returns true if data is available
+        virtual bool isRetrieved() const;
+        /// \brief Prefetch any data
+        virtual void prefetch() = 0;
 
         /// \returns the geometry
         const boost::shared_ptr<const Geometry2D>& getGeometry() const;
@@ -460,12 +486,6 @@ namespace CauldronIO
         /// \param [in] data pointer to the xy data, ordered row-wise
         /// \note data ownership is not transferred; data should be deleted by client if obsolete
         void setData_IJ(float* data);
-        /// \brief Retrieve the data
-        virtual void retrieve() = 0;
-        /// \brief Release memory; does not destroy the object; it can be retrieved again
-        virtual void release();
-        /// \returns true if data is available
-        bool isRetrieved() const;
         /// \returns  true if data is represented per row
         bool canGetRow() const;
         /// \returns true if data is represented per column
@@ -566,7 +586,7 @@ namespace CauldronIO
         PropertyVolumeDataList m_propVolumeList;
     };
 
-    class VolumeData
+    class VolumeData : public VisualizationIOData
     {
     public:
         /// \brief Create a surface-data object
@@ -642,12 +662,16 @@ namespace CauldronIO
         /// \param [in] k index in k-dimension
         size_t computeIndex_KIJ(size_t i, size_t j, size_t k) const;
 
-        /// \brief Retrieve the data: to be implemented by inherited class
+        /// VisualizationIOData implementation
+        //////////////////////////////////////////////////////////////////////////
+        /// \brief Retrieve the data
         virtual void retrieve() = 0;
-        /// \returns true if data is available
-        bool isRetrieved() const;
         /// \brief Release memory; does not destroy the object; it can be retrieved again
         virtual void release();
+        /// \returns true if data is available
+        virtual bool isRetrieved() const;
+        /// \brief Prefetch any data
+        virtual void prefetch() = 0;
 
     private:
         void setData(float* data, float** internalData, bool setValue = false, float value = 0);

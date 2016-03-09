@@ -23,7 +23,7 @@ int main(int argc, char ** argv)
 {
     if (argc <= 1)
     {
-        cout << "Usage: datamodel_test.exe [ -import-native <xml-file> | -import-projectHandle <projectHandle> | -convert <projectHandle> [-threads=x] ]" << endl
+        cout << "Usage: VisualizationIO_convert [ -import-native <xml-file> | -import-projectHandle <projectHandle> | -convert <projectHandle> [-threads=x] ]" << endl
             << " -import-native       : loads xml reads all the data into memory" << endl
             << " -import-projectHandle: loads the specified projectHandle into memory" << endl
             << " -convert             : converts the specified projectHandle to new native format" << endl
@@ -116,11 +116,11 @@ int main(int argc, char ** argv)
                 std::string indexingXMLname = CauldronIO::ImportExport::getXMLIndexingFileName(projectFileName);
 
                 // Check threads
-                size_t numThreads = 1;
+                int numThreads = 1;
                 if (argc >= 4)
                 {
                     numThreads = std::atoi(argv[3] + 9);
-                    numThreads = min(24, max(1, numThreads));
+                    numThreads = min(24, (int)max(1, (int)numThreads));
                 }
 
                 CauldronIO::ImportExport::exportToXML(project, absPath.string(), relPath.string(), indexingXMLname, numThreads);

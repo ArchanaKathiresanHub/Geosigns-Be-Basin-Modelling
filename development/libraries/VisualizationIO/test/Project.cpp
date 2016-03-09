@@ -34,29 +34,6 @@ TEST(Project, Create)
 	EXPECT_EQ(project->getXmlVersionMinor(), xmlVersionMnr);
 }
 
-TEST(Project, Create_HandleEmptyProjectName)
-{
-	const string projectName;
-	const string teamName("team");
-	const string description("descript");
-	const string version("version");
-	ModellingMode mode = MODE1D;
-	int xmlVersionMjr = 2;
-	int xmlVersionMnr = 1;
-	try{
-		boost::shared_ptr<Project> project(new Project(projectName, description, teamName, version, mode, xmlVersionMjr, xmlVersionMnr));
-		FAIL();
-	}
-	catch (CauldronIOException const & err)
-	{
-		EXPECT_STREQ(err.what(), "Project name cannot be empty");
-	}
-	catch (...) {
-		FAIL() << "Expected: Project name cannot be empty";
-	}
-
-}
-
 TEST(SnapShot, Create)
 {
 	double age = 10.11;

@@ -49,8 +49,9 @@ if (UNIX)
 		add_subdirectory(cauldron-crop)
 		add_subdirectory(UnitTestGenex6)
 		add_subdirectory(UnitTestOTGC6)
+        add_subdirectory(VisualizationIO_conversion)
 	endif (BM_BUILD_SERIAL_APPS)
-
+# Windows
 else ()
    add_subdirectory(cauldron2eclipse)
    add_subdirectory(fastcauldron)
@@ -61,6 +62,7 @@ else ()
    add_subdirectory(hpc)
    add_subdirectory(tracktraps)
    add_subdirectory(4DViewer)
+   add_subdirectory(VisualizationIO_conversion)
 endif ()
 
 # Local Variables:

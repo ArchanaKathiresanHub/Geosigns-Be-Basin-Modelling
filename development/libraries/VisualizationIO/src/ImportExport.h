@@ -32,7 +32,7 @@ namespace CauldronIO
         /// \param[in] relPath the output directory path where to store the binary outputs; will be created if not existing
         /// \param[in] xmlIndexingName the output xml file name
         /// \param[in] numThreads number of threads (optional) used for compression
-         static bool exportToXML(boost::shared_ptr<Project>& project, const std::string& absPath, const std::string& relPath, 
+        static bool exportToXML(boost::shared_ptr<Project>& project, const std::string& absPath, const std::string& relPath, 
              const std::string&, size_t numThreads = 1);
         /// \brief Creates a new Project from the supplied XML indexing file
         /// Throws a CauldronIOException on failure
@@ -46,6 +46,13 @@ namespace CauldronIO
         /// we should not re-write the existing binary data (that would be very inefficient)
         /// This method detects that we need to append the binary files, instead of writing them from scratch
         bool detectAppend(boost::shared_ptr<Project>& project);
+
+        // Method to compress blocks of data on a thread
+        static void compressData(std::vector< boost::shared_ptr < DataToCompress > > allData);
+
+        // Method to retrieve data on a thread
+        typedef std::pair< const boost::shared_ptr<VisualizationIOData>, bool > RetrieveableData;
+        static void retrieveData(std::vector < RetrieveableData >* allData);
 
         ImportExport(const boost::filesystem::path& absPath, const boost::filesystem::path& relPath, size_t numThreads);
         void addProject(pugi::xml_node pt, boost::shared_ptr<Project>& project);
@@ -63,9 +70,7 @@ namespace CauldronIO
         void addGeometryInfo2D(pugi::xml_node node, const boost::shared_ptr<const Geometry2D>& geometry, const std::string& name) const;
         void addGeometryInfo3D(pugi::xml_node  tree, const boost::shared_ptr<const Geometry3D>& geometry) const;
         void addSnapShot(const boost::shared_ptr<SnapShot>& snapShot, boost::shared_ptr<Project>& project, boost::filesystem::path fullPath, pugi::xml_node node);
-        
-        // Method to compress blocks of data on a thread
-        static void compressData(std::vector< boost::shared_ptr < DataToCompress > > allData);
+       
 
         // member variables
         boost::filesystem::path m_absPath, m_relPath;

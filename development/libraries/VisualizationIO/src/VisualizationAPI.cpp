@@ -23,8 +23,6 @@ using namespace std;
 
 CauldronIO::Project::Project(const string& name, const string& description, const string& team, const string& version, ModellingMode mode, int xmlVersionMajor, int xmlVersionMinor)
 {
-    if (name.empty()) throw CauldronIOException("Project name cannot be empty");
-    
     m_name = name;
     m_description = description;
     m_team = team;
@@ -790,12 +788,6 @@ size_t CauldronIO::SurfaceData::getMapIndex(size_t i, size_t j) const
 {
     assert(i >= 0 && i < m_numI && j >= 0 && j < m_numJ);
     return m_numI * j + i;
-}
-
-void CauldronIO::SurfaceData::retrieve()
-{
-    if (m_retrieved) return;
-    throw CauldronIOException("Not implemented");
 }
 
 void CauldronIO::SurfaceData::release()

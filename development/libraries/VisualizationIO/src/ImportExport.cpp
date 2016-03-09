@@ -273,6 +273,52 @@ void CauldronIO::ImportExport::addSnapShot(const boost::shared_ptr<SnapShot>& sn
     node.append_attribute("kind") = snapShot->getKind();
     node.append_attribute("isminor") = snapShot->isMinorShapshot();
 
+    // Collect all data to retrieve
+    //////////////////////////////////////////////////////////////////////////
+    std::vector < RetrieveableData > allReadData;
+    BOOST_FOREACH(const boost::shared_ptr<Surface>& surfaceIO, snapShot->getSurfaceList())
+    {
+        BOOST_FOREACH(const PropertySurfaceData& propertySurfaceData, surfaceIO->getPropertySurfaceDataList())
+        {
+            const boost::shared_ptr<SurfaceData>& surfaceData = propertySurfaceData.second;
+            if (!surfaceData->isRetrieved() && !m_append)
+                allReadData.push_back(RetrieveableData(surfaceData, false));
+        }
+    }
+
+    if (snapShot->getVolume())
+    {
+        BOOST_FOREACH(const PropertyVolumeData& propVolume, snapShot->getVolume()->getPropertyVolumeDataList())
+        {
+            const boost::shared_ptr<VolumeData>& data = propVolume.second;
+            if (!data->isRetrieved() && !m_append)
+                allReadData.push_back(RetrieveableData(data, false));
+        }
+    }
+
+    BOOST_FOREACH(const FormationVolume& formVolume, snapShot->getFormationVolumeList())
+    {
+        const boost::shared_ptr<Volume> subVolume = formVolume.second;
+        BOOST_FOREACH(const PropertyVolumeData& propVolume, subVolume->getPropertyVolumeDataList())
+        {
+            const boost::shared_ptr<VolumeData>& data = propVolume.second;
+            if (!data->isRetrieved() && !m_append)
+                allReadData.push_back(RetrieveableData(data, false));
+        }
+    }
+
+    // Load the data: this cannot be in parallel: HDF5 is not threadsafe (not on Windows anyway)
+    for (int i = 0; i < allReadData.size(); i++)
+        allReadData[i].first->prefetch();
+
+    // Finish retrieve in separate threads
+    boost::thread_group threads;
+    for (int i = 0; i < m_numThreads; ++i)
+        threads.add_thread(new boost::thread(CauldronIO::ImportExport::retrieveData, &allReadData));
+    threads.join_all();
+
+    // Add surfaces
+    //////////////////////////////////////////////////////////////////////////
     const SurfaceList surfaces = snapShot->getSurfaceList();
     if (surfaces.size() > 0)
     {
@@ -288,6 +334,7 @@ void CauldronIO::ImportExport::addSnapShot(const boost::shared_ptr<SnapShot>& sn
     }
 
     // Add the continuous volume
+    //////////////////////////////////////////////////////////////////////////
     const boost::shared_ptr<Volume> volume = snapShot->getVolume();
     if (volume)
     {
@@ -296,6 +343,7 @@ void CauldronIO::ImportExport::addSnapShot(const boost::shared_ptr<SnapShot>& sn
     }
 
     // Add a volume per formation, with discontinuous properties
+    //////////////////////////////////////////////////////////////////////////
     FormationVolumeList formVolumes = snapShot->getFormationVolumeList();
     if (formVolumes.size() > 0)
     {
@@ -328,7 +376,6 @@ void CauldronIO::ImportExport::addSnapShot(const boost::shared_ptr<SnapShot>& sn
         allData.push_back(volumeStore.getDataToCompressList().at(i));
     
     // Compress it in separate threads
-    boost::thread_group threads;
     for (int i = 0; i < m_numThreads; ++i)
         threads.add_thread(new boost::thread(CauldronIO::ImportExport::compressData, allData));
     threads.join_all();
@@ -395,6 +442,26 @@ void CauldronIO::ImportExport::compressData(std::vector< boost::shared_ptr < Dat
             assert(data->getThreadId() == id);
             data->compress();
         }
+    }
+}
+
+void CauldronIO::ImportExport::retrieveData(std::vector < RetrieveableData >* allData)
+{
+    for (int i = 0; i < allData->size(); i++)
+    {
+        RetrieveableData* data = &allData->at(i);
+        bool retrieveThisOne = false;
+
+        mutex.lock();
+        if (!data->first->isRetrieved() && !data->second)
+        {
+            retrieveThisOne = true;
+            data->second = true;
+        }
+        mutex.unlock();
+
+        if (retrieveThisOne)
+            data->first->retrieve();
     }
 }
 

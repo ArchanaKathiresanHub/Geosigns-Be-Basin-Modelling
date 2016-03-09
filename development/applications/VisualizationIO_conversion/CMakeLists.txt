@@ -16,7 +16,7 @@ source_group("Header Files" FILES ${all_headers})
 FILE( GLOB all_srcs src/*.cpp)
 source_group("Source Files" FILES ${all_srcs})
 
-add_executable(datamodel_tests ${all_srcs} ${all_headers})
+add_executable(VisualizationIO_convert ${all_srcs} ${all_headers})
 
 include_directories(
 	${HDF5_INCLUDE_DIRS}
@@ -33,7 +33,7 @@ bm_include_libraries(
 )
 
 target_link_libraries(
-    datamodel_tests
+    VisualizationIO_convert
 	DataModel
 	DataAccess
 	SerialDataAccess
@@ -45,7 +45,7 @@ target_link_libraries(
 	${Boost_LIBRARIES}
 )
 
-install(TARGETS datamodel_tests
+install(TARGETS VisualizationIO_convert
 	RUNTIME DESTINATION bin
 )
 
