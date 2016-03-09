@@ -2542,10 +2542,13 @@ namespace migration
       m_biodegraded = 0;
       if (isBioDegradationOn ())
       {
+         if (!m_migrator->performLegacyMigration())
+         {
          if (!computeHydrocarbonWaterContactDepth ())
             return false;
          if (!computeHydrocarbonWaterTemperature ())
             return false;
+         }
          m_biodegraded = biodegradeCharges ();
       }
 

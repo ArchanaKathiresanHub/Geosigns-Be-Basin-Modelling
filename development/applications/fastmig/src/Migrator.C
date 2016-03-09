@@ -421,6 +421,7 @@ bool Migrator::createFormationNodes (void)
 
 bool Migrator::performSnapshotMigration (const Interface::Snapshot * start, const Interface::Snapshot * end, const bool overPressureRun)
 {
+     
    if ((activeReservoirs (end) or m_reservoirDetection) and getBottomSourceRockFormation ()->isActive (end))
    {
       if (GetRank () == 0)
@@ -456,7 +457,7 @@ bool Migrator::performSnapshotMigration (const Interface::Snapshot * start, cons
    m_propertyManager->removeProperties (start);
    m_projectHandle->deletePropertyValueGridMaps (Interface::SURFACE | Interface::FORMATION | Interface::FORMATIONSURFACE | Interface::RESERVOIR,
                                                  0, start, 0, 0, 0, Interface::MAP | Interface::VOLUME);
-
+                                                 
    return true;
 }
 
