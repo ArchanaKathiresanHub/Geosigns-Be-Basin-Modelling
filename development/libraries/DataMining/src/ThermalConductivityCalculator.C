@@ -29,7 +29,7 @@ bool DataAccess::Mining::ThermalConductivityCalculator::initialise () {
       m_porosity = getPropertyCollection ()->getDomainProperty ( "Porosity", getPropertyManager ());
 
       if ( m_temperature != 0 and m_porosity != 0 and m_pressure != 0 ) {
-         m_initialised = true;
+         m_initialised = m_porosity->initialise();
       } else {
          m_initialised = false;
       }

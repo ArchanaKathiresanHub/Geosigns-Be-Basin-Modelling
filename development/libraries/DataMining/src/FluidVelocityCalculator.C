@@ -47,7 +47,9 @@ bool DataAccess::Mining::FluidVelocityCalculator::initialise () {
       m_temperature         = getPropertyCollection ()->getDomainProperty ( "Temperature", getPropertyManager ());
 
       if ( m_depth != 0 and m_temperature != 0 and m_porosity != 0 and m_permeabilityN != 0 and m_permeabilityH != 0 and m_overpressure != 0 and m_hydrostaticPressure != 0 ) {
-         m_initialised = true;
+         m_initialised = m_permeabilityH ->initialise();
+         m_initialised = m_initialised and m_permeabilityN ->initialise();
+         m_initialised = m_initialised and m_porosity ->initialise();
       } else {
          m_initialised = false;
       }
@@ -106,14 +108,37 @@ double DataAccess::Mining::FluidVelocityCalculator::compute ( const ElementPosit
    finiteElement.setGeometry ( geometryMatrix );
    finiteElement.setQuadraturePoint ( position.getReferencePoint ()( 0 ), position.getReferencePoint ()( 1 ), position.getReferencePoint ()( 2 ));
 
-   permeabilityH = m_permeabilityH->compute ( position ) / GeoPhysics::M2TOMILLIDARCY;
-   permeabilityN = m_permeabilityN->compute ( position ) / GeoPhysics::M2TOMILLIDARCY;
-   porosity = 0.01 * m_porosity->compute ( position );   
+   permeabilityH = m_permeabilityH->compute ( position );
+   if( permeabilityH == Interface::DefaultUndefinedMapValue ) {
+      return  Interface::DefaultUndefinedMapValue;
+   } else {
+      permeabilityH /= GeoPhysics::M2TOMILLIDARCY;
+   }
+   
+   permeabilityN = m_permeabilityN->compute ( position );
+   if( permeabilityN ==  Interface::DefaultUndefinedMapValue ) {
+      return  Interface::DefaultUndefinedMapValue;
+   } else {
+      permeabilityN /= GeoPhysics::M2TOMILLIDARCY;
+   }
+   porosity = m_porosity->compute ( position );  
+   if( porosity ==  Interface::DefaultUndefinedMapValue ) {
+      return  Interface::DefaultUndefinedMapValue;
+   } else {
+      porosity *= 0.01;
+   }
+   
    pressure = m_pressure->compute ( position );
    temperature = m_temperature->compute ( position );
       
    fluidViscosity = fluid->viscosity ( temperature, pressure );
 
+   if( pressure  ==  Interface::DefaultUndefinedMapValue or
+      temperature ==  Interface::DefaultUndefinedMapValue or
+      fluidViscosity ==  Interface::DefaultUndefinedMapValue ) {
+
+     return  Interface::DefaultUndefinedMapValue;
+   }
    gradOverpressure = finiteElement.interpolateGrad ( overpressureCoeffs );
    gradHydrostaticPressure = finiteElement.interpolateGrad ( hydrostaticPressureCoeffs );
 
