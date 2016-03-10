@@ -224,7 +224,7 @@ double GeoPhysics::FluidType::thermalConductivity ( const double temperature, co
          const double theta = computeTheta ( temperature, liquidusTemperature );
          
          return pow ( m_iceThermalConductivityInterpolator.evaluate ( temperature ), 1.0 - theta ) *
-            pow ( m_thermalConductivitytbl.compute ( temperature, ibs::Interpolator::constant ), theta );
+            pow (m_conductivity.phaseChange (temperature, pressure, 0.0), theta);
       } 
    }
    return m_conductivity.phaseChange ( temperature, pressure, 0.0 );
