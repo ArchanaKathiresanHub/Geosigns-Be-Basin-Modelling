@@ -61,6 +61,16 @@ void ibs::Interpolator2d::addPoint (double x, double y, double f)
    // cerr << " to: " << (int) this << "\n";
 }
 
+ibs::XYF ibs::Interpolator2d::getPoint (int index)
+{
+   return (*d_vectorXYF)[index];
+}
+
+std::vector<ibs::XYF> ibs::Interpolator2d::getVectorOfValues (void)
+{
+   return *d_vectorXYF;
+}
+
 // Compute function value given input arguments
 double ibs::Interpolator2d::compute (double x, double y, Extrapolation type)
 {

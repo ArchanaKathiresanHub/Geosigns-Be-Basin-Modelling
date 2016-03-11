@@ -37,6 +37,9 @@ namespace GeoPhysics
       /// Virtual destructor
       virtual ~BrineConductivity() {}
 
+      /// Extracts data from the project-file FltThCondIoTbl and puts it in array members
+      void setTable (const ibs::Interpolator2d& thermalConductivityTbl);
+
    protected:
       /// Uses bi-linear interpolation to return the value of thermal conductivity using the table provided in Sengers et al. (1984)
       /// \pre Requires the values of T,P to be within the allowed ranges.
@@ -58,12 +61,14 @@ namespace GeoPhysics
       /// Size and elements of the 2D table from Sengers et al. Thermal conductivity
       /// values are actually implemented as a 1D array to facilitate interpolation.
       static const int s_tempArraySize = 23, s_presArraySize = 29, s_thCondArraySize = 667;
-      static const double s_tempArray[s_tempArraySize], s_presArray[s_presArraySize], s_thCondArray[s_thCondArraySize];
 
       /// The 2D thermal-conductivity table will be handled using these arrays.
-      const std::vector<double> m_tempArray;
-      const std::vector<double> m_presArray;
-      const std::vector<double> m_thCondArray;
+      std::vector<double> m_tempArray;
+      std::vector<double> m_presArray;
+      std::vector<double> m_thCondArray;
+
+      // Pointer to the table containing the Fluid-Thermal-Conductivity data
+      ibs::Interpolator2d * thCondTable;
 
       /// Table does not cover the whole range of allowed T,P. Confining the possible values to those
       /// defined by the table (PressureMaxForConductivity and TemperatureMaxForConductivity) is equivalent

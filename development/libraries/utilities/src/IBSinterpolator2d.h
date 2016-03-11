@@ -41,6 +41,10 @@ namespace ibs {
       ~XYF () {}
       XYF (double xx, double yy, double ff): x(xx), y(yy), f(ff) {}
 
+      double getX () {return x;}
+      double getY () {return y;}
+      double getF () {return f;}
+
    private:
 
       double x;
@@ -84,6 +88,10 @@ namespace ibs {
 
       // determine if an input point (x, y) was supplied via addPoint ()
       int     pointExists (double x, double y, double &f);
+
+      XYF getPoint (int index);
+
+      vectorXYF getVectorOfValues (void);
     
    private:
 

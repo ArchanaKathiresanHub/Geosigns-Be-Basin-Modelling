@@ -163,13 +163,13 @@ namespace GeoPhysics {
 
       /// The interpolator for the fluid-thermal-conductivity table.
       ///
-      /// It depends only on temperature.
-      mutable ibs::Interpolator     m_thermalConductivitytbl;
+      /// It depends on both temperature and pressure.
+      mutable ibs::Interpolator2d m_thermalConductivitytbl;
 
       /// The interpolator for the fluid-heat-capacity table.
       ///
       /// It depends on both temperature and pressure.
-      mutable ibs::Interpolator2d   m_heatCapacitytbl;
+      mutable ibs::Interpolator2d m_heatCapacitytbl;
 
       /// Which calculation model to use for the seismic velocity.
       DataAccess::Interface::CalculationModel m_seismicVelocityCalculationModel;

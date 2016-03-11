@@ -2247,6 +2247,7 @@ START-properties
     Unit of measurement : MPa
     Type                : double
     Error Field         : No
+    Default             : 0.0
 
     Identification      : FracturePressure
     Description         : The pressure 
@@ -7705,6 +7706,7 @@ START-property-tables
                      per Fluidtype
     Column         : Fluidtype
     Column         : TempIndex
+    Column         : Pressure
     Column         : ThCond
     Header         : Fluidtype Data
 

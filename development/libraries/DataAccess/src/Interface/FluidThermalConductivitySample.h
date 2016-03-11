@@ -30,6 +30,9 @@ namespace DataAccess
          /// Get temperature value of sample point.
          virtual double getTemperature () const;
 
+         /// Get pressure value of sample point.
+         virtual double getPressure () const;
+
          /// Get thermal-conductivity value of sample point.
          virtual double getThermalConductivity () const;
 

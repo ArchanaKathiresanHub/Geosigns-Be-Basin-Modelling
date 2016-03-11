@@ -50,6 +50,11 @@ double FluidThermalConductivitySample::getTemperature () const
    return database::getTempIndex ( m_record );
 }
 
+double FluidThermalConductivitySample::getPressure () const
+{
+   return database::getPressure ( m_record );
+}
+
 double FluidThermalConductivitySample::getThermalConductivity () const
 {
    return database::getThCond ( m_record );
