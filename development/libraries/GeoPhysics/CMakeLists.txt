@@ -176,10 +176,11 @@ generate_dox( GeoPhysics.cfg )
 
 ### Unit Tests
 
-add_gtest( NAME GeoPhysics::BrineConductivity
-      SOURCES test/BrineConductivity.C src/BrinePhases.C
-      LIBRARIES GeoPhysics SerialDataAccess
-)
+# BrineConductivity unit test not available since reading the FltThCondIoTbl from the project file
+#add_gtest( NAME GeoPhysics::BrineConductivity
+#      SOURCES test/BrineConductivity.C src/BrinePhases.C
+#      LIBRARIES GeoPhysics SerialDataAccess
+#)
 
 add_gtest( NAME GeoPhysics::BrineDensity
       SOURCES test/BrineDensity.C src/BrinePhases.C
