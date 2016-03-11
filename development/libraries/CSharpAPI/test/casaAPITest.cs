@@ -356,7 +356,7 @@ namespace Shell.BasinModeling.Cauldron.Test
 
             for (int j = 0; j < 3; ++j)
             {
-               string stageFile = casePath + @"Stage_" + j.ToString() + @".sh";
+               string stageFile = casePath + @"Stage_" + j.ToString() + @".bat";
                Assert.IsTrue(File.Exists(stageFile));
             }
          }
