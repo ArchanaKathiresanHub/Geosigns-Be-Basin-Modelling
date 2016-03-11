@@ -103,8 +103,12 @@ namespace casa
       static CauldronApp * createApplication( ApplicationType   appType           ///< type of application
                                             , int               cpus = 1          ///< (optional) run applicaton on this cpus number
                                             , size_t            runTimeLimit = 0  ///< (optional) hard time limit for application
-                                            , CauldronApp::ShellType sh = CauldronApp::bash ///< (optional) shell type for the script
-                                            , const std::string cmdLine = ""      ///< (optional) if app is "general", contains the script body
+#ifdef _WIN32
+											, CauldronApp::ShellType sh = CauldronApp::cmd
+#else
+											, CauldronApp::ShellType sh = CauldronApp::bash ///< (optional) shell type for the script
+#endif
+											, const std::string cmdLine = ""      ///< (optional) if app is "general", contains the script body
                                             );                               
 
       /// @brief Set up Cauldron version. Version should be defined as "v2014.1007" (which is the default)

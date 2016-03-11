@@ -28,6 +28,11 @@ public:
              , m_maxTCHP( 4.9 )
              , m_layerName( "Lower Jurassic" )
              , m_projectFileName( "Ottoland.project3d" )
+#ifdef _WIN32
+			 , m_scriptExt(".bat")
+#else
+			 , m_scriptExt(".sh")
+#endif
    { ; }
    ~RunManagerTest( ) { ; }
 
@@ -41,6 +46,8 @@ public:
    const char * m_layerName;
 
    const char * m_projectFileName;
+
+   const char * m_scriptExt;
 };
 
 
@@ -109,7 +116,7 @@ TEST_F( RunManagerTest, Tornado2PrmsMutations )
       // check that all files were generated correctly
       for ( size_t j = 0; j < 3; ++j )
       {
-         ASSERT_TRUE( (ibs::FilePath( casePath.path() ) << std::string( "Stage_" ) + ibs::to_string( j ) + ".sh" ).exists() );
+		  ASSERT_TRUE( ( ibs::FilePath(casePath.path() ) << std::string( "Stage_" ) + ibs::to_string( j ) + m_scriptExt ).exists() );
       }
    }
  
