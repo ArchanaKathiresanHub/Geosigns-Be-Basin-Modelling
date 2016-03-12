@@ -148,6 +148,11 @@ namespace casa
          m_outputOpt = "| sed '1,4d' > track1d_results.csv";
          m_appDepLevel = Postprocessing;
       }
+      else if ( m_appName == "casa" )
+      {
+        m_inputOpt = "";
+        m_outputOpt = "";
+      }
    }
 
    // generate script the application
@@ -220,13 +225,14 @@ namespace casa
       for ( size_t i = 0; i < m_optionsList.size(); ++i ) { oss << " " << m_optionsList[i]; }
 
       // dump input/output project name
-      oss << " " << m_inputOpt << " " << inProjectFile;
-
-      if ( m_appName.substr( 0, 7 ) == "track1d" )
+      if ( m_appName.substr( 0, 4 ) != "casa" )
       {
-         oss << " " << m_outputOpt;
+         oss << " " << m_inputOpt << " " << inProjectFile;
       }
-      else if ( !outProjectFile.empty() ) oss << " " << m_outputOpt << " " << outProjectFile;
+
+      if (      m_appName.substr( 0, 7 ) == "track1d" ) { oss << " " << m_outputOpt; }
+      else if ( m_appName.substr( 0, 4 ) == "casa"    ) { ; }
+      else if ( !outProjectFile.empty()               ) { oss << " " << m_outputOpt << " " << outProjectFile; }
 
       // redirect stdout & stderr
       switch ( m_sh )

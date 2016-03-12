@@ -43,6 +43,10 @@ public:
    /// @param inpFileLineNum command position in input file
    void addCommand( const std::string & cmdID, const std::vector< std::string > & prms, size_t inpFileLineNum );
 
+   /// @brief Create string representation of the given command
+   /// @param pCmd casa command
+   std::string toString( const CasaCmd * pCmd );
+
    /// @brief Go over all command in a queue and execute them for the
    void executeCommands( std::unique_ptr<casa::ScenarioAnalysis> & sa );
 

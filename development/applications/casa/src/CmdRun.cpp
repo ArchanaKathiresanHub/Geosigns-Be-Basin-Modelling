@@ -87,6 +87,7 @@ void CmdRun::execute( std::unique_ptr<casa::ScenarioAnalysis> & sa )
    if ( m_maxPendingJobs > 0 ) rm.setMaxNumberOfPendingJobs( m_maxPendingJobs );
    if ( !m_resStr.empty()    ) rm.setResourceRequirements( m_resStr );
 
+  
    // submit jobs
    for ( size_t i = 0; i < sa->doeCaseSet().size(); ++i )
    {

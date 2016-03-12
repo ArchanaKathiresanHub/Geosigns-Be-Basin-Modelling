@@ -220,8 +220,8 @@ namespace casa
          ok = sz.save( *m_results[i], "CaseObsVal" );
       }
 
-      ok = ok ? sz.save( static_cast<int>( m_runState ), "RunCaseState" ) : ok;
-      ok = ok ? sz.save( m_id,                           "RunCaseID"    ) : ok;
+      ok = ok ? sz.save( static_cast<int>( m_runState ), "RunCaseState"   ) : ok;
+      ok = ok ? sz.save( m_id,                           "RunCaseID"      ) : ok;
 
       return ok;
    }

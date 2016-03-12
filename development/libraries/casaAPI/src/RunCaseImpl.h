@@ -95,7 +95,6 @@ namespace casa
       // parameters up to some application in pipeline. To avoid unnecessary runs, same case results could be just copied
       virtual bool isEqual( const RunCase &cs, AppPipelineLevel upTo ) const;
 
-
       // Serialization / Deserialization
 
       // version of serialized object representation
@@ -119,13 +118,14 @@ namespace casa
       void setID( size_t id ) { m_id = id; }
 
    private:
-      std::unique_ptr<mbapi::Model>      m_model;                // Mutated model, available after mutateCaseTo call
+      std::unique_ptr<mbapi::Model>    m_model;                // Mutated model, available after mutateCaseTo call
       std::string                      m_modelProjectFileName; // full path to the project file
       std::vector<SharedParameterPtr>  m_prmsSet;              // list of parameters for this case
       std::vector<ObsValue*>           m_results;              // list of observables values
       CaseStatus                       m_runState;             // Stat of the run case (submitted/completed/failed)
 
       size_t                           m_id;                   // unique number in RunCaseSet
+      bool                             m_isMultiOneDCase;      // determine if the RunCase is a windowed 1d project
       // disable copy constructor and copy operator
       RunCaseImpl( const RunCaseImpl & );
       RunCase & operator = ( const RunCaseImpl & );

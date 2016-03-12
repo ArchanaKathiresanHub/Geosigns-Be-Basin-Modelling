@@ -42,26 +42,6 @@ namespace casa
       try
       {
          RunCaseSetImpl & rcSet   = dynamic_cast<RunCaseSetImpl &>(rcs);
-         ObsSpaceImpl   & obSpace = dynamic_cast<ObsSpaceImpl &>(obs);
-
-         // check observables against each project, if any one fail for one 
-         // of the project - report error     
-         for ( size_t ob = 0; ob < obSpace.size(); ++ob )
-         {
-            for ( size_t rc = 0; rc < rcSet.size(); ++rc )
-            {
-               mbapi::Model * mdl = rcSet[rc]->caseModel();
-               assert( mdl != NULL );
-
-               const std::string & msg = obSpace[ob]->checkObservableForProject( *mdl );
-
-               if ( !msg.empty() )
-               { 
-                  throw Exception( OutOfRangeValue ) << "Observable " << obSpace[ob]->name()[0] << 
-                     " will fail for the case: " << rc + 1 << " due to: " << msg;
-               }
-            }
-         }
 
          // go through all run cases and request observables
          for ( size_t rc = 0; rc < rcSet.size(); ++rc )
@@ -91,6 +71,10 @@ namespace casa
       // for each case go through all observables and update DataMiningIoTbl & SnapshotIoTbl
       for ( size_t ob = 0; ob < obSpace.size(); ++ob )
       {
+         const std::string & msg = obSpace[ob]->checkObservableForProject(*mdl);
+
+         if (!msg.empty()) continue; //if the observation is outside the model window, do not request it
+
          if ( NoError != obSpace[ob]->requestObservableInModel( *mdl ) ) return moveError( *mdl );
       }
       if ( NoError != mdl->saveModelToProjectFile( cs->projectPath() ) ) return moveError( *mdl );

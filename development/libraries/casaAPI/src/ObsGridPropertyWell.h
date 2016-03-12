@@ -95,6 +95,14 @@ namespace casa
       /// @return array with Z coordinate of each observable point along well
       std::vector<double> depth() const { return m_z; }
 
+      /// @brief Get X coordinates list
+      /// @return array with X coordinate of each observable point along well
+      std::vector<double> xCoords() const { return m_x; }
+
+      /// @brief Get Y coordinates list
+      /// @return array with Y coordinate of each observable point along well
+      std::vector<double> yCoords() const { return m_y; }
+
       /// @brief Set weight coefficient for Uncertainty analysis
       /// @param w weight coefficient value
       virtual void setUAWeight( double w ) { m_uaWeight = w; }

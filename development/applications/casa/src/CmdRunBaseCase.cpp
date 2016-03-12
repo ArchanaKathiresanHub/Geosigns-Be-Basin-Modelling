@@ -60,7 +60,7 @@ void CmdRunBaseCase::execute( std::unique_ptr<casa::ScenarioAnalysis> & sa )
    casa::RunManager & rm = sa->runManager();
    
    // submit the job
-   if ( ErrorHandler::NoError != rm.scheduleCase( *(sa->baseCaseRunCase()), sa->scenarioID() ) )
+   if ( ErrorHandler::NoError != rm.scheduleCase( *(sa->baseCaseRunCase()), sa->scenarioID()) )
    {
          throw ErrorHandler::Exception( rm.errorCode() ) << rm.errorMessage();
    }

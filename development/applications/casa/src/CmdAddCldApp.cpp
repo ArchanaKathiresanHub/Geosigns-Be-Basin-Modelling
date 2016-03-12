@@ -56,6 +56,7 @@ CmdAddCldApp::CmdAddCldApp( CasaCommander & parent, const std::vector< std::stri
    else if ( m_prms[it] == "tracktraps"   ) m_app = casa::RunManager::tracktraps;
    else if ( m_prms[it] == "track1d"      ) m_app = casa::RunManager::track1d;
    else if ( m_prms[it] == "generic"      ) m_app = casa::RunManager::generic;
+   else if ( m_prms[it] == "casa"         ) m_app = casa::RunManager::casa;
    else
    {
       throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Unknown cauldron application name: " << m_prms[0];
@@ -78,7 +79,6 @@ void CmdAddCldApp::execute( std::unique_ptr<casa::ScenarioAnalysis> & sa )
                                  CfgFileParser::implode( m_prms, ",", p ) << ")";
    
    casa::CauldronApp * app = 0;
-   
 
    if ( casa::RunManager::generic == m_app )
    {
@@ -86,8 +86,10 @@ void CmdAddCldApp::execute( std::unique_ptr<casa::ScenarioAnalysis> & sa )
 
       app = casa::RunManager::createApplication( casa::RunManager::generic, m_cpus, m_maxRunLimMin, sh, appName );
    }
-   else { 
-   app = casa::RunManager::createApplication( static_cast<casa::RunManager::ApplicationType>( m_app ), m_cpus, m_maxRunLimMin, sh ); }
+   else
+   { 
+      app = casa::RunManager::createApplication( static_cast<casa::RunManager::ApplicationType>( m_app ), m_cpus, m_maxRunLimMin, sh );
+   }
 
    assert( 0 != app );
 

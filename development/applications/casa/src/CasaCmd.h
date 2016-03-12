@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2012-2014 Shell International Exploration & Production.
+// Copyright (C) 2012-20166666 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -35,6 +35,9 @@ public:
 
    /// @brief Run command
    virtual void execute( std::unique_ptr<casa::ScenarioAnalysis> & sa ) = 0;
+
+   /// @brief Get the list of command parameters
+   virtual std::vector< std::string >  cmdParameters() const { return m_prms; }
 
 protected:
    /// @brief Constructor

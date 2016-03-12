@@ -38,14 +38,21 @@
 #include "VarPrmOneCrustThinningEvent.h"
 #include "VarPrmTopCrustHeatProduction.h"
 #include "VarPrmSourceRockTOC.h"
+#include "PrmWindow.h"
+
+// Utilities lib
+#include <NumericFunctions.h>
+
 
 #include "FolderPath.h"
 #include "FilePath.h"
 
 // STL
 #include <fstream>
+#include <set>
 #include <sstream>
 #include <string>
+#include <utility>
 
 // Standard C lib
 #include <cassert>
@@ -115,6 +122,9 @@ public:
    // Create copy of the base case model and set all variable parameters value defined for each case
    void applyMutations( RunCaseSet & cs );
 
+   // Extract 1D projects around the wells with a user-defined window size
+   void extractOneDProjects( const std::string & expLabel );
+
    // Validate Cauldron model for consistency and valid parameters range. This function should be 
    // called after ScenarioAnalysis::applyMutation()
    void validateCaseSet( RunCaseSet & cs );
@@ -122,6 +132,9 @@ public:
    // Get run manager associated with this scenario analysis
    // return reference to the instance of run manager
    RunManager & runManager() { return *( m_runManager.get() ); }
+
+   // Recreate run manager
+   void resetRunManager() { m_runManager.reset( new RunManagerImpl() ); }
 
    // Get data digger associated with this scenario analysis
    // return reference to the instance of data digger
@@ -172,12 +185,12 @@ public:
    void deserialize( CasaDeserializer & inStream );
 
 private:
-   std::string                              m_scenarioID;          // scenario ID, some id which will be mentioned in all generated files
-   std::string                              m_caseSetPath;         // path to folder which will be the root folder for all scenario cases
-   std::string                              m_baseCaseProjectFile; // path to the base case project file
-   int                                      m_iterationNum;        // Scenario analysis iteration number
-   int                                      m_caseNum;             // counter for the cases, used in folder name of the case
-
+   std::string                                m_scenarioID;          // scenario ID, some id which will be mentioned in all generated files
+   std::string                                m_caseSetPath;         // path to folder which will be the root folder for all scenario cases
+   std::string                                m_baseCaseProjectFile; // path to the base case project file
+   int                                        m_iterationNum;        // Scenario analysis iteration number
+   int                                        m_caseNum;             // counter for the cases, used in folder name of the case
+ 
    std::unique_ptr<mbapi::Model>              m_baseCase;
    std::unique_ptr<RunCaseImpl>               m_baseCaseRunCase;    // run case for the base case project
    std::unique_ptr<ObsSpaceImpl>              m_obsSpace;           // observables manager
@@ -214,6 +227,7 @@ RunCaseSet            & ScenarioAnalysis::mcCaseSet()             { return m_pim
 MonteCarloSolver      & ScenarioAnalysis::mcSolver()              { return m_pimpl->mcSolver();              }
 SensitivityCalculator & ScenarioAnalysis::sensitivityCalculator() { return m_pimpl->sensitivityCalculator(); }
 const char            * ScenarioAnalysis::scenarioID()            { return m_pimpl->scenarioID();            }
+void                    ScenarioAnalysis::resetRunManager()       { m_pimpl->resetRunManager();              }
 
 // Define Scenario ID
 ErrorHandler::ReturnCode ScenarioAnalysis::defineScenarioID( const char * scID )
@@ -303,13 +317,23 @@ DoEGenerator & ScenarioAnalysis::doeGenerator()
 ErrorHandler::ReturnCode ScenarioAnalysis::applyMutations( RunCaseSet & cs )
 {
    try { m_pimpl->applyMutations( cs ); }
-   catch ( Exception & ex           ) { return reportError( ex.errorCode(), ex.what() ); }
+   catch ( Exception & ex           ) { return reportError( ex.errorCode(), ex.what()  ); }
    catch ( ibs::PathException & pex ) { return reportError( IoError,        pex.what() ); }
    catch ( ...                      ) { return reportError( UnknownError,   "Unknown error" ); }
 
    return NoError;
 }
 
+ErrorHandler::ReturnCode ScenarioAnalysis::extractOneDProjects( const std::string & expLabel )
+{
+   try { m_pimpl->extractOneDProjects( expLabel ); }
+   catch ( Exception          & ex  ) { return reportError( ex.errorCode(), ex.what()  ); }
+   catch ( ibs::PathException & pex ) { return reportError( IoError,        pex.what() ); }
+   catch ( ...                      ) { return reportError(UnknownError,    "Unknown error"); }
+
+   return NoError;
+
+}
 
 ErrorHandler::ReturnCode ScenarioAnalysis::validateCaseSet( RunCaseSet & cs )
 {
@@ -711,6 +735,65 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::applyMutations( RunCaseSet & cs )
    ++m_iterationNum;
 }
 
+struct XYCoordComp
+{
+   bool operator() ( const casa::ObsGridPropertyWell * c1, const casa::ObsGridPropertyWell * c2 )
+   {
+      double eps = 1.e-3;
+      double x1 = c1->xCoords().front();
+      double x2 = c2->xCoords().front();
+
+      if ( !NumericFunctions::isEqual( x1, x2, eps ) ) { return x1 < x2 ? true : false; }
+ 
+      double y2 = c2->yCoords().front();
+      double y1 = c1->yCoords().front();
+
+      if ( !NumericFunctions::isEqual( y1, y2, eps ) ) { return y1 < y2 ? true : false; }
+
+      return false;
+   }
+};
+
+void ScenarioAnalysis::ScenarioAnalysisImpl::extractOneDProjects( const std::string & expLabel )
+{
+   mbapi::Model                                      & mdl = baseCase();
+   const casa::ObsSpace                              & obs = obsSpace();
+   casa::RunCaseSetImpl                              & doeCases = dynamic_cast<casa::RunCaseSetImpl &>( doeCaseSet() );  
+   std::vector< casa::RunCase* >                       expSet;
+   std::set< const casa::ObsGridPropertyWell*, XYCoordComp > uniqWellsSet;
+
+   // as a first stem make a unique list of wells based on the first coordinate of the well.
+   for ( size_t i = 0; i < obs.size(); ++i )
+   {
+      const casa::ObsGridPropertyWell * wellObs = dynamic_cast<const casa::ObsGridPropertyWell *>( obs.observable( i ) );
+      if ( wellObs && !wellObs->xCoords().empty() ) { uniqWellsSet.insert( wellObs ); }
+   }
+
+   // for each extracted wells determine minI, maxI and minJ, maxJ
+   int minI;
+   int maxI;
+   int minJ;
+   int maxJ;
+
+   for ( auto it = uniqWellsSet.begin(); it != uniqWellsSet.end(); it++ )
+   {
+      if ( NoError != mdl.windowSize( (*it)->xCoords().front(), (*it)->yCoords().front(), minI, maxI, minJ, maxJ ) )
+      {
+         throw ErrorHandler::Exception( ErrorHandler::IoError ) << "Setting window around well: " << (*it)->xCoords().front() << " "
+                                                                                                  << (*it)->yCoords().front() << " "
+                                                                << " for the project failed";
+      }
+      SharedParameterPtr window( new casa::PrmWindow( minI, maxI, minJ, maxJ ) );
+      
+      std::unique_ptr<casa::RunCaseImpl> newCase( new casa::RunCaseImpl() );
+      newCase->addParameter( window );
+
+      expSet.push_back( newCase.release() );                      
+   }
+
+   // add the set of cases in DoE
+   doeCases.addNewCases( expSet, expLabel );
+}
 
 void ScenarioAnalysis::ScenarioAnalysisImpl::validateCaseSet( RunCaseSet & cs )
 {
