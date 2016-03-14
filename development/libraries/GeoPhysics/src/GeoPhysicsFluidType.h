@@ -161,11 +161,6 @@ namespace GeoPhysics {
 
    private :
 
-      /// The interpolator for the fluid-thermal-conductivity table.
-      ///
-      /// It depends on both temperature and pressure.
-      mutable ibs::Interpolator2d m_thermalConductivitytbl;
-
       /// The interpolator for the fluid-heat-capacity table.
       ///
       /// It depends on both temperature and pressure.

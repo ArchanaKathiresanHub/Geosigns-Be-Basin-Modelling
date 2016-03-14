@@ -83,17 +83,19 @@ void GeoPhysics::FluidType::loadPropertyTables () {
       m_heatCapacitytbl.addPoint (sample->getTemperature (), sample->getPressure (), sample->getHeatCapacity ());
    }
 
+   ibs::Interpolator2d thermalConductivitytbl;
+
    for (thermalConductivitySampleIter = thermalConductivitySamples->begin ();
          thermalConductivitySampleIter != thermalConductivitySamples->end ();
          ++thermalConductivitySampleIter) {
 
       const Interface::FluidThermalConductivitySample * sample = *thermalConductivitySampleIter;
 
-      m_thermalConductivitytbl.addPoint (sample->getTemperature (), sample->getPressure (), sample->getThermalConductivity ());
+      thermalConductivitytbl.addPoint (sample->getTemperature (), sample->getPressure (), sample->getThermalConductivity ());
    }
 
    // Pass the table to the m_conductivity object
-   m_conductivity.setTable (m_thermalConductivitytbl);
+   m_conductivity.setTable (thermalConductivitytbl);
 
    // Load data for permafrost modelling
    if(m_projectHandle->getPermafrostData() != 0) {
