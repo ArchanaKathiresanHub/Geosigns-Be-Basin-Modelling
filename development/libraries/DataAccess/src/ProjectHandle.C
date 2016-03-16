@@ -108,6 +108,7 @@
 #include "ComponentManager.h"
 #include "InterfaceDefs.h"
 
+#include "FilePath.h"
 
 //utilities library
 #include "LogHandler.h"
@@ -437,11 +438,12 @@ ProjectHandle::~ProjectHandle( void )
 /// the directory path we will use to access map files.
 void ProjectHandle::splitName( void )
 {
-   size_t slashPos = m_name.rfind( '/' );
-   if ( slashPos != string::npos )
+   ibs::FilePath ppath( m_name );
+
+   if ( ppath.size() > 0 ) // number path elements more the one
    {
-      m_projectPath = m_name.substr( 0, slashPos );
-      m_fileName = m_name.substr( slashPos + 1, string::npos );
+      m_projectPath = ppath.filePath();
+      m_fileName = ppath.fileName();
    }
    else
    {
@@ -2382,7 +2384,9 @@ bool ProjectHandle::loadMapPropertyValues( void )
 
 const std::string ProjectHandle::getFullOutputDir() const
 {
-   return getProjectPath() + "/" + getOutputDir();
+   ibs::FilePath ppath( getProjectPath() );
+   ppath << getOutputDir();
+   return ppath.path();
 }
 
 
@@ -2395,7 +2399,9 @@ bool ProjectHandle::initializeMapPropertyValuesWriter( const bool append )
    string fileName = getActivityName();
 
    fileName += "_Results.HDF";
-   string filePathName = getFullOutputDir() + "/" + fileName;
+   ibs::FilePath ppath( getFullOutputDir() );
+   ppath << fileName;
+   string filePathName = ppath.path();
 
    if ( !makeOutputDir() ) return false;
 
@@ -2414,7 +2420,9 @@ bool ProjectHandle::initializePrimaryPropertyValuesWriter( const bool append )
       if ( m_mapPrimaryPropertyValuesWriter ) return false;
 
      // create hdf file
-      string filePathName = getFullOutputDir() + "/" + PrimaryPropertiesFileName;
+      ibs::FilePath ppath( getFullOutputDir() );
+      ppath << PrimaryPropertiesFileName;
+      string filePathName = ppath.path();
       
       if ( !makeOutputDir() ) return false;
       

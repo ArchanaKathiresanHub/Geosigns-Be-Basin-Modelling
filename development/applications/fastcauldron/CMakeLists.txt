@@ -375,6 +375,7 @@ bm_include_libraries(
 	genex6
 	genex6_kernel	
 	GeoPhysics
+	FileSystem
 	calibration_kernel	
 )
 
@@ -409,6 +410,7 @@ target_link_libraries(FastcauldronApplication
 	genex6
 	genex6_kernel	
 	GeoPhysics
+	FileSystem
 	calibration_kernel
 	OTGC_kernel6
 	${HDF5_LIBRARIES}
@@ -597,7 +599,7 @@ set(CFGFLS "${PROJECT_SOURCE_DIR}/geocase/misc")
 
 add_gtest( NAME "MeshUnitTesterFull"
            SOURCES test/MeshUnitTester.C test/MeshUnitTesterFull.C
-           LIBRARIES  FastcauldronApplication DataAccess DistributedDataAccess utilities Utilities_Petsc Serial_Hdf5 Parallel_Hdf5 EosPack TableIO LinearAlgebra Interpolation FiniteElements CBMGenerics genex6_kernel GeoPhysics calibration_kernel OTGC_kernel6 ${HDF5_LIBRARIES} ${PETSC_LIBRARIES} ${MPI_LIBRARIES} ${Boost_LIBRARIES}
+           LIBRARIES  FastcauldronApplication DataAccess DistributedDataAccess utilities Utilities_Petsc Serial_Hdf5 Parallel_Hdf5 EosPack TableIO LinearAlgebra Interpolation FiniteElements CBMGenerics genex6_kernel GeoPhysics FileSystem calibration_kernel OTGC_kernel6 ${HDF5_LIBRARIES} ${PETSC_LIBRARIES} ${MPI_LIBRARIES} ${Boost_LIBRARIES}
            LINK_FLAGS "${PETSC_LINK_FLAGS}"
            ENV_VARS EOSPACKDIR=${CFGFLS}/eospack GENEX5DIR=${CFGFLS}/genex50 
          )

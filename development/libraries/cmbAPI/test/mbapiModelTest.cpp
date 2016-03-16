@@ -703,7 +703,7 @@ TEST_F( mbapiModelTest, MapsManagerCopyMapTest )
    ASSERT_EQ( id, 6U ); // given map is 7th in the list
 
    double minV, maxV;
-   mm.mapValuesRange( id, minV, maxV );
+   ASSERT_EQ( ErrorHandler::NoError, mm.mapValuesRange( id, minV, maxV ) );
 
    ASSERT_NEAR( minV, 2288.0, eps );
    ASSERT_NEAR( maxV, 6434.0, eps );

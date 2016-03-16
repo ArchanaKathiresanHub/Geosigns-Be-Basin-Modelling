@@ -83,6 +83,8 @@ bool H5_Parallel_PropertyList :: setOneFilePerProcessOption( )
          PetscPrintf ( PETSC_COMM_WORLD, "Set %s for output or/and input\n", tmpDir ); 
       }
    }
+#else
+   noOfpp = PETSC_TRUE;
 #endif
    
    setOneFilePerProcess ( !noOfpp );
