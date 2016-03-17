@@ -728,19 +728,19 @@ namespace Shell.BasinModeling.Cauldron.Test
          Assert.AreEqual(ErrorHandler.ReturnCode.NoError, sa.errorCode());
          
          // clean any previous failed run
-         string pathToCaseSet = @".\CaseSet";
+         string pathToCaseSet = @".\CaseSetBMCSH";
 
          if ( Directory.Exists(pathToCaseSet) )
          {
             Directory.Delete(pathToCaseSet, true); // delete folder ./CaseSet
          }
 
-         Assert.AreEqual(ErrorHandler.ReturnCode.NoError, sa.setScenarioLocation( @".\CaseSet" ) );
+         Assert.AreEqual(ErrorHandler.ReturnCode.NoError, sa.setScenarioLocation( pathToCaseSet ) );
          Assert.AreEqual(ErrorHandler.ReturnCode.NoError, sa.saveCalibratedCase("NVGBestMatchCase.project3d", 1));
 
-         Assert.IsTrue(File.Exists(@".\CaseSet\Calibrated_NVGBestMatchCase\NVGBestMatchCase.project3d"));
-         Assert.IsTrue(File.Exists(@".\CaseSet\Calibrated_NVGBestMatchCase\Inputs.HDF"));
-         Assert.IsTrue(File.Exists(@".\CaseSet\Calibrated_NVGBestMatchCase\MAP-72981789-4.FLT"));
+         Assert.IsTrue(File.Exists(pathToCaseSet+@"\Calibrated_NVGBestMatchCase\NVGBestMatchCase.project3d"));
+         Assert.IsTrue(File.Exists(pathToCaseSet+@"\Calibrated_NVGBestMatchCase\Inputs.HDF"));
+         Assert.IsTrue(File.Exists(pathToCaseSet+@"\Calibrated_NVGBestMatchCase\MAP-72981789-4.FLT"));
 
          // cleaning files/folders
          Directory.Delete(pathToCaseSet, true); // delete folder ./CaseSet       
