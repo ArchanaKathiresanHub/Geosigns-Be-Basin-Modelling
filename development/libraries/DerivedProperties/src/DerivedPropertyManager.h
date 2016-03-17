@@ -153,6 +153,9 @@ namespace DerivedProperties {
       /// \brief The geophysics project handle
       GeoPhysics::ProjectHandle* m_projectHandle;
 
+      /// \brief Flag to determine which properties to load
+      bool m_loadAllProperties;
+
    }; 
 
 } // namespace DerivedProperties

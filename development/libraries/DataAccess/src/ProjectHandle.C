@@ -186,7 +186,7 @@ const DataAccess::Interface::ApplicationGlobalOperations& ProjectHandle::getGlob
 }
 
 ProjectHandle::ProjectHandle( Database * tables, const string & name, const string & accessMode, ObjectFactory* objectFactory ) :
-   m_database( tables ), m_name( name ), m_accessMode( READWRITE ), m_activityOutputGrid( 0 ), m_mapPropertyValuesWriter( 0 ), m_mapPrimaryPropertyValuesWriter( 0 )
+   m_database( tables ), m_name( name ), m_accessMode( READWRITE ), m_activityOutputGrid( 0 ), m_mapPropertyValuesWriter( 0 )
 {
    (void) accessMode; // ignore warning about unused parameter
 
@@ -219,7 +219,6 @@ ProjectHandle::ProjectHandle( Database * tables, const string & name, const stri
    m_sgDensitySample = 0;
    m_irreducibleWaterSample = 0;
 
-   m_primary = false;
    m_primaryDouble = false;
 
    //1DComponent
@@ -574,15 +573,6 @@ bool ProjectHandle::restartActivity( void )
       m_mapPropertyValuesWriter->close();
       m_mapPropertyValuesWriter->open( filePathName.path(), false );
       m_mapPropertyValuesWriter->saveDescription( getActivityOutputGrid() );
-
-      if( m_primary )
-      {
-         filePathName.cutLast();
-         filePathName << PrimaryPropertiesFileName;
-         
-         m_mapPrimaryPropertyValuesWriter->close();
-         m_mapPrimaryPropertyValuesWriter->open( filePathName.path(), false );
-      }
 
       saveCreatedMapPropertyValues();		/// creates new TimeIoRecords
 
@@ -2382,14 +2372,6 @@ bool ProjectHandle::loadMapPropertyValues( void )
    return true;
 }
 
-const std::string ProjectHandle::getFullOutputDir() const
-{
-   ibs::FilePath ppath( getProjectPath() );
-   ppath << getOutputDir();
-   return ppath.path();
-}
-
-
 bool ProjectHandle::initializeMapPropertyValuesWriter( const bool append )
 {
    if ( Interface::MODE3D != getModellingMode() ) return true;
@@ -2416,19 +2398,7 @@ bool ProjectHandle::initializeMapPropertyValuesWriter( const bool append )
 bool ProjectHandle::initializePrimaryPropertyValuesWriter( const bool append )
 {
    if ( Interface::MODE3D != getModellingMode() ) return true;
-   if( m_primary ) {
-      if ( m_mapPrimaryPropertyValuesWriter ) return false;
 
-     // create hdf file
-      ibs::FilePath ppath( getFullOutputDir() );
-      ppath << PrimaryPropertiesFileName;
-      string filePathName = ppath.path();
-      
-      if ( !makeOutputDir() ) return false;
-      
-      m_mapPrimaryPropertyValuesWriter = getFactory()->produceMapWriter();
-      return m_mapPrimaryPropertyValuesWriter->open( filePathName, append );
-   }
    return true;
 }
 
@@ -2451,11 +2421,6 @@ bool ProjectHandle::finalizeMapPropertyValuesWriter( void )
 
       m_mapPropertyValuesWriter->close();
       delete m_mapPropertyValuesWriter;
-
-      if ( m_mapPrimaryPropertyValuesWriter ) {
-         m_mapPrimaryPropertyValuesWriter->close();
-         delete m_mapPrimaryPropertyValuesWriter;
-      }
 
       return true;
    }
@@ -2544,7 +2509,7 @@ bool ProjectHandle::saveCreatedMapPropertyValuesMode3D( void )
       increment = 0;
 
       bool saveAsPrimary = false;
-      if( m_primary or m_primaryDouble ) {
+      if( m_primaryDouble and propertyValue->isPrimary() ) {
          if(( getActivityName() != "Genex5" and getActivityName() != "HighResMigration" and 
               getActivityName() != "FastTouch" and getActivityName() != "CrustalThicknessCalculator" )) {
             saveAsPrimary = true;
@@ -2606,38 +2571,34 @@ bool ProjectHandle::saveCreatedVolumePropertyValuesMode3D( void )
             // and open a (new, empty) snapshot file for it.
             // File will be appended if append-flag is true in the snapshot.
             snapshotUsed = (Snapshot *)propertyValue->getSnapshot();
-            if( m_primary and m_mapPrimaryPropertyValuesWriter != 0 )
-            {
-               snapshotUsed->setPrimaryFileName( true );  
-            }
-            else
-            {
-               const string & fileName = snapshotUsed->getFileName( true );
-               ibs::FilePath filePathName( getProjectPath() );
-               filePathName << getOutputDir() << fileName;               
+ 
+            const string & fileName = snapshotUsed->getFileName( true );
+            ibs::FilePath filePathName( getFullOutputDir() );
+            filePathName << fileName;               
+
+
+            
 #if 0
                cerr << "Saving snapshot ";
                snapshotUsed->printOn (cerr);
                cerr << " to file " << filePathName.path() << "  " << (snapshotUsed->getAppendFile () ? "APPEND" : "CREATE" ) << endl;
-#endif               
+#endif
+            
                mapWriter->open( filePathName.path(), snapshotUsed->getAppendFile() );
-            }
          }
+         
          propertyValue->create3DTimeIoRecord( timeIoTbl, Interface::MODE3D );
          m_propertyValues.push_back( propertyValue );
          propertyValueIter = m_recordLessVolumePropertyValues.erase( propertyValueIter );
          increment = 0;
 
-         if ( not m_primary )
-         {
-            status &= m_primaryDouble ? propertyValue->savePrimaryVolumeToFile( *mapWriter, false )
-                                      : propertyValue->saveVolumeToFile( *mapWriter );
+         if( m_primaryDouble and propertyValue->isPrimary() and snapshotUsed->getType() == Interface::MAJOR  ) {
+            // save primary propeties in double precision and chunked at major snapshots
+            status &= propertyValue->savePrimaryVolumeToFile( *mapWriter, false );
+         } else {
+            status &= propertyValue->saveVolumeToFile( *mapWriter );
          }
-         else
-         {
-            status &= m_mapPrimaryPropertyValuesWriter != 0 ? propertyValue->savePrimaryVolumeToFile( *m_mapPrimaryPropertyValuesWriter )
-                                                            : propertyValue->savePrimaryVolumeToFile( *mapWriter );
-         }
+         
       }
 
       if ( !snapshotUsed ) break; // nothing was written
@@ -2953,6 +2914,13 @@ void ProjectHandle::addProperty( Property * property )
    m_properties.push_back( property );
 }
 
+void ProjectHandle::addPropertyToFront( Property * property )
+{
+   MutablePropertyList::iterator propertyIter = m_properties.begin();
+ 
+   m_properties.insert( propertyIter, property );
+}
+
 PropertyValue * ProjectHandle::addPropertyValue( database::Record * record, const string & name, const Property * property, const Snapshot * snapshot,
    const Reservoir * reservoir, const Formation * formation, const Surface * surface, PropertyStorage storage )
 {
@@ -3192,8 +3160,8 @@ bool ProjectHandle::loadVolumePropertyValuesViaSnapshotIoTbl( void )
 GridMap * ProjectHandle::loadOutputMap( const Parent * parent, unsigned int childIndex,
    const string & fileName, const string & propertyId )
 {
-   ibs::FilePath filePathName( getProjectPath() );
-   filePathName << getOutputDir() << fileName;
+   ibs::FilePath filePathName( getFullOutputDir() );
+   filePathName << fileName;
 
    string dataSetName = propertyId;
    return loadGridMap( parent, childIndex, filePathName.path(), dataSetName );
@@ -4330,6 +4298,23 @@ const Interface::Snapshot * ProjectHandle::findSnapshot( double time, int type )
    return nearestSnapshot;
 }
 
+void ProjectHandle::sortSnapshots()
+{
+   std::sort( m_snapshots.begin(), m_snapshots.end(), SnapshotLessThan() );
+}
+ 
+void ProjectHandle::printSnapshotTable() const
+{
+  MutableSnapshotList::const_iterator snapshotIter;
+
+   cout << "Snapshots: " << endl;
+   for ( snapshotIter = m_snapshots.begin(); snapshotIter != m_snapshots.end(); ++ snapshotIter )
+   {
+      const Snapshot * snapshot = *snapshotIter;
+      cout << snapshot->getTime() << ", " << ( snapshot->getType() == MINOR ? "minor " : ( snapshot->getType() == MAJOR ? "major " :  "unknown ")) << endl;
+   }
+
+}
 const Interface::Snapshot * ProjectHandle::findNextSnapshot( double time, int type ) const
 {
    // first, try the highway
@@ -5872,19 +5857,9 @@ double ProjectHandle::getPreviousIgneousIntrusionTime( const double Current_Time
    return m_previousIgneousIntrusionTime;
 }
 
-MapWriter * ProjectHandle::getPrimaryPropertyValuesWriter() {
+MapWriter * ProjectHandle::getMapPropertyValuesWriter() {
 
-   return m_mapPrimaryPropertyValuesWriter;
-}
-
-bool ProjectHandle::isPrimary() const {
-
-   return m_primary;
-}
-
-void ProjectHandle::setPrimary( const bool PrimaryFlag ) {
-
-   m_primary = PrimaryFlag;
+   return m_mapPropertyValuesWriter;
 }
 
 bool ProjectHandle::isPrimaryDouble() const {
@@ -5895,4 +5870,8 @@ bool ProjectHandle::isPrimaryDouble() const {
 void ProjectHandle::setPrimaryDouble( const bool PrimaryFlag ) {
 
    m_primaryDouble = PrimaryFlag;
+}
+
+bool ProjectHandle::isPrimaryProperty( const string propertyName ) const {
+   return m_primaryList.count( propertyName );
 }

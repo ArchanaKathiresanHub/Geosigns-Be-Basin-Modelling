@@ -234,6 +234,21 @@ const std::string& PropertyManager::findOutputPropertyName ( const std::string& 
    
 }
 
+
+//------------------------------------------------------------//
+
+const std::string& PropertyManager::findPropertyName ( const std::string& name ) const {
+
+   PropertyNameMap::const_iterator propertyNameIt;
+
+   for ( propertyNameIt = m_propertyName2OutputName.begin (); propertyNameIt != m_propertyName2OutputName.end(); ++ propertyNameIt ) {
+      if( propertyNameIt->second == name ) {
+         return propertyNameIt->first;
+      }
+   }
+   return s_nullString;
+}
+
 //------------------------------------------------------------//
 
 void PropertyManager::createSurfacePropertyMaps ( AppCtx*                                cauldron,
@@ -478,8 +493,7 @@ void PropertyManager::computeSourceRockPropertyVolumes ( AppCtx*                
                                                          const PropListVec&         shaleGasProperties ) {
 
    // Some of the properties (as Vr) should be output to the primary properties file
-   if(( FastcauldronSimulator::getInstance ().isPrimary() or  FastcauldronSimulator::getInstance ().isPrimaryDouble())
-      and cauldron->projectSnapshots.projectPrescribesMinorSnapshots ()) {
+   if(( FastcauldronSimulator::getInstance ().isPrimaryDouble()) and cauldron->projectSnapshots.projectPrescribesMinorSnapshots ()) {
       PropListVec::const_iterator propertyIter;
       
       for ( propertyIter = genexProperties.begin (); propertyIter != genexProperties.end (); ++propertyIter ) {

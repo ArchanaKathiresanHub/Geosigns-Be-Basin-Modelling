@@ -13,17 +13,10 @@
 #FILE( GLOB all_headers src/*.h )
 #FILE( GLOB all_srcs src/*.C)
 set (all_headers,
-	src/PropertiesCalculator.h
-	src/FormationMapOutputPropertyValue.h
-	src/FormationOutputPropertyValue.h
-	src/OutputPropertyValue.h
-	src/SurfaceOutputPropertyValue.h)
+	src/PropertiesCalculator.h)
 
 set(all_srcs
-	src/FormationMapOutputPropertyValue.C
-	src/FormationOutputPropertyValue.C
 	src/PropertiesCalculator.C
-	src/SurfaceOutputPropertyValue.C
 	src/main.C)
 
 source_group(include FILES ${all_headers})
@@ -37,7 +30,6 @@ add_executable(fastproperties
 
 bm_include_libraries(
 	DataModel
-	DataMining
 	DataAccess
 	DistributedDataAccess
 	Interpolation
@@ -51,8 +43,10 @@ bm_include_libraries(
 	Parallel_Hdf5
 	EosPack
 	utilities
-   FileSystem
+        FileSystem
 	Utilities_Petsc
+	VisualizationIO
+	VisualizationIO_projectHandle
 )
 
 include_directories(
@@ -63,7 +57,6 @@ include_directories(
 
 target_link_libraries(fastproperties
 	DerivedProperties
-	DataMining
 	GeoPhysics
 	DataAccess
 	DistributedDataAccess
@@ -75,7 +68,9 @@ target_link_libraries(fastproperties
 	Serial_Hdf5
 	Parallel_Hdf5
 	utilities
-   FileSystem
+	FileSystem
+	VisualizationIO
+	VisualizationIO_projectHandle
 	${HDF5_LIBRARIES}
 	${PETSC_LIBRARIES}
 )

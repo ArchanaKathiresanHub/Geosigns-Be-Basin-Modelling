@@ -40,13 +40,6 @@ int FastcauldronStartup::startup ( int                  argc,
    // There are several command line parameters that can be set only after the project file has been read.
    FastcauldronSimulator::getInstance ().readCommandLineParametersLateStage ( argc, argv );
 
-   // Initialise properties output
-   if( not cauldron->no2Doutput() and 
-       not ( FastcauldronSimulator::getInstance ().getCalculationMode () == HYDROSTATIC_HIGH_RES_DECOMPACTION_MODE or
-             FastcauldronSimulator::getInstance ().getCalculationMode () == COUPLED_HIGH_RES_DECOMPACTION_MODE )) {
-      cauldron->setNo2Doutput( FastcauldronSimulator::getInstance ().isPrimary() );
-   }
-
    // Initialise anything that is to be set from the environment.
    cauldron->setParametersFromEnvironment ();
    cauldron->Display_Grid_Description();

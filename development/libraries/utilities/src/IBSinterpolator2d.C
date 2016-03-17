@@ -46,6 +46,15 @@ ibs::Interpolator2d::~Interpolator2d()
    if (d_vectorXYF) delete d_vectorXYF;
 }
 
+void ibs::Interpolator2d::clean()
+{ 
+
+   d_hasBeenChecked = 0;
+   
+   if (d_vectorXYF) d_vectorXYF->clear();
+}
+
+
 // Initializer for the 2D array by allocating memory on the
 // free store using 'new'
 

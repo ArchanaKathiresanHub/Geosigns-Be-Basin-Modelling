@@ -73,18 +73,6 @@ bool FastTouch::compute (void)
 
    H5_Parallel_PropertyList::setOneFilePerProcessOption ();
 
-   PetscBool onlyPrimary = PETSC_FALSE;
-   PetscOptionsHasName( PETSC_NULL, "-primaryOnly", &onlyPrimary );
-
-   if( onlyPrimary ) {
-      m_projectHandle->setPrimary( true );
-   }
-   PetscOptionsHasName( PETSC_NULL, "-primaryDouble", &onlyPrimary );
-
-   if( onlyPrimary ) {
-      m_projectHandle->setPrimaryDouble( true );
-   }  
-
    bool started = m_projectHandle->startActivity (FastTouchActivityName, m_projectHandle->getLowResolutionOutputGrid ());
  
    if (!started) return false;

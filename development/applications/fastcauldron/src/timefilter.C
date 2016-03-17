@@ -104,6 +104,7 @@ void TimeFilter::setFilter(const string & propertyName, const string & outputOpt
   }
 
   PropertyOutputOption [ PERMEABILITYHVEC ] = PropertyOutputOption [ PERMEABILITYVEC ];
+  PropertyOutputOption [ HORIZONTALPERMEABILITY ] = PropertyOutputOption [ PERMEABILITYHVEC ];
   
   PropertyOutputOption[HEAT_FLOWY] = PropertyOutputOption[HEAT_FLOW];
   PropertyOutputOption[HEAT_FLOWZ] = PropertyOutputOption[HEAT_FLOW];
@@ -168,6 +169,22 @@ const std::string& propertyListName ( const PropertyList property ) {
       return PropertyName [ ENDPROPERTYLIST ];
    }
 
+}
+
+OutputOption TimeFilter::getPropertyOutputOption ( const std::string& propertyName ) const {
+
+   if( getPropertylist( propertyName ) == ENDPROPERTYLIST ) {
+      if( propertyName == "HorizontalPermeability" ) {
+         return PropertyOutputOption[ getPropertylist( "PermeabilityHVec" ) ]; 
+      } 
+      if( propertyName == "BrineDensity" ) {
+         return PropertyOutputOption[ getPropertylist( "BrineProperties" ) ]; 
+      } 
+      if( propertyName == "BrineViscosity" ) {
+         return PropertyOutputOption[ getPropertylist( "BrineProperties" ) ]; 
+      } 
+   }
+   return PropertyOutputOption[ getPropertylist( propertyName ) ];
 }
 
 PropertyList TimeFilter::getPropertylist ( const std::string& propertyName ) const {

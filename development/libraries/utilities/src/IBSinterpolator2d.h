@@ -89,6 +89,9 @@ namespace ibs {
       // determine if an input point (x, y) was supplied via addPoint ()
       int     pointExists (double x, double y, double &f);
 
+      // remove all elements from the interpolator
+      void   clean();
+ 
       XYF getPoint (int index);
 
       vectorXYF getVectorOfValues (void);

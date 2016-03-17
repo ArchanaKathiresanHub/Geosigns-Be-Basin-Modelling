@@ -35,6 +35,7 @@ void CauldronIO::MapProjectHandle::retrieve()
     assert(m_propVal != NULL);
     const DataAccess::Interface::GridMap* gridmap = m_propVal->getGridMap();
 
+    gridmap->retrieveData();
     setUndefinedValue((float)gridmap->getUndefinedValue());
 
     if (gridmap->isConstant())
@@ -77,6 +78,7 @@ void CauldronIO::MapProjectHandle::retrieve()
         
         delete[] mapData;
     }
+    gridmap->restoreData( );
 
     gridmap->release();
 
@@ -153,6 +155,7 @@ void CauldronIO::VolumeProjectHandle::retrieveMultipleFormations()
 
     const PropertyValue* propVal = m_propValues->at(0);
     const GridMap* propGridMap = propVal->getGridMap();
+    propGridMap->retrieveData();
 
     setUndefinedValue((float)propGridMap->getUndefinedValue());
 
@@ -163,12 +166,15 @@ void CauldronIO::VolumeProjectHandle::retrieveMultipleFormations()
     size_t detected_maxK = 0;
 
     // Verify sizes
-    assert(propGridMap->numI() == m_numI && propGridMap->numJ());
+    assert(propGridMap->numI() == m_numI && propGridMap->numJ() == m_numJ );
+    propGridMap->restoreData();
 
     // Get data
     for (size_t i = 0; i < m_propValues->size(); ++i)
     {
         const GridMap* gridMap = m_propValues->at(i)->getGridMap();
+        gridMap->retrieveData();
+     
         boost::shared_ptr<CauldronIO::FormationInfo> depthInfo = findDepthInfo(m_depthFormations, m_propValues->at(i)->getFormation());
 
         // Get the volume data for this formation
@@ -198,6 +204,8 @@ void CauldronIO::VolumeProjectHandle::retrieveMultipleFormations()
                 }
             }
         }
+        gridMap->restoreData();
+
         gridMap->release();
     }
 

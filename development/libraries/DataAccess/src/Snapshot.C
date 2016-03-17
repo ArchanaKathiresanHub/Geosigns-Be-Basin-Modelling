@@ -90,28 +90,6 @@ const string & Snapshot::getFileName (bool setIfNecessary) const
    return database::getSnapshotFileName (m_record);
 }
 
-void Snapshot::setPrimaryFileName (bool setIfNecessary) 
-{
-   const string & fileName = database::getSnapshotFileName (m_record);
-   if (fileName != "") return;
-
-   // generate file name
-#ifdef USESTANDARD
-   ostringstream buf;
-#else
-   strstream buf;
-#endif
-   buf.setf (ios::fixed);
-   buf.precision (6);
-
-   buf << PrimaryPropertiesFileName;
-   
-   if (setIfNecessary)
-   {
-      database::setSnapshotFileName (m_record, buf.str ());
-   }
-}
-
 const std::string& Snapshot::getKind () const {
    return database::getTypeOfSnapshot ( m_record );
 }

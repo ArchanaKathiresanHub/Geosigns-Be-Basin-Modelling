@@ -25,8 +25,11 @@ set(all_headers
   src/DerivedPropertyManager.h
   src/DerivedSurfaceProperty.h
   src/FaultElementFormationMapCalculator.h
+  src/FormationMapOutputPropertyValue.h 
   src/FormationMapProperty.h
   src/FormationMapPropertyCalculator.h
+  src/FormationOutputPropertyValue.h
+  src/FormationSurfaceOutputPropertyValue.h
   src/FormationProperty.h
   src/FormationPropertyAtSurface.h
   src/FormationPropertyCalculator.h
@@ -44,6 +47,8 @@ set(all_headers
   src/MaxVesHighResFormationCalculator.h
   src/OverpressureFormationCalculator.h
   src/OverpressureSurfaceCalculator.h
+  src/OutputUtilities.h
+  src/OutputPropertyValue.h
   src/PermeabilityFormationCalculator.h
   src/PermeabilityFormationSurfaceCalculator.h
   src/PorosityFormationCalculator.h
@@ -66,6 +71,7 @@ set(all_headers
   src/ReservoirProperty.h
   src/ReservoirPropertyCalculator.h
   src/SonicFormationCalculator.h
+  src/SurfaceOutputPropertyValue.h
   src/SurfaceProperty.h
   src/SurfacePropertyCalculator.h
   src/SurfacePropertyOffsetCalculator.h
@@ -93,8 +99,11 @@ set(all_srcs
   src/DerivedPropertyManager.C
   src/DerivedSurfaceProperty.C
   src/FaultElementFormationMapCalculator.C
+  src/FormationMapOutputPropertyValue.C
   src/FormationMapProperty.C
   src/FormationMapPropertyCalculator.C
+  src/FormationOutputPropertyValue.C
+  src/FormationSurfaceOutputPropertyValue.C	
   src/FormationProperty.C
   src/FormationPropertyAtSurface.C
   src/FormationPropertyCalculator.C
@@ -111,6 +120,8 @@ set(all_srcs
   src/MaxVesHighResFormationCalculator.C
   src/OverpressureFormationCalculator.C
   src/OverpressureSurfaceCalculator.C
+  src/OutputPropertyValue.C
+  src/OutputUtilities.C
   src/PermeabilityFormationCalculator.C
   src/PermeabilityFormationSurfaceCalculator.C
   src/PorosityFormationCalculator.C
@@ -131,6 +142,7 @@ set(all_srcs
   src/ReservoirProperty.C
   src/ReservoirPropertyCalculator.C
   src/SonicFormationCalculator.C
+  src/SurfaceOutputPropertyValue.C
   src/SurfaceProperty.C
   src/SurfacePropertyCalculator.C
   src/SurfacePropertyOffsetCalculator.C

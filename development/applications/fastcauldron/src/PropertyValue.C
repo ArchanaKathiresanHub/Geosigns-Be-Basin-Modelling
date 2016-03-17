@@ -100,8 +100,7 @@ bool PropertyValue::savePrimaryVolumeToFile ( Interface::MapWriter & mapWriter, 
 
    bool status = true;
 
-   if ( ( FastcauldronSimulator::getInstance ().isPrimary() or FastcauldronSimulator::getInstance ().isPrimaryDouble()) and 
-        outputIsRequested ()) { 
+   if ( FastcauldronSimulator::getInstance ().isPrimaryDouble() and outputIsRequested ()) { 
       status = Interface::PropertyValue::savePrimaryVolumeToFile ( mapWriter, 
                                                                    not FastcauldronSimulator::getInstance ().isPrimaryDouble() );
    } 

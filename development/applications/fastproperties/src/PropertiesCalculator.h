@@ -29,6 +29,7 @@
 #include "PropertyAttribute.h"
 #include "AbstractPropertyManager.h"
 #include "DerivedPropertyManager.h"
+#include "OutputUtilities.h"
 
 #include "GeoPhysicsObjectFactory.h"
 #include "GeoPhysicsProjectHandle.h"
@@ -36,6 +37,10 @@
 #include "FormationOutputPropertyValue.h"
 #include "FormationMapOutputPropertyValue.h"
 #include "SurfaceOutputPropertyValue.h"
+
+#include "VisualizationAPI.h"
+#include "ImportExport.h"
+#include "ImportProjectHandle.h"
 
 using namespace std;
 
@@ -86,6 +91,11 @@ public :
 private:
    GeoPhysics::ProjectHandle* m_projectHandle;
    DerivedPropertyManager * m_propertyManager;
+   
+   bool m_convert;
+   bool m_primaryPod;
+   bool m_extract2D;         ///< true if 2D primary/derived properties to be calculated and saved
+   bool m_no3Dproperties;    ///< true if no 3d properties are defined to be calculated
 
    bool m_debug;
    bool m_basement;
@@ -94,6 +104,7 @@ private:
    bool m_listProperties;     ///< If true: prints all outputable properties
    bool m_listSnapshots;      ///< If true: prints all snapshots from project file
    bool m_listStratigraphy;   ///< If true: prints all stratigraphy from project file
+
    string m_projectFileName;
 
    StringVector m_propertyNames;
@@ -106,6 +117,9 @@ private:
    int m_snapshotsType; ///< The type of snapshots to calculate derived properties at
 public:
 
+   GeoPhysics::ProjectHandle* getProjectHandle() const;
+   DerivedPropertyManager * getPropertyManager() const;
+
    bool showLists();
 
    bool startActivity();
@@ -114,42 +128,15 @@ public:
 
    bool setFastcauldronActivityName();
 
-   void outputSnapshotFormationData( const Snapshot * snapshot,
-                                     const Formation * formation, PropertyList & properties,
-                                     SnapshotFormationOutputPropertyValueMap & allOutputPropertyValues );
-
-
-   bool createSnapshotResultPropertyValue ( OutputPropertyValuePtr propertyValue,
-                                            const Snapshot* theSnapshot, 
-                                           const Formation * formation );
-
-   OutputPropertyValuePtr allocateOutputProperty ( DerivedProperties::AbstractPropertyManager& propertyManager, 
-                                                   const DataModel::AbstractProperty* property, 
-                                                   const DataModel::AbstractSnapshot* snapshot,
-                                                   const Interface::Formation* formationItem );   
- 
-   const GridMap * getPropertyGridMap ( const string & propertyName,
-                                        const Interface::Snapshot * snapshot,
-                                        const Formation * formation );
-
-   bool toBeSaved ( const string & propertyName,
-                    const Interface::Snapshot * snapshot,
-                    const Formation * formation );
-
-   bool toBeSaved ( const string & propertyName,
-                    const Interface::Snapshot * snapshot,
-                    const Surface* surface );
-   
+   bool acquireSnapshots( SnapshotList & snapshots );
    /// @brief Acquire outputable 3D properties from project handle
    /// @pre -all-3D-properties must be specified as a command line parameter
    void acquireAll3Dproperties();
    /// @brief Acquire outputable 2D properties from project handle
    /// @pre -all-2D-properties must be specified as a command line parameter
    void acquireAll2Dproperties();
-
-   bool acquireSnapshots  ( SnapshotList    & snapshots     );
-   bool acquireProperties ( PropertyList    & properties    );
-   bool acquireFormations ( FormationVector & formationItem );
+   void acquireFormationsSurfaces( FormationSurfaceVector & formationSurfaceItems );
+   void acquireProperties( PropertyList & properties );
 
    /// @brief Print all outputable 2D and 3D properties from project handle
    /// @pre -list-properties must be specified as a command line parameter
@@ -157,8 +144,11 @@ public:
    void printListSnapshots ();
    void printListStratigraphy ();
 
-   void calculateProperties( FormationVector& formationItems, PropertyList properties, SnapshotList & snapshots );
+   void calculateProperties( FormationSurfaceVector& formationItems, PropertyList properties, SnapshotList & snapshots );
    
+   void convertToVisualizationIO();
+   bool convert() const;
+
    bool parseCommandLine ( int argc, char ** argv );
    void showUsage( const char* command, const char* message = 0 );
  

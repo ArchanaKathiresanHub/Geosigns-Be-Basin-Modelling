@@ -13,6 +13,7 @@
 
 
 bool        H5_Parallel_PropertyList :: s_oneFilePerProcess = false;
+bool        H5_Parallel_PropertyList :: s_primaryPod = false;
 
 std::string H5_Parallel_PropertyList :: s_temporaryDirName;
 
@@ -58,7 +59,8 @@ hid_t H5_Parallel_PropertyList :: createDatasetPropertyList() const
 bool H5_Parallel_PropertyList :: setOneFilePerProcessOption( )
 {
    PetscBool noOfpp = PETSC_FALSE;
-   
+   PetscBool primaryPod = PETSC_FALSE;
+  
 #ifndef _MSC_VER
    PetscOptionsHasName ( PETSC_NULL, "-noofpp", &noOfpp );
    
@@ -71,9 +73,16 @@ bool H5_Parallel_PropertyList :: setOneFilePerProcessOption( )
       
       PetscBool oneFilePerProcess;
       PetscOptionsGetString ( PETSC_NULL, "-onefileperprocess", temporaryDirName, PETSC_MAX_PATH_LEN, &oneFilePerProcess );
-      
+      PetscOptionsGetString ( PETSC_NULL, "-primaryPod", temporaryDirName, PETSC_MAX_PATH_LEN, &primaryPod );
+
+      setPrimaryPod ( primaryPod );
+    
       if( temporaryDirName[0] == 0 ) {
-         tmpDir = getenv( "TMPDIR" );
+         if( primaryPod ) {
+            PetscPrintf ( PETSC_COMM_WORLD, "PrimaryPod directory is not defined. Please specify a shared dir name.\n" );           
+         } else {
+            tmpDir = getenv( "TMPDIR" );
+         }
       } else {
          tmpDir = temporaryDirName;
       }
@@ -89,12 +98,13 @@ bool H5_Parallel_PropertyList :: setOneFilePerProcessOption( )
    noOfpp = PETSC_TRUE;
 #endif
    
-   setOneFilePerProcess ( !noOfpp );
-
+   if( not primaryPod ) {
+      setOneFilePerProcess ( !noOfpp );
+   }
    return !noOfpp;
 }
 
-bool H5_Parallel_PropertyList :: copyMergedFile( const std::string & filePathName )
+bool H5_Parallel_PropertyList :: copyMergedFile( const std::string & filePathName, const bool appendRank )
 {
 #ifdef _MSC_VER
 	return false;
@@ -110,13 +120,16 @@ bool H5_Parallel_PropertyList :: copyMergedFile( const std::string & filePathNam
       PetscOptionsHasName( PETSC_NULL, "-nocopy", &noFileCopy );
 
        if( !noFileCopy ) {
-         ibs::FilePath curPath( getTempDirName() );
-         curPath << (filePathName + "_0");
-         status = copyFile ( filePathName, curPath.path() );
-         if( !status ) {
-            PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Could not copy the file %s.\n", filePathName.c_str() );               
-         }
-      }
+          ibs::FilePath curPath( getTempDirName() );
+
+          if( appendRank ) { curPath << ( filePathName + "_0" ); }
+          else curPath << filePathName;
+
+          status = copyFile ( filePathName, curPath.path() );
+          if( !status ) {
+             PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Could not copy the file %s.\n", filePathName.c_str() );               
+          }
+       }
    }
    return status;
 #endif

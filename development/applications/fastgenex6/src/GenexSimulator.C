@@ -51,18 +51,6 @@ GenexSimulator::GenexSimulator (database::Database * database, const std::string
 {
   registerProperties();
   m_propertyManager = new DerivedProperties::DerivedPropertyManager ( this );
-  PetscBool onlyPrimary = PETSC_FALSE;
-  PetscOptionsHasName( PETSC_NULL, "-primaryDouble", &onlyPrimary );
-
-   if( onlyPrimary ) {
-      setPrimaryDouble( true );
-   }
-
-   PetscOptionsHasName( PETSC_NULL, "-primaryOnly", &onlyPrimary );
-
-   if( onlyPrimary ) {
-      setPrimary( true );
-   }
 }
 
 GenexSimulator::~GenexSimulator (void)

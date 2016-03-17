@@ -77,6 +77,10 @@ namespace Basin_Modelling {
                          bool& errorInDarcy,
                          bool& geometryHasConverged );
 
+     const PropListVec & getMapOutputProperties () const;
+     const PropListVec & getVolumeOutputProperties () const;
+
+     AppCtx* getAppCtx( ) const;
      //----------------------------//
 
   private :
@@ -399,7 +403,9 @@ namespace Basin_Modelling {
      /// List of volume properties which are only output at present day, t=0Ma
      PropListVec m_concludingVolumeOutputProperties;
      PropListVec m_combinedVolumeOutputProperties; 
-     
+     /// List of properties which are calculated and output at the end of the simulation
+     PropListVec m_volumeDerivedOutputProperties;
+     PropListVec m_mapDerivedOutputProperties;
 
      ///
      /// Records a fixed set of properties at a node on a surface.

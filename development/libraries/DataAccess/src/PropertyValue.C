@@ -204,25 +204,25 @@ GridMap * PropertyValue::getGridMap (void) const
       {
          // The record to refer to is SnapshotIoTbl record
          fileName = getMapFileName (record);
-         if( fileName == PrimaryPropertiesFileName ) {
-            std::stringstream snapshotGroupName;
-            snapshotGroupName.setf (ios::fixed);
-            snapshotGroupName.precision (6);
-            
-            snapshotGroupName << "/Time_" <<  m_snapshot->getTime ();
-
-            dataSetName = snapshotGroupName.str ();
-         }
-	     dataSetName += "/" + getGroupName (record) + "/" + getDataSetName(record);
+ 
+         dataSetName += "/" + getGroupName (record) + "/" + getDataSetName(record);
       }
       else if (getStorage () == SNAPSHOTIOTBL)
       {
          // The record to refer to is SnapshotIoTbl record
          fileName = getSnapshotFileName (record);
-	     dataSetName = "/" + getName () + "/" + ( dynamic_cast<const Formation *>(getFormation ())->getMangledName ());
+         dataSetName = "/" + getName () + "/" + ( dynamic_cast<const Formation *>(getFormation ())->getMangledName ());
       }
+      const bool oldPrimaryDoubleFlag = m_projectHandle->isPrimaryDouble();
 
+      if( not isPrimary() ) {
+         m_projectHandle->setPrimaryDouble( false );
+      }
       (void) m_projectHandle->loadOutputMap (this, ValueMap, fileName, dataSetName);
+
+      if( not isPrimary() ) {
+         m_projectHandle->setPrimaryDouble( oldPrimaryDoubleFlag );
+      }
 
       return (GridMap *) getChild (ValueMap);
    }
@@ -529,7 +529,7 @@ bool PropertyValue::savePrimaryVolumeToFile (MapWriter & mapWriter, const bool g
 
    double time = getSnapshot ()->getTime ();
 
-   mapWriter.writePrimaryVolumeToHDF (gridMap, getName (), time, getFormation ()->getMangledName (), groupName );
+   mapWriter.writePrimaryVolumeToHDF (gridMap, getName (), time, getFormation ()->getMangledName (), groupName, isPrimary() );
    return true;
 }
 
@@ -723,6 +723,11 @@ int PropertyValue::compareByDepoAge (const PropertyValue * rhs) const
       else return 0;
    }
 
+}
+
+bool PropertyValue::isPrimary() const {
+
+   return m_property->isPrimary();
 }
 
 void PropertyValue::printOn (ostream & ostr) const

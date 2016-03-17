@@ -25,6 +25,7 @@ bm_include_libraries(
    DataModel
    Serial_Hdf5
    utilities
+   FileSystem 
    TableIO
    CBMGenerics
    DataAccess
@@ -40,6 +41,7 @@ target_link_libraries(SerialDataAccess
    Serial_Hdf5
    CBMGenerics
    utilities
+   FileSystem
    TableIO
    DataAccess
 )

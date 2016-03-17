@@ -5,6 +5,8 @@
 
 #include <string>
 #include <vector>
+#include <iostream>
+#include <set>
 using namespace std;
 
 #include "Interface.h"
@@ -140,6 +142,11 @@ namespace DataAccess
          /// Returns the Grid of the output GridMaps that were not produced by either a migration run or
          /// a high resolution decompaction run. This grid is a subgrid of the high resolution output grid.
          virtual const Grid * getLowResolutionOutputGrid( void ) const;
+         
+         /// print the snapshot table
+         void printSnapshotTable () const;
+         /// sort the snapshots
+         void sortSnapshots();
 
          /// Find the Snapshot with the given time
          virtual const Snapshot * findSnapshot( double time, int type = MAJOR ) const;
@@ -347,7 +354,8 @@ namespace DataAccess
             const Reservoir * reservoir = 0, const Formation * formation = 0,
             const Surface * surface = 0, int propertyTypes = MAP | VOLUME );
 
-
+         void deletePropertyValues( void );
+ 
          /// return a list of PropertyValues based on the given arguments.
          /// if an argument equals 0, it is used as a wildcard
          virtual bool hasPropertyValues( int selectionFlags,
@@ -367,6 +375,7 @@ namespace DataAccess
          void printPropertyValues( PropertyValueList * propertyValues ) const;
 
          void addProperty( Property * property );
+         void addPropertyToFront( Property * property );
          // Function supporting the implementation
          PropertyValue * addPropertyValue( database::Record * record, const string & name, const Property * property, const Snapshot * snapshot,
             const Reservoir * reservoir, const Formation * formation, const Surface * surface, PropertyStorage storage );
@@ -501,19 +510,19 @@ namespace DataAccess
          bool connectReservoirs (void);
 
          /// get primary properties map writer
-         MapWriter * getPrimaryPropertyValuesWriter();
+         MapWriter * getMapPropertyValuesWriter();
          
          /// get primary properties flag
-         bool isPrimary() const;
-
-         /// set primary properties flag
-         void setPrimary( const bool primaryFlag );
-
-          /// get primary properties flag
          bool isPrimaryDouble() const;
 
          /// set primary properties flag
          void setPrimaryDouble( const bool primaryFlag );
+        
+         const string & getActivityName( void ) const;
+
+         bool isPrimaryProperty( const string propertyName ) const;
+
+         void mapFileCacheDestructor( void );
 
       protected:
 		  friend ProjectHandle * OpenCauldronProject( const string & name, const string & accessMode, DataAccess::Interface::ObjectFactory* objectFactory );
@@ -633,9 +642,7 @@ namespace DataAccess
          bool m_permafrost;
 
          MapWriter * m_mapPropertyValuesWriter;
-         MapWriter * m_mapPrimaryPropertyValuesWriter;
-         // flag to output primary properties in a new format
-         bool m_primary;
+
          // flag to output primary properties in a double precision
          bool m_primaryDouble;
 
@@ -643,7 +650,6 @@ namespace DataAccess
          int m_size;
 
          void mapFileCacheConstructor( void );
-         void mapFileCacheDestructor( void );
 
          void checkForValidPartitioning( const string & name, int M, int N ) const;
 
@@ -659,7 +665,6 @@ namespace DataAccess
          void resetActivityName( void );
          /// set the name of the data production activity
          bool setActivityName( const string & name );
-         const string & getActivityName( void ) const;
 
 
          void resetActivityOutputGrid( void );
@@ -800,7 +805,6 @@ namespace DataAccess
          void deleteMigrations( void );
          void deleteInputValues( void );
          void deleteProperties( void );
-         void deletePropertyValues( void );
          void deleteFluidTypes();
 
          void deleteIgneousIntrusions();
@@ -860,6 +864,11 @@ namespace DataAccess
 
          DataAccess::Interface::MessageHandler* m_messageHandler;
          DataAccess::Interface::ApplicationGlobalOperations* m_globalOperations;
+
+         /// List of the primary properties
+         std::set<std::string> m_primaryList {
+             "ALCStepBasaltThickness", "ALCStepTopBasaltDepth", "ChemicalCompaction" , "Depth", "ErosionFactor", "FCTCorrection", "MaxVes",
+                "Pressure", "Temperature", "ThicknessError", "Ves", "Vr" };
 
       };
    }

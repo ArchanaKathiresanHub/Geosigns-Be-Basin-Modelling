@@ -144,6 +144,8 @@ enum PropertyList {
    BASALTTHICKNESS, HLMOD, TOPBASALTALC, MOHOALC, THICKNESSCCRUSTALC, THICKNESSBASALTALC,
    ALCSMCRUST, ALCSMTOPBASALT, ALCSMMOHO, ALCORIGMANTLE, 
 
+   //
+   HORIZONTALPERMEABILITY,
    // End of enum. Do not put anything after this.
    ENDPROPERTYLIST
 };
@@ -387,6 +389,7 @@ const string PropertyName[] = {
   "ALCSmTopBasaltDepth",
   "ALCSmMohoDepth",
   "ALCOrigLithMantleDepth",
+  "HorizontalPermeability",
   "UNKNOWN"
 };
 
@@ -408,6 +411,8 @@ class TimeFilter
    const std::string& getPropertyName(PropertyList propertyId) const {return PropertyName[propertyId];}
 
    PropertyList getPropertylist ( const std::string& propertyName ) const;
+
+   OutputOption getPropertyOutputOption ( const std::string& propertyName ) const;
 
  private:
 

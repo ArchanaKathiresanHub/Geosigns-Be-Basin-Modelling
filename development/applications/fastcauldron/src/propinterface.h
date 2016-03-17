@@ -416,6 +416,7 @@ public:
    PetscBool m_doOutputAtAge;
    double m_ageToOutput;
    bool      m_no2Doutput;
+   bool      m_primaryOutput;
 
    PetscBool allowPressureJacobianReuse;
    int        pressureJacobianReuseCount;
@@ -440,6 +441,12 @@ public:
 
    // set flag to determine 2D properties output
    void setNo2Doutput( const bool flag );
+
+   // set flag to determine the primary properties output
+   void setPrimaryOutput( const bool flag );
+  
+   // return true if the only primary properties are required
+   bool primaryOutput() const;
 
    // ModelArea Grid_Window;
    bool useTemisRelPerm () const;
@@ -635,6 +642,14 @@ inline bool AppCtx::no2Doutput () const {
 
 inline void AppCtx::setNo2Doutput ( const bool flag ) {
    m_no2Doutput = flag;
+}
+
+inline void AppCtx::setPrimaryOutput ( const bool flag ) {
+   m_primaryOutput = flag;
+}
+
+inline bool AppCtx::primaryOutput () const {
+   return m_primaryOutput;
 }
 
 #endif /* _PROPInterface_H_ */

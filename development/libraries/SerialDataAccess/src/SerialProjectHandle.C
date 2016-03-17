@@ -19,6 +19,7 @@
 #include "Interface/ObjectFactory.h"
 #include "Interface/SerialMessageHandler.h"
 #include "Interface/SerialApplicationGlobalOperations.h"
+#include "FilePath.h"
 
 #include "array.h"
 
@@ -139,6 +140,13 @@ GridMap * ProjectHandle::loadGridMap (const Parent * parent, unsigned int childI
       cerr << "ERROR: Could not open " << filePathName << endl;
    }
    return gridMap;
+}
+
+const std::string ProjectHandle::getFullOutputDir() const
+{
+   ibs::FilePath ppath( getProjectPath() );
+   ppath << getOutputDir();
+   return ppath.path();
 }
 
 bool ProjectHandle::makeOutputDir() const

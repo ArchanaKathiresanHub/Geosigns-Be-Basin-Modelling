@@ -46,6 +46,7 @@ void displayProgress(const bool debug,
 
 void displayTime( const string & str, PetscLogDouble StartTime);
 void Display_Merging_Progress( const string & fileName, PetscLogDouble StartTime);
+void Display_Merging_Progress( const string & fileName, PetscLogDouble StartTime, const string & message );
 
 char* currentTimeStr ();
 

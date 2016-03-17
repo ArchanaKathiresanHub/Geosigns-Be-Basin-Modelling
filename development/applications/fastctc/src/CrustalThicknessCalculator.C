@@ -45,17 +45,6 @@ CrustalThicknessCalculator::CrustalThicknessCalculator (database::Database * dat
    m_debug = false;
    m_applySmoothing = true;
 
-   PetscBool onlyPrimary = PETSC_FALSE;
-   PetscOptionsHasName( PETSC_NULL, "-primaryOnly", &onlyPrimary );
-
-   if( onlyPrimary ) {
-      setPrimary( true );
-   }
-   PetscOptionsHasName( PETSC_NULL, "-primaryDouble", &onlyPrimary );
-
-   if( onlyPrimary ) {
-      setPrimaryDouble( true );
-   }
 }
  
 //------------------------------------------------------------//

@@ -285,6 +285,36 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
   mapOutputProperties.push_back ( VES );
   mapOutputProperties.push_back ( VR );
 
+  if( not FastcauldronSimulator::getInstance ().noDerivedPropertiesCalc() ) {
+     m_mapDerivedOutputProperties.push_back ( ALLOCHTHONOUS_LITHOLOGY );
+     m_mapDerivedOutputProperties.push_back ( BULKDENSITYVEC );
+     m_mapDerivedOutputProperties.push_back ( DIFFUSIVITYVEC );
+     m_mapDerivedOutputProperties.push_back ( FAULTELEMENTS );
+     m_mapDerivedOutputProperties.push_back ( FLUID_VELOCITY );
+     m_mapDerivedOutputProperties.push_back ( FRACTURE_PRESSURE );
+     m_mapDerivedOutputProperties.push_back ( HEAT_FLOW );
+     m_mapDerivedOutputProperties.push_back ( HYDROSTATICPRESSURE );
+     m_mapDerivedOutputProperties.push_back ( LITHOSTATICPRESSURE );
+     m_mapDerivedOutputProperties.push_back ( OVERPRESSURE );
+     //  m_mapDerivedOutputProperties.push_back ( PERMEABILITYHVEC );
+     m_mapDerivedOutputProperties.push_back ( PERMEABILITYVEC );
+     m_mapDerivedOutputProperties.push_back ( POROSITYVEC );
+     m_mapDerivedOutputProperties.push_back ( REFLECTIVITYVEC );
+     m_mapDerivedOutputProperties.push_back ( THCONDVEC );
+     m_mapDerivedOutputProperties.push_back ( THICKNESS );
+     m_mapDerivedOutputProperties.push_back ( TWOWAYTIME );
+     m_mapDerivedOutputProperties.push_back ( TWOWAYTIME_RESIDUAL );
+     m_mapDerivedOutputProperties.push_back ( SONICVEC );
+     m_mapDerivedOutputProperties.push_back ( VELOCITYVEC );
+ 
+     m_mapDerivedOutputProperties.push_back ( CHEMICAL_COMPACTION );
+     m_mapDerivedOutputProperties.push_back ( VES );
+     m_mapDerivedOutputProperties.push_back ( DEPTH );
+     m_mapDerivedOutputProperties.push_back ( MAXVES );
+     m_mapDerivedOutputProperties.push_back ( TEMPERATURE );
+     m_mapDerivedOutputProperties.push_back ( PRESSURE );
+     m_mapDerivedOutputProperties.push_back ( VR );
+   }
   // Set map properties for 1D simulation mode only
   if (basinModel->isModellingMode1D())
   {
@@ -498,14 +528,7 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
   //--------------------------------------
   //Set the derived volume properties that may be required for the simulation
 
-  PetscBool onlyPrimaryProperties = PETSC_FALSE;
-  PetscOptionsHasName( PETSC_NULL, "-primary", &onlyPrimaryProperties );
-  if( not onlyPrimaryProperties 
-      and ( FastcauldronSimulator::getInstance().isPrimary() or  FastcauldronSimulator::getInstance().isPrimaryDouble()) ) {
-     onlyPrimaryProperties = PETSC_TRUE;
-  }
-
-  if( !onlyPrimaryProperties ) {
+  if( not Application_Context->primaryOutput() ) {
      m_volumeOutputProperties.push_back ( BRINE_PROPERTIES );  
      m_volumeOutputProperties.push_back ( BULKDENSITYVEC );
      m_volumeOutputProperties.push_back ( DIFFUSIVITYVEC );
@@ -522,6 +545,30 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
      m_volumeOutputProperties.push_back ( THCONDVEC );
      m_volumeOutputProperties.push_back ( TWOWAYTIME );
      m_volumeOutputProperties.push_back ( VELOCITYVEC );
+  } else {
+     if( not FastcauldronSimulator::getInstance ().noDerivedPropertiesCalc() ) {
+        // m_volumeDerivedOutputProperties.push_back ( BRINE_PROPERTIES );  
+        m_volumeDerivedOutputProperties.push_back ( BULKDENSITYVEC );
+        m_volumeDerivedOutputProperties.push_back ( DIFFUSIVITYVEC );
+        m_volumeDerivedOutputProperties.push_back ( FLUID_VELOCITY );
+        m_volumeDerivedOutputProperties.push_back ( FRACTURE_PRESSURE );
+        m_volumeDerivedOutputProperties.push_back ( HEAT_FLOW );
+        m_volumeDerivedOutputProperties.push_back ( HYDROSTATICPRESSURE );
+        m_volumeDerivedOutputProperties.push_back ( LITHOSTATICPRESSURE );
+        m_volumeDerivedOutputProperties.push_back ( OVERPRESSURE );
+        m_volumeDerivedOutputProperties.push_back ( PERMEABILITYVEC );
+        m_volumeDerivedOutputProperties.push_back ( POROSITYVEC );
+        m_volumeDerivedOutputProperties.push_back ( REFLECTIVITYVEC );
+        m_volumeDerivedOutputProperties.push_back ( SONICVEC );
+        m_volumeDerivedOutputProperties.push_back ( THCONDVEC );
+        m_volumeDerivedOutputProperties.push_back ( THICKNESS);
+        m_volumeDerivedOutputProperties.push_back ( TWOWAYTIME );
+        m_volumeDerivedOutputProperties.push_back ( VELOCITYVEC );
+
+        if( FastcauldronSimulator::getInstance().getCalculationMode() == OVERPRESSURED_TEMPERATURE_MODE ) {
+           m_volumeDerivedOutputProperties.push_back ( FAULTELEMENTS );
+        }
+     }
   }
 
 
@@ -541,26 +588,12 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
   PetscBool addMinorProperties;
   PetscOptionsHasName( PETSC_NULL, "-minor", &addMinorProperties );
 
-  if (addMinorProperties || onlyPrimaryProperties) {
+  if ( addMinorProperties || Application_Context->primaryOutput() ) {
      looselyCoupledOutputProperties.push_back( CHEMICAL_COMPACTION );
      looselyCoupledOutputProperties.push_back( PRESSURE );
      looselyCoupledOutputProperties.push_back( TEMPERATURE );
      looselyCoupledOutputProperties.push_back( VR );
-
-     if ( not ( basinModel->IsCalculationCoupled and basinModel->DoTemperature ) ) {
-        looselyCoupledOutputProperties.push_back( DEPTH );
-
-        if (onlyPrimaryProperties and not ( FastcauldronSimulator::getInstance().getCalculationMode() == OVERPRESSURE_MODE ) ) {
-           basinModel->timefilter.setFilter( "Depth", "SedimentsPlusBasement" );
-           FastcauldronSimulator::getInstance().setOutputPropertyOption( DEPTH, Interface::SEDIMENTS_AND_BASEMENT_OUTPUT );
-        }
-     }
- 
-     if (onlyPrimaryProperties and not (FastcauldronSimulator::getInstance().getCalculationMode() == OVERPRESSURE_MODE)) {
-        basinModel->timefilter.setFilter( "Temperature", "SedimentsPlusBasement" );
-        FastcauldronSimulator::getInstance().setOutputPropertyOption( TEMPERATURE, Interface::SEDIMENTS_AND_BASEMENT_OUTPUT );
-     }
-    
+     looselyCoupledOutputProperties.push_back( DEPTH );   
   }
   looselyCoupledOutputProperties.push_back( MAXVES );
   looselyCoupledOutputProperties.push_back( VES );
@@ -720,7 +753,7 @@ void Basin_Modelling::FEM_Grid::solvePressure ( bool& solverHasConverged,
     FastcauldronSimulator::getInstance ().deleteSnapshotProperties ();
     FastcauldronSimulator::getInstance ().deleteMinorSnapshots ();
     FastcauldronSimulator::getInstance ().deleteMinorSnapshotsFromSnapshotTable ();
-    FastcauldronSimulator::getInstance ().updateMajorSnapshotsFileNameInSnapshotTable ();
+
     savedMinorSnapshotTimes.clear ();
 
     if( basinModel->isModellingMode1D () ) 
@@ -827,8 +860,8 @@ void Basin_Modelling::FEM_Grid::solveTemperature ( bool& solverHasConverged,
     FastcauldronSimulator::getInstance ().deleteMinorSnapshots (); 
     FastcauldronSimulator::getInstance ().deleteMinorSnapshotsFromSnapshotTable ();
 
-    // Update the filename for the major snapshots
-    FastcauldronSimulator::getInstance ().updateMajorSnapshotsFileNameInSnapshotTable ();
+    // delete the propertyValues from the previous iteration
+    FastcauldronSimulator::getInstance ().deletePropertyValues();
   }
   else if ( FastcauldronSimulator::getInstance ().getCalculationMode () == OVERPRESSURED_TEMPERATURE_MODE )
   {
@@ -920,13 +953,15 @@ void Basin_Modelling::FEM_Grid::solveCoupled ( bool& solverHasConverged,
        FastcauldronSimulator::getInstance ().deleteSnapshotProperties ();
        FastcauldronSimulator::getInstance ().deleteMinorSnapshots (); 
        FastcauldronSimulator::getInstance ().deleteMinorSnapshotsFromSnapshotTable ();
-       FastcauldronSimulator::getInstance ().updateMajorSnapshotsFileNameInSnapshotTable ();
+
+       // delete the propertyValues from the previous iteration
+       FastcauldronSimulator::getInstance ().deletePropertyValues();
    }
     else
     {
        basinModel->timeIoTbl->clear();
        FastcauldronSimulator::getInstance ().deleteMinorSnapshotsFromSnapshotTable ();
-       FastcauldronSimulator::getInstance ().updateMajorSnapshotsFileNameInSnapshotTable ();
+
        Temperature_Calculator.resetBiomarkerStateVectors ( );
        Temperature_Calculator.resetSmectiteIlliteStateVectors ( );
        Temperature_Calculator.resetFissionTrackCalculator();
@@ -3933,6 +3968,16 @@ void Basin_Modelling::FEM_Grid::printElementNeedle ( const int i, const int j ) 
 }
 
 //------------------------------------------------------------//
+const PropListVec & Basin_Modelling::FEM_Grid::getMapOutputProperties() const {
+
+   return m_mapDerivedOutputProperties;
+}
+//------------------------------------------------------------//
+const PropListVec & Basin_Modelling::FEM_Grid::getVolumeOutputProperties() const {
+
+   return m_volumeDerivedOutputProperties;
+}
+//------------------------------------------------------------//
 void Basin_Modelling::FEM_Grid::Determine_Permafrost_Time_Step ( const double  Current_Time, double & Time_Step ) {
 
    if( basinModel->permafrost () ) {
@@ -3970,4 +4015,9 @@ void Basin_Modelling::FEM_Grid::determineIgneousIntrusionTimeStep ( const double
 
    return;
    
+}
+//------------------------------------------------------------//
+
+AppCtx* Basin_Modelling::FEM_Grid::getAppCtx( ) const {
+   return basinModel;
 }

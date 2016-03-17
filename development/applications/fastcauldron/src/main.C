@@ -27,6 +27,7 @@
 #include "FastcauldronSimulator.h"
 #include "MultiComponentFlowHandler.h"
 #include "StatisticsHandler.h"
+#include "DerivedPropertiesCalculator.h"
 
 //DataAccess library
 #include "Interface/Interface.h"
@@ -232,9 +233,16 @@ int main(int argc, char** argv)
    geometryHasConverged = true;
 
    if ( appctx->DoHighResDecompaction || appctx->DoDecompaction ) {
-     fctCtx.decompact ();
+      
+      fctCtx.decompact ();
+      
+       if( not FastcauldronSimulator::getInstance ().noDerivedPropertiesCalc() ) {
+          DerivedPropertiesCalculator propertyCalculator ( appctx, fctCtx.getVolumeOutputProperties(), fctCtx.getMapOutputProperties() );
+      
+          propertyCalculator.compute();
+      }
    }
-
+   
    if ( appctx->DoOverPressure && ! appctx -> Do_Iteratively_Coupled ) {
      Basin_Modelling::FEM_Grid basin ( appctx );
 
@@ -247,12 +255,24 @@ int main(int argc, char** argv)
 
      // Do Tempearature Calculation
      basin.solveTemperature ( solverHasConverged, errorInDarcy );
+
+     if( not FastcauldronSimulator::getInstance ().noDerivedPropertiesCalc() ) {
+        DerivedPropertiesCalculator propertyCalculator ( appctx, basin.getVolumeOutputProperties(), basin.getMapOutputProperties() );
+       
+        propertyCalculator.compute();
+     }
    }
 
    if ( appctx -> Do_Iteratively_Coupled ) {
      Basin_Modelling::FEM_Grid basin ( appctx );
      // Do Coupled Calculation
      basin.solveCoupled ( solverHasConverged, errorInDarcy, geometryHasConverged );
+     
+     if( not FastcauldronSimulator::getInstance ().noDerivedPropertiesCalc() ) {
+        DerivedPropertiesCalculator propertyCalculator ( appctx, basin.getVolumeOutputProperties(), basin.getMapOutputProperties() );
+       
+        propertyCalculator.compute();
+     }
    }
 
    if ( appctx->integrateGenexEquations ()) {
@@ -281,6 +301,11 @@ int main(int argc, char** argv)
    
    StatisticsHandler::print ();
    FastcauldronSimulator::finalise ( solverHasConverged and ( appctx->saveOnDarcyError () or not errorInDarcy ));
+
+   if ( factory != 0 ) {
+      delete factory;
+   }
+
    bool displayEndTime = appctx->debug1 or appctx->verbose;
    delete appctx;
 

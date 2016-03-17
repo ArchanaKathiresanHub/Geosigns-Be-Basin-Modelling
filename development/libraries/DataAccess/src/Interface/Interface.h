@@ -754,10 +754,6 @@ namespace DataAccess
       ///
       /// 1000 years.
       static const double IgneousIntrusionEventDuration = 0.001; // Ma
-
-      /// \var PrimaryPropertiesFileName
-      /// \brief The name of the primary properties output file
-      static const std::string PrimaryPropertiesFileName = "PrimaryProperties_Results.HDF";
    }
 }
 

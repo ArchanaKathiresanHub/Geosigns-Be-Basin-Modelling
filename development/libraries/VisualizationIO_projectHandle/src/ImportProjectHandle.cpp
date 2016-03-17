@@ -307,8 +307,10 @@ vector<boost::shared_ptr<CauldronIO::Surface> > ImportProjectHandle::createSurfa
         {
             // Get from the gridmap: this will load the gridmap :-(
             const DataAccess::Interface::GridMap* gridmap = propValue->getGridMap();
+            gridmap->retrieveData();
             // Set the geometry
             geometry.reset(new CauldronIO::Geometry2D(gridmap->numI(), gridmap->numJ(), gridmap->deltaI(), gridmap->deltaJ(), gridmap->minI(), gridmap->minJ()));
+            gridmap->restoreData();
             gridmap->release();
         }
 
@@ -627,6 +629,8 @@ boost::shared_ptr<CauldronIO::FormationInfoList> ImportProjectHandle::getDepthFo
     {
         double min, max;
         GridMap* map = propValues->at(i)->getGridMap();
+        map->retrieveData();
+ 
         if (!map) throw CauldronIO::CauldronIOException("Could not open project3D HDF file!");
         map->getMinMaxValue(min, max);
         boost::shared_ptr<CauldronIO::FormationInfo> info(new CauldronIO::FormationInfo());
@@ -676,6 +680,7 @@ boost::shared_ptr<CauldronIO::FormationInfoList> ImportProjectHandle::getDepthFo
 
         info->reverseDepth = depth1 > depth2;
         depthFormations->push_back(info);
+        map->restoreData();
         map->release();
     }
 

@@ -44,6 +44,7 @@ set( all_headers,
      src/DarcyCalculations.h
      src/DerivedOutputPropertyMapFactory.h
      src/DerivedOutputPropertyMap.h
+     src/DerivedPropertiesCalculator.h
      src/ElementActivityPredicate.h
      src/ElementAlwaysActivePredicate.h
      src/element_contributions.h
@@ -201,6 +202,7 @@ set( all_srcs_except_main
      src/CrustFormation.C
      src/DarcyCalculations.C
      src/DerivedOutputPropertyMapFactory.C
+     src/DerivedPropertiesCalculator.C
      src/element_contributions.C
      src/ElementContributions.C
      src/ElementDofsMixin.C
@@ -361,6 +363,7 @@ bm_include_libraries(
 	FastcauldronApplication
 	DataModel
 	DataAccess
+	DerivedProperties
 	DistributedDataAccess
 	utilities
 	Utilities_Petsc
@@ -396,6 +399,7 @@ target_link_libraries(fastcauldron
 #
 target_link_libraries(FastcauldronApplication
 	DataAccess
+	DerivedProperties
 	DistributedDataAccess
 	utilities
 	Utilities_Petsc

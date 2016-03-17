@@ -28,6 +28,18 @@ int main( int argc, char ** argv )
 
    MPI_Comm_rank ( PETSC_COMM_WORLD, &rank );
 
+
+   PetscBool myddd = PETSC_FALSE;
+   PetscOptionsHasName (PETSC_NULL, "-ddd", &myddd);
+   if (myddd)
+   {
+      char cmd[150];
+
+      sprintf (cmd, "ddd  %s %d &", argv[0],  getpid ());
+      
+      system (cmd);
+      sleep (20);
+   }
    //////////////////////////////////////////////////
    ///1. Intitialise fastproperties loger
    try{
@@ -44,7 +56,7 @@ int main( int argc, char ** argv )
          else throw formattingexception::GeneralException() << "Unknown <" << verbosity << "> option for -verbosity command line parameter.";
       }
       else{
-         LogHandler( "fastproperties", LogHandler::DETAILED_LEVEL, rank );
+         LogHandler( "fastproperties", LogHandler::MINIMAL_LEVEL, rank );
       }
    }
    catch (formattingexception::GeneralException& ex){
@@ -103,19 +115,31 @@ int main( int argc, char ** argv )
 
       return 1;
    };
+ 
+   if( propCalculator.convert() ) {
+      
+      propCalculator.convertToVisualizationIO();
+      propCalculator.finalise ( false );
+ 
+      PetscFinalize ();
 
+      return 0;
+   };
+      
    SnapshotList snapshots;
    PropertyList properties;
-   FormationVector formationItems;
-
+   
    propCalculator.acquireSnapshots( snapshots );
    propCalculator.acquireProperties( properties );
-   propCalculator.acquireFormations( formationItems );
 
+   FormationSurfaceVector formationSurfaceItems;
+   
+   propCalculator.acquireFormationsSurfaces( formationSurfaceItems );
    //////////////////////////////////////////////////
    ///4. Compute derived properties
    try{
-      propCalculator.calculateProperties( formationItems, properties, snapshots );
+
+   propCalculator.calculateProperties( formationSurfaceItems, properties, snapshots );
    }
    catch (formattingexception::GeneralException& ex){
       LogHandler( LogHandler::ERROR_SEVERITY ) << ex.what();
@@ -138,3 +162,4 @@ int main( int argc, char ** argv )
    PetscFinalize ();
    return 0;
 }
+

@@ -12,8 +12,9 @@
 #include <assert.h>
 #include <petsc.h>
 
-#include "PropertiesCalculator.h"
 #include "Interface/SimulationDetails.h"
+#include "h5_parallel_file_types.h"
+#include "PropertiesCalculator.h"
 #include "FilePath.h"
 
 // utilities library
@@ -23,9 +24,12 @@ static bool splitString( char * string, char separator, char * & firstPart, char
 static bool parseStrings( StringVector & strings, char * stringsString );
 static bool parseAges( DoubleVector & ages, char * agesString );
 
+static bool snapshotSorter( const Interface::Snapshot * snapshot1, const Interface::Snapshot * snapshot2 );
+static bool snapshotIsEqual( const Interface::Snapshot * snapshot1, const Interface::Snapshot * snapshot2 );
 
-static bool snapshotSorter( const Snapshot * snapshot1, const Snapshot * snapshot2 );
-static bool snapshotIsEqual( const Snapshot * snapshot1, const Snapshot * snapshot2 );
+void displayTime( const double timeToDisplay, const char * msgToDisplay );
+void displayProgress( const string & fileName, double startTime, const string & message );
+
 
 //------------------------------------------------------------//
 
@@ -40,6 +44,11 @@ PropertiesCalculator::PropertiesCalculator( int aRank ) {
    m_listProperties   = false;
    m_listSnapshots    = false;
    m_listStratigraphy = false;
+   m_convert          = false;
+   m_primaryPod       = false;
+   m_extract2D        = false;
+   m_no3Dproperties   = false;
+
    m_snapshotsType = MAJOR;
 
    m_projectFileName = "";
@@ -65,15 +74,36 @@ PropertiesCalculator::~PropertiesCalculator() {
 
 //------------------------------------------------------------//
 
+GeoPhysics::ProjectHandle* PropertiesCalculator::getProjectHandle() const {
+
+   return m_projectHandle;
+}
+//------------------------------------------------------------//
+
+DerivedPropertyManager * PropertiesCalculator::getPropertyManager() const {
+
+   return m_propertyManager;
+}
+//------------------------------------------------------------//
+
 void  PropertiesCalculator::finalise ( bool isComplete ) {
 
    m_projectHandle->setSimulationDetails ( "fastproperties", "Default", "" );
    m_projectHandle->finishActivity ( isComplete );
 
-  if( isComplete && m_rank == 0 ) {
-      m_projectHandle->saveToFile(m_projectFileName);
-
+   if( isComplete && m_rank == 0 ) {
+      char outputFileName[128];
+      outputFileName[0] = '\0';
+      
+      PetscBool isDefined = PETSC_FALSE;
+      PetscOptionsGetString (PETSC_NULL, "-save", outputFileName, 128, &isDefined);
+      if(isDefined) {
+         m_projectHandle->saveToFile( outputFileName );
+      } else {
+         m_projectHandle->saveToFile(m_projectFileName);
+      }
    }
+
    delete m_propertyManager;
    m_propertyManager = 0;
 
@@ -96,10 +126,8 @@ bool PropertiesCalculator::CreateFrom ( DataAccess::Interface::ObjectFactory* fa
       return false;
    }
 
-   PetscBool onlyPrimary = PETSC_FALSE;
-   PetscOptionsHasName( PETSC_NULL, "-primaryDouble", &onlyPrimary );
-   if( onlyPrimary ) {
-      m_projectHandle->setPrimaryDouble( true );
+   if( m_primaryPod ) {
+      H5_Parallel_PropertyList::setOneFilePerProcessOption( );
    }
 
    return true;
@@ -143,7 +171,7 @@ bool PropertiesCalculator::startActivity() {
       }
    }
 
-   return started;
+    return started;
 }
 
 //------------------------------------------------------------//
@@ -153,13 +181,55 @@ bool PropertiesCalculator::showLists() {
  
 }
 //------------------------------------------------------------//
-void PropertiesCalculator::calculateProperties( FormationVector& formationItems, PropertyList properties, SnapshotList & snapshots )  {
+void PropertiesCalculator::convertToVisualizationIO( )  {
 
+   if( m_convert ) {
+      PetscBool onlyPrimary = PETSC_FALSE;
+      PetscOptionsHasName( PETSC_NULL, "-primaryDouble", &onlyPrimary );
+ 
+      cout << "Converting to visualization format.." << endl;
+
+      PetscLogDouble Start_Time;
+      PetscLogDouble End_Time;
+      PetscTime( &Start_Time );
+
+      boost::shared_ptr<DataAccess::Interface::ObjectFactory> factory(new DataAccess::Interface::ObjectFactory());
+      boost::shared_ptr<DataAccess::Interface::ProjectHandle> projectHandle(DataAccess::Interface::OpenCauldronProject(m_projectFileName, "r", factory.get()));
+
+      if( onlyPrimary ) {
+         if( m_primaryPod ) {
+            H5_Parallel_PropertyList::setOneFilePerProcessOption( );
+         }
+      }
+     
+      boost::shared_ptr<CauldronIO::Project> project = ImportProjectHandle::createFromProjectHandle(projectHandle, false );
+
+      boost::filesystem::path relPath(m_projectFileName);
+      relPath = relPath.stem().string() + "_vizIO_output";
+      boost::filesystem::path absPath(projectHandle->getFullOutputDir () + "/" + m_projectFileName);
+      absPath.remove_filename();
+      std::string indexingXMLname = CauldronIO::ImportExport::getXMLIndexingFileName(m_projectFileName);
+      
+      project->retrieve();
+      CauldronIO::ImportExport::exportToXML(project, absPath.string(), relPath.string(), indexingXMLname, true);
+ 
+      PetscTime( &End_Time );
+      displayTime( End_Time - Start_Time, "Total time: ");
+  }
+}
+
+//------------------------------------------------------------//
+void PropertiesCalculator::calculateProperties( FormationSurfaceVector& formationItems, PropertyList properties, SnapshotList & snapshots )  {
+      
+   if( properties.size () == 0 ) {
+      return;
+   }
+   
    SnapshotList::iterator snapshotIter;
    PropertyList::iterator propertyIter;
-   FormationVector::iterator formationIter;
+   FormationSurfaceVector::iterator formationIter;
 
-   SnapshotFormationOutputPropertyValueMap allOutputPropertyValues;
+   SnapshotFormationSurfaceOutputPropertyValueMap allOutputPropertyValues;
 
    bool zeroSnapshotAdded = false;
    if( snapshots.empty() ) {
@@ -174,7 +244,7 @@ void PropertiesCalculator::calculateProperties( FormationVector& formationItems,
     
    for ( snapshotIter = snapshots.begin(); snapshotIter != snapshots.end(); ++snapshotIter )
    {
-      const Snapshot * snapshot = *snapshotIter;
+      const Interface::Snapshot * snapshot = *snapshotIter;
 
       if ( snapshot->getFileName () != "" ) {
          ibs::FilePath fileName( m_projectHandle->getFullOutputDir () );
@@ -186,25 +256,37 @@ void PropertiesCalculator::calculateProperties( FormationVector& formationItems,
 
       for ( formationIter = formationItems.begin(); formationIter != formationItems.end(); ++formationIter )
       {
-         const Formation * formation = *formationIter;
+         const Formation * formation = ( *formationIter ).first;
+         const Surface   * surface   = ( *formationIter ).second;
+
 
          for ( propertyIter = properties.begin(); propertyIter != properties.end(); ++propertyIter )
          {
-
             const Property * property = *propertyIter;
-            OutputPropertyValuePtr outputProperty = allocateOutputProperty ( * m_propertyManager, property, snapshot, formation );
-
+            if( m_no3Dproperties and surface == 0 and property->getPropertyAttribute() != DataModel::FORMATION_2D_PROPERTY ) {
+               continue;
+            }
+            if( not m_extract2D and surface != 0 and property->getName() != "Reflectivity" ) {
+               continue;
+            }
+             
+            OutputPropertyValuePtr outputProperty = DerivedProperties::allocateOutputProperty ( * m_propertyManager, property, snapshot, * formationIter );
+  
             if ( outputProperty != 0 ) {
                if( m_debug && m_rank == 0 ) {
-                  LogHandler( LogHandler::INFO_SEVERITY) << "Snapshot: " << snapshot->getTime() << " allocate " << property->getName() << " " << formation->getName();
+                  LogHandler( LogHandler::INFO_SEVERITY) << "Snapshot: " << snapshot->getTime() << 
+                     " allocate " << property->getName() << " " << ( formation != 0 ? formation->getName() : "" ) << " " <<
+                     ( surface != 0 ? surface->getName() : "" );
                }
-               allOutputPropertyValues [ snapshot ][ formation ][ property ] = outputProperty;
+               allOutputPropertyValues [ snapshot ][ * formationIter ][ property ] = outputProperty;
             }
             else{
-               LogHandler( LogHandler::WARNING_SEVERITY ) << "Could not calculate derived property " << property->getName()
-                  << " @ snapshot " << snapshot->getTime() << "Ma for formation " << formation->getName() << ".";
-            }
-
+               if( m_debug && m_rank == 0 ) {
+                  LogHandler( LogHandler::INFO_SEVERITY ) << "Could not calculate derived property " << property->getName()
+                                                          << " @ snapshot " << snapshot->getTime() << "Ma for formation " <<  
+                     ( formation != 0 ? formation->getName() : "" ) << " " <<  ( surface != 0 ? surface->getName() : "" ) << ".";
+               }
+            } 
          }
       }
    }
@@ -213,18 +295,34 @@ void PropertiesCalculator::calculateProperties( FormationVector& formationItems,
       snapshots.pop_back(); // to remove the explicitly added snapshot age 0
    }
 
-   for ( formationIter = formationItems.begin();  formationIter != formationItems.end(); ++formationIter )
+   PetscLogDouble Accumulated_Saving_Time = 0;
+   PetscLogDouble Start_Saving_Time = 0;
+   PetscLogDouble Start_Time;
+   PetscLogDouble End_Time;
+   
+   PetscTime( & Start_Saving_Time );
+
+   for ( snapshotIter = snapshots.begin(); snapshotIter != snapshots.end(); ++snapshotIter )
    {
-      const Formation * formation = *formationIter;
-
-      for ( snapshotIter = snapshots.begin(); snapshotIter != snapshots.end(); ++snapshotIter )
+      PetscTime( &Start_Time );
+      const Interface::Snapshot * snapshot = *snapshotIter;
+      for ( formationIter = formationItems.begin();  formationIter != formationItems.end(); ++formationIter )
       {
-         const Snapshot * snapshot = *snapshotIter;
-
-         outputSnapshotFormationData( snapshot, formation, properties, allOutputPropertyValues );
-         m_projectHandle->continueActivity();
+         const Interface::Formation * formation = ( *formationIter ).first;
+         const Interface::Surface   * surface   = ( *formationIter ).second;
+         
+         DerivedProperties::outputSnapshotFormationData( m_projectHandle, snapshot, * formationIter, properties, allOutputPropertyValues );
       }
+      PetscTime( &Start_Time );
+     
+      displayProgress( snapshot->getFileName (), Start_Saving_Time, "Saving " );
+
+      m_projectHandle->continueActivity();
+
+      PetscTime( &End_Time );
+      Accumulated_Saving_Time += ( End_Time - Start_Time );
    }
+   displayTime( Accumulated_Saving_Time, "Total derived properties saving: ");
 }
 
 //------------------------------------------------------------//
@@ -315,329 +413,47 @@ bool PropertiesCalculator::acquireSnapshots( SnapshotList & snapshots )
 
    return true;
 }
+
 //------------------------------------------------------------//
+void PropertiesCalculator::acquireProperties( PropertyList & properties ) {
 
-bool PropertiesCalculator::acquireProperties( PropertyList & properties )
-{
-   StringVector::iterator stringIter;
+   if( m_propertyNames.size() != 0 ) {
+      // remove duplicated names
+      std::sort( m_propertyNames.begin(), m_propertyNames.end() ); 
+      m_propertyNames.erase( std::unique( m_propertyNames.begin(), m_propertyNames.end(), DerivedProperties::isEqualPropertyName ), m_propertyNames.end() );
 
-   for ( stringIter = m_propertyNames.begin(); stringIter != m_propertyNames.end(); ++stringIter )
+      DerivedProperties::acquireProperties( m_projectHandle, * m_propertyManager, properties, m_propertyNames );
+   }
+}
+//------------------------------------------------------------//
+void PropertiesCalculator::acquireFormationsSurfaces( FormationSurfaceVector& formationSurfaceItems ) {
+
+   if( m_formationNames.size() != 0 or m_all3Dproperties  ) {
+      DerivedProperties::acquireFormations( m_projectHandle, formationSurfaceItems, m_formationNames, m_basement );
+   }
+   if(  m_all2Dproperties  ) {
+      DerivedProperties::acquireFormations( m_projectHandle, formationSurfaceItems, m_formationNames, m_basement);
+      DerivedProperties::acquireFormationSurfaces( m_projectHandle, formationSurfaceItems, m_formationNames, true, m_basement );
+      DerivedProperties::acquireFormationSurfaces( m_projectHandle, formationSurfaceItems, m_formationNames, false, m_basement );
+
+      if( not m_all3Dproperties ) {
+         m_no3Dproperties = true;
+      }
+   }
+
+   // if the property is selected but formationSurface list is empty add all formations
+   if ( formationSurfaceItems.empty() and m_propertyNames.size() != 0 )
    {
-
-      const Property * property = m_projectHandle->findProperty( *stringIter );
-      bool isComputable = false;
-
-      if ( property == 0 && m_rank == 0 )
-      {
-         LogHandler( LogHandler::WARNING_SEVERITY ) << "Could not find property named '" << *stringIter << "'";
-         continue;
-      }
-
-      if (( property->getPropertyAttribute () == DataModel::CONTINUOUS_3D_PROPERTY or
-            property->getPropertyAttribute () == DataModel::DISCONTINUOUS_3D_PROPERTY ) and 
-          m_propertyManager->formationPropertyIsComputable ( property ))
-      {
-         isComputable = true;
-      }
-      else if ( property->getPropertyAttribute () == DataModel::FORMATION_2D_PROPERTY and 
-                m_propertyManager->formationMapPropertyIsComputable ( property ))
-      {
-         isComputable = true;
-      } else if ( property->getPropertyAttribute () == DataModel::SURFACE_2D_PROPERTY and 
-                m_propertyManager->surfacePropertyIsComputable ( property ))
-      {
-         isComputable = true;
-      }
-
-      if ( isComputable ) {
-         properties.push_back( property );
-      } else {
-         if( m_rank == 0 ) {
-            LogHandler( LogHandler::WARNING_SEVERITY ) << "Could not find calculator for property named '" << *stringIter << "'";
-         }
-      }
-
+      DerivedProperties::acquireFormations( m_projectHandle, formationSurfaceItems, m_formationNames, m_basement );
+      DerivedProperties::acquireFormationSurfaces( m_projectHandle, formationSurfaceItems, m_formationNames, true, m_basement );
+      DerivedProperties::acquireFormationSurfaces( m_projectHandle, formationSurfaceItems, m_formationNames, false, m_basement );
    }
 
-   return true;
 }
-//------------------------------------------------------------//
-
-bool PropertiesCalculator::acquireFormations( FormationVector & formationsItems )
-{
-   if ( m_formationNames.size() != 0 )
-   {
-      StringVector::iterator stringIter;
-      for ( stringIter = m_formationNames.begin(); stringIter != m_formationNames.end(); ++stringIter )
-      {
-         const Formation * formation = m_projectHandle->findFormation( *stringIter );
-         if ( !formation && m_rank == 0 )
-         {
-            LogHandler( LogHandler::WARNING_SEVERITY ) << "Could not find formation named '" << *stringIter << "'";
-            continue;
-         }
-
-         formationsItems.push_back( formation );
-      }
-   }
-  if ( formationsItems.empty() )
-   {
-      const Snapshot * zeroSnapshot = m_projectHandle->findSnapshot( 0 );
-      FormationList * formations = m_projectHandle->getFormations( zeroSnapshot, m_basement );
-      FormationList::iterator formationIter;
-      for ( formationIter = formations->begin(); formationIter != formations->end(); ++formationIter )
-      {
-         const Formation * formation = *formationIter;
-         formationsItems.push_back( formation );
-
-         if ( m_debug ) {
-            LogHandler( LogHandler::INFO_SEVERITY ) << " adding formation " << formation->getName();
-         }
-
-      }
-   }
-
-
-   return true;
-}
-//------------------------------------------------------------//
-const GridMap * PropertiesCalculator::getPropertyGridMap ( const string & propertyName,
-                                                           const Interface::Snapshot * snapshot,
-                                                           const Formation * formation ) 
-{
-   const GridMap * propertyHasMap = 0;
-   const Property* property = m_projectHandle->findProperty (propertyName);
-
-   if ( property != 0 ) {  
-      int selectionFlags = Interface::FORMATION | Interface::FORMATIONSURFACE;
-      bool volumeProperties = true;
-      PropertyValueList * propertyValues = m_projectHandle->getPropertyValues ( selectionFlags,
-                                                                                property,
-                                                                                snapshot, 
-                                                                                0, 
-                                                                                formation, 
-                                                                                0,
-                                                                                Interface::VOLUME ); 
-      
-      if ( propertyValues->size () == 0 ) {
-         delete propertyValues;
-         volumeProperties = false;
-
-         propertyValues = m_projectHandle->getPropertyValues ( selectionFlags,
-                                                               property,
-                                                               snapshot, 
-                                                               0, 
-                                                               formation, 
-                                                               0,
-                                                               Interface::MAP );     
-         if ( propertyValues->size () == 0 ) {
-            delete propertyValues;
-            
-            return 0;
-         }
-      }
-
-      
-      if ( propertyValues->size () != 1 && m_debug &&  m_rank == 0 ) {
-         LogHandler( LogHandler::INFO_SEVERITY ) << propertyValues->size() << (volumeProperties ? " volume " : " map ") << "properties values are available for  " << propertyName
-              << " at " << snapshot->getTime() << " for formation " << formation->getName();
-      }
-         
-      propertyHasMap = (*propertyValues)[0]->hasGridMap();
-
-      if( propertyHasMap == 0 ) {
-         propertyHasMap = (*propertyValues)[0]->getGridMap();
-      }
-      
-      delete propertyValues;
-   }
-   return propertyHasMap;
-}
-//------------------------------------------------------------//
-
-bool PropertiesCalculator::toBeSaved( const string & propertyName, const Interface::Snapshot * snapshot, const Formation * formation ) 
-{
-   bool isSaved = false;
-   const Property* property = m_projectHandle->findProperty (propertyName);
-
-   if ( property != 0 ) {  
-      int selectionFlags = Interface::FORMATION | Interface::FORMATIONSURFACE | Interface::SURFACE;
-      bool volumeProperties = true;
-      PropertyValueList * propertyValues = m_projectHandle->getPropertyValues ( selectionFlags,
-                                                                                property,
-                                                                                snapshot, 
-                                                                                0, 
-                                                                                formation, 
-                                                                                0,
-                                                                                Interface::VOLUME ); 
-      
-      if ( propertyValues->size () == 0 ) {
-         delete propertyValues;
-         volumeProperties = false;
-
-         propertyValues = m_projectHandle->getPropertyValues ( selectionFlags,
-                                                               property,
-                                                               snapshot, 
-                                                               0, 
-                                                               formation, 
-                                                               0,
-                                                               Interface::MAP );     
-         if ( propertyValues->size () == 0 ) {
-            delete propertyValues;
-            
-            return true;
-         }
-      }
-
-      
-      if (propertyValues->size () != 1 && m_rank == 0 ) {
-         LogHandler( LogHandler::INFO_SEVERITY ) << propertyValues->size() << (volumeProperties ? " volume " : " map ") << "properties values are available for  " << propertyName
-              << " at " << snapshot->getTime() << " for formation " << formation->getName();
-      }
-         
-      isSaved = ( (*propertyValues)[0]->hasGridMap() != 0 ) || (*propertyValues)[0]->hasRecord();
-      
-      delete propertyValues;
-   }
-   return not isSaved;
-}
-
-bool PropertiesCalculator::toBeSaved( const string & propertyName, const Interface::Snapshot * snapshot, const Surface * surface ) 
-{
-   bool isSaved = false;
-   const Property* property = m_projectHandle->findProperty (propertyName);
-
-   if ( property != 0 ) {  
-      int selectionFlags = Interface::SURFACE;
-      bool volumeProperties = false;
-      PropertyValueList * propertyValues = m_projectHandle->getPropertyValues ( selectionFlags,
-                                                                                property,
-                                                                                snapshot, 
-                                                                                0, 
-                                                                                0, 
-                                                                                surface,
-                                                                                Interface::MAP ); 
-
-      if ( propertyValues->size () == 0 ) {
-         delete propertyValues;
-         return true;
-      }
-      
-      if (propertyValues->size () != 1 && m_rank == 0 ) {
-         LogHandler( LogHandler::INFO_SEVERITY ) << propertyValues->size() << (volumeProperties ? " volume " : " map ") << "properties values are available for  " << propertyName
-              << " at " << snapshot->getTime() << " for surface " << surface->getName();
-      }
-         
-      isSaved = ( (*propertyValues)[0]->hasGridMap() != 0 ) || (*propertyValues)[0]->hasRecord();
-      
-      delete propertyValues;
-   }
-   return not isSaved;
-}
-
-//------------------------------------------------------------//
-bool PropertiesCalculator::createSnapshotResultPropertyValue ( OutputPropertyValuePtr propertyValue,
-                                                               const Snapshot* snapshot, const Formation * formation ) {
-   
-
-   if( not propertyValue->hasMap () ) {
-      return true;
-   }
-
-   double p_depth = propertyValue->getDepth();
-   
-   PropertyValue *thePropertyValue = 0;
-   
-   if( p_depth > 1 ) {
-      if( toBeSaved ( propertyValue->getName(), snapshot, formation )) {
-         thePropertyValue = m_projectHandle->createVolumePropertyValue ( propertyValue->getName(), snapshot, 0, formation, p_depth );
-      } else {
-         // the property is already in output file
-         if( false && m_debug && m_rank == 0 ) {
-            LogHandler( LogHandler::INFO_SEVERITY ) << "Volume " << propertyValue->getName() << " is in the output file";
-         }
-      }
-   } else {
-
-      const DataModel::AbstractSurface* surface = propertyValue->getSurface ();
-      const DataAccess::Interface::Surface*   daSurface   = dynamic_cast<const DataAccess::Interface::Surface *>(surface);
-      const DataAccess::Interface::Formation* daFormation = dynamic_cast<const DataAccess::Interface::Formation *>(formation);
-
-      if ( toBeSaved ( propertyValue->getName(), snapshot, daSurface )) {
-
-         if ( propertyValue->getProperty ()->getPropertyAttribute () == DataModel::SURFACE_2D_PROPERTY ) {
-            thePropertyValue = m_projectHandle->createMapPropertyValue ( propertyValue->getName(), snapshot, 0, 0, daSurface );
-         } else if ( propertyValue->getProperty ()->getPropertyAttribute () == DataModel::FORMATION_2D_PROPERTY ) {
-            thePropertyValue = m_projectHandle->createMapPropertyValue ( propertyValue->getName(), snapshot, 0, daFormation, 0 );
-         } else if ( propertyValue->getProperty ()->getPropertyAttribute () == DataModel::DISCONTINUOUS_3D_PROPERTY ) {
-            thePropertyValue = m_projectHandle->createMapPropertyValue ( propertyValue->getName(), snapshot, 0, daFormation, daSurface );
-         } else if ( propertyValue->getProperty ()->getPropertyAttribute () == DataModel::CONTINUOUS_3D_PROPERTY ) {
-            thePropertyValue = m_projectHandle->createMapPropertyValue ( propertyValue->getName(), snapshot, 0, 0, daSurface );
-         }
-
-      } else {
-         //  the property is already in output file
-        if( false && m_debug && m_rank == 0 ) {
-           LogHandler( LogHandler::INFO_SEVERITY ) << "Map " << propertyValue->getName() << " is in the output file";
-         }
-      }
-   }     
- 
-   if( thePropertyValue != 0 ) {
-      if ( m_debug && m_rank == 0 ) {
-         LogHandler( LogHandler::INFO_SEVERITY ) << "   " << propertyValue->getName();
-      }
-      
-      GridMap * theMap = thePropertyValue->getGridMap();
-      if( theMap != 0 ) {
-         theMap->retrieveData();
-         
-         for ( unsigned int i = theMap->firstI (); i <= theMap->lastI (); ++i ) {
-            for ( unsigned int j = theMap->firstJ (); j <= theMap->lastJ (); ++j ) {
-               for ( unsigned int k = 0; k < theMap->getDepth (); ++k ) {
-                  theMap->setValue (i, j, k, propertyValue->getValue( i, j, k ));
-               }
-            }
-         }
-         theMap->restoreData (true);
-         return true;
-      }
-   }
-
-   return false;
-}
-
-//------------------------------------------------------------//
-void PropertiesCalculator::outputSnapshotFormationData( const Snapshot * snapshot, const Formation * formation, PropertyList & properties,
-                                                        SnapshotFormationOutputPropertyValueMap & allOutputPropertyValues )
-{
-   
-   PropertyList::iterator propertyIter;
-
-   if ( m_debug && m_rank == 0 ) {
-      LogHandler( LogHandler::INFO_SEVERITY ) << "Calculating formation " << formation->getName() << " at " << snapshot->getTime() << ":";
-   }
-
-   for ( propertyIter = properties.begin(); propertyIter != properties.end(); ++propertyIter )
-   {
-      const Property * property = *propertyIter;
-      OutputPropertyValuePtr propertyValue = allOutputPropertyValues[ snapshot ][ formation ][ property ];
-      
-      if ( propertyValue != 0 )
-      {
-         createSnapshotResultPropertyValue ( propertyValue, snapshot, formation );
-      }
-      else
-      {
-         //  outputStream << " No property available" << endl;;
-      }
-   }
-}
-
 //------------------------------------------------------------//
 void PropertiesCalculator::acquireAll2Dproperties() {
 
-   if ( m_all2Dproperties  )
+   if ( m_all2Dproperties or ( not m_formationNames.empty() and m_propertyNames.empty () ))
    {
       PropertyList * allProperties = m_projectHandle->getProperties( true );
       
@@ -652,12 +468,17 @@ void PropertiesCalculator::acquireAll2Dproperties() {
             m_propertyNames.push_back( property->getName() );
             LogHandler( LogHandler::DEBUG_SEVERITY ) << "   #" << property->getName() << " (2D formation)";
          }
-         if ( property->getPropertyAttribute () == DataModel::SURFACE_2D_PROPERTY and 
+         if (( property->getPropertyAttribute () == DataModel::CONTINUOUS_3D_PROPERTY or
+               property->getPropertyAttribute () == DataModel::SURFACE_2D_PROPERTY ) and 
               m_propertyManager->surfacePropertyIsComputable ( property )) {
             m_propertyNames.push_back( property->getName() );
             LogHandler( LogHandler::DEBUG_SEVERITY ) << "   #" << property->getName() << " (2D surface)";
+         } 
+         if ( property->getPropertyAttribute () == DataModel::DISCONTINUOUS_3D_PROPERTY and 
+              m_propertyManager->formationSurfacePropertyIsComputable ( property )) {
+             m_propertyNames.push_back( property->getName() );
+             LogHandler( LogHandler::DEBUG_SEVERITY ) << "   #" << property->getName() << " (2D formation-surface)";
          }
-         
       }
       
       delete allProperties;
@@ -665,62 +486,9 @@ void PropertiesCalculator::acquireAll2Dproperties() {
 }
 //------------------------------------------------------------//
 
-OutputPropertyValuePtr PropertiesCalculator::allocateOutputProperty ( DerivedProperties::AbstractPropertyManager& propertyManager, 
-                                                                       const DataModel::AbstractProperty* property, 
-                                                                       const DataModel::AbstractSnapshot* snapshot,
-                                                                       const Interface::Formation* formation ) {
-   
-   OutputPropertyValuePtr outputProperty;
-
-   if (( property->getPropertyAttribute () == DataModel::CONTINUOUS_3D_PROPERTY or
-         property->getPropertyAttribute () == DataModel::DISCONTINUOUS_3D_PROPERTY ) and 
-       m_propertyManager->formationPropertyIsComputable ( property, snapshot, formation ))
-   {
-      outputProperty = OutputPropertyValuePtr ( new FormationOutputPropertyValue ( * m_propertyManager, property, snapshot, formation ));
-   }
-
-   if ( outputProperty == 0 ) {
-
-      // check if the formation-map property is computable
-      if ( property->getPropertyAttribute () == DataModel::FORMATION_2D_PROPERTY and 
-           m_propertyManager->formationMapPropertyIsComputable ( property, snapshot, formation ))
-      {
-          outputProperty = OutputPropertyValuePtr ( new FormationMapOutputPropertyValue ( * m_propertyManager, property, snapshot, formation ));
-
-      } else if ( property->getPropertyAttribute () == DataModel::SURFACE_2D_PROPERTY ) {
-
-         const Interface::Surface* topSurface = 0;
-         const Interface::Surface* bottomSurface = 0;
-
-         if ( formation->getTopSurface () != 0  ) {
-            topSurface = formation->getTopSurface ();
-         } else if ( formation->getBottomSurface () != 0 ) {
-            bottomSurface = formation->getBottomSurface ();
-         }
-         if( topSurface != 0 && m_propertyManager->surfacePropertyIsComputable ( property, snapshot, topSurface )) 
-         {
-            if( m_debug && m_rank == 0 ) {
-               LogHandler( LogHandler::INFO_SEVERITY ) << "Formation " << formation->getName() << " and the top surface " << topSurface->getName();
-            }
-            outputProperty = OutputPropertyValuePtr ( new SurfaceOutputPropertyValue ( * m_propertyManager, property, snapshot, topSurface ));
-         } else if( bottomSurface != 0 && m_propertyManager->surfacePropertyIsComputable ( property, snapshot, bottomSurface )) 
-         {
-            if( m_debug && m_rank == 0 ) {
-               LogHandler( LogHandler::INFO_SEVERITY ) << "Formation " << formation->getName() << " and the bottom surface " << bottomSurface->getName();
-            }
-            outputProperty = OutputPropertyValuePtr ( new SurfaceOutputPropertyValue ( * m_propertyManager, property, snapshot, bottomSurface ));
-         }
-      }
-      
-   }
-
-   return outputProperty;
-}
-//------------------------------------------------------------//
-
 void PropertiesCalculator::acquireAll3Dproperties() {
 
-   if ( m_all3Dproperties ) {
+   if ( m_all3Dproperties or ( not m_formationNames.empty() and m_propertyNames.empty () )) {
 
       PropertyList * allProperties = m_projectHandle->getProperties( true );
       LogHandler( LogHandler::DEBUG_SEVERITY ) << "Acquiring computable 3D property ";
@@ -848,10 +616,16 @@ void PropertiesCalculator::printOutputableProperties () {
               m_propertyManager->formationMapPropertyIsComputable ( property )) {
             PetscPrintf( PETSC_COMM_WORLD, "%s ", property->getName ().c_str() );
             LogHandler( LogHandler::DEBUG_SEVERITY ) << "YES";
-         }
-
-         if ( property->getPropertyAttribute () == DataModel::SURFACE_2D_PROPERTY and 
+ 
+         } else if (( property->getPropertyAttribute () == DataModel::CONTINUOUS_3D_PROPERTY or
+               property->getPropertyAttribute () == DataModel::SURFACE_2D_PROPERTY ) and 
               m_propertyManager->surfacePropertyIsComputable ( property )) {
+            PetscPrintf( PETSC_COMM_WORLD, "%s ", property->getName ().c_str() );
+            LogHandler( LogHandler::DEBUG_SEVERITY ) << "YES";
+  
+         } else if ( property->getPropertyAttribute () == DataModel::DISCONTINUOUS_3D_PROPERTY and 
+              m_propertyManager->formationSurfacePropertyIsComputable ( property )) {
+
             PetscPrintf( PETSC_COMM_WORLD, "%s ", property->getName ().c_str() );
             LogHandler( LogHandler::DEBUG_SEVERITY ) << "YES";
          }
@@ -1007,31 +781,65 @@ bool PropertiesCalculator::parseCommandLine( int argc, char ** argv ) {
       {
          m_projectFileName = argv[ arg ];
       }
-      else if (strncmp( argv[arg], "-verbosity", Max( 5, (int)strlen( argv[arg] ) ) ) == 0){
-         if (arg + 1 >= argc || argv[arg + 1][0] == '-')
-         {
-            showUsage( argv[0], "Argument for '-verbosity' is missing" );
+      else if ( strncmp( argv[ arg ], "-convert", Max( 7, (int)strlen( argv[ arg ] )) ) == 0 )
+      {
+         m_convert = true;
+      }
+      else if ( strncmp( argv[ arg ], "-ddd", Max( 3, (int)strlen( argv[ arg ] )) ) == 0 )
+      {
 
-            return false;
-         }
-         ++arg;
-         continue;
+      }
+      else if ( strncmp( argv[ arg ], "-primaryPod", Max( 8, (int)strlen( argv[ arg ] )) ) == 0 )
+      {
+         ++ arg;
+         m_primaryPod = true;
+      }
+      else if ( strncmp( argv[ arg ], "-extract2D", Max( 6, (int)strlen( argv[ arg ] )) ) == 0 )
+      {
+         m_extract2D = true;
+      }
+      else if ( strncmp( argv[ arg ], "-save", Max( 4, (int)strlen( argv[ arg ] )) ) == 0 )
+      {
+         ++ arg;
+
+      }
+      else if ( strncmp( argv[ arg ], "-verbosity", Max( 4, (int)strlen( argv[ arg ] )) ) == 0 )
+      {
+         ++ arg;
+
       }
       else
       {
          LogHandler(LogHandler::ERROR_SEVERITY) << "Unknown or ambiguous option: " << argv[ arg ];
          showUsage( argv[ 0 ] );
 
-         return false;
+         //   return false;
       }
    }
+
+   
    if ( m_projectFileName == "" )
    {
       showUsage( argv[ 0 ], "No project file specified" );
 
       return false;
    }
-   return true;
+   if( m_convert ) {
+      int numberOfRanks;
+      
+      MPI_Comm_size ( PETSC_COMM_WORLD, &numberOfRanks );
+      if( numberOfRanks > 1 ) {
+         PetscPrintf( PETSC_COMM_WORLD, "Unable to convert data to Visualization format. Please select 1 core.\n" );
+         return false;
+      }
+   }
+  return true;
+}
+
+//------------------------------------------------------------//
+
+bool PropertiesCalculator::convert() const {
+   return m_convert;
 }
 
 //------------------------------------------------------------//
@@ -1058,10 +866,13 @@ void PropertiesCalculator::showUsage( const char* command, const char* message )
            << "\t[-verbosity level]                                 verbosity level of the log file(s): minimal|normal|detailed|diagnostic. Default value is 'normal'." << endl
            << endl
            << "\t[-all-3D-properties]                               produce output for all 3D properties" << endl
-           << "\t[-all-2D-properties]                               produce output for all 2D properties" << endl
+           << "\t[-all-2D-properties]                               produce output for all 2D primary properties" << endl
+           << "\t[-extract2D]                                       produce output for all 2D properties (use with -all-2D-properties)" << endl
            << "\t[-list-properties]                                 print a list of available properties and exit" << endl
            << "\t[-list-snapshots]                                  print a list of available snapshots and exit" << endl
            << "\t[-list-stratigraphy]                               print a list of available surfaces and formations and exit" << endl << endl
+           << "\t[-convert]                                         convert the data to visialization format. (run on 1 core)" << endl << endl
+           << "\t[-primaryPod <dir>]                                use if the fastcauldron data are stored in the shared <dir> on the cluster" << endl << endl
            << "\t[-help]                                            print this message and exit" << endl << endl;
       cout << "If names in an argument list contain spaces, put the list between double or single quotes, e.g:"
            << "\t-formations \"Dissolved Salt,Al Khalata\"" << endl;
@@ -1128,6 +939,36 @@ bool snapshotSorter( const Snapshot * snapshot1, const Snapshot * snapshot2 )
    return snapshot1->getTime() > snapshot2->getTime();
 }
 
+void displayProgress( const string & fileName, double startTime, const string & message ) {
+   
+   if (PetscGlobalRank != 0)
+      return;
+   double EndTime;
+
+   PetscTime(&EndTime);
+
+   double CalculationTime = EndTime - startTime; 
+   long remainder = (long) CalculationTime;
+
+   long secs = remainder % 60;
+   remainder -= secs;
+   long mins = (remainder / 60) % 60;
+   remainder -= mins * 60;
+   long hrs = remainder / (60 * 60);
+
+   char time[124];
+   sprintf (time, "%2.2ld:%2.2ld:%2.2ld", hrs, mins, secs);
+
+   ostringstream buf;
+   buf.precision(4);
+   buf.setf(ios::fixed);
+               
+   buf << message << fileName << " : " << setw( 8 ) << " Elapsed: " << time;;
+   
+   cout << buf.str() << endl;
+   cout << flush;
+}
+
 void displayTime ( const double timeToDisplay, const char * msgToDisplay ) {
 
    int hours   = (int)(  timeToDisplay / 3600.0 );
@@ -1139,3 +980,4 @@ void displayTime ( const double timeToDisplay, const char * msgToDisplay ) {
    PetscPrintf ( PETSC_COMM_WORLD, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ \n" );
 
 }
+ 

@@ -83,6 +83,7 @@ AppCtx::AppCtx(int argc, char** argv) : filterwizard(&timefilter)
    timeIoTbl = 0;
    m_saveOnDarcyError = false;
    m_no2Doutput = false;
+   m_primaryOutput = false;
 
    Reference_DA_For_Io_Maps = 0;
 
@@ -216,7 +217,7 @@ bool AppCtx::readProjectFile () {
 
    projectSnapshots.setMinorSnapshotsPrescribed ( IsCalculationCoupled && DoTemperature );
 
-   if (( DoOverPressure || Do_Iteratively_Coupled || ( !IsCalculationCoupled && DoTemperature ) || DoDecompaction ) and not FastcauldronSimulator::getInstance ().isPrimary() ) {
+   if (( DoOverPressure || Do_Iteratively_Coupled || ( !IsCalculationCoupled && DoTemperature ) || DoDecompaction )) {
 
      // What can be deleted here? 
      // Only if we are starting a new run (overpressure, hydrostatic-temperature, 
@@ -616,6 +617,9 @@ void AppCtx::printHelp () const {
   helpBuffer << "  Parallel I/O options:" << endl;
   helpBuffer << "           -onefileperprocess <dir>    Use dir to store imtermediate output files. Default is $TMPDIR." << endl;
   helpBuffer << "           -noofpp                     Do not use one-file-perprocess I/O." << endl;
+  helpBuffer << "           -primaryPod <dir>           Use dir to store imtermediate output files. Dir should be a shared dir on the cluster (or local)" << endl;
+  helpBuffer << "           -primary                    Output only primary properties in float precision." << endl;
+  helpBuffer << "           -primaryDouble              Output only primary properties in double precision." << endl;
 
   helpBuffer << endl;
 
@@ -647,7 +651,6 @@ bool AppCtx::getCommandLineOptions() {
   PetscBool outputAgeChanged = PETSC_FALSE;
   PetscBool exitAgeChanged = PETSC_FALSE;
   PetscBool bbtemp = PETSC_FALSE;
-  PetscBool no2Doutput = PETSC_FALSE;
   PetscBool Found;
   double outputAge;
   double exitAge;
@@ -691,15 +694,7 @@ bool AppCtx::getCommandLineOptions() {
 
   PetscOptionsGetReal ( PETSC_NULL, "-exitat", &exitAge, &exitAgeChanged );
 
-  ierr = PetscOptionsHasName( PETSC_NULL, "-no2Doutput", &no2Doutput ); CHKERRQ(ierr);
-
   ierr = PetscOptionsHasName( PETSC_NULL, "-saveonerror", &saveResultsIfDarcyError ); CHKERRQ(ierr);
-
-  if ( no2Doutput ) {
-     m_no2Doutput = true;
-  } else {
-     m_no2Doutput = false;
-  }
 
   if ( saveResultsIfDarcyError ) {
      m_saveOnDarcyError = true;
