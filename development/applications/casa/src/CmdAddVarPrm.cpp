@@ -888,6 +888,111 @@ public:
    }
 };
 
+////////////////////////////////////////////////////////////////
+// Lithofraction parameter
+////////////////////////////////////////////////////////////////
+//
+class LithoFraction : public PrmType
+{
+public:
+   LithoFraction( const std::string & prmTypeName = "" ) : PrmType( prmTypeName ) { ; }
+   virtual ~LithoFraction() { ; }
+
+   virtual void addParameterObject( std::unique_ptr<casa::ScenarioAnalysis> & sa
+      , const std::string                     & name
+      , const std::vector<std::string>        & prms
+      ) const
+   {
+      size_t pos = 0;
+
+      std::vector<int>                            lithoFractionsInds;
+      std::vector<double>                         minLithoFrac;
+      std::vector<double>                         maxLithoFrac;
+      std::vector<casa::VarPrmContinuous::PDF>    lithoFractionsPDFs;
+
+      // lithofraction indexes
+      std::vector<std::string>                    & lithoFraction = CfgFileParser::list2array( prms[pos++], ':' );
+
+      int lithoFractionInd = -1;
+      if ( lithoFraction.back() == "Percent1" )  lithoFractionInd = 0;
+      if ( lithoFraction.back() == "Percent2" )  lithoFractionInd = 1;
+      if ( lithoFraction.back() == "Percent3" )  lithoFractionInd = 2;
+      if ( lithoFractionInd == -1 )
+      {
+         throw ErrorHandler::Exception( ErrorHandler::IoError ) << "The lithofraction must be defined as Percent1, Percent2 or Percent3 " <<
+            ", but it is defined as: " << lithoFraction.back();
+      }
+      lithoFractionsInds.push_back( lithoFractionInd );
+
+      // layer names 
+      const std::vector<std::string>              & layerName = CfgFileParser::list2array( prms[pos++], ',' );
+      // PDFs
+      minLithoFrac.push_back( atof( prms[pos++].c_str() ) );
+      maxLithoFrac.push_back( atof( prms[pos++].c_str() ) );
+      lithoFractionsPDFs.push_back( Str2pdf( prms[pos++] ) );
+
+      if ( pos < prms.size() )
+      {
+         // lithofraction indexes
+         lithoFraction = CfgFileParser::list2array( prms[pos++], ':' );
+
+         lithoFractionInd = -1;
+         if ( lithoFraction.back() == "Percent1" ) lithoFractionInd = 0;
+         if ( lithoFraction.back() == "Percent2" ) lithoFractionInd = 1;
+         if ( lithoFraction.back() == "Percent3" ) lithoFractionInd = 2;
+
+         if ( lithoFractionInd == -1 )
+         {
+            throw ErrorHandler::Exception( ErrorHandler::IoError ) << "The lithofraction must be defined as Percent1, Percent2 or Percent3 " <<
+               ", but it is defined as: " << lithoFraction.back();
+         }
+         lithoFractionsInds.push_back( lithoFractionInd );
+
+         // PDFs
+         minLithoFrac.push_back( atof( prms[pos++].c_str() ) );
+         maxLithoFrac.push_back( atof( prms[pos++].c_str() ) );
+         lithoFractionsPDFs.push_back( Str2pdf( prms[pos++] ) );
+      }
+
+      if ( ErrorHandler::NoError != casa::BusinessLogicRulesSet::VaryLithoFraction( *sa.get(), name.c_str(), layerName[0], lithoFractionsInds, minLithoFrac, maxLithoFrac, lithoFractionsPDFs ) )
+      {
+         throw ErrorHandler::Exception( sa->errorCode() ) << sa->errorMessage();
+      }
+
+   }
+
+   size_t expectedParametersNumber() const { return 5; } // percent, lay_name, percentage, mn/mx, pdf
+   size_t optionalParametersNumber() const { return 4; } // percentage, mn/mx, pdf
+
+   virtual std::string name() const { return "StratIoTbl:Percent"; }
+
+   virtual std::string description() const
+   {
+      return "a variation of one or two lithofractions for the given formation";
+   }
+
+   virtual std::string fullDescription() const
+   {
+      std::ostringstream oss;
+      oss << "    [varPrmName] \"" << name() << "\" <layName> <minFraction> <maxFraction> <prmPDF>\n";
+      oss << "    Where:\n";
+      oss << "       varPrmName     - user specified variable parameter name (Optional)\n";
+      oss << "       layName        - layer name\n";
+      oss << "       minFraction    - lithology fraction - minimal range value\n";
+      oss << "       maxFraction    - lithology fraction - maximal range value\n";
+      oss << "       prmPDF         - the parameter probability density function type\n";
+      oss << "\n";
+      return oss.str();
+   }
+
+   virtual std::string usingExample( const char * cmdName ) const
+   {
+      std::ostringstream oss;
+      oss << "    #       VarPrmName           LayerName         Lithofraction [%]   Parameter PDF\n";
+      oss << "    " << cmdName << " \"" << name( ) << "1\" \"Lower Jurassic\"   60 80   \"Block\"\n";
+      return oss.str();
+   }
+};
 
 ////////////////////////////////////////////////////////////////
 // PorosityModel parameter
@@ -1272,6 +1377,10 @@ public:
       m_prmType["LithotypeIoTbl:PermMixModel"   ] = new PermeabilityModel(      "LithotypeIoTbl:PermMixModel"     );
       m_prmType["LithotypeIoTbl:Porosity_Model" ] = new PorosityModel(          "LithotypeIoTbl:Porosity_Model"   );
       m_prmType["LithotypeIoTbl:SurfacePorosity"] = new SurfacePorosity(        "LithotypeIoTbl::SurfacePorosity" );
+
+      m_prmType["StratIoTbl:Percent1"] = new LithoFraction( "StratIoTbl:Percent1" );
+      m_prmType["StratIoTbl:Percent2"] = new LithoFraction( "StratIoTbl:Percent2" );
+      m_prmType["StratIoTbl:Percent3"] = new LithoFraction( "StratIoTbl:Percent3" );
 
       m_prmType["BasementIoTbl:TopCrustHeatProd"]     = new TopCrustHeatProduction( "BasementIoTbl:TopCrustHeatProd"  );
       m_prmType["BasementIoTbl:TopCrustHeatProdGrid"] = new TopCrustHeatProduction( "BasementIoTbl:TopCrustHeatProdGrid"  );

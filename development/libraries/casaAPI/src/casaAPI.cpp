@@ -47,6 +47,7 @@
 #include "VarPrmSurfacePorosity.h"
 #include "VarPrmPermeabilityModel.h"
 #include "VarPrmLithoSTPThermalCond.h"
+#include "VarPrmLithoFraction.h"
 
 // Standard C lib
 #include <cmath>
@@ -929,6 +930,58 @@ ErrorHandler::ReturnCode VarySurfacePorosity( ScenarioAnalysis & sa
    catch( const ErrorHandler::Exception & ex )
    {
       return sa.reportError( ex.errorCode(), ex.what() );
+   }
+
+   return ErrorHandler::NoError;
+}
+
+ErrorHandler::ReturnCode VaryLithoFraction(
+    ScenarioAnalysis                                        & sa
+   , const std::string                                      & name
+   , const std::string                                      & layerName
+   , const std::vector<int>                                 & lithoFractionsInds
+   , const std::vector<double>                              & minLithoFrac
+   , const std::vector<double>                              & maxLithoFrac
+   , const std::vector<casa::VarPrmContinuous::PDF> 	      & lithoFractionsPDFs
+   )
+{
+   try
+   {
+      VarSpace & varPrmsSet = sa.varSpace( );
+
+      // Get base value of parameter from the model
+      mbapi::Model & mdl = sa.baseCase( );
+      PrmLithoFraction prm( mdl, layerName, lithoFractionsInds );
+      vector<double> baseLithoFractions = prm.asDoubleArray( );
+
+      // Check ranges and the base value
+      ErrorHandler::Exception ex( ErrorHandler::OutOfRangeValue );
+      
+      if ( baseLithoFractions[0] < minLithoFrac[0] || baseLithoFractions[0] > maxLithoFrac[0] )
+      {
+         throw ex << "The percentage of the lithology " << lithoFractionsInds[0] << " in the base case is outside of the given range : " << baseLithoFractions[0];
+      }
+
+      if ( lithoFractionsInds.size( ) == 2 )
+      {
+         if ( baseLithoFractions[1] < minLithoFrac[1] || baseLithoFractions[1] > maxLithoFrac[1] )
+         {
+            throw ex << "The ratio of the lithology " << lithoFractionsInds[1] << " in the base case is outside of the given range : " << baseLithoFractions[1];
+         }
+      }
+
+      // add the variable lithofraction parameter to varPrmsSet 
+      if ( !layerName.empty( ) )
+      {
+         if ( ErrorHandler::NoError != varPrmsSet.addParameter( new VarPrmLithoFraction( layerName, lithoFractionsInds, baseLithoFractions, minLithoFrac, maxLithoFrac, lithoFractionsPDFs, name ) ) )
+         {
+            throw ErrorHandler::Exception( varPrmsSet.errorCode( ) ) << varPrmsSet.errorMessage( );
+         }
+      }
+   }
+   catch ( const ErrorHandler::Exception & ex )
+   {
+      return sa.reportError( ex.errorCode( ), ex.what( ) );
    }
 
    return ErrorHandler::NoError;

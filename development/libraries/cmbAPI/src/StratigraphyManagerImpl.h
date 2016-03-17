@@ -204,7 +204,7 @@ namespace mbapi {
       // newLithoName new lithology name
       // return ErrorHandler::NoError on success, error code otherwise
       virtual ReturnCode setFaultCutLithology( PrFaultCutID flID, const std::string & newLithoName );
- 
+
    private:
       static const char * s_stratigraphyTableName;
       static const char * s_layerNameFieldName;

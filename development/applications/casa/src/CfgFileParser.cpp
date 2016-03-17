@@ -75,8 +75,8 @@ void CfgFileParser::parseFile( const std::string & cmdFile, CasaCommander & cmdQ
       {
          if ( result.empty() || (result.size() == 1 && result[0] == ' ') ) continue; // ignore spaces
          if ( result[0] == '#' ) break; // ignore all after comment
-
          if ( 0 == tokNum ) // get cmd name
+
          {
             cmdID = result;
          }
