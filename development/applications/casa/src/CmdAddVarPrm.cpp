@@ -911,7 +911,7 @@ public:
       std::vector<casa::VarPrmContinuous::PDF>    lithoFractionsPDFs;
 
       // lithofraction indexes
-      std::vector<std::string>                    & lithoFraction = CfgFileParser::list2array( prms[pos++], ':' );
+      std::vector<std::string>                    lithoFraction = CfgFileParser::list2array( prms[pos++], ':' );
 
       int lithoFractionInd = -1;
       if ( lithoFraction.back() == "Percent1" )  lithoFractionInd = 0;

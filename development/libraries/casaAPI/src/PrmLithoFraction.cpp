@@ -12,7 +12,7 @@
 /// @brief This file keeps API implementation for lithofraction parameter handling.
 
 // CASA APIlayerLithologiesList
-#include "PrmLithofraction.h"
+#include "PrmLithoFraction.h"
 #include "VarPrmLithoFraction.h"
 
 // CMB API

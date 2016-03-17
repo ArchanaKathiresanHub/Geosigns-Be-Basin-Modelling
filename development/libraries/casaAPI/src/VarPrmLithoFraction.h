@@ -25,7 +25,7 @@ namespace casa
    public:
 
       /// @brief Construct variable parameter for variation of the lithofraction parameter 
-      VarPrmLithoFraction::VarPrmLithoFraction( const std::string                 & layerName          ///< stratigraphic layer name 
+      VarPrmLithoFraction( const std::string                 & layerName          ///< stratigraphic layer name 
          , const std::vector<int>                                                 & lithoFractionsInds ///< indexes of the lithofractions
          , const std::vector<double>                                              & baseLithoFrac      ///< base lithofractions values
          , const std::vector<double>                                              & minLithoFrac       ///< min range value for the lithofractions
