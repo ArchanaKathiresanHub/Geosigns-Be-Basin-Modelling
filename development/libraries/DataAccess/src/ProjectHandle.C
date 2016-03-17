@@ -125,7 +125,11 @@ using database::Record;
 
 const double DefaultUndefinedValue = 99999;
 
-typedef formattingexception::GeneralException ProjectHandleException;
+typedef formattingexception::GeneralException ProjectHandleException; 
+
+static char * words [] = {"ALCStepBasaltThickness", "ALCStepTopBasaltDepth", "ChemicalCompaction" , "Depth", 
+                          "ErosionFactor", "FCTCorrection", "MaxVes",
+                          "Pressure", "Temperature", "ThicknessError", "Ves", "Vr" };
 
 DataAccess::Interface::ProjectHandle * DataAccess::Interface::OpenCauldronProject( const string & name, const string & accessMode, ObjectFactory* objectFactory )
 {
@@ -186,13 +190,11 @@ const DataAccess::Interface::ApplicationGlobalOperations& ProjectHandle::getGlob
 }
 
 ProjectHandle::ProjectHandle( Database * tables, const string & name, const string & accessMode, ObjectFactory* objectFactory ) :
-   m_database( tables ), m_name( name ), m_accessMode( READWRITE ), m_activityOutputGrid( 0 ), m_mapPropertyValuesWriter( 0 )
+   m_database( tables ), m_name( name ), m_accessMode( READWRITE ), m_activityOutputGrid( 0 ), m_mapPropertyValuesWriter( 0 ), m_primaryList( words, words + 12 )
 {
    (void) accessMode; // ignore warning about unused parameter
 
-   m_primaryList = {"ALCStepBasaltThickness", "ALCStepTopBasaltDepth", "ChemicalCompaction" , "Depth", 
-                    "ErosionFactor", "FCTCorrection", "MaxVes",
-                    "Pressure", "Temperature", "ThicknessError", "Ves", "Vr" };
+   
    m_messageHandler = 0;
    m_globalOperations = 0;
 
