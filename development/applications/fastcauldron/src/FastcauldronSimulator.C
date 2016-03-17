@@ -32,6 +32,7 @@
 
 #include "NumericFunctions.h"
 #include "globaldefs.h"
+#include "FilePath.h"
 
 #include "EosPack.h"
 #include "PVTCalculator.h"
@@ -834,42 +835,44 @@ bool FastcauldronSimulator::mergeOutputFiles ( ) {
          string snapshotFileName = database::getSnapshotFileName ( *timeTableIter );
          
          if ( !snapshotFileName.empty() ) {
-            string filePathName = getProjectPath () + "/" + directoryName + "/" + snapshotFileName;
+            ibs::FilePath filePathName( getProjectPath () );
+            filePathName << directoryName << snapshotFileName;
 
             Display_Merging_Progress( snapshotFileName, StartMergingTime );
 
             if( m_calculationMode == OVERPRESSURED_TEMPERATURE_MODE ) {
                if( ! database::getIsMinorSnapshot ( *timeTableIter ) ) {                  
-                  if( !mergeFiles ( allocateFileHandler( PETSC_COMM_WORLD, filePathName, H5_Parallel_PropertyList::getTempDirName(), APPEND ))) {
+                  if( !mergeFiles ( allocateFileHandler( PETSC_COMM_WORLD, filePathName.path(), H5_Parallel_PropertyList::getTempDirName(), APPEND ))) {
                      status = false;
-                     PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Could not merge the file %s.\n", filePathName.c_str() );               
+                     PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Could not merge the file %s.\n", filePathName.cpath() );
                   } 
                }
             } else {
-               if( !mergeFiles ( allocateFileHandler( PETSC_COMM_WORLD, filePathName, H5_Parallel_PropertyList::getTempDirName(), CREATE ))) {
+               if( !mergeFiles ( allocateFileHandler( PETSC_COMM_WORLD, filePathName.path(), H5_Parallel_PropertyList::getTempDirName(), CREATE ))) {
                   status = false;
-                  PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Could not merge the file %s.\n", filePathName.c_str() );               
+                  PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Could not merge the file %s.\n", filePathName.cpath() );               
                } 
             }
          }
       }
    }
    string fileName = getActivityName () + "_Results.HDF" ; 
-   string filePathName = getProjectPath () + "/" + directoryName + "/" + fileName;
+   ibs::FilePath filePathName( getProjectPath () );
+   filePathName <<  directoryName << fileName;
    
    Display_Merging_Progress( fileName, StartMergingTime );
 
-   status = mergeFiles (  allocateFileHandler( PETSC_COMM_WORLD, filePathName, H5_Parallel_PropertyList::getTempDirName(), ( noFileCopy ? CREATE : REUSE )));
+   status = mergeFiles (  allocateFileHandler( PETSC_COMM_WORLD, filePathName.path(), H5_Parallel_PropertyList::getTempDirName(), ( noFileCopy ? CREATE : REUSE )));
 
    if( !noFileCopy && status ) {
-      status = H5_Parallel_PropertyList::copyMergedFile( filePathName );
+      status = H5_Parallel_PropertyList::copyMergedFile( filePathName.path() );
    }
    if( status ) {
       if( m_fastcauldronSimulator->getRank () == 0 ) {
          displayTime( "Total merging time: ", StartMergingTime );
       }
     } else {
-      PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Could not merge the file %s.\n", filePathName.c_str() );               
+      PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Could not merge the file %s.\n", filePathName.cpath() );               
    }
    return status;
 #else
@@ -1510,8 +1513,9 @@ void FastcauldronSimulator::deleteMinorSnapshots () {
 
       if( ! H5_Parallel_PropertyList::isOneFilePerProcessEnabled() and not m_primary ) {
          if ( getRank () == 0 ) {
-            const std::string fileName = getFullOutputDir () + "/" + (*snapshotIter)->getFileName ();
-            int status = std::remove( fileName.c_str ());
+            ibs::FilePath fileName( getFullOutputDir () );
+            fileName << (*snapshotIter)->getFileName ();
+            int status = std::remove( fileName.cpath () );
             
             if (status == -1)
                cerr << "MeSsAgE WARNING  Unable to remove minor snapshot file, because '" 
@@ -1971,9 +1975,9 @@ void FastcauldronSimulator::deleteTemporaryDirSnapshots()
          
          string snapshotFileName = database::getSnapshotFileName ( *timeTableIter );
          if ( !snapshotFileName.empty() && ! database::getIsMinorSnapshot ( *timeTableIter ) ) {
-            std::stringstream filePath;
-            filePath << H5_Parallel_PropertyList::getTempDirName() << "/" << getProjectPath () << "/" <<  getOutputDir() << "/" << snapshotFileName << "_" << PetscGlobalRank;
-            std::remove ( filePath.str().c_str ());            
+            ibs::FilePath filePath( H5_Parallel_PropertyList::getTempDirName() );
+            filePath <<  getProjectPath () << getOutputDir() << (snapshotFileName + "_" + ibs::to_string( PetscGlobalRank ));
+            std::remove ( filePath.cpath ());            
          }
       }
    }

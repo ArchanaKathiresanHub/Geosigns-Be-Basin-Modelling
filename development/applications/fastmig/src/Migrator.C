@@ -51,6 +51,7 @@ using namespace migration;
 #include "utils.h"
 
 #include "h5_parallel_file_types.h"
+#include "FilePath.h"
 
 #ifndef _MSC_VER
 #include "h5merge.h"
@@ -1810,8 +1811,8 @@ bool reservoirSorter (const Interface::Reservoir * reservoir1, const Interface::
    return reservoir1->getFormation()->getDepositionSequence() < reservoir2->getFormation()->getDepositionSequence();
 }
 
-bool Migrator::mergeOutputFiles () {
-
+bool Migrator::mergeOutputFiles ()
+{
    if (!H5_Parallel_PropertyList::isOneFilePerProcessEnabled ())
    {
       return true;
@@ -1822,20 +1823,20 @@ bool Migrator::mergeOutputFiles () {
 
    PetscOptionsHasName( PETSC_NULL, "-nocopy", &noFileCopy );
 
-   string filePathName = m_projectHandle->getProjectPath () + "/" + m_projectHandle->getOutputDir () + "/" + MigrationActivityName + "_Results.HDF";
+   ibs::FilePath filePathName( m_projectHandle->getProjectPath () );
+   filePathName << m_projectHandle->getOutputDir () << (MigrationActivityName + "_Results.HDF");
 
-   bool status = mergeFiles ( allocateFileHandler( PETSC_COMM_WORLD, filePathName, H5_Parallel_PropertyList::getTempDirName(), ( noFileCopy ? CREATE : REUSE ) ));
+   bool status = mergeFiles ( allocateFileHandler( PETSC_COMM_WORLD, filePathName.path(), H5_Parallel_PropertyList::getTempDirName(), ( noFileCopy ? CREATE : REUSE ) ));
 
    if( status )
    {
-      status = H5_Parallel_PropertyList::copyMergedFile( filePathName ); 
+      status = H5_Parallel_PropertyList::copyMergedFile( filePathName.path() ); 
    }
 
    if( ! status )
    {
-      PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Could not merge the file %s.\n", filePathName.c_str() );               
+      PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Could not merge the file %s.\n", filePathName.cpath() );
    }
-
    else
    {
       ReportProgress ("Merged Output Maps");
@@ -1845,6 +1846,6 @@ bool Migrator::mergeOutputFiles () {
 #else
    return true;
 #endif
-      }
+}
 
 

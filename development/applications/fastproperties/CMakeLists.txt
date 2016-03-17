@@ -51,6 +51,7 @@ bm_include_libraries(
 	Parallel_Hdf5
 	EosPack
 	utilities
+   FileSystem
 	Utilities_Petsc
 )
 
@@ -74,6 +75,7 @@ target_link_libraries(fastproperties
 	Serial_Hdf5
 	Parallel_Hdf5
 	utilities
+   FileSystem
 	${HDF5_LIBRARIES}
 	${PETSC_LIBRARIES}
 )

@@ -45,6 +45,7 @@ bm_include_libraries(
 	CBMGenerics
 	genex6
 	genex6_kernel
+	FileSystem
 	utilities
 	TableIO
 	functions
@@ -66,6 +67,7 @@ target_link_libraries(fastmig
 	genex6
 	genex6_kernel
 	OTGC_kernel6
+	FileSystem
 	utilities
 	TableIO
 	functions

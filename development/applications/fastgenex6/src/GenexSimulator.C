@@ -1,16 +1,6 @@
-#ifdef sgi
-  #ifdef _STANDARD_C_PLUS_PLUS
-      #include<iostream>
-     using namespace std;
-      #define USESTANDARD
-  #else // !_STANDARD_C_PLUS_PLUS
-      #include<iostream.h>
-  #endif // _STANDARD_C_PLUS_PLUS
-#else // !sgi
-   #include <iostream>
-   using namespace std;
-   #define USESTANDARD
-#endif // sgi
+#include <iostream>
+using namespace std;
+#define USESTANDARD
 
 #include <algorithm>
 #include "database.h"
@@ -35,6 +25,8 @@ using namespace DataAccess;
 
 #include "ComponentManager.h"
 #include "GenexResultManager.h"
+
+#include "FilePath.h"
 
 #ifndef _MSC_VER
 #include "h5merge.h"
@@ -401,18 +393,19 @@ bool GenexSimulator::mergeOutputFiles ( ) {
    PetscOptionsHasName( PETSC_NULL, "-nocopy", &noFileCopy );
 
    string fileName = GenexActivityName + "_Results.HDF" ; 
-   string filePathName = getProjectPath () + "/" + getOutputDir () + "/" + fileName;
+   ibs::FilePath filePathName( getProjectPath () );
+   filePathName << getOutputDir () << fileName;
 
    PetscPrintf ( PETSC_COMM_WORLD, "Merging of output files.\n" );
   
-   bool status = mergeFiles ( allocateFileHandler( PETSC_COMM_WORLD, filePathName, H5_Parallel_PropertyList::getTempDirName(),( noFileCopy ? CREATE : REUSE )));
+   bool status = mergeFiles ( allocateFileHandler( PETSC_COMM_WORLD, filePathName.path(), H5_Parallel_PropertyList::getTempDirName(),( noFileCopy ? CREATE : REUSE )));
 
    if( status ) {
-      status = H5_Parallel_PropertyList::copyMergedFile( filePathName );
+      status = H5_Parallel_PropertyList::copyMergedFile( filePathName.path() );
    } 
    
    if( !status ) {
-      PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Could not merge the file %s.\n", filePathName.c_str() );               
+      PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Could not merge the file %s.\n", filePathName.cpath() );
    }
 
    return status;

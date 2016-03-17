@@ -1,4 +1,5 @@
 #include "InterfaceInput.h"
+#include "FilePath.h"
 
 #define _USE_MATH_DEFINES
 #include <math.h>
@@ -103,23 +104,24 @@ void InterfaceInput::loadConfigurationFile( const string & inFile ) {
    char * CTCDIR = getenv("CTCDIR");
    char * MY_CTCDIR = getenv("MY_CTCDIR");
 
-   string fullpath;
+   string ctcdir;
    
-   if( MY_CTCDIR != 0 ) {
-       fullpath = MY_CTCDIR + string("/") + inFile;
-   } else if( CTCDIR != 0 ) {
-      fullpath = CTCDIR + string("/") + inFile;
-   } else {
+   if(      MY_CTCDIR != 0 ) { ctcdir = MY_CTCDIR; }
+   else if( CTCDIR    != 0 ) { ctcdir = CTCDIR;    }
+   else {
       string s = "Environment Variable CTCDIR is not set. Aborting...";
       throw s;
    }
 
+   ibs::FilePath fullpath( ctcdir );
+   fullpath << inFile;
+
    ifstream  ConfigurationFile;
-   ConfigurationFile.open( fullpath.c_str() );
+   ConfigurationFile.open( fullpath.cpath() );
    
    if(!ConfigurationFile) {
-      getProjectHandle()->getMessageHandler().printLine( "MeSsAgE ERROR Attempting to open file :" + fullpath + "\nNo cfg file available in the $CTCDIR directory... Aborting..." );
-      throw RecordException( "MeSsAgE ERROR Attempting to open file :" + fullpath + "\nNo cfg file available in the $CTCDIR directory... Aborting..." );
+      getProjectHandle()->getMessageHandler().printLine( "MeSsAgE ERROR Attempting to open file :" + fullpath.path() + "\nNo cfg file available in the $CTCDIR directory... Aborting..." );
+      throw RecordException( "MeSsAgE ERROR Attempting to open file :" + fullpath.path() + "\nNo cfg file available in the $CTCDIR directory... Aborting..." );
    }
 
    string line;

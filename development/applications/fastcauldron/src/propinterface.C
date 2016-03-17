@@ -64,6 +64,7 @@ using namespace Basin_Modelling;
 #include "Subdomain.h"
 #include "MultiComponentFlowHandler.h"
 #include "FastcauldronSimulator.h"
+#include "FolderPath.h"
 
 #ifdef _MSC_VER
 #define sleep(x) Sleep(1000 * x) // convert from to milliseconds
@@ -1339,7 +1340,7 @@ string AppCtx::Get_Project_Filename_Base ( )
 
 string AppCtx::getOutputDirectory ()
 {
-   return FastcauldronSimulator::getInstance ().getFullOutputDir () + "/";
+   return ibs::FolderPath( FastcauldronSimulator::getInstance ().getFullOutputDir () ).path();
 }
 
 #undef __FUNCT__  

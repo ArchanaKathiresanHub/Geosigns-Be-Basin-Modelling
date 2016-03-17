@@ -35,6 +35,7 @@ bm_include_libraries(
 	OneFilePerProcess
 	Parallel_Hdf5
 	utilities
+	FileSystem
 	Utilities_Petsc
 	LinearAlgebra
 	Interpolation
@@ -60,6 +61,7 @@ target_link_libraries(fastctc
 	Serial_Hdf5
 	Parallel_Hdf5
 	utilities
+	FileSystem
 	Utilities_Petsc
 	LinearAlgebra
 	Interpolation

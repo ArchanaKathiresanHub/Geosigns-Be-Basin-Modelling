@@ -26,6 +26,7 @@ using namespace database;
 
 #include "Interface/RelatedProject.h"
 #include "Interface/ProjectHandle.h"
+#include "FilePath.h"
 
 using namespace DataAccess;
 using namespace Interface;
@@ -45,8 +46,9 @@ RelatedProject::RelatedProject (ProjectHandle * projectHandle, Record * record) 
     
       database::Database * relatedProjectDatabase;
 
-      string filePathName = projectHandle->getProjectPath () + "/" + fileName;
-      relatedProjectDatabase = Database::CreateFromFile ( filePathName, *projSchema );
+      ibs::FilePath filePathName( projectHandle->getProjectPath () );
+      filePathName << fileName;
+      relatedProjectDatabase = Database::CreateFromFile ( filePathName.path(), *projSchema );
     
       if ( relatedProjectDatabase != 0 )
       {

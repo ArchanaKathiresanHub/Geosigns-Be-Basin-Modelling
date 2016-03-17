@@ -332,7 +332,8 @@ bool ProjectHandle::makeOutputDir() const
    {  // in case we need a temporary location
 
       // Create the directory in the temporary location
-      FolderPath tmpdir( H5_Parallel_PropertyList::getTempDirName() + "/" + getFullOutputDir() );
+      FolderPath tmpdir( H5_Parallel_PropertyList::getTempDirName() );
+      tmpdir << getFullOutputDir();
       try
       {
          tmpdir.create();

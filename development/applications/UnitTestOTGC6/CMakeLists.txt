@@ -29,6 +29,7 @@ bm_include_libraries(
 	OTGC_kernel6
 	TableIO
 	CBMGenerics
+	FileSystem
 	utilities
 )
 
@@ -40,6 +41,7 @@ target_link_libraries(UnitTestOTGC6
 	genex6
 	OTGC_kernel6
 	TableIO
+	FileSystem
 	utilities
 	${HDF5_LIBRARIES}
 )

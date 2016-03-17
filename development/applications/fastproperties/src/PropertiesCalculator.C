@@ -14,6 +14,7 @@
 
 #include "PropertiesCalculator.h"
 #include "Interface/SimulationDetails.h"
+#include "FilePath.h"
 
 // utilities library
 #include "LogHandler.h"
@@ -168,7 +169,6 @@ void PropertiesCalculator::calculateProperties( FormationVector& formationItems,
       zeroSnapshotAdded = true;
    }
 
-   const string outputDirName = m_projectHandle->getFullOutputDir () + "/";
    struct stat fileStatus;
    int fileError;
     
@@ -177,8 +177,9 @@ void PropertiesCalculator::calculateProperties( FormationVector& formationItems,
       const Snapshot * snapshot = *snapshotIter;
 
       if ( snapshot->getFileName () != "" ) {
-         const string fileName = outputDirName + snapshot->getFileName ();
-         fileError = stat ( fileName.c_str(), &fileStatus );
+         ibs::FilePath fileName( m_projectHandle->getFullOutputDir () );
+         fileName << snapshot->getFileName ();
+         fileError = stat ( fileName.cpath(), &fileStatus );
          
          ((Snapshot *)snapshot)->setAppendFile ( not fileError );
       }

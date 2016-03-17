@@ -53,7 +53,7 @@
 
 #include "NumericFunctions.h"
 #include "errorhandling.h"
-
+#include "FilePath.h"
 
 using namespace DataAccess;
 using namespace CBMGenerics;
@@ -2768,16 +2768,20 @@ bool GeoPhysics::ProjectHandle::loadALCConfigurationFile(const string & cfgFileN
       string fullpath;
    
       if( ALC_UserConfigurationFile != 0 ) {
-         fullpath = ALC_UserConfigurationFile + string("/") + cfgFileName;
+         ibs::Path fp( ALC_UserConfigurationFile );
+         fp << cfgFileName;
+         fullpath = fp.path();
       } else if( ALC_ConfigurationFile != 0 ) {
-         fullpath = ALC_ConfigurationFile + string("/") + cfgFileName;
+         ibs::FilePath fp( ALC_ConfigurationFile );
+         fp << cfgFileName;
+         fullpath = fp.path();
       } else {
          std::cout<< "MeSsAgE WARNING: Environment Variable CTCDIR is not set." << std::endl;;
          return false;
       }
 
       ifstream  ConfigurationFile;
-      ConfigurationFile.open( fullpath.c_str() );
+      ConfigurationFile.open( fullpath );
 
       if (!ConfigurationFile) {
          getMessageHandler().printLine( "MeSsAgE ERROR Attempting to open file : " + fullpath + "\nNo cfg file available in the $CTCDIR directory... Aborting..." );

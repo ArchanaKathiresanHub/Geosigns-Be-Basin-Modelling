@@ -32,6 +32,7 @@ bm_include_libraries(
 	GeoPhysics
 	EosPack	
 	CBMGenerics
+	FileSystem
 	utilities
 	Interpolation
 	LinearAlgebra
@@ -49,6 +50,7 @@ target_link_libraries(CrustalThickness
 	DerivedProperties	
 	EosPack	
 	CBMGenerics
+	FileSystem
 	utilities
 	TableIO
 	Serial_Hdf5

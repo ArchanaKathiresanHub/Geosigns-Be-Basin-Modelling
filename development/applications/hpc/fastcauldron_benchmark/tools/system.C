@@ -39,7 +39,11 @@ namespace hpc
    Path
       :: pathSeparator() const
    {
+#ifdef _WIN32
+      static std::string pathSeparator = "\\";
+#else
       static std::string pathSeparator = "/";
+#endif
       return pathSeparator;
    }
 

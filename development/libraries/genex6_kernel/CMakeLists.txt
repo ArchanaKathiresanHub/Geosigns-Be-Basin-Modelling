@@ -30,6 +30,7 @@ bm_include_libraries(
 	GeoPhysics
 	Interpolation
 	LinearAlgebra
+	FileSystem
 	utilities 
 	Serial_Hdf5 
 	OTGC_kernel6
@@ -49,6 +50,7 @@ target_link_libraries(genex6_kernel
 	CBMGenerics
 	EosPack
 	DerivedProperties
+	FileSystem
 	utilities
 	Serial_Hdf5
 	OTGC_kernel6

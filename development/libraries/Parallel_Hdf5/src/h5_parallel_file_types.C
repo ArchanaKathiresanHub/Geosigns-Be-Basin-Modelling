@@ -4,6 +4,8 @@
 #include <H5FDmpio.h>
 #include "h5_parallel_file_types.h"
 
+#include "FilePath.h"
+
 #ifndef _MSC_VER
 #include "HDF5VirtualFileDriver.h"
 #include "h5merge.h"
@@ -24,10 +26,10 @@ hid_t H5_Parallel_PropertyList :: createFilePropertyList() const
 #ifndef _MSC_VER
    if( s_oneFilePerProcess ) 
    {
-      std::stringstream fileName;
-      fileName << s_temporaryDirName << "/{NAME}_{MPI_RANK}";
+      ibs::FilePath fileName( s_temporaryDirName );
+      fileName << "{NAME}_{MPI_RANK}";
        
-      H5Pset_fapl_ofpp (plist, PETSC_COMM_WORLD, fileName.str().c_str(), 0); 
+      H5Pset_fapl_ofpp (plist, PETSC_COMM_WORLD, fileName.cpath(), 0); 
    } 
    else 
    {
@@ -92,7 +94,7 @@ bool H5_Parallel_PropertyList :: setOneFilePerProcessOption( )
    return !noOfpp;
 }
 
-bool H5_Parallel_PropertyList :: copyMergedFile( std::string & filePathName )
+bool H5_Parallel_PropertyList :: copyMergedFile( const std::string & filePathName )
 {
 #ifdef _MSC_VER
 	return false;
@@ -108,8 +110,9 @@ bool H5_Parallel_PropertyList :: copyMergedFile( std::string & filePathName )
       PetscOptionsHasName( PETSC_NULL, "-nocopy", &noFileCopy );
 
        if( !noFileCopy ) {
-         std::string curPath = getTempDirName() + "/" +  filePathName + "_0";
-         status = copyFile ( filePathName, curPath );
+         ibs::FilePath curPath( getTempDirName() );
+         curPath << (filePathName + "_0");
+         status = copyFile ( filePathName, curPath.path() );
          if( !status ) {
             PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Could not copy the file %s.\n", filePathName.c_str() );               
          }

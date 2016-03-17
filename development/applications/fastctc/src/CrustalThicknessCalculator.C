@@ -13,6 +13,8 @@ using namespace database;
 #include "DensityCalculator.h"
 #include "LinearFunction.h"
 
+#include "FilePath.h"
+
 #include "h5_parallel_file_types.h"
 #include "h5merge.h"
 
@@ -686,12 +688,13 @@ bool CrustalThicknessCalculator::mergeOutputFiles ( ) {
    PetscTime( &merge_Start_Time );
 
    string fileName = CrustalThicknessCalculatorActivityName + "_Results.HDF" ; 
-   string filePathName = getProjectPath () + "/" + getOutputDir () + "/" + fileName;
+   ibs::FilePath filePathName( getProjectPath () );
+   filePathName << getOutputDir () << fileName;
 
-   bool status = mergeFiles ( allocateFileHandler( PETSC_COMM_WORLD, filePathName, H5_Parallel_PropertyList::getTempDirName(), ( noFileCopy ? CREATE : REUSE )));
+   bool status = mergeFiles ( allocateFileHandler( PETSC_COMM_WORLD, filePathName.path(), H5_Parallel_PropertyList::getTempDirName(), ( noFileCopy ? CREATE : REUSE )));
    
    if( status ) {
-      status = H5_Parallel_PropertyList::copyMergedFile( filePathName );
+      status = H5_Parallel_PropertyList::copyMergedFile( filePathName.path() );
    }
    if( status ) {
       PetscLogDouble merge_End_Time;
@@ -699,7 +702,7 @@ bool CrustalThicknessCalculator::mergeOutputFiles ( ) {
       
       displayTime( merge_End_Time - merge_Start_Time, "Merging of output files" );
    } else {
-      PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Could not copy the file %s.\n", filePathName.c_str() );
+      PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Could not copy the file %s.\n", filePathName.cpath() );
    }
    return status;
 #endif

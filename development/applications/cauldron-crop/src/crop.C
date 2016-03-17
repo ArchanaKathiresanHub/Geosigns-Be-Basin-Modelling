@@ -3,6 +3,7 @@
 #include "database.h"
 #include "cauldronschemafuncs.h"
 #include "FormattingException.h"
+#include "FilePath.h"
 
 #include "hdf5.h"
 #include "hdf5_hl.h"
@@ -274,17 +275,18 @@ int main(int argc, char ** argv)
       float layerOriginY = originY + layerDYin * y0;
 
       // open a new file if one is needed
-      std::string outputFileName = outputDir + "/" + fileName;
-      if (outputFiles.find( outputFileName ) == outputFiles.end())
+      ibs::FilePath outputFileName( outputDir );
+      outputFileName << fileName;
+      if (outputFiles.find( outputFileName.path() ) == outputFiles.end())
       {
-         hid_t file = H5Fcreate( outputFileName.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
+         hid_t file = H5Fcreate( outputFileName.cpath(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
 
          if (!file)
          {
-            throw CropException() << "Cannot open output HDF5 Gridmap file '" << outputFileName << "'";
+            throw CropException() << "Cannot open output HDF5 Gridmap file '" << outputFileName.path() << "'";
          }
 
-         outputFiles[ outputFileName ] = file;
+         outputFiles[ outputFileName.path() ] = file;
 
          hsize_t scalar = 1;
          status = H5LTmake_dataset( file, "delta in I dimension", 1, &scalar, H5T_NATIVE_FLOAT, &layerDXout);
@@ -297,10 +299,10 @@ int main(int argc, char ** argv)
 
          if (status != 0)
             throw CropException() << "Could not write a dataset to output gridmap '"
-               << outputFileName << "'";
+               << outputFileName.path() << "'";
       }
 
-      hid_t outputFile = outputFiles[outputFileName];
+      hid_t outputFile = outputFiles[outputFileName.path() ];
 
       // crop and scale the data
       std::vector<float > cropped( layerNXout * layerNYout);
@@ -395,7 +397,7 @@ int main(int argc, char ** argv)
       if (status != 0)
          throw CropException() << "Could not write dataset '" 
              << hdfLayerName << "' to output gridmap '"
-             << outputFileName << "'";
+             << outputFileName.path() << "'";
    }
 
    // close output HDF files
@@ -420,7 +422,9 @@ int main(int argc, char ** argv)
    setWindowXMax( projectTbl, layerNXout - 1 );
    setWindowYMax( projectTbl, layerNYout - 1 );
 
-   project->saveToFile( outputDir + "/" + inputProjectFile);
+   ibs::FilePath outProjFile( outputDir );
+   outProjFile << inputProjectFile;
+   project->saveToFile( outProjFile.path() );
    delete factory;
 
    return 0;

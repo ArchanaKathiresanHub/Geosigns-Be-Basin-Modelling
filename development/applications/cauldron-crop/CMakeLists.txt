@@ -15,11 +15,12 @@ add_executable(cauldron-crop
 )
 
 bm_include_libraries(
-	DataModel
-	TableIO
+        DataModel
+        TableIO
         DataAccess
         SerialDataAccess
         utilities
+        FileSystem
 )
 
 include_directories(
@@ -32,6 +33,7 @@ target_link_libraries(cauldron-crop
       DataAccess
       SerialDataAccess
       utilities
+      FileSystem
       ${HDF5_LIBRARIES}
 )
 

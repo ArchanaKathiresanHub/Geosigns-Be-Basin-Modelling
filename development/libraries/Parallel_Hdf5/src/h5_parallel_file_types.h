@@ -25,7 +25,7 @@ public:
    static std::string getTempDirName() 
    { return s_temporaryDirName; }
 
-   static bool copyMergedFile( std::string & fileName );
+   static bool copyMergedFile( const std::string & fileName );
 private:
    static bool s_oneFilePerProcess;
    static std::string s_temporaryDirName;

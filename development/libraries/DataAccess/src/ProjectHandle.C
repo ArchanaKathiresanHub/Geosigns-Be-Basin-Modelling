@@ -563,24 +563,25 @@ bool ProjectHandle::restartActivity( void )
    }
    else
    {
-
-
       const std::string& directoryName = getOutputDir();
       // create hdf file
       string fileName = getActivityName();
 
       fileName += "_Results.HDF";
-      string filePathName = getProjectPath() + "/" + directoryName + "/" + fileName;
+      ibs::FilePath filePathName( getProjectPath() );
+      filePathName << directoryName << fileName;
 
       m_mapPropertyValuesWriter->close();
-      m_mapPropertyValuesWriter->open( filePathName, false );
+      m_mapPropertyValuesWriter->open( filePathName.path(), false );
       m_mapPropertyValuesWriter->saveDescription( getActivityOutputGrid() );
 
-      if( m_primary ) {
-         filePathName = getProjectPath() + "/" + directoryName + "/" + PrimaryPropertiesFileName;
+      if( m_primary )
+      {
+         filePathName.cutLast();
+         filePathName << PrimaryPropertiesFileName;
          
          m_mapPrimaryPropertyValuesWriter->close();
-         m_mapPrimaryPropertyValuesWriter->open( filePathName, false );
+         m_mapPrimaryPropertyValuesWriter->open( filePathName.path(), false );
       }
 
       saveCreatedMapPropertyValues();		/// creates new TimeIoRecords
@@ -1606,10 +1607,9 @@ bool ProjectHandle::loadFaultCollections( void )
 
       bool fileIsOpen;
 
-      string fullFileName = getProjectPath();
-      fullFileName += "/";
-      fullFileName += inputValue->getFileName();
-      reader->open( fullFileName, fileIsOpen );
+      ibs::FilePath fullFileName( getProjectPath() );
+      fullFileName << inputValue->getFileName();
+      reader->open( fullFileName.path(), fileIsOpen );
 
       if ( !fileIsOpen )
       {
@@ -2576,8 +2576,7 @@ bool ProjectHandle::saveCreatedVolumePropertyValues( void )
 bool ProjectHandle::saveCreatedVolumePropertyValuesMode3D( void )
 {
    database::Table * timeIoTbl = getTable( "3DTimeIoTbl" );
-   if ( !timeIoTbl )
-      return false;
+   if ( !timeIoTbl ) return false;
 
    MutablePropertyValueList::iterator propertyValueIter;
    MapWriter* mapWriter = getFactory()->produceMapWriter();
@@ -2607,21 +2606,21 @@ bool ProjectHandle::saveCreatedVolumePropertyValuesMode3D( void )
             // and open a (new, empty) snapshot file for it.
             // File will be appended if append-flag is true in the snapshot.
             snapshotUsed = (Snapshot *)propertyValue->getSnapshot();
-            if( m_primary and m_mapPrimaryPropertyValuesWriter != 0 ) {
-
-               snapshotUsed->setPrimaryFileName( true );
-               
-            } else {
+            if( m_primary and m_mapPrimaryPropertyValuesWriter != 0 )
+            {
+               snapshotUsed->setPrimaryFileName( true );  
+            }
+            else
+            {
                const string & fileName = snapshotUsed->getFileName( true );
-               string filePathName = getProjectPath() + "/" + getOutputDir() + "/" + fileName;
-               
+               ibs::FilePath filePathName( getProjectPath() );
+               filePathName << getOutputDir() << fileName;               
 #if 0
                cerr << "Saving snapshot ";
                snapshotUsed->printOn (cerr);
-               cerr << " to file " << filePathName << "  " << (snapshotUsed->getAppendFile () ? "APPEND" : "CREATE" ) << endl;
-#endif
-               
-               mapWriter->open( filePathName, snapshotUsed->getAppendFile() );
+               cerr << " to file " << filePathName.path() << "  " << (snapshotUsed->getAppendFile () ? "APPEND" : "CREATE" ) << endl;
+#endif               
+               mapWriter->open( filePathName.path(), snapshotUsed->getAppendFile() );
             }
          }
          propertyValue->create3DTimeIoRecord( timeIoTbl, Interface::MODE3D );
@@ -2629,20 +2628,16 @@ bool ProjectHandle::saveCreatedVolumePropertyValuesMode3D( void )
          propertyValueIter = m_recordLessVolumePropertyValues.erase( propertyValueIter );
          increment = 0;
 
-         if( not m_primary ) {
-           if( m_primaryDouble ) {
-              status &= propertyValue->savePrimaryVolumeToFile( *mapWriter, false );
-           } else {
-              status &= propertyValue->saveVolumeToFile( *mapWriter );
-           }
-         } else {
-            if(  m_mapPrimaryPropertyValuesWriter != 0 ) {
-               status &= propertyValue->savePrimaryVolumeToFile( *m_mapPrimaryPropertyValuesWriter );
-            } else {
-               status &= propertyValue->savePrimaryVolumeToFile( *mapWriter );
-            }
+         if ( not m_primary )
+         {
+            status &= m_primaryDouble ? propertyValue->savePrimaryVolumeToFile( *mapWriter, false )
+                                      : propertyValue->saveVolumeToFile( *mapWriter );
          }
-         
+         else
+         {
+            status &= m_mapPrimaryPropertyValuesWriter != 0 ? propertyValue->savePrimaryVolumeToFile( *m_mapPrimaryPropertyValuesWriter )
+                                                            : propertyValue->savePrimaryVolumeToFile( *mapWriter );
+         }
       }
 
       if ( !snapshotUsed ) break; // nothing was written
@@ -3157,29 +3152,30 @@ bool ProjectHandle::loadVolumePropertyValuesViaSnapshotIoTbl( void )
       const string & fileName = database::getSnapshotFileName( snapshotIoRecord );
       if ( fileName.length() == 0 ) continue;
 
-      string filePathName = getProjectPath() + "/" + getOutputDir() + "/" + fileName;
+      ibs::FilePath filePathName( getProjectPath() );
+      filePathName << getOutputDir() << fileName;
 
 #if 0
-      cerr << "Opening snapshot file " << filePathName << endl;
+      cerr << "Opening snapshot file " << filePathName.path() << endl;
 #endif
 
       struct stat statbuf;
-      if ( stat( filePathName.c_str(), &statbuf ) < 0 )
+      if ( stat( filePathName.cpath(), &statbuf ) < 0 )
       {
          if ( getRank() == 0 )
          {
-            cerr << "ERROR in ProjectHandle::loadVolumePropertyValues ():: Could not open " << filePathName << ": ";
+            cerr << "ERROR in ProjectHandle::loadVolumePropertyValues ():: Could not open " << filePathName.path() << ": ";
             perror( "" );
          }
          continue;
       }
 
-      hid_t fileId = H5Fopen( filePathName.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT );
+      hid_t fileId = H5Fopen( filePathName.cpath(), H5F_ACC_RDONLY, H5P_DEFAULT );
       if ( fileId < 0 )
       {
          if ( getRank() == 0 )
          {
-            cerr << "ERROR in ProjectHandle::loadVolumePropertyValues (): Could not open " << filePathName << endl;
+            cerr << "ERROR in ProjectHandle::loadVolumePropertyValues (): Could not open " << filePathName.path() << endl;
          }
          continue;
       }
@@ -3196,12 +3192,11 @@ bool ProjectHandle::loadVolumePropertyValuesViaSnapshotIoTbl( void )
 GridMap * ProjectHandle::loadOutputMap( const Parent * parent, unsigned int childIndex,
    const string & fileName, const string & propertyId )
 {
-   string filePathName;
-   string dataSetName;
+   ibs::FilePath filePathName( getProjectPath() );
+   filePathName << getOutputDir() << fileName;
 
-   filePathName = getProjectPath() + "/" + getOutputDir() + "/" + fileName;
-   dataSetName = propertyId;
-   return loadGridMap( parent, childIndex, filePathName, dataSetName );
+   string dataSetName = propertyId;
+   return loadGridMap( parent, childIndex, filePathName.path(), dataSetName );
 }
 
 //static float GetUndefinedValue (hid_t fileId);

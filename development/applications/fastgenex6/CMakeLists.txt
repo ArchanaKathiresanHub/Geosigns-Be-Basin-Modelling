@@ -42,6 +42,7 @@ bm_include_libraries(
 	CBMGenerics
 	EosPack
 	OTGC_kernel6
+	FileSystem
 	utilities
 	TableIO
 )
@@ -59,6 +60,7 @@ target_link_libraries( fastgenex6
 	CBMGenerics
 	EosPack
 	OTGC_kernel6
+	FileSystem
 	utilities
 	TableIO
 	${HDF5_LIBRARIES}
