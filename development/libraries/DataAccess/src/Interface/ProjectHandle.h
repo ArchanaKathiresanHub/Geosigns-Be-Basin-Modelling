@@ -866,9 +866,7 @@ namespace DataAccess
          DataAccess::Interface::ApplicationGlobalOperations* m_globalOperations;
 
          /// List of the primary properties
-         std::set<std::string> m_primaryList {
-             "ALCStepBasaltThickness", "ALCStepTopBasaltDepth", "ChemicalCompaction" , "Depth", "ErosionFactor", "FCTCorrection", "MaxVes",
-                "Pressure", "Temperature", "ThicknessError", "Ves", "Vr" };
+         std::set<std::string> m_primaryList;
 
       };
    }

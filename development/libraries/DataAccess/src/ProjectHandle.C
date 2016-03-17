@@ -190,6 +190,9 @@ ProjectHandle::ProjectHandle( Database * tables, const string & name, const stri
 {
    (void) accessMode; // ignore warning about unused parameter
 
+   m_primaryList = {"ALCStepBasaltThickness", "ALCStepTopBasaltDepth", "ChemicalCompaction" , "Depth", 
+                    "ErosionFactor", "FCTCorrection", "MaxVes",
+                    "Pressure", "Temperature", "ThicknessError", "Ves", "Vr" };
    m_messageHandler = 0;
    m_globalOperations = 0;
 
