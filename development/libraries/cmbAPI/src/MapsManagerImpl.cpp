@@ -169,7 +169,7 @@ ErrorHandler::ReturnCode MapsManagerImpl::saveMapToHDF( MapID id, const std::str
       if ( !rec ) { throw Exception( NonexistingID ) << "No input map with such ID: " << id; }
       
       // get only the file name from the file path (if given)
-      std::string mfName = ibs::FilePath( fileName ).fileName();
+      std::string mfName = fileName.empty() ? std::string( "" ) : ibs::FilePath( fileName ).fileName();
       if ( mfName.empty() ) // if no file name is given - take file name from the map record
       {
          mfName = rec->getValue<std::string>( s_MapFileNameColName );
