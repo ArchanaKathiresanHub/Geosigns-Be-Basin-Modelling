@@ -31,3 +31,8 @@ bool DerivedProperties::DerivedFormationSurfaceProperty::isPrimary() const {
  
    return false;
 }
+
+const DataAccess::Interface::GridMap* DerivedProperties::DerivedFormationSurfaceProperty::getGridMap() const {
+
+   return 0;
+}
