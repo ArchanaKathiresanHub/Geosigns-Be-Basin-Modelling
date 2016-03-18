@@ -1110,7 +1110,7 @@ void Basin_Modelling::FEM_Grid::Evolve_Pressure_Basin ( const int   Number_Of_Ge
 
     Display_Pressure_Solver_Progress ( Number_Of_Geometric_Iterations,
                                        maximumNumberOfOverpressureIterations,
-				       Current_Time, Previous_Time - Current_Time, 
+                   Current_Time, Previous_Time - Current_Time,
                                        true or FastcauldronSimulator::getInstance ().getMcfHandler ().numberOfActiveSubdomains () != 1 );
 
     Temperature_Calculator.Estimate_Temperature ( basinModel, Current_Time );
@@ -1292,7 +1292,7 @@ void Basin_Modelling::FEM_Grid::Evolve_Temperature_Basin ( bool& temperatureHasD
        FastcauldronSimulator::getInstance ().getMcfHandler ().solve ( Previous_Time, Current_Time, errorInDarcy );
 
        if(  basinModel->isModellingMode1D() )
-       {											  
+       {
           Temperature_Calculator.computeSmectiteIlliteIncrement ( Previous_Time, Current_Time );
           Temperature_Calculator.computeBiomarkersIncrement ( Previous_Time, Current_Time );
           Temperature_Calculator.collectFissionTrackSampleData( Current_Time );
@@ -1479,7 +1479,7 @@ void Basin_Modelling::FEM_Grid::Evolve_Coupled_Basin ( const int   Number_Of_Geo
 
        FastcauldronSimulator::getInstance ().getMcfHandler ().solve ( Previous_Time, Current_Time, errorInDarcy );
 
-       if ( basinModel->isModellingMode1D ()) {											  
+       if ( basinModel->isModellingMode1D ()) {
           Temperature_Calculator.computeSmectiteIlliteIncrement ( Previous_Time, Current_Time );
           Temperature_Calculator.computeBiomarkersIncrement ( Previous_Time, Current_Time );
           Temperature_Calculator.collectFissionTrackSampleData( Current_Time );
@@ -1591,7 +1591,7 @@ void Basin_Modelling::FEM_Grid::Save_Properties ( const double Current_Time ) {
      {
         collectAndSaveIsoValues(Current_Time, basinModel);
      }
-	
+
      // Collect surface node properties.
      m_surfaceNodeHistory.Add_Time ( Current_Time );
 
@@ -1719,10 +1719,10 @@ void Basin_Modelling::FEM_Grid::Determine_Next_Pressure_Time_Step ( const double
                                                                           double& Time_Step,
                                                                     const int     Number_Of_Newton_Iterations,
                                                                     const int     numberOfGeometricIterations ) {
-	//Store Time_Step for igneous intrusion computation
-	const double previousTimeStep = Time_Step;
+   //Store Time_Step for igneous intrusion computation
+   const double previousTimeStep = Time_Step;
   
-	if ( Current_Time == (*majorSnapshots)->time ()) {
+   if ( Current_Time == (*majorSnapshots)->time ()) {
     Time_Step = basinModel->getInitialTimeStep ( Current_Time );
   } else {
      const double Increase_Factor = basinModel -> timestepincr;
@@ -1841,10 +1841,10 @@ void Basin_Modelling::FEM_Grid::Determine_Next_Coupled_Time_Step ( const double 
                                                                          double& Time_Step,
                                                                    const int     Number_Of_Overpressure_Newton_Iterations,
                                                                    const int     numberOfGeometricIterations ) {
-	//Store Time_Step for igneous intrusion computation
-	const double previousTimeStep = Time_Step;
+   //Store Time_Step for igneous intrusion computation
+   const double previousTimeStep = Time_Step;
   
-	if ( Current_Time == (*majorSnapshots)->time ()) {
+   if ( Current_Time == (*majorSnapshots)->time ()) {
     Time_Step = basinModel->getInitialTimeStep ( Current_Time );
   } else {
      const double Increase_Factor = basinModel->timestepincr;
@@ -1950,7 +1950,7 @@ void Basin_Modelling::FEM_Grid::Construct_Pressure_FEM_Grid ( const double Previ
 #define __FUNCT__ "Basin_Modelling::FEM_Grid::Construct_Temperature_FEM_Grid"
 
 void Basin_Modelling::FEM_Grid::Construct_Temperature_FEM_Grid ( const double                    Previous_Time,
-								 const double                    Current_Time,
+                         const double                    Current_Time,
                                                                  const SnapshotEntrySetIterator& majorSnapshotTimes,
                                                                  const bool                      majorSnapshotTimesUpdated ) {
 
@@ -2368,6 +2368,14 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  Pre
                                     &numberOfLinearIterations,
                                     &convergedReason,
                                     &linearSolverResidualNorm ); 
+
+      // Print solution to file
+      if( saveMatrix and totalNumberOfNonlinearIterations == 0 )
+      {
+         const std::string solFileName = std::string( "presSol_t" + static_cast<ostringstream*>( &(ostringstream() << Current_Time) )->str() );
+         int rc = PetscObjectsIO::writeVectorToFile( Residual_Solution, basinModel->getOutputDirectory(), solFileName, !m_saveInMatlabFormat );
+         assert( rc == 0 );
+      }
 
 
 
@@ -2809,6 +2817,14 @@ void Basin_Modelling::FEM_Grid::Solve_Nonlinear_Temperature_For_Time_Step ( cons
 
     PetscTime(&End_Time);
 
+    // Print solution to file
+    if( saveMatrix )
+    {
+       const std::string solFileName = std::string( "nlTemSol_t" + static_cast<ostringstream*>( &(ostringstream() << Current_Time) )->str() );
+       int rc = PetscObjectsIO::writeVectorToFile( Residual_Solution, basinModel->getOutputDirectory(), solFileName, !m_saveInMatlabFormat );
+       assert( rc == 0 );
+    }
+
     timeStepCalculationTime   = End_Time - Start_Time; 
     Total_Solve_Time  = Total_Solve_Time + timeStepCalculationTime;
     System_Solve_Time = System_Solve_Time + timeStepCalculationTime;
@@ -2987,9 +3003,10 @@ void Basin_Modelling::FEM_Grid::Solve_Linear_Temperature_For_Time_Step ( const d
   // Print matrix and rhs to file
   // If the input provided m_saveTimeStep is equal to the age of the basin (case m_saveTimeStep == Previous_Time) or
   // the current time step is the first one greater or equal to m_saveTimeStep, then matrix and RHS will be saved
-  if( m_saveMatrixToFile and
+  const bool writeToFile = m_saveMatrixToFile and
       ( (( m_saveTimeStep - Current_Time >= 0.0 ) and ( m_saveTimeStep - Previous_Time < 0.0 ))
-        or (m_saveTimeStep == Previous_Time) ) )
+        or (m_saveTimeStep == Previous_Time) );
+  if( writeToFile )
   {
     const std::string matrixFileName = std::string("tempMatrix_t" + static_cast<ostringstream*>( &(ostringstream() << Current_Time) )->str() );
     const std::string rhsFileName    = std::string(   "tempRhs_t" + static_cast<ostringstream*>( &(ostringstream() << Current_Time) )->str() );
@@ -3017,6 +3034,14 @@ void Basin_Modelling::FEM_Grid::Solve_Linear_Temperature_For_Time_Step ( const d
   KSPConvergedReason convergedReason;
   temperatureLinearSolver->solve(Stiffness_Matrix, Load_Vector, Temperature, &numberOfLinearIterations, &convergedReason);
   PetscTime(&End_Time);
+
+  // Print solution to file
+  if( writeToFile )
+  {
+     const std::string solFileName    = std::string( "tempSol_t" + static_cast<ostringstream*>( &(ostringstream() << Current_Time) )->str() );
+     int rc = PetscObjectsIO::writeVectorToFile( Temperature, basinModel->getOutputDirectory(), solFileName, !m_saveInMatlabFormat );
+     assert( rc == 0 );
+  }
 
   Solve_Time = End_Time - Start_Time;
 

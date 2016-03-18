@@ -116,7 +116,7 @@ set( all_headers,
      src/PetscBlockVector.h
      src/PetscLogStages.h
      src/PetscObjectAllocator.h
-	 src/PetscObjectsIO.h
+     src/PetscObjectsIO.h
      src/PetscSolver.h
      src/PoreVolumeInterpolatorCalculator.h
      src/PorosityCalculator.h
@@ -262,7 +262,7 @@ set( all_srcs_except_main
      src/PermeabilityCalculator.C
      src/PetscLogStages.C
      src/PetscObjectAllocator.C
-	 src/PetscObjectsIO.C
+     src/PetscObjectsIO.C
      src/PetscSolver.C
      src/PoreVolumeInterpolatorCalculator.C
      src/PorosityCalculator.C
@@ -340,6 +340,11 @@ add_library( FastcauldronApplication
 #
 add_executable(fastcauldron src/main.C ${all_headers})
 
+#
+# 5. linearSolver application
+#
+add_executable(linearSolver linearSolver/main.C ${all_headers})
+
 ################################################################
 ################### SET DEPENDENCIES/LINKS #####################
 ################################################################
@@ -393,6 +398,11 @@ target_link_libraries(fastcauldron
 	DataAccess
 	DistributedDataAccess
 )
+target_link_libraries(linearSolver
+	FastcauldronApplication
+	DataAccess
+	DistributedDataAccess
+)
 
 #
 # 2. FastcauldronApplication links to IBS libraries
@@ -425,6 +435,9 @@ target_link_libraries(FastcauldronApplication
 )
 
 set_target_properties(fastcauldron
+      PROPERTIES LINK_FLAGS "${PETSC_LINK_FLAGS}"
+)
+set_target_properties(linearSolver
       PROPERTIES LINK_FLAGS "${PETSC_LINK_FLAGS}"
 )
 

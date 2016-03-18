@@ -12,6 +12,7 @@
 #include <iostream>
 #include <sys/stat.h>
 
+#include "FilePath.h"
 #include "PetscObjectsIO.h"
 #include "petscsys.h"
 #include "petscviewer.h"
@@ -26,10 +27,11 @@ namespace PetscObjectsIO
                           const std::string & outputFileName,
                           const bool binary )
    {
-      struct stat buffer;
-      assert( stat (outputFolder.c_str(), &buffer) == 0 );
+      ibs::FilePath fPath( outputFolder );
+      assert( fPath.exists() );
 
-      std::string fileName =  outputFolder + outputFileName;
+      fPath << outputFileName;
+      std::string fileName;
 
       assert( matrix != 0 );
 
@@ -39,7 +41,7 @@ namespace PetscObjectsIO
       status = PetscViewerCreate( PETSC_COMM_WORLD, &viewer );
       if( binary )
       {
-         fileName += s_binaryExt;
+         fileName = fPath.path() + s_binaryExt;
          status = PetscViewerBinaryOpen( PETSC_COMM_WORLD, fileName.c_str(), FILE_MODE_WRITE, &viewer );
       }
       else
@@ -55,7 +57,7 @@ namespace PetscObjectsIO
             char additionalOptions[] = "-mat_ascii_output_large";
             status = PetscOptionsInsertString( additionalOptions );
          }
-         fileName += s_matlabExt;
+         fileName = fPath.path() + s_matlabExt;
          status = PetscViewerASCIIOpen( PETSC_COMM_WORLD, fileName.c_str(), &viewer );
          status = PetscViewerSetFormat(viewer, PETSC_VIEWER_ASCII_MATLAB);
       }
@@ -74,16 +76,16 @@ namespace PetscObjectsIO
    {
       PetscErrorCode status = 0;
 
-      const std::string fileName( inputFolder + inputFileName + s_binaryExt );
+      ibs::FilePath fPath( inputFolder );
+      fPath << std::string( inputFileName + s_binaryExt );
 
-      struct stat buffer;
-      const bool fileExists = (stat (fileName.c_str(), &buffer) == 0);
+      const bool fileExists = fPath.exists();
 
       if( fileExists )
       {
          PetscViewer viewer;
          status = PetscViewerCreate( PETSC_COMM_WORLD, &viewer );
-         status = PetscViewerBinaryOpen( PETSC_COMM_WORLD, fileName.c_str(), FILE_MODE_READ, &viewer );
+         status = PetscViewerBinaryOpen( PETSC_COMM_WORLD, fPath.path().c_str(), FILE_MODE_READ, &viewer );
          if( matrix == 0 )
          {
             // If the matrix (to be filled in by reading the file) provided in input has not been initialized
@@ -114,10 +116,11 @@ namespace PetscObjectsIO
                           const std::string & outputFileName,
                           const bool binary )
    {
-      struct stat buffer;
-      assert( stat (outputFolder.c_str(), &buffer) == 0 );
+      ibs::FilePath fPath( outputFolder );
+      assert( fPath.exists() );
 
-      std::string fileName =  outputFolder + outputFileName;
+      fPath << outputFileName;
+      std::string fileName;
 
       assert( vector != 0 );
 
@@ -127,12 +130,12 @@ namespace PetscObjectsIO
       status = PetscViewerCreate( PETSC_COMM_WORLD, &viewer );
       if( binary )
       {
-         fileName += s_binaryExt;
+         fileName = fPath.path() + s_binaryExt;
          status = PetscViewerBinaryOpen( PETSC_COMM_WORLD, fileName.c_str(), FILE_MODE_WRITE, &viewer );
       }
       else
       {
-         fileName += s_matlabExt;
+         fileName = fPath.path() + s_matlabExt;
          status = PetscViewerASCIIOpen( PETSC_COMM_WORLD, fileName.c_str(), &viewer );
          status = PetscViewerSetFormat(viewer, PETSC_VIEWER_ASCII_MATLAB);
       }
@@ -151,16 +154,16 @@ namespace PetscObjectsIO
    {
       PetscErrorCode status = 0;
 
-      const std::string fileName( inputFolder + inputFileName + s_binaryExt );
+      ibs::FilePath fPath( inputFolder );
+      fPath << std::string( inputFileName + s_binaryExt );
 
-      struct stat buffer;
-      const bool fileExists = (stat (fileName.c_str(), &buffer) == 0);
+      const bool fileExists = fPath.exists();
 
       if( fileExists )
       {
          PetscViewer viewer;
          status = PetscViewerCreate( PETSC_COMM_WORLD, &viewer );
-         status = PetscViewerBinaryOpen( PETSC_COMM_WORLD, fileName.c_str(), FILE_MODE_READ, &viewer );
+         status = PetscViewerBinaryOpen( PETSC_COMM_WORLD, fPath.path().c_str(), FILE_MODE_READ, &viewer );
          if( vector == 0 )
          {
             // If the vector (to be filled in by reading the file) provided in input has not been initialized

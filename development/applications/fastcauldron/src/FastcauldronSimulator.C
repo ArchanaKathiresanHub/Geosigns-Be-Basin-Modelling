@@ -1,3 +1,13 @@
+//
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "FastcauldronSimulator.h"
 #include <sys/stat.h>
 
@@ -533,7 +543,7 @@ const AppCtx* FastcauldronSimulator::getCauldron () const
 
 //------------------------------------------------------------//
 
-bool FastcauldronSimulator::setCalculationMode ( const CalculationMode mode)
+bool FastcauldronSimulator::setCalculationMode ( const CalculationMode mode, const bool saveAsInputGrid, const bool createResultsFile )
 {
 
    bool started = false;
@@ -543,43 +553,43 @@ bool FastcauldronSimulator::setCalculationMode ( const CalculationMode mode)
    switch ( mode ) {
 
       case HYDROSTATIC_DECOMPACTION_MODE :
-         started = startActivity ( DecompactionRunStatusStr, getLowResolutionOutputGrid ());
+         started = startActivity ( DecompactionRunStatusStr, getLowResolutionOutputGrid (), saveAsInputGrid, createResultsFile );
          break;
       
       case HYDROSTATIC_HIGH_RES_DECOMPACTION_MODE :
-         started = startActivity ( HighResDecompactionRunStatusStr, getHighResolutionOutputGrid ());
+         started = startActivity ( HighResDecompactionRunStatusStr, getHighResolutionOutputGrid (), saveAsInputGrid, createResultsFile );
          break;
 
       case HYDROSTATIC_TEMPERATURE_MODE :
-         started = startActivity ( HydrostaticTemperatureRunStatusStr, getLowResolutionOutputGrid ());
+         started = startActivity ( HydrostaticTemperatureRunStatusStr, getLowResolutionOutputGrid (), saveAsInputGrid, createResultsFile );
          break;
 
       case OVERPRESSURE_MODE :
-         started = startActivity ( OverpressureRunStatusStr, getLowResolutionOutputGrid ());
+         started = startActivity ( OverpressureRunStatusStr, getLowResolutionOutputGrid (), saveAsInputGrid, createResultsFile );
          break;
 
       case OVERPRESSURED_TEMPERATURE_MODE :
-         started = startActivity ( OverpressuredTemperatureRunStatusStr, getLowResolutionOutputGrid ());
+         started = startActivity ( OverpressuredTemperatureRunStatusStr, getLowResolutionOutputGrid (), saveAsInputGrid, createResultsFile );
          break;
 
       case COUPLED_HIGH_RES_DECOMPACTION_MODE :
-         started = startActivity ( HighResDecompactionRunStatusStr, getHighResolutionOutputGrid ());
+         started = startActivity ( HighResDecompactionRunStatusStr, getHighResolutionOutputGrid (), saveAsInputGrid, createResultsFile );
          break;
 
       case PRESSURE_AND_TEMPERATURE_MODE :
-         started = startActivity ( CoupledPressureTemperatureRunStatusStr, getLowResolutionOutputGrid ());
+         started = startActivity ( CoupledPressureTemperatureRunStatusStr, getLowResolutionOutputGrid (), saveAsInputGrid, createResultsFile );
          break;
 
       case HYDROSTATIC_DARCY_MODE :
-         started = startActivity ( HydrostaticDarcyRunStatusStr, getLowResolutionOutputGrid ());
+         started = startActivity ( HydrostaticDarcyRunStatusStr, getLowResolutionOutputGrid (), saveAsInputGrid, createResultsFile );
          break;
 
       case COUPLED_DARCY_MODE :
-         started = startActivity ( CoupledDarcyRunStatusStr, getLowResolutionOutputGrid ());
+         started = startActivity ( CoupledDarcyRunStatusStr, getLowResolutionOutputGrid (), saveAsInputGrid, createResultsFile );
          break;
 
       case NO_CALCULATION_MODE :
-         started = startActivity ( "NO_CALCULATION", getLowResolutionOutputGrid ());
+         started = startActivity ( "NO_CALCULATION", getLowResolutionOutputGrid (), saveAsInputGrid, createResultsFile );
          break;
 
       default :

@@ -1,3 +1,13 @@
+//
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #ifndef __FASTCAULDRON_SIMULATOR_HH__
 #define __FASTCAULDRON_SIMULATOR_HH__
 
@@ -87,7 +97,7 @@ public :
    ///
    /// Now the the calculation mode is known, the activity grid and sizes are set.
    // Perhaps should re-name this to some-thing else, since it now does much more than just set calculation mode.
-   bool setCalculationMode ( const CalculationMode mode );
+   bool setCalculationMode ( const CalculationMode mode, const bool saveAsInputGrid = false, const bool createResultsFile = true );
 
    /// Get the calculation mode of the current run.
    CalculationMode getCalculationMode () const;
