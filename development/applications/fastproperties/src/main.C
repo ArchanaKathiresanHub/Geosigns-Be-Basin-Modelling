@@ -28,7 +28,7 @@ int main( int argc, char ** argv )
 
    MPI_Comm_rank ( PETSC_COMM_WORLD, &rank );
 
-
+#ifndef _MSC_VER
    PetscBool myddd = PETSC_FALSE;
    PetscOptionsHasName (PETSC_NULL, "-ddd", &myddd);
    if (myddd)
@@ -40,6 +40,7 @@ int main( int argc, char ** argv )
       system (cmd);
       sleep (20);
    }
+#endif
    //////////////////////////////////////////////////
    ///1. Intitialise fastproperties loger
    try{
