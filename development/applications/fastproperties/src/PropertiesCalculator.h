@@ -48,14 +48,7 @@ using namespace DataAccess;
 using namespace Interface;
 using namespace DerivedProperties;
 
-typedef vector < string > StringVector;
 typedef vector < double > DoubleVector;
-
-typedef map < const Property *, OutputPropertyValuePtr > OutputPropertyValueMap;
-typedef map < const Formation *, OutputPropertyValueMap > FormationOutputPropertyValueMap;
-typedef map < const Snapshot *, FormationOutputPropertyValueMap> SnapshotFormationOutputPropertyValueMap;
-
-typedef vector < const Formation * > FormationVector;
 
 template <class T>
 T Min( T x, T y )
