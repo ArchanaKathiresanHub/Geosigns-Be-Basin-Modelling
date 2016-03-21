@@ -79,11 +79,15 @@ namespace DerivedProperties {
                                                    const DataModel::AbstractFormation* formationAbove,
                                                          DerivedFormationPropertyPtr&  hydrostaticPressure ) const;
 
+      void computeEstimatedTemperature ( const double snapshotAge,
+                                         const FormationPropertyPtr& depth,
+                                         DerivedFormationPropertyPtr& temperature ) const;
+
       const GeoPhysics::ProjectHandle* m_projectHandle;
 
       bool m_hydrostaticDecompactionMode;
       bool m_hydrostaticMode;
-
+      bool m_opMode;
    };
 
 
