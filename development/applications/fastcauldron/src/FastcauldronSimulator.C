@@ -881,10 +881,12 @@ bool FastcauldronSimulator::mergeOutputFiles ( ) {
                   
                   // delete the file in the shared scratch
                   if( status and  getRank() == 0  and not noFileRemove ) {
-                     const std::string fileName =  H5_Parallel_PropertyList::getTempDirName() + directoryName + "/" + snapshotFileName;
-                     int status = std::remove( fileName.c_str ());
+                     ibs::FilePath fileName(H5_Parallel_PropertyList::getTempDirName() );
+                     fileName << filePathName.cpath ();
+
+                     int status = std::remove( fileName.cpath() ); //c_str ());
                         if (status == -1)
-                           cerr << fileName.c_str () << " MeSsAgE WARNING  Unable to remove snapshot file, because '" 
+                           cerr << fileName.cpath() << " MeSsAgE WARNING  Unable to remove snapshot file, because '" 
                                 << std::strerror(errno) << "'" << endl;
                   }  
                   
@@ -1015,6 +1017,7 @@ void FastcauldronSimulator::correctTimeFilterDefaults3D () {
    bool containsLithologyId = false;
    bool containsBiomarkers = false;
    bool basementOutputRequested = false;
+   bool basement3DOutputRequested = false;
    bool outputALC = false;
    int  i;
 
@@ -1045,6 +1048,10 @@ void FastcauldronSimulator::correctTimeFilterDefaults3D () {
 
       if ( getModellingMode () == Interface::MODE1D and property->getOption () == Interface::SEDIMENTS_AND_BASEMENT_OUTPUT ) {
          basementOutputRequested = true;
+      }
+      if ( not noDerivedPropertiesCalc() and getModellingMode () == Interface::MODE3D and 
+           property->getOption () == Interface::SEDIMENTS_AND_BASEMENT_OUTPUT ) {
+         basement3DOutputRequested = true;
       }
 
       if ( name == "Biomarkers" ) {
@@ -1186,7 +1193,28 @@ void FastcauldronSimulator::correctTimeFilterDefaults3D () {
             property->setOption ( Interface::SEDIMENTS_AND_BASEMENT_OUTPUT );
             break;
          }
-
+      }
+   } else if ( basement3DOutputRequested ) { // for derived properties calculation
+      bool propertySet = false;
+      for ( propertyIter = m_timeOutputProperties.begin (); propertyIter != m_timeOutputProperties.end (); ++propertyIter ) {
+         Interface::OutputProperty* property = *propertyIter;
+         
+         if ( property->getName () == "Depth" ) {
+            // need to set the depth if it is not set already.
+            property->setOption ( Interface::SEDIMENTS_AND_BASEMENT_OUTPUT );
+            if( propertySet ) {
+               break;
+            }
+            propertySet = true;
+         }
+         if( property->getName () == "Temperature" ) {
+            // need to set the temperature 
+            property->setOption ( Interface::SEDIMENTS_AND_BASEMENT_OUTPUT );
+            if( propertySet ) {
+               break;
+            }
+            propertySet = true;
+         }
       }
 
    }

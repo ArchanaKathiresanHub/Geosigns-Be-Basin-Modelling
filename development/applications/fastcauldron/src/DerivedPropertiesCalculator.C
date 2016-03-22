@@ -274,14 +274,6 @@ bool DerivedPropertiesCalculator::allowOutput ( const string & propertyName,
    bool basementFormation = ( dynamic_cast<const GeoPhysics::Formation*>( formation ) != 0 and 
                               dynamic_cast<const GeoPhysics::Formation*>( formation )->kind () == DataAccess::Interface::BASEMENT_FORMATION );
 
-   // if( basementFormation and not m_hydrostaticTemperatureMode and not m_decompactionMode and ( propertyName == "Depth" ) and surface != 0 ) {
-   //    if( dynamic_cast<const GeoPhysics::Formation*>( formation )->isCrust() ) {
-   //       if( formation->getTopSurface() and ( formation->getTopSurface() == surface )) {
-   //          return true;
-   //       }
-   //    }
-   //    return false;
-   // }
    // The top of the crust is a part of the sediment 
    if( basementFormation and surface != 0 and ( propertyName == "Depth" or propertyName == "Temperature" ) ) {
       if( dynamic_cast<const GeoPhysics::Formation*>( formation )->isCrust() ) {
@@ -301,11 +293,7 @@ bool DerivedPropertiesCalculator::allowOutput ( const string & propertyName,
    if( basementFormation ) {
       if( fastcauldronOption < Interface::SEDIMENTS_AND_BASEMENT_OUTPUT or option < SEDIMENTSPLUSBASEMENT ) {
          return false;
-      } // else {
-      //    if( m_hydrostaticTemperatureMode and propertyName == "Temperature" and surface != 0 ) {
-      //       return false;
-      //    }
-      // }
+      } 
    }
 
    return true;
@@ -318,7 +306,7 @@ void DerivedPropertiesCalculator::acquirePropertyNames( const PropListVec& prope
    PropListVec::const_iterator propIter;
 
    //m_propertyNames.push_back( "Temperature" );
-   //   m_propertyNames.push_back( "LithoStaticPressure" );
+   // m_propertyNames.push_back( "ThCond" );
 #if 1
    string pname;
    for ( propIter = propertyNames.begin(); propIter != propertyNames.end(); ++ propIter ) {
