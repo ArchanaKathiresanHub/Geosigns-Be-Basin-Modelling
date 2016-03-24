@@ -329,10 +329,10 @@ namespace casa
          ScenarioAnalysis                                         & sa ///< [in,out] casa::ScenarioAnalysis object, if any error, this object will keep an error message
          , const std::string                                      & name               ///< user specified name for variable parameter 
          , const std::string                                      & layerName          ///< [in] stratigraphic layer name 
-         , const std::vector<int>                                 & lithoFractionsInds ///< [in] indexes of the lithofractions
-         , const std::vector<double>                              & minLithoFrac       ///< [in] min range value for the lithofractions
-         , const std::vector<double>                              & maxLithoFrac       ///< [in] max range value for the lithofractions
-         , const std::vector<casa::VarPrmContinuous::PDF> 	      & lithoFractionsPDFs /**< [in] probability function types for the variable parameters. If PDFs need 
+         , std::vector<int>                                       & lithoFractionsInds ///< [in] indexes of the lithofractions
+         , std::vector<double>                                    & minLithoFrac       ///< [in] min range value for the lithofractions
+         , std::vector<double>                                    & maxLithoFrac       ///< [in] max range value for the lithofractions
+         , std::vector<casa::VarPrmContinuous::PDF> 	            & lithoFractionsPDFs /**< [in] probability function types for the variable parameters. If PDFs need 
                                                         some middle parameters values they will be taken from the base case model */
          );
 

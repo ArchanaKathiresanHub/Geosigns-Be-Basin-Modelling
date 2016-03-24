@@ -31,7 +31,7 @@ namespace casa
       , const std::vector<double>                                              & maxLithoFrac
       , const std::vector<casa::VarPrmContinuous::PDF>                         & lithoFractionsPDFs
       , const std::string                                                      & name
-      ) : m_layerName( layerName ), m_lithoFractionsInds( lithoFractionInds )
+      ) : m_layerName( layerName ), m_lithoFractionsInds( lithoFractionInds ), m_parameterPDFs( lithoFractionsPDFs )
    {
       m_name = !name.empty() ? name : std::string( "" );
 
@@ -39,7 +39,6 @@ namespace casa
       m_minValue.reset( new PrmLithoFraction( this, m_name, m_layerName, m_lithoFractionsInds, minLithoFrac ) );
       m_maxValue.reset( new PrmLithoFraction( this, m_name, m_layerName, m_lithoFractionsInds, maxLithoFrac ) );
 
-      m_parameterPDFs = lithoFractionsPDFs;
    }
 
    size_t VarPrmLithoFraction::dimension() const
@@ -59,7 +58,7 @@ namespace casa
 
          lithoFractions.push_back( *vals++ );
 
-         if ( ( minLithoFractions[i] - std::fabs( minLithoFractions[i] * 1e-10 ) ) > lithoFractions.back() || lithoFractions.back() > ( maxLithoFractions[i] + std::fabs( maxLithoFractions[i] * 1.e-10 ) ) )
+         if ( minLithoFractions[i] > lithoFractions.back() || lithoFractions.back() > maxLithoFractions[i]  )
          {
             throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Variation of the lithofraction parameter " << lithoFractions.back() <<
                " is out of range: [" << minLithoFractions[i] << ":" << maxLithoFractions[i] << "]";
@@ -73,10 +72,7 @@ namespace casa
    std::vector<std::string> VarPrmLithoFraction::name() const
    {
       std::vector<std::string> ret;
-
-      if ( m_lithoFractionsInds.size() == 1 ) ret.push_back( m_layerName + ". One lithofraction [%]" );
-      if ( m_lithoFractionsInds.size() == 2 ) ret.push_back( m_layerName + ". Two lithofractions [%]" );
-
+      ret.push_back( "LithoFraction( " + m_layerName + ", Percent" + std::to_string( m_lithoFractionsInds[1] ) + ") [rest ratio]" );
       return ret;
    }
 
@@ -89,7 +85,7 @@ namespace casa
       std::vector<int> parameterPDFs( m_parameterPDFs.size() );
       for ( size_t i = 0; i != m_parameterPDFs.size(); ++i )
       {
-         parameterPDFs.push_back( m_parameterPDFs[i] );
+         parameterPDFs.push_back( static_cast<int>(m_parameterPDFs[i] ));
       }
 
       ok = ok ? sz.save( m_layerName, "LayerName" ) : ok;
@@ -111,17 +107,17 @@ namespace casa
       ok = ok ? dz.load( m_lithoFractionsInds, "LithoFractionsInds" ) : ok;
       ok = ok ? dz.load( parameterPDFs, "parameterPDFs" ) : ok;
 
-      // cast parameterPDFs to a vector of casa::VarPrmContinuous::PDF
-      m_parameterPDFs.clear();
-      for ( size_t i = 0; i != parameterPDFs.size(); ++i )
-      {
-         m_parameterPDFs.push_back( static_cast<casa::VarPrmContinuous::PDF>( parameterPDFs[i] ) );
-      }
-
       if ( !ok )
       {
          throw ErrorHandler::Exception( ErrorHandler::DeserializationError ) << "VarPrmLithoFraction deserialization unknown error";
       }
+
+      // cast parameterPDFs to a vector of casa::VarPrmContinuous::PDF
+      for ( size_t i = 0; i != parameterPDFs.size( ); ++i )
+      {
+         m_parameterPDFs.push_back( static_cast<casa::VarPrmContinuous::PDF>( parameterPDFs[i] ) );
+      }
+
    }
 
 } // namespace casa

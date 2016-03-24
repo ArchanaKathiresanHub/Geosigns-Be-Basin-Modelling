@@ -31,7 +31,7 @@ namespace mbapi
 ///   
 /// This parameter defines the lithology fraction for a particular layer.
 /// From the one or two lithology fractions, three percentages are calculated and set in the project file. 
-/// If only one lithofraction is specified the remaining part is equally divided among the remaining lithologies.
+/// If only one lithofraction is specified the remaining part is divided among the remaining lithofractions using the same ratio of the base case.
 ///
 /// To define the parameter the user should define:
 /// - the layer name

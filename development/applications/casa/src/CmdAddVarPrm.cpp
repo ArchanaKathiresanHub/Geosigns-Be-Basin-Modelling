@@ -913,19 +913,17 @@ public:
       // lithofraction indexes
       std::vector<std::string>                    lithoFraction = CfgFileParser::list2array( prms[pos++], ':' );
 
-      int lithoFractionInd = -1;
-      if ( lithoFraction.back() == "Percent1" )  lithoFractionInd = 0;
-      if ( lithoFraction.back() == "Percent2" )  lithoFractionInd = 1;
-      if ( lithoFraction.back() == "Percent3" )  lithoFractionInd = 2;
-      if ( lithoFractionInd == -1 )
+      int lithoFractionInd = atoi( lithoFraction.back( ).substr( lithoFraction.back().size( ) - 1 ).c_str( ) );
+
+      if ( lithoFractionInd<1 || lithoFractionInd>3 )
       {
          throw ErrorHandler::Exception( ErrorHandler::IoError ) << "The lithofraction must be defined as Percent1, Percent2 or Percent3 " <<
             ", but it is defined as: " << lithoFraction.back();
       }
-      lithoFractionsInds.push_back( lithoFractionInd );
+      lithoFractionsInds.push_back( lithoFractionInd - 1 );
 
       // layer names 
-      const std::vector<std::string>              & layerName = CfgFileParser::list2array( prms[pos++], ',' );
+      const std::string layerName = prms[pos++];
       // PDFs
       minLithoFrac.push_back( atof( prms[pos++].c_str() ) );
       maxLithoFrac.push_back( atof( prms[pos++].c_str() ) );
@@ -935,18 +933,14 @@ public:
       {
          // lithofraction indexes
          lithoFraction = CfgFileParser::list2array( prms[pos++], ':' );
+         lithoFractionInd = atoi( lithoFraction.back( ).substr( lithoFraction.back().size( ) - 1 ).c_str( ) );
 
-         lithoFractionInd = -1;
-         if ( lithoFraction.back() == "Percent1" ) lithoFractionInd = 0;
-         if ( lithoFraction.back() == "Percent2" ) lithoFractionInd = 1;
-         if ( lithoFraction.back() == "Percent3" ) lithoFractionInd = 2;
-
-         if ( lithoFractionInd == -1 )
+         if ( lithoFractionInd<1 || lithoFractionInd>3 )
          {
             throw ErrorHandler::Exception( ErrorHandler::IoError ) << "The lithofraction must be defined as Percent1, Percent2 or Percent3 " <<
                ", but it is defined as: " << lithoFraction.back();
          }
-         lithoFractionsInds.push_back( lithoFractionInd );
+         lithoFractionsInds.push_back( lithoFractionInd - 1 );
 
          // PDFs
          minLithoFrac.push_back( atof( prms[pos++].c_str() ) );
@@ -954,14 +948,14 @@ public:
          lithoFractionsPDFs.push_back( Str2pdf( prms[pos++] ) );
       }
 
-      if ( ErrorHandler::NoError != casa::BusinessLogicRulesSet::VaryLithoFraction( *sa.get(), name.c_str(), layerName[0], lithoFractionsInds, minLithoFrac, maxLithoFrac, lithoFractionsPDFs ) )
+      if ( ErrorHandler::NoError != casa::BusinessLogicRulesSet::VaryLithoFraction( *sa.get(), name.c_str(), layerName, lithoFractionsInds, minLithoFrac, maxLithoFrac, lithoFractionsPDFs ) )
       {
          throw ErrorHandler::Exception( sa->errorCode() ) << sa->errorMessage();
       }
 
    }
 
-   size_t expectedParametersNumber() const { return 5; } // percent, lay_name, percentage, mn/mx, pdf
+   size_t expectedParametersNumber() const { return 4; } // lay_name,   mn/mx, pdf
    size_t optionalParametersNumber() const { return 4; } // percentage, mn/mx, pdf
 
    virtual std::string name() const { return "StratIoTbl:Percent"; }
@@ -975,11 +969,13 @@ public:
    {
       std::ostringstream oss;
       oss << "    [varPrmName] \"" << name() << "\" <layName> <minFraction> <maxFraction> <prmPDF>\n";
+      oss << "                                      [ <percentage> <minFraction> <maxFraction>] <prmPDF>\n";
       oss << "    Where:\n";
       oss << "       varPrmName     - user specified variable parameter name (Optional)\n";
       oss << "       layName        - layer name\n";
-      oss << "       minFraction    - lithology fraction - minimal range value\n";
-      oss << "       maxFraction    - lithology fraction - maximal range value\n";
+      oss << "       minFraction    - lithology fraction - minimal range value for the lithofraction \n";
+      oss << "       maxFraction    - lithology fraction - maximal range value for the lithofraction \n";
+      oss << "       percentage     - the second lithology percentage for which the fraction is given (Optional) \n";
       oss << "       prmPDF         - the parameter probability density function type\n";
       oss << "\n";
       return oss.str();

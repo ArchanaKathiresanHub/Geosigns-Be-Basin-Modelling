@@ -936,52 +936,72 @@ ErrorHandler::ReturnCode VarySurfacePorosity( ScenarioAnalysis & sa
 }
 
 ErrorHandler::ReturnCode VaryLithoFraction(
-    ScenarioAnalysis                                        & sa
-   , const std::string                                      & name
-   , const std::string                                      & layerName
-   , const std::vector<int>                                 & lithoFractionsInds
-   , const std::vector<double>                              & minLithoFrac
-   , const std::vector<double>                              & maxLithoFrac
-   , const std::vector<casa::VarPrmContinuous::PDF> 	      & lithoFractionsPDFs
+   ScenarioAnalysis                                   & sa
+   , const std::string                                & name
+   , const std::string                                & layerName
+   , std::vector<int>                                 & lithoFractionsInds
+   , std::vector<double>                              & minLithoFrac
+   , std::vector<double>                              & maxLithoFrac
+   , std::vector<casa::VarPrmContinuous::PDF> 	      & lithoFractionsPDFs
    )
 {
    try
    {
-      VarSpace & varPrmsSet = sa.varSpace( );
+      VarSpace & varPrmsSet = sa.varSpace();
 
       // Get base value of parameter from the model
-      mbapi::Model & mdl = sa.baseCase( );
+      mbapi::Model & mdl = sa.baseCase();
+      // If only one lithofraction was given we need to calculate the ratio for one of the two remaining lithofractions
+      if ( lithoFractionsInds.size() == 1 )
+      {
+         const int numPercentages = 3;
+         for ( int i = 0; i != numPercentages; ++i )
+         {
+            if ( i != lithoFractionsInds[0] )
+            {
+               lithoFractionsInds.push_back( i );
+               break;
+            }    
+         }
+      }
+
       PrmLithoFraction prm( mdl, layerName, lithoFractionsInds );
-      vector<double> baseLithoFractions = prm.asDoubleArray( );
+      std::vector<double> baseLithoFractions = prm.asDoubleArray();
+
+      // If only one lithofraction was given, the last lithofraction does not vary
+      if ( minLithoFrac.size() == 1 )
+      {
+         minLithoFrac.push_back( baseLithoFractions.back() );
+         maxLithoFrac.push_back( baseLithoFractions.back() );
+         lithoFractionsPDFs.push_back( casa::VarPrmContinuous::PDF::Block );
+      }
 
       // Check ranges and the base value
       ErrorHandler::Exception ex( ErrorHandler::OutOfRangeValue );
-      
+
       if ( baseLithoFractions[0] < minLithoFrac[0] || baseLithoFractions[0] > maxLithoFrac[0] )
       {
          throw ex << "The percentage of the lithology " << lithoFractionsInds[0] << " in the base case is outside of the given range : " << baseLithoFractions[0];
       }
 
-      if ( lithoFractionsInds.size( ) == 2 )
+      if ( baseLithoFractions[1] < minLithoFrac[1] || baseLithoFractions[1] > maxLithoFrac[1] )
       {
-         if ( baseLithoFractions[1] < minLithoFrac[1] || baseLithoFractions[1] > maxLithoFrac[1] )
-         {
-            throw ex << "The ratio of the lithology " << lithoFractionsInds[1] << " in the base case is outside of the given range : " << baseLithoFractions[1];
-         }
+         throw ex << "The ratio of the lithology " << lithoFractionsInds[1] << " in the base case is outside of the given range : " << baseLithoFractions[1];
       }
 
+
       // add the variable lithofraction parameter to varPrmsSet 
-      if ( !layerName.empty( ) )
+      if ( !layerName.empty() )
       {
          if ( ErrorHandler::NoError != varPrmsSet.addParameter( new VarPrmLithoFraction( layerName, lithoFractionsInds, baseLithoFractions, minLithoFrac, maxLithoFrac, lithoFractionsPDFs, name ) ) )
          {
-            throw ErrorHandler::Exception( varPrmsSet.errorCode( ) ) << varPrmsSet.errorMessage( );
+            throw ErrorHandler::Exception( varPrmsSet.errorCode() ) << varPrmsSet.errorMessage();
          }
       }
    }
    catch ( const ErrorHandler::Exception & ex )
    {
-      return sa.reportError( ex.errorCode( ), ex.what( ) );
+      return sa.reportError( ex.errorCode(), ex.what() );
    }
 
    return ErrorHandler::NoError;
