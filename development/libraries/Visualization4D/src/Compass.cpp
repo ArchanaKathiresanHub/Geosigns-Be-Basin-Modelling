@@ -155,9 +155,7 @@ SoSwitch* createCompass()
 
   SoPerspectiveCamera* camera = new SoPerspectiveCamera;
 
-  SoSwitch* root = new SoSwitch;
-  root->setName("compass");
-  root->whichChild = SO_SWITCH_ALL;
+  SoSeparator* root = new SoSeparator;
   root->boundingBoxIgnoring = true;
   root->addChild(viewport);
   root->addChild(viewportClipping);
@@ -169,6 +167,11 @@ SoSwitch* createCompass()
   root->addChild(rotation);
   root->addChild(compass);
 
+  SoSwitch* compassSwitch = new SoSwitch;
+  compassSwitch->setName("compass");
+  compassSwitch->whichChild = SO_SWITCH_ALL;
+  compassSwitch->addChild(root);
+
   // setup the local camera so it sees the entire compass
   const float radius = 1.5f;
   SbVec3f r(radius, radius, radius);
@@ -176,5 +179,5 @@ SoSwitch* createCompass()
   SbViewportRegion vpregion((short)vpwidth, (short)vpheight);
   camera->viewAll(bbox, vpregion);
 
-  return root;
+  return compassSwitch;
 }
