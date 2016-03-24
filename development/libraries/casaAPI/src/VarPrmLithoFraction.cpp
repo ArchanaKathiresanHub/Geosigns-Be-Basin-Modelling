@@ -29,16 +29,15 @@ namespace casa
       , const std::vector<double>                                              & baseLithoFrac
       , const std::vector<double>                                              & minLithoFrac
       , const std::vector<double>                                              & maxLithoFrac
-      , const std::vector<casa::VarPrmContinuous::PDF>                         & lithoFractionsPDFs
+      , casa::VarPrmContinuous::PDF                                              pdfType
       , const std::string                                                      & name
-      ) : m_layerName( layerName ), m_lithoFractionsInds( lithoFractionInds ), m_parameterPDFs( lithoFractionsPDFs )
+      ) : m_layerName( layerName ), m_lithoFractionsInds( lithoFractionInds )
    {
       m_name = !name.empty() ? name : std::string( "" );
-
+      m_pdf = pdfType ;
       m_baseValue.reset( new PrmLithoFraction( this, m_name, m_layerName, m_lithoFractionsInds, baseLithoFrac ) );
       m_minValue.reset( new PrmLithoFraction( this, m_name, m_layerName, m_lithoFractionsInds, minLithoFrac ) );
       m_maxValue.reset( new PrmLithoFraction( this, m_name, m_layerName, m_lithoFractionsInds, maxLithoFrac ) );
-
    }
 
    size_t VarPrmLithoFraction::dimension() const
@@ -81,16 +80,8 @@ namespace casa
       // save base class data
       bool ok = VarPrmContinuous::save( sz, version );
 
-      // cast m_parameterPDFs to a vector of integers
-      std::vector<int> parameterPDFs( m_parameterPDFs.size() );
-      for ( size_t i = 0; i != m_parameterPDFs.size(); ++i )
-      {
-         parameterPDFs.push_back( static_cast<int>(m_parameterPDFs[i] ));
-      }
-
       ok = ok ? sz.save( m_layerName, "LayerName" ) : ok;
       ok = ok ? sz.save( m_lithoFractionsInds, "LithoFractionsInds" ) : ok;
-      ok = ok ? sz.save( parameterPDFs, "parameterPDFs" ) : ok;
 
       return ok;
    }
@@ -98,26 +89,15 @@ namespace casa
    // Constructor from input stream
    VarPrmLithoFraction::VarPrmLithoFraction( CasaDeserializer & dz, unsigned int objVer )
    {
-
       bool ok = VarPrmContinuous::deserializeCommonPart( dz, objVer );
-
-      std::vector<int> parameterPDFs( m_parameterPDFs.size() );
 
       ok = ok ? dz.load( m_layerName, "LayerName" ) : ok;
       ok = ok ? dz.load( m_lithoFractionsInds, "LithoFractionsInds" ) : ok;
-      ok = ok ? dz.load( parameterPDFs, "parameterPDFs" ) : ok;
 
       if ( !ok )
       {
          throw ErrorHandler::Exception( ErrorHandler::DeserializationError ) << "VarPrmLithoFraction deserialization unknown error";
       }
-
-      // cast parameterPDFs to a vector of casa::VarPrmContinuous::PDF
-      for ( size_t i = 0; i != parameterPDFs.size( ); ++i )
-      {
-         m_parameterPDFs.push_back( static_cast<casa::VarPrmContinuous::PDF>( parameterPDFs[i] ) );
-      }
-
    }
 
 } // namespace casa

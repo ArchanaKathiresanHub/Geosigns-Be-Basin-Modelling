@@ -908,7 +908,7 @@ public:
       std::vector<int>                            lithoFractionsInds;
       std::vector<double>                         minLithoFrac;
       std::vector<double>                         maxLithoFrac;
-      std::vector<casa::VarPrmContinuous::PDF>    lithoFractionsPDFs;
+      casa::VarPrmContinuous::PDF                 pdfType;
 
       // lithofraction indexes
       std::vector<std::string>                    lithoFraction = CfgFileParser::list2array( prms[pos++], ':' );
@@ -927,7 +927,7 @@ public:
       // PDFs
       minLithoFrac.push_back( atof( prms[pos++].c_str() ) );
       maxLithoFrac.push_back( atof( prms[pos++].c_str() ) );
-      lithoFractionsPDFs.push_back( Str2pdf( prms[pos++] ) );
+      pdfType = Str2pdf( prms[pos++] );
 
       if ( pos < prms.size() )
       {
@@ -945,10 +945,9 @@ public:
          // PDFs
          minLithoFrac.push_back( atof( prms[pos++].c_str() ) );
          maxLithoFrac.push_back( atof( prms[pos++].c_str() ) );
-         lithoFractionsPDFs.push_back( Str2pdf( prms[pos++] ) );
       }
 
-      if ( ErrorHandler::NoError != casa::BusinessLogicRulesSet::VaryLithoFraction( *sa.get(), name.c_str(), layerName, lithoFractionsInds, minLithoFrac, maxLithoFrac, lithoFractionsPDFs ) )
+      if ( ErrorHandler::NoError != casa::BusinessLogicRulesSet::VaryLithoFraction( *sa.get( ), name.c_str( ), layerName, lithoFractionsInds, minLithoFrac, maxLithoFrac, pdfType ) )
       {
          throw ErrorHandler::Exception( sa->errorCode() ) << sa->errorMessage();
       }

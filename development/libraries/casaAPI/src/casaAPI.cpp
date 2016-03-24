@@ -942,7 +942,7 @@ ErrorHandler::ReturnCode VaryLithoFraction(
    , std::vector<int>                                 & lithoFractionsInds
    , std::vector<double>                              & minLithoFrac
    , std::vector<double>                              & maxLithoFrac
-   , std::vector<casa::VarPrmContinuous::PDF> 	      & lithoFractionsPDFs
+   , casa::VarPrmContinuous::PDF 	                    pdfType
    )
 {
    try
@@ -973,7 +973,6 @@ ErrorHandler::ReturnCode VaryLithoFraction(
       {
          minLithoFrac.push_back( baseLithoFractions.back() );
          maxLithoFrac.push_back( baseLithoFractions.back() );
-         lithoFractionsPDFs.push_back( casa::VarPrmContinuous::PDF::Block );
       }
 
       // Check ranges and the base value
@@ -993,7 +992,7 @@ ErrorHandler::ReturnCode VaryLithoFraction(
       // add the variable lithofraction parameter to varPrmsSet 
       if ( !layerName.empty() )
       {
-         if ( ErrorHandler::NoError != varPrmsSet.addParameter( new VarPrmLithoFraction( layerName, lithoFractionsInds, baseLithoFractions, minLithoFrac, maxLithoFrac, lithoFractionsPDFs, name ) ) )
+         if ( ErrorHandler::NoError != varPrmsSet.addParameter( new VarPrmLithoFraction( layerName, lithoFractionsInds, baseLithoFractions, minLithoFrac, maxLithoFrac, pdfType, name ) ) )
          {
             throw ErrorHandler::Exception( varPrmsSet.errorCode() ) << varPrmsSet.errorMessage();
          }

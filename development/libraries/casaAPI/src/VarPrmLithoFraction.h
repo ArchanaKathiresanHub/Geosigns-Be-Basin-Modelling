@@ -30,7 +30,7 @@ namespace casa
          , const std::vector<double>                                              & baseLithoFrac      ///< base lithofractions values
          , const std::vector<double>                                              & minLithoFrac       ///< min range value for the lithofractions
          , const std::vector<double>                                              & maxLithoFrac       ///< max range value for the lithofractions
-         , const std::vector<casa::VarPrmContinuous::PDF>                         & lithoFractionsPDFs ///< probability density functions of the lithofractions
+         , casa::VarPrmContinuous::PDF                                              pdfType            ///< probability density functions of the lithofractions
          , const std::string                                                      & name               ///< user specified parameter name
          );
 
@@ -74,7 +74,6 @@ namespace casa
    protected:
       std::string                                        m_layerName;           ///< stratigraphic layer name 
       std::vector<int>                                   m_lithoFractionsInds;  ///< indexes of the lithofractions
-      std::vector<casa::VarPrmContinuous::PDF>           m_parameterPDFs;       ///< probability density functions of the lithofractions
    };
 }
 

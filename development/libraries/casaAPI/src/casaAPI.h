@@ -319,7 +319,7 @@ namespace casa
           , const std::string                                      & litName       ///< [in] lithology name
           , double                                                   minSurfPor    ///< [in] min range value for the surface porosity 
           , double                                                   maxSurfPor    ///< [in] max range value for the surface porosity
-          , VarPrmContinuous::PDF pdfType          /**< [in] probability function type for the variable parameter. If PDF needs 
+          , VarPrmContinuous::PDF pdfType           /**< [in] probability function type for the variable parameter. If PDF needs 
                                                         some middle parameter value it will be taken from the base case model */
           );
 
@@ -332,7 +332,7 @@ namespace casa
          , std::vector<int>                                       & lithoFractionsInds ///< [in] indexes of the lithofractions
          , std::vector<double>                                    & minLithoFrac       ///< [in] min range value for the lithofractions
          , std::vector<double>                                    & maxLithoFrac       ///< [in] max range value for the lithofractions
-         , std::vector<casa::VarPrmContinuous::PDF> 	            & lithoFractionsPDFs /**< [in] probability function types for the variable parameters. If PDFs need 
+         , casa::VarPrmContinuous::PDF 	                          pdfType            /**< [in] probability function types for the variable parameters. If PDFs need
                                                         some middle parameters values they will be taken from the base case model */
          );
 
