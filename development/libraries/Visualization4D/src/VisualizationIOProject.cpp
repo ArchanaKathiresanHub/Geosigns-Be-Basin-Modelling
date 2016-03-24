@@ -1265,6 +1265,10 @@ std::shared_ptr<MiDataSetIjk<double> > VisualizationIOProject::createFormationPr
   if (iter == properties.end())
     return nullptr;
 
+  auto type = (*iter)->getType();
+  if (type != CauldronIO::FormationProperty)
+    return nullptr;
+
   auto attr = (*iter)->getAttribute();
   if (attr == CauldronIO::Continuous3DProperty)
   {
