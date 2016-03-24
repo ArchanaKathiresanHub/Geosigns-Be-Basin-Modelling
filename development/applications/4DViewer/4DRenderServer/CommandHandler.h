@@ -247,6 +247,8 @@ class CommandHandler
 
   void registerHandlers();
 
+  void adjustClippingPlanes(RemoteViz::Rendering::RenderArea* renderArea);
+
 public:
 
   CommandHandler();

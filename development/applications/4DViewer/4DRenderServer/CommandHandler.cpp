@@ -160,140 +160,153 @@ void CommandHandler::onPick(
 
 void CommandHandler::onEnableFormation(
   const jsonxx::Object& params,
-  RemoteViz::Rendering::RenderArea* /*renderArea*/,
+  RemoteViz::Rendering::RenderArea* renderArea,
   RemoteViz::Rendering::Connection* /*connection*/)
 {
   auto formationId = (int)params.get<jsonxx::Number>("formationId");
   auto enabled = params.get<bool>("enabled");
 
   m_sceneGraphManager->enableFormation(formationId, enabled);
+  adjustClippingPlanes(renderArea);
 }
 
 void CommandHandler::onEnableAllFormations(
   const jsonxx::Object& params,
-  RemoteViz::Rendering::RenderArea* /*renderArea*/,
+  RemoteViz::Rendering::RenderArea* renderArea,
   RemoteViz::Rendering::Connection* /*connection*/)
 {
   auto enabled = params.get<bool>("enabled");
 
   m_sceneGraphManager->enableAllFormations(enabled);
+  adjustClippingPlanes(renderArea);
 }
 
 void CommandHandler::onEnableSurface(
   const jsonxx::Object& params,
-  RemoteViz::Rendering::RenderArea* /*renderArea*/,
+  RemoteViz::Rendering::RenderArea* renderArea,
   RemoteViz::Rendering::Connection* /*connection*/)
 {
   auto surfaceId = (int)params.get<jsonxx::Number>("surfaceId");
   auto enabled = params.get<bool>("enabled");
 
   m_sceneGraphManager->enableSurface(surfaceId, enabled);
+  adjustClippingPlanes(renderArea);
 }
 
 void CommandHandler::onEnableAllSurfaces(
   const jsonxx::Object& params,
-  RemoteViz::Rendering::RenderArea* /*renderArea*/,
+  RemoteViz::Rendering::RenderArea* renderArea,
   RemoteViz::Rendering::Connection* /*connection*/)
 {
   auto enabled = params.get<bool>("enabled");
 
   m_sceneGraphManager->enableAllSurfaces(enabled);
+  adjustClippingPlanes(renderArea);
 }
 
 void CommandHandler::onEnableReservoir(
   const jsonxx::Object& params,
-  RemoteViz::Rendering::RenderArea* /*renderArea*/,
+  RemoteViz::Rendering::RenderArea* renderArea,
   RemoteViz::Rendering::Connection* /*connection*/)
 {
   auto reservoirId = (int)params.get<jsonxx::Number>("reservoirId");
   auto enabled = params.get<bool>("enabled");
 
   m_sceneGraphManager->enableReservoir(reservoirId, enabled);
+  adjustClippingPlanes(renderArea);
 }
 
 void CommandHandler::onEnableAllReservoirs(
   const jsonxx::Object& params,
-  RemoteViz::Rendering::RenderArea* /*renderArea*/,
+  RemoteViz::Rendering::RenderArea* renderArea,
   RemoteViz::Rendering::Connection* /*connection*/)
 {
   auto enabled = params.get<bool>("enabled");
 
   m_sceneGraphManager->enableAllReservoirs(enabled);
+  adjustClippingPlanes(renderArea);
 }
 
 void CommandHandler::onEnableSlice(
   const jsonxx::Object& params,
-  RemoteViz::Rendering::RenderArea* /*renderArea*/,
+  RemoteViz::Rendering::RenderArea* renderArea,
   RemoteViz::Rendering::Connection* /*connection*/)
 {
   auto slice = params.get<jsonxx::Number>("slice");
   auto enabled = params.get<bool>("enabled");
 
   m_sceneGraphManager->enableSlice((int)slice, enabled);
+  adjustClippingPlanes(renderArea);
 }
 
 void CommandHandler::onSetSlicePosition(
   const jsonxx::Object& params,
-  RemoteViz::Rendering::RenderArea* /*renderArea*/,
+  RemoteViz::Rendering::RenderArea* renderArea,
   RemoteViz::Rendering::Connection* /*connection*/)
 {
   auto slice = params.get<jsonxx::Number>("slice");
   auto position = params.get<jsonxx::Number>("position");
 
   m_sceneGraphManager->setSlicePosition((int)slice, (int)position);
+  adjustClippingPlanes(renderArea);
 }
 
 void CommandHandler::onEnableFault(
   const jsonxx::Object& params,
-  RemoteViz::Rendering::RenderArea* /*renderArea*/,
+  RemoteViz::Rendering::RenderArea* renderArea,
   RemoteViz::Rendering::Connection* /*connection*/)
 {
   auto faultId = params.get<jsonxx::Number>("faultId");
   auto enabled = params.get<bool>("enabled");
 
   m_sceneGraphManager->enableFault((int)faultId, enabled);
+  adjustClippingPlanes(renderArea);
 }
 
 void CommandHandler::onEnableAllFaults(
   const jsonxx::Object& params,
-  RemoteViz::Rendering::RenderArea* /*renderArea*/,
+  RemoteViz::Rendering::RenderArea* renderArea,
   RemoteViz::Rendering::Connection* /*connection*/)
 {
   auto enabled = params.get<bool>("enabled");
 
   m_sceneGraphManager->enableAllFaults(enabled);
+  adjustClippingPlanes(renderArea);
 }
 
 void CommandHandler::onEnableFlowLines(
   const jsonxx::Object& params,
-  RemoteViz::Rendering::RenderArea* /*renderArea*/,
+  RemoteViz::Rendering::RenderArea* renderArea,
   RemoteViz::Rendering::Connection* /*connection*/)
 {
   auto flowLinesId = (int)params.get<jsonxx::Number>("flowLinesId");
   auto enabled = params.get<bool>("enabled");
 
   m_sceneGraphManager->enableFlowLines(flowLinesId, enabled);
+  adjustClippingPlanes(renderArea);
 }
 
 void CommandHandler::onEnableAllFlowLines(
   const jsonxx::Object& params,
-  RemoteViz::Rendering::RenderArea* /*renderArea*/,
+  RemoteViz::Rendering::RenderArea* renderArea,
   RemoteViz::Rendering::Connection* /*connection*/)
 {
   auto enabled = params.get<bool>("enabled");
 
   m_sceneGraphManager->enableAllFlowLines(enabled);
+  adjustClippingPlanes(renderArea);
 }
 
 void CommandHandler::onEnableFence(
   const jsonxx::Object& params,
-  RemoteViz::Rendering::RenderArea* /*renderArea*/,
+  RemoteViz::Rendering::RenderArea* renderArea,
   RemoteViz::Rendering::Connection* /*connection*/)
 {
   auto fenceId = (int)params.get<jsonxx::Number>("fenceId");
   auto enabled = params.get<bool>("enabled");
 
   m_sceneGraphManager->enableFence(fenceId, enabled);
+  adjustClippingPlanes(renderArea);
 }
 
 void CommandHandler::onSetProperty(
@@ -308,12 +321,13 @@ void CommandHandler::onSetProperty(
 
 void CommandHandler::onSetVerticalScale(
   const jsonxx::Object& params,
-  RemoteViz::Rendering::RenderArea* /*renderArea*/,
+  RemoteViz::Rendering::RenderArea* renderArea,
   RemoteViz::Rendering::Connection* /*connection*/)
 {
   auto scale = params.get<jsonxx::Number>("scale");
 
   m_sceneGraphManager->setVerticalScale((float)scale);
+  adjustClippingPlanes(renderArea);
 }
 
 void CommandHandler::onSetTransparency(
@@ -339,12 +353,13 @@ void CommandHandler::onSetRenderStyle(
 
 void CommandHandler::onShowCoordinateGrid(
   const jsonxx::Object& params,
-  RemoteViz::Rendering::RenderArea* /*renderArea*/,
+  RemoteViz::Rendering::RenderArea* renderArea,
   RemoteViz::Rendering::Connection* /*connection*/)
 {
   auto showGrid = params.get<bool>("show");
 
   m_sceneGraphManager->showCoordinateGrid(showGrid);
+  adjustClippingPlanes(renderArea);
 }
  
 void CommandHandler::onShowCompass(
@@ -369,12 +384,13 @@ void CommandHandler::onShowText(
 
 void CommandHandler::onShowTraps(
   const jsonxx::Object& params,
-  RemoteViz::Rendering::RenderArea* /*renderArea*/,
+  RemoteViz::Rendering::RenderArea* renderArea,
   RemoteViz::Rendering::Connection* /*connection*/)
 {
   auto showTraps = params.get<bool>("show");
 
   m_sceneGraphManager->showTraps(showTraps);
+  adjustClippingPlanes(renderArea);
 }
 
 void CommandHandler::onShowTrapOutlines(
@@ -530,23 +546,25 @@ void CommandHandler::onSetColorScaleParams(
 
 void CommandHandler::onEnableCellFilter(
   const jsonxx::Object& params,
-  RemoteViz::Rendering::RenderArea* /*renderArea*/,
+  RemoteViz::Rendering::RenderArea* renderArea,
   RemoteViz::Rendering::Connection* /*connection*/)
 {
   bool enabled = params.get<bool>("enabled");
 
   m_sceneGraphManager->enableCellFilter(enabled);
+  adjustClippingPlanes(renderArea);
 }
 
 void CommandHandler::onSetCellFilterRange(
   const jsonxx::Object& params,
-  RemoteViz::Rendering::RenderArea* /*renderArea*/,
+  RemoteViz::Rendering::RenderArea* renderArea,
   RemoteViz::Rendering::Connection* /*connection*/)
 {
   double minValue = params.get<jsonxx::Number>("minval");
   double maxValue = params.get<jsonxx::Number>("maxval");
 
   m_sceneGraphManager->setCellFilterRange(minValue, maxValue);
+  adjustClippingPlanes(renderArea);
 }
 
 void CommandHandler::onSetStillQuality(
@@ -657,6 +675,12 @@ void CommandHandler::registerHandlers()
   m_handlers["SetMaxFPS"] = &CommandHandler::onSetMaxFPS;
   m_handlers["SetWidth"] = &CommandHandler::onSetWidth;
   m_handlers["SetHeight"] = &CommandHandler::onSetHeight;
+}
+
+void CommandHandler::adjustClippingPlanes(RemoteViz::Rendering::RenderArea* renderArea)
+{
+  SbViewportRegion vpregion(renderArea->getWidth(), renderArea->getHeight());
+  m_examiner->getCameraInteractor()->adjustClippingPlanes(m_examiner, vpregion);
 }
 
 CommandHandler::CommandHandler()
