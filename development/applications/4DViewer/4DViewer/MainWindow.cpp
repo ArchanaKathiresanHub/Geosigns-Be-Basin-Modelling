@@ -11,6 +11,7 @@
 #include "MainWindow.h"
 #include "OIVWidget.h"
 #include "GLInfoDialog.h"
+#include <Seismic.h>
 
 #include <QtGui/QFileDialog>
 #include <QtGui/QMessageBox>
@@ -20,6 +21,8 @@
 
 #include <MeshVizXLM/mapping/MoMeshviz.h>
 #include <MeshViz/PoMeshViz.h>
+#include <VolumeViz/nodes/SoVolumeRendering.h>
+#include <IvTune/SoIvTune.h>
 
 #include <CameraUtil.h>
 
@@ -49,20 +52,22 @@ void MainWindow::initOIV()
   char* features[] =
   {
     "OpenInventor",
-    "MeshVizXLM"
+    "MeshVizXLM",
+    "VolumeViz"
   };
 
-  float oivVersion = SoDB::getLicensingVersionNumber();
+  //float oivVersion = SoDB::getLicensingVersionNumber();
 
   m_oivLicenseOK = true;
-  for (int i = 0; i < 2; ++i)
-  if (SoDB::LicenseCheck(features[i], oivVersion, nullptr, false, nullptr) < 0)
-    m_oivLicenseOK = false;
+  //for (int i = 0; i < 3; ++i)
+  //  if (SoDB::LicenseCheck(features[i], oivVersion, nullptr, true, nullptr) < 0)
+  //    m_oivLicenseOK = false;
 
   if (m_oivLicenseOK)
   {
     MoMeshViz::init();
     PoMeshViz::init();
+    SoVolumeRendering::init();
   }
 }
 
@@ -95,6 +100,12 @@ void MainWindow::loadProject(const QString& filename)
     m_sceneGraphManager->setup(m_project);
 
     m_examiner = new SceneExaminer(m_sceneGraphManager);
+
+    //auto dim = m_project->getProjectInfo().dimensions;
+    //const char* volumeFile = "v:\\data\\Barracuda_3Ddepth_Realized8bit.sgy";
+    //m_seismicScene = std::make_shared<SeismicScene>(volumeFile, dim.minX, dim.minY);
+    //m_examiner->addChild(m_seismicScene->getRoot());
+
     m_examiner->setModeChangedCallback(std::bind(&MainWindow::onModeChanged, this, std::placeholders::_1));
     m_examiner->setFenceAddedCallback(std::bind(&MainWindow::onFenceAdded, this, std::placeholders::_1));
     
@@ -102,6 +113,7 @@ void MainWindow::loadProject(const QString& filename)
     onModeChanged(m_examiner->getInteractionMode());
 
     m_ui.renderWidget->setSceneGraph(m_examiner.ptr());
+    //SoIvTune::start(m_examiner.ptr());
 
     m_ui.snapshotSlider->setMinimum(0);
     m_ui.snapshotSlider->setMaximum((int)m_project->getSnapshotCount() - 1);
@@ -329,6 +341,26 @@ void MainWindow::updateUI()
   m_ui.lineEditCellFilterMaxValue->setText("1.0");
   m_ui.lineEditCellFilterMinValue->setValidator(new QDoubleValidator);
   m_ui.lineEditCellFilterMaxValue->setValidator(new QDoubleValidator);
+
+  bool seismicEnabled = (bool)m_seismicScene;
+  m_ui.checkBoxSliceInline->setEnabled(seismicEnabled);
+  m_ui.checkBoxSliceCrossline->setEnabled(seismicEnabled);
+  m_ui.checkBoxSliceDepth->setEnabled(seismicEnabled);
+  m_ui.sliderSliceInline->setEnabled(seismicEnabled);
+  m_ui.sliderSliceCrossline->setEnabled(seismicEnabled);
+  m_ui.sliderSliceDepth->setEnabled(seismicEnabled);
+
+  if (seismicEnabled)
+  {
+    m_ui.checkBoxSliceInline->setChecked(true);
+    m_ui.checkBoxSliceCrossline->setChecked(true);
+    m_ui.checkBoxSliceDepth->setChecked(true);
+
+    SbVec3i32 voldim = m_seismicScene->getDimensions();
+    m_ui.sliderSliceInline->setMaximum(voldim[1] - 1);
+    m_ui.sliderSliceCrossline->setMaximum(voldim[2] - 1);
+    m_ui.sliderSliceDepth->setMaximum(voldim[0] - 1);
+  }
 }
 
 void MainWindow::connectSignals()
@@ -385,6 +417,15 @@ void MainWindow::connectSignals()
 
   connect(m_ui.treeWidget, SIGNAL(itemClicked(QTreeWidgetItem*, int)), this, SLOT(onTreeWidgetItemClicked(QTreeWidgetItem*, int)));
   connect(m_ui.listWidgetFences, SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(onFenceListItemClicked(QListWidgetItem*)));
+
+  // Seismic
+  connect(m_ui.checkBoxSliceInline, SIGNAL(toggled(bool)), this, SLOT(onSeismicSliceToggled(bool)));
+  connect(m_ui.checkBoxSliceCrossline, SIGNAL(toggled(bool)), this, SLOT(onSeismicSliceToggled(bool)));
+  connect(m_ui.checkBoxSliceDepth, SIGNAL(toggled(bool)), this, SLOT(onSeismicSliceToggled(bool)));
+
+  connect(m_ui.sliderSliceInline, SIGNAL(valueChanged(int)), this, SLOT(onSeismicSliceValueChanged(int)));
+  connect(m_ui.sliderSliceCrossline, SIGNAL(valueChanged(int)), this, SLOT(onSeismicSliceValueChanged(int)));
+  connect(m_ui.sliderSliceDepth, SIGNAL(valueChanged(int)), this, SLOT(onSeismicSliceValueChanged(int)));
 }
 
 int MainWindow::getFaultIndex(const std::string& collectionName, const std::string& faultName) const
@@ -919,6 +960,42 @@ void MainWindow::onFenceListItemClicked(QListWidgetItem* item)
 {
   int fenceId = item->data(Qt::UserRole).toInt();
   m_sceneGraphManager->enableFence(fenceId, item->checkState() == Qt::Checked);
+
+  m_ui.renderWidget->updateGL();
+}
+
+void MainWindow::onSeismicSliceToggled(bool value)
+{
+  QCheckBox* checkBox = static_cast<QCheckBox*>(sender());
+
+  SeismicScene::SliceType type;
+
+  if (checkBox == m_ui.checkBoxSliceInline)
+    type = SeismicScene::SliceInline;
+  else if (checkBox == m_ui.checkBoxSliceCrossline)
+    type = SeismicScene::SliceCrossline;
+  else if (checkBox == m_ui.checkBoxSliceDepth)
+    type = SeismicScene::SliceDepth;
+
+  m_seismicScene->enableSlice(type, value);
+
+  m_ui.renderWidget->updateGL();
+}
+
+void MainWindow::onSeismicSliceValueChanged(int value)
+{
+  QSlider* slider = static_cast<QSlider*>(sender());
+
+  SeismicScene::SliceType type;
+
+  if (slider == m_ui.sliderSliceInline)
+    type = SeismicScene::SliceInline;
+  else if (slider == m_ui.sliderSliceCrossline)
+    type = SeismicScene::SliceCrossline;
+  else if (slider == m_ui.sliderSliceDepth)
+    type = SeismicScene::SliceDepth;
+
+  m_seismicScene->setSlicePosition(type, value);
 
   m_ui.renderWidget->updateGL();
 }

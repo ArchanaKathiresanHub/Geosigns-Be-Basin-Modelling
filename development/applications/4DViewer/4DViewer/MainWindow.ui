@@ -35,15 +35,15 @@
             <item>
              <widget class="QToolBox" name="toolBox">
               <property name="currentIndex">
-               <number>2</number>
+               <number>3</number>
               </property>
               <widget class="QWidget" name="page">
                <property name="geometry">
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>466</width>
-                 <height>703</height>
+                 <width>468</width>
+                 <height>676</height>
                 </rect>
                </property>
                <attribute name="label">
@@ -126,8 +126,8 @@
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>466</width>
-                 <height>703</height>
+                 <width>468</width>
+                 <height>676</height>
                 </rect>
                </property>
                <attribute name="label">
@@ -371,8 +371,8 @@
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>466</width>
-                 <height>703</height>
+                 <width>451</width>
+                 <height>684</height>
                 </rect>
                </property>
                <attribute name="label">
@@ -750,6 +750,81 @@
                    <size>
                     <width>20</width>
                     <height>265</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+               </layout>
+              </widget>
+              <widget class="QWidget" name="page_4">
+               <attribute name="label">
+                <string>Seismic</string>
+               </attribute>
+               <layout class="QVBoxLayout" name="verticalLayout_16">
+                <item>
+                 <widget class="QGroupBox" name="groupBox_4">
+                  <property name="title">
+                   <string>Slices</string>
+                  </property>
+                  <layout class="QVBoxLayout" name="verticalLayout_15">
+                   <item>
+                    <layout class="QGridLayout" name="gridLayout_5">
+                     <item row="0" column="0">
+                      <widget class="QCheckBox" name="checkBoxSliceInline">
+                       <property name="text">
+                        <string>Inline</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="0" column="1">
+                      <widget class="QSlider" name="sliderSliceInline">
+                       <property name="orientation">
+                        <enum>Qt::Horizontal</enum>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="1" column="0">
+                      <widget class="QCheckBox" name="checkBoxSliceCrossline">
+                       <property name="text">
+                        <string>Crossline</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="1" column="1">
+                      <widget class="QSlider" name="sliderSliceCrossline">
+                       <property name="orientation">
+                        <enum>Qt::Horizontal</enum>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="2" column="0">
+                      <widget class="QCheckBox" name="checkBoxSliceDepth">
+                       <property name="text">
+                        <string>Depth</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="2" column="1">
+                      <widget class="QSlider" name="sliderSliceDepth">
+                       <property name="orientation">
+                        <enum>Qt::Horizontal</enum>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
+                   </item>
+                  </layout>
+                 </widget>
+                </item>
+                <item>
+                 <spacer name="verticalSpacer_3">
+                  <property name="orientation">
+                   <enum>Qt::Vertical</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>20</width>
+                    <height>536</height>
                    </size>
                   </property>
                  </spacer>

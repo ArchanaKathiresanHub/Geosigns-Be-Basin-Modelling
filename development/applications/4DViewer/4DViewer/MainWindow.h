@@ -22,6 +22,7 @@
 #include <QtGui/QMainWindow>
 
 class SceneGraph;
+class SeismicScene;
 class QLabel;
 
 class MainWindow : public QMainWindow
@@ -40,6 +41,8 @@ class MainWindow : public QMainWindow
 
   std::shared_ptr<Project> m_project;
   std::shared_ptr<SceneGraphManager> m_sceneGraphManager;
+  std::shared_ptr<SeismicScene> m_seismicScene;
+
   SoRef<SceneExaminer> m_examiner;
 
   Project::ProjectInfo m_projectInfo;
@@ -131,6 +134,10 @@ private slots:
   void onTreeWidgetItemClicked(QTreeWidgetItem* item, int column);
 
   void onFenceListItemClicked(QListWidgetItem* item);
+
+  void onSeismicSliceToggled(bool value);
+
+  void onSeismicSliceValueChanged(int value);
 
 public:
 
