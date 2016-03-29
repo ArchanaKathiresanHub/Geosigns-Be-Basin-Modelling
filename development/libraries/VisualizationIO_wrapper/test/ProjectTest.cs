@@ -29,7 +29,7 @@ namespace Shell.BasinModeling.CauldronIO.Test
     {
         public void OpenProject()
         {
-            string fileName = "..\\..\\HydrostaticGL_out.xml";
+            string fileName =  "../../../csharp-test/HydrostaticGL_out.xml";
             Project project = ImportExport.importFromXML(fileName);
             
             int count = project.getSnapShots().Count;
@@ -108,7 +108,7 @@ namespace Shell.BasinModeling.CauldronIO.Test
        [TestMethod]
         public void LoadProjectNative()
         {
-            Project project = ImportExport.importFromXML("../../HydrostaticGL_out.xml");
+            Project project = ImportExport.importFromXML("../../../csharp-test/HydrostaticGL_out.xml");
             int count = project.getSnapShots().Count;
             Assert.IsTrue(count == 14);
             count = project.getSurfaceNames().Count;
@@ -153,11 +153,11 @@ namespace Shell.BasinModeling.CauldronIO.Test
             Assert.IsTrue(prop.getUserName() == "ErosionFactor");
             Assert.IsTrue(prop.getCauldronName() == "ErosionFactor");
         }
-
+        /*
         [TestMethod]
         public void AddToProjectNative()
         {
-            Project project = ImportExport.importFromXML("..\\..\\HydrostaticGL_out.xml");
+            Project project = ImportExport.importFromXML("../../../csharp-test/HydrostaticGL_out.xml");
             int count = project.getSnapShots().Count;
             Assert.IsTrue(count == 14);
 
@@ -253,10 +253,8 @@ namespace Shell.BasinModeling.CauldronIO.Test
             Assert.Equals(3, kEnd);
             Assert.IsFalse(formation.isSourceRock());
             Assert.IsFalse(formation.isMobileLayer());
-            
-            
-
         }
+        */
 
         [TestMethod]
         public void ProjectCreate()
