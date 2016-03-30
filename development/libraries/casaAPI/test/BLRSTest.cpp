@@ -13,6 +13,7 @@
 #include "../src/PrmPorosityModel.h"
 #include "../src/PrmPermeabilityModel.h"
 #include "../src/PrmLithoSTPThermalCond.h"
+#include "../src/PrmLithoFraction.h"
 
 #include "../src/VarPrmSourceRockTOC.h"
 #include "../src/VarPrmSourceRockHI.h"
@@ -26,6 +27,7 @@
 #include "../src/VarPrmSurfacePorosity.h"
 #include "../src/VarPrmPermeabilityModel.h"
 #include "../src/VarPrmLithoSTPThermalCond.h"
+#include "../src/VarPrmLithoFraction.h"
 
 #include <memory>
 //#include <cmath>
@@ -1467,4 +1469,97 @@ TEST_F( BLRSTest, VaryPermeabilityMultipointModelParameters )
       ASSERT_NEAR( prmMax->multipointPermeability()[i], prof2PrmMaxInt[i], eps );
       ASSERT_NEAR( prmBas->multipointPermeability()[i], prof2PrmBas[i], eps );
    } 
-} 
+}
+
+
+/////////////////////////////////////////////////////////////////////////////////////////
+// LithoFraction IP test
+TEST_F( BLRSTest, VaryLithoFractionParameter )
+{
+   ScenarioAnalysis sc;
+   ASSERT_EQ( ErrorHandler::NoError, sc.defineBaseCase( m_testProjectLithology ) );
+
+   std::vector<int> litInd( 2, 0 );
+   litInd[1] = 1;
+
+   // set wrong ratio
+   std::vector<double> minFrac( 2, 10.0 );
+   minFrac[1] = 0.2;
+
+   std::vector<double> maxFrac( 2, 90.0 );
+   maxFrac[1] = 0.5;
+
+   // expecting an error here due to layer Westphalian has only 2 fractions, ration must be fixed for 1
+   ASSERT_EQ( ErrorHandler::OutOfRangeValue, casa::BusinessLogicRulesSet:: VaryLithoFraction( sc
+                                                                                            , "One"
+                                                                                            , "Westphalian"
+                                                                                            , litInd
+                                                                                            , minFrac
+                                                                                            , maxFrac
+                                                                                            , casa::VarPrmContinuous::Block 
+                                                                                            )
+            );
+   // fix ratio, must be [1:1] for the mix from 2 lithologies
+   minFrac[1] = 1.0;
+   maxFrac[1] = 1.0;
+
+   // set wrong max value
+   maxFrac[0] = 60.0;
+   // expecting an error here due to layer Westphalian fraction 1 in base case has 75% value
+   ASSERT_EQ( ErrorHandler::OutOfRangeValue, casa::BusinessLogicRulesSet:: VaryLithoFraction( sc
+                                                                                            , "One"
+                                                                                            , "Westphalian"
+                                                                                            , litInd
+                                                                                            , minFrac
+                                                                                            , maxFrac
+                                                                                            , casa::VarPrmContinuous::Block 
+                                                                                            )
+            );
+
+   maxFrac[0] = 90.0;
+
+   // Now it should be all OK
+   ASSERT_EQ( ErrorHandler::NoError, casa::BusinessLogicRulesSet:: VaryLithoFraction( sc
+                                                                                    , "One"
+                                                                                    , "Westphalian"
+                                                                                    , litInd
+                                                                                    , minFrac
+                                                                                    , maxFrac
+                                                                                    , casa::VarPrmContinuous::Block 
+                                                                                    )
+            );
+   
+   // get varspace 
+   VarSpaceImpl & varPrms = dynamic_cast< VarSpaceImpl & >( sc.varSpace() );
+
+   // check how the parameter was set
+   ASSERT_EQ( varPrms.size(), 1U );
+
+   const VarPrmLithoFraction * p1c = dynamic_cast<const VarPrmLithoFraction*>( varPrms.continuousParameter( 0 ) );
+   ASSERT_TRUE( p1c != NULL ); // do we have required the parameter in the list?
+
+   const PrmLithoFraction * prmMin = dynamic_cast<const PrmLithoFraction *>( p1c->minValue().get()  );
+   const PrmLithoFraction * prmMax = dynamic_cast<const PrmLithoFraction *>( p1c->maxValue().get()  );
+   const PrmLithoFraction * prmBas = dynamic_cast<const PrmLithoFraction *>( p1c->baseValue().get() );
+
+   std::vector<double> minV  = prmMin->asDoubleArray();
+   std::vector<double> maxV  = prmMax->asDoubleArray();
+   std::vector<double> baseV = prmBas->asDoubleArray();
+
+   ASSERT_EQ( minV.size(),  2U );
+   ASSERT_EQ( maxV.size(),  2U );
+   ASSERT_EQ( baseV.size(), 2U );
+
+   // does it range have given min value
+   ASSERT_NEAR( minV[0], 10.0, eps ); // percentage of 1st fraction
+   ASSERT_NEAR( minV[1], 1.0,  eps ); // fraction of the rest for the second fraction
+
+   // does it range have given max value
+   ASSERT_NEAR( maxV[0], 90.0, eps );
+   ASSERT_NEAR( maxV[1], 1.0,  eps );
+
+   // does it have base values from project?
+   ASSERT_NEAR( baseV[0], 75.0, eps );  
+   ASSERT_NEAR( baseV[1], 1.0, eps );  
+}
+ 

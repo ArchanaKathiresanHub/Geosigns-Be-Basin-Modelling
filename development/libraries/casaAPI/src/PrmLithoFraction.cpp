@@ -46,13 +46,15 @@ namespace casa
       //the first lithofraction is always a total percentage ranging from 0.0 to 100.0
       if ( lithoFractions[0] < 0.0 || lithoFractions[0] > 100.0 )
       {
-         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "The percentage of the lithology " << lithoFractionInds[0] << " is out of range [0:100]: " << lithoFractions[0];
+         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "The percentage of the lithology " << lithoFractionInds[0] << 
+                                                                           " is out of range [0:100]: "       << lithoFractions[0];
       }
 
       //the second lithofraction is always a ratio ranging from 0 to 1
       if ( lithoFractions[1] < 0.0 || lithoFractions[1] > 1.0 )
       {
-         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "The ratio of the lithology " << lithoFractionInds[1] << " is out of range [0:1]: " << lithoFractions[1];
+         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "The ratio of the lithology " << lithoFractionInds[1] << 
+                                                                           " is out of range [0:1]: "    << lithoFractions[1];
       }
 
       const int numPercentages = 3;
@@ -69,11 +71,14 @@ namespace casa
       {
          if ( i != lithoFractionInds[0] && i != lithoFractionInds[1] )
          {
-            if ( percentage < 0.0 || percentage >100.0 ) throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "The percentage of the lithology " << i << " is not valid : " << percentage;
+            if ( percentage < 0.0 || percentage > 100.0 ) 
+            {
+               throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "The percentage of the lithology " << i << 
+                                                                                 " is not valid : " << percentage;
+            }
             lithoPercentages[i] = percentage;
          }
       }
-
       return lithoPercentages;
    }
 
@@ -87,9 +92,10 @@ namespace casa
       }
 
       std::vector< double> lithoFractions;
-      if ( lithoPercentages[lithoFractionInds[0]] < 0.0 || lithoPercentages[lithoFractionInds[0]] >100.0 )
+      if ( lithoPercentages[lithoFractionInds[0]] < 0.0 || lithoPercentages[lithoFractionInds[0]] > 100.0 )
       {
-         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "The percentage of the lithology " << lithoFractionInds[0] << " is out of range [0:100]: " << lithoPercentages[lithoFractionInds[0]];
+         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "The percentage of the lithology " << lithoFractionInds[0] << 
+                                                                           " is out of range [0:100]: " << lithoPercentages[lithoFractionInds[0]];
       }
 
       lithoFractions.push_back( lithoPercentages[lithoFractionInds[0]] );
@@ -134,14 +140,26 @@ namespace casa
 
       m_lithoFractions = createLithoFractions( lithoPercentages, m_lithoFractionsInds );
 
+      if ( m_lithoFractions[0] < 0.0 || m_lithoFractions[0] > 100.0 )
+      {
+         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Lithology percentage " << m_lithoFractionsInds[0] << 
+            " for layer " << m_layerName << " is out of range [0:100]: " << m_lithoFractions[0] << "\n"; 
+      }
+
+      if ( m_lithoFractions[1] < 0.0 || m_lithoFractions[1] > 1.0 ) 
+      {
+         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Lithology rest fraction " << m_lithoFractionsInds[1] << 
+            " for layer " << m_layerName << " is out of range [0:1]: " << m_lithoFractions[1] << "\n"; 
+      }
+
       m_name = "LithoFraction(" + m_layerName + ")";
    }
 
    // Constructor: set the values given by VarPrmLithoFraction
    PrmLithoFraction::PrmLithoFraction( const VarPrmLithoFraction * parent
-                                     , const std::string & name
-                                     , const std::string & layerName
-                                     , const std::vector<int> & lithoFractionsInds
+                                     , const std::string         & name
+                                     , const std::string         & layerName
+                                     , const std::vector<int>    & lithoFractionsInds
                                      , const std::vector<double> & lithoFractions )
                                      : m_parent( parent )
                                      , m_layerName( layerName )
@@ -150,6 +168,18 @@ namespace casa
                                      , m_name( name )
    {
       if ( m_name.empty( ) ) m_name = "LithoFraction(" + m_layerName + ")";
+
+      if ( m_lithoFractions[0] < 0.0 || lithoFractions[0] > 100.0 )
+      {
+         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Lithology percentage " << m_lithoFractionsInds[0] << 
+            "for layer " << m_layerName << " is out of range [0:100]: " << m_lithoFractions[0] << "\n"; 
+      }
+
+      if ( m_lithoFractions[1] < 0.0 || m_lithoFractions[1] > 1.0 ) 
+      {
+         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Lithology rest fraction " << m_lithoFractionsInds[1] << 
+            "for layer " << m_layerName << " is out of range [0:1]: " << m_lithoFractions[1] << "\n"; 
+      }
    }
 
    // Update given model with the parameter value
@@ -172,7 +202,7 @@ namespace casa
       // get the lithology names
       if ( ErrorHandler::NoError != stMgr.layerLithologiesList( lid, lithoNames, lithoPercentages ) )
       {
-         stMgr.layerLithologiesList( lid, lithoNames, lithoPercentages );
+         throw ErrorHandler::Exception( stMgr.errorCode() ) << stMgr.errorMessage();
       }
 
       // create the new lithology percentages
@@ -201,7 +231,7 @@ namespace casa
 
       const double eps = 1.e-6;
 
-      if ( m_layerName != pp->m_layerName ) return false;
+      if ( m_layerName             != pp->m_layerName             ) return false;
       if ( m_lithoFractions.size() != pp->m_lithoFractions.size() ) return false;
       for ( size_t i = 0; i != m_lithoFractions.size(); ++i )
       {
@@ -217,25 +247,18 @@ namespace casa
    {
       std::ostringstream oss;
       const std::vector<double> & prms = asDoubleArray();
-      static const char * s_percent1 = "Percent1";
-      static const char * s_percent2 = "Percent2";
-      static const char * s_percent3 = "Percent3";
-
-      std::vector<const char *>          colNames( 3 );
       const double eps = 1.e-6;
 
-      colNames[0] = s_percent1;
-      colNames[1] = s_percent2;
-      colNames[2] = s_percent3;
+      const char * colNames[3];
+      colNames[0] = "Percent1";
+      colNames[1] = "Percent2";
+      colNames[2] = "Percent3";
 
       mbapi::StratigraphyManager & stMgr = caldModel.stratigraphyManager();
 
       // get the layer ID
       mbapi::StratigraphyManager::LayerID lid = stMgr.layerID( m_layerName );
-      if ( stMgr.errorCode() != ErrorHandler::NoError )
-      {
-         throw ErrorHandler::Exception( stMgr.errorCode() ) << stMgr.errorMessage();
-      }
+      if ( stMgr.errorCode() != ErrorHandler::NoError ) { throw ErrorHandler::Exception( stMgr.errorCode() ) << stMgr.errorMessage(); }
 
       // vector to store the litho percentages
       std::vector<double> mdlLithoPercentages;
@@ -250,21 +273,33 @@ namespace casa
       double sumPercentages = 0;
       for ( size_t i = 0; i != mdlLithoPercentages.size(); ++i )
       {
-         sumPercentages += prms[i];
+         sumPercentages += mdlLithoPercentages[i];
       }
-      if ( !NumericFunctions::isEqual( sumPercentages, 100.0, eps ) ) { oss << " The sum of the percentages do not sum up to 100 : " << sumPercentages << "\n"; }
 
+      if ( !NumericFunctions::isEqual( sumPercentages, 100.0, eps ) )
+      {
+         oss << " The sum of the percentages for the layer: " << m_layerName << " do not equal to 100: " << sumPercentages << "\n";
+      }
 
       // vector to store the litho fractions
-      std::vector<double> lithoFractions = createLithoFractions( mdlLithoPercentages, m_lithoFractionsInds );
+      std::vector<double> lithoPercentages = createLithoPercentages( m_lithoFractions, m_lithoFractionsInds );
 
-      if ( m_lithoFractionsInds.size( ) != 2 ) { oss << "The number of lithofractions must be equal to 2 " << "\n"; }
-      if ( lithoFractions[0] < 0.0 || lithoFractions[0] > 100.0 ) { oss << colNames[m_lithoFractionsInds[0]] << " is out of range [0:100]: " << lithoFractions[0] << "\n"; }
-      if ( lithoFractions[1] < 0.0 || lithoFractions[1] > 1.0 ) { oss << colNames[m_lithoFractionsInds[1]] << " is out of range [0:1]: " << lithoFractions[1] << "\n"; }
-
-      for ( size_t i = 0; i < m_lithoFractionsInds.size(); ++i )
+      // check that percentages are set correctly
+      for ( size_t i = 0; i < lithoPercentages.size(); ++i )
       {
-         if ( !NumericFunctions::isEqual( lithoFractions[i], m_lithoFractions[i], eps ) ) { oss << "The lithofraction in the model (" << lithoFractions[i] << ") is differ from a parameter value (" << m_lithoFractions[i] << ")\n"; }
+         if ( mdlLithoNames[i].empty() && lithoPercentages[i] > 0.0 )
+         {
+            oss << colNames[i] << " for the layer " << m_layerName << " is not zero:" << lithoPercentages[i] << " for the empty lithology name\n";
+         }
+      }
+
+      for ( size_t i = 0; i < mdlLithoPercentages.size(); ++i )
+      {
+         if ( !NumericFunctions::isEqual( mdlLithoPercentages[i], lithoPercentages[i], eps ) )
+         {
+            oss << "Lithology " << colNames[i] << " for the layer " << m_layerName << " in model: " << mdlLithoPercentages[i] << 
+                   ", is differ from the parameter value: " <<  lithoPercentages[i] << "\n";
+         }
       }
 
       return oss.str();
@@ -282,10 +317,10 @@ namespace casa
          CasaSerializer::ObjRefID parentID = sz.ptr2id( m_parent );
          ok = ok ? sz.save( parentID, "VarParameterID" ) : ok;
       }
-      ok = ok ? sz.save( m_name, "name" ) : ok;
-      ok = ok ? sz.save( m_layerName, "layerName" ) : ok;
+      ok = ok ? sz.save( m_name,               "name"               ) : ok;
+      ok = ok ? sz.save( m_layerName,          "layerName"          ) : ok;
       ok = ok ? sz.save( m_lithoFractionsInds, "lithoFractionsInds" ) : ok;
-      ok = ok ? sz.save( m_lithoFractions, "lithoFractions" ) : ok;
+      ok = ok ? sz.save( m_lithoFractions,     "lithoFractions"     ) : ok;
 
       return ok;
    }
@@ -305,10 +340,10 @@ namespace casa
          m_parent = ok ? dz.id2ptr<VarParameter>( parentID ) : 0;
       }
 
-      ok = ok ? dz.load( m_name, "name" ) : ok;
-      ok = ok ? dz.load( m_layerName, "layerName" ) : ok;
+      ok = ok ? dz.load( m_name,               "name"               ) : ok;
+      ok = ok ? dz.load( m_layerName,          "layerName"          ) : ok;
       ok = ok ? dz.load( m_lithoFractionsInds, "lithoFractionsInds" ) : ok;
-      ok = ok ? dz.load( m_lithoFractions, "lithoFractions" ) : ok;
+      ok = ok ? dz.load( m_lithoFractions,     "lithoFractions"     ) : ok;
 
       if ( !ok )
       {

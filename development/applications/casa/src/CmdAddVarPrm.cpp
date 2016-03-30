@@ -899,9 +899,9 @@ public:
    virtual ~LithoFraction() { ; }
 
    virtual void addParameterObject( std::unique_ptr<casa::ScenarioAnalysis> & sa
-      , const std::string                     & name
-      , const std::vector<std::string>        & prms
-      ) const
+                                  , const std::string                       & name
+                                  , const std::vector<std::string>          & prms
+                                  ) const
    {
       size_t pos = 0;
 
@@ -924,9 +924,11 @@ public:
 
       // layer names 
       const std::string layerName = prms[pos++];
-      // PDFs
+      // min/max values for percentage of the first lithology in the mix
       minLithoFrac.push_back( atof( prms[pos++].c_str() ) );
       maxLithoFrac.push_back( atof( prms[pos++].c_str() ) );
+      
+      // PDFs
       pdfType = Str2pdf( prms[pos++] );
 
       if ( pos < prms.size() )
@@ -942,20 +944,27 @@ public:
          }
          lithoFractionsInds.push_back( lithoFractionInd - 1 );
 
-         // PDFs
+         // min/max value for the fraction of the secon lithology in the mix
          minLithoFrac.push_back( atof( prms[pos++].c_str() ) );
          maxLithoFrac.push_back( atof( prms[pos++].c_str() ) );
       }
 
-      if ( ErrorHandler::NoError != casa::BusinessLogicRulesSet::VaryLithoFraction( *sa.get( ), name.c_str( ), layerName, lithoFractionsInds, minLithoFrac, maxLithoFrac, pdfType ) )
+      if ( ErrorHandler::NoError != casa::BusinessLogicRulesSet::VaryLithoFraction( *sa.get( )
+                                                                                  , name.c_str()
+                                                                                  , layerName
+                                                                                  , lithoFractionsInds
+                                                                                  , minLithoFrac
+                                                                                  , maxLithoFrac
+                                                                                  , pdfType 
+                                                                                  )
+         )
       {
          throw ErrorHandler::Exception( sa->errorCode() ) << sa->errorMessage();
       }
-
    }
 
    size_t expectedParametersNumber() const { return 4; } // lay_name,   mn/mx, pdf
-   size_t optionalParametersNumber() const { return 4; } // percentage, mn/mx, pdf
+   size_t optionalParametersNumber() const { return 3; } // percentage, mn/mx
 
    virtual std::string name() const { return "StratIoTbl:Percent"; }
 
@@ -967,15 +976,25 @@ public:
    virtual std::string fullDescription() const
    {
       std::ostringstream oss;
-      oss << "    [varPrmName] \"" << name() << "\" <layName> <minFraction> <maxFraction> <prmPDF>\n";
-      oss << "                                      [ <percentage> <minFraction> <maxFraction>] <prmPDF>\n";
+      oss << "    To variate lithologies fractions in a layer lithologies mix, user should define variation of percentage of the one lithology\n";
+      oss << "    in the range [0:100] and fraction in the rest of the mix for the second lithology in range [0:1]\n";
+      oss << "    The final lithologies percentages in the mix will be calculated in the following way:\n";
+      oss << "    Lithology one (with variation by lithology percentage): X%, where X will be calculated by DoE\n";
+      oss << "    Lithology two (with variation by fraction in the rest of the mix): (100% - X%) * Y, where Y will be calculated by DoE\n";
+      oss << "    Lithology three: (100% - X%) * ( 1 - Y )\n";
+      oss << "    If user would like to variate just one lithology in a mix, the other two will be calculated in the same ratio as in base case\n";
+      oss << "    \n";
+      oss << "    [varPrmName] \"StratIoTbl:Percent<mixID>\" <layName> <minPercentage> <maxPercentage> <prmPDF>\n";
+      oss << "                [\"StratIoTbl:Percent<mixID>\" <minFraction> <maxFraction>]\n";
       oss << "    Where:\n";
       oss << "       varPrmName     - user specified variable parameter name (Optional)\n";
+      oss << "       mixID          - lithology mixing id must be 1, 2 or 3 \n";
       oss << "       layName        - layer name\n";
-      oss << "       minFraction    - lithology fraction - minimal range value for the lithofraction \n";
-      oss << "       maxFraction    - lithology fraction - maximal range value for the lithofraction \n";
-      oss << "       percentage     - the second lithology percentage for which the fraction is given (Optional) \n";
+      oss << "       minPercentage  - lithology percentage minimal range value  \n";
+      oss << "       maxPercentage  - lithology percentage maximal range value \n";
       oss << "       prmPDF         - the parameter probability density function type\n";
+      oss << "       minFraction    - lithology fraction - minimal range value (Optional)\n";
+      oss << "       maxFraction    - lithology fraction - maximal range value (Optional)\n";
       oss << "\n";
       return oss.str();
    }
@@ -985,6 +1004,9 @@ public:
       std::ostringstream oss;
       oss << "    #       VarPrmName           LayerName         Lithofraction [%]   Parameter PDF\n";
       oss << "    " << cmdName << " \"" << name( ) << "1\" \"Lower Jurassic\"   60 80   \"Block\"\n";
+      oss << "    \n";
+      oss << "    " << cmdName << " \"MyVarPrm\" \"" << name() << "2\" \"Lower Jurassic\"   40 80   \"Block\"\n";
+      oss << "                    " << name() << "3\" 0.1 0.5\n";
       return oss.str();
    }
 };

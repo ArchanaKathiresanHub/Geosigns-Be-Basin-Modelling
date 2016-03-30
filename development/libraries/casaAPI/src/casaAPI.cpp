@@ -980,14 +980,15 @@ ErrorHandler::ReturnCode VaryLithoFraction(
 
       if ( baseLithoFractions[0] < minLithoFrac[0] || baseLithoFractions[0] > maxLithoFrac[0] )
       {
-         throw ex << "The percentage of the lithology " << lithoFractionsInds[0] << " in the base case is outside of the given range : " << baseLithoFractions[0];
+         throw ex << "The percentage of the lithology " << lithoFractionsInds[0] << " for the layer " << layerName << " in the base case: " <<
+                      baseLithoFractions[0] << " is outside of the given range : [" << minLithoFrac[0] << ":" << maxLithoFrac[0] << "]" ;
       }
 
       if ( baseLithoFractions[1] < minLithoFrac[1] || baseLithoFractions[1] > maxLithoFrac[1] )
       {
-         throw ex << "The ratio of the lithology " << lithoFractionsInds[1] << " in the base case is outside of the given range : " << baseLithoFractions[1];
+         throw ex << "The ratio of the lithology " << lithoFractionsInds[1] << " for the layer " << layerName << " in the base case: " <<
+                     baseLithoFractions[1] << " is outside of the given range : [" << minLithoFrac[1] << ":" << maxLithoFrac[1] << "]" ;
       }
-
 
       // add the variable lithofraction parameter to varPrmsSet 
       if ( !layerName.empty() )

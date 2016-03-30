@@ -28,17 +28,20 @@ CmdLocation::CmdLocation( CasaCommander & parent, const std::vector< std::string
 void CmdLocation::execute( std::unique_ptr<casa::ScenarioAnalysis> & sa )
 {
    LogHandler( LogHandler::INFO_SEVERITY ) << "Generating the set of cases in folder: " << m_locPath << "...";
-
-
    if ( ErrorHandler::NoError != sa->setScenarioLocation( m_locPath.c_str() ) ||
-        ErrorHandler::NoError != sa->applyMutations(      sa->doeCaseSet()  ) 
+        ErrorHandler::NoError != sa->applyMutations(      sa->doeCaseSet()  ) ||
       )
    {
       throw ErrorHandler::Exception(sa->errorCode()) << sa->errorMessage();
    }
 
-   LogHandler( LogHandler::INFO_SEVERITY ) << "Data digger requesting observables...";
+   LogHandler( LogHandler::INFO_SEVERITY ) << "Validating generated cases...";
+   if ( ErrorHandler::NoError != sa->validateCaseSet(     sa->doeCaseSet()  ) )
+   {
+      throw ErrorHandler::Exception(sa->errorCode()) << sa->errorMessage();
+   }
 
+   LogHandler( LogHandler::INFO_SEVERITY ) << "Data digger requesting observables...";
    if ( ErrorHandler::NoError != sa->dataDigger().requestObservables(sa->obsSpace(), sa->doeCaseSet() ) )
    {
       throw ErrorHandler::Exception( sa->dataDigger().errorCode() ) << sa->dataDigger().errorMessage();
