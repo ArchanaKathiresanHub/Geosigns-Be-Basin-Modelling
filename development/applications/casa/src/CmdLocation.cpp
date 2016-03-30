@@ -29,7 +29,7 @@ void CmdLocation::execute( std::unique_ptr<casa::ScenarioAnalysis> & sa )
 {
    LogHandler( LogHandler::INFO_SEVERITY ) << "Generating the set of cases in folder: " << m_locPath << "...";
    if ( ErrorHandler::NoError != sa->setScenarioLocation( m_locPath.c_str() ) ||
-        ErrorHandler::NoError != sa->applyMutations(      sa->doeCaseSet()  ) ||
+        ErrorHandler::NoError != sa->applyMutations(      sa->doeCaseSet()  )
       )
    {
       throw ErrorHandler::Exception(sa->errorCode()) << sa->errorMessage();
