@@ -1,3 +1,13 @@
+//
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include <algorithm>
 #include <math.h>
 #include <limits.h>
@@ -8,10 +18,7 @@
 
 #include "petsc.h"
 
-#if 0
-#include "Interface/ProjectHandle.h"
-#endif
-
+#include "FormattingException.h"
 #include "Interface/DistributedGridMap.h"
 
 #include "Interface/DistributedGrid.h"
@@ -35,9 +42,15 @@ DistributedGridMap::~DistributedGridMap (void)
 }
 
 /// Create a GridMap from the given grid with the given value to be used for undefined values.
-DistributedGridMap::DistributedGridMap (const Grid * grid, unsigned int depth, double undefinedValue) :
-       GridMap (0, 0),
-      m_grid (grid), m_undefinedValue (undefinedValue), m_averageValue (m_undefinedValue), m_depth (depth), m_retrieved (false)
+DistributedGridMap::DistributedGridMap( const Grid * grid,
+                                        const unsigned int depth,
+                                        const double & undefinedValue ) :
+      GridMap (0, 0),
+      m_grid (grid),
+      m_undefinedValue (undefinedValue),
+      m_averageValue (m_undefinedValue),
+      m_depth (depth),
+      m_retrieved (false)
 {
    initialize ();
    PetscScalar initialValue = m_undefinedValue;
@@ -46,28 +59,48 @@ DistributedGridMap::DistributedGridMap (const Grid * grid, unsigned int depth, d
 
 
 /// Create a constant GridMap from the given value
-DistributedGridMap::DistributedGridMap (const Parent * owner, unsigned int childIndex, const Grid * grid, double value, unsigned int depth) :
-      GridMap (owner, childIndex), m_undefinedValue (DefaultUndefinedMapValue), m_averageValue (m_undefinedValue), m_depth (depth), m_grid (grid), m_retrieved (false)
+DistributedGridMap::DistributedGridMap( const Parent * owner,
+                                        const unsigned int childIndex,
+                                        const Grid * grid,
+                                        const double & value,
+                                        const unsigned int depth ) :
+      GridMap (owner, childIndex),
+      m_undefinedValue (DefaultUndefinedMapValue),
+      m_averageValue (m_undefinedValue),
+      m_depth (depth),
+      m_grid (grid),
+      m_retrieved (false)
 {
    initialize ();
    PetscScalar initialValue = value;
    VecSet (m_vecGlobal, initialValue);
 }
 
-DistributedGridMap::DistributedGridMap (const Parent * owner, unsigned int childIndex, const Grid * grid,
-      double undefinedValue, unsigned int depth, float *** values) :
+DistributedGridMap::DistributedGridMap( const Parent * owner,
+                                        const unsigned int childIndex,
+                                        const Grid * grid,
+                                        const double & undefinedValue,
+                                        const unsigned int depth,
+                                        float *** const values ) :
       GridMap (owner, childIndex),
-      m_grid (grid), m_undefinedValue (undefinedValue), m_averageValue (m_undefinedValue), m_depth (depth), m_retrieved (false)
+      m_grid (grid),
+      m_undefinedValue (undefinedValue),
+      m_averageValue (m_undefinedValue),
+      m_depth (depth),
+      m_retrieved (false)
 {
    initialize ();
 
    retrieveData ();
 
-   for (unsigned int i = firstI (); i <= lastI (); ++i)
+   const unsigned int iLast = lastI();
+   const unsigned int jLast = lastJ();
+
+   for (unsigned int i = firstI (); i <= iLast; ++i)
    {
-      for (unsigned int j = firstJ (); j <= lastJ (); ++j)
+      for (unsigned int j = firstJ (); j <= jLast; ++j)
       {
-         for (unsigned int k = 0; k < getDepth (); ++k)
+         for (unsigned int k = 0; k < m_depth; ++k)
          {
             {
                setValue (i, j, k, values[i][j][k]);
@@ -79,10 +112,17 @@ DistributedGridMap::DistributedGridMap (const Parent * owner, unsigned int child
 }
 
 /// Create a GridMap from the two given GridMap objects after elementwise processing by the specified operator function.
-DistributedGridMap::DistributedGridMap (const Parent * owner, unsigned int childIndex,
-      const GridMap * operand1, const GridMap * operand2, BinaryOperator binaryOperator):
-      GridMap (owner, childIndex), m_grid ((DistributedGrid *) operand1->getGrid ()),
-      m_undefinedValue (operand1->getUndefinedValue ()), m_averageValue (m_undefinedValue), m_depth (operand1->getDepth ()), m_retrieved (false)
+DistributedGridMap::DistributedGridMap( const Parent * owner,
+                                        const unsigned int childIndex,
+                                        const GridMap * operand1, 
+                                        const GridMap * operand2, 
+                                        BinaryOperator binaryOperator ):
+      GridMap (owner, childIndex),
+      m_grid ((DistributedGrid *) operand1->getGrid ()),
+      m_undefinedValue (operand1->getUndefinedValue ()),
+      m_averageValue (m_undefinedValue),
+      m_depth (operand1->getDepth ()),
+      m_retrieved (false)
 {
    initialize ();
 
@@ -101,11 +141,14 @@ DistributedGridMap::DistributedGridMap (const Parent * owner, unsigned int child
 
    assert (getDepth () == operand2->getDepth ());
 
-   for (unsigned int i = firstI (); i <= lastI (); ++i)
+   const unsigned int iLast = lastI();
+   const unsigned int jLast = lastJ();
+
+   for (unsigned int i = firstI (); i <= iLast; ++i)
    {
-      for (unsigned int j = firstJ (); j <= lastJ (); ++j)
+      for (unsigned int j = firstJ (); j <= jLast; ++j)
       {
-         for (unsigned int k = 0; k < getDepth (); ++k)
+         for (unsigned int k = 0; k < m_depth; ++k)
          {
             if (!operand1->valueIsDefined (i, j, k) || !operand2->valueIsDefined (i, j, k))
             {
@@ -125,10 +168,17 @@ DistributedGridMap::DistributedGridMap (const Parent * owner, unsigned int child
 }
 
 /// Create a GridMap from the two given GridMap objects after elementwise processing by the specified binary functor.
-DistributedGridMap::DistributedGridMap (const Parent * owner, unsigned int childIndex,
-      const GridMap * operand1, const GridMap * operand2, BinaryFunctor& binaryFunctor) : 
-   GridMap (owner, childIndex), m_grid ((DistributedGrid *) operand1->getGrid ()), m_undefinedValue (operand1->getUndefinedValue ()), 
-   m_averageValue (m_undefinedValue), m_depth (operand1->getDepth ()), m_retrieved (false)
+DistributedGridMap::DistributedGridMap( const Parent * owner,
+                                        const unsigned int childIndex,
+                                        const GridMap * operand1,
+                                        const GridMap * operand2,
+                                        BinaryFunctor& binaryFunctor ) : 
+   GridMap (owner, childIndex),
+   m_grid ((DistributedGrid *) operand1->getGrid ()),
+   m_undefinedValue (operand1->getUndefinedValue ()), 
+   m_averageValue (m_undefinedValue),
+   m_depth (operand1->getDepth ()),
+   m_retrieved (false)
 {
    initialize ();
 
@@ -147,11 +197,14 @@ DistributedGridMap::DistributedGridMap (const Parent * owner, unsigned int child
 
    assert (getDepth () == operand2->getDepth ());
 
-   for (unsigned int i = firstI (); i <= lastI (); ++i)
+   const unsigned int iLast = lastI();
+   const unsigned int jLast = lastJ();
+
+   for (unsigned int i = firstI (); i <= iLast; ++i)
    {
-      for (unsigned int j = firstJ (); j <= lastJ (); ++j)
+      for (unsigned int j = firstJ (); j <= jLast; ++j)
       {
-         for (unsigned int k = 0; k < getDepth (); ++k)
+         for (unsigned int k = 0; k < m_depth; ++k)
          {
             if (!operand1->valueIsDefined (i, j, k) || !operand2->valueIsDefined (i, j, k))
             {
@@ -171,9 +224,16 @@ DistributedGridMap::DistributedGridMap (const Parent * owner, unsigned int child
 }
 
 /// Create a GridMap from the given GridMap after elementwise processing by the specified operator function.
-DistributedGridMap::DistributedGridMap (const Parent * owner, unsigned int childIndex, const GridMap * operand, UnaryOperator unaryOperator) :
-      GridMap (owner, childIndex), m_grid ((DistributedGrid *) operand->getGrid ()),
-      m_undefinedValue (operand->getUndefinedValue ()), m_averageValue (m_undefinedValue), m_depth (operand->getDepth ()), m_retrieved (false)
+DistributedGridMap::DistributedGridMap( const Parent * owner,
+                                        const unsigned int childIndex,
+                                        const GridMap * operand,
+                                        UnaryOperator unaryOperator ) :
+      GridMap (owner, childIndex),
+      m_grid ((DistributedGrid *) operand->getGrid ()),
+      m_undefinedValue (operand->getUndefinedValue ()),
+      m_averageValue (m_undefinedValue),
+      m_depth (operand->getDepth ()),
+      m_retrieved (false)
 {
    initialize ();
 
@@ -186,11 +246,14 @@ DistributedGridMap::DistributedGridMap (const Parent * owner, unsigned int child
 
    assert (getDepth () == operand->getDepth ());
 
-   for (unsigned int i = firstI (); i <= lastI (); ++i)
+   const unsigned int iLast = lastI();
+   const unsigned int jLast = lastJ();
+
+   for (unsigned int i = firstI (); i <= iLast; ++i)
    {
-      for (unsigned int j = firstJ (); j <= lastJ (); ++j)
+      for (unsigned int j = firstJ (); j <= jLast; ++j)
       {
-         for (unsigned int k = 0; k < getDepth (); ++k)
+         for (unsigned int k = 0; k < m_depth; ++k)
          {
             if (!operand->valueIsDefined (i, j, k))
             {
@@ -209,9 +272,16 @@ DistributedGridMap::DistributedGridMap (const Parent * owner, unsigned int child
 }
 
 /// Create a GridMap from the given GridMap after elementwise processing by the specified operator function.
-DistributedGridMap::DistributedGridMap (const Parent * owner, unsigned int childIndex, const GridMap * operand, UnaryFunctor& unaryFunctor) :
-      GridMap (owner, childIndex), m_grid ((DistributedGrid *) operand->getGrid ()),
-      m_undefinedValue (operand->getUndefinedValue ()), m_averageValue (m_undefinedValue), m_depth (operand->getDepth ()), m_retrieved (false)
+DistributedGridMap::DistributedGridMap( const Parent * owner,
+                                        const unsigned int childIndex,
+                                        const GridMap * operand,
+                                        UnaryFunctor& unaryFunctor ) :
+      GridMap (owner, childIndex),
+      m_grid ((DistributedGrid *) operand->getGrid ()),
+      m_undefinedValue (operand->getUndefinedValue ()),
+      m_averageValue (m_undefinedValue),
+      m_depth (operand->getDepth ()),
+      m_retrieved (false)
 {
    initialize ();
 
@@ -224,11 +294,14 @@ DistributedGridMap::DistributedGridMap (const Parent * owner, unsigned int child
 
    assert (getDepth () == operand->getDepth ());
 
-   for (unsigned int i = firstI (); i <= lastI (); ++i)
+   const unsigned int iLast = lastI();
+   const unsigned int jLast = lastJ();
+
+   for (unsigned int i = firstI (); i <= iLast; ++i)
    {
-      for (unsigned int j = firstJ (); j <= lastJ (); ++j)
+      for (unsigned int j = firstJ (); j <= jLast; ++j)
       {
-         for (unsigned int k = 0; k < getDepth (); ++k)
+         for (unsigned int k = 0; k < m_depth; ++k)
          {
             if (!operand->valueIsDefined (i, j, k))
             {
@@ -264,7 +337,6 @@ void DistributedGridMap::initialize (void)
       DMDAGetLocalInfo (m_localInfo.da, &m_localInfo);
       DMCreateGlobalVector (m_localInfo.da, &m_vecGlobal);
    }
-
 
    m_modified = false;
 }
@@ -319,7 +391,27 @@ bool DistributedGridMap::restoreData (bool save, bool withGhosts) const
       DMDAVecRestoreArray (m_localInfo.da, m_withGhosts ? m_vecLocal : m_vecGlobal, (void *) &m_values[0]);
       Array < double **>::delete1d (m_values);
    }
+   
+   if( save && m_withGhosts && withGhosts )
+   {
+      // If all the followings hold
+      // - the save option is active
+      // - the map has been retrieved with ghost nodes
+      // - the ghost nodes will be restored
+      // we need to check that every (or none of) MPI processor is ready to send its piece of information otherwise this
+      // will cause hanging MPI communication. This needs to be done only when ghost nodes have to be restored because MPI communications
+      // are involved only when DMLocalToGlobalBegin and DMLocalToGlobalEnd are called with ADD_VALUES option.
+      PetscErrorCode ierr;
+      int globalReady = 0;
+      const int localReady = m_modified ? 1 : 0;
+      ierr = MPI_Allreduce( &localReady, &globalReady, 1, MPI_INT, MPI_SUM, PETSC_COMM_WORLD); CHKERRQ(ierr);
 
+      PetscMPIInt mpiSize = 0;
+      ierr = MPI_Comm_size( PETSC_COMM_WORLD, &mpiSize ); CHKERRQ(ierr);
+      if( not (globalReady == 0 || globalReady == mpiSize) )
+         throw formattingexception::GeneralException() << __FUNCTION__ << " is causing hanging MPI communications.";
+   }
+   
    if (save && m_modified)
    {
       if (m_withGhosts)
@@ -392,43 +484,6 @@ unsigned int DistributedGridMap::numJ (void) const
    return m_withGhosts ? m_localInfo.gym : m_localInfo.ym;
 }
 
-#if 0
-unsigned int DistributedGridMap::firstI (void) const
-{
-   assert (m_retrieved);
-   return m_withGhosts ? m_localInfo.gxs : m_localInfo.xs;
-}
-unsigned int DistributedGridMap::firstJ (void) const
-{
-   assert (m_retrieved);
-   return m_withGhosts ? m_localInfo.gys : m_localInfo.ys;
-}
-#endif
-
-#if 0
-unsigned int DistributedGridMap::firstK (void) const
-{
-   return 0;
-}
-
-unsigned int DistributedGridMap::lastI (void) const
-{
-   assert (m_retrieved);
-   return m_withGhosts ? (m_localInfo.gxs + m_localInfo.gxm - 1) : (m_localInfo.xs + m_localInfo.xm - 1);
-}
-
-unsigned int DistributedGridMap::lastJ (void) const
-{
-   assert (m_retrieved);
-   return m_withGhosts ? (m_localInfo.gys + m_localInfo.gym - 1) : (m_localInfo.ys + m_localInfo.ym - 1);
-}
-
-unsigned int DistributedGridMap::lastK (void) const
-{
-   return getDepth () - 1;
-}
-#endif
-
 double DistributedGridMap::minI (bool withGhosts) const
 {
    return m_grid->minIGlobal () + firstI (withGhosts) * deltaI ();
@@ -499,14 +554,6 @@ bool DistributedGridMap::isGridPoint (unsigned int i,unsigned int j, unsigned in
    }
    else
    {
-#if 0
-      cerr << ddd::GetRankString () << ": grid point (" << i << ", " << j << ", " << k
-    << ", " << (m_withGhosts ? "true" : "false") << ") is out of bounds" << endl;
-      cerr << "\tfirstI (true) = " << firstI (true) << endl;
-      cerr << "\tfirstI (false) = " << firstI (false) << endl;
-      cerr << "\tlastI (true) = " << lastI (true) << endl;
-      cerr << "\tlastI (false) = " << lastI (false) << endl;
-#endif
       return false;
    }
 
@@ -663,20 +710,23 @@ double DistributedGridMap::getAverageValue () const
       return m_averageValue;
    }
 
-   for (unsigned int i = firstI (); i <= lastI (); ++i)
-   {
-      for (unsigned int j = firstJ (); j <= lastJ (); ++j)
-      {
-    for (unsigned int k = 0; k < m_depth; ++k)
-    {
-       double value = getValue (i, j, k);
+   const unsigned int iLast = lastI();
+   const unsigned int jLast = lastJ();
 
-       if (value != getUndefinedValue ())
-       {
-          numValues++;
-          total += value;
-       }
-    }
+   for (unsigned int i = firstI(); i <= iLast; ++i)
+   {
+      for (unsigned int j = firstJ(); j <= jLast; ++j)
+      {
+         for (unsigned int k = 0; k < m_depth; ++k)
+         {
+            double value = getValue (i, j, k);
+
+            if (value != getUndefinedValue ())
+            {
+               numValues++;
+               total += value;
+            }
+         }
       }
    }
 
@@ -703,20 +753,23 @@ void DistributedGridMap::getMinMaxValue (double & min, double & max) const
    double minGlobal;
    double maxGlobal;
 
-   for (unsigned int i = firstI (); i <= lastI (); ++i)
-   {
-      for (unsigned int j = firstJ (); j <= lastJ (); ++j)
-      {
-    for (unsigned int k = 0; k < m_depth; k++)
-    {
-       double value = getValue (i, j, k);
+   const unsigned int iLast = lastI();
+   const unsigned int jLast = lastJ();
 
-       if (value != getUndefinedValue ())
-       {
-          maxLocal = std::max (value, maxLocal);
-          minLocal = std::min (value, minLocal);
-       }
-    }
+   for (unsigned int i = firstI(); i <= iLast; ++i)
+   {
+      for (unsigned int j = firstJ(); j <= jLast; ++j)
+      {
+         for (unsigned int k = 0; k < m_depth; k++)
+         {
+            double value = getValue (i, j, k);
+
+            if (value != getUndefinedValue ())
+            {
+               maxLocal = std::max (value, maxLocal);
+               minLocal = std::min (value, minLocal);
+            }
+         }
       }
    }
 
@@ -736,19 +789,22 @@ double DistributedGridMap::getSumOfValues () const
 {
    double total = 0;
 
-   for (unsigned int i = firstI (); i <= lastI (); ++i)
-   {
-      for (unsigned int j = firstJ (); j <= lastJ (); ++j)
-      {
-    for (unsigned int k = 0; k < m_depth; ++k)
-    {
-       double value = getValue (i, j, k);
+   const unsigned int iLast = lastI();
+   const unsigned int jLast = lastJ();
 
-       if (value != getUndefinedValue ())
-       {
-          total += value;
-       }
-    }
+   for (unsigned int i = firstI(); i <= iLast; ++i)
+   {
+      for (unsigned int j = firstJ(); j <= jLast; ++j)
+      {
+         for (unsigned int k = 0; k < m_depth; ++k)
+         {
+            double value = getValue (i, j, k);
+
+            if (value != getUndefinedValue ())
+            {
+               total += value;
+            }
+         }
       }
    }
 
@@ -763,19 +819,22 @@ double DistributedGridMap::getSumOfSquaredValues () const
 {
    double total = 0;
 
-   for (unsigned int i = firstI (); i <= lastI (); ++i)
-   {
-      for (unsigned int j = firstJ (); j <= lastJ (); ++j)
-      {
-    for (unsigned int k = 0; k < m_depth; ++k)
-    {
-       double value = getValue (i, j, k);
+   const unsigned int iLast = lastI();
+   const unsigned int jLast = lastJ();
 
-       if (value != getUndefinedValue ())
-       {
-          total += value * value;
-       }
-    }
+   for (unsigned int i = firstI(); i <= iLast; ++i)
+   {
+      for (unsigned int j = firstJ(); j <= jLast; ++j)
+      {
+         for (unsigned int k = 0; k < m_depth; ++k)
+         {
+            double value = getValue (i, j, k);
+
+            if (value != getUndefinedValue ())
+            {
+               total += value * value;
+            }
+         }
       }
    }
 
@@ -790,19 +849,22 @@ int DistributedGridMap::getNumberOfDefinedValues () const
 {
    unsigned int numValues = 0;
 
-   for (unsigned int i = firstI (); i <= lastI (); ++i)
-   {
-      for (unsigned int j = firstJ (); j <= lastJ (); ++j)
-      {
-    for (unsigned int k = 0; k < m_depth; ++k)
-    {
-       double value = getValue (i, j, k);
+   const unsigned int iLast = lastI();
+   const unsigned int jLast = lastJ();
 
-       if (value != getUndefinedValue ())
-       {
-          numValues++;
-       }
-    }
+   for (unsigned int i = firstI(); i <= iLast; ++i)
+   {
+      for (unsigned int j = firstJ(); j <= jLast; ++j)
+      {
+         for (unsigned int k = 0; k < m_depth; ++k)
+         {
+            double value = getValue (i, j, k);
+
+            if (value != getUndefinedValue ())
+            {
+               numValues++;
+            }
+         }
       }
    }
 
@@ -857,12 +919,12 @@ double const * const * const * DistributedGridMap::getValues (void) const
 // saveHDF5 (.....) is an abstract function and its implementation is missing
 // for the distributed version. This implementation is now added which simply
 // throws an error when called.
-bool DistributedGridMap::saveHDF5 (const string & fileName) const
+bool DistributedGridMap::saveHDF5 (const std::string & fileName) const
 {
    throw "bool GridMap::saveHDF5 (const string & fileName) const is not implemented in the distributed version.";
 }
 
-void DistributedGridMap::printOn (ostream & ostr) const
+void DistributedGridMap::printOn (std::ostream & ostr) const
 {
    unsigned int depth = getDepth ();
    unsigned int numI = getGrid ()->numI ();
@@ -873,24 +935,24 @@ void DistributedGridMap::printOn (ostream & ostr) const
    ostr << ", numI = " << numI;
    ostr << ", numJ = " << numJ;
    ostr << ", undefinedValue = " << getUndefinedValue ();
-   ostr << endl;
+   ostr << std::endl;
 
    for (unsigned int k = 0; k < depth; ++k)
    {
       for (unsigned int i = 0; i < numI; ++i)
       {
-    for (unsigned int j = 0; j < numJ; ++j)
-    {
-       double value = getValue (i, j, k);
+         for (unsigned int j = 0; j < numJ; ++j)
+         {
+            double value = getValue(i, j, k);
 
-       ostr << std::setw ( 16 ) << value;
-       if (j != numJ - 1)
-          ostr << ",";
+            ostr << std::setw(16) << value;
+            if (j != numJ - 1)
+               ostr << ",";
 
-    }
-    ostr << endl;
+         }
+         ostr << std::endl;
       }
-      ostr << endl;
+      ostr << std::endl;
    }
 }
 
@@ -900,25 +962,32 @@ void DistributedGridMap::printOn (MPI_Comm comm) const
    unsigned int i, j, k;
 
    const Grid *grid = (Grid *) getGrid ();
+   
+   const unsigned int iFirst = firstI();
+   const unsigned int jFirst = firstJ();
+   const unsigned int iLast  = lastI();
+   const unsigned int jLast  = lastJ();
+   const unsigned int numIglobal = grid->numIGlobal();
+   const unsigned int numJglobal = grid->numJGlobal();
 
    for (k = 0; k < m_depth; k++)
    {
       PetscSynchronizedPrintf (comm, "(%d)\t", k);
 
-      for (i = 0; i < grid->numIGlobal (); i++)
+      for (i = 0; i < numIglobal; i++)
       {
          PetscSynchronizedPrintf (comm, "       %d\t", i);
       }
       PetscSynchronizedPrintf (comm, "\n");
 
-      for (j = 0; j < grid->numJGlobal (); j++)
+      for (j = 0; j < numJglobal; j++)
       {
          PetscSynchronizedPrintf (comm, "%d\t", j);
 
-         for (i = 0; i < grid->numIGlobal (); i++)
+         for (i = 0; i < numIglobal; i++)
          {
-            if (i >= firstI () && i <= lastI () &&
-                j >= firstJ () && j <= lastJ ())
+            if (i >= iFirst && i <= iLast &&
+                j >= jFirst && j <= jLast)
             {
                PetscSynchronizedPrintf (comm, "%8.2lf\t", getValue (i, j));
             }
@@ -982,27 +1051,20 @@ bool DistributedGridMap::transformHighRes2LowRes(GridMap *mapB) const
    {
       for (indexJmapB = mapB->firstJ (); indexJmapB <= mapB->lastJ (); ++indexJmapB)
       {
-    if (GridB->convertToGrid ( (*highResGridA), indexImapB, indexJmapB, indexImapA, indexJmapA) )
-    {
-       for (k = 0; k < depthA; k++)
-       {
+         if (GridB->convertToGrid ( (*highResGridA), indexImapB, indexJmapB, indexImapA, indexJmapA) )
+         {
+            for (k = 0; k < depthA; k++)
+            {
                mapB->setValue (indexImapB, indexJmapB, k, mapA->getValue (indexImapA, indexJmapA, k));
-          
-#if 0
-          cerr << ddd::GetRankString () << ": converting value " << mapA->getValue (indexImapA, indexJmapA, k) <<
-    GridB->numI() << ", " << GridB->numJ()  << ")" << endl;
-        " from lowres (" << indexImapB << ", " << indexJmapB << ", " << k <<
-        ") to highres (" << indexImapA << ", "  << indexJmapA << ", " << k << ")" << endl;
-#endif
-       }
-    }
-    else
-    {
-       cerr << "conversion from lowres (" << indexImapB << ", " << indexJmapB <<
-          ") to highres (" << indexImapA << ", " << indexJmapA << ") failed unexpectedly" << endl;
-       ret = false;
-       break;
-    }
+            }
+         }
+         else
+         {
+            cerr << "conversion from lowres (" << indexImapB << ", " << indexJmapB <<
+               ") to highres (" << indexImapA << ", " << indexJmapA << ") failed unexpectedly" << endl;
+            ret = false;
+            break;
+         }
       }
    }
 
@@ -1039,39 +1101,27 @@ bool DistributedGridMap::transformLowRes2HighRes(GridMap *mapB) const
 
          if (!globalGridB.convertToGrid (globalGridA, highResI, highResJ, doubleLowResI, doubleLowResJ))
          {
-       // one of the four surrounding lowres grid points is outside the highres grid
-#if 0
-       cerr << "mapping of (" << highResI << ", " << highResJ << ") to " <<
-          "(" << doubleLowResI << ", " << doubleLowResJ << ") is out of bounds " << endl;
-#endif
+            // one of the four surrounding lowres grid points is outside the highres grid
 
             for (k = 0; k < depthB; k++)
-       {
-               mapB->setValue(highResI, highResJ, k, DefaultUndefinedMapValue); 
-       }
-       continue;
+            {
+               mapB->setValue(highResI, highResJ, k, DefaultUndefinedMapValue);
+            }
+            continue;
          }
 
-#if 0
-       cerr << "mapping of (" << highResI << ", " << highResJ << ") to " <<
-          "(" << doubleLowResI << ", " << doubleLowResJ << ") is within bounds " << endl;
-#endif
          unsigned int intLowResI = (int) doubleLowResI;
          unsigned int intLowResJ = (int) doubleLowResJ;
 
-    const double errorMargin = 1e-4;
+         const double errorMargin = 1e-4;
 
          double fractionI = doubleLowResI - intLowResI;
-    if (fractionI < errorMargin) fractionI = 0;
-    if (fractionI > 1 - errorMargin) fractionI = 1;
+         if (fractionI < errorMargin) fractionI = 0;
+         if (fractionI > 1 - errorMargin) fractionI = 1;
 
          double fractionJ = doubleLowResJ - intLowResJ;
-    if (fractionJ < errorMargin) fractionJ = 0;
-    if (fractionJ > 1 - errorMargin) fractionJ = 1;
-
-#if 0
-    cerr << "Fractions (" << highResI << ", " << highResJ << ") = " << "(" << fractionI << ", " << fractionJ << ")" << endl;
-#endif
+         if (fractionJ < errorMargin) fractionJ = 0;
+         if (fractionJ > 1 - errorMargin) fractionJ = 1;
 
          for (k = 0; k < depthB; k++)
          {
@@ -1084,55 +1134,45 @@ bool DistributedGridMap::transformLowRes2HighRes(GridMap *mapB) const
 
             double highResMapValue = 0;
 
-       if ((lowResMapValues[0][0] == mapA->getUndefinedValue () && fractionI != 1 && fractionJ != 1) ||
-        (lowResMapValues[0][1] == mapA->getUndefinedValue () && fractionI != 1 && fractionJ != 0) ||
-        (lowResMapValues[1][0] == mapA->getUndefinedValue () && fractionI != 0 && fractionJ != 1) ||
-        (lowResMapValues[1][1] == mapA->getUndefinedValue () && fractionI != 0 && fractionJ != 0))
-       {
-#if 0
-          cerr << ddd::GetRank () << ": " << endl;
-          cerr << "highResMapValue (" << highResI << ", " << highResJ << ") = undefined" << endl;
-          cerr << "fractionI = " << fractionI << ", fractionJ = " << fractionJ << endl;
-          cerr << "intLowResI = " << intLowResI << ", intLowResJ = " << intLowResJ << endl;
-          cerr << "doubleLowResI = " << doubleLowResI << ", doubleLowResJ = " << doubleLowResJ << endl;
-          cerr << "lowResMapValues[0][0] = " << lowResMapValues[0][0] << endl;
-          cerr << "lowResMapValues[0][1] = " << lowResMapValues[0][1] << endl;
-          cerr << "lowResMapValues[1][0] = " << lowResMapValues[1][0] << endl;
-          cerr << "lowResMapValues[1][1] = " << lowResMapValues[1][1] << endl;
-#endif
-          highResMapValue = mapB->getUndefinedValue ();
+            if ((lowResMapValues[0][0] == mapA->getUndefinedValue () && fractionI != 1 && fractionJ != 1) ||
+               (lowResMapValues[0][1] == mapA->getUndefinedValue () && fractionI != 1 && fractionJ != 0) ||
+               (lowResMapValues[1][0] == mapA->getUndefinedValue () && fractionI != 0 && fractionJ != 1) ||
+               (lowResMapValues[1][1] == mapA->getUndefinedValue () && fractionI != 0 && fractionJ != 0))
+            {
+               highResMapValue = mapB->getUndefinedValue();
 
-       }
-       else
-       {
-          highResMapValue += lowResMapValues[0][0] * (1 - fractionI) * (1 - fractionJ);
-          highResMapValue += lowResMapValues[0][1] * (1 - fractionI) * (fractionJ);
-          highResMapValue += lowResMapValues[1][0] * (fractionI) * (1 - fractionJ);
-          highResMapValue += lowResMapValues[1][1] * (fractionI) * (fractionJ);
-       }
+            }
+            else
+            {
+               highResMapValue += lowResMapValues[0][0] * (1 - fractionI) * (1 - fractionJ);
+               highResMapValue += lowResMapValues[0][1] * (1 - fractionI) * (fractionJ);
+               highResMapValue += lowResMapValues[1][0] * (fractionI) * (1 - fractionJ);
+               highResMapValue += lowResMapValues[1][1] * (fractionI) * (fractionJ);
+            }
 
             //set the value
-            mapB->setValue (highResI, highResJ, k, highResMapValue);
-#if 0
-       cerr << ddd::GetRankString () << ": setting value " << highResMapValue  <<
-          ") to highres (" << highResI << ", "  << highResJ << ", " << k << ")" << endl;
-#endif
+            mapB->setValue(highResI, highResJ, k, highResMapValue);
          }
       }
    }
 
    //mapB->printOn (PETSC_COMM_WORLD);
 
-   mapA->restoreData (true, true);
-   mapB->restoreData ();
+   mapA->restoreData(true, true);
+   mapB->restoreData();
 
    return ret;
 }
-bool DistributedGridMap::findLowResElementCoordinates(const unsigned int HighResI, const unsigned int HighResJ, const unsigned int depth, 
-                                     const DistributedGridMap *lowResMap,  const DistributedGrid *lowResGrid,  
-                                     const DistributedGrid *HighResGrid, 
-                                     unsigned int lowResElementCoordinatesInHighRes[],
-                                     double nodalValuesInLowResElement[], bool useGhostNodesInLowRes)
+
+bool DistributedGridMap::findLowResElementCoordinates( const unsigned int HighResI,
+                                                       const unsigned int HighResJ, 
+                                                       const unsigned int depth, 
+                                                       const DistributedGridMap *lowResMap, 
+                                                       const DistributedGrid *lowResGrid,  
+                                                       const DistributedGrid *HighResGrid, 
+                                                       unsigned int lowResElementCoordinatesInHighRes[],
+                                                       double nodalValuesInLowResElement[], 
+                                                       bool useGhostNodesInLowRes )
 {
    bool ret = false;
 
@@ -1176,33 +1216,33 @@ bool DistributedGridMap::findLowResElementCoordinates(const unsigned int HighRes
 
    return ret;
 }
-bool DistributedGridMap::isHighResNodeInLowResElement(const unsigned int &HighResI, const unsigned int &HighResJ, unsigned int lowResElementCoordinatesInHighRes[])
+
+bool DistributedGridMap::isHighResNodeInLowResElement( const unsigned int & HighResI,
+                                                       const unsigned int & HighResJ,
+                                                       unsigned int lowResElementCoordinatesInHighRes[] )
 {
    bool ret = false;
 
    if(
-   HighResI >= lowResElementCoordinatesInHighRes[0] && 
-   HighResI <= lowResElementCoordinatesInHighRes[2] &&
-        HighResJ >= lowResElementCoordinatesInHighRes[1] && 
-   HighResJ <= lowResElementCoordinatesInHighRes[3] 
-     )
-    {
-   ret = true;
-    }
+      HighResI >= lowResElementCoordinatesInHighRes[0] &&
+      HighResI <= lowResElementCoordinatesInHighRes[2] &&
+      HighResJ >= lowResElementCoordinatesInHighRes[1] &&
+      HighResJ <= lowResElementCoordinatesInHighRes[3]
+      )
+   {
+      ret = true;
+   }
 
-    return ret;
+   return ret;
 }
-bool DistributedGridMap::isHighResNodeInLowResGrid(const unsigned int &HighResI, const unsigned int &HighResJ, const GridMap *lowResMap,
-                                                           const Grid *lowResGrid, const Grid *highResGrid)
-{
-   //bool ret = false;
 
+bool DistributedGridMap::isHighResNodeInLowResGrid( const unsigned int & HighResI,
+                                                    const unsigned int & HighResJ,
+                                                    const GridMap *lowResMap,
+                                                    const Grid *lowResGrid,
+                                                    const Grid *highResGrid )
+{
    unsigned int lowResI, lowResJ;
 
    return (highResGrid->convertToGrid( (*lowResGrid), HighResI, HighResJ, lowResI, lowResJ));
-   //cout<<lowResI<<","<<lowResJ<<endl;
-
-   //ret = lowResMap->isGridPoint (lowResI, lowResJ, 0);
-
-   //return ret;
 }
