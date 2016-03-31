@@ -92,8 +92,10 @@ int main(int argc, char** argv)
    }
 
    // Matrix and RHS initialization
-   Mat A;
-   Vec b, x, xIn;
+   Mat A = 0;
+   Vec b = 0;
+   Vec x = 0;
+   Vec xIn = 0;
    if( !hasProject or !setupCauldron( argc, argv, isPressure, timeStep, A, b ) )
    {
       // If no project file has been provided or the Cauldron setup fails
@@ -133,13 +135,14 @@ int main(int argc, char** argv)
       PetscReal norm2xIn;
       rc = VecNorm( xIn, NORM_2, &norm2xIn ); // sqrt(sum_i (xIn_i)^2)
       if( norm2xIn > 0. ) rc = PetscPrintf( PETSC_COMM_WORLD ,"Relative L2 norm error wrt provided solution: %g\n", norm2err/norm2xIn );
+      if( err != 0 ) rc = VecDestroy( &err );
    }
 
    // Free memory and finalize
-   rc = MatDestroy( &A );
-   rc = VecDestroy( &b );
-   rc = VecDestroy( &x );
-   rc = VecDestroy( &xIn );
+   if( A != 0 ) rc = MatDestroy( &A );
+   if( b != 0 ) rc = VecDestroy( &b );
+   if( x != 0 ) rc = VecDestroy( &x );
+   if( xIn != 0 ) rc = VecDestroy( &xIn );
    if( l_argv != NULL ) delete [] l_argv;
    return PetscFinalize();
 }

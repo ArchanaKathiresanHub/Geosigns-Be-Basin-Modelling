@@ -512,6 +512,15 @@ add_gtest( NAME "PetscSolver"
            LINK_FLAGS "${PETSC_LINK_FLAGS}"
          )
 
+################## PETSC OBJECTS IO UNIT TESTS #################
+#
+#
+add_gtest( NAME "PetscObjectsIO"
+           SOURCES src/PetscObjectsIO.C test/PetscObjectsIO.C
+           LIBRARIES ${PETSC_LIBRARIES} ${Boost_LIBRARIES} FileSystem
+           LINK_FLAGS "${PETSC_LINK_FLAGS}"
+         )
+
 ###################### MESH UNIT TESTS #########################
 #
 # 1. Copy project files and input maps for dof counting unit tests
