@@ -4,12 +4,18 @@
 # Setup initial environment in the build directory and run CMAKE
 #
 
+HOSTNAME=`hostname -s`
 ##########################################################################
 ### Define default modules name for Intel C++ and Intel MPI
-intel_cxx_module_name="intel/2016.01"
-intel_impi_module_name="impi/5.1.2.150-iccifort-2016.1.150-GCC-4.9.3-2.25"
-intel_imkl_module_name="imkl/11.3.1.150-iimpi-2016.01-GCC-4.9.3-2.25"
-
+if [ ${HOSTNAME} == "okapi" ]; then
+   intel_cxx_module_name="intel/2016.02"
+   intel_impi_module_name="impi/5.1.3.181-icc-2016.02.062-GCC-4.8.5-4"
+   intel_imkl_module_name="imkl/11.3.2-icc-2016.02"
+else
+   intel_cxx_module_name="intel/2016.01"
+   intel_impi_module_name="impi/5.1.2.150-iccifort-2016.1.150-GCC-4.9.3-2.25"
+   intel_imkl_module_name="imkl/11.3.1.150-iimpi-2016.01-GCC-4.9.3-2.25"
+fi
 ##########################################################################
 
 ##########################################################################
@@ -99,7 +105,10 @@ if [ $cmake_param_use_intel -eq 1 ] && [ $cmake_param_intel_root -eq 0 ] ; then
          module load ${intel_cxx_module_name}
          module_loaded_in_script=1
       fi
+   else
+      echo "Module for Intel C++ is already loaded"
    fi
+   
    # extract path to intel compiler installation and it version
    icc_path=`which icc`
    intel_path=`dirname ${icc_path}`   #remove icc from path
@@ -108,7 +117,7 @@ if [ $cmake_param_use_intel -eq 1 ] && [ $cmake_param_intel_root -eq 0 ] ; then
 
    # check that we got path to the intel compiler installataion
    if [ "x${intel_path}" == "x" ]; then
-      echo "Can't load module for Intel C++ 2016.01"
+      echo "Can't load module for Intel C++"
       exit 1;
    fi
 fi

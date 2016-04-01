@@ -19,8 +19,8 @@ cmake_policy(SET CMP0054 NEW)
 if (UNIX AND EXISTS /apps/sss/share/getos2 )
    set(defaultPreset "ShellLinux")
 
-elseif (UNIX AND EXISTS /opt/cauldron )
-   set(defaultPreset "OpenSource")
+elseif (UNIX AND EXISTS /glb/data/cauldron )
+   set(defaultPreset "PDSCluster")
 
 elseif(WIN32)
    set(defaultPreset "Windows")
@@ -31,6 +31,7 @@ endif()
 
 set( BM_CONFIG_PRESET "${defaultPreset}" CACHE STRING "Reference to CMake file containing configuration presets. You can choose from: ShellLinux, Windows, and OFF") 
 if ( BM_CONFIG_PRESET )
+   message( STATUS "Loading environment for ${BM_CONFIG_PRESET}" )
    include("cmake/Go${BM_CONFIG_PRESET}.cmake")
 endif()
 

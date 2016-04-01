@@ -10,33 +10,31 @@
 #                                                                       #
 #########################################################################
 
-set(CBM_HOME "/opt/cauldron" CACHE PATH "The path the shared drive of the development team")
+set(CBM_HOME "/glb/data/cauldron" CACHE PATH "The path the shared drive of the development team")
 
-option( BM_BUILD_QT3_APPS "Build programs that need QT3" ON)
+option( BM_BUILD_QT3_APPS "Build programs that need QT3" OFF)
 option( BM_CSHARP_API "Build the C sharp interface (Windows only)" OFF )
 option( BM_EXTERNAL_COMPONENTS_REBUILD "Whether or not to rebuild external components" OFF)
 
 set(BM_EXTERNAL_COMPONENTS_DIR "${CBM_HOME}/hpc-library" CACHE PATH "The path to the directory of prebuilt libraries")
 
-set(BM_SSSDEV_INSTALL_DIR "/opt/ibs" CACHE PATH "sssdev installation path")
+set(BM_SSSDEV_INSTALL_DIR "/glb/data/cauldron/ibs" CACHE PATH "sssdev installation path")
 
 set(INTEL_CXX_ROOT "INTEL_CXX_ROOT-NOTFOUND" CACHE PATH "Path to Intel's compiler collection")
-set(INTEL_MPI_ROOT "INTEL_MPI_ROOT-NOTFOUND" CACHE PATH "Path to Intel MPI library" )
-set(INTEL_MKL_ROOT "INTEL_MKL_ROOT-NOTFOUND" CACHE PATH "Path to Intel MKL" )
+set(INTEL_MPI_ROOT "/glb/data/opt/intel/compilers_and_libraries/linux/mpi" CACHE PATH "Path to Intel MPI library" )
+set(INTEL_MKL_ROOT "/glb/data/opt/intel/compilers_and_libraries/linux/mkl" CACHE PATH "Path to Intel MKL" )
 
-if ( EXISTS "/usr/include/atlas" )
-   set(BLA_VENDOR "ATLAS")
-elseif ( EXISTS "/usr/lib64/libblas.a" AND EXISTS "/usr/lib64/liblapack.a" )
-   set(BLA_VENDOR "OPENBLAS")
-else ()
-   message( FATA_ERROR "Could not find BLAS librar" )
-endif ()
+#set(BM_CLOCK_GETTIME_LIB "-lrt")
+#set(BM_DL_LIB "dl" )
 
-option(BM_USE_INTEL_COMPILER "Whether to use the Intel compiler (UNIX only)" OFF)
-option(BM_USE_INTEL_MPI "Whether to use the Intel MPI (UNIX only)" OFF)
+set(BM_CLOCK_GETTIME_LIB "")
+set(BM_DL_LIB "" )
 
-set(BM_CLOCK_GETTIME_LIB "-lrt")
-set(BM_DL_LIB "dl" )
+set(BLA_VENDOR "MKL")
+
+option(BM_USE_INTEL_COMPILER "Whether to use the Intel compiler (UNIX only)" ON)
+option(BM_USE_INTEL_MPI "Whether to use the Intel MPI (UNIX only)" ON)
+
 
 if (EXISTS "/opt/cauldron/hpc-library/flexlm/EPTFlexLm_v11.11.1" )
    set( FLEXLM_ROOT "/opt/cauldron/hpc-library/flexlm/EPTFlexLm_v11.11.1" CACHE PATH "Path to FlexLM directory" )
