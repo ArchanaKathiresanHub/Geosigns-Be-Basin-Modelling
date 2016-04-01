@@ -2375,6 +2375,8 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  Pre
          const std::string solFileName = std::string( "presSol_t" + static_cast<ostringstream*>( &(ostringstream() << Current_Time) )->str() );
          int rc = PetscObjectsIO::writeVectorToFile( Residual_Solution, basinModel->getOutputDirectory(), solFileName, !m_saveInMatlabFormat );
          assert( rc == 0 );
+
+         pressureLinearSolver->viewSettings();
       }
 
 
@@ -2823,6 +2825,8 @@ void Basin_Modelling::FEM_Grid::Solve_Nonlinear_Temperature_For_Time_Step ( cons
        const std::string solFileName = std::string( "nlTemSol_t" + static_cast<ostringstream*>( &(ostringstream() << Current_Time) )->str() );
        int rc = PetscObjectsIO::writeVectorToFile( Residual_Solution, basinModel->getOutputDirectory(), solFileName, !m_saveInMatlabFormat );
        assert( rc == 0 );
+
+       temperatureLinearSolver->viewSettings();
     }
 
     timeStepCalculationTime   = End_Time - Start_Time; 
@@ -3041,6 +3045,8 @@ void Basin_Modelling::FEM_Grid::Solve_Linear_Temperature_For_Time_Step ( const d
      const std::string solFileName    = std::string( "tempSol_t" + static_cast<ostringstream*>( &(ostringstream() << Current_Time) )->str() );
      int rc = PetscObjectsIO::writeVectorToFile( Temperature, basinModel->getOutputDirectory(), solFileName, !m_saveInMatlabFormat );
      assert( rc == 0 );
+
+     temperatureLinearSolver->viewSettings();
   }
 
   Solve_Time = End_Time - Start_Time;

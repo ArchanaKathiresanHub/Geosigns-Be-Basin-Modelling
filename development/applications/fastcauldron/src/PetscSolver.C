@@ -30,6 +30,11 @@ void PetscSolver::loadCmdLineOptions()
    KSPSetFromOptions ( m_solver );
 }
 
+void PetscSolver::viewSettings() const
+{
+   KSPView( m_solver, PETSC_VIEWER_STDOUT_WORLD );
+}
+
 int PetscSolver :: getMaxIterations() const
 {
    double relativeTolerance = 0.0;
