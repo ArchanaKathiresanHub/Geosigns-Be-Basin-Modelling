@@ -9,19 +9,20 @@
 //
 
 #include "GeometricLoopPressureSolver.h"
+#include "propinterface.h"
+#include "CompoundLithology.h"
+#include "PetscVectors.h"
 
-#include "FiniteElementTypes.h"
+#include "Interface/GridMap.h"
 #include "NumericFunctions.h"
 
 #include "FastcauldronSimulator.h"
-#include "HydraulicFracturingManager.h"
-
-#include "element_contributions.h"
 #include "layer_iterators.h"
 #include "fem_grid_auxiliary_functions.h"
 
-GeometricLoopPressureSolver::GeometricLoopPressureSolver ( AppCtx* appl ) : PressureSolver ( appl ) {
-}
+GeometricLoopPressureSolver::GeometricLoopPressureSolver ( AppCtx* appl ) : PressureSolver ( appl ) {}
+
+GeometricLoopPressureSolver::~GeometricLoopPressureSolver() {}
 
 
 void GeometricLoopPressureSolver::adjustSolidThickness ( const double relativeThicknessTolerance,
@@ -38,19 +39,12 @@ void GeometricLoopPressureSolver::adjustSolidThickness ( const double relativeTh
   double FCT_Scaling; 
   double Input_Thickness;
   double Computed_Thickness;
+  double Thickness_Relative_Error;
   double Layer_Max_Error = -1.0; 
   double Local_Max_Error = -1.0; 
   double Global_Max_Error = -1.0; 
   double Global_Layer_Max_Error;
-  unsigned int I;
-  unsigned int J;
-  int K;
-  int xStart;
-  int yStart;
-  int zStart;
-  int xCount;
-  int yCount;
-  int zCount;
+  int xStart, yStart, xCount, yCount;
   int localGeometryHasConverged = 1;
   int globalGeometryHasConverged;
 
@@ -60,11 +54,10 @@ void GeometricLoopPressureSolver::adjustSolidThickness ( const double relativeTh
   double sumAbsErrorSquared;
   double sumAbsThicknessSquared;
 
-  int Layer_Count = 0;
-
   double Top_Depth;
   double Bottom_Depth;
-
+  
+  // Get the size of the layer DA.
   DMDAGetGhostCorners ( *cauldron->mapDA, &xStart, &yStart, PETSC_NULL, &xCount, &yCount, PETSC_NULL );
 
   while ( ! Pressure_Layers.Iteration_Is_Done ()) {
@@ -77,19 +70,12 @@ void GeometricLoopPressureSolver::adjustSolidThickness ( const double relativeTh
     sumAbsErrorSquared = 0.0;
     sumAbsThicknessSquared = 0.0;
 
-    //
-    // Get the size of the layer DA.
-    //
-    DMDAGetGhostCorners ( currentLayer->layerDA, &xStart, &yStart, &zStart, &xCount, &yCount, &zCount );
-
     PETSC_2D_Array FCTCorrection;
-    FCTCorrection.Set_Global_Array( *cauldron -> mapDA, currentLayer->FCTCorrection, 
-                                    INSERT_VALUES, true );
+    FCTCorrection.Set_Global_Array( *cauldron -> mapDA, currentLayer->FCTCorrection, INSERT_VALUES, true );
 
     PETSC_2D_Array Thickness_Error;
-    Thickness_Error.Set_Global_Array( *cauldron -> mapDA, currentLayer->Thickness_Error, 
-                                      INSERT_VALUES, true );
-    //
+    Thickness_Error.Set_Global_Array( *cauldron -> mapDA, currentLayer->Thickness_Error, INSERT_VALUES, true );
+
     //
     //  Computed_Depths:                 Present day depths, as computed by the pressure calculator
     //  Present_Day_Eroded_Thicknesses:  Input thicknesses, but with any erosion taken into account
@@ -98,19 +84,21 @@ void GeometricLoopPressureSolver::adjustSolidThickness ( const double relativeTh
     //
     currentLayer->Current_Properties.Activate_Property ( Basin_Modelling::Depth, INSERT_VALUES, true );
 
-    PETSC_2D_Array Deposited_Thicknesses          ( *cauldron->mapDA,    currentLayer->Computed_Deposition_Thickness,   INSERT_VALUES, true );
-    const Interface::GridMap*  Present_Day_Thicknesses= currentLayer->presentDayThickness;
+    PETSC_2D_Array Deposited_Thicknesses ( *cauldron->mapDA, currentLayer->Computed_Deposition_Thickness, INSERT_VALUES, true );
+    const Interface::GridMap * const Present_Day_Thicknesses = currentLayer->presentDayThickness;
+    Present_Day_Thicknesses->retrieveGhostedData ();
 
-    currentLayer->presentDayThickness->retrieveGhostedData ();
+    const unsigned int lastX = static_cast<unsigned int>(xStart + xCount);
+    const unsigned int lastY = static_cast<unsigned int>(yStart + yCount);
+    const unsigned int lastZ = currentLayer->getMaximumNumberOfElements();
+    for ( unsigned int I = static_cast<unsigned int>(xStart); I < lastX; ++I ) {
 
-    for ( I = (unsigned int)(xStart); I < (unsigned int)(xStart + xCount); I++ ) {
-
-      for ( J = (unsigned int)(yStart); J < (unsigned int)(yStart + yCount); J++ ) {
+      for ( unsigned int J = static_cast<unsigned int>(yStart); J < lastY; ++J ) {
 
         if ( cauldron->nodeIsDefined ( I, J )) {
 
-          Bottom_Depth = currentLayer->Current_Properties ( Basin_Modelling::Depth, zStart, J, I );
-          Top_Depth    = currentLayer->Current_Properties ( Basin_Modelling::Depth, zStart + zCount - 1, J, I );
+          Bottom_Depth = currentLayer->Current_Properties ( Basin_Modelling::Depth, 0, J, I );
+          Top_Depth    = currentLayer->Current_Properties ( Basin_Modelling::Depth, lastZ, J, I );
 
           if ( currentLayer->getPresentDayErodedThickness ( I, J ) > 0.1 ) {
             Input_Thickness    = currentLayer->getPresentDayErodedThickness ( I, J );
@@ -123,6 +111,8 @@ void GeometricLoopPressureSolver::adjustSolidThickness ( const double relativeTh
             Computed_Thickness = Deposited_Thicknesses ( J, I );
           }
 
+          Thickness_Relative_Error = fabs( ( Input_Thickness - Computed_Thickness ) / Input_Thickness );
+
           if ( cauldron -> debug2 ) {
             PetscPrintf ( PETSC_COMM_WORLD, " Needle: %3.4f  %3.4f  %3.4f  %3.4f  %3.4f  %3.4f  %3.4f  %3.4f  %3.4f \n",
                           Input_Thickness,
@@ -133,7 +123,7 @@ void GeometricLoopPressureSolver::adjustSolidThickness ( const double relativeTh
                           Deposited_Thicknesses ( J, I ),
                           Top_Depth,
                           Computed_Thickness / Input_Thickness,
-                          fabs (( Input_Thickness - Computed_Thickness ) / Input_Thickness ));
+                          Thickness_Relative_Error );
           }
 
           // Is 1.0e-10 the best value here? Perhaps a larger value would be better.
@@ -143,25 +133,25 @@ void GeometricLoopPressureSolver::adjustSolidThickness ( const double relativeTh
             FCT_Scaling = 1.0;
           }
 
-          FCTCorrection ( J, I ) = FCTCorrection ( J, I ) * FCT_Scaling;
+          FCTCorrection ( J, I ) *= FCT_Scaling;
 
           if ( Input_Thickness == 0.0 ) {
             Thickness_Error ( J, I ) = 0.0;
           } else {
-            Thickness_Error ( J, I ) = fabs (( Input_Thickness - Computed_Thickness ) / Input_Thickness ) * 100.0;
+            Thickness_Error ( J, I ) = Thickness_Relative_Error * 100.0;
           }
 
-          for ( K = zStart; K < zStart + zCount - 1; K++ ) {
+          for ( unsigned int K = 0; K < lastZ; ++K ) {
             currentLayer->getSolidThickness ( I, J, K ).ScaleBy ( FCT_Scaling );
           }
 
-          Layer_Max_Error = PetscMax ( Layer_Max_Error, fabs (( Input_Thickness - Computed_Thickness ) / Input_Thickness ));
+          Layer_Max_Error = PetscMax ( Layer_Max_Error, Thickness_Relative_Error );
 
+          double tmpVal = fabs ( Input_Thickness - Computed_Thickness );
+          sumAbsErrorSquared += tmpVal * tmpVal;
+          sumAbsThicknessSquared += Input_Thickness * Input_Thickness;
 
-          sumAbsErrorSquared += pow ( fabs ( Input_Thickness - Computed_Thickness ), 2 );
-          sumAbsThicknessSquared += pow ( Input_Thickness, 2 );
-
-          sumErrorSquared = sumErrorSquared + pow ( fabs (( Input_Thickness - Computed_Thickness ) / Input_Thickness ), 2 );
+          sumErrorSquared += Thickness_Relative_Error * Thickness_Relative_Error;
           ++segmentCount;
 
           // Now check to see of the layer-thickness has converged.
@@ -176,7 +166,7 @@ void GeometricLoopPressureSolver::adjustSolidThickness ( const double relativeTh
 
           } else {
 
-            if ( fabs (( Input_Thickness - Computed_Thickness ) / Input_Thickness ) > relativeThicknessTolerance ) {
+            if ( Thickness_Relative_Error > relativeThicknessTolerance ) {
               localGeometryHasConverged = 0;
             }
 
@@ -191,7 +181,7 @@ void GeometricLoopPressureSolver::adjustSolidThickness ( const double relativeTh
 
     }
 
-    currentLayer->presentDayThickness->restoreData ( false, true );
+    Present_Day_Thicknesses->restoreData ( false, false );
     currentLayer->Current_Properties.Restore_Property ( Basin_Modelling::Depth );
 
     FCTCorrection.Restore_Global_Array ( Update_Excluding_Ghosts );
@@ -224,7 +214,6 @@ void GeometricLoopPressureSolver::adjustSolidThickness ( const double relativeTh
     Local_Max_Error = PetscMax ( Local_Max_Error, Layer_Max_Error );
 
     Pressure_Layers++;
-    Layer_Count++;
   }
 
   MPI_Allreduce( &Local_Max_Error, &Global_Max_Error, 1, 
@@ -236,9 +225,6 @@ void GeometricLoopPressureSolver::adjustSolidThickness ( const double relativeTh
                  MPI_INT, MPI_MIN, PETSC_COMM_WORLD );
 
   geometryHasConverged = globalGeometryHasConverged == 1;
-//   Geometry_Has_Converged = Global_Max_Error <= relativeThicknessTolerance;
-
-
 
   if ( cauldron->debug1 or cauldron->Output_Level > 0 or cauldron->verbose ) {
     PetscPrintf ( PETSC_COMM_WORLD, " Max Error: %3.4f %% \n", 100.0 * Global_Max_Error );
@@ -293,14 +279,13 @@ void GeometricLoopPressureSolver::computeRealThickness ( const LayerProps_Ptr cu
 
   double Segment_Real_Thickness;
   double Solid_Density = Current_Lithology->density();
-  int I;
   
   Pore_Pressure_Bottom = Pore_Pressure_Top;
   Porosity_Bottom = Current_Lithology -> porosity ( VES, Max_VES, Include_Chemical_Compaction, Chemical_Compaction );
 
   Real_Thickness = 0.0;
 
-  for ( I = 1; I <= Number_Of_Segments; I++ ) {
+  for ( int I = 1; I <= Number_Of_Segments; ++I ) {
     Overpressure = ( Overpressure_Top * ( Number_Of_Segments - I ) + Overpressure_Bottom * I ) / Number_Of_Segments;
     Temperature  = ( Temperature_Top  * ( Number_Of_Segments - I ) + Temperature_Bottom  * I ) / Number_Of_Segments;
 
@@ -310,35 +295,12 @@ void GeometricLoopPressureSolver::computeRealThickness ( const LayerProps_Ptr cu
 
     Bulk_Density = Porosity_Bottom * Fluid_Density + ( 1.0 - Porosity_Bottom ) * Solid_Density;
 
-
-/*    if ( (Fluid_Density > Solid_Density) && ( currentLayer->fluid->SwitchPermafrost() ) )  // NLSAY3: We assume the solid is ice in this case
-    {
-      Hydrostatic_Pressure = Hydrostatic_Pressure + Segment_Real_Thickness * Bulk_Density * GRAVITY * Pa_To_MPa;
-    }
-    else
-    {
-      Hydrostatic_Pressure = Hydrostatic_Pressure + Segment_Real_Thickness * Fluid_Density * GRAVITY * Pa_To_MPa;
-    }*/
-
-
-/*    if ( (Fluid_Density > Solid_Density) && ( currentLayer->fluid->SwitchPermafrost() ) )  // NLSAY3: We assume the solid is ice in this case
-    {
-      Hydrostatic_Pressure = Hydrostatic_Pressure + Segment_Real_Thickness * Solid_Density * GRAVITY * Pa_To_MPa;
-    }
-    else
-    {
-      Hydrostatic_Pressure = Hydrostatic_Pressure + Segment_Real_Thickness * Fluid_Density * GRAVITY * Pa_To_MPa;
-    }*/
-
-    if ( (Fluid_Density > Solid_Density) && ( currentLayer->fluid->SwitchPermafrost() ) )  // NLSAY3: We assume the solid is ice in this case
-    {
-      Hydrostatic_Pressure = Hydrostatic_Pressure; // + H * Fluid_Density * GRAVITY * Pa_To_MPa; // Second term should be 0 to be consistant.
-    }
-    else
+    // NLSAY3: We assume the solid is ice in this case
+    // for the else case     H * Fluid_Density * GRAVITY * Pa_To_MPa     should be 0 to be consistant.
+    if ( not ( (Fluid_Density > Solid_Density) && currentLayer->fluid->SwitchPermafrost() ) )
     {
       Hydrostatic_Pressure = Hydrostatic_Pressure + Segment_Real_Thickness * Fluid_Density * GRAVITY * Pa_To_MPa;
     }
-
 
     Lithostatic_Pressure = Lithostatic_Pressure + Segment_Real_Thickness * Bulk_Density  * GRAVITY * Pa_To_MPa;
 
@@ -371,31 +333,22 @@ void GeometricLoopPressureSolver::computeDependantPropertiesForLayer
      const double          currentTime, 
            PETSC_3D_Array& layerDepth,
            PETSC_3D_Array& hydrostaticPressure,
-           PETSC_3D_Array& Overpressure,
+     const PETSC_3D_Array& Overpressure,
            PETSC_3D_Array& porePressure,
            PETSC_3D_Array& lithostaticPressure,
            PETSC_3D_Array& VES,
            PETSC_3D_Array& intermediateMaxVES,
-           PETSC_3D_Array& maxVES,
+     const PETSC_3D_Array& maxVES,
            PETSC_3D_Array& layerPorosity,
            PETSC_3D_Array& layerPermeabilityNormal,
            PETSC_3D_Array& layerPermeabilityPlane,
            PETSC_3D_Array& layerTemperature,
-           PETSC_3D_Array& layerChemicalCompaction ) {
+     const PETSC_3D_Array& layerChemicalCompaction ) {
 
   const bool includeChemicalCompaction = (( cauldron -> Do_Chemical_Compaction ) && ( currentLayer->Get_Chemical_Compaction_Mode ()));
 
   // Need to do some name changing here, especially with the maxVES and 
   // intermediateMaxVES variables (NOT the Vectors). It can be a little confusing!
-
-  int I, J, K;
-  int X_Start;
-  int Y_Start;
-  int Z_Start;
-  int X_Count;
-  int Y_Count;
-  int Z_Count;
-  int zTopIndex;
   int needleTopActiveNode;
   int currentTopmostActiveSegment;
 
@@ -425,25 +378,27 @@ void GeometricLoopPressureSolver::computeDependantPropertiesForLayer
   double layerThickness;
   double previousSolidThickness;
   double currentSolidThickness;
-  double erodedSolidThickness;
   double estimatedMaxVES;
 
   double chemicalCompactionTop;
   double chemicalCompactionBottom;
 
-  bool  layerIsMobile = currentLayer->isMobile ();
+  const bool layerIsMobile = currentLayer->isMobile ();
 
   // There must be a better name for this variable.
   CompoundProperty porosityMixture;
 
   const CompoundLithology*  currentLithology;
-
+  
+  int X_Start, Y_Start, Z_Start, X_Count, Y_Count, Z_Count;
   DMDAGetCorners ( currentLayer->layerDA, &X_Start, &Y_Start, &Z_Start, &X_Count, &Y_Count, &Z_Count );
-  zTopIndex = Z_Start + Z_Count - 1;
+  const int zTopIndex = Z_Start + Z_Count - 1;
 
-  for ( I = X_Start; I < X_Start + X_Count; I++ ) {
+  const int lastX = X_Start + X_Count;
+  const int lastY = Y_Start + Y_Count;
+  for ( int I = X_Start; I < lastX; ++I ) {
 
-    for ( J = Y_Start; J < Y_Start + Y_Count; J++ ) {
+    for ( int J = Y_Start; J < lastY; ++J ) {
 
       if ( cauldron->nodeIsDefined ( I, J )) {
         depthTop = layerDepth ( zTopIndex, J, I );
@@ -538,7 +493,7 @@ void GeometricLoopPressureSolver::computeDependantPropertiesForLayer
 
         // Initialise properties on all inactive nodes and the top most 
         // active node to be the the value at the top of the layer.
-        for ( K = needleTopActiveNode; K >= currentTopmostActiveSegment + 1; K-- ) {
+        for ( int K = needleTopActiveNode; K >= currentTopmostActiveSegment + 1; --K ) {
           layerDepth          ( K, J, I ) = depthTop;
           hydrostaticPressure ( K, J, I ) = hydrostaticPressureTop;
           lithostaticPressure ( K, J, I ) = lithostaticPressureTop;
@@ -550,16 +505,7 @@ void GeometricLoopPressureSolver::computeDependantPropertiesForLayer
         }
 
         // Now compute the properties at the bottom of all active segments
-        for ( K = currentTopmostActiveSegment; K >= 0; K-- ) {
-// // //          for ( K = Z_Start + Z_Count - 2; K >= Z_Start; K-- ) {
-
-// //            if ( K == currentTopmostActiveSegment and previousSolidThickness > currentSolidThickness ) {
-// //               intermediateMaxVESBottom = intermediateMaxVES ( K, J, I );
-// //            } else {
-// //               intermediateMaxVESBottom = maxVES ( K, J, I );
-// //            }
-
-// //           // intermediateMaxVESBottom = maxVES ( K, J, I );
+        for ( int K = currentTopmostActiveSegment; K >= 0; --K ) {
 
           intermediateMaxVESBottom = maxVES ( K, J, I );
           solidThickness  = currentLayer->Current_Properties ( Basin_Modelling::Solid_Thickness, K, J, I );
@@ -646,7 +592,7 @@ void GeometricLoopPressureSolver::computeDependantPropertiesForLayer
 
       } else {
 
-        for ( K = zTopIndex; K >= 0; K-- ) {
+        for ( int K = zTopIndex; K >= 0; --K ) {
           layerDepth                ( K, J, I ) = CAULDRONIBSNULLVALUE;
           hydrostaticPressure       ( K, J, I ) = CAULDRONIBSNULLVALUE;
           lithostaticPressure       ( K, J, I ) = CAULDRONIBSNULLVALUE;
@@ -674,23 +620,14 @@ void GeometricLoopPressureSolver::computeDependantProperties ( const double prev
 
    using namespace Basin_Modelling;
 
-   ios::fmtflags Old_Flags = cout.flags ( ios::scientific );
-
-   int Old_Precision = cout.precision ( 8 );
-
    Layer_Iterator FEM_Layers ( cauldron->layers, Descending, Sediments_Only, Active_Layers_Only );
    LayerProps_Ptr currentLayer;
 
-   int X_Start;
-   int Y_Start;
-   int Z_Start;
-   int X_Count;
-   int Y_Count;
-   int Z_Count;
    int Z_Top;
 
    const Boolean2DArray& Valid_Needle = cauldron->getValidNeedles ();
-
+   
+   int X_Start, Y_Start, Z_Start, X_Count, Y_Count, Z_Count;
    DMDAGetCorners ( *cauldron->mapDA, &X_Start, &Y_Start, PETSC_NULL, &X_Count, &Y_Count, PETSC_NULL );
 
    Double_Array_2D Hydrostatic_Pressure_Above ( X_Count, Y_Count );
@@ -787,9 +724,6 @@ void GeometricLoopPressureSolver::computeDependantProperties ( const double prev
      setBasementDepths ( currentTime, Depth_Above, Valid_Needle );
   }
 
-  cout.flags ( Old_Flags );
-  cout.precision ( Old_Precision );
-
 }
 
 //------------------------------------------------------------//
@@ -799,17 +733,7 @@ void GeometricLoopPressureSolver::initialisePressureProperties ( const double pr
 
   using namespace Basin_Modelling;
 
-  int X_Start;
-  int Y_Start;
-  int Z_Start;
-
-  int X_Count;
-  int Y_Count;
-  int Z_Count;
-
-  int I;
-  int J;
-  int K;
+  int X_Start, Y_Start, Z_Start, X_Count, Y_Count, Z_Count;
 
   double Solid_Thickness_Value;
 
@@ -823,16 +747,19 @@ void GeometricLoopPressureSolver::initialisePressureProperties ( const double pr
     DMDAGetCorners( currentLayer->layerDA, &X_Start, &Y_Start, &Z_Start, &X_Count, &Y_Count, &Z_Count);
 
     PETSC_3D_Array Solid_Thickness ( currentLayer->layerDA, currentLayer->Current_Properties ( Basin_Modelling::Solid_Thickness ));
+    
+    const int lastX = X_Start + X_Count;
+    const int lastY = Y_Start + Y_Count;
+    const int lastZ = Z_Start + Z_Count;
+    for ( int I = X_Start; I < lastX; ++I ) {
 
-    for ( I = X_Start; I < X_Start + X_Count; I++ ) {
-
-      for ( J = Y_Start; J < Y_Start + Y_Count; J++ ) {
+      for ( int J = Y_Start; J < lastY; ++J ) {
 
         if ( Valid_Needle ( I, J )) {
 
-          for ( K = Z_Start; K < Z_Start + Z_Count; K++ ) {
+          for ( int K = Z_Start; K < lastZ; ++K ) {
 
-            if ( K != Z_Start + Z_Count - 1 ) {
+            if ( K != lastZ - 1 ) {
               Solid_Thickness_Value = currentLayer->getSolidThickness ( I, J, K, currentTime );
 
               if ( Solid_Thickness_Value != IBSNULLVALUE ) {
