@@ -18,7 +18,7 @@ cldgrp=`groups 2> /dev/null` || true
     cldgrp="g_psaz00"
   else
     if [[ "$cldgrp" =~ "cauldron" ]];then
-      cldgrp="'cauldron developers@PDS.LOCAL'"
+      cldgrp="'cauldron\ developers@PDS.LOCAL'"
     else
       cldgrp=""
     fi
