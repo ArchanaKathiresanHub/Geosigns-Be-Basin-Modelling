@@ -18,7 +18,7 @@ cldgrp=`groups 2> /dev/null` || true
     cldgrp="g_psaz00"
   else
     if [[ "$cldgrp" =~ "cauldron" ]];then
-      cldgrp="cauldron\ developers@PDS.LOCAL"
+      cldgrp='cauldron developers@PDS.LOCAL'
     else
       cldgrp=""
     fi
@@ -101,10 +101,10 @@ touch $miscDirectory/successfully_installed
 
 if [ "$cldgrp" ];then
   echo " - Changing group to $cldgrp"
-  chgrp -R $cldgrp $targetDirectory
+  chgrp -R "${cldgrp}" $targetDirectory
 fi
 
 echo " - Changing mode to g+w"
 chmod -R g+w $targetDirectory
 
-echo "DONE."
+echo "DONE"
