@@ -835,7 +835,8 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::saveCalibratedCase( const char * pr
    RunCase * bmCase = const_cast<RunCase*>( m_mcSolver->samplingPoint( mcSampleNum-1 ) ); // by default samples are sorted according to RMSE
    if ( !bmCase )
    {
-      throw Exception( MonteCarloSolverError ) << "Can not generate calibrated case: " << projFileName << ". Monte Carlo simulation should be done first";
+      throw Exception( MonteCarloSolverError ) << "Can not generate calibrated case: " << projFileName << 
+                                                  ". Monte Carlo simulation should be done first";
    }
 
    RunCaseImpl * bmCaseImpl = dynamic_cast<RunCaseImpl*>( bmCase );
@@ -851,7 +852,8 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::saveCalibratedCase( const char * pr
    bmCasePath.create();
    bmCasePath << projFileName;
 
-   // do mutation
+   // do mutationo
+   bmCaseImpl->setCleanDuplicatedLithologies( true );
    bmCaseImpl->mutateCaseTo( baseCase(), bmCasePath.path().c_str() );
    // add observables
    m_dataDigger->requestObservables( *m_obsSpace.get(), bmCaseImpl );

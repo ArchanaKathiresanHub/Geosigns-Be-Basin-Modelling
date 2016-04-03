@@ -30,6 +30,7 @@ namespace casa
    RunCaseImpl::RunCaseImpl()
       : m_runState( NotSubmitted )
       , m_id( 0 )
+      , m_cleanDupLith( false )
    { ; }
 
    // Destructor
@@ -117,7 +118,10 @@ namespace casa
       }
 
       // clean duplicated lithologies
-      m_model->lithologyManager().cleanDuplicatedLithologies();
+      if ( m_cleanDupLith )
+      {
+         m_model->lithologyManager().cleanDuplicatedLithologies();
+      }
 
       // write mutated project to the file
       if ( ErrorHandler::NoError != m_model->saveModelToProjectFile( newProjectName ) )
@@ -223,6 +227,8 @@ namespace casa
       ok = ok ? sz.save( static_cast<int>( m_runState ), "RunCaseState"   ) : ok;
       ok = ok ? sz.save( m_id,                           "RunCaseID"      ) : ok;
 
+      ok = ok ? sz.save( m_cleanDupLith, "cleanDupLith" ) : ok;
+
       return ok;
    }
 
@@ -267,6 +273,12 @@ namespace casa
       m_runState = ok ? static_cast<CaseStatus>(st) : NotSubmitted;
       
       ok = ok ? dz.load( m_id, "RunCaseID" ) : ok;
+      
+      if ( objVer >= 1 )
+      {
+         ok = ok ? dz.load( m_cleanDupLith, "cleanDupLith" ) : ok;
+      }
+      else { m_cleanDupLith = false; }
 
       if ( !ok )
       {

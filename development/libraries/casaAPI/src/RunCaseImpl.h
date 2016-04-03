@@ -95,10 +95,11 @@ namespace casa
       // parameters up to some application in pipeline. To avoid unnecessary runs, same case results could be just copied
       virtual bool isEqual( const RunCase &cs, AppPipelineLevel upTo ) const;
 
+      void setCleanDuplicatedLithologies( bool val ) { m_cleanDupLith = val; }
       // Serialization / Deserialization
 
       // version of serialized object representation
-      virtual unsigned int version() const { return 0; }
+      virtual unsigned int version() const { return 1; }
 
       // Get type name of the serialaizable object, used in deserialization to create object with correct type
       virtual const char * typeName() const { return "RunCaseImpl"; }
@@ -125,7 +126,9 @@ namespace casa
       CaseStatus                       m_runState;             // Stat of the run case (submitted/completed/failed)
 
       size_t                           m_id;                   // unique number in RunCaseSet
-      bool                             m_isMultiOneDCase;      // determine if the RunCase is a windowed 1d project
+
+      bool                             m_cleanDupLith;         // delete or not duplicated lithologies when apply mutations
+                                                               // used only for creation of calibrated case
       // disable copy constructor and copy operator
       RunCaseImpl( const RunCaseImpl & );
       RunCase & operator = ( const RunCaseImpl & );
