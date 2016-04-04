@@ -188,6 +188,10 @@ ErrorHandler::ReturnCode PrmCrustThinning::setInModel( mbapi::Model & caldModel,
          }
          d.push_back( UndefinedDoubleValue );
          m.push_back( newMapName ); // just put map - no any scaling
+
+         // because we generated new map - replace scaler with new map name, otherwise validation will fail
+         m_coeff[i] = 1.0;
+         m_maps[i] = newMapName;
       }
 
       if ( t.back() != 0.0 ) // add last point - present time
