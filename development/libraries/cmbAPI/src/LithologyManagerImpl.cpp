@@ -719,6 +719,7 @@ ErrorHandler::ReturnCode LithologyManagerImpl::setPorosityModel( LithologyID    
       default: return reportError( NonexistingID, "Unsupported porosity model" );
    }
 
+
    // if table does not exist - report error
    if ( !m_lithIoTbl ) return reportError( NonexistingID, std::string( s_lithoTypesTableName ) + " table could not be found in project" );
    
@@ -735,6 +736,7 @@ ErrorHandler::ReturnCode LithologyManagerImpl::setPorosityModel( LithologyID    
          if ( porModelPrms[1] < 0 || porModelPrms[1] > 50  ) return reportError( OutOfRangeValue, "Compaction coefficient value must be in range [0:50]" );
          rec->setValue( s_surfPorosityFieldName,  porModelPrms[0] );
          rec->setValue( s_ccExponentialFieldName, porModelPrms[1] );
+         rec->setValue( s_porosityModelFieldName, std::string( "Exponential" ) );
          break;
 
       case PorSoilMechanics:
@@ -742,6 +744,7 @@ ErrorHandler::ReturnCode LithologyManagerImpl::setPorosityModel( LithologyID    
          if ( porModelPrms[1] < 0 || porModelPrms[1] > 50  ) return reportError( OutOfRangeValue, "Compaction coefficient value must be in range [0:50]" );
          rec->setValue( s_surfPorosityFieldName,    porModelPrms[0] );
          rec->setValue( s_ccSoilMechanicsFieldName, porModelPrms[1] );
+         rec->setValue( s_porosityModelFieldName, std::string( "Soil_Mechanics" ) );
          break;
 
       case PorDoubleExponential:
@@ -755,6 +758,7 @@ ErrorHandler::ReturnCode LithologyManagerImpl::setPorosityModel( LithologyID    
          rec->setValue( s_minPorosityFieldName,       porModelPrms[1] );
          rec->setValue( s_ccaDblExponentialFieldName, porModelPrms[2] );
          rec->setValue( s_ccbDblExponentialFieldName, porModelPrms[3] );
+         rec->setValue( s_porosityModelFieldName, std::string( "Double_Exponential" ) );
          break;
          
       default: return reportError( NonexistingID, "Unsupported porosity model" );

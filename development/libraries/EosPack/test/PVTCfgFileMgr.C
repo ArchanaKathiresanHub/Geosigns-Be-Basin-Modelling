@@ -7,9 +7,9 @@
 const char * PVTCfgFileMgr::s_cfgFileName = "./PVT_properties.cfg" ;
 
 // Singleton factory
-const PVTCfgFileMgr & PVTCfgFileMgr::instance()
+const PVTCfgFileMgr & PVTCfgFileMgr::instance( const char * nm )
 {
-   static PVTCfgFileMgr cfgFile;
+   static PVTCfgFileMgr cfgFile( nm );
    return cfgFile;
 }
 
@@ -17,19 +17,20 @@ const PVTCfgFileMgr & PVTCfgFileMgr::instance()
 // Destructor
 PVTCfgFileMgr::~PVTCfgFileMgr()
 {
-   std::remove( s_cfgFileName );
+   std::remove( m_cfgFileName );
 }
 
 // Constructor - creates PVT_properties.cfg file in current folder
-PVTCfgFileMgr::PVTCfgFileMgr()
+PVTCfgFileMgr::PVTCfgFileMgr( const char * nm )
 {
-   std::ofstream ofs( s_cfgFileName, std::ios_base::out | std::ios_base::trunc );
+   m_cfgFileName = nm == 0 ? s_cfgFileName : nm;
+   std::ofstream ofs( m_cfgFileName, std::ios_base::out | std::ios_base::trunc );
    if ( !ofs.good() )
    {
       throw std::runtime_error( "Can not write PVT configuration file" );
    }
 
-   pvtFlash::SetPvtPropertiesConfigFile( s_cfgFileName ); // Set configuration file name
+   pvtFlash::SetPvtPropertiesConfigFile( m_cfgFileName ); // Set configuration file name
 
    ofs << "///component based and general data for PVT" << "\n";
    ofs << "///" << "\n";

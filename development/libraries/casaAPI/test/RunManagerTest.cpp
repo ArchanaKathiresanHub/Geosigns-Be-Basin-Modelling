@@ -28,12 +28,15 @@ public:
              , m_maxTCHP( 4.9 )
              , m_layerName( "Lower Jurassic" )
              , m_projectFileName( "Ottoland.project3d" )
+             , m_caseSetPath( "." )
 #ifdef _WIN32
 			 , m_scriptExt(".bat")
 #else
 			 , m_scriptExt(".sh")
 #endif
-   { ; }
+   { 
+      m_caseSetPath << "CaseSetRunManagerTest";
+   }
    ~RunManagerTest( ) { ; }
 
    // set of parameters range for DoE
@@ -48,6 +51,7 @@ public:
    const char * m_projectFileName;
 
    const char * m_scriptExt;
+   ibs::FolderPath m_caseSetPath;
 };
 
 
@@ -76,7 +80,7 @@ TEST_F( RunManagerTest, Tornado2PrmsMutations )
    
    ASSERT_EQ( 5U, sc.doeCaseSet().size() );
    
-   ASSERT_EQ( ErrorHandler::NoError, sc.setScenarioLocation( "./CaseSet" ) );
+   ASSERT_EQ( ErrorHandler::NoError, sc.setScenarioLocation( m_caseSetPath.cpath() ) );
 
    ASSERT_EQ( ErrorHandler::NoError, sc.applyMutations( sc.doeCaseSet() ) );
 
@@ -104,19 +108,19 @@ TEST_F( RunManagerTest, Tornado2PrmsMutations )
    }
 
    // check generated scripts
-   ibs::FolderPath pathToCaseSet( "./CaseSet" );
+   ibs::FolderPath pathToCaseSet = m_caseSetPath;
 
    pathToCaseSet << "Iteration_1";
 
    for ( size_t i = 0; i < sc.doeCaseSet().size(); ++i )
    {
       ibs::FilePath casePath( pathToCaseSet.path() );
-      casePath << (std::string( "Case_" ) + ibs::to_string( i + 1 ) );
+      casePath << (std::string( "Case_" ) + std::to_string( i + 1 ) );
 
       // check that all files were generated correctly
       for ( size_t j = 0; j < 3; ++j )
       {
-		  ASSERT_TRUE( ( ibs::FilePath(casePath.path() ) << std::string( "Stage_" ) + ibs::to_string( j ) + m_scriptExt ).exists() );
+		  ASSERT_TRUE( ( ibs::FilePath(casePath.path() ) << std::string( "Stage_" ) + std::to_string( j ) + m_scriptExt ).exists() );
       }
    }
  

@@ -284,7 +284,7 @@ std::string PrmPorosityModel::validate( mbapi::Model & caldModel )
                   break;
 
               case mbapi::LithologyManager::PorDoubleExponential:
-                  samePorModel = m_modelType == SoilMechanics ? true : false;
+                  samePorModel = m_modelType == DoubleExponential ? true : false;
                   if ( samePorModel )
                   {
                      sameSurfPor = NumericFunctions::isEqual( m_surfPor,     mdlPrms[0], 1.e-4 );

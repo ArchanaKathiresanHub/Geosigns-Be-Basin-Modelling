@@ -36,6 +36,9 @@ static const char * s_bottomBoundaryModel  = "BottomBoundaryModel";
 static const char * s_topCrustHeatProd     = "TopCrustHeatProd";
 static const char * s_topCrustHeatProdGrid = "TopCrustHeatProdGrid";
 
+static const char * s_mapFileSuffix        = "_VarRHPR.HDF";
+static const char * s_mapNameSuffix        = "_RHPR";
+
 // Constructor
 PrmTopCrustHeatProduction::PrmTopCrustHeatProduction( const VarPrmTopCrustHeatProduction * parent, double val, std::string mapName )
    : m_parent( parent )
@@ -124,7 +127,7 @@ ErrorHandler::ReturnCode PrmTopCrustHeatProduction::setInModel( mbapi::Model & c
             }
 
             // copy map to avoid influence on other project parts
-            std::string newMapName = mapName + "_Case_" + ibs::to_string( caseID + 1 ) + "_RHPR";
+            std::string newMapName = mapName + "_Case_" + std::to_string( caseID + 1 ) + s_mapNameSuffix;
             mbapi::MapsManager::MapID cmID = mpMgr.copyMap( mID, newMapName );
             if ( UndefinedIDValue == cmID )
             {
@@ -148,7 +151,7 @@ ErrorHandler::ReturnCode PrmTopCrustHeatProduction::setInModel( mbapi::Model & c
             }
 
             // save map to separate HDF file
-            if ( ErrorHandler::NoError != mpMgr.saveMapToHDF( cmID, mapName + "_VarRHPR.HDF" ) )
+            if ( ErrorHandler::NoError != mpMgr.saveMapToHDF( cmID, mapName + s_mapFileSuffix ) )
             {
                throw ErrorHandler::Exception( cldModel.errorCode() ) << cldModel.errorMessage(); 
             }
@@ -190,8 +193,8 @@ ErrorHandler::ReturnCode PrmTopCrustHeatProduction::setInModel( mbapi::Model & c
             mbapi::MapsManager::MapID maxID = mpMgr.findID( m_maxMapName );
             if ( UndefinedIDValue == maxID ) { throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Can't find map: " << m_maxMapName; }
 
-            // copy map and overwrite it wieh interpolated between min/max maps values
-            std::string newMapName = m_mapName + "_Case_" + ibs::to_string( caseID + 1 ) + "_RHPR";
+            // copy map and overwrite it when interpolating between min/max maps values
+            std::string newMapName = m_mapName + "_Case_" + std::to_string( caseID + 1 ) + s_mapNameSuffix;
             mbapi::MapsManager::MapID cmID = mpMgr.copyMap( bsID, newMapName );
 
             if ( UndefinedIDValue == cmID )
@@ -206,7 +209,7 @@ ErrorHandler::ReturnCode PrmTopCrustHeatProduction::setInModel( mbapi::Model & c
             }
             
             // Save new map to file
-            if ( ErrorHandler::NoError != mpMgr.saveMapToHDF( cmID, m_mapName + "_VarRHPR.HDF" ) )
+            if ( ErrorHandler::NoError != mpMgr.saveMapToHDF( cmID, m_mapName + s_mapFileSuffix ) )
             {
                throw ErrorHandler::Exception( cldModel.errorCode() ) << cldModel.errorMessage();
             }
@@ -235,11 +238,7 @@ std::string PrmTopCrustHeatProduction::validate( mbapi::Model & cldModel )
 {
    std::ostringstream oss;
 
-   if ( m_value < 0.0 )
-   {
-      oss << "Top crust heat production rate value  can not be negative: " << m_value << std::endl;
-   }
-
+   // Check for supported model
    const std::string & modelName = cldModel.tableValueAsString( s_basementTblName, 0, s_bottomBoundaryModel );
    if ( ErrorHandler::NoError != cldModel.errorCode() )
    {
@@ -253,6 +252,7 @@ std::string PrmTopCrustHeatProduction::validate( mbapi::Model & cldModel )
       return oss.str(); // another model, no reason to check further
    }
 
+   // get value from the project
    const std::string & heatProdMap = cldModel.tableValueAsString( s_basementTblName, 0, s_topCrustHeatProdGrid );
    if ( ErrorHandler::NoError != cldModel.errorCode() )
    {
@@ -260,13 +260,6 @@ std::string PrmTopCrustHeatProduction::validate( mbapi::Model & cldModel )
       return oss.str();
    }
 
-   if ( !heatProdMap.empty() )
-   {
-      oss << "Project has a map defined for top crust heat production rate.";
-      oss << " Map and one rate value can not be used together" << std::endl;
-      return oss.str();
-   }
-      
    double valInModel = cldModel.tableValueAsDouble( s_basementTblName, 0, s_topCrustHeatProd );
 
    if ( ErrorHandler::NoError != cldModel.errorCode() )
@@ -275,12 +268,113 @@ std::string PrmTopCrustHeatProduction::validate( mbapi::Model & cldModel )
       return oss.str();
    }
 
-   if ( !NumericFunctions::isEqual( valInModel, m_value, 1e-6 ) )
-   {
-      oss << "Top crust heat production rate parameter value in the model (" << valInModel; 
-      oss << ") is differ from a parameter value (" << m_value << ")" << std::endl;
-   }
+   
+   if ( m_mapName.empty() ) // scalar value or scaled map case
+   {  
+      if ( m_value < 0.0 )
+      {
+         oss << "Top crust heat production rate value can not be negative: " << m_value << std::endl;
+      }
 
+      if ( valInModel > 0.0  && !heatProdMap.empty() )
+      {
+         oss << "Project has a map defined for top crust heat production rate.";
+         oss << " Map and one rate value can not be used together" << std::endl;
+         return oss.str();
+      }
+
+      // just one value
+      if ( heatProdMap.empty() )
+      {
+         if ( !NumericFunctions::isEqual( valInModel, m_value, 1e-6 ) )
+         {
+            oss << "Top crust heat production rate parameter value in the model (" << valInModel; 
+            oss << ") is differ from a parameter value (" << m_value << ")" << std::endl;
+         }  
+      }
+      else // scaler
+      {
+         // check that map was generated by this parameter
+         size_t oldMapNameLen = heatProdMap.rfind( "_Case" );
+         if ( oldMapNameLen == std::string::npos || heatProdMap.rfind( s_mapNameSuffix ) == std::string::npos )
+         {
+            oss << "Scaled top crust heat production rate map in the project is differ from the parameter value";
+         }
+
+         // get map and check that scaling was done right
+         mbapi::MapsManager & mpMgr = cldModel.mapsManager();
+
+         mbapi::MapsManager::MapID mID = mpMgr.findID( heatProdMap ); // get map
+         if ( UndefinedIDValue == mID )
+         {
+            throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Can't find the map: " << heatProdMap 
+                                                 << " defined for top crust heat production rate in maps catalog"; 
+         }
+
+         double minVal, maxVal;
+         if ( ErrorHandler::NoError != mpMgr.mapValuesRange( mID, minVal, maxVal ) )
+         {
+            throw ErrorHandler::Exception( cldModel.errorCode() ) << cldModel.errorMessage();
+         }
+
+         if ( !NumericFunctions::isEqual( m_value, maxVal, 1e-6 ) )
+         {
+            oss << "Scaled top crust heat production rate map in the project: " << maxVal << 
+               ", is differ from the parameter value: " << m_value;
+         }
+      }
+   }
+   else
+   {
+      if ( m_minMapName.empty() && m_maxMapName.empty() ) // no interpolation needed, just check map name
+      {
+         if ( m_mapName != heatProdMap )
+         {
+            oss << "Map name in project: " << heatProdMap << ", is different from parameter value: " << m_mapName;
+            return oss.str();
+         }
+      }
+      else
+      {
+         // check that map was generated by this parameter
+         if ( heatProdMap.rfind( "_Case" ) == std::string::npos || heatProdMap.rfind( s_mapNameSuffix ) == std::string::npos )
+         {
+            oss << "Interpolated top crust heat production rate map in the project is differ from the parameter value";
+         }
+
+         // get map and check that scaling was done right
+         mbapi::MapsManager & mpMgr = cldModel.mapsManager();
+
+         mbapi::MapsManager::MapID minID = mpMgr.findID( m_minMapName );
+         if ( UndefinedIDValue == minID ) { throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Can't find map: " << m_minMapName; }
+         mbapi::MapsManager::MapID maxID = mpMgr.findID( m_maxMapName );
+         if ( UndefinedIDValue == maxID ) { throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Can't find map: " << m_maxMapName; }
+         mbapi::MapsManager::MapID mID = mpMgr.findID( heatProdMap ); // get map
+         if ( UndefinedIDValue == mID   ) { throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Can't find map: " << heatProdMap; }
+
+
+         // get min/max values for min/max maps
+         double minMinVal, minMaxVal, maxMinVal, maxMaxVal, minVal, maxVal;
+         if ( ErrorHandler::NoError != mpMgr.mapValuesRange( minID, minMinVal, minMaxVal ) )
+         {
+            throw ErrorHandler::Exception( cldModel.errorCode() ) << cldModel.errorMessage();
+         }
+
+         if ( ErrorHandler::NoError != mpMgr.mapValuesRange( maxID, maxMinVal, maxMaxVal ) )
+         {
+            throw ErrorHandler::Exception( cldModel.errorCode() ) << cldModel.errorMessage();
+         }
+ 
+         if ( ErrorHandler::NoError != mpMgr.mapValuesRange( mID, minVal, maxVal ) )
+         {
+            throw ErrorHandler::Exception( cldModel.errorCode() ) << cldModel.errorMessage();
+         }
+
+         if ( minVal < minMinVal ) { oss << "Minimal value of the top crust production rate map is outside of the range"; }
+         if ( maxVal > maxMaxVal ) { oss << "Maximal value of the top crust production rate map is outside of the range"; }
+         // TODO scale the map again and compare with map from project file
+      }
+   }
    return oss.str();
 }
 

@@ -10,11 +10,11 @@ class PVTCfgFileMgr
 public:
    ~PVTCfgFileMgr();
 
-   static const PVTCfgFileMgr & instance(); ///!< object factory
+   static const PVTCfgFileMgr & instance( const char * nm = 0 ); ///!< object factory
 
 private:
-   PVTCfgFileMgr();
-
+   PVTCfgFileMgr( const char * nm );
+   const char *        m_cfgFileName; ///!< Name of the cfg file (optional)
    static const char * s_cfgFileName; ///!< Name of the cfg file
 };
 

@@ -27,7 +27,10 @@ public:
              , m_maxTCHP( 4.9 )
              , m_layerName( "Lower Jurassic" )
              , m_projectFileName( "Ottoland.project3d" )
-   { ; }
+             , m_caseSetPath( "." )
+   { 
+      m_caseSetPath << "CaseSetValidatorTest";
+   }
    ~ValidatorTest( ) { ; }
 
    // set of parameters range for DoE
@@ -40,6 +43,8 @@ public:
    const char * m_layerName;
 
    const char * m_projectFileName;
+
+   ibs::FolderPath m_caseSetPath;
 };
   
 // Mutator test. There is 1 DoE Tornado experiment with 2 parameters
@@ -67,10 +72,9 @@ TEST_F( ValidatorTest, TwoPrmsValidationTornadoDoE )
    
    ASSERT_EQ( 5U, sc.doeCaseSet().size() );
 
-   ibs::FolderPath pathToCaseSet = ibs::FolderPath( "." );
-   pathToCaseSet << "CaseSet";
+   ibs::FolderPath pathToCaseSet = m_caseSetPath;
 
-   ASSERT_EQ( ErrorHandler::NoError, sc.setScenarioLocation( pathToCaseSet.path().c_str() ) );
+   ASSERT_EQ( ErrorHandler::NoError, sc.setScenarioLocation( pathToCaseSet.cpath() ) );
    ASSERT_EQ( ErrorHandler::NoError, sc.applyMutations( sc.doeCaseSet() ) );
 
    ASSERT_EQ( ErrorHandler::NoError, sc.validateCaseSet( sc.doeCaseSet( ) ) );

@@ -13,7 +13,7 @@ using namespace pvtFlash;
 class EosPackTest : public ::testing::Test
 {
 public:
-   EosPackTest()  { PVTCfgFileMgr::instance(); } // write cfg file
+   EosPackTest()  { PVTCfgFileMgr::instance("./PVT_properties_EP.cfg"); } // write cfg file
    ~EosPackTest() {;}
 
    void initializeCompositionMasses( double masses[] );
