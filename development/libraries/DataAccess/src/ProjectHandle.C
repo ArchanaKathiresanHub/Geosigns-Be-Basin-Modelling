@@ -433,6 +433,7 @@ ProjectHandle::~ProjectHandle( void )
    deleteIrreducibleWaterSaturationSample();
    deleteSGDensitySample();
    deletePermafrost();
+   deleteSimulationDetails();
 
    if ( m_database ) delete m_database;
 }
@@ -572,11 +573,12 @@ bool ProjectHandle::restartActivity( void )
       string fileName = getActivityName();
 
       fileName += "_Results.HDF";
-      ibs::FilePath filePathName( getProjectPath() );
-      filePathName << directoryName << fileName;
+      ibs::FilePath ppath( getFullOutputDir() );
+      ppath << fileName;
+      string filePathName = ppath.path();
 
       m_mapPropertyValuesWriter->close();
-      m_mapPropertyValuesWriter->open( filePathName.path(), false );
+      m_mapPropertyValuesWriter->open( filePathName, false );
       m_mapPropertyValuesWriter->saveDescription( getActivityOutputGrid() );
 
       saveCreatedMapPropertyValues();		/// creates new TimeIoRecords
@@ -2514,7 +2516,9 @@ bool ProjectHandle::saveCreatedMapPropertyValuesMode3D( void )
       increment = 0;
 
       bool saveAsPrimary = false;
-      if( m_primaryDouble and propertyValue->isPrimary() ) {
+      if( m_primaryDouble and propertyValue->isPrimary() and 
+          propertyValue->getProperty()->getPropertyAttribute() == DataModel::FORMATION_2D_PROPERTY ) {
+
          if(( getActivityName() != "Genex5" and getActivityName() != "HighResMigration" and 
               getActivityName() != "FastTouch" and getActivityName() != "CrustalThicknessCalculator" )) {
             saveAsPrimary = true;
@@ -2599,7 +2603,7 @@ bool ProjectHandle::saveCreatedVolumePropertyValuesMode3D( void )
 
          if( m_primaryDouble and propertyValue->isPrimary() and snapshotUsed->getType() == Interface::MAJOR  ) {
             // save primary propeties in double precision and chunked at major snapshots
-            status &= propertyValue->savePrimaryVolumeToFile( *mapWriter, false );
+            status &= propertyValue->savePrimaryVolumeToFile( *mapWriter );
          } else {
             status &= propertyValue->saveVolumeToFile( *mapWriter );
          }
@@ -3125,30 +3129,31 @@ bool ProjectHandle::loadVolumePropertyValuesViaSnapshotIoTbl( void )
       const string & fileName = database::getSnapshotFileName( snapshotIoRecord );
       if ( fileName.length() == 0 ) continue;
 
-      ibs::FilePath filePathName( getProjectPath() );
-      filePathName << getOutputDir() << fileName;
-
+      ibs::FilePath ppath( getFullOutputDir() );
+      ppath << fileName;
+      string filePathName = ppath.path();
+ 
 #if 0
-      cerr << "Opening snapshot file " << filePathName.path() << endl;
+      cerr << "Opening snapshot file " << filePathName << endl;
 #endif
 
       struct stat statbuf;
-      if ( stat( filePathName.cpath(), &statbuf ) < 0 )
-      {
+      if ( stat( filePathName.c_str(), &statbuf ) < 0 )
+     {
          if ( getRank() == 0 )
          {
-            cerr << "ERROR in ProjectHandle::loadVolumePropertyValues ():: Could not open " << filePathName.path() << ": ";
+            cerr << "ERROR in ProjectHandle::loadVolumePropertyValues ():: Could not open " << filePathName.c_str() << ": ";
             perror( "" );
          }
          continue;
       }
 
-      hid_t fileId = H5Fopen( filePathName.cpath(), H5F_ACC_RDONLY, H5P_DEFAULT );
+      hid_t fileId = H5Fopen( filePathName.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT );
       if ( fileId < 0 )
       {
          if ( getRank() == 0 )
          {
-            cerr << "ERROR in ProjectHandle::loadVolumePropertyValues (): Could not open " << filePathName.path() << endl;
+            cerr << "ERROR in ProjectHandle::loadVolumePropertyValues (): Could not open " << filePathName << endl;
          }
          continue;
       }

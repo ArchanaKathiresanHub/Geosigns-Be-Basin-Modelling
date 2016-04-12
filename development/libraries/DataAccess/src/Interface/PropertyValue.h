@@ -91,7 +91,7 @@ namespace DataAccess
 	    virtual bool saveVolumeToFile (MapWriter & mapWriter);
 
 	    /// save a primary 3D PropertyValue to file
-         virtual bool savePrimaryVolumeToFile (MapWriter & mapWriter, const bool groupName = true);
+         virtual bool savePrimaryVolumeToFile (MapWriter & mapWriter);
 
 	    /// Returns whether this PropertyValue has been uploaded onto a BPA server.
 	    virtual bool isUploadedToBPA (void) const;

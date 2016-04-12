@@ -243,13 +243,15 @@ bool DistributedMapWriter::writeVolumeToHDF (DM & da, Vec & vec, const string & 
 }
 
 bool DistributedMapWriter::writePrimaryVolumeToHDF (GridMap * gridMap, const string & propertyName, double time, const string & layerName, 
-                                                    const bool useGroupName, const bool isPrimary )
+                                                    const bool isPrimary )
 {
-   bool status = writePrimaryVolumeToHDF (dynamic_cast<DistributedGridMap*> (gridMap)->getDA(), dynamic_cast<DistributedGridMap*> (gridMap)->getVec(), propertyName, time, layerName, useGroupName, isPrimary );
-    return status;
+   bool status = writePrimaryVolumeToHDF (dynamic_cast<DistributedGridMap*> (gridMap)->getDA(), 
+                                          dynamic_cast<DistributedGridMap*> (gridMap)->getVec(), propertyName, time, layerName, isPrimary );
+   return status;
 }
 
-bool DistributedMapWriter::writePrimaryVolumeToHDF (DM & da, Vec & vec,  const string & propertyName, double time, const string & layerName, const bool useGroupName, const bool isPrimary )
+bool DistributedMapWriter::writePrimaryVolumeToHDF (DM & da, Vec & vec,  const string & propertyName, double time, 
+                                                    const string & layerName, const bool isPrimary )
 {
    if (!m_outFile) return false;
 
@@ -261,29 +263,8 @@ bool DistributedMapWriter::writePrimaryVolumeToHDF (DM & da, Vec & vec,  const s
    hid_t snapshotGroupId = H5P_DEFAULT;
    std::ostringstream propertyGroupName;
 
-   if( useGroupName ) {
-      std::stringstream snapshotGroupName;
-      snapshotGroupName.setf (ios::fixed);
-      snapshotGroupName.precision (6);
-      
-      snapshotGroupName << "Time_" << time;
-      
-      snapshotGroupId = m_outFile->openGroup (snapshotGroupName.str ().c_str ());
-      
-      if (snapshotGroupId < 0)
-      {
-         snapshotGroupId = m_outFile->addGroup (snapshotGroupName.str ().c_str ());
-      }
-      
-      if (snapshotGroupId < 0)
-      {
-         delete petscD;
-         return false;
-      }
-      propertyGroupName << snapshotGroupName.str() << "/" << propertyName.c_str ();
-   } else {
-      propertyGroupName << "/" << propertyName.c_str ();
-   }
+   propertyGroupName << "/" << propertyName.c_str ();
+
    hid_t propertyGroupId = m_outFile->openGroup (propertyGroupName.str().c_str ());
 
    if (propertyGroupId < 0)
@@ -315,10 +296,6 @@ bool DistributedMapWriter::writePrimaryVolumeToHDF (DM & da, Vec & vec,  const s
    assert (status);
 
    H5Gclose (propertyGroupId);
-
-   if( useGroupName ) {
-      H5Gclose (snapshotGroupId);
-   }
 
    delete petscD;
 

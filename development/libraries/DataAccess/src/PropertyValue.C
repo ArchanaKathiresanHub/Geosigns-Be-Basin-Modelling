@@ -502,7 +502,7 @@ bool PropertyValue::saveMapToFile (MapWriter & mapWriter, const bool saveAsPrima
    return true;
 }
 
-bool PropertyValue::savePrimaryVolumeToFile (MapWriter & mapWriter, const bool groupName )
+bool PropertyValue::savePrimaryVolumeToFile (MapWriter & mapWriter )
 {
    database::setMapFileName (m_record, mapWriter.getFileName ());
    database::setGroupName (m_record, getName ());
@@ -529,7 +529,7 @@ bool PropertyValue::savePrimaryVolumeToFile (MapWriter & mapWriter, const bool g
 
    double time = getSnapshot ()->getTime ();
 
-   mapWriter.writePrimaryVolumeToHDF (gridMap, getName (), time, getFormation ()->getMangledName (), groupName, isPrimary() );
+   mapWriter.writePrimaryVolumeToHDF (gridMap, getName (), time, getFormation ()->getMangledName (), isPrimary() );
    return true;
 }
 

@@ -96,13 +96,12 @@ bool PropertyValue::saveVolumeToFile ( Interface::MapWriter & mapWriter ) {
    } 
 }
 
-bool PropertyValue::savePrimaryVolumeToFile ( Interface::MapWriter & mapWriter, const bool groupName ) {
+bool PropertyValue::savePrimaryVolumeToFile ( Interface::MapWriter & mapWriter ) {
 
    bool status = true;
 
    if ( FastcauldronSimulator::getInstance ().isPrimaryDouble() and outputIsRequested ()) { 
-      status = Interface::PropertyValue::savePrimaryVolumeToFile ( mapWriter, 
-                                                                   not FastcauldronSimulator::getInstance ().isPrimaryDouble() );
+      status = Interface::PropertyValue::savePrimaryVolumeToFile ( mapWriter );
    } 
    return status;
 }
