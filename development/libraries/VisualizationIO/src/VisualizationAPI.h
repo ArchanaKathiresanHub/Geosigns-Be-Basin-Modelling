@@ -164,7 +164,7 @@ namespace CauldronIO
         /// \returns the list of trappers
         const TrapperList& getTrapperList() const;
         /// \returns a list of all data not yet retrieved for this snapshot
-        std::vector < std::shared_ptr<VisualizationIOData> > getAllRetrievableData() const;
+        std::vector < VisualizationIOData* > getAllRetrievableData() const;
 		
     private:
 	    SurfaceList m_surfaceList;

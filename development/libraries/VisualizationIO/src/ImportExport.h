@@ -52,7 +52,7 @@ namespace CauldronIO
         // Method to compress blocks of data on a thread
         static void compressDataQueue(std::vector< std::shared_ptr < DataToCompress > > allData, boost::lockfree::queue<int>* queue);
         // Method to retrieve data on a thread
-        static void retrieveDataQueue(std::vector < std::shared_ptr<VisualizationIOData> >* allData, boost::lockfree::queue<int>* queue, boost::atomic<bool>* done);
+        static void retrieveDataQueue(std::vector < VisualizationIOData* >* allData, boost::lockfree::queue<int>* queue, boost::atomic<bool>* done);
 
         ImportExport(const boost::filesystem::path& absPath, const boost::filesystem::path& relPath, size_t numThreads);
         void addProject(pugi::xml_node pt, std::shared_ptr<Project>& project);

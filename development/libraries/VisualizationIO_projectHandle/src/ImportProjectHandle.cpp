@@ -85,8 +85,6 @@ void ImportProjectHandle::addSnapShots(std::shared_ptr<Interface::ProjectHandle>
 
         // Add to project
         m_project->addSnapShot(snapShotIO);
-
-        return;
     }
 }
 

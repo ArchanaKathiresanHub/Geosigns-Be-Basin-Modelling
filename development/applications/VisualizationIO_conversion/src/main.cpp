@@ -21,13 +21,13 @@
 #define verbose false
 
 /// \brief method to retrieve data on a separate thread
-void retrieveDataQueue(std::vector < shared_ptr<CauldronIO::VisualizationIOData> >* allData, boost::lockfree::queue<int>* queue, boost::atomic<bool>* done)
+void retrieveDataQueue(std::vector < CauldronIO::VisualizationIOData* >* allData, boost::lockfree::queue<int>* queue, boost::atomic<bool>* done)
 {
     int value;
     while (!*done) {
         while (queue->pop(value))
         {
-            const shared_ptr<CauldronIO::VisualizationIOData>& data = allData->at(value);
+            CauldronIO::VisualizationIOData* data = allData->at(value);
             assert(!data->isRetrieved());
             data->retrieve();
         }
@@ -35,7 +35,7 @@ void retrieveDataQueue(std::vector < shared_ptr<CauldronIO::VisualizationIOData>
 
     while (queue->pop(value))
     {
-        const shared_ptr<CauldronIO::VisualizationIOData>& data = allData->at(value);
+        CauldronIO::VisualizationIOData* data = allData->at(value);
         assert(!data->isRetrieved());
         data->retrieve();
     }
@@ -91,7 +91,7 @@ int main(int argc, char ** argv)
 
             for (shared_ptr<CauldronIO::SnapShot> snapShot : project->getSnapShots())
             {
-                std::vector < shared_ptr<CauldronIO::VisualizationIOData> > allReadData = snapShot->getAllRetrievableData();
+                std::vector < CauldronIO::VisualizationIOData* > allReadData = snapShot->getAllRetrievableData();
 
                 std::cout << "Retrieving snapshot " << snapShot->getAge() << " with " << numThreads << " threads" << endl;
 

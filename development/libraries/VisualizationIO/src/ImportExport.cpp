@@ -271,7 +271,7 @@ void CauldronIO::ImportExport::addSnapShot(const std::shared_ptr<SnapShot>& snap
 
     // Collect all data to retrieve
     // TODO: check if this works correctly in "append" mode: in append mode it should not retrieve data that has not been added
-    std::vector < std::shared_ptr<VisualizationIOData> > allReadData = snapShot->getAllRetrievableData();
+    std::vector < VisualizationIOData* > allReadData = snapShot->getAllRetrievableData();
 
     // This is the queue of indices of data ready to be retrieved (and compressed?)
     boost::lockfree::queue<int> queue(128);
@@ -416,13 +416,13 @@ void CauldronIO::ImportExport::compressDataQueue(std::vector< std::shared_ptr < 
     }
 }
 
-void CauldronIO::ImportExport::retrieveDataQueue(std::vector < std::shared_ptr<VisualizationIOData> >* allData, boost::lockfree::queue<int>* queue, boost::atomic<bool>* done)
+void CauldronIO::ImportExport::retrieveDataQueue(std::vector < VisualizationIOData* >* allData, boost::lockfree::queue<int>* queue, boost::atomic<bool>* done)
 {
     int value;
     while (!*done) {
         while (queue->pop(value))
         {
-            const std::shared_ptr<VisualizationIOData>& data = allData->at(value);
+            VisualizationIOData* data = allData->at(value);
             assert(!data->isRetrieved());
             data->retrieve();
         }
@@ -430,7 +430,7 @@ void CauldronIO::ImportExport::retrieveDataQueue(std::vector < std::shared_ptr<V
 
     while (queue->pop(value))
     {
-        const std::shared_ptr<VisualizationIOData>& data = allData->at(value);
+        VisualizationIOData* data = allData->at(value);
         assert(!data->isRetrieved());
         data->retrieve();
     }

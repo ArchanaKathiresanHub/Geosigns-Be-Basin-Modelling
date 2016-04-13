@@ -304,16 +304,16 @@ const TrapperList& CauldronIO::SnapShot::getTrapperList() const
 }
 
 
-std::vector < std::shared_ptr<VisualizationIOData> > CauldronIO::SnapShot::getAllRetrievableData() const
+std::vector < VisualizationIOData* > CauldronIO::SnapShot::getAllRetrievableData() const
 {
     // Collect all data to retrieve
     //////////////////////////////////////////////////////////////////////////
-    std::vector < std::shared_ptr<VisualizationIOData> > allReadData;
+    std::vector < VisualizationIOData* > allReadData;
     for (const std::shared_ptr<Surface>& surfaceIO: getSurfaceList())
     {
         for (const PropertySurfaceData& propertySurfaceData : surfaceIO->getPropertySurfaceDataList())
         {
-            std::shared_ptr<VisualizationIOData> surfaceData(propertySurfaceData.second.get());
+            VisualizationIOData* surfaceData = propertySurfaceData.second.get();
             if (!surfaceData->isRetrieved())
                 allReadData.push_back(surfaceData);
         }
@@ -323,7 +323,7 @@ std::vector < std::shared_ptr<VisualizationIOData> > CauldronIO::SnapShot::getAl
     {
         for (const PropertyVolumeData& propVolume: getVolume()->getPropertyVolumeDataList())
         {
-            const std::shared_ptr<VisualizationIOData> data(propVolume.second.get());
+            VisualizationIOData* data = propVolume.second.get();
             if (!data->isRetrieved())
                 allReadData.push_back(data);
         }
@@ -334,7 +334,7 @@ std::vector < std::shared_ptr<VisualizationIOData> > CauldronIO::SnapShot::getAl
         const std::shared_ptr<Volume> subVolume = formVolume.second;
         for (const PropertyVolumeData& propVolume : subVolume->getPropertyVolumeDataList())
         {
-            std::shared_ptr<VisualizationIOData> data(propVolume.second.get());
+            VisualizationIOData* data = propVolume.second.get();
             if (!data->isRetrieved())
                 allReadData.push_back(data);
         }
