@@ -7,7 +7,7 @@
 #include <cassert>
 #include <cmath>
 #include <limits>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <gtest/gtest.h>
 
 using namespace CauldronIO;
@@ -23,7 +23,7 @@ TEST(Project, Create)
 	int xmlVersionMjr = 2;
 	int xmlVersionMnr = 1;
 
-	boost::shared_ptr<Project> project(new Project(projectName, description, teamName, version, mode, xmlVersionMjr, xmlVersionMnr));
+	std::shared_ptr<Project> project(new Project(projectName, description, teamName, version, mode, xmlVersionMjr, xmlVersionMnr));
 
 	EXPECT_STREQ(project->getName().c_str(), projectName.c_str());
 	EXPECT_STREQ(project->getDescription().c_str(), description.c_str());
@@ -40,7 +40,7 @@ TEST(SnapShot, Create)
 	SnapShotKind kind = SYSTEM;
 	bool isMinor = true;
 
-	boost::shared_ptr<SnapShot> snap(new SnapShot(age, kind, isMinor));
+	std::shared_ptr<SnapShot> snap(new SnapShot(age, kind, isMinor));
 	EXPECT_DOUBLE_EQ(snap->getAge(), age);
 	EXPECT_EQ(snap->getKind(), kind);
 	EXPECT_EQ(snap->isMinorShapshot(), isMinor);
@@ -52,7 +52,7 @@ TEST(SnapShot, Create_HandleNegativeAge)
 	SnapShotKind kind = SYSTEM;
 	bool isMinor = true;
 	try{
-		boost::shared_ptr<SnapShot> snap(new SnapShot(age, kind, isMinor));
+		std::shared_ptr<SnapShot> snap(new SnapShot(age, kind, isMinor));
 		FAIL();
 	}
 	catch (CauldronIOException const & err)
@@ -73,8 +73,8 @@ TEST(Project, AddSnapShot)
 	const string version("version");
 	ModellingMode mode = MODE1D;
 
-	boost::shared_ptr<Project> project(new Project(projectName, description, teamName, version, mode, 2,1));
-	boost::shared_ptr<SnapShot> snapShot(new SnapShot(0, SYSTEM, false));
+	std::shared_ptr<Project> project(new Project(projectName, description, teamName, version, mode, 2,1));
+	std::shared_ptr<SnapShot> snapShot(new SnapShot(0, SYSTEM, false));
 
 	const SnapShotList& snapShotList = project->getSnapShots();
 	EXPECT_EQ(snapShotList.size(), 0);
@@ -90,8 +90,8 @@ TEST(Project, AddSnapShot_HandleEmptySnapShot)
 	const string version("version");
 	ModellingMode mode = MODE1D;
 	
-	boost::shared_ptr<Project> project(new Project(projectName, description, teamName, version, mode, 2, 1));
-	boost::shared_ptr<SnapShot> snapShot;
+	std::shared_ptr<Project> project(new Project(projectName, description, teamName, version, mode, 2, 1));
+	std::shared_ptr<SnapShot> snapShot;
 
 	const SnapShotList& snapShotList = project->getSnapShots();
 
@@ -118,8 +118,8 @@ TEST(Project, AddSnapShot_HandleDuplicateSnapShot)
 	const string version("version");
 	ModellingMode mode = MODE1D;
 	
-	boost::shared_ptr<Project> project(new Project(projectName, description, teamName, version, mode, 2, 1));
-	boost::shared_ptr<SnapShot> snapShot(new SnapShot(0, SYSTEM, false));
+	std::shared_ptr<Project> project(new Project(projectName, description, teamName, version, mode, 2, 1));
+	std::shared_ptr<SnapShot> snapShot(new SnapShot(0, SYSTEM, false));
 	project->addSnapShot(snapShot);
 	const SnapShotList& snapShotList = project->getSnapShots();
 
@@ -153,8 +153,8 @@ TEST(Project, AddProperty)
 	PropertyType type = FormationProperty;
 	PropertyAttribute attrib = Continuous3DProperty;
 
-	boost::shared_ptr<const Property> prop(new Property(name, userName, cauldronName, unit, type, attrib));
-	boost::shared_ptr<Project> project(new Project(projectName, description, teamName, version, mode, 2, 1));
+	std::shared_ptr<const Property> prop(new Property(name, userName, cauldronName, unit, type, attrib));
+	std::shared_ptr<Project> project(new Project(projectName, description, teamName, version, mode, 2, 1));
 	const PropertyList& propertyList = project->getProperties();
 	EXPECT_EQ(propertyList.size(), 0);
 	project->addProperty(prop);
@@ -176,8 +176,8 @@ TEST(Project, AddProperty_HandleDuplicateProperty)
 	PropertyType type = FormationProperty;
 	PropertyAttribute attrib = Continuous3DProperty;
 
-	boost::shared_ptr<const Property> prop(new Property(name, userName, cauldronName, unit, type, attrib));
-	boost::shared_ptr<Project> project(new Project(projectName, description, teamName, version, mode, 2, 1));
+	std::shared_ptr<const Property> prop(new Property(name, userName, cauldronName, unit, type, attrib));
+	std::shared_ptr<Project> project(new Project(projectName, description, teamName, version, mode, 2, 1));
 	const PropertyList& propertyList = project->getProperties();
 
 	project->addProperty(prop);
@@ -201,12 +201,12 @@ TEST(Project, FindProperty)
 	PropertyType type = FormationProperty;
 	PropertyAttribute attrib = Continuous3DProperty;
 
-	boost::shared_ptr<const Property> prop(new Property(name, userName, cauldronName, unit, type, attrib));
-	boost::shared_ptr<Project> project(new Project(projectName, description, teamName, version, mode, 2, 1));
+	std::shared_ptr<const Property> prop(new Property(name, userName, cauldronName, unit, type, attrib));
+	std::shared_ptr<Project> project(new Project(projectName, description, teamName, version, mode, 2, 1));
 	const PropertyList& propertyList = project->getProperties();
 
 	project->addProperty(prop);
-	boost::shared_ptr<const Property> newProp = project->findProperty(name);
+	std::shared_ptr<const Property> newProp = project->findProperty(name);
 	EXPECT_STREQ(newProp->getName().c_str(), name.c_str());
 }
 
@@ -224,8 +224,8 @@ TEST(Project, AddFormation)
 	bool isSourceRock = true;
 	bool isMobileLayer = true;
 
-	boost::shared_ptr<const Formation> formation(new Formation(kStart, kEnd, formationName, isSourceRock, isMobileLayer));
-	boost::shared_ptr<Project> project(new Project(projectName, description, teamName, version, mode, 2, 1));
+	std::shared_ptr<const Formation> formation(new Formation(kStart, kEnd, formationName, isSourceRock, isMobileLayer));
+	std::shared_ptr<Project> project(new Project(projectName, description, teamName, version, mode, 2, 1));
 	const FormationList& formationList = project->getFormations();
 	EXPECT_EQ(formationList.size(), 0);
 	project->addFormation(formation);
@@ -246,8 +246,8 @@ TEST(Project, AddFormation_HandleEmptyFormation)
 	bool isSourceRock = true;
 	bool isMobileLayer = true;
 
-	boost::shared_ptr<const Formation> formation;
-	boost::shared_ptr<Project> project(new Project(projectName, description, teamName, version, mode, 2, 1));
+	std::shared_ptr<const Formation> formation;
+	std::shared_ptr<Project> project(new Project(projectName, description, teamName, version, mode, 2, 1));
 	const FormationList& formationList = project->getFormations();
 
 	try{
@@ -279,8 +279,8 @@ TEST(Project, AddFormation_HandleDuplicateFormation)
 	bool isSourceRock = true;
 	bool isMobileLayer = true;
 
-	boost::shared_ptr<const Formation> formation(new Formation(kStart, kEnd, formationName, isSourceRock, isMobileLayer));
-	boost::shared_ptr<Project> project(new Project(projectName, description, teamName, version, mode, 2, 1));
+	std::shared_ptr<const Formation> formation(new Formation(kStart, kEnd, formationName, isSourceRock, isMobileLayer));
+	std::shared_ptr<Project> project(new Project(projectName, description, teamName, version, mode, 2, 1));
 	const FormationList& formationList = project->getFormations();
 	project->addFormation(formation);
 
@@ -313,11 +313,11 @@ TEST(Project, FindFormation)
 	bool isSourceRock = true;
 	bool isMobileLayer = true;
 
-	boost::shared_ptr<const Formation> formation(new Formation(kStart, kEnd, formationName, isSourceRock, isMobileLayer));
-	boost::shared_ptr<Project> project(new Project(projectName, description, teamName, version, mode, 2, 1));
+	std::shared_ptr<const Formation> formation(new Formation(kStart, kEnd, formationName, isSourceRock, isMobileLayer));
+	std::shared_ptr<Project> project(new Project(projectName, description, teamName, version, mode, 2, 1));
 	project->addFormation(formation);
 
-	boost::shared_ptr<const Formation> newFormation = project->findFormation(formationName);
+	std::shared_ptr<const Formation> newFormation = project->findFormation(formationName);
 	EXPECT_STREQ(newFormation->getName().c_str(), formationName.c_str());
 }
 
@@ -336,9 +336,9 @@ TEST(Project, AddReservoir)
 	bool isMobileLayer = true;
 	const string reservoirName("reservoir");
 
-	boost::shared_ptr<const Formation> formation(new Formation(kStart, kEnd, formationName, isSourceRock, isMobileLayer));
-	boost::shared_ptr<const Reservoir> reservoir(new Reservoir(reservoirName, formation));
-	boost::shared_ptr<Project> project(new Project(projectName, description, teamName, version, mode, 2, 1));
+	std::shared_ptr<const Formation> formation(new Formation(kStart, kEnd, formationName, isSourceRock, isMobileLayer));
+	std::shared_ptr<const Reservoir> reservoir(new Reservoir(reservoirName, formation));
+	std::shared_ptr<Project> project(new Project(projectName, description, teamName, version, mode, 2, 1));
 	const ReservoirList& reservoirList = project->getReservoirs();
 	EXPECT_EQ(reservoirList.size(), 0);
 	project->addReservoir(reservoir);
@@ -354,9 +354,9 @@ TEST(Project, AddReservoir_HandleEmptyReservoir)
 	ModellingMode mode = MODE1D;
 	
 	const string reservoirName("reservoir");
-	boost::shared_ptr<const Formation> formation;
-	boost::shared_ptr<const Reservoir> reservoir;
-	boost::shared_ptr<Project> project(new Project(projectName, description, teamName, version, mode, 2, 1));
+	std::shared_ptr<const Formation> formation;
+	std::shared_ptr<const Reservoir> reservoir;
+	std::shared_ptr<Project> project(new Project(projectName, description, teamName, version, mode, 2, 1));
 	const ReservoirList& reservoirList = project->getReservoirs();
 
 	try{
@@ -389,9 +389,9 @@ TEST(Project, AddReservoir_HandleDuplicateReservoir)
 	bool isMobileLayer = true;
 	const string reservoirName("reservoir");
 
-	boost::shared_ptr<const Formation> formation(new Formation(kStart, kEnd, formationName, isSourceRock, isMobileLayer));
-	boost::shared_ptr<const Reservoir> reservoir(new Reservoir(reservoirName, formation));
-	boost::shared_ptr<Project> project(new Project(projectName, description, teamName, version, mode, 2, 1));
+	std::shared_ptr<const Formation> formation(new Formation(kStart, kEnd, formationName, isSourceRock, isMobileLayer));
+	std::shared_ptr<const Reservoir> reservoir(new Reservoir(reservoirName, formation));
+	std::shared_ptr<Project> project(new Project(projectName, description, teamName, version, mode, 2, 1));
 	const ReservoirList& reservoirList = project->getReservoirs();
 	project->addReservoir(reservoir);
 
@@ -425,12 +425,12 @@ TEST(Project, FindReservoir)
 	bool isMobileLayer = true;
 	const string reservoirName("reservoir");
 
-	boost::shared_ptr<const Formation> formation(new Formation(kStart, kEnd, formationName, isSourceRock, isMobileLayer));
-	boost::shared_ptr<const Reservoir> reservoir(new Reservoir(reservoirName, formation));
-	boost::shared_ptr<Project> project(new Project(projectName, description, teamName, version, mode, 2, 1));
+	std::shared_ptr<const Formation> formation(new Formation(kStart, kEnd, formationName, isSourceRock, isMobileLayer));
+	std::shared_ptr<const Reservoir> reservoir(new Reservoir(reservoirName, formation));
+	std::shared_ptr<Project> project(new Project(projectName, description, teamName, version, mode, 2, 1));
 	project->addReservoir(reservoir);
 
-	boost::shared_ptr<const Reservoir> newReservoir = project->findReservoir(reservoirName);
+	std::shared_ptr<const Reservoir> newReservoir = project->findReservoir(reservoirName);
 	EXPECT_STREQ(newReservoir->getName().c_str(), reservoirName.c_str());
 }
 
@@ -443,7 +443,7 @@ TEST(Property, Create)
 	const string unit = "unit";
 	PropertyType type = FormationProperty;
 	PropertyAttribute attrib = Continuous3DProperty;
-	boost::shared_ptr<Property> prop(new Property(name, userName, cauldronName, unit, type, attrib));
+	std::shared_ptr<Property> prop(new Property(name, userName, cauldronName, unit, type, attrib));
 
 	EXPECT_STREQ(prop->getName().c_str(), name.c_str());
 	EXPECT_STREQ(prop->getCauldronName().c_str(), cauldronName.c_str());
@@ -465,7 +465,7 @@ TEST(Property, Create_HandleEmptyPropertyName)
 	PropertyAttribute attrib = Continuous3DProperty;
 
 	try{
-		boost::shared_ptr<Property> prop(new Property(name, userName, cauldronName, unit, type, attrib));
+		std::shared_ptr<Property> prop(new Property(name, userName, cauldronName, unit, type, attrib));
 		FAIL();
 	}
 	catch (CauldronIOException const & err)
@@ -490,7 +490,7 @@ TEST(Property, Create_HandleEmptyCauldronName)
 	PropertyAttribute attrib = Continuous3DProperty;
 
 	try{
-		boost::shared_ptr<Property> prop(new Property(name, userName, cauldronName, unit, type, attrib));
+		std::shared_ptr<Property> prop(new Property(name, userName, cauldronName, unit, type, attrib));
 		FAIL();
 	}
 	catch (CauldronIOException const & err)
@@ -515,7 +515,7 @@ TEST(Property, Create_HandleEmptyUserName)
 	PropertyAttribute attrib = Continuous3DProperty;
 
 	try{
-		boost::shared_ptr<Property> prop(new Property(name, userName, cauldronName, unit, type, attrib));
+		std::shared_ptr<Property> prop(new Property(name, userName, cauldronName, unit, type, attrib));
 		FAIL();
 	}
 	catch (CauldronIOException const & err)
@@ -538,15 +538,15 @@ TEST(Property, OperatorEquals)
 	const string unit = "unit";
 	PropertyType type = FormationProperty;
 	PropertyAttribute attrib = Continuous3DProperty;
-	boost::shared_ptr<Property> prop1(new Property(name, userName, cauldronName, unit, type, attrib));
-	boost::shared_ptr<Property> prop2(new Property(name, userName, cauldronName, unit, type, attrib));
+	std::shared_ptr<Property> prop1(new Property(name, userName, cauldronName, unit, type, attrib));
+	std::shared_ptr<Property> prop2(new Property(name, userName, cauldronName, unit, type, attrib));
 	bool isEqual = *prop1 == *prop2;
 	EXPECT_EQ(isEqual, true);
 }
 
 TEST(SnapShot, Add)
 {
-	boost::shared_ptr<SnapShot> snapShot(new SnapShot(0, SYSTEM, false));
+	std::shared_ptr<SnapShot> snapShot(new SnapShot(0, SYSTEM, false));
 
 	const FormationVolumeList& formVolumes = snapShot->getFormationVolumeList();
 	const SurfaceList& surfaceList = snapShot->getSurfaceList();
@@ -557,14 +557,14 @@ TEST(SnapShot, Add)
 	EXPECT_EQ(trapperList.size(), 0);
 
 	// create a formation volume to add to the snapshot
-	boost::shared_ptr<const Geometry3D> geometry3D(new Geometry3D(2, 2, 2, 0, 100, 100, 0, 0));
+	std::shared_ptr<const Geometry3D> geometry3D(new Geometry3D(2, 2, 2, 0, 100, 100, 0, 0));
 	size_t kStart = 1;
 	size_t kEnd = 2;
 	const string formationName("formation");
 	bool isSourceRock = true;
 	bool isMobileLayer = true;
-	boost::shared_ptr<const Formation> formation(new Formation(kStart, kEnd, formationName, isSourceRock, isMobileLayer));
-	boost::shared_ptr<Volume> volume(new Volume(Sediment));
+	std::shared_ptr<const Formation> formation(new Formation(kStart, kEnd, formationName, isSourceRock, isMobileLayer));
+	std::shared_ptr<Volume> volume(new Volume(Sediment));
 	FormationVolume formationVolume = FormationVolume(formation, volume);
 	snapShot->addFormationVolume(formationVolume);
 	EXPECT_EQ(formVolumes.size(), 1);
@@ -573,10 +573,10 @@ TEST(SnapShot, Add)
 	const string surfaceName = "waterbottom";
 	const string propName = "Depth";
 	const string unit = "m";
-	boost::shared_ptr<const Property> prop(new Property(propName, propName, propName, unit, FormationProperty, Continuous3DProperty));
-	boost::shared_ptr<const Geometry2D> geometry(new Geometry2D(2, 2, 100, 100, 0, 0));
-	boost::shared_ptr<SurfaceData> valueMap(new MapNative(geometry));
-	boost::shared_ptr<Surface> surface(new Surface(surfaceName, Sediment));
+	std::shared_ptr<const Property> prop(new Property(propName, propName, propName, unit, FormationProperty, Continuous3DProperty));
+	std::shared_ptr<const Geometry2D> geometry(new Geometry2D(2, 2, 100, 100, 0, 0));
+	std::shared_ptr<SurfaceData> valueMap(new MapNative(geometry));
+	std::shared_ptr<Surface> surface(new Surface(surfaceName, Sediment));
 	PropertySurfaceData propSurface = PropertySurfaceData(prop, valueMap);
 	surface->addPropertySurfaceData(propSurface);
 	snapShot->addSurface(surface);
@@ -585,7 +585,7 @@ TEST(SnapShot, Add)
 	//create a trapper to add to the snapshot
 	int ID = 1234;
 	int persistentID = 2345;
-	boost::shared_ptr<Trapper> trapper(new Trapper(ID, persistentID));
+	std::shared_ptr<Trapper> trapper(new Trapper(ID, persistentID));
 	snapShot->addTrapper(trapper);
 	EXPECT_EQ(trapperList.size(), 1);
 
@@ -593,16 +593,16 @@ TEST(SnapShot, Add)
 
 TEST(SnapShot, AddSurface_HandleEmptySurface)
 {
-	boost::shared_ptr<SnapShot> snapShot(new SnapShot(0, SYSTEM, false));
+	std::shared_ptr<SnapShot> snapShot(new SnapShot(0, SYSTEM, false));
 
 	const SurfaceList& surfaceList = snapShot->getSurfaceList();
 	EXPECT_EQ(surfaceList.size(), 0);
 
 	// create a surface to add to the snapshot
 	const string surfaceName = "waterbottom";
-	boost::shared_ptr<const Geometry2D> geometry(new Geometry2D(2, 2, 100, 100, 0, 0));
-	boost::shared_ptr<SurfaceData> valueMap(new MapNative(geometry));
-	boost::shared_ptr<Surface> surface;
+	std::shared_ptr<const Geometry2D> geometry(new Geometry2D(2, 2, 100, 100, 0, 0));
+	std::shared_ptr<SurfaceData> valueMap(new MapNative(geometry));
+	std::shared_ptr<Surface> surface;
 	try{
 		snapShot->addSurface(surface);
 		FAIL();
@@ -623,7 +623,7 @@ TEST(SnapShot, AddSurface_HandleEmptySurface)
 
 TEST(SnapShot, AddSurface_HandleDuplicateSurface)
 {
-	boost::shared_ptr<SnapShot> snapShot(new SnapShot(0, SYSTEM, false));
+	std::shared_ptr<SnapShot> snapShot(new SnapShot(0, SYSTEM, false));
 
 	const SurfaceList& surfaceList = snapShot->getSurfaceList();
 	EXPECT_EQ(surfaceList.size(), 0);
@@ -631,11 +631,11 @@ TEST(SnapShot, AddSurface_HandleDuplicateSurface)
 	// create a surface to add to the snapshot
 	const string propName = "Depth";
 	const string unit = "m";
-	boost::shared_ptr<const Property> prop(new Property(propName, propName, propName, unit, FormationProperty, Continuous3DProperty));
+	std::shared_ptr<const Property> prop(new Property(propName, propName, propName, unit, FormationProperty, Continuous3DProperty));
 	const string surfaceName = "waterbottom";
-	boost::shared_ptr<const Geometry2D> geometry(new Geometry2D(2, 2, 100, 100, 0, 0));
-	boost::shared_ptr<SurfaceData> valueMap(new MapNative(geometry));
-	boost::shared_ptr<Surface> surface(new Surface(surfaceName, Sediment));
+	std::shared_ptr<const Geometry2D> geometry(new Geometry2D(2, 2, 100, 100, 0, 0));
+	std::shared_ptr<SurfaceData> valueMap(new MapNative(geometry));
+	std::shared_ptr<Surface> surface(new Surface(surfaceName, Sediment));
 	PropertySurfaceData propSurface = PropertySurfaceData(prop, valueMap);
 	surface->addPropertySurfaceData(propSurface);
 	snapShot->addSurface(surface);
@@ -660,16 +660,16 @@ TEST(SnapShot, AddSurface_HandleDuplicateSurface)
 
 TEST(SnapShot, AddFormationVolume_HandleDuplicateVolume)
 {
-	boost::shared_ptr<SnapShot> snapShot(new SnapShot(0, SYSTEM, false));
+	std::shared_ptr<SnapShot> snapShot(new SnapShot(0, SYSTEM, false));
 	const FormationVolumeList& formVolumes = snapShot->getFormationVolumeList();
-	boost::shared_ptr<const Geometry3D> geometry3D(new Geometry3D(2, 2, 2, 0, 100, 100, 0, 0));
+	std::shared_ptr<const Geometry3D> geometry3D(new Geometry3D(2, 2, 2, 0, 100, 100, 0, 0));
 	size_t kStart = 1;
 	size_t kEnd = 2;
 	const string formationName("formation");
 	bool isSourceRock = true;
 	bool isMobileLayer = true;
-	boost::shared_ptr<const Formation> formation(new Formation(kStart, kEnd, formationName, isSourceRock, isMobileLayer));
-	boost::shared_ptr<Volume> volume(new Volume(Sediment));
+	std::shared_ptr<const Formation> formation(new Formation(kStart, kEnd, formationName, isSourceRock, isMobileLayer));
+	std::shared_ptr<Volume> volume(new Volume(Sediment));
 	FormationVolume formationVolume = FormationVolume(formation, volume);
 	snapShot->addFormationVolume(formationVolume);
 
@@ -692,12 +692,12 @@ TEST(SnapShot, AddFormationVolume_HandleDuplicateVolume)
 
 TEST(SnapShot, AddTrapper_HandleEmptyTrapper)
 {
-	boost::shared_ptr<SnapShot> snapShot(new SnapShot(0, SYSTEM, false));
+	std::shared_ptr<SnapShot> snapShot(new SnapShot(0, SYSTEM, false));
 	const TrapperList& trapperList = snapShot->getTrapperList();
 
 	int ID = 1234;
 	int persistentID = 2345;
-	boost::shared_ptr<Trapper> trapper;
+	std::shared_ptr<Trapper> trapper;
 
 	try{
 		snapShot->addTrapper(trapper);
@@ -717,12 +717,12 @@ TEST(SnapShot, AddTrapper_HandleEmptyTrapper)
 
 TEST(SnapShot, AddTrapper_HandleDuplicateTrapper)
 {
-	boost::shared_ptr<SnapShot> snapShot(new SnapShot(0, SYSTEM, false));
+	std::shared_ptr<SnapShot> snapShot(new SnapShot(0, SYSTEM, false));
 	const TrapperList& trapperList = snapShot->getTrapperList();
 
 	int ID = 1234;
 	int persistentID = 2345;
-	boost::shared_ptr<Trapper> trapper(new Trapper(ID, persistentID));
+	std::shared_ptr<Trapper> trapper(new Trapper(ID, persistentID));
 	snapShot->addTrapper(trapper);
 
 	try{
@@ -747,7 +747,7 @@ TEST(Formation, Create)
 	const string formationName("formation");
 	bool isSourceRock = true;
 	bool isMobileLayer = true;
-	boost::shared_ptr<const Formation> formation(new Formation(kStart, kEnd, formationName, isSourceRock, isMobileLayer));
+	std::shared_ptr<const Formation> formation(new Formation(kStart, kEnd, formationName, isSourceRock, isMobileLayer));
 	unsigned int start, end;
 	formation->getK_Range(start, end);
 	EXPECT_EQ(start, kStart);
@@ -765,7 +765,7 @@ TEST(Formation, Create_HandleEmptyName)
 	bool isSourceRock = true;
 	bool isMobileLayer = true;
 	try{
-		boost::shared_ptr<const Formation> formation(new Formation(kStart, kEnd, formationName, isSourceRock, isMobileLayer));
+		std::shared_ptr<const Formation> formation(new Formation(kStart, kEnd, formationName, isSourceRock, isMobileLayer));
 		FAIL();
 	}
 	catch (CauldronIOException const & err)
@@ -785,8 +785,8 @@ TEST(Formation, OperatorEquals)
 	const string formationName("formation");
 	bool isSourceRock = true;
 	bool isMobileLayer = true;
-	boost::shared_ptr<const Formation> formation1(new Formation(kStart, kEnd, formationName, isSourceRock, isMobileLayer));
-	boost::shared_ptr<const Formation> formation2(new Formation(kStart, kEnd, formationName, isSourceRock, isMobileLayer));
+	std::shared_ptr<const Formation> formation1(new Formation(kStart, kEnd, formationName, isSourceRock, isMobileLayer));
+	std::shared_ptr<const Formation> formation2(new Formation(kStart, kEnd, formationName, isSourceRock, isMobileLayer));
 	bool isEqual = *formation1 == *formation2;
 	EXPECT_EQ(isEqual, true);
 
@@ -795,7 +795,7 @@ TEST(Formation, OperatorEquals)
 TEST(Surface, Create)
 {
 	const string surfaceName = "waterbottom";
-	boost::shared_ptr<Surface> surface(new Surface(surfaceName, Sediment));
+	std::shared_ptr<Surface> surface(new Surface(surfaceName, Sediment));
 	EXPECT_STREQ(surface->getName().c_str(), surfaceName.c_str());
 	EXPECT_EQ(surface->getSubSurfaceKind(), Sediment);
 
@@ -804,13 +804,13 @@ TEST(Surface, Create)
 TEST(Surface, SetFormation)
 {
 	const string surfaceName = "waterbottom";
-	boost::shared_ptr<Surface> surface(new Surface(surfaceName, Sediment));
+	std::shared_ptr<Surface> surface(new Surface(surfaceName, Sediment));
 	size_t kStart = 1;
 	size_t kEnd = 2;
 	const string formationName("formation");
 	bool isSourceRock = true;
 	bool isMobileLayer = true;
-	boost::shared_ptr<const Formation> formation(new Formation(kStart, kEnd, formationName, isSourceRock, isMobileLayer));
+	std::shared_ptr<const Formation> formation(new Formation(kStart, kEnd, formationName, isSourceRock, isMobileLayer));
 	surface->setFormation(formation, true);
 	EXPECT_STREQ(surface->getTopFormation()->getName().c_str(), formationName.c_str());
 
@@ -820,11 +820,11 @@ TEST(Surface, AddPropertySurfaceData_HandleDuplicateData)
 {
 	const string propName = "Depth";
 	const string unit = "m";
-	boost::shared_ptr<const Property> prop(new Property(propName, propName, propName, unit, FormationProperty, Continuous3DProperty));
+	std::shared_ptr<const Property> prop(new Property(propName, propName, propName, unit, FormationProperty, Continuous3DProperty));
 	const string surfaceName = "waterbottom";
-	boost::shared_ptr<const Geometry2D> geometry(new Geometry2D(2, 2, 100, 100, 0, 0));
-	boost::shared_ptr<SurfaceData> valueMap(new MapNative(geometry));
-	boost::shared_ptr<Surface> surface(new Surface(surfaceName, Sediment));
+	std::shared_ptr<const Geometry2D> geometry(new Geometry2D(2, 2, 100, 100, 0, 0));
+	std::shared_ptr<SurfaceData> valueMap(new MapNative(geometry));
+	std::shared_ptr<Surface> surface(new Surface(surfaceName, Sediment));
 	PropertySurfaceData propSurface = PropertySurfaceData(prop, valueMap);
 	surface->addPropertySurfaceData(propSurface);
 	try{
@@ -852,7 +852,7 @@ TEST(Geometry2D, Create)
 	double minJ = 3.2;
 	double maxI = minI + deltaI * numI;
 	double maxJ = minJ + deltaJ * numJ;
-	boost::shared_ptr<const Geometry2D> geometry(new Geometry2D(numI, numJ, deltaI, deltaJ, minI, minJ));
+	std::shared_ptr<const Geometry2D> geometry(new Geometry2D(numI, numJ, deltaI, deltaJ, minI, minJ));
 	EXPECT_EQ(geometry->getNumI(), numI);
 	EXPECT_EQ(geometry->getNumJ(), numJ);
 	EXPECT_DOUBLE_EQ(geometry->getDeltaI(), deltaI);
@@ -875,7 +875,7 @@ TEST(Volume, Create)
 	double minJ = 3.2;
 
 	SubsurfaceKind kind = Sediment;
-	boost::shared_ptr<Volume> volume(new Volume(kind));
+	std::shared_ptr<Volume> volume(new Volume(kind));
 	EXPECT_EQ(volume->getSubSurfaceKind(), kind);
 }
 
@@ -892,7 +892,7 @@ TEST(Geometry3D, Create)
 	double maxI = minI + deltaI * numI;
 	double maxJ = minJ + deltaJ * numJ;
 	size_t lastK = offsetK + numK - 1;
-	boost::shared_ptr<const Geometry3D> geometry(new Geometry3D(numI, numJ, numK, offsetK, deltaI, deltaJ, minI, minJ));
+	std::shared_ptr<const Geometry3D> geometry(new Geometry3D(numI, numJ, numK, offsetK, deltaI, deltaJ, minI, minJ));
 	EXPECT_EQ(geometry->getNumI(), numI);
 	EXPECT_EQ(geometry->getNumJ(), numJ);
 	EXPECT_EQ(geometry->getNumK(), numK);
@@ -911,7 +911,7 @@ TEST(Trapper, Create)
 {
 	int ID = 1234;
 	int persistentID = 2345;
-	boost::shared_ptr<const Trapper> trapper(new Trapper(ID, persistentID));
+	std::shared_ptr<const Trapper> trapper(new Trapper(ID, persistentID));
 
 	EXPECT_EQ(trapper->getID(), ID);
 	EXPECT_EQ(trapper->getPersistentID(), persistentID);

@@ -15,7 +15,7 @@
 using namespace DataAccess;
 using namespace DataAccess::Interface;
 
-CauldronIO::MapProjectHandle::MapProjectHandle(boost::shared_ptr<const CauldronIO::Geometry2D>& geometry) : SurfaceData(geometry)
+CauldronIO::MapProjectHandle::MapProjectHandle(std::shared_ptr<const CauldronIO::Geometry2D>& geometry) : SurfaceData(geometry)
 {
     m_propVal = NULL;
 }
@@ -97,7 +97,7 @@ void CauldronIO::MapProjectHandle::setDataStore(const DataAccess::Interface::Pro
     m_propVal = propVal;
 }
 
-CauldronIO::VolumeProjectHandle::VolumeProjectHandle(const boost::shared_ptr<Geometry3D>& geometry)
+CauldronIO::VolumeProjectHandle::VolumeProjectHandle(const std::shared_ptr<Geometry3D>& geometry)
     : VolumeData(geometry)
 {
     m_propVal = NULL;
@@ -175,7 +175,7 @@ void CauldronIO::VolumeProjectHandle::retrieveMultipleFormations()
         const GridMap* gridMap = m_propValues->at(i)->getGridMap();
         gridMap->retrieveData();
      
-        boost::shared_ptr<CauldronIO::FormationInfo> depthInfo = findDepthInfo(m_depthFormations, m_propValues->at(i)->getFormation());
+        std::shared_ptr<CauldronIO::FormationInfo> depthInfo = findDepthInfo(m_depthFormations, m_propValues->at(i)->getFormation());
 
         // Get the volume data for this formation
         assert(gridMap->firstI() == 0 && gridMap->firstJ() == 0 && gridMap->firstK() == 0);
@@ -300,20 +300,20 @@ void CauldronIO::VolumeProjectHandle::retrieveSingleFormation()
     m_retrieved = true;
 }
 
-void CauldronIO::VolumeProjectHandle::setDataStore(boost::shared_ptr<DataAccess::Interface::PropertyValueList> propValues,
-        boost::shared_ptr<CauldronIO::FormationInfoList> depthFormations)
+void CauldronIO::VolumeProjectHandle::setDataStore(std::shared_ptr<DataAccess::Interface::PropertyValueList> propValues,
+        std::shared_ptr<CauldronIO::FormationInfoList> depthFormations)
 {
     m_propValues = propValues;
     m_depthFormations = depthFormations;
 }
 
-void CauldronIO::VolumeProjectHandle::setDataStore(const DataAccess::Interface::PropertyValue* propVal, boost::shared_ptr<CauldronIO::FormationInfo> depthFormation)
+void CauldronIO::VolumeProjectHandle::setDataStore(const DataAccess::Interface::PropertyValue* propVal, std::shared_ptr<CauldronIO::FormationInfo> depthFormation)
 {
     m_propVal = propVal;
     m_depthInfo = depthFormation;
 }
 
-boost::shared_ptr<CauldronIO::FormationInfo> CauldronIO::VolumeProjectHandle::findDepthInfo(boost::shared_ptr<CauldronIO::FormationInfoList> depthFormations, const DataAccess::Interface::Formation* formation)
+std::shared_ptr<CauldronIO::FormationInfo> CauldronIO::VolumeProjectHandle::findDepthInfo(std::shared_ptr<CauldronIO::FormationInfoList> depthFormations, const DataAccess::Interface::Formation* formation)
 {
     for (size_t i = 0; i < depthFormations->size(); ++i)
     {
@@ -323,7 +323,7 @@ boost::shared_ptr<CauldronIO::FormationInfo> CauldronIO::VolumeProjectHandle::fi
     throw CauldronIO::CauldronIOException("Cannot find depth formation for requested formation");
 }
 
-bool CauldronIO::FormationInfo::compareFormations(boost::shared_ptr<CauldronIO::FormationInfo> info1, boost::shared_ptr<CauldronIO::FormationInfo> info2)
+bool CauldronIO::FormationInfo::compareFormations(std::shared_ptr<CauldronIO::FormationInfo> info1, std::shared_ptr<CauldronIO::FormationInfo> info2)
 {
     return info1->depthStart < info2->depthStart;
 }

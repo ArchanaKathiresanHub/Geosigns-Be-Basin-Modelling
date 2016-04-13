@@ -12,8 +12,7 @@
 #define _VisualizationAPIFwDecl_h_
 
 #include <vector>
-
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 /// This file keeps enum data type definitions, because they are can't be forward declared
 /// and various forward declarations for VisualizationAPI library
@@ -67,8 +66,9 @@ namespace CauldronIO
     class Geometry3D;
     class Trapper;
     class Reservoir;
+    class VisualizationIOData;
     struct FormationInfo;
-    typedef std::vector<boost::shared_ptr<FormationInfo> > FormationInfoList;
+    typedef std::vector<std::shared_ptr<FormationInfo> > FormationInfoList;
 }
 
 

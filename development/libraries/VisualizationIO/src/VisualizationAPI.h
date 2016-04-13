@@ -17,6 +17,7 @@
 #include <string>
 #include <utility>
 #include <stdexcept>
+#include <memory>
 
 /// \namespace CauldronIO
 /// \brief The namespace for the visualization IO library related classes
@@ -34,17 +35,17 @@ namespace CauldronIO
     };
 
     /// type definitions
-    typedef std::pair<  boost::shared_ptr<const Formation>, boost::shared_ptr<Volume> >     FormationVolume;
+    typedef std::pair<  std::shared_ptr<const Formation>, std::shared_ptr<Volume> >     FormationVolume;
     typedef std::vector<FormationVolume >                                                   FormationVolumeList;
-    typedef std::vector<boost::shared_ptr<SnapShot > >                                      SnapShotList;
-    typedef std::vector<boost::shared_ptr<Surface > >                                       SurfaceList;
-    typedef std::vector<boost::shared_ptr<Volume > >                                        VolumeList;
-    typedef std::vector<boost::shared_ptr<Trapper > >                                       TrapperList;
-    typedef std::vector<boost::shared_ptr<const Property > >                                PropertyList;
-    typedef std::vector<boost::shared_ptr<const Formation> >                                FormationList;
-    typedef std::vector<boost::shared_ptr<const Reservoir> >                                ReservoirList;
-    typedef std::pair<  boost::shared_ptr<const Property>, boost::shared_ptr<SurfaceData> > PropertySurfaceData;
-    typedef std::pair<  boost::shared_ptr<const Property>, boost::shared_ptr<VolumeData> >  PropertyVolumeData;
+    typedef std::vector<std::shared_ptr<SnapShot > >                                      SnapShotList;
+    typedef std::vector<std::shared_ptr<Surface > >                                       SurfaceList;
+    typedef std::vector<std::shared_ptr<Volume > >                                        VolumeList;
+    typedef std::vector<std::shared_ptr<Trapper > >                                       TrapperList;
+    typedef std::vector<std::shared_ptr<const Property > >                                PropertyList;
+    typedef std::vector<std::shared_ptr<const Formation> >                                FormationList;
+    typedef std::vector<std::shared_ptr<const Reservoir> >                                ReservoirList;
+    typedef std::pair<  std::shared_ptr<const Property>, std::shared_ptr<SurfaceData> > PropertySurfaceData;
+    typedef std::pair<  std::shared_ptr<const Property>, std::shared_ptr<VolumeData> >  PropertyVolumeData;
     typedef std::vector < PropertySurfaceData >                                             PropertySurfaceDataList;
     typedef std::vector < PropertyVolumeData >                                              PropertyVolumeDataList;
 
@@ -66,13 +67,13 @@ namespace CauldronIO
         ~Project();
 
 		/// \brief Adds a snapshot to the current project
-		void addSnapShot(boost::shared_ptr<SnapShot>& snapShot);
+		void addSnapShot(std::shared_ptr<SnapShot>& snapShot);
         /// \brief Adds a property to the current project
-        void addProperty(boost::shared_ptr<const Property>& property);
+        void addProperty(std::shared_ptr<const Property>& property);
         /// \brief Adds a formation to the current project
-        void addFormation(boost::shared_ptr<const Formation>& formation);
+        void addFormation(std::shared_ptr<const Formation>& formation);
         /// \brief Adds a reservoir to the current project
-        void addReservoir(boost::shared_ptr<const Reservoir>& newReservoir);
+        void addReservoir(std::shared_ptr<const Reservoir>& newReservoir);
         /// \brief Retrieve all data in project
         void retrieve();
         /// \brief Release all data in project
@@ -93,15 +94,15 @@ namespace CauldronIO
         /// \returns A list of all unique properties
         const PropertyList& getProperties() const;
         /// \returns the property (if existing) for the given name
-        boost::shared_ptr<const Property> findProperty(std::string propertyName) const;
+        std::shared_ptr<const Property> findProperty(std::string propertyName) const;
         /// \returns a list of all formations
         const FormationList& getFormations() const;
         /// \returns the formation (if existing) for the given name
-        boost::shared_ptr<const Formation> findFormation(std::string formationName) const;
+        std::shared_ptr<const Formation> findFormation(std::string formationName) const;
         /// \returns a list of reservoirs
         const ReservoirList& getReservoirs() const;
         /// \returns the reservoir (if existing) for the given name [we assume there are no reservoirs with identical names and different otherwise]
-        boost::shared_ptr<const Reservoir> findReservoir(std::string reservoirName) const;
+        std::shared_ptr<const Reservoir> findReservoir(std::string reservoirName) const;
         /// \returns a list of strings containing the names of all surfaces
         const std::vector<std::string>& getSurfaceNames();
         /// \returns the xml version number
@@ -139,13 +140,13 @@ namespace CauldronIO
         void release();
 
 	    /// \brief Add a surface to the snapshot; ownership is transfered
-	    void addSurface(boost::shared_ptr<Surface>& surface);
+	    void addSurface(std::shared_ptr<Surface>& surface);
  	    /// \brief Add a volume to the snapshot; ownership is transfered
-        void setVolume(boost::shared_ptr<Volume>& volume);
+        void setVolume(std::shared_ptr<Volume>& volume);
         /// \brief Add a discontinuous volume to the snapshot; ownership is transfered
         void addFormationVolume(FormationVolume& formVolume);
         /// \brief Add a trapper to the snapshot; ownership is transfered
-        void addTrapper(boost::shared_ptr<Trapper>& trapper);
+        void addTrapper(std::shared_ptr<Trapper>& trapper);
 
 	    /// \returns Age of snapshot
         double getAge () const;
@@ -157,15 +158,17 @@ namespace CauldronIO
         /// \returns the list of surfaces
         const SurfaceList& getSurfaceList() const;
         /// \returns the list of volumes
-        const boost::shared_ptr<Volume>& getVolume() const;
+        const std::shared_ptr<Volume>& getVolume() const;
         /// \returns the list of discontinuous volumes
         const FormationVolumeList& getFormationVolumeList() const;
         /// \returns the list of trappers
         const TrapperList& getTrapperList() const;
+        /// \returns a list of all data not yet retrieved for this snapshot
+        std::vector < std::shared_ptr<VisualizationIOData> > getAllRetrievableData() const;
 		
     private:
 	    SurfaceList m_surfaceList;
-        boost::shared_ptr<Volume> m_volume;
+        std::shared_ptr<Volume> m_volume;
         FormationVolumeList m_formationVolumeList;
         TrapperList m_trapperList;
         SnapShotKind m_kind;
@@ -181,18 +184,18 @@ namespace CauldronIO
         /// \brief Reservoir constructor
         /// \param [in] reservoirName name of reservoir
         /// \param [in] formation the formation for this reservoir
-        Reservoir(const std::string& reservoirName, const boost::shared_ptr<const Formation>& formation);
+        Reservoir(const std::string& reservoirName, const std::shared_ptr<const Formation>& formation);
 
         /// \returns the name of this reservoir
         const std::string& getName() const;
         /// \returns the formation of this reservoir
-        const boost::shared_ptr<const Formation>& getFormation() const;
+        const std::shared_ptr<const Formation>& getFormation() const;
         /// \returns true if two reservoirs are equal
         bool operator==(const Reservoir& other) const;
 
     private:
         std::string m_reservoirName;
-        boost::shared_ptr<const Formation> m_formation;
+        std::shared_ptr<const Formation> m_formation;
     };
 
     /// \class Trapper 
@@ -234,9 +237,9 @@ namespace CauldronIO
         int getPersistentID() const;
         /// \brief Assign a downstream trapper for this trapper
         /// \returns the downstream trapper (if any)
-        boost::shared_ptr<const Trapper> getDownStreamTrapper() const;
+        std::shared_ptr<const Trapper> getDownStreamTrapper() const;
         /// \param [in] trapper the downstreamtrapper for this trapper
-        void setDownStreamTrapper(boost::shared_ptr<const Trapper> trapper);
+        void setDownStreamTrapper(std::shared_ptr<const Trapper> trapper);
         /// \param [in] persistentID the downstreamtrapper persistent ID for this trapper; temporary state - do not use
         void setDownStreamTrapperID(int persistentID);
         /// \returns the downstream trapper ID; temporary state - do not use
@@ -246,7 +249,7 @@ namespace CauldronIO
         int m_ID, m_persistentID, m_downstreamTrapperID;
         float m_depth, m_positionX, m_positionY;
         float m_spillDepth, m_spillPositionX, m_spillPositionY;
-        boost::shared_ptr<const Trapper> m_downstreamTrapper;
+        std::shared_ptr<const Trapper> m_downstreamTrapper;
         std::string m_reservoir;
     };
     
@@ -330,13 +333,13 @@ namespace CauldronIO
         ~Surface();
         
         /// \brief assign the geometry
-        void setGeometry(boost::shared_ptr<const Geometry2D>& geometry);
+        void setGeometry(std::shared_ptr<const Geometry2D>& geometry);
         /// \brief assign the high-res geometry
-        void setHighResGeometry(boost::shared_ptr<const Geometry2D>& geometry);
+        void setHighResGeometry(std::shared_ptr<const Geometry2D>& geometry);
         /// \returns the geometry; can be null
-        const boost::shared_ptr<const Geometry2D>& getGeometry() const;
+        const std::shared_ptr<const Geometry2D>& getGeometry() const;
         /// \returns the high-res geometry; can be null
-        const boost::shared_ptr<const Geometry2D>& getHighResGeometry() const;
+        const std::shared_ptr<const Geometry2D>& getHighResGeometry() const;
         /// \brief get the list of property-surfaceData pairs contained in this surface
         const PropertySurfaceDataList& getPropertySurfaceDataList() const;
         /// \brief Add a property-surfaceData pair to the list
@@ -344,18 +347,18 @@ namespace CauldronIO
         /// \returns true if this surface has a depth surface
         bool hasDepthSurface() const; 
         /// \returns the depth surface data; can be null
-        boost::shared_ptr<SurfaceData> getDepthSurface() const;
+        std::shared_ptr<SurfaceData> getDepthSurface() const;
         /// \brief Get the name of this surface
         const std::string& getName() const;
         /// \returns the subsurface kind
         SubsurfaceKind getSubSurfaceKind() const;
         /// \brief Associate a formation with this map
         /// \param [in] formation the formation to be associated with this map. Optional.
-        void setFormation(boost::shared_ptr<const Formation>& formation, bool isTop);
+        void setFormation(std::shared_ptr<const Formation>& formation, bool isTop);
         /// \returns the associated top formation for this map. Can be null
-        const boost::shared_ptr<const Formation>& getTopFormation() const;
+        const std::shared_ptr<const Formation>& getTopFormation() const;
         /// \returns the associated bottom formation for this map. Can be null
-        const boost::shared_ptr<const Formation>& getBottomFormation() const;
+        const std::shared_ptr<const Formation>& getBottomFormation() const;
         /// \brief Retrieve actual data into memory
         void retrieve();
         /// \brief Release memory; does not destroy the object; it can be retrieved again
@@ -365,13 +368,13 @@ namespace CauldronIO
 
     private:
         SubsurfaceKind m_subSurfaceKind;
-        boost::shared_ptr<const Formation> m_Topformation;
-        boost::shared_ptr<const Formation> m_Bottomformation;
+        std::shared_ptr<const Formation> m_Topformation;
+        std::shared_ptr<const Formation> m_Bottomformation;
         std::string m_name;
         std::string m_reservoirName;
         PropertySurfaceDataList m_propSurfaceList;
-        boost::shared_ptr<const Geometry2D> m_geometry;
-        boost::shared_ptr<const Geometry2D> m_highresgeometry;
+        std::shared_ptr<const Geometry2D> m_geometry;
+        std::shared_ptr<const Geometry2D> m_highresgeometry;
     };
 
     class Geometry2D
@@ -454,7 +457,7 @@ namespace CauldronIO
         virtual void retrieve() = 0;
         /// \brief Release memory; does not destroy the object; it can be retrieved again
         virtual void release() = 0;
-        /// \brief Prefetch any data
+        /// \brief Prefetch any data: load from disk, do not decompress yet (for this call retrieve)
         virtual void prefetch() = 0;
         /// \returns true if data is available
         virtual bool isRetrieved() const = 0;
@@ -466,7 +469,7 @@ namespace CauldronIO
     {
     public:
         /// \brief Create a surface-data object
-        SurfaceData(const boost::shared_ptr<const Geometry2D>& geometry);
+        SurfaceData(const std::shared_ptr<const Geometry2D>& geometry);
         ~SurfaceData();
 
         /// VisualizationIOData implementation
@@ -477,11 +480,11 @@ namespace CauldronIO
         virtual void release();
         /// \returns true if data is available
         virtual bool isRetrieved() const;
-        /// \brief Prefetch any data
+        /// \brief Prefetch any data: load from disk, do not decompress yet (for this call retrieve)
         virtual void prefetch() = 0;
 
         /// \returns the geometry
-        const boost::shared_ptr<const Geometry2D>& getGeometry() const;
+        const std::shared_ptr<const Geometry2D>& getGeometry() const;
         /// \brief Assign data to the map : geometry must have been assigned
         /// \param [in] data pointer to the xy data, ordered row-wise
         /// \note data ownership is not transferred; data should be deleted by client if obsolete
@@ -526,22 +529,22 @@ namespace CauldronIO
         /// \param [in] undefined the undefined value value
         void setUndefinedValue(float undefined);
         /// \param [in] formation the formation to be associated with this map. Optional.
-        void setFormation(boost::shared_ptr<const Formation>& formation);
+        void setFormation(std::shared_ptr<const Formation>& formation);
         /// \returns the associated top formation for this map. Can be null
-        const boost::shared_ptr<const Formation>& getFormation() const;
+        const std::shared_ptr<const Formation>& getFormation() const;
         /// \brief Set the reservoir of this surface
-        void setReservoir(boost::shared_ptr<const Reservoir> reservoir);
+        void setReservoir(std::shared_ptr<const Reservoir> reservoir);
         /// \brief Get the name of the reservoir associated with the surface. Optional.
-        const boost::shared_ptr<const Reservoir>& getReservoir() const;
+        const std::shared_ptr<const Reservoir>& getReservoir() const;
 
     private:
         float* m_internalData;
         float m_constantValue, m_undefinedValue;
         bool m_isConstant, m_isCellCentered;
         void setData(float* data, bool setValue = false, float value = 0);
-        boost::shared_ptr<const Formation> m_formation;
-        boost::shared_ptr<const Reservoir> m_reservoir;
-        boost::shared_ptr<const Geometry2D> m_geometry;
+        std::shared_ptr<const Formation> m_formation;
+        std::shared_ptr<const Reservoir> m_reservoir;
+        std::shared_ptr<const Geometry2D> m_geometry;
 
     protected:
         bool m_retrieved;
@@ -572,7 +575,7 @@ namespace CauldronIO
         /// \returns true if this surface has a depth surface
         bool hasDepthVolume() const;
         /// \returns the depth surface data; can be null
-        boost::shared_ptr<VolumeData> getDepthVolume() const;
+        std::shared_ptr<VolumeData> getDepthVolume() const;
 
         /// \brief Retrieve the data
         void retrieve();
@@ -590,11 +593,11 @@ namespace CauldronIO
     {
     public:
         /// \brief Create a surface-data object
-        VolumeData(const boost::shared_ptr<Geometry3D>& geometry);
+        VolumeData(const std::shared_ptr<Geometry3D>& geometry);
         ~VolumeData();
 
         /// \returns the geometry
-        const boost::shared_ptr<Geometry3D>& getGeometry() const;
+        const std::shared_ptr<Geometry3D>& getGeometry() const;
         /// \brief Assign data to the volume as a 1D array: K fastest, then I, then J
         /// \param [in] data a pointer to the data; it will be copied, no ownership is transferred
         /// \param [in] setValue if true, a constant value will be assigned to the data
@@ -680,12 +683,12 @@ namespace CauldronIO
         float m_constantValue, m_undefinedValue;
         bool m_isConstant, m_isCellCentered;
         SubsurfaceKind m_subSurfaceKind;
-        boost::shared_ptr<const Property> m_property;
-        boost::shared_ptr<const Volume> m_depthVolume;
+        std::shared_ptr<const Property> m_property;
+        std::shared_ptr<const Volume> m_depthVolume;
 
     protected:
         void updateGeometry();
-        boost::shared_ptr<Geometry3D> m_geometry;
+        std::shared_ptr<Geometry3D> m_geometry;
         bool m_retrieved;
         size_t m_numI, m_numJ, m_firstK, m_lastK, m_numK;
         double m_deltaI, m_deltaJ, m_minI, m_minJ, m_maxI, m_maxJ;

@@ -10,10 +10,10 @@
 #                                                                       #
 #########################################################################
 
-FILE( GLOB all_headers src/*.h src/pugixml-1.7/*.hpp)
+FILE( GLOB all_headers src/*.h src/pugixml-1.7/*.hpp src/lz4/lz4.h)
 source_group("Header Files" FILES ${all_headers})
 
-FILE( GLOB all_srcs src/*.cpp src/pugixml-1.7/*.cpp)
+FILE( GLOB all_srcs src/*.cpp src/pugixml-1.7/*.cpp src/lz4/lz4.c)
 source_group("Source Files" FILES ${all_srcs})
 
 add_library(VisualizationIO ${all_srcs} ${all_headers})

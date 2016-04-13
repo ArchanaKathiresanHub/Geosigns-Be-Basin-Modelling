@@ -13,11 +13,11 @@
 
 using namespace CauldronIO;
 
-CauldronIO::MapNative::MapNative(const boost::shared_ptr<const Geometry2D>& geometry) : SurfaceData(geometry)
+CauldronIO::MapNative::MapNative(const std::shared_ptr<const Geometry2D>& geometry) : SurfaceData(geometry)
 {
     m_params = NULL;
+    m_dataStore = NULL;
 }
-
 
 CauldronIO::MapNative::~MapNative()
 {
@@ -28,18 +28,28 @@ CauldronIO::MapNative::~MapNative()
     }
 }
 
+void CauldronIO::MapNative::prefetch()
+{
+    // Load from disk, do not decompress
+    if (!m_dataStore)
+    {
+        m_dataStore = new DataStoreLoad(m_params);
+        m_dataStore->prefetch();
+    }
+}
+
 void CauldronIO::MapNative::retrieve()
 {
     if (isConstant()) return;
-    
-    DataStoreLoad datastore(m_params);
-    
-    size_t size;
-    float* data = datastore.getData(size);
 
-    if (size != sizeof(float)*m_numI*m_numJ)
-        throw CauldronIOException("Error during decompression of data");
-    
+    prefetch();
+
+    size_t size = sizeof(float)*m_numI*m_numJ;
+    float* data = m_dataStore->getData(size);
+
+    delete m_dataStore;
+    m_dataStore = NULL;
+
     setData_IJ(data);
     delete[] data;
 }
@@ -58,13 +68,15 @@ const DataStoreParams* CauldronIO::MapNative::getDataStoreParams() const
 //////////////////////////////////////////////////////////////////////////
 
 
-CauldronIO::VolumeDataNative::VolumeDataNative(const boost::shared_ptr<Geometry3D>& geometry)
+CauldronIO::VolumeDataNative::VolumeDataNative(const std::shared_ptr<Geometry3D>& geometry)
     : VolumeData(geometry)
 {
     m_dataIJK = false;
     m_dataKIJ = false;
     m_paramsIJK = NULL;
     m_paramsKIJ = NULL;
+    m_dataStoreIJK = NULL;
+    m_dataStoreKIJ = NULL;
 }
 
 CauldronIO::VolumeDataNative::~VolumeDataNative()
@@ -81,19 +93,36 @@ CauldronIO::VolumeDataNative::~VolumeDataNative()
     }
 }
 
+void CauldronIO::VolumeDataNative::prefetch()
+{
+    if (m_dataIJK && !m_dataStoreIJK)
+    {
+        // Load from disk, do not decompress
+        m_dataStoreIJK = new DataStoreLoad(m_paramsIJK);
+        m_dataStoreIJK->prefetch();
+    }
+    if (m_dataKIJ && !m_dataStoreKIJ)
+    {
+        // Load from disk, do not decompress
+        m_dataStoreKIJ = new DataStoreLoad(m_paramsKIJ);
+        m_dataStoreKIJ->prefetch();
+    }
+}
+
 void CauldronIO::VolumeDataNative::retrieve()
 {
     if (isConstant()) return;
 
     if (m_dataIJK)
     {
-        DataStoreLoad datastore(m_paramsIJK);
+        prefetch();
 
-        size_t size;
-        float* data = datastore.getData(size);
-
-        if (size != sizeof(float)*m_numI*m_numJ*m_numK)
-            throw CauldronIOException("Error during decompression of data");
+        size_t size = sizeof(float)*m_numI*m_numJ*m_numK;
+        float* data = m_dataStoreIJK->getData(size);
+        
+        // Close filehandles etc.
+        delete m_dataStoreIJK;
+        m_dataStoreIJK = NULL;
 
         // Geometry should already have been set
         setData_IJK(data);
@@ -102,13 +131,14 @@ void CauldronIO::VolumeDataNative::retrieve()
 
     if (m_dataKIJ)
     {
-        DataStoreLoad datastore(m_paramsKIJ);
+        prefetch();
 
-        size_t size;
-        float* data = datastore.getData(size);
+        size_t size = sizeof(float)*m_numI*m_numJ*m_numK;
+        float* data = m_dataStoreKIJ->getData(size);
 
-        if (size != sizeof(float)*m_numI*m_numJ*m_numK)
-            throw CauldronIOException("Error during decompression of data");
+        // Close filehandles etc.
+        delete m_dataStoreKIJ;
+        m_dataStoreKIJ = NULL;
 
         // Geometry should already have been set
         setData_KIJ(data);

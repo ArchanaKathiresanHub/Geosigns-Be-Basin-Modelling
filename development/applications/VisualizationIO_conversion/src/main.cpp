@@ -14,9 +14,32 @@
 #include "Interface/ProjectHandle.h"
 #include "Interface/ObjectFactory.h"
 #include <boost/filesystem/path.hpp>
+#include <boost/lockfree/queue.hpp>
+#include <boost/atomic.hpp>
 #include <ctime>
 #include <cstring>
 #define verbose false
+
+/// \brief method to retrieve data on a separate thread
+void retrieveDataQueue(std::vector < shared_ptr<CauldronIO::VisualizationIOData> >* allData, boost::lockfree::queue<int>* queue, boost::atomic<bool>* done)
+{
+    int value;
+    while (!*done) {
+        while (queue->pop(value))
+        {
+            const shared_ptr<CauldronIO::VisualizationIOData>& data = allData->at(value);
+            assert(!data->isRetrieved());
+            data->retrieve();
+        }
+    }
+
+    while (queue->pop(value))
+    {
+        const shared_ptr<CauldronIO::VisualizationIOData>& data = allData->at(value);
+        assert(!data->isRetrieved());
+        data->retrieve();
+    }
+}
 
 /// \brief Small wrapper application for the VisualizationIO libraries
 int main(int argc, char ** argv)
@@ -27,11 +50,19 @@ int main(int argc, char ** argv)
             << " -import-native       : loads xml reads all the data into memory" << endl
             << " -import-projectHandle: loads the specified projectHandle into memory" << endl
             << " -convert             : converts the specified projectHandle to new native format" << endl
-            << " -threads=x           : use x threads for compression during export" << endl;
+            << " -threads=x           : use x threads for compression during export or parallel importing" << endl;
         return 1;
     }
 
     string mode = argv[1];
+
+    // Check threads
+    int numThreads = 1;
+    if (argc >= 4)
+    {
+        numThreads = std::atoi(argv[3] + 9);
+        numThreads = min(24, (int)max(1, (int)numThreads));
+    }
 
     try
     {
@@ -49,7 +80,7 @@ int main(int argc, char ** argv)
             float timeInSeconds;
 
             cout << "Starting import from XML" << endl;
-            boost::shared_ptr<CauldronIO::Project> project = CauldronIO::ImportExport::importFromXML(xmlName);
+            shared_ptr<CauldronIO::Project> project = CauldronIO::ImportExport::importFromXML(xmlName);
 
             timeInSeconds = (float)(clock() - start) / CLOCKS_PER_SEC;
             cout << "Finished import in " << timeInSeconds << " seconds " << endl;
@@ -57,7 +88,37 @@ int main(int argc, char ** argv)
             // Retrieve data
             cout << "Retrieving data" << endl;
             start = clock();
-            project->retrieve();
+
+            for (shared_ptr<CauldronIO::SnapShot> snapShot : project->getSnapShots())
+            {
+                std::vector < shared_ptr<CauldronIO::VisualizationIOData> > allReadData = snapShot->getAllRetrievableData();
+
+                std::cout << "Retrieving snapshot " << snapShot->getAge() << " with " << numThreads << " threads" << endl;
+
+                boost::lockfree::queue<int> queue(128);
+                boost::atomic<bool> done(false);
+
+                // Retrieve in separate threads
+                boost::thread_group threads;
+                for (int i = 0; i < numThreads - 1; ++i)
+                    threads.add_thread(new boost::thread(retrieveDataQueue, &allReadData, &queue, &done));
+
+                // Load the data on the main thread
+                for (int i = 0; i < allReadData.size(); i++)
+                {
+                    allReadData[i]->prefetch();
+                    queue.push(i);
+                }
+                done = true;
+
+                // Single threaded: retrieve now
+                if (numThreads == 1)
+                    retrieveDataQueue(&allReadData, &queue, &done);
+                threads.join_all();
+
+                snapShot->release();
+            }
+
             timeInSeconds = (float)(clock() - start) / CLOCKS_PER_SEC;
             cout << "Finished retrieve in " << timeInSeconds << " seconds " << endl;
 
@@ -77,8 +138,8 @@ int main(int argc, char ** argv)
 
             // Try to open the projectHandle
             cout << "Opening project handle " << endl;
-            boost::shared_ptr<DataAccess::Interface::ObjectFactory> factory(new DataAccess::Interface::ObjectFactory());
-            boost::shared_ptr<DataAccess::Interface::ProjectHandle> projectHandle(DataAccess::Interface::OpenCauldronProject(projectFileName, "r", factory.get()));
+            shared_ptr<DataAccess::Interface::ObjectFactory> factory(new DataAccess::Interface::ObjectFactory());
+            shared_ptr<DataAccess::Interface::ProjectHandle> projectHandle(DataAccess::Interface::OpenCauldronProject(projectFileName, "r", factory.get()));
             if (!projectHandle)
             {
                 cerr << "Could not open the project handle" << endl;
@@ -89,7 +150,7 @@ int main(int argc, char ** argv)
 
             // Import from ProjectHandle
             cout << "Importing from project handle (requires reading depth formations)" << endl;
-            boost::shared_ptr<CauldronIO::Project> project = ImportProjectHandle::createFromProjectHandle(projectHandle, verbose);
+            shared_ptr<CauldronIO::Project> project = ImportProjectHandle::createFromProjectHandle(projectHandle, verbose);
             timeInSeconds = (float)(clock() - start) / CLOCKS_PER_SEC;
             cout << "Finished import in " << timeInSeconds << " seconds " << endl;
 
@@ -114,14 +175,6 @@ int main(int argc, char ** argv)
                 boost::filesystem::path absPath(projectFileName);
                 absPath.remove_filename();
                 std::string indexingXMLname = CauldronIO::ImportExport::getXMLIndexingFileName(projectFileName);
-
-                // Check threads
-                int numThreads = 1;
-                if (argc >= 4)
-                {
-                    numThreads = std::atoi(argv[3] + 9);
-                    numThreads = min(24, (int)max(1, (int)numThreads));
-                }
 
                 CauldronIO::ImportExport::exportToXML(project, absPath.string(), relPath.string(), indexingXMLname, numThreads);
                 timeInSeconds = (float)(clock() - start) / CLOCKS_PER_SEC;

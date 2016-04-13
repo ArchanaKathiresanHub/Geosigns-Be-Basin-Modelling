@@ -193,8 +193,8 @@ void PropertiesCalculator::convertToVisualizationIO( )  {
       PetscLogDouble End_Time;
       PetscTime( &Start_Time );
 
-      boost::shared_ptr<DataAccess::Interface::ObjectFactory> factory(new DataAccess::Interface::ObjectFactory());
-      boost::shared_ptr<DataAccess::Interface::ProjectHandle> projectHandle(DataAccess::Interface::OpenCauldronProject(m_projectFileName, "r", factory.get()));
+      std::shared_ptr<DataAccess::Interface::ObjectFactory> factory(new DataAccess::Interface::ObjectFactory());
+      std::shared_ptr<DataAccess::Interface::ProjectHandle> projectHandle(DataAccess::Interface::OpenCauldronProject(m_projectFileName, "r", factory.get()));
 
       if( onlyPrimary ) {
          if( m_primaryPod ) {
@@ -202,7 +202,7 @@ void PropertiesCalculator::convertToVisualizationIO( )  {
          }
       }
      
-      boost::shared_ptr<CauldronIO::Project> project = ImportProjectHandle::createFromProjectHandle(projectHandle, false );
+      std::shared_ptr<CauldronIO::Project> project = ImportProjectHandle::createFromProjectHandle(projectHandle, false );
 
       boost::filesystem::path relPath(m_projectFileName);
       relPath = relPath.stem().string() + "_vizIO_output";

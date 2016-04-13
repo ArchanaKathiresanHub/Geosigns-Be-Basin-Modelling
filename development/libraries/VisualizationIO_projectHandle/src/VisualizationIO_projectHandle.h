@@ -31,16 +31,16 @@ namespace CauldronIO
         size_t numI, numJ;
         double deltaI, deltaJ, minI, minJ;
 
-        static bool compareFormations(boost::shared_ptr<CauldronIO::FormationInfo> info1, boost::shared_ptr < CauldronIO::FormationInfo> info2);
+        static bool compareFormations(std::shared_ptr<CauldronIO::FormationInfo> info1, std::shared_ptr < CauldronIO::FormationInfo> info2);
     };
-    typedef vector<boost::shared_ptr< FormationInfo> > FormationInfoList;
+    typedef vector<std::shared_ptr< FormationInfo> > FormationInfoList;
     
     /// \brief Implementation of Map class that can retrieve data from a ProjectHandle
     class MapProjectHandle : public SurfaceData
     {
     public:
         /// \brief Constructor defining if this map is cell centered, and its undefined value
-        MapProjectHandle(boost::shared_ptr<const CauldronIO::Geometry2D>& geometry);
+        MapProjectHandle(std::shared_ptr<const CauldronIO::Geometry2D>& geometry);
         
         /// \brief Prefetch any data
         virtual void prefetch();
@@ -59,7 +59,7 @@ namespace CauldronIO
     class VolumeProjectHandle : public VolumeData
     {
     public:
-        VolumeProjectHandle(const boost::shared_ptr<Geometry3D>& geometry);
+        VolumeProjectHandle(const std::shared_ptr<Geometry3D>& geometry);
 
         /// \brief Prefetch any data
         virtual void prefetch();
@@ -68,21 +68,21 @@ namespace CauldronIO
         /// \brief Release memory; does not destroy the object; it can be retrieved again
         virtual void release();
         /// \brief Set all variables needed to retrieve the data for multiple formations
-        void setDataStore(boost::shared_ptr<DataAccess::Interface::PropertyValueList> propValues,
-            boost::shared_ptr<CauldronIO::FormationInfoList> depthFormations);
+        void setDataStore(std::shared_ptr<DataAccess::Interface::PropertyValueList> propValues,
+            std::shared_ptr<CauldronIO::FormationInfoList> depthFormations);
         /// \brief Set all variables needed to retrieve the data
-        void setDataStore(const DataAccess::Interface::PropertyValue* propVal, boost::shared_ptr<CauldronIO::FormationInfo> depthFormation);
+        void setDataStore(const DataAccess::Interface::PropertyValue* propVal, std::shared_ptr<CauldronIO::FormationInfo> depthFormation);
 
         /// \brief Helper method
-        static boost::shared_ptr<FormationInfo> findDepthInfo(boost::shared_ptr<CauldronIO::FormationInfoList> depthFormations, const DataAccess::Interface::Formation* formation);
+        static std::shared_ptr<FormationInfo> findDepthInfo(std::shared_ptr<CauldronIO::FormationInfoList> depthFormations, const DataAccess::Interface::Formation* formation);
 
     private:
         void retrieveMultipleFormations();
         void retrieveSingleFormation();
-        boost::shared_ptr<DataAccess::Interface::PropertyValueList> m_propValues;
-        boost::shared_ptr<CauldronIO::FormationInfoList> m_depthFormations;
+        std::shared_ptr<DataAccess::Interface::PropertyValueList> m_propValues;
+        std::shared_ptr<CauldronIO::FormationInfoList> m_depthFormations;
         const DataAccess::Interface::PropertyValue* m_propVal;
-        boost::shared_ptr<CauldronIO::FormationInfo> m_depthInfo;
+        std::shared_ptr<CauldronIO::FormationInfo> m_depthInfo;
     };
 }
 #endif

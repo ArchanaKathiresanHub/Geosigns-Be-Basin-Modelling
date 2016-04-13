@@ -16,17 +16,18 @@
 namespace CauldronIO
 {
     struct DataStoreParams;
+    class DataStoreLoad;
 
     /// \brief Map class implementation with native retrieve of data
     class MapNative : public SurfaceData
     {
     public:
         /// \brief Constructor defining if this map is cell centered, and its undefined value
-        MapNative(const boost::shared_ptr<const Geometry2D>& geometry);
+        MapNative(const std::shared_ptr<const Geometry2D>& geometry);
         ~MapNative();
         
-        /// \brief Prefetch any data
-        virtual void prefetch() {};
+        /// \brief Prefetch any data: load from disk, do not decompress yet
+        virtual void prefetch();
         /// \brief Override the retrieve method to load data from datastore
         virtual void retrieve();
         /// \brief Set all variables needed to retrieve the data
@@ -36,17 +37,18 @@ namespace CauldronIO
 
     private:
         DataStoreParams* m_params;
+        DataStoreLoad* m_dataStore;
     };
 
     /// \brief Volume class implementation with native retrieve of data
     class VolumeDataNative : public VolumeData
     {
     public:
-        VolumeDataNative(const boost::shared_ptr<Geometry3D>& geometry);
+        VolumeDataNative(const std::shared_ptr<Geometry3D>& geometry);
         ~VolumeDataNative();
 
-        /// \brief Prefetch any data
-        virtual void prefetch() {};
+        /// \brief Prefetch any data: load from disk, do not decompress yet
+        virtual void prefetch();
         /// \brief Override the retrieve method to load data from datastore
         virtual void retrieve();
         /// \brief Set all variables needed to retrieve the data
@@ -60,6 +62,8 @@ namespace CauldronIO
         bool m_dataIJK, m_dataKIJ;
         DataStoreParams* m_paramsIJK;
         DataStoreParams* m_paramsKIJ;
+        DataStoreLoad* m_dataStoreIJK;
+        DataStoreLoad* m_dataStoreKIJ;
     };
 }
 #endif
