@@ -25,12 +25,14 @@ bm_include_libraries(
 	CBMGenerics 
 	EosPack 
 	utilities
+	LinearAlgebra
 )
 
 target_link_libraries(genex6
 	CBMGenerics
 	utilities
 	EosPack
+	LinearAlgebra
 )
 
 install(TARGETS genex6

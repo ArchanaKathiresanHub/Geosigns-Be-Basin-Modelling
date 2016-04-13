@@ -1,8 +1,12 @@
 #include "Reaction.h"
-#include "SCmathlib.h" 
 #include "Species.h"
 #include "SpeciesManager.h"
 #include "ReactionRatio.h"
+
+#include "Vector.h"
+#include "FortranMatrix.h"
+#include "FortranMatrixOperations.h"
+#include "Numerics.h"
 
 namespace Genex6
 {
@@ -41,11 +45,14 @@ void Reaction::ComputeProductRatios(const double preasphaltheneArom)
          mapProductName2SolutionVector[m_theProducts[i]->GetId()] = solutionIndex;
          ++ solutionIndex;
       }
-      //initiaze the matrix A and the vectors X and B to 0.0
-      SCMatrix A(verifyFromProducts);
-      SCVector B(verifyFromProducts);
-      SCVector X(verifyFromProducts);
 
+      Numerics::FortranMatrix aMat ( verifyFromProducts, verifyFromProducts );
+      Numerics::Vector        bVec ( verifyFromProducts );
+      Numerics::IntegerArray  perm ( verifyFromProducts );
+
+      // Initialise matrix and vector to 0.
+      aMat.fill ( 0.0 );
+      bVec.fill ( 0.0 );
       //set up the system of linear equations
       row = solutionIndex = 0;
 
@@ -56,16 +63,17 @@ void Reaction::ComputeProductRatios(const double preasphaltheneArom)
       //the Mother Element part
       for(row = 0; row < theCompositionCodeLength; ++ row) {
          double MotherElementCompositionFactor = m_theMother->GetCompositionByElement(motherCompositionCodeIds[row]);
-         B(row) = MotherElementCompositionFactor;
-
+         bVec ( row ) = MotherElementCompositionFactor;
+         
          for( i = 0; i < sz; ++ i ) {
             double ProductElementCompositionFactor = 
                m_theProducts[i]->GetCompositionByElement(motherCompositionCodeIds[row]);
             iterIndex = mapProductName2SolutionVector.find(m_theProducts[i]->GetId()); 
             solutionIndex = iterIndex->second;
-            A(row,solutionIndex) = ProductElementCompositionFactor;
+            aMat (row, solutionIndex) = ProductElementCompositionFactor;
          }
       }
+
       //the Reaction Ratios Part
       for(row = theCompositionCodeLength; row < verifyFromProducts; ++ row) {
          ReactionRatio *const currRatio = m_theReactionRatios[row-theCompositionCodeLength];
@@ -75,21 +83,22 @@ void Reaction::ComputeProductRatios(const double preasphaltheneArom)
          //First Reactant
          iterIndex = mapProductName2SolutionVector.find(Reactant1->GetId());
          solutionIndex = iterIndex->second;
-         A(row,solutionIndex) = 1.0;
+
+         aMat (row, solutionIndex) = 1.0;
          //Second Reactant
          iterIndex = mapProductName2SolutionVector.find(Reactant2->GetId());
          solutionIndex = iterIndex->second;
-         A(row,solutionIndex) = currRatio->GetRatio(preasphaltheneArom);
+         aMat (row, solutionIndex) = currRatio->GetRatio(preasphaltheneArom);
       }
+
       //Solve the System
-      //GMRES(verifyFromProducts,A,B,X);
-      //BiCGStab (A,B,X);
-      GEPP(A,B,X); 
- 
+      Numerics::luFactorise ( aMat, perm );
+      Numerics::backSolve ( aMat, perm, bVec );
+
       //Assign solution to reaction product ratio factor map: m_productRatioBySpeciesName
       iterIndex = mapProductName2SolutionVector.begin();
       while(iterIndex != mapProductName2SolutionVector.end()) {
-         m_productRatioBySpeciesName[iterIndex->first] = X(iterIndex->second);
+         m_productRatioBySpeciesName[iterIndex->first] = bVec(iterIndex->second);
          ++ iterIndex;
       }
       mapProductName2SolutionVector.clear();
