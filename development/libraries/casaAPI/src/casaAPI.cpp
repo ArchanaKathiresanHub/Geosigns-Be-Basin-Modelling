@@ -939,9 +939,9 @@ ErrorHandler::ReturnCode VaryLithoFraction(
    ScenarioAnalysis                                   & sa
    , const std::string                                & name
    , const std::string                                & layerName
-   , std::vector<int>                                 & lithoFractionsInds
-   , std::vector<double>                              & minLithoFrac
-   , std::vector<double>                              & maxLithoFrac
+   , std::vector<int>                                   lithoFractionsInds
+   , std::vector<double>                                minLithoFrac
+   , std::vector<double>                                maxLithoFrac
    , casa::VarPrmContinuous::PDF 	                    pdfType
    )
 {

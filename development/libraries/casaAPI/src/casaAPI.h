@@ -55,6 +55,7 @@
 ///   - casa::RSProxy - for calculating coefficients for polynomial approximation of the response surface 
 ///   - casa::SensitivityCalculator - for calculating data for Tornado/Pareto diagrams
 ///   - casa::MonteCarloSolver - for performing Monte Carlo/Markov Chain Monte Carlo calculations
+///   - casa::OptimizationAlgorithm - for performing optimization using specified algorith with real model runs
 ///
 ///  The set of data classes includes:
 ///   - casa::VarParameter - @link CASA_VarParameterPage Base class for variable parameter description.@endlink It is inhereted by:
@@ -326,14 +327,14 @@ namespace casa
       /// @brief Add variation of one or two lithofractions
       /// @return ErrorHandler::NoError on success or error code otherwise
       ErrorHandler::ReturnCode VaryLithoFraction(
-         ScenarioAnalysis                                         & sa ///< [in,out] casa::ScenarioAnalysis object, if any error, this object will keep an error message
-         , const std::string                                      & name               ///< user specified name for variable parameter 
-         , const std::string                                      & layerName          ///< [in] stratigraphic layer name 
-         , std::vector<int>                                       & lithoFractionsInds ///< [in] indexes of the lithofractions
-         , std::vector<double>                                    & minLithoFrac       ///< [in] min range value for the lithofractions
-         , std::vector<double>                                    & maxLithoFrac       ///< [in] max range value for the lithofractions
-         , casa::VarPrmContinuous::PDF 	                          pdfType            /**< [in] probability function types for the variable parameters. If PDFs need
-                                                        some middle parameters values they will be taken from the base case model */
+         ScenarioAnalysis              & sa ///< [in,out] casa::ScenarioAnalysis object, if any error, this object will keep an error message
+         , const std::string           & name               ///< user specified name for variable parameter 
+         , const std::string           & layerName          ///< [in] stratigraphic layer name 
+         , std::vector<int>              lithoFractionsInds ///< [in] indexes of the lithofractions
+         , std::vector<double>           minLithoFrac       ///< [in] min range value for the lithofractions
+         , std::vector<double>           maxLithoFrac       ///< [in] max range value for the lithofractions
+         , casa::VarPrmContinuous::PDF   pdfType            /**< [in] probability function types for the variable parameters. If PDFs need
+                                                                 some middle parameters values they will be taken from the base case model */
          );
 
       /// @brief Add permeability model parameters variation

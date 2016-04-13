@@ -24,8 +24,9 @@ add_library(casaapi
 )
 
 if (UNIX)
-add_dependencies(casaapi Boost)
+add_dependencies(casaapi Boost Eigen)
 endif (UNIX)
+
 
 bm_include_libraries(
    CBMGenerics
@@ -40,6 +41,7 @@ bm_include_libraries(
 include_directories(
    ${SUMPP_INCLUDE_DIR}
    ${CMAKE_CURRENT_BINARY_DIR}
+   ${EIGEN_INCLUDE_DIRS}
    src
 )
 
@@ -138,5 +140,10 @@ add_gtest( NAME BestMatchedCaseGenerationTest
 
 add_gtest( NAME SensCalcTest
    SOURCES test/SensCalcTest.cpp
+   LIBRARIES casaapi cmbapi DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} ${Boost_LIBRARIES}
+)
+
+add_gtest( NAME LMOptimTest
+   SOURCES test/LMOptimTest.cpp
    LIBRARIES casaapi cmbapi DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} ${Boost_LIBRARIES}
 )

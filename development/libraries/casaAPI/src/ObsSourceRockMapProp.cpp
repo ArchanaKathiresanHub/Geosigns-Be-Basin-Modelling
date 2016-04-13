@@ -155,7 +155,7 @@ ObsValue * ObsSourceRockMapProp::getFromModel( mbapi::Model & caldModel )
 }
 
 // Check well against project coordinates
-std::string ObsSourceRockMapProp::checkObservableForProject( mbapi::Model & caldModel )
+std::string ObsSourceRockMapProp::checkObservableForProject( mbapi::Model & caldModel ) const
 {
    std::ostringstream oss;
 

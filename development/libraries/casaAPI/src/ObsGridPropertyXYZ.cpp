@@ -145,7 +145,7 @@ ObsValue * ObsGridPropertyXYZ::getFromModel( mbapi::Model & caldModel )
 }
 
 // Check well against project coordinates
-std::string ObsGridPropertyXYZ::checkObservableForProject( mbapi::Model & caldModel )
+std::string ObsGridPropertyXYZ::checkObservableForProject( mbapi::Model & caldModel ) const
 {
    std::ostringstream oss;
 

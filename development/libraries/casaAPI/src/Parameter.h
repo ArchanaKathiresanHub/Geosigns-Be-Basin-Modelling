@@ -21,10 +21,8 @@
 #include "CauldronApp.h"
 
 // STL
+#include <memory>
 #include <vector>
-
-// boost
-#include <boost/shared_ptr.hpp>
 
 /// @page CASA_ParameterPage Cauldron project parameter
 /// Parameter is some value (or possibly set of values) in project file which has an influence on simulation.
@@ -113,6 +111,6 @@ namespace casa
    };
 }
 
-typedef boost::shared_ptr<casa::Parameter> SharedParameterPtr;
+typedef std::shared_ptr<casa::Parameter> SharedParameterPtr;
 
 #endif // CASA_API_PARAMETER_H

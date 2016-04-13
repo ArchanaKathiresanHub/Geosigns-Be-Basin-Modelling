@@ -158,7 +158,7 @@ ObsValue * ObsTrapProp::getFromModel( mbapi::Model & caldModel )
 
 
 // Check well against project coordinates
-std::string ObsTrapProp::checkObservableForProject( mbapi::Model & caldModel )
+std::string ObsTrapProp::checkObservableForProject( mbapi::Model & caldModel ) const
 {
    std::ostringstream oss;
 

@@ -71,7 +71,12 @@ namespace casa
    std::vector<std::string> VarPrmLithoFraction::name() const
    {
       std::vector<std::string> ret;
-      ret.push_back( "LithoFraction( " + m_layerName + ", Percent" + std::to_string( m_lithoFractionsInds[1] ) + ") [rest ratio]" );
+      if ( m_name.empty() )
+      {
+         ret.push_back( "LithoFraction( " + m_layerName + ", Percent" + std::to_string( m_lithoFractionsInds[1] ) + ") [rest ratio]" );
+      }
+      else { ret.push_back( m_name ); }
+
       return ret;
    }
 
