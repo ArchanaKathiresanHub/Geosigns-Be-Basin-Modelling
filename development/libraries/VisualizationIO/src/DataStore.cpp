@@ -28,7 +28,7 @@
 
 #define MINIMALBYTESTOCOMPRESS 50
 #define APPLY_COMPRESSION true
-#define COMPRESSION_LZ4 false
+#define COMPRESSION_LZ4 true
 
 using namespace CauldronIO;
 
