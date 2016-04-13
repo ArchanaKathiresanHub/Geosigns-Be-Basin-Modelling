@@ -1,8 +1,14 @@
 #ifndef TOUCHSTONE_H
 #define TOUCHSTONE_H
 
+#pragma warning( push )
+#pragma warning( disable : 1478 )
+// Disable warning 1478 for touchstone 3rd party library
+// warning #1478: class "std::auto_ptr" (declared at line xx of "tslFileName") was declared deprecated
 #include "tslibI.h"
 #include "TsLibLoader.h"
+#pragma warning( pop ) 
+
 #include <geocosmexception.h>
 #include <iostream>
 

@@ -21,18 +21,24 @@ public:
 
    static bool isOneFilePerProcessEnabled() 
    { return s_oneFilePerProcess; }
+   static bool isPrimaryPodEnabled() 
+   { return s_primaryPod; }
 
    static std::string getTempDirName() 
    { return s_temporaryDirName; }
 
-   static bool copyMergedFile( std::string & fileName );
-private:
-   static bool s_oneFilePerProcess;
-   static std::string s_temporaryDirName;
-   static MPI_Info s_mpiInfo;
-
    static void setOneFilePerProcess ( bool oneFilePerProcess )
    {  s_oneFilePerProcess = oneFilePerProcess; }
+ 
+   static void setPrimaryPod ( bool oneFilePerProcess )
+   {  s_primaryPod = oneFilePerProcess; }
+   
+   static bool copyMergedFile( const std::string & fileName, const bool rank = true );
+private:
+   static bool s_oneFilePerProcess;
+   static bool s_primaryPod;
+   static std::string s_temporaryDirName;
+   static MPI_Info s_mpiInfo;
 
    static void setTempDirName ( const char * temporaryDirName )
    {  s_temporaryDirName = temporaryDirName; }

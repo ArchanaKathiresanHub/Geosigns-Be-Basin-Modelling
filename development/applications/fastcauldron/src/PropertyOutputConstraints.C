@@ -1,3 +1,13 @@
+//
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "PropertyOutputConstraints.h"
 #include "FastcauldronSimulator.h"
 
@@ -136,7 +146,9 @@ const ApplicableOutputRegion::ApplicableRegion PropertyOutputConstraints::s_prop
      ApplicableOutputRegion::SEDIMENTS_ONLY,              /* CapillaryPressure                         */
      ApplicableOutputRegion::SEDIMENTS_ONLY,              /* Fluid Properties such as GOR, COR, OilAPI */
      ApplicableOutputRegion::SEDIMENTS_ONLY,              /* Brine properties viscosity density        */
-     ApplicableOutputRegion::SEDIMENTS_ONLY,              /* Time of invasion                          */				
+     ApplicableOutputRegion::SEDIMENTS_ONLY,              /* Time of invasion                          */
+     ApplicableOutputRegion::SEDIMENTS_AND_BASEMENT,      /* ALCSmBasaltThickness     */
+     ApplicableOutputRegion::SEDIMENTS_AND_BASEMENT,      /* ALCMaxAsthenoMantleDepth */
      ApplicableOutputRegion::SEDIMENTS_AND_BASEMENT,      /* ALCStepTopBasaltDepth    */
      ApplicableOutputRegion::SEDIMENTS_AND_BASEMENT,      /* ALCStepMohoDepth         */
      ApplicableOutputRegion::SEDIMENTS_AND_BASEMENT,      /* ALCStepContCrustThickness*/
@@ -144,9 +156,7 @@ const ApplicableOutputRegion::ApplicableRegion PropertyOutputConstraints::s_prop
      ApplicableOutputRegion::SEDIMENTS_AND_BASEMENT,      /* ALCSmContCrustThickness  */
      ApplicableOutputRegion::SEDIMENTS_AND_BASEMENT,      /* ALCSmTopBasaltDepth      */
      ApplicableOutputRegion::SEDIMENTS_AND_BASEMENT,      /* ALCSmMohoDepth           */
-     ApplicableOutputRegion::SEDIMENTS_AND_BASEMENT,      /* ALCOrigMantle            */
-     ApplicableOutputRegion::SEDIMENTS_AND_BASEMENT,      /* ALCSmBasaltThickness     */
-     ApplicableOutputRegion::SEDIMENTS_AND_BASEMENT       /* ALCMaxAsthenoMantleDepth */
+     ApplicableOutputRegion::SEDIMENTS_AND_BASEMENT       /* ALCOrigMantle            */
 };
 
 const Interface::PropertyOutputOption PropertyOutputConstraints::s_calculationModeMaxima[NumberOfCalculationModes] = {
@@ -174,7 +184,7 @@ const Interface::PropertyOutputOption PropertyOutputConstraints::s_calculationMo
     CHRD : High-res decompaction (coupled);
     FC   : Iteratively-coupled;
     HD   : Hydrostatic Darcy;
-    HD   : Coupled Darcy;
+    CD   : Coupled Darcy;
     NC   : No calculation.
 */
 const bool PropertyOutputConstraints::s_outputPermitted [ PropertyListSize ][ NumberOfCalculationModes ] = {
@@ -189,7 +199,7 @@ const bool PropertyOutputConstraints::s_outputPermitted [ PropertyListSize ][ Nu
    { false, false,  true, false,  true, false,  true,  true,  true, false },  /* ReflectivityVec        */
    { false, false,  true,  true,  true, false,  true,  true,  true, false },  /* SonicVec               */
    { false, false,  true, false,  true, false,  true,  true,  true, false },  /* ThCondVec              */
-   { false, false,  true, false,  true, false,  true,  true,  true, false },  /* VelocityVec            */
+   { false, false,  true,  true,  true, false,  true,  true,  true, false },  /* VelocityVec            */
    { false, false,  true, false,  true, false,  true,  true,  true, false },  /* Vr                     */
    {  true,  true,  true,  true, false,  true,  true,  true,  true, false },  /* MaxVes                 */
    {  true,  true,  true,  true, false,  true,  true,  true,  true, false },  /* Depth                  */
@@ -219,9 +229,9 @@ const bool PropertyOutputConstraints::s_outputPermitted [ PropertyListSize ][ Nu
    { false, false,  true,  true,  true, false,  true,  true,  true, false },  /* IlliteFraction         */
    { false, false, false,  true, false, false,  true, false,  true, false },  /* AllochthonousLithology */
    { false, false,  true,  true,  true, false,  true,  true,  true, false },  /* ErosionFactor          */
-   { false, false, false,  true, false, false,  true, false,  true, false },  /* FaultElements          */
-   { false, false, false,  true,  true, false,  true, false,  true, false },  /* FCTCorrection          */
-   {  true,  true,  true,  true,  true, false,  true,  true,  true, false },  /* Thickness              */
+   { false, false,  true,  true, false, false,  true, false,  true, false },  /* FaultElements          */
+   { false, false, false,  true, false, false,  true, false,  true, false },  /* FCTCorrection          */
+   {  true,  true,  true,  true, false, false,  true,  true,  true, false },  /* Thickness              */
    { false, false, false,  true, false, false,  true, false,  true, false },  /* ThicknessError         */
    { false, false, false, false, false, false, false, false, false, false },  /* ChemicalCompaction     */
    {  true,  true,  true,  true,  true,  true,  true,  true,  true, false },  /* Lithology              */
@@ -282,28 +292,28 @@ const bool PropertyOutputConstraints::s_outputPermitted [ PropertyListSize ][ Nu
    { false, false,  true, false,  true, false,  true,  true,  true, false },  /* WetGasGeneratedRate                       */ 
    { false, false,  true, false,  true, false,  true,  true,  true, false },  /* WetGasExpelledCumulative                  */ 
    { false, false,  true, false,  true, false,  true,  true,  true, false },  /* WetGasExpelledRate                        */ 
-   { false, false,  true,  true,  true, false,  true,  true,  true, false },  /* Concentrations                            */ 
-   { false, false,  true,  true,  true, false,  true,  true,  true, false },  /* PVT Properties: hc-density and -viscocity */ 
-   { false, false,  true,  true,  true, false,  true,  true,  true, false },  /* Rel Perm calculations                     */ 
+   { false, false, false, false, false, false, false,  true,  true, false },  /* Concentrations                            */ 
+   { false, false, false, false, false, false, false,  true,  true, false },  /* PVT Properties: hc-density and -viscocity */ 
+   { false, false, false, false, false, false, false,  true,  true, false },  /* Rel Perm calculations                     */ 
    { false, false,  true,  true,  true, false,  true,  true,  true, false },  /* Volume calculations                       */ 
-   { false, false,  true,  true,  true, false,  true,  true,  true, false },  /* Transported volume calculations           */ 
-   { false, false,  true,  true,  true, false,  true,  true,  true, false },  /* Saturations                               */
-   { false, false,  true,  true,  true, false,  true,  true,  true, false },  /* AverageSaturations                        */
-   { false, false,  true, false,  true, false,  true,  true,  true, false },  /* HC fliud velocity                         */
-	{ false, false,  true,  true,  true, false,  true,  true,  true, false },  /* CapillaryPressure                         */
-   { false, false,  true,  true,  true, false,  true,  true,  true, false },  /* Fluid Properties such as GOR, COR, OilAPI */
+   { false, false, false, false, false, false, false,  true,  true, false },  /* Transported volume calculations           */ 
+   { false, false, false, false, false, false, false,  true,  true, false },  /* Saturations                               */
+   { false, false, false, false, false, false, false,  true,  true, false },  /* AverageSaturations                        */
+   { false, false, false, false, false, false, false,  true,  true, false },  /* HC fliud velocity                         */
+   { false, false, false, false, false, false, false,  true,  true, false },  /* CapillaryPressure                         */
+   { false, false, false, false, false, false, false,  true,  true, false },  /* Fluid Properties such as GOR, COR, OilAPI */
    { false, false,  true,  true,  true, false,  true,  true,  true, false },  /* Brine Properties density and viscosity    */
-   { false, false,  true,  true,  true, false,  true,  true,  true, false },  /* Time of invasion                          */                                                                                                      
-   {  true,  true,  true,  true, false,  true,  true, false },  /* ALCStepTopBasaltDepth    */
-   {  true,  true,  true,  true, false,  true,  true, false },  /* ALCStepMohoDepth         */
-   {  true,  true,  true,  true, false,  true,  true, false },  /* ALCStepContCrustThickness*/
-   {  true,  true,  true,  true, false,  true,  true, false },  /* ALCStepBasaltThickness   */
-   {  true,  true,  true,  true, false,  true,  true, false },  /* ALCSmContCrustThickness  */
-   {  true,  true,  true,  true, false,  true,  true, false },  /* ALCSmTopBasaltDepth      */
-   {  true,  true,  true,  true, false,  true,  true, false },  /* ALCSmMohoDepth           */
-   {  true,  true,  true,  true, false,  true,  true, false },  /* ALCOrigMantle            */
-   {  true,  true,  true,  true, false,  true,  true, false },  /* ALCSmBasaltThickness     */
-   {  true,  true,  true,  true, false,  true,  true, false }   /* ALCMaxAsthenoMantleDepth */
+   { false, false,  true,  true,  true, false,  true,  true,  true, false },  /* Time of invasion                          */
+   {  true,  true,  true, false,  true,  true,  true,  true,  true, false },  /* ALCSmBasaltThickness     */
+   {  true,  true,  true, false,  true,  true,  true,  true,  true, false },  /* ALCMaxAsthenoMantleDepth */
+   {  true,  true,  true, false,  true,  true,  true,  true,  true, false },  /* ALCStepTopBasaltDepth    */
+   {  true,  true,  true, false,  true,  true,  true,  true,  true, false },  /* ALCStepMohoDepth         */
+   {  true,  true,  true, false,  true,  true,  true,  true,  true, false },  /* ALCStepContCrustThickness*/
+   {  true,  true,  true, false,  true,  true,  true,  true,  true, false },  /* ALCStepBasaltThickness   */
+   {  true,  true,  true, false,  true,  true,  true,  true,  true, false },  /* ALCSmContCrustThickness  */
+   {  true,  true,  true, false,  true,  true,  true,  true,  true, false },  /* ALCSmTopBasaltDepth      */
+   {  true,  true,  true, false,  true,  true,  true,  true,  true, false },  /* ALCSmMohoDepth           */
+   {  true,  true,  true, false,  true,  true,  true,  true,  true, false }   /* ALCOrigMantle            */
 };
 
 /*
@@ -317,7 +327,7 @@ s_outputRequired: indicated whether, or not, a property should be output for a g
    CHRD : High-res decompaction (coupled);
    FC   : Iteratively-coupled;
    HD   : Hydrostatic Darcy;
-   HD   : Coupled Darcy;
+   CD   : Coupled Darcy;
    NC   : No calculation.
 */
 const bool PropertyOutputConstraints::s_outputRequired [ PropertyListSize ][ NumberOfCalculationModes ] = {
@@ -430,22 +440,23 @@ const bool PropertyOutputConstraints::s_outputRequired [ PropertyListSize ][ Num
    { false, false, false, false, false, false, false, false, false, false },  /* Volume calculations                       */ 
    { false, false, false, false, false, false, false, false, false, false },  /* Transported volume calculations           */ 
    { false, false, false, false, false, false, false, false, false, false },  /* Saturations                               */
-	{ false, false, false, false, false, false, false, false, false, false },  /* AverageSaturations                        */
+   { false, false, false, false, false, false, false, false, false, false },  /* AverageSaturations                        */
    { false, false, false, false, false, false, false, false, false, false },  /* HC fluid velocity                         */
-	{ false, false, false, false, false, false, false, false, false, false },  /* CapillaryPressure                         */
+   { false, false, false, false, false, false, false, false, false, false },  /* CapillaryPressure                         */
    { false, false, false, false, false, false, false, false, false, false },  /* Fluid Properties such as GOR, COR, OilAPI */
-	{ false, false, false, false, false, false, false, false, false, false },  /* Brine properties density viscosity        */
+   { false, false, false, false, false, false, false, false, false, false },  /* Brine properties density viscosity        */
    { false, false, false, false, false, false, false, false, false, false },  /* Time of Invasion                          */
-   {  true,  true,  true,  true, false,  true,  true, false },  /* ALCStepTopBasaltDepth    */
-   {  true,  true,  true,  true, false,  true,  true, false },  /* ALCStepMohoDepth         */
-   {  true,  true,  true,  true, false,  true,  true, false },  /* ALCStepContCrustThickness*/
-   {  true,  true,  true,  true, false,  true,  true, false },  /* ALCStepBasaltThickness   */
-   {  true,  true,  true,  true, false,  true,  true, false },  /* ALCSmContCrustThickness  */
-   {  true,  true,  true,  true, false,  true,  true, false },  /* ALCSmTopBasaltDepth      */
-   {  true,  true,  true,  true, false,  true,  true, false },  /* ALCSmMohoDepth           */
-   {  true,  true,  true,  true, false,  true,  true, false },  /* ALCOrigMantle            */
-   {  true,  true,  true,  true, false,  true,  true, false },  /* ALCSmBasaltThickness     */
-   {  true,  true,  true,  true, false,  true,  true, false }   /* ALCMaxAsthenoMantleDepth */
+   {  true,  true,  true, false, false,  true,  true, false, false, false },  /* ALCSmBasaltThickness     */
+   {  true,  true,  true, false, false,  true,  true, false, false, false },  /* ALCMaxAsthenoMantleDepth */
+   {  true,  true,  true, false, false,  true,  true, false, false, false },  /* ALCStepTopBasaltDepth    */
+   {  true,  true,  true, false, false,  true,  true, false, false, false },  /* ALCStepMohoDepth         */
+   {  true,  true,  true, false, false,  true,  true, false, false, false },  /* ALCStepContCrustThickness*/
+   {  true,  true,  true, false, false,  true,  true, false, false, false },  /* ALCStepBasaltThickness   */
+   {  true,  true,  true, false, false,  true,  true, false, false, false },  /* ALCSmContCrustThickness  */
+   {  true,  true,  true, false, false,  true,  true, false, false, false },  /* ALCSmTopBasaltDepth      */
+   {  true,  true,  true, false, false,  true,  true, false, false, false },  /* ALCSmMohoDepth           */
+   {  true,  true,  true, false, false,  true,  true, false, false, false }   /* ALCOrigMantle            */
+
 
 };
                                                                                                      

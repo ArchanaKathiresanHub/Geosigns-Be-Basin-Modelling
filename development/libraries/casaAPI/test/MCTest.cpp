@@ -15,6 +15,7 @@
 #include <gtest/gtest.h>
 
 using namespace casa;
+using namespace std;
 
 static const double eps  = 1.e-5;
 static const double reps = 0.01;
@@ -40,7 +41,10 @@ public:
       ObsSpaceImpl  & obs = dynamic_cast<ObsSpaceImpl&>( sc.obsSpace() );
 
       ASSERT_EQ( ErrorHandler::NoError, vrs.addParameter( new VarPrmSourceRockTOC(         "Lower Jurassic", 10.0, 5.0, 15.0, VarPrmContinuous::Block ) ) );
-      ASSERT_EQ( ErrorHandler::NoError, vrs.addParameter( new VarPrmTopCrustHeatProduction(                  2.5,  0.1, 4.9,  VarPrmContinuous::Block ) ) );
+      vector<double> dblRng( 1, 0.1 );
+      dblRng.push_back( 4.9 );
+      dblRng.push_back( 2.5 );
+      ASSERT_EQ( ErrorHandler::NoError, vrs.addParameter( new VarPrmTopCrustHeatProduction( dblRng, vector<string>(), VarPrmContinuous::Block ) ) );
 
       Observable * ob = ObsGridPropertyXYZ::createNewInstance( 460001.0, 6750001.0, 2751.0, "Temperature", 0.0 );
       ob->setReferenceValue( new ObsValueDoubleScalar( ob, 108.6 ), 2.0 ); 
@@ -55,7 +59,7 @@ public:
       DoEGenerator  & doe = sc.doeGenerator();
       ASSERT_EQ( ErrorHandler::NoError, doe.generateDoE( sc.varSpace(), sc.doeCaseSet() ) );
 
-      std::vector<const RunCase*> proxyRC;
+      vector<const RunCase*> proxyRC;
 
       // add observables values without running cases
       RunCaseSetImpl & rcs = dynamic_cast<RunCaseSetImpl&>( sc.doeCaseSet() );
@@ -73,7 +77,7 @@ public:
       }
 
       // Create and calculate RS proxy
-      std::vector<std::string> doeList;
+      vector<string> doeList;
       doeList.push_back( DoEGenerator::DoEName( DoEGenerator::Tornado ) );
 
       ASSERT_EQ( ErrorHandler::NoError, sc.addRSAlgorithm( "TestFirstOrderTornadoRS", 1, krig, doeList ) );
@@ -85,24 +89,24 @@ public:
       for ( size_t i = 0; i < mcSamples.size(); ++i )
       {
           // print RMSE
-         std::cerr << "   { " << i << ", " << mcSamples[i].first << ", ";
+         cerr << "   { " << i << ", " << mcSamples[i].first << ", ";
          // print parameters
          for ( size_t j = 0; j < mcSamples[i].second->parametersNumber(); ++j )
          {
             SharedParameterPtr prm = mcSamples[i].second->parameter( j );
-            const std::vector<double> & prmVals = prm->asDoubleArray();
+            const vector<double> & prmVals = prm->asDoubleArray();
             for ( size_t k = 0; k < prmVals.size(); ++k )
             {
-               std::cerr << prmVals[k] << ", ";
+               cerr << prmVals[k] << ", ";
             }
          }
 
          for ( size_t j = 0; j < mcSamples[i].second->observablesNumber(); ++j )
          {
             casa::ObsValue * obv = mcSamples[i].second->obsValue( j );
-            std::cerr << obv->asDoubleArray()[0] << (j == mcSamples[i].second->observablesNumber() - 1 ? " " : ", " );
+            cerr << obv->asDoubleArray()[0] << (j == mcSamples[i].second->observablesNumber() - 1 ? " " : ", " );
          }
-         std::cerr << "}" << std::endl;
+         cerr << "}" << endl;
       }
    }
 
@@ -119,7 +123,7 @@ public:
          for ( size_t j = 0; j < mcSamples[i].second->parametersNumber(); ++j )
          {
             SharedParameterPtr prm = mcSamples[i].second->parameter( j );
-            const std::vector<double> & prmVals = prm->asDoubleArray();
+            const vector<double> & prmVals = prm->asDoubleArray();
             for ( size_t k = 0; k < prmVals.size(); ++k )
             {
                EXPECT_LT( relativeError( table[i][off++], prmVals[k] ), reps );
@@ -290,7 +294,7 @@ TEST_F( MCTest, MonteCarloTest )
    const casa::MonteCarloSolver::MCResults & mcSamples = sc.mcSolver().getSimulationResults();
 
    // must be 50 samples
-   ASSERT_EQ( mcSamples.size(), 50 );
+   ASSERT_EQ( mcSamples.size(), 50U );
 
    //printMCResults( sc.mcSolver().getSimulationResults() );
    checkMCResults( mcSamples, MonteCarlo50SamplesResults );
@@ -324,7 +328,7 @@ TEST_F( MCTest, MCMCTestNoKrigingGOF )
    ASSERT_EQ( ErrorHandler::NoError, sc.mcSolver().runSimulation( *proxy, sc.varSpace(), sc.varSpace(), sc.obsSpace(), 50, 10, 1.0 ) );
 
    //printMCResults( sc.mcSolver().getSimulationResults() );
-   //std::cerr << sc.mcSolver().GOF() << std::endl;
+   //cerr << sc.mcSolver().GOF() << endl;
    checkMCResults( sc.mcSolver().getSimulationResults(), MCMC50SamplesResults );
 }
 

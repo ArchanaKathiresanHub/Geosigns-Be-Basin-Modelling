@@ -44,13 +44,13 @@ RSProxyImpl::RSProxyImpl( const std::string & rspName
         m_name( rspName )
       , m_varSpace( &varSp )
       , m_obsSpace( &obsSp )
-      , m_rsOrder(    rsOrder )
       , m_kriging(    rsKrig )
       , m_autosearch( autoSearch )
       , m_targedR2(   targedR2 )
       , m_confLevel(  confLevel )
 {
-   assert( m_rsOrder >= 0 && m_rsOrder <= 3 );
+   m_rsOrder = rsOrder;
+   assert( m_rsOrder <= 3 );
    assert( !m_name.empty() );
 }
 
@@ -205,7 +205,7 @@ const RSProxy::CoefficientsMapList & RSProxyImpl::getCoefficientsMapList() const
 }
 
 // Serialize object to the given stream
-bool RSProxyImpl::save( CasaSerializer & sz, unsigned int fileVersion ) const
+bool RSProxyImpl::save( CasaSerializer & sz, unsigned int /* fileVersion */ ) const
 {
    bool ok = sz.save( m_name, "ProxyName" );
 

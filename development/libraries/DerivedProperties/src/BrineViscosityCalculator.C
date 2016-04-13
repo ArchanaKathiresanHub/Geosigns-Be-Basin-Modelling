@@ -48,13 +48,22 @@ void DerivedProperties::BrineViscosityCalculator::calculate ( AbstractPropertyMa
    FormationPropertyPtr pressure = propertyManager.getFormationProperty ( pressureProperty, snapshot, formation );
 
    PropertyRetriever pressureRetriever ( pressure );
-
+  
+   const double undefinedValue = brineViscosity->getUndefinedValue ();
+ 
    for ( unsigned int i = brineViscosity->firstI ( true ); i <= brineViscosity->lastI ( true ); ++i ) {
 
       for ( unsigned int j = brineViscosity->firstJ ( true ); j <= brineViscosity->lastJ ( true ); ++j ) {
-
-         for ( unsigned int k = brineViscosity->firstK (); k <= brineViscosity->lastK (); ++k ) {
-            brineViscosity->set ( i, j, k, fluid->viscosity ( temperature->getA ( i, j, k ), pressure->getA ( i, j, k )));
+         if ( m_projectHandle->getNodeIsValid ( i, j )) {
+ 
+            for ( unsigned int k = brineViscosity->firstK (); k <= brineViscosity->lastK (); ++k ) {
+               brineViscosity->set ( i, j, k, fluid->viscosity ( temperature->getA ( i, j, k ), pressure->getA ( i, j, k )));
+            }
+         } else {
+            for ( unsigned int k = brineViscosity->firstK (); k <= brineViscosity->lastK (); ++k ) {
+               brineViscosity->set ( i, j, k, undefinedValue );
+            }
+ 
          }
 
       }

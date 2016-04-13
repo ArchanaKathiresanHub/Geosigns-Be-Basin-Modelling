@@ -13,6 +13,8 @@
 
 #include "casaAPI.h"
 
+#include "LogHandler.h"
+
 #include <cstdlib>
 #include <iostream>
 
@@ -46,9 +48,9 @@ CmdDoE::CmdDoE( CasaCommander & parent, const std::vector< std::string > & cmdPr
    }
 }
 
-void CmdDoE::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa ) 
+void CmdDoE::execute( std::unique_ptr<casa::ScenarioAnalysis> & sa ) 
 {
-   BOOST_LOG_TRIVIAL( info ) << "Generating parameters sets for " << m_prms[0] << " DoE ... ";
+   LogHandler( LogHandler::INFO_SEVERITY ) << "Generating parameters sets for " << m_prms[0] << " DoE ... ";
 
    if ( ErrorHandler::NoError != sa->setDoEAlgorithm( static_cast<casa::DoEGenerator::DoEAlgorithm>( m_doeAlg ) ) ||
         ErrorHandler::NoError != sa->doeGenerator().generateDoE( sa->varSpace(), sa->doeCaseSet(), m_numExp ) )
@@ -56,10 +58,10 @@ void CmdDoE::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
       throw ErrorHandler::Exception( sa->errorCode() ) << sa->errorMessage();
    }
 
-   BOOST_LOG_TRIVIAL( info ) << m_prms[0] << " DoE generation was finished";
+   LogHandler( LogHandler::INFO_SEVERITY ) << m_prms[0] << " DoE generation was finished";
 
    sa->doeCaseSet().filterByExperimentName( casa::DoEGenerator::DoEName( static_cast<casa::DoEGenerator::DoEAlgorithm>( m_doeAlg ) ) );
-   BOOST_LOG_TRIVIAL( debug ) << sa->doeCaseSet().size() << " parameters sets were genereated";
+   LogHandler( LogHandler::DEBUG_SEVERITY ) << sa->doeCaseSet().size() << " parameters sets were genereated";
    sa->doeCaseSet().filterByExperimentName( "" );
 }
 

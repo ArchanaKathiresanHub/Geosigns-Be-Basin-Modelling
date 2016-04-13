@@ -15,9 +15,17 @@
 using namespace DataAccess;
 using namespace DataAccess::Interface;
 
-CauldronIO::MapProjectHandle::MapProjectHandle(bool cellCentered) : Map(cellCentered)
+CauldronIO::MapProjectHandle::MapProjectHandle(boost::shared_ptr<const CauldronIO::Geometry2D>& geometry) : SurfaceData(geometry)
 {
     m_propVal = NULL;
+}
+
+
+void CauldronIO::MapProjectHandle::prefetch()
+{
+    if (isRetrieved()) return;
+    assert(m_propVal != NULL);
+    const DataAccess::Interface::GridMap* gridmap = m_propVal->getGridMap();
 }
 
 void CauldronIO::MapProjectHandle::retrieve()
@@ -27,8 +35,7 @@ void CauldronIO::MapProjectHandle::retrieve()
     assert(m_propVal != NULL);
     const DataAccess::Interface::GridMap* gridmap = m_propVal->getGridMap();
 
-    // Set the geometry
-    setGeometry(gridmap->numI(), gridmap->numJ(), gridmap->deltaI(), gridmap->deltaJ(), gridmap->minI(), gridmap->minJ());
+    gridmap->retrieveData();
     setUndefinedValue((float)gridmap->getUndefinedValue());
 
     if (gridmap->isConstant())
@@ -37,16 +44,43 @@ void CauldronIO::MapProjectHandle::retrieve()
     }
     else
     {
-        // TODO: add check on constantness?
-        float* mapData = new float[getNumI() * getNumJ()];
+        float constantValue;
+        bool isConstant = true;
+        bool firstConstant = true;
+        float* mapData = new float[m_numI*m_numJ];
         size_t index = 0;
-        for (unsigned int j = 0; j < getNumJ(); ++j)
-            for (unsigned int i = 0; i < getNumI(); ++i)
+
+        // Verify sizes
+        assert(gridmap->numI() == m_numI && gridmap->numJ() == m_numJ);
+
+        for (unsigned int j = 0; j < m_numJ; ++j)
+        { 
+            for (unsigned int i = 0; i < m_numI; ++i)
+            {
                 // Store row first
-                mapData[index++] = (float)gridmap->getValue(i, j);
-        setData_IJ(mapData);
+                float val = (float)gridmap->getValue(i, j);
+                mapData[index++] = val;
+
+                if (firstConstant)
+                {
+                    constantValue = val;
+                    firstConstant = false;
+                }
+                if (isConstant) isConstant = val == constantValue;
+
+            }
+        }
+
+        if (!isConstant)
+            setData_IJ(mapData);
+        else
+            setConstantValue(constantValue);
+        
         delete[] mapData;
     }
+    gridmap->restoreData( );
+
+    gridmap->release();
 
     m_retrieved = true;
 }
@@ -55,13 +89,7 @@ void CauldronIO::MapProjectHandle::retrieve()
 void CauldronIO::MapProjectHandle::release()
 {
     if (!isRetrieved()) return;
-
-    // release the gridmap data if possible
-    assert(m_propVal != NULL);
-    const DataAccess::Interface::GridMap* gridmap = m_propVal->getGridMap();
-
-    gridmap->release();
-    Map::release();
+    SurfaceData::release();
 }
 
 void CauldronIO::MapProjectHandle::setDataStore(const DataAccess::Interface::PropertyValue* propVal)
@@ -69,13 +97,31 @@ void CauldronIO::MapProjectHandle::setDataStore(const DataAccess::Interface::Pro
     m_propVal = propVal;
 }
 
-CauldronIO::VolumeProjectHandle::VolumeProjectHandle(bool cellCentered, SubsurfaceKind kind, boost::shared_ptr<const Property> property)
-    : Volume(cellCentered, kind, property)
+CauldronIO::VolumeProjectHandle::VolumeProjectHandle(const boost::shared_ptr<Geometry3D>& geometry)
+    : VolumeData(geometry)
 {
     m_propVal = NULL;
     m_depthInfo.reset();
     m_propValues.reset();
     m_depthFormations.reset();
+}
+
+void CauldronIO::VolumeProjectHandle::prefetch()
+{
+    if (isRetrieved()) return;
+
+    if (m_depthFormations && m_propValues)
+    {
+        assert(m_propVal == NULL && m_depthInfo == NULL);
+        // Get data
+        for (size_t i = 0; i < m_propValues->size(); ++i)
+            const GridMap* gridMap = m_propValues->at(i)->getGridMap();
+    }
+    else if (m_propVal != NULL)
+    {
+        assert(!m_depthFormations && !m_propValues);
+        const GridMap* gridMap = m_propVal->getGridMap();
+    }
 }
 
 void CauldronIO::VolumeProjectHandle::retrieve()
@@ -94,28 +140,10 @@ void CauldronIO::VolumeProjectHandle::retrieve()
     }
 }
 
-
 void CauldronIO::VolumeProjectHandle::release()
 {
     if (!isRetrieved()) return;
-
-    if (m_depthFormations && m_propValues)
-    {
-        assert(m_propVal == NULL && m_depthInfo == NULL);
-        for (size_t i = 0; i < m_propValues->size(); ++i)
-        {
-            const GridMap* gridMap = m_propValues->at(i)->getGridMap();
-            gridMap->release();
-        }
-    }
-    else if (m_propVal != NULL)
-    {
-        assert(!m_depthFormations && !m_propValues);
-        const GridMap* gridMap = m_propVal->getGridMap();
-        gridMap->release();
-    }
-
-    Volume::release();
+    VolumeData::release();
 }
 
 void CauldronIO::VolumeProjectHandle::retrieveMultipleFormations()
@@ -127,29 +155,26 @@ void CauldronIO::VolumeProjectHandle::retrieveMultipleFormations()
 
     const PropertyValue* propVal = m_propValues->at(0);
     const GridMap* propGridMap = propVal->getGridMap();
+    propGridMap->retrieveData();
 
-    // Find the total depth size & offset
-    assert(m_depthFormations->at(0)->kStart == 0);
-    size_t maxK = 0;
-    size_t minK = std::numeric_limits<size_t>::max();
-    for (size_t i = 0; i < m_propValues->size(); ++i)
-    {
-        boost::shared_ptr<CauldronIO::FormationInfo> depthInfo = CauldronIO::VolumeProjectHandle::findDepthInfo(m_depthFormations, m_propValues->at(i)->getFormation());
-        // TODO: check if formations are continuous.. (it is assumed now)
-        maxK = max(maxK, depthInfo->kEnd);
-        minK = min(minK, depthInfo->kStart);
-    }
-    size_t depthK = 1 + maxK - minK;
-
-    setGeometry(propGridMap->numI(), propGridMap->numJ(), depthK, minK, propGridMap->deltaI(), propGridMap->deltaJ(), propGridMap->minI(), propGridMap->minJ());
     setUndefinedValue((float)propGridMap->getUndefinedValue());
 
-    float* inputData = new float[getNumI() * getNumJ() * depthK];
+    float* inputData = new float[m_numI * m_numJ * m_numK];
+    
+    // Make sure all k-range is accounted for
+    size_t detected_minK = 16384;
+    size_t detected_maxK = 0;
+
+    // Verify sizes
+    assert(propGridMap->numI() == m_numI && propGridMap->numJ() == m_numJ );
+    propGridMap->restoreData();
 
     // Get data
     for (size_t i = 0; i < m_propValues->size(); ++i)
     {
         const GridMap* gridMap = m_propValues->at(i)->getGridMap();
+        gridMap->retrieveData();
+     
         boost::shared_ptr<CauldronIO::FormationInfo> depthInfo = findDepthInfo(m_depthFormations, m_propValues->at(i)->getFormation());
 
         // Get the volume data for this formation
@@ -158,6 +183,92 @@ void CauldronIO::VolumeProjectHandle::retrieveMultipleFormations()
         for (unsigned int k = 0; k <= gridMap->lastK(); ++k)
         {
             size_t kIndex = depthInfo->reverseDepth ? depthInfo->kEnd - (size_t)k : depthInfo->kStart + (size_t)k;
+            size_t index = computeIndex_IJK(0, 0, kIndex);
+
+            detected_maxK = max(detected_maxK, kIndex);
+            detected_minK = min(detected_minK, kIndex);
+
+            for (unsigned int j = 0; j <= gridMap->lastJ(); ++j)
+            {
+                for (unsigned int i = 0; i <= gridMap->lastI(); ++i)
+                {
+                    float val = (float)gridMap->getValue(i, j, k);
+                    inputData[index++] = val;
+
+                    if (firstConstant)
+                    {
+                        constantValue = val;
+                        firstConstant = false;
+                    }
+                    if (isConstant) isConstant = val == constantValue;
+                }
+            }
+        }
+        gridMap->restoreData();
+
+        gridMap->release();
+    }
+
+    // Verify full coverage of data
+    //////////////////////////////
+    if (!isConstant)
+    {
+        // Correct if only first k index is wrong
+        if (detected_minK > m_geometry->getFirstK())
+        {
+            assert(detected_maxK == m_geometry->getLastK());
+            m_geometry->updateK_range(detected_minK, 1 + detected_maxK - detected_minK);
+            updateGeometry();
+            setData_IJK(inputData + computeIndex_IJK(0, 0, detected_minK));
+        }
+        // Correct if only last k index is wrong
+        else if (detected_maxK < m_geometry->getLastK())
+        {
+            assert(detected_minK == m_geometry->getFirstK());
+            m_geometry->updateK_range(detected_minK, 1 + detected_maxK - detected_minK);
+            updateGeometry();
+            setData_IJK(inputData);
+        }
+        else
+        {
+            setData_IJK(inputData);
+        }
+    }
+    else
+        setConstantValue(constantValue);
+
+    m_retrieved = true;
+
+    delete[] inputData;
+}
+
+void CauldronIO::VolumeProjectHandle::retrieveSingleFormation()
+{
+    // Find the depth information
+    size_t depthK = 1 + m_depthInfo->kEnd - m_depthInfo->kStart;
+
+    // Set the values
+    const GridMap* gridMap = m_propVal->getGridMap();
+    setUndefinedValue((float)gridMap->getUndefinedValue());
+
+    if (gridMap->isConstant())
+    {
+        setConstantValue((float)gridMap->getConstantValue());
+    }
+    else
+    {
+        float constantValue;
+        bool isConstant = true;
+        bool firstConstant = true;
+
+        float* inputData = new float[m_numI * m_numJ * m_numK];
+
+        // Get the volume data for this formation
+        assert(gridMap->firstI() == 0 && gridMap->firstJ() == 0 && gridMap->firstK() == 0);
+
+        for (unsigned int k = 0; k <= gridMap->lastK(); ++k)
+        {
+            size_t kIndex = m_depthInfo->reverseDepth ? m_depthInfo->kEnd - (size_t)k : m_depthInfo->kStart + (size_t)k;
             size_t index = computeIndex_IJK(0, 0, kIndex);
 
             for (unsigned int j = 0; j <= gridMap->lastJ(); ++j)
@@ -176,59 +287,16 @@ void CauldronIO::VolumeProjectHandle::retrieveMultipleFormations()
                 }
             }
         }
-    }
 
-    // Assign the data
-    if (!isConstant)
-        setData_IJK(inputData);
-    else
-        setConstantValue(constantValue);
-
-    m_retrieved = true;
-
-    delete[] inputData;
-}
-
-void CauldronIO::VolumeProjectHandle::retrieveSingleFormation()
-{
-    // Find the depth information
-    size_t depthK = 1 + m_depthInfo->kEnd - m_depthInfo->kStart;
-
-    // Set the values
-    const GridMap* gridMap = m_propVal->getGridMap();
-    setGeometry(gridMap->numI(), gridMap->numJ(), depthK, m_depthInfo->kStart, gridMap->deltaI(), gridMap->deltaJ(), gridMap->minI(), gridMap->minJ());
-    setUndefinedValue((float)gridMap->getUndefinedValue());
-
-    if (gridMap->isConstant())
-    {
-        setConstantValue((float)gridMap->getConstantValue());
-    }
-    else
-    {
-        float* inputData = new float[getNumI() * getNumJ() * (1 + getLastK() - getFirstK())];
-
-        // Get the volume data for this formation
-        assert(gridMap->firstI() == 0 && gridMap->firstJ() == 0 && gridMap->firstK() == 0);
-
-        for (unsigned int k = 0; k <= gridMap->lastK(); ++k)
-        {
-            size_t kIndex = m_depthInfo->reverseDepth ? m_depthInfo->kEnd - (size_t)k : m_depthInfo->kStart + (size_t)k;
-            size_t index = computeIndex_IJK(0, 0, kIndex);
-
-            for (unsigned int j = 0; j <= gridMap->lastJ(); ++j)
-            {
-                for (unsigned int i = 0; i <= gridMap->lastI(); ++i)
-                {
-                    float val = (float)gridMap->getValue(i, j, k);
-                    inputData[index++] = val;
-                }
-            }
-        }
-
-        setData_IJK(inputData);
+        // Assign the data
+        if (!isConstant)
+            setData_IJK(inputData);
+        else
+            setConstantValue(constantValue);
         delete[] inputData;
     }
-    
+
+    gridMap->release();
     m_retrieved = true;
 }
 

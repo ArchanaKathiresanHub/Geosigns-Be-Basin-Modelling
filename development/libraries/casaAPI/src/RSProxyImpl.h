@@ -128,7 +128,7 @@ namespace casa
 
       CoefficientsMapList m_coefficients; // set of polynomial appoximation coefficients
 
-      std::auto_ptr<SUMlib::CompoundProxyCollection> m_collection; // SUMlib response proxy
+      std::unique_ptr<SUMlib::CompoundProxyCollection> m_collection; // SUMlib response proxy
 
       // compare cases and remove duplicated
       void removeDuplicated( const std::vector<const RunCase*> & caseSet, std::vector< const RunCase*> & filteredCaseSet );

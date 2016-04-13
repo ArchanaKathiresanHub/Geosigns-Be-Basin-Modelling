@@ -42,6 +42,9 @@ namespace DerivedProperties {
 
       /// \brief Return false.
       bool isPrimary () const;
+ 
+      /// \ brief Get the gridMap
+      const DataAccess::Interface::GridMap* getGridMap() const;
    private :
 
       boost::multi_array<double,2> m_values;

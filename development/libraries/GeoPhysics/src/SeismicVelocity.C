@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2015-2015 Shell International Exploration & Production.
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -29,7 +29,7 @@ namespace GeoPhysics
 		const double modulusSolid,
 		const double densitySolid,
 		const double porositySurface,
-		const double nExponent) const
+		const double nExponent)
 	{
 
 		switch (SeismicVelocityModel)
@@ -49,6 +49,17 @@ namespace GeoPhysics
 
 		return SeismicVelocity(0);
 	}
+
+   SeismicVelocity& SeismicVelocity::operator= (const SeismicVelocity& seismicVelocity){
+      if (this != &seismicVelocity) {
+         m_algorithm = seismicVelocity.m_algorithm;
+      }
+      return *this;
+   }
+
+   SeismicVelocity::SeismicVelocity( const SeismicVelocity& seismicVelocity )
+      :m_algorithm( seismicVelocity.m_algorithm )
+   {}
 
 	SeismicVelocity::Algorithm::Algorithm()
 	{}

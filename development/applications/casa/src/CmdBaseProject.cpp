@@ -13,6 +13,8 @@
 
 #include "casaAPI.h"
 
+#include "LogHandler.h"
+
 #include <cstdlib>
 #include <iostream>
 
@@ -24,9 +26,9 @@ CmdBaseProject::CmdBaseProject( CasaCommander & parent, const std::vector< std::
    if ( m_baseProjectName.empty() ) throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Empty base case project name";
 }
 
-void CmdBaseProject::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
+void CmdBaseProject::execute( std::unique_ptr<casa::ScenarioAnalysis> & sa )
 {
-   BOOST_LOG_TRIVIAL( info ) <<"Set base case: " << m_baseProjectName;
+   LogHandler( LogHandler::INFO_SEVERITY ) <<"Set base case: " << m_baseProjectName;
 
    if ( ErrorHandler::NoError != sa->defineBaseCase( m_baseProjectName.c_str() ) )
    {

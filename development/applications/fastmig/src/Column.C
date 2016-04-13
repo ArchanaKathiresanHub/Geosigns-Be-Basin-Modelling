@@ -148,7 +148,7 @@ Column * Column::getFinalSpillTarget (PhaseId phase)
 {
    Column * spillTarget = getSpillTarget ();
 
-   if (!spillTarget) return 0;
+   if (!spillTarget or spillTarget->isSealing ()) return 0;
    else return spillTarget->getFinalTargetColumn (phase);
 }
 
@@ -704,6 +704,8 @@ double LocalColumn::getFlowDirection (PhaseId phase)
    {
       if (!IsValid (this)) return m_reservoir->getUndefinedValue ();
 
+      if (isWasting (phase)) return 0.0;
+
       if (getAdjacentColumn (phase) == 0) return 0;
 
       return double (int (getAdjacentColumn (phase)->getI ()) - int (getI ()));
@@ -712,6 +714,8 @@ double LocalColumn::getFlowDirection (PhaseId phase)
    double LocalColumn::getFlowDirectionJ (PhaseId phase)
    {
       if (!IsValid (this)) return m_reservoir->getUndefinedValue ();
+
+      if (isWasting (phase)) return 0.0;
 
       if (getAdjacentColumn (phase) == 0) return 0;
 
@@ -1253,30 +1257,18 @@ bool LocalColumn::computeTargetColumn (PhaseId phase)
       }
       else if (isSealing (phase))
       {
-            /*// what is to happen if a charge migrates up (e.g. from a source rock) into a sealing column?
-            // find the non-sealing neighbouring column with the smallest top depth and divert the charge there
-            LocalColumn * nonSealingAdjacentColumn = getNonSealingAdjacentColumn(phase);
+         // Find the non-sealing neighbouring column with the shallowest top depth and divert the charge there.
+         Column * nonSealingAdjacentColumn = m_reservoir->avoidSealingColumn(phase, dynamic_cast<Column *> (this));
 
-            // If no neighbouring non-sealing valid column, look at neighbours of neighbouring sealing columns
-            // and stop at the first suitable candidate
-            for (int n = 0; n < NumNeighbours, !nonSealingAdjacentColumn; ++n)
-            {
-            LocalColumn * tempColumn = m_reservoir->getLocalColumn (getI () + NeighbourOffsets2D[n][I], getJ () + NeighbourOffsets2D[n][J]);
-            if (IsValid(tempColumn))
-            {
-            nonSealingAdjacentColumn = tempColumn->getNonSealingAdjacentColumn(phase);
-            }
-            }
-
-            // if still not able to find a suitable column, stop trying. The charge leaves the domain.
-            if (!nonSealingAdjacentColumn)
-            m_targetColumn[phase] = 0;
-            else
-            {
+         if (nonSealingAdjacentColumn)
+         {
             nonSealingAdjacentColumn->computeTargetColumn (phase);
-            m_targetColumn[phase] = nonSealingAdjacentColumn->m_targetColumn[phase];
-            }*/
-	 m_targetColumn[phase] = this;
+            m_targetColumn[phase] = nonSealingAdjacentColumn->getTargetColumn (phase);
+         }
+         // We have checked a large area of elements and they are all sealing.
+         // Leave the charge where it is. It will be leaked upward.
+         else
+            m_targetColumn[phase] = this;
       }
       else
       {
@@ -2040,7 +2032,7 @@ bool ProxyColumn::isSpilling (void)
       valueRequest.reservoirIndex = m_reservoir->getIndex ();
    valueRequest.valueSpec = ISSPILLING;
    RequestHandling::SendRequest (valueRequest, valueResponse);
-   return (bool) valueResponse.value;
+   return (valueResponse.value != 0.0);
 }
 
 bool ProxyColumn::isUndersized (void)
@@ -2053,7 +2045,7 @@ bool ProxyColumn::isUndersized (void)
       valueRequest.reservoirIndex = m_reservoir->getIndex ();
    valueRequest.valueSpec = ISUNDERSIZED;
    RequestHandling::SendRequest (valueRequest, valueResponse);
-   return (bool) valueResponse.value;
+   return (valueResponse.value != 0.0);
 }
 
 bool ProxyColumn::isSealing (PhaseId phase)
@@ -2069,7 +2061,7 @@ bool ProxyColumn::isSealing (PhaseId phase)
       valueRequest.valueSpec = ISSEALING;
       valueRequest.phase = (int) phase;
       RequestHandling::SendRequest (valueRequest, valueResponse);
-      setBit (BASESEALINGSET + phase, (bool) valueResponse.value);
+      setBit (BASESEALINGSET + phase, (valueResponse.value != 0.0));
       setCached ((CacheBit) (BASESEALINGCOLUMNCACHE + phase));
    }
 
@@ -2089,7 +2081,7 @@ bool ProxyColumn::isWasting (PhaseId phase)
       valueRequest.valueSpec = ISWASTING;
       valueRequest.phase = (int) phase;
       RequestHandling::SendRequest (valueRequest, valueResponse);
-      setBit (BASEWASTINGSET + phase, (bool) valueResponse.value);
+      setBit (BASEWASTINGSET + phase, (valueResponse.value != 0.0));
       setCached ((CacheBit) (BASEWASTINGCOLUMNCACHE + phase));
    }
 
@@ -2236,7 +2228,7 @@ int ProxyColumn::getPasteurizationStatus() const
       valueRequest.reservoirIndex = m_reservoir->getIndex ();
       valueRequest.valueSpec = PASTEURIZATIONSTATUS;
       RequestHandling::SendRequest(valueRequest, valueResponse);
-      m_pasteurizationStatus = valueResponse.value;
+      m_pasteurizationStatus = (int) valueResponse.value;
       setCached(PASTEURIZATIONSTATUSCACHE);
    }
 

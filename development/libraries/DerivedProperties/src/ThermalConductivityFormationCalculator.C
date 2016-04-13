@@ -5,6 +5,7 @@
 #include "AbstractProperty.h"
 
 #include "Interface/Interface.h"
+#include "Interface/Surface.h"
 #include "Interface/SimulationDetails.h"
 
 #include "GeoPhysicsFormation.h"
@@ -21,6 +22,13 @@ DerivedProperties::ThermalConductivityFormationCalculator::ThermalConductivityFo
    addDependentPropertyName ( "Pressure" );
    addDependentPropertyName ( "LithoStaticPressure" );
    addDependentPropertyName ( "Porosity" );
+
+   // basement ALC dependency
+    if( m_projectHandle->isALC() ) {
+       addDependentPropertyName ( "Depth" );
+       addDependentPropertyName ( "ALCStepTopBasaltDepth" );
+       addDependentPropertyName ( "ALCStepBasaltThickness" );
+    }
 }
 
 void DerivedProperties::ThermalConductivityFormationCalculator::calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
@@ -34,7 +42,7 @@ void DerivedProperties::ThermalConductivityFormationCalculator::calculate ( Deri
       return calculateForBasement ( propertyManager, snapshot, formation, derivedProperties );
    }
 
-  const DataModel::AbstractProperty* thermalConductivityProperty = propertyManager.getProperty ( "ThCondVec2" );
+   const DataModel::AbstractProperty* thermalConductivityProperty = propertyManager.getProperty ( "ThCondVec2" );
 
    const DataModel::AbstractProperty* temperatureProperty         = propertyManager.getProperty ( "Temperature" );
    const DataModel::AbstractProperty* porePressureProperty        = propertyManager.getProperty ( "Pressure" );
@@ -45,8 +53,7 @@ void DerivedProperties::ThermalConductivityFormationCalculator::calculate ( Deri
 
    bool hydrostaticMode = ( m_projectHandle->getDetailsOfLastSimulation ( "fastcauldron" ) != 0 and
                             ( m_projectHandle->getDetailsOfLastSimulation ( "fastcauldron" )->getSimulatorMode () == "HydrostaticDecompaction" or
-                              m_projectHandle->getDetailsOfLastSimulation ( "fastcauldron" )->getSimulatorMode () == "HydrostaticTemperature" or
-                              m_projectHandle->getDetailsOfLastSimulation ( "fastcauldron" )->getSimulatorMode () == "HydrostaticHighResDecompaction" ));
+                              m_projectHandle->getDetailsOfLastSimulation ( "fastcauldron" )->getSimulatorMode () == "HydrostaticTemperature" ));
 
    FormationPropertyPtr porePressure = propertyManager.getFormationProperty ( porePressureProperty, snapshot, formation );
 
@@ -118,20 +125,42 @@ void DerivedProperties::ThermalConductivityFormationCalculator::calculateForBase
    const DataModel::AbstractProperty* thermalConductivityProperty = propertyManager.getProperty ( "ThCondVec2" );
 
    const DataModel::AbstractProperty* temperatureProperty         = propertyManager.getProperty ( "Temperature" );
-   const DataModel::AbstractProperty* lithostaticPressureProperty = propertyManager.getProperty ( "LithoStaticPressure" );
-
    const FormationPropertyPtr temperature = propertyManager.getFormationProperty ( temperatureProperty,  snapshot, formation );
 
    const GeoPhysics::Formation* geoFormation = dynamic_cast<const GeoPhysics::Formation*>( formation );
 
    bool basementFormationAndAlcMode = ( geoFormation != 0 and m_projectHandle->isALC ());
 
-   FormationPropertyPtr lithostaticPressure;
+   FormationPropertyPtr    lithostaticPressure;
+   FormationPropertyPtr    depth;
+   FormationMapPropertyPtr basaltDepth;
+   FormationMapPropertyPtr basaltThickness;
+
    if ( basementFormationAndAlcMode ) {
+      const DataModel::AbstractProperty* depthProperty               = propertyManager.getProperty ( "Depth" );
+      const DataModel::AbstractProperty* lithostaticPressureProperty = propertyManager.getProperty ( "LithoStaticPressure" );
+      const DataModel::AbstractProperty* basaltDepthProperty         = propertyManager.getProperty ( "ALCStepTopBasaltDepth" );
+      const DataModel::AbstractProperty* basaltThicknessProperty     = propertyManager.getProperty ( "ALCStepBasaltThickness" );
+
       lithostaticPressure = propertyManager.getFormationProperty ( lithostaticPressureProperty, snapshot, formation );
+      depth = propertyManager.getFormationProperty ( depthProperty, snapshot, formation );
+
+      
+      if( formation->getName() != "Crust" ) {
+         const GeoPhysics::Formation *mantleFormation = dynamic_cast<const GeoPhysics::Formation*>( formation );
+         const DataModel::AbstractFormation * crustFormation = ( mantleFormation->getTopSurface()->getTopFormation() );
+         
+         basaltDepth = propertyManager.getFormationMapProperty ( basaltDepthProperty, snapshot, crustFormation );
+         basaltThickness = propertyManager.getFormationMapProperty ( basaltThicknessProperty, snapshot, crustFormation );
+      } else {
+         basaltDepth = propertyManager.getFormationMapProperty ( basaltDepthProperty, snapshot, formation );
+         basaltThickness = propertyManager.getFormationMapProperty ( basaltThicknessProperty, snapshot, formation );
+      }      
    }
    
-   if ( temperature != 0 and ( not basementFormationAndAlcMode or ( basementFormationAndAlcMode and lithostaticPressure != 0 )) and geoFormation != 0 ) {
+   if ( temperature != 0 and geoFormation != 0 and
+        ( not basementFormationAndAlcMode or 
+          ( basementFormationAndAlcMode and lithostaticPressure != 0 and depth != 0 and basaltThickness != 0 and basaltDepth != 0 ))) {
       DerivedFormationPropertyPtr thermalConductivity = DerivedFormationPropertyPtr ( new DerivedProperties::DerivedFormationProperty ( thermalConductivityProperty,
                                                                                                                                         snapshot,
                                                                                                                                         formation,
@@ -140,8 +169,14 @@ void DerivedProperties::ThermalConductivityFormationCalculator::calculateForBase
 
       PropertyRetriever temperatureRetriever ( temperature );
       PropertyRetriever pressureRetriever;
+      PropertyRetriever depthRetriever;
+      PropertyRetriever basaltDepthRetriever;
+      PropertyRetriever basaltThicknessRetriever;
       if ( basementFormationAndAlcMode ) {
          pressureRetriever.reset ( lithostaticPressure );
+         depthRetriever.reset ( depth );
+         basaltDepthRetriever.reset ( basaltDepth );
+         basaltThicknessRetriever.reset ( basaltThickness );
       } 
 
       const GeoPhysics::CompoundLithologyArray& lithologies = geoFormation->getCompoundLithologyArray ();
@@ -162,11 +197,22 @@ void DerivedProperties::ThermalConductivityFormationCalculator::calculateForBase
                for ( unsigned int k = thermalConductivity->firstK (); k <= thermalConductivity->lastK (); ++k ) {
 
                   if ( basementFormationAndAlcMode ) {
-                     lithology->calcBulkThermCondNPBasement ( 0, 0,
-                                                              temperature->getA ( i, j, k ),
-                                                              lithostaticPressure->getA ( i, j, k ),
-                                                              thermalConductivityNormal,
-                                                              thermalConductivityPlane );
+  
+                     const double topBasaltDepth = basaltDepth->getA( i, j );
+                     const double botBasaltDepth = topBasaltDepth + basaltThickness->getA( i, j ) + 1;
+
+                     if( basaltThickness->getA( i, j ) != 0 and ( topBasaltDepth <= depth->getA ( i, j, k ) and botBasaltDepth >= depth->getA ( i, j, k  ))) {
+                        lithology->calcBulkThermCondNPBasalt ( temperature->getA ( i, j, k ),
+                                                               lithostaticPressure->getA ( i, j, k ),
+                                                               thermalConductivityNormal,
+                                                               thermalConductivityPlane );
+                     } else {
+                        lithology->calcBulkThermCondNPBasement ( 0, 0,
+                                                                 temperature->getA ( i, j, k ),
+                                                                 lithostaticPressure->getA ( i, j, k ),
+                                                                 thermalConductivityNormal,
+                                                                 thermalConductivityPlane );
+                     }
                   } else {
                      lithology->calcBulkThermCondNP ( 0, 0,
                                                       temperature->getA ( i, j, k ),
@@ -200,6 +246,9 @@ bool DerivedProperties::ThermalConductivityFormationCalculator::isComputable ( c
                                                                                const DataModel::AbstractFormation* formation ) const {
    
    bool basementFormation = ( dynamic_cast<const GeoPhysics::Formation*>( formation ) != 0 and dynamic_cast<const GeoPhysics::Formation*>( formation )->kind () == DataAccess::Interface::BASEMENT_FORMATION );
+   if( basementFormation ) {
+      return isComputableForBasement ( propManager, snapshot, formation );
+   }
 
    const std::vector<std::string>& dependentProperties = getDependentPropertyNames ();
 
@@ -208,7 +257,8 @@ bool DerivedProperties::ThermalConductivityFormationCalculator::isComputable ( c
    // Determine if the required properties are computable.
    for ( size_t i = 0; i < dependentProperties.size () and propertyIsComputable; ++i ) {
 
-      if( basementFormation and ( dependentProperties [ i ] == "Pressure" or  dependentProperties [ i ] == "Ves" or  dependentProperties [ i ] == "Porosity" )) {
+      if( dependentProperties [ i ] == "ALCStepTopBasaltDepth" or dependentProperties [ i ] == "ALCStepBasaltThickness" or 
+          dependentProperties [ i ] == "LithoStaticPressure" or  dependentProperties [ i ] == "Depth" ) {
          propertyIsComputable = true;
       } else {
          const DataModel::AbstractProperty* property = propManager.getProperty ( dependentProperties [ i ]);
@@ -222,5 +272,44 @@ bool DerivedProperties::ThermalConductivityFormationCalculator::isComputable ( c
       }
    }
 
+   return propertyIsComputable;
+}
+
+bool DerivedProperties::ThermalConductivityFormationCalculator::isComputableForBasement ( const AbstractPropertyManager&      propManager,
+                                                                                          const DataModel::AbstractSnapshot*  snapshot,
+                                                                                          const DataModel::AbstractFormation* formation ) const {
+   
+   const std::vector<std::string>& dependentProperties = getDependentPropertyNames ();
+
+   bool propertyIsComputable = true;
+
+   // Determine if the required properties are computable.
+   for ( size_t i = 0; i < dependentProperties.size () and propertyIsComputable; ++i ) {
+
+      if(( not m_projectHandle->isALC () and dependentProperties[i] == "LithoStaticPressure") or 
+         dependentProperties [ i ] == "Porosity" or dependentProperties [ i ] == "Pressure" ) {
+
+         propertyIsComputable = true;
+      } else {
+         const DataModel::AbstractProperty* property = propManager.getProperty ( dependentProperties [ i ]);
+         
+         if ( property == 0 ) {
+            propertyIsComputable = false;
+         } else {
+            if( dependentProperties [ i ] == "ALCStepTopBasaltDepth" or dependentProperties [ i ] == "ALCStepBasaltThickness" ) {
+               if( formation->getName() != "Crust" ) {
+                  const GeoPhysics::Formation *mantleFormation = dynamic_cast<const GeoPhysics::Formation*>( formation );
+                  
+                  const DataModel::AbstractFormation * crustFormation = (mantleFormation->getTopSurface()->getTopFormation() );
+                  propertyIsComputable = propertyIsComputable and propManager.formationMapPropertyIsComputable ( property, snapshot, crustFormation );
+               } else {
+                  propertyIsComputable = propertyIsComputable and propManager.formationMapPropertyIsComputable ( property, snapshot, formation );
+               }
+            } else {
+               propertyIsComputable = propertyIsComputable and propManager.formationPropertyIsComputable ( property, snapshot, formation );
+            }
+         }                  
+      }
+   }
    return propertyIsComputable;
 }

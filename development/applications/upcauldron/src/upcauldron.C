@@ -17,6 +17,7 @@ using namespace std;
 #include "cauldronschema.h"
 #include "datatype.h"
 #include "cauldronschemafuncs.h"
+#include "FilePath.h"
 
 using database::Database;
 using database::DataSchema;
@@ -588,9 +589,8 @@ int main (int argc, char ** argv)
             if (fileNameFound)
                continue;
 
-	    string fullOutputMapFileName = outputDirectory;
-	    fullOutputMapFileName += "/";
-	    fullOutputMapFileName += outputMapFileName;
+            ibs::FilePath fullOutputMapFileName( outputDirectory );
+            fullOutputMapFileName << outputMapFileName;
 	    
             args[n] = strdup ("grid2grid");
             n++;
@@ -616,7 +616,7 @@ int main (int argc, char ** argv)
 
             args[n] = strdup ("-output");
             n++;
-            args[n] = strdup (fullOutputMapFileName.c_str ());
+            args[n] = strdup (fullOutputMapFileName.cpath ());
             n++;
             args[n] = strdup ("HDF5");
             n++;

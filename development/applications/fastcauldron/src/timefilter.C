@@ -1,3 +1,12 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
 #include   "timefilter.h"
 
 #include <petsc.h>
@@ -95,6 +104,7 @@ void TimeFilter::setFilter(const string & propertyName, const string & outputOpt
   }
 
   PropertyOutputOption [ PERMEABILITYHVEC ] = PropertyOutputOption [ PERMEABILITYVEC ];
+  PropertyOutputOption [ HORIZONTALPERMEABILITY ] = PropertyOutputOption [ PERMEABILITYHVEC ];
   
   PropertyOutputOption[HEAT_FLOWY] = PropertyOutputOption[HEAT_FLOW];
   PropertyOutputOption[HEAT_FLOWZ] = PropertyOutputOption[HEAT_FLOW];
@@ -146,16 +156,6 @@ OutputOption TimeFilter::getOutputRange(const string & outputOption){
   return OutputOption(RangeCount);
 }
 
-bool TimeFilter::IsSomethingSelected()const{
-  int PLCount;
-  for ( PLCount=0; PLCount<=THICKNESS; ++PLCount) {
-    if (PropertyOutputOption[PLCount]!= NOOUTPUT) {
-      return true;
-    }
-  }
-  return false;
-};
-
 
 bool TimeFilter::propertyIsSelected ( const PropertyList propertyId ) const {
   return PropertyOutputOption [ propertyId ] != NOOUTPUT; 
@@ -169,6 +169,22 @@ const std::string& propertyListName ( const PropertyList property ) {
       return PropertyName [ ENDPROPERTYLIST ];
    }
 
+}
+
+OutputOption TimeFilter::getPropertyOutputOption ( const std::string& propertyName ) const {
+
+   if( getPropertylist( propertyName ) == ENDPROPERTYLIST ) {
+      if( propertyName == "HorizontalPermeability" ) {
+         return PropertyOutputOption[ getPropertylist( "PermeabilityHVec" ) ]; 
+      } 
+      if( propertyName == "BrineDensity" ) {
+         return PropertyOutputOption[ getPropertylist( "BrineProperties" ) ]; 
+      } 
+      if( propertyName == "BrineViscosity" ) {
+         return PropertyOutputOption[ getPropertylist( "BrineProperties" ) ]; 
+      } 
+   }
+   return PropertyOutputOption[ getPropertylist( propertyName ) ];
 }
 
 PropertyList TimeFilter::getPropertylist ( const std::string& propertyName ) const {

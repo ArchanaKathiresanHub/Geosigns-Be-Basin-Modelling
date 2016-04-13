@@ -1,16 +1,35 @@
+//
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #ifndef _FASTCAULDRON__GEOMETRIC_LOOP_PRESSURE_SOLVER_H_
 #define _FASTCAULDRON__GEOMETRIC_LOOP_PRESSURE_SOLVER_H_
 
 #include "PressureSolver.h"
 
-#include "propinterface.h"
 #include "layer.h"
+
+// Forward declaration
+class AppCtx;
+class PETSC_3D_Array;
+namespace GeoPhysics
+{
+   class CompoundLithology;
+}
 
 class GeometricLoopPressureSolver : public PressureSolver {
 
 public :
 
    GeometricLoopPressureSolver ( AppCtx* appl );
+
+   ~GeometricLoopPressureSolver();
 
    void adjustSolidThickness ( const double relativeThicknessTolerance,
                                const double absoluteThicknessTolerance,
@@ -74,17 +93,17 @@ private :
         const double          currentTime, 
               PETSC_3D_Array& layerDepth,
               PETSC_3D_Array& hydrostaticPressure,
-              PETSC_3D_Array& Overpressure,
+        const PETSC_3D_Array& Overpressure,
               PETSC_3D_Array& porePressure,
               PETSC_3D_Array& lithostaticPressure,
               PETSC_3D_Array& VES,
               PETSC_3D_Array& intermediateMaxVES,
-              PETSC_3D_Array& maxVES,
+        const PETSC_3D_Array& maxVES,
               PETSC_3D_Array& layerPorosity,
               PETSC_3D_Array& layerPermeabilityNormal,
               PETSC_3D_Array& layerPermeabilityPlane,
               PETSC_3D_Array& layerTemperature,
-              PETSC_3D_Array& layerChemicalCompaction );
+        const PETSC_3D_Array& layerChemicalCompaction );
 
 
 };

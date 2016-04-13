@@ -1,4 +1,17 @@
+//
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "FastcauldronStartup.h"
+
+#include "propinterface.h"
+#include "FastcauldronFactory.h"
 
 #include "FastcauldronSimulator.h"
 #include "MultiComponentFlowHandler.h"
@@ -11,7 +24,9 @@ int FastcauldronStartup::startup ( int                  argc,
                                    AppCtx*              cauldron,
                                    FastcauldronFactory* factory,
                                    const bool           canRunSaltModelling,
-                                   std::string&         errorMessage ) {
+                                   std::string&         errorMessage,
+                                   const bool           saveAsInputGrid,
+                                   const bool           createResultsFile ) {
 
    if ( not cauldron->readProjectName ()) {
       errorMessage = "MeSsAgE ERROR Error when reading the project file";
@@ -24,7 +39,7 @@ int FastcauldronStartup::startup ( int                  argc,
    FastcauldronSimulator::getInstance().deleteTemporaryDirSnapshots();
    FastcauldronSimulator::getInstance ().setFormationElementHeightScalingFactors ();
 
-   if ( not FastcauldronSimulator::getInstance ().setCalculationMode ( cauldron->getCalculationMode ())) {
+   if ( not FastcauldronSimulator::getInstance ().setCalculationMode ( cauldron->getCalculationMode (), saveAsInputGrid, createResultsFile )) {
       errorMessage = "MeSsAgE ERROR Error when setting calculation mode";
       return 1;
    }
@@ -39,13 +54,6 @@ int FastcauldronStartup::startup ( int                  argc,
 
    // There are several command line parameters that can be set only after the project file has been read.
    FastcauldronSimulator::getInstance ().readCommandLineParametersLateStage ( argc, argv );
-
-   // Initialise properties output
-   if( not cauldron->no2Doutput() and 
-       not ( FastcauldronSimulator::getInstance ().getCalculationMode () == HYDROSTATIC_HIGH_RES_DECOMPACTION_MODE or
-             FastcauldronSimulator::getInstance ().getCalculationMode () == COUPLED_HIGH_RES_DECOMPACTION_MODE )) {
-      cauldron->setNo2Doutput( FastcauldronSimulator::getInstance ().isPrimary() );
-   }
 
    // Initialise anything that is to be set from the environment.
    cauldron->setParametersFromEnvironment ();

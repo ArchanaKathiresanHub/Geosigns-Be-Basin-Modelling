@@ -169,7 +169,7 @@ ErrorHandler::ReturnCode MapsManagerImpl::saveMapToHDF( MapID id, const std::str
       if ( !rec ) { throw Exception( NonexistingID ) << "No input map with such ID: " << id; }
       
       // get only the file name from the file path (if given)
-      std::string mfName = ibs::FilePath( fileName ).fileName();
+      std::string mfName = fileName.empty() ? std::string( "" ) : ibs::FilePath( fileName ).fileName();
       if ( mfName.empty() ) // if no file name is given - take file name from the map record
       {
          mfName = rec->getValue<std::string>( s_MapFileNameColName );
@@ -265,6 +265,38 @@ ErrorHandler::ReturnCode MapsManagerImpl::scaleMap( MapID id, double coeff )
             double v = m_mapObj[id]->getValue( i, j );
 
             m_mapObj[id]->setValue( i, j, NumericFunctions::isEqual( v, nulVal, 1e-5 ) ? nulVal : v * coeff );
+         }
+      }
+   }
+   catch( const Exception & ex ) { return reportError( ex.errorCode(), ex.what() ); }
+
+   return NoError;
+}
+
+ErrorHandler::ReturnCode MapsManagerImpl::interpolateMap( MapID id, MapID minId, MapID maxId, double coeff )
+{
+   if ( errorCode() != NoError ) resetError();
+   try
+   {
+      double nulVal = m_mapObj[id]->getUndefinedValue();
+      
+      if ( !m_mapObj[minId] ) { loadGridMap( minId ); }
+      if ( !m_mapObj[maxId] ) { loadGridMap( maxId ); }
+
+      for (    unsigned int i = m_mapObj[id]->firstI(); i <= m_mapObj[id]->lastI(); ++i )
+      {
+         for ( unsigned int j = m_mapObj[id]->firstJ(); j <= m_mapObj[id]->lastJ(); ++j )
+         {
+            double minV = m_mapObj[minId]->getValue( i, j );
+            double maxV = m_mapObj[maxId]->getValue( i, j );
+
+            if ( NumericFunctions::isEqual( minV, nulVal, 1e-5 ) || NumericFunctions::isEqual( maxV, nulVal, 1.e-5 ) )
+            {
+               m_mapObj[id]->setValue( i, j, nulVal );
+               continue;
+            }
+            
+            m_mapObj[id]->setValue( i, j, minV + (maxV - minV) * coeff );
          }
       }
    }

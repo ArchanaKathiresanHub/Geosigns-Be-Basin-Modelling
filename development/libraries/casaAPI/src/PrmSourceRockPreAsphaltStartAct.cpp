@@ -95,7 +95,7 @@ ErrorHandler::ReturnCode PrmSourceRockPreAsphaltStartAct::setInModel( mbapi::Mod
       }
 
       const std::vector<std::string> & srtNames = stMgr.sourceRockTypeName( lid );
-      if ( srtNames.empty() || m_mixID < 1 || m_mixID > srtNames.size() )
+      if ( srtNames.empty() || m_mixID < 1 || static_cast<size_t>( m_mixID ) > srtNames.size() )
       {
          throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Layer " << m_layerName <<
             " set as source rock layer but has no source rock lithology defined for the mixing ID: " << m_mixID;
@@ -142,8 +142,6 @@ std::string PrmSourceRockPreAsphaltStartAct::validate( mbapi::Model & caldModel 
             "TOC setting error: source rock is not active for the layer:" << m_layerName;
       }
 
-      double tocInModel = UndefinedDoubleValue;
-
       // go to source rock lithology table for the source rock  PreAsphaltStartAct
       const std::vector<std::string> & srtNames = stMgr.sourceRockTypeName( lid );
 
@@ -153,7 +151,7 @@ std::string PrmSourceRockPreAsphaltStartAct::validate( mbapi::Model & caldModel 
             " set as source rock layer but has no source rock lithology defined";
       }
 
-      if ( srtNames.size() < m_mixID )
+      if ( srtNames.size() < static_cast<size_t>( m_mixID ) )
       {
          throw ErrorHandler::Exception( ErrorHandler::ValidationError ) <<
             "Layer " << m_layerName << " has no source rock definition for the mixing ID: " << m_mixID;

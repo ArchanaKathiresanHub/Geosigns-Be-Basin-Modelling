@@ -59,7 +59,7 @@ class PTDiagramCalculatorMTTest: public ::testing::Test
 public:
    PTDiagramCalculatorMTTest()
    {
-      PVTCfgFileMgr::instance(); // Write configuration file
+      PVTCfgFileMgr::instance( "./PVT_properties_DCMT.cfg" ); // Write configuration file
    }
 
    ~PTDiagramCalculatorMTTest() {;}

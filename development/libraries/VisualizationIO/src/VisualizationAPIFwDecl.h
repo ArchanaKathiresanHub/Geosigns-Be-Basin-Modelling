@@ -15,9 +15,9 @@
 
 #include <boost/shared_ptr.hpp>
 
-/// @file This file keeps enum data type definitions, because they are can't be forward declared
+/// This file keeps enum data type definitions, because they are can't be forward declared
 /// and various forward declarations for VisualizationAPI library
-// Forward declarations
+/// Forward declarations
 
 namespace DataAccess
 {
@@ -31,6 +31,7 @@ namespace DataAccess
         class Formation;
         class Property;
         typedef std::vector<const PropertyValue *> PropertyValueList;
+        typedef std::vector<const Property *> PropertyList;
     }
 }
 
@@ -57,12 +58,15 @@ namespace CauldronIO
     class SnapShot;
     class Project;
     class Surface;
-    class Map;
+    class SurfaceData;
     class Formation;
     class Property;
     class Volume;
+    class VolumeData;
+    class Geometry2D;
+    class Geometry3D;
     class Trapper;
-    class DiscontinuousVolume;
+    class Reservoir;
     struct FormationInfo;
     typedef std::vector<boost::shared_ptr<FormationInfo> > FormationInfoList;
 }

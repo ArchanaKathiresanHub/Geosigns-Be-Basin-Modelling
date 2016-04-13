@@ -46,12 +46,12 @@ const char * RunManager::s_jobsIDListFileName       = "casa_jobs_list.txt";
 // RunManager / RunManagerImpl methods definition
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 CauldronApp * RunManager::createApplication( ApplicationType        appType
-                                           , int                    cpus
-                                           , size_t                 runTimeLimit
-                                           , CauldronApp::ShellType sh
-                                           , std::string            cmdLine )
+                                        , int                    cpus
+                                        , size_t                 runTimeLimit
+                                        , CauldronApp::ShellType sh
+                                        , std::string            cmdLine )
 {
-   std::auto_ptr<CauldronApp> app;
+   std::unique_ptr<CauldronApp> app;
    switch ( appType )
    {
       case fastcauldron: app.reset( new CauldronApp( sh, "fastcauldron", true  ) ); break;
@@ -61,6 +61,7 @@ CauldronApp * RunManager::createApplication( ApplicationType        appType
       case datadriller:  app.reset( new CauldronApp( sh, "datadriller",  false ) ); break;
       case tracktraps:   app.reset( new CauldronApp( sh, "tracktraps",   false ) ); break;
       case track1d:      app.reset( new CauldronApp( sh, "track1d",      false ) ); break;
+      case casa:         app.reset( new CauldronApp( sh, "casa",         false ) ); break;
       case generic:      app.reset( new CauldronApp( sh, "unknown",      false ) ); app->setScriptBody( cmdLine ); break;
       default:                                                                      break;
    }
@@ -111,7 +112,7 @@ ErrorHandler::ReturnCode RunManagerImpl::addApplication( CauldronApp * app )
 
 ///////////////////////////////////////////////////////////////////////////////
 // Add Case to set
-ErrorHandler::ReturnCode RunManagerImpl::scheduleCase( RunCase & newRun, const std::string & scenarioID )
+ErrorHandler::ReturnCode RunManagerImpl::scheduleCase(RunCase & newRun, const std::string & scenarioID )
 {
    if ( newRun.runStatus() != RunCase::NotSubmitted ) return NoError;
 
@@ -130,7 +131,7 @@ ErrorHandler::ReturnCode RunManagerImpl::scheduleCase( RunCase & newRun, const s
 
    // construct case name, use name of the directory where project is located or just Case_N
    size_t sz = pfp.size();
-   std::string caseName = sz > 2 ? pfp[sz - 2 ] : (std::string( "Case_" ) + ibs::to_string( m_jobs.size() ) );
+   std::string caseName = sz > 2 ? pfp[sz - 2 ] : ( std::string( "Case_" ) + ibs::to_string( m_jobs.size() ) );
 
    // go through pipelines and populate jobs list/generate scripts for all cases
    for ( size_t i = 0; i < m_appList.size(); ++i )
@@ -141,7 +142,7 @@ ErrorHandler::ReturnCode RunManagerImpl::scheduleCase( RunCase & newRun, const s
       // if cpus number will be defined by scheduler itself do not put -np CPUS in mpirun command
       if ( m_jobSched->cpusNumberByScheduler() )
       {
-         m_appList[ i ]->setCPUs( 0 );      // number of cpus is defined by the scheduler, exclude it from the script
+         m_appList[i]->setCPUs(0);      // number of cpus is defined by the scheduler, exclude it from the script
       }
 
       if ( !m_cldVersion.empty() ) m_appList[i]->setCauldronVersion( m_cldVersion ); // if another version is defined by user, set up it
@@ -149,31 +150,30 @@ ErrorHandler::ReturnCode RunManagerImpl::scheduleCase( RunCase & newRun, const s
       size_t depOnID = m_cases.size() + 1; // define dependency ID outside of scheduled cases to use it as a flag also (size_t can't be negative)
 
       // run over previously added jobs to detect runs with the same parameters
-      for ( size_t cs = 0; (cs < m_cases.size() - 1) && depOnID > m_cases.size(); ++cs )
+      for ( size_t cs = 0; ( cs < m_cases.size() - 1 ) && depOnID > m_cases.size(); ++cs )
       {
-         if( newRun.isEqual( *(m_cases[cs]), m_appList[i]->appSolverDependencyLevel() ) ) // compare parameters value taking in account dep. level
+         if ( newRun.isEqual( *(m_cases[cs]), m_appList[i]->appSolverDependencyLevel() ) ) // compare parameters value taking in account dep. level
          {
             depOnID = cs; // this case, up to this application, is the same as cs, results could be just copied
          }
       }
 
       // create script body for application run or results copy
-      const std::string appScript = depOnID > m_cases.size() 
-                    ? m_appList[i]->generateScript( pfp.fileName(), "", scenarioID ) 
-                    : m_appList[i]->generateCopyResultsScript( std::string( m_cases[depOnID]->projectPath() )
-                                                             , std::string( m_cases.back()->projectPath() )
-                                                             , scenarioID
-                                                             );
-
+      const std::string appScript = depOnID > m_cases.size()
+                                  ? m_appList[i]->generateScript( pfp.fileName(), "", scenarioID )
+                                  : m_appList[i]->generateCopyResultsScript( std::string( m_cases[depOnID]->projectPath() )
+                                                                           , std::string( m_cases.back()->projectPath() )
+                                                                           , scenarioID
+                                                                           );
       if ( m_jobSched->cpusNumberByScheduler() )
       {
-         m_appList[ i ]->setCPUs( cpus ); // restore number of cpus back
+         m_appList[i]->setCPUs( cpus ); // restore number of cpus back
       }
 
       // generate script file name
       ibs::FilePath scriptFile( pfp.filePath() );
-      scriptFile << (std::string( "Stage_" ) + ibs::to_string( i ) + m_appList[i]->scriptSuffix() );
-      
+      scriptFile << ( std::string( "Stage_" ) + ibs::to_string(i) + m_appList[i]->scriptSuffix() );
+
       // save script to file
       std::ofstream ofs( scriptFile.path().c_str(), std::ios_base::out | std::ios_base::trunc );
       ofs << appScript;
@@ -190,11 +190,11 @@ ErrorHandler::ReturnCode RunManagerImpl::scheduleCase( RunCase & newRun, const s
       ////////////////////////////////////////
       /// put the job to the queue through a job scheduler
       JobScheduler::JobID id = m_jobSched->addJob( pfp.filePath().c_str()       // cwd
-                                                   , scriptFile.path()            // script name
-                                                   , oss.str()                    // job name
-                                                   , m_appList[i]->cpus()         // number of CPUs for this job
-                                                   , m_appList[i]->runTimeLimit() // run time limit
-                                                   );
+                                                 , scriptFile.path()            // script name
+                                                 , oss.str()                    // job name
+                                                 , m_appList[i]->cpus()         // number of CPUs for this job
+                                                 , m_appList[i]->runTimeLimit() // run time limit
+                                                 );
 
       // put job to the queue for the current case
       m_jobs.back().push_back( id );
@@ -212,7 +212,7 @@ ErrorHandler::ReturnCode RunManagerImpl::scheduleCase( RunCase & newRun, const s
          }
       }
    }
-
+   
    m_cases.back()->setRunStatus( RunCase::Scheduled );
 
    return NoError;
@@ -256,14 +256,14 @@ ErrorHandler::ReturnCode RunManagerImpl::setResourceRequirements( const std::str
 
 ///////////////////////////////////////////////////////////////////////////////
 // run over all jobs and collect runs statistics. Also report progress if any change in numbers
-void RunManagerImpl::collectStatistics( int & pFinished, int & pPending, int & pRunning, int & pToBeSubmitted )
+void RunManagerImpl::collectStatistics( size_t & pFinished, size_t & pPending, size_t & pRunning, size_t & pToBeSubmitted )
 {
-   int total         = 0;
-   int finished      = 0;
-   int failed        = 0; 
-   int pending       = 0;
-   int running       = 0; 
-   int toBeSubmitted = 0;
+   size_t total         = 0;
+   size_t finished      = 0;
+   size_t failed        = 0; 
+   size_t pending       = 0;
+   size_t running       = 0; 
+   size_t toBeSubmitted = 0;
 
    for ( size_t i = 0; i < m_jobs.size(); ++i )
    {
@@ -329,16 +329,14 @@ bool RunManagerImpl::isAllDone() const
 
 ///////////////////////////////////////////////////////////////////////////////
 // Execute all scheduled cases. Very loooong cycle
-ErrorHandler::ReturnCode RunManagerImpl::runScheduledCases( bool asyncRun )
+ErrorHandler::ReturnCode RunManagerImpl::runScheduledCases( bool /* asyncRun */)
 {
-   bool allFinished = false;
-  
    try 
    {
-      int prevFinished      = 0;
-      int prevToBeSubmitted = 0;
-      int prevRunning       = 0;
-      int prevPending       = 0;
+      size_t prevFinished      = 0;
+      size_t prevToBeSubmitted = 0;
+      size_t prevRunning       = 0;
+      size_t prevPending       = 0;
 
       do
       {
@@ -578,7 +576,7 @@ void RunManagerImpl::restoreCaseStatus( RunCase * cs )
 }
 
 // Serialize object to the given stream
-bool RunManagerImpl::save( CasaSerializer & sz, unsigned int fileVersion ) const
+bool RunManagerImpl::save( CasaSerializer & sz, unsigned int /* fileVersion */ ) const
 {
    bool ok = true;
 

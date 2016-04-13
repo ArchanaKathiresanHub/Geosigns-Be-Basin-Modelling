@@ -36,6 +36,8 @@ using namespace fasttouch;
 #include "Interface/Snapshot.h"
 #include "Interface/TouchstoneMap.h"
 
+#include "FilePath.h"
+
 using namespace DataAccess;
 using namespace Interface;
 double MinimumAll (double myValue);
@@ -70,18 +72,6 @@ bool FastTouch::compute (void)
 {
 
    H5_Parallel_PropertyList::setOneFilePerProcessOption ();
-
-   PetscBool onlyPrimary = PETSC_FALSE;
-   PetscOptionsHasName( PETSC_NULL, "-primaryOnly", &onlyPrimary );
-
-   if( onlyPrimary ) {
-      m_projectHandle->setPrimary( true );
-   }
-   PetscOptionsHasName( PETSC_NULL, "-primaryDouble", &onlyPrimary );
-
-   if( onlyPrimary ) {
-      m_projectHandle->setPrimaryDouble( true );
-   }  
 
    bool started = m_projectHandle->startActivity (FastTouchActivityName, m_projectHandle->getLowResolutionOutputGrid ());
  
@@ -150,19 +140,19 @@ bool FastTouch::mergeOutputFiles ( ) {
    
    PetscOptionsHasName( PETSC_NULL, "-nocopy", &noFileCopy );
    
-   string filePathName 
-      = m_projectHandle->getProjectPath () 
-      + "/" + m_projectHandle->getOutputDir () + "/" + FastTouchActivityName + "_Results.HDF";
+   ibs::FilePath filePathName( m_projectHandle->getProjectPath () );
    
-   bool status = mergeFiles ( allocateFileHandler( PETSC_COMM_WORLD, filePathName, H5_Parallel_PropertyList::getTempDirName(), ( noFileCopy ? CREATE : REUSE )));
+   filePathName << m_projectHandle->getOutputDir () << (FastTouchActivityName + "_Results.HDF");
+   
+   bool status = mergeFiles ( allocateFileHandler( PETSC_COMM_WORLD, filePathName.path(), H5_Parallel_PropertyList::getTempDirName(), ( noFileCopy ? CREATE : REUSE )));
 
    if( status ) {
-      status = H5_Parallel_PropertyList::copyMergedFile( filePathName );
+      status = H5_Parallel_PropertyList::copyMergedFile( filePathName.path() );
    }
    if( status ) {
       PetscPrintf ( PETSC_COMM_WORLD, "Merged Output Maps\n");
    } else {
-      PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Could not copy the file %s.\n", filePathName.c_str() );   
+      PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Could not copy the file %s.\n", filePathName.cpath() );   
    }
    return status;
 #else

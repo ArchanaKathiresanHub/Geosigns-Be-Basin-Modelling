@@ -1,6 +1,18 @@
+//
+// Copyright (C) 2016 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "MaxVesHighResFormationCalculator.h"
 
+#include <assert.h>
 #include "FormattingException.h"
+#include "GeoPhysicsFormation.h"
 #include "Interface/SimulationDetails.h"
 #include "IndirectFormationProperty.h"
 #include "Interface/Surface.h"
@@ -9,7 +21,6 @@
 
 DerivedProperties::MaxVesHighResFormationCalculator::MaxVesHighResFormationCalculator( const GeoPhysics::ProjectHandle * projectHandle ) :
    m_projectHandle( projectHandle ),
-   m_isCoupledMode( false ),
    m_isSubsampled( ! ((*(m_projectHandle->getLowResolutionOutputGrid())) == (*(m_projectHandle->getHighResolutionOutputGrid()))) )
 {
    try
@@ -23,13 +34,7 @@ DerivedProperties::MaxVesHighResFormationCalculator::MaxVesHighResFormationCalcu
          throw formattingexception::GeneralException() << "Last simulation is missing";
       }
 
-      m_isCoupledMode = simulationDetails->getSimulatorMode () == "Overpressure" ||
-                        simulationDetails->getSimulatorMode () == "LooselyCoupledTemperature" ||
-                        simulationDetails->getSimulatorMode () == "CoupledHighResDecompaction" ||
-                        simulationDetails->getSimulatorMode () == "CoupledPressureAndTemperature" ||
-                        simulationDetails->getSimulatorMode () == "CoupledDarcy";
-
-      if( !m_isSubsampled || m_isCoupledMode )
+      if( !m_isSubsampled )
       {
          addDependentPropertyName( "MaxVes" );
       }
@@ -51,16 +56,16 @@ void DerivedProperties::MaxVesHighResFormationCalculator::calculate(       Abstr
 {
    try
    {
-      // Check snapshot. It's not possible to ask for this property at a snapshot age earlier than the formation deposition age
       const GeoPhysics::Formation * const currentFormation = dynamic_cast<const GeoPhysics::Formation * const>( formation );
-      const DataAccess::Interface::Snapshot * const prevSnapshot = m_projectHandle->findPreviousSnapshot(snapshot->getTime());
-      if( prevSnapshot != 0 and 
-          prevSnapshot->getTime() > currentFormation->getBottomSurface()->getSnapshot()->getTime() )
-      {
-         throw formattingexception::GeneralException() << "Invalid snapshot provided";
-      }
+      assert( currentFormation != 0 );
 
-      if( !m_isSubsampled || m_isCoupledMode )
+      if( currentFormation->getBottomSurface()->getSnapshot()->getTime() <= snapshot->getTime() )
+      {
+         // If at the provided snapshot the current formation has't deposited yet
+         // or is just about to deposit we return an empty list of derived properties
+         derivedProperties.clear();
+      }
+      else if( !m_isSubsampled )
       {
          computeIndirectly( propertyManager,
                             snapshot,
@@ -90,9 +95,12 @@ void DerivedProperties::MaxVesHighResFormationCalculator::computeIndirectly(    
    try
    {
       const DataModel::AbstractProperty * const maxVesHighResProperty = propertyManager.getProperty( getPropertyNames()[ 0 ] );
+      assert( maxVesHighResProperty != 0 );
 
       const DataModel::AbstractProperty * const maxVesProperty = propertyManager.getProperty( "MaxVes" );
+      assert( maxVesProperty != 0 );
       FormationPropertyPtr maxVes = propertyManager.getFormationProperty( maxVesProperty, snapshot, formation );
+      assert( maxVes != 0 );
 
       IndirectFormationPropertyPtr maxVesHighRes = IndirectFormationPropertyPtr( new DerivedProperties::IndirectFormationProperty( maxVesHighResProperty, maxVes) );
 
@@ -116,6 +124,7 @@ void DerivedProperties::MaxVesHighResFormationCalculator::computeForSubsampledRu
       const GeoPhysics::Formation * const currentFormation = dynamic_cast<const GeoPhysics::Formation * const>( formation );
 
       const DataModel::AbstractProperty * const maxVesHighResProperty = propertyManager.getProperty( getPropertyNames()[ 0 ] );
+      assert( maxVesHighResProperty != 0 );
 
       DerivedFormationPropertyPtr maxVesHighRes = 
          DerivedFormationPropertyPtr( new DerivedProperties::DerivedFormationProperty( maxVesHighResProperty,
@@ -123,12 +132,6 @@ void DerivedProperties::MaxVesHighResFormationCalculator::computeForSubsampledRu
                                                                                        formation,
                                                                                        propertyManager.getMapGrid(),
                                                                                        currentFormation->getMaximumNumberOfElements() + 1 ) );
-
-      const DataModel::AbstractProperty * const vesHighResProperty = propertyManager.getProperty( "VesHighRes" );
-      FormationPropertyPtr currentVesHighRes = propertyManager.getFormationProperty( vesHighResProperty, snapshot, formation );
-      
-      const DataAccess::Interface::Snapshot * const prevSnapshot = m_projectHandle->findPreviousSnapshot( snapshot->getTime() );
-      FormationPropertyPtr previousMaxVesHighRes = propertyManager.getFormationProperty( maxVesHighResProperty, prevSnapshot, formation );
 
       const bool includeGhostNodes = true;
       const unsigned int firstI = maxVesHighRes->firstI( includeGhostNodes );
@@ -138,22 +141,66 @@ void DerivedProperties::MaxVesHighResFormationCalculator::computeForSubsampledRu
       const unsigned int firstK = maxVesHighRes->firstK();
       const unsigned int lastK  = maxVesHighRes->lastK();
 
-      for( unsigned int i = firstI; i <= lastI; ++i )
+      const DataAccess::Interface::Snapshot * const prevSnapshot = m_projectHandle->findPreviousSnapshot( snapshot->getTime() );
+      // Check snapshot. It's not possible to ask for this property at a snapshot age earlier than the formation deposition age
+      if( prevSnapshot != 0 and 
+          prevSnapshot->getTime() > currentFormation->getBottomSurface()->getSnapshot()->getTime() )
       {
-         for( unsigned int j = firstJ; j <= lastJ; ++j )
+         throw formattingexception::GeneralException() << "Invalid snapshot provided";
+      }
+      FormationPropertyPtr previousMaxVesHighRes = propertyManager.getFormationProperty( maxVesHighResProperty, prevSnapshot, formation );
+
+      const DataModel::AbstractProperty * const vesHighResProperty = propertyManager.getProperty( "VesHighRes" );
+      assert( vesHighResProperty != 0 );
+      FormationPropertyPtr currentVesHighRes = propertyManager.getFormationProperty( vesHighResProperty, snapshot, formation );
+      assert( currentVesHighRes != 0 );
+
+      // If the previous snapshot is the deposition snapshot of the current formation
+      // the max VES is the VES itself
+      // These 2 conditions should be the same (hopefully)
+      if( previousMaxVesHighRes == 0 &&
+          prevSnapshot->getTime() == currentFormation->getBottomSurface()->getSnapshot()->getTime() )
+      {
+         for( unsigned int i = firstI; i <= lastI; ++i )
          {
-            if( m_projectHandle->getNodeIsValid(i, j) )
+            for( unsigned int j = firstJ; j <= lastJ; ++j )
             {
-               for( unsigned int k = firstK; k <= lastK; ++k )
+               if( m_projectHandle->getNodeIsValid(i, j) )
                {
-                  maxVesHighRes->set(i, j, k, NumericFunctions::Maximum( currentVesHighRes->getA(i,j,k), previousMaxVesHighRes->getA(i,j,k) ) );
+                  for( unsigned int k = firstK; k <= lastK; ++k )
+                  {
+                     maxVesHighRes->set(i, j, k, currentVesHighRes->getA(i,j,k) );
+                  }
+               }
+               else
+               {
+                  for( unsigned int k = firstK; k <= lastK; ++k )
+                  {
+                     maxVesHighRes->set(i, j, k, DataAccess::Interface::DefaultUndefinedMapValue);
+                  }
                }
             }
-            else
+         }
+      }
+      else
+      {
+         for( unsigned int i = firstI; i <= lastI; ++i )
+         {
+            for( unsigned int j = firstJ; j <= lastJ; ++j )
             {
-               for( unsigned int k = firstK; k <= lastK; ++k )
+               if( m_projectHandle->getNodeIsValid(i, j) )
                {
-                  maxVesHighRes->set(i, j, k, DataAccess::Interface::DefaultUndefinedMapValue);
+                  for( unsigned int k = firstK; k <= lastK; ++k )
+                  {
+                     maxVesHighRes->set(i, j, k, NumericFunctions::Maximum( currentVesHighRes->getA(i,j,k), previousMaxVesHighRes->getA(i,j,k) ) );
+                  }
+               }
+               else
+               {
+                  for( unsigned int k = firstK; k <= lastK; ++k )
+                  {
+                     maxVesHighRes->set(i, j, k, DataAccess::Interface::DefaultUndefinedMapValue);
+                  }
                }
             }
          }

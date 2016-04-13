@@ -1,3 +1,13 @@
+//
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 //------------------------------------------------------------//
 
 #include "fem_grid.h"
@@ -90,11 +100,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-#ifdef _MSC_VER
-#include <float.h>  // for _isnan() on VC++
-#define isnan(x) _isnan(x)  // VC++ uses _isnan() instead of isnan()
-#define isinf(x) !_finite(x) 
-#endif /** _MSC_VER */
+#include "PetscObjectsIO.h"
 
 using namespace GeoPhysics;
 
@@ -289,6 +295,36 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
   mapOutputProperties.push_back ( VES );
   mapOutputProperties.push_back ( VR );
 
+  if( not FastcauldronSimulator::getInstance ().noDerivedPropertiesCalc() ) {
+     m_mapDerivedOutputProperties.push_back ( ALLOCHTHONOUS_LITHOLOGY );
+     m_mapDerivedOutputProperties.push_back ( BULKDENSITYVEC );
+     m_mapDerivedOutputProperties.push_back ( DIFFUSIVITYVEC );
+     m_mapDerivedOutputProperties.push_back ( FAULTELEMENTS );
+     m_mapDerivedOutputProperties.push_back ( FLUID_VELOCITY );
+     m_mapDerivedOutputProperties.push_back ( FRACTURE_PRESSURE );
+     m_mapDerivedOutputProperties.push_back ( HEAT_FLOW );
+     m_mapDerivedOutputProperties.push_back ( HYDROSTATICPRESSURE );
+     m_mapDerivedOutputProperties.push_back ( LITHOSTATICPRESSURE );
+     m_mapDerivedOutputProperties.push_back ( OVERPRESSURE );
+     //  m_mapDerivedOutputProperties.push_back ( PERMEABILITYHVEC );
+     m_mapDerivedOutputProperties.push_back ( PERMEABILITYVEC );
+     m_mapDerivedOutputProperties.push_back ( POROSITYVEC );
+     m_mapDerivedOutputProperties.push_back ( REFLECTIVITYVEC );
+     m_mapDerivedOutputProperties.push_back ( THCONDVEC );
+     m_mapDerivedOutputProperties.push_back ( THICKNESS );
+     m_mapDerivedOutputProperties.push_back ( TWOWAYTIME );
+     m_mapDerivedOutputProperties.push_back ( TWOWAYTIME_RESIDUAL );
+     m_mapDerivedOutputProperties.push_back ( SONICVEC );
+     m_mapDerivedOutputProperties.push_back ( VELOCITYVEC );
+ 
+     m_mapDerivedOutputProperties.push_back ( CHEMICAL_COMPACTION );
+     m_mapDerivedOutputProperties.push_back ( VES );
+     m_mapDerivedOutputProperties.push_back ( DEPTH );
+     m_mapDerivedOutputProperties.push_back ( MAXVES );
+     m_mapDerivedOutputProperties.push_back ( TEMPERATURE );
+     m_mapDerivedOutputProperties.push_back ( PRESSURE );
+     m_mapDerivedOutputProperties.push_back ( VR );
+   }
   // Set map properties for 1D simulation mode only
   if (basinModel->isModellingMode1D())
   {
@@ -502,14 +538,7 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
   //--------------------------------------
   //Set the derived volume properties that may be required for the simulation
 
-  PetscBool onlyPrimaryProperties = PETSC_FALSE;
-  PetscOptionsHasName( PETSC_NULL, "-primary", &onlyPrimaryProperties );
-  if( not onlyPrimaryProperties 
-      and ( FastcauldronSimulator::getInstance().isPrimary() or  FastcauldronSimulator::getInstance().isPrimaryDouble()) ) {
-     onlyPrimaryProperties = PETSC_TRUE;
-  }
-
-  if( !onlyPrimaryProperties ) {
+  if( not Application_Context->primaryOutput() ) {
      m_volumeOutputProperties.push_back ( BRINE_PROPERTIES );  
      m_volumeOutputProperties.push_back ( BULKDENSITYVEC );
      m_volumeOutputProperties.push_back ( DIFFUSIVITYVEC );
@@ -526,6 +555,30 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
      m_volumeOutputProperties.push_back ( THCONDVEC );
      m_volumeOutputProperties.push_back ( TWOWAYTIME );
      m_volumeOutputProperties.push_back ( VELOCITYVEC );
+  } else {
+     if( not FastcauldronSimulator::getInstance ().noDerivedPropertiesCalc() ) {
+        // m_volumeDerivedOutputProperties.push_back ( BRINE_PROPERTIES );  
+        m_volumeDerivedOutputProperties.push_back ( BULKDENSITYVEC );
+        m_volumeDerivedOutputProperties.push_back ( DIFFUSIVITYVEC );
+        m_volumeDerivedOutputProperties.push_back ( FLUID_VELOCITY );
+        m_volumeDerivedOutputProperties.push_back ( FRACTURE_PRESSURE );
+        m_volumeDerivedOutputProperties.push_back ( HEAT_FLOW );
+        m_volumeDerivedOutputProperties.push_back ( HYDROSTATICPRESSURE );
+        m_volumeDerivedOutputProperties.push_back ( LITHOSTATICPRESSURE );
+        m_volumeDerivedOutputProperties.push_back ( OVERPRESSURE );
+        m_volumeDerivedOutputProperties.push_back ( PERMEABILITYVEC );
+        m_volumeDerivedOutputProperties.push_back ( POROSITYVEC );
+        m_volumeDerivedOutputProperties.push_back ( REFLECTIVITYVEC );
+        m_volumeDerivedOutputProperties.push_back ( SONICVEC );
+        m_volumeDerivedOutputProperties.push_back ( THCONDVEC );
+        m_volumeDerivedOutputProperties.push_back ( THICKNESS);
+        m_volumeDerivedOutputProperties.push_back ( TWOWAYTIME );
+        m_volumeDerivedOutputProperties.push_back ( VELOCITYVEC );
+
+        if( FastcauldronSimulator::getInstance().getCalculationMode() == OVERPRESSURED_TEMPERATURE_MODE ) {
+           m_volumeDerivedOutputProperties.push_back ( FAULTELEMENTS );
+        }
+     }
   }
 
 
@@ -545,26 +598,12 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
   PetscBool addMinorProperties;
   PetscOptionsHasName( PETSC_NULL, "-minor", &addMinorProperties );
 
-  if (addMinorProperties || onlyPrimaryProperties) {
+  if ( addMinorProperties || Application_Context->primaryOutput() ) {
      looselyCoupledOutputProperties.push_back( CHEMICAL_COMPACTION );
      looselyCoupledOutputProperties.push_back( PRESSURE );
      looselyCoupledOutputProperties.push_back( TEMPERATURE );
      looselyCoupledOutputProperties.push_back( VR );
-
-     if ( not ( basinModel->IsCalculationCoupled and basinModel->DoTemperature ) ) {
-        looselyCoupledOutputProperties.push_back( DEPTH );
-
-        if (onlyPrimaryProperties and not ( FastcauldronSimulator::getInstance().getCalculationMode() == OVERPRESSURE_MODE ) ) {
-           basinModel->timefilter.setFilter( "Depth", "SedimentsPlusBasement" );
-           FastcauldronSimulator::getInstance().setOutputPropertyOption( DEPTH, Interface::SEDIMENTS_AND_BASEMENT_OUTPUT );
-        }
-     }
- 
-     if (onlyPrimaryProperties and not (FastcauldronSimulator::getInstance().getCalculationMode() == OVERPRESSURE_MODE)) {
-        basinModel->timefilter.setFilter( "Temperature", "SedimentsPlusBasement" );
-        FastcauldronSimulator::getInstance().setOutputPropertyOption( TEMPERATURE, Interface::SEDIMENTS_AND_BASEMENT_OUTPUT );
-     }
-    
+     looselyCoupledOutputProperties.push_back( DEPTH );   
   }
   looselyCoupledOutputProperties.push_back( MAXVES );
   looselyCoupledOutputProperties.push_back( VES );
@@ -606,6 +645,32 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
 
   m_surfaceNodeHistory.Read_Spec_File ();
   savedMinorSnapshotTimes.clear ();
+
+  
+  //------------------------------------------------------------------------------------------------
+  //4. Matrix and RHS I/O --------------------------------------------------------------------------
+  //------------------------------------------------------------------------------------------------
+  // The user can request to save the matrix and RHS at a specific time step (or the next closest one)
+  // If the saving time step has not been defined nothing will be saved.
+  m_saveMatrixToFile   = PETSC_FALSE;
+  m_saveInMatlabFormat = PETSC_FALSE;
+  m_saveTimeStep       = 0.0;
+  PetscOptionsHasName( NULL, "-saveMatrix", &m_saveMatrixToFile );
+  if( m_saveMatrixToFile )
+  {    
+     PetscBool status = PETSC_FALSE;
+     PetscOptionsGetReal( NULL, "-saveMatrix", &m_saveTimeStep, &status );
+     if( !status )
+     {
+        m_saveMatrixToFile = PETSC_FALSE;
+     }
+     else
+     {
+        PetscOptionsHasName( NULL, "-matlab", &m_saveInMatlabFormat );
+        m_saveTimeStep = std::min( m_saveTimeStep, FastcauldronSimulator::getInstance().getAgeOfBasin() );
+        m_saveTimeStep = std::max( m_saveTimeStep, 0.0 );
+     }
+  }
 
 }
 
@@ -698,7 +763,7 @@ void Basin_Modelling::FEM_Grid::solvePressure ( bool& solverHasConverged,
     FastcauldronSimulator::getInstance ().deleteSnapshotProperties ();
     FastcauldronSimulator::getInstance ().deleteMinorSnapshots ();
     FastcauldronSimulator::getInstance ().deleteMinorSnapshotsFromSnapshotTable ();
-    FastcauldronSimulator::getInstance ().updateMajorSnapshotsFileNameInSnapshotTable ();
+
     savedMinorSnapshotTimes.clear ();
 
     if( basinModel->isModellingMode1D () ) 
@@ -805,8 +870,8 @@ void Basin_Modelling::FEM_Grid::solveTemperature ( bool& solverHasConverged,
     FastcauldronSimulator::getInstance ().deleteMinorSnapshots (); 
     FastcauldronSimulator::getInstance ().deleteMinorSnapshotsFromSnapshotTable ();
 
-    // Update the filename for the major snapshots
-    FastcauldronSimulator::getInstance ().updateMajorSnapshotsFileNameInSnapshotTable ();
+    // delete the propertyValues from the previous iteration
+    FastcauldronSimulator::getInstance ().deletePropertyValues();
   }
   else if ( FastcauldronSimulator::getInstance ().getCalculationMode () == OVERPRESSURED_TEMPERATURE_MODE )
   {
@@ -898,13 +963,15 @@ void Basin_Modelling::FEM_Grid::solveCoupled ( bool& solverHasConverged,
        FastcauldronSimulator::getInstance ().deleteSnapshotProperties ();
        FastcauldronSimulator::getInstance ().deleteMinorSnapshots (); 
        FastcauldronSimulator::getInstance ().deleteMinorSnapshotsFromSnapshotTable ();
-       FastcauldronSimulator::getInstance ().updateMajorSnapshotsFileNameInSnapshotTable ();
+
+       // delete the propertyValues from the previous iteration
+       FastcauldronSimulator::getInstance ().deletePropertyValues();
    }
     else
     {
        basinModel->timeIoTbl->clear();
        FastcauldronSimulator::getInstance ().deleteMinorSnapshotsFromSnapshotTable ();
-       FastcauldronSimulator::getInstance ().updateMajorSnapshotsFileNameInSnapshotTable ();
+
        Temperature_Calculator.resetBiomarkerStateVectors ( );
        Temperature_Calculator.resetSmectiteIlliteStateVectors ( );
        Temperature_Calculator.resetFissionTrackCalculator();
@@ -1053,7 +1120,7 @@ void Basin_Modelling::FEM_Grid::Evolve_Pressure_Basin ( const int   Number_Of_Ge
 
     Display_Pressure_Solver_Progress ( Number_Of_Geometric_Iterations,
                                        maximumNumberOfOverpressureIterations,
-				       Current_Time, Previous_Time - Current_Time, 
+                   Current_Time, Previous_Time - Current_Time,
                                        true or FastcauldronSimulator::getInstance ().getMcfHandler ().numberOfActiveSubdomains () != 1 );
 
     Temperature_Calculator.Estimate_Temperature ( basinModel, Current_Time );
@@ -1235,7 +1302,7 @@ void Basin_Modelling::FEM_Grid::Evolve_Temperature_Basin ( bool& temperatureHasD
        FastcauldronSimulator::getInstance ().getMcfHandler ().solve ( Previous_Time, Current_Time, errorInDarcy );
 
        if(  basinModel->isModellingMode1D() )
-       {											  
+       {
           Temperature_Calculator.computeSmectiteIlliteIncrement ( Previous_Time, Current_Time );
           Temperature_Calculator.computeBiomarkersIncrement ( Previous_Time, Current_Time );
           Temperature_Calculator.collectFissionTrackSampleData( Current_Time );
@@ -1422,7 +1489,7 @@ void Basin_Modelling::FEM_Grid::Evolve_Coupled_Basin ( const int   Number_Of_Geo
 
        FastcauldronSimulator::getInstance ().getMcfHandler ().solve ( Previous_Time, Current_Time, errorInDarcy );
 
-       if ( basinModel->isModellingMode1D ()) {											  
+       if ( basinModel->isModellingMode1D ()) {
           Temperature_Calculator.computeSmectiteIlliteIncrement ( Previous_Time, Current_Time );
           Temperature_Calculator.computeBiomarkersIncrement ( Previous_Time, Current_Time );
           Temperature_Calculator.collectFissionTrackSampleData( Current_Time );
@@ -1534,7 +1601,7 @@ void Basin_Modelling::FEM_Grid::Save_Properties ( const double Current_Time ) {
      {
         collectAndSaveIsoValues(Current_Time, basinModel);
      }
-	
+
      // Collect surface node properties.
      m_surfaceNodeHistory.Add_Time ( Current_Time );
 
@@ -1662,10 +1729,10 @@ void Basin_Modelling::FEM_Grid::Determine_Next_Pressure_Time_Step ( const double
                                                                           double& Time_Step,
                                                                     const int     Number_Of_Newton_Iterations,
                                                                     const int     numberOfGeometricIterations ) {
-	//Store Time_Step for igneous intrusion computation
-	const double previousTimeStep = Time_Step;
+   //Store Time_Step for igneous intrusion computation
+   const double previousTimeStep = Time_Step;
   
-	if ( Current_Time == (*majorSnapshots)->time ()) {
+   if ( Current_Time == (*majorSnapshots)->time ()) {
     Time_Step = basinModel->getInitialTimeStep ( Current_Time );
   } else {
      const double Increase_Factor = basinModel -> timestepincr;
@@ -1784,10 +1851,10 @@ void Basin_Modelling::FEM_Grid::Determine_Next_Coupled_Time_Step ( const double 
                                                                          double& Time_Step,
                                                                    const int     Number_Of_Overpressure_Newton_Iterations,
                                                                    const int     numberOfGeometricIterations ) {
-	//Store Time_Step for igneous intrusion computation
-	const double previousTimeStep = Time_Step;
+   //Store Time_Step for igneous intrusion computation
+   const double previousTimeStep = Time_Step;
   
-	if ( Current_Time == (*majorSnapshots)->time ()) {
+   if ( Current_Time == (*majorSnapshots)->time ()) {
     Time_Step = basinModel->getInitialTimeStep ( Current_Time );
   } else {
      const double Increase_Factor = basinModel->timestepincr;
@@ -1893,7 +1960,7 @@ void Basin_Modelling::FEM_Grid::Construct_Pressure_FEM_Grid ( const double Previ
 #define __FUNCT__ "Basin_Modelling::FEM_Grid::Construct_Temperature_FEM_Grid"
 
 void Basin_Modelling::FEM_Grid::Construct_Temperature_FEM_Grid ( const double                    Previous_Time,
-								 const double                    Current_Time,
+                         const double                    Current_Time,
                                                                  const SnapshotEntrySetIterator& majorSnapshotTimes,
                                                                  const bool                      majorSnapshotTimesUpdated ) {
 
@@ -2237,8 +2304,11 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  Pre
   overpressureHasDiverged  = false;
   fracturingOccurred = false;
 
-
-
+  // If the input provided m_saveTimeStep is equal to the age of the basin (case m_saveTimeStep == Previous_Time) or
+  // the current time step is the first one greater or equal to m_saveTimeStep, then matrix and RHS will be saved
+  const bool saveMatrix = m_saveMatrixToFile and
+                          ( (( m_saveTimeStep - Current_Time >= 0.0 ) and ( m_saveTimeStep - Previous_Time < 0.0 ))
+                            or (m_saveTimeStep == Previous_Time) );
   do {
 
     Previous_Po_Norm = 0.0;
@@ -2287,6 +2357,19 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  Pre
 
       VecSet ( Residual_Solution, Zero );
 
+      // Print matrix adn rhs to file
+      if( saveMatrix and totalNumberOfNonlinearIterations == 0 )
+      {
+         const std::string matrixFileName = std::string("presMatrix_t" + static_cast<ostringstream*>( &(ostringstream() << Current_Time) )->str() );
+         const std::string rhsFileName    = std::string(   "presRhs_t" + static_cast<ostringstream*>( &(ostringstream() << Current_Time) )->str() );
+
+         int rc = 0;
+         rc = PetscObjectsIO::writeMatrixToFile( Jacobian, basinModel->getOutputDirectory(), matrixFileName, !m_saveInMatlabFormat );
+         assert( rc == 0 );
+         rc = PetscObjectsIO::writeVectorToFile( Residual, basinModel->getOutputDirectory(), rhsFileName, !m_saveInMatlabFormat );
+         assert( rc == 0 );
+      }
+
       // Solve the matrix equation (Jacobian^{-1} \times residual) to some acceptable tolerance.
       KSPConvergedReason convergedReason;
       pressureLinearSolver->solve ( Jacobian,
@@ -2295,6 +2378,16 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  Pre
                                     &numberOfLinearIterations,
                                     &convergedReason,
                                     &linearSolverResidualNorm ); 
+
+      // Print solution to file
+      if( saveMatrix and totalNumberOfNonlinearIterations == 0 )
+      {
+         const std::string solFileName = std::string( "presSol_t" + static_cast<ostringstream*>( &(ostringstream() << Current_Time) )->str() );
+         int rc = PetscObjectsIO::writeVectorToFile( Residual_Solution, basinModel->getOutputDirectory(), solFileName, !m_saveInMatlabFormat );
+         assert( rc == 0 );
+
+         pressureLinearSolver->viewSettings();
+      }
 
 
 
@@ -2402,7 +2495,7 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  Pre
          overpressureHasDiverged = true;
       } else {
          // If solver has converged now check that none of the vectors contain a nan.
-         overpressureHasDiverged = isnan ( Po_Norm ) || isnan ( Solution_Length ) || isnan ( Residual_Solution_Length ) || isnan ( Residual_Length );
+         overpressureHasDiverged = std::isnan( Po_Norm ) || std::isnan( Solution_Length ) || std::isnan( Residual_Solution_Length ) || std::isnan( Residual_Length );
 
          if ( overpressureHasDiverged ) {
             PetscPrintf ( PETSC_COMM_WORLD, " MeSsAgE ERROR pressure solution contains a NaN. \n");
@@ -2664,6 +2757,12 @@ void Basin_Modelling::FEM_Grid::Solve_Nonlinear_Temperature_For_Time_Step ( cons
   cout.flags ( ios::scientific );
 
   temperatureHasDiverged = false;
+  
+  // If the input provided m_saveTimeStep is equal to the age of the basin (case m_saveTimeStep == Previous_Time) or
+  // the current time step is the first one greater or equal to m_saveTimeStep, then matrix and RHS will be saved
+  const bool saveMatrix = m_saveMatrixToFile and
+                          ( (( m_saveTimeStep - Current_Time >= 0.0 ) and ( m_saveTimeStep - Previous_Time < 0.0 ))
+                            or (m_saveTimeStep == Previous_Time) );
 
   while ( ! Converged && ! temperatureHasDiverged ) {
     PetscTime(&Iteration_Start_Time);
@@ -2683,6 +2782,19 @@ void Basin_Modelling::FEM_Grid::Solve_Nonlinear_Temperature_For_Time_Step ( cons
 
       Element_Assembly_Time = Element_Assembly_Time + Element_Contributions_Time;
       System_Assembly_Time = System_Assembly_Time + Assembly_End_Time - Assembly_Start_Time;
+
+      // Print matrix and rhs to file
+      if( saveMatrix )
+      {
+         const std::string matrixFileName = std::string("nlTempMatrix_t" + static_cast<ostringstream*>( &(ostringstream() << Current_Time) )->str() );
+         const std::string rhsFileName    = std::string(   "nlTempRhs_t" + static_cast<ostringstream*>( &(ostringstream() << Current_Time) )->str() );
+
+         int rc = 0;
+         rc = PetscObjectsIO::writeMatrixToFile( Jacobian, basinModel->getOutputDirectory(), matrixFileName, !m_saveInMatlabFormat );
+         assert( rc == 0 );
+         rc = PetscObjectsIO::writeVectorToFile( Residual, basinModel->getOutputDirectory(), rhsFileName, !m_saveInMatlabFormat );
+         assert( rc == 0 );
+      }
 
     } else {
 
@@ -2716,6 +2828,16 @@ void Basin_Modelling::FEM_Grid::Solve_Nonlinear_Temperature_For_Time_Step ( cons
     temperatureHasDiverged = ( numberOfLinearIterations == maximumNumberOfLinearSolverIterations ) || convergedReason == KSP_DIVERGED_NANORINF;
 
     PetscTime(&End_Time);
+
+    // Print solution to file
+    if( saveMatrix )
+    {
+       const std::string solFileName = std::string( "nlTemSol_t" + static_cast<ostringstream*>( &(ostringstream() << Current_Time) )->str() );
+       int rc = PetscObjectsIO::writeVectorToFile( Residual_Solution, basinModel->getOutputDirectory(), solFileName, !m_saveInMatlabFormat );
+       assert( rc == 0 );
+
+       temperatureLinearSolver->viewSettings();
+    }
 
     timeStepCalculationTime   = End_Time - Start_Time; 
     Total_Solve_Time  = Total_Solve_Time + timeStepCalculationTime;
@@ -2892,6 +3014,24 @@ void Basin_Modelling::FEM_Grid::Solve_Linear_Temperature_For_Time_Step ( const d
   PetscTime(&System_Assembly_End_Time);
   Total_System_Assembly_Time = System_Assembly_End_Time - System_Assembly_Start_Time;
 
+  // Print matrix and rhs to file
+  // If the input provided m_saveTimeStep is equal to the age of the basin (case m_saveTimeStep == Previous_Time) or
+  // the current time step is the first one greater or equal to m_saveTimeStep, then matrix and RHS will be saved
+  const bool writeToFile = m_saveMatrixToFile and
+      ( (( m_saveTimeStep - Current_Time >= 0.0 ) and ( m_saveTimeStep - Previous_Time < 0.0 ))
+        or (m_saveTimeStep == Previous_Time) );
+  if( writeToFile )
+  {
+    const std::string matrixFileName = std::string("tempMatrix_t" + static_cast<ostringstream*>( &(ostringstream() << Current_Time) )->str() );
+    const std::string rhsFileName    = std::string(   "tempRhs_t" + static_cast<ostringstream*>( &(ostringstream() << Current_Time) )->str() );
+
+    int rc = 0;
+    rc = PetscObjectsIO::writeMatrixToFile( Stiffness_Matrix, basinModel->getOutputDirectory(), matrixFileName, !m_saveInMatlabFormat );
+    assert( rc == 0 );
+    rc = PetscObjectsIO::writeVectorToFile( Load_Vector, basinModel->getOutputDirectory(), rhsFileName, !m_saveInMatlabFormat );
+    assert( rc == 0 );
+  }
+
   // Solve the linear system Temperature = Stiffness_Matrix^-1 * Load_Vector
   PetscTime(&Start_Time);
   PetscTime(&restoreStartTime);
@@ -2909,11 +3049,21 @@ void Basin_Modelling::FEM_Grid::Solve_Linear_Temperature_For_Time_Step ( const d
   temperatureLinearSolver->solve(Stiffness_Matrix, Load_Vector, Temperature, &numberOfLinearIterations, &convergedReason);
   PetscTime(&End_Time);
 
+  // Print solution to file
+  if( writeToFile )
+  {
+     const std::string solFileName    = std::string( "tempSol_t" + static_cast<ostringstream*>( &(ostringstream() << Current_Time) )->str() );
+     int rc = PetscObjectsIO::writeVectorToFile( Temperature, basinModel->getOutputDirectory(), solFileName, !m_saveInMatlabFormat );
+     assert( rc == 0 );
+
+     temperatureLinearSolver->viewSettings();
+  }
+
   Solve_Time = End_Time - Start_Time;
 
   VecNorm ( Temperature, NORM_2, &T_Norm );
 
-  temperatureHasDiverged = isnan ( T_Norm ) || ( numberOfLinearIterations == maximumNumberOfLinearSolverIterations ) || convergedReason == KSP_DIVERGED_NANORINF;
+  temperatureHasDiverged = std::isnan( T_Norm ) || (numberOfLinearIterations == maximumNumberOfLinearSolverIterations) || convergedReason == KSP_DIVERGED_NANORINF;
 
   PetscTime(&storeStartTime);
 
@@ -3859,6 +4009,16 @@ void Basin_Modelling::FEM_Grid::printElementNeedle ( const int i, const int j ) 
 }
 
 //------------------------------------------------------------//
+const PropListVec & Basin_Modelling::FEM_Grid::getMapOutputProperties() const {
+
+   return m_mapDerivedOutputProperties;
+}
+//------------------------------------------------------------//
+const PropListVec & Basin_Modelling::FEM_Grid::getVolumeOutputProperties() const {
+
+   return m_volumeDerivedOutputProperties;
+}
+//------------------------------------------------------------//
 void Basin_Modelling::FEM_Grid::Determine_Permafrost_Time_Step ( const double  Current_Time, double & Time_Step ) {
 
    if( basinModel->permafrost () ) {
@@ -3896,4 +4056,9 @@ void Basin_Modelling::FEM_Grid::determineIgneousIntrusionTimeStep ( const double
 
    return;
    
+}
+//------------------------------------------------------------//
+
+AppCtx* Basin_Modelling::FEM_Grid::getAppCtx( ) const {
+   return basinModel;
 }

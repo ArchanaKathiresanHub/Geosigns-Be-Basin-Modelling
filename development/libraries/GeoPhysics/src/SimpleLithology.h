@@ -1,3 +1,12 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
 #ifndef _GEOPHYSICS__SIMPLE_LITHOLOGY_H_
 #define _GEOPHYSICS__SIMPLE_LITHOLOGY_H_
 
@@ -99,6 +108,7 @@ namespace GeoPhysics {
       double getGeometricVariance () const;
   
       virtual double getDensity( double t, double p ) const { (void) t; (void) p; return m_density; }
+      virtual double getBasaltDensity( double t, double p ) const { (void) t; (void) p; return m_density; }
       
       /// Return the C1 - capillary entry pressure coefficient
       double getCapC1() const;
@@ -145,7 +155,13 @@ namespace GeoPhysics {
       ///
       /// NOTE: This function uses the uncorrected table values.
       double thermalconductivity(const double t) const;
+
       virtual double thermalconductivity(double t, double p) const {
+         (void) p;
+         return thermalconductivity(t);
+      }
+
+      virtual double basaltThermalConductivity(double t, double p) const {
          (void) p;
          return thermalconductivity(t);
       }
@@ -340,7 +356,7 @@ inline double GeoPhysics::SimpleLithology::getLambdaKr() const {
 
 inline double GeoPhysics::SimpleLithology::permeability(const double ves, const double maxVes, const double calculatedPorosity) const
 {
-   return m_permeability.permeability(ves, maxVes, calculatedPorosity);
+   return m_permeability.calculate(ves, maxVes, calculatedPorosity);
 }
 
 /// Compte the derivative of the permeability function.
@@ -352,7 +368,7 @@ inline void GeoPhysics::SimpleLithology::permeabilityDerivative(
    double& permeability,
    double& derivative) const
 {
-   m_permeability.permeabilityDerivative(ves, maxVes, calculatedPorosity, porosityDerivativeWrtVes, permeability, derivative);
+   m_permeability.calculateDerivative(ves, maxVes, calculatedPorosity, porosityDerivativeWrtVes, permeability, derivative);
 }
 
 

@@ -7,7 +7,6 @@
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
-
 #include <sstream>
 #include <stdlib.h>
 
@@ -34,6 +33,7 @@ using namespace database;
 #include "GeoPhysicalFunctions.h"
 #include "NumericFunctions.h"
 #include "Quadrature.h"
+
 
 using namespace Basin_Modelling;
 
@@ -64,15 +64,11 @@ using namespace Basin_Modelling;
 #include "Subdomain.h"
 #include "MultiComponentFlowHandler.h"
 #include "FastcauldronSimulator.h"
+#include "FolderPath.h"
 
 #ifdef _MSC_VER
-#include <Windows.h>
-#include <float.h>  // for _isnan() on VC++
-#define isnan(x) _isnan(x)  // VC++ uses _isnan() instead of isnan()
-#define isinf(x) !_finite(x) 
 #define sleep(x) Sleep(1000 * x) // convert from to milliseconds
 #endif /** _MSC_VER */
-
 //------------------------------------------------------------//
 
 bool Elt2dIndices::onDomainBoundary ( const int boundaryNumber ) const {
@@ -87,6 +83,7 @@ AppCtx::AppCtx(int argc, char** argv) : filterwizard(&timefilter)
    timeIoTbl = 0;
    m_saveOnDarcyError = false;
    m_no2Doutput = false;
+   m_primaryOutput = false;
 
    Reference_DA_For_Io_Maps = 0;
 
@@ -220,7 +217,7 @@ bool AppCtx::readProjectFile () {
 
    projectSnapshots.setMinorSnapshotsPrescribed ( IsCalculationCoupled && DoTemperature );
 
-   if (( DoOverPressure || Do_Iteratively_Coupled || ( !IsCalculationCoupled && DoTemperature ) || DoDecompaction ) and not FastcauldronSimulator::getInstance ().isPrimary() ) {
+   if (( DoOverPressure || Do_Iteratively_Coupled || ( !IsCalculationCoupled && DoTemperature ) || DoDecompaction )) {
 
      // What can be deleted here? 
      // Only if we are starting a new run (overpressure, hydrostatic-temperature, 
@@ -490,156 +487,146 @@ void AppCtx::printHelp () const {
 
   std::stringstream helpBuffer;
 
-  helpBuffer                                                                << endl;
-  helpBuffer                                                                << endl;
-  helpBuffer << "Usage: mpirun -np <procs> fastcauldron [-help] [-options]" << endl;
-  helpBuffer << "The command line options include:"                         << endl << endl;
-  helpBuffer << "    -help                  Shows this help message"        << endl;
   helpBuffer << endl;
-
-  /////////////////////////////////////////////////////////////////////////
-  ///1. Basic solver options
-  helpBuffer << "  Basic solvers:"                                                                                                  << endl;
-  helpBuffer                                                                                                                        << endl;
-  helpBuffer << "    -decompaction          Runs decompaction."                                                                     << endl;
-  helpBuffer << "    -temperature           Solve for the temperature using a hydrostatic pressure."                                << endl;
+  helpBuffer << endl;
+  helpBuffer << "Usage: mpirun -np <procs> fastcauldron [-help] [-options]" << endl;
+  helpBuffer << "The command line options include:" << endl << endl;
+  helpBuffer << "    -help                  Shows this help message" << endl;
+  helpBuffer << endl;
+  helpBuffer << "  Basic solvers:" << endl;
+  helpBuffer << "    -decompaction          Runs decompaction." << endl;
+  helpBuffer << "    -temperature           Solve for the temperature using a hydrostatic pressure." << endl;
   helpBuffer << "    -coupled               To run a loosely coupled calculation, this must be either temperature or decompaction." << endl;
   helpBuffer << "    -nonlinear             For use in temperature or coupled calculation. Uses non-linear temperature calculator." << endl;
-  helpBuffer << "    -overpressure          Solve for the overpressure using a linear temperature gradient."                        << endl;
-  helpBuffer << "    -itcoupled             Solve the coupled pressure-temperature."                                                << endl;
-  helpBuffer << "    -genex                 Include GenEx5 calculation."                                                            << endl;
-  helpBuffer << "    -project <filename>    Name of project file."                                                                  << endl;
-  helpBuffer << "    -save <filename>       Name of project file in which to save input and results."                               << endl;
+  helpBuffer << "    -overpressure          Solve for the overpressure using a linear temperature gradient." << endl;
+  helpBuffer << "    -itcoupled             Solve the coupled pressure-temperature." << endl;
+  helpBuffer << "    -genex                 Include GenEx5 calculation." << endl;
+  // helpBuffer << "    -maps                  Saves output files in Cauldron Map Format (HDF)." << endl;
+  // helpBuffer << "    -volumes               Saves output files in FastCauldron Volume Format (HDF)." << endl;
+  helpBuffer << "    -project <filename>    Name of project file." << endl;
+  helpBuffer << "    -save <filename>       Name of project file in which to save input and results." << endl;
   helpBuffer << endl;
   helpBuffer << endl;
 
-  /////////////////////////////////////////////////////////////////////////
-  ///2. General options
-  helpBuffer << "  General options:"                                                                                                                         << endl;
-  helpBuffer                                                                                                                                                 << endl;
-  helpBuffer << "    -printcl                    Print the command line that was used when running the simulation."                                          << endl;
+  // The following are 'expert' options.
+  helpBuffer << "  General options:" << endl;
+  helpBuffer << endl;
+  helpBuffer << "    -printcl                    Print the command line that was used when running the simulation." << endl;
   helpBuffer << "    -readfct                    Before running an overperssure calculation read-in the fct-correction factors from a previous overpressure" << endl
-     << "                                        run (not working)."                                                                                         << endl
-     << "                                             0 < x < 1 => maximum element height is smaller than user defined mantle-element-height."               << endl
-     << "                                             1 < x     => elements larger than user defined mantle-element-height."                                 << endl
-     << "                                             x = 1     => elements larger than user defined mantle-element-height."                                 << endl;
-  helpBuffer << "    -numberminorss <n>          Number of minor-snapshots, n >= 0."                                                                         << endl;
+             << "                                run (not working)." << endl;
+  helpBuffer << "    -numberminorss <n>          Number of minor-snapshots, n >= 0." << endl;
+  helpBuffer << "    -verbosity <level>          Verbosity level of the log file(s): minimal|normal|detailed|diagnostic. Default value is 'normal'." << endl;
   helpBuffer << endl;
   helpBuffer << endl;
 
-  /////////////////////////////////////////////////////////////////////////
-  ///3. Expert options
-  helpBuffer << "  Expert user options:"                                                                                                                           << endl;
-  helpBuffer                                                                                                                                                       << endl;
-  helpBuffer << "    -nohdfoutput                Do not output any data at snapshot times."                                                                        << endl;
-  helpBuffer << "    -nonlintol <tol>            Over-ride the tolerance of the pressure Newton solver, tol > 0.0."                                                << endl;
-  helpBuffer << "    -nonlinits <n>              Over-ride the maximum number of iterations used in the pressure Newton solver, n > 0."                            << endl;
+  // The following are 'expert' options.
+  helpBuffer << "  Expert user options:" << endl;
+  helpBuffer << endl;
+  helpBuffer << "    -nohdfoutput                Do not output any data at snapshot times." << endl;
+  helpBuffer << "    -nonlintol <tol>            Over-ride the tolerance of the pressure Newton solver, tol > 0.0." << endl;
+  helpBuffer << "    -nonlinits <n>              Over-ride the maximum number of iterations used in the pressure Newton solver, n > 0." << endl;
 
-  helpBuffer << "    -glfctweight <lambda>       The weighting of the current and previous fct-correction factors, lambda \\in (0,1], default: 1."                 << endl;
+  helpBuffer << "    -glfctweight <lambda>       The weighting of the current and previous fct-correction factors, lambda \\in (0,1], default: 1." << endl;
 
-  helpBuffer << "    -fracmodel <n>              Over-ride the fracture pressure model, n = 1, 2, ..., 5."                                                         << endl;
-  helpBuffer << "    -allowsolverchange          Allow the solver to be changed during the pressure solving process."                                              << endl;
-  helpBuffer << "    -allowilufillinc            Allow the ilu fill level to increase during Newton iteration if conditions arise."                                << endl;
-  helpBuffer << "    -its2changeilufill <n>      Over-ride the iterations for changing the ilu fill level, n >= 1 (typically 80 < n < 1000)(Default n = 80)."      << endl;
-  helpBuffer << "    -recompjacevery <n>         Allow reuse of the Jacobian in the pressure calculation."                                                         << endl;
-  helpBuffer << "    -relperm <method>           Use the <method> relative permeability function, where method \\in { none, temis, annette }, "                    << endl
-             << "                                Default = annette."                                                                                               << endl
-             << "                                If none is selected then rel-perm = 1.0"                                                                          << endl;
-  helpBuffer << "    -minhcsat <val>             The minimum hc-saturation value, for use in Temis type rel-perm (satex), val \\ in (0.0,1.0), "                   << endl
-             << "                                default: " << DefaultMinimumHcSaturation                                                                          << endl;
-  helpBuffer << "    -minwatersat <val>          The minimum water-saturation value, for use in Temis type rel-perm (1-satir), val \\ in (0.0,1.0), "              << endl
-             << "                                default: " << DefaultMinimumWaterSaturation                                                                       << endl;
-  helpBuffer << "    -hcexpo <val>               The curve exponent of the rel-perm for both liquid and vapour, for use in Temis type rel-perm (pow), "            << endl
-             << "                                default: " << DefaultHcCurveExponent                                                                              << endl;
-  helpBuffer << "    -hcliqexpo <val>            The curve exponent of the rel-perm of liquid, for use in Temis type rel-perm (pow), "                             << endl
-             << "                                default: " << DefaultHcCurveExponent                                                                              << endl;
-  helpBuffer << "    -hcvapexpo <val>            The curve exponent of the rel-perm of vapour, for use in Temis type rel-perm (pow), "                             << endl
-             << "                                default: " << DefaultHcCurveExponent                                                                              << endl;
-  helpBuffer << "    -waterexpo <val>            The curve exponent of the rel-perm of water, for use in Temis type rel-perm (pwo), "                              << endl
-             << "                                default: " << DefaultWaterCurveExponent                                                                           << endl;
-  helpBuffer << "    -temisviscosity             Use the TemisPack brine-viscosity function."                                                                      << endl;
-  helpBuffer << "    -refinenamedforms <form1,ref1,form2,ref2,...>"                                                                                                << endl
-             << "                                Refine a selected set of the formations, formations are indicated by name, ref_i > 0."                            << endl;
-  helpBuffer << "    -refinenumberedforms <form1,ref1,form2,ref2,...>"                                                                                             << endl 
-             << "                                Refine a selected set of the formations, formations are indicated by position from top, ref_i > 0."               << endl;
-  helpBuffer << "    -fcvesscale <val>           VES scaling factor when initialising the solid-thicknesses in the geometric loop pressure calculation, "          << endl
-             << "                                default: " << DefaultVesScalingForFctInitialisation                                                               << endl;
-  helpBuffer << "    -fcctmodel <n>              Set the crust-thinning model, default = 1."                                                                       << endl;
-  helpBuffer << "    -fcinfmantscal <scal>       Set the scaling factor for inferior-mantle element height, default scal = 1"                                      << endl;
+  helpBuffer << "    -fracmodel <n>              Over-ride the fracture pressure model, n = 1, 2, ..., 5." << endl;
+  helpBuffer << "    -allowsolverchange          Allow the solver to be changed during the pressure solving process." << endl;
+  helpBuffer << "    -allowilufillinc            Allow the ilu fill level to increase during Newton iteration if conditions arise." << endl;
+  helpBuffer << "    -its2changeilufill <n>      Over-ride the iterations for changing the ilu fill level, n >= 1 (typically 80 < n < 1000)(Default n = 80)." << endl;
+  helpBuffer << "    -recompjacevery <n>         Allow reuse of the Jacobian in the pressure calculation." << endl;
+  helpBuffer << "    -relperm <method>           Use the <method> relative permeability function, where method \\in { none, temis, annette }, " << endl
+             << "                                Default = annette." << endl
+             << "                                If none is selected then rel-perm = 1.0" << endl;
+  helpBuffer << "    -minhcsat <val>             The minimum hc-saturation value, for use in Temis type rel-perm (satex), val \\ in (0.0,1.0), " << endl
+             << "                                default: " << DefaultMinimumHcSaturation << endl;
+  helpBuffer << "    -minwatersat <val>          The minimum water-saturation value, for use in Temis type rel-perm (1-satir), val \\ in (0.0,1.0), " << endl
+             << "                                default: " << DefaultMinimumWaterSaturation << endl;
+  helpBuffer << "    -hcexpo <val>               The curve exponent of the rel-perm for both liquid and vapour, for use in Temis type rel-perm (pow), default: " << DefaultHcCurveExponent << endl;
+  helpBuffer << "    -hcliqexpo <val>            The curve exponent of the rel-perm of liquid, for use in Temis type rel-perm (pow), default: " << DefaultHcCurveExponent << endl;
+  helpBuffer << "    -hcvapexpo <val>            The curve exponent of the rel-perm of vapour, for use in Temis type rel-perm (pow), default: " << DefaultHcCurveExponent << endl;
+  helpBuffer << "    -waterexpo <val>            The curve exponent of the rel-perm of water, for use in Temis type rel-perm (pwo), dfault: " << DefaultWaterCurveExponent << endl;
+
+  helpBuffer << "    -temisviscosity             Use the TemisPack brine-viscosity function." << endl;
+  helpBuffer << "    -refinenamedforms <form1,ref1,form2,ref2,...>" << endl
+             << "                                Refine a selected set of the formations, formations are indicated by name, ref_i > 0." << endl;
+  helpBuffer << "    -refinenumberedforms <form1,ref1,form2,ref2,...>" << endl 
+             << "                                Refine a selected set of the formations, formations are indicated by position from top, ref_i > 0." << endl;
+  helpBuffer << "    -fcvesscale <val>           VES scaling factor when initialising the solid-thicknesses in the geometric loop pressure calculation, default value is " << DefaultVesScalingForFctInitialisation << endl;
+  helpBuffer << "    -fcctmodel <n>              Set the crust-thinning model, default = 1." << endl;
+  helpBuffer << "    -fcinfmantscal <scal>       Set the scaling factor for inferior-mantle element height, default scal = 1" << endl;
   helpBuffer << "                                Maximum element height of elements in inferior-mantle is defined to be: scal * maximum-element-height-in-mantle." << endl;
-  helpBuffer << "    -minor                      Output Pressure, Depth, Temperature, Chemical Compaction volume properties at minor snapshots times."             << endl;
-  helpBuffer << "                                Runs high resolution decompaction at major and minor snapshot times."                                             << endl;
-                                                 
-  helpBuffer << "    -debugalc                   Output debg ALC (advanced lithospheric calculator) properties."                                                   << endl;
-  helpBuffer << endl;
-  helpBuffer << endl;
+  helpBuffer << "    -minor                      Output Pressure, Depth, Temperature, Chemical Compaction volume properties at minor snapshots times." << endl;
+  helpBuffer << "                                Runs high resolution decompaction at major and minor snapshot times." << endl;
 
-  /////////////////////////////////////////////////////////////////////////
-  ///4. Element quadrature options
-  helpBuffer << "  Element quadrature:"                                                                                                     << endl;
-  helpBuffer                                                                                                                                << endl;
+  helpBuffer << endl;
+  helpBuffer << endl;
+  helpBuffer << "  Element quadrature:" << endl;
+  helpBuffer << endl;
   helpBuffer << "    -pressplanequadrature <n>   Over-ride Gauss Legendre quadrature degree in plane for pressure solver, 1 <= n <= "
-             << NumericFunctions::Quadrature::MaximumQuadratureDegree << "."                                                                << endl;
+             << NumericFunctions::Quadrature::MaximumQuadratureDegree << "." << endl;
   helpBuffer << "    -pressdepthquadrature <n>   Over-ride Gauss Legendre quadrature degree in depth for pressure solver, 1 <= n <= "
-             << NumericFunctions::Quadrature::MaximumQuadratureDegree << "."                                                                << endl;
+             << NumericFunctions::Quadrature::MaximumQuadratureDegree << "." << endl;
   helpBuffer << "    -tempplanequadrature  <n>   Over-ride Gauss Legendre quadrature degree in plane for temperature solver, 1 <= n <= "
-             << NumericFunctions::Quadrature::MaximumQuadratureDegree << "."                                                                << endl;
+             << NumericFunctions::Quadrature::MaximumQuadratureDegree << "." << endl;
   helpBuffer << "    -tempdepthquadrature  <n>   Over-ride Gauss Legendre quadrature degree in depth for temperature solver, 1 <= n <= "
-             << NumericFunctions::Quadrature::MaximumQuadratureDegree << "."                                                                << endl;
-  helpBuffer << endl;
-  helpBuffer << endl;
+             << NumericFunctions::Quadrature::MaximumQuadratureDegree << "." << endl;
 
-  /////////////////////////////////////////////////////////////////////////
-  ///5. Time step control options
-  helpBuffer << "  Time step control:"                                                                                                                                     << endl;
-  helpBuffer                                                                                                                                                               << endl;
+  // helpBuffer << "    -readfct                  Before running an overperssure calculation read-in the fct-correction factors from a previous overpressure run" << endl;
+  // helpBuffer << "                              0 < x < 1 => maximum element height is smaller than user defined mantle-element-height." << endl;
+  // helpBuffer << "                              1 < x     => elements larger than user defined mantle-element-height." << endl;
+  // helpBuffer << "                              x = 1     => elements larger than user defined mantle-element-height." << endl;
+  helpBuffer << endl;
+  helpBuffer << endl;
+  helpBuffer << "  Time step control:" << endl;
+  helpBuffer << endl;
   helpBuffer << "    -mints <ts>                 Over-ride the default minimum time-step, ts > 0.0 (default minimum time-step = " << Minimum_Pressure_Time_Step << " Ma)." << endl;
-  helpBuffer << "    -maxts <ts>                 Over-ride the default maximum time-step, ts > 0.0 (default maximum time-step = " << DefaultMaximumTimeStep << " Ma)."     << endl;
-  helpBuffer << "    -fixts <ts>                 Fix the time-step size, ts > 0.0."                                                                                        << endl;
-  helpBuffer << "    -cflts                      Use the CFL condition for the time-stepping."                                                                             << endl;
-  helpBuffer << "    -brts                       Use the burial rate to control the time-stepping."                                                                        << endl;
+  helpBuffer << "    -maxts <ts>                 Over-ride the default maximum time-step, ts > 0.0 (default maximum time-step = " << DefaultMaximumTimeStep << " Ma)." << endl;
+  helpBuffer << "    -fixts <ts>                 Fix the time-step size, ts > 0.0." << endl;
+  helpBuffer << "    -cflts                      Use the CFL condition for the time-stepping." << endl;
+  helpBuffer << "    -brts                       Use the burial rate to control the time-stepping." << endl;
   helpBuffer << "    -brfrac <frac>              Fraction of element to bury to control the time-stepping, default is " 
-             << DefaultElementBurialFraction << ", must be use in combination with -brts."                                                                                 << endl;
+             << DefaultElementBurialFraction << ", must be use in combination with -brts." << endl;
   helpBuffer << "    -erfrac <frac>              Fraction of element to erode to control the time-stepping, default is " 
-             << DefaultElementBurialFraction << ", must be use in combination with -brts."                                                                                 << endl;
-  helpBuffer << "                                If -brfrac is specified and not -erfrac, the -brfrac value will be used."                                                 << endl;
-  helpBuffer << endl;
-  helpBuffer << endl;
+             << DefaultElementBurialFraction << ", must be use in combination with -brts." << endl;
+  helpBuffer << "                                If -brfrac is specified and not -erfrac, the -brfrac value will be used." << endl;
 
-  /////////////////////////////////////////////////////////////////////////
-  ///6. Lateral stress options
-  helpBuffer << "  Lateral stress:"                                                                                                       << endl;
-  helpBuffer                                                                                                                              << endl;
-  helpBuffer << "    -lateralstress <filename>   Include lateral stresses in calculation."                                                << endl;
+  helpBuffer << endl;
+  helpBuffer << endl;
+  helpBuffer << "  Lateral stress:" << endl;
+  helpBuffer << endl;
+  helpBuffer << "    -lateralstress <filename>   Include lateral stresses in calculation." << endl;
   helpBuffer << "                                The file must consist of only 2 columns {age stress-factor}, separated by a space, e.g." << endl;
-  helpBuffer                                                                                                                              << endl;
-  helpBuffer << "                                             100.0 0.0"                                                                  << endl;
-  helpBuffer << "                                              75.0 1.0"                                                                  << endl;
-  helpBuffer << "                                              50.0 1.0"                                                                  << endl;
-  helpBuffer << "                                              49.9 0.0"                                                                  << endl;
-  helpBuffer << "                                               0.0 0.0"                                                                  << endl;
+  helpBuffer << endl;
+  helpBuffer << "                                             100.0 0.0" << endl;
+  helpBuffer << "                                              75.0 1.0" << endl;
+  helpBuffer << "                                              50.0 1.0" << endl;
+  helpBuffer << "                                              49.9 0.0" << endl;
+  helpBuffer << "                                               0.0 0.0" << endl;
   helpBuffer << endl;
   helpBuffer << endl;
-
-  /////////////////////////////////////////////////////////////////////////
-  ///7. Multi-component multi-phase flow solver options
+  helpBuffer << endl;
+  helpBuffer << endl;
   helpBuffer << "  Multi-component multi-phase flow solver options:" << endl;
+  helpBuffer << endl;
   helpBuffer << MultiComponentFlowHandler::getCommandLineOptions ();
+
+  helpBuffer << "  Permafrost modelling options:" << endl;
+  helpBuffer << "           -permafrost <ts>            Enable permafrost modelling and set a time-step size to be used (if defined), ts > 0.0." << endl;
+
   helpBuffer << endl;
 
+  helpBuffer << "  Parallel I/O options:" << endl;
+  helpBuffer << "           -onefileperprocess <dir>    Use dir to store imtermediate output files. Default is $TMPDIR." << endl;
+  helpBuffer << "           -noofpp                     Do not use one-file-perprocess I/O." << endl;
+  helpBuffer << "           -primaryPod <dir>           Use dir to store imtermediate output files. Dir should be a shared dir on the cluster (or local)" << endl;
+  helpBuffer << "           -primary                    Output only primary properties in float precision." << endl;
+  helpBuffer << "           -primaryDouble              Output only primary properties in double precision." << endl;
 
-  /////////////////////////////////////////////////////////////////////////
-  ///8. Permafrost modelling options
-  helpBuffer << "  Permafrost modelling options:"                                                                                                << endl;
-  helpBuffer << "           -permafrost [ts]            Enable permafrost modelling and set a time-step size to be used (if defined), ts > 0.0." << endl;
-  helpBuffer << endl;
   helpBuffer << endl;
 
-  /////////////////////////////////////////////////////////////////////////
-  ///9. Parallel I/O options
-  helpBuffer << "  Parallel I/O options:"                                                                                << endl;
-  helpBuffer << "           -onefileperprocess [dir]    Use dir to store imtermediate output files. Default is $TMPDIR." << endl;
-  helpBuffer << "           -noofpp                     Do not use one-file-perprocess I/O."                             << endl;
+  helpBuffer << "  Matrix and RHS save to file:" << endl;
+  helpBuffer << "           -saveMatrix <timeStep>      At provided time step (or the next closest one) the FEM matrix and RHS is saved to file." << endl;
+  helpBuffer << "           -matlab                     [optional] Output files in matlab format (default is binary)." << endl;
+
   helpBuffer << endl;
   helpBuffer << endl;
 
@@ -654,22 +641,23 @@ bool AppCtx::getCommandLineOptions() {
 
   char Output_Level_Str [MAXLINESIZE];
 
-  PetscBool Use_Non_Geometric_Loop  = PETSC_FALSE;
-  PetscBool ShowHelp                = PETSC_FALSE; 
-  PetscBool MapType                 = PETSC_FALSE; 
-  PetscBool VolumeType              = PETSC_FALSE;
-  PetscBool Dummy                   = PETSC_FALSE;
-  PetscBool outputNotRequired       = PETSC_FALSE;
-  PetscBool outputAgeChanged        = PETSC_FALSE;
-  PetscBool exitAgeChanged          = PETSC_FALSE;
-  PetscBool bbtemp                  = PETSC_FALSE;
-  PetscBool no2Doutput              = PETSC_FALSE;
-  PetscBool saveResultsIfDarcyError = PETSC_FALSE;
-  PetscBool Found;
+  PetscBool Use_Non_Geometric_Loop = PETSC_FALSE;
 
+  PetscBool ShowHelp   = PETSC_FALSE; 
+  PetscBool MapType    = PETSC_FALSE; 
+  PetscBool VolumeType = PETSC_FALSE;
+  PetscBool Dummy      = PETSC_FALSE;
+  PetscBool outputNotRequired = PETSC_FALSE;
+  PetscBool outputAgeChanged = PETSC_FALSE;
+  PetscBool exitAgeChanged = PETSC_FALSE;
+  PetscBool bbtemp = PETSC_FALSE;
+  PetscBool Found;
   double outputAge;
   double exitAge;
+  PetscBool saveResultsIfDarcyError = PETSC_FALSE;
   int ierr;
+
+
   PetscFunctionBegin;
 
   ierr = PetscOptionsHasName(PETSC_NULL,"-help",&ShowHelp); CHKERRQ(ierr);
@@ -706,15 +694,7 @@ bool AppCtx::getCommandLineOptions() {
 
   PetscOptionsGetReal ( PETSC_NULL, "-exitat", &exitAge, &exitAgeChanged );
 
-  ierr = PetscOptionsHasName( PETSC_NULL, "-no2Doutput", &no2Doutput ); CHKERRQ(ierr);
-
   ierr = PetscOptionsHasName( PETSC_NULL, "-saveonerror", &saveResultsIfDarcyError ); CHKERRQ(ierr);
-
-  if ( no2Doutput ) {
-     m_no2Doutput = true;
-  } else {
-     m_no2Doutput = false;
-  }
 
   if ( saveResultsIfDarcyError ) {
      m_saveOnDarcyError = true;
@@ -807,6 +787,11 @@ bool AppCtx::getCommandLineOptions() {
   //  -fc_newt_jac_every_nits
   //  -fc_thick_tol
   // 
+
+#if 0
+  ierr = PetscOptionsHasName(PETSC_NULL,"-maps",&MapType); CHKERRQ(ierr);
+  ierr = PetscOptionsHasName(PETSC_NULL,"-volumes",&VolumeType); CHKERRQ(ierr);
+#endif
 
   fileOutput = FCMAPandVOLUME;
 
@@ -1350,7 +1335,7 @@ string AppCtx::Get_Project_Filename_Base ( )
 
 string AppCtx::getOutputDirectory ()
 {
-   return FastcauldronSimulator::getInstance ().getFullOutputDir () + "/";
+   return ibs::FolderPath( FastcauldronSimulator::getInstance ().getFullOutputDir () ).path();
 }
 
 #undef __FUNCT__  
@@ -2391,12 +2376,12 @@ bool AppCtx::Calculate_Pressure( const double time ) {
           //
 	  Excess_Pressure = NumericFunctions::Maximum ( Fluid_Pressure - Hydrostatic_Pressure, 0.0 );
 
-	  if ( isnan( Hydrostatic_Pressure ))
+     if (std::isnan( Hydrostatic_Pressure ))
 	  {
              cout << "Error hydrostatic... " << endl << flush;
 	  }
 
-	  if ( isnan ( Lithostatic_Pressure )) 
+     if (std::isnan( Lithostatic_Pressure ))
 	  {
              cout << "Error lithostatic ... " 
                   << Lithostatic_Pressure << "  "
@@ -2408,13 +2393,13 @@ bool AppCtx::Calculate_Pressure( const double time ) {
                   << endl << flush;
 	  }
 
-	  if ( isnan( Fluid_Pressure )) 
+     if (std::isnan( Fluid_Pressure ))
 	  {
              cout << "Error pore-pressure... " << endl << flush;
 	  }
 
 
-	  if ( isnan( Excess_Pressure )) 
+     if (std::isnan( Excess_Pressure ))
 	  {
              cout << "Error overpressure... " << endl << flush;
 	  }
@@ -4634,7 +4619,7 @@ bool AppCtx::calcBasementProperties ( const double Current_Time ) {
    PETSC_2D_Array topBasaltDepth        ( *mapDA, crust->TopBasaltDepth );
    PETSC_2D_Array bottomBasaltDepth     ( *mapDA, crust->BottomBasaltDepth );
    PETSC_2D_Array ccrustThickness       ( *mapDA, crust->ThicknessCCrustALC );
-   PETSC_2D_Array smoothBasaltThickness ( *mapDA, crust->BasaltThickness );
+   PETSC_2D_Array smoothBasaltThickness ( *mapDA, crust->BasaltThickness );    
    PETSC_2D_Array smCrustThickness      ( *mapDA, crust->SmCCrustThickness );
    PETSC_2D_Array smTopBasaltDepth      ( *mapDA, crust->SmTopBasaltDepth );
    PETSC_2D_Array smBottomBasaltDepth   ( *mapDA, crust->SmBottomBasaltDepth );   
@@ -4669,14 +4654,14 @@ bool AppCtx::calcBasementProperties ( const double Current_Time ) {
 
              smTopBasaltDepth( j, i ) = depth( m_kIndexCrust, j, i ) + FastcauldronSimulator::getInstance ().getContCrustThickness(i, j, Current_Time);
              ccrustThickness( j, i )  = topBasaltDepth( j, i ) - depth( m_kIndexCrust, j, i );
-             smBottomBasaltDepth( j, i ) = smTopBasaltDepth( j, i ) + FastcauldronSimulator::getInstance().getBasaltThickness( i, j, Current_Time );
+             smBottomBasaltDepth( j, i ) = smTopBasaltDepth( j, i ) + FastcauldronSimulator::getInstance ().getBasaltThickness(i, j, Current_Time);
 
              if( bottomBasaltDepth( j, i ) == CAULDRONIBSNULLVALUE ) {
                  bottomBasaltDepth( j, i ) = depth( 0, j, i );
              } 
  
-             smoothBasaltThickness( j, i ) = FastcauldronSimulator::getInstance().getBasaltThickness( i, j, Current_Time );
-             hlmod( j, i ) = depth( m_kIndexCrust, j, i ) + FastcauldronSimulator::getInstance().getLithosphereThicknessMod( i, j, Current_Time );
+             smoothBasaltThickness( j, i ) = FastcauldronSimulator::getInstance ().getBasaltThickness(i, j, Current_Time); 
+             hlmod( j, i ) =  depth( m_kIndexCrust, j, i ) + FastcauldronSimulator::getInstance ().getLithosphereThicknessMod(i, j, Current_Time); 
              smCrustThickness( j, i ) = FastcauldronSimulator::getInstance ().getContCrustThickness(i, j, Current_Time);
  
              crustThinningRatio = FastcauldronSimulator::getInstance ().getCrustThickness( i, j, Current_Time ) / initCrustThickness; // Effective Crustal Thickness / initial Crustal Thickness

@@ -37,14 +37,14 @@ namespace DataAccess {
 
       private :
 
-         const DomainProperty* m_depth;
-         const DomainProperty* m_hydrostaticPressure;
-         const DomainProperty* m_overpressure;
-         const DomainProperty* m_permeabilityH; 
-         const DomainProperty* m_permeabilityN;
-         const DomainProperty* m_porosity;
-         const DomainProperty* m_pressure;
-         const DomainProperty* m_temperature;
+          const DomainProperty* m_depth;
+          const DomainProperty* m_hydrostaticPressure;
+          const DomainProperty* m_overpressure;
+          DomainProperty*       m_permeabilityH; 
+          DomainProperty*       m_permeabilityN;
+          DomainProperty*       m_porosity;
+          const DomainProperty* m_pressure;
+          const DomainProperty* m_temperature;
 
          RequiredCalculation   m_calculation;
          bool                  m_initialised;

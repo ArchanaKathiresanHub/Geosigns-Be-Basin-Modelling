@@ -14,6 +14,7 @@
 #include <gtest/gtest.h>
 
 using namespace casa;
+using namespace std;
 
 static const double eps = 1.e-5;
 
@@ -78,7 +79,7 @@ public:
 
 TEST_F( DoETest, Tornado2Prms )
 {
-   std::auto_ptr<casa::ScenarioAnalysis> sc;
+   std::unique_ptr<casa::ScenarioAnalysis> sc;
    sc.reset( new ScenarioAnalysis() );
 
    ASSERT_EQ( ErrorHandler::NoError, sc->defineBaseCase( "Ottoland.project3d" ) );
@@ -97,14 +98,18 @@ TEST_F( DoETest, Tornado2Prms )
    casa::RunCaseSet   & doeCaseSet = sc->doeCaseSet();
 
    ASSERT_EQ( ErrorHandler::NoError, varPrms.addParameter( new VarPrmSourceRockTOC( "Lower Jurassic", tocLowJur, m_minTOC, m_maxTOC, VarPrmContinuous::Block ) ) );
-   ASSERT_EQ( ErrorHandler::NoError, varPrms.addParameter( new VarPrmTopCrustHeatProduction( tchp, m_minTCHP, m_maxTCHP, VarPrmContinuous::Block ) ) );
+   std::vector<double> dblRng( 1, m_minTCHP );
+   dblRng.push_back( m_maxTCHP );
+   dblRng.push_back( tchp );
+
+   ASSERT_EQ( ErrorHandler::NoError, varPrms.addParameter( new VarPrmTopCrustHeatProduction( dblRng, vector<string>(), VarPrmContinuous::Block ) ) );
 
    doe.generateDoE( varPrms, doeCaseSet );
 
-   ASSERT_EQ( 5, doeCaseSet.size() );
+   ASSERT_EQ( 5U, doeCaseSet.size() );
    for ( size_t i = 0; i < doeCaseSet.size(); ++i )
    {
-      ASSERT_EQ( 2, doeCaseSet[i]->parametersNumber() );
+      ASSERT_EQ( 2U, doeCaseSet[i]->parametersNumber() );
 
       const casa::PrmSourceRockTOC * prm1 = dynamic_cast<casa::PrmSourceRockTOC*>( doeCaseSet[ i ]->parameter( 0 ).get() );
       ASSERT_TRUE( prm1 != NULL );
@@ -145,14 +150,18 @@ TEST_F( DoETest, BoxBehnken2Prms )
    casa::RunCaseSet   & doeCaseSet = sc.doeCaseSet();
 
    ASSERT_EQ( ErrorHandler::NoError, varPrms.addParameter( new VarPrmSourceRockTOC( "Lower Jurassic", tocLowJur, m_minTOC, m_maxTOC, VarPrmContinuous::Block ) ) );
-   ASSERT_EQ( ErrorHandler::NoError, varPrms.addParameter( new VarPrmTopCrustHeatProduction( tchp, m_minTCHP, m_maxTCHP, VarPrmContinuous::Block ) ) );
+
+   std::vector<double> dblRng( 1, m_minTCHP );
+   dblRng.push_back( m_maxTCHP );
+   dblRng.push_back( tchp );
+   ASSERT_EQ( ErrorHandler::NoError, varPrms.addParameter( new VarPrmTopCrustHeatProduction( dblRng, vector<string>(), VarPrmContinuous::Block ) ) );
 
    doe.generateDoE( varPrms, doeCaseSet );
    
-   ASSERT_EQ( 5, doeCaseSet.size( ) );
+   ASSERT_EQ( 5U, doeCaseSet.size( ) );
    for ( size_t i = 0; i < doeCaseSet.size( ); ++i )
    {
-      ASSERT_EQ( 2, doeCaseSet[ i ]->parametersNumber() );
+      ASSERT_EQ( 2U, doeCaseSet[ i ]->parametersNumber() );
    
       const casa::PrmSourceRockTOC * prm1 = dynamic_cast<casa::PrmSourceRockTOC*>( doeCaseSet[ i ]->parameter( 0 ).get() );
       ASSERT_TRUE( prm1 != NULL );
@@ -193,14 +202,18 @@ TEST_F( DoETest, FullFactorial2Prms )
    casa::RunCaseSet   & doeCaseSet = sc.doeCaseSet();
 
    ASSERT_EQ( ErrorHandler::NoError, varPrms.addParameter( new VarPrmSourceRockTOC( "Lower Jurassic", tocLowJur, m_minTOC, m_maxTOC, VarPrmContinuous::Block ) ) );
-   ASSERT_EQ( ErrorHandler::NoError, varPrms.addParameter( new VarPrmTopCrustHeatProduction( tchp, m_minTCHP, m_maxTCHP, VarPrmContinuous::Block ) ) );
+   
+   std::vector<double> dblRng( 1, m_minTCHP );
+   dblRng.push_back( m_maxTCHP );
+   dblRng.push_back( tchp );
+   ASSERT_EQ( ErrorHandler::NoError, varPrms.addParameter( new VarPrmTopCrustHeatProduction( dblRng, vector<string>(), VarPrmContinuous::Block ) ) );
 
    doe.generateDoE( varPrms, doeCaseSet );
 
-   ASSERT_EQ( 5, doeCaseSet.size( ) );
+   ASSERT_EQ( 5U, doeCaseSet.size( ) );
    for ( size_t i = 0; i < doeCaseSet.size( ); ++i )
    {
-      ASSERT_EQ( 2, doeCaseSet[ i ]->parametersNumber() );
+      ASSERT_EQ( 2U, doeCaseSet[ i ]->parametersNumber() );
 
       const casa::PrmSourceRockTOC * prm1 = dynamic_cast<casa::PrmSourceRockTOC*>( doeCaseSet[ i ]->parameter( 0 ).get() );
       ASSERT_TRUE( prm1 != NULL );
@@ -241,14 +254,18 @@ TEST_F( DoETest, PlackettBurman2Prms )
    casa::RunCaseSet   & doeCaseSet = sc.doeCaseSet();
 
    ASSERT_EQ( ErrorHandler::NoError, varPrms.addParameter( new VarPrmSourceRockTOC( "Lower Jurassic", tocLowJur, m_minTOC, m_maxTOC, VarPrmContinuous::Block ) ) );
-   ASSERT_EQ( ErrorHandler::NoError, varPrms.addParameter( new VarPrmTopCrustHeatProduction( tchp, m_minTCHP, m_maxTCHP, VarPrmContinuous::Block ) ) );
+
+   std::vector<double> dblRng( 1, m_minTCHP );
+   dblRng.push_back( m_maxTCHP );
+   dblRng.push_back( tchp );
+   ASSERT_EQ( ErrorHandler::NoError, varPrms.addParameter( new VarPrmTopCrustHeatProduction( dblRng, vector<string>(), VarPrmContinuous::Block ) ) );
 
    doe.generateDoE( varPrms, doeCaseSet );
 
-   ASSERT_EQ( 4, doeCaseSet.size() );
+   ASSERT_EQ( 4U, doeCaseSet.size() );
    for ( size_t i = 0; i < doeCaseSet.size(); ++i )
    {
-      ASSERT_EQ( 2, doeCaseSet[ i ]->parametersNumber() );
+      ASSERT_EQ( 2U, doeCaseSet[ i ]->parametersNumber() );
 
       const casa::PrmSourceRockTOC * prm1 = dynamic_cast<casa::PrmSourceRockTOC*>( doeCaseSet[ i ]->parameter( 0 ).get() );
       ASSERT_TRUE( prm1 != NULL );
@@ -288,14 +305,18 @@ TEST_F( DoETest, PlackettBurmanMirror2Prms )
    casa::RunCaseSet   & doeCaseSet = sc.doeCaseSet();
 
    ASSERT_EQ( ErrorHandler::NoError, varPrms.addParameter( new VarPrmSourceRockTOC( "Lower Jurassic", tocLowJur, m_minTOC, m_maxTOC, VarPrmContinuous::Block ) ) );
-   ASSERT_EQ( ErrorHandler::NoError, varPrms.addParameter( new VarPrmTopCrustHeatProduction( tchp, m_minTCHP, m_maxTCHP, VarPrmContinuous::Block ) ) );
+
+   std::vector<double> dblRng( 1, m_minTCHP );
+   dblRng.push_back( m_maxTCHP );
+   dblRng.push_back( tchp );
+   ASSERT_EQ( ErrorHandler::NoError, varPrms.addParameter( new VarPrmTopCrustHeatProduction( dblRng, vector<string>(), VarPrmContinuous::Block ) ) );
 
    doe.generateDoE( varPrms, doeCaseSet );
 
-   ASSERT_EQ( 4, doeCaseSet.size() );
+   ASSERT_EQ( 4U, doeCaseSet.size() );
    for ( size_t i = 0; i < doeCaseSet.size(); ++i )
    {
-      ASSERT_EQ( 2, doeCaseSet[ i ]->parametersNumber() );
+      ASSERT_EQ( 2U, doeCaseSet[ i ]->parametersNumber() );
 
       const casa::PrmSourceRockTOC * prm1 = dynamic_cast<casa::PrmSourceRockTOC*>( doeCaseSet[ i ]->parameter( 0 ).get() );
       ASSERT_TRUE( prm1 != NULL );
@@ -335,14 +356,18 @@ TEST_F( DoETest, SpaceFilling2Prms )
    casa::RunCaseSet   & doeCaseSet = sc.doeCaseSet();
 
    ASSERT_EQ( ErrorHandler::NoError, varPrms.addParameter( new VarPrmSourceRockTOC( "Lower Jurassic", tocLowJur, m_minTOC, m_maxTOC, VarPrmContinuous::Block ) ) );
-   ASSERT_EQ( ErrorHandler::NoError, varPrms.addParameter( new VarPrmTopCrustHeatProduction( tchp, m_minTCHP, m_maxTCHP, VarPrmContinuous::Block ) ) );
+
+   std::vector<double> dblRng( 1, m_minTCHP );
+   dblRng.push_back( m_maxTCHP );
+   dblRng.push_back( tchp );
+   ASSERT_EQ( ErrorHandler::NoError, varPrms.addParameter( new VarPrmTopCrustHeatProduction( dblRng, vector<string>(), VarPrmContinuous::Block ) ) );
 
    doe.generateDoE( varPrms, doeCaseSet, 10 );
 
-   ASSERT_EQ( 10, doeCaseSet.size() );
+   ASSERT_EQ( 10U, doeCaseSet.size() );
    for ( size_t i = 0; i < doeCaseSet.size(); ++i )
    {
-      ASSERT_EQ( 2, doeCaseSet[ i ]->parametersNumber() );
+      ASSERT_EQ( 2U, doeCaseSet[ i ]->parametersNumber() );
 
       const casa::PrmSourceRockTOC * prm1 = dynamic_cast<casa::PrmSourceRockTOC*>( doeCaseSet[ i ]->parameter( 0 ).get() );
       ASSERT_TRUE( prm1 != NULL );
@@ -378,14 +403,18 @@ TEST_F( DoETest, LatinHypercube2Prms )
    casa::RunCaseSet   & doeCaseSet = sc.doeCaseSet();
 
    ASSERT_EQ( ErrorHandler::NoError, varPrms.addParameter( new VarPrmSourceRockTOC( "Lower Jurassic", tocLowJur, m_minTOC, m_maxTOC, VarPrmContinuous::Block ) ) );
-   ASSERT_EQ( ErrorHandler::NoError, varPrms.addParameter( new VarPrmTopCrustHeatProduction( tchp, m_minTCHP, m_maxTCHP, VarPrmContinuous::Block ) ) );
+
+   std::vector<double> dblRng( 1, m_minTCHP );
+   dblRng.push_back( m_maxTCHP );
+   dblRng.push_back( tchp );
+   ASSERT_EQ( ErrorHandler::NoError, varPrms.addParameter( new VarPrmTopCrustHeatProduction( dblRng, vector<string>(), VarPrmContinuous::Block ) ) );
 
    doe.generateDoE( varPrms, doeCaseSet, 10 );
 
-   ASSERT_EQ( 10, doeCaseSet.size() );
+   ASSERT_EQ( 10U, doeCaseSet.size() );
    for ( size_t i = 0; i < doeCaseSet.size(); ++i )
    {
-      ASSERT_EQ( 2, doeCaseSet[ i ]->parametersNumber() );
+      ASSERT_EQ( 2U, doeCaseSet[ i ]->parametersNumber() );
 
       const casa::PrmSourceRockTOC * prm1 = dynamic_cast<casa::PrmSourceRockTOC*>( doeCaseSet[ i ]->parameter( 0 ).get() );
       ASSERT_TRUE( prm1 != NULL );
@@ -413,7 +442,12 @@ TEST_F( DoETest, AllVarPrmsTornadoTest )
 
    // add 3 parameters
    ASSERT_EQ( ErrorHandler::NoError, varPrms.addParameter( new VarPrmSourceRockTOC( "Lower Jurassic", m_midTOC, m_minTOC, m_maxTOC, VarPrmContinuous::Block ) ) );
-   ASSERT_EQ( ErrorHandler::NoError, varPrms.addParameter( new VarPrmTopCrustHeatProduction( m_midTCHP, m_minTCHP, m_maxTCHP, VarPrmContinuous::Block ) ) );
+
+   std::vector<double> dblRng( 1, m_minTCHP );
+   dblRng.push_back( m_maxTCHP );
+   dblRng.push_back( m_midTCHP );
+   ASSERT_EQ( ErrorHandler::NoError, varPrms.addParameter( new VarPrmTopCrustHeatProduction( dblRng, vector<string>(), VarPrmContinuous::Block ) ) );
+
    ASSERT_EQ( ErrorHandler::NoError, varPrms.addParameter( new VarPrmOneCrustThinningEvent( m_midInitialCrustThickness, m_minInitialCrustThickness, m_maxInitialCrustThickness,
                                                                                             m_midT0,                    m_minT0,                    m_maxT0,
                                                                                             m_middT,                    m_mindT,                    m_maxdT,
@@ -422,12 +456,12 @@ TEST_F( DoETest, AllVarPrmsTornadoTest )
    // must be 13 cases 1 + 2*(2+4)
    doe.generateDoE( varPrms, doeCaseSet );
 
-   ASSERT_EQ( 13, doeCaseSet.size( ) );
+   ASSERT_EQ( 13U, doeCaseSet.size( ) );
    
    for ( size_t i = 0; i < doeCaseSet.size( ); ++i )
    {
       // 3 parameter per 1 case, 3d parameter - multi-dim (4 doubles for 1 parameter)
-      ASSERT_EQ( 3, doeCaseSet[ i ]->parametersNumber() );
+      ASSERT_EQ( 3U, doeCaseSet[ i ]->parametersNumber() );
 
       const casa::PrmSourceRockTOC * prm1 = dynamic_cast<casa::PrmSourceRockTOC*>( doeCaseSet[ i ]->parameter( 0 ).get() );
       ASSERT_TRUE( prm1 != NULL );

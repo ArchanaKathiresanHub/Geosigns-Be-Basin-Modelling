@@ -57,8 +57,14 @@ namespace Shell.BasinModeling.Cauldron.Test
          // vary 2 parameters
          Assert.AreEqual(ErrorHandler.ReturnCode.NoError,
             CauldronAPI.VarySourceRockTOC(sa, "", m_layerName, 1, "", m_minTOC, m_maxTOC, VarPrmContinuous.PDF.Block));
+
+         StringVector mapRng = new StringVector();
+         DoubleVector dblRng = new DoubleVector();
+         dblRng.Add(m_minTCHP);
+         dblRng.Add(m_maxTCHP);
+
          Assert.IsTrue(ErrorHandler.ReturnCode.NoError ==
-                       CauldronAPI.VaryTopCrustHeatProduction(sa, "", m_minTCHP, m_maxTCHP, VarPrmContinuous.PDF.Block));
+                       CauldronAPI.VaryTopCrustHeatProduction(sa, "", dblRng, mapRng, VarPrmContinuous.PDF.Block));
 
          // add 2 observables for T & VRE
          Observable ob = ObsGridPropertyXYZ.createNewInstance(460001.0, 6750001.0, 2751.0, "Temperature", 0.0);
@@ -181,7 +187,12 @@ namespace Shell.BasinModeling.Cauldron.Test
          }
          Assert.AreEqual(ErrorHandler.ReturnCode.NoError, ret );
 
-         ret = CauldronAPI.VaryTopCrustHeatProduction(sa, "", m_minTCHP, m_maxTCHP, VarPrmContinuous.PDF.Block);
+         StringVector mapRng = new StringVector();
+         DoubleVector dblRng = new DoubleVector();
+         dblRng.Add(m_minTCHP);
+         dblRng.Add(m_maxTCHP);
+
+         ret = CauldronAPI.VaryTopCrustHeatProduction(sa, "", dblRng, mapRng, VarPrmContinuous.PDF.Block);
          if (ret != ErrorHandler.ReturnCode.NoError)
          {
             m_isDebug = true;
@@ -224,8 +235,13 @@ namespace Shell.BasinModeling.Cauldron.Test
          // vary 2 parameters
          Assert.AreEqual(ErrorHandler.ReturnCode.NoError,
             CauldronAPI.VarySourceRockTOC(sa, "", m_layerName, 1, "", m_minTOC, m_maxTOC, VarPrmContinuous.PDF.Block));
+         
+         StringVector mapRng = new StringVector();
+         DoubleVector dblRng = new DoubleVector();
+         dblRng.Add(m_minTCHP);
+         dblRng.Add(m_maxTCHP);
          Assert.AreEqual(ErrorHandler.ReturnCode.NoError,
-            CauldronAPI.VaryTopCrustHeatProduction(sa, "", m_minTCHP, m_maxTCHP, VarPrmContinuous.PDF.Block));
+                         CauldronAPI.VaryTopCrustHeatProduction(sa, "", dblRng, mapRng, VarPrmContinuous.PDF.Block));
 
          // set up and generate DoE
          Assert.AreEqual(ErrorHandler.ReturnCode.NoError, sa.setDoEAlgorithm(DoEGenerator.DoEAlgorithm.Tornado));
@@ -281,8 +297,13 @@ namespace Shell.BasinModeling.Cauldron.Test
          // vary 2 parameters
          Assert.AreEqual(ErrorHandler.ReturnCode.NoError,
                        CauldronAPI.VarySourceRockTOC(sa, "", m_layerName, 1, "", m_minTOC, m_maxTOC, VarPrmContinuous.PDF.Block));
+         
+         StringVector mapRng = new StringVector();
+         DoubleVector dblRng = new DoubleVector();
+         dblRng.Add(m_minTCHP);
+         dblRng.Add(m_maxTCHP);
          Assert.AreEqual(ErrorHandler.ReturnCode.NoError,
-                       CauldronAPI.VaryTopCrustHeatProduction(sa, "", m_minTCHP, m_maxTCHP, VarPrmContinuous.PDF.Block));
+                       CauldronAPI.VaryTopCrustHeatProduction(sa, "", dblRng, mapRng, VarPrmContinuous.PDF.Block));
 
          // set up and generate DoE
          Assert.AreEqual(ErrorHandler.ReturnCode.NoError, sa.setDoEAlgorithm(DoEGenerator.DoEAlgorithm.Tornado));
@@ -335,7 +356,7 @@ namespace Shell.BasinModeling.Cauldron.Test
 
             for (int j = 0; j < 3; ++j)
             {
-               string stageFile = casePath + @"Stage_" + j.ToString() + @".sh";
+               string stageFile = casePath + @"Stage_" + j.ToString() + @".bat";
                Assert.IsTrue(File.Exists(stageFile));
             }
          }
@@ -397,7 +418,7 @@ namespace Shell.BasinModeling.Cauldron.Test
          RunCaseImpl nrc = new RunCaseImpl();
          DoubleVector prmVals = new DoubleVector();
          // set case parameters
-         prmVals.Add( -1 + (10.16 - m_minTOC)/(m_maxTOC-m_minTOC) ); // For TOC -1:1 range is used insede the parameter
+         prmVals.Add( -1 + (10.16 - m_minTOC)/(m_maxTOC-m_minTOC) ); // For TOC -1:1 range is used inside the parameter
          prmVals.Add(1.970);
 
          int off = 0;
@@ -707,19 +728,19 @@ namespace Shell.BasinModeling.Cauldron.Test
          Assert.AreEqual(ErrorHandler.ReturnCode.NoError, sa.errorCode());
          
          // clean any previous failed run
-         string pathToCaseSet = @".\CaseSet";
+         string pathToCaseSet = @".\CaseSetBMCSH";
 
          if ( Directory.Exists(pathToCaseSet) )
          {
             Directory.Delete(pathToCaseSet, true); // delete folder ./CaseSet
          }
 
-         Assert.AreEqual(ErrorHandler.ReturnCode.NoError, sa.setScenarioLocation( @".\CaseSet" ) );
+         Assert.AreEqual(ErrorHandler.ReturnCode.NoError, sa.setScenarioLocation( pathToCaseSet ) );
          Assert.AreEqual(ErrorHandler.ReturnCode.NoError, sa.saveCalibratedCase("NVGBestMatchCase.project3d", 1));
 
-         Assert.IsTrue(File.Exists(@".\CaseSet\Calibrated_NVGBestMatchCase\NVGBestMatchCase.project3d"));
-         Assert.IsTrue(File.Exists(@".\CaseSet\Calibrated_NVGBestMatchCase\Inputs.HDF"));
-         Assert.IsTrue(File.Exists(@".\CaseSet\Calibrated_NVGBestMatchCase\MAP-72981789-4.FLT"));
+         Assert.IsTrue(File.Exists(pathToCaseSet+@"\Calibrated_NVGBestMatchCase\NVGBestMatchCase.project3d"));
+         Assert.IsTrue(File.Exists(pathToCaseSet+@"\Calibrated_NVGBestMatchCase\Inputs.HDF"));
+         Assert.IsTrue(File.Exists(pathToCaseSet+@"\Calibrated_NVGBestMatchCase\MAP-72981789-4.FLT"));
 
          // cleaning files/folders
          Directory.Delete(pathToCaseSet, true); // delete folder ./CaseSet       

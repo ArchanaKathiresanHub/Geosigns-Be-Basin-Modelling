@@ -1,8 +1,6 @@
 #include <stdlib.h>
-#include <unistd.h>
 #include <math.h>
 #include <map>
-#include <values.h>
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -536,8 +534,8 @@ int main (int argc, char ** argv)
 
          if (doAscii)
          {
-            outputFile << posI << " " << posJ << " " << (isnan (bottomDepth) ? EclipseUndefined : bottomDepth) << endl;
-            outputFile << "  " << posI << " " << posJ << " " << (isnan (topDepth) ? EclipseUndefined : topDepth) << endl;
+            outputFile << posI << " " << posJ << " " << (std::isnan (bottomDepth) ? EclipseUndefined : bottomDepth) << endl;
+            outputFile << "  " << posI << " " << posJ << " " << (std::isnan( topDepth ) ? EclipseUndefined : topDepth) << endl;
          }
 
          //------------- Binary data
@@ -632,7 +630,7 @@ int main (int argc, char ** argv)
 			
 			if (doAscii)
 			{
-			   outputFile << (isnan (depth) ? EclipseUndefined : depth) << "  ";
+            outputFile << (std::isnan( depth ) ? EclipseUndefined : depth) << "  ";
 			   if (++numDepth % 4 == 0)
 			      outputFile << endl;
 			}
@@ -1380,7 +1378,7 @@ double GetValue (const DerivedProperties::FormationPropertyPtr& gridMap, double 
    {
       for (unsigned int jInc = 0; jInc < 2; ++jInc)
       {
-         double valueAtIndex = gridMap->interpolate( iBase + iInc, jBase + jInc, k );
+         double valueAtIndex = gridMap->interpolate( iBase + iInc, jBase + jInc, k, false );
          if (valueAtIndex != gridMap->getUndefinedValue ())
          {
             double weightAtIndex = (iInc == 0 ? 1 - iFrac : iFrac) * (jInc == 0 ? 1 - jFrac : jFrac) ;//* (kInc == 1 ? 1 - kFrac : kFrac);

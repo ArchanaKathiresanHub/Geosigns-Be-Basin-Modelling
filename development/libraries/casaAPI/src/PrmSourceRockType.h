@@ -33,6 +33,11 @@ namespace mbapi
 /// from the source rock lithology table. This table must has a record for the combination of 
 /// the given stratigraphy layer and the given source rock type name
 ///
+/// <b>Source rock mixing note</b> : If base case project has source rock mixing for the layer for which
+/// this IP is defined for the base case nothing is changed, mixing state active. For all other cases
+/// where source rock name is different this IP will disable source rock mixing, set mix HI value to zero,
+/// remove HI mix map and clean another source rock name.
+///
 
 namespace casa
 {

@@ -33,18 +33,13 @@ std::vector< std::string > casa::RSProxySetImpl::names() const
 
 
 // Serialize object to the given stream
-bool casa::RSProxySetImpl::save( CasaSerializer & sz, unsigned int fileVersion ) const
+bool casa::RSProxySetImpl::save( CasaSerializer & sz, unsigned int /* fileVersion */ ) const
 {
-   bool ok = true;
-
-   if ( fileVersion >= 0 ) // initial implementation
+   bool ok = sz.save( m_proxySet.size(), "ProxiesSetSize" );
+   for ( ProxySet::const_iterator it = m_proxySet.begin(); it != m_proxySet.end() && ok; ++it )
    {
-      bool ok = sz.save( m_proxySet.size(), "ProxiesSetSize" );
-      for ( ProxySet::const_iterator it = m_proxySet.begin(); it != m_proxySet.end() && ok; ++it )
-      {
-         ok = sz.save( it->first, "ProxyName" );
-         ok = sz.save( *(it->second), "ProxyObj" );
-      }
+      ok = sz.save( it->first, "ProxyName" );
+      ok = sz.save( *(it->second), "ProxyObj" );
    }
    return ok;
 }

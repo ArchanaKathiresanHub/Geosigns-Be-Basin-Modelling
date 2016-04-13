@@ -42,8 +42,7 @@ void DerivedProperties::FracturePressureFormationCalculator::calculate ( Derived
 
    bool hydrostaticMode = ( m_projectHandle->getDetailsOfLastSimulation ( "fastcauldron" ) != 0 and
                             ( m_projectHandle->getDetailsOfLastSimulation ( "fastcauldron" )->getSimulatorMode () == "HydrostaticDecompaction" or
-                              m_projectHandle->getDetailsOfLastSimulation ( "fastcauldron" )->getSimulatorMode () == "HydrostaticTemperature" or
-                              m_projectHandle->getDetailsOfLastSimulation ( "fastcauldron" )->getSimulatorMode () == "HydrostaticHighResDecompaction" ));
+                              m_projectHandle->getDetailsOfLastSimulation ( "fastcauldron" )->getSimulatorMode () == "HydrostaticTemperature" ));
 
    if ( depth != 0 and hydrostaticPressure != 0 and lithostaticPressure != 0 and geoFormation != 0 ) {
       const double age = snapshot->getTime ();

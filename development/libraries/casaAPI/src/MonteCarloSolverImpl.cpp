@@ -43,12 +43,12 @@ MonteCarloSolverImpl::MonteCarloSolverImpl( Algorithm               algo
                                           , PriorDistribution       priorDist
                                           , MeasurementDistribution measureDistr
                                           )
-                                          : m_algo( algo )
+                                          : m_GOF( 0.0 )
+                                          , m_algo( algo )
                                           , m_kriging( interp )
                                           , m_priorDistr( priorDist )
                                           , m_measureDistr( measureDistr )
                                           , m_stdDevFactor( 1.0 )
-                                          , m_GOF( 0.0 )
 {
    ;
 }
@@ -72,7 +72,7 @@ SUMlib::McmcBase * MonteCarloSolverImpl::createMcmc( const SUMlib::CompoundProxy
    SUMlib::CompoundProxyCollection::CompoundProxyList const & proxies = proxySet.getProxyList();
    m_parSpace = proxySet.getParameterSpace();
 
-   std::auto_ptr< SUMlib::McmcBase > mcmcBase;
+   std::unique_ptr< SUMlib::McmcBase > mcmcBase;
    //static const unsigned int seed( 1970-10-16 );
    static const unsigned int seed( 1966-12-10 );
    static SUMlib::RandomGenerator rng( seed );
@@ -339,7 +339,7 @@ ErrorHandler::ReturnCode MonteCarloSolverImpl::collectMCResults( const VarSpace 
       SUMlib::Case cs;
       m_parSpace.unprepare( it->second, cs );
 
-      std::auto_ptr<RunCaseImpl> mcCase( new RunCaseImpl() );
+      std::unique_ptr<RunCaseImpl> mcCase( new RunCaseImpl() );
 
       sumext::convertCase( cs, proxyVsp, *mcCase.get() );
       mcCase->setRunStatus( RunCase::Completed ); // MC cases always completed
@@ -366,26 +366,23 @@ ErrorHandler::ReturnCode MonteCarloSolverImpl::collectMCResults( const VarSpace 
 }
 
 // Serialize object to the given stream
-bool MonteCarloSolverImpl::save( CasaSerializer & sz, unsigned int fileVersion ) const
+bool MonteCarloSolverImpl::save( CasaSerializer & sz, unsigned int /* fileVersion */ ) const
 {
    bool ok = true;
 
-   if ( fileVersion >= 0 )
-   {
-      ok = ok ? sz.save( static_cast<int>(m_algo),         "Algo"        ) : ok;
-      ok = ok ? sz.save( static_cast<int>(m_kriging),      "Kriging"     ) : ok;
-      ok = ok ? sz.save( static_cast<int>(m_priorDistr),   "PriorDistr"  ) : ok;
-      ok = ok ? sz.save( static_cast<int>(m_measureDistr), "MeasurDistr" ) : ok;
-      ok = ok ? sz.save( static_cast<int>(m_stepMethod),   "StepMethod"  ) : ok;
-      ok = ok ? sz.save( m_stdDevFactor,                   "StdDevFact"  ) : ok;
+   ok = ok ? sz.save( static_cast<int>(m_algo),         "Algo"        ) : ok;
+   ok = ok ? sz.save( static_cast<int>(m_kriging),      "Kriging"     ) : ok;
+   ok = ok ? sz.save( static_cast<int>(m_priorDistr),   "PriorDistr"  ) : ok;
+   ok = ok ? sz.save( static_cast<int>(m_measureDistr), "MeasurDistr" ) : ok;
+   ok = ok ? sz.save( static_cast<int>(m_stepMethod),   "StepMethod"  ) : ok;
+   ok = ok ? sz.save( m_stdDevFactor,                   "StdDevFact"  ) : ok;
 
-      // save MC results
-      ok = ok ? sz.save( m_results.size(), "ResultsSetSize" ) : ok;
-      for ( size_t i = 0; i < m_results.size() && ok; ++i )
-      {
-         ok = sz.save( m_results[i].first, "RMSEVal" );
-         ok = ok ? sz.save( *(m_results[i].second), "MCRunCase" ) : ok;
-      }
+   // save MC results
+   ok = ok ? sz.save( m_results.size(), "ResultsSetSize" ) : ok;
+   for ( size_t i = 0; i < m_results.size() && ok; ++i )
+   {
+      ok = sz.save( m_results[i].first, "RMSEVal" );
+      ok = ok ? sz.save( *(m_results[i].second), "MCRunCase" ) : ok;
    }
 
    ok = sz.save( m_GOF, "GOF" );
@@ -409,7 +406,7 @@ bool MonteCarloSolverImpl::save( CasaSerializer & sz, unsigned int fileVersion )
 
    // SUMlib::McmcStatistics           m_statistics; TODO implement save/load
    // SUMlib::ParameterPdf             m_unscaledPdf; TODO implemetn save/load
-   // std::auto_ptr<SUMlib::McmcBase>  m_mcmc;          // TODO implement SUMlib MC/MC/MC Solver object itself
+   // std::unique_ptr<SUMlib::McmcBase>  m_mcmc;          // TODO implement SUMlib MC/MC/MC Solver object itself
 
    return ok;
 }
@@ -487,7 +484,7 @@ MonteCarloSolverImpl::MonteCarloSolverImpl( CasaDeserializer & dz, const char * 
 
    // SUMlib::McmcStatistics           m_statistics; TODO implement save/load
    // SUMlib::ParameterPdf             m_unscaledPdf; TODO implemetn save/load
-   // std::auto_ptr<SUMlib::McmcBase>  m_mcmc;          // TODO implement SUMlib MC/MC/MC Solver object itself
+   // std::unique_ptr<SUMlib::McmcBase>  m_mcmc;          // TODO implement SUMlib MC/MC/MC Solver object itself
 
    if ( !ok ) throw Exception( DeserializationError ) << "MonteCarloSolverImpl deserialization error";
 }

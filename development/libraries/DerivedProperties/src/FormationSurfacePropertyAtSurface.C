@@ -44,3 +44,7 @@ void DerivedProperties::FormationSurfacePropertyAtSurface::restoreData () const 
 bool DerivedProperties::FormationSurfacePropertyAtSurface::isPrimary () const {
    return m_formationProperty->isPrimary();
 }
+
+const DataAccess::Interface::GridMap* DerivedProperties::FormationSurfacePropertyAtSurface::getGridMap () const {
+   return m_formationProperty->getGridMap();
+}

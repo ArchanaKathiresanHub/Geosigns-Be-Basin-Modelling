@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2012-2014 Shell International Exploration & Production.
+// Copyright (C) 2012-2016 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -23,11 +23,14 @@ public:
    virtual ~CmdAddVarPrm() { ; }
 
    /// @brief Run command
-   virtual void execute( std::auto_ptr<casa::ScenarioAnalysis> & sa );
+   virtual void execute( std::unique_ptr<casa::ScenarioAnalysis> & sa );
 
    /// @brief Print help page about command purpose and it parameters
    /// @param cmdName - command name - how it is defined in CasaCommander
    static void printHelpPage( const char * cmdName );
+
+   /// @brief Get the name of the parameter
+   virtual std::string prmName() const { return m_prmName; }
 
 protected:
    std::string m_prmName; ///< optional varparameter name

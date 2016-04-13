@@ -25,9 +25,11 @@ bm_include_libraries(
     DataModel
 	Serial_Hdf5
 	CBMGenerics
-	utilities 
+	utilities
+	FileSystem 
 	TableIO
 	EosPack
+	
 	CrustalThickness
 )
 
@@ -39,7 +41,8 @@ include_directories(
 target_link_libraries(DataAccess 
     ${Boost_LIBRARIES}
 	Serial_Hdf5
-	CBMGenerics 
+	CBMGenerics
+	FileSystem
 	utilities
 	TableIO
 )

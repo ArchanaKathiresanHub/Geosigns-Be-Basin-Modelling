@@ -26,18 +26,24 @@ namespace CauldronIO
         const DataAccess::Interface::Formation* formation;
         bool reverseDepth;
         const DataAccess::Interface::PropertyValue* propValue;
+        
+        // Cache some geometry values
+        size_t numI, numJ;
+        double deltaI, deltaJ, minI, minJ;
 
         static bool compareFormations(boost::shared_ptr<CauldronIO::FormationInfo> info1, boost::shared_ptr < CauldronIO::FormationInfo> info2);
     };
     typedef vector<boost::shared_ptr< FormationInfo> > FormationInfoList;
     
     /// \brief Implementation of Map class that can retrieve data from a ProjectHandle
-    class MapProjectHandle : public Map
+    class MapProjectHandle : public SurfaceData
     {
     public:
         /// \brief Constructor defining if this map is cell centered, and its undefined value
-        MapProjectHandle(bool cellCentered);
+        MapProjectHandle(boost::shared_ptr<const CauldronIO::Geometry2D>& geometry);
         
+        /// \brief Prefetch any data
+        virtual void prefetch();
         /// \brief Override the retrieve method to load data from datastore
         virtual void retrieve();
         /// \brief Release memory; does not destroy the object; it can be retrieved again
@@ -50,11 +56,13 @@ namespace CauldronIO
     };
 
     /// \brief Implementation of Volume class that can retrieve data from a ProjectHandle
-    class VolumeProjectHandle : public Volume
+    class VolumeProjectHandle : public VolumeData
     {
     public:
-        VolumeProjectHandle(bool cellCentered, SubsurfaceKind kind, boost::shared_ptr<const Property> property);
+        VolumeProjectHandle(const boost::shared_ptr<Geometry3D>& geometry);
 
+        /// \brief Prefetch any data
+        virtual void prefetch();
         /// \brief Override the retrieve method to load data from datastore
         virtual void retrieve();
         /// \brief Release memory; does not destroy the object; it can be retrieved again

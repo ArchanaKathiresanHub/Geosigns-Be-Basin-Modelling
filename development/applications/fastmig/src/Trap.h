@@ -340,7 +340,13 @@ namespace migration
    void computePhaseVolumeProportionInBiodegradadedZone(const double timeInterval, double& VolumeProportionGas, double& VolumeProportionOil, const Biodegrade& biodegrade);
 
 	 double biodegradeCharges (const double& timeInterval, const Biodegrade& biodegrade);
-
+	 
+   /*!
+   * \biodegrade charges as in legacy migration
+   */
+   double biodegradeChargesLegacy (const double& timeInterval, const Biodegrade& biodegrade);
+   double biodegradeChargesLegacy (const double& timeInterval, const Biodegrade& biodegrade, PhaseId phase); 
+	  
    /*!
    * \brief Assesses if a trap is pasteurized or not
    * \details This status is based on the status of the columns that composed the trap. 

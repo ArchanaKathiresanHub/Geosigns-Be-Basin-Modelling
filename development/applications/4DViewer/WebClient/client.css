@@ -1,0 +1,42 @@
+body
+{
+	color: black;
+	background-color: #e8e8e8;
+	font-family: verdana, 'sans-serif';
+	font-size: 9pt;
+	height: 100%;
+}
+button
+{
+	color: red;
+	margin-top:10px;
+	padding: 5px;
+}
+.header
+{
+	margin-top: 10px;
+	margin-bottom: 10px;
+	font-weight: bold;
+	background-color: #d0d0d0;
+	padding: 5px;
+}
+.section
+{
+	margin-left: 10px;
+}
+.tab
+{
+	padding: 5px;
+	color: #555555;
+	background-color: #dddddd;
+}
+.activeTab
+{
+	padding: 5px;
+	color: black;
+	background-color: white;
+}
+.listBox
+{
+	
+}

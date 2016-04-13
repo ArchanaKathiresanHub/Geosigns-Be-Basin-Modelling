@@ -29,7 +29,7 @@ PLATFORM_INDEPENDENT=${MAIN}/misc
 RSH="ssh -x -q -i $SSHKEYFILE"
 
 # Create destination directory
-${RSH} ${REMOTEACCOUNT} mkdir -p ${MAIN}
+${RSH} ${REMOTEACCOUNT} mkdir -p ${MAIN} || true
 
 # Copy the binaries
 rsync --recursive --delete --links --perms --group --rsh="${RSH}" ${BINARIES}/  ${REMOTEACCOUNT}:${BINARIES}

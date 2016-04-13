@@ -125,6 +125,9 @@ namespace DataAccess
 
 	    /// Return true if the property has a record in a project file
 	    bool hasRecord (void) const;
+
+ 	    /// Return true if the property is a primary property
+        bool isPrimary() const;
       protected:
 
             double getMode1DResult() const;

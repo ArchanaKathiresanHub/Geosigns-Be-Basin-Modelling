@@ -43,7 +43,7 @@ static const double s_eps = 1.e-8;
 // Constructor. Get parameter values from the model
 PrmCrustThinning::PrmCrustThinning( mbapi::Model & mdl ) : m_parent( 0 )
 {
-   int crustIoTblSize = mdl.tableSize( s_crustIoTblName );
+   size_t crustIoTblSize = mdl.tableSize( s_crustIoTblName );
 
    m_initialThickness = UndefinedDoubleValue;
    m_eventsNumber     = 0;
@@ -188,6 +188,10 @@ ErrorHandler::ReturnCode PrmCrustThinning::setInModel( mbapi::Model & caldModel,
          }
          d.push_back( UndefinedDoubleValue );
          m.push_back( newMapName ); // just put map - no any scaling
+
+         // because we generated new map - replace scaler with new map name, otherwise validation will fail
+         m_coeff[i] = 1.0;
+         m_maps[i] = newMapName;
       }
 
       if ( t.back() != 0.0 ) // add last point - present time
@@ -299,7 +303,7 @@ bool PrmCrustThinning::operator == ( const Parameter & prm ) const
 
 
 // Save all object data to the given stream, that object could be later reconstructed from saved data
-bool PrmCrustThinning::save( CasaSerializer & sz, unsigned int version ) const
+bool PrmCrustThinning::save( CasaSerializer & sz, unsigned int /* version */) const
 {
    bool hasParent = m_parent ? true : false;
    bool ok = sz.save( hasParent, "hasParent" );
@@ -320,7 +324,7 @@ bool PrmCrustThinning::save( CasaSerializer & sz, unsigned int version ) const
 }
 
 // Create a new var.parameter instance by deserializing it from the given stream
-PrmCrustThinning::PrmCrustThinning( CasaDeserializer & dz, unsigned int objVer )
+PrmCrustThinning::PrmCrustThinning( CasaDeserializer & dz, unsigned int /* objVer */)
 {
    CasaDeserializer::ObjRefID parentID;
 

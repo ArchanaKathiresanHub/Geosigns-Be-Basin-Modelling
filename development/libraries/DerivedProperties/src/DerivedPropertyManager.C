@@ -1,3 +1,13 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
+
 #include "DerivedPropertyManager.h"
 
 #include "AbstractProperty.h"
@@ -34,8 +44,10 @@
 #include "PermeabilityFormationCalculator.h"
 #include "PorosityFormationCalculator.h"
 #include "PressureFormationCalculator.h"
+#include "SonicFormationCalculator.h"
 #include "ThermalConductivityFormationCalculator.h"
 #include "ThermalDiffusivityFormationCalculator.h"
+#include "TwoWayTimeFormationCalculator.h"
 #include "VelocityFormationCalculator.h"
 
 // Derived formation-map property calcualtors
@@ -45,17 +57,25 @@
 
 // Derived surface property calcualtors
 #include "ReflectivitySurfaceCalculator.h"
+#include "TwoWayTimeResidualSurfaceCalculator.h"
+
+//utilities library
+#include "FormattingException.h"
+
+typedef formattingexception::GeneralException DerivedPropertyManagerException;
 
 DerivedProperties::DerivedPropertyManager::DerivedPropertyManager ( GeoPhysics::ProjectHandle* projectHandle,
                                                                     const bool                 debug ) : m_projectHandle ( projectHandle ) {
-   loadPrimaryFormationPropertyCalculators ( debug );
-   loadPrimarySurfacePropertyCalculators ( debug );
+
+   m_loadAllProperties = true;
+   loadPrimaryFormationPropertyCalculators        ( debug );
+   loadPrimarySurfacePropertyCalculators          ( debug );
    loadPrimaryFormationSurfacePropertyCalculators ( debug );
-   loadPrimaryFormationMapPropertyCalculators ( debug );
-   loadPrimaryReservoirPropertyCalculators ( debug );
-   loadDerivedFormationPropertyCalculator ( debug );
-   loadDerivedFormationMapPropertyCalculator ( debug );
-   loadDerivedSurfacePropertyCalculator ( debug );
+   loadPrimaryFormationMapPropertyCalculators     ( debug );
+   loadPrimaryReservoirPropertyCalculators        ( debug );
+   loadDerivedFormationPropertyCalculator         ( debug );
+   loadDerivedFormationMapPropertyCalculator      ( debug );
+   loadDerivedSurfacePropertyCalculator           ( debug );
 }
 
 const GeoPhysics::ProjectHandle* DerivedProperties::DerivedPropertyManager::getProjectHandle () const {
@@ -63,7 +83,13 @@ const GeoPhysics::ProjectHandle* DerivedProperties::DerivedPropertyManager::getP
 }
 
 const DataAccess::Interface::Property* DerivedProperties::DerivedPropertyManager::getProperty ( const std::string& name ) const {
-   return m_projectHandle->findProperty ( name );
+   const DataAccess::Interface::Property* property = m_projectHandle->findProperty ( name );
+   if (property == 0) {
+      throw DerivedPropertyManagerException() << "Property '" << name << "' could not be found by the ProjectHandle.";
+   }
+   else {
+      return property;
+   }
 }
 
 const DataAccess::Interface::Grid* DerivedProperties::DerivedPropertyManager::getMapGrid () const {
@@ -197,6 +223,12 @@ void DerivedProperties::DerivedPropertyManager::loadDerivedFormationPropertyCalc
       addFormationPropertyCalculator ( formationPropertyCalculator, 0, debug );
    }
 
+   formationPropertyCalculator = FormationPropertyCalculatorPtr( new SonicFormationCalculator );
+
+   if (canAddDerivedFormationPropertyCalculator( formationPropertyCalculator )) {
+      addFormationPropertyCalculator( formationPropertyCalculator, 0, debug );
+   }
+
    formationPropertyCalculator = FormationPropertyCalculatorPtr ( new ThermalConductivityFormationCalculator ( m_projectHandle ));
 
    if ( canAddDerivedFormationPropertyCalculator ( formationPropertyCalculator )) {
@@ -207,6 +239,12 @@ void DerivedProperties::DerivedPropertyManager::loadDerivedFormationPropertyCalc
 
    if ( canAddDerivedFormationPropertyCalculator ( formationPropertyCalculator )) {
       addFormationPropertyCalculator ( formationPropertyCalculator, 0, debug );
+   }
+
+   formationPropertyCalculator = FormationPropertyCalculatorPtr( new TwoWayTimeFormationCalculator );
+
+   if (canAddDerivedFormationPropertyCalculator( formationPropertyCalculator )) {
+      addFormationPropertyCalculator( formationPropertyCalculator, 0, debug );
    }
    
    formationPropertyCalculator = FormationPropertyCalculatorPtr ( new VelocityFormationCalculator );
@@ -251,6 +289,12 @@ void DerivedProperties::DerivedPropertyManager::loadDerivedSurfacePropertyCalcul
       addSurfacePropertyCalculator ( surfacePropertyCalculator );
    }
 
+   surfacePropertyCalculator = SurfacePropertyCalculatorPtr( new TwoWayTimeResidualSurfaceCalculator( m_projectHandle ) );
+
+   if (canAddDerivedSurfacePropertyCalculator( surfacePropertyCalculator )) {
+      addSurfacePropertyCalculator( surfacePropertyCalculator );
+   }
+
 }
 
 void DerivedProperties::DerivedPropertyManager::loadPrimarySurfacePropertyCalculators ( const bool debug ) {
@@ -261,16 +305,18 @@ void DerivedProperties::DerivedPropertyManager::loadPrimarySurfacePropertyCalcul
    for ( size_t i = 0; i < allSurfaceProperties->size (); ++i ) {
       const DataAccess::Interface::Property* property = (*allSurfaceProperties)[ i ];
 
-      PrimarySurfacePropertyCalculatorPtr propertyCalculator = PrimarySurfacePropertyCalculatorPtr ( new PrimarySurfacePropertyCalculator ( m_projectHandle, property ));
-      const DataModel::AbstractSnapshotSet& snapshots = propertyCalculator->getSnapshots ();
-      DataModel::AbstractSnapshotSet::const_iterator ssIter;
+      if( m_loadAllProperties or ( property->isPrimary() and property->getPropertyAttribute() == DataModel::SURFACE_2D_PROPERTY )) {
+         PrimarySurfacePropertyCalculatorPtr propertyCalculator = PrimarySurfacePropertyCalculatorPtr ( new PrimarySurfacePropertyCalculator ( m_projectHandle, property ));
+         const DataModel::AbstractSnapshotSet& snapshots = propertyCalculator->getSnapshots ();
+         DataModel::AbstractSnapshotSet::const_iterator ssIter;
+         
+         if ( debug ) {
+            std::cerr << " Adding surface primary property: " << property->getName () << std::endl;
+         }
 
-      if ( debug ) {
-         std::cerr << " Adding surface primary property: " << property->getName () << std::endl;
-      }
-
-      addSurfacePropertyCalculator ( propertyCalculator );
-   } 
+         addSurfacePropertyCalculator ( propertyCalculator );
+      } 
+   }
 
    delete allSurfaceProperties;
 }
@@ -280,19 +326,24 @@ void DerivedProperties::DerivedPropertyManager::loadPrimaryFormationSurfacePrope
    // Get a list of properties that have been saved.
    DataAccess::Interface::PropertyList* allFormationSurfaceProperties = m_projectHandle->getProperties ( false, DataAccess::Interface::FORMATIONSURFACE, 0, 0, 0, 0, DataAccess::Interface::MAP );
 
+
    for ( size_t i = 0; i < allFormationSurfaceProperties->size (); ++i ) {
       const DataAccess::Interface::Property* property = (*allFormationSurfaceProperties)[ i ];
 
-      PrimaryFormationSurfacePropertyCalculatorPtr propertyCalculator = PrimaryFormationSurfacePropertyCalculatorPtr ( new PrimaryFormationSurfacePropertyCalculator ( m_projectHandle, property ));
-      const DataModel::AbstractSnapshotSet& snapshots = propertyCalculator->getSnapshots ();
-      DataModel::AbstractSnapshotSet::const_iterator ssIter;
+      if( m_loadAllProperties or
+          ( property->isPrimary() and ( property->getPropertyAttribute() == DataModel::SURFACE_2D_PROPERTY ))) {
 
-      if ( debug ) {
-         std::cerr << " Adding formation-surface primary property: " << property->getName () << std::endl;
-      }
-
-      addFormationSurfacePropertyCalculator ( propertyCalculator );
-   } 
+         PrimaryFormationSurfacePropertyCalculatorPtr propertyCalculator = PrimaryFormationSurfacePropertyCalculatorPtr ( new PrimaryFormationSurfacePropertyCalculator ( m_projectHandle, property ));
+         const DataModel::AbstractSnapshotSet& snapshots = propertyCalculator->getSnapshots ();
+         DataModel::AbstractSnapshotSet::const_iterator ssIter;
+         
+         if ( debug ) {
+            std::cerr << " Adding formation-surface primary property: " << property->getName () << std::endl;
+         }
+         
+         addFormationSurfacePropertyCalculator ( propertyCalculator );
+      } 
+   }
 
    delete allFormationSurfaceProperties;
 }
@@ -305,16 +356,19 @@ void DerivedProperties::DerivedPropertyManager::loadPrimaryFormationMapPropertyC
    for ( size_t i = 0; i < allFormationMapProperties->size (); ++i ) {
       const DataAccess::Interface::Property* property = (*allFormationMapProperties)[ i ];
 
-      PrimaryFormationMapPropertyCalculatorPtr propertyCalculator = PrimaryFormationMapPropertyCalculatorPtr ( new PrimaryFormationMapPropertyCalculator ( m_projectHandle, property ));
-      const DataModel::AbstractSnapshotSet& snapshots = propertyCalculator->getSnapshots ();
-      DataModel::AbstractSnapshotSet::const_iterator ssIter;
-
-      if ( debug ) {
-         std::cerr << " Adding formation-map primary property: " << property->getName () << std::endl;
-      }
-
-      addFormationMapPropertyCalculator ( propertyCalculator );
-   } 
+      if( m_loadAllProperties or ( property->isPrimary() and property->getPropertyAttribute() == DataModel::FORMATION_2D_PROPERTY )) {
+ 
+         PrimaryFormationMapPropertyCalculatorPtr propertyCalculator = PrimaryFormationMapPropertyCalculatorPtr ( new PrimaryFormationMapPropertyCalculator ( m_projectHandle, property ));
+         const DataModel::AbstractSnapshotSet& snapshots = propertyCalculator->getSnapshots ();
+         DataModel::AbstractSnapshotSet::const_iterator ssIter;
+         
+         if ( debug ) {
+            std::cerr << " Adding formation-map primary property: " << property->getName () << std::endl;
+         }
+         
+         addFormationMapPropertyCalculator ( propertyCalculator );
+      } 
+   }
 
    delete allFormationMapProperties;
 }
@@ -349,16 +403,18 @@ void DerivedProperties::DerivedPropertyManager::loadPrimaryFormationPropertyCalc
    for ( size_t i = 0; i < allFormationProperties->size (); ++i ) {
       const DataAccess::Interface::Property* property = (*allFormationProperties)[ i ];
 
-      PrimaryFormationPropertyCalculatorPtr formationPropertyCalculator ( new PrimaryFormationPropertyCalculator ( m_projectHandle, property ));
-      const DataModel::AbstractSnapshotSet& snapshots = formationPropertyCalculator->getSnapshots ();
-      DataModel::AbstractSnapshotSet::const_iterator ssIter;
-
-      if ( debug ) {
-         std::cerr << " Adding formation primary property: " << property->getName () << std::endl;
-      }
-
-      addFormationPropertyCalculator ( formationPropertyCalculator, 0, debug );
-   } 
+      if( m_loadAllProperties or property->isPrimary() ) {
+         PrimaryFormationPropertyCalculatorPtr formationPropertyCalculator ( new PrimaryFormationPropertyCalculator ( m_projectHandle, property ));
+         const DataModel::AbstractSnapshotSet& snapshots = formationPropertyCalculator->getSnapshots ();
+         DataModel::AbstractSnapshotSet::const_iterator ssIter;
+         
+         if ( debug ) {
+            std::cerr << " Adding formation primary property: " << property->getName () << std::endl;
+         }
+         
+         addFormationPropertyCalculator ( formationPropertyCalculator, 0, debug );
+      } 
+   }
 
    delete allFormationProperties;
 }

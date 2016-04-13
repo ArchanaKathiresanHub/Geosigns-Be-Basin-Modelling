@@ -32,12 +32,12 @@ ObsSourceRockMapProp::ObsSourceRockMapProp( double              x
                                           , double              simTime
                                           , const std::string & name
                                           )
-                                          : m_posDataMiningTbl( -1 )
-                                          , m_x( x )
+                                          : m_x( x )
                                           , m_y( y )
                                           , m_layerName( layerName )
                                           , m_propName( propName )
                                           , m_simTime( simTime )
+                                          , m_posDataMiningTbl( -1 )
                                           , m_devValue( 0.0 )
                                           , m_saWeight( 1.0 )
                                           , m_uaWeight( 1.0 )
@@ -80,24 +80,24 @@ void ObsSourceRockMapProp::setReferenceValue( ObsValue * obsVal, double devVal )
 }
 
 // Update Model to be sure that requested property will be saved at the requested time
-ErrorHandler::ReturnCode ObsSourceRockMapProp::requestObservableInModel( mbapi::Model & caldModel )
+ErrorHandler::ReturnCode ObsSourceRockMapProp::requestObservableInModel( mbapi::Model & cldModel )
 {
-   if ( ErrorHandler::NoError != caldModel.snapshotManager().requestMajorSnapshot(       m_simTime ) ||
-        ErrorHandler::NoError != caldModel.propertyManager().requestPropertyInSnapshots( m_propName, "SourceRockOnly" )
-      ) return caldModel.errorCode();
+   if ( ErrorHandler::NoError != cldModel.snapshotManager().requestMajorSnapshot(       m_simTime ) ||
+        ErrorHandler::NoError != cldModel.propertyManager().requestPropertyInSnapshots( m_propName, "SourceRockOnly" )
+      ) return cldModel.errorCode();
 
-   m_posDataMiningTbl = caldModel.tableSize( Observable::s_dataMinerTable );
+   m_posDataMiningTbl = cldModel.tableSize( Observable::s_dataMinerTable );
 
-   if ( ErrorHandler::NoError != caldModel.addRowToTable( Observable::s_dataMinerTable ) ) return caldModel.errorCode();
+   if ( ErrorHandler::NoError != cldModel.addRowToTable( Observable::s_dataMinerTable ) ) return cldModel.errorCode();
 
-   if ( ErrorHandler::NoError != caldModel.setTableValue( Observable::s_dataMinerTable, m_posDataMiningTbl, "Time",          m_simTime            ) ||
-        ErrorHandler::NoError != caldModel.setTableValue( Observable::s_dataMinerTable, m_posDataMiningTbl, "XCoord",        m_x                  ) ||
-        ErrorHandler::NoError != caldModel.setTableValue( Observable::s_dataMinerTable, m_posDataMiningTbl, "YCoord",        m_y                  ) ||
-        ErrorHandler::NoError != caldModel.setTableValue( Observable::s_dataMinerTable, m_posDataMiningTbl, "ZCoord",        UndefinedDoubleValue ) ||
-        ErrorHandler::NoError != caldModel.setTableValue( Observable::s_dataMinerTable, m_posDataMiningTbl, "FormationName", m_layerName          ) ||
-        ErrorHandler::NoError != caldModel.setTableValue( Observable::s_dataMinerTable, m_posDataMiningTbl, "PropertyName",  m_propName           ) ||
-        ErrorHandler::NoError != caldModel.setTableValue( Observable::s_dataMinerTable, m_posDataMiningTbl, "Value",         UndefinedDoubleValue ) 
-      ) return caldModel.errorCode();
+   if ( ErrorHandler::NoError != cldModel.setTableValue( Observable::s_dataMinerTable, m_posDataMiningTbl, "Time",          m_simTime            ) ||
+        ErrorHandler::NoError != cldModel.setTableValue( Observable::s_dataMinerTable, m_posDataMiningTbl, "XCoord",        m_x                  ) ||
+        ErrorHandler::NoError != cldModel.setTableValue( Observable::s_dataMinerTable, m_posDataMiningTbl, "YCoord",        m_y                  ) ||
+        ErrorHandler::NoError != cldModel.setTableValue( Observable::s_dataMinerTable, m_posDataMiningTbl, "ZCoord",        UndefinedDoubleValue ) ||
+        ErrorHandler::NoError != cldModel.setTableValue( Observable::s_dataMinerTable, m_posDataMiningTbl, "FormationName", m_layerName          ) ||
+        ErrorHandler::NoError != cldModel.setTableValue( Observable::s_dataMinerTable, m_posDataMiningTbl, "PropertyName",  m_propName           ) ||
+        ErrorHandler::NoError != cldModel.setTableValue( Observable::s_dataMinerTable, m_posDataMiningTbl, "Value",         UndefinedDoubleValue ) 
+      ) return cldModel.errorCode();
 
    return ErrorHandler::NoError;
 }
@@ -154,13 +154,34 @@ ObsValue * ObsSourceRockMapProp::getFromModel( mbapi::Model & caldModel )
    return new ObsValueDoubleScalar( this, val );
 }
 
+// Check well against project coordinates
+std::string ObsSourceRockMapProp::checkObservableForProject( mbapi::Model & caldModel )
+{
+   std::ostringstream oss;
+
+   double x0, y0;
+   caldModel.origin( x0, y0 );
+   
+   double dimX, dimY;
+   caldModel.arealSize( dimX, dimY );
+
+   if ( m_x < x0 || m_x > x0 + dimX ||
+        m_y < y0 || m_y > y0 + dimY )
+   {
+      oss << "Observable for source rock map property " << m_name.front() << " is outside of the project boundaries: "; 
+   }
+
+   return oss.str();
+}
+
+
 // Create this observable value from double array (converting data from SUMlib for response surface evaluation
 ObsValue * ObsSourceRockMapProp::createNewObsValueFromDouble( std::vector<double>::const_iterator & val ) const
 {
    return new ObsValueDoubleScalar( this, *val++ );
 }
 
-bool ObsSourceRockMapProp::save( CasaSerializer & sz, unsigned int version ) const
+bool ObsSourceRockMapProp::save( CasaSerializer & sz, unsigned int /* version */ ) const
 {
    // register observable with serializer to allow ObsValue objects keep reference after deserializtion
    CasaSerializer::ObjRefID obID = sz.ptr2id( this );

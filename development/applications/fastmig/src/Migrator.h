@@ -60,7 +60,6 @@ namespace migration
       bool setUpBasinGeometry (void);
 
       bool computeFormationPropertyMaps (const Interface::Snapshot * snapshot, bool isPressureRun);
-      bool removeComputedFormationPropertyMaps (void);
       bool getSeaBottomDepths (Interface::GridMap * topDepthGridMap, const Interface::Snapshot * snapshot);
 
       bool createFormationNodes (void);
@@ -188,6 +187,7 @@ namespace migration
       inline bool performVerticalMigration (void) const;
       inline bool performHDynamicAndCapillary (void) const;
       inline bool performReservoirDetection (void) const;
+      inline bool performLegacyMigration (void) const;
       inline bool isBlockingOn (void);
       inline double getBlockingPermeability (void);
       inline double getBlockingPorosity (void);
@@ -199,13 +199,14 @@ namespace migration
 
    private:
       GeoPhysics::ProjectHandle* openProject (const std::string & fileName);
+      void sortReservoirs() const;
 
       mutable DataAccess::Interface::FormationList * m_formations;
       mutable DataAccess::Interface::ReservoirList * m_reservoirs;
 
       ofstream m_massBalanceFile;
 
-      std::auto_ptr<GeoPhysics::ProjectHandle> m_projectHandle;
+      std::unique_ptr<GeoPhysics::ProjectHandle> m_projectHandle;
 
       MassBalance<ofstream>* m_massBalance;
 
@@ -225,13 +226,14 @@ namespace migration
       bool m_hdynamicAndCapillary;
       bool m_reservoirDetection;
       bool m_isBlockingOn;
+      bool m_legacyMigration;
       double m_blockingPermeability;
       double m_blockingPorosity;
       double m_minOilColumnHeight;
       double m_minGasColumnHeight;
 
       vector<database::Record *> * m_migrationRecordLists;
-      std::auto_ptr<MigrationPropertyManager> m_propertyManager;
+      std::unique_ptr<MigrationPropertyManager> m_propertyManager;
 
    };
 }
@@ -255,6 +257,11 @@ bool migration::Migrator::performHDynamicAndCapillary (void) const
 bool migration::Migrator::performReservoirDetection (void) const
 {
    return m_reservoirDetection;
+}
+
+bool migration::Migrator::performLegacyMigration (void) const
+{
+   return m_legacyMigration;
 }
 
 bool migration::Migrator::isBlockingOn (void)

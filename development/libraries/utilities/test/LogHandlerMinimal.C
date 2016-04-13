@@ -26,7 +26,7 @@ const std::string expectedLog[] =                ///< Expected parsed lines from
 std::vector<std::string> parsedLinesLog;         ///< Parsed lines from the log file
 
 
-///3. TESTS-------------------------------------------------------------------------------------------
+///2. TESTS-------------------------------------------------------------------------------------------
 //Tests log for minimal verbosity
 TEST( LogHandlerSerial, log_minimal )
 {

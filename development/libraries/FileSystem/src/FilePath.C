@@ -119,8 +119,11 @@ bool FilePath::copyFile( const Path & destPath )
    if ( destPath.exists() ) return false;
 
    try
-   { 
-      boost::filesystem::copy_file( boost::filesystem::absolute( boost::filesystem::path( m_path ) ), boost::filesystem::path( destPath.path() ) );
+   {
+      const boost::filesystem::path fromPath( m_path );
+      const boost::filesystem::perms oldPermission = boost::filesystem::status( fromPath ).permissions();
+      boost::filesystem::copy_file( boost::filesystem::absolute( fromPath ), boost::filesystem::path( destPath.path() ) );
+      boost::filesystem::permissions( boost::filesystem::path( destPath.path() ), oldPermission | boost::filesystem::owner_all );
    }
    catch ( ... )
    {

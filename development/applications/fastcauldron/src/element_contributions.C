@@ -1351,6 +1351,9 @@ void Basin_Modelling::assembleElementPressureSystem ( const BasisFunctionCache& 
    // How to remove the cast here? Should be dynamic_cast anyway.
    double relativePermeability = ( includeWaterSaturation ? dynamic_cast<const Lithology*>( lithology )->relativePermeability ( Saturation::WATER, currentSaturation ) : 1.0 );
 
+   // dVes / dP = d(pL - P) / dP = -1
+   const double dVesDp = -1.0;
+
    for ( I = 0; I < Number_Of_X_Points; I++ ) {
 
       for ( J = 0; J < Number_Of_Y_Points; J++ ) {
@@ -1484,8 +1487,12 @@ void Basin_Modelling::assembleElementPressureSystem ( const BasisFunctionCache& 
             // requires the pressure to be in MPa. The pressure that is computed here is in Pa.
             //
 
-            double dPhiDP = lithology -> computePorosityDerivativeWRTPressure ( currentVes, currentMaxVes, includeChemicalCompaction,
-                                                                                Current_Chemical_Compaction_Term );
+            const double dPhiDves( lithology->computePorosityDerivativeWRTVes( currentVes,
+                                                                               currentMaxVes,
+                                                                               includeChemicalCompaction,
+                                                                               Current_Chemical_Compaction_Term ) );
+
+            const double dPhiDP( dPhiDves * dVesDp );
 
             double dRhoDP = Pa_To_MPa * Fluid->computeDensityDerivativeWRTPressure ( currentTemperature, Pa_To_MPa * currentPorePressure );
 

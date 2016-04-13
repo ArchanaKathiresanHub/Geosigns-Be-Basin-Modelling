@@ -156,8 +156,8 @@ int main( int argc, char ** argv )
 
    if ( !parseCmdLineArgs( argc, argv, inputProjectFileName, outputProjectFileName ) ) return -1;
 
-   std::auto_ptr<Mining::DomainPropertyFactory> factory( new DataAccess::Mining::DomainPropertyFactory );
-   std::auto_ptr<Mining::ProjectHandle> projectHandle( dynamic_cast<Mining::ProjectHandle*>( OpenCauldronProject( inputProjectFileName, "r", factory.get() ) ) );
+   std::unique_ptr<Mining::DomainPropertyFactory> factory( new DataAccess::Mining::DomainPropertyFactory );
+   std::unique_ptr<Mining::ProjectHandle> projectHandle( dynamic_cast<Mining::ProjectHandle*>( OpenCauldronProject( inputProjectFileName, "r", factory.get() ) ) );
 
 
    bool coupledCalculation = false;

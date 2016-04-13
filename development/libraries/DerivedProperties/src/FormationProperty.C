@@ -19,7 +19,8 @@ DerivedProperties::FormationProperty::~FormationProperty () {
 
 double DerivedProperties::FormationProperty::interpolate ( unsigned int i,
                                                            unsigned int j,
-                                                           double       k ) const {
+                                                           double       k,
+                                                           const bool   isAcsendingOrder ) const {
 
    if ( k < 0.0 ) {
       return getUndefinedValue ();
@@ -29,10 +30,21 @@ double DerivedProperties::FormationProperty::interpolate ( unsigned int i,
    double fraction = k - static_cast<double> ( bottomNode );
 
    if ( fraction == 0.0 ) {
-      return get ( i, j, bottomNode );
+      if( isAcsendingOrder ) {
+         return getA ( i, j, bottomNode );
+      } else {
+         return getD ( i, j, bottomNode );
+      }
    } else {
-      double bottomValue = get ( i, j, bottomNode );
-      double topValue = get ( i, j, bottomNode + 1 );
+      double bottomValue, topValue;
+
+      if( isAcsendingOrder ) {
+         bottomValue = getA ( i, j, bottomNode );
+         topValue = getA ( i, j, bottomNode + 1 );
+      } else {
+         bottomValue = getD ( i, j, bottomNode );
+         topValue = getD ( i, j, bottomNode + 1 );
+       }
 
       if ( bottomValue == getUndefinedValue () or topValue == getUndefinedValue ()) {
          return getUndefinedValue ();
@@ -46,7 +58,8 @@ double DerivedProperties::FormationProperty::interpolate ( unsigned int i,
 
 double DerivedProperties::FormationProperty::interpolate ( double i,
                                                            double j,
-                                                           double k ) const {
+                                                           double k,
+                                                           const bool isAcsendingOrder ) const {
 
    double undefinedValue = getUndefinedValue ();
 
@@ -77,7 +90,11 @@ double DerivedProperties::FormationProperty::interpolate ( double i,
 
    if (fractionI == 0 && fractionJ == 0 && fractionK == 0)
    {
-      return get (baseI, baseJ, baseK);
+      if( isAcsendingOrder ) {
+         return getA (baseI, baseJ, baseK);
+      } else {
+         return getD (baseI, baseJ, baseK);
+      }
    }
 
    weight [ 0 ] = fractionI         * fractionJ         * fractionK;
@@ -89,14 +106,14 @@ double DerivedProperties::FormationProperty::interpolate ( double i,
    weight [ 6 ] = (1.0 - fractionI) * (1.0 - fractionJ) * fractionK;
    weight [ 7 ] = (1.0 - fractionI) * (1.0 - fractionJ) * (1.0 - fractionK);
 
-   values [ 0 ] = checkedGet ( baseI + 1, baseJ + 1, baseK + 1);
-   values [ 1 ] = checkedGet ( baseI + 1, baseJ + 1, baseK    );
-   values [ 2 ] = checkedGet ( baseI + 1, baseJ,     baseK + 1);
-   values [ 3 ] = checkedGet ( baseI + 1, baseJ,     baseK    );
-   values [ 4 ] = checkedGet ( baseI,     baseJ + 1, baseK + 1);
-   values [ 5 ] = checkedGet ( baseI,     baseJ + 1, baseK    );
-   values [ 6 ] = checkedGet ( baseI,     baseJ,     baseK + 1);
-   values [ 7 ] = checkedGet ( baseI,     baseJ,     baseK    );
+   values [ 0 ] = checkedGet ( baseI + 1, baseJ + 1, baseK + 1, isAcsendingOrder );
+   values [ 1 ] = checkedGet ( baseI + 1, baseJ + 1, baseK,     isAcsendingOrder );
+   values [ 2 ] = checkedGet ( baseI + 1, baseJ,     baseK + 1, isAcsendingOrder );
+   values [ 3 ] = checkedGet ( baseI + 1, baseJ,     baseK,     isAcsendingOrder );
+   values [ 4 ] = checkedGet ( baseI,     baseJ + 1, baseK + 1, isAcsendingOrder );
+   values [ 5 ] = checkedGet ( baseI,     baseJ + 1, baseK,     isAcsendingOrder );
+   values [ 6 ] = checkedGet ( baseI,     baseJ,     baseK + 1, isAcsendingOrder );
+   values [ 7 ] = checkedGet ( baseI,     baseJ,     baseK,     isAcsendingOrder );
 
    if (fractionI < 1 && fractionJ < 1 && fractionK < 1 &&
        undefinedValue == values [ 7 ]) return undefinedValue;

@@ -60,6 +60,9 @@ public :
    /// Maps the output-property name of the property-name.
    const std::string& findOutputPropertyName ( const std::string& name ) const;
 
+   /// Maps the property name of the output-property-name.
+   const std::string& findPropertyName ( const std::string& name ) const;
+
    /// Computes all map-properties on required-property list.
    ///
    // Appctx is required for the layers.

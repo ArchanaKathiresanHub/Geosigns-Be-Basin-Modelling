@@ -255,7 +255,11 @@ int main (int argc, char **argv)
       if (strncmp (argv[i], "-directory", std::max ((size_t) 2, (size_t) strlen (argv[i]))) == 0)
       {
 	 schemaDir = argv[++i];
+#ifdef _WIN32
+	 schemaDir += "\\";
+#else
 	 schemaDir += "/";
+#endif
       }
       else if (strncmp (argv[i], "-input", std::max ((size_t) 2, (size_t) strlen (argv[i]))) == 0)
       {

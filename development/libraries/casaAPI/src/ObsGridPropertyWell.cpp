@@ -36,9 +36,9 @@ ObsGridPropertyWell::ObsGridPropertyWell( const std::vector<double> & x
                                         : m_x( x.begin(), x.end() )
                                         , m_y( y.begin(), y.end() )
                                         , m_z( z.begin(), z.end() )
-                                        , m_posDataMiningTbl( x.size(), -1 )
                                         , m_propName( propName )
                                         , m_simTime( simTime )
+                                        , m_posDataMiningTbl( x.size(), -1 )
                                         , m_devValue( 0.0 )
                                         , m_saWeight( 1.0 )
                                         , m_uaWeight( 1.0 )
@@ -167,7 +167,7 @@ ObsValue * ObsGridPropertyWell::getFromModel( mbapi::Model & caldModel )
 }
 
 // Check well against project coordinates
-std::string ObsGridPropertyWell::checkObservableForProject( mbapi::Model & caldModel )
+std::string ObsGridPropertyWell::checkObservableForProject( mbapi::Model & caldModel ) 
 {
    std::ostringstream oss;
 
@@ -202,7 +202,7 @@ ObsValue * ObsGridPropertyWell::createNewObsValueFromDouble( std::vector<double>
    return new ObsValueDoubleArray( this, obsVal );
 }
 
-bool ObsGridPropertyWell::save( CasaSerializer & sz, unsigned int version ) const
+bool ObsGridPropertyWell::save( CasaSerializer & sz, unsigned int /* version */ ) const
 {
    // register observable with serializer to allow ObsValue objects keep reference after deserializtion
    CasaSerializer::ObjRefID obID = sz.ptr2id( this );

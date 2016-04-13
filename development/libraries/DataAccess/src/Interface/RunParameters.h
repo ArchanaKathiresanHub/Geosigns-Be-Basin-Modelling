@@ -116,6 +116,9 @@ namespace DataAccess
 
          /// Indicates whether to automatically detect reservoir nodes.
          virtual bool getReservoirDetection () const;
+         
+         /// Indicates whether to use the simulator in BPA compatible mode
+         virtual bool getLegacy () const;
 
          /// Indicates whether to use secondary migration blocking
          virtual bool getBlockingInd () const;

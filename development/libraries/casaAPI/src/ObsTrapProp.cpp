@@ -41,10 +41,10 @@ ObsTrapProp::ObsTrapProp( double x
                         , m_resName( resName )
                         , m_propName( propName )
                         , m_simTime( simTime )
+                        , m_posDataMiningTbl( -1 )
                         , m_devValue( 0.0 )
                         , m_saWeight( 1.0 )
                         , m_uaWeight( 1.0 )
-                        , m_posDataMiningTbl( -1 )
 
 {
    // check input values
@@ -184,7 +184,7 @@ ObsValue * ObsTrapProp::createNewObsValueFromDouble( std::vector<double>::const_
    return new ObsValueDoubleScalar( this, *val++ );
 }
 
-bool ObsTrapProp::save( CasaSerializer & sz, unsigned int version ) const
+bool ObsTrapProp::save( CasaSerializer & sz, unsigned int /* version */) const
 {
    // register observable with serializer to allow ObsValue objects keep reference after deserializtion
    CasaSerializer::ObjRefID obID = sz.ptr2id( this ); 

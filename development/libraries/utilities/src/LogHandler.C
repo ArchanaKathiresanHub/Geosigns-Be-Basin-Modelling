@@ -28,7 +28,7 @@ bool LogHandler::s_logIsCreated = false;
 // Initialise log file name
 std::string LogHandler::s_logName;
 
-LogHandler::LogHandler( const std::string & logName, const VerbosityLevel verbosity, const int& mpiRank ){
+LogHandler::LogHandler( const std::string & logName, const VerbosityLevel verbosity, int mpiRank ){
 
    // C++11 const std::string mpiRankString = std::to_string( mpiRank );
    std::ostringstream mpiRankConverter;
@@ -36,6 +36,7 @@ LogHandler::LogHandler( const std::string & logName, const VerbosityLevel verbos
    std::string mpiRankString = mpiRankConverter.str();
    std::string fullLogName = logName + "_" + mpiRankString + ".log";
 
+   m_severity = INFO_SEVERITY;
    if (!s_logIsCreated){
       s_logName = fullLogName;
 
@@ -95,19 +96,21 @@ LogHandler::~LogHandler(){
          if (s_logIsCreated) {
             switch (m_severity)
             {
-            case LogHandler::DEBUG_SEVERITY:     BOOST_LOG_TRIVIAL( debug ) << "MeSsAgE DEBUG    " << m_oss.str(); break;
-            case LogHandler::INFO_SEVERITY:      BOOST_LOG_TRIVIAL( info ) << m_oss.str(); break;
+            case LogHandler::DEBUG_SEVERITY:     BOOST_LOG_TRIVIAL( debug )   << "MeSsAgE DEBUG    " << m_oss.str(); break;
+            case LogHandler::INFO_SEVERITY:      BOOST_LOG_TRIVIAL( info )                           << m_oss.str(); break;
             case LogHandler::WARNING_SEVERITY:   BOOST_LOG_TRIVIAL( warning ) << "MeSsAgE WARNING  " << m_oss.str(); break;
-            case LogHandler::ERROR_SEVERITY:     BOOST_LOG_TRIVIAL( error ) << "MeSsAgE ERROR    " << m_oss.str(); break;
-            case LogHandler::FATAL_SEVERITY:     BOOST_LOG_TRIVIAL( fatal ) << "MeSsAgE FATAL    " << m_oss.str(); break;
+            case LogHandler::ERROR_SEVERITY:     BOOST_LOG_TRIVIAL( error )   << "MeSsAgE ERROR    " << m_oss.str(); break;
+            case LogHandler::FATAL_SEVERITY:     BOOST_LOG_TRIVIAL( fatal )   << "MeSsAgE FATAL    " << m_oss.str(); break;
             default: throw LogHandlerException() << "Unknwon severity level '" << m_severity << "'."; break;
             }
          }
          else {
-            throw LogHandlerException() << "Cannot find log file for current application.";
+            //Do not throw exception yet since not all applications have a log handler initialized and some libraries are using the LogHandler
+            //First add the logHandler to all applications, and then reactivate this throw --> Requirement 56618
+            //throw LogHandlerException() << "Cannot find log file for current application.";
          }
       }
-      catch (LogHandlerException ex){
+      catch (LogHandlerException ex) {
          BOOST_LOG_TRIVIAL( error ) << "MeSsAgE ERROR    " << ex.what();
       }
       catch (...){

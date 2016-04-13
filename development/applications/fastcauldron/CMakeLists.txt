@@ -44,6 +44,7 @@ set( all_headers,
      src/DarcyCalculations.h
      src/DerivedOutputPropertyMapFactory.h
      src/DerivedOutputPropertyMap.h
+     src/DerivedPropertiesCalculator.h
      src/ElementActivityPredicate.h
      src/ElementAlwaysActivePredicate.h
      src/element_contributions.h
@@ -115,6 +116,7 @@ set( all_headers,
      src/PetscBlockVector.h
      src/PetscLogStages.h
      src/PetscObjectAllocator.h
+     src/PetscObjectsIO.h
      src/PetscSolver.h
      src/PoreVolumeInterpolatorCalculator.h
      src/PorosityCalculator.h
@@ -200,6 +202,7 @@ set( all_srcs_except_main
      src/CrustFormation.C
      src/DarcyCalculations.C
      src/DerivedOutputPropertyMapFactory.C
+     src/DerivedPropertiesCalculator.C
      src/element_contributions.C
      src/ElementContributions.C
      src/ElementDofsMixin.C
@@ -259,6 +262,7 @@ set( all_srcs_except_main
      src/PermeabilityCalculator.C
      src/PetscLogStages.C
      src/PetscObjectAllocator.C
+     src/PetscObjectsIO.C
      src/PetscSolver.C
      src/PoreVolumeInterpolatorCalculator.C
      src/PorosityCalculator.C
@@ -336,6 +340,11 @@ add_library( FastcauldronApplication
 #
 add_executable(fastcauldron src/main.C ${all_headers})
 
+#
+# 5. linearSolver application
+#
+add_executable(linearSolver linearSolver/main.C ${all_headers})
+
 ################################################################
 ################### SET DEPENDENCIES/LINKS #####################
 ################################################################
@@ -359,6 +368,7 @@ bm_include_libraries(
 	FastcauldronApplication
 	DataModel
 	DataAccess
+	DerivedProperties
 	DistributedDataAccess
 	utilities
 	Utilities_Petsc
@@ -373,6 +383,7 @@ bm_include_libraries(
 	genex6
 	genex6_kernel	
 	GeoPhysics
+	FileSystem
 	calibration_kernel	
 )
 
@@ -387,12 +398,18 @@ target_link_libraries(fastcauldron
 	DataAccess
 	DistributedDataAccess
 )
+target_link_libraries(linearSolver
+	FastcauldronApplication
+	DataAccess
+	DistributedDataAccess
+)
 
 #
 # 2. FastcauldronApplication links to IBS libraries
 #
 target_link_libraries(FastcauldronApplication
 	DataAccess
+	DerivedProperties
 	DistributedDataAccess
 	utilities
 	Utilities_Petsc
@@ -407,6 +424,7 @@ target_link_libraries(FastcauldronApplication
 	genex6
 	genex6_kernel	
 	GeoPhysics
+	FileSystem
 	calibration_kernel
 	OTGC_kernel6
 	${HDF5_LIBRARIES}
@@ -417,6 +435,9 @@ target_link_libraries(FastcauldronApplication
 )
 
 set_target_properties(fastcauldron
+      PROPERTIES LINK_FLAGS "${PETSC_LINK_FLAGS}"
+)
+set_target_properties(linearSolver
       PROPERTIES LINK_FLAGS "${PETSC_LINK_FLAGS}"
 )
 
@@ -488,6 +509,15 @@ add_gtest( NAME "BrooksCorey::computeCapillaryEntryPressure"
 add_gtest( NAME "PetscSolver"
            SOURCES src/PetscSolver.C test/PetscSolver.C
            LIBRARIES ${PETSC_LIBRARIES}
+           LINK_FLAGS "${PETSC_LINK_FLAGS}"
+         )
+
+################## PETSC OBJECTS IO UNIT TESTS #################
+#
+#
+add_gtest( NAME "PetscObjectsIO"
+           SOURCES src/PetscObjectsIO.C test/PetscObjectsIO.C
+           LIBRARIES ${PETSC_LIBRARIES} ${Boost_LIBRARIES} FileSystem
            LINK_FLAGS "${PETSC_LINK_FLAGS}"
          )
 
@@ -595,7 +625,7 @@ set(CFGFLS "${PROJECT_SOURCE_DIR}/geocase/misc")
 
 add_gtest( NAME "MeshUnitTesterFull"
            SOURCES test/MeshUnitTester.C test/MeshUnitTesterFull.C
-           LIBRARIES  FastcauldronApplication DataAccess DistributedDataAccess utilities Utilities_Petsc Serial_Hdf5 Parallel_Hdf5 EosPack TableIO LinearAlgebra Interpolation FiniteElements CBMGenerics genex6_kernel GeoPhysics calibration_kernel OTGC_kernel6 ${HDF5_LIBRARIES} ${PETSC_LIBRARIES} ${MPI_LIBRARIES} ${Boost_LIBRARIES}
+           LIBRARIES  FastcauldronApplication DataAccess DistributedDataAccess utilities Utilities_Petsc Serial_Hdf5 Parallel_Hdf5 EosPack TableIO LinearAlgebra Interpolation FiniteElements CBMGenerics genex6_kernel GeoPhysics FileSystem calibration_kernel OTGC_kernel6 ${HDF5_LIBRARIES} ${PETSC_LIBRARIES} ${MPI_LIBRARIES} ${Boost_LIBRARIES}
            LINK_FLAGS "${PETSC_LINK_FLAGS}"
            ENV_VARS EOSPACKDIR=${CFGFLS}/eospack GENEX5DIR=${CFGFLS}/genex50 
          )

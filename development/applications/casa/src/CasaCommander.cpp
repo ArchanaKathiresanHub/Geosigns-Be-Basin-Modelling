@@ -9,6 +9,7 @@
 // 
 
 #include "ErrorHandler.h"
+#include "LogHandler.h"
 
 #include "CasaCommander.h"
 #include "CfgFileParser.h"
@@ -36,6 +37,7 @@
 #include "CmdSaveState.h"
 #include "CmdScenarioID.h"
 #include "CmdLoadState.h"
+#include "CmdGenerateMultiOneD.h"
 
 #include <typeinfo>
 
@@ -87,6 +89,8 @@ void CasaCommander::addCommand( const std::string & cmdName, const std::vector< 
    else if ( cmdName == CNScenarioID     ) cmd.reset( new CmdScenarioID(              *this, prms ) );// define scenario ID
    else if ( cmdName == CNPlotTornado    ) cmd.reset( new CmdPlotTornado(             *this, prms ) );// create plot of Tornado diagram for each observable 
                                                                                                       // for parameters sensitivity
+   else if (cmdName == "GenerateMultiOneD") cmd.reset(new CmdGenerateMultiOneD(      *this, prms ) );// create 1D projects for each well 
+   // for parameters sensitivity
 
    else throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Unknown command: " << cmdName;
 
@@ -95,11 +99,57 @@ void CasaCommander::addCommand( const std::string & cmdName, const std::vector< 
    m_cmdNames.push_back( cmdName );
    m_inpFileCmdPos.push_back( lineNum );
 
-   BOOST_LOG_TRIVIAL( debug ) << "Added command to the command queue: " << (typeid(*(cmd.get())).name()) << "("
+   LogHandler( LogHandler::DEBUG_SEVERITY ) << "Added command to the command queue: " << (typeid(*(cmd.get())).name()) << "("
                               << CfgFileParser::implode( prms, "," ) << ")";
 }
 
-void CasaCommander::executeCommands( std::auto_ptr<casa::ScenarioAnalysis> & sa )
+std::string CasaCommander::toString( const CasaCmd * pCmd )
+{
+   // dump command as astring to oss
+   std::ostringstream oss;
+
+   if      ( dynamic_cast<const CmdAddCldApp  *>( pCmd ) )  oss << CNAddCldApp   ;
+   else if ( dynamic_cast<const CmdBaseProject*>( pCmd ) )  oss << "base_project";
+   else if ( dynamic_cast<const CmdAddVarPrm  *>( pCmd ) ) 
+   { 
+      const CmdAddVarPrm * cmd = dynamic_cast<const CmdAddVarPrm*>( pCmd );
+      oss << CNAddVarPrm << " \"" << cmd->prmName() << "\""; 
+   }
+   else if ( dynamic_cast<const CmdAddObs*>( pCmd ) )
+   {
+      const CmdAddObs * cmd = dynamic_cast<const CmdAddObs*> (pCmd);
+      oss << CNAddObservable << " \"" << cmd->obsName() << "\"";
+   }
+   else if ( dynamic_cast<const CmdRun                    *> (pCmd) )  oss << CNRun;
+   else if ( dynamic_cast<const CmdRunBaseCase            *> (pCmd) )  oss << CNRunBaseCase;
+   else if ( dynamic_cast<const CmdRunReload              *> (pCmd) )  oss << CNRunReload;
+   else if ( dynamic_cast<const CmdLocation               *> (pCmd) )  oss << "location";
+   else if ( dynamic_cast<const CmdExpMatlab              *> (pCmd) )  oss << "exportMatlab";
+   else if ( dynamic_cast<const CmdExpDataTxt             *> (pCmd) )  oss << CNExpDataTxt;
+   else if ( dynamic_cast<const CmdGenerateBestMatchedCase*> (pCmd) )  oss << CNGenerateBMCase;
+   else if ( dynamic_cast<const CmdSaveState              *> (pCmd) )  oss << "savestate";
+   else if ( dynamic_cast<const CmdLoadState              *> (pCmd) )  oss << "loadstate";
+   else if ( dynamic_cast<const CmdScenarioID             *> (pCmd) )  oss << CNScenarioID;
+   else 
+   {
+      return oss.str(); //return an empty string if the command is not valid
+   }
+
+   oss << " ";
+   const std::vector<std::string> & prms = pCmd->cmdParameters();
+   for ( size_t i = 0; i < prms.size(); ++i )
+   {
+      std::string prm = prms[i];
+      if ( isdigit( prm[0] ) || prm[0] == '[' || prm[0] == '.' ) { oss << prm << " ";           } 
+      else                                                       { oss << "\"" << prm << "\" "; }
+   }
+
+   LogHandler(LogHandler::DEBUG_SEVERITY) << "The command " << ( typeid( *(pCmd)).name() ) << " was converted to string\n";
+
+   return oss.str();
+}
+
+void CasaCommander::executeCommands( std::unique_ptr<casa::ScenarioAnalysis> & sa )
 {
    for ( size_t i = 0; i < m_cmds.size(); ++i )
    {

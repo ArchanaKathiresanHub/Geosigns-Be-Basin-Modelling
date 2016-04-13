@@ -17,6 +17,9 @@
 // CASA API
 #include "casaAPI.h"
 
+// LogHandler lib
+#include "LogHandler.h"
+
 // STD C
 #include <cstdlib>
 
@@ -43,7 +46,7 @@ public:
    virtual ~PrmType() {;}
 
    /// @brief add variable parameter to scenario
-   virtual void addParameterObject( std::auto_ptr<casa::ScenarioAnalysis> & sa
+   virtual void addParameterObject( std::unique_ptr<casa::ScenarioAnalysis> & sa
                                   , const std::string                     & name
                                   , const std::vector<std::string>        & prms
                                   ) const = 0;
@@ -95,16 +98,28 @@ public:
    TopCrustHeatProduction( const std::string & prmTypeName = "" ) : PrmType( prmTypeName ) {;}
    virtual ~TopCrustHeatProduction() {;}
 
-   virtual void addParameterObject( std::auto_ptr<casa::ScenarioAnalysis> & sa
+   virtual void addParameterObject( std::unique_ptr<casa::ScenarioAnalysis> & sa
                                   , const std::string                     & name
                                   , const std::vector<std::string>        & prms
                                   ) const
    {
-      double                      minVal = atof(  prms[1].c_str() );
-      double                      maxVal = atof(  prms[2].c_str() );
+      std::vector<double>      simpleRange;
+      std::vector<std::string> mapRange;
+      // if parameters - 2 doubles - it is a simple range
+      if ( CfgFileParser::isNumericPrm( prms[1] ) && CfgFileParser::isNumericPrm( prms[2] ) )
+      {
+         simpleRange.push_back( atof( prms[1].c_str() ) );
+         simpleRange.push_back( atof( prms[2].c_str() ) );
+      }
+      else // otherwise consider it as a map range
+      {
+         mapRange.push_back( prms[1] );
+         mapRange.push_back( prms[2] );
+      }
+
       casa::VarPrmContinuous::PDF ppdf = Str2pdf( prms[3] );
 
-      if ( ErrorHandler::NoError != casa::BusinessLogicRulesSet::VaryTopCrustHeatProduction( *sa.get(), name.c_str(), minVal, maxVal, ppdf ) )
+      if ( ErrorHandler::NoError != casa::BusinessLogicRulesSet::VaryTopCrustHeatProduction( *sa.get(), name.c_str(), simpleRange, mapRange, ppdf ) )
       {
          throw ErrorHandler::Exception( sa->errorCode() ) << sa->errorMessage();
       }
@@ -121,11 +136,11 @@ public:
    {
       std::ostringstream oss;
 
-      oss << "    [varPrmName] \"BasementIoTbl:TopCrustHeatProd\" <minVal> <maxVal> <prmPDF>\n";
+      oss << "    [varPrmName] \"" << m_tblName << ":" << m_colName << "\" <minVal> <maxVal> <prmPDF>\n";
       oss << "    Where:\n";
       oss << "       varPrmName - user specified variable parameter name (Optional)\n";
-      oss << "       minVal     - the parameter minimal range value\n";
-      oss << "       maxVal     - the parameter maximal range value\n";
+      oss << "       minVal     - the parameter minimal range value (double value or a map name)\n";
+      oss << "       maxVal     - the parameter maximal range value (double value or a map name)\n";
       oss << "       prmPDF     - the parameter probability density function type, the value could be one of the following:\n";
       oss << "                \"Block\"    - uniform probability between min and max values,\n";
       oss << "                \"Triangle\" - triangle shape probability function. The top triangle value is taken from the base case\n";
@@ -139,6 +154,9 @@ public:
       std::ostringstream oss;
       oss << "    #                                      type               minVal  maxVal prmPDF\n";
       oss << "    " << cmdName << " \"Radiogenic heat rate\"  \"" << name() << "\"    0.1     4.9  \"Block\"\n";
+      oss << "\n";
+      oss << "    #                                      type               minVal  maxVal prmPDF\n";
+      oss << "    " << cmdName << " \"Radiogenic heat rate\"  \"" << name() << "Grid\"  \"MinMapName\" \"MaxMapName\"  \"Block\"\n";
       oss << "\n";
       return oss.str();
    }
@@ -154,7 +172,7 @@ public:
    SourceRockTOC( const std::string & prmTypeName = "" ) : PrmType( prmTypeName ) {;}
    virtual ~SourceRockTOC() {;}
 
-   virtual void addParameterObject( std::auto_ptr<casa::ScenarioAnalysis> & sa
+   virtual void addParameterObject( std::unique_ptr<casa::ScenarioAnalysis> & sa
                                   , const std::string                     & name
                                   , const std::vector<std::string>        & prms
                                   ) const
@@ -237,7 +255,7 @@ public:
    SourceRockHC( const std::string & prmTypeName = "" ) : PrmType( prmTypeName ) {;}
    virtual ~SourceRockHC() {;}
 
-   virtual void addParameterObject( std::auto_ptr<casa::ScenarioAnalysis> & sa
+   virtual void addParameterObject( std::unique_ptr<casa::ScenarioAnalysis> & sa
                                   , const std::string                     & name
                                   , const std::vector<std::string>        & prms
                                   ) const
@@ -325,7 +343,7 @@ public:
    
    virtual ~SourceRockHI() {;}
 
-   virtual void addParameterObject( std::auto_ptr<casa::ScenarioAnalysis> & sa
+   virtual void addParameterObject( std::unique_ptr<casa::ScenarioAnalysis> & sa
                                   , const std::string                     & name
                                   , const std::vector<std::string>        & prms
                                   ) const
@@ -411,7 +429,7 @@ public:
    SourceRockPreasphActEnergy( const std::string & prmTypeName = "" ) : PrmType( prmTypeName ) {;}
    virtual ~SourceRockPreasphActEnergy() {;}
 
-   virtual void addParameterObject( std::auto_ptr<casa::ScenarioAnalysis> & sa
+   virtual void addParameterObject( std::unique_ptr<casa::ScenarioAnalysis> & sa
                                   , const std::string                     & name
                                   , const std::vector<std::string>        & prms
                                   ) const
@@ -494,7 +512,7 @@ public:
    SourceRockType( const std::string & prmTypeName = "" ) : PrmType( prmTypeName ) {;}
    virtual ~SourceRockType() {;}
 
-   virtual void addParameterObject( std::auto_ptr<casa::ScenarioAnalysis> & sa
+   virtual void addParameterObject( std::unique_ptr<casa::ScenarioAnalysis> & sa
                                   , const std::string                     & name
                                   , const std::vector<std::string>        & prms
                                   ) const
@@ -569,7 +587,7 @@ public:
    CrustThinningOneEvent()  {;}
    virtual ~CrustThinningOneEvent() {;}
 
-   virtual void addParameterObject( std::auto_ptr<casa::ScenarioAnalysis> & sa
+   virtual void addParameterObject( std::unique_ptr<casa::ScenarioAnalysis> & sa
                                   , const std::string                     & name
                                   , const std::vector<std::string>        & prms
                                   ) const
@@ -650,7 +668,7 @@ public:
    CrustThinning()  {;}
    virtual ~CrustThinning() {;}
 
-   virtual void addParameterObject( std::auto_ptr<casa::ScenarioAnalysis> & sa
+   virtual void addParameterObject( std::unique_ptr<casa::ScenarioAnalysis> & sa
                                   , const std::string                     & name
                                   , const std::vector<std::string>        & prms
                                   ) const
@@ -764,7 +782,7 @@ public:
    SurfacePorosity( const std::string & prmTypeName = "" ) : PrmType( prmTypeName ) {;}
    virtual ~SurfacePorosity() {;}
 
-   virtual void addParameterObject( std::auto_ptr<casa::ScenarioAnalysis> & sa
+   virtual void addParameterObject( std::unique_ptr<casa::ScenarioAnalysis> & sa
                                   , const std::string                     & name
                                   , const std::vector<std::string>        & prms
                                   ) const
@@ -870,6 +888,128 @@ public:
    }
 };
 
+////////////////////////////////////////////////////////////////
+// Lithofraction parameter
+////////////////////////////////////////////////////////////////
+//
+class LithoFraction : public PrmType
+{
+public:
+   LithoFraction( const std::string & prmTypeName = "" ) : PrmType( prmTypeName ) { ; }
+   virtual ~LithoFraction() { ; }
+
+   virtual void addParameterObject( std::unique_ptr<casa::ScenarioAnalysis> & sa
+                                  , const std::string                       & name
+                                  , const std::vector<std::string>          & prms
+                                  ) const
+   {
+      size_t pos = 0;
+
+      std::vector<int>                            lithoFractionsInds;
+      std::vector<double>                         minLithoFrac;
+      std::vector<double>                         maxLithoFrac;
+      casa::VarPrmContinuous::PDF                 pdfType;
+
+      // lithofraction indexes
+      std::vector<std::string>                    lithoFraction = CfgFileParser::list2array( prms[pos++], ':' );
+
+      int lithoFractionInd = atoi( lithoFraction.back( ).substr( lithoFraction.back().size( ) - 1 ).c_str( ) );
+
+      if ( lithoFractionInd<1 || lithoFractionInd>3 )
+      {
+         throw ErrorHandler::Exception( ErrorHandler::IoError ) << "The lithofraction must be defined as Percent1, Percent2 or Percent3 " <<
+            ", but it is defined as: " << lithoFraction.back();
+      }
+      lithoFractionsInds.push_back( lithoFractionInd - 1 );
+
+      // layer names 
+      const std::string layerName = prms[pos++];
+      // min/max values for percentage of the first lithology in the mix
+      minLithoFrac.push_back( atof( prms[pos++].c_str() ) );
+      maxLithoFrac.push_back( atof( prms[pos++].c_str() ) );
+      
+      // PDFs
+      pdfType = Str2pdf( prms[pos++] );
+
+      if ( pos < prms.size() )
+      {
+         // lithofraction indexes
+         lithoFraction = CfgFileParser::list2array( prms[pos++], ':' );
+         lithoFractionInd = atoi( lithoFraction.back( ).substr( lithoFraction.back().size( ) - 1 ).c_str( ) );
+
+         if ( lithoFractionInd<1 || lithoFractionInd>3 )
+         {
+            throw ErrorHandler::Exception( ErrorHandler::IoError ) << "The lithofraction must be defined as Percent1, Percent2 or Percent3 " <<
+               ", but it is defined as: " << lithoFraction.back();
+         }
+         lithoFractionsInds.push_back( lithoFractionInd - 1 );
+
+         // min/max value for the fraction of the secon lithology in the mix
+         minLithoFrac.push_back( atof( prms[pos++].c_str() ) );
+         maxLithoFrac.push_back( atof( prms[pos++].c_str() ) );
+      }
+
+      if ( ErrorHandler::NoError != casa::BusinessLogicRulesSet::VaryLithoFraction( *sa.get( )
+                                                                                  , name.c_str()
+                                                                                  , layerName
+                                                                                  , lithoFractionsInds
+                                                                                  , minLithoFrac
+                                                                                  , maxLithoFrac
+                                                                                  , pdfType 
+                                                                                  )
+         )
+      {
+         throw ErrorHandler::Exception( sa->errorCode() ) << sa->errorMessage();
+      }
+   }
+
+   size_t expectedParametersNumber() const { return 4; } // lay_name,   mn/mx, pdf
+   size_t optionalParametersNumber() const { return 3; } // percentage, mn/mx
+
+   virtual std::string name() const { return "StratIoTbl:Percent"; }
+
+   virtual std::string description() const
+   {
+      return "a variation of one or two lithofractions for the given formation";
+   }
+
+   virtual std::string fullDescription() const
+   {
+      std::ostringstream oss;
+      oss << "    To variate lithologies fractions in a layer lithologies mix, user should define variation of percentage of the one lithology\n";
+      oss << "    in the range [0:100] and fraction in the rest of the mix for the second lithology in range [0:1]\n";
+      oss << "    The final lithologies percentages in the mix will be calculated in the following way:\n";
+      oss << "    Lithology one (with variation by lithology percentage): X%, where X will be calculated by DoE\n";
+      oss << "    Lithology two (with variation by fraction in the rest of the mix): (100% - X%) * Y, where Y will be calculated by DoE\n";
+      oss << "    Lithology three: (100% - X%) * ( 1 - Y )\n";
+      oss << "    If user would like to variate just one lithology in a mix, the other two will be calculated in the same ratio as in base case\n";
+      oss << "    \n";
+      oss << "    [varPrmName] \"StratIoTbl:Percent<mixID>\" <layName> <minPercentage> <maxPercentage> <prmPDF>\n";
+      oss << "                [\"StratIoTbl:Percent<mixID>\" <minFraction> <maxFraction>]\n";
+      oss << "    Where:\n";
+      oss << "       varPrmName     - user specified variable parameter name (Optional)\n";
+      oss << "       mixID          - lithology mixing id must be 1, 2 or 3 \n";
+      oss << "       layName        - layer name\n";
+      oss << "       minPercentage  - lithology percentage minimal range value  \n";
+      oss << "       maxPercentage  - lithology percentage maximal range value \n";
+      oss << "       prmPDF         - the parameter probability density function type\n";
+      oss << "       minFraction    - lithology fraction - minimal range value (Optional)\n";
+      oss << "       maxFraction    - lithology fraction - maximal range value (Optional)\n";
+      oss << "\n";
+      return oss.str();
+   }
+
+   virtual std::string usingExample( const char * cmdName ) const
+   {
+      std::ostringstream oss;
+      oss << "    #       VarPrmName           LayerName         Lithofraction [%]   Parameter PDF\n";
+      oss << "    " << cmdName << " \"" << name( ) << "1\" \"Lower Jurassic\"   60 80   \"Block\"\n";
+      oss << "    \n";
+      oss << "    " << cmdName << " \"MyVarPrm\" \"" << name() << "2\" \"Lower Jurassic\"   40 80   \"Block\"\n";
+      oss << "                    " << name() << "3\" 0.1 0.5\n";
+      return oss.str();
+   }
+};
 
 ////////////////////////////////////////////////////////////////
 // PorosityModel parameter
@@ -881,7 +1021,7 @@ public:
    PorosityModel( const std::string & prmTypeName = "" ) : PrmType( prmTypeName ) {;}
    virtual ~PorosityModel() {;}
 
-   virtual void addParameterObject( std::auto_ptr<casa::ScenarioAnalysis> & sa
+   virtual void addParameterObject( std::unique_ptr<casa::ScenarioAnalysis> & sa
                                   , const std::string                     & name
                                   , const std::vector<std::string>        & prms
                                   ) const
@@ -987,7 +1127,7 @@ public:
    PermeabilityModel( const std::string & prmTypeName = "" ) : PrmType( prmTypeName ) {;}
    virtual ~PermeabilityModel() {;}
 
-   virtual void addParameterObject( std::auto_ptr<casa::ScenarioAnalysis> & sa
+   virtual void addParameterObject( std::unique_ptr<casa::ScenarioAnalysis> & sa
                                   , const std::string                     & name
                                   , const std::vector<std::string>        & prms
                                   ) const
@@ -1176,7 +1316,7 @@ public:
    STPThermalCondCoeff( const std::string & prmTypeName = "" ) : PrmType( prmTypeName ) {;}
    virtual ~STPThermalCondCoeff() {;}
 
-   virtual void addParameterObject( std::auto_ptr<casa::ScenarioAnalysis> & sa
+   virtual void addParameterObject( std::unique_ptr<casa::ScenarioAnalysis> & sa
                                   , const std::string                     & name
                                   , const std::vector<std::string>        & prms
                                   ) const
@@ -1255,7 +1395,13 @@ public:
       m_prmType["LithotypeIoTbl:Porosity_Model" ] = new PorosityModel(          "LithotypeIoTbl:Porosity_Model"   );
       m_prmType["LithotypeIoTbl:SurfacePorosity"] = new SurfacePorosity(        "LithotypeIoTbl::SurfacePorosity" );
 
-      m_prmType["BasementIoTbl:TopCrustHeatProd"] = new TopCrustHeatProduction( "BasementIoTbl:TopCrustHeatProd"  );
+      m_prmType["StratIoTbl:Percent1"] = new LithoFraction( "StratIoTbl:Percent1" );
+      m_prmType["StratIoTbl:Percent2"] = new LithoFraction( "StratIoTbl:Percent2" );
+      m_prmType["StratIoTbl:Percent3"] = new LithoFraction( "StratIoTbl:Percent3" );
+
+      m_prmType["BasementIoTbl:TopCrustHeatProd"]     = new TopCrustHeatProduction( "BasementIoTbl:TopCrustHeatProd"  );
+      m_prmType["BasementIoTbl:TopCrustHeatProdGrid"] = new TopCrustHeatProduction( "BasementIoTbl:TopCrustHeatProdGrid"  );
+
       m_prmType["LithotypeIoTbl:StpThCond"      ] = new STPThermalCondCoeff(    "LithotypeIoTbl:StpThCond"        );
 
       m_prmType["StratIoTbl:SourceRockType"     ] = new SourceRockType( "StratIoTbl:SourceRockType" );
@@ -1329,9 +1475,9 @@ CmdAddVarPrm::CmdAddVarPrm( CasaCommander & parent, const std::vector< std::stri
    }
 }
 
-void CmdAddVarPrm::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
+void CmdAddVarPrm::execute( std::unique_ptr<casa::ScenarioAnalysis> & sa )
 {
-   BOOST_LOG_TRIVIAL( info ) << "Add variable parameter: " << ( m_prmName.empty() ?
+   LogHandler( LogHandler::INFO_SEVERITY ) << "Add variable parameter: " << ( m_prmName.empty() ?
                                                                   (m_prms[0] + "(" + CfgFileParser::implode( m_prms, ",", 1 ) + ")") :
                                                                   (m_prmName)
                                                               );

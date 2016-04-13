@@ -14,14 +14,16 @@ include(cmake/AddPackage.cmake)
 include(cmake/EnvSetup.cmake)
 
 set(INTEL_CXX_ROOT "INTEL_CXX_ROOT-NOTFOUND" CACHE PATH "Path to Intel's compiler collection")
+
+set(INTEL_MPI_VERSION "4.1.1.036" CACHE STRING "Intel MPI version")
 set(INTEL_MPI_ROOT "INTEL_MPI_ROOT-NOTFOUND" CACHE PATH "Path to Intel MPI library" )
-set(INTEL_MPI_FLAVOUR "opt" CACHE STRING "Intel MPI library type. Choose from: opt, opt_mt, dbg, dbg_mt, log, log_mt" ) 
+set(INTEL_MPI_FLAVOUR "opt" CACHE STRING "Intel MPI library type. Choose from: opt, opt_mt, dbg, dbg_mt, log, log_mt" )
 
 option(BM_USE_INTEL_COMPILER "Whether to use the Intel compiler (UNIX only)" OFF)
 option(BM_USE_INTEL_MPI "Whether to use the Intel MPI (UNIX only)" OFF)
 option(BM_USE_MPI_FRONTEND "Whether to use MPI frontend when compiling. (UNIX only)" OFF)
-   
-if (UNIX) 
+
+if (UNIX)
 
    #
    # We may need to construct wrappers for a few commands because they need
@@ -33,6 +35,13 @@ if (UNIX)
    init_wrapper( cxxwl )   # C++ Compiler without linking
    init_wrapper( mpiexec ) # mpiexec command
    init_wrapper( mpirun )  # mpirun command
+
+   # Intel MPI compiler version 5 and later adds the followin striping commands when called with -show option to avoid
+   # this we need to add -nostrip option 
+   # objcopy --only-keep-debug a.out a.out.dbg
+   # objcopy --strip-debug a.out
+   # objcopy --add-gnu-debuglink=a.out.dbg a.out
+   set(NO_STRIP_OPTION "" CACHE STRING "Add or not -nostrip option to -show command of compiler")
 
    #
    # Set the compiler on Unix to Intel if enabled
@@ -54,7 +63,7 @@ if (UNIX)
           CAPABILITY   Compiler
           NAME         "Compiler"
           VENDOR       "Intel"
-          VERSION      "13.1.3 20130607"
+          VERSION      "${CMAKE_CXX_COMPILER_VERSION}"
           LICENSE_TYPE "Commercial"
           LICENSE_FILE "${INTEL_CXX_ROOT}/Documentation/en_US/clicense"
           URL          "http://software.intel.com/en-us/intel-compilers"
@@ -84,6 +93,11 @@ if (UNIX)
 
       # If we do build parallel applications
       if (BM_USE_INTEL_MPI)
+
+         STRING(SUBSTRING ${INTEL_MPI_VERSION} 1 1 INTEL_MPI_VERSION_MAJOR)
+         if (${INTEL_MPI_VERSION_MAJOR} VERSION_GREATER  4)
+            set(NO_STRIP_OPTION "-nostrip")
+         endif()
          
          set( MPI_NAME "IntelMPI_${INTEL_MPI_FLAVOUR}" CACHE STRING "Name of the MPI implementation")
 
@@ -131,19 +145,19 @@ if (UNIX)
          if (NOT BM_USE_MPI_FRONTEND)
             # However the Intel MPI compiler frontends are quite a bit slower when
             # ran from NFS volumes, therefore it's to call the compilers directly
-            execute_process( COMMAND "${C_Compiler}" "-show" "${args}"
+            execute_process( COMMAND "${C_Compiler}" "${NO_STRIP_OPTION}" "-show" "${args}"
                   OUTPUT_VARIABLE evaluatedFrontendLinkingC
             )
-            execute_process( COMMAND "${CXX_Compiler}" "-show" "${args}"
+            execute_process( COMMAND "${CXX_Compiler}" "${NO_STRIP_OPTION}" "-show" "${args}"
                   OUTPUT_VARIABLE evaluatedFrontendLinkingCXX
             )
 
             # Note: Also take into account that these wrappers generate a
             # different set of commands when they are ran in non-linking mode
-            execute_process( COMMAND "${C_Compiler_Without_Linking}" "-c" "-show" "${args}"
+            execute_process( COMMAND "${C_Compiler_Without_Linking}" "-c" "${NO_STRIP_OPTION}" "-show" "${args}"
                   OUTPUT_VARIABLE evaluatedFrontendNonLinkingC
             )
-            execute_process( COMMAND "${CXX_Compiler_Without_Linking}" "-c" "-show" "${args}"
+            execute_process( COMMAND "${CXX_Compiler_Without_Linking}" "-c" "${NO_STRIP_OPTION}" "-show" "${args}"
                   OUTPUT_VARIABLE evaluatedFrontendNonLinkingCXX
             )
 
@@ -167,7 +181,7 @@ if (UNIX)
              CAPABILITY MPIlib
              NAME         "MPI"
              VENDOR       "Intel"
-             VERSION      "4.1.1.036"
+             VERSION      "${INTEL_MPI_VERSION}"
              LICENSE_TYPE "Commercial"
              LICENSE_FILE "${INTEL_MPI_ROOT}/mpiEULA.txt"
              URL          "http://software.intel.com/en-us/intel-mpi-library"

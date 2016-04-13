@@ -51,7 +51,7 @@ namespace casa
    }
 
    // Serialize object to the given stream
-   bool VarSpaceImpl::save( CasaSerializer & sz, unsigned int fileVersion ) const
+   bool VarSpaceImpl::save( CasaSerializer & sz, unsigned int /* fileVersion */ ) const
    {
       bool ok = true;
 

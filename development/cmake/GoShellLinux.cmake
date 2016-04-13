@@ -26,7 +26,6 @@ endif()
 
 set(CBM_HOME "/nfs/rvl/groups/ept-sg/SWEast/Cauldron" CACHE PATH "The path the shared drive of the development team")
 
-option( BM_BUILD_QT3_APPS "Build programs that need QT3" ON)
 option( BM_CSHARP_API "Build the C sharp interface (Windows only)" OFF )
 option( BM_USE_FLEXLM "Whether to require a license via FlexLM" ON)
 option( BM_EXTERNAL_COMPONENTS_REBUILD "Whether or not to rebuild external components" OFF)
@@ -40,6 +39,14 @@ set(INTEL_MKL_ROOT "${INTEL_CXX_ROOT}/mkl" CACHE PATH "Path to Intel MKL" )
 option(BM_USE_INTEL_COMPILER "Whether to use the Intel compiler (UNIX only)" ON)
 option(BM_USE_INTEL_MPI "Whether to use the Intel MPI (UNIX only)" ON)
 
+# Qt3 programs are failed to build with gcc 4.9
+if (BM_USE_INTEL_COMPILER)
+   option( BM_BUILD_QT3_APPS "Build programs that need QT3" ON)
+else (BM_USE_INTEL_COMPILER)
+   option( BM_BUILD_QT3_APPS "Build programs that need QT3" OFF)
+endif (BM_USE_INTEL_COMPILER)
+
+
 set(BM_CLOCK_GETTIME_LIB "")
 set(BM_DL_LIB "" )
 
@@ -48,10 +55,16 @@ set(BLA_VENDOR "MKL")
 set(DOXYGEN_EXECUTABLE "${CBM_HOME}/Tools/bin/doxygen" CACHE PATH "Path to doxygen executable")
 set(DOT_EXECUTABLE "${CBM_HOME}/Tools/bin/dot" CACHE PATH "Path to dot executable")
 
-set( FLEXLM_ROOT "/apps/3rdparty/EPTFlexLm/v9.2" CACHE PATH "Path to FlexLM directory" )
-set( FLEXLM_LIBRARY "${FLEXLM_ROOT}/LinuxRHEL_i686_30WS/lib64/EPTFlexLm.o" CACHE FILEPATH "Path of FlexLM libraries" )
+set(FLEXLM_ROOT "/apps/3rdparty/EPTFlexLm/v9.2" CACHE PATH "Path to FlexLM directory" )
+set(FLEXLM_LIBRARY "${FLEXLM_ROOT}/LinuxRHEL_i686_30WS/lib64/EPTFlexLm.o" CACHE FILEPATH "Path of FlexLM libraries" )
 
-set( LSF_HOME "/glb/apps/hpc/lsfprod/9.1/linux2.6-glibc2.3-x86_64" CACHE PATH "Home dir for LSF binary files")
+if (DEFINED ENV{LSF_BINDIR})
+   set(LSF_HOME "$ENV{LSF_BINDIR}/.." CACHE PATH "Home dir for LSF binary files")
+else ()
+   set(LSF_HOME "/glb/apps/hpc/lsfprod/9.1/linux2.6-glibc2.3-x86_64" CACHE PATH "Home dir for LSF binary files")
+endif ()
+
+set(LSF_CAULDRON_PROJECT_NAME               "cldrn"     CACHE STRING "Project name for submitting jobs to LSF (for billing purpose)" )
 
 set(PARAVIEW_CONFIG_ROOT "${CBM_HOME}/Tools/paraview/Paraview-4.1.0-Release/Linux64x_26/lib/cmake/paraview-4.1"
       CACHE PATH "Path where ParaViewConfig.cmake can be found")

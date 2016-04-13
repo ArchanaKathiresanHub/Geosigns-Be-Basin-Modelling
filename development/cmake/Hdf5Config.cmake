@@ -23,17 +23,18 @@ if(UNIX)
          NAME HDF5
          VERSION ${HDF5_VERSION}
          ARCHIVE "${THIRD_PARTY_DIR}/sources/hdf5-1.8.11.tar.gz"
-         ARCHIVE_MD5 "3c28da19129fca00945d8eeea519db1c"
+         ARCHIVE_MD5 "d8e1475a6bfe7a8a20ca532985a75816"
          CONFIGURE_COMMAND "./configure" "--prefix={ROOT}"
          BUILD_COMMAND   "make"
          INSTALL_COMMAND "make" "install"
          CONFIGURE_OPTIONS 
            COMPILER "{CurrentCompiler}"  "CC={CC}" "CXX={CXX}"
            MPI      "{CurrentMPI}"  "--enable-parallel"
-           SPEED    "Release"    "--enable-production"
-           SPEED    "Debug"      "--enable-production"
-           SPEED    "DebugAll"   "--enable-debug"
-           SPEED    "MemCheck"   "--enable-debug" "--enable-using-memchecker"
+           SPEED    "Release"      "--enable-production"
+           SPEED    "Debug"        "--enable-production"
+           SPEED    "DebugAll"     "--enable-debug"
+           SPEED    "MemCheck"     "--enable-debug" "--enable-using-memchecker"
+           SPEED    "CodeCoverage" "--enable-production"
            OS       "{CurrentPlatform}"     
            LINK     "Dynamic"    "--enable-shared" "--disable-static"
            LINK     "Static"     "--disable-shared" "--enable-static"

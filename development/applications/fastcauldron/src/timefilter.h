@@ -1,3 +1,12 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
 #ifndef _TIMEFILTER_H_
 #define _TIMEFILTER_H_
 
@@ -131,13 +140,15 @@ enum PropertyList {
    //time of element invasion
    TIME_OF_ELEMENT_INVASION,
    
-   // ALC properties @todo
+   // ALC properties
    //    #default alc
    TOP_BASALT_ALC, MOHO_ALC, THICKNESS_CONTINENTAL_CRUST_ALC, THICKNESS_OCEANIC_CRUST_ALC,
    //    #debug alc
    ALC_SM_THICKNESS_CONTINENTAL_CRUST, ALC_SM_TOP_BASALT, ALC_SM_MOHO, ALC_ORIGINAL_MANTLE,
    ALC_SM_THICKNESS_OCEANIC_CRUST, ALC_MAX_MANTLE_DEPTH,
 
+   // Horizontal permeability
+   HORIZONTALPERMEABILITY,
    // End of enum. Do not put anything after this.
    ENDPROPERTYLIST
 };
@@ -381,6 +392,7 @@ const string PropertyName[] = {
   "ALCOrigLithMantleDepth",
   "ALCSmBasaltThickness",
   "ALCMaxAsthenoMantleDepth",
+  "HorizontalPermeability",
   "UNKNOWN"
 };
 
@@ -399,11 +411,11 @@ class TimeFilter
 
   void setFilter(const string& propertyName, const DataAccess::Interface::PropertyOutputOption outputOption);
 
-  bool IsSomethingSelected()const;
-
    const std::string& getPropertyName(PropertyList propertyId) const {return PropertyName[propertyId];}
 
    PropertyList getPropertylist ( const std::string& propertyName ) const;
+
+   OutputOption getPropertyOutputOption ( const std::string& propertyName ) const;
 
  private:
 

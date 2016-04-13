@@ -159,10 +159,10 @@ namespace casa
       /// @brief Add a parameter to variate top crust heat production value @f$ [\mu W/m^3] @f$ in given range
       /// @return ErrorHandler::NoError on success or error code otherwise
       ErrorHandler::ReturnCode VaryTopCrustHeatProduction(
-            ScenarioAnalysis    & sa          ///< [in,out] casa::ScenarioAnalysis object reference, if any error, this object will keep an error message
-          , const char          * name        ///< user specified name for variable parameter 
-          , double                minVal      ///< [in] the minimal range value 
-          , double                maxVal      ///< [in] the maximal range value 
+            ScenarioAnalysis               & sa     ///< [in,out] casa::ScenarioAnalysis reference, if any error, this object will keep an error message
+          , const char                     * name   ///< user specified name for variable parameter 
+          , const std::vector<double>      & dblRng ///< [in] the minimal/maximal range values for simple range
+          , const std::vector<std::string> & mapRng ///< [in] the minimal/maximal range values for maps range
           , VarPrmContinuous::PDF rangeShape  /**< [in] defines a type of probability function for the parameter. If PDF needs some middle
                                                    parameter value it will be taken from the base case model */
           );
@@ -319,9 +319,22 @@ namespace casa
           , const std::string                                      & litName       ///< [in] lithology name
           , double                                                   minSurfPor    ///< [in] min range value for the surface porosity 
           , double                                                   maxSurfPor    ///< [in] max range value for the surface porosity
-          , VarPrmContinuous::PDF pdfType          /**< [in] probability function type for the variable parameter. If PDF needs 
+          , VarPrmContinuous::PDF pdfType           /**< [in] probability function type for the variable parameter. If PDF needs 
                                                         some middle parameter value it will be taken from the base case model */
           );
+
+      /// @brief Add variation of one or two lithofractions
+      /// @return ErrorHandler::NoError on success or error code otherwise
+      ErrorHandler::ReturnCode VaryLithoFraction(
+         ScenarioAnalysis                                         & sa ///< [in,out] casa::ScenarioAnalysis object, if any error, this object will keep an error message
+         , const std::string                                      & name               ///< user specified name for variable parameter 
+         , const std::string                                      & layerName          ///< [in] stratigraphic layer name 
+         , std::vector<int>                                       & lithoFractionsInds ///< [in] indexes of the lithofractions
+         , std::vector<double>                                    & minLithoFrac       ///< [in] min range value for the lithofractions
+         , std::vector<double>                                    & maxLithoFrac       ///< [in] max range value for the lithofractions
+         , casa::VarPrmContinuous::PDF 	                          pdfType            /**< [in] probability function types for the variable parameters. If PDFs need
+                                                        some middle parameters values they will be taken from the base case model */
+         );
 
       /// @brief Add permeability model parameters variation
       /// @return ErrorHandler::NoError on success or error code otherwise

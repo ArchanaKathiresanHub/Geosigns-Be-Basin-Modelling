@@ -242,13 +242,14 @@ bool DistributedMapWriter::writeVolumeToHDF (DM & da, Vec & vec, const string & 
    return status;
 }
 
-bool DistributedMapWriter::writePrimaryVolumeToHDF (GridMap * gridMap, const string & propertyName, double time, const string & layerName, const bool useGroupName )
+bool DistributedMapWriter::writePrimaryVolumeToHDF (GridMap * gridMap, const string & propertyName, double time, const string & layerName, 
+                                                    const bool useGroupName, const bool isPrimary )
 {
-   bool status = writePrimaryVolumeToHDF (dynamic_cast<DistributedGridMap*> (gridMap)->getDA(), dynamic_cast<DistributedGridMap*> (gridMap)->getVec(), propertyName, time, layerName, useGroupName );
+   bool status = writePrimaryVolumeToHDF (dynamic_cast<DistributedGridMap*> (gridMap)->getDA(), dynamic_cast<DistributedGridMap*> (gridMap)->getVec(), propertyName, time, layerName, useGroupName, isPrimary );
     return status;
 }
 
-bool DistributedMapWriter::writePrimaryVolumeToHDF (DM & da, Vec & vec,  const string & propertyName, double time, const string & layerName, const bool useGroupName )
+bool DistributedMapWriter::writePrimaryVolumeToHDF (DM & da, Vec & vec,  const string & propertyName, double time, const string & layerName, const bool useGroupName, const bool isPrimary )
 {
    if (!m_outFile) return false;
 
@@ -298,12 +299,19 @@ bool DistributedMapWriter::writePrimaryVolumeToHDF (DM & da, Vec & vec,  const s
 
    // write data 
 
-   hid_t dataType = H5T_NATIVE_DOUBLE;
-   PetscVector_ReadWrite<double> writeObj;
-   
-   m_outFile->setChunking( true );
-   bool status = writeObj.write (m_outFile, propertyGroupId, layerName.c_str (), da, vec, petscD, dataType );
-
+   bool status;
+   if( isPrimary ) {
+      hid_t dataType = H5T_NATIVE_DOUBLE;
+      PetscVector_ReadWrite<double> writeObj;
+      
+      m_outFile->setChunking( true );
+      status = writeObj.write (m_outFile, propertyGroupId, layerName.c_str (), da, vec, petscD, dataType );
+   } else {
+      hid_t dataType = H5T_NATIVE_FLOAT;
+      PetscVector_ReadWrite<float> writeObj;
+      
+      status = writeObj.write (m_outFile, propertyGroupId, layerName.c_str (), da, vec, petscD, dataType );
+   }
    assert (status);
 
    H5Gclose (propertyGroupId);

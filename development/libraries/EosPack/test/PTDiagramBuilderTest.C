@@ -53,7 +53,7 @@ const double eps             = 1.e-3;
 class PTDiagramCalculatorTest: public ::testing::Test
 {
 public:
-   PTDiagramCalculatorTest()  { PVTCfgFileMgr::instance(); } // write cfg file
+   PTDiagramCalculatorTest()  { PVTCfgFileMgr::instance("./PVT_properties_DC.cfg"); } // write cfg file
    ~PTDiagramCalculatorTest() {;}
 };
 

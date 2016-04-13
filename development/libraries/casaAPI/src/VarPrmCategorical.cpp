@@ -30,7 +30,7 @@ namespace casa
 
    SharedParameterPtr VarPrmCategorical::createNewParameterFromUnsignedInt( unsigned int val ) const
    {
-      if ( val < 0 || val >= m_variation.size() )
+      if ( val >= m_variation.size() )
       {
          throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "No such category: " << val <<
             " for categorical parameter: " << m_name;
@@ -42,7 +42,7 @@ namespace casa
       return m_variation[val];
    }
 
-   bool VarPrmCategorical::save( CasaSerializer & sz, unsigned int version ) const
+   bool VarPrmCategorical::save( CasaSerializer & sz, unsigned int /* version */ ) const
    {
       // register var. parameter with serializer to allow all Parameters objects keep reference after deserializtion
       CasaSerializer::ObjRefID obID = sz.ptr2id( this );

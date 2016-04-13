@@ -128,7 +128,8 @@ void FCTCalc::decompact(){
 
   if ( FastcauldronSimulator::getInstance ().getCalculationMode () == HYDROSTATIC_DECOMPACTION_MODE ) {
      FastcauldronSimulator::getInstance ().deleteMinorSnapshotsFromSnapshotTable ();
-     FastcauldronSimulator::getInstance ().updateMajorSnapshotsFileNameInSnapshotTable ();
+
+     FastcauldronSimulator::getInstance ().deletePropertyValues();
   }
 
   PetscBool minorSnapshots;
@@ -287,4 +288,13 @@ bool FCTCalc::getGrid ( const double                    currentTime,
 
   return status;
 
+}
+const PropListVec & FCTCalc::getVolumeOutputProperties() const {
+
+   return  m_volumeOutputProperties;
+}
+
+const PropListVec & FCTCalc::getMapOutputProperties() const {
+
+   return  m_mapOutputProperties;
 }

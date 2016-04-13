@@ -23,12 +23,12 @@ namespace casa
    {
    public:
       /// @brief Construct variable parameter for the top crust heat production rate
-      /// @param baseValue base value
-      /// @param minValue  minimal range value
-      /// @param maxValue  maximal range value
-      /// @param pdfType type of probabiltiy density function for this variable parameter
-      /// @param name user specified parameter name
-      VarPrmTopCrustHeatProduction( double baseValue, double minValue, double maxValue, PDF pdfType, const char * name = 0 );
+      ///        It takes 2 ranges as parameters but only one should be not empty
+      VarPrmTopCrustHeatProduction( const std::vector<double>      & dblRng   ///< simple range of double values [min,max,base]
+                                  , const std::vector<std::string> & mapRng   ///< maps range [min map, max map, base map]
+                                  , PDF                              pdfType  ///< type of probabiltiy density function for this variable parameter
+                                  , const char                     * name = 0 ///< user specified parameter name 
+                                  );
 
       /// @brief Destructor
       virtual ~VarPrmTopCrustHeatProduction();

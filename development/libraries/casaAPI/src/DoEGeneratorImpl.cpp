@@ -119,7 +119,7 @@ namespace casa
 
             // replicate for each categorical value?
             bool replicate = LatinHypercube == m_typeOfDoE ? false : true; // LatinHypercube bit special case, doesn't support replication
-            std::auto_ptr<SUMlib::ExpDesign> doe; // SUMLib DoE object
+            std::unique_ptr<SUMlib::ExpDesign> doe; // SUMLib DoE object
 
             switch ( m_typeOfDoE )
             {
@@ -164,10 +164,8 @@ namespace casa
    // [in]  cs SUMLib generated case
    void DoEGeneratorImpl::addCase( const VarSpace & varSp, std::vector<RunCase*> & expSet, const SUMlib::Case & cs )
    {
-      const VarSpaceImpl & varSpace = dynamic_cast<const VarSpaceImpl &>(varSp);
-
       // create new CASA case
-      std::auto_ptr<RunCaseImpl> newCase( new RunCaseImpl() );
+      std::unique_ptr<RunCaseImpl> newCase( new RunCaseImpl() );
 
       sumext::convertCase( cs, varSp, *(newCase.get()) );
 
@@ -175,15 +173,10 @@ namespace casa
    }
 
    // Serialize object to the given stream
-   bool DoEGeneratorImpl::save( CasaSerializer & sz, unsigned int fileVersion ) const
+   bool DoEGeneratorImpl::save( CasaSerializer & sz, unsigned int /* fileVersion */ ) const
    {
-      bool ok = true;
-
       // initial implementation of serialization, must exist in all future versions of serialization
-      if ( fileVersion >= 0 )
-      {
-         bool ok = sz.save( static_cast<int>(m_typeOfDoE), "TypOfDoE" );
-      }
+      bool ok = sz.save( static_cast<int>(m_typeOfDoE), "TypOfDoE" );
       return ok;
    }
 

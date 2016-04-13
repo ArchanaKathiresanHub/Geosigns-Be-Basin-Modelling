@@ -81,7 +81,6 @@ void finaliseCrustalThicknessCalculator ( char* feature, const char* errorMessag
 //------------------------------------------------------------//
 int main (int argc, char ** argv)
 {
-   bool status;
    int rank = 99999;
    typedef formattingexception::GeneralException CtcException;
 
@@ -156,9 +155,35 @@ int main (int argc, char ** argv)
    }
 #endif
 
-   /// @todo make command line argument for verbosity
-   LogHandler ctcLog( "CTC", LogHandler::DIAGNOSTIC_LEVEL, rank );
+   ////////////////////////////////////////////
+   ///1. Intitialise fastctc loger
+   try{
+      PetscBool log = PETSC_FALSE;
+      PetscOptionsHasName( PETSC_NULL, "-verbosity", &log );
+      if (log){
+         char verbosity[11];
+         PetscOptionsGetString( PETSC_NULL, "-verbosity", verbosity, 11, 0 );
+         if      (!strcmp( verbosity, "minimal"    )) { LogHandler( "fastctc", LogHandler::MINIMAL_LEVEL,    rank ); }
+         else if (!strcmp( verbosity, "normal"     )) { LogHandler( "fastctc", LogHandler::NORMAL_LEVEL,     rank ); }
+         else if (!strcmp( verbosity, "detailed"   )) { LogHandler( "fastctc", LogHandler::DETAILED_LEVEL,   rank ); }
+         else if (!strcmp( verbosity, "diagnostic" )) { LogHandler( "fastctc", LogHandler::DIAGNOSTIC_LEVEL, rank ); }
+         else throw formattingexception::GeneralException() << "Unknown <" << verbosity << "> option for -verbosity command line parameter.";
+      }
+      else{
+         LogHandler( "fastcauldron", LogHandler::DETAILED_LEVEL, rank );
+      }
+   }
+   catch (formattingexception::GeneralException& ex){
+      std::cout << ex.what();
+      return 1;
+   }
+   catch (...){
+      std::cout << "Fatal error when initialising log file(s).";
+      return 1;
+   }
 
+   ////////////////////////////////////////////
+   ///2. Check command line parameters
    PetscBool isDefined = PETSC_FALSE;
    
    PetscOptionsHasName (PETSC_NULL, "-help", &isDefined);
@@ -199,6 +224,8 @@ int main (int argc, char ** argv)
       return -1;
    };
    
+   ////////////////////////////////////////////
+   ///3. Run CTC
    try {
       CrustalThicknessCalculator::getInstance().deleteCTCPropertyValues();
 
@@ -234,6 +261,8 @@ int main (int argc, char ** argv)
    }
 #endif
 
+   ////////////////////////////////////////////
+   ///4. Save results
    CrustalThicknessCalculator::finalise(true);
 
    PetscTime( &sim_End_Time );   

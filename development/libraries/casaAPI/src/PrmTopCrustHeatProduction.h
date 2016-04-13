@@ -42,7 +42,9 @@ namespace casa
       /// @brief Constructor. Create parameter from variation of variable parameter
       /// @param parent pointer to a variable parameter which created this one
       /// @param val value of top crust heat production rate @f$ [ \mu W/m^3] @f$
-      PrmTopCrustHeatProduction( const VarPrmTopCrustHeatProduction * parent, double val );
+      /// @param minMapName minimal map name if top crust heat production rate is defined as a map
+      /// @param minMapName maximal map name if top crust heat production rate is defined as a map
+      PrmTopCrustHeatProduction( const VarPrmTopCrustHeatProduction * parent, double val, std::string mapName = "" );
 
       /// @brief Destructor
       virtual ~PrmTopCrustHeatProduction();
@@ -73,7 +75,16 @@ namespace casa
 
       /// @brief Get value for the parameter as double
       /// @return parameter value
-      double value() const { return m_heatProdRateValue; }
+      double value() const { return m_value; }
+
+      /// @brief Get map name 
+      /// @return map name
+      std::string mapName() const { return m_mapName; }
+
+      /// @brief Define min/max maps name to interpolate between them on setInModel reques
+      /// @param minMap low range map
+      /// @param maxMap high range map
+      void defineMapsRange( const std::string & minMap, const std::string & maxMap ) { m_minMapName = minMap; m_maxMapName = maxMap; }
 
       // The following methods are used for converting between CASA RunCase and SUMLib::Case objects
       
@@ -93,7 +104,7 @@ namespace casa
       /// @{
       /// @brief Defines version of serialized object representation. Must be updated on each change in save()
       /// @return Actual version of serialized object representation
-      virtual unsigned int version() const { return 0; }
+      virtual unsigned int version() const { return 1; }
 
       /// @brief Save all object data to the given stream, that object could be later reconstructed from saved data
       /// @param sz Serializer stream
@@ -113,9 +124,12 @@ namespace casa
 
    protected:
       const VarParameter  * m_parent;            ///< variable parameter which was used to create this one
-      double                m_heatProdRateValue; ///< top crust heat production rate value
-   };
+      double                m_value;             ///< top crust heat production rate value
 
+      std::string           m_mapName;           ///< map name (if no interpolation is needed)
+      std::string           m_minMapName;        ///< low range map name if top crust heat production rate is defined by 2D map
+      std::string           m_maxMapName;        ///< high range map name if top crust heat production rate is defined by 2D map
+   };
 }
 
 #endif // CASA_API_PARAMETER_TOP_CRUST_HEAT_PRODUCTION_H

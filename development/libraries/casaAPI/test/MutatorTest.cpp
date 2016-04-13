@@ -28,7 +28,10 @@ public:
              , m_maxTCHP( 4.9 )
              , m_layerName( "Lower Jurassic" )
              , m_projectFileName( "Ottoland.project3d" )
-   { ; }
+             , m_caseSetPath( "." )
+   { 
+      m_caseSetPath << "CaseSetMutatorTest";
+   }
    ~MutatorTest( ) { ; }
 
    // set of parameters range for DoE
@@ -41,6 +44,8 @@ public:
    const char * m_layerName;
 
    const char * m_projectFileName;
+   
+   ibs::FolderPath m_caseSetPath;
 };
   
 // Mutator test. There is 1 DoE Tornado experiment with 2 parameters
@@ -56,7 +61,10 @@ TEST_F( MutatorTest, Tornado2PrmsMutations )
    
    // vary 2 parameters
    ASSERT_EQ( ErrorHandler::NoError, VarySourceRockTOC(          sc, 0, m_layerName, 1, 0, m_minTOC,  m_maxTOC,  VarPrmContinuous::Block ) );
-   ASSERT_EQ( ErrorHandler::NoError, VaryTopCrustHeatProduction( sc, 0,                    m_minTCHP, m_maxTCHP, VarPrmContinuous::Block ) );
+
+   std::vector<double> dblRng( 1, m_minTCHP );
+   dblRng.push_back( m_maxTCHP );
+   ASSERT_EQ( ErrorHandler::NoError, VaryTopCrustHeatProduction( sc, 0, dblRng, std::vector<std::string>(), VarPrmContinuous::Block ) );
 
    // set up and generate DoE
    ASSERT_EQ( ErrorHandler::NoError, sc.setDoEAlgorithm( DoEGenerator::Tornado ) );
@@ -64,14 +72,13 @@ TEST_F( MutatorTest, Tornado2PrmsMutations )
 
    doe.generateDoE( sc.varSpace(), sc.doeCaseSet() );
    
-   ASSERT_EQ( 5, sc.doeCaseSet().size() );
+   ASSERT_EQ( 5U, sc.doeCaseSet().size() );
 
-   ibs::FolderPath pathToCaseSet = ibs::FolderPath( "." );
-   pathToCaseSet << "CaseSet";
+   ibs::FolderPath pathToCaseSet = m_caseSetPath;
 
    // to prevent failure on the second test run - clean folder
    if ( !pathToCaseSet.empty() ) pathToCaseSet.clean();
-   ASSERT_EQ( ErrorHandler::NoError, sc.setScenarioLocation( pathToCaseSet.path().c_str() ) );
+   ASSERT_EQ( ErrorHandler::NoError, sc.setScenarioLocation( pathToCaseSet.cpath() ) );
 
    ASSERT_EQ( ErrorHandler::NoError, sc.applyMutations( sc.doeCaseSet() ) );
 
@@ -121,11 +128,13 @@ TEST_F( MutatorTest, TornadoBB2PrmsMutations )
 
    // vary 2 parameters
    ASSERT_EQ( ErrorHandler::NoError, VarySourceRockTOC(          sc, 0, m_layerName, 1, "", m_minTOC, m_maxTOC,   VarPrmContinuous::Block ) );
-   ASSERT_EQ( ErrorHandler::NoError, VaryTopCrustHeatProduction( sc, 0,                     m_minTCHP, m_maxTCHP, VarPrmContinuous::Block ) );
+
+   std::vector<double> dblRng( 1, m_minTCHP );
+   dblRng.push_back( m_maxTCHP );
+   ASSERT_EQ( ErrorHandler::NoError, VaryTopCrustHeatProduction( sc, 0, dblRng, std::vector<std::string>(), VarPrmContinuous::Block ) );
 
    // set root folder for the experiments
-   ibs::FolderPath pathToCaseSet = ibs::FolderPath( "." );
-   pathToCaseSet << "CaseSet";
+   ibs::FolderPath pathToCaseSet = m_caseSetPath;
 
    // to prevent failure on the second test run - clean folder
    if ( !pathToCaseSet.empty() ) pathToCaseSet.clean();
@@ -134,21 +143,21 @@ TEST_F( MutatorTest, TornadoBB2PrmsMutations )
    ASSERT_EQ( ErrorHandler::NoError, sc.setDoEAlgorithm( DoEGenerator::Tornado ) );
    ASSERT_EQ( ErrorHandler::NoError, sc.doeGenerator().generateDoE( sc.varSpace(), sc.doeCaseSet() ) );
 
-   ASSERT_EQ( 5, sc.doeCaseSet().size() );
+   ASSERT_EQ( 5U, sc.doeCaseSet().size() );
 
    // set up and generate the second DoE
    ASSERT_EQ( ErrorHandler::NoError, sc.setDoEAlgorithm( DoEGenerator::BoxBehnken ) );
    ASSERT_EQ( ErrorHandler::NoError, sc.doeGenerator().generateDoE( sc.varSpace(), sc.doeCaseSet() ) );
 
-   ASSERT_EQ( 9, sc.doeCaseSet().size() ); // Box-Behnken & Tornado have central point in common
+   ASSERT_EQ( 9U, sc.doeCaseSet().size() ); // Box-Behnken & Tornado have central point in common
 
-   ASSERT_EQ( ErrorHandler::NoError, sc.setScenarioLocation( pathToCaseSet.path().c_str() ) );
+   ASSERT_EQ( ErrorHandler::NoError, sc.setScenarioLocation( pathToCaseSet.cpath() ) );
 
    for ( size_t expNum = 0; expNum < sc.doeCaseSet().experimentNames().size(); expNum++ )
    {
       // filter experiment
       sc.doeCaseSet().filterByExperimentName( sc.doeCaseSet().experimentNames()[expNum] );
-      ASSERT_EQ( 5, sc.doeCaseSet().size() ); // must be 2 times 5 - Tornado + BoxBehnken
+      ASSERT_EQ( 5U, sc.doeCaseSet().size() ); // must be 2 times 5 - Tornado + BoxBehnken
 
       ASSERT_EQ( ErrorHandler::NoError, sc.applyMutations( sc.doeCaseSet() ) );
 

@@ -12,6 +12,4 @@
 
 if (UNIX)
 	add_subdirectory(fastcauldron_benchmark)
-else ()
-	add_subdirectory (datamodel_tests)
 endif ()

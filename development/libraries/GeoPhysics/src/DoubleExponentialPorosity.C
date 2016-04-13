@@ -1,15 +1,27 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
 #include "DoubleExponentialPorosity.h"
 
 #include "NumericFunctions.h"
 #include "GeoPhysicalConstants.h"
 #include <cmath>
 
-
-
 namespace GeoPhysics
 {
    ///Constructor
-   DoubleExponentialPorosity::DoubleExponentialPorosity(double depoPorosity, double minimumMechanicalPorosity, double compactionIncrA, double compactionIncrB, double compactionDecrA, double compactionDecrB)
+   DoubleExponentialPorosity::DoubleExponentialPorosity( const double depoPorosity,
+                                                         const double minimumMechanicalPorosity,
+                                                         const double compactionIncrA,
+                                                         const double compactionIncrB,
+                                                         const double compactionDecrA,
+                                                         const double compactionDecrB )
       : Algorithm(depoPorosity,minimumMechanicalPorosity),
         m_compactionIncrA(compactionIncrA),
         m_compactionIncrB(compactionIncrB),
@@ -18,23 +30,28 @@ namespace GeoPhysics
    {}
 
    ///Double Exponential porosity function
-   double DoubleExponentialPorosity::porosity(const double ves, const double maxVes, const bool includeChemicalCompaction, const double chemicalCompactionTerm) const
+   double DoubleExponentialPorosity::calculate( const double ves,
+                                                const double maxVes,
+                                                const bool includeChemicalCompaction,
+                                                const double chemicalCompactionTerm ) const
    {
 
       double calculatedPorosity;
       bool   loadingPhase = (ves >= maxVes);
 
-      if (loadingPhase) {
-    	  calculatedPorosity  = (m_depoPorosity - m_minimumMechanicalPorosity)/2 * exp(-m_compactionIncrA * maxVes);
-          calculatedPorosity += (m_depoPorosity - m_minimumMechanicalPorosity)/2 * exp(-m_compactionIncrB * maxVes) + m_minimumMechanicalPorosity;
-          
+      if (loadingPhase)
+      {
+         calculatedPorosity  = 0.5 * (m_depoPorosity - m_minimumMechanicalPorosity) * exp(-m_compactionIncrA * ves);
+         calculatedPorosity += 0.5 * (m_depoPorosity - m_minimumMechanicalPorosity) * exp(-m_compactionIncrB * ves) + m_minimumMechanicalPorosity;
       }
-      else {
-          calculatedPorosity  = (m_depoPorosity - m_minimumMechanicalPorosity)/2 * exp( m_compactionDecrA * (maxVes - ves) - m_compactionIncrA * maxVes);
-          calculatedPorosity += (m_depoPorosity - m_minimumMechanicalPorosity)/2 * exp( m_compactionDecrB * (maxVes - ves) - m_compactionIncrB * maxVes) + m_minimumMechanicalPorosity;
+      else
+      {
+          calculatedPorosity  = 0.5 * (m_depoPorosity - m_minimumMechanicalPorosity) * exp( m_compactionDecrA * (maxVes - ves) - m_compactionIncrA * maxVes);
+          calculatedPorosity += 0.5 * (m_depoPorosity - m_minimumMechanicalPorosity) * exp( m_compactionDecrB * (maxVes - ves) - m_compactionIncrB * maxVes) + m_minimumMechanicalPorosity;
       }
          
-      if ( includeChemicalCompaction ) {
+      if ( includeChemicalCompaction )
+      {
          calculatedPorosity += chemicalCompactionTerm;
          calculatedPorosity = NumericFunctions::Maximum(calculatedPorosity, MinimumPorosity);
       }
@@ -61,30 +78,40 @@ namespace GeoPhysics
    }
 
    ///PorosityDerivative
-   double DoubleExponentialPorosity::porosityDerivative(const double ves, const double maxVes, const bool includeChemicalCompaction, const double chemicalCompactionTerm) const {
-
+   double DoubleExponentialPorosity::calculateDerivative( const double ves,
+                                                          const double maxVes,
+                                                          const bool includeChemicalCompaction,
+                                                          const double chemicalCompactionTerm) const
+   {
       //
+      //   d Phi
+      //   -----  = - phiA * kA * exp(-kA*ves) - phiB * kB * exp(-kB*ves)
+      //   d ves
       //
-      //   d Phi   d Phi   d ves       d Phi
-      //   ----- = ----- x -----  =  - -----  = phiA * kA * exp(-kA*ves) + phiB * kB * exp(-kB*ves)
-      //     dp    d ves     dp        d ves
+      //   If there is chemical compaction and porosity is equal to MinimumPorosity the derivative is zero
       //
       //   NB: ves = lithostatic pressure - pressure 
       //
-      double porosityDerivative;
-      bool loadingPhase = ves >= maxVes; 
+      double porosityDerivative(0.0);
+      const bool loadingPhase = (ves >= maxVes); 
+      const double porosityValue = calculate(ves, maxVes, includeChemicalCompaction, chemicalCompactionTerm);
 
-      if (loadingPhase) {
-         porosityDerivative  = (m_depoPorosity - m_minimumMechanicalPorosity)/2 * m_compactionIncrA * exp(-m_compactionIncrA * maxVes);
-         porosityDerivative += (m_depoPorosity - m_minimumMechanicalPorosity)/2 * m_compactionIncrB * exp(-m_compactionIncrB * maxVes);
+      if( includeChemicalCompaction && (porosityValue == MinimumPorosity) )
+      {
+         porosityDerivative = 0.0;
       }
-      else {
-         porosityDerivative  = m_compactionDecrA * (m_depoPorosity - m_minimumMechanicalPorosity)/2 * exp( m_compactionDecrA * (maxVes - ves) - m_compactionIncrA * maxVes );
-         porosityDerivative += m_compactionDecrB * (m_depoPorosity - m_minimumMechanicalPorosity)/2 * exp( m_compactionDecrB * (maxVes - ves) - m_compactionIncrB * maxVes );
+      else if (loadingPhase)
+      {
+         porosityDerivative -= 0.5 * (m_depoPorosity - m_minimumMechanicalPorosity) * m_compactionIncrA * exp(-m_compactionIncrA * ves);
+         porosityDerivative -= 0.5 * (m_depoPorosity - m_minimumMechanicalPorosity) * m_compactionIncrB * exp(-m_compactionIncrB * ves);
+      }
+      else
+      {
+         porosityDerivative -= 0.5 * m_compactionDecrA * (m_depoPorosity - m_minimumMechanicalPorosity) * exp( m_compactionDecrA * (maxVes - ves) - m_compactionIncrA * maxVes );
+         porosityDerivative -= 0.5 * m_compactionDecrB * (m_depoPorosity - m_minimumMechanicalPorosity) * exp( m_compactionDecrB * (maxVes - ves) - m_compactionIncrB * maxVes );
       }
 
        return porosityDerivative;
    }
-
 
 } //end of namespace GeoPhysics

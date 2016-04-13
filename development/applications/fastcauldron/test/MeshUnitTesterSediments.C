@@ -23,6 +23,7 @@
 #include "FastcauldronFactory.h"
 #include "FastcauldronSimulator.h"
 #include "FastcauldronStartup.h"
+#include "FilePath.h"
 #include "HydraulicFracturingManager.h"
 #include "layer.h"
 #include "propinterface.h"
@@ -38,7 +39,12 @@
 //
 TEST ( DofCountingUnitTest, SedimentMesh ) {
 
-   char* projectName = "./Acquifer.project3d";
+   ibs::FilePath fpath( "." );
+   fpath << "Acquifer.project3d";
+
+   //std::string ffpath = fpath.fullPath().path();
+   std::string ffpath = fpath.path();
+   const char* projectName = ffpath.c_str();
 
    // argc and argv will be used in place of command line 
    // parameters when initialising PETSc and fastcauldron.
@@ -48,7 +54,7 @@ TEST ( DofCountingUnitTest, SedimentMesh ) {
 
    argv [ 0 ] = "fastcauldron";
    argv [ 1 ] = "-project";
-   argv [ 2 ] = projectName;
+   argv [ 2 ] = strdup( projectName );
    argv [ 3 ] = "-decompaction";
    argv [ 4 ] = NULL;
 
@@ -104,5 +110,6 @@ TEST ( DofCountingUnitTest, SedimentMesh ) {
    }
 
    PetscFinalize ();
-   delete [] argv;
+   free( argv[2] );
+   delete[] argv;
 }

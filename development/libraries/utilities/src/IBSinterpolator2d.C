@@ -46,6 +46,15 @@ ibs::Interpolator2d::~Interpolator2d()
    if (d_vectorXYF) delete d_vectorXYF;
 }
 
+void ibs::Interpolator2d::clean()
+{ 
+
+   d_hasBeenChecked = 0;
+   
+   if (d_vectorXYF) d_vectorXYF->clear();
+}
+
+
 // Initializer for the 2D array by allocating memory on the
 // free store using 'new'
 
@@ -59,6 +68,16 @@ void ibs::Interpolator2d::addPoint (double x, double y, double f)
 
    // cerr << "Adding point: " << x << ", " << y << ", " << f;
    // cerr << " to: " << (int) this << "\n";
+}
+
+ibs::XYF ibs::Interpolator2d::getPoint (int index)
+{
+   return (*d_vectorXYF)[index];
+}
+
+std::vector<ibs::XYF> ibs::Interpolator2d::getVectorOfValues (void)
+{
+   return *d_vectorXYF;
 }
 
 // Compute function value given input arguments

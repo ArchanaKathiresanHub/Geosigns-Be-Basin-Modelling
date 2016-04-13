@@ -1,3 +1,13 @@
+//
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #ifndef __FASTCAULDRON_SIMULATOR_HH__
 #define __FASTCAULDRON_SIMULATOR_HH__
 
@@ -87,10 +97,15 @@ public :
    ///
    /// Now the the calculation mode is known, the activity grid and sizes are set.
    // Perhaps should re-name this to some-thing else, since it now does much more than just set calculation mode.
-   bool setCalculationMode ( const CalculationMode mode );
+   bool setCalculationMode ( const CalculationMode mode, const bool saveAsInputGrid = false, const bool createResultsFile = true );
 
    /// Get the calculation mode of the current run.
    CalculationMode getCalculationMode () const;
+
+   /// Add the current simulation detailes record (temporary)
+   database::Record * addCurrentSimulationDetails();
+   /// Remove the temporary added simulation detailes record
+   void removeCurrentSimulationDetails( database::Record * );
 
    void clear1DTimeIoTbl ();
    void clearDepthIoTbl ();
@@ -116,6 +131,7 @@ public :
    void setOutputPropertyOption ( const PropertyList                    property,
                                   const Interface::PropertyOutputOption option );
 
+   Interface::PropertyOutputOption getOutputPropertyOption ( const std::string& propertyName );
 
    void updateSnapshotFileCreationFlags ();
 
@@ -169,9 +185,6 @@ public :
    void deleteMinorSnapshotsFromSnapshotTable ();
 
    void printSnapshotProperties () const;
-
-   void updateMajorSnapshotsFileNameInSnapshotTable ();
-
 
    /// \brief Update any flags in the source rocks for the GenEx simulation.
    ///
@@ -278,10 +291,16 @@ public :
    ///
    /// By default the constant 1.0e6 Pa is the capillary entry pressure.
    bool useCalculatedCapillaryPressure () const;
+ 
+   /// \brief Return the flag indicating the calculation of derived properties
+   bool noDerivedPropertiesCalc () const;
 
-   /// \brief Set primary properties output flag
-   void setPrimaryPropertiesFlag( const bool outputPrimaryProperties );
-        
+   /// \brief Clean the recordless properies list
+   void removeRecordlessDerivedPropertyValues();
+
+   /// \brief Connect one property to output property from FilterTimeIoTbl
+   void connectOutputProperty ( const Interface::Property* aProperty );
+       
 private :
 
 
@@ -359,7 +378,8 @@ private :
    bool                       m_printCommandLine;
    std::string                m_commandLine;
    bool                       m_computeCapillaryPressure;
-
+   bool                       m_noDerivedPropertiesCalc;
+   
 };
 
 //------------------------------------------------------------//
@@ -449,14 +469,14 @@ inline double FastcauldronSimulator::getFctCorrectionScalingWeight () const {
 //------------------------------------------------------------//
 
 
-inline bool FastcauldronSimulator::useCalculatedCapillaryPressure () const {
-   return m_computeCapillaryPressure;
+inline bool FastcauldronSimulator::noDerivedPropertiesCalc () const {
+   return m_noDerivedPropertiesCalc;
 }
-
 //------------------------------------------------------------//
 
-inline void FastcauldronSimulator::setPrimaryPropertiesFlag ( const bool flag )  {
-   m_primary = flag;
+
+inline bool FastcauldronSimulator::useCalculatedCapillaryPressure () const {
+   return m_computeCapillaryPressure;
 }
 
 

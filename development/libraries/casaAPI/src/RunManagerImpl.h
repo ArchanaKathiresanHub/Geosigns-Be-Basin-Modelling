@@ -114,8 +114,8 @@ namespace casa
       std::string                     m_cldVersion;     ///< version of the cauldron to be used in calculations
       std::string                     m_ibsRoot;        ///< full path to cauldron installation
 
-      std::vector< CauldronApp* >     m_appList;        ///< pipeline of cauldron applications to perform simulation
-      std::auto_ptr<JobScheduler>     m_jobSched;       ///< OS dependent wrapper for the job scheduler
+      std::vector< CauldronApp* >         m_appList;        ///< pipeline of cauldron applications to perform simulation
+      std::unique_ptr<JobScheduler>       m_jobSched;       ///< OS dependent wrapper for the job scheduler
       std::vector< std::vector< JobScheduler::JobID > >   m_jobs;     ///< queue of jobs for each case
       std::vector< RunCaseImpl * >                        m_cases;    ///< list of run cases
 
@@ -125,7 +125,7 @@ namespace casa
       bool isAllDone() const;                                         ///< do check are all cases are completed?
 
       // run over all jobs and collect runs statistics. Also report progress if any change in numbers
-      void collectStatistics( int & pFinished, int & pPending, int & pRunning, int & pToBeSubmitted );
+      void collectStatistics( size_t & pFinished, size_t & pPending, size_t & pRunning, size_t & pToBeSubmitted );
    };
 }
 

@@ -92,7 +92,7 @@ bool mbapiModelTest::compareModels( mbapi::Model & model1, mbapi::Model & model2
 // compare second and third project file to be the same
 TEST_F( mbapiModelTest, ModelLoadSaveProjectRoundTrip )
 {
-   std::auto_ptr<mbapi::Model> modelBase;
+   std::unique_ptr<mbapi::Model> modelBase;
    modelBase.reset( new mbapi::Model() );
 
    // load original project file
@@ -101,7 +101,7 @@ TEST_F( mbapiModelTest, ModelLoadSaveProjectRoundTrip )
    // Save a first copy 
    ASSERT_EQ( ErrorHandler::NoError, modelBase->saveModelToProjectFile( "Project_case1.project3d" ) );
 
-   std::auto_ptr<mbapi::Model> modelCase2;
+   std::unique_ptr<mbapi::Model> modelCase2;
    modelCase2.reset( new mbapi::Model() );
    // load first copy
    ASSERT_EQ( ErrorHandler::NoError, modelCase2->loadModelFromProjectFile( "Project_case1.project3d" ) );
@@ -450,12 +450,12 @@ TEST_F( mbapiModelTest, DeleteDuplicatedLithologyTest )
    size_t lithNum = lthMgr.lithologiesIDs().size();
 
    // project file already has duplicated lithologies. Clean them
-   ASSERT_EQ( lithNum, 14 );
+   ASSERT_EQ( lithNum, 14U );
    ASSERT_EQ( ErrorHandler::NoError, lthMgr.cleanDuplicatedLithologies() );
 
    // check that 5 lithologies were deleted
    lithNum = lthMgr.lithologiesIDs().size();
-   ASSERT_EQ( lithNum, 9 );
+   ASSERT_EQ( lithNum, 9U );
 }
 
 
@@ -703,7 +703,7 @@ TEST_F( mbapiModelTest, MapsManagerCopyMapTest )
    ASSERT_EQ( id, 6U ); // given map is 7th in the list
 
    double minV, maxV;
-   mm.mapValuesRange( id, minV, maxV );
+   ASSERT_EQ( ErrorHandler::NoError, mm.mapValuesRange( id, minV, maxV ) );
 
    ASSERT_NEAR( minV, 2288.0, eps );
    ASSERT_NEAR( maxV, 6434.0, eps );

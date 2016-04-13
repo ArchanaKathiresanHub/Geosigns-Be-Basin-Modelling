@@ -1,3 +1,13 @@
+//
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "FastcauldronSimulator.h"
 #include <sys/stat.h>
 
@@ -29,9 +39,12 @@
 #include "Interface/OutputProperty.h"
 #include "Interface/Interface.h"
 #include "Interface/ConstrainedOverpressureInterval.h"
+#include "Interface/SimulationDetails.h"
+#include "Interface/MapWriter.h"
 
 #include "NumericFunctions.h"
 #include "globaldefs.h"
+#include "FilePath.h"
 
 #include "EosPack.h"
 #include "PVTCalculator.h"
@@ -72,10 +85,8 @@ FastcauldronSimulator::FastcauldronSimulator (database::Database * database, con
    m_hcLiquidCurveExponent = DefaultHcCurveExponent;
    m_printCommandLine = false;
    m_computeCapillaryPressure = false;
-
+   m_noDerivedPropertiesCalc = true;
    m_fctCorrectionScalingWeight = 1.0;
-
-   m_primary = false;
 }
 
 //------------------------------------------------------------//
@@ -532,7 +543,7 @@ const AppCtx* FastcauldronSimulator::getCauldron () const
 
 //------------------------------------------------------------//
 
-bool FastcauldronSimulator::setCalculationMode ( const CalculationMode mode)
+bool FastcauldronSimulator::setCalculationMode ( const CalculationMode mode, const bool saveAsInputGrid, const bool createResultsFile )
 {
 
    bool started = false;
@@ -542,43 +553,43 @@ bool FastcauldronSimulator::setCalculationMode ( const CalculationMode mode)
    switch ( mode ) {
 
       case HYDROSTATIC_DECOMPACTION_MODE :
-         started = startActivity ( DecompactionRunStatusStr, getLowResolutionOutputGrid ());
+         started = startActivity ( DecompactionRunStatusStr, getLowResolutionOutputGrid (), saveAsInputGrid, createResultsFile );
          break;
       
       case HYDROSTATIC_HIGH_RES_DECOMPACTION_MODE :
-         started = startActivity ( HighResDecompactionRunStatusStr, getHighResolutionOutputGrid ());
+         started = startActivity ( HighResDecompactionRunStatusStr, getHighResolutionOutputGrid (), saveAsInputGrid, createResultsFile );
          break;
 
       case HYDROSTATIC_TEMPERATURE_MODE :
-         started = startActivity ( HydrostaticTemperatureRunStatusStr, getLowResolutionOutputGrid ());
+         started = startActivity ( HydrostaticTemperatureRunStatusStr, getLowResolutionOutputGrid (), saveAsInputGrid, createResultsFile );
          break;
 
       case OVERPRESSURE_MODE :
-         started = startActivity ( OverpressureRunStatusStr, getLowResolutionOutputGrid ());
+         started = startActivity ( OverpressureRunStatusStr, getLowResolutionOutputGrid (), saveAsInputGrid, createResultsFile );
          break;
 
       case OVERPRESSURED_TEMPERATURE_MODE :
-         started = startActivity ( OverpressuredTemperatureRunStatusStr, getLowResolutionOutputGrid ());
+         started = startActivity ( OverpressuredTemperatureRunStatusStr, getLowResolutionOutputGrid (), saveAsInputGrid, createResultsFile );
          break;
 
       case COUPLED_HIGH_RES_DECOMPACTION_MODE :
-         started = startActivity ( HighResDecompactionRunStatusStr, getHighResolutionOutputGrid ());
+         started = startActivity ( HighResDecompactionRunStatusStr, getHighResolutionOutputGrid (), saveAsInputGrid, createResultsFile );
          break;
 
       case PRESSURE_AND_TEMPERATURE_MODE :
-         started = startActivity ( CoupledPressureTemperatureRunStatusStr, getLowResolutionOutputGrid ());
+         started = startActivity ( CoupledPressureTemperatureRunStatusStr, getLowResolutionOutputGrid (), saveAsInputGrid, createResultsFile );
          break;
 
       case HYDROSTATIC_DARCY_MODE :
-         started = startActivity ( HydrostaticDarcyRunStatusStr, getLowResolutionOutputGrid ());
+         started = startActivity ( HydrostaticDarcyRunStatusStr, getLowResolutionOutputGrid (), saveAsInputGrid, createResultsFile );
          break;
 
       case COUPLED_DARCY_MODE :
-         started = startActivity ( CoupledDarcyRunStatusStr, getLowResolutionOutputGrid ());
+         started = startActivity ( CoupledDarcyRunStatusStr, getLowResolutionOutputGrid (), saveAsInputGrid, createResultsFile );
          break;
 
       case NO_CALCULATION_MODE :
-         started = startActivity ( "NO_CALCULATION", getLowResolutionOutputGrid ());
+         started = startActivity ( "NO_CALCULATION", getLowResolutionOutputGrid (), saveAsInputGrid, createResultsFile );
          break;
 
       default :
@@ -586,10 +597,8 @@ bool FastcauldronSimulator::setCalculationMode ( const CalculationMode mode)
 
    }
 
-   // open the primary properties output file (in append mode for the Overpressure run)
-   if( m_primary and not ( getCalculationMode () == HYDROSTATIC_HIGH_RES_DECOMPACTION_MODE or 
-                           getCalculationMode () == COUPLED_HIGH_RES_DECOMPACTION_MODE )) {
-       initializePrimaryPropertyValuesWriter( getCalculationMode () == OVERPRESSURED_TEMPERATURE_MODE );
+   if( getCalculationMode () == COUPLED_HIGH_RES_DECOMPACTION_MODE or getCalculationMode () == HYDROSTATIC_HIGH_RES_DECOMPACTION_MODE ) {
+      m_cauldron->setNo2Doutput( false );
    }
 
    if( not started ) {
@@ -802,28 +811,34 @@ bool FastcauldronSimulator::nodeIsDefined ( const int i, const int j ) const {
 //------------------------------------------------------------//
 bool FastcauldronSimulator::mergeOutputFiles ( ) {
 
-   if( ! H5_Parallel_PropertyList::isOneFilePerProcessEnabled() || 
-       getModellingMode () == Interface::MODE1D ) {
+   if( ( ! H5_Parallel_PropertyList::isOneFilePerProcessEnabled() and ! H5_Parallel_PropertyList::isPrimaryPodEnabled () ) 
+       or getModellingMode () == Interface::MODE1D ) {
 
       return true;
    }
 
 #ifndef _MSC_VER
-   PetscPrintf ( PETSC_COMM_WORLD, "Merging output files ...\n" ); 
-
+ 
    PetscBool noFileCopy = PETSC_FALSE;
-   PetscLogDouble StartMergingTime;
-
    PetscOptionsHasName( PETSC_NULL, "-nocopy", &noFileCopy );
+   PetscBool noFileRemove = PETSC_FALSE;
+   PetscOptionsHasName( PETSC_NULL, "-noremove", &noFileRemove );
 
+   PetscLogDouble StartMergingTime;
    PetscTime(&StartMergingTime);
    bool status = true;
    
    const std::string& directoryName = getOutputDir ();
-   
+
+   bool doMerge = not isPrimaryDouble();
+ 
+   if( doMerge or not noFileCopy ) {
+      PetscPrintf ( PETSC_COMM_WORLD, "Merging output files ...\n" ); 
+   }
+
    if(  m_calculationMode != HYDROSTATIC_HIGH_RES_DECOMPACTION_MODE && m_calculationMode != COUPLED_HIGH_RES_DECOMPACTION_MODE && 
         m_calculationMode != NO_CALCULATION_MODE ) {
-
+      
       database::Table::iterator timeTableIter;
       database::Table* snapshotTable = getTable ( "SnapshotIoTbl" );
       
@@ -834,42 +849,102 @@ bool FastcauldronSimulator::mergeOutputFiles ( ) {
          string snapshotFileName = database::getSnapshotFileName ( *timeTableIter );
          
          if ( !snapshotFileName.empty() ) {
-            string filePathName = getProjectPath () + "/" + directoryName + "/" + snapshotFileName;
+            ibs::FilePath filePathName( getProjectPath () );
+            filePathName << directoryName << snapshotFileName;
 
-            Display_Merging_Progress( snapshotFileName, StartMergingTime );
-
-            if( m_calculationMode == OVERPRESSURED_TEMPERATURE_MODE ) {
-               if( ! database::getIsMinorSnapshot ( *timeTableIter ) ) {                  
-                  if( !mergeFiles ( allocateFileHandler( PETSC_COMM_WORLD, filePathName, H5_Parallel_PropertyList::getTempDirName(), APPEND ))) {
+          //  string filePathName = getProjectPath () + "/" + directoryName + "/" + snapshotFileName;
+            string messString = ( H5_Parallel_PropertyList::isPrimaryPodEnabled () ? "Copy " + snapshotFileName : snapshotFileName );
+            
+            if( doMerge ) {
+               Display_Merging_Progress( messString, StartMergingTime );
+               
+               if( m_calculationMode == OVERPRESSURED_TEMPERATURE_MODE ) {
+                  if( ! database::getIsMinorSnapshot ( *timeTableIter ) ) {                  
+                     if( !mergeFiles ( allocateFileHandler( PETSC_COMM_WORLD, filePathName.path(), H5_Parallel_PropertyList::getTempDirName(), APPEND ))) {
+                        status = false;
+                        PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Could not merge the file %s.\n", filePathName.cpath() );
+                     } 
+                  }
+               } else {
+                  if( !mergeFiles ( allocateFileHandler( PETSC_COMM_WORLD, filePathName.path(), H5_Parallel_PropertyList::getTempDirName(), CREATE ))) {
                      status = false;
-                     PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Could not merge the file %s.\n", filePathName.c_str() );               
+                     PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Could not merge the file %s.\n", filePathName.cpath() );               
                   } 
                }
             } else {
-               if( !mergeFiles ( allocateFileHandler( PETSC_COMM_WORLD, filePathName, H5_Parallel_PropertyList::getTempDirName(), CREATE ))) {
-                  status = false;
-                  PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Could not merge the file %s.\n", filePathName.c_str() );               
-               } 
+               // we used a shared scratch directory. No merging is required. Copy the file to the final place
+               if( H5_Parallel_PropertyList::isPrimaryPodEnabled () ) {
+                  if( not noFileCopy ) {
+                     Display_Merging_Progress( messString, StartMergingTime );
+                  }
+                  status = H5_Parallel_PropertyList::copyMergedFile( filePathName.path(), false );
+                  
+                  // delete the file in the shared scratch
+                  if( status and  getRank() == 0  and not noFileRemove ) {
+                     ibs::FilePath fileName(H5_Parallel_PropertyList::getTempDirName() );
+                     fileName << filePathName.cpath ();
+
+                     int status = std::remove( fileName.cpath() ); //c_str ());
+                        if (status == -1)
+                           cerr << fileName.cpath() << " MeSsAgE WARNING  Unable to remove snapshot file, because '" 
+                                << std::strerror(errno) << "'" << endl;
+                  }  
+                  
+               }
             }
          }
       }
    }
-   string fileName = getActivityName () + "_Results.HDF" ; 
-   string filePathName = getProjectPath () + "/" + directoryName + "/" + fileName;
    
-   Display_Merging_Progress( fileName, StartMergingTime );
+   string fileName = getActivityName () + "_Results.HDF" ; 
+   ibs::FilePath filePathName( getProjectPath () );
+   filePathName <<  directoryName << fileName;
+   
+   if( doMerge ) {
+      Display_Merging_Progress( fileName, StartMergingTime );
+    
+      status = mergeFiles (  allocateFileHandler( PETSC_COMM_WORLD, filePathName.path(), H5_Parallel_PropertyList::getTempDirName(), ( noFileCopy ? CREATE : REUSE )));
+      if( !noFileCopy && status ) {
+         status = H5_Parallel_PropertyList::copyMergedFile( filePathName.path() );
+      }
+   } else if( H5_Parallel_PropertyList::isPrimaryPodEnabled () ) {
+      // we used a shared scratch directory. No merging is required. Copy the file to the final place
+      if( m_noDerivedPropertiesCalc ) {
+         getMapPropertyValuesWriter( )->close();
+      }
+      if( not noFileCopy ) {
+         Display_Merging_Progress( fileName, StartMergingTime );
+      }         
+      status = H5_Parallel_PropertyList::copyMergedFile( filePathName.path(), false );
+      // remove the file from the shared scratch
+      if( status and H5_Parallel_PropertyList::isPrimaryPodEnabled () and getRank() == 0  and not noFileRemove ) {
 
-   status = mergeFiles (  allocateFileHandler( PETSC_COMM_WORLD, filePathName, H5_Parallel_PropertyList::getTempDirName(), ( noFileCopy ? CREATE : REUSE )));
+         ibs::FilePath fileName(H5_Parallel_PropertyList::getTempDirName() );
+         fileName << filePathName.cpath ();
+         int status = std::remove( fileName.cpath() );
 
-   if( !noFileCopy && status ) {
-      status = H5_Parallel_PropertyList::copyMergedFile( filePathName );
+         if (status == -1)
+            cerr << fileName.cpath () << " MeSsAgE WARNING  Unable to remove file, because '" 
+                 << std::strerror(errno) << "'" << endl;
+         
+         // remove the output directory from the shared scratch
+         ibs::FilePath dirName(H5_Parallel_PropertyList::getTempDirName() );
+         dirName << directoryName;
+         status = std::remove( dirName.cpath() );
+         
+         if (status == -1)
+             cerr << dirName.cpath () << " MeSsAgE WARNING  Unable to remove the directory, because '" 
+                 << std::strerror(errno) << "'" << endl;
+      }  
    }
+   
+      
    if( status ) {
       if( m_fastcauldronSimulator->getRank () == 0 ) {
          displayTime( "Total merging time: ", StartMergingTime );
       }
     } else {
-      PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Could not merge the file %s.\n", filePathName.c_str() );               
+      PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Could not merge the file %s.\n", filePathName.cpath() );               
    }
    return status;
 #else
@@ -942,6 +1017,7 @@ void FastcauldronSimulator::correctTimeFilterDefaults3D () {
    bool containsLithologyId = false;
    bool containsBiomarkers = false;
    bool basementOutputRequested = false;
+   bool basement3DOutputRequested = false;
    bool outputALC = false;
    int  i;
 
@@ -972,6 +1048,10 @@ void FastcauldronSimulator::correctTimeFilterDefaults3D () {
 
       if ( getModellingMode () == Interface::MODE1D and property->getOption () == Interface::SEDIMENTS_AND_BASEMENT_OUTPUT ) {
          basementOutputRequested = true;
+      }
+      if ( not noDerivedPropertiesCalc() and getModellingMode () == Interface::MODE3D and 
+           property->getOption () == Interface::SEDIMENTS_AND_BASEMENT_OUTPUT ) {
+         basement3DOutputRequested = true;
       }
 
       if ( name == "Biomarkers" ) {
@@ -1113,7 +1193,28 @@ void FastcauldronSimulator::correctTimeFilterDefaults3D () {
             property->setOption ( Interface::SEDIMENTS_AND_BASEMENT_OUTPUT );
             break;
          }
-
+      }
+   } else if ( basement3DOutputRequested ) { // for derived properties calculation
+      bool propertySet = false;
+      for ( propertyIter = m_timeOutputProperties.begin (); propertyIter != m_timeOutputProperties.end (); ++propertyIter ) {
+         Interface::OutputProperty* property = *propertyIter;
+         
+         if ( property->getName () == "Depth" ) {
+            // need to set the depth if it is not set already.
+            property->setOption ( Interface::SEDIMENTS_AND_BASEMENT_OUTPUT );
+            if( propertySet ) {
+               break;
+            }
+            propertySet = true;
+         }
+         if( property->getName () == "Temperature" ) {
+            // need to set the temperature 
+            property->setOption ( Interface::SEDIMENTS_AND_BASEMENT_OUTPUT );
+            if( propertySet ) {
+               break;
+            }
+            propertySet = true;
+         }
       }
 
    }
@@ -1508,10 +1609,11 @@ void FastcauldronSimulator::deleteMinorSnapshots () {
 
       }
 
-      if( ! H5_Parallel_PropertyList::isOneFilePerProcessEnabled() and not m_primary ) {
+      if( ! H5_Parallel_PropertyList::isOneFilePerProcessEnabled() ) {
          if ( getRank () == 0 ) {
-            const std::string fileName = getFullOutputDir () + "/" + (*snapshotIter)->getFileName ();
-            int status = std::remove( fileName.c_str ());
+            ibs::FilePath fileName( getFullOutputDir () );
+            fileName << (*snapshotIter)->getFileName ();
+            int status = std::remove( fileName.cpath () );
             
             if (status == -1)
                cerr << "MeSsAgE WARNING  Unable to remove minor snapshot file, because '" 
@@ -1528,31 +1630,6 @@ void FastcauldronSimulator::deleteMinorSnapshots () {
 
 }
 
-//------------------------------------------------------------//
-
-void FastcauldronSimulator::updateMajorSnapshotsFileNameInSnapshotTable () {
-  
-   database::Table::iterator timeTableIter;
-   database::Table* snapshotTable = getTable ( "SnapshotIoTbl" );
-
-   assert ( snapshotTable != 0 );
-
-   for ( timeTableIter = snapshotTable->begin (); timeTableIter != snapshotTable->end (); ++timeTableIter ) {
-
-      if ( not database::getIsMinorSnapshot ( *timeTableIter )) {
-         const string majorFileName = database::getSnapshotFileName (*timeTableIter);
-         if ( not m_primary ) {
-            if( majorFileName == DataAccess::Interface::PrimaryPropertiesFileName ) {
-               database::setSnapshotFileName (*timeTableIter, "" );
-            }
-         } else {
-            if( majorFileName != DataAccess::Interface::PrimaryPropertiesFileName ) {
-               database::setSnapshotFileName (*timeTableIter, "" );
-            }
-         }
-      }
-   }
-}
 //------------------------------------------------------------//
 
 void FastcauldronSimulator::deleteMinorSnapshotsFromSnapshotTable () {
@@ -1805,6 +1882,29 @@ const Interface::OutputProperty* FastcauldronSimulator::findOutputProperty ( con
 
 //------------------------------------------------------------//
 
+Interface::PropertyOutputOption FastcauldronSimulator::getOutputPropertyOption ( const std::string& propertyName ) {
+
+   Interface::PropertyOutputOption option;
+
+   Interface::MutableOutputPropertyList::iterator propertyIter;
+   Interface::OutputProperty* outputProperty = 0;
+
+   for ( propertyIter = m_timeOutputProperties.begin (); propertyIter != m_timeOutputProperties.end (); ++propertyIter ) {
+
+      if ( (*propertyIter)->getName () == propertyName ) {
+         outputProperty = *propertyIter;
+         break;
+      }
+
+   }
+   if ( outputProperty != 0 ) {
+      return outputProperty->getOption ();
+   }
+   return Interface::NO_OUTPUT;
+}
+
+//------------------------------------------------------------//
+
 void FastcauldronSimulator::setOutputPropertyOption ( const PropertyList                    property,
                                                       const Interface::PropertyOutputOption option ) {
 
@@ -1837,6 +1937,21 @@ void FastcauldronSimulator::connectOutputProperties () {
    for ( propertyIter = m_properties.begin (); propertyIter != m_properties.end (); ++propertyIter ) {
       Property* property = (Property*)(*propertyIter);
       property->setOutputProperty ( findOutputProperty ( *propertyIter ));
+//       property->printOn ( std::cout );
+   }
+
+}
+//------------------------------------------------------------//
+
+void FastcauldronSimulator::connectOutputProperty ( const Interface::Property* aProperty ) {
+
+   Interface::MutablePropertyList::iterator propertyIter;
+
+   for ( propertyIter = m_properties.begin (); propertyIter != m_properties.end (); ++propertyIter ) {
+      Property* property = (Property*)(*propertyIter);
+      if( property == aProperty ) {
+         property->setOutputProperty ( findOutputProperty ( *propertyIter ));
+      }
 //       property->printOn ( std::cout );
    }
 
@@ -1922,22 +2037,59 @@ void FastcauldronSimulator::readCommandLineParametersEarlyStage( const int argc,
    double    fctScaling;
    PetscBool hasPrintCommandLine; 
    PetscBool computeCapillaryPressure;
-   PetscBool onlyPrimary = PETSC_FALSE;
+   PetscBool doDerivedPropertiesCalc = PETSC_FALSE;
+   bool outputPrimary = true;
 
+   // turn on derived properties calculation. Can be used in combination with -primary<> options
+   PetscOptionsHasName( PETSC_NULL, "-dp", &doDerivedPropertiesCalc );
+
+   if(( not doDerivedPropertiesCalc ) or getModellingMode () == Interface::MODE1D ) {
+      m_cauldron->setNo2Doutput( false );
+      m_cauldron->setPrimaryOutput( false );
+      m_noDerivedPropertiesCalc = true;
+      outputPrimary = false;
+   } else if( doDerivedPropertiesCalc ) {
+      m_noDerivedPropertiesCalc = false;      
+   }
+
+
+   if( getModellingMode () != Interface::MODE1D ) {
+
+      PetscBool onlyPrimaryFloat  = PETSC_FALSE;
+      PetscBool onlyPrimaryDouble = PETSC_FALSE;
+
+      // output the primary properties in float precision
+      PetscOptionsHasName( PETSC_NULL, "-primary", &onlyPrimaryFloat );
+      // output the primary properties in double precision
+      PetscOptionsHasName( PETSC_NULL, "-primaryDouble", &onlyPrimaryDouble );
+
+      if( onlyPrimaryDouble and not onlyPrimaryFloat ) {
+         setPrimaryDouble( true );
+      }
+ 
+      if( outputPrimary or onlyPrimaryFloat or onlyPrimaryDouble ) {
+         m_cauldron->setNo2Doutput( true );
+         m_cauldron->setPrimaryOutput( true );
+      }
+
+      H5_Parallel_PropertyList::setOneFilePerProcessOption ();
+
+      if( onlyPrimaryDouble ) {
+         if( not H5_Parallel_PropertyList::isPrimaryPodEnabled() ) {
+            H5_Parallel_PropertyList::setOneFilePerProcess( false );
+         }
+      } else {
+         if( H5_Parallel_PropertyList::isPrimaryPodEnabled() ) {
+            H5_Parallel_PropertyList::setPrimaryPod( false );
+         }
+      }
+      
+   }  
+   //
+ 
    PetscOptionsHasName ( PETSC_NULL, "-printcl", &hasPrintCommandLine );
    PetscOptionsGetReal  ( PETSC_NULL, "-glfctweight", &fctScaling, &fctScalingChanged );
    PetscOptionsHasName ( PETSC_NULL, "-fcpce", &computeCapillaryPressure );
-
-   PetscOptionsHasName( PETSC_NULL, "-primaryOnly", &onlyPrimary );
-
-   if( onlyPrimary ) {
-      setPrimaryPropertiesFlag( true );
-   }
-   PetscOptionsHasName( PETSC_NULL, "-primaryDouble", &onlyPrimary );
-
-   if( onlyPrimary ) {
-      setPrimaryDouble( true );
-   }
 
    if ( fctScalingChanged ) {
       m_fctCorrectionScalingWeight = NumericFunctions::clipValueToRange ( fctScaling, 0.0, 1.0 );
@@ -1945,10 +2097,6 @@ void FastcauldronSimulator::readCommandLineParametersEarlyStage( const int argc,
 
    m_printCommandLine = hasPrintCommandLine or m_cauldron->debug1 or m_cauldron->verbose;
    m_computeCapillaryPressure = computeCapillaryPressure == PETSC_TRUE;
-
-   if ( getModellingMode () != Interface::MODE1D ) {
-      H5_Parallel_PropertyList::setOneFilePerProcessOption ();
-   }
 
    for ( int i = 1; i < argc; ++i ) {
       m_commandLine += std::string ( argv [ i ]) + ( i == argc - 1 ? "" : " " );
@@ -1971,9 +2119,9 @@ void FastcauldronSimulator::deleteTemporaryDirSnapshots()
          
          string snapshotFileName = database::getSnapshotFileName ( *timeTableIter );
          if ( !snapshotFileName.empty() && ! database::getIsMinorSnapshot ( *timeTableIter ) ) {
-            std::stringstream filePath;
-            filePath << H5_Parallel_PropertyList::getTempDirName() << "/" << getProjectPath () << "/" <<  getOutputDir() << "/" << snapshotFileName << "_" << PetscGlobalRank;
-            std::remove ( filePath.str().c_str ());            
+            ibs::FilePath filePath( H5_Parallel_PropertyList::getTempDirName() );
+            filePath <<  getProjectPath () << getOutputDir() << (snapshotFileName + "_" + ibs::to_string( PetscGlobalRank ));
+            std::remove ( filePath.cpath ());            
          }
       }
    }
@@ -2227,4 +2375,51 @@ void FastcauldronSimulator::updateSourceRocksForDarcy () {
       sourceRock->setCanIncludeAdsorption ( false );
    }
 
+}
+//------------------------------------------------------------//
+
+void FastcauldronSimulator::removeRecordlessDerivedPropertyValues( ) {
+
+   // We should delete all existing derived properties from the project file
+   m_recordLessVolumePropertyValues.clear();
+   m_recordLessMapPropertyValues.clear();
+}
+//------------------------------------------------------------//
+
+database::Record* FastcauldronSimulator::addCurrentSimulationDetails() {
+
+   // Temporary add the current simulation details to the Simulation details table to be able to calculate derived properties
+   const std::string simulatorName = "fastcauldron";
+   const std::string simulatorMode = getSimulationModeString ( m_fastcauldronSimulator->getCalculationMode ());
+
+   database::Table* simulationDetailsIoTbl = getTable( "SimulationDetailsIoTbl" );
+   database::Record* sdRecord = simulationDetailsIoTbl->createRecord();
+ 
+   int lastSequenceNumber = 0;
+
+   if ( m_simulationDetails.size () > 0 ) {
+      // Sequence of simulation details should be ordered, so the last entry should have the largest seqnence number.
+      lastSequenceNumber = m_simulationDetails [ m_simulationDetails.size () - 1 ]->getSimulationSequenceNumber ();
+   }
+
+   database::setSimulatorName ( sdRecord, simulatorName );
+   database::setSimulatorMode ( sdRecord, simulatorMode );
+   database::setSimulatorCommandLineParameters ( sdRecord, m_fastcauldronSimulator->m_commandLine );
+   database::setSimulationSequenceNumber ( sdRecord, lastSequenceNumber + 1 );
+   database::setNumberOfCores ( sdRecord, m_size );
+
+   m_simulationDetails.push_back ( m_fastcauldronSimulator->getFactory ()->produceSimulationDetails ( this, sdRecord ));
+
+   return sdRecord;
+
+}
+//------------------------------------------------------------//
+
+void FastcauldronSimulator::removeCurrentSimulationDetails( database::Record* currentSimRecord ) {
+ 
+  // Remove the temporary added current simulation details
+   m_simulationDetails.pop_back ();
+   database::Table* simulationDetailsIoTbl = getTable( "SimulationDetailsIoTbl" );
+ 
+   simulationDetailsIoTbl->deleteRecord ( currentSimRecord );
 }

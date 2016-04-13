@@ -67,17 +67,6 @@ CrustalThicknessCalculator::CrustalThicknessCalculator( database::Database * dat
    m_applySmoothing = true;
    m_smoothRadius = 0;
 
-   PetscBool onlyPrimary = PETSC_FALSE;
-   PetscOptionsHasName( PETSC_NULL, "-primaryOnly", &onlyPrimary );
-
-   if( onlyPrimary ) {
-      setPrimary( true );
-   }
-   PetscOptionsHasName( PETSC_NULL, "-primaryDouble", &onlyPrimary );
-
-   if( onlyPrimary ) {
-      setPrimaryDouble( true );
-   }
 }
  
 //------------------------------------------------------------//
@@ -305,7 +294,7 @@ void CrustalThicknessCalculator::run() {
       unsigned lastJ = theInterfaceData->lastJ();
 
       double sedimentDensity, sedimentThickness, WLS, WLS_adjusted, TF, Moho, RDA_adjusted, crustalThickness, basaltThickness, ECT;
-      double posI, posJ, backStrip, topBasalt, isoBathymetry, compensation;
+      double backStrip, topBasalt, isoBathymetry, compensation;
 
       bool status = true;
       stringstream errorMsg;

@@ -241,7 +241,6 @@ public:
 
   virtual void allocateBasementVecs() {};
   virtual void reInitialiseBasementVecs() {};
-  virtual void initialiseBasementVecs() {};
 
   string           layername;
   string           TopSurfaceName;

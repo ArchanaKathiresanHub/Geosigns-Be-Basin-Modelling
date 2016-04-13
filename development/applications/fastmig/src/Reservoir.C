@@ -380,30 +380,30 @@ namespace migration
       return (adjacentColumn != 0);
    }
 
-// find the column to which column (i,j) spills to and that is not in the trap
+   // find the column to which column (i,j) spills to and that is not in the trap
    Column *  Reservoir::getAdjacentColumn (PhaseId phase, Column * column, Trap * trap)
-	{
-		assert (IsValid (column));
+   {
+      assert (IsValid (column));
 
-		double depth = column->getTopDepth ();
+      double depth = column->getTopDepth ();
 
-		assert (depth != getUndefinedValue ());
+      assert (depth != getUndefinedValue ());
 
-		double minGradient = SealDepth;
+      double minGradient = SealDepth;
 
-#if 0
-		if (column->isWasting(phase)) // charge will go upward
-		{
-			return column;
-		}
-#endif
+      Column * adjacentColumn = column;
 
-		Column * adjacentColumn = column;
+      // Try to avoid going through a sealing column
+      if (trap and column->isSealing(phase))
+      {
+         adjacentColumn = avoidSealingColumn (phase, column, trap);
+         return (adjacentColumn ? adjacentColumn : column);
+      }
 
-		// try to find a higher lying column
-		for (int n = 0; n < NumNeighbours; ++n)
-		{
-			Column *neighbourColumn = getColumn (column->getI () + NeighbourOffsets2D[n][I], column->getJ () + NeighbourOffsets2D[n][J]);
+      // try to find a higher lying column
+      for (int n = 0; n < NumNeighbours; ++n)
+      {
+         Column *neighbourColumn = getColumn (column->getI () + NeighbourOffsets2D[n][I], column->getJ () + NeighbourOffsets2D[n][J]);
 
          if (!IsValid (neighbourColumn))
          {
@@ -456,6 +456,102 @@ namespace migration
       }
 
       return adjacentColumn;
+   }
+
+   // Try to find a non-sealing column among the neighbours
+   Column * Reservoir::avoidSealingColumn (PhaseId phase, Column * column, Trap * trap)
+   {
+      int kappa = 1; // Iterating from 1 to MaximumNeighbourOffset
+      Column * nonSealingAdjacentColumn = 0;
+      Column * columnToReturn = 0;
+      double lowerDepth = 199999.0;
+
+      if (MaximumNeighbourOffset == 0)
+         return columnToReturn;
+
+      do
+      {
+         for (int n = 0; n < NumNeighbours; ++n)
+         {
+            nonSealingAdjacentColumn = findNonSealingColumn (kappa, n, phase, column, trap);
+
+            if (IsValid (nonSealingAdjacentColumn) and nonSealingAdjacentColumn->getTopDepth () < lowerDepth and
+                !nonSealingAdjacentColumn->isSealing (phase) and (trap ? !trap->contains (nonSealingAdjacentColumn) : true))
+            {
+               columnToReturn = nonSealingAdjacentColumn;
+               lowerDepth = nonSealingAdjacentColumn->getTopDepth ();
+            }
+         }
+
+            if (++kappa > MaximumNeighbourOffset)
+               return columnToReturn;
+      }
+      while (!columnToReturn);
+
+      return columnToReturn;
+   }
+   
+   // Decomposing the neighbour space to cases
+   Column * Reservoir::findNonSealingColumn (int kappa, int n, PhaseId phase, Column * column, Trap * trap)
+   {
+      Column * nonSealingAdjacentColumn = 0;
+      Column * columnToReturn = 0;
+      double lowerDepth = 199999.0;
+      int originalKappa = kappa;
+
+      // Checking neighbours for which:
+      // 1) DeltaI=DeltaJ (diagonal)
+      // 2) Either DeltaI or DeltaJ is zero (orthogonal)
+      nonSealingAdjacentColumn = getColumn (column->getI () + kappa * NeighbourOffsets2D[n][I], column->getJ () + kappa * NeighbourOffsets2D[n][J]);
+
+      if (IsValid (nonSealingAdjacentColumn) and nonSealingAdjacentColumn->getTopDepth () < lowerDepth and
+          !nonSealingAdjacentColumn->isSealing (phase) and (trap ? !trap->contains (nonSealingAdjacentColumn) : true))
+      {
+         columnToReturn = nonSealingAdjacentColumn;
+         lowerDepth = nonSealingAdjacentColumn->getTopDepth ();
+      }
+
+      switch (n)
+      {
+         // These are the diagonal cases (see NeighbourOffsets[][] in migration.h). For these cases: abs(DeltaI)=abs(DeltaJ)
+      case 0:
+      case 2:
+      case 5:
+      case 7:
+         {
+            // Checking neighbours off the diagonal but for which both DeltaI and DeltaJ are non-zero
+            for ( ; kappa > 1 ; --kappa)
+            {
+               nonSealingAdjacentColumn = getColumn (column->getI () + (kappa-1) * NeighbourOffsets2D[n][I], column->getJ () + originalKappa * NeighbourOffsets2D[n][J]);
+
+               if (IsValid (nonSealingAdjacentColumn) and nonSealingAdjacentColumn->getTopDepth () < lowerDepth and
+                   !nonSealingAdjacentColumn->isSealing (phase) and (trap ? !trap->contains (nonSealingAdjacentColumn) : true))
+               {
+                  columnToReturn = nonSealingAdjacentColumn;
+                  lowerDepth = nonSealingAdjacentColumn->getTopDepth ();
+               }
+               
+               nonSealingAdjacentColumn = getColumn (column->getI () + originalKappa * NeighbourOffsets2D[n][I], column->getJ () + (kappa-1) * NeighbourOffsets2D[n][J]);
+
+               if (IsValid (nonSealingAdjacentColumn) and nonSealingAdjacentColumn->getTopDepth () < lowerDepth and
+                   !nonSealingAdjacentColumn->isSealing (phase) and (trap ? !trap->contains (nonSealingAdjacentColumn) : true))
+               {
+                  columnToReturn = nonSealingAdjacentColumn;
+                  lowerDepth = nonSealingAdjacentColumn->getTopDepth ();
+               }
+            }
+            break;
+         }
+         // These are the orthogonal cases
+      case 1:
+      case 3:
+      case 4:
+      case 6:
+      default:
+         break;
+      }
+
+      return columnToReturn;
    }
 
    bool Reservoir::computeFlux (PhaseId phase, unsigned int i, unsigned int j)
@@ -624,13 +720,17 @@ namespace migration
       }
 #endif
 
-      if (!computeViscosities())
-         return false;
+      // Optimization for May 2016 Release
+      if (!m_migrator->performLegacyMigration ())
+      {
+         if (!computeViscosities ())
+            return false;
 #if DEBUG
-      if( GetRank() == 0 ) {
-         cout << "computeViscosities done" << endl;
-      }
+         if( GetRank() == 0 ) {
+            cout << "computeViscosities done" << endl;
+         }
 #endif
+      }
 
       if (!computePressures ())
          return false;
@@ -988,7 +1088,8 @@ namespace migration
 
       // If diffusion leakages is included, initialize m_diffusionOverburdenGridMaps with 
       // the necessary grid maps:
-      if (isDiffusionOn ())
+      // Optimization for May 2016 Release
+      if (isDiffusionOn () and !m_migrator->performLegacyMigration ())
       {
          vector<SurfaceGridMapFormations> temperatureGridMaps = overburden_MPI::getAdjacentSurfaceGridMapFormations (
                                                                                                                      overburden, "Temperature", getEnd ());
@@ -1862,12 +1963,12 @@ namespace migration
    /// See whether distribution has finished on all processors
    bool Reservoir::allProcessorsFinished (bool finished)
    {
-      return (bool) AndAll ((int) finished);
+      return (AndAll ((int) finished) != 0);
    }
 
    int Reservoir::computeMaximumTrapCount (bool countUndersized)
    {
-      int numberOfTraps = m_traps.size ();
+      int numberOfTraps = (int) m_traps.size ();
       if (!countUndersized)
       {
          TrapVector::iterator trapIter;
@@ -2441,10 +2542,13 @@ namespace migration
       m_biodegraded = 0;
       if (isBioDegradationOn ())
       {
+         if (!m_migrator->performLegacyMigration())
+         {
          if (!computeHydrocarbonWaterContactDepth ())
             return false;
          if (!computeHydrocarbonWaterTemperature ())
             return false;
+         }
          m_biodegraded = biodegradeCharges ();
       }
 
@@ -2457,7 +2561,8 @@ namespace migration
          processMigrationRequests ();
       } while (!allProcessorsFinished (distributionHasFinished ()));
 
-      if (isDiffusionOn ())
+      // Optimization for May 2016 Release
+      if (isDiffusionOn () and !m_migrator->performLegacyMigration ())
       {
          broadcastTrapFillDepthProperties ();
          if (!diffusionLeakCharges ())
@@ -2580,7 +2685,7 @@ namespace migration
          getProjectHandle()->getBiodegradationParameters();
       double timeInterval = m_start->getTime() - m_end->getTime();
 
-      if (timeInterval >= 30)
+      if (timeInterval >= 30 and !m_migrator->performLegacyMigration())
       {
          getProjectHandle()->getMessageHandler().print("WARNING: The time interval between the two snapshots ");
          getProjectHandle()->getMessageHandler().print(m_start->getTime());
@@ -2590,9 +2695,19 @@ namespace migration
       }
       Biodegrade biodegrade(biodegradationParameters);
 
-      for (TrapVector::iterator trapIter = m_traps.begin (); trapIter != m_traps.end (); ++trapIter)
+      if (m_migrator->performLegacyMigration())
       {
-         biodegraded += (*trapIter)->biodegradeCharges (timeInterval, biodegrade);
+         for (TrapVector::iterator trapIter = m_traps.begin (); trapIter != m_traps.end (); ++trapIter)
+         {
+            biodegraded += (*trapIter)->biodegradeChargesLegacy (timeInterval, biodegrade);
+         }
+      } 
+      else
+      {
+         for (TrapVector::iterator trapIter = m_traps.begin (); trapIter != m_traps.end (); ++trapIter)
+         {
+            biodegraded += (*trapIter)->biodegradeCharges (timeInterval, biodegrade);
+         }
       }
 
       RequestHandling::FinishRequestHandling ();
@@ -2803,7 +2918,8 @@ namespace migration
 
    void Reservoir::broadcastTrapDiffusionStartTimes (void)
    {
-      if (!isDiffusionOn ()) return;
+      // Optimization for May 2016 Release
+      if (!isDiffusionOn () or m_migrator->performLegacyMigration ()) return;
 
       TrapVector::iterator trapIter;
 
@@ -2818,7 +2934,8 @@ namespace migration
 
    void Reservoir::broadcastTrapPenetrationDistances (void)
    {
-      if (!isDiffusionOn ()) return;
+      // Optimization for May 2016 Release
+      if (!isDiffusionOn () or m_migrator->performLegacyMigration ()) return;
 
       const DiffusionLeakageParameters *parameters = getProjectHandle ()->getDiffusionLeakageParameters ();
 
@@ -3082,7 +3199,7 @@ namespace migration
    void Reservoir::addTrap (Trap * trap)
    {
       m_traps.push_back (trap);
-      trap->setLocalId (m_traps.size ());
+      trap->setLocalId ((int) m_traps.size ());
    }
 
    void Reservoir::processTrapProperties (TrapPropertiesRequest & tpRequest)
@@ -3696,7 +3813,7 @@ namespace migration
    /// send all collected migration requests to processor 0 to be added to the MigrationIoTbl
    void Reservoir::processMigrationRequests (void)
    {
-      int localSize = m_migrationRequests.size ();
+      int localSize = (int) m_migrationRequests.size ();
 
       // determine maximum number of requests per processor
       int localMaximumSize = MaximumAll (localSize);

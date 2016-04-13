@@ -262,9 +262,9 @@ namespace casa
                      const casa::VarPrmContinuous * cprm = dynamic_cast<const casa::VarPrmContinuous*>( vprm );
                      const std::vector<bool> & selPrms = cprm->selected();
    
-                     for ( int j = 0; j < vprm->dimension(); ++j )
+                     for ( size_t j = 0; j < vprm->dimension(); ++j )
                      {
-                        if ( selPrms[j] ) { varPrmsPerm.push_back( std::pair< const VarParameter *, int >( vprm, j ) ); }
+                        if ( selPrms[j] ) { varPrmsPerm.push_back( std::pair< const VarParameter *, int >( vprm, static_cast<int>( j ) ) ); }
                      }
                   }
                   break;
@@ -272,9 +272,9 @@ namespace casa
                case casa::VarParameter::Categorical:
                default:
                   {
-                     for ( int j = 0; j < vprm->dimension(); ++j )
+                     for ( size_t j = 0; j < vprm->dimension(); ++j )
                      {
-                        varPrmsPerm.push_back( std::pair< const VarParameter *, int >( vprm, j ) );
+                        varPrmsPerm.push_back( std::pair< const VarParameter *, int >( vprm, static_cast<int>( j ) ) );
                      }
                   }
                   break;
@@ -334,7 +334,7 @@ namespace casa
       for ( size_t i = 0; i < m_varSpace->size(); ++i )
       {
          const VarParameter * vprm = m_varSpace->parameter( i );
-         for ( int j = 0; j < vprm->dimension(); ++j )
+         for ( size_t j = 0; j < vprm->dimension(); ++j )
          {
             varPrmList.push_back( std::pair< const VarParameter *, int >( vprm, j ) );
          }
@@ -344,9 +344,9 @@ namespace casa
       for ( size_t i = 0; i < m_obsSpace->size(); ++i )
       {
          const Observable * obs = m_obsSpace->observable( i );
-         for ( int j = 0; j < obs->dimension(); ++j )
+         for ( size_t j = 0; j < obs->dimension(); ++j )
          {
-            obsList.push_back( std::pair<const Observable *, int>( obs, j ) );
+            obsList.push_back( std::pair<const Observable *, int>( obs, static_cast<int>( j ) ) );
          }
       }
 
@@ -369,19 +369,16 @@ namespace casa
    // Serialization / Deserialization
    //
    // Serialize object to the given stream
-   bool SensitivityCalculatorImpl::save( CasaSerializer & sz, unsigned int fileVersion ) const
+   bool SensitivityCalculatorImpl::save( CasaSerializer & sz, unsigned int /* fileVersion */ ) const
    {
       bool ok = true;
 
       // initial implementation of serialization, must exist in all future versions of serialization
-      if ( fileVersion >= 0 )
-      {
-         CasaSerializer::ObjRefID obsID = sz.ptr2id( m_obsSpace );
-         CasaSerializer::ObjRefID vspID = sz.ptr2id( m_varSpace );
+      CasaSerializer::ObjRefID obsID = sz.ptr2id( m_obsSpace );
+      CasaSerializer::ObjRefID vspID = sz.ptr2id( m_varSpace );
 
-         ok = ok ? sz.save( obsID, "ObsSpaceID" ) : ok;
-         ok = ok ? sz.save( vspID, "VarSpaceID" ) : ok;
-      }
+      ok = ok ? sz.save( obsID, "ObsSpaceID" ) : ok;
+      ok = ok ? sz.save( vspID, "VarSpaceID" ) : ok;
       return ok;
    }
 

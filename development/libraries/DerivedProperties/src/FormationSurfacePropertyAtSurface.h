@@ -41,6 +41,9 @@ namespace DerivedProperties {
 
       /// \brief Return the primary property of the formation property
       virtual bool isPrimary() const; 
+ 
+     /// \ brief Get the gridMap
+      virtual const DataAccess::Interface::GridMap* getGridMap() const;
 
    private :
 

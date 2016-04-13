@@ -40,7 +40,7 @@ namespace ibs
       /// @return full path to the application
       static Path applicationFullPath();
 
-      Path( const std::string & aPath ) : m_path( aPath ) { ; }
+      Path( const std::string & aPath ) : m_path( aPath ) { if( m_path.empty() ) m_path = "."; }
 
       /// @brief Copy constructor
       Path( const Path & aPath ) : m_path( aPath.m_path ) { ; }

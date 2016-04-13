@@ -1,9 +1,21 @@
+//
+// Copyright (C) 2016 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "VesHighResFormationCalculator.h"
 
+#include <assert.h>
 #include "FormattingException.h"
 #include "Interface/SimulationDetails.h"
 #include "IndirectFormationProperty.h"
 #include "CompoundLithology.h"
+#include "GeoPhysicsFluidType.h"
 #include "GeoPhysicsFormation.h"
 #include "GeoPhysicalConstants.h"
 #include "Interface/Surface.h"
@@ -49,7 +61,17 @@ void DerivedProperties::VesHighResFormationCalculator::calculate(       Abstract
 {
    try
    {
-      if( !m_isSubsampled || m_isCoupledMode )
+      const GeoPhysics::Formation * const currentFormation = dynamic_cast<const GeoPhysics::Formation * const>( formation );
+      assert( currentFormation != 0 );
+
+      if( currentFormation->getBottomSurface()->getSnapshot()->getTime() <= snapshot->getTime() ||
+          currentFormation->kind() == DataAccess::Interface::BASEMENT_FORMATION )
+      {
+         // If the formation is the basement or at the provided snapshot the current formation has't
+         // deposited yet or is just about to deposit we return an empty list of derived properties
+         derivedProperties.clear();
+      }
+      else if( !m_isSubsampled || m_isCoupledMode )
       {
          computeIndirectly( propertyManager,
                             snapshot,
@@ -58,10 +80,10 @@ void DerivedProperties::VesHighResFormationCalculator::calculate(       Abstract
       }
       else
       {
-         computeForSubsampledRun( propertyManager,
-                                  snapshot,
-                                  formation,
-                                  derivedProperties );
+         computeForSubsampledHydroRun( propertyManager,
+                                       snapshot,
+                                       formation,
+                                       derivedProperties );
       }
    }
    catch( formattingexception::GeneralException & ex )
@@ -79,12 +101,14 @@ void DerivedProperties::VesHighResFormationCalculator::computeIndirectly(       
    try
    {
       const DataModel::AbstractProperty * vesHighResProperty = propertyManager.getProperty( getPropertyNames()[ 0 ] );
-
+      assert( vesHighResProperty != 0 );
+      
       const DataModel::AbstractProperty* vesProperty = propertyManager.getProperty( "Ves" );
+      assert( vesProperty != 0 );
       FormationPropertyPtr ves = propertyManager.getFormationProperty( vesProperty, snapshot, formation );
-
+      assert( ves != 0 );
+      
       IndirectFormationPropertyPtr vesHighRes = IndirectFormationPropertyPtr( new DerivedProperties::IndirectFormationProperty( vesHighResProperty, ves) );
-
       derivedProperties.clear();
       derivedProperties.push_back( vesHighRes );
    }
@@ -95,16 +119,17 @@ void DerivedProperties::VesHighResFormationCalculator::computeIndirectly(       
 }
 
 
-void DerivedProperties::VesHighResFormationCalculator::computeForSubsampledRun(       AbstractPropertyManager &      propertyManager,
-                                                                                const DataModel::AbstractSnapshot *  snapshot,
-                                                                                const DataModel::AbstractFormation * formation,
-                                                                                      FormationPropertyList &        derivedProperties ) const
+void DerivedProperties::VesHighResFormationCalculator::computeForSubsampledHydroRun(       AbstractPropertyManager &      propertyManager,
+                                                                                     const DataModel::AbstractSnapshot *  snapshot,
+                                                                                     const DataModel::AbstractFormation * formation,
+                                                                                           FormationPropertyList &        derivedProperties ) const
 {
    try
    {
       const GeoPhysics::Formation* currentFormation = dynamic_cast<const GeoPhysics::Formation*>( formation );
 
       const DataModel::AbstractProperty * vesHighResProperty = propertyManager.getProperty( getPropertyNames()[ 0 ] );
+      assert( vesHighResProperty != 0 );
 
       DerivedFormationPropertyPtr vesHighRes = 
          DerivedFormationPropertyPtr( new DerivedProperties::DerivedFormationProperty( vesHighResProperty,
@@ -143,7 +168,7 @@ void DerivedProperties::VesHighResFormationCalculator::computeForSubsampledRun( 
       double densityDifference = 0.0;
       double solidThickness = 0.0;
       const GeoPhysics::FluidType * fluid = dynamic_cast<const GeoPhysics::FluidType*>(currentFormation->getFluidType());
-      const double fluidDensity = (fluid == 0) ? 0.0 : fluid->getConstantDensity();
+      const double constFluidDensity = (fluid == 0) ? 0.0 : fluid->getConstantDensity();
 
       for( unsigned int i = firstI; i <= lastI; ++i )
       {
@@ -152,7 +177,8 @@ void DerivedProperties::VesHighResFormationCalculator::computeForSubsampledRun( 
             if( m_projectHandle->getNodeIsValid(i, j) )
             {
                const GeoPhysics::CompoundLithology * lithology = currentFormation->getCompoundLithology(i, j);
-               densityDifference = lithology->density() - fluidDensity;
+               assert( lithology != 0 );
+               densityDifference = lithology->density() - constFluidDensity;
                vesHighResAboveValue = vesHighRes->getA(i, j, lastK);
 
                // Loop index is shifted up by 1.

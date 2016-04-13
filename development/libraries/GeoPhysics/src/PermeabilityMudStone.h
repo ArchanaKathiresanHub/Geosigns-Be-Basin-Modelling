@@ -1,3 +1,12 @@
+//
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
 #ifndef _GEOPHYSICS__PERMEABILITYMUDSTONE_H_
 #define _GEOPHYSICS__PERMEABILITYMUDSTONE_H_
 
@@ -10,48 +19,49 @@ class PermeabilityMudStone: public Permeability::Algorithm
 {
 public:
    PermeabilityMudStone( double depoPermeability, double permeabilityIncr, double permeabilityDecr);
+   
+   /// @brief Compte the mudstone model permeability
+   virtual double calculate( const double ves,
+                             const double maxVes,
+                             const double calculatedPorosity ) const ;
 
-   virtual double permeability ( const double ves,
-                                 const double maxVes,
-                                 const double calculatedPorosity ) const ;
-
-   /// Compte the derivative of the permeability function.
-   virtual void permeabilityDerivative ( const double  ves,
-                                         const double  maxVes,
-                                         const double  calculatedPorosity, 
-                                         const double porosityDerivativeWrtVes,
-                                               double& permeability, 
-                                               double& derivative ) const;
+   /// @brief Compute the derivative of the mudstone permeability function with respect to ves.
+   virtual void calculateDerivative ( const double  ves,
+                                      const double  maxVes,
+                                      const double  calculatedPorosity, 
+                                      const double  porosityDerivativeWrtVes,
+                                            double& permeability, 
+                                            double& derivative ) const;
 
    /// return the depositional permeability
    virtual double depoPerm() const ;
 
    /// Return the permeability model
-   virtual Permeability::Model  model()    const;
+   virtual Permeability::Model  model() const;
 
 private:
+   /// @brief Overwrite default assginment operator
+   PermeabilityMudStone& operator= (const PermeabilityMudStone&);
+   /// @brief Overwrite default copy constructor
+   PermeabilityMudStone( const PermeabilityMudStone& );
+
    /// Compute the permeability for shales.
    double shalePermeability ( const double ves,
                               const double maxVes) const;
 
-   /// Compute the derivative of the permeability function for shales.
+   /// Compute the derivative of the permeability function for shales with respect to ves.
    void shalePermeabilityAndDerivative ( const double ves,
-                                           const double maxVes,
-                                           double & permeability,
-                                           double & permeabilityDerivative ) const;
+                                         const double maxVes,
+                                         double & permeability,
+                                         double & permeabilityDerivative ) const;
 
    /// A std::pow function for some special cases.
-   static inline double fastPow( double x, double y);
+   static inline double fastPow( double x, double y );
 
-   double            m_depoPermeability;
-   double            m_permeabilityIncr;
-   double            m_permeabilityDecr;
+   const double m_depoPermeability;
+   const double m_permeabilityIncr;
+   const double m_permeabilityDecr;
 
-   // The natural logarithm of 10
-   static const double s_log10;
-
-   // Vertical Effective Stress at surface conditions.
-   static const double ves0; 
 };
 
 

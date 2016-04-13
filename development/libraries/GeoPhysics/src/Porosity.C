@@ -1,3 +1,12 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
 #include "Porosity.h"
 
 #include <cmath>
@@ -54,6 +63,17 @@ namespace GeoPhysics
 	  
       return Porosity(0);
    }
+
+   Porosity& Porosity::operator= (const Porosity& porosity){
+      if (this != &porosity) {
+         m_algorithm = porosity.m_algorithm;
+      }
+      return *this;
+   }
+
+   Porosity::Porosity( const Porosity& porosity )
+      :m_algorithm( porosity.m_algorithm )
+   {}
    
    Porosity::Algorithm::Algorithm(double depoPorosity, double minimumMechanicalPorosity):
 		m_depoPorosity(depoPorosity),
@@ -79,7 +99,7 @@ namespace GeoPhysics
          const double vesScaling = (overpressuredCompaction ? vesScaleFactor : 1.0);
 
          double vesTop = MaxVesValue;
-         double porosityTop = porosity(vesTop, vesTop, IncludeChemicalCompaction, 0.0);
+         double porosityTop = calculate(vesTop, vesTop, IncludeChemicalCompaction, 0.0);
          double vesBottom;
          double porosityBottom;
          double computedSolidThickness;
@@ -90,7 +110,7 @@ namespace GeoPhysics
 
          do {
             vesBottom = MaxVesValue + vesScaling * AccelerationDueToGravity * densitydiff * computedSolidThickness;
-            porosityBottom = porosity(vesBottom, vesBottom, IncludeChemicalCompaction, 0.0);
+            porosityBottom = calculate( vesBottom, vesBottom, IncludeChemicalCompaction, 0.0 );
             computedRealThickness = 0.5 * computedSolidThickness * (1.0 / (1.0 - porosityTop) + 1.0 / (1.0 - porosityBottom));
             computedSolidThickness = computedSolidThickness * (thickness / computedRealThickness);
          } while ( std::abs ( thickness - computedRealThickness ) >= thickness * Porosity::SolidThicknessIterationTolerance && iteration++ <= 10);

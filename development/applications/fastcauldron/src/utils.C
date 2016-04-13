@@ -196,7 +196,7 @@ void displayTime(const string & str, PetscLogDouble startTime )
 
 }
 
-void Display_Merging_Progress( const string & fileName, double startTime) {
+void Display_Merging_Progress( const string & fileName, double startTime, const string & message ) {
    
    if (PetscGlobalRank != 0)
       return;
@@ -218,10 +218,16 @@ void Display_Merging_Progress( const string & fileName, double startTime) {
    buf.precision(4);
    buf.setf(ios::fixed);
                
-   buf << "Merging of " << fileName << " : " << setw( 8 ) << " Elapsed: " << time;;
+   buf << message << fileName << " : " << setw( 8 ) << " Elapsed: " << time;;
    
    cout << buf.str() << endl;
    cout << flush;
+}
+
+void Display_Merging_Progress( const string & fileName, double startTime ) {
+   
+   return Display_Merging_Progress ( fileName, startTime, "Merging of " );
+
 }
 
 void getElapsedTime(char* str)

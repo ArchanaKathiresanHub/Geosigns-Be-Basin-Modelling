@@ -21,7 +21,7 @@ GeoPhysics::CompoundLithologyArray::~CompoundLithologyArray () {
 
          for ( j = 0; j < length ( 1 ); ++j ) {
 
-            if ( m_lithologies [ i ][ j ] == 0 ) {
+            if ( m_lithologies [ i ][ j ] != 0 ) {
                delete m_lithologies [ i ][ j ];
             }
 

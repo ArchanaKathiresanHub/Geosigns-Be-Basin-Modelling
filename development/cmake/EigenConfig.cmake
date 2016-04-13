@@ -29,6 +29,7 @@ add_external_project_to_repository(
         SPEED    "Debug"
         SPEED    "DebugAll"
         SPEED    "MemCheck"
+        SPEED    "CodeCoverage"
         OS       "{CurrentPlatform}"
         LINK     "Dynamic"
         LINK     "Static"

@@ -2,6 +2,8 @@
 
 #include "DerivedFormationMapProperty.h"
 #include "GeoPhysicsFormation.h"
+#include "Interface/Surface.h"
+#include "Interface/Snapshot.h"
 
 DerivedProperties::FaultElementFormationMapCalculator::FaultElementFormationMapCalculator () {
    addPropertyName ( "FaultElements" );
@@ -18,6 +20,10 @@ void DerivedProperties::FaultElementFormationMapCalculator::calculate ( Abstract
    if( not geophysicsFormation->getContainsFaults () ) {
       return;
    }
+   if ( snapshot->getTime() > geophysicsFormation->getTopSurface()->getSnapshot()->getTime() ) {
+      return;
+   }
+
    const DataModel::AbstractProperty* faultElementProperty = propertyManager.getProperty ( "FaultElements" );
 
    derivedProperties.clear ();

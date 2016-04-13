@@ -1,3 +1,13 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include <assert.h>
 #include <stdlib.h>
 #include "history.h"
@@ -17,7 +27,9 @@
 #include "FastcauldronSimulator.h"
 #include "MultiComponentFlowHandler.h"
 #include "StatisticsHandler.h"
+#include "DerivedPropertiesCalculator.h"
 
+//DataAccess library
 #include "Interface/Interface.h"
 #include "Interface/ProjectHandle.h"
 #include "Interface/Formation.h"
@@ -26,6 +38,10 @@
 
 #include "MemoryChecker.h"
 #include "FastcauldronStartup.h"
+
+//utilities library
+#include "LogHandler.h"
+#include "FormattingException.h"
 
 #ifdef FLEXLM
 #undef FLEXLM
@@ -74,6 +90,35 @@ int main(int argc, char** argv)
 
    // Initialise Petsc and get rank & size of MPI
    PetscInitialize (&argc, &argv, (char *) 0, PETSC_NULL);
+   int rank;
+   MPI_Comm_rank( PETSC_COMM_WORLD, &rank );
+
+   // Intitialise fastcauldron loger
+   try{
+      PetscBool log = PETSC_FALSE;
+      PetscOptionsHasName( PETSC_NULL, "-verbosity", &log );
+      if (log){
+         char verbosity[11];
+         PetscOptionsGetString( PETSC_NULL, "-verbosity", verbosity, 11, 0 );
+         if      (!strcmp( verbosity, "quiet"      )) { LogHandler( "fastcauldron", LogHandler::QUIET_LEVEL,      rank ); }
+         else if (!strcmp( verbosity, "minimal"    )) { LogHandler( "fastcauldron", LogHandler::MINIMAL_LEVEL   , rank ); }
+         else if (!strcmp( verbosity, "normal"     )) { LogHandler( "fastcauldron", LogHandler::NORMAL_LEVEL    , rank ); }
+         else if (!strcmp( verbosity, "detailed"   )) { LogHandler( "fastcauldron", LogHandler::DETAILED_LEVEL  , rank ); }
+         else if (!strcmp( verbosity, "diagnostic" )) { LogHandler( "fastcauldron", LogHandler::DIAGNOSTIC_LEVEL, rank ); }
+         else throw formattingexception::GeneralException() << "Unknown <" << verbosity << "> option for -verbosity command line parameter.";
+      }
+      else{
+         LogHandler( "fastcauldron", LogHandler::DETAILED_LEVEL, rank );
+      }
+   }
+   catch (formattingexception::GeneralException& ex){
+      std::cout << ex.what();
+      return 1;
+   }
+   catch (...){
+      std::cout << "Fatal error when initialising log file(s).";
+      return 1;
+   }
 
    // If FLEXLM is defined then this is updated within the FLEXLM section.
    // The run should not abort if the ibs_cauldron_halo license cannot be 
@@ -188,9 +233,16 @@ int main(int argc, char** argv)
    geometryHasConverged = true;
 
    if ( appctx->DoHighResDecompaction || appctx->DoDecompaction ) {
-     fctCtx.decompact ();
+      
+      fctCtx.decompact ();
+      
+       if( not FastcauldronSimulator::getInstance ().noDerivedPropertiesCalc() ) {
+          DerivedPropertiesCalculator propertyCalculator ( appctx, fctCtx.getVolumeOutputProperties(), fctCtx.getMapOutputProperties() );
+      
+          propertyCalculator.compute();
+      }
    }
-
+   
    if ( appctx->DoOverPressure && ! appctx -> Do_Iteratively_Coupled ) {
      Basin_Modelling::FEM_Grid basin ( appctx );
 
@@ -203,12 +255,24 @@ int main(int argc, char** argv)
 
      // Do Tempearature Calculation
      basin.solveTemperature ( solverHasConverged, errorInDarcy );
+
+     if( not FastcauldronSimulator::getInstance ().noDerivedPropertiesCalc() ) {
+        DerivedPropertiesCalculator propertyCalculator ( appctx, basin.getVolumeOutputProperties(), basin.getMapOutputProperties() );
+       
+        propertyCalculator.compute();
+     }
    }
 
    if ( appctx -> Do_Iteratively_Coupled ) {
      Basin_Modelling::FEM_Grid basin ( appctx );
      // Do Coupled Calculation
      basin.solveCoupled ( solverHasConverged, errorInDarcy, geometryHasConverged );
+     
+     if( not FastcauldronSimulator::getInstance ().noDerivedPropertiesCalc() ) {
+        DerivedPropertiesCalculator propertyCalculator ( appctx, basin.getVolumeOutputProperties(), basin.getMapOutputProperties() );
+       
+        propertyCalculator.compute();
+     }
    }
 
    if ( appctx->integrateGenexEquations ()) {
@@ -237,6 +301,11 @@ int main(int argc, char** argv)
    
    StatisticsHandler::print ();
    FastcauldronSimulator::finalise ( solverHasConverged and ( appctx->saveOnDarcyError () or not errorInDarcy ));
+
+   if ( factory != 0 ) {
+      delete factory;
+   }
+
    bool displayEndTime = appctx->debug1 or appctx->verbose;
    delete appctx;
 

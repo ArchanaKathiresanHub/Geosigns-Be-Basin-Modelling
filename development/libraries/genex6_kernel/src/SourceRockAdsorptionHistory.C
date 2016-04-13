@@ -1,4 +1,6 @@
 #include "SourceRockAdsorptionHistory.h"
+#include <FilePath.h>
+
 #include <fstream>
 #include <sstream>
 
@@ -40,8 +42,7 @@ void Genex6::SourceRockAdsorptionHistory::save ()
       {
          std::stringstream buffer;
          
-         buffer << m_projectHandle->getFullOutputDir ()
-                <<  "/History_"
+         buffer << "History_"
                 << m_projectHandle->getProjectName ()
                 << "_"
                 << (m_adsorptionHistory != 0 ? "shalegas" : "genex")
@@ -56,18 +57,21 @@ void Genex6::SourceRockAdsorptionHistory::save ()
          }
          buffer << ".dat";
          
-         fileName = buffer.str ();
-         
+         fileName = buffer.str ();         
       }
       else
       {
-         fileName = m_projectHandle->getFullOutputDir () + "/" + m_historyRecord->getFileName ();
+         fileName = m_historyRecord->getFileName ();
       }
-      
+
+
       if (!m_projectHandle->makeOutputDir ())
          return;
+      
+      ibs::FilePath filePath( m_projectHandle->getFullOutputDir () );
+      filePath << fileName;
 
-      std::ofstream historyFile (fileName.c_str (), std::ios::out);
+      std::ofstream historyFile (filePath.cpath (), std::ios::out);
       
       if( m_adsorptionHistory != 0 ) {
          historyFile << m_historyRecord->getFormationName ();

@@ -1,3 +1,12 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
 #include <stdafx.h>
 
 #include <stdlib.h>
@@ -99,6 +108,11 @@
 #include "ComponentManager.h"
 #include "InterfaceDefs.h"
 
+#include "FilePath.h"
+
+//utilities library
+#include "LogHandler.h"
+
 
 using namespace DataAccess;
 using namespace Interface;
@@ -111,7 +125,11 @@ using database::Record;
 
 const double DefaultUndefinedValue = 99999;
 
+typedef formattingexception::GeneralException ProjectHandleException; 
 
+static char * words [] = {"ALCStepBasaltThickness", "ALCStepTopBasaltDepth", "ChemicalCompaction" , "Depth", 
+                          "ErosionFactor", "FCTCorrection", "MaxVes",
+                          "Pressure", "Temperature", "ThicknessError", "Ves", "Vr" };
 
 DataAccess::Interface::ProjectHandle * DataAccess::Interface::OpenCauldronProject( const string & name, const string & accessMode, ObjectFactory* objectFactory )
 {
@@ -172,10 +190,11 @@ const DataAccess::Interface::ApplicationGlobalOperations& ProjectHandle::getGlob
 }
 
 ProjectHandle::ProjectHandle( Database * tables, const string & name, const string & accessMode, ObjectFactory* objectFactory ) :
-   m_database( tables ), m_name( name ), m_accessMode( READWRITE ), m_activityOutputGrid( 0 ), m_mapPropertyValuesWriter( 0 ), m_mapPrimaryPropertyValuesWriter( 0 )
+   m_database( tables ), m_name( name ), m_accessMode( READWRITE ), m_activityOutputGrid( 0 ), m_mapPropertyValuesWriter( 0 ), m_primaryList( words, words + 12 )
 {
    (void) accessMode; // ignore warning about unused parameter
 
+   
    m_messageHandler = 0;
    m_globalOperations = 0;
 
@@ -205,7 +224,6 @@ ProjectHandle::ProjectHandle( Database * tables, const string & name, const stri
    m_sgDensitySample = 0;
    m_irreducibleWaterSample = 0;
 
-   m_primary = false;
    m_primaryDouble = false;
 
    //1DComponent
@@ -424,11 +442,12 @@ ProjectHandle::~ProjectHandle( void )
 /// the directory path we will use to access map files.
 void ProjectHandle::splitName( void )
 {
-   size_t slashPos = m_name.rfind( '/' );
-   if ( slashPos != string::npos )
+   ibs::FilePath ppath( m_name );
+
+   if ( ppath.size() > 0 ) // number path elements more the one
    {
-      m_projectPath = m_name.substr( 0, slashPos );
-      m_fileName = m_name.substr( slashPos + 1, string::npos );
+      m_projectPath = ppath.filePath();
+      m_fileName = ppath.fileName();
    }
    else
    {
@@ -548,25 +567,17 @@ bool ProjectHandle::restartActivity( void )
    }
    else
    {
-
-
       const std::string& directoryName = getOutputDir();
       // create hdf file
       string fileName = getActivityName();
 
       fileName += "_Results.HDF";
-      string filePathName = getProjectPath() + "/" + directoryName + "/" + fileName;
+      ibs::FilePath filePathName( getProjectPath() );
+      filePathName << directoryName << fileName;
 
       m_mapPropertyValuesWriter->close();
-      m_mapPropertyValuesWriter->open( filePathName, false );
+      m_mapPropertyValuesWriter->open( filePathName.path(), false );
       m_mapPropertyValuesWriter->saveDescription( getActivityOutputGrid() );
-
-      if( m_primary ) {
-         filePathName = getProjectPath() + "/" + directoryName + "/" + PrimaryPropertiesFileName;
-         
-         m_mapPrimaryPropertyValuesWriter->close();
-         m_mapPrimaryPropertyValuesWriter->open( filePathName, false );
-      }
 
       saveCreatedMapPropertyValues();		/// creates new TimeIoRecords
 
@@ -936,8 +947,8 @@ bool ProjectHandle::loadProperties( void )
    m_properties.push_back( getFactory()->produceProperty( this, 0, "ALCOrigLithMantleDepth",         "ALCOrigLithMantleDepth",         "m",     FORMATIONPROPERTY, DataModel::SURFACE_2D_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( this, 0, "ALCMaxAsthenoMantleDepth",       "ALCMaxAsthenoMantleDepth",       "m",     FORMATIONPROPERTY, DataModel::SURFACE_2D_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( this, 0, "ALCStepContCrustThickness",      "ALCStepContCrustThickness",      "m",     FORMATIONPROPERTY, DataModel::SURFACE_2D_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ALCStepBasaltThickness",         "ALCStepBasaltThickness",         "m",     FORMATIONPROPERTY, DataModel::SURFACE_2D_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ALCStepTopBasaltDepth",          "ALCStepTopBasaltDepth",          "m",     FORMATIONPROPERTY, DataModel::SURFACE_2D_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( this, 0, "ALCStepBasaltThickness",         "ALCStepBasaltThickness",         "m",     FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( this, 0, "ALCStepTopBasaltDepth",          "ALCStepTopBasaltDepth",          "m",     FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( this, 0, "ALCSmContCrustThickness",        "ALCSmContCrustThickness",        "m",     FORMATIONPROPERTY, DataModel::SURFACE_2D_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( this, 0, "ALCSmBasaltThickness",           "ALCSmBasaltThickness",           "m",     FORMATIONPROPERTY, DataModel::SURFACE_2D_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( this, 0, "ALCSmTopBasaltDepth",            "ALCSmTopBasaltDepth",            "m",     FORMATIONPROPERTY, DataModel::SURFACE_2D_PROPERTY ));
@@ -993,7 +1004,7 @@ bool ProjectHandle::loadProperties( void )
    // Currently fastcauldron outputs both surface and a volume dataset for this property.
    // The Volume data is largely filled with the null-value (99999) except at the surface.
    m_properties.push_back( getFactory()->produceProperty( this, 0, "Reflectivity",                   "ReflectivityVec2",               "",      FORMATIONPROPERTY, DataModel::SURFACE_2D_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "SonicVelocity",                  "SonicVec2",                      "us/m",  FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( this, 0, "SonicSlowness",                  "SonicVec2",                      "us/m",  FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY ));
 
    // not sure which attribute this property shoudl have, so give it the most general one
    m_properties.push_back( getFactory()->produceProperty( this, 0, "SteraneAromatisation",           "SteraneAromatisation",           "",      FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY ));
@@ -1166,13 +1177,13 @@ bool ProjectHandle::loadProperties( void )
    m_properties.push_back( getFactory()->produceProperty( this, 0, "ResRockThickness",              "ResRockThickness",              "m",       RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( this, 0, "ResRockPorosity",               "ResRockPorosity",               "%",       RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( this, 0, "ResRockSealPermeability",       "ResRockSealPermeability",       "mD",      RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ResRockFlowDirectionGasIJ",     "ResRockFlowDirectionGasIJ",     "",        RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ResRockFlowDirectionGasI",      "ResRockFlowDirectionGasI",      "",        RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ResRockFlowDirectionGasJ",      "ResRockFlowDirectionGasJ",      "",        RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ResRockFlowDirectionFluidIJ",   "ResRockFlowDirectionFluidIJ",   "",        RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ResRockFlowDirectionFluidI",    "ResRockFlowDirectionFluidI",    "",        RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ResRockFlowDirectionFluidJ",    "ResRockFlowDirectionFluidJ",    "",        RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ResRockFlow",                   "ResRockFlow",                   "log(kg)", RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY));
+   m_properties.push_back( getFactory()->produceProperty( this, 0, "ResRockFlowDirectionGasIJ",     "ResRockFlowDirectionGasIJ",     "",        RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( this, 0, "ResRockFlowDirectionGasI",      "ResRockFlowDirectionGasI",      "",        RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( this, 0, "ResRockFlowDirectionGasJ",      "ResRockFlowDirectionGasJ",      "",        RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( this, 0, "ResRockFlowDirectionFluidIJ",   "ResRockFlowDirectionFluidIJ",   "",        RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( this, 0, "ResRockFlowDirectionFluidI",    "ResRockFlowDirectionFluidI",    "",        RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( this, 0, "ResRockFlowDirectionFluidJ",    "ResRockFlowDirectionFluidJ",    "",        RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( this, 0, "ResRockFlow",                   "ResRockFlow",                   "log(kg)", RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( this, 0, "ResRockFlowDirection",          "ResRockFlowDirection",          "",        RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( this, 0, "ResRockFlux",                   "ResRockFlux",                   "kg/m2",   RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( this, 0, "ResRockImmobilesVolume",        "ResRockImmobilesVolume",        "m3",      RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY ));
@@ -1591,10 +1602,9 @@ bool ProjectHandle::loadFaultCollections( void )
 
       bool fileIsOpen;
 
-      string fullFileName = getProjectPath();
-      fullFileName += "/";
-      fullFileName += inputValue->getFileName();
-      reader->open( fullFileName, fileIsOpen );
+      ibs::FilePath fullFileName( getProjectPath() );
+      fullFileName << inputValue->getFileName();
+      reader->open( fullFileName.path(), fileIsOpen );
 
       if ( !fileIsOpen )
       {
@@ -2367,12 +2377,6 @@ bool ProjectHandle::loadMapPropertyValues( void )
    return true;
 }
 
-const std::string ProjectHandle::getFullOutputDir() const
-{
-   return getProjectPath() + "/" + getOutputDir();
-}
-
-
 bool ProjectHandle::initializeMapPropertyValuesWriter( const bool append )
 {
    if ( Interface::MODE3D != getModellingMode() ) return true;
@@ -2382,7 +2386,9 @@ bool ProjectHandle::initializeMapPropertyValuesWriter( const bool append )
    string fileName = getActivityName();
 
    fileName += "_Results.HDF";
-   string filePathName = getFullOutputDir() + "/" + fileName;
+   ibs::FilePath ppath( getFullOutputDir() );
+   ppath << fileName;
+   string filePathName = ppath.path();
 
    if ( !makeOutputDir() ) return false;
 
@@ -2397,17 +2403,7 @@ bool ProjectHandle::initializeMapPropertyValuesWriter( const bool append )
 bool ProjectHandle::initializePrimaryPropertyValuesWriter( const bool append )
 {
    if ( Interface::MODE3D != getModellingMode() ) return true;
-   if( m_primary ) {
-      if ( m_mapPrimaryPropertyValuesWriter ) return false;
 
-     // create hdf file
-      string filePathName = getFullOutputDir() + "/" + PrimaryPropertiesFileName;
-      
-      if ( !makeOutputDir() ) return false;
-      
-      m_mapPrimaryPropertyValuesWriter = getFactory()->produceMapWriter();
-      return m_mapPrimaryPropertyValuesWriter->open( filePathName, append );
-   }
    return true;
 }
 
@@ -2430,11 +2426,6 @@ bool ProjectHandle::finalizeMapPropertyValuesWriter( void )
 
       m_mapPropertyValuesWriter->close();
       delete m_mapPropertyValuesWriter;
-
-      if ( m_mapPrimaryPropertyValuesWriter ) {
-         m_mapPrimaryPropertyValuesWriter->close();
-         delete m_mapPrimaryPropertyValuesWriter;
-      }
 
       return true;
    }
@@ -2523,7 +2514,7 @@ bool ProjectHandle::saveCreatedMapPropertyValuesMode3D( void )
       increment = 0;
 
       bool saveAsPrimary = false;
-      if( m_primary or m_primaryDouble ) {
+      if( m_primaryDouble and propertyValue->isPrimary() ) {
          if(( getActivityName() != "Genex5" and getActivityName() != "HighResMigration" and 
               getActivityName() != "FastTouch" and getActivityName() != "CrustalThicknessCalculator" )) {
             saveAsPrimary = true;
@@ -2555,8 +2546,7 @@ bool ProjectHandle::saveCreatedVolumePropertyValues( void )
 bool ProjectHandle::saveCreatedVolumePropertyValuesMode3D( void )
 {
    database::Table * timeIoTbl = getTable( "3DTimeIoTbl" );
-   if ( !timeIoTbl )
-      return false;
+   if ( !timeIoTbl ) return false;
 
    MutablePropertyValueList::iterator propertyValueIter;
    MapWriter* mapWriter = getFactory()->produceMapWriter();
@@ -2586,40 +2576,32 @@ bool ProjectHandle::saveCreatedVolumePropertyValuesMode3D( void )
             // and open a (new, empty) snapshot file for it.
             // File will be appended if append-flag is true in the snapshot.
             snapshotUsed = (Snapshot *)propertyValue->getSnapshot();
-            if( m_primary and m_mapPrimaryPropertyValuesWriter != 0 ) {
+ 
+            const string & fileName = snapshotUsed->getFileName( true );
+            ibs::FilePath filePathName( getFullOutputDir() );
+            filePathName << fileName;               
 
-               snapshotUsed->setPrimaryFileName( true );
-               
-            } else {
-               const string & fileName = snapshotUsed->getFileName( true );
-               string filePathName = getProjectPath() + "/" + getOutputDir() + "/" + fileName;
-               
+
+            
 #if 0
                cerr << "Saving snapshot ";
                snapshotUsed->printOn (cerr);
-               cerr << " to file " << filePathName << "  " << (snapshotUsed->getAppendFile () ? "APPEND" : "CREATE" ) << endl;
+               cerr << " to file " << filePathName.path() << "  " << (snapshotUsed->getAppendFile () ? "APPEND" : "CREATE" ) << endl;
 #endif
-               
-               mapWriter->open( filePathName, snapshotUsed->getAppendFile() );
-            }
+            
+               mapWriter->open( filePathName.path(), snapshotUsed->getAppendFile() );
          }
+         
          propertyValue->create3DTimeIoRecord( timeIoTbl, Interface::MODE3D );
          m_propertyValues.push_back( propertyValue );
          propertyValueIter = m_recordLessVolumePropertyValues.erase( propertyValueIter );
          increment = 0;
 
-         if( not m_primary ) {
-           if( m_primaryDouble ) {
-              status &= propertyValue->savePrimaryVolumeToFile( *mapWriter, false );
-           } else {
-              status &= propertyValue->saveVolumeToFile( *mapWriter );
-           }
+         if( m_primaryDouble and propertyValue->isPrimary() and snapshotUsed->getType() == Interface::MAJOR  ) {
+            // save primary propeties in double precision and chunked at major snapshots
+            status &= propertyValue->savePrimaryVolumeToFile( *mapWriter, false );
          } else {
-            if(  m_mapPrimaryPropertyValuesWriter != 0 ) {
-               status &= propertyValue->savePrimaryVolumeToFile( *m_mapPrimaryPropertyValuesWriter );
-            } else {
-               status &= propertyValue->savePrimaryVolumeToFile( *mapWriter );
-            }
+            status &= propertyValue->saveVolumeToFile( *mapWriter );
          }
          
       }
@@ -2937,6 +2919,13 @@ void ProjectHandle::addProperty( Property * property )
    m_properties.push_back( property );
 }
 
+void ProjectHandle::addPropertyToFront( Property * property )
+{
+   MutablePropertyList::iterator propertyIter = m_properties.begin();
+ 
+   m_properties.insert( propertyIter, property );
+}
+
 PropertyValue * ProjectHandle::addPropertyValue( database::Record * record, const string & name, const Property * property, const Snapshot * snapshot,
    const Reservoir * reservoir, const Formation * formation, const Surface * surface, PropertyStorage storage )
 {
@@ -3136,29 +3125,30 @@ bool ProjectHandle::loadVolumePropertyValuesViaSnapshotIoTbl( void )
       const string & fileName = database::getSnapshotFileName( snapshotIoRecord );
       if ( fileName.length() == 0 ) continue;
 
-      string filePathName = getProjectPath() + "/" + getOutputDir() + "/" + fileName;
+      ibs::FilePath filePathName( getProjectPath() );
+      filePathName << getOutputDir() << fileName;
 
 #if 0
-      cerr << "Opening snapshot file " << filePathName << endl;
+      cerr << "Opening snapshot file " << filePathName.path() << endl;
 #endif
 
       struct stat statbuf;
-      if ( stat( filePathName.c_str(), &statbuf ) < 0 )
+      if ( stat( filePathName.cpath(), &statbuf ) < 0 )
       {
          if ( getRank() == 0 )
          {
-            cerr << "ERROR in ProjectHandle::loadVolumePropertyValues ():: Could not open " << filePathName << ": ";
+            cerr << "ERROR in ProjectHandle::loadVolumePropertyValues ():: Could not open " << filePathName.path() << ": ";
             perror( "" );
          }
          continue;
       }
 
-      hid_t fileId = H5Fopen( filePathName.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT );
+      hid_t fileId = H5Fopen( filePathName.cpath(), H5F_ACC_RDONLY, H5P_DEFAULT );
       if ( fileId < 0 )
       {
          if ( getRank() == 0 )
          {
-            cerr << "ERROR in ProjectHandle::loadVolumePropertyValues (): Could not open " << filePathName << endl;
+            cerr << "ERROR in ProjectHandle::loadVolumePropertyValues (): Could not open " << filePathName.path() << endl;
          }
          continue;
       }
@@ -3175,12 +3165,11 @@ bool ProjectHandle::loadVolumePropertyValuesViaSnapshotIoTbl( void )
 GridMap * ProjectHandle::loadOutputMap( const Parent * parent, unsigned int childIndex,
    const string & fileName, const string & propertyId )
 {
-   string filePathName;
-   string dataSetName;
+   ibs::FilePath filePathName( getFullOutputDir() );
+   filePathName << fileName;
 
-   filePathName = getProjectPath() + "/" + getOutputDir() + "/" + fileName;
-   dataSetName = propertyId;
-   return loadGridMap( parent, childIndex, filePathName, dataSetName );
+   string dataSetName = propertyId;
+   return loadGridMap( parent, childIndex, filePathName.path(), dataSetName );
 }
 
 //static float GetUndefinedValue (hid_t fileId);
@@ -4314,6 +4303,23 @@ const Interface::Snapshot * ProjectHandle::findSnapshot( double time, int type )
    return nearestSnapshot;
 }
 
+void ProjectHandle::sortSnapshots()
+{
+   std::sort( m_snapshots.begin(), m_snapshots.end(), SnapshotLessThan() );
+}
+ 
+void ProjectHandle::printSnapshotTable() const
+{
+  MutableSnapshotList::const_iterator snapshotIter;
+
+   cout << "Snapshots: " << endl;
+   for ( snapshotIter = m_snapshots.begin(); snapshotIter != m_snapshots.end(); ++ snapshotIter )
+   {
+      const Snapshot * snapshot = *snapshotIter;
+      cout << snapshot->getTime() << ", " << ( snapshot->getType() == MINOR ? "minor " : ( snapshot->getType() == MAJOR ? "major " :  "unknown ")) << endl;
+   }
+
+}
 const Interface::Snapshot * ProjectHandle::findNextSnapshot( double time, int type ) const
 {
    // first, try the highway
@@ -4461,19 +4467,19 @@ const Interface::Surface * ProjectHandle::findSurface( const string & name ) con
 const Interface::Property * ProjectHandle::findProperty( const string & name ) const
 {
    MutablePropertyList::const_iterator propertyIter;
-
-   for ( propertyIter = m_properties.begin();
+   for (propertyIter = m_properties.begin();
       propertyIter != m_properties.end();
-      ++propertyIter )
+      ++propertyIter)
    {
       const Property * property = *propertyIter;
-      if ( WildMatch( property->getCauldronName().c_str(), name.c_str() ) ||
-         WildMatch( property->getUserName().c_str(), name.c_str() ) )
+      if (WildMatch( property->getCauldronName().c_str(), name.c_str() ) ||
+         WildMatch( property->getUserName().c_str(), name.c_str() ))
       {
          // Note that we return an Interface::Property
          return property;
       }
    }
+   LogHandler( LogHandler::WARNING_SEVERITY ) << "Property '" << name << "' could not be found by the ProjectHandle.";
    return 0;
 }
 
@@ -5856,19 +5862,9 @@ double ProjectHandle::getPreviousIgneousIntrusionTime( const double Current_Time
    return m_previousIgneousIntrusionTime;
 }
 
-MapWriter * ProjectHandle::getPrimaryPropertyValuesWriter() {
+MapWriter * ProjectHandle::getMapPropertyValuesWriter() {
 
-   return m_mapPrimaryPropertyValuesWriter;
-}
-
-bool ProjectHandle::isPrimary() const {
-
-   return m_primary;
-}
-
-void ProjectHandle::setPrimary( const bool PrimaryFlag ) {
-
-   m_primary = PrimaryFlag;
+   return m_mapPropertyValuesWriter;
 }
 
 bool ProjectHandle::isPrimaryDouble() const {
@@ -5879,4 +5875,8 @@ bool ProjectHandle::isPrimaryDouble() const {
 void ProjectHandle::setPrimaryDouble( const bool PrimaryFlag ) {
 
    m_primaryDouble = PrimaryFlag;
+}
+
+bool ProjectHandle::isPrimaryProperty( const string propertyName ) const {
+   return m_primaryList.count( propertyName );
 }

@@ -12,6 +12,7 @@
 #include "CmdLoadState.h"
 
 #include "casaAPI.h"
+#include "LogHandler.h"
 
 #include <cstdlib>
 #include <iostream>
@@ -37,9 +38,9 @@ CmdLoadState::CmdLoadState( CasaCommander & parent, const std::vector< std::stri
    }
 }
 
-void CmdLoadState::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
+void CmdLoadState::execute( std::unique_ptr<casa::ScenarioAnalysis> & sa )
 {
-   BOOST_LOG_TRIVIAL( info ) << "Deserializing CASA state from: " << m_fileName << "...";
+   LogHandler( LogHandler::INFO_SEVERITY ) << "Deserializing CASA state from: " << m_fileName << "...";
 
    sa.reset( casa::ScenarioAnalysis::loadScenario( m_fileName.c_str(), m_fileType.c_str() ) );
    if ( sa->errorCode() != ErrorHandler::NoError )
@@ -47,5 +48,5 @@ void CmdLoadState::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
       throw ErrorHandler::Exception( sa->errorCode() ) << sa->errorMessage();
    }
 
-   BOOST_LOG_TRIVIAL( info )  << "Deserialization succeeded";
+   LogHandler( LogHandler::INFO_SEVERITY )  << "Deserialization succeeded";
 }

@@ -31,6 +31,9 @@ namespace DerivedProperties {
                                const DataModel::AbstractFormation* formation,
                                      FormationPropertyList&        derivedProperties ) const;
 
+      virtual bool isComputable ( const DerivedProperties::AbstractPropertyManager& propManager,
+                                  const DataModel::AbstractSnapshot*  snapshot,
+                                  const DataModel::AbstractFormation* formation ) const;
    private :
 
       /// \brief Compute hydrostatic pressure after a fastcauldron hydrostatic decompaction simulation mode.
@@ -51,6 +54,12 @@ namespace DerivedProperties {
                                                       const DataModel::AbstractFormation* formation,
                                                       FormationPropertyList&              derivedProperties ) const;
 
+      /// \brief Compute hydrostatic pressure for the basement formation ( set to 0)
+      void computeForBasement ( AbstractPropertyManager&            propertyManager,
+                                const DataModel::AbstractSnapshot*  snapshot,
+                                const DataModel::AbstractFormation* formation,
+                                FormationPropertyList&              derivedProperties ) const;
+
       /// \brief Compute the hydrostatic pressure at the top of the domain.
       void computeHydrostaticPressureAtSeaBottom ( const AbstractPropertyManager&     propertyManager,
                                                    const double                       snapshotAge,
@@ -70,11 +79,15 @@ namespace DerivedProperties {
                                                    const DataModel::AbstractFormation* formationAbove,
                                                          DerivedFormationPropertyPtr&  hydrostaticPressure ) const;
 
+      void computeEstimatedTemperature ( const double snapshotAge,
+                                         const FormationPropertyPtr& depth,
+                                         DerivedFormationPropertyPtr& temperature ) const;
+
       const GeoPhysics::ProjectHandle* m_projectHandle;
 
       bool m_hydrostaticDecompactionMode;
       bool m_hydrostaticMode;
-
+      bool m_opMode;
    };
 
 

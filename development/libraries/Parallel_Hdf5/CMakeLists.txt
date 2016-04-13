@@ -33,6 +33,8 @@ if (BM_PARALLEL)
 
 	bm_include_libraries(
 		Serial_Hdf5
+		utilities
+		FileSystem
 		Utilities_Petsc
 	)
 
@@ -45,6 +47,8 @@ if (BM_PARALLEL)
 	target_link_libraries(Parallel_Hdf5 
 		Utilities_Petsc
 		Serial_Hdf5
+		utilities
+		FileSystem
 		${OFPP}
 		${PETSC_LIBRARIES}
 		${MPI_LIBRARIES}

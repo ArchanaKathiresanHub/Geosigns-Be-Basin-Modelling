@@ -777,7 +777,7 @@ namespace migration
 
    const GridMap * Formation::getVolumePropertyGridMap (const Property* prop, const Snapshot * snapshot) const
    {
-      auto_ptr<PropertyValueList> propertyValues (m_projectHandle->getPropertyValues (Interface::FORMATION,
+      unique_ptr<PropertyValueList> propertyValues (m_projectHandle->getPropertyValues (Interface::FORMATION,
                                                                                       prop, snapshot, 0, this, 0,
                                                                                       Interface::VOLUME));
 
@@ -954,7 +954,7 @@ namespace migration
             if (theFormationProperty != 0)
             {
                theMap = m_migrator->getPropertyManager().produceDerivedGridMap(theFormationProperty);
-                  }
+            }
 
          }
       }
@@ -1048,6 +1048,9 @@ namespace migration
          }
       }
       gridMap->restoreData ();
+
+      //when calling getReservoirs (this) a new ReservoirList is created in project handle.
+      delete reservoirList;
 
       return true;
    }
@@ -1533,7 +1536,6 @@ namespace migration
       if (direction == EXPELLEDNONE)
          return;
 
-      const double surfaceFraction = 0.25;
       double expulsionFraction = (direction == EXPELLEDUPANDDOWNWARD ? 1.0 : 0.5);
 
       unsigned int offsets[4][2] = { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } };
@@ -1559,7 +1561,7 @@ namespace migration
                unsigned int jTarget = targetFormationNode->getJ ();
                unsigned int kTarget = targetFormationNode->getK ();
 
-               assert (getDepth (iTarget, jTarget, kTarget) >= targetReservoir->getColumn (iTarget, jTarget)->getTopDepth ());
+               //assert (getDepth (iTarget, jTarget, kTarget) >= targetReservoir->getColumn (iTarget, jTarget)->getTopDepth ());
 
                // calculate the composition to migrate
                Composition composition;
@@ -1574,22 +1576,12 @@ namespace migration
 
                   double surface = densityMap->getGrid ()->getSurface (1, 1);
 
-                  double sum = 0;
-
-                  int offsetIndex = 0;
-
-                  for (offsetIndex = 0; offsetIndex < 4; ++offsetIndex)
+                  double value = densityMap->getValue (i,j);
+                  if (value != densityMap->getUndefinedValue ())
                   {
-                     double value;
-
-                     if ((value = densityMap->getValue (i + offsets[offsetIndex][0], j + offsets[offsetIndex][1])) != densityMap->getUndefinedValue ())
-                     {
-                        sum += value;
-                     }
-                  }
-
-                  double weight = sum * surfaceFraction * expulsionFraction * surface;
-                  composition.add ((ComponentId) componentId, weight);
+                     double weight = value * expulsionFraction * surface;
+                     composition.add ((ComponentId) componentId, weight);
+                  }   
                }
 
                int offsetIndex;
@@ -1679,7 +1671,7 @@ namespace migration
                unsigned int jTarget = targetFormationNode->getJ ();
                unsigned int kTarget = targetFormationNode->getK ();
 
-               assert (getDepth (iTarget, jTarget, kTarget) >= targetReservoir->getColumn (iTarget, jTarget)->getTopDepth ());
+               //assert (getDepth (iTarget, jTarget, kTarget) >= targetReservoir->getColumn (iTarget, jTarget)->getTopDepth ());
 
                Composition leakingComposition, composition;
                assert (leakingComposition.isEmpty ());
@@ -1732,7 +1724,8 @@ namespace migration
             }
          }
       }
- 
+      
+      delete leakingReservoirList;
       RequestHandling::FinishRequestHandling ();
    }
 

@@ -172,31 +172,28 @@ namespace casa
    }
 
    // Serialize object to the given stream
-   bool RunCaseSetImpl::save( CasaSerializer & sz, unsigned int fileVersion ) const
+   bool RunCaseSetImpl::save( CasaSerializer & sz, unsigned int /* fileVersion */ ) const
    {
       bool ok = true;
 
       // initial implementation of serialization, must exist in all future versions of serialization
-      if ( fileVersion >= 0 )
+      size_t setSize = m_caseSet.size();
+      ok = ok ? sz.save( setSize, "RunCaseSetSize" ) : ok;
+
+      for ( size_t i = 0; i < setSize && ok; ++i )
       {
-         size_t setSize = m_caseSet.size();
-         ok = ok ? sz.save( setSize, "RunCaseSetSize" ) : ok;
-
-         for ( size_t i = 0; i < setSize && ok; ++i )
-         {
-            ok = ok ? sz.save( *(m_caseSet[i]), "RunCase" ) : ok;
-         }
-
-         setSize = m_expSet.size();
-         ok = ok ? sz.save( setSize, "MapOfDoEIndSetSize" ) : ok;
-         for ( ListOfDoEIndexesSet::const_iterator it = m_expSet.begin(); it != m_expSet.end() && ok; ++it )
-         {
-            ok = ok ? sz.save( it->first,  "DoEName" )   : ok;
-            ok = ok ? sz.save( it->second, "DoEIndSet" ) : ok;
-         }
-         ok = ok ? sz.save( m_filter,    "CurrentExpFilter" ) : ok;
-         ok = ok ? sz.save( m_expIndSet, "CurDoEIndSet" )     : ok;
+         ok = ok ? sz.save( *(m_caseSet[i]), "RunCase" ) : ok;
       }
+
+      setSize = m_expSet.size();
+      ok = ok ? sz.save( setSize, "MapOfDoEIndSetSize" ) : ok;
+      for ( ListOfDoEIndexesSet::const_iterator it = m_expSet.begin(); it != m_expSet.end() && ok; ++it )
+      {
+         ok = ok ? sz.save( it->first,  "DoEName" )   : ok;
+         ok = ok ? sz.save( it->second, "DoEIndSet" ) : ok;
+      }
+      ok = ok ? sz.save( m_filter,    "CurrentExpFilter" ) : ok;
+      ok = ok ? sz.save( m_expIndSet, "CurDoEIndSet" )     : ok;
       return ok;
    }
 

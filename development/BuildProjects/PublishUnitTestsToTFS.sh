@@ -36,7 +36,7 @@ $TF workspace -new ${WORKSPACE} -collection:${TFS_SERVERURL} -location:local
 echo "Mapping folder"
 echo "$TF workfold -map -workspace:${WORKSPACE} -collection:${TFS_SERVERURL} ${TFS_PROJECTPATH}/../Builds/Jenknis/${JOB_NAME} `pwd`"
 
-$TF workfold -map -workspace:${WORKSPACE} -collection:${TFS_SERVERURL} "${TFS_PROJECTPATH}/../Builds/Jenkins/${JOB_NAME}/" `pwd`
+$TF workfold -map -workspace:${WORKSPACE} -collection:${TFS_SERVERURL} "${TFS_PROJECTPATH}/../Builds/Jenkins/${JOB_NAME}" `pwd`
 $TF get -force .
 
 # check, update and delete if xml files from TFS do not exist in the build

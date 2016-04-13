@@ -95,11 +95,11 @@ namespace casa
       // parameters up to some application in pipeline. To avoid unnecessary runs, same case results could be just copied
       virtual bool isEqual( const RunCase &cs, AppPipelineLevel upTo ) const;
 
-
+      void setCleanDuplicatedLithologies( bool val ) { m_cleanDupLith = val; }
       // Serialization / Deserialization
 
       // version of serialized object representation
-      virtual unsigned int version() const { return 0; }
+      virtual unsigned int version() const { return 1; }
 
       // Get type name of the serialaizable object, used in deserialization to create object with correct type
       virtual const char * typeName() const { return "RunCaseImpl"; }
@@ -119,13 +119,16 @@ namespace casa
       void setID( size_t id ) { m_id = id; }
 
    private:
-      std::auto_ptr<mbapi::Model>      m_model;                // Mutated model, available after mutateCaseTo call
+      std::unique_ptr<mbapi::Model>    m_model;                // Mutated model, available after mutateCaseTo call
       std::string                      m_modelProjectFileName; // full path to the project file
       std::vector<SharedParameterPtr>  m_prmsSet;              // list of parameters for this case
       std::vector<ObsValue*>           m_results;              // list of observables values
       CaseStatus                       m_runState;             // Stat of the run case (submitted/completed/failed)
 
       size_t                           m_id;                   // unique number in RunCaseSet
+
+      bool                             m_cleanDupLith;         // delete or not duplicated lithologies when apply mutations
+                                                               // used only for creation of calibrated case
       // disable copy constructor and copy operator
       RunCaseImpl( const RunCaseImpl & );
       RunCase & operator = ( const RunCaseImpl & );

@@ -43,14 +43,12 @@ namespace DataAccess
        /// Indicates whether the snapshot file should be appended or not.
        virtual bool getAppendFile () const;
 
-         //Set the primary name to the record
-         virtual void setPrimaryFileName( bool setIfNecessary = false );
-	 private:
-	    mutable int m_type;
-	    double m_time;
-
-            /// Indicates whether the snapshot file should be appended or not, the default if false.
-            bool m_appendFile;
+      private:
+         mutable int m_type;
+         double m_time;
+         
+         /// Indicates whether the snapshot file should be appended or not, the default if false.
+         bool m_appendFile;
       };
 
       bool operator== (const Snapshot & ss1, const Snapshot & ss2);

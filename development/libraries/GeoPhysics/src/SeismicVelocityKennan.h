@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2015-2015 Shell International Exploration & Production.
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -65,7 +65,7 @@ namespace GeoPhysics
 		* \param currentVes The current vertical effective stress.
 		* \param maxVes The maximum vertical effective stress.
 		*/
-		virtual double seismicVelocity(const double seismicVelocityFluid,
+      virtual double calculate( const double seismicVelocityFluid,
 			const double densityFluid,
 			const double densityBulk,
 			const double porosity,
@@ -73,6 +73,10 @@ namespace GeoPhysics
 			const double maxVes) const;
 
 	private:
+      /// @brief Overwrite default assginment operator
+      SeismicVelocityKennan& operator= (const SeismicVelocityKennan&);
+      /// @brief Overwrite default copy constructor
+      SeismicVelocityKennan( const SeismicVelocityKennan& );
 
 		/*!
 		* \brief Return the bulk modulus at a defined porosity.

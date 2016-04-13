@@ -37,6 +37,12 @@ public:
    */
    void calculate(const double timeInterval, const double temperatureTrap,
       const double* input, double* lost) const;
+      
+   /*!
+   * \brief Biodegradation processing: compute the weight lost, legacy mode
+   */
+   void calculateLegacy (const double timeInterval, const double T_C,
+      const double* input, double* lost) const;        
 
    /*!
    * \brief Get back the upper temperature limit at which biodegradation can occur.

@@ -13,6 +13,10 @@ public:
 
    void decompact();
 
+   const PropListVec & getVolumeOutputProperties() const;
+   const PropListVec & getMapOutputProperties() const;
+   
+
 private:
 
    AppCtx* cauldron;

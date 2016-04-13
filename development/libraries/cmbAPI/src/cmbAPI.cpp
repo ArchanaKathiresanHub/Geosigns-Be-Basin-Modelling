@@ -144,24 +144,24 @@ public:
    MapsManager         & mapsManager()  { return m_mapMgr;  }
   
    // data members
-   LithologyManagerImpl              m_lithMgr;
-   StratigraphyManagerImpl           m_stratMgr;
-   FluidManagerImpl                  m_fluidMgr;
-   SourceRockManagerImpl             m_srkMgr;
-   SnapshotManagerImpl               m_snpMgr;
-   PropertyManagerImpl               m_prpMgr;
-   MapsManagerImpl                   m_mapMgr;
+   LithologyManagerImpl     m_lithMgr;
+   StratigraphyManagerImpl  m_stratMgr;
+   FluidManagerImpl         m_fluidMgr;
+   SourceRockManagerImpl    m_srkMgr;
+   SnapshotManagerImpl      m_snpMgr;
+   PropertyManagerImpl      m_prpMgr;
+   MapsManagerImpl          m_mapMgr;
 
-   std::auto_ptr<DataAccess::Interface::ProjectHandle>  m_projHandle;  // project file database (set of tables)
-   std::auto_ptr<DataAccess::Interface::ObjectFactory>  m_factory;  
-   std::string                                          m_projFileName;  // project files name with path
+   std::unique_ptr<DataAccess::Interface::ProjectHandle> m_projHandle;   // project file database (set of tables)
+   std::unique_ptr<DataAccess::Interface::ObjectFactory> m_factory;  
+   std::string                                           m_projFileName; // project files name with path
 
    // model origin
    void origin( double & x, double & y );
 
    // model dimensions along X/Y
-   void arealSize( double & dimX, double & dimY);
-
+   void arealSize( double & dimX, double & dimY );
+   void windowSize( double x, double y, int & xMin, int & xMax, int & yMin, int & yMax );
 };
 
 
@@ -417,6 +417,18 @@ Model::ReturnCode Model::arealSize( double & dimX, double & dimY )
 
    return NoError;
 }
+
+Model::ReturnCode Model::windowSize( double x, double y, int & xMin, int & xMax, int & yMin, int & yMax )
+{
+   if ( errorCode() != NoError ) resetError(); // clean any previous error
+
+   try { m_pimpl->windowSize( x, y, xMin, xMax, yMin, yMax); }
+   catch ( const Exception & ex ) { return reportError( ex.errorCode(), ex.what() ); }
+   catch ( ...                  ) { return reportError( UnknownError, "Unknown error" ); }
+
+   return NoError;
+}
+
 
 std::vector<std::string> Model::copyLithology( const std::string                                       & litName      
                                              , const std::vector< std::pair<std::string, size_t> >     & layersName   
@@ -1085,6 +1097,20 @@ void Model::ModelImpl::arealSize( double & dimX, double & dimY )
 
    dimX = ( pd->getWindowXMax() - pd->getWindowXMin() ) * pd->getDeltaX();
    dimY = ( pd->getWindowYMax() - pd->getWindowYMin() ) * pd->getDeltaY();
+}
+
+// calculate the window size for multi 1d projects
+void Model::ModelImpl::windowSize( double x, double y, int & xMin, int & xMax, int & yMin, int & yMax )
+{
+   if ( !m_projHandle.get() ) { throw ErrorHandler::Exception( ErrorHandler::IoError ) << "Model::origin(): no project was loaded"; }
+
+   const DataAccess::Interface::ProjectData * pd = m_projHandle->getProjectData();
+
+   xMin = static_cast<int>( std::floor( ( x - pd->getXOrigin() ) / pd->getDeltaX() ) );
+   xMax = xMin + 1;
+   
+   yMin = static_cast<int>( std::floor( ( y - pd->getYOrigin() ) / pd->getDeltaY() ) );
+   yMax = yMin + 1;
 }
 
 // Create the unique copies of lithology for each given layer, alochtonous lithology and fault cut from the given lists

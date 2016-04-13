@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2015-2015 Shell International Exploration & Production.
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -40,7 +40,7 @@ namespace GeoPhysics
 		* \param maxVes The maximum vertical effective stress.
 		* \warning Only parameters seismicVelocityFluid and porosity are not used for the Wyllie computation mode.
 		*/
-		virtual double seismicVelocity(const double seismicVelocityFluid,
+      virtual double calculate( const double seismicVelocityFluid,
 			const double densityFluid,
 			const double densityBulk,
 			const double porosity,
@@ -48,6 +48,11 @@ namespace GeoPhysics
 			const double maxVes) const;
 
 	private:
+      /// @brief Overwrite default assginment operator
+      SeismicVelocityWyllie& operator= (const SeismicVelocityWyllie&);
+      /// @brief Overwrite default copy constructor
+      SeismicVelocityWyllie( const SeismicVelocityWyllie& );
+
 		/// The seismic velocity value of the matrix lithology (of the solid part, excluding porosity and fluid).
 		const double m_seismicVelocitySolid;
 	};

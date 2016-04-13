@@ -806,7 +806,7 @@ START-properties
     Description         : The difference between the TwoWayTimeGrid (input by user from nDI)
                           and the TwoWayTime (computed in fastcauldron)
     Unit of measurement : ms
-    Type                : float 
+    Type                : float
     Error Field         : No
 
 # layer properties:
@@ -1374,7 +1374,7 @@ START-properties
     Description         : Formation thickness 
     Unit of measurement : m
     Type                : float
-	Default				: -9999
+    Default				: -9999
     Error Field         : Yes
 
     Identification      : SpillDepth
@@ -2016,7 +2016,7 @@ START-properties
 
     Identification      : SeisVelocity
     Description         : The seismic velocity of a lithotype, fluidtype, matrix,
-                          fluid or bulk 
+                          fluid or bulk
     Unit of measurement : m/s
     Type                : float
     Error Field         : Yes
@@ -2247,6 +2247,7 @@ START-properties
     Unit of measurement : MPa
     Type                : double
     Error Field         : No
+    Default             : 0.0
 
     Identification      : FracturePressure
     Description         : The pressure 
@@ -3027,6 +3028,7 @@ START-properties
     Type                : string
     Unit of measurement : 
     Error Field         : No
+    Default             : "Advanced Lithosphere Calculator"
 
     Identification      : VreAlgorithm
     Description         : Active vitrinite reflectance model
@@ -3091,6 +3093,14 @@ START-properties
     Time dependent      : No
     Property I/O        : No
     Default             : 0
+
+    Identification      : Legacy
+    Description         : Whether to run BPA-compatible migration mode
+    Type                : integer
+    Error Field         : No
+    Time dependent      : No
+    Property I/O        : No
+    Default             : 1
 
     Identification      : Constrain_VES
     Description         : Constrain VES to be greater than zero/Reference VES (0 or 1.0e5)(Should be Boolean)
@@ -4447,8 +4457,8 @@ Identification      : HcLiquidBrineCapillaryEntryPressure
     Unit of measurement : 
     Type                : boolean
     Default             : 0
-    Error Field         : No	
-    
+    Error Field         : No
+
     Identification      : SourceAge
     Description         : Geological age of an event, entry in a table etc. 
     Unit of measurement : Ma
@@ -4497,7 +4507,7 @@ Identification      : HcLiquidBrineCapillaryEntryPressure
     Description         : offset depth from the top of a formation 
     Unit of measurement : m
     Type                : double
-	Default				: -9999
+    Default				: -9999
     Error Field         : Yes
 
     Identification      : DepthOffsetGrid
@@ -4509,7 +4519,7 @@ Identification      : HcLiquidBrineCapillaryEntryPressure
     Description         : Net to Gross Percentage  
     Unit of measurement : percent
     Type                : double
-	Default				: -9999
+    Default		: -9999
     Error Field         : No
 
     Identification      : NetToGrossGrid
@@ -4521,7 +4531,7 @@ Identification      : HcLiquidBrineCapillaryEntryPressure
     Description         : microtraps density at the top of the reservoir 
     Unit of measurement : m3/m2
     Type                : double
-	Default				: -9999
+    Default		: -9999
     Error Field         : Yes
 
     Identification      : LeakProperty
@@ -4534,14 +4544,14 @@ Identification      : HcLiquidBrineCapillaryEntryPressure
     Description         : rate at which the oil/gas is leaking. 
     Unit of measurement : kg/m2/ma
     Type                : double
-	Default				: -9999
+    Default		: -9999
     Error Field         : No
 
     Identification      : LayerFrequency 
     Description         : Sand/Shale Layer Frequency  
     Unit of measurement : km 
     Type                : double 
-	Default				: -9999
+    Default		: -9999
     Error Field         : Yes
 
     Identification      : LayerFrequencyGrid
@@ -4590,19 +4600,19 @@ Identification      : HcLiquidBrineCapillaryEntryPressure
     Default             : 0.5
     Error Field         : No 
 
-	Identification      : BioRate 
+    Identification      : BioRate
     Description         : Biodegradation impact zone rate. This rate helps to define the thickness affected by biodegradation above OWC
-    Unit of measurement : m/Ma 
-    Type                : double 
+    Unit of measurement : m/Ma
+    Type                : double
     Default             : 0.3
-    Error Field         : No 
+    Error Field         : No
 
-	Identification      : PasteurizationInd 
+    Identification      : PasteurizationInd
     Description         : Switch for pasteurization in biodegradation (1 = On, 0 = Off)
     Unit of measurement :
     Type                : boolean
     Default             : 0
-    Error Field         : No 
+    Error Field         : No
 
     Identification      : C1_BioFactor 
     Description         : Bio Degradation factor 
@@ -6537,6 +6547,7 @@ START-property-tables
     Column         : VerticalSecondaryMigration
     Column         : HydrodynamicCapillaryPressure
     Column         : ReservoirDetection
+    Column         : Legacy
     Column         : HeatFlowSolution
     Column         : PrefSnapstep
     Column         : StepsPerSegment
@@ -7182,11 +7193,11 @@ START-property-tables
     Column         : LayerFrequencyGrid
     Column         : BioDegradInd 
     Column         : OilToGasCrackingInd 
-    Column         : DiffusionInd 
+    Column         : DiffusionInd
     Column         : MinOilColumnHeight
     Column         : MinGasColumnHeight
     Column         : BlockingInd 
-    Column         : BlockingPermeability 
+    Column         : BlockingPermeability
     Column         : BlockingPorosity
     Header         : Reservoir Data
     
@@ -7227,8 +7238,8 @@ START-property-tables
     Column         : MaxBioTemp 
     Column         : TempConstant 
     Column         : TimeConstant 
-	Column         : BioRate
-	Column         : PasteurizationInd
+    Column         : BioRate
+    Column         : PasteurizationInd
     Column         : C1_BioFactor 
     Column         : C2_BioFactor 
     Column         : C3_BioFactor 
@@ -7712,6 +7723,7 @@ START-property-tables
                      per Fluidtype
     Column         : Fluidtype
     Column         : TempIndex
+    Column         : Pressure
     Column         : ThCond
     Header         : Fluidtype Data
 
@@ -7873,7 +7885,7 @@ START-property-tables
     Column         : Sum
     Column         : NP
     Header         : Iso vr data for burial graph
- 
+
     Identification : TwoWayTimeIoTbl
     Description    : Table to hold relationship between initial two way travel time and
                      stratigraphic surfaces (e.g. maps from nDI under TwoWayTimeGrid

@@ -270,6 +270,16 @@ namespace mbapi {
       /// @return ErrorHandler::NoError on success, or error code otherwise
       ReturnCode arealSize( double & dimX, double & dimY );
 
+      /// @brief Get the window extansion for multi1D projects
+      /// @param[out] x first x coordinate of the well
+      /// @param[out] y first y coordinate of the well
+      /// @param[out] xMin minimum x node
+      /// @param[out] xMax maximum x node
+      /// @param[out] yMin minimum y node
+      /// @param[out] yMax maximum y node
+      /// @return ErrorHandler::NoError on success, or error code otherwise
+      ReturnCode windowSize( double x, double y, int & xMin, int & xMax, int & yMin, int & yMax );
+
       ///@}
 
       // Modify project methods
@@ -287,7 +297,7 @@ namespace mbapi {
       /// @brief Class which hides all interface implementation
       class ModelImpl;
       
-      std::auto_ptr<ModelImpl> m_pimpl; ///< The actual object which will do all the job
+      std::unique_ptr<ModelImpl> m_pimpl; ///< The actual object which will do all the job
 
       /// @brief Copy constructor is disabled, use the copy operator instead
       Model( const Model & );

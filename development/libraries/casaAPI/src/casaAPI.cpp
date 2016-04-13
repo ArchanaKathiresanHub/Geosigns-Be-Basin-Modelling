@@ -47,6 +47,7 @@
 #include "VarPrmSurfacePorosity.h"
 #include "VarPrmPermeabilityModel.h"
 #include "VarPrmLithoSTPThermalCond.h"
+#include "VarPrmLithoFraction.h"
 
 // Standard C lib
 #include <cmath>
@@ -91,28 +92,31 @@ static size_t findMixingIDForLithologyInLayer( const char * layerName, const std
 namespace BusinessLogicRulesSet
 {
 // Add a parameter to variate layer thickness value [m] in given range
-ErrorHandler::ReturnCode VaryLayerThickness( ScenarioAnalysis & sa
-                                           , const char * name
-                                           , const char * layerName
-                                           , double minVal
-                                           , double maxVal
-                                           , VarPrmContinuous::PDF rangeShape
+ErrorHandler::ReturnCode VaryLayerThickness( ScenarioAnalysis    & // sa
+                                           , const char          * // name
+                                           , const char          * // layerName
+                                           , double                // minVal
+                                           , double                // maxVal
+                                           , VarPrmContinuous::PDF // rangeShape
                                            )
 {
    return ErrorHandler::NotImplementedAPI;
 }
 
 // Add a parameter to variate top crust heat production value @f$ [\mu W/m^3] @f$ in given range
-ErrorHandler::ReturnCode VaryTopCrustHeatProduction( ScenarioAnalysis    & sa
-                                                   , const char          * name
-                                                   , double                minVal
-                                                   , double                maxVal
-                                                   , VarPrmContinuous::PDF rangeShape
+ErrorHandler::ReturnCode VaryTopCrustHeatProduction( ScenarioAnalysis               & sa
+                                                   , const char                     * name
+                                                   , const std::vector<double>      & dblRngIn
+                                                   , const std::vector<std::string> & mapRngIn
+                                                   , VarPrmContinuous::PDF            rangeShape
                                                    )
 {
    try
    {
       VarSpace & varPrmsSet = sa.varSpace();
+
+      std::vector<double>      dblRng( dblRngIn.begin(), dblRngIn.end() );
+      std::vector<std::string> mapRng( mapRngIn.begin(), mapRngIn.end() );
 
       // Get base value of parameter from the Model
       mbapi::Model & mdl = sa.baseCase();
@@ -120,15 +124,44 @@ ErrorHandler::ReturnCode VaryTopCrustHeatProduction( ScenarioAnalysis    & sa
       casa::PrmTopCrustHeatProduction prm( mdl );
       if ( mdl.errorCode() != ErrorHandler::NoError ) return sa.moveError( mdl );
 
-      const std::vector<double> & baseValue = prm.asDoubleArray();
-      assert( baseValue.size() == 1 );
-
-      if ( baseValue[0] < minVal || baseValue[0] > maxVal )
+      if ( dblRng.size() == 2 )
       {
-         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Value of parameter in base case is outside of the given range";
+         double baseValue = prm.value();
+
+         if ( baseValue < dblRng[0] || baseValue > dblRng[1] )
+         {
+            throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Value of parameter in base case is outside of the given range";
+         }
+
+         dblRng.push_back( baseValue );
+      }
+      else if ( mapRng.size() == 2 )
+      {
+         std::string baseValue = prm.mapName();
+         if ( baseValue.empty() )
+         {
+            throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Base case has no map defined for radiogenic heat production";
+         }
+         mapRng.push_back( baseValue );
+
+         // check are other 2 maps exist in maps list
+         mbapi::MapsManager & mm = mdl.mapsManager();
+         for ( size_t k = 0; k < 2; ++k )
+         {
+            mbapi::MapsManager::MapID mid = mm.findID( mapRng[k] );
+            if ( UndefinedIDValue == mid )
+            {
+               throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Base case project has no map " << mapRng[k] << " defined";
+            }
+         }
+      }
+      else
+      {
+         ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Radiogenic heat production IP must be defined by simple range of" <<
+            " two double values or by map range with two map names";
       }
 
-      if ( ErrorHandler::NoError != varPrmsSet.addParameter( new VarPrmTopCrustHeatProduction( baseValue[0], minVal, maxVal, rangeShape, name ) ) )
+      if ( ErrorHandler::NoError != varPrmsSet.addParameter( new VarPrmTopCrustHeatProduction( dblRng, mapRng, rangeShape, name ) ) )
       {
          return sa.moveError( varPrmsSet );
       }
@@ -194,7 +227,7 @@ ErrorHandler::ReturnCode VarySourceRockTOC( ScenarioAnalysis    & sa
       }
       if ( !alreadyAdded )
       {
-         std::auto_ptr<VarPrmSourceRockTOC> newPrm( new VarPrmSourceRockTOC( layerName
+         std::unique_ptr<VarPrmSourceRockTOC> newPrm( new VarPrmSourceRockTOC( layerName
                                                                        , baseValue[0]
                                                                        , minVal
                                                                        , maxVal
@@ -301,7 +334,7 @@ ErrorHandler::ReturnCode VarySourceRockHI( ScenarioAnalysis    & sa
 
       if ( !alreadyAdded )
       {
-         std::auto_ptr<VarPrmSourceRockHI> newPrm( new VarPrmSourceRockHI( layerName
+         std::unique_ptr<VarPrmSourceRockHI> newPrm( new VarPrmSourceRockHI( layerName
                                                                          , baseValue[0]
                                                                          , minVal
                                                                          , maxVal
@@ -407,7 +440,7 @@ ErrorHandler::ReturnCode VarySourceRockHC( ScenarioAnalysis    & sa
       // add variable parameter to VarSpace
       if ( !alreadyAdded )
       {
-         std::auto_ptr<VarPrmSourceRockHC> newPrm( new VarPrmSourceRockHC( layerName
+         std::unique_ptr<VarPrmSourceRockHC> newPrm( new VarPrmSourceRockHC( layerName
                                                                          , baseValue[0]
                                                                          , minVal
                                                                          , maxVal
@@ -510,7 +543,7 @@ ErrorHandler::ReturnCode VarySourceRockPreAsphaltActEnergy( ScenarioAnalysis    
       }
       if ( !alreadyAdded )
       {
-         std::auto_ptr<VarPrmSourceRockPreAsphaltStartAct> newPrm( new VarPrmSourceRockPreAsphaltStartAct( layerName
+         std::unique_ptr<VarPrmSourceRockPreAsphaltStartAct> newPrm( new VarPrmSourceRockPreAsphaltStartAct( layerName
                                                                                                          , baseValue[0]
                                                                                                          , minVal
                                                                                                          , maxVal
@@ -682,12 +715,14 @@ ErrorHandler::ReturnCode VaryOneCrustThinningEvent( casa::ScenarioAnalysis & sa,
       std::vector<double> baseValues = prm.asDoubleArray();
 
       for ( size_t i = 0; i < 4; ++i ) // replace undefined base value with middle of value range
-      // crust thickness profile shape in base project file could not match what we need : 
-      // *--------*
-      //          \
-      //           *-----------*
-      // in this case, constructor of parameter could pick up some of base values from the base project file
-      // for others - we will use avarage from min/max
+      /*
+       crust thickness profile shape in base project file could not match what we need : 
+       *--------*
+                \
+                 *-----------*
+       in this case, constructor of parameter could pick up some of base values from the base project file
+       for others - we will use avarage from min/max
+      */
       {
          if ( IsValueUndefined( baseValues[i] ) )
          {
@@ -793,8 +828,6 @@ ErrorHandler::ReturnCode VaryCrustThinning( casa::ScenarioAnalysis & sa
 
       std::vector<double> minValues( 3 * minT0.size() + 1, UndefinedDoubleValue );
       std::vector<double> maxValues( 3 * minT0.size() + 1, UndefinedDoubleValue );
-
-      double basinTime = 1000.0; // MYA
 
       if ( IsValueUndefined( minThickIni ) ||
            IsValueUndefined( maxThickIni ) ) { throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Initial crust thickness is undefined"; }
@@ -902,6 +935,78 @@ ErrorHandler::ReturnCode VarySurfacePorosity( ScenarioAnalysis & sa
    return ErrorHandler::NoError;
 }
 
+ErrorHandler::ReturnCode VaryLithoFraction(
+   ScenarioAnalysis                                   & sa
+   , const std::string                                & name
+   , const std::string                                & layerName
+   , std::vector<int>                                 & lithoFractionsInds
+   , std::vector<double>                              & minLithoFrac
+   , std::vector<double>                              & maxLithoFrac
+   , casa::VarPrmContinuous::PDF 	                    pdfType
+   )
+{
+   try
+   {
+      VarSpace & varPrmsSet = sa.varSpace();
+
+      // Get base value of parameter from the model
+      mbapi::Model & mdl = sa.baseCase();
+      // If only one lithofraction was given we need to calculate the ratio for one of the two remaining lithofractions
+      if ( lithoFractionsInds.size() == 1 )
+      {
+         const int numPercentages = 3;
+         for ( int i = 0; i != numPercentages; ++i )
+         {
+            if ( i != lithoFractionsInds[0] )
+            {
+               lithoFractionsInds.push_back( i );
+               break;
+            }    
+         }
+      }
+
+      PrmLithoFraction prm( mdl, layerName, lithoFractionsInds );
+      std::vector<double> baseLithoFractions = prm.asDoubleArray();
+
+      // If only one lithofraction was given, the last lithofraction does not vary
+      if ( minLithoFrac.size() == 1 )
+      {
+         minLithoFrac.push_back( baseLithoFractions.back() );
+         maxLithoFrac.push_back( baseLithoFractions.back() );
+      }
+
+      // Check ranges and the base value
+      ErrorHandler::Exception ex( ErrorHandler::OutOfRangeValue );
+
+      if ( baseLithoFractions[0] < minLithoFrac[0] || baseLithoFractions[0] > maxLithoFrac[0] )
+      {
+         throw ex << "The percentage of the lithology " << lithoFractionsInds[0] << " for the layer " << layerName << " in the base case: " <<
+                      baseLithoFractions[0] << " is outside of the given range : [" << minLithoFrac[0] << ":" << maxLithoFrac[0] << "]" ;
+      }
+
+      if ( baseLithoFractions[1] < minLithoFrac[1] || baseLithoFractions[1] > maxLithoFrac[1] )
+      {
+         throw ex << "The ratio of the lithology " << lithoFractionsInds[1] << " for the layer " << layerName << " in the base case: " <<
+                     baseLithoFractions[1] << " is outside of the given range : [" << minLithoFrac[1] << ":" << maxLithoFrac[1] << "]" ;
+      }
+
+      // add the variable lithofraction parameter to varPrmsSet 
+      if ( !layerName.empty() )
+      {
+         if ( ErrorHandler::NoError != varPrmsSet.addParameter( new VarPrmLithoFraction( layerName, lithoFractionsInds, baseLithoFractions, minLithoFrac, maxLithoFrac, pdfType, name ) ) )
+         {
+            throw ErrorHandler::Exception( varPrmsSet.errorCode() ) << varPrmsSet.errorMessage();
+         }
+      }
+   }
+   catch ( const ErrorHandler::Exception & ex )
+   {
+      return sa.reportError( ex.errorCode(), ex.what() );
+   }
+
+   return ErrorHandler::NoError;
+}
+
 // Add variation of porosity model parameters 
 ErrorHandler::ReturnCode VaryPorosityModelParameters( ScenarioAnalysis    & sa
                                                     , const char          * name
@@ -979,6 +1084,10 @@ ErrorHandler::ReturnCode VaryPorosityModelParameters( ScenarioAnalysis    & sa
                   baseMinPor    = baseValues[2];
                   baseCompCoef1 = baseValues[3];
                   break;                     
+
+               default:
+                  assert(0);
+                  break;
             }
          }
       }
@@ -1005,6 +1114,10 @@ ErrorHandler::ReturnCode VaryPorosityModelParameters( ScenarioAnalysis    & sa
                if ( surfPorIsDef && ( baseSurfPor < minSurfPor || baseSurfPor > maxSurfPor ) ) { throw ex << "Surface porosity in the base case is outside of the given range"; }
                if ( compCofIsDef && ( baseCompCoef < minCompCoef || baseCompCoef > maxCompCoef ) ) { throw ex << "Compaction coeff. in the base case is outside of the given range"; }
             }
+            break;
+
+         default:
+            assert(0);
             break;
       }
 
@@ -1095,7 +1208,7 @@ ErrorHandler::ReturnCode VaryPermeabilityModelParameters( ScenarioAnalysis      
       if ( ErrorHandler::NoError != lmgr.permeabilityModel( ltid, litMdl, litMdlPrms, litMdlMPPor, litMdlMPPerm ) ) { return sa.moveError( lmgr ); }
 
       // check if model in project file is the same
-      if ( litMdl == mdlType )
+      if ( static_cast<int>(litMdl) == static_cast<int>(mdlType) )
       {
          basModelPrms = litMdlPrms;
          if ( mbapi::LithologyManager::PermMultipoint == litMdl )
@@ -1113,7 +1226,7 @@ ErrorHandler::ReturnCode VaryPermeabilityModelParameters( ScenarioAnalysis      
       {
          if ( IsValueUndefined( minModelPrms[i] ) || IsValueUndefined( maxModelPrms[i] ) )
          {
-            if ( litMdl == mdlType ) // if one of the range value is undefined assign min/max to the base value
+            if ( static_cast<int>(litMdl) == static_cast<int>(mdlType) ) // if one of the range value is undefined assign min/max to the base value
             {
                minModelPrms[i] = maxModelPrms[i] = basModelPrms[i];
             }

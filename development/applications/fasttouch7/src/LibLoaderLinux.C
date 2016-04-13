@@ -1,4 +1,9 @@
+#pragma warning( push )
+#pragma warning( disable : 1478 )
+// Disable warning 1478 for touchstone 3rd party library
+// warning #1478: class "std::auto_ptr" (declared at line xx of "tslFileName") was declared deprecated
 #include <libloader.h>
+#pragma warning( pop )
 
 namespace Geocosm
 {

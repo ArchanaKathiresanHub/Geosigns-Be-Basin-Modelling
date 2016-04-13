@@ -203,10 +203,17 @@ void VarPrmSourceRockProp::onCategoryChosen( const Parameter * prm )
    
    if ( srName == m_srTypeName ) return;
 
+   if ( lrName != m_layerName )
+   {
+      throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << 
+         "Mismatch layer name for the source rock type parameter (" << lrName << ") and " <<
+         m_propName << " (" << m_layerName << ") parameter";
+   }
+
    if ( !m_name2range.count( srName ) )
    {
       throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Unknown source rock type in dependent " << m_propName << 
-         " parameter: " <<  srName;
+         " parameter: " <<  srName << " for the layer: " << lrName;
    }
    const std::vector<double> & vec = m_name2range[srName];
 

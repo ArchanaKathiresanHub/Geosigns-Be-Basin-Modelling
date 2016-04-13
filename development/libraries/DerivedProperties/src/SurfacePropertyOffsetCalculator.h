@@ -37,6 +37,9 @@ namespace DerivedProperties {
                                      SurfacePropertyList&         derivedProperties ) const;
 
       /// \brief Determine if the property is computable for the specific combination of formation, surface and snapshot.
+      /// \pre The propManager references to a valid property manager object.
+      /// \pre The snapshot points to a valid snapshot object or is null.
+      /// \pre The surface points to a valid surface object or is null.
       virtual bool isComputable ( const AbstractPropertyManager&      propManager,
                                   const DataModel::AbstractSnapshot*  snapshot,
                                   const DataModel::AbstractSurface*   surface ) const;
@@ -48,7 +51,7 @@ namespace DerivedProperties {
       /// Always get the formation below unless it does not exist or is the crust.
       /// \param [in] surface The surface for which the connecting formation is sought.
       /// \pre surface points to a valid surface object.
-      const DataModel::AbstractFormation* getAdjacentFormation ( const DataModel::AbstractSurface* surface ) const;
+      const DataModel::AbstractFormation* getAdjacentFormation ( const DataModel::AbstractSurface* surface, const bool useBottom ) const;
 
       /// \brief The property calculated by this calculator.
       const DataModel::AbstractProperty* m_property;

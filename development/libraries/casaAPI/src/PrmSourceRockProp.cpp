@@ -65,7 +65,7 @@ PrmSourceRockProp::PrmSourceRockProp( mbapi::Model & mdl
    }
 
    const std::vector<std::string> & srtNames = stMgr.sourceRockTypeName( lid );
-   if ( srtNames.empty() || m_mixID < 1 || m_mixID > srtNames.size() )
+   if ( srtNames.empty() || m_mixID < 1 || static_cast<size_t>( m_mixID ) > srtNames.size() )
    {
       throw ErrorHandler::Exception(ErrorHandler::UndefinedValue) << "Layer " << m_layerName <<
          " set as source rock layer but has no source rock lithology defined for the mixing ID: " << m_mixID;
@@ -87,14 +87,14 @@ PrmSourceRockProp::PrmSourceRockProp( const VarPrmSourceRockProp * parent
                                     , int                          mixingID 
                                  )
                                   : m_parent( parent )
-                                  , m_val( val )
                                   , m_layerName( lrName )
                                   , m_srTypeName( srType ? srType : "" )
-                                  , m_mixID( mixingID ) { ; }
+                                  , m_mixID( mixingID )
+                                  , m_val( val ) { ; }
 
 
 // Save all object data to the given stream, that object could be later reconstructed from saved data
-bool PrmSourceRockProp::serializeCommonPart( CasaSerializer & sz, unsigned int version ) const
+bool PrmSourceRockProp::serializeCommonPart( CasaSerializer & sz, unsigned int /* version  */) const
 {
    bool hasParent = m_parent ? true : false;
    bool ok = sz.save( hasParent, "hasParent" );
@@ -115,7 +115,7 @@ bool PrmSourceRockProp::serializeCommonPart( CasaSerializer & sz, unsigned int v
 }
 
 // Create a new var.parameter instance by deserializing it from the given stream
-bool PrmSourceRockProp::deserializeCommonPart( CasaDeserializer & dz, unsigned int objVer )
+bool PrmSourceRockProp::deserializeCommonPart( CasaDeserializer & dz, unsigned int /* objVer */ )
 {
    CasaDeserializer::ObjRefID parentID;
 

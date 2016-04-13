@@ -29,12 +29,12 @@ set(cross_platform_headers
       src/SeismicVelocityGardner.h
       src/SeismicVelocityKennan.h
       src/SeismicVelocityWyllie.h
-	  src/SchneiderCompactionCalculator.h
-	  src/SoilMechanicsPorosity.h
+      src/SchneiderCompactionCalculator.h
+      src/SoilMechanicsPorosity.h
       src/VreTtiMethod.h
       src/VreArrheniusMethod.h
       src/VitriniteReflectance.h
-	  src/WalderhaugCompactionCalculator.h
+      src/WalderhaugCompactionCalculator.h
 )
 
 set(unix_only_headers
@@ -82,12 +82,12 @@ set(cross_platform_srcs
       src/SeismicVelocityGardner.C
       src/SeismicVelocityKennan.C
       src/SeismicVelocityWyllie.C
-	  src/SchneiderCompactionCalculator.C
-	  src/SoilMechanicsPorosity.C
+      src/SchneiderCompactionCalculator.C
+      src/SoilMechanicsPorosity.C
       src/VreTtiMethod.C
       src/VreArrheniusMethod.C
       src/VitriniteReflectance.C
-	  src/WalderhaugCompactionCalculator.C
+      src/WalderhaugCompactionCalculator.C
 )
 
 set(unix_only_srcs
@@ -124,6 +124,7 @@ set(unix_only_libs
 
 set(cross_platform_libs
       utilities 
+      FileSystem
       DataAccess
       TableIO
       CBMGenerics
@@ -176,10 +177,11 @@ generate_dox( GeoPhysics.cfg )
 
 ### Unit Tests
 
-add_gtest( NAME GeoPhysics::BrineConductivity
-      SOURCES test/BrineConductivity.C src/BrinePhases.C
-      LIBRARIES GeoPhysics SerialDataAccess
-)
+# BrineConductivity unit test not available since reading the FltThCondIoTbl from the project file
+#add_gtest( NAME GeoPhysics::BrineConductivity
+#      SOURCES test/BrineConductivity.C src/BrinePhases.C
+#      LIBRARIES GeoPhysics SerialDataAccess
+#)
 
 add_gtest( NAME GeoPhysics::BrineDensity
       SOURCES test/BrineDensity.C src/BrinePhases.C

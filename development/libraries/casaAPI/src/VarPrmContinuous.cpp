@@ -24,6 +24,7 @@
 #include "VarPrmSurfacePorosity.h"
 #include "VarPrmPermeabilityModel.h"
 #include "VarPrmLithoSTPThermalCond.h"
+#include "VarPrmLithoFraction.h"
 
 
 #include "VarPrmCategorical.h"
@@ -125,6 +126,7 @@ namespace casa
       else if ( ot == "VarPrmSurfacePorosity"              ) { return new VarPrmSurfacePorosity(              dz, vr ); }
       else if ( ot == "VarPrmPermeabilityModel"            ) { return new VarPrmPermeabilityModel(            dz, vr ); }
       else if ( ot == "VarPrmLithoSTPThermalCond"          ) { return new VarPrmLithoSTPThermalCond(          dz, vr ); }
+      else if ( ot == "VarPrmLithoFraction"                ) { return new VarPrmLithoFraction(                dz, vr ); }
       else
       {
          throw ErrorHandler::Exception( ErrorHandler::DeserializationError )

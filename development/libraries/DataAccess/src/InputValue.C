@@ -32,6 +32,7 @@ using namespace database;
 #include "Interface/InputValue.h"
 #include "Interface/ProjectHandle.h"
 #include "Interface/GridMap.h"
+#include "FilePath.h"
 
 #include "hdf5funcs.h"
 
@@ -472,25 +473,28 @@ string InputValue::saveToDirectory (const string & directory)
 
       GridMap * gridMap = (GridMap *) getGridMap ();
       string fileName = string ("InputMap") + indexStr + ".HDF";
-      string fullFileName = directory + '/' + fileName;
-      gridMap->saveHDF5 (fullFileName);
+      ibs::FilePath fullFileName( directory );
+      fullFileName << fileName;
+      gridMap->saveHDF5 ( fullFileName.path() );
 
       return fileName;
    }
    else
    {
       string command;
-      string inputFileName = m_projectHandle->getProjectPath () + "/" + getFileName ();
-      string outputFileName = directory + "/" + getFileName ();
+      ibs::FilePath inputFileName( m_projectHandle->getProjectPath() );
+      inputFileName << getFileName();
+      ibs::FilePath outputFileName( directory );
+      outputFileName << getFileName();
 
-      if (!copyFile (inputFileName, outputFileName))
+      if ( !copyFile( inputFileName.path(), outputFileName.path() ) )
       {
-	 cerr << "Copying " << inputFileName << " to " << outputFileName << " Failed" << endl;
-	 return string ("");
+         cerr << "Copying " << inputFileName.path() << " to " << outputFileName.path() << " Failed" << endl;
+         return string( "" );
       }
       else
       {
-	 return getFileName ();
+         return getFileName();
       }
    }
 }
@@ -507,13 +511,15 @@ GridMap * InputValue::loadGridMap (void) const
 
    if (getMapType () == "HDF5")
    {
-      string mapFileName = m_projectHandle->getProjectPath () + "/" + getMapFileName (m_record);
-      return m_projectHandle->loadGridMap (this, ValueMap, mapFileName, HDF5::findLayerName (mapFileName, getMapSeqNbr (m_record)));
+      ibs::FilePath mapFileName( m_projectHandle->getProjectPath() );
+      mapFileName << getMapFileName( m_record );
+      return m_projectHandle->loadGridMap (this, ValueMap, mapFileName.path(), HDF5::findLayerName (mapFileName.path(), getMapSeqNbr (m_record)));
    }
-   else if (hdf5FileName != "")
+   else if ( hdf5FileName != "" )
    {
-      string mapFileName = m_projectHandle->getFullOutputDir () + "/" + hdf5FileName;
-      return m_projectHandle->loadGridMap (this, ValueMap, mapFileName, HDF5::findLayerName (mapFileName, 0));
+      ibs::FilePath mapFileName( m_projectHandle->getFullOutputDir() );
+      mapFileName << hdf5FileName;
+      return m_projectHandle->loadGridMap( this, ValueMap, mapFileName.path(), HDF5::findLayerName( mapFileName.path(), 0 ) );
    }
    else
    {

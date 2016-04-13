@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2010-2015 Shell International Exploration & Production.
+// Copyright (C) 2010-2016 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Developed under license for Shell by PDS BV.
@@ -51,6 +51,7 @@ using namespace migration;
 #include "utils.h"
 
 #include "h5_parallel_file_types.h"
+#include "FilePath.h"
 
 #ifndef _MSC_VER
 #include "h5merge.h"
@@ -80,17 +81,7 @@ Migrator::Migrator (const string & name)
    m_reservoirs = 0;
    m_formations = 0;
    
-   PetscBool usePrimary = PETSC_FALSE;
-   PetscOptionsHasName ( PETSC_NULL, "-primaryOnly", &usePrimary );
-   if( usePrimary ) {
-      m_projectHandle.get()->setPrimary( true );
-   }
-
-   PetscOptionsHasName ( PETSC_NULL, "-primaryDouble", &usePrimary );
-   if( usePrimary ) {
-      m_projectHandle.get()->setPrimaryDouble( true );
-   }
-
+ 
    InitializeRequestTypes ();
    if (GetRank () == 0)
    {
@@ -146,7 +137,9 @@ bool Migrator::compute (void)
    if (GetRank () == 0)
    {
       m_projectHandle->deletePropertyValues (DataAccess::Interface::RESERVOIR);
-      m_projectHandle->deletePropertyValues (DataAccess::Interface::FORMATION, m_projectHandle->findProperty("FlowDirectionIJK"), 0, 0, 0, 0, DataAccess::Interface::VOLUME);
+
+      // Commented out only for May 2016 release. When 3d grid is used, FlowDirectionIJK will be output and then it must be deleted
+      // m_projectHandle->deletePropertyValues (DataAccess::Interface::FORMATION, m_projectHandle->findProperty("FlowDirectionIJK"), 0, 0, 0, 0, DataAccess::Interface::VOLUME);
 
       if (!m_trapIoTbl) m_trapIoTbl = m_projectHandle->getTable ("TrapIoTbl");
       m_trapIoTbl->clear ();
@@ -168,24 +161,33 @@ bool Migrator::compute (void)
 
    ComputeRanks (m_projectHandle->getActivityOutputGrid ());
 
-   if (!setUpBasinGeometry ()) return false;
-
    m_verticalMigration = m_projectHandle->getRunParameters ()->getVerticalSecondaryMigration ();
    m_hdynamicAndCapillary = m_projectHandle->getRunParameters ()->getHydrodynamicCapillaryPressure ();
    if (m_verticalMigration)
       m_hdynamicAndCapillary = 0;
    m_reservoirDetection = m_projectHandle->getRunParameters ()->getReservoirDetection ();
+   m_legacyMigration    = m_projectHandle->getRunParameters ()->getLegacy ();
+
+   if (!setUpBasinGeometry()) return false;
+
+   if (m_legacyMigration)
+   {
+      m_verticalMigration    = true;
+      m_hdynamicAndCapillary = false;
+      m_reservoirDetection   = false;
+   }
 
    bool overPressureRun = !isHydrostaticCalculation ();
 
-   createFormationNodes ();
-   computeFormationPropertyMaps (m_projectHandle->getSnapshots ()->front (), overPressureRun);
+   if (!m_legacyMigration)
+   {
+      createFormationNodes ();
+      computeFormationPropertyMaps (m_projectHandle->getSnapshots ()->front (), overPressureRun);
+   }
 
    // compute the positions of the reservoirs within the formations
    computeDepthOffsets ();
    computeNetToGross ();
-
-   removeComputedFormationPropertyMaps ();
 
    PetscBool minorSnapshots;
 
@@ -282,14 +284,25 @@ bool Migrator::setUpBasinGeometry (void)
 {
    bool HydrostaticCalculation = isHydrostaticCalculation ();
 
-   // From GeoPhysics::ProjectHandle
-   if (!m_projectHandle->initialise (true) ||
-       !m_projectHandle->setFormationLithologies (true, true) ||
-       !m_projectHandle->initialiseLayerThicknessHistory (!HydrostaticCalculation) || // Backstripping
-       !m_projectHandle->applyFctCorrections ())
-      return false;
-   else
-      return true;
+   if (!m_legacyMigration)
+   {
+      // From GeoPhysics::ProjectHandle
+      if (!m_projectHandle->initialise(true) ||
+         !m_projectHandle->setFormationLithologies(true, true) ||
+         !m_projectHandle->initialiseLayerThicknessHistory(!HydrostaticCalculation) || // Backstripping
+         !m_projectHandle->applyFctCorrections())
+         return false;
+      else
+         return true;
+   }
+   else 
+   {
+      if (!m_projectHandle->initialise(true) ||
+         !m_projectHandle->setFormationLithologies(true, true))
+         return false;
+      else
+         return true;
+   }
 }
 
 bool Migrator::isHydrostaticCalculation (void) const
@@ -346,23 +359,6 @@ bool Migrator::computeFormationPropertyMaps (const Interface::Snapshot * snapsho
 
 }
 
-bool Migrator::removeComputedFormationPropertyMaps (void)
-{
-   Interface::FormationList * formations = getAllFormations ();
-
-   Interface::FormationList::iterator formationIter;
-
-   for (formationIter = formations->begin (); formationIter != formations->end (); ++formationIter)
-   {
-      Formation * formation = Formation::CastToFormation (*formationIter);
-
-      assert (formation);
-
-      formation->removeComputedPropertyMaps ();
-   }
-   return true;
-}
-
 bool Migrator::getSeaBottomDepths (Interface::GridMap * topDepthGridMap, const Interface::Snapshot * snapshot)
 {
    if (!topDepthGridMap->retrieveData ()) return false;
@@ -416,26 +412,34 @@ bool Migrator::createFormationNodes (void)
 
 bool Migrator::performSnapshotMigration (const Interface::Snapshot * start, const Interface::Snapshot * end, const bool overPressureRun)
 {
-   if ((activeReservoirs (end)|| m_reservoirDetection) and getBottomSourceRockFormation ()->isActive (end))
+     
+   if ((activeReservoirs (end) or m_reservoirDetection) and getBottomSourceRockFormation ()->isActive (end))
    {
-      clearFormationNodeProperties ();
-      
       if (GetRank () == 0)
-         std::cout << "Processing snapshot " << end->getTime() << std::endl;
+         std::cout << "Processing snapshot " << end->getTime () << std::endl;
 
-      if (!computeFormationPropertyMaps (end, overPressureRun) ||
-          !retrieveFormationPropertyMaps (end) ||
-          !computeFormationNodeProperties (end) ||
-          !detectReservoirs (start, end, overPressureRun) ||
-          !computeSMFlowPaths (start, end) ||
-          !restoreFormationPropertyMaps (end) ||
-          !loadExpulsionMaps (start, end) ||
-          !chargeReservoirs (start, end) ||
-          !unloadExpulsionMaps (end) ||
-          !saveSMFlowPaths (start, end) ||
-          !removeComputedFormationPropertyMaps ())
+      if (m_legacyMigration)
       {
-         return false;
+         if (!chargeReservoirs (start, end))
+            return false;
+      }
+      else
+      {
+         clearFormationNodeProperties ();
+
+         if (!computeFormationPropertyMaps (end, overPressureRun) ||
+            !retrieveFormationPropertyMaps (end) ||
+            !computeFormationNodeProperties (end) ||
+            !detectReservoirs (start, end, overPressureRun) ||
+            !computeSMFlowPaths (start, end) ||
+            !restoreFormationPropertyMaps (end) ||
+            !loadExpulsionMaps (start, end) ||
+            !chargeReservoirs (start, end) ||
+            !unloadExpulsionMaps (end) ||
+            !saveSMFlowPaths (start, end))
+         {
+            return false;
+         }
       }
    }
 
@@ -444,7 +448,7 @@ bool Migrator::performSnapshotMigration (const Interface::Snapshot * start, cons
    m_propertyManager->removeProperties (start);
    m_projectHandle->deletePropertyValueGridMaps (Interface::SURFACE | Interface::FORMATION | Interface::FORMATIONSURFACE | Interface::RESERVOIR,
                                                  0, start, 0, 0, 0, Interface::MAP | Interface::VOLUME);
-
+                                                 
    return true;
 }
 
@@ -694,20 +698,6 @@ migration::Formation * Migrator::getBottomActiveReservoirFormation (const Interf
    return bottomActiveReservoirFormation;
 }
 
-// If getMinOilColumnHeight and getMinGasColumnHeight get moved to RunOptionsIoTbl these functions can be used
-/*
-  double Migrator::getMinOilColumnHeight (void) const
-  {
-  return m_projectHandle->getRunParameters ()->getMinOilColumnHeight ();
-  }
-
-  double Migrator::getMinGasColumnHeight (void) const
-  {
-
-  return m_projectHandle->getRunParameters ()->getMinGasColumnHeight ();
-  }
-*/
-
 /*
   Reservoir definition based on capillary pressure evaluation.
   Begin from bottom most active reservoir. Go up. Looping through
@@ -761,6 +751,7 @@ bool Migrator::detectReservoirs (const Interface::Snapshot * start, const Interf
    Formation *reservoirFormation;
    Formation *sealFormation;
    Interface::ReservoirList *  reservoirsBeforeDetection = getReservoirs ();
+   int numDetected = 0;
 
 
    bool topSealFormationReached = false;
@@ -795,6 +786,7 @@ bool Migrator::detectReservoirs (const Interface::Snapshot * start, const Interf
                // cerr << "Formation " << reservoirFormation->getName() << " detected" << endl;
                // if the formation is detected as reservoir, add it in the reservoir list 
                reservoirFormation->addDetectedReservoir (start);
+               numDetected += 1;
             }
          }
          // print to file information about the reservoirs 
@@ -804,6 +796,9 @@ bool Migrator::detectReservoirs (const Interface::Snapshot * start, const Interf
          if (reservoirFormation->getDetectedReservoir()) reservoirFormation->setEndOfPath ();
       }
    }
+   
+   // in case one or more formations have been detected, sort m_reservoirs
+   if (numDetected > 0) sortReservoirs();
 
 
    return true;
@@ -815,15 +810,15 @@ bool Migrator::computeSMFlowPaths (const Interface::Snapshot * start, const Inte
 {
    if (!m_verticalMigration)
    {
-   Formation * bottomSourceRockFormation = getBottomSourceRockFormation ();
-   if (!bottomSourceRockFormation) return false;
+      Formation * bottomSourceRockFormation = getBottomSourceRockFormation ();
+      if (!bottomSourceRockFormation) return false;
 
-   Formation * topActiveFormation = getTopActiveFormation (end);
-   if (!topActiveFormation) return false;
+      Formation * topActiveFormation = getTopActiveFormation (end);
+      if (!topActiveFormation) return false;
 
-   if (!computeSMFlowPaths (topActiveFormation, bottomSourceRockFormation, start, end)) return false;
-   
-   if (!computeTargetFormationNodes (topActiveFormation, bottomSourceRockFormation)) return false;
+      if (!computeSMFlowPaths (topActiveFormation, bottomSourceRockFormation, start, end)) return false;
+
+      if (!computeTargetFormationNodes (topActiveFormation, bottomSourceRockFormation)) return false;
    }
    return true;
 }
@@ -1020,11 +1015,13 @@ bool Migrator::chargeReservoir (migration::Reservoir * reservoir, migration::Res
    totalLeakedUpward -= totalLeakedOutward;
    if (GetRank () == 0) m_massBalance->subtractFromBalance ("Leaked upward from reservoir", totalLeakedUpward);
 
+   if (!m_legacyMigration && reservoir->isDiffusionOn())
+   {
    /// For each column in the trap set the diffusion starting time
    reservoir->broadcastTrapDiffusionStartTimes ();
-
    /// For each column in the trap set the new penetration distances
    reservoir->broadcastTrapPenetrationDistances ();
+   }
 
    reservoir->broadcastTrapFillDepthProperties ();
    reservoir->broadcastTrapChargeProperties ();
@@ -1240,17 +1237,19 @@ Interface::ReservoirList * Migrator::getReservoirs (const Interface::Formation *
    }
    else
    {
-      // Sort evertime a detected reservoir is added/removed to the list 
-      if (!m_reservoirs || m_reservoirs->empty () || m_reservoirs->size () != m_projectHandle->getReservoirs (0)->size())
-      {
-         m_reservoirs = m_projectHandle->getReservoirs (0);
-
-         if (!m_reservoirs->empty ())
-            std::sort (m_reservoirs->begin (), m_reservoirs->end (), reservoirSorter);
-      }
+      if (!m_reservoirs) sortReservoirs();
       return m_reservoirs;
    }
 }
+
+void Migrator::sortReservoirs() const
+{ 
+   //if a list is present, delete it because a new one will be created (this occours in ARD)
+   if (m_reservoirs) delete m_reservoirs; 
+   m_reservoirs = m_projectHandle->getReservoirs();
+   sort(m_reservoirs->begin(), m_reservoirs->end(), reservoirSorter);
+}
+
 
 void Migrator::addTrapRecord (migration::Reservoir * reservoir, migration::TrapPropertiesRequest & tpRequest)
 {
@@ -1802,8 +1801,8 @@ bool reservoirSorter (const Interface::Reservoir * reservoir1, const Interface::
    return reservoir1->getFormation()->getDepositionSequence() < reservoir2->getFormation()->getDepositionSequence();
 }
 
-bool Migrator::mergeOutputFiles () {
-
+bool Migrator::mergeOutputFiles ()
+{
    if (!H5_Parallel_PropertyList::isOneFilePerProcessEnabled ())
    {
       return true;
@@ -1814,20 +1813,20 @@ bool Migrator::mergeOutputFiles () {
 
    PetscOptionsHasName( PETSC_NULL, "-nocopy", &noFileCopy );
 
-   string filePathName = m_projectHandle->getProjectPath () + "/" + m_projectHandle->getOutputDir () + "/" + MigrationActivityName + "_Results.HDF";
+   ibs::FilePath filePathName( m_projectHandle->getProjectPath () );
+   filePathName << m_projectHandle->getOutputDir () << (MigrationActivityName + "_Results.HDF");
 
-   bool status = mergeFiles ( allocateFileHandler( PETSC_COMM_WORLD, filePathName, H5_Parallel_PropertyList::getTempDirName(), ( noFileCopy ? CREATE : REUSE ) ));
+   bool status = mergeFiles ( allocateFileHandler( PETSC_COMM_WORLD, filePathName.path(), H5_Parallel_PropertyList::getTempDirName(), ( noFileCopy ? CREATE : REUSE ) ));
 
    if( status )
    {
-      status = H5_Parallel_PropertyList::copyMergedFile( filePathName ); 
+      status = H5_Parallel_PropertyList::copyMergedFile( filePathName.path() ); 
    }
 
    if( ! status )
    {
-      PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Could not merge the file %s.\n", filePathName.c_str() );               
+      PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Could not merge the file %s.\n", filePathName.cpath() );
    }
-
    else
    {
       ReportProgress ("Merged Output Maps");
@@ -1837,6 +1836,6 @@ bool Migrator::mergeOutputFiles () {
 #else
    return true;
 #endif
-      }
+}
 
 

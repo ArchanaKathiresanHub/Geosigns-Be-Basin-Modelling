@@ -19,8 +19,8 @@ cmake_policy(SET CMP0054 NEW)
 if (UNIX AND EXISTS /apps/sss/share/getos2 )
    set(defaultPreset "ShellLinux")
 
-elseif (UNIX AND EXISTS /opt/cauldron )
-   set(defaultPreset "OpenSource")
+elseif (UNIX AND EXISTS /glb/data/cauldron )
+   set(defaultPreset "PDSCluster")
 
 elseif(WIN32)
    set(defaultPreset "Windows")
@@ -31,6 +31,7 @@ endif()
 
 set( BM_CONFIG_PRESET "${defaultPreset}" CACHE STRING "Reference to CMake file containing configuration presets. You can choose from: ShellLinux, Windows, and OFF") 
 if ( BM_CONFIG_PRESET )
+   message( STATUS "Loading environment for ${BM_CONFIG_PRESET}" )
    include("cmake/Go${BM_CONFIG_PRESET}.cmake")
 endif()
 
@@ -52,6 +53,7 @@ option( BM_BUILD_ENABLE_TESTING "Whether testing is enabled" ON )
 option( BM_CODE_COVERAGE_ENABLE "Enable code coverage" OFF )
 option( BM_INSTALL_BENCHMARK_SUITE "Install the cauldron benchmark suite" OFF )
 option( BM_USE_FLEXLM "Whether to require a license via FlexLM" OFF)
+option( BM_BUILD_4DVIEWER "Build the 4D viewer (Windows only, needs Qt4 and Open Inventor)" OFF)
 
 #
 # Variables concerning version numbers
@@ -83,7 +85,7 @@ set(BM_TFS_PROJECT_NAME "" CACHE STRING "TFS Project Name (i.e. 'Basin Modeling'
 
 option( BUILD_SHARED_LIBS "Build shared libraries" OFF )
 set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}" CACHE PATH "Installation prefix" )
-set(CMAKE_BUILD_TYPE "Release" CACHE STRING "CMake build type ('Release' or 'Debug')")
+set(CMAKE_BUILD_TYPE "Release" CACHE STRING "CMake build type ('Release' or 'Debug' or 'MemCheck' or 'CodeCoverage')")
 include(cmake/ConfigurationFlags.cmake)
 
 #

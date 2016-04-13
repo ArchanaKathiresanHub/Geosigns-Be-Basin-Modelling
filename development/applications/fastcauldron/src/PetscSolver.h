@@ -9,6 +9,9 @@ public:
    virtual ~PetscSolver();
 
    void loadCmdLineOptions();
+
+   // Prints to screen the settings of the KSP solver
+   void viewSettings() const;
    
    int  getMaxIterations() const;
    void setMaxIterations(int maxIterations);

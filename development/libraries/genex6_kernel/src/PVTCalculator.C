@@ -222,7 +222,6 @@ void Genex6::PVTPhaseValues::setValues( const Genex6::PVTPhaseValues& values1, c
 std::string Genex6::PVTPhaseValues::image () const {
 
    std::stringstream buffer;
-   int i;
 
    buffer.flags ( std::ios::scientific );
    buffer.precision ( 6 );

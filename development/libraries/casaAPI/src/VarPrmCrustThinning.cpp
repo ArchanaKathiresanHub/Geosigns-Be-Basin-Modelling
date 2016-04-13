@@ -48,24 +48,24 @@ VarPrmCrustThinning::VarPrmCrustThinning( const std::vector<double>      & baseV
             "Wrong parameters number for CrustTinnning influential parameter";
    }
 
-   for ( int i = -1, pos = 0; i < m_eventsNumber; ++i )
+   for ( size_t i = 0, pos = 0; i <= m_eventsNumber; ++i )
    {
       for ( size_t j = 0; j < 3; ++j, ++pos )
       {
          if ( minValues[pos] > baseValues[pos] || baseValues[pos] > maxValues[pos] )
          {
             ErrorHandler::Exception ex( ErrorHandler::OutOfRangeValue );
-            ex << "Crust thinning event: " << i + (i < 0 ? 1 : i + 1) << ", has ";
+            ex << "Crust thinning event: " << i + 1 << ", has ";
 
-            if (      i <  0 ) { ex << "initial crust thickness"; }
-            else if ( i == 0 ) { ex << "start time"; }
-            else if ( i == 1 ) { ex << "event duration"; }
+            if (      i == 0 ) { ex << "initial crust thickness"; }
+            else if ( j == 0 ) { ex << "start time"; }
+            else if ( j == 1 ) { ex << "event duration"; }
             else               { ex << "thinning factor"; }
 
             throw ex << " base case value: " << baseValues[pos] <<  " outside of the given [" << 
                         minValues[pos] << "," << maxValues[pos] << "] range";
          }
-         if ( i < 0 ) { ++pos; break; }
+         if ( i == 0 ) { ++pos; break; }
       }
    }
    

@@ -33,6 +33,7 @@ MantleFormation::MantleFormation ( Interface::ProjectHandle * projectHandle,
    UpliftedOrigMantleDepth = NULL;
    LithosphereThicknessMod = NULL;
 
+   initialiseBasementVecs();
    setBasementVectorList();
 }
 

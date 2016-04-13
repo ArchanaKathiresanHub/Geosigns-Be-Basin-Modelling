@@ -153,30 +153,37 @@ void MatlabExporter::exportParametersInfo( ScenarioAnalysis & sc )
    // Parameters values for each case
    m_ofs << "ParametersVal = [\n";
 
-   for ( size_t i = 0; i < rcs.size(); ++i )
+   const std::vector<std::string> & doeList = rcs.experimentNames();
+   for ( size_t e = 0, expID = 0; e < doeList.size(); ++e )
    {
-      m_ofs << i;  // Case number
+      rcs.filterByExperimentName( doeList[e] );
 
-      for ( size_t j = 0; j < rcs[i]->parametersNumber(); ++j )
+      for ( size_t i = 0; i < rcs.size(); ++i )
       {
-         SharedParameterPtr prm = rcs[i]->parameter( j );
+         m_ofs << expID++;  // Case number
 
-         switch( prm->parent()->variationType() )
+         for ( size_t j = 0; j < rcs[i]->parametersNumber(); ++j )
          {
-            case VarParameter::Discrete:
-            case VarParameter::Continuous:
-               {
-                  const std::vector<double> & prmVals = prm->asDoubleArray();
-                  for ( size_t k = 0; k < prmVals.size(); ++k ) { m_ofs << "\t" << prmVals[k]; }
-               }
-               break;
+            SharedParameterPtr prm = rcs[i]->parameter( j );
 
-            case VarParameter::Categorical:  m_ofs << " " << prm->asInteger();  break;
-            default: assert( false ); break;
+            switch( prm->parent()->variationType() )
+            {
+               case VarParameter::Discrete:
+               case VarParameter::Continuous:
+                  {
+                     const std::vector<double> & prmVals = prm->asDoubleArray();
+                     for ( size_t k = 0; k < prmVals.size(); ++k ) { m_ofs << "\t" << prmVals[k]; }
+                  }
+                  break;
+
+               case VarParameter::Categorical:  m_ofs << " " << prm->asInteger();  break;
+               default: assert( false ); break;
+            }
          }
-     }
-     m_ofs << "\n";
+         m_ofs << "\n";
+      }
    }
+   rcs.filterByExperimentName( "" );
    m_ofs << "];\n\n";
 
    // Parameters values for the base case
@@ -253,23 +260,29 @@ void MatlabExporter::exportObservablesInfo( ScenarioAnalysis & sc )
    RunCaseSetImpl & rcs = dynamic_cast<RunCaseSetImpl&>( sc.doeCaseSet() );
 
    m_ofs << "ObservablesVal = [\n";
-   for ( size_t i = 0; i < rcs.size(); ++i )
+   const std::vector<std::string> & doeList = rcs.experimentNames();
+   for ( size_t e = 0, expID = 0; e < doeList.size(); ++e )
    {
-      m_ofs << i;
+      rcs.filterByExperimentName( doeList[e] );
 
-      for ( size_t j = 0; j < rcs[i]->observablesNumber(); ++j )
+      for ( size_t i = 0; i < rcs.size(); ++i )
       {
-         ObsValue * obv = rcs[i]->obsValue( j );
+         m_ofs << expID++;
 
-         if ( obv && obv->isDouble() )
+         for ( size_t j = 0; j < rcs[i]->observablesNumber(); ++j )
          {
-            const std::vector<double> & vals = obv->asDoubleArray();
-            for ( size_t k = 0; k < vals.size(); ++k ) m_ofs << "\t" << vals[k];
-         }
-      }
+            ObsValue * obv = rcs[i]->obsValue( j );
 
-      m_ofs << std::endl;
+            if ( obv && obv->isDouble() )
+            {
+               const std::vector<double> & vals = obv->asDoubleArray();
+               for ( size_t k = 0; k < vals.size(); ++k ) m_ofs << "\t" << vals[k];
+            }
+         }
+         m_ofs << std::endl;
+      }
    }
+   rcs.filterByExperimentName( "" );
    m_ofs << "];\n\n";
 
    m_ofs << "ObservablesValBaseCase = [\n";
@@ -365,7 +378,7 @@ void MatlabExporter::exportRSAProxies( ScenarioAnalysis & sc )
 
          // allocate zero matrix with rank equals to polynomial order
          m_ofs << proxyNames[i] << "(" << j+1 << ").ord0 = 0.0;\n"; // zero order always
-         for ( int k = 0; k < ord; ++k  )
+         for ( size_t k = 0; k < ord; ++k  )
          {
             m_ofs << proxyNames[i] << "(" << j+1 << ").ord" << k+1 << " = zeros(";
             if ( k == 0 ) m_ofs << "1, ";
@@ -386,7 +399,7 @@ void MatlabExporter::exportRSAProxies( ScenarioAnalysis & sc )
             {
                m_ofs << "(" << numCoefPerOrd[prmsLst.size()]+1 << ",:) = [";
                numCoefPerOrd[prmsLst.size()] += 1;
-               for ( int k = 0; k < prmsLst.size(); ++k ) m_ofs << prmsLst[k]+1 << ",";
+               for ( size_t k = 0; k < prmsLst.size(); ++k ) m_ofs << prmsLst[k]+1 << ",";
                m_ofs << coef << "];\n";
             }
          }
@@ -420,7 +433,7 @@ void MatlabExporter::exportRSAProxies( ScenarioAnalysis & sc )
          {
             const std::vector< unsigned int > & prmsLst = it->first;
             double coef = it->second.first;
-            double errr = it->second.second;
+            // double errr = it->second.second;
 
             m_ofs << " " << (coef < 0.0 ? "" : "+ ") << coef << " ";
             for( size_t k = 0; k < prmsLst.size(); ++k ) 

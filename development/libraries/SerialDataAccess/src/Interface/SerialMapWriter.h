@@ -46,7 +46,8 @@ namespace DataAccess
 	    /// write a 3D gridmap to a file, not yet implemented
 	    bool writeVolumeToHDF (GridMap * gridMap, const string & propertyName, const string & layerName);
 
-         bool writePrimaryVolumeToHDF (GridMap * gridMap, const string & propertyName, double time, const string & layerName, const bool useGroupName = true);
+         bool writePrimaryVolumeToHDF (GridMap * gridMap, const string & propertyName, double time, const string & layerName, 
+                                       const bool useGroupName = true, const bool isPrimary = false );
 
 	    //bool write2DDataSet (const string & dataSetName, float *data, int *start, int *count, int *size);
 

@@ -4,6 +4,8 @@
 #include <H5FDmpio.h>
 #include "h5_parallel_file_types.h"
 
+#include "FilePath.h"
+
 #ifndef _MSC_VER
 #include "HDF5VirtualFileDriver.h"
 #include "h5merge.h"
@@ -11,6 +13,7 @@
 
 
 bool        H5_Parallel_PropertyList :: s_oneFilePerProcess = false;
+bool        H5_Parallel_PropertyList :: s_primaryPod = false;
 
 std::string H5_Parallel_PropertyList :: s_temporaryDirName;
 
@@ -24,10 +27,10 @@ hid_t H5_Parallel_PropertyList :: createFilePropertyList() const
 #ifndef _MSC_VER
    if( s_oneFilePerProcess ) 
    {
-      std::stringstream fileName;
-      fileName << s_temporaryDirName << "/{NAME}_{MPI_RANK}";
+      ibs::FilePath fileName( s_temporaryDirName );
+      fileName << "{NAME}_{MPI_RANK}";
        
-      H5Pset_fapl_ofpp (plist, PETSC_COMM_WORLD, fileName.str().c_str(), 0); 
+      H5Pset_fapl_ofpp (plist, PETSC_COMM_WORLD, fileName.cpath(), 0); 
    } 
    else 
    {
@@ -56,7 +59,8 @@ hid_t H5_Parallel_PropertyList :: createDatasetPropertyList() const
 bool H5_Parallel_PropertyList :: setOneFilePerProcessOption( )
 {
    PetscBool noOfpp = PETSC_FALSE;
-   
+   PetscBool primaryPod = PETSC_FALSE;
+  
 #ifndef _MSC_VER
    PetscOptionsHasName ( PETSC_NULL, "-noofpp", &noOfpp );
    
@@ -69,9 +73,16 @@ bool H5_Parallel_PropertyList :: setOneFilePerProcessOption( )
       
       PetscBool oneFilePerProcess;
       PetscOptionsGetString ( PETSC_NULL, "-onefileperprocess", temporaryDirName, PETSC_MAX_PATH_LEN, &oneFilePerProcess );
-      
+      PetscOptionsGetString ( PETSC_NULL, "-primaryPod", temporaryDirName, PETSC_MAX_PATH_LEN, &primaryPod );
+
+      setPrimaryPod ( primaryPod );
+    
       if( temporaryDirName[0] == 0 ) {
-         tmpDir = getenv( "TMPDIR" );
+         if( primaryPod ) {
+            PetscPrintf ( PETSC_COMM_WORLD, "PrimaryPod directory is not defined. Please specify a shared dir name.\n" );           
+         } else {
+            tmpDir = getenv( "TMPDIR" );
+         }
       } else {
          tmpDir = temporaryDirName;
       }
@@ -83,14 +94,17 @@ bool H5_Parallel_PropertyList :: setOneFilePerProcessOption( )
          PetscPrintf ( PETSC_COMM_WORLD, "Set %s for output or/and input\n", tmpDir ); 
       }
    }
+#else
+   noOfpp = PETSC_TRUE;
 #endif
    
-   setOneFilePerProcess ( !noOfpp );
-
+   if( not primaryPod ) {
+      setOneFilePerProcess ( !noOfpp );
+   }
    return !noOfpp;
 }
 
-bool H5_Parallel_PropertyList :: copyMergedFile( std::string & filePathName )
+bool H5_Parallel_PropertyList :: copyMergedFile( const std::string & filePathName, const bool appendRank )
 {
 #ifdef _MSC_VER
 	return false;
@@ -106,12 +120,16 @@ bool H5_Parallel_PropertyList :: copyMergedFile( std::string & filePathName )
       PetscOptionsHasName( PETSC_NULL, "-nocopy", &noFileCopy );
 
        if( !noFileCopy ) {
-         std::string curPath = getTempDirName() + "/" +  filePathName + "_0";
-         status = copyFile ( filePathName, curPath );
-         if( !status ) {
-            PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Could not copy the file %s.\n", filePathName.c_str() );               
-         }
-      }
+          ibs::FilePath curPath( getTempDirName() );
+
+          if( appendRank ) { curPath << ( filePathName + "_0" ); }
+          else curPath << filePathName;
+
+          status = copyFile ( filePathName, curPath.path() );
+          if( !status ) {
+             PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Could not copy the file %s.\n", filePathName.c_str() );               
+          }
+       }
    }
    return status;
 #endif

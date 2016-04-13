@@ -85,7 +85,8 @@ namespace casa
          tracktraps,   ///< Traps search
          track1d,      ///< Extract data along vertical well for given position
          datadriller,  ///< Extract data from the simulation results using DataMiningIoTbl as a requests set
-         generic       ///< Allows to define any application not mentioned over
+         generic,      ///< Allows to define any application not mentioned over
+         casa          ///< Run set of 1D scenarios in calibration mode
       };
       /// @}
       
@@ -103,8 +104,12 @@ namespace casa
       static CauldronApp * createApplication( ApplicationType   appType           ///< type of application
                                             , int               cpus = 1          ///< (optional) run applicaton on this cpus number
                                             , size_t            runTimeLimit = 0  ///< (optional) hard time limit for application
-                                            , CauldronApp::ShellType sh = CauldronApp::bash ///< (optional) shell type for the script
-                                            , const std::string cmdLine = ""      ///< (optional) if app is "general", contains the script body
+#ifdef _WIN32
+											, CauldronApp::ShellType sh = CauldronApp::cmd
+#else
+											, CauldronApp::ShellType sh = CauldronApp::bash ///< (optional) shell type for the script
+#endif
+											, const std::string cmdLine = ""      ///< (optional) if app is "general", contains the script body
                                             );                               
 
       /// @brief Set up Cauldron version. Version should be defined as "v2014.1007" (which is the default)
@@ -124,6 +129,7 @@ namespace casa
       /// @brief Add a new Case to the set
       /// @param newRun new Case to be scheduled for run
       /// @param scenarioID some unique name of the scenario to have reference in GUI
+      /// @param commandString string of commands to write a new casa command file (for multi 1D)
       /// @return ErrorHandler::NoError on success or error code otherwise
       virtual ErrorHandler::ReturnCode scheduleCase( RunCase & newRun, const std::string & scenarioID ) = 0;
 

@@ -31,6 +31,7 @@ Property::Property (ProjectHandle * projectHandle, database::Record * record,
    m_userName (userName), m_cauldronName (cauldronName), m_unit (unit), m_type (type),
    m_propertyAttribute ( attr )
 {
+   m_isPrimaryProperty = projectHandle->isPrimaryProperty( userName );
 }
 
 Property::~Property (void)
@@ -82,6 +83,11 @@ PropertyValueList * Property::getPropertyValues (int selectionFlags,
 {
    return m_projectHandle->getPropertyValues (selectionFlags,
       this, snapshot, reservoir, formation, surface, SURFACE | VOLUME);
+}
+
+bool Property::isPrimary() const {
+
+   return m_isPrimaryProperty;
 }
 
 void Property::printOn (ostream & ostr) const

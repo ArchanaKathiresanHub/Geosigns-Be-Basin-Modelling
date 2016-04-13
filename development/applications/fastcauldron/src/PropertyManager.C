@@ -1,9 +1,20 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
 #include "PropertyManager.h"
 
+//Derived property library
 #include "PrimaryOutputPropertyMap.h"
 #include "DerivedOutputPropertyMap.h"
 #include "DerivedOutputPropertyMapFactory.h"
 
+//DataAccess library
 #include "Interface/Surface.h"
 #include "Interface/Snapshot.h"
 #include "Interface/Formation.h"
@@ -61,7 +72,7 @@ PropertyManager::PropertyManager () {
    m_propertyName2OutputName [ "Pressure" ]               = "Pressure"; 
    m_propertyName2OutputName [ "FracturePressure" ]       = "FracturePressure"; 
    m_propertyName2OutputName [ "Reflectivity" ]           = "ReflectivityVec"; 
-   m_propertyName2OutputName [ "SonicVelocity" ]          = "SonicVec"; 
+   m_propertyName2OutputName [ "SonicSlowness" ]          = "SonicVec"; 
    m_propertyName2OutputName [ "SteraneAromatisation" ]   = "Biomarkers"; 
    m_propertyName2OutputName [ "SteraneIsomerisation" ]   = "Biomarkers"; 
    m_propertyName2OutputName [ "Temperature" ]            = "Temperature"; 
@@ -225,6 +236,21 @@ const std::string& PropertyManager::findOutputPropertyName ( const std::string& 
       return s_nullString;
    }
    
+}
+
+
+//------------------------------------------------------------//
+
+const std::string& PropertyManager::findPropertyName ( const std::string& name ) const {
+
+   PropertyNameMap::const_iterator propertyNameIt;
+
+   for ( propertyNameIt = m_propertyName2OutputName.begin (); propertyNameIt != m_propertyName2OutputName.end(); ++ propertyNameIt ) {
+      if( propertyNameIt->second == name ) {
+         return propertyNameIt->first;
+      }
+   }
+   return s_nullString;
 }
 
 //------------------------------------------------------------//
@@ -471,8 +497,7 @@ void PropertyManager::computeSourceRockPropertyVolumes ( AppCtx*                
                                                          const PropListVec&         shaleGasProperties ) {
 
    // Some of the properties (as Vr) should be output to the primary properties file
-   if(( FastcauldronSimulator::getInstance ().isPrimary() or  FastcauldronSimulator::getInstance ().isPrimaryDouble())
-      and cauldron->projectSnapshots.projectPrescribesMinorSnapshots ()) {
+   if(( FastcauldronSimulator::getInstance ().isPrimaryDouble()) and cauldron->projectSnapshots.projectPrescribesMinorSnapshots ()) {
       PropListVec::const_iterator propertyIter;
       
       for ( propertyIter = genexProperties.begin (); propertyIter != genexProperties.end (); ++propertyIter ) {

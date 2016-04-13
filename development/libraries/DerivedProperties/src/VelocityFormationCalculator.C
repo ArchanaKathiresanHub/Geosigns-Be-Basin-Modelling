@@ -1,3 +1,13 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "AbstractPropertyManager.h"
 #include "DerivedFormationProperty.h"
 #include "DerivedPropertyManager.h"
@@ -30,6 +40,12 @@ void DerivedProperties::VelocityFormationCalculator::calculate ( DerivedProperti
                                                                  const DataModel::AbstractFormation* formation,
                                                                        FormationPropertyList&        derivedProperties ) const {
 
+   GeoPhysics::Formation const * const geophysicsFormation = dynamic_cast<const GeoPhysics::Formation*>( formation );
+
+   if( geophysicsFormation != 0 and geophysicsFormation->kind () == DataAccess::Interface::BASEMENT_FORMATION ) {
+      return calculateForBasement ( propertyManager, snapshot, formation, derivedProperties );
+   }
+
    DataModel::AbstractProperty const * const porosityProperty    = propertyManager.getProperty( "Porosity" );
    DataModel::AbstractProperty const * const bulkDensityProperty = propertyManager.getProperty( "BulkDensity" );
    DataModel::AbstractProperty const * const pressureProperty    = propertyManager.getProperty( "Pressure" );
@@ -46,7 +62,6 @@ void DerivedProperties::VelocityFormationCalculator::calculate ( DerivedProperti
    const FormationPropertyPtr ves         = propertyManager.getFormationProperty ( vesProperty, snapshot, formation );
    const FormationPropertyPtr maxVes      = propertyManager.getFormationProperty ( maxVesProperty, snapshot, formation );
 
-   GeoPhysics::Formation const * const geophysicsFormation = dynamic_cast<const GeoPhysics::Formation*>( formation );
    GeoPhysics::ProjectHandle const * const projectHandle   = dynamic_cast<const GeoPhysics::ProjectHandle*>( geophysicsFormation->getProjectHandle ());
    
    derivedProperties.clear ();
@@ -93,13 +108,12 @@ void DerivedProperties::VelocityFormationCalculator::calculate ( DerivedProperti
                      densityFluid = -1;
                   }
 
-                  velocityValue = lithologies ( i, j, currentTime )->seismicVelocity().seismicVelocity ( seismciVelocityFluid,
-                                                                                                         densityFluid,
-                                                                                                         bulkDensity->getA(i, j, k),
-                                                                                                         0.01 * porosity->getA(i, j, k),
-                                                                                                         ves->getA(i, j, k),
-                                                                                                         maxVes->getA(i, j, k));
-
+                  velocityValue = lithologies ( i, j, currentTime )->seismicVelocity().calculate ( seismciVelocityFluid,
+                                                                                                   densityFluid,
+                                                                                                   bulkDensity->getA(i, j, k),
+                                                                                                   0.01 * porosity->getA(i, j, k),
+                                                                                                   ves->getA(i, j, k),
+                                                                                                   maxVes->getA(i, j, k));
                   velocity->set ( i, j, k, velocityValue );
                }
 
@@ -118,4 +132,108 @@ void DerivedProperties::VelocityFormationCalculator::calculate ( DerivedProperti
       derivedProperties.push_back ( velocity );
    }
 
+}
+
+void DerivedProperties::VelocityFormationCalculator::calculateForBasement ( DerivedProperties::AbstractPropertyManager& propertyManager,
+                                                                            const DataModel::AbstractSnapshot*  snapshot,
+                                                                            const DataModel::AbstractFormation* formation,
+                                                                            FormationPropertyList&        derivedProperties ) const {
+
+   GeoPhysics::Formation const * const geophysicsFormation = dynamic_cast<const GeoPhysics::Formation*>( formation );
+
+   DataModel::AbstractProperty const * const bulkDensityProperty = propertyManager.getProperty( "BulkDensity" );
+   DataModel::AbstractProperty const * const temperatureProperty = propertyManager.getProperty( "Temperature" );
+
+   DataModel::AbstractProperty const * const velocityProperty = propertyManager.getProperty ( "Velocity" );
+   
+   const FormationPropertyPtr bulkDensity = propertyManager.getFormationProperty ( bulkDensityProperty, snapshot, formation );
+   const FormationPropertyPtr temperature = propertyManager.getFormationProperty ( temperatureProperty, snapshot, formation );
+
+   GeoPhysics::ProjectHandle const * const projectHandle   = dynamic_cast<const GeoPhysics::ProjectHandle*>( geophysicsFormation->getProjectHandle ());
+   
+   derivedProperties.clear ();
+
+   if ( bulkDensity != 0 and temperature != 0 and geophysicsFormation != 0 ) {
+
+      const GeoPhysics::CompoundLithologyArray& lithologies = geophysicsFormation->getCompoundLithologyArray ();
+
+      PropertyRetriever bulkDensityRetriever ( bulkDensity );
+      PropertyRetriever temperatureRetriever ( temperature );
+
+      DerivedFormationPropertyPtr velocity = DerivedFormationPropertyPtr ( new DerivedProperties::DerivedFormationProperty ( velocityProperty,
+                                                                                                                             snapshot,
+                                                                                                                             formation, 
+                                                                                                                             propertyManager.getMapGrid (),
+                                                                                                                             geophysicsFormation->getMaximumNumberOfElements() + 1 ));
+
+      double currentTime = snapshot->getTime ();
+      double undefinedValue = velocity->getUndefinedValue ();
+      double velocityValue;
+      double seismciVelocityFluid;
+      double densityFluid;
+
+      for ( unsigned int i = velocity->firstI ( true ); i <= velocity->lastI ( true ); ++i ) {
+
+         for ( unsigned int j = velocity->firstJ ( true ); j <= velocity->lastJ ( true ); ++j ) {
+
+            if ( projectHandle->getNodeIsValid ( i, j )) {
+
+               for ( unsigned int k = velocity->firstK (); k <= velocity->lastK (); ++k ) {
+
+                  seismciVelocityFluid = -1;
+                  densityFluid = -1;
+
+                  velocityValue = lithologies ( i, j, currentTime )->seismicVelocity().calculate ( seismciVelocityFluid,
+                                                                                                   densityFluid,
+                                                                                                   bulkDensity->getA(i, j, k),
+                                                                                                   0.0, 0.0, 0.0 );
+                  
+                  velocity->set ( i, j, k, velocityValue );
+               }
+
+            } else {
+
+               for ( unsigned int k = velocity->firstK (); k <= velocity->lastK (); ++k ) {
+                  velocity->set ( i, j, k, undefinedValue );
+               }
+
+            }
+
+         }
+
+      }
+
+      derivedProperties.push_back ( velocity );
+   }
+
+}
+
+bool DerivedProperties::VelocityFormationCalculator::isComputable ( const DerivedProperties::AbstractPropertyManager& propManager,
+                                                                    const DataModel::AbstractSnapshot*  snapshot,
+                                                                    const DataModel::AbstractFormation* formation ) const {
+   
+   bool basementFormation = ( dynamic_cast<const GeoPhysics::Formation*>( formation ) != 0 and dynamic_cast<const GeoPhysics::Formation*>( formation )->kind () == DataAccess::Interface::BASEMENT_FORMATION );
+
+   const std::vector<std::string>& dependentProperties = getDependentPropertyNames ();
+
+   bool propertyIsComputable = true;
+   
+   // Determine if the required properties are computable.
+   for ( size_t i = 0; i < dependentProperties.size () and propertyIsComputable; ++i ) {
+
+      if( basementFormation and ( dependentProperties [ i ] != "Temperature" and dependentProperties [ i ] != "BulkDensity" )) {
+         propertyIsComputable = true;
+      } else {
+         const DataModel::AbstractProperty* property = propManager.getProperty ( dependentProperties [ i ]);
+
+         if ( property == 0 ) {
+            propertyIsComputable = false;
+         } else {
+            propertyIsComputable = propertyIsComputable and propManager.formationPropertyIsComputable ( property, snapshot, formation );
+         }
+         
+      }
+   }
+
+   return propertyIsComputable;
 }

@@ -1,3 +1,13 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "ReflectivitySurfaceCalculator.h"
 
 #include "Interface/Formation.h"
@@ -8,6 +18,7 @@
 #include "DerivedSurfaceProperty.h"
 #include "DerivedPropertyManager.h"
 #include "GeoPhysicalConstants.h"
+#include "GeoPhysicsFormation.h"
 
 #include "PropertyRetriever.h"
 
@@ -36,21 +47,31 @@ void DerivedProperties::ReflectivitySurfaceCalculator::calculate ( AbstractPrope
    if ( formationBelow == 0 ) {
       return;
    }
+   const GeoPhysics::Formation* geoFormationBelow = dynamic_cast<const GeoPhysics::Formation*>( formationBelow );
+   if( geoFormationBelow->kind() == DataAccess::Interface::BASEMENT_FORMATION ) {
+      return;
+   }
 
    const DataModel::AbstractProperty* reflectivityProperty = propManager.getProperty ( "Reflectivity" );
-   const DataModel::AbstractProperty* thicknessProperty   = propManager.getProperty ( "Thickness" );
-   const DataModel::AbstractProperty* bulkDensityProperty = propManager.getProperty ( "BulkDensity" );
-   const DataModel::AbstractProperty* velocityProperty    = propManager.getProperty ( "Velocity" );
+   const DataModel::AbstractProperty* thicknessProperty    = propManager.getProperty ( "Thickness" );
+   const DataModel::AbstractProperty* bulkDensityProperty  = propManager.getProperty ( "BulkDensity" );
+   const DataModel::AbstractProperty* velocityProperty     = propManager.getProperty ( "Velocity" );
 
-   bool formationAboveFound = formationAbove != 0 and formationAbove->getBottomSurface ()->getSnapshot ()->getTime () > snapshot->getTime ();
+   bool formationAboveFound = formationAbove != 0 and 
+      ( formationAbove->getBottomSurface ()->getSnapshot () != 0 ?
+        formationAbove->getBottomSurface ()->getSnapshot ()->getTime () > snapshot->getTime () : true );
 
-   FormationMapPropertyPtr     layerThickness = propManager.getFormationMapProperty ( thicknessProperty, snapshot, formationBelow );
+   FormationMapPropertyPtr     layerThickness   = propManager.getFormationMapProperty     ( thicknessProperty,   snapshot, formationBelow );
    FormationSurfacePropertyPtr layerBulkDensity = propManager.getFormationSurfaceProperty ( bulkDensityProperty, snapshot, formationBelow, surface );
-   FormationSurfacePropertyPtr layerVelocity = propManager.getFormationSurfaceProperty ( velocityProperty, snapshot, formationBelow, surface );
+   FormationSurfacePropertyPtr layerVelocity    = propManager.getFormationSurfaceProperty ( velocityProperty,    snapshot, formationBelow, surface );
 
    if ( layerThickness == 0 or layerBulkDensity == 0 or layerVelocity == 0 ) {
       return;
    }
+   PropertyRetriever layerThicknessRetriever  ( layerThickness );
+   PropertyRetriever layerBulkDensityRetriever( layerBulkDensity );
+   PropertyRetriever layerVelocityRetriever   ( layerVelocity );
+
 
    FormationMapPropertyList     thicknesses;
    FormationSurfacePropertyList bulkDensities;
@@ -64,6 +85,10 @@ void DerivedProperties::ReflectivitySurfaceCalculator::calculate ( AbstractPrope
       FormationMapPropertyPtr     thickness   = propManager.getFormationMapProperty     ( thicknessProperty,   snapshot, formationAbove );
       FormationSurfacePropertyPtr bulkDensity = propManager.getFormationSurfaceProperty ( bulkDensityProperty, snapshot, formationAbove, formationAbove->getBottomSurface ());
       FormationSurfacePropertyPtr velocity    = propManager.getFormationSurfaceProperty ( velocityProperty,    snapshot, formationAbove, formationAbove->getBottomSurface ());
+
+      PropertyRetriever thicknessRetriever  ( thickness );
+      PropertyRetriever bulkDensityRetriever( bulkDensity );
+      PropertyRetriever velocityRetriever   ( velocity );
 
       thicknesses.push_back ( thickness );
       bulkDensities.push_back ( bulkDensity );

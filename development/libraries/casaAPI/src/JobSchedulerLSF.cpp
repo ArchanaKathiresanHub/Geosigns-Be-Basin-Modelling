@@ -129,12 +129,39 @@ public:
       if ( m_runTimeLim > 0 ) { m_submit.rLimits[LSF_RLIMIT_RUN] = static_cast<int>( m_runTimeLim ) * 60; } // convert to sec.
  
       /// Prepare job to submit through LSF
-      m_submit.projectName      = strdup( s_LSF_CAULDRON_PROJECT_NAME ); // add project name (must be the same for all cauldron app)
+      m_submit.options          = SUB_PROJECT_NAME | SUB_JOB_NAME | SUB_OUT_FILE | SUB_ERR_FILE;
+      m_submit.options3         = SUB3_CWD;
+
+      const char * envVar       = getenv( "LSF_CAULDRON_PROJECT_NAME" ); 
+      m_submit.projectName      = strdup( envVar ? envVar : LSF_CAULDRON_PROJECT_NAME ); // add project name (must be the same for all cauldron app)
+      
+#ifdef LSF_XDR_VERSION9_1_3
+      envVar                    = getenv( "LSF_CAULDRON_PROJECT_GROUP" );
+      if ( envVar )
+      {
+         m_submit.userGroup     = strdup( envVar ); // add project group
+         m_submit.options2     |= SUB2_JOB_GROUP;
+      }
+
+      envVar                    = getenv( "LSF_CAULDRON_PROJECT_QUEUE" );
+      if ( envVar )
+      {
+         m_submit.queue         = strdup( envVar ); // add project queue
+         m_submit.options      |= SUB_QUEUE;
+      }
+
+      envVar                    = getenv( "LSF_CAULDRON_PROJECT_SERVICE_CLASS_NAME" );    // add project class service ??
+      if ( envVar )
+      {
+         m_submit.sla           = strdup( envVar );
+         m_submit.options2     |= SUB2_SLA; 
+      }
+#endif
       m_submit.command          = strdup( scriptName.c_str() );
       m_submit.jobName          = strdup( jobName.c_str() );
       m_submit.outFile          = strdup( (jobName + ".out" ).c_str() ); // redirect stdout to file
       m_submit.errFile          = strdup( (jobName + ".err" ).c_str() ); // redirect stderr to file
-      m_submit.options          = SUB_PROJECT_NAME | SUB_JOB_NAME | SUB_OUT_FILE | SUB_ERR_FILE;
+         
       m_submit.cwd              = strdup( cwd.c_str() );                 // define current working directory
       m_submit.options3         = SUB3_CWD;
       m_submit.numProcessors    = cpus; // initial number of processors needed by a (parallel) job
@@ -144,11 +171,17 @@ public:
          m_submit.resReq = strdup( resReq.c_str() );
          m_submit.options = m_submit.options | SUB_RES_REQ;
       }
+      
    }
 
    ~Job()
    {  // allocated by strdup
       if ( m_submit.projectName ) free( m_submit.projectName );
+#ifdef LSF_XDR_VERSION9_1_3
+      if ( m_submit.userGroup   ) free( m_submit.userGroup   );
+      if ( m_submit.queue       ) free( m_submit.queue       );
+      if ( m_submit.sla         ) free( m_submit.sla         );
+#endif
       if ( m_submit.command     ) free( m_submit.command     );
       if ( m_submit.jobName     ) free( m_submit.jobName     );
       if ( m_submit.cwd         ) free( m_submit.cwd         );
@@ -264,7 +297,7 @@ public:
    virtual const char * typeName() const { return "JobSchedulerLSF::Job"; }
 
    // Serialize object to the given stream
-   virtual bool save( CasaSerializer & sz, unsigned int version ) const
+   virtual bool save( CasaSerializer & sz, unsigned int /* version */ ) const
    {
       bool ok = sz.save(              m_isFinished,                "IsFinished"      );
       ok = ok ? sz.save(              m_isFailed,                  "IsFailed"        ) : ok;
@@ -355,7 +388,7 @@ JobSchedulerLSF::JobSchedulerLSF( const std::string & clusterName )
    const char * lsfConfDir = getenv( "LSF_ENVDIR" );
    if ( !lsfConfDir )
    {
-      setenv( "LSF_ENVDIR", s_LSF_CONFIG_DIR, 0 ); // LSF_ENVDIR is needed to make LSF API calls
+      setenv( "LSF_ENVDIR", LSF_CONFIG_DIR, 0 ); // LSF_ENVDIR is needed to make LSF API calls
    }
 #endif
 
@@ -474,7 +507,7 @@ void JobSchedulerLSF::sleep()
 }
 
 // Serialize object to the given stream
-bool JobSchedulerLSF::save( CasaSerializer & sz, unsigned int fileVersion ) const
+bool JobSchedulerLSF::save( CasaSerializer & sz, unsigned int /* fileVersion */ ) const
 {
    bool ok = sz.save( m_clusterName, "ClusterName" );
    
@@ -516,6 +549,18 @@ JobSchedulerLSF::JobSchedulerLSF( CasaDeserializer & dz, unsigned int objVer )
 void JobSchedulerLSF::printLSFBParametersInfo()
 {
 #ifdef WITH_LSF_SCHEDULER
+   int n;
+   struct serviceClass * sc = lsb_serviceClassInfo( &n );
+   if ( sc )
+   {
+      for ( int i = 0; i < n; ++i )
+      {
+         std::cout << "Service class: " << i << std::endl;
+         std::cout << "  Name: " << sc[i].name << std::endl;
+         std::cout << "  User Groups: " << sc[i].userGroups << std::endl;
+      }
+   }
+
    struct parameterInfo * lsfbPrms = lsb_parameterinfo( NULL, NULL, 0 );
    if ( !lsfbPrms ) { return throw ErrorHandler::Exception( ErrorHandler::LSFLibError ) << ls_sysmsg(); }
 

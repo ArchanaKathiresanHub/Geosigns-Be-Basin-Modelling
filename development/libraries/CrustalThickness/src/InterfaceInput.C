@@ -8,6 +8,7 @@
 // Do not distribute without written permission from Shell.
 //
 #include "InterfaceInput.h"
+#include "FilePath.h"
 
 // std library
 #define _USE_MATH_DEFINES
@@ -69,7 +70,7 @@ void InterfaceInput::clean() {
    m_referenceCrustThickness     = 0.0;
    m_referenceCrustDensity       = 0.0;
    m_waterDensity                = 0.0;
-
+   
    //------------- Asthenosphere potential temperature data ---------------------
    m_A = 0.0;
    m_B = 0.0;
@@ -99,7 +100,7 @@ void InterfaceInput::clean() {
 void InterfaceInput::loadInputDataAndConfigurationFile( const string & inFile ) {
    ///1. Load input data
    try {
-      loadInputData();
+   loadInputData();
    }
    catch (InputException& ex){
       LogHandler( LogHandler::ERROR_SEVERITY ) << ex.what();
@@ -109,8 +110,8 @@ void InterfaceInput::loadInputDataAndConfigurationFile( const string & inFile ) 
    }
    ///2. Load configuration file
    try {
-      loadConfigurationFile( inFile );
-   }
+   loadConfigurationFile( inFile );
+}
    catch (InputException& ex){
       LogHandler( LogHandler::ERROR_SEVERITY ) << ex.what();
    }
@@ -121,7 +122,7 @@ void InterfaceInput::loadInputDataAndConfigurationFile( const string & inFile ) 
 //------------------------------------------------------------//
 void InterfaceInput::loadInputData() {
    
-   m_T0Map   = getMap (Interface::T0Ini);   
+   m_T0Map   = getMap (Interface::T0Ini);
    m_TRMap   = getMap (Interface::TRIni);
    m_HCuMap  = getMap (Interface::HCuIni);
    m_HLMuMap = getMap (Interface::HLMuIni);
@@ -132,7 +133,7 @@ void InterfaceInput::loadInputData() {
 
    if( m_T0Map == 0 || m_TRMap == 0 || m_HCuMap == 0 || m_HLMuMap == 0 || m_DeltaSLMap == 0 ) {
       throw InputException() << "Cannot load input data... Aborting... ";
-   }
+}
      
 }
 //------------------------------------------------------------//
@@ -141,22 +142,22 @@ void InterfaceInput::loadConfigurationFile( const string & inFile ) {
    char * CTCDIR = getenv("CTCDIR");
    char * MY_CTCDIR = getenv("MY_CTCDIR");
 
-   string fullpath;
+   string ctcdir;
    
-   if( MY_CTCDIR != 0 ) {
-       fullpath = MY_CTCDIR + string("/") + inFile;
-   } else if( CTCDIR != 0 ) {
-      fullpath = CTCDIR + string("/") + inFile;
-   } else {
+   if(      MY_CTCDIR != 0 ) { ctcdir = MY_CTCDIR; }
+   else if( CTCDIR    != 0 ) { ctcdir = CTCDIR;    }
+   else {
       throw InputException() << "Environment Variable CTCDIR is not set. Aborting...";
    }
 
+   ibs::FilePath fullpath( ctcdir );
+   fullpath << inFile;
+
    ifstream  ConfigurationFile;
-   //   ConfigurationFile.open( inFile.c_str() );
-   ConfigurationFile.open( fullpath.c_str() );
+   ConfigurationFile.open( fullpath.cpath() );
    
    if(!ConfigurationFile) {
-      throw InputException() << "Attempting to open configuration file " << fullpath << " but no file does not exist... Aborting... ";
+      throw InputException() << "Attempting to open configuration file " << fullpath.path() << " but the file does not exist... Aborting... ";
    }
 
    string line;
@@ -220,39 +221,39 @@ void InterfaceInput::LoadBasicConstants( ifstream &ConfigurationFile ) {
       
       if( line[firstNotSpace] != '#' ) {
       
-         CrustalThicknessInterface::parseLine( line, delim, theTokens );    
-
-         if( theTokens.size() == 2 ) {
-            if( theTokens[0] == CrustalThicknessInterface::coeffThermExpansion ) {
-               
-               m_coeffThermExpansion = atof( theTokens[1].c_str() );
-               ++ countParam;
-               
-            } else if( theTokens[0] == CrustalThicknessInterface::initialSubsidenceMax ) {
-
-               m_initialSubsidenceMax = atof( theTokens[1].c_str() );
-               ++ countParam;
+      CrustalThicknessInterface::parseLine( line, delim, theTokens );
       
+      if( theTokens.size() == 2 ) {
+         if( theTokens[0] == CrustalThicknessInterface::coeffThermExpansion ) {
+            
+            m_coeffThermExpansion = atof( theTokens[1].c_str() );
+               ++ countParam;
+
+         } else if( theTokens[0] == CrustalThicknessInterface::initialSubsidenceMax ) {
+            
+            m_initialSubsidenceMax = atof( theTokens[1].c_str() );
+               ++ countParam;
+            
             } else if( theTokens[0] == CrustalThicknessInterface::E0 ) {
-      
-               m_E0 = atof( theTokens[1].c_str() );
+            
+            m_E0 = atof( theTokens[1].c_str() );
                ++ countParam;
 
-            } else if( theTokens[0] == CrustalThicknessInterface::tau ) {
-               
-               m_tau = atof( theTokens[1].c_str() );
+         } else if( theTokens[0] == CrustalThicknessInterface::tau ) {
+            
+            m_tau = atof( theTokens[1].c_str() );
                ++ countParam;
-            }
+         }  
             else{
                LogHandler( LogHandler::WARNING_SEVERITY ) << "CTC configuration file BasicConstants table: unknown CTC parameter '" << theTokens[0] << "'.";
             }
          }
          else {
-            theTokens.clear();
-            throw InputException() << "CTC configuration file BasicConstants table: unexpected parameter definition (should be Name, Value).";
-         }
          theTokens.clear();
+            throw InputException() << "CTC configuration file BasicConstants table: unexpected parameter definition (should be Name, Value).";
       }
+      theTokens.clear();
+   }
    }
    if( countParam != 4 ) {
       throw InputException() << "CTC configuration file BasicConstants table: 4 parameters expected but only " << countParam << " found.";
@@ -271,7 +272,7 @@ void InterfaceInput::LoadLithoAndCrustProperties( ifstream &ConfigurationFile ) 
    string delim = ",";
    size_t firstNotSpace;
    int countParam = 0;
-
+   
    for(;;) {
       getline (ConfigurationFile, line, '\n');
         
@@ -282,55 +283,55 @@ void InterfaceInput::LoadLithoAndCrustProperties( ifstream &ConfigurationFile ) 
       
       if( line[firstNotSpace] != '#' ) {
       
-         CrustalThicknessInterface::parseLine( line, delim, theTokens );
-         
-         if( theTokens.size() == 2 ) {
-            if( theTokens[0] == CrustalThicknessInterface::modelTotalLithoThickness ) {
-               
-               m_modelTotalLithoThickness = atof( theTokens[1].c_str() );
-               ++ countParam;
-               
-            }  else if( theTokens[0] == CrustalThicknessInterface::backstrippingMantleDensity ) {
-               
-               m_backstrippingMantleDensity = atof( theTokens[1].c_str() );
-               ++ countParam;
-               
-            } else if( theTokens[0] == CrustalThicknessInterface::lithoMantleDensity ) {
+      CrustalThicknessInterface::parseLine( line, delim, theTokens );
+      
+      if( theTokens.size() == 2 ) {
+         if( theTokens[0] == CrustalThicknessInterface::modelTotalLithoThickness ) {
 
-               m_lithoMantleDensity = atof( theTokens[1].c_str() );
+            m_modelTotalLithoThickness = atof( theTokens[1].c_str() );
                ++ countParam;
-      
-            } else if( theTokens[0] == CrustalThicknessInterface::baseLithosphericTemperature ) {
-      
+
+         }  else if( theTokens[0] == CrustalThicknessInterface::backstrippingMantleDensity ) {
+
+            m_backstrippingMantleDensity = atof( theTokens[1].c_str() );
                ++ countParam;
-               m_baseLithosphericTemperature = atof( theTokens[1].c_str() );
-         
-            } else if( theTokens[0] == CrustalThicknessInterface::referenceCrustThickness ) {
-               
-               m_referenceCrustThickness = atof( theTokens[1].c_str() );
+
+         } else if( theTokens[0] == CrustalThicknessInterface::lithoMantleDensity ) {
+
+            m_lithoMantleDensity = atof( theTokens[1].c_str() );
                ++ countParam;
-               
-            }  else if( theTokens[0] == CrustalThicknessInterface::referenceCrustDensity ) {
-               
-               m_referenceCrustDensity = atof( theTokens[1].c_str() );
+
+         } else if( theTokens[0] == CrustalThicknessInterface::baseLithosphericTemperature ) {
+
                ++ countParam;
-               
-            }  else if( theTokens[0] == CrustalThicknessInterface::waterDensity ) {
-               
-               m_waterDensity = atof( theTokens[1].c_str() );
+            m_baseLithosphericTemperature = atof( theTokens[1].c_str() );
+
+         } else if( theTokens[0] == CrustalThicknessInterface::referenceCrustThickness ) {
+
+            m_referenceCrustThickness = atof( theTokens[1].c_str() );
                ++ countParam;
-            }
+
+         }  else if( theTokens[0] == CrustalThicknessInterface::referenceCrustDensity ) {
+
+            m_referenceCrustDensity = atof( theTokens[1].c_str() );
+               ++ countParam;
+
+         }  else if( theTokens[0] == CrustalThicknessInterface::waterDensity ) {
+
+            m_waterDensity = atof( theTokens[1].c_str() );
+               ++ countParam;
+         } 
             // lithosphereThicknessMin and maxNumberOfMantleElements will be defined in BasementLithology.C so they should not return a warning
             else if (theTokens[0] != CrustalThicknessInterface::lithosphereThicknessMin
                      and theTokens[0] != CrustalThicknessInterface::maxNumberOfMantleElements) {
                LogHandler( LogHandler::WARNING_SEVERITY ) << "CTC configuration file LithoAndCrustProperties table: unknown CTC parameter '" << theTokens[0] << "'.";
             }
-         } else {
-            theTokens.clear();
-            throw InputException() << "CTC configuration file LithoAndCrustProperties table: unexpected parameter definition (should be Name, Value).";
-         }
+      } else {
          theTokens.clear();
+            throw InputException() << "CTC configuration file LithoAndCrustProperties table: unexpected parameter definition (should be Name, Value).";
       }
+      theTokens.clear();
+   }
    }
    if( countParam != 7 ) {
       throw InputException() << "CTC configuration file LithoAndCrustProperties table: 7 parameters expected but only " << countParam << " found.";
@@ -348,45 +349,45 @@ void InterfaceInput::LoadTemperatureData( ifstream &ConfigurationFile ) {
    string delim = ",";
    size_t firstNotSpace;
    int countParam = 0;
-
+   
    for (;;) {
       getline( ConfigurationFile, line, '\n' );
-
+        
       if (line == CrustalThicknessInterface::EndOfTable || line.size() == 0) {
          break;
       }
-
+      
       firstNotSpace = line.find_first_not_of( " \t" );
 
       if (line[firstNotSpace] != '#') {
 
-         CrustalThicknessInterface::parseLine( line, delim, theTokens );
-
+      CrustalThicknessInterface::parseLine( line, delim, theTokens );
+      
          if (theTokens.size() == 2) {
 
             if (theTokens[0] == CrustalThicknessInterface::A) {
 
-               m_A = atof( theTokens[1].c_str() );
+            m_A = atof( theTokens[1].c_str() );
                ++countParam;
 
             }
             else if (theTokens[0] == CrustalThicknessInterface::B) {
 
-               m_B = atof( theTokens[1].c_str() );
+            m_B = atof( theTokens[1].c_str() );
                ++countParam;
 
-            }
+         } 
             else{
                LogHandler( LogHandler::WARNING_SEVERITY ) << "CTC configuration file TemperatureData table: unknown CTC parameter '" << theTokens[0] << "'.";
             }
          }
          else {
-            theTokens.clear();
-            throw InputException() << "CTC configuration file TemperatureData table: unexpected parameter definition (should be Name, Value).";
-         }
          theTokens.clear();
+            throw InputException() << "CTC configuration file TemperatureData table: unexpected parameter definition (should be Name, Value).";
       }
+      theTokens.clear();
    }
+}
    if (countParam != 2) {
       throw InputException() << "CTC configuration file TemperatureData table: 2 parameters expected but only " << countParam << " found.";
    }
@@ -402,41 +403,41 @@ void InterfaceInput::LoadSolidus( ifstream &ConfigurationFile ) {
    
    for (;;) {
       getline( ConfigurationFile, line, '\n' );
-   
+        
       if (line == CrustalThicknessInterface::EndOfTable || line.size() == 0) {
          break;
       }
       firstNotSpace = line.find_first_not_of( " \t" );
    
       if (line[firstNotSpace] != '#') {
-   
-         CrustalThicknessInterface::parseLine( line, delim, theTokens );
-   
+      
+      CrustalThicknessInterface::parseLine( line, delim, theTokens );
+      
          if (theTokens.size() == 2) {
-   
+
             if (theTokens[0] == CrustalThicknessInterface::C) {
-   
-               m_C = atof( theTokens[1].c_str() );
+
+            m_C = atof( theTokens[1].c_str() );
                ++countParam;
-   
+
             }
             else if (theTokens[0] == CrustalThicknessInterface::D) {
-   
-               m_D = atof( theTokens[1].c_str() );
+
+            m_D = atof( theTokens[1].c_str() );
                ++countParam;
-   
-            }
+
+         } 
             else{
                LogHandler( LogHandler::WARNING_SEVERITY ) << "CTC configuration file Solidus table: unknown CTC parameter '" << theTokens[0] << "'.";
             }
          }
          else {
-            theTokens.clear();
-            throw InputException() << "CTC configuration file Solidus table: unexpected parameter definition (should be Name, Value).";
-         }
          theTokens.clear();
+            throw InputException() << "CTC configuration file Solidus table: unexpected parameter definition (should be Name, Value).";
       }
+      theTokens.clear();
    }
+}
    if (countParam != 2) {
       throw InputException() << "CTC configuration file Solidus table: 2 parameters expected but only " << countParam << " found.";
    }
@@ -449,7 +450,7 @@ void InterfaceInput::LoadMagmaLayer( ifstream &ConfigurationFile ) {
    string delim = ",";
    size_t firstNotSpace;
    int countParam = 0;
-
+   
    for(;;) {
       getline (ConfigurationFile, line, '\n');
         
@@ -460,36 +461,36 @@ void InterfaceInput::LoadMagmaLayer( ifstream &ConfigurationFile ) {
       firstNotSpace = line.find_first_not_of(" \t"); 
       
       if( line[firstNotSpace] != '#' ) {
-         CrustalThicknessInterface::parseLine( line, delim, theTokens );
-         
-         if( theTokens.size() == 2 ) {
-            
-            if( theTokens[0] == CrustalThicknessInterface::E ) {
+      CrustalThicknessInterface::parseLine( line, delim, theTokens );
       
-               m_E = atof( theTokens[1].c_str() );
+      if( theTokens.size() == 2 ) {
+
+         if( theTokens[0] == CrustalThicknessInterface::E ) {
+
+            m_E = atof( theTokens[1].c_str() );
                ++ countParam;
-               
-            } else if( theTokens[0] == CrustalThicknessInterface::F ) {
-               
-               m_F = atof( theTokens[1].c_str() );
-               
-            } else if( theTokens[0] == CrustalThicknessInterface::decayConstant ) {
-               
-               m_decayConstant = atof( theTokens[1].c_str() );
+
+         } else if( theTokens[0] == CrustalThicknessInterface::F ) {
+
+            m_F = atof( theTokens[1].c_str() );
+
+         } else if( theTokens[0] == CrustalThicknessInterface::decayConstant ) {
+
+            m_decayConstant = atof( theTokens[1].c_str() );
                ++ countParam;
-               
-            }
+
+         } 
             else{
                LogHandler( LogHandler::WARNING_SEVERITY ) << "CTC configuration file MagmaLayer table: unknown CTC parameter '" << theTokens[0] << "'.";
             }
          }
          else {
-            theTokens.clear();
-            throw InputException() << "CTC configuration file MagmaLayer table: unexpected parameter definition (should be Name, Value).";
-         }
          theTokens.clear();
+            throw InputException() << "CTC configuration file MagmaLayer table: unexpected parameter definition (should be Name, Value).";
       }
+      theTokens.clear();
    }
+}
    if( countParam != 2 ) {
       throw InputException() << "CTC configuration file MagmaLayer table: 2 parameters expected but only " << countParam << " found.";
    }
@@ -502,7 +503,7 @@ void InterfaceInput::LoadUserDefinedData( ifstream &ConfigurationFile ) {
    string delim = ",";
    size_t firstNotSpace;
    int countParam = 0;
-
+   
    for(;;) {
       getline (ConfigurationFile, line, '\n');
         
@@ -512,52 +513,52 @@ void InterfaceInput::LoadUserDefinedData( ifstream &ConfigurationFile ) {
       firstNotSpace = line.find_first_not_of(" \t"); 
       
       if( line[firstNotSpace] != '#' ) {
-         
-         CrustalThicknessInterface::parseLine( line, delim, theTokens );
-         
-         if( theTokens.size() == 2 ) {
-            
-            if( theTokens[0] == CrustalThicknessInterface::t_0 ) {
-               
-               m_t_0 = atof( theTokens[1].c_str() );
-               ++ countParam;
-               
-            } else if( theTokens[0] == CrustalThicknessInterface::t_r ) {
-               
-               m_t_r = atof( theTokens[1].c_str() );
-               ++ countParam;
-               
-            } else if( theTokens[0] == CrustalThicknessInterface::initialCrustThickness ) {
-               
-               m_initialCrustThickness = atof( theTokens[1].c_str() );
-               ++ countParam;
-               
-            } else if( theTokens[0] == CrustalThicknessInterface::maxBasalticCrustThickness ) {
-               
-               m_maxBasalticCrustThickness = atof ( theTokens[1].c_str() );
-               ++ countParam;
-               
-            } else if( theTokens[0] == CrustalThicknessInterface::initialLithosphericThickness ) {
-               
-               m_initialLithosphericThickness = atof( theTokens[1].c_str() );
-               ++ countParam;
       
-            } else if( theTokens[0] == CrustalThicknessInterface::seaLevelAdjustment ) {
-               
-               m_seaLevelAdjustment = atof( theTokens[1].c_str() );
+      CrustalThicknessInterface::parseLine( line, delim, theTokens );
+      
+      if( theTokens.size() == 2 ) {
+
+         if( theTokens[0] == CrustalThicknessInterface::t_0 ) {
+
+            m_t_0 = atof( theTokens[1].c_str() );
+               ++ countParam;
+
+         } else if( theTokens[0] == CrustalThicknessInterface::t_r ) {
+
+            m_t_r = atof( theTokens[1].c_str() );
+               ++ countParam;
+
+         } else if( theTokens[0] == CrustalThicknessInterface::initialCrustThickness ) {
+
+            m_initialCrustThickness = atof( theTokens[1].c_str() );
+               ++ countParam;
+
+         } else if( theTokens[0] == CrustalThicknessInterface::maxBasalticCrustThickness ) {
+
+            m_maxBasalticCrustThickness = atof ( theTokens[1].c_str() );
+               ++ countParam;
+
+         } else if( theTokens[0] == CrustalThicknessInterface::initialLithosphericThickness ) {
+
+            m_initialLithosphericThickness = atof( theTokens[1].c_str() );
+               ++ countParam;
+
+         } else if( theTokens[0] == CrustalThicknessInterface::seaLevelAdjustment ) {
+
+            m_seaLevelAdjustment = atof( theTokens[1].c_str() );
                ++ countParam;
             }
             else{
                LogHandler( LogHandler::WARNING_SEVERITY ) << "CTC configuration file UserDefinedData table: unknown CTC parameter '" << theTokens[0] << "'.";
             }
-         }
+         } 
          else {
-            theTokens.clear();
-            throw InputException() << "CTC configuration file UserDefinedData table: unexpected parameter definition (should be Name, Value).";
-         }
          theTokens.clear();
+            throw InputException() << "CTC configuration file UserDefinedData table: unexpected parameter definition (should be Name, Value).";
       }
+      theTokens.clear();
    }
+}
    if( countParam != 6 ) {
       throw InputException() << "CTC configuration file UserDefinedData table: 6 parameters expected but only " << countParam << " found.";
    }

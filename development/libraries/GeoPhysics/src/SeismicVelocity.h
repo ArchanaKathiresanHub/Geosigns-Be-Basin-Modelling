@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2015-2015 Shell International Exploration & Production.
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -37,12 +37,12 @@ namespace GeoPhysics
 		* \param porositySurface The depositional porosity (also called surface porosity or critical porosity).
 		* \param nExponent The exponent used for the Kennan's velocity formula [-1,1]. In general, from pure shale (n=-1) to pure sand (n=1).
 		*/
-		SeismicVelocity create(const Model SeismicVelocityModel,
+		static SeismicVelocity create(const Model SeismicVelocityModel,
 			const double seimsicVelocitySolid,
 			const double modulusSolid,
 			const double densitySolid,
 			const double porositySurface,
-			const double nExponent) const;
+			const double nExponent);
 
 		/*!
 		* \brief Compute the seismicVelocity of the bulk (inlc. prosity and fluid) by calling its class member Algorithm.
@@ -53,12 +53,17 @@ namespace GeoPhysics
 		* \param currentVes The current vertical effective stress.
 		* \param maxVes The maximum vertical effective stress.
 		*/
-		double seismicVelocity(const double seismicVelocityFluid,
+		double calculate( const double seismicVelocityFluid,
 			const double densityFluid,
 			const double densityBulk,
 			const double porosity,
 			const double currentVes,
 			const double maxVes) const;
+
+      /// @brief Overwrite default assginment operator to avoid bitwise copy
+      SeismicVelocity& operator= (const SeismicVelocity& seismicVelocity);
+      /// @brief Overwrite default copy constructor to avoid bitwise copy
+      SeismicVelocity( const SeismicVelocity& seismicVelocity );
 
 		/*! \class Algorithm
 		* \brief Abstract class member of seismicVelocity. Compute the seismicVelocity (of the bulk, inlc. prosity and fluid).
@@ -78,7 +83,7 @@ namespace GeoPhysics
 			* \param currentVes The current vertical effective stress.
 			* \param maxVes The maximum vertical effective stress.
 			*/
-			virtual double seismicVelocity(const double seismicVelocityFluid,
+         virtual double calculate( const double seismicVelocityFluid,
 				const double densityFluid,
 				const double densityBulk,
 				const double porosity,
@@ -87,6 +92,7 @@ namespace GeoPhysics
 		};
 
 	private:
+
 		/// Private constructor setting the algorithm member.
 		SeismicVelocity(Algorithm * algorithm);
 
@@ -95,14 +101,14 @@ namespace GeoPhysics
 	};
 
 	inline double SeismicVelocity
-		::seismicVelocity(const double seismicVelocityFluid,
+      ::calculate( const double seismicVelocityFluid,
 		const double densityFluid,
 		const double densityBulk,
 		const double porosity,
 		const double currentVes,
 		const double maxVes) const
 	{
-			return m_algorithm->seismicVelocity(seismicVelocityFluid,
+      return m_algorithm->calculate( seismicVelocityFluid,
 				densityFluid,
 				densityBulk,
 				porosity,

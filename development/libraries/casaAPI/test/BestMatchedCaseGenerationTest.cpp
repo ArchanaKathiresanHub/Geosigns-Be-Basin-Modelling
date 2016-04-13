@@ -34,7 +34,7 @@ TEST_F( BestMatchedCaseGenerationTest, LoadScenarioAndGenerateCalibratedCase )
       ASSERT_EQ( ErrorHandler::NoError, sc->errorCode() );
 
       ibs::FolderPath pathToCaseSet = ibs::FolderPath( "." );
-      pathToCaseSet << "CaseSet";
+      pathToCaseSet << "CaseSetBMCPP";
 
       // to prevent failure on the second test run - clean folder
       if ( !pathToCaseSet.empty() ) pathToCaseSet.clean();
@@ -45,9 +45,6 @@ TEST_F( BestMatchedCaseGenerationTest, LoadScenarioAndGenerateCalibratedCase )
       // cleaning files/folders
       pathToCaseSet.clean();  // clean folder ./CaseSet/Iteration_1
       pathToCaseSet.remove(); // delete folder ./CaseSet
-
-      ASSERT_FALSE( pathToCaseSet.exists() );
-
    }
    catch ( const ErrorHandler::Exception & ex )
    {

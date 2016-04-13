@@ -92,6 +92,10 @@ VarPrmPorosityModel::VarPrmPorosityModel( const char * lithoName
          basPorModelPrms.push_back( baseCompCoeff );
          basPorModelPrms.push_back( baseCompCoeffB );
          break;
+
+      default:
+         assert( 0 );
+         break;
    }
 
    m_minValue.reset( new PrmPorosityModel( this, lithoName, mdlType, minPorModelPrms ) );
@@ -127,6 +131,10 @@ std::vector<std::string> VarPrmPorosityModel::name() const
             ret.push_back( m_lithoName + ". Compaction Coefficient A [10e-8 Pa-1]" );
             ret.push_back( m_lithoName + ". Compaction Coefficient B [10e-8 Pa-1]" );
             break;
+         
+         default:
+            assert( 0 );
+            break;
       }
    }
    else
@@ -145,6 +153,10 @@ std::vector<std::string> VarPrmPorosityModel::name() const
             ret.push_back( m_name + "_MP" );
             ret.push_back( m_name + "_CCA" );
             ret.push_back( m_name + "_CCB" );
+            break;
+
+         default:
+            assert( 0 );
             break;
       }
    }

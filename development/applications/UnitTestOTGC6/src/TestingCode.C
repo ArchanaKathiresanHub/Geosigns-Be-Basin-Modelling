@@ -16,6 +16,7 @@
 #include "SimulatorState.h"
 #include "Constants.h"
 #include "Utilities.h"
+#include "FilePath.h"
 
 using namespace Genex6;
 using namespace std;
@@ -29,7 +30,7 @@ bool BenchmarkTest::execute()
       simulation_type = Constants::SIMOTGC | Genex6::Constants::SIMTSR;
    }
 
-   std::auto_ptr<Genex6::Simulator> theSimulator (new Genex6::Simulator(m_theData.m_configurationFilePath, 
+   std::unique_ptr<Genex6::Simulator> theSimulator (new Genex6::Simulator(m_theData.m_configurationFilePath, 
                                                                         simulation_type,
                                                                         m_theData.m_sourceRockType, 
                                                                         m_theData.m_HC,
@@ -52,19 +53,16 @@ bool BenchmarkTest::execute()
       cout << "No input history available. Aborting...." << endl;
       return false;
    }
-   std::string benchmarkFullPathName;
-#ifdef WIN32
-   benchmarkFullPathName = m_theData.m_TestResultsFullPath + "\\" + m_theData.m_TestResultsName;
-#else
-   benchmarkFullPathName = m_theData.m_TestResultsFullPath + "/" + m_theData.m_TestResultsName;
-#endif
    
-   ofstream outputTestingSetFile(benchmarkFullPathName.c_str());
+   ibs::FilePath benchmarkFullPathName( m_theData.m_TestResultsFullPath );
+   benchmarkFullPathName << m_theData.m_TestResultsName;
+   
+   ofstream outputTestingSetFile(benchmarkFullPathName.cpath());
    if(!outputTestingSetFile.is_open()) {
-      cerr << "Can not open " << benchmarkFullPathName << ". Aborting...." << endl;
+      cerr << "Can not open " << benchmarkFullPathName.path() << ". Aborting...." << endl;
       return false;
    } else {
-      cout << "Benchmark results are saved in file " << benchmarkFullPathName << endl;
+      cout << "Benchmark results are saved in file " << benchmarkFullPathName.path() << endl;
    }
    clock_t timeStart = clock();
    
@@ -168,21 +166,23 @@ bool BenchmarkTest::execute()
 bool TransformSch::execute()
 {
    cout << "Executing file format transformation based on :" << m_testFileFullPathName << endl;
-   const std::string InputFullPathSchFileName = m_theData.m_InputFullPath + "/" + m_theData.m_InputSchName;
+   ibs::FilePath InputFullPathSchFileName( m_theData.m_InputFullPath );
+   InputFullPathSchFileName << m_theData.m_InputSchName;
    
-   cout << "About to use file: " << InputFullPathSchFileName << endl;
+   cout << "About to use file: " << InputFullPathSchFileName.path() << endl;
    
    int simulation_type = (m_simulateGX5 ? Genex6::Constants::SIMOTGC | Genex6::Constants::SIMGENEX5 : Genex6::Constants::SIMOTGC);
-   auto_ptr<Genex6::Simulator> theSimulator (new Genex6::Simulator(InputFullPathSchFileName,
+   unique_ptr<Genex6::Simulator> theSimulator( new Genex6::Simulator( InputFullPathSchFileName.path(),
                                                                    simulation_type, 
                                                                    m_theData.m_HC, m_theData.m_SC, m_theData.m_Emean, 
                                                                    m_theData.m_preprocessData,
                                                                    m_approximateFlag));
    
-   const std::string newCfgFile = m_theData.m_OuputFullPath + "/" + m_theData.m_OuputCfgName;
+   ibs::FilePath newCfgFile( m_theData.m_OuputFullPath );
+   newCfgFile << m_theData.m_OuputCfgName;
    
-   cout << "About to save in file: " << newCfgFile << endl;
-   theSimulator->PrintConfigurationFile(newCfgFile, m_theData.m_preprocessData);
+   cout << "About to save in file: " << newCfgFile.path() << endl;
+   theSimulator->PrintConfigurationFile(newCfgFile.path(), m_theData.m_preprocessData);
    
    return true;
 }

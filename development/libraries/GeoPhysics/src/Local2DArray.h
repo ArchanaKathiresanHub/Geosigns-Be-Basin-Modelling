@@ -1,6 +1,17 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #ifndef GEOPHYSICS__LOCAL_2D_ARRAY_H
 #define GEOPHYSICS__LOCAL_2D_ARRAY_H
 
+#include <assert.h>
 #include "Interface/Grid.h"
 
 #include "array.h"

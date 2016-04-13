@@ -23,25 +23,22 @@ ErrorHandler::ReturnCode casa::ObsSpaceImpl::addObservable( Observable * prm )
 }
 
 // Serialize object to the given stream
-bool casa::ObsSpaceImpl::save( CasaSerializer & sz, unsigned int fileVersion ) const
+bool casa::ObsSpaceImpl::save( CasaSerializer & sz, unsigned int /* fileVersion */ ) const
 {
    bool ok = true;
    
    // initial implementation of serialization, must exist in all future versions of serialization
-   if ( fileVersion >= 0 )
+   // register ObsSpace object with serializer to allow other objects to keep reference to it after deserializtion
+   CasaSerializer::ObjRefID obsID = sz.ptr2id( this );
+   ok = ok ? sz.save( obsID, "ID" ) : ok;
+
+   size_t setSize = m_obsSet.size();
+
+   ok = sz.save( setSize, "ObservablesSetSize" );
+
+   for ( size_t i = 0; i < setSize && ok; ++i )
    {
-      // register ObsSpace object with serializer to allow other objects to keep reference to it after deserializtion
-      CasaSerializer::ObjRefID obsID = sz.ptr2id( this );
-      ok = ok ? sz.save( obsID, "ID" ) : ok;
-
-      size_t setSize = m_obsSet.size();
-
-      ok = sz.save( setSize, "ObservablesSetSize" );
-
-      for ( size_t i = 0; i < setSize && ok; ++i )
-      {
-         ok = ok ? sz.save( *(m_obsSet[i]), "Observable" ) : ok;
-      }
+      ok = ok ? sz.save( *(m_obsSet[i]), "Observable" ) : ok;
    }
    return ok;
 }

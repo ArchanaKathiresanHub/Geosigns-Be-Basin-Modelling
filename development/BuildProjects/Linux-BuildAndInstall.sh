@@ -15,7 +15,7 @@ version_number_major=${VERSION_NUMBER_MAJOR:-`date +%Y`}
 version_number_minor=${VERSION_NUMBER_MINOR:-`date +%m`}
 version_tag=${VERSION_TAG:-`whoami`}
 
-cldgrp=`groups`
+cldgrp=`groups 2> /dev/null` || true
 if [[ "$cldgrp" =~ "g_psaz00" ]];then
     cldgrp="g_psaz00"
 else
@@ -77,6 +77,10 @@ else
     CTEST=`which ctest`
 fi
 
+# Load module for intel 2016.01 compiler
+[[ -r /glb/data/hpcrnd/easybuild/public/etc/profile.d/shell-envmodules.sh ]] && . /glb/data/hpcrnd/easybuild/public/etc/profile.d/shell-envmodules.sh
+module load intel/2016.01
+
 
 # Set the simplest locale so that there won't be any text conversion problems
 # for the logged output between Linux and Windows
@@ -85,7 +89,7 @@ export LANG=C
 # Build applications
 echo Building Cauldron applications
 pushd $build
-${src}/development/bootstrap.csh \
+${src}/development/bootstrap.sh \
       -DCMAKE_BUILD_TYPE=${configuration} \
       -DBM_VERSION_NUMBER_MAJOR=${version_number_major} \
       -DBM_VERSION_NUMBER_MINOR=${version_number_minor} \

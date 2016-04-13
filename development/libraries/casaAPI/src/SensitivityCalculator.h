@@ -30,12 +30,13 @@
 /// <b>Parameter sensitivity calculation</b> 
 /// For parameter sensitivity calculation casa::SensitivityCalculator uses derivative of 
 /// the parameter with respect to observables:
-/// @f[
-/// \begin{array}{ccc}
-/// -\frac{\partial O}{\partial P} & \approx & \frac{O(P_{middle})-O(P_{min})}{P_{midle}-P_{min}}\\
-/// +\frac{\partial O}{\partial P} & \approx & \frac{O(P_{max})-O(P_{midle})}{P_{max}-P_{middle}}
-/// \end{array}
-/// @f]
+/** @f[
+   \begin{array}{ccc}
+   -\frac{\partial O}{\partial P} & \approx & \frac{O(P_{middle})-O(P_{min})}{P_{midle}-P_{min}}\\
+   +\frac{\partial O}{\partial P} & \approx & \frac{O(P_{max})-O(P_{midle})}{P_{max}-P_{middle}}
+   \end{array}
+   @f]
+*/
 /// Here @f$ O @f$ – is an observable and @f$ P @f$  is a parameter. 
 /// For derivatives calculation we need an observable values for @f$ P_{min}, P_{middle}, P_{max} @f$
 /// parameters values when other parameters are fixed for their middle values of range.

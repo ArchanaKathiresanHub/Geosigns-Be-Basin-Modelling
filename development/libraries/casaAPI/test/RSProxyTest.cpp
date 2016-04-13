@@ -42,7 +42,11 @@ TEST_F( RSProxyTest, Prm2Obs1Proxy1Test )
    ObsSpaceImpl  & obs = dynamic_cast<ObsSpaceImpl&>( sc.obsSpace() );
 
    ASSERT_EQ( ErrorHandler::NoError, vrs.addParameter( new VarPrmSourceRockTOC( "Lower Jurassic", 10.0, 5.0, 15.0, VarPrmContinuous::Block ) ) );
-   ASSERT_EQ( ErrorHandler::NoError, vrs.addParameter( new VarPrmTopCrustHeatProduction( 2.5, 0.1, 4.9, VarPrmContinuous::Block ) ) );
+   
+   std::vector<double> dblRng( 1, 0.1 );
+   dblRng.push_back( 4.9 );
+   dblRng.push_back( 2.5 );
+   ASSERT_EQ( ErrorHandler::NoError, vrs.addParameter( new VarPrmTopCrustHeatProduction( dblRng, std::vector<std::string>(), VarPrmContinuous::Block ) ) );
 
    ASSERT_EQ( ErrorHandler::NoError, obs.addObservable( ObsGridPropertyXYZ::createNewInstance( 460001.0, 6750001.0, 2751.0, "Temperature", 0.01 ) ) );
    ASSERT_EQ( ErrorHandler::NoError, obs.addObservable( ObsGridPropertyXYZ::createNewInstance( 460001.0, 6750001.0, 2730.0, "Vr", 0.002 ) ) );
@@ -74,7 +78,7 @@ TEST_F( RSProxyTest, Prm2Obs1Proxy1Test )
    ASSERT_EQ( ErrorHandler::NoError, proxy->calculateRSProxy( proxyRC ) );
    const RSProxy::CoefficientsMapList & cml = proxy->getCoefficientsMapList();
    
-   ASSERT_EQ( cml.size(), 2 ); // must be 2 observables
+   ASSERT_EQ( cml.size(), 2U ); // must be 2 observables
 
    // Check proxy coefficients for
    // first observable obs(1) = 65.1536 + 15.3411 * prm_1 +0 * prm_2 
@@ -86,19 +90,19 @@ TEST_F( RSProxyTest, Prm2Obs1Proxy1Test )
       switch ( cpow  )
       {
          case 0:
-            ASSERT_EQ( prm.size(), 0 );
+            ASSERT_EQ( prm.size(), 0U );
             EXPECT_NEAR( 65.15362, coef, eps );
             break;
 
          case 1:
-            ASSERT_EQ( prm.size(), 1 );
-            ASSERT_EQ( prm[0], 0 );
+            ASSERT_EQ( prm.size(), 1U );
+            ASSERT_EQ( prm[0], 0U );
             EXPECT_NEAR( 15.34105, coef, eps );
             break;
 
          case 2:
-            ASSERT_EQ( prm.size(), 1 );
-            ASSERT_EQ( prm[0], 1 );
+            ASSERT_EQ( prm.size(), 1U );
+            ASSERT_EQ( prm[0], 1U );
             EXPECT_NEAR( 0.0, coef, eps );
             break;
       }
@@ -113,19 +117,19 @@ TEST_F( RSProxyTest, Prm2Obs1Proxy1Test )
       switch ( cpow  )
       {
          case 0:
-            ASSERT_EQ( prm.size(), 0 );
+            ASSERT_EQ( prm.size(), 0U );
             EXPECT_NEAR( 0.479763, coef, eps );
             break;
 
          case 1:
-            ASSERT_EQ( prm.size(), 1 );
-            ASSERT_EQ( prm[0], 0 );
+            ASSERT_EQ( prm.size(), 1U );
+            ASSERT_EQ( prm[0], 0U );
             EXPECT_NEAR( 0.0928937, coef, eps );
             break;
 
          case 2:
-            ASSERT_EQ( prm.size(), 1 );
-            ASSERT_EQ( prm[0], 1 );
+            ASSERT_EQ( prm.size(), 1U );
+            ASSERT_EQ( prm[0], 1U );
             EXPECT_NEAR( 0.0, coef, eps );
             break;
       }
@@ -133,7 +137,7 @@ TEST_F( RSProxyTest, Prm2Obs1Proxy1Test )
    }
    // check response surface evaluation
    // prepare one new case
-   std::auto_ptr<RunCaseImpl> nrc( new RunCaseImpl() );
+   std::unique_ptr<RunCaseImpl> nrc( new RunCaseImpl() );
 
    std::vector<double> prmVals(2);
 

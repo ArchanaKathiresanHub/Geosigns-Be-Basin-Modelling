@@ -25,6 +25,8 @@
 #include "PrmSurfacePorosity.h"
 #include "PrmPermeabilityModel.h"
 #include "PrmLithoSTPThermalCond.h"
+#include "PrmWindow.h"
+#include "PrmLithoFraction.h"
 
 casa::Parameter * casa::Parameter::load( CasaDeserializer & dz, const char * objName )
 {
@@ -51,6 +53,8 @@ casa::Parameter * casa::Parameter::load( CasaDeserializer & dz, const char * obj
    else if ( ot == "PrmSurfacePorosity"              ) { return new PrmSurfacePorosity(              dz, vr ); }
    else if ( ot == "PrmPermeabilityModel"            ) { return new PrmPermeabilityModel(            dz, vr ); }
    else if ( ot == "PrmLithoSTPThermalCond"          ) { return new PrmLithoSTPThermalCond(          dz, vr ); }
+   else if ( ot == "PrmWindow"                       ) { return new PrmWindow(                       dz, vr ); }
+   else if ( ot == "PrmLithoFraction"                ) { return new PrmLithoFraction(                dz, vr ); }
    else
    {
       throw ErrorHandler::Exception( ErrorHandler::DeserializationError )

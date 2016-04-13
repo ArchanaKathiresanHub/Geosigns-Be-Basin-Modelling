@@ -188,7 +188,7 @@ namespace migration {
 
    bool RequestHandling::AllProcessorsFinished (bool finished)
    {
-      return (bool) AndAll ((int) finished);
+      return  (AndAll ((int) finished) != 0);
    }
 
    void RequestHandling::handleRequests (RequestMode mode)

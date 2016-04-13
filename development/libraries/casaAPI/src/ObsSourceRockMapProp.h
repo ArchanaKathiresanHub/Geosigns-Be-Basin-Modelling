@@ -113,6 +113,11 @@ namespace casa
       /// @return new observable value
       virtual ObsValue * createNewObsValueFromDouble( std::vector<double>::const_iterator & val ) const;
 
+      /// @brief Do observable validation for the given model
+      /// @param caldModel reference to Cauldron model
+      /// @return empty string if there is no any problems with this observable, or error message if well is outside of the project 
+      virtual std::string checkObservableForProject( mbapi::Model & caldModel );
+
       /// @{
       /// @brief Defines version of serialized object representation. Must be updated on each change in save()
       /// @return Actual version of serialized object representation
@@ -147,7 +152,7 @@ namespace casa
 
       int                      m_posDataMiningTbl; ///< row number in DataMiningIoTbl which corresponds this observable
 
-      std::auto_ptr<ObsValue>  m_refValue;         ///< reference value
+      std::unique_ptr<ObsValue>  m_refValue;         ///< reference value
       double                   m_devValue;         ///< standard deviation for reference value
 
       double                   m_saWeight;         ///< Observable weight for sensitivity analysis

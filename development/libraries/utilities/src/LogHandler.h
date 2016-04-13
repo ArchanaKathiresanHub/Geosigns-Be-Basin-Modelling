@@ -63,7 +63,7 @@ public:
    /// @param logName The main name of the log file (i.e. fastcauldron)
    /// @param verbosity The level of verbosity used as a filter for the log file
    /// @param mpiRank The MPI rank which will be added as a sufix of the log file name (i.e. "24"). Set to 0 by default.
-   LogHandler( const std::string & logName, const VerbosityLevel verbosity, const int& mpiRank = 0 );
+   LogHandler( const std::string & logName, const VerbosityLevel verbosity, int mpiRank = 0 );
 
    /// @brief Constructor which must be used to write into the boost log file
    /// @param severity The severity level of the message
@@ -72,7 +72,7 @@ public:
    /// @brief Destructor which writes the stream (m_oss) in the boost log according to the current severity level
    ~LogHandler();
 
-   /// @brief Stream operator to write into the log file
+   /// @brief Stream operator to write simple types into the log file
    /// @details Should be used like this:
    ///    -# LogHandler(DEBUG) << "This is my debug message with value" << 4 << " or " << m_value;
    ///    -# LogHandler(INFO)  << "This is my info message with value"  << 4 << " or " << m_value;
@@ -82,21 +82,37 @@ public:
       return *this;
    };
 
+   /// @brief Stream operator to write string vectors into the log file
+   /// @details Should be used like this:
+   ///    -# LogHandler(DEBUG) << "This is my debug message with values" << m_stringVector;
+   ///    -# LogHandler(INFO)  << "This is my info message with values"  << m_stringVector;
+   ///    -# etc.
+   LogHandler & operator << (std::vector<std::string> vectVal){
+      m_oss << "[";
+      for (int i = 0; i < vectVal.size(); i++){
+         m_oss << vectVal[i];
+         if (i < vectVal.size() - 1){
+            m_oss << ";";
+         }
+      }
+      m_oss << "]";
+      return *this;
+   };
+
    /// @brief Get the name of the log file
    /// @details Used for unit tests only
    /// @return s_logName The name of the log file such as "fastcauldron_0.log"
    const std::string getName() const { return s_logName; };
 
 private:
-   /// @ brief Overwrite default assginment operator
+   /// @brief Overwrite default assginment operator
    LogHandler& operator= (const LogHandler&);
-   /// @ brief Overwrite default copy constructor
+   /// @brief Overwrite default copy constructor
    LogHandler( const LogHandler& );
 
    static std::string s_logName;         ///< Full name of the log file (from constructor logName_mpiRank.log)
    static bool        s_logIsCreated;    ///< Singleton token
    SeverityLevel      m_severity;        ///< The current severity level
    std::ostringstream m_oss;             ///< The stream containing the message to be writen in the log file during destruction of the object
-
 };
 #endif

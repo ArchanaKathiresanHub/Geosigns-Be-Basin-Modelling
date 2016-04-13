@@ -1,3 +1,12 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
 #include <iostream>
 #include <vector>
 #include <string>
@@ -139,38 +148,9 @@ TEST ( AbstractPropertyManagerTest,  Test1 )
    SurfacePropertyPtr surfaceProperty1 = propertyManager.getSurfaceProperty ( property1, snapshot, surface );
    SurfacePropertyPtr surfaceProperty3 = propertyManager.getSurfaceProperty ( property3, snapshot, surface );
 
-   // These following 2 surface properties should throw exceptions
-   // Test if the exception is thrown
-   EXPECT_THROW( propertyManager.getSurfaceProperty( property3, snapshot, bottomSurface ), MultiplePropertyException );
-   EXPECT_THROW( propertyManager.getSurfaceProperty( property3, anotherSnapshot, bottomSurface ), MultiplePropertyException );
-
-   // Test if the good exception is thrown
-   try{
-      propertyManager.getSurfaceProperty( property3, snapshot, bottomSurface );
-      FAIL() << "Expected 'Could not calculate derived property <property> @ snapshot <snapshot>' exception";
-   }
-   catch (const MultiplePropertyException& ex) {
-      ostringstream errorMessage;
-      // We expect LithoStaticPressure to fail first since the property3 calculator depends on the LithoStaticPressure
-      errorMessage << "Could not calculate derived property LithoStaticPressure @ snapshot " << snapshot->getTime() << ".";
-      EXPECT_EQ( errorMessage.str(), std::string( ex.what() ) );
-   }
-   catch (...) {
-      FAIL() << "Expected 'Could not calculate derived property <property> @ snapshot <snapshot>' exception";
-   }
-   try{
-      propertyManager.getSurfaceProperty( property3, anotherSnapshot, bottomSurface );
-      FAIL() << "Expected 'Could not calculate derived property <property> @ snapshot <snapshot>' exception";
-   }
-   catch (const MultiplePropertyException& ex) {
-      ostringstream errorMessage;
-      // We expect LithoStaticPressure to fail first since the property3 calculator depends on the LithoStaticPressure
-      errorMessage << "Could not calculate derived property LithoStaticPressure @ snapshot " << anotherSnapshot->getTime() << ".";
-      EXPECT_EQ( errorMessage.str(), std::string( ex.what() ) );
-   }
-   catch (...) {
-      FAIL() << "Expected 'Could not calculate derived property <property> @ snapshot <snapshot>' exception";
-   }
+   // These following 2 surface properties should be null after the get surface property call.
+   SurfacePropertyPtr surfaceProperty5 = propertyManager.getSurfaceProperty( property3, snapshot, bottomSurface );
+   SurfacePropertyPtr surfaceProperty6 = propertyManager.getSurfaceProperty( property3, anotherSnapshot, bottomSurface );
 
 
    EXPECT_EQ ( property4, surfaceProperty4->getProperty ());
@@ -184,6 +164,9 @@ TEST ( AbstractPropertyManagerTest,  Test1 )
       }
 
    }
+
+   EXPECT_EQ( true, surfaceProperty5 == 0 );
+   EXPECT_EQ( true, surfaceProperty6 == 0 );
 
    delete snapshot;
    delete surface;

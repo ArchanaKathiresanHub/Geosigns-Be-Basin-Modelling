@@ -1,6 +1,6 @@
 #########################################################################
 #                                                                       #
-# Copyright (C) 2012-2013 Shell International Exploration & Production. #
+# Copyright (C) 2012-2016 Shell International Exploration & Production. #
 # All rights reserved.                                                  #
 #                                                                       #
 # Developed under license for Shell by PDS BV.                          #
@@ -18,7 +18,8 @@ include(cmake/AddPackage.cmake)
 
 message(STATUS "BLAS vendor is set to ${BLA_VENDOR}" )
 
-set( INTEL_MKL_ROOT "INTEL_MKL_ROOT-NOTFOUND" CACHE PATH "Path to Intel MKL" )
+set(INTEL_MKL_ROOT "INTEL_MKL_ROOT-NOTFOUND" CACHE PATH "Path to Intel MKL" )
+set(INTEL_MKL_VERSION "11.0.2.02 20150120" CACHE STRING "Intel MKL version")
 
 if (UNIX)
    if ( BLA_VENDOR STREQUAL "MKL" )
@@ -84,7 +85,7 @@ add_external_package_info(
        CAPABILITY   BLAS
        NAME         "MKL"
        VENDOR       "Intel"
-       VERSION      "11.0.4.192"
+       VERSION      "${INTEL_MKL_VERSION}"
        LICENSE_TYPE "Commercial"
        LICENSE_FILE "${INTEL_CXX_ROOT}/Documentation/en_US/clicense"
        URL          "http://software.intel.com/en-us/intel-mkl"

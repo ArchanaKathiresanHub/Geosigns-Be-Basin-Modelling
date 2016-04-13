@@ -23,6 +23,9 @@
 #include "ObsValueDoubleScalar.h"
 #include "ObsValueDoubleArray.h"
 
+// LogHandler
+#include "LogHandler.h"
+
 // STD C
 #include <cstdlib>
 
@@ -31,6 +34,8 @@
 #include <sstream>
 #include <map>
 
+// File path
+#include "FilePath.h"
 
 // Class which define interface for observable object factory
 class ObsType
@@ -40,7 +45,7 @@ public:
    virtual ~ObsType() {;}
 
    /// @brief create observable in scenario
-   virtual casa::Observable * createOservableObject( const std::string & name, const std::vector<std::string> & prms ) const = 0;
+   virtual casa::Observable * createOservableObject( const std::string & name, std::vector<std::string> & prms ) const = 0;
    
    /// @brief Get expected parameters number for the observable type
    virtual size_t expectedParametersNumber() const = 0;
@@ -74,7 +79,7 @@ public:
    XYZPoint()  {;}
    virtual ~XYZPoint() {;}
 
-   virtual casa::Observable * createOservableObject( const std::string & name, const std::vector<std::string> & prms ) const
+   virtual casa::Observable * createOservableObject( const std::string & name, std::vector<std::string> & prms ) const
    {
       size_t pos = 2;
       double x   = atof( prms[pos++].c_str() );
@@ -145,7 +150,7 @@ public:
    WellTraj()  {;}
    virtual ~WellTraj() {;}
 
-   virtual casa::Observable * createOservableObject( const std::string & name, const std::vector<std::string> & prms ) const
+   virtual casa::Observable * createOservableObject( const std::string & name, std::vector<std::string> & prms ) const
    {
       const std::string & trajFileName =       prms[1];           // well trajectory file with reference values
       const std::string & propName     =       prms[2];           // property name
@@ -154,6 +159,13 @@ public:
       double              wgtSA        = atof( prms[5].c_str() ); // observable weight for Sensitivity Analysis
       double              wgtUA        = atof( prms[6].c_str() ); // observable weight for Uncertainty Analysis
 
+      //well trajectories files must be indicated with a full path
+      ibs::FilePath trj( trajFileName );
+      if ( prms[1]!= trj.fullPath( ).path( )  )
+      {
+         prms[1] = trj.fullPath( ).path( );
+      }
+      
       // read trajectory file
       std::vector<double> x, y, z, r;
       CfgFileParser::readTrajectoryFile( trajFileName, x, y, z, r );
@@ -208,7 +220,7 @@ public:
    XYPointSorceRockMap() {;}
    virtual ~XYPointSorceRockMap() {;}
 
-   virtual casa::Observable * createOservableObject( const std::string & name, const std::vector<std::string> & prms ) const
+   virtual casa::Observable * createOservableObject( const std::string & name, std::vector<std::string> & prms ) const
    {
       size_t pos = 1;
       const  std::string & srPropName  =       prms[pos++];           // property of source rock calculated in Genex
@@ -276,7 +288,7 @@ public:
    TrapProp() {;}
    virtual ~TrapProp() {;}
 
-   virtual casa::Observable * createOservableObject( const std::string & name, const std::vector<std::string> & prms ) const
+   virtual casa::Observable * createOservableObject( const std::string & name, std::vector<std::string> & prms ) const
    {
       size_t pos                   = 1;
       const std::string & propName =       prms[pos++];           // trap property
@@ -452,9 +464,9 @@ CmdAddObs::CmdAddObs( CasaCommander & parent, const std::vector< std::string > &
    }
 }
 
-void CmdAddObs::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
+void CmdAddObs::execute( std::unique_ptr<casa::ScenarioAnalysis> & sa )
 {
-   BOOST_LOG_TRIVIAL( info ) << "Add observable: " <<
+   LogHandler( LogHandler::INFO_SEVERITY ) << "Add observable: " <<
       (m_obsName.empty() ? (m_prms[0] + "(" + CfgFileParser::implode( m_prms, ",", 1 ) + ")") : m_obsName);
 
 

@@ -1,3 +1,13 @@
+//
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include <stdafx.h>
 
 #include <sys/types.h>
@@ -21,6 +31,7 @@
 
 #include "Interface/ProjectHandle.h"
 #include "Interface/Grid.h"
+#include "Interface/DistributedGrid.h"
 #include "Interface/DistributedGridMap.h"
 #include "Interface/ObjectFactory.h"
 #include "Interface/DistributedMessageHandler.h"
@@ -30,6 +41,7 @@
 #include "petscvector_readwrite.h"
 
 #include "FolderPath.h"
+#include "FilePath.h"
 
 using namespace DataAccess;
 using namespace Interface;
@@ -123,7 +135,7 @@ void ProjectHandle::allocateArchitectureRelatedParameters () {
 }
 
 GridMap * ProjectHandle::loadGridMap (const Parent * parent, unsigned int childIndex,
-      const string & filePathName, const string & dataSetName)
+                                      const string & filePathName, const string & dataSetName)
 {
 #if 0
    cerr << ddd::GetRankString () << ": loadGridMap (" << dataSetName << ") started" << endl;
@@ -138,12 +150,10 @@ GridMap * ProjectHandle::loadGridMap (const Parent * parent, unsigned int childI
    int numJ;
 
    struct MapFileCache * mapFileCachePtr = 0;
-   bool fastcauldronOutput = false;
 
    if (filePathName.find ("HighResDecompaction_Results") != string::npos)
    {
       mapFileCachePtr = &  static_cast<struct MapFileCache * > (m_mapFileCache) [hrdecompaction];
-      fastcauldronOutput = true;
       
    }
    else if (filePathName.find ("Genex5_Results") != string::npos ||
@@ -154,7 +164,6 @@ GridMap * ProjectHandle::loadGridMap (const Parent * parent, unsigned int childI
    else if (filePathName.find ("_Results.HDF") != string::npos) // then it must be fastcauldron...
    {
       mapFileCachePtr = & static_cast<struct MapFileCache * > (m_mapFileCache) [fastcauldron];
-      fastcauldronOutput = true;
    }
    else
    {
@@ -283,22 +292,23 @@ GridMap * ProjectHandle::loadGridMap (const Parent * parent, unsigned int childI
       gridMap = dynamic_cast<DistributedGridMap * > (getFactory ()->produceGridMap (0, 0, grid, undefinedValue, depth));
    }
    //read
-   if( m_primary or m_primaryDouble ) {
-      // fastcauldron output is in double precision
-      if (( not fastcauldronOutput ) and depth > 1 ) {
-       fastcauldronOutput = true;
-      }
-   } else {
-      fastcauldronOutput = false;
-   }
-
-   if (filePathName.find ( PrimaryPropertiesFileName ) != string::npos or fastcauldronOutput ) {       
+   // determine the dataset storage type
+   hid_t dataId = gridMapFile.openDataset ( dataSetName.c_str (), fileId );
+   if ( dataId <  0 ) return 0;
+   hid_t dtype       = H5Dget_type( dataId );
+   ssize_t dataSize  = H5Tget_size(dtype);
+   bool isDoubleType = ( dataSize == H5_SIZEOF_DOUBLE );
+   
+   H5Dclose (dataId);
+   H5Tclose( dtype );
+ 
+   if( isDoubleType ) {
       PetscVector_ReadWrite < double >reader;
       reader.read (&gridMapFile, fileId, dataSetName.c_str (), gridMap->getDA (), gridMap->getVec (), petscD);
-    } else {
+   } else {
       PetscVector_ReadWrite < float >reader;
       reader.read (&gridMapFile, fileId, dataSetName.c_str (), gridMap->getDA (), gridMap->getVec (), petscD);
-    }  
+   }
 
    if( not equalGrids ) {
       DistributedGridMap *gridMapInActivityOutputGrid = 0;
@@ -332,7 +342,8 @@ bool ProjectHandle::makeOutputDir() const
    {  // in case we need a temporary location
 
       // Create the directory in the temporary location
-      FolderPath tmpdir( H5_Parallel_PropertyList::getTempDirName() + "/" + getFullOutputDir() );
+      FolderPath tmpdir( H5_Parallel_PropertyList::getTempDirName() );
+      tmpdir << getFullOutputDir();
       try
       {
          tmpdir.create();
@@ -340,6 +351,23 @@ bool ProjectHandle::makeOutputDir() const
       catch( PathException & e)
       {
          PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR TMPDIR '%s' couldn't be created, because: %s\n", tmpdir.path().c_str(),  e.what() );
+         return false;
+      }
+   }
+ 
+   if( H5_Parallel_PropertyList::isPrimaryPodEnabled() ) {
+     // in this case getFullOutputDir() points to the temporary dir (shared scratch) and we need to create the dir in the final location
+  
+      // Create the directory in the final location
+      FolderPath dirpath ( getProjectPath() );
+      dirpath << getOutputDir();
+      try
+      {
+         dirpath.create();
+      }
+      catch( PathException & e)
+      {
+         PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Directory at the final location '%s' couldn't be created, because: %s\n", dirpath.path().c_str(),  e.what() );
          return false;
       }
    }
@@ -357,6 +385,24 @@ bool ProjectHandle::makeOutputDir() const
    
    return true;
 }
+//------------------------------------------------------------//
+const std::string ProjectHandle::getFullOutputDir() const
+{
+
+   using namespace ibs;
+ 
+   if( H5_Parallel_PropertyList::isPrimaryPodEnabled()) {
+
+      FilePath ppath( H5_Parallel_PropertyList::getTempDirName() );// +  "/" + getProjectPath() + "/" + getOutputDir()  );
+      ppath <<  getProjectPath() << getOutputDir();
+      return  ppath.path();
+   } else {
+      FilePath ppath( getProjectPath() );
+      ppath << getOutputDir();
+      return ppath.path();
+   }
+}
+
 
 //------------------------------------------------------------//
 

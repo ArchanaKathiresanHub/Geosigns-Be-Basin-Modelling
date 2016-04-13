@@ -118,9 +118,9 @@ VarPrmPermeabilityModel::VarPrmPermeabilityModel( const char                    
       throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "It is not possible to variate permeability model parameters for impermeable lithology";
    }
 
-   std::auto_ptr<PrmPermeabilityModel> minPrm;
-   std::auto_ptr<PrmPermeabilityModel> maxPrm;
-   std::auto_ptr<PrmPermeabilityModel> basPrm;
+   std::unique_ptr<PrmPermeabilityModel> minPrm;
+   std::unique_ptr<PrmPermeabilityModel> maxPrm;
+   std::unique_ptr<PrmPermeabilityModel> basPrm;
 
    // for Multipoint create profiles with the same porosity points set
    if ( PrmPermeabilityModel::Multipoint == mdlType )
@@ -209,6 +209,8 @@ std::vector<std::string> VarPrmPermeabilityModel::name() const
             ret[PrmPermeabilityModel::AnisotropicCoeff] = m_lithoName + ". Anisotropic coeff. [kv/kh]";
             ret.push_back( m_lithoName + ". Profile variation parameter []" );
             break;
+
+         default: throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Unknown permeability model ID: " << m_mdlType;
       }
    }
    else
@@ -239,6 +241,8 @@ std::vector<std::string> VarPrmPermeabilityModel::name() const
             ret[PrmPermeabilityModel::AnisotropicCoeff] = m_name + "_ansCoef";
             ret.push_back( m_name + "_intCoef" );
             break;
+      
+         default: throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Unknown permeability model ID: " << m_mdlType;
       }
       if ( ret.size() > 0 ) ret[0] = m_name;
       else ret.push_back( m_name );

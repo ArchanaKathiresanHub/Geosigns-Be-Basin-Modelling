@@ -1,3 +1,13 @@
+//
+// Copyright (C) 2016 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #ifndef DERIVED_PROPERTIES__VES_HIGHRES_FORMATION_CALCULATOR_H
 #define DERIVED_PROPERTIES__VES_HIGHRES_FORMATION_CALCULATOR_H
 
@@ -8,6 +18,12 @@
 #include "AbstractFormation.h"
 #include "FormationProperty.h"
 #include "DerivedFormationProperty.h"
+
+namespace GeoPhysics
+{
+   class Formation;
+   class FluidType;
+}
 
 namespace DerivedProperties
 {
@@ -37,17 +53,17 @@ namespace DerivedProperties
 
    private :
 
-      /// \brief Compute (indirectly, because we actually already have it) high resolution VES for coupled runs or non subsampled runs.
+      /// \brief Compute (indirectly, because we actually already have it or interpolate it) high res VES for coupled or non subsampled runs.
       void computeIndirectly(       AbstractPropertyManager &      propertyManager,
                               const DataModel::AbstractSnapshot *  snapshot,
                               const DataModel::AbstractFormation * formation,
                                     FormationPropertyList &        derivedProperties ) const;
 
-      /// \brief Compute high resolution VES for subsampled runs (except for coupled runs).
-      void computeForSubsampledRun(       AbstractPropertyManager &      propertyManager,
-                                    const DataModel::AbstractSnapshot *  snapshot,
-                                    const DataModel::AbstractFormation * formation,
-                                          FormationPropertyList &        derivedProperties ) const;
+      /// \brief Compute high resolution VES for subsampled hydrostatic runs using a constant fluid density
+      void computeForSubsampledHydroRun(       AbstractPropertyManager &      propertyManager,
+                                         const DataModel::AbstractSnapshot *  snapshot,
+                                         const DataModel::AbstractFormation * formation,
+                                               FormationPropertyList &        derivedProperties ) const;
       
       /// \brief Initialize the formation top surface depending on the formation above (if any)
       void initializeTopSurface(       AbstractPropertyManager &      propertyManager,

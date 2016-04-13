@@ -14,12 +14,15 @@
 #include "casaAPI.h"
 #include "RunCase.h"
 
+#include "LogHandler.h"
+
+#include "CauldronEnvConfig.h"
+
 #include <cstdlib>
 #include <iostream>
 
 static void PrintObsValues( casa::ScenarioAnalysis & sc )
 {
-   casa::ObsSpace   & obSpace = sc.obsSpace();
    casa::RunCaseSet & rcSet = sc.doeCaseSet();
 
    for ( size_t rc = 0; rc < rcSet.size(); ++rc )
@@ -29,8 +32,8 @@ static void PrintObsValues( casa::ScenarioAnalysis & sc )
 
       if ( !cs ) continue;
 
-      BOOST_LOG_TRIVIAL( debug ) << "    " << cs->projectPath();
-      BOOST_LOG_TRIVIAL( debug ) << "      Observable values:";
+      LogHandler( LogHandler::DEBUG_SEVERITY ) << "    " << cs->projectPath();
+      LogHandler( LogHandler::DEBUG_SEVERITY ) << "      Observable values:";
 
       for ( size_t i = 0; i < cs->observablesNumber(); ++i )
       {
@@ -42,7 +45,7 @@ static void PrintObsValues( casa::ScenarioAnalysis & sc )
 
             for ( size_t i = 0; i < vals.size(); ++i )
             {
-               BOOST_LOG_TRIVIAL( debug ) << "      " << names[i] << " = " << vals[i];
+               LogHandler( LogHandler::DEBUG_SEVERITY ) << "      " << names[i] << " = " << vals[i];
             }
          }
       }
@@ -70,9 +73,9 @@ CmdRun::CmdRun( CasaCommander & parent, const std::vector< std::string > & cmdPr
    }
 }
 
-void CmdRun::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
+void CmdRun::execute( std::unique_ptr<casa::ScenarioAnalysis> & sa )
 {
-   BOOST_LOG_TRIVIAL( info ) << "Adding jobs to the queue and generating scripts...";
+   LogHandler( LogHandler::INFO_SEVERITY ) << "Adding jobs to the queue and generating scripts...";
 
    casa::RunManager & rm = sa->runManager();
 
@@ -84,10 +87,11 @@ void CmdRun::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
    if ( m_maxPendingJobs > 0 ) rm.setMaxNumberOfPendingJobs( m_maxPendingJobs );
    if ( !m_resStr.empty()    ) rm.setResourceRequirements( m_resStr );
 
+  
    // submit jobs
    for ( size_t i = 0; i < sa->doeCaseSet().size(); ++i )
    {
-      BOOST_LOG_TRIVIAL( debug ) << "  Generating run scripts in: " << (sa->doeCaseSet()[i])->projectPath();
+      LogHandler( LogHandler::DEBUG_SEVERITY ) << "  Generating run scripts in: " << (sa->doeCaseSet()[i])->projectPath();
 
       if ( ErrorHandler::NoError != rm.scheduleCase( *(sa->doeCaseSet()[i]), sa->scenarioID() ) )
       {
@@ -95,7 +99,7 @@ void CmdRun::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
       }
    }
 
-   BOOST_LOG_TRIVIAL( info ) << "Submitting jobs to the cluster " << m_prms[0] << " using Cauldron: " << m_prms[1];
+   LogHandler( LogHandler::INFO_SEVERITY ) << "Submitting jobs to the cluster " << m_prms[0] << " using Cauldron: " << m_prms[1];
 
    // spawn jobs for calculation
    if ( ErrorHandler::NoError != rm.runScheduledCases( false ) )
@@ -109,7 +113,7 @@ void CmdRun::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
       throw ErrorHandler::Exception( rm.errorCode() ) << rm.errorMessage();
    }
    
-   BOOST_LOG_TRIVIAL( info ) << "Scenarion execution succeeded";
+   LogHandler( LogHandler::INFO_SEVERITY ) << "Scenarion execution succeeded";
 
    PrintObsValues( *sa.get() );
 }
@@ -130,16 +134,39 @@ void CmdRun::printHelpPage( const char * cmdName )
    std::cout << "    <max number of pending jobs> - (Optional) if this parameter is specified, casa will not submit jobs till the number of\n";
    std::cout << "                                   pending jobs on cluster is bigger the the given value\n";
    std::cout << "    <hostSpec>         - LSF resorces selection string. It is in the same format as bsub parameter -R\n";
+
+   std::cout << "    User could customize LSF options throug envinronment variables: \n";
+
+   const char * envVar = getenv( "LSF_CAULDRON_PROJECT_NAME" ); 
+   std::cout << "    LSF_CAULDRON_PROJECT_NAME - project name (bsub -P ...)\n";
+   std::cout << "        the default value: " << LSF_CAULDRON_PROJECT_NAME << "\n";
+   std::cout << "        the current value: " << ( envVar ? envVar : LSF_CAULDRON_PROJECT_NAME ) << "\n";
+      
+   envVar = getenv( "LSF_CAULDRON_PROJECT_QUEUE" ); 
+   std::cout << "    LSF_CAULDRON_PROJECT_QUEUE - project queue (bsub -q .. )\n";
+   std::cout << "        the default value: NotDefined" << "\n";
+   std::cout << "        the current value: " << ( envVar ? envVar : "NotDefined" ) << "\n";
+
+   envVar = getenv( "LSF_CAULDRON_PROJECT_GROUP" ); 
+   std::cout << "    LSF_CAULDRON_PROJECT_GROUP - project group (bsub -G ...)\n";
+   std::cout << "        the default value: NotDefined" << "\n";
+   std::cout << "        the current value: " << ( envVar ? envVar : "NotDefined" ) << "\n";
+
+   envVar = getenv( "LSF_CAULDRON_PROJECT_SERVICE_CLASS_NAME" );
+   std::cout << "    LSF_CAULDRON_PROJECT_SERVICE_CLASS_NAME - project class service name (bsla)\n";
+   std::cout << "        the default value: NotDefined" << "\n";
+   std::cout << "        the current value: " << ( envVar ? envVar : "NotDefined" ) << "\n";
+
    std::cout << "\n";
    std::cout << "    Examples:\n";
    std::cout << "    #     Cluster  Cauldron version.\n";
-   std::cout << "    " << cmdName << " \"LOCAL\"        \"v2014.07nightly\"\n";
+   std::cout << "    " << cmdName << " \"LOCAL\"        \"v2015.1104\"\n";
    std::cout << "\n";
    std::cout << "    #     Cluster  Cauldron ver.   Max pend. jobs\n";
-   std::cout << "    " << cmdName << " \"AMSGDC\"        \"v2014.07nightly\"  5\n";
+   std::cout << "    " << cmdName << " \"AMSGDC\"        \"v2015.1104\"  5\n";
    std::cout << "\n";
    std::cout << "    #     Cluster  Cauldron ver.   Max pend. jobs\n";
-   std::cout << "    " << cmdName << " \"AMSGDC\"        \"v2014.07nightly\"  5  \"select[ostype==RHEL6.6]\"\n";
+   std::cout << "    " << cmdName << " \"AMSGDC\"        \"v2016.05nightly\"  5  \"select[ostype==RHEL6.6]\"\n";
    std::cout << "\n";
 }
 

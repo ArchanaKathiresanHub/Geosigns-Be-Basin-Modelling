@@ -1,3 +1,13 @@
+//
+// Copyright (C) 2016 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #ifndef DERIVED_PROPERTIES__MAX_VES_HIGHRES_FORMATION_CALCULATOR_H
 #define DERIVED_PROPERTIES__MAX_VES_HIGHRES_FORMATION_CALCULATOR_H
 
@@ -37,21 +47,19 @@ namespace DerivedProperties
 
    private :
 
-      /// \brief Compute (indirectly, because we actually already have it) high resolution max VES for coupled runs or non subsampled runs.
+      /// \brief Compute (indirectly, because we actually already have it) high resolution max VES for non subsampled runs.
       void computeIndirectly(       AbstractPropertyManager &      propertyManager,
                               const DataModel::AbstractSnapshot *  snapshot,
                               const DataModel::AbstractFormation * formation,
                                     FormationPropertyList &        derivedProperties ) const;
 
-      /// \brief Compute high resolution max VES for subsampled runs (except for coupled runs).
+      /// \brief Compute high resolution max VES for subsampled runs.
       void computeForSubsampledRun(       AbstractPropertyManager &      propertyManager,
                                     const DataModel::AbstractSnapshot *  snapshot,
                                     const DataModel::AbstractFormation * formation,
                                           FormationPropertyList &        derivedProperties ) const;
 
       const GeoPhysics::ProjectHandle * const m_projectHandle; //!< Project handle
-
-      bool m_isCoupledMode;                                    //!< Boolean flag for coupled mode
 
       const bool m_isSubsampled;                               //!< Boolean flag for subsampled grids
 

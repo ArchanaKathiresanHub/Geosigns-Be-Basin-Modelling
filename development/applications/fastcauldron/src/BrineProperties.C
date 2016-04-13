@@ -130,7 +130,7 @@ bool BrinePropertiesVolumeCalculator::operator ()( const OutputPropertyMap::Outp
             {
                for ( k = brineDensityMap->firstK (); k <= brineDensityMap->lastK (); ++k )
                   {
-                     if ( FastcauldronSimulator::getInstance ().nodeIsDefined ( i, j ))
+                     if ( FastcauldronSimulator::getInstance ().nodeIsDefined ( i, j ) and m_fluid != 0 )
                         {
 
                            // temperature in celcius

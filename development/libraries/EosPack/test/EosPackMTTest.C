@@ -30,7 +30,7 @@ static const int g_NumFlashes = 100;
 class EosPackMTTest : public ::testing::Test
 {
 public:
-   EosPackMTTest()  { PVTCfgFileMgr::instance(); } // write cfg file
+   EosPackMTTest()  { PVTCfgFileMgr::instance("./PVT_properties_EPMT.cfg"); } // write cfg file
    ~EosPackMTTest() {;}
 
    void initializeCompositionMasses( double masses[] );

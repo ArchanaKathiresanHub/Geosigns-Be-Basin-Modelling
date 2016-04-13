@@ -71,14 +71,19 @@ namespace DataAccess
 	    virtual void printOn (ostream &) const;
 	    virtual void asString (string &) const;
 
+         bool isPrimary() const;
+
 	 private:
 	    string m_userName;
 	    string m_cauldronName;
 	    string m_unit;
+    
+         bool m_isPrimaryProperty;
 
             PropertyType m_type;
          DataModel::PropertyAttribute m_propertyAttribute;
-      };
+  
+     };
    }
 }
 

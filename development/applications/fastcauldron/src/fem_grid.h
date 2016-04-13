@@ -1,3 +1,13 @@
+//
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 //------------------------------------------------------------//
 
 #ifndef __FEM_Grid_HH__
@@ -67,6 +77,10 @@ namespace Basin_Modelling {
                          bool& errorInDarcy,
                          bool& geometryHasConverged );
 
+     const PropListVec & getMapOutputProperties () const;
+     const PropListVec & getVolumeOutputProperties () const;
+
+     AppCtx* getAppCtx( ) const;
      //----------------------------//
 
   private :
@@ -368,12 +382,12 @@ namespace Basin_Modelling {
      VreOutputGrid                              m_vreOutputGrid;
 
      /// The vitrinte reflectance algorithm
-     std::auto_ptr<GeoPhysics::VitriniteReflectance> m_vreAlgorithm;
+     std::unique_ptr<GeoPhysics::VitriniteReflectance> m_vreAlgorithm;
 
      /// Grid that links computation of chemical compaction and grid
-     std::auto_ptr<ChemicalCompactionGrid>  m_chemicalCompactionGrid;
+     std::unique_ptr<ChemicalCompactionGrid>  m_chemicalCompactionGrid;
      ///and corresponding chemical compaction calculator   
-     std::auto_ptr<ChemicalCompactionCalculator>  m_chemicalCompactionCalculator;
+     std::unique_ptr<ChemicalCompactionCalculator>  m_chemicalCompactionCalculator;
 
      Temperature_Solver Temperature_Calculator;
      PressureSolver*    pressureSolver;
@@ -389,7 +403,9 @@ namespace Basin_Modelling {
      /// List of volume properties which are only output at present day, t=0Ma
      PropListVec m_concludingVolumeOutputProperties;
      PropListVec m_combinedVolumeOutputProperties; 
-     
+     /// List of properties which are calculated and output at the end of the simulation
+     PropListVec m_volumeDerivedOutputProperties;
+     PropListVec m_mapDerivedOutputProperties;
 
      ///
      /// Records a fixed set of properties at a node on a surface.
@@ -399,6 +415,10 @@ namespace Basin_Modelling {
 
      ComputationalDomain m_temperatureComputationalDomain;
      ComputationalDomain m_pressureComputationalDomain;
+
+     PetscBool m_saveMatrixToFile;     // Boolean flag for saving matrix and rhs to file
+     PetscBool m_saveInMatlabFormat;   // TRUE: matlab format, FALSE: binary
+     double    m_saveTimeStep;         // Time step for matrix and rhs save
 
   }; // end class FEM_Grid
 

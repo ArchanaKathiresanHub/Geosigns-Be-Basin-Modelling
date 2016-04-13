@@ -3,6 +3,8 @@
 #include "cauldronschema.h"
 #include "cauldronschemafuncs.h"
 
+#include "FilePath.h"
+
 #include <cassert>
 #include <algorithm>
 
@@ -44,12 +46,12 @@ ProjectDependencies getProjectDependencies( database::Database * projBase )
    {
       for (unsigned i = 0; i < relatedProjectsTbl->size (); i++)
       {
-	 Record * relatedProjectsRcrd = relatedProjectsTbl->getRecord (i);
-	 const string relatedProject = getFilename (relatedProjectsRcrd);
-	 if (relatedProject[0] != '*')
-	 {
-	    dependencies.related.push_back(relatedProject);;
-	 }
+         Record * relatedProjectsRcrd = relatedProjectsTbl->getRecord (i);
+         const string relatedProject = getFilename (relatedProjectsRcrd);
+         if (relatedProject[0] != '*')
+         {
+            dependencies.related.push_back(relatedProject);;
+         }
       }
    }
 
@@ -66,9 +68,6 @@ ProjectDependencies getProjectDependencies( database::Database * projBase )
 
    std::string fileName = projBase->getFileName();
    std::string outputDir = std::string( fileName, 0, fileName.rfind(".project")) + "_CauldronOutputDir";
-   int dirLength = outputDir.length ();
-   if (dirLength > 0 && outputDir[dirLength - 1] == '/')
-      outputDir.erase (dirLength - 1, string::npos);
 
    Table * timeTbl = projBase->getTable ("TimeIoTbl");
    if (timeTbl)
@@ -77,9 +76,9 @@ ProjectDependencies getProjectDependencies( database::Database * projBase )
 
       for (unsigned i = 0; i < timeTbl->size (); i++)
       {
-	 Record * timeRcrd = timeTbl->getRecord (i);
-	 assert (timeRcrd);
-	 gridMaps.push_back (getMapFileName (timeRcrd));
+         Record * timeRcrd = timeTbl->getRecord (i);
+         assert (timeRcrd);
+         gridMaps.push_back (getMapFileName (timeRcrd));
       }
 
       sort (gridMaps.begin (), gridMaps.end ());
@@ -89,7 +88,9 @@ ProjectDependencies getProjectDependencies( database::Database * projBase )
       StringList::iterator iter;
       for (iter = gridMaps.begin (); iter != new_end; ++iter)
       {
-         dependencies.outputMaps.push_back( outputDir + "/" + *iter ) ;
+         ibs::FilePath pth( outputDir );
+         pth << (*iter);
+         dependencies.outputMaps.push_back( pth.path() ) ;
       }
    }
 
@@ -103,14 +104,16 @@ ProjectDependencies getProjectDependencies( database::Database * projBase )
          assert (snapshotRcrd);
          string filePath = getSnapshotFileName (snapshotRcrd);
          if (filePath.length () == 0) continue;
-         filePath.insert (0, "/");
-         filePath.insert (0, outputDir);
-         if (stat (filePath.c_str (), & statbuf) == -1)
+
+         ibs::FilePath fp( outputDir );
+         fp << filePath;
+         if (stat (fp.cpath (), & statbuf) == -1)
          {
-            filePath += ".Z";
+            fp.cutLast();
+            fp << filePath + ".Z";
          }
-         if (stat (filePath.c_str (), & statbuf) != -1)
-            dependencies.snapshots.push_back( filePath );
+         if (stat (fp.cpath (), & statbuf) != -1)
+            dependencies.snapshots.push_back( fp.path() );
       }
    }
 
