@@ -13,7 +13,7 @@
 
 /// Shared pointer types wrapping
 // CASA API
-%include "boost_shared_ptr.i"
+%include "std_shared_ptr.i"
 // CASA API
 %shared_ptr(casa::Parameter)
 %shared_ptr(casa::PrmOneCrustThinningEvent)
