@@ -353,7 +353,7 @@ macro( add_external_project_to_repository )
          else()
             if (EXISTS "${extProj_PostbuildSrc}")
                # Install source tarball to the directories defined by YIELD_SOURCE during CMake configuration
-               message(STATUS "Installing source of ${extProj_NAME}  from ${extProj_srcdir} to directory ${${extProj_NAME}_SOURCE_DIR}")
+               message(STATUS "Installing source of ${extProj_NAME}")
                execute_process(  
                      COMMAND "${CMAKE_COMMAND}" "-E" "make_directory" "${${extProj_NAME}_SOURCE_DIR}"
                )

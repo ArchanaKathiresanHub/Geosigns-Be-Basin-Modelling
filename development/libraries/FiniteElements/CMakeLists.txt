@@ -20,8 +20,6 @@ add_library(FiniteElements
 	${all_headers}
 )
 
-add_dependencies(FiniteElements Eigen)
-
 include_directories (${EIGEN_INCLUDE_DIRS} )
 
 bm_include_libraries(DataModel utilities FiniteElements)

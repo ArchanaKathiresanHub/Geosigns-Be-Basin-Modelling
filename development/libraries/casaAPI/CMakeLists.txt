@@ -24,7 +24,7 @@ add_library(casaapi
 )
 
 if (UNIX)
-add_dependencies(casaapi Boost Eigen)
+add_dependencies(casaapi Boost)
 endif (UNIX)
 
 

@@ -10,32 +10,8 @@
 #                                                                       #
 #########################################################################
 
-include( cmake/AddPackage.cmake)
-
-
-# Add Boost as an external project
-add_external_project_to_repository(
-      NAME Eigen
-      VERSION 3.2.8
-      ARCHIVE "${THIRD_PARTY_DIR}/sources/eigen-3.2.8.tar.gz"
-      ARCHIVE_MD5 "59df18a22e481c44025428b524d04312"
-      CONFIGURE_COMMAND "./configure.sh" "config" "-DCMAKE_INSTALL_PREFIX={ROOT}"
-      BUILD_COMMAND   "./configure.sh" "build"         
-      INSTALL_COMMAND "./configure.sh" "install"
-      CONFIGURE_OPTIONS 
-        COMPILER "{CurrentCompiler}" "-DCMAKE_CXX_COMPILER={CXX}" "-DCMAKE_CC_COMPILER={CC}"
-        MPI      "{CurrentMPI}"
-        SPEED    "Release"      "-DCMAKE_BUILD_TYPE=Release"
-        SPEED    "Debug"        "-DCMAKE_BUILD_TYPE=Debug"
-        SPEED    "DebugAll"     "-DCMAKE_BUILD_TYPE=Debug"
-        SPEED    "MemCheck"     "-DCMAKE_BUILD_TYPE=Debug"
-        SPEED    "CodeCoverage" "-DCMAKE_BUILD_TYPE=Release"
-        OS       "{CurrentPlatform}"
-        LINK     "Dynamic"
-        LINK     "Static"
-)
-
-set(EIGEN_INCLUDE_DIRS "${Eigen_ROOT}" "${Eigen_ROOT}/include" "${Eigen_ROOT}/include/eigen3")
+set(Eigen_ROOT "${THIRD_PARTY_DIR}/Eigen-3.2.8" CACHE PATH "Path to Eigen include files" )
+set(EIGEN_INCLUDE_DIRS "${Eigen_ROOT}" "${Eigen_ROOT}/eigen3")
 
 # Definining EIGEN_MPL2_ONLY is crucial for use within Shell, because this
 # ensures that only codes is used with MPL2 and possible more permissive
