@@ -381,16 +381,6 @@ bool DistributedGridMap::restoreData (bool save, bool withGhosts) const
 {
    if (!m_retrieved)
       return false;
-
-   if (m_depth > 1)
-   {
-      DMDAVecRestoreArray (m_localInfo.da, m_withGhosts ? m_vecLocal : m_vecGlobal, (void *) &m_values);
-   }
-   else
-   {
-      DMDAVecRestoreArray (m_localInfo.da, m_withGhosts ? m_vecLocal : m_vecGlobal, (void *) &m_values[0]);
-      Array < double **>::delete1d (m_values);
-   }
    
    if( save && m_withGhosts && withGhosts )
    {
@@ -411,6 +401,16 @@ bool DistributedGridMap::restoreData (bool save, bool withGhosts) const
       if( not (globalReady == 0 || globalReady == mpiSize) )
          throw formattingexception::GeneralException() << __FUNCTION__ << " is causing hanging MPI communications.";
    }
+
+   if (m_depth > 1)
+   {
+      DMDAVecRestoreArray (m_localInfo.da, m_withGhosts ? m_vecLocal : m_vecGlobal, (void *) &m_values);
+   }
+   else
+   {
+      DMDAVecRestoreArray (m_localInfo.da, m_withGhosts ? m_vecLocal : m_vecGlobal, (void *) &m_values[0]);
+      Array < double **>::delete1d (m_values);
+   }
    
    if (save && m_modified)
    {
@@ -424,7 +424,6 @@ bool DistributedGridMap::restoreData (bool save, bool withGhosts) const
          }
          else
          {
-            // DALocalToGlobal (m_localInfo.da, m_vecLocal, INSERT_VALUES, m_vecGlobal);
             DMLocalToGlobalBegin (m_localInfo.da, m_vecLocal, INSERT_VALUES, m_vecGlobal);
             DMLocalToGlobalEnd (m_localInfo.da, m_vecLocal, INSERT_VALUES, m_vecGlobal);
          }
@@ -921,7 +920,7 @@ double const * const * const * DistributedGridMap::getValues (void) const
 // throws an error when called.
 bool DistributedGridMap::saveHDF5 (const std::string & fileName) const
 {
-   throw "bool GridMap::saveHDF5 (const string & fileName) const is not implemented in the distributed version.";
+   throw formattingexception::GeneralException() << __FUNCTION__ << " is not implemented in " << __FILE__;
 }
 
 void DistributedGridMap::printOn (std::ostream & ostr) const
@@ -1017,12 +1016,12 @@ bool DistributedGridMap::convertToGridMap(GridMap *mapB) const
    {
       ret = transformHighRes2LowRes(mapB);
    }
-   else       	
+   else
    {
       ret = transformLowRes2HighRes(mapB);
    }
 
-   return ret;	
+   return ret;
 }
 
 bool DistributedGridMap::transformHighRes2LowRes(GridMap *mapB) const 
@@ -1060,10 +1059,10 @@ bool DistributedGridMap::transformHighRes2LowRes(GridMap *mapB) const
          }
          else
          {
-            cerr << "conversion from lowres (" << indexImapB << ", " << indexJmapB <<
-               ") to highres (" << indexImapA << ", " << indexJmapA << ") failed unexpectedly" << endl;
-            ret = false;
-            break;
+            std::ostringstream msg;
+            msg << "conversion from lowres (" << std::to_string(indexImapB) << ", " << std::to_string(indexJmapB) <<
+                  ") to highres (" << std::to_string(indexImapA) << ", " << std::to_string(indexJmapA) << ") failed unexpectedly";
+            throw formattingexception::GeneralException() << msg.str();
          }
       }
    }
@@ -1155,8 +1154,6 @@ bool DistributedGridMap::transformLowRes2HighRes(GridMap *mapB) const
          }
       }
    }
-
-   //mapB->printOn (PETSC_COMM_WORLD);
 
    mapA->restoreData(true, true);
    mapB->restoreData();

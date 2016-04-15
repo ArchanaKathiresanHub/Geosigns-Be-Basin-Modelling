@@ -40,7 +40,7 @@ public :
    /// \brief The maximum number of attempts that can be made when 
    static const int MaximumLinearSolveAttempts = 6;
 
-   /// \brief 
+   /// \brief The maximum number of GMRES restarts allowed
    static const int MaximumGMResRestartValue;
 
    /// \brief The amount by which the restart values is increased for each failure in the linear solver.

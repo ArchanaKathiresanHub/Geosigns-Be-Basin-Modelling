@@ -60,8 +60,6 @@ private :
   /// This equation is solved using a simple method (Eulers) using 
   /// a series of n-steps (see implementation for value for n).
   /// Should this be removed, as it is not used?
-  ///
-  //  This function should be moved to the PressureSolver class
   void computeRealThickness
      ( const LayerProps_Ptr Current_Layer,
        const CompoundLithology*    Current_Lithology,

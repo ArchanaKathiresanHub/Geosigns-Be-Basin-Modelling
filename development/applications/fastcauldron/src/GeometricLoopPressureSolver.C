@@ -295,7 +295,7 @@ void GeometricLoopPressureSolver::computeRealThickness ( const LayerProps_Ptr cu
 
     Bulk_Density = Porosity_Bottom * Fluid_Density + ( 1.0 - Porosity_Bottom ) * Solid_Density;
 
-    // NLSAY3: We assume the solid is ice in this case
+    // We assume the solid is ice in this case
     // for the else case     H * Fluid_Density * GRAVITY * Pa_To_MPa     should be 0 to be consistant.
     if ( not ( (Fluid_Density > Solid_Density) && currentLayer->fluid->SwitchPermafrost() ) )
     {
