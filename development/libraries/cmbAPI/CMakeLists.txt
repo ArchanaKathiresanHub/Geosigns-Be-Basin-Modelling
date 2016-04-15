@@ -21,6 +21,10 @@ add_library(cmbapi
 	${all_headers}
 )
 
+if (UNIX)
+add_dependencies(cmbapi NNlib)
+endif (UNIX)
+
 bm_include_libraries(
    genex6
    genex6_kernel
@@ -36,6 +40,7 @@ bm_include_libraries(
 
 include_directories(
    ${HDF5_INCLUDE_DIRS}
+   ${NNLIB_INCLUDE_DIR}
    src
 )
 
@@ -51,6 +56,7 @@ target_link_libraries(cmbapi
    genex6_kernel
    EosPack
    FileSystem
+   NNlib
    ${Boost_LIBRARIES}
 )
 

@@ -42,6 +42,7 @@ include_directories(
    ${SUMPP_INCLUDE_DIR}
    ${CMAKE_CURRENT_BINARY_DIR}
    ${EIGEN_INCLUDE_DIRS}
+   ${NNLIB_INCLUDE_DIR}
    src
 )
 
@@ -52,6 +53,7 @@ target_link_libraries(casaapi
    utilities
    DataAccess
    SUMlib
+   NNlib
    ${Boost_LIBRARIES}
 )
 

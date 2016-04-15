@@ -1,6 +1,6 @@
 #########################################################################
 #                                                                       #
-# Copyright (C) 2012-2013 Shell International Exploration & Production. #
+# Copyright (C) 2012-2014 Shell International Exploration & Production. #
 # All rights reserved.                                                  #
 #                                                                       #
 # Developed under license for Shell by PDS BV.                          #
@@ -9,56 +9,24 @@
 # Do not distribute without written permission from Shell.              #
 #                                                                       #
 #########################################################################
-FILE( GLOB all_headers src/*.h )
+FILE( GLOB all_headers include/*.h )
 source_group(include FILES ${all_headers})
 
 FILE( GLOB all_srcs src/*.cpp)
 source_group(source FILES ${all_srcs})
 
-configure_file(../../libraries/casaAPI/src/CauldronEnvConfig.h.in CauldronEnvConfig.h)
+add_definitions(-DNNLIB_EXPORT)
 
-add_executable( casa
-  ${all_srcs}
-  ${all_headers}
+#to use the right include!
+include_directories("./include")
+
+add_library( NNlib
+   ${all_srcs}
+   ${all_headers}
 )
 
-if (UNIX)
-add_dependencies(casa Boost)
-endif (UNIX)
-
-bm_include_libraries(
-   TableIO
-   casaAPI
-   cmbAPI
-   CBMGenerics
-   FileSystem
-   DataAccess
-   utilities
-)
-
-include_directories(
-   ${SUMPP_INCLUDE_DIR}
-   ${CMAKE_CURRENT_BINARY_DIR}
-   ${NNLIB_INCLUDE_DIR}
-   utilities
-)
-
-target_link_libraries( casa
-   casaapi
-   cmbapi
-   CBMGenerics
-   DataAccess
-   SerialDataAccess
-   Serial_Hdf5
-   TableIO
-   utilities
-   SUMlib
-   NNlib
-   ${HDF5_LIBRARIES}
-   ${Boost_LIBRARIES}
-   ${LSF_LIBS}
-)
-
-install( TARGETS casa
-   DESTINATION bin
+install(TARGETS NNlib
+   RUNTIME DESTINATION bin
+   LIBRARY DESTINATION lib
+   ARCHIVE DESTINATION lib
 )
