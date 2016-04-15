@@ -15,15 +15,7 @@ source_group(include FILES ${all_headers})
 FILE( GLOB all_srcs *.cpp)
 source_group(source FILES ${all_srcs})
 
-find_package(Qt4 4.8.4 REQUIRED QtGui QtCore)
-
-set(OIVHOME $ENV{OIVHOME})
-set(OIVARCH $ENV{OIVARCH})
-
-set(OIV_INCLUDE_DIR ${OIVHOME}/include)
-set(OIV_LIB_DIR ${OIVHOME}/${OIVARCH}/lib)
-
-link_directories(${OIV_LIB_DIR})
+link_directories( ${OIV_LIB_DIR_REL} ${OIV_LIB_DIR_DBG})
 
 add_executable( 4DRenderServer ${all_srcs} ${all_headers})
 

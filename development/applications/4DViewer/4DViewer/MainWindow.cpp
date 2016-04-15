@@ -12,6 +12,7 @@
 #include "OIVWidget.h"
 #include "GLInfoDialog.h"
 #include <Seismic.h>
+#include <DataAccessProject.h>
 
 #include <QtGui/QFileDialog>
 #include <QtGui/QMessageBox>
@@ -78,6 +79,8 @@ void MainWindow::onFps(float fps)
 
 void MainWindow::loadProject(const QString& filename)
 {
+  const bool importSeismic = true;
+
   m_sceneGraphManager.reset();
   closeProject();
 
@@ -101,10 +104,13 @@ void MainWindow::loadProject(const QString& filename)
 
     m_examiner = new SceneExaminer(m_sceneGraphManager);
 
-    //auto dim = m_project->getProjectInfo().dimensions;
-    //const char* volumeFile = "v:\\data\\Barracuda_3Ddepth_Realized8bit.sgy";
-    //m_seismicScene = std::make_shared<SeismicScene>(volumeFile, dim.minX, dim.minY);
-    //m_examiner->addChild(m_seismicScene->getRoot());
+    if (importSeismic)
+    {
+      auto dim = m_project->getProjectInfo().dimensions;
+      const char* volumeFile = "v:\\data\\Barracuda_3Ddepth_Realized8bit.sgy";
+      m_seismicScene = std::make_shared<SeismicScene>(volumeFile, dim);
+      m_sceneGraphManager->addSeismicScene(m_seismicScene);
+    }
 
     m_examiner->setModeChangedCallback(std::bind(&MainWindow::onModeChanged, this, std::placeholders::_1));
     m_examiner->setFenceAddedCallback(std::bind(&MainWindow::onFenceAdded, this, std::placeholders::_1));
@@ -113,7 +119,6 @@ void MainWindow::loadProject(const QString& filename)
     onModeChanged(m_examiner->getInteractionMode());
 
     m_ui.renderWidget->setSceneGraph(m_examiner.ptr());
-    //SoIvTune::start(m_examiner.ptr());
 
     m_ui.snapshotSlider->setMinimum(0);
     m_ui.snapshotSlider->setMaximum((int)m_project->getSnapshotCount() - 1);
@@ -356,10 +361,14 @@ void MainWindow::updateUI()
     m_ui.checkBoxSliceCrossline->setChecked(true);
     m_ui.checkBoxSliceDepth->setChecked(true);
 
-    SbVec3i32 voldim = m_seismicScene->getDimensions();
-    m_ui.sliderSliceInline->setMaximum(voldim[1] - 1);
-    m_ui.sliderSliceCrossline->setMaximum(voldim[2] - 1);
-    m_ui.sliderSliceDepth->setMaximum(voldim[0] - 1);
+    SbBox3f extent = m_seismicScene->getExtent();
+    SbVec3f size = extent.getSize();
+    m_ui.sliderSliceInline->setMaximum(size[1]);
+    m_ui.sliderSliceInline->setValue(size[1] / 2);
+    m_ui.sliderSliceCrossline->setMaximum(size[2]);
+    m_ui.sliderSliceCrossline->setValue(size[2] / 2);
+
+    m_ui.sliderInterpolatedSurfacePosition->setMaximum(300);
   }
 }
 
@@ -370,6 +379,7 @@ void MainWindow::connectSignals()
   connect(m_ui.action_RenderAllSlices, SIGNAL(triggered()), this, SLOT(onActionRenderAllSlicesTriggered()));
   connect(m_ui.action_SwitchProperties, SIGNAL(triggered()), this, SLOT(onActionSwitchPropertiesTriggered()));
   connect(m_ui.action_OpenGLInfo, SIGNAL(triggered()), this, SLOT(onShowGLInfo()));
+  connect(m_ui.action_IvTune, SIGNAL(triggered()), this, SLOT(onShowIvTune()));
   connect(m_ui.action_ViewAll, SIGNAL(triggered()), this, SLOT(onActionViewAllTriggered()));
 
   QAction* actions[] =
@@ -426,6 +436,9 @@ void MainWindow::connectSignals()
   connect(m_ui.sliderSliceInline, SIGNAL(valueChanged(int)), this, SLOT(onSeismicSliceValueChanged(int)));
   connect(m_ui.sliderSliceCrossline, SIGNAL(valueChanged(int)), this, SLOT(onSeismicSliceValueChanged(int)));
   connect(m_ui.sliderSliceDepth, SIGNAL(valueChanged(int)), this, SLOT(onSeismicSliceValueChanged(int)));
+
+  connect(m_ui.checkBoxInterpolatedSurface, SIGNAL(toggled(bool)), this, SLOT(onInterpolatedSurfaceToggled(bool)));
+  connect(m_ui.sliderInterpolatedSurfacePosition, SIGNAL(valueChanged(int)), this, SLOT(onInterpolatedSurfacePositionChanged(int)));
 }
 
 int MainWindow::getFaultIndex(const std::string& collectionName, const std::string& faultName) const
@@ -524,9 +537,6 @@ void MainWindow::onActionRenderAllSnapshotsTriggered()
   {
     std::cout << i << " ";
 
-    //m_ui.snapshotSlider->setValue(i);
-    //qApp->processEvents();
-
     QTime snapshotTime;
     snapshotTime.start();
     m_sceneGraphManager->setCurrentSnapshot(i);
@@ -552,6 +562,13 @@ void MainWindow::onActionRenderAllSlicesTriggered()
 {
   QTime time;
   time.start();
+
+  for (float pos = 0.f; pos < 100.f; pos += .25f)
+  {
+    m_seismicScene->setInterpolatedSurfacePosition(pos);
+    m_ui.renderWidget->updateGL();
+  }
+  return;
 
   int maxTimeMs = 0;
   for(int i=0; i <= m_ui.sliderSliceI->maximum(); ++i)
@@ -895,8 +912,14 @@ void MainWindow::onShowGLInfo()
 {
   //exportData(m_projectHandle.get());
 
+  static_cast<DataAccessProject*>(m_project.get())->testIO();
   GLInfoDialog dlg(this);
   dlg.exec();
+}
+
+void MainWindow::onShowIvTune()
+{
+  SoIvTune::start(m_examiner.ptr());
 }
 
 void MainWindow::onTreeWidgetItemClicked(QTreeWidgetItem* item, int column)
@@ -974,8 +997,6 @@ void MainWindow::onSeismicSliceToggled(bool value)
     type = SeismicScene::SliceInline;
   else if (checkBox == m_ui.checkBoxSliceCrossline)
     type = SeismicScene::SliceCrossline;
-  else if (checkBox == m_ui.checkBoxSliceDepth)
-    type = SeismicScene::SliceDepth;
 
   m_seismicScene->enableSlice(type, value);
 
@@ -992,11 +1013,22 @@ void MainWindow::onSeismicSliceValueChanged(int value)
     type = SeismicScene::SliceInline;
   else if (slider == m_ui.sliderSliceCrossline)
     type = SeismicScene::SliceCrossline;
-  else if (slider == m_ui.sliderSliceDepth)
-    type = SeismicScene::SliceDepth;
 
   m_seismicScene->setSlicePosition(type, value);
 
+  m_ui.renderWidget->updateGL();
+}
+
+void MainWindow::onInterpolatedSurfaceToggled(bool value)
+{
+  m_seismicScene->enableInterpolatedSurface(value);
+  m_ui.renderWidget->updateGL();
+}
+
+void MainWindow::onInterpolatedSurfacePositionChanged(int value)
+{
+  double pos = value * 0.5;
+  m_seismicScene->setInterpolatedSurfacePosition(pos);
   m_ui.renderWidget->updateGL();
 }
 

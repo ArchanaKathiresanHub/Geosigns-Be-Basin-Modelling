@@ -14,7 +14,7 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QHBoxLayout" name="horizontalLayout_3">
+   <layout class="QVBoxLayout" name="verticalLayout_18">
     <item>
      <widget class="QSplitter" name="splitter">
       <property name="orientation">
@@ -42,8 +42,8 @@
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>468</width>
-                 <height>676</height>
+                 <width>145</width>
+                 <height>134</height>
                 </rect>
                </property>
                <attribute name="label">
@@ -126,8 +126,8 @@
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>468</width>
-                 <height>676</height>
+                 <width>189</width>
+                 <height>340</height>
                 </rect>
                </property>
                <attribute name="label">
@@ -371,7 +371,7 @@
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>451</width>
+                 <width>205</width>
                  <height>684</height>
                 </rect>
                </property>
@@ -757,36 +757,30 @@
                </layout>
               </widget>
               <widget class="QWidget" name="page_4">
+               <property name="geometry">
+                <rect>
+                 <x>0</x>
+                 <y>0</y>
+                 <width>196</width>
+                 <height>676</height>
+                </rect>
+               </property>
                <attribute name="label">
                 <string>Seismic</string>
                </attribute>
-               <layout class="QVBoxLayout" name="verticalLayout_16">
+               <layout class="QVBoxLayout" name="verticalLayout_17">
                 <item>
                  <widget class="QGroupBox" name="groupBox_4">
                   <property name="title">
                    <string>Slices</string>
                   </property>
-                  <layout class="QVBoxLayout" name="verticalLayout_15">
+                  <layout class="QVBoxLayout" name="verticalLayout_16">
                    <item>
                     <layout class="QGridLayout" name="gridLayout_5">
-                     <item row="0" column="0">
-                      <widget class="QCheckBox" name="checkBoxSliceInline">
-                       <property name="text">
-                        <string>Inline</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="0" column="1">
-                      <widget class="QSlider" name="sliderSliceInline">
+                     <item row="2" column="1">
+                      <widget class="QSlider" name="sliderSliceDepth">
                        <property name="orientation">
                         <enum>Qt::Horizontal</enum>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="1" column="0">
-                      <widget class="QCheckBox" name="checkBoxSliceCrossline">
-                       <property name="text">
-                        <string>Crossline</string>
                        </property>
                       </widget>
                      </item>
@@ -804,14 +798,61 @@
                        </property>
                       </widget>
                      </item>
-                     <item row="2" column="1">
-                      <widget class="QSlider" name="sliderSliceDepth">
+                     <item row="0" column="0">
+                      <widget class="QCheckBox" name="checkBoxSliceInline">
+                       <property name="text">
+                        <string>Inline</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="1" column="0">
+                      <widget class="QCheckBox" name="checkBoxSliceCrossline">
+                       <property name="text">
+                        <string>Crossline</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="0" column="1">
+                      <widget class="QSlider" name="sliderSliceInline">
                        <property name="orientation">
                         <enum>Qt::Horizontal</enum>
                        </property>
                       </widget>
                      </item>
                     </layout>
+                   </item>
+                  </layout>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QGroupBox" name="groupBox_5">
+                  <property name="title">
+                   <string>Surface</string>
+                  </property>
+                  <layout class="QVBoxLayout" name="verticalLayout_15">
+                   <item>
+                    <widget class="QCheckBox" name="checkBoxInterpolatedSurface">
+                     <property name="text">
+                      <string>Enable</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QLabel" name="label_9">
+                     <property name="text">
+                      <string>Position</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QSlider" name="sliderInterpolatedSurfacePosition">
+                     <property name="maximum">
+                      <number>200</number>
+                     </property>
+                     <property name="orientation">
+                      <enum>Qt::Horizontal</enum>
+                     </property>
+                    </widget>
                    </item>
                   </layout>
                  </widget>
@@ -824,7 +865,7 @@
                   <property name="sizeHint" stdset="0">
                    <size>
                     <width>20</width>
-                    <height>536</height>
+                    <height>433</height>
                    </size>
                   </property>
                  </spacer>
@@ -904,6 +945,7 @@
      <string>Help</string>
     </property>
     <addaction name="action_OpenGLInfo"/>
+    <addaction name="action_IvTune"/>
    </widget>
    <widget class="QMenu" name="menu_View">
     <property name="title">
@@ -987,6 +1029,11 @@
   <action name="action_ViewBack">
    <property name="text">
     <string>Bac&amp;k</string>
+   </property>
+  </action>
+  <action name="action_IvTune">
+   <property name="text">
+    <string>IvTune</string>
    </property>
   </action>
  </widget>

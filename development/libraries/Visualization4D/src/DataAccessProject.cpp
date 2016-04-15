@@ -373,6 +373,52 @@ DataAccessProject::DataAccessProject(const std::string& path)
   init();
 }
 
+void DataAccessProject::testIO()
+{
+  double lastAge = 0;
+  std::unique_ptr<di::PropertyValueList> pvlist(m_projectHandle->getPropertyValues());
+
+  std::sort(pvlist->begin(), pvlist->end(),
+    [](const di::PropertyValue* lhs, const di::PropertyValue* rhs)
+  {
+    double t1 = lhs->getSnapshot()->getTime();
+    double t2 = rhs->getSnapshot()->getTime();
+
+    if (t1 != t2)
+      return t1 < t2;
+
+    int storage1 = (int)lhs->getStorage();
+    int storage2 = (int)rhs->getStorage();
+    if (storage1 != storage2)
+      return storage1 < storage2;
+
+    int type1 = (int)lhs->getProperty()->getType();
+    int type2 = (int)rhs->getProperty()->getType();
+
+    if (type1 != type2)
+      return type1 < type2;
+
+    int attr1 = (int)lhs->getProperty()->getPropertyAttribute();
+    int attr2 = (int)rhs->getProperty()->getPropertyAttribute();
+
+    if (attr1 != attr2)
+      return attr1 < attr2;
+
+    std::string name1 = lhs->getProperty()->getName();
+    std::string name2 = rhs->getProperty()->getName();
+    return name1 < name2;
+  });
+
+  for (auto pv : *pvlist)
+  {
+    double age = pv->getSnapshot()->getTime();
+    assert(age >= lastAge);
+    lastAge = age;
+    auto gridMap = pv->getGridMap();
+    gridMap->release();
+  }
+}
+
 DataAccessProject::~DataAccessProject()
 {
   delete[] m_loresDeadMap;

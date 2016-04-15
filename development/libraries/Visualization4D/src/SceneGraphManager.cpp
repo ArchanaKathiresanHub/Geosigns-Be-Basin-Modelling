@@ -14,8 +14,10 @@
 #include "FlowLines.h"
 #include "OutlineBuilder.h"
 #include "FluidContacts.h"
+#include "GeometryUtil.h"
 #include "ColorMap.h"
 #include "PropertyValueCellFilter.h"
+#include "Seismic.h"
 
 #include <Inventor/nodes/SoGroup.h>
 #include <Inventor/nodes/SoSwitch.h>
@@ -36,6 +38,7 @@
 #include <Inventor/nodes/SoShaderProgram.h>
 #include <Inventor/nodes/SoAlgebraicSphere.h>
 
+#include <Inventor/devices/SoCpuBufferObject.h>
 #include <Inventor/nodes/SoEventCallback.h>
 #include <Inventor/events/SoLocation2Event.h>
 #include <Inventor/events/SoMouseButtonEvent.h>
@@ -67,6 +70,8 @@
 #include <MeshViz/graph/PoLinearAxis.h>
 #include <MeshViz/graph/PoGenAxis.h>
 
+#include <VolumeViz/nodes/SoVolumeRenderingQuality.h>
+
 #include <memory>
 
 SoSwitch* createCompass();
@@ -95,6 +100,7 @@ SnapshotInfo::SnapshotInfo()
   , reservoirsTimeStamp(MxTimeStamp::getTimeStamp())
   , faultsTimeStamp(MxTimeStamp::getTimeStamp())
   , flowLinesTimeStamp(MxTimeStamp::getTimeStamp())
+  , seismicPlaneSliceTimeStamp(MxTimeStamp::getTimeStamp())
 {
   for (int i = 0; i < 3; ++i)
   {
@@ -153,17 +159,11 @@ int SceneGraphManager::getFormationId(/*MoMeshSkin* skin, */size_t k) const
   assert(!m_snapshotInfoCache.empty());
 
   const SnapshotInfo& snapshot = *m_snapshotInfoCache.begin();
-  //for (auto const& chunk : snapshot.chunks)
-  //{
-  //  if (chunk.skin == skin)
-  //  {
-      for (auto const& fmt : snapshot.formations)
-      {
-        if ((int)k >= fmt.minK && (int)k < fmt.maxK)
-          return fmt.id;
-      }
-  //  }
-  //}
+  for (auto const& fmt : snapshot.formations)
+  {
+    if ((int)k >= fmt.minK && (int)k < fmt.maxK)
+      return fmt.id;
+  }
 
   return -1;
 }
@@ -262,10 +262,15 @@ void SceneGraphManager::updateSnapshotMesh()
     }
   }
 
+  // Check if interpolated slice needs mesh
+  needMesh = needMesh || m_seismicSwitch->getNumChildren() > 0;
+
   if (needMesh)
   {
     snapshot.meshData = m_project->createSnapshotMesh(snapshot.index);
     snapshot.mesh->setMesh(snapshot.meshData.get());
+    if(m_seismicScene)
+      m_seismicScene->setMesh(snapshot.meshData.get());
   }
 }
 
@@ -549,44 +554,6 @@ void SceneGraphManager::updateSnapshotTraps()
         res.root->addChild(res.drainageAreaOutlinesGas);
       }
     }
-  }
-}
-
-namespace
-{
-  /**
-   * Linear interpolation
-   */
-  inline double lerp(double x0, double x1, double a)
-  {
-    return (1.0 - a) * x0 + a * x1;
-  }
-
-  /**
-   * Get a depth value from geometry, using floating point x and y coordinates
-   * and bilinear interpolation
-   */
-  double getZ(const MiGeometryIjk& geometry, int maxI, int maxJ, double i, double j, int k)
-  {
-    int i0 = (int)floor(i);
-    int j0 = (int)floor(j);
-
-    // Take care not to read outside the bounds of the 3D array
-    int i1 = std::min(i0 + 1, maxI);
-    int j1 = std::min(j0 + 1, maxJ);
-
-    double di = i - i0;
-    double dj = j - j0;
-
-    double z00 = geometry.getCoord(i0, j0, k)[2];
-    double z01 = geometry.getCoord(i0, j1, k)[2];
-    double z10 = geometry.getCoord(i1, j0, k)[2];
-    double z11 = geometry.getCoord(i1, j1, k)[2];
-
-    return lerp(
-      lerp(z00, z01, dj),
-      lerp(z10, z11, dj),
-      di);
   }
 }
 
@@ -951,7 +918,6 @@ void SceneGraphManager::updateSnapshot()
 
 namespace
 {
-
   void initAutoAxis(PoLinearAxis *axis, PbMiscTextAttr *textAtt, SbBool isXYAxis)
   {
     if (isXYAxis) 
@@ -1184,9 +1150,10 @@ SnapshotInfo SceneGraphManager::createSnapshotNode(size_t index)
   }
 
   // Build the scenegraph
-  info.root = new SoSeparator;
-  info.root->ref();
-  info.formationsRoot = new SoSeparator;
+  info.root = new SoGroup;
+  info.root->setName("snapshot");
+
+  info.formationsRoot = new SoGroup;
   info.formationsRoot->setName("formations");
 
   info.minZ = -snapshotContents.maxDepth;
@@ -1232,12 +1199,12 @@ SnapshotInfo SceneGraphManager::createSnapshotNode(size_t index)
   info.formationsRoot->addChild(info.cellFilterSwitch);
   info.formationsRoot->addChild(info.chunksGroup);
 
-  info.root->addChild(info.formationsRoot);
-  info.root->addChild(info.reservoirsGroup);
   // Add surfaceShapeHints to prevent backface culling, and enable double-sided lighting
   info.root->addChild(m_surfaceShapeHints);
   info.root->addChild(info.surfacesGroup);
   info.root->addChild(info.faultsGroup);
+  info.root->addChild(info.reservoirsGroup);
+  info.root->addChild(info.formationsRoot);
 
   // set property id, so when updateSnapshot() is called, all elements (formations, surfaces
   // and reservoirs) are created with the correct property
@@ -1419,11 +1386,16 @@ void SceneGraphManager::setupSceneGraph()
 
   m_compassSwitch = createCompass();
 
+  m_seismicSwitch = new SoSwitch;
+  m_seismicSwitch->setName("seismic");
+  m_seismicSwitch->whichChild = SO_SWITCH_ALL;
+
   m_snapshotsSwitch = new SoSwitch;
   m_snapshotsSwitch->setName("snapshots");
   m_snapshotsSwitch->whichChild = SO_SWITCH_ALL;
 
   m_fencesGroup = new SoGroup;
+  m_fencesGroup->setName("fences");
 
   m_root = new SoGroup;
   m_root->setName("root");
@@ -1433,6 +1405,7 @@ void SceneGraphManager::setupSceneGraph()
   m_root->addChild(m_scale);
   m_root->addChild(m_appearanceNode);
   m_root->addChild(m_snapshotsSwitch);
+  m_root->addChild(m_seismicSwitch);
   m_root->addChild(m_decorationShapeHints);
   m_root->addChild(m_annotation);
   m_root->addChild(m_compassSwitch);
@@ -1546,6 +1519,7 @@ SceneGraphManager::SceneGraphManager()
   , m_legendSwitch(0)
   , m_text(0)
   , m_textSwitch(0)
+  , m_seismicSwitch(0)
   , m_snapshotsSwitch(0)
 {
 }
@@ -1666,10 +1640,7 @@ void SceneGraphManager::setCurrentSnapshot(size_t index)
 
     // Limit cache size 
     if (m_snapshotInfoCache.size() > m_maxCacheItems)
-    {
-      m_snapshotInfoCache.back().root->unref();
       m_snapshotInfoCache.pop_back();
-    }
   }
   else // node is in cache
   {
@@ -1678,7 +1649,7 @@ void SceneGraphManager::setCurrentSnapshot(size_t index)
   }
 
   m_snapshotsSwitch->removeAllChildren();
-  m_snapshotsSwitch->addChild(m_snapshotInfoCache.begin()->root);
+  m_snapshotsSwitch->addChild(m_snapshotInfoCache.begin()->root.ptr());
 
   updateSnapshot();
 }
@@ -2065,12 +2036,21 @@ void SceneGraphManager::setCellFilterRange(double minValue, double maxValue)
   }
 }
 
+void SceneGraphManager::addSeismicScene(std::shared_ptr<SeismicScene> seismicScene)
+{
+  m_seismicScene = seismicScene;
+
+  if (!m_snapshotInfoCache.empty())
+    m_seismicScene->setMesh(m_snapshotInfoCache.begin()->meshData.get());
+
+  m_seismicSwitch->addChild(seismicScene->getRoot());
+}
+
 void SceneGraphManager::setup(std::shared_ptr<Project> project)
 {
   m_project = project;
   m_projectInfo = project->getProjectInfo();
 
-  //Project::SnapshotContents contents = project->getSnapshotContents(0);
   m_formationVisibility.assign(m_projectInfo.formations.size(), true);
   m_surfaceVisibility.assign(m_projectInfo.surfaces.size(), false);
   m_reservoirVisibility.assign(m_projectInfo.reservoirs.size(), false);

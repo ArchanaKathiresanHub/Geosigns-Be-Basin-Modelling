@@ -33,6 +33,7 @@ class ColorMap;
 class PropertyValueCellFilter;
 class FaultMesh;
 class OutlineBuilder;
+class SeismicScene;
 
 class SbViewportRegion;
 class SoPickedPoint;
@@ -216,18 +217,18 @@ struct SnapshotInfo
   double minZ; // = max depth (negative)
   double maxZ;
 
-  SoSeparator* root;
-  SoSeparator* formationsRoot;
+  SoRef<SoGroup> root;
+  SoGroup* formationsRoot;
 
   MoMesh* mesh;
   std::shared_ptr<MiVolumeMeshCurvilinear> meshData;
 
   MoScalarSetIjk* scalarSet;
-  std::shared_ptr<MiDataSetIjk<double> > scalarDataSet;
+  std::shared_ptr<MiDataSetIjk<double>> scalarDataSet;
 
   MoVec3SetIjk* flowDirSet;
-  std::shared_ptr<MiDataSetIjk<double> > flowDirScalarSet;
-  std::shared_ptr<MiDataSetIjk<MbVec3<double> > > flowDirVectorSet;
+  std::shared_ptr<MiDataSetIjk<double>> flowDirScalarSet;
+  std::shared_ptr<MiDataSetIjk<MbVec3<double>>> flowDirVectorSet;
 
   SoSwitch* sliceSwitch[3];
   MoMeshSlab* slice[3];
@@ -250,12 +251,13 @@ struct SnapshotInfo
   std::vector<Reservoir> reservoirs;
   std::vector<Fault> faults;
   std::vector<FlowLines> flowlines;
-
+  
   size_t formationsTimeStamp;
   size_t surfacesTimeStamp;
   size_t reservoirsTimeStamp;
   size_t faultsTimeStamp;
   size_t flowLinesTimeStamp;
+  size_t seismicPlaneSliceTimeStamp;
 
   SnapshotInfo();
 };
@@ -421,6 +423,7 @@ private:
   SoSwitch*       m_pickTextSwitch;
   SoSwitch*       m_compassSwitch;
 
+  SoSwitch*       m_seismicSwitch;
   SoSwitch*       m_snapshotsSwitch;
 
   struct FenceSlice
@@ -435,6 +438,8 @@ private:
 
   std::vector<FenceSlice> m_fences;
   SoRef<SoGroup>  m_fencesGroup;
+
+  std::shared_ptr<SeismicScene> m_seismicScene;
 
   static void mousePressedCallback(void* userData, SoEventCallback* node);
   static void mouseMovedCallback(void* userData, SoEventCallback* node);
@@ -558,6 +563,8 @@ public:
   void enableCellFilter(bool enable);
 
   void setCellFilterRange(double minValue, double maxValue);
+
+  void addSeismicScene(std::shared_ptr<SeismicScene> seismicScene);
 
   void setup(std::shared_ptr<Project> project);
 };

@@ -9,6 +9,7 @@
 #include <Inventor/gestures/events/SoRotateGestureEvent.h>
 #include <Inventor/gestures/events/SoDoubleTapGestureEvent.h>
 #include <Inventor/nodes/SoDirectionalLight.h>
+#include <Inventor/nodes/SoPointLight.h>
 #include <Inventor/nodes/SoSwitch.h>
 #include <Inventor/nodes/SoTransformSeparator.h>
 #include <Inventor/nodes/SoRotation.h>
@@ -39,6 +40,9 @@ SceneInteractor::SceneInteractor()
   SoTransformSeparator* transformSeparator = new SoTransformSeparator();
   transformSeparator->addChild(m_headlightRot.ptr());
   transformSeparator->addChild(new SoDirectionalLight());
+  //auto light = new SoPointLight;
+  //light->location.connectFrom(&perspCamera->position);
+  //transformSeparator->addChild(light);
 
   m_headlightSwitch = new SoSwitch();
   m_headlightSwitch->addChild(transformSeparator);

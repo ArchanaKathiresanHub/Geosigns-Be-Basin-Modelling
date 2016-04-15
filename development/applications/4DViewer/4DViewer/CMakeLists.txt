@@ -24,13 +24,6 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 find_package(Qt4 4.8.4 REQUIRED QtGui QtCore QtOpenGL)
 
-set(OIVHOME $ENV{OIVHOME})
-set(OIVARCH $ENV{OIVARCH})
-
-set(OIV_INCLUDE_DIR ${OIVHOME}/include)
-set(OIV_LIB_DIR_REL ${OIVHOME}/arch-Windows-x86_64-msvc12-Release/lib)
-set(OIV_LIB_DIR_DBG ${OIVHOME}/arch-Windows-x86_64-msvc12-Debug/lib)
-
 link_directories( ${OIV_LIB_DIR_REL} ${OIV_LIB_DIR_DBG})
 
 add_executable( 4DViewer ${all_srcs} ${all_headers} ${all_ui})

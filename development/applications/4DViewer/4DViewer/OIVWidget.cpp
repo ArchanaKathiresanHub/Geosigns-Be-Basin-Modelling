@@ -2,6 +2,7 @@
 
 #include <QtGui/QMouseEvent>
 
+#include <Inventor/SoSceneManager.h>
 #include <Inventor/ViewerComponents/SoRenderAreaCore.h>
 #include <Inventor/devices/SoGLContext.h>
 #include <Inventor/events/SoMouseButtonEvent.h>
@@ -72,6 +73,18 @@ namespace
 
     return oivEvent;
   }
+
+  void requestRedraw(void* userData)
+  {
+    OIVWidget* widget = reinterpret_cast<OIVWidget*>(userData);
+    widget->updateGL();
+  }
+
+  void renderCallback(void* userData, SoSceneManager* /*mgr*/)
+  {
+    SoRenderAreaCore* area = reinterpret_cast<SoRenderAreaCore*>(userData);
+    area->render();
+  }
 }
 
 void OIVWidget::initializeGL()
@@ -84,7 +97,8 @@ void OIVWidget::initializeGL()
   m_glcontext->bind();
   
   m_renderArea = new SoRenderAreaCore(m_glcontext.ptr());
-  //m_renderArea->setSceneGraph(m_examiner.ptr());
+  m_renderArea->setRedrawRequestCallback(requestRedraw, this);
+  m_renderArea->getSceneManager()->setRenderCallback(renderCallback, m_renderArea.ptr());
 }
 
 void OIVWidget::resizeGL(int width, int height)
@@ -163,5 +177,4 @@ OIVWidget::OIVWidget(QWidget* parent, Qt::WindowFlags flags)
 void OIVWidget::setSceneGraph(SoNode* root)
 {
   m_renderArea->setSceneGraph(root);
- 
 }

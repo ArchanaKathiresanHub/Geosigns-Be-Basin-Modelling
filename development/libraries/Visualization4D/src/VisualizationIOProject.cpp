@@ -30,7 +30,7 @@ namespace VizIO
 
   class VolumeGeometry : public MiGeometryIjk
   {
-    boost::shared_ptr<CauldronIO::VolumeData> m_data;
+    std::shared_ptr<CauldronIO::VolumeData> m_data;
 
     double m_minX;
     double m_minY;
@@ -47,7 +47,7 @@ namespace VizIO
 
   public:
 
-    VolumeGeometry(boost::shared_ptr<CauldronIO::VolumeData> data)
+    VolumeGeometry(std::shared_ptr<CauldronIO::VolumeData> data)
       : m_data(data)
       , m_timestamp(MxTimeStamp::getTimeStamp())
     {
@@ -177,23 +177,27 @@ namespace VizIO
       : m_geometry(geometry)
       , m_topology(topology)
     {
-
     }
 
-    const MiGeometryIjk& getGeometry() const
+    virtual const MiGeometryIjk& getGeometry() const
     {
       return *m_geometry;
     }
 
-    const MiTopologyIjk& getTopology() const
+    virtual const MiTopologyIjk& getTopology() const
     {
       return *m_topology;
+    }
+
+    virtual const MiVolumeMeshCurvilinear* getNewClone() const
+    {
+      return new VolumeMesh(m_geometry, m_topology);
     }
   };
 
   class ReservoirGeometry : public MiGeometryIjk
   {
-    boost::shared_ptr<CauldronIO::SurfaceData> m_depthMaps[2];
+    std::shared_ptr<CauldronIO::SurfaceData> m_depthMaps[2];
 
     double m_minX;
     double m_minY;
@@ -211,8 +215,8 @@ namespace VizIO
 
     ReservoirGeometry(
       const CauldronIO::Geometry2D& geometry,
-      boost::shared_ptr<CauldronIO::SurfaceData> topMap,
-      boost::shared_ptr<CauldronIO::SurfaceData> bottomMap)
+      std::shared_ptr<CauldronIO::SurfaceData> topMap,
+      std::shared_ptr<CauldronIO::SurfaceData> bottomMap)
       : m_timestamp(MxTimeStamp::getTimeStamp())
     {
       m_depthMaps[0] = topMap;
@@ -273,7 +277,7 @@ namespace VizIO
 
   class SurfaceGeometry : public MiGeometryIj
   {
-    boost::shared_ptr<CauldronIO::SurfaceData> m_map;
+    std::shared_ptr<CauldronIO::SurfaceData> m_map;
 
     double m_minX;
     double m_minY;
@@ -289,7 +293,7 @@ namespace VizIO
 
   public:
 
-    SurfaceGeometry(const CauldronIO::Geometry2D& geometry, boost::shared_ptr<CauldronIO::SurfaceData> valueMap)
+    SurfaceGeometry(const CauldronIO::Geometry2D& geometry, std::shared_ptr<CauldronIO::SurfaceData> valueMap)
       : m_map(valueMap)
       , m_timestamp(MxTimeStamp::getTimeStamp())
     {
@@ -411,13 +415,13 @@ namespace VizIO
 
   class SurfaceProperty : public MiDataSetIj<double>
   {
-    boost::shared_ptr<CauldronIO::SurfaceData> m_map;
+    std::shared_ptr<CauldronIO::SurfaceData> m_map;
     std::string m_name;
     size_t m_timestamp;
 
   public:
 
-    SurfaceProperty(const std::string& name, boost::shared_ptr<CauldronIO::SurfaceData> map)
+    SurfaceProperty(const std::string& name, std::shared_ptr<CauldronIO::SurfaceData> map)
       : m_map(map)
       , m_name(name)
       , m_timestamp(MxTimeStamp::getTimeStamp())
@@ -450,7 +454,7 @@ namespace VizIO
     }
   };
 
-  void getMinMax(boost::shared_ptr<CauldronIO::VolumeData> volume, float& minValue, float& maxValue)
+  void getMinMax(std::shared_ptr<CauldronIO::VolumeData> volume, float& minValue, float& maxValue)
   {
     const float undefined = volume->getUndefinedValue();
 
@@ -482,7 +486,7 @@ namespace VizIO
     }
   }
 
-  void getMinMax(boost::shared_ptr<CauldronIO::SurfaceData> map, const CauldronIO::Geometry2D& geometry, float& minValue, float& maxValue)
+  void getMinMax(std::shared_ptr<CauldronIO::SurfaceData> map, const CauldronIO::Geometry2D& geometry, float& minValue, float& maxValue)
   {
     const float undefined = map->getUndefinedValue();
 
@@ -512,7 +516,7 @@ namespace VizIO
 
   class VolumeProperty : public MiDataSetIjk<double>
   {
-    boost::shared_ptr<CauldronIO::VolumeData> m_data;
+    std::shared_ptr<CauldronIO::VolumeData> m_data;
     CauldronIO::Geometry3D m_geometry;
     std::string m_name;
     size_t m_timestamp;
@@ -535,7 +539,7 @@ namespace VizIO
 
   public:
 
-    VolumeProperty(const std::string& name, boost::shared_ptr<CauldronIO::VolumeData> data)
+    VolumeProperty(const std::string& name, std::shared_ptr<CauldronIO::VolumeData> data)
       : m_data(data)
       , m_geometry(*data->getGeometry())
       , m_name(name)
@@ -598,7 +602,7 @@ namespace VizIO
 
   class DiscontinuousVolumeProperty : public MiDataSetIjk<double>
   {
-    std::vector<boost::shared_ptr<CauldronIO::VolumeData> > m_data;
+    std::vector<std::shared_ptr<CauldronIO::VolumeData> > m_data;
     std::vector<CauldronIO::VolumeData*> m_index;
 
     std::string m_name;
@@ -622,8 +626,8 @@ namespace VizIO
         m_data.begin(),
         m_data.end(),
         [](
-        boost::shared_ptr<CauldronIO::VolumeData> v1,
-        boost::shared_ptr<CauldronIO::VolumeData> v2)
+        std::shared_ptr<CauldronIO::VolumeData> v1,
+        std::shared_ptr<CauldronIO::VolumeData> v2)
       {
         return v1->getGeometry()->getFirstK() < v2->getGeometry()->getFirstK();
       });
@@ -660,7 +664,7 @@ namespace VizIO
 
   public:
 
-    DiscontinuousVolumeProperty(const std::string& name, const std::vector<boost::shared_ptr<CauldronIO::VolumeData> >& data)
+    DiscontinuousVolumeProperty(const std::string& name, const std::vector<std::shared_ptr<CauldronIO::VolumeData> >& data)
       : m_data(data)
       , m_name(name)
       , m_timestamp(MxTimeStamp::getTimeStamp())
@@ -714,7 +718,7 @@ namespace VizIO
 
   class Formation2DProperty : public MiDataSetIjk<double>
   {
-    std::vector<boost::shared_ptr<CauldronIO::SurfaceData>> m_index;
+    std::vector<std::shared_ptr<CauldronIO::SurfaceData>> m_index;
     std::string m_name;
     size_t m_timestamp;
 
@@ -745,7 +749,7 @@ namespace VizIO
 
   public:
 
-    Formation2DProperty(const std::string& name, const std::vector<boost::shared_ptr<CauldronIO::SurfaceData>> index)
+    Formation2DProperty(const std::string& name, const std::vector<std::shared_ptr<CauldronIO::SurfaceData>> index)
       : m_index(index)
       , m_name(name)
       , m_timestamp(MxTimeStamp::getTimeStamp())
@@ -805,7 +809,7 @@ namespace VizIO
 
   class ReservoirProperty : public MiDataSetIjk<double>
   {
-    boost::shared_ptr<CauldronIO::SurfaceData> m_map;
+    std::shared_ptr<CauldronIO::SurfaceData> m_map;
     CauldronIO::Geometry2D m_geometry;
     std::string m_name;
     size_t m_timestamp;
@@ -823,7 +827,7 @@ namespace VizIO
 
   public:
 
-    ReservoirProperty(const std::string& name, const CauldronIO::Geometry2D& geometry, boost::shared_ptr<CauldronIO::SurfaceData> map)
+    ReservoirProperty(const std::string& name, const CauldronIO::Geometry2D& geometry, std::shared_ptr<CauldronIO::SurfaceData> map)
       : m_map(map)
       , m_geometry(geometry)
       , m_name(name)
@@ -880,7 +884,7 @@ namespace VizIO
 
 namespace
 {
-  bool* createDeadMap(boost::shared_ptr<CauldronIO::SurfaceData> map, const CauldronIO::Geometry2D& geometry)
+  bool* createDeadMap(std::shared_ptr<CauldronIO::SurfaceData> map, const CauldronIO::Geometry2D& geometry)
   {
     const float undefined = map->getUndefinedValue();
 
@@ -903,7 +907,7 @@ namespace
     return deadMap;
   }
 
-  bool* createDeadMap(boost::shared_ptr<CauldronIO::VolumeData> volume)
+  bool* createDeadMap(std::shared_ptr<CauldronIO::VolumeData> volume)
   {
     const float undefined = volume->getUndefinedValue();
 
@@ -940,7 +944,7 @@ void VisualizationIOProject::init()
   auto iter = std::remove_if(
     m_snapshots.begin(), 
     m_snapshots.end(), 
-    [](boost::shared_ptr<CauldronIO::SnapShot> snapshot)
+    [](std::shared_ptr<CauldronIO::SnapShot> snapshot)
       {
         return snapshot->isMinorShapshot();
       });
@@ -961,7 +965,7 @@ void VisualizationIOProject::init()
   id = 0;
   auto formations = m_project->getFormations();
   std::sort(formations.begin(), formations.end(), 
-    [](boost::shared_ptr<const CauldronIO::Formation> lhs, boost::shared_ptr<const CauldronIO::Formation> rhs)
+    [](std::shared_ptr<const CauldronIO::Formation> lhs, std::shared_ptr<const CauldronIO::Formation> rhs)
     {
       unsigned int startK1, endK1, startK2, endK2;
       lhs->getK_Range(startK1, endK1);
@@ -1176,8 +1180,8 @@ std::shared_ptr<MiVolumeMeshCurvilinear> VisualizationIOProject::createReservoir
 
   std::string name = m_projectInfo.reservoirs[reservoirId].name;
 
-  boost::shared_ptr<CauldronIO::SurfaceData> topMap, bottomMap;
-  boost::shared_ptr<const CauldronIO::Geometry2D> reservoirGeometry;
+  std::shared_ptr<CauldronIO::SurfaceData> topMap, bottomMap;
+  std::shared_ptr<const CauldronIO::Geometry2D> reservoirGeometry;
 
   for (auto surface : snapshot->getSurfaceList())
   {
@@ -1257,7 +1261,7 @@ std::shared_ptr<MiDataSetIjk<double> > VisualizationIOProject::createFormationPr
   auto iter = std::find_if(
     properties.begin(), 
     properties.end(), 
-    [propertyName](boost::shared_ptr<const CauldronIO::Property> p)
+    [propertyName](std::shared_ptr<const CauldronIO::Property> p)
     {
       return p->getName() == propertyName;
     });
@@ -1289,7 +1293,7 @@ std::shared_ptr<MiDataSetIjk<double> > VisualizationIOProject::createFormationPr
   }
   else if (attr == CauldronIO::Discontinuous3DProperty)
   {
-    std::vector<boost::shared_ptr<CauldronIO::VolumeData> > volumes;
+    std::vector<std::shared_ptr<CauldronIO::VolumeData> > volumes;
     for (auto fv : snapshot->getFormationVolumeList())
     {
       auto pvl = fv.second->getPropertyVolumeDataList();
@@ -1313,7 +1317,7 @@ std::shared_ptr<MiDataSetIjk<double> > VisualizationIOProject::createFormationPr
   }
   else if (attr == CauldronIO::Formation2DProperty)
   {
-    std::vector<boost::shared_ptr<CauldronIO::SurfaceData>> maps;
+    std::vector<std::shared_ptr<CauldronIO::SurfaceData>> maps;
 
     for (auto s : snapshot->getSurfaceList())
     {
@@ -1334,7 +1338,7 @@ std::shared_ptr<MiDataSetIjk<double> > VisualizationIOProject::createFormationPr
     if (!maps.empty())
     {
       std::sort(maps.begin(), maps.end(),
-        [](boost::shared_ptr<CauldronIO::SurfaceData> lhs, boost::shared_ptr<CauldronIO::SurfaceData> rhs)
+        [](std::shared_ptr<CauldronIO::SurfaceData> lhs, std::shared_ptr<CauldronIO::SurfaceData> rhs)
       {
         auto f1 = lhs->getFormation();
         auto f2 = rhs->getFormation();
@@ -1349,7 +1353,7 @@ std::shared_ptr<MiDataSetIjk<double> > VisualizationIOProject::createFormationPr
       auto contents = getSnapshotContents(snapshotIndex);
       assert(!contents.formations.empty());
       size_t mapIndex = 0;
-      std::vector<boost::shared_ptr<CauldronIO::SurfaceData>> index;
+      std::vector<std::shared_ptr<CauldronIO::SurfaceData>> index;
       for (auto f : contents.formations)
       {
         if (m_projectInfo.formations[f.id].name == maps[mapIndex]->getFormation()->getName())

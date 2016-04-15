@@ -131,6 +131,8 @@ private slots:
 
   void onShowGLInfo();
 
+  void onShowIvTune();
+
   void onTreeWidgetItemClicked(QTreeWidgetItem* item, int column);
 
   void onFenceListItemClicked(QListWidgetItem* item);
@@ -138,6 +140,10 @@ private slots:
   void onSeismicSliceToggled(bool value);
 
   void onSeismicSliceValueChanged(int value);
+
+  void onInterpolatedSurfaceToggled(bool value);
+
+  void onInterpolatedSurfacePositionChanged(int value);
 
 public:
 

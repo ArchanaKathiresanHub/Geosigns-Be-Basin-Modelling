@@ -18,6 +18,7 @@
 #include <signal.h>
 
 #include <MeshVizXLM/mapping/MoMeshViz.h>
+#include <VolumeViz/nodes/SoVolumeRendering.h>
 
 #ifdef USE_H264
 #include <Service.h>
@@ -58,12 +59,15 @@ int main(int /*argc*/, char* /*argv*/[])
 #else
 
   MoMeshViz::init();
+  SoVolumeRendering::init();
 
   ServiceSettings settings;
   settings.setPort(8081);
   settings.setUsedExtensions(
     ServiceSettings::MESHVIZXLM | 
-    ServiceSettings::MESHVIZ);
+    ServiceSettings::MESHVIZ |
+    ServiceSettings::VOLUMEVIZ |
+    ServiceSettings::VOLUMEVIZLDM);
 
   auto serviceListener = std::make_shared<BpaServiceListener>();
   Service::instance()->addListener(serviceListener);
