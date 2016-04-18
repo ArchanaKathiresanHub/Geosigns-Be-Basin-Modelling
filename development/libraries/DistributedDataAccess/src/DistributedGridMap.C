@@ -399,7 +399,7 @@ bool DistributedGridMap::restoreData (bool save, bool withGhosts) const
       PetscMPIInt mpiSize = 0;
       ierr = MPI_Comm_size( PETSC_COMM_WORLD, &mpiSize ); CHKERRQ(ierr);
       if( not (globalReady == 0 || globalReady == mpiSize) )
-         throw formattingexception::GeneralException() << __FUNCTION__ << " is causing hanging MPI communications.";
+         throw formattingexception::GeneralException() << "DistributedGridMap::restoreData is causing hanging MPI communications.";
    }
 
    if (m_depth > 1)
