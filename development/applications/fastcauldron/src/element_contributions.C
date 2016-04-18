@@ -1129,8 +1129,6 @@ void Basin_Modelling::assembleElementTemperatureStiffnessMatrix ( const bool    
                                                  PreviousLithoPressure,
                                                  Previous_Bulk_Density_X_Capacity );
 
-        // Load_Terms = Current_Bulk_Density_X_Capacity * Previous_Temperature * timeStepInv;
-
         double t1 = Current_Bulk_Density_X_Capacity / ( 1.0 - Current_Porosity ) * ( Current_Porosity - Previous_Porosity );
         double t2 = ( 2.0 * Current_Bulk_Density_X_Capacity - Previous_Bulk_Density_X_Capacity );
         double t3 = Previous_Bulk_Density_X_Capacity * Previous_Temperature;
@@ -1328,23 +1326,20 @@ void Basin_Modelling::assembleElementPressureSystem ( const BasisFunctionCache& 
    const bool   Has_Fractured = ( fractureModel == Interface::NON_CONSERVATIVE_TOTAL ? false : ( fractureScaling > 0.0 ) );
 
    // For the ice sheet with Permafrost taking in account, we do not want to "compute" the overpressure in the ice lithology - we want to impose it.
+#if 0
+   // Remove #if 0 after release
    if ( isIceSheetLayer ) { 
-      cout << "WARNING NOT YET IMPLEMENTED " << endl;
+      applyDirichletBoundaryConditionsNewton ( bcs,
+                                               Dirichlet_Scaling_Value,
+                                               MPa_To_Pa,
+                                               Current_Po,
+                                               elementJacobian,
+                                               elementResidual );
 
-      // for ( I = 1; I <= 8; I++ ) {
-      //    ///
-      //    /// Only set the diagonal to a Dirichlet node if the node is not included AND the segment is not degenerate
-      //    ///
-      //    if ( ! Included_Nodes ( I ) && ( fabs ( geometryMatrix ( 3, ( I - 1 ) % 4 + 1 ) - geometryMatrix ( 3, ( I - 1 ) % 4 + 5 ) ) > 0.001 ) ) {
-      //       elementJacobian ( I, I ) = Dirichlet_Scaling_Value;
-      //    }
-      // }
-
-      // Apply_Dirichlet_Boundary_Conditions_Newton ( BCs, Dirichlet_Boundary_Values, Dirichlet_Scaling_Value,
-      //                                              Current_Po, elementJacobian, elementResidual );
-      // return;
+      return;
    }
-
+#endif
+   
    double usedWaterSaturation         = includeWaterSaturation ? currentSaturation ( Saturation::WATER )  : 1.0;
    double usedPreviousWaterSaturation = includeWaterSaturation ? previousSaturation ( Saturation::WATER ) : 1.0;
 
