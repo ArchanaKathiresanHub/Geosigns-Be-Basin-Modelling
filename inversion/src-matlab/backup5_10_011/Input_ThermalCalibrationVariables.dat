@@ -1,6 +1,0 @@
-# skip lines with # at front
-# varType cauldronparam name_in_project3d given_name type_point point min max initial
-# never use tab to space. 
-
-
-Basement TopCrustHeatProd  heat_prod 2.0 3.0 2.1
