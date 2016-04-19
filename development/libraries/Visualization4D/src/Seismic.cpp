@@ -33,75 +33,12 @@
 #include <VolumeViz/nodes/SoVolumeRenderingQuality.h>
 #include <VolumeViz/readers/SoVRSegyFileReader.h>
 
-#include <MeshVizXLM/mapping/elements/MoMeshElement.h>
 #include <MeshVizXLM/mesh/MiVolumeMeshCurvilinear.h>
-#include <MeshVizXLM/extractors/MiInterpolatedLogicalSliceExtract.h>
 
 #include <algorithm>
 
 namespace
 {
-  SoVolumeBufferedShape* createVolumeBufferedShape(const MeXSurfaceMeshUnstructured& extract)
-  {
-    const MeXGeometryI& geometry = extract.getGeometry();
-    const auto& topology = static_cast<const MeXSurfaceTopologyExplicitI&>(extract.getTopology());
-
-    const size_t ni = topology.getNumCells();
-    const size_t indicesPerCell = 4;
-
-    auto indexBuffer = new SoCpuBufferObject;
-    indexBuffer->setSize(ni * indicesPerCell * sizeof(int32_t));
-    int32_t* ib = (int32_t*)indexBuffer->map(SoBufferObject::SET);
-
-    int index = 0;
-    for (size_t i = 0; i < ni; ++i)
-    {
-      auto cell = topology.getCell(i);
-      size_t m = cell->getNumNodes();
-      assert(m == 4);
-      for (size_t j = 0; j < m; ++j)
-        ib[index++] = (int32_t)cell->getNodeIndex(j);
-    }
-
-    indexBuffer->unmap();
-
-    const size_t floatsPerVertex = 3;
-    const size_t stride = floatsPerVertex * sizeof(float);
-    const size_t nv = geometry.getSize();
-
-    auto vertexBuffer = new SoCpuBufferObject;
-    vertexBuffer->setSize(nv * stride);
-    float* vb = (float*)vertexBuffer->map(SoBufferObject::SET);
-
-    index = 0;
-    for (size_t i = 0; i < nv; ++i)
-    {
-      //float x = 5 * (float)i / (float)(nv - 1);
-
-      MbVec3d coord = geometry.getCoord(i);
-      vb[index++] = (float)coord[0];
-      vb[index++] = (float)coord[1];
-      vb[index++] = (float)coord[2];
-    }
-    vertexBuffer->unmap();
-
-    auto vbs = new SoVolumeBufferedShape;
-    vbs->indexBuffer = indexBuffer;
-    vbs->indexOffset = 0;
-    vbs->indexType = SbDataType::UNSIGNED_INT32;
-
-    vbs->vertexBuffer = vertexBuffer;
-    vbs->vertexComponentsCount = 3;
-    vbs->vertexComponentsType = SbDataType::FLOAT;
-    vbs->vertexOffset = 0;
-    vbs->vertexStride = stride;
-
-    vbs->shapeType = SoBufferedShape::QUADS;
-    vbs->numVertices = (int32_t)ni * 4;
-
-    return vbs;
-  }
-
   const char* fragGetDataSrc = R"%%%(
   //!oiv_include <VolumeViz/vvizGetData_frag.h>
 
@@ -314,28 +251,61 @@ void SeismicScene::createCrossSection(PlaneSlice& slice)
   slice.shape = shape;
 }
 
-void SeismicScene::updateInterpolatedSurface()
+void SeismicScene::updateSurface()
 {
-  if (m_interpolatedSurface.enabled)
+  if (!m_mesh)
+    return;
+
+  if (m_surface.enabled)
   {
-    if (!m_interpolatedSurface.extract)
-      m_interpolatedSurface.extract.reset(MiInterpolatedLogicalSliceExtract::getNewInstance(*m_mesh));
+    if (!m_surface.shape)
+    {
+      m_surface.vertices = new SoCpuBufferObject;
+      m_surface.texcoords = new SoCpuBufferObject;
 
-    if (m_interpolatedSurface.shape)
-      m_root->removeChild(m_interpolatedSurface.shape);
+      auto indices = computeSurfaceIndices(m_mesh->getTopology());
+      m_surface.indices = new SoCpuBufferObject;
+      m_surface.indices->setSize(indices.size() * sizeof(uint32_t));
+      uint32_t* p = (uint32_t*)m_surface.indices->map(SoBufferObject::SET);
+      memcpy(p, indices.data(), indices.size() * sizeof(uint32_t));
+      m_surface.indices->unmap();
 
-    m_interpolatedSurface.extract->extractInterpolatedLogicalSlice(MiMesh::DIMENSION_K, m_interpolatedSurface.position);
-    m_interpolatedSurface.shape = createVolumeBufferedShape(m_interpolatedSurface.extract->getExtract());
-    m_root->addChild(m_interpolatedSurface.shape);
+      m_surface.shape = new SoVolumeBufferedShape;
+      m_surface.shape->shapeType = SoBufferedShape::QUADS;
+      m_surface.shape->numVertices = (uint32_t)indices.size();
+
+      m_root->addChild(m_surface.shape);
+    }
+
+    computeSurfaceCoordinates(*m_mesh, m_surface.position, m_surface.vertices.ptr());
+    computeSurfaceCoordinates(*m_presentDayMesh, m_surface.position, m_surface.texcoords.ptr());
+
+    m_surface.shape->vertexBuffer = m_surface.vertices.ptr();
+    m_surface.shape->vertexComponentsCount = 3;
+    m_surface.shape->vertexComponentsType = SbDataType::FLOAT;
+
+    m_surface.shape->texCoordsBuffer = m_surface.texcoords.ptr();
+    m_surface.shape->texCoordsComponentsCount = 3;
+    m_surface.shape->texCoordsComponentsType = SbDataType::FLOAT;
+
+    m_surface.shape->indexBuffer = m_surface.indices.ptr();
+    m_surface.shape->indexType = SbDataType::UNSIGNED_INT32;
   }
 }
 
 void SeismicScene::updatePlaneSlice(int index)
 {
+  PlaneSlice& slice = m_planeSlice[index];
+
+  // remove previous shape
+  if (slice.shape)
+  {
+    m_root->removeChild(slice.shape);
+    slice.shape = nullptr;
+  }
+
   if (!m_mesh)
     return;
-
-  PlaneSlice& slice = m_planeSlice[index];
 
   auto extent = m_data->extent.getValue();
 
@@ -356,13 +326,6 @@ void SeismicScene::updatePlaneSlice(int index)
 
   slice.p0 = SbVec2d(p0[0], p0[1]);
   slice.p1 = SbVec2d(p1[0], p1[1]);
-
-  // remove previous shape
-  if (slice.shape)
-  {
-    m_root->removeChild(slice.shape);
-    slice.shape = nullptr;
-  }
 
   if (slice.enabled)
   {
@@ -441,9 +404,9 @@ SeismicScene::SeismicScene(const char* filename, const Project::Dimensions& dim)
     SbMatrix scaleMatrix;
     scaleMatrix.setScale(SbVec3f(1.f, 1.f, -1.f)); // mirror
     
-    SbVec3f xAxis(1.f, 0.f, 0.f);
-    SbVec3f yAxis(0.f, 1.f, 0.f);
-    SbVec3f zAxis(0.f, 0.f, 1.f);
+    const SbVec3f xAxis(1.f, 0.f, 0.f);
+    const SbVec3f yAxis(0.f, 1.f, 0.f);
+    const SbVec3f zAxis(0.f, 0.f, 1.f);
 
     SbMatrix rotMatrix1;
     rotMatrix1.setRotate(SbRotation(xAxis, -zAxis));
@@ -483,6 +446,8 @@ void SeismicScene::setMesh(const MiVolumeMeshCurvilinear* mesh)
 
     for(int i=0; i < 2; ++i)
       updatePlaneSlice(i);
+
+    updateSurface();
   }
 }
 
@@ -535,18 +500,18 @@ void SeismicScene::setSlicePosition(SliceType type, float position)
 
 void SeismicScene::enableInterpolatedSurface(bool enabled)
 {
-  if (enabled != m_interpolatedSurface.enabled)
+  if (enabled != m_surface.enabled)
   {
-    m_interpolatedSurface.enabled = enabled;
-    updateInterpolatedSurface();
+    m_surface.enabled = enabled;
+    updateSurface();
   }
 }
 
 void SeismicScene::setInterpolatedSurfacePosition(float position)
 {
-  if (position != m_interpolatedSurface.position)
+  if (position != m_surface.position)
   {
-    m_interpolatedSurface.position = position;
-    updateInterpolatedSurface();
+    m_surface.position = position;
+    updateSurface();
   }
 }

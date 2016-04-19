@@ -42,8 +42,8 @@ private:
   struct PlaneSlice
   {
     bool enabled = false;
-    SliceType type = SliceInline;
     float position = 0.f;
+    SliceType type = SliceInline;
 
     SbVec2d p0, p1;
     std::vector<SbVec2d> points;
@@ -56,14 +56,26 @@ private:
     SoVolumeBufferedShape* shape = nullptr;
   } m_planeSlice[2];
 
-  struct InterpolatedSurface
+  struct Surface
   {
     bool enabled = false;
     float position = 0.f;
 
-    std::shared_ptr<MiInterpolatedLogicalSliceExtract> extract;
+    SoRef<SoCpuBufferObject> vertices;
+    SoRef<SoCpuBufferObject> texcoords;
+    SoRef<SoCpuBufferObject> indices;
+
     SoVolumeBufferedShape* shape = nullptr;
-  } m_interpolatedSurface;
+  } m_surface;;
+
+  //struct InterpolatedSurface
+  //{
+  //  bool enabled = false;
+  //  float position = 0.f;
+
+  //  std::shared_ptr<MiInterpolatedLogicalSliceExtract> extract;
+  //  SoVolumeBufferedShape* shape = nullptr;
+  //} m_interpolatedSurface;
 
   std::shared_ptr<const MiVolumeMeshCurvilinear> m_presentDayMesh;
   const MiVolumeMeshCurvilinear* m_mesh;
@@ -87,6 +99,8 @@ private:
   void createCrossSection(PlaneSlice& slice);
 
   void updateInterpolatedSurface();
+
+  void updateSurface();
 
   void updatePlaneSlice(int index);
 

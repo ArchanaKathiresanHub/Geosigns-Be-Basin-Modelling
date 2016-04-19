@@ -12,8 +12,10 @@
 #define GEOMETRYUTIL_H_INCLUDED
 
 class MiGeometryIjk;
+class MiTopologyIjk;
 class MiVolumeMeshCurvilinear;
 class SoVolumeBufferedShape;
+class SoCpuBufferObject;
 class SbBox2d;
 
 #include "Project.h"
@@ -29,5 +31,9 @@ bool clip(SbVec2d& p0, SbVec2d& p1, const SbBox2d& box);
 std::vector<SbVec2d> computeGridLineIntersections(const SbVec2d& p0, const SbVec2d& p1, double stepX, double stepY);
 
 SoVolumeBufferedShape* createCrossSection(const SbVec2d& p0, const SbVec2d& p1, const MiVolumeMeshCurvilinear& mesh, const Project::Dimensions& dim);
+
+std::vector<uint32_t> computeSurfaceIndices(const MiTopologyIjk& topology);
+
+bool computeSurfaceCoordinates(const MiVolumeMeshCurvilinear& mesh, float invK, SoCpuBufferObject* vbo);
 
 #endif

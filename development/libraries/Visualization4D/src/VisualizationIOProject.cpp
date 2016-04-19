@@ -30,7 +30,8 @@ namespace VizIO
 
   class VolumeGeometry : public MiGeometryIjk
   {
-    std::shared_ptr<CauldronIO::VolumeData> m_data;
+    //std::shared_ptr<CauldronIO::VolumeData> m_data;
+    float* m_data;
 
     double m_minX;
     double m_minY;
@@ -48,7 +49,7 @@ namespace VizIO
   public:
 
     VolumeGeometry(std::shared_ptr<CauldronIO::VolumeData> data)
-      : m_data(data)
+      : m_data(nullptr)
       , m_timestamp(MxTimeStamp::getTimeStamp())
     {
       auto geometry = *data->getGeometry();
@@ -62,20 +63,29 @@ namespace VizIO
       m_numK = geometry.getNumK();
 
       m_undefined = data->getUndefinedValue();
+
+      size_t n = m_numI * m_numJ * m_numK;
+      m_data = new float[n];
+      memcpy(m_data, data->getVolumeValues_IJK(), n * sizeof(float));
     }
 
     virtual ~VolumeGeometry()
     {
-      m_data->release();
+      //m_data->release();
+      delete[] m_data;
     }
+
+    VolumeGeometry(const VolumeGeometry&) = delete;
+    VolumeGeometry& operator=(const VolumeGeometry&) = delete;
 
     virtual MbVec3d getCoord(size_t i, size_t j, size_t k) const
     {
       double x = /*m_minX + */ i * m_deltaX;
       double y = /*m_minY + */ j * m_deltaY;
-      double z = -m_data->getValue(i, j, k);
+      //double z = -m_data->getValue(i, j, k);
+      double depth = m_data[i + j * m_numI + k * m_numI * m_numJ];
 
-      return MbVec3d(x, y, z);
+      return MbVec3d(x, y, -depth);
     }
 
     virtual MiMeshIjk::StorageLayout getStorageLayout() const
@@ -105,7 +115,9 @@ namespace VizIO
 
     bool isUndefined(size_t i, size_t j, size_t k) const
     {
-      return m_data->getValue(i, j, k) == m_undefined;
+      double value = m_data[i + j * m_numI + k * m_numI * m_numJ];
+      return value == m_undefined;
+      //return m_data->getValue(i, j, k) == m_undefined;
     }
   };
 
@@ -931,7 +943,6 @@ namespace
 
     return deadMap;
   }
-
 }
 
 void VisualizationIOProject::init()
@@ -1168,6 +1179,8 @@ std::shared_ptr<MiVolumeMeshCurvilinear> VisualizationIOProject::createSnapshotM
     m_loresDeadMap = createDeadMap(depthVolume);
 
   auto geometry = std::make_shared<VizIO::VolumeGeometry>(depthVolume);
+  depthVolume->release();
+
   auto topology = std::make_shared<VizIO::FormationTopology>(*geometry, m_loresDeadMap);
   return std::make_shared<VizIO::VolumeMesh>(geometry, topology);
 }

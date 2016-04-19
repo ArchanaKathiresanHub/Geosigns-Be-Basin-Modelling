@@ -533,7 +533,7 @@ void MainWindow::onActionRenderAllSnapshotsTriggered()
   time.start();
 
   int maxTimeMs = 0;
-  for(int i=0; i <= m_ui.snapshotSlider->maximum(); ++i)
+  for (int i = m_ui.snapshotSlider->maximum(); i >= 0; --i)
   {
     std::cout << i << " ";
 

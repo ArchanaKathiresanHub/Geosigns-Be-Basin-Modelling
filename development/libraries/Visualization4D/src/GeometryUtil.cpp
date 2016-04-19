@@ -219,3 +219,65 @@ std::vector<SbVec2d> computeGridLineIntersections(const SbVec2d& p0, const SbVec
   return points;
 }
 
+std::vector<uint32_t> computeSurfaceIndices(const MiTopologyIjk& topology)
+{
+  uint32_t ni = (uint32_t)(topology.getNumCellsI() + 1);
+  uint32_t nj = (uint32_t)(topology.getNumCellsJ() + 1);
+
+  std::vector<uint32_t> indices;
+  indices.reserve(4 * (ni - 1) * (nj - 1));
+
+  for (uint32_t j = 0; j < nj - 1; ++j)
+  {
+    for (uint32_t i = 0; i < ni - 1; ++i)
+    {
+      if (!topology.isDead(i, j, 0u))
+      {
+        uint32_t base = i + j * ni;
+        uint32_t quadIndices[] = { base, base + 1, base + 1 + ni, base + ni };
+
+        indices.insert(indices.end(), quadIndices, quadIndices + 4);
+      }
+    }
+  }
+
+  return indices;
+}
+
+bool computeSurfaceCoordinates(const MiVolumeMeshCurvilinear& mesh, float invK, SoCpuBufferObject* vbo)
+{
+  auto const& geometry = mesh.getGeometry();
+  auto const& topology = mesh.getTopology();
+
+  float k = (float)topology.getNumCellsK() - invK;
+  if (k < 0.f || k > topology.getNumCellsK())
+    return false;
+
+  uint32_t ni = (uint32_t)(topology.getNumCellsI() + 1);
+  uint32_t nj = (uint32_t)(topology.getNumCellsJ() + 1);
+  
+  size_t k0 = (size_t)floor(k);
+  size_t k1 = (size_t)ceil(k);
+  float intpart = 0.f;
+  float alpha = modf(k, &intpart);
+
+  vbo->setSize(ni * nj * 3 * sizeof(float));
+  float* p = (float*)vbo->map(SoBufferObject::SET);
+
+  for (uint32_t j = 0; j < nj; ++j)
+  {
+    for (uint32_t i = 0; i < ni; ++i)
+    {
+      MbVec3d p0 = geometry.getCoord(i, j, k0);
+      MbVec3d p1 = geometry.getCoord(i, j, k1);
+
+      *p++ = (float)p0[0];
+      *p++ = (float)p0[1];
+      *p++ = (float)lerp(p0[2], p1[2], alpha);
+    }
+  }
+
+  vbo->unmap();
+
+  return true;
+}
