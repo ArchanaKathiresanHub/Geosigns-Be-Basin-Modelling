@@ -290,6 +290,10 @@ namespace DataAccess
                                       const GridMap * lowResMap,
                                       const Grid * lowResGrid,
                                       const Grid * highResGrid );
+
+      /// Clean object memory
+      void cleanup(void);
+
       };
 
       typedef GridMap LocalGridMap;

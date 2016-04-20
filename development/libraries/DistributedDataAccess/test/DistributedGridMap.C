@@ -139,25 +139,26 @@ namespace TestingOperator
    {
       return a - b;
    }
-
+#ifdef NO_ASSERT_DEATH
    // Unary operator for testing constructor #5
    static double doubleVal (double a)
    {
       return 2.0 * a;
    }
+#endif
 }
 
 struct MPIHelper
 {
    MPIHelper()
    {
-      PetscErrorCode ierr = PetscInitialize(0, 0, 0, 0);
+      PetscInitialize(0, 0, 0, 0);
    }
 
    ~MPIHelper()
    {
       MPI_Barrier(PETSC_COMM_WORLD);
-      PetscErrorCode ierr = PetscFinalize();
+      PetscFinalize();
    }
 
    static MPIHelper & instance()
@@ -335,9 +336,9 @@ TEST( DistributedGridMap, Constructor3 )
    DataAccess::Interface::DistributedGridMap * dGridMap = 0;
 
    float *** array = Array < float >::create3d (grid->numIGlobal(), grid->numJGlobal(), depth);
-   for (unsigned int i = 0; i < grid->numIGlobal(); ++i)
+   for (int i = 0; i < grid->numIGlobal(); ++i)
    {
-      for (unsigned int j = 0; j < grid->numJGlobal(); ++j)
+      for (int j = 0; j < grid->numJGlobal(); ++j)
       {
          for (unsigned int k = 0; k < depth; ++k)
          {
@@ -580,7 +581,11 @@ TEST( DistributedGridMap, AssertDeath1 )
    // Death test for different I sizes
    DataAccess::Interface::DistributedGrid grid2( minI, minJ, maxI, maxJ, numI-5, numJ, numI-5, numJ );
    DataAccess::Interface::DistributedGridMap dGridMap2(0, 0, &grid2, value, depth);
-   ASSERT_DEATH( DataAccess::Interface::DistributedGridMap(0, 0, &dGridMap1, &dGridMap2, TestingOperator::minus), "" );
+
+   try { DataAccess::Interface::DistributedGridMap(0, 0, &dGridMap1, &dGridMap2, TestingOperator::minus); }
+   catch( formattingexception::GeneralException & exc ) {
+      EXPECT_EQ( exc.what(), std::string("DistributedGridMap: numI() != operand2->numI()") );
+   }
 }
 #endif
 
@@ -598,7 +603,11 @@ TEST( DistributedGridMap, AssertDeath2 )
    // Death test for different J sizes
    DataAccess::Interface::DistributedGrid grid2( minI, minJ, maxI, maxJ, numI, numJ-1, numI, numJ-1 );
    DataAccess::Interface::DistributedGridMap dGridMap2(0, 0, &grid2, value, depth);
-   ASSERT_DEATH( DataAccess::Interface::DistributedGridMap(0, 0, &dGridMap1, &dGridMap2, TestingOperator::minus), "" );
+
+   try { DataAccess::Interface::DistributedGridMap(0, 0, &dGridMap1, &dGridMap2, TestingOperator::minus); }
+   catch( formattingexception::GeneralException & exc ) {
+      EXPECT_EQ( exc.what(), std::string("DistributedGridMap: numJ() != operand2->numJ()") );
+   }
 }
 #endif
 
@@ -616,7 +625,11 @@ TEST( DistributedGridMap, AssertDeath3 )
    // Death test for different depths
    DataAccess::Interface::DistributedGrid grid2( minI, minJ, maxI, maxJ, numI, numJ, numI, numJ );
    DataAccess::Interface::DistributedGridMap dGridMap2(0, 0, &grid2, value, depth+7);
-   ASSERT_DEATH( DataAccess::Interface::DistributedGridMap(0, 0, &dGridMap1, &dGridMap2, TestingOperator::minus), "" );
+
+   try { DataAccess::Interface::DistributedGridMap(0, 0, &dGridMap1, &dGridMap2, TestingOperator::minus); }
+   catch( formattingexception::GeneralException & exc ) {
+      EXPECT_EQ( exc.what(), std::string("DistributedGridMap: getDepth() != operand2->getDepth()") );
+   }
 }
 #endif
 
@@ -630,7 +643,11 @@ TEST( DistributedGridMap, AssertDeathNotRetrieved )
 
    DataAccess::Interface::DistributedGrid grid( minI, minJ, maxI, maxJ, numI, numJ, numI, numJ );
    DataAccess::Interface::DistributedGridMap dGridMap(&grid, depth, DataAccess::Interface::DefaultUndefinedMapValue);
-   ASSERT_DEATH( dGridMap.numI(), "" ); // not retrieved yet, assertion is gonna fail
+
+   try { dGridMap.numI(); }
+   catch( formattingexception::GeneralException & exc ) {
+      EXPECT_EQ( exc.what(), std::string("DistributedGridMap::numI() map not retrieved") );
+   }
 }
 #endif
 

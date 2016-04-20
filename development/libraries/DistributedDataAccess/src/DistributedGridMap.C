@@ -11,7 +11,6 @@
 #include <algorithm>
 #include <math.h>
 #include <limits.h>
-#include <assert.h>
 
 #include <iomanip>
 #include <limits>
@@ -31,14 +30,7 @@ using namespace Interface;
 
 DistributedGridMap::~DistributedGridMap (void)
 {
-   restoreData (false, false);
-
-   VecDestroy (&m_vecGlobal);
-
-   if (m_depth != 1)
-   {
-      DMDestroy (&m_localInfo.da);
-   }
+   cleanup();
 }
 
 /// Create a GridMap from the given grid with the given value to be used for undefined values.
@@ -131,15 +123,39 @@ DistributedGridMap::DistributedGridMap( const Parent * owner,
    operand1->retrieveData ();
    operand2->retrieveData ();
 
-   assert (numI () == operand1->numI ());
-   assert (numJ () == operand1->numJ ());
+   if( numI() != operand1->numI() )
+   {
+      cleanup();
+      throw formattingexception::GeneralException() << "DistributedGridMap: numI() != operand1->numI()";
+   }
+   if( numJ() != operand1->numJ() )
+   {
+      cleanup();
+      throw formattingexception::GeneralException() << "DistributedGridMap: numJ() != operand1->numJ()";
+   }
 
-   assert (getDepth () == operand1->getDepth ());
+   if( getDepth() != operand1->getDepth() )
+   {
+      cleanup();
+      throw formattingexception::GeneralException() << "DistributedGridMap: getDepth() != operand1->getDepth()";
+   }
 
-   assert (numI () == operand2->numI ());
-   assert (numJ () == operand2->numJ ());
+   if( numI() != operand2->numI() )
+   {
+      cleanup();
+      throw formattingexception::GeneralException() << "DistributedGridMap: numI() != operand2->numI()";
+   }
+   if( numJ() != operand2->numJ() )
+   {
+      cleanup();
+      throw formattingexception::GeneralException() << "DistributedGridMap: numJ() != operand2->numJ()";
+   }
 
-   assert (getDepth () == operand2->getDepth ());
+   if( getDepth() != operand2->getDepth() )
+   {
+      cleanup();
+      throw formattingexception::GeneralException() << "DistributedGridMap: getDepth() != operand2->getDepth()";
+   }
 
    const unsigned int iLast = lastI();
    const unsigned int jLast = lastJ();
@@ -187,15 +203,39 @@ DistributedGridMap::DistributedGridMap( const Parent * owner,
    operand1->retrieveData ();
    operand2->retrieveData ();
 
-   assert (numI () == operand1->numI ());
-   assert (numJ () == operand1->numJ ());
+   if( numI() != operand1->numI() )
+   {
+      cleanup();
+      throw formattingexception::GeneralException() << "DistributedGridMap: numI() != operand1->numI()";
+   }
+   if( numJ() != operand1->numJ() )
+   {
+      cleanup();
+      throw formattingexception::GeneralException() << "DistributedGridMap: numJ() != operand1->numJ()";
+   }
 
-   assert (getDepth () == operand1->getDepth ());
+   if( getDepth() != operand1->getDepth() )
+   {
+      cleanup();
+      throw formattingexception::GeneralException() << "DistributedGridMap: getDepth() != operand1->getDepth()";
+   }
 
-   assert (numI () == operand2->numI ());
-   assert (numJ () == operand2->numJ ());
+   if( numI() != operand2->numI() )
+   {
+      cleanup();
+      throw formattingexception::GeneralException() << "DistributedGridMap: numI() != operand2->numI()";
+   }
+   if( numJ() != operand2->numJ() )
+   {
+      cleanup();
+      throw formattingexception::GeneralException() << "DistributedGridMap: numJ() != operand2->numJ()";
+   }
 
-   assert (getDepth () == operand2->getDepth ());
+   if( getDepth() != operand2->getDepth() )
+   {
+      cleanup();
+      throw formattingexception::GeneralException() << "DistributedGridMap: getDepth() != operand2->getDepth()";
+   }
 
    const unsigned int iLast = lastI();
    const unsigned int jLast = lastJ();
@@ -241,10 +281,22 @@ DistributedGridMap::DistributedGridMap( const Parent * owner,
 
    operand->retrieveData ();
 
-   assert (numI () == operand->numI ());
-   assert (numJ () == operand->numJ ());
+   if( numI() != operand->numI() )
+   {
+      cleanup();
+      throw formattingexception::GeneralException() << "DistributedGridMap: numI() != operand->numI()";
+   }
+   if( numJ() != operand->numJ() )
+   {
+      cleanup();
+      throw formattingexception::GeneralException() << "DistributedGridMap: numJ() != operand->numJ()";
+   }
 
-   assert (getDepth () == operand->getDepth ());
+   if( getDepth() != operand->getDepth() )
+   {
+      cleanup();
+      throw formattingexception::GeneralException() << "DistributedGridMap: getDepth() != operand->getDepth()";
+   }
 
    const unsigned int iLast = lastI();
    const unsigned int jLast = lastJ();
@@ -289,10 +341,22 @@ DistributedGridMap::DistributedGridMap( const Parent * owner,
 
    operand->retrieveData ();
 
-   assert (numI () == operand->numI ());
-   assert (numJ () == operand->numJ ());
+   if( numI() != operand->numI() )
+   {
+      cleanup();
+      throw formattingexception::GeneralException() << "DistributedGridMap: numI() != operand->numI()";
+   }
+   if( numJ() != operand->numJ() )
+   {
+      cleanup();
+      throw formattingexception::GeneralException() << "DistributedGridMap: numJ() != operand->numJ()";
+   }
 
-   assert (getDepth () == operand->getDepth ());
+   if( getDepth() != operand->getDepth() )
+   {
+      cleanup();
+      throw formattingexception::GeneralException() << "DistributedGridMap: getDepth() != operand->getDepth()";
+   }
 
    const unsigned int iLast = lastI();
    const unsigned int jLast = lastJ();
@@ -473,13 +537,15 @@ double DistributedGridMap::maxJ (void) const
 
 unsigned int DistributedGridMap::numI (void) const
 {
-   assert (m_retrieved);
+   if( !m_retrieved )
+      throw formattingexception::GeneralException() << "DistributedGridMap::numI() map not retrieved";
    return m_withGhosts ? m_localInfo.gxm : m_localInfo.xm;
 }
 
 unsigned int DistributedGridMap::numJ (void) const
 {
-   assert (m_retrieved);
+   if( !m_retrieved )
+      throw formattingexception::GeneralException() << "DistributedGridMap::numJ() map not retrieved";
    return m_withGhosts ? m_localInfo.gym : m_localInfo.ym;
 }
 
@@ -957,7 +1023,8 @@ void DistributedGridMap::printOn (std::ostream & ostr) const
 
 void DistributedGridMap::printOn (MPI_Comm comm) const
 {
-   assert (m_retrieved);
+   if( !m_retrieved )
+      throw formattingexception::GeneralException() << "DistributedGridMap::printOn() map not retrieved";
    unsigned int i, j, k;
 
    const Grid *grid = (Grid *) getGrid ();
@@ -1242,4 +1309,18 @@ bool DistributedGridMap::isHighResNodeInLowResGrid( const unsigned int & HighRes
    unsigned int lowResI, lowResJ;
 
    return (highResGrid->convertToGrid( (*lowResGrid), HighResI, HighResJ, lowResI, lowResJ));
+}
+
+
+
+void DistributedGridMap::cleanup (void)
+{
+   restoreData (false, false);
+
+   VecDestroy (&m_vecGlobal);
+
+   if (m_depth != 1)
+   {
+      DMDestroy (&m_localInfo.da);
+   }
 }
