@@ -17,11 +17,17 @@
 #include "VarSpace.h"
 #include "VarPrmContinuous.h"
 
+// CMB API
+#include "cmbAPI.h"
+
 // Utilities lib
 #include "NumericFunctions.h"
+#include "LogHandler.h"
 
+// Eigen
 #include <unsupported/Eigen/LevenbergMarquardt>
 #include <unsupported/Eigen/NumericalDiff>
+
 
 // SUMlib
 #include <Case.h>
@@ -32,6 +38,8 @@
 #include <map>
 #include <string>
 #include <vector>
+
+#define ACCUMULATE_MIN_FUNCTION 1
 
 namespace casa
 {
@@ -118,6 +126,7 @@ void LMOptAlgorithm::updateParametersAndRunCase( const Eigen::VectorXd & x )
    std::vector<double>       minPrms;
    std::vector<double>       maxPrms;
    std::vector<unsigned int> catPrms;
+   m_xi.clear();
 
    for ( size_t i = 0; i < m_sa->varSpace().size(); ++i )
    {
@@ -141,64 +150,117 @@ void LMOptAlgorithm::updateParametersAndRunCase( const Eigen::VectorXd & x )
          case VarParameter::Categorical:
             catPrms.push_back( dynamic_cast<const VarPrmCategorical*>( m_sa->varSpace().parameter( i ) )->baseValue()->asInteger() );
             break;
-         default: break;
+
+         default: assert( 0 ); break;
       }
    }
 
    // modify base case values
    for ( size_t i = 0; i < m_permPrms.size(); ++i )
    {
-      if (      minPrms[m_permPrms[i]] > x( i ) ) { cntPrms[m_permPrms[i]] = minPrms[m_permPrms[i]]; }
-      else if ( maxPrms[m_permPrms[i]] < x( i ) ) { cntPrms[m_permPrms[i]] = maxPrms[m_permPrms[i]]; }
-      else                                        { cntPrms[m_permPrms[i]] = x( i ); }
+      if ( minPrms[m_permPrms[i]] > x( i ) ) 
+      {
+         cntPrms[m_permPrms[i]] = minPrms[m_permPrms[i]];
+         LogHandler( LogHandler::DEBUG_SEVERITY ) << "x(" << i << ") = " << x(i) << " < min range value: " << minPrms[m_permPrms[i]];
+      }
+      else if ( maxPrms[m_permPrms[i]] < x( i ) )
+      {
+         cntPrms[m_permPrms[i]] = maxPrms[m_permPrms[i]];
+         LogHandler( LogHandler::DEBUG_SEVERITY ) << "x(" << i << ") = " << x(i) << " > max range value: " << maxPrms[m_permPrms[i]];
+      }
+      else
+      {
+         cntPrms[m_permPrms[i]] = x( i ); 
+         LogHandler( LogHandler::DEBUG_SEVERITY ) << "x(" << i << ") = " << x(i);
+      }
+      m_xi.push_back( x[i] );
    }
 
    // create new case with the new parameters values
    SUMlib::Case slCase( cntPrms, std::vector<int>(), catPrms );
-   RunCaseImpl * rc = new RunCaseImpl();
+   std::unique_ptr<RunCaseImpl> rc( new RunCaseImpl() );
 
    // convert array of parameters values to case parametrers
-   sumext::convertCase( slCase, m_sa->varSpace(), *rc );
-   
-   // add this case as a new experiment
-   std::string expName = "LMStep_" + std::to_string( m_sa->scenarioIteration() );
-   RunCaseSetImpl & rcs = dynamic_cast<RunCaseSetImpl&>( m_sa->doeCaseSet() );
+   sumext::convertCase( slCase, m_sa->varSpace(), *(rc.get()) );
   
-   std::vector<RunCase*> cvec( 1, rc );
-   rcs.addNewCases( cvec, expName );
-   rcs.filterByExperimentName( expName );
+   if ( !m_casesSet.empty() && ( *(rc.get()) == *(m_casesSet.back()) ) )
+   {
+      ++m_stepNum;
+      return;
+   }
+   // add this case as a new experiment
+   std::string expName = m_keepHistory ? ("LMStep_" + std::to_string( m_stepNum )) : "LMStep";
+  
+   // construct case project path: pathToScenario/Case_XX/ProjectName.project3d
+   ibs::FolderPath casePath( "." );
+   casePath << expName;
+
+   if ( casePath.exists() ) // clean folder if it is already exist
+   {
+      if ( m_keepHistory )
+      {
+         LogHandler( LogHandler::WARNING_SEVERITY ) << "Folder for LM step: " << m_stepNum << " is already exist. " << 
+                                                       casePath.fullPath().path() << " will be deleted";
+      }
+      casePath.remove(); 
+   }
+   casePath.create();
+   casePath << (std::string( m_sa->baseCaseProjectFileName() ).empty() ? m_sa->baseCaseProjectFileName() : "Project.project3d");
+
+   // do mutation
+   rc->mutateCaseTo( m_sa->baseCase(), casePath.fullPath().cpath() );
+   std::string msg = rc->validateCase();
    
-   assert( rcs.size() == 1 );
+   if ( !msg.empty() )
+   {
+      throw ErrorHandler::Exception( ErrorHandler::ValidationError ) << "LM step " << m_stepNum << " generated invalid project: " 
+                                                                     << casePath.path();
+   }
 
-   // generate new project
-   if ( ErrorHandler::NoError != m_sa->applyMutations( rcs ) ) { throw ErrorHandler::Exception( m_sa->errorCode() ) << m_sa->errorMessage(); }
-
+   // submit new job
    casa::RunManager & rm = m_sa->runManager();
-   
-   // submit jobs
-   if ( ErrorHandler::NoError != rm.scheduleCase(*rc, m_sa->scenarioID()) ) { throw ErrorHandler::Exception( rm.errorCode() ) << rm.errorMessage(); }
-   if ( ErrorHandler::NoError != rm.runScheduledCases( false )            ) { throw ErrorHandler::Exception( rm.errorCode() ) << rm.errorMessage(); }
 
-   // collect observables value
-   if ( ErrorHandler::NoError != m_sa->dataDigger().collectRunResults( m_sa->obsSpace(), m_sa->doeCaseSet() ) )
+   if ( !m_keepHistory ) { m_sa->resetRunManager( false ); } // if we do not keep history we need to clean runManager jobs queue, 
+                                                             // otherwise it could try to use completed case pipeline in the new run
+
+   if ( ErrorHandler::NoError != rm.scheduleCase(*(rc.get()), m_sa->scenarioID()) )
    {
       throw ErrorHandler::Exception( rm.errorCode() ) << rm.errorMessage();
    }
+   // run with queue update interval 1 sec
+   if ( ErrorHandler::NoError != rm.runScheduledCases( 1 ) ) { throw ErrorHandler::Exception( rm.errorCode() ) << rm.errorMessage(); }
+
+   // collect observables value
+   if ( ErrorHandler::NoError != m_sa->dataDigger().collectRunResults( m_sa->obsSpace(), rc.get() ) )
+   {
+      throw ErrorHandler::Exception( m_sa->dataDigger().errorCode() ) << m_sa->dataDigger().errorMessage();
+   }
+
+   if ( m_keepHistory || m_casesSet.empty() )
+   {
+      m_casesSet.push_back( rc.release() );
+   }
+   else 
+   {
+      delete m_casesSet[0];
+      m_casesSet[0] = rc.release();
+   }
+   ++m_stepNum;
 }
 
 void LMOptAlgorithm::calculateFunctionValue( Eigen::VectorXd & fvec )
 {
+   double trgtQ = 0.0;
+   int    trgtNum = 0;
+   double prmQ  = 0.0;
+
    // initialze minimization function with all zeros
    for ( size_t i = 0; i < fvec.rows() * fvec.cols(); ++i ) { fvec( i ) = 0.0; }
    
-   if ( m_sa->doeCaseSet().size() != 1 )
-   {
-      throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Wrong number of run cases for minimization process.";
-   }
+   RunCase * rc = m_casesSet.back();
 
-   const RunCase * rc = m_sa->doeCaseSet()[0];
    size_t mi = 0;
-   
+
    // at first alculate minimization function terms for observables value 
    for ( size_t i = 0; i < m_permObs.size(); ++i )
    {
@@ -213,13 +275,22 @@ void LMOptAlgorithm::calculateFunctionValue( Eigen::VectorXd & fvec )
       for ( size_t k = 0; k < refVal.size(); ++k )
       {
          double dif = sqrt( uaWeight ) * std::abs( obv[k] - refVal[k] ) / sigma;
-         fvec( mi ) = dif;
+#ifndef ACCUMULATE_MIN_FUNCTION
+         fvec[mi] = dif;
+#endif
+         trgtQ += dif * dif;
          ++mi;
       }
    }
+   trgtNum = mi;
+   trgtQ = sqrt( trgtQ / (mi > 0 ? mi : 1.0) );
+
+#ifdef ACCUMULATE_MIN_FUNCTION
+   fvec[0] = trgtQ;
+   mi = 0;
+#endif
 
    // the calculate minimization function terms for parameters value, to prevent going outside ranges
-   size_t pi = 0;
    for ( size_t i = 0; i < m_permPrms.size(); ++i )
    {
       const VarPrmContinuous * vprm  = m_optimPrms[i].first;
@@ -228,21 +299,24 @@ void LMOptAlgorithm::calculateFunctionValue( Eigen::VectorXd & fvec )
       double                   maxV  = vprm->maxValue( )->asDoubleArray()[prmID];
       double                   basV  = vprm->baseValue()->asDoubleArray()[prmID];
       VarPrmContinuous::PDF    ppdf  = vprm->pdfType();
-      double                   pval  = rc->parameter( m_permPrms[i] )->asDoubleArray()[prmID];
- 
-      if (      pval < minV ) { fvec[mi] = 100.0 * exp( minV - pval ) - 100.0; }
-      else if ( pval > maxV ) { fvec[mi] = 100.0 * exp( pval - maxV ) - 100.0; }
+      double                   pval  = m_xi[i]; // use parameter value proposed by LM. It could be outside of parameter
+                                                // range. But parameter value will be cutted on the interval boundary
+      //rc->parameter( m_permPrms[i] )->asDoubleArray()[prmID];
+      
+      double fval = 0.0;
+      if (      pval < minV ) { fval = (minV - pval) > 50 ? exp(50.0) : exp( minV - pval ) - 1.0; }  // penalty if v < [min:max]
+      else if ( pval > maxV ) { fval = (pval - maxV) > 50 ? exp(50.0) : exp( pval - maxV ) - 1.0; }  // penalty if v > [min:max]
       else
       {
          switch( ppdf )
          {
-            case VarPrmContinuous::Block:    fvec[mi] = 1e-10; break;
+            case VarPrmContinuous::Block:    fval = 1e-10; break;
             
             case VarPrmContinuous::Triangle: 
                {  double d = 2.0 / ( (basV - minV) * (maxV - basV) ); // area of triangle is equal 1
 
-                  if ( pval < basV ) { fvec[mi] = 0.5 * d * ( 1.0 + ( pval - minV ) / ( basV - minV ) ) * ( basV - pval ); }
-                  else               { fvec[mi] = 0.5 * d * ( 1.0 + ( pval - maxV ) / ( basV - maxV ) ) * ( pval - basV ); }
+                  if ( pval < basV ) { fval = 0.5 * d * ( 1.0 + ( pval - minV ) / ( basV - minV ) ) * ( basV - pval ); }
+                  else               { fval = 0.5 * d * ( 1.0 + ( pval - maxV ) / ( basV - maxV ) ) * ( pval - basV ); }
                }
                break;
 
@@ -251,18 +325,48 @@ void LMOptAlgorithm::calculateFunctionValue( Eigen::VectorXd & fvec )
                   double sigma = ( maxV - minV ) / 6.0; // 3 sigma - half interval 
                   double pw = ( pval - basV ) / sigma;
                   // sqrt( 2.0 * pi ) = 2.506628274631 
-                  fvec[mi] = 1.0 / ( sigma * 2.506628274631  ) * ( 1.0 - exp( -0.5 * pw * pw  ) );
+                  fval = 1.0 / ( sigma * 2.506628274631  ) * ( 1.0 - exp( -0.5 * pw * pw  ) );
                }
                break;
          }
       }
-      mi++;
+#ifndef ACCUMULATE_MIN_FUNCTION
+      fvec[mi] = fval;
+#endif
+      prmQ += fval * fval;
+      ++mi;
    }
+
+#ifdef ACCUMULATE_MIN_FUNCTION
+   prmQ = sqrt( prmQ / (mi > 0 ? mi : 1.0) );
+   fvec[1] = prmQ;
+#else
+   prmQ = sqrt( prmQ / ( (mi - trgtNum) > 0 ? (mi-trgtNum) : 1 ) ); 
+#endif
+
+   if ( m_Qmin > trgtQ  )
+   {
+      m_Qmin = trgtQ;
+
+      LogHandler( LogHandler::DEBUG_SEVERITY ) << "New minimum found with Qmin target = " << m_Qmin << ", copying project...";
+
+      // copy better case as calibrated
+      ibs::FolderPath clbPath( "." );
+      clbPath << m_projectName;
+
+      rc->caseModel()->saveModelToProjectFile( clbPath.fullPath().cpath(), true );
+   }
+
+   LogHandler( LogHandler::DEBUG_SEVERITY ) << "Qmin targets : " << trgtQ << ", "
+                                            << "Qmin prime   : " << prmQ  << ", "
+                                            << "Qmin         : " << trgtQ + prmQ;
 }
 
 void LMOptAlgorithm::runOptimization( ScenarioAnalysis & sa )
 {
    m_sa = &sa;
+   m_stepNum = 0; // start with zero timestep
+   m_Qmin = 1e50;
 
    // extract continuous parameters with non empty min/max range, fill initial guess vector
    std::vector<double> guess;
@@ -273,32 +377,44 @@ void LMOptAlgorithm::runOptimization( ScenarioAnalysis & sa )
    size_t xi = 0;
    for ( auto pv : guess ) initialGuess[xi++] = pv;
    
-   std::cout << "x: \n" << initialGuess << std::endl;
-
    // extract observables with reference values and calculate dimension
    size_t obsSpDim = prepareObservables();
 
    // Functor
+#ifndef ACCUMULATE_MIN_FUNCTION
    ProjectFunctor functor( *this, prmSpDim, prmSpDim + obsSpDim ); // use parameters also as observables to keep them in range
+#else
+   ProjectFunctor functor( *this, prmSpDim, 2 ); // use parameters also as observables to keep them in range
+#endif
 
-   Eigen::NumericalDiff<ProjectFunctor> numDiff( functor );
+   Eigen::NumericalDiff<ProjectFunctor> numDiff( functor, 0.0001 );
    Eigen::LevenbergMarquardt< Eigen::NumericalDiff<ProjectFunctor> > lm( numDiff );
 
-   lm.setMaxfev( 2000 );
-   lm.setXtol( 1.0e-10 );
-
-   std::cout << 2000 << std::endl;
+   lm.setMaxfev( 200 );
+   lm.setXtol( 1.0e-8 );
 
    int ret = lm.minimize( initialGuess );
 
-   std::cout << "Iterations number: " << lm.iterations() << std::endl;
-   std::cout << "Return code: " << ret << std::endl;
+   // store step in doeCaseSet under separate label with LM step number
+   RunCaseSetImpl & rcs = dynamic_cast<RunCaseSetImpl&>( m_sa->doeCaseSet() );
+   rcs.addNewCases( m_casesSet, "LMSteps" );
 
-   std::cout << "x that minimizes the function: \n" << initialGuess << std::endl;
 
-   std::cout << "press [ENTER] to continue " << std::endl;
-   std::cin.get();
-   
+   // if we should not keep history - delete the last step
+   if ( !m_keepHistory )
+   {
+      ibs::FolderPath casePath( "." );
+      casePath << "LMStep";
+
+      if ( casePath.exists() ) { casePath.remove(); }
+   }
+
+   // inform user about optimization results
+   LogHandler( LogHandler::DEBUG_SEVERITY ) << "LM optimization algorithm finished with iterations number: " << (int)(lm.iterations());
+   LogHandler( LogHandler::DEBUG_SEVERITY ) << "LM return code: " << ret;
+   LogHandler( LogHandler::DEBUG_SEVERITY ) << "x that minimizes the function: \n" << initialGuess;
+   LogHandler( LogHandler::DEBUG_SEVERITY ) << "Saving calibrated model to: " << m_projectName;
+
    m_sa = 0;
 }
 

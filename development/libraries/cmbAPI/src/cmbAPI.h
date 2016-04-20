@@ -218,8 +218,9 @@ namespace mbapi {
       ///        If file exist, it will be overwritten
       ///
       /// @param projectFileName the name for the Cauldron project file
+      /// @param copyFiles if copyFiles is false - results files will be linked where it is possible otherwise they will be copied
       /// @return NoError in case of success, error code otherwise.
-      ReturnCode saveModelToProjectFile( const char * projectFileName );
+      ReturnCode saveModelToProjectFile( const char * projectFileName, bool copyFiles = false );
 
       /// @brief Get project file name
       /// @return project file name or empty string if project wasn't loaded or saved before

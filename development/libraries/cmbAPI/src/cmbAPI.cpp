@@ -118,7 +118,7 @@ public:
 
    // IO methods
    void loadModelFromProjectFile( const char * projectFileName );
-   void saveModelToProjectFile(   const char * projectFileName );
+   void saveModelToProjectFile(   const char * projectFileName, bool copyFiles );
    std::string projectFileName() { return m_projFileName; }
 
    // Create the unique copies of lithology for each given layer, alochtonous lithology and fault cut from the given lists
@@ -375,11 +375,11 @@ Model::ReturnCode Model::loadModelFromProjectFile( const char * projectFileName 
    return NoError;
 }
 
-Model::ReturnCode Model::saveModelToProjectFile( const char * projectFileName )
+Model::ReturnCode Model::saveModelToProjectFile( const char * projectFileName, bool copyFiles )
 {
    if ( errorCode() != NoError ) resetError(); // clean any previous error
 
-   try { m_pimpl->saveModelToProjectFile( projectFileName ); }
+   try { m_pimpl->saveModelToProjectFile( projectFileName, copyFiles ); }
    catch ( const Exception & ex ) { return reportError( ex.errorCode(), ex.what() ); }
    catch ( ... )                  { return reportError( UnknownError, "Unknown error" ); }
 
@@ -1053,7 +1053,7 @@ void Model::ModelImpl::loadModelFromProjectFile( const char * projectFileName )
 }
 
 // Save model to the project file
-void Model::ModelImpl::saveModelToProjectFile( const char * projectFileName )
+void Model::ModelImpl::saveModelToProjectFile( const char * projectFileName, bool copyFiles )
 {
    if ( !m_projHandle.get() )
    {
@@ -1071,7 +1071,7 @@ void Model::ModelImpl::saveModelToProjectFile( const char * projectFileName )
    projectFilePath.cutLast();  // cut filename
 
    m_mapMgr.copyMapFiles( projectFilePath.path() );
-   m_prpMgr.copyResultsFiles( m_projFileName, std::string( projectFileName ) );
+   m_prpMgr.copyResultsFiles( m_projFileName, std::string( projectFileName ), copyFiles );
 }
 
 // model origin

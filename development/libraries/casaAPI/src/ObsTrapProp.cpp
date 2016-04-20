@@ -103,7 +103,10 @@ ObsValue * ObsTrapProp::getFromModel( mbapi::Model & caldModel )
 {
    double val = UndefinedDoubleValue;
    double eps = 1.e-5;
-   
+ 
+   const std::string & msg = checkObservableForProject( caldModel );
+   if ( !msg.empty() ) { return new ObsValueDoubleScalar( this, val ); }
+  
    if ( m_posDataMiningTbl < 0 )
    {
       size_t tblSize = caldModel.tableSize( Observable::s_dataMinerTable );

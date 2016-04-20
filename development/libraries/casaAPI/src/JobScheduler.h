@@ -77,8 +77,9 @@ namespace casa
       virtual bool cpusNumberByScheduler() = 0;
 
       // Wait a bit (~10 sec) before asking about job state again
-      // for the LOCAL cluster - do nothing
-      virtual void sleep() = 0;
+      // for the LOCAL cluster - do noting
+      // secs -1 - use default value for scheduler, 0 or positive number seconds to sleep
+      virtual void sleep( int secs = -1 ) = 0;
 
       static JobScheduler *  load( CasaDeserializer & dz, const char * objName );
 

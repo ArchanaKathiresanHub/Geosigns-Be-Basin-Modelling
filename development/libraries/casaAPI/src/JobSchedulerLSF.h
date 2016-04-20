@@ -54,13 +54,17 @@ namespace casa
 
       // Wait a bit (~10 sec) before asking about job state again
       // for the LOCAL cluster - do nothing
-      virtual void sleep();
+      // secs -1 - use default value for scheduler, 0 or positive number seconds to sleep
+      virtual void sleep( int secs = -1 );
 
       // Print all parameters of LSF batch system
       void printLSFBParametersInfo();
 
       // Defines resource request string for LSF job scheduler in the same format as bsub -R option
       void setResourceRequirements( const std::string & resReqStr ) { m_resReqStr = resReqStr; }
+
+      // Get current resource request string for LSF
+      std::string resourceRequirements() { return m_resReqStr; }
 
       // Serialization / Deserialization
 

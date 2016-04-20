@@ -111,7 +111,7 @@ ErrorHandler::ReturnCode PropertyManagerImpl::requestPropertyInSnapshots( const 
 }
 
 
-ErrorHandler::ReturnCode PropertyManagerImpl::copyResultsFiles( const std::string & oldProject, const std::string & newProject )
+ErrorHandler::ReturnCode PropertyManagerImpl::copyResultsFiles( const std::string & oldProject, const std::string & newProject, bool copyFiles )
 {
    if ( errorCode() != NoError ) resetError();
 
@@ -174,10 +174,22 @@ ErrorHandler::ReturnCode PropertyManagerImpl::copyResultsFiles( const std::strin
          
          bool copied = true;
          // for Time_*.h5/*_Results files make only links
-         if (      !(*it).compare( 0, 5,  "Time_", 0, 5 ) )                           { copied = oldResFile.linkFile( newResFile.fullPath() ); } 
-         else if ( !(*it).compare( 0, 25, "HydrostaticTemperature_Results", 0, 25 ) ) { copied = oldResFile.linkFile( newResFile.fullPath() ); } 
-         else if ( !(*it).compare( 0, 25, "PressureAndTemperature_Results", 0, 25 ) ) { copied = oldResFile.linkFile( newResFile.fullPath() ); } 
-         else                                                                         { copied = oldResFile.copyFile( newResFile.fullPath() ); }
+         if (      !(*it).compare( 0, 5,  "Time_", 0, 5 ) )
+         {
+            copied = copyFiles ? oldResFile.copyFile( newResFile.fullPath() ) : oldResFile.linkFile( newResFile.fullPath() );
+         } 
+         else if ( !(*it).compare( 0, 25, "HydrostaticTemperature_Results", 0, 25 ) )
+         {
+            copied = copyFiles ? oldResFile.copyFile( newResFile.fullPath() ) : oldResFile.linkFile( newResFile.fullPath() );
+         } 
+         else if ( !(*it).compare( 0, 25, "PressureAndTemperature_Results", 0, 25 ) )
+         {
+            copied = copyFiles ? oldResFile.copyFile( newResFile.fullPath() ) : oldResFile.linkFile( newResFile.fullPath() );
+         } 
+         else
+         {
+            copied = oldResFile.copyFile( newResFile.fullPath() );
+         }
 
          if ( !copied ) throw Exception( IoError )  << "Can't copy file: " << oldResFile.path() << " to " << newResFile.path();
       }

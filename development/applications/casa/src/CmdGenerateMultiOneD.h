@@ -25,10 +25,17 @@ public:
    /// @brief Run command
    virtual void execute( std::unique_ptr<casa::ScenarioAnalysis> & sa );
 
+   /// @brief Print help page about command purpose and it parameters
+   /// @param cmdName - command name - how it is defined in CasaCommander
+   static void printHelpPage( const char * cmdName );
+
+
    /// @brief Generate for each 1D project scenario .casa file
    void generateScenarioScripts( std::unique_ptr<casa::ScenarioAnalysis> & sa ) const;
 
 protected:
+   std::string  m_cldVer;         // cauldron version
+   bool         m_keepHist;       // keep history for 1D runs
 };
 
 #endif // CASA_GENERATE_MULTI_ONE_D_H

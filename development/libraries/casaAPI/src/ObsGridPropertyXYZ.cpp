@@ -101,6 +101,10 @@ ErrorHandler::ReturnCode ObsGridPropertyXYZ::requestObservableInModel( mbapi::Mo
 ObsValue * ObsGridPropertyXYZ::getFromModel( mbapi::Model & caldModel )
 {
    double val = UndefinedDoubleValue;
+   
+   const std::string & msg = checkObservableForProject( caldModel );
+   if ( !msg.empty() ) { return new ObsValueDoubleScalar( this, val ); }
+
    const double eps = 1.e-5;
 
    if ( m_posDataMiningTbl < 0 ) // do search in table for this Observable

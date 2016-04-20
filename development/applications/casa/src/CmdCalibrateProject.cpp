@@ -23,7 +23,8 @@ CmdCalibrateProject::CmdCalibrateProject( CasaCommander & parent, const std::vec
 {
    m_bmcName   = m_prms.size() > 0 ? m_prms[0] : "";
    m_optimAlg  = m_prms.size() > 1 ? m_prms[1] : "";
-   m_cldVer    = m_prms.size() > 2 ? m_prms[1] : "";
+   m_cldVer    = m_prms.size() > 2 ? m_prms[2] : "";
+   m_keepHist  = m_prms.size() > 3 ? ( m_prms[3] == "KeepHistory" ? true : false ) : false;
 
    if ( m_bmcName.empty()  ) throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Empty output project name for project calibration";
    if ( m_optimAlg.empty() ) throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Empty optimization algorithm name was given";
@@ -46,7 +47,7 @@ void CmdCalibrateProject::execute( std::unique_ptr<casa::ScenarioAnalysis> & sa 
       throw ErrorHandler::Exception( rm.errorCode() ) << rm.errorMessage();
    }
 
-   if ( ErrorHandler::NoError != sa->calibrateProjectUsingOptimizationAlgorith( m_bmcName, m_optimAlg ) )
+   if ( ErrorHandler::NoError != sa->calibrateProjectUsingOptimizationAlgorithm( m_bmcName, m_optimAlg, m_keepHist ) )
    { 
       throw ErrorHandler::Exception( sa->errorCode() ) << sa->errorMessage();
    }
@@ -56,13 +57,14 @@ void CmdCalibrateProject::execute( std::unique_ptr<casa::ScenarioAnalysis> & sa 
 
 void CmdCalibrateProject::printHelpPage( const char * cmdName )
 {
-   std::cout << "  " << cmdName << " <calProjFileName> <algoName> [<cldVersion>]\n";
+   std::cout << "  " << cmdName << " <calProjFileName> <algoName> [<cldVersion>] [KeepHistory] \n";
    std::cout << "  Where:\n";
    std::cout << "  calProjFileName - project file name which will keep calibrated parameter values\n";
    std::cout << "  algoName        - optimization algorithm name. Implemented optimization algorith list is following: \n";
    std::cout << "                    LM - variant of the Levenberg Marquardt algorithm implemented in Eigen.\n";
-   std::cout << "  cldVersion      - simulator version. Must be installed in IBS folder. Could be specified as \"Default\".\n";
+   std::cout << "  cldVersion      - (Optional) simulator version. Must be installed in IBS folder. Could be specified as \"Default\".\n";
    std::cout << "                    In this case the same simulator version as casa application will be used.\n";
+   std::cout << "  KeepHistory     - (Optional) if specified, all intermediate projects on optimization path will not be deleted\n";
    std::cout << "\n";
    std::cout << "     Here is an examples of using \"" << cmdName << "\" command:\n";
    std::cout << "         " << cmdName << " \"CalibratedCase.project3d\" \"LM\" \n";

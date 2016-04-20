@@ -90,7 +90,7 @@ namespace casa
 
       if ( m_expSet.count( expLabel ) > 0 )
       {
-         throw ErrorHandler::Exception( ErrorHandler::AlreadyDefined ) << "Experiment with name:" << expLabel << "already exist in the set";
+         throw ErrorHandler::Exception( ErrorHandler::AlreadyDefined ) << "Experiment with name: " << expLabel << " already exists in the set";
       }
       else
       {

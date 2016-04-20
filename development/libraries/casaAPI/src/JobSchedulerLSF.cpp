@@ -501,9 +501,10 @@ std::string JobSchedulerLSF::schedulerJobID( JobID id )
    return oss.str();
 }
 
-void JobSchedulerLSF::sleep()
+void JobSchedulerLSF::sleep( int secs )
 {
-   Wait( 10 );
+   if (      secs < 0 ) { Wait( 10 );   }
+   else if ( secs > 0 ) { Wait( secs ); }
 }
 
 // Serialize object to the given stream

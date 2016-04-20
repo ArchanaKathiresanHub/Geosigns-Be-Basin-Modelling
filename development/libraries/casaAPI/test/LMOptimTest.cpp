@@ -36,6 +36,9 @@ public:
    {
       m_sa = &sa;
       m_eps = 1.e-6;
+      m_casesSet.push_back( sa.doeCaseSet().runCase( 0 ) );
+      m_xi.push_back( 47.5 );
+      m_xi.push_back( 30.0 );
    }
 
    void test_prepareParameters()
@@ -79,20 +82,12 @@ public:
 
    void test_calculateFunctionValue()
    {
-      Eigen::VectorXd func( 31 );
+      Eigen::VectorXd func( 2 );
       
       calculateFunctionValue( func );
 
-      double tstVals[31] = { 0.842553, 2.05757,  3.29211, 0.232551, 0.315832, 0.730821, 1.16255,  1.00711,
-                             1.56346,  1.99685,  1.66962, 2.68507,  0.09765,  0.123362, 0.151426, 0.230991, 
-                             0.269644, 0.274103, 0.34065, 0.516003, 0.510632, 0.650197, 0.677426, 0.81775, 
-                             0.796288, 1.07971,  1.12714, 1.23327,  1.49485,  1e-10,    1e-10
-                           };
-
-      for ( size_t i = 0; i < 31; ++i )
-      {
-         ASSERT_NEAR( func[i], tstVals[i], m_eps * 100.0 );
-      }
+      ASSERT_NEAR( func[0], 1.23919, m_eps * 100.0 );
+      ASSERT_NEAR( func[1], 1.0e-10, m_eps * 100.0 );
    }
 
    ~LMClassTest() {;}

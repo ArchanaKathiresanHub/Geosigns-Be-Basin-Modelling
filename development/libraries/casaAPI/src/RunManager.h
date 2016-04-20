@@ -119,6 +119,10 @@ namespace casa
       /// @return NoError on success, error code otherwise
       virtual ErrorHandler::ReturnCode setCauldronVersion( const char * verString ) = 0;
 
+      /// @brief Get Cauldron version chosen for the scenario. 
+      /// @return Cauldron version as string
+      virtual std::string cauldronVersion() = 0;
+
       /// @todo Add interface for casa::RunManager to set up IBS_ROOT
 
       /// @brief Add application to the list of simulators for pipeline calculation definitions
@@ -135,8 +139,9 @@ namespace casa
 
       /// @brief Execute all scheduled cases
       /// @param asyncRun
+      /// @param updateStateTimeInterval how much to sleep before ask for the jobs states
       /// @return ErrorHandler::NoError on success or error code otherwise
-      virtual ErrorHandler::ReturnCode runScheduledCases( bool asyncRun ) = 0;
+      virtual ErrorHandler::ReturnCode runScheduledCases( int updateStateTimeInterval = -1 ) = 0;
 
       ///< In case of scenario execution aborted (any exceptions for example) - it kills all submitted but not finished jobs
       /// @return ErrorHandler::NoError on success or error code otherwise

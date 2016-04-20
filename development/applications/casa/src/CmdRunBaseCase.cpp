@@ -68,7 +68,7 @@ void CmdRunBaseCase::execute( std::unique_ptr<casa::ScenarioAnalysis> & sa )
    LogHandler( LogHandler::INFO_SEVERITY ) << "Submitting jobs for base case to the cluster: " << rm.clusterName() << "...";
 
    // spawn jobs for calculation
-   if ( ErrorHandler::NoError != rm.runScheduledCases( false ) )
+   if ( ErrorHandler::NoError != rm.runScheduledCases() )
    {
       throw ErrorHandler::Exception( rm.errorCode() ) << rm.errorMessage();
    }

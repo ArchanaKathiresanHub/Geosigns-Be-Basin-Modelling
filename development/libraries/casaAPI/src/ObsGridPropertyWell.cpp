@@ -116,6 +116,10 @@ ErrorHandler::ReturnCode ObsGridPropertyWell::requestObservableInModel( mbapi::M
 ObsValue * ObsGridPropertyWell::getFromModel( mbapi::Model & caldModel )
 {
    std::vector<double> vals( m_posDataMiningTbl.size(), UndefinedDoubleValue );
+
+   const std::string & msg = checkObservableForProject( caldModel );
+   if (!msg.empty()) { return new ObsValueDoubleArray( this, vals ); }
+
    const double eps = 1.e-5;
 
    for ( size_t i = 0; i < m_posDataMiningTbl.size(); ++i )

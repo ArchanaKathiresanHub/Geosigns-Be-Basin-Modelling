@@ -46,18 +46,19 @@ const char * RunManager::s_jobsIDListFileName       = "casa_jobs_list.txt";
 // RunManager / RunManagerImpl methods definition
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 CauldronApp * RunManager::createApplication( ApplicationType        appType
-                                        , int                    cpus
-                                        , size_t                 runTimeLimit
-                                        , CauldronApp::ShellType sh
-                                        , std::string            cmdLine )
+                                           , int                    cpus
+                                           , size_t                 runTimeLimit
+                                           , CauldronApp::ShellType sh
+                                           , std::string            cmdLine 
+                                           )
 {
    std::unique_ptr<CauldronApp> app;
    switch ( appType )
    {
-      case fastcauldron: app.reset( new CauldronApp( sh, "fastcauldron", true  ) ); break;
-      case fastgenex6:   app.reset( new CauldronApp( sh, "fastgenex6",   true  ) ); break;
-      case fastmig:      app.reset( new CauldronApp( sh, "fastmig",      true  ) ); break;
-      case fastctc:      app.reset( new CauldronApp( sh, "fastctc",      true  ) ); break;
+      case fastcauldron: app.reset( new CauldronApp( sh, "fastcauldron", cpus > 1 ? true : false ) ); break;
+      case fastgenex6:   app.reset( new CauldronApp( sh, "fastgenex6",   cpus > 1 ? true : false ) ); break;
+      case fastmig:      app.reset( new CauldronApp( sh, "fastmig",      cpus > 1 ? true : false ) ); break;
+      case fastctc:      app.reset( new CauldronApp( sh, "fastctc",      cpus > 1 ? true : false ) ); break;
       case datadriller:  app.reset( new CauldronApp( sh, "datadriller",  false ) ); break;
       case tracktraps:   app.reset( new CauldronApp( sh, "tracktraps",   false ) ); break;
       case track1d:      app.reset( new CauldronApp( sh, "track1d",      false ) ); break;
@@ -95,6 +96,7 @@ RunManagerImpl::RunManagerImpl( const std::string & clusterName ) : m_maxPending
 ///////////////////////////////////////////////////////////////////////////////
 RunManagerImpl::~RunManagerImpl()
 {
+   for ( auto app : m_appList ) { delete app; }
 }
 
 // Add application to the list of simulators for pipeline calculation definitions
@@ -150,11 +152,14 @@ ErrorHandler::ReturnCode RunManagerImpl::scheduleCase(RunCase & newRun, const st
       size_t depOnID = m_cases.size() + 1; // define dependency ID outside of scheduled cases to use it as a flag also (size_t can't be negative)
 
       // run over previously added jobs to detect runs with the same parameters
-      for ( size_t cs = 0; ( cs < m_cases.size() - 1 ) && depOnID > m_cases.size(); ++cs )
+      if ( m_appList[i]->appSolverDependencyLevel() < Postprocessing )
       {
-         if ( newRun.isEqual( *(m_cases[cs]), m_appList[i]->appSolverDependencyLevel() ) ) // compare parameters value taking in account dep. level
+         for ( size_t cs = 0; ( cs < m_cases.size() - 1 ) && depOnID > m_cases.size(); ++cs )
          {
-            depOnID = cs; // this case, up to this application, is the same as cs, results could be just copied
+            if ( newRun.isEqual( *(m_cases[cs]), m_appList[i]->appSolverDependencyLevel() ) ) // compare parameters value taking in account dep. level
+            {
+               depOnID = cs; // this case, up to this application, is the same as cs, results could be just copied
+            }  
          }
       }
 
@@ -329,7 +334,7 @@ bool RunManagerImpl::isAllDone() const
 
 ///////////////////////////////////////////////////////////////////////////////
 // Execute all scheduled cases. Very loooong cycle
-ErrorHandler::ReturnCode RunManagerImpl::runScheduledCases( bool /* asyncRun */)
+ErrorHandler::ReturnCode RunManagerImpl::runScheduledCases( int updateStateTimeInterval )
 {
    try 
    {
@@ -415,7 +420,7 @@ ErrorHandler::ReturnCode RunManagerImpl::runScheduledCases( bool /* asyncRun */)
          }
 
          collectStatistics( prevFinished, prevPending, prevRunning, prevToBeSubmitted );
-         m_jobSched->sleep(); // wait a bit till go to the next loop
+         m_jobSched->sleep( updateStateTimeInterval ); // wait a bit till go to the next loop
 
       } while ( !isAllDone() ); // loop till all will be finished
    }
@@ -575,6 +580,34 @@ void RunManagerImpl::restoreCaseStatus( RunCase * cs )
    }
 }
 
+///////////////////////////////////////////////////////////////////////////////
+// Clean application pipeline, jobs and recreate job scheduler. Keep all RunManager settings
+void RunManagerImpl::resetState( bool cleanApps )
+{
+   // save some settings of current state
+   std::string clusterName = m_jobSched->clusterName();
+
+   std::string       resourcReq;
+   JobSchedulerLSF * jsc = dynamic_cast<JobSchedulerLSF*>( m_jobSched.get() );
+   if ( jsc ) { resourcReq = jsc->resourceRequirements(); }
+
+   // re create instance of job scheduler
+   createJobScheduler( clusterName );
+   if ( !resourcReq.empty() ) { setResourceRequirements( resourcReq ); }
+
+   // delete apps list
+   if ( cleanApps )
+   {
+      for ( auto app : m_appList ) { delete app; }
+      m_appList.clear();
+   }
+
+   // clean queues
+   m_jobs.clear();
+   m_cases.clear();
+   m_depOnJob.clear();
+}
+ 
 // Serialize object to the given stream
 bool RunManagerImpl::save( CasaSerializer & sz, unsigned int /* fileVersion */ ) const
 {

@@ -559,9 +559,10 @@ std::string JobSchedulerLocal::schedulerJobID( JobID id )
 }
 
 
-void JobSchedulerLocal::sleep()
+void JobSchedulerLocal::sleep( int secs )
 {
-   Wait( 10 );
+   if (      secs < 0 ) { Wait( 10 );   }
+   else if ( secs > 0 ) { Wait( secs ); }
 }
 
 // get number of running jobs

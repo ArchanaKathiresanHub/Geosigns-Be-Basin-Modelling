@@ -138,7 +138,7 @@ public:
    RunManager & runManager() { return *( m_runManager.get() ); }
 
    // Recreate run manager
-   void resetRunManager() { m_runManager.reset( new RunManagerImpl() ); }
+   void resetRunManager( bool cleanApps ) { m_runManager->resetState( cleanApps ); }
 
    // Get data digger associated with this scenario analysis
    // return reference to the instance of data digger
@@ -180,7 +180,11 @@ public:
    void saveCalibratedCase( const char * projFileName, size_t mcSampleNum );
 
    // Run given optimization algorithm and store calibration results to the given projet file
-   void calibrateProjectUsingOptimizationAlgorith( const std::string & cbProjectName, const std::string & optimAlg, ScenarioAnalysis & sa );
+   void calibrateProjectUsingOptimizationAlgorithm( const std::string & cbProjectName
+                                                  , const std::string & optimAlg
+                                                  , ScenarioAnalysis  & sa
+                                                  , bool                keepHistory
+                                                  );
 
    // Get SensitivityCalculator
    SensitivityCalculator & sensitivityCalculator() { return *(m_sensCalc.get()); }
@@ -234,8 +238,8 @@ RunCaseSet            & ScenarioAnalysis::mcCaseSet()               { return m_p
 MonteCarloSolver      & ScenarioAnalysis::mcSolver()                { return m_pimpl->mcSolver();              }
 SensitivityCalculator & ScenarioAnalysis::sensitivityCalculator()   { return m_pimpl->sensitivityCalculator(); }
 const char            * ScenarioAnalysis::scenarioID()              { return m_pimpl->scenarioID();            }
-void                    ScenarioAnalysis::resetRunManager()         { m_pimpl->resetRunManager();              }
 size_t                  ScenarioAnalysis::scenarioIteration() const { return m_pimpl->scenarioIteration();     }
+void                    ScenarioAnalysis::resetRunManager( bool cleanApps ) { m_pimpl->resetRunManager( cleanApps ); }
 
 // Define Scenario ID
 ErrorHandler::ReturnCode ScenarioAnalysis::defineScenarioID( const char * scID )
@@ -381,9 +385,12 @@ ErrorHandler::ReturnCode ScenarioAnalysis::setMCAlgorithm( MonteCarloSolver::Alg
    return NoError;
 }
 
-ErrorHandler::ReturnCode ScenarioAnalysis::calibrateProjectUsingOptimizationAlgorith( const std::string & cbProjeName, const std::string & optimAlg )
+ErrorHandler::ReturnCode ScenarioAnalysis::calibrateProjectUsingOptimizationAlgorithm( const std::string & cbProjeName
+                                                                                     , const std::string & optimAlg
+                                                                                     , bool                keepHistory
+                                                                                     )
 {
-   try { m_pimpl->calibrateProjectUsingOptimizationAlgorith( cbProjeName, optimAlg, *this ); }
+   try { m_pimpl->calibrateProjectUsingOptimizationAlgorithm( cbProjeName, optimAlg, *this, keepHistory ); }
    catch( Exception & ex ) { return reportError( ex.errorCode(), ex.what() ); }
    catch( ...            ) { return reportError( UnknownError, "Unknown error" ); }
 
@@ -841,20 +848,17 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::validateCaseSet( RunCaseSet & cs )
 }
 
 
-void ScenarioAnalysis::ScenarioAnalysisImpl::calibrateProjectUsingOptimizationAlgorith( const std::string & cbProjectName
-                                                                                  , const std::string & optimAlg
-                                                                                  , ScenarioAnalysis  & sa
-                                                                                  )
+void ScenarioAnalysis::ScenarioAnalysisImpl::calibrateProjectUsingOptimizationAlgorithm( const std::string & cbProjectName
+                                                                                       , const std::string & optimAlg
+                                                                                       , ScenarioAnalysis  & sa
+                                                                                       , bool                keepHistory
+                                                                                       )
 {
    std::unique_ptr<OptimizationAlgorithm> optAlgo;
-   if ( optimAlg == "LM" )
-   {
-      optAlgo.reset( new LMOptAlgorithm( cbProjectName ) );
-   }
-   else
-   {
-      throw Exception( OutOfRangeValue ) << "Unsupported optimization algorithm name: " << optimAlg; 
-   }
+   
+   if ( optimAlg == "LM" ) { optAlgo.reset( new LMOptAlgorithm( cbProjectName ) ); }
+   else { throw Exception( OutOfRangeValue ) << "Unsupported optimization algorithm name: " << optimAlg; }
+
    optAlgo->runOptimization( sa );
 }
 

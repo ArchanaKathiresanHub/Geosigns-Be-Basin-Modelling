@@ -138,8 +138,10 @@ namespace casa
       /// @return reference to the instance of run manager
       RunManager & runManager();
       
-      /// @brief Reset RunManager to empty state
-      void resetRunManager();
+      /// @brief Reset RunManager to empty state. Clean application pipepline and jobs but keep settings 
+      ///        like cluster name and Cauldron version
+      /// @param cleanApps if set to yes, function also will clean application pipeline
+      void resetRunManager( bool cleanApps = true );
 
       /// @brief Get data digger associated with this scenario analysis
       /// @return reference to the instance of data digger
@@ -201,8 +203,9 @@ namespace casa
       /// @brief Run given optimization algorithm and store calibration results to the given projet file
       /// @param cbProjectName name of the project file to save calibrated project
       /// @param optimAlg name of the optimization algorith.
+      /// @param keepHistory do not delete all optimization steps projects (could take quite a lot space)
       /// @return ErrorHandler::NoError on success, error code otherwise
-      ReturnCode calibrateProjectUsingOptimizationAlgorith( const std::string & cbProjectName, const std::string & optimAlg );
+      ReturnCode calibrateProjectUsingOptimizationAlgorithm( const std::string & cbProjectName, const std::string & optimAlg, bool keepHistory = false );
 
       /// @brief After the Monte Carlo simulation it creates project file with parameters set which corresponds to the
       ///        Monte Carlo sampling point with minimal RMSE

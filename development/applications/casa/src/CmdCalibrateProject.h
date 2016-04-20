@@ -13,7 +13,7 @@
 
 #include "CasaCmd.h"
 
-/// @brief Create RunCase with best matched parameters set from Monte Carlo simulation
+/// @brief Runs the given optimization algorithm to calibrate parameters against reference values of given targets
 class CmdCalibrateProject : public CasaCmd
 {
 public:
@@ -34,6 +34,7 @@ protected:
    std::string                  m_bmcName;   /// project name for calibrated case 
    std::string                  m_optimAlg;  /// name of optimization algorithm
    std::string                  m_cldVer;    /// version of cauldron simulator
+   bool                         m_keepHist;  /// keep history of all LM steps?
 };
 
 #endif // CASA_CMD_CALIBRATE_PROJECT_H

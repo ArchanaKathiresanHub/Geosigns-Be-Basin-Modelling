@@ -99,10 +99,10 @@ void CmdRun::execute( std::unique_ptr<casa::ScenarioAnalysis> & sa )
       }
    }
 
-   LogHandler( LogHandler::INFO_SEVERITY ) << "Submitting jobs to the cluster " << m_prms[0] << " using Cauldron: " << m_prms[1];
+   LogHandler( LogHandler::INFO_SEVERITY ) << "Submitting jobs to the cluster " << m_cluster << " using Cauldron: " << m_cldVer;
 
    // spawn jobs for calculation
-   if ( ErrorHandler::NoError != rm.runScheduledCases( false ) )
+   if ( ErrorHandler::NoError != rm.runScheduledCases() )
    {
       throw ErrorHandler::Exception( rm.errorCode() ) << rm.errorMessage();
    }

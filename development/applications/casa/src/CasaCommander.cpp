@@ -56,6 +56,7 @@ static const char * CNPlotMC           = "plotMC";
 static const char * CNPlotP10P90       = "plotP10P90";
 static const char * CNPlotPareto       = "plotPareto";
 static const char * CNPlotTornado      = "plotTornado";
+static const char * CNGenerateMultiOneD= "generateMulti1D";
 
 CasaCommander::CasaCommander()
 {
@@ -92,7 +93,7 @@ void CasaCommander::addCommand( const std::string & cmdName, const std::vector< 
    else if ( cmdName == CNScenarioID       ) cmd.reset( new CmdScenarioID(              *this, prms ) );// define scenario ID
    else if ( cmdName == CNPlotTornado      ) cmd.reset( new CmdPlotTornado(             *this, prms ) );// create Tornado diagram for each observable 
                                                                                                         // for parameters sensitivity
-   else if (cmdName == "GenerateMultiOneD" ) cmd.reset(new CmdGenerateMultiOneD(        *this, prms ) );// create 1D projects for each well 
+   else if (cmdName == CNGenerateMultiOneD ) cmd.reset(new CmdGenerateMultiOneD(        *this, prms ) );// create 1D projects for each well
    // for parameters sensitivity
 
    else throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Unknown command: " << cmdName;
@@ -134,6 +135,7 @@ std::string CasaCommander::toString( const CasaCmd * pCmd )
    else if ( dynamic_cast<const CmdSaveState              *> (pCmd) )  oss << "savestate";
    else if ( dynamic_cast<const CmdLoadState              *> (pCmd) )  oss << "loadstate";
    else if ( dynamic_cast<const CmdScenarioID             *> (pCmd) )  oss << CNScenarioID;
+   else if ( dynamic_cast<const CmdGenerateMultiOneD      *> (pCmd) )  oss << CNGenerateMultiOneD;
    else 
    {
       return oss.str(); //return an empty string if the command is not valid
@@ -184,6 +186,7 @@ void CasaCommander::printHelpPage( const std::string & cmd )
    else if ( cmd == CNPlotPareto       ) { CmdPlotPareto::printHelpPage(              CNPlotPareto       ); }
    else if ( cmd == CNScenarioID       ) { CmdScenarioID::printHelpPage(              CNScenarioID       ); }
    else if ( cmd == CNPlotTornado      ) { CmdPlotTornado::printHelpPage(             CNPlotTornado      ); }
+   else if ( cmd == CNGenerateMultiOneD) { CmdGenerateMultiOneD::printHelpPage(       CNGenerateMultiOneD); }
    else // print all commands
    {
       std::cout << "   " << CNAddCldApp        << " - add new Cauldron app to application pipeline\n";

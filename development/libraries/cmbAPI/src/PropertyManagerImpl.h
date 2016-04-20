@@ -57,8 +57,9 @@ namespace mbapi
       /// @brief Copy all .HDF results files from old project path to the new project path
       /// @param oldProject old project name with full path
       /// @param newProject new project name with full path
+      /// @param copyFiles if copyFiles is false - results files will be linked where it is possible otherwise they will be copied
       /// @return ErrorHandler::NoError on success, error code otherwise
-      ErrorHandler::ReturnCode copyResultsFiles( const std::string & oldProject, const std::string & newProject );
+      ErrorHandler::ReturnCode copyResultsFiles( const std::string & oldProject, const std::string & newProject, bool copyFiles = false );
 
    private:
       database::Database                              * m_db;              // project database

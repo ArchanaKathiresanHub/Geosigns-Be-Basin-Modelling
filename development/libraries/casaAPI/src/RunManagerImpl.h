@@ -47,6 +47,10 @@ namespace casa
       /// @return NoError on success, error code otherwise
       virtual ErrorHandler::ReturnCode setCauldronVersion( const char * verString ) { m_cldVersion = verString; return NoError; }
 
+      /// @brief Get Cauldron version chosen for the scenario. 
+      /// @return Cauldron version as string
+      virtual std::string cauldronVersion() { return m_cldVersion.empty() ? "Default" : m_cldVersion; }
+
       /// @brief Add a new Case to the set
       /// @param newRun new Case to be scheduled for run
       /// @param scenarioID some unique name of the scenario to have reference in GUI
@@ -66,8 +70,9 @@ namespace casa
       virtual ErrorHandler::ReturnCode setResourceRequirements( const std::string & resReqStr );
 
       /// @brief Execute all scheduled cases
-      /// @param asyncRun
-      virtual ErrorHandler::ReturnCode runScheduledCases( bool asyncRun );
+      /// @param updateStateTimeInterval how much to sleep before ask for the jobs states
+      /// @return ErrorHandler::NoError on success or error code otherwise
+      virtual ErrorHandler::ReturnCode runScheduledCases( int updateStateTimeInterval = -1 );
 
       ///< In case of scenario execution aborted (any exceptions for example) - it kills all submitted but not finished jobs
       /// @return ErrorHandler::NoError on success or error code otherwise
@@ -84,7 +89,11 @@ namespace casa
       /// @brief Add case to the list of jobs and update case status by analysing completed stages into Case folder
       /// @param cs case object
       virtual void restoreCaseStatus( RunCase * cs );
-
+     
+      /// @brief Clean jobs and recreate job scheduler. Keep all RunManager settings
+      /// @param cleanApps if set to true, function also cleans application pipeline
+      void resetState( bool cleanApps = true );
+      
       // Serialization / Deserialization
       /// @{
       /// @brief Defines version of serialized object representation. Must be updated on each change in save()

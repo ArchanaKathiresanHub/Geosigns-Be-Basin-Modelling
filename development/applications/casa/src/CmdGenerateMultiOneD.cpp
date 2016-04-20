@@ -26,6 +26,8 @@
 
 CmdGenerateMultiOneD::CmdGenerateMultiOneD( CasaCommander & parent, const std::vector< std::string > & cmdPrms ) : CasaCmd( parent, cmdPrms )
 {
+   m_cldVer   = m_prms.size() > 0 ? m_prms[0] : "Default";
+   m_keepHist = m_prms.size() > 1 ? ( m_prms[1] == "KeepHistory" ? true : false ) : false;
 }
 
 void CmdGenerateMultiOneD::execute( std::unique_ptr<casa::ScenarioAnalysis> & sa )
@@ -40,6 +42,24 @@ void CmdGenerateMultiOneD::execute( std::unique_ptr<casa::ScenarioAnalysis> & sa
    LogHandler( LogHandler::INFO_SEVERITY ) << "Extraction of 1D projects finished";
 }
 
+void CmdGenerateMultiOneD::printHelpPage( const char * cmdName )
+{
+   std::cout << "  " << cmdName << " <Cauldron version> [KeepHistory] \n\n";
+   std::cout << "  - generates a sert of 1D sceanrios for each well target by defining window 2x2 nodes around the well.\n";
+   std::cout << "    Also generate casa scripts file to run for each 1D scenario parameters calibration\n";
+   std::cout << "    Here:\n";
+   std::cout << "    <Cauldron version> - simulator version which will be used to run 1D scenario. Must be installed in IBS folder.\n";
+   std::cout << "                         Could be specified as \"Default\". In this case the same simulator version as casa\n";
+   std::cout << "                         application will be used.\n";
+   std::cout << "    KeepHistory        - (Optional) If specified, Calibration run for 1D projects will not delete intermediate project files\n";
+   std::cout << "\n";
+   std::cout << "    Examples:\n";
+   std::cout << "    #      Cauldron version.\n";
+   std::cout << "    " << cmdName << " \"v2016.0501\"\n";
+   std::cout << "\n";
+}
+
+
 void CmdGenerateMultiOneD::generateScenarioScripts( std::unique_ptr<casa::ScenarioAnalysis> & sa  ) const
 {
    // Prepare .casa scenario to run one 1D windowed project as a string
@@ -52,8 +72,8 @@ void CmdGenerateMultiOneD::generateScenarioScripts( std::unique_ptr<casa::Scenar
    {
       oss << m_commander.toString( cmdQueue[i].get() ) << "\n";
    }
-   oss << "\nlocation \".\"\n";
-   oss << "\nrun \"LOCAL\" 5\n";
+   oss << "\ncalibrateProject \"" << sa->baseCaseProjectFileName() << "\" \"LM\" \"" << m_cldVer << "\"" << (m_keepHist ? " \"KeepHistory\"":"" ) << "\n";
+   oss << "\nsavestate \"casa_state.txt\" \"txt\"\n";
 
    // Go over all cases and save scenario file
    // write a casa command file for multi1D cases only if 1d RunCases exist
@@ -74,7 +94,9 @@ void CmdGenerateMultiOneD::generateScenarioScripts( std::unique_ptr<casa::Scenar
    // update scenario application queue and replace the sequnce of cauldron applications to casa call
    // clean all applications list by resetting run mananger
    LogHandler( LogHandler::INFO_SEVERITY ) << "Replacing application list with itself casa call ... ";
+   
    sa->resetRunManager();
+
    casa::RunManager & rm = sa->runManager();
    casa::CauldronApp * app = casa::RunManager::createApplication( casa::RunManager::casa, 1, 0, 
 #ifdef _WIN32
@@ -84,6 +106,7 @@ void CmdGenerateMultiOneD::generateScenarioScripts( std::unique_ptr<casa::Scenar
 #endif // _WIN32
                                                                 );
    if ( ! app ) { throw ErrorHandler::Exception( ErrorHandler::MemAllocError ) << "Can't add casa application to RunManager"; }
+   app->addOption( "-detailed" );
    app->addOption( "scenario1d.casa" );
    if ( ErrorHandler::NoError != rm.addApplication( app ) ) { throw ErrorHandler::Exception( rm.errorCode() ) << rm.errorMessage(); }
 
