@@ -1299,9 +1299,9 @@ bool SourceRock::process()
    LinearGridInterpolator *VESInterpolator  = new LinearGridInterpolator;
    LinearGridInterpolator *TempInterpolator = new LinearGridInterpolator;
    LinearGridInterpolator *vreInterpolator  = new LinearGridInterpolator;
+   LinearGridInterpolator *porePressureInterpolator = new LinearGridInterpolator;
 
    LinearGridInterpolator *ThicknessScalingInterpolator = 0;
-   LinearGridInterpolator *porePressureInterpolator = 0;
    LinearGridInterpolator *lithostaticPressureInterpolator = 0;
    LinearGridInterpolator *hydrostaticPressureInterpolator = 0;
    LinearGridInterpolator *porosityInterpolator            = 0;
@@ -1339,10 +1339,14 @@ bool SourceRock::process()
       DerivedProperties::FormationSurfacePropertyPtr startVr = m_propertyManager->getFormationSurfaceProperty ( property, intervalStart,  m_formation, m_formation->getTopSurface () );
       DerivedProperties::FormationSurfacePropertyPtr endVr   = m_propertyManager->getFormationSurfaceProperty ( property, intervalEnd,  m_formation, m_formation->getTopSurface () );
 
+      property = m_propertyManager->getProperty ( "Pressure" );
+      DerivedProperties::SurfacePropertyPtr startPressure = m_propertyManager->getSurfaceProperty ( property, intervalStart, m_formation->getTopSurface () );
+      DerivedProperties::SurfacePropertyPtr endPressure   = m_propertyManager->getSurfaceProperty ( property, intervalEnd, m_formation->getTopSurface () );
 
       if( startTemp == 0 or endTemp == 0 or
           startVes == 0 or endVes == 0 or
-          startVr == 0 or endVr == 0  ) {
+          startVr == 0 or endVr == 0 or
+          startPressure == 0 or endPressure == 0 ) {
 
          if ( m_projectHandle->getRank () == 0 ) {
             if ( startTemp == 0 ) {
@@ -1368,10 +1372,18 @@ bool SourceRock::process()
             if ( endVes == 0 ) {
                cout << "Missing end Ves map for snapshot " << intervalEnd->getTime () << endl;
             }
+
+            if ( startPressure == 0 ) {
+               cout << " Missing pressure map for snapshot " << intervalStart->getTime () << endl;
+            }
+      
+            if ( endPressure == 0 ) {
+               cout << " Missing pressure map for snapshot " << intervalEnd->getTime () << endl;
+            }
          }
          
          status = false;
-            break;
+         break;
       }
 
       startTemp->retrieveData();
@@ -1383,9 +1395,13 @@ bool SourceRock::process()
       startVr->retrieveData();
       endVr->retrieveData();
 
+      startPressure->retrieveData();
+      endPressure->retrieveData();
+
       TempInterpolator ->compute(intervalStart, startTemp,  intervalEnd, endTemp);
       VESInterpolator->compute( intervalStart, startVes, intervalEnd, endVes );
       vreInterpolator->compute (intervalStart, startVr,  intervalEnd, endVr );
+      porePressureInterpolator->compute(intervalStart, startPressure, intervalEnd, endPressure ); 
 
       startTemp->restoreData();
       endTemp->restoreData();
@@ -1395,6 +1411,9 @@ bool SourceRock::process()
 
       startVr->restoreData();
       endVr->restoreData();
+
+      startPressure->restoreData();
+      endPressure->restoreData();
 
       if( doApplyAdsorption () ) {
          property = m_propertyManager->getProperty ( "LithoStaticPressure" );
@@ -1413,15 +1432,10 @@ bool SourceRock::process()
          DerivedProperties::FormationSurfacePropertyPtr startPermeability = m_propertyManager->getFormationSurfaceProperty ( property, intervalStart, m_formation, m_formation->getTopSurface () );
          DerivedProperties::FormationSurfacePropertyPtr endPermeability   = m_propertyManager->getFormationSurfaceProperty ( property, intervalEnd, m_formation, m_formation->getTopSurface () );
          
-         property = m_propertyManager->getProperty ( "Pressure" );
-         DerivedProperties::SurfacePropertyPtr startPressure = m_propertyManager->getSurfaceProperty ( property, intervalStart, m_formation->getTopSurface () );
-         DerivedProperties::SurfacePropertyPtr endPressure   = m_propertyManager->getSurfaceProperty ( property, intervalEnd, m_formation->getTopSurface () );
-         
          if( startLP == 0 or endLP == 0 or
              startHP == 0 or endHP == 0 or
              startPorosity == 0 or endPorosity == 0 or
-             startPermeability == 0 or endPermeability == 0 or
-             startPressure == 0 or endPressure == 0 ) {
+             startPermeability == 0 or endPermeability == 0 ) {
             
             status = false;
             
@@ -1458,15 +1472,6 @@ bool SourceRock::process()
                if ( endPermeability == 0 ) {
                   cout << " Missing permeability map for snapshot " << intervalEnd->getTime () << endl;
                }
-               
-               if ( startPressure == 0 ) {
-                  cout << " Missing pressure map for snapshot " << intervalStart->getTime () << endl;
-               }
-               
-               if ( endPressure == 0 ) {
-                  cout << " Missing pressure map for snapshot " << intervalEnd->getTime () << endl;
-               }
-               
             }
             
             break;
@@ -1475,23 +1480,13 @@ bool SourceRock::process()
          hydrostaticPressureInterpolator = new LinearGridInterpolator;
          porosityInterpolator = new LinearGridInterpolator;
          permeabilityInterpolator = new LinearGridInterpolator;
-         porePressureInterpolator = new LinearGridInterpolator;
-         
-         
-         startPressure->retrieveData();
-         endPressure->retrieveData();
-
-         porePressureInterpolator->compute(intervalStart, startPressure, intervalEnd, endPressure ); 
-
-         startPressure->restoreData();
-         endPressure->restoreData();
 
          lithostaticPressureInterpolator->compute(intervalStart, startLP, intervalEnd, endLP ); 
          hydrostaticPressureInterpolator->compute(intervalStart, startHP, intervalEnd, endHP ); 
          porosityInterpolator->compute(intervalStart, startPorosity, intervalEnd, endPorosity ); 
          permeabilityInterpolator->compute(intervalStart, startPermeability, intervalEnd, endPermeability ); 
       }
-      
+
       property = m_propertyManager->getProperty ( "ErosionFactor" );
       
       DerivedProperties::FormationMapPropertyPtr thicknessScalingAtStart = m_propertyManager->getFormationMapProperty ( property, intervalStart, m_formation );
