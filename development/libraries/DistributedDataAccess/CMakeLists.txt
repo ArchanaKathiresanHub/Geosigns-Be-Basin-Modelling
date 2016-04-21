@@ -12,76 +12,76 @@
 
 if (BM_PARALLEL)
 
-	FILE( GLOB all_headers src/Interface/*.h )
-	source_group(include FILES ${all_headers})
+   FILE( GLOB all_headers src/Interface/*.h )
+   source_group(include FILES ${all_headers})
 
-	FILE( GLOB all_srcs src/*.C)
-	source_group(source FILES ${all_srcs})
+   FILE( GLOB all_srcs src/*.C)
+   source_group(source FILES ${all_srcs})
 
-	add_library(DistributedDataAccess 
-	   ${all_srcs}
-	   ${all_headers}
-	)
-	if (UNIX)
-		add_dependencies(DistributedDataAccess PETSC)
+   add_library(DistributedDataAccess 
+      ${all_srcs}
+      ${all_headers}
+   )
+   if (UNIX)
+      add_dependencies(DistributedDataAccess PETSC)
    endif (UNIX)
 
-	set (OFPP "")
-	if (UNIX)
-		set (OFPP OneFilePerProcess)
-	endif ()
+   set (OFPP "")
+   if (UNIX)
+      set (OFPP OneFilePerProcess)
+   endif ()
 
-	target_link_libraries( DistributedDataAccess 
-		DataAccess
-		Utilities_Petsc
-		Serial_Hdf5
-		Parallel_Hdf5
-		TableIO
+   target_link_libraries( DistributedDataAccess 
+      DataAccess
+      Utilities_Petsc
+      Serial_Hdf5
+      Parallel_Hdf5
+      TableIO
       FileSystem
-		utilities
-		CBMGenerics
-		${HDF5_LIBRARIES}
-		${MPI_LIBRARIES}
-		${PETSC_LIBRARIES}
-		${OFPP}
-	)
+      utilities
+      CBMGenerics
+      ${HDF5_LIBRARIES}
+      ${MPI_LIBRARIES}
+      ${PETSC_LIBRARIES}
+      ${OFPP}
+   )
 
-	bm_include_libraries(
-		DataModel
-		DataAccessInterface 
-		DataAccess 
-		Utilities_Petsc 
-		Serial_Hdf5 
-		Parallel_Hdf5
-		TableIO
+   bm_include_libraries(
+      DataModel
+      DataAccessInterface 
+      DataAccess 
+      Utilities_Petsc 
+      Serial_Hdf5 
+      Parallel_Hdf5
+      TableIO
       FileSystem
-		utilities 
-		CBMGenerics
-		)
+      utilities 
+      CBMGenerics
+      )
 
-	if (UNIX)
-	bm_include_libraries(
-		OneFilePerProcess
-		)
-	endif (UNIX)
+   if (UNIX)
+   bm_include_libraries(
+      OneFilePerProcess
+      )
+   endif (UNIX)
 
-	include_directories( 
-		src
-		${PETSC_INCLUDE_DIRS}
-		${HDF5_INCLUDE_DIRS}
-		${MPI_INCLUDE_DIRS}
-	)
+   include_directories( 
+      src
+      ${PETSC_INCLUDE_DIRS}
+      ${HDF5_INCLUDE_DIRS}
+      ${MPI_INCLUDE_DIRS}
+   )
 
    set_target_properties(DistributedDataAccess
        PROPERTIES LINK_FLAGS "${PETSC_LINK_FLAGS}"
    )
 
 
-	install(TARGETS DistributedDataAccess
-		RUNTIME DESTINATION bin
-		LIBRARY DESTINATION lib
-		ARCHIVE DESTINATION lib
-	)
+   install(TARGETS DistributedDataAccess
+      RUNTIME DESTINATION bin
+      LIBRARY DESTINATION lib
+      ARCHIVE DESTINATION lib
+   )
 
    add_gtest( NAME DistributedGridMap_MPInp4
               SOURCES test/DistributedGridMap.C
@@ -99,8 +99,6 @@ if (BM_PARALLEL)
               MPI_SIZE 2
    )
 
-   # The following MPI death tests are not working on Windows...
-   if (UNIX)
    # MPI death tests need special care, separate binary is required
    add_gtest( NAME DistributedGridMap_MPInp2::AssertDeath1
               SOURCES test/DistributedGridMap.C
@@ -136,7 +134,6 @@ if (BM_PARALLEL)
               LINK_FLAGS "${PETSC_LINK_FLAGS}"
               MPI_SIZE 2
    )
-   endif (UNIX)
 
    # MPI death tests need special care, separate binary is required
    add_gtest( NAME DistributedGridMap_MPInp2::HangingCommunication
