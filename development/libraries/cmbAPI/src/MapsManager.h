@@ -67,6 +67,12 @@ namespace mbapi
       /// @return ErrorHandler::NoError on success, or error code otherwise
       virtual ErrorHandler::ReturnCode scaleMap( MapID id, double coeff ) = 0;
 
+      /// @brief Set the values contained in vin in the map
+      /// @param[in] id map ID
+      /// @param[in] vin the values to set
+      /// @return ErrorHandler::NoError on success, or error code otherwise
+      virtual ErrorHandler::ReturnCode mapSetValues( MapID id, const std::vector<double>& vin ) = 0;
+
       /// @brief Create map by interpolating between 2 maps 
       /// @param id new map id
       /// @param minId low range map
@@ -74,6 +80,39 @@ namespace mbapi
       /// @param coeff coefficient in range [0:1]
       /// @return NoError on success or error code otherwise
       virtual ErrorHandler::ReturnCode interpolateMap( MapID id, MapID minId, MapID maxId, double coeff ) = 0;
+
+      /// @brief Interpolate input values using the natural neighbour algorithm
+      /// @param[in]  xin x coordinates of the input values
+      /// @param[in]  yin y coordinates of the input values
+      /// @param[in]  vin input values
+      /// @param[in]  xmin minimum x value of the interpolation window
+      /// @param[in]  xmax maximum x value of the interpolation window
+      /// @param[in]  ymin minimum y value of the interpolation window
+      /// @param[in]  ymax maximum y value of the interpolation window
+      /// @param[in]  numI number of interpolated points in the x direction
+      /// @param[in]  numJ number of interpolated points in the y direction
+      /// @param[out] xout x coordinates of the interpolated values
+      /// @param[out] yout y coordinates of the interpolated values
+      /// @param[out] vout interpolated values
+      /// @return NoError on success or error code otherwise
+      virtual ErrorHandler::ReturnCode interpolateMap( 
+         const std::vector<double>& xin,
+         const std::vector<double>& yin,
+         const std::vector<double>& vin,
+         double xmin,
+         double xmax,
+         double ymin,
+         double ymax,
+         int numI,
+         int numJ,
+         std::vector<double>& xout,
+         std::vector<double>& yout,
+         std::vector<double>& vout ) = 0;
+
+      /// @brief Generate a new lithofraction map in the GridMapIoTbl
+      /// @param[in] the name of the map
+      /// @return ErrorHandler::NoError on succes, or error code otherwise
+      virtual MapID generateLithoFractionMap( std::string & newMapName ) = 0;
 
       /// @}
 

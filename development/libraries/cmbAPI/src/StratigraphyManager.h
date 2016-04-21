@@ -97,6 +97,12 @@ namespace mbapi {
       /// @return list of layers ID
       virtual std::vector<LayerID> findLayersForLithology( const std::string & lithoName ) = 0;
 
+      /// @brief For a given layer set the new lithofraction map names in the StratIoTbl
+      /// @param[in] lid layer ID
+      /// @param[in] lithologyPercentageMaps the name of the maps
+      /// @return NoError on success or NonexistingID on error
+      virtual ErrorHandler::ReturnCode setLayerLithologiesPercentageMaps( LayerID id, std::vector<std::string> & lithologyPercentageMaps ) = 0;
+      
       /// @brief Bind layer with top and bottom surfaces. Layer set itself as top/bottom layer for surface also
       /// @param[in] lid layer ID
       /// @param[in] usid up surface id

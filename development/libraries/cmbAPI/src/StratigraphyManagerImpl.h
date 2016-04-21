@@ -108,6 +108,12 @@ namespace mbapi {
       // return list of layers ID
       virtual std::vector<LayerID> findLayersForLithology( const std::string & lithoName );
 
+      /// @brief For a given layer set the new lithofraction map names in the StratIoTbl
+      /// @param[in] lid layer ID
+      /// @param[in] lithologyPercentageMaps the name of the maps
+      /// @return NoError on success or NonexistingID on error
+      virtual ErrorHandler::ReturnCode setLayerLithologiesPercentageMaps( LayerID id, std::vector<std::string> & lithogyPercentageMaps );
+
 
       // Layer -> Source rock type relation methods
 
@@ -215,6 +221,8 @@ namespace mbapi {
       static const char * s_lithoTypePercent1FiledName;
       static const char * s_lithoTypePercent2FiledName;
       static const char * s_lithoTypePercent3FiledName;
+      static const char * s_lithoTypePercent1GridFiledName;
+      static const char * s_lithoTypePercent2GridFiledName;
       static const char * s_isSourceRockFieldName;
       static const char * s_sourceRockType1FieldName;
       static const char * s_sourceRockType2FieldName;

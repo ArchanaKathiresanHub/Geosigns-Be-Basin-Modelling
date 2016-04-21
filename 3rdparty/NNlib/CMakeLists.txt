@@ -17,7 +17,6 @@ source_group(source FILES ${all_srcs})
 
 add_definitions(-DNNLIB_EXPORT)
 
-#to use the right include!
 include_directories("./include")
 
 add_library( NNlib

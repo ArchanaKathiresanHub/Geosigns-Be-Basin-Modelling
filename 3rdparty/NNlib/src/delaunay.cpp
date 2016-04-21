@@ -22,6 +22,14 @@
  *                   Petroleum Geo-Services, for identifying the problem.
  *
  *****************************************************************************/
+// use triangle for the triangulation. It is a LGPL library that could possibly be substituted with Poly2Tri
+#define USETRIANGLE
+
+#ifdef USETRIANGLE
+#define ANSI_DECLARATORS        /* for triangle.h */
+#else
+#include "poly2tri.h"
+#endif
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -30,15 +38,13 @@
 #include <string.h>
 #include <limits.h>
 #include <float.h>
+#include "triangle.h"
 #include "istack.h"
 #include "nan.h"
 #include "delaunay.h"
 #include "nn.h"
 #include "nn_internal.h"
-#include "poly2tri.h"
 
-#include <iostream>
-#include <algorithm>
 /*
  * This parameter is used in search of tricircles containing a given point:
  *   if there are no more triangles than N_SEARCH_TURNON
@@ -49,6 +55,67 @@
 #define N_SEARCH_TURNON 20
 #define N_FLAGS_TURNON 1000
 #define N_FLAGS_INC 100
+
+#ifdef USETRIANGLE
+static void tio_init(struct triangulateio* tio)
+{
+    tio->pointlist = NULL;
+    tio->pointattributelist = NULL;
+    tio->pointmarkerlist = NULL;
+    tio->numberofpoints = 0;
+    tio->numberofpointattributes = 0;
+    tio->trianglelist = NULL;
+    tio->triangleattributelist = NULL;
+    tio->trianglearealist = NULL;
+    tio->neighborlist = NULL;
+    tio->numberoftriangles = 0;
+    tio->numberofcorners = 0;
+    tio->numberoftriangleattributes = 0;
+    tio->segmentlist = 0;
+    tio->segmentmarkerlist = NULL;
+    tio->numberofsegments = 0;
+    tio->holelist = NULL;
+    tio->numberofholes = 0;
+    tio->regionlist = NULL;
+    tio->numberofregions = 0;
+    tio->edgelist = NULL;
+    tio->edgemarkerlist = NULL;
+    tio->normlist = NULL;
+    tio->numberofedges = 0;
+}
+
+static void tio_destroy(struct triangulateio* tio)
+{
+    if (tio->pointlist != NULL)
+        free(tio->pointlist);
+    if (tio->pointattributelist != NULL)
+        free(tio->pointattributelist);
+    if (tio->pointmarkerlist != NULL)
+        free(tio->pointmarkerlist);
+    if (tio->trianglelist != NULL)
+        free(tio->trianglelist);
+    if (tio->triangleattributelist != NULL)
+        free(tio->triangleattributelist);
+    if (tio->trianglearealist != NULL)
+        free(tio->trianglearealist);
+    if (tio->neighborlist != NULL)
+        free(tio->neighborlist);
+    if (tio->segmentlist != NULL)
+        free(tio->segmentlist);
+    if (tio->segmentmarkerlist != NULL)
+        free(tio->segmentmarkerlist);
+    if (tio->holelist != NULL)
+        free(tio->holelist);
+    if (tio->regionlist != NULL)
+        free(tio->regionlist);
+    if (tio->edgelist != NULL)
+        free(tio->edgelist);
+    if (tio->edgemarkerlist != NULL)
+        free(tio->edgemarkerlist);
+    if (tio->normlist != NULL)
+        free(tio->normlist);
+}
+#endif
 
 static delaunay* delaunay_create()
 {
@@ -79,6 +146,110 @@ static delaunay* delaunay_create()
     return d;
 }
 
+#ifdef USETRIANGLE
+static void tio2delaunay(struct triangulateio* tio_out, delaunay* d)
+{
+    int i, j;
+
+    /*
+     * I assume that all input points appear in tio_out in the same order as 
+     * they were written to tio_in. I have seen no exceptions so far, even
+     * if duplicate points were presented. Just in case, let us make a couple
+     * of checks. 
+     */
+    assert(tio_out->numberofpoints == d->npoints);
+    assert(tio_out->pointlist[2 * d->npoints - 2] == d->points[d->npoints - 1].x && tio_out->pointlist[2 * d->npoints - 1] == d->points[d->npoints - 1].y);
+
+    for (i = 0, j = 0; i < d->npoints; ++i) {
+        point* p = &d->points[i];
+
+        if (p->x < d->xmin)
+            d->xmin = p->x;
+        if (p->x > d->xmax)
+            d->xmax = p->x;
+        if (p->y < d->ymin)
+            d->ymin = p->y;
+        if (p->y > d->ymax)
+            d->ymax = p->y;
+    }
+    if (nn_verbose) {
+        fprintf(stderr, "input:\n");
+        for (i = 0, j = 0; i < d->npoints; ++i) {
+            point* p = &d->points[i];
+
+            fprintf(stderr, "  %d: %15.7g %15.7g %15.7g\n", i, p->x, p->y, p->z);
+        }
+    }
+
+    d->ntriangles = tio_out->numberoftriangles;
+
+    if (d->ntriangles > 0) {
+        d->triangles = (triangle *) malloc(d->ntriangles * sizeof(triangle));
+        d->neighbours = (triangle_neighbours *) malloc(d->ntriangles * sizeof(triangle_neighbours));
+        d->circles = (circle *) malloc(d->ntriangles * sizeof(circle));
+        d->n_point_triangles = (int *) calloc(d->npoints, sizeof(int));
+        d->point_triangles = (int **) malloc(d->npoints * sizeof(int*));
+        d->flags = (int *) calloc(d->ntriangles, sizeof(int));
+    }
+
+    if (nn_verbose)
+        fprintf(stderr, "triangles:\n");
+    for (i = 0; i < d->ntriangles; ++i) {
+        int offset = i * 3;
+        triangle* t = &d->triangles[i];
+        triangle_neighbours* n = &d->neighbours[i];
+        circle* c = &d->circles[i];
+        int status;
+
+        t->vids[0] = tio_out->trianglelist[offset];
+        t->vids[1] = tio_out->trianglelist[offset + 1];
+        t->vids[2] = tio_out->trianglelist[offset + 2];
+
+        n->tids[0] = tio_out->neighborlist[offset];
+        n->tids[1] = tio_out->neighborlist[offset + 1];
+        n->tids[2] = tio_out->neighborlist[offset + 2];
+
+        status = circle_build1(c, &d->points[t->vids[0]], &d->points[t->vids[1]], &d->points[t->vids[2]]);
+        assert(status);
+
+        if (nn_verbose)
+            fprintf(stderr, "  %d: (%d,%d,%d)\n", i, t->vids[0], t->vids[1], t->vids[2]);
+    }
+
+    for (i = 0; i < d->ntriangles; ++i) {
+        triangle* t = &d->triangles[i];
+
+        for (j = 0; j < 3; ++j)
+            d->n_point_triangles[t->vids[j]]++;
+    }
+    if (d->ntriangles > 0) {
+        for (i = 0; i < d->npoints; ++i) {
+            if (d->n_point_triangles[i] > 0)
+                d->point_triangles[i] = (int *)malloc(d->n_point_triangles[i] * sizeof(int));
+            else
+                d->point_triangles[i] = NULL;
+            d->n_point_triangles[i] = 0;
+        }
+    }
+    for (i = 0; i < d->ntriangles; ++i) {
+        triangle* t = &d->triangles[i];
+
+        for (j = 0; j < 3; ++j) {
+            int vid = t->vids[j];
+
+            d->point_triangles[vid][d->n_point_triangles[vid]] = i;
+            d->n_point_triangles[vid]++;
+        }
+    }
+
+    if (tio_out->edgelist != NULL) 
+    {
+        d->nedges = tio_out->numberofedges;  
+        d->edges = (int *)malloc( d->nedges * 2 * sizeof( int ) );
+        memcpy(d->edges, tio_out->edgelist, d->nedges * 2 * sizeof(int));
+    }
+}
+#else
 static void tio2delaunayPoly2Tri( p2t::CDT & CDT, delaunay* d )
 {
    int i, j;
@@ -105,8 +276,8 @@ static void tio2delaunayPoly2Tri( p2t::CDT & CDT, delaunay* d )
    }
 
    // get all triangles from CDT 
-   std::vector<p2t::Triangle*> triangles = CDT.GetTriangles();
-   d->ntriangles = triangles.size();
+   std::vector<p2t::Triangle*> triangles = CDT.GetTriangles( );
+   d->ntriangles = triangles.size( );
 
    if ( d->ntriangles > 0 )
    {
@@ -146,18 +317,18 @@ static void tio2delaunayPoly2Tri( p2t::CDT & CDT, delaunay* d )
       triangleEdges[2] = p2t::GeneralEdge( *trianglePoints[2], *trianglePoints[0] );
 
       // save
-      t->vids[0] = trianglePoints[0]->GetInd();
-      t->vids[1] = trianglePoints[1]->GetInd();
-      t->vids[2] = trianglePoints[2]->GetInd();
+      t->vids[0] = trianglePoints[0]->GetInd( );
+      t->vids[1] = trianglePoints[1]->GetInd( );
+      t->vids[2] = trianglePoints[2]->GetInd( );
 
       for ( int tp = 0; tp != 3; ++tp )
       {
-         pos = std::find( triangles.begin(), triangles.end(), triangleNeighbours[tp] ) - triangles.begin();
-         if ( pos >= triangles.size() ) pos = -1;
+         pos = std::find( triangles.begin( ), triangles.end( ), triangleNeighbours[tp] ) - triangles.begin( );
+         if ( pos >= triangles.size( ) ) pos = -1;
          neighboursInt[tp] = pos;
          std::vector<p2t::GeneralEdge>::iterator it;
-         it = std::find( globalEdges.begin(), globalEdges.end(), triangleEdges[tp] );
-         if ( it == globalEdges.end() ) globalEdges.push_back( triangleEdges[tp] );
+         it = std::find( globalEdges.begin( ), globalEdges.end( ), triangleEdges[tp] );
+         if ( it == globalEdges.end( ) ) globalEdges.push_back( triangleEdges[tp] );
       }
 
       // save
@@ -165,14 +336,15 @@ static void tio2delaunayPoly2Tri( p2t::CDT & CDT, delaunay* d )
       n->tids[1] = neighboursInt[1];
       n->tids[2] = neighboursInt[2];
 
+      if ( nn_verbose )
+         fprintf( stderr, "  %d: (%d,%d,%d)\n", i, t->vids[0], t->vids[1], t->vids[2] );
+
       status = circle_build1( c, &d->points[t->vids[0]], &d->points[t->vids[1]], &d->points[t->vids[2]] );
       assert( status );
 
-      if ( nn_verbose )
-         fprintf( stderr, "  %d: (%d,%d,%d)\n", i, t->vids[0], t->vids[1], t->vids[2] );
    }
 
-
+   //something is different here between the triangulation calculated by poly2tri and triangle (some entries of the triangles vector are different!)
    for ( i = 0; i < d->ntriangles; ++i ) {
       triangle* t = &d->triangles[i];
 
@@ -199,20 +371,21 @@ static void tio2delaunayPoly2Tri( p2t::CDT & CDT, delaunay* d )
       }
    }
 
-   if ( globalEdges.size() > 0 )
+   if ( globalEdges.size( ) > 0 )
    {
-      int * edgelist = (int *)malloc( globalEdges.size() * 2 * sizeof( int ) );
-      for ( int tp = 0; tp != globalEdges.size(); ++tp )
+      int * edgelist = (int *)malloc( globalEdges.size( ) * 2 * sizeof( int ) );
+      for ( int tp = 0; tp != globalEdges.size( ); ++tp )
       {
-         edgelist[tp * 2] = globalEdges[tp].p->GetInd();
-         edgelist[tp * 2 + 1] = globalEdges[tp].q->GetInd();
+         edgelist[tp * 2] = globalEdges[tp].p->GetInd( );
+         edgelist[tp * 2 + 1] = globalEdges[tp].q->GetInd( );
       }
-      d->nedges = globalEdges.size();
+      d->nedges = globalEdges.size( );
       d->edges = (int *)malloc( d->nedges * 2 * sizeof( int ) );
       memcpy( d->edges, edgelist, d->nedges * 2 * sizeof( int ) );
       free( edgelist );
    }
 }
+#endif
 
 /* Builds Delaunay triangulation of the given array of points.
  *
@@ -224,96 +397,116 @@ static void tio2delaunayPoly2Tri( p2t::CDT & CDT, delaunay* d )
  * @param holes Array of hole (x,y) coordinates [2*nh]
  * @return Delaunay triangulation structure with triangulation results
  */
-delaunay* delaunay_build( int np, point points[], int ns, int segments[], int nh, double holes[] )
+delaunay* delaunay_build(int np, point points[], int ns, int segments[], int nh, double holes[] )
 {
-   delaunay* d = delaunay_create();
-   char cmd[64] = "eznC";
-   int i, j;
+    delaunay* d = delaunay_create();
+#ifdef USETRIANGLE
+    struct triangulateio tio_in; 
+    struct triangulateio tio_out;
+#endif
+    char cmd[64] = "eznC";
+    int i, j;
+    
+    assert(sizeof(REAL) == sizeof(double));
+#ifdef USETRIANGLE
+    tio_init(&tio_in);
+#endif
+    if (np == 0) {
+        free(d);
+        return NULL;
+    }
+#ifdef USETRIANGLE
+    tio_in.pointlist = (double *) malloc(np * 2 * sizeof(double));
+    tio_in.numberofpoints = np;
+    for (i = 0, j = 0; i < np; ++i) {
+        tio_in.pointlist[j++] = points[i].x;
+        tio_in.pointlist[j++] = points[i].y;
+    }
 
-   if ( np == 0 ) {
-      free( d );
-      return NULL;
-   }
+    if (ns > 0) {
+       tio_in.segmentlist = (int *)malloc( ns * 2 * sizeof( int ) );
+        tio_in.numberofsegments = ns;
+        memcpy(tio_in.segmentlist, segments, ns * 2 * sizeof(int));
+    }
 
-   if ( !nn_verbose )
-      strcat( cmd, "Q" );
-   else if ( nn_verbose > 1 )
-      strcat( cmd, "VV" );
-   if ( ns != 0 )
-      strcat( cmd, "p" );
+    if (nh > 0) {
+        tio_in.holelist = (double *) malloc(nh * 2 * sizeof(double));
+        tio_in.numberofholes = nh;
+        memcpy(tio_in.holelist, holes, nh * 2 * sizeof(double));
+    }
 
-   if ( nn_verbose )
-      fflush( stderr );
+    tio_init(&tio_out);
+#endif
+    if (!nn_verbose)
+        strcat(cmd, "Q");
+    else if (nn_verbose > 1)
+        strcat(cmd, "VV");
+    if (ns != 0)
+        strcat(cmd, "p");
 
-   // The vertices of the domain must always be included in the list of points 
-   std::vector<double>      xcoords;
-   std::vector<double>      ycoords;
-   for ( i = 0, j = 0; i < np; ++i )
-   {
-      xcoords.push_back( points[i].x );
-      ycoords.push_back( points[i].y );
-   }
+    if (nn_verbose)
+        fflush(stderr);
 
-   double xmin = *std::min_element( xcoords.begin(), xcoords.end() );
-   double xmax = *std::max_element( xcoords.begin(), xcoords.end() );
-   double ymin = *std::min_element( ycoords.begin(), ycoords.end() );
-   double ymax = *std::max_element( ycoords.begin(), ycoords.end() );
+    /*
+     * climax 
+     */
+#ifdef USETRIANGLE
+    triangulate( cmd, &tio_in, &tio_out, NULL );
+#else
+    // First define the bounding polygon
+    std::vector<p2t::Point*> polyline;
+    std::vector<p2t::Point>  uniquePoints;
+    int pointInd = 0;
+    int convexHullPoints = 100; // nvexHullPoints is an additional parameter that should be provided by the function
 
-   assert( xmin < xmax );
-   assert( ymin < ymax );
+    for ( i = 0; i < convexHullPoints; ++i )
+    {
+       polyline.push_back( new p2t::Point( points[i].x, points[i].y, pointInd++ ) );
+       uniquePoints.push_back( *polyline.back( ) );
+    }
 
-   // Poligon, the model domain
-   std::vector<p2t::Point*> polyline;
-   std::vector<p2t::Point>  uniquePoints;
-   int pointInd = 0;
+    // create CTD 
+    p2t::CDT CDT( polyline );
 
-   polyline.push_back( new p2t::Point( xmin, ymin, pointInd++ ) );
-   polyline.push_back( new p2t::Point( xmax, ymin, pointInd++ ) );
-   polyline.push_back( new p2t::Point( xmax, ymax, pointInd++ ) );
-   polyline.push_back( new p2t::Point( xmin, ymax, pointInd++ ) );
+    // add only new  points, use polyline to store pointers for later memory deletion
+    for ( i = convexHullPoints; i != np; ++i )
+    {
+       // create a temporary point
+       p2t::Point tempPoint = p2t::Point( points[i].x, points[i].y );
+       //push back the edges if they are not found
+       std::vector<p2t::Point>::iterator it;
+       it = std::find( uniquePoints.begin(), uniquePoints.end(), tempPoint );
+       if ( it == uniquePoints.end() )
+       {
+       polyline.push_back( new p2t::Point( points[i].x, points[i].y, pointInd++ ) );
+       uniquePoints.push_back( *polyline.back( ) );
+       CDT.AddPoint( polyline.back( ) );
+       }
+    }
 
-   uniquePoints.push_back( *polyline[0] );
-   uniquePoints.push_back( *polyline[1] );
-   uniquePoints.push_back( *polyline[2] );
-   uniquePoints.push_back( *polyline[3] );
+    // Triangulate
+    CDT.Triangulate( );
+#endif
 
-   // create CTD 
-   p2t::CDT CDT( polyline );
+    if (nn_verbose)
+        fflush(stderr);
 
-   // add only new  points, use polyline to store pointers for later memory deletion
-   for ( i = 0; i != np; ++i )
-   {
-      // create a temporary point
-      p2t::Point tempPoint = p2t::Point( points[i].x, points[i].y );
-      //push back the edges if they are not found
-      std::vector<p2t::Point>::iterator it;
-      it = std::find( uniquePoints.begin(), uniquePoints.end(), tempPoint );
-      if ( it == uniquePoints.end() )
-      {
-         polyline.push_back( new p2t::Point( points[i].x, points[i].y, pointInd++ ) );
-         uniquePoints.push_back( *polyline.back() );
-         CDT.AddPoint( polyline.back() );
-      }
-   }
+    d->npoints = np;
+    d->points = points;
 
-   // triangulate
-   CDT.Triangulate();
+#ifdef USETRIANGLE
+    tio2delaunay(&tio_out, d);
 
-   if ( nn_verbose )
-      fflush( stderr );
-
-   d->npoints = np;
-   d->points = points;
-
-   tio2delaunayPoly2Tri( CDT, d );
-
-   // delete allocated p2t::Point
-   for ( i = 0; i != polyline.size(); ++i )
-   {
-      delete polyline[i];
-   }
-
-   return d;
+    tio_destroy(&tio_in);
+    tio_destroy(&tio_out);
+#else
+    // delete allocated p2t::Point
+    for ( i = 0; i != polyline.size( ); ++i )
+    {
+       delete polyline[i];
+    }
+#endif
+    return d;
 }
 
 /* Destroys Delaunay triangulation.

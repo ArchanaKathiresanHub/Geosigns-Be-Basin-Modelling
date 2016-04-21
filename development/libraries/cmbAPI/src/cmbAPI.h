@@ -271,7 +271,7 @@ namespace mbapi {
       /// @return ErrorHandler::NoError on success, or error code otherwise
       ReturnCode arealSize( double & dimX, double & dimY );
 
-      /// @brief Get the window extansion for multi1D projects
+      /// @brief Get the window extension for multi1D projects
       /// @param[out] x first x coordinate of the well
       /// @param[out] y first y coordinate of the well
       /// @param[out] xMin minimum x node
@@ -280,6 +280,56 @@ namespace mbapi {
       /// @param[out] yMax maximum y node
       /// @return ErrorHandler::NoError on success, or error code otherwise
       ReturnCode windowSize( double x, double y, int & xMin, int & xMax, int & yMin, int & yMax );
+
+
+      // Natural neighbour interpolation of the lithofractions
+
+      /// @brief Transform lithofractions, set up interpolation points at the edge of the domain and interpolate
+      /// @param[in]  xin x coordinates of the wells
+      /// @param[in]  yin y coordinates of the wells
+      /// @param[in]  lf1 first litofraction
+      /// @param[in]  lf2 second litofraction
+      /// @param[in]  lf3 third litofraction
+      /// @param[out] xInt x coordinates of the interpolated points
+      /// @param[out] yInt y coordinates of the interpolated points
+      /// @param[out] rpInt interpolated values
+      /// @param[out] r13Int interpolated values
+      /// @return ErrorHandler::NoError on success, or error code otherwise
+      ReturnCode interpolateLithoFractions(
+         const std::vector<double>& xin,
+         const std::vector<double>& yin,
+         const std::vector<double>& lf1,
+         const std::vector<double>& lf2,
+         const std::vector<double>& lf3,
+         std::vector<double>& xInt,
+         std::vector<double>& yInt,
+         std::vector<double>& rpInt,
+         std::vector<double>& r13Int );
+
+      /// @brief Correct and back-transform rp and r13 to real lithofraction values
+      /// @param[in]  rpInt interpolated values
+      /// @param[in]  r13Int interpolated values
+      /// @param[out] lf1CorrInt corrected interpolated first lithofraction
+      /// @param[out] lf2CorrInt corrected interpolated second lithofraction
+      /// @param[out] lf3CorrInt corrected interpolated third lithofraction
+      /// @return ErrorHandler::NoError on success, or error code otherwise
+      ReturnCode backTransformLithoFractions(
+         const std::vector<double>& rpInt,
+         const std::vector<double>& r13Int,
+         std::vector<double>& lf1CorrInt,
+         std::vector<double>& lf2CorrInt,
+         std::vector<double>& lf3CorrInt
+         );
+
+      /// @brief Save interpolated maps to file and update the project3d file
+      /// @param[in] the layer name 
+      /// @param[in] lf1CorrInt corrected interpolated first lithofraction
+      /// @param[in] lf2CorrInt corrected interpolated second lithofraction
+      /// @return ErrorHandler::NoError on success, or error code otherwise
+      ReturnCode saveLithofractionsMaps(
+         const std::string& layername,
+         const std::vector<double>& lf1CorrInt,
+         const std::vector<double>& lf2CorrInt );
 
       ///@}
 

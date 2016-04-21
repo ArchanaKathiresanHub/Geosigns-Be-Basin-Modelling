@@ -65,8 +65,29 @@ namespace mbapi
       // Linearly rescale input map to the new value range
       virtual ErrorHandler::ReturnCode scaleMap( MapID id, double coeff );
 
+      // Set values in the map
+      virtual ErrorHandler::ReturnCode mapSetValues( MapID id, const std::vector<double>& vin );
+
       // Interpolate between 2 maps, coefficient in range [0:1]
       virtual ErrorHandler::ReturnCode interpolateMap( MapID id, MapID minId, MapID maxId, double coeff );
+
+      // Interpolate input values using the natural neighbour algorithm
+      virtual ErrorHandler::ReturnCode interpolateMap(
+         const std::vector<double>& xin,
+         const std::vector<double>& yin,
+         const std::vector<double>& vin,
+         double xmin,
+         double xmax,
+         double ymin,
+         double ymax,
+         int numI,
+         int numJ,
+         std::vector<double>& xout,
+         std::vector<double>& yout,
+         std::vector<double>& vout );
+
+      // Generate a new lithofraction map in the GridMapIoTbl
+      virtual MapID generateLithoFractionMap( std::string & newMapName );
 
       // Set of interfaces for interacting with a Cauldron model
       // Set project database. Reset all
@@ -82,6 +103,7 @@ namespace mbapi
       static const char * s_MapTypeColName;     // Type of the grid map, possible values are:DECASCII, DECBINARY, ZYCOR, CPS3, EPIRUS, XYZ
       static const char * s_MapFileNameColName; // Filename of the grid map (with extension)
       static const char * s_MapSeqNbrColName;   // Sequence number of the grid map, within the grid loader (Starting with 0). This attribute
+      static const char * s_StratIoTbl;         // Table name reffered in the GridMapIoTbl for the lithofractions
 
       // Copy constructor and operator are disabled
       MapsManagerImpl( const MapsManagerImpl & otherMapsManagerImpl );

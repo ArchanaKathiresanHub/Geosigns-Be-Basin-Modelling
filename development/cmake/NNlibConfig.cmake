@@ -27,7 +27,7 @@ add_external_package_info(
        VENDOR   "Pavel Sakov and CSIRO"
        VERSION  "v. 1.86.0"
        LICENSE_TYPE "GPL"
-       LICENSE_FILE "${THIRD_PARTY_DIR}/LICENSE_NN"
+       LICENSE_FILE "${THIRD_PARTY_DIR}/NNlib/LICENSE_NN"
        URL      "https://github.com/sakov/nn-c"
        DESCRIPTION "Performs natural neighbours interpolation"
        REQUIRED_AT  "Runtime"
@@ -46,7 +46,7 @@ add_external_package_info(
        VENDOR   "Mason Green, Thomas Ahlen"
        VERSION  "Unknown"
        LICENSE_TYPE "GPL"
-       LICENSE_FILE "${THIRD_PARTY_DIR}/LICENSE_P2T"
+       LICENSE_FILE "${THIRD_PARTY_DIR}/NNlib/LICENSE_P2T"
        URL      "http://code.google.com/p/poly2tri/"
        DESCRIPTION "Performs delaunay triangulation"
        REQUIRED_AT  "Runtime"
@@ -56,5 +56,24 @@ add_external_package_info(
        USEABLE_STAND_ALONE "No"
        CONTAINS_CRYPTO "No"
        ECCN         "BSD"
+       ECCN_EVIDENCE "https://sps.sede-coe.pds.nl/CoE-II/Basin Modeling/Release documents/Export Classification Tracking/Clarification on licensing issues_nn_poly2tri.msg"
+)
+
+add_external_package_info(
+       CAPABILITY NNlib
+       NAME     "triangle"
+       VENDOR   "Jonathan Richard Shewchuk"
+       VERSION  "1.4"
+       LICENSE_TYPE "LGPL"
+       LICENSE_FILE "${THIRD_PARTY_DIR}/NNlib/README_TR"
+       URL      "https://www.cs.cmu.edu/~quake/triangle.html"
+       DESCRIPTION "Performs delaunay triangulation"
+       REQUIRED_AT  "Runtime"
+       COUNTRY_OF_ORIGIN "California, USA"
+       SHIPPED      "Yes"
+       INCLUSION_TYPE "Static Link"
+       USEABLE_STAND_ALONE "No"
+       CONTAINS_CRYPTO "No"
+       ECCN         "Unknown"
        ECCN_EVIDENCE "https://sps.sede-coe.pds.nl/CoE-II/Basin Modeling/Release documents/Export Classification Tracking/Clarification on licensing issues_nn_poly2tri.msg"
 )

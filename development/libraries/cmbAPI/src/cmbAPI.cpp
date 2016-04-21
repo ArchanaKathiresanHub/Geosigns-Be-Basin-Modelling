@@ -161,7 +161,32 @@ public:
 
    // model dimensions along X/Y
    void arealSize( double & dimX, double & dimY );
+   
+   // window size
    void windowSize( double x, double y, int & xMin, int & xMax, int & yMin, int & yMax );
+
+   void interpolateLithoFractions(
+      const std::vector<double>& xin,
+      const std::vector<double>& yin,
+      const std::vector<double>& lf1,
+      const std::vector<double>& lf2,
+      const std::vector<double>& lf3,
+      std::vector<double>& xInt,
+      std::vector<double>& yInt,
+      std::vector<double>& rpInt,
+      std::vector<double>& r13Int );
+
+   void backTransformLithoFractions(
+      const std::vector<double>& rpInt,
+      const std::vector<double>& r13Int,
+      std::vector<double>& lf1CorrInt,
+      std::vector<double>& lf2CorrInt,
+      std::vector<double>& lf3CorrInt );
+
+   void saveLithofractionsMaps(
+      const std::string& layername,
+      const std::vector<double>& lf1CorrInt,
+      const std::vector<double>& lf2CorrInt );
 };
 
 
@@ -429,6 +454,56 @@ Model::ReturnCode Model::windowSize( double x, double y, int & xMin, int & xMax,
    return NoError;
 }
 
+Model::ReturnCode Model::interpolateLithoFractions(
+   const std::vector<double>& xin,
+   const std::vector<double>& yin,
+   const std::vector<double>& lf1,
+   const std::vector<double>& lf2,
+   const std::vector<double>& lf3,
+   std::vector<double>& xInt,
+   std::vector<double>& yInt,
+   std::vector<double>& rpInt,
+   std::vector<double>& r13Int )
+{
+   if ( errorCode( ) != NoError ) resetError( );
+
+   try { m_pimpl->interpolateLithoFractions( xin, yin, lf1, lf2, lf3, xInt, yInt, rpInt, r13Int ); }
+   catch ( const Exception & ex ) { return reportError( ex.errorCode( ), ex.what( ) ); }
+   catch ( ... ) { return reportError( UnknownError, "Unknown error" ); }
+
+   return NoError;
+}
+
+Model::ReturnCode Model::backTransformLithoFractions(
+   const std::vector<double>& rpInt,
+   const std::vector<double>& r13Int,
+   std::vector<double>& lf1CorrInt,
+   std::vector<double>& lf2CorrInt,
+   std::vector<double>& lf3CorrInt )
+{
+   if ( errorCode( ) != NoError ) resetError( );
+
+   try { m_pimpl->backTransformLithoFractions( rpInt, r13Int, lf1CorrInt, lf2CorrInt, lf3CorrInt ); }
+   catch ( const Exception & ex ) { return reportError( ex.errorCode( ), ex.what( ) ); }
+   catch ( ... ) { return reportError( UnknownError, "Unknown error" ); }
+
+   return NoError;
+}
+
+Model::ReturnCode Model::saveLithofractionsMaps(
+   const std::string& layername,
+   const std::vector<double>& lf1CorrInt,
+   const std::vector<double>& lf2CorrInt )
+
+{
+   if ( errorCode( ) != NoError ) resetError( );
+
+   try { m_pimpl->saveLithofractionsMaps( layername, lf1CorrInt, lf2CorrInt ); }
+   catch ( const Exception & ex ) { return reportError( ex.errorCode( ), ex.what( ) ); }
+   catch ( ... ) { return reportError( UnknownError, "Unknown error" ); }
+
+   return NoError;
+}
 
 std::vector<std::string> Model::copyLithology( const std::string                                       & litName      
                                              , const std::vector< std::pair<std::string, size_t> >     & layersName   
@@ -1111,6 +1186,240 @@ void Model::ModelImpl::windowSize( double x, double y, int & xMin, int & xMax, i
    
    yMin = static_cast<int>( std::floor( ( y - pd->getYOrigin() ) / pd->getDeltaY() ) );
    yMax = yMin + 1;
+}
+
+// transform the lithofractions and interpolate the results
+void Model::ModelImpl::interpolateLithoFractions(
+   const std::vector<double>& xin,
+   const std::vector<double>& yin,
+   const std::vector<double>& lf1,
+   const std::vector<double>& lf2,
+   const std::vector<double>& lf3,
+   std::vector<double>& xInt,
+   std::vector<double>& yInt,
+   std::vector<double>& rpInt,
+   std::vector<double>& r13Int )
+{
+   const double shift = 100;
+   const double convexHullEdgePoints = 25;
+   const int nin = xin.size();
+   // for all wells calculate rp, r12 
+   std::vector<double> rp;
+   std::vector<double> r13;
+   std::vector<double> x;
+   std::vector<double> y;
+
+   // all wells are considered to calculate the mean values to use at the adges. this could be refined later on to use only the closest wells
+   double sumLf1hat = 0;
+   double sumLf2hat = 0;
+   double sumLf3hat = 0;
+   for ( int i = 0; i != nin; ++i )
+   {
+      sumLf1hat += lf1[i] + shift;
+      sumLf2hat += lf2[i] + shift;
+      sumLf3hat += lf3[i] + shift;
+   }
+
+   double meanLf1hat = sumLf1hat / nin;
+   double meanLf2hat = sumLf2hat / nin;
+   double meanLf3hat = sumLf3hat / nin;
+
+   double rpmean = ( meanLf1hat + meanLf3hat ) / meanLf2hat;
+   double r13mean = meanLf1hat / meanLf3hat;
+
+   // the vertices of the domain must be included included as interpolation points
+   if ( !m_projHandle.get() ) { throw ErrorHandler::Exception( ErrorHandler::IoError ) << "Model::interpolateLithoFractions(): no project was loaded"; }
+   const DataAccess::Interface::ProjectData * pd = m_projHandle->getProjectData();
+
+   double xmin = pd->getXOrigin();
+   double ymin = pd->getYOrigin();
+   double deltaX = pd->getDeltaX();
+   double deltaY = pd->getDeltaY();
+   int numI = pd->getNumberOfXNodes();
+   int numJ = pd->getNumberOfYNodes();
+   double xmax = xmin + numI *deltaX;
+   double ymax = ymin + numJ *deltaY;
+
+   const double deltaXConvexHull = ( xmax - xmin ) / convexHullEdgePoints;
+   const double deltaYConvexHull = ( ymax - ymin ) / convexHullEdgePoints;
+
+   // first add the points at the edges in CCW order (needed for Poly2Tri, does not harm triangle)
+   for ( int i = 0; i <= convexHullEdgePoints; ++i )
+   {
+      x.push_back( xmin + deltaXConvexHull*i );
+      y.push_back( ymin );
+      rp.push_back( rpmean );
+      r13.push_back( r13mean );
+   }
+
+   for ( int i = 1; i < convexHullEdgePoints; ++i )
+   {
+      x.push_back( xmax );
+      y.push_back( ymin + i*deltaYConvexHull );
+      rp.push_back( rpmean );
+      r13.push_back( r13mean );
+   }
+
+   for ( int i = convexHullEdgePoints; i >= 0; --i )
+   {
+      x.push_back( xmin + deltaXConvexHull*i );
+      y.push_back( ymax );
+      rp.push_back( rpmean );
+      r13.push_back( r13mean );
+   }
+
+   for ( int i = convexHullEdgePoints - 1; i >= 1; --i )
+   {
+      x.push_back( xmin );
+      y.push_back( ymin + i*deltaYConvexHull );
+      rp.push_back( rpmean );
+      r13.push_back( r13mean );
+   }
+
+   // if Poly2Tri is used this value needs to be passed to interpolateMap till to delaunay_build 
+   const int convexHullPoints = x.size( );
+
+   // add well points only after the convex hull has been defined
+   double lf1hat;
+   double lf2hat;
+   double lf3hat;
+   for ( int i = 0; i != nin; ++i )
+   {
+      lf1hat = lf1[i] + shift;
+      lf2hat = lf2[i] + shift;
+      lf3hat = lf3[i] + shift;
+      x.push_back( xin[i] );
+      y.push_back( yin[i] );
+      rp.push_back( ( lf1hat + lf3hat ) / lf2hat );
+      r13.push_back( lf1hat / lf3hat );
+   }
+
+   // interpolate 
+   if ( ErrorHandler::NoError != m_mapMgr.interpolateMap( x, y, rp, xmin + deltaX / 2, xmax - deltaX / 2, ymin + deltaY / 2, ymax - deltaY / 2, numI, numJ, xInt, yInt, rpInt ) )
+   {
+      throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "NNlib interpolation failed for rp ";
+   }
+   if ( ErrorHandler::NoError != m_mapMgr.interpolateMap( x, y, r13, xmin + deltaX / 2, xmax - deltaX / 2, ymin + deltaY / 2, ymax - deltaY / 2, numI, numJ, xInt, yInt, r13Int ) )
+   {
+      throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "NNlib interpolation failed for r13 ";
+   }
+}
+
+// correct and back transform the interpolated values
+void Model::ModelImpl::backTransformLithoFractions(
+   const std::vector<double>& rpInt,
+   const std::vector<double>& r13Int,
+   std::vector<double>& lf1CorrInt,
+   std::vector<double>& lf2CorrInt,
+   std::vector<double>& lf3CorrInt
+   )
+{
+   const double eps = 1e-4;
+   const double shift = 100;
+   const double sumLfInt = 100 + 3 * shift;
+   double lf1Int;
+   double lf2Int;
+   double lf3Int;
+   const int nint = rpInt.size();
+   lf1CorrInt.resize( nint );
+   lf2CorrInt.resize( nint );
+   lf3CorrInt.resize( nint );
+   
+   // back-transform and correct the lithofractions
+   for ( int i = 0; i != nint; ++i )
+   {
+      lf2Int = sumLfInt / ( rpInt[i] + 1 );
+      lf3Int = ( sumLfInt - lf2Int ) / ( r13Int[i] + 1 );
+      lf1Int = sumLfInt - lf3Int - lf2Int;
+      lf1Int -= shift;
+      lf2Int -= shift;
+      lf3Int -= shift;
+      if ( ( lf1Int + lf2Int ) > 100 || lf1Int < 0 || lf2Int < 0 || lf3Int < 0 )
+      {
+         if ( ( lf1Int + lf2Int ) > 100 && ( lf1Int + lf2Int ) <100 + eps )
+         {
+            double res = lf1Int + lf2Int - 100;
+            if ( lf1Int >2 * eps )lf1Int -= res*0.51;
+            if ( lf2Int >2 * eps )lf2Int -= res*0.51;
+            lf3Int = 100 - lf1Int - lf2Int;
+         }
+         else if ( lf1Int <0 && lf1Int > -eps ) // lf1Int
+         {
+            if ( lf2Int > abs( lf1Int ) )
+            {
+               lf2Int -= lf1Int;
+            }
+            else
+            {
+               lf3Int -= lf1Int;
+            }
+            lf1Int = 0;
+         }
+         else if ( lf2Int <0 && lf2Int > -eps ) // lf2Int
+         {
+            if ( lf1Int > abs( lf2Int ) )
+            {
+               lf1Int -= lf2Int;
+            }
+            else
+            {
+               lf3Int -= lf2Int;
+            }
+            lf2Int = 0;
+         }
+         else if ( lf3Int <0 && lf3Int > -eps ) // lf3Int
+         {
+            if ( lf1Int > abs( lf3Int ) )
+            {
+               lf1Int -= lf3Int;
+            }
+            else
+            {
+               lf2Int -= lf3Int;
+            }
+            lf3Int = 0;
+         }
+         else throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Negative interpolated lithofractions: lf1Int " << lf1Int << " lf2Int " << lf2Int << " lf3Int " << lf3Int;
+      }
+      if ( ( lf1Int + lf2Int + lf3Int ) > 100 + eps ) throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "The sum of the interpolated lithofractions is greater than 100.0001: " << lf1Int + lf2Int + lf3Int;
+      lf1CorrInt[i] = lf1Int;
+      lf2CorrInt[i] = lf2Int;
+      lf3CorrInt[i] = lf3Int;
+   }
+}
+
+void Model::ModelImpl::saveLithofractionsMaps(
+   const std::string& layername,
+   const std::vector<double>& lf1CorrInt,
+   const std::vector<double>& lf2CorrInt )
+{
+   // get the layer ID
+   mbapi::StratigraphyManager::LayerID lid = m_stratMgr.layerID( layername );
+   if ( m_stratMgr.errorCode() != ErrorHandler::NoError )
+   {
+      throw ErrorHandler::Exception( m_stratMgr.errorCode() ) << m_stratMgr.errorMessage();
+   }
+
+   std::vector<std::string> mapsNames( 2 );
+   mapsNames[0] = layername + "_percent1";
+   mapsNames[1] = layername + "_percent2";
+
+   MapsManager::MapID percent1GridMapId = m_mapMgr.generateLithoFractionMap( mapsNames[0] );
+   MapsManager::MapID percent2GridMapId = m_mapMgr.generateLithoFractionMap( mapsNames[1] );
+
+   m_mapMgr.mapSetValues( percent1GridMapId, lf1CorrInt );
+   m_mapMgr.mapSetValues( percent2GridMapId, lf2CorrInt );
+
+   if ( ErrorHandler::NoError != m_mapMgr.saveMapToHDF( percent1GridMapId, mapsNames[0] + ".HDF" ) )
+   {
+      throw ErrorHandler::Exception( ErrorHandler::IoError ) << "cannot save the map " << mapsNames[0];
+   }
+   if ( ErrorHandler::NoError != m_mapMgr.saveMapToHDF( percent2GridMapId, mapsNames[1] + ".HDF" ) )
+   {
+      throw ErrorHandler::Exception( ErrorHandler::IoError ) << "cannot save the map " << mapsNames[1];
+   }
+
+   m_stratMgr.setLayerLithologiesPercentageMaps( lid, mapsNames );
 }
 
 // Create the unique copies of lithology for each given layer, alochtonous lithology and fault cut from the given lists

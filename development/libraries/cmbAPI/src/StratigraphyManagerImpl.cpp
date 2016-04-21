@@ -37,6 +37,8 @@ const char * StratigraphyManagerImpl::s_lithoType3FiledName             = "Litho
 const char * StratigraphyManagerImpl::s_lithoTypePercent1FiledName      = "Percent1";
 const char * StratigraphyManagerImpl::s_lithoTypePercent2FiledName      = "Percent2";
 const char * StratigraphyManagerImpl::s_lithoTypePercent3FiledName      = "Percent3";
+const char * StratigraphyManagerImpl::s_lithoTypePercent1GridFiledName  = "Percent1Grid";
+const char * StratigraphyManagerImpl::s_lithoTypePercent2GridFiledName =  "Percent2Grid";
 const char * StratigraphyManagerImpl::s_isSourceRockFieldName           = "SourceRock";
 const char * StratigraphyManagerImpl::s_sourceRockType1FieldName        = "SourceRockType1";
 const char * StratigraphyManagerImpl::s_sourceRockType2FieldName        = "SourceRockType2";
@@ -308,6 +310,34 @@ ErrorHandler::ReturnCode StratigraphyManagerImpl::setLayerLithologiesList( Layer
          rec->setValue<std::string>( s_lithoType3FiledName,        ""  );
          rec->setValue<double>(      s_lithoTypePercent3FiledName, 0.0 );
       }
+   }
+   catch ( const Exception & e ) { return reportError( e.errorCode(), e.what() ); }
+
+   return NoError;
+}
+
+// Set the lithology percentages maps
+ErrorHandler::ReturnCode StratigraphyManagerImpl::setLayerLithologiesPercentageMaps( LayerID id, std::vector<std::string> & lithologyPercentageMaps )
+{
+   if ( errorCode() != NoError ) resetError();
+
+   try
+   {
+      // if table does not exist - report error
+      if ( !m_stratIoTbl )
+      {
+         throw Exception( NonexistingID ) << s_stratigraphyTableName << " table could not be found in project";
+      }
+
+      database::Record * rec = m_stratIoTbl->getRecord( static_cast<int>( id ) );
+      if ( !rec )
+      {
+         throw Exception( NonexistingID ) << "No layer with ID: " << id << " in stratigraphy table";
+      }
+
+      // set the percentage grid maps. all three maps are always defined
+      rec->setValue<std::string>( s_lithoTypePercent1GridFiledName, lithologyPercentageMaps[0] );
+      rec->setValue<std::string>( s_lithoTypePercent2GridFiledName, lithologyPercentageMaps[1] );
    }
    catch ( const Exception & e ) { return reportError( e.errorCode(), e.what() ); }
 

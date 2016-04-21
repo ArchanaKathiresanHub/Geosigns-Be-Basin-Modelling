@@ -19,6 +19,8 @@
 #include "database.h"
 #include "Interface/GridMap.h"
 #include "Interface/ProjectHandle.h"
+#include "Interface/ProjectData.h"
+#include "Interface/ObjectFactory.h"
 
 // FileSystem library
 #include "FilePath.h"
@@ -26,6 +28,9 @@
 
 // Utilities lib
 #include <NumericFunctions.h>
+
+// NNlib
+#include "nn.h"
 
 // STL
 #include <stdexcept>
@@ -43,6 +48,7 @@ const char * MapsManagerImpl::s_MapTypeColName     = "MapType";       // Type of
 const char * MapsManagerImpl::s_MapFileNameColName = "MapFileName";   // Filename of the grid map (with extension)
 const char * MapsManagerImpl::s_MapSeqNbrColName   = "MapSeqNbr";     // Sequence number of the grid map, within the grid loader (Starting with 0). This attribute
                                                                              // is only relevant for multiple map files.
+const char * MapsManagerImpl::s_StratIoTbl         = "StratIoTbl";    // Table name reffered in the GridMapIoTbl for the lithofractions
 
 MapsManagerImpl::MapsManagerImpl()
 {
@@ -146,6 +152,71 @@ MapsManager::MapID MapsManagerImpl::copyMap( MapID id, const std::string & newMa
    return ret;
 }
 
+MapsManager::MapID MapsManagerImpl::generateLithoFractionMap( std::string & newMapName )
+{
+   if ( errorCode( ) != NoError ) resetError( );
+
+   MapID ret = UndefinedIDValue;
+
+   try
+   {
+      // create a new Map
+      ret = m_mapName.size( );
+      DataAccess::Interface::GridMap * gridMap = m_proj->getFactory( )->produceGridMap( 0, 0, m_proj->getInputGrid( ), DataAccess::Interface::DefaultUndefinedMapValue, 1 );
+
+      m_mapObj.push_back( gridMap );
+      m_mapName.push_back( newMapName );
+      m_mapRefTable.push_back( s_StratIoTbl );
+
+      std::string newMapFile = newMapName + ".HDF";
+
+      // get pointer to the GridMapIo table
+      database::Table * table = m_db->getTable( s_mapsTableName );
+      if ( !table ) { throw Exception( NonexistingID ) << s_mapsTableName << " table could not be found in project " << m_projectFileName; }
+
+      // create a new record in s_mapsTableName
+      database::Record * newRec = table->createRecord( );
+
+      // change names
+      newRec->setValue<std::string>( s_ReferredByColName, s_StratIoTbl );     
+      newRec->setValue( s_MapNameColName, newMapName );
+      newRec->setValue<std::string>( s_MapTypeColName, "HDF5" );
+      newRec->setValue<std::string>( s_MapFileNameColName, newMapFile ); // not saved yet
+      newRec->setValue<int>( s_MapSeqNbrColName, 0 );
+      
+   }
+   catch ( const Exception & ex ) { reportError( ex.errorCode( ), ex.what( ) ); }
+
+   return ret;
+}
+
+ErrorHandler::ReturnCode MapsManagerImpl::mapSetValues( MapID id, const std::vector<double>& vin )
+{
+   if ( errorCode( ) != NoError ) resetError( );
+   try
+   {
+      loadGridMap( id ); // check if map is loaded and load it if not loaded before
+
+      const double nulVal = m_mapObj[id]->getUndefinedValue( );
+
+      const DataAccess::Interface::ProjectData * pd = m_proj->getProjectData( );
+
+      int numI = pd->getNumberOfXNodes( );
+
+      for ( unsigned int i = m_mapObj[id]->firstI( ); i <= m_mapObj[id]->lastI( ); ++i )
+      {
+         for ( unsigned int j = m_mapObj[id]->firstJ( ); j <= m_mapObj[id]->lastJ( ); ++j )
+         {
+            double v = m_mapObj[id]->getValue( i, j );
+            unsigned int pos = j * numI + i; //values in vin are saved row-wise
+            m_mapObj[id]->setValue( i, j, NumericFunctions::isEqual( v, nulVal, 1e-5 ) ? nulVal : vin[pos] );
+         }
+      }
+   }
+   catch ( const Exception & ex ) { return reportError( ex.errorCode( ), ex.what( ) ); }
+
+   return NoError;
+}
 
 // Save input map to the new HDF file. File with the given name should not exist before.
 ErrorHandler::ReturnCode MapsManagerImpl::saveMapToHDF( MapID id, const std::string & fileName )
@@ -304,7 +375,61 @@ ErrorHandler::ReturnCode MapsManagerImpl::interpolateMap( MapID id, MapID minId,
 
    return NoError;
 }
- 
+
+ErrorHandler::ReturnCode MapsManagerImpl::interpolateMap( 
+   const std::vector<double>& xin,
+   const std::vector<double>& yin,
+   const std::vector<double>& vin,
+   double xmin,
+   double xmax,
+   double ymin,
+   double ymax,
+   int numI,
+   int numJ,
+   std::vector<double>& xout,
+   std::vector<double>& yout,
+   std::vector<double>& vout )
+{
+   if ( errorCode( ) != NoError ) resetError( );
+   try
+   {
+      int nin = xin.size( );
+      point * pin = (point *)malloc( nin * sizeof( point ) );
+      point*  pout = NULL;
+      int     nout;
+      double wmin = 0;
+
+      for ( int i = 0; i != nin; ++i )
+      {
+         pin[i].x = xin[i];
+         pin[i].y = yin[i];
+         pin[i].z = vin[i];
+      }
+
+      // generate the points, interpolate with NNlib
+      points_getrange( nin, pin, 1, &xmin, &xmax, &ymin, &ymax );
+      points_generate( xmin, xmax, ymin, ymax, numI, numJ, &nout, &pout );  
+      nnpi_interpolate_points( nin, pin, wmin, nout, pout );
+
+      xout.resize( nout );
+      yout.resize( nout );
+      vout.resize( nout );
+
+      for ( int i = 0; i != nout; ++i )
+      {
+         xout[i] = pout[i].x;
+         yout[i] = pout[i].y;
+         vout[i] = pout[i].z;
+      }
+
+      free( pin );
+      free( pout );
+   }
+   catch ( const Exception & ex ) { return reportError( ex.errorCode( ), ex.what( ) ); }
+
+   return NoError;
+}
+
 // Set project database. Reset all
 void MapsManagerImpl::setProject( DataAccess::Interface::ProjectHandle * ph, const std::string & projectFileName )
 {
