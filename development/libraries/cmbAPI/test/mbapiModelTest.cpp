@@ -843,7 +843,6 @@ TEST_F( mbapiModelTest, MapsManagerNNInterpolation )
    std::vector<double> lf2CorrInt;
    std::vector<double> lf3CorrInt;
    testModel.backTransformLithoFractions( rpInt, r13Int, lf1CorrInt, lf2CorrInt, lf3CorrInt );
-   std::cout.precision( 12 );
 
    // check the back transformation is correct, as in the original prototype
    std::ifstream NNbt( "NNbt" );

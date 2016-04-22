@@ -457,7 +457,7 @@ delaunay* delaunay_build(int np, point points[], int ns, int segments[], int nh,
     std::vector<p2t::Point*> polyline;
     std::vector<p2t::Point>  uniquePoints;
     int pointInd = 0;
-    int convexHullPoints = 100; // nvexHullPoints is an additional parameter that should be provided by the function
+    int convexHullPoints = 100; // nvexHullPoints is an additional parameter that must be provided by the function
 
     for ( i = 0; i < convexHullPoints; ++i )
     {
@@ -500,6 +500,8 @@ delaunay* delaunay_build(int np, point points[], int ns, int segments[], int nh,
     tio_destroy(&tio_in);
     tio_destroy(&tio_out);
 #else
+	tio2delaunayPoly2Tri(CDT, d);
+
     // delete allocated p2t::Point
     for ( i = 0; i != polyline.size( ); ++i )
     {
