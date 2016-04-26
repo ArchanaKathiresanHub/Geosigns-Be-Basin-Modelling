@@ -174,6 +174,17 @@ function initUI(projectInfo)
     onMaxFPSSliderChanged(document.getElementById("maxfpsSlider").valueAsNumber);
 }
 
+function initSeismicUI(seismicInfo)
+{
+    var inlineSlider = document.getElementById("sliceInlineSlider");
+    inlineSlider.min = seismicInfo.extent.min[1];
+    inlineSlider.max = seismicInfo.extent.max[1];
+
+    var crosslineSlider = document.getElementById("sliceCrosslineSlider");
+    crosslineSlider.min = seismicInfo.extent.min[2];
+    crosslineSlider.max = seismicInfo.extent.max[2];
+}
+
 function onCheckBoxAllFormationsChanged(elem)
 {
     var msg = {
@@ -792,6 +803,36 @@ function handleEvent(e)
         onFenceAdded(e.params.fenceId);
 }
 
+function onSeismicSlicePositionChanged(index, elem)
+{
+    console.log("seismic slice " + index + " position = " + elem.value);
+
+    var msg = {
+        cmd: "SetSeismicSlicePosition",
+        params: {
+            index: index,
+            position: elem.valueAsNumber
+        }
+    };
+
+    sendMsg(msg);
+}
+
+function onSeismicSliceCheckBoxChanged(index, elem)
+{
+    console.log("seismic slice " + index + " enabled = " + elem.checked);
+
+    var msg = {
+        cmd: "EnableSeismicSlice",
+        params: {
+            index: index,
+            enabled: elem.checked
+        }
+    }
+
+    sendMsg(msg);
+}
+
 function receivedMessage(message)
 {
     if(logMessages)
@@ -803,12 +844,14 @@ function receivedMessage(message)
     	theRenderArea.projectInfo = msgObj.projectInfo;
         initUI(msgObj.projectInfo);
     }
-    else if(msgObj.pickResult)
+    else if (msgObj.seismicInfo)
     {
+        initSeismicUI(msgObj.seismicInfo);
+    }
+    else if (msgObj.pickResult) {
         logPickResult(msgObj.pickResult);
     }
-    else if(msgObj.event)
-    {
+    else if (msgObj.event) {
         handleEvent(msgObj.event);
     }
 }

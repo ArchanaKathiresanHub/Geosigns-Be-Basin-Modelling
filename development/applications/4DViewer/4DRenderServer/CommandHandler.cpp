@@ -13,6 +13,7 @@
 #include "jsonxx.h"
 
 #include <SceneGraphManager.h>
+#include <Seismic.h>
 #include <CameraUtil.h>
 
 #ifdef USE_H264
@@ -567,6 +568,48 @@ void CommandHandler::onSetCellFilterRange(
   adjustClippingPlanes(renderArea);
 }
 
+void CommandHandler::onEnableSeismicSlice(
+  const jsonxx::Object& params,
+  RemoteViz::Rendering::RenderArea* renderArea,
+  RemoteViz::Rendering::Connection* /*connection*/)
+{
+  if (m_seismicScene)
+  {
+    int index = (int)params.get<jsonxx::Number>("index");
+    bool enabled = params.get<bool>("enabled");
+
+    SeismicScene::SliceType type[] =
+    {
+      SeismicScene::SliceInline,
+      SeismicScene::SliceCrossline
+    };
+
+    m_seismicScene->enableSlice(type[index], enabled);
+    adjustClippingPlanes(renderArea);
+  }
+}
+
+void CommandHandler::onSetSeismicSlicePosition(
+  const jsonxx::Object& params,
+  RemoteViz::Rendering::RenderArea* renderArea,
+  RemoteViz::Rendering::Connection* /*connection*/)
+{
+  if (m_seismicScene)
+  {
+    int index = (int)params.get<jsonxx::Number>("index");
+    float position = (float)params.get<jsonxx::Number>("position");
+
+    SeismicScene::SliceType type[] =
+    {
+      SeismicScene::SliceInline,
+      SeismicScene::SliceCrossline
+    };
+
+    m_seismicScene->setSlicePosition(type[index], position);
+    adjustClippingPlanes(renderArea);
+  }
+}
+
 void CommandHandler::onSetStillQuality(
   const jsonxx::Object& params,
   RemoteViz::Rendering::RenderArea* renderArea,
@@ -669,6 +712,8 @@ void CommandHandler::registerHandlers()
   m_handlers["SetColorScaleParams"] = &CommandHandler::onSetColorScaleParams;
   m_handlers["EnableCellFilter"] = &CommandHandler::onEnableCellFilter;
   m_handlers["SetCellFilterRange"] = &CommandHandler::onSetCellFilterRange;
+  m_handlers["EnableSeismicSlice"] = &CommandHandler::onEnableSeismicSlice;
+  m_handlers["SetSeismicSlicePosition"] = &CommandHandler::onSetSeismicSlicePosition;
   m_handlers["SetStillQuality"] = &CommandHandler::onSetStillQuality;
   m_handlers["SetInteractiveQuality"] = &CommandHandler::onSetInteractiveQuality;
   m_handlers["SetBandwidth"] = &CommandHandler::onSetBandwidth;
@@ -689,9 +734,10 @@ CommandHandler::CommandHandler()
 {
 }
 
-void CommandHandler::setup(SceneGraphManager* mgr, SceneExaminer* examiner)
+void CommandHandler::setup(SceneGraphManager* mgr, SeismicScene* seismic, SceneExaminer* examiner)
 {
   m_sceneGraphManager = mgr;
+  m_seismicScene = seismic;
   m_examiner = examiner;
   
   registerHandlers();
@@ -705,6 +751,36 @@ void CommandHandler::sendProjectInfo(
   msg << "projectInfo" << toJSON(projectInfo);
 
   //std::cout << msg.write(jsonxx::JSON) << std::endl;
+
+  renderArea->sendMessage(msg.write(jsonxx::JSON));
+}
+
+void CommandHandler::sendSeismicInfo(
+  RemoteViz::Rendering::RenderArea* renderArea,
+  const SbVec3i32& size, 
+  const SbBox3f& extent) const
+{
+  jsonxx::Array sizeArray;
+  sizeArray << size[0] << size[1] << size[2];
+
+  jsonxx::Array extentMinArray;
+  SbVec3f min = extent.getMin();
+  extentMinArray << min[0] << min[1] << min[2];
+
+  jsonxx::Array extentMaxArray;
+  SbVec3f max = extent.getMax();
+  extentMaxArray << max[0] << max[1] << max[2];
+
+  jsonxx::Object extentObj;
+  extentObj << "min" << extentMinArray;
+  extentObj << "max" << extentMaxArray;
+
+  jsonxx::Object seismicInfo;
+  seismicInfo << "size" << sizeArray;
+  seismicInfo << "extent" << extentObj;
+
+  jsonxx::Object msg;
+  msg << "seismicInfo" << seismicInfo;
 
   renderArea->sendMessage(msg.write(jsonxx::JSON));
 }

@@ -563,7 +563,7 @@ void MainWindow::onActionRenderAllSlicesTriggered()
   QTime time;
   time.start();
 
-  for (float pos = 0.f; pos < 100.f; pos += .25f)
+  for (float pos = 0.f; pos < 150.f; pos += .1f)
   {
     m_seismicScene->setInterpolatedSurfacePosition(pos);
     m_ui.renderWidget->updateGL();

@@ -12,6 +12,7 @@
 #include "SceneExaminer.h"
 
 #include <SceneGraphManager.h>
+#include <Seismic.h>
 #include <CameraUtil.h>
 
 #ifdef USE_H264
@@ -36,7 +37,7 @@ void BpaRenderAreaListener::createSceneGraph(const std::string& id)
 {
   std::cout << "Loading project, id = " << id << std::endl;
 #ifdef WIN64
-  const std::string rootdir = "V:/data/";
+  const std::string rootdir = "C:/data/";
 #else
   const std::string rootdir = "/home/ree/data/";
 #endif
@@ -53,7 +54,20 @@ void BpaRenderAreaListener::createSceneGraph(const std::string& id)
   m_examiner = new SceneExaminer(m_sceneGraphManager);
   m_examiner->setFenceAddedCallback(std::bind(&BpaRenderAreaListener::onFenceAdded, this, std::placeholders::_1));
 
-  m_commandHandler.setup(m_sceneGraphManager.get(), m_examiner.ptr());
+  if (id.find("Barracuda") != std::string::npos)
+  {
+    const char* volumeFile = "Barracuda_3Ddepth_Realized8bit.sgy";
+    std::string volumePath = rootdir + volumeFile;
+
+    auto dim = m_project->getProjectInfo().dimensions;
+    m_seismicScene = std::make_shared<SeismicScene>(volumePath.c_str(), dim);
+    m_sceneGraphManager->addSeismicScene(m_seismicScene);
+  }
+
+  m_commandHandler.setup(
+    m_sceneGraphManager.get(), 
+    m_seismicScene.get(), 
+    m_examiner.ptr());
 
   m_renderArea->getSceneManager()->setSceneGraph(m_examiner.ptr());
   m_examiner->viewAll(m_renderArea->getSceneManager()->getViewportRegion());
@@ -93,6 +107,14 @@ void BpaRenderAreaListener::onOpenedConnection(RenderArea* renderArea, Connectio
     createSceneGraph(renderArea->getId());
 
   m_commandHandler.sendProjectInfo(renderArea, m_projectInfo);
+
+  if (m_seismicScene)
+  {
+    SbBox3f extent = m_seismicScene->getExtent();
+    SbVec3i32 size = m_seismicScene->getDimensions();
+
+    m_commandHandler.sendSeismicInfo(renderArea, size, extent);
+  }
 
   RemoteViz::Rendering::RenderAreaListener::onOpenedConnection(renderArea, connection);
 }

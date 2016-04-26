@@ -10,10 +10,13 @@
 #ifndef BPARENDERAREALISTENER_H_INCLUDED
 #define BPARENDERAREALISTENER_H_INCLUDED
 
+class SceneGraphManager;
+class SeismicScene;
+
 #include "CommandHandler.h"
+#include "SceneExaminer.h"
 
 #include <Project.h>
-#include <SceneGraphManager.h>
 
 #ifdef USE_H264
 #include <RenderAreaListener.h>
@@ -25,14 +28,13 @@
 
 using namespace RemoteViz::Rendering;
 
-class SceneExaminer;
-
 class BpaRenderAreaListener : public RenderAreaListener
 {
   std::shared_ptr<Project> m_project;
   Project::ProjectInfo m_projectInfo;
 
   std::shared_ptr<SceneGraphManager> m_sceneGraphManager;
+  std::shared_ptr<SeismicScene> m_seismicScene;
   SoRef<SceneExaminer> m_examiner;
 
   RenderArea*       m_renderArea;

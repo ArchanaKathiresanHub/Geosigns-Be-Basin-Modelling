@@ -12,7 +12,11 @@
 #define COMMANDHANDLER_H_INCLUDED
 
 class SceneGraphManager;
+class SeismicScene;
 class SceneExaminer;
+
+class SbVec3i32;
+class SbBox3f;
 
 namespace RemoteViz
 {
@@ -36,6 +40,7 @@ namespace jsonxx
 class CommandHandler
 {
   SceneGraphManager* m_sceneGraphManager;
+  SeismicScene* m_seismicScene;
   SceneExaminer* m_examiner;
 
   typedef void (CommandHandler::*FunctionPtr)(
@@ -215,6 +220,16 @@ class CommandHandler
     RemoteViz::Rendering::RenderArea* renderArea,
     RemoteViz::Rendering::Connection* connection);
 
+  void onEnableSeismicSlice(
+    const jsonxx::Object& params,
+    RemoteViz::Rendering::RenderArea* renderArea,
+    RemoteViz::Rendering::Connection* connection);
+
+  void onSetSeismicSlicePosition(
+    const jsonxx::Object& params,
+    RemoteViz::Rendering::RenderArea* renderArea,
+    RemoteViz::Rendering::Connection* connection);
+
   void onSetStillQuality(
     const jsonxx::Object& params,
     RemoteViz::Rendering::RenderArea* renderArea,
@@ -253,11 +268,16 @@ public:
 
   CommandHandler();
   
-  void setup(SceneGraphManager* mgr, SceneExaminer* examiner);
+  void setup(SceneGraphManager* mgr, SeismicScene* seismic, SceneExaminer* examiner);
 
   void sendProjectInfo(
     RemoteViz::Rendering::RenderArea* renderArea,
     const Project::ProjectInfo& projectInfo) const;
+
+  void sendSeismicInfo(
+    RemoteViz::Rendering::RenderArea* renderArea,
+    const SbVec3i32& size,
+    const SbBox3f& extent) const;
 
   void sendFenceAddedEvent(
     RemoteViz::Rendering::RenderArea* renderArea,
