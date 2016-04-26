@@ -458,7 +458,7 @@ if (BM_USE_FLEXLM)
    target_link_libraries(FastcauldronApplication ${FLEXLM_LIBRARIES})
 endif(BM_USE_FLEXLM)
 
-install(TARGETS fastcauldron
+install(TARGETS fastcauldron linearSolver
 	RUNTIME DESTINATION bin
 )
 

@@ -59,14 +59,19 @@ int main(int argc, char** argv)
    int rc = 0;
 
    // Creating "fake" argv input with a run modality for fastcauldron
-   const int l_argc = argc + 2;
-   char** l_argv = new char*[l_argc];
-   for( unsigned int i = 0; i < argc; ++i ) l_argv[i] = argv[i];
-   l_argv[l_argc-2] = "-decompaction";
-   l_argv[l_argc-1] = NULL;
+   int l_argc = argc + 1;
+   char** l_argv = new char*[l_argc+1];
+   l_argv[l_argc-1] = "-decompaction";
+   for( unsigned int i = 0; i < argc; ++i )
+   {
+      l_argv[i] = argv[i];
+      if(strcmp(l_argv[i],"-presMatrix")==0) l_argv[l_argc-1] = "-overpressure";
+      if(strcmp(l_argv[i],"-tempMatrix")==0) l_argv[l_argc-1] = "-temperature";
+   }
+   l_argv[l_argc] = NULL;
 
    // Initializes the PETSc database and MPI
-   rc = PetscInitialize(&argc, &argv, (char *)0, PETSC_NULL);
+   rc = PetscInitialize(&l_argc, &l_argv, (char *)0, PETSC_NULL);
 
    // Check command line parameters
    std::string matrixFile, rhsFile, solutionFile;
@@ -74,7 +79,7 @@ int main(int argc, char** argv)
    if( (argc < 3) or not getCommandLineParams( matrixFile, rhsFile, solutionFile, hasProject, isPressure ) )
    {
       printHelp();
-      if( l_argv != NULL ) delete [] l_argv;
+      delete [] l_argv; l_argv = 0;
       return 1;
    }
 
@@ -86,7 +91,7 @@ int main(int argc, char** argv)
       if( timeStep != getTimeStepFromFileName( rhsFile ) )
       {
          rc = PetscPrintf( PETSC_COMM_WORLD, "ERROR: matrix and rhs times do not match\n" );
-         if( l_argv != NULL ) delete [] l_argv;
+         delete [] l_argv; l_argv = 0;
          return 1;
       }
    }
@@ -96,7 +101,7 @@ int main(int argc, char** argv)
    Vec b = 0;
    Vec x = 0;
    Vec xIn = 0;
-   if( !hasProject or !setupCauldron( argc, argv, isPressure, timeStep, A, b ) )
+   if( !hasProject or !setupCauldron( l_argc, l_argv, isPressure, timeStep, A, b ) )
    {
       // If no project file has been provided or the Cauldron setup fails
       // the default PETSc settings will be used
@@ -143,7 +148,7 @@ int main(int argc, char** argv)
    if( b != 0 ) rc = VecDestroy( &b );
    if( x != 0 ) rc = VecDestroy( &x );
    if( xIn != 0 ) rc = VecDestroy( &xIn );
-   if( l_argv != NULL ) delete [] l_argv;
+   delete [] l_argv; l_argv = 0;
    return PetscFinalize();
 }
 
@@ -166,6 +171,9 @@ void printHelp()
    helpBuffer << "    -ksp_view               Displays linear solver settings" << std::endl;
    helpBuffer << "    -ksp_converged_reason   Displays the reason a KSP solve converged or diverged" << std::endl;
    helpBuffer << "    -ksp_monitor            Displays the residual norm at each iteration of the linear solver" << std::endl;
+   helpBuffer << "    -ksp_rtol               Sets the relative convergence tolerance (Cauldron default is 1e-6)" << std::endl;
+   helpBuffer << "    -ksp_max_it             Sets the maximum number of iterations to use" << std::endl;
+   helpBuffer << "    -log_summary            Prints performance data at program conclusion." << std::endl;
    helpBuffer << std::endl;
    helpBuffer << "Any other PETSc command line option can be provided to change the linear solver settings" << std::endl;
    helpBuffer << std::endl << std::endl;
@@ -361,7 +369,7 @@ bool setupCauldron( int argc, char** argv,
       A = PetscObjectAllocator::allocateMatrix( *domain );
       b = PetscObjectAllocator::allocateVector( *domain );
 
-      delete domain;
+      delete domain; domain = 0;
    }
 
    // Restoring cout
@@ -369,8 +377,8 @@ bool setupCauldron( int argc, char** argv,
 
    const bool saveResults = false;
    FastcauldronSimulator::finalise( saveResults );
-   if( factory != NULL ) delete factory;
-   if( appctx  != NULL ) delete appctx;
+   delete factory; factory = 0;
+   delete appctx; appctx = 0;
 
    if( not startupOk ) PetscPrintf( PETSC_COMM_WORLD, "FastcauldronStartup failed, default uniform distribution will be applied\n" );
 
