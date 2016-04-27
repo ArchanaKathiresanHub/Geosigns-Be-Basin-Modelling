@@ -30,6 +30,8 @@ void DerivedProperties::BrineViscosityCalculator::calculate ( AbstractPropertyMa
    const GeoPhysics::Formation* currentFormation = dynamic_cast<const GeoPhysics::Formation*>( formation );
    const GeoPhysics::FluidType* fluid = dynamic_cast<const GeoPhysics::FluidType*>(currentFormation->getFluidType ());
 
+   derivedProperties.clear();
+
    if( fluid == 0 ) {
       return;
    }
