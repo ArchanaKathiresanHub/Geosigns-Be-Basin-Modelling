@@ -166,6 +166,9 @@ public:
          prms[1] = trj.fullPath( ).path( );
       }
       
+      // needed under windows
+      std::replace( prms[1].begin( ), prms[1].end( ), '\\', '/' );
+
       // read trajectory file
       std::vector<double> x, y, z, r;
       CfgFileParser::readTrajectoryFile( trajFileName, x, y, z, r );

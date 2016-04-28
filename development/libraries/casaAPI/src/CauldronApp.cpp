@@ -65,7 +65,6 @@ namespace casa
       switch ( m_sh )
       {
       case cmd:
-         m_appName += ".exe"; // on windows all applications have .exe suffix
          miscPath= "%CAULDRON_MISC_PATH%";
          break;
 
@@ -196,7 +195,11 @@ namespace casa
 
       if ( m_clearSnapshots )
       {
-         oss << "\nrm -rf " << ibs::FilePath( inProjectFile ).fileNameNoExtension() << mbapi::Model::s_ResultsFolderSuffix << "/Time*.h5\n\n";
+         switch ( m_sh )
+         {
+         case bash: oss << "\nrm -rf " << ibs::FilePath( inProjectFile ).fileNameNoExtension( ) << mbapi::Model::s_ResultsFolderSuffix << "/Time*.h5\n\n";
+         case cmd:  oss << "\ndel " << ibs::FilePath( inProjectFile ).fileNameNoExtension( ) << mbapi::Model::s_ResultsFolderSuffix << "\\*Time*.h5\n\n";
+         }         
       }
 
       // if application is parallel, add mpirun dirrective with options
@@ -398,9 +401,12 @@ namespace casa
    {
       ibs::Path appPath( m_version );  // version could be set as a full path to the application executable
       ibs::Path miscPath( appPath );
-
-      appPath << m_appName;
-      
+#ifdef _WIN32
+      std::string osAppName = m_appName + ".exe";
+#else
+      std::string osAppName = m_appName;
+#endif 
+      appPath << osAppName;
       switch ( m_sh )
       {
       case bash:
@@ -414,9 +420,9 @@ namespace casa
             // compute path to the application
             oss << "os1=`/apps/sss/share/getos2` || { echo 'Warning: Could not determine OS version. Are we in Shell Linux?'; os1='.'; }\n"
                 << "os2=`/apps/sss/share/getos2 --os --ver` || { echo 'Warning: Could not determine OS version. Are we in Shell Linux?'; os2='.'; }\n"
-                << "APP=" << m_rootPath << '/' << m_version << "/${os1}/bin/" << m_appName << '\n'
+                << "APP=" << m_rootPath << '/' << m_version << "/${os1}/bin/" << osAppName << '\n'
                 << "if [ ! -e $APP ]; then\n"
-                << "   APP=" << m_rootPath << '/' << m_version << "/${os2}/bin/" << m_appName << '\n'
+                << "   APP=" << m_rootPath << '/' << m_version << "/${os2}/bin/" << osAppName << '\n'
                 << "fi\n";
          }
          else
@@ -446,7 +452,7 @@ namespace casa
          if ( !appPath.exists() )
          {
             // compute path to the application
-            oss << "set APP=" << (ibs::FilePath( m_rootPath ) << m_version << "bin" << m_appName).path();
+            oss << "set APP=" << ( ibs::FilePath( m_rootPath ) << m_version << "bin" << osAppName ).path( );
          }
          else
          {

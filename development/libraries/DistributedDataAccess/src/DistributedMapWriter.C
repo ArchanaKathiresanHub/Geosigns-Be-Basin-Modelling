@@ -46,7 +46,11 @@ DistributedMapWriter::DistributedMapWriter (void)
 
 bool DistributedMapWriter::open (const string & fileName, bool append)
 {
+#ifdef _WIN32
+   size_t slashPos = fileName.rfind( '\\' );
+#else
    size_t slashPos = fileName.rfind ('/');
+#endif
    if (slashPos != string::npos)
    {
       m_fileName = fileName.substr (slashPos + 1, string::npos);
