@@ -192,9 +192,14 @@ void PropertiesCalculator::convertToVisualizationIO( )  {
       PetscLogDouble Start_Time;
       PetscLogDouble End_Time;
       PetscTime( &Start_Time );
+      clock_t start = clock();
+      float timeInSeconds;
 
       std::shared_ptr<DataAccess::Interface::ObjectFactory> factory(new DataAccess::Interface::ObjectFactory());
       std::shared_ptr<DataAccess::Interface::ProjectHandle> projectHandle(DataAccess::Interface::OpenCauldronProject(m_projectFileName, "r", factory.get()));
+
+      timeInSeconds = (float)(clock() - start) / CLOCKS_PER_SEC;
+      cout << "Finished opening project handle in " << timeInSeconds << " seconds " << endl;
 
       if( onlyPrimary ) {
          if( m_primaryPod ) {
@@ -203,6 +208,8 @@ void PropertiesCalculator::convertToVisualizationIO( )  {
       }
      
       std::shared_ptr<CauldronIO::Project> project = ImportProjectHandle::createFromProjectHandle(projectHandle, false );
+      timeInSeconds = (float)(clock() - start) / CLOCKS_PER_SEC;
+      cout << "Finished import in " << timeInSeconds << " seconds " << endl;
 
       boost::filesystem::path relPath(m_projectFileName);
       relPath = relPath.stem().string() + "_vizIO_output";
@@ -210,8 +217,12 @@ void PropertiesCalculator::convertToVisualizationIO( )  {
       absPath.remove_filename();
       std::string indexingXMLname = CauldronIO::ImportExport::getXMLIndexingFileName(m_projectFileName);
       
-      project->retrieve();
-      CauldronIO::ImportExport::exportToXML(project, absPath.string(), relPath.string(), indexingXMLname, true);
+      cout << "Writing to new format" << endl;
+      start = clock();
+      CauldronIO::ImportExport::exportToXML(project, absPath.string(), relPath.string(), indexingXMLname, 1);
+
+      timeInSeconds = (float)(clock() - start) / CLOCKS_PER_SEC;
+      cout << "Wrote to new format in " << timeInSeconds << " seconds" << endl;
  
       PetscTime( &End_Time );
       displayTime( End_Time - Start_Time, "Total time: ");
@@ -224,8 +235,13 @@ void PropertiesCalculator::calculateProperties( FormationSurfaceVector& formatio
    if( properties.size () == 0 ) {
       return;
    }
+   PetscLogDouble Accumulated_Saving_Time = 0;
+   PetscLogDouble Start_Saving_Time = 0;
+   PetscLogDouble Start_Time;
+   PetscLogDouble End_Time;
    
    SnapshotList::iterator snapshotIter;
+
    PropertyList::iterator propertyIter;
    FormationSurfaceVector::iterator formationIter;
 
@@ -242,10 +258,12 @@ void PropertiesCalculator::calculateProperties( FormationSurfaceVector& formatio
    struct stat fileStatus;
    int fileError;
     
+   PetscTime( & Start_Saving_Time );
    for ( snapshotIter = snapshots.begin(); snapshotIter != snapshots.end(); ++snapshotIter )
    {
       const Interface::Snapshot * snapshot = *snapshotIter;
-
+      PetscTime( &Start_Time );
+ 
       if ( snapshot->getFileName () != "" ) {
          ibs::FilePath fileName( m_projectHandle->getFullOutputDir () );
          fileName << snapshot->getFileName ();
@@ -288,39 +306,28 @@ void PropertiesCalculator::calculateProperties( FormationSurfaceVector& formatio
                }
             } 
          }
-      }
-   }
-
-   if( zeroSnapshotAdded ) {
-      snapshots.pop_back(); // to remove the explicitly added snapshot age 0
-   }
-
-   PetscLogDouble Accumulated_Saving_Time = 0;
-   PetscLogDouble Start_Saving_Time = 0;
-   PetscLogDouble Start_Time;
-   PetscLogDouble End_Time;
-   
-   PetscTime( & Start_Saving_Time );
-
-   for ( snapshotIter = snapshots.begin(); snapshotIter != snapshots.end(); ++snapshotIter )
-   {
-      PetscTime( &Start_Time );
-      const Interface::Snapshot * snapshot = *snapshotIter;
-      for ( formationIter = formationItems.begin();  formationIter != formationItems.end(); ++formationIter )
-      {
-         const Interface::Formation * formation = ( *formationIter ).first;
-         const Interface::Surface   * surface   = ( *formationIter ).second;
-         
+      
+ 
          DerivedProperties::outputSnapshotFormationData( m_projectHandle, snapshot, * formationIter, properties, allOutputPropertyValues );
-      }
-      PetscTime( &Start_Time );
      
+      }
+
       displayProgress( snapshot->getFileName (), Start_Saving_Time, "Saving " );
 
       m_projectHandle->continueActivity();
-
+ 
       PetscTime( &End_Time );
       Accumulated_Saving_Time += ( End_Time - Start_Time );
+
+      unsigned int nrdeleted = 0;
+      Interface::PropertyList::iterator propertyIter;
+      for ( propertyIter = properties.begin(); propertyIter != properties.end(); ++propertyIter ) {
+         const Interface::Property * property = *propertyIter;
+         
+         nrdeleted += m_projectHandle->deletePropertyValueGridMaps(SURFACE | FORMATION | FORMATIONSURFACE, 
+                                                                   property, snapshot, 0, 0, 0, VOLUME | SURFACE );
+      }
+      
    }
    displayTime( Accumulated_Saving_Time, "Total derived properties saving: ");
 }
@@ -528,6 +535,8 @@ void PropertiesCalculator::printListSnapshots ()  {
          cout <<setprecision(oldPrecision);
       }
       cout << endl;
+
+    //  if( mySnapshots != 0 ) delete mySnapshots;
    }
 }
 //------------------------------------------------------------//

@@ -25,6 +25,7 @@ set(all_headers
   src/DerivedPropertyManager.h
   src/DerivedSurfaceProperty.h
   src/FaultElementFormationMapCalculator.h
+  src/FluidVelocityFormationCalculator.h
   src/FormationMapOutputPropertyValue.h 
   src/FormationMapProperty.h
   src/FormationMapPropertyCalculator.h
@@ -38,6 +39,7 @@ set(all_headers
   src/FormationSurfacePropertyCalculator.h
   src/FormationSurfacePropertyOffsetCalculator.h
   src/FracturePressureFormationCalculator.h
+  src/HeatFlowFormationCalculator.h
   src/HydrostaticPressureFormationCalculator.h
   src/HydrostaticPressureSurfaceCalculator.h
   src/IndirectFormationProperty.h
@@ -99,6 +101,7 @@ set(all_srcs
   src/DerivedPropertyManager.C
   src/DerivedSurfaceProperty.C
   src/FaultElementFormationMapCalculator.C
+  src/FluidVelocityFormationCalculator.C
   src/FormationMapOutputPropertyValue.C
   src/FormationMapProperty.C
   src/FormationMapPropertyCalculator.C
@@ -112,6 +115,7 @@ set(all_srcs
   src/FormationSurfacePropertyAtSurface.C
   src/FormationSurfacePropertyOffsetCalculator.C
   src/FracturePressureFormationCalculator.C
+  src/HeatFlowFormationCalculator.C
   src/HydrostaticPressureFormationCalculator.C
   src/HydrostaticPressureSurfaceCalculator.C
   src/IndirectFormationProperty.C
@@ -165,6 +169,7 @@ add_library(DerivedProperties
 
 target_link_libraries(DerivedProperties 
   DataModel
+  FiniteElements
   LinearAlgebra
   ${HDF5_LIBRARIES}
   ${Boost_LIBRARIES}
@@ -181,6 +186,7 @@ include_directories(
   ${PROJECT_SOURCE_DIR}/libraries/GeoPhysics/src
   ${PROJECT_SOURCE_DIR}/libraries/LinearAlgebra/src
   ${PROJECT_SOURCE_DIR}/libraries/Interpolation/src
+  ${PROJECT_SOURCE_DIR}/libraries/FiniteElements/src
   ${HDF5_INCLUDE_DIRS}
 )
 
