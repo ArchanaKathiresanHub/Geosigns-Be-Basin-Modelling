@@ -221,21 +221,21 @@ namespace migration
          {
             for (unsigned int j = ptrVapourPcE->firstJ (true); j <= ptrVapourPcE->lastJ (true); ++j)
             {
-               double pressure = m_formationPropertyPtr[PRESSUREPROPERTY]->get (i, j, k);
-               double temperature = m_formationPropertyPtr[TEMPERATUREPROPERTY]->get (i, j, k);
+               double pressure      = m_formationPropertyPtr[PRESSUREPROPERTY]->get (i, j, k);
+               double temperature   = m_formationPropertyPtr[TEMPERATUREPROPERTY]->get (i, j, k);
                double liquidDensity = m_formationPropertyPtr[LIQUIDDENSITYPROPERTY]->get (i, j, k);
                double vapourDensity = m_formationPropertyPtr[VAPOURDENSITYPROPERTY]->get (i, j, k);
                double vPermeability = m_formationPropertyPtr[VERTICALPERMEABILITYPROPERTY]->get (i, j, k);
 
+               // If any of those quantities is undefined, the node is undefined,
+               // so do not assign any value and continue with the next node.
+               if (temperature   == Interface::DefaultUndefinedMapValue or
+                   pressure      == Interface::DefaultUndefinedMapValue)
+                  continue;
+
                // Fluid type the same independent of the position of the node inside the formation.
                const GeoPhysics::FluidType * fluid = (GeoPhysics::FluidType *) getFluidType ();
                double waterDensity = fluid->density (temperature, pressure);
-
-               // Do not assign any value and continue 
-               if (liquidDensity == Interface::DefaultUndefinedMapValue or
-                  vapourDensity == Interface::DefaultUndefinedMapValue or
-                  waterDensity <= 0.0)
-                  continue;
 
                // Critical temperatures and c1, c2 are independent of the exact position of the node inside the formation.
                double hcTempValueVapour = pvtFlash::getCriticalTemperature (C1, 0);
@@ -1547,9 +1547,16 @@ namespace migration
       {
          for (unsigned int j = m_formationNodeArray->firstJLocal (); j <= m_formationNodeArray->lastJLocal (); ++j)
          {
+            // Make sure the expelling node is a valid node.
             LocalFormationNode * formationNode = getLocalFormationNode (i, j, depthIndex);
             if (!IsValid (formationNode)) continue;
 
+            // Force expulsion by getting node above source rock
+            formationNode = getLocalFormationNode (i, j, depthIndex + 1);
+            if (!IsValid (formationNode)) continue;
+
+            // getTargetFormationNode () uses recursively the node above as long as the current one has no thickness.
+            // If at the top node of the basin, it always returns a targetFormationNode regardless of thickness.
             FormationNode *targetFormationNode = formationNode->getTargetFormationNode ();
 
             // check if targetReservoir is the reservoir to migrate to for given i, j
@@ -1651,15 +1658,18 @@ namespace migration
             LocalColumn * leakingColumn = leakingReservoir->getLocalColumn (i, j);
             if (!IsValid (leakingColumn) or leakingColumn->isOnBoundary ()) continue;
 
+            // Make sure the leaking node is a valid one.
             LocalFormationNode * formationNode = getLocalFormationNode (i, j, depthIndex);
             if (!IsValid (formationNode)) continue;
 
             // The "leaking" node probably has a reservoir flag (e.g. because it's a trap crest) or isEndOfPath.
             // Then the HC path will be forced to be lateral.
             // But we know it should leak so we force it to do so by probing the node right above it.
-            // If no reservoir offsets then this node will belong to the seal.
             formationNode = getLocalFormationNode (i, j, depthIndex + 1);
+            if (!IsValid (formationNode)) continue;
             
+            // getTargetFormationNode () uses recursively the node above as long as the current one has no thickness.
+            // If at the top node of the basin, it always returns a targetFormationNode regardless of thickness.
             FormationNode *targetFormationNode = formationNode->getTargetFormationNode ();
 
             // check if targetReservoir is the reservoir to migrate to for given i, j
