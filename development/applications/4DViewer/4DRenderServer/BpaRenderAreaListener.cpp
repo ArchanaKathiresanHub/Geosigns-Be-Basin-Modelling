@@ -37,7 +37,7 @@ void BpaRenderAreaListener::createSceneGraph(const std::string& id)
 {
   std::cout << "Loading project, id = " << id << std::endl;
 #ifdef WIN64
-  const std::string rootdir = "C:/data/";
+  const std::string rootdir = "V:/data/";
 #else
   const std::string rootdir = "/home/ree/data/";
 #endif

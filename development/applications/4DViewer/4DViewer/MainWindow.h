@@ -75,6 +75,10 @@ private slots:
 
   void onActionOpenTriggered();
 
+  void onActionImportSeismicTriggered();
+
+  void onActionExportSeismicTriggered();
+
   void onActionRenderAllSnapshotsTriggered();
 
   void onActionRenderAllSlicesTriggered();

@@ -16,6 +16,8 @@ class MiInterpolatedLogicalSliceExtract;
 class MiVolumeMeshCurvilinear;
 class SoVolumeBufferedShape;
 class SoVolumeRenderingQuality;
+class SoVolumeReader;
+class SoVRLdmFileReader;
 class SoCpuBufferObject;
 class SbBox3f;
 
@@ -26,6 +28,16 @@ class SbBox3f;
 #include <Inventor/misc/SoRef.h>
 
 #include <memory>
+
+struct CustomLDMInfo
+{
+  SbVec2d p1, p2, p3, p4;
+  double minDepth;
+  double maxDepth;
+
+  void writeXML(FILE* fp);
+  void readXML(SoVRLdmFileReader* reader);
+};
 
 class SeismicScene
 {
@@ -68,15 +80,6 @@ private:
     SoVolumeBufferedShape* shape = nullptr;
   } m_surface;;
 
-  //struct InterpolatedSurface
-  //{
-  //  bool enabled = false;
-  //  float position = 0.f;
-
-  //  std::shared_ptr<MiInterpolatedLogicalSliceExtract> extract;
-  //  SoVolumeBufferedShape* shape = nullptr;
-  //} m_interpolatedSurface;
-
   std::shared_ptr<const MiVolumeMeshCurvilinear> m_presentDayMesh;
   const MiVolumeMeshCurvilinear* m_mesh;
 
@@ -96,6 +99,8 @@ private:
   SbMatrix m_invSeismicTransform; // inverse seismic transform
   SbMatrix m_normalizeTransform;  // normalize coords in SoVolumeData::extent range to 0..1
 
+  void computeVolumeTransform(SoVolumeReader* reader);
+    
   void createCrossSection(PlaneSlice& slice);
 
   void updateInterpolatedSurface();

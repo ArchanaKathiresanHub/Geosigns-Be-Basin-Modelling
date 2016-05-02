@@ -32,6 +32,7 @@
 #include <VolumeViz/nodes/SoVolumeBufferedShape.h>
 #include <VolumeViz/nodes/SoVolumeRenderingQuality.h>
 #include <VolumeViz/readers/SoVRSegyFileReader.h>
+#include <VolumeViz/readers/SoVRLdmFileReader.h>
 
 #include <MeshVizXLM/mesh/MiVolumeMeshCurvilinear.h>
 
@@ -108,6 +109,125 @@ namespace
     program->shaderObject.set1Value(SoVolumeShader::VERTEX_POSTPROCESSING, vertexShader);
     return program;
   }
+}
+
+void CustomLDMInfo::writeXML(FILE* fp)
+{
+  SbVec2d p[4] = { p1, p2, p3, p4 };
+
+  const char* customSectionTag = "Shell";
+  fprintf(fp, "<%s>\n", customSectionTag);
+  fprintf(fp, "  <Coordinates>\n");
+
+  for (int i = 0; i < 4; ++i)
+  {
+    fprintf(fp, "    <P>\n");
+    fprintf(fp, "      <X>%f</X>\n", p[i][0]);
+    fprintf(fp, "      <Y>%f</Y>\n", p[i][1]);
+    fprintf(fp, "    </P>\n");
+  }
+
+  fprintf(fp, "  </Coordinates>\n");
+
+  fprintf(fp, "  <MinDepth>%f</MinDepth>\n", minDepth);
+  fprintf(fp, "  <MaxDepth>%f</MaxDepth>\n", maxDepth);
+
+  fprintf(fp, "</%s>\n", customSectionTag);
+}
+
+void CustomLDMInfo::readXML(SoVRLdmFileReader* reader)
+{
+  SbXmlTag rootTag = reader->getXmlTag("Shell");
+  
+  SbXmlTag coordinatesTag = rootTag.getFirstChildTag();
+
+  SbVec2d p[4];
+  SbXmlTag pTag = coordinatesTag.getFirstChildTag();
+  for (int i = 0; i < 4; ++i)
+  {
+    SbXmlTag xTag = pTag.getFirstChildTag();
+    p[i][0] = strtod(xTag.getText(), nullptr);
+    SbXmlTag yTag = xTag.getNextSiblingTag();
+    p[i][1] = strtod(yTag.getText(), nullptr);
+
+    pTag = pTag.getNextSiblingTag();
+  }
+
+  p1 = p[0];
+  p2 = p[1];
+  p3 = p[2];
+  p4 = p[3];
+
+  SbXmlTag minDepthTag = coordinatesTag.getNextSiblingTag();
+  minDepth = strtod(minDepthTag.getText(), nullptr);
+  SbXmlTag maxDepthTag = minDepthTag.getNextSiblingTag();
+  maxDepth = strtod(maxDepthTag.getText(), nullptr);
+}
+
+void SeismicScene::computeVolumeTransform(SoVolumeReader* reader)
+{
+  SbVec2d p1, p2, p3, p4;
+  double minDepth;
+  double maxDepth;
+
+  if (reader->getTypeId() == SoVRSegyFileReader::getClassTypeId())
+  {
+    SoVRSegyFileReader* segyReader = static_cast<SoVRSegyFileReader*>(reader);
+    //auto header = segyReader->getSegyTextHeader();
+
+    segyReader->getP1P2P3Coordinates(p1, p2, p3, p4);
+    maxDepth = 3722.5;
+    minDepth = -1.49;
+  }
+  else if (reader->getTypeId() == SoVRLdmFileReader::getClassTypeId())
+  {
+    SoVRLdmFileReader* ldmReader = static_cast<SoVRLdmFileReader*>(reader);
+    
+    CustomLDMInfo ldmInfo;
+    ldmInfo.readXML(ldmReader);
+    
+    p1 = ldmInfo.p1;
+    p2 = ldmInfo.p2;
+    p3 = ldmInfo.p3;
+    p4 = ldmInfo.p4;
+
+    minDepth = ldmInfo.minDepth;
+    maxDepth = ldmInfo.maxDepth;
+  }
+
+  auto d1 = p2 - p1;
+  auto d2 = p3 - p2;
+
+  float w = (float)(maxDepth - minDepth);
+  float h = (float)d1.length();
+  float d = (float)d2.length();
+  m_data->extent = SbBox3f(0.f, 0.f, 0.f, w, h, d);
+  m_normalizeTransform.setScale(SbVec3f(1 / w, 1 / h, 1 / d));
+
+  SbMatrix scaleMatrix;
+  scaleMatrix.setScale(SbVec3f(1.f, 1.f, -1.f)); // mirror
+
+  const SbVec3f xAxis(1.f, 0.f, 0.f);
+  const SbVec3f yAxis(0.f, 1.f, 0.f);
+  const SbVec3f zAxis(0.f, 0.f, 1.f);
+
+  SbMatrix rotMatrix1;
+  rotMatrix1.setRotate(SbRotation(xAxis, -zAxis));
+
+  d1.normalize();
+  SbMatrix rotMatrix2;
+  rotMatrix2.setRotate(SbRotation(yAxis, SbVec3f((float)d1[0], (float)d1[1], 0.f)));
+
+  SbMatrix translateMatrix;
+  translateMatrix.setTranslate(
+    SbVec3f(
+    (float)(p1[0] - m_dimensions.minX),
+    (float)(p1[1] - m_dimensions.minY),
+    -minDepth));
+
+  m_seismicTransform = scaleMatrix * rotMatrix1 * rotMatrix2 * translateMatrix;
+  m_invSeismicTransform = m_seismicTransform.inverse();
+  m_matrixTransform->matrix = m_seismicTransform;
 }
 
 void SeismicScene::createCrossSection(PlaneSlice& slice)
@@ -340,18 +460,17 @@ void SeismicScene::updatePlaneSlice(int index)
   }
 }
 
-
 SeismicScene::SeismicScene(const char* filename, const Project::Dimensions& dim)
-  : m_mesh(nullptr)
-  , m_dimensions(dim)
-  , m_root(new SoSeparator)
-  , m_shader(nullptr)
-  , m_transformSeparator(new SoTransformSeparator)
-  , m_matrixTransform(new SoMatrixTransform)
-  , m_data(new SoVolumeData)
-  , m_material(new SoMaterial)
-  , m_transferFunction(new SoTransferFunction)
-  , m_range(new SoDataRange)
+: m_mesh(nullptr)
+, m_dimensions(dim)
+, m_root(new SoSeparator)
+, m_shader(nullptr)
+, m_transformSeparator(new SoTransformSeparator)
+, m_matrixTransform(new SoMatrixTransform)
+, m_data(new SoVolumeData)
+, m_material(new SoMaterial)
+, m_transferFunction(new SoTransferFunction)
+, m_range(new SoDataRange)
 {
   double rangeMin = -10e3, rangeMax = 10e3;
 
@@ -362,8 +481,8 @@ SeismicScene::SeismicScene(const char* filename, const Project::Dimensions& dim)
 
   auto params = new SoLDMResourceParameters;
   params->loadPolicy = SoLDMResourceParameters::ALWAYS;
-  params->fixedResolution = true;
-  params->resolution = 2;
+  //params->fixedResolution = true;
+  //params->resolution = 2;
   m_data->ldmResourceParameters = params;
 
   m_material->diffuseColor.setValue(SbColor(1.f, 1.f, 1.f));
@@ -381,55 +500,57 @@ SeismicScene::SeismicScene(const char* filename, const Project::Dimensions& dim)
   m_transformSeparator->addChild(m_range);
   m_root->addChild(m_transformSeparator);
 
-  SoVRSegyFileReader* segyReader = nullptr;
-  if (reader->getTypeId() == SoVRSegyFileReader::getClassTypeId())
-  {
-    segyReader = static_cast<SoVRSegyFileReader*>(reader);
-    //auto header = segyReader->getSegyTextHeader();
+  computeVolumeTransform(reader);
 
-    SbVec2d p1, p2, p3, p4;
-    segyReader->getP1P2P3Coordinates(p1, p2, p3, p4);
-    auto d1 = p2 - p1;
-    auto d2 = p3 - p2;
+  //SoVRSegyFileReader* segyReader = nullptr;
+  //if (reader->getTypeId() == SoVRSegyFileReader::getClassTypeId())
+  //{
+  //  segyReader = static_cast<SoVRSegyFileReader*>(reader);
+  //  //auto header = segyReader->getSegyTextHeader();
 
-    const float maxDepth = 3722.5f;
-    const float minDepth = -1.49f;
+  //  SbVec2d p1, p2, p3, p4;
+  //  segyReader->getP1P2P3Coordinates(p1, p2, p3, p4);
+  //  auto d1 = p2 - p1;
+  //  auto d2 = p3 - p2;
 
-    float w = maxDepth - minDepth;
-    float h = (float)d1.length();
-    float d = (float)d2.length();
-    m_data->extent = SbBox3f(0.f, 0.f, 0.f, w, h, d);
-    m_normalizeTransform.setScale(SbVec3f(1 / w, 1 / h, 1 / d));
+  //  const float maxDepth = 3722.5f;
+  //  const float minDepth = -1.49f;
 
-    SbMatrix scaleMatrix;
-    scaleMatrix.setScale(SbVec3f(1.f, 1.f, -1.f)); // mirror
-    
-    const SbVec3f xAxis(1.f, 0.f, 0.f);
-    const SbVec3f yAxis(0.f, 1.f, 0.f);
-    const SbVec3f zAxis(0.f, 0.f, 1.f);
+  //  float w = maxDepth - minDepth;
+  //  float h = (float)d1.length();
+  //  float d = (float)d2.length();
+  //  m_data->extent = SbBox3f(0.f, 0.f, 0.f, w, h, d);
+  //  m_normalizeTransform.setScale(SbVec3f(1 / w, 1 / h, 1 / d));
 
-    SbMatrix rotMatrix1;
-    rotMatrix1.setRotate(SbRotation(xAxis, -zAxis));
+  //  SbMatrix scaleMatrix;
+  //  scaleMatrix.setScale(SbVec3f(1.f, 1.f, -1.f)); // mirror
+  //  
+  //  const SbVec3f xAxis(1.f, 0.f, 0.f);
+  //  const SbVec3f yAxis(0.f, 1.f, 0.f);
+  //  const SbVec3f zAxis(0.f, 0.f, 1.f);
 
-    d1.normalize();
-    SbMatrix rotMatrix2;
-    rotMatrix2.setRotate(SbRotation(yAxis, SbVec3f((float)d1[0], (float)d1[1], 0.f)));
+  //  SbMatrix rotMatrix1;
+  //  rotMatrix1.setRotate(SbRotation(xAxis, -zAxis));
 
-    SbMatrix translateMatrix;
-    translateMatrix.setTranslate(
-      SbVec3f(
-        (float)(p1[0] - dim.minX), 
-        (float)(p1[1] - dim.minY), 
-        -minDepth));
+  //  d1.normalize();
+  //  SbMatrix rotMatrix2;
+  //  rotMatrix2.setRotate(SbRotation(yAxis, SbVec3f((float)d1[0], (float)d1[1], 0.f)));
 
-    m_seismicTransform = scaleMatrix * rotMatrix1 * rotMatrix2 * translateMatrix;
-    m_invSeismicTransform = m_seismicTransform.inverse();
-    m_matrixTransform->matrix = m_seismicTransform;
+  //  SbMatrix translateMatrix;
+  //  translateMatrix.setTranslate(
+  //    SbVec3f(
+  //      (float)(p1[0] - dim.minX), 
+  //      (float)(p1[1] - dim.minY), 
+  //      -minDepth));
 
-    // TEMP
-    m_shader = createStretchSqueezeVolumeShader(m_invSeismicTransform * m_normalizeTransform);
-    m_root->insertChild(m_shader, 0);
-  }
+  //  m_seismicTransform = scaleMatrix * rotMatrix1 * rotMatrix2 * translateMatrix;
+  //  m_invSeismicTransform = m_seismicTransform.inverse();
+  //  m_matrixTransform->matrix = m_seismicTransform;
+
+  // TEMP
+  m_shader = createStretchSqueezeVolumeShader(m_invSeismicTransform * m_normalizeTransform);
+  m_root->insertChild(m_shader, 0);
+ 
 
   m_planeSlice[0].type = SliceInline;
   m_planeSlice[1].type = SliceCrossline;

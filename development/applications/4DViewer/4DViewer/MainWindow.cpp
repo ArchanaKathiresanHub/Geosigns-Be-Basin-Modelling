@@ -11,6 +11,7 @@
 #include "MainWindow.h"
 #include "OIVWidget.h"
 #include "GLInfoDialog.h"
+#include "SegYConversionDialog.h"
 #include <Seismic.h>
 #include <DataAccessProject.h>
 
@@ -79,8 +80,6 @@ void MainWindow::onFps(float fps)
 
 void MainWindow::loadProject(const QString& filename)
 {
-  const bool importSeismic = true;
-
   m_sceneGraphManager.reset();
   closeProject();
 
@@ -103,15 +102,6 @@ void MainWindow::loadProject(const QString& filename)
     m_sceneGraphManager->setup(m_project);
 
     m_examiner = new SceneExaminer(m_sceneGraphManager);
-
-    if (importSeismic)
-    {
-      auto dim = m_project->getProjectInfo().dimensions;
-      const char* volumeFile = "v:\\data\\Barracuda_3Ddepth_Realized8bit.sgy";
-      m_seismicScene = std::make_shared<SeismicScene>(volumeFile, dim);
-      m_sceneGraphManager->addSeismicScene(m_seismicScene);
-    }
-
     m_examiner->setModeChangedCallback(std::bind(&MainWindow::onModeChanged, this, std::placeholders::_1));
     m_examiner->setFenceAddedCallback(std::bind(&MainWindow::onFenceAdded, this, std::placeholders::_1));
     
@@ -350,16 +340,13 @@ void MainWindow::updateUI()
   bool seismicEnabled = (bool)m_seismicScene;
   m_ui.checkBoxSliceInline->setEnabled(seismicEnabled);
   m_ui.checkBoxSliceCrossline->setEnabled(seismicEnabled);
-  m_ui.checkBoxSliceDepth->setEnabled(seismicEnabled);
   m_ui.sliderSliceInline->setEnabled(seismicEnabled);
   m_ui.sliderSliceCrossline->setEnabled(seismicEnabled);
-  m_ui.sliderSliceDepth->setEnabled(seismicEnabled);
 
   if (seismicEnabled)
   {
     m_ui.checkBoxSliceInline->setChecked(true);
     m_ui.checkBoxSliceCrossline->setChecked(true);
-    m_ui.checkBoxSliceDepth->setChecked(true);
 
     SbBox3f extent = m_seismicScene->getExtent();
     SbVec3f size = extent.getSize();
@@ -375,6 +362,8 @@ void MainWindow::updateUI()
 void MainWindow::connectSignals()
 {
   connect(m_ui.action_Open, SIGNAL(triggered()), this, SLOT(onActionOpenTriggered()));
+  connect(m_ui.action_ImportSeismic, SIGNAL(triggered()), this, SLOT(onActionImportSeismicTriggered()));
+  connect(m_ui.action_ExportSeismic, SIGNAL(triggered()), this, SLOT(onActionExportSeismicTriggered()));
   connect(m_ui.action_RenderAllSnapshots, SIGNAL(triggered()), this, SLOT(onActionRenderAllSnapshotsTriggered()));
   connect(m_ui.action_RenderAllSlices, SIGNAL(triggered()), this, SLOT(onActionRenderAllSlicesTriggered()));
   connect(m_ui.action_SwitchProperties, SIGNAL(triggered()), this, SLOT(onActionSwitchPropertiesTriggered()));
@@ -431,11 +420,9 @@ void MainWindow::connectSignals()
   // Seismic
   connect(m_ui.checkBoxSliceInline, SIGNAL(toggled(bool)), this, SLOT(onSeismicSliceToggled(bool)));
   connect(m_ui.checkBoxSliceCrossline, SIGNAL(toggled(bool)), this, SLOT(onSeismicSliceToggled(bool)));
-  connect(m_ui.checkBoxSliceDepth, SIGNAL(toggled(bool)), this, SLOT(onSeismicSliceToggled(bool)));
 
   connect(m_ui.sliderSliceInline, SIGNAL(valueChanged(int)), this, SLOT(onSeismicSliceValueChanged(int)));
   connect(m_ui.sliderSliceCrossline, SIGNAL(valueChanged(int)), this, SLOT(onSeismicSliceValueChanged(int)));
-  connect(m_ui.sliderSliceDepth, SIGNAL(valueChanged(int)), this, SLOT(onSeismicSliceValueChanged(int)));
 
   connect(m_ui.checkBoxInterpolatedSurface, SIGNAL(toggled(bool)), this, SLOT(onInterpolatedSurfaceToggled(bool)));
   connect(m_ui.sliderInterpolatedSurfacePosition, SIGNAL(valueChanged(int)), this, SLOT(onInterpolatedSurfacePositionChanged(int)));
@@ -485,11 +472,47 @@ void MainWindow::onActionOpenTriggered()
   QString caption = "Open file";
   QString dir;
   QString filter = "Cauldron project (*.project3d *.xml)";
-  QString filename = QFileDialog::getOpenFileName(this, "Open file", dir, filter);
+  QString filename = QFileDialog::getOpenFileName(this, caption, dir, filter);
 
   if(!filename.isNull())
   {
     loadProject(filename);
+  }
+}
+
+void MainWindow::onActionImportSeismicTriggered()
+{
+  QString caption = "Import seismic";
+  QString dir;
+  QString filter = "Seismic data (*.ldm)";
+  QString filename = QFileDialog::getOpenFileName(this, caption, dir, filter);
+
+  if (!filename.isNull())
+  {
+    auto dim = m_project->getProjectInfo().dimensions;
+    auto ascii = filename.toAscii();
+    const char* volumeFile = ascii.data();
+    m_seismicScene = std::make_shared<SeismicScene>(volumeFile, dim);
+    m_sceneGraphManager->addSeismicScene(m_seismicScene);
+
+    updateUI();
+  }
+}
+
+void MainWindow::onActionExportSeismicTriggered()
+{
+  QString caption = "Convert seismic";
+  QString dir;
+  QString filter = "SEGY files (*.sgy)";
+  QString selectedFilter;
+  //QString filename = QFileDialog::getSaveFileName(this, caption, dir, filter, &selectedFilter);
+  QString filename = QFileDialog::getOpenFileName(this, caption, dir, filter);
+
+  if (!filename.isNull())
+  {
+    SegYConversionDialog dlg(this);
+    dlg.setInputFileName(filename);
+    dlg.exec();
   }
 }
 
