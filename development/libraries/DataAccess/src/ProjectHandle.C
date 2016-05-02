@@ -979,10 +979,10 @@ bool ProjectHandle::loadProperties( void )
    m_properties.push_back( getFactory()->produceProperty( this, 0, "FluidVelocityX",                 "FluidVelocityX",                 "mm/y",  FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( this, 0, "FluidVelocityY",                 "FluidVelocityY",                 "mm/y",  FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( this, 0, "FluidVelocityZ",                 "FluidVelocityZ",                 "mm/y",  FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "HeatFlow",                       "HeatFlow",                       "mW/m2", FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "HeatFlowX",                      "HeatFlowX",                      "mW/m2", FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "HeatFlowY",                      "HeatFlowY",                      "mW/m2", FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "HeatFlowZ",                      "HeatFlowZ",                      "mW/m2", FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( this, 0, "HeatFlow",                       "HeatFlow",                       "mW/m2", FORMATIONPROPERTY, DataModel::CONTINUOUS_3D_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( this, 0, "HeatFlowX",                      "HeatFlowX",                      "mW/m2", FORMATIONPROPERTY, DataModel::CONTINUOUS_3D_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( this, 0, "HeatFlowY",                      "HeatFlowY",                      "mW/m2", FORMATIONPROPERTY, DataModel::CONTINUOUS_3D_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( this, 0, "HeatFlowZ",                      "HeatFlowZ",                      "mW/m2", FORMATIONPROPERTY, DataModel::CONTINUOUS_3D_PROPERTY ));
 
    // not sure which attribute this property shoudl have, so give it the most general one
    m_properties.push_back( getFactory()->produceProperty( this, 0, "HopaneIsomerisation",            "HopaneIsomerisation",            "",      FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY ));

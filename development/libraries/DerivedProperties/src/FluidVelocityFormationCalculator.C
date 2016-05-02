@@ -107,7 +107,6 @@ void DerivedProperties::FluidVelocityFormationCalculator::calculate ( DerivedPro
             DerivedFormationPropertyPtr ( new DerivedProperties::DerivedFormationProperty ( fluidVelocityZProperty, snapshot, formation, 
                                                                                             propertyManager.getMapGrid (), 
                                                                                             geoFormation->getMaximumNumberOfElements() + 1 ));
-         double undefinedValue = depth->getUndefinedValue ();
 
          ElementList elements;
          setUp2dEltMapping( propertyManager, depth, elements );
@@ -214,7 +213,7 @@ void DerivedProperties::FluidVelocityFormationCalculator::calculate ( DerivedPro
                         // elements below are derenerated.
                         // Fill-in the elements below 
                         
-                        for ( unsigned int l = 1; l <= degenerateElements ; ++ l ) {
+                        for ( int l = 1; l <= degenerateElements ; ++ l ) {
                            fluidVelocityX->set ( i, j, k - l, fluidVelocity ( 1 ));
                            fluidVelocityY->set ( i, j, k - l, fluidVelocity ( 2 ));
                            fluidVelocityZ->set ( i, j, k - l, fluidVelocity ( 3 ));
