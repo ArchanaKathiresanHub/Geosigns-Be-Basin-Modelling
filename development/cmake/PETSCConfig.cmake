@@ -14,19 +14,22 @@ if (UNIX)
 
 add_external_project_to_repository(
       NAME PETSC
-      VERSION 3.4.1
-      ARCHIVE "${THIRD_PARTY_DIR}/sources/petsc-3.4.1.tar.gz"
-      ARCHIVE_MD5 "45f45bd9e2af5b52c9b61ef211c18de2"
+      VERSION 3.5.4
+      ARCHIVE "${THIRD_PARTY_DIR}/sources/petsc-3.5.4.tar.gz"
+      ARCHIVE_MD5 "781af0eec1e821f82fb3ecc7a2dfda8e"
       CONFIGURE_COMMAND 
          "./configure" 
             "--prefix={ROOT}" 
             "--with-clanguage=cxx" 
-            "--with-fortran=0"
             "--with-large-file-io=1"
             "--with-precision=double"
             "--with-x=0"
-            "--with-blas-lapack-dir=${BLAS_ROOT}"
             "--with-petsc-arch=${CMAKE_SYSTEM_NAME}"
+            "--with-ssl=0"
+            "--with-fc=0"
+            "--with-blas-lapack-dir=${BLAS_ROOT}"
+            "--with-mkl_pardiso=1"
+            "--with-mkl_pardiso-dir=${INTEL_MKL_ROOT}"
 
       BUILD_COMMAND   "make"
       INSTALL_COMMAND "make" "install"
@@ -48,14 +51,13 @@ add_external_project_to_repository(
 set(PETSC_INCLUDE_DIRS "${PETSC_ROOT}/include")
 set(PETSC_LIBRARIES "petsc" ${BLAS_LIBRARIES} ${BM_DL_LIB})
 
-
 add_external_package_info( 
     CAPABILITY  PETScLib
     NAME         "PETSc"
     VENDOR       "Argonne National Laboratory"
-    VERSION      "3.4.1"
+    VERSION      "3.5.4"
     LICENSE_TYPE "Simplified BSD"
-    LICENSE_FILE "${THIRD_PARTY_DIR}/licenses/Petsc-3.4.1.txt"
+    LICENSE_FILE "${THIRD_PARTY_DIR}/licenses/Petsc-3.5.4.txt"
     URL          "http://www.mcs.anl.gov/petsc/"
     DESCRIPTION  "Portable, Extensible Toolkit for Scientific Computation"
     REQUIRED_AT  "Runtime"
@@ -69,8 +71,8 @@ add_external_package_info(
 
 elseif (WIN32) # windows
 
-   set(PETSC_VERSION "3.4.4" CACHE STRING "PETSC Version")
-   set(PETSC_HOME "${THIRD_PARTY_DIR}/PETSc_Windows-3.4.4" CACHE PATH "PETSc home path") 
+   set(PETSC_VERSION "3.5.2" CACHE STRING "PETSC Version")
+   set(PETSC_HOME "${THIRD_PARTY_DIR}/PETSc_Windows-3.5.2" CACHE PATH "PETSc home path") 
    set(PETSC_DEBUG "${PETSC_HOME}/PETSc/c-debug_icl_mkl" CACHE PATH "Debug path")
    set(PETSC_RELEASE "${PETSC_HOME}/PETSc/c-opt_icl_mkl" CACHE PATH "Release path")
    set(PETSC_INCLUDE_DIRS "${PETSC_HOME}/PETSc/include")
@@ -79,6 +81,7 @@ elseif (WIN32) # windows
           "${PETSC_HOME}/PETSc/externalpackages/lib/HYPRE.lib"
           "${PETSC_HOME}/PETSc/externalpackages/lib/metis.lib"
           "${PETSC_HOME}/PETSc/externalpackages/lib/parmetis.lib"
+          "${MPI_LIBRARIES}"
    )
 
    if(CMAKE_BUILD_TYPE STREQUAL "Release")
@@ -103,7 +106,7 @@ elseif (WIN32) # windows
           CAPABILITY  PETScLib
           NAME         "PETSc for Windows"
           VENDOR       "Microsoft Innovation Center Rapperswil"
-          VERSION      "3.4.4"
+          VERSION      "3.5.2"
           LICENSE_TYPE "Simplified BSD"
           LICENSE_FILE ""
           URL          "http://www.msic.ch/Software"

@@ -106,7 +106,7 @@ void ElementGrid::construct ( const DataAccess::Interface::Grid* nodeGrid,
    // // Fill yElementPartitioning array.
    // MPI_Allreduce ( buffer, m_yPartitioning, m_numberOfYProcessors, MPI_INT, MPI_MAX, PETSC_COMM_WORLD );
 
-   DMDACreate2d ( PETSC_COMM_WORLD, DMDA_BOUNDARY_NONE, DMDA_BOUNDARY_NONE, DMDA_STENCIL_STAR,
+   DMDACreate2d ( PETSC_COMM_WORLD, DM_BOUNDARY_NONE, DM_BOUNDARY_NONE, DMDA_STENCIL_STAR,
                   totalNumberOfXElements,
                   totalNumberOfYElements,
                   m_numberOfXProcessors,

@@ -91,7 +91,7 @@ void PetscSolver :: setMaxIterations( int maxIterations)
 
 void PetscSolver :: solve( const Mat & A, const Vec & b, Vec & x, int * iterations , KSPConvergedReason * reason , double * residualNorm )
 {
-   KSPSetOperators( m_solver, A, A, SAME_NONZERO_PATTERN );
+   KSPSetOperators( m_solver, A, A );
 
    VecSet( x, 0.0 );
    KSPSolve( m_solver, b, x );

@@ -392,7 +392,7 @@ void DistributedGridMap::initialize (void)
    }
    else
    {
-      DMDACreate3d (PETSC_COMM_WORLD, DMDA_BOUNDARY_NONE, DMDA_BOUNDARY_NONE, DMDA_BOUNDARY_NONE, DMDA_STENCIL_BOX,
+      DMDACreate3d (PETSC_COMM_WORLD, DM_BOUNDARY_NONE, DM_BOUNDARY_NONE, DM_BOUNDARY_NONE, DMDA_STENCIL_BOX,
                     dynamic_cast<const DistributedGrid * > (m_grid)->numIGlobal (), dynamic_cast<const DistributedGrid * > (m_grid)->numJGlobal (), m_depth,
                     dynamic_cast<const DistributedGrid * > (m_grid)->numProcsI (), dynamic_cast<const DistributedGrid * > (m_grid)->numProcsJ (), 1,
                     1, 1,
@@ -1068,7 +1068,7 @@ void DistributedGridMap::printOn (MPI_Comm comm) const
    }
    PetscSynchronizedPrintf (comm, "\n");
 
-   PetscSynchronizedFlush (comm);
+   PetscSynchronizedFlush (comm, PETSC_STDOUT);
 
 }
 ///map interpolation functionality

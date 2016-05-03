@@ -72,7 +72,7 @@ void ElementVolumeGrid::construct ( const ElementGrid& grid,
       m_yPartitioning [ i ] = grid.getYPartitioning ()[ i ];
    }
 
-   DMDACreate3d ( PETSC_COMM_WORLD, DMDA_BOUNDARY_NONE, DMDA_BOUNDARY_NONE, DMDA_BOUNDARY_NONE, DMDA_STENCIL_STAR,
+   DMDACreate3d ( PETSC_COMM_WORLD, DM_BOUNDARY_NONE, DM_BOUNDARY_NONE, DM_BOUNDARY_NONE, DMDA_STENCIL_STAR,
                   grid.getNumberOfXElements (),
                   grid.getNumberOfYElements (),
                   numberOfZElements,
@@ -119,7 +119,7 @@ void ElementVolumeGrid::resizeInZDirection ( const int numberOfZElements ) {
 
       DMDestroy ( &m_localInfo.da );
 
-      DMDACreate3d ( PETSC_COMM_WORLD, DMDA_BOUNDARY_NONE, DMDA_BOUNDARY_NONE, DMDA_BOUNDARY_NONE, DMDA_STENCIL_STAR,
+      DMDACreate3d ( PETSC_COMM_WORLD, DM_BOUNDARY_NONE, DM_BOUNDARY_NONE, DM_BOUNDARY_NONE, DMDA_STENCIL_STAR,
                      getNumberOfXElements (),
                      getNumberOfYElements (),
                      numberOfZElements,

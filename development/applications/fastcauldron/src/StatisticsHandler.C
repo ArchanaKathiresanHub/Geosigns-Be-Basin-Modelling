@@ -42,12 +42,12 @@ void StatisticsHandler::print () {
   buffer << "  </memory_usage>" << endl;
 
   PetscPrintf ( PETSC_COMM_WORLD, "<statistics>\n");
-  PetscSynchronizedFlush ( PETSC_COMM_WORLD );
+  PetscSynchronizedFlush ( PETSC_COMM_WORLD, PETSC_STDOUT );
 
   PetscSynchronizedPrintf ( PETSC_COMM_WORLD, buffer.str ().c_str ());
-  PetscSynchronizedFlush ( PETSC_COMM_WORLD );
+  PetscSynchronizedFlush ( PETSC_COMM_WORLD, PETSC_STDOUT );
 
   PetscPrintf ( PETSC_COMM_WORLD, "</statistics>\n");
-  PetscSynchronizedFlush ( PETSC_COMM_WORLD );
+  PetscSynchronizedFlush ( PETSC_COMM_WORLD, PETSC_STDOUT );
 
 }

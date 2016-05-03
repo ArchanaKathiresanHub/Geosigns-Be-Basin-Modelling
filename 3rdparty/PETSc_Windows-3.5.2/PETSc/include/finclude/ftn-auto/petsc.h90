@@ -1,0 +1,103 @@
+        subroutine DMNetworkCreate(comm, network ,ierr)
+       integer comm ! MPI_Comm
+       DM network ! DM
+       integer ierr
+       end subroutine
+        subroutine DMNetworkSetSizes(dm, nvupper, neupper, NV, NE ,ierr)
+       DM dm ! DM
+       PetscInt nvupper ! PetscInt
+       PetscInt neupper ! PetscInt
+       PetscInt NV ! PetscInt
+       PetscInt NE ! PetscInt
+       integer ierr
+       end subroutine
+        subroutine DMNetworkSetEdgeList(dm, edgelist ,ierr)
+       DM dm ! DM
+       integer edgelist (*) ! int
+       integer ierr
+       end subroutine
+        subroutine DMNetworkLayoutSetUp(dm ,ierr)
+       DM dm ! DM
+       integer ierr
+       end subroutine
+        subroutine DMNetworkRegisterComponent(dm, name, size, key ,ierr)
+       DM dm ! DM
+       character name ! char
+       PetscInt size ! PetscInt
+       PetscInt key ! PetscInt
+       integer ierr
+       end subroutine
+        subroutine DMNetworkGetVertexRange(dm, vStart, vEnd ,ierr)
+       DM dm ! DM
+       PetscInt vStart ! PetscInt
+       PetscInt vEnd ! PetscInt
+       integer ierr
+       end subroutine
+        subroutine DMNetworkGetEdgeRange(dm, eStart, eEnd ,ierr)
+       DM dm ! DM
+       PetscInt eStart ! PetscInt
+       PetscInt eEnd ! PetscInt
+       integer ierr
+       end subroutine
+        subroutine DMNetworkAddComponent(dm, p, componentkey, compvalue &
+     &,ierr)
+       DM dm ! DM
+       PetscInt p ! PetscInt
+       PetscInt componentkey ! PetscInt
+       PetscVoid compvalue ! void
+       integer ierr
+       end subroutine
+        subroutine DMNetworkGetNumComponents(dm, p, numcomponents ,ierr)
+       DM dm ! DM
+       PetscInt p ! PetscInt
+       PetscInt numcomponents ! PetscInt
+       integer ierr
+       end subroutine
+        subroutine DMNetworkGetComponentTypeOffset(dm, p, compnum,      &
+     &compkey, offset ,ierr)
+       DM dm ! DM
+       PetscInt p ! PetscInt
+       PetscInt compnum ! PetscInt
+       PetscInt compkey ! PetscInt
+       PetscInt offset ! PetscInt
+       integer ierr
+       end subroutine
+        subroutine DMNetworkGetVariableOffset(dm, p, offset ,ierr)
+       DM dm ! DM
+       PetscInt p ! PetscInt
+       PetscInt offset ! PetscInt
+       integer ierr
+       end subroutine
+        subroutine DMNetworkGetVariableGlobalOffset(dm, p, offsetg ,ierr&
+     &)
+       DM dm ! DM
+       PetscInt p ! PetscInt
+       PetscInt offsetg ! PetscInt
+       integer ierr
+       end subroutine
+        subroutine DMNetworkAddNumVariables(dm, p, nvar ,ierr)
+       DM dm ! DM
+       PetscInt p ! PetscInt
+       PetscInt nvar ! PetscInt
+       integer ierr
+       end subroutine
+        subroutine DMNetworkSetNumVariables(dm, p, nvar ,ierr)
+       DM dm ! DM
+       PetscInt p ! PetscInt
+       PetscInt nvar ! PetscInt
+       integer ierr
+       end subroutine
+        subroutine DMNetworkDistribute(oldDM, partitioner, overlap,     &
+     &distDM ,ierr)
+       DM oldDM ! DM
+       character partitioner (*) ! char
+       PetscInt overlap ! PetscInt
+       DM distDM ! DM
+       integer ierr
+       end subroutine
+        subroutine DMNetworkIsGhostVertex(dm, p, isghost ,ierr)
+       DM dm ! DM
+       PetscInt p ! PetscInt
+       PetscBool isghost ! PetscBool
+       integer ierr
+       end subroutine

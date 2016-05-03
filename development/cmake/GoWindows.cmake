@@ -17,7 +17,7 @@ set( BM_PLATFORM_ID "MSWindows_Amd64" CACHE STRING "An identifier for the platfo
 option( BM_CSHARP_API "Build the C sharp interface" ON)
 option( BM_USE_FLEXLM "Whether to require a license via FlexLM" OFF)
 
-set( INTEL_MKL_ROOT "${CMAKE_SOURCE_DIR}/../3rdparty/PETSc_Windows-3.4.4/lib/intel64" CACHE PATH "Location of Intel MKL")
+set( INTEL_MKL_ROOT "${CMAKE_SOURCE_DIR}/../3rdparty/PETSc_Windows-3.5.2/lib/intel64" CACHE PATH "Location of Intel MKL")
 
 set( LSF_HOME "//europe.shell.com/tcs/ams/apps/hpc/lsfprod/9.1/linux2.6-glibc2.3-x86_64" CACHE PATH "Home dir for LSF binary files")
 

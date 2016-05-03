@@ -4175,7 +4175,7 @@ void AppCtx::Examine_Load_Balancing() {
 			  Percentage_Of_Total_Number_Of_Nodes,
 			  Percentage_Of_Active_Nodes);
 
-  PetscSynchronizedFlush(PETSC_COMM_WORLD);
+  PetscSynchronizedFlush(PETSC_COMM_WORLD, PETSC_STDOUT);
 
   PetscPrintf(PETSC_COMM_WORLD,
 	      "\n---------------------------------------------------------\n");

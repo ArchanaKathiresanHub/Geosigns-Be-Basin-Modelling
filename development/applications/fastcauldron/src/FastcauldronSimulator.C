@@ -527,7 +527,7 @@ void FastcauldronSimulator::printElementValidityMap(const std::string & fileName
 
    PetscFOpen ( PETSC_COMM_WORLD, fileName.c_str (), "w", &outputFile);
    PetscSynchronizedFPrintf ( PETSC_COMM_WORLD, outputFile, buffer.str ().c_str ());
-   PetscSynchronizedFlush ( PETSC_COMM_WORLD );
+   PetscSynchronizedFlush ( PETSC_COMM_WORLD, PETSC_STDOUT );
    PetscFClose ( PETSC_COMM_WORLD, outputFile );
 
    PetscPrintf ( PETSC_COMM_WORLD, " Saved unit test data in file: %s \n ", fileName.c_str ());
@@ -1969,7 +1969,7 @@ int FastcauldronSimulator::DACreate2D ( DM& theDA ) {
 
    int ierr;
 
-   ierr = DMDACreate2d ( PETSC_COMM_WORLD, DMDA_BOUNDARY_NONE, DMDA_BOUNDARY_NONE, DMDA_STENCIL_BOX,
+   ierr = DMDACreate2d ( PETSC_COMM_WORLD, DM_BOUNDARY_NONE, DM_BOUNDARY_NONE, DMDA_STENCIL_BOX,
                          getInstance ().getActivityOutputGrid ()->numIGlobal (),
                          getInstance ().getActivityOutputGrid ()->numJGlobal (),
                          getInstance ().getActivityOutputGrid ()->numProcsI (),
@@ -1987,7 +1987,7 @@ int FastcauldronSimulator::DACreate3D ( const int numberOfZNodes,
 
    int ierr;
 
-   ierr = DMDACreate3d ( PETSC_COMM_WORLD, DMDA_BOUNDARY_NONE, DMDA_BOUNDARY_NONE, DMDA_BOUNDARY_NONE, DMDA_STENCIL_BOX,
+   ierr = DMDACreate3d ( PETSC_COMM_WORLD, DM_BOUNDARY_NONE, DM_BOUNDARY_NONE, DM_BOUNDARY_NONE, DMDA_STENCIL_BOX,
                          getInstance ().getActivityOutputGrid ()->numIGlobal (),
                          getInstance ().getActivityOutputGrid ()->numJGlobal (),
                          numberOfZNodes,

@@ -72,7 +72,7 @@ void NodalVolumeGrid::construct ( const NodalGrid& grid,
       m_yPartitioning [ i ] = grid.getYPartitioning ()[ i ];
    }
 
-   DMDACreate3d ( PETSC_COMM_WORLD, DMDA_BOUNDARY_NONE, DMDA_BOUNDARY_NONE, DMDA_BOUNDARY_NONE, DMDA_STENCIL_BOX,
+   DMDACreate3d ( PETSC_COMM_WORLD, DM_BOUNDARY_NONE, DM_BOUNDARY_NONE, DM_BOUNDARY_NONE, DMDA_STENCIL_BOX,
                   grid.getNumberOfXNodes (),
                   grid.getNumberOfYNodes (),
                   numberOfZNodes,
@@ -101,7 +101,7 @@ void NodalVolumeGrid::resizeInZDirection ( const int numberOfZNodes ) {
 
       DMDestroy ( &m_localInfo.da );
 
-      DMDACreate3d ( PETSC_COMM_WORLD, DMDA_BOUNDARY_NONE, DMDA_BOUNDARY_NONE, DMDA_BOUNDARY_NONE, DMDA_STENCIL_BOX,
+      DMDACreate3d ( PETSC_COMM_WORLD, DM_BOUNDARY_NONE, DM_BOUNDARY_NONE, DM_BOUNDARY_NONE, DMDA_STENCIL_BOX,
                      getNumberOfXNodes (),
                      getNumberOfYNodes (),
                      numberOfZNodes,

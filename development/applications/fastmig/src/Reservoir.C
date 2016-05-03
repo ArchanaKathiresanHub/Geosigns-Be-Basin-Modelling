@@ -3858,7 +3858,7 @@ namespace migration
       // #define DEBUG_GATHER
 #ifdef DEBUG_GATHER
       PetscPrintf (PETSC_COMM_WORLD, "%d: Collecting...\n", GetRank());
-      PetscSynchronizedFlush (PETSC_COMM_WORLD);
+      PetscSynchronizedFlush (PETSC_COMM_WORLD, PETSC_STDOUT);
 #endif
 
       if (useAllGather || GetRank () == 0)
@@ -3868,14 +3868,14 @@ namespace migration
 
 #ifdef DEBUG_GATHER
       PetscSynchronizedPrintf (PETSC_COMM_WORLD, "%d: Gathering... %d (%d) elements\n", GetRank (), localSize, localMaximumSize);
-      PetscSynchronizedFlush (PETSC_COMM_WORLD);
+      PetscSynchronizedFlush (PETSC_COMM_WORLD, PETSC_STDOUT);
 #endif
 
       if (useAllGather)
       {
 #ifdef DEBUG_GATHER
          PetscSynchronizedPrintf (PETSC_COMM_WORLD, "%d: Using AllGatherFromAll...\n", GetRank());
-         PetscSynchronizedFlush (PETSC_COMM_WORLD);
+         PetscSynchronizedFlush (PETSC_COMM_WORLD, PETSC_STDOUT);
 #endif
          AllGatherFromAll (localMigrationRequestArray, localMaximumSize, MigrationType,
                            globalMigrationRequestArray, localMaximumSize, MigrationType);
@@ -3884,7 +3884,7 @@ namespace migration
       {
 #ifdef DEBUG_GATHER
          PetscSynchronizedPrintf (PETSC_COMM_WORLD, "%d: Using RootGatherFromAll...\n", GetRank());
-         PetscSynchronizedFlush (PETSC_COMM_WORLD);
+         PetscSynchronizedFlush (PETSC_COMM_WORLD, PETSC_STDOUT);
 #endif
          RootGatherFromAll (localMigrationRequestArray, localMaximumSize, MigrationType,
                             globalMigrationRequestArray, localMaximumSize, MigrationType);

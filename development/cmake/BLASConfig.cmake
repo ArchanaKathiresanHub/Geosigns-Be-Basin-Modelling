@@ -29,9 +29,10 @@ if (UNIX)
          set( MKL_LIBRARIES
             "-Wl,--start-group"
             "-Wl,${INTEL_MKL_ROOT}/lib/intel64/libmkl_intel_lp64.a"
-            "-Wl,${INTEL_MKL_ROOT}/lib/intel64/libmkl_sequential.a"
             "-Wl,${INTEL_MKL_ROOT}/lib/intel64/libmkl_core.a"
-           "-Wl,--end-group" 
+            "-Wl,${INTEL_MKL_ROOT}/lib/intel64/libmkl_sequential.a"
+            "-Wl,${INTEL_MKL_ROOT}/lib/intel64/libmkl_blacs_lp64.a"
+            "-Wl,--end-group" 
          )
          set( BLAS_FOUND ON )
          set( BLAS_ROOT "${INTEL_MKL_ROOT}" CACHE PATH "Path to BLAS library" )

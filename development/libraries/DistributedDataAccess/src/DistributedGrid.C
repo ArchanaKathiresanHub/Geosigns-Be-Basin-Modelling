@@ -109,7 +109,7 @@ DistributedGrid::DistributedGrid (double minI, double minJ,
    }
 
 
-   DMDACreate2d ( PETSC_COMM_WORLD, DMDA_BOUNDARY_NONE, DMDA_BOUNDARY_NONE, DMDA_STENCIL_BOX,
+   DMDACreate2d ( PETSC_COMM_WORLD, DM_BOUNDARY_NONE, DM_BOUNDARY_NONE, DMDA_STENCIL_BOX,
                   numIGlobal (), numJGlobal (), 
                   numICores, numJCores, 1, 1, 
                   PETSC_NULL, PETSC_NULL, &m_localInfo.da );
@@ -129,7 +129,7 @@ DistributedGrid::DistributedGrid (const Grid * referenceGrid, double minI, doubl
 
    calculateNums(referenceGrid);
 
-   DMDACreate2d (PETSC_COMM_WORLD, DMDA_BOUNDARY_NONE, DMDA_BOUNDARY_NONE, DMDA_STENCIL_BOX,
+   DMDACreate2d (PETSC_COMM_WORLD, DM_BOUNDARY_NONE, DM_BOUNDARY_NONE, DMDA_STENCIL_BOX,
                  numIGlobal (), numJGlobal (),
                  referenceGrid->numProcsI (), referenceGrid->numProcsJ (), 1, 1,
                  numsI (), numsJ (), &m_localInfo.da);

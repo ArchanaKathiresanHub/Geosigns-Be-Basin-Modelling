@@ -1,0 +1,524 @@
+        subroutine DMPlexCopyCoordinates(dmA, dmB ,ierr)
+       DM dmA ! DM
+       DM dmB ! DM
+       integer ierr
+       end subroutine
+        subroutine DMPlexCopyLabels(dmA, dmB ,ierr)
+       DM dmA ! DM
+       DM dmB ! DM
+       integer ierr
+       end subroutine
+        subroutine DMPlexUninterpolate(dm, dmUnint ,ierr)
+       DM dm ! DM
+       DM dmUnint ! DM
+       integer ierr
+       end subroutine
+        subroutine DMPlexCreateClosureIndex(dm, section ,ierr)
+       DM dm ! DM
+       PetscSection section ! PetscSection
+       integer ierr
+       end subroutine
+        subroutine DMPlexCreateDoublet(comm, dim, simplex, interpolate, &
+     &refinementUniform, refinementLimit, newdm ,ierr)
+       integer comm ! MPI_Comm
+       PetscInt dim ! PetscInt
+       PetscBool simplex ! PetscBool
+       PetscBool interpolate ! PetscBool
+       PetscBool refinementUniform ! PetscBool
+       PetscReal refinementLimit ! PetscReal
+       DM newdm ! DM
+       integer ierr
+       end subroutine
+        subroutine DMPlexCreateSquareBoundary(dm, lower, upper, edges , &
+     &ierr)
+       DM dm ! DM
+       PetscReal lower (*) ! PetscReal
+       PetscReal upper (*) ! PetscReal
+       PetscInt edges (*) ! PetscInt
+       integer ierr
+       end subroutine
+        subroutine DMPlexCreateCubeBoundary(dm, lower, upper, faces ,   &
+     &ierr)
+       DM dm ! DM
+       PetscReal lower (*) ! PetscReal
+       PetscReal upper (*) ! PetscReal
+       PetscInt faces (*) ! PetscInt
+       integer ierr
+       end subroutine
+        subroutine DMPlexCreateSquareMesh(dm, lower, upper, edges, bdX, &
+     &bdY ,ierr)
+       DM dm ! DM
+       PetscReal lower (*) ! PetscReal
+       PetscReal upper (*) ! PetscReal
+       PetscInt edges (*) ! PetscInt
+       DMBoundaryType bdX ! DMBoundaryType
+       DMBoundaryType bdY ! DMBoundaryType
+       integer ierr
+       end subroutine
+        subroutine DMPlexCreateBoxMesh(comm, dim, interpolate, dm ,ierr)
+       integer comm ! MPI_Comm
+       PetscInt dim ! PetscInt
+       PetscBool interpolate ! PetscBool
+       DM dm ! DM
+       integer ierr
+       end subroutine
+        subroutine DMPlexCreateHexBoxMesh(comm, dim, cells, periodicX,  &
+     &periodicY, periodicZ, dm ,ierr)
+       integer comm ! MPI_Comm
+       PetscInt dim ! PetscInt
+       PetscInt cells (*) ! PetscInt
+       DMBoundaryType periodicX ! DMBoundaryType
+       DMBoundaryType periodicY ! DMBoundaryType
+       DMBoundaryType periodicZ ! DMBoundaryType
+       DM dm ! DM
+       integer ierr
+       end subroutine
+        subroutine DMPlexCreate(comm, mesh ,ierr)
+       integer comm ! MPI_Comm
+       DM mesh ! DM
+       integer ierr
+       end subroutine
+        subroutine DMPlexCreateFromDAG(dm, depth, numPoints, coneSize,  &
+     &cones, coneOrientations, vertexCoords ,ierr)
+       DM dm ! DM
+       PetscInt depth ! PetscInt
+       PetscInt numPoints (*) ! PetscInt
+       PetscInt coneSize (*) ! PetscInt
+       PetscInt cones (*) ! PetscInt
+       PetscInt coneOrientations (*) ! PetscInt
+       PetscScalar vertexCoords (*) ! PetscScalar
+       integer ierr
+       end subroutine
+        subroutine DMPlexCreateGmsh(comm, viewer, interpolate, dm ,ierr)
+       integer comm ! MPI_Comm
+       PetscViewer viewer ! PetscViewer
+       PetscBool interpolate ! PetscBool
+       DM dm ! DM
+       integer ierr
+       end subroutine
+        subroutine DMPlexCreateCGNS(comm, cgid, interpolate, dm ,ierr)
+       integer comm ! MPI_Comm
+       PetscInt cgid ! PetscInt
+       PetscBool interpolate ! PetscBool
+       DM dm ! DM
+       integer ierr
+       end subroutine
+        subroutine DMPlexSetAdjacencyUseCone(dm, useCone ,ierr)
+       DM dm ! DM
+       PetscBool useCone ! PetscBool
+       integer ierr
+       end subroutine
+        subroutine DMPlexGetAdjacencyUseCone(dm, useCone ,ierr)
+       DM dm ! DM
+       PetscBool useCone ! PetscBool
+       integer ierr
+       end subroutine
+        subroutine DMPlexSetAdjacencyUseClosure(dm, useClosure ,ierr)
+       DM dm ! DM
+       PetscBool useClosure ! PetscBool
+       integer ierr
+       end subroutine
+        subroutine DMPlexGetAdjacencyUseClosure(dm, useClosure ,ierr)
+       DM dm ! DM
+       PetscBool useClosure ! PetscBool
+       integer ierr
+       end subroutine
+        subroutine DMPlexGetAdjacency(dm, p, adjSize, adj ,ierr)
+       DM dm ! DM
+       PetscInt p ! PetscInt
+       PetscInt adjSize ! PetscInt
+       PetscInt adj (*) ! PetscInt
+       integer ierr
+       end subroutine
+        subroutine DMPlexDistributeField(dm, pointSF, originalSection,  &
+     &originalVec, newSection, newVec ,ierr)
+       DM dm ! DM
+       PetscSF pointSF ! PetscSF
+       PetscSection originalSection ! PetscSection
+       Vec originalVec ! Vec
+       PetscSection newSection ! PetscSection
+       Vec newVec ! Vec
+       integer ierr
+       end subroutine
+        subroutine DMPlexDistributeData(dm, pointSF, originalSection,   &
+     &datatype, originalData, newSection, newData ,ierr)
+       DM dm ! DM
+       PetscSF pointSF ! PetscSF
+       PetscSection originalSection ! PetscSection
+       integer datatype ! MPI_Datatype
+       PetscVoid originalData ! void
+       PetscSection newSection ! PetscSection
+       PetscVoid newData ! void
+       integer ierr
+       end subroutine
+        subroutine DMLabelHasValue(label, value, contains ,ierr)
+       DMLabel label ! DMLabel
+       PetscInt value ! PetscInt
+       PetscBool contains ! PetscBool
+       integer ierr
+       end subroutine
+        subroutine DMLabelHasPoint(label, point, contains ,ierr)
+       DMLabel label ! DMLabel
+       PetscInt point ! PetscInt
+       PetscBool contains ! PetscBool
+       integer ierr
+       end subroutine
+        subroutine DMLabelStratumHasPoint(label, value, point, contains &
+     &,ierr)
+       DMLabel label ! DMLabel
+       PetscInt value ! PetscInt
+       PetscInt point ! PetscInt
+       PetscBool contains ! PetscBool
+       integer ierr
+       end subroutine
+        subroutine DMLabelGetValue(label, point, value ,ierr)
+       DMLabel label ! DMLabel
+       PetscInt point ! PetscInt
+       PetscInt value ! PetscInt
+       integer ierr
+       end subroutine
+        subroutine DMLabelSetValue(label, point, value ,ierr)
+       DMLabel label ! DMLabel
+       PetscInt point ! PetscInt
+       PetscInt value ! PetscInt
+       integer ierr
+       end subroutine
+        subroutine DMLabelClearValue(label, point, value ,ierr)
+       DMLabel label ! DMLabel
+       PetscInt point ! PetscInt
+       PetscInt value ! PetscInt
+       integer ierr
+       end subroutine
+        subroutine DMPlexGetNumLabels(dm, numLabels ,ierr)
+       DM dm ! DM
+       PetscInt numLabels ! PetscInt
+       integer ierr
+       end subroutine
+        subroutine DMPlexCreateCoarsePointIS(dm, fpointIS ,ierr)
+       DM dm ! DM
+       IS fpointIS ! IS
+       integer ierr
+       end subroutine
+        subroutine DMPlexSetRefinementUniform(dm, refinementUniform ,   &
+     &ierr)
+       DM dm ! DM
+       PetscBool refinementUniform ! PetscBool
+       integer ierr
+       end subroutine
+        subroutine DMPlexGetRefinementUniform(dm, refinementUniform ,   &
+     &ierr)
+       DM dm ! DM
+       PetscBool refinementUniform ! PetscBool
+       integer ierr
+       end subroutine
+        subroutine DMPlexSetRefinementLimit(dm, refinementLimit ,ierr)
+       DM dm ! DM
+       PetscReal refinementLimit ! PetscReal
+       integer ierr
+       end subroutine
+        subroutine DMPlexGetRefinementLimit(dm, refinementLimit ,ierr)
+       DM dm ! DM
+       PetscReal refinementLimit ! PetscReal
+       integer ierr
+       end subroutine
+        subroutine DMPlexCreateExodus(comm, exoid, interpolate, dm ,ierr&
+     &)
+       integer comm ! MPI_Comm
+       PetscInt exoid ! PetscInt
+       PetscBool interpolate ! PetscBool
+       DM dm ! DM
+       integer ierr
+       end subroutine
+        subroutine DMPlexComputeIntegralFEM(dm, X, integral, user ,ierr)
+       DM dm ! DM
+       Vec X ! Vec
+       PetscReal integral ! PetscReal
+       PetscVoid user ! void
+       integer ierr
+       end subroutine
+        subroutine DMPlexSNESComputeResidualFEM(dm, X, F, user ,ierr)
+       DM dm ! DM
+       Vec X ! Vec
+       Vec F ! Vec
+       PetscVoid user ! void
+       integer ierr
+       end subroutine
+        subroutine DMPlexTSComputeIFunctionFEM(dm, time, X, X_t, F, user&
+     & ,ierr)
+       DM dm ! DM
+       PetscReal time ! PetscReal
+       Vec X ! Vec
+       Vec X_t ! Vec
+       Vec F ! Vec
+       PetscVoid user ! void
+       integer ierr
+       end subroutine
+        subroutine DMPlexSNESComputeJacobianFEM(dm, X, Jac, JacP, user ,&
+     &ierr)
+       DM dm ! DM
+       Vec X ! Vec
+       Mat Jac ! Mat
+       Mat JacP ! Mat
+       PetscVoid user ! void
+       integer ierr
+       end subroutine
+        subroutine DMPlexComputeInterpolatorFEM(dmc, dmf, In, user ,ierr&
+     &)
+       DM dmc ! DM
+       DM dmf ! DM
+       Mat In ! Mat
+       PetscVoid user ! void
+       integer ierr
+       end subroutine
+        subroutine DMPlexMarkBoundaryFaces(dm, label ,ierr)
+       DM dm ! DM
+       DMLabel label ! DMLabel
+       integer ierr
+       end subroutine
+        subroutine DMPlexLabelComplete(dm, label ,ierr)
+       DM dm ! DM
+       DMLabel label ! DMLabel
+       integer ierr
+       end subroutine
+        subroutine DMPlexLabelAddCells(dm, label ,ierr)
+       DM dm ! DM
+       DMLabel label ! DMLabel
+       integer ierr
+       end subroutine
+        subroutine DMPlexLabelCohesiveComplete(dm, label, blabel, flip, &
+     &subdm ,ierr)
+       DM dm ! DM
+       DMLabel label ! DMLabel
+       DMLabel blabel ! DMLabel
+       PetscBool flip ! PetscBool
+       DM subdm ! DM
+       integer ierr
+       end subroutine
+        subroutine DMPlexCreateSubmesh(dm, vertexLabel, value, subdm ,  &
+     &ierr)
+       DM dm ! DM
+       DMLabel vertexLabel ! DMLabel
+       PetscInt value ! PetscInt
+       DM subdm ! DM
+       integer ierr
+       end subroutine
+        subroutine DMPlexGetSubpointMap(dm, subpointMap ,ierr)
+       DM dm ! DM
+       DMLabel subpointMap ! DMLabel
+       integer ierr
+       end subroutine
+        subroutine DMPlexCreateSubpointIS(dm, subpointIS ,ierr)
+       DM dm ! DM
+       IS subpointIS ! IS
+       integer ierr
+       end subroutine
+        subroutine DMPlexGetDimension(dm, dim ,ierr)
+       DM dm ! DM
+       PetscInt dim ! PetscInt
+       integer ierr
+       end subroutine
+        subroutine DMPlexSetDimension(dm, dim ,ierr)
+       DM dm ! DM
+       PetscInt dim ! PetscInt
+       integer ierr
+       end subroutine
+        subroutine DMPlexGetChart(dm, pStart, pEnd ,ierr)
+       DM dm ! DM
+       PetscInt pStart ! PetscInt
+       PetscInt pEnd ! PetscInt
+       integer ierr
+       end subroutine
+        subroutine DMPlexSetChart(dm, pStart, pEnd ,ierr)
+       DM dm ! DM
+       PetscInt pStart ! PetscInt
+       PetscInt pEnd ! PetscInt
+       integer ierr
+       end subroutine
+        subroutine DMPlexGetConeSize(dm, p, size ,ierr)
+       DM dm ! DM
+       PetscInt p ! PetscInt
+       PetscInt size ! PetscInt
+       integer ierr
+       end subroutine
+        subroutine DMPlexSetConeSize(dm, p, size ,ierr)
+       DM dm ! DM
+       PetscInt p ! PetscInt
+       PetscInt size ! PetscInt
+       integer ierr
+       end subroutine
+        subroutine DMPlexAddConeSize(dm, p, size ,ierr)
+       DM dm ! DM
+       PetscInt p ! PetscInt
+       PetscInt size ! PetscInt
+       integer ierr
+       end subroutine
+        subroutine DMPlexSetCone(dm, p, cone ,ierr)
+       DM dm ! DM
+       PetscInt p ! PetscInt
+       PetscInt cone (*) ! PetscInt
+       integer ierr
+       end subroutine
+        subroutine DMPlexSetConeOrientation(dm, p, coneOrientation ,ierr&
+     &)
+       DM dm ! DM
+       PetscInt p ! PetscInt
+       PetscInt coneOrientation (*) ! PetscInt
+       integer ierr
+       end subroutine
+        subroutine DMPlexGetSupportSize(dm, p, size ,ierr)
+       DM dm ! DM
+       PetscInt p ! PetscInt
+       PetscInt size ! PetscInt
+       integer ierr
+       end subroutine
+        subroutine DMPlexSetSupportSize(dm, p, size ,ierr)
+       DM dm ! DM
+       PetscInt p ! PetscInt
+       PetscInt size ! PetscInt
+       integer ierr
+       end subroutine
+        subroutine DMPlexSetSupport(dm, p, support ,ierr)
+       DM dm ! DM
+       PetscInt p ! PetscInt
+       PetscInt support (*) ! PetscInt
+       integer ierr
+       end subroutine
+        subroutine DMPlexGetMaxSizes(dm, maxConeSize, maxSupportSize ,  &
+     &ierr)
+       DM dm ! DM
+       PetscInt maxConeSize ! PetscInt
+       PetscInt maxSupportSize ! PetscInt
+       integer ierr
+       end subroutine
+        subroutine DMPlexSymmetrize(dm ,ierr)
+       DM dm ! DM
+       integer ierr
+       end subroutine
+        subroutine DMPlexStratify(dm ,ierr)
+       DM dm ! DM
+       integer ierr
+       end subroutine
+        subroutine DMPlexGetDepthLabel(dm, depthLabel ,ierr)
+       DM dm ! DM
+       DMLabel depthLabel ! DMLabel
+       integer ierr
+       end subroutine
+        subroutine DMPlexGetDepth(dm, depth ,ierr)
+       DM dm ! DM
+       PetscInt depth ! PetscInt
+       integer ierr
+       end subroutine
+        subroutine DMPlexGetDepthStratum(dm, stratumValue, start, end , &
+     &ierr)
+       DM dm ! DM
+       PetscInt stratumValue ! PetscInt
+       PetscInt start ! PetscInt
+       PetscInt end ! PetscInt
+       integer ierr
+       end subroutine
+        subroutine DMPlexGetHeightStratum(dm, stratumValue, start, end ,&
+     &ierr)
+       DM dm ! DM
+       PetscInt stratumValue ! PetscInt
+       PetscInt start ! PetscInt
+       PetscInt end ! PetscInt
+       integer ierr
+       end subroutine
+        subroutine DMPlexGetHybridBounds(dm, cMax, fMax, eMax, vMax ,   &
+     &ierr)
+       DM dm ! DM
+       PetscInt cMax ! PetscInt
+       PetscInt fMax ! PetscInt
+       PetscInt eMax ! PetscInt
+       PetscInt vMax ! PetscInt
+       integer ierr
+       end subroutine
+        subroutine DMPlexSetHybridBounds(dm, cMax, fMax, eMax, vMax ,   &
+     &ierr)
+       DM dm ! DM
+       PetscInt cMax ! PetscInt
+       PetscInt fMax ! PetscInt
+       PetscInt eMax ! PetscInt
+       PetscInt vMax ! PetscInt
+       integer ierr
+       end subroutine
+        subroutine DMPlexCheckSymmetry(dm ,ierr)
+       DM dm ! DM
+       integer ierr
+       end subroutine
+        subroutine DMPlexCheckSkeleton(dm, isSimplex, cellHeight ,ierr)
+       DM dm ! DM
+       PetscBool isSimplex ! PetscBool
+       PetscInt cellHeight ! PetscInt
+       integer ierr
+       end subroutine
+        subroutine DMPlexCheckFaces(dm, isSimplex, cellHeight ,ierr)
+       DM dm ! DM
+       PetscBool isSimplex ! PetscBool
+       PetscInt cellHeight ! PetscInt
+       integer ierr
+       end subroutine
+        subroutine DMPlexGetCoarseDM(dm, cdm ,ierr)
+       DM dm ! DM
+       DM cdm ! DM
+       integer ierr
+       end subroutine
+        subroutine DMPlexSetCoarseDM(dm, cdm ,ierr)
+       DM dm ! DM
+       DM cdm ! DM
+       integer ierr
+       end subroutine
+        subroutine DMPlexGetOrdering(dm, otype, perm ,ierr)
+       DM dm ! DM
+       MatOrderingType otype ! MatOrderingType
+       IS perm ! IS
+       integer ierr
+       end subroutine
+        subroutine DMPlexPermute(dm, perm, pdm ,ierr)
+       DM dm ! DM
+       IS perm ! IS
+       DM pdm ! DM
+       integer ierr
+       end subroutine
+        subroutine DMPlexGetPointLocal(dm, point, start, end ,ierr)
+       DM dm ! DM
+       PetscInt point ! PetscInt
+       PetscInt start ! PetscInt
+       PetscInt end ! PetscInt
+       integer ierr
+       end subroutine
+        subroutine DMPlexPointLocalRead(dm, point, array, ptr ,ierr)
+       DM dm ! DM
+       PetscInt point ! PetscInt
+       PetscScalar array ! PetscScalar
+       PetscVoid ptr ! void
+       integer ierr
+       end subroutine
+        subroutine DMPlexPointLocalRef(dm, point, array, ptr ,ierr)
+       DM dm ! DM
+       PetscInt point ! PetscInt
+       PetscScalar array ! PetscScalar
+       PetscVoid ptr ! void
+       integer ierr
+       end subroutine
+        subroutine DMPlexGetPointGlobal(dm, point, start, end ,ierr)
+       DM dm ! DM
+       PetscInt point ! PetscInt
+       PetscInt start ! PetscInt
+       PetscInt end ! PetscInt
+       integer ierr
+       end subroutine
+        subroutine DMPlexPointGlobalRead(dm, point, array, ptr ,ierr)
+       DM dm ! DM
+       PetscInt point ! PetscInt
+       PetscScalar array ! PetscScalar
+       PetscVoid ptr ! void
+       integer ierr
+       end subroutine
+        subroutine DMPlexPointGlobalRef(dm, point, array, ptr ,ierr)
+       DM dm ! DM
+       PetscInt point ! PetscInt
+       PetscScalar array ! PetscScalar
+       PetscVoid ptr ! void
+       integer ierr
+       end subroutine

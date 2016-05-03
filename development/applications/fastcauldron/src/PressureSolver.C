@@ -365,7 +365,7 @@ PetscScalar PressureSolver::maximumPressureDifference2 () {
                                 currentPressure ( maxK, maxJ, maxI ),
                                 previousPressure ( maxK, maxJ, maxI ));
 
-      PetscSynchronizedFlush ( PETSC_COMM_WORLD );
+      PetscSynchronizedFlush ( PETSC_COMM_WORLD, PETSC_STDOUT );
     }
 
     Layers++;

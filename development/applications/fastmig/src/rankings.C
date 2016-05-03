@@ -205,7 +205,7 @@ bool migration::ComputeRanks (const DataAccess::Interface::Grid * grid)
    strcpy(hostname,"undefined");
 #endif
    PetscSynchronizedPrintf (PETSC_COMM_WORLD, "Rank: %2d, Host: %s, I: %3d - %3d, J: %3d - %3d\n", GetRank (), hostname, sendbuf[0], sendbuf[1], sendbuf[2], sendbuf[3]);
-   PetscSynchronizedFlush (PETSC_COMM_WORLD);
+   PetscSynchronizedFlush (PETSC_COMM_WORLD, PETSC_STDOUT);
 
    MPI_Allgather (sendbuf, 4, MPI_INT, rcvbuf, 4, MPI_INT, PETSC_COMM_WORLD);
    Ranks = Array<int>::create2d (numI, numJ);

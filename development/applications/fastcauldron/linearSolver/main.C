@@ -395,7 +395,7 @@ void solveLinearSystem( const Mat & A, const Vec & b, Vec & x )
    rc = KSPCreate( PETSC_COMM_WORLD, &solver );
    rc = KSPSetType(solver, KSPCG);
    rc = KSPSetFromOptions( solver ); // might be overriding the previous setting
-   rc = KSPSetOperators( solver, A, A, SAME_NONZERO_PATTERN );
+   rc = KSPSetOperators( solver, A, A );
    rc = VecSet( x, 0.0 );
 
    PetscLogDouble Start_Time;

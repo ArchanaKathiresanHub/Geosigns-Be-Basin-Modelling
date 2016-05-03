@@ -1,0 +1,601 @@
+        subroutine PetscSpaceSetFromOptions(sp ,ierr)
+       PetscSpace sp ! PetscSpace
+       integer ierr
+       end subroutine
+        subroutine PetscSpaceDestroy(sp ,ierr)
+       PetscSpace sp ! PetscSpace
+       integer ierr
+       end subroutine
+        subroutine PetscSpaceCreate(comm, sp ,ierr)
+       integer comm ! MPI_Comm
+       PetscSpace sp ! PetscSpace
+       integer ierr
+       end subroutine
+        subroutine PetscDualSpaceView(sp, v ,ierr)
+       PetscDualSpace sp ! PetscDualSpace
+       PetscViewer v ! PetscViewer
+       integer ierr
+       end subroutine
+        subroutine PetscDualSpaceSetFromOptions(sp ,ierr)
+       PetscDualSpace sp ! PetscDualSpace
+       integer ierr
+       end subroutine
+        subroutine PetscDualSpaceSetUp(sp ,ierr)
+       PetscDualSpace sp ! PetscDualSpace
+       integer ierr
+       end subroutine
+        subroutine PetscDualSpaceDestroy(sp ,ierr)
+       PetscDualSpace sp ! PetscDualSpace
+       integer ierr
+       end subroutine
+        subroutine PetscDualSpaceCreate(comm, sp ,ierr)
+       integer comm ! MPI_Comm
+       PetscDualSpace sp ! PetscDualSpace
+       integer ierr
+       end subroutine
+        subroutine PetscDualSpaceDuplicate(sp, spNew ,ierr)
+       PetscDualSpace sp ! PetscDualSpace
+       PetscDualSpace spNew ! PetscDualSpace
+       integer ierr
+       end subroutine
+        subroutine PetscDualSpaceGetDM(sp, dm ,ierr)
+       PetscDualSpace sp ! PetscDualSpace
+       DM dm ! DM
+       integer ierr
+       end subroutine
+        subroutine PetscDualSpaceSetDM(sp, dm ,ierr)
+       PetscDualSpace sp ! PetscDualSpace
+       DM dm ! DM
+       integer ierr
+       end subroutine
+        subroutine PetscDualSpaceGetOrder(sp, order ,ierr)
+       PetscDualSpace sp ! PetscDualSpace
+       PetscInt order ! PetscInt
+       integer ierr
+       end subroutine
+        subroutine PetscDualSpaceSetOrder(sp, order ,ierr)
+       PetscDualSpace sp ! PetscDualSpace
+       PetscInt order ! PetscInt
+       integer ierr
+       end subroutine
+        subroutine PetscDualSpaceGetFunctional(sp, i, functional ,ierr)
+       PetscDualSpace sp ! PetscDualSpace
+       PetscInt i ! PetscInt
+       PetscQuadrature functional ! PetscQuadrature
+       integer ierr
+       end subroutine
+        subroutine PetscDualSpaceGetDimension(sp, dim ,ierr)
+       PetscDualSpace sp ! PetscDualSpace
+       PetscInt dim ! PetscInt
+       integer ierr
+       end subroutine
+        subroutine PetscDualSpaceCreateReferenceCell(sp, dim, simplex,  &
+     &refdm ,ierr)
+       PetscDualSpace sp ! PetscDualSpace
+       PetscInt dim ! PetscInt
+       PetscBool simplex ! PetscBool
+       DM refdm ! DM
+       integer ierr
+       end subroutine
+        subroutine PetscDualSpaceLagrangeGetContinuity(sp, continuous , &
+     &ierr)
+       PetscDualSpace sp ! PetscDualSpace
+       PetscBool continuous ! PetscBool
+       integer ierr
+       end subroutine
+        subroutine PetscDualSpaceLagrangeSetContinuity(sp, continuous , &
+     &ierr)
+       PetscDualSpace sp ! PetscDualSpace
+       PetscBool continuous ! PetscBool
+       integer ierr
+       end subroutine
+        subroutine PetscFESetFromOptions(fem ,ierr)
+       PetscFE fem ! PetscFE
+       integer ierr
+       end subroutine
+        subroutine PetscFEDestroy(fem ,ierr)
+       PetscFE fem ! PetscFE
+       integer ierr
+       end subroutine
+        subroutine PetscFECreate(comm, fem ,ierr)
+       integer comm ! MPI_Comm
+       PetscFE fem ! PetscFE
+       integer ierr
+       end subroutine
+        subroutine PetscFEGetDimension(fem, dim ,ierr)
+       PetscFE fem ! PetscFE
+       PetscInt dim ! PetscInt
+       integer ierr
+       end subroutine
+        subroutine PetscFECreateDefault(dm, dim, numComp, isSimplex,    &
+     &prefix, qorder, fem ,ierr)
+       DM dm ! DM
+       PetscInt dim ! PetscInt
+       PetscInt numComp ! PetscInt
+       PetscBool isSimplex ! PetscBool
+       character prefix (*) ! char
+       PetscInt qorder ! PetscInt
+       PetscFE fem ! PetscFE
+       integer ierr
+       end subroutine
+        subroutine PetscDSSetFromOptions(prob ,ierr)
+       PetscDS prob ! PetscDS
+       integer ierr
+       end subroutine
+        subroutine PetscDSDestroy(prob ,ierr)
+       PetscDS prob ! PetscDS
+       integer ierr
+       end subroutine
+        subroutine PetscDSCreate(comm, prob ,ierr)
+       integer comm ! MPI_Comm
+       PetscDS prob ! PetscDS
+       integer ierr
+       end subroutine
+        subroutine PetscDTLegendreEval(npoints, points, ndegree, degrees&
+     &, B, D, D2 ,ierr)
+       PetscInt npoints ! PetscInt
+       PetscReal points ! PetscReal
+       PetscInt ndegree ! PetscInt
+       PetscInt degrees ! PetscInt
+       PetscReal B ! PetscReal
+       PetscReal D ! PetscReal
+       PetscReal D2 ! PetscReal
+       integer ierr
+       end subroutine
+        subroutine PetscDTGaussQuadrature(npoints, a, b, x, w ,ierr)
+       PetscInt npoints ! PetscInt
+       PetscReal a ! PetscReal
+       PetscReal b ! PetscReal
+       PetscReal x ! PetscReal
+       PetscReal w ! PetscReal
+       integer ierr
+       end subroutine
+        subroutine PetscDTGaussTensorQuadrature(dim, npoints, a, b, q , &
+     &ierr)
+       PetscInt dim ! PetscInt
+       PetscInt npoints ! PetscInt
+       PetscReal a ! PetscReal
+       PetscReal b ! PetscReal
+       PetscQuadrature q ! PetscQuadrature
+       integer ierr
+       end subroutine
+        subroutine PetscDTReconstructPoly(degree, nsource, sourcex,     &
+     &ntarget, targetx, R ,ierr)
+       PetscInt degree ! PetscInt
+       PetscInt nsource ! PetscInt
+       PetscReal sourcex ! PetscReal
+       PetscInt ntarget ! PetscInt
+       PetscReal targetx ! PetscReal
+       PetscReal R ! PetscReal
+       integer ierr
+       end subroutine
+        subroutine PetscLimiterSetFromOptions(lim ,ierr)
+       PetscLimiter lim ! PetscLimiter
+       integer ierr
+       end subroutine
+        subroutine PetscLimiterDestroy(lim ,ierr)
+       PetscLimiter lim ! PetscLimiter
+       integer ierr
+       end subroutine
+        subroutine PetscLimiterCreate(comm, lim ,ierr)
+       integer comm ! MPI_Comm
+       PetscLimiter lim ! PetscLimiter
+       integer ierr
+       end subroutine
+        subroutine PetscFVSetFromOptions(fvm ,ierr)
+       PetscFV fvm ! PetscFV
+       integer ierr
+       end subroutine
+        subroutine PetscFVSetUp(fvm ,ierr)
+       PetscFV fvm ! PetscFV
+       integer ierr
+       end subroutine
+        subroutine PetscFVDestroy(fvm ,ierr)
+       PetscFV fvm ! PetscFV
+       integer ierr
+       end subroutine
+        subroutine PetscFVCreate(comm, fvm ,ierr)
+       integer comm ! MPI_Comm
+       PetscFV fvm ! PetscFV
+       integer ierr
+       end subroutine
+        subroutine PetscFVSetLimiter(fvm, lim ,ierr)
+       PetscFV fvm ! PetscFV
+       PetscLimiter lim ! PetscLimiter
+       integer ierr
+       end subroutine
+        subroutine PetscFVGetLimiter(fvm, lim ,ierr)
+       PetscFV fvm ! PetscFV
+       PetscLimiter lim ! PetscLimiter
+       integer ierr
+       end subroutine
+        subroutine PetscFVSetNumComponents(fvm, comp ,ierr)
+       PetscFV fvm ! PetscFV
+       PetscInt comp ! PetscInt
+       integer ierr
+       end subroutine
+        subroutine PetscFVGetNumComponents(fvm, comp ,ierr)
+       PetscFV fvm ! PetscFV
+       PetscInt comp ! PetscInt
+       integer ierr
+       end subroutine
+        subroutine PetscFVSetSpatialDimension(fvm, dim ,ierr)
+       PetscFV fvm ! PetscFV
+       PetscInt dim ! PetscInt
+       integer ierr
+       end subroutine
+        subroutine PetscFVGetSpatialDimension(fvm, dim ,ierr)
+       PetscFV fvm ! PetscFV
+       PetscInt dim ! PetscInt
+       integer ierr
+       end subroutine
+        subroutine PetscFVSetComputeGradients(fvm, computeGradients ,   &
+     &ierr)
+       PetscFV fvm ! PetscFV
+       PetscBool computeGradients ! PetscBool
+       integer ierr
+       end subroutine
+        subroutine PetscFVGetComputeGradients(fvm, computeGradients ,   &
+     &ierr)
+       PetscFV fvm ! PetscFV
+       PetscBool computeGradients ! PetscBool
+       integer ierr
+       end subroutine
+        subroutine PetscFVLeastSquaresSetMaxFaces(fvm, maxFaces ,ierr)
+       PetscFV fvm ! PetscFV
+       PetscInt maxFaces ! PetscInt
+       integer ierr
+       end subroutine
+        subroutine DMCreate(comm, dm ,ierr)
+       integer comm ! MPI_Comm
+       DM dm ! DM
+       integer ierr
+       end subroutine
+        subroutine DMClone(dm, newdm ,ierr)
+       DM dm ! DM
+       DM newdm ! DM
+       integer ierr
+       end subroutine
+        subroutine VecGetDM(v, dm ,ierr)
+       Vec v ! Vec
+       DM dm ! DM
+       integer ierr
+       end subroutine
+        subroutine VecSetDM(v, dm ,ierr)
+       Vec v ! Vec
+       DM dm ! DM
+       integer ierr
+       end subroutine
+        subroutine MatGetDM(A, dm ,ierr)
+       Mat A ! Mat
+       DM dm ! DM
+       integer ierr
+       end subroutine
+        subroutine MatSetDM(A, dm ,ierr)
+       Mat A ! Mat
+       DM dm ! DM
+       integer ierr
+       end subroutine
+        subroutine DMDestroy(dm ,ierr)
+       DM dm ! DM
+       integer ierr
+       end subroutine
+        subroutine DMSetUp(dm ,ierr)
+       DM dm ! DM
+       integer ierr
+       end subroutine
+        subroutine DMSetFromOptions(dm ,ierr)
+       DM dm ! DM
+       integer ierr
+       end subroutine
+        subroutine DMCreateGlobalVector(dm, vec ,ierr)
+       DM dm ! DM
+       Vec vec ! Vec
+       integer ierr
+       end subroutine
+        subroutine DMCreateLocalVector(dm, vec ,ierr)
+       DM dm ! DM
+       Vec vec ! Vec
+       integer ierr
+       end subroutine
+        subroutine DMGetLocalToGlobalMapping(dm, ltog ,ierr)
+       DM dm ! DM
+       ISLocalToGlobalMapping ltog ! ISLocalToGlobalMapping
+       integer ierr
+       end subroutine
+        subroutine DMGetBlockSize(dm, bs ,ierr)
+       DM dm ! DM
+       PetscInt bs ! PetscInt
+       integer ierr
+       end subroutine
+        subroutine DMCreateInterpolation(dm1, dm2, mat, vec ,ierr)
+       DM dm1 ! DM
+       DM dm2 ! DM
+       Mat mat ! Mat
+       Vec vec ! Vec
+       integer ierr
+       end subroutine
+        subroutine DMCreateInjection(dm1, dm2, ctx ,ierr)
+       DM dm1 ! DM
+       DM dm2 ! DM
+       VecScatter ctx ! VecScatter
+       integer ierr
+       end subroutine
+        subroutine DMCreateColoring(dm, ctype, coloring ,ierr)
+       DM dm ! DM
+       ISColoringType ctype ! ISColoringType
+       ISColoring coloring ! ISColoring
+       integer ierr
+       end subroutine
+        subroutine DMCreateMatrix(dm, mat ,ierr)
+       DM dm ! DM
+       Mat mat ! Mat
+       integer ierr
+       end subroutine
+        subroutine DMSetMatrixPreallocateOnly(dm, only ,ierr)
+       DM dm ! DM
+       PetscBool only ! PetscBool
+       integer ierr
+       end subroutine
+        subroutine DMRefine(dm, comm, dmf ,ierr)
+       DM dm ! DM
+       integer comm ! MPI_Comm
+       DM dmf ! DM
+       integer ierr
+       end subroutine
+        subroutine DMInterpolate(coarse, interp, fine ,ierr)
+       DM coarse ! DM
+       Mat interp ! Mat
+       DM fine ! DM
+       integer ierr
+       end subroutine
+        subroutine DMGetRefineLevel(dm, level ,ierr)
+       DM dm ! DM
+       PetscInt level ! PetscInt
+       integer ierr
+       end subroutine
+        subroutine DMGlobalToLocalBegin(dm, g, mode, l ,ierr)
+       DM dm ! DM
+       Vec g ! Vec
+       InsertMode mode ! InsertMode
+       Vec l ! Vec
+       integer ierr
+       end subroutine
+        subroutine DMGlobalToLocalEnd(dm, g, mode, l ,ierr)
+       DM dm ! DM
+       Vec g ! Vec
+       InsertMode mode ! InsertMode
+       Vec l ! Vec
+       integer ierr
+       end subroutine
+        subroutine DMLocalToGlobalBegin(dm, l, mode, g ,ierr)
+       DM dm ! DM
+       Vec l ! Vec
+       InsertMode mode ! InsertMode
+       Vec g ! Vec
+       integer ierr
+       end subroutine
+        subroutine DMLocalToGlobalEnd(dm, l, mode, g ,ierr)
+       DM dm ! DM
+       Vec l ! Vec
+       InsertMode mode ! InsertMode
+       Vec g ! Vec
+       integer ierr
+       end subroutine
+        subroutine DMLocalToLocalBegin(dm, g, mode, l ,ierr)
+       DM dm ! DM
+       Vec g ! Vec
+       InsertMode mode ! InsertMode
+       Vec l ! Vec
+       integer ierr
+       end subroutine
+        subroutine DMLocalToLocalEnd(dm, g, mode, l ,ierr)
+       DM dm ! DM
+       Vec g ! Vec
+       InsertMode mode ! InsertMode
+       Vec l ! Vec
+       integer ierr
+       end subroutine
+        subroutine DMCoarsen(dm, comm, dmc ,ierr)
+       DM dm ! DM
+       integer comm ! MPI_Comm
+       DM dmc ! DM
+       integer ierr
+       end subroutine
+        subroutine DMRestrict(fine, restrct, rscale, inject, coarse ,   &
+     &ierr)
+       DM fine ! DM
+       Mat restrct ! Mat
+       Vec rscale ! Vec
+       Mat inject ! Mat
+       DM coarse ! DM
+       integer ierr
+       end subroutine
+        subroutine DMSubDomainRestrict(global, oscatter, gscatter, subdm&
+     & ,ierr)
+       DM global ! DM
+       VecScatter oscatter ! VecScatter
+       VecScatter gscatter ! VecScatter
+       DM subdm ! DM
+       integer ierr
+       end subroutine
+        subroutine DMGetCoarsenLevel(dm, level ,ierr)
+       DM dm ! DM
+       PetscInt level ! PetscInt
+       integer ierr
+       end subroutine
+        subroutine DMCreateAggregates(dmc, dmf, rest ,ierr)
+       DM dmc ! DM
+       DM dmf ! DM
+       Mat rest ! Mat
+       integer ierr
+       end subroutine
+        subroutine DMSetApplicationContext(dm, ctx ,ierr)
+       DM dm ! DM
+       PetscVoid ctx ! void
+       integer ierr
+       end subroutine
+        subroutine DMGetApplicationContext(dm, ctx ,ierr)
+       DM dm ! DM
+       PetscVoid ctx ! void
+       integer ierr
+       end subroutine
+        subroutine DMHasVariableBounds(dm, flg ,ierr)
+       DM dm ! DM
+       PetscBool flg ! PetscBool
+       integer ierr
+       end subroutine
+        subroutine DMHasColoring(dm, flg ,ierr)
+       DM dm ! DM
+       PetscBool flg ! PetscBool
+       integer ierr
+       end subroutine
+        subroutine DMGetDefaultSection(dm, section ,ierr)
+       DM dm ! DM
+       PetscSection section ! PetscSection
+       integer ierr
+       end subroutine
+        subroutine DMSetDefaultSection(dm, section ,ierr)
+       DM dm ! DM
+       PetscSection section ! PetscSection
+       integer ierr
+       end subroutine
+        subroutine DMGetDefaultGlobalSection(dm, section ,ierr)
+       DM dm ! DM
+       PetscSection section ! PetscSection
+       integer ierr
+       end subroutine
+        subroutine DMSetDefaultGlobalSection(dm, section ,ierr)
+       DM dm ! DM
+       PetscSection section ! PetscSection
+       integer ierr
+       end subroutine
+        subroutine DMGetDefaultSF(dm, sf ,ierr)
+       DM dm ! DM
+       PetscSF sf ! PetscSF
+       integer ierr
+       end subroutine
+        subroutine DMSetDefaultSF(dm, sf ,ierr)
+       DM dm ! DM
+       PetscSF sf ! PetscSF
+       integer ierr
+       end subroutine
+        subroutine DMGetPointSF(dm, sf ,ierr)
+       DM dm ! DM
+       PetscSF sf ! PetscSF
+       integer ierr
+       end subroutine
+        subroutine DMSetPointSF(dm, sf ,ierr)
+       DM dm ! DM
+       PetscSF sf ! PetscSF
+       integer ierr
+       end subroutine
+        subroutine DMGetDS(dm, prob ,ierr)
+       DM dm ! DM
+       PetscDS prob ! PetscDS
+       integer ierr
+       end subroutine
+        subroutine DMSetDS(dm, prob ,ierr)
+       DM dm ! DM
+       PetscDS prob ! PetscDS
+       integer ierr
+       end subroutine
+        subroutine DMGetField(dm, f, field ,ierr)
+       DM dm ! DM
+       PetscInt f ! PetscInt
+       PetscObject field ! PetscObject
+       integer ierr
+       end subroutine
+        subroutine DMSetField(dm, f, field ,ierr)
+       DM dm ! DM
+       PetscInt f ! PetscInt
+       PetscObject field ! PetscObject
+       integer ierr
+       end subroutine
+        subroutine DMSetCoordinates(dm, c ,ierr)
+       DM dm ! DM
+       Vec c ! Vec
+       integer ierr
+       end subroutine
+        subroutine DMSetCoordinatesLocal(dm, c ,ierr)
+       DM dm ! DM
+       Vec c ! Vec
+       integer ierr
+       end subroutine
+        subroutine DMGetCoordinates(dm, c ,ierr)
+       DM dm ! DM
+       Vec c ! Vec
+       integer ierr
+       end subroutine
+        subroutine DMGetCoordinatesLocal(dm, c ,ierr)
+       DM dm ! DM
+       Vec c ! Vec
+       integer ierr
+       end subroutine
+        subroutine DMGetCoordinateDM(dm, cdm ,ierr)
+       DM dm ! DM
+       DM cdm ! DM
+       integer ierr
+       end subroutine
+        subroutine DMSetCoordinateDM(dm, cdm ,ierr)
+       DM dm ! DM
+       DM cdm ! DM
+       integer ierr
+       end subroutine
+        subroutine DMGetCoordinateSection(dm, section ,ierr)
+       DM dm ! DM
+       PetscSection section ! PetscSection
+       integer ierr
+       end subroutine
+        subroutine DMSetCoordinateSection(dm, section ,ierr)
+       DM dm ! DM
+       PetscSection section ! PetscSection
+       integer ierr
+       end subroutine
+        subroutine DMLocatePoints(dm, v, cells ,ierr)
+       DM dm ! DM
+       Vec v ! Vec
+       IS cells ! IS
+       integer ierr
+       end subroutine
+        subroutine DMGetOutputDM(dm, odm ,ierr)
+       DM dm ! DM
+       DM odm ! DM
+       integer ierr
+       end subroutine
+        subroutine DMGetOutputSequenceNumber(dm, num, val ,ierr)
+       DM dm ! DM
+       PetscInt num ! PetscInt
+       PetscReal val ! PetscReal
+       integer ierr
+       end subroutine
+        subroutine DMSetOutputSequenceNumber(dm, num, val ,ierr)
+       DM dm ! DM
+       PetscInt num ! PetscInt
+       PetscReal val ! PetscReal
+       integer ierr
+       end subroutine
+        subroutine DMGetLocalVector(dm, g ,ierr)
+       DM dm ! DM
+       Vec g ! Vec
+       integer ierr
+       end subroutine
+        subroutine DMRestoreLocalVector(dm, g ,ierr)
+       DM dm ! DM
+       Vec g ! Vec
+       integer ierr
+       end subroutine
+        subroutine DMGetGlobalVector(dm, g ,ierr)
+       DM dm ! DM
+       Vec g ! Vec
+       integer ierr
+       end subroutine
+        subroutine DMClearGlobalVectors(dm ,ierr)
+       DM dm ! DM
+       integer ierr
+       end subroutine
+        subroutine DMRestoreGlobalVector(dm, g ,ierr)
+       DM dm ! DM
+       Vec g ! Vec
+       integer ierr
+       end subroutine

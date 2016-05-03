@@ -776,7 +776,7 @@ void monitorProcessMemorySize() {
 
   PetscPrintf(PETSC_COMM_WORLD,"  ~~Process Memory~~\n");
   PetscSynchronizedPrintf(PETSC_COMM_WORLD,"    [%d] %f\n",PetscGlobalRank,LocalSize);
-  PetscSynchronizedFlush(PETSC_COMM_WORLD);
+  PetscSynchronizedFlush(PETSC_COMM_WORLD, PETSC_STDOUT);
   if ( PetscGlobalSize > 1 ) PetscPrintf(PETSC_COMM_WORLD,"        %f\n",TotalSize);
   PetscPrintf(PETSC_COMM_WORLD,"  ~~~~~~~~~~~~~~~~~~\n");
 

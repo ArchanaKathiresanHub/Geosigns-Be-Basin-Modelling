@@ -1,0 +1,112 @@
+        subroutine TaoLineSearchSetUp(ls ,ierr)
+       TaoLineSearch ls ! TaoLineSearch
+       integer ierr
+       end subroutine
+        subroutine TaoLineSearchReset(ls ,ierr)
+       TaoLineSearch ls ! TaoLineSearch
+       integer ierr
+       end subroutine
+        subroutine TaoLineSearchDestroy(ls ,ierr)
+       TaoLineSearch ls ! TaoLineSearch
+       integer ierr
+       end subroutine
+        subroutine TaoLineSearchApply(ls, x, f, g, s, steplength, reason&
+     & ,ierr)
+       TaoLineSearch ls ! TaoLineSearch
+       Vec x ! Vec
+       PetscReal f ! PetscReal
+       Vec g ! Vec
+       Vec s ! Vec
+       PetscReal steplength ! PetscReal
+       TaoLineSearchConvergedReason reason !                            
+! TaoLineSearchConvergedReason
+       integer ierr
+       end subroutine
+        subroutine TaoLineSearchSetFromOptions(ls ,ierr)
+       TaoLineSearch ls ! TaoLineSearch
+       integer ierr
+       end subroutine
+        subroutine TaoLineSearchGetNumberFunctionEvaluations(ls, nfeval &
+     &, ngeval, nfgeval ,ierr)
+       TaoLineSearch ls ! TaoLineSearch
+       PetscInt nfeval ! PetscInt
+       PetscInt ngeval ! PetscInt
+       PetscInt nfgeval ! PetscInt
+       integer ierr
+       end subroutine
+        subroutine TaoLineSearchIsUsingTaoRoutines(ls, flg ,ierr)
+       TaoLineSearch ls ! TaoLineSearch
+       PetscBool flg ! PetscBool
+       integer ierr
+       end subroutine
+        subroutine TaoLineSearchComputeObjective(ls, x, f ,ierr)
+       TaoLineSearch ls ! TaoLineSearch
+       Vec x ! Vec
+       PetscReal f ! PetscReal
+       integer ierr
+       end subroutine
+        subroutine TaoLineSearchComputeObjectiveAndGradient(ls, x, f, g &
+     &,ierr)
+       TaoLineSearch ls ! TaoLineSearch
+       Vec x ! Vec
+       PetscReal f ! PetscReal
+       Vec g ! Vec
+       integer ierr
+       end subroutine
+        subroutine TaoLineSearchComputeGradient(ls, x, g ,ierr)
+       TaoLineSearch ls ! TaoLineSearch
+       Vec x ! Vec
+       Vec g ! Vec
+       integer ierr
+       end subroutine
+        subroutine TaoLineSearchComputeObjectiveAndGTS(ls, x, f, gts ,  &
+     &ierr)
+       TaoLineSearch ls ! TaoLineSearch
+       Vec x ! Vec
+       PetscReal f ! PetscReal
+       PetscReal gts ! PetscReal
+       integer ierr
+       end subroutine
+        subroutine TaoLineSearchGetSolution(ls, x, f, g, steplength,    &
+     &reason ,ierr)
+       TaoLineSearch ls ! TaoLineSearch
+       Vec x ! Vec
+       PetscReal f ! PetscReal
+       Vec g ! Vec
+       PetscReal steplength ! PetscReal
+       TaoLineSearchConvergedReason reason !                            
+! TaoLineSearchConvergedReason
+       integer ierr
+       end subroutine
+        subroutine TaoLineSearchGetStartingVector(ls, x ,ierr)
+       TaoLineSearch ls ! TaoLineSearch
+       Vec x ! Vec
+       integer ierr
+       end subroutine
+        subroutine TaoLineSearchGetStepDirection(ls, s ,ierr)
+       TaoLineSearch ls ! TaoLineSearch
+       Vec s ! Vec
+       integer ierr
+       end subroutine
+        subroutine TaoLineSearchGetFullStepObjective(ls, f_fullstep ,   &
+     &ierr)
+       TaoLineSearch ls ! TaoLineSearch
+       PetscReal f_fullstep ! PetscReal
+       integer ierr
+       end subroutine
+        subroutine TaoLineSearchSetVariableBounds(ls, xl, xu ,ierr)
+       TaoLineSearch ls ! TaoLineSearch
+       Vec xl ! Vec
+       Vec xu ! Vec
+       integer ierr
+       end subroutine
+        subroutine TaoLineSearchSetInitialStepLength(ls, s ,ierr)
+       TaoLineSearch ls ! TaoLineSearch
+       PetscReal s ! PetscReal
+       integer ierr
+       end subroutine
+        subroutine TaoLineSearchGetStepLength(ls, s ,ierr)
+       TaoLineSearch ls ! TaoLineSearch
+       PetscReal s ! PetscReal
+       integer ierr
+       end subroutine

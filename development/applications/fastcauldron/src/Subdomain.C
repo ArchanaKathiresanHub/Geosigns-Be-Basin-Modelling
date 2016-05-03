@@ -80,7 +80,7 @@ Subdomain::Subdomain ( const LayerProps& topLayer,
              << std::endl;
 
       PetscSynchronizedPrintf ( PETSC_COMM_WORLD, buffer.str ().c_str ());
-      PetscSynchronizedFlush ( PETSC_COMM_WORLD );
+      PetscSynchronizedFlush ( PETSC_COMM_WORLD, PETSC_STDOUT );
 
    }
 
