@@ -29,15 +29,21 @@ namespace CauldronIO
         /// \brief Prefetch any data: load from disk, do not decompress yet
         virtual void prefetch();
         /// \brief Override the retrieve method to load data from datastore
-        virtual void retrieve();
+        virtual bool retrieve();
+        /// \returns a list of HDFinfo holding the data; can be null
+        virtual const std::vector < std::shared_ptr<HDFinfo> >& getHDFinfo() { return m_info; }
         /// \brief Set all variables needed to retrieve the data
         void setDataStore(DataStoreParams* params);
         /// \brief Returns the parameters needed for loading this data
         const DataStoreParams* getDataStoreParams() const;
+        /// \brief Method to add HDF data to this class
+        /// \returns true if all data needed is now ready (prefetch done)
+        virtual bool signalNewHDFdata() { return false; }
 
     private:
         DataStoreParams* m_params;
         DataStoreLoad* m_dataStore;
+        std::vector < std::shared_ptr<HDFinfo> > m_info;
     };
 
     /// \brief Volume class implementation with native retrieve of data
@@ -50,13 +56,18 @@ namespace CauldronIO
         /// \brief Prefetch any data: load from disk, do not decompress yet
         virtual void prefetch();
         /// \brief Override the retrieve method to load data from datastore
-        virtual void retrieve();
+        virtual bool retrieve();
+        /// \returns a list of HDFinfo holding the data; can be null
+        virtual const std::vector < std::shared_ptr<HDFinfo> >& getHDFinfo() { return m_info; }
         /// \brief Set all variables needed to retrieve the data
         void setDataStore(DataStoreParams* params, bool dataIJK);
         /// \brief Returns the parameters needed for loading this data, IJK
         const DataStoreParams* getDataStoreParamsIJK() const;
         /// \brief Returns the parameters needed for loading this data, KIJ
         const DataStoreParams* getDataStoreParamsKIJ() const;
+        /// \brief Method to add HDF data to this class
+        /// \returns true if all data needed is now ready (prefetch done)
+        virtual bool signalNewHDFdata() { return false; }
 
     private:
         bool m_dataIJK, m_dataKIJ;
@@ -64,6 +75,7 @@ namespace CauldronIO
         DataStoreParams* m_paramsKIJ;
         DataStoreLoad* m_dataStoreIJK;
         DataStoreLoad* m_dataStoreKIJ;
+        std::vector < std::shared_ptr<HDFinfo> > m_info;
     };
 }
 #endif

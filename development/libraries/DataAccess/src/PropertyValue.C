@@ -163,6 +163,46 @@ GridMap * PropertyValue::hasGridMap (void) const
       return (GridMap *) getChild (ValueMap);
 }
 
+void PropertyValue::getHDFinfo(string& fileName, string& dataSetName, string& outputDir) const
+{
+    Record * record = getRecord();
+    if (!record) return;
+
+    outputDir = m_projectHandle->getFullOutputDir();
+    
+    if (getStorage() == TIMEIOTBL)
+    {
+        // The record to refer to is a TimeIoTbl record
+
+        const string & mapFileName = getMapFileName(record);
+        const string & propertyId = getPropertyGrid(record);
+
+        if (mapFileName != "")
+        {
+            fileName = mapFileName;
+            dataSetName = "/Layer=" + propertyId;
+        }
+        else
+        {
+            fileName = propertyId + ".HDF";
+            dataSetName = "/Layer=0";
+        }
+    }
+    else if (getStorage() == THREEDTIMEIOTBL)
+    {
+        // The record to refer to is SnapshotIoTbl record
+        fileName = getMapFileName(record);
+
+        dataSetName += "/" + getGroupName(record) + "/" + getDataSetName(record);
+    }
+    else if (getStorage() == SNAPSHOTIOTBL)
+    {
+        // The record to refer to is SnapshotIoTbl record
+        fileName = getSnapshotFileName(record);
+        dataSetName = "/" + getName() + "/" + (dynamic_cast<const Formation *>(getFormation())->getMangledName());
+    }
+}
+
 /// Read in the GridMap if not there yet and return it
 GridMap * PropertyValue::getGridMap (void) const
 {
@@ -172,47 +212,14 @@ GridMap * PropertyValue::getGridMap (void) const
    }
 
    Record * record = getRecord();
-
    if (!record) return 0;
 
    if (MODE3D == m_projectHandle->getModellingMode ())
    {
       // The GridMap is to be retrieved from file
-      string fileName;
-      string dataSetName = "";
+       string fileName, dataSetName, outputDir;
+      getHDFinfo(fileName, dataSetName, outputDir);
 
-
-      if (getStorage () == TIMEIOTBL)
-      {
-         // The record to refer to is a TimeIoTbl record
-
-         const string & mapFileName = getMapFileName (record);
-         const string & propertyId = getPropertyGrid (record);
-
-         if (mapFileName != "")
-         {
-            fileName = mapFileName;
-            dataSetName = "/Layer=" + propertyId;
-         }
-         else
-         {
-            fileName = propertyId + ".HDF";
-            dataSetName = "/Layer=0";
-         }
-      }
-      else if (getStorage () == THREEDTIMEIOTBL)
-      {
-         // The record to refer to is SnapshotIoTbl record
-         fileName = getMapFileName (record);
- 
-         dataSetName += "/" + getGroupName (record) + "/" + getDataSetName(record);
-      }
-      else if (getStorage () == SNAPSHOTIOTBL)
-      {
-         // The record to refer to is SnapshotIoTbl record
-         fileName = getSnapshotFileName (record);
-         dataSetName = "/" + getName () + "/" + ( dynamic_cast<const Formation *>(getFormation ())->getMangledName ());
-      }
       const bool oldPrimaryDoubleFlag = m_projectHandle->isPrimaryDouble();
 
       if( not isPrimary() ) {

@@ -25,7 +25,9 @@ include_directories(
 bm_include_libraries(
 	DataModel
 	DataAccess
+    utilities
 	SerialDataAccess
+    FileSystem 
 	DataAccess
 	TableIO
     VisualizationIO
@@ -34,7 +36,9 @@ bm_include_libraries(
 target_link_libraries(VisualizationIO_projectHandle
 	DataModel
 	DataAccess
+    utilities
 	SerialDataAccess
+    FileSystem 
 	DataAccess
 	TableIO
     VisualizationIO

@@ -20,6 +20,7 @@
 #include "Interface/Snapshot.h"
 #include "Interface/GridMap.h"
 #include "Interface/ProjectData.h"
+#include "../../SerialDataAccess/src/Interface/SerialGridMap.h"
 
 #include "ImportProjectHandle.h"
 #include "ImportExport.h"
@@ -627,22 +628,14 @@ std::shared_ptr<CauldronIO::FormationInfoList> ImportProjectHandle::getDepthForm
     // Find all depth formations and add these
     for (size_t i = 0; i < propValues->size(); ++i)
     {
-        double min, max;
         GridMap* map = propValues->at(i)->getGridMap();
-        map->retrieveData();
- 
+
         if (!map) throw CauldronIO::CauldronIOException("Could not open project3D HDF file!");
-        map->getMinMaxValue(min, max);
         std::shared_ptr<CauldronIO::FormationInfo> info(new CauldronIO::FormationInfo());
+
         info->formation = propValues->at(i)->getFormation();
         info->kStart = map->firstK();
         info->kEnd = map->lastK();
-        info->propValue = propValues->at(i);
-
-        assert(info->kStart < info->kEnd);
-
-        info->depthStart = min;
-        info->depthEnd = max;
         info->numI = map->numI();
         info->numJ = map->numJ();
         info->deltaI = map->deltaI();
@@ -650,42 +643,15 @@ std::shared_ptr<CauldronIO::FormationInfoList> ImportProjectHandle::getDepthForm
         info->minI = map->minI();
         info->minJ = map->minJ();
 
-        // Find average depth values in first and last k slice
-        double depth1 = 0, depth2 = 0; 
-        size_t numElem1 = 0, numElem2 = 0;
-        for (unsigned int i = map->firstI(); i <= map->lastI(); ++i)
-        {
-            for (unsigned int j = map->firstJ(); j <= map->lastJ(); ++j)
-            {
-                double val = map->getValue(i, j, map->firstK());
-                if (val != map->getUndefinedValue())
-                {
-                    numElem1++;
-                    depth1 += val;
-                }
-                val = map->getValue(i, j, map->lastK());
-                if (val != map->getUndefinedValue())
-                {
-                    numElem2++;
-                    depth2 += val;
-                }
-            }
-        }
-
-        if (numElem1 == 0 || numElem2 == 0)
-            throw CauldronIO::CauldronIOException("Cannot sort depth formations: depth values undefined");
-
-        depth1 /= numElem1;
-        depth2 /= numElem2;
-
-        info->reverseDepth = depth1 > depth2;
+        /// in a SerialGridMap gridmap, depth is aligned (=increasing) with k index
+        /// in a DistributedGridmap, depth is inverse to k index
+        SerialGridMap* sGridmap = static_cast<SerialGridMap*>(map);
+        info->reverseDepth = sGridmap == NULL;
+        
         depthFormations->push_back(info);
-        map->restoreData();
+        
         map->release();
     }
-
-    // Sort the list
-    std::sort(depthFormations->begin(), depthFormations->end(), CauldronIO::FormationInfo::compareFormations);
 
     // Capture global k-range
     size_t currentK = depthFormations->at(0)->kEnd;

@@ -29,7 +29,8 @@ void retrieveDataQueue(std::vector < CauldronIO::VisualizationIOData* >* allData
         {
             CauldronIO::VisualizationIOData* data = allData->at(value);
             assert(!data->isRetrieved());
-            data->retrieve();
+            bool success = data->retrieve();
+            assert(success);
         }
     }
 
@@ -37,7 +38,8 @@ void retrieveDataQueue(std::vector < CauldronIO::VisualizationIOData* >* allData
     {
         CauldronIO::VisualizationIOData* data = allData->at(value);
         assert(!data->isRetrieved());
-        data->retrieve();
+        bool success = data->retrieve();
+        assert(success);
     }
 }
 

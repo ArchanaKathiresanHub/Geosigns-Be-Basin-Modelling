@@ -18,7 +18,10 @@
 #include <iostream>
 #include <fstream>
 #include <cstring>
+#include "hdf5.h"
 
+// From ProjectHandle.C : 
+const double DefaultUndefinedValue = 99999;
 using namespace CauldronIO;
 
 bool ImportExport::exportToXML(std::shared_ptr<Project>& project, const std::string& absPath, const std::string& relPath, 
@@ -269,31 +272,8 @@ void CauldronIO::ImportExport::addSnapShot(const std::shared_ptr<SnapShot>& snap
     node.append_attribute("kind") = snapShot->getKind();
     node.append_attribute("isminor") = snapShot->isMinorShapshot();
 
-    // Collect all data to retrieve
-    // TODO: check if this works correctly in "append" mode: in append mode it should not retrieve data that has not been added
-    std::vector < VisualizationIOData* > allReadData = snapShot->getAllRetrievableData();
-
-    // This is the queue of indices of data ready to be retrieved (and compressed?)
-    boost::lockfree::queue<int> queue(128);
-    boost::atomic<bool> done(false);
-
-    // Retrieve in separate threads; the queue will be filled from the main thread
-    boost::thread_group threads;
-    for (int i = 0; i < m_numThreads - 1; ++i)
-        threads.add_thread(new boost::thread(CauldronIO::ImportExport::retrieveDataQueue, &allReadData, &queue, &done));
-
-    // Load the data on the main thread: this cannot be in parallel: HDF5 is not threadsafe (not on Windows anyway)
-    for (int i = 0; i < allReadData.size(); i++)
-    {
-        allReadData[i]->prefetch();
-        queue.push(i);
-    }
-    done = true;
-
-    // Single threaded: retrieve now
-    if (m_numThreads == 1)
-        retrieveDataQueue(&allReadData, &queue, &done);
-    threads.join_all();
+    // Read all data into memory
+    retrieveAllData(snapShot);
 
     // Add surfaces
     //////////////////////////////////////////////////////////////////////////
@@ -353,6 +333,9 @@ void CauldronIO::ImportExport::addSnapShot(const std::shared_ptr<SnapShot>& snap
     for (int i = 0; i < volumeStore.getDataToCompressList().size(); i++)
         allData.push_back(volumeStore.getDataToCompressList().at(i));
 
+    boost::lockfree::queue<int> queue(128);
+    boost::thread_group threads;
+
     // Add to queue
     for (int i = 0; i < allData.size(); i++)
         queue.push(i);
@@ -406,6 +389,130 @@ void CauldronIO::ImportExport::addSnapShot(const std::shared_ptr<SnapShot>& snap
     snapShot->release();
 }
 
+void CauldronIO::ImportExport::retrieveAllData(const std::shared_ptr<SnapShot>& snapShot)
+{
+    // Collect all data to retrieve
+    // TODO: check if this works correctly in "append" mode: in append mode it should not retrieve data that has not been added
+    std::vector < VisualizationIOData* > allReadData = snapShot->getAllRetrievableData();
+
+    // This is the queue of indices of data ready to be retrieved (and compressed?)
+    boost::lockfree::queue<int> queue(128);
+    boost::atomic<bool> done(false);
+    
+    // Retrieve in separate threads; the queue will be filled from the main thread
+    boost::thread_group threads;
+    for (int i = 0; i < m_numThreads - 1; ++i)
+        threads.add_thread(new boost::thread(CauldronIO::ImportExport::retrieveDataQueue, &allReadData, &queue, &done));
+    
+    // Read HDF data into memory on single main thread
+    prefetchHDFdata(allReadData, &queue);
+    done = true;
+    
+    // Single threaded: retrieve now
+    if (m_numThreads == 1)
+        retrieveDataQueue(&allReadData, &queue, &done);
+    threads.join_all();
+}
+
+void CauldronIO::ImportExport::prefetchHDFdata(std::vector< VisualizationIOData* > allReadData, boost::lockfree::queue<int>* queue)
+{
+    std::vector < std::shared_ptr<HDFinfo> > hdfInfoList1;
+    std::vector < std::shared_ptr<HDFinfo> > hdfInfoList2;
+    std::string hdffile1, hdffile2;
+    
+    // Collect all hdfInfo
+    for (int i = 0; i < allReadData.size(); i++)
+    {
+        std::vector < std::shared_ptr<HDFinfo> > hdfInfo = allReadData[i]->getHDFinfo();
+        for (int j = 0; j < hdfInfo.size(); j++)
+        {
+            std::string filepathname = hdfInfo[j]->filepathName;
+
+            // Signal the index so we know when it is complete
+            hdfInfo[j]->indexMain = i;
+            
+            // See if this file is known
+            if (filepathname.length() > 0)
+            {
+                // Use the first place holder
+                if (hdffile1.length() == 0)
+                    hdffile1 = filepathname;
+                // Use the second place holder
+                else if (hdffile1 != filepathname && hdffile2.length() == 0)
+                    hdffile2 = filepathname;
+
+                if (filepathname == hdffile1)
+                    hdfInfoList1.push_back(hdfInfo[j]);
+                else if (filepathname == hdffile2)
+                    hdfInfoList2.push_back(hdfInfo[j]);
+                else 
+                    throw CauldronIOException("More than two hdf files in this snapshot!");
+            }
+        }
+    }
+
+    loadHDFdata(hdfInfoList1, queue);
+    loadHDFdata(hdfInfoList2, queue);
+}
+
+void CauldronIO::ImportExport::loadHDFdata(std::vector< std::shared_ptr<HDFinfo> > hdfInfoList, boost::lockfree::queue<int>* queue)
+{
+    if (hdfInfoList.size() == 0) return;
+
+    std::string filename = hdfInfoList[0]->filepathName;
+
+    hid_t fileId = H5Fopen(filename.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
+    if (fileId <= -1)
+        throw CauldronIOException(std::string("Could not open HDF file: ") + filename);
+
+    for (int i = 0; i < hdfInfoList.size(); i++)
+    {
+        // Find the dataset
+        std::string datasetname = hdfInfoList[i]->dataSetName;
+        hid_t dataSetId = H5Dopen(fileId, datasetname.c_str(), H5P_DEFAULT);
+
+        if (dataSetId <= -1)
+            throw CauldronIOException(std::string("Could not open dataset: ") + datasetname);
+
+        hid_t dataTypeId = H5Tcopy(H5T_NATIVE_FLOAT);
+        H5T_class_t HDFclass = H5Tget_class(dataTypeId);
+        assert(HDFclass == H5T_FLOAT);
+
+        hid_t dataSpaceId = H5Dget_space(dataSetId);
+        assert(dataSpaceId >= 0);
+
+        hsize_t dimensions[3];
+        int rank = H5Sget_simple_extent_dims(dataSpaceId, dimensions, 0);
+
+        // Add a third dimension if needed
+        if (rank == 2) dimensions[2] = 1;
+
+        // undefined value : for maps and formations, it is always the same value (from: ProjectHandle.C, not Interface.h)
+        hdfInfoList[i]->undef = (float)DefaultUndefinedValue;
+
+        // Allocate memory
+        hdfInfoList[i]->setData(new float[dimensions[0] * dimensions[1] * dimensions[2]]);
+
+        // Read the data
+        herr_t status = H5Dread(dataSetId, dataTypeId, H5S_ALL, H5S_ALL, H5P_DEFAULT, (void*)hdfInfoList[i]->getData());
+
+        /// Signal the parent new data is there; 
+        /// it should return true if all data is now loaded
+        /// and then we should push a new (completed) index to the queue
+        bool complete = hdfInfoList[i]->parent->signalNewHDFdata();
+        if (complete)
+            queue->push(hdfInfoList[i]->indexMain);
+
+        if (status <= -1)
+            throw CauldronIOException("Error during hdf file read");
+
+        H5Tclose(dataTypeId);
+        H5Dclose(dataSetId);
+    }
+    
+    H5Fclose(fileId);
+}
+
 void CauldronIO::ImportExport::compressDataQueue(std::vector< std::shared_ptr < DataToCompress > > allData, boost::lockfree::queue<int>* queue)
 {
     int value;
@@ -424,7 +531,8 @@ void CauldronIO::ImportExport::retrieveDataQueue(std::vector < VisualizationIODa
         {
             VisualizationIOData* data = allData->at(value);
             assert(!data->isRetrieved());
-            data->retrieve();
+            bool success = data->retrieve();
+            assert(success);
         }
     }
 
@@ -432,7 +540,8 @@ void CauldronIO::ImportExport::retrieveDataQueue(std::vector < VisualizationIODa
     {
         VisualizationIOData* data = allData->at(value);
         assert(!data->isRetrieved());
-        data->retrieve();
+        bool success = data->retrieve();
+        assert(success);
     }
 }
 

@@ -38,9 +38,12 @@ namespace DataAccess
 
 	    virtual ~PropertyValue ();
 
-            bool matchesConditions (int selectionFlags, const Property * property, const Snapshot * snapshot,
-                  const Reservoir * reservoir, const Formation * formation,
-                  const Surface * surface, int propertyType) const;
+        bool matchesConditions (int selectionFlags, const Property * property, const Snapshot * snapshot,
+                const Reservoir * reservoir, const Formation * formation,
+                const Surface * surface, int propertyType) const;
+
+        /// brief method to expose the HDF filename and HDF dataset name of this propertyvalue
+        void getHDFinfo(string& filename, string& datasetname, string& outputDir) const;
 
 	    virtual GridMap * createGridMap (const Grid * grid, unsigned int depth = 0);
 
@@ -65,22 +68,21 @@ namespace DataAccess
 	    virtual GridMap * hasGridMap (void) const;
 
 	    /// return the storage type
-            inline virtual PropertyStorage getStorage (void) const;
+        inline virtual PropertyStorage getStorage (void) const;
 
-            /// Indicate whether the property should be saved or not.
-            ///
-            /// Returns true, since in general all created property values are to be saved.
-            virtual bool toBeSaved () const;
+        /// Indicate whether the property should be saved or not.
+        ///
+        /// Returns true, since in general all created property values are to be saved.
+        virtual bool toBeSaved () const;
 
 	    /// create a TimeIoRecord for this newly created and not yet saved PropertyValue
-	    //bool createTimeIoRecord (database::Table * timeIoTbl);
-            virtual database::Record* createTimeIoRecord (database::Table * timeIoTbl, ModellingMode theMode);
+        virtual database::Record* createTimeIoRecord (database::Table * timeIoTbl, ModellingMode theMode);
 
 	    /// create a 1DTimeIoRecord for this newly created and not yet saved PropertyValue
-            virtual database::Record* create1DTimeIoRecord (database::Table * timeIoTbl, ModellingMode theMode);
+        virtual database::Record* create1DTimeIoRecord (database::Table * timeIoTbl, ModellingMode theMode);
 
 	    /// create a 3DTimeIoRecord for this newly created and not yet saved PropertyValue
-            virtual database::Record* create3DTimeIoRecord (database::Table * timeIoTbl, ModellingMode theMode);
+        virtual database::Record* create3DTimeIoRecord (database::Table * timeIoTbl, ModellingMode theMode);
 
 	    /// Link to a SnapshotIoRecord for this newly created and not yet saved PropertyValue
 	    bool linkToSnapshotIoRecord (void);

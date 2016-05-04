@@ -448,19 +448,43 @@ namespace CauldronIO
         size_t m_numK, m_firstK;
     };
 
+    /// \class HDFinfo
+    /// \brief little struct to hold HDF related information
+    struct HDFinfo
+    {
+    public:
+        void setData(float* data) { m_data = data; }
+        float* getData() { return m_data;  }
+        
+        std::string dataSetName;
+        std::string filepathName;
+        float undef;
+        VisualizationIOData* parent;
+        int indexMain; // index into allReadData
+        int indexSub;  // index into propertyvalue array
+
+    private:
+        float* m_data;
+    };
+
     /// \class VisualizationIOData
     /// \brief interface class for surface and volume data
     class VisualizationIOData
     {
     public:
-        /// \brief Retrieve the data
-        virtual void retrieve() = 0;
+        /// \brief Retrieve the data: returns true on success
+        virtual bool retrieve() = 0;
         /// \brief Release memory; does not destroy the object; it can be retrieved again
         virtual void release() = 0;
         /// \brief Prefetch any data: load from disk, do not decompress yet (for this call retrieve)
         virtual void prefetch() = 0;
         /// \returns true if data is available
         virtual bool isRetrieved() const = 0;
+        /// \returns a list of HDFinfo holding the data; can be null; ownership with this class
+        virtual const std::vector < std::shared_ptr<HDFinfo> >& getHDFinfo() = 0;
+        /// \brief Method to signal new HDF data has been loaded
+        /// \returns true if all data needed is now ready (prefetch done)
+        virtual bool signalNewHDFdata() = 0;
     };
 
     /// \class SurfaceData 
@@ -475,13 +499,15 @@ namespace CauldronIO
         /// VisualizationIOData implementation
         //////////////////////////////////////////////////////////////////////////
         /// \brief Retrieve the data
-        virtual void retrieve() = 0;
+        virtual bool retrieve() = 0;
         /// \brief Release memory; does not destroy the object; it can be retrieved again
         virtual void release();
         /// \returns true if data is available
         virtual bool isRetrieved() const;
         /// \brief Prefetch any data: load from disk, do not decompress yet (for this call retrieve)
         virtual void prefetch() = 0;
+        /// \returns a list of HDFinfo holding the data; can be null
+        virtual const std::vector < std::shared_ptr<HDFinfo> >& getHDFinfo() = 0;
 
         /// \returns the geometry
         const std::shared_ptr<const Geometry2D>& getGeometry() const;
@@ -667,14 +693,16 @@ namespace CauldronIO
 
         /// VisualizationIOData implementation
         //////////////////////////////////////////////////////////////////////////
-        /// \brief Retrieve the data
-        virtual void retrieve() = 0;
+        /// \brief Retrieve the data, returns true on success
+        virtual bool retrieve() = 0;
         /// \brief Release memory; does not destroy the object; it can be retrieved again
         virtual void release();
         /// \returns true if data is available
         virtual bool isRetrieved() const;
         /// \brief Prefetch any data
         virtual void prefetch() = 0;
+        /// \returns a list of HDFinfo holding the data; can be null
+        virtual const std::vector < std::shared_ptr<HDFinfo> >& getHDFinfo() = 0;
 
     private:
         void setData(float* data, float** internalData, bool setValue = false, float value = 0);

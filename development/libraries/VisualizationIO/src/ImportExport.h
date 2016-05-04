@@ -13,6 +13,7 @@
 
 #include "VisualizationAPI.h"
 #include "DataStore.h"
+#pragma warning (disable:488)
 #include <boost/lockfree/queue.hpp>
 #include <boost/atomic.hpp>
 #include "pugixml-1.7/pugixml.hpp"
@@ -70,7 +71,9 @@ namespace CauldronIO
         void addGeometryInfo2D(pugi::xml_node node, const std::shared_ptr<const Geometry2D>& geometry, const std::string& name) const;
         void addGeometryInfo3D(pugi::xml_node  tree, const std::shared_ptr<const Geometry3D>& geometry) const;
         void addSnapShot(const std::shared_ptr<SnapShot>& snapShot, std::shared_ptr<Project>& project, boost::filesystem::path fullPath, pugi::xml_node node);
-       
+        void retrieveAllData(const std::shared_ptr<SnapShot>& snapShot);
+        void prefetchHDFdata(std::vector< VisualizationIOData* > allReadData, boost::lockfree::queue<int>* queue);
+        void loadHDFdata(std::vector< std::shared_ptr<HDFinfo> > hdfInfoList, boost::lockfree::queue<int>* queue);
         // member variables
         boost::filesystem::path m_absPath, m_relPath;
         std::shared_ptr<Project> m_project;

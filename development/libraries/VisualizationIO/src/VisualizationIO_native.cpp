@@ -38,9 +38,9 @@ void CauldronIO::MapNative::prefetch()
     }
 }
 
-void CauldronIO::MapNative::retrieve()
+bool CauldronIO::MapNative::retrieve()
 {
-    if (isConstant()) return;
+    if (isConstant()) return true;
 
     prefetch();
 
@@ -52,6 +52,8 @@ void CauldronIO::MapNative::retrieve()
 
     setData_IJ(data);
     delete[] data;
+
+    return true;
 }
 
 void CauldronIO::MapNative::setDataStore(DataStoreParams* params)
@@ -109,9 +111,9 @@ void CauldronIO::VolumeDataNative::prefetch()
     }
 }
 
-void CauldronIO::VolumeDataNative::retrieve()
+bool CauldronIO::VolumeDataNative::retrieve()
 {
-    if (isConstant()) return;
+    if (isConstant()) return true;
 
     if (m_dataIJK)
     {
@@ -144,6 +146,8 @@ void CauldronIO::VolumeDataNative::retrieve()
         setData_KIJ(data);
         delete[] data;
     }
+
+    return true;
 }
 
 void CauldronIO::VolumeDataNative::setDataStore(DataStoreParams* params, bool dataIJK)

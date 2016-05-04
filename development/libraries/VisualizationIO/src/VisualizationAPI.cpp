@@ -1283,9 +1283,9 @@ float CauldronIO::VolumeData::getConstantValue() const
 }
 
 
-void CauldronIO::VolumeData::retrieve()
+bool CauldronIO::VolumeData::retrieve()
 {
-    if (m_retrieved) return;
+    if (m_retrieved) return true;
     throw CauldronIOException("Not implemented");
 }
 
