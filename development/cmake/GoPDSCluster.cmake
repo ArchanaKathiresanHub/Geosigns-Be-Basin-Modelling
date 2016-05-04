@@ -20,7 +20,7 @@ set(BM_EXTERNAL_COMPONENTS_DIR "${CBM_HOME}/hpc-library" CACHE PATH "The path to
 
 set(BM_SSSDEV_INSTALL_DIR "/glb/data/cauldron/ibs" CACHE PATH "sssdev installation path")
 
-set(INTEL_CXX_ROOT "INTEL_CXX_ROOT-NOTFOUND" CACHE PATH "Path to Intel's compiler collection")
+set(INTEL_CXX_ROOT "/glb/data/opt/intel/compilers_and_libraries_2016.2.181/linux" CACHE PATH "Path to Intel's compiler collection")
 set(INTEL_MPI_ROOT "/glb/data/opt/intel/compilers_and_libraries/linux/mpi" CACHE PATH "Path to Intel MPI library" )
 set(INTEL_MKL_ROOT "/glb/data/opt/intel/compilers_and_libraries/linux/mkl" CACHE PATH "Path to Intel MKL" )
 
@@ -52,7 +52,7 @@ set( LSF_HOME "LSF_HOME-NOTFOUND" CACHE PATH "Home dir for LSF binary files")
 set(PARAVIEW_CONFIG_ROOT "PARAVIEW_CONFIG_ROOT-NOTFOUND" CACHE PATH "Path where ParaViewConfig.cmake can be found")
 
 set( TSLIB_VERSION "7.4")
-set( TSLIB_ROOT "${BM_EXTERNAL_COMPONENTS_DIR}/tslib/tslib-7.4.2" CACHE PATH "Path to Geocosm's TsLib" )
+set( TSLIB_ROOT "${CBM_HOME}/hpc-library/tslib/tslib-7.4.2" CACHE PATH "Path to Geocosm's TsLib" )
 set( TSLIB_LIBRARY_DIR "${TSLIB_ROOT}/bin/x86_64_linux/Release" CACHE PATH "Path to Geocosm's TsLib library directory")
 
 set( MCR_ROOT "${BM_EXTERNAL_COMPONENTS_DIR}/matlab/8.0" CACHE PATH "Path to Matlab")
