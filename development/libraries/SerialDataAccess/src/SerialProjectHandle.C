@@ -168,13 +168,17 @@ void ProjectHandle::barrier () const {
 }
 
 void ProjectHandle::getMinValue ( double * localMin, double * globalMin ) const {
-   // Do nothing.
+
+   if( localMin != 0 and globalMin != 0 ) {
+      * globalMin = * localMin;
+   }
 }
 
 void ProjectHandle::getMaxValue ( double * localMax, double * globalMax ) const {
 
-   // Do nothing.
-
+   if( localMax != 0 and globalMax != 0 ) {
+      * globalMax = * localMax;
+   }
 }
 
 

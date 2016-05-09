@@ -75,8 +75,8 @@ bool GeoPhysics::GeoPhysicsCrustFormation::setLithologiesFromStratTable () {
 
 void GeoPhysics::GeoPhysicsCrustFormation::determineMinMaxThickness () {
 
-   double gridMapMaximum;
-   double gridMapMinimum;
+   double gridMapMaximum = 0.0;
+   double gridMapMinimum = 0.0;
 
    if ( GeoPhysics::Formation::m_projectHandle->getBottomBoundaryConditions () == DataAccess::Interface::MANTLE_HEAT_FLOW ) {
 
