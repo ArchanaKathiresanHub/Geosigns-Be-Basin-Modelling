@@ -243,17 +243,6 @@ bool GeoPhysics::ProjectHandle::startActivity ( const std::string& name, const D
 
       m_cauldronGridDescription.deltaI = activityGrid->deltaIGlobal ();
       m_cauldronGridDescription.deltaJ = activityGrid->deltaJGlobal ();
-
-#if 0
-      std::cout << " start postions " 
-                << m_firstI [ 0 ] << "  " << m_firstI [ 1 ] << "  "
-                << m_firstJ [ 0 ] << "  " << m_firstJ [ 1 ] << "  "
-                << endl;
-      std::cout << " end postions " 
-                << m_lastI [ 0 ] << "  " << m_lastI [ 1 ] << "  "
-                << m_lastJ [ 0 ] << "  " << m_lastJ [ 1 ] << "  " 
-                << endl;
-#endif
       
    }
 

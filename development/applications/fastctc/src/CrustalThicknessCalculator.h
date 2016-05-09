@@ -14,11 +14,13 @@
 // CrustalThickness library
 #include "InterfaceInput.h"
 #include "InterfaceOutput.h"
-#include "DensityCalculator.h"
 
 // DataAccess library
 #include "Interface/Interface.h"
 #include "Interface/ProjectHandle.h"
+
+// DataMining library
+#include "DataMiningProjectHandle.h"
 
 // GeoPhysics library
 #include "GeoPhysicsProjectHandle.h"
@@ -37,9 +39,10 @@ using namespace std;
 void displayTime( const double timeToDisplay, const char * msgToDisplay );
 
 /// @class CrustalThicknessCalculator The main class used to runn the CTC (CrustalThicknessCalculator)
-class CrustalThicknessCalculator : public GeoPhysics::ProjectHandle {
+class CrustalThicknessCalculator : public DataAccess::Mining::ProjectHandle {
 
    typedef formattingexception::GeneralException CtcException;
+   typedef std::vector<double> snapshotsList;
 
 public :
    // Constructor / Destructor
@@ -54,6 +57,9 @@ public :
    /// @param inputFileName The file name of the project file such as project.project3d
    /// @ param factory The object factory
    static CrustalThicknessCalculator* CreateFrom( const string& inputFileName, ObjectFactory* factory );
+
+   /// @brief Initialise the CTC instance, projecthandle, interface input and interface output
+   void initialise();
 
    /// @brief Finish any activity and deallocate the singleton object
    /// @param saveResults Specify if the results must be saved in HDF file or not
@@ -75,7 +81,6 @@ public :
    void deleteCTCPropertyValues();
 
    /// @brief Merge output files if nessecary
-
    /// @details Must be called at end of calculation.
    bool mergeOutputFiles();
 private :
@@ -86,12 +91,16 @@ private :
    static string m_outputFileName;    ///< The output project file name, specified via command line under -save
 
    LinearFunction m_LF;                     ///< The linear function object used by the CTC
-   DensityCalculator m_DensityCalculator;   ///< The density calculator used by the CTC
 
    int    m_outputOptions;    ///< The output option is the combination the output options defined in the command line (xyz, sur, hdf)
    bool   m_debug;            ///< Run the CTC in debug mode
    bool   m_applySmoothing;   ///< Smooth the WLS map
    int    m_smoothRadius;     ///< The smoothing radius defined in the project file under HaflFilterWidth
+
+   InterfaceInput* m_inputData;  ///< Interface for input data (user inputs adn configuration file)
+   InterfaceOutput m_outputData; ///< Interface for output data (maps)
+
+   snapshotsList m_snapshots; ///< The list of stratigraphic snapshots
 
    /// @brief Set requested output properties from the Project file
    void setRequestedOutputProperties( InterfaceOutput & theOutput);
@@ -107,9 +116,9 @@ private :
 
    /// @brief Update geophysics ProjectHandle valid nodes using the CTC input maps
    void updateValidNodes( const InterfaceInput* theInterfaceData );
-   /// @brief Computes the present day water loaded subsidence (WLS) map and smooth it
-   /// @return The WLS map
-   GridMap * calculatePresentDayWLS( InterfaceInput* theInterfaceData );
+
+   /// @brief Loads the snapshots from the stratigraphy
+   void loadSnapshots();
 
 };
 

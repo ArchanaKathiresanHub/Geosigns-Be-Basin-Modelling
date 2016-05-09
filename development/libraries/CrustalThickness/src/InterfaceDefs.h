@@ -11,6 +11,8 @@
 #ifndef _CRUSTALTHICKNESS_INTERFACEDEFS_H_
 #define _CRUSTALTHICKNESS_INTERFACEDEFS_H_
 
+#include <string>
+
 /// @defgroup Save file as
 /// @{
 #define XYZ 0x0001
@@ -19,6 +21,8 @@
 /// @}
 
 namespace CrustalThicknessInterface {
+
+   const double GRAVITY = 9.81;
    
    enum outputMaps {
       mohoMap = 0, thicknessBasaltMap, sedimentDensityMap, WLSadjustedMap,
@@ -27,11 +31,11 @@ namespace CrustalThicknessInterface {
       estimatedCrustDensityMap, WLSOnsetMap, WLSCritMap, WLSExhumeMap, WLSExhumeSerpMap,
       slopePreMelt, slopePostMelt, interceptPostMelt, thicknessCrustMeltOnset, topBasaltMap,
       WLSMap, cumSedimentBackstrip, cumSedimentThickness, isostaticBathymetry, cumBasementCompensation,
-      incTectonicSubsidence,
+      incTectonicSubsidence, PaleowaterdepthResidual,
       numberOfOutputMaps
    };
 
-   const string outputMapsNames [CrustalThicknessInterface::numberOfOutputMaps] = {
+   const std::string outputMapsNames [CrustalThicknessInterface::numberOfOutputMaps] = {
       "Moho",                               // present-day Moho depth (m)
       "BasaltThickness",                    // present-day basalt thickness (m)
       "IntegratedSedimentDensity",          // present-day integrated sediment column density (kgm-3)
@@ -60,19 +64,20 @@ namespace CrustalThicknessInterface {
       "CumSedimentThickness",               // cumulative sediment thickness (m)
       "IsostaticBathymetry",                // filling up of a basin in absence of any thermal subsidence (m)
       "CumBasementCompensation",            // the amount the basement pushed down (or rebound) when sediment load is emplaced or removed 
-      "IncTectonicSubsidence"               // the change in total tectonic subsidence  
+      "IncTectonicSubsidence"               // the change in total tectonic subsidence
+      "PaleowaterdepthResidual"             // The paleowaterdepth residual (PWD-SDH) [m]
    };
 
-   const string outputMapsUnits [CrustalThicknessInterface::numberOfOutputMaps] = {
+   const std::string outputMapsUnits [CrustalThicknessInterface::numberOfOutputMaps] = {
       "m", "m", "kgm-3", "m",
       "", "", "", "C", 
       "kgm-3", "m", "", "m", "m",
       "kgm-3", "m", "m", "m", "m",
       "", "", "", "m", "m", "m",
-      "m", "m", "m", "m", "m"
+      "m", "m", "m", "m", "m", "m"
    };
 
-   outputMaps getPropertyId(const string & propertyName);
+   outputMaps getPropertyId(const std::string & propertyName);
 }
 
 #endif

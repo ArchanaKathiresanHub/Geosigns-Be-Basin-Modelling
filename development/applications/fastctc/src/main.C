@@ -228,14 +228,8 @@ int main (int argc, char ** argv)
    ///3. Run CTC
    try {
       CrustalThicknessCalculator::getInstance().deleteCTCPropertyValues();
-
+      CrustalThicknessCalculator::getInstance().initialise();
       CrustalThicknessCalculator::getInstance().run();
-         
-      }
-   /// @todo delete catch string once migrated to CtcException
-   catch ( std::string& s ) {
-      finaliseCrustalThicknessCalculator(feature, s.c_str(), factory);
-      return 0;
    }
    catch (CtcException& ex){
       LogHandler( LogHandler::ERROR_SEVERITY ) << ex.what();
@@ -265,7 +259,7 @@ int main (int argc, char ** argv)
    ///4. Save results
    CrustalThicknessCalculator::finalise(true);
 
-   PetscTime( &sim_End_Time );   
+   PetscTime( &sim_End_Time );
    displayTime( sim_End_Time - sim_Start_Time, "Total time" );
      
    delete factory;

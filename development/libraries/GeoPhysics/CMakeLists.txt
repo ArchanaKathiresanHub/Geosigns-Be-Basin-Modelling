@@ -10,42 +10,23 @@
 #                                                                       #
 #########################################################################
 
-set(cross_platform_headers
+set(all_headers
+      src/AllochthonousLithologyInterpolator.h
+      src/AllochthonousLithologyManager.h
+      src/BasementLithology.h
       src/BrinePhases.h
       src/BrineConductivity.h
       src/BrineDensity.h
       src/BrineVelocity.h
       src/BrineViscosity.h
-      src/ChemicalCompactionCalculator.h
-      src/DoubleExponentialPorosity.h
-      src/ExponentialPorosity.h
-      src/Permeability.h
-      src/Porosity.h
-      src/PermeabilityImpermeable.h
-      src/PermeabilityMudStone.h
-      src/PermeabilityMultiPoint.h
-      src/PermeabilitySandStone.h
-      src/SeismicVelocity.h
-      src/SeismicVelocityGardner.h
-      src/SeismicVelocityKennan.h
-      src/SeismicVelocityWyllie.h
-      src/SchneiderCompactionCalculator.h
-      src/SoilMechanicsPorosity.h
-      src/VreTtiMethod.h
-      src/VreArrheniusMethod.h
-      src/VitriniteReflectance.h
-      src/WalderhaugCompactionCalculator.h
-)
-
-set(unix_only_headers
-      src/AllochthonousLithologyInterpolator.h
-      src/AllochthonousLithologyManager.h
-      src/BasementLithology.h
       src/CauldronGridDescription.h
+      src/ChemicalCompactionCalculator.h
       src/CompoundLithologyArray.h
       src/CompoundLithologyComposition.h
       src/CompoundLithology.h
       src/CompoundProperty.h
+      src/DoubleExponentialPorosity.h
+      src/ExponentialPorosity.h
       src/FracturePressureCalculator.h
       src/GeoPhysicalConstants.h
       src/GeoPhysicalFunctions.h
@@ -60,45 +41,43 @@ set(unix_only_headers
       src/LithologyManager.h
       src/Local2DArray.h
       src/Local3DArray.h
+      src/Permeability.h
+      src/PermeabilityImpermeable.h
+      src/PermeabilityMudStone.h
+      src/PermeabilityMultiPoint.h
+      src/PermeabilitySandStone.h
+      src/Porosity.h
+      src/SchneiderCompactionCalculator.h
+      src/SeismicVelocity.h
+      src/SeismicVelocityGardner.h
+      src/SeismicVelocityKennan.h
+      src/SeismicVelocityWyllie.h
       src/SimpleLithology.h
+      src/SoilMechanicsPorosity.h
       src/TimeDependentLithology.h
-   )
+      src/VreTtiMethod.h
+      src/VreArrheniusMethod.h
+      src/VitriniteReflectance.h
+      src/WalderhaugCompactionCalculator.h
+)
 
-set(cross_platform_srcs
+set(all_srcs
+      src/AllochthonousLithologyInterpolator.C
+      src/AllochthonousLithologyManager.C
+      src/BasementLithology.C
       src/BrinePhases.C
       src/BrineConductivity.C
       src/BrineDensity.C
       src/BrineVelocity.C
       src/BrineViscosity.C
-      src/ChemicalCompactionCalculator.C
-      src/DoubleExponentialPorosity.C
-      src/ExponentialPorosity.C
-      src/Permeability.C
-      src/Porosity.C
-      src/PermeabilityMudStone.C
-      src/PermeabilityMultiPoint.C
-      src/PermeabilitySandStone.C
-      src/SeismicVelocity.C
-      src/SeismicVelocityGardner.C
-      src/SeismicVelocityKennan.C
-      src/SeismicVelocityWyllie.C
-      src/SchneiderCompactionCalculator.C
-      src/SoilMechanicsPorosity.C
-      src/VreTtiMethod.C
-      src/VreArrheniusMethod.C
-      src/VitriniteReflectance.C
-      src/WalderhaugCompactionCalculator.C
-)
-
-set(unix_only_srcs
-      src/AllochthonousLithologyInterpolator.C
-      src/AllochthonousLithologyManager.C
-      src/BasementLithology.C
       src/CauldronGridDescription.C
+      src/ChemicalCompactionCalculator.C
       src/CompoundLithologyArray.C
       src/CompoundLithology.C
       src/CompoundLithologyComposition.C
       src/CompoundProperty.C
+      src/DoubleExponentialPorosity.C
+      src/ExponentialPorosity.C
       src/FracturePressureCalculator.C
       src/GeoPhysicalFunctions.C
       src/GeoPhysicsCrustFormation.C
@@ -110,9 +89,24 @@ set(unix_only_srcs
       src/GeoPhysicsSourceRock.C
       src/HCDensity.C
       src/LithologyManager.C
+      src/Permeability.C
+      src/PermeabilityMudStone.C
+      src/PermeabilityMultiPoint.C
+      src/PermeabilitySandStone.C
+      src/Porosity.C
+      src/SchneiderCompactionCalculator.C
+      src/SeismicVelocity.C
+      src/SeismicVelocityGardner.C
+      src/SeismicVelocityKennan.C
+      src/SeismicVelocityWyllie.C
       src/SimpleLithology.C
+      src/SoilMechanicsPorosity.C
       src/TimeDependentLithology.C
-   )
+      src/VreTtiMethod.C
+      src/VreArrheniusMethod.C
+      src/VitriniteReflectance.C
+      src/WalderhaugCompactionCalculator.C
+)
 
 set(unix_only_libs
       LinearAlgebra 
@@ -131,13 +125,7 @@ set(cross_platform_libs
       EosPack
 )
 
-
-set(all_srcs)
-set(all_headers)
 set(all_dependent_libs)
-
-set(all_srcs ${cross_platform_srcs} ${unix_only_srcs})
-set(all_headers ${cross_platform_headers} ${unix_only_headers})
 set(all_dependent_libs ${cross_platform_libs} ${unix_only_libs} )
 
 source_group(include FILES ${all_headers})
@@ -151,12 +139,12 @@ add_library( GeoPhysics
 
 # under Linux we are building Boost that is why this target exist
 if (UNIX)
-add_dependencies(GeoPhysics Boost)
+   add_dependencies(GeoPhysics Boost)
 endif (UNIX)
 
 bm_include_libraries( 
-        DataModel
-        ${all_dependent_libs}
+   DataModel
+   ${all_dependent_libs}
 )
 include_directories(
 	${HDF5_INCLUDE_DIRS}

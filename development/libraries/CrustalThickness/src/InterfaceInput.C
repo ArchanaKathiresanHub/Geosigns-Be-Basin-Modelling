@@ -19,27 +19,45 @@
 
 // DataAccess library
 #include "errorhandling.h"
+#include "Interface/CrustFormation.h"
+#include "Interface/Formation.h"
 #include "Interface/ProjectHandle.h"
+#include "Interface/Snapshot.h"
+
+// GeoPhysics library
+#include "GeoPhysicsProjectHandle.h"
+
+// DataMining library
+#include "CauldronDomain.h"
+#include "DataMiner.h"
+#include "ElementPosition.h"
+#include "InterpolatedPropertyValues.h"
+#include "DataMiningProjectHandle.h"
+
+// DerivedProperties library
+#include "DerivedPropertyManager.h"
 
 //utility
 #include "LogHandler.h"
 
 //------------------------------------------------------------//
 InterfaceInput::InterfaceInput(Interface::ProjectHandle * projectHandle, database::Record * record) :
-   Interface::CrustalThicknessData(projectHandle, record) {
+   Interface::CrustalThicknessData( projectHandle, record ),
+   m_derivedManager( &DerivedProperties::DerivedPropertyManager(dynamic_cast<GeoPhysics::ProjectHandle*>(projectHandle)) ) {
 
    clean();
    //-------------
-   m_T0Map        = 0;
-   m_TRMap        = 0;
-   m_HCuMap       = 0;
-   m_HLMuMap      = 0;
-   m_HBuMap       = 0;
-   m_DeltaSLMap   = 0;
+   m_T0Map = 0;
+   m_TRMap = 0;
+   m_HCuMap = 0;
+   m_HLMuMap = 0;
+   m_HBuMap = 0;
+   m_DeltaSLMap = 0;
    m_smoothRadius = 0;
 
    m_baseRiftSurfaceName = "";
-} 
+
+}
 //------------------------------------------------------------//
 InterfaceInput::~InterfaceInput() {
 
@@ -366,23 +384,20 @@ void InterfaceInput::LoadTemperatureData( ifstream &ConfigurationFile ) {
          if (theTokens.size() == 2) {
 
             if (theTokens[0] == CrustalThicknessInterface::A) {
-
-            m_A = atof( theTokens[1].c_str() );
+               m_A = atof( theTokens[1].c_str() );
                ++countParam;
-
             }
             else if (theTokens[0] == CrustalThicknessInterface::B) {
-
-            m_B = atof( theTokens[1].c_str() );
+               m_B = atof( theTokens[1].c_str() );
                ++countParam;
-
-         } 
+            } 
             else{
                LogHandler( LogHandler::WARNING_SEVERITY ) << "CTC configuration file TemperatureData table: unknown CTC parameter '" << theTokens[0] << "'.";
             }
+
          }
          else {
-         theTokens.clear();
+            theTokens.clear();
             throw InputException() << "CTC configuration file TemperatureData table: unexpected parameter definition (should be Name, Value).";
       }
       theTokens.clear();
@@ -416,24 +431,21 @@ void InterfaceInput::LoadSolidus( ifstream &ConfigurationFile ) {
          if (theTokens.size() == 2) {
 
             if (theTokens[0] == CrustalThicknessInterface::C) {
-
-            m_C = atof( theTokens[1].c_str() );
+               m_C = atof( theTokens[1].c_str() );
                ++countParam;
-
             }
             else if (theTokens[0] == CrustalThicknessInterface::D) {
-
-            m_D = atof( theTokens[1].c_str() );
+               m_D = atof( theTokens[1].c_str() );
                ++countParam;
-
-         } 
+            } 
             else{
                LogHandler( LogHandler::WARNING_SEVERITY ) << "CTC configuration file Solidus table: unknown CTC parameter '" << theTokens[0] << "'.";
             }
+
          }
          else {
          theTokens.clear();
-            throw InputException() << "CTC configuration file Solidus table: unexpected parameter definition (should be Name, Value).";
+         throw InputException() << "CTC configuration file Solidus table: unexpected parameter definition (should be Name, Value).";
       }
       theTokens.clear();
    }
@@ -563,6 +575,169 @@ void InterfaceInput::LoadUserDefinedData( ifstream &ConfigurationFile ) {
       throw InputException() << "CTC configuration file UserDefinedData table: 6 parameters expected but only " << countParam << " found.";
    }
 }
+
+//------------------------------------------------------------//
+void InterfaceInput::loadTopAndBottomOfSediments( GeoPhysics::ProjectHandle* projectHandle, const double snapshotAge, const string & baseSurfaceName ) {
+
+   const Interface::Snapshot * currentSnapshot = projectHandle->findSnapshot( snapshotAge, MINOR | MAJOR );
+
+   //1. Find the bottom of the sediment
+   if (baseSurfaceName == "") {
+
+      const Interface::CrustFormation * formationCrust = dynamic_cast<const Interface::CrustFormation *>(projectHandle->getCrustFormation());
+
+      if (!formationCrust) {
+         throw InputException() << "Could not find Crust formation at the age " << currentSnapshot->getTime() << ".";
+      }
+      m_bottomOfSedimentSurface = formationCrust->getTopSurface();
+      m_topOfMantle = formationCrust->getBottomSurface();
+      LogHandler( LogHandler::DEBUG_SEVERITY ) << "Crust formation: " << formationCrust->getName() << ", surface above " << m_bottomOfSedimentSurface->getName() << ".";
+      LogHandler( LogHandler::DEBUG_SEVERITY ) << "Crust formation: " << formationCrust->getName() << ", surface under " << m_topOfMantle->getName()             << ".";
+   }
+   else {
+      m_bottomOfSedimentSurface = projectHandle->findSurface( baseSurfaceName );
+      if (!m_bottomOfSedimentSurface) {
+         throw InputException() << "Could not find user defined base surface of the rift event: " << baseSurfaceName << ".";
+      }
+      else {
+         m_topOfMantle = m_bottomOfSedimentSurface->getBottomFormation()->getBottomSurface();
+         LogHandler( LogHandler::DEBUG_SEVERITY ) << "Using surface " << m_bottomOfSedimentSurface->getName() << " as the base of syn-rift.";
+      }
+   }
+
+   //2. Find the top of the sediment
+   Interface::FormationList * myFormations = projectHandle->getFormations( currentSnapshot, true );
+   const Interface::Formation * formationWB = (*myFormations)[0]; // find Water bottom
+
+   if (!formationWB) {
+      throw InputException() << "Could not find the Water bottom formation at the age " << currentSnapshot->getTime();
+   }
+
+   m_topOfSedimentSurface = formationWB->getTopSurface();
+
+   LogHandler( LogHandler::DEBUG_SEVERITY ) << "Top surface: " << m_topOfSedimentSurface->getName() << "; surface below " << m_bottomOfSedimentSurface->getName() << ".";
+}
+
+//------------------------------------------------------------//
+const DataModel::AbstractProperty* InterfaceInput::loadDepthProperty () const {
+
+   const DataModel::AbstractProperty* depthProperty = m_derivedManager->getProperty( "Depth" );
+   if (!depthProperty) {
+      throw InputException() << "Could not find property named Depth.";
+   }
+   return depthProperty;
+}
+
+//------------------------------------------------------------//
+void InterfaceInput::loadDepthData( GeoPhysics::ProjectHandle* projectHandle, const DataModel::AbstractProperty* depthProperty, const double snapshotAge ) {
+
+   const Interface::Snapshot * currentSnapshot = projectHandle->findSnapshot( snapshotAge, MINOR | MAJOR );
+   try{
+      // Find the depth property of the bottom of sediment
+      m_depthBasement = m_derivedManager->getSurfaceProperty( depthProperty, currentSnapshot, m_bottomOfSedimentSurface );
+      // Find the depth property of the top of sediment
+      m_depthWaterBottom = m_derivedManager->getSurfaceProperty( depthProperty, currentSnapshot, m_topOfSedimentSurface );
+   }
+   catch (InputException& ex){
+      LogHandler( LogHandler::ERROR_SEVERITY ) << ex.what();
+   }
+   catch (...){
+      LogHandler( LogHandler::FATAL_SEVERITY ) << "Could not load depth data for property " << depthProperty->getName() << " @ snapshot " << snapshotAge << ".";
+   }
+}
+
+//------------------------------------------------------------//
+const DataModel::AbstractProperty* InterfaceInput::loadPressureProperty () const {
+
+   const DataModel::AbstractProperty* pressureProperty = m_derivedManager->getProperty( "LithoStaticPressure" );
+   if (!pressureProperty) {
+      throw InputException() << "Could not find property named LithoStaticPressure.";
+   }
+   return pressureProperty;
+}
+
+//------------------------------------------------------------//
+void InterfaceInput::loadPressureData( GeoPhysics::ProjectHandle* projectHandle, const DataModel::AbstractProperty* pressureProperty, const double snapshotAge ) {
+
+   const Interface::Snapshot * currentSnapshot    = projectHandle->findSnapshot( snapshotAge, MINOR | MAJOR );
+   const Interface::Snapshot * presentDaySnapshot = projectHandle->findSnapshot( 0.0,         MINOR | MAJOR );
+   try{
+      // Find the pressure property of the bottom of sediment
+      m_pressureBasement = m_derivedManager->getSurfaceProperty( pressureProperty, currentSnapshot, m_bottomOfSedimentSurface );
+      // Find the pressure property of the top of sediment
+      m_pressureWaterBottom = m_derivedManager->getSurfaceProperty( pressureProperty, currentSnapshot, m_topOfSedimentSurface );
+      // Find the pressure property of the top of the mantle
+      m_pressureMantle             = m_derivedManager->getSurfaceProperty( pressureProperty, currentSnapshot,    m_topOfMantle );
+      m_pressureMantleAtPresentDay = m_derivedManager->getSurfaceProperty( pressureProperty, presentDaySnapshot, m_topOfMantle );
+   }
+   catch (InputException& ex){
+      LogHandler( LogHandler::ERROR_SEVERITY ) << ex.what();
+   }
+   catch (...){
+      LogHandler( LogHandler::FATAL_SEVERITY ) << "Could not load pressure data for property " << pressureProperty->getName() << " @ snapshot " << snapshotAge << ".";
+   }
+
+}
+
+GridMap* InterfaceInput::loadPropertyDataFromDepthMap( DataAccess::Mining::ProjectHandle* handle,
+                                                       const GridMap* depthMap,
+                                                       const Interface::Property* property,
+                                                       const Interface::Snapshot* snapshot ){
+
+   (void)getFactory()->produceGridMap( this, 0, handle->getActivityOutputGrid(), Interface::DefaultUndefinedMapValue, 1 );
+   GridMap* outputPropertyMap = (GridMap *)getChild( 0 );
+
+   ///1. Set the dataminer to the property we want to extract
+   DataAccess::Mining::DataMiner dataMiner( handle, *m_derivedManager );
+   std::vector<const Interface::Property*> propertySet;
+   propertySet.push_back( property );
+   dataMiner.setProperties( propertySet );
+   ///2. Set the cauldron domain to the snapshot we want to extract
+   DataAccess::Mining::CauldronDomain cauldronDomain( handle );
+   cauldronDomain.setSnapshot( snapshot, *m_derivedManager );
+   ///3. Iniliasize list of elements and interpolated values
+   DataAccess::Mining::ElementPosition elementPosition;
+   std::vector<DataAccess::Mining::ElementPosition> elementPositionSequence;
+   std::vector<DataAccess::Mining::InterpolatedPropertyValues> interpolatedValues;
+   ///4. Find x,y,z position
+   std::map<unsigned int, map<unsigned int, size_t>> mapIJtoElement;
+   unsigned int firstI = depthMap->firstI();
+   unsigned int lastI  = depthMap->lastI();
+   unsigned int firstJ = depthMap->firstJ();
+   unsigned int lastJ  = depthMap->lastJ();
+   double deltaX = depthMap->deltaI();
+   double deltaY = depthMap->deltaJ();
+   double x, y, z;
+   for (unsigned int i = firstI; i <= lastI; i++){
+      for (unsigned int j = firstJ; j <= lastJ; j++){
+         if (handle->getNodeIsValid( i, j )){
+            x = depthMap->minI() + double( i ) * deltaX;
+            y = depthMap->minJ() + double( j ) * deltaY;
+            z = depthMap->getValue(i,j);
+            cauldronDomain.findLocation( x, y, z, elementPosition );
+            elementPositionSequence.push_back( elementPosition );
+            mapIJtoElement[i][j] = elementPositionSequence.size() - 1;
+         }
+      }
+   }
+   ///5. Interpolate property values for each x,y,z location
+   dataMiner.compute( elementPositionSequence, property, interpolatedValues );
+   ///6. Set values to grid map
+   for (unsigned int i = firstI; i <= lastI; i++){
+      for (unsigned int j = firstJ; j <= lastJ; j++){
+         if (handle->getNodeIsValid( i, j )){
+            outputPropertyMap->setValue( i, j, interpolatedValues[mapIJtoElement[i][j]].operator()( property ) );
+         }
+         else{
+            outputPropertyMap->setValue( i, j, Interface::DefaultUndefinedMapValue );
+         }
+      }
+   }
+
+   return outputPropertyMap;
+
+}
+
 
 //------------------------------------------------------------//
 bool InterfaceInput::defineLinearFunction( LinearFunction & theFunction, unsigned int i, unsigned int j ) {

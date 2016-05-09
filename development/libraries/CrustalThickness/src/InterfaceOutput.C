@@ -72,8 +72,7 @@ void InterfaceOutput::restoreData() {
 bool InterfaceOutput::saveOutputMaps( Interface::ProjectHandle * projectHandle, const Snapshot * theSnapshot ) {
 
    LogHandler( LogHandler::DEBUG_SEVERITY ) << "saveOutputMaps: My rank is " << projectHandle->getRank();
-   // char ageString[64];
-   // sprintf(ageString, "_%lf", 0);
+
    
    const Interface::Formation * formationCrust = dynamic_cast<const Interface::Formation *>(projectHandle->getCrustFormation ());
    const Interface::Surface   * topOfCrust = formationCrust->getTopSurface();
@@ -88,7 +87,6 @@ bool InterfaceOutput::saveOutputMaps( Interface::ProjectHandle * projectHandle, 
 
    for( int i = 0; i < numberOfOutputMaps; ++ i ) {
       if( m_outputMapsMask[i] != 0 && m_outputMaps[i] != 0) {
-         //        string outputFileName = projectHandle->getProjectName() + "_" + outputMapsNames[i] + string(ageString) + extensionString;
          string outputFileName =  dirToOutput + projectHandle->getProjectName() + "_" + outputMapsNames[i] + extensionString;
          
          // Put 0 as a DataSetName to make comparison with regression tests results easier. Also 0 should be there if we want to re-use the map in fastcauldron
@@ -117,8 +115,6 @@ bool InterfaceOutput::saveOutputMaps( Interface::ProjectHandle * projectHandle, 
 bool InterfaceOutput::saveXYZOutputMaps( Interface::ProjectHandle * projectHandle ) {
 
    LogHandler( LogHandler::DEBUG_SEVERITY ) << "saveXYZOutputMaps: My rank is " << projectHandle->getRank();
-   // char ageString[64];
-   // sprintf(ageString, "_%lf", 0);
    
    const string extensionString = ".XYZ";
    ofstream outputFileCrust;
@@ -132,12 +128,11 @@ bool InterfaceOutput::saveXYZOutputMaps( Interface::ProjectHandle * projectHandl
 
    for( k = 0; k < numberOfOutputMaps; ++ k ) {
       if( m_outputMapsMask[k] != 0 && m_outputMaps[k] != 0 ) {
-         //        string outputFileName = projectHandle->getProjectName() + "_" + outputMapsNames[i] + string(ageString) + extensionString;
          string outputFileName = projectHandle->getProjectName() + "_" + outputMapsNames[k] + extensionString;
          
          outputFileCrust.open (outputFileName.c_str ());
          if (outputFileCrust.fail ()) {
-            cout << "Could not open XYZ output file for map " << outputMapsNames[i] << endl;
+            LogHandler( LogHandler::ERROR_SEVERITY ) << "Could not open XYZ output file for map " << outputMapsNames[i];
             continue;
          }
          m_outputMaps[k]->retrieveData();
@@ -161,9 +156,6 @@ bool InterfaceOutput::saveXYZOutputMaps( Interface::ProjectHandle * projectHandl
 bool InterfaceOutput::saveExcelSurfaceOutputMaps( Interface::ProjectHandle * projectHandle ) {
 
    LogHandler( LogHandler::DEBUG_SEVERITY ) << "saveExcelSurfaceOutputMaps: My rank is " << projectHandle->getRank();
-
-   // char ageString[64];
-   // sprintf(ageString, "_%lf", 0);
    
    const string extensionString = ".SUR";
    ofstream outputFileCrust;
@@ -177,12 +169,11 @@ bool InterfaceOutput::saveExcelSurfaceOutputMaps( Interface::ProjectHandle * pro
 
    for( k = 0; k < numberOfOutputMaps; ++ k ) {
       if( m_outputMapsMask[k] != 0 && m_outputMaps[k] != 0 ) {
-         //        string outputFileName = projectHandle->getProjectName() + "_" + outputMapsNames[i] + string(ageString) + extensionString;
          string outputFileName = projectHandle->getProjectName() + "_" + outputMapsNames[k] + extensionString;
          
          outputFileCrust.open (outputFileName.c_str ());
          if (outputFileCrust.fail ()) {
-            cout << "Could not open XYZ output file for map " << outputMapsNames[i] << endl;
+            LogHandler( LogHandler::ERROR_SEVERITY ) << "Could not open XYZ output file for map " << outputMapsNames[i];
             continue;
          }
          m_outputMaps[k]->retrieveData();
@@ -204,7 +195,7 @@ bool InterfaceOutput::saveExcelSurfaceOutputMaps( Interface::ProjectHandle * pro
          }
          m_outputMaps[k]->restoreData();
          outputFileCrust.close();
-         cout << "Map " << outputMapsNames[k] << " is saved into " << outputFileName <<  endl;
+         LogHandler( LogHandler::INFO_SEVERITY ) << "Map " << outputMapsNames[k] << " is saved into " << outputFileName;
       }
    }
    return true; 

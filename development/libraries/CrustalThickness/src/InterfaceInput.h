@@ -20,6 +20,7 @@
 // DataAccess library
 #include "Interface/GridMap.h"
 #include "Interface/CrustalThicknessData.h"
+#include "Interface/Surface.h"
 
 // CrustalThickness library
 #include "LinearFunction.h"
@@ -31,6 +32,7 @@ using namespace std;
 using namespace DataAccess;
 using Interface::GridMap;
 
+// Forward declaration because of crossdependency between libraries Geophysics and CrustlThickness
 namespace database
 {
    class Record;
@@ -44,6 +46,25 @@ namespace DataAccess
       class GridMap;
       class Grid;
    }
+   namespace Mining
+   {
+      class ProjectHandle;
+   }
+}
+
+namespace DerivedProperties
+{
+   class SurfaceProperty;
+   class DerivedPropertyManager;
+   typedef boost::shared_ptr<const SurfaceProperty> SurfacePropertyPtr;
+}
+
+namespace GeoPhysics {
+   class ProjectHandle;
+}
+
+namespace DataModel{
+   class AbstractProperty;
 }
 
 namespace CrustalThicknessInterface {
@@ -114,7 +135,7 @@ public:
    InterfaceInput (Interface::ProjectHandle * projectHandle, database::Record * record);
    virtual ~InterfaceInput ();
    
-   /// @defgroup LoadData
+   /// @defgroup LoadData_cfg
    ///    Load data from configuration file
    /// @{
    void loadInputDataAndConfigurationFile( const string & inFile );
@@ -126,6 +147,38 @@ public:
    void LoadSolidus                      ( ifstream &ConfigurationFile );
    void LoadMagmaLayer                   ( ifstream &ConfigurationFile );
    void LoadUserDefinedData              ( ifstream &ConfigurationFile );
+   /// @}
+
+   /// @defgroup LoadData_strati
+   ///    Load data from the stratigraphy via GeoPhysics or DataMining projectHandle 
+   /// @{
+   /// @brief Load the water bottom and the basement surfaces at the defined snapshot by initializing class members (m_bottomOfSedimentSurface and m_topOfSedimentSurface)
+   /// @param baseSurfaceName The name of the basement surface (bottom of sediments), if "" then find it in the stratigraphy, else find the surface according to the name
+   void loadTopAndBottomOfSediments( GeoPhysics::ProjectHandle* projectHandle, const double snapshotAge, const string & baseSurfaceName );
+
+   /// @brief Load basement and water bottom depth maps at the defined snapshot
+   /// @param depthProperty A fastcauldron depth property
+   void loadDepthData( GeoPhysics::ProjectHandle* projectHandle, const DataModel::AbstractProperty* depthProperty, const double snapshotAge );
+   /// @brief Load basement and water bottom pressure maps at the defined snapshot
+   /// @param pressureProperty A fastcauldron pressure property
+   void loadPressureData( GeoPhysics::ProjectHandle* projectHandle, const DataModel::AbstractProperty* pressureProperty, const double snapshotAge );
+
+   /// @brief Load the lithostatic pressure at the defined snapshot
+   /// @return The lithostatic pressure property
+   const DataModel::AbstractProperty* loadPressureProperty( ) const;
+   /// @brief Load the depth at the defined snapshot and intitalise the top and bottom surface of sediments according to the baseSurfaceName
+   /// @return The depth property
+   const DataModel::AbstractProperty* loadDepthProperty( ) const;
+
+   /// @brief Load a property at the defined snapshot for every point specified in the depth map
+   /// @param handle The datamining project handle
+   /// @param depthMap The depth map whcih defines the location of the points where we want to load the property
+   /// @property The property to load
+   /// @snapshot The snapshot at which we want to load the property
+   GridMap* loadPropertyDataFromDepthMap( DataAccess::Mining::ProjectHandle* handle,
+                                          const GridMap* depthMap,
+                                          const Interface::Property* property,
+                                          const Interface::Snapshot* snapshot );
    /// @}
 
    /// @defgroup Accessors
@@ -157,6 +210,16 @@ public:
    const GridMap* getHCuMap    () const;
    const GridMap* getHLMuMap   () const;
    const GridMap* getDeltaSLMap() const;
+
+   DerivedProperties::SurfacePropertyPtr getPressureBasement           () const { return m_pressureBasement;           };
+   DerivedProperties::SurfacePropertyPtr getPressureWaterBottom        () const { return m_pressureWaterBottom;        };
+   DerivedProperties::SurfacePropertyPtr getPressureMantle             () const { return m_pressureMantle;             };
+   DerivedProperties::SurfacePropertyPtr getPressureMantleAtPresentDay () const { return m_pressureMantleAtPresentDay; };
+   DerivedProperties::SurfacePropertyPtr getDepthBasement              () const { return m_depthBasement;              };
+   DerivedProperties::SurfacePropertyPtr getDepthWaterBottom           () const { return m_depthWaterBottom;           };
+
+   const Interface::Surface* getTopOfSedimentSurface() const { return m_topOfSedimentSurface; };
+
    /// @}
 
    /// @brief Calculate coefficients for the linear function to invert from WLS to TF (thinning factor) for the (i,j) node
@@ -183,6 +246,7 @@ private:
 
    /// @defgroup User_interface_data
    /// @{
+   int    m_smoothRadius;                  ///< Smoothing radius                           [Cells]
    double m_t_0;                           ///< Beginning of rifting                       [Ma]
    double m_t_r;                           ///< End of rifting                             [Ma]
    double m_initialCrustThickness;         ///< Initial continental crust thickness        [m]
@@ -196,7 +260,24 @@ private:
    const GridMap * m_HLMuMap;      ///< Initial lithospheric mantle thickness      [m]
    const GridMap * m_HBuMap;       ///< Maximum oceanic (basaltic) crust thickness [m]
    const GridMap * m_DeltaSLMap;   ///< Sea level adjustment                       [m]
-   int    m_smoothRadius;          ///< Smoothing radius                           [Cells]
+   /// @}
+
+   /// @defgroup Stratigraphy
+   /// @{
+   const Interface::Surface * m_bottomOfSedimentSurface; ///< The basement surface at the current snapshot
+   const Interface::Surface * m_topOfSedimentSurface;    ///< The water bottom surface
+   const Interface::Surface * m_topOfMantle;             ///< The top mantle (bottom crust) surface 
+   /// @}
+
+   /// @defgroup DerivedProperties
+   /// @{
+   DerivedProperties::DerivedPropertyManager* m_derivedManager;          ///< The derived property manager (we have to use a pointer for forward declaration due to crossdependent libraries)
+   DerivedProperties::SurfacePropertyPtr m_pressureBasement;             ///< The pressure of the basement at the current snapshot
+   DerivedProperties::SurfacePropertyPtr m_pressureWaterBottom;          ///< The pressure of the water bottom at the current snapshot
+   DerivedProperties::SurfacePropertyPtr m_pressureMantle;               ///< The pressure of the mantle at the current snapshot
+   DerivedProperties::SurfacePropertyPtr m_pressureMantleAtPresentDay;   ///< The pressure of the mantle at the present day
+   DerivedProperties::SurfacePropertyPtr m_depthBasement;                ///< The depth of the basement at the current snapshot
+   DerivedProperties::SurfacePropertyPtr m_depthWaterBottom;             ///< The depth of the water bottom at the current snapshot
    /// @}
 
    /// @defgroup Basic_constants
@@ -208,7 +289,7 @@ private:
    double m_tau;
    /// @}
 
-   /// @defgroup Lithospphere_and_crust_properties
+   /// @defgroup Lithosphere_and_crust_properties
    /// @{
    double m_modelTotalLithoThickness;    ///< Total lithospher thickness (crust + lithospheric mantle)
    /// @todo Why do we use two mantle and crust density?
@@ -250,9 +331,9 @@ private:
    double m_magmaticDensity;   ///< Asthenospheric mantle density
    double m_WLS_onset;         ///< Water loaded subsidence at melt onset
    /// @todo Ask Natalya what are these WLS for
-   double m_WLS_crit;          ///< Water loaded subsidence at ?
-   double m_WLS_exhume;        ///< Water loaded subsidence at ?
-   double m_WLS_exhume_serp;   ///< Water loaded subsidence at ?
+   double m_WLS_crit;          ///< Water loaded subsidence at critical point (TF=1, basalt)
+   double m_WLS_exhume;        ///< Water loaded subsidence at exhumation point (TF=1, no basalt)
+   double m_WLS_exhume_serp;   ///< Water loaded subsidence at exhime point with serpentinite (TF=1, serpentinite)
    /// @}
 
    string m_baseRiftSurfaceName;  ///< Name of a base of syn-rift 

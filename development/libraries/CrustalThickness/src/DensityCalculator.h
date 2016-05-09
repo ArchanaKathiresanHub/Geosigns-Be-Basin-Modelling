@@ -11,55 +11,69 @@
 #ifndef _CRUSTALTHICKNESS_DENSITYCALCULATOR_H_
 #define _CRUSTALTHICKNESS_DENSITYCALCULATOR_H_
 
-// DataAccess library
-#include "Interface/Grid.h"
-#include "Interface/GridMap.h"
-#include "Interface/ProjectHandle.h"
+#include "AbstractInterfaceOutput.h"
+#include "InterfaceDefs.h"
+#include "AbstractValidator.h"
 
 // DerivedProperties library
-#include "DerivedPropertyManager.h"
+#include "SurfaceProperty.h"
 
 // utilitites library
 #include "FormattingException.h"
 
 using namespace DataAccess;
 
-typedef std::vector<double> snapshotsList;
-
 /// @class DensityCalculator The density calcultor used during the CTC backstriping
 class DensityCalculator {
 
    typedef formattingexception::GeneralException DensityException;
 
-   public:
-   
-      DensityCalculator ();
-      ~DensityCalculator () {};
+public:
 
-      /// @defgroup LoadData
-      ///    Load data from projectHandle
-      /// @{
-      /// @brief Load snapshots from formations
-      void loadSnapshots( Interface::ProjectHandle* projectHandle );
+   DensityCalculator( const unsigned int firstI,
+                      const unsigned int firstJ,
+                      const unsigned int lastI,
+                      const unsigned int lastJ,
+                      const double theMantleDensity,
+                      const double theWaterDensity,
+                      DerivedProperties::SurfacePropertyPtr pressureBasement,
+                      DerivedProperties::SurfacePropertyPtr pressureWaterBottom,
+                      DerivedProperties::SurfacePropertyPtr depthBasement,
+                      DerivedProperties::SurfacePropertyPtr depthWaterBottom,
+                      AbstractInterfaceOutput& outputData,
+                      AbstractValidator&       validator );
+   ~DensityCalculator() {};
 
-      /// @brief Load the water bottom and the basement surfaces at the defined snapshot by initializing class members (m_bottomOfSedimentSurface and m_topOfSedimentSurface)
-      /// @param baseSurfaceName The name of the basement surface (bottom of sediments), if "" then find it in the stratigraphy, else find the surface according to the name
-      void loadTopAndBottomOfSediments( GeoPhysics::ProjectHandle* projectHandle, const double snapshotAge, const string & baseSurfaceName );
+   /// @brief Computes the semdiments density, the sediments thickness, the backstrip and the compensation maps
+   void compute();
 
-      /// @brief Load basement and water bottom depth maps at the defined snapshot
-      /// @param depthProperty A fastcauldron depth property
-      void loadDepthData( GeoPhysics::ProjectHandle* projectHandle, const DataModel::AbstractProperty* depthProperty, const double snapshotAge );
-      /// @brief Load basement and water bottom pressure maps at the defined snapshot
-      /// @param pressureProperty A fastcauldron pressure property
-      void loadPressureData( GeoPhysics::ProjectHandle* projectHandle, const DataModel::AbstractProperty* pressureProperty, const double snapshotAge );
+   /// @brief Perfrom the backstriping at node (i,j)
+   void calculate( const double topBasementDepthValue,
+                   const double waterBottomDepthValue,
+                   const double pressureTopBasementValue,
+                   const double pressureWaterBottomValue );
 
-      /// @brief Load the lithostatic pressure at the defined snapshot
-      /// @return The lithostatic pressure property
-      const DataModel::AbstractProperty* loadPressureProperty( GeoPhysics::ProjectHandle* projectHandle, const double snapshotAge );
-      /// @brief Load the depth at the defined snapshot and intitalise the top and bottom surface of sediments according to the baseSurfaceName
-      /// @return The depth property
-      const DataModel::AbstractProperty* loadDepthProperty( GeoPhysics::ProjectHandle* projectHandle, const double snapshotAge);
-      /// @}
+   /// @defgroup Accessors
+   /// @{
+   DerivedProperties::SurfacePropertyPtr getDepthBasementMap()       const { return m_pressureBasement; };
+   DerivedProperties::SurfacePropertyPtr getDepthWaterBottomMap()    const { return m_pressureWaterBottom; };
+   DerivedProperties::SurfacePropertyPtr getPressureBasementMap()    const { return m_depthBasement; };
+   DerivedProperties::SurfacePropertyPtr getPressureWaterBottomMap() const { return m_depthWaterBottom; };
+
+   double getBackstrip()             const { return m_backstrip; };
+   double getSedimentThickness()     const { return m_sedimentThickness; };
+   double getSedimentDensity()       const { return m_sedimentDensity; };
+   double getCompensation()          const { return m_compensation; };
+
+   double getDensityTerm()   const { return m_densityTerm; };
+   double getAirCorrection() const { return m_airCorrection; };
+   /// @}
+      
+
+   private:
+
+      /// @brief Compute the density term and the air correction
+      void setDensities();
 
       /// @defgroup DataUtilities
       /// @{
@@ -69,42 +83,13 @@ class DensityCalculator {
       void restoreData();
       /// @}
 
-      /// @brief Set the mantle and water densities
-      bool setDensities( const double aMantleDensity, const double aWaterDensity );
+      const unsigned int m_firstI; ///< First i index on the map
+      const unsigned int m_firstJ; ///< First j index on the map
+      const unsigned int m_lastI;  ///< Last i index on the map
+      const unsigned int m_lastJ;  ///< Last j index on the map
 
-      /// @brief Perfrom the backstriping at node (i,j)
-      /// @details Compute the WLS map
-      void computeNode( unsigned int i, unsigned int j );
-
-
-      /// @defgroup Accessors
-      /// @{
-      
-      snapshotsList &getSnapshots                          ()       { return m_snapshots;               };
-      const Interface::Surface * getBottomOfSedimentSurface() const { return m_bottomOfSedimentSurface; };
-      const Interface::Surface * getTopOfSedimentSurface   () const { return m_topOfSedimentSurface;    };
-
-      DerivedProperties::SurfacePropertyPtr getDepthBasementMap      () const { return m_pressureBasement;    };
-      DerivedProperties::SurfacePropertyPtr getDepthWaterBottomMap   () const { return m_pressureWaterBottom; };
-      DerivedProperties::SurfacePropertyPtr getPressureBasementMap   () const { return m_depthBasement;       };
-      DerivedProperties::SurfacePropertyPtr getPressureWaterBottomMap() const { return m_depthWaterBottom;    };
-
-      double getTopBasementDepthValue() const { return m_topBasementDepthValue; };
-      double getWLS                  () const { return m_WLS;                   };
-      double getBackstrip            () const { return m_backstrip;             };
-      double getSedimentThickness    () const { return m_sedimentThickness;     };
-      double getSedimentDensity      () const { return m_sedimentDensity;       };
-
-      /// @}
-      
-   private:
-   
-      /// @defgroup Stratigraphy
-      /// @{
-      snapshotsList m_snapshots;                            ///< The list of snapshots (used in the CrustalThicnkessCalculator)
-      const Interface::Surface * m_bottomOfSedimentSurface; ///< The basement surface at the current snapshot
-      const Interface::Surface * m_topOfSedimentSurface;    ///< The water bottom surface 
-      /// @}
+      AbstractInterfaceOutput& m_outputData; ///< The global interface output object (contains the output maps)
+      AbstractValidator&       m_validator;  ///< The validator to check if a node (i,j) is valid or not
      
       /// @defgroup DerivedProperties
       /// @{
@@ -117,19 +102,18 @@ class DensityCalculator {
       /// @defgroup Variables
       /// @{
       double m_sedimentDensity;       ///< The density of the entire stack of sediments
-      double m_waterBottomDepthValue; ///< The depth of the water bottom
       double m_sedimentThickness;     ///< The thickness of the entire stack of sediments
-      double m_topBasementDepthValue; ///< The depth of the basement
-      double m_WLS;                   ///< The water loaded subsidence
       double m_backstrip;             ///< The backstrip (https://en.wikipedia.org/wiki/Back-stripping)
+      double m_compensation;          ///< The compensation
       /// @}
    
       /// @defgroup ConfigFileData
       ///    Set from configuration file
       /// @{
-      double  m_backstrippingMantleDensity; ///< The mantle density (is currently the same for lithospheric and asthenospheric mantle)
-      double  m_waterDensity;               ///< The water density
-      double  m_densityTerm;                ///< densityTerm = 1.0 / (mantleDensity - m_waterDensity)
+      const double  m_mantleDensity; ///< The mantle density (is currently the same for lithospheric and asthenospheric mantle)
+      const double  m_waterDensity;  ///< The water density
+      double  m_densityTerm;   ///< densityTerm = 1.0 / (mantleDensity - m_waterDensity)
+      double  m_airCorrection; ///< The air density correction for the TTS equation when the water depth is above the surface
       /// @}
 };
 #endif

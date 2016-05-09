@@ -20,11 +20,11 @@ namespace DataAccess
 
 
 
-         PaleoProperty ( ProjectHandle * projectHandle,
-                         const Formation* formation,
+         PaleoProperty ( ProjectHandle *      projectHandle,
+                         const Formation*     formation,
                          const PaleoProperty* startProperty,
                          const PaleoProperty* endProperty,
-                         const Snapshot*               interpolationTime );
+                         const Snapshot*      interpolationTime );
 
          virtual ~PaleoProperty (void);
 
@@ -39,8 +39,8 @@ namespace DataAccess
          /// load a map
          GridMap * loadMap (PaleoPropertyMapAttributeId attributeId) const;
 
-	 /// Create a GridMap from the two given GridMap objects after elementwise processing by the specified binary operator.
-	 GridMap * computeMap ( const PaleoPropertyMapAttributeId attributeId,
+         /// Create a GridMap from the two given GridMap objects after elementwise processing by the specified binary operator.
+         GridMap * computeMap ( const PaleoPropertyMapAttributeId attributeId,
                                 const GridMap * operand1, const GridMap * operand2, BinaryFunctor& binaryFunctor) const;
 
          /// Print the attributes of this MobileLayer

@@ -30,10 +30,11 @@ add_executable(fastctc ${all_srcs} ${all_headers})
 
 bm_include_libraries(
 	DataModel
+   DataMining
 	DataAccess
 	DistributedDataAccess
-	DerivedProperties
 	GeoPhysics
+   DerivedProperties
 	Interpolation
 	LinearAlgebra
    TableIO
@@ -59,10 +60,11 @@ include_directories(
 
 target_link_libraries(fastctc
 	DataModel
+   DataMining
 	DataAccess
 	DistributedDataAccess
+   GeoPhysics
 	DerivedProperties
-	GeoPhysics
 	Interpolation
 	LinearAlgebra
    TableIO

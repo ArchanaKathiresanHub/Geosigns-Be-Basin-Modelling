@@ -9,176 +9,42 @@
 //
 #include "DensityCalculator.h"
 
-// DataAccess library
-#include "Interface/CrustFormation.h"
-#include "Interface/Formation.h"
-#include "Interface/LithoType.h"
-#include "Interface/ObjectFactory.h"
-#include "Interface/Property.h"
-#include "Interface/ProjectHandle.h"
-#include "Interface/PropertyValue.h"
-#include "Interface/Snapshot.h"
-#include "Interface/Surface.h"
-
 // std library
-#include <iostream>
-#include <fstream>
-#include <sstream>
 #include <math.h>
 
 // utilitites
 #include "LogHandler.h"
 
-// @todo must already be defined somewhere else
-const double GRAVITY = 9.81;
-
 //------------------------------------------------------------//
-DensityCalculator::DensityCalculator() {
+DensityCalculator::DensityCalculator( const unsigned int firstI,
+   const unsigned int firstJ,
+   const unsigned int lastI,
+   const unsigned int lastJ,
+   const double theMantleDensity,
+   const double theWaterDensity,
+   DerivedProperties::SurfacePropertyPtr pressureBasement,
+   DerivedProperties::SurfacePropertyPtr pressureWaterBottom,
+   DerivedProperties::SurfacePropertyPtr depthBasement,
+   DerivedProperties::SurfacePropertyPtr depthWaterBottom,
+   AbstractInterfaceOutput& outputData,
+   AbstractValidator&       validator ) : m_firstI( firstI ),
+                                          m_firstJ( firstJ ),
+                                          m_lastI( lastI ),
+                                          m_lastJ( lastJ ),
+                                          m_mantleDensity( theMantleDensity ),
+                                          m_waterDensity( theWaterDensity ),
+                                          m_pressureBasement( pressureBasement ),
+                                          m_pressureWaterBottom( pressureWaterBottom ),
+                                          m_depthBasement( depthBasement ),
+                                          m_depthWaterBottom( depthWaterBottom ),
+                                          m_outputData( outputData ),
+                                          m_validator( validator ) {
 
-   m_waterBottomDepthValue = 0.0;
-   m_sedimentThickness     = 0.0;
-   m_topBasementDepthValue = 0.0;
-   m_WLS                   = 0.0;
-   m_backstrip             = 0.0;
-   m_sedimentDensity       = 0.0;
-
-   m_bottomOfSedimentSurface = 0;
-   m_topOfSedimentSurface    = 0;
-
-   m_densityTerm                = 1.0;
-   m_backstrippingMantleDensity = 0.0;
-   m_waterDensity               = 0.0;
-}
-
-void DensityCalculator::loadTopAndBottomOfSediments( GeoPhysics::ProjectHandle* projectHandle, const double snapshotAge, const string & baseSurfaceName ) {
-
-   bool debug = false;
-
-   const Interface::Snapshot * currentSnapshot = projectHandle->findSnapshot( snapshotAge, MINOR | MAJOR );
-
-   //1. Find the bottom of the sediment
-   if (baseSurfaceName == "") {
-
-      const Interface::CrustFormation * formationCrust = dynamic_cast<const Interface::CrustFormation *>(projectHandle->getCrustFormation());
-
-      if (!formationCrust) {
-         throw DensityException() << "Could not find Crust formation at the age " << currentSnapshot->getTime() << ".";
-      }
-      m_bottomOfSedimentSurface = formationCrust->getTopSurface();
-
-      if (debug && projectHandle->getRank() == 0) {
-         LogHandler( LogHandler::INFO_SEVERITY ) << "Crust formation: " << formationCrust->getName() << ", surface above " << m_bottomOfSedimentSurface->getName() << ".";
-      }
-   }
-   else {
-      m_bottomOfSedimentSurface = projectHandle->findSurface( baseSurfaceName );
-
-      if (!m_bottomOfSedimentSurface) {
-         throw DensityException() << "Could not find user defined base surface of the rift event: " << baseSurfaceName << ".";
-      }
-      else {
-         if (false && projectHandle->getRank() == 0) {
-            LogHandler( LogHandler::INFO_SEVERITY ) << "Using surface " << m_bottomOfSedimentSurface->getName() << " as the base of syn-rift.";
-         }
-      }
-   }
-
-   //2. Find the top of the sediment
-   Interface::FormationList * myFormations = projectHandle->getFormations( currentSnapshot, true );
-   const Interface::Formation * formationWB = (*myFormations)[0]; // find Water bottom
-
-   if (!formationWB) {
-      throw DensityException() << "Could not find the Water bottom formation at the age " << currentSnapshot->getTime();
-   }
-
-   m_topOfSedimentSurface = formationWB->getTopSurface();
-
-   if (debug && projectHandle->getRank() == 0) {
-      LogHandler( LogHandler::INFO_SEVERITY ) << "Top surface: " << m_topOfSedimentSurface->getName() << "; surface below " << m_bottomOfSedimentSurface->getName() << ".";
-   }
-}
-
-//------------------------------------------------------------//
-const DataModel::AbstractProperty* DensityCalculator::loadDepthProperty( GeoPhysics::ProjectHandle* projectHandle, const double snapshotAge) {
-
-   DerivedProperties::DerivedPropertyManager derivedManager( projectHandle );
-   const Interface::Snapshot * currentSnapshot = projectHandle->findSnapshot( snapshotAge, MINOR | MAJOR );
-
-   const DataModel::AbstractProperty* depthProperty = derivedManager.getProperty( "Depth" );
-
-   if (!depthProperty) {
-      throw DensityException() << "Could not find property named Depth.";
-   }
-
-   return depthProperty;
-}
-
-//------------------------------------------------------------//
-void DensityCalculator::loadDepthData( GeoPhysics::ProjectHandle* projectHandle, const DataModel::AbstractProperty* depthProperty, const double snapshotAge ) {
-
-   DerivedProperties::DerivedPropertyManager derivedManager( projectHandle );
-   const Interface::Snapshot * currentSnapshot = projectHandle->findSnapshot( snapshotAge, MINOR | MAJOR );
-
-   try{
-      // Find the depth property of the bottom of sediment
-      m_depthBasement = derivedManager.getSurfaceProperty( depthProperty, currentSnapshot, m_bottomOfSedimentSurface );
-      // Find the depth property of the top of sediment
-      m_depthWaterBottom = derivedManager.getSurfaceProperty( depthProperty, currentSnapshot, m_topOfSedimentSurface );
-   }
-   catch ( DensityException& ex ){
-      LogHandler( LogHandler::ERROR_SEVERITY ) << ex.what();
-   }
-   catch (...){
-      LogHandler( LogHandler::FATAL_SEVERITY ) << "Could not load depth data for property " << depthProperty->getName() << " @ snapshot " << snapshotAge << ".";
-   }
-}
-
-//------------------------------------------------------------//
-const DataModel::AbstractProperty* DensityCalculator::loadPressureProperty( GeoPhysics::ProjectHandle* projectHandle, const double snapshotAge ) {
-
-   DerivedProperties::DerivedPropertyManager derivedManager( projectHandle );
-
-   const Interface::Snapshot * zeroSnapshot = projectHandle->findSnapshot( 0 );
-   const DataModel::AbstractProperty* pressureProperty = derivedManager.getProperty( "LithoStaticPressure" );
-
-   if (!pressureProperty) {
-      throw DensityException() << "Could not find property named LithoStaticPressure.";
-   }
-   
-   return pressureProperty;
-}
-
-//------------------------------------------------------------//
-void DensityCalculator::loadPressureData( GeoPhysics::ProjectHandle* projectHandle, const DataModel::AbstractProperty* pressureProperty, const double snapshotAge ) {
-
-   DerivedProperties::DerivedPropertyManager derivedManager( projectHandle );
-   const Interface::Snapshot * currentSnapshot = projectHandle->findSnapshot (snapshotAge, MINOR | MAJOR);
- 
-   // Find the pressure property of the bottom of sediment
-   m_pressureBasement = derivedManager.getSurfaceProperty( pressureProperty, currentSnapshot, m_bottomOfSedimentSurface );
-   // Find the pressure property of the top of sediment
-   m_pressureWaterBottom = derivedManager.getSurfaceProperty( pressureProperty, currentSnapshot, m_topOfSedimentSurface );
-
-}
-
-//------------------------------------------------------------//
-void DensityCalculator::loadSnapshots( Interface::ProjectHandle* projectHandle ) {
-   
-   LogHandler( LogHandler::DEBUG_SEVERITY ) << "Loading snpashots from stratigraphy";
-   Interface::FormationList* formations = projectHandle->getFormations ( );
-   Interface::FormationList::const_iterator formationIter;
-
-   for ( formationIter = formations->begin (); formationIter != formations->end (); ++formationIter ) {
-      const Interface::Formation * formation = ( *formationIter );
-
-      if ( formation != 0 ) {
-         const Interface::Surface * topSurface = formation->getBottomSurface();
-         m_snapshots.push_back( topSurface->getSnapshot()->getTime() );
-         LogHandler( LogHandler::DEBUG_SEVERITY ) << "   #time " << topSurface->getSnapshot()->getTime() << "Ma loaded";
-      }
-   }
-   m_snapshots.push_back( 0.0 ); // add present day
-   LogHandler( LogHandler::DEBUG_SEVERITY ) << "   #time 0.0Ma loaded";
+   m_sedimentThickness = 0.0;
+   m_sedimentDensity   = 0.0;
+   m_backstrip         = 0.0;
+   m_compensation      = 0.0;
+   setDensities();
 }
 
 //------------------------------------------------------------//
@@ -200,64 +66,79 @@ void DensityCalculator::restoreData() {
 }
 
 //------------------------------------------------------------//
-void DensityCalculator::computeNode( unsigned int i, unsigned int j ) {
+void DensityCalculator::compute() {
 
- 
-   m_topBasementDepthValue = m_depthBasement->get (i, j) ;
-   m_waterBottomDepthValue = m_depthWaterBottom->get (i, j);
+   unsigned int i, j;
+   retrieveData();
 
-   if((m_topBasementDepthValue != m_depthBasement->getUndefinedValue()) &&   
-      (m_waterBottomDepthValue != m_depthWaterBottom->getUndefinedValue())) {
-   
-      m_sedimentThickness = m_topBasementDepthValue - m_waterBottomDepthValue;
-   } else {
-      m_sedimentThickness = Interface::DefaultUndefinedMapValue;
+   for (i = m_firstI; i <= m_lastI; ++i) {
+      for (j = m_firstJ; j <= m_lastJ; ++j) {
+         double topBasementDepthValue = m_depthBasement->get( i, j );
+         double waterBottomDepthValue = m_depthWaterBottom->get( i, j );
+         double pressureTopBasementValue = m_pressureBasement->get( i, j );
+         double pressureWaterBottomValue = m_pressureWaterBottom->get( i, j );
+         if (m_validator.isValid( i, j ) and
+             topBasementDepthValue    != m_depthBasement->getUndefinedValue()    and
+             waterBottomDepthValue    != m_depthWaterBottom->getUndefinedValue() and
+             pressureTopBasementValue != m_pressureBasement->getUndefinedValue() and
+             pressureWaterBottomValue != m_pressureWaterBottom->getUndefinedValue() )
+         {
+            calculate( topBasementDepthValue,
+                       waterBottomDepthValue,
+                       pressureTopBasementValue,
+                       pressureWaterBottomValue );
+         }
+         else {
+            m_backstrip         = Interface::DefaultUndefinedMapValue;
+            m_sedimentThickness = Interface::DefaultUndefinedMapValue;
+            m_compensation      = Interface::DefaultUndefinedMapValue;
+            m_sedimentDensity   = Interface::DefaultUndefinedMapValue;
+         }
+         m_outputData.setMapValue( CrustalThicknessInterface::outputMaps::cumSedimentBackstrip,    i, j, m_backstrip         );
+         m_outputData.setMapValue( CrustalThicknessInterface::outputMaps::cumSedimentThickness,    i, j, m_sedimentThickness );
+         m_outputData.setMapValue( CrustalThicknessInterface::outputMaps::cumBasementCompensation, i, j, m_compensation      );
+         m_outputData.setMapValue( CrustalThicknessInterface::outputMaps::sedimentDensityMap,      i, j, m_sedimentDensity   );
+      }
    }
 
-   double pressureTopBasementValue = m_pressureBasement->get (i, j);
-   double pressureWaterBottomValue = m_pressureWaterBottom->get (i, j);
-
-   m_sedimentDensity = Interface::DefaultUndefinedMapValue;
-   m_backstrip = Interface::DefaultUndefinedMapValue;
-
-   if((pressureTopBasementValue != m_pressureBasement->getUndefinedValue()) &&
-      (pressureWaterBottomValue != m_pressureWaterBottom->getUndefinedValue()) &&
-      (m_sedimentThickness != Interface::DefaultUndefinedMapValue)) {
-   
-      m_backstrip =  m_sedimentThickness *  m_backstrippingMantleDensity * m_densityTerm - 
-         ((( pressureTopBasementValue - pressureWaterBottomValue ) * 1e6 ) / GRAVITY ) * m_densityTerm;
-
-      // Integrated sediment density calculated across grid using pressure at WaterBottom and TopBasement surfaces
-      if( m_sedimentThickness != 0.0 ) {
-         m_sedimentDensity = ((pressureTopBasementValue - pressureWaterBottomValue) * 1e6 ) / (GRAVITY * m_sedimentThickness);
-      } 
-   }
-   m_WLS = Interface::DefaultUndefinedMapValue;
-
-   if( m_waterBottomDepthValue != m_depthWaterBottom->getUndefinedValue() && m_backstrip != Interface::DefaultUndefinedMapValue ) {
-      
-      if( m_waterBottomDepthValue  >= 0.0 ) {
-         m_WLS = m_waterBottomDepthValue + m_backstrip;
-      } else {
-         m_WLS = m_waterBottomDepthValue * m_backstrippingMantleDensity * m_densityTerm + m_backstrip;
-      }
-      if(m_WLS < 0 ) {
-         m_WLS = 0.0;
-      }
-   } 
+   restoreData();
 }
 
 //------------------------------------------------------------//
-bool DensityCalculator::setDensities( const double aMantleDensity, const double aWaterDensity ) {
+void DensityCalculator::calculate( const double topBasementDepthValue,
+                                   const double waterBottomDepthValue,
+                                   const double pressureTopBasementValue,
+                                   const double pressureWaterBottomValue ) {
 
-   m_backstrippingMantleDensity = aMantleDensity;
-   m_waterDensity = aWaterDensity;
-   if(( m_waterDensity - m_backstrippingMantleDensity ) != 0.0 ) {
-      m_densityTerm = 1.0 / ( m_backstrippingMantleDensity - m_waterDensity );
-      return true;
+  
+   m_sedimentThickness = topBasementDepthValue - waterBottomDepthValue;
+
+   // Integrated sediment density calculated across grid using pressure at WaterBottom and TopBasement surfaces
+   if( m_sedimentThickness > 0.0 ) {
+      m_sedimentDensity = ((pressureTopBasementValue - pressureWaterBottomValue) * 1e6) / (CrustalThicknessInterface::GRAVITY * m_sedimentThickness);
+      m_backstrip = m_sedimentThickness *  m_mantleDensity * m_densityTerm -
+         (((pressureTopBasementValue - pressureWaterBottomValue) * 1e6) / CrustalThicknessInterface::GRAVITY) * m_densityTerm;
+      m_compensation = m_sedimentThickness - m_backstrip;
+   }
+   else {
+      m_sedimentDensity = Interface::DefaultUndefinedMapValue;
+      m_backstrip       = Interface::DefaultUndefinedMapValue;
+      m_compensation    = Interface::DefaultUndefinedMapValue;
+   }
+
+}
+
+//------------------------------------------------------------//
+void DensityCalculator::setDensities() {
+
+   if ((m_waterDensity - m_mantleDensity) != 0.0) {
+      m_densityTerm = 1.0 / (m_mantleDensity - m_waterDensity);
+      m_airCorrection = m_mantleDensity * m_densityTerm;
+   }
+   else{
+      throw DensityException() << "BackstrippingMantleDensity = WaterDensity. Check the constants in the configuration file.";
    }
    LogHandler( LogHandler::DEBUG_SEVERITY ) << "Densities are set to:";
-   LogHandler( LogHandler::DEBUG_SEVERITY ) << "   #mantle=" << m_backstrippingMantleDensity;
+   LogHandler( LogHandler::DEBUG_SEVERITY ) << "   #mantle=" << m_mantleDensity;
    LogHandler( LogHandler::DEBUG_SEVERITY ) << "   #water="  << m_waterDensity;
-   return false;
 }

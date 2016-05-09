@@ -23,7 +23,11 @@
 #include "Interface/ProjectHandle.h"
 
 // CrustalThickness library
+#include "AbstractInterfaceOutput.h"
 #include "InterfaceDefs.h"
+
+// utilities library
+#include "FormattingException.h"
 
 using namespace std;
 using namespace DataAccess;
@@ -32,7 +36,9 @@ using namespace Interface;
 using namespace CrustalThicknessInterface;
 
 /// @class InterfaceOutput The CTC output interface
-class InterfaceOutput {
+class InterfaceOutput : public AbstractInterfaceOutput {
+
+   typedef formattingexception::GeneralException InterfaceOutputException;
 
 public:
    InterfaceOutput();
@@ -152,9 +158,7 @@ inline void InterfaceOutput::setMapValue(outputMaps mapIndex, unsigned int i, un
    if( m_outputMaps[mapIndex] != 0 ) {
       m_outputMaps[mapIndex]->setValue( i, j, value );
    } else {
-      // stringstream ss;
-      // ss << "Map " << CrustalThicknessInterface::outputMapsNames[mapIndex] << " is not allocated." << endl;
-      // throw ss.str();
+      throw InterfaceOutputException() << "Map " << CrustalThicknessInterface::outputMapsNames[mapIndex] << " is not allocated.";
    }
 }
 
@@ -166,10 +170,7 @@ inline double InterfaceOutput::getMapValue(outputMaps mapIndex, unsigned int i, 
    if( m_outputMaps[mapIndex] != 0 ) {
       return m_outputMaps[mapIndex]->getValue( i, j );
    } else {
-      return  Interface::DefaultUndefinedMapValue;
-      // stringstream ss;
-      // ss << "Map " << CrustalThicknessInterface::outputMapsNames[mapIndex] << " is not allocated." << endl;
-      // throw ss.str();
+      throw InterfaceOutputException() << "Map " << CrustalThicknessInterface::outputMapsNames[mapIndex] << " is not allocated.";
    }
 }
 
