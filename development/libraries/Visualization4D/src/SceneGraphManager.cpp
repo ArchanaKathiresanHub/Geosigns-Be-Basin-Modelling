@@ -19,6 +19,7 @@
 #include "PropertyValueCellFilter.h"
 #include "Seismic.h"
 
+#include <Inventor/nodes/SoCallback.h>
 #include <Inventor/nodes/SoGroup.h>
 #include <Inventor/nodes/SoSwitch.h>
 #include <Inventor/nodes/SoSphere.h>
@@ -66,9 +67,13 @@
 #include <MeshVizXLM/mapping/details/MoFaceDetailIjk.h>
 #include <MeshVizXLM/mapping/elements/MoScalarSetElementIjk.h>
 
+//#define USE_OIV_COORDINATE_GRID
+
+#ifdef USE_OIV_COORDINATE_GRID
 #include <MeshViz/graph/PoAutoCubeAxis.h>
 #include <MeshViz/graph/PoLinearAxis.h>
 #include <MeshViz/graph/PoGenAxis.h>
+#endif
 
 #include <VolumeViz/nodes/SoVolumeRenderingQuality.h>
 
@@ -184,6 +189,8 @@ int SceneGraphManager::getReservoirId(MoMeshSkin* skin) const
 
 void SceneGraphManager::updateCoordinateGrid()
 {
+#ifdef USE_OIV_COORDINATE_GRID
+
   if (!m_showGrid)
     return;
 
@@ -209,6 +216,8 @@ void SceneGraphManager::updateCoordinateGrid()
   m_coordinateGrid->end = end;
   m_coordinateGrid->gradStart = gradStart;
   m_coordinateGrid->gradEnd = gradEnd;
+
+#endif
 }
 
 void SceneGraphManager::updateSnapshotMesh()
@@ -916,6 +925,7 @@ void SceneGraphManager::updateSnapshot()
   updateCoordinateGrid();
 }
 
+#ifdef USE_OIV_COORDINATE_GRID
 namespace
 {
   void initAutoAxis(PoLinearAxis *axis, PbMiscTextAttr *textAtt, SbBool isXYAxis)
@@ -994,6 +1004,7 @@ namespace
     return grid;
   }
 }
+#endif
 
 void SceneGraphManager::showPickResult(const PickResult& pickResult)
 {
@@ -1215,6 +1226,11 @@ SnapshotInfo SceneGraphManager::createSnapshotNode(size_t index)
 
 void SceneGraphManager::setupCoordinateGrid()
 {
+  m_coordinateGridSwitch = new SoSwitch;
+  m_coordinateGridSwitch->setName("coordinateGrid");
+  m_coordinateGridSwitch->whichChild = SO_SWITCH_NONE;
+
+#ifdef USE_OIV_COORDINATE_GRID
   const Project::Dimensions& dim = m_projectInfo.dimensions;
   double maxX = dim.minX + dim.numCellsI * dim.deltaX;
   double maxY = dim.minY + dim.numCellsJ * dim.deltaY;
@@ -1224,10 +1240,8 @@ void SceneGraphManager::setupCoordinateGrid()
     maxX,
     maxY);
 
-  m_coordinateGridSwitch = new SoSwitch;
-  m_coordinateGridSwitch->setName("coordinateGrid");
   m_coordinateGridSwitch->addChild(m_coordinateGrid);
-  m_coordinateGridSwitch->whichChild = SO_SWITCH_NONE;
+#endif
 }
 
 void SceneGraphManager::setupSceneGraph()
