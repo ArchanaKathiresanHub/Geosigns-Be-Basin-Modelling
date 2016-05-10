@@ -63,30 +63,44 @@ namespace
   //!oiv_include <VolumeViz/vvizTransferFunction_frag.h>	// declarations of shader functions
 
   varying in vec3 texcoord;
+  varying in float depth;
 
   uniform VVizDataSetId data1;  // Data texture of 1st volume
+  uniform float isolineInterval;
+  uniform bool enableIsoline;
 
   // Method in VolumeViz shader framework to override for custom color computation
   vec4 VVizComputeFragmentColor(VVIZ_DATATYPE vox, vec3 coord)
   {
     VVIZ_DATATYPE value1 = VVizGetData(data1, texcoord);      // Value from 1st volume
     vec4 color1 = VVizTransferFunction(value1, 0);         // Color for 1st volume from TF 0
+
+    if(enableIsoline)
+    {
+      float dz = fwidth(depth);
+      float z = mod(depth + 0.5 * isolineInterval, isolineInterval) - 0.5 * isolineInterval;
+      float att = 1.0 - (smoothstep(-dz, -0.5 * dz, z) - smoothstep(0.5 * dz, dz, z));
+      color1 = color1 * vec4(att, att, att, 1.0);
+    }
+
     return color1;
   }
   )%%%";
 
-  const char* vertexPPSrc= R"%%%(
+  const char* vertexPPSrc = R"%%%(
   varying out vec3 texcoord;
+  varying out float depth;
 
   uniform mat4 texMat;
 
   void VVizVertexPostProcessing()
   {
+    depth = gl_Vertex.z;
     texcoord = (texMat * gl_MultiTexCoord0).xyz;
   }
   )%%%";
 
-  SoVolumeRenderingQuality* createStretchSqueezeVolumeShader(const SbMatrix& texMat)
+  SoVolumeRenderingQuality* createStretchSqueezeVolumeShader(const SbMatrix& texMat, bool enableIsoline)
   {
     auto fragmentShaderData = new SoFragmentShader;
     fragmentShaderData->sourceProgram = fragGetDataSrc;
@@ -96,6 +110,8 @@ namespace
     fragmentShaderColor->sourceProgram = fragGetColorSrc;
     fragmentShaderColor->sourceType = SoShaderObject::GLSL_PROGRAM;
     fragmentShaderColor->addShaderParameter1i("data1", 1);
+    fragmentShaderColor->addShaderParameter1f("isolineInterval", 100.f);
+    fragmentShaderColor->addShaderParameter1i("enableIsoline", enableIsoline ? 1 : 0);
 
     auto vertexShader = new SoVertexShader;
     vertexShader->sourceProgram = vertexPPSrc;
@@ -223,7 +239,7 @@ void SeismicScene::computeVolumeTransform(SoVolumeReader* reader)
     SbVec3f(
     (float)(p1[0] - m_dimensions.minX),
     (float)(p1[1] - m_dimensions.minY),
-    -minDepth));
+    (float)-minDepth));
 
   m_seismicTransform = scaleMatrix * rotMatrix1 * rotMatrix2 * translateMatrix;
   m_invSeismicTransform = m_seismicTransform.inverse();
@@ -373,6 +389,12 @@ void SeismicScene::createCrossSection(PlaneSlice& slice)
 
 void SeismicScene::updateSurface()
 {
+  if (m_surface.shape)
+  {
+    m_surfaceGroup->removeChild(m_surface.shape);
+    m_surface.shape = nullptr;
+  }
+
   if (!m_mesh)
     return;
 
@@ -384,6 +406,9 @@ void SeismicScene::updateSurface()
       m_surface.texcoords = new SoCpuBufferObject;
 
       auto indices = computeSurfaceIndices(m_mesh->getTopology());
+      if (indices.empty())
+        return;
+
       m_surface.indices = new SoCpuBufferObject;
       m_surface.indices->setSize(indices.size() * sizeof(uint32_t));
       uint32_t* p = (uint32_t*)m_surface.indices->map(SoBufferObject::SET);
@@ -394,11 +419,14 @@ void SeismicScene::updateSurface()
       m_surface.shape->shapeType = SoBufferedShape::QUADS;
       m_surface.shape->numVertices = (uint32_t)indices.size();
 
-      m_root->addChild(m_surface.shape);
     }
 
-    computeSurfaceCoordinates(*m_mesh, m_surface.position, m_surface.vertices.ptr());
-    computeSurfaceCoordinates(*m_presentDayMesh, m_surface.position, m_surface.texcoords.ptr());
+    if (
+      !computeSurfaceCoordinates(*m_mesh, m_surface.position, m_surface.vertices.ptr()) ||
+      !computeSurfaceCoordinates(*m_presentDayMesh, m_surface.position, m_surface.texcoords.ptr()))
+    {
+      return;
+    }
 
     m_surface.shape->vertexBuffer = m_surface.vertices.ptr();
     m_surface.shape->vertexComponentsCount = 3;
@@ -410,6 +438,7 @@ void SeismicScene::updateSurface()
 
     m_surface.shape->indexBuffer = m_surface.indices.ptr();
     m_surface.shape->indexType = SbDataType::UNSIGNED_INT32;
+    m_surfaceGroup->addChild(m_surface.shape);
   }
 }
 
@@ -420,7 +449,7 @@ void SeismicScene::updatePlaneSlice(int index)
   // remove previous shape
   if (slice.shape)
   {
-    m_root->removeChild(slice.shape);
+    m_sliceGroup->removeChild(slice.shape);
     slice.shape = nullptr;
   }
 
@@ -449,14 +478,8 @@ void SeismicScene::updatePlaneSlice(int index)
 
   if (slice.enabled)
   {
-    if (slice.shape)
-    {
-      m_root->removeChild(slice.shape);
-      slice.shape = nullptr;
-    }
-
     createCrossSection(slice);
-    m_root->addChild(slice.shape);
+    m_sliceGroup->addChild(slice.shape);
   }
 }
 
@@ -464,7 +487,10 @@ SeismicScene::SeismicScene(const char* filename, const Project::Dimensions& dim)
 : m_mesh(nullptr)
 , m_dimensions(dim)
 , m_root(new SoSeparator)
-, m_shader(nullptr)
+, m_sliceGroup(new SoSeparator)
+, m_surfaceGroup(new SoSeparator)
+, m_sliceShader(nullptr)
+, m_surfaceShader(nullptr)
 , m_transformSeparator(new SoTransformSeparator)
 , m_matrixTransform(new SoMatrixTransform)
 , m_data(new SoVolumeData)
@@ -477,7 +503,6 @@ SeismicScene::SeismicScene(const char* filename, const Project::Dimensions& dim)
   auto reader = SoVolumeReader::getAppropriateReader(filename);
   m_data->setReader(*reader, true);
   m_data->dataSetId = 1;
-  //m_data->getMinMax(rangeMin, rangeMax);
 
   auto params = new SoLDMResourceParameters;
   params->loadPolicy = SoLDMResourceParameters::ALWAYS;
@@ -502,55 +527,14 @@ SeismicScene::SeismicScene(const char* filename, const Project::Dimensions& dim)
 
   computeVolumeTransform(reader);
 
-  //SoVRSegyFileReader* segyReader = nullptr;
-  //if (reader->getTypeId() == SoVRSegyFileReader::getClassTypeId())
-  //{
-  //  segyReader = static_cast<SoVRSegyFileReader*>(reader);
-  //  //auto header = segyReader->getSegyTextHeader();
+  m_sliceShader = createStretchSqueezeVolumeShader(m_invSeismicTransform * m_normalizeTransform, false);
+  m_sliceGroup->addChild(m_sliceShader);
 
-  //  SbVec2d p1, p2, p3, p4;
-  //  segyReader->getP1P2P3Coordinates(p1, p2, p3, p4);
-  //  auto d1 = p2 - p1;
-  //  auto d2 = p3 - p2;
+  m_surfaceShader = createStretchSqueezeVolumeShader(m_invSeismicTransform * m_normalizeTransform, true);
+  m_surfaceGroup->addChild(m_surfaceShader);
 
-  //  const float maxDepth = 3722.5f;
-  //  const float minDepth = -1.49f;
-
-  //  float w = maxDepth - minDepth;
-  //  float h = (float)d1.length();
-  //  float d = (float)d2.length();
-  //  m_data->extent = SbBox3f(0.f, 0.f, 0.f, w, h, d);
-  //  m_normalizeTransform.setScale(SbVec3f(1 / w, 1 / h, 1 / d));
-
-  //  SbMatrix scaleMatrix;
-  //  scaleMatrix.setScale(SbVec3f(1.f, 1.f, -1.f)); // mirror
-  //  
-  //  const SbVec3f xAxis(1.f, 0.f, 0.f);
-  //  const SbVec3f yAxis(0.f, 1.f, 0.f);
-  //  const SbVec3f zAxis(0.f, 0.f, 1.f);
-
-  //  SbMatrix rotMatrix1;
-  //  rotMatrix1.setRotate(SbRotation(xAxis, -zAxis));
-
-  //  d1.normalize();
-  //  SbMatrix rotMatrix2;
-  //  rotMatrix2.setRotate(SbRotation(yAxis, SbVec3f((float)d1[0], (float)d1[1], 0.f)));
-
-  //  SbMatrix translateMatrix;
-  //  translateMatrix.setTranslate(
-  //    SbVec3f(
-  //      (float)(p1[0] - dim.minX), 
-  //      (float)(p1[1] - dim.minY), 
-  //      -minDepth));
-
-  //  m_seismicTransform = scaleMatrix * rotMatrix1 * rotMatrix2 * translateMatrix;
-  //  m_invSeismicTransform = m_seismicTransform.inverse();
-  //  m_matrixTransform->matrix = m_seismicTransform;
-
-  // TEMP
-  m_shader = createStretchSqueezeVolumeShader(m_invSeismicTransform * m_normalizeTransform);
-  m_root->insertChild(m_shader, 0);
- 
+  m_root->addChild(m_sliceGroup);
+  m_root->addChild(m_surfaceGroup);
 
   m_planeSlice[0].type = SliceInline;
   m_planeSlice[1].type = SliceCrossline;

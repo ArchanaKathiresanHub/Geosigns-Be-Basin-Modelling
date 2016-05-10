@@ -86,7 +86,11 @@ private:
   Project::Dimensions m_dimensions;
 
   SoSeparator* m_root;
-  SoVolumeRenderingQuality* m_shader;
+  SoSeparator* m_sliceGroup;
+  SoSeparator* m_surfaceGroup;
+
+  SoVolumeRenderingQuality* m_sliceShader;
+  SoVolumeRenderingQuality* m_surfaceShader;
   SoTransformSeparator* m_transformSeparator;
   SoMatrixTransform* m_matrixTransform;
 
