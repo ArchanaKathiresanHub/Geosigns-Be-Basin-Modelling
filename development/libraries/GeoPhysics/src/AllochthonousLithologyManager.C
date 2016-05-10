@@ -1,5 +1,6 @@
 #include <iostream>
 #include "AllochthonousLithologyManager.h"
+#include "FilePath.h"
 
 #include "RBFGeneralOperations.h"
 
@@ -132,10 +133,11 @@ bool GeoPhysics::AllochthonousLithologyManager::initialiseInterpolators ( databa
   }
 
   for ( iter = allochInterpTable->begin (); iter != allochInterpTable->end (); ++iter ) {
-    fullFileName = directoryName + database::getInterpFileName ( *iter );
+     ibs::FilePath fullFileName( directoryName );
+     fullFileName << database::getInterpFileName ( *iter );
 
-    if ( interpolators.find ( database::getLayerName ( *iter )) != interpolators.end ()) {
-      fileId = H5Fopen ( fullFileName.c_str (), H5F_ACC_RDONLY, H5P_DEFAULT );
+     if ( interpolators.find ( database::getLayerName ( *iter )) != interpolators.end ()) {
+      fileId = H5Fopen ( fullFileName.cpath (), H5F_ACC_RDONLY, H5P_DEFAULT );
 
       if ( fileId < 0 ) {
         cout << "MeSsAgE  ERROR Could not open HDF file " 

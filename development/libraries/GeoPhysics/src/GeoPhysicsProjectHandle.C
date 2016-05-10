@@ -306,7 +306,7 @@ bool GeoPhysics::ProjectHandle::setFormationLithologies ( const bool canRunGeomo
    if ( canRunGeomorph ) {
 
       // Initialise the allochthonous lithology manager interpolators.
-      m_allochthonousLithologyManager->initialiseInterpolators ( getDataBase (), getFullOutputDir () + '/' );
+      m_allochthonousLithologyManager->initialiseInterpolators ( getDataBase (), getFullOutputDir () );
 
       // No more interpolation data can be added after this point.
       //   1. The interpolators are sorted into age-order, oldest first.

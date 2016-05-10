@@ -5,6 +5,7 @@
 
 #include "database.h"
 #include "cauldronschemafuncs.h"
+#include "FilePath.h"
 
 #include "FastcauldronSimulator.h"
 
@@ -274,13 +275,16 @@ void History::Output_Properties () {
       Current_Node = Current_Surface -> Nodes [ indx ];
 
       ofstream History_Data_File;
-      string   History_Data_File_Name = appctx->getOutputDirectory();
+      ibs::FilePath History_Data_File_Name ( appctx->getOutputDirectory() );
       appctx->makeOutputDirectory();
 
-      History_Data_File_Name += removeNonUsableCharacters ( surface_it -> second -> Name ) + "_"
-	+ IntegerToString( int ( Current_Node->X_Coord ) ) + "_east_" + IntegerToString( int ( Current_Node->Y_Coord )) + "_north_"
-        + calculationModeFileNameExtension + ".hist";
-      History_Data_File.open( History_Data_File_Name.c_str() );
+      string extName = removeNonUsableCharacters ( surface_it -> second -> Name ) + "_"
+         + IntegerToString( int ( Current_Node->X_Coord ) ) + "_east_" + IntegerToString( int ( Current_Node->Y_Coord )) + "_north_"
+         + calculationModeFileNameExtension + ".hist";
+
+      History_Data_File_Name << extName;
+
+      History_Data_File.open( History_Data_File_Name.cpath() );
 
       createLogFileHeader ( History_Data_File );
     

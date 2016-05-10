@@ -651,7 +651,10 @@ void FastcauldronSimulator::updateSnapshotFileCreationFlags () {
          for ( snapshotIter = m_snapshots.begin (); snapshotIter != m_snapshots.end (); ++snapshotIter ) {
             
             if ( (*snapshotIter)->getFileName () != "" ) {
-               (*snapshotIter)->setAppendFile ( File_Exists ( m_cauldron->getOutputDirectory () + (*snapshotIter)->getFileName ()));
+               ibs::FilePath fileName( getFullOutputDir () );
+               fileName << (*snapshotIter)->getFileName ();
+             
+               (*snapshotIter)->setAppendFile ( File_Exists ( fileName.cpath () ));
             }
             
          } 

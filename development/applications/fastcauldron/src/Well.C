@@ -6,7 +6,7 @@ using namespace std;
 #include "utils.h"
 #include "GeoPhysicsFluidType.h"
 #include "HydraulicFracturingManager.h"
-
+#include "FilePath.h"
 #include "CompoundProperty.h"
 
 #include "FastcauldronSimulator.h"
@@ -50,12 +50,12 @@ void Well::Save_Present_Day_Data ()
     needle.X_Coord = Basin_Model -> Related_Projects [ indx ] -> X_Coord;
     needle.Y_Coord = Basin_Model -> Related_Projects [ indx ] -> Y_Coord;
 
-    Related_Project_Name =  Basin_Model -> getOutputDirectory () + 
-                            Basin_Model -> Related_Projects [ indx ] -> Name;
+    ibs::FilePath Related_Project_Name( Basin_Model -> getOutputDirectory () );
+    Related_Project_Name << Basin_Model -> Related_Projects [ indx ] -> Name;
 
     Locate_Well( needle);
 
-    Save_Well_Data ( needle, Related_Project_Name );
+    Save_Well_Data ( needle, Related_Project_Name.cpath() );
 
     MPI_Barrier(PETSC_COMM_WORLD);
 

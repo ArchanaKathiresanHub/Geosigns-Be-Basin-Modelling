@@ -6,6 +6,7 @@
 #include "cauldronschema.h"
 #include "cauldronschemafuncs.h"
 #include "utils.h"
+#include "FilePath.h"
 
 #include "FastcauldronSimulator.h"
 
@@ -596,8 +597,9 @@ void SnapshotData::deleteMinorSnapshotFiles ( const std::string& outputDirectory
   for ( ssIter = minorSnapshotTimes.rbegin (); ssIter != minorSnapshotTimes.rend (); ++ssIter ) {
 
     if ((*ssIter)->fileName () != "" ) {
-      fileName = outputDirectoryName + (*ssIter)->fileName ();
-      unlink ( fileName.c_str ());
+       ibs::FilePath fileName ( outputDirectoryName );
+       fileName << (*ssIter)->fileName ();
+       unlink ( fileName.cpath ());
     }
 
   }
@@ -619,8 +621,9 @@ void SnapshotData::deleteMajorSnapshotFiles ( const std::string& outputDirectory
   for ( ssIter = majorSnapshotTimes.rbegin (); ssIter != majorSnapshotTimes.rend (); ++ssIter ) {
 
     if ((*ssIter)->fileName () != "" ) {
-      fileName = outputDirectoryName + (*ssIter)->fileName ();
-      unlink ( fileName.c_str ());
+       ibs::FilePath fileName ( outputDirectoryName );
+       fileName << (*ssIter)->fileName ();
+       unlink ( fileName.cpath ());
     }
 
   }

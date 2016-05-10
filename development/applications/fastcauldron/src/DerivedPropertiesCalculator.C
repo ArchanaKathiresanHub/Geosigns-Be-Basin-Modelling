@@ -5,6 +5,7 @@
 
 #include "LogHandler.h"
 #include "FastcauldronFactory.h"
+#include "FilePath.h"
 #include "Interface/SimulationDetails.h"
 #include "Interface/MapWriter.h"
 
@@ -60,10 +61,11 @@ bool DerivedPropertiesCalculator::compute() {
    string fileName = m_simulator-> getActivityName();
    
    fileName += "_Results.HDF";
-   string filePathName =  m_simulator->getFullOutputDir () + "/" + fileName;
+   ibs::FilePath filePathName ( m_simulator->getFullOutputDir () );
+   filePathName << fileName;
    
    m_simulator->getMapPropertyValuesWriter( )->close();
-   m_simulator->getMapPropertyValuesWriter( )->open( filePathName, true ); 
+   m_simulator->getMapPropertyValuesWriter( )->open( filePathName.cpath(), true ); 
  
    GeoPhysics::ProjectHandle * projectHandle = dynamic_cast < GeoPhysics::ProjectHandle* >(m_simulator);
 
@@ -142,7 +144,6 @@ bool DerivedPropertiesCalculator::calculateProperties ( FormationSurfaceVector& 
    // clean mpaCache which can hold read-only opened files
    m_simulator->mapFileCacheDestructor();
 
-   const string outputDirName = m_simulator->getFullOutputDir () + "/";
    struct stat fileStatus;
    int fileError;
   
@@ -167,11 +168,14 @@ bool DerivedPropertiesCalculator::calculateProperties ( FormationSurfaceVector& 
       }
       if ( snapshot->getFileName () != "" ) {
          
+         ibs::FilePath outputFileName ( m_simulator->getFullOutputDir () );
+         outputFileName << snapshot->getFileName ();
+
          ostringstream buff;
          if( H5_Parallel_PropertyList::isOneFilePerProcessEnabled() ) {
-            buff << H5_Parallel_PropertyList::getTempDirName() << outputDirName << snapshot->getFileName () << "_" << m_rank;
+            buff << H5_Parallel_PropertyList::getTempDirName() << outputFileName.cpath() << "_" << m_rank;
          } else {
-            buff << outputDirName << snapshot->getFileName ();
+            buff << outputFileName.cpath();
          }           
          string fileName = buff.str();
          
