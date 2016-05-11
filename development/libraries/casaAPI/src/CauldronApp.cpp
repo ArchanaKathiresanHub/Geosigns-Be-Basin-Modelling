@@ -197,8 +197,8 @@ namespace casa
       {
          switch ( m_sh )
          {
-         case bash: oss << "\nrm -rf " << ibs::FilePath( inProjectFile ).fileNameNoExtension( ) << mbapi::Model::s_ResultsFolderSuffix << "/Time*.h5\n\n";
-         case cmd:  oss << "\ndel " << ibs::FilePath( inProjectFile ).fileNameNoExtension( ) << mbapi::Model::s_ResultsFolderSuffix << "\\*Time*.h5\n\n";
+         case bash: oss << "\nrm -rf " << ibs::FilePath( inProjectFile ).fileNameNoExtension( ) << mbapi::Model::s_ResultsFolderSuffix << "/Time*.h5\n\n"; break;
+         case cmd:  oss << "\ndel " << ibs::FilePath( inProjectFile ).fileNameNoExtension( ) << mbapi::Model::s_ResultsFolderSuffix << "\\*Time*.h5\n\n"; break;
          }         
       }
 
