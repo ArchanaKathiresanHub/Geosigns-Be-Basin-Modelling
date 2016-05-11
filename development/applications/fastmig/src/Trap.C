@@ -31,6 +31,7 @@
 #include "Tuple2.h"
 #include "depthToVolume.h"
 #include "Interface/FluidType.h"
+#include "GeoPhysicsFluidType.h"
 #include "translateProps.h"
 #include "LeakWasteAndSpillDistributor.h"
 #include "LeakAllGasAndOilDistributor.h"
@@ -1531,10 +1532,10 @@ namespace migration
          return true;
       }
 
-      const Interface::FluidType* parameters = formations[0]->getFluidType ();
+      // Casting to GeoPhysics::FluidType so that the phase-change implementation for brine density can be used
+      const GeoPhysics::FluidType* parameters = dynamic_cast<const GeoPhysics::FluidType *> (formations[0]->getFluidType ());
       assert (parameters);
-      sealFluidDensity = CBMGenerics::waterDensity::compute (parameters->fluidDensityModel (),
-         parameters->density (), parameters->salinity (), getTemperature (), getPressure ());
+      sealFluidDensity = parameters->density (getTemperature (), getPressure ());
       return true;
    }
 
@@ -2122,12 +2123,10 @@ namespace migration
       double depthWrtSedimentSurface = getCrestColumn ()->getOverburden ();
       double temperatureC = getTemperature ();
 
-      // Get the water density:
-      const Interface::FluidType * fluidType = (*f)->getFluidType ();
-
-      sealFluidDensity = CBMGenerics::waterDensity::compute (fluidType->fluidDensityModel (),
-         fluidType->density (), fluidType->salinity (),
-         temperatureC, getPressure ());
+      // Casting to GeoPhysics::FluidType so that the phase-change implementation for brine density can be used
+      const GeoPhysics::FluidType * fluidType = dynamic_cast<const GeoPhysics::FluidType *> ((*f)->getFluidType ());
+      assert (fluidType);
+      sealFluidDensity = fluidType->density (temperatureC, getPressure ());
 
       // Finally use the gathered information to calculate the capillary seal strength of gas and oil:
       translateProps::translate < translateProps::CreateCapillaryLithoProp > (*f,
