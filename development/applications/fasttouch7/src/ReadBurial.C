@@ -7,9 +7,9 @@ ReadBurial::ReadBurial(const char * filename)
 
 //read functions
 
-void ReadBurial::readIndexes(int * firstI, int * lastI, int * firstJ, int * lastJ, int * numLayers)
+void ReadBurial::readIndexes(int * firstI, int * lastI, int * firstJ, int * lastJ, int * numLayers, int * numActive)
 {
-	m_filename >> *firstI >> *lastI >> *firstJ >> *lastJ >> *numLayers;
+	m_filename >> *firstI >> *lastI >> *firstJ >> *lastJ >> *numLayers >> *numActive;
 }
 
 void ReadBurial::readNumTimeStepsID( size_t * numTimeSteps, int * iD)
@@ -27,9 +27,9 @@ void ReadBurial::readSnapshotsIndexes(std::vector<size_t> & usedSnapshotsIndexes
    
 }
 
-void ReadBurial::readBurialHistory(std::vector<Geocosm::TsLib::burHistTimestep > & burHistTimesteps, size_t numTimeSteps) 
+int ReadBurial::readBurialHistory(std::vector<Geocosm::TsLib::burHistTimestep > & burHistTimesteps, size_t numTimeSteps) 
 {
-
+   int numActive = 0;
 	for ( size_t bt = 0; bt < numTimeSteps; ++bt )
 	{   								
 		m_filename >> burHistTimesteps[bt].time; 
@@ -37,6 +37,11 @@ void ReadBurial::readBurialHistory(std::vector<Geocosm::TsLib::burHistTimestep >
 		m_filename >> burHistTimesteps[bt].depth;
 		m_filename >> burHistTimesteps[bt].effStress;
 		m_filename >> burHistTimesteps[bt].waterSat;
-		m_filename >> burHistTimesteps[bt].overPressure; 	
+		m_filename >> burHistTimesteps[bt].overPressure; 
+		
+		// if temperature is defined also ves and pressure are, so it is valid timestep
+		if (burHistTimesteps[bt].temperature != 99999) numActive +=1;	
 	}
+	
+	return numActive;
 }

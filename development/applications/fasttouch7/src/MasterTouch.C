@@ -118,7 +118,7 @@ bool MasterTouch::executeWrapper( const char * burHistFile, const string & filen
    else 	
    { 
       double fractionCompleted = 0.0;    
-      utilities::TimeToComplete timeToComplete( 30, 300, 0.1, 0.1 );
+      utilities::TimeToComplete timeToComplete( 10, 120, 0.05, 0.05 );
       timeToComplete.start(); 
       int childstate; 		
 		
@@ -133,7 +133,9 @@ bool MasterTouch::executeWrapper( const char * burHistFile, const string & filen
          usleep( 500 );		
          if ( read( fd, &fractionCompleted, sizeof( fractionCompleted ) ) == sizeof( fractionCompleted) )
          {
-            string reported = timeToComplete.report( MinimumAll( fractionCompleted ) );
+            double minAllFractions =  MinimumAll( fractionCompleted );
+            string reported; 
+            if (minAllFractions > 0.05) reported = timeToComplete.report( minAllFractions );
             if ( !reported.empty()) ReportProgress( reported );
          }
          else
@@ -284,7 +286,15 @@ bool MasterTouch::run()
    for ( it = m_fileLayerFaciesGridMap.begin(); it != m_fileLayerFaciesGridMap.end(); ++it )
    {		
       const string & filename = (it->first);   
-      LayerFaciesGridMap * layerFaciesGridMap = &(m_fileLayerFaciesGridMap[filename]);   
+      LayerFaciesGridMap * layerFaciesGridMap = &(m_fileLayerFaciesGridMap[filename]);  
+       
+      // First reading of the burial history to count the total number of active timesteps in each layer. This is relativly fast.
+      int numActive = 0;
+      LayerFaciesGridMap::iterator outIt;
+      for( outIt = layerFaciesGridMap->begin(); outIt != layerFaciesGridMap->end(); ++outIt )
+      {			
+	      numActive += countActive( (outIt->first).surface, &m_fileLayerFaciesGridMap[filename][outIt->first]);
+      } 	
       
       string progressString = "Starting TCF: ";
       progressString += filename;
@@ -304,14 +314,14 @@ bool MasterTouch::run()
          int lastI  = m_projectHandle.getActivityOutputGrid()->lastI();
          int lastJ  = m_projectHandle.getActivityOutputGrid()->lastJ();
 	   	
-         writeBurial.writeIndexes(firstI, lastI, firstJ, lastJ, layerFaciesGridMap->size( ));
+         writeBurial.writeIndexes(firstI, lastI, firstJ, lastJ, layerFaciesGridMap->size( ),numActive);
          writeBurial.writeSnapshotsIndexes(m_usedSnapshotsIndex);
 			
-         //for each Layer			
+         //Second reading of the burial history			
          LayerFaciesGridMap::iterator outIt;
          for( outIt = layerFaciesGridMap->begin(); outIt != layerFaciesGridMap->end(); ++outIt )
          {			
-	    writeBurialHistory( (outIt->first).surface, writeBurial, &m_fileLayerFaciesGridMap[filename][outIt->first]);
+	          writeBurialHistory( (outIt->first).surface, writeBurial, &m_fileLayerFaciesGridMap[filename][outIt->first]);
          }
       }
       
@@ -453,6 +463,66 @@ bool MasterTouch::addOutputFormat( const string & filename,
    
    return true;
 }
+/** This function counts all active timesteps in the active region **/
+int MasterTouch::countActive( const Surface * surface, const faciesGridMap * faciesGridMap)
+{
+
+   // for each defined node on reservoir surface  
+   int firstI = m_projectHandle.getActivityOutputGrid()->firstI();
+   int firstJ = m_projectHandle.getActivityOutputGrid()->firstJ();
+   int lastI  = m_projectHandle.getActivityOutputGrid()->lastI();
+   int lastJ  = m_projectHandle.getActivityOutputGrid()->lastJ();
+      
+   bool facieGridMapisDefined = false;
+   bool writeFlag = true;
+   double gridMapValue = -1.0;
+   int numActive = 0;
+	
+   // if a facies is not defined, the entire surface belongs to the TCF   
+   if (faciesGridMap->GridMap) 
+   {
+      facieGridMapisDefined = true;
+      faciesGridMap->GridMap->retrieveData(false);
+   }
+  
+   // retrive burial history 	  
+   BurialHistory burialHistory(surface, m_projectHandle);
+       
+   // write Burial History	
+   for ( int i = firstI; i <= lastI; ++i )
+   {
+      for( int j = firstJ; j <= lastJ; ++j )
+      {
+         // write burial histories only for selected areas, for areas with gridMapValue == 0 do not write burial histories. Perform this check only if facieGridMapisDefined    
+         if (facieGridMapisDefined) 
+         {
+            gridMapValue = faciesGridMap->GridMap->getValue((unsigned int) i, (unsigned int)j);
+            if (gridMapValue == 0) 
+            {
+               writeFlag = false ;
+            } 
+            else
+            {
+               writeFlag = (gridMapValue == faciesGridMap->faciesNumber);
+            }
+         }
+		 				 				   
+        if (!writeFlag) continue;
+   
+        const std::vector<BurialHistoryTimeStep> & burHistTimesteps = burialHistory.returnAsArray( i, j, true );
+      
+        for ( size_t bt = 0; bt < burHistTimesteps.size(); ++bt )
+        {
+          if (burHistTimesteps[bt].temperature == Interface::DefaultUndefinedMapValue ) continue;
+          numActive += 1;
+        }
+      }
+   }
+   
+   if (faciesGridMap->GridMap) faciesGridMap->GridMap->restoreData(false,false);
+   
+   return numActive; 
+}
 
 /** This function writes burial histories to file for a formation **/
 
@@ -468,7 +538,7 @@ void MasterTouch::writeBurialHistory( const Surface * surface, WriteBurial & wri
    bool facieGridMapisDefined = false;
    bool writeFlag = true;
    double gridMapValue = -1.0;
-	
+   
    // if a facies is not defined, all surface belongs to the TCF   
    if (faciesGridMap->GridMap) 
    {

@@ -136,6 +136,8 @@ namespace fasttouch
       /** save ts results to ts output directory */
 
       void writeBurialHistory(const DataAccess::Interface::Surface * surface, WriteBurial & writeBurial, const faciesGridMap * faciesGridMap);
+      
+      int countActive( const DataAccess::Interface::Surface * surface, const faciesGridMap * faciesGridMap);
          
       void writeResultsToGrids( int i, int j, const CategoryMapInfoList & currentOutputs, TouchstoneFiles & ReadTouchstone, size_t sn);
          

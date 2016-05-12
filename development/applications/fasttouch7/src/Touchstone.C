@@ -284,8 +284,8 @@ void TouchstoneWrapper::calculateWrite ( ) {
       int firstJ 			= -1;
       int lastJ 			= -1;
       int numLayers		= -1;
+      int numActive		= -1;
       int iD 				= -1;
-      int step 			= 	0;
       std::vector<size_t> usedSnapshotsIndexes;
    
       mkfifo(m_status, 0777);
@@ -294,13 +294,13 @@ void TouchstoneWrapper::calculateWrite ( ) {
       fcntl(fd, F_SETFL, flags | O_NONBLOCK ); 
    
       ReadBurial ReadBurial(m_burhistFile);
-      ReadBurial.readIndexes(&firstI, &lastI, &firstJ, &lastJ, &numLayers);
+      ReadBurial.readIndexes(&firstI, &lastI, &firstJ, &lastJ, &numLayers, &numActive);
       ReadBurial.readSnapshotsIndexes(usedSnapshotsIndexes);
-     
-      int totalNumberOfSteps = (lastI	+	1	-	firstI) * numLayers;
-   
+       
       TouchstoneFiles WriteTouchstone(m_results);
       WriteTouchstone.writeOrder(m_categoriesMappingOrder);  
+      double fractionCompleted = 0;
+      int step = 0;
 
       for ( int l = 1; l <= numLayers; ++l )
       {
@@ -315,9 +315,10 @@ void TouchstoneWrapper::calculateWrite ( ) {
                if (numTimeSteps > 0) 
                {
                   std::vector<Geocosm::TsLib::burHistTimestep> burHistTimesteps(numTimeSteps) ; 
-
-                  ReadBurial.readBurialHistory(burHistTimesteps,numTimeSteps); 
-
+                  
+                  // determine how many active time steps in the burial history. this is done in the reading of the file
+                  step += ReadBurial.readBurialHistory(burHistTimesteps,numTimeSteps); 
+                  
                   m_tslibBurialHistoryInfo.burialHistoryTSteps = &burHistTimesteps[0];
                   m_tslibBurialHistoryInfo.count               = numTimeSteps;
                   m_tslibBurialHistoryInfo.iD                  = iD; 
@@ -336,15 +337,21 @@ void TouchstoneWrapper::calculateWrite ( ) {
                   WriteTouchstone.writeNumTimeSteps(numTimeSteps);
 
                }
-            }   
-         }
-         double fractionCompleted =  (double) ++step / (double) totalNumberOfSteps ;
-   	
-         if ( write( fd, &fractionCompleted, sizeof( fractionCompleted ) ) < 0 )
-         {
-            ostringstream oss;
-            oss << "Could not write the status file on calculateWrite(), error code " << std::strerror( errno ) <<" on MPI process "<< m_rank;
-            message( oss.str() );
+            }  
+         
+            if (step == 0 && numActive > 0) 
+            fractionCompleted =1e-6;         // we need to write a number larger than 0 to tell the process has started
+            else if (step == 0 && numActive == 0) 
+            fractionCompleted = 1;           // nothing to do, everything completed
+            else if (step > 0 && numActive > 0)
+            fractionCompleted =  (double) step / (double) numActive ;
+            
+            if ( write( fd, &fractionCompleted, sizeof( fractionCompleted ) ) < 0 )
+            {
+               ostringstream oss;
+               oss << "Could not write the status file on calculateWrite(), error code " << std::strerror( errno ) <<" on MPI process "<< m_rank;
+               message( oss.str() );
+           }
          }
       }
    }
