@@ -862,19 +862,21 @@ TEST_F( mbapiModelTest, MapsManagerNNInterpolation )
    {
       mbapi::Model tmpModel;
       tmpModel.loadModelFromProjectFile( "NNTesting2.project3d" );
-      tmpModel.saveLithofractionsMaps( "Rotliegend", lf1CorrInt, lf2CorrInt );
+      std::string firstMap = "Rotliegend_percent1";
+      std::string secondMap = "Rotliegend_percent2";
+      tmpModel.saveLithofractionsMaps( "Rotliegend", lf1CorrInt, lf2CorrInt,firstMap,secondMap );
 
       const std::vector<mbapi::MapsManager::MapID> & tids = tmpModel.mapsManager( ).mapsIDs( );
       ASSERT_EQ( tids.size( ), 28U );
       
-      ASSERT_EQ( tmpModel.tableValueAsString( "GridMapIoTbl", 26, "MapName" ), std::string( "Rotliegend_percent1" ) );
-      ASSERT_EQ( tmpModel.tableValueAsString( "GridMapIoTbl", 27, "MapName" ), std::string( "Rotliegend_percent2" ) );
+      ASSERT_EQ( tmpModel.tableValueAsString( "GridMapIoTbl", 26, "MapName" ), std::string( firstMap ) );
+      ASSERT_EQ( tmpModel.tableValueAsString( "GridMapIoTbl", 27, "MapName" ), std::string( secondMap ) );
 
-      ASSERT_EQ( tmpModel.tableValueAsString( "GridMapIoTbl", 26, "MapFileName" ), std::string( "Rotliegend_percent1.HDF" ) );
-      ASSERT_EQ( tmpModel.tableValueAsString( "GridMapIoTbl", 27, "MapFileName" ), std::string( "Rotliegend_percent2.HDF" ) );
+      ASSERT_EQ( tmpModel.tableValueAsString( "GridMapIoTbl", 26, "MapFileName" ), std::string( firstMap + ".HDF" ) );
+      ASSERT_EQ( tmpModel.tableValueAsString( "GridMapIoTbl", 27, "MapFileName" ), std::string( secondMap + ".HDF" ) );
 
-      ASSERT_EQ( tmpModel.tableValueAsString( "StratIoTbl", 5, "Percent1Grid" ), std::string( "Rotliegend_percent1" ) );
-      ASSERT_EQ( tmpModel.tableValueAsString( "StratIoTbl", 5, "Percent2Grid" ), std::string( "Rotliegend_percent2" ) );
+      ASSERT_EQ( tmpModel.tableValueAsString( "StratIoTbl", 5, "Percent1Grid" ), std::string( firstMap ) );
+      ASSERT_EQ( tmpModel.tableValueAsString( "StratIoTbl", 5, "Percent2Grid" ), std::string( secondMap ) );
    }
 
    ibs::FilePath( "NNTesting2.project3d" ).remove( );

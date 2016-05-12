@@ -32,7 +32,7 @@ static const double eps = 1.e-5;
 class LMClassTest : public LMOptAlgorithm
 {
 public:
-   LMClassTest( ScenarioAnalysis & sa ) : LMOptAlgorithm( sa.baseCaseProjectFileName() )
+   LMClassTest( ScenarioAnalysis & sa ) : LMOptAlgorithm( sa.baseCaseProjectFileName(), "none" )
    {
       m_sa = &sa;
       m_eps = 1.e-6;
@@ -44,7 +44,9 @@ public:
    void test_prepareParameters()
    {
       std::vector<double> initGuess;
-      size_t prmDim = prepareParameters( initGuess );
+      std::vector<double> minPrm;
+      std::vector<double> maxPrm;
+      size_t prmDim = prepareParameters( initGuess, minPrm, maxPrm );
 
       // check base case values
       ASSERT_EQ( 2U, initGuess.size() );

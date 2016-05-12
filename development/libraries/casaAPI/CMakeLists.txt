@@ -144,8 +144,8 @@ add_gtest( NAME SensCalcTest
    SOURCES test/SensCalcTest.cpp
    LIBRARIES casaapi cmbapi DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} ${Boost_LIBRARIES}
 )
-
-add_gtest( NAME LMOptimTest
-   SOURCES test/LMOptimTest.cpp
-   LIBRARIES casaapi cmbapi DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} ${Boost_LIBRARIES}
-)
+# temporary disabled, under development
+#add_gtest( NAME LMOptimTest
+#   SOURCES test/LMOptimTest.cpp
+#   LIBRARIES casaapi cmbapi DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} ${Boost_LIBRARIES}
+#)
