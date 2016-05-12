@@ -79,6 +79,7 @@ static const char * s_FormationPropList[] =
    , "Temperature"
    , "ThCond"
    , "Velocity"
+   , "TwoWayTime"
    , "Ves"
    , "VesHighRes"
    , "Vre"

@@ -66,7 +66,8 @@ namespace casa
       /// @}
       
    protected:
-      virtual PrmSourceRockProp * createNewPrm( double val ) const; // creates PrmSourceRockTOC parameter object instance
+      virtual PrmSourceRockProp * createNewPrm( double val ) const; // creates PrmSourceRockProp parameter object instance
+      virtual PrmSourceRockProp * createNewPrmFromModel( mbapi::Model & mdl ) const;// creates PrmSourceRockProp parameter object instance from the model
    };
 
 }

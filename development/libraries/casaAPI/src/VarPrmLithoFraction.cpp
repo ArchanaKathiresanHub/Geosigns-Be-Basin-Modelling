@@ -68,6 +68,68 @@ namespace casa
       return prm;
    }
 
+   SharedParameterPtr VarPrmLithoFraction::newParameterFromModel( mbapi::Model & mdl ) const
+   {
+      SharedParameterPtr prm( new PrmLithoFraction( mdl, m_layerName, m_lithoFractionsInds ) );
+      return prm;
+   }
+   
+   SharedParameterPtr VarPrmLithoFraction::makeThreeDFromOneD( mbapi::Model & mdl, const std::vector<double>& xin, const std::vector<double>& yin, const std::vector<SharedParameterPtr>& prmVec ) const
+   {
+      // get the lithofractions calculate the lithopercentages
+      std::vector<double> lf1;
+      std::vector<double> lf2;
+      std::vector<double> lf3;
+
+      for ( size_t i = 0; i != prmVec.size(); ++i )
+      {
+         std::vector<double> lithoFractions = prmVec[i].get()->asDoubleArray();
+         std::vector<double> lithoPercentages = PrmLithoFraction::createLithoPercentages( lithoFractions, m_lithoFractionsInds );
+         if ( lithoPercentages.size() != 3 )
+         {
+            throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "The number of lithopercentages is incorrect: " << lithoPercentages.size();
+         }
+         lf1.push_back( lithoPercentages[0] );
+         lf2.push_back( lithoPercentages[1] );
+         lf3.push_back( lithoPercentages[2] );
+      }
+
+      // interpolate
+      std::vector<double> xout;
+      std::vector<double> yout;
+      std::vector<double> rpInt;
+      std::vector<double> r13Int;
+
+      if ( ErrorHandler::NoError != mdl.interpolateLithoFractions( xin, yin, lf1, lf2, lf3, xout, yout, rpInt, r13Int ) )
+      {
+         throw ErrorHandler::Exception( ErrorHandler::UnknownError ) << "The interpolation of the lithopercentages failed for the layer : " << m_layerName;
+      }
+
+      // back transform the rpInt and r13Int
+      std::vector<double> lf1CorrInt;
+      std::vector<double> lf2CorrInt;
+      std::vector<double> lf3CorrInt;
+
+      if ( ErrorHandler::NoError != mdl.backTransformLithoFractions( rpInt, r13Int, lf1CorrInt, lf2CorrInt, lf3CorrInt ) )
+      {
+         throw ErrorHandler::Exception( ErrorHandler::UnknownError ) << "The back transformation of the lithopercentages failed for the layer : " << m_layerName;
+      }
+
+      // generate and save the lithofractions maps 
+      std::string mapNameFirstLithoPercentage;
+      std::string mapNameSecondLithoPercentage;
+
+      if ( ErrorHandler::NoError != mdl.saveLithofractionsMaps( m_layerName, lf1CorrInt, lf2CorrInt, mapNameFirstLithoPercentage, mapNameSecondLithoPercentage ) )
+      {
+         throw ErrorHandler::Exception( ErrorHandler::UnknownError ) << "The saving of the lithofraction maps failed for the layer : " << m_layerName;
+      }
+
+      // both maps are provided, no scalar values is needed
+      SharedParameterPtr prm( new PrmLithoFraction( this, m_name, m_layerName, m_lithoFractionsInds, std::vector<double>(), mapNameFirstLithoPercentage, mapNameSecondLithoPercentage ) );
+
+      return prm;
+   }
+
    std::vector<std::string> VarPrmLithoFraction::name() const
    {
       std::vector<std::string> ret;

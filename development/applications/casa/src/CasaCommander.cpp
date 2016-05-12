@@ -39,6 +39,7 @@
 #include "CmdScenarioID.h"
 #include "CmdLoadState.h"
 #include "CmdGenerateMultiOneD.h"
+#include "CmdImportOneDResults.h"
 
 #include <typeinfo>
 
@@ -57,6 +58,7 @@ static const char * CNPlotP10P90       = "plotP10P90";
 static const char * CNPlotPareto       = "plotPareto";
 static const char * CNPlotTornado      = "plotTornado";
 static const char * CNGenerateMultiOneD= "generateMulti1D";
+static const char * CNImportOneDResults= "importOneDResults";
 
 CasaCommander::CasaCommander()
 {
@@ -94,6 +96,7 @@ void CasaCommander::addCommand( const std::string & cmdName, const std::vector< 
    else if ( cmdName == CNPlotTornado      ) cmd.reset( new CmdPlotTornado(             *this, prms ) );// create Tornado diagram for each observable 
                                                                                                         // for parameters sensitivity
    else if (cmdName == CNGenerateMultiOneD ) cmd.reset(new CmdGenerateMultiOneD(        *this, prms ) );// create 1D projects for each well
+   else if ( cmdName == CNImportOneDResults ) cmd.reset( new CmdImportOneDResults(      *this, prms ) );// import 1D results and make the averages
    // for parameters sensitivity
 
    else throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Unknown command: " << cmdName;
@@ -187,6 +190,7 @@ void CasaCommander::printHelpPage( const std::string & cmd )
    else if ( cmd == CNScenarioID       ) { CmdScenarioID::printHelpPage(              CNScenarioID       ); }
    else if ( cmd == CNPlotTornado      ) { CmdPlotTornado::printHelpPage(             CNPlotTornado      ); }
    else if ( cmd == CNGenerateMultiOneD) { CmdGenerateMultiOneD::printHelpPage(       CNGenerateMultiOneD); }
+   else if ( cmd == CNImportOneDResults ) { CmdImportOneDResults::printHelpPage(      CNImportOneDResults); }
    else // print all commands
    {
       std::cout << "   " << CNAddCldApp        << " - add new Cauldron app to application pipeline\n";

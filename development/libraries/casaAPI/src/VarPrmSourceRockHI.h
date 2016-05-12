@@ -63,6 +63,7 @@ namespace casa
 
    protected:
       virtual PrmSourceRockProp * createNewPrm( double val ) const; // creates PrmSourceRockHI parameter object instance
+      virtual PrmSourceRockProp * createNewPrmFromModel( mbapi::Model & mdl ) const;// creates PrmSourceRockHI parameter object instance from model
 };
 
 }

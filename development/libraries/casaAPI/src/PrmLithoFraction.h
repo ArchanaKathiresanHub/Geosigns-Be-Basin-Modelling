@@ -66,7 +66,14 @@ namespace casa
       /// @param the layer name
       /// @param the indexes of the lithofractions
       /// @param the lithofractions
-      PrmLithoFraction( const VarPrmLithoFraction * parent, const std::string & name, const std::string & layerName, const std::vector<int> & lithoFractionsInds, const std::vector<double> & lithoFractions );
+      /// @param the name of the lithofraction maps
+      PrmLithoFraction( const VarPrmLithoFraction * parent,
+         const std::string         & name, 
+         const std::string         & layerName,
+         const std::vector<int>    & lithoFractionsInds,
+         const std::vector<double> & lithoFractions,
+         const std::string         & m_mapNameFirstLithoPercentage = "",
+         const std::string         & m_mapNameSecondLithoPercentage = "" );
 
       /// @brief Destructor
       virtual ~PrmLithoFraction() { ; }
@@ -131,11 +138,14 @@ namespace casa
       /// @}
 
    protected:
-      const VarParameter *                     m_parent;             ///< variable parameter which was used to create this one
-      std::string                              m_name;               ///< name of the parameter
-      std::string                              m_layerName;          ///< stratigraphic layer name 
-      std::vector<int>                         m_lithoFractionsInds; ///< indexes of the lithofractions
-      std::vector<double>                      m_lithoFractions;     ///< lithofractions values
+      const VarParameter *                     m_parent;                             ///< variable parameter which was used to create this one
+      std::string                              m_name;                               ///< name of the parameter
+      std::string                              m_layerName;                          ///< stratigraphic layer name 
+      std::vector<int>                         m_lithoFractionsInds;                 ///< indexes of the lithofractions
+      std::vector<double>                      m_lithoFractions;                     ///< lithofractions values
+
+      std::string                              m_mapNameFirstLithoPercentage;        ///< name of the first lithopercentage
+      std::string                              m_mapNameSecondLithoPercentage;       ///< name of the second lithopercentage
    };
 }
 

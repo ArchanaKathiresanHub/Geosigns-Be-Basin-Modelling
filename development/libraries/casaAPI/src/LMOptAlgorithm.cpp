@@ -39,7 +39,8 @@
 #include <string>
 #include <vector>
 
-#define ACCUMULATE_MIN_FUNCTION 1
+// 1. Using fvec for each observation will produce a jacobian more similar to the one produced by PEST 
+//#define ACCUMULATE_MIN_FUNCTION 1
 
 namespace casa
 {
@@ -63,13 +64,64 @@ struct ProjectFunctor : public Eigen::DenseFunctor<double>
 
       return 0;
    }
- 
+
+   // We always assume forward differences. In case of log10 transformation we increment the base value and transform the increment back, as done in PEST 
+   int df( const InputType& _x, JacobianType &jac )
+   {
+      using std::sqrt;
+      using std::abs;
+      /* Local variables */
+      Scalar h;
+      int nfev = 0;
+      const InputType::Index n = _x.size( );
+      ValueType val1, val2;
+      const Scalar eps = 0.1; // 10% increment as in PEST. How to pass the eps of NumericalDiff?
+      InputType x = _x;
+
+      val1.resize( ProjectFunctor::values( ) );
+      val2.resize( ProjectFunctor::values( ) );
+
+      // compute f(x)
+      ProjectFunctor::operator()( x, val1 ); nfev++;
+
+      // Function Body
+      for ( int j = 0; j < n; ++j ) 
+      {
+        //calculate the base value
+        if ( m_lm.transformation( ) == "log10" )
+        {
+            x[j] = pow( 10, x[j] );
+        }
+        //increment always in terms of the base value
+        h = 0.1 * abs( x[j] );
+        x[j] += h;
+        //backtransform in log10 for function evaluation
+        if ( m_lm.transformation( ) == "log10" )
+        {
+           x[j] = log10( x[j] );
+        }
+        ProjectFunctor::operator()( x, val2 );
+        nfev++;
+        // the increment h should be in log10
+        if ( m_lm.transformation( ) == "log10" )
+        {
+           h =  x[j]  - _x[j] ;
+        }
+        //restore the old value
+        x[j] = _x[j];
+        jac.col( j ) = ( val2 - val1 ) / h; 
+      };
+      return nfev;
+   }
+
    const LMOptAlgorithm & m_lm;
 };
 
-size_t LMOptAlgorithm::prepareParameters( std::vector<double> & initGuess )
+size_t LMOptAlgorithm::prepareParameters( std::vector<double> & initGuess, std::vector<double> & minPrm, std::vector<double> & maxPrm )
 {
    if ( !initGuess.empty()   ) initGuess.clear();
+   if ( !minPrm.empty( ) ) minPrm.clear( );
+   if ( !maxPrm.empty( ) ) maxPrm.clear( );
    if ( !m_optimPrms.empty() ) m_optimPrms.clear();
    if ( !m_permPrms.empty()  ) m_permPrms.clear();
 
@@ -89,7 +141,18 @@ size_t LMOptAlgorithm::prepareParameters( std::vector<double> & initGuess )
          {
             m_optimPrms.push_back( std::pair<const VarPrmContinuous*, size_t>( vprm, k ) );
             m_permPrms.push_back( globNum + k );
-            initGuess.push_back( basVals[k] );
+            if ( m_parameterTransformation == "log10" )
+            {
+               initGuess.push_back( log10( basVals[k] ) );
+               minPrm.push_back( log10( minVals[k] ) );
+               maxPrm.push_back( log10( maxVals[k] ) );
+            }
+            else
+            {
+               initGuess.push_back( basVals[k] );
+               minPrm.push_back( minVals[k] );
+               maxPrm.push_back( maxVals[k] );
+            }
          }
       }
       globNum += basVals.size();
@@ -158,22 +221,29 @@ void LMOptAlgorithm::updateParametersAndRunCase( const Eigen::VectorXd & x )
    // modify base case values
    for ( size_t i = 0; i < m_permPrms.size(); ++i )
    {
-      if ( minPrms[m_permPrms[i]] > x( i ) ) 
+      double prmVal = x( i );
+      if ( m_parameterTransformation == "log10" ) 
+      {
+         prmVal = pow( 10.0, prmVal);
+      }
+      if ( minPrms[m_permPrms[i]] > prmVal )
       {
          cntPrms[m_permPrms[i]] = minPrms[m_permPrms[i]];
-         LogHandler( LogHandler::DEBUG_SEVERITY ) << "x(" << i << ") = " << x(i) << " < min range value: " << minPrms[m_permPrms[i]];
+         LogHandler( LogHandler::DEBUG_SEVERITY ) << " parameter " << i << " = " << prmVal << " < min range value: " << minPrms[m_permPrms[i]];
+        // x( i ) = minPrms[m_permPrms[i]];
       }
-      else if ( maxPrms[m_permPrms[i]] < x( i ) )
+      else if ( maxPrms[m_permPrms[i]] < prmVal )
       {
          cntPrms[m_permPrms[i]] = maxPrms[m_permPrms[i]];
-         LogHandler( LogHandler::DEBUG_SEVERITY ) << "x(" << i << ") = " << x(i) << " > max range value: " << maxPrms[m_permPrms[i]];
+         LogHandler( LogHandler::DEBUG_SEVERITY ) << " parameter " << i << " = " << prmVal << " > max range value: " << maxPrms[m_permPrms[i]];
       }
       else
       {
-         cntPrms[m_permPrms[i]] = x( i ); 
-         LogHandler( LogHandler::DEBUG_SEVERITY ) << "x(" << i << ") = " << x(i);
+         cntPrms[m_permPrms[i]] = prmVal;
+         LogHandler( LogHandler::DEBUG_SEVERITY ) << " parameter " << i << " = " << prmVal;
       }
-      m_xi.push_back( x[i] );
+      //later on used to calculate the penality function
+      m_xi.push_back( x( i ) );
    }
 
    // create new case with the new parameters values
@@ -274,19 +344,26 @@ void LMOptAlgorithm::calculateFunctionValue( Eigen::VectorXd & fvec )
             
       for ( size_t k = 0; k < refVal.size(); ++k )
       {
+         if ( obv[k] == UndefinedDoubleValue || obv[k] == 99999.0 )
+         {
+            LogHandler( LogHandler::ERROR_SEVERITY ) << "Invalid observation value: " << obv[k] <<" stopping...";
+            throw ErrorHandler::Exception( ErrorHandler::UnknownError ) << "Invalid observation value, stopping...";
+         }
          double dif = sqrt( uaWeight ) * std::abs( obv[k] - refVal[k] ) / sigma;
+
 #ifndef ACCUMULATE_MIN_FUNCTION
-         fvec[mi] = dif;
+         fvec[mi] = dif; 
 #endif
-         trgtQ += dif * dif;
+         trgtQ += dif*dif;
          ++mi;
       }
    }
-   trgtNum = mi;
-   trgtQ = sqrt( trgtQ / (mi > 0 ? mi : 1.0) );
 
+   trgtNum = mi;
+
+// 2. There is need to average trgtQ by mi (it is like multiplying by a constant)
 #ifdef ACCUMULATE_MIN_FUNCTION
-   fvec[0] = trgtQ;
+   fvec[0] = sqrt(trgtQ);
    mi = 0;
 #endif
 
@@ -302,49 +379,59 @@ void LMOptAlgorithm::calculateFunctionValue( Eigen::VectorXd & fvec )
       double                   pval  = m_xi[i]; // use parameter value proposed by LM. It could be outside of parameter
                                                 // range. But parameter value will be cutted on the interval boundary
       //rc->parameter( m_permPrms[i] )->asDoubleArray()[prmID];
+
+      if ( m_parameterTransformation == "log10" )
+      {
+         minV = log10( minV );
+         maxV = log10( maxV );
+         basV = log10( basV );
+      }
       
       double fval = 0.0;
-      if (      pval < minV ) { fval = (minV - pval) > 50 ? exp(50.0) : exp( minV - pval ) - 1.0; }  // penalty if v < [min:max]
-      else if ( pval > maxV ) { fval = (pval - maxV) > 50 ? exp(50.0) : exp( pval - maxV ) - 1.0; }  // penalty if v > [min:max]
-      else
+      switch( ppdf )
       {
-         switch( ppdf )
-         {
-            case VarPrmContinuous::Block:    fval = 1e-10; break;
-            
-            case VarPrmContinuous::Triangle: 
-               {  double d = 2.0 / ( (basV - minV) * (maxV - basV) ); // area of triangle is equal 1
+         case VarPrmContinuous::Block: fval = 1e-10; break;
 
-                  if ( pval < basV ) { fval = 0.5 * d * ( 1.0 + ( pval - minV ) / ( basV - minV ) ) * ( basV - pval ); }
-                  else               { fval = 0.5 * d * ( 1.0 + ( pval - maxV ) / ( basV - maxV ) ) * ( pval - basV ); }
-               }
-               break;
+         case VarPrmContinuous::Triangle: 
+            {  double d = 2.0 / ( (basV - minV) * (maxV - basV) ); // area of triangle is equal 1
 
-            case VarPrmContinuous::Normal:
-               {
-                  double sigma = ( maxV - minV ) / 6.0; // 3 sigma - half interval 
-                  double pw = ( pval - basV ) / sigma;
-                  // sqrt( 2.0 * pi ) = 2.506628274631 
-                  fval = 1.0 / ( sigma * 2.506628274631  ) * ( 1.0 - exp( -0.5 * pw * pw  ) );
-               }
-               break;
-         }
+               if ( pval < basV ) { fval = 0.5 * d * ( 1.0 + ( pval - minV ) / ( basV - minV ) ) * ( basV - pval ); }
+               else               { fval = 0.5 * d * ( 1.0 + ( pval - maxV ) / ( basV - maxV ) ) * ( pval - basV ); }
+            }
+            break;
+
+         case VarPrmContinuous::Normal:
+            {
+               double sigma = ( maxV - minV ) / 6.0; // 3 sigma - half interval
+               fval = abs( pval - basV ) / sigma;
+            }
+            break;
       }
+      // add penalty on goin out of the range
+      if (      pval < minV ) 
+      { 
+         LogHandler( LogHandler::DEBUG_SEVERITY ) << "pval less than minV : "<< pval <<" "<< minV;
+         fval += 50 * (minV - pval); 
+      }  // penalty if v < [min:max]
+      else if ( pval > maxV ) 
+      { 
+         LogHandler( LogHandler::DEBUG_SEVERITY ) << "pval larger than maxV : " << pval << " " << minV;
+         fval += 50 * (pval - maxV); 
+      }  // penalty if v > [min:max]
+
 #ifndef ACCUMULATE_MIN_FUNCTION
       fvec[mi] = fval;
 #endif
-      prmQ += fval * fval;
+
+      prmQ += fval*fval;
       ++mi;
    }
 
 #ifdef ACCUMULATE_MIN_FUNCTION
-   prmQ = sqrt( prmQ / (mi > 0 ? mi : 1.0) );
-   fvec[1] = prmQ;
-#else
-   prmQ = sqrt( prmQ / ( (mi - trgtNum) > 0 ? (mi-trgtNum) : 1 ) ); 
+   fvec[1] = sqrt(prmQ);
 #endif
 
-   if ( m_Qmin > trgtQ  )
+   if ( m_Qmin > trgtQ + prmQ )
    {
       m_Qmin = trgtQ;
 
@@ -370,12 +457,20 @@ void LMOptAlgorithm::runOptimization( ScenarioAnalysis & sa )
 
    // extract continuous parameters with non empty min/max range, fill initial guess vector
    std::vector<double> guess;
-   size_t prmSpDim = prepareParameters( guess );
+   std::vector<double> minPrm;
+   std::vector<double> maxPrm;
+   size_t prmSpDim = prepareParameters( guess, minPrm, maxPrm );
 
    // convert std::vector to Eigen vector
    Eigen::VectorXd initialGuess( guess.size() );
+   Eigen::VectorXd minPrmEig( minPrm.size( ) );
+   Eigen::VectorXd maxPrmEig( maxPrm.size( ) );
    size_t xi = 0;
    for ( auto pv : guess ) initialGuess[xi++] = pv;
+   xi = 0;
+   for ( auto pv : minPrm ) minPrmEig[xi++] = pv;
+   xi = 0;
+   for ( auto pv : maxPrm ) maxPrmEig[xi++] = pv;
    
    // extract observables with reference values and calculate dimension
    size_t obsSpDim = prepareObservables();
@@ -387,11 +482,12 @@ void LMOptAlgorithm::runOptimization( ScenarioAnalysis & sa )
    ProjectFunctor functor( *this, prmSpDim, 2 ); // use parameters also as observables to keep them in range
 #endif
 
-   Eigen::NumericalDiff<ProjectFunctor> numDiff( functor, 0.0001 );
-   Eigen::LevenbergMarquardt< Eigen::NumericalDiff<ProjectFunctor> > lm( numDiff );
+   Eigen::NumericalDiff<ProjectFunctor> numDiff( functor, 0.1 ); //10% relative, as in PEST
+   Eigen::LevenbergMarquardt< Eigen::NumericalDiff<ProjectFunctor, Eigen::Forward> > lm( numDiff );
 
-   lm.setMaxfev( 200 );
+   lm.setMaxfev( 200 );     
    lm.setXtol( 1.0e-8 );
+   lm.setFtol( 1 - 0.974 );  //3. set the tolerance for norm of fval as in PEST: 1 - 0.95 ^ 0.5 
 
    int ret = lm.minimize( initialGuess );
 
@@ -409,8 +505,14 @@ void LMOptAlgorithm::runOptimization( ScenarioAnalysis & sa )
       if ( casePath.exists() ) { casePath.remove(); }
    }
 
+   if ( m_parameterTransformation == "log10" )
+   {
+      for ( size_t i = 0; i < initialGuess.size(); ++i )
+         initialGuess( i ) = pow( 10, initialGuess( i ) );
+   }
+
    // inform user about optimization results
-   LogHandler( LogHandler::DEBUG_SEVERITY ) << "LM optimization algorithm finished with iterations number: " << (int)(lm.iterations());
+   LogHandler( LogHandler::DEBUG_SEVERITY ) << "LM optimization algorithm finished with iterations number: " << (int)( lm.iterations( ) ) << " and " << (int)( lm.nfev( ) ) << " model evaluations";
    LogHandler( LogHandler::DEBUG_SEVERITY ) << "LM return code: " << ret;
    LogHandler( LogHandler::DEBUG_SEVERITY ) << "x that minimizes the function: \n" << initialGuess;
    LogHandler( LogHandler::DEBUG_SEVERITY ) << "Saving calibrated model to: " << m_projectName;

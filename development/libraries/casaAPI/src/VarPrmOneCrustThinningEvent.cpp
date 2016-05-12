@@ -92,6 +92,19 @@ SharedParameterPtr VarPrmOneCrustThinningEvent::newParameterFromDoubles( std::ve
    return prm;
 }
 
+SharedParameterPtr VarPrmOneCrustThinningEvent::newParameterFromModel( mbapi::Model & mdl ) const
+{
+   SharedParameterPtr prm( new PrmOneCrustThinningEvent( mdl ) );
+   return prm;
+}
+
+SharedParameterPtr VarPrmOneCrustThinningEvent::makeThreeDFromOneD( mbapi::Model & mdl, const std::vector<double>& xin, const std::vector<double>& yin, const std::vector<SharedParameterPtr>& prmVec ) const
+{
+   //Not yet implemented
+   return nullptr;
+}
+
+
 // Save all object data to the given stream, that object could be later reconstructed from saved data
 bool VarPrmOneCrustThinningEvent::save( CasaSerializer & sz, unsigned int version ) const
 {

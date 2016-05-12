@@ -70,4 +70,10 @@ PrmSourceRockProp * VarPrmSourceRockTOC::createNewPrm( double val ) const
    return new PrmSourceRockTOC( this, val, m_layerName.c_str(), (m_srTypeName.empty() ? 0 : m_srTypeName.c_str()), m_mixID ); 
 }
 
+PrmSourceRockProp * VarPrmSourceRockTOC::createNewPrmFromModel( mbapi::Model & mdl ) const
+{
+   return new PrmSourceRockTOC( mdl, m_layerName.c_str( ), ( m_srTypeName.empty( ) ? 0 : m_srTypeName.c_str( ) ), m_mixID );
+}
+
+
 } // namespace casa

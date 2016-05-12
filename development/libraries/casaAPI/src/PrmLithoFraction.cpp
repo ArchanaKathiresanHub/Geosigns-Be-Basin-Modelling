@@ -29,6 +29,10 @@
 
 namespace casa
 {
+   static const char * s_stratIoTblName = "StratIoTbl";
+   static const char * s_lithoTypePercent1GridFiledName = "Percent1Grid";
+   static const char * s_lithoTypePercent2GridFiledName = "Percent2Grid";
+
    std::vector<double> PrmLithoFraction::createLithoPercentages( const std::vector<double> & lithoFractions, const std::vector<int> & lithoFractionInds )
    {
       //the litho fractions must be 2
@@ -118,41 +122,86 @@ namespace casa
       , m_layerName( layerName )
       , m_lithoFractionsInds( lithoFractionsInds )
    {
-
-      mbapi::StratigraphyManager & stMgr = mdl.stratigraphyManager();
-
+      mbapi::StratigraphyManager & stMgr = mdl.stratigraphyManager( );
       // get the layer ID
       mbapi::StratigraphyManager::LayerID lid = stMgr.layerID( m_layerName );
-      if ( stMgr.errorCode() != ErrorHandler::NoError )
+      if ( stMgr.errorCode( ) != ErrorHandler::NoError )
       {
-         throw ErrorHandler::Exception( stMgr.errorCode() ) << stMgr.errorMessage();
+         throw ErrorHandler::Exception( stMgr.errorCode( ) ) << stMgr.errorMessage( );
       }
 
-      // vector to store the lithologies names 
-      std::vector<string> lithoNames;
-      // vector to store the percentages 
-      std::vector<double> lithoPercentages;
+      const std::string & percent1GridFiledName = mdl.tableValueAsString( s_stratIoTblName, lid, s_lithoTypePercent1GridFiledName );
+      if ( ErrorHandler::NoError != mdl.errorCode() ) { throw ErrorHandler::Exception( mdl.errorCode() ) << mdl.errorMessage(); }
 
-      if ( ErrorHandler::NoError != stMgr.layerLithologiesList( lid, lithoNames, lithoPercentages ) )
+      const std::string & percent2GridFiledName = mdl.tableValueAsString( s_stratIoTblName, lid, s_lithoTypePercent2GridFiledName );
+      if ( ErrorHandler::NoError != mdl.errorCode() ) { throw ErrorHandler::Exception( mdl.errorCode() ) << mdl.errorMessage(); }
+
+      mbapi::MapsManager & mpMgr = mdl.mapsManager( );
+
+      if ( !percent1GridFiledName.empty() )
       {
-         throw ErrorHandler::Exception( stMgr.errorCode() ) << stMgr.errorMessage();
+         mbapi::MapsManager::MapID mFirstID = mpMgr.findID( percent1GridFiledName );
+
+         if ( UndefinedIDValue == mFirstID )
+         {
+            throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Can't find the map: " << percent1GridFiledName
+               << " defined for the first lithology percentage";
+         }
+
+         m_mapNameFirstLithoPercentage = percent1GridFiledName ;
       }
 
-      m_lithoFractions = createLithoFractions( lithoPercentages, m_lithoFractionsInds );
-
-      if ( m_lithoFractions[0] < 0.0 || m_lithoFractions[0] > 100.0 )
+      if ( !percent2GridFiledName.empty() )
       {
-         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Lithology percentage " << m_lithoFractionsInds[0] << 
-            " for layer " << m_layerName << " is out of range [0:100]: " << m_lithoFractions[0] << "\n"; 
+         mbapi::MapsManager::MapID mSecondID = mpMgr.findID( percent2GridFiledName );
+
+         if ( UndefinedIDValue == mSecondID )
+         {
+            throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Can't find the map: " << percent2GridFiledName
+               << " defined for the second lithology percentage";
+         }
+
+         m_mapNameSecondLithoPercentage = percent2GridFiledName ;
       }
 
-      if ( m_lithoFractions[1] < 0.0 || m_lithoFractions[1] > 1.0 ) 
+      if ( m_mapNameFirstLithoPercentage.empty( ) && m_mapNameSecondLithoPercentage.empty( ) )
       {
-         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Lithology rest fraction " << m_lithoFractionsInds[1] << 
-            " for layer " << m_layerName << " is out of range [0:1]: " << m_lithoFractions[1] << "\n"; 
+
+         mbapi::StratigraphyManager & stMgr = mdl.stratigraphyManager();
+         // get the layer ID
+         mbapi::StratigraphyManager::LayerID lid = stMgr.layerID( m_layerName );
+         if ( stMgr.errorCode() != ErrorHandler::NoError )
+         {
+            throw ErrorHandler::Exception( stMgr.errorCode() ) << stMgr.errorMessage();
+         }
+
+         // vector to store the lithologies names 
+         std::vector<string> lithoNames;
+         // vector to store the percentages 
+         std::vector<double> lithoPercentages;
+
+         if ( ErrorHandler::NoError != stMgr.layerLithologiesList( lid, lithoNames, lithoPercentages ) )
+         {
+            throw ErrorHandler::Exception( stMgr.errorCode() ) << stMgr.errorMessage();
+         }
+
+         m_lithoFractions = createLithoFractions( lithoPercentages, m_lithoFractionsInds );
+
+         if ( m_lithoFractions[0] < 0.0 || m_lithoFractions[0] > 100.0 )
+         {
+            throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Lithology percentage " << m_lithoFractionsInds[0] <<
+               " for layer " << m_layerName << " is out of range [0:100]: " << m_lithoFractions[0] << "\n";
+         }
+
+         if ( m_lithoFractions[1] < 0.0 || m_lithoFractions[1] > 1.0 )
+         {
+            throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Lithology rest fraction " << m_lithoFractionsInds[1] <<
+               " for layer " << m_layerName << " is out of range [0:1]: " << m_lithoFractions[1] << "\n";
+         }
       }
 
       m_name = "LithoFraction(" + m_layerName + ")";
+
    }
 
    // Constructor: set the values given by VarPrmLithoFraction
@@ -160,25 +209,33 @@ namespace casa
                                      , const std::string         & name
                                      , const std::string         & layerName
                                      , const std::vector<int>    & lithoFractionsInds
-                                     , const std::vector<double> & lithoFractions )
+                                     , const std::vector<double> & lithoFractions 
+                                     , const std::string         & mapNameFirstLithoPercentage
+                                     , const std::string         & mapNameSecondLithoPercentage )
                                      : m_parent( parent )
                                      , m_layerName( layerName )
                                      , m_lithoFractionsInds( lithoFractionsInds )
                                      , m_lithoFractions( lithoFractions )
                                      , m_name( name )
+                                     , m_mapNameFirstLithoPercentage( mapNameFirstLithoPercentage )
+                                     , m_mapNameSecondLithoPercentage( mapNameSecondLithoPercentage )
    {
       if ( m_name.empty( ) ) m_name = "LithoFraction(" + m_layerName + ")";
 
-      if ( m_lithoFractions[0] < 0.0 || lithoFractions[0] > 100.0 )
+      // scalar case
+      if ( m_mapNameFirstLithoPercentage.empty( ) && m_mapNameSecondLithoPercentage.empty( ) ) // check the ranges only if a single value is set
       {
-         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Lithology percentage " << m_lithoFractionsInds[0] << 
-            "for layer " << m_layerName << " is out of range [0:100]: " << m_lithoFractions[0] << "\n"; 
-      }
+         if ( m_lithoFractions[0] < 0.0 || lithoFractions[0] > 100.0 )
+         {
+            throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Lithology percentage " << m_lithoFractionsInds[0] <<
+               "for layer " << m_layerName << " is out of range [0:100]: " << m_lithoFractions[0] << "\n";
+         }
 
-      if ( m_lithoFractions[1] < 0.0 || m_lithoFractions[1] > 1.0 ) 
-      {
-         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Lithology rest fraction " << m_lithoFractionsInds[1] << 
-            "for layer " << m_layerName << " is out of range [0:1]: " << m_lithoFractions[1] << "\n"; 
+         if ( m_lithoFractions[1] < 0.0 || m_lithoFractions[1] > 1.0 )
+         {
+            throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Lithology rest fraction " << m_lithoFractionsInds[1] <<
+               "for layer " << m_layerName << " is out of range [0:1]: " << m_lithoFractions[1] << "\n";
+         }
       }
    }
 
@@ -186,7 +243,6 @@ namespace casa
    ErrorHandler::ReturnCode PrmLithoFraction::setInModel( mbapi::Model & caldModel, size_t /* caseID */ )
    {
       mbapi::StratigraphyManager & stMgr = caldModel.stratigraphyManager();
-
       // get the layer ID
       mbapi::StratigraphyManager::LayerID lid = stMgr.layerID( m_layerName );
       if ( stMgr.errorCode() != ErrorHandler::NoError )
@@ -194,24 +250,32 @@ namespace casa
          throw ErrorHandler::Exception( stMgr.errorCode() ) << stMgr.errorMessage();
       }
 
-      // vector to store the lithology percentages
-      std::vector<double> lithoPercentages;
-      // vector to store the lithologies names 
-      std::vector<string> lithoNames;
-
-      // get the lithology names
-      if ( ErrorHandler::NoError != stMgr.layerLithologiesList( lid, lithoNames, lithoPercentages ) )
+      // scalar case
+      if ( m_mapNameFirstLithoPercentage.empty( ) && m_mapNameSecondLithoPercentage.empty( ) )
       {
-         throw ErrorHandler::Exception( stMgr.errorCode() ) << stMgr.errorMessage();
+         // vector to store the lithology percentages
+         std::vector<double> lithoPercentages;
+         // vector to store the lithologies names 
+         std::vector<string> lithoNames;
+
+         // get the lithology names
+         if ( ErrorHandler::NoError != stMgr.layerLithologiesList( lid, lithoNames, lithoPercentages ) )
+         {
+            throw ErrorHandler::Exception( stMgr.errorCode() ) << stMgr.errorMessage();
+         }
+
+         // create the new lithology percentages
+         lithoPercentages = createLithoPercentages( m_lithoFractions, m_lithoFractionsInds );
+
+         // set the three percentages in the model
+         if ( ErrorHandler::NoError != stMgr.setLayerLithologiesList( lid, lithoNames, lithoPercentages ) )
+         {
+            throw ErrorHandler::Exception( stMgr.errorCode() ) << stMgr.errorMessage();
+         }
       }
-
-      // create the new lithology percentages
-      lithoPercentages = createLithoPercentages( m_lithoFractions, m_lithoFractionsInds );
-
-      // set the three percentages in the model
-      if ( ErrorHandler::NoError != stMgr.setLayerLithologiesList( lid, lithoNames, lithoPercentages ) )
+      else
       {
-         throw ErrorHandler::Exception( stMgr.errorCode() ) << stMgr.errorMessage();
+         stMgr.setLayerLithologiesPercentageMaps( lid, m_mapNameFirstLithoPercentage, m_mapNameSecondLithoPercentage );
       }
 
       return ErrorHandler::NoError;
@@ -243,62 +307,146 @@ namespace casa
    }
 
    // Validate litho fractions stored in the parameter and base case
-   std::string PrmLithoFraction::validate( mbapi::Model & caldModel )
+   std::string PrmLithoFraction::validate( mbapi::Model & mdl )
    {
       std::ostringstream oss;
-      const std::vector<double> & prms = asDoubleArray();
-      const double eps = 1.e-6;
 
-      const char * colNames[3];
-      colNames[0] = "Percent1";
-      colNames[1] = "Percent2";
-      colNames[2] = "Percent3";
-
-      mbapi::StratigraphyManager & stMgr = caldModel.stratigraphyManager();
-
+      mbapi::StratigraphyManager & stMgr = mdl.stratigraphyManager( );
       // get the layer ID
       mbapi::StratigraphyManager::LayerID lid = stMgr.layerID( m_layerName );
-      if ( stMgr.errorCode() != ErrorHandler::NoError ) { throw ErrorHandler::Exception( stMgr.errorCode() ) << stMgr.errorMessage(); }
+      if ( stMgr.errorCode( ) != ErrorHandler::NoError ) { throw ErrorHandler::Exception( stMgr.errorCode( ) ) << stMgr.errorMessage( ); }
 
-      // vector to store the litho percentages
-      std::vector<double> mdlLithoPercentages;
-      // vector to store the lithologies names 
-      std::vector<string> mdlLithoNames;
-
-      if ( ErrorHandler::NoError != stMgr.layerLithologiesList( lid, mdlLithoNames, mdlLithoPercentages ) )
+      // scalar case
+      if ( m_mapNameFirstLithoPercentage.empty( ) && m_mapNameSecondLithoPercentage.empty( ) ) 
       {
-         throw ErrorHandler::Exception( stMgr.errorCode() ) << stMgr.errorMessage();
-      }
+         const std::vector<double> & prms = asDoubleArray();
+         const double eps = 1.e-6;
 
-      double sumPercentages = 0;
-      for ( size_t i = 0; i != mdlLithoPercentages.size(); ++i )
-      {
-         sumPercentages += mdlLithoPercentages[i];
-      }
+         const char * colNames[3];
+         colNames[0] = "Percent1";
+         colNames[1] = "Percent2";
+         colNames[2] = "Percent3";
 
-      if ( !NumericFunctions::isEqual( sumPercentages, 100.0, eps ) )
-      {
-         oss << " The sum of the percentages for the layer: " << m_layerName << " do not equal to 100: " << sumPercentages << "\n";
-      }
+         // vector to store the litho percentages
+         std::vector<double> mdlLithoPercentages;
+         // vector to store the lithologies names 
+         std::vector<string> mdlLithoNames;
 
-      // vector to store the litho fractions
-      std::vector<double> lithoPercentages = createLithoPercentages( m_lithoFractions, m_lithoFractionsInds );
-
-      // check that percentages are set correctly
-      for ( size_t i = 0; i < lithoPercentages.size(); ++i )
-      {
-         if ( mdlLithoNames[i].empty() && lithoPercentages[i] > 0.0 )
+         if ( ErrorHandler::NoError != stMgr.layerLithologiesList( lid, mdlLithoNames, mdlLithoPercentages ) )
          {
-            oss << colNames[i] << " for the layer " << m_layerName << " is not zero:" << lithoPercentages[i] << " for the empty lithology name\n";
+            throw ErrorHandler::Exception( stMgr.errorCode() ) << stMgr.errorMessage();
+         }
+
+         double sumPercentages = 0;
+         for ( size_t i = 0; i != mdlLithoPercentages.size(); ++i )
+         {
+            sumPercentages += mdlLithoPercentages[i];
+         }
+
+         if ( !NumericFunctions::isEqual( sumPercentages, 100.0, eps ) )
+         {
+            oss << " The sum of the percentages for the layer: " << m_layerName << " do not equal to 100: " << sumPercentages << "\n";
+         }
+
+         // vector to store the litho fractions
+         std::vector<double> lithoPercentages = createLithoPercentages( m_lithoFractions, m_lithoFractionsInds );
+
+         // check that percentages are set correctly
+         for ( size_t i = 0; i < lithoPercentages.size(); ++i )
+         {
+            if ( mdlLithoNames[i].empty() && lithoPercentages[i] > 0.0 )
+            {
+               oss << colNames[i] << " for the layer " << m_layerName << " is not zero:" << lithoPercentages[i] << " for the empty lithology name\n";
+            }
+         }
+
+         for ( size_t i = 0; i < mdlLithoPercentages.size(); ++i )
+         {
+            if ( !NumericFunctions::isEqual( mdlLithoPercentages[i], lithoPercentages[i], eps ) )
+            {
+               oss << "Lithology " << colNames[i] << " for the layer " << m_layerName << " in model: " << mdlLithoPercentages[i] <<
+                  ", is differ from the parameter value: " << lithoPercentages[i] << "\n";
+            }
          }
       }
-
-      for ( size_t i = 0; i < mdlLithoPercentages.size(); ++i )
+      else //map case
       {
-         if ( !NumericFunctions::isEqual( mdlLithoPercentages[i], lithoPercentages[i], eps ) )
+         // get map and check that was set right
+         mbapi::MapsManager & mpMgr = mdl.mapsManager();
+
+         if ( !m_mapNameFirstLithoPercentage.empty() )
          {
-            oss << "Lithology " << colNames[i] << " for the layer " << m_layerName << " in model: " << mdlLithoPercentages[i] << 
-                   ", is differ from the parameter value: " <<  lithoPercentages[i] << "\n";
+            // get the name of the map in the StratIoTbl
+            const std::string & percent1GridFiledName = mdl.tableValueAsString( s_stratIoTblName, lid, s_lithoTypePercent1GridFiledName );
+            if ( ErrorHandler::NoError != mdl.errorCode( ) )
+            {
+               oss << mdl.errorMessage( ) << std::endl;
+               return oss.str( );
+            }
+
+            // check the name is correct
+            if ( percent1GridFiledName != m_mapNameFirstLithoPercentage )
+            {
+               oss << "Map name in project: " << percent1GridFiledName << ", is different from parameter value: " << m_mapNameFirstLithoPercentage;
+               return oss.str( );
+            }
+
+            // get the name in the GridMapIoTbl
+            mbapi::MapsManager::MapID mFirstID = mpMgr.findID( percent1GridFiledName ); // without the HDF exstension
+
+            if ( UndefinedIDValue == mFirstID )
+            {
+               throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Can't find the map: " << percent1GridFiledName
+                  << " defined for the first lithology percentage";
+            }
+
+            // check the values are plausible
+            double minVal, maxVal;
+            if ( ErrorHandler::NoError != mpMgr.mapValuesRange( mFirstID, minVal, maxVal ) )
+            {
+               throw ErrorHandler::Exception( mdl.errorCode() ) << mdl.errorMessage();
+            }
+
+            if ( minVal < -0.0001 ) oss << "The minimum value in the map " << percent1GridFiledName << " is below the permitted minimum value: " << minVal;
+            if ( maxVal > 100.0001 ) oss << "The maximum value in the map " << percent1GridFiledName << " is above the permitted maximum value: " << maxVal;
+
+         }
+
+         if ( !m_mapNameSecondLithoPercentage.empty() )
+         {
+            // get the name of the map in the StratIoTbl
+            const std::string & percent2GridFiledName = mdl.tableValueAsString( s_stratIoTblName, lid, s_lithoTypePercent2GridFiledName );
+            if ( ErrorHandler::NoError != mdl.errorCode( ) )
+            {
+               oss << mdl.errorMessage( ) << std::endl;
+               return oss.str( );
+            }
+
+            // check the name is correct
+            if ( percent2GridFiledName != m_mapNameSecondLithoPercentage )
+            {
+               oss << "Map name in project: " << percent2GridFiledName << ", is different from parameter value: " << m_mapNameSecondLithoPercentage;
+               return oss.str( );
+            }
+
+            // get the name in the GridMapIoTbl
+            mbapi::MapsManager::MapID mSecondID = mpMgr.findID( percent2GridFiledName );  // without the HDF exstension
+
+            if ( UndefinedIDValue == mSecondID )
+            {
+               throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Can't find the map: " << percent2GridFiledName
+                  << " defined for the second lithology percentage";
+            }
+
+            // check the values are plausible
+            double minVal, maxVal;
+            if ( ErrorHandler::NoError != mpMgr.mapValuesRange( mSecondID, minVal, maxVal ) )
+            {
+               throw ErrorHandler::Exception( mdl.errorCode() ) << mdl.errorMessage();
+            }
+
+            if ( minVal < -0.0001 ) oss << "The minimum value in the map " << percent2GridFiledName << " is below the permitted minimum value: " << minVal;
+            if ( maxVal > 100.0001 ) oss << "The maximum value in the map " << percent2GridFiledName << " is above the permitted maximum value: " << maxVal;
          }
       }
 
@@ -317,10 +465,12 @@ namespace casa
          CasaSerializer::ObjRefID parentID = sz.ptr2id( m_parent );
          ok = ok ? sz.save( parentID, "VarParameterID" ) : ok;
       }
-      ok = ok ? sz.save( m_name,               "name"               ) : ok;
-      ok = ok ? sz.save( m_layerName,          "layerName"          ) : ok;
-      ok = ok ? sz.save( m_lithoFractionsInds, "lithoFractionsInds" ) : ok;
-      ok = ok ? sz.save( m_lithoFractions,     "lithoFractions"     ) : ok;
+      ok = ok ? sz.save( m_name,                     "name"               )       : ok;
+      ok = ok ? sz.save( m_layerName,                "layerName"          )       : ok;
+      ok = ok ? sz.save( m_lithoFractionsInds,       "lithoFractionsInds" )       : ok;
+      ok = ok ? sz.save( m_lithoFractions,           "lithoFractions"     )       : ok;
+      ok = ok ? sz.save( m_mapNameFirstLithoPercentage,  "mapNameFirstLithoPercentages" ) : ok;
+      ok = ok ? sz.save( m_mapNameSecondLithoPercentage, "mapNameSecondLithoPercentage" ) : ok;
 
       return ok;
    }
@@ -340,10 +490,12 @@ namespace casa
          m_parent = ok ? dz.id2ptr<VarParameter>( parentID ) : 0;
       }
 
-      ok = ok ? dz.load( m_name,               "name"               ) : ok;
-      ok = ok ? dz.load( m_layerName,          "layerName"          ) : ok;
-      ok = ok ? dz.load( m_lithoFractionsInds, "lithoFractionsInds" ) : ok;
-      ok = ok ? dz.load( m_lithoFractions,     "lithoFractions"     ) : ok;
+      ok = ok ? dz.load( m_name,                     "name"               )       : ok;
+      ok = ok ? dz.load( m_layerName,                "layerName"          )       : ok;
+      ok = ok ? dz.load( m_lithoFractionsInds,       "lithoFractionsInds" )       : ok;
+      ok = ok ? dz.load( m_lithoFractions,           "lithoFractions"     )       : ok;
+      ok = ok ? dz.load( m_mapNameFirstLithoPercentage,  "mapNameFirstLithoPercentages" ) : ok;
+      ok = ok ? dz.load( m_mapNameSecondLithoPercentage, "mapNameSecondLithoPercentage" ) : ok;
 
       if ( !ok )
       {

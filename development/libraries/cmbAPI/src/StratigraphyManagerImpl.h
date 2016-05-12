@@ -110,9 +110,10 @@ namespace mbapi {
 
       /// @brief For a given layer set the new lithofraction map names in the StratIoTbl
       /// @param[in] lid layer ID
-      /// @param[in] lithologyPercentageMaps the name of the maps
+      /// @param[in] the name of the first lithology percentage map
+      /// @param[in] the name of the second lithology percentage map
       /// @return NoError on success or NonexistingID on error
-      virtual ErrorHandler::ReturnCode setLayerLithologiesPercentageMaps( LayerID id, std::vector<std::string> & lithogyPercentageMaps );
+      virtual ErrorHandler::ReturnCode setLayerLithologiesPercentageMaps( LayerID id, const std::string & mapNameFirstLithoPercentage, const std::string mapNameSecondLithoPercentage );
 
 
       // Layer -> Source rock type relation methods

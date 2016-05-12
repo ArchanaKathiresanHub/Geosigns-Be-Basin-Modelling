@@ -116,6 +116,11 @@ namespace casa
       /// @param expLabel name of the case set which will be generated
       /// @return ErrorHandler::NoError in case of success, or error code otherwise
       ErrorHandler::ReturnCode extractOneDProjects( const std::string & expLabel );
+
+      /// @brief Imports the 1D results after the optimization and makes the averages
+      /// @param expLabel name of the cases where the extraction should take place
+      /// @return ErrorHandler::NoError in case of success, or error code otherwise
+      ErrorHandler::ReturnCode importOneDResults( const std::string & expLabel );
       
       /// @brief Create copy of the base case model and set all variable parameters value defined for each case. Each call of
       ///        this function increase scenario iteration number.
@@ -204,8 +209,9 @@ namespace casa
       /// @param cbProjectName name of the project file to save calibrated project
       /// @param optimAlg name of the optimization algorith.
       /// @param keepHistory do not delete all optimization steps projects (could take quite a lot space)
+      /// @param the paramter transformation
       /// @return ErrorHandler::NoError on success, error code otherwise
-      ReturnCode calibrateProjectUsingOptimizationAlgorithm( const std::string & cbProjectName, const std::string & optimAlg, bool keepHistory = false );
+      ReturnCode calibrateProjectUsingOptimizationAlgorithm( const std::string & cbProjectName, const std::string & optimAlg, const std::string & transformation, bool keepHistory = false );
 
       /// @brief After the Monte Carlo simulation it creates project file with parameters set which corresponds to the
       ///        Monte Carlo sampling point with minimal RMSE

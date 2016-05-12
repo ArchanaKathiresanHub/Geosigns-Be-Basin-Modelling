@@ -31,10 +31,11 @@ public:
    static void printHelpPage( const char * cmdName );
 
 protected:
-   std::string                  m_bmcName;   /// project name for calibrated case 
-   std::string                  m_optimAlg;  /// name of optimization algorithm
-   std::string                  m_cldVer;    /// version of cauldron simulator
-   bool                         m_keepHist;  /// keep history of all LM steps?
+   std::string                  m_bmcName;           /// project name for calibrated case 
+   std::string                  m_optimAlg;          /// name of optimization algorithm
+   std::string                  m_cldVer;            /// version of cauldron simulator
+   std::string                  m_transformation;    /// the parameter transformation
+   bool                         m_keepHist;          /// keep history of all LM steps?
 };
 
 #endif // CASA_CMD_CALIBRATE_PROJECT_H

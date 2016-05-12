@@ -36,6 +36,19 @@ namespace casa
       /// @return new casa::PrmSourceRockProp parameter
       virtual SharedParameterPtr newParameterFromDoubles( std::vector<double>::const_iterator & vals ) const;
 
+      /// @brief Create parameter by reading the values stored in the project file
+      /// @param[in] the model where the parameters values should be read
+      /// @return the new parameter read from the model
+      virtual SharedParameterPtr newParameterFromModel( mbapi::Model & mdl ) const;
+
+      /// @brief Average the values, interpolate for lithofractions and set the appropriate entries in the project3d file
+      /// @param[in, out] mdl the model where to set the new averaged parameter
+      /// @param[in] xin the vector which stores the x coordinates of each 1D project 
+      /// @param[in] yin the vector which stores the y coordinates of each 1D project 
+      /// @param[in] prmVec the vector that stores the optimal parameter value of each 1D project
+      /// @return new parameter for given set of values
+      virtual SharedParameterPtr makeThreeDFromOneD( mbapi::Model & mdl, const std::vector<double>& xin, const std::vector<double>& yin, const std::vector<SharedParameterPtr>& prmVec ) const;
+
       /// @brief Convert Cauldron parameter values to SUMlib values for some variable parameters
       /// @param prm cauldron parameter with to this variable parameter corresponded type
       /// @return parameter values suitable for SUMlib
@@ -89,6 +102,7 @@ namespace casa
                          );
 
       virtual PrmSourceRockProp * createNewPrm( double val ) const = 0;
+      virtual PrmSourceRockProp * createNewPrmFromModel( mbapi::Model & mdl ) const = 0;
 
       std::string m_propName;   ///< Defines which source rock lithology property this parameter defines
       std::string m_layerName;  ///< active source rock lithology name

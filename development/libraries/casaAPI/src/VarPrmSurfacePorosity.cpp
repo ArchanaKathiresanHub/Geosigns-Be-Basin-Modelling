@@ -46,6 +46,12 @@ PrmLithologyProp * VarPrmSurfacePorosity::createNewPrm( double val ) const
    return new PrmSurfacePorosity( this, m_lithosName, val );
 }
 
+PrmLithologyProp * VarPrmSurfacePorosity::createNewPrmFromModel( mbapi::Model & mdl ) const
+{
+   PrmSurfacePorosity mdlPrm( mdl, m_lithosName[0] );
+   return new PrmSurfacePorosity( this, m_lithosName, mdlPrm.value() );
+}
+
 bool VarPrmSurfacePorosity::save( CasaSerializer & sz, unsigned int version ) const 
 { 
    bool ok = VarPrmLithologyProp::serializeCommonPart( sz, version );

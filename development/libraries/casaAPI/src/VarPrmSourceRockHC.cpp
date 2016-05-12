@@ -70,5 +70,9 @@ PrmSourceRockProp * VarPrmSourceRockHC::createNewPrm( double val ) const
    return new PrmSourceRockHC( this, val, m_layerName.c_str(), (m_srTypeName.empty() ? 0 : m_srTypeName.c_str()), m_mixID ); 
 }
 
+PrmSourceRockProp * VarPrmSourceRockHC::createNewPrmFromModel( mbapi::Model & mdl ) const
+{
+   return new PrmSourceRockHC( mdl, m_layerName.c_str( ), ( m_srTypeName.empty( ) ? 0 : m_srTypeName.c_str( ) ), m_mixID );
+}
 
 }

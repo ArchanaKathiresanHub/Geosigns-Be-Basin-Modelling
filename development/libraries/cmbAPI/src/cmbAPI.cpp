@@ -184,9 +184,12 @@ public:
       std::vector<double>& lf3CorrInt );
 
    void saveLithofractionsMaps(
-      const std::string& layername,
+      const std::string        & layername,
       const std::vector<double>& lf1CorrInt,
-      const std::vector<double>& lf2CorrInt );
+      const std::vector<double>& lf2CorrInt,
+      std::string              & mapNameFirstLithoPercentage,
+      std::string              & mapNameSecondLithoPercentage
+      );
 };
 
 
@@ -493,12 +496,15 @@ Model::ReturnCode Model::backTransformLithoFractions(
 Model::ReturnCode Model::saveLithofractionsMaps(
    const std::string& layername,
    const std::vector<double>& lf1CorrInt,
-   const std::vector<double>& lf2CorrInt )
+   const std::vector<double>& lf2CorrInt,
+   std::string & mapNameFirstLithoPercentage,
+   std::string & mapNameSecondLithoPercentage
+   )
 
 {
    if ( errorCode( ) != NoError ) resetError( );
 
-   try { m_pimpl->saveLithofractionsMaps( layername, lf1CorrInt, lf2CorrInt ); }
+   try { m_pimpl->saveLithofractionsMaps( layername, lf1CorrInt, lf2CorrInt, mapNameFirstLithoPercentage, mapNameSecondLithoPercentage ); }
    catch ( const Exception & ex ) { return reportError( ex.errorCode( ), ex.what( ) ); }
    catch ( ... ) { return reportError( UnknownError, "Unknown error" ); }
 
@@ -1389,9 +1395,12 @@ void Model::ModelImpl::backTransformLithoFractions(
 }
 
 void Model::ModelImpl::saveLithofractionsMaps(
-   const std::string& layername,
-   const std::vector<double>& lf1CorrInt,
-   const std::vector<double>& lf2CorrInt )
+   const std::string          & layername,
+   const std::vector<double>  & lf1CorrInt,
+   const std::vector<double>  & lf2CorrInt,
+   std::string                & mapNameFirstLithoPercentage,
+   std::string                & mapNameSecondLithoPercentage
+   )
 {
    // get the layer ID
    mbapi::StratigraphyManager::LayerID lid = m_stratMgr.layerID( layername );
@@ -1400,26 +1409,25 @@ void Model::ModelImpl::saveLithofractionsMaps(
       throw ErrorHandler::Exception( m_stratMgr.errorCode() ) << m_stratMgr.errorMessage();
    }
 
-   std::vector<std::string> mapsNames( 2 );
-   mapsNames[0] = layername + "_percent1";
-   mapsNames[1] = layername + "_percent2";
+   mapNameFirstLithoPercentage = layername + "_percent1";
+   mapNameSecondLithoPercentage = layername + "_percent2";
 
-   MapsManager::MapID percent1GridMapId = m_mapMgr.generateLithoFractionMap( mapsNames[0] );
-   MapsManager::MapID percent2GridMapId = m_mapMgr.generateLithoFractionMap( mapsNames[1] );
+   MapsManager::MapID percent1GridMapId = m_mapMgr.generateLithoFractionMap( mapNameFirstLithoPercentage );
+   MapsManager::MapID percent2GridMapId = m_mapMgr.generateLithoFractionMap( mapNameSecondLithoPercentage );
 
    m_mapMgr.mapSetValues( percent1GridMapId, lf1CorrInt );
    m_mapMgr.mapSetValues( percent2GridMapId, lf2CorrInt );
 
-   if ( ErrorHandler::NoError != m_mapMgr.saveMapToHDF( percent1GridMapId, mapsNames[0] + ".HDF" ) )
+   if ( ErrorHandler::NoError != m_mapMgr.saveMapToHDF( percent1GridMapId, mapNameFirstLithoPercentage + ".HDF" ) )
    {
-      throw ErrorHandler::Exception( ErrorHandler::IoError ) << "cannot save the map " << mapsNames[0];
+      throw ErrorHandler::Exception( ErrorHandler::IoError ) << "cannot save the map " << mapNameFirstLithoPercentage;
    }
-   if ( ErrorHandler::NoError != m_mapMgr.saveMapToHDF( percent2GridMapId, mapsNames[1] + ".HDF" ) )
+   if ( ErrorHandler::NoError != m_mapMgr.saveMapToHDF( percent2GridMapId, mapNameSecondLithoPercentage + ".HDF" ) )
    {
-      throw ErrorHandler::Exception( ErrorHandler::IoError ) << "cannot save the map " << mapsNames[1];
+      throw ErrorHandler::Exception( ErrorHandler::IoError ) << "cannot save the map " << mapNameSecondLithoPercentage;
    }
 
-   m_stratMgr.setLayerLithologiesPercentageMaps( lid, mapsNames );
+   m_stratMgr.setLayerLithologiesPercentageMaps( lid, mapNameFirstLithoPercentage, mapNameSecondLithoPercentage );
 }
 
 // Create the unique copies of lithology for each given layer, alochtonous lithology and fault cut from the given lists

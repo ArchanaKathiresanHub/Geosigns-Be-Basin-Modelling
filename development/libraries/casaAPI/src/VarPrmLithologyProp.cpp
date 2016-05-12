@@ -58,6 +58,36 @@ SharedParameterPtr VarPrmLithologyProp::newParameterFromDoubles( std::vector<dou
    return prm;
 }
 
+SharedParameterPtr VarPrmLithologyProp::newParameterFromModel( mbapi::Model & mdl ) const
+{
+   SharedParameterPtr prm( createNewPrmFromModel( mdl ) );
+   return prm;
+}
+
+SharedParameterPtr VarPrmLithologyProp::makeThreeDFromOneD( mbapi::Model & mdl, const std::vector<double>& xin, const std::vector<double>& yin, const std::vector<SharedParameterPtr>& prmVec ) const
+{
+   // make the average of the property
+   double sum = 0.0;
+   for ( size_t i = 0; i != prmVec.size(); ++i )
+   {
+      double value = dynamic_cast<PrmLithologyProp*>( prmVec[i].get( ) )->value( );
+      sum += value;
+   }
+   double av = sum / prmVec.size();
+
+   // set the average parameter value in the model
+   double minProp = dynamic_cast<PrmLithologyProp*>( m_minValue.get( ) )->value( );
+   double maxProp = dynamic_cast<PrmLithologyProp*>( m_maxValue.get( ) )->value( );
+   if ( minProp > av || av > maxProp )
+   {
+      throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "The average of the lithology property " << m_propName <<
+         " for lithologies: " << m_lithosName.front( ) << ",... : " << av << " falls out of range: [" << minProp << ":" << maxProp << "]";
+   }
+
+   SharedParameterPtr prm( createNewPrm( av ) );             
+   return prm;
+}
+
 std::vector<double> VarPrmLithologyProp::asDoubleArray( const SharedParameterPtr prm ) const 
 {
    const PrmLithologyProp * litPrm = dynamic_cast<const PrmLithologyProp*>( prm.get() );

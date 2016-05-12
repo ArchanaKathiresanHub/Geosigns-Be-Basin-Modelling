@@ -34,8 +34,9 @@ public:
    void generateScenarioScripts( std::unique_ptr<casa::ScenarioAnalysis> & sa ) const;
 
 protected:
-   std::string  m_cldVer;         // cauldron version
-   bool         m_keepHist;       // keep history for 1D runs
+   std::string  m_cldVer;                 // cauldron version
+   bool         m_keepHist;               // keep history for 1D runs
+   std::string  m_transformation;         // the parameter transformation
 };
 
 #endif // CASA_GENERATE_MULTI_ONE_D_H

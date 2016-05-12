@@ -30,11 +30,12 @@ namespace casa
    class LMOptAlgorithm : public OptimizationAlgorithm
    {
    public:
-      LMOptAlgorithm( const std::string & cbProjectName, bool keepHistory = false ) : OptimizationAlgorithm( cbProjectName )
+      LMOptAlgorithm( const std::string & cbProjectName, const std::string & transformation, bool keepHistory = false ) : OptimizationAlgorithm( cbProjectName )
                                                                                     , m_sa( 0 )
                                                                                     , m_stepNum( 0 )
                                                                                     , m_Qmin( 0.0 )
                                                                                     , m_keepHistory( keepHistory )
+                                                                                    , m_parameterTransformation(transformation)
                                                                                     { ; }
 
       virtual ~LMOptAlgorithm() { ; }
@@ -45,9 +46,10 @@ namespace casa
 
       void updateParametersAndRunCase( const Eigen::VectorXd & x );
       void calculateFunctionValue( Eigen::VectorXd & fvec );
+      std::string transformation() const { return m_parameterTransformation; };
 
    protected:
-      size_t prepareParameters( std::vector<double> & initGuess );
+      size_t prepareParameters( std::vector<double> & initGuess, std::vector<double> & minPrm, std::vector<double> & maxPrm );
       size_t prepareObservables();
 
       size_t                                                     m_stepNum;   // current step number. Is used to name case folder
@@ -62,6 +64,7 @@ namespace casa
       std::vector<double>                                        m_xi;        // parameters value proposed by LM
       double                                                     m_Qmin;      // minimal value of Qtrgt for LM iterations
       bool                                                       m_keepHistory; // keep all intermediate steps of LM
+      std::string                                                m_parameterTransformation; //the type of parameter transformation that is applied
    };
 
 } // namespace casa

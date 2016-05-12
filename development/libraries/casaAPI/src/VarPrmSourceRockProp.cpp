@@ -82,6 +82,19 @@ SharedParameterPtr VarPrmSourceRockProp::newParameterFromDoubles( std::vector<do
    return prm;
 }
 
+SharedParameterPtr VarPrmSourceRockProp::newParameterFromModel( mbapi::Model & mdl ) const
+{
+   SharedParameterPtr prm( createNewPrmFromModel( mdl ) );
+   return prm;
+}
+
+SharedParameterPtr VarPrmSourceRockProp::makeThreeDFromOneD( mbapi::Model & mdl, const std::vector<double>& xin, const std::vector<double>& yin, const std::vector<SharedParameterPtr>& prmVec ) const
+{
+   // Not yet implemented
+   return nullptr;
+}
+
+
 std::vector<double> VarPrmSourceRockProp::asDoubleArray( const SharedParameterPtr prm ) const 
 {
    const PrmSourceRockProp * tocPrm = dynamic_cast<const PrmSourceRockProp*>( prm.get() );

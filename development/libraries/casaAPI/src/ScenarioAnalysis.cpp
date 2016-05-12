@@ -129,6 +129,9 @@ public:
    // Extract 1D projects around the wells with a user-defined window size
    void extractOneDProjects( const std::string & expLabel );
 
+   // Import 1D results and make the averages
+   void importOneDResults( const std::string & expLabel );
+
    // Validate Cauldron model for consistency and valid parameters range. This function should be 
    // called after ScenarioAnalysis::applyMutation()
    void validateCaseSet( RunCaseSet & cs );
@@ -184,6 +187,7 @@ public:
                                                   , const std::string & optimAlg
                                                   , ScenarioAnalysis  & sa
                                                   , bool                keepHistory
+                                                  , const std::string & transformation
                                                   );
 
    // Get SensitivityCalculator
@@ -347,6 +351,17 @@ ErrorHandler::ReturnCode ScenarioAnalysis::extractOneDProjects( const std::strin
 
 }
 
+ErrorHandler::ReturnCode ScenarioAnalysis::importOneDResults( const std::string & expLabel )
+{
+   try { m_pimpl->importOneDResults( expLabel ); }
+   catch ( Exception          & ex ) { return reportError( ex.errorCode( ), ex.what( ) ); }
+   catch ( ibs::PathException & pex ) { return reportError( IoError, pex.what( ) ); }
+   catch ( ... ) { return reportError( UnknownError, "Unknown error" ); }
+
+   return NoError;
+
+}
+
 ErrorHandler::ReturnCode ScenarioAnalysis::validateCaseSet( RunCaseSet & cs )
 {
    try { m_pimpl->validateCaseSet( cs ); }
@@ -387,10 +402,11 @@ ErrorHandler::ReturnCode ScenarioAnalysis::setMCAlgorithm( MonteCarloSolver::Alg
 
 ErrorHandler::ReturnCode ScenarioAnalysis::calibrateProjectUsingOptimizationAlgorithm( const std::string & cbProjeName
                                                                                      , const std::string & optimAlg
+                                                                                     , const std::string & transformation
                                                                                      , bool                keepHistory
                                                                                      )
 {
-   try { m_pimpl->calibrateProjectUsingOptimizationAlgorithm( cbProjeName, optimAlg, *this, keepHistory ); }
+   try { m_pimpl->calibrateProjectUsingOptimizationAlgorithm( cbProjeName, optimAlg, *this, keepHistory, transformation ); }
    catch( Exception & ex ) { return reportError( ex.errorCode(), ex.what() ); }
    catch( ...            ) { return reportError( UnknownError, "Unknown error" ); }
 
@@ -801,6 +817,11 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::extractOneDProjects( const std::str
    int minJ;
    int maxJ;
 
+   if ( uniqWellsSet.size( )==0 )
+   {
+      throw ErrorHandler::Exception( ErrorHandler::IoError ) << "No wells extracted, stopping";
+   }
+
    for ( auto it = uniqWellsSet.begin(); it != uniqWellsSet.end(); it++ )
    {
       if ( NoError != mdl.windowSize( (*it)->xCoords().front(), (*it)->yCoords().front(), minI, maxI, minJ, maxJ ) )
@@ -819,6 +840,149 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::extractOneDProjects( const std::str
 
    // add the set of cases in DoE
    doeCases.addNewCases( expSet, expLabel );
+}
+
+void ScenarioAnalysis::ScenarioAnalysisImpl::importOneDResults( const std::string & expLabel )
+{
+   casa::RunManager & rm =  runManager( );
+   casa::RunCaseSet & rcs = doeCaseSet( );
+   casa::VarSpace   & var = varSpace( );
+   mbapi::Model     & bc =  baseCase( );
+
+   // set the filter for the run case set
+   rcs.filterByExperimentName( expLabel );
+
+   // variables used for the averages
+   std::vector<SharedParameterPtr> prmVec;
+   std::vector<double>             xin;
+   std::vector<double>             yin;
+   double originX;
+   double originY;
+   double dimX;
+   double dimY;
+   double centreX;
+   double centreY;
+
+   // the best run case
+   std::unique_ptr<casa::RunCaseImpl> brc( new casa::RunCaseImpl( ) );
+
+   // loop over the entire variable space
+   for ( size_t par = 0; par < var.size( ); ++par )
+   {
+      const casa::VarParameter * vprm = var.parameter( par );
+      switch ( vprm->variationType( ) )
+      {
+
+      case casa::VarParameter::Continuous:
+      {
+         const casa::VarPrmContinuous * vprmc = dynamic_cast<const casa::VarPrmContinuous*>( vprm );
+
+         for ( size_t c = 0; c < rcs.size( ); ++c )
+         {
+            casa::RunCaseImpl  * rc = dynamic_cast<casa::RunCaseImpl*>( rcs[c] );
+            mbapi::Model & caseModel = rc->loadProject( ); // this takes time! we could loop differently so we load every parameters instead of every case
+
+            if ( caseModel.errorCode( ) != ErrorHandler::NoError )
+            {
+               throw ErrorHandler::Exception( caseModel.errorCode( ) ) << caseModel.errorMessage( );
+            }
+
+            SharedParameterPtr nprm;
+            try
+            { 
+               nprm = vprmc->newParameterFromModel( caseModel ); 
+            }
+            catch ( const ErrorHandler::Exception & ex )
+            {
+               throw ErrorHandler::Exception( ex.errorCode( ) ) << " The reading of the new parameter from the project " << caseModel.projectFileName( ) << " failed ";
+            }
+            catch ( ... )
+            {
+               throw ErrorHandler::Exception( ErrorHandler::UnknownError );
+            }
+
+            // extract the centre of the model
+            caseModel.origin( originX, originY );
+            caseModel.arealSize( dimX, dimY );
+            centreX = originX + dimX / 2.0;
+            centreY = originY + dimY / 2.0;
+
+            // not need to check the parents, the same vprmc is used to enerate nprm
+            xin.push_back( centreX );
+            yin.push_back( centreY );
+            prmVec.push_back( nprm );
+         }
+
+         // make the averages
+         SharedParameterPtr prm;
+         try 
+         { 
+            prm = vprmc->makeThreeDFromOneD( bc, xin, yin, prmVec ); 
+         }
+         catch ( const ErrorHandler::Exception & ex )
+         {
+            throw ErrorHandler::Exception( ex.errorCode( ) ) << " The generation of the 3D parameter " << vprmc->name( ) << " from multi 1D results failed ";
+         }
+         catch ( ... )
+         {
+            throw ErrorHandler::Exception( ErrorHandler::UnknownError );
+         }
+
+         // if the average method is not implemented a makeThreeDFromOneD returns a nullptr 
+         if ( prm )
+         {
+            brc->addParameter( prm );
+         }
+         else
+         {
+            throw ErrorHandler::Exception( ErrorHandler::UnknownError ) << " average of the parameter " << vprmc->name( ) << " not yet implemented ";
+         }
+
+         //clear previous arrays stored for the mean values 
+         xin.clear( );
+         yin.clear( );
+         prmVec.clear( );
+      }
+         break;
+
+      case casa::VarParameter::Categorical:
+      {
+        brc->addParameter( vprm->baseValue( ) );
+      }
+         break;
+
+      case casa::VarParameter::Discrete:
+      default:
+         throw ErrorHandler::Exception( ErrorHandler::NotImplementedAPI ) << "Not implemented variable parameter type: " << vprm->variationType( );
+         break;
+      }
+   }
+
+   // set the filter back 
+   rcs.filterByExperimentName( "" );
+
+   // construct case project path for the best case
+   ibs::FolderPath casePath( "." );
+   casePath << "ThreeDFromOneD";
+
+   if ( casePath.exists( ) ) // clean folder if it is already exist
+   {
+      casePath.remove( );
+   }
+
+   casePath.create( );
+   casePath << ( std::string( baseCaseProjectFileName( ) ).empty( ) ? baseCaseProjectFileName( ) : "Project.project3d" );
+
+   // do mutation
+   brc->mutateCaseTo( bc, casePath.fullPath( ).cpath( ) );
+
+   // validate the case
+   std::string msg = brc->validateCase( );
+   if ( !msg.empty( ) )
+   {
+      throw ErrorHandler::Exception( ErrorHandler::ValidationError ) << " An invalid project was generated " << casePath.path( );
+   }
+
 }
 
 void ScenarioAnalysis::ScenarioAnalysisImpl::validateCaseSet( RunCaseSet & cs )
@@ -852,11 +1016,12 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::calibrateProjectUsingOptimizationAl
                                                                                        , const std::string & optimAlg
                                                                                        , ScenarioAnalysis  & sa
                                                                                        , bool                keepHistory
+                                                                                       , const std::string & transformation
                                                                                        )
 {
    std::unique_ptr<OptimizationAlgorithm> optAlgo;
    
-   if ( optimAlg == "LM" ) { optAlgo.reset( new LMOptAlgorithm( cbProjectName ) ); }
+   if ( optimAlg == "LM" ) { optAlgo.reset( new LMOptAlgorithm( cbProjectName, transformation ) ); }
    else { throw Exception( OutOfRangeValue ) << "Unsupported optimization algorithm name: " << optimAlg; }
 
    optAlgo->runOptimization( sa );

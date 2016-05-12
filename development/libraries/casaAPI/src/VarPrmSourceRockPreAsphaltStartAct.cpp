@@ -70,5 +70,9 @@ PrmSourceRockProp * VarPrmSourceRockPreAsphaltStartAct::createNewPrm( double val
    return new PrmSourceRockPreAsphaltStartAct( this, val, m_layerName.c_str(), (m_srTypeName.empty() ? 0 : m_srTypeName.c_str()), m_mixID ); 
 }
 
+PrmSourceRockProp * VarPrmSourceRockPreAsphaltStartAct::createNewPrmFromModel( mbapi::Model & mdl ) const
+{
+   return new PrmSourceRockPreAsphaltStartAct( mdl, m_layerName.c_str( ), ( m_srTypeName.empty( ) ? 0 : m_srTypeName.c_str( ) ), m_mixID );
+}
 
 }

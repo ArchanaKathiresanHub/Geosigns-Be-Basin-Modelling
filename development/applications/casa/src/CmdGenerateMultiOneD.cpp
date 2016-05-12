@@ -28,6 +28,7 @@ CmdGenerateMultiOneD::CmdGenerateMultiOneD( CasaCommander & parent, const std::v
 {
    m_cldVer   = m_prms.size() > 0 ? m_prms[0] : "Default";
    m_keepHist = m_prms.size() > 1 ? ( m_prms[1] == "KeepHistory" ? true : false ) : false;
+   m_transformation = m_prms.size( ) > 2 ? m_prms[2] : "none";
 }
 
 void CmdGenerateMultiOneD::execute( std::unique_ptr<casa::ScenarioAnalysis> & sa )
@@ -52,6 +53,7 @@ void CmdGenerateMultiOneD::printHelpPage( const char * cmdName )
    std::cout << "                         Could be specified as \"Default\". In this case the same simulator version as casa\n";
    std::cout << "                         application will be used.\n";
    std::cout << "    KeepHistory        - (Optional) If specified, Calibration run for 1D projects will not delete intermediate project files\n";
+   std::cout << "    log10              - (Optional) If log10, parameters will be log10-transformed in the optimization algorithm\n";
    std::cout << "\n";
    std::cout << "    Examples:\n";
    std::cout << "    #      Cauldron version.\n";
@@ -72,7 +74,7 @@ void CmdGenerateMultiOneD::generateScenarioScripts( std::unique_ptr<casa::Scenar
    {
       oss << m_commander.toString( cmdQueue[i].get() ) << "\n";
    }
-   oss << "\ncalibrateProject \"" << sa->baseCaseProjectFileName() << "\" \"LM\" \"" << m_cldVer << "\"" << (m_keepHist ? " \"KeepHistory\"":"" ) << "\n";
+   oss << "\ncalibrateProject \"" << sa->baseCaseProjectFileName( ) << "\" \"LM\" \"" << m_cldVer << "\" \"" << m_transformation << "\"" << ( m_keepHist ? " \"KeepHistory\"" : "" ) << "\n";
    oss << "\nsavestate \"casa_state.txt\" \"txt\"\n";
 
    // Go over all cases and save scenario file
