@@ -2248,6 +2248,7 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  Pre
 
   boost::shared_ptr<PetscSolver> pressureLinearSolver ( new PetscCG ( pressureSolver->linearSolverTolerance ( basinModel->Optimisation_Level ),
                                                                       PressureSolver::DefaultMaximumPressureLinearSolverIterations ));
+  pressureLinearSolver->setSolverPrefix ( "pres_" );
   pressureLinearSolver->loadCmdLineOptions();
 
 
@@ -2404,6 +2405,7 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  Pre
                                                              pressureLinearSolver->getMaxIterations ()));
 
                gmres = boost::dynamic_pointer_cast<PetscGMRES>( pressureLinearSolver);
+               gmres->setSolverPrefix ( "pres_" );
                gmres->loadCmdLineOptions();
                gmres->setRestart ( std::max( gmres->getRestart(), PressureSolver::DefaultGMResRestartValue ));
                gmres->setMaxIterations( std::max( pressureLinearSolver->getMaxIterations(), PressureSolver::DefaultMaximumPressureLinearSolverIterations) );
@@ -2705,6 +2707,7 @@ void Basin_Modelling::FEM_Grid::Solve_Nonlinear_Temperature_For_Time_Step ( cons
                                                       basinModel->Temperature_GMRes_Restart ));
   }
 
+  temperatureLinearSolver->setSolverPrefix ( "temp_nl_" );
   temperatureLinearSolver->loadCmdLineOptions();
 
   PetscScalar Previous_T_Norm = 0.0;
@@ -2963,6 +2966,7 @@ void Basin_Modelling::FEM_Grid::Solve_Linear_Temperature_For_Time_Step ( const d
                                                       basinModel->Temperature_GMRes_Restart ));
   }
 
+  temperatureLinearSolver->setSolverPrefix ( "temp_" );
   temperatureLinearSolver->loadCmdLineOptions();
 
   PetscLogStages::push( PetscLogStages :: TEMPERATURE_LINEAR_SOLVER );
@@ -3656,6 +3660,17 @@ void Basin_Modelling::FEM_Grid::Print_Needle ( const double currentAge, const in
     Basin_Bottom = Basement_And_Sediments;
   }
 
+  size_t maximumNameLength = 0;
+
+  for ( size_t i = 0; i < basinModel->layers.size (); ++i ) {
+     std::string name = basinModel->layers [ i ]->layername;
+
+     if ( basinModel->layers [ i ]->layername.length () > maximumNameLength ) {
+        maximumNameLength = basinModel->layers [ i ]->layername.length ();
+     }
+
+  }
+
   Pressure_Layers.Initialise_Iterator ( basinModel->layers, Descending, Basin_Bottom, Active_Layers_Only );
 
   DMDAGetCorners ( *basinModel->mapDA, &X_Start, &Y_Start, PETSC_NULL, &X_Count, &Y_Count, PETSC_NULL );
@@ -3691,7 +3706,8 @@ void Basin_Modelling::FEM_Grid::Print_Needle ( const double currentAge, const in
   if (( X_Start <= I ) && ( I < X_Start + X_Count ) && ( Y_Start <= J ) && ( J < Y_Start + Y_Count ) && Valid_Needle ( I, J )) {
     buffer << endl << endl;
     buffer << " Printing details of needle " << I << "  " << J << endl;
-    buffer << "                                       Age            Depth          Po            Pp            Ph            Pl            Pf           VES         Max_VES       Porosity        PermN          PermH              Temperature" << endl;
+    buffer << setw ( maximumNameLength ) << "  ";
+    buffer << "                 Age            Depth          Po            Pp            Ph            Pl            Pf           VES         Max_VES       Porosity        PermN          PermH              Temperature" << endl;
     onThisNode = true;
   }
 
@@ -3754,7 +3770,7 @@ void Basin_Modelling::FEM_Grid::Print_Needle ( const double currentAge, const in
                                       Current_Layer -> Current_Properties ( Basin_Modelling::Lithostatic_Pressure, K, J, I )));
             }
 
-            buffer << setw ( 20 ) << Layer_Name << "  " ;
+            buffer << setw ( maximumNameLength ) << Layer_Name << "  " ;
             buffer << setw (  4 ) << I;
             buffer << setw (  4 ) << J;
             buffer << setw (  4 ) << K;

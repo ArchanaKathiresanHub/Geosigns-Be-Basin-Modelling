@@ -25,6 +25,19 @@ PetscSolver :: PetscSolver(double newTolerance, int newMaxIterations)
          );
 }
 
+void PetscSolver::setSolverPrefix ( const std::string& solverPrefix ) {
+
+   PC preconditioner;
+
+   KSPGetPC ( m_solver, &preconditioner );
+
+   if ( preconditioner != nullptr ) {
+      PCSetOptionsPrefix ( preconditioner, solverPrefix.c_str ());
+   }
+   
+   KSPSetOptionsPrefix ( m_solver, solverPrefix.c_str ());
+}
+
 void PetscSolver::loadCmdLineOptions()
 {
    KSPSetFromOptions ( m_solver );
