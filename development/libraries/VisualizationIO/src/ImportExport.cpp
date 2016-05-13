@@ -416,9 +416,8 @@ void CauldronIO::ImportExport::retrieveAllData(const std::shared_ptr<SnapShot>& 
 
 void CauldronIO::ImportExport::prefetchHDFdata(std::vector< VisualizationIOData* > allReadData, boost::lockfree::queue<int>* queue)
 {
-    std::vector < std::shared_ptr<HDFinfo> > hdfInfoList1;
-    std::vector < std::shared_ptr<HDFinfo> > hdfInfoList2;
-    std::string hdffile1, hdffile2;
+    std::vector < std::vector < std::shared_ptr<HDFinfo> > > hdfInfoListList;
+    std::vector < std::string > hdffileNames;
     
     // Collect all hdfInfo
     for (int i = 0; i < allReadData.size(); i++)
@@ -432,27 +431,32 @@ void CauldronIO::ImportExport::prefetchHDFdata(std::vector< VisualizationIOData*
             hdfInfo[j]->indexMain = i;
             
             // See if this file is known
-            if (filepathname.length() > 0)
-            {
-                // Use the first place holder
-                if (hdffile1.length() == 0)
-                    hdffile1 = filepathname;
-                // Use the second place holder
-                else if (hdffile1 != filepathname && hdffile2.length() == 0)
-                    hdffile2 = filepathname;
+            assert(filepathname.length() > 0);
 
-                if (filepathname == hdffile1)
-                    hdfInfoList1.push_back(hdfInfo[j]);
-                else if (filepathname == hdffile2)
-                    hdfInfoList2.push_back(hdfInfo[j]);
-                else 
-                    throw CauldronIOException("More than two hdf files in this snapshot!");
+            bool exists = false;
+            for (std::string filename : hdffileNames)
+                exists |= filename == filepathname;
+            if (!exists)
+            {
+                hdffileNames.push_back(filepathname);
+                std::vector < std::shared_ptr<HDFinfo> > hdfInfoList;
+                hdfInfoListList.push_back(hdfInfoList);
+            }
+
+            // Add to correct list
+            for (int k = 0; k < hdffileNames.size(); ++k)
+            {
+                if (hdffileNames[k] == filepathname)
+                {
+                    hdfInfoListList[k].push_back(hdfInfo[j]);
+                    break;
+                }
             }
         }
     }
 
-    loadHDFdata(hdfInfoList1, queue);
-    loadHDFdata(hdfInfoList2, queue);
+    for (int k = 0; k < hdfInfoListList.size(); ++k)
+        loadHDFdata(hdfInfoListList[k], queue);
 }
 
 void CauldronIO::ImportExport::loadHDFdata(std::vector< std::shared_ptr<HDFinfo> > hdfInfoList, boost::lockfree::queue<int>* queue)
