@@ -29,6 +29,17 @@ SceneInteractor::SceneInteractor()
   SoOrthographicCamera* orthoCamera = new SoOrthographicCamera();
   m_orthoInteractor = SoCameraInteractor::getNewInstance(orthoCamera);
 
+  perspCamera->orientation.connectFrom(&orthoCamera->orientation);
+  orthoCamera->orientation.connectFrom(&perspCamera->orientation);
+  perspCamera->position.connectFrom(&orthoCamera->position);
+  orthoCamera->position.connectFrom(&perspCamera->position);
+  perspCamera->nearDistance.connectFrom(&orthoCamera->nearDistance);
+  orthoCamera->nearDistance.connectFrom(&perspCamera->nearDistance);
+  perspCamera->farDistance.connectFrom(&orthoCamera->farDistance);
+  orthoCamera->farDistance.connectFrom(&perspCamera->farDistance);
+  perspCamera->focalDistance.connectFrom(&orthoCamera->focalDistance);
+  orthoCamera->focalDistance.connectFrom(&perspCamera->focalDistance);
+
   // Camera switch
   m_cameraSwitch = new SoSwitch();
   
@@ -85,14 +96,12 @@ SceneInteractor::viewAll(const SbViewportRegion &viewport)
   m_cameraInteractor->viewAll(this, viewport);
 }
 
-SoCameraInteractor*
-SceneInteractor::getCameraInteractor()
+SoCameraInteractor* SceneInteractor::getCameraInteractor()
 {
   return m_cameraInteractor;
 }
 
-void
-SceneInteractor::setCameraMode(SceneInteractor::CameraMode mode)
+void SceneInteractor::setCameraMode(SceneInteractor::CameraMode mode)
 {
   if (mode == SceneInteractor::PERSPECTIVE)
   {
@@ -107,8 +116,7 @@ SceneInteractor::setCameraMode(SceneInteractor::CameraMode mode)
   m_headlightRot->rotation.connectFrom(&m_cameraInteractor->getCamera()->orientation);
 }
 
-SceneInteractor::CameraMode
-SceneInteractor::getCameraMode()
+SceneInteractor::CameraMode SceneInteractor::getCameraMode()
 {
   int activatedCamera = m_cameraSwitch->whichChild.getValue();
 

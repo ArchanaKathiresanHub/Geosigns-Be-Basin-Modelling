@@ -361,7 +361,6 @@ private:
   double m_flowLinesLeakageThreshold;
 
   float m_verticalScale;
-  ProjectionType m_projectionType;
 
   std::vector<bool> m_formationVisibility;
   std::vector<bool> m_surfaceVisibility;
@@ -384,10 +383,6 @@ private:
   size_t m_reservoirsTimeStamp;
   size_t m_faultsTimeStamp;
   size_t m_flowLinesTimeStamp;
-
-  SoPerspectiveCamera*  m_perspectiveCamera;
-  SoOrthographicCamera* m_orthographicCamera;
-  SoSwitch*             m_cameraSwitch;
 
   SoGroup*        m_root;
   SoShapeHints*   m_formationShapeHints;
@@ -497,10 +492,6 @@ public:
   PickResult processPickedPoint(const SoPickedPoint* point);
 
   void setCurrentSnapshot(size_t index);
-
-  SoCamera* getCamera() const;
-
-  void setProjection(ProjectionType type);
 
   void setVerticalScale(float scale);
 

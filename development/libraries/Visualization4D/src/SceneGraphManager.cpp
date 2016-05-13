@@ -1246,24 +1246,6 @@ void SceneGraphManager::setupCoordinateGrid()
 
 void SceneGraphManager::setupSceneGraph()
 {
-  m_perspectiveCamera = new SoPerspectiveCamera;
-  m_orthographicCamera = new SoOrthographicCamera;
-  m_perspectiveCamera->orientation.connectFrom(&m_orthographicCamera->orientation);
-  m_orthographicCamera->orientation.connectFrom(&m_perspectiveCamera->orientation);
-  m_perspectiveCamera->position.connectFrom(&m_orthographicCamera->position);
-  m_orthographicCamera->position.connectFrom(&m_perspectiveCamera->position);
-  m_perspectiveCamera->nearDistance.connectFrom(&m_orthographicCamera->nearDistance);
-  m_orthographicCamera->nearDistance.connectFrom(&m_perspectiveCamera->nearDistance);
-  m_perspectiveCamera->farDistance.connectFrom(&m_orthographicCamera->farDistance);
-  m_orthographicCamera->farDistance.connectFrom(&m_perspectiveCamera->farDistance);
-  m_perspectiveCamera->focalDistance.connectFrom(&m_orthographicCamera->focalDistance);
-  m_orthographicCamera->focalDistance.connectFrom(&m_perspectiveCamera->focalDistance);
-
-  m_cameraSwitch = new SoSwitch;
-  m_cameraSwitch->addChild(m_perspectiveCamera);
-  m_cameraSwitch->addChild(m_orthographicCamera);
-  m_cameraSwitch->whichChild = SO_SWITCH_NONE;// (m_projectionType == PerspectiveProjection) ? 0 : 1;
-
   // Backface culling is enabled for solid shapes with ordered vertices
   m_formationShapeHints = new SoShapeHints;
   m_formationShapeHints->setName("formationShapeHints");
@@ -1413,7 +1395,6 @@ void SceneGraphManager::setupSceneGraph()
 
   m_root = new SoGroup;
   m_root->setName("root");
-  m_root->addChild(m_cameraSwitch);
   m_root->addChild(m_formationShapeHints);
   m_root->addChild(m_coordinateGridSwitch);
   m_root->addChild(m_scale);
@@ -1505,7 +1486,6 @@ SceneGraphManager::SceneGraphManager()
   , m_flowLinesExpulsionThreshold(0.0)
   , m_flowLinesLeakageThreshold(0.0)
   , m_verticalScale(1.f)
-  , m_projectionType(PerspectiveProjection)
   , m_cellFilterEnabled(false)
   , m_cellFilterMinValue(0.0)
   , m_cellFilterMaxValue(1.0)
@@ -1666,21 +1646,6 @@ void SceneGraphManager::setCurrentSnapshot(size_t index)
   m_snapshotsSwitch->addChild(m_snapshotInfoCache.begin()->root.ptr());
 
   updateSnapshot();
-}
-
-SoCamera* SceneGraphManager::getCamera() const
-{
-  bool perspective = m_cameraSwitch->whichChild.getValue() == 0;
-  if (perspective)
-    return m_perspectiveCamera;
-  else
-    return m_orthographicCamera;
-}
-
-void SceneGraphManager::setProjection(SceneGraphManager::ProjectionType type)
-{
-  m_projectionType = type;
-  m_cameraSwitch->whichChild = (type == PerspectiveProjection) ? 0 : 1;
 }
 
 void SceneGraphManager::setVerticalScale(float scale)
