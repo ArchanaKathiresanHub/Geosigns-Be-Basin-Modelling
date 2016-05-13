@@ -132,6 +132,10 @@ public:
   void enableInterpolatedSurface(bool enabled);
 
   void setInterpolatedSurfacePosition(float position);
+
+  void setDataRange(double rangeMin, double rangeMax);
+
+  void loadColorMap(const char* filename);
 };
 
 #endif

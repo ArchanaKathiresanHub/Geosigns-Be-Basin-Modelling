@@ -125,6 +125,66 @@ namespace
     program->shaderObject.set1Value(SoVolumeShader::VERTEX_POSTPROCESSING, vertexShader);
     return program;
   }
+
+  bool loadColorMap(SoTransferFunction* tf, const char* filename)
+  {
+    std::ifstream in(filename);
+    if (!in)
+      return false;
+
+    std::string s1, s2;
+    int ncolors;
+    in >> s1 >> s2 >> ncolors;
+
+    tf->colorMap.setNum(4 * ncolors);
+    for(int i=0, j=0; i < ncolors; ++i)
+    {
+      unsigned int r, g, b;
+      in >> r >> g >> b;
+
+      tf->colorMap.set1Value(j++, r / 65535.f);
+      tf->colorMap.set1Value(j++, g / 65535.f);
+      tf->colorMap.set1Value(j++, b / 65535.f);
+      tf->colorMap.set1Value(j++, 1.f);
+    }
+
+    tf->colorMapType = SoTransferFunction::RGBA;
+    tf->predefColorMap = SoTransferFunction::NONE;
+
+    return true;
+  }
+
+  inline int toInt(float v)
+  {
+    int intval = (int)(65535 * v);
+    if (intval < 0)
+      intval = 0;
+
+    if (intval > 65535)
+      intval = 65535;
+
+    return intval;
+  }
+
+  void saveColorMap(SoTransferFunction* transferFunc, const char* filename)
+  {
+    std::ofstream out(filename);
+    if (!out)
+      return;
+
+    int n = transferFunc->actualColorMap.getNum() / 4;
+    out << "ncolors = " << n << '\n';
+
+    for (int i = 0, j=0; i < n; ++i)
+    {
+      out
+        << toInt(transferFunc->actualColorMap[j++]) << ' '
+        << toInt(transferFunc->actualColorMap[j++]) << ' '
+        << toInt(transferFunc->actualColorMap[j++]) << '\n';
+
+      j++; // skip alpha
+    }
+  }
 }
 
 void CustomLDMInfo::writeXML(FILE* fp)
@@ -498,7 +558,7 @@ SeismicScene::SeismicScene(const char* filename, const Project::Dimensions& dim)
 , m_transferFunction(new SoTransferFunction)
 , m_range(new SoDataRange)
 {
-  double rangeMin = -10e3, rangeMax = 10e3;
+  double rangeMin = -1e4, rangeMax = 1e4;
 
   auto reader = SoVolumeReader::getAppropriateReader(filename);
   m_data->setReader(*reader, true);
@@ -512,6 +572,7 @@ SeismicScene::SeismicScene(const char* filename, const Project::Dimensions& dim)
 
   m_material->diffuseColor.setValue(SbColor(1.f, 1.f, 1.f));
   m_transferFunction->predefColorMap = SoTransferFunction::BLUE_WHITE_RED;
+  m_transferFunction->loadColormap("c:\\data\\cmaps\\SeismicAmplitude.col");
 
   m_range->min = rangeMin;
   m_range->max = rangeMax;
@@ -620,3 +681,28 @@ void SeismicScene::setInterpolatedSurfacePosition(float position)
     updateSurface();
   }
 }
+
+void SeismicScene::setDataRange(double rangeMin, double rangeMax)
+{
+  m_range->min = rangeMin;
+  m_range->max = rangeMax;
+}
+
+void SeismicScene::loadColorMap(const char* filename)
+{
+  const char* extension = strrchr(filename, '.');
+  if (!extension)
+    return;
+
+  if (!strcmp(extension, ".cmap"))
+  {
+    ::loadColorMap(m_transferFunction, filename);
+  }
+  else if (!strcmp(extension, ".col") || !strcmp(extension, ".am"))
+  {
+    m_transferFunction->loadColormap(filename);
+  }
+
+  m_transferFunction->predefColorMap = SoTransferFunction::NONE;
+}
+

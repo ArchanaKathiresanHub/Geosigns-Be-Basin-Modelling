@@ -21,8 +21,9 @@
 #include <QtGui/QLabel>
 #include <QtCore/QTime>
 
+#include <Inventor/ViewerComponents/SoCameraInteractor.h>
 #include <MeshVizXLM/mapping/MoMeshviz.h>
-#include <MeshViz/PoMeshViz.h>
+//#include <MeshViz/PoMeshViz.h>
 #include <VolumeViz/nodes/SoVolumeRendering.h>
 #include <IvTune/SoIvTune.h>
 
@@ -51,25 +52,16 @@ namespace
 
 void MainWindow::initOIV()
 {
-  char* features[] =
-  {
-    "OpenInventor",
-    "MeshVizXLM",
-    "VolumeViz"
-  };
-
-  //float oivVersion = SoDB::getLicensingVersionNumber();
-
   m_oivLicenseOK = true;
-  //for (int i = 0; i < 3; ++i)
-  //  if (SoDB::LicenseCheck(features[i], oivVersion, nullptr, true, nullptr) < 0)
-  //    m_oivLicenseOK = false;
 
   if (m_oivLicenseOK)
   {
-    MoMeshViz::init();
-    PoMeshViz::init();
+    std::cout << "Initializing VolumeViz..." << std::endl;
     SoVolumeRendering::init();
+    std::cout << "Initializing MeshViz..." << std::endl;
+    MoMeshViz::init();
+    std::cout << "done" << std::endl;
+    //PoMeshViz::init();
   }
 }
 
@@ -323,8 +315,8 @@ void MainWindow::updateUI()
   m_ui.lineEditColorScaleMaxValue->setEnabled(false);
   m_ui.lineEditColorScaleMinValue->setText("0.0");
   m_ui.lineEditColorScaleMaxValue->setText("1.0");
-  m_ui.lineEditColorScaleMinValue->setValidator(new QDoubleValidator);
-  m_ui.lineEditColorScaleMaxValue->setValidator(new QDoubleValidator);
+  m_ui.lineEditColorScaleMinValue->setValidator(new QDoubleValidator(this));
+  m_ui.lineEditColorScaleMaxValue->setValidator(new QDoubleValidator(this));
 
   m_ui.checkBoxCellFilter->setEnabled(true);
   m_ui.checkBoxCellFilter->setCheckState(Qt::Unchecked);
@@ -334,8 +326,8 @@ void MainWindow::updateUI()
   m_ui.lineEditCellFilterMaxValue->setEnabled(false);
   m_ui.lineEditCellFilterMinValue->setText("0.0");
   m_ui.lineEditCellFilterMaxValue->setText("1.0");
-  m_ui.lineEditCellFilterMinValue->setValidator(new QDoubleValidator);
-  m_ui.lineEditCellFilterMaxValue->setValidator(new QDoubleValidator);
+  m_ui.lineEditCellFilterMinValue->setValidator(new QDoubleValidator(this));
+  m_ui.lineEditCellFilterMaxValue->setValidator(new QDoubleValidator(this));
 
   bool seismicEnabled = (bool)m_seismicScene;
   m_ui.checkBoxSliceInline->setEnabled(seismicEnabled);
@@ -356,6 +348,11 @@ void MainWindow::updateUI()
     m_ui.sliderSliceCrossline->setValue(size[2] / 2);
 
     m_ui.sliderInterpolatedSurfacePosition->setMaximum(300);
+
+    m_ui.lineEditColorMapMin->setText("-10000.0");
+    m_ui.lineEditColorMapMax->setText("10000.0");
+    m_ui.lineEditColorMapMin->setValidator(new QDoubleValidator(this));
+    m_ui.lineEditColorMapMax->setValidator(new QDoubleValidator(this));
   }
 }
 
@@ -426,6 +423,10 @@ void MainWindow::connectSignals()
 
   connect(m_ui.checkBoxInterpolatedSurface, SIGNAL(toggled(bool)), this, SLOT(onInterpolatedSurfaceToggled(bool)));
   connect(m_ui.sliderInterpolatedSurfacePosition, SIGNAL(valueChanged(int)), this, SLOT(onInterpolatedSurfacePositionChanged(int)));
+
+  connect(m_ui.lineEditColorMapMin, SIGNAL(editingFinished()), this, SLOT(onSeismicColorScaleValueChanged()));
+  connect(m_ui.lineEditColorMapMax, SIGNAL(editingFinished()), this, SLOT(onSeismicColorScaleValueChanged()));
+  connect(m_ui.pushButtonLoadColorMap, SIGNAL(clicked()), this, SLOT(onLoadSeismicColorMapClicked()));
 }
 
 int MainWindow::getFaultIndex(const std::string& collectionName, const std::string& faultName) const
@@ -541,7 +542,7 @@ void MainWindow::onActionViewPresetTriggered()
   {
     if (sender() == actions[i])
     {
-      SoCamera* camera = m_sceneGraphManager->getCamera();
+      SoCamera* camera = m_examiner->getCameraInteractor()->getCamera();
       setViewPreset(camera, presets[i]);
       break;
     }
@@ -725,9 +726,9 @@ void MainWindow::onCoordinateGridToggled(bool value)
 
 void MainWindow::onProjectionIndexChanged(int index)
 {
-  m_sceneGraphManager->setProjection(index == 0
-    ? SceneGraphManager::PerspectiveProjection 
-    : SceneGraphManager::OrthographicProjection);
+  m_examiner->setCameraMode(index == 0
+    ? SceneInteractor::PERSPECTIVE
+    : SceneInteractor::ORTHOGRAPHIC);
 
   m_ui.renderWidget->updateGL();
 }
@@ -904,7 +905,7 @@ void MainWindow::onItemDoubleClicked(QTreeWidgetItem* item, int column)
     if (name == "HeatFlow")
     {
       //std::string suffix[] = { "X", "Y", "Z" };
-      //const di::Property* props[3];
+       //const di::Property* props[3];
       //props[0] = m_projectHandle->findProperty(name + "X");
       //props[1] = m_projectHandle->findProperty(name + "Y");
       //props[2] = m_projectHandle->findProperty(name + "Z");
@@ -1040,6 +1041,31 @@ void MainWindow::onSeismicSliceValueChanged(int value)
   m_seismicScene->setSlicePosition(type, value);
 
   m_ui.renderWidget->updateGL();
+}
+
+void MainWindow::onSeismicColorScaleValueChanged()
+{
+  double minVal = m_ui.lineEditColorMapMin->text().toDouble();
+  double maxVal = m_ui.lineEditColorMapMax->text().toDouble();
+
+  m_seismicScene->setDataRange(minVal, maxVal);
+
+  m_ui.renderWidget->updateGL();
+}
+
+void MainWindow::onLoadSeismicColorMapClicked()
+{
+  QString caption = "Open colormap";
+  QString dir;
+  QString filter = "Colormap files (*.cmap *.col *.am)";
+  QString filename = QFileDialog::getOpenFileName(this, caption, dir, filter);
+
+  if (!filename.isNull())
+  {
+    auto ascii = filename.toAscii();
+    m_seismicScene->loadColorMap(ascii.data());
+    m_ui.renderWidget->updateGL();
+  }
 }
 
 void MainWindow::onInterpolatedSurfaceToggled(bool value)

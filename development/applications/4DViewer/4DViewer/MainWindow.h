@@ -145,6 +145,10 @@ private slots:
 
   void onSeismicSliceValueChanged(int value);
 
+  void onSeismicColorScaleValueChanged();
+
+  void onLoadSeismicColorMapClicked();
+
   void onInterpolatedSurfaceToggled(bool value);
 
   void onInterpolatedSurfacePositionChanged(int value);
