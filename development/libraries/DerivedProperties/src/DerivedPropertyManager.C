@@ -67,9 +67,10 @@
 typedef formattingexception::GeneralException DerivedPropertyManagerException;
 
 DerivedProperties::DerivedPropertyManager::DerivedPropertyManager ( GeoPhysics::ProjectHandle* projectHandle,
+                                                                    const bool                 loadAllProperties,
                                                                     const bool                 debug ) : m_projectHandle ( projectHandle ) {
 
-   m_loadAllProperties = true;
+   m_loadAllProperties = loadAllProperties;
    loadPrimaryFormationPropertyCalculators        ( debug );
    loadPrimarySurfacePropertyCalculators          ( debug );
    loadPrimaryFormationSurfacePropertyCalculators ( debug );

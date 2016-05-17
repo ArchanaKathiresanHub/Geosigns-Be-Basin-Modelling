@@ -38,6 +38,7 @@ PropertiesCalculator::PropertiesCalculator( int aRank ) {
    m_rank = aRank;
 
    m_debug            = false;
+   m_copy             = false;
    m_basement         = false; 
    m_all2Dproperties  = false;
    m_all3Dproperties  = false;
@@ -86,10 +87,19 @@ DerivedPropertyManager * PropertiesCalculator::getPropertyManager() const {
 }
 //------------------------------------------------------------//
 
-void  PropertiesCalculator::finalise ( bool isComplete ) {
+bool  PropertiesCalculator::finalise ( bool isComplete ) {
 
    m_projectHandle->setSimulationDetails ( "fastproperties", "Default", "" );
    m_projectHandle->finishActivity ( isComplete );
+   
+   bool status = 0;
+   if( isComplete ) {
+      if( ! copyFiles ()) {
+         PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Unable to copy output files\n");
+         
+         status = 1;
+      }
+   }
 
    if( isComplete && m_rank == 0 ) {
       char outputFileName[128];
@@ -109,6 +119,8 @@ void  PropertiesCalculator::finalise ( bool isComplete ) {
 
    delete m_projectHandle;
    m_projectHandle = 0;
+
+   return status;
 }
 
 //------------------------------------------------------------//
@@ -119,7 +131,7 @@ bool PropertiesCalculator::CreateFrom ( DataAccess::Interface::ObjectFactory* fa
       m_projectHandle = ( GeoPhysics::ProjectHandle* )( OpenCauldronProject( m_projectFileName, "r", factory ) );
 
       if(  m_projectHandle != 0 ) {
-         m_propertyManager = new DerivedPropertyManager ( m_projectHandle, m_debug );
+         m_propertyManager = new DerivedPropertyManager ( m_projectHandle, false, m_debug );
       }
    }
    if(  m_projectHandle == 0 ||  m_propertyManager == 0 ) {
@@ -184,9 +196,6 @@ bool PropertiesCalculator::showLists() {
 void PropertiesCalculator::convertToVisualizationIO( )  {
 
    if( m_convert ) {
-      PetscBool onlyPrimary = PETSC_FALSE;
-      PetscOptionsHasName( PETSC_NULL, "-primaryDouble", &onlyPrimary );
- 
       cout << "Converting to visualization format.." << endl;
 
       PetscLogDouble Start_Time;
@@ -200,13 +209,7 @@ void PropertiesCalculator::convertToVisualizationIO( )  {
 
       timeInSeconds = (float)(clock() - start) / CLOCKS_PER_SEC;
       cout << "Finished opening project handle in " << timeInSeconds << " seconds " << endl;
-
-      if( onlyPrimary ) {
-         if( m_primaryPod ) {
-            H5_Parallel_PropertyList::setOneFilePerProcessOption( );
-         }
-      }
-     
+    
       std::shared_ptr<CauldronIO::Project> project = ImportProjectHandle::createFromProjectHandle(projectHandle, false );
       timeInSeconds = (float)(clock() - start) / CLOCKS_PER_SEC;
       cout << "Finished import in " << timeInSeconds << " seconds " << endl;
@@ -676,6 +679,97 @@ bool PropertiesCalculator::setFastcauldronActivityName() {
    return true;
 }
 //------------------------------------------------------------//
+bool PropertiesCalculator::copyFiles( ) {
+
+   if ( not H5_Parallel_PropertyList::isPrimaryPodEnabled () or 
+        ( H5_Parallel_PropertyList::isPrimaryPodEnabled () and not m_copy )) {
+      return true;
+   }
+
+   int rank;
+   MPI_Comm_rank(PETSC_COMM_WORLD, &rank);
+
+   if( rank != 0 ) return true;
+
+   PetscBool noFileRemove = PETSC_FALSE;
+   PetscOptionsHasName( PETSC_NULL, "-noremove", &noFileRemove );
+   
+   PetscLogDouble StartMergingTime;
+   PetscTime(&StartMergingTime);
+   bool status = true;
+   
+   const std::string& directoryName = m_projectHandle->getOutputDir ();
+   
+   PetscPrintf ( PETSC_COMM_WORLD, "Copy output files ...\n" ); 
+   
+   SnapshotList * snapshots = m_projectHandle->getSnapshots( MAJOR | MINOR );
+   SnapshotList::iterator snapshotIter;
+      
+   for ( snapshotIter = snapshots->begin(); snapshotIter != snapshots->end(); ++snapshotIter ) {
+      const Interface::Snapshot * snapshot = *snapshotIter;
+      
+      if ( snapshot->getFileName () == "" ) {
+         continue;
+      }
+      ibs::FilePath filePathName( m_projectHandle->getProjectPath () );
+      filePathName << directoryName << snapshot->getFileName ();
+      
+      displayProgress( snapshot->getFileName (), StartMergingTime, "Copy " );
+
+      status = H5_Parallel_PropertyList::copyMergedFile( filePathName.path(), false );
+      
+      // delete the file in the shared scratch
+      if( status and not noFileRemove ) {
+         ibs::FilePath fileName(H5_Parallel_PropertyList::getTempDirName() );
+         fileName << filePathName.cpath ();
+         
+         int status = std::remove( fileName.cpath() ); //c_str ());
+         if (status == -1)
+            cerr << fileName.cpath() << " MeSsAgE WARNING  Unable to remove snapshot file, because '" 
+                 << std::strerror(errno) << "'" << endl;
+      }  
+   }
+
+   string fileName = m_activityName + "_Results.HDF" ; 
+   ibs::FilePath filePathName( m_projectHandle->getProjectPath () );
+   filePathName <<  directoryName << fileName;
+   
+   displayProgress( fileName, StartMergingTime, "Copy " );
+   
+   status = H5_Parallel_PropertyList::copyMergedFile( filePathName.path(), false );
+   
+   // remove the file from the shared scratch
+   if( status and  not noFileRemove ) {
+
+    ibs::FilePath fileName(H5_Parallel_PropertyList::getTempDirName() );
+      fileName << filePathName.cpath ();
+      int status = std::remove( fileName.cpath() );
+      
+      if (status == -1) {
+         cerr << fileName.cpath () << " MeSsAgE WARNING  Unable to remove file, because '" 
+              << std::strerror(errno) << "'" << endl;
+      }
+
+     // remove the output directory from the shared scratch
+      ibs::FilePath dirName(H5_Parallel_PropertyList::getTempDirName() );
+      dirName << directoryName;
+
+      displayProgress( dirName.path(), StartMergingTime, "Removing remote output directory " );
+      status = std::remove( dirName.cpath() );
+         
+      if (status == -1)
+         cerr << dirName.cpath () << " MeSsAgE WARNING  Unable to remove the directory, because '" 
+              << std::strerror(errno) << "'" << endl;
+   }  
+
+   if( status ) {
+      displayTime( StartMergingTime, "Total merging time: " );
+   } else {
+      PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Could not merge the file %s.\n", filePathName.cpath() );               
+   }
+   return status;  
+}
+//------------------------------------------------------------//
 
 bool PropertiesCalculator::parseCommandLine( int argc, char ** argv ) {
    
@@ -764,6 +858,13 @@ bool PropertiesCalculator::parseCommandLine( int argc, char ** argv ) {
          }
          m_projectFileName = argv[ ++arg ];
       }
+      else if ( strncmp( argv[ arg ], "-copy", Max( 4, (int)strlen( argv[ arg ] ) ) ) == 0 )
+      {
+         m_copy = true;
+      }
+      else if ( strncmp( argv[ arg ], "-noremove", Max( 4, (int)strlen( argv[ arg ] ) ) ) == 0 )
+      {
+      }
       else if ( strncmp( argv[ arg ], "-debug", Max( 2, (int)strlen( argv[ arg ] ) ) ) == 0 )
       {
          m_debug = true;
@@ -822,7 +923,7 @@ bool PropertiesCalculator::parseCommandLine( int argc, char ** argv ) {
          LogHandler(LogHandler::ERROR_SEVERITY) << "Unknown or ambiguous option: " << argv[ arg ];
          showUsage( argv[ 0 ] );
 
-         //   return false;
+         return false;
       }
    }
 
@@ -864,25 +965,30 @@ void PropertiesCalculator::showUsage( const char* command, const char* message )
       }
       
       cout << "Usage (case sensitive!!): " << command << endl << endl
-           << "\t[-properties name1,name2...]                       properties to produce output for" << endl
-           << "\t[-ages age1[-age2],...]                            select snapshot ages using single values and/or ranges" << endl << endl
-           << "\t[-formations formation1,formation2...]             produce output for the given formations" << endl
-           << "\t                                                   the four options above can include Crust or Mantle" << endl << endl
-           << "\t[-basement]                                        produce output for the basement as well," << endl
-           << "\t                                                   only needed if none of the three options above have been specified" << endl << endl
-           << "\t[-project] projectname                             name of 3D Cauldron project file to produce output for" << endl
-           << "\t[-save filename]                                   name of file to save output (*.csv format) table to, otherwise save to stdout" << endl
-           << "\t[-verbosity level]                                 verbosity level of the log file(s): minimal|normal|detailed|diagnostic. Default value is 'normal'." << endl
+           << "\t[-properties name1,name2...]               properties to produce output for" << endl
+           << "\t[-ages age1[-age2],...]                    select snapshot ages using single values and/or ranges" << endl << endl
+           << "\t[-formations formation1,formation2...]     produce output for the given formations" << endl
+           << "\t                                           the four options above can include Crust or Mantle" << endl << endl
+           << "\t[-basement]                                produce output for the basement as well," << endl
+           << "\t                                           only needed if none of the three options above have been specified" << endl << endl
+           << "\t[-project] projectname                     name of 3D Cauldron project file to produce output for" << endl
+           << "\t[-save filename]                           name of file to save output (*.csv format) table to, otherwise save to stdout" << endl
+           << "\t[-verbosity level]                         verbosity level of the log file(s): minimal|normal|detailed|diagnostic. Default value is 'normal'." << endl
            << endl
-           << "\t[-all-3D-properties]                               produce output for all 3D properties" << endl
-           << "\t[-all-2D-properties]                               produce output for all 2D primary properties" << endl
-           << "\t[-extract2D]                                       produce output for all 2D properties (use with -all-2D-properties)" << endl
-           << "\t[-list-properties]                                 print a list of available properties and exit" << endl
-           << "\t[-list-snapshots]                                  print a list of available snapshots and exit" << endl
-           << "\t[-list-stratigraphy]                               print a list of available surfaces and formations and exit" << endl << endl
-           << "\t[-convert]                                         convert the data to visialization format. (run on 1 core)" << endl << endl
-           << "\t[-primaryPod <dir>]                                use if the fastcauldron data are stored in the shared <dir> on the cluster" << endl << endl
-           << "\t[-help]                                            print this message and exit" << endl << endl;
+           << "\t[-all-3D-properties]                       produce output for all 3D properties" << endl
+           << "\t[-all-2D-properties]                       produce output for all 2D primary properties" << endl
+           << "\t[-extract2D]                               produce output for all 2D properties (use with -all-2D-properties)" << endl
+           << "\t[-list-properties]                         print a list of available properties and exit" << endl
+           << "\t[-list-snapshots]                          print a list of available snapshots and exit" << endl
+           << "\t[-list-stratigraphy]                       print a list of available surfaces and formations and exit" << endl << endl
+           << "\t[-convert]                                 convert the data to visialization format. (run on 1 core)" << endl << endl
+           << "\t[-help]                                    print this message and exit" << endl << endl
+           << "Options for shared cluster storage:" << endl << endl
+           << "\t[-primaryPod <dir>]                        use if the fastcauldron data are stored in the shared <dir> on the cluster" << endl << endl
+           << "\t[-copy]                                    use in combination with -primaryPod. Copy the results to the local dir and " << endl
+           << "\t                                           remove them from the shared dir on the cluster" << endl << endl
+           << "\t[-noremove]                                use in combination with -primaryPod and -copy. Don't remove results from " << endl
+           << "\t                                           the shared dir on the cluster" << endl << endl;
       cout << "If names in an argument list contain spaces, put the list between double or single quotes, e.g:"
            << "\t-formations \"Dissolved Salt,Al Khalata\"" << endl;
       cout << "Bracketed options are optional and options may be abbreviated" << endl << endl;

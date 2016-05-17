@@ -92,6 +92,7 @@ private:
 
    bool m_debug;
    bool m_basement;
+   bool m_copy;
    bool m_all2Dproperties;    ///< If true: computes all 2D derived properties
    bool m_all3Dproperties;    ///< If true: computes all 3D derived properties
    bool m_listProperties;     ///< If true: prints all outputable properties
@@ -108,6 +109,7 @@ private:
    string m_simulationMode; ///< The name of the last simulation fastcauldron mode
 
    int m_snapshotsType; ///< The type of snapshots to calculate derived properties at
+
 public:
 
    GeoPhysics::ProjectHandle* getProjectHandle() const;
@@ -116,7 +118,7 @@ public:
    bool showLists();
 
    bool startActivity();
-   void finalise ( bool isComplete );
+   bool finalise ( bool isComplete );
    bool CreateFrom( DataAccess::Interface::ObjectFactory* factory);
 
    bool setFastcauldronActivityName();
@@ -144,6 +146,8 @@ public:
 
    bool parseCommandLine ( int argc, char ** argv );
    void showUsage( const char* command, const char* message = 0 );
+
+   bool copyFiles();
  
 };
 

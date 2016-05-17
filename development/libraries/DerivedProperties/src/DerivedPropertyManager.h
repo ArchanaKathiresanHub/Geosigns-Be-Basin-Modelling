@@ -24,6 +24,7 @@ namespace DerivedProperties {
    public :
 
       DerivedPropertyManager ( GeoPhysics::ProjectHandle* projectHandle,
+                               const bool                 loadAllProperties = true,
                                const bool                 debug = false );
 
       /// \brief Get the property given the property-name.
