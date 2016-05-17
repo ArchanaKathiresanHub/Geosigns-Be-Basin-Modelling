@@ -45,77 +45,82 @@
 namespace casa
 {
 
-struct ProjectFunctor : public Eigen::DenseFunctor<double>
-{
-   ProjectFunctor( LMOptAlgorithm & lm
-                 , int prmSpaceDim
-                 , int obsSpaceDim
-                 ) 
-                 : DenseFunctor<double>( prmSpaceDim, obsSpaceDim )
-                 , m_lm( lm )
-   {
-   }
-
-   int operator() ( const Eigen::VectorXd & x, Eigen::VectorXd & fvec ) const
-   {
-      LMOptAlgorithm & lm = const_cast<LMOptAlgorithm&>( m_lm );
-      lm.updateParametersAndRunCase( x );
-      lm.calculateFunctionValue( fvec );
-
-      return 0;
-   }
-
-   // We always assume forward differences. In case of log10 transformation we increment the base value and transform the increment back, as done in PEST 
-   int df( const InputType& _x, JacobianType &jac )
-   {
-      using std::sqrt;
-      using std::abs;
-      /* Local variables */
-      Scalar h;
-      int nfev = 0;
-      const InputType::Index n = _x.size( );
-      ValueType val1, val2;
-      const Scalar eps = 0.1; // 10% increment as in PEST. How to pass the eps of NumericalDiff?
-      InputType x = _x;
-
-      val1.resize( ProjectFunctor::values( ) );
-      val2.resize( ProjectFunctor::values( ) );
-
-      // compute f(x)
-      ProjectFunctor::operator()( x, val1 ); nfev++;
-
-      // Function Body
-      for ( int j = 0; j < n; ++j ) 
+   struct ProjectFunctor : public Eigen::DenseFunctor<double>
+   {      
+      ProjectFunctor( LMOptAlgorithm & lm
+      , int prmSpaceDim
+      , int obsSpaceDim
+      , Eigen::VectorXd& xMax
+      )
+      : DenseFunctor<double>( prmSpaceDim, obsSpaceDim )
+      , m_lm( lm )
+      , m_xMax( xMax )
       {
-        //calculate the base value
-        if ( m_lm.transformation( ) == "log10" )
-        {
-            x[j] = pow( 10, x[j] );
-        }
-        //increment always in terms of the base value
-        h = 0.1 * abs( x[j] );
-        x[j] += h;
-        //backtransform in log10 for function evaluation
-        if ( m_lm.transformation( ) == "log10" )
-        {
-           x[j] = log10( x[j] );
-        }
-        ProjectFunctor::operator()( x, val2 );
-        nfev++;
-        // the increment h should be in log10
-        if ( m_lm.transformation( ) == "log10" )
-        {
-           h =  x[j]  - _x[j] ;
-        }
-        //restore the old value
-        x[j] = _x[j];
-        jac.col( j ) = ( val2 - val1 ) / h; 
-      };
-      return nfev;
-   }
+      }
 
-   const LMOptAlgorithm & m_lm;
-};
+      int operator() ( const Eigen::VectorXd & x, Eigen::VectorXd & fvec ) const
+      {
+         LMOptAlgorithm & lm = const_cast<LMOptAlgorithm&>( m_lm );
+         lm.updateParametersAndRunCase( x );
+         lm.calculateFunctionValue( fvec );
+
+         return 0;
+      }
+
+      // In case of log10 transformation we increment the base value and transform the increment back, as done in PEST 
+      int df( const InputType& _x, JacobianType &jac )
+      {
+         using std::sqrt;
+         using std::abs;
+         /* Local variables */
+         Scalar h;
+         int nfev = 0;
+         const InputType::Index n = _x.size();
+         ValueType val1, val2;
+         // 10% increment as in PEST
+         const Scalar eps = 0.1; 
+         InputType x = _x;
+
+         val1.resize( ProjectFunctor::values() );
+         val2.resize( ProjectFunctor::values() );
+
+         // compute f(x)
+         ProjectFunctor::operator()( x, val1 ); nfev++;
+
+         // Function Body
+         for ( int j = 0; j < n; ++j )
+         {
+            // calculate the base value
+            if ( m_lm.transformation() == "log10" )
+            {
+               x[j] = pow( 10, x[j] );
+            }
+            // increment always in terms of the base value
+            h = eps * abs( x[j] );
+            // if the parameter is 0, increment it of 0.1
+            if ( h == 0. ) h = eps;
+            // backward difference if the parameter exceeds the bound
+            if ( x[j] + h > m_xMax[j] ) h = -h;
+            x[j] += h;
+            // backtransform in log10 for the function evaluation
+            if ( m_lm.transformation() == "log10" )
+            {
+               x[j] = log10( x[j] );
+               h = x[j] - _x[j];
+            }
+            // calculate the jacobian
+            ProjectFunctor::operator()( x, val2 );
+            jac.col( j ) = ( val2 - val1 ) / h;
+            nfev++;
+            //restore the original value
+            x[j] = _x[j];
+         };
+         return nfev;
+      }
+
+      const LMOptAlgorithm & m_lm;
+      Eigen::VectorXd& m_xMax;
+   };
 
 size_t LMOptAlgorithm::prepareParameters( std::vector<double> & initGuess, std::vector<double> & minPrm, std::vector<double> & maxPrm )
 {
@@ -388,6 +393,7 @@ void LMOptAlgorithm::calculateFunctionValue( Eigen::VectorXd & fvec )
       }
       
       double fval = 0.0;
+      double fpen = 0.0;
       switch( ppdf )
       {
          case VarPrmContinuous::Block: fval = 1e-10; break;
@@ -411,13 +417,21 @@ void LMOptAlgorithm::calculateFunctionValue( Eigen::VectorXd & fvec )
       if (      pval < minV ) 
       { 
          LogHandler( LogHandler::DEBUG_SEVERITY ) << "pval less than minV : "<< pval <<" "<< minV;
-         fval += 50 * (minV - pval); 
+         fpen = 50 * (minV - pval); 
       }  // penalty if v < [min:max]
       else if ( pval > maxV ) 
       { 
          LogHandler( LogHandler::DEBUG_SEVERITY ) << "pval larger than maxV : " << pval << " " << minV;
-         fval += 50 * (pval - maxV); 
+         fpen  = 50 * (pval - maxV); 
       }  // penalty if v > [min:max]
+
+      if ( m_parameterTransformation == "log10" )
+      {
+         fpen = 1 - exp( fpen );
+      }
+      
+      // add pemality if outside the bound
+      fval += fpen;
 
 #ifndef ACCUMULATE_MIN_FUNCTION
       fvec[mi] = fval;
@@ -477,17 +491,19 @@ void LMOptAlgorithm::runOptimization( ScenarioAnalysis & sa )
 
    // Functor
 #ifndef ACCUMULATE_MIN_FUNCTION
-   ProjectFunctor functor( *this, prmSpDim, prmSpDim + obsSpDim ); // use parameters also as observables to keep them in range
+   ProjectFunctor functor( *this, prmSpDim, prmSpDim + obsSpDim, maxPrmEig ); // use parameters also as observables to keep them in range
 #else
-   ProjectFunctor functor( *this, prmSpDim, 2 ); // use parameters also as observables to keep them in range
+   ProjectFunctor functor( *this, prmSpDim, 2, maxPrmEig ); // use parameters also as observables to keep them in range
 #endif
 
-   Eigen::NumericalDiff<ProjectFunctor> numDiff( functor, 0.1 ); //10% relative, as in PEST
-   Eigen::LevenbergMarquardt< Eigen::NumericalDiff<ProjectFunctor, Eigen::Forward> > lm( numDiff );
+   // we do not use Eigen::NumericalDiff because we define df
+   Eigen::LevenbergMarquardt< ProjectFunctor > lm( functor );
 
-   lm.setMaxfev( 200 );     
+   // 20 evaluations for each parameter should be sufficent
+   lm.setMaxfev( 20 * guess.size( ) );  
    lm.setXtol( 1.0e-8 );
-   lm.setFtol( 1 - 0.974 );  //3. set the tolerance for norm of fval as in PEST: 1 - 0.95 ^ 0.5 
+   // set the tolerance for norm of fval as in PEST: 1 - 0.95 ^ 0.5 
+   lm.setFtol( 1 - 0.974 );             
 
    int ret = lm.minimize( initialGuess );
 
