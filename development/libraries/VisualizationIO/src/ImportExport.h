@@ -13,6 +13,7 @@
 
 #include "VisualizationAPI.h"
 #include "DataStore.h"
+#include "FilePath.h"
 #pragma warning (disable:488)
 #include <boost/lockfree/queue.hpp>
 #include <boost/atomic.hpp>
@@ -55,7 +56,7 @@ namespace CauldronIO
         // Method to retrieve data on a thread
         static void retrieveDataQueue(std::vector < VisualizationIOData* >* allData, boost::lockfree::queue<int>* queue, boost::atomic<bool>* done);
 
-        ImportExport(const boost::filesystem::path& absPath, const boost::filesystem::path& relPath, size_t numThreads);
+        ImportExport(const ibs::FilePath& absPath, const ibs::FilePath& relPath, size_t numThreads);
         void addProject(pugi::xml_node pt, std::shared_ptr<Project>& project);
         void addProperty(pugi::xml_node node, const std::shared_ptr<const Property>& property) const;
         void addFormation(pugi::xml_node node, const std::shared_ptr<const Formation>& formation) const;
@@ -65,17 +66,18 @@ namespace CauldronIO
         std::shared_ptr<const Reservoir> getReservoir(pugi::xml_node reservoirNode) const;
         std::shared_ptr<const Geometry2D> getGeometry2D(pugi::xml_node surfaceNode, const char* name) const;
         std::shared_ptr<Geometry3D> getGeometry3D(pugi::xml_node volumeNode) const;
-        std::shared_ptr<Volume> getVolume(pugi::xml_node volumeNode, const boost::filesystem::path& path);
+        std::shared_ptr<Volume> getVolume(pugi::xml_node volumeNode, const ibs::FilePath& path);
         void addSurface(DataStoreSave& dataStore, const std::shared_ptr<Surface>& surfaceIO, pugi::xml_node ptree);
         void addVolume(DataStoreSave& dataStore, const std::shared_ptr<Volume>& volume, pugi::xml_node volNode);
         void addGeometryInfo2D(pugi::xml_node node, const std::shared_ptr<const Geometry2D>& geometry, const std::string& name) const;
         void addGeometryInfo3D(pugi::xml_node  tree, const std::shared_ptr<const Geometry3D>& geometry) const;
-        void addSnapShot(const std::shared_ptr<SnapShot>& snapShot, std::shared_ptr<Project>& project, boost::filesystem::path fullPath, pugi::xml_node node);
+        void addSnapShot(const std::shared_ptr<SnapShot>& snapShot, std::shared_ptr<Project>& project, ibs::FilePath fullPath, pugi::xml_node node);
         void retrieveAllData(const std::shared_ptr<SnapShot>& snapShot);
         void prefetchHDFdata(std::vector< VisualizationIOData* > allReadData, boost::lockfree::queue<int>* queue);
         void loadHDFdata(std::vector< std::shared_ptr<HDFinfo> > hdfInfoList, boost::lockfree::queue<int>* queue);
         // member variables
-        boost::filesystem::path m_absPath, m_relPath;
+		ibs::FilePath m_absPath;
+		ibs::FilePath m_relPath;
         std::shared_ptr<Project> m_project;
         bool m_append;
         size_t m_numThreads;

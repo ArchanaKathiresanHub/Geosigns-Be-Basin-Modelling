@@ -11,6 +11,8 @@
 #include "ImportExport.h"
 #include "VisualizationIO_native.h"
 #include "DataStore.h"
+#include "FilePath.h"
+#include "FolderPath.h"
 
 #include <boost/foreach.hpp>
 #include <boost/thread.hpp>
@@ -28,37 +30,35 @@ bool ImportExport::exportToXML(std::shared_ptr<Project>& project, const std::str
     const std::string& xmlIndexingName, size_t numThreads)
 {
     // Create empty property tree object
-    namespace fs = boost::filesystem;
-    fs::path outputPath(absPath);
-    outputPath.append(relPath);
-
+    ibs::FilePath outputPath(absPath);
+    outputPath << relPath;
+	ibs::FilePath absFilePath(absPath);
+	ibs::FilePath relFilePath(relPath);
     // Create output directory if not existing
-    if (!boost::filesystem::exists(outputPath))
+    if (!outputPath.exists())
     {
-        boost::system::error_code err;
-        boost::filesystem::create_directory(outputPath, err);
-        if (err != boost::system::errc::success) throw CauldronIOException("cannot create path");
+        ibs::FolderPath(outputPath.path()).create();
     }
 
     pugi::xml_document doc;
     pugi::xml_node pt = doc.append_child("project");
 
-    ImportExport newExport(absPath, relPath, numThreads);
+    ImportExport newExport(absFilePath, relFilePath, numThreads);
 
     // Create xml property tree and write datastores
     newExport.addProject(pt, project);
 
     // Write property tree to XML file
-    fs::path xmlFileName(absPath);
-    xmlFileName.append(xmlIndexingName);
+    ibs::FilePath xmlFileName(absPath);
+    xmlFileName << xmlIndexingName;
 
-    return doc.save_file(xmlFileName.string().c_str());
+    return doc.save_file(xmlFileName.cpath());
 }
 
 void ImportExport::addProject(pugi::xml_node pt, std::shared_ptr<Project>& project)
 {
-    boost::filesystem::path fullPath(m_absPath);
-    fullPath.append(m_relPath.string());
+    ibs::FilePath fullPath(m_absPath);
+    fullPath << m_relPath.path();
 
     // Add general project description
     pt.append_child("name").text() = project->getName().c_str();
@@ -66,7 +66,7 @@ void ImportExport::addProject(pugi::xml_node pt, std::shared_ptr<Project>& proje
     pt.append_child("modelingmode").text() = (int)project->getModelingMode();
     pt.append_child("team").text() = project->getTeam().c_str();
     pt.append_child("programversion").text() = project->getProgramVersion().c_str();
-    pt.append_child("outputpath").text() = m_relPath.string().c_str();
+    pt.append_child("outputpath").text() = m_relPath.cpath();
     
     pugi::xml_node ptxml = pt.append_child("xml-version");
     ptxml.append_attribute("major") = xml_version_major;
@@ -110,10 +110,8 @@ void ImportExport::addProject(pugi::xml_node pt, std::shared_ptr<Project>& proje
     }
 }
 
-CauldronIO::ImportExport::ImportExport(const boost::filesystem::path& absPath, const boost::filesystem::path& relPath, size_t numThreads)
+CauldronIO::ImportExport::ImportExport(const ibs::FilePath& absPath, const ibs::FilePath& relPath, size_t numThreads) : m_absPath(absPath), m_relPath(relPath)
 {
-    m_absPath = absPath;
-    m_relPath = relPath;
     m_numThreads = numThreads;
 }
 
@@ -252,7 +250,7 @@ void CauldronIO::ImportExport::addGeometryInfo3D(pugi::xml_node node, const std:
     subNode.append_attribute("firstK") = (unsigned int)geometry->getFirstK();
 }
 
-void CauldronIO::ImportExport::addSnapShot(const std::shared_ptr<SnapShot>& snapShot, std::shared_ptr<Project>& project, boost::filesystem::path fullPath, pugi::xml_node node)
+void CauldronIO::ImportExport::addSnapShot(const std::shared_ptr<SnapShot>& snapShot, std::shared_ptr<Project>& project, ibs::FilePath fullPath, pugi::xml_node node)
 {
     std::ostringstream ss;
     ss << std::fixed << std::setprecision(6);
@@ -260,13 +258,13 @@ void CauldronIO::ImportExport::addSnapShot(const std::shared_ptr<SnapShot>& snap
     std::string snapshotString = ss.str();
     std::cout << "Writing snapshot Age=" << snapshotString << std::endl;
 
-    boost::filesystem::path volumeStorePath(fullPath);
-    volumeStorePath /= "Snapshot_" + snapshotString + "_volumes.cldrn";
-    DataStoreSave volumeStore(volumeStorePath.string(), m_append);
+    ibs::FilePath volumeStorePath(fullPath);
+    volumeStorePath << "Snapshot_" + snapshotString + "_volumes.cldrn";
+    DataStoreSave volumeStore(volumeStorePath.path(), m_append);
 
-    boost::filesystem::path surfaceStorePath(fullPath);
-    surfaceStorePath /= "Snapshot_" + snapshotString + "_surfaces.cldrn";
-    DataStoreSave surfaceDataStore(surfaceStorePath.string(), m_append);
+    ibs::FilePath surfaceStorePath(fullPath);
+    surfaceStorePath << "Snapshot_" + snapshotString + "_surfaces.cldrn";
+    DataStoreSave surfaceDataStore(surfaceStorePath.path(), m_append);
 
     node.append_attribute("age") = snapShot->getAge();
     node.append_attribute("kind") = snapShot->getKind();
@@ -581,7 +579,7 @@ bool CauldronIO::ImportExport::detectAppend(std::shared_ptr<Project>& project)
 
 std::shared_ptr<Project> CauldronIO::ImportExport::importFromXML(const std::string& filename)
 {
-    if (!boost::filesystem::exists(filename))
+    if (!ibs::FilePath(filename).exists())
         throw CauldronIOException("Cannot open file");
     
     pugi::xml_document doc;
@@ -591,10 +589,8 @@ std::shared_ptr<Project> CauldronIO::ImportExport::importFromXML(const std::stri
     if (!result)
         throw CauldronIOException("Error during parsing xml file");
 
-    boost::filesystem::path path(filename);
-    path.remove_filename();
-    
-    ImportExport importExport(path, boost::filesystem::path(""), 1);
+        
+    ImportExport importExport(ibs::FilePath(filename).filePath(), ibs::FilePath(""), 1);
     std::shared_ptr<Project> project;
     
     try
@@ -616,8 +612,8 @@ std::shared_ptr<Project> CauldronIO::ImportExport::importFromXML(const std::stri
 
 std::string CauldronIO::ImportExport::getXMLIndexingFileName(const std::string& project3Dfilename)
 {
-    boost::filesystem::path path(project3Dfilename);
-    return path.stem().string() + ".xml";
+    ibs::FilePath path(project3Dfilename);
+    return path.fileNameNoExtension() + ".xml";
 }
 
 std::shared_ptr<Project> CauldronIO::ImportExport::getProject(const pugi::xml_document& ptDoc)
@@ -652,8 +648,8 @@ std::shared_ptr<Project> CauldronIO::ImportExport::getProject(const pugi::xml_do
     if (backwardCompatible)
         throw CauldronIOException("Xml format not backward compatible"); // we should try to fix that when the time comes
 
-    boost::filesystem::path fullOutputPath(m_absPath);
-    fullOutputPath /= outputPath;
+    ibs::FilePath fullOutputPath(m_absPath);
+    fullOutputPath << outputPath;
 
     // Create the project
     m_project.reset(new Project(projectName, projectDescript, projectTeam, projectVersion, mode, dataXmlVersionMajor, dataXmlVersionMinor));
@@ -924,7 +920,7 @@ std::shared_ptr<Geometry3D> CauldronIO::ImportExport::getGeometry3D(pugi::xml_no
     return std::shared_ptr<Geometry3D>(new Geometry3D(numI, numJ, numK, firstK, deltaI, deltaJ, minI, minJ));
 }
 
-std::shared_ptr<Volume> CauldronIO::ImportExport::getVolume(pugi::xml_node volumeNode, const boost::filesystem::path& path)
+std::shared_ptr<Volume> CauldronIO::ImportExport::getVolume(pugi::xml_node volumeNode, const ibs::FilePath& path)
 {
     SubsurfaceKind surfaceKind = (SubsurfaceKind)volumeNode.attribute("subsurfacekind").as_int();
 

@@ -52,6 +52,8 @@ namespace CauldronIO
 #include "VisualizationAPI.h"
 #include "VisualizationIO_native.h"
 #include "ImportExport.h"
+#include "FilePath.h"
+#include "FolderPath.h"
 %}
 
 %ignore CauldronIOException;

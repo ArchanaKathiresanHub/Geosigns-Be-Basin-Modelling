@@ -39,10 +39,10 @@ CauldronIO::DataStoreLoad::DataStoreLoad(DataStoreParams* params)
 {
     m_params = static_cast<DataStoreParamsNative*>(params);
     
-    if (!boost::filesystem::exists(m_params->fileName))
+    if (!m_params->fileName.exists())
         throw CauldronIOException("Cannot retrieve file for reading");
 
-    m_file_in.open(m_params->fileName.c_str(), std::fstream::in | std::fstream::binary);
+    m_file_in.open(m_params->fileName.cpath(), std::fstream::in | std::fstream::binary);
     m_data_uncompressed = NULL;
 }
 
@@ -124,7 +124,7 @@ char* CauldronIO::DataStoreLoad::decompress_lz4(const char* inputData, size_t& c
     return dest;
 }
 
-void CauldronIO::DataStoreLoad::getVolume(pugi::xml_node ptree, std::shared_ptr<VolumeData> volumeData, const boost::filesystem::path& path)
+void CauldronIO::DataStoreLoad::getVolume(pugi::xml_node ptree, std::shared_ptr<VolumeData> volumeData, const ibs::FilePath& path)
 {
     bool foundSome = false;
 
@@ -140,10 +140,9 @@ void CauldronIO::DataStoreLoad::getVolume(pugi::xml_node ptree, std::shared_ptr<
         volumeNative->setUndefinedValue(undef);
 
         DataStoreParamsNative* paramsNative = new DataStoreParamsNative();
-        std::string filename = datastoreNode.attribute("file").value();
-        boost::filesystem::path filepath(path);
-        filepath /= filename;
-        paramsNative->fileName = filepath;
+        paramsNative->fileName = path;
+		paramsNative->fileName << datastoreNode.attribute("file").value();
+
 
         std::string compression = datastoreNode.attribute("compression").value();
         paramsNative->compressed = compression == "gzip";
@@ -159,7 +158,7 @@ void CauldronIO::DataStoreLoad::getVolume(pugi::xml_node ptree, std::shared_ptr<
         throw CauldronIOException("Could not find datastore in xml node");
 }
 
-void CauldronIO::DataStoreLoad::getSurface(pugi::xml_node ptree, std::shared_ptr<SurfaceData> surfaceData, const boost::filesystem::path& path)
+void CauldronIO::DataStoreLoad::getSurface(pugi::xml_node ptree, std::shared_ptr<SurfaceData> surfaceData, const ibs::FilePath& path)
 {
     pugi::xml_node datastoreNode = ptree.child("datastore");
     if (!datastoreNode)
@@ -172,11 +171,9 @@ void CauldronIO::DataStoreLoad::getSurface(pugi::xml_node ptree, std::shared_ptr
     mapNative->setUndefinedValue(undef);
 
     DataStoreParamsNative* paramsNative = new DataStoreParamsNative();
-
-    std::string filename = datastoreNode.attribute("file").value();
-    boost::filesystem::path filepath(path);
-    filepath /= filename;
-    paramsNative->fileName = filepath;
+	paramsNative->fileName = path;
+    paramsNative->fileName << datastoreNode.attribute("file").value();
+       
 
     std::string compression = datastoreNode.attribute("compression").value();
     paramsNative->compressed = compression == "gzip";
@@ -212,7 +209,7 @@ CauldronIO::DataStoreSave::~DataStoreSave()
 
     // Delete if empty
     if (m_offset == 0)
-        boost::filesystem::remove(m_fileName);
+        ibs::FilePath(m_fileName).remove();
 }
 
 char* CauldronIO::DataStoreSave::compress(const char* inputData, size_t& elements)
@@ -283,7 +280,7 @@ void CauldronIO::DataStoreSave::flush()
 void CauldronIO::DataStoreSave::addSurface(const std::shared_ptr<SurfaceData>& surfaceData, pugi::xml_node node)
 {
     pugi::xml_node subNode = node.append_child("datastore");
-    subNode.append_attribute("file") = boost::filesystem::path(m_fileName).filename().string().c_str();
+    subNode.append_attribute("file") = ibs::FilePath(m_fileName).fileName().c_str();
     subNode.append_attribute("undef") = surfaceData->getUndefinedValue();
 
     MapNative* mapNative = dynamic_cast<MapNative*>(surfaceData.get());
@@ -309,7 +306,7 @@ void CauldronIO::DataStoreSave::addSurface(const std::shared_ptr<SurfaceData>& s
     {
         // This surface already has been written: skip it
         const DataStoreParamsNative* const params = static_cast<DataStoreParamsNative const*>(mapNative->getDataStoreParams());
-        assert(m_fileName == params->fileName);
+        assert(m_fileName == params->fileName.path());
 
         subNode.append_attribute("offset") = (unsigned int)m_offset;
         subNode.append_attribute("size") = (unsigned int)params->size;
@@ -345,7 +342,7 @@ void CauldronIO::DataStoreSave::writeVolumePart(pugi::xml_node volNode, bool com
     VolumeDataNative* nativeVolume = dynamic_cast<VolumeDataNative*>(volume.get());
 
     pugi::xml_node subNode = volNode.append_child("datastore");
-    subNode.append_attribute("file") = boost::filesystem::path(m_fileName).filename().string().c_str();
+    subNode.append_attribute("file") = ibs::FilePath(m_fileName).fileName().c_str();
     subNode.append_attribute("undef") = volume->getUndefinedValue();
 
     if (compress)
@@ -372,7 +369,7 @@ void CauldronIO::DataStoreSave::writeVolumePart(pugi::xml_node volNode, bool com
     {
         // This volume already has been written: skip it
         const DataStoreParamsNative* const params = static_cast<DataStoreParamsNative const*>(nativeVolume->getDataStoreParamsIJK());
-        assert(m_fileName == params->fileName);
+        assert(m_fileName == params->fileName.path());
 
         subNode.append_attribute("offset") = (unsigned int)m_offset;
         subNode.append_attribute("size") = (unsigned int)params->size;

@@ -13,6 +13,7 @@
 #include "VisualizationIO_native.h"
 #include "Interface/ProjectHandle.h"
 #include "Interface/ObjectFactory.h"
+#include "FilePath.h"
 #include <boost/filesystem/path.hpp>
 #include <boost/lockfree/queue.hpp>
 #include <boost/atomic.hpp>
@@ -172,13 +173,11 @@ int main(int argc, char ** argv)
                 start = clock();
 
                 // Construct output path
-                boost::filesystem::path relPath(projectFileName);
-                relPath = relPath.stem().string() + "_vizIO_output";
-                boost::filesystem::path absPath(projectFileName);
-                absPath.remove_filename();
+                ibs::FilePath relPath(projectFileName);
+                relPath = relPath.fileNameNoExtension() + "_vizIO_output";
                 std::string indexingXMLname = CauldronIO::ImportExport::getXMLIndexingFileName(projectFileName);
 
-                CauldronIO::ImportExport::exportToXML(project, absPath.string(), relPath.string(), indexingXMLname, numThreads);
+                CauldronIO::ImportExport::exportToXML(project, ibs::FilePath(projectFileName).filePath(), relPath.path(), indexingXMLname, numThreads);
                 timeInSeconds = (float)(clock() - start) / CLOCKS_PER_SEC;
                 cout << "Wrote to new format in " << timeInSeconds << " seconds" << endl;
             }

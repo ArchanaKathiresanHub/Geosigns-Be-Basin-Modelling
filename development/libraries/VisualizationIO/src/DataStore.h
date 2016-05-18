@@ -18,6 +18,7 @@
 #include <iostream>
 #include <fstream>
 #include "pugixml-1.7/pugixml.hpp"
+#include "FilePath.h"
 
 namespace CauldronIO
 {
@@ -38,11 +39,16 @@ namespace CauldronIO
     /// \brief Native implementation
     struct DataStoreParamsNative : DataStoreParams
     {
-        boost::filesystem::path fileName;
+        ibs::FilePath fileName;
         size_t offset;
         size_t size;
         bool compressed;
         bool compressed_lz4;
+		DataStoreParamsNative() :fileName(const std::string(""))
+		{
+
+		}
+
     };
 
     /// \brief Little class to load data from binary storage
@@ -63,9 +69,9 @@ namespace CauldronIO
         // Returns a decompressed char* with size "size", for given input data char* and uncompressed size; the compressedSize will be output
         static char* decompress_lz4(const char* inputData, size_t& compressedSize, size_t uncompressedSize);
         /// \brief Creates a volume from the current XML node and assigns given Property
-        static void getVolume(pugi::xml_node propertyVolNode, std::shared_ptr<VolumeData> volumeData, const boost::filesystem::path& path);
+        static void getVolume(pugi::xml_node propertyVolNode, std::shared_ptr<VolumeData> volumeData, const ibs::FilePath& path);
         /// \brief Gets surfacedata from the current XML node
-        static void getSurface(pugi::xml_node propertyMapNode, std::shared_ptr<SurfaceData> surfaceData, const boost::filesystem::path& path);
+        static void getSurface(pugi::xml_node propertyMapNode, std::shared_ptr<SurfaceData> surfaceData, const ibs::FilePath& path);
 
     private:
         std::ifstream m_file_in;
