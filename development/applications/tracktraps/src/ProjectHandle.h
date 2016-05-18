@@ -73,6 +73,10 @@ namespace PersistentTraps
 
 	 void saveProject (const string & fileName);
 
+         Interface::Formation * getBottomSourceRockFormation ();
+         
+         bool isDeposited (const Interface::Formation * formation, const Interface::Snapshot * snapshot);
+
       private:
 
    };

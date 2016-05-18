@@ -6,6 +6,8 @@
 #include "cauldronschemafuncs.h"
 
 #include "ProjectHandle.h"
+#include "Interface/Formation.h"
+#include "Interface/Surface.h"
 #include "Reservoir.h"
 #include "Trap.h"
 #include "PersistentTrap.h"
@@ -75,11 +77,15 @@ bool ProjectHandle::extractRelevantTraps (const Interface::Snapshot * snapshot)
    Interface::ReservoirList * reservoirs = getReservoirs (0);
    Interface::ReservoirList::const_iterator reservoirIter;
 
+   const Interface::Formation* srFormation = getBottomSourceRockFormation ();
+   if (srFormation == nullptr)
+      return false;
+
    for (reservoirIter = reservoirs->begin (); reservoirIter != reservoirs->end (); ++reservoirIter)
    {
       Reservoir * reservoir = (Reservoir *) * reservoirIter;
 
-      if (!reservoir->isActive (snapshot)) continue;
+      if (!reservoir->isActive (snapshot) or !isDeposited (srFormation, snapshot)) continue;
 
       if (!reservoir->extractRelevantTraps (snapshot)) result = false;
    }
@@ -94,11 +100,15 @@ bool ProjectHandle::determineTrapExtents (const Interface::Snapshot * snapshot)
    Interface::ReservoirList * reservoirs = getReservoirs (0);
    Interface::ReservoirList::const_iterator reservoirIter;
 
+   const Interface::Formation* srFormation = getBottomSourceRockFormation ();
+   if (srFormation == nullptr)
+      return false;
+
    for (reservoirIter = reservoirs->begin (); reservoirIter != reservoirs->end (); ++reservoirIter)
    {
       Reservoir * reservoir = (Reservoir *) * reservoirIter;
 
-      if (!reservoir->isActive (snapshot)) continue;
+      if (!reservoir->isActive (snapshot) or !isDeposited (srFormation, snapshot)) continue;
       if ( reservoir->getActivityMode() == "ActiveFrom" && snapshot->getTime()>reservoir->getActivityStart()) continue;
       if (!reservoir->determineTrapExtents (snapshot)) result = false;
    }
@@ -112,11 +122,15 @@ bool ProjectHandle::determineTrapSealPermeabilities (const Interface::Snapshot *
    Interface::ReservoirList * reservoirs = getReservoirs (0);
    Interface::ReservoirList::const_iterator reservoirIter;
 
+   const Interface::Formation* srFormation = getBottomSourceRockFormation ();
+   if (srFormation == nullptr)
+      return false;
+
    for (reservoirIter = reservoirs->begin (); reservoirIter != reservoirs->end (); ++reservoirIter)
    {
       Reservoir * reservoir = (Reservoir *) * reservoirIter;
 
-      if (!reservoir->isActive (snapshot)) continue;
+      if (!reservoir->isActive (snapshot) or !isDeposited (srFormation, snapshot)) continue;
 
       if (!reservoir->determineTrapSealPermeabilities (snapshot)) result = false;
    }
@@ -130,11 +144,15 @@ bool ProjectHandle::determineTrapPorosities (const Interface::Snapshot * snapsho
    Interface::ReservoirList * reservoirs = getReservoirs (0);
    Interface::ReservoirList::const_iterator reservoirIter;
 
+   const Interface::Formation* srFormation = getBottomSourceRockFormation ();
+   if (srFormation == nullptr)
+      return false;
+
    for (reservoirIter = reservoirs->begin (); reservoirIter != reservoirs->end (); ++reservoirIter)
    {
       Reservoir * reservoir = (Reservoir *) * reservoirIter;
 
-      if (!reservoir->isActive (snapshot)) continue;
+      if (!reservoir->isActive (snapshot) or !isDeposited (srFormation, snapshot)) continue;
       if ( reservoir->getActivityMode() == "ActiveFrom" && snapshot->getTime()>reservoir->getActivityStart()) continue;
       if (!reservoir->determineTrapPorosities (snapshot)) result = false;
    }
@@ -148,11 +166,15 @@ bool ProjectHandle::determineReservoirDepths (const Interface::Snapshot * snapsh
    Interface::ReservoirList * reservoirs = getReservoirs (0);
    Interface::ReservoirList::const_iterator reservoirIter;
 
+   const Interface::Formation* srFormation = getBottomSourceRockFormation ();
+   if (srFormation == nullptr)
+      return false;
+
    for (reservoirIter = reservoirs->begin (); reservoirIter != reservoirs->end (); ++reservoirIter)
    {
       Reservoir * reservoir = (Reservoir *) * reservoirIter;
 
-      if (!reservoir->isActive (snapshot)) continue;
+      if (!reservoir->isActive (snapshot) or !isDeposited (srFormation, snapshot)) continue;
       if ( reservoir->getActivityMode() == "ActiveFrom" && snapshot->getTime()>reservoir->getActivityStart()) continue;
       if (!reservoir->determineAverageDepth (snapshot)) result = false;
    }
@@ -168,11 +190,15 @@ bool ProjectHandle::computePersistentTraps (const Interface::Snapshot * snapshot
 
    Interface::ReservoirList::const_iterator reservoirIter;
 
+   const Interface::Formation* srFormation = getBottomSourceRockFormation ();
+   if (srFormation == nullptr)
+      return false;
+
    for (reservoirIter = reservoirs->begin (); reservoirIter != reservoirs->end (); ++reservoirIter)
    {
       Reservoir * reservoir = (Reservoir *) * reservoirIter;
 
-      if (!reservoir->isActive (snapshot)) continue;
+      if (!reservoir->isActive (snapshot) or !isDeposited (srFormation, snapshot)) continue;
 
       reservoir->computePersistentTraps (previousSnapshot);
    }
@@ -233,5 +259,34 @@ bool reservoirSorter (const Interface::Reservoir * reservoir1, const Interface::
 #endif
    
    return ((PersistentTraps::Reservoir *) reservoir1)->getAverageDepth () > ((PersistentTraps::Reservoir *) reservoir2)->getAverageDepth ();
+}
+
+Interface::Formation * ProjectHandle::getBottomSourceRockFormation ()
+{
+   Interface::FormationList * formations = getFormations ();
+   Interface::FormationList::iterator formationIter;
+
+   Interface::Formation * bottomSourceRockFormation = 0;
+   for (formationIter = formations->begin (); formationIter != formations->end (); ++formationIter)
+   {
+      Interface::Formation * formation = const_cast<Interface::Formation *> (*formationIter);
+
+      if (formation->isSourceRock ()) bottomSourceRockFormation = formation;
+   }
+
+   delete formations;
+
+   return bottomSourceRockFormation;
+}
+
+bool ProjectHandle::isDeposited (const Interface::Formation * formation, const Interface::Snapshot * snapshot)
+{
+   const Interface::Surface * bottomSurface = formation->getBottomSurface ();
+   const Interface::Snapshot * bottomSnapshot = bottomSurface->getSnapshot ();
+
+   if (bottomSnapshot->getTime () > snapshot->getTime ())
+      return true;
+   else
+      return false;
 }
 
