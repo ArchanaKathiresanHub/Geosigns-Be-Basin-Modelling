@@ -23,9 +23,12 @@ include_directories(
 )
 
 bm_include_libraries(
+  FileSystem
+  utilities
 )
 
 target_link_libraries(VisualizationIO
+  FileSystem
   ${HDF5_LIBRARIES}
   ${Boost_LIBRARIES}
 )

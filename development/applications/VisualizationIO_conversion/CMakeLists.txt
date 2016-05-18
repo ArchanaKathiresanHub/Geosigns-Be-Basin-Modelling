@@ -28,19 +28,22 @@ bm_include_libraries(
 	SerialDataAccess
 	DataAccess
 	TableIO
-    VisualizationIO
-    VisualizationIO_projectHandle
+	FileSystem
+	utilities
+   VisualizationIO
+   VisualizationIO_projectHandle
 )
 
 target_link_libraries(
-    VisualizationIO_convert
+   VisualizationIO_convert
 	DataModel
 	DataAccess
 	SerialDataAccess
 	DataAccess
 	TableIO
-    VisualizationIO
-    VisualizationIO_projectHandle
+	FileSystem
+   VisualizationIO
+   VisualizationIO_projectHandle
 	${HDF5_LIBRARIES}
 	${Boost_LIBRARIES}
 )

@@ -34,6 +34,7 @@ namespace CauldronIO
     /// \brief Little struct to hold parameters to retrieve data 
     struct DataStoreParams
     {
+       DataStoreParams() {;}
     };
 
     /// \brief Native implementation
@@ -44,11 +45,8 @@ namespace CauldronIO
         size_t size;
         bool compressed;
         bool compressed_lz4;
-		DataStoreParamsNative() :fileName(const std::string(""))
-		{
-
-		}
-
+        
+        DataStoreParamsNative() : fileName( "" ) {;}
     };
 
     /// \brief Little class to load data from binary storage
