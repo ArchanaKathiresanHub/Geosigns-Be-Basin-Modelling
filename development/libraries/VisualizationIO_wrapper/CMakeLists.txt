@@ -24,6 +24,8 @@ include_directories(
 )
 
 bm_include_libraries( 
+   FileSystem
+   utilities
    VisualizationIO
 )
 
