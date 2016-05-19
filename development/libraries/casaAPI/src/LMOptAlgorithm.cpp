@@ -551,11 +551,11 @@ size_t LMOptAlgorithm::prepareParameters( std::vector<double> & initGuess, std::
             m_permPrms.push_back( globNum + k );
             if ( m_parameterTransformation == "log10" )
             {
-               assert( basVals[k] != 0 ," base value equal to 0 cannot be used if parameter is log transformed ");
+               assert( basVals[k] != 0 );
                initGuess.push_back( log10( basVals[k] ) );
-               assert( minVals[k] != 0, " minimum value equal to 0 cannot be used if parameter is log transformed " );
+               assert( minVals[k] != 0 );
                minPrm.push_back( log10( minVals[k] ) );
-               assert( maxVals[k] != 0, " maximum value equal to 0 cannot be used if parameter is log transformed " );
+               assert( maxVals[k] != 0 );
                maxPrm.push_back( log10( maxVals[k] ) );
             }
             else
