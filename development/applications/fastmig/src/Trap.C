@@ -1533,9 +1533,9 @@ namespace migration
       }
 
       // Casting to GeoPhysics::FluidType so that the phase-change implementation for brine density can be used
-      const GeoPhysics::FluidType* parameters = dynamic_cast<const GeoPhysics::FluidType *> (formations[0]->getFluidType ());
-      assert (parameters);
-      sealFluidDensity = parameters->density (getTemperature (), getPressure ());
+      const GeoPhysics::FluidType* fluidType = dynamic_cast<const GeoPhysics::FluidType *> (formations[0]->getFluidType ());
+      assert (fluidType);
+      sealFluidDensity = fluidType->density (getTemperature (), getPressure ());
       return true;
    }
 
