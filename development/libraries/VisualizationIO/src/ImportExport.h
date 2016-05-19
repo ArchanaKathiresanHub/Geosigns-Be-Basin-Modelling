@@ -32,12 +32,9 @@ namespace CauldronIO
         /// Returns true on success, throws a CauldronIOException on failure
         /// if \param[in] release is true, data will be unloaded after storing
         /// \param[in] project the project to export to XML
-        /// \param[in] absPath the output directory path where to store the xml indexing file 
-        /// \param[in] relPath the output directory path where to store the binary outputs; will be created if not existing
-        /// \param[in] xmlIndexingName the output xml file name
+        /// \param[in] absPath the path with the xml file name 
         /// \param[in] numThreads number of threads (optional) used for compression
-        static bool exportToXML(std::shared_ptr<Project>& project, const std::string& absPath, const std::string& relPath, 
-             const std::string&, size_t numThreads = 1);
+        static bool exportToXML(std::shared_ptr<Project>& project, const std::string& absPath, size_t numThreads = 1);
         /// \brief Creates a new Project from the supplied XML indexing file
         /// Throws a CauldronIOException on failure
         static std::shared_ptr<Project> importFromXML(const std::string& filename);

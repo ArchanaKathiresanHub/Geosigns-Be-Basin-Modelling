@@ -214,13 +214,12 @@ void PropertiesCalculator::convertToVisualizationIO( )  {
       timeInSeconds = (float)(clock() - start) / CLOCKS_PER_SEC;
       cout << "Finished import in " << timeInSeconds << " seconds " << endl;
 
-      ibs::FilePath relPath(m_projectFileName);
-      relPath = relPath.fileNameNoExtension() + "_vizIO_output";
-	  std::string indexingXMLname = CauldronIO::ImportExport::getXMLIndexingFileName(m_projectFileName);
+	  ibs::FilePath absPath(projectHandle->getFullOutputDir());
+	  absPath << m_projectFileName;
       
       cout << "Writing to new format" << endl;
       start = clock();
-      CauldronIO::ImportExport::exportToXML(project, ibs::FilePath(projectHandle->getFullOutputDir()).filePath(), relPath.path(), indexingXMLname, 1);
+      CauldronIO::ImportExport::exportToXML(project, absPath.path(), 1);
 
       timeInSeconds = (float)(clock() - start) / CLOCKS_PER_SEC;
       cout << "Wrote to new format in " << timeInSeconds << " seconds" << endl;

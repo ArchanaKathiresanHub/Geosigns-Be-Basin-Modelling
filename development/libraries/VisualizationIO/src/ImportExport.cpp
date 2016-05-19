@@ -26,31 +26,33 @@
 const double DefaultUndefinedValue = 99999;
 using namespace CauldronIO;
 
-bool ImportExport::exportToXML(std::shared_ptr<Project>& project, const std::string& absPath, const std::string& relPath, 
-    const std::string& xmlIndexingName, size_t numThreads)
+bool ImportExport::exportToXML(std::shared_ptr<Project>& project, const std::string& absPath, size_t numThreads)
 {
     // Create empty property tree object
     ibs::FilePath outputPath(absPath);
-    outputPath << relPath;
-	ibs::FilePath absFilePath(absPath);
-	ibs::FilePath relFilePath(relPath);
-    // Create output directory if not existing
-    if (!outputPath.exists())
+	ibs::FilePath folderPath = outputPath.filePath();
+	std::string filename = outputPath.fileName();
+	std::string filenameNoExtension = outputPath.fileNameNoExtension();
+	filenameNoExtension += "_vizIO_output";
+	folderPath << filenameNoExtension;
+		
+	// Create output directory if not existing
+    if (!folderPath.exists())
     {
-        ibs::FolderPath(outputPath.path()).create();
+        ibs::FolderPath(folderPath.path()).create();
     }
 
     pugi::xml_document doc;
     pugi::xml_node pt = doc.append_child("project");
 
-    ImportExport newExport(absFilePath, relFilePath, numThreads);
+    ImportExport newExport(outputPath.filePath(), filenameNoExtension, numThreads);
 
     // Create xml property tree and write datastores
     newExport.addProject(pt, project);
 
     // Write property tree to XML file
-    ibs::FilePath xmlFileName(absPath);
-    xmlFileName << xmlIndexingName;
+    ibs::FilePath xmlFileName(outputPath.filePath());
+    xmlFileName << outputPath.fileNameNoExtension() + ".xml";
 
     return doc.save_file(xmlFileName.cpath());
 }

@@ -173,11 +173,9 @@ int main(int argc, char ** argv)
                 start = clock();
 
                 // Construct output path
-                ibs::FilePath relPath(projectFileName);
-                relPath = relPath.fileNameNoExtension() + "_vizIO_output";
-                std::string indexingXMLname = CauldronIO::ImportExport::getXMLIndexingFileName(projectFileName);
-
-                CauldronIO::ImportExport::exportToXML(project, ibs::FilePath(projectFileName).filePath(), relPath.path(), indexingXMLname, numThreads);
+                ibs::FilePath absPath(projectFileName);
+                
+                CauldronIO::ImportExport::exportToXML(project, absPath.path(), numThreads);
                 timeInSeconds = (float)(clock() - start) / CLOCKS_PER_SEC;
                 cout << "Wrote to new format in " << timeInSeconds << " seconds" << endl;
             }
