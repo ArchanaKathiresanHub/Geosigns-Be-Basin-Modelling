@@ -1044,6 +1044,14 @@ void VisualizationIOProject::init()
   m_projectInfo.dimensions.deltaYHiRes = hiresGeometry.getDeltaJ();
   m_projectInfo.dimensions.numCellsI = (int)loresGeometry.getNumI() - 1;
   m_projectInfo.dimensions.numCellsJ = (int)loresGeometry.getNumJ() - 1;
+  m_projectInfo.dimensions.numCellsK = 0;
+  if (!formations.empty())
+  {
+    unsigned int startK, endK;
+    formations.back()->getK_Range(startK, endK);
+    m_projectInfo.dimensions.numCellsK = (int)endK;
+  }
+
   m_projectInfo.dimensions.numCellsIHiRes = (int)hiresGeometry.getNumI() - 1;
   m_projectInfo.dimensions.numCellsJHiRes = (int)hiresGeometry.getNumJ() - 1;
 }

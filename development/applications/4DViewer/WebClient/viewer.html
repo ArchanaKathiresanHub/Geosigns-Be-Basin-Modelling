@@ -203,10 +203,42 @@
 			<div>
 				<div class="header">Seismic</div>
 				<div class="section">
-					<input id="sliceInlineCheckBox" type="checkbox" onchange="onSeismicSliceCheckBoxChanged(0, this)">I</input>
-					<input id="sliceInlineSlider" type="range" value="0" oninput="onSeismicSlicePositionChanged(0, this)"/><br>
-					<input id="sliceCrosslineCheckBox" type="checkbox" onchange="onSeismicSliceCheckBoxChanged(1, this)">J</input>
-					<input id="sliceCrosslineSlider" type="range" value="0" oninput="onSeismicSlicePositionChanged(1, this)"/><br>
+					<table>
+						<tr>
+							<td>
+								<input id="sliceInlineCheckBox" type="checkbox" onchange="onSeismicSliceCheckBoxChanged(0, this)">Inline</input>
+							</td>
+							<td>
+								<input id="sliceInlineSlider" type="range" value="0" oninput="onSeismicSlicePositionChanged(0, this)"/>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<input id="sliceCrosslineCheckBox" type="checkbox" onchange="onSeismicSliceCheckBoxChanged(1, this)">Crossline</input>
+							</td>
+							<td>
+								<input id="sliceCrosslineSlider" type="range" value="0" oninput="onSeismicSlicePositionChanged(1, this)"/>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<input id="interpolatedSurfaceCheckBox" type="checkbox" onchange="onInterpolatedSurfaceCheckBoxChanged(this)">Surface</input>
+							</td>
+							<td>
+								<input id="interpolatedSurfaceSlider" type="range" value="0" oninput="onInterpolatedSurfacePositionChanged(this)"/>
+							</td>
+						</tr>
+					</table>
+
+					<div>
+						<input id="seismicRangeMinValue" type="text" value="-20000" onchange="onSeismicRangeChanged()">
+						<label>Range min</label>						
+					</div>
+					<div>
+						<input id="seismicRangeMaxValue" type="text" value="20000" onchange="onSeismicRangeChanged()">
+						<label>Range max</label>						
+					</div>
+
 				</div>
 			</div>	
 

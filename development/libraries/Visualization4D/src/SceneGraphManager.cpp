@@ -691,7 +691,7 @@ void SceneGraphManager::updateSnapshotSlices()
     {
       assert(snapshot.meshData);
 
-      if (snapshot.slice[i] == 0)
+      if (!snapshot.slice[i])
       {
         auto slice = new MoMeshSlab;
         slice->dimension = MiMesh::DIMENSION_I + i;

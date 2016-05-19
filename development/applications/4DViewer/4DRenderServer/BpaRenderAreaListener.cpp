@@ -31,19 +31,18 @@
 #include <Inventor/ViewerComponents/SoCameraInteractor.h>
 
 #include <string>
+#include <thread>
 
+#include <boost/filesystem.hpp>
 
 void BpaRenderAreaListener::createSceneGraph(const std::string& id)
 {
   std::cout << "Loading project, id = " << id << std::endl;
-#ifdef WIN64
-  const std::string rootdir = "V:/data/";
-#else
-  const std::string rootdir = "/home/ree/data/";
-#endif
-  const std::string path = rootdir + id;
 
-  m_project = Project::load(path);
+  boost::filesystem::path projectFile(m_rootdir);
+  projectFile += id;
+
+  m_project = Project::load(projectFile.string());
   m_projectInfo = m_project->getProjectInfo();
 
   std::cout << "Project loaded, building scenegraph" << std::endl;
@@ -54,13 +53,23 @@ void BpaRenderAreaListener::createSceneGraph(const std::string& id)
   m_examiner = new SceneExaminer(m_sceneGraphManager);
   m_examiner->setFenceAddedCallback(std::bind(&BpaRenderAreaListener::onFenceAdded, this, std::placeholders::_1));
 
-  if (id.find("Barracuda") != std::string::npos)
-  {
-    const char* volumeFile = "Barracuda_3Ddepth_Realized8bit.sgy";
-    std::string volumePath = rootdir + volumeFile;
+  // Try to find seismic data
+  boost::filesystem::path ldmFile;
+  boost::filesystem::directory_iterator iter(projectFile.parent_path());
+  boost::filesystem::directory_iterator end;
+  while (iter != end && iter->path().extension() != ".ldm")
+    ++iter;
 
+  if (iter != end)
+    ldmFile = *iter;
+
+  if (!ldmFile.empty())
+  {
+    std::cout << "found LDM file " << ldmFile << std::endl;
+
+    std::string ldmFileStr = ldmFile.string();
     auto dim = m_project->getProjectInfo().dimensions;
-    m_seismicScene = std::make_shared<SeismicScene>(volumePath.c_str(), dim);
+    m_seismicScene = std::make_shared<SeismicScene>(ldmFileStr.c_str(), dim);
     m_sceneGraphManager->addSeismicScene(m_seismicScene);
   }
 
@@ -87,6 +96,11 @@ BpaRenderAreaListener::BpaRenderAreaListener(RenderArea* renderArea)
 , m_drawEdges(true)
 , m_logEvents(true)
 {
+#ifdef WIN64
+  m_rootdir = "C:/data/";
+#else
+  m_rootdir = "/home/ree/data/";
+#endif
 }
 
 BpaRenderAreaListener::~BpaRenderAreaListener()
@@ -95,6 +109,7 @@ BpaRenderAreaListener::~BpaRenderAreaListener()
 
 void BpaRenderAreaListener::onOpenedConnection(RenderArea* renderArea, Connection* connection)
 {
+  std::cout << "thread id = " << std::this_thread::get_id() << std::endl;
   if (m_logEvents)
   {
     std::cout << "[BpaRenderAreaListener] onOpenedConnection("
@@ -106,14 +121,14 @@ void BpaRenderAreaListener::onOpenedConnection(RenderArea* renderArea, Connectio
   if(!m_sceneGraphManager)
     createSceneGraph(renderArea->getId());
 
-  m_commandHandler.sendProjectInfo(renderArea, m_projectInfo);
+  m_commandHandler.sendProjectInfo(connection, m_projectInfo);
 
   if (m_seismicScene)
   {
     SbBox3f extent = m_seismicScene->getExtent();
     SbVec3i32 size = m_seismicScene->getDimensions();
 
-    m_commandHandler.sendSeismicInfo(renderArea, size, extent);
+    m_commandHandler.sendSeismicInfo(connection, size, extent);
   }
 
   RemoteViz::Rendering::RenderAreaListener::onOpenedConnection(renderArea, connection);

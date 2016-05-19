@@ -222,6 +222,7 @@ void DataAccessProject::init()
 
   m_projectInfo.dimensions.numCellsI = loresGrid->numI() - 1;
   m_projectInfo.dimensions.numCellsJ = loresGrid->numJ() - 1;
+  m_projectInfo.dimensions.numCellsK = 0; // will be initialized later
   m_projectInfo.dimensions.numCellsIHiRes = hiresGrid->numI() - 1;
   m_projectInfo.dimensions.numCellsJHiRes = hiresGrid->numJ() - 1;
   m_projectInfo.dimensions.deltaX = loresGrid->deltaI();
@@ -254,6 +255,8 @@ void DataAccessProject::init()
     fmt.numCellsK = depthValue->getGridMap()->getDepth() - 1;
     fmt.isSourceRock = formation->isSourceRock();
     m_projectInfo.formations.push_back(fmt);
+
+    m_projectInfo.dimensions.numCellsK += fmt.numCellsK;
 
     if (formation->isSourceRock())
     {

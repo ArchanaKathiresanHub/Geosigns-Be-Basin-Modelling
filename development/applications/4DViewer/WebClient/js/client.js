@@ -166,6 +166,11 @@ function initUI(projectInfo)
     timeSlider.step = 1;
     timeSlider.value = 0;
 
+    // seismic interpolated surface slider
+    var surfaceSlider = document.getElementById("interpolatedSurfaceSlider");
+    surfaceSlider.min = 0.0;
+    surfaceSlider.max = projectInfo.numK;
+
     // Init JPEG quality
     onQualitySliderChanged(document.getElementById("qualitySlider").valueAsNumber);
     onInteractiveQualitySliderChanged(document.getElementById("iqualitySlider").valueAsNumber);
@@ -827,6 +832,49 @@ function onSeismicSliceCheckBoxChanged(index, elem)
         params: {
             index: index,
             enabled: elem.checked
+        }
+    }
+
+    sendMsg(msg);
+}
+
+function onInterpolatedSurfaceCheckBoxChanged(elem)
+{
+    var msg = {
+        cmd: "EnableInterpolatedSurface",
+        params: {
+            enabled: elem.checked
+        }
+    }
+
+    sendMsg(msg);
+}
+
+function onInterpolatedSurfacePositionChanged(elem)
+{
+    var msg = {
+        cmd: "SetInterpolatedSurfacePosition",
+        params: {
+            position: elem.valueAsNumber
+        }
+    }
+
+    sendMsg(msg);
+}
+
+function onSeismicRangeChanged()
+{
+    var minElem = document.getElementById("seismicRangeMinValue");
+    var maxElem = document.getElementById("seismicRangeMaxValue");
+
+    var minValue = minElem.valueAsNumber;
+    var maxValue = maxElem.valueAsNumber;
+
+    var msg = {
+        cmd: "SetSeismicDataRange",
+        params: {
+            minValue: minValue,
+            maxValue: maxValue
         }
     }
 

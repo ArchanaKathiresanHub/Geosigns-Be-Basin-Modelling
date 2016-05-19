@@ -86,6 +86,7 @@ public:
   {
     int numCellsI;
     int numCellsJ;
+    int numCellsK;
     int numCellsIHiRes;
     int numCellsJHiRes;
 

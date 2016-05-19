@@ -117,6 +117,7 @@ namespace
       << "snapshotCount" << (int)projectInfo.snapshotCount
       << "numI" << projectInfo.dimensions.numCellsI
       << "numJ" << projectInfo.dimensions.numCellsJ
+      << "numK" << projectInfo.dimensions.numCellsK
       << "numIHiRes" << projectInfo.dimensions.numCellsIHiRes
       << "numJHiRes" << projectInfo.dimensions.numCellsJHiRes
       << "formations" << formations
@@ -610,6 +611,46 @@ void CommandHandler::onSetSeismicSlicePosition(
   }
 }
 
+void CommandHandler::onEnableInterpolatedSurface(
+  const jsonxx::Object& params,
+  RemoteViz::Rendering::RenderArea* renderArea,
+  RemoteViz::Rendering::Connection* /*connection*/)
+{
+  if (!m_seismicScene)
+    return;
+
+  bool enabled = params.get<bool>("enabled");
+  m_seismicScene->enableInterpolatedSurface(enabled);
+  adjustClippingPlanes(renderArea);
+}
+
+void CommandHandler::onSetInterpolatedSurfacePosition(
+  const jsonxx::Object& params,
+  RemoteViz::Rendering::RenderArea* renderArea,
+  RemoteViz::Rendering::Connection* /*connection*/)
+{
+  if (!m_seismicScene)
+    return;
+
+  float position = (float)params.get<jsonxx::Number>("position");
+  m_seismicScene->setInterpolatedSurfacePosition(position);
+  adjustClippingPlanes(renderArea);
+}
+
+void CommandHandler::onSetSeismicDataRange(
+  const jsonxx::Object& params,
+  RemoteViz::Rendering::RenderArea* /*renderArea*/,
+  RemoteViz::Rendering::Connection* /*connection*/)
+{
+  if (!m_seismicScene)
+    return;
+
+  float minValue = (float)params.get<jsonxx::Number>("minValue");
+  float maxValue = (float)params.get<jsonxx::Number>("maxValue");
+
+  m_seismicScene->setDataRange(minValue, maxValue);
+}
+
 void CommandHandler::onSetStillQuality(
   const jsonxx::Object& params,
   RemoteViz::Rendering::RenderArea* renderArea,
@@ -714,6 +755,9 @@ void CommandHandler::registerHandlers()
   m_handlers["SetCellFilterRange"] = &CommandHandler::onSetCellFilterRange;
   m_handlers["EnableSeismicSlice"] = &CommandHandler::onEnableSeismicSlice;
   m_handlers["SetSeismicSlicePosition"] = &CommandHandler::onSetSeismicSlicePosition;
+  m_handlers["EnableInterpolatedSurface"] = &CommandHandler::onEnableInterpolatedSurface;
+  m_handlers["SetInterpolatedSurfacePosition"] = &CommandHandler::onSetInterpolatedSurfacePosition;
+  m_handlers["SetSeismicDataRange"] = &CommandHandler::onSetSeismicDataRange;
   m_handlers["SetStillQuality"] = &CommandHandler::onSetStillQuality;
   m_handlers["SetInteractiveQuality"] = &CommandHandler::onSetInteractiveQuality;
   m_handlers["SetBandwidth"] = &CommandHandler::onSetBandwidth;
@@ -744,19 +788,16 @@ void CommandHandler::setup(SceneGraphManager* mgr, SeismicScene* seismic, SceneE
 }
 
 void CommandHandler::sendProjectInfo(
-  RemoteViz::Rendering::RenderArea* renderArea,
+  RemoteViz::Rendering::Connection* connection,
   const Project::ProjectInfo& projectInfo) const
 {
   jsonxx::Object msg;
   msg << "projectInfo" << toJSON(projectInfo);
-
-  //std::cout << msg.write(jsonxx::JSON) << std::endl;
-
-  renderArea->sendMessage(msg.write(jsonxx::JSON));
+  connection->sendMessage(msg.write(jsonxx::JSON));
 }
 
 void CommandHandler::sendSeismicInfo(
-  RemoteViz::Rendering::RenderArea* renderArea,
+  RemoteViz::Rendering::Connection* connection,
   const SbVec3i32& size, 
   const SbBox3f& extent) const
 {
@@ -782,7 +823,7 @@ void CommandHandler::sendSeismicInfo(
   jsonxx::Object msg;
   msg << "seismicInfo" << seismicInfo;
 
-  renderArea->sendMessage(msg.write(jsonxx::JSON));
+  connection->sendMessage(msg.write(jsonxx::JSON));
 }
 
 void CommandHandler::sendFenceAddedEvent(

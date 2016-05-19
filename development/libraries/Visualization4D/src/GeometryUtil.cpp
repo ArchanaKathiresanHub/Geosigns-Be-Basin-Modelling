@@ -209,8 +209,8 @@ std::vector<SbVec2d> computeGridLineIntersections(const SbVec2d& p0, const SbVec
     }
 
     valid =
-      fabs(lastX - p0[0]) < fabs(dx) &&
-      fabs(lastY - p0[1]) < fabs(dy);
+      fabs(lastX - p0[0]) <= fabs(dx) &&
+      fabs(lastY - p0[1]) <= fabs(dy);
   }
 
   if(points.back() != p1)

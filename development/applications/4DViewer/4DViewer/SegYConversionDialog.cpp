@@ -33,6 +33,7 @@ class SegyConverter : public SoVolumeConverter
   {
     CustomLDMInfo ldmInfo;
     m_reader->getP1P2P3Coordinates(ldmInfo.p1, ldmInfo.p2, ldmInfo.p3, ldmInfo.p4);
+
     ldmInfo.minDepth = m_minDepth;
     ldmInfo.maxDepth = m_maxDepth;
 

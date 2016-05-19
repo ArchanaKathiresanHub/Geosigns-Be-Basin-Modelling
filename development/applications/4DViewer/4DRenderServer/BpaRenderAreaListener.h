@@ -30,6 +30,7 @@ using namespace RemoteViz::Rendering;
 
 class BpaRenderAreaListener : public RenderAreaListener
 {
+  std::string m_rootdir;
   std::shared_ptr<Project> m_project;
   Project::ProjectInfo m_projectInfo;
 
@@ -54,13 +55,13 @@ public:
 
   ~BpaRenderAreaListener();
 
-  virtual void onOpenedConnection(RenderArea* renderArea, Connection* connection);
+  void onOpenedConnection(RenderArea* renderArea, Connection* connection) override;
 
-  virtual void onClosedConnection(RenderArea* renderArea, const std::string& connectionId);
+  void onClosedConnection(RenderArea* renderArea, const std::string& connectionId) override;
 
-  virtual void onReceivedMessage(RenderArea* renderArea, Connection* sender, const std::string& message);
+  void onReceivedMessage(RenderArea* renderArea, Connection* sender, const std::string& message) override;
 
-  virtual void onResize(RenderArea* renderArea, unsigned int width, unsigned int height);
+  void onResize(RenderArea* renderArea, unsigned int width, unsigned int height) override;
 };
 
 #endif

@@ -36,24 +36,24 @@ public:
 
 	~BpaServiceListener();
 
-  //virtual bool onPendingCreateRenderArea(
-  //  const std::string& renderAreaId, 
-  //  unsigned int& width, 
-  //  unsigned int& height, 
-  //  Device* device, 
-  //  ConnectionParameters* parameters);
+  bool onPendingCreateRenderArea(
+    const std::string& renderAreaId, 
+    unsigned int& width, 
+    unsigned int& height, 
+    Client* client, 
+    ConnectionParameters* parameters) override;
 
-  //virtual bool onPendingShareRenderArea(RenderArea* renderArea, Device* device, ConnectionParameters* parameters);
+  bool onPendingShareRenderArea(RenderArea* renderArea, Client* client, ConnectionParameters* parameters) override;
 
-  virtual void onInstantiatedRenderArea(RenderArea *renderArea);
+  void onInstantiatedRenderArea(RenderArea *renderArea) override;
 
-  //virtual void onDisposedRenderArea(const std::string& renderAreaId);
+  void onDisposedRenderArea(const std::string& renderAreaId) override;
 
-  //virtual void onConnectedDevice(const std::string& deviceId);
+  void onConnectedClient(const std::string& clientId) override;
 
-  //virtual void onDisconnectedDevice(const std::string& deviceId);
+  void onDisconnectedClient(const std::string& clientId) override;
 
-  //virtual void onMissingLicense(const std::string& renderAreaId, ConnectionParameters* parameters);
+  void onMissingLicense(const std::string& renderAreaId, ConnectionParameters* parameters) override;
 
 };
 

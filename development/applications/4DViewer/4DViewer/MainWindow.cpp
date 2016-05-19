@@ -347,10 +347,10 @@ void MainWindow::updateUI()
     m_ui.sliderSliceCrossline->setMaximum(size[2]);
     m_ui.sliderSliceCrossline->setValue(size[2] / 2);
 
-    m_ui.sliderInterpolatedSurfacePosition->setMaximum(300);
+    m_ui.sliderInterpolatedSurfacePosition->setMaximum(100);
 
-    m_ui.lineEditColorMapMin->setText("-10000.0");
-    m_ui.lineEditColorMapMax->setText("10000.0");
+    m_ui.lineEditColorMapMin->setText("-20000");
+    m_ui.lineEditColorMapMax->setText("20000");
     m_ui.lineEditColorMapMin->setValidator(new QDoubleValidator(this));
     m_ui.lineEditColorMapMax->setValidator(new QDoubleValidator(this));
   }
@@ -1076,7 +1076,8 @@ void MainWindow::onInterpolatedSurfaceToggled(bool value)
 
 void MainWindow::onInterpolatedSurfacePositionChanged(int value)
 {
-  double pos = value * 0.5;
+  double relativePos = (double)value / (double)m_ui.sliderInterpolatedSurfacePosition->maximum();
+  double pos = relativePos * m_projectInfo.dimensions.numCellsK;
   m_seismicScene->setInterpolatedSurfacePosition(pos);
   m_ui.renderWidget->updateGL();
 }

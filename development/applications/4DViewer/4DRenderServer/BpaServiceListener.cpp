@@ -25,21 +25,52 @@
 BpaServiceListener::BpaServiceListener(RenderService* renderService)
   : m_renderService(renderService)
 {
-  //if(m_renderService != 0)
-  //  m_renderService->logMessage("BpaServiceListener instantiated");
 }
 
 BpaServiceListener::~BpaServiceListener()
 {
 }
 
+bool BpaServiceListener::onPendingCreateRenderArea(
+  const std::string& renderAreaId,
+  unsigned int& width,
+  unsigned int& height,
+  Client* client,
+  ConnectionParameters* parameters)
+{
+  std::cout << "onPendingCreateRenderArea(renderArea = " << renderAreaId << ")" << std::endl;
+  return true;
+}
+
+bool BpaServiceListener::onPendingShareRenderArea(RenderArea* renderArea, Client* client, ConnectionParameters* parameters)
+{
+  std::cout << "onPendingShareRenderArea(renderArea = " << renderArea->getId() << ")" << std::endl;
+  return true;
+}
+
 void BpaServiceListener::onInstantiatedRenderArea(RenderArea *renderArea)
 {
-  //if(m_renderService != 0)
-  //  m_renderService->logMessage("RenderArea instantiated");
   std::cout << "onInstantiatedRenderArea(renderArea = " << renderArea->getId() << std::endl;
 
   renderArea->addListener(std::make_shared<BpaRenderAreaListener>(renderArea));
   renderArea->getTouchManager()->addDefaultRecognizers();
 }
 
+void BpaServiceListener::onDisposedRenderArea(const std::string& renderAreaId)
+{
+  std::cout << "onDisposedRenderArea(renderArea = " << renderAreaId << ")" << std::endl;
+}
+
+void BpaServiceListener::onConnectedClient(const std::string& clientId)
+{
+  std::cout << "onConnectedClient(clientId = " << clientId << ")" << std::endl;
+}
+
+void BpaServiceListener::onDisconnectedClient(const std::string& clientId)
+{
+  std::cout << "onDisconnectedClient(clientId= " << clientId << ")" << std::endl;
+}
+
+void BpaServiceListener::onMissingLicense(const std::string& renderAreaId, ConnectionParameters* parameters)
+{
+}

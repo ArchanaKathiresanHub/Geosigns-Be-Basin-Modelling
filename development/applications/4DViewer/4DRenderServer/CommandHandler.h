@@ -230,6 +230,21 @@ class CommandHandler
     RemoteViz::Rendering::RenderArea* renderArea,
     RemoteViz::Rendering::Connection* connection);
 
+  void onEnableInterpolatedSurface(
+    const jsonxx::Object& params,
+    RemoteViz::Rendering::RenderArea* renderArea,
+    RemoteViz::Rendering::Connection* connection);
+
+  void onSetInterpolatedSurfacePosition(
+    const jsonxx::Object& params,
+    RemoteViz::Rendering::RenderArea* renderArea,
+    RemoteViz::Rendering::Connection* connection);
+
+  void onSetSeismicDataRange(
+    const jsonxx::Object& params,
+    RemoteViz::Rendering::RenderArea* renderArea,
+    RemoteViz::Rendering::Connection* connection);
+
   void onSetStillQuality(
     const jsonxx::Object& params,
     RemoteViz::Rendering::RenderArea* renderArea,
@@ -271,11 +286,12 @@ public:
   void setup(SceneGraphManager* mgr, SeismicScene* seismic, SceneExaminer* examiner);
 
   void sendProjectInfo(
-    RemoteViz::Rendering::RenderArea* renderArea,
+    //RemoteViz::Rendering::RenderArea* renderArea,
+    RemoteViz::Rendering::Connection* connection,
     const Project::ProjectInfo& projectInfo) const;
 
   void sendSeismicInfo(
-    RemoteViz::Rendering::RenderArea* renderArea,
+    RemoteViz::Rendering::Connection* connection,
     const SbVec3i32& size,
     const SbBox3f& extent) const;
 
