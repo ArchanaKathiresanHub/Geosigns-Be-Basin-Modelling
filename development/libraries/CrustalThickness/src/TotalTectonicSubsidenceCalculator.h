@@ -15,13 +15,18 @@
 #include "InterfaceDefs.h"
 #include "AbstractValidator.h"
 
-//DerviedProperties library
-#include "SurfaceProperty.h"
+// CBMGenerics library
+#include "Polyfunction.h"
+
+// Geophysics library
+#include "Local2DArray.h"
 
 using namespace DataAccess;
 
 /// @class TotalTectonicSubsidenceCalculator The TTS calculator
 class TotalTectonicSubsidenceCalculator {
+
+   typedef GeoPhysics::Local2DArray <CBMGenerics::Polyfunction> PolyFunction2DArray;
 
    public:
    
@@ -30,8 +35,9 @@ class TotalTectonicSubsidenceCalculator {
                                          const unsigned int firstJ,
                                          const unsigned int lastI,
                                          const unsigned int lastJ,
+                                         const double age,
                                          const double airCorrection,
-                                         DerivedProperties::SurfacePropertyPtr depthWaterBottom,
+                                         const PolyFunction2DArray& depthWaterBottom,
                                          AbstractInterfaceOutput& outputData,
                                          AbstractValidator&       validator );
 
@@ -51,9 +57,11 @@ class TotalTectonicSubsidenceCalculator {
       const unsigned int m_lastI;  ///< Last i index on the map
       const unsigned int m_lastJ;  ///< Last j index on the map
 
+      const double m_age; ///< Age of the snapshot at which the TTS is computed
+
       const double m_airCorrection; ///< The backstrip air correction to be used when the water bottom is above the see level 0m
 
-      const DerivedProperties::SurfacePropertyPtr m_depthWaterBottom; ///< The depth of the top of the sediments (water bottom)
+      const PolyFunction2DArray& m_surfaceDepthHistory; ///< The user defined paleobathymetrie (loaded from the project handle)
 
       AbstractInterfaceOutput& m_outputData; ///< The global interface output object (contains the output maps)
       AbstractValidator&       m_validator;  ///< The validator to check if a node (i,j) is valid or not

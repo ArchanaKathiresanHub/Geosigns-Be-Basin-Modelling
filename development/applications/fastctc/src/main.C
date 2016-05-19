@@ -85,7 +85,6 @@ int main (int argc, char ** argv)
    typedef formattingexception::GeneralException CtcException;
 
    CrustalThicknessCalculatorFactory* factory = new CrustalThicknessCalculatorFactory;
-   //DataAccess::Interface::ProjectHandle::UseFactory (factory);
 
    PetscInitialize (&argc, &argv, (char *) 0, PETSC_NULL);
 
@@ -170,7 +169,7 @@ int main (int argc, char ** argv)
          else throw formattingexception::GeneralException() << "Unknown <" << verbosity << "> option for -verbosity command line parameter.";
       }
       else{
-         LogHandler( "fastcauldron", LogHandler::DETAILED_LEVEL, rank );
+         LogHandler( "fastctc", LogHandler::DETAILED_LEVEL, rank );
       }
    }
    catch (formattingexception::GeneralException& ex){
@@ -238,7 +237,7 @@ int main (int argc, char ** argv)
    }
    catch (...) {
       LogHandler( LogHandler::FATAL_SEVERITY ) << "CTC fatal error.";
-      finaliseCrustalThicknessCalculator(feature, "", factory);
+      finaliseCrustalThicknessCalculator(feature, "CTC fatal error.", factory);
       return 0;
    }
 

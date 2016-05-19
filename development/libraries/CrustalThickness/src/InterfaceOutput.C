@@ -22,6 +22,7 @@
 
 // CrustalThickness library
 #include "InterfaceInput.h" 
+#include "PropertyValue.h"
 
 // utilitites
 #include "LogHandler.h"
@@ -102,9 +103,7 @@ bool InterfaceOutput::saveOutputMaps( Interface::ProjectHandle * projectHandle, 
          mapWriter->writeMapToHDF (m_outputMaps[i], time, time, dataSetName, topCrustSurfaceName); 
          mapWriter->close();
 
-         if( projectHandle->getRank() == 0 ) {
-            LogHandler( LogHandler::INFO_SEVERITY ) << "Map " << outputMapsNames[i] << " is saved into " << outputFileName << ".";
-         }
+         LogHandler( LogHandler::INFO_SEVERITY ) << "Map " << outputMapsNames[i] << " is saved into " << outputFileName << ".";
       }
    }
    delete mapWriter;
@@ -216,6 +215,19 @@ void InterfaceOutput::setMapsToOutput(CrustalThicknessInterface::outputMaps mapI
 }
 
 //------------------------------------------------------------//
+void InterfaceOutput::updatePossibleOutputsAtSnapshot( outputMaps id, const GeoPhysics::ProjectHandle * pHandle, const Snapshot * theSnapshot ) {
+   // The TTS is only ouput when we have an SDH
+   if (id == WLSMap and not pHandle->asSurfaceDepthHistory( theSnapshot->getTime() )){
+      m_outputMapsMask[id] = false;
+   }
+   // The PWDR is only output when we have an SDH and never output at 0.0Ma
+   else if (id == PaleowaterdepthResidual and
+            ( not pHandle->asSurfaceDepthHistory( theSnapshot->getTime() ) or theSnapshot->getTime() == 0.0)) {
+      m_outputMapsMask[id] = false;
+   }
+}
+
+//------------------------------------------------------------//
 void InterfaceOutput::setAllMapsToOutput( bool flag ) {
  
    for( int i = 0; i < numberOfOutputMaps; ++ i ) {
@@ -225,26 +237,7 @@ void InterfaceOutput::setAllMapsToOutput( bool flag ) {
 }
 
 //------------------------------------------------------------//
-bool InterfaceOutput::allocateOutputMaps(Interface::ProjectHandle * projectHandle) {
-
-  const Interface::Grid * grid = projectHandle->getActivityOutputGrid ();
-  bool status = true;
-
-  for( int i = 0; i < numberOfOutputMaps; ++ i ) {
-     if( m_outputMapsMask[i] ) {
-        LogHandler( LogHandler::DEBUG_SEVERITY ) << "Allocate map " << outputMapsNames[i];
-        m_outputMaps[i] = projectHandle->getFactory()->produceGridMap(0, 0, grid, Interface::DefaultUndefinedMapValue, 1);    
-        if( m_outputMaps[i] == 0 ) {
-           status = false;
-           break;
-        } 
-     }
-  }
-  return status;
-}
-
-//------------------------------------------------------------//
-bool InterfaceOutput::createSnapShotOutputMaps(ProjectHandle * pHandle, const Snapshot * theSnapshot, const Interface::Surface *theSurface ) {
+bool InterfaceOutput::createSnapShotOutputMaps( GeoPhysics::ProjectHandle * pHandle, const Snapshot * theSnapshot, const Interface::Surface *theSurface ) {
    
    LogHandler( LogHandler::DEBUG_SEVERITY ) << "Create snaphot output maps @ time " << theSnapshot->asString();
    int i;
@@ -252,6 +245,7 @@ bool InterfaceOutput::createSnapShotOutputMaps(ProjectHandle * pHandle, const Sn
    if( theSnapshot->getTime() == 0.0 ) {
       // Output these properties for present-day only
       for( i = 0; i < WLSMap; ++ i ) {
+         updatePossibleOutputsAtSnapshot( (outputMaps)i, pHandle, theSnapshot );
          if( m_outputMapsMask[i] ) {
             LogHandler( LogHandler::DEBUG_SEVERITY ) << "   #for map " << outputMapsNames[i];
             m_outputMaps[i] = createSnapshotResultPropertyValueMap(pHandle, outputMapsNames[i], theSnapshot);
@@ -264,8 +258,9 @@ bool InterfaceOutput::createSnapShotOutputMaps(ProjectHandle * pHandle, const Sn
    }
    if( status ) {
       for( i = WLSMap; i < numberOfOutputMaps; ++ i ) {
+         outputMaps id = (outputMaps)i;
+         updatePossibleOutputsAtSnapshot( id, pHandle, theSnapshot );
          if( m_outputMapsMask[i] ) {
-            outputMaps id = ( outputMaps ) i;
             if( id != isostaticBathymetry && id != incTectonicSubsidence ) {
                LogHandler( LogHandler::DEBUG_SEVERITY ) << "   #for map " << outputMapsNames[i];
                m_outputMaps[i] = createSnapshotResultPropertyValueMap(pHandle, outputMapsNames[i], theSnapshot);
@@ -302,80 +297,30 @@ GridMap * InterfaceOutput::createSnapshotResultPropertyValueMap (ProjectHandle *
 }
 
 //------------------------------------------------------------//
-void InterfaceOutput::allocateOutputMap( ProjectHandle * pHandle, outputMaps aMapIndex ) 
-{
-   m_outputMapsMask[aMapIndex] = true;
-   m_outputMaps[aMapIndex] = pHandle->getFactory ()->produceGridMap (0, 0, pHandle->getActivityOutputGrid (), DefaultUndefinedMapValue, 1);;
-} 
+void InterfaceOutput::disableBackstripOutput( ProjectHandle * pHandle, const Interface::Surface* theSurface, const Snapshot* theSnapshot ) const {
+   disableOutput( pHandle, theSurface, theSnapshot, "CumSedimentBackstrip" );
+}
 
 //------------------------------------------------------------//
-void InterfaceOutput::deleteOutputMap( outputMaps aMapIndex ) 
-{
-   if( m_outputMaps[aMapIndex] != 0 ) {
-      delete m_outputMaps[aMapIndex];
-      m_outputMaps[aMapIndex] = 0;
-   }
-   m_outputMapsMask[aMapIndex] = false;
-} 
-
-//------------------------------------------------------------//
-bool InterfaceOutput::updateIsoBathymetryMaps( ProjectHandle * pHandle, std::vector<double> & snapshots ) {
-   
-   if( m_outputMapsMask[isostaticBathymetry] ) {
-      const Interface::Property * isoBathymetry = pHandle->findProperty("IsostaticBathymetry");
-      
-      if( isoBathymetry != 0 ) {
-         const GridMap * presentDayWLS = getMap( WLSMap );
-                  
-         if( presentDayWLS ) {
-            const Interface::Formation * formationCrust = dynamic_cast<const Interface::Formation *>( pHandle->getCrustFormation ());
-            const Interface::Surface   * topOfCrust = formationCrust->getTopSurface();
-
-            unsigned firstI = presentDayWLS->firstI();
-            unsigned firstJ = presentDayWLS->firstJ();
-            unsigned lastI  = presentDayWLS->lastI();
-            unsigned lastJ  = presentDayWLS->lastJ();
-            
-            presentDayWLS->retrieveData();
-            
-            unsigned int i, j, k;
-            for( k = 0; k < snapshots.size(); ++ k ) {
-               const Snapshot * theSnapshot = (const Snapshot *) pHandle->findSnapshot ( snapshots[k] );
-               
-               Interface::PropertyValueList* propVals;
-               Interface::PropertyValueList::const_iterator propValIter;
-               
-               propVals = pHandle->getPropertyValues ( Interface::SURFACE, isoBathymetry, theSnapshot, 0, 0, topOfCrust, Interface::MAP );
-               
-               if (propVals->size() == 1) {
-                  const PropertyValue *thePropertyValue = (*propVals)[ 0 ];  
-                  GridMap *theMap = ( thePropertyValue ? thePropertyValue->getGridMap() : 0 );
-                  
-                  if( theMap ) {
-                     theMap->retrieveData();
-                     for ( i = firstI; i <= lastI; ++ i ) {
-                        for ( j = firstJ; j <= lastJ; ++ j ) { 
-                           if( presentDayWLS->getValue( i, j ) != Interface::DefaultUndefinedMapValue ) {
-                              const double value = theMap->getValue( i, j );
-                              theMap->setValue( i, j, presentDayWLS->getValue( i, j ) - value );
-                           }
-                        }
-                     }  
-                     theMap->restoreData();
-   }
-               }
-               
-               delete propVals;
-} 
-            presentDayWLS->retrieveData();
-         } else {
-            return false;
-         }  
+void InterfaceOutput::disableOutput( ProjectHandle * pHandle, const Interface::Surface* theSurface, const Snapshot* theSnapshot, const std::string& name ) const {
+   const Interface::Property * property = pHandle->findProperty( name );
+   Interface::PropertyValueList* propVals;
+   Interface::PropertyValueList::const_iterator propValIter;
+   propVals = pHandle->getPropertyUnrecordedValues( Interface::SURFACE, property, theSnapshot, 0, 0, theSurface, Interface::MAP );
+   if (propVals->size() != 0){
+      Ctc::PropertyValue *thePropertyValue = const_cast<Ctc::PropertyValue*>(dynamic_cast<const Ctc::PropertyValue*>((*propVals)[0]));
+      if (thePropertyValue != nullptr){
+         thePropertyValue->allowOutput( false );
       }
-   } else {
-      return false; 
+      else{
+         LogHandler( LogHandler::ERROR_SEVERITY ) << "Cannot disable output '" << name << "' at snapshot " << theSnapshot->getTime();
+      }
    }
-   return true;
+   else{
+      LogHandler( LogHandler::ERROR_SEVERITY ) << "Cannot disable output '" << name << "' at snapshot " << theSnapshot->getTime() <<
+         " because the property value does not exist.";
+   }
+   delete propVals;
 }
 
 //------------------------------------------------------------//

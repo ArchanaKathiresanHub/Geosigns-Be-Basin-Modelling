@@ -104,6 +104,9 @@ namespace GeoPhysics {
       /// Scale the solid-thicknesses by the correction factor.
       bool applyFctCorrections ();
 
+      /// @brief Return true if the project as a paleobathymetrie defined in the
+      ///   surface depth history (SDH) for the specified age.
+      bool asSurfaceDepthHistory( const double age ) const;
 
       /// Return reference to the lithology-manager.
       LithologyManager& getLithologyManager () const;

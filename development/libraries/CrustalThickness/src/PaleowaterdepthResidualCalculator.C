@@ -13,6 +13,7 @@
 // DataAccess library
 #include "Interface/Interface.h"
 
+//------------------------------------------------------------//
 PaleowaterdepthResidualCalculator::PaleowaterdepthResidualCalculator( const unsigned int firstI,
                                                                       const unsigned int firstJ,
                                                                       const unsigned int lastI,
@@ -29,6 +30,7 @@ PaleowaterdepthResidualCalculator::PaleowaterdepthResidualCalculator( const unsi
                                                                                                              m_outputData ( outputData ),
                                                                                                              m_validator  ( validator ){ }
 
+//------------------------------------------------------------//
 void PaleowaterdepthResidualCalculator::compute(){
 
    unsigned int i, j;
@@ -52,6 +54,7 @@ void PaleowaterdepthResidualCalculator::compute(){
    }
 }
 
+//------------------------------------------------------------//
 double PaleowaterdepthResidualCalculator::calculatePWDR( const double  PWD,
                                                          const double  surfaceDepthHistory ) const {
    double PWDR = PWD - surfaceDepthHistory;

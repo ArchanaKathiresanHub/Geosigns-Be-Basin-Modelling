@@ -31,6 +31,7 @@ set( all_headers
    src/LinearFunction.h
    src/PaleowaterdepthCalculator.h
    src/PaleowaterdepthResidualCalculator.h
+   src/PropertyValue.h
    src/TotalTectonicSubsidenceCalculator.h
    src/Validator.h
 )
@@ -45,6 +46,7 @@ set( all_srcs
    src/LinearFunction.C
    src/PaleowaterdepthCalculator.C
    src/PaleowaterdepthResidualCalculator.C
+   src/PropertyValue.C
    src/TotalTectonicSubsidenceCalculator.C
    src/Validator.C
 )
@@ -118,7 +120,7 @@ add_gtest( NAME "CrustalThickness::Density"
 
 add_gtest( NAME "CrustalThickness::TotalTectonicSubsidence"
            SOURCES test/TotalTectonicSubsidence.C test/MockInterfaceOutput.h test/MockInterfaceOutput.C test/MockValidator.h test/MockValidator.C ../DerivedProperties/test/MockDerivedSurfaceProperty.h ../DerivedProperties/test/MockDerivedSurfaceProperty.C
-           LIBRARIES CrustalThickness
+           LIBRARIES CrustalThickness SerialDataAccess DataAccess
          )
 
 add_gtest( NAME "CrustalThickness::Paleowaterdepth"

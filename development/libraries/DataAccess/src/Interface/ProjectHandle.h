@@ -324,10 +324,10 @@ namespace DataAccess
          /// \brief Get the list of properties that have the particular PropertyAttribute.
          virtual PropertyListPtr getProperties ( const DataModel::PropertyAttribute attr ) const;
 
-         /// @brief Return a list of property values based on the given arguments.
+         /// @brief Return a list of recorded property values based on the given arguments.
          ///
          /// @param[in] selectionFlags is logical OR for the following flags:
-         ///                           SURFACE = surface property which per definition is 2D.
+         ///                            SURFACE = surface property which per definition is 2D.
          /// 	                         FORMATION = formation property which can be 2D and 3D
          /// 	                         FORMATIONSURFACE = a surface property that is not continuous over the surface.
          /// 	                         RESERVOIR = properties which apply to a reservoir and are therefore 2D.
@@ -338,8 +338,49 @@ namespace DataAccess
          /// @param[in] formation properties belonging to this formation.
          /// @param[in] surface properties belonging to this surface.
          /// @param[in] propertyTypes whether the properties should be 2D (MAP) or 3D (VOLUME)
-         /// @return    a list of the selected properties
+         /// @return    a list of the selected recorded properties
          virtual PropertyValueList * getPropertyValues( int selectionFlags = SURFACE | FORMATION | FORMATIONSURFACE | RESERVOIR,
+            const Property * property = 0, const Snapshot * snapshot = 0,
+            const Reservoir * reservoir = 0, const Formation * formation = 0,
+            const Surface * surface = 0, int propertyTypes = MAP | VOLUME ) const;
+
+         /// @brief Return a list of unrecorded property values based on the given arguments.
+         ///
+         /// @param[in] selectionFlags is logical OR for the following flags:
+         ///                            SURFACE = surface property which per definition is 2D.
+         /// 	                         FORMATION = formation property which can be 2D and 3D
+         /// 	                         FORMATIONSURFACE = a surface property that is not continuous over the surface.
+         /// 	                         RESERVOIR = properties which apply to a reservoir and are therefore 2D.
+         /// @param property
+         /// @param[in] snapshot properties belonging to this snapshot. If not specified, return 
+         ///            properties for all snapshots.
+         /// @param[in] reservoir properties belonging to this reservoir.
+         /// @param[in] formation properties belonging to this formation.
+         /// @param[in] surface properties belonging to this surface.
+         /// @param[in] propertyTypes whether the properties should be 2D (MAP) or 3D (VOLUME)
+         /// @return    a list of the selected unrecorded properties
+         PropertyValueList * ProjectHandle::getPropertyUnrecordedValues( int selectionFlags,
+            const Interface::Property * property, const Interface::Snapshot * snapshot,
+            const Interface::Reservoir * reservoir, const Interface::Formation * formation, const Interface::Surface * surface,
+            int propertyType ) const;
+
+         /// @brief Return a list of property values based on the given arguments.
+         /// @param[in] list The property value list (recorded or not)
+         /// @param[in] selectionFlags is logical OR for the following flags:
+         ///                            SURFACE = surface property which per definition is 2D.
+         /// 	                         FORMATION = formation property which can be 2D and 3D
+         /// 	                         FORMATIONSURFACE = a surface property that is not continuous over the surface.
+         /// 	                         RESERVOIR = properties which apply to a reservoir and are therefore 2D.
+         /// @param property
+         /// @param[in] snapshot properties belonging to this snapshot. If not specified, return 
+         ///            properties for all snapshots.
+         /// @param[in] reservoir properties belonging to this reservoir.
+         /// @param[in] formation properties belonging to this formation.
+         /// @param[in] surface properties belonging to this surface.
+         /// @param[in] propertyTypes whether the properties should be 2D (MAP) or 3D (VOLUME)
+         /// @return    a list of the selected properties inside the property value list
+         virtual PropertyValueList * getPropertyValuesForList( MutablePropertyValueList list,
+            int selectionFlags = SURFACE | FORMATION | FORMATIONSURFACE | RESERVOIR,
             const Property * property = 0, const Snapshot * snapshot = 0,
             const Reservoir * reservoir = 0, const Formation * formation = 0,
             const Surface * surface = 0, int propertyTypes = MAP | VOLUME ) const;

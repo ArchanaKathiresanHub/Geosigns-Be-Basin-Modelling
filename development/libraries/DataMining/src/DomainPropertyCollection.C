@@ -1,5 +1,5 @@
 #include "DomainPropertyCollection.h"
-#include "DomainPropertyFactory.h"
+#include "DataMiningObjectFactory.h"
 
 #include <iostream>
 
@@ -10,7 +10,7 @@ namespace DataAccess { namespace Mining
       m_projectHandle ( handle ),
       m_snapshot ( 0 )
    {
-      m_propertyFactory = dynamic_cast<Mining::DomainPropertyFactory*>( m_projectHandle->getFactory ());
+      m_propertyFactory = dynamic_cast<Mining::ObjectFactory*>( m_projectHandle->getFactory ());
    }
 
    DomainPropertyCollection::~DomainPropertyCollection()

@@ -22,12 +22,16 @@
 #include "Interface/ObjectFactory.h"
 #include "Interface/ProjectHandle.h"
 
+// GeoPhysics library
+#include "GeoPhysicsProjectHandle.h"
+
 // CrustalThickness library
 #include "AbstractInterfaceOutput.h"
 #include "InterfaceDefs.h"
 
 // utilities library
 #include "FormattingException.h"
+#include "LogHandler.h"
 
 using namespace std;
 using namespace DataAccess;
@@ -43,15 +47,6 @@ class InterfaceOutput : public AbstractInterfaceOutput {
 public:
    InterfaceOutput();
    ~InterfaceOutput();
-
-   /// @defgroup AllocateMaps
-   /// @{
-   /// @brief Allocate default CTC outputs map
-   bool allocateOutputMaps ( ProjectHandle * pHandle );
-   /// @brief Allocate an output map
-   /// @param aMapIndex The index of the map to allocate
-   void allocateOutputMap  ( ProjectHandle * pHandle, outputMaps aMapIndex );
-   /// @}
 
    /// @defgroup SaveMaps
    /// @{
@@ -95,16 +90,12 @@ public:
    void setAllMapsUndefined( unsigned int indI, unsigned int indJ );
    /// @}
 
-   /// @brief Compute and update isobathymetry maps at defined snapshots
-   /// @param snapshotsList The list of snapshots
-   bool updateIsoBathymetryMaps ( ProjectHandle * pHandle, std::vector<double> &snapshotsList );
-
    /// @defgroup CreateDeleteMaps
    /// @{
    /// @brief create the all CTC maps for the defined snapshot
    /// @param theSnapshot The snapshot corresponding to the maps
    /// @param theSurface The stratigraphic surface corresponding to the maps
-   bool   createSnapShotOutputMaps( ProjectHandle * pHandle, const Snapshot* theSnapshot, const Interface::Surface *theSurface  = 0 );
+   bool   createSnapShotOutputMaps( GeoPhysics::ProjectHandle * pHandle, const Snapshot* theSnapshot, const Interface::Surface *theSurface = 0 );
    /// @brief Create a map for the defined snapshot
    /// @param propertyName The name of the property corresponding to the map
    /// @param theSnapshot The snapshot corresponding to the map
@@ -112,11 +103,14 @@ public:
    /// @return The map created
    GridMap * createSnapshotResultPropertyValueMap ( ProjectHandle * pHandle, const std::string& propertyName, const Snapshot* theSnapshot, 
                                                     const Interface::Surface *theSurface = 0 );
-   /// @brief Delete the CTC map
-   /// @param mapIndex The index of the map to be deleted
-   void   deleteOutputMap( outputMaps mapIndex );
    /// @}
- 
+
+   /// @defgroup DisableOutput
+   /// @{
+   void disableBackstripOutput( ProjectHandle * pHandle, const Interface::Surface* theSurface, const Snapshot* theSnapshot ) const;
+   void updatePossibleOutputsAtSnapshot( outputMaps id, const GeoPhysics::ProjectHandle * pHandle, const Snapshot * theSnapshot );
+   /// @}
+
    /// @defgroup DataUtilities
    /// @{
    /// @brief Retrieve all CTC maps data
@@ -141,6 +135,7 @@ public:
    bool   getOutputMask( outputMaps mapIndex ) const;
    /// @}
 private:
+   void disableOutput( ProjectHandle * pHandle, const Interface::Surface* theSurface, const Snapshot* theSnapshot, const std::string& name ) const;
 
    GridMap * m_outputMaps[numberOfOutputMaps];   ///< List of CTC output maps
    bool m_outputMapsMask [numberOfOutputMaps];   ///< Mask list corresponding to the CTC output maps (true = output, false = no output)
@@ -157,9 +152,8 @@ inline void InterfaceOutput::setMapValue(outputMaps mapIndex, unsigned int i, un
 
    if( m_outputMaps[mapIndex] != 0 ) {
       m_outputMaps[mapIndex]->setValue( i, j, value );
-   } else {
-      throw InterfaceOutputException() << "Map " << CrustalThicknessInterface::outputMapsNames[mapIndex] << " is not allocated.";
    }
+   // If pointer is null then this is not an error as some maps are debug only
 }
 
 //------------------------------------------------------------//
@@ -185,7 +179,7 @@ inline void InterfaceOutput::setMapToOutput(outputMaps aMapIndex, bool aValue)
 
 inline void InterfaceOutput::setValuesToMaps( unsigned int indI, unsigned int indJ )
 {
-   for(int i = 0; i < numberOfOutputMaps; ++ i ) {
+   for (int i = 0; i < WLSMap; ++i) {
       if( m_outputMapsMask[i] && m_outputMaps[i] != 0 ) {
          m_outputMaps[i]->setValue( indI, indJ, m_outputValues[i] );
       }

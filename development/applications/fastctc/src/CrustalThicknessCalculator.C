@@ -24,6 +24,7 @@ using namespace database;
 #include "Interface/DistributedGridMap.h"
 #include "Interface/Formation.h"
 #include "Interface/Interface.h"
+#include "Interface/PaleoProperty.h"
 #include "Interface/Property.h"
 #include "Interface/PropertyValue.h"
 #include "Interface/Snapshot.h"
@@ -102,6 +103,9 @@ void CrustalThicknessCalculator::loadSnapshots( ) {
    Interface::FormationList* formations = getFormations();
    Interface::FormationList::const_iterator formationIter;
 
+   m_snapshots.push_back( 0.0 ); // add present day
+   LogHandler( LogHandler::DEBUG_SEVERITY ) << "   #time 0.0Ma loaded";
+
    for (formationIter = formations->begin(); formationIter != formations->end(); ++formationIter) {
       const Interface::Formation * formation = (*formationIter);
 
@@ -111,8 +115,7 @@ void CrustalThicknessCalculator::loadSnapshots( ) {
          LogHandler( LogHandler::DEBUG_SEVERITY ) << "   #time " << topSurface->getSnapshot()->getTime() << "Ma loaded";
       }
    }
-   m_snapshots.push_back( 0.0 ); // add present day
-   LogHandler( LogHandler::DEBUG_SEVERITY ) << "   #time 0.0Ma loaded";
+   delete formations;
 }
 
 //------------------------------------------------------------//
@@ -166,7 +169,7 @@ void CrustalThicknessCalculator::initialise() {
 
    ///6. Load snapshots from stratigraphy
    loadSnapshots();
-   std::sort( m_snapshots.begin(), m_snapshots.end(), std::greater<int>() );
+   std::sort( m_snapshots.begin(), m_snapshots.end());
 
 }
 
@@ -222,10 +225,12 @@ void CrustalThicknessCalculator::setRequestedOutputProperties( InterfaceOutput &
 
       }
    }
+
    // set default output properties
-   theOutput.setMapsToOutput( mohoMap, thicknessBasaltMap, WLSadjustedMap, RDAadjustedMap, thicknessCrustMap,
-                              thicknessCrustMeltOnset, topBasaltMap, incTectonicSubsidence, WLSMap, isostaticBathymetry,
-                              numberOfOutputMaps );
+   theOutput.setMapsToOutput( mohoMap, topBasaltMap,
+      thicknessBasaltMap, thicknessCrustMap, thicknessCrustMeltOnset, WLSadjustedMap, RDAadjustedMap,
+      cumSedimentBackstrip, WLSMap, isostaticBathymetry, PaleowaterdepthResidual,
+      numberOfOutputMaps );
 }
 
 //------------------------------------------------------------//
@@ -288,67 +293,53 @@ void CrustalThicknessCalculator::run() {
 
       m_inputData->retrieveData();
       m_outputData.retrieveData();
-      if (previousTTS != 0) {
+      if (previousTTS != nullptr) {
          previousTTS->retrieveData();
       }
 
       /// 3. Compute the backstripped density and thickness, the backtrip and the compensation
-      DensityCalculator densityCalculator( firstI,
-                                           firstJ,
-                                           lastI,
-                                           lastJ,
+      DensityCalculator densityCalculator( firstI, firstJ, lastI, lastJ,
                                            m_inputData->getBackstrippingMantleDensity(),
                                            m_inputData->getWaterDensity(),
                                            m_inputData->getPressureBasement(),
                                            m_inputData->getPressureWaterBottom(),
                                            m_inputData->getDepthBasement(),
                                            m_inputData->getDepthWaterBottom(),
-                                           m_outputData,
-                                           validator );
+                                           m_outputData, validator );
       densityCalculator.compute();
+      if (!m_debug) m_outputData.disableBackstripOutput( m_crustalThicknessCalculator, m_inputData->getBotOfSedimentSurface(), theSnapshot );
 
-      /// 4. Compute the Total Tectonic Subsidence
-      TotalTectonicSubsidenceCalculator TTScalculator( firstI,
-                                                       firstJ,
-                                                       lastI,
-                                                       lastJ,
-                                                       densityCalculator.getAirCorrection(),
-                                                       m_inputData->getDepthWaterBottom(),
-                                                       m_outputData,
-                                                       validator );
-      TTScalculator.compute();
+      /// 4. Compute the Total Tectonic Subsidence (only if we have a SDH at this snapshot)
+      if (asSurfaceDepthHistory( age )){
+         TotalTectonicSubsidenceCalculator TTScalculator( firstI, firstJ, lastI, lastJ,
+                                                          age, densityCalculator.getAirCorrection(),
+                                                          m_seaBottomDepth,
+                                                          m_outputData, validator );
+         TTScalculator.compute();
+      }
       const Interface::Property* pressureInterfaceProperty = findProperty( "Pressure" );
       GridMap* currentPressureTTS = m_inputData->loadPropertyDataFromDepthMap( this, m_outputData.getMap( WLSMap ), pressureInterfaceProperty, theSnapshot );
       if (age == 0.0){
          prensentDayPressureTTS = currentPressureTTS;
       }
-
+      
       /// 5. Compute the Paleowaterdepth
-      PaleowaterdepthCalculator PWDcalculator( firstI,
-                                               firstJ,
-                                               lastI,
-                                               lastJ,
+      PaleowaterdepthCalculator PWDcalculator( firstI, firstJ, lastI, lastJ,
                                                m_inputData->getBackstrippingMantleDensity(),
                                                m_inputData->getWaterDensity(),
-                                               m_outputData,
-                                               validator,
+                                               m_outputData, validator,
                                                m_inputData->getPressureMantleAtPresentDay(),
                                                m_inputData->getPressureMantle(),
-                                               prensentDayPressureTTS,
-                                               currentPressureTTS );
+                                               prensentDayPressureTTS, currentPressureTTS );
       PWDcalculator.compute();
-
-      // 6. Compute the PaleowaterdepthResidual
-      PaleowaterdepthResidualCalculator PWDRcalculator( firstI,
-                                                        firstJ,
-                                                        lastI,
-                                                        lastJ,
-                                                        age,
-                                                        m_seaBottomDepth,
-                                                        m_outputData,
-                                                        validator );
-      PWDRcalculator.compute();
-
+      
+      // 6. Compute the PaleowaterdepthResidual (only if we have a SDH at this snapshot and if we are not at present day)
+      if (asSurfaceDepthHistory( age ) and age!=0.0){
+         PaleowaterdepthResidualCalculator PWDRcalculator( firstI, firstJ, lastI, lastJ,
+                                                           age, m_seaBottomDepth,
+                                                           m_outputData, validator );
+         PWDRcalculator.compute();
+      }
 
       ///6. Smooth the TTS and PWD map
       if (m_applySmoothing) {
@@ -392,10 +383,7 @@ void CrustalThicknessCalculator::run() {
                m_outputData[thicknessCrustMeltOnset]  = m_inputData->getInitialCrustThickness() * (1 - m_inputData->getTFOnsetLin());
 
                WLS = m_outputData.getMapValue( WLSMap, i, j );
-               m_outputData[WLSMap] = WLS;
-
                m_outputData[incTectonicSubsidence] = WLS;
-
                if (previousTTS != 0) {
                   if (previousTTS->getValue( i, j ) != Interface::DefaultUndefinedMapValue) {
                      m_outputData[incTectonicSubsidence] = WLS - previousTTS->getValue( i, j );
@@ -404,11 +392,6 @@ void CrustalThicknessCalculator::run() {
                      m_outputData[incTectonicSubsidence] = Interface::DefaultUndefinedMapValue;
                   }
                }
-
-               m_outputData[cumSedimentBackstrip]    = m_outputData.getMapValue( cumSedimentBackstrip, i, j );
-               m_outputData[cumSedimentThickness]    = m_outputData.getMapValue( cumSedimentThickness, i, j );
-               m_outputData[cumBasementCompensation] = m_outputData.getMapValue( cumBasementCompensation, i, j );
-               m_outputData[isostaticBathymetry]     = m_outputData.getMapValue( isostaticBathymetry, i, j );
 
                if (WLS != Interface::DefaultUndefinedMapValue) {
 
@@ -467,7 +450,6 @@ void CrustalThicknessCalculator::run() {
       
       m_inputData->restoreData();
       m_outputData.restoreData();
-
       m_outputData.saveOutput( m_crustalThicknessCalculator, m_debug, m_outputOptions, theSnapshot );
 
       if (previousTTS != 0) {

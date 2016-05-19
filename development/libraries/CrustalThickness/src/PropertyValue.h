@@ -1,0 +1,52 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+#ifndef _FASTCTC_PROPERTYVALUE_H_
+#define _FASTCTC_PROPERTYVALUE_H_
+
+// DataAccessLibrary
+#include "Interface/PropertyValue.h"
+#include "Interface/Interface.h"
+
+namespace database
+{
+   class Record;
+}
+
+using namespace DataAccess;
+
+namespace Ctc {
+   class PropertyValue : public Interface::PropertyValue {
+
+   public:
+
+      PropertyValue( Interface::ProjectHandle * projectHandle,
+                     database::Record * record,
+                     const string & name,
+                     const Interface::Property * property,
+                     const Interface::Snapshot * snapshot,
+                     const Interface::Reservoir * reservoir,
+                     const Interface::Formation * formation,
+                     const Interface::Surface * surface,
+                     const Interface::PropertyStorage storage );
+
+      bool toBeSaved() const;
+
+      /// Allow or prevent a property from being output.
+      ///
+      /// Allows repression of output what-ever the output option is selected.
+      void allowOutput( const bool output );
+
+   private:
+
+      bool m_allowOutput;
+   };
+
+}
+#endif

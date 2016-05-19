@@ -23,6 +23,8 @@
 #include "Interface/Formation.h"
 #include "Interface/ProjectHandle.h"
 #include "Interface/Snapshot.h"
+#include "Interface/Grid.h"
+
 
 // GeoPhysics library
 #include "GeoPhysicsProjectHandle.h"
@@ -42,8 +44,8 @@
 
 //------------------------------------------------------------//
 InterfaceInput::InterfaceInput(Interface::ProjectHandle * projectHandle, database::Record * record) :
-   Interface::CrustalThicknessData( projectHandle, record ),
-   m_derivedManager( &DerivedProperties::DerivedPropertyManager(dynamic_cast<GeoPhysics::ProjectHandle*>(projectHandle)) ) {
+   Interface::CrustalThicknessData( projectHandle, record )
+   {
 
    clean();
    //-------------
@@ -56,11 +58,14 @@ InterfaceInput::InterfaceInput(Interface::ProjectHandle * projectHandle, databas
    m_smoothRadius = 0;
 
    m_baseRiftSurfaceName = "";
+   m_derivedManager = nullptr;
 
 }
 //------------------------------------------------------------//
 InterfaceInput::~InterfaceInput() {
-
+   if (m_derivedManager != nullptr){
+      delete m_derivedManager;
+   }
 } 
 //------------------------------------------------------------//
 void InterfaceInput::clean() {
@@ -140,18 +145,18 @@ void InterfaceInput::loadInputDataAndConfigurationFile( const string & inFile ) 
 //------------------------------------------------------------//
 void InterfaceInput::loadInputData() {
    
+   m_TRMap   = getMap( Interface::TRIni );
    m_T0Map   = getMap (Interface::T0Ini);
-   m_TRMap   = getMap (Interface::TRIni);
    m_HCuMap  = getMap (Interface::HCuIni);
    m_HLMuMap = getMap (Interface::HLMuIni);
    m_HBuMap  = getMap (Interface::HBu);
    m_DeltaSLMap = getMap (Interface::DeltaSL);
    m_baseRiftSurfaceName = getSurfaceName();
    m_smoothRadius = getFilterHalfWidth();
-
-   if( m_T0Map == 0 || m_TRMap == 0 || m_HCuMap == 0 || m_HLMuMap == 0 || m_DeltaSLMap == 0 ) {
+   static const DataAccess::Interface::Grid * S_a0_FORTEST = m_T0Map->getGrid();
+   if (m_T0Map == 0 || m_TRMap == 0 || m_HCuMap == 0 || m_HLMuMap == 0 || m_DeltaSLMap == 0) {
       throw InputException() << "Cannot load input data... Aborting... ";
-}
+   }
      
 }
 //------------------------------------------------------------//
@@ -577,6 +582,20 @@ void InterfaceInput::LoadUserDefinedData( ifstream &ConfigurationFile ) {
 }
 
 //------------------------------------------------------------//
+void InterfaceInput::loadDerivedPropertyManager(){
+   if (m_derivedManager == nullptr){
+      GeoPhysics::ProjectHandle* projectHandle = dynamic_cast<GeoPhysics::ProjectHandle*>(this->getProjectHandle());
+      if (projectHandle == nullptr){
+         throw InputException() << "Cannot access the derived property manager.";
+      }
+      m_derivedManager = new DerivedProperties::DerivedPropertyManager( projectHandle );
+   }
+   else{
+      LogHandler( LogHandler::DEBUG_SEVERITY ) << "Derived property manager already loaded.";
+   }
+}
+
+//------------------------------------------------------------//
 void InterfaceInput::loadTopAndBottomOfSediments( GeoPhysics::ProjectHandle* projectHandle, const double snapshotAge, const string & baseSurfaceName ) {
 
    const Interface::Snapshot * currentSnapshot = projectHandle->findSnapshot( snapshotAge, MINOR | MAJOR );
@@ -591,6 +610,7 @@ void InterfaceInput::loadTopAndBottomOfSediments( GeoPhysics::ProjectHandle* pro
       }
       m_bottomOfSedimentSurface = formationCrust->getTopSurface();
       m_topOfMantle = formationCrust->getBottomSurface();
+      m_botOfMantle = formationCrust->getTopSurface();
       LogHandler( LogHandler::DEBUG_SEVERITY ) << "Crust formation: " << formationCrust->getName() << ", surface above " << m_bottomOfSedimentSurface->getName() << ".";
       LogHandler( LogHandler::DEBUG_SEVERITY ) << "Crust formation: " << formationCrust->getName() << ", surface under " << m_topOfMantle->getName()             << ".";
    }
@@ -619,8 +639,9 @@ void InterfaceInput::loadTopAndBottomOfSediments( GeoPhysics::ProjectHandle* pro
 }
 
 //------------------------------------------------------------//
-const DataModel::AbstractProperty* InterfaceInput::loadDepthProperty () const {
+const DataModel::AbstractProperty* InterfaceInput::loadDepthProperty () {
 
+   if (m_derivedManager == nullptr) loadDerivedPropertyManager();
    const DataModel::AbstractProperty* depthProperty = m_derivedManager->getProperty( "Depth" );
    if (!depthProperty) {
       throw InputException() << "Could not find property named Depth.";
@@ -631,6 +652,7 @@ const DataModel::AbstractProperty* InterfaceInput::loadDepthProperty () const {
 //------------------------------------------------------------//
 void InterfaceInput::loadDepthData( GeoPhysics::ProjectHandle* projectHandle, const DataModel::AbstractProperty* depthProperty, const double snapshotAge ) {
 
+   if (m_derivedManager == nullptr) loadDerivedPropertyManager();
    const Interface::Snapshot * currentSnapshot = projectHandle->findSnapshot( snapshotAge, MINOR | MAJOR );
    try{
       // Find the depth property of the bottom of sediment
@@ -647,8 +669,9 @@ void InterfaceInput::loadDepthData( GeoPhysics::ProjectHandle* projectHandle, co
 }
 
 //------------------------------------------------------------//
-const DataModel::AbstractProperty* InterfaceInput::loadPressureProperty () const {
+const DataModel::AbstractProperty* InterfaceInput::loadPressureProperty () {
 
+   if (m_derivedManager == nullptr) loadDerivedPropertyManager();
    const DataModel::AbstractProperty* pressureProperty = m_derivedManager->getProperty( "LithoStaticPressure" );
    if (!pressureProperty) {
       throw InputException() << "Could not find property named LithoStaticPressure.";
@@ -659,6 +682,7 @@ const DataModel::AbstractProperty* InterfaceInput::loadPressureProperty () const
 //------------------------------------------------------------//
 void InterfaceInput::loadPressureData( GeoPhysics::ProjectHandle* projectHandle, const DataModel::AbstractProperty* pressureProperty, const double snapshotAge ) {
 
+   if (m_derivedManager == nullptr) loadDerivedPropertyManager();
    const Interface::Snapshot * currentSnapshot    = projectHandle->findSnapshot( snapshotAge, MINOR | MAJOR );
    const Interface::Snapshot * presentDaySnapshot = projectHandle->findSnapshot( 0.0,         MINOR | MAJOR );
    try{
@@ -666,9 +690,9 @@ void InterfaceInput::loadPressureData( GeoPhysics::ProjectHandle* projectHandle,
       m_pressureBasement = m_derivedManager->getSurfaceProperty( pressureProperty, currentSnapshot, m_bottomOfSedimentSurface );
       // Find the pressure property of the top of sediment
       m_pressureWaterBottom = m_derivedManager->getSurfaceProperty( pressureProperty, currentSnapshot, m_topOfSedimentSurface );
-      // Find the pressure property of the top of the mantle
-      m_pressureMantle             = m_derivedManager->getSurfaceProperty( pressureProperty, currentSnapshot,    m_topOfMantle );
-      m_pressureMantleAtPresentDay = m_derivedManager->getSurfaceProperty( pressureProperty, presentDaySnapshot, m_topOfMantle );
+      // Find the pressure property of the bottom of the mantle
+      m_pressureMantle             = m_derivedManager->getSurfaceProperty( pressureProperty, currentSnapshot,    m_botOfMantle );
+      m_pressureMantleAtPresentDay = m_derivedManager->getSurfaceProperty( pressureProperty, presentDaySnapshot, m_botOfMantle );
    }
    catch (InputException& ex){
       LogHandler( LogHandler::ERROR_SEVERITY ) << ex.what();
@@ -683,9 +707,8 @@ GridMap* InterfaceInput::loadPropertyDataFromDepthMap( DataAccess::Mining::Proje
                                                        const GridMap* depthMap,
                                                        const Interface::Property* property,
                                                        const Interface::Snapshot* snapshot ){
-
-   (void)getFactory()->produceGridMap( this, 0, handle->getActivityOutputGrid(), Interface::DefaultUndefinedMapValue, 1 );
-   GridMap* outputPropertyMap = (GridMap *)getChild( 0 );
+   if (m_derivedManager == nullptr) loadDerivedPropertyManager();
+   GridMap* outputPropertyMap = getFactory()->produceGridMap( 0, 0, handle->getActivityOutputGrid(), Interface::DefaultUndefinedMapValue, 1 );
 
    ///1. Set the dataminer to the property we want to extract
    DataAccess::Mining::DataMiner dataMiner( handle, *m_derivedManager );
@@ -780,7 +803,7 @@ bool InterfaceInput::defineLinearFunction( LinearFunction & theFunction, unsigne
    if( m_decayConstant == 0 ) { m_decayConstant = 1; }
       
    m_magmaticDensity = m_E + (m_F - m_E) * (1 - exp( -1 * m_maxBasalticCrustThickness / m_decayConstant));
-   
+
    // Step 4.3
    if( m_T0Map->getValue( i, j ) == m_T0Map->getUndefinedValue() || m_TRMap->getValue( i, j ) == m_TRMap->getUndefinedValue()) return false;
    const double t_mr = (m_T0Map->getValue(i, j) + m_TRMap->getValue(i, j)) / 2; 

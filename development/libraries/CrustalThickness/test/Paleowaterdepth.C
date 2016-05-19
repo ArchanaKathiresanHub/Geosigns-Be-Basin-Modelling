@@ -71,9 +71,9 @@ TEST( PaleowaterdepthCalculator, paleowaterdepth )
                                              currentPressureMantle.getMockderivedSurfacePropertyPtr(),
                                              &gridMapPresentDayPressureTTS,
                                              &gridMapCurrentPressureTTS );
-   EXPECT_NEAR( 3.002038736e+02,  pwdCalculator1.calculatePWD( 500,  -200,  5000, 1000, 10000, 2000 ), 1e-7 );
-   EXPECT_NEAR( -9.998165138e+02, pwdCalculator1.calculatePWD( 1000, -2000, 6000, 700,  9000,  100  ), 1e-7 );
-   EXPECT_NEAR( -8.919469929e-02, pwdCalculator1.calculatePWD( 0,    0,     4000, 350,  2000,  100  ), 1e-9 );
+   EXPECT_NEAR( 800.203873598369,  pwdCalculator1.calculatePWD( 1000, 200,   5000, 1000, 10000, 2000 ), 1e-12 );
+   EXPECT_NEAR( 3000.183486238530, pwdCalculator1.calculatePWD( 1000, -2000, 6000, 700,  9000,  100 ),  1e-11 );
+   EXPECT_NEAR( -0.089194699286,   pwdCalculator1.calculatePWD( 0,    0,     4000, 350,  2000,  100 ),  1e-12 );
    
    //Without pressure equilibirium
    PaleowaterdepthCalculator pwdCalculator2( firstI,
@@ -84,8 +84,8 @@ TEST( PaleowaterdepthCalculator, paleowaterdepth )
                                              1000,
                                              outputData,
                                              validator );
-   EXPECT_EQ( 300,   pwdCalculator2.calculatePWD( 500,  -200  ) );
-   EXPECT_EQ( -1000, pwdCalculator2.calculatePWD( 1000, -2000 ) );
+   EXPECT_EQ( 700,   pwdCalculator2.calculatePWD( 500,  -200  ) );
+   EXPECT_EQ( 800  , pwdCalculator2.calculatePWD( 1000, 200   ) );
    EXPECT_EQ( 0,     pwdCalculator2.calculatePWD( 0,    0     ) );
    
    //Unvalid constructor
@@ -112,10 +112,10 @@ TEST( PaleowaterdepthCalculator, paleowaterdepth )
 ///2. Test the general calculator computation
 TEST( PaleowaterdepthCalculator, compute )
 {
-   //With pressure equlibrium
+   //Without pressure equlibrium
    MockInterfaceOutput outputData = MockInterfaceOutput( firstI, firstJ, lastI, lastJ );
-   outputData.setMapValues( WLSMap, 500 );
-   outputData.setMapValues( cumSedimentBackstrip, -200 );
+   outputData.setMapValues( WLSMap, 1000 );
+   outputData.setMapValues( cumSedimentBackstrip, 200 );
    PaleowaterdepthCalculator pwdCalculator1( firstI,
                                              firstJ,
                                              lastI,
@@ -125,10 +125,10 @@ TEST( PaleowaterdepthCalculator, compute )
                                              outputData,
                                              validator );
    pwdCalculator1.compute();
-   EXPECT_EQ( 300, outputData.getMapValue( isostaticBathymetry, 0, 0 ) );
-   EXPECT_EQ( 300, outputData.getMapValue( isostaticBathymetry, 0, 1 ) );
-   EXPECT_EQ( 300, outputData.getMapValue( isostaticBathymetry, 1, 0 ) );
-   EXPECT_EQ( 300, outputData.getMapValue( isostaticBathymetry, 0, 0 ) );
+   EXPECT_EQ( 800, outputData.getMapValue( isostaticBathymetry, 0, 0 ) );
+   EXPECT_EQ( 800, outputData.getMapValue( isostaticBathymetry, 0, 1 ) );
+   EXPECT_EQ( 800, outputData.getMapValue( isostaticBathymetry, 1, 0 ) );
+   EXPECT_EQ( 800, outputData.getMapValue( isostaticBathymetry, 0, 0 ) );
 
    //Without pressure equilibirium
    // and defined data
@@ -145,10 +145,10 @@ TEST( PaleowaterdepthCalculator, compute )
                                              &gridMapPresentDayPressureTTS,
                                              &gridMapCurrentPressureTTS );
    pwdCalculator2.compute();
-   EXPECT_NEAR( 3.002038736e+02, outputData.getMapValue( isostaticBathymetry, 0, 0 ), 1e-7 );
-   EXPECT_NEAR( 3.002038736e+02, outputData.getMapValue( isostaticBathymetry, 0, 1 ), 1e-7 );
-   EXPECT_NEAR( 3.002038736e+02, outputData.getMapValue( isostaticBathymetry, 1, 0 ), 1e-7 );
-   EXPECT_NEAR( 3.002038736e+02, outputData.getMapValue( isostaticBathymetry, 0, 0 ), 1e-7 );
+   EXPECT_NEAR( 800.203873598369, outputData.getMapValue( isostaticBathymetry, 0, 0 ), 1e-12 );
+   EXPECT_NEAR( 800.203873598369, outputData.getMapValue( isostaticBathymetry, 0, 1 ), 1e-12 );
+   EXPECT_NEAR( 800.203873598369, outputData.getMapValue( isostaticBathymetry, 1, 0 ), 1e-12 );
+   EXPECT_NEAR( 800.203873598369, outputData.getMapValue( isostaticBathymetry, 0, 0 ), 1e-12 );
    // and undefined data
    PaleowaterdepthCalculator pwdCalculator3( firstI,
                                              firstJ,
@@ -163,10 +163,10 @@ TEST( PaleowaterdepthCalculator, compute )
                                              &gridMapPresentDayPressureTTSNDV,
                                              &gridMapCurrentPressureTTS );
    pwdCalculator3.compute();
-   EXPECT_EQ( 300, outputData.getMapValue( isostaticBathymetry, 0, 0 ) );
-   EXPECT_EQ( 300, outputData.getMapValue( isostaticBathymetry, 0, 1 ) );
-   EXPECT_EQ( 300, outputData.getMapValue( isostaticBathymetry, 1, 0 ) );
-   EXPECT_EQ( 300, outputData.getMapValue( isostaticBathymetry, 0, 0 ) );
+   EXPECT_EQ( 800, outputData.getMapValue( isostaticBathymetry, 0, 0 ) );
+   EXPECT_EQ( 800, outputData.getMapValue( isostaticBathymetry, 0, 1 ) );
+   EXPECT_EQ( 800, outputData.getMapValue( isostaticBathymetry, 1, 0 ) );
+   EXPECT_EQ( 800, outputData.getMapValue( isostaticBathymetry, 0, 0 ) );
 
    //Undefined values
    // for TTS

@@ -64,7 +64,7 @@ namespace CrustalThicknessInterface {
       "CumSedimentThickness",               // cumulative sediment thickness (m)
       "IsostaticBathymetry",                // filling up of a basin in absence of any thermal subsidence (m)
       "CumBasementCompensation",            // the amount the basement pushed down (or rebound) when sediment load is emplaced or removed 
-      "IncTectonicSubsidence"               // the change in total tectonic subsidence
+      "IncTectonicSubsidence",              // the change in total tectonic subsidence
       "PaleowaterdepthResidual"             // The paleowaterdepth residual (PWD-SDH) [m]
    };
 

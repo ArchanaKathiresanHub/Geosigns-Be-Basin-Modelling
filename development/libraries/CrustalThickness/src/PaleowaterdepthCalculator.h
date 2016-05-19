@@ -72,6 +72,14 @@ class PaleowaterdepthCalculator {
 
    private:
 
+      /// @defgroup DataUtilities
+      /// @{
+      /// @brief Retrieve pressure maps data
+      void retrieveData();
+      /// @brief Restore pressure maps data
+      void restoreData();
+      /// @}
+
       const unsigned int m_firstI; ///< First i index on the map
       const unsigned int m_firstJ; ///< First j index on the map
       const unsigned int m_lastI;  ///< Last i index on the map

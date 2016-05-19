@@ -266,26 +266,6 @@ bool GeoPhysics::ProjectHandle::setFormationLithologies ( const bool canRunGeomo
          createdLithologies = createdLithologies and formation->setLithologiesFromStratTable ();
       }
 
-#if 0
-      else
-      {
-
-         if ((*formationIter)->getName () == Interface::CrustFormationName ) {
-            GeoPhysics::GeoPhysicsCrustFormation* formation = dynamic_cast<GeoPhysics::GeoPhysicsCrustFormation*>(*formationIter);
-
-            formation->setLithologiesFromStratTable ();
-         } else if ((*formationIter)->getName () == Interface::MantleFormationName ) {
-            GeoPhysics::GeoPhysicsMantleFormation* formation = dynamic_cast<GeoPhysics::GeoPhysicsMantleFormation*>(*formationIter);
-
-            formation->setLithologiesFromStratTable ();
-         } else {
-         }
-
-
-      }
-#endif
-
-
    }
 
    createdLithologies = createdLithologies and dynamic_cast<GeoPhysics::GeoPhysicsCrustFormation*>( m_crustFormation )->setLithologiesFromStratTable ();
@@ -829,13 +809,6 @@ bool GeoPhysics::ProjectHandle::initialise ( const bool readSizeFromVolumeData,
    result = determineLayerMinMaxThickness () and result;
    result = determineCrustThinningRatio   () and result;
    result = determineMaximumNumberOfSegmentsPerLayer ( readSizeFromVolumeData, printTable ) and result;
-
-   // Sets the age of basin field.
-   //   setBasinAge ();
-
-#if 0
-   result = result and initialiseLayerThicknessHistory ();
-#endif
 
    return result;
 
@@ -2793,4 +2766,14 @@ bool GeoPhysics::ProjectHandle::loadALCConfigurationFile(const string & cfgFileN
       return true;
    }
    return true;
+}
+
+//------------------------------------------------------------//
+bool GeoPhysics::ProjectHandle::asSurfaceDepthHistory( const double age ) const{
+   for (std::size_t i = 0; i < m_surfaceDepthHistory.size(); i++){
+      if (m_surfaceDepthHistory[i]->getSnapshot()->getTime() == age){
+         return true;
+      }
+   }
+   return false;
 }

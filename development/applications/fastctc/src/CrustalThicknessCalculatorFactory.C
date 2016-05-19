@@ -25,7 +25,7 @@
 using namespace DataAccess;
 
 
-GeoPhysics::ProjectHandle *
+CrustalThicknessCalculator *
 CrustalThicknessCalculatorFactory::produceProjectHandle ( database::Database * database, const string & name,
                                                           const string & accessMode) {
    return new CrustalThicknessCalculator ( database, name, accessMode, this );
@@ -36,4 +36,18 @@ CrustalThicknessCalculatorFactory::produceCrustalThicknessData( DataAccess::Inte
                                                                 database::Record * record)
 {
    return new InterfaceInput(projectHandle, record);
+}
+
+Ctc::PropertyValue * CrustalThicknessCalculatorFactory::producePropertyValue( Interface::ProjectHandle *   projectHandle,
+                                                                              database::Record *           record,
+                                                                              const string &               name,
+                                                                              const Interface::Property *  property,
+                                                                              const Interface::Snapshot *  snapshot,
+                                                                              const Interface::Reservoir * reservoir,
+                                                                              const Interface::Formation * formation,
+                                                                              const Interface::Surface *   surface,
+                                                                              Interface::PropertyStorage   storage ) {
+
+   return new Ctc::PropertyValue( projectHandle, record, name, property, snapshot, reservoir, formation, surface, storage );
+
 }

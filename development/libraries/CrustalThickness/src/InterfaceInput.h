@@ -152,6 +152,8 @@ public:
    /// @defgroup LoadData_strati
    ///    Load data from the stratigraphy via GeoPhysics or DataMining projectHandle 
    /// @{
+   void loadDerivedPropertyManager();
+
    /// @brief Load the water bottom and the basement surfaces at the defined snapshot by initializing class members (m_bottomOfSedimentSurface and m_topOfSedimentSurface)
    /// @param baseSurfaceName The name of the basement surface (bottom of sediments), if "" then find it in the stratigraphy, else find the surface according to the name
    void loadTopAndBottomOfSediments( GeoPhysics::ProjectHandle* projectHandle, const double snapshotAge, const string & baseSurfaceName );
@@ -165,10 +167,10 @@ public:
 
    /// @brief Load the lithostatic pressure at the defined snapshot
    /// @return The lithostatic pressure property
-   const DataModel::AbstractProperty* loadPressureProperty( ) const;
+   const DataModel::AbstractProperty* loadPressureProperty( );
    /// @brief Load the depth at the defined snapshot and intitalise the top and bottom surface of sediments according to the baseSurfaceName
    /// @return The depth property
-   const DataModel::AbstractProperty* loadDepthProperty( ) const;
+   const DataModel::AbstractProperty* loadDepthProperty( );
 
    /// @brief Load a property at the defined snapshot for every point specified in the depth map
    /// @param handle The datamining project handle
@@ -218,7 +220,8 @@ public:
    DerivedProperties::SurfacePropertyPtr getDepthBasement              () const { return m_depthBasement;              };
    DerivedProperties::SurfacePropertyPtr getDepthWaterBottom           () const { return m_depthWaterBottom;           };
 
-   const Interface::Surface* getTopOfSedimentSurface() const { return m_topOfSedimentSurface; };
+   const Interface::Surface* getTopOfSedimentSurface() const { return m_topOfSedimentSurface;    };
+   const Interface::Surface* getBotOfSedimentSurface() const { return m_bottomOfSedimentSurface; };
 
    /// @}
 
@@ -266,7 +269,8 @@ private:
    /// @{
    const Interface::Surface * m_bottomOfSedimentSurface; ///< The basement surface at the current snapshot
    const Interface::Surface * m_topOfSedimentSurface;    ///< The water bottom surface
-   const Interface::Surface * m_topOfMantle;             ///< The top mantle (bottom crust) surface 
+   const Interface::Surface * m_topOfMantle;             ///< The top mantle (bottom crust) surface
+   const Interface::Surface * m_botOfMantle;             ///< The bottom mantle surface 
    /// @}
 
    /// @defgroup DerivedProperties
@@ -274,8 +278,8 @@ private:
    DerivedProperties::DerivedPropertyManager* m_derivedManager;          ///< The derived property manager (we have to use a pointer for forward declaration due to crossdependent libraries)
    DerivedProperties::SurfacePropertyPtr m_pressureBasement;             ///< The pressure of the basement at the current snapshot
    DerivedProperties::SurfacePropertyPtr m_pressureWaterBottom;          ///< The pressure of the water bottom at the current snapshot
-   DerivedProperties::SurfacePropertyPtr m_pressureMantle;               ///< The pressure of the mantle at the current snapshot
-   DerivedProperties::SurfacePropertyPtr m_pressureMantleAtPresentDay;   ///< The pressure of the mantle at the present day
+   DerivedProperties::SurfacePropertyPtr m_pressureMantle;               ///< The pressure of the bottom of mantle at the current snapshot
+   DerivedProperties::SurfacePropertyPtr m_pressureMantleAtPresentDay;   ///< The pressure of the bootom of mantle at the present day
    DerivedProperties::SurfacePropertyPtr m_depthBasement;                ///< The depth of the basement at the current snapshot
    DerivedProperties::SurfacePropertyPtr m_depthWaterBottom;             ///< The depth of the water bottom at the current snapshot
    /// @}

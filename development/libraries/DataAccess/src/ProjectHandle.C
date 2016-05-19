@@ -1250,11 +1250,11 @@ bool ProjectHandle::loadProperties( void )
    for ( i = 0; i < CrustalThicknessInterface::numberOfOutputMaps; ++i )
    {
       m_properties.push_back( getFactory()->produceProperty( this, 0,
-         CrustalThicknessInterface::outputMapsNames[ i ],
-         CrustalThicknessInterface::outputMapsNames[ i ],
-                                                             CrustalThicknessInterface::outputMapsUnits[ i ],
-                                                             FORMATIONPROPERTY,
-                                                             DataModel::SURFACE_2D_PROPERTY ));
+                              CrustalThicknessInterface::outputMapsNames[ i ],
+                              CrustalThicknessInterface::outputMapsNames[ i ],
+                              CrustalThicknessInterface::outputMapsUnits[ i ],
+                              FORMATIONPROPERTY,
+                              DataModel::SURFACE_2D_PROPERTY ));
    }
 
    return true;
@@ -3973,18 +3973,40 @@ Interface::PropertyValueList * ProjectHandle::getPropertyValues( int selectionFl
    const Interface::Reservoir * reservoir, const Interface::Formation * formation, const Interface::Surface * surface,
    int propertyType ) const
 {
+   return  getPropertyValuesForList( m_propertyValues, selectionFlags,
+                                     property, snapshot,
+                                     reservoir, formation, surface,
+                                     propertyType );
+}
+
+Interface::PropertyValueList * ProjectHandle::getPropertyUnrecordedValues( int selectionFlags,
+   const Interface::Property * property, const Interface::Snapshot * snapshot,
+   const Interface::Reservoir * reservoir, const Interface::Formation * formation, const Interface::Surface * surface,
+   int propertyType ) const
+{
+   return  getPropertyValuesForList( m_recordLessMapPropertyValues, selectionFlags,
+      property, snapshot,
+      reservoir, formation, surface,
+      propertyType );
+}
+
+Interface::PropertyValueList * ProjectHandle::getPropertyValuesForList( MutablePropertyValueList list,
+   int selectionFlags, const Interface::Property * property, const Interface::Snapshot * snapshot,
+   const Interface::Reservoir * reservoir, const Interface::Formation * formation, const Interface::Surface * surface,
+   int propertyType ) const
+{
    Interface::PropertyValueList * propertyValueList = new Interface::PropertyValueList;
 
    MutablePropertyValueList::const_iterator propertyValueIter;
 
-   for ( propertyValueIter = m_propertyValues.begin();
-      propertyValueIter != m_propertyValues.end();
-      ++propertyValueIter )
+   for (propertyValueIter = list.begin();
+      propertyValueIter != list.end();
+      ++propertyValueIter)
    {
       PropertyValue * propertyValue = *propertyValueIter;
 
-      if ( propertyValue->matchesConditions( selectionFlags, (Property *)property, (Snapshot *)snapshot, (Reservoir *)reservoir,
-         dynamic_cast<const Formation *>( formation ), dynamic_cast<const Surface *>( surface ), propertyType ) )
+      if (propertyValue->matchesConditions( selectionFlags, (Property *)property, (Snapshot *)snapshot, (Reservoir *)reservoir,
+         dynamic_cast<const Formation *>(formation), dynamic_cast<const Surface *>(surface), propertyType ))
       {
          //Alfred  propertyValueList->push_back (const_cast<Interface::PropertyValue*> (propertyValue));
          propertyValueList->push_back( propertyValue );
@@ -3994,6 +4016,7 @@ Interface::PropertyValueList * ProjectHandle::getPropertyValues( int selectionFl
    /// The PropertyValueList needs to be sorted so that user applications know what to expect
    sort( propertyValueList->begin(), propertyValueList->end(), PropertyValue::SortByAgeAndDepoAge );
    return propertyValueList;
+
 }
 
 unsigned int ProjectHandle::deletePropertyValueGridMaps( int selectionFlags,

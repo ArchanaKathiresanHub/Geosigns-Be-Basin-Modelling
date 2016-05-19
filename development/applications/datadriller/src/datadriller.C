@@ -36,7 +36,7 @@ using namespace CBMGenerics;
 #include "Point.h"
 #include "CauldronDomain.h"
 #include "DomainProperty.h"
-#include "DomainPropertyFactory.h"
+#include "DataMiningObjectFactory.h"
 #include "DomainPropertyCollection.h"
 
 
@@ -156,7 +156,7 @@ int main( int argc, char ** argv )
 
    if ( !parseCmdLineArgs( argc, argv, inputProjectFileName, outputProjectFileName ) ) return -1;
 
-   std::unique_ptr<Mining::DomainPropertyFactory> factory( new DataAccess::Mining::DomainPropertyFactory );
+   std::unique_ptr<Mining::ObjectFactory> factory( new DataAccess::Mining::ObjectFactory );
    std::unique_ptr<Mining::ProjectHandle> projectHandle( dynamic_cast<Mining::ProjectHandle*>( OpenCauldronProject( inputProjectFileName, "r", factory.get() ) ) );
 
 

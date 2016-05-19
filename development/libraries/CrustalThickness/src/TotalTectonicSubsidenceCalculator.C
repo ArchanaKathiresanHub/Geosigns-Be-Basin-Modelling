@@ -10,22 +10,29 @@
 
 #include "TotalTectonicSubsidenceCalculator.h"
 
+// DataAccess library
+#include "Interface/Interface.h"
+
+//------------------------------------------------------------//
 TotalTectonicSubsidenceCalculator::TotalTectonicSubsidenceCalculator( const unsigned int firstI,
    const unsigned int firstJ,
    const unsigned int lastI,
    const unsigned int lastJ,
+   const double age,
    const double airCorrection,
-   DerivedProperties::SurfacePropertyPtr depthWaterBottom,
+   const PolyFunction2DArray& depthWaterBottom,
    AbstractInterfaceOutput& outputData,
    AbstractValidator& validator ) : m_firstI( firstI ),
                                     m_firstJ( firstJ ),
                                     m_lastI ( lastI ),
                                     m_lastJ ( lastJ ),
+                                    m_age( age ),
                                     m_airCorrection( airCorrection ),
-                                    m_depthWaterBottom( depthWaterBottom ),
+                                    m_surfaceDepthHistory( depthWaterBottom ),
                                     m_outputData( outputData ),
                                     m_validator ( validator ){}
 
+//------------------------------------------------------------//
 void TotalTectonicSubsidenceCalculator::compute(){
 
    unsigned int i, j;
@@ -33,10 +40,10 @@ void TotalTectonicSubsidenceCalculator::compute(){
 
    for ( i = m_firstI; i <= m_lastI; ++i ) {
       for ( j = m_firstJ; j <= m_lastJ; ++j ) {
-         const double depthWaterBottom = m_depthWaterBottom->get( i, j );
+         const double depthWaterBottom = m_surfaceDepthHistory( i, j ).F( m_age );
          const double backstrip        = m_outputData.getMapValue( CrustalThicknessInterface::outputMaps::cumSedimentBackstrip, i, j );
          if ( m_validator.isValid( i, j ) and
-              depthWaterBottom != m_depthWaterBottom->getUndefinedValue() and
+              depthWaterBottom != Interface::DefaultUndefinedMapValue and
               backstrip        != Interface::DefaultUndefinedMapValue )
          {
             TTS = calculateTTS( depthWaterBottom, backstrip );
@@ -47,8 +54,10 @@ void TotalTectonicSubsidenceCalculator::compute(){
          m_outputData.setMapValue( CrustalThicknessInterface::outputMaps::WLSMap, i, j, TTS );
       }
    }
+
 }
 
+//------------------------------------------------------------//
 double TotalTectonicSubsidenceCalculator::calculateTTS( const double waterBottom,
                                                         const double backstrip ) const {
    double TTS = Interface::DefaultUndefinedMapValue;
