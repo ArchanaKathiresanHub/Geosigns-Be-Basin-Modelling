@@ -41,9 +41,412 @@
 
 // 1. Using fvec for each observation will produce a jacobian more similar to the one produced by PEST 
 //#define ACCUMULATE_MIN_FUNCTION 1
+using namespace Eigen;
 
 namespace casa
 {
+   // Does not make any sense to inherit from LevenbergMarquardt: it is not an abstract class and we ca not get its private members without modifying Eigen
+   template<typename FunctorType>
+   class LevenbergMarquardtConstrained
+   {
+
+   public:
+
+      typedef typename FunctorType::QRSolver QRSolver;
+      typedef typename FunctorType::JacobianType JacobianType;
+      typedef typename JacobianType::Scalar Scalar;
+      typedef typename JacobianType::RealScalar RealScalar;
+      typedef typename JacobianType::Index Index;
+      typedef typename QRSolver::Index PermIndex;
+      typedef Matrix<Scalar, Dynamic, 1> FVectorType;
+      typedef PermutationMatrix<Dynamic, Dynamic> PermutationType;
+
+      // constructor
+      LevenbergMarquardtConstrained( FunctorType & functor, VectorXd& xMin, VectorXd& xMax ) :
+         m_xMin( xMin ),
+         m_xMax( xMax ),
+         m_functor( functor ), m_nfev( 0 ), m_njev( 0 ), m_fnorm( 0.0 ), m_gnorm( 0 ),
+         m_isInitialized( false ), m_info( InvalidInput )
+      {
+            resetParameters();
+            m_useExternalScaling = false;
+      }
+
+      /** Sets the tolerance for the norm of the solution vector*/
+      void setXtol( RealScalar xtol ) { m_xtol = xtol; }
+
+      /** Sets the tolerance for the norm of the vector function*/
+      void setFtol( RealScalar ftol ) { m_ftol = ftol; }
+
+      /** Sets the maximum number of function evaluation */
+      void setMaxfev( Index maxfev ) { m_maxfev = maxfev; }
+
+      /** \returns the number of functions evaluation */
+      Index nfev( ) { return m_nfev; }
+
+      /** \returns the number of iterations performed */
+      Index iterations( ) { return m_iter; }
+
+      // constrained minimize
+      LevenbergMarquardtSpace::Status minimize( FVectorType  &x )
+      {
+         if ( m_xMin.size( ) != 0 ) LogHandler( LogHandler::DEBUG_SEVERITY ) << " Constrained LM ";
+         LevenbergMarquardtSpace::Status status = minimizeInit( x );
+         if ( status == LevenbergMarquardtSpace::ImproperInputParameters ) {
+            m_isInitialized = true;
+            return status;
+         }
+
+         int outerIter = 0;
+
+         do {
+            LogHandler( LogHandler::DEBUG_SEVERITY ) << " New jacobian calculated, iteration " << outerIter;
+            m_preJac.resize( 0, 0 );
+            m_dirFreeze.clear( );
+            status = minimizeOneStep( x );
+            // if parameters are fixed at the boundaries repeat the lambda search without calculating a new jacobian
+            while ( status == LevenbergMarquardtSpace::NotStarted )
+            {
+               status = minimizeOneStep( x );
+            }
+            ++outerIter;
+         } while ( status == LevenbergMarquardtSpace::Running && outerIter < 10 ); //In PEST we do not go over 10 outerIter
+         m_isInitialized = true;
+         return status;
+      }
+
+   private:
+      // reset solver parameters
+      void resetParameters( )
+      {
+         m_factor = 100.;
+         m_maxfev = 400;
+         m_ftol = std::sqrt( NumTraits<RealScalar>::epsilon( ) );
+         m_xtol = std::sqrt( NumTraits<RealScalar>::epsilon( ) );
+         m_gtol = 0.;
+         m_epsfcn = 0.;
+      }
+
+      LevenbergMarquardtSpace::Status minimizeInit( FVectorType  &x )
+      {
+         n = x.size();
+         m = m_functor.values();
+
+         m_wa1.resize( n ); m_wa2.resize( n ); m_wa3.resize( n );
+         m_wa4.resize( m );
+         m_fvec.resize( m );
+         //FIXME Sparse Case : Allocate space for the jacobian
+         m_fjac.resize( m, n );
+         //     m_fjac.reserve(VectorXi::Constant(n,5)); // FIXME Find a better alternative
+         if ( !m_useExternalScaling )
+            m_diag.resize( n );
+         eigen_assert( ( !m_useExternalScaling || m_diag.size() == n ) || "When m_useExternalScaling is set, the caller must provide a valid 'm_diag'" );
+         m_qtf.resize( n );
+
+         /* Function Body */
+         m_nfev = 0;
+         m_njev = 0;
+
+         /*     check the input parameters for errors. */
+         if ( n <= 0 || m < n || m_ftol < 0. || m_xtol < 0. || m_gtol < 0. || m_maxfev <= 0 || m_factor <= 0. ){
+            m_info = InvalidInput;
+            return LevenbergMarquardtSpace::ImproperInputParameters;
+         }
+
+         if ( m_useExternalScaling )
+         for ( Index j = 0; j < n; ++j )
+         if ( m_diag[j] <= 0. )
+         {
+            m_info = InvalidInput;
+            return LevenbergMarquardtSpace::ImproperInputParameters;
+         }
+
+         /*     evaluate the function at the starting point */
+         /*     and calculate its norm. */
+         m_nfev = 1;
+         if ( m_functor( x, m_fvec ) < 0 )
+            return LevenbergMarquardtSpace::UserAsked;
+         m_fnorm = m_fvec.stableNorm();
+
+         /*     initialize levenberg-marquardt parameter and iteration counter. */
+         m_par = 0.;
+         m_iter = 1;
+
+         return LevenbergMarquardtSpace::NotStarted;
+      }
+
+      //correct the parameter upgrade
+      void correctDirection(
+         FVectorType& x,
+         FVectorType& m_wa1,
+         std::vector<int>& dirFreeze )
+      {
+         dirFreeze.clear();
+         if ( m_xMin.size() > 0 && m_xMax.size() > 0 )
+         {
+            for ( int i = 0; i != x.size(); ++i )
+            {
+               if ( x( i ) + m_wa1( i ) < m_xMin( i ) )
+               {
+                  LogHandler( LogHandler::DEBUG_SEVERITY ) << " Parameter " << i << " out of lower bound, fixed at the boundary";
+                  m_wa1( i ) = m_xMin( i ) - x( i );
+                  dirFreeze.push_back( i );
+               }
+               else if ( x( i ) + m_wa1( i )  > m_xMax( i ) )
+               {
+                  LogHandler( LogHandler::DEBUG_SEVERITY ) << " Parameter " << i << " out of upper bound, fixed at the boundary";
+                  m_wa1( i ) = m_xMax( i ) - x( i );
+                  dirFreeze.push_back( i );
+               }
+            }
+         }
+      }
+
+      // constrained optimization
+      LevenbergMarquardtSpace::Status minimizeOneStep( FVectorType  &x )
+      {
+         using std::abs;
+         using std::sqrt;
+         RealScalar temp, temp1, temp2;
+         RealScalar ratio;
+         RealScalar pnorm, xnorm, fnorm1, actred, dirder, prered;
+         eigen_assert( x.size() == n ); // check the caller is not cheating us
+
+         Index df_ret;
+
+         temp = 0.0; xnorm = 0.0;
+         /* calculate the jacobian matrix. */
+         if ( m_dirFreeze.size() > 0 )
+         {
+            m_fjac = m_preJac;
+            df_ret = 0;
+         }
+         else
+         {
+            df_ret = m_functor.df( x, m_fjac );
+         }
+
+         if ( df_ret<0 )
+            return LevenbergMarquardtSpace::UserAsked;
+         if ( df_ret>0 )
+            // numerical diff, we evaluated the function df_ret times
+            m_nfev += df_ret;
+         else m_njev++;
+
+         /* compute the qr factorization of the jacobian. */
+         for ( int j = 0; j < x.size(); ++j )
+            m_wa2( j ) = m_fjac.col( j ).blueNorm();
+         QRSolver qrfac( m_fjac );
+         if ( qrfac.info() != Success ) {
+            m_info = NumericalIssue;
+            return LevenbergMarquardtSpace::ImproperInputParameters;
+         }
+         // Make a copy of the first factor with the associated permutation
+         m_rfactor = qrfac.matrixR();
+         m_permutation = ( qrfac.colsPermutation() );
+
+         /* on the first iteration and if external scaling is not used, scale according */
+         /* to the norms of the columns of the initial jacobian. */
+         if ( m_iter == 1 ) {
+            if ( !m_useExternalScaling )
+            for ( Index j = 0; j < n; ++j )
+               m_diag[j] = ( m_wa2[j] == 0. ) ? 1. : m_wa2[j];
+
+            /* on the first iteration, calculate the norm of the scaled x */
+            /* and initialize the step bound m_delta. */
+            xnorm = m_diag.cwiseProduct( x ).stableNorm();
+            m_delta = m_factor * xnorm;
+            if ( m_delta == 0. )
+               m_delta = m_factor;
+         }
+
+         /* form (q transpose)*m_fvec and store the first n components in */
+         /* m_qtf. */
+         m_wa4 = m_fvec;                             //m_fvec is the initial vector of values
+         m_wa4 = qrfac.matrixQ().adjoint() * m_fvec; //qr is the qr decomposition of the jacobian matrix 
+         m_qtf = m_wa4.head( n );
+
+         /* compute the norm of the scaled gradient. */
+         m_gnorm = 0.;
+         if ( m_fnorm != 0. )
+         for ( Index j = 0; j < n; ++j )
+         if ( m_wa2[m_permutation.indices()[j]] != 0. )
+            m_gnorm = ( std::max )( m_gnorm, abs( m_rfactor.col( j ).head( j + 1 ).dot( m_qtf.head( j + 1 ) / m_fnorm ) / m_wa2[m_permutation.indices()[j]] ) );
+
+         /* test for convergence of the gradient norm, only if columns of jacobian not frozen */
+         if ( m_gnorm <= m_gtol ) {
+            m_info = Success;
+            return LevenbergMarquardtSpace::CosinusTooSmall;
+         }
+
+         /* rescale if necessary. */
+         if ( !m_useExternalScaling )
+            m_diag = m_diag.cwiseMax( m_wa2 );
+
+         do {
+            /* determine the levenberg-marquardt parameter. */
+            std::cout << " Lamda search, ";
+            LogHandler( LogHandler::DEBUG_SEVERITY ) << " Lamda search, ";
+            internal::lmpar2( qrfac, m_diag, m_qtf, m_delta, m_par, m_wa1 );
+            LogHandler( LogHandler::DEBUG_SEVERITY ) << " lambda parameter : " << m_par;
+
+            /* store the direction p and x + p. calculate the norm of p. */
+            m_wa1 = -m_wa1;
+            // if outside the boundary, cut the increment at the boundary
+            correctDirection( x, m_wa1, m_dirFreeze );
+            m_wa2 = x + m_wa1;
+
+            pnorm = m_diag.cwiseProduct( m_wa1 ).stableNorm();
+
+            /* on the first iteration, adjust the initial step bound. */
+            if ( m_iter == 1 )
+               m_delta = ( std::min )( m_delta, pnorm );
+
+            /* evaluate the function at x + p and calculate its norm. */
+            if ( m_functor( m_wa2, m_wa4 ) < 0 )
+               return LevenbergMarquardtSpace::UserAsked;
+            ++m_nfev;
+            fnorm1 = m_wa4.stableNorm();
+
+            /* compute the scaled actual reduction. */
+            actred = -1.;
+            if ( Scalar( .1 ) * fnorm1 < m_fnorm )
+               actred = 1. - numext::abs2( fnorm1 / m_fnorm );
+
+            /* compute the scaled predicted reduction and */
+            /* the scaled directional derivative. */
+            m_wa3 = m_rfactor.template triangularView<Upper>() * ( m_permutation.inverse() *m_wa1 );
+            temp1 = numext::abs2( m_wa3.stableNorm() / m_fnorm );
+            temp2 = numext::abs2( sqrt( m_par ) * pnorm / m_fnorm );
+            prered = temp1 + temp2 / Scalar( .5 );
+            dirder = -( temp1 + temp2 );
+
+            /* compute the ratio of the actual to the predicted */
+            /* reduction. */
+            ratio = 0.;
+            if ( prered != 0. )
+               ratio = actred / prered;
+
+            /* update the step bound. */
+            if ( ratio <= Scalar( .25 ) ) {
+               if ( actred >= 0. )
+                  temp = RealScalar( .5 );
+               if ( actred < 0. )
+                  temp = RealScalar( .5 ) * dirder / ( dirder + RealScalar( .5 ) * actred );
+               if ( RealScalar( .1 ) * fnorm1 >= m_fnorm || temp < RealScalar( .1 ) )
+                  temp = Scalar( .1 );
+               /* Computing MIN */
+               m_delta = temp * ( std::min )( m_delta, pnorm / RealScalar( .1 ) );
+               m_par /= temp;
+            }
+            else if ( !( m_par != 0. && ratio < RealScalar( .75 ) ) ) {
+               m_delta = pnorm / RealScalar( .5 );
+               m_par = RealScalar( .5 ) * m_par;
+            }
+
+            /* test for successful iteration. */
+            if ( ratio >= RealScalar( 1e-4 ) )
+            {
+               /* successful iteration. update x, m_fvec, and their norms. */
+               x = m_wa2;
+               m_wa2 = m_diag.cwiseProduct( x );
+               m_fvec = m_wa4;
+               xnorm = m_wa2.stableNorm();
+               m_fnorm = fnorm1;
+               ++m_iter;
+               // after all freeze jacobian for the next search
+               if ( m_dirFreeze.size( ) == m_fjac.cols( ) )
+               {
+                  m_info = Success;
+                  //all parameter are frozen, exit and calculate a new jacobian
+                  return LevenbergMarquardtSpace::Running;
+               }
+               else if ( m_dirFreeze.size( ) > 0 )
+               {
+                  if ( m_preJac.cols() == 0 ) m_preJac = m_fjac;
+                  m_info = Success;
+                  // NotStarted is not used, so we can use it to indicate to start a new lambda search without modifying LevenbergMarquardtSpace
+                  return LevenbergMarquardtSpace::NotStarted;
+               }
+            }
+
+            /* tests for convergence. */
+            if ( abs( actred ) <= m_ftol && prered <= m_ftol && Scalar( .5 ) * ratio <= 1. && m_delta <= m_xtol * xnorm )
+            {
+               m_info = Success;
+               return LevenbergMarquardtSpace::RelativeErrorAndReductionTooSmall;
+            }
+            if ( abs( actred ) <= m_ftol && prered <= m_ftol && Scalar( .5 ) * ratio <= 1. )
+            {
+               m_info = Success;
+               return LevenbergMarquardtSpace::RelativeReductionTooSmall;
+            }
+            if ( m_delta <= m_xtol * xnorm )
+            {
+               m_info = Success;
+               return LevenbergMarquardtSpace::RelativeErrorTooSmall;
+            }
+
+            /* tests for termination and stringent tolerances. */
+            if ( m_nfev >= m_maxfev )
+            {
+               m_info = NoConvergence;
+               return LevenbergMarquardtSpace::TooManyFunctionEvaluation;
+            }
+            if ( abs( actred ) <= NumTraits<Scalar>::epsilon() && prered <= NumTraits<Scalar>::epsilon() && Scalar( .5 ) * ratio <= 1. )
+            {
+               m_info = Success;
+               return LevenbergMarquardtSpace::FtolTooSmall;
+            }
+            if ( m_delta <= NumTraits<Scalar>::epsilon() * xnorm )
+            {
+               m_info = Success;
+               return LevenbergMarquardtSpace::XtolTooSmall;
+            }
+            if ( m_gnorm <= NumTraits<Scalar>::epsilon() )
+            {
+               m_info = Success;
+               return LevenbergMarquardtSpace::GtolTooSmall;
+            }
+
+         } while ( ratio < Scalar( 1e-4 ) );
+
+         return LevenbergMarquardtSpace::Running;
+      }
+
+      // new members for constrained optimization
+      Eigen::VectorXd& m_xMin;
+      Eigen::VectorXd& m_xMax;
+      JacobianType m_preJac;
+      std::vector<int> m_dirFreeze;
+
+      // other private members of LevenbergMarquardt 
+      JacobianType m_fjac;
+      JacobianType m_rfactor; // The triangular matrix R from the QR of the jacobian matrix m_fjac
+      FunctorType &m_functor;
+      FVectorType m_fvec, m_qtf, m_diag;
+      Index n;
+      Index m;
+      Index m_nfev;
+      Index m_njev;
+      RealScalar m_fnorm; // Norm of the current vector function
+      RealScalar m_gnorm; //Norm of the gradient of the error 
+      RealScalar m_factor; //
+      Index m_maxfev; // Maximum number of function evaluation
+      RealScalar m_ftol; //Tolerance in the norm of the vector function
+      RealScalar m_xtol; // 
+      RealScalar m_gtol; //tolerance of the norm of the error gradient
+      RealScalar m_epsfcn; //
+      Index m_iter; // Number of iterations performed
+      RealScalar m_delta;
+      bool m_useExternalScaling;
+      PermutationType m_permutation;
+      FVectorType m_wa1, m_wa2, m_wa3, m_wa4; //Temporary vectors
+      RealScalar m_par;
+      bool m_isInitialized; // Check whether the minimization step has been called
+      ComputationInfo m_info;
+
+   };
 
    struct ProjectFunctor : public Eigen::DenseFunctor<double>
    {      
@@ -148,8 +551,11 @@ size_t LMOptAlgorithm::prepareParameters( std::vector<double> & initGuess, std::
             m_permPrms.push_back( globNum + k );
             if ( m_parameterTransformation == "log10" )
             {
+               assert( basVals[k] != 0 ," base value equal to 0 cannot be used if parameter is log transformed ");
                initGuess.push_back( log10( basVals[k] ) );
+               assert( minVals[k] != 0, " minimum value equal to 0 cannot be used if parameter is log transformed " );
                minPrm.push_back( log10( minVals[k] ) );
+               assert( maxVals[k] != 0, " maximum value equal to 0 cannot be used if parameter is log transformed " );
                maxPrm.push_back( log10( maxVals[k] ) );
             }
             else
@@ -383,7 +789,6 @@ void LMOptAlgorithm::calculateFunctionValue( Eigen::VectorXd & fvec )
       VarPrmContinuous::PDF    ppdf  = vprm->pdfType();
       double                   pval  = m_xi[i]; // use parameter value proposed by LM. It could be outside of parameter
                                                 // range. But parameter value will be cutted on the interval boundary
-      //rc->parameter( m_permPrms[i] )->asDoubleArray()[prmID];
 
       if ( m_parameterTransformation == "log10" )
       {
@@ -430,7 +835,7 @@ void LMOptAlgorithm::calculateFunctionValue( Eigen::VectorXd & fvec )
          fpen = 1 - exp( fpen );
       }
       
-      // add pemality if outside the bound
+      // add penality if outside the bound
       fval += fpen;
 
 #ifndef ACCUMULATE_MIN_FUNCTION
@@ -496,8 +901,8 @@ void LMOptAlgorithm::runOptimization( ScenarioAnalysis & sa )
    ProjectFunctor functor( *this, prmSpDim, 2, maxPrmEig ); // use parameters also as observables to keep them in range
 #endif
 
-   // we do not use Eigen::NumericalDiff because we define df
-   Eigen::LevenbergMarquardt< ProjectFunctor > lm( functor );
+   // use our constrained optimization algorithm derived from Eigen
+   casa::LevenbergMarquardtConstrained< ProjectFunctor > lm( functor, minPrmEig, maxPrmEig );
 
    // 20 evaluations for each parameter should be sufficent
    lm.setMaxfev( 20 * guess.size( ) );  
