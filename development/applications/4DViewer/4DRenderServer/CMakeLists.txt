@@ -19,6 +19,8 @@ link_directories( ${OIV_LIB_DIR_REL} ${OIV_LIB_DIR_DBG})
 
 add_executable( 4DRenderServer ${all_srcs} ${all_headers})
 
+set(OIV_LIBRARIES RemoteVizServices MeshVizDataMapping MeshVizExtractor MeshViz VolumeViz LDM Inventor InventorGL InventorBase)
+
 include_directories(
    ${HDF5_INCLUDE_DIRS}
    ${OIV_INCLUDE_DIR}
@@ -33,33 +35,20 @@ bm_include_libraries(
 )
 
 target_link_libraries(4DRenderServer
-   DataAccess
+   VisualizationIO
+   Visualization4D
    CBMGenerics
    Serial_Hdf5
+   DataAccess
    SerialDataAccess
    TableIO
    utilities
-   VisualizationIO
-   Visualization4D
    ${HDF5_LIBRARIES}
    ${Boost_LIBRARIES}
+   ${OIV_LIBRARIES}
 )
 
 install( TARGETS 4DRenderServer
    DESTINATION bin
 )
-
-# target_link_libraries(4DRenderServer
-# 	Visualization
-# 	DataAccess
-# 	VisualizationIO
-# 	SerialDataAccess
-# 	RemoteVizServices
-# 	MeshVizDataMapping
-# 	MeshVizExtractor
-# 	MeshViz
-# 	Inventor
-# 	InventorGL
-# 	InventorBase
-# 	dl)
 

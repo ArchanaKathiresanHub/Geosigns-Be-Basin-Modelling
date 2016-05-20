@@ -99,7 +99,8 @@ BpaRenderAreaListener::BpaRenderAreaListener(RenderArea* renderArea)
 #ifdef WIN64
   m_rootdir = "C:/data/";
 #else
-  m_rootdir = "/home/ree/data/";
+  //m_rootdir = "/home/ree/data/";
+  m_rootdir = "/lustre/titanium_cs9000/cauldron/nlsvfl/data/";
 #endif
 }
 

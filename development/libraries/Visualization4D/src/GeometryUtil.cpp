@@ -208,6 +208,7 @@ std::vector<SbVec2d> computeGridLineIntersections(const SbVec2d& p0, const SbVec
       nextY += (dy > 0.f) ? stepY : -stepY;
     }
 
+    // stay within bounds
     valid =
       fabs(lastX - p0[0]) <= fabs(dx) &&
       fabs(lastY - p0[1]) <= fabs(dy);
@@ -259,7 +260,7 @@ bool computeSurfaceCoordinates(const MiVolumeMeshCurvilinear& mesh, float invK, 
   size_t k0 = (size_t)floor(k);
   size_t k1 = (size_t)ceil(k);
   float intpart = 0.f;
-  float alpha = modf(k, &intpart);
+  float alpha = modff(k, &intpart);
 
   vbo->setSize(ni * nj * 3 * sizeof(float));
   float* p = (float*)vbo->map(SoBufferObject::SET);
