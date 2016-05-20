@@ -359,7 +359,7 @@ namespace DataAccess
          /// @param[in] surface properties belonging to this surface.
          /// @param[in] propertyTypes whether the properties should be 2D (MAP) or 3D (VOLUME)
          /// @return    a list of the selected unrecorded properties
-         PropertyValueList * ProjectHandle::getPropertyUnrecordedValues( int selectionFlags,
+         PropertyValueList * getPropertyUnrecordedValues( int selectionFlags,
             const Interface::Property * property, const Interface::Snapshot * snapshot,
             const Interface::Reservoir * reservoir, const Interface::Formation * formation, const Interface::Surface * surface,
             int propertyType ) const;

@@ -14,17 +14,16 @@ namespace DataModel {
    public :
 
       /// \brief X-coordinate of default origin of grid.
-      static const double OriginX;
+      static constexpr double OriginX = 0.0;
 
       /// \brief Y-coordinate of default origin of grid.
-      static const double OriginY;
+      static constexpr double OriginY = 0.0;
 
       /// \brief Spacing between nodes in x-direction.
-      static const double DeltaX;
+      static constexpr double DeltaX = 100.0;
 
       /// \brief Spacing between nodes in y-direction.
-      static const double DeltaY;
-
+      static constexpr double DeltaY = 100.0;
 
       MockGrid ( const int startI, const int ghostStartI,
                  const int startJ, const int ghostStartJ,
@@ -74,19 +73,6 @@ namespace DataModel {
    };
 
 } // namespace DataModel
-
-
-/// \brief X-coordinate of default origin of grid.
-const double DataModel::MockGrid::OriginX = 0.0;
-
-/// \brief Y-coordinate of default origin of grid.
-const double DataModel::MockGrid::OriginY = 0.0;
-
-/// \brief Spacing between nodes in x-direction.
-const double DataModel::MockGrid::DeltaX  = 100.0;
-
-/// \brief Spacing between nodes in y-direction.
-const double DataModel::MockGrid::DeltaY  = 100.0;
 
 
 inline DataModel::MockGrid::MockGrid ( const int startI, const int ghostStartI,

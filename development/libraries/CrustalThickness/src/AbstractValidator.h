@@ -19,7 +19,7 @@ class AbstractValidator {
       AbstractValidator() {};
       virtual ~AbstractValidator() {};
 
-      virtual const bool isValid( const unsigned int i, const unsigned int j ) const = 0;
+      virtual bool isValid( const unsigned int i, const unsigned int j ) const = 0;
 
 };
 #endif

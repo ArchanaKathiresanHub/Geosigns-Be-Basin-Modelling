@@ -26,7 +26,7 @@ class Validator : public AbstractValidator  {
       ~Validator() {};
 
       /// @brief return true if (i,j) is a valid node, else return false
-      const bool isValid( const unsigned int i, const unsigned int j ) const;
+      bool isValid( const unsigned int i, const unsigned int j ) const;
 
    private:
       GeoPhysics::ProjectHandle& m_projectHandle;

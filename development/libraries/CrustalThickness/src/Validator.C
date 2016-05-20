@@ -12,6 +12,6 @@
 Validator::Validator( GeoPhysics::ProjectHandle& projectHandle ) :
    m_projectHandle( projectHandle ){};
 
-const bool Validator::isValid( const unsigned int i, const unsigned int j ) const{
+bool Validator::isValid( const unsigned int i, const unsigned int j ) const{
    return m_projectHandle.getNodeIsValid( i, j );
 }

@@ -12,6 +12,6 @@
 MockValidator::MockValidator()
    :m_isValid( true ) {}
 
-const bool MockValidator::isValid( const unsigned int i, const unsigned int j ) const {
+bool MockValidator::isValid( const unsigned int i, const unsigned int j ) const {
    return m_isValid;
 }

@@ -24,7 +24,7 @@ class MockValidator : public AbstractValidator {
       ~MockValidator() {};
 
       /// @return m_isValid
-      const bool isValid( const unsigned int i, const unsigned int j ) const;
+      bool isValid( const unsigned int i, const unsigned int j ) const;
 
       /// @brief Set the global validity of all node to isValid
       void setIsValid( const bool isValid ) { m_isValid = isValid; };
