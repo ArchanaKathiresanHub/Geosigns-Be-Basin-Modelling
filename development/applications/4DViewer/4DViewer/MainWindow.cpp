@@ -15,10 +15,10 @@
 #include <Seismic.h>
 #include <DataAccessProject.h>
 
-#include <QtGui/QFileDialog>
-#include <QtGui/QMessageBox>
-#include <QtGui/QTreeWidget>
-#include <QtGui/QLabel>
+#include <QtWidgets/QFileDialog>
+#include <QtWidgets/QMessageBox>
+#include <QtWidgets/QTreeWidget>
+#include <QtWidgets/QLabel>
 #include <QtCore/QTime>
 
 #include <Inventor/ViewerComponents/SoCameraInteractor.h>
@@ -491,7 +491,7 @@ void MainWindow::onActionImportSeismicTriggered()
   if (!filename.isNull())
   {
     auto dim = m_project->getProjectInfo().dimensions;
-    auto ascii = filename.toAscii();
+    auto ascii = filename.toUtf8();
     const char* volumeFile = ascii.data();
     m_seismicScene = std::make_shared<SeismicScene>(volumeFile, dim);
     m_sceneGraphManager->addSeismicScene(m_seismicScene);
@@ -1062,7 +1062,7 @@ void MainWindow::onLoadSeismicColorMapClicked()
 
   if (!filename.isNull())
   {
-    auto ascii = filename.toAscii();
+    auto ascii = filename.toUtf8();
     m_seismicScene->loadColorMap(ascii.data());
     m_ui.renderWidget->updateGL();
   }

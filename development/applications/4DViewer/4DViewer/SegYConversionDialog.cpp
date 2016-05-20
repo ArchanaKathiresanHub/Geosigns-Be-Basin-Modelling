@@ -126,7 +126,7 @@ void SegYConversionDialog::setInputFileName(const QString& filename)
   m_filename = filename;
 
   m_reader = new SoVRSegyFileReader;
-  auto ascii = filename.toAscii();
+  auto ascii = filename.toUtf8();
   m_reader->setFilename(ascii.data());
 
   SbString header = m_reader->getSegyTextHeader();

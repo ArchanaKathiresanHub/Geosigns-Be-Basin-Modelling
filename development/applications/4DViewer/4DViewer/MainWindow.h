@@ -19,7 +19,7 @@
 
 #include <Inventor/misc/SoRef.h>
 
-#include <QtGui/QMainWindow>
+#include <QtWidgets/QMainWindow>
 
 class SceneGraph;
 class SeismicScene;
