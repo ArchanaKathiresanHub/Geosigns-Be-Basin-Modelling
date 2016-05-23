@@ -412,8 +412,13 @@ bool Migrator::createFormationNodes (void)
 
 bool Migrator::performSnapshotMigration (const Interface::Snapshot * start, const Interface::Snapshot * end, const bool overPressureRun)
 {
-     
-   if ((activeReservoirs (end) or m_reservoirDetection) and getBottomSourceRockFormation ()->isActive (end))
+   bool sourceRockActive = false;
+   migration::Formation * bottomSourceRock = getBottomSourceRockFormation ();
+
+   if (bottomSourceRock != nullptr)
+      sourceRockActive = bottomSourceRock->isActive (end);
+
+   if ((activeReservoirs (end) or m_reservoirDetection) and sourceRockActive )
    {
       if (GetRank () == 0)
          std::cout << "Processing snapshot " << end->getTime () << std::endl;
