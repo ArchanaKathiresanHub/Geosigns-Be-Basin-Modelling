@@ -29,6 +29,7 @@ set(CBM_HOME "/nfs/rvl/groups/ept-sg/SWEast/Cauldron" CACHE PATH "The path the s
 option( BM_CSHARP_API "Build the C sharp interface (Windows only)" OFF )
 option( BM_USE_FLEXLM "Whether to require a license via FlexLM" ON)
 option( BM_EXTERNAL_COMPONENTS_REBUILD "Whether or not to rebuild external components" OFF)
+option( BM_BUILD_HYPRE "Whether or not to build Hypre shared library" OFF)
 set(BM_EXTERNAL_COMPONENTS_DIR "/nfs/rvl/groups/ept-sg/SWEast/Cauldron/hpc-library" CACHE PATH "The path to the directory of prebuilt libraries")
 set(BM_SSSDEV_INSTALL_DIR "/apps/sssdev/ibs" CACHE PATH "sssdev installation path")
 

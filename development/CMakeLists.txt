@@ -219,6 +219,9 @@ find_package(Hdf5 REQUIRED CONFIG)
 find_package(Eigen REQUIRED CONFIG)
 find_package(Boost REQUIRED CONFIG)
 find_package(BLAS REQUIRED CONFIG)
+if (BM_BUILD_HYPRE)
+   find_package(Hypre REQUIRED CONFIG)
+endif (BM_BUILD_HYPRE)
 find_package(PETSC REQUIRED CONFIG)
 find_package(Touchstone REQUIRED CONFIG)
 find_package(SUMlib REQUIRED CONFIG)
@@ -300,14 +303,24 @@ install( FILES "${CMAKE_BINARY_DIR}/${BM_THIRD_PARTY_COMPONENT_LIST_FILE}"
 )
 
 if (UNIX)
-# Install mpirun/mpiexec wrapper scripts which are used by CASA
-install( FILES "${CMAKE_BINARY_DIR}/mpirun_wrap.sh" "${CMAKE_BINARY_DIR}/mpiexec_wrap.sh" 
-         DESTINATION bin
-         PERMISSIONS
-            OWNER_READ OWNER_EXECUTE
-            GROUP_READ GROUP_EXECUTE
-            WORLD_READ WORLD_EXECUTE
-       )
+   # Install mpirun/mpiexec wrapper scripts which are used by CASA
+   install( FILES "${CMAKE_BINARY_DIR}/mpirun_wrap.sh" "${CMAKE_BINARY_DIR}/mpiexec_wrap.sh" 
+            DESTINATION bin
+            PERMISSIONS
+               OWNER_READ OWNER_EXECUTE
+               GROUP_READ GROUP_EXECUTE
+               WORLD_READ WORLD_EXECUTE
+          )
+   if (BM_BUILD_HYPRE)
+      # Install shared libraries to the binaries folder
+      install( FILES "${HYPRE_LIBRARIES}" 
+               DESTINATION bin
+               PERMISSIONS
+                  OWNER_READ OWNER_EXECUTE
+                  GROUP_READ GROUP_EXECUTE
+                  WORLD_READ WORLD_EXECUTE
+             )
+   endif (BM_BUILD_HYPRE)
 endif (UNIX)
 
 #
