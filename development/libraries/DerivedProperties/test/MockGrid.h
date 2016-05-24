@@ -5,6 +5,18 @@
 
 namespace DataModel {
 
+   /// \brief X-coordinate of default origin of grid.
+   static double OriginX = 0.0;
+
+   /// \brief Y-coordinate of default origin of grid.
+   static double OriginY = 0.0;
+
+   /// \brief Spacing between nodes in x-direction.
+   static double DeltaX = 100.0;
+
+   /// \brief Spacing between nodes in y-direction.
+   static double DeltaY = 100.0;
+
    /// \brief Describes a regular grid structure.
    ///
    /// This global grid structure may be defined across multiple processors
@@ -12,18 +24,6 @@ namespace DataModel {
    class MockGrid : public AbstractGrid {
 
    public :
-
-      /// \brief X-coordinate of default origin of grid.
-      static constexpr double OriginX = 0.0;
-
-      /// \brief Y-coordinate of default origin of grid.
-      static constexpr double OriginY = 0.0;
-
-      /// \brief Spacing between nodes in x-direction.
-      static constexpr double DeltaX = 100.0;
-
-      /// \brief Spacing between nodes in y-direction.
-      static constexpr double DeltaY = 100.0;
 
       MockGrid ( const int startI, const int ghostStartI,
                  const int startJ, const int ghostStartJ,

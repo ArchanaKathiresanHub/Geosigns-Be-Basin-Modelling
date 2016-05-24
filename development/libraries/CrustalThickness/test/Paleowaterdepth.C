@@ -49,7 +49,7 @@ DataModel::MockDerivedSurfaceProperty currentPressureMantle   ( firstI, firstJ, 
 DataModel::MockDerivedSurfaceProperty presentDayPressureMantle( firstI, firstJ, firstI, firstJ, lastI, lastJ, lastI, lastJ, "Mantle", "Pressure", 0,  5000  );
 DataAccess::Interface::SerialGrid grid( minI, minJ, maxI, maxJ, numI, numJ );
 DataAccess::Interface::SerialGridMap gridMapPresentDayTTS           ( 0, 0, &grid, 1000 );
-DataAccess::Interface::SerialGridMap gridMapPresentDayTTSNDV        ( 0, 0, &grid, 1000 );
+DataAccess::Interface::SerialGridMap gridMapPresentDayTTSNDV        ( 0, 0, &grid, Interface::DefaultUndefinedMapValue );
 DataAccess::Interface::SerialGridMap gridMapPresentDayPressureTTS   ( 0, 0, &grid, 1000 );
 DataAccess::Interface::SerialGridMap gridMapPresentDayPressureTTSNDV( 0, 0, &grid, Interface::DefaultUndefinedMapValue );
 DataAccess::Interface::SerialGridMap gridMapCurrentPressureTTS      ( 0, 0, &grid, 2000 );
@@ -119,7 +119,7 @@ TEST( PaleowaterdepthCalculator, paleowaterdepth )
                                                 lastI,
                                                 lastJ,
                                                 3000,
-                                                3000,
+                                                1000,
                                                 nullptr,
                                                 outputData,
                                                 validator );
@@ -219,9 +219,9 @@ TEST( PaleowaterdepthCalculator, compute )
                                              &gridMapPresentDayTTS,
                                              outputData,
                                              validator );
+   outputData.setMapValues( cumSedimentBackstrip, Interface::DefaultUndefinedMapValue );
    pwdCalculator5.compute();
    // for backstrip
-   outputData.setMapValues( cumSedimentBackstrip, Interface::DefaultUndefinedMapValue );
    EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData.getMapValue( isostaticBathymetry, 0, 0 ) );
    EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData.getMapValue( isostaticBathymetry, 0, 1 ) );
    EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData.getMapValue( isostaticBathymetry, 1, 0 ) );
@@ -229,6 +229,7 @@ TEST( PaleowaterdepthCalculator, compute )
    //for valid node
    outputData.setMapValues( cumSedimentBackstrip, -300 );
    validator.setIsValid( false );
+   pwdCalculator5.compute();
    EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData.getMapValue( isostaticBathymetry, 0, 0 ) );
    EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData.getMapValue( isostaticBathymetry, 0, 1 ) );
    EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData.getMapValue( isostaticBathymetry, 1, 0 ) );

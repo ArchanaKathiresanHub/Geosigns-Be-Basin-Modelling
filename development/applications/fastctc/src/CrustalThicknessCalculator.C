@@ -266,6 +266,7 @@ void CrustalThicknessCalculator::deleteCTCPropertyValues()
 void CrustalThicknessCalculator::run() {
 
    unsigned int i, j, k;
+   Interface::IdentityFunctor identity;
    GridMap* previousTTS = 0;
    std::shared_ptr<GridMap> prensentDayPressureTTS;
    std::shared_ptr<GridMap> presentDayTTS;
@@ -321,8 +322,8 @@ void CrustalThicknessCalculator::run() {
       const Interface::Property* pressureInterfaceProperty = findProperty( "Pressure" );
       GridMap* currentPressureTTS = m_inputData->loadPropertyDataFromDepthMap( this, m_outputData.getMap( WLSMap ), pressureInterfaceProperty, theSnapshot );
       if (age == 0.0){
-         presentDayTTS          = std::shared_ptr<GridMap>( this->getFactory()->produceGridMap( nullptr, 0, m_outputData.getMap( WLSMap ), Interface::IdentityFunctor() ) );
-         prensentDayPressureTTS = std::shared_ptr<GridMap>( this->getFactory()->produceGridMap( nullptr, 0, currentPressureTTS, Interface::IdentityFunctor() ) );;
+         presentDayTTS          = std::shared_ptr<GridMap>( this->getFactory()->produceGridMap( nullptr, 0, m_outputData.getMap( WLSMap ), identity ) );
+         prensentDayPressureTTS = std::shared_ptr<GridMap>( this->getFactory()->produceGridMap( nullptr, 0, currentPressureTTS,            identity ) );;
       }
       
       /// 5. Compute the Paleowaterdepth
