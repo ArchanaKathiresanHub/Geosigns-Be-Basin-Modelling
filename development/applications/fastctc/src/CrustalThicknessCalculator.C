@@ -267,7 +267,8 @@ void CrustalThicknessCalculator::run() {
 
    unsigned int i, j, k;
    GridMap* previousTTS = 0;
-   GridMap* prensentDayPressureTTS = 0;
+   std::shared_ptr<GridMap> prensentDayPressureTTS;
+   std::shared_ptr<GridMap> presentDayTTS;
    Validator validator( *this );
    unsigned int firstI = m_inputData->firstI();
    unsigned int firstJ = m_inputData->firstJ();
@@ -320,17 +321,19 @@ void CrustalThicknessCalculator::run() {
       const Interface::Property* pressureInterfaceProperty = findProperty( "Pressure" );
       GridMap* currentPressureTTS = m_inputData->loadPropertyDataFromDepthMap( this, m_outputData.getMap( WLSMap ), pressureInterfaceProperty, theSnapshot );
       if (age == 0.0){
-         prensentDayPressureTTS = currentPressureTTS;
+         presentDayTTS          = std::shared_ptr<GridMap>( this->getFactory()->produceGridMap( nullptr, 0, m_outputData.getMap( WLSMap ), Interface::IdentityFunctor() ) );
+         prensentDayPressureTTS = std::shared_ptr<GridMap>( this->getFactory()->produceGridMap( nullptr, 0, currentPressureTTS, Interface::IdentityFunctor() ) );;
       }
       
       /// 5. Compute the Paleowaterdepth
       PaleowaterdepthCalculator PWDcalculator( firstI, firstJ, lastI, lastJ,
                                                m_inputData->getBackstrippingMantleDensity(),
                                                m_inputData->getWaterDensity(),
+                                               presentDayTTS.get(),
                                                m_outputData, validator,
                                                m_inputData->getPressureMantleAtPresentDay(),
                                                m_inputData->getPressureMantle(),
-                                               prensentDayPressureTTS, currentPressureTTS );
+                                               prensentDayPressureTTS.get(), currentPressureTTS );
       PWDcalculator.compute();
       
       // 6. Compute the PaleowaterdepthResidual (only if we have a SDH at this snapshot and if we are not at present day)
@@ -511,7 +514,6 @@ bool CrustalThicknessCalculator::movingAverageSmoothing( GridMap * aWLSMap) {
 
   const bool ghostNodes = true;
 
-     //aMap->retrieveData(); already retreived
   if( aMap->retrieved () && ghostNodes ) {
      aMap->restoreData();
      aMap->retrieveData( ghostNodes );

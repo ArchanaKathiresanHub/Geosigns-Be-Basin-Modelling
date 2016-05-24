@@ -59,13 +59,13 @@ namespace CrustalThicknessInterface {
       "InterceptPostMelt",                  // intercept for linear relations between WLS and T
       "CrustThicknessMeltOnset",            // crust thickness at melt onset (m) 
       "TopBasaltUnderplate",                // present-day depth to top basalt (m)
-      "CumTectonicSubsidence",              // present-day water loaded basin subsidence (m) (former WLS)
-      "CumSedimentBackstrip",               // cumulative sediment backstrip (m)
-      "CumSedimentThickness",               // cumulative sediment thickness (m)
-      "IsostaticBathymetry",                // filling up of a basin in absence of any thermal subsidence (m)
-      "CumBasementCompensation",            // the amount the basement pushed down (or rebound) when sediment load is emplaced or removed 
-      "IncTectonicSubsidence",              // the change in total tectonic subsidence
-      "PaleowaterdepthResidual"             // The paleowaterdepth residual (PWD-SDH) [m]
+      "TotalTectonicSubsidence",            // present-day water loaded basin subsidence (m) (former WLS)
+      "SedimentBackstrip",                  // cumulative sediment backstrip (m)
+      "SedimentThickness",                  // cumulative sediment thickness (m)
+      "PaleowaterDepth",                    // filling up of a basin in absence of any thermal subsidence (m)
+      "BasementCompensation",               // the amount the basement pushed down (or rebound) when sediment load is emplaced or removed [m]
+      "IncrementalTectonicSubsidence",      // the change in total tectonic subsidence [m]
+      "PaleowaterdepthResidual"             // The paleowaterdepth residual (PWD-SDH)  [m]
    };
 
    const std::string outputMapsUnits [CrustalThicknessInterface::numberOfOutputMaps] = {

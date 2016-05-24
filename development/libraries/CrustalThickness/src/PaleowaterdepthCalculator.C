@@ -10,12 +10,14 @@
 
 #include "PaleowaterdepthCalculator.h"
 
+//------------------------------------------------------------//
 PaleowaterdepthCalculator::PaleowaterdepthCalculator( const unsigned int firstI,
                                                       const unsigned int firstJ,
                                                       const unsigned int lastI,
                                                       const unsigned int lastJ,
                                                       const double theMantleDensity,
                                                       const double theWaterDensity,
+                                                      Interface::GridMap* presentDayTTS,
                                                       AbstractInterfaceOutput& outputData,
                                                       AbstractValidator&       validator,
                                                       DerivedProperties::SurfacePropertyPtr presentDayPressureMantle,
@@ -27,6 +29,7 @@ PaleowaterdepthCalculator::PaleowaterdepthCalculator( const unsigned int firstI,
                                                                                                  m_lastJ ( lastJ  ),
                                                                                                  m_mantleDensity( theMantleDensity ),
                                                                                                  m_waterDensity ( theWaterDensity ),
+                                                                                                 m_presentDayTTS( presentDayTTS ),
                                                                                                  m_outputData ( outputData ),
                                                                                                  m_validator  ( validator ),
                                                                                                  m_presentDayPressureMantle ( presentDayPressureMantle ),
@@ -37,10 +40,15 @@ PaleowaterdepthCalculator::PaleowaterdepthCalculator( const unsigned int firstI,
    if (theMantleDensity == theWaterDensity){
       throw PWDException() << "The water density is equal to the mantle density in the Paleowaterdepth calculator but they should be different.";
    }
+   if (m_presentDayTTS == nullptr) {
+      throw PWDException() << "Cannot retrieve the present day Total Tectonic Subsidence (TTS) for Paleowaterdepth computation (PWD).";
+   }
 }
 
+//------------------------------------------------------------//
 PaleowaterdepthCalculator::~PaleowaterdepthCalculator(){}
 
+//------------------------------------------------------------//
 void PaleowaterdepthCalculator::compute(){
 
    unsigned int i, j;
@@ -49,7 +57,7 @@ void PaleowaterdepthCalculator::compute(){
 
    for ( i = m_firstI; i <= m_lastI; ++i ) {
       for ( j = m_firstJ; j <= m_lastJ; ++j ) {
-         const double TTS = m_outputData.getMapValue( CrustalThicknessInterface::outputMaps::WLSMap, i, j );
+         const double TTS = m_presentDayTTS->getValue( i, j );
          const double backstrip = m_outputData.getMapValue( CrustalThicknessInterface::outputMaps::cumSedimentBackstrip, i, j );
          if ( m_validator.isValid( i, j ) and
               TTS       != Interface::DefaultUndefinedMapValue and
@@ -93,6 +101,7 @@ void PaleowaterdepthCalculator::compute(){
    restoreData();
 }
 
+//------------------------------------------------------------//
 double PaleowaterdepthCalculator::calculatePWD( const double presentDayTTS,
                                                 const double backstrip,
                                                 const double presentDayPressureMantle,
@@ -107,6 +116,7 @@ double PaleowaterdepthCalculator::calculatePWD( const double presentDayTTS,
    return PWD;
 }
 
+//------------------------------------------------------------//
 double PaleowaterdepthCalculator::calculatePWD( const double presentDayTTS,
                                                 const double backstrip ) const {
    double PWD = presentDayTTS - backstrip;
@@ -115,11 +125,14 @@ double PaleowaterdepthCalculator::calculatePWD( const double presentDayTTS,
 
 //------------------------------------------------------------//
 void PaleowaterdepthCalculator::retrieveData() {
+   if (m_presentDayTTS){
+      m_presentDayTTS->retrieveData();
+   }
    if (m_presentDayPressureTTS){
-      m_presentDayPressureTTS->retrieveData( );
+      m_presentDayPressureTTS->retrieveData();
    }
    if (m_currentPressureTTS){
-      m_currentPressureTTS->retrieveData( );
+      m_currentPressureTTS->retrieveData();
    }
    if (m_presentDayPressureMantle){
       m_presentDayPressureMantle->retrieveData();
@@ -131,6 +144,9 @@ void PaleowaterdepthCalculator::retrieveData() {
 
 //------------------------------------------------------------//
 void PaleowaterdepthCalculator::restoreData() {
+   if (m_presentDayTTS){
+      m_presentDayTTS->restoreData();
+   }
    if (m_presentDayPressureTTS){
       m_presentDayPressureTTS->restoreData();
    }

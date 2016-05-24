@@ -21,8 +21,8 @@ public:
    AbstractInterfaceOutput()          {};
    virtual ~AbstractInterfaceOutput() {};
 
-   virtual double getMapValue( CrustalThicknessInterface::outputMaps mapIndex, unsigned int i, unsigned int j )                     const = 0;
-   virtual void   setMapValue( CrustalThicknessInterface::outputMaps mapIndex, unsigned int i, unsigned int j, const double value )       = 0;
+   virtual double getMapValue( CrustalThicknessInterface::outputMaps mapIndex, unsigned int i, unsigned int j ) const               = 0;
+   virtual void   setMapValue( CrustalThicknessInterface::outputMaps mapIndex, unsigned int i, unsigned int j, const double value ) = 0;
 
 };
 

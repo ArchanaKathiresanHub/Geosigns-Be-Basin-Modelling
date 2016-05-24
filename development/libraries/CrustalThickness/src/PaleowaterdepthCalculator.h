@@ -44,6 +44,7 @@ class PaleowaterdepthCalculator {
                                  const unsigned int lastJ,
                                  const double theMantleDensity,
                                  const double theWaterDensity,
+                                 Interface::GridMap* presentDayTTS,
                                  AbstractInterfaceOutput& outputData,
                                  AbstractValidator&       validator,
                                  DerivedProperties::SurfacePropertyPtr presentDayPressureMantle = 0,
@@ -90,6 +91,7 @@ class PaleowaterdepthCalculator {
 
       DerivedProperties::SurfacePropertyPtr m_presentDayPressureMantle; ///< The present day pressure of the top mantle
       DerivedProperties::SurfacePropertyPtr m_currentPressureMantle;    ///< The current snapshot pressure of the top mantle
+      Interface::GridMap* m_presentDayTTS;                              ///< The present day total tectonic subsidence (at 0.0Ma)
       Interface::GridMap* m_presentDayPressureTTS;                      ///< The present day pressure at the present day TTS depth
       Interface::GridMap* m_currentPressureTTS;                         ///< The current snapshot pressure at the current snapshot TTS depth
 

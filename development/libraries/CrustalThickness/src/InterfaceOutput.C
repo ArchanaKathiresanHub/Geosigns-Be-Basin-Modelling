@@ -217,13 +217,23 @@ void InterfaceOutput::setMapsToOutput(CrustalThicknessInterface::outputMaps mapI
 //------------------------------------------------------------//
 void InterfaceOutput::updatePossibleOutputsAtSnapshot( outputMaps id, const GeoPhysics::ProjectHandle * pHandle, const Snapshot * theSnapshot ) {
    // The TTS is only ouput when we have an SDH
-   if (id == WLSMap and not pHandle->asSurfaceDepthHistory( theSnapshot->getTime() )){
-      m_outputMapsMask[id] = false;
+   if (id == WLSMap){
+      if (not pHandle->asSurfaceDepthHistory( theSnapshot->getTime() )){
+         m_outputMapsMask[id] = false;
+      }
+      else{
+         m_outputMapsMask[id] = true;
+      }
    }
    // The PWDR is only output when we have an SDH and never output at 0.0Ma
-   else if (id == PaleowaterdepthResidual and
-            ( not pHandle->asSurfaceDepthHistory( theSnapshot->getTime() ) or theSnapshot->getTime() == 0.0)) {
-      m_outputMapsMask[id] = false;
+   else if (id == PaleowaterdepthResidual){
+      if (not pHandle->asSurfaceDepthHistory( theSnapshot->getTime() ) or theSnapshot->getTime() == 0.0)
+      {
+         m_outputMapsMask[id] = false;
+      }
+      else{
+         m_outputMapsMask[id] = true;
+      }
    }
 }
 
@@ -239,7 +249,7 @@ void InterfaceOutput::setAllMapsToOutput( bool flag ) {
 //------------------------------------------------------------//
 bool InterfaceOutput::createSnapShotOutputMaps( GeoPhysics::ProjectHandle * pHandle, const Snapshot * theSnapshot, const Interface::Surface *theSurface ) {
    
-   LogHandler( LogHandler::DEBUG_SEVERITY ) << "Create snaphot output maps @ time " << theSnapshot->asString();
+   LogHandler( LogHandler::DEBUG_SEVERITY ) << "Create snaphot output maps @ snapshot " << theSnapshot->asString();
    int i;
    bool status = true;
    if( theSnapshot->getTime() == 0.0 ) {

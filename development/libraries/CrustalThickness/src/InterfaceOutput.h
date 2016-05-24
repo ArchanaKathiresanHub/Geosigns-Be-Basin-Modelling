@@ -134,6 +134,7 @@ public:
    /// @return The mask value
    bool   getOutputMask( outputMaps mapIndex ) const;
    /// @}
+
 private:
    void disableOutput( ProjectHandle * pHandle, const Interface::Surface* theSurface, const Snapshot* theSnapshot, const std::string& name ) const;
 

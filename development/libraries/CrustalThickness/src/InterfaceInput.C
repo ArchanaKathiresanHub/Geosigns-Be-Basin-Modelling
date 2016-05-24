@@ -611,17 +611,17 @@ void InterfaceInput::loadTopAndBottomOfSediments( GeoPhysics::ProjectHandle* pro
       m_bottomOfSedimentSurface = formationCrust->getTopSurface();
       m_topOfMantle = formationCrust->getBottomSurface();
       m_botOfMantle = formationCrust->getTopSurface();
-      LogHandler( LogHandler::DEBUG_SEVERITY ) << "Crust formation: " << formationCrust->getName() << ", surface above " << m_bottomOfSedimentSurface->getName() << ".";
-      LogHandler( LogHandler::DEBUG_SEVERITY ) << "Crust formation: " << formationCrust->getName() << ", surface under " << m_topOfMantle->getName()             << ".";
+      LogHandler( LogHandler::DEBUG_SEVERITY ) << "Crust formation: '" << formationCrust->getName() << "', surface above '" << m_bottomOfSedimentSurface->getName() << "'.";
+      LogHandler( LogHandler::DEBUG_SEVERITY ) << "Crust formation: '" << formationCrust->getName() << "', surface under '" << m_topOfMantle->getName()             << "'.";
    }
    else {
       m_bottomOfSedimentSurface = projectHandle->findSurface( baseSurfaceName );
       if (!m_bottomOfSedimentSurface) {
-         throw InputException() << "Could not find user defined base surface of the rift event: " << baseSurfaceName << ".";
+         throw InputException() << "Could not find user defined base surface of the rift event: '" << baseSurfaceName << "'.";
       }
       else {
          m_topOfMantle = m_bottomOfSedimentSurface->getBottomFormation()->getBottomSurface();
-         LogHandler( LogHandler::DEBUG_SEVERITY ) << "Using surface " << m_bottomOfSedimentSurface->getName() << " as the base of syn-rift.";
+         LogHandler( LogHandler::DEBUG_SEVERITY ) << "Using surface '" << m_bottomOfSedimentSurface->getName() << "' as the base of syn-rift.";
       }
    }
 
@@ -635,7 +635,8 @@ void InterfaceInput::loadTopAndBottomOfSediments( GeoPhysics::ProjectHandle* pro
 
    m_topOfSedimentSurface = formationWB->getTopSurface();
 
-   LogHandler( LogHandler::DEBUG_SEVERITY ) << "Top surface: " << m_topOfSedimentSurface->getName() << "; surface below " << m_bottomOfSedimentSurface->getName() << ".";
+   LogHandler( LogHandler::DEBUG_SEVERITY ) << "Top sediment surface: '" << m_topOfSedimentSurface->getName()    << "'.";
+   LogHandler( LogHandler::DEBUG_SEVERITY ) << "Bot sediment surface: '" << m_bottomOfSedimentSurface->getName() << "'.";
 }
 
 //------------------------------------------------------------//
