@@ -151,6 +151,9 @@ SharedParameterPtr VarPrmCrustThinning::newParameterFromModel( mbapi::Model & md
 SharedParameterPtr VarPrmCrustThinning::makeThreeDFromOneD( mbapi::Model & mdl, const std::vector<double>& xin, const std::vector<double>& yin, const std::vector<SharedParameterPtr>& prmVec ) const
 {
    // Not yet implemented
+   ErrorHandler::Exception ex( ErrorHandler::NotImplementedAPI );
+   ex << "makeThreeDFromOneD not yet implemented for VarPrmCrustThinning" ;
+   throw ex;
    return nullptr;
 }
 

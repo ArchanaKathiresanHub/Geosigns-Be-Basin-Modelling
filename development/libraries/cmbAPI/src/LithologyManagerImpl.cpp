@@ -276,7 +276,8 @@ ErrorHandler::ReturnCode LithologyManagerImpl::deleteLithology( LithologyID id )
          {
             std::vector<std::string> lithoNamesLst;
             std::vector<double>      lithoPerct;
-            m_stMgr->layerLithologiesList( layIDs[i], lithoNamesLst, lithoPerct );
+            std::vector<std::string> percMaps;
+            m_stMgr->layerLithologiesList( layIDs[i], lithoNamesLst, lithoPerct, percMaps );
             std::vector<std::string>::iterator it = std::find( lithoNamesLst.begin(), lithoNamesLst.end(), lithoName );
             if ( it != lithoNamesLst.end() ) // this lithology is referenced in stratigraphy, return error
             {
@@ -437,7 +438,8 @@ ErrorHandler::ReturnCode LithologyManagerImpl::cleanDuplicatedLithologies()
             {
                std::vector<std::string> lithoNamesLst;
                std::vector<double>      lithoPerct;
-               m_stMgr->layerLithologiesList( layIDs[j], lithoNamesLst, lithoPerct );
+               std::vector<std::string> percMaps;
+               m_stMgr->layerLithologiesList( layIDs[j], lithoNamesLst, lithoPerct, percMaps );
                bool isReplaced = false;
                for ( size_t k = 0; k < lithoNamesLst.size(); ++k )
                {

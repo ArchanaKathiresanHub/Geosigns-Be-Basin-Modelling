@@ -817,7 +817,7 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::extractOneDProjects( const std::str
    int minJ;
    int maxJ;
 
-   if ( uniqWellsSet.size( )==0 )
+   if ( uniqWellsSet.empty( ))
    {
       throw ErrorHandler::Exception( ErrorHandler::IoError ) << "No wells extracted, stopping";
    }
@@ -866,6 +866,19 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::importOneDResults( const std::strin
    // the best run case
    std::unique_ptr<casa::RunCaseImpl> brc( new casa::RunCaseImpl( ) );
 
+   // load all projects first
+   std::vector<mbapi::Model> caseModels( rcs.size( ));
+   for ( size_t c = 0; c < rcs.size(); ++c )
+   {
+      casa::RunCaseImpl  * rc = dynamic_cast<casa::RunCaseImpl*>( rcs[c] );
+      mbapi::Model & caseModel = rc->loadProject( );
+      if ( caseModel.errorCode( ) != ErrorHandler::NoError )
+      {
+         throw ErrorHandler::Exception( caseModel.errorCode( ) ) << caseModel.errorMessage( );
+      }
+      caseModels[c] = caseModel; 
+   }
+
    // loop over the entire variable space
    for ( size_t par = 0; par < var.size( ); ++par )
    {
@@ -879,31 +892,19 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::importOneDResults( const std::strin
 
          for ( size_t c = 0; c < rcs.size( ); ++c )
          {
-            casa::RunCaseImpl  * rc = dynamic_cast<casa::RunCaseImpl*>( rcs[c] );
-            mbapi::Model & caseModel = rc->loadProject( ); // this takes time! we could loop differently so we load every parameters instead of every case
-
-            if ( caseModel.errorCode( ) != ErrorHandler::NoError )
-            {
-               throw ErrorHandler::Exception( caseModel.errorCode( ) ) << caseModel.errorMessage( );
-            }
-
             SharedParameterPtr nprm;
             try
             { 
-               nprm = vprmc->newParameterFromModel( caseModel ); 
+               nprm = vprmc->newParameterFromModel( caseModels[c] );
             }
             catch ( const ErrorHandler::Exception & ex )
             {
-               throw ErrorHandler::Exception( ex.errorCode( ) ) << " The reading of the new parameter from the project " << caseModel.projectFileName( ) << " failed ";
-            }
-            catch ( ... )
-            {
-               throw ErrorHandler::Exception( ErrorHandler::UnknownError );
+               throw ex;
             }
 
             // extract the centre of the model
-            caseModel.origin( originX, originY );
-            caseModel.arealSize( dimX, dimY );
+            caseModels[c].origin( originX, originY );
+            caseModels[c].arealSize( dimX, dimY );
             centreX = originX + dimX / 2.0;
             centreY = originY + dimY / 2.0;
 
@@ -945,11 +946,7 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::importOneDResults( const std::strin
       }
          break;
 
-      case casa::VarParameter::Categorical:
-      {
-        brc->addParameter( vprm->baseValue( ) );
-      }
-         break;
+      case casa::VarParameter::Categorical: brc->addParameter( vprm->baseValue( )); break;
 
       case casa::VarParameter::Discrete:
       default:

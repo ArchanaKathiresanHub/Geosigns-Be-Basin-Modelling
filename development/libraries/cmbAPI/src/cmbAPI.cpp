@@ -1463,7 +1463,8 @@ std::vector<std::string> Model::ModelImpl::copyLithology( const std::string     
 
       // get list of lithologies for the layer
       std::vector<double> lithPerc;
-      if ( ErrorHandler::NoError != m_stratMgr.layerLithologiesList( lyd, mixList, lithPerc ) )
+      std::vector<std::string> percMaps;
+      if ( ErrorHandler::NoError != m_stratMgr.layerLithologiesList( lyd, mixList, lithPerc, percMaps ) )
       {
          throw ErrorHandler::Exception( m_stratMgr.errorCode() ) << m_stratMgr.errorMessage();
       }

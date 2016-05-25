@@ -324,6 +324,21 @@ namespace casa
                                                         some middle parameter value it will be taken from the base case model */
           );
 
+      /// @brief Add variation of compaction coefficient 
+      /// @return ErrorHandler::NoError on success or error code otherwise
+      ErrorHandler::ReturnCode VaryCompactionCoefficient(
+         ScenarioAnalysis & sa ///< [in,out] casa::ScenarioAnalysis object, if any error, this object will keep an error message
+         , const std::string                                       & name          ///< user specified name for variable parameter 
+         , const std::vector<std::pair<std::string, size_t> >      & layersName    ///< [in] stratigraphy layers name list
+         , const std::vector<std::string>                          & alochtLitName ///< [in] alochton lithologies name list
+         , const std::vector<std::pair<std::string, std::string> > & faultsName    ///< [in] (mapfile,fault) names list
+         , const std::string                                       & litName       ///< [in] lithology name
+         , double                                                   minCompCoef    ///< [in] min range value for the compaction coefficient 
+         , double                                                   maxCompCoef    ///< [in] max range value for the compaction coefficient
+         , VarPrmContinuous::PDF pdfType           /**< [in] probability function type for the variable parameter. If PDF needs
+                                                   some middle parameter value it will be taken from the base case model */
+          );
+
       /// @brief Add variation of one or two lithofractions
       /// @return ErrorHandler::NoError on success or error code otherwise
       ErrorHandler::ReturnCode VaryLithoFraction(

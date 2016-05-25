@@ -218,7 +218,7 @@ double StratigraphyManagerImpl::eldestLayerAge()
 }
 
 // Get all lithologies associated with the given layer and percentage of each lithology in a mix
-ErrorHandler::ReturnCode StratigraphyManagerImpl::layerLithologiesList( LayerID id, std::vector<std::string> & lithoList, std::vector<double> & lithoPercent )
+ErrorHandler::ReturnCode StratigraphyManagerImpl::layerLithologiesList( LayerID id, std::vector<std::string> & lithoList, std::vector<double> & lithoPercent, std::vector<std::string> & lithoPercMap )
 {
    if ( errorCode() != NoError ) resetError();
 
@@ -242,14 +242,18 @@ ErrorHandler::ReturnCode StratigraphyManagerImpl::layerLithologiesList( LayerID 
       // get 1st lithology
       std::string lithoName = rec->getValue<std::string>( s_lithoType1FiledName        );
       double      perc      = rec->getValue<double>(      s_lithoTypePercent1FiledName );
+      std::string lithoPerc = rec->getValue<std::string>( s_lithoTypePercent1GridFiledName );
       lithoList.push_back( lithoName );
       lithoPercent.push_back( perc );
+      lithoPercMap.push_back( lithoPerc );
 
       // get 2nd lithology
       lithoName = rec->getValue<std::string>( s_lithoType2FiledName        );
       perc      = rec->getValue<double>(      s_lithoTypePercent2FiledName );
+      lithoPerc = rec->getValue<std::string>( s_lithoTypePercent1GridFiledName );
       lithoList.push_back( lithoName );
       lithoPercent.push_back( perc );
+      lithoPercMap.push_back( lithoPerc );
 
       // get 3d lithology
       lithoName = rec->getValue<std::string>( s_lithoType3FiledName        );
@@ -354,8 +358,9 @@ std::vector<StratigraphyManager::LayerID> StratigraphyManagerImpl::findLayersFor
    {
       std::vector<std::string> lithNames;
       std::vector<double>      lithPerc;
+      std::vector<std::string> percMaps;
       
-      if ( layerLithologiesList( ids[i], lithNames, lithPerc ) != NoError ) continue;
+      if ( layerLithologiesList( ids[i], lithNames, lithPerc, percMaps ) != NoError ) continue;
       
       bool found = false;
       for ( size_t j = 0; j < lithNames.size() && !found; ++j )

@@ -449,7 +449,7 @@ namespace casa
    };
 
    struct ProjectFunctor : public Eigen::DenseFunctor<double>
-   {      
+   {
       ProjectFunctor( LMOptAlgorithm & lm
       , int prmSpaceDim
       , int obsSpaceDim
@@ -481,7 +481,7 @@ namespace casa
          const InputType::Index n = _x.size();
          ValueType val1, val2;
          // 10% increment as in PEST
-         const Scalar eps = 0.1; 
+         const Scalar eps = 0.1;
          InputType x = _x;
 
          val1.resize( ProjectFunctor::values() );
@@ -491,33 +491,51 @@ namespace casa
          ProjectFunctor::operator()( x, val1 ); nfev++;
 
          // Function Body
-         for ( int j = 0; j < n; ++j )
+         if ( m_lm.transformation() == "log10" )
          {
-            // calculate the base value
-            if ( m_lm.transformation() == "log10" )
+            for ( int j = 0; j < n; ++j )
             {
+               // calculate the base value
                x[j] = pow( 10, x[j] );
-            }
-            // increment always in terms of the base value
-            h = eps * abs( x[j] );
-            // if the parameter is 0, increment it of 0.1
-            if ( h == 0. ) h = eps;
-            // backward difference if the parameter exceeds the bound
-            if ( x[j] + h > m_xMax[j] ) h = -h;
-            x[j] += h;
-            // backtransform in log10 for the function evaluation
-            if ( m_lm.transformation() == "log10" )
-            {
+               // increment always in terms of the base value
+               h = eps * abs( x[j] );
+               // if the parameter is 0, increment it of 0.1
+               if ( h == 0. ) h = eps;
+               // backward difference if the parameter exceeds the bound
+               if ( x[j] + h > m_xMax[j] ) h = -h;
+               x[j] += h;
+               // backtransform in log10 for the function evaluation
                x[j] = log10( x[j] );
                h = x[j] - _x[j];
+               // calculate the jacobian
+               ProjectFunctor::operator()( x, val2 );
+               jac.col( j ) = ( val2 - val1 ) / h;
+               nfev++;
+               //restore the original value
+               x[j] = _x[j];
             }
-            // calculate the jacobian
-            ProjectFunctor::operator()( x, val2 );
-            jac.col( j ) = ( val2 - val1 ) / h;
-            nfev++;
-            //restore the original value
-            x[j] = _x[j];
-         };
+         }
+         else
+         {
+            for ( int j = 0; j < n; ++j )
+            {
+               // increment always in terms of the base value
+               h = eps * abs( x[j] );
+               // if the parameter is 0, increment it of 0.1
+               if ( h == 0. ) h = eps;
+               // backward difference if the parameter exceeds the bound
+               if ( x[j] + h > m_xMax[j] ) h = -h;
+               x[j] += h;
+               // backtransform in log10 for the function evaluation
+               h = x[j] - _x[j];
+               // calculate the jacobian
+               ProjectFunctor::operator()( x, val2 );
+               jac.col( j ) = ( val2 - val1 ) / h;
+               nfev++;
+               //restore the original value
+               x[j] = _x[j];
+            }
+         }
          return nfev;
       }
 
@@ -755,7 +773,7 @@ void LMOptAlgorithm::calculateFunctionValue( Eigen::VectorXd & fvec )
             
       for ( size_t k = 0; k < refVal.size(); ++k )
       {
-         if ( obv[k] == UndefinedDoubleValue || obv[k] == 99999.0 )
+         if ( obv[k] == DataAccess::Interface::DefaultUndefinedScalarValue || obv[k] == DataAccess::Interface::DefaultUndefinedMapValue )
          {
             LogHandler( LogHandler::ERROR_SEVERITY ) << "Invalid observation value: " << obv[k] <<" stopping...";
             throw ErrorHandler::Exception( ErrorHandler::UnknownError ) << "Invalid observation value, stopping...";
@@ -819,12 +837,12 @@ void LMOptAlgorithm::calculateFunctionValue( Eigen::VectorXd & fvec )
             break;
       }
       // add penalty on goin out of the range
-      if (      pval < minV ) 
+      if ( pval < minV - numeric_limits<double>::epsilon( ) )
       { 
          LogHandler( LogHandler::DEBUG_SEVERITY ) << "pval less than minV : "<< pval <<" "<< minV;
          fpen = 50 * (minV - pval); 
       }  // penalty if v < [min:max]
-      else if ( pval > maxV ) 
+      else if ( pval > maxV + numeric_limits<double>::epsilon( ) )
       { 
          LogHandler( LogHandler::DEBUG_SEVERITY ) << "pval larger than maxV : " << pval << " " << minV;
          fpen  = 50 * (pval - maxV); 

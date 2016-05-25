@@ -889,6 +889,124 @@ public:
 };
 
 ////////////////////////////////////////////////////////////////
+// Compaction Coefficient parameter
+////////////////////////////////////////////////////////////////
+//
+class CompactionCoefficient : public PrmType
+{
+public:
+   CompactionCoefficient( const std::string & prmTypeName = "" ) : PrmType( prmTypeName ) { ; }
+   virtual ~CompactionCoefficient( ) { ; }
+
+   virtual void addParameterObject( std::unique_ptr<casa::ScenarioAnalysis> & sa
+      , const std::string                     & name
+      , const std::vector<std::string>        & prms
+      ) const
+   {
+      size_t pos = 1;
+
+      const std::vector<std::string>            & layersName = CfgFileParser::list2array( prms[pos++], ',' );
+      std::vector<std::pair<std::string, size_t> > layersList;
+      if ( !layersName.empty( ) )
+      {
+         for ( size_t i = 0; i < layersName.size( ); ++i )
+         {
+            const std::vector<std::string> & curLay = CfgFileParser::list2array( layersName[i], ':' );
+            if ( curLay.size( ) != 2 )
+            {
+               throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Layer name must be defined as \"LayerName\":\"Lithotype1\"" <<
+                  ", but it is defined as: " << layersName[i];
+            }
+
+            size_t mixID = atoi( curLay[1].substr( curLay[1].size( ) - 1 ).c_str( ) );
+            if ( mixID > 3 )
+            {
+               throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Lithotype could be only 1,2 or 3, but given:" << curLay[1];
+            }
+            layersList.push_back( std::pair<std::string, size_t>( curLay[0], mixID - 1 ) );
+         }
+      }
+
+      const std::vector<std::string> & allochtonLithologiesName = CfgFileParser::list2array( prms[pos++], ',' );
+      const std::vector<std::string> & faultsMapList = CfgFileParser::list2array( prms[pos++], ',' );
+      std::vector<std::pair< std::string, std::string> >           faultsName;
+
+      if ( !faultsMapList.empty( ) )
+      {
+         for ( size_t i = 0; i < faultsMapList.size( ); ++i )
+         {
+            const std::vector<std::string> & vec = CfgFileParser::list2array( faultsMapList[i], ':' );
+            if ( vec.size( ) != 2 )
+            {
+               throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Fault name must be defined as \"MapName\":\"FaultCutName\"" <<
+                  ", but it is defined as: " << faultsMapList[i];
+            }
+            faultsName.push_back( std::pair<std::string, std::string>( vec[0], vec[1] ) );
+         }
+      }
+
+      const std::string & lithoName = prms[pos++];
+
+      double       minCompCoef = atof( prms[pos++].c_str( ) );
+      double       maxCompCoef = atof( prms[pos++].c_str( ) );
+
+      casa::VarPrmContinuous::PDF pdfType = Str2pdf( prms.back( ) );
+
+      if ( ErrorHandler::NoError != casa::BusinessLogicRulesSet::VaryCompactionCoefficient( *sa.get( )
+         , name
+         , layersList
+         , allochtonLithologiesName
+         , faultsName
+         , lithoName
+         , minCompCoef
+         , maxCompCoef
+         , pdfType
+         )
+         ) {
+         throw ErrorHandler::Exception( sa->errorCode( ) ) << sa->errorMessage( );
+      }
+   }
+
+   size_t expectedParametersNumber( ) const { return 7; } // lay_names, aloch_names, fault_names, lit_name, comp_coef mn/mx, pdf
+   size_t optionalParametersNumber( ) const { return 0; }
+
+   virtual std::string name( ) const { return "LithotypeIoTbl:CompactionCoefficient"; }
+
+   virtual std::string description( ) const
+   {
+      return "a variation of compaction coefficient parameter for the given formation, alochton litholog or fault lithologies";
+   }
+
+   virtual std::string fullDescription( ) const
+   {
+      std::ostringstream oss;
+      oss << "    [varPrmName] \"" << name( ) << "\" <layName> <alochtLithName> <faultName>  <minCompCoef> <maxCompCoef> <prmPDF>\n";
+      oss << "    Where:\n";
+      oss << "       varPrmName     - user specified variable parameter name (Optional)\n";
+      oss << "       layName        - array of layers name\n";
+      oss << "       alochtLithName - array of allochton lithologies names\n";
+      oss << "       faultName      - array of faults names\n";
+      oss << "       litName        - lithology name\n";
+      oss << "       minCompCoef    - compaction coefficient - minimal range value\n";
+      oss << "       maxCompCoef    - compaction coefficient - maximal range value\n";
+      oss << "       prmPDF         - the parameter probability density function type\n";
+      oss << "\n";
+      return oss.str( );
+   }
+
+   virtual std::string usingExample( const char * cmdName ) const
+   {
+      std::ostringstream oss;
+      oss << "    #       VarPrmName      LayLst      AlochtLithLst          FaultsLst      LithName       CompactCoef   Parameter PDF\n";
+      oss << "    " << cmdName << "  \"" << name( ) << "\"   [\"Permian\",\"Tertiary\"] [\"Permian\"]   [\"MAP-1234\":\"Faultcut1\",\"MAP-234\":\"Faultcut1\"] \"Std. Sandstone\"  \"Soil_Mechanics\"   10     30   \"Normal\"\n";
+      oss << "    Example 2:\n";
+      oss << "    #       VarPrmName                LayLst  AlochtLithLst  FaultsLst  LithName CompactCoef   Parameter PDF\n";
+      oss << "    " << cmdName << " \"" << name( ) << "\" []     []      []  \"SM.Mudstone40%Clay\"  10 30  \"Block\"\n";
+      return oss.str( );
+   }
+};
+
+////////////////////////////////////////////////////////////////
 // Lithofraction parameter
 ////////////////////////////////////////////////////////////////
 //
@@ -1391,9 +1509,10 @@ public:
       m_prmType["PermeabilityModel"         ] = new PermeabilityModel();
       m_prmType["STPThermalCondCoeff"       ] = new STPThermalCondCoeff();
       
-      m_prmType["LithotypeIoTbl:PermMixModel"   ] = new PermeabilityModel(      "LithotypeIoTbl:PermMixModel"     );
-      m_prmType["LithotypeIoTbl:Porosity_Model" ] = new PorosityModel(          "LithotypeIoTbl:Porosity_Model"   );
-      m_prmType["LithotypeIoTbl:SurfacePorosity"] = new SurfacePorosity(        "LithotypeIoTbl::SurfacePorosity" );
+      m_prmType["LithotypeIoTbl:PermMixModel"   ]   = new PermeabilityModel(      "LithotypeIoTbl:PermMixModel"     );
+      m_prmType["LithotypeIoTbl:Porosity_Model" ]   = new PorosityModel(          "LithotypeIoTbl:Porosity_Model"   );
+      m_prmType["LithotypeIoTbl:SurfacePorosity"]   = new SurfacePorosity(        "LithotypeIoTbl::SurfacePorosity" );
+      m_prmType["LithotypeIoTbl:CompacCoefficient"] = new CompactionCoefficient( "LithotypeIoTbl:CompacCoefficient" );
 
       m_prmType["StratIoTbl:Percent1"] = new LithoFraction( "StratIoTbl:Percent1" );
       m_prmType["StratIoTbl:Percent2"] = new LithoFraction( "StratIoTbl:Percent2" );

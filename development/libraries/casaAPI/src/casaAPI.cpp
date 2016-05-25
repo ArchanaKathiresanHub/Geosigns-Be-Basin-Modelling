@@ -27,6 +27,7 @@
 
 #include "PrmPorosityModel.h"
 #include "PrmSurfacePorosity.h"
+#include "PrmCompactionCoefficient.h"
 #include "PrmPermeabilityModel.h"
 #include "PrmLithoSTPThermalCond.h"
 
@@ -48,6 +49,7 @@
 #include "VarPrmPermeabilityModel.h"
 #include "VarPrmLithoSTPThermalCond.h"
 #include "VarPrmLithoFraction.h"
+#include "VarPrmCompactionCoefficient.h"
 
 // Standard C lib
 #include <cmath>
@@ -71,7 +73,8 @@ static size_t findMixingIDForLithologyInLayer( const char * layerName, const std
       }
       std::vector<std::string> lithLst;
       std::vector<double>      percLst;
-      if ( ErrorHandler::NoError != smgr.layerLithologiesList( lyd, lithLst, percLst ) )
+      std::vector<std::string> percMaps;
+      if ( ErrorHandler::NoError != smgr.layerLithologiesList( lyd, lithLst, percLst, percMaps ) )
       {
          throw ErrorHandler::Exception( smgr.errorCode() ) << smgr.errorMessage();
       }
@@ -206,7 +209,7 @@ ErrorHandler::ReturnCode VarySourceRockTOC( ScenarioAnalysis    & sa
 
       bool alreadyAdded = false;
 
-      // check is the variable parameters set already has TOC parameter
+      // check if the variable parameters set already has TOC parameter
       if ( !srtName.empty() )
       {
          for ( size_t i = 0; i < varPrmsSet.size() && !alreadyAdded; ++i )
@@ -898,7 +901,7 @@ ErrorHandler::ReturnCode VarySurfacePorosity( ScenarioAnalysis & sa
 {
    try
    {
-      VarSpace & varPrmsSet = sa.varSpace();
+      VarSpaceImpl & varPrmsSet = dynamic_cast< VarSpaceImpl & >( sa.varSpace( ) );
 
       // calculate base value as middle of range first
 
@@ -913,6 +916,38 @@ ErrorHandler::ReturnCode VarySurfacePorosity( ScenarioAnalysis & sa
       // check ranges and base value
       ErrorHandler::Exception ex( ErrorHandler::OutOfRangeValue );
       if ( baseSurfPor < minSurfPor || baseSurfPor > maxSurfPor ) { throw ex << "Surface porosity in the base case is outside of the given range"; }
+
+      // Check if the parameter space has a layer where the compaction coefficient was defined for a soil mechanics model. 
+      // In this case display an error message and exit.
+      mbapi::LithologyManager & mgr = mdl.lithologyManager( );
+
+      mbapi::LithologyManager::LithologyID lid = mgr.findID( litName );
+      if ( lid == UndefinedIDValue )
+      {
+         throw ErrorHandler::Exception( mgr.errorCode( ) ) << mgr.errorMessage( );
+      }
+
+      mbapi::LithologyManager::PorosityModel porModel = mbapi::LithologyManager::PorUnknown;
+      std::vector<double> porModelPrms;
+
+      if ( ErrorHandler::NoError != mgr.porosityModel( lid, porModel, porModelPrms ) )
+      {
+         throw ErrorHandler::Exception( mgr.errorCode( ) ) << mgr.errorMessage( );
+      }
+
+      if ( porModel == mbapi::LithologyManager::PorSoilMechanics )
+      {
+         for ( size_t i = 0; i < varPrmsSet.size( ); ++i )
+         {
+            VarPrmCompactionCoefficient * prm = dynamic_cast<VarPrmCompactionCoefficient *>( varPrmsSet[i] );
+            if ( !prm ) continue;
+            else if ( prm->lithoNames( )[0].compare( litName ) )
+            {
+               throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << " Surface porosity for soil mechanics cannot be created "
+                  << "because the compaction coefficient has been already defined as variable parameter for lithology  " << prm->lithoNames( )[0];
+            }
+         }
+      }
 
       // check - if not only lithology was specified, create a copy of corresponded lithology and update all refernces to it
       if ( !layersName.empty() || !allochtLitName.empty() || !faultsName.empty() )
@@ -930,6 +965,90 @@ ErrorHandler::ReturnCode VarySurfacePorosity( ScenarioAnalysis & sa
    catch( const ErrorHandler::Exception & ex )
    {
       return sa.reportError( ex.errorCode(), ex.what() );
+   }
+
+   return ErrorHandler::NoError;
+}
+
+// Add variation of porosity model parameters 
+ErrorHandler::ReturnCode VaryCompactionCoefficient( ScenarioAnalysis & sa
+   , const std::string                                              & name
+   , const std::vector<std::pair<std::string, size_t> >             & layersName
+   , const std::vector<std::string>                                 & allochtLitName
+   , const std::vector<std::pair<std::string, std::string> >        & faultsName
+   , const std::string                                              & litName
+   , double                                                           minCompCoef
+   , double                                                           maxCompCoef
+   , VarPrmContinuous::PDF                                            pdfType
+   )
+{
+   try
+   {
+      VarSpaceImpl & varPrmsSet = dynamic_cast< VarSpaceImpl & >( sa.varSpace( ) );
+
+      // calculate base value as middle of range first
+
+      double baseCompCoef = 0.5 * ( minCompCoef + maxCompCoef );
+
+      // Get base value of parameter from the Model
+      mbapi::Model & mdl = sa.baseCase( );
+
+      casa::PrmCompactionCoefficient prm( mdl, litName );
+      baseCompCoef = prm.asDoubleArray( )[0];
+
+      // check ranges and base value
+      ErrorHandler::Exception ex( ErrorHandler::OutOfRangeValue );
+      if ( baseCompCoef < minCompCoef || baseCompCoef > maxCompCoef ) { throw ex << "Compaction coefficient in the base case is outside of the given range"; }
+
+      // get the porosity model for the asked layer name
+      mbapi::LithologyManager & mgr = mdl.lithologyManager( );
+
+      // Check if the parameter space has a layer where the surface porosity was defined for a soil mechanics model. 
+      // In this case display an error message and exit.
+      mbapi::LithologyManager::LithologyID lid = mgr.findID( litName );
+      if ( lid == UndefinedIDValue )
+      {
+         throw ErrorHandler::Exception( mgr.errorCode( ) ) << mgr.errorMessage( );
+      }
+
+      mbapi::LithologyManager::PorosityModel porModel = mbapi::LithologyManager::PorUnknown;
+      std::vector<double> porModelPrms;
+
+      if ( ErrorHandler::NoError != mgr.porosityModel( lid, porModel, porModelPrms ) )
+      {
+         throw ErrorHandler::Exception( mgr.errorCode( ) ) << mgr.errorMessage( );
+      }
+
+      if ( porModel == mbapi::LithologyManager::PorSoilMechanics )
+      {
+         for ( size_t i = 0; i < varPrmsSet.size(); ++i )
+         {
+            VarPrmSurfacePorosity * prm = dynamic_cast<VarPrmSurfacePorosity *>( varPrmsSet[i] );
+            if ( !prm ) continue;
+            else if ( prm->lithoNames( )[0].compare( litName ) )
+            {
+               throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << " Compaction coefficient for soil mechanics cannot be created "
+                  << "because surface porosity has been already defined as variable parameter for lithology  " << prm->lithoNames( )[0];
+            }            
+         }
+      }
+     
+      // check - if not only lithology was specified, create a copy of corresponded lithology and update all references to it
+      if ( !layersName.empty( ) || !allochtLitName.empty( ) || !faultsName.empty( ) )
+      {
+         const std::vector<std::string> & newLitNames = mdl.copyLithology( litName, layersName, allochtLitName, faultsName );
+
+         if ( newLitNames.empty( ) ) { throw ErrorHandler::Exception( mdl.errorCode( ) ) << mdl.errorMessage( ); }
+
+         if ( ErrorHandler::NoError != varPrmsSet.addParameter( new VarPrmCompactionCoefficient( newLitNames, baseCompCoef, minCompCoef, maxCompCoef, pdfType, name ) ) )
+         {
+            throw ErrorHandler::Exception( varPrmsSet.errorCode( ) ) << varPrmsSet.errorMessage( );
+         }
+      }
+   }
+   catch ( const ErrorHandler::Exception & ex )
+   {
+      return sa.reportError( ex.errorCode( ), ex.what( ) );
    }
 
    return ErrorHandler::NoError;

@@ -79,9 +79,10 @@ namespace mbapi {
       /// @brief Get all lithologies associated with the given layer and percentage of each lithology in a mix
       /// @return ErrorHandler::NoError on success, or error code otherwise
       virtual ErrorHandler::ReturnCode layerLithologiesList(
-              LayerID id                            ///< [in] id layer ID
-            , std::vector<std::string> & lithoList  ///< [out] lithoList on exit it contains the list of lithologies for the given layer
-            , std::vector<double> & lithoPercent    ///< [out] lithoPercent on exit it contains percentage of each lithology in a mix
+              LayerID id                                   ///< [in] id layer ID
+            , std::vector<std::string> & lithoList         ///< [out] lithoList on exit it contains the list of lithologies for the given layer
+            , std::vector<double> & lithoPercent           ///< [out] lithoPercent on exit it contains percentage of each lithology in a mix
+            , std::vector<std::string> & lithoPercMap      ///< [out] lithoPercMap on exit it contains the names of the percentage maps
                                                            ) = 0;
       
       /// @brief set lithologies and their percenatges for the given layer
