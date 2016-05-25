@@ -106,14 +106,17 @@ namespace casa
 class JobSchedulerLSF::Job : public CasaSerializable
 {
 public:
-   Job( const std::string & cwd
+   Job( JobSchedulerLSF   * parent
+      , const std::string & cwd
       , const std::string & scriptName
       , const std::string & jobName
       , int                 cpus
       , size_t              runTimeLim
       , const std::string & resReq
+      , const std::string & scenarioID
       )
    {
+      m_parent     = parent;
       m_lsfJobID   = -1;
       m_isFinished = false;
       m_isFailed   = false;
@@ -136,26 +139,16 @@ public:
       m_submit.projectName      = strdup( envVar ? envVar : LSF_CAULDRON_PROJECT_NAME ); // add project name (must be the same for all cauldron app)
       
 #ifdef LSF_XDR_VERSION9_1_3
-      envVar                    = getenv( "LSF_CAULDRON_PROJECT_GROUP" );
-      if ( envVar )
-      {
-         m_submit.userGroup     = strdup( envVar ); // add project group
-         m_submit.options2     |= SUB2_JOB_GROUP;
-      }
-
       envVar                    = getenv( "LSF_CAULDRON_PROJECT_QUEUE" );
       if ( envVar )
       {
          m_submit.queue         = strdup( envVar ); // add project queue
          m_submit.options      |= SUB_QUEUE;
       }
+      
+      m_submit.jobGroup = strdup( (std::string( "/Cauldron/casa/scenario/")  + (scenarioID.empty() ? "unknown" : scenarioID.c_str() ) ).c_str() );
+      m_submit.options2        |= SUB2_JOB_GROUP;
 
-      envVar                    = getenv( "LSF_CAULDRON_PROJECT_SERVICE_CLASS_NAME" );    // add project class service ??
-      if ( envVar )
-      {
-         m_submit.sla           = strdup( envVar );
-         m_submit.options2     |= SUB2_SLA; 
-      }
 #endif
       m_submit.command          = strdup( scriptName.c_str() );
       m_submit.jobName          = strdup( jobName.c_str() );
@@ -207,6 +200,20 @@ public:
 
    bool submit()
    {
+#ifdef LSF_XDR_VERSION9_1_3
+      if ( !m_parent->m_prjGrp.empty() && !m_submit.userGroup )
+      {
+         m_submit.userGroup     = strdup( m_parent->m_prjGrp.c_str() ); // add project group
+         m_submit.options2     |= SUB2_JOB_GROUP;
+      }
+
+      if ( !m_parent->m_sla.empty() && !m_submit.sla )
+      {
+         m_submit.sla           = strdup( m_parent->m_sla.c_str() );
+         m_submit.options2     |= SUB2_SLA; 
+      }
+#endif
+
 #ifdef WITH_LSF_SCHEDULER
       m_lsfJobID = lsb_submit( &m_submit, &m_submitRepl );
 #endif
@@ -261,6 +268,11 @@ public:
             ", message: " << lsb_sysmsg();
       }
 
+#ifdef LSF_XDR_VERSION9_1_3
+      // save sla and projname
+      if ( m_parent->m_sla.empty()    && jobInfo->submit.sla       ) { m_parent->m_sla    = jobInfo->submit.sla;       }
+      if ( m_parent->m_prjGrp.empty() && jobInfo->submit.userGroup ) { m_parent->m_prjGrp = jobInfo->submit.userGroup; }
+#endif
       lsb_closejobinfo();
 
       if ( jobInfo->status & JOB_STAT_DONE )
@@ -269,7 +281,7 @@ public:
          m_isFailed   = false;
          return JobFinished;   // job is completed successfully
       }
-
+      
       if ( jobInfo->status & JOB_STAT_RUN ) return JobRunning;     // job is running
 
       if ( jobInfo->status & JOB_STAT_WAIT  || // chunk job waiting its execution turn
@@ -365,6 +377,7 @@ public:
    }
 
  private:
+   JobSchedulerLSF  * m_parent;
    bool               m_isFinished; // was this job finished?
    bool               m_isFailed;   // was this job failed?
 
@@ -405,6 +418,12 @@ JobSchedulerLSF::JobSchedulerLSF( const std::string & clusterName )
    // initialize LSFBat library
    if ( lsb_init( NULL ) < 0 ) throw ErrorHandler::Exception( ErrorHandler::LSFLibError ) << "LSFBat library initialization failed: " << ls_sysmsg();
 #endif
+
+   const char * envVar  = getenv( "LSF_CAULDRON_PROJECT_GROUP" );
+   if ( envVar ) { m_prjGrp = envVar; }
+
+   envVar               = getenv( "LSF_CAULDRON_PROJECT_SERVICE_CLASS_NAME" );    // add project class service ??
+   if ( envVar ) { m_sla = envVar; }
 }
 
 JobSchedulerLSF::~JobSchedulerLSF() { for ( size_t i = 0; i < m_jobs.size(); ++i ) { delete m_jobs[i]; } } // clean array of scheduled jobs
@@ -415,12 +434,13 @@ JobScheduler::JobID JobSchedulerLSF::addJob( const std::string & cwd
                                            , const std::string & jobName
                                            , int                 cpus
                                            , size_t              runTimeLim
+                                           , const std::string & scenarioID
                                            )
 {
    ibs::FilePath scriptStatFile( scriptName + ".failed" );
    if ( scriptStatFile.exists() ) scriptStatFile.remove();
 
-   m_jobs.push_back( new Job( cwd, scriptName, jobName, cpus, runTimeLim, m_resReqStr ) );
+   m_jobs.push_back( new Job( this, cwd, scriptName, jobName, cpus, runTimeLim, m_resReqStr, scenarioID ) );
    return m_jobs.size() - 1; // the position of the new job in the list is it JobID
 }
 

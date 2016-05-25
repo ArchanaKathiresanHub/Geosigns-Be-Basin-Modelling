@@ -35,7 +35,13 @@ namespace casa
       virtual void setClusterName( const char * clusterName ) { m_clusterName = clusterName; }
 
       // Add job to the list
-      virtual JobID addJob( const std::string & cwd, const std::string & scriptName, const std::string & jobName, int cpus, size_t runTimeLim );
+      virtual JobID addJob( const std::string & cwd
+                          , const std::string & scriptName
+                          , const std::string & jobName
+                          , int                 cpus
+                          , size_t              runTimeLim
+                          , const std::string & scenarioID
+                          );
 
       // run job
       virtual JobState runJob( JobID job );
@@ -82,9 +88,13 @@ namespace casa
 
    private:
       class Job;                       // job OS dependent description
+      friend class Job;
+
       std::vector<Job*> m_jobs;        // array of scheduled jobs
       std::string       m_resReqStr;   // resource request string in format bsusb -R option
 
+      std::string       m_sla;         // keep SLA to pass the next job
+      std::string       m_prjGrp;      // keep project group to pas to the next job
       JobSchedulerLSF( const JobSchedulerLSF & jbS );
       JobSchedulerLSF & operator = ( const JobSchedulerLSF & jbS );
    };

@@ -24,6 +24,8 @@
 #include "JobSchedulerLocal.h"
 #include "JobSchedulerLSF.h"
 
+#include "LogHandler.h"
+
 #ifndef _WIN32
 #include <sys/stat.h>
 #endif
@@ -199,6 +201,7 @@ ErrorHandler::ReturnCode RunManagerImpl::scheduleCase(RunCase & newRun, const st
                                                  , oss.str()                    // job name
                                                  , m_appList[i]->cpus()         // number of CPUs for this job
                                                  , m_appList[i]->runTimeLimit() // run time limit
+                                                 , scenarioID
                                                  );
 
       // put job to the queue for the current case
@@ -296,14 +299,13 @@ void RunManagerImpl::collectStatistics( size_t & pFinished, size_t & pPending, s
       std::string curStrTime( ctime( &curTm ) );
       curStrTime.resize( curStrTime.size() - 1 ); // "remove ending \n"
 
-      std::cout << curStrTime << ": ";
-      // run over all cases, make a pause, get a Twix
-      std::cout << "total: "       << total     << 
-                   ", finished: "  << finished  << 
-                   ", failed: "    << failed    << 
-                   ", pending: "   << pending   << 
-                   ", running: "   << running   << 
-                   ", not submitted yet: " << toBeSubmitted << std::endl;
+      LogHandler( LogHandler::INFO_SEVERITY ) << curStrTime <<
+                                                 ": total: "     << total     << 
+                                                 ", finished: "  << finished  << 
+                                                 ", failed: "    << failed    << 
+                                                 ", pending: "   << pending   << 
+                                                 ", running: "   << running   << 
+                                                 ", not submitted yet: " << toBeSubmitted;
    }
 
    pToBeSubmitted = toBeSubmitted;
@@ -424,7 +426,13 @@ ErrorHandler::ReturnCode RunManagerImpl::runScheduledCases( int updateStateTimeI
 
       } while ( !isAllDone() ); // loop till all will be finished
    }
-   catch ( Exception & ex ) { return reportError( ex.errorCode(), ex.what() ); }
+   catch ( Exception & ex )
+   {
+      // We need to kill all job before exit with exception
+      stopAllSubmittedJobs();
+
+      return reportError( ex.errorCode(), ex.what() ); 
+   }
    
    return NoError;
 }
@@ -467,21 +475,28 @@ ErrorHandler::ReturnCode RunManagerImpl::stopAllSubmittedJobs()
       {
          JobScheduler::JobState jobState = m_jobSched->jobState( m_jobs[i][j] );
 
-         switch ( jobState )
+         try
          {
-            case JobScheduler::NotSubmittedYet:
-            case JobScheduler::JobFailed: 
-            case JobScheduler::JobFinished:
-               break; // job is not in queue - do nothing
+            switch ( jobState )
+            {
+               case JobScheduler::NotSubmittedYet:
+               case JobScheduler::JobFailed: 
+               case JobScheduler::JobFinished:
+                  break; // job is not in queue - do nothing
 
-            case JobScheduler::JobPending:
-            case JobScheduler::JobRunning:
-               m_jobSched->stopJob( m_jobs[i][j] );         // kill the job
-               m_cases[i]->setRunStatus( RunCase::Failed ); // invalidate case
-               ret = RunManagerAborted;
-               break;
+               case JobScheduler::JobPending:
+               case JobScheduler::JobRunning:
+                  m_jobSched->stopJob( m_jobs[i][j] );         // kill the job
+                  m_cases[i]->setRunStatus( RunCase::Failed ); // invalidate case
+                  ret = RunManagerAborted;
+                  break;
 
-            default: break;
+               default: break;
+            }
+         }
+         catch( Exception & ex )
+         {
+            LogHandler( LogHandler::DEBUG_SEVERITY ) << "Job id: " << m_jobs[i][j] << " was failed to stop due to error: " << ex.what();
          }
       }
    }
@@ -571,6 +586,7 @@ void RunManagerImpl::restoreCaseStatus( RunCase * cs )
                                                        , oss.str()                    // job name
                                                        , m_appList[i]->cpus()         // number of CPUs for this job
                                                        , m_appList[i]->runTimeLimit() // run time limit
+                                                       , ""
                                                        );
 
             // put job to the queue for the current case

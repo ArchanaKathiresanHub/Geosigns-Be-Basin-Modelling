@@ -78,18 +78,7 @@ namespace casa
       m_version   = env( "CAULDRON_VERSION" )    ? env( "CAULDRON_VERSION" )    : DEFAULT_VERSION;  // default is the ver. of the build itself
       m_rootPath  = env( "IBS_ROOT" )            ? env( "IBS_ROOT" )            : IBS_INSTALL_PATH; // path to IBS folder
       m_mpirunCmd = env( "CAULDRON_MPIRUN_CMD" ) ? env( "CAULDRON_MPIRUN_CMD" ) : "";                 //
-
-      if ( m_mpirunCmd.empty() )
-      {
-         ibs::FilePath mpiWrapCmd( ibs::Path::applicationFullPath() );
-         mpiWrapCmd << MPIRUN_CMD;
-         m_mpirunCmd = mpiWrapCmd.exists() ? mpiWrapCmd.path() : MPIRUN_CMD;
          
-#ifndef _WIN32
-         m_mpirunCmd += " -env I_MPI_DEBUG 5";
-#endif
-      }
-
       // do some tunning depends on application name
       if ( m_appName == "fastcauldron" )
       {
@@ -205,9 +194,10 @@ namespace casa
       // if application is parallel, add mpirun dirrective with options
       if ( m_parallel )
       {
-         oss << m_mpirunCmd;
+         if ( m_mpirunCmd.empty() ) { oss  << "${APP_BIN_PATH}/" << MPIRUN_CMD; }
+         else                       { oss << m_mpirunCmd;                       }
 #ifndef _WIN32
-         oss << " -outfile-pattern '" + m_appName + "-output-rank-%r.log' ";
+         oss << " -env I_MPI_DEBUG 5 -outfile-pattern '" + m_appName + "-output-rank-%r.log' ";
 #endif
 
 #ifndef _WIN32
@@ -420,9 +410,11 @@ namespace casa
             // compute path to the application
             oss << "os1=`/apps/sss/share/getos2` || { echo 'Warning: Could not determine OS version. Are we in Shell Linux?'; os1='.'; }\n"
                 << "os2=`/apps/sss/share/getos2 --os --ver` || { echo 'Warning: Could not determine OS version. Are we in Shell Linux?'; os2='.'; }\n"
-                << "APP=" << m_rootPath << '/' << m_version << "/${os1}/bin/" << osAppName << '\n'
-                << "if [ ! -e $APP ]; then\n"
-                << "   APP=" << m_rootPath << '/' << m_version << "/${os2}/bin/" << osAppName << '\n'
+                << "APP=\"" << m_rootPath << '/' << m_version << "/${os1}/bin/" << osAppName << "\"" << '\n'
+                << "APP_BIN_PATH=\"" << m_rootPath << '/' << m_version << "/${os1}/bin/\"" << '\n'
+                << "if [ ! -e $APP ]; then" << '\n'
+                << "   APP=\"" << m_rootPath << '/' << m_version << "/${os2}/bin/" << osAppName << "\"" << '\n'
+                << "   APP_BIN_PATH=\"" << m_rootPath << '/' << m_version << "/${os2}/bin/\"" << '\n'
                 << "fi\n";
          }
          else
@@ -442,7 +434,8 @@ namespace casa
          oss << "if [ ! -e $APP ]; then\n"
             << "   echo Could not find application executable\n"
             << "   exit 1\n"
-            << "fi\n";
+            << "fi\n\n";
+           
          break;
 
       case cmd:

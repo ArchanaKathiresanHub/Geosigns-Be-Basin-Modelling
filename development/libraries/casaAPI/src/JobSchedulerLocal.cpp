@@ -475,6 +475,7 @@ JobScheduler::JobID JobSchedulerLocal::addJob( const std::string & cwd
                                              , const std::string & jobName
                                              , int                 cpus
                                              , size_t              runTimeLim
+                                             , const std::string & /* scenarioID */ // not used yet
                                              )
 {
    ibs::FilePath scriptStatFile( scriptName + ".failed" );

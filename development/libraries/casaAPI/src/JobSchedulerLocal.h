@@ -38,7 +38,8 @@ namespace casa
                           , const std::string & scriptName
                           , const std::string & jobName
                           , int                 cpus
-                          , size_t              runTimeLim );
+                          , size_t              runTimeLim 
+                          , const std::string & scenarioID );
 
       // run job
       virtual JobState runJob( JobID job );

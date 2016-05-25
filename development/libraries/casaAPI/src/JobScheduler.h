@@ -56,7 +56,8 @@ namespace casa
                           , const std::string & scriptName
                           , const std::string & jobName
                           , int                 cpus
-                          , size_t              runTimeLim ) = 0;
+                          , size_t              runTimeLim
+                          , const std::string & scenarioID ) = 0;
 
       // Restore job state by analysing output files
       virtual JobState restoreJobState( const std::string & cwd, const std::string & scriptName, const std::string & jobName );
