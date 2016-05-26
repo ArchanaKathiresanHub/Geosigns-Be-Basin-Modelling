@@ -854,8 +854,8 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::importOneDResults( const std::strin
 
    // variables used for the averages
    std::vector<SharedParameterPtr> prmVec;
-   std::vector<double>             xin;
-   std::vector<double>             yin;
+   std::vector<double> xin;
+   std::vector<double> yin;
    double originX;
    double originY;
    double dimX;
@@ -866,8 +866,8 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::importOneDResults( const std::strin
    // the best run case
    std::unique_ptr<casa::RunCaseImpl> brc( new casa::RunCaseImpl( ) );
 
-   // load all projects first
-   std::vector<mbapi::Model> caseModels( rcs.size( ));
+   // pre-load all projects first
+   std::vector<mbapi::Model *> caseModels( rcs.size( ) );
    for ( size_t c = 0; c < rcs.size(); ++c )
    {
       casa::RunCaseImpl  * rc = dynamic_cast<casa::RunCaseImpl*>( rcs[c] );
@@ -876,9 +876,9 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::importOneDResults( const std::strin
       {
          throw ErrorHandler::Exception( caseModel.errorCode( ) ) << caseModel.errorMessage( );
       }
-      caseModels[c] = caseModel; 
+      caseModels[c] = &caseModel;
    }
-
+     
    // loop over the entire variable space
    for ( size_t par = 0; par < var.size( ); ++par )
    {
@@ -895,7 +895,7 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::importOneDResults( const std::strin
             SharedParameterPtr nprm;
             try
             { 
-               nprm = vprmc->newParameterFromModel( caseModels[c] );
+               nprm = vprmc->newParameterFromModel( *caseModels[c] );
             }
             catch ( const ErrorHandler::Exception & ex )
             {
@@ -903,8 +903,8 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::importOneDResults( const std::strin
             }
 
             // extract the centre of the model
-            caseModels[c].origin( originX, originY );
-            caseModels[c].arealSize( dimX, dimY );
+            caseModels[c]->origin( originX, originY );
+            caseModels[c]->arealSize( dimX, dimY );
             centreX = originX + dimX / 2.0;
             centreY = originY + dimY / 2.0;
 
@@ -923,10 +923,6 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::importOneDResults( const std::strin
          catch ( const ErrorHandler::Exception & ex )
          {
             throw ErrorHandler::Exception( ex.errorCode( ) ) << " The generation of the 3D parameter " << vprmc->name( ) << " from multi 1D results failed ";
-         }
-         catch ( ... )
-         {
-            throw ErrorHandler::Exception( ErrorHandler::UnknownError );
          }
 
          // if the average method is not implemented a makeThreeDFromOneD returns a nullptr 
@@ -954,6 +950,7 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::importOneDResults( const std::strin
          break;
       }
    }
+
 
    // set the filter back 
    rcs.filterByExperimentName( "" );

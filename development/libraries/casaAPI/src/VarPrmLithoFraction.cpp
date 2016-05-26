@@ -83,8 +83,8 @@ namespace casa
 
       for ( size_t i = 0; i != prmVec.size(); ++i )
       {
-         std::vector<double> lithoFractions = prmVec[i].get()->asDoubleArray();
-         std::vector<double> lithoPercentages = PrmLithoFraction::createLithoPercentages( lithoFractions, m_lithoFractionsInds );
+         const std::vector<double> lithoFractions = prmVec[i].get()->asDoubleArray();
+         const std::vector<double> lithoPercentages = PrmLithoFraction::createLithoPercentages( lithoFractions, m_lithoFractionsInds );
          if ( lithoPercentages.size() != 3 )
          {
             throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "The number of lithopercentages is incorrect: " << lithoPercentages.size();
@@ -115,14 +115,37 @@ namespace casa
          throw ErrorHandler::Exception( ErrorHandler::UnknownError ) << "The back transformation of the lithopercentages failed for the layer : " << m_layerName;
       }
 
-      // generate and save the lithofractions maps 
-      std::string mapNameFirstLithoPercentage;
-      std::string mapNameSecondLithoPercentage;
+      // get the maps manager
+      mbapi::MapsManager & mapsMgr = mdl.mapsManager( );
 
-      if ( ErrorHandler::NoError != mdl.saveLithofractionsMaps( m_layerName, lf1CorrInt, lf2CorrInt, mapNameFirstLithoPercentage, mapNameSecondLithoPercentage ) )
+      // get the stratigraphy manager
+      mbapi::StratigraphyManager & strMgr = mdl.stratigraphyManager( );
+
+      // get the layer ID
+      mbapi::StratigraphyManager::LayerID lid = strMgr.layerID( m_layerName );
+      if ( strMgr.errorCode( ) != ErrorHandler::NoError )
       {
-         throw ErrorHandler::Exception( ErrorHandler::UnknownError ) << "The saving of the lithofraction maps failed for the layer : " << m_layerName;
+         throw ErrorHandler::Exception( strMgr.errorCode( ) ) << strMgr.errorMessage( );
       }
+
+      // generate the maps
+      ostringstream layerNumber;  
+      layerNumber << lid;
+      std::string  mapNameFirstLithoPercentage = layerNumber.str() + "_percent_1";
+      std::string  mapNameSecondLithoPercentage = layerNumber.str( ) + "_percent_2";
+
+      mbapi::MapsManager::MapID id = mapsMgr.generateMap( strMgr.referenceID(), mapNameFirstLithoPercentage, lf1CorrInt );
+      if ( UndefinedIDValue == id )
+      {
+         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Generation of the " << mapNameFirstLithoPercentage << " lithofraction map failed";
+      }
+      id = mapsMgr.generateMap( strMgr.referenceID(), mapNameSecondLithoPercentage, lf2CorrInt );
+      if ( UndefinedIDValue == id )
+      {
+         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Generation of the " << mapNameSecondLithoPercentage << " lithofraction map failed";
+      }
+
+      strMgr.setLayerLithologiesPercentageMaps( lid, mapNameFirstLithoPercentage, mapNameSecondLithoPercentage );
 
       // both maps are provided, no scalar values is needed
       SharedParameterPtr prm( new PrmLithoFraction( this, m_name, m_layerName, m_lithoFractionsInds, std::vector<double>(), mapNameFirstLithoPercentage, mapNameSecondLithoPercentage ) );

@@ -316,6 +316,9 @@ SharedParameterPtr VarPrmPermeabilityModel::newParameterFromModel( mbapi::Model 
 SharedParameterPtr VarPrmPermeabilityModel::makeThreeDFromOneD( mbapi::Model & mdl, const std::vector<double>& xin, const std::vector<double>& yin, const std::vector<SharedParameterPtr>& prmVec ) const
 {
    // Not yet implemented
+   ErrorHandler::Exception ex( ErrorHandler::NotImplementedAPI );
+   ex << "makeThreeDFromOneD method not yet implemented for VarPrmPermeabilityModel";
+   throw ex;
    return nullptr;
 }
 

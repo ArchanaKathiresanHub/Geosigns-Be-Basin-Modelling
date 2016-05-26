@@ -27,8 +27,8 @@
 CmdGenerateMultiOneD::CmdGenerateMultiOneD( CasaCommander & parent, const std::vector< std::string > & cmdPrms ) : CasaCmd( parent, cmdPrms )
 {
    m_cldVer   = m_prms.size() > 0 ? m_prms[0] : "Default";
-   m_transformation = m_prms.size( ) > 1 ? m_prms[2] : "none";
-   m_keepHist = m_prms.size() > 2 ? ( m_prms[1] == "KeepHistory" ? true : false ) : false;
+   m_transformation = m_prms.size( ) > 1 ? m_prms[1] : "none";
+   m_keepHist = m_prms.size() > 2 ? ( m_prms[2] == "KeepHistory" ? true : false ) : false;
 }
 
 void CmdGenerateMultiOneD::execute( std::unique_ptr<casa::ScenarioAnalysis> & sa )

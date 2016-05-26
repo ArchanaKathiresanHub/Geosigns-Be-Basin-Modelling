@@ -152,7 +152,7 @@ SharedParameterPtr VarPrmCrustThinning::makeThreeDFromOneD( mbapi::Model & mdl, 
 {
    // Not yet implemented
    ErrorHandler::Exception ex( ErrorHandler::NotImplementedAPI );
-   ex << "makeThreeDFromOneD not yet implemented for VarPrmCrustThinning" ;
+   ex << "makeThreeDFromOneD method not yet implemented for VarPrmCrustThinning";
    throw ex;
    return nullptr;
 }

@@ -770,10 +770,9 @@ TEST_F( mbapiModelTest, MapsManagerCopyMapTest )
 TEST_F( mbapiModelTest, MapsManagerNNInterpolation )
 { 
    // clean any previous runs result
-   if ( ibs::FilePath( "Rotliegend_percent1.HDF" ).exists( ) ) { ibs::FilePath( "Rotliegend_percent1.HDF" ).remove( ); }
-   if ( ibs::FilePath( "Rotliegend_percent2.HDF" ).exists( ) ) { ibs::FilePath( "Rotliegend_percent2.HDF" ).remove( ); }
-   if ( ibs::FilePath( "Rotliegend_percent3.HDF" ).exists( ) ) { ibs::FilePath( "Rotliegend_percent3.HDF" ).remove( ); }
-   if ( ibs::FilePath( "NNTesting2.project3d" ).exists( ) )    { ibs::FilePath( "NNTesting2.project3d" ).remove( ); }
+   if ( ibs::FilePath( "5_percent_1.HDF" ).exists( ) )      { ibs::FilePath( "5_percent_1.HDF" ).remove( ); }
+   if ( ibs::FilePath( "5_percent_2.HDF" ).exists( ) )      { ibs::FilePath( "5_percent_2.HDF" ).remove( ); }
+   if ( ibs::FilePath( "NNTesting2.project3d" ).exists( ) ) { ibs::FilePath( "NNTesting2.project3d" ).remove( ); }
    
    // load test project
    mbapi::Model testModel;
@@ -862,25 +861,42 @@ TEST_F( mbapiModelTest, MapsManagerNNInterpolation )
    {
       mbapi::Model tmpModel;
       tmpModel.loadModelFromProjectFile( "NNTesting2.project3d" );
-      std::string firstMap = "Rotliegend_percent1";
-      std::string secondMap = "Rotliegend_percent2";
-      tmpModel.saveLithofractionsMaps( "Rotliegend", lf1CorrInt, lf2CorrInt,firstMap,secondMap );
+
+      // get the maps manager
+      mbapi::MapsManager & mapsMgr = tmpModel.mapsManager( );
+
+      // get the stratigraphy manager
+      mbapi::StratigraphyManager & strMgr = tmpModel.stratigraphyManager( );
+
+      // get the layer ID
+      mbapi::StratigraphyManager::LayerID lid = strMgr.layerID( "Rotliegend" );
+
+      // generate the maps
+      std::string  correctFirstLithoFractionMap("5_percent_1");
+      std::string  correctSecondLithoFractionMap("5_percent_2");
+
+      mbapi::MapsManager::MapID id = mapsMgr.generateMap( strMgr.referenceID( ), correctFirstLithoFractionMap, lf1CorrInt );
+      ASSERT_NE( id, UndefinedIDValue );
+
+      id = mapsMgr.generateMap( strMgr.referenceID( ), correctSecondLithoFractionMap, lf2CorrInt );
+      ASSERT_NE( id, UndefinedIDValue );
+
+      ASSERT_EQ( ErrorHandler::NoError, strMgr.setLayerLithologiesPercentageMaps( lid, correctFirstLithoFractionMap, correctSecondLithoFractionMap ) );
 
       const std::vector<mbapi::MapsManager::MapID> & tids = tmpModel.mapsManager( ).mapsIDs( );
       ASSERT_EQ( tids.size( ), 28U );
       
-      ASSERT_EQ( tmpModel.tableValueAsString( "GridMapIoTbl", 26, "MapName" ), std::string( firstMap ) );
-      ASSERT_EQ( tmpModel.tableValueAsString( "GridMapIoTbl", 27, "MapName" ), std::string( secondMap ) );
+      ASSERT_EQ( tmpModel.tableValueAsString( "GridMapIoTbl", 26, "MapName" ), std::string( correctFirstLithoFractionMap ) );
+      ASSERT_EQ( tmpModel.tableValueAsString( "GridMapIoTbl", 27, "MapName" ), std::string( correctSecondLithoFractionMap ) );
 
-      ASSERT_EQ( tmpModel.tableValueAsString( "GridMapIoTbl", 26, "MapFileName" ), std::string( firstMap + ".HDF" ) );
-      ASSERT_EQ( tmpModel.tableValueAsString( "GridMapIoTbl", 27, "MapFileName" ), std::string( secondMap + ".HDF" ) );
+      ASSERT_EQ( tmpModel.tableValueAsString( "GridMapIoTbl", 26, "MapFileName" ), std::string( correctFirstLithoFractionMap + ".HDF" ) );
+      ASSERT_EQ( tmpModel.tableValueAsString( "GridMapIoTbl", 27, "MapFileName" ), std::string( correctSecondLithoFractionMap + ".HDF" ) );
 
-      ASSERT_EQ( tmpModel.tableValueAsString( "StratIoTbl", 5, "Percent1Grid" ), std::string( firstMap ) );
-      ASSERT_EQ( tmpModel.tableValueAsString( "StratIoTbl", 5, "Percent2Grid" ), std::string( secondMap ) );
+      ASSERT_EQ( tmpModel.tableValueAsString( "StratIoTbl", 5, "Percent1Grid" ), std::string( correctFirstLithoFractionMap ) );
+      ASSERT_EQ( tmpModel.tableValueAsString( "StratIoTbl", 5, "Percent2Grid" ), std::string( correctSecondLithoFractionMap ) );
    }
 
    ibs::FilePath( "NNTesting2.project3d" ).remove( );
-   ibs::FilePath( "Rotliegend_percent1.HDF" ).remove( ); 
-   ibs::FilePath( "Rotliegend_percent2.HDF" ).remove( );
-   ibs::FilePath( "Rotliegend_percent3.HDF" ).remove( );
+   ibs::FilePath( "5_percent_1.HDF" ).remove( ); 
+   ibs::FilePath( "5_percent_2.HDF" ).remove( );
 }

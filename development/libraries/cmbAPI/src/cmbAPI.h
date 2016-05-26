@@ -321,21 +321,6 @@ namespace mbapi {
          std::vector<double>& lf3CorrInt
          );
 
-      /// @brief Save interpolated maps to file and update the project3d file
-      /// @param[in] the layer name 
-      /// @param[in] lf1CorrInt corrected interpolated first lithofraction
-      /// @param[in] lf2CorrInt corrected interpolated second lithofraction
-      /// @param[in,out] the name of the first lithopercentage map
-      /// @param[in,out] the name of the second lithopercentage map
-      /// @return ErrorHandler::NoError on success, or error code otherwise
-      ReturnCode saveLithofractionsMaps(
-         const std::string          & layername,
-         const std::vector<double>  & lf1CorrInt,
-         const std::vector<double>  & lf2CorrInt,
-         std::string                & mapNameFirstLithoPercentage,
-         std::string                & mapNameSecondLithoPercentage
-         );
-
       ///@}
 
       // Modify project methods

@@ -53,6 +53,10 @@ namespace mbapi {
       // returns array with IDs of surfaces defined in the model
       virtual std::vector<SurfaceID> surfacesIDs() const; 
 
+      // Get the referenced table
+      // returns the table name as a string
+      virtual std::string referenceID() const;
+
       // Create new layer
       // returns ID of the new Stratigraphy
       virtual LayerID createNewLayer();

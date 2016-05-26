@@ -152,7 +152,7 @@ MapsManager::MapID MapsManagerImpl::copyMap( MapID id, const std::string & newMa
    return ret;
 }
 
-MapsManager::MapID MapsManagerImpl::generateLithoFractionMap( std::string & newMapName )
+MapsManager::MapID MapsManagerImpl::generateMap( const std::string & refferedTable, const std::string mapName, const std::vector<double>& values )
 {
    if ( errorCode( ) != NoError ) resetError( );
 
@@ -165,10 +165,8 @@ MapsManager::MapID MapsManagerImpl::generateLithoFractionMap( std::string & newM
       DataAccess::Interface::GridMap * gridMap = m_proj->getFactory( )->produceGridMap( 0, 0, m_proj->getInputGrid( ), DataAccess::Interface::DefaultUndefinedMapValue, 1 );
 
       m_mapObj.push_back( gridMap );
-      m_mapName.push_back( newMapName );
-      m_mapRefTable.push_back( s_StratIoTbl );
-
-      std::string newMapFile = newMapName + ".HDF";
+      m_mapName.push_back( mapName );
+      m_mapRefTable.push_back( refferedTable );
 
       // get pointer to the GridMapIo table
       database::Table * table = m_db->getTable( s_mapsTableName );
@@ -178,12 +176,18 @@ MapsManager::MapID MapsManagerImpl::generateLithoFractionMap( std::string & newM
       database::Record * newRec = table->createRecord( );
 
       // change names
-      newRec->setValue<std::string>( s_ReferredByColName, s_StratIoTbl );     
-      newRec->setValue( s_MapNameColName, newMapName );
+      newRec->setValue<std::string>( s_ReferredByColName, refferedTable.c_str() );
+      newRec->setValue( s_MapNameColName, mapName );
       newRec->setValue<std::string>( s_MapTypeColName, "HDF5" );
-      newRec->setValue<std::string>( s_MapFileNameColName, newMapFile ); // not saved yet
+      newRec->setValue<std::string>( s_MapFileNameColName, mapName + ".HDF" ); // not saved yet
       newRec->setValue<int>( s_MapSeqNbrColName, 0 );
-      
+
+      // set the values in the map
+      mapSetValues( ret, values );
+
+      // save the map to HDF
+      saveMapToHDF( ret, mapName + ".HDF" );
+
    }
    catch ( const Exception & ex ) { reportError( ex.errorCode( ), ex.what( ) ); }
 

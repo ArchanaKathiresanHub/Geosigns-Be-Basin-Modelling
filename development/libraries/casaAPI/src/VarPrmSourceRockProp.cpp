@@ -91,6 +91,9 @@ SharedParameterPtr VarPrmSourceRockProp::newParameterFromModel( mbapi::Model & m
 SharedParameterPtr VarPrmSourceRockProp::makeThreeDFromOneD( mbapi::Model & mdl, const std::vector<double>& xin, const std::vector<double>& yin, const std::vector<SharedParameterPtr>& prmVec ) const
 {
    // Not yet implemented
+   ErrorHandler::Exception ex( ErrorHandler::NotImplementedAPI );
+   ex << "makeThreeDFromOneD method not yet implemented for VarPrmSourceRockProp";
+   throw ex;
    return nullptr;
 }
 

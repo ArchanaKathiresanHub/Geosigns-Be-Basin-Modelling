@@ -109,6 +109,13 @@ std::vector<StratigraphyManager::SurfaceID> StratigraphyManagerImpl::surfacesIDs
    return ids;
 }
 
+// Get the referenced table
+// returns the table name as a string
+std::string StratigraphyManagerImpl::referenceID( ) const
+{
+   return m_stratIoTbl->getTableDefinition( ).name( );
+}
+
 // Create new layer
 // returns ID of the new Stratigraphy
 StratigraphyManager::LayerID StratigraphyManagerImpl::createNewLayer()
@@ -250,7 +257,7 @@ ErrorHandler::ReturnCode StratigraphyManagerImpl::layerLithologiesList( LayerID 
       // get 2nd lithology
       lithoName = rec->getValue<std::string>( s_lithoType2FiledName        );
       perc      = rec->getValue<double>(      s_lithoTypePercent2FiledName );
-      lithoPerc = rec->getValue<std::string>( s_lithoTypePercent1GridFiledName );
+      lithoPerc = rec->getValue<std::string>( s_lithoTypePercent2GridFiledName );
       lithoList.push_back( lithoName );
       lithoPercent.push_back( perc );
       lithoPercMap.push_back( lithoPerc );
@@ -339,7 +346,7 @@ ErrorHandler::ReturnCode StratigraphyManagerImpl::setLayerLithologiesPercentageM
          throw Exception( NonexistingID ) << "No layer with ID: " << id << " in stratigraphy table";
       }
 
-      // set the percentage grid maps. all three maps are always defined
+      // set the percentage grid maps
       rec->setValue<std::string>( s_lithoTypePercent1GridFiledName, mapNameFirstLithoPercentage );
       rec->setValue<std::string>( s_lithoTypePercent2GridFiledName, mapNameSecondLithoPercentage );
    }

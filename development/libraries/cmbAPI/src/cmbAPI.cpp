@@ -182,14 +182,6 @@ public:
       std::vector<double>& lf1CorrInt,
       std::vector<double>& lf2CorrInt,
       std::vector<double>& lf3CorrInt );
-
-   void saveLithofractionsMaps(
-      const std::string        & layername,
-      const std::vector<double>& lf1CorrInt,
-      const std::vector<double>& lf2CorrInt,
-      std::string              & mapNameFirstLithoPercentage,
-      std::string              & mapNameSecondLithoPercentage
-      );
 };
 
 
@@ -487,24 +479,6 @@ Model::ReturnCode Model::backTransformLithoFractions(
    if ( errorCode( ) != NoError ) resetError( );
 
    try { m_pimpl->backTransformLithoFractions( rpInt, r13Int, lf1CorrInt, lf2CorrInt, lf3CorrInt ); }
-   catch ( const Exception & ex ) { return reportError( ex.errorCode( ), ex.what( ) ); }
-   catch ( ... ) { return reportError( UnknownError, "Unknown error" ); }
-
-   return NoError;
-}
-
-Model::ReturnCode Model::saveLithofractionsMaps(
-   const std::string& layername,
-   const std::vector<double>& lf1CorrInt,
-   const std::vector<double>& lf2CorrInt,
-   std::string & mapNameFirstLithoPercentage,
-   std::string & mapNameSecondLithoPercentage
-   )
-
-{
-   if ( errorCode( ) != NoError ) resetError( );
-
-   try { m_pimpl->saveLithofractionsMaps( layername, lf1CorrInt, lf2CorrInt, mapNameFirstLithoPercentage, mapNameSecondLithoPercentage ); }
    catch ( const Exception & ex ) { return reportError( ex.errorCode( ), ex.what( ) ); }
    catch ( ... ) { return reportError( UnknownError, "Unknown error" ); }
 
@@ -1392,42 +1366,6 @@ void Model::ModelImpl::backTransformLithoFractions(
       lf2CorrInt[i] = lf2Int;
       lf3CorrInt[i] = lf3Int;
    }
-}
-
-void Model::ModelImpl::saveLithofractionsMaps(
-   const std::string          & layername,
-   const std::vector<double>  & lf1CorrInt,
-   const std::vector<double>  & lf2CorrInt,
-   std::string                & mapNameFirstLithoPercentage,
-   std::string                & mapNameSecondLithoPercentage
-   )
-{
-   // get the layer ID
-   mbapi::StratigraphyManager::LayerID lid = m_stratMgr.layerID( layername );
-   if ( m_stratMgr.errorCode() != ErrorHandler::NoError )
-   {
-      throw ErrorHandler::Exception( m_stratMgr.errorCode() ) << m_stratMgr.errorMessage();
-   }
-
-   mapNameFirstLithoPercentage = layername + "_percent1";
-   mapNameSecondLithoPercentage = layername + "_percent2";
-
-   MapsManager::MapID percent1GridMapId = m_mapMgr.generateLithoFractionMap( mapNameFirstLithoPercentage );
-   MapsManager::MapID percent2GridMapId = m_mapMgr.generateLithoFractionMap( mapNameSecondLithoPercentage );
-
-   m_mapMgr.mapSetValues( percent1GridMapId, lf1CorrInt );
-   m_mapMgr.mapSetValues( percent2GridMapId, lf2CorrInt );
-
-   if ( ErrorHandler::NoError != m_mapMgr.saveMapToHDF( percent1GridMapId, mapNameFirstLithoPercentage + ".HDF" ) )
-   {
-      throw ErrorHandler::Exception( ErrorHandler::IoError ) << "cannot save the map " << mapNameFirstLithoPercentage;
-   }
-   if ( ErrorHandler::NoError != m_mapMgr.saveMapToHDF( percent2GridMapId, mapNameSecondLithoPercentage + ".HDF" ) )
-   {
-      throw ErrorHandler::Exception( ErrorHandler::IoError ) << "cannot save the map " << mapNameSecondLithoPercentage;
-   }
-
-   m_stratMgr.setLayerLithologiesPercentageMaps( lid, mapNameFirstLithoPercentage, mapNameSecondLithoPercentage );
 }
 
 // Create the unique copies of lithology for each given layer, alochtonous lithology and fault cut from the given lists

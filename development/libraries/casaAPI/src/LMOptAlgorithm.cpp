@@ -98,19 +98,24 @@ namespace casa
          }
 
          int outerIter = 0;
+         bool relativeReductionOk = true;
 
          do {
-            LogHandler( LogHandler::DEBUG_SEVERITY ) << " New jacobian calculated, iteration " << outerIter;
-            m_preJac.resize( 0, 0 );
-            m_dirFreeze.clear( );
+            LogHandler( LogHandler::DEBUG_SEVERITY ) << "New jacobian calculated, iteration " << outerIter;
             status = minimizeOneStep( x );
-            // if parameters are fixed at the boundaries repeat the lambda search without calculating a new jacobian
-            while ( status == LevenbergMarquardtSpace::NotStarted )
+            if ( outerIter > 0 )
             {
-               status = minimizeOneStep( x );
+               RealScalar relativereduction =  1 - m_fnorm / m_oldFnorm ;
+               LogHandler( LogHandler::DEBUG_SEVERITY ) << "Relative reduction of the norm of fval vector " << relativereduction;
+               if ( relativereduction < 0.05 )
+               {
+                  LogHandler( LogHandler::DEBUG_SEVERITY ) << "Stopping because the relative reduction is less than 0.05 ";
+                  relativeReductionOk = false;
+               }
             }
+            m_oldFnorm = m_fnorm;
             ++outerIter;
-         } while ( status == LevenbergMarquardtSpace::Running && outerIter < 10 ); //In PEST we do not go over 10 outerIter
+         } while ( status == LevenbergMarquardtSpace::Running && relativeReductionOk && m_fnorm > 0. ); //In PEST we do not go over 10 outerIter
          m_isInitialized = true;
          return status;
       }
@@ -119,7 +124,7 @@ namespace casa
       // reset solver parameters
       void resetParameters( )
       {
-         m_factor = 100.;
+         m_factor = 0.2; // was 100., 0.2 proven to be optimal also in some other cases because the variation of the lambda parameter is more gradual (as in PEST).
          m_maxfev = 400;
          m_ftol = std::sqrt( NumTraits<RealScalar>::epsilon( ) );
          m_xtol = std::sqrt( NumTraits<RealScalar>::epsilon( ) );
@@ -178,10 +183,8 @@ namespace casa
       //correct the parameter upgrade
       void correctDirection(
          FVectorType& x,
-         FVectorType& m_wa1,
-         std::vector<int>& dirFreeze )
+         FVectorType& m_wa1 )
       {
-         dirFreeze.clear();
          if ( m_xMin.size() > 0 && m_xMax.size() > 0 )
          {
             for ( int i = 0; i != x.size(); ++i )
@@ -190,13 +193,11 @@ namespace casa
                {
                   LogHandler( LogHandler::DEBUG_SEVERITY ) << " Parameter " << i << " out of lower bound, fixed at the boundary";
                   m_wa1( i ) = m_xMin( i ) - x( i );
-                  dirFreeze.push_back( i );
                }
                else if ( x( i ) + m_wa1( i )  > m_xMax( i ) )
                {
                   LogHandler( LogHandler::DEBUG_SEVERITY ) << " Parameter " << i << " out of upper bound, fixed at the boundary";
                   m_wa1( i ) = m_xMax( i ) - x( i );
-                  dirFreeze.push_back( i );
                }
             }
          }
@@ -216,15 +217,8 @@ namespace casa
 
          temp = 0.0; xnorm = 0.0;
          /* calculate the jacobian matrix. */
-         if ( m_dirFreeze.size() > 0 )
-         {
-            m_fjac = m_preJac;
-            df_ret = 0;
-         }
-         else
-         {
-            df_ret = m_functor.df( x, m_fjac );
-         }
+         df_ret = m_functor.df( x, m_fjac );
+
 
          if ( df_ret<0 )
             return LevenbergMarquardtSpace::UserAsked;
@@ -293,7 +287,7 @@ namespace casa
             /* store the direction p and x + p. calculate the norm of p. */
             m_wa1 = -m_wa1;
             // if outside the boundary, cut the increment at the boundary
-            correctDirection( x, m_wa1, m_dirFreeze );
+            correctDirection( x, m_wa1 );
             m_wa2 = x + m_wa1;
 
             pnorm = m_diag.cwiseProduct( m_wa1 ).stableNorm();
@@ -354,20 +348,6 @@ namespace casa
                xnorm = m_wa2.stableNorm();
                m_fnorm = fnorm1;
                ++m_iter;
-               // after all freeze jacobian for the next search
-               if ( m_dirFreeze.size( ) == m_fjac.cols( ) )
-               {
-                  m_info = Success;
-                  //all parameter are frozen, exit and calculate a new jacobian
-                  return LevenbergMarquardtSpace::Running;
-               }
-               else if ( m_dirFreeze.size( ) > 0 )
-               {
-                  if ( m_preJac.cols() == 0 ) m_preJac = m_fjac;
-                  m_info = Success;
-                  // NotStarted is not used, so we can use it to indicate to start a new lambda search without modifying LevenbergMarquardtSpace
-                  return LevenbergMarquardtSpace::NotStarted;
-               }
             }
 
             /* tests for convergence. */
@@ -417,8 +397,7 @@ namespace casa
       // new members for constrained optimization
       Eigen::VectorXd& m_xMin;
       Eigen::VectorXd& m_xMax;
-      JacobianType m_preJac;
-      std::vector<int> m_dirFreeze;
+      RealScalar  m_oldFnorm;
 
       // other private members of LevenbergMarquardt 
       JacobianType m_fjac;
@@ -490,52 +469,33 @@ namespace casa
          // compute f(x)
          ProjectFunctor::operator()( x, val1 ); nfev++;
 
+         bool isLogTransf = m_lm.transformation( ) == "log10" ? true : false;
+
          // Function Body
-         if ( m_lm.transformation() == "log10" )
+         for ( int j = 0; j < n; ++j, ++nfev )
          {
-            for ( int j = 0; j < n; ++j )
-            {
-               // calculate the base value
-               x[j] = pow( 10, x[j] );
-               // increment always in terms of the base value
-               h = eps * abs( x[j] );
-               // if the parameter is 0, increment it of 0.1
-               if ( h == 0. ) h = eps;
-               // backward difference if the parameter exceeds the bound
-               if ( x[j] + h > m_xMax[j] ) h = -h;
-               x[j] += h;
-               // backtransform in log10 for the function evaluation
-               x[j] = log10( x[j] );
-               h = x[j] - _x[j];
-               // calculate the jacobian
-               ProjectFunctor::operator()( x, val2 );
-               jac.col( j ) = ( val2 - val1 ) / h;
-               nfev++;
-               //restore the original value
-               x[j] = _x[j];
-            }
+            double backupVal = x[j];
+
+            // calculate the base value
+            if ( isLogTransf ) { x[j] = pow( 10, _x[j] ); }
+
+            // increment always in terms of the base value
+            h = x[j] == 0. ? eps : eps * abs( x[j] );
+
+            // backward difference if the parameter exceeds the bound
+            x[j] += x[j] + h > m_xMax[j] ? -h : h;
+
+            // backtransform in log10 for the function evaluation
+            if ( isLogTransf ) { x[j] = log10( x[j] ); }
+
+            // calculate the jacobian
+            ProjectFunctor::operator()( x, val2 );
+            jac.col( j ) = ( val2 - val1 ) / ( x[j] - backupVal );
+
+            //restore the original value
+            x[j] = backupVal;
          }
-         else
-         {
-            for ( int j = 0; j < n; ++j )
-            {
-               // increment always in terms of the base value
-               h = eps * abs( x[j] );
-               // if the parameter is 0, increment it of 0.1
-               if ( h == 0. ) h = eps;
-               // backward difference if the parameter exceeds the bound
-               if ( x[j] + h > m_xMax[j] ) h = -h;
-               x[j] += h;
-               // backtransform in log10 for the function evaluation
-               h = x[j] - _x[j];
-               // calculate the jacobian
-               ProjectFunctor::operator()( x, val2 );
-               jac.col( j ) = ( val2 - val1 ) / h;
-               nfev++;
-               //restore the original value
-               x[j] = _x[j];
-            }
-         }
+
          return nfev;
       }
 
@@ -655,13 +615,13 @@ void LMOptAlgorithm::updateParametersAndRunCase( const Eigen::VectorXd & x )
       {
          prmVal = pow( 10.0, prmVal);
       }
-      if ( minPrms[m_permPrms[i]] > prmVal )
+      if ( minPrms[m_permPrms[i]] > prmVal + numeric_limits<double>::epsilon( ) )
       {
          cntPrms[m_permPrms[i]] = minPrms[m_permPrms[i]];
          LogHandler( LogHandler::DEBUG_SEVERITY ) << " parameter " << i << " = " << prmVal << " < min range value: " << minPrms[m_permPrms[i]];
         // x( i ) = minPrms[m_permPrms[i]];
       }
-      else if ( maxPrms[m_permPrms[i]] < prmVal )
+      else if ( maxPrms[m_permPrms[i]] < prmVal - numeric_limits<double>::epsilon( ) )
       {
          cntPrms[m_permPrms[i]] = maxPrms[m_permPrms[i]];
          LogHandler( LogHandler::DEBUG_SEVERITY ) << " parameter " << i << " = " << prmVal << " > max range value: " << maxPrms[m_permPrms[i]];
@@ -870,7 +830,7 @@ void LMOptAlgorithm::calculateFunctionValue( Eigen::VectorXd & fvec )
 
    if ( m_Qmin > trgtQ + prmQ )
    {
-      m_Qmin = trgtQ;
+      m_Qmin = trgtQ + prmQ;
 
       LogHandler( LogHandler::DEBUG_SEVERITY ) << "New minimum found with Qmin target = " << m_Qmin << ", copying project...";
 
@@ -924,10 +884,7 @@ void LMOptAlgorithm::runOptimization( ScenarioAnalysis & sa )
 
    // 20 evaluations for each parameter should be sufficent
    lm.setMaxfev( 20 * guess.size( ) );  
-   lm.setXtol( 1.0e-8 );
-   // set the tolerance for norm of fval as in PEST: 1 - 0.95 ^ 0.5 
-   lm.setFtol( 1 - 0.974 );             
-
+      
    int ret = lm.minimize( initialGuess );
 
    // store step in doeCaseSet under separate label with LM step number
