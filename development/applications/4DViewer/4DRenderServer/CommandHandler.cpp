@@ -32,6 +32,8 @@
 #include <Inventor/ViewerComponents/SoCameraInteractor.h>
 #include <Inventor/actions/SoRayPickAction.h>
 
+#include <boost/log/trivial.hpp>
+
 namespace
 {
   jsonxx::Object toJSON(const SceneGraphManager::PickResult& pickResult)
@@ -854,6 +856,8 @@ void CommandHandler::onReceivedMessage(
 
   auto cmd = jsonObj.get<std::string>("cmd");
   auto params = jsonObj.get<jsonxx::Object>("params");
+
+  BOOST_LOG_TRIVIAL(trace) << "received message \"" << cmd << "\" on render area " << renderArea->getId() << std::flush;
 
   auto iter = m_handlers.find(cmd);
   if (iter != m_handlers.end())

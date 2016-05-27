@@ -29,12 +29,15 @@ using namespace RemoteViz::Rendering;
 class BpaServiceListener : public ServiceListener
 {
   RenderService* m_renderService;
+  std::string m_datadir;
 
 public:
 
-	explicit BpaServiceListener(RenderService* renderService=0);
+  explicit BpaServiceListener(RenderService* renderService=0);
 
-	~BpaServiceListener();
+  ~BpaServiceListener();
+
+  void setDataDir(const std::string& dir);
 
   bool onPendingCreateRenderArea(
     const std::string& renderAreaId, 

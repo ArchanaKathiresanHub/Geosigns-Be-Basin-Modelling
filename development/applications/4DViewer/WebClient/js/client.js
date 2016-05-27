@@ -1,11 +1,10 @@
 var theRenderArea = null;
+var canvasDiv = null;
 var bandwidthDiv = null;
 var fpsDiv = null;
 var dataSize = 0;
 var fps = 0;		
 var resizeTimer = null;
-var leftMargin = 330;
-var bottomMargin = 20;
 var timestamp = 0;
 
 var logMessages = true;
@@ -758,9 +757,9 @@ function onMaxFPSSliderChanged(value)
 
 function resizeCanvas()
 {
-    var w = window.innerWidth - leftMargin;
-    var h = window.innerHeight - bottomMargin;
-    theRenderArea.requestRenderAreaSize(w, h);
+    var w = canvasDiv.clientWidth;
+    var h = canvasDiv.clientHeight;
+    //theRenderArea.requestRenderAreaSize(w, h);
     theRenderArea.resizeRenderAreaContainer(w, h);
 }
 
@@ -802,10 +801,22 @@ function onFenceAdded(fenceId)
         createCheckBoxDiv(name, fenceId, true, onFenceCheckBoxChanged));
 }
 
+function onConnectionCountChanged(count)
+{
+    var title = "BPA 4D Viewer";
+
+    if(count > 1)
+        title += " (" + count + ")";
+
+    document.title = title;
+ }
+
 function handleEvent(e)
 {
     if(e.type == "fenceAdded")
         onFenceAdded(e.params.fenceId);
+    else if(e.type == "connectionCountChanged")
+        onConnectionCountChanged(e.params.count);
 }
 
 function onSeismicSlicePositionChanged(index, elem)
@@ -963,6 +974,7 @@ function websocketURL()
 
 function init() 
 { 
+    canvasDiv = document.getElementById("CanvasDiv");
     window.canvas = document.getElementById("TheCanvas");
     window.canvas.addEventListener("click", function(event)
     {
@@ -980,15 +992,14 @@ function init()
         sendMsg(msg);
     });
 
-    //$(window).resize(onWindowResize);
+    window.onresize = resizeCanvas;//onWindowResize;
+
+    var containerWidth  = canvasDiv.clientWidth;
+    var containerHeight = canvasDiv.clientHeight;
 
     // This function is called immediately after the page is loaded. Initialization of 
     // the renderArea. "TheCanvas" refers to the id of the canvas. 
-    theRenderArea = new RemoteVizRenderArea(
-        "TheCanvas",
-    	window.innerWidth - leftMargin, 
-    	window.innerHeight - bottomMargin);
-
+    theRenderArea = new RemoteVizRenderArea("TheCanvas", containerWidth, containerHeight);
     theRenderArea.addReceivedImageListener(receivedImage);
     theRenderArea.addMessageListener(receivedMessage);
 
@@ -1002,51 +1013,4 @@ function init()
 
     // Calls a function or executes a code snippet repeatedly to refresh the bandwidth and the fps
     window.setInterval("measurebandwithandfps()",1000);
-    //node = document.getElementById('bandwidthfps');
-}
-
-function cwidth(){
-    // call when changing the canvas width
-    if ($("#cwidth").val() != ""){
-	document.getElementById("TheCanvas").style.width = $("#cwidth").val();
-	theRenderArea.resizeRenderAreaContainer($("#cwidth").val(), $("#cheight").val());
-    }
-}
-
-function cheight(){
-    // call when changing the canvas height
-    if ($("#cheight").val() != ""){
-	document.getElementById("TheCanvas").style.height = $("#cheight").val();
-	theRenderArea.resizeRenderAreaContainer($("#cwidth").val(), $("#cheight").val());
-    }
-}
-
-function rwidth(){
-    // call when changing the renderArea width
-    if ($("#rwidth").val() != "")
-    {
-        var msg = {
-            cmd: "SetWidth",
-            params: {
-                width: $("#rwidth").val()
-            }
-        }
-
-	   sendMsg(msg);
-    }
-}
-
-function rheight(){
-    // call when changing the renderArea height
-    if ($("#rheight").val() != "")
-    {
-        var msg = {
-            cmd: "SetHeight",
-            params: {
-                height: $("#rheight").val()
-            }
-        }
-	   
-        sendMsg(msg);
-    }
 }

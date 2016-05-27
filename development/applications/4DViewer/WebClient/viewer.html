@@ -15,8 +15,8 @@
 </head>
 
 <body onload="init()">
-	<div style="height: 100%">
-		<div style="width:320px; height:100%; overflow: auto; float: left">
+	<div style="width: 100%; height: 100%; overflow:hidden">
+		<div style="width:320px; height:100%; float:left; overflow:auto">
 			<div class="header">Data set</div>
 			<div>
 				<div id="structureTab" class="activeTab" style="display:inline-block;" onclick="showTab(0)">Structure</div>
@@ -253,8 +253,8 @@
 		</div>
 
 
-		<div id="CanvasDiv" style="margin-left: 330px; width: 100%; height:100%; background-color: #aaaaff">
-		    <canvas id="TheCanvas" tabindex="0"></canvas>
+		<div id="CanvasDiv" style="height:100%; overflow:hidden; background-color: #222222">
+		    <canvas id="TheCanvas" style="width:100%; height:100%" tabindex="0"></canvas>
 		</div>
 	</div>
 

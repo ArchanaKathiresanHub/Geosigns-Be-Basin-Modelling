@@ -15,6 +15,8 @@
 #include <Seismic.h>
 #include <CameraUtil.h>
 
+#include "jsonxx.h"
+
 #ifdef USE_H264
 #include <RenderArea.h>
 #include <Connection.h>
@@ -31,31 +33,15 @@
 #include <Inventor/ViewerComponents/SoCameraInteractor.h>
 
 #include <string>
-#include <thread>
 
 #include <boost/filesystem.hpp>
+#include <boost/log/trivial.hpp>
 
-void BpaRenderAreaListener::createSceneGraph(const std::string& id)
+void BpaRenderAreaListener::loadSeismic()
 {
-  std::cout << "Loading project, id = " << id << std::endl;
-
-  boost::filesystem::path projectFile(m_rootdir);
-  projectFile += id;
-
-  m_project = Project::load(projectFile.string());
-  m_projectInfo = m_project->getProjectInfo();
-
-  std::cout << "Project loaded, building scenegraph" << std::endl;
-
-  m_sceneGraphManager = std::make_shared<SceneGraphManager>();
-  m_sceneGraphManager->setup(m_project);
-
-  m_examiner = new SceneExaminer(m_sceneGraphManager);
-  m_examiner->setFenceAddedCallback(std::bind(&BpaRenderAreaListener::onFenceAdded, this, std::placeholders::_1));
-
   // Try to find seismic data
   boost::filesystem::path ldmFile;
-  boost::filesystem::directory_iterator iter(projectFile.parent_path());
+  boost::filesystem::directory_iterator iter(m_projectdir);
   boost::filesystem::directory_iterator end;
   while (iter != end && iter->path().extension() != ".ldm")
     ++iter;
@@ -65,28 +51,77 @@ void BpaRenderAreaListener::createSceneGraph(const std::string& id)
 
   if (!ldmFile.empty())
   {
-    std::cout << "found LDM file " << ldmFile << std::endl;
+    BOOST_LOG_TRIVIAL(trace) << "found LDM file " << ldmFile;
 
     std::string ldmFileStr = ldmFile.string();
     auto dim = m_project->getProjectInfo().dimensions;
     m_seismicScene = std::make_shared<SeismicScene>(ldmFileStr.c_str(), dim);
     m_sceneGraphManager->addSeismicScene(m_seismicScene);
   }
+}
+
+void BpaRenderAreaListener::createSceneGraph()
+{
+  assert(m_project);
+
+  m_sceneGraphManager = std::make_shared<SceneGraphManager>();
+  m_sceneGraphManager->setup(m_project);
+
+  m_examiner = new SceneExaminer(m_sceneGraphManager);
+  m_examiner->setFenceAddedCallback(std::bind(&BpaRenderAreaListener::onFenceAdded, this, std::placeholders::_1));
+
+  loadSeismic();
 
   m_commandHandler.setup(
-    m_sceneGraphManager.get(), 
-    m_seismicScene.get(), 
+    m_sceneGraphManager.get(),
+    m_seismicScene.get(),
     m_examiner.ptr());
 
   m_renderArea->getSceneManager()->setSceneGraph(m_examiner.ptr());
   m_examiner->viewAll(m_renderArea->getSceneManager()->getViewportRegion());
+}
 
-  std::cout << "...done" << std::endl;
+void BpaRenderAreaListener::setupProject(const std::string& id)
+{
+  BOOST_LOG_TRIVIAL(trace) << "Loading project, id = " << id;
+
+  boost::filesystem::path projectFile(m_rootdir);
+  projectFile.append(id);
+
+  m_projectdir = projectFile.parent_path().string();
+
+  try
+  {
+    m_project = Project::load(projectFile.string());
+    m_projectInfo = m_project->getProjectInfo();
+
+    createSceneGraph();
+  }
+  catch (std::runtime_error& e)
+  {
+    BOOST_LOG_TRIVIAL(trace) << "Failed to load project " << projectFile << " (" << e.what() << ")";
+  }
 }
 
 void BpaRenderAreaListener::onFenceAdded(int fenceId)
 {
   m_commandHandler.sendFenceAddedEvent(m_renderArea, fenceId);
+}
+
+void BpaRenderAreaListener::onConnectionCountChanged()
+{
+  unsigned int count = m_renderArea->getNumConnections();
+  jsonxx::Object params;
+  params << "count" << count;
+
+  jsonxx::Object event;
+  event << "type" << "connectionCountChanged";
+  event << "params" << params;
+
+  jsonxx::Object msg;
+  msg << "event" << event;
+
+  m_renderArea->sendMessage(msg.write(jsonxx::JSON));
 }
 
 BpaRenderAreaListener::BpaRenderAreaListener(RenderArea* renderArea)
@@ -96,33 +131,28 @@ BpaRenderAreaListener::BpaRenderAreaListener(RenderArea* renderArea)
 , m_drawEdges(true)
 , m_logEvents(true)
 {
-#ifdef WIN64
-  m_rootdir = "C:/data/";
-#else
-  //m_rootdir = "/home/ree/data/";
-  m_rootdir = "/lustre/titanium_cs9000/cauldron/nlsvfl/data/";
-#endif
 }
 
 BpaRenderAreaListener::~BpaRenderAreaListener()
 {
 }
 
+void BpaRenderAreaListener::setDataDir(const std::string& dir)
+{
+  m_rootdir = dir;
+}
+
 void BpaRenderAreaListener::onOpenedConnection(RenderArea* renderArea, Connection* connection)
 {
-  std::cout << "thread id = " << std::this_thread::get_id() << std::endl;
   if (m_logEvents)
-  {
-    std::cout << "[BpaRenderAreaListener] onOpenedConnection("
-      << "renderArea = " << renderArea->getId()
-      << ", connection = " << connection->getId()
-      << ")" << std::endl;
-  }
+    BOOST_LOG_TRIVIAL(trace) << "new connection opened on render area " << renderArea->getId() << ", id = " << connection->getId();
 
-  if(!m_sceneGraphManager)
-    createSceneGraph(renderArea->getId());
+  if(!m_project)
+    setupProject(renderArea->getId());
 
   m_commandHandler.sendProjectInfo(connection, m_projectInfo);
+
+  onConnectionCountChanged();
 
   if (m_seismicScene)
   {
@@ -138,41 +168,34 @@ void BpaRenderAreaListener::onOpenedConnection(RenderArea* renderArea, Connectio
 void BpaRenderAreaListener::onClosedConnection(RenderArea* renderArea, const std::string& connectionId)
 {
   if (m_logEvents)
-  {
-    std::cout << "[BpaRenderAreaListener] onClosedConnection("
-      << "renderArea = " << renderArea->getId()
-      << ", connection = " << connectionId
-      << ")" << std::endl;
-  }
+    BOOST_LOG_TRIVIAL(trace) << "connection " << connectionId << " closed";
+
+  onConnectionCountChanged();
 
   RenderAreaListener::onClosedConnection(renderArea, connectionId);
 }
 
 void BpaRenderAreaListener::onReceivedMessage(RenderArea* renderArea, Connection* sender, const std::string& message)
 {
-  if (m_logEvents)
-  {
-    std::cout << "[BpaRenderAreaListener] onReceivedMessage("
-      << "renderArea = " << renderArea->getId()
-      << ", message = " << message
-      << ")" << std::endl;
-  }
-
   m_commandHandler.onReceivedMessage(renderArea, sender, message);
 
   RemoteViz::Rendering::RenderAreaListener::onReceivedMessage(renderArea, sender, message);
 }
 
-void BpaRenderAreaListener::onResize(RenderArea* renderArea, unsigned int width, unsigned int height)
+bool BpaRenderAreaListener::onPreRender(RenderArea* renderArea, bool& clearWindow, bool& clearZBuffer)
 {
-  if (m_logEvents)
-  {
-    std::cout << "[BpaRenderAreaListener] onResize("
-      << "renderArea = " << renderArea->getId()
-      << ", width = " << width
-      << ", height = " << height
-      << ")" << std::endl;
-  }
+  //BOOST_LOG_TRIVIAL(trace) << "prerender renderArea " << renderArea->getId();
+  return RemoteViz::Rendering::RenderAreaListener::onPreRender(renderArea, clearWindow, clearZBuffer);
+}
 
-  RemoteViz::Rendering::RenderAreaListener::onResize(renderArea, width, height);
+void BpaRenderAreaListener::onPostRender(RenderArea* renderArea)
+{
+  //BOOST_LOG_TRIVIAL(trace) << "postrender renderArea " << renderArea->getId();
+  RemoteViz::Rendering::RenderAreaListener::onPostRender(renderArea);
+}
+
+void BpaRenderAreaListener::onRequestedSize(RenderArea* renderArea, Connection* sender, unsigned int width, unsigned int height)
+{
+  if(m_logEvents)
+    BOOST_LOG_TRIVIAL(trace) << "requested resize render area " << renderArea->getId() << " to " << width << " x " << height << " (DENIED)";
 }

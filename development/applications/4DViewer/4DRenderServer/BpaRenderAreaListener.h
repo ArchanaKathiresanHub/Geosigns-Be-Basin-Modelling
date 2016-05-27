@@ -31,6 +31,8 @@ using namespace RemoteViz::Rendering;
 class BpaRenderAreaListener : public RenderAreaListener
 {
   std::string m_rootdir;
+  std::string m_projectdir;
+
   std::shared_ptr<Project> m_project;
   Project::ProjectInfo m_projectInfo;
 
@@ -45,9 +47,13 @@ class BpaRenderAreaListener : public RenderAreaListener
   bool m_drawEdges;
   bool m_logEvents;
 
-  void createSceneGraph(const std::string& id);
+  void loadSeismic();
+  void createSceneGraph();
 
   void onFenceAdded(int fenceId);
+  void onConnectionCountChanged();
+
+  void setupProject(const std::string& id);
 
 public:
 
@@ -55,13 +61,19 @@ public:
 
   ~BpaRenderAreaListener();
 
+  void setDataDir(const std::string& dir);
+
   void onOpenedConnection(RenderArea* renderArea, Connection* connection) override;
 
   void onClosedConnection(RenderArea* renderArea, const std::string& connectionId) override;
 
   void onReceivedMessage(RenderArea* renderArea, Connection* sender, const std::string& message) override;
 
-  void onResize(RenderArea* renderArea, unsigned int width, unsigned int height) override;
+  bool onPreRender(RenderArea* renderArea, bool& clearWindow, bool& clearZBuffer) override;
+
+  void onPostRender(RenderArea* renderArea) override;
+
+  void onRequestedSize(RenderArea* renderArea, Connection* sender, unsigned int width, unsigned int height) override;
 };
 
 #endif
