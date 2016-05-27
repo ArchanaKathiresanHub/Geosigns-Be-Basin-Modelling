@@ -230,7 +230,10 @@ protected:
 		 * \brief Destructor of the class Properties.
 		 * Desallocate the grid properties.
 		 */
-		virtual ~Properties(){};
+		virtual ~Properties()
+		{
+		   //Empty here but defined in the derived classes
+		};
 
 		/*!
 		 * \brief Store the current values of the properties in order to compute chemical compaction

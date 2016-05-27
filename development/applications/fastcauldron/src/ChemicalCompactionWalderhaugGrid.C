@@ -7,7 +7,7 @@
 
 
 ChemicalCompactionWalderhaugGrid :: ChemicalCompactionWalderhaugGrid( DM* mapViewOfDomain,
-		const LayerList & layerList ) :
+      const LayerList & layerList ) :
 		ChemicalCompactionGrid( mapViewOfDomain, layerList ),
 		m_currentTemperature ( getNumberOfNodes( mapViewOfDomain, layerList) ),
 		m_previousTemperature ( getNumberOfNodes( mapViewOfDomain, layerList) ),
@@ -18,7 +18,7 @@ ChemicalCompactionWalderhaugGrid :: ChemicalCompactionWalderhaugGrid( DM* mapVie
 
 ChemicalCompactionWalderhaugGrid :: ~ChemicalCompactionWalderhaugGrid()
 {
-
+	//Empty destructor
 }
 
 const double *ChemicalCompactionWalderhaugGrid :: getPreviousTemperature() const
@@ -92,6 +92,13 @@ ChemicalCompactionWalderhaugGrid :: Properties :: ~Properties()
 void ChemicalCompactionWalderhaugGrid :: Properties :: storeProperties( int i, int j, int k, int node, ChemicalCompactionGrid* grid )
 {
 	ChemicalCompactionWalderhaugGrid* walderhaugGrid = dynamic_cast<ChemicalCompactionWalderhaugGrid*> (grid);
+
+	walderhaugGrid->m_porosity.resize(grid->getSize());
+	walderhaugGrid->m_previousTemperature.resize(grid->getSize());
+	walderhaugGrid->m_currentTemperature.resize(grid->getSize());
+	walderhaugGrid->m_chemicalCompaction.resize(grid->getSize());
+	
+
 	walderhaugGrid->m_porosity[node]             = m_porosity(k, j, i);
 	walderhaugGrid->m_previousTemperature[node]  = m_previousTemperature[k][j][i];
 	walderhaugGrid->m_currentTemperature[node]   = m_currentTemperature[k][j][i];

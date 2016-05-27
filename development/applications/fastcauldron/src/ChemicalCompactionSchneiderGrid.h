@@ -94,7 +94,7 @@ private:
 		 * \brief Constructor of the class Properties.
 		 * Allocate the grid properties.
 		 */
-		Properties( const LayerProps & layer );
+		explicit Properties( const LayerProps & layer );
 
 		/*!
 		 * \brief Destructor of the class Properties.
@@ -127,7 +127,7 @@ private:
 	 * \brief Create an instance of the Properties class
 	 * \param layer: LayerProps the layer in which are the properties
 	 */
-	virtual Properties * getProperties( const LayerProps& layer );
+	virtual Properties * getProperties(const LayerProps& layer);
 
 	/*!
 	 * \brief Store the lithology parameters needed for the Schneider chemical compaction computation.

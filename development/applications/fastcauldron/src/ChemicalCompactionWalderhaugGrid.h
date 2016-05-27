@@ -106,7 +106,7 @@ private:
 		 * 
 		 * Allocate the layer properties needed for the Walderhaug computation of chemical compaction.
 		 */
-		Properties( const LayerProps & layer );
+		explicit Properties( const LayerProps & layer );
 
 		/*!
 		 * \brief Destructor of the class Properties.

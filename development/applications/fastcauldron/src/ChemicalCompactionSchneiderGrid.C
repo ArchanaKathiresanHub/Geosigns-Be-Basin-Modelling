@@ -6,7 +6,7 @@
 #include "../../../libraries/GeoPhysics/src/SchneiderCompactionCalculator.h"
 
 ChemicalCompactionSchneiderGrid :: ChemicalCompactionSchneiderGrid( DM* mapViewOfDomain,
-		const LayerList & layerList ) :
+      const LayerList & layerList ) :
 		ChemicalCompactionGrid( mapViewOfDomain, layerList ),
 		m_currentTemperature ( getNumberOfNodes( mapViewOfDomain, layerList) ),
 		m_porosity ( getNumberOfNodes( mapViewOfDomain, layerList) ),
@@ -17,7 +17,7 @@ ChemicalCompactionSchneiderGrid :: ChemicalCompactionSchneiderGrid( DM* mapViewO
 
 ChemicalCompactionSchneiderGrid :: ~ChemicalCompactionSchneiderGrid()
 {
-	
+	//Empty desctructor
 }
 
 ChemicalCompactionCalculator* ChemicalCompactionSchneiderGrid::createChemicalCompaction()
@@ -91,6 +91,11 @@ ChemicalCompactionSchneiderGrid :: Properties::~Properties()
 void ChemicalCompactionSchneiderGrid :: Properties :: storeProperties( int i, int j, int k, int node, ChemicalCompactionGrid* grid )
 {
 	ChemicalCompactionSchneiderGrid* schneiderGrid = dynamic_cast<ChemicalCompactionSchneiderGrid*>(grid);
+
+	schneiderGrid->m_porosity.resize(grid->getSize());
+	schneiderGrid->m_currentTemperature.resize(grid->getSize());
+	schneiderGrid->m_ves.resize(grid->getSize());
+
 	schneiderGrid->m_porosity[node]            = m_porosity( k, j, i );
 	schneiderGrid->m_currentTemperature[node]  = m_temperature[k][j][i];
 	if( m_layer->isChemicalCompactionVesValueIsDefined() )
