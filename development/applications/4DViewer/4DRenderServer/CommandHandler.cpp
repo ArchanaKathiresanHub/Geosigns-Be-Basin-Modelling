@@ -407,16 +407,6 @@ void CommandHandler::onShowTrapOutlines(
   m_sceneGraphManager->showTrapOutlines(showOutlines);
 }
 
-void CommandHandler::onShowFluidContacts(
-  const jsonxx::Object& params,
-  RemoteViz::Rendering::RenderArea* /*renderArea*/,
-  RemoteViz::Rendering::Connection* /*connection*/)
-{
-  auto show = params.get<bool>("show");
-
-  m_sceneGraphManager->setProperty(show ? SceneGraphManager::FluidContactsPropertyId : -1);
-}
-
 void CommandHandler::onSetFlowLinesStep(
   const jsonxx::Object& params,
   RemoteViz::Rendering::RenderArea* /*renderArea*/,
@@ -744,7 +734,6 @@ void CommandHandler::registerHandlers()
   m_handlers["ShowText"] = &CommandHandler::onShowText;
   m_handlers["ShowTraps"] = &CommandHandler::onShowTraps;
   m_handlers["ShowTrapOutlines"] = &CommandHandler::onShowTrapOutlines;
-  m_handlers["ShowFluidContacts"] = &CommandHandler::onShowFluidContacts;
   m_handlers["SetFlowLinesStep"] = &CommandHandler::onSetFlowLinesStep;
   m_handlers["SetFlowLinesThreshold"] = &CommandHandler::onSetFlowLinesThreshold;
   m_handlers["ShowDrainageAreaOutline"] = &CommandHandler::onShowDrainageAreaOutlines;

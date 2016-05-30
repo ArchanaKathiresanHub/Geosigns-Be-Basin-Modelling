@@ -53,6 +53,9 @@ class BpaRenderAreaListener : public RenderAreaListener
   void onFenceAdded(int fenceId);
   void onConnectionCountChanged();
 
+  void sendProjectInfo(Connection* connection);
+  void sendViewState(Connection* connection);
+
   void setupProject(const std::string& id);
 
 public:

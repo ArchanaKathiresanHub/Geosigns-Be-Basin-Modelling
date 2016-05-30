@@ -124,6 +124,107 @@ void BpaRenderAreaListener::onConnectionCountChanged()
   m_renderArea->sendMessage(msg.write(jsonxx::JSON));
 }
 
+void BpaRenderAreaListener::sendProjectInfo(Connection* connection)
+{
+}
+
+namespace
+{
+  template<class T>
+  jsonxx::Array toJSON(const std::vector<T>& v)
+  {
+    jsonxx::Array result;
+    for (T x : v)
+      result << x;
+
+    return result;
+  }
+
+  template<class T>
+  jsonxx::Array toJSON(const T* v, int n)
+  {
+    jsonxx::Array result;
+    for(int i=0; i < n; ++i)
+      result << v[i];
+
+    return result;
+  }
+}
+
+void BpaRenderAreaListener::sendViewState(Connection* connection)
+{
+  auto state = m_sceneGraphManager->getViewState();
+  auto mode = m_examiner->getCameraMode();
+  auto renderAreaSettings = m_renderArea->getSettings();
+
+  SeismicScene::ViewState seismicState;
+  if (m_seismicScene)
+	seismicState = m_seismicScene->getViewState();
+
+  jsonxx::Object vs;
+  vs
+	<< "currentSnapshotIndex" << state.currentSnapshotIndex
+	<< "currentPropertyId" << state.currentPropertyId
+
+	// display settings
+	<< "showFaces" << state.showFaces
+	<< "showEdges" << state.showEdges
+	<< "showGrid" << state.showGrid
+	<< "showCompass" << state.showCompass
+	<< "showText" << state.showText
+	<< "showPerspective" << (mode == SceneInteractor::PERSPECTIVE)
+	<< "verticalScale" << state.verticalScale
+	<< "transparency" << state.transparency
+
+	// traps & flow
+	<< "showTraps" << state.showTraps
+	<< "showTrapOutlines" << state.showTrapOutlines
+	<< "drainageAreaType" << (int)state.drainageAreaType
+	<< "flowLinesExpulsionStep" << state.flowLinesExpulsionStep
+	<< "flowLinesLeakageStep" << state.flowLinesLeakageStep
+	<< "flowLinesExpulsionThreshold" << state.flowLinesExpulsionThreshold
+	<< "flowLinesLeakageThreshold" << state.flowLinesLeakageThreshold
+
+	// elements
+	<< "formationVisibility" << toJSON(state.formationVisibility)
+	<< "surfaceVisibility" << toJSON(state.surfaceVisibility)
+	<< "reservoirVisibility" << toJSON(state.reservoirVisibility)
+	<< "faultVisibility" << toJSON(state.faultVisibility)
+	<< "flowLinesVisibility" << toJSON(state.flowLinesVisibility)
+
+	// slices
+	<< "slicePosition" << toJSON(state.slicePosition, 3)
+	<< "sliceEnabled" << toJSON(state.sliceEnabled, 3)
+
+	// cell filter
+	<< "cellFilterEnabled" << state.cellFilterEnabled
+	<< "cellFilterMinValue" << state.cellFilterMinValue
+	<< "cellFilterMaxValue" << state.cellFilterMaxValue
+
+	// color scale
+	<< "colorScaleMapping" << (int)state.colorScaleParams.mapping
+	<< "colorScaleRange" << (int)state.colorScaleParams.range
+	<< "colorScaleMinValue" << state.colorScaleParams.minValue
+	<< "colorScaleMaxValue" << state.colorScaleParams.maxValue
+
+	// jpeg quality
+	<< "stillQuality" << renderAreaSettings->getStillCompressionQuality()
+	<< "interactiveQuality" << renderAreaSettings->getInteractiveCompressionQuality()
+
+	// seismic
+	<< "seismicInlineSliceEnabled" << seismicState.inlineSliceEnabled
+	<< "seismicInlineSlicePosition" << seismicState.inlineSlicePosition
+	<< "seismicCrosslineSliceEnabled" << seismicState.crosslineSliceEnabled
+	<< "seismicCrosslineSlicePosition" << seismicState.crosslineSlicePosition
+	<< "seismicInterpolatedSurfaceEnabled" << seismicState.interpolatedSurfaceEnabled
+	<< "seismicInterpolatedSurfacePosition" << seismicState.interpolatedSurfacePosition;
+
+  jsonxx::Object msg;
+  msg << "viewstate" << vs;
+
+  connection->sendMessage(msg.write(jsonxx::JSON));
+}
+
 BpaRenderAreaListener::BpaRenderAreaListener(RenderArea* renderArea)
 : m_renderArea(renderArea)
 , m_examiner(0)
@@ -161,6 +262,8 @@ void BpaRenderAreaListener::onOpenedConnection(RenderArea* renderArea, Connectio
 
     m_commandHandler.sendSeismicInfo(connection, size, extent);
   }
+
+  sendViewState(connection);
 
   RemoteViz::Rendering::RenderAreaListener::onOpenedConnection(renderArea, connection);
 }

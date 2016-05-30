@@ -165,11 +165,6 @@ class CommandHandler
     RemoteViz::Rendering::RenderArea* renderArea,
     RemoteViz::Rendering::Connection* connection);
 
-  void onShowFluidContacts(
-    const jsonxx::Object& params,
-    RemoteViz::Rendering::RenderArea* renderArea,
-    RemoteViz::Rendering::Connection* connection);
-
   void onSetFlowLinesStep(
     const jsonxx::Object& params,
     RemoteViz::Rendering::RenderArea* renderArea,

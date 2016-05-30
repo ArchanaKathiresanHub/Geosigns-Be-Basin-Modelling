@@ -743,6 +743,11 @@ SeismicScene::SeismicScene(const char* filename, const Project::Dimensions& dim)
   m_planeSlice[1].type = SliceCrossline;
 }
 
+const SeismicScene::ViewState& SeismicScene::getViewState() const
+{
+  return m_viewState;
+}
+
 void SeismicScene::setMesh(const MiVolumeMeshCurvilinear* mesh)
 {
   if (mesh != m_mesh)
@@ -779,8 +784,15 @@ void SeismicScene::enableSlice(SliceType type, bool value)
   int index = 0;
   switch (type)
   {
-  case SliceInline: index = 0; break;
-  case SliceCrossline: index = 1; break;
+  case SliceInline: 
+	index = 0; 
+	m_viewState.inlineSliceEnabled = value;
+	break;
+
+  case SliceCrossline: 
+	index = 1; 
+	m_viewState.crosslineSliceEnabled = value;
+	break;
   }
 
   if (m_planeSlice[index].enabled != value)
@@ -795,8 +807,15 @@ void SeismicScene::setSlicePosition(SliceType type, float position)
   int index = 0;
   switch (type)
   {
-  case SliceInline: index = 0; break;
-  case SliceCrossline: index = 1; break;
+  case SliceInline: 
+	index = 0; 
+	m_viewState.inlineSlicePosition = position;
+	break;
+
+  case SliceCrossline: 
+	index = 1; 
+	m_viewState.crosslineSlicePosition = position;
+	break;
   }
 
   if (m_planeSlice[index].position != position)
@@ -808,6 +827,8 @@ void SeismicScene::setSlicePosition(SliceType type, float position)
 
 void SeismicScene::enableInterpolatedSurface(bool enabled)
 {
+  m_viewState.interpolatedSurfaceEnabled = enabled;
+
   if (enabled != m_surface.enabled)
   {
     m_surface.enabled = enabled;
@@ -817,6 +838,8 @@ void SeismicScene::enableInterpolatedSurface(bool enabled)
 
 void SeismicScene::setInterpolatedSurfacePosition(float position)
 {
+  m_viewState.interpolatedSurfacePosition = position;
+
   if (position != m_surface.position)
   {
     m_surface.position = position;

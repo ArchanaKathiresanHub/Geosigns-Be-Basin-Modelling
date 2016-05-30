@@ -191,7 +191,7 @@ void SceneGraphManager::updateCoordinateGrid()
 {
 #ifdef USE_OIV_COORDINATE_GRID
 
-  if (!m_showGrid)
+  if (!m_viewState.showGrid)
     return;
 
   assert(!m_snapshotInfoCache.empty());
@@ -209,8 +209,8 @@ void SceneGraphManager::updateCoordinateGrid()
   const float dy = margin * size[1];
   SbVec3f gradStart(minvec[0] - dx, minvec[1] - dy, minvec[2]);
   SbVec3f gradEnd(maxvec[0] + dx, maxvec[1] + dy, maxvec[2]);
-  SbVec3f start(gradStart[0], gradStart[1], m_verticalScale * gradStart[2]);
-  SbVec3f end(gradEnd[0], gradEnd[1], m_verticalScale * gradEnd[2]);
+  SbVec3f start(gradStart[0], gradStart[1], m_viewState.verticalScale * gradStart[2]);
+  SbVec3f end(gradEnd[0], gradEnd[1], m_viewState.verticalScale * gradEnd[2]);
 
   m_coordinateGrid->start = start;
   m_coordinateGrid->end = end;
@@ -236,7 +236,7 @@ void SceneGraphManager::updateSnapshotMesh()
   {
     for (auto const& formation : snapshot.formations)
     {
-      if (m_formationVisibility[formation.id])
+      if (m_viewState.formationVisibility[formation.id])
         needMesh = true;
     }
   }
@@ -246,7 +246,7 @@ void SceneGraphManager::updateSnapshotMesh()
   {
     for (auto const& flowlines : snapshot.flowlines)
     {
-      if (m_flowLinesVisibility[flowlines.id])
+      if (m_viewState.flowLinesVisibility[flowlines.id])
         needMesh = true;
     }
   }
@@ -256,7 +256,7 @@ void SceneGraphManager::updateSnapshotMesh()
   {
     for (int i = 0; i < 3; ++i)
     {
-      if (m_sliceEnabled[i])
+      if (m_viewState.sliceEnabled[i])
         needMesh = true;
     }
   }
@@ -303,12 +303,12 @@ void SceneGraphManager::updateSnapshotFormations()
   for (size_t i = 0; i < snapshot.formations.size(); ++i)
   {
     int id = snapshot.formations[i].id;
-    if (!buildingChunk && m_formationVisibility[id])
+    if (!buildingChunk && m_viewState.formationVisibility[id])
     {
       buildingChunk = true;
       minK = snapshot.formations[i].minK;
     }
-    else if (buildingChunk && !m_formationVisibility[id])
+    else if (buildingChunk && !m_viewState.formationVisibility[id])
     {
       buildingChunk = false;
       tmpChunks.push_back(SnapshotInfo::Chunk(minK, maxK));
@@ -388,7 +388,7 @@ void SceneGraphManager::updateSnapshotSurfaces()
 
   for (auto &surf : snapshot.surfaces)
   {
-    if (m_surfaceVisibility[surf.id] && surf.root == 0)
+    if (m_viewState.surfaceVisibility[surf.id] && surf.root == 0)
     {
       surf.meshData = m_project->createSurfaceMesh(snapshot.index, surf.id);
       surf.mesh = new MoMesh;
@@ -406,7 +406,7 @@ void SceneGraphManager::updateSnapshotSurfaces()
       surf.root = root;
       snapshot.surfacesGroup->addChild(root);
     }
-    else if (!m_surfaceVisibility[surf.id] && surf.root != 0)
+    else if (!m_viewState.surfaceVisibility[surf.id] && surf.root != 0)
     {
       snapshot.surfacesGroup->removeChild(surf.root);
       surf.root = 0;
@@ -432,7 +432,7 @@ void SceneGraphManager::updateSnapshotReservoirs()
 
   for (auto &res : snapshot.reservoirs)
   {
-    if (m_reservoirVisibility[res.id] && res.root == 0)
+    if (m_viewState.reservoirVisibility[res.id] && res.root == 0)
     {
       res.root = new SoSeparator;
       res.mesh = new MoMesh;
@@ -452,7 +452,7 @@ void SceneGraphManager::updateSnapshotReservoirs()
 
       snapshot.reservoirsGroup->addChild(res.root);
     }
-    else if (!m_reservoirVisibility[res.id] && res.root != 0)
+    else if (!m_viewState.reservoirVisibility[res.id] && res.root != 0)
     {
       snapshot.reservoirsGroup->removeChild(res.root);
       res.clear();
@@ -472,15 +472,15 @@ void SceneGraphManager::updateSnapshotTraps()
     if (!res.root)
       continue;
 
-    if (m_reservoirVisibility[res.id])
+    if (m_viewState.reservoirVisibility[res.id])
     {
       // See if the vertical scale needs updating for existing traps
-      if (m_showTraps && res.traps.root() != 0 && res.traps.verticalScale() != m_verticalScale)
+      if (m_viewState.showTraps && res.traps.root() != 0 && res.traps.verticalScale() != m_viewState.verticalScale)
       {
-        res.traps.setVerticalScale(m_verticalScale);
+        res.traps.setVerticalScale(m_viewState.verticalScale);
       }
       // See if we need to create new traps
-      else if (m_showTraps && res.traps.root() == 0)
+      else if (m_viewState.showTraps && res.traps.root() == 0)
       {
         std::vector<Project::Trap> traps = m_project->getTraps(snapshot.index, res.id);
         if (!traps.empty())
@@ -488,20 +488,20 @@ void SceneGraphManager::updateSnapshotTraps()
           float radius = (float)std::min(
             m_projectInfo.dimensions.deltaXHiRes,
             m_projectInfo.dimensions.deltaYHiRes);
-          res.traps = Traps(traps, radius, m_verticalScale);
+          res.traps = Traps(traps, radius, m_viewState.verticalScale);
           if (res.traps.root() != 0)
             res.root->insertChild(res.traps.root(), 0); // 1st because of blending
         }
       }
       // See if we need to remove existing traps
-      else if (!m_showTraps && res.traps.root() != 0)
+      else if (!m_viewState.showTraps && res.traps.root() != 0)
       {
         res.root->removeChild(res.traps.root());
         res.traps = Traps();
       }
 
       // Trap outlines
-      if (m_showTrapOutlines && !res.trapOutlines)
+      if (m_viewState.showTrapOutlines && !res.trapOutlines)
       {
         std::shared_ptr<MiDataSetIjk<double> > dataSet;
 
@@ -515,26 +515,26 @@ void SceneGraphManager::updateSnapshotTraps()
 
         res.root->addChild(res.trapOutlines);
       }
-      else if (!m_showTrapOutlines && res.trapOutlines)
+      else if (!m_viewState.showTrapOutlines && res.trapOutlines)
       {
         res.root->removeChild(res.trapOutlines);
         res.trapOutlines = 0;
       }
 
       // Drainage area outlines
-      if (m_drainageAreaType != DrainageAreaFluid && res.drainageAreaOutlinesFluid)
+      if (m_viewState.drainageAreaType != DrainageAreaFluid && res.drainageAreaOutlinesFluid)
       {
         res.root->removeChild(res.drainageAreaOutlinesFluid);
         res.drainageAreaOutlinesFluid = 0;
       }
 
-      if (m_drainageAreaType != DrainageAreaGas && res.drainageAreaOutlinesGas)
+      if (m_viewState.drainageAreaType != DrainageAreaGas && res.drainageAreaOutlinesGas)
       {
         res.root->removeChild(res.drainageAreaOutlinesGas);
         res.drainageAreaOutlinesGas = 0;
       }
 
-      if (m_drainageAreaType == DrainageAreaFluid && !res.drainageAreaOutlinesFluid)
+      if (m_viewState.drainageAreaType == DrainageAreaFluid && !res.drainageAreaOutlinesFluid)
       {
         std::shared_ptr<MiDataSetIjk<double> > dataSet;
 
@@ -548,7 +548,7 @@ void SceneGraphManager::updateSnapshotTraps()
 
         res.root->addChild(res.drainageAreaOutlinesFluid);
       }
-      else if (m_drainageAreaType == DrainageAreaGas && !res.drainageAreaOutlinesGas)
+      else if (m_viewState.drainageAreaType == DrainageAreaGas && !res.drainageAreaOutlinesGas)
       {
         std::shared_ptr<MiDataSetIjk<double> > dataSet;
 
@@ -615,7 +615,7 @@ void SceneGraphManager::updateSnapshotFaults()
   {
     int id = snapshot.faults[i].id;
 
-    if (m_faultVisibility[id] && snapshot.faults[i].root == 0)
+    if (m_viewState.faultVisibility[id] && snapshot.faults[i].root == 0)
     {
       std::vector<SbVec2d> faultLine = m_project->getFaultLine(id);
       
@@ -629,7 +629,7 @@ void SceneGraphManager::updateSnapshotFaults()
       snapshot.faults[i].root->addChild(snapshot.faults[i].surfaceMesh);
       snapshot.faultsGroup->addChild(snapshot.faults[i].root);
     }
-    else if (!m_faultVisibility[id] && snapshot.faults[i].root != 0)
+    else if (!m_viewState.faultVisibility[id] && snapshot.faults[i].root != 0)
     {
       snapshot.faultsGroup->removeChild(snapshot.faults[i].root);
       snapshot.faults[i].root = 0;
@@ -649,17 +649,17 @@ void SceneGraphManager::updateSnapshotProperties()
   SnapshotInfo& snapshot = *m_snapshotInfoCache.begin();
 
   // Update properties
-  if (snapshot.currentPropertyId == m_currentPropertyId)
+  if (snapshot.currentPropertyId == m_viewState.currentPropertyId)
     return;
 
-  snapshot.scalarDataSet = createFormationProperty(snapshot, m_currentPropertyId);
+  snapshot.scalarDataSet = createFormationProperty(snapshot, m_viewState.currentPropertyId);
   snapshot.scalarSet->setScalarSet(snapshot.scalarDataSet.get());
 
   for (auto &surf : snapshot.surfaces)
   {
     if (surf.root)
     {
-      surf.propertyData = m_project->createSurfaceProperty(snapshot.index, surf.id, m_currentPropertyId);
+      surf.propertyData = m_project->createSurfaceProperty(snapshot.index, surf.id, m_viewState.currentPropertyId);
       surf.scalarSet->setScalarSet(surf.propertyData.get());
     }
   }
@@ -668,12 +668,12 @@ void SceneGraphManager::updateSnapshotProperties()
   {
     if (res.root)
     {
-      res.propertyData = createReservoirProperty(snapshot, res, m_currentPropertyId);
+      res.propertyData = createReservoirProperty(snapshot, res, m_viewState.currentPropertyId);
       res.scalarSet->setScalarSet(res.propertyData.get());
     }
   }
 
-  snapshot.currentPropertyId = m_currentPropertyId;
+  snapshot.currentPropertyId = m_viewState.currentPropertyId;
 }
 
 void SceneGraphManager::updateSnapshotSlices()
@@ -687,7 +687,7 @@ void SceneGraphManager::updateSnapshotSlices()
 
   for (int i = 0; i < 2; ++i)
   {
-    if (m_sliceEnabled[i])
+    if (m_viewState.sliceEnabled[i])
     {
       assert(snapshot.meshData);
 
@@ -704,13 +704,13 @@ void SceneGraphManager::updateSnapshotSlices()
         snapshot.slicesGroup->addChild(snapshot.sliceSwitch[i]);
       }
 
-      snapshot.slice[i]->index = (int)m_slicePosition[i];
+      snapshot.slice[i]->index = (int)m_viewState.slicePosition[i];
       snapshot.slice[i]->touch();
     }
 
     if (snapshot.sliceSwitch[i] != 0)
     {
-      snapshot.sliceSwitch[i]->whichChild = m_sliceEnabled[i]
+      snapshot.sliceSwitch[i]->whichChild = m_viewState.sliceEnabled[i]
         ? SO_SWITCH_ALL
         : SO_SWITCH_NONE;
     }
@@ -730,18 +730,18 @@ void SceneGraphManager::updateSnapshotFlowLines()
   {
     int id = flowlines.id;
 
-    if (m_flowLinesVisibility[id])
+    if (m_viewState.flowLinesVisibility[id])
     {
       if (!snapshot.flowDirScalarSet)
         snapshot.flowDirScalarSet = m_project->createFlowDirectionProperty(snapshot.index);
 
       auto type = m_projectInfo.flowLines[id].type;
       int step = (type == Project::FlowLines::Expulsion) 
-        ? m_flowLinesExpulsionStep 
-        : m_flowLinesLeakageStep;
+        ? m_viewState.flowLinesExpulsionStep 
+        : m_viewState.flowLinesLeakageStep;
       double threshold = (type == Project::FlowLines::Expulsion) 
-        ? m_flowLinesExpulsionThreshold 
-        : m_flowLinesLeakageThreshold;
+        ? m_viewState.flowLinesExpulsionThreshold 
+        : m_viewState.flowLinesLeakageThreshold;
 
       assert(snapshot.meshData);
 
@@ -789,7 +789,7 @@ void SceneGraphManager::updateSnapshotFlowLines()
         flowlines.lines = newlines;
       }
     }
-    else if (!m_flowLinesVisibility[id] && flowlines.root)
+    else if (!m_viewState.flowLinesVisibility[id] && flowlines.root)
     {
       snapshot.flowLinesGroup->removeChild(flowlines.root);
       flowlines.clear();
@@ -804,22 +804,22 @@ void SceneGraphManager::updateSnapshotCellFilter()
   assert(!m_snapshotInfoCache.empty());
 
   SnapshotInfo& snapshot = *m_snapshotInfoCache.begin();
-  snapshot.cellFilterSwitch->whichChild = m_cellFilterEnabled 
+  snapshot.cellFilterSwitch->whichChild = m_viewState.cellFilterEnabled 
     ? SO_SWITCH_ALL 
     : SO_SWITCH_NONE;
-  snapshot.propertyValueCellFilter->setRange(m_cellFilterMinValue, m_cellFilterMaxValue);
+  snapshot.propertyValueCellFilter->setRange(m_viewState.cellFilterMinValue, m_viewState.cellFilterMaxValue);
 }
 
 void SceneGraphManager::updateColorMap()
 {
-  if (m_currentPropertyId < 0)
+  if (m_viewState.currentPropertyId < 0)
     return;
 
   int index = 0;
   int trapId = m_project->getPropertyId("ResRockTrapId");
-  if (m_currentPropertyId == trapId || m_currentPropertyId == PersistentTrapIdPropertyId)
+  if (m_viewState.currentPropertyId == trapId || m_viewState.currentPropertyId == PersistentTrapIdPropertyId)
     index = 1;
-  else if (m_currentPropertyId == FluidContactsPropertyId)
+  else if (m_viewState.currentPropertyId == FluidContactsPropertyId)
     index = 2;
 
   m_colorMapSwitch->whichChild = index;
@@ -831,15 +831,15 @@ void SceneGraphManager::updateColorMap()
   double minValue = std::numeric_limits<double>::max();
   double maxValue = -std::numeric_limits<double>::max();
 
-  m_colors->setLogarithmic(m_colorScaleParams.mapping == ColorScaleParams::Logarithmic);
-  if (m_colorScaleParams.range == ColorScaleParams::Manual)
+  m_colors->setLogarithmic(m_viewState.colorScaleParams.mapping == ColorScaleParams::Logarithmic);
+  if (m_viewState.colorScaleParams.range == ColorScaleParams::Manual)
   {
-    minValue = m_colorScaleParams.minValue;
-    maxValue = m_colorScaleParams.maxValue;
+    minValue = m_viewState.colorScaleParams.minValue;
+    maxValue = m_viewState.colorScaleParams.maxValue;
   }
   else
   {
-    if (m_currentPropertyId == FormationIdPropertyId)
+    if (m_viewState.currentPropertyId == FormationIdPropertyId)
     {
       minValue = 0.0;
       maxValue = (double)(m_projectInfo.formations.size() - 1);
@@ -1219,7 +1219,7 @@ SnapshotInfo SceneGraphManager::createSnapshotNode(size_t index)
 
   // set property id, so when updateSnapshot() is called, all elements (formations, surfaces
   // and reservoirs) are created with the correct property
-  info.currentPropertyId = m_currentPropertyId;
+  info.currentPropertyId = m_viewState.currentPropertyId;
 
   return info;
 }
@@ -1266,7 +1266,7 @@ void SceneGraphManager::setupSceneGraph()
   setupCoordinateGrid();
 
   m_scale = new SoScale;
-  m_scale->scaleFactor = SbVec3f(1.f, 1.f, m_verticalScale);
+  m_scale->scaleFactor = SbVec3f(1.f, 1.f, m_viewState.verticalScale);
 
   m_transparencyType = new SoTransparencyType;
   m_transparencyType->type = SoTransparencyType::BLEND;
@@ -1453,9 +1453,9 @@ std::shared_ptr<MiDataSetIjk<double> > SceneGraphManager::createReservoirPropert
 
   if (propertyId < DerivedPropertyBaseId)
   {
-    result = m_project->createReservoirProperty(snapshot.index, res.id, m_currentPropertyId);
+    result = m_project->createReservoirProperty(snapshot.index, res.id, m_viewState.currentPropertyId);
   }
-  else if (m_currentPropertyId == FluidContactsPropertyId)
+  else if (m_viewState.currentPropertyId == FluidContactsPropertyId)
   {
     std::shared_ptr<MiDataSetIjk<double> > trapIdPropertyData;
     int trapIdPropertyId = m_project->getPropertyId("ResRockTrapId");
@@ -1474,21 +1474,6 @@ std::shared_ptr<MiDataSetIjk<double> > SceneGraphManager::createReservoirPropert
 
 SceneGraphManager::SceneGraphManager()
   : m_maxCacheItems(3)
-  , m_currentPropertyId(FormationIdPropertyId)
-  , m_showGrid(false)
-  , m_showCompass(true)
-  , m_showText(true)
-  , m_showTraps(false)
-  , m_showTrapOutlines(false)
-  , m_drainageAreaType(DrainageAreaNone)
-  , m_flowLinesExpulsionStep(1)
-  , m_flowLinesLeakageStep(1)
-  , m_flowLinesExpulsionThreshold(0.0)
-  , m_flowLinesLeakageThreshold(0.0)
-  , m_verticalScale(1.f)
-  , m_cellFilterEnabled(false)
-  , m_cellFilterMinValue(0.0)
-  , m_cellFilterMaxValue(1.0)
   , m_formationsTimeStamp(MxTimeStamp::getTimeStamp())
   , m_surfacesTimeStamp(MxTimeStamp::getTimeStamp())
   , m_reservoirsTimeStamp(MxTimeStamp::getTimeStamp())
@@ -1610,12 +1595,18 @@ SceneGraphManager::PickResult SceneGraphManager::processPickedPoint(const SoPick
   return pickResult;
 }
 
+const SceneGraphManager::ViewState& SceneGraphManager::getViewState() const
+{
+  return m_viewState;
+}
 
 void SceneGraphManager::setCurrentSnapshot(size_t index)
 {
   // Don't do anything if this is already the current snapshot
   if (!m_snapshotInfoCache.empty() && m_snapshotInfoCache.begin()->index == index)
     return;
+
+  m_viewState.currentSnapshotIndex = (int)index;
 
   // See if we have this node in the cache
   auto iter = std::find_if(
@@ -1650,29 +1641,39 @@ void SceneGraphManager::setCurrentSnapshot(size_t index)
 
 void SceneGraphManager::setVerticalScale(float scale)
 {
-  m_verticalScale = scale;
-  m_scale->scaleFactor = SbVec3f(1.f, 1.f, scale);
+  if (m_viewState.verticalScale != scale)
+  {
+    m_viewState.verticalScale = scale;
+    m_scale->scaleFactor = SbVec3f(1.f, 1.f, scale);
 
-  updateSnapshot();
+    updateSnapshot();
+  }
 }
 
 void SceneGraphManager::setTransparency(float transparency)
 {
-  m_material->transparency = transparency;
+  if (transparency != m_viewState.transparency)
+  {
+    m_viewState.transparency = transparency;
+    m_material->transparency = transparency;
+  }
 }
 
 void SceneGraphManager::setRenderStyle(bool drawFaces, bool drawEdges)
 {
+  m_viewState.showFaces = drawFaces;
+  m_viewState.showEdges = drawEdges;
+
   m_drawStyle->displayFaces = drawFaces;
   m_drawStyle->displayEdges = drawEdges;
 }
 
 void SceneGraphManager::setProperty(int propertyId)
 {
-  if (m_currentPropertyId == propertyId)
+  if (m_viewState.currentPropertyId == propertyId)
     return;
 
-  m_currentPropertyId = propertyId;
+  m_viewState.currentPropertyId = propertyId;
 
   int trapIdPropertyId = m_project->getPropertyId("ResRockTrapId");
 
@@ -1697,9 +1698,9 @@ void SceneGraphManager::setFlowLinesStep(FlowLinesType type, int step)
 {
   if (type == FlowLinesExpulsion)
   {
-    if (step != m_flowLinesExpulsionStep)
+    if (step != m_viewState.flowLinesExpulsionStep)
     {
-      m_flowLinesExpulsionStep = step;
+      m_viewState.flowLinesExpulsionStep = step;
       m_flowLinesTimeStamp = MxTimeStamp::getTimeStamp();
 
       updateSnapshot();
@@ -1707,9 +1708,9 @@ void SceneGraphManager::setFlowLinesStep(FlowLinesType type, int step)
   }
   else
   {
-    if (step != m_flowLinesLeakageStep)
+    if (step != m_viewState.flowLinesLeakageStep)
     {
-      m_flowLinesLeakageStep = step;
+      m_viewState.flowLinesLeakageStep = step;
       m_flowLinesTimeStamp = MxTimeStamp::getTimeStamp();
 
       updateSnapshot();
@@ -1721,9 +1722,9 @@ void SceneGraphManager::setFlowLinesThreshold(FlowLinesType type, double thresho
 {
   if (type == FlowLinesExpulsion)
   {
-    if (threshold != m_flowLinesExpulsionThreshold)
+    if (threshold != m_viewState.flowLinesExpulsionThreshold)
     {
-      m_flowLinesExpulsionThreshold = threshold;
+      m_viewState.flowLinesExpulsionThreshold = threshold;
       m_flowLinesTimeStamp = MxTimeStamp::getTimeStamp();
 
       updateSnapshot();
@@ -1731,9 +1732,9 @@ void SceneGraphManager::setFlowLinesThreshold(FlowLinesType type, double thresho
   }
   else
   {
-    if (threshold != m_flowLinesLeakageThreshold)
+    if (threshold != m_viewState.flowLinesLeakageThreshold)
     {
-      m_flowLinesLeakageThreshold = threshold;
+      m_viewState.flowLinesLeakageThreshold = threshold;
       m_flowLinesTimeStamp = MxTimeStamp::getTimeStamp();
 
       updateSnapshot();
@@ -1743,10 +1744,10 @@ void SceneGraphManager::setFlowLinesThreshold(FlowLinesType type, double thresho
 
 void SceneGraphManager::enableFormation(int formationId, bool enabled)
 {
-  if (m_formationVisibility[formationId] == enabled)
+  if (m_viewState.formationVisibility[formationId] == enabled)
     return;
 
-  m_formationVisibility[formationId] = enabled;
+  m_viewState.formationVisibility[formationId] = enabled;
   m_formationsTimeStamp = MxTimeStamp::getTimeStamp();
 
   updateSnapshot();
@@ -1754,8 +1755,8 @@ void SceneGraphManager::enableFormation(int formationId, bool enabled)
 
 void SceneGraphManager::enableAllFormations(bool enabled)
 {
-  for (size_t i = 0; i < m_formationVisibility.size(); ++i)
-      m_formationVisibility[i] = enabled;
+  for (size_t i = 0; i < m_viewState.formationVisibility.size(); ++i)
+      m_viewState.formationVisibility[i] = enabled;
 
   m_formationsTimeStamp = MxTimeStamp::getTimeStamp();
 
@@ -1764,10 +1765,10 @@ void SceneGraphManager::enableAllFormations(bool enabled)
 
 void SceneGraphManager::enableSurface(int surfaceId, bool enabled)
 {
-  if (m_surfaceVisibility[surfaceId] == enabled)
+  if (m_viewState.surfaceVisibility[surfaceId] == enabled)
     return;
 
-  m_surfaceVisibility[surfaceId] = enabled;
+  m_viewState.surfaceVisibility[surfaceId] = enabled;
   m_surfacesTimeStamp = MxTimeStamp::getTimeStamp();
 
   updateSnapshot();
@@ -1775,8 +1776,8 @@ void SceneGraphManager::enableSurface(int surfaceId, bool enabled)
 
 void SceneGraphManager::enableAllSurfaces(bool enabled)
 {
-  for (size_t i = 0; i < m_surfaceVisibility.size(); ++i)
-    m_surfaceVisibility[i] = enabled;
+  for (size_t i = 0; i < m_viewState.surfaceVisibility.size(); ++i)
+    m_viewState.surfaceVisibility[i] = enabled;
 
   m_surfacesTimeStamp = MxTimeStamp::getTimeStamp();
 
@@ -1785,10 +1786,10 @@ void SceneGraphManager::enableAllSurfaces(bool enabled)
 
 void SceneGraphManager::enableReservoir(int reservoirId, bool enabled)
 {
-  if (m_reservoirVisibility[reservoirId] == enabled)
+  if (m_viewState.reservoirVisibility[reservoirId] == enabled)
     return;
 
-  m_reservoirVisibility[reservoirId] = enabled;
+  m_viewState.reservoirVisibility[reservoirId] = enabled;
   m_reservoirsTimeStamp = MxTimeStamp::getTimeStamp();
 
   updateSnapshot();
@@ -1796,8 +1797,8 @@ void SceneGraphManager::enableReservoir(int reservoirId, bool enabled)
 
 void SceneGraphManager::enableAllReservoirs(bool enabled)
 {
-  for (size_t i = 0; i < m_reservoirVisibility.size(); ++i)
-    m_reservoirVisibility[i] = enabled;
+  for (size_t i = 0; i < m_viewState.reservoirVisibility.size(); ++i)
+    m_viewState.reservoirVisibility[i] = enabled;
 
   m_reservoirsTimeStamp = MxTimeStamp::getTimeStamp();
 
@@ -1806,10 +1807,10 @@ void SceneGraphManager::enableAllReservoirs(bool enabled)
 
 void SceneGraphManager::enableFault(int faultId, bool enabled)
 {
-  if (m_faultVisibility[faultId] == enabled)
+  if (m_viewState.faultVisibility[faultId] == enabled)
     return;
 
-  m_faultVisibility[faultId] = enabled;
+  m_viewState.faultVisibility[faultId] = enabled;
   m_faultsTimeStamp = MxTimeStamp::getTimeStamp();
 
   updateSnapshot();
@@ -1817,8 +1818,8 @@ void SceneGraphManager::enableFault(int faultId, bool enabled)
 
 void SceneGraphManager::enableAllFaults(bool enabled)
 {
-  for (size_t i = 0; i < m_faultVisibility.size(); ++i)
-    m_faultVisibility[i] = enabled;
+  for (size_t i = 0; i < m_viewState.faultVisibility.size(); ++i)
+    m_viewState.faultVisibility[i] = enabled;
 
   m_faultsTimeStamp = MxTimeStamp::getTimeStamp();
 
@@ -1827,10 +1828,10 @@ void SceneGraphManager::enableAllFaults(bool enabled)
 
 void SceneGraphManager::enableFlowLines(int flowLinesId, bool enabled)
 {
-  if (m_flowLinesVisibility[flowLinesId] == enabled)
+  if (m_viewState.flowLinesVisibility[flowLinesId] == enabled)
     return;
 
-  m_flowLinesVisibility[flowLinesId] = enabled;
+  m_viewState.flowLinesVisibility[flowLinesId] = enabled;
   m_flowLinesTimeStamp = MxTimeStamp::getTimeStamp();
 
   updateSnapshot();
@@ -1838,8 +1839,8 @@ void SceneGraphManager::enableFlowLines(int flowLinesId, bool enabled)
 
 void SceneGraphManager::enableAllFlowLines(bool enabled)
 {
-  for (size_t i = 0; i < m_flowLinesVisibility.size(); ++i)
-    m_flowLinesVisibility[i] = enabled;
+  for (size_t i = 0; i < m_viewState.flowLinesVisibility.size(); ++i)
+    m_viewState.flowLinesVisibility[i] = enabled;
 
   m_flowLinesTimeStamp = MxTimeStamp::getTimeStamp();
 
@@ -1848,13 +1849,13 @@ void SceneGraphManager::enableAllFlowLines(bool enabled)
 
 void SceneGraphManager::enableSlice(int slice, bool enabled)
 {
-  m_sliceEnabled[slice] = enabled;
+  m_viewState.sliceEnabled[slice] = enabled;
   updateSnapshot();
 }
 
 void SceneGraphManager::setSlicePosition(int slice, int position)
 {
-  m_slicePosition[slice] = position;
+  m_viewState.slicePosition[slice] = position;
   updateSnapshot();
 }
 
@@ -1915,12 +1916,12 @@ void SceneGraphManager::enableFence(int id, bool enabled)
 void SceneGraphManager::setColorScaleParams(const SceneGraphManager::ColorScaleParams& params)
 {
   if (
-    params.mapping != m_colorScaleParams.mapping ||
-    params.range != m_colorScaleParams.range ||
-    params.minValue != m_colorScaleParams.minValue ||
-    params.maxValue != m_colorScaleParams.maxValue)
+    params.mapping != m_viewState.colorScaleParams.mapping ||
+    params.range != m_viewState.colorScaleParams.range ||
+    params.minValue != m_viewState.colorScaleParams.minValue ||
+    params.maxValue != m_viewState.colorScaleParams.maxValue)
   {
-    m_colorScaleParams = params;
+    m_viewState.colorScaleParams = params;
 
     updateSnapshot();
   }
@@ -1928,9 +1929,9 @@ void SceneGraphManager::setColorScaleParams(const SceneGraphManager::ColorScaleP
 
 void SceneGraphManager::showCoordinateGrid(bool show)
 {
-  if (show != m_showGrid)
+  if (show != m_viewState.showGrid)
   {
-    m_showGrid = show;
+    m_viewState.showGrid = show;
 
     if (!show)
     {
@@ -1946,9 +1947,9 @@ void SceneGraphManager::showCoordinateGrid(bool show)
 
 void SceneGraphManager::showCompass(bool show)
 {
-  if (show != m_showCompass)
+  if (show != m_viewState.showCompass)
   {
-    m_showCompass = show;
+    m_viewState.showCompass = show;
 
     m_compassSwitch->whichChild = show ? SO_SWITCH_ALL : SO_SWITCH_NONE;
   }
@@ -1956,9 +1957,9 @@ void SceneGraphManager::showCompass(bool show)
 
 void SceneGraphManager::showText(bool show)
 {
-  if (show != m_showText)
+  if (show != m_viewState.showText)
   {
-    m_showText = show;
+    m_viewState.showText = show;
 
     m_textSwitch->whichChild = show ? SO_SWITCH_ALL : SO_SWITCH_NONE;
   }
@@ -1966,9 +1967,9 @@ void SceneGraphManager::showText(bool show)
 
 void SceneGraphManager::showTraps(bool show)
 {
-  if (show != m_showTraps)
+  if (show != m_viewState.showTraps)
   {
-    m_showTraps = show;
+    m_viewState.showTraps = show;
 
     updateSnapshot();
   }
@@ -1976,9 +1977,9 @@ void SceneGraphManager::showTraps(bool show)
 
 void SceneGraphManager::showTrapOutlines(bool show)
 {
-  if (show != m_showTrapOutlines)
+  if (show != m_viewState.showTrapOutlines)
   {
-    m_showTrapOutlines = show;
+    m_viewState.showTrapOutlines = show;
 
     updateSnapshot();
   }
@@ -1986,9 +1987,9 @@ void SceneGraphManager::showTrapOutlines(bool show)
 
 void SceneGraphManager::showDrainageAreaOutlines(DrainageAreaType type)
 {
-  if (type != m_drainageAreaType)
+  if (type != m_viewState.drainageAreaType)
   {
-    m_drainageAreaType = type;
+    m_viewState.drainageAreaType = type;
 
     updateSnapshot();
   }
@@ -1996,9 +1997,9 @@ void SceneGraphManager::showDrainageAreaOutlines(DrainageAreaType type)
 
 void SceneGraphManager::enableCellFilter(bool enabled)
 {
-  if (enabled != m_cellFilterEnabled)
+  if (enabled != m_viewState.cellFilterEnabled)
   {
-    m_cellFilterEnabled = enabled;
+    m_viewState.cellFilterEnabled = enabled;
 
     updateSnapshotCellFilter();
   }
@@ -2006,10 +2007,10 @@ void SceneGraphManager::enableCellFilter(bool enabled)
 
 void SceneGraphManager::setCellFilterRange(double minValue, double maxValue)
 {
-  if (minValue != m_cellFilterMinValue || maxValue != m_cellFilterMaxValue)
+  if (minValue != m_viewState.cellFilterMinValue || maxValue != m_viewState.cellFilterMaxValue)
   {
-    m_cellFilterMinValue = minValue;
-    m_cellFilterMaxValue = maxValue;
+    m_viewState.cellFilterMinValue = minValue;
+    m_viewState.cellFilterMaxValue = maxValue;
 
     updateSnapshotCellFilter();
   }
@@ -2030,16 +2031,16 @@ void SceneGraphManager::setup(std::shared_ptr<Project> project)
   m_project = project;
   m_projectInfo = project->getProjectInfo();
 
-  m_formationVisibility.assign(m_projectInfo.formations.size(), true);
-  m_surfaceVisibility.assign(m_projectInfo.surfaces.size(), false);
-  m_reservoirVisibility.assign(m_projectInfo.reservoirs.size(), false);
-  m_faultVisibility.assign(m_projectInfo.faults.size(), false);
-  m_flowLinesVisibility.assign(m_projectInfo.flowLines.size(), false);
+  m_viewState.formationVisibility.assign(m_projectInfo.formations.size(), true);
+  m_viewState.surfaceVisibility.assign(m_projectInfo.surfaces.size(), false);
+  m_viewState.reservoirVisibility.assign(m_projectInfo.reservoirs.size(), false);
+  m_viewState.faultVisibility.assign(m_projectInfo.faults.size(), false);
+  m_viewState.flowLinesVisibility.assign(m_projectInfo.flowLines.size(), false);
 
   for (int i = 0; i < 3; ++i)
   {
-    m_sliceEnabled[i] = false;
-    m_slicePosition[i] = 0;
+    m_viewState.sliceEnabled[i] = false;
+    m_viewState.slicePosition[i] = 0;
   }
 
   m_outlineBuilder = std::make_shared<OutlineBuilder>(

@@ -125,13 +125,15 @@ int main(int argc, char** argv)
   settings.setPort(options.port);
   settings.setUsedExtensions(
     ServiceSettings::MESHVIZXLM | 
-    ServiceSettings::MESHVIZ |
+    //ServiceSettings::MESHVIZ |
     ServiceSettings::VOLUMEVIZ |
     ServiceSettings::VOLUMEVIZLDM);
 
   auto serviceListener = std::make_shared<BpaServiceListener>();
   serviceListener->setDataDir(options.datadir);
   Service::instance()->addListener(serviceListener);
+
+  BOOST_LOG_TRIVIAL(trace) << "Starting service ...";
 
   // Open the service by using the settings
   if(Service::instance()->open(&settings))

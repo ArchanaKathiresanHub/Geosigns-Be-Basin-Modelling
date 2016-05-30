@@ -58,7 +58,21 @@ public:
     SliceCrossline
   };
 
+  struct ViewState
+  {
+	bool inlineSliceEnabled = false;
+	float inlineSlicePosition = 0.f;
+
+	bool crosslineSliceEnabled = false;
+	float crosslineSlicePosition = 0.f;
+
+	bool interpolatedSurfaceEnabled = false;
+	float interpolatedSurfacePosition = 0.f;
+  };
+
 private:
+
+  ViewState m_viewState;
 
   struct PlaneSlice
   {
@@ -125,6 +139,8 @@ private:
 public:
 
   SeismicScene(const char* filename, const Project::Dimensions& dim);
+
+  const ViewState& getViewState() const;
 
   void setMesh(const MiVolumeMeshCurvilinear* mesh);
 

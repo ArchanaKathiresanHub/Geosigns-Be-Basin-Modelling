@@ -327,6 +327,44 @@ public:
     double maxValue = 1.0;
   };
 
+  struct ViewState
+  {
+	int currentSnapshotIndex = 0;
+    int currentPropertyId = FormationIdPropertyId;
+
+    bool showFaces = true;
+    bool showEdges = true;
+    bool showGrid = false;
+    bool showCompass = true;
+    bool showText = true;
+    bool showTraps = false;
+    bool showTrapOutlines = false;
+
+    DrainageAreaType drainageAreaType = DrainageAreaNone;
+    int flowLinesExpulsionStep = 1;
+    int flowLinesLeakageStep = 1;
+    double flowLinesExpulsionThreshold = 0.0;
+    double flowLinesLeakageThreshold = 0.0;
+
+    float verticalScale = 1.f;
+    float transparency = 0.f;
+
+    std::vector<bool> formationVisibility;
+    std::vector<bool> surfaceVisibility;
+    std::vector<bool> reservoirVisibility;
+    std::vector<bool> faultVisibility;
+    std::vector<bool> flowLinesVisibility;
+
+    size_t slicePosition[3];
+    bool   sliceEnabled[3];
+
+    ColorScaleParams colorScaleParams;
+
+    bool cellFilterEnabled = false;
+    double cellFilterMinValue = 0.0;
+    double cellFilterMaxValue = 1.0;
+  };
+
   // Derived property ids. These properties are built at runtime
   // based on one or more base properties from the data set.
   static const int DerivedPropertyBaseId      = 0x10000;
@@ -344,39 +382,7 @@ private:
 
   std::shared_ptr<OutlineBuilder> m_outlineBuilder;
 
-  // ----------------------------------------
-  // View state
-  int m_currentPropertyId;
-
-  bool m_showGrid;
-  bool m_showCompass;
-  bool m_showText;
-  bool m_showTraps;
-  bool m_showTrapOutlines;
-
-  DrainageAreaType m_drainageAreaType;
-  int m_flowLinesExpulsionStep;
-  int m_flowLinesLeakageStep;
-  double m_flowLinesExpulsionThreshold;
-  double m_flowLinesLeakageThreshold;
-
-  float m_verticalScale;
-
-  std::vector<bool> m_formationVisibility;
-  std::vector<bool> m_surfaceVisibility;
-  std::vector<bool> m_reservoirVisibility;
-  std::vector<bool> m_faultVisibility;
-  std::vector<bool> m_flowLinesVisibility;
-
-  size_t m_slicePosition[3];
-  bool   m_sliceEnabled[3];
-
-  ColorScaleParams m_colorScaleParams;
-
-  bool m_cellFilterEnabled;
-  double m_cellFilterMinValue;
-  double m_cellFilterMaxValue;
-  // ----------------------------------------
+  ViewState m_viewState;
 
   size_t m_formationsTimeStamp;
   size_t m_surfacesTimeStamp;
@@ -490,6 +496,8 @@ public:
   SoNode* getRoot() const;
 
   PickResult processPickedPoint(const SoPickedPoint* point);
+
+  const ViewState& getViewState() const;
 
   void setCurrentSnapshot(size_t index);
 
